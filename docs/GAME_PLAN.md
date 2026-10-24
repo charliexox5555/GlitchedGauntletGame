@@ -168,14 +168,7 @@ src/
 ## 4. Starting numbers (tune them in playtests)
 
 ### Guns (100 HP per round)
-| Class | Gun (placeholder name) | Fire | Damage (body / head) | Fire interval | Mag | Notes |
-|---|---|---|---|---|---|---|
-| Sidearm | **Byte** pistol | Semi | 30 / 52 | 0.18 s | 12 | 4 body shots |
-| SMG | **Burst Buffer** | Auto | 16 / 24 | 0.075 s | 30 | Damage drops after 25 studs |
-| Shotgun | **Hard Reset** | Pump | 8 pellets × 12 | 0.8 s | 6 | Damage drops after 15 studs |
-| Rifle | **Bitrate** | Auto | 24 / 38 | 0.11 s | 25 | Main all-rounder |
-| Marksman | **Long Poll** | Bolt | 75 / 150 | 1.1 s | 5 | Headshot = 1-shot |
-| Wildcard pool | Railgun, Ricochet launcher, Twin pistols… | — | — | — | — | Add 1 for beta, more later |
+**Moved to [`WEAPONS.md`](WEAPONS.md):** the full 22-gun roster, weapon tiers per round (Sidearm / Light / Heavy / Wildcard), build waves and gun mechanics. Rounds now open a shared weapon **tier** instead of one fixed class.
 
 Target time-to-kill is about 0.4–0.6 s for automatics. Movement speed is 16 studs/s, sprint 22, with a slide.
 
