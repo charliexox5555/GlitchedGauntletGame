@@ -1,6 +1,22 @@
+# Keep every text file LF in the repo and the working tree (StyLua expects
+# Unix line endings, and Windows' core.autocrlf would otherwise convert them).
 * text=auto eol=lf
+
+# Binary assets: never touch line endings or diff them.
 *.png binary
+*.jpg binary
+*.jpeg binary
 *.webp binary
+*.tga binary
+*.psd binary
 *.rbxm binary
+*.rbxl binary
 *.fbx binary
+*.obj binary
+*.glb binary
 *.blend binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.ttf binary
+*.otf binary
