@@ -15,10 +15,10 @@ local MAGENTA = Color3.fromHex("FF3DCB")
 
 -- Class defaults (Gunplay.md §2): hip spread and ADS.
 -- Pistols: big and low in the middle of the screen, like RIVALS.
-local SIDEARM_VM = Vector3.new(0.2, -0.62, -1.05)
-local SIDEARM_SCALE = 0.95
-local SIDEARM_ADS = 1.45 -- camera to the rear sight while aiming
-local RIFLE_VM = Vector3.new(0.5, -0.6, -1.32)
+local SIDEARM_VM = Vector3.new(0.2, -0.66, -1.3)
+local SIDEARM_SCALE = 1.0
+local SIDEARM_ADS = 1.35 -- camera to the rear sight while aiming
+local RIFLE_VM = Vector3.new(0.52, -0.62, -1.4)
 
 local weapons: { [string]: WeaponConfig } = {
 	-- Sidearms ----------------------------------------------------------
@@ -359,7 +359,7 @@ local weapons: { [string]: WeaponConfig } = {
 		-- Held bigger and blade-up so the knife reads past the hand.
 		viewmodelOffset = Vector3.new(0.5, -0.58, -1.15),
 		viewmodelRotation = Vector3.new(28, 18, -22),
-		viewmodelScale = 0.85,
+		viewmodelScale = 1.0,
 		tracerColor = NEON,
 	},
 }

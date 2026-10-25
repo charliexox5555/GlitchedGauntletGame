@@ -962,32 +962,35 @@ local function update(dt: number)
 	if hidden or not a then
 		return
 	end
-	-- Each arm points from an off-screen anchor (camera space, eased toward
-	-- its ADS spot) straight into its grip. Pistols: straight up from below.
+	-- Each arm runs from its grip down and back toward the (off-screen)
+	-- shoulder along a fixed camera-space direction, eased to its ADS
+	-- direction, so it enters the grip from below and frames the gun.
 	local view = camCf * shared
 	local rightVec = view.RightVector
-	local pistol = right.pistol and not guns.Left
-	local function armAnchor(
+	local eye = camCf.Position
+	local pistol = right.pistol or guns.Left ~= nil -- Dual Boot: a pistol in each hand
+	local function shoulderFrom(
 		grip: Vector3,
 		hip: Vector3,
 		aimed: Vector3,
 		pistolDir: Vector3
 	): Vector3
-		if pistol then
-			return grip + view:VectorToWorldSpace(pistolDir.Unit) * 3
-		end
-		return view:PointToWorldSpace(hip:Lerp(aimed, adsT))
+		local dir = if pistol then pistolDir else hip:Lerp(aimed, adsT)
+		return grip + view:VectorToWorldSpace(dir.Unit) * 3
 	end
 	local gripR = if right.rightGrip
 		then handTarget(right, "Right", anchorPosition(right.rightGrip))
 		else view:PointToWorldSpace(mirrorPos(VM.FREE_HAND))
-	local anchorR = armAnchor(
+	local shoulderR = shoulderFrom(
 		gripR,
-		VM.ARM_ANCHOR_RIGHT,
-		VM.ADS_ARM_ANCHOR_RIGHT,
+		VM.ARM_DIRECTION_RIGHT,
+		VM.ADS_ARM_DIRECTION_RIGHT,
 		VM.PISTOL_ARM_DIRECTION_RIGHT
 	)
-	ViewmodelArms.solve(a, 1, anchorR, gripR, rightVec)
+	-- Long guns: arms pushed back so the gun reads in front. Pistols: the hand
+	-- wraps the front of the grip, as in RIVALS.
+	local depth = if pistol then VM.PISTOL_ARM_DEPTH else VM.ARM_DEPTH
+	ViewmodelArms.solve(a, 1, shoulderR, gripR, rightVec, eye, depth)
 
 	local left = guns.Left
 	local gripL: Vector3
@@ -997,17 +1000,21 @@ local function update(dt: number)
 		gripL = view:PointToWorldSpace(VM.FREE_HAND)
 	else
 		local base = anchorPosition(right.leftGrip :: Anchor)
-		if right.pistol then
-			-- Both grips in one spot, so the support hand sits below and left.
-			base = right.handle.CFrame:PointToWorldSpace(
-				right.handle.CFrame:PointToObjectSpace(base) + VM.SUPPORT_HAND_OFFSET
-			)
-		end
+		-- Pistols: both grips in one spot, so the support hand sits below and
+		-- left. Long guns: the hand holds the handguard from underneath.
+		local offset = if right.pistol then VM.SUPPORT_HAND_OFFSET else VM.HANDGUARD_HAND_OFFSET
+		base = right.handle.CFrame:PointToWorldSpace(
+			right.handle.CFrame:PointToObjectSpace(base) + offset
+		)
 		gripL = handTarget(right, "Left", base)
 	end
-	local anchorL =
-		armAnchor(gripL, VM.ARM_ANCHOR_LEFT, VM.ADS_ARM_ANCHOR_LEFT, VM.PISTOL_ARM_DIRECTION_LEFT)
-	ViewmodelArms.solve(a, 3, anchorL, gripL, rightVec)
+	local shoulderL = shoulderFrom(
+		gripL,
+		VM.ARM_DIRECTION_LEFT,
+		VM.ADS_ARM_DIRECTION_LEFT,
+		VM.PISTOL_ARM_DIRECTION_LEFT
+	)
+	ViewmodelArms.solve(a, 3, shoulderL, gripL, rightVec, eye, depth)
 	ViewmodelArms.apply(a)
 end
 
