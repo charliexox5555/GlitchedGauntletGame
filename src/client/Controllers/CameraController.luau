@@ -1,12 +1,14 @@
 --!strict
 -- Owns the local camera on top of Roblox's first-person camera module:
--- field of view (base + ADS zoom), recoil, shake and slide tilt.
+-- field of view (base + ADS zoom), recoil, shake, slide tilt, and smoothing
+-- the followed position (Server Authority moves the character in uneven steps).
 --
 -- Recoil works by nudging Camera.CFrame after the camera module updates. The
 -- module builds next frame's view from the current look vector, so a nudge
 -- sticks (that's the part you have to pull down), while the "kick" part is
 -- applied and then removed again over a few frames.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -35,6 +37,9 @@ local kickYaw = 0
 
 -- Shake on fire: a small noisy wobble that dies away (applied and removed again
 -- each frame, so it never moves the aim).
+-- Smoothed position the camera follows (see Config/Camera FOLLOW_*).
+local followPos: Vector3? = nil
+
 local shakeAmp = 0 -- radians
 local shakePitch = 0 -- currently applied
 local shakeYaw = 0
@@ -105,11 +110,33 @@ function CameraController.setMoveFov(degrees: number)
 	targetMoveFov = degrees
 end
 
+-- Moves the camera by how far the smoothed character position is from the
+-- predicted one, so walking renders at an even pace instead of stuttering.
+local function smoothFollow(cam: Camera, dt: number)
+	local character = Players.LocalPlayer.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then
+		followPos = nil
+		return
+	end
+	local raw = root.Position
+	local current = followPos
+	if not current or (raw - current).Magnitude > CameraConfig.FOLLOW_SNAP then
+		followPos = raw
+		return
+	end
+	local predicted = current + root.AssemblyLinearVelocity * dt
+	local smoothed = predicted:Lerp(raw, 1 - math.exp(-CameraConfig.FOLLOW_CORRECTION * dt))
+	followPos = smoothed
+	cam.CFrame += smoothed - raw
+end
+
 local function step(dt: number)
 	local cam = Workspace.CurrentCamera
 	if not cam then
 		return
 	end
+	smoothFollow(cam, dt)
 
 	-- FOV
 	moveFov = lerp(moveFov, targetMoveFov, 1 - math.exp(-MOVE_FOV_RATE * dt))
