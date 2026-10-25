@@ -36,7 +36,7 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
 Note: Bitrate is the master reference. Use the IDs without spaces in code/models: `BurstBuffer`, `HardReset`, `LongPoll`, `RayTrace`, `DualBoot_L` / `DualBoot_R`.
 
-First-person viewmodel (all guns): the player's own R15 arms and shirt IK'd to the grips, anchored hand-posed gun (no stutter), bigger/closer placement, hands follow the mag/pump/bolt in clips, inspect on F, ADS hides only real sight-line blockers; checked in Studio for every gun (2026-10-25). ✅ built · 🟡 needs a feel pass in a real match and at high FPS.
+First-person viewmodel (all guns): smooth bevelled block arms (skin + the player's Shirt, mesh `art-source/viewmodel/Arms.fbx`) into the grips, anchored hand-posed gun (no stutter), bigger/closer placement, hands follow the mag/pump/bolt in clips, inspect on F, ADS hides only real sight-line blockers; checked in Studio for every gun (2026-10-25). ✅ built · 🟡 needs a feel pass in a real match and at high FPS.
 
 Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), backups in `art-source/weapons/Studio/<Id>.rbxm`, Open Cloud asset IDs in `art-source/weapons/Exports/assets.json`. Check them with `tools/studio/ValidateWeapons.luau` (all 24 pass).
 
