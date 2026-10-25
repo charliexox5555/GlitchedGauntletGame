@@ -40,7 +40,8 @@ local bindings: { [string]: Binding } = {
 	Melee = { keys = { Enum.KeyCode.Three }, gamepad = {} },
 	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY }, touch = "SwapButton" },
 	QuickMelee = { keys = { Enum.KeyCode.V }, gamepad = { Enum.KeyCode.ButtonR3 } },
-	-- Studio-only dev picker: next primary / next secondary.
+	-- Studio-only dev picker: weapon menu, next primary / next secondary.
+	DevMenu = { keys = { Enum.KeyCode.P }, gamepad = {} },
 	DevNextPrimary = { keys = { Enum.KeyCode.T }, gamepad = {} },
 	DevNextSecondary = { keys = { Enum.KeyCode.Y }, gamepad = {} },
 }

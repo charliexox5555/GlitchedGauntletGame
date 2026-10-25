@@ -24,6 +24,8 @@ local targetRoll = 0
 local moveFov = 0
 local targetMoveFov = 0
 local MOVE_FOV_RATE = 8
+-- The OS cursor stays hidden (the HUD draws a crosshair) unless a menu needs it.
+local cursorVisible = false
 
 -- Recoil state, radians.
 local pendingPitch = 0 -- not yet applied (smoothed in over a few frames)
@@ -72,6 +74,11 @@ function CameraController.kick(up: number, side: number, recover: number)
 	kickYaw += sideRad * recover
 end
 
+-- Shows the OS cursor while a menu is open (the dev weapon menu).
+function CameraController.setCursorVisible(visible: boolean)
+	cursorVisible = visible
+end
+
 function CameraController.setRoll(degrees: number)
 	targetRoll = math.rad(degrees)
 end
@@ -93,7 +100,7 @@ local function step(dt: number)
 	local fov = zoomed + moveFov * (1 - zoomAlpha)
 	cam.FieldOfView = fov
 	-- First person: the game draws its own crosshair, so hide the OS cursor.
-	UserInputService.MouseIconEnabled = false
+	UserInputService.MouseIconEnabled = cursorVisible
 	-- Keep aim speed consistent when zoomed.
 	UserInputService.MouseDeltaSensitivity = math.clamp(zoomed / baseFov, 0.2, 1)
 

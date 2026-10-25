@@ -1,7 +1,9 @@
 --!strict
 -- First-person viewmodel: a scaled copy of the equipped gun in front of the
 -- camera, simple arms from the shoulders to RightGrip / LeftGrip, and the
--- gun's own Blender animations (fire, reload) on its Motor6D rig.
+-- gun's own Blender animations (fire, reload) on its Motor6D rig. Guns with
+-- two models (Dual Boot) hold one in each hand, the left one mirrored to the
+-- left side of the screen.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,20 +19,28 @@ local MovementController = require(script.Parent.MovementController)
 
 type WeaponConfig = Types.WeaponConfig
 
+export type Side = "Right" | "Left"
+
 local ViewmodelController = {}
 
 local player = Players.LocalPlayer
 
 type Arm = { upper: Part, hand: Part, cuff: Part }
 
-local model: Model? = nil
-local handle: BasePart? = nil
-local animator: GunAnimator.GunAnimator? = nil
+-- One held model. A normal gun has only `Right`; Dual Boot has both.
+type Gun = {
+	model: Model,
+	handle: BasePart,
+	animator: GunAnimator.GunAnimator,
+	rightGrip: Attachment?,
+	leftGrip: Attachment?,
+	muzzle: Attachment?,
+	aimRel: Vector3, -- sight position relative to the grip, at rest (ADS alignment)
+	recoil: Spring.Spring,
+}
+
+local guns: { [Side]: Gun } = {}
 local config: WeaponConfig? = nil
-local rightGrip: Attachment? = nil
-local leftGrip: Attachment? = nil
-local muzzle: Attachment? = nil
-local aimRel = Vector3.zero
 local arms: { Arm } = {}
 
 local adsAlpha = 0
@@ -42,7 +52,6 @@ local bobTime = 0
 local lastCamera: CFrame? = nil
 
 local sway = Spring.new(VM.SWAY_STIFFNESS, VM.SWAY_DAMPING)
-local recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING)
 
 local function weaponsFolder(): Instance?
 	return ReplicatedStorage:FindFirstChild("Weapons")
@@ -72,41 +81,40 @@ local function armPart(name: string, color: Color3, material: Enum.Material, par
 	return p
 end
 
+local function attachment(m: Model, name: string): Attachment?
+	local a = m:FindFirstChild(name, true)
+	return if a and a:IsA("Attachment") then a else nil
+end
+
 local function setVisible(visible: boolean)
-	local m = model
-	if not m then
-		return
-	end
 	local modifier = if visible then 0 else 1
-	for _, d in m:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.LocalTransparencyModifier = modifier
+	for _, gun in guns do
+		for _, d in gun.model:GetDescendants() do
+			if d:IsA("BasePart") then
+				d.LocalTransparencyModifier = modifier
+			end
 		end
 	end
 end
 
 function ViewmodelController.unequip()
-	if model then
-		model:Destroy()
+	for _, gun in guns do
+		gun.model:Destroy()
 	end
-	model = nil
-	handle = nil
-	animator = nil
+	guns = {}
 	config = nil
 	arms = {}
 end
 
-function ViewmodelController.equip(weapon: WeaponConfig)
-	ViewmodelController.unequip()
+local function buildGun(templateId: string, name: string, cam: Camera): Gun?
 	local folder = weaponsFolder()
-	local template = folder and folder:FindFirstChild(weapon.id)
-	local cam = Workspace.CurrentCamera
-	if not template or not template:IsA("Model") or not cam then
-		warn("[Viewmodel] no model for " .. weapon.id)
-		return
+	local template = folder and folder:FindFirstChild(templateId)
+	if not template or not template:IsA("Model") or not template.PrimaryPart then
+		warn("[Viewmodel] no model for " .. templateId)
+		return nil
 	end
 	local m = template:Clone()
-	m.Name = "Viewmodel"
+	m.Name = name
 	m:ScaleTo(VM.SCALE)
 	local h = m.PrimaryPart :: BasePart
 	for _, d in m:GetDescendants() do
@@ -118,51 +126,68 @@ function ViewmodelController.equip(weapon: WeaponConfig)
 			d.CastShadow = false
 		end
 	end
+	local aim = attachment(m, "AimPoint")
+	m.Parent = cam
+	return {
+		model = m,
+		handle = h,
+		animator = GunAnimator.new(m, templateId, VM.SCALE),
+		rightGrip = attachment(m, "RightGrip"),
+		leftGrip = attachment(m, "LeftGrip"),
+		muzzle = attachment(m, "Muzzle"),
+		aimRel = if aim
+			then h.CFrame:PointToObjectSpace(aim.WorldPosition)
+			else Vector3.new(0, 0.3, 0),
+		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
+	}
+end
 
-	-- Where the sight is relative to the grip, at rest (for ADS alignment).
-	local aim = m:FindFirstChild("AimPoint", true)
-	aimRel = if aim and aim:IsA("Attachment")
-		then h.CFrame:PointToObjectSpace(aim.WorldPosition)
-		else Vector3.new(0, 0.3, 0)
-	local rg = m:FindFirstChild("RightGrip", true)
-	local lg = m:FindFirstChild("LeftGrip", true)
-	local mz = m:FindFirstChild("Muzzle", true)
-	rightGrip = if rg and rg:IsA("Attachment") then rg else nil
-	leftGrip = if lg and lg:IsA("Attachment") then lg else nil
-	muzzle = if mz and mz:IsA("Attachment") then mz else nil
+function ViewmodelController.equip(weapon: WeaponConfig)
+	ViewmodelController.unequip()
+	local cam = Workspace.CurrentCamera
+	if not cam then
+		return
+	end
+	local models = weapon.models
+	local right = buildGun(if models then models.right else weapon.id, "Viewmodel", cam)
+	if not right then
+		return
+	end
+	guns.Right = right
+	if models and models.left then
+		guns.Left = buildGun(models.left, "ViewmodelLeft", cam)
+	end
 
-	-- Arms.
+	-- Arms (parented to the right gun so they go away with it).
 	local skin = skinColor()
 	arms = {}
 	for _, side in { "Right", "Left" } do
-		local upper = armPart(side .. "Sleeve", VM.SLEEVE_COLOR, Enum.Material.SmoothPlastic, m)
-		local hand = armPart(side .. "Hand", skin, Enum.Material.SmoothPlastic, m)
+		local upper =
+			armPart(side .. "Sleeve", VM.SLEEVE_COLOR, Enum.Material.SmoothPlastic, right.model)
+		local hand = armPart(side .. "Hand", skin, Enum.Material.SmoothPlastic, right.model)
 		hand.Size = VM.HAND_SIZE
 		-- Thin neon cuff where the sleeve meets the hand.
-		local cuff = armPart(side .. "Cuff", VM.CUFF_COLOR, Enum.Material.Neon, m)
+		local cuff = armPart(side .. "Cuff", VM.CUFF_COLOR, Enum.Material.Neon, right.model)
 		cuff.Size = Vector3.new(VM.ARM_THICKNESS * 1.1, VM.ARM_THICKNESS * 1.1, 0.04)
 		table.insert(arms, { upper = upper, hand = hand, cuff = cuff })
 	end
 
-	m.Parent = cam
-	model = m
-	handle = h
 	config = weapon
-	animator = GunAnimator.new(m, weapon.id, VM.SCALE)
 	equipStart = os.clock()
 	equipTime = weapon.equipTime
 	hidden = false
-	recoil.position = Vector3.zero
-	recoil.velocity = Vector3.zero
 end
 
-function ViewmodelController.fire(kickScale: number)
-	if animator then
-		animator:play("Fire")
+-- `side`: which gun fired (Dual Boot alternates); normal guns are "Right".
+function ViewmodelController.fire(kickScale: number, side: Side?)
+	local gun = guns[side or "Right"] or guns.Right
+	if not gun then
+		return
 	end
+	gun.animator:play("Fire")
 	local up = if config then config.recoil.up else 1
 	local k = math.clamp(up, 0.3, 4) * kickScale
-	recoil:impulse(
+	gun.recoil:impulse(
 		Vector3.new(
 			VM.KICK_BACK * 40 * k,
 			VM.KICK_ROTATE * 40 * k,
@@ -172,21 +197,23 @@ function ViewmodelController.fire(kickScale: number)
 end
 
 function ViewmodelController.reload(duration: number)
-	if animator then
-		animator:play("Reload", duration)
+	for _, gun in guns do
+		gun.animator:play("Reload", duration)
 	end
 end
 
 function ViewmodelController.cancelReload()
-	if animator and animator:isPlaying("Reload") then
-		animator:stop()
+	for _, gun in guns do
+		if gun.animator:isPlaying("Reload") then
+			gun.animator:stop()
+		end
 	end
 end
 
 -- Melee swing uses the weapon's Fire clip.
 function ViewmodelController.swing()
-	if animator then
-		animator:play("Fire")
+	if guns.Right then
+		guns.Right.animator:play("Fire")
 	end
 end
 
@@ -201,15 +228,16 @@ function ViewmodelController.setHidden(value: boolean)
 	end
 end
 
-function ViewmodelController.muzzleCFrame(): CFrame?
-	if muzzle then
-		return muzzle.WorldCFrame
+function ViewmodelController.muzzleCFrame(side: Side?): CFrame?
+	local gun = guns[side or "Right"] or guns.Right
+	if gun and gun.muzzle then
+		return gun.muzzle.WorldCFrame
 	end
 	return nil
 end
 
 function ViewmodelController.isEquipped(): boolean
-	return model ~= nil
+	return guns.Right ~= nil
 end
 
 local function placeArm(arm: Arm, shoulder: Vector3, grip: Vector3)
@@ -226,12 +254,18 @@ local function ease(t: number): number
 	return t + (s - t) * VM.ADS_EASE
 end
 
+-- The sprint offset reflected across the screen's vertical axis (left gun).
+local SPRINT_OFFSET_LEFT = (function()
+	local x, y, z = VM.SPRINT_OFFSET:ToEulerAnglesXYZ()
+	local p = VM.SPRINT_OFFSET.Position
+	return CFrame.new(-p.X, p.Y, p.Z) * CFrame.fromEulerAnglesXYZ(x, -y, -z)
+end)()
+
 local function update(dt: number)
 	local cam = Workspace.CurrentCamera
-	local h = handle
-	local m = model
+	local right = guns.Right
 	local c = config
-	if not cam or not h or not m or not c then
+	if not cam or not right or not c then
 		lastCamera = cam and cam.CFrame
 		return
 	end
@@ -251,7 +285,6 @@ local function update(dt: number)
 	lastCamera = camCf
 	local s = sway:update(dt)
 	sway.target = Vector3.zero
-	local r = recoil:update(dt)
 
 	-- Bob while walking on the ground.
 	local state = MovementController.getState()
@@ -269,27 +302,33 @@ local function update(dt: number)
 	local sprintTarget = if state == "Sprint" and adsAlpha < 0.1 then 1 else 0
 	sprintAlpha += (sprintTarget - sprintAlpha) * (1 - math.exp(-12 * dt))
 
-	local hip = CFrame.new(c.viewmodelOffset)
-	local ads = CFrame.new(0, 0, -VM.ADS_DISTANCE) * CFrame.new(-aimRel)
-	local base = hip:Lerp(ads, ease(adsAlpha))
 	local equipT = math.clamp((os.clock() - equipStart) / math.max(equipTime, 0.05), 0, 1)
 	local equip = VM.EQUIP_DROP:Lerp(CFrame.new(), ease(equipT))
-	local sprint = CFrame.new():Lerp(VM.SPRINT_OFFSET, sprintAlpha)
 	local swayCf = CFrame.Angles(s.X, s.Y, s.Y * 0.5)
-	local recoilCf = CFrame.new(0, 0, r.X * 0.1) * CFrame.Angles(r.Y * 0.1, 0, r.Z * 0.1)
 
-	h.CFrame = camCf * base * sprint * equip * bob * swayCf * recoilCf
-
-	if animator then
-		animator:update(dt)
+	for side, gun in guns do
+		local mirror = side == "Left"
+		local offset = c.viewmodelOffset
+		local hip = CFrame.new(if mirror then offset * Vector3.new(-1, 1, 1) else offset)
+		local ads = CFrame.new(0, 0, -VM.ADS_DISTANCE) * CFrame.new(-gun.aimRel)
+		local base = hip:Lerp(ads, ease(adsAlpha))
+		local sprint = CFrame.new()
+			:Lerp(if mirror then SPRINT_OFFSET_LEFT else VM.SPRINT_OFFSET, sprintAlpha)
+		local r = gun.recoil:update(dt)
+		local recoilCf = CFrame.new(0, 0, r.X * 0.1) * CFrame.Angles(r.Y * 0.1, 0, r.Z * 0.1)
+		gun.handle.CFrame = camCf * base * sprint * equip * bob * swayCf * recoilCf
+		gun.animator:update(dt)
 	end
 
-	-- Arms follow the grips (after the gun has moved).
+	-- Arms follow the grips (after the guns have moved). With two guns each
+	-- hand holds its own gun by that gun's RightGrip.
 	if not hidden then
 		local rightShoulder = camCf:PointToWorldSpace(VM.SHOULDER_RIGHT)
 		local leftShoulder = camCf:PointToWorldSpace(VM.SHOULDER_LEFT)
-		if rightGrip and arms[1] then
-			placeArm(arms[1], rightShoulder, rightGrip.WorldPosition)
+		local left = guns.Left
+		local leftGrip = if left then left.rightGrip else right.leftGrip
+		if right.rightGrip and arms[1] then
+			placeArm(arms[1], rightShoulder, right.rightGrip.WorldPosition)
 		end
 		if leftGrip and arms[2] then
 			placeArm(arms[2], leftShoulder, leftGrip.WorldPosition)

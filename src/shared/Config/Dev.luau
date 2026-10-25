@@ -5,7 +5,7 @@
 return table.freeze({
 	-- Spawn target dummies, cover and a thin wall in front of the spawn.
 	TEST_RANGE = true,
-	-- T / Y cycle the primary / secondary through the wave 1 guns.
+	-- P opens the weapon menu (every gun); T / Y cycle the primary / secondary.
 	WEAPON_PICKER = true,
 
 	-- Dummy layout: distance in studs from the spawn, the gun it holds, and

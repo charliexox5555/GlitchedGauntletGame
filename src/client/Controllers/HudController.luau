@@ -1,7 +1,8 @@
 --!strict
 -- Combat HUD (Gunplay.md §5): dynamic crosshair, hit / headshot / kill
 -- markers, stacking damage numbers, ammo + reload, health, low-HP vignette,
--- damage direction, sniper scope, kill feed and touch buttons.
+-- damage direction, sniper scope, kill feed, touch buttons and the Studio
+-- dev weapon menu.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 
 local Dev = require(ReplicatedStorage.Shared.Config.Dev)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Types = require(ReplicatedStorage.Shared.Types)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local InputController = require(script.Parent.InputController)
@@ -331,13 +333,13 @@ local function build(): Refs
 		local hint = make("TextLabel", {
 			AnchorPoint = Vector2.new(0.5, 1),
 			Position = UDim2.new(0.5, 0, 1, -8),
-			Size = UDim2.fromOffset(700, 20),
+			Size = UDim2.fromOffset(760, 20),
 			BackgroundTransparency = 1,
 			Font = Enum.Font.Gotham,
 			TextSize = 14,
 			TextColor3 = WHITE,
 			TextTransparency = 0.25,
-			Text = "DEV  T/Y next primary/secondary  ·  1 2 3 slots  ·  R reload  ·  RMB aim  ·  Shift sprint  ·  C slide/crouch  ·  V melee",
+			Text = "DEV  P weapons  ·  T/Y next primary/secondary  ·  1 2 3 slots  ·  R reload  ·  RMB aim  ·  Shift sprint  ·  C slide/crouch  ·  V melee",
 		}, gui)
 		stroke(hint)
 	end
@@ -390,16 +392,22 @@ end
 
 -- API ------------------------------------------------------------------------
 
-function HudController.setWeapon(displayName: string, ammo: number, magSize: number)
+-- `battery`: the magazine is a self-charging battery (Null), shown as a percentage.
+function HudController.setWeapon(
+	displayName: string,
+	ammo: number,
+	magSize: number,
+	battery: boolean?
+)
 	local r = refs
 	if not r then
 		return
 	end
 	r.weaponName.Text = string.upper(displayName)
-	HudController.setAmmo(ammo, magSize)
+	HudController.setAmmo(ammo, magSize, battery)
 end
 
-function HudController.setAmmo(ammo: number, magSize: number)
+function HudController.setAmmo(ammo: number, magSize: number, battery: boolean?)
 	local r = refs
 	if not r then
 		return
@@ -408,8 +416,16 @@ function HudController.setAmmo(ammo: number, magSize: number)
 		r.ammo.Text = ""
 		return
 	end
-	r.ammo.Text = string.format("%d <font size='22' transparency='0.4'>/ %d</font>", ammo, magSize)
 	r.ammo.RichText = true
+	if battery then
+		r.ammo.Text = string.format(
+			"%d<font size='22' transparency='0.4'>%%</font>",
+			math.floor(ammo / magSize * 100)
+		)
+	else
+		r.ammo.Text =
+			string.format("%d <font size='22' transparency='0.4'>/ %d</font>", ammo, magSize)
+	end
 	r.ammo.TextColor3 = if ammo == 0 then RED elseif ammo <= magSize * 0.25 then GOLD else WHITE
 end
 
@@ -540,6 +556,262 @@ function HudController.killFeed(text: string, highlight: boolean)
 	task.delay(5, function()
 		entry:Destroy()
 	end)
+end
+
+-- Dev weapon menu (Studio only) ----------------------------------------------
+-- P opens a panel with every weapon; clicking one hands its id to the pick
+-- handler (WeaponController asks the server to equip it).
+
+local TIER_COLORS: { [number]: Color3 } = {
+	[1] = Color3.fromHex("AEB6CC"),
+	[2] = NEON,
+	[3] = GOLD,
+	[4] = Color3.fromHex("FF3DCB"),
+}
+local CLASS_NAMES: { [string]: string } = { MachineGun = "Machine Gun", SMG = "SMG" }
+local CARD = Color3.fromHex("252A3D")
+local CARD_HOVER = Color3.fromHex("30364D")
+local MUTED = Color3.fromHex("8A93AD")
+
+type DevCard = { button: TextButton, stroke: UIStroke, name: TextLabel }
+type DevMenu = { root: Frame, scale: UIScale, cards: { [string]: DevCard } }
+
+local devMenu: DevMenu? = nil
+local devMenuOpen = false
+local devPick: ((id: string) -> ())? = nil
+
+local function sortedWeapons(slot: string): { Types.WeaponConfig }
+	local list = {}
+	for _, w in Weapons.list do
+		if w.slot == slot then
+			table.insert(list, w)
+		end
+	end
+	table.sort(list, function(a, b)
+		if a.tier ~= b.tier then
+			return a.tier < b.tier
+		end
+		return a.displayName < b.displayName
+	end)
+	return list
+end
+
+local function buildDevMenu(gui: ScreenGui): DevMenu
+	-- Backdrop: a modal button, so the mouse is free while the menu is open
+	-- (first person locks it otherwise). Clicking outside the panel closes it.
+	local root = make("TextButton", {
+		Name = "DevWeaponMenu",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.45,
+		AutoButtonColor = false,
+		Modal = true,
+		Text = "",
+		Visible = false,
+		ZIndex = 50,
+	}, gui)
+	root.Activated:Connect(function()
+		HudController.toggleDevMenu()
+	end)
+
+	local panel = make("TextButton", {
+		Name = "Panel",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(820, 600),
+		BackgroundColor3 = DARK,
+		BackgroundTransparency = 0.04,
+		AutoButtonColor = false,
+		Text = "",
+		ZIndex = 51,
+	}, root)
+	make("UICorner", { CornerRadius = UDim.new(0, 10) }, panel)
+	make("UIStroke", { Color = NEON, Thickness = 1, Transparency = 0.55 }, panel)
+	local scale = make("UIScale", {}, panel)
+
+	make("TextLabel", {
+		Position = UDim2.fromOffset(24, 18),
+		Size = UDim2.fromOffset(400, 26),
+		BackgroundTransparency = 1,
+		Font = FONT,
+		TextSize = 24,
+		TextColor3 = WHITE,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "WEAPONS",
+		ZIndex = 52,
+	}, panel)
+	make("TextLabel", {
+		Position = UDim2.fromOffset(24, 46),
+		Size = UDim2.fromOffset(500, 16),
+		BackgroundTransparency = 1,
+		Font = Enum.Font.Gotham,
+		TextSize = 13,
+		TextColor3 = MUTED,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "DEV · STUDIO ONLY  —  click a weapon to equip it  ·  P to close",
+		ZIndex = 52,
+	}, panel)
+	local close = make("TextButton", {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -16, 0, 16),
+		Size = UDim2.fromOffset(32, 32),
+		BackgroundColor3 = CARD,
+		AutoButtonColor = true,
+		Font = FONT,
+		TextSize = 16,
+		TextColor3 = WHITE,
+		Text = "X",
+		ZIndex = 52,
+	}, panel)
+	make("UICorner", { CornerRadius = UDim.new(0, 6) }, close)
+	close.Activated:Connect(function()
+		HudController.toggleDevMenu()
+	end)
+
+	local list = make("ScrollingFrame", {
+		Name = "List",
+		Position = UDim2.fromOffset(20, 76),
+		Size = UDim2.new(1, -40, 1, -92),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = NEON,
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ZIndex = 52,
+	}, panel)
+	make("UIListLayout", {
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Padding = UDim.new(0, 8),
+	}, list)
+
+	local cards: { [string]: DevCard } = {}
+	for order, slot in { "Primary", "Secondary" } do
+		make("TextLabel", {
+			LayoutOrder = order * 2 - 1,
+			Size = UDim2.new(1, 0, 0, 22),
+			BackgroundTransparency = 1,
+			Font = FONT,
+			TextSize = 14,
+			TextColor3 = MUTED,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Text = string.upper(slot),
+			ZIndex = 52,
+		}, list)
+		local grid = make("Frame", {
+			Name = slot,
+			LayoutOrder = order * 2,
+			Size = UDim2.new(1, -8, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			ZIndex = 52,
+		}, list)
+		make("UIGridLayout", {
+			CellSize = UDim2.fromOffset(184, 56),
+			CellPadding = UDim2.fromOffset(8, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}, grid)
+		for i, w in sortedWeapons(slot) do
+			local tierColor = TIER_COLORS[w.tier] or WHITE
+			local button = make("TextButton", {
+				Name = w.id,
+				LayoutOrder = i,
+				BackgroundColor3 = CARD,
+				AutoButtonColor = false,
+				Text = "",
+				ZIndex = 53,
+			}, grid)
+			make("UICorner", { CornerRadius = UDim.new(0, 6) }, button)
+			local cardStroke =
+				make("UIStroke", { Color = NEON, Thickness = 2, Enabled = false }, button)
+			make("Frame", {
+				Position = UDim2.fromOffset(0, 8),
+				Size = UDim2.new(0, 3, 1, -16),
+				BackgroundColor3 = tierColor,
+				BorderSizePixel = 0,
+				ZIndex = 54,
+			}, button)
+			local name = make("TextLabel", {
+				Position = UDim2.fromOffset(14, 9),
+				Size = UDim2.new(1, -24, 0, 20),
+				BackgroundTransparency = 1,
+				Font = FONT,
+				TextSize = 16,
+				TextColor3 = WHITE,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextTruncate = Enum.TextTruncate.AtEnd,
+				Text = w.displayName,
+				ZIndex = 54,
+			}, button)
+			make("TextLabel", {
+				Position = UDim2.fromOffset(14, 30),
+				Size = UDim2.new(1, -24, 0, 16),
+				BackgroundTransparency = 1,
+				Font = Enum.Font.GothamMedium,
+				TextSize = 12,
+				TextColor3 = MUTED,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				RichText = true,
+				Text = string.format(
+					"%s  ·  <font color='#%s'>TIER %d</font>",
+					string.upper(CLASS_NAMES[w.class] or w.class),
+					tierColor:ToHex(),
+					w.tier
+				),
+				ZIndex = 54,
+			}, button)
+			button.MouseEnter:Connect(function()
+				button.BackgroundColor3 = CARD_HOVER
+			end)
+			button.MouseLeave:Connect(function()
+				button.BackgroundColor3 = CARD
+			end)
+			button.Activated:Connect(function()
+				if devPick then
+					devPick(w.id)
+				end
+				HudController.toggleDevMenu()
+			end)
+			cards[w.id] = { button = button, stroke = cardStroke, name = name }
+		end
+	end
+	return { root = root, scale = scale, cards = cards }
+end
+
+-- Opens or closes the dev weapon menu. `held`: ids currently in the loadout
+-- (highlighted).
+function HudController.toggleDevMenu(held: { [string]: boolean }?)
+	local r = refs
+	if not r or not RunService:IsStudio() or not Dev.WEAPON_PICKER then
+		return
+	end
+	local menu = devMenu
+	if not menu then
+		menu = buildDevMenu(r.gui)
+		devMenu = menu
+	end
+	devMenuOpen = not devMenuOpen
+	menu.root.Visible = devMenuOpen
+	if devMenuOpen then
+		for id, card in menu.cards do
+			local on = held ~= nil and held[id] == true
+			card.stroke.Enabled = on
+			card.name.TextColor3 = if on then NEON else WHITE
+			card.button.BackgroundColor3 = CARD
+		end
+		-- Fit small windows.
+		local cam = Workspace.CurrentCamera
+		local view = if cam then cam.ViewportSize else Vector2.new(1920, 1080)
+		menu.scale.Scale = math.min(1, (view.X - 32) / 820, (view.Y - 32) / 600)
+	end
+end
+
+function HudController.onDevPick(handler: (id: string) -> ())
+	devPick = handler
+end
+
+function HudController.isDevMenuOpen(): boolean
+	return devMenuOpen
 end
 
 -- Loop -------------------------------------------------------------------------
