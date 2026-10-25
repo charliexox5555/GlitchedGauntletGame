@@ -15,6 +15,7 @@ local MAGENTA = Color3.fromHex("FF3DCB")
 
 -- Class defaults (Gunplay.md §2): hip spread and ADS.
 local SIDEARM_VM = Vector3.new(0.5, -0.55, -1.3)
+local SIDEARM_ADS = 0.8 -- pistols sit closer in ADS so their small sights read
 local RIFLE_VM = Vector3.new(0.55, -0.62, -1.4)
 
 local weapons: { [string]: WeaponConfig } = {
@@ -48,6 +49,7 @@ local weapons: { [string]: WeaponConfig } = {
 		penetration = "None",
 		sounds = { fire = Sounds.ShotPistol, reload = Sounds.MagIn, equip = Sounds.Equip },
 		viewmodelOffset = SIDEARM_VM,
+		adsDistance = SIDEARM_ADS,
 		tracerColor = NEON,
 	},
 	Root = {
@@ -85,6 +87,7 @@ local weapons: { [string]: WeaponConfig } = {
 			equip = Sounds.Equip,
 		},
 		viewmodelOffset = SIDEARM_VM,
+		adsDistance = SIDEARM_ADS,
 		tracerColor = NEON,
 	},
 
@@ -306,6 +309,14 @@ local weapons: { [string]: WeaponConfig } = {
 			equip = Sounds.Equip,
 			charge = Sounds.RailCharge,
 		},
+		-- Its sight is a closed box, so it gets a holo pane on top, and the
+		-- battery cells behind it (on the sight line) fade while aiming.
+		adsHide = { "Cells", "Cells_Lens" },
+		adsReticle = {
+			center = Vector3.new(0, 0.95, -0.66),
+			size = Vector2.new(0.2, 0.16),
+			color = MAGENTA,
+		},
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = MAGENTA,
 	},
@@ -339,7 +350,10 @@ local weapons: { [string]: WeaponConfig } = {
 		penetration = "None",
 		melee = { range = 7, backDamage = 100, lunge = 6 },
 		sounds = { fire = Sounds.Swing, equip = Sounds.Equip },
-		viewmodelOffset = Vector3.new(0.65, -0.7, -1.2),
+		-- Held bigger and blade-up so the knife reads past the hand.
+		viewmodelOffset = Vector3.new(0.55, -0.62, -1.1),
+		viewmodelRotation = Vector3.new(28, 18, -22),
+		viewmodelScale = 0.75,
 		tracerColor = NEON,
 	},
 }
@@ -376,6 +390,7 @@ weapons.Splinter = {
 	penetration = "None",
 	sounds = { fire = Sounds.ShotShotgunLight, reload = Sounds.ShellIn, equip = Sounds.Equip },
 	viewmodelOffset = SIDEARM_VM,
+	adsDistance = SIDEARM_ADS,
 	tracerColor = NEON,
 }
 
@@ -414,6 +429,7 @@ weapons.Flicker = {
 		equip = Sounds.Equip,
 	},
 	viewmodelOffset = SIDEARM_VM,
+	adsDistance = SIDEARM_ADS,
 	tracerColor = NEON,
 }
 
@@ -451,7 +467,16 @@ weapons.Mute = {
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
+	-- Mini red dot: its lens is tinted solid, so it fades and a dot shows instead.
+	adsHide = { "Sight_Lens" },
+	adsReticle = {
+		center = Vector3.new(0, 0.58, 0.1),
+		size = Vector2.new(0.1, 0.1),
+		color = MAGENTA,
+		frame = false,
+	},
 	viewmodelOffset = SIDEARM_VM,
+	adsDistance = SIDEARM_ADS,
 	tracerColor = NEON,
 }
 
@@ -596,6 +621,14 @@ weapons.Checksum = {
 	adsMoveMultiplier = 0.7,
 	penetration = "None",
 	sounds = { fire = Sounds.ShotMarksman, reload = Sounds.MagIn, equip = Sounds.Equip },
+	-- The 1.5x optic's lens is opaque: fade the tube while aiming, show a reticle.
+	adsHide = { "Sight_Lens", "Sight_Dark", "Sight_Neon", "Sight_Metal" },
+	adsReticle = {
+		center = Vector3.new(0, 0.84, -0.7),
+		size = Vector2.new(0.2, 0.2),
+		color = MAGENTA,
+		frame = false,
+	},
 	viewmodelOffset = RIFLE_VM,
 	tracerColor = NEON,
 }
@@ -770,6 +803,12 @@ weapons.Loopback = {
 	adsMoveMultiplier = 0.75,
 	penetration = "None",
 	sounds = { fire = Sounds.ShotLauncher, reload = Sounds.MagIn, equip = Sounds.Equip },
+	-- Its sight is a closed box sitting low over the drum: holo pane on top.
+	adsReticle = {
+		center = Vector3.new(0, 0.88, -1.12),
+		size = Vector2.new(0.2, 0.16),
+		color = MAGENTA,
+	},
 	viewmodelOffset = RIFLE_VM,
 	tracerColor = MAGENTA,
 }
@@ -850,6 +889,12 @@ weapons.Null = {
 	adsMoveMultiplier = 0.8,
 	penetration = "None",
 	sounds = { fire = Sounds.BeamLoop, fireVolume = 0.5, equip = Sounds.Equip },
+	-- Its sight is a closed housing: holo pane on top.
+	adsReticle = {
+		center = Vector3.new(0, 0.96, -0.5),
+		size = Vector2.new(0.2, 0.16),
+		color = NEON,
+	},
 	viewmodelOffset = RIFLE_VM,
 	tracerColor = MAGENTA,
 }
