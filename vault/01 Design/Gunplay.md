@@ -64,6 +64,7 @@ This is a big part of why RIVALS feels good. Build it alongside the very first g
 
 ## 6. Camera and controls
 - **First person.** FOV 80 by default (setting 70–100), with ADS FOV set per gun.
+- **First-person arms (RIVALS style):** blocky, stylized arms, not realistic ones, but dressed as the player: their skin colour, plus their Roblox shirt texture on the sleeves (classic Shirt template, or the avatar's arm colours if they wear none). The hands hold the gun's grips and follow the gun's animations (e.g. the left hand grabs the mag on reload).
 
 | Action | PC | Gamepad | Mobile |
 |---|---|---|---|
