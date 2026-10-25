@@ -122,9 +122,10 @@ export type WeaponConfig = {
 	-- Models to hold: by default the model named like the id. Dual Boot holds two.
 	models: { right: string, left: string? }?,
 	sounds: WeaponSounds,
-	-- Viewmodel placement at the hip: where the sight (AimPoint) sits relative
-	-- to the camera (pistols and melee: the grip), and an optional cant in
-	-- degrees around it (default none: the barrel points straight down the view).
+	-- Viewmodel placement at the hip, camera space: long guns put their sight
+	-- height at this point at their grip's depth; sidearms, melee and Dual Boot
+	-- put their grip here. Optional cant in degrees (default none: the barrel
+	-- points straight down the view).
 	viewmodelOffset: Vector3,
 	viewmodelRotation: Vector3?,
 	viewmodelScale: number?, -- default Viewmodel.SCALE

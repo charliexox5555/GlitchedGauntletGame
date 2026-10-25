@@ -130,12 +130,18 @@ function ViewmodelMotion.step(m: Motion, input: Input, dt: number): CFrame
 		m.tiltVel -= Vector3.new(0, 0, VM.LAND_KICK * fall)
 	end
 	m.wasGrounded = input.grounded
+	-- Strafing: the gun lags behind the motion and its top leans back against
+	-- it, easing back when you stop. Aimed, the sights follow the same way
+	-- but less, turning around the sight so the front post stays near the
+	-- crosshair.
 	local moveScale = 1 + (VM.ADS_MOVE_SCALE - 1) * ads
+	local strafeRoll = VM.STRAFE_ROLL + (VM.ADS_STRAFE_ROLL - VM.STRAFE_ROLL) * ads
+	local strafeShift = VM.STRAFE_SHIFT + (VM.ADS_STRAFE_SHIFT - VM.STRAFE_SHIFT) * ads
 	local tiltTarget = Vector3.new(
-		-localVel.X * VM.STRAFE_ROLL,
-		-localVel.X * VM.STRAFE_SHIFT,
-		math.clamp(-m.velocity.Y * VM.FALL_LAG, -VM.FALL_LAG_MAX, VM.FALL_LAG_MAX)
-	) * moveScale
+		localVel.X * strafeRoll,
+		-localVel.X * strafeShift,
+		math.clamp(-m.velocity.Y * VM.FALL_LAG, -VM.FALL_LAG_MAX, VM.FALL_LAG_MAX) * moveScale
+	)
 	m.tiltPos, m.tiltVel = spring3(m.tiltPos, m.tiltVel, tiltTarget, VM.TILT_FREQUENCY, dt)
 
 	-- Walk bob: the loop speed and size ease toward what the movement asks
@@ -185,7 +191,7 @@ function ViewmodelMotion.step(m: Motion, input: Input, dt: number): CFrame
 		swayYaw + bobYaw,
 		m.tiltPos.X + bobRoll + swayYaw * 0.3
 	)
-	local pivot = VM.MOTION_PIVOT
+	local pivot = VM.MOTION_PIVOT:Lerp(VM.ADS_MOTION_PIVOT, ads)
 	return CFrame.new(offset + pivot) * rotation * CFrame.new(-pivot)
 end
 

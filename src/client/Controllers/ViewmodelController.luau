@@ -64,13 +64,14 @@ type Gun = {
 	muzzle: Attachment?,
 	pistol: boolean, -- both grips in one spot: a two-handed pistol hold
 	aimRel: Vector3, -- sight position relative to the grip, at rest (ADS alignment)
-	hipRel: Vector3, -- the point placed at viewmodelOffset at the hip (sight; pistols, melee: grip)
+	hipRel: Vector3, -- the point placed at viewmodelOffset at the hip (see buildGun)
 	centerRel: Vector3, -- middle of the gun relative to the grip (inspect pivot)
 	follow: { FollowRule },
 	adsHide: { BasePart }, -- parts that block the sight line, faded while aiming
 	adsFade: number, -- last fade written to adsHide
 	reticle: SurfaceGui?,
-	recoil: Spring.Spring,
+	recoil: Spring.Spring, -- hip kick
+	adsRecoil: Spring.Spring, -- aimed kick (stiff, critically damped)
 }
 
 type Playing = { track: VM.Track, time: number, length: number, weight: number, fading: boolean }
@@ -605,6 +606,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		adsFade = 0,
 		reticle = reticle,
 		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
+		adsRecoil = Spring.new(VM.ADS_RECOIL_STIFFNESS, 2 * math.sqrt(VM.ADS_RECOIL_STIFFNESS)),
 	}
 	local rg, lg = gun.rightGrip, gun.leftGrip
 	gun.pistol = rg ~= nil
@@ -613,10 +615,16 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 				lg.offset
 			)).Magnitude
 			< 0.2 * scale
-	-- Long guns are placed by their sight, so every rifle's sight lands on the
-	-- same spot on screen whatever its shape. Pistols and melee are placed by
-	-- their grip: the hands are what you see, so they land the same way.
-	gun.hipRel = if gun.pistol or weapon.fireMode == "Melee" then Vector3.zero else gun.aimRel
+	-- Sidearms, melee and Dual Boot are placed by their grip: the hands are
+	-- what you see, so they land the same on every one. Long guns are placed
+	-- by their sight line at their grip's depth: every rifle's top edge sits
+	-- at the same height, and a sight mounted far forward or back on the
+	-- model doesn't push the gun into the camera or away from it.
+	gun.hipRel = if weapon.class == "Sidearm"
+			or weapon.fireMode == "Melee"
+			or dual
+		then Vector3.zero
+		else Vector3.new(0, gun.aimRel.Y, 0)
 	buildFollow(gun, weapon, dual) -- reads the welds, so before the rig drops them
 	return gun
 end
@@ -708,6 +716,16 @@ function ViewmodelController.fire(kickScale: number, side: Side?)
 			VM.KICK_ROTATE * 40 * k,
 			(math.random() - 0.5) * VM.KICK_ROTATE * 20 * k
 		)
+	)
+	-- Aimed kick: sized so its peak is ADS_KICK_* (a critically damped
+	-- spring hit by v peaks at v / (omega * e)).
+	local peak = math.sqrt(VM.ADS_RECOIL_STIFFNESS) * math.exp(1) * k
+	gun.adsRecoil:impulse(
+		Vector3.new(
+			VM.ADS_KICK_BACK,
+			VM.ADS_KICK_ROTATE,
+			(math.random() - 0.5) * VM.ADS_KICK_ROTATE
+		) * peak
 	)
 end
 
@@ -859,8 +877,10 @@ local function holdPose(
 			* CFrame.new(-gun.aimRel)
 		base = hip:Lerp(ads, adsT)
 	end
-	local r = gun.recoil:update(dt)
-	local recoilCf = CFrame.new(0, 0, r.X * 0.1) * CFrame.Angles(r.Y * 0.1, 0, r.Z * 0.1)
+	local r = gun.recoil:update(dt) * 0.1 * (1 - adsT)
+	local a = gun.adsRecoil:update(dt) * adsT
+	local kick = r + a
+	local recoilCf = CFrame.new(0, 0, kick.X) * CFrame.Angles(kick.Y, 0, kick.Z)
 	return base * poseOffset(mirror) * trackOffset(gun, mirror) * recoilCf
 end
 
@@ -941,7 +961,7 @@ local function update(dt: number)
 			gun.animator:update(dt)
 			local handleCf = root * holdPose(gun, c, side == "Left", adsT, dt)
 			handleCFrames[side] = handleCf
-			ViewmodelRig.solve(rig, handleCf)
+			ViewmodelRig.solve(rig, handleCf, 1 - (1 - VM.ADS_CLIP_KICK) * adsT)
 
 			if gun.reticle then
 				gun.reticle.Enabled = adsAlpha > 0.4 and not hidden

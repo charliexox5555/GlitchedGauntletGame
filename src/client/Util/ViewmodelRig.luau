@@ -17,6 +17,7 @@ type Link = {
 export type ViewmodelRig = {
 	handle: BasePart,
 	links: { Link }, -- parents always come before their children
+	rootMotor: Motor6D?, -- the clip's "Root" joint (the whole gun's kick)
 	parts: { BasePart }, -- handle first, then `links` in order
 	cframes: { CFrame }, -- solved CFrames, in `parts` order
 	world: { [BasePart]: CFrame }, -- solved CFrame of every part
@@ -110,8 +111,12 @@ function ViewmodelRig.new(model: Model, handle: BasePart): ViewmodelRig
 		p.Anchored = true
 		world[p] = p.CFrame
 	end
+	local motors = model:FindFirstChild("Rig")
+	motors = motors and motors:FindFirstChild("Motors")
+	local root = motors and motors:FindFirstChild("Root")
 	return {
 		handle = handle,
+		rootMotor = if root and root:IsA("Motor6D") then root else nil,
 		links = links,
 		parts = parts,
 		cframes = table.create(#parts, CFrame.identity),
@@ -120,8 +125,10 @@ function ViewmodelRig.new(model: Model, handle: BasePart): ViewmodelRig
 end
 
 -- Works out every part's CFrame with the handle at `handleCf` (into
--- `rig.world` and `rig.cframes`), without moving anything yet.
-function ViewmodelRig.solve(rig: ViewmodelRig, handleCf: CFrame)
+-- `rig.world` and `rig.cframes`), without moving anything yet. `rootWeight`
+-- (0..1, default 1) scales how much of the clip's Root joint motion is used:
+-- aiming keeps the sight still while the action, mag and hands still move.
+function ViewmodelRig.solve(rig: ViewmodelRig, handleCf: CFrame, rootWeight: number?)
 	local world = rig.world
 	local cframes = rig.cframes
 	world[rig.handle] = handleCf
@@ -129,9 +136,16 @@ function ViewmodelRig.solve(rig: ViewmodelRig, handleCf: CFrame)
 	for i, link in rig.links do
 		local parentCf = world[link.parent] or handleCf
 		local motor = link.motor
-		local cf = if motor
-			then parentCf * motor.C0 * motor.Transform * motor.C1:Inverse()
-			else parentCf * link.offset
+		local cf: CFrame
+		if motor then
+			local transform = motor.Transform
+			if motor == rig.rootMotor and rootWeight and rootWeight < 1 then
+				transform = CFrame.identity:Lerp(transform, math.max(rootWeight, 0))
+			end
+			cf = parentCf * motor.C0 * transform * motor.C1:Inverse()
+		else
+			cf = parentCf * link.offset
+		end
 		world[link.part] = cf
 		cframes[i + 1] = cf
 	end

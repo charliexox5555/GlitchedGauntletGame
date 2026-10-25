@@ -22,6 +22,9 @@ local SIDEARM_VM = Vector3.new(0.33, -1.06, -1.47)
 local SIDEARM_SCALE = 1.1
 local SIDEARM_ADS = 1.0 -- camera to the rear sight while aiming
 local RIFLE_VM = Vector3.new(0.31, -0.3, -0.65)
+-- Rifles with a long scope: the same spot on screen, a little further away, so
+-- the scope's eyepiece doesn't fill the corner.
+local SCOPED_VM = Vector3.new(0.47, -0.46, -1.0)
 
 local weapons: { [string]: WeaponConfig } = {
 	-- Sidearms ----------------------------------------------------------
@@ -201,7 +204,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsMoveMultiplier = 0.55,
 		penetration = "None",
 		sounds = { fire = Sounds.ShotSniper, reload = Sounds.Cycle, equip = Sounds.Equip },
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = SCOPED_VM,
 		tracerColor = NEON,
 	},
 
@@ -400,7 +403,7 @@ weapons.Splinter = {
 	sounds = { fire = Sounds.ShotShotgunLight, reload = Sounds.ShellIn, equip = Sounds.Equip },
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
-	viewmodelScale = SIDEARM_SCALE,
+	viewmodelScale = 1.35, -- stubby: held bigger so it doesn't look tiny
 	tracerColor = NEON,
 }
 
@@ -641,7 +644,7 @@ weapons.Checksum = {
 		color = MAGENTA,
 		frame = false,
 	},
-	viewmodelOffset = RIFLE_VM,
+	viewmodelOffset = SCOPED_VM,
 	tracerColor = NEON,
 }
 
@@ -710,7 +713,7 @@ weapons.Handshake = {
 	adsMoveMultiplier = 0.55,
 	penetration = "None",
 	sounds = { fire = Sounds.ShotSniperDouble, reload = Sounds.ShellIn, equip = Sounds.Equip },
-	viewmodelOffset = RIFLE_VM,
+	viewmodelOffset = SCOPED_VM,
 	tracerColor = NEON,
 }
 
@@ -742,7 +745,7 @@ weapons.Kernel = {
 	adsMoveMultiplier = 0.45, -- slow while scoped
 	penetration = "None",
 	sounds = { fire = Sounds.ShotSniperHeavy, reload = Sounds.Cycle, equip = Sounds.Equip },
-	viewmodelOffset = RIFLE_VM,
+	viewmodelOffset = SCOPED_VM,
 	tracerColor = NEON,
 }
 
@@ -862,6 +865,7 @@ weapons.DualBoot = {
 		equip = Sounds.Equip,
 	},
 	viewmodelOffset = Vector3.new(0.42, -0.88, -1.34), -- grip; the left gun mirrors it
+	viewmodelScale = 0.9,
 	tracerColor = MAGENTA,
 }
 

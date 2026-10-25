@@ -130,6 +130,7 @@ return table.freeze({
 	-- Rotations turn around MOTION_PIVOT (about where the hands are), so the
 	-- gun tilts instead of swinging around the camera.
 	MOTION_PIVOT = Vector3.new(0.2, -0.45, -1.1),
+	ADS_MOTION_PIVOT = Vector3.new(0, 0, -0.75), -- aimed: around the sight line
 	VELOCITY_SMOOTHING = 10, -- low-pass on the predicted velocity (1/s)
 
 	-- Sway: turning the view kicks a spring (pushed by how far the view turned,
@@ -140,10 +141,13 @@ return table.freeze({
 	SWAY_MAX = 0.09, -- radians, soft limit
 	SWAY_SHIFT = 0.35, -- studs of shift per radian of lag
 
-	-- Strafing rolls the gun and drifts it against the motion; falling lifts
-	-- it, landing dips it.
+	-- Strafing drifts the gun against the motion and leans its top back
+	-- against it (aimed values: the sights follow the strafe, gently); falling
+	-- lifts it, landing dips it.
 	STRAFE_ROLL = 0.0035, -- radians per stud/s of sideways speed
 	STRAFE_SHIFT = 0.0022, -- studs per stud/s
+	ADS_STRAFE_ROLL = 0.0026,
+	ADS_STRAFE_SHIFT = 0.0008,
 	TILT_FREQUENCY = 8,
 	FALL_LAG = 0.0035, -- studs per stud/s of vertical speed (clamped to FALL_LAG_MAX)
 	FALL_LAG_MAX = 0.07,
@@ -177,6 +181,14 @@ return table.freeze({
 	KICK_ROTATE = 0.035,
 	RECOIL_STIFFNESS = 260,
 	RECOIL_DAMPING = 24,
+	-- Aimed: a small, snappy push back with almost no climb, settling fast
+	-- (critically damped), so the sight picture stays on target; the camera
+	-- kick carries the recoil feel. The gun's own Fire clip moves its Root
+	-- joint (the whole gun) only this much while fully aimed.
+	ADS_KICK_BACK = 0.035,
+	ADS_KICK_ROTATE = 0.004,
+	ADS_RECOIL_STIFFNESS = 700,
+	ADS_CLIP_KICK = 0.2,
 
 	-- Pose blends (critically damped, rad/s).
 	POSE_FREQUENCY = 13,
