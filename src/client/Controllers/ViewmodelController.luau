@@ -50,6 +50,7 @@ type Gun = {
 	follow: { FollowRule },
 	adsHide: { BasePart },
 	adsDim: { BasePart },
+	adsFade: number, -- last fade written to adsHide/adsDim
 	reticle: SurfaceGui?,
 	recoil: Spring.Spring,
 }
@@ -193,12 +194,14 @@ local function trackOffset(gun: Gun, mirror: boolean): CFrame
 	local cf = CFrame.identity
 	for _, p in playing do
 		local pos, rot = sample(p.track, math.clamp(p.time / p.length, 0, 1))
-		local w = smoothstep(p.weight)
 		if mirror then
 			pos, rot = mirrorPos(pos), mirrorRot(rot)
 		end
 		local pivot = if p.track.pivot == "Center" then gun.centerRel else Vector3.zero
-		cf *= aroundPivot(pivot, CFrame.new(pos * w) * angles(rot * w))
+		local full = aroundPivot(pivot, CFrame.new(pos) * angles(rot))
+		-- A fading (cancelled) track blends out along the shortest rotation, so
+		-- a knife mid-flip doesn't spin back a full turn.
+		cf *= if p.weight >= 1 then full else CFrame.new():Lerp(full, smoothstep(p.weight))
 	end
 	return cf
 end
@@ -357,43 +360,46 @@ local function segment(part: Part, from: Vector3, to: Vector3, hinge: Vector3, l
 	part.CFrame = CFrame.fromMatrix(center, x, y, x:Cross(y))
 end
 
--- Two-bone IK: shoulder → elbow → wrist, hand centred on `grip`.
+-- Two-bone IK: shoulder → elbow → hand centre on `grip`. The forearm bone
+-- runs to the hand's centre; the hand block then sits on the last stretch.
 local function solveArm(arm: Arm, shoulder: Vector3, grip: Vector3, hint: Vector3)
-	local l1, l2 = VM.UPPER_LENGTH, VM.LOWER_LENGTH
+	local half = VM.HAND_LENGTH / 2
+	local l1, l2 = VM.UPPER_LENGTH, VM.LOWER_LENGTH + half
 	local toGrip = grip - shoulder
-	if toGrip.Magnitude < 1e-3 then
+	local d = toGrip.Magnitude
+	if d < 1e-3 then
 		return
 	end
-	local wrist = grip - toGrip.Unit * (VM.HAND_LENGTH / 2)
-	local toWrist = wrist - shoulder
-	local d = toWrist.Magnitude
 	-- Out of reach: the (off-screen) shoulder slides forward instead of the
 	-- hand letting go of the gun.
 	local reach = (l1 + l2) * 0.995
 	if d > reach then
-		shoulder += toWrist.Unit * (d - reach)
-		toWrist = wrist - shoulder
+		shoulder += toGrip.Unit * (d - reach)
+		toGrip = grip - shoulder
 		d = reach
 	end
 	d = math.max(d, math.abs(l1 - l2) + 0.02)
-	local dir = toWrist.Unit
+	local dir = toGrip.Unit
 	local cosA = math.clamp((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d), -1, 1)
 	local sinA = math.sqrt(1 - cosA * cosA)
 	local pole = hint - dir * hint:Dot(dir)
 	if pole.Magnitude < 1e-4 then
-		pole = -Vector3.yAxis
+		pole = -Vector3.yAxis - dir * -dir.Y
+		if pole.Magnitude < 1e-4 then
+			pole = Vector3.xAxis - dir * dir.X
+		end
 	end
 	pole = pole.Unit
 	local elbow = shoulder + dir * (l1 * cosA) + pole * (l1 * sinA)
 	local hinge = pole:Cross(dir)
+	local forearm = grip - elbow
+	local forearmDir = if forearm.Magnitude > 1e-4 then forearm.Unit else dir
+	local wrist = grip - forearmDir * half
 
 	local upperLen = l1 + VM.ELBOW_OVERLAP
 	segment(arm.upper, shoulder, shoulder + (elbow - shoulder).Unit * upperLen, hinge, upperLen)
-	segment(arm.lower, elbow, wrist, hinge, l2)
-	local forearm = wrist - elbow
-	local handEnd = wrist
-		+ (if forearm.Magnitude > 1e-4 then forearm.Unit else dir) * VM.HAND_LENGTH
-	segment(arm.hand, wrist, handEnd, hinge, VM.HAND_LENGTH)
+	segment(arm.lower, elbow, wrist, hinge, VM.LOWER_LENGTH)
+	segment(arm.hand, wrist, grip + forearmDir * half, hinge, VM.HAND_LENGTH)
 end
 
 -- Guns -------------------------------------------------------------------------
@@ -429,7 +435,7 @@ end
 
 -- The visible parts welded to a rig joint, as a box in that joint's space.
 local function jointBounds(m: Model, joint: BasePart): (Vector3?, Vector3?)
-	local low, high
+	local low: Vector3?, high: Vector3? = nil, nil
 	for _, d in m:GetDescendants() do
 		if (d:IsA("Weld") or d:IsA("Motor6D")) and d.Part0 == joint then
 			local p = d.Part1
@@ -479,9 +485,16 @@ local function addFollow(gun: Gun, clip: string, hand: Side, rule: VM.Follow): b
 	if not from or not to then
 		return false
 	end
-	-- One part at a time per hand: skip rules that overlap an earlier one.
+	-- One part at a time per hand: skip rules whose reach (window widened by
+	-- the lead, as followWeight uses it) overlaps an earlier one.
+	local lead = VM.FOLLOW_LEAD
 	for _, r in gun.follow do
-		if r.clip == clip and r.hand == hand and from < r.to and to > r.from then
+		if
+			r.clip == clip
+			and r.hand == hand
+			and from - lead < r.to + lead
+			and to + lead > r.from - lead
+		then
 			return false
 		end
 	end
@@ -673,12 +686,23 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	local reticle = if weapon.adsReticle then buildReticle(m, h, weapon.adsReticle, scale) else nil
 	-- Faded while aiming: the gun's adsHide parts, and anything entirely behind
 	-- the sight (stocks), which otherwise fills the bottom of the sight picture.
+	local aimRel = if weapon.adsReticle
+		then weapon.adsReticle.center * scale
+		elseif aim then h.CFrame:PointToObjectSpace(aim.WorldPosition)
+		else Vector3.new(0, 0.3, 0)
 	local hide: { BasePart } = {}
 	local dim: { BasePart } = {}
-	local aimZ = if aim then h.CFrame:PointToObjectSpace(aim.WorldPosition).Z else math.huge
+	-- Measured from the rear sight (AimPoint) when there is one.
+	local aimZ = if aim then h.CFrame:PointToObjectSpace(aim.WorldPosition).Z else aimRel.Z
 	local named = weapon.adsHide or {}
+	local holo = m:FindFirstChild("HoloSight")
 	for _, d in m:GetDescendants() do
-		if d:IsA("BasePart") and d ~= h and d.Transparency < 1 then
+		if
+			d:IsA("BasePart")
+			and d ~= h
+			and d.Transparency < 1
+			and not (holo and d:IsDescendantOf(holo))
+		then
 			local nearZ, farZ = math.huge, -math.huge
 			for _, sx in { -1, 1 } do
 				for _, sy in { -1, 1 } do
@@ -705,14 +729,12 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		rightGrip = anchorFor(m, h, attachment(m, "RightGrip")),
 		leftGrip = anchorFor(m, h, attachment(m, "LeftGrip")),
 		muzzle = attachment(m, "Muzzle"),
-		aimRel = if weapon.adsReticle
-			then weapon.adsReticle.center * scale
-			elseif aim then h.CFrame:PointToObjectSpace(aim.WorldPosition)
-			else Vector3.new(0, 0.3, 0),
+		aimRel = aimRel,
 		centerRel = h.CFrame:PointToObjectSpace(boxCf.Position),
 		follow = {},
 		adsHide = hide,
 		adsDim = dim,
+		adsFade = 0,
 		reticle = reticle,
 		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
 	}
@@ -861,6 +883,9 @@ function ViewmodelController.setHidden(value: boolean)
 	if hidden ~= value then
 		hidden = value
 		setGunsVisible(not value)
+		for _, gun in guns do
+			gun.adsFade = -1 -- rewrite ADS fades next frame
+		end
 		setArmsVisible(not value)
 	end
 end
@@ -1007,6 +1032,8 @@ local function update(dt: number)
 		* CFrame.Angles(s.X, s.Y, s.Y * 0.4 + s.Z)
 
 	local adsT = ease(adsAlpha)
+	local poseRight = poseOffset(false, weights)
+	local poseLeft = if guns.Left then poseOffset(true, weights) else poseRight
 	for side, gun in guns do
 		local mirror = side == "Left"
 		local offset = c.viewmodelOffset
@@ -1024,7 +1051,7 @@ local function update(dt: number)
 		gun.handle.CFrame = camCf
 			* shared
 			* base
-			* poseOffset(mirror, weights)
+			* (if mirror then poseLeft else poseRight)
 			* trackOffset(gun, mirror)
 			* recoilCf
 		gun.animator:update(dt)
@@ -1034,8 +1061,9 @@ local function update(dt: number)
 		end
 
 		-- Fade parts that block the sight picture while aiming.
-		if not hidden then
-			local fade = smoothstep((adsAlpha - 0.35) / 0.45)
+		local fade = smoothstep((adsAlpha - 0.35) / 0.45)
+		if not hidden and fade ~= gun.adsFade then
+			gun.adsFade = fade
 			for _, p in gun.adsHide do
 				p.LocalTransparencyModifier = fade
 			end
@@ -1091,6 +1119,16 @@ function ViewmodelController.start()
 			armsModel = nil
 			arms = {}
 			armsLook = ""
+		end
+		-- Movement feel starts fresh next life (no landing dip from dying mid-air).
+		lastState = "Idle"
+		lastVelocity = Vector3.zero
+		lastCamera = nil
+		table.clear(poseWeights)
+		bobAmount.x, bobAmount.v = 0, 0
+		for _, spring in { sway, move } do
+			spring.position, spring.velocity, spring.target =
+				Vector3.zero, Vector3.zero, Vector3.zero
 		end
 	end)
 end
