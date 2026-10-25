@@ -140,7 +140,7 @@ function ViewmodelRig.solve(rig: ViewmodelRig, handleCf: CFrame, rootWeight: num
 		if motor then
 			local transform = motor.Transform
 			if motor == rig.rootMotor and rootWeight and rootWeight < 1 then
-				transform = CFrame.identity:Lerp(transform, math.max(rootWeight, 0))
+				transform = CFrame.new():Lerp(transform, math.max(rootWeight, 0))
 			end
 			cf = parentCf * motor.C0 * transform * motor.C1:Inverse()
 		else
