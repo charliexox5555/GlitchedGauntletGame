@@ -38,7 +38,7 @@ src/client/
   Controllers/ InputController, CameraController, MovementController, WeaponController,
                ViewmodelController, EffectsController, HudController, PoseController ✅
                ModController, DraftController, LobbyController ⬜
-  Util/        GunAnimator (plays the Blender clips on a gun's Motor6Ds) ✅
+  Util/        GunAnimator (plays the Blender clips on a gun's Motor6Ds), ViewmodelRig (anchored, hand-posed viewmodel guns), ViewmodelArms (avatar R15 arms + IK) ✅
 tools/         blender/ (export), opencloud/ (upload), studio/ (builder, validator, receiver)
 ```
 Each Service/Controller is a ModuleScript returning a table with optional `init()` and `start()`. Controllers only call each other from `start()` (init order isn't fixed).
