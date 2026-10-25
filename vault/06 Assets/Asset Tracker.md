@@ -53,8 +53,11 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 
 | Asset | Status | Notes |
 |---|---|---|
-| Muzzle flashes / tracers | 🟡 | Neon flash + light, tracers (none when suppressed), Ray Trace beam, Loopback discs (flat neon disc + trail), Null continuous beam with hum loop |
-| Hit sparks + pixel-dissolve death | 🟡 | Spark particles + glow mark; neon pixel burst on death. No blood |
+| VFX textures (17) | ✅ | Rendered by `tools/vfx/make_vfx_textures.py` (Blender, emission on transparent), PNGs in `art-source/vfx/`, uploaded; image ids in `Config/VfxTextures` |
+| Muzzle flashes / tracers / shells | ✅ | Flipbook star + side flame (3rd person), core, sparks, smoke, light pop; suppressed = small puff. Travelling Beam tracers (none when suppressed). Pooled brass / shotgun shells from `Eject` (none for Ray Trace, Null, Loopback, Root, Splinter, Handshake) |
+| Wildcard effects | ✅ | Ray Trace charge glow + helix rail that sheds pixels; Null textured energy beam with end flare; Loopback spinning disc (SurfaceGui face + camera-facing ring, trail, pixels) |
+| Impacts + bullet holes | ✅ | Flash, sparks (gold extra on metal), surface-coloured dust and chips; 48 pooled holes with a rim that cools, fade after 4 s. Characters: neon sparks, ring and pixels, no blood |
+| Pixel-dissolve death + kill flash | ✅ | White-hot hologram (Highlight) → flicker out → glitch-pixel burst; cyan / gold (headshot) screen-edge flash for the killer |
 | Hit markers, kill icon | 🟡 | White / gold headshot X, cyan kill X, stacking damage numbers |
 | Mod icons (8) | ⬜ | SVG → PNG |
 | Draft card frames | ⬜ | Normal / upgrade / glitch |

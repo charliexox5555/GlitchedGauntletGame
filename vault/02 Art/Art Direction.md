@@ -52,4 +52,11 @@ Rojo **can't** live-sync MeshParts (it leaves `MeshId` empty), so finished guns 
 5. **Animations:** `python tools/make_weapon_anims.py` regenerates `src/shared/WeaponAnimations/<Id>.luau` from the exports.
 6. **Save the place** in Studio, run the validator, tick the [Asset Tracker](../06%20Assets/Asset%20Tracker.md).
 
+## VFX
+All shot effects live in `EffectsController` and use one texture set in the same neon style (cyan `#00E5FF`, magenta `#FF3DCB` for wildcards, gold for metal sparks and headshots).
+- **Textures:** `blender --background --factory-startup --python tools/vfx/make_vfx_textures.py -- [names] [--preview out.png]` renders them with Cycles (emission shaders / flat emission geometry on a transparent film, straight-alpha PNG) into `art-source/vfx/`. White textures are tinted in game; the bullet hole is baked dark. `_2x2` sheets are flipbooks (each particle keeps one random frame).
+- **Upload:** `python tools/opencloud/upload_asset.py --group 11116787 --type Decal <png> "GG VFX <name>"` returns a *Decal* id; particles, beams and images need the *Image* id behind it (Studio: `InsertService:LoadAsset(id)` → the Decal's `Texture`). Store that in `Config/VfxTextures`.
+- **Rules:** keep beams readable on a bright sky (textured strands at `LightEmission` 0.6, thin at the muzzle); first person shows the front star only (a side flame seen down the barrel is a sliver); fast guns pop a dimmer light; pool anything an automatic gun fires (tracers, shells, holes, burst emitters).
+- **Screenshots:** in Studio set `Workspace` attribute `VfxTimeScale` (0 freezes, 0.05 is slow motion); Studio runs at ~15 fps unfocused, so a tracer otherwise lasts under a frame.
+
 To restore a gun by hand: right-click `ReplicatedStorage.Weapons` → **Insert from File** → `art-source/weapons/Studio/<Id>.rbxm`.
