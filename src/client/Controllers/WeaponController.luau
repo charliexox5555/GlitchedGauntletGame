@@ -192,7 +192,6 @@ local function applyEquip(slot: Slot)
 	bloom = 0
 	equipReadyAt = os.clock() + s.config.equipTime
 	ViewmodelController.equip(s.config)
-	MovementController.setWeaponMultipliers(s.config.moveMultiplier, s.config.adsMoveMultiplier)
 	updateHudWeapon()
 	playLocal(s.config.sounds.equip, 0.5)
 end
@@ -355,7 +354,6 @@ local function fireShot(s: LocalSlot)
 		config.recoil.recover
 	)
 	ViewmodelController.fire(1 - 0.5 * adsAlpha)
-	MovementController.blockSprint(0.35)
 	if predictedHit then
 		HudController.hitMarker(predictedHead)
 	end
@@ -386,7 +384,6 @@ local function swing(s: LocalSlot)
 	s.lastFire = now
 	ViewmodelController.swing()
 	playLocal(config.sounds.fire, 0.6, 1 + math.random() * 0.1)
-	MovementController.blockSprint(0.3)
 
 	local origin = cam.CFrame.Position
 	local aim = cam.CFrame.LookVector
@@ -490,7 +487,6 @@ local function update(dt: number)
 		and s.config.fireMode ~= "Melee"
 		and InputController.isDown("Aim")
 		and not MovementController.isSprinting()
-	MovementController.setAiming(aimingWanted)
 	if s then
 		local rate = 1 / math.max(s.config.adsTime, 0.05)
 		adsAlpha = math.clamp(adsAlpha + (if aimingWanted then rate else -rate) * dt, 0, 1)

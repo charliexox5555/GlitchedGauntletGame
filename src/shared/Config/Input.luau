@@ -25,7 +25,11 @@ local bindings: { [string]: Binding } = {
 		gamepad = { Enum.KeyCode.ButtonX },
 		touch = "ReloadButton",
 	},
-	Sprint = { keys = { Enum.KeyCode.LeftShift }, gamepad = { Enum.KeyCode.ButtonL3 } },
+	Sprint = {
+		keys = { Enum.KeyCode.LeftShift },
+		gamepad = { Enum.KeyCode.ButtonL3 },
+		touch = "SprintButton",
+	},
 	Crouch = {
 		keys = { Enum.KeyCode.C, Enum.KeyCode.LeftControl },
 		gamepad = { Enum.KeyCode.ButtonB },

@@ -14,10 +14,13 @@ return table.freeze({
 
 	JUMP_HEIGHT = 7.2,
 
-	CROUCH_CAMERA_DROP = 1.6, -- studs the camera lowers while crouched
-	SLIDE_CAMERA_DROP = 2.0,
-	SLIDE_CAMERA_TILT = 6, -- degrees of roll while sliding
-	CAMERA_LERP = 14, -- higher = snappier crouch camera
+	CROUCH_CAMERA_DROP = 1.4, -- studs the camera lowers while crouched
+	SLIDE_CAMERA_DROP = 1.9,
+	SLIDE_CAMERA_TILT = 5, -- degrees of roll while sliding
+	CAMERA_STIFFNESS = 140, -- crouch/slide camera spring
+	CAMERA_DAMPING_RATIO = 0.9, -- 1 = no overshoot, lower = a little bounce
+	SPRINT_FOV_KICK = 4, -- extra degrees of FOV while sprinting
+	SLIDE_FOV_KICK = 8, -- ...and while sliding
 
 	-- Server sanity check on replicated movement (anti speed-hack telemetry).
 	MAX_LEGIT_SPEED = 45,

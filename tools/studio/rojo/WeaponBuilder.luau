@@ -242,9 +242,8 @@ function Builder.build(id: string, axes: string?): Model
 	buddy.Name = "Buddy"
 	buddy.Parent = model
 
-	if data.att_positions then
-		model:SetAttribute("AttPositions", data.att_positions)
-	end
+	-- (Bitrate's att_positions stay in BuildData: Server Authority drops string
+	-- attributes over 50 characters.)
 	local _, size = model:GetBoundingBox()
 	model:SetAttribute("Length", math.round(size.Z * 1000) / 1000)
 	model:SetAttribute("SourceAsset", data.assetId)

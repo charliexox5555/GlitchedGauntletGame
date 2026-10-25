@@ -21,6 +21,9 @@ local zoomFov: number? = nil
 local zoomAlpha = 0
 local roll = 0
 local targetRoll = 0
+local moveFov = 0
+local targetMoveFov = 0
+local MOVE_FOV_RATE = 8
 
 -- Recoil state, radians.
 local pendingPitch = 0 -- not yet applied (smoothed in over a few frames)
@@ -73,6 +76,11 @@ function CameraController.setRoll(degrees: number)
 	targetRoll = math.rad(degrees)
 end
 
+-- Extra FOV from movement (sprint/slide kick), eased in and out. Faded out while aiming.
+function CameraController.setMoveFov(degrees: number)
+	targetMoveFov = degrees
+end
+
 local function step(dt: number)
 	local cam = Workspace.CurrentCamera
 	if not cam then
@@ -80,10 +88,14 @@ local function step(dt: number)
 	end
 
 	-- FOV
-	local fov = if zoomFov then lerp(baseFov, zoomFov, zoomAlpha) else baseFov
+	moveFov = lerp(moveFov, targetMoveFov, 1 - math.exp(-MOVE_FOV_RATE * dt))
+	local zoomed = if zoomFov then lerp(baseFov, zoomFov, zoomAlpha) else baseFov
+	local fov = zoomed + moveFov * (1 - zoomAlpha)
 	cam.FieldOfView = fov
+	-- First person: the game draws its own crosshair, so hide the OS cursor.
+	UserInputService.MouseIconEnabled = false
 	-- Keep aim speed consistent when zoomed.
-	UserInputService.MouseDeltaSensitivity = math.clamp(fov / baseFov, 0.2, 1)
+	UserInputService.MouseDeltaSensitivity = math.clamp(zoomed / baseFov, 0.2, 1)
 
 	-- Recoil: smooth the new kick in, then recover the recoverable share.
 	local applyT = 1 - math.exp(-KICK_APPLY_RATE * dt)

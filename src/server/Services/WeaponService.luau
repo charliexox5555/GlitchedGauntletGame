@@ -228,7 +228,14 @@ function WeaponService.attachWorldModel(character: Model, id: string?): Model?
 	grip.Parent = handle
 	handle.CFrame = hand.CFrame * GRIP_C0
 	model.Parent = character
-	character:SetAttribute("WeaponId", id)
+	-- Cosmetic state lives on the Player (not the predicted character) so it
+	-- never triggers Server Authority rollbacks. Dummies keep it on the model.
+	local owner = Players:GetPlayerFromCharacter(character)
+	if owner then
+		owner:SetAttribute("WeaponId", id)
+	else
+		character:SetAttribute("WeaponId", id)
+	end
 	return model
 end
 
@@ -240,6 +247,9 @@ local function refreshWorldModel(player: Player)
 	end
 	local slot = state.equipped and state.slots[state.equipped]
 	state.worldModel = WeaponService.attachWorldModel(character, slot and slot.id or nil)
+	-- Read by the movement simulation (shared/Simulation/Movement).
+	player:SetAttribute("MoveMult", if slot then slot.config.moveMultiplier else 1)
+	player:SetAttribute("AdsMult", if slot then slot.config.adsMoveMultiplier else 1)
 end
 
 -- Loadout --------------------------------------------------------------------
@@ -478,11 +488,8 @@ local function onAim(player: Player, pitch: unknown, aiming: unknown)
 	if typeof(pitch) ~= "number" or pitch ~= pitch or typeof(aiming) ~= "boolean" then
 		return
 	end
-	local character = player.Character
-	if character then
-		character:SetAttribute("AimPitch", math.clamp(pitch, -1.5, 1.5))
-		character:SetAttribute("Aiming", aiming)
-	end
+	player:SetAttribute("AimPitch", math.clamp(pitch, -1.5, 1.5))
+	player:SetAttribute("Aiming", aiming)
 end
 
 local function onDev(player: Player, slot: unknown)

@@ -81,7 +81,9 @@ local function rigFor(model: Model): Rig
 end
 
 local function pose(model: Model)
-	if not model:GetAttribute("WeaponId") or not model:FindFirstChild("WorldWeapon") then
+	-- Players carry their cosmetic state on the Player; dummies on the model.
+	local source: Instance = Players:GetPlayerFromCharacter(model) or model
+	if not source:GetAttribute("WeaponId") or not model:FindFirstChild("WorldWeapon") then
 		return
 	end
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
@@ -89,7 +91,7 @@ local function pose(model: Model)
 		return
 	end
 	local r = rigFor(model)
-	local pitch = (model:GetAttribute("AimPitch") :: number?) or 0
+	local pitch = (source:GetAttribute("AimPitch") :: number?) or 0
 	local armPitch = pitch * (1 - WAIST_SHARE)
 	setTransform(
 		r.rightShoulder,

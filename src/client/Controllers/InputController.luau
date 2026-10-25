@@ -1,7 +1,10 @@
 --!strict
--- Builds the Input Action System context from Config/Input at runtime, so
--- every binding lives in data. Other controllers read actions by name.
+-- Reads the player's Input Action System context. The server builds it from
+-- Config/Input and parents a copy under each Player (Server Authority sends
+-- those inputs to the server simulation). Other controllers read actions by
+-- name; touch buttons are linked here on the client.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Bindings = require(ReplicatedStorage.Shared.Config.Input)
@@ -11,31 +14,14 @@ local InputController = {}
 local context: InputContext? = nil
 local actions: { [string]: InputAction } = {}
 
-local function addBinding(action: InputAction, key: Enum.KeyCode)
-	local binding = Instance.new("InputBinding")
-	binding.Name = key.Name
-	binding.KeyCode = key
-	binding.Parent = action
-end
-
 function InputController.init()
-	local ctx = Instance.new("InputContext")
-	ctx.Name = "PlayContext"
-	for name, b in Bindings do
-		local action = Instance.new("InputAction")
-		action.Name = name
-		action.Type = Enum.InputActionType.Bool
-		for _, key in b.keys do
-			addBinding(action, key)
+	local ctx = Players.LocalPlayer:WaitForChild("PlayContext") :: InputContext
+	for name in Bindings do
+		local action = ctx:WaitForChild(name, 10)
+		if action and action:IsA("InputAction") then
+			actions[name] = action
 		end
-		for _, key in b.gamepad do
-			addBinding(action, key)
-		end
-		action.Parent = ctx
-		actions[name] = action
 	end
-	-- Client-side instance: lives only on this machine.
-	ctx.Parent = ReplicatedStorage
 	context = ctx
 end
 
@@ -61,7 +47,7 @@ end
 -- Links on-screen touch buttons (named in Config/Input) to their actions.
 function InputController.bindTouchButtons(root: Instance)
 	for name, b in Bindings do
-		if b.touch then
+		if b.touch and actions[name] then
 			local button = root:FindFirstChild(b.touch, true)
 			if button and button:IsA("GuiButton") then
 				local binding = Instance.new("InputBinding")
