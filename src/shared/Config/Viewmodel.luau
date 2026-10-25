@@ -123,7 +123,7 @@ return table.freeze({
 	BOB_AMOUNT = Vector3.new(0.024, 0.016, 0), -- studs at walk speed
 	BOB_ROTATION = Vector3.new(0.8, 0.7, 1.4), -- degrees at walk speed
 	BOB_WALK_SPEED = 16,
-	SPRINT_BOB_SCALE = 1.8,
+	SPRINT_BOB_SCALE = 1.5,
 
 	-- Breathing: slow idle drift.
 	BREATH_RATE = 0.28, -- cycles per second

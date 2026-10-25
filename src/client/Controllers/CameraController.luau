@@ -39,6 +39,9 @@ local kickYaw = 0
 -- each frame, so it never moves the aim).
 -- Smoothed position the camera follows (see Config/Camera FOLLOW_*).
 local followPos: Vector3? = nil
+local followLast = Vector3.zero
+local followVelocity = Vector3.zero
+local followDt = 1 / 60
 
 local shakeAmp = 0 -- radians
 local shakePitch = 0 -- currently applied
@@ -111,7 +114,10 @@ function CameraController.setMoveFov(degrees: number)
 end
 
 -- Moves the camera by how far the smoothed character position is from the
--- predicted one, so walking renders at an even pace instead of stuttering.
+-- predicted one, so walking renders at an even pace. The prediction uses a
+-- velocity measured from the positions themselves and a smoothed frame time:
+-- the raw frame dt jitters (about 15%) and the root's AssemblyLinearVelocity
+-- reads non-zero Y even standing still, and either one makes the camera shake.
 local function smoothFollow(cam: Camera, dt: number)
 	local character = Players.LocalPlayer.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
@@ -121,12 +127,20 @@ local function smoothFollow(cam: Camera, dt: number)
 	end
 	local raw = root.Position
 	local current = followPos
-	if not current or (raw - current).Magnitude > CameraConfig.FOLLOW_SNAP then
+	if not current or (raw - current).Magnitude > CameraConfig.FOLLOW_SNAP or dt <= 0 then
 		followPos = raw
+		followLast = raw
+		followVelocity = Vector3.zero
 		return
 	end
-	local predicted = current + root.AssemblyLinearVelocity * dt
-	local smoothed = predicted:Lerp(raw, 1 - math.exp(-CameraConfig.FOLLOW_CORRECTION * dt))
+	followVelocity = followVelocity:Lerp(
+		(raw - followLast) / dt,
+		1 - math.exp(-CameraConfig.FOLLOW_VELOCITY_RATE * dt)
+	)
+	followLast = raw
+	followDt += (dt - followDt) * (1 - math.exp(-CameraConfig.FOLLOW_VELOCITY_RATE * dt))
+	local predicted = current + followVelocity * followDt
+	local smoothed = predicted:Lerp(raw, 1 - math.exp(-CameraConfig.FOLLOW_CORRECTION * followDt))
 	followPos = smoothed
 	cam.CFrame += smoothed - raw
 end
