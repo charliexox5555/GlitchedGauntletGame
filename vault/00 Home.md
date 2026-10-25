@@ -9,7 +9,7 @@
 > Update this block at the end of every work session (Claude does it when asked).
 
 - **Phase:** Week 1 — "Find the fun" (prototype)
-- **Done:** research · game plan · weapon roster · art style (Style B) · all gun models made in Blender · repo + Rojo scaffold · this vault
+- **Done:** research · game plan · weapon roster · art style (Style B) · all gun models made in Blender · repo + Rojo scaffold · this vault · toolchain checks pass (rojo, stylua, selene, build) · `main` branch
 - **Now:** importing guns into Studio → building the gun system (start with Byte)
 - **Next:** rounds + tier rotation → Mods → draft → **Playtest #1**
 - **Blockers:** —
