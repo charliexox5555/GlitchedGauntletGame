@@ -14,12 +14,13 @@ local NEON = Color3.fromHex("00E5FF")
 local MAGENTA = Color3.fromHex("FF3DCB")
 
 -- Class defaults (Gunplay.md §2): hip spread and ADS.
--- Pistols: big and low in the middle of the screen, like RIVALS.
-local SIDEARM_VM = Vector3.new(0.2, -0.66, -1.3)
-local SIDEARM_SCALE = 1.0
-local SIDEARM_ROT = Vector3.new(1.5, 5, -2) -- pistols point nearly straight ahead
+-- Viewmodel: where the gun's sight (AimPoint) sits at the hip, camera space.
+-- Guns point straight ahead (RIVALS references 6 and 7): long guns low on
+-- the right, pistols big, low and just right of centre.
+local SIDEARM_VM = Vector3.new(0.33, -0.4, -1.1)
+local SIDEARM_SCALE = 1.1
 local SIDEARM_ADS = 0.8 -- camera to the rear sight while aiming
-local RIFLE_VM = Vector3.new(0.6, -0.85, -1.0)
+local RIFLE_VM = Vector3.new(0.31, -0.3, -0.65)
 
 local weapons: { [string]: WeaponConfig } = {
 	-- Sidearms ----------------------------------------------------------
@@ -54,7 +55,6 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelOffset = SIDEARM_VM,
 		adsDistance = SIDEARM_ADS,
 		viewmodelScale = SIDEARM_SCALE,
-		viewmodelRotation = SIDEARM_ROT,
 		tracerColor = NEON,
 	},
 	Root = {
@@ -96,7 +96,6 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelOffset = SIDEARM_VM,
 		adsDistance = SIDEARM_ADS,
 		viewmodelScale = SIDEARM_SCALE,
-		viewmodelRotation = SIDEARM_ROT,
 		tracerColor = NEON,
 	},
 
@@ -401,7 +400,6 @@ weapons.Splinter = {
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
 	viewmodelScale = SIDEARM_SCALE,
-	viewmodelRotation = SIDEARM_ROT,
 	tracerColor = NEON,
 }
 
@@ -442,7 +440,6 @@ weapons.Flicker = {
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
 	viewmodelScale = SIDEARM_SCALE,
-	viewmodelRotation = SIDEARM_ROT,
 	tracerColor = NEON,
 }
 
@@ -491,7 +488,6 @@ weapons.Mute = {
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
 	viewmodelScale = SIDEARM_SCALE,
-	viewmodelRotation = SIDEARM_ROT,
 	tracerColor = NEON,
 }
 
@@ -864,8 +860,7 @@ weapons.DualBoot = {
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
-	viewmodelRotation = SIDEARM_ROT,
-	viewmodelOffset = Vector3.new(0.42, -0.55, -1.2),
+	viewmodelOffset = Vector3.new(0.42, -0.43, -1.1), -- the left gun mirrors it
 	tracerColor = MAGENTA,
 }
 

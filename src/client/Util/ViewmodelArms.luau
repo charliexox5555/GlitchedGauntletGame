@@ -8,7 +8,6 @@
 -- show the skin underneath). Mesh: tools/blender/make_arm_mesh.py.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 
@@ -17,12 +16,15 @@ export type Side = "Right" | "Left"
 type Arm = { base: BasePart, overlay: BasePart }
 
 export type Arms = {
-	model: Model,
+	-- A WorldModel, not a plain Model: under Server Authority the Workspace
+	-- snaps part positions to a coarse grid (up to ~0.006 studs, depending on
+	-- where you stand), which made each viewmodel part jitter on its own. A
+	-- WorldModel keeps exact positions and still renders under the Camera.
+	model: WorldModel,
 	sides: { [Side]: Arm },
-	parts: { BasePart },
-	cframes: { CFrame },
+	parts: { BasePart }, -- RightArm, RightSleeve, LeftArm, LeftSleeve
+	cframes: { CFrame }, -- where `place` put each part this frame
 	shirt: boolean,
-	depth: number, -- current depth push (mesh scale follows it)
 }
 
 local ViewmodelArms = {}
@@ -88,7 +90,7 @@ local function block(
 end
 
 function ViewmodelArms.build(character: Model?): Arms
-	local model = Instance.new("Model")
+	local model = Instance.new("WorldModel")
 	model.Name = "ViewmodelArms"
 	local template = shirtTemplate(character)
 	local width = VM.ARM_WIDTH / VM.ARM_MESH_SIZE.X
@@ -115,7 +117,6 @@ function ViewmodelArms.build(character: Model?): Arms
 		parts = parts,
 		cframes = table.create(#parts, CFrame.identity),
 		shirt = template ~= "",
-		depth = 1,
 	}
 end
 
@@ -126,22 +127,18 @@ function ViewmodelArms.setVisible(arms: Arms, visible: boolean)
 	end
 end
 
--- Lays one arm from `shoulder` (any point further along the arm, off-screen)
--- down to `grip`: the block's hand end sits just past the grip. `right` sets
--- the block's roll (its X axis is the character's right). The block is then
--- pushed `depth` times further from `eye` and drawn that much bigger, so it
--- looks the same on screen but sits behind the gun (1 = no push). Writes both
--- parts' CFrames at `index`.
-function ViewmodelArms.solve(
-	arms: Arms,
-	index: number,
-	shoulder: Vector3,
-	grip: Vector3,
-	right: Vector3,
-	eye: Vector3,
-	depth: number
-)
-	local up = shoulder - grip
+-- Moves both arms to where `place` put them.
+function ViewmodelArms.apply(arms: Arms)
+	arms.model:BulkMoveTo(arms.parts, arms.cframes, Enum.BulkMoveMode.FireCFrameChanged)
+end
+
+-- Lays one arm along the line from `hand` toward `toward` (any point further
+-- up the arm, off-screen): the block's hand end sits just past `hand`, so the
+-- grip is in its "palm". `right` sets the block's roll (its X axis is the
+-- character's right). Writes both layers' CFrames into `arms.cframes`; `apply`
+-- moves them, in the same render step as the gun.
+function ViewmodelArms.place(arms: Arms, side: Side, hand: Vector3, toward: Vector3, right: Vector3)
+	local up = toward - hand
 	if up.Magnitude < 1e-4 then
 		return
 	end
@@ -152,28 +149,11 @@ function ViewmodelArms.solve(
 	end
 	x = x.Unit
 	local length = VM.ARM_WIDTH / VM.ARM_MESH_SIZE.X * VM.ARM_MESH_SIZE.Y
-	-- The hand end overshoots the grip a little so the grip sits in the "palm".
-	local center = grip + up * (length / 2 - VM.ARM_WIDTH * VM.HAND_OVERSHOOT)
-	center = eye + (center - eye) * depth
+	local center = hand + up * (length / 2 - VM.ARM_WIDTH * VM.HAND_OVERSHOOT)
 	local cf = CFrame.fromMatrix(center, x, up, x:Cross(up))
+	local index = if side == "Right" then 1 else 3
 	arms.cframes[index] = cf
 	arms.cframes[index + 1] = cf
-	if depth ~= arms.depth then
-		arms.depth = depth
-		local width = VM.ARM_WIDTH / VM.ARM_MESH_SIZE.X * depth
-		for _, p in arms.parts do
-			local mesh = p:FindFirstChildOfClass("SpecialMesh")
-			if mesh then
-				local inflate = if p.Name:find("Sleeve") then VM.SLEEVE_INFLATE else 1
-				mesh.Scale = Vector3.one * width * inflate
-			end
-		end
-	end
-end
-
--- Moves all arm parts to the CFrames written by `solve`.
-function ViewmodelArms.apply(arms: Arms)
-	Workspace:BulkMoveTo(arms.parts, arms.cframes, Enum.BulkMoveMode.FireCFrameChanged)
 end
 
 return ViewmodelArms

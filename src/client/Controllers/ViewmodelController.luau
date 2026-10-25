@@ -1,16 +1,26 @@
 --!strict
--- First-person viewmodel (Gunplay.md §6), RIVALS style:
---  * a scaled copy of the equipped gun in front of the camera, playing its own
---    Blender Fire/Reload clips (GunAnimator). Every part is anchored and posed
---    by hand each frame (Util/ViewmodelRig), so nothing lags the camera;
---  * RIVALS-style arms (Util/ViewmodelArms): one smooth bevelled block per
---    arm in the player's skin colour and shirt, pointing from off-screen into
---    the gun's RightGrip/LeftGrip, hands following the mag/pump/bolt in clips;
---  * keyframed tracks (equip, inspect, reload body motion) and blended poses
---    (sprint, slide, crouch, air) from Config/Viewmodel, plus speed-driven bob,
---    breathing, turn sway, movement lag and recoil springs, all kept (smaller)
---    while aiming so the sights move with you.
--- Guns with two models (Dual Boot) hold one in each hand, the left one mirrored.
+-- First-person viewmodel (Gunplay.md §6), RIVALS style. One rigid rig, built
+-- the standard way (EgoMoose, "Writing an FPS framework"):
+--
+--   root = camera * motion        bob, breathing, sway, tilt (Util/ViewmodelMotion)
+--   gun  = root * hold            hip/ADS, sprint/slide poses, equip/inspect/
+--                                 reload tracks, recoil kick
+--   hand = gun * grip * hand      hands sit on the gun's grips in gun space, and
+--                                 follow the mag/pump/bolt during its clips
+--   arm  = hand + direction       each block runs from its hand along a fixed
+--                                 gun-space direction (rigid with the gun)
+--
+-- Everything is computed in that order every render frame, right after the
+-- camera, then every part (gun, its moving joints, both arms) is moved at the
+-- end of the same step with BulkMoveTo, so nothing can lag a frame or drift
+-- relative to anything else. Each gun and the arms live in their own
+-- WorldModel under the Camera: under Server Authority the Workspace snaps part
+-- positions to a coarse grid (up to ~0.006 studs depending on where you
+-- stand), which made every viewmodel part jitter on its own; WorldModels keep
+-- exact positions and still render.
+-- Guns point straight down the view (barrel parallel to the camera) with
+-- their sight at the gun's `viewmodelOffset`; perspective does the rest.
+-- Guns with two models (Dual Boot) hold one in each hand, the left mirrored.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,6 +34,7 @@ local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local ViewmodelArms = require(script.Parent.Parent.Util.ViewmodelArms)
+local ViewmodelMotion = require(script.Parent.Parent.Util.ViewmodelMotion)
 local ViewmodelRig = require(script.Parent.Parent.Util.ViewmodelRig)
 local MovementController = require(script.Parent.MovementController)
 
@@ -43,15 +54,16 @@ type FollowRule = { clip: string, hand: Side, anchor: Anchor, from: number, to: 
 
 -- One held model. A normal gun has only `Right`; Dual Boot has both.
 type Gun = {
-	model: Model,
+	model: WorldModel, -- named "Viewmodel" / "ViewmodelLeft" (EffectsController finds it)
 	handle: BasePart,
-	rig: ViewmodelRig.ViewmodelRig?,
+	rig: ViewmodelRig.ViewmodelRig?, -- built once the gun is in the workspace
 	animator: GunAnimator.GunAnimator,
 	rightGrip: Anchor?,
 	leftGrip: Anchor?,
 	muzzle: Attachment?,
 	pistol: boolean, -- both grips in one spot: a two-handed pistol hold
 	aimRel: Vector3, -- sight position relative to the grip, at rest (ADS alignment)
+	hipRel: Vector3, -- the point placed at viewmodelOffset at the hip (the sight; melee: the grip)
 	centerRel: Vector3, -- middle of the gun relative to the grip (inspect pivot)
 	follow: { FollowRule },
 	adsHide: { BasePart }, -- parts that block the sight line, faded while aiming
@@ -62,7 +74,9 @@ type Gun = {
 
 type Playing = { track: VM.Track, time: number, length: number, weight: number, fading: boolean }
 
-type Scalar = { x: number, v: number }
+type PoseWeight = { x: number, v: number, goal: number }
+
+local SIDES: { Side } = { "Right", "Left" }
 
 local guns: { [Side]: Gun } = {}
 local config: WeaponConfig? = nil
@@ -71,20 +85,19 @@ local armsLook = "" -- what the arms were built from
 local nextLookCheck = 0
 
 local playing: { [string]: Playing } = {}
-local poseWeights: { [string]: Scalar } = {}
+local poseWeights: { [string]: PoseWeight } = {}
 local weights: { [string]: number } = {}
 
 local adsAlpha = 0
 local hidden = false
-local bobPhase = 0
-local breathPhase = 0
-local bobAmount: Scalar = { x = 0, v = 0 }
-local lastCamera: CFrame? = nil
-local lastState = "Idle"
-local smoothVelocity = Vector3.zero
-
-local sway = Spring.new(VM.SWAY_STIFFNESS, VM.SWAY_DAMPING)
-local move = Spring.new(VM.MOVE_STIFFNESS, VM.MOVE_DAMPING)
+local motion = ViewmodelMotion.new()
+local motionInput: ViewmodelMotion.Input = {
+	camera = CFrame.identity,
+	velocity = Vector3.zero,
+	grounded = true,
+	sprinting = false,
+	ads = 0,
+}
 
 local DEG = math.pi / 180
 
@@ -99,18 +112,6 @@ end
 local function adsEase(t: number): number
 	t = math.clamp(t, 0, 1)
 	return t * t * t * (t * (t * 6 - 15) + 10)
-end
-
--- Critically damped scalar spring toward `target`.
-local function approach(s: Scalar, target: number, stiffness: number, dt: number): number
-	local damping = 2 * math.sqrt(stiffness)
-	local steps = math.max(1, math.ceil(dt / (1 / 120)))
-	local h = dt / steps
-	for _ = 1, steps do
-		s.v += ((target - s.x) * stiffness - s.v * damping) * h
-		s.x += s.v * h
-	end
-	return s.x
 end
 
 local function angles(rot: Vector3): CFrame
@@ -350,8 +351,12 @@ local function followWeight(rule: FollowRule, t: number): number
 	return smoothstep((t - inStart) / inLength) * smoothstep((outEnd - t) / outLength)
 end
 
-local function anchorPosition(a: Anchor): Vector3
-	return a.part.CFrame:PointToWorldSpace(a.offset)
+-- Where an anchor is this frame: from the rig's freshly solved joint CFrames
+-- (the same pass that places the gun), so a hand can never drift off it.
+local function anchorPosition(gun: Gun, a: Anchor): Vector3
+	local rig = gun.rig
+	local cf = if rig then rig.world[a.part] or a.part.CFrame else a.part.CFrame
+	return cf:PointToWorldSpace(a.offset)
 end
 
 local function handTarget(gun: Gun, hand: Side, base: Vector3): Vector3
@@ -365,7 +370,7 @@ local function handTarget(gun: Gun, hand: Side, base: Vector3): Vector3
 		if rule.clip == clip and rule.hand == hand then
 			local w = followWeight(rule, t)
 			if w > 0 then
-				pos = pos:Lerp(anchorPosition(rule.anchor), w)
+				pos = pos:Lerp(anchorPosition(gun, rule.anchor), w)
 			end
 		end
 	end
@@ -514,7 +519,7 @@ local function findOccluders(gun: Gun, distance: number, adsOffset: Vector3): { 
 		local remaining = table.clone(candidates)
 		for _ = 1, 8 do
 			params.FilterDescendantsInstances = remaining
-			local result = Workspace:Raycast(eye, dir, params)
+			local result = gun.model:Raycast(eye, dir, params)
 			if not result then
 				break
 			end
@@ -544,11 +549,21 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		warn("[Viewmodel] no model for " .. templateId)
 		return nil
 	end
-	local m = template:Clone()
-	m.Name = name
+	local clone = template:Clone()
 	local scale = weapon.viewmodelScale or VM.SCALE
-	m:ScaleTo(scale)
-	local h = m.PrimaryPart :: BasePart
+	clone:ScaleTo(scale)
+	local h = clone.PrimaryPart :: BasePart
+	-- Same contents, but in a WorldModel (exact part positions, see the top).
+	local m = Instance.new("WorldModel")
+	m.Name = name
+	for key, value in clone:GetAttributes() do
+		m:SetAttribute(key, value)
+	end
+	for _, child in clone:GetChildren() do
+		child.Parent = m
+	end
+	m.PrimaryPart = h
+	clone:Destroy()
 	for _, d in m:GetDescendants() do
 		if d:IsA("BasePart") then
 			d.Anchored = true
@@ -582,6 +597,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 			then weapon.adsReticle.center * scale
 			elseif aim then h.CFrame:PointToObjectSpace(aim.WorldPosition)
 			else Vector3.new(0, 0.3, 0),
+		hipRel = Vector3.zero,
 		centerRel = h.CFrame:PointToObjectSpace(boxCf.Position),
 		follow = {},
 		adsHide = hide,
@@ -596,6 +612,9 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 				lg.offset
 			)).Magnitude
 			< 0.2 * scale
+	-- Melee is placed by its grip; guns by their sight, so every gun's sight
+	-- lands on the same spot on screen whatever its shape.
+	gun.hipRel = if weapon.fireMode == "Melee" then Vector3.zero else gun.aimRel
 	buildFollow(gun, weapon, dual) -- reads the welds, so before the rig drops them
 	return gun
 end
@@ -805,19 +824,82 @@ local function updatePoseWeights(dt: number, state: string)
 	for name in VM.POSES do
 		local s = poseWeights[name]
 		if not s then
-			s = { x = 0, v = 0 }
+			s = { x = 0, v = 0, goal = 0 }
 			poseWeights[name] = s
 		end
-		weights[name] = approach(s, poseTarget(name, state), VM.POSE_STIFFNESS, dt)
+		-- The goal eases toward the target first, so a pose starts with no
+		-- sudden acceleration (an S-curve, not a kick).
+		s.goal += (poseTarget(name, state) - s.goal) * (1 - math.exp(-VM.POSE_FREQUENCY * dt))
+		s.x, s.v = ViewmodelMotion.spring(s.x, s.v, s.goal, VM.POSE_FREQUENCY, dt)
+		weights[name] = s.x
 	end
 end
+
+-- Where the gun sits relative to the rig's root: hip or ADS, then the
+-- movement poses, keyframed tracks and recoil, all around the grip.
+local function holdPose(
+	gun: Gun,
+	c: WeaponConfig,
+	mirror: boolean,
+	adsT: number,
+	dt: number
+): CFrame
+	local hipPos = c.viewmodelOffset
+	local hipRot = c.viewmodelRotation or Vector3.zero
+	if mirror then
+		hipPos, hipRot = mirrorPos(hipPos), mirrorRot(hipRot)
+	end
+	local hip = CFrame.new(hipPos) * angles(hipRot) * CFrame.new(-gun.hipRel)
+	local base = hip
+	if adsT > 0 then
+		local ads = CFrame.new(c.adsOffset or Vector3.zero)
+			* CFrame.new(0, 0, -(c.adsDistance or VM.ADS_DISTANCE))
+			* CFrame.new(-gun.aimRel)
+		base = hip:Lerp(ads, adsT)
+	end
+	local r = gun.recoil:update(dt)
+	local recoilCf = CFrame.new(0, 0, r.X * 0.1) * CFrame.Angles(r.Y * 0.1, 0, r.Z * 0.1)
+	return base * poseOffset(mirror) * trackOffset(gun, mirror) * recoilCf
+end
+
+local function mirrorHand(hand: VM.Hand, mirror: boolean): (Vector3, Vector3)
+	if mirror then
+		return mirrorPos(hand.offset), mirrorPos(hand.direction)
+	end
+	return hand.offset, hand.direction
+end
+
+-- Puts one arm on a gun: `grip` is the grip attachment's position this frame,
+-- `hand` the hand's offset and arm direction in gun space. During the gun's
+-- clips the hand moves toward the part it works (handTarget).
+local function holdWith(
+	a: ViewmodelArms.Arms,
+	side: Side,
+	gun: Gun,
+	gunCf: CFrame,
+	grip: Vector3,
+	hand: VM.Hand,
+	mirror: boolean
+)
+	local offset, direction = mirrorHand(hand, mirror)
+	local point = handTarget(gun, side, grip + gunCf:VectorToWorldSpace(offset))
+	ViewmodelArms.place(
+		a,
+		side,
+		point,
+		point + gunCf:VectorToWorldSpace(direction),
+		gunCf.RightVector
+	)
+end
+
+local handleCFrames: { [Side]: CFrame } = {}
 
 local function update(dt: number)
 	local cam = Workspace.CurrentCamera
 	local right = guns.Right
 	local c = config
 	if not cam or not right or not c then
-		lastCamera = cam and cam.CFrame
+		motion.lastCamera = cam and cam.CFrame
 		return
 	end
 	dt = math.min(dt, 0.1)
@@ -832,196 +914,101 @@ local function update(dt: number)
 		end
 	end
 
+	-- 1. Root: the camera plus the rig's motion (bob, breathing, sway, tilt).
 	local state = MovementController.getState()
 	local character = player.Character
-	local root = character and character:FindFirstChild("HumanoidRootPart")
-	local rawVelocity = if root and root:IsA("BasePart")
-		then root.AssemblyLinearVelocity
-		else Vector3.zero
-	-- Low-pass the predicted velocity: it steps unevenly under Server Authority.
-	smoothVelocity = smoothVelocity:Lerp(rawVelocity, 1 - math.exp(-VM.VELOCITY_SMOOTHING * dt))
-	local velocity = smoothVelocity
-	local localVel = camCf:VectorToObjectSpace(velocity)
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 	local adsT = adsEase(adsAlpha)
-	local swayScale = 1 + (VM.ADS_SWAY_SCALE - 1) * adsT
+	motionInput.camera = camCf
+	motionInput.velocity = if rootPart and rootPart:IsA("BasePart")
+		then rootPart.AssemblyLinearVelocity
+		else Vector3.zero
+	motionInput.grounded = state ~= "Air" and state ~= "Slide"
+	motionInput.sprinting = state == "Sprint"
+	motionInput.ads = adsT
+	local root = camCf * ViewmodelMotion.step(motion, motionInput, dt)
 
-	-- Turn sway: the gun lags how fast the view turns, plus a roll when strafing.
-	if lastCamera then
-		local delta = lastCamera:ToObjectSpace(camCf)
-		local rx, ry = delta:ToEulerAnglesYXZ()
-		local rate = 1 / math.max(dt, 1 / 240)
-		local max = VM.SWAY_MAX
-		sway.target = Vector3.new(
-			math.clamp(-rx * rate * VM.SWAY_AMOUNT, -max, max),
-			math.clamp(-ry * rate * VM.SWAY_AMOUNT, -max, max),
-			math.clamp(-localVel.X * VM.STRAFE_ROLL, -max, max)
-		) * swayScale
-	end
-	lastCamera = camCf
-	local s = sway:update(dt)
-
-	-- Movement lag: drifts against strafing and falling, dips on landing.
-	local airborne = state == "Air"
-	if lastState == "Air" and not airborne then
-		local fall = math.clamp(-rawVelocity.Y / 50, 0, 1)
-		move:impulse(Vector3.new(0, -VM.LAND_KICK * fall, 0))
-	end
-	lastState = state
-	local moveScale = 1 + (VM.ADS_MOVE_SCALE - 1) * adsT
-	move.target = Vector3.new(
-		math.clamp(-localVel.X * VM.MOVE_LAG, -0.06, 0.06),
-		math.clamp(-velocity.Y * VM.FALL_LAG, -0.08, 0.08),
-		math.clamp(localVel.Z * VM.MOVE_LAG * 0.5, -0.04, 0.04)
-	) * moveScale
-	local m = move:update(dt)
-
-	-- Walk bob follows real ground speed so it eases in and out; it stays
-	-- (smaller) while aiming, so the sights sway side to side as you move.
-	local flatSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
-	local grounded = not airborne and state ~= "Slide"
-	local bobTarget = if grounded then math.clamp(flatSpeed / VM.BOB_WALK_SPEED, 0, 1.6) else 0
-	local bobW = approach(bobAmount, bobTarget, 60, dt)
-	bobPhase += dt * flatSpeed * VM.BOB_FREQUENCY * math.pi
+	-- 2. Guns: root * hold pose, then every joint of the gun from its clip.
 	updatePoseWeights(dt, state)
-	local sprintW = math.clamp(weights.Sprint or 0, 0, 1)
-	local bobScale = bobW
-		* (1 + (VM.SPRINT_BOB_SCALE - 1) * sprintW)
-		* (1 + (VM.ADS_BOB_SCALE - 1) * adsT)
-	local sinP, cos2P = math.sin(bobPhase), math.cos(2 * bobPhase)
-	local bobPos = Vector3.new(sinP * VM.BOB_AMOUNT.X, cos2P * VM.BOB_AMOUNT.Y, 0) * bobScale
-	local bobRot = Vector3.new(
-		cos2P * VM.BOB_ROTATION.X,
-		sinP * VM.BOB_ROTATION.Y,
-		sinP * VM.BOB_ROTATION.Z
-	) * bobScale
-
-	-- Breathing: a slow idle drift, calmer while aiming.
-	breathPhase += dt * VM.BREATH_RATE * 2 * math.pi
-	local breathScale = 1 + (VM.ADS_BREATH_SCALE - 1) * adsT
-	local breathPos = Vector3.new(
-		math.sin(breathPhase * 0.5) * VM.BREATH_AMOUNT.X,
-		math.sin(breathPhase) * VM.BREATH_AMOUNT.Y,
-		0
-	) * breathScale
-	local breathRot = Vector3.new(math.sin(breathPhase + 0.6) * VM.BREATH_ROTATION, 0, 0)
-		* breathScale
-
 	stepTracks(dt)
+	local fade = smoothstep((adsAlpha - 0.35) / 0.45)
+	for _, side in SIDES do
+		local gun = guns[side]
+		local rig = gun and gun.rig
+		if gun and rig then
+			gun.animator:update(dt)
+			local handleCf = root * holdPose(gun, c, side == "Left", adsT, dt)
+			handleCFrames[side] = handleCf
+			ViewmodelRig.solve(rig, handleCf)
 
-	-- Shared motion of the whole viewmodel (also carries a free hand).
-	local shared = CFrame.new(m + bobPos + breathPos)
-		* angles(bobRot + breathRot)
-		* CFrame.Angles(s.X, s.Y, s.Y * 0.4 + s.Z)
-
-	local poseRight = poseOffset(false)
-	local poseLeft = if guns.Left then poseOffset(true) else poseRight
-	for side, gun in guns do
-		local mirror = side == "Left"
-		local offset = c.viewmodelOffset
-		local hipRot = c.viewmodelRotation or VM.HIP_ROTATION
-		if mirror then
-			hipRot = mirrorRot(hipRot)
-		end
-		local hip = CFrame.new(if mirror then mirrorPos(offset) else offset) * angles(hipRot)
-		local ads = CFrame.new(c.adsOffset or Vector3.zero)
-			* CFrame.new(0, 0, -(c.adsDistance or VM.ADS_DISTANCE))
-			* CFrame.new(-gun.aimRel)
-		local base = hip:Lerp(ads, adsT)
-		local r = gun.recoil:update(dt)
-		local recoilCf = CFrame.new(0, 0, r.X * 0.1) * CFrame.Angles(r.Y * 0.1, 0, r.Z * 0.1)
-		gun.animator:update(dt)
-		local rig = gun.rig
-		if rig then
-			ViewmodelRig.pose(
-				rig,
-				camCf
-					* shared
-					* base
-					* (if mirror then poseLeft else poseRight)
-					* trackOffset(gun, mirror)
-					* recoilCf
-			)
-		end
-
-		if gun.reticle then
-			gun.reticle.Enabled = adsAlpha > 0.4 and not hidden
-		end
-
-		-- Fade only the parts that block the sight line, while aiming.
-		local fade = smoothstep((adsAlpha - 0.35) / 0.45)
-		if not hidden and fade ~= gun.adsFade then
-			gun.adsFade = fade
-			for _, p in gun.adsHide do
-				p.LocalTransparencyModifier = fade
+			if gun.reticle then
+				gun.reticle.Enabled = adsAlpha > 0.4 and not hidden
+			end
+			-- Fade only the parts that block the sight line, while aiming.
+			if not hidden and fade ~= gun.adsFade then
+				gun.adsFade = fade
+				for _, p in gun.adsHide do
+					p.LocalTransparencyModifier = fade
+				end
 			end
 		end
 	end
 
-	-- Arms onto the grips (after the guns and their clips have moved).
+	-- 3. Hands and arms on the grips: gun space, from the same pass.
 	local a = arms
-	if hidden or not a then
-		return
-	end
-	-- Each arm runs from its grip down and back toward the (off-screen)
-	-- shoulder along a fixed camera-space direction, eased to its ADS
-	-- direction, so it enters the grip from below and frames the gun.
-	local view = camCf * shared
-	local rightVec = view.RightVector
-	local eye = camCf.Position
-	local pistol = right.pistol or guns.Left ~= nil -- Dual Boot: a pistol in each hand
-	local function shoulderFrom(
-		grip: Vector3,
-		hip: Vector3,
-		aimed: Vector3,
-		pistolDir: Vector3
-	): Vector3
-		local dir = if pistol then pistolDir else hip:Lerp(aimed, adsT)
-		return grip + view:VectorToWorldSpace(dir.Unit) * 3
-	end
-	local gripR = if right.rightGrip
-		then handTarget(right, "Right", anchorPosition(right.rightGrip))
-		else view:PointToWorldSpace(mirrorPos(VM.FREE_HAND))
-	local shoulderR = shoulderFrom(
-		gripR,
-		VM.ARM_DIRECTION_RIGHT,
-		VM.ADS_ARM_DIRECTION_RIGHT,
-		VM.PISTOL_ARM_DIRECTION_RIGHT
-	)
-	-- Long guns: arms pushed back so the gun reads in front. Pistols: the hand
-	-- wraps the front of the grip, as in RIVALS.
-	local depth = if pistol then VM.PISTOL_ARM_DEPTH else VM.ARM_DEPTH
-	ViewmodelArms.solve(a, 1, shoulderR, gripR, rightVec, eye, depth)
+	local rightCf = handleCFrames.Right
+	if a and rightCf and right.rig then
+		local left = guns.Left
+		local leftCf = handleCFrames.Left
+		local pistol = right.pistol or left ~= nil -- Dual Boot: a pistol in each hand
+		local rightHand = if pistol then VM.PISTOL_RIGHT_HAND else VM.RIFLE_RIGHT_HAND
+		local gripR = if right.rightGrip
+			then anchorPosition(right, right.rightGrip)
+			else rightCf.Position
+		holdWith(a, "Right", right, rightCf, gripR, rightHand, false)
 
-	local left = guns.Left
-	local gripL: Vector3
-	if left and left.rightGrip then
-		gripL = anchorPosition(left.rightGrip) -- Dual Boot: the left gun's grip
-	elseif c.fireMode == "Melee" or not right.leftGrip then
-		gripL = view:PointToWorldSpace(VM.FREE_HAND)
-	else
-		local base = anchorPosition(right.leftGrip :: Anchor)
-		-- Pistols: both grips in one spot, so the support hand sits below and
-		-- left. Long guns: the hand holds the handguard from underneath.
-		local offset = if right.pistol then VM.SUPPORT_HAND_OFFSET else VM.HANDGUARD_HAND_OFFSET
-		base = right.handle.CFrame:PointToWorldSpace(
-			right.handle.CFrame:PointToObjectSpace(base) + offset
-		)
-		if right.pistol then
-			-- Pistols are held one-handed at the hip (RIVALS); the support
-			-- hand rises in from below as you aim (and reaches for the mag
-			-- from wherever it is during a reload).
-			base = view:PointToWorldSpace(VM.PISTOL_REST_HAND):Lerp(base, adsT)
+		if left and left.rightGrip and left.rig and leftCf then
+			-- Dual Boot: the left hand holds the left gun, mirrored.
+			holdWith(
+				a,
+				"Left",
+				left,
+				leftCf,
+				anchorPosition(left, left.rightGrip),
+				VM.PISTOL_RIGHT_HAND,
+				true
+			)
+		elseif c.fireMode ~= "Melee" and right.pistol and right.rightGrip then
+			holdWith(a, "Left", right, rightCf, gripR, VM.PISTOL_LEFT_HAND, false)
+		elseif c.fireMode ~= "Melee" and right.leftGrip then
+			holdWith(
+				a,
+				"Left",
+				right,
+				rightCf,
+				anchorPosition(right, right.leftGrip),
+				VM.RIFLE_LEFT_HAND,
+				false
+			)
+		else
+			-- Melee: the free hand is a guard, riding the root.
+			local point = root:PointToWorldSpace(VM.FREE_HAND.offset)
+			local toward = point + root:VectorToWorldSpace(VM.FREE_HAND.direction)
+			ViewmodelArms.place(a, "Left", point, toward, root.RightVector)
 		end
-		gripL = handTarget(right, "Left", base)
 	end
-	local shoulderL = shoulderFrom(
-		gripL,
-		VM.ARM_DIRECTION_LEFT,
-		VM.ADS_ARM_DIRECTION_LEFT,
-		VM.PISTOL_ARM_DIRECTION_LEFT
-	)
-	ViewmodelArms.solve(a, 3, shoulderL, gripL, rightVec, eye, depth)
-	ViewmodelArms.apply(a)
+
+	-- 4. Move everything, all from this one solve.
+	for _, side in SIDES do
+		local gun = guns[side]
+		local rig = gun and gun.rig
+		if gun and rig then
+			ViewmodelRig.apply(rig, gun.model)
+		end
+	end
+	if a then
+		ViewmodelArms.apply(a)
+	end
 end
 
 function ViewmodelController.start()
@@ -1034,16 +1021,9 @@ function ViewmodelController.start()
 			armsLook = ""
 		end
 		-- Movement feel starts fresh next life (no landing dip from dying mid-air).
-		lastState = "Idle"
-		smoothVelocity = Vector3.zero
-		lastCamera = nil
+		ViewmodelMotion.reset(motion)
 		table.clear(poseWeights)
 		table.clear(weights)
-		bobAmount.x, bobAmount.v = 0, 0
-		for _, spring in { sway, move } do
-			spring.position, spring.velocity, spring.target =
-				Vector3.zero, Vector3.zero, Vector3.zero
-		end
 	end)
 end
 

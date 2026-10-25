@@ -1,11 +1,11 @@
 --!strict
--- Poses a first-person gun model by hand, every frame. Every part is anchored
--- and placed with one BulkMoveTo: animated joints from their Motor6D (C0 *
--- Transform * C1⁻¹, Transform written by GunAnimator), everything else at its
--- rest offset from the part it was welded to. Nothing in the viewmodel goes
--- through physics, so it can never lag or step behind the camera.
-
-local Workspace = game:GetService("Workspace")
+-- Poses a first-person gun model by hand, every frame. Every part is anchored;
+-- `solve` works out where each one goes for a given handle CFrame (animated
+-- joints from their Motor6D, C0 * Transform * C1⁻¹ with Transform written by
+-- GunAnimator; everything else at its rest offset from the part it was welded
+-- to), and `apply` moves them all with one BulkMoveTo. The viewmodel solves
+-- the gun and the arms first and applies everything at the end of the same
+-- render step, so nothing can lag or drift relative to anything else.
 
 type Link = {
 	part: BasePart,
@@ -17,9 +17,9 @@ type Link = {
 export type ViewmodelRig = {
 	handle: BasePart,
 	links: { Link }, -- parents always come before their children
-	parts: { BasePart },
-	cframes: { CFrame },
-	world: { [BasePart]: CFrame },
+	parts: { BasePart }, -- handle first, then `links` in order
+	cframes: { CFrame }, -- solved CFrames, in `parts` order
+	world: { [BasePart]: CFrame }, -- solved CFrame of every part
 }
 
 local ViewmodelRig = {}
@@ -36,7 +36,7 @@ local function addEdge(edges: { [BasePart]: { Edge } }, a: BasePart, b: BasePart
 end
 
 -- Builds the pose list from the model's joints (at rest), then anchors every
--- part and switches the joints off. Call before the first `pose`.
+-- part and switches the joints off. Call before the first `solve`.
 function ViewmodelRig.new(model: Model, handle: BasePart): ViewmodelRig
 	local edges: { [BasePart]: { Edge } } = {}
 	local joints: { Instance } = {}
@@ -105,20 +105,23 @@ function ViewmodelRig.new(model: Model, handle: BasePart): ViewmodelRig
 	for _, link in links do
 		table.insert(parts, link.part)
 	end
+	local world: { [BasePart]: CFrame } = {}
 	for _, p in parts do
 		p.Anchored = true
+		world[p] = p.CFrame
 	end
 	return {
 		handle = handle,
 		links = links,
 		parts = parts,
-		cframes = table.create(#parts),
-		world = {},
+		cframes = table.create(#parts, CFrame.identity),
+		world = world,
 	}
 end
 
--- Places the whole model with the handle at `handleCf`.
-function ViewmodelRig.pose(rig: ViewmodelRig, handleCf: CFrame)
+-- Works out every part's CFrame with the handle at `handleCf` (into
+-- `rig.world` and `rig.cframes`), without moving anything yet.
+function ViewmodelRig.solve(rig: ViewmodelRig, handleCf: CFrame)
 	local world = rig.world
 	local cframes = rig.cframes
 	world[rig.handle] = handleCf
@@ -132,7 +135,13 @@ function ViewmodelRig.pose(rig: ViewmodelRig, handleCf: CFrame)
 		world[link.part] = cf
 		cframes[i + 1] = cf
 	end
-	Workspace:BulkMoveTo(rig.parts, cframes, Enum.BulkMoveMode.FireCFrameChanged)
+end
+
+-- Moves every part to its solved CFrame. `root` is the WorldRoot the gun lives
+-- in (the viewmodel keeps each gun in its own WorldModel, see
+-- ViewmodelController).
+function ViewmodelRig.apply(rig: ViewmodelRig, root: WorldRoot)
+	root:BulkMoveTo(rig.parts, rig.cframes, Enum.BulkMoveMode.FireCFrameChanged)
 end
 
 return ViewmodelRig

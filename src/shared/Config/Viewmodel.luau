@@ -1,8 +1,13 @@
 --!strict
 -- First-person viewmodel feel and animation data (Gunplay.md §6). Positions
 -- are in camera space (studs, +X right, +Y up, -Z forward) for the scaled-down
--- gun. Rotations in keyframes and poses are degrees (X pitch, Y yaw, Z roll),
--- applied as CFrame.Angles around the track's pivot.
+-- gun unless a comment says "gun space" (the gun's Handle: grip at the origin,
+-- barrel along -Z). Rotations in keyframes and poses are degrees (X pitch,
+-- Y yaw, Z roll), applied as CFrame.Angles around the track's pivot.
+--
+-- The viewmodel is one rigid rig: root (camera + MOTION) -> gun (hold pose:
+-- hip/ADS, POSES, TRACKS, recoil) -> hands and arms (on the gun's grips, in
+-- gun space).
 
 export type Key = {
 	t: number, -- 0..1 through the track
@@ -23,6 +28,12 @@ export type Track = {
 }
 
 export type Pose = { pos: Vector3, rot: Vector3 }
+
+-- A hand: position (from its grip) and the direction its arm runs from there.
+export type Hand = { offset: Vector3, direction: Vector3 }
+
+-- Bob amplitude: studs (pos) and degrees (rot: pitch, yaw, roll).
+export type Bob = { pos: Vector3, rot: Vector3 }
 
 -- Which moving rig joint a hand grabs while one of the gun's own Blender clips
 -- plays. "Bottom": the bottom of the parts on that joint (a magazine);
@@ -45,13 +56,9 @@ local OUT = Enum.EasingDirection.Out
 local INOUT = Enum.EasingDirection.InOut
 
 return table.freeze({
-	-- Guns are modelled at world size; first person shows them at this scale,
-	-- big and close in the lower right like RIVALS.
+	-- Guns are modelled at world size; first person shows them at this scale.
 	SCALE = 0.75,
 	ADS_DISTANCE = 0.7, -- camera to the AimPoint while aiming (per gun: adsDistance)
-
-	-- Hip pose rotation on top of the gun's viewmodelOffset (angled slightly in).
-	HIP_ROTATION = Vector3.new(8, 20, -6),
 
 	-- Arms (Util/ViewmodelArms): one bevelled block per arm, RIVALS style.
 	-- Mesh from tools/blender/make_arm_mesh.py (art-source/viewmodel/Arms.fbx,
@@ -62,32 +69,39 @@ return table.freeze({
 		Left = "rbxassetid://98808533168115",
 	},
 	ARM_MESH_SIZE = Vector3.new(1, 5, 1),
-	ARM_WIDTH = 0.42,
+	ARM_WIDTH = 0.5,
 	SLEEVE_INFLATE = 1.015, -- shirt layer sits just outside the skin block
 	HAND_OVERSHOOT = 0.3, -- in arm widths: how far the block ends past the grip
-	-- Arms are drawn this many times further away (and bigger), so they look
-	-- the same on screen but sit behind the gun: the gun always reads in front.
-	ARM_DEPTH = 1.15,
-	-- Pistols: a touch nearer instead, so the hand wraps the front of the grip.
-	PISTOL_ARM_DEPTH = 0.78,
-	-- Direction from each grip toward its shoulder (camera space): down and
-	-- back, so the arms come up from below and frame the gun, not cover it.
-	ARM_DIRECTION_RIGHT = Vector3.new(0.3, -1, 0.55),
-	ARM_DIRECTION_LEFT = Vector3.new(-0.35, -1, 0.45),
-	ADS_ARM_DIRECTION_RIGHT = Vector3.new(0.2, -1, 0.6),
-	ADS_ARM_DIRECTION_LEFT = Vector3.new(-0.25, -1, 0.5),
-	-- Pistols: the arms come straight up from the bottom into the grip, the
-	-- support arm just to its left.
-	PISTOL_ARM_DIRECTION_RIGHT = Vector3.new(0.08, -1, 0.3),
-	PISTOL_ARM_DIRECTION_LEFT = Vector3.new(-0.2, -1, 0.25),
-	-- Long guns: the support hand holds the handguard from underneath (gun space).
-	HANDGUARD_HAND_OFFSET = Vector3.new(0, -0.1, 0),
-	-- Pistols at the hip are one-handed: the support hand waits here, off-screen.
-	PISTOL_REST_HAND = Vector3.new(-0.5, -1.7, -0.6),
-	-- Pistols put both grips in one spot; the support hand cups under and to the left.
-	SUPPORT_HAND_OFFSET = Vector3.new(-0.1, -0.05, 0.04),
-	-- Melee: the free hand rests here (camera space) as a guard.
-	FREE_HAND = Vector3.new(-0.62, -0.78, -1.05),
+
+	-- Hands (gun space, mirrored on Dual Boot's left gun): where each hand sits
+	-- from its grip attachment, and the direction its arm runs from there
+	-- (toward the elbow, off-screen). Hand and arm are rigid with the gun, so
+	-- they move as one with it; only clips (reload, pump, bolt) move a hand.
+	-- Long guns: right hand along the grip, support hand under the handguard.
+	RIFLE_RIGHT_HAND = {
+		offset = Vector3.new(0, -0.06, 0.05),
+		direction = Vector3.new(0.2, -0.68, 0.7),
+	} :: Hand,
+	RIFLE_LEFT_HAND = {
+		offset = Vector3.new(0, -0.13, 0),
+		direction = Vector3.new(-0.4, -0.5, 0.77),
+	} :: Hand,
+	-- Pistols: two-handed, high grip. The right hand wraps the grip, its top
+	-- just under the back of the slide; the left hand cups it from below and
+	-- to the left.
+	PISTOL_RIGHT_HAND = {
+		offset = Vector3.new(0.01, 0.23, 0.52),
+		direction = Vector3.new(0.1, -0.6, 0.8),
+	} :: Hand,
+	PISTOL_LEFT_HAND = {
+		offset = Vector3.new(-0.22, 0.1, 0.56),
+		direction = Vector3.new(-0.45, -0.55, 0.7),
+	} :: Hand,
+	-- Melee: the free hand rests here as a guard (root space).
+	FREE_HAND = {
+		offset = Vector3.new(-0.5, -0.75, -0.95),
+		direction = Vector3.new(-0.35, -0.7, 0.6),
+	} :: Hand,
 
 	-- Hands follow the gun's moving parts during its Blender clips. Reload: the
 	-- left hand takes the first joint the clip moves, then any later one (e.g.
@@ -105,57 +119,71 @@ return table.freeze({
 	-- Share of the clip the hand takes to reach a part before it moves / to come back.
 	FOLLOW_LEAD = 0.14,
 
-	-- Predicted velocity steps unevenly under Server Authority: low-pass it (1/s).
-	VELOCITY_SMOOTHING = 12,
+	-- Motion of the whole rig (Util/ViewmodelMotion). Every spring is
+	-- critically damped and solved exactly, so it looks the same at any frame
+	-- rate; `frequency` is its natural frequency (rad/s, higher = snappier).
+	-- Rotations turn around MOTION_PIVOT (about where the hands are), so the
+	-- gun tilts instead of swinging around the camera.
+	MOTION_PIVOT = Vector3.new(0.2, -0.45, -1.1),
+	VELOCITY_SMOOTHING = 10, -- low-pass on the predicted velocity (1/s)
 
-	-- Sway follows how fast the view turns; strafing rolls the gun.
-	SWAY_AMOUNT = 0.018, -- radians of sway per rad/s of turn
-	SWAY_MAX = 0.1, -- radians
-	SWAY_STIFFNESS = 140,
-	SWAY_DAMPING = 17,
-	STRAFE_ROLL = 0.005, -- radians per stud/s of sideways speed
-	-- Movement lag: the gun drifts against strafing/forward motion and falls.
-	MOVE_LAG = 0.0032, -- studs per stud/s
-	FALL_LAG = 0.004, -- studs per stud/s of vertical speed
-	MOVE_STIFFNESS = 90,
-	MOVE_DAMPING = 14,
+	-- Sway: turning the view kicks a spring (pushed by how far the view turned,
+	-- not by a per-frame rate, so mouse jitter can't make it shake). The gun
+	-- lags behind the turn by rotating and shifting a little.
+	SWAY_FREQUENCY = 10,
+	SWAY_GAIN = 2.4, -- steady lag = GAIN / FREQUENCY^2 radians per rad/s of turn
+	SWAY_MAX = 0.09, -- radians, soft limit
+	SWAY_SHIFT = 0.35, -- studs of shift per radian of lag
 
-	-- Walk bob follows real ground speed so it fades in and out smoothly.
-	BOB_FREQUENCY = 0.55, -- cycles per stud travelled
-	BOB_AMOUNT = Vector3.new(0.024, 0.016, 0), -- studs at walk speed
-	BOB_ROTATION = Vector3.new(0.8, 0.7, 1.4), -- degrees at walk speed
-	BOB_WALK_SPEED = 16,
-	SPRINT_BOB_SCALE = 1.5,
+	-- Strafing rolls the gun and drifts it against the motion; falling lifts
+	-- it, landing dips it.
+	STRAFE_ROLL = 0.0035, -- radians per stud/s of sideways speed
+	STRAFE_SHIFT = 0.0022, -- studs per stud/s
+	TILT_FREQUENCY = 8,
+	FALL_LAG = 0.0035, -- studs per stud/s of vertical speed (clamped to FALL_LAG_MAX)
+	FALL_LAG_MAX = 0.07,
+	LAND_KICK = 0.9, -- studs/s of downward kick on a hard landing
+	LIFT_FREQUENCY = 11,
 
-	-- Breathing: slow idle drift.
-	BREATH_RATE = 0.28, -- cycles per second
-	BREATH_AMOUNT = Vector2.new(0.004, 0.006), -- studs
-	BREATH_ROTATION = 0.35, -- degrees of pitch
+	-- Walk bob: a figure-8 (sideways once per loop, a dip on each step, so
+	-- twice per loop), sized by ground speed and eased in and out. Sprinting
+	-- swaps to a slower, wider loop.
+	BOB_REFERENCE_SPEED = 16, -- studs/s that give the walk amount
+	BOB_WALK_FREQUENCY = 1.0, -- loops per second
+	BOB_SPRINT_FREQUENCY = 0.85,
+	BOB_WALK = { pos = Vector3.new(0.016, 0.009, 0), rot = Vector3.new(0.5, 0.6, 1.1) } :: Bob,
+	BOB_SPRINT = { pos = Vector3.new(0.034, 0.02, 0), rot = Vector3.new(1.2, 1.8, 2.6) } :: Bob,
+	BOB_EASE = 6, -- how fast the bob amount and speed ease (rad/s)
+
+	-- Breathing: slow idle drift, faded out while moving.
+	BREATH_RATE = 0.25, -- cycles per second
+	BREATH_AMOUNT = Vector2.new(0.003, 0.0045), -- studs
+	BREATH_ROTATION = 0.3, -- degrees of pitch
 
 	-- How much of each motion stays while fully aimed (1 = all of it). Kept
-	-- non-zero so the sights sway side to side as you move, like RIVALS.
-	ADS_SWAY_SCALE = 0.4,
-	ADS_MOVE_SCALE = 0.5,
-	ADS_BOB_SCALE = 0.35,
+	-- non-zero so the sights drift as you move, like RIVALS.
+	ADS_SWAY_SCALE = 0.35,
+	ADS_MOVE_SCALE = 0.4,
+	ADS_BOB_SCALE = 0.25,
 	ADS_BREATH_SCALE = 0.5,
 
-	-- Per-shot kick on the viewmodel (scaled by the gun's recoil.up).
+	-- Per-shot kick on the gun (scaled by the gun's recoil.up).
 	KICK_BACK = 0.05,
 	KICK_ROTATE = 0.035,
 	RECOIL_STIFFNESS = 260,
 	RECOIL_DAMPING = 24,
-	LAND_KICK = 0.9, -- landing dip impulse
 
-	-- Pose blends (critically damped; higher = faster).
-	POSE_STIFFNESS = 120,
+	-- Pose blends (critically damped, rad/s).
+	POSE_FREQUENCY = 13,
 	CANCEL_TIME = 0.14, -- seconds to fade out a cancelled track
 
-	-- Poses around the grip, mirrored for the left gun.
+	-- Poses of the gun around its grip, mirrored for the left gun. Sprint is a
+	-- lowered carry, muzzle down and in, rolled toward the centre.
 	POSES = {
-		Sprint = { pos = Vector3.new(0.02, -0.2, 0.1), rot = Vector3.new(-16, 38, 20) },
-		Slide = { pos = Vector3.new(-0.06, -0.14, 0.12), rot = Vector3.new(6, 14, -30) },
-		Crouch = { pos = Vector3.new(-0.01, -0.03, 0.02), rot = Vector3.new(0, 2, -5) },
-		Air = { pos = Vector3.new(0, 0.04, 0.03), rot = Vector3.new(5, 0, 2) },
+		Sprint = { pos = Vector3.new(-0.04, -0.16, 0.08), rot = Vector3.new(-14, 26, 18) },
+		Slide = { pos = Vector3.new(-0.05, -0.1, 0.08), rot = Vector3.new(4, 10, -24) },
+		Crouch = { pos = Vector3.new(-0.01, -0.02, 0.02), rot = Vector3.new(0, 2, -4) },
+		Air = { pos = Vector3.new(0, 0.03, 0.02), rot = Vector3.new(4, 0, 2) },
 	} :: { [string]: Pose },
 
 	-- Keyframed tracks.
