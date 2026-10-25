@@ -1,8 +1,9 @@
-"""Upload one audio, image or animation file to Roblox with the Open Cloud Assets API.
+"""Upload one audio, image, animation or model file to Roblox with the Open Cloud Assets API.
 
     python tools/opencloud/upload_asset.py --group 11116787 --type Audio  art-source/audio/GunAtlas.wav "GG Gun Sound Atlas"
     python tools/opencloud/upload_asset.py --group 11116787 --type Decal  art-source/vfx/out/flash.png  "GG VFX Flash"
     python tools/opencloud/upload_asset.py --group 11116787 --type Animation art-source/animations/GG_Slide.rbxm "GG Slide"
+    python tools/opencloud/upload_asset.py --group 11116787 --type Model art-source/viewmodel/Arms.fbx "GG Viewmodel Arms"
 
 Key from ROBLOX_ASSETS_KEY. Records results in art-source/uploads.json
 (keyed by file path) and prints the asset id. Audio quota: 10/month
@@ -32,13 +33,14 @@ CONTENT_TYPES = {
 	".tga": "image/tga",
 	# Animations: a Studio-serialized KeyframeSequence (tools/studio/MakePoseAnimations.luau).
 	".rbxm": "model/x-rbxm",
+	".fbx": "model/fbx",
 }
 
 
 def main():
 	ap = argparse.ArgumentParser()
 	ap.add_argument("--group", type=str, required=True)
-	ap.add_argument("--type", choices=["Audio", "Decal", "Animation"], required=True)
+	ap.add_argument("--type", choices=["Audio", "Decal", "Animation", "Model"], required=True)
 	ap.add_argument("file")
 	ap.add_argument("name")
 	args = ap.parse_args()

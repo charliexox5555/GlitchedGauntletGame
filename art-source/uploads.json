@@ -148,5 +148,11 @@
   "name": "GG VFX vignette",
   "type": "Decal",
   "uploaded": "2026-10-25 13:52:35"
+ },
+ "art-source/viewmodel/Arms.fbx": {
+  "assetId": 112778616991962,
+  "name": "GG Viewmodel Arms",
+  "type": "Model",
+  "uploaded": "2026-10-25 14:50:09"
  }
 }
