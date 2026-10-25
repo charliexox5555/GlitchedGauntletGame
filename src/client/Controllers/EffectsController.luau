@@ -16,15 +16,16 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local Audio = require(ReplicatedStorage.Shared.Config.Audio)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Net = require(ReplicatedStorage.Shared.Net)
-local SoundAtlas = require(ReplicatedStorage.Shared.Config.SoundAtlas)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
+local AudioController = require(script.Parent.AudioController)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 
 type WeaponConfig = Types.WeaponConfig
@@ -194,61 +195,6 @@ local function sparkEmitter(parent: Instance, color: Color3, size: number): Part
 	e.Squash = curve({ 0, 1.2, 1, 0.6 })
 	e.EmissionDirection = Enum.NormalId.Front
 	return e
-end
-
--- Sounds ---------------------------------------------------------------------
-
--- Makes a Sound for a Config/Sounds entry: a plain asset id, or "atlas:<Name>"
--- for a slice of the sound atlas (played with PlaybackRegion).
-function EffectsController.makeSound(id: string): (Sound?, number)
-	if id == "" then
-		return nil, 0
-	end
-	local s = Instance.new("Sound")
-	local length = 6
-	if string.sub(id, 1, 6) == "atlas:" then
-		local region = SoundAtlas[string.sub(id, 7)]
-		if not region then
-			s:Destroy()
-			return nil, 0
-		end
-		s.SoundId = Sounds.ATLAS
-		s.PlaybackRegionsEnabled = true
-		s.PlaybackRegion = NumberRange.new(region.start, region.start + region.length)
-		s.LoopRegion = s.PlaybackRegion
-		length = region.length
-	else
-		s.SoundId = id
-	end
-	s.RollOffMaxDistance = 300
-	s.RollOffMinDistance = 12
-	return s, length
-end
-
-function EffectsController.playSound(id: string, parent: Instance?, volume: number?, pitch: number?)
-	local s, length = EffectsController.makeSound(id)
-	if not s then
-		return
-	end
-	s.Volume = volume or 0.6
-	s.PlaybackSpeed = pitch or 1
-	s.Parent = parent or effectsFolder()
-	s:Play()
-	Debris:AddItem(s, length / (pitch or 1) + 0.5)
-end
-
--- Plays a sound at a world position (for other players' shots and impacts).
-function EffectsController.playSoundAt(
-	id: string,
-	position: Vector3,
-	volume: number?,
-	pitch: number?
-)
-	local holder = Instance.new("Attachment")
-	holder.WorldPosition = position
-	holder.Parent = Workspace.Terrain
-	EffectsController.playSound(id, holder, volume, pitch)
-	Debris:AddItem(holder, 6)
 end
 
 -- Light pops -------------------------------------------------------------------
@@ -1565,7 +1511,7 @@ local function newBeam(color: Color3, soundId: string?, volume: number?, local_:
 
 	local sound: Sound? = nil
 	if soundId then
-		local s = EffectsController.makeSound(soundId)
+		local s = AudioController.makeSound(soundId, if local_ then "Gun" else "Enemy")
 		if s then
 			s.Looped = true
 			s.Volume = volume or 0.5
@@ -1907,7 +1853,10 @@ local function onShotFx(shooter: Player, weaponId: string, origin: Vector3, ends
 	local muzzle = worldPoint(character, "Muzzle", left) or worldPoint(character, "Muzzle")
 	local from = if muzzle then muzzle.WorldPosition else origin
 	if config.melee then
-		EffectsController.playSoundAt(config.sounds.fire, from, 0.6)
+		AudioController.play(
+			config.sounds.fire,
+			{ group = "Enemy", at = from, volume = Audio.ENEMY_SHOT_VOLUME }
+		)
 		return
 	end
 	local cam = Workspace.CurrentCamera
@@ -1922,7 +1871,13 @@ local function onShotFx(shooter: Player, weaponId: string, origin: Vector3, ends
 			EffectsController.ejectShell(eject, config, 1, rootVelocity(character))
 		end
 	end
-	EffectsController.playSoundAt(config.sounds.fire, from, (config.sounds.fireVolume or 0.7) * 0.9)
+	AudioController.play(config.sounds.fire, {
+		group = "Enemy",
+		at = from,
+		far = true,
+		volume = Audio.ENEMY_SHOT_VOLUME * (config.sounds.fireVolume or 1),
+		pitch = config.sounds.firePitch,
+	})
 	if config.projectile then
 		local e = ends[1]
 		if typeof(e) == "Vector3" then

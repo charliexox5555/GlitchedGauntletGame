@@ -35,3 +35,5 @@ src/server/WeaponBuild/
 # Downloaded sound libraries (large; only the picked/converted clips are kept)
 art-source/audio/_download/
 art-source/audio/library/
+# Audition reel rendered by tools/audio/build_sound_atlas.py --preview
+art-source/audio/AtlasPreview.wav

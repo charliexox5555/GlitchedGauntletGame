@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
 local Dev = require(Shared.Config.Dev)
 local FireRate = require(Shared.Util.FireRate)
@@ -26,6 +27,7 @@ local Types = require(Shared.Types)
 local VM = require(Shared.Config.Viewmodel)
 local Weapons = require(Shared.Config.Weapons)
 
+local AudioController = require(script.Parent.AudioController)
 local CameraController = require(script.Parent.CameraController)
 local EffectsController = require(script.Parent.EffectsController)
 local HudController = require(script.Parent.HudController)
@@ -160,10 +162,8 @@ local function rechargeBeam(s: LocalSlot, now: number)
 	end
 end
 
-local function playLocal(id: string?, volume: number?, pitch: number?)
-	if id then
-		EffectsController.playSound(id, Workspace.CurrentCamera, volume, pitch)
-	end
+local function playLocal(id: string?, group: AudioController.Group, volume: number, pitch: number?)
+	AudioController.play(id, { group = group, volume = volume, pitch = pitch })
 end
 
 local function updateHudWeapon()
@@ -210,18 +210,18 @@ local function startReload()
 	-- Reload foley timed to the animation.
 	task.delay(duration * 0.2, function()
 		if reloadToken == token then
-			playLocal(Sounds.MagOut, 0.5)
+			playLocal(Sounds.MagOut, "Foley", Audio.FOLEY_VOLUME)
 		end
 	end)
 	task.delay(duration * 0.65, function()
 		if reloadToken == token then
-			playLocal(config.sounds.reload or Sounds.MagIn, 0.6)
+			playLocal(config.sounds.reload or Sounds.MagIn, "Foley", Audio.FOLEY_VOLUME)
 		end
 	end)
 	if s.ammo == 0 then
 		task.delay(duration * 0.88, function()
 			if reloadToken == token then
-				playLocal(Sounds.Cycle, 0.5)
+				playLocal(config.sounds.cycle or Sounds.Rack, "Foley", Audio.FOLEY_VOLUME)
 			end
 		end)
 	end
@@ -244,7 +244,7 @@ local function applyEquip(slot: Slot)
 	equipReadyAt = os.clock() + s.config.equipTime
 	ViewmodelController.equip(s.config)
 	updateHudWeapon()
-	playLocal(s.config.sounds.equip, 0.5)
+	playLocal(s.config.sounds.equip, "Foley", Audio.FOLEY_VOLUME)
 end
 
 local function equip(slot: Slot)
@@ -336,7 +336,7 @@ local function cast(
 end
 
 local function dryFire()
-	playLocal(Sounds.DryFire, 0.5)
+	playLocal(Sounds.DryFire, "Foley", Audio.FOLEY_VOLUME)
 end
 
 local function fireShot(s: LocalSlot)
@@ -434,9 +434,25 @@ local function fireShot(s: LocalSlot)
 		EffectsController.localShot(config, side)
 		playLocal(
 			config.sounds.fire,
-			config.sounds.fireVolume or 0.7,
-			(config.sounds.firePitch or 1) * (0.96 + math.random() * 0.08)
+			"Gun",
+			Audio.SHOT_VOLUME * (config.sounds.fireVolume or 1),
+			config.sounds.firePitch
 		)
+		-- A hollow tick from a near-empty mag, louder as it runs dry.
+		local mag = config.magSize
+		local low = math.ceil(mag * Audio.LOW_AMMO_FRACTION)
+		if mag >= Audio.LOW_AMMO_MIN_MAG and s.ammo > 0 and s.ammo <= low then
+			playLocal(Sounds.LowAmmo, "Foley", Audio.LOW_AMMO_VOLUME * (1.4 - 0.4 * s.ammo / low))
+		end
+		-- Pump and bolt guns work the action after every shot.
+		local cycle = config.sounds.cycle
+		if cycle and (config.fireMode == "Pump" or config.fireMode == "Bolt") and s.ammo > 0 then
+			task.delay(config.fireInterval * Audio.CYCLE_DELAY, function()
+				if current() == s and alive then
+					playLocal(cycle, "Foley", Audio.FOLEY_VOLUME)
+				end
+			end)
+		end
 	end
 	local adsKick = 1 - 0.35 * adsAlpha
 	CameraController.kick(
@@ -475,7 +491,7 @@ local function swing(s: LocalSlot)
 	end
 	s.lastFire = now
 	ViewmodelController.swing()
-	playLocal(config.sounds.fire, 0.6, 1 + math.random() * 0.1)
+	playLocal(config.sounds.fire, "Gun", Audio.SHOT_VOLUME)
 
 	local origin = cam.CFrame.Position
 	local aim = cam.CFrame.LookVector
@@ -537,7 +553,7 @@ local function onFirePressed()
 	if s.config.fireMode == "Charge" and canShoot(s) then
 		chargeStart = os.clock()
 		Net.event("Charge"):FireServer()
-		playLocal(s.config.sounds.charge, 0.5, 1.4)
+		playLocal(s.config.sounds.charge, "Gun", Audio.SHOT_VOLUME * 0.8, Audio.CHARGE_PITCH)
 	end
 end
 
@@ -797,14 +813,13 @@ local function onHitConfirm(confirm: Types.HitConfirm)
 		if typeof(confirm.position) == "Vector3" then confirm.position else nil,
 		confirm.killed == true
 	)
-	if head then
-		playLocal(Sounds.HitHead, 0.55)
-	else
-		playLocal(Sounds.HitBody, 0.5)
-	end
 	if confirm.killed then
 		HudController.killMarker()
-		playLocal(Sounds.Kill, 0.6)
+		playLocal(if head then Sounds.KillHead else Sounds.Kill, "Feedback", Audio.KILL_VOLUME)
+	elseif head then
+		playLocal(Sounds.HitHead, "Feedback", Audio.HEAD_VOLUME)
+	else
+		playLocal(Sounds.HitBody, "Feedback", Audio.HIT_VOLUME)
 	end
 end
 

@@ -73,11 +73,12 @@ export type Reticle = { center: Vector3, size: Vector2, color: Color3, frame: bo
 
 export type WeaponSounds = {
 	fire: string,
-	fireVolume: number?,
+	fireVolume: number?, -- multiplier on Audio.SHOT_VOLUME (loudness per class is baked)
 	firePitch: number?,
 	reload: string?,
 	equip: string?,
 	charge: string?,
+	cycle: string?, -- bolt / pump / charging handle: after each Pump/Bolt shot and empty reloads
 }
 
 export type WeaponConfig = {

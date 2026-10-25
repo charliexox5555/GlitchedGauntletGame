@@ -41,6 +41,12 @@
   "type": "Animation",
   "uploaded": "2026-10-25 13:53:24"
  },
+ "art-source/audio/GunAtlas.flac": {
+  "assetId": 105241531021545,
+  "name": "GG Gun Sound Atlas v2",
+  "type": "Audio",
+  "uploaded": "2026-10-25 17:51:30"
+ },
  "art-source/audio/GunAtlas.wav": {
   "assetId": 95621839199583,
   "name": "GG Gun Sound Atlas",

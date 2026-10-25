@@ -91,7 +91,6 @@ local weapons: { [string]: WeaponConfig } = {
 		penetration = "None",
 		sounds = {
 			fire = Sounds.ShotHeavyPistol,
-			fireVolume = 0.9,
 			reload = Sounds.MagIn,
 			equip = Sounds.Equip,
 		},
@@ -134,7 +133,6 @@ local weapons: { [string]: WeaponConfig } = {
 		penetration = "None",
 		sounds = {
 			fire = Sounds.ShotSmg,
-			fireVolume = 0.7,
 			reload = Sounds.MagIn,
 			equip = Sounds.Equip,
 		},
@@ -170,7 +168,12 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.75,
 		penetration = "None",
-		sounds = { fire = Sounds.ShotShotgun, reload = Sounds.Cycle, equip = Sounds.Equip },
+		sounds = {
+			fire = Sounds.ShotShotgun,
+			reload = Sounds.ShellIn,
+			equip = Sounds.Equip,
+			cycle = Sounds.Pump,
+		},
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = NEON,
 	},
@@ -203,7 +206,12 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.55,
 		penetration = "None",
-		sounds = { fire = Sounds.ShotSniper, reload = Sounds.Cycle, equip = Sounds.Equip },
+		sounds = {
+			fire = Sounds.ShotSniper,
+			reload = Sounds.MagIn,
+			equip = Sounds.Equip,
+			cycle = Sounds.Bolt,
+		},
 		viewmodelOffset = SCOPED_VM,
 		tracerColor = NEON,
 	},
@@ -239,7 +247,6 @@ local weapons: { [string]: WeaponConfig } = {
 		suppressed = true,
 		sounds = {
 			fire = Sounds.ShotRifleSuppressed,
-			fireVolume = 0.55,
 			reload = Sounds.MagIn,
 			equip = Sounds.Equip,
 		},
@@ -278,7 +285,6 @@ local weapons: { [string]: WeaponConfig } = {
 		penetration = "ThinWall",
 		sounds = {
 			fire = Sounds.ShotHeavyMG,
-			fireVolume = 0.65,
 			reload = Sounds.MagIn,
 			equip = Sounds.Equip,
 		},
@@ -400,7 +406,12 @@ weapons.Splinter = {
 	moveMultiplier = 1,
 	adsMoveMultiplier = 0.8,
 	penetration = "None",
-	sounds = { fire = Sounds.ShotShotgunLight, reload = Sounds.ShellIn, equip = Sounds.Equip },
+	sounds = {
+		fire = Sounds.ShotShotgunLight,
+		reload = Sounds.ShellIn,
+		equip = Sounds.Equip,
+		cycle = Sounds.Bolt,
+	},
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
 	viewmodelScale = 1.35, -- stubby: held bigger so it doesn't look tiny
@@ -437,7 +448,6 @@ weapons.Flicker = {
 	penetration = "None",
 	sounds = {
 		fire = Sounds.ShotMachinePistol,
-		fireVolume = 0.6,
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
@@ -477,7 +487,6 @@ weapons.Mute = {
 	suppressed = true,
 	sounds = {
 		fire = Sounds.ShotSuppressed,
-		fireVolume = 0.5,
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
@@ -525,7 +534,6 @@ weapons.BurstBuffer = {
 	penetration = "None",
 	sounds = {
 		fire = Sounds.ShotSmgBurst,
-		fireVolume = 0.65,
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
@@ -562,7 +570,6 @@ weapons.Crash = {
 	penetration = "None",
 	sounds = {
 		fire = Sounds.ShotShotgunAuto,
-		fireVolume = 0.8,
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
@@ -601,7 +608,6 @@ weapons.Pulse = {
 	penetration = "None",
 	sounds = {
 		fire = Sounds.ShotRifle,
-		fireVolume = 0.7,
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
@@ -677,7 +683,6 @@ weapons.Overwrite = {
 	penetration = "None",
 	sounds = {
 		fire = Sounds.ShotRifleHeavy,
-		fireVolume = 0.75,
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
@@ -712,7 +717,12 @@ weapons.Handshake = {
 	moveMultiplier = 0.93,
 	adsMoveMultiplier = 0.55,
 	penetration = "None",
-	sounds = { fire = Sounds.ShotSniperDouble, reload = Sounds.ShellIn, equip = Sounds.Equip },
+	sounds = {
+		fire = Sounds.ShotSniperDouble,
+		reload = Sounds.ShellIn,
+		equip = Sounds.Equip,
+		cycle = Sounds.Bolt,
+	},
 	viewmodelOffset = SCOPED_VM,
 	tracerColor = NEON,
 }
@@ -744,7 +754,12 @@ weapons.Kernel = {
 	moveMultiplier = 0.9,
 	adsMoveMultiplier = 0.45, -- slow while scoped
 	penetration = "None",
-	sounds = { fire = Sounds.ShotSniperHeavy, reload = Sounds.Cycle, equip = Sounds.Equip },
+	sounds = {
+		fire = Sounds.ShotSniperHeavy,
+		reload = Sounds.ShellIn,
+		equip = Sounds.Equip,
+		cycle = Sounds.Bolt,
+	},
 	viewmodelOffset = SCOPED_VM,
 	tracerColor = NEON,
 }
@@ -779,7 +794,6 @@ weapons.Overflow = {
 	penetration = "None",
 	sounds = {
 		fire = Sounds.ShotMachineGun,
-		fireVolume = 0.7,
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
@@ -860,7 +874,6 @@ weapons.DualBoot = {
 	penetration = "None",
 	sounds = {
 		fire = Sounds.ShotDual,
-		fireVolume = 0.6,
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},

@@ -12,12 +12,15 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local Audio = require(ReplicatedStorage.Shared.Config.Audio)
 local Dev = require(ReplicatedStorage.Shared.Config.Dev)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 local Types = require(ReplicatedStorage.Shared.Types)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
+local AudioController = require(script.Parent.AudioController)
 local InputController = require(script.Parent.InputController)
 
 local HudController = {}
@@ -798,9 +801,18 @@ function HudController.start()
 	end
 	RunService.RenderStepped:Connect(update)
 	Net.event("Killed").OnClientEvent:Connect(onKilled)
+	local lastHurt = 0
 	Net.event("Damaged").OnClientEvent:Connect(function(from: Vector3)
 		if typeof(from) == "Vector3" then
 			HudController.damageFrom(from)
+		end
+		local now = os.clock()
+		if now - lastHurt >= Audio.DAMAGE_MIN_GAP then
+			lastHurt = now
+			AudioController.play(
+				Sounds.Damage,
+				{ group = "Feedback", volume = Audio.DAMAGE_VOLUME }
+			)
 		end
 	end)
 end
