@@ -28,3 +28,6 @@ vault/.trash/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Temporary copy of tools/studio/rojo synced into Studio while guns are (re)built
+src/server/WeaponBuild/

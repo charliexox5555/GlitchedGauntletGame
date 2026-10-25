@@ -1,0 +1,34 @@
+"""Turn art-source/weapons/Exports/<Id>.json into the compact build data the
+Studio WeaponBuilder reads (tools/studio/rojo/BuildData/<Id>.json; Rojo syncs
+it into ServerStorage.WeaponBuild while guns are being built).
+
+Usage: python tools/studio/make_build_data.py
+"""
+
+import json
+import os
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+EXPORTS = os.path.join(ROOT, "art-source", "weapons", "Exports")
+OUT = os.path.join(ROOT, "tools", "studio", "rojo", "BuildData")
+KEEP = ("id", "gun", "bones", "parts", "locators", "options_visible")
+
+
+def main():
+	os.makedirs(OUT, exist_ok=True)
+	assets = json.load(open(os.path.join(EXPORTS, "assets.json")))
+	for name in sorted(os.listdir(EXPORTS)):
+		if not name.endswith(".json") or name == "assets.json":
+			continue
+		data = json.load(open(os.path.join(EXPORTS, name)))
+		out = {k: data[k] for k in KEEP}
+		out["assetId"] = assets.get(data["id"], {}).get("assetId", 0)
+		if "att_positions" in data["props"]:
+			out["att_positions"] = data["props"]["att_positions"]
+		with open(os.path.join(OUT, name), "w") as f:
+			json.dump(out, f, separators=(",", ":"))
+	print("ok")
+
+
+if __name__ == "__main__":
+	main()
