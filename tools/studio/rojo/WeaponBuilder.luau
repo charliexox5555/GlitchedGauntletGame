@@ -208,9 +208,14 @@ function Builder.build(id: string, axes: string?): Model
 			part.CollisionFidelity = Enum.CollisionFidelity.Box
 		end)
 		local joint = (p.bone and joints[p.bone]) or joints.Root or handle
-		local weld = Instance.new("WeldConstraint")
+		-- A classic Weld with an explicit offset: WeldConstraint offsets get
+		-- recomputed on clients from wherever the parts first replicate, which
+		-- scatters the parts of a gun held by another player.
+		local weld = Instance.new("Weld")
 		weld.Part0 = joint
 		weld.Part1 = part
+		weld.C0 = joint.CFrame:ToObjectSpace(part.CFrame)
+		weld.C1 = CFrame.identity
 		weld.Parent = part
 		part.Parent = model
 	end
@@ -312,7 +317,7 @@ function Builder.preview(model: Model, cf: CFrame): Model
 	for _, d in copy:GetDescendants() do
 		if d:IsA("BasePart") then
 			d.Anchored = true
-		elseif d:IsA("WeldConstraint") or d:IsA("Motor6D") then
+		elseif d:IsA("JointInstance") or d:IsA("WeldConstraint") then
 			d:Destroy()
 		end
 	end

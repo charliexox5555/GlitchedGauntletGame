@@ -1,0 +1,150 @@
+--!strict
+-- Plays the Blender Fire/Reload clips (src/shared/WeaponAnimations) on a
+-- weapon model's Rig.Motors. Each clip stores, per bone and per frame, the
+-- bone's local transform from rest, which is exactly Motor6D.Transform
+-- because WeaponBuilder builds each joint in its bone's own axes.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+type Clip = { frames: number, bones: { [string]: { number } } }
+type ClipSet = { fps: number, Fire: Clip?, Reload: Clip? }
+
+export type GunAnimator = {
+	model: Model,
+	scale: number,
+	motors: { [string]: Motor6D },
+	clips: ClipSet?,
+	clip: Clip?,
+	clipName: string?,
+	time: number,
+	speed: number,
+	length: number,
+	dirty: boolean,
+	play: (self: GunAnimator, name: string, duration: number?) -> (),
+	stop: (self: GunAnimator) -> (),
+	isPlaying: (self: GunAnimator, name: string?) -> boolean,
+	update: (self: GunAnimator, dt: number) -> (),
+}
+
+local GunAnimator = {}
+
+local animationsFolder = ReplicatedStorage:WaitForChild("Shared"):WaitForChild("WeaponAnimations")
+local cache: { [string]: ClipSet } = {}
+
+local function loadClips(id: string): ClipSet?
+	if cache[id] then
+		return cache[id]
+	end
+	local module = animationsFolder:FindFirstChild(id)
+	if not module or not module:IsA("ModuleScript") then
+		return nil
+	end
+	local clips = (require(module) :: any) :: ClipSet
+	cache[id] = clips
+	return clips
+end
+
+local function frameCFrame(data: { number }, frame: number, scale: number): CFrame
+	local i = frame * 7
+	return CFrame.new(
+		data[i + 1] * scale,
+		data[i + 2] * scale,
+		data[i + 3] * scale,
+		data[i + 5],
+		data[i + 6],
+		data[i + 7],
+		data[i + 4]
+	)
+end
+
+local function resetMotors(self: GunAnimator)
+	for _, m in self.motors do
+		m.Transform = CFrame.identity
+	end
+	self.dirty = false
+end
+
+local function play(self: GunAnimator, name: string, duration: number?)
+	local clips = self.clips
+	local clip = clips and (clips :: any)[name] :: Clip?
+	if not clips or not clip then
+		return
+	end
+	self.clip = clip
+	self.clipName = name
+	self.time = 0
+	self.length = math.max(clip.frames - 1, 1) / clips.fps
+	self.speed = if duration and duration > 0 then self.length / duration else 1
+end
+
+local function stop(self: GunAnimator)
+	self.clip = nil
+	self.clipName = nil
+	if self.dirty then
+		resetMotors(self)
+	end
+end
+
+local function isPlaying(self: GunAnimator, name: string?): boolean
+	return self.clip ~= nil and (name == nil or self.clipName == name)
+end
+
+local function update(self: GunAnimator, dt: number)
+	local clip = self.clip
+	local clips = self.clips
+	if not clip or not clips then
+		return
+	end
+	self.time += dt * self.speed
+	if self.time >= self.length then
+		stop(self)
+		return
+	end
+	local f = self.time * clips.fps
+	local i = math.floor(f)
+	local a = f - i
+	local last = clip.frames - 1
+	local i0 = math.min(i, last)
+	local i1 = math.min(i + 1, last)
+	for bone, data in clip.bones do
+		local motor = self.motors[bone]
+		if motor then
+			local c0 = frameCFrame(data, i0, self.scale)
+			motor.Transform = if a > 0 and i1 ~= i0
+				then c0:Lerp(frameCFrame(data, i1, self.scale), a)
+				else c0
+		end
+	end
+	self.dirty = true
+end
+
+function GunAnimator.new(model: Model, weaponId: string, scale: number): GunAnimator
+	local motors: { [string]: Motor6D } = {}
+	local rig = model:FindFirstChild("Rig")
+	local folder = rig and rig:FindFirstChild("Motors")
+	if folder then
+		for _, m in folder:GetChildren() do
+			if m:IsA("Motor6D") then
+				motors[m.Name] = m
+			end
+		end
+	end
+	return {
+		model = model,
+		scale = scale,
+		motors = motors,
+		clips = loadClips(weaponId),
+		clip = nil,
+		clipName = nil,
+		time = 0,
+		speed = 1,
+		length = 0,
+		dirty = false,
+		play = play,
+		stop = stop,
+		isPlaying = isPlaying,
+		update = update,
+	}
+end
+
+return GunAnimator
