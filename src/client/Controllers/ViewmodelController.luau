@@ -894,23 +894,30 @@ local function poseOffset(mirror: boolean, weights: { [string]: number }): CFram
 	return cf
 end
 
+-- How much of each pose (Config/Viewmodel POSES) the movement state asks for.
+local function poseTarget(name: string, state: string): number
+	if state ~= name then
+		return 0
+	elseif name == "Sprint" then
+		return 1 - adsAlpha
+	elseif name == "Slide" then
+		return 1 - 0.75 * adsAlpha
+	end
+	return 1 - 0.8 * adsAlpha
+end
+
+local weights: { [string]: number } = {}
+
 local function updatePoseWeights(dt: number, state: string): { [string]: number }
-	local targets = {
-		Sprint = if state == "Sprint" then 1 - adsAlpha else 0,
-		Slide = if state == "Slide" then 1 - 0.75 * adsAlpha else 0,
-		Crouch = if state == "Crouch" then 1 - 0.8 * adsAlpha else 0,
-		Air = if state == "Air" then 1 - 0.8 * adsAlpha else 0,
-	}
-	local out = {}
-	for name, target in targets do
+	for name in VM.POSES do
 		local s = poseWeights[name]
 		if not s then
 			s = { x = 0, v = 0 }
 			poseWeights[name] = s
 		end
-		out[name] = approach(s, target, VM.POSE_STIFFNESS, dt)
+		weights[name] = approach(s, poseTarget(name, state), VM.POSE_STIFFNESS, dt)
 	end
-	return out
+	return weights
 end
 
 local function update(dt: number)
@@ -979,7 +986,7 @@ local function update(dt: number)
 	local bobTarget = if grounded then math.clamp(flatSpeed / VM.BOB_WALK_SPEED, 0, 1.6) else 0
 	local bobW = approach(bobAmount, bobTarget, 60, dt)
 	bobPhase += dt * flatSpeed * VM.BOB_FREQUENCY * math.pi
-	local weights = updatePoseWeights(dt, state)
+	updatePoseWeights(dt, state)
 	local sprintW = math.clamp(weights.Sprint or 0, 0, 1)
 	local bobScale = bobW
 		* (1 + (VM.SPRINT_BOB_SCALE - 1) * sprintW)
