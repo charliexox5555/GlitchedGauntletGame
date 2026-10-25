@@ -22,7 +22,7 @@ GlitchedGauntletGame/
 Built so far (✅) and still planned (⬜):
 ```
 src/shared/
-  Config/      Game, Camera, Movement, Combat, Weapons (wave 1), Input, Sounds, Viewmodel, Dev ✅
+  Config/      Game, Camera, Movement, Combat, Weapons (wave 1), Input, Sounds, SoundAtlas, Audio, Viewmodel, Dev ✅
                Mods, Rounds, Arenas ⬜
   Net.luau     all RemoteEvents in one place (server creates, clients wait) ✅
   Types.luau   weapon config + remote payload types ✅

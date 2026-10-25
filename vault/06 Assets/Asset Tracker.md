@@ -62,5 +62,5 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | Mod icons (8) | ⬜ | SVG → PNG |
 | Draft card frames | ⬜ | Normal / upgrade / glitch |
 | Third-person pose animations | 🟡 | 7 procedural R15 clips (aim up/level/down, sprint, crouch, crouch-walk, slide) in `art-source/animations/`, uploaded group-owned; first pass, worth a hand-keyed polish later |
-| Gun sounds | 🟡 | Placeholders from licensed libraries (Audioscape, ProSoundEffects) in `Config/Sounds.luau`; hit/kill sounds need proper UI sounds |
+| Gun sounds | ✅ | Atlas v2 (asset 105241531021545): real CC0 recordings, polished, with recordings per class (machine guns from real full-auto bursts, snipers from big bolt rifles), 3 variants + an enemy `_Far` version per gun, built by `tools/audio/build_sound_atlas.py`. Foley: Audioscape; melee and Ray Trace: ProSoundEffects. Synthesized hit tick, headshot, kill, headshot kill, damage, dry fire, low ammo. Pooled playback and mix in `AudioController` / `Config/Audio`. See [Art Direction](../02%20Art/Art%20Direction.md) → Audio |
 | Game icon + 3 thumbnails | ⬜ | |
