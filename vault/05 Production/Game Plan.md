@@ -6,7 +6,7 @@ Season 1 "real" launch target: **Wednesday Nov 25, 2026 (US Thanksgiving break)*
 
 This is the master plan. It assumes you work on the game most of the day, most days, with Claude doing a large share of the code and asset building. If you can only do evenings, every date stretches about 2x, and the order stays the same.
 
-The deeper research and the reasoning behind these decisions are in [`reports/Roblox ability draft shooter design.md`](../reports/Roblox%20ability%20draft%20shooter%20design.md).
+The deeper research and the reasoning behind these decisions are in [Design Research Report](../03%20Research/Design%20Research%20Report.md).
 
 ---
 
@@ -168,7 +168,7 @@ src/
 ## 4. Starting numbers (tune them in playtests)
 
 ### Guns (100 HP per round)
-**Moved to [`WEAPONS.md`](WEAPONS.md):** the full 22-gun roster, weapon tiers per round (Sidearm / Light / Heavy / Wildcard), build waves and gun mechanics. Rounds now open a shared weapon **tier** instead of one fixed class.
+**Moved to [Weapons](../01%20Design/Weapons.md):** the full 22-gun roster, weapon tiers per round (Sidearm / Light / Heavy / Wildcard), build waves and gun mechanics. Rounds now open a shared weapon **tier** instead of one fixed class.
 
 Target time-to-kill is about 0.4–0.6 s for automatics. Movement speed is 16 studs/s, sprint 22, with a slide.
 
@@ -475,7 +475,7 @@ Cut in this order. Cut from the top first:
 ## 11. Working with Claude every day
 
 **Start each session with:**
-> Read CLAUDE.md and docs/GAME_PLAN.md. Today is [date], we're on [day's tasks]. Here's what happened yesterday: [your 3 notes]. Build [first task] first, then wait for me to test it.
+> Read CLAUDE.md and vault/00 Home.md. Today is [date], we're on [day's tasks]. Here's what happened yesterday: [your 3 notes]. Build [first task] first, then wait for me to test it.
 
 **Tips:**
 - **One system at a time.** Ask for "the DraftService + draft screen", not "the whole game".

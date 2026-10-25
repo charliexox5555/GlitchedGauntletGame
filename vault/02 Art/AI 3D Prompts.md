@@ -8,11 +8,11 @@ Copy-paste prompts for testing AI 3D tools (Meshy, Tripo, Rodin/Hyper3D, Hunyuan
 
 AI 3D tools do much better from a **clean picture** than from text alone. Their docs say: a plain/white background, a tight crop, and a straight-on view rather than a perspective angle ([Meshy docs](https://docs.meshy.ai/en/webapp/image-to-3d), [Tripo guide](https://www.tripo3d.ai/blog/image-to-3d-printable-stl), [Scenario guide](https://help.scenario.com/en/articles/meshy-the-essentials/)). So:
 
-1. **Concept image first.** Paste the *Concept image prompt* (section 3) into an image generator (ChatGPT images, Midjourney, Ideogram, Meshy's own image tool…). Attach `docs/art/style-test/b_stylized.png` as a style reference. Generate until you get a clean **side view on white**.
+1. **Concept image first.** Paste the *Concept image prompt* (section 3) into an image generator (ChatGPT images, Midjourney, Ideogram, Meshy's own image tool…). Attach `vault/02 Art/References/style-test/b_stylized.png` as a style reference. Generate until you get a clean **side view on white**.
 2. **Image → 3D.** Upload that side view to the 3D tool's **image-to-3D**. If it supports multi-view, also generate a top view and a 3/4 view with the same prompt.
 3. **Or text → 3D** if you just want a quick look: use the *Short text-to-3D prompt* (section 4).
 4. **Clean up in Blender:** delete floating bits, cut the triangle count to the budget (section 7), split the neon into its own material, set the size, and export FBX.
-5. **Import into Roblox** with the 3D Importer and add the attachments (Muzzle, grips, AimPoint, Eject) per `GAME_PLAN.md` section 6.
+5. **Import into Roblox** with the 3D Importer and add the attachments (Muzzle, grips, AimPoint, Eject) per [Art Direction](Art%20Direction.md).
 
 **Licence check before shipping anything:** Meshy's free-tier outputs are public under CC BY 4.0, and Tripo's free tier is non-commercial ([Krea comparison](https://www.krea.ai/blog/best-ai-3d-model-generators-2026), [Cinevva guide](https://app.cinevva.com/guides/ai-3d-model-generators)). Use a paid plan for anything that goes into the real game.
 
@@ -96,7 +96,7 @@ Each gun must have a **different silhouette** so players can tell them apart on 
 | Triangles | Under ~5K for primaries, ~3K for sidearms; cut down in Blender if higher. Roblox caps a single mesh at roughly 20K ([Nilo](https://nilo.io/articles/vibe-code-roblox-triangle-limit)) |
 | Licence | Paid plan or a licence that allows commercial use |
 
-Keep the best results in `docs/art/ai-tests/<tool>/<gun>.png` so you can compare tools side by side.
+Keep the best results in `vault/02 Art/References/ai-tests/<tool>/<gun>.png` so you can compare tools side by side.
 
 ---
 
@@ -135,4 +135,4 @@ Use these for **shape language, proportion and finish**. Don't copy any single d
 **Avoid as references:** Valorant's "Glitchpop" skin line ([Upcomer](https://upcomer.com/riot-reveals-glitchpop-skin-line-in-valorant)). It's a neon digital weapon style, close to ours, so don't use it as an input. With a Valorant-inspired mode, copying it would make the game look like a clone.
 
 ### Our own reference
-Attach **`docs/art/style-test/b_stylized.png`** to every request as "this layout and palette, but more polished and professional".
+Attach **`vault/02 Art/References/style-test/b_stylized.png`** to every request as "this layout and palette, but more polished and professional".

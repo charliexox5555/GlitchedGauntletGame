@@ -2,7 +2,7 @@
 
 **How to use:**
 1. Use the same chat or session that made the rifle, so it can see the rifle's file.
-2. Attach the screenshot `docs/art/reference/bitrate_master.webp`.
+2. Attach the screenshot `vault/02 Art/References/bitrate_master.webp` ([view](References/bitrate_master.webp)).
 3. Paste everything in the box below.
 4. Approve each gun before it moves on to the next. Don't let it batch all 22 at once: quality drops and mistakes copy forward.
 

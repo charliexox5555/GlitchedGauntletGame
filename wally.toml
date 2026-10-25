@@ -1,0 +1,13 @@
+[package]
+name = "charliexox5555/glitchedgauntletgame"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+
+[dependencies]
+# Add packages only when a system needs them, then run `wally install`
+# and map Packages/ in default.project.json.
+# Trove = "sleitnick/trove@1"
+
+[server-dependencies]
+# ProfileStore = "loleris/profilestore@1"

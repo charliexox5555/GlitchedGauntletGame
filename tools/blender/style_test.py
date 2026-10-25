@@ -12,7 +12,7 @@ from pathlib import Path
 
 import bpy
 
-OUT = Path(sys.argv[-1] if len(sys.argv) > 1 and not sys.argv[-1].endswith(".py") else "docs/art/style-test")
+OUT = Path(sys.argv[-1] if len(sys.argv) > 1 and not sys.argv[-1].endswith(".py") else "vault/02 Art/References/style-test")
 OUT.mkdir(parents=True, exist_ok=True)
 
 

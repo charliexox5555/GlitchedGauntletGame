@@ -2,7 +2,9 @@
 
 All numbers are **starting values for playtesting**, not final balance. Every player has **100 HP** per round. "TTK" means time-to-kill on body shots at close range, with every shot hitting.
 
-This replaces the 5-gun table in `GAME_PLAN.md` section 4. The round format changes from "one shared class per round" to **shared weapon tiers per round** (below).
+**Gunplay style:** RIVALS-style run-and-gun. Headshots deal about **1.5×** damage. Only Root (up close), Checksum and the snipers keep a one-shot headshot as their identity. See [Gunplay](Gunplay.md).
+
+This replaces the 5-gun table in the [Game Plan](../05%20Production/Game%20Plan.md) section 4. The round format changes from "one shared class per round" to **shared weapon tiers per round** (below).
 
 ---
 
@@ -46,17 +48,17 @@ Names follow the "broken simulation / computer" theme. All are original; none ar
 ### Sidearms (T1, also the Secondary slot)
 | Gun | Role | Fire | Dmg body / head | Fire interval | Mag | TTK | Special |
 |---|---|---|---|---|---|---|---|
-| **Byte** | Default pistol (free) | Semi | 25 / 50 | 0.16 s | 12 | 0.48 s | Accurate first shot |
+| **Byte** | Default pistol (free) | Semi | 25 / 38 | 0.16 s | 12 | 0.48 s | Accurate first shot |
 | **Splinter** | Pocket shotgun | 2-shot | 9 pellets × 9 | 0.30 s | 2 | 1–2 shots up close | Useless past ~15 studs |
-| **Flicker** | Machine pistol | Auto | 18 / 36 | 0.09 s | 15 | 0.45 s | Big spread while moving |
-| **Mute** | Suppressed precision pistol | Semi | 28 / 62 | 0.18 s | 14 | 0.54 s | No tracer, quiet shots |
+| **Flicker** | Machine pistol | Auto | 18 / 27 | 0.09 s | 15 | 0.45 s | Big spread while moving |
+| **Mute** | Suppressed precision pistol | Semi | 28 / 45 | 0.18 s | 14 | 0.54 s | No tracer, quiet shots; higher headshot reward |
 | **Root** | Heavy revolver | Semi | 50 / 105 | 0.45 s | 6 | 0.45 s | One-tap headshot within 25 studs |
 
 ### SMGs (T2)
 | Gun | Role | Fire | Dmg body / head | Fire interval | Mag | TTK | Special |
 |---|---|---|---|---|---|---|---|
-| **Burst Buffer** | Burst SMG | 3-round burst | 20 / 40 | 0.06 s in burst, 0.30 s between | 24 | ~0.42 s | Very accurate bursts |
-| **Bandwidth** | Run-and-gun SMG | Auto | 20 / 45 | 0.075 s | 30 | 0.30 s | Damage drops to 16 after 25 studs; fast movement |
+| **Burst Buffer** | Burst SMG | 3-round burst | 20 / 30 | 0.06 s in burst, 0.30 s between | 24 | ~0.42 s | Very accurate bursts |
+| **Bandwidth** | Run-and-gun SMG | Auto | 20 / 30 | 0.075 s | 30 | 0.30 s | Damage drops to 16 after 25 studs; fast movement |
 
 ### Shotguns (T2)
 | Gun | Role | Fire | Dmg | Fire interval | Mag | Special |
@@ -67,10 +69,10 @@ Names follow the "broken simulation / computer" theme. All are original; none ar
 ### Rifles (T2 and T3)
 | Gun | Tier | Role | Fire | Dmg body / head | Fire interval | Mag | TTK | Special |
 |---|---|---|---|---|---|---|---|---|
-| **Pulse** | T2 | Burst rifle | 3-round burst | 22 / 50 | 0.08 s in burst, 0.32 s between | 24 | ~0.40 s | Zoomed ADS fires single shots |
+| **Pulse** | T2 | Burst rifle | 3-round burst | 22 / 33 | 0.08 s in burst, 0.32 s between | 24 | ~0.40 s | Zoomed ADS fires single shots |
 | **Checksum** | T2 | Marksman rifle (DMR) | Semi | 45 / 110 | 0.22 s | 10 | 0.44 s | 1.5× zoom; one-tap headshot |
-| **Bitrate** | T3 | Precise auto rifle | Auto | 22 / 48 | 0.095 s | 30 | 0.38 s | Suppressed, easy recoil, small falloff |
-| **Overwrite** | T3 | Heavy auto rifle | Auto | 27 / 100 | 0.115 s | 25 | 0.35 s | **One-tap headshot at any range**, hard recoil |
+| **Bitrate** | T3 | Precise auto rifle | Auto | 22 / 33 | 0.095 s | 30 | 0.38 s | Suppressed, easy recoil, small falloff |
+| **Overwrite** | T3 | Heavy auto rifle | Auto | 27 / 55 | 0.115 s | 25 | 0.35 s | **Two headshots kill**, hard recoil |
 
 ### Snipers (T2 and T3)
 | Gun | Tier | Role | Fire | Dmg body / head | Fire interval | Mag | Special |
@@ -82,15 +84,15 @@ Names follow the "broken simulation / computer" theme. All are original; none ar
 ### Machine guns (T3)
 | Gun | Role | Fire | Dmg body / head | Fire interval | Mag | TTK | Special |
 |---|---|---|---|---|---|---|---|
-| **Overflow** | Light machine gun | Auto | 24 / 55 | 0.09 s | 50 | 0.36 s | Steadier while crouched; 0.85× move speed |
-| **Flood** | Heavy machine gun (Odin-type) | Auto, spins up | 28 / 70 | 0.12 s → 0.06 s over 1.2 s | 100 | ~0.36 s | **Shoots through thin walls**; 0.75× move speed |
+| **Overflow** | Light machine gun | Auto | 24 / 36 | 0.09 s | 50 | 0.36 s | Steadier while crouched; 0.85× move speed |
+| **Flood** | Heavy machine gun (Odin-type) | Auto, spins up | 28 / 42 | 0.12 s → 0.06 s over 1.2 s | 100 | ~0.36 s | **Shoots through thin walls**; 0.75× move speed |
 
 ### Wildcards (T4)
 | Gun | What it does |
 |---|---|
 | **Ray Trace** | Railgun. Hold to charge (0.5 s), then 100 / 200 damage that **goes through walls and players**. 4 shots. The beam shows where you fired from. |
 | **Loopback** | Disc launcher. Discs bounce off walls twice, 40 damage per hit. 8 discs. |
-| **Dual Boot** | Twin pistols firing alternately, 20 / 40 each, very fast, no ADS. Accurate while moving. |
+| **Dual Boot** | Twin pistols firing alternately, 20 / 30 each, very fast, no ADS. Accurate while moving. |
 | **Null** | Beam gun. Damage ramps from 60 to 180 per second while it stays on the same target. 5 s battery that recharges. |
 
 ### Melee (always carried)
@@ -160,4 +162,4 @@ Players must be able to tell a gun's class **from its outline alone**, especiall
 | Machine guns | Bulky, box or belt mag, carry handle, ~4.5 studs |
 | Wildcards | Weird shapes, extra glow, no real-world silhouette |
 
-**Art style:** being decided. See the style test renders in `docs/art/style-test/`.
+**Art style:** Style B, "Stylized Neon". See [Art Direction](../02%20Art/Art%20Direction.md); the master reference is the finished Bitrate rifle.
