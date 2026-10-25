@@ -23,6 +23,7 @@ local Net = require(Shared.Net)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
 local Types = require(Shared.Types)
+local VM = require(Shared.Config.Viewmodel)
 local Weapons = require(Shared.Config.Weapons)
 
 local CameraController = require(script.Parent.CameraController)
@@ -256,10 +257,22 @@ end
 
 -- Firing ---------------------------------------------------------------------
 
+-- Bullet-hole size for a gun's impacts (pellets leave small ones).
+local function holeSize(config: WeaponConfig): number
+	if config.beam then
+		return 0.8
+	elseif config.pellets > 1 then
+		return 0.65
+	elseif config.class == "Sniper" then
+		return 1.3
+	end
+	return 1
+end
+
 type Cast = {
 	hits: { { part: BasePart, position: Vector3 } },
 	finish: Vector3,
-	impact: { position: Vector3, normal: Vector3 }?,
+	impact: { position: Vector3, normal: Vector3, part: BasePart, material: Enum.Material }?,
 }
 
 local function cast(
@@ -295,10 +308,22 @@ local function cast(
 				)
 			if not passThrough then
 				out.finish = result.Position
-				out.impact = { position = result.Position, normal = result.Normal }
+				out.impact = {
+					position = result.Position,
+					normal = result.Normal,
+					part = part,
+					material = result.Material,
+				}
 				return out
 			end
-			EffectsController.impact(result.Position, result.Normal, config.tracerColor)
+			EffectsController.impact(
+				result.Position,
+				result.Normal,
+				config.tracerColor,
+				part,
+				result.Material,
+				holeSize(config)
+			)
 			params:AddToFilter(part)
 		end
 		remaining -= (result.Position - from).Magnitude
@@ -372,14 +397,17 @@ local function fireShot(s: LocalSlot)
 				if h.part.Name == "Head" then
 					predictedHead = true
 				end
-				EffectsController.impact(h.position, -dir, config.tracerColor)
+				EffectsController.impact(h.position, -dir, config.tracerColor, h.part)
 			end
 			table.insert(ends, result.finish)
 			if result.impact then
 				EffectsController.impact(
 					result.impact.position,
 					result.impact.normal,
-					config.tracerColor
+					config.tracerColor,
+					result.impact.part,
+					result.impact.material,
+					holeSize(config)
 				)
 			end
 			if config.beam then
@@ -403,13 +431,7 @@ local function fireShot(s: LocalSlot)
 
 	-- Feel. The beam's light and sound are continuous (update()).
 	if not config.beam then
-		if muzzle then
-			EffectsController.muzzleFlash(
-				muzzle,
-				config.tracerColor,
-				if config.suppressed then 0.6 else 1
-			)
-		end
+		EffectsController.localShot(config, side)
 		playLocal(
 			config.sounds.fire,
 			config.sounds.fireVolume or 0.7,
@@ -422,6 +444,7 @@ local function fireShot(s: LocalSlot)
 		(math.random() * 2 - 1) * config.recoil.side * adsKick,
 		config.recoil.recover
 	)
+	CameraController.shake((0.04 + config.recoil.up * 0.1) * adsKick)
 	ViewmodelController.fire((1 - 0.5 * adsAlpha) * (if config.beam then 0.25 else 1), side)
 	if predictedHit then
 		HudController.hitMarker(predictedHead)
@@ -463,7 +486,7 @@ local function swing(s: LocalSlot)
 		local model = combatantOf(result.Instance)
 		if model and aliveHumanoid(model) then
 			table.insert(hits, { part = result.Instance, position = result.Position, pellet = 1 })
-			EffectsController.impact(result.Position, -aim, config.tracerColor)
+			EffectsController.impact(result.Position, -aim, config.tracerColor, result.Instance)
 			HudController.hitMarker(false)
 			-- Lunge toward the target on hit.
 			local flat = (aim * Vector3.new(1, 0, 1))
@@ -643,6 +666,19 @@ local function update(dt: number)
 		if pressQueued and not triggerHeld and now - lastShotAt > 0.2 and mode ~= "Melee" then
 			pressQueued = false
 		end
+	end
+
+	-- Ray Trace: energy gathers at the muzzle while it charges.
+	if chargeStart and s and alive and s.config.fireMode == "Charge" then
+		local held = now - chargeStart
+		EffectsController.charge(
+			ViewmodelController.muzzleCFrame(),
+			held / math.max(s.config.chargeTime or 0, 0.05),
+			s.config.tracerColor,
+			s.config.viewmodelScale or VM.SCALE
+		)
+	else
+		EffectsController.charge(nil, 0, Color3.new())
 	end
 
 	-- Null: a continuous beam from the muzzle to whatever the crosshair is on

@@ -1,6 +1,6 @@
 --!strict
 -- Owns the local camera on top of Roblox's first-person camera module:
--- field of view (base + ADS zoom), recoil and slide tilt.
+-- field of view (base + ADS zoom), recoil, shake and slide tilt.
 --
 -- Recoil works by nudging Camera.CFrame after the camera module updates. The
 -- module builds next frame's view from the current look vector, so a nudge
@@ -32,6 +32,15 @@ local pendingPitch = 0 -- not yet applied (smoothed in over a few frames)
 local pendingYaw = 0
 local kickPitch = 0 -- applied, and recovering back to 0
 local kickYaw = 0
+
+-- Shake on fire: a small noisy wobble that dies away (applied and removed again
+-- each frame, so it never moves the aim).
+local shakeAmp = 0 -- radians
+local shakePitch = 0 -- currently applied
+local shakeYaw = 0
+local SHAKE_DECAY = 16
+local SHAKE_MAX = math.rad(1.2)
+local SHAKE_FREQ = 38
 
 local KICK_APPLY_RATE = 45
 local KICK_RECOVER_RATE = 9
@@ -72,6 +81,14 @@ function CameraController.kick(up: number, side: number, recover: number)
 	pendingYaw += sideRad
 	kickPitch += upRad * recover
 	kickYaw += sideRad * recover
+end
+
+-- Camera shake, in degrees of wobble (stacks up to a cap and dies away fast).
+function CameraController.shake(degrees: number)
+	if degrees ~= degrees or degrees <= 0 then
+		return
+	end
+	shakeAmp = math.min(shakeAmp + math.rad(degrees), SHAKE_MAX)
 end
 
 -- Shows the OS cursor while a menu is open (the dev weapon menu).
@@ -118,12 +135,24 @@ local function step(dt: number)
 	local pitch = dPitch - rPitch
 	local yaw = dYaw - rYaw
 
+	-- Shake: swap last frame's offset for this frame's.
+	shakeAmp *= math.exp(-SHAKE_DECAY * dt)
+	local t = os.clock() * SHAKE_FREQ
+	local sp = if shakeAmp > 1e-5 then math.noise(t, 0.31) * shakeAmp else 0
+	local sy = if shakeAmp > 1e-5 then math.noise(0.73, t) * shakeAmp else 0
+	local shakeRoll = if shakeAmp > 1e-5 then math.noise(t, 2.17) * shakeAmp * 1.5 else 0
+	pitch += sp - shakePitch
+	yaw += sy - shakeYaw
+	shakePitch = sp
+	shakeYaw = sy
+
 	roll = lerp(roll, targetRoll, 1 - math.exp(-ROLL_RATE * dt))
 
-	if math.abs(pitch) > 1e-6 or math.abs(yaw) > 1e-6 or math.abs(roll) > 1e-5 then
+	local totalRoll = roll + shakeRoll
+	if math.abs(pitch) > 1e-6 or math.abs(yaw) > 1e-6 or math.abs(totalRoll) > 1e-5 then
 		local cf = cam.CFrame
 		local rotation = CFrame.Angles(0, -yaw, 0) * (cf - cf.Position) * CFrame.Angles(pitch, 0, 0)
-		cam.CFrame = CFrame.new(cf.Position) * rotation * CFrame.Angles(0, 0, roll)
+		cam.CFrame = CFrame.new(cf.Position) * rotation * CFrame.Angles(0, 0, totalRoll)
 	end
 end
 
