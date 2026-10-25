@@ -17,6 +17,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
+local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 local InputController = require(script.Parent.InputController)
 
 local HudController = {}
@@ -34,9 +35,6 @@ type Refs = {
 	gui: ScreenGui,
 	crosshair: CanvasGroup,
 	lines: { Frame },
-	hitMarker: Frame,
-	killMarker: Frame,
-	damageLabel: TextLabel,
 	ammo: TextLabel,
 	weaponName: TextLabel,
 	reloadBar: Frame,
@@ -54,8 +52,6 @@ local spreadDegrees = 1
 local shownGap = 6
 local crosshairWanted = true
 local crosshairAlpha = 1
-local stackedDamage = 0
-local stackedAt = 0
 
 local function make(className: string, props: { [string]: any }, parent: Instance?): any
 	local inst = Instance.new(className)
@@ -83,27 +79,6 @@ local function centered(size: UDim2, parent: Instance): Frame
 		Size = size,
 		BackgroundTransparency = 1,
 	}, parent)
-end
-
--- An X made of four short rotated bars.
-local function xMarker(parent: Instance, size: number, color: Color3): Frame
-	local holder = centered(UDim2.fromOffset(size * 2, size * 2), parent)
-	holder.Visible = false
-	for i = 0, 3 do
-		local angle = 45 + 90 * i
-		local rad = math.rad(angle)
-		local dist = size * 0.55
-		local bar = make("Frame", {
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(0.5, math.cos(rad) * dist, 0.5, math.sin(rad) * dist),
-			Size = UDim2.fromOffset(size * 0.55, 3),
-			Rotation = angle,
-			BackgroundColor3 = color,
-			BorderSizePixel = 0,
-		}, holder)
-		stroke(bar)
-	end
-	return holder
 end
 
 local function build(): Refs
@@ -215,23 +190,6 @@ local function build(): Refs
 	}, crosshair)
 	make("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
 	make("UIStroke", { Color = Color3.new(0, 0, 0), Thickness = 1, Transparency = 0.45 }, dot)
-
-	local hitMarker = xMarker(gui, 16, WHITE)
-	local killMarker = xMarker(gui, 24, NEON)
-
-	local damageLabel = make("TextLabel", {
-		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.new(0.5, 26, 0.5, -18),
-		Size = UDim2.fromOffset(120, 30),
-		BackgroundTransparency = 1,
-		Font = FONT,
-		TextSize = 24,
-		TextColor3 = WHITE,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextTransparency = 1,
-		Text = "",
-	}, gui)
-	stroke(damageLabel, 2)
 
 	-- Ammo (bottom right).
 	local ammoPanel = make("Frame", {
@@ -374,9 +332,6 @@ local function build(): Refs
 		gui = gui,
 		crosshair = crosshair,
 		lines = lines,
-		hitMarker = hitMarker,
-		killMarker = killMarker,
-		damageLabel = damageLabel,
 		ammo = ammo,
 		weaponName = weaponName,
 		reloadBar = reloadBar,
@@ -456,65 +411,24 @@ function HudController.setScope(visible: boolean)
 	end
 end
 
-local function flash(marker: Frame, color: Color3?)
-	marker.Visible = true
-	for _, bar in marker:GetChildren() do
-		if bar:IsA("Frame") then
-			if color then
-				bar.BackgroundColor3 = color
-			end
-			bar.BackgroundTransparency = 0
-			TweenService
-				:Create(bar, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-					BackgroundTransparency = 1,
-				})
-				:Play()
-		end
-	end
-	marker.Size = UDim2.fromOffset(marker.Size.X.Offset * 1.25, marker.Size.Y.Offset * 1.25)
-	local base = marker:GetAttribute("BaseSize") :: number?
-	if not base then
-		base = marker.Size.X.Offset / 1.25
-		marker:SetAttribute("BaseSize", base)
-	end
-	TweenService:Create(marker, TweenInfo.new(0.12), { Size = UDim2.fromOffset(base, base) }):Play()
-end
-
+-- Hit feedback (Util/HitFeedback): markers, damage numbers, kill banner.
 function HudController.hitMarker(headshot: boolean)
-	if refs then
-		flash(refs.hitMarker, if headshot then GOLD else WHITE)
-	end
+	HitFeedback.hit(headshot)
 end
 
 function HudController.killMarker()
-	if refs then
-		flash(refs.killMarker, NEON)
-	end
+	HitFeedback.kill()
 end
 
--- Damage numbers stack while you keep hitting within a second.
-function HudController.damageNumber(amount: number, headshot: boolean)
-	local r = refs
-	if not r then
-		return
-	end
-	local now = os.clock()
-	if now - stackedAt > 1 then
-		stackedDamage = 0
-	end
-	stackedDamage += amount
-	stackedAt = now
-	local label = r.damageLabel
-	label.Text = tostring(math.round(stackedDamage))
-	label.TextColor3 = if headshot then GOLD else WHITE
-	label.TextTransparency = 0
-	label.TextSize = 30
-	TweenService:Create(label, TweenInfo.new(0.15), { TextSize = 24 }):Play()
-	task.delay(1, function()
-		if os.clock() - stackedAt >= 0.99 then
-			TweenService:Create(label, TweenInfo.new(0.3), { TextTransparency = 1 }):Play()
-		end
-	end)
+-- Damage numbers stack while you keep hitting the same target, then fall off.
+-- `position`: the world hit point (the number sits beside it).
+function HudController.damageNumber(
+	amount: number,
+	headshot: boolean,
+	position: Vector3?,
+	killed: boolean?
+)
+	HitFeedback.damage(amount, headshot, position, killed)
 end
 
 function HudController.damageFrom(sourcePosition: Vector3)
@@ -836,6 +750,7 @@ local function update(dt: number)
 		-20 * dt
 	))
 	r.crosshair.GroupTransparency = 1 - crosshairAlpha
+	HitFeedback.step(dt)
 	r.crosshair.Visible = crosshairAlpha > 0.02
 
 	-- Health.
@@ -866,11 +781,15 @@ local function onKilled(victim: Model?, killer: Player?, weaponId: string, heads
 		victimName
 	)
 	HudController.killFeed(text, killer == player or victimPlayer == player)
+	if killer == player and victimPlayer ~= player then
+		HitFeedback.killBanner(victimName, headshot == true)
+	end
 end
 
 -- Built in init so other controllers can update it from their start().
 function HudController.init()
 	refs = build()
+	HitFeedback.build((refs :: Refs).gui)
 end
 
 function HudController.start()

@@ -791,7 +791,12 @@ local function onHitConfirm(confirm: Types.HitConfirm)
 	end
 	local head = confirm.zone == "Head"
 	HudController.hitMarker(head)
-	HudController.damageNumber(confirm.damage, head)
+	HudController.damageNumber(
+		confirm.damage,
+		head,
+		if typeof(confirm.position) == "Vector3" then confirm.position else nil,
+		confirm.killed == true
+	)
 	if head then
 		playLocal(Sounds.HitHead, 0.55)
 	else
