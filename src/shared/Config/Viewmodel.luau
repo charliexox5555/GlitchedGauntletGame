@@ -48,10 +48,10 @@ return table.freeze({
 	-- Guns are modelled at world size; first person shows them at this scale,
 	-- big and close in the lower right like RIVALS.
 	SCALE = 0.75,
-	ADS_DISTANCE = 1.65, -- camera to the AimPoint while aiming (per gun: adsDistance)
+	ADS_DISTANCE = 0.7, -- camera to the AimPoint while aiming (per gun: adsDistance)
 
 	-- Hip pose rotation on top of the gun's viewmodelOffset (angled slightly in).
-	HIP_ROTATION = Vector3.new(1.5, 8, -3),
+	HIP_ROTATION = Vector3.new(8, 20, -6),
 
 	-- Arms (Util/ViewmodelArms): one bevelled block per arm, RIVALS style.
 	-- Mesh from tools/blender/make_arm_mesh.py (art-source/viewmodel/Arms.fbx,
@@ -69,7 +69,7 @@ return table.freeze({
 	-- the same on screen but sit behind the gun: the gun always reads in front.
 	ARM_DEPTH = 1.15,
 	-- Pistols: a touch nearer instead, so the hand wraps the front of the grip.
-	PISTOL_ARM_DEPTH = 0.9,
+	PISTOL_ARM_DEPTH = 0.78,
 	-- Direction from each grip toward its shoulder (camera space): down and
 	-- back, so the arms come up from below and frame the gun, not cover it.
 	ARM_DIRECTION_RIGHT = Vector3.new(0.3, -1, 0.55),
@@ -82,6 +82,8 @@ return table.freeze({
 	PISTOL_ARM_DIRECTION_LEFT = Vector3.new(-0.2, -1, 0.25),
 	-- Long guns: the support hand holds the handguard from underneath (gun space).
 	HANDGUARD_HAND_OFFSET = Vector3.new(0, -0.1, 0),
+	-- Pistols at the hip are one-handed: the support hand waits here, off-screen.
+	PISTOL_REST_HAND = Vector3.new(-0.5, -1.7, -0.6),
 	-- Pistols put both grips in one spot; the support hand cups under and to the left.
 	SUPPORT_HAND_OFFSET = Vector3.new(-0.1, -0.05, 0.04),
 	-- Melee: the free hand rests here (camera space) as a guard.

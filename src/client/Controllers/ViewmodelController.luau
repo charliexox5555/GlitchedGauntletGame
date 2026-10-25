@@ -1006,6 +1006,12 @@ local function update(dt: number)
 		base = right.handle.CFrame:PointToWorldSpace(
 			right.handle.CFrame:PointToObjectSpace(base) + offset
 		)
+		if right.pistol then
+			-- Pistols are held one-handed at the hip (RIVALS); the support
+			-- hand rises in from below as you aim (and reaches for the mag
+			-- from wherever it is during a reload).
+			base = view:PointToWorldSpace(VM.PISTOL_REST_HAND):Lerp(base, adsT)
+		end
 		gripL = handTarget(right, "Left", base)
 	end
 	local shoulderL = shoulderFrom(

@@ -17,8 +17,9 @@ local MAGENTA = Color3.fromHex("FF3DCB")
 -- Pistols: big and low in the middle of the screen, like RIVALS.
 local SIDEARM_VM = Vector3.new(0.2, -0.66, -1.3)
 local SIDEARM_SCALE = 1.0
-local SIDEARM_ADS = 1.35 -- camera to the rear sight while aiming
-local RIFLE_VM = Vector3.new(0.52, -0.62, -1.4)
+local SIDEARM_ROT = Vector3.new(1.5, 5, -2) -- pistols point nearly straight ahead
+local SIDEARM_ADS = 0.8 -- camera to the rear sight while aiming
+local RIFLE_VM = Vector3.new(0.6, -0.85, -1.0)
 
 local weapons: { [string]: WeaponConfig } = {
 	-- Sidearms ----------------------------------------------------------
@@ -44,7 +45,7 @@ local weapons: { [string]: WeaponConfig } = {
 		bloomPerShot = 0.15,
 		maxBloom = 1.2,
 		recoil = { up = 0.9, side = 0.12, recover = 0.7 },
-		adsFov = 70,
+		adsFov = 60,
 		adsTime = 0.15,
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.75,
@@ -53,6 +54,7 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelOffset = SIDEARM_VM,
 		adsDistance = SIDEARM_ADS,
 		viewmodelScale = SIDEARM_SCALE,
+		viewmodelRotation = SIDEARM_ROT,
 		tracerColor = NEON,
 	},
 	Root = {
@@ -78,7 +80,7 @@ local weapons: { [string]: WeaponConfig } = {
 		bloomPerShot = 0.5,
 		maxBloom = 1.5,
 		recoil = { up = 2.6, side = 0.3, recover = 0.7 },
-		adsFov = 68,
+		adsFov = 58,
 		adsTime = 0.17,
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.75,
@@ -90,10 +92,11 @@ local weapons: { [string]: WeaponConfig } = {
 			equip = Sounds.Equip,
 		},
 		-- Sit a touch lower so the eye clears the hammer (part of the frame mesh).
-		adsOffset = Vector3.new(0, -0.03, 0),
+		adsOffset = Vector3.new(0, -0.07, 0),
 		viewmodelOffset = SIDEARM_VM,
 		adsDistance = SIDEARM_ADS,
 		viewmodelScale = SIDEARM_SCALE,
+		viewmodelRotation = SIDEARM_ROT,
 		tracerColor = NEON,
 	},
 
@@ -121,7 +124,7 @@ local weapons: { [string]: WeaponConfig } = {
 		bloomPerShot = 0.12,
 		maxBloom = 1.4,
 		recoil = { up = 0.32, side = 0.14, recover = 0.7 },
-		adsFov = 70,
+		adsFov = 60,
 		adsTime = 0.15,
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.8,
@@ -159,7 +162,7 @@ local weapons: { [string]: WeaponConfig } = {
 		bloomPerShot = 0,
 		maxBloom = 0,
 		recoil = { up = 3.2, side = 0.5, recover = 0.75 },
-		adsFov = 72,
+		adsFov = 62,
 		adsTime = 0.18,
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.75,
@@ -225,7 +228,7 @@ local weapons: { [string]: WeaponConfig } = {
 		bloomPerShot = 0.15,
 		maxBloom = 1.5,
 		recoil = { up = 0.35, side = 0.12, recover = 0.7 },
-		adsFov = 62,
+		adsFov = 52,
 		adsTime = 0.18,
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.75,
@@ -265,7 +268,7 @@ local weapons: { [string]: WeaponConfig } = {
 		bloomPerShot = 0.08,
 		maxBloom = 1.6,
 		recoil = { up = 0.3, side = 0.18, recover = 0.7 },
-		adsFov = 66,
+		adsFov = 56,
 		adsTime = 0.25,
 		moveMultiplier = 0.75,
 		adsMoveMultiplier = 0.7,
@@ -303,7 +306,7 @@ local weapons: { [string]: WeaponConfig } = {
 		bloomPerShot = 0,
 		maxBloom = 0,
 		recoil = { up = 3.5, side = 0.3, recover = 0.8 },
-		adsFov = 55,
+		adsFov = 47,
 		adsTime = 0.2,
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.7,
@@ -389,7 +392,7 @@ weapons.Splinter = {
 	bloomPerShot = 0,
 	maxBloom = 0,
 	recoil = { up = 3.4, side = 0.6, recover = 0.75 },
-	adsFov = 72,
+	adsFov = 62,
 	adsTime = 0.15,
 	moveMultiplier = 1,
 	adsMoveMultiplier = 0.8,
@@ -398,6 +401,7 @@ weapons.Splinter = {
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
 	viewmodelScale = SIDEARM_SCALE,
+	viewmodelRotation = SIDEARM_ROT,
 	tracerColor = NEON,
 }
 
@@ -424,7 +428,7 @@ weapons.Flicker = {
 	maxBloom = 1.8,
 	moveSpreadMultiplier = 2.2, -- big spread while moving
 	recoil = { up = 0.45, side = 0.22, recover = 0.7 },
-	adsFov = 72,
+	adsFov = 62,
 	adsTime = 0.14,
 	moveMultiplier = 1,
 	adsMoveMultiplier = 0.8,
@@ -438,6 +442,7 @@ weapons.Flicker = {
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
 	viewmodelScale = SIDEARM_SCALE,
+	viewmodelRotation = SIDEARM_ROT,
 	tracerColor = NEON,
 }
 
@@ -463,7 +468,7 @@ weapons.Mute = {
 	bloomPerShot = 0.2,
 	maxBloom = 1.2,
 	recoil = { up = 1.0, side = 0.12, recover = 0.7 },
-	adsFov = 68,
+	adsFov = 58,
 	adsTime = 0.15,
 	moveMultiplier = 1,
 	adsMoveMultiplier = 0.75,
@@ -486,6 +491,7 @@ weapons.Mute = {
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
 	viewmodelScale = SIDEARM_SCALE,
+	viewmodelRotation = SIDEARM_ROT,
 	tracerColor = NEON,
 }
 
@@ -512,7 +518,7 @@ weapons.BurstBuffer = {
 	bloomPerShot = 0.08,
 	maxBloom = 0.8,
 	recoil = { up = 0.3, side = 0.1, recover = 0.75 },
-	adsFov = 68,
+	adsFov = 58,
 	adsTime = 0.15,
 	moveMultiplier = 1,
 	adsMoveMultiplier = 0.8,
@@ -549,7 +555,7 @@ weapons.Crash = {
 	bloomPerShot = 0,
 	maxBloom = 0,
 	recoil = { up = 2.4, side = 0.5, recover = 0.75 },
-	adsFov = 72,
+	adsFov = 62,
 	adsTime = 0.18,
 	moveMultiplier = 0.95,
 	adsMoveMultiplier = 0.75,
@@ -588,7 +594,7 @@ weapons.Pulse = {
 	bloomPerShot = 0.1,
 	maxBloom = 1,
 	recoil = { up = 0.4, side = 0.1, recover = 0.75 },
-	adsFov = 55,
+	adsFov = 47,
 	adsTime = 0.18,
 	moveMultiplier = 1,
 	adsMoveMultiplier = 0.75,
@@ -664,7 +670,7 @@ weapons.Overwrite = {
 	bloomPerShot = 0.2,
 	maxBloom = 2,
 	recoil = { up = 0.65, side = 0.22, recover = 0.65 }, -- hard recoil
-	adsFov = 62,
+	adsFov = 52,
 	adsTime = 0.2,
 	moveMultiplier = 0.97,
 	adsMoveMultiplier = 0.72,
@@ -766,7 +772,7 @@ weapons.Overflow = {
 	maxBloom = 1.8,
 	crouchSpreadMultiplier = 0.55, -- steadier while crouched
 	recoil = { up = 0.32, side = 0.2, recover = 0.7 },
-	adsFov = 64,
+	adsFov = 54,
 	adsTime = 0.25,
 	moveMultiplier = 0.85,
 	adsMoveMultiplier = 0.72,
@@ -806,7 +812,7 @@ weapons.Loopback = {
 	bloomPerShot = 0,
 	maxBloom = 0,
 	recoil = { up = 1.6, side = 0.3, recover = 0.8 },
-	adsFov = 66,
+	adsFov = 56,
 	adsTime = 0.2,
 	moveMultiplier = 0.95,
 	adsMoveMultiplier = 0.75,
@@ -858,6 +864,7 @@ weapons.DualBoot = {
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
+	viewmodelRotation = SIDEARM_ROT,
 	viewmodelOffset = Vector3.new(0.42, -0.55, -1.2),
 	tracerColor = MAGENTA,
 }
@@ -892,7 +899,7 @@ weapons.Null = {
 	bloomPerShot = 0,
 	maxBloom = 0,
 	recoil = { up = 0.05, side = 0.05, recover = 1 },
-	adsFov = 70,
+	adsFov = 60,
 	adsTime = 0.2,
 	moveMultiplier = 0.95,
 	adsMoveMultiplier = 0.8,
