@@ -26,7 +26,9 @@ local function build(): InputContext
 	for name, b in Bindings do
 		local action = Instance.new("InputAction")
 		action.Name = name
-		action.Type = Enum.InputActionType.Bool
+		action.Type = if b.kind == "Direction1D"
+			then Enum.InputActionType.Direction1D
+			else Enum.InputActionType.Bool
 		for _, key in b.keys do
 			addBinding(action, key)
 		end

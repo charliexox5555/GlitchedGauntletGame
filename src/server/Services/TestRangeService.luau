@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Dev = require(ReplicatedStorage.Shared.Config.Dev)
 
@@ -53,6 +54,13 @@ local function makeDummy(index: number, folder: Folder)
 	CharacterService.prepare(dummy)
 	task.defer(function()
 		WeaponService.attachWorldModel(dummy, layout.weapon)
+		-- Hold the gun up with the same pose players use (Config/Animations).
+		local animator = humanoid:FindFirstChildOfClass("Animator")
+		if animator then
+			local hold = Instance.new("Animation")
+			hold.AnimationId = Animations.POSES.AimLevel
+			animator:LoadAnimation(hold):Play(0)
+		end
 	end)
 
 	if layout.strafe then

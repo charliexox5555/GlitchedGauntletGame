@@ -1,4 +1,46 @@
 {
+ "art-source/animations/GG_AimDown.rbxm": {
+  "assetId": 102741853097868,
+  "name": "GG Aim Down",
+  "type": "Animation",
+  "uploaded": "2026-10-25 13:53:21"
+ },
+ "art-source/animations/GG_AimLevel.rbxm": {
+  "assetId": 107890457643267,
+  "name": "GG Aim Level",
+  "type": "Animation",
+  "uploaded": "2026-10-25 13:53:10"
+ },
+ "art-source/animations/GG_AimUp.rbxm": {
+  "assetId": 106670838845808,
+  "name": "GG Aim Up",
+  "type": "Animation",
+  "uploaded": "2026-10-25 13:53:18"
+ },
+ "art-source/animations/GG_Crouch.rbxm": {
+  "assetId": 99568083489164,
+  "name": "GG Crouch",
+  "type": "Animation",
+  "uploaded": "2026-10-25 13:53:26"
+ },
+ "art-source/animations/GG_CrouchWalk.rbxm": {
+  "assetId": 120617369360340,
+  "name": "GG Crouch Walk",
+  "type": "Animation",
+  "uploaded": "2026-10-25 13:53:29"
+ },
+ "art-source/animations/GG_Slide.rbxm": {
+  "assetId": 88674421205618,
+  "name": "GG Slide",
+  "type": "Animation",
+  "uploaded": "2026-10-25 13:53:32"
+ },
+ "art-source/animations/GG_Sprint.rbxm": {
+  "assetId": 97534488837117,
+  "name": "GG Sprint",
+  "type": "Animation",
+  "uploaded": "2026-10-25 13:53:24"
+ },
  "art-source/audio/GunAtlas.wav": {
   "assetId": 95621839199583,
   "name": "GG Gun Sound Atlas",

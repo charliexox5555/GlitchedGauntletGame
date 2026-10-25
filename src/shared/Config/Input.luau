@@ -7,6 +7,8 @@ export type Binding = {
 	keys: { Enum.KeyCode },
 	gamepad: { Enum.KeyCode },
 	touch: string?, -- name of the HUD button that drives this action
+	-- Value actions are fed by code, not keys (default: a Bool button).
+	kind: ("Bool" | "Direction1D")?,
 }
 
 local bindings: { [string]: Binding } = {
@@ -42,6 +44,10 @@ local bindings: { [string]: Binding } = {
 	QuickMelee = { keys = { Enum.KeyCode.V }, gamepad = { Enum.KeyCode.ButtonR3 } },
 	-- Inspect the held gun (Valorant uses Y, but Y is the dev picker here).
 	Inspect = { keys = { Enum.KeyCode.F }, gamepad = { Enum.KeyCode.DPadDown } },
+	-- Camera pitch / 90 degrees, fed every frame by PoseController. It's
+	-- simulation input, so the server and the predicting client pose the
+	-- character with the same pitch (shared/Simulation/Poses).
+	AimPitch = { keys = {}, gamepad = {}, kind = "Direction1D" },
 	-- Studio-only dev picker: weapon menu, next primary / next secondary.
 	DevMenu = { keys = { Enum.KeyCode.P }, gamepad = {} },
 	DevNextPrimary = { keys = { Enum.KeyCode.T }, gamepad = {} },
