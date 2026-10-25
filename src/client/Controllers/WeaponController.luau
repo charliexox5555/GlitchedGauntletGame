@@ -59,6 +59,9 @@ local lastAimSent = 0
 local lastPitchSent = 0
 local lastAimingSent = false
 local alive = false
+-- Spread seeds come from the server's sequence (see Util/Spread.seedFor).
+local seedBase = 0
+local shotIndex = 0
 
 local CYCLE: { Slot } = { "Primary", "Secondary", "Melee" }
 
@@ -287,7 +290,8 @@ local function fireShot(s: LocalSlot)
 
 	local origin = cam.CFrame.Position
 	local aim = cam.CFrame.LookVector
-	local seed = math.random(1, 2 ^ 30)
+	shotIndex += 1
+	local seed = Spread.seedFor(seedBase, shotIndex)
 	local dirs = Spread.shot(aim, seed, config.pellets, spread, config.pelletSpread)
 	local params = rayParams()
 
@@ -325,7 +329,8 @@ local function fireShot(s: LocalSlot)
 	Net.event("Fire"):FireServer({
 		origin = origin,
 		direction = aim,
-		seed = seed,
+		shot = shotIndex,
+		spread = spread,
 		hits = hits,
 		ends = ends,
 	})
@@ -402,8 +407,15 @@ local function swing(s: LocalSlot)
 			end
 		end
 	end
-	Net.event("Fire")
-		:FireServer({ origin = origin, direction = aim, seed = 0, hits = hits, ends = {} })
+	shotIndex += 1
+	Net.event("Fire"):FireServer({
+		origin = origin,
+		direction = aim,
+		shot = shotIndex,
+		spread = 0,
+		hits = hits,
+		ends = {},
+	})
 end
 
 local function canShoot(s: LocalSlot): boolean
@@ -549,6 +561,12 @@ end
 local function onWeaponState(state: Types.WeaponState)
 	if typeof(state) ~= "table" or typeof(state.slots) ~= "table" then
 		return
+	end
+	if typeof(state.seedBase) == "number" then
+		seedBase = state.seedBase
+	end
+	if typeof(state.shotIndex) == "number" and state.shotIndex > shotIndex then
+		shotIndex = state.shotIndex
 	end
 	local changedEquip = false
 	for _, slot in CYCLE do

@@ -5,11 +5,14 @@
 
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Net = require(ReplicatedStorage.Shared.Net)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+
+local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 
 local EffectsController = {}
 
@@ -18,6 +21,9 @@ local PIXEL_TEXTURE = "rbxasset://textures/particles/SquareParticle.png"
 local NEON = Color3.fromHex("00E5FF")
 
 local folder: Folder? = nil
+
+-- Fire animations on other players' third-person guns.
+local worldAnimators: { [Model]: GunAnimator.GunAnimator } = {}
 
 local function effectsFolder(): Folder
 	if folder and folder.Parent then
@@ -204,11 +210,28 @@ local function worldMuzzle(character: Model?): Attachment?
 	return nil
 end
 
+local function animateWorldWeapon(character: Model?, weaponId: string)
+	local weapon = character and character:FindFirstChild("WorldWeapon")
+	if not weapon or not weapon:IsA("Model") then
+		return
+	end
+	local animator = worldAnimators[weapon]
+	if not animator then
+		animator = GunAnimator.new(weapon, weaponId, 1)
+		worldAnimators[weapon] = animator
+		weapon.Destroying:Once(function()
+			worldAnimators[weapon] = nil
+		end)
+	end
+	animator:play("Fire")
+end
+
 local function onShotFx(shooter: Player, weaponId: string, origin: Vector3, ends: { Vector3 })
 	local config = Weapons.get(weaponId)
 	if not config then
 		return
 	end
+	animateWorldWeapon(shooter.Character, weaponId)
 	local muzzle = worldMuzzle(shooter.Character)
 	local from = if muzzle then muzzle.WorldPosition else origin
 	if config.melee then
@@ -238,6 +261,11 @@ function EffectsController.start()
 	effectsFolder()
 	Net.unreliable("ShotFx").OnClientEvent:Connect(onShotFx)
 	Net.event("Killed").OnClientEvent:Connect(onKilled)
+	RunService.RenderStepped:Connect(function(dt)
+		for _, animator in worldAnimators do
+			animator:update(dt)
+		end
+	end)
 end
 
 return EffectsController

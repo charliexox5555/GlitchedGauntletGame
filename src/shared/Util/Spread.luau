@@ -40,6 +40,12 @@ function Spread.shot(
 	return dirs
 end
 
+-- Seed for shot number `index` of a player's sequence. The server hands out
+-- `base` (in WeaponState), so a client can't shop for a lucky spread seed.
+function Spread.seedFor(base: number, index: number): number
+	return (base * 31 + index * 7919) % 2147483647
+end
+
 -- Angle in degrees between two directions.
 function Spread.angle(a: Vector3, b: Vector3): number
 	local d = math.clamp(a.Unit:Dot(b.Unit), -1, 1)

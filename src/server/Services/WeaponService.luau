@@ -45,11 +45,13 @@ type PlayerState = {
 	equipped: Slot?,
 	equipReadyAt: number,
 	worldModel: Model?,
+	seedBase: number, -- server-issued: spread seeds can't be chosen by the client
+	shotIndex: number, -- last accepted shot counter
 }
 
 local SLOTS: { Slot } = { "Primary", "Secondary", "Melee" }
-local FIRE_JITTER = 0.05 -- seconds of network jitter forgiven per shot
 local MAX_COORD = 1e5
+local seedRng = Random.new()
 
 local WeaponService = {}
 
@@ -112,7 +114,20 @@ local function liveHumanoid(model: Model?): Humanoid?
 	return nil
 end
 
--- The combatant Model a part belongs to (walks up through accessories etc.).
+-- The combatant a part is a hitbox of: only real body parts that are direct
+-- children of a character (never hats, held guns or other accessories).
+local function hitboxOwner(part: Instance): Model?
+	if not Combat.BODY_PARTS[part.Name] then
+		return nil
+	end
+	local model = part.Parent
+	if model and model:IsA("Model") and model:FindFirstChildOfClass("Humanoid") then
+		return model
+	end
+	return nil
+end
+
+-- Any combatant model a part belongs to (used to let bodies not count as walls).
 local function combatantOf(part: Instance): Model?
 	local node: Instance? = part.Parent
 	while node and node ~= workspace do
@@ -129,7 +144,12 @@ local function snapshot(state: PlayerState): Types.WeaponState
 	for slot, s in state.slots do
 		slots[slot] = { id = s.id, ammo = s.ammo }
 	end
-	return { slots = slots, equipped = state.equipped }
+	return {
+		slots = slots,
+		equipped = state.equipped,
+		seedBase = state.seedBase,
+		shotIndex = state.shotIndex,
+	}
 end
 
 local function sendState(player: Player)
@@ -186,7 +206,11 @@ function WeaponService.attachWorldModel(character: Model, id: string?): Model?
 	local model = template:Clone()
 	model.Name = "WorldWeapon"
 	model:SetAttribute("WeaponId", id)
-	local handle = model.PrimaryPart :: BasePart
+	local handle = model.PrimaryPart
+	if not handle then
+		model:Destroy()
+		return nil
+	end
 	for _, d in model:GetDescendants() do
 		if d:IsA("BasePart") then
 			d.Anchored = false
@@ -243,10 +267,18 @@ function WeaponService.giveLoadout(player: Player)
 			slots[slot] = s
 		end
 	end
+	local first: Slot? = if slots.Primary
+		then "Primary"
+		elseif slots.Secondary then "Secondary"
+		else nil
+	local old = states[player]
 	states[player] = {
 		slots = slots,
-		equipped = "Primary",
-		equipReadyAt = os.clock() + slots.Primary.config.equipTime * 0.7,
+		equipped = first,
+		equipReadyAt = os.clock() + (if first then slots[first].config.equipTime * 0.7 else 0),
+		-- Keep the seed sequence across respawns so in-flight shots stay valid.
+		seedBase = if old then old.seedBase else seedRng:NextInteger(1, 2 ^ 30),
+		shotIndex = if old then old.shotIndex else 0,
 	}
 	refreshWorldModel(player)
 	sendState(player)
@@ -313,18 +345,10 @@ local function applyDamage(
 	end
 end
 
--- Is there solid world geometry between `from` and `to` that this gun can't go through?
-local function blocked(
-	shooter: Model,
-	from: Vector3,
-	to: Vector3,
-	penetration: Types.Penetration
-): boolean
-	if penetration == "All" then
-		return false
-	end
+-- Things a wall check should ignore: the shooter and every combatant (bodies
+-- don't count as walls; they're validated as hitboxes separately).
+local function wallExclusions(shooter: Model): { Instance }
 	local exclude: { Instance } = { shooter }
-	-- Characters never block for this check (they're validated separately).
 	for _, p in Players:GetPlayers() do
 		if p.Character then
 			table.insert(exclude, p.Character)
@@ -333,6 +357,19 @@ local function blocked(
 	local dummies = workspace:FindFirstChild("Dummies")
 	if dummies then
 		table.insert(exclude, dummies)
+	end
+	return exclude
+end
+
+-- Is there solid world geometry between `from` and `to` that this gun can't go through?
+local function blocked(
+	exclude: { Instance },
+	from: Vector3,
+	to: Vector3,
+	penetration: Types.Penetration
+): boolean
+	if penetration == "All" then
+		return false
 	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
@@ -465,23 +502,66 @@ local function onDev(player: Player, slot: unknown)
 	WeaponService.setWeapon(player, slot :: Slot, nextId)
 end
 
-type ValidHit = { model: Model, part: BasePart, position: Vector3, pellet: number }
+type ValidHit = { model: Model, part: BasePart, rewound: Vector3, pellet: number }
+
+-- Reads an array argument safely (ignores non-integer keys, caps length).
+local function readArray(value: unknown, max: number): { unknown }
+	local out = {}
+	if typeof(value) ~= "table" then
+		return out
+	end
+	for _, v in ipairs(value :: { unknown }) do
+		if #out >= max then
+			break
+		end
+		table.insert(out, v)
+	end
+	return out
+end
+
+local function rewindWindow(player: Player): number
+	local ok, ping = pcall(function()
+		return player:GetNetworkPing()
+	end)
+	local p = if ok and typeof(ping) == "number" then ping else 0.1
+	return math.min(p * 2 + Combat.REWIND_EXTRA, Combat.REWIND_MAX)
+end
+
+-- Studio-only: record why the last shot or hit was rejected (player attribute
+-- "FireReject"), so tuning tolerances doesn't need print debugging.
+local function reject(player: Player, reason: string)
+	if RunService:IsStudio() then
+		player:SetAttribute("FireReject", reason)
+	end
+end
 
 local function onFire(player: Player, payload: unknown)
 	if not allow(player, "Fire") then
 		return
 	end
 	if typeof(payload) ~= "table" then
+		reject(player, "typeof(payload) ~= 'table'")
 		return
 	end
 	local p = payload :: { [string]: unknown }
 	local origin = finiteVector(p.origin)
 	local aim = finiteVector(p.direction)
-	local seed = p.seed
-	if not origin or not aim or typeof(seed) ~= "number" or seed ~= seed then
+	local shot = p.shot
+	local spreadClaim = p.spread
+	if not origin or not aim then
+		reject(player, "not origin or not aim")
+		return
+	end
+	if typeof(shot) ~= "number" or shot ~= math.floor(shot) then
+		reject(player, "typeof(shot) ~= 'number' or shot ~= math.floor(shot)")
+		return
+	end
+	if typeof(spreadClaim) ~= "number" or spreadClaim ~= spreadClaim then
+		reject(player, "typeof(spreadClaim) ~= 'number' or spreadClaim ~= spreadClaim")
 		return
 	end
 	if aim.Magnitude < 0.9 or aim.Magnitude > 1.1 then
+		reject(player, "aim.Magnitude < 0.9 or aim.Magnitude > 1.1")
 		return
 	end
 	aim = aim.Unit
@@ -490,69 +570,89 @@ local function onFire(player: Player, payload: unknown)
 	local character = player.Character
 	local humanoid = liveHumanoid(character)
 	if not state or not character or not humanoid or not state.equipped then
+		reject(player, "not state or not character or not humanoid or not state.equipped")
 		return
 	end
 	local slot = state.slots[state.equipped]
 	if not slot then
+		reject(player, "not slot")
 		return
 	end
 	local config = slot.config
 	local now = os.clock()
 
+	-- Shot counter: must move forward, and only by a little (lost shots).
+	if shot <= state.shotIndex or shot > state.shotIndex + Combat.MAX_SHOT_SKIP then
+		reject(player, "shot <= state.shotIndex or shot > state.shotIndex + Combat.MAX_SHOT_SKIP")
+		return
+	end
+
 	-- Weapon state.
 	if now < state.equipReadyAt then
+		reject(player, "now < state.equipReadyAt")
 		return
 	end
 	if slot.reloadEnd and now < slot.reloadEnd then
+		reject(player, "slot.reloadEnd and now < slot.reloadEnd")
 		return
 	end
 	if config.magSize > 0 and slot.ammo <= 0 then
+		reject(player, "config.magSize > 0 and slot.ammo <= 0")
 		return
 	end
 	local interval = FireRate.interval(config, slot.spinStart, slot.lastFire, now)
-	if now < slot.lastFire + interval - FIRE_JITTER then
+	if now < slot.lastFire + interval - Combat.FIRE_JITTER then
+		reject(player, "now < slot.lastFire + interval - Combat.FIRE_JITTER")
 		return
 	end
 	if config.chargeTime then
 		if not slot.chargeStart or now - slot.chargeStart < config.chargeTime - 0.1 then
+			reject(
+				player,
+				"not slot.chargeStart or now - slot.chargeStart < config.chargeTime - 0.1"
+			)
 			return
 		end
 		slot.chargeStart = nil
 	end
 
-	-- The shot comes from roughly where the server thinks the player's head is.
+	-- The shot comes from roughly where the server thinks the player's head
+	-- is, with nothing solid between the head and that point.
 	local head = character:FindFirstChild("Head")
 	if not head or not head:IsA("BasePart") then
+		reject(player, "not head or not head:IsA('BasePart')")
 		return
 	end
 	if (origin - head.Position).Magnitude > Combat.ORIGIN_TOLERANCE then
+		reject(player, "(origin - head.Position).Magnitude > Combat.ORIGIN_TOLERANCE")
+		return
+	end
+	local exclude = wallExclusions(character)
+	if blocked(exclude, head.Position, origin, "None") then
+		reject(player, "blocked(exclude, head.Position, origin, 'None')")
 		return
 	end
 
 	-- Accept the shot.
+	state.shotIndex = shot
 	if not slot.spinStart or now - slot.lastFire > FireRate.SPIN_RESET then
 		slot.spinStart = now
 	end
-	slot.lastFire = math.max(now - FIRE_JITTER, slot.lastFire + interval)
+	slot.lastFire = math.max(now, slot.lastFire + interval)
 	if config.magSize > 0 then
 		slot.ammo -= 1
 	end
 
 	-- Replicate the visuals to everyone else (cosmetic: clamp, don't trust).
 	local ends: { Vector3 } = {}
-	if typeof(p.ends) == "table" then
-		for i, e in p.ends :: { unknown } do
-			if i > config.pellets then
-				break
+	for _, e in readArray(p.ends, config.pellets) do
+		local v = finiteVector(e)
+		if v then
+			local offset = v - origin
+			if offset.Magnitude > config.range then
+				v = origin + offset.Unit * config.range
 			end
-			local v = finiteVector(e)
-			if v then
-				local offset = v - origin
-				if offset.Magnitude > config.range then
-					v = origin + offset.Unit * config.range
-				end
-				table.insert(ends, v)
-			end
+			table.insert(ends, v)
 		end
 	end
 	for _, other in Players:GetPlayers() do
@@ -561,26 +661,32 @@ local function onFire(player: Player, payload: unknown)
 		end
 	end
 
-	-- Validate hits.
-	if typeof(p.hits) ~= "table" then
-		return
-	end
+	-- Recompute exactly where each pellet was allowed to go. The seed comes
+	-- from the server's sequence; the claimed spread can't go below the gun's
+	-- best case (aimed, standing still) or above its worst case.
+	local minSpread = config.hipSpread * config.adsSpreadMultiplier
+	local maxSpread = config.hipSpread + config.maxBloom + Combat.MOVE_SPREAD.Air
+	local spread = math.clamp(spreadClaim, minSpread, maxSpread)
+	local dirs = Spread.shot(
+		aim,
+		Spread.seedFor(state.seedBase, shot),
+		config.pellets,
+		spread,
+		config.pelletSpread
+	)
+
+	local root = character:FindFirstChild("HumanoidRootPart")
+	local rewindAge = rewindWindow(player)
 	local maxHits = math.min(
 		Combat.MAX_HITS_PER_SHOT,
 		config.pellets * (if config.pierceCharacters then 4 else 1)
 	)
-	local maxAngle = config.hipSpread
-		+ config.maxBloom
-		+ Combat.MOVE_SPREAD.Air
-		+ config.pelletSpread
-		+ Combat.DIRECTION_TOLERANCE
 	local valid: { ValidHit } = {}
-	local seenPellet: { [number]: number } = {}
-	for i, raw in p.hits :: { unknown } do
-		if i > maxHits then
-			break
-		end
+	local seen: { [Model]: { [number]: boolean } } = {}
+	local pelletUsed: { [number]: boolean } = {}
+	for _, raw in readArray(p.hits, maxHits) do
 		if typeof(raw) ~= "table" then
+			reject(player, "typeof(raw) ~= 'table'")
 			continue
 		end
 		local h = raw :: { [string]: unknown }
@@ -588,6 +694,10 @@ local function onFire(player: Player, payload: unknown)
 		local position = finiteVector(h.position)
 		local pellet = h.pellet
 		if typeof(part) ~= "Instance" or not (part :: Instance):IsA("BasePart") or not position then
+			reject(
+				player,
+				"typeof(part) ~= 'Instance' or not (part :: Instance):IsA('BasePart') or not position"
+			)
 			continue
 		end
 		if
@@ -596,56 +706,102 @@ local function onFire(player: Player, payload: unknown)
 			or pellet < 1
 			or pellet > config.pellets
 		then
+			reject(player, "bad pellet index")
 			continue
 		end
 		local hitPart = part :: BasePart
-		if not hitPart:IsDescendantOf(workspace) then
-			continue
-		end
-		local model = combatantOf(hitPart)
-		if not model or model == character or not liveHumanoid(model) then
-			continue
-		end
-		if not HitboxHistory.isTracked(model) then
+		local model = hitboxOwner(hitPart)
+		if
+			not model
+			or model == character
+			or not liveHumanoid(model)
+			or not HitboxHistory.isTracked(model)
+		then
+			reject(player, "not a live tracked hitbox: " .. hitPart.Name)
 			continue
 		end
 
-		-- One target per pellet unless the gun pierces.
-		local count = (seenPellet[pellet] or 0) + 1
-		if count > 1 and not config.pierceCharacters then
+		-- One target per pellet (piercing guns: each target once per pellet).
+		local seenForModel = seen[model]
+		if
+			(seenForModel and seenForModel[pellet])
+			or (pelletUsed[pellet] and not config.pierceCharacters)
+		then
+			reject(player, "duplicate hit for this pellet")
 			continue
 		end
-		seenPellet[pellet] = count
 
-		local offset = position - origin
-		local distance = offset.Magnitude
 		if config.melee then
-			local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-			if not root then
+			-- In reach and roughly in front of the attacker.
+			if not root or not root:IsA("BasePart") then
+				reject(player, "not root or not root:IsA('BasePart')")
 				continue
 			end
+			local toTarget = hitPart.Position - root.Position
 			local reach = config.melee.range + Combat.MELEE_TOLERANCE + hitPart.Size.Magnitude / 2
-			if (hitPart.Position - root.Position).Magnitude > reach then
+			if toTarget.Magnitude > reach then
+				reject(player, "toTarget.Magnitude > reach")
+				continue
+			end
+			local flat = toTarget * Vector3.new(1, 0, 1)
+			local facing = root.CFrame.LookVector * Vector3.new(1, 0, 1)
+			if flat.Magnitude > 0.5 and facing.Unit:Dot(flat.Unit) < Combat.MELEE_FACING_DOT then
+				reject(
+					player,
+					"flat.Magnitude > 0.5 and facing.Unit:Dot(flat.Unit) < Combat.MELEE_FACING_DOT"
+				)
 				continue
 			end
 		else
-			if distance > config.range + 5 then
+			local offset = position - origin
+			if offset.Magnitude > config.range + 5 then
+				reject(player, "offset.Magnitude > config.range + 5")
 				continue
 			end
-			if distance > 2 and Spread.angle(offset, aim) > maxAngle then
+			-- The hit must lie on this pellet's server-computed ray.
+			if
+				offset.Magnitude > 1
+				and Spread.angle(offset, dirs[pellet]) > Combat.DIRECTION_TOLERANCE
+			then
+				reject(
+					player,
+					string.format("off pellet ray by %.2f deg", Spread.angle(offset, dirs[pellet]))
+				)
 				continue
 			end
 		end
-		if not HitboxHistory.plausible(model, hitPart, position, Combat.HIT_POSITION_TOLERANCE) then
+
+		-- The target really was there recently (rewound to the shooter's ping)...
+		local isArm = string.find(hitPart.Name, "Arm") ~= nil
+			or string.find(hitPart.Name, "Hand") ~= nil
+		local tolerance = Combat.HIT_POSITION_TOLERANCE
+			+ (if isArm then Combat.ARM_HIT_EXTRA_TOLERANCE else 0)
+		local rewound = HitboxHistory.rewind(model, hitPart, position, tolerance, rewindAge)
+		if not rewound then
+			reject(player, "not rewound")
 			continue
 		end
-		if blocked(character, origin, position, config.penetration) then
+		-- ...and nothing solid sits between the shooter and the hit point, or
+		-- between the hit point and the actual body part.
+		if blocked(exclude, origin, position, config.penetration) then
+			reject(player, "blocked(exclude, origin, position, config.penetration)")
 			continue
 		end
-		table.insert(valid, { model = model, part = hitPart, position = position, pellet = pellet })
+		if blocked(exclude, position, rewound, config.penetration) then
+			reject(player, "blocked(exclude, position, rewound, config.penetration)")
+			continue
+		end
+		if not seenForModel then
+			seenForModel = {}
+			seen[model] = seenForModel
+		end
+		seenForModel[pellet] = true
+		pelletUsed[pellet] = true
+		table.insert(valid, { model = model, part = hitPart, rewound = rewound, pellet = pellet })
 	end
 
-	-- Sum damage per target (pellets), then apply once.
+	-- Sum damage per target (pellets), then apply once. Distance for falloff is
+	-- measured by the server: head to the rewound body part.
 	type Tally = { amount: number, zone: HitZone, position: Vector3 }
 	local tally: { [Model]: Tally } = {}
 	for _, hit in valid do
@@ -653,9 +809,8 @@ local function onFire(player: Player, payload: unknown)
 		local amount: number
 		if config.melee then
 			amount = config.damage.body
-			local victimRoot = hit.model:FindFirstChild("HumanoidRootPart") :: BasePart?
-			local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-			if victimRoot and root then
+			local victimRoot = hit.model:FindFirstChild("HumanoidRootPart")
+			if victimRoot and victimRoot:IsA("BasePart") and root and root:IsA("BasePart") then
 				local toVictim = (victimRoot.Position - root.Position) * Vector3.new(1, 0, 1)
 				if toVictim.Magnitude > 0.01 then
 					local facing = victimRoot.CFrame.LookVector * Vector3.new(1, 0, 1)
@@ -666,7 +821,7 @@ local function onFire(player: Player, payload: unknown)
 			end
 			zone = "Body"
 		else
-			amount = Damage.compute(config, zone, (hit.position - origin).Magnitude)
+			amount = Damage.compute(config, zone, (hit.rewound - head.Position).Magnitude)
 		end
 		local t = tally[hit.model]
 		if t then
@@ -675,7 +830,7 @@ local function onFire(player: Player, payload: unknown)
 				t.zone = "Head"
 			end
 		else
-			tally[hit.model] = { amount = amount, zone = zone, position = hit.position }
+			tally[hit.model] = { amount = amount, zone = zone, position = hit.rewound }
 		end
 	end
 	for model, t in tally do

@@ -100,6 +100,8 @@ export type WeaponSlotState = { id: string, ammo: number }
 export type WeaponState = {
 	slots: { [Slot]: WeaponSlotState },
 	equipped: Slot?,
+	seedBase: number, -- spread seeds come from this + the shot counter
+	shotIndex: number, -- last shot counter the server accepted
 }
 
 export type HitConfirm = {

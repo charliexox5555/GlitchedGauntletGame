@@ -60,7 +60,11 @@ local function makeDummy(index: number, folder: Folder)
 			local dir = 1
 			while dummy.Parent and humanoid.Health > 0 do
 				humanoid:MoveTo(pos + Vector3.new(8 * dir, 0, 0))
-				humanoid.MoveToFinished:Wait()
+				-- MoveToFinished can stall forever once the dummy is gone; poll instead.
+				local t0 = os.clock()
+				while dummy.Parent and os.clock() - t0 < 1.2 do
+					task.wait(0.1)
+				end
 				dir = -dir
 			end
 		end)
