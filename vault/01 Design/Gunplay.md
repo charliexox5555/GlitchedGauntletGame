@@ -57,7 +57,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 This is a big part of why RIVALS feels good. Build it alongside the very first gun.
 - **Hit marker:** white for body, **gold for headshots**. Instant on the client, confirmed by the server.
 - **Sounds:** distinct body-hit tick, headshot "ding", **kill sound** (cyan X marker).
-- **Damage numbers** that stack while you keep hitting.
+- **Damage numbers** that stack while you keep hitting the same target, then fall off in an arc (RIVALS style); gold for headshots, bigger on the kill. A short **kill banner** ("ELIMINATED", streaks count up) under the crosshair.
 - **Victim:** directional hit indicator, red low-HP vignette, a short death recap showing **the killer's gun and Mods** (teaches the draft).
 - Kill feed, a round-win stinger, a slow-mo kill cam on the deciding round.
 - Muzzle flash, tracer (none for suppressed guns), shell ejection, impact sparks; enemies **dissolve into pixels** on death (no blood).

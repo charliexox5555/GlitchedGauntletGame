@@ -58,7 +58,7 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | Wildcard effects | ✅ | Ray Trace charge glow + helix rail that sheds pixels; Null textured energy beam with end flare; Loopback spinning disc (SurfaceGui face + camera-facing ring, trail, pixels) |
 | Impacts + bullet holes | ✅ | Flash, sparks (gold extra on metal), surface-coloured dust and chips; 48 pooled holes with a rim that cools, fade after 4 s. Characters: neon sparks, ring and pixels, no blood |
 | Pixel-dissolve death + kill flash | ✅ | White-hot hologram (Highlight) → flicker out → glitch-pixel burst; cyan / gold (headshot) screen-edge flash for the killer |
-| Hit markers, kill icon | 🟡 | White / gold headshot X, cyan kill X, stacking damage numbers |
+| Hit markers, damage numbers, kill banner | ✅ | `Util/HitFeedback`: white / gold-headshot X with a pop and rotation kick, cyan kill X with a ring; damage numbers stack on the target (gold headshot, bigger on the kill) then fall off in an arc; "ELIMINATED / DOUBLE KILL…" banner. Hand-animated, pooled, always end fully hidden |
 | Mod icons (8) | ⬜ | SVG → PNG |
 | Draft card frames | ⬜ | Normal / upgrade / glitch |
 | Third-person pose animations | 🟡 | 7 procedural R15 clips (aim up/level/down, sprint, crouch, crouch-walk, slide) in `art-source/animations/`, uploaded group-owned; first pass, worth a hand-keyed polish later |
