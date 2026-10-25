@@ -9,10 +9,10 @@
 > Update this block at the end of every work session (Claude does it when asked).
 
 - **Phase:** Week 1 — "Find the fun" (prototype)
-- **Done:** research · game plan · weapon roster · art style (Style B) · all gun models made in Blender · repo + Rojo scaffold · this vault · toolchain checks pass (rojo, stylua, selene, build) · `main` branch
-- **Now:** importing guns into Studio → building the gun system (start with Byte)
+- **Done:** research · game plan · weapon roster · art style (Style B) · all gun models made in Blender · repo + Rojo scaffold · this vault · toolchain checks pass (rojo, stylua, selene, build) · `main` branch · Studio MCP connected · place setup: StreamingEnabled, `ServerStorage.ImportStaging`, first person (`LockFirstPerson`) + FOV 80 via `CameraController` (checked in a playtest)
+- **Now:** turn on Server Authority by hand (Workspace → `AuthorityMode` = Server) and save the place → import guns into `ImportStaging` → build the gun system (start with Byte)
 - **Next:** rounds + tier rotation → Mods → draft → **Playtest #1**
-- **Blockers:** —
+- **Blockers:** Server Authority can't be set through the MCP (`AuthorityMode` needs a higher script permission level). It has to be set in Studio's Properties panel.
 
 ---
 
