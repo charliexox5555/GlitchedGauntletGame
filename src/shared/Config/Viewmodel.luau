@@ -45,41 +45,37 @@ local OUT = Enum.EasingDirection.Out
 local INOUT = Enum.EasingDirection.InOut
 
 return table.freeze({
-	SCALE = 0.5, -- guns are modelled at world size; first person shows them smaller
-	ADS_DISTANCE = 1.15, -- camera to the AimPoint while aiming (per gun: adsDistance)
-	ADS_EASE = 0.5, -- 0 = linear, 1 = very eased
-	-- While aiming, parts that start this far (scaled studs) behind the AimPoint
-	-- fade out (stocks); a gun's adsHide names more (Ray Trace's battery cells).
-	ADS_HIDE_BEHIND = 0.05,
-	ADS_NEON_DIM = 0.8, -- neon strips running back past the sight dim this much
+	-- Guns are modelled at world size; first person shows them at this scale,
+	-- big and close in the lower right like RIVALS.
+	SCALE = 0.6,
+	ADS_DISTANCE = 1.4, -- camera to the AimPoint while aiming (per gun: adsDistance)
 
-	-- Hip pose rotation on top of the gun's viewmodelOffset (slight inward cant).
-	HIP_ROTATION = Vector3.new(1.5, 3, -2),
+	-- Hip pose rotation on top of the gun's viewmodelOffset (angled slightly in).
+	HIP_ROTATION = Vector3.new(1.5, 4, -3),
 
-	-- Arms: blocky, Roblox-proportioned segments dressed in the player's shirt
-	-- (classic Shirt template) over their skin colour. Two-bone IK from these
-	-- shoulder points to the gun's grips; elbows bend toward the hint.
-	SHOULDER_RIGHT = Vector3.new(0.85, -1.35, 0.15),
-	SHOULDER_LEFT = Vector3.new(-0.7, -1.4, -0.15),
+	-- Arms: the player's own R15 arm meshes with their Shirt (Util/ViewmodelArms),
+	-- normalised so every avatar looks right: shoulder → grip spans ARM_REACH,
+	-- the forearm is ARM_THICKNESS wide, the hand HAND_LENGTH from wrist to
+	-- palm. Two-bone IK from these shoulder points to the gun's grips; elbows
+	-- bend toward the hint.
+	ARM_REACH = 2.5,
+	ARM_THICKNESS = 0.36,
+	HAND_LENGTH = 0.28,
+	SHOULDER_RIGHT = Vector3.new(0.95, -1.4, 0.3),
+	SHOULDER_LEFT = Vector3.new(-1.05, -1.5, 0.2),
 	-- While aiming the shoulders spread and drop and the elbows hang lower, so
 	-- the forearms rise from the bottom corners instead of crossing the sight.
-	ADS_SHOULDER_SPREAD = Vector3.new(0.2, -0.35, 0),
+	ADS_SHOULDER_SPREAD = Vector3.new(0.2, -0.3, 0),
 	ADS_ELBOW_HINT_RIGHT = Vector3.new(0.5, -1, 0.1),
 	ADS_ELBOW_HINT_LEFT = Vector3.new(-0.5, -1, 0.1),
-	ELBOW_HINT_RIGHT = Vector3.new(1, -0.65, 0.1),
+	ELBOW_HINT_RIGHT = Vector3.new(1, -0.7, 0.1),
 	ELBOW_HINT_LEFT = Vector3.new(-1, -0.6, 0.1),
-	UPPER_LENGTH = 1.2,
-	LOWER_LENGTH = 1.15,
-	HAND_LENGTH = 0.24,
-	ARM_WIDTH = 0.22,
-	-- How far the upper arm block runs past the elbow so the joint has no gap.
-	ELBOW_OVERLAP = 0.12,
 	-- Pistols put both grips in one spot; the support hand cups under and to the left.
-	SUPPORT_HAND_OFFSET = Vector3.new(-0.13, -0.05, 0.03),
+	SUPPORT_HAND_OFFSET = Vector3.new(-0.1, -0.05, 0.04),
+	SUPPORT_HAND_TWIST = -75, -- degrees around the forearm: palm turns in to wrap the grip
 	-- Melee: the free hand rests here (camera space) as a guard.
 	FREE_HAND = Vector3.new(-0.62, -0.78, -1.05),
-	-- Shirt template (585 x 559 px): where each arm face sits, and how the arm's
-	-- 128 px height splits into upper arm / forearm / hand (like R15 blocky arms).
+	-- R6 fallback arms: shirt template (585 x 559 px) regions of each arm face.
 	SHIRT_SIZE = Vector2.new(585, 559),
 	SHIRT_FACES = {
 		Right = {
@@ -99,7 +95,6 @@ return table.freeze({
 			D = Vector2.new(308, 485),
 		},
 	},
-	ARM_SPLIT = { 0.45, 0.82 }, -- upper | forearm | hand
 
 	-- Hands follow the gun's moving parts during its Blender clips. Reload: the
 	-- left hand takes the first joint the clip moves, then any later one (e.g.
@@ -117,22 +112,39 @@ return table.freeze({
 	-- Share of the clip the hand takes to reach a part before it moves / to come back.
 	FOLLOW_LEAD = 0.14,
 
+	-- Predicted velocity steps unevenly under Server Authority: low-pass it (1/s).
+	VELOCITY_SMOOTHING = 12,
+
 	-- Sway follows how fast the view turns; strafing rolls the gun.
-	SWAY_AMOUNT = 0.016, -- radians of sway per rad/s of turn
+	SWAY_AMOUNT = 0.018, -- radians of sway per rad/s of turn
 	SWAY_MAX = 0.1, -- radians
 	SWAY_STIFFNESS = 140,
 	SWAY_DAMPING = 17,
-	STRAFE_ROLL = 0.0045, -- radians per stud/s of sideways speed
+	STRAFE_ROLL = 0.005, -- radians per stud/s of sideways speed
+	-- Movement lag: the gun drifts against strafing/forward motion and falls.
+	MOVE_LAG = 0.0032, -- studs per stud/s
 	FALL_LAG = 0.004, -- studs per stud/s of vertical speed
-	ADS_SWAY_SCALE = 0.2,
+	MOVE_STIFFNESS = 90,
+	MOVE_DAMPING = 14,
 
 	-- Walk bob follows real ground speed so it fades in and out smoothly.
 	BOB_FREQUENCY = 0.55, -- cycles per stud travelled
-	BOB_AMOUNT = Vector3.new(0.022, 0.016, 0), -- studs at walk speed
-	BOB_ROTATION = Vector3.new(0.8, 0.6, 1.2), -- degrees at walk speed
+	BOB_AMOUNT = Vector3.new(0.024, 0.016, 0), -- studs at walk speed
+	BOB_ROTATION = Vector3.new(0.8, 0.7, 1.4), -- degrees at walk speed
 	BOB_WALK_SPEED = 16,
 	SPRINT_BOB_SCALE = 1.8,
-	ADS_BOB_SCALE = 0.15,
+
+	-- Breathing: slow idle drift.
+	BREATH_RATE = 0.28, -- cycles per second
+	BREATH_AMOUNT = Vector2.new(0.004, 0.006), -- studs
+	BREATH_ROTATION = 0.35, -- degrees of pitch
+
+	-- How much of each motion stays while fully aimed (1 = all of it). Kept
+	-- non-zero so the sights sway side to side as you move, like RIVALS.
+	ADS_SWAY_SCALE = 0.4,
+	ADS_MOVE_SCALE = 0.5,
+	ADS_BOB_SCALE = 0.35,
+	ADS_BREATH_SCALE = 0.5,
 
 	-- Per-shot kick on the viewmodel (scaled by the gun's recoil.up).
 	KICK_BACK = 0.05,

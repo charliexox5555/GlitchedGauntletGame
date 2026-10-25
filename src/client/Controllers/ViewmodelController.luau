@@ -1,13 +1,15 @@
 --!strict
 -- First-person viewmodel (Gunplay.md §6), RIVALS style:
 --  * a scaled copy of the equipped gun in front of the camera, playing its own
---    Blender Fire/Reload clips on its Motor6D rig (GunAnimator);
---  * blocky arms dressed as the player (skin colour + classic Shirt template on
---    the sleeves), solved with two-bone IK onto the gun's RightGrip/LeftGrip
---    every frame, with the hands following the mag/pump/bolt during clips;
+--    Blender Fire/Reload clips (GunAnimator). Every part is anchored and posed
+--    by hand each frame (Util/ViewmodelRig), so nothing lags the camera;
+--  * the player's own arms with their shirt (Util/ViewmodelArms), solved with
+--    two-bone IK onto the gun's RightGrip/LeftGrip, hands following the
+--    mag/pump/bolt during clips;
 --  * keyframed tracks (equip, inspect, reload body motion) and blended poses
 --    (sprint, slide, crouch, air) from Config/Viewmodel, plus speed-driven bob,
---    turn sway and recoil springs.
+--    breathing, turn sway, movement lag and recoil springs, all kept (smaller)
+--    while aiming so the sights move with you.
 -- Guns with two models (Dual Boot) hold one in each hand, the left one mirrored.
 
 local Players = game:GetService("Players")
@@ -21,6 +23,8 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
+local ViewmodelArms = require(script.Parent.Parent.Util.ViewmodelArms)
+local ViewmodelRig = require(script.Parent.Parent.Util.ViewmodelRig)
 local MovementController = require(script.Parent.MovementController)
 
 type WeaponConfig = Types.WeaponConfig
@@ -41,6 +45,7 @@ type FollowRule = { clip: string, hand: Side, anchor: Anchor, from: number, to: 
 type Gun = {
 	model: Model,
 	handle: BasePart,
+	rig: ViewmodelRig.ViewmodelRig?,
 	animator: GunAnimator.GunAnimator,
 	rightGrip: Anchor?,
 	leftGrip: Anchor?,
@@ -48,60 +53,55 @@ type Gun = {
 	aimRel: Vector3, -- sight position relative to the grip, at rest (ADS alignment)
 	centerRel: Vector3, -- middle of the gun relative to the grip (inspect pivot)
 	follow: { FollowRule },
-	adsHide: { BasePart },
-	adsDim: { BasePart },
-	adsFade: number, -- last fade written to adsHide/adsDim
+	adsHide: { BasePart }, -- parts that block the sight line, faded while aiming
+	adsFade: number, -- last fade written to adsHide
 	reticle: SurfaceGui?,
 	recoil: Spring.Spring,
 }
 
-type Arm = { upper: Part, lower: Part, hand: Part }
-
 type Playing = { track: VM.Track, time: number, length: number, weight: number, fading: boolean }
+
+type Scalar = { x: number, v: number }
 
 local guns: { [Side]: Gun } = {}
 local config: WeaponConfig? = nil
-local arms: { [Side]: Arm } = {}
-local armsModel: Model? = nil
-local armsLook = "" -- shirt + colours the arms were built with
+local arms: ViewmodelArms.Arms? = nil
+local armsLook = "" -- what the arms were built from
 local nextLookCheck = 0
 
 local playing: { [string]: Playing } = {}
-local poseWeights: { [string]: { x: number, v: number } } = {}
+local poseWeights: { [string]: Scalar } = {}
+local weights: { [string]: number } = {}
 
 local adsAlpha = 0
 local hidden = false
 local bobPhase = 0
-local bobAmount = { x = 0, v = 0 }
+local breathPhase = 0
+local bobAmount: Scalar = { x = 0, v = 0 }
 local lastCamera: CFrame? = nil
 local lastState = "Idle"
-local lastVelocity = Vector3.zero
+local smoothVelocity = Vector3.zero
 
 local sway = Spring.new(VM.SWAY_STIFFNESS, VM.SWAY_DAMPING)
-local move = Spring.new(VM.SWAY_STIFFNESS * 0.6, VM.SWAY_DAMPING * 0.8)
+local move = Spring.new(VM.MOVE_STIFFNESS, VM.MOVE_DAMPING)
 
 local DEG = math.pi / 180
 
 -- Small helpers ----------------------------------------------------------------
-
-local function ease(t: number): number
-	-- Blend between linear and smoothstep.
-	local s = t * t * (3 - 2 * t)
-	return t + (s - t) * VM.ADS_EASE
-end
 
 local function smoothstep(t: number): number
 	t = math.clamp(t, 0, 1)
 	return t * t * (3 - 2 * t)
 end
 
+-- ADS blend: smootherstep, so it starts and lands without a jolt.
+local function adsEase(t: number): number
+	t = math.clamp(t, 0, 1)
+	return t * t * t * (t * (t * 6 - 15) + 10)
+end
+
 -- Critically damped scalar spring toward `target`.
-local function approach(
-	s: { x: number, v: number },
-	target: number,
-	stiffness: number,
-	dt: number
-): number
+local function approach(s: Scalar, target: number, stiffness: number, dt: number): number
 	local damping = 2 * math.sqrt(stiffness)
 	local steps = math.max(1, math.ceil(dt / (1 / 120)))
 	local h = dt / steps
@@ -208,198 +208,17 @@ end
 
 -- Arms -------------------------------------------------------------------------
 
-local SHIRT_FACES: { [string]: Enum.NormalId } = {
-	F = Enum.NormalId.Front,
-	B = Enum.NormalId.Back,
-	R = Enum.NormalId.Right,
-	L = Enum.NormalId.Left,
-	U = Enum.NormalId.Top,
-	D = Enum.NormalId.Bottom,
-}
-
--- Colour of one arm segment: the avatar's own body part, else BodyColors.
-local function segmentColor(character: Model?, side: Side, segment: string): Color3
-	if character then
-		local r15 = character:FindFirstChild(side .. segment)
-		if r15 and r15:IsA("BasePart") then
-			return r15.Color
-		end
-		local r6 = character:FindFirstChild(side .. " Arm")
-		if r6 and r6:IsA("BasePart") then
-			return r6.Color
-		end
-		local colors = character:FindFirstChildOfClass("BodyColors")
-		if colors then
-			return if side == "Right" then colors.RightArmColor3 else colors.LeftArmColor3
-		end
+local function rebuildArms(cam: Camera?)
+	if arms then
+		arms.model:Destroy()
 	end
-	return Color3.fromRGB(234, 184, 146)
-end
-
-local function shirtTemplate(character: Model?): string
-	local shirt = character and character:FindFirstChildOfClass("Shirt")
-	return if shirt then shirt.ShirtTemplate else ""
-end
-
-local function lookSignature(): string
-	local character = player.Character
-	local parts = { shirtTemplate(character) }
-	for _, side in { "Right", "Left" } do
-		for _, segment in { "UpperArm", "LowerArm", "Hand" } do
-			table.insert(parts, segmentColor(character, side :: Side, segment):ToHex())
-		end
+	local built = ViewmodelArms.build(player.Character)
+	arms = built
+	armsLook = ViewmodelArms.signature(player.Character)
+	if cam and guns.Right then
+		built.model.Parent = cam
 	end
-	return table.concat(parts, "|")
-end
-
--- Puts the shirt template's arm faces on a segment covering the arm's height
--- from `a` to `b` (0 = shoulder, 1 = hand), like Roblox does on blocky arms.
--- Each face is a Decal cropped to its template region with UVScale/UVOffset.
-local function dress(part: Part, side: Side, template: string, a: number, b: number)
-	local faces = VM.SHIRT_FACES[side]
-	local image = VM.SHIRT_SIZE
-	for faceKey, normal in SHIRT_FACES do
-		local origin = faces[faceKey]
-		local y0, h = origin.Y + a * 128, (b - a) * 128
-		if faceKey == "U" or faceKey == "D" then
-			if (faceKey == "U" and a > 0) or (faceKey == "D" and b < 1) then
-				continue
-			end
-			y0, h = origin.Y, 64
-		end
-		local decal = Instance.new("Decal")
-		decal.Face = normal
-		decal.Texture = template
-		decal.UVScale = Vector2.new(64 / image.X, h / image.Y)
-		decal.UVOffset = Vector2.new(origin.X / image.X, y0 / image.Y)
-		decal.Parent = part
-	end
-end
-
-local function armPart(name: string, size: Vector3, color: Color3, parent: Instance): Part
-	local p = Instance.new("Part")
-	p.Name = name
-	p.Anchored = true
-	p.CanCollide = false
-	p.CanQuery = false
-	p.CanTouch = false
-	p.CastShadow = false
-	p.Material = Enum.Material.SmoothPlastic
-	p.TopSurface = Enum.SurfaceType.Smooth
-	p.BottomSurface = Enum.SurfaceType.Smooth
-	p.Color = color
-	p.Size = size
-	p.Parent = parent
-	return p
-end
-
-local function buildArms()
-	if armsModel then
-		armsModel:Destroy()
-	end
-	local character = player.Character
-	local template = shirtTemplate(character)
-	local model = Instance.new("Model")
-	model.Name = "ViewmodelArms"
-	local w = VM.ARM_WIDTH
-	local split = VM.ARM_SPLIT
-	arms = {}
-	for _, side: Side in { "Right", "Left" } :: { Side } do
-		local upper = armPart(
-			side .. "UpperArm",
-			Vector3.new(w, VM.UPPER_LENGTH + VM.ELBOW_OVERLAP, w),
-			segmentColor(character, side, "UpperArm"),
-			model
-		)
-		local lower = armPart(
-			side .. "LowerArm",
-			Vector3.new(w * 0.96, VM.LOWER_LENGTH, w * 0.96),
-			segmentColor(character, side, "LowerArm"),
-			model
-		)
-		local hand = armPart(
-			side .. "Hand",
-			Vector3.new(w, VM.HAND_LENGTH, w),
-			segmentColor(character, side, "Hand"),
-			model
-		)
-		if template ~= "" then
-			dress(upper, side, template, 0, split[1])
-			dress(lower, side, template, split[1], split[2])
-			dress(hand, side, template, split[2], 1)
-		end
-		arms[side] = { upper = upper, lower = lower, hand = hand }
-	end
-	armsModel = model
-	armsLook = lookSignature()
-end
-
-local function setArmsVisible(visible: boolean)
-	local m = if visible then 0 else 1
-	for _, d in if armsModel then armsModel:GetDescendants() else {} do
-		if d:IsA("BasePart") or d:IsA("Decal") then
-			d.LocalTransparencyModifier = m
-		end
-	end
-end
-
--- A block running from `from` (toward the shoulder) to `to`, its X axis on the
--- elbow's hinge so the shirt's front faces the way the arm bends.
-local function segment(part: Part, from: Vector3, to: Vector3, hinge: Vector3, length: number)
-	local y = from - to
-	if y.Magnitude < 1e-4 then
-		return
-	end
-	y = y.Unit
-	local x = hinge - y * hinge:Dot(y)
-	if x.Magnitude < 1e-4 then
-		x = y:Cross(Vector3.zAxis)
-	end
-	x = x.Unit
-	local center = from - y * (length / 2)
-	part.CFrame = CFrame.fromMatrix(center, x, y, x:Cross(y))
-end
-
--- Two-bone IK: shoulder → elbow → hand centre on `grip`. The forearm bone
--- runs to the hand's centre; the hand block then sits on the last stretch.
-local function solveArm(arm: Arm, shoulder: Vector3, grip: Vector3, hint: Vector3)
-	local half = VM.HAND_LENGTH / 2
-	local l1, l2 = VM.UPPER_LENGTH, VM.LOWER_LENGTH + half
-	local toGrip = grip - shoulder
-	local d = toGrip.Magnitude
-	if d < 1e-3 then
-		return
-	end
-	-- Out of reach: the (off-screen) shoulder slides forward instead of the
-	-- hand letting go of the gun.
-	local reach = (l1 + l2) * 0.995
-	if d > reach then
-		shoulder += toGrip.Unit * (d - reach)
-		toGrip = grip - shoulder
-		d = reach
-	end
-	d = math.max(d, math.abs(l1 - l2) + 0.02)
-	local dir = toGrip.Unit
-	local cosA = math.clamp((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d), -1, 1)
-	local sinA = math.sqrt(1 - cosA * cosA)
-	local pole = hint - dir * hint:Dot(dir)
-	if pole.Magnitude < 1e-4 then
-		pole = -Vector3.yAxis - dir * -dir.Y
-		if pole.Magnitude < 1e-4 then
-			pole = Vector3.xAxis - dir * dir.X
-		end
-	end
-	pole = pole.Unit
-	local elbow = shoulder + dir * (l1 * cosA) + pole * (l1 * sinA)
-	local hinge = pole:Cross(dir)
-	local forearm = grip - elbow
-	local forearmDir = if forearm.Magnitude > 1e-4 then forearm.Unit else dir
-	local wrist = grip - forearmDir * half
-
-	local upperLen = l1 + VM.ELBOW_OVERLAP
-	segment(arm.upper, shoulder, shoulder + (elbow - shoulder).Unit * upperLen, hinge, upperLen)
-	segment(arm.lower, elbow, wrist, hinge, VM.LOWER_LENGTH)
-	segment(arm.hand, wrist, grip + forearmDir * half, hinge, VM.HAND_LENGTH)
+	ViewmodelArms.setVisible(built, not hidden)
 end
 
 -- Guns -------------------------------------------------------------------------
@@ -563,7 +382,6 @@ local function sightPart(
 	p.Name = name
 	p.Size = size
 	p.CFrame = cf
-	p.Anchored = false
 	p.CanCollide = false
 	p.CanQuery = false
 	p.CanTouch = false
@@ -571,6 +389,7 @@ local function sightPart(
 	p.Massless = true
 	p.Material = Enum.Material.SmoothPlastic
 	p.Color = Color3.fromHex("14161D")
+	-- Only tells ViewmodelRig which joint it rides on (the rig anchors it).
 	local weld = Instance.new("WeldConstraint")
 	weld.Part0 = joint
 	weld.Part1 = p
@@ -589,8 +408,8 @@ local function buildReticle(m: Model, h: BasePart, r: Types.Reticle, scale: numb
 	folder.Name = "HoloSight"
 	folder.Parent = m
 	if r.frame ~= false then
-		local bar = 0.012
-		local depth = 0.02
+		local bar = 0.024 * scale
+		local depth = 0.04 * scale
 		sightPart(
 			"Top",
 			Vector3.new(size.X + bar * 2, bar, depth),
@@ -625,13 +444,14 @@ local function buildReticle(m: Model, h: BasePart, r: Types.Reticle, scale: numb
 	glass.Transparency = if r.frame == false then 1 else 0.9
 	glass.Material = Enum.Material.Glass
 
+	local pixelsPerStud = 2000
 	local gui = Instance.new("SurfaceGui")
 	gui.Name = "Reticle"
 	gui.Face = Enum.NormalId.Back -- faces the camera (barrel along -Z)
 	gui.LightInfluence = 0
 	gui.Brightness = 2
 	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-	gui.PixelsPerStud = 2000
+	gui.PixelsPerStud = pixelsPerStud
 	gui.Enabled = false
 	local function circle(px: number, stroke: boolean): Frame
 		local f = Instance.new("Frame")
@@ -647,17 +467,73 @@ local function buildReticle(m: Model, h: BasePart, r: Types.Reticle, scale: numb
 		if stroke then
 			local s = Instance.new("UIStroke")
 			s.Color = r.color
-			s.Thickness = 5
+			s.Thickness = 0.012 * scale * pixelsPerStud
 			s.Parent = f
 		end
 		f.Parent = gui
 		return f
 	end
-	local ring = size.Y * 2000 * 0.55
+	local ring = size.Y * pixelsPerStud * 0.55
 	circle(ring, true)
 	circle(ring * 0.12, false)
 	gui.Parent = glass
 	return gui
+end
+
+-- Parts that really block the sight line: cast from the aiming eye toward
+-- the sight and collect whatever sits in between. Sight parts themselves
+-- (named "Sight…", or the holo sight) are meant to be on that line.
+local function findOccluders(gun: Gun, distance: number, adsOffset: Vector3): { BasePart }
+	local found: { BasePart } = {}
+	local holo = gun.model:FindFirstChild("HoloSight")
+	local candidates: { Instance } = {}
+	for _, d in gun.model:GetDescendants() do
+		if d:IsA("BasePart") and d.Transparency < 1 then
+			d.CanQuery = true
+			table.insert(candidates, d)
+		end
+	end
+	local h = gun.handle.CFrame
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	local spread = 0.012 -- a few rays around the eye line, not just one
+	for _, offset in
+		{
+			Vector3.zero,
+			Vector3.new(spread, 0, 0),
+			Vector3.new(-spread, 0, 0),
+			Vector3.new(0, spread, 0),
+			Vector3.new(0, -spread, 0),
+		}
+	do
+		-- The eye sits `distance` behind the sight, shifted by the gun's adsOffset.
+		local eye =
+			h:PointToWorldSpace(gun.aimRel - adsOffset + offset + Vector3.new(0, 0, distance))
+		local dir = h.LookVector * (distance - 0.02)
+		local remaining = table.clone(candidates)
+		for _ = 1, 8 do
+			params.FilterDescendantsInstances = remaining
+			local result = Workspace:Raycast(eye, dir, params)
+			if not result then
+				break
+			end
+			local part = result.Instance
+			local isSight = string.find(part.Name, "Sight") ~= nil
+				or (holo ~= nil and part:IsDescendantOf(holo))
+			if not isSight and part:IsA("BasePart") and not table.find(found, part) then
+				table.insert(found, part)
+			end
+			local index = table.find(remaining, part)
+			if not index then
+				break
+			end
+			table.remove(remaining, index)
+		end
+	end
+	for _, d in candidates do
+		(d :: BasePart).CanQuery = false
+	end
+	return found
 end
 
 local function buildGun(templateId: string, name: string, weapon: WeaponConfig, dual: boolean): Gun?
@@ -674,7 +550,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	local h = m.PrimaryPart :: BasePart
 	for _, d in m:GetDescendants() do
 		if d:IsA("BasePart") then
-			d.Anchored = d == h
+			d.Anchored = true
 			d.CanCollide = false
 			d.CanQuery = false
 			d.CanTouch = false
@@ -684,62 +560,48 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	local aim = attachment(m, "AimPoint")
 	local boxCf = m:GetBoundingBox()
 	local reticle = if weapon.adsReticle then buildReticle(m, h, weapon.adsReticle, scale) else nil
-	-- Faded while aiming: the gun's adsHide parts, and anything entirely behind
-	-- the sight (stocks), which otherwise fills the bottom of the sight picture.
-	local aimRel = if weapon.adsReticle
-		then weapon.adsReticle.center * scale
-		elseif aim then h.CFrame:PointToObjectSpace(aim.WorldPosition)
-		else Vector3.new(0, 0.3, 0)
 	local hide: { BasePart } = {}
-	local dim: { BasePart } = {}
-	-- Measured from the rear sight (AimPoint) when there is one.
-	local aimZ = if aim then h.CFrame:PointToObjectSpace(aim.WorldPosition).Z else aimRel.Z
-	local named = weapon.adsHide or {}
-	local holo = m:FindFirstChild("HoloSight")
-	for _, d in m:GetDescendants() do
-		if
-			d:IsA("BasePart")
-			and d ~= h
-			and d.Transparency < 1
-			and not (holo and d:IsDescendantOf(holo))
-		then
-			local nearZ, farZ = math.huge, -math.huge
-			for _, sx in { -1, 1 } do
-				for _, sy in { -1, 1 } do
-					for _, sz in { -1, 1 } do
-						local corner = h.CFrame:PointToObjectSpace(
-							d.CFrame:PointToWorldSpace(d.Size / 2 * Vector3.new(sx, sy, sz))
-						)
-						nearZ = math.min(nearZ, corner.Z)
-						farZ = math.max(farZ, corner.Z)
-					end
-				end
-			end
-			if table.find(named, d.Name) or nearZ > aimZ + VM.ADS_HIDE_BEHIND then
+	for _, partName in weapon.adsHide or {} do
+		for _, d in m:GetDescendants() do
+			if d.Name == partName and d:IsA("BasePart") then
 				table.insert(hide, d)
-			elseif d.Material == Enum.Material.Neon and farZ > aimZ then
-				table.insert(dim, d) -- glow strips running past the eye glare in ADS
 			end
 		end
 	end
 	local gun: Gun = {
 		model = m,
 		handle = h,
+		rig = nil,
 		animator = GunAnimator.new(m, templateId, scale),
 		rightGrip = anchorFor(m, h, attachment(m, "RightGrip")),
 		leftGrip = anchorFor(m, h, attachment(m, "LeftGrip")),
 		muzzle = attachment(m, "Muzzle"),
-		aimRel = aimRel,
+		aimRel = if weapon.adsReticle
+			then weapon.adsReticle.center * scale
+			elseif aim then h.CFrame:PointToObjectSpace(aim.WorldPosition)
+			else Vector3.new(0, 0.3, 0),
 		centerRel = h.CFrame:PointToObjectSpace(boxCf.Position),
 		follow = {},
 		adsHide = hide,
-		adsDim = dim,
 		adsFade = 0,
 		reticle = reticle,
 		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
 	}
-	buildFollow(gun, weapon, dual)
+	buildFollow(gun, weapon, dual) -- reads the welds, so before the rig drops them
 	return gun
+end
+
+-- Called once the gun is in the workspace (raycasts need it there).
+local function finishGun(gun: Gun, weapon: WeaponConfig)
+	if not weapon.noAds then
+		local distance = weapon.adsDistance or VM.ADS_DISTANCE
+		for _, p in findOccluders(gun, distance, weapon.adsOffset or Vector3.zero) do
+			if not table.find(gun.adsHide, p) then
+				table.insert(gun.adsHide, p)
+			end
+		end
+	end
+	gun.rig = ViewmodelRig.new(gun.model, gun.handle)
 end
 
 local function setGunsVisible(visible: boolean)
@@ -750,6 +612,7 @@ local function setGunsVisible(visible: boolean)
 				d.LocalTransparencyModifier = modifier
 			end
 		end
+		gun.adsFade = -1 -- rewrite ADS fades next frame
 	end
 end
 
@@ -762,8 +625,8 @@ function ViewmodelController.unequip()
 	guns = {}
 	config = nil
 	table.clear(playing)
-	if armsModel then
-		armsModel.Parent = nil
+	if arms then
+		arms.model.Parent = nil
 	end
 end
 
@@ -785,18 +648,17 @@ function ViewmodelController.equip(weapon: WeaponConfig)
 	end
 	for _, gun in guns do
 		gun.model.Parent = cam
-	end
-
-	if not armsModel or armsLook ~= lookSignature() then
-		buildArms()
-	end
-	if armsModel then
-		armsModel.Parent = cam
+		finishGun(gun, weapon)
 	end
 
 	config = weapon
 	hidden = false
-	setArmsVisible(true)
+	if not arms or armsLook ~= ViewmodelArms.signature(player.Character) then
+		rebuildArms(cam)
+	end
+	local a = arms :: ViewmodelArms.Arms
+	a.model.Parent = cam
+	ViewmodelArms.setVisible(a, true)
 	playTrack("Equip", "Equip", math.max(weapon.equipTime * 1.4, VM.TRACKS.Equip.length))
 end
 
@@ -883,10 +745,9 @@ function ViewmodelController.setHidden(value: boolean)
 	if hidden ~= value then
 		hidden = value
 		setGunsVisible(not value)
-		for _, gun in guns do
-			gun.adsFade = -1 -- rewrite ADS fades next frame
+		if arms then
+			ViewmodelArms.setVisible(arms, not value)
 		end
-		setArmsVisible(not value)
 	end
 end
 
@@ -904,7 +765,7 @@ end
 
 -- Per frame ----------------------------------------------------------------------
 
-local function poseOffset(mirror: boolean, weights: { [string]: number }): CFrame
+local function poseOffset(mirror: boolean): CFrame
 	local cf = CFrame.identity
 	for name, pose in VM.POSES do
 		local w = weights[name]
@@ -931,9 +792,7 @@ local function poseTarget(name: string, state: string): number
 	return 1 - 0.8 * adsAlpha
 end
 
-local weights: { [string]: number } = {}
-
-local function updatePoseWeights(dt: number, state: string): { [string]: number }
+local function updatePoseWeights(dt: number, state: string)
 	for name in VM.POSES do
 		local s = poseWeights[name]
 		if not s then
@@ -942,7 +801,6 @@ local function updatePoseWeights(dt: number, state: string): { [string]: number 
 		end
 		weights[name] = approach(s, poseTarget(name, state), VM.POSE_STIFFNESS, dt)
 	end
-	return weights
 end
 
 local function update(dt: number)
@@ -957,29 +815,28 @@ local function update(dt: number)
 	local camCf = cam.CFrame
 	local now = os.clock()
 
-	-- Rebuild the arms if the avatar's shirt or colours changed (appearance
-	-- loads in after spawn).
+	-- Rebuild the arms if the avatar's look changed (appearance loads late).
 	if now >= nextLookCheck then
 		nextLookCheck = now + 1
-		if lookSignature() ~= armsLook then
-			buildArms()
-			if armsModel then
-				armsModel.Parent = cam
-			end
-			setArmsVisible(not hidden)
+		if ViewmodelArms.signature(player.Character) ~= armsLook then
+			rebuildArms(cam)
 		end
 	end
 
 	local state = MovementController.getState()
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
-	local velocity = if root and root:IsA("BasePart")
+	local rawVelocity = if root and root:IsA("BasePart")
 		then root.AssemblyLinearVelocity
 		else Vector3.zero
+	-- Low-pass the predicted velocity: it steps unevenly under Server Authority.
+	smoothVelocity = smoothVelocity:Lerp(rawVelocity, 1 - math.exp(-VM.VELOCITY_SMOOTHING * dt))
+	local velocity = smoothVelocity
 	local localVel = camCf:VectorToObjectSpace(velocity)
-	local adsDamp = 1 - adsAlpha * (1 - VM.ADS_SWAY_SCALE)
+	local adsT = adsEase(adsAlpha)
+	local swayScale = 1 + (VM.ADS_SWAY_SCALE - 1) * adsT
 
-	-- Sway from how fast the view turns, plus a roll when strafing.
+	-- Turn sway: the gun lags how fast the view turns, plus a roll when strafing.
 	if lastCamera then
 		local delta = lastCamera:ToObjectSpace(camCf)
 		local rx, ry = delta:ToEulerAnglesYXZ()
@@ -989,23 +846,28 @@ local function update(dt: number)
 			math.clamp(-rx * rate * VM.SWAY_AMOUNT, -max, max),
 			math.clamp(-ry * rate * VM.SWAY_AMOUNT, -max, max),
 			math.clamp(-localVel.X * VM.STRAFE_ROLL, -max, max)
-		) * adsDamp
+		) * swayScale
 	end
 	lastCamera = camCf
 	local s = sway:update(dt)
 
-	-- Positional lag: falling/rising, and a dip when landing.
+	-- Movement lag: drifts against strafing and falling, dips on landing.
 	local airborne = state == "Air"
 	if lastState == "Air" and not airborne then
-		local fall = math.clamp(-lastVelocity.Y / 50, 0, 1)
+		local fall = math.clamp(-rawVelocity.Y / 50, 0, 1)
 		move:impulse(Vector3.new(0, -VM.LAND_KICK * fall, 0))
 	end
 	lastState = state
-	lastVelocity = velocity
-	move.target = Vector3.new(0, math.clamp(-velocity.Y * VM.FALL_LAG, -0.08, 0.08), 0) * adsDamp
+	local moveScale = 1 + (VM.ADS_MOVE_SCALE - 1) * adsT
+	move.target = Vector3.new(
+		math.clamp(-localVel.X * VM.MOVE_LAG, -0.06, 0.06),
+		math.clamp(-velocity.Y * VM.FALL_LAG, -0.08, 0.08),
+		math.clamp(localVel.Z * VM.MOVE_LAG * 0.5, -0.04, 0.04)
+	) * moveScale
 	local m = move:update(dt)
 
-	-- Bob follows real ground speed so it eases in and out.
+	-- Walk bob follows real ground speed so it eases in and out; it stays
+	-- (smaller) while aiming, so the sights sway side to side as you move.
 	local flatSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
 	local grounded = not airborne and state ~= "Slide"
 	local bobTarget = if grounded then math.clamp(flatSpeed / VM.BOB_WALK_SPEED, 0, 1.6) else 0
@@ -1015,7 +877,7 @@ local function update(dt: number)
 	local sprintW = math.clamp(weights.Sprint or 0, 0, 1)
 	local bobScale = bobW
 		* (1 + (VM.SPRINT_BOB_SCALE - 1) * sprintW)
-		* (1 - adsAlpha * (1 - VM.ADS_BOB_SCALE))
+		* (1 + (VM.ADS_BOB_SCALE - 1) * adsT)
 	local sinP, cos2P = math.sin(bobPhase), math.cos(2 * bobPhase)
 	local bobPos = Vector3.new(sinP * VM.BOB_AMOUNT.X, cos2P * VM.BOB_AMOUNT.Y, 0) * bobScale
 	local bobRot = Vector3.new(
@@ -1024,16 +886,26 @@ local function update(dt: number)
 		sinP * VM.BOB_ROTATION.Z
 	) * bobScale
 
+	-- Breathing: a slow idle drift, calmer while aiming.
+	breathPhase += dt * VM.BREATH_RATE * 2 * math.pi
+	local breathScale = 1 + (VM.ADS_BREATH_SCALE - 1) * adsT
+	local breathPos = Vector3.new(
+		math.sin(breathPhase * 0.5) * VM.BREATH_AMOUNT.X,
+		math.sin(breathPhase) * VM.BREATH_AMOUNT.Y,
+		0
+	) * breathScale
+	local breathRot = Vector3.new(math.sin(breathPhase + 0.6) * VM.BREATH_ROTATION, 0, 0)
+		* breathScale
+
 	stepTracks(dt)
 
 	-- Shared motion of the whole viewmodel (also carries a free hand).
-	local shared = CFrame.new(m + bobPos)
-		* angles(bobRot)
+	local shared = CFrame.new(m + bobPos + breathPos)
+		* angles(bobRot + breathRot)
 		* CFrame.Angles(s.X, s.Y, s.Y * 0.4 + s.Z)
 
-	local adsT = ease(adsAlpha)
-	local poseRight = poseOffset(false, weights)
-	local poseLeft = if guns.Left then poseOffset(true, weights) else poseRight
+	local poseRight = poseOffset(false)
+	local poseLeft = if guns.Left then poseOffset(true) else poseRight
 	for side, gun in guns do
 		local mirror = side == "Left"
 		local offset = c.viewmodelOffset
@@ -1048,83 +920,88 @@ local function update(dt: number)
 		local base = hip:Lerp(ads, adsT)
 		local r = gun.recoil:update(dt)
 		local recoilCf = CFrame.new(0, 0, r.X * 0.1) * CFrame.Angles(r.Y * 0.1, 0, r.Z * 0.1)
-		gun.handle.CFrame = camCf
-			* shared
-			* base
-			* (if mirror then poseLeft else poseRight)
-			* trackOffset(gun, mirror)
-			* recoilCf
 		gun.animator:update(dt)
+		local rig = gun.rig
+		if rig then
+			ViewmodelRig.pose(
+				rig,
+				camCf
+					* shared
+					* base
+					* (if mirror then poseLeft else poseRight)
+					* trackOffset(gun, mirror)
+					* recoilCf
+			)
+		end
 
 		if gun.reticle then
 			gun.reticle.Enabled = adsAlpha > 0.4 and not hidden
 		end
 
-		-- Fade parts that block the sight picture while aiming.
+		-- Fade only the parts that block the sight line, while aiming.
 		local fade = smoothstep((adsAlpha - 0.35) / 0.45)
 		if not hidden and fade ~= gun.adsFade then
 			gun.adsFade = fade
 			for _, p in gun.adsHide do
 				p.LocalTransparencyModifier = fade
 			end
-			for _, p in gun.adsDim do
-				p.LocalTransparencyModifier = fade * VM.ADS_NEON_DIM
-			end
 		end
 	end
 
 	-- Arms onto the grips (after the guns and their clips have moved).
-	if hidden then
+	local a = arms
+	if hidden or not a then
 		return
 	end
-	local rightArm, leftArm = arms.Right, arms.Left
 	local hintR = camCf:VectorToWorldSpace(VM.ELBOW_HINT_RIGHT:Lerp(VM.ADS_ELBOW_HINT_RIGHT, adsT))
 	local hintL = camCf:VectorToWorldSpace(VM.ELBOW_HINT_LEFT:Lerp(VM.ADS_ELBOW_HINT_LEFT, adsT))
 	local spread = VM.ADS_SHOULDER_SPREAD * adsT
-	local shoulderR = camCf:PointToWorldSpace(VM.SHOULDER_RIGHT + spread)
-	local shoulderL = camCf:PointToWorldSpace(VM.SHOULDER_LEFT + mirrorPos(spread))
-	if rightArm and right.rightGrip then
-		local grip = handTarget(right, "Right", anchorPosition(right.rightGrip))
-		solveArm(rightArm, shoulderR, grip, hintR)
-	end
-	if leftArm then
-		local left = guns.Left
-		local grip: Vector3
-		if left and left.rightGrip then
-			grip = anchorPosition(left.rightGrip) -- Dual Boot: the left gun's grip
-		elseif c.fireMode == "Melee" or not right.leftGrip then
-			grip = (camCf * shared):PointToWorldSpace(VM.FREE_HAND)
-		else
-			local leftGrip = right.leftGrip :: Anchor
-			local base = anchorPosition(leftGrip)
-			local rightGrip = right.rightGrip
-			-- Pistols: both grips in one spot, so the support hand cups below.
-			if rightGrip and (base - anchorPosition(rightGrip)).Magnitude < 0.12 then
-				base = right.handle.CFrame:PointToWorldSpace(
-					right.handle.CFrame:PointToObjectSpace(base) + VM.SUPPORT_HAND_OFFSET
-				)
-			end
-			grip = handTarget(right, "Left", base)
+	local shoulderR = (camCf * shared):PointToWorldSpace(VM.SHOULDER_RIGHT + spread)
+	local shoulderL = (camCf * shared):PointToWorldSpace(VM.SHOULDER_LEFT + mirrorPos(spread))
+	local gripR = if right.rightGrip
+		then handTarget(right, "Right", anchorPosition(right.rightGrip))
+		else (camCf * shared):PointToWorldSpace(VM.FREE_HAND * Vector3.new(-1, 1, 1))
+	ViewmodelArms.solve(a, "Right", 1, shoulderR, gripR, hintR)
+
+	local left = guns.Left
+	local gripL: Vector3
+	local twistL = 0
+	if left and left.rightGrip then
+		gripL = anchorPosition(left.rightGrip) -- Dual Boot: the left gun's grip
+	elseif c.fireMode == "Melee" or not right.leftGrip then
+		gripL = (camCf * shared):PointToWorldSpace(VM.FREE_HAND)
+	else
+		local leftGrip = right.leftGrip :: Anchor
+		local base = anchorPosition(leftGrip)
+		local rightGrip = right.rightGrip
+		-- Pistols: both grips in one spot, so the support hand cups below.
+		if rightGrip and (base - anchorPosition(rightGrip)).Magnitude < 0.12 then
+			base = right.handle.CFrame:PointToWorldSpace(
+				right.handle.CFrame:PointToObjectSpace(base) + VM.SUPPORT_HAND_OFFSET
+			)
+			twistL = math.rad(VM.SUPPORT_HAND_TWIST)
 		end
-		solveArm(leftArm, shoulderL, grip, hintL)
+		gripL = handTarget(right, "Left", base)
 	end
+	ViewmodelArms.solve(a, "Left", 4, shoulderL, gripL, hintL, twistL)
+	ViewmodelArms.apply(a)
 end
 
 function ViewmodelController.start()
 	RunService:BindToRenderStep("GGViewmodel", Enum.RenderPriority.Camera.Value + 2, update)
 	player.CharacterRemoving:Connect(function()
 		ViewmodelController.unequip()
-		if armsModel then
-			armsModel:Destroy()
-			armsModel = nil
-			arms = {}
+		if arms then
+			arms.model:Destroy()
+			arms = nil
 			armsLook = ""
 		end
 		-- Movement feel starts fresh next life (no landing dip from dying mid-air).
 		lastState = "Idle"
-		lastVelocity = Vector3.zero
+		smoothVelocity = Vector3.zero
 		lastCamera = nil
 		table.clear(poseWeights)
+		table.clear(weights)
 		bobAmount.x, bobAmount.v = 0, 0
 		for _, spring in { sway, move } do
 			spring.position, spring.velocity, spring.target =

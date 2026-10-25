@@ -14,9 +14,9 @@ local NEON = Color3.fromHex("00E5FF")
 local MAGENTA = Color3.fromHex("FF3DCB")
 
 -- Class defaults (Gunplay.md §2): hip spread and ADS.
-local SIDEARM_VM = Vector3.new(0.5, -0.55, -1.3)
-local SIDEARM_ADS = 0.8 -- pistols sit closer in ADS so their small sights read
-local RIFLE_VM = Vector3.new(0.55, -0.62, -1.4)
+local SIDEARM_VM = Vector3.new(0.45, -0.52, -1.15)
+local SIDEARM_ADS = 0.95 -- pistols sit closer in ADS so their small sights read
+local RIFLE_VM = Vector3.new(0.5, -0.6, -1.32)
 
 local weapons: { [string]: WeaponConfig } = {
 	-- Sidearms ----------------------------------------------------------
@@ -86,6 +86,8 @@ local weapons: { [string]: WeaponConfig } = {
 			reload = Sounds.MagIn,
 			equip = Sounds.Equip,
 		},
+		-- Sit a touch lower so the eye clears the hammer (part of the frame mesh).
+		adsOffset = Vector3.new(0, -0.03, 0),
 		viewmodelOffset = SIDEARM_VM,
 		adsDistance = SIDEARM_ADS,
 		tracerColor = NEON,
@@ -351,9 +353,9 @@ local weapons: { [string]: WeaponConfig } = {
 		melee = { range = 7, backDamage = 100, lunge = 6 },
 		sounds = { fire = Sounds.Swing, equip = Sounds.Equip },
 		-- Held bigger and blade-up so the knife reads past the hand.
-		viewmodelOffset = Vector3.new(0.55, -0.62, -1.1),
+		viewmodelOffset = Vector3.new(0.5, -0.58, -1.15),
 		viewmodelRotation = Vector3.new(28, 18, -22),
-		viewmodelScale = 0.75,
+		viewmodelScale = 0.85,
 		tracerColor = NEON,
 	},
 }
@@ -849,7 +851,7 @@ weapons.DualBoot = {
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
-	viewmodelOffset = Vector3.new(0.45, -0.55, -1.25),
+	viewmodelOffset = Vector3.new(0.42, -0.55, -1.2),
 	tracerColor = MAGENTA,
 }
 
