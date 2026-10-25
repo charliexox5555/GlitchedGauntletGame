@@ -14,13 +14,13 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 | **Root** | Sidearm | T1 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Splinter** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Flicker** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · big spread while moving |
-| **Mute** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
+| **Mute** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: red-dot lens fades in ADS, reticle shown instead |
 | **Bandwidth** | SMG | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Burst Buffer** | SMG | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · 3-round burst |
 | **Hard Reset** | Shotgun | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Crash** | Shotgun | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Pulse** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · 3-round burst, single shots while aiming |
-| **Checksum** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
+| **Checksum** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: optic tube fades in ADS, reticle shown instead |
 | **Bitrate** | Rifle | T3 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Overwrite** | Rifle | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Long Poll** | Sniper | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
@@ -28,13 +28,15 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 | **Kernel** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Overflow** | Machine gun | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · steadier crouched |
 | **Flood** | Machine gun | T3 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Ray Trace** | Wildcard | T4 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Loopback** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · server-flown bouncing discs, client disc follows the same path |
+| **Ray Trace** | Wildcard | T4 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: holo pane on top (its own sight is a closed box), battery cells fade in ADS |
+| **Loopback** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · server-flown bouncing discs, client disc follows the same path · first person: holo pane on top (closed-box sight) |
 | **Dual Boot** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · two models (DualBoot_L / DualBoot_R), fires alternately, no ADS |
-| **Null** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · held beam, battery shown as %, no reload |
-| **Cutter** | Melee | — | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
+| **Null** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · held beam, battery shown as %, no reload · first person: holo pane on top (closed-box sight) |
+| **Cutter** | Melee | — | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: held bigger and blade-up, own inspect |
 
 Note: Bitrate is the master reference. Use the IDs without spaces in code/models: `BurstBuffer`, `HardReset`, `LongPoll`, `RayTrace`, `DualBoot_L` / `DualBoot_R`.
+
+First-person viewmodel (all guns): blocky shirt arms IK'd to the grips, hands follow the mag/pump/bolt in clips, inspect on F, ADS checked on every gun in Studio (2026-10-25). ✅ built · 🟡 needs a feel pass in a real match.
 
 Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), backups in `art-source/weapons/Studio/<Id>.rbxm`, Open Cloud asset IDs in `art-source/weapons/Exports/assets.json`. Check them with `tools/studio/ValidateWeapons.luau` (all 24 pass).
 

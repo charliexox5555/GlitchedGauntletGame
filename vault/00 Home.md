@@ -18,8 +18,10 @@
   - Neon muzzle flash, tracers, sparks, pixel-dissolve deaths, hit/headshot/kill markers, damage numbers, kill feed, HUD, placeholder sounds
   - Studio test range: armed dummies (one strafing), a solid wall and a ThinWall
 - **Done (2026-10-25):** all 23 weapons playable and tested vs dummies (burst, Loopback discs, Null beam + battery, Dual Boot two-gun viewmodel, move/crouch spread) · Studio dev weapon menu (**P**) · third-person crouch/slide/sprint poses (blocked in game by the engine bug below)
-- **Now:** you: **save the place** (guns live in it), set Server Authority, play the test range and give feedback on feel
+- **Done (2026-10-25, viewmodel rebuild):** first-person arms are blocky arms in the player's own shirt (classic Shirt template) and skin colours, IK'd onto the grips every frame; the left hand follows the mag / pump / bolt / cylinder / barrels during the gun's clips · keyframed equip, inspect (**F**, melee has its own flip), reload body motion, and spring-blended sprint/slide/crouch/air poses · clean ADS on every gun (stocks fade, holo reticles on Ray Trace / Loopback / Null, reticles in Checksum's and Mute's optics, closer pistol ADS) · details in [Gunplay](01%20Design/Gunplay.md) §6
+- **Now:** you: **save the place** (guns live in it), set Server Authority, play the test range and give feedback on feel (especially the new viewmodel: arm size, ADS distance, inspect)
 - **Next:** 2-player test (Studio "Start" with 2 players) → tune numbers → aim assist (touch/gamepad) → rounds + tier rotation → Mods → draft → **Playtest #1**
+- **Open question:** Inspect uses **F**, which the control table also plans for Mod 3; pick new keys before Mods are built (see [Gunplay](01%20Design/Gunplay.md) §6).
 - **Blockers:** Server Authority must be switched on by hand (Workspace → `AuthorityMode`); the MCP can't set it. · Roblox bug: with Server Authority on, scripted joint `Transform` writes are overwritten while animations play, so the third-person gun-hold and movement poses don't show on players yet ([devforum](https://devforum.roblox.com/t/motor6danimation-constraint-transform-property-unable-to-be-changed-server-authority/4846108); fix = new API or real pose animations).
 
 ---

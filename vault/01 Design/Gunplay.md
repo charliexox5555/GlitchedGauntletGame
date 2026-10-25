@@ -65,6 +65,12 @@ This is a big part of why RIVALS feels good. Build it alongside the very first g
 ## 6. Camera and controls
 - **First person.** FOV 80 by default (setting 70–100), with ADS FOV set per gun.
 - **First-person arms (RIVALS style):** blocky, stylized arms, not realistic ones, but dressed as the player: their skin colour, plus their Roblox shirt texture on the sleeves (classic Shirt template, or the avatar's arm colours if they wear none). The hands hold the gun's grips and follow the gun's animations (e.g. the left hand grabs the mag on reload).
+- **How the viewmodel works** (`ViewmodelController`, numbers and keyframes in `Config/Viewmodel`):
+  - Arms: upper arm, forearm and hand blocks per side (split like R15 blocky arms). Each face gets a Decal of the shirt template cropped to that face's region (`UVScale`/`UVOffset`), over the avatar's own arm colours. Rebuilt when the shirt or colours change.
+  - Hands: two-bone IK (shoulder → elbow → hand, elbow hint per side) onto `RightGrip`/`LeftGrip` every frame. Grips ride the `Rig.Root` joint so hands move with the gun's Blender clips. During Reload the left hand follows the first moving part of `Mag`, `Cylinder`, `Barrels`, `Pump`, `Bolt` (then any later one), timed from when that joint actually moves in the clip; pump guns ride the pump on Fire, bolt guns' right hand works the bolt. Pistols cup the support hand under the grip; melee leaves the left hand as a guard. Dual Boot: each hand holds its own gun.
+  - Motion: keyframed tracks with easing (Equip, Inspect, InspectMelee, Reload body motion), poses for Sprint/Slide/Crouch/Air blended with critically damped springs, bob driven by real ground speed, sway from turn rate, strafe roll, fall lag and a landing dip. Cancelled tracks fade out, never pop.
+  - Inspect: **F** (Valorant uses Y; Y is the Studio dev picker). About 2.8 s: show the right side, flip to the left side, return. Fire, aim, reload and swapping cancel it. Note: the controls table plans F for Mod 3, so one of them moves when Mods are built.
+  - ADS: the camera looks along the gun's `AimPoint` at `adsDistance` (default 1.15, sidearms 0.8). Parts entirely behind the sight (stocks) fade, neon strips running past the eye dim, and a gun can list `adsHide` parts and add an `adsReticle` (holo pane with dot and ring, or a frameless reticle inside an optic). Ray Trace, Loopback and Null get holo panes because their own sights are closed boxes; Checksum and Mute show a reticle in place of their opaque lenses. Long Poll, Handshake and Kernel keep the scope overlay; Dual Boot has no ADS.
 
 | Action | PC | Gamepad | Mobile |
 |---|---|---|---|
@@ -77,6 +83,7 @@ This is a big part of why RIVALS feels good. Build it alongside the very first g
 | Mods 1/2/3 | Q / E / F | LB / RB / D-pad up | 3 Mod buttons in an arc |
 | Primary / secondary / melee | 1 / 2 / 3, scroll | Y cycles | Weapon tabs |
 | Melee quick-swing | V | R3 | Melee button |
+| Inspect | F (clashes with Mod 3, see above) | D-pad down | — |
 
 All mobile buttons can be moved and resized in settings.
 
