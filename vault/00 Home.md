@@ -25,10 +25,10 @@
 - **Done (2026-10-25, viewmodel pass 3):** walking/sprinting shake fixed (zero mispredictions measured; the camera follow filter used jittery frame dt) · rifles in a diagonal hip composition (superseded by pass 4) · zoomed RIVALS-style ADS with tighter FOV
 - **Done (2026-10-25, viewmodel pass 4, rebuild):** one rigid rig (camera × motion → gun pose → hands in gun space), so the gun and arms move as one · each viewmodel part lives in a WorldModel (Server Authority's Workspace snaps part positions by up to 0.006 studs, which made every part jitter on its own) · primaries point straight down the view like RIVALS; pistols two-handed with a high grip, placed by the grip · smooth figure-8 bob, breathing, sway, tilted sprint carry, all frame-rate independent · measured walking: peak acceleration 116 → 2.3 studs/s², arm-vs-gun drift 0.013 → < 0.00001 studs · details and numbers in [Gunplay](01%20Design/Gunplay.md) §6
 - **Done (2026-10-25, viewmodel pass 5):** every gun framed like Bitrate (long guns placed by sight height at the grip, sidearms/melee/Dual Boot by the grip, scoped rifles further back; contact sheet of all 23 in `02 Art/References/rivals-viewmodel/viewmodel-all-23-hip.jpg`) · aimed recoil keeps the sight on target (rises ≤ 0.3°, snappy push back) · strafing sways the gun and the sights follow (aimed: ≤ 1.2° drift, eases back) · iron sights left as they are (moving the eye back made them worse)
-- **Now:** you: **save the place** (guns live in it), set Server Authority, play the test range and give feedback on feel (especially the new viewmodel: arm size, ADS distance, inspect)
+- **Now:** gun system and first-person feel signed off by the user (2026-10-25). Keep saving the place in Studio (guns live in it).
 - **Next:** 2-player test (Studio "Start" with 2 players) → tune numbers → aim assist (touch/gamepad) → rounds + tier rotation → Mods → draft → **Playtest #1**
 - **Open question:** Inspect uses **F**, which the control table also plans for Mod 3; pick new keys before Mods are built (see [Gunplay](01%20Design/Gunplay.md) §6).
-- **Blockers:** Server Authority must be switched on by hand (Workspace → `AuthorityMode`); the MCP can't set it.
+- **Blockers:** none. (Server Authority is on; movement and poses run in the shared simulation.)
 
 ---
 
