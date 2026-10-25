@@ -19,7 +19,8 @@
 -- stand), which made every viewmodel part jitter on its own; WorldModels keep
 -- exact positions and still render.
 -- Guns point straight down the view (barrel parallel to the camera) with
--- their sight at the gun's `viewmodelOffset`; perspective does the rest.
+-- their sight (pistols and melee: their grip) at the gun's `viewmodelOffset`;
+-- perspective does the rest.
 -- Guns with two models (Dual Boot) hold one in each hand, the left mirrored.
 
 local Players = game:GetService("Players")
@@ -63,7 +64,7 @@ type Gun = {
 	muzzle: Attachment?,
 	pistol: boolean, -- both grips in one spot: a two-handed pistol hold
 	aimRel: Vector3, -- sight position relative to the grip, at rest (ADS alignment)
-	hipRel: Vector3, -- the point placed at viewmodelOffset at the hip (the sight; melee: the grip)
+	hipRel: Vector3, -- the point placed at viewmodelOffset at the hip (sight; pistols, melee: grip)
 	centerRel: Vector3, -- middle of the gun relative to the grip (inspect pivot)
 	follow: { FollowRule },
 	adsHide: { BasePart }, -- parts that block the sight line, faded while aiming
@@ -612,9 +613,10 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 				lg.offset
 			)).Magnitude
 			< 0.2 * scale
-	-- Melee is placed by its grip; guns by their sight, so every gun's sight
-	-- lands on the same spot on screen whatever its shape.
-	gun.hipRel = if weapon.fireMode == "Melee" then Vector3.zero else gun.aimRel
+	-- Long guns are placed by their sight, so every rifle's sight lands on the
+	-- same spot on screen whatever its shape. Pistols and melee are placed by
+	-- their grip: the hands are what you see, so they land the same way.
+	gun.hipRel = if gun.pistol or weapon.fireMode == "Melee" then Vector3.zero else gun.aimRel
 	buildFollow(gun, weapon, dual) -- reads the welds, so before the rig drops them
 	return gun
 end
@@ -961,7 +963,10 @@ local function update(dt: number)
 		local left = guns.Left
 		local leftCf = handleCFrames.Left
 		local pistol = right.pistol or left ~= nil -- Dual Boot: a pistol in each hand
-		local rightHand = if pistol then VM.PISTOL_RIGHT_HAND else VM.RIFLE_RIGHT_HAND
+		local rightHand = if c.fireMode == "Melee"
+			then VM.MELEE_HAND
+			elseif pistol then VM.PISTOL_RIGHT_HAND
+			else VM.RIFLE_RIGHT_HAND
 		local gripR = if right.rightGrip
 			then anchorPosition(right, right.rightGrip)
 			else rightCf.Position

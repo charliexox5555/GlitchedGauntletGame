@@ -83,8 +83,8 @@ return table.freeze({
 		direction = Vector3.new(0.2, -0.68, 0.7),
 	} :: Hand,
 	RIFLE_LEFT_HAND = {
-		offset = Vector3.new(0, -0.13, 0),
-		direction = Vector3.new(-0.4, -0.5, 0.77),
+		offset = Vector3.new(-0.03, -0.13, 0),
+		direction = Vector3.new(-0.52, -0.42, 0.75),
 	} :: Hand,
 	-- Pistols: two-handed, high grip. The right hand wraps the grip, its top
 	-- just under the back of the slide; the left hand cups it from below and
@@ -97,9 +97,14 @@ return table.freeze({
 		offset = Vector3.new(-0.22, 0.1, 0.56),
 		direction = Vector3.new(-0.45, -0.55, 0.7),
 	} :: Hand,
-	-- Melee: the free hand rests here as a guard (root space).
+	-- Melee: the hand closes around the handle (the arm runs back along it);
+	-- the free hand rests low on the left as a guard (root space).
+	MELEE_HAND = {
+		offset = Vector3.new(0, -0.02, 0.14),
+		direction = Vector3.new(0.08, -0.4, 0.91),
+	} :: Hand,
 	FREE_HAND = {
-		offset = Vector3.new(-0.5, -0.75, -0.95),
+		offset = Vector3.new(-0.56, -0.86, -0.95),
 		direction = Vector3.new(-0.35, -0.7, 0.6),
 	} :: Hand,
 
@@ -178,9 +183,9 @@ return table.freeze({
 	CANCEL_TIME = 0.14, -- seconds to fade out a cancelled track
 
 	-- Poses of the gun around its grip, mirrored for the left gun. Sprint is a
-	-- lowered carry, muzzle down and in, rolled toward the centre.
+	-- lowered carry: muzzle in toward the centre, rolled onto its side.
 	POSES = {
-		Sprint = { pos = Vector3.new(-0.04, -0.16, 0.08), rot = Vector3.new(-14, 26, 18) },
+		Sprint = { pos = Vector3.new(-0.05, -0.07, 0.04), rot = Vector3.new(-6, 20, 30) },
 		Slide = { pos = Vector3.new(-0.05, -0.1, 0.08), rot = Vector3.new(4, 10, -24) },
 		Crouch = { pos = Vector3.new(-0.01, -0.02, 0.02), rot = Vector3.new(0, 2, -4) },
 		Air = { pos = Vector3.new(0, 0.03, 0.02), rot = Vector3.new(4, 0, 2) },

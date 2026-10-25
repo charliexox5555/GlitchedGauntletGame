@@ -123,8 +123,8 @@ export type WeaponConfig = {
 	models: { right: string, left: string? }?,
 	sounds: WeaponSounds,
 	-- Viewmodel placement at the hip: where the sight (AimPoint) sits relative
-	-- to the camera (melee: the grip), and an optional cant in degrees around
-	-- it (default none: the barrel points straight down the view).
+	-- to the camera (pistols and melee: the grip), and an optional cant in
+	-- degrees around it (default none: the barrel points straight down the view).
 	viewmodelOffset: Vector3,
 	viewmodelRotation: Vector3?,
 	viewmodelScale: number?, -- default Viewmodel.SCALE

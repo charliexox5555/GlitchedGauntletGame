@@ -14,12 +14,13 @@ local NEON = Color3.fromHex("00E5FF")
 local MAGENTA = Color3.fromHex("FF3DCB")
 
 -- Class defaults (Gunplay.md §2): hip spread and ADS.
--- Viewmodel: where the gun's sight (AimPoint) sits at the hip, camera space.
--- Guns point straight ahead (RIVALS references 6 and 7): long guns low on
--- the right, pistols big, low and just right of centre.
-local SIDEARM_VM = Vector3.new(0.33, -0.4, -1.1)
+-- Viewmodel: where the gun sits at the hip, camera space: long guns by their
+-- sight (AimPoint), pistols by their grip. Guns point straight ahead (RIVALS
+-- references 6 and 7): long guns low on the right, pistols big, low and just
+-- right of centre, held in both hands.
+local SIDEARM_VM = Vector3.new(0.33, -1.06, -1.47)
 local SIDEARM_SCALE = 1.1
-local SIDEARM_ADS = 0.8 -- camera to the rear sight while aiming
+local SIDEARM_ADS = 1.0 -- camera to the rear sight while aiming
 local RIFLE_VM = Vector3.new(0.31, -0.3, -0.65)
 
 local weapons: { [string]: WeaponConfig } = {
@@ -860,7 +861,7 @@ weapons.DualBoot = {
 		reload = Sounds.MagIn,
 		equip = Sounds.Equip,
 	},
-	viewmodelOffset = Vector3.new(0.42, -0.43, -1.1), -- the left gun mirrors it
+	viewmodelOffset = Vector3.new(0.42, -0.88, -1.34), -- grip; the left gun mirrors it
 	tracerColor = MAGENTA,
 }
 
