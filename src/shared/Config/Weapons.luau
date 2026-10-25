@@ -14,8 +14,10 @@ local NEON = Color3.fromHex("00E5FF")
 local MAGENTA = Color3.fromHex("FF3DCB")
 
 -- Class defaults (Gunplay.md §2): hip spread and ADS.
-local SIDEARM_VM = Vector3.new(0.45, -0.52, -1.15)
-local SIDEARM_ADS = 0.95 -- pistols sit closer in ADS so their small sights read
+-- Pistols: big and low in the middle of the screen, like RIVALS.
+local SIDEARM_VM = Vector3.new(0.2, -0.62, -1.05)
+local SIDEARM_SCALE = 0.95
+local SIDEARM_ADS = 1.45 -- camera to the rear sight while aiming
 local RIFLE_VM = Vector3.new(0.5, -0.6, -1.32)
 
 local weapons: { [string]: WeaponConfig } = {
@@ -50,6 +52,7 @@ local weapons: { [string]: WeaponConfig } = {
 		sounds = { fire = Sounds.ShotPistol, reload = Sounds.MagIn, equip = Sounds.Equip },
 		viewmodelOffset = SIDEARM_VM,
 		adsDistance = SIDEARM_ADS,
+		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = NEON,
 	},
 	Root = {
@@ -90,6 +93,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsOffset = Vector3.new(0, -0.03, 0),
 		viewmodelOffset = SIDEARM_VM,
 		adsDistance = SIDEARM_ADS,
+		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = NEON,
 	},
 
@@ -393,6 +397,7 @@ weapons.Splinter = {
 	sounds = { fire = Sounds.ShotShotgunLight, reload = Sounds.ShellIn, equip = Sounds.Equip },
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
+	viewmodelScale = SIDEARM_SCALE,
 	tracerColor = NEON,
 }
 
@@ -432,6 +437,7 @@ weapons.Flicker = {
 	},
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
+	viewmodelScale = SIDEARM_SCALE,
 	tracerColor = NEON,
 }
 
@@ -479,6 +485,7 @@ weapons.Mute = {
 	},
 	viewmodelOffset = SIDEARM_VM,
 	adsDistance = SIDEARM_ADS,
+	viewmodelScale = SIDEARM_SCALE,
 	tracerColor = NEON,
 }
 

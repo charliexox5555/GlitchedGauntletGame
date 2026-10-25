@@ -51,50 +51,33 @@ return table.freeze({
 	ADS_DISTANCE = 1.4, -- camera to the AimPoint while aiming (per gun: adsDistance)
 
 	-- Hip pose rotation on top of the gun's viewmodelOffset (angled slightly in).
-	HIP_ROTATION = Vector3.new(1.5, 4, -3),
+	HIP_ROTATION = Vector3.new(1.5, 8, -3),
 
-	-- Arms: the player's own R15 arm meshes with their Shirt (Util/ViewmodelArms),
-	-- normalised so every avatar looks right: shoulder → grip spans ARM_REACH,
-	-- the forearm is ARM_THICKNESS wide, the hand HAND_LENGTH from wrist to
-	-- palm. Two-bone IK from these shoulder points to the gun's grips; elbows
-	-- bend toward the hint.
-	ARM_REACH = 2.5,
-	ARM_THICKNESS = 0.36,
-	HAND_LENGTH = 0.28,
-	SHOULDER_RIGHT = Vector3.new(0.95, -1.4, 0.3),
-	SHOULDER_LEFT = Vector3.new(-1.05, -1.5, 0.2),
-	-- While aiming the shoulders spread and drop and the elbows hang lower, so
-	-- the forearms rise from the bottom corners instead of crossing the sight.
-	ADS_SHOULDER_SPREAD = Vector3.new(0.2, -0.3, 0),
-	ADS_ELBOW_HINT_RIGHT = Vector3.new(0.5, -1, 0.1),
-	ADS_ELBOW_HINT_LEFT = Vector3.new(-0.5, -1, 0.1),
-	ELBOW_HINT_RIGHT = Vector3.new(1, -0.7, 0.1),
-	ELBOW_HINT_LEFT = Vector3.new(-1, -0.6, 0.1),
+	-- Arms (Util/ViewmodelArms): one bevelled block per arm, RIVALS style.
+	-- Mesh from tools/blender/make_arm_mesh.py (art-source/viewmodel/Arms.fbx,
+	-- Model asset 112778616991962), native size ARM_MESH_SIZE, drawn
+	-- ARM_WIDTH wide. Each arm points from its anchor (camera space, off-screen)
+	-- into its grip; ADS_ anchors take over while aiming.
+	ARM_MESH = {
+		Right = "rbxassetid://78886981056288",
+		Left = "rbxassetid://98808533168115",
+	},
+	ARM_MESH_SIZE = Vector3.new(1, 5, 1),
+	ARM_WIDTH = 0.5,
+	SLEEVE_INFLATE = 1.015, -- shirt layer sits just outside the skin block
+	HAND_OVERSHOOT = 0.4, -- in arm widths: how far the block ends past the grip
+	ARM_ANCHOR_RIGHT = Vector3.new(1.5, -1.6, 0.7),
+	ARM_ANCHOR_LEFT = Vector3.new(-0.55, -2.0, 0.0),
+	ADS_ARM_ANCHOR_RIGHT = Vector3.new(0.5, -1.7, 0.9),
+	ADS_ARM_ANCHOR_LEFT = Vector3.new(-0.5, -1.7, 0.7),
+	-- Pistols: the arms come straight up from the bottom into the grip, the
+	-- support arm just to its left (directions in camera space, toward the shoulder).
+	PISTOL_ARM_DIRECTION_RIGHT = Vector3.new(0.08, -1, 0.3),
+	PISTOL_ARM_DIRECTION_LEFT = Vector3.new(-0.2, -1, 0.25),
 	-- Pistols put both grips in one spot; the support hand cups under and to the left.
 	SUPPORT_HAND_OFFSET = Vector3.new(-0.1, -0.05, 0.04),
-	SUPPORT_HAND_TWIST = -75, -- degrees around the forearm: palm turns in to wrap the grip
 	-- Melee: the free hand rests here (camera space) as a guard.
 	FREE_HAND = Vector3.new(-0.62, -0.78, -1.05),
-	-- R6 fallback arms: shirt template (585 x 559 px) regions of each arm face.
-	SHIRT_SIZE = Vector2.new(585, 559),
-	SHIRT_FACES = {
-		Right = {
-			F = Vector2.new(217, 355),
-			R = Vector2.new(151, 355),
-			B = Vector2.new(85, 355),
-			L = Vector2.new(19, 355),
-			U = Vector2.new(217, 289),
-			D = Vector2.new(217, 485),
-		},
-		Left = {
-			F = Vector2.new(308, 355),
-			L = Vector2.new(374, 355),
-			B = Vector2.new(440, 355),
-			R = Vector2.new(506, 355),
-			U = Vector2.new(308, 289),
-			D = Vector2.new(308, 485),
-		},
-	},
 
 	-- Hands follow the gun's moving parts during its Blender clips. Reload: the
 	-- left hand takes the first joint the clip moves, then any later one (e.g.

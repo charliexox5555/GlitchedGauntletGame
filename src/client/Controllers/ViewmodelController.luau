@@ -3,9 +3,9 @@
 --  * a scaled copy of the equipped gun in front of the camera, playing its own
 --    Blender Fire/Reload clips (GunAnimator). Every part is anchored and posed
 --    by hand each frame (Util/ViewmodelRig), so nothing lags the camera;
---  * the player's own arms with their shirt (Util/ViewmodelArms), solved with
---    two-bone IK onto the gun's RightGrip/LeftGrip, hands following the
---    mag/pump/bolt during clips;
+--  * RIVALS-style arms (Util/ViewmodelArms): one smooth bevelled block per
+--    arm in the player's skin colour and shirt, pointing from off-screen into
+--    the gun's RightGrip/LeftGrip, hands following the mag/pump/bolt in clips;
 --  * keyframed tracks (equip, inspect, reload body motion) and blended poses
 --    (sprint, slide, crouch, air) from Config/Viewmodel, plus speed-driven bob,
 --    breathing, turn sway, movement lag and recoil springs, all kept (smaller)
@@ -50,6 +50,7 @@ type Gun = {
 	rightGrip: Anchor?,
 	leftGrip: Anchor?,
 	muzzle: Attachment?,
+	pistol: boolean, -- both grips in one spot: a two-handed pistol hold
 	aimRel: Vector3, -- sight position relative to the grip, at rest (ADS alignment)
 	centerRel: Vector3, -- middle of the gun relative to the grip (inspect pivot)
 	follow: { FollowRule },
@@ -576,6 +577,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		rightGrip = anchorFor(m, h, attachment(m, "RightGrip")),
 		leftGrip = anchorFor(m, h, attachment(m, "LeftGrip")),
 		muzzle = attachment(m, "Muzzle"),
+		pistol = false,
 		aimRel = if weapon.adsReticle
 			then weapon.adsReticle.center * scale
 			elseif aim then h.CFrame:PointToObjectSpace(aim.WorldPosition)
@@ -587,6 +589,13 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		reticle = reticle,
 		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
 	}
+	local rg, lg = gun.rightGrip, gun.leftGrip
+	gun.pistol = rg ~= nil
+		and lg ~= nil
+		and (rg.part.CFrame:PointToWorldSpace(rg.offset) - lg.part.CFrame:PointToWorldSpace(
+				lg.offset
+			)).Magnitude
+			< 0.2 * scale
 	buildFollow(gun, weapon, dual) -- reads the welds, so before the rig drops them
 	return gun
 end
@@ -953,37 +962,52 @@ local function update(dt: number)
 	if hidden or not a then
 		return
 	end
-	local hintR = camCf:VectorToWorldSpace(VM.ELBOW_HINT_RIGHT:Lerp(VM.ADS_ELBOW_HINT_RIGHT, adsT))
-	local hintL = camCf:VectorToWorldSpace(VM.ELBOW_HINT_LEFT:Lerp(VM.ADS_ELBOW_HINT_LEFT, adsT))
-	local spread = VM.ADS_SHOULDER_SPREAD * adsT
-	local shoulderR = (camCf * shared):PointToWorldSpace(VM.SHOULDER_RIGHT + spread)
-	local shoulderL = (camCf * shared):PointToWorldSpace(VM.SHOULDER_LEFT + mirrorPos(spread))
+	-- Each arm points from an off-screen anchor (camera space, eased toward
+	-- its ADS spot) straight into its grip. Pistols: straight up from below.
+	local view = camCf * shared
+	local rightVec = view.RightVector
+	local pistol = right.pistol and not guns.Left
+	local function armAnchor(
+		grip: Vector3,
+		hip: Vector3,
+		aimed: Vector3,
+		pistolDir: Vector3
+	): Vector3
+		if pistol then
+			return grip + view:VectorToWorldSpace(pistolDir.Unit) * 3
+		end
+		return view:PointToWorldSpace(hip:Lerp(aimed, adsT))
+	end
 	local gripR = if right.rightGrip
 		then handTarget(right, "Right", anchorPosition(right.rightGrip))
-		else (camCf * shared):PointToWorldSpace(VM.FREE_HAND * Vector3.new(-1, 1, 1))
-	ViewmodelArms.solve(a, "Right", 1, shoulderR, gripR, hintR)
+		else view:PointToWorldSpace(mirrorPos(VM.FREE_HAND))
+	local anchorR = armAnchor(
+		gripR,
+		VM.ARM_ANCHOR_RIGHT,
+		VM.ADS_ARM_ANCHOR_RIGHT,
+		VM.PISTOL_ARM_DIRECTION_RIGHT
+	)
+	ViewmodelArms.solve(a, 1, anchorR, gripR, rightVec)
 
 	local left = guns.Left
 	local gripL: Vector3
-	local twistL = 0
 	if left and left.rightGrip then
 		gripL = anchorPosition(left.rightGrip) -- Dual Boot: the left gun's grip
 	elseif c.fireMode == "Melee" or not right.leftGrip then
-		gripL = (camCf * shared):PointToWorldSpace(VM.FREE_HAND)
+		gripL = view:PointToWorldSpace(VM.FREE_HAND)
 	else
-		local leftGrip = right.leftGrip :: Anchor
-		local base = anchorPosition(leftGrip)
-		local rightGrip = right.rightGrip
-		-- Pistols: both grips in one spot, so the support hand cups below.
-		if rightGrip and (base - anchorPosition(rightGrip)).Magnitude < 0.12 then
+		local base = anchorPosition(right.leftGrip :: Anchor)
+		if right.pistol then
+			-- Both grips in one spot, so the support hand sits below and left.
 			base = right.handle.CFrame:PointToWorldSpace(
 				right.handle.CFrame:PointToObjectSpace(base) + VM.SUPPORT_HAND_OFFSET
 			)
-			twistL = math.rad(VM.SUPPORT_HAND_TWIST)
 		end
 		gripL = handTarget(right, "Left", base)
 	end
-	ViewmodelArms.solve(a, "Left", 4, shoulderL, gripL, hintL, twistL)
+	local anchorL =
+		armAnchor(gripL, VM.ARM_ANCHOR_LEFT, VM.ADS_ARM_ANCHOR_LEFT, VM.PISTOL_ARM_DIRECTION_LEFT)
+	ViewmodelArms.solve(a, 3, anchorL, gripL, rightVec)
 	ViewmodelArms.apply(a)
 end
 
