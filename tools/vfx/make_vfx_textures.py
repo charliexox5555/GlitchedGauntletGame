@@ -346,9 +346,9 @@ def beam_energy(g, _i):
 	y = (g.v - 0.5) * 2.0
 	theta = g.u * math.tau
 	ct, st = g.cos(theta), g.sin(theta)
-	total = g.falloff(g.abs(y), 0.12, 2.0) * 0.95 + g.falloff(g.abs(y), 1.0, 2.0) * 0.28
-	for k, (freq, thick, gain) in enumerate(((3.0, 0.055, 1.0), (5.0, 0.04, 0.8), (2.0, 0.07, 0.6))):
-		offset = (g.noise(ct * freq, st * freq, 0.0, w=k * 9.1 + 1, detail=3, rough=0.55) - 0.5) * 2.2
+	total = g.falloff(g.abs(y), 0.2, 1.6) * 0.95 + g.falloff(g.abs(y), 1.0, 1.6) * 0.45
+	for k, (freq, thick, gain) in enumerate(((3.0, 0.13, 1.0), (5.0, 0.1, 0.85), (2.0, 0.15, 0.7))):
+		offset = (g.noise(ct * freq, st * freq, 0.0, w=k * 9.1 + 1, detail=3, rough=0.55) - 0.5) * 2.0
 		bright = g.noise(ct * 4, st * 4, 1.0, w=k * 4.4 + 3)
 		total = total + g.falloff(g.abs(y - offset), thick, 1.5) * gain * g.clamp01(0.3 + bright)
 	return g.output(total)
@@ -360,10 +360,10 @@ def beam_helix(g, _i):
 	phase = g.u * (math.tau * 2)
 	s = g.sin(phase) * 0.58
 	c = g.cos(phase)
-	front = g.falloff(g.abs(y - s), 0.075, 1.4) * (0.55 + c * 0.45)
-	back = g.falloff(g.abs(y + s), 0.075, 1.4) * (0.55 - c * 0.45)
-	core = g.falloff(g.abs(y), 0.11, 2.0)
-	halo = g.falloff(g.abs(y), 1.0, 2.0) * 0.25
+	front = g.falloff(g.abs(y - s), 0.16, 1.2) * (0.6 + c * 0.4)
+	back = g.falloff(g.abs(y + s), 0.16, 1.2) * (0.6 - c * 0.4)
+	core = g.falloff(g.abs(y), 0.2, 1.6)
+	halo = g.falloff(g.abs(y), 1.0, 1.6) * 0.42
 	return g.output(front + back + core + halo)
 
 

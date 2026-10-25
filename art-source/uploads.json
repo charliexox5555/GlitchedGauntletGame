@@ -46,5 +46,107 @@
   "name": "GG Gun Sound Atlas",
   "type": "Audio",
   "uploaded": "2026-10-25 12:37:39"
+ },
+ "art-source/vfx/beam_energy.png": {
+  "assetId": 140396211249137,
+  "name": "GG VFX beam_energy v2",
+  "type": "Decal",
+  "uploaded": "2026-10-25 14:14:39"
+ },
+ "art-source/vfx/beam_helix.png": {
+  "assetId": 77234474103119,
+  "name": "GG VFX beam_helix v2",
+  "type": "Decal",
+  "uploaded": "2026-10-25 14:14:42"
+ },
+ "art-source/vfx/debris.png": {
+  "assetId": 115475518215768,
+  "name": "GG VFX debris",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:51:55"
+ },
+ "art-source/vfx/disc.png": {
+  "assetId": 88418885287170,
+  "name": "GG VFX disc",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:51:57"
+ },
+ "art-source/vfx/dust.png": {
+  "assetId": 85116498620396,
+  "name": "GG VFX dust",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:00"
+ },
+ "art-source/vfx/glow.png": {
+  "assetId": 109485055630527,
+  "name": "GG VFX glow",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:03"
+ },
+ "art-source/vfx/hole.png": {
+  "assetId": 82921010626575,
+  "name": "GG VFX hole",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:06"
+ },
+ "art-source/vfx/hole_rim.png": {
+  "assetId": 111454991453966,
+  "name": "GG VFX hole_rim",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:09"
+ },
+ "art-source/vfx/impact_flash.png": {
+  "assetId": 76061120189628,
+  "name": "GG VFX impact_flash",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:12"
+ },
+ "art-source/vfx/muzzle_front.png": {
+  "assetId": 129276937663758,
+  "name": "GG VFX muzzle_front",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:15"
+ },
+ "art-source/vfx/muzzle_side.png": {
+  "assetId": 74361271052501,
+  "name": "GG VFX muzzle_side",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:17"
+ },
+ "art-source/vfx/pixel.png": {
+  "assetId": 108363733879043,
+  "name": "GG VFX pixel",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:20"
+ },
+ "art-source/vfx/ring.png": {
+  "assetId": 135268580244441,
+  "name": "GG VFX ring",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:23"
+ },
+ "art-source/vfx/smoke.png": {
+  "assetId": 108953176541510,
+  "name": "GG VFX smoke",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:26"
+ },
+ "art-source/vfx/spark.png": {
+  "assetId": 129269658892567,
+  "name": "GG VFX spark",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:29"
+ },
+ "art-source/vfx/tracer.png": {
+  "assetId": 122465704622982,
+  "name": "GG VFX tracer",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:32"
+ },
+ "art-source/vfx/vignette.png": {
+  "assetId": 100780686568923,
+  "name": "GG VFX vignette",
+  "type": "Decal",
+  "uploaded": "2026-10-25 13:52:35"
  }
 }
