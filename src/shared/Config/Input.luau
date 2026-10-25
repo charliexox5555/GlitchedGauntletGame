@@ -40,6 +40,8 @@ local bindings: { [string]: Binding } = {
 	Melee = { keys = { Enum.KeyCode.Three }, gamepad = {} },
 	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY }, touch = "SwapButton" },
 	QuickMelee = { keys = { Enum.KeyCode.V }, gamepad = { Enum.KeyCode.ButtonR3 } },
+	-- Inspect the held gun (Valorant uses Y, but Y is the dev picker here).
+	Inspect = { keys = { Enum.KeyCode.F }, gamepad = { Enum.KeyCode.DPadDown } },
 	-- Studio-only dev picker: weapon menu, next primary / next secondary.
 	DevMenu = { keys = { Enum.KeyCode.P }, gamepad = {} },
 	DevNextPrimary = { keys = { Enum.KeyCode.T }, gamepad = {} },

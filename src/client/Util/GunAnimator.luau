@@ -23,6 +23,8 @@ export type GunAnimator = {
 	play: (self: GunAnimator, name: string, duration: number?) -> (),
 	stop: (self: GunAnimator) -> (),
 	isPlaying: (self: GunAnimator, name: string?) -> boolean,
+	progress: (self: GunAnimator) -> number,
+	activity: (self: GunAnimator, name: string, bone: string) -> (number?, number?),
 	update: (self: GunAnimator, dt: number) -> (),
 }
 
@@ -89,6 +91,57 @@ local function isPlaying(self: GunAnimator, name: string?): boolean
 	return self.clip ~= nil and (name == nil or self.clipName == name)
 end
 
+-- How far through the playing clip we are, 0..1.
+local function progress(self: GunAnimator): number
+	return if self.clip then math.clamp(self.time / self.length, 0, 1) else 0
+end
+
+-- When (0..1 through the clip) a bone first and last leaves its rest pose,
+-- so hands can reach for a part just before it moves. nil if it never moves.
+local activityCache: { [Clip]: { [string]: { number } | false } } = {}
+
+local function activity(self: GunAnimator, name: string, bone: string): (number?, number?)
+	local clips = self.clips
+	local clip = clips and (clips :: any)[name] :: Clip?
+	if not clip then
+		return nil
+	end
+	local perClip = activityCache[clip]
+	if not perClip then
+		perClip = {}
+		activityCache[clip] = perClip
+	end
+	local cached = perClip[bone]
+	if cached == nil then
+		cached = false
+		local data = clip.bones[bone]
+		if data then
+			local first, last = -1, -1
+			for f = 0, clip.frames - 1 do
+				local i = f * 7
+				local moved = math.abs(data[i + 1]) + math.abs(data[i + 2]) + math.abs(data[i + 3])
+						> 0.01
+					or math.abs(data[i + 4]) < 0.9995
+				if moved then
+					if first < 0 then
+						first = f
+					end
+					last = f
+				end
+			end
+			if first >= 0 then
+				local span = math.max(clip.frames - 1, 1)
+				cached = { first / span, last / span }
+			end
+		end
+		perClip[bone] = cached
+	end
+	if cached then
+		return cached[1], cached[2]
+	end
+	return nil
+end
+
 local function update(self: GunAnimator, dt: number)
 	local clip = self.clip
 	local clips = self.clips
@@ -143,6 +196,8 @@ function GunAnimator.new(model: Model, weaponId: string, scale: number): GunAnim
 		play = play,
 		stop = stop,
 		isPlaying = isPlaying,
+		progress = progress,
+		activity = activity,
 		update = update,
 	}
 end

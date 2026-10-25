@@ -65,6 +65,12 @@ export type BeamStats = {
 	rechargeRate: number, -- battery seconds regained per second
 }
 
+-- A holographic sight added to the viewmodel gun: a glass pane with a dot and
+-- ring, centred at `center` (gun space, world-size studs). Aiming looks through
+-- it. `frame = false` draws only the reticle (inside a low-power optic whose
+-- own lens is hidden while aiming).
+export type Reticle = { center: Vector3, size: Vector2, color: Color3, frame: boolean? }
+
 export type WeaponSounds = {
 	fire: string,
 	fireVolume: number?,
@@ -118,6 +124,14 @@ export type WeaponConfig = {
 	sounds: WeaponSounds,
 	-- Viewmodel placement: where the grip sits relative to the camera.
 	viewmodelOffset: Vector3,
+	viewmodelRotation: Vector3?, -- hip cant in degrees (default Viewmodel.HIP_ROTATION)
+	viewmodelScale: number?, -- default Viewmodel.SCALE
+	-- Sight picture: camera-to-AimPoint distance (default Viewmodel.ADS_DISTANCE),
+	-- a camera-space nudge, and parts faded out while aiming so they don't block the sight.
+	adsDistance: number?,
+	adsOffset: Vector3?,
+	adsHide: { string }?,
+	adsReticle: Reticle?,
 	tracerColor: Color3,
 }
 

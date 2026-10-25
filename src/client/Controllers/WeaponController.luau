@@ -499,6 +499,7 @@ local function onFirePressed()
 	if HudController.isDevMenuOpen() then
 		return
 	end
+	ViewmodelController.cancelInspect()
 	triggerHeld = true
 	pressQueued = true
 	local s = current()
@@ -792,6 +793,12 @@ function WeaponController.start()
 	InputController.onPressed("Fire", onFirePressed)
 	InputController.onReleased("Fire", onFireReleased)
 	InputController.onPressed("Reload", startReload)
+	InputController.onPressed("Inspect", function()
+		-- Fire, aim, reload and swapping cancel it (ViewmodelController).
+		if alive and current() and not reloading and not HudController.isDevMenuOpen() then
+			ViewmodelController.inspect()
+		end
+	end)
 	InputController.onPressed("Primary", function()
 		equip("Primary")
 	end)
