@@ -261,7 +261,7 @@ local function cast(
 end
 
 local function dryFire()
-	playLocal(Sounds.DryFire, 0.4, 1.6)
+	playLocal(Sounds.DryFire, 0.5)
 end
 
 local function fireShot(s: LocalSlot)
@@ -498,7 +498,9 @@ local function update(dt: number)
 	local scoped = s ~= nil and s.config.scope == true and adsAlpha > 0.9
 	ViewmodelController.setHidden(scoped)
 	HudController.setScope(scoped)
-	HudController.setCrosshairVisible(not scoped and adsAlpha < 0.6)
+	HudController.setCrosshairVisible(
+		not scoped and adsAlpha < 0.5 and not MovementController.isSprinting()
+	)
 
 	-- Trigger.
 	if s and alive then
@@ -602,13 +604,13 @@ local function onHitConfirm(confirm: Types.HitConfirm)
 	HudController.hitMarker(head)
 	HudController.damageNumber(confirm.damage, head)
 	if head then
-		playLocal(Sounds.HitHead, 0.45, 3.2)
+		playLocal(Sounds.HitHead, 0.55)
 	else
-		playLocal(Sounds.HitBody, 0.35, 2.4)
+		playLocal(Sounds.HitBody, 0.5)
 	end
 	if confirm.killed then
 		HudController.killMarker()
-		playLocal(Sounds.Kill, 0.5, 1.6)
+		playLocal(Sounds.Kill, 0.6)
 	end
 end
 

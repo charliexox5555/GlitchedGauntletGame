@@ -10,6 +10,8 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Net = require(ReplicatedStorage.Shared.Net)
+local SoundAtlas = require(ReplicatedStorage.Shared.Config.SoundAtlas)
+local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
@@ -53,21 +55,43 @@ end
 
 -- Sounds ---------------------------------------------------------------------
 
-function EffectsController.playSound(id: string, parent: Instance?, volume: number?, pitch: number?)
+-- Makes a Sound for a Config/Sounds entry: a plain asset id, or "atlas:<Name>"
+-- for a slice of the sound atlas (played with PlaybackRegion).
+function EffectsController.makeSound(id: string): (Sound?, number)
 	if id == "" then
-		return
+		return nil, 0
 	end
 	local s = Instance.new("Sound")
-	s.SoundId = id
+	local length = 6
+	if string.sub(id, 1, 6) == "atlas:" then
+		local region = SoundAtlas[string.sub(id, 7)]
+		if not region then
+			s:Destroy()
+			return nil, 0
+		end
+		s.SoundId = Sounds.ATLAS
+		s.PlaybackRegionsEnabled = true
+		s.PlaybackRegion = NumberRange.new(region.start, region.start + region.length)
+		s.LoopRegion = s.PlaybackRegion
+		length = region.length
+	else
+		s.SoundId = id
+	end
+	s.RollOffMaxDistance = 300
+	s.RollOffMinDistance = 12
+	return s, length
+end
+
+function EffectsController.playSound(id: string, parent: Instance?, volume: number?, pitch: number?)
+	local s, length = EffectsController.makeSound(id)
+	if not s then
+		return
+	end
 	s.Volume = volume or 0.6
 	s.PlaybackSpeed = pitch or 1
-	s.RollOffMaxDistance = 300
 	s.Parent = parent or effectsFolder()
 	s:Play()
-	s.Ended:Once(function()
-		s:Destroy()
-	end)
-	Debris:AddItem(s, 6)
+	Debris:AddItem(s, length / (pitch or 1) + 0.5)
 end
 
 -- Plays a sound at a world position (for other players' shots and impacts).
@@ -259,6 +283,13 @@ end
 
 function EffectsController.start()
 	effectsFolder()
+	-- Load the atlas up front so the first shot isn't silent.
+	task.spawn(function()
+		local probe = Instance.new("Sound")
+		probe.SoundId = Sounds.ATLAS
+		game:GetService("ContentProvider"):PreloadAsync({ probe })
+		probe:Destroy()
+	end)
 	Net.unreliable("ShotFx").OnClientEvent:Connect(onShotFx)
 	Net.event("Killed").OnClientEvent:Connect(onKilled)
 	RunService.RenderStepped:Connect(function(dt)

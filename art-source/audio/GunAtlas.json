@@ -1,0 +1,106 @@
+{
+ "PPQ": {
+  "start": 0.0,
+  "length": 0.9
+ },
+ "Revolver": {
+  "start": 2.0,
+  "length": 1.1
+ },
+ "M1911": {
+  "start": 4.0,
+  "length": 1.0
+ },
+ "Bersa": {
+  "start": 6.0,
+  "length": 0.8
+ },
+ "Ruger22": {
+  "start": 8.0,
+  "length": 0.7
+ },
+ "SwedishK": {
+  "start": 10.0,
+  "length": 0.9
+ },
+ "PPSh": {
+  "start": 12.0,
+  "length": 0.9
+ },
+ "AR15": {
+  "start": 14.0,
+  "length": 1.1
+ },
+ "AK47": {
+  "start": 16.0,
+  "length": 1.2
+ },
+ "AK47Suppressed": {
+  "start": 18.0,
+  "length": 0.8
+ },
+ "SKS": {
+  "start": 20.0,
+  "length": 1.2
+ },
+ "M1917": {
+  "start": 22.0,
+  "length": 1.3
+ },
+ "Arisaka": {
+  "start": 24.0,
+  "length": 1.2
+ },
+ "Savage": {
+  "start": 26.0,
+  "length": 1.5
+ },
+ "Tikka": {
+  "start": 28.0,
+  "length": 1.6
+ },
+ "Mosin": {
+  "start": 30.0,
+  "length": 1.8
+ },
+ "Nova": {
+  "start": 32.0,
+  "length": 1.4
+ },
+ "Model12": {
+  "start": 34.0,
+  "length": 1.3
+ },
+ "Mossberg": {
+  "start": 36.0,
+  "length": 1.2
+ },
+ "LeverThump": {
+  "start": 38.0,
+  "length": 1.0
+ },
+ "HitTick": {
+  "start": 40.0,
+  "length": 0.09
+ },
+ "HeadDing": {
+  "start": 42.0,
+  "length": 0.45
+ },
+ "Kill": {
+  "start": 44.0,
+  "length": 0.5
+ },
+ "DryFire": {
+  "start": 46.0,
+  "length": 0.12
+ },
+ "BeamHum": {
+  "start": 48.0,
+  "length": 1.0
+ },
+ "Impact": {
+  "start": 50.0,
+  "length": 0.18
+ }
+}

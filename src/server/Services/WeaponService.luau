@@ -38,6 +38,11 @@ type SlotState = {
 	lastFire: number, -- "virtual" time of the last accepted shot (rate enforcement)
 	spinStart: number?,
 	chargeStart: number?,
+	burstShots: number,
+	rechargeFrom: number, -- beam battery: recharge counted from here
+	beamTarget: Model?,
+	beamStart: number,
+	beamLastHit: number,
 }
 
 type PlayerState = {
@@ -60,6 +65,11 @@ local loadouts: { [Player]: { [Slot]: string } } = {}
 local buckets: { [Player]: { [string]: { tokens: number, last: number } } } = {}
 
 local WeaponsFolder: Instance? = nil
+
+-- Defined further down (used by onFire).
+local rechargeBeam: (SlotState, number) -> ()
+local beamTickDamage: (SlotState, Model, number) -> number
+local spawnProjectile: (Player, Model, Vector3, Vector3, WeaponConfig) -> ()
 
 -- Helpers ------------------------------------------------------------------
 
@@ -170,6 +180,10 @@ local function newSlot(id: string): SlotState?
 		ammo = config.magSize,
 		reloadToken = 0,
 		lastFire = -math.huge,
+		burstShots = 0,
+		rechargeFrom = 0,
+		beamStart = 0,
+		beamLastHit = -math.huge,
 	}
 end
 
@@ -189,23 +203,20 @@ local function weaponTemplate(id: string): Model?
 	return nil
 end
 
--- Puts a copy of `id` in the character's right hand (or removes it with nil).
-function WeaponService.attachWorldModel(character: Model, id: string?): Model?
-	local old = character:FindFirstChild("WorldWeapon")
-	if old then
-		old:Destroy()
-	end
-	if not id then
-		return nil
-	end
-	local template = weaponTemplate(id)
-	local hand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
+local function holdModel(
+	character: Model,
+	templateId: string,
+	handName: string,
+	name: string
+): Model?
+	local template = weaponTemplate(templateId)
+	local hand = character:FindFirstChild(handName)
+		or character:FindFirstChild(if handName == "RightHand" then "Right Arm" else "Left Arm")
 	if not template or not hand or not hand:IsA("BasePart") then
 		return nil
 	end
 	local model = template:Clone()
-	model.Name = "WorldWeapon"
-	model:SetAttribute("WeaponId", id)
+	model.Name = name
 	local handle = model.PrimaryPart
 	if not handle then
 		model:Destroy()
@@ -228,6 +239,30 @@ function WeaponService.attachWorldModel(character: Model, id: string?): Model?
 	grip.Parent = handle
 	handle.CFrame = hand.CFrame * GRIP_C0
 	model.Parent = character
+	return model
+end
+
+-- Puts weapon `id` in the character's hand(s) (or removes it with nil).
+-- Dual Boot holds a second model in the left hand ("WorldWeaponLeft").
+function WeaponService.attachWorldModel(character: Model, id: string?): Model?
+	for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
+		local old = character:FindFirstChild(name)
+		if old then
+			old:Destroy()
+		end
+	end
+	if not id then
+		return nil
+	end
+	local config = Weapons.get(id)
+	local rightId = if config and config.models then config.models.right else id
+	local model = holdModel(character, rightId, "RightHand", "WorldWeapon")
+	if model then
+		model:SetAttribute("WeaponId", id)
+	end
+	if config and config.models and config.models.left then
+		holdModel(character, config.models.left, "LeftHand", "WorldWeaponLeft")
+	end
 	-- Cosmetic state lives on the Player (not the predicted character) so it
 	-- never triggers Server Authority rollbacks. Dummies keep it on the model.
 	local owner = Players:GetPlayerFromCharacter(character)
@@ -453,7 +488,7 @@ local function onReload(player: Player)
 		return
 	end
 	local config = slot.config
-	if config.magSize <= 0 or slot.ammo >= config.magSize or slot.reloadEnd then
+	if config.magSize <= 0 or config.beam or slot.ammo >= config.magSize or slot.reloadEnd then
 		return
 	end
 	local duration = if slot.ammo == 0 then config.emptyReloadTime else config.reloadTime
@@ -499,6 +534,12 @@ local function onDev(player: Player, slot: unknown)
 	if not RunService:IsStudio() or not Dev.WEAPON_PICKER then
 		return
 	end
+	-- A weapon id equips that gun directly (the dev menu); a slot cycles it.
+	if typeof(slot) == "string" and Weapons.get(slot) then
+		local config = Weapons.get(slot) :: WeaponConfig
+		WeaponService.setWeapon(player, config.slot, config.id)
+		return
+	end
 	if slot ~= "Primary" and slot ~= "Secondary" then
 		return
 	end
@@ -539,6 +580,117 @@ end
 local function reject(player: Player, reason: string)
 	if RunService:IsStudio() then
 		player:SetAttribute("FireReject", reason)
+	end
+end
+
+-- Beam (Null) --------------------------------------------------------------------
+
+-- Refills the beam battery (in ticks) after the recharge delay.
+rechargeBeam = function(slot: SlotState, now: number)
+	local beam = slot.config.beam
+	if not beam then
+		return
+	end
+	local from = math.max(slot.lastFire + beam.rechargeDelay, slot.rechargeFrom)
+	if now > from then
+		slot.ammo =
+			math.min(slot.config.magSize, slot.ammo + (now - from) * beam.rechargeRate / beam.tick)
+		slot.rechargeFrom = now
+	end
+end
+
+-- Damage for one beam tick: ramps up while the beam stays on the same target.
+beamTickDamage = function(slot: SlotState, model: Model, now: number): number
+	local beam = slot.config.beam :: Types.BeamStats
+	if slot.beamTarget ~= model or now - slot.beamLastHit > beam.tick * 2.5 then
+		slot.beamTarget = model
+		slot.beamStart = now
+	end
+	slot.beamLastHit = now
+	local t = math.clamp((now - slot.beamStart) / beam.rampTime, 0, 1)
+	return (beam.dpsStart + (beam.dpsEnd - beam.dpsStart) * t) * beam.tick
+end
+
+-- Projectiles (Loopback) -----------------------------------------------------------
+-- Flown on the server: authoritative hits, no client claims to validate.
+
+type Projectile = {
+	owner: Player,
+	config: WeaponConfig,
+	position: Vector3,
+	velocity: Vector3,
+	bounces: number,
+	expires: number,
+	params: RaycastParams,
+}
+
+local projectiles: { Projectile } = {}
+
+spawnProjectile = function(
+	owner: Player,
+	shooter: Model,
+	origin: Vector3,
+	dir: Vector3,
+	config: WeaponConfig
+)
+	local stats = config.projectile :: Types.ProjectileStats
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { shooter }
+	table.insert(projectiles, {
+		owner = owner,
+		config = config,
+		position = origin + dir * 1.5,
+		velocity = dir * stats.speed,
+		bounces = stats.bounces,
+		expires = os.clock() + stats.lifetime,
+		params = params,
+	})
+end
+
+local function stepProjectiles(dt: number)
+	local now = os.clock()
+	for i = #projectiles, 1, -1 do
+		local pr = projectiles[i]
+		local stats = pr.config.projectile :: Types.ProjectileStats
+		local alive = now < pr.expires and pr.owner.Parent ~= nil
+		if alive then
+			local move = pr.velocity * dt
+			local result = workspace:Spherecast(pr.position, stats.radius, move, pr.params)
+			if not result then
+				pr.position += move
+			else
+				local part = result.Instance
+				local victim = hitboxOwner(part)
+				if victim and liveHumanoid(victim) then
+					applyDamage(
+						pr.owner,
+						victim,
+						pr.config.damage.body,
+						"Body",
+						pr.config,
+						result.Position
+					)
+					alive = false
+				elseif combatantOf(part) then
+					pr.params:AddToFilter(part) -- hats, held guns: fly through
+					pr.position += move
+				else
+					-- Bounce off the surface.
+					pr.bounces -= 1
+					if pr.bounces < 0 then
+						alive = false
+					else
+						local n = result.Normal
+						pr.velocity = pr.velocity - 2 * pr.velocity:Dot(n) * n
+						pr.position = result.Position + n * (stats.radius + 0.05)
+					end
+				end
+			end
+		end
+		if not alive then
+			table.remove(projectiles, i)
+		end
 	end
 end
 
@@ -603,11 +755,12 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "slot.reloadEnd and now < slot.reloadEnd")
 		return
 	end
-	if config.magSize > 0 and slot.ammo <= 0 then
-		reject(player, "config.magSize > 0 and slot.ammo <= 0")
+	rechargeBeam(slot, now)
+	if config.magSize > 0 and slot.ammo < 1 then
+		reject(player, "out of ammo")
 		return
 	end
-	local interval = FireRate.interval(config, slot.spinStart, slot.lastFire, now)
+	local interval = FireRate.interval(config, slot.spinStart, slot.lastFire, now, slot.burstShots)
 	if now < slot.lastFire + interval - Combat.FIRE_JITTER then
 		reject(player, "now < slot.lastFire + interval - Combat.FIRE_JITTER")
 		return
@@ -645,6 +798,7 @@ local function onFire(player: Player, payload: unknown)
 	if not slot.spinStart or now - slot.lastFire > FireRate.SPIN_RESET then
 		slot.spinStart = now
 	end
+	slot.burstShots = FireRate.nextBurstCount(config, slot.burstShots, slot.lastFire, now)
 	slot.lastFire = math.max(now, slot.lastFire + interval)
 	if config.magSize > 0 then
 		slot.ammo -= 1
@@ -671,8 +825,12 @@ local function onFire(player: Player, payload: unknown)
 	-- Recompute exactly where each pellet was allowed to go. The seed comes
 	-- from the server's sequence; the claimed spread can't go below the gun's
 	-- best case (aimed, standing still) or above its worst case.
-	local minSpread = config.hipSpread * config.adsSpreadMultiplier
-	local maxSpread = config.hipSpread + config.maxBloom + Combat.MOVE_SPREAD.Air
+	local minSpread = config.hipSpread
+		* config.adsSpreadMultiplier
+		* (config.crouchSpreadMultiplier or 1)
+	local maxSpread = config.hipSpread
+		+ config.maxBloom
+		+ Combat.MOVE_SPREAD.Air * (config.moveSpreadMultiplier or 1)
 	local spread = math.clamp(spreadClaim, minSpread, maxSpread)
 	local dirs = Spread.shot(
 		aim,
@@ -681,6 +839,12 @@ local function onFire(player: Player, payload: unknown)
 		spread,
 		config.pelletSpread
 	)
+
+	-- Projectile guns: the server flies the disc itself; there are no client hit claims.
+	if config.projectile then
+		spawnProjectile(player, character, origin, dirs[1], config)
+		return
+	end
 
 	local root = character:FindFirstChild("HumanoidRootPart")
 	local rewindAge = rewindWindow(player)
@@ -828,7 +992,11 @@ local function onFire(player: Player, payload: unknown)
 			end
 			zone = "Body"
 		else
-			amount = Damage.compute(config, zone, (hit.rewound - head.Position).Magnitude)
+			if config.beam then
+				amount = beamTickDamage(slot, hit.model, now)
+			else
+				amount = Damage.compute(config, zone, (hit.rewound - head.Position).Magnitude)
+			end
 		end
 		local t = tally[hit.model]
 		if t then
@@ -887,6 +1055,7 @@ function WeaponService.init()
 end
 
 function WeaponService.start()
+	RunService.Heartbeat:Connect(stepProjectiles)
 	Players.PlayerAdded:Connect(onPlayer)
 	for _, player in Players:GetPlayers() do
 		onPlayer(player)

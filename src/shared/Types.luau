@@ -11,7 +11,16 @@ export type PlayerProfile = {
 -- Weapons ------------------------------------------------------------------
 
 export type Slot = "Primary" | "Secondary" | "Melee"
-export type FireMode = "Semi" | "Auto" | "Pump" | "Bolt" | "Charge" | "Melee"
+export type FireMode =
+	"Semi"
+	| "Auto"
+	| "Burst"
+	| "Pump"
+	| "Bolt"
+	| "Charge"
+	| "Melee"
+	| "Projectile"
+	| "Beam"
 export type WeaponClass =
 	"Sidearm"
 	| "SMG"
@@ -38,6 +47,24 @@ export type SpinUp = { startInterval: number, endInterval: number, time: number 
 
 export type MeleeStats = { range: number, backDamage: number, lunge: number }
 
+-- Burst guns: `count` shots `interval` apart, then the gun's fireInterval.
+export type BurstStats = { count: number, interval: number, singleWhenAiming: boolean? }
+
+-- Server-simulated projectile (Loopback discs).
+export type ProjectileStats = { speed: number, radius: number, bounces: number, lifetime: number }
+
+-- Continuous beam (Null): damage per second ramps while it stays on the same
+-- target; a battery drains while firing and recharges after a pause.
+export type BeamStats = {
+	dpsStart: number,
+	dpsEnd: number,
+	rampTime: number,
+	tick: number, -- seconds between damage ticks (each tick is one "shot")
+	battery: number, -- seconds of beam
+	rechargeDelay: number,
+	rechargeRate: number, -- battery seconds regained per second
+}
+
 export type WeaponSounds = {
 	fire: string,
 	fireVolume: number?,
@@ -58,7 +85,9 @@ export type WeaponConfig = {
 	pellets: number,
 	pelletSpread: number, -- degrees, cone for pellets
 	fireInterval: number, -- seconds between shots
-	burstInterval: number?,
+	burst: BurstStats?,
+	projectile: ProjectileStats?,
+	beam: BeamStats?,
 	spinUp: SpinUp?,
 	chargeTime: number?,
 	magSize: number,
@@ -81,6 +110,11 @@ export type WeaponConfig = {
 	pierceCharacters: boolean?,
 	suppressed: boolean?,
 	melee: MeleeStats?,
+	moveSpreadMultiplier: number?, -- scales movement spread (Flicker: big, Dual Boot: small)
+	crouchSpreadMultiplier: number?, -- Overflow is steadier crouched
+	noAds: boolean?, -- Dual Boot
+	-- Models to hold: by default the model named like the id. Dual Boot holds two.
+	models: { right: string, left: string? }?,
 	sounds: WeaponSounds,
 	-- Viewmodel placement: where the grip sits relative to the camera.
 	viewmodelOffset: Vector3,

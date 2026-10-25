@@ -30,7 +30,7 @@ local FONT = Enum.Font.GothamBold
 
 type Refs = {
 	gui: ScreenGui,
-	crosshair: Frame,
+	crosshair: CanvasGroup,
 	lines: { Frame },
 	hitMarker: Frame,
 	killMarker: Frame,
@@ -49,6 +49,9 @@ type Refs = {
 
 local refs: Refs? = nil
 local spreadDegrees = 1
+local shownGap = 6
+local crosshairWanted = true
+local crosshairAlpha = 1
 local stackedDamage = 0
 local stackedAt = 0
 
@@ -180,28 +183,36 @@ local function build(): Refs
 		BorderSizePixel = 0,
 	}, hole)
 
-	-- Crosshair: four lines that open with spread, plus a dot.
-	local crosshair = centered(UDim2.fromOffset(120, 120), gui)
+	-- Crosshair (CanvasGroup so it fades as one): a centre dot plus four short
+	-- lines that open with spread. Thin black outline keeps it readable on
+	-- bright and dark backgrounds.
+	local crosshair = make("CanvasGroup", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(160, 160),
+		BackgroundTransparency = 1,
+	}, gui)
 	local lines = {}
 	for i = 1, 4 do
 		local horizontal = i <= 2
 		local line = make("Frame", {
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			Size = if horizontal then UDim2.fromOffset(9, 2) else UDim2.fromOffset(2, 9),
+			Size = if horizontal then UDim2.fromOffset(7, 2) else UDim2.fromOffset(2, 7),
 			BackgroundColor3 = WHITE,
 			BorderSizePixel = 0,
 		}, crosshair)
-		stroke(line)
+		make("UIStroke", { Color = Color3.new(0, 0, 0), Thickness = 1, Transparency = 0.45 }, line)
 		lines[i] = line
 	end
 	local dot = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(2, 2),
+		Size = UDim2.fromOffset(3, 3),
 		BackgroundColor3 = WHITE,
 		BorderSizePixel = 0,
 	}, crosshair)
-	stroke(dot)
+	make("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
+	make("UIStroke", { Color = Color3.new(0, 0, 0), Thickness = 1, Transparency = 0.45 }, dot)
 
 	local hitMarker = xMarker(gui, 16, WHITE)
 	local killMarker = xMarker(gui, 24, NEON)
@@ -418,10 +429,9 @@ function HudController.setSpread(degrees: number)
 	spreadDegrees = degrees
 end
 
+-- Fades rather than pops (ADS, scope, sprint).
 function HudController.setCrosshairVisible(visible: boolean)
-	if refs then
-		refs.crosshair.Visible = visible
-	end
+	crosshairWanted = visible
 end
 
 function HudController.setScope(visible: boolean)
@@ -534,25 +544,27 @@ end
 
 -- Loop -------------------------------------------------------------------------
 
-local function update()
+local function update(dt: number)
 	local r = refs
 	local cam = Workspace.CurrentCamera
 	if not r or not cam then
 		return
 	end
-	-- Crosshair gap from spread in degrees -> pixels at the current FOV.
+	-- Crosshair gap from spread in degrees -> pixels at the current FOV, eased.
 	local half = cam.ViewportSize.Y / 2
 	local gap = math.tan(math.rad(spreadDegrees)) / math.tan(math.rad(cam.FieldOfView / 2)) * half
-	gap = math.clamp(gap + 4, 4, 140)
-	local positions = {
-		UDim2.new(0.5, -gap - 4, 0.5, 0),
-		UDim2.new(0.5, gap + 4, 0.5, 0),
-		UDim2.new(0.5, 0, 0.5, -gap - 4),
-		UDim2.new(0.5, 0, 0.5, gap + 4),
-	}
-	for i, line in r.lines do
-		line.Position = positions[i]
-	end
+	gap = math.clamp(gap + 3, 3, 70)
+	shownGap += (gap - shownGap) * (1 - math.exp(-18 * dt))
+	local g = math.floor(shownGap + 0.5) + 4
+	r.lines[1].Position = UDim2.new(0.5, -g, 0.5, 0)
+	r.lines[2].Position = UDim2.new(0.5, g, 0.5, 0)
+	r.lines[3].Position = UDim2.new(0.5, 0, 0.5, -g)
+	r.lines[4].Position = UDim2.new(0.5, 0, 0.5, g)
+	crosshairAlpha += ((if crosshairWanted then 1 else 0) - crosshairAlpha) * (1 - math.exp(
+		-20 * dt
+	))
+	r.crosshair.GroupTransparency = 1 - crosshairAlpha
+	r.crosshair.Visible = crosshairAlpha > 0.02
 
 	-- Health.
 	local character = player.Character
