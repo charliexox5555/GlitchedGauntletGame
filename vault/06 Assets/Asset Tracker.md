@@ -12,26 +12,26 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 |---|---|---|---|---|---|---|---|---|---|
 | **Byte** | Sidearm | T1 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Root** | Sidearm | T1 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Splinter** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
-| **Flicker** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
-| **Mute** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
+| **Splinter** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
+| **Flicker** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · big spread while moving |
+| **Mute** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Bandwidth** | SMG | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Burst Buffer** | SMG | T2 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
+| **Burst Buffer** | SMG | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · 3-round burst |
 | **Hard Reset** | Shotgun | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Crash** | Shotgun | T2 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
-| **Pulse** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
-| **Checksum** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
+| **Crash** | Shotgun | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
+| **Pulse** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · 3-round burst, single shots while aiming |
+| **Checksum** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Bitrate** | Rifle | T3 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Overwrite** | Rifle | T3 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
+| **Overwrite** | Rifle | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Long Poll** | Sniper | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Handshake** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
-| **Kernel** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
-| **Overflow** | Machine gun | T3 | 2 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
+| **Handshake** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
+| **Kernel** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
+| **Overflow** | Machine gun | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · steadier crouched |
 | **Flood** | Machine gun | T3 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Ray Trace** | Wildcard | T4 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Loopback** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
-| **Dual Boot** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | ⬜ | Two models: DualBoot_L / DualBoot_R. Model ready; no stats in Config yet |
-| **Null** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | ⬜ | Model ready; no stats in Config yet |
+| **Loopback** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · server-flown bouncing discs, client disc follows the same path |
+| **Dual Boot** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · two models (DualBoot_L / DualBoot_R), fires alternately, no ADS |
+| **Null** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · held beam, battery shown as %, no reload |
 | **Cutter** | Melee | — | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 
 Note: Bitrate is the master reference. Use the IDs without spaces in code/models: `BurstBuffer`, `HardReset`, `LongPoll`, `RayTrace`, `DualBoot_L` / `DualBoot_R`.
@@ -51,7 +51,7 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 
 | Asset | Status | Notes |
 |---|---|---|
-| Muzzle flashes / tracers | 🟡 | Neon flash + light, tracers (none when suppressed), Ray Trace beam |
+| Muzzle flashes / tracers | 🟡 | Neon flash + light, tracers (none when suppressed), Ray Trace beam, Loopback discs (flat neon disc + trail), Null continuous beam with hum loop |
 | Hit sparks + pixel-dissolve death | 🟡 | Spark particles + glow mark; neon pixel burst on death. No blood |
 | Hit markers, kill icon | 🟡 | White / gold headshot X, cyan kill X, stacking damage numbers |
 | Mod icons (8) | ⬜ | SVG → PNG |

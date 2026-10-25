@@ -17,9 +17,10 @@
   - First-person viewmodel with arms, ADS, scope, sway/bob/recoil and the Blender Fire/Reload animations; third-person holding pose
   - Neon muzzle flash, tracers, sparks, pixel-dissolve deaths, hit/headshot/kill markers, damage numbers, kill feed, HUD, placeholder sounds
   - Studio test range: armed dummies (one strafing), a solid wall and a ThinWall
+- **Done (2026-10-25):** all 23 weapons playable and tested vs dummies (burst, Loopback discs, Null beam + battery, Dual Boot two-gun viewmodel, move/crouch spread) · Studio dev weapon menu (**P**) · third-person crouch/slide/sprint poses (blocked in game by the engine bug below)
 - **Now:** you: **save the place** (guns live in it), set Server Authority, play the test range and give feedback on feel
 - **Next:** 2-player test (Studio "Start" with 2 players) → tune numbers → aim assist (touch/gamepad) → rounds + tier rotation → Mods → draft → **Playtest #1**
-- **Blockers:** Server Authority must be switched on by hand (Workspace → `AuthorityMode`); the MCP can't set it.
+- **Blockers:** Server Authority must be switched on by hand (Workspace → `AuthorityMode`); the MCP can't set it. · Roblox bug: with Server Authority on, scripted joint `Transform` writes are overwritten while animations play, so the third-person gun-hold and movement poses don't show on players yet ([devforum](https://devforum.roblox.com/t/motor6danimation-constraint-transform-property-unable-to-be-changed-server-authority/4846108); fix = new API or real pose animations).
 
 ---
 

@@ -63,6 +63,7 @@ Each Service/Controller is a ModuleScript returning a table with optional `init(
 - Rojo **owns** `ReplicatedStorage.Shared`, `ReplicatedStorage.Assets`, `ServerScriptService.Server` and `StarterPlayerScripts.Client`. Anything made by hand inside those in Studio gets overwritten. Build maps and other Studio-only things in `Workspace` / `ServerStorage`.
 - **Rojo can't live-sync MeshParts** (the plugin can't set `MeshId`), and Rojo 7.4.4 can't read `.rbxm` files written by current Studio. So anything with meshes (all guns) lives in Studio-owned folders saved with the place: guns are in `ReplicatedStorage.Weapons`, with `.rbxm` backups in `art-source/weapons/Studio/`. **Save the place** after changing them.
 - Rigs: current R15 avatars use `AnimationConstraint` joints, not Motor6D. Code that poses limbs must accept both (both have `Transform`).
+- With Server Authority on, the Animator writes joints inside the simulation step (after `PreSimulation`), so scripted `Transform` writes only stick on joints no AnimationTrack drives. Known Roblox bug (devforum 4846108). Until Roblox ships the new API, poses that must show on animated players need real animation tracks.
 - StreamingEnabled is on: a model's parts can arrive after the model. Don't cache child lookups once; dummies use `ModelStreamingMode = Atomic`.
 - `rojo build -o build.rbxl` builds a place file (CI does this to check the project).
 - Wally packages: after adding one, run `wally install` and map `Packages` in `default.project.json` (Claude can do this).
