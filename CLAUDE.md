@@ -30,7 +30,9 @@ Roblox competitive shooter: RIVALS-style run-and-gun duels (1v1 → 4v4) where p
 
 ## Studio and Rojo
 - Rojo owns `ReplicatedStorage.Shared`, `ReplicatedStorage.Assets`, `ServerScriptService.Server` and `StarterPlayerScripts.Client`. Never hand-edit those in Studio; change files instead.
-- Models: import into `ServerStorage.ImportStaging`, finish them to the model standard in Art Direction, then **Save to File** as `assets/<Category>/<Name>.rbxm`.
+- **Guns** live in the Studio-owned `ReplicatedStorage.Weapons` (Rojo can't live-sync MeshParts), with backups in `art-source/weapons/Studio/<Id>.rbxm`. The whole pipeline (Blender export → Open Cloud upload → WeaponBuilder) is scripted; see Art Direction → Import pipeline. Validate with `tools/studio/ValidateWeapons.luau`. Remind the user to **save the place** after changing guns.
+- Other models: import into `ServerStorage.ImportStaging`, finish them to the model standard in Art Direction, then save a backup `.rbxm` (Rojo 7.4.4 can't read Studio's current `.rbxm` format, so don't put them under `assets/`).
+- R15 avatars use `AnimationConstraint` joints (not Motor6D); StreamingEnabled is on, so don't cache child lookups on streamed models.
 - When the Roblox Studio MCP server is connected, use it to inspect and build in Studio, run playtests and read Output.
 
 ## Vault upkeep (do this, it's how the project stays organized)

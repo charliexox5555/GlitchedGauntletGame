@@ -9,10 +9,17 @@
 > Update this block at the end of every work session (Claude does it when asked).
 
 - **Phase:** Week 1 — "Find the fun" (prototype)
-- **Done:** research · game plan · weapon roster · art style (Style B) · all gun models made in Blender · repo + Rojo scaffold · this vault · toolchain checks pass (rojo, stylua, selene, build) · `main` branch · Studio MCP connected · place setup: StreamingEnabled, `ServerStorage.ImportStaging`, first person (`LockFirstPerson`) + FOV 80 via `CameraController` (checked in a playtest)
-- **Now:** turn on Server Authority by hand (Workspace → `AuthorityMode` = Server) and save the place → import guns into `ImportStaging` → build the gun system (start with Byte)
-- **Next:** rounds + tier rotation → Mods → draft → **Playtest #1**
-- **Blockers:** Server Authority can't be set through the MCP (`AuthorityMode` needs a higher script permission level). It has to be set in Studio's Properties panel.
+- **Done:** research · game plan · weapon roster · art style (Style B) · all gun models in Blender · repo + Rojo scaffold · this vault · toolchain checks · `main` branch · Studio MCP connected · place setup (StreamingEnabled, `ImportStaging`, first person FOV 80)
+- **Done (2026-10-25 overnight):**
+  - All 24 guns exported, uploaded (Open Cloud, group-owned), built to the model standard in `ReplicatedStorage.Weapons`, validated, `.rbxm` backups in `art-source/weapons/Studio/`
+  - Gun system for wave 1 (Byte, Root, Bandwidth, Hard Reset, Long Poll, Bitrate, Flood, Ray Trace, Cutter): server-validated hitscan, pellets, falloff, head/legs, spin-up, charge, wall penetration, melee + backstab, ammo/reload
+  - Movement: sprint, crouch, slide, slide-jump (Input Action System; keyboard, gamepad, touch buttons)
+  - First-person viewmodel with arms, ADS, scope, sway/bob/recoil and the Blender Fire/Reload animations; third-person holding pose
+  - Neon muzzle flash, tracers, sparks, pixel-dissolve deaths, hit/headshot/kill markers, damage numbers, kill feed, HUD, placeholder sounds
+  - Studio test range: armed dummies (one strafing), a solid wall and a ThinWall
+- **Now:** you: **save the place** (guns live in it), set Server Authority, play the test range and give feedback on feel
+- **Next:** 2-player test (Studio "Start" with 2 players) → tune numbers → aim assist (touch/gamepad) → rounds + tier rotation → Mods → draft → **Playtest #1**
+- **Blockers:** Server Authority must be switched on by hand (Workspace → `AuthorityMode`); the MCP can't set it.
 
 ---
 

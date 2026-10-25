@@ -28,22 +28,28 @@
 | Lens / Exotic | `#FF3DCB` | Optic lenses, wildcard energy |
 
 ## Model standard (needed for the code to work)
-Every weapon is a `Model` named **exactly** like its config ID (e.g. `Bitrate`) in `ReplicatedStorage.Assets.Weapons`:
-- **`Handle`**: PrimaryPart, invisible, non-colliding, at the pistol grip.
-- **Attachments on `Handle`:** `Muzzle`, `RightGrip`, `LeftGrip`, `AimPoint`, `Eject`, `CharmPoint`.
-- Parts named `Body`, `Barrel`, `Mag` (separate; it moves during reloads), `Sight`, `Neon`, `Trigger`, `Stock`.
-- **Neon parts are separate MeshParts** with `Material = Neon`, so skins can recolour them.
-- Everything welded to `Handle`; `Anchored = false`, `CanCollide = false`, `CanQuery = false`, `CanTouch = false`, `Massless = true`.
-- Barrel along the Handle's **−Z** axis (Roblox forward).
-- Size: Bitrate = **3.8 studs**; every other gun scales from it (lineup table in [Gun Batch Prompt](Gun%20Batch%20Prompt.md)).
+Every weapon is a `Model` named **exactly** like its config ID (e.g. `Bitrate`, `HardReset`) in **`ReplicatedStorage.Weapons`**:
+- **`Handle`**: PrimaryPart, invisible, at the pistol grip (Blender origin). Carries the `RightGrip` attachment.
+- **`Rig`** folder: one invisible joint part per Blender bone (`Root`, `Mag`, `Slide`, `Bolt`, `Pump`, `Cylinder`, `Barrels`, `Rotor`, `Core`, `Orb`, `Trigger`, `Flash`, `Charm`), built in the bone's own axes. **`Rig.Motors`** holds a Motor6D per bone (Handle → Root → Mag …) with C0 at the bone head, so the Blender Fire/Reload animations play straight onto `Motor6D.Transform`.
+- **Attachments** `Muzzle`, `LeftGrip`, `AimPoint`, `Eject`, `CharmPoint` sit on the joint part of the bone they ride on (Root for most; `Slide` for pistol AimPoint/Eject, `Barrels` for break-actions, `Orb` for Null). Find them with `FindFirstChild(name, true)`.
+- **Mesh parts** keep the Blender names. Multi-material meshes are split as `<Part>_<Material>` (`Body_Panel`, `Body_Dark`, `Body_Metal`, `Body_Accent`, `Mag_Dark`…). Each is welded to its bone's joint part with a classic **`Weld`** (not WeldConstraint: its offset gets recomputed wrongly on clients).
+- **Neon parts are separate MeshParts** with `Material = Neon`, so skins can recolour them. Lens parts are Neon `#FF3DCB`, optic glass at 0.25 transparency.
+- Attachment and skin geometry (`Muzzle_Compensator_*`, `Sight_Holo_*`, `Skin_*`) has an `Option` attribute; options that are off in Blender are invisible.
+- Every part: `Anchored = false`, `CanCollide/CanQuery/CanTouch = false`, `Massless = true`, `CastShadow = false`.
+- Barrel along the Handle's **−Z** axis (Roblox forward), up = +Y.
+- Size: Bitrate = **3.8–3.9 studs** (1 Blender unit = 1 stud).
 - Triangles: sidearms ≤ 3K, primaries ≤ 5K, machine guns/wildcards ≤ 6K.
 
-## Import pipeline (Blender → Studio → repo)
-1. **Source files** (`.blend`, `.fbx`) go in `art-source/weapons/<Gun>/`. These are the editable originals.
-2. In Studio: **File → Import 3D** the FBX into a staging folder that Rojo does *not* manage (e.g. `ServerStorage.ImportStaging`).
-3. Build the Model to the standard above (Claude can do the attachments and welds through the Studio MCP or a Command Bar script).
-4. Right-click the finished Model → **Save to File** → `assets/Weapons/<Gun>.rbxm`.
-5. Rojo syncs `assets/` into `ReplicatedStorage.Assets`, so the gun is now versioned in git.
-6. Tick it off in the [Asset Tracker](../06%20Assets/Asset%20Tracker.md).
+Check any time with `tools/studio/ValidateWeapons.luau` (paste into the Command Bar, or ask Claude to run it).
 
-⚠️ **Don't edit guns directly inside `ReplicatedStorage.Assets` in Studio.** Rojo owns that folder and will overwrite Studio edits when it syncs. Edit in staging, then re-save the `.rbxm`.
+## Import pipeline (Blender → Roblox, scripted)
+Rojo **can't** live-sync MeshParts (it leaves `MeshId` empty), so finished guns live in the Studio-owned `ReplicatedStorage.Weapons` folder and are saved with the place. Each gun also has a versioned backup in the repo.
+
+1. **Source:** `art-source/weapons/GunTest.blend` (all guns, one collection each).
+2. **Export:** `blender --background art-source/weapons/GunTest.blend --python tools/blender/export_weapons.py -- [Gun ...]` writes `art-source/weapons/Exports/<Id>.fbx` + `<Id>.json` (bones, locators, part centres, Fire/Reload keyframes). It runs on a background copy, so the .blend is never changed.
+3. **Upload:** `python tools/opencloud/upload_models.py --group 11116787 [Id ...]` (key in the `ROBLOX_ASSETS_KEY` environment variable). Asset IDs go in `Exports/assets.json`; re-uploads add a new version to the same asset.
+4. **Build:** `python tools/studio/make_build_data.py`, copy `tools/studio/rojo/` to `src/server/WeaponBuild/` (temporary, gitignored), run `tools/studio/receive_server.py`, then in Studio `require(WeaponBuilder).publish("<Id>")`. It inserts the upload into `ServerStorage.ImportStaging`, builds the gun to the standard, installs it in `ReplicatedStorage.Weapons` and saves `art-source/weapons/Studio/<Id>.rbxm`.
+5. **Animations:** `python tools/make_weapon_anims.py` regenerates `src/shared/WeaponAnimations/<Id>.luau` from the exports.
+6. **Save the place** in Studio, run the validator, tick the [Asset Tracker](../06%20Assets/Asset%20Tracker.md).
+
+To restore a gun by hand: right-click `ReplicatedStorage.Weapons` → **Insert from File** → `art-source/weapons/Studio/<Id>.rbxm`.

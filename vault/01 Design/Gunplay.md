@@ -82,8 +82,10 @@ All mobile buttons can be moved and resized in settings.
 ---
 
 ## Build order
-1. Movement (walk, sprint, crouch, slide, slide-jump), using the Input Action System.
-2. Byte: fire, server validation, damage + head/legs, hit marker + sounds.
-3. Spread and bloom + recoil + ADS.
-4. Bitrate (auto) → Hard Reset (pellets) → Long Poll (scope) → the rest of wave 1.
-5. Aim assist on touch and gamepad. Test on a real phone.
+1. ✅ Movement (walk, sprint, crouch, slide, slide-jump), using the Input Action System.
+2. ✅ Byte: fire, server validation, damage + head/legs, hit marker + sounds.
+3. ✅ Spread and bloom + recoil + ADS.
+4. ✅ Bitrate (auto) → Hard Reset (pellets) → Long Poll (scope) → the rest of wave 1 (Root, Bandwidth, Flood spin-up + ThinWall, Ray Trace charge, Cutter).
+5. ⬜ Aim assist on touch and gamepad. Test on a real phone.
+
+Status 2026-10-25: steps 1–4 work against dummies in Studio; all numbers are first guesses in `Config/` and need a 2-player feel pass. Not built yet: tactical/empty reload difference beyond timing, hit indicator for the victim beyond direction, kill cam, death recap, mobile layout tuning.
