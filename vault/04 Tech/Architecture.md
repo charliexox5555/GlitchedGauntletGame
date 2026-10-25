@@ -38,7 +38,7 @@ src/client/
   Controllers/ InputController, CameraController, MovementController, WeaponController,
                ViewmodelController, EffectsController, HudController, PoseController ✅
                ModController, DraftController, LobbyController ⬜
-  Util/        GunAnimator (plays the Blender clips on a gun's Motor6Ds), ViewmodelRig (anchored, hand-posed viewmodel guns), ViewmodelArms (block arms with the player's shirt) ✅
+  Util/        GunAnimator (plays the Blender clips on a gun's Motor6Ds), ViewmodelRig (anchored, hand-posed viewmodel guns), ViewmodelArms (block arms with the player's shirt), ViewmodelMotion (bob/sway/breathing as one root offset) ✅
 tools/         blender/ (export), opencloud/ (upload), studio/ (builder, validator, receiver)
 ```
 Each Service/Controller is a ModuleScript returning a table with optional `init()` and `start()`. Controllers only call each other from `start()` (init order isn't fixed).
@@ -65,6 +65,7 @@ Each Service/Controller is a ModuleScript returning a table with optional `init(
 - Rigs: current R15 avatars use `AnimationConstraint` joints, not Motor6D. Code that poses limbs must accept both (both have `Transform`).
 - With Server Authority on, the Animator writes joints inside the simulation step (after `PreSimulation`), so scripted `Transform` writes only stick on joints no AnimationTrack drives (Roblox bug, devforum 4846108). And the default `Animate` is a ModuleScript run on both sides with the client predicting the Animator: **tracks a client plays on its own character get stopped by the server.**
 - So character poses are real animations stepped in the simulation: `shared/Simulation/Poses` (bound with `BindToSimulation`, priority 4000 like Animate) plays the clips in `Config/Animations` on the server for every player and on each client for its own character, from simulation-safe inputs only (`MoveState`, the `AimPitch` input action fed by `PoseController`, the equipped weapon, ground speed). Weights change via `AdjustWeight` fades. New pose clips: edit `tools/studio/MakePoseAnimations.luau`, run it in Studio with `tools/studio/receive_server.py` running, upload with `tools/opencloud/upload_asset.py --type Animation`, put the id in `Config/Animations`.
+- Under Server Authority the Workspace snaps part positions to a coarse grid (up to ~0.006 studs, varying with position). Anything that must sit exactly relative to the camera (the viewmodel) lives in a `WorldModel` under the Camera, which keeps exact positions and still renders.
 - StreamingEnabled is on: a model's parts can arrive after the model. Don't cache child lookups once; dummies use `ModelStreamingMode = Atomic`.
 - `rojo build -o build.rbxl` builds a place file (CI does this to check the project).
 - Wally packages: after adding one, run `wally install` and map `Packages` in `default.project.json` (Claude can do this).
