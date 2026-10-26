@@ -146,6 +146,17 @@ New generic weapon fields it uses: `muzzles` (shots come from each muzzle in tur
 
 `lockOnEmpty` (Ghost and Classic): after the last round the slide stays locked back (the first frame of the gun's ReloadEmpty clip) until the empty reload releases it.
 
+### Judge v2 (roster 03, automatic shotgun)
+| Stat | Value | Valorant Judge |
+|---|---|---|
+| Fire | Auto, 0.286 s (3.5/s), 12 pellets in a 2.5° cone; the cone's centre wanders up to 1.5° while you hold the trigger | 3.5/s, 2.5° → 4° |
+| Mag / reload | 7 (drum) / 2.2 s, 2.6 s empty (rack) | 7 / 2.2 s |
+| Damage per pellet | 17 body / 34 head / 14 legs; ×0.59 from 36 studs, ×0.41 from 54 studs | 17 / 34 / 14, ×0.59 10–15 m, ×0.41 15 m+ |
+| Movement | Shotgun row, ×0.95 speed | |
+| Recoil | 1.6° first kick, then 1.4° up + 0.4° side, 30% switch, 75% back over 0.35 s | |
+| Equip | 0.9 s first draw, 0.5 s quick | |
+| Viewmodel | No ADS; own hip offset (0.36, −0.42, −0.95), since it has no sight to be placed by | |
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

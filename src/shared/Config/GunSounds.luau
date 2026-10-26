@@ -134,6 +134,19 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER
 	},
+
+	-- Judge: drum-fed automatic shotgun.
+	Judge = {
+		fire = { id = "atlas:Model12", volume = 0.8, pitch = PITCH }, -- PLACEHOLDER: Winchester Model 12 shotgun
+		fireFar = { id = "atlas:Model12_Far", volume = 0.9, pitch = PITCH }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: drum out (heavier)
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: drum slapped home
+		rack = { id = RACK, volume = FOLEY, pitch = { 0.92, 0.97 } }, -- PLACEHOLDER: charging handle
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
+	},
 }
 
 local GunSounds = {}

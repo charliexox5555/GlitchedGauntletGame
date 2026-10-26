@@ -283,6 +283,58 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = TRACER,
 	},
+
+	-- Shotguns ----------------------------------------------------------
+	-- Judge v2 (roster 03): compact drum-fed automatic shotgun. No ADS.
+	Judge = {
+		id = "Judge",
+		displayName = "Judge",
+		class = "Shotgun",
+		tier = 2,
+		slot = "Primary",
+		fireMode = "Auto",
+		damage = { body = 17, head = 34, legs = 14 }, -- per pellet
+		pellets = 12,
+		pelletSpread = 2.5,
+		fireInterval = 0.286, -- 3.5 shots/s
+		magSize = 7,
+		reloadTime = 2.2,
+		emptyReloadTime = 2.6, -- drum, then rack
+		equipTime = 0.5,
+		firstEquipTime = 0.9,
+		range = 150,
+		-- 10 m and 15 m in Valorant.
+		falloff = { { from = 36, multiplier = 0.59 }, { from = 54, multiplier = 0.41 } },
+		spread = {
+			first = 0, -- the pellet cone does the spreading...
+			adsMultiplier = 1,
+			protected = 1,
+			protectedGrowth = 0,
+			growth = 0.35, -- ...and its centre wanders as you hold the trigger
+			max = 1.5,
+			recoveryTime = 0.45,
+		},
+		recoil = {
+			up = 1.6,
+			protected = 1,
+			upAfter = 1.4,
+			side = 0.4,
+			switchChance = 0.3,
+			switchMinTime = 0.3,
+			recover = 0.75,
+			recoverTime = 0.35,
+		},
+		noAds = true,
+		adsFov = 80,
+		adsTime = 0.2,
+		moveMultiplier = 0.95,
+		adsMoveMultiplier = 1,
+		penetration = "None",
+		-- No sight to place it by (no ADS) and a chunky drum: further out and
+		-- lower than a rifle, so it doesn't fill the corner.
+		viewmodelOffset = Vector3.new(0.36, -0.42, -0.95),
+		tracerColor = TRACER,
+	},
 }
 
 for _, w in weapons do
