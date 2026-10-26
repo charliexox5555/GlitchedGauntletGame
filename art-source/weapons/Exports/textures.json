@@ -154,5 +154,17 @@
    "Roughness": 131969251770165,
    "Metalness": 77252030658005
   }
+ },
+ "Outlaw": {
+  "ColorMap": 92800302794350,
+  "NormalMap": 111871528505656,
+  "RoughnessMap": 104257704118386,
+  "MetalnessMap": 72352675096267,
+  "decals": {
+   "Color": 114144632471335,
+   "Normal": 118519099792981,
+   "Roughness": 140352562484183,
+   "Metalness": 90936910724977
+  }
  }
 }
