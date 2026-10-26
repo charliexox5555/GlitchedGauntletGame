@@ -239,7 +239,7 @@ function Builder.build(id: string, axes: string?): Model
 			else (l.bone and joints[l.bone]) or joints.Root or handle
 		local pos = translation(l.matrix)
 		local world = CFrame.new(pos)
-		if l.name == "Eject" then
+		if string.sub(l.name, 1, 5) == "Eject" then -- Eject, EjectLower: aimed along their local Z
 			local dir = column(l.matrix, 3).Unit
 			local up = if math.abs(dir.Y) > 0.9 then Vector3.zAxis else Vector3.yAxis
 			world = CFrame.lookAt(pos, pos + dir, up)

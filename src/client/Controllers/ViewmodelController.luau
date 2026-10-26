@@ -70,14 +70,17 @@ type Gun = {
 	adsHide: { BasePart }, -- parts that block the sight line, faded while aiming
 	adsFade: number, -- last fade written to adsHide
 	reticle: SurfaceGui?,
+	props: { Prop }, -- parts hidden while their joint is far from rest (config hideBeyond)
 	recoil: Spring.Spring, -- hip kick
 	adsRecoil: Spring.Spring, -- aimed kick (stiff, critically damped)
 }
 
+type Prop = { motor: Motor6D, parts: { BasePart }, limit: number, hiddenNow: boolean }
+
 type Playing = { track: VM.Track, time: number, length: number, weight: number, fading: boolean }
 
 -- A foley cue inside a clip: `at` is 0..1 through it.
-export type Beat = { at: number, sound: "MagOut" | "MagIn" | "Rack" }
+export type Beat = { at: number, sound: "MagOut" | "MagIn" | "Rack" | "Open" | "ShellIn" }
 
 type PoseWeight = { x: number, v: number, goal: number }
 
@@ -289,6 +292,10 @@ local function followAnchor(gun: Gun, rule: VM.Follow): Anchor?
 	local joint = rigJoint(gun.model, rule.joint)
 	if not joint then
 		return nil
+	end
+	local point = if rule.point then attachment(gun.model, rule.point) else nil
+	if point then
+		return { part = joint, offset = joint.CFrame:PointToObjectSpace(point.WorldPosition) }
 	end
 	if rule.grab == "Grip" then
 		local left = gun.leftGrip
@@ -616,6 +623,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		adsHide = hide,
 		adsFade = 0,
 		reticle = reticle,
+		props = {},
 		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
 		adsRecoil = Spring.new(VM.ADS_RECOIL_STIFFNESS, 2 * math.sqrt(VM.ADS_RECOIL_STIFFNESS)),
 	}
@@ -637,6 +645,27 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		then Vector3.zero
 		else Vector3.new(0, gun.aimRel.Y, 0)
 	buildFollow(gun, weapon, dual) -- reads the welds, so before the rig drops them
+	-- Props hidden far from rest (also reads the welds).
+	local motors = m:FindFirstChild("Rig") and (m :: any).Rig:FindFirstChild("Motors")
+	for jointName, limit in weapon.hideBeyond or {} do
+		local joint = rigJoint(m, jointName)
+		local motor = motors and motors:FindFirstChild(jointName)
+		if joint and motor and motor:IsA("Motor6D") then
+			local parts: { BasePart } = {}
+			for _, d in m:GetDescendants() do
+				if (d:IsA("Weld") or d:IsA("Motor6D")) and d.Part0 == joint then
+					local p = d.Part1
+					if p and p.Parent ~= joint.Parent and p.Transparency < 1 then
+						table.insert(parts, p)
+					end
+				end
+			end
+			table.insert(
+				gun.props,
+				{ motor = motor, parts = parts, limit = limit * scale, hiddenNow = false }
+			)
+		end
+	end
 	return gun
 end
 
@@ -694,6 +723,19 @@ local function clipBeats(gun: Gun, clip: string): { Beat }
 		if to then
 			table.insert(beats, { at = math.max(to - VM.BEAT_RACK, 0), sound = "Rack" })
 			break
+		end
+	end
+	-- Break-actions: open as the barrels drop, shut (a rack) as they close,
+	-- and a shell-in as each shell prop settles in its chamber.
+	local openFrom, openTo = animator:activity(clip, "Barrels")
+	if openFrom and openTo then
+		table.insert(beats, { at = openFrom + VM.BEAT_MAG_OUT, sound = "Open" })
+		table.insert(beats, { at = math.max(openTo - VM.BEAT_RACK, openFrom), sound = "Rack" })
+	end
+	for _, shell in { "ShellUpper", "ShellLower" } do
+		local _, to = animator:activity(clip, shell)
+		if to then
+			table.insert(beats, { at = math.max(to - VM.BEAT_MAG_IN, 0), sound = "ShellIn" })
 		end
 	end
 	return beats
@@ -869,10 +911,16 @@ function ViewmodelController.setHidden(value: boolean)
 	end
 end
 
-function ViewmodelController.muzzleCFrame(side: Side?): CFrame?
+-- `name`: a muzzle other than "Muzzle" (a double barrel's "MuzzleLower").
+function ViewmodelController.muzzleCFrame(side: Side?, name: string?): CFrame?
 	local gun = guns[side or "Right"] or guns.Right
-	if gun and gun.muzzle then
-		return gun.muzzle.WorldCFrame
+	local muzzle = if gun
+			and name
+			and name ~= "Muzzle"
+		then attachment(gun.model, name)
+		else gun and gun.muzzle
+	if muzzle then
+		return muzzle.WorldCFrame
 	end
 	return nil
 end
@@ -1043,6 +1091,15 @@ local function update(dt: number)
 		local rig = gun and gun.rig
 		if gun and rig then
 			gun.animator:update(dt)
+			for _, prop in gun.props do
+				local away = prop.motor.Transform.Position.Magnitude > prop.limit
+				if away ~= prop.hiddenNow then
+					prop.hiddenNow = away
+					for _, p in prop.parts do
+						p.LocalTransparencyModifier = if away or hidden then 1 else 0
+					end
+				end
+			end
 			local handleCf = root * holdPose(gun, c, side == "Left", adsT, dt)
 			handleCFrames[side] = handleCf
 			ViewmodelRig.solve(rig, handleCf, 1 - (1 - VM.ADS_CLIP_KICK) * adsT)

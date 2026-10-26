@@ -175,6 +175,61 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = TRACER,
 	},
+
+	-- Shorty v2 (roster 01): over-under break-action pocket shotgun. Two
+	-- shells, the upper barrel fires first; one-shots up close, useless far.
+	Shorty = {
+		id = "Shorty",
+		displayName = "Shorty",
+		class = "Sidearm",
+		moveClass = "Shotgun",
+		tier = 1,
+		slot = "Secondary",
+		fireMode = "Semi",
+		damage = { body = 11, head = 22, legs = 9 }, -- per pellet
+		pellets = 15,
+		pelletSpread = 4,
+		fireInterval = 0.333, -- 3 shots/s
+		magSize = 2,
+		reloadTime = 1.5, -- one shell
+		emptyReloadTime = 1.9, -- both shells
+		equipTime = 0.35,
+		firstEquipTime = 0.55,
+		range = 120,
+		-- 7 m and 15 m in Valorant (1 stud ~ 0.28 m).
+		falloff = { { from = 25, multiplier = 0.55 }, { from = 54, multiplier = 0.27 } },
+		spread = {
+			first = 0, -- the pellet cone does the spreading
+			adsMultiplier = 1,
+			protected = 0,
+			protectedGrowth = 0,
+			growth = 0,
+			max = 0,
+			recoveryTime = 0.33,
+		},
+		recoil = {
+			up = 2.4,
+			protected = 2,
+			upAfter = 2.4,
+			side = 0,
+			switchChance = 0,
+			switchMinTime = 1,
+			recover = 0.8,
+			recoverTime = 0.3,
+		},
+		noAds = true,
+		muzzles = { "Muzzle", "MuzzleLower" },
+		shellsOnFire = false,
+		hideBeyond = { ShellUpper = 0.35, ShellLower = 0.35 },
+		adsFov = 80,
+		adsTime = 0.2,
+		moveMultiplier = 1,
+		adsMoveMultiplier = 1,
+		penetration = "None",
+		viewmodelOffset = SIDEARM_VM,
+		viewmodelScale = SIDEARM_SCALE,
+		tracerColor = TRACER,
+	},
 }
 
 for _, w in weapons do

@@ -190,7 +190,8 @@ local function playGun(config: WeaponConfig, name: string, group: AudioControlle
 end
 
 -- Clip beats (ViewmodelController clipBeats) to GunSounds names.
-local BEAT_SOUNDS: { [string]: string } = { MagOut = "magOut", MagIn = "magIn", Rack = "rack" }
+local BEAT_SOUNDS: { [string]: string } =
+	{ MagOut = "magOut", MagIn = "magIn", Rack = "rack", Open = "open", ShellIn = "shellIn" }
 
 local function updateHudWeapon()
 	local s = current()
@@ -413,7 +414,14 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 		side = if nextLeft then "Left" else "Right"
 		nextLeft = not nextLeft
 	end
-	local muzzle = ViewmodelController.muzzleCFrame(side)
+	-- Several muzzles (a double barrel) fire in turn through the mag.
+	local muzzleName: string? = nil
+	local muzzles = config.muzzles
+	if muzzles and #muzzles > 0 and config.magSize > 0 then
+		local fired = math.max(config.magSize - (s.ammo + altRounds), 0)
+		muzzleName = muzzles[fired % #muzzles + 1]
+	end
+	local muzzle = ViewmodelController.muzzleCFrame(side, muzzleName)
 	local from = if muzzle then muzzle.Position else origin
 
 	local hits = {}
@@ -457,7 +465,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	})
 
 	-- Feel.
-	EffectsController.localShot(config, side)
+	EffectsController.localShot(config, side, muzzleName)
 	playGun(config, "fire", "Gun")
 	playGun(config, "tail", "Gun")
 	-- A hollow tick from a near-empty mag, louder as it runs dry.

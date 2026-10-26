@@ -43,7 +43,7 @@ return table.freeze({
 	HISTORY_SECONDS = 1, -- how much hitbox history is kept
 	REWIND_EXTRA = 0.15, -- rewind window = 2 x the shooter's ping + this...
 	REWIND_MAX = 0.6, -- ...capped here (seconds)
-	MAX_HITS_PER_SHOT = 12,
+	MAX_HITS_PER_SHOT = 20, -- at least the most pellets a gun fires (Shorty: 15)
 	MAX_SHOT_SKIP = 3, -- shot counter may jump by at most this (lost/rejected shots)
 	-- The server recomputes each shot's spread from its own state. Slack for
 	-- network timing: spray heat may differ by this many shots, and movement

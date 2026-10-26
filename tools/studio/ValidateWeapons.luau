@@ -47,9 +47,12 @@ local function check(model: Model): ({ string }, { string })
 	end
 
 	-- Attachments.
+	local config = weaponsConfig and weaponsConfig.get(model.Name)
 	for _, name in REQUIRED_ATTACHMENTS do
 		local att = model:FindFirstChild(name, true)
-		if not att or not att:IsA("Attachment") then
+		-- Guns with no ADS (sidearms, shotguns) don't need a sight point.
+		local optional = name == "AimPoint" and config ~= nil and config.noAds == true
+		if (not att or not att:IsA("Attachment")) and not optional then
 			fail("missing Attachment " .. name)
 		end
 	end

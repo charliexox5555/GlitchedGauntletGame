@@ -92,6 +92,16 @@ export type WeaponConfig = {
 	fireInterval: number, -- seconds between shots
 	burst: BurstStats?,
 	altFire: AltFire?, -- needs noAds (it uses the Aim input)
+	-- Muzzle attachments the shots come from in turn, by round in the mag
+	-- (a double barrel: { "Muzzle", "MuzzleLower" }). Default { "Muzzle" }.
+	muzzles: { string }?,
+	-- false: no casing per shot (break-action, revolver); the reload clip
+	-- shows the spent shells instead. Default true.
+	shellsOnFire: boolean?,
+	-- Viewmodel props hidden once their rig joint is this far (studs, model
+	-- size) from rest: a spent shell vanishes as it's pulled clear of the gun
+	-- and the fresh one appears as it nears the chamber.
+	hideBeyond: { [string]: number }?,
 	spinUp: SpinUp?,
 	magSize: number,
 	reloadTime: number,

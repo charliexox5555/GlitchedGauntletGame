@@ -620,13 +620,14 @@ local function rootVelocity(character: Model?): Vector3
 	return if root and root:IsA("BasePart") then root.AssemblyLinearVelocity else Vector3.zero
 end
 
-function EffectsController.localShot(config: WeaponConfig, side: string?)
+-- `muzzleName`: which muzzle fired (a double barrel's "MuzzleLower").
+function EffectsController.localShot(config: WeaponConfig, side: string?, muzzleName: string?)
 	local scale = config.viewmodelScale or ViewmodelConfig.SCALE
-	local muzzle = viewmodelPoint(side, "Muzzle")
+	local muzzle = viewmodelPoint(side, muzzleName or "Muzzle")
 	if muzzle then
 		EffectsController.muzzleFlash(muzzle, config, true)
 	end
-	local eject = viewmodelPoint(side, "Eject")
+	local eject = if config.shellsOnFire ~= false then viewmodelPoint(side, "Eject") else nil
 	if eject then
 		updateShellFilter()
 		EffectsController.ejectShell(eject, config, scale, rootVelocity(player.Character))
@@ -1005,6 +1006,7 @@ end
 
 -- Akimbo guns: which side each shooter fires next (weak keys, players leave).
 local nextLeft: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local nextMuzzle: { [Instance]: number } = setmetatable({}, { __mode = "k" }) :: any
 local remoteParams = RaycastParams.new()
 remoteParams.FilterType = Enum.RaycastFilterType.Exclude
 
@@ -1097,7 +1099,16 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	else
 		animateWorldWeapon(character, "WorldWeapon", if models then models.right else weaponId)
 	end
-	local muzzle = worldPoint(character, "Muzzle", left) or worldPoint(character, "Muzzle")
+	-- Guns with several muzzles fire them in turn (we don't know their
+	-- ammo, so just alternate per shooter).
+	local muzzleName = "Muzzle"
+	local muzzles = config.muzzles
+	if muzzles and #muzzles > 1 then
+		local n = (nextMuzzle[shooter] or 0) % #muzzles + 1
+		nextMuzzle[shooter] = n
+		muzzleName = muzzles[n]
+	end
+	local muzzle = worldPoint(character, muzzleName, left) or worldPoint(character, "Muzzle")
 	local from = if muzzle then muzzle.WorldPosition else origin
 	local sounds = GunSounds.get(weaponId)
 	if config.melee then
@@ -1109,7 +1120,7 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	if muzzle then
 		EffectsController.muzzleFlash(muzzle, config, false, near)
 	end
-	if near then
+	if near and config.shellsOnFire ~= false then
 		local eject = worldPoint(character, "Eject", left)
 		if eject then
 			updateShellFilter()

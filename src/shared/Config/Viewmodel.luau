@@ -39,7 +39,9 @@ export type Bob = { pos: Vector3, rot: Vector3 }
 -- plays. "Bottom": the bottom of the parts on that joint (a magazine);
 -- "Center": their middle (a bolt handle, a cylinder); "Grip": the hand keeps
 -- its normal grip but rides along with the joint (a pump, break-action barrels).
-export type Follow = { joint: string, grab: "Bottom" | "Center" | "Grip" }
+-- `point`: grab this attachment on the gun (riding the joint) when it has
+-- one, e.g. a break-action's "ForeGrip".
+export type Follow = { joint: string, grab: "Bottom" | "Center" | "Grip", point: string? }
 
 local function key(
 	t: number,
@@ -116,7 +118,7 @@ return table.freeze({
 	RELOAD_FOLLOW = {
 		{ joint = "Mag", grab = "Bottom" },
 		{ joint = "Cylinder", grab = "Center" },
-		{ joint = "Barrels", grab = "Grip" },
+		{ joint = "Barrels", grab = "Grip", point = "ForeGrip" },
 		{ joint = "Pump", grab = "Grip" },
 		{ joint = "Bolt", grab = "Center" },
 		{ joint = "ChargingHandle", grab = "Center" },

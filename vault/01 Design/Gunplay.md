@@ -120,6 +120,20 @@ The free default pistol and the sidearm benchmark. **No ADS**: right mouse (game
 
 Implemented as data (`Config/Weapons` `Classic`, `altFire`; `Config/GunSounds` `Classic`), waiting for the model. Alt-fire is generic: any gun with `noAds` and an `altFire` table gets it (the server checks the pellets, ammo cost and cooldown). Verified on a stand-in (the Vandal with the Classic's alt-fire, 2026-10-25): one press = 3 pellets, 3 rounds, 90 damage up close, next shot held for 0.45 s, no rejects.
 
+### Shorty v2 (roster 01, sidearm shotgun)
+Over-under break-action pocket shotgun. No ADS.
+| Stat | Value | Valorant Shorty |
+|---|---|---|
+| Fire | Semi, 0.333 s (3/s); upper barrel, then lower | 3.33/s |
+| Mag / reload | 2 / 1.5 s one shell, 1.9 s both | 2 / 1.75 s |
+| Pellets | 15 in a 4° cone; centre shot exact (spread 0) | 15, 4° |
+| Damage per pellet | 11 body / 22 head / 9 legs; ×0.55 from 25 studs, ×0.27 from 54 studs (one-shot up close: 165) | 11 / 22 / 9, ×0.55 7–15 m, ×0.27 15 m+ |
+| Movement | Shotgun row (placed and held as a sidearm) | |
+| Recoil | 2.4° straight up per shot, 80% back over 0.3 s | |
+| Equip | 0.55 s first draw, 0.35 s quick | |
+
+New generic weapon fields it uses: `muzzles` (shots come from each muzzle in turn), `shellsOnFire = false` (the reload clip shows the spent shells), `hideBeyond` (props hidden away from rest), `moveClass`. The server now counts up to 20 hits per shot.
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

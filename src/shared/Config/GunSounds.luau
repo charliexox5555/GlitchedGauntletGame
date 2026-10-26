@@ -37,7 +37,8 @@ export type GunSoundSet = {
 	dryFire: GunSound, -- trigger pulled on an empty mag
 	magOut: GunSound, -- reloads: the mag leaves the gun (when the Mag starts moving)
 	magIn: GunSound, -- reloads: the mag seats (when the Mag stops moving)
-	rack: GunSound?, -- charging handle / bolt / pump: empty reloads, first draw, pump & bolt shots
+	rack: GunSound?, -- charging handle / bolt / pump / slide / break-action shut: empty reloads, first draw, pump & bolt shots
+	open: GunSound?, -- break-action / revolver: the action opens on a reload
 	shellIn: GunSound?, -- shotguns / revolvers: each round loaded
 	draw: GunSound, -- pulling the gun out (every equip)
 	inspect: GunSound?, -- start of an inspect (Y)
@@ -104,6 +105,21 @@ local sets: { [string]: GunSoundSet } = {
 		rack = { id = RACK, volume = FOLEY, pitch = { 1.1, 1.16 } }, -- PLACEHOLDER: slide racked / released
 		draw = { id = DRAW, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER
+	},
+
+	-- Shorty: over-under break-action pocket shotgun.
+	Shorty = {
+		fire = { id = "atlas:Mossberg", volume = 0.8, pitch = PITCH }, -- PLACEHOLDER: Mossberg 190 shotgun
+		fireFar = { id = "atlas:Mossberg_Far", volume = 0.9, pitch = PITCH }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER (hammer falls on an empty chamber)
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- unused (no mag); kept for the type
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- unused (no mag)
+		open = { id = MAG_OUT, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: barrels break open
+		shellIn = { id = MAG_IN, volume = FOLEY * 0.8, pitch = { 1.15, 1.2 } }, -- PLACEHOLDER: shell into a chamber
+		rack = { id = RACK, volume = FOLEY, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER: barrels snap shut
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 	},
 }
 
