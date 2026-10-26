@@ -1,6 +1,6 @@
 --!strict
--- Test range dummies (Config/TestRange DUMMIES): Style B R15 rigs holding a
--- gun, prepared by CharacterService like player characters (100 HP, hitbox
+-- Test range dummies (Config/TestRange DUMMIES): plain grey R15 rigs holding
+-- a gun, prepared by CharacterService like player characters (100 HP, hitbox
 -- history), so every shot at them goes through the normal WeaponService
 -- validation and rewind. Kinds: static, strafe, strafe + jump, crouch-walk,
 -- long range and a shooter that fires harmless tracers (ShotFx only: it never
@@ -45,8 +45,8 @@ local Dummies = {}
 
 Dummies.TAG = "RangeDummy"
 
-local PANEL = Color3.fromHex("56607C")
-local DARK = Color3.fromHex("1C2030")
+local SKIN = Color3.fromHex("A3A5A8") -- plain grey mannequin
+local CLOTH = Color3.fromHex("4A4D52")
 
 local rng = Random.new()
 local folder: Folder? = nil
@@ -56,64 +56,9 @@ local generation = 0
 local behaviour: (id: string) -> boolean = function(_id: string): boolean
 	return true
 end
-local healedListeners: { (model: Model) -> () } = {}
 
 local function between(range: { number }): number
 	return rng:NextNumber(range[1], range[2])
-end
-
--- Decorative parts: never hitboxes, never walls, no physics.
-local function trim(model: Model, attachTo: BasePart, size: Vector3, offset: CFrame, color: Color3)
-	local p = Instance.new("Part")
-	p.Name = "Trim"
-	p.Size = size
-	p.Material = Enum.Material.Neon
-	p.Color = color
-	p.CanCollide = false
-	p.CanQuery = false
-	p.CanTouch = false
-	p.Massless = true
-	p.CastShadow = false
-	p.CFrame = attachTo.CFrame * offset
-	local weld = Instance.new("WeldConstraint")
-	weld.Part0 = attachTo
-	weld.Part1 = p
-	weld.Parent = p
-	p.Parent = model
-end
-
-local function decorate(model: Model, accent: Color3)
-	local head = model:FindFirstChild("Head")
-	local torso = model:FindFirstChild("UpperTorso")
-	if head and head:IsA("BasePart") then
-		-- Visor across the face.
-		trim(
-			model,
-			head,
-			Vector3.new(head.Size.X * 0.82, head.Size.Y * 0.2, 0.12),
-			CFrame.new(0, head.Size.Y * 0.08, -head.Size.Z / 2 - 0.02),
-			accent
-		)
-	end
-	if torso and torso:IsA("BasePart") then
-		-- Chest core and shoulder lines.
-		trim(
-			model,
-			torso,
-			Vector3.new(0.5, 0.5, 0.1),
-			CFrame.new(0, torso.Size.Y * 0.12, -torso.Size.Z / 2 - 0.03),
-			accent
-		)
-		for _, side in { -1, 1 } do
-			trim(
-				model,
-				torso,
-				Vector3.new(0.12, torso.Size.Y * 0.6, 0.08),
-				CFrame.new(side * torso.Size.X * 0.32, 0, -torso.Size.Z / 2 - 0.03),
-				accent
-			)
-		end
-	end
 end
 
 local function loadTrack(
@@ -156,12 +101,12 @@ makeDummy = function(index: number)
 	end
 
 	local desc = Instance.new("HumanoidDescription")
-	desc.HeadColor = PANEL
-	desc.TorsoColor = DARK
-	desc.LeftArmColor = PANEL
-	desc.RightArmColor = PANEL
-	desc.LeftLegColor = DARK
-	desc.RightLegColor = DARK
+	desc.HeadColor = SKIN
+	desc.TorsoColor = CLOTH
+	desc.LeftArmColor = SKIN
+	desc.RightArmColor = SKIN
+	desc.LeftLegColor = CLOTH
+	desc.RightLegColor = CLOTH
 	local model = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
 	model.Name = string.format("Dummy_%s_%d", spot.kind, spot.distance)
 	-- Stream the whole dummy at once, like player characters.
@@ -182,7 +127,6 @@ makeDummy = function(index: number)
 	-- Face the firing line (+Z in range space).
 	local home = convert(floor + Vector3.new(0, standHeight, 0)) * CFrame.Angles(0, math.pi, 0)
 	model:PivotTo(home)
-	decorate(model, kind.accent)
 	-- Static dummies are anchored so players can't shove them off their marks.
 	root.Anchored = not moves(spot)
 
@@ -366,9 +310,6 @@ local function step(dt: number)
 			and now - d.lastHit >= TestRange.REGEN_DELAY
 		then
 			d.humanoid.Health = d.humanoid.MaxHealth
-			for _, fn in healedListeners do
-				task.spawn(fn, d.model)
-			end
 		end
 	end
 end
@@ -521,10 +462,6 @@ function Dummies.resetAll()
 	for i = 1, #TestRange.DUMMIES do
 		makeDummy(i)
 	end
-end
-
-function Dummies.onHealed(fn: (model: Model) -> ())
-	table.insert(healedListeners, fn)
 end
 
 function Dummies.isDummy(model: Model): boolean

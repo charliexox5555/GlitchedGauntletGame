@@ -3,7 +3,7 @@
 -- fire timing, validates every shot the client reports, and applies damage.
 --
 -- Shot validation ladder (roblox-security): rate limit -> types -> ranges ->
--- weapon state (equipped, ammo, interval, charge) -> origin near the server's
+-- weapon state (equipped, ammo, interval) -> origin near the server's
 -- head -> per hit: real character, alive, not self, within range, inside the
 -- gun's possible spread, on the target's recent hitbox, no wall in between.
 -- Damage always comes from Config/Weapons on the server, never the client.
@@ -16,7 +16,6 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Combat = require(Shared.Config.Combat)
 local Damage = require(Shared.Util.Damage)
-local Dev = require(Shared.Config.Dev)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
 local Spread = require(Shared.Util.Spread)
@@ -37,12 +36,7 @@ type SlotState = {
 	reloadEnd: number?,
 	lastFire: number, -- "virtual" time of the last accepted shot (rate enforcement)
 	spinStart: number?,
-	chargeStart: number?,
 	burstShots: number,
-	rechargeFrom: number, -- beam battery: recharge counted from here
-	beamTarget: Model?,
-	beamStart: number,
-	beamLastHit: number,
 }
 
 type PlayerState = {
@@ -66,7 +60,7 @@ local buckets: { [Player]: { [string]: { tokens: number, last: number } } } = {}
 
 local WeaponsFolder: Instance? = nil
 
--- Listeners for accepted shots and applied damage (the test range's stats).
+-- Listeners for accepted shots and applied damage (stats, later rounds).
 -- They only observe: nothing they do feeds back into validation.
 export type DamageEvent = {
 	attacker: Player,
@@ -76,15 +70,9 @@ export type DamageEvent = {
 	killed: boolean,
 	weaponId: string,
 	position: Vector3,
-	projectile: boolean,
 }
 local shotListeners: { (player: Player, weaponId: string, hit: boolean) -> () } = {}
 local damageListeners: { (event: DamageEvent) -> () } = {}
-
--- Defined further down (used by onFire).
-local rechargeBeam: (SlotState, number) -> ()
-local beamTickDamage: (SlotState, Model, number) -> number
-local spawnProjectile: (Player, Model, Vector3, Vector3, WeaponConfig) -> ()
 
 -- Helpers ------------------------------------------------------------------
 
@@ -196,9 +184,6 @@ local function newSlot(id: string): SlotState?
 		reloadToken = 0,
 		lastFire = -math.huge,
 		burstShots = 0,
-		rechargeFrom = 0,
-		beamStart = 0,
-		beamLastHit = -math.huge,
 	}
 end
 
@@ -258,7 +243,7 @@ local function holdModel(
 end
 
 -- Puts weapon `id` in the character's hand(s) (or removes it with nil).
--- Dual Boot holds a second model in the left hand ("WorldWeaponLeft").
+-- Akimbo guns hold a second model in the left hand ("WorldWeaponLeft").
 function WeaponService.attachWorldModel(character: Model, id: string?): Model?
 	for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
 		local old = character:FindFirstChild(name)
@@ -307,11 +292,7 @@ end
 function WeaponService.getLoadout(player: Player): { [Slot]: string }
 	local l = loadouts[player]
 	if not l then
-		l = {
-			Primary = Weapons.DEFAULT_LOADOUT.Primary,
-			Secondary = Weapons.DEFAULT_LOADOUT.Secondary,
-			Melee = Weapons.DEFAULT_LOADOUT.Melee,
-		}
+		l = table.clone(Weapons.DEFAULT_LOADOUT)
 		loadouts[player] = l
 	end
 	return l
@@ -322,7 +303,8 @@ function WeaponService.giveLoadout(player: Player)
 	local loadout = WeaponService.getLoadout(player)
 	local slots: { [Slot]: SlotState } = {}
 	for _, slot in SLOTS do
-		local s = newSlot(loadout[slot])
+		local id = loadout[slot]
+		local s = if id then newSlot(id) else nil
 		if s then
 			slots[slot] = s
 		end
@@ -330,6 +312,7 @@ function WeaponService.giveLoadout(player: Player)
 	local first: Slot? = if slots.Primary
 		then "Primary"
 		elseif slots.Secondary then "Secondary"
+		elseif slots.Melee then "Melee"
 		else nil
 	local old = states[player]
 	states[player] = {
@@ -344,7 +327,7 @@ function WeaponService.giveLoadout(player: Player)
 	sendState(player)
 end
 
--- Swaps one slot's weapon (used by the draft later, and the Studio dev picker).
+-- Swaps one slot's weapon (used by the draft later).
 function WeaponService.setWeapon(player: Player, slot: Slot, id: string)
 	local config = Weapons.get(id)
 	if not config or config.slot ~= slot then
@@ -395,7 +378,6 @@ local function applyDamage(
 			killed = killed,
 			weaponId = config.id,
 			position = at,
-			projectile = config.projectile ~= nil,
 		}
 		for _, fn in damageListeners do
 			task.spawn(fn, event)
@@ -492,8 +474,7 @@ function WeaponService.onDamage(fn: (event: DamageEvent) -> ())
 	table.insert(damageListeners, fn)
 end
 
--- Equips one of the player's slots (the Equip remote, and server-side picks
--- like the test range's weapon racks).
+-- Equips one of the player's slots (the Equip remote, and server-side picks).
 function WeaponService.equip(player: Player, slot: Slot)
 	local state = states[player]
 	if not state or not liveHumanoid(player.Character) then
@@ -508,7 +489,6 @@ function WeaponService.equip(player: Player, slot: Slot)
 	if current then
 		current.reloadToken += 1
 		current.reloadEnd = nil
-		current.chargeStart = nil
 	end
 	state.equipped = slot
 	state.equipReadyAt = os.clock() + target.config.equipTime * 0.7
@@ -516,7 +496,7 @@ function WeaponService.equip(player: Player, slot: Slot)
 	sendState(player)
 end
 
--- Fills every magazine and beam battery, cancelling a reload in progress.
+-- Fills every magazine, cancelling a reload in progress.
 function WeaponService.refill(player: Player)
 	local state = states[player]
 	if not state then
@@ -526,7 +506,6 @@ function WeaponService.refill(player: Player)
 		s.reloadToken += 1
 		s.reloadEnd = nil
 		s.ammo = s.config.magSize
-		s.rechargeFrom = os.clock()
 	end
 	sendState(player)
 end
@@ -553,7 +532,7 @@ local function onReload(player: Player)
 		return
 	end
 	local config = slot.config
-	if config.magSize <= 0 or config.beam or slot.ammo >= config.magSize or slot.reloadEnd then
+	if config.magSize <= 0 or slot.ammo >= config.magSize or slot.reloadEnd then
 		return
 	end
 	local duration = if slot.ammo == 0 then config.emptyReloadTime else config.reloadTime
@@ -570,17 +549,6 @@ local function onReload(player: Player)
 	end)
 end
 
-local function onCharge(player: Player)
-	if not allow(player, "Charge") then
-		return
-	end
-	local state = states[player]
-	local slot = state and state.equipped and state.slots[state.equipped]
-	if slot and slot.config.chargeTime then
-		slot.chargeStart = os.clock()
-	end
-end
-
 local function onAim(player: Player, pitch: unknown, aiming: unknown)
 	if not allow(player, "Aim") then
 		return
@@ -590,29 +558,6 @@ local function onAim(player: Player, pitch: unknown, aiming: unknown)
 	end
 	player:SetAttribute("AimPitch", math.clamp(pitch, -1.5, 1.5))
 	player:SetAttribute("Aiming", aiming)
-end
-
-local function onDev(player: Player, slot: unknown)
-	if not allow(player, "Dev") then
-		return
-	end
-	if not RunService:IsStudio() or not Dev.WEAPON_PICKER then
-		return
-	end
-	-- A weapon id equips that gun directly (the dev menu); a slot cycles it.
-	if typeof(slot) == "string" and Weapons.get(slot) then
-		local config = Weapons.get(slot) :: WeaponConfig
-		WeaponService.setWeapon(player, config.slot, config.id)
-		return
-	end
-	if slot ~= "Primary" and slot ~= "Secondary" then
-		return
-	end
-	local list = Weapons.DEV_CYCLE[slot :: string]
-	local current = WeaponService.getLoadout(player)[slot :: Slot]
-	local index = table.find(list, current) or 0
-	local nextId = list[index % #list + 1]
-	WeaponService.setWeapon(player, slot :: Slot, nextId)
 end
 
 type ValidHit = { model: Model, part: BasePart, rewound: Vector3, pellet: number }
@@ -645,117 +590,6 @@ end
 local function reject(player: Player, reason: string)
 	if RunService:IsStudio() then
 		player:SetAttribute("FireReject", reason)
-	end
-end
-
--- Beam (Null) --------------------------------------------------------------------
-
--- Refills the beam battery (in ticks) after the recharge delay.
-rechargeBeam = function(slot: SlotState, now: number)
-	local beam = slot.config.beam
-	if not beam then
-		return
-	end
-	local from = math.max(slot.lastFire + beam.rechargeDelay, slot.rechargeFrom)
-	if now > from then
-		slot.ammo =
-			math.min(slot.config.magSize, slot.ammo + (now - from) * beam.rechargeRate / beam.tick)
-		slot.rechargeFrom = now
-	end
-end
-
--- Damage for one beam tick: ramps up while the beam stays on the same target.
-beamTickDamage = function(slot: SlotState, model: Model, now: number): number
-	local beam = slot.config.beam :: Types.BeamStats
-	if slot.beamTarget ~= model or now - slot.beamLastHit > beam.tick * 2.5 then
-		slot.beamTarget = model
-		slot.beamStart = now
-	end
-	slot.beamLastHit = now
-	local t = math.clamp((now - slot.beamStart) / beam.rampTime, 0, 1)
-	return (beam.dpsStart + (beam.dpsEnd - beam.dpsStart) * t) * beam.tick
-end
-
--- Projectiles (Loopback) -----------------------------------------------------------
--- Flown on the server: authoritative hits, no client claims to validate.
-
-type Projectile = {
-	owner: Player,
-	config: WeaponConfig,
-	position: Vector3,
-	velocity: Vector3,
-	bounces: number,
-	expires: number,
-	params: RaycastParams,
-}
-
-local projectiles: { Projectile } = {}
-
-spawnProjectile = function(
-	owner: Player,
-	shooter: Model,
-	origin: Vector3,
-	dir: Vector3,
-	config: WeaponConfig
-)
-	local stats = config.projectile :: Types.ProjectileStats
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = { shooter }
-	table.insert(projectiles, {
-		owner = owner,
-		config = config,
-		position = origin + dir * 1.5,
-		velocity = dir * stats.speed,
-		bounces = stats.bounces,
-		expires = os.clock() + stats.lifetime,
-		params = params,
-	})
-end
-
-local function stepProjectiles(dt: number)
-	local now = os.clock()
-	for i = #projectiles, 1, -1 do
-		local pr = projectiles[i]
-		local stats = pr.config.projectile :: Types.ProjectileStats
-		local alive = now < pr.expires and pr.owner.Parent ~= nil
-		if alive then
-			local move = pr.velocity * dt
-			local result = workspace:Spherecast(pr.position, stats.radius, move, pr.params)
-			if not result then
-				pr.position += move
-			else
-				local part = result.Instance
-				local victim = hitboxOwner(part)
-				if victim and liveHumanoid(victim) then
-					applyDamage(
-						pr.owner,
-						victim,
-						pr.config.damage.body,
-						"Body",
-						pr.config,
-						result.Position
-					)
-					alive = false
-				elseif combatantOf(part) then
-					pr.params:AddToFilter(part) -- hats, held guns: fly through
-					pr.position += move
-				else
-					-- Bounce off the surface.
-					pr.bounces -= 1
-					if pr.bounces < 0 then
-						alive = false
-					else
-						local n = result.Normal
-						pr.velocity = pr.velocity - 2 * pr.velocity:Dot(n) * n
-						pr.position = result.Position + n * (stats.radius + 0.05)
-					end
-				end
-			end
-		end
-		if not alive then
-			table.remove(projectiles, i)
-		end
 	end
 end
 
@@ -820,7 +654,6 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "slot.reloadEnd and now < slot.reloadEnd")
 		return
 	end
-	rechargeBeam(slot, now)
 	if config.magSize > 0 and slot.ammo < 1 then
 		reject(player, "out of ammo")
 		return
@@ -830,17 +663,6 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "now < slot.lastFire + interval - Combat.FIRE_JITTER")
 		return
 	end
-	if config.chargeTime then
-		if not slot.chargeStart or now - slot.chargeStart < config.chargeTime - 0.1 then
-			reject(
-				player,
-				"not slot.chargeStart or now - slot.chargeStart < config.chargeTime - 0.1"
-			)
-			return
-		end
-		slot.chargeStart = nil
-	end
-
 	-- The shot comes from roughly where the server thinks the player's head
 	-- is, with nothing solid between the head and that point.
 	local head = character:FindFirstChild("Head")
@@ -904,13 +726,6 @@ local function onFire(player: Player, payload: unknown)
 		spread,
 		config.pelletSpread
 	)
-
-	-- Projectile guns: the server flies the disc itself; there are no client hit claims.
-	if config.projectile then
-		spawnProjectile(player, character, origin, dirs[1], config)
-		notifyShot(player, config, false)
-		return
-	end
 
 	local root = character:FindFirstChild("HumanoidRootPart")
 	local rewindAge = rewindWindow(player)
@@ -1058,11 +873,7 @@ local function onFire(player: Player, payload: unknown)
 			end
 			zone = "Body"
 		else
-			if config.beam then
-				amount = beamTickDamage(slot, hit.model, now)
-			else
-				amount = Damage.compute(config, zone, (hit.rewound - head.Position).Magnitude)
-			end
+			amount = Damage.compute(config, zone, (hit.rewound - head.Position).Magnitude)
 		end
 		local t = tally[hit.model]
 		if t then
@@ -1116,13 +927,10 @@ function WeaponService.init()
 	Net.event("Equip").OnServerEvent:Connect(onEquip)
 	Net.event("Fire").OnServerEvent:Connect(onFire)
 	Net.event("Reload").OnServerEvent:Connect(onReload)
-	Net.event("Charge").OnServerEvent:Connect(onCharge)
-	Net.event("Dev").OnServerEvent:Connect(onDev)
 	Net.unreliable("Aim").OnServerEvent:Connect(onAim)
 end
 
 function WeaponService.start()
-	RunService.Heartbeat:Connect(stepProjectiles)
 	Players.PlayerAdded:Connect(onPlayer)
 	for _, player in Players:GetPlayers() do
 		onPlayer(player)

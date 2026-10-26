@@ -67,8 +67,6 @@ return table.freeze({
 		Equip = { 10, 10 },
 		Reload = { 5, 5 },
 		Aim = { 20, 30 },
-		Charge = { 5, 5 },
-		Dev = { 5, 5 },
 	},
 
 	-- Parts tagged with this can be shot through by guns with penetration = "ThinWall".

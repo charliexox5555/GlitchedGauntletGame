@@ -5,9 +5,7 @@
 -- loadout are mirrored from the server's WeaponState.
 --
 -- Fire modes mirror WeaponService.onFire: Semi/Pump/Bolt (one per press),
--- Auto, Burst (one press = burst.count shots), Charge, Melee, Projectile
--- (the server flies the disc; we only send the direction) and Beam (held,
--- one "shot" per tick, battery instead of a magazine).
+-- Auto, Burst (one press = burst.count shots) and Melee.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -18,13 +16,11 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
-local Dev = require(Shared.Config.Dev)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
 local Types = require(Shared.Types)
-local VM = require(Shared.Config.Viewmodel)
 local Weapons = require(Shared.Config.Weapons)
 
 local AudioController = require(script.Parent.AudioController)
@@ -41,11 +37,11 @@ type WeaponConfig = Types.WeaponConfig
 type LocalSlot = {
 	id: string,
 	config: WeaponConfig,
-	ammo: number, -- beam guns: battery in ticks (fractional while recharging)
+	ammo: number,
 	lastFire: number,
 	spinStart: number?,
 	burstShots: number, -- same counter as the server's (FireRate.nextBurstCount)
-	rechargeFrom: number, -- beam battery: recharge counted from here
+	drawn: boolean, -- had its first draw this life (racked)
 }
 
 type Reload = { start: number, duration: number, token: number }
@@ -61,10 +57,8 @@ local reloading: Reload? = nil
 local reloadToken = 0
 local triggerHeld = false
 local pressQueued = false
-local chargeStart: number? = nil
 local burstQueue = 0 -- shots left in the current burst
-local nextLeft = false -- Dual Boot: the next shot comes from the left gun
-local beamOn = false
+local nextLeft = false -- akimbo: the next shot comes from the left gun
 local aiming = false
 local adsAlpha = 0
 local bloom = 0
@@ -135,9 +129,6 @@ local function spreadLimits(config: WeaponConfig): (number, number)
 end
 
 local function currentSpread(config: WeaponConfig): number
-	if config.beam then
-		return 0
-	end
 	local move = MovementController.getState()
 	local extra = ((Combat.MOVE_SPREAD :: any)[move] or 0) * (config.moveSpreadMultiplier or 1)
 	local hip = config.hipSpread
@@ -149,19 +140,6 @@ local function currentSpread(config: WeaponConfig): number
 	return math.clamp((hip + extra + bloom) * adsMult, low, high)
 end
 
--- Same as the server's rechargeBeam: the battery refills after a pause.
-local function rechargeBeam(s: LocalSlot, now: number)
-	local beam = s.config.beam
-	if not beam then
-		return
-	end
-	local from = math.max(s.lastFire + beam.rechargeDelay, s.rechargeFrom)
-	if now > from then
-		s.ammo = math.min(s.config.magSize, s.ammo + (now - from) * beam.rechargeRate / beam.tick)
-		s.rechargeFrom = now
-	end
-end
-
 local function playLocal(id: string?, group: AudioController.Group, volume: number, pitch: number?)
 	AudioController.play(id, { group = group, volume = volume, pitch = pitch })
 end
@@ -169,12 +147,7 @@ end
 local function updateHudWeapon()
 	local s = current()
 	if s then
-		HudController.setWeapon(
-			s.config.displayName,
-			math.floor(s.ammo),
-			s.config.magSize,
-			s.config.beam ~= nil
-		)
+		HudController.setWeapon(s.config.displayName, math.floor(s.ammo), s.config.magSize)
 	end
 end
 
@@ -195,33 +168,25 @@ local function startReload()
 		return
 	end
 	local config = s.config
-	-- Beam guns have a self-charging battery, no reload.
-	if config.magSize <= 0 or config.beam or s.ammo >= config.magSize then
+	if config.magSize <= 0 or s.ammo >= config.magSize then
 		return
 	end
-	chargeStart = nil
 	burstQueue = 0
-	local duration = if s.ammo == 0 then config.emptyReloadTime else config.reloadTime
+	local empty = s.ammo == 0
+	local duration = if empty then config.emptyReloadTime else config.reloadTime
 	reloadToken += 1
 	local token = reloadToken
 	reloading = { start = os.clock(), duration = duration, token = token }
 	Net.event("Reload"):FireServer()
-	ViewmodelController.reload(duration)
-	-- Reload foley timed to the animation.
-	task.delay(duration * 0.2, function()
-		if reloadToken == token then
-			playLocal(Sounds.MagOut, "Foley", Audio.FOLEY_VOLUME)
-		end
-	end)
-	task.delay(duration * 0.65, function()
-		if reloadToken == token then
-			playLocal(config.sounds.reload or Sounds.MagIn, "Foley", Audio.FOLEY_VOLUME)
-		end
-	end)
-	if s.ammo == 0 then
-		task.delay(duration * 0.88, function()
+	-- Foley lands on the clip's own beats (Config/Viewmodel CLIP_SOUNDS).
+	for _, beat in ViewmodelController.reload(duration, empty) do
+		local id = if beat.sound == "MagOut"
+			then Sounds.MagOut
+			elseif beat.sound == "MagIn" then config.sounds.reload or Sounds.MagIn
+			else config.sounds.cycle or Sounds.Rack
+		task.delay(duration * beat.at, function()
 			if reloadToken == token then
-				playLocal(config.sounds.cycle or Sounds.Rack, "Foley", Audio.FOLEY_VOLUME)
+				playLocal(id, "Foley", Audio.FOLEY_VOLUME)
 			end
 		end)
 	end
@@ -236,32 +201,46 @@ local function applyEquip(slot: Slot)
 	end
 	cancelReload()
 	equipped = slot
-	chargeStart = nil
 	pressQueued = false
 	burstQueue = 0
 	nextLeft = false
 	bloom = 0
-	equipReadyAt = os.clock() + s.config.equipTime
-	ViewmodelController.equip(s.config)
+	-- The first draw of a life racks the action; later swaps just raise the gun.
+	local first = not s.drawn
+	s.drawn = true
+	local config = s.config
+	local duration = if first then config.firstEquipTime or config.equipTime else config.equipTime
+	equipReadyAt = os.clock() + duration
 	updateHudWeapon()
-	playLocal(s.config.sounds.equip, "Foley", Audio.FOLEY_VOLUME)
+	playLocal(config.sounds.equip, "Foley", Audio.FOLEY_VOLUME)
+	local token = reloadToken
+	for _, beat in ViewmodelController.equip(config, first, duration) do
+		local id = if beat.sound == "Rack" then config.sounds.cycle or Sounds.Rack else Sounds.MagIn
+		task.delay(duration * beat.at, function()
+			if reloadToken == token and current() == s then
+				playLocal(id, "Foley", Audio.FOLEY_VOLUME)
+			end
+		end)
+	end
 end
 
-local function equip(slot: Slot)
-	if not alive or equipped == slot or not slots[slot] then
-		return
+-- Returns whether `slot` is now the equipped one.
+local function equip(slot: Slot): boolean
+	if not alive or not slots[slot] then
+		return false
 	end
-	applyEquip(slot)
-	Net.event("Equip"):FireServer(slot)
+	if equipped ~= slot then
+		applyEquip(slot)
+		Net.event("Equip"):FireServer(slot)
+	end
+	return true
 end
 
 -- Firing ---------------------------------------------------------------------
 
 -- Bullet-hole size for a gun's impacts (pellets leave small ones).
 local function holeSize(config: WeaponConfig): number
-	if config.beam then
-		return 0.8
-	elseif config.pellets > 1 then
+	if config.pellets > 1 then
 		return 0.65
 	elseif config.class == "Sniper" then
 		return 1.3
@@ -319,7 +298,6 @@ local function cast(
 			EffectsController.impact(
 				result.Position,
 				result.Normal,
-				config.tracerColor,
 				part,
 				result.Material,
 				holeSize(config)
@@ -369,7 +347,7 @@ local function fireShot(s: LocalSlot)
 	local seed = Spread.seedFor(seedBase, shotIndex)
 	local dirs = Spread.shot(aim, seed, config.pellets, spread, config.pelletSpread)
 
-	-- Dual Boot alternates between its two guns.
+	-- Akimbo guns alternate between their two guns.
 	local side: ViewmodelController.Side = "Right"
 	if config.models and config.models.left then
 		side = if nextLeft then "Left" else "Right"
@@ -382,41 +360,29 @@ local function fireShot(s: LocalSlot)
 	local ends = {}
 	local predictedHit = false
 	local predictedHead = false
-	if config.projectile then
-		-- The server flies the disc and applies its damage; `ends` only tells
-		-- other clients which way it went.
-		table.insert(ends, origin + dirs[1])
-		EffectsController.disc(player.Character, origin, dirs[1], config, from)
-	else
-		local params = rayParams()
-		for i, dir in dirs do
-			local result = cast(origin, dir, config, params)
-			for _, h in result.hits do
-				table.insert(hits, { part = h.part, position = h.position, pellet = i })
-				predictedHit = true
-				if h.part.Name == "Head" then
-					predictedHead = true
-				end
-				EffectsController.impact(h.position, -dir, config.tracerColor, h.part)
+	local params = rayParams()
+	for i, dir in dirs do
+		local result = cast(origin, dir, config, params)
+		for _, h in result.hits do
+			table.insert(hits, { part = h.part, position = h.position, pellet = i })
+			predictedHit = true
+			if h.part.Name == "Head" then
+				predictedHead = true
 			end
-			table.insert(ends, result.finish)
-			if result.impact then
-				EffectsController.impact(
-					result.impact.position,
-					result.impact.normal,
-					config.tracerColor,
-					result.impact.part,
-					result.impact.material,
-					holeSize(config)
-				)
-			end
-			if config.beam then
-				continue -- drawn every frame in update()
-			elseif config.fireMode == "Charge" then
-				EffectsController.beam(from, result.finish, config.tracerColor)
-			elseif not config.suppressed then
-				EffectsController.tracer(from, result.finish, config.tracerColor)
-			end
+			EffectsController.impact(h.position, -dir, h.part)
+		end
+		table.insert(ends, result.finish)
+		if result.impact then
+			EffectsController.impact(
+				result.impact.position,
+				result.impact.normal,
+				result.impact.part,
+				result.impact.material,
+				holeSize(config)
+			)
+		end
+		if not config.suppressed then
+			EffectsController.tracer(from, result.finish, config, true)
 		end
 	end
 
@@ -429,30 +395,28 @@ local function fireShot(s: LocalSlot)
 		ends = ends,
 	})
 
-	-- Feel. The beam's light and sound are continuous (update()).
-	if not config.beam then
-		EffectsController.localShot(config, side)
-		playLocal(
-			config.sounds.fire,
-			"Gun",
-			Audio.SHOT_VOLUME * (config.sounds.fireVolume or 1),
-			config.sounds.firePitch
-		)
-		-- A hollow tick from a near-empty mag, louder as it runs dry.
-		local mag = config.magSize
-		local low = math.ceil(mag * Audio.LOW_AMMO_FRACTION)
-		if mag >= Audio.LOW_AMMO_MIN_MAG and s.ammo > 0 and s.ammo <= low then
-			playLocal(Sounds.LowAmmo, "Foley", Audio.LOW_AMMO_VOLUME * (1.4 - 0.4 * s.ammo / low))
-		end
-		-- Pump and bolt guns work the action after every shot.
-		local cycle = config.sounds.cycle
-		if cycle and (config.fireMode == "Pump" or config.fireMode == "Bolt") and s.ammo > 0 then
-			task.delay(config.fireInterval * Audio.CYCLE_DELAY, function()
-				if current() == s and alive then
-					playLocal(cycle, "Foley", Audio.FOLEY_VOLUME)
-				end
-			end)
-		end
+	-- Feel.
+	EffectsController.localShot(config, side)
+	playLocal(
+		config.sounds.fire,
+		"Gun",
+		Audio.SHOT_VOLUME * (config.sounds.fireVolume or 1),
+		config.sounds.firePitch
+	)
+	-- A hollow tick from a near-empty mag, louder as it runs dry.
+	local mag = config.magSize
+	local low = math.ceil(mag * Audio.LOW_AMMO_FRACTION)
+	if mag >= Audio.LOW_AMMO_MIN_MAG and s.ammo > 0 and s.ammo <= low then
+		playLocal(Sounds.LowAmmo, "Foley", Audio.LOW_AMMO_VOLUME * (1.4 - 0.4 * s.ammo / low))
+	end
+	-- Pump and bolt guns work the action after every shot.
+	local cycle = config.sounds.cycle
+	if cycle and (config.fireMode == "Pump" or config.fireMode == "Bolt") and s.ammo > 0 then
+		task.delay(config.fireInterval * Audio.CYCLE_DELAY, function()
+			if current() == s and alive then
+				playLocal(cycle, "Foley", Audio.FOLEY_VOLUME)
+			end
+		end)
 	end
 	local adsKick = 1 - 0.35 * adsAlpha
 	CameraController.kick(
@@ -461,13 +425,13 @@ local function fireShot(s: LocalSlot)
 		config.recoil.recover
 	)
 	CameraController.shake((0.04 + config.recoil.up * 0.1) * adsKick)
-	ViewmodelController.fire((1 - 0.5 * adsAlpha) * (if config.beam then 0.25 else 1), side)
+	ViewmodelController.fire(1 - 0.5 * adsAlpha, side)
 	if predictedHit then
 		HudController.hitMarker(predictedHead)
 	end
 	updateHudWeapon()
 
-	if config.magSize > 0 and s.ammo <= 0 and not config.beam then
+	if config.magSize > 0 and s.ammo <= 0 then
 		task.delay(0.25, function()
 			local c = current()
 			if c == s and s.ammo <= 0 then
@@ -502,7 +466,7 @@ local function swing(s: LocalSlot)
 		local model = combatantOf(result.Instance)
 		if model and aliveHumanoid(model) then
 			table.insert(hits, { part = result.Instance, position = result.Position, pellet = 1 })
-			EffectsController.impact(result.Position, -aim, config.tracerColor, result.Instance)
+			EffectsController.impact(result.Position, -aim, result.Instance)
 			HudController.hitMarker(false)
 			-- Lunge toward the target on hit.
 			local flat = (aim * Vector3.new(1, 0, 1))
@@ -524,10 +488,9 @@ local function swing(s: LocalSlot)
 end
 
 local function canShoot(s: LocalSlot): boolean
-	if not alive or os.clock() < equipReadyAt or reloading or HudController.isMenuOpen() then
+	if not alive or os.clock() < equipReadyAt or reloading then
 		return false
 	end
-	-- `< 1`: a beam battery is fractional while it recharges (server: ammo < 1).
 	if s.config.magSize > 0 and s.ammo < 1 then
 		return false
 	end
@@ -535,9 +498,6 @@ local function canShoot(s: LocalSlot): boolean
 end
 
 local function onFirePressed()
-	if HudController.isMenuOpen() then
-		return
-	end
 	ViewmodelController.cancelInspect()
 	triggerHeld = true
 	pressQueued = true
@@ -550,23 +510,10 @@ local function onFirePressed()
 		startReload()
 		return
 	end
-	if s.config.fireMode == "Charge" and canShoot(s) then
-		chargeStart = os.clock()
-		Net.event("Charge"):FireServer()
-		playLocal(s.config.sounds.charge, "Gun", Audio.SHOT_VOLUME * 0.8, Audio.CHARGE_PITCH)
-	end
 end
 
 local function onFireReleased()
 	triggerHeld = false
-	local s = current()
-	if s and s.config.fireMode == "Charge" and chargeStart then
-		local held = os.clock() - chargeStart
-		chargeStart = nil
-		if held >= (s.config.chargeTime or 0) and canShoot(s) then
-			fireShot(s)
-		end
-	end
 end
 
 -- Per frame --------------------------------------------------------------------
@@ -595,22 +542,9 @@ local function update(dt: number)
 		end
 	end
 
-	-- Beam batteries recharge whether or not the gun is out.
-	for _, slot in slots do
-		if slot.config.beam then
-			rechargeBeam(slot, now)
-		end
-	end
-	if s and s.config.beam then
-		updateHudWeapon()
-	end
-
 	-- Aim down sights.
-	local menuOpen = HudController.isMenuOpen()
-	CameraController.setCursorVisible(menuOpen)
 	local aimingWanted = s ~= nil
 		and alive
-		and not menuOpen
 		and s.config.fireMode ~= "Melee"
 		and not s.config.noAds
 		and InputController.isDown("Aim")
@@ -624,12 +558,7 @@ local function update(dt: number)
 	end
 	ViewmodelController.setAds(adsAlpha)
 	CameraController.setZoom(if s then s.config.adsFov else nil, ease(adsAlpha))
-	local scoped = s ~= nil and s.config.scope == true and adsAlpha > 0.9
-	ViewmodelController.setHidden(scoped)
-	HudController.setScope(scoped)
-	HudController.setCrosshairVisible(
-		not scoped and adsAlpha < 0.5 and not MovementController.isSprinting()
-	)
+	HudController.setCrosshairVisible(adsAlpha < 0.5 and not MovementController.isSprinting())
 
 	-- Trigger.
 	if s and alive then
@@ -640,7 +569,7 @@ local function update(dt: number)
 				pressQueued = false
 				swing(s)
 			end
-		elseif mode == "Auto" or mode == "Beam" then
+		elseif mode == "Auto" then
 			if triggerHeld and canShoot(s) then
 				fireShot(s)
 			end
@@ -669,7 +598,7 @@ local function update(dt: number)
 					end
 				end
 			end
-		elseif mode ~= "Charge" then
+		else
 			if pressQueued and canShoot(s) then
 				local interval = FireRate.interval(s.config, s.spinStart, s.lastFire, now)
 				if now >= s.lastFire + interval then
@@ -682,50 +611,6 @@ local function update(dt: number)
 		if pressQueued and not triggerHeld and now - lastShotAt > 0.2 and mode ~= "Melee" then
 			pressQueued = false
 		end
-	end
-
-	-- Ray Trace: energy gathers at the muzzle while it charges.
-	if chargeStart and s and alive and s.config.fireMode == "Charge" then
-		local held = now - chargeStart
-		EffectsController.charge(
-			ViewmodelController.muzzleCFrame(),
-			held / math.max(s.config.chargeTime or 0, 0.05),
-			s.config.tracerColor,
-			s.config.viewmodelScale or VM.SCALE
-		)
-	else
-		EffectsController.charge(nil, 0, Color3.new())
-	end
-
-	-- Null: a continuous beam from the muzzle to whatever the crosshair is on
-	-- while it's firing (the damage itself comes from the ticks above).
-	local wantBeam = s ~= nil
-		and alive
-		and s.config.beam ~= nil
-		and triggerHeld
-		and canShoot(s)
-		and now - s.lastFire < s.config.fireInterval * 2
-	if wantBeam and s and cam then
-		local result = Workspace:Raycast(
-			cam.CFrame.Position,
-			cam.CFrame.LookVector * s.config.range,
-			rayParams()
-		)
-		local finish = if result
-			then result.Position
-			else cam.CFrame.Position + cam.CFrame.LookVector * s.config.range
-		local muzzle = ViewmodelController.muzzleCFrame()
-		EffectsController.setBeam(
-			"local",
-			if muzzle then muzzle.Position else cam.CFrame.Position,
-			finish,
-			s.config,
-			true
-		)
-		beamOn = true
-	elseif beamOn then
-		beamOn = false
-		EffectsController.stopBeam("local")
 	end
 
 	-- Hide our own third-person gun(s) in first person.
@@ -782,14 +667,12 @@ local function onWeaponState(state: Types.WeaponState)
 						lastFire = -math.huge,
 						spinStart = nil,
 						burstShots = 0,
-						rechargeFrom = 0,
+						drawn = false,
 					}
 					if equipped == slot then
 						changedEquip = true
 					end
-				elseif not (reloading and equipped == slot) and not config.beam then
-					-- (A beam battery recharges here; the server's copy only
-					-- catches up when it next fires, so keep ours.)
+				elseif not (reloading and equipped == slot) then
 					existing.ammo = incoming.ammo
 				end
 			end
@@ -825,24 +708,26 @@ end
 
 -- The server sends a fresh WeaponState for every new character, so the
 -- loadout is rebuilt from that; here we only track life and death.
+-- The end of a life: dying, or a respawn without dying (LoadCharacter). The
+-- next life's WeaponState then equips (and first-draws) from scratch.
+local function endLife()
+	alive = false
+	triggerHeld = false
+	burstQueue = 0
+	cancelReload()
+	equipped = nil
+	table.clear(slots)
+	ViewmodelController.unequip()
+	CameraController.setZoom(nil, 0)
+end
+
 local function onCharacter(character: Model)
 	local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid?
 	if not humanoid then
 		return
 	end
 	alive = true
-	humanoid.Died:Connect(function()
-		alive = false
-		triggerHeld = false
-		chargeStart = nil
-		burstQueue = 0
-		cancelReload()
-		equipped = nil
-		table.clear(slots)
-		ViewmodelController.unequip()
-		HudController.setScope(false)
-		CameraController.setZoom(nil, 0)
-	end)
+	humanoid.Died:Connect(endLife)
 end
 
 function WeaponController.start()
@@ -851,7 +736,7 @@ function WeaponController.start()
 	InputController.onPressed("Reload", startReload)
 	InputController.onPressed("Inspect", function()
 		-- Fire, aim, reload and swapping cancel it (ViewmodelController).
-		if alive and current() and not reloading and not HudController.isMenuOpen() then
+		if alive and current() and not reloading and os.clock() >= equipReadyAt then
 			ViewmodelController.inspect()
 		end
 	end)
@@ -865,46 +750,27 @@ function WeaponController.start()
 		equip("Melee")
 	end)
 	InputController.onPressed("QuickMelee", function()
-		equip("Melee")
-		pressQueued = true
+		-- No melee in the loadout: nothing happens (never a shot from the gun).
+		if equip("Melee") then
+			pressQueued = true
+		end
 	end)
 	InputController.onPressed("CycleWeapon", function()
+		-- The next slot that holds something, skipping empty ones.
 		local index = table.find(CYCLE, equipped or "Primary") or 0
-		equip(CYCLE[index % #CYCLE + 1])
-	end)
-	if RunService:IsStudio() and Dev.WEAPON_PICKER then
-		-- Weapon menu: the server swaps the gun into its slot (Dev remote,
-		-- Studio-gated there too) and we switch to that slot.
-		HudController.onDevPick(function(id: string)
-			local config = Weapons.get(id)
-			if not config then
+		for step = 1, #CYCLE - 1 do
+			local slot = CYCLE[(index + step - 1) % #CYCLE + 1]
+			if slots[slot] then
+				equip(slot)
 				return
 			end
-			Net.event("Dev"):FireServer(id)
-			equip(config.slot)
-		end)
-		InputController.onPressed("DevMenu", function()
-			local held: { [string]: boolean } = {}
-			for _, slot in slots do
-				held[slot.id] = true
-			end
-			HudController.toggleDevMenu(held)
-			triggerHeld = false
-			pressQueued = false
-			burstQueue = 0
-		end)
-		InputController.onPressed("DevNextPrimary", function()
-			Net.event("Dev"):FireServer("Primary")
-		end)
-		InputController.onPressed("DevNextSecondary", function()
-			Net.event("Dev"):FireServer("Secondary")
-		end)
-	end
-
+		end
+	end)
 	Net.event("WeaponState").OnClientEvent:Connect(onWeaponState)
 	Net.event("HitConfirm").OnClientEvent:Connect(onHitConfirm)
 
 	player.CharacterAdded:Connect(onCharacter)
+	player.CharacterRemoving:Connect(endLife)
 	if player.Character then
 		task.spawn(onCharacter, player.Character)
 	end

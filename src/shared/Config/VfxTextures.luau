@@ -1,25 +1,22 @@
 --!strict
--- Image ids for the weapon VFX textures (rendered by tools/vfx/make_vfx_textures.py,
--- sources in art-source/vfx/). These are the Image ids behind the uploaded
--- Decals (ParticleEmitter/Beam/ImageLabel need the Image, not the Decal).
--- `_2x2` sheets are flipbooks for FlipbookLayout.Grid2x2.
+-- Image ids for the weapon VFX textures. These are the Image ids behind the
+-- uploaded Decals (ParticleEmitter/Beam/ImageLabel need the Image, not the
+-- Decal). `_2x2` sheets are flipbooks for FlipbookLayout.Grid2x2.
+--
+-- Realistic set (new direction): tools/vfx/make_real_vfx.py, sources in
+-- art-source/vfx/real/. The flashes have their fire colours baked in; the
+-- rest are grey and tinted in code.
+-- Kept from the first set (tools/vfx/make_vfx_textures.py, art-source/vfx/):
+-- the spark streak, the soft glow and the tracer gradient, all plain white.
 
-return {
-	MUZZLE_FRONT_2x2 = "rbxassetid://125363848027420", -- star burst, down the barrel
-	MUZZLE_SIDE_2x2 = "rbxassetid://117783563646990", -- side flame, base at the bottom
-	SMOKE_2x2 = "rbxassetid://83629202114408",
-	DUST_2x2 = "rbxassetid://119995119142290",
-	DEBRIS_2x2 = "rbxassetid://108879615585623", -- chips (tinted by surface colour)
-	PIXEL_2x2 = "rbxassetid://112931274426702", -- glitch pixels (death dissolve)
+return table.freeze({
+	FLASH_FRONT_2x2 = "rbxassetid://130264884057726", -- star burst, seen down the barrel
+	FLASH_SIDE_2x2 = "rbxassetid://123859178693153", -- side flame, base at the bottom
+	SMOKE_2x2 = "rbxassetid://117925333534520",
+	DUST_2x2 = "rbxassetid://109666546750603",
+	CHIPS_2x2 = "rbxassetid://113906816207530", -- rock chips (tinted by surface colour)
+	HOLE = "rbxassetid://128028546664274", -- bullet hole, neutral greys (tinted per material)
 	SPARK = "rbxassetid://118834850594357", -- streak, head at the top
-	IMPACT_FLASH = "rbxassetid://107193831997511",
 	GLOW = "rbxassetid://135016131754746",
-	RING = "rbxassetid://91371870092688",
-	HOLE = "rbxassetid://95139041666013", -- baked dark, not tinted
-	HOLE_RIM = "rbxassetid://83000810914679", -- matches HOLE; tinted
 	TRACER = "rbxassetid://95042043941638", -- u: tail -> head
-	BEAM_ENERGY = "rbxassetid://117130324011369", -- tiles along the beam
-	BEAM_HELIX = "rbxassetid://114774730718855", -- tiles along the beam
-	VIGNETTE = "rbxassetid://103162318305258",
-	DISC = "rbxassetid://129568773625393",
-}
+})

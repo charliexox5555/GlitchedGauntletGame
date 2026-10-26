@@ -21,7 +21,7 @@
 -- Guns point straight down the view (barrel parallel to the camera) with
 -- their sight (pistols and melee: their grip) at the gun's `viewmodelOffset`;
 -- perspective does the rest.
--- Guns with two models (Dual Boot) hold one in each hand, the left mirrored.
+-- Guns with two models (akimbo) hold one in each hand, the left mirrored.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -53,7 +53,7 @@ type Anchor = { part: BasePart, offset: Vector3 }
 -- While clip `clip` plays, `hand` moves to `anchor` during [from, to] (0..1).
 type FollowRule = { clip: string, hand: Side, anchor: Anchor, from: number, to: number }
 
--- One held model. A normal gun has only `Right`; Dual Boot has both.
+-- One held model. A normal gun has only `Right`; akimbo guns have both.
 type Gun = {
 	model: WorldModel, -- named "Viewmodel" / "ViewmodelLeft" (EffectsController finds it)
 	handle: BasePart,
@@ -75,6 +75,9 @@ type Gun = {
 }
 
 type Playing = { track: VM.Track, time: number, length: number, weight: number, fading: boolean }
+
+-- A foley cue inside a clip: `at` is 0..1 through it.
+export type Beat = { at: number, sound: "MagOut" | "MagIn" | "Rack" }
 
 type PoseWeight = { x: number, v: number, goal: number }
 
@@ -102,6 +105,7 @@ local motionInput: ViewmodelMotion.Input = {
 }
 
 local DEG = math.pi / 180
+local studio = RunService:IsStudio()
 
 -- Small helpers ----------------------------------------------------------------
 
@@ -333,8 +337,11 @@ local function buildFollow(gun: Gun, weapon: WeaponConfig, dual: boolean)
 	if dual or weapon.fireMode == "Melee" then
 		return -- each hand is busy holding its own gun / nothing to work
 	end
-	for _, rule in VM.RELOAD_FOLLOW do
-		addFollow(gun, "Reload", "Left", rule)
+	-- The support hand works the gun in every handling clip it has.
+	for _, clip in VM.HAND_CLIPS do
+		for _, rule in VM.RELOAD_FOLLOW do
+			addFollow(gun, clip, "Left", rule)
+		end
 	end
 	if weapon.fireMode == "Pump" then
 		addFollow(gun, "Fire", "Left", VM.PUMP_FOLLOW)
@@ -361,22 +368,26 @@ local function anchorPosition(gun: Gun, a: Anchor): Vector3
 	return cf:PointToWorldSpace(a.offset)
 end
 
-local function handTarget(gun: Gun, hand: Side, base: Vector3): Vector3
+-- Where a hand is this frame, and how far (0..1) it is off its grip working
+-- a part of the gun.
+local function handTarget(gun: Gun, hand: Side, base: Vector3): (Vector3, number)
 	local clip = gun.animator.clipName
 	if not clip then
-		return base
+		return base, 0
 	end
 	local t = gun.animator:progress()
 	local pos = base
+	local working = 0
 	for _, rule in gun.follow do
 		if rule.clip == clip and rule.hand == hand then
 			local w = followWeight(rule, t)
 			if w > 0 then
 				pos = pos:Lerp(anchorPosition(gun, rule.anchor), w)
+				working = math.max(working, w)
 			end
 		end
 	end
-	return pos
+	return pos, working
 end
 
 local function sightPart(
@@ -615,7 +626,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 				lg.offset
 			)).Magnitude
 			< 0.2 * scale
-	-- Sidearms, melee and Dual Boot are placed by their grip: the hands are
+	-- Sidearms, melee and akimbo guns are placed by their grip: the hands are
 	-- what you see, so they land the same on every one. Long guns are placed
 	-- by their sight line at their grip's depth: every rifle's top edge sits
 	-- at the same height, and a sight mounted far forward or back on the
@@ -668,17 +679,44 @@ function ViewmodelController.unequip()
 	end
 end
 
-function ViewmodelController.equip(weapon: WeaponConfig)
+-- Foley cues read off a clip: the mag leaving and seating, the charging
+-- handle (or bolt) slamming home. Empty when the gun has no such clip.
+local function clipBeats(gun: Gun, clip: string): { Beat }
+	local beats: { Beat } = {}
+	local animator = gun.animator
+	local magFrom, magTo = animator:activity(clip, "Mag")
+	if magFrom and magTo then
+		table.insert(beats, { at = magFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
+		table.insert(beats, { at = math.max(magTo - VM.BEAT_MAG_IN, magFrom), sound = "MagIn" })
+	end
+	for _, joint in { "ChargingHandle", "Bolt" } do
+		local _, to = animator:activity(clip, joint)
+		if to then
+			table.insert(beats, { at = math.max(to - VM.BEAT_RACK, 0), sound = "Rack" })
+			break
+		end
+	end
+	return beats
+end
+
+-- Equips `weapon`. `first`: its first draw this life, which racks the action
+-- (the gun's "Draw" clip, when it has one); otherwise a quick raise.
+-- `duration`: the client's ready time. Returns the clip's foley cues.
+function ViewmodelController.equip(
+	weapon: WeaponConfig,
+	first: boolean?,
+	duration: number?
+): { Beat }
 	ViewmodelController.unequip()
 	local cam = Workspace.CurrentCamera
 	if not cam then
-		return
+		return {}
 	end
 	local models = weapon.models
 	local dual = models ~= nil and models.left ~= nil
 	local right = buildGun(if models then models.right else weapon.id, "Viewmodel", weapon, dual)
 	if not right then
-		return
+		return {}
 	end
 	guns.Right = right
 	if models and models.left then
@@ -697,16 +735,27 @@ function ViewmodelController.equip(weapon: WeaponConfig)
 	local a = arms :: ViewmodelArms.Arms
 	a.model.Parent = cam
 	ViewmodelArms.setVisible(a, true)
-	playTrack("Equip", "Equip", math.max(weapon.equipTime * 1.4, VM.TRACKS.Equip.length))
+	local time = duration or weapon.equipTime
+	if first and right.animator:has("Draw") then
+		for _, gun in guns do
+			gun.animator:play("Draw", time)
+		end
+		playTrack("Equip", "Draw", time)
+		return clipBeats(right, "Draw")
+	end
+	playTrack("Equip", "Equip", math.max(time * 1.4, VM.TRACKS.Equip.length))
+	return {}
 end
 
--- `side`: which gun fired (Dual Boot alternates); normal guns are "Right".
+-- `side`: which gun fired (akimbo guns alternate); normal guns are "Right".
 function ViewmodelController.fire(kickScale: number, side: Side?)
 	local gun = guns[side or "Right"] or guns.Right
 	if not gun then
 		return
 	end
-	fadeTrack("Inspect")
+	if playing.Inspect then
+		ViewmodelController.cancelInspect()
+	end
 	gun.animator:play("Fire")
 	local up = if config then config.recoil.up else 1
 	local k = math.clamp(up, 0.3, 4) * kickScale
@@ -729,17 +778,25 @@ function ViewmodelController.fire(kickScale: number, side: Side?)
 	)
 end
 
-function ViewmodelController.reload(duration: number)
-	fadeTrack("Inspect")
-	for _, gun in guns do
-		gun.animator:play("Reload", duration)
+-- `empty`: the mag ran dry, so the reload ends by racking the action (the
+-- gun's "ReloadEmpty" clip, when it has one). Returns the clip's foley cues.
+function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
+	ViewmodelController.cancelInspect()
+	local right = guns.Right
+	if not right then
+		return {}
 	end
-	playTrack("Reload", "Reload", duration)
+	local clip = if empty and right.animator:has("ReloadEmpty") then "ReloadEmpty" else "Reload"
+	for _, gun in guns do
+		gun.animator:play(clip, duration)
+	end
+	playTrack("Reload", if clip == "ReloadEmpty" then "ReloadEmpty" else "Reload", duration)
+	return clipBeats(right, clip)
 end
 
 function ViewmodelController.cancelReload()
 	for _, gun in guns do
-		if gun.animator:isPlaying("Reload") then
+		if gun.animator:isPlaying("Reload") or gun.animator:isPlaying("ReloadEmpty") then
 			gun.animator:stop()
 		end
 	end
@@ -748,7 +805,7 @@ end
 
 -- Melee swing uses the weapon's Fire clip.
 function ViewmodelController.swing()
-	fadeTrack("Inspect")
+	ViewmodelController.cancelInspect()
 	if guns.Right then
 		guns.Right.animator:play("Fire")
 	end
@@ -769,12 +826,25 @@ function ViewmodelController.inspect(): boolean
 			return false
 		end
 	end
-	playTrack("Inspect", if c.fireMode == "Melee" then "InspectMelee" else "Inspect")
+	local track = if c.fireMode == "Melee" then "InspectMelee" else "Inspect"
+	playTrack("Inspect", track)
+	-- The gun's own Inspect clip (a press check, the charm swinging) runs
+	-- alongside, over the same time.
+	for _, gun in guns do
+		if gun.animator:has("Inspect") then
+			gun.animator:play("Inspect", VM.TRACKS[track].length)
+		end
+	end
 	return true
 end
 
 function ViewmodelController.cancelInspect()
 	fadeTrack("Inspect")
+	for _, gun in guns do
+		if gun.animator:isPlaying("Inspect") then
+			gun.animator:stop()
+		end
+	end
 end
 
 function ViewmodelController.isInspecting(): boolean
@@ -784,8 +854,8 @@ end
 
 function ViewmodelController.setAds(alpha: number)
 	adsAlpha = alpha
-	if alpha > 0.05 then
-		fadeTrack("Inspect")
+	if alpha > 0.05 and playing.Inspect then
+		ViewmodelController.cancelInspect()
 	end
 end
 
@@ -904,7 +974,13 @@ local function holdWith(
 	mirror: boolean
 )
 	local offset, direction = mirrorHand(hand, mirror)
-	local point = handTarget(gun, side, grip + gunCf:VectorToWorldSpace(offset))
+	local point, working = handTarget(gun, side, grip + gunCf:VectorToWorldSpace(offset))
+	if working > 0 then
+		-- Reaching for a part: the arm comes up from below instead of running
+		-- back across the screen.
+		local reach = if mirror then mirrorPos(VM.REACH_DIRECTION) else VM.REACH_DIRECTION
+		direction = direction:Lerp(reach, working)
+	end
 	ViewmodelArms.place(
 		a,
 		side,
@@ -925,6 +1001,14 @@ local function update(dt: number)
 		return
 	end
 	dt = math.min(dt, 0.1)
+	if studio then
+		-- Studio only: Workspace attribute VfxTimeScale slows or freezes the
+		-- viewmodel too (with the shot effects), for reviewing animations.
+		local scale = Workspace:GetAttribute("VfxTimeScale")
+		if typeof(scale) == "number" then
+			dt *= math.clamp(scale, 0, 1)
+		end
+	end
 	local camCf = cam.CFrame
 	local now = os.clock()
 
@@ -982,7 +1066,7 @@ local function update(dt: number)
 	if a and rightCf and right.rig then
 		local left = guns.Left
 		local leftCf = handleCFrames.Left
-		local pistol = right.pistol or left ~= nil -- Dual Boot: a pistol in each hand
+		local pistol = right.pistol or left ~= nil -- akimbo: a pistol in each hand
 		local rightHand = if c.fireMode == "Melee"
 			then VM.MELEE_HAND
 			elseif pistol then VM.PISTOL_RIGHT_HAND
@@ -993,7 +1077,7 @@ local function update(dt: number)
 		holdWith(a, "Right", right, rightCf, gripR, rightHand, false)
 
 		if left and left.rightGrip and left.rig and leftCf then
-			-- Dual Boot: the left hand holds the left gun, mirrored.
+			-- Akimbo: the left hand holds the left gun, mirrored.
 			holdWith(
 				a,
 				"Left",

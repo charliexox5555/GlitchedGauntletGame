@@ -7,6 +7,4 @@ return table.freeze({
 	-- has no Workspace "TestMode" attribute. The attribute always wins; it's
 	-- the switch for published servers (shared/TestMode).
 	TEST_RANGE = true,
-	-- P opens the weapon menu (every gun); T / Y cycle the primary / secondary.
-	WEAPON_PICKER = true,
 })

@@ -248,29 +248,6 @@ function AudioController.play(id: string?, options: PlayOptions?)
 	v.endsAt = now + region.length / pitch + 0.05
 end
 
--- An unpooled Sound for something that loops (the Null beam). The caller
--- parents, plays and destroys it.
-function AudioController.makeSound(id: string, group: Group?): Sound?
-	local _, region = resolve(id)
-	local s = Instance.new("Sound")
-	if region then
-		s.SoundId = Sounds.ATLAS
-		s.PlaybackRegionsEnabled = true
-		s.PlaybackRegion = NumberRange.new(region.start, region.start + region.length)
-		s.LoopRegion = s.PlaybackRegion
-	elseif string.sub(id, 1, 6) ~= "atlas:" then
-		s.SoundId = id
-	else
-		s:Destroy()
-		return nil
-	end
-	s.RollOffMode = Enum.RollOffMode.InverseTapered
-	s.RollOffMinDistance = Audio.ROLLOFF_MIN
-	s.RollOffMaxDistance = Audio.ROLLOFF_MAX
-	s.SoundGroup = groups[group or "Gun"]
-	return s
-end
-
 function AudioController.init()
 	buildGroups()
 end

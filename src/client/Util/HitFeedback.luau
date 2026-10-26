@@ -1,22 +1,19 @@
 --!strict
 -- Hit feedback on the combat HUD (Gunplay.md §5): hit / headshot / kill X
--- markers, stacking damage numbers that fall off when the stack ends, and the
--- kill banner. Everything is animated by hand from step(dt) (no tweens), so
--- each element always ends fully hidden, and rapid fire just restarts it.
+-- markers and stacking damage numbers that fall off when the stack ends.
+-- Everything is animated by hand from step(dt) (no tweens), so each element
+-- always ends fully hidden, and rapid fire just restarts it.
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
-
-local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local HitFeedback = {}
 
 local WHITE = Color3.new(1, 1, 1)
-local GOLD = Color3.fromHex("FFC83D")
-local NEON = Color3.fromHex("00E5FF")
+local AMBER = Color3.fromHex("F2C94C") -- headshots
+local RED = Color3.fromHex("EB5757") -- kills
 local BLACK = Color3.new(0, 0, 0)
-local NUMBER_FONT = Enum.Font.GothamBlack
+local NUMBER_FONT = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
 
 -- Damage numbers.
 local POOL_SIZE = 10
@@ -28,32 +25,23 @@ local FALL_TIME = 0.6
 local FALL_GRAVITY = 950 -- px/s²
 local NUMBER_OFFSET = Vector2.new(34, -30) -- from the hit point on screen
 
--- Kill banner.
-local BANNER_IN = 0.14
-local BANNER_HOLD = 1.3
-local BANNER_OUT = 0.3
-local STREAK_TIME = 4
-local STREAK_NAMES = { "ELIMINATED", "DOUBLE KILL", "TRIPLE KILL", "MULTI KILL" }
-
 type MarkerStyle = {
 	color: Color3,
 	life: number,
 	peak: number, -- pop-in scale
 	kick: number, -- degrees of rotation kick
-	ring: boolean,
 }
 
 local STYLES: { [string]: MarkerStyle } = {
-	Body = { color = WHITE, life = 0.22, peak = 1.5, kick = 9, ring = false },
-	Head = { color = GOLD, life = 0.3, peak = 1.75, kick = 14, ring = false },
-	Kill = { color = NEON, life = 0.5, peak = 1.9, kick = 24, ring = true },
+	Body = { color = WHITE, life = 0.2, peak = 1.35, kick = 6 },
+	Head = { color = AMBER, life = 0.28, peak = 1.55, kick = 10 },
+	Kill = { color = RED, life = 0.45, peak = 1.7, kick = 16 },
 }
 
 type Marker = {
 	root: CanvasGroup,
 	scale: UIScale,
 	bars: { Frame },
-	ring: ImageLabel?,
 	reach: number, -- bar distance from the centre
 	style: MarkerStyle,
 	spin: number,
@@ -77,28 +65,15 @@ type DamageNumber = {
 	size: number, -- base scale
 }
 
-type Banner = {
-	root: CanvasGroup,
-	scale: UIScale,
-	title: TextLabel,
-	name: TextLabel,
-	bar: Frame,
-	t: number,
-	active: boolean,
-}
-
 local container: Frame? = nil
 local hitMarker: Marker? = nil
 local killMarker: Marker? = nil
 local numbers: { DamageNumber } = {}
 local current: DamageNumber? = nil
-local banner: Banner? = nil
 -- Feedback time (advanced by step). Studio only: Workspace attribute
 -- VfxTimeScale slows or freezes it too, for screenshots.
 local clock = 0
 local studio = RunService:IsStudio()
-local streak = 0
-local lastKillAt = -math.huge
 
 local function easeOut(k: number): number
 	local inv = 1 - math.clamp(k, 0, 1)
@@ -108,7 +83,7 @@ end
 -- Markers ------------------------------------------------------------------------
 
 -- An X of four bars in a CanvasGroup, so the bars and their outlines fade together.
-local function newMarker(parent: Instance, size: number, thickness: number, ring: boolean): Marker
+local function newMarker(parent: Instance, size: number, thickness: number): Marker
 	local root = Instance.new("CanvasGroup")
 	root.AnchorPoint = Vector2.new(0.5, 0.5)
 	root.Position = UDim2.fromScale(0.5, 0.5)
@@ -120,16 +95,6 @@ local function newMarker(parent: Instance, size: number, thickness: number, ring
 	root.Parent = parent
 	local scale = Instance.new("UIScale")
 	scale.Parent = root
-	local ringImage: ImageLabel? = nil
-	if ring then
-		local img = Instance.new("ImageLabel")
-		img.AnchorPoint = Vector2.new(0.5, 0.5)
-		img.Position = UDim2.fromScale(0.5, 0.5)
-		img.BackgroundTransparency = 1
-		img.Image = VFX.RING
-		img.Parent = root
-		ringImage = img
-	end
 	local bars = {}
 	for i = 0, 3 do
 		local bar = Instance.new("Frame")
@@ -150,7 +115,6 @@ local function newMarker(parent: Instance, size: number, thickness: number, ring
 		root = root,
 		scale = scale,
 		bars = bars,
-		ring = ringImage,
 		reach = size * 0.62,
 		style = STYLES.Body,
 		spin = 0,
@@ -163,9 +127,6 @@ local function popMarker(m: Marker, style: MarkerStyle)
 	m.style = style
 	for _, bar in m.bars do
 		bar.BackgroundColor3 = style.color
-	end
-	if m.ring then
-		m.ring.ImageColor3 = style.color
 	end
 	m.spin = (if math.random() < 0.5 then -1 else 1) * style.kick * (0.6 + math.random() * 0.4)
 	m.t = 0
@@ -198,11 +159,6 @@ local function stepMarker(m: Marker, dt: number)
 		local rad = math.rad(45 + 90 * (i - 1))
 		bar.Position = UDim2.new(0.5, math.cos(rad) * reach, 0.5, math.sin(rad) * reach)
 	end
-	if m.ring then
-		local d = m.reach * (1.2 + 2.4 * easeOut(life * 1.5))
-		m.ring.Size = UDim2.fromOffset(d * 2, d * 2)
-		m.ring.ImageTransparency = 0.15 + 0.85 * life
-	end
 end
 
 function HitFeedback.hit(headshot: boolean)
@@ -224,8 +180,8 @@ local function newNumber(parent: Instance): DamageNumber
 	label.AnchorPoint = Vector2.new(0.5, 0.5)
 	label.Size = UDim2.fromOffset(140, 44)
 	label.BackgroundTransparency = 1
-	label.Font = NUMBER_FONT
-	label.TextSize = 30
+	label.FontFace = NUMBER_FONT
+	label.TextSize = 28
 	label.TextColor3 = WHITE
 	label.TextTransparency = 1
 	label.Text = ""
@@ -234,7 +190,7 @@ local function newNumber(parent: Instance): DamageNumber
 	label.Parent = parent
 	local outline = Instance.new("UIStroke")
 	outline.Color = BLACK
-	outline.Thickness = 2.5
+	outline.Thickness = 2
 	outline.Transparency = 1
 	outline.Parent = label
 	local scale = Instance.new("UIScale")
@@ -307,7 +263,7 @@ local function takeNumber(): DamageNumber?
 end
 
 -- A confirmed hit: stacks onto the current number while you keep hitting the
--- same target, else starts a new one. Gold for headshots, bigger on the kill.
+-- same target, else starts a new one. Amber for headshots, bigger on the kill.
 function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3?, killed: boolean?)
 	if amount ~= amount or amount <= 0 then
 		return
@@ -345,8 +301,8 @@ function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3
 	stack.lastHit = now
 	stack.t = 0 -- pop again
 	stack.killed = killed == true
-	stack.size = if stack.killed then 1.4 elseif headshot then 1.15 else 1
-	stack.label.TextColor3 = if headshot then GOLD else WHITE
+	stack.size = if stack.killed then 1.3 elseif headshot then 1.12 else 1
+	stack.label.TextColor3 = if headshot then AMBER else WHITE
 	stack.label.Text = tostring(math.round(stack.total))
 	if position == nil then
 		-- No hit point: sit by the crosshair.
@@ -387,94 +343,6 @@ local function stepNumber(n: DamageNumber, dt: number, now: number)
 	end
 end
 
--- Kill banner ------------------------------------------------------------------------
-
-local function newBanner(parent: Instance): Banner
-	local root = Instance.new("CanvasGroup")
-	root.AnchorPoint = Vector2.new(0.5, 0)
-	root.Position = UDim2.new(0.5, 0, 0.5, 70)
-	root.Size = UDim2.fromOffset(360, 64)
-	root.BackgroundTransparency = 1
-	root.GroupTransparency = 1
-	root.Visible = false
-	root.Parent = parent
-	local scale = Instance.new("UIScale")
-	scale.Parent = root
-	local function text(y: number, height: number, size: number, color: Color3): TextLabel
-		local l = Instance.new("TextLabel")
-		l.Position = UDim2.fromOffset(0, y)
-		l.Size = UDim2.new(1, 0, 0, height)
-		l.BackgroundTransparency = 1
-		l.Font = NUMBER_FONT
-		l.TextSize = size
-		l.TextColor3 = color
-		l.Parent = root
-		local outline = Instance.new("UIStroke")
-		outline.Color = BLACK
-		outline.Thickness = 1.5
-		outline.Transparency = 0.3
-		outline.Parent = l
-		return l
-	end
-	local title = text(0, 20, 15, NEON)
-	local name = text(20, 30, 24, WHITE)
-	local bar = Instance.new("Frame")
-	bar.AnchorPoint = Vector2.new(0.5, 0)
-	bar.Position = UDim2.new(0.5, 0, 0, 54)
-	bar.Size = UDim2.fromOffset(0, 3)
-	bar.BorderSizePixel = 0
-	bar.BackgroundColor3 = NEON
-	bar.Parent = root
-	return {
-		root = root,
-		scale = scale,
-		title = title,
-		name = name,
-		bar = bar,
-		t = 0,
-		active = false,
-	}
-end
-
--- "ELIMINATED <name>" under the crosshair; kills in quick succession count up.
-function HitFeedback.killBanner(victimName: string, headshot: boolean)
-	local b = banner
-	if not b then
-		return
-	end
-	local now = clock
-	streak = if now - lastKillAt < STREAK_TIME then streak + 1 else 1
-	lastKillAt = now
-	local title = STREAK_NAMES[math.min(streak, #STREAK_NAMES)]
-	b.title.Text = if headshot then title .. "  ·  HEADSHOT" else title
-	b.title.TextColor3 = if headshot then GOLD else NEON
-	b.bar.BackgroundColor3 = if headshot then GOLD else NEON
-	b.name.Text = string.upper(victimName)
-	b.t = 0
-	b.active = true
-	b.root.Visible = true
-end
-
-local function stepBanner(b: Banner, dt: number)
-	if not b.active then
-		return
-	end
-	b.t += dt
-	local t = b.t
-	if t >= BANNER_IN + BANNER_HOLD + BANNER_OUT then
-		b.active = false
-		b.root.Visible = false
-		b.root.GroupTransparency = 1
-		return
-	end
-	local inK = easeOut(t / BANNER_IN)
-	b.scale.Scale = 1.35 - 0.35 * inK
-	local outK = math.clamp((t - BANNER_IN - BANNER_HOLD) / BANNER_OUT, 0, 1)
-	b.root.GroupTransparency = math.max(1 - inK, outK)
-	b.root.Position = UDim2.new(0.5, 0, 0.5, 70 - 12 * outK)
-	b.bar.Size = UDim2.fromOffset(220 * easeOut(t / 0.3), 3)
-end
-
 -- Setup -------------------------------------------------------------------------------
 
 function HitFeedback.build(gui: ScreenGui)
@@ -485,12 +353,11 @@ function HitFeedback.build(gui: ScreenGui)
 	root.ZIndex = 4
 	root.Parent = gui
 	container = root
-	hitMarker = newMarker(root, 18, 3, false)
-	killMarker = newMarker(root, 26, 4, true)
+	hitMarker = newMarker(root, 16, 2)
+	killMarker = newMarker(root, 22, 3)
 	for i = 1, POOL_SIZE do
 		numbers[i] = newNumber(root)
 	end
-	banner = newBanner(root)
 end
 
 function HitFeedback.step(frameDt: number)
@@ -516,9 +383,6 @@ function HitFeedback.step(frameDt: number)
 		if n.state ~= "Idle" then
 			stepNumber(n, dt, now)
 		end
-	end
-	if banner then
-		stepBanner(banner, dt)
 	end
 end
 

@@ -42,18 +42,12 @@ local bindings: { [string]: Binding } = {
 	Melee = { keys = { Enum.KeyCode.Three }, gamepad = {} },
 	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY }, touch = "SwapButton" },
 	QuickMelee = { keys = { Enum.KeyCode.V }, gamepad = { Enum.KeyCode.ButtonR3 } },
-	-- Inspect the held gun (Valorant uses Y, but Y is the dev picker here).
-	Inspect = { keys = { Enum.KeyCode.F }, gamepad = { Enum.KeyCode.DPadDown } },
+	-- Inspect the held gun (Y like Valorant; F stays free for Mod 3).
+	Inspect = { keys = { Enum.KeyCode.Y }, gamepad = { Enum.KeyCode.DPadDown } },
 	-- Camera pitch / 90 degrees, fed every frame by PoseController. It's
 	-- simulation input, so the server and the predicting client pose the
 	-- character with the same pitch (shared/Simulation/Poses).
 	AimPitch = { keys = {}, gamepad = {}, kind = "Direction1D" },
-	-- Test range (test mode only): opens the tester menu. Touch: the TEST button.
-	TesterMenu = { keys = { Enum.KeyCode.B }, gamepad = { Enum.KeyCode.DPadUp } },
-	-- Studio-only dev picker: weapon menu, next primary / next secondary.
-	DevMenu = { keys = { Enum.KeyCode.P }, gamepad = {} },
-	DevNextPrimary = { keys = { Enum.KeyCode.T }, gamepad = {} },
-	DevNextSecondary = { keys = { Enum.KeyCode.Y }, gamepad = {} },
 }
 
 return table.freeze(bindings)

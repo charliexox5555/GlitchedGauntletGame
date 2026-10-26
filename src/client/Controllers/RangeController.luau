@@ -12,10 +12,10 @@ local TweenService = game:GetService("TweenService")
 local RangeController = {}
 
 local TAG = "RangeDummy"
-local DARK = Color3.fromHex("1C2030")
-local NEON = Color3.fromHex("00E5FF")
-local GOLD = Color3.fromHex("FFC83D")
-local RED = Color3.fromHex("FF3355")
+local DARK = Color3.fromHex("1E2022")
+local HEALTHY = Color3.fromHex("6FCF97")
+local YELLOW = Color3.fromHex("F2C94C")
+local RED = Color3.fromHex("EB5757")
 local WHITE = Color3.new(1, 1, 1)
 
 local FILL_INFO = TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -28,7 +28,6 @@ type Bar = {
 }
 
 local bars: { [Instance]: Bar } = {}
-local visible = true
 local playerGui: Instance? = nil
 
 local function make(className: string, props: { [string]: any }, parent: Instance?): any
@@ -46,9 +45,9 @@ local function fillColor(fraction: number): Color3
 	if fraction <= 0.25 then
 		return RED
 	elseif fraction <= 0.5 then
-		return GOLD
+		return YELLOW
 	end
-	return NEON
+	return HEALTHY
 end
 
 local function removeBar(model: Instance)
@@ -72,7 +71,7 @@ local function addBar(model: Instance)
 		return
 	end
 	local accentValue = model:GetAttribute("DummyAccent")
-	local accent = if typeof(accentValue) == "Color3" then accentValue else NEON
+	local accent = if typeof(accentValue) == "Color3" then accentValue else WHITE
 	local labelValue = model:GetAttribute("DummyLabel")
 	local distance = model:GetAttribute("DummyDistance")
 
@@ -85,7 +84,6 @@ local function addBar(model: Instance)
 		MaxDistance = 260,
 		LightInfluence = 0,
 		ResetOnSpawn = false,
-		Enabled = visible,
 	}, playerGui)
 	make("TextLabel", {
 		Size = UDim2.new(1, 0, 0, 16),
@@ -117,7 +115,7 @@ local function addBar(model: Instance)
 	make("UICorner", { CornerRadius = UDim.new(0, 3) }, trail)
 	local fill = make("Frame", {
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = NEON,
+		BackgroundColor3 = HEALTHY,
 		BorderSizePixel = 0,
 	}, back)
 	make("UICorner", { CornerRadius = UDim.new(0, 3) }, fill)
@@ -171,17 +169,6 @@ local function addBar(model: Instance)
 			end),
 		},
 	}
-end
-
-function RangeController.setBarsVisible(on: boolean)
-	visible = on
-	for _, bar in bars do
-		bar.gui.Enabled = on
-	end
-end
-
-function RangeController.barsVisible(): boolean
-	return visible
 end
 
 function RangeController.start()

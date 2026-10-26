@@ -3,11 +3,12 @@
 -- only while test mode is on (shared/TestMode). Positions are in range space:
 -- X to the right, Y up from the floor, -Z downrange from the firing line.
 
-local NEON = Color3.fromHex("00E5FF")
-local GOLD = Color3.fromHex("FFC83D")
-local MAGENTA = Color3.fromHex("FF3DCB")
-local RED = Color3.fromHex("FF3355")
-local GREEN = Color3.fromHex("3DFF8B")
+-- Label colours over the dummies (plain, readable on the grey range).
+local WHITE = Color3.fromHex("F2F2F2")
+local YELLOW = Color3.fromHex("F2C94C")
+local ORANGE = Color3.fromHex("F2994A")
+local RED = Color3.fromHex("EB5757")
+local GREEN = Color3.fromHex("6FCF97")
 
 export type DummyKind = "Idle" | "Strafe" | "StrafeJump" | "Crouch" | "LongRange" | "Shooter"
 
@@ -30,7 +31,7 @@ export type KindInfo = {
 	crouch: boolean?,
 }
 
-export type Behaviour = { id: string, label: string, hint: string, default: boolean }
+export type Behaviour = { id: string, default: boolean }
 
 return table.freeze({
 	-- Where the firing line's centre sits in the world (the range is built
@@ -46,17 +47,17 @@ return table.freeze({
 	LANE_LENGTH = 170,
 
 	KINDS = table.freeze({
-		Idle = table.freeze({ label = "STATIC", accent = NEON }),
+		Idle = table.freeze({ label = "STATIC", accent = WHITE }),
 		Strafe = table.freeze({
 			label = "STRAFE",
-			accent = GOLD,
+			accent = YELLOW,
 			speed = 14,
 			sway = 5,
 			turnAfter = { 0.35, 1.1 },
 		}),
 		StrafeJump = table.freeze({
 			label = "STRAFE + JUMP",
-			accent = MAGENTA,
+			accent = ORANGE,
 			speed = 14,
 			sway = 5,
 			turnAfter = { 0.35, 1.1 },
@@ -70,28 +71,28 @@ return table.freeze({
 			turnAfter = { 0.5, 1.4 },
 			crouch = true,
 		}),
-		LongRange = table.freeze({ label = "LONG RANGE", accent = NEON }),
+		LongRange = table.freeze({ label = "LONG RANGE", accent = WHITE }),
 		Shooter = table.freeze({ label = "SHOOTER", accent = RED }),
 	}) :: { [DummyKind]: KindInfo },
 
 	DUMMIES = table.freeze({
 		-- Falloff row: one static dummy per marker.
-		{ kind = "Idle", x = -36, distance = 10, weapon = "Byte" },
-		{ kind = "Idle", x = -24, distance = 25, weapon = "Bitrate" },
-		{ kind = "Idle", x = -12, distance = 50, weapon = "LongPoll" },
-		{ kind = "Idle", x = 0, distance = 100, weapon = "Flood" },
+		{ kind = "Idle", x = -36, distance = 10, weapon = "Vandal" },
+		{ kind = "Idle", x = -24, distance = 25, weapon = "Vandal" },
+		{ kind = "Idle", x = -12, distance = 50, weapon = "Vandal" },
+		{ kind = "Idle", x = 0, distance = 100, weapon = "Vandal" },
 		-- Moving targets.
-		{ kind = "Strafe", x = 12, distance = 25, weapon = "Bandwidth" },
-		{ kind = "StrafeJump", x = 24, distance = 35, weapon = "HardReset" },
-		{ kind = "Crouch", x = 36, distance = 20, weapon = "Splinter" },
+		{ kind = "Strafe", x = 12, distance = 25, weapon = "Vandal" },
+		{ kind = "StrafeJump", x = 24, distance = 35, weapon = "Vandal" },
+		{ kind = "Crouch", x = 36, distance = 20, weapon = "Vandal" },
 		-- Sniper target on the back platform.
-		{ kind = "LongRange", x = 24, distance = 150, y = 6, weapon = "Kernel" },
+		{ kind = "LongRange", x = 24, distance = 150, y = 6, weapon = "Vandal" },
 		-- Fires harmless tracers at the firing line (see SHOOTER).
-		{ kind = "Shooter", x = -54, distance = 40, y = 4, weapon = "Bitrate" },
+		{ kind = "Shooter", x = -54, distance = 40, y = 4, weapon = "Vandal" },
 		-- Cover section: penetration and peeking.
-		{ kind = "Idle", x = -78, distance = 30, weapon = "Root", label = "BEHIND THINWALL" },
-		{ kind = "Idle", x = -94, distance = 30, weapon = "Mute", label = "BEHIND WALL" },
-		{ kind = "Idle", x = -62, distance = 30, weapon = "Checksum", label = "LOW COVER" },
+		{ kind = "Idle", x = -78, distance = 30, weapon = "Vandal", label = "BEHIND THINWALL" },
+		{ kind = "Idle", x = -94, distance = 30, weapon = "Vandal", label = "BEHIND WALL" },
+		{ kind = "Idle", x = -62, distance = 30, weapon = "Vandal", label = "LOW COVER" },
 	}) :: { DummySpot },
 
 	RESPAWN = 2.5, -- seconds after a dummy dies
@@ -108,38 +109,13 @@ return table.freeze({
 		turnResponsiveness = 18,
 	}),
 
-	-- Shared switches every tester can flip (the menu shows them).
+	-- Range switches (fixed for now; the tester menu that flipped them is gone
+	-- until the new UI pass).
 	BEHAVIOURS = table.freeze({
-		{
-			id = "Move",
-			label = "Dummies move",
-			hint = "Strafe, jump and crouch dummies keep moving",
-			default = true,
-		},
-		{
-			id = "Shoot",
-			label = "Shooter fires back",
-			hint = "Harmless tracers, to see and hear enemy fire",
-			default = true,
-		},
-		{
-			id = "Regen",
-			label = "Dummies heal",
-			hint = "Back to full health 2 s after the last hit",
-			default = false,
-		},
+		{ id = "Move", default = true }, -- strafe, jump and crouch dummies keep moving
+		{ id = "Shoot", default = true }, -- the shooter fires harmless tracers
+		{ id = "Regen", default = true }, -- full health REGEN_DELAY after the last hit
 	}) :: { Behaviour },
-
-	-- Walk-up weapon racks behind the spawn.
-	STATION_PROMPT_DISTANCE = 7,
-	STATION_SPACING = 6,
-
-	-- Stats: DPS is the damage rate over hits in the last DPS_WINDOW seconds.
-	DPS_WINDOW = 2,
-	STATS_SEND_INTERVAL = 0.1,
-
-	-- Tester remote budget (per player): rate per second, burst.
-	RATE = { 8, 12 },
 
 	-- Roblox's stock R15 clips, for dummies moving without the Animate script.
 	ANIMATIONS = table.freeze({

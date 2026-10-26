@@ -2,9 +2,8 @@
 -- Every RemoteEvent in one place. The server creates them (first require on
 -- the server); clients wait for them. Payload shapes live in Types.luau.
 --
--- Client -> server: Equip, Fire, Reload, Charge, Dev, Tester, Aim (unreliable)
--- Server -> client: WeaponState, HitConfirm, Damaged, Killed, TesterStats,
---                   ShotFx (unreliable)
+-- Client -> server: Equip, Fire, Reload, Aim (unreliable)
+-- Server -> client: WeaponState, HitConfirm, Damaged, Killed, ShotFx (unreliable)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -13,14 +12,10 @@ local RELIABLE = {
 	"Equip",
 	"Fire",
 	"Reload",
-	"Charge",
-	"Dev",
-	"Tester",
 	"WeaponState",
 	"HitConfirm",
 	"Damaged",
 	"Killed",
-	"TesterStats",
 }
 local UNRELIABLE = { "Aim", "ShotFx" }
 

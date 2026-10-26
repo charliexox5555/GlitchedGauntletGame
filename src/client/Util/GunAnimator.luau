@@ -1,13 +1,21 @@
 --!strict
--- Plays the Blender Fire/Reload clips (src/shared/WeaponAnimations) on a
--- weapon model's Rig.Motors. Each clip stores, per bone and per frame, the
+-- Plays the Blender clips (src/shared/WeaponAnimations: Fire, Reload and,
+-- when a gun has them, ReloadEmpty, Draw and Inspect) on a weapon model's
+-- Rig.Motors. Each clip stores, per bone and per frame, the
 -- bone's local transform from rest, which is exactly Motor6D.Transform
 -- because WeaponBuilder builds each joint in its bone's own axes.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 type Clip = { frames: number, bones: { [string]: { number } } }
-type ClipSet = { fps: number, Fire: Clip?, Reload: Clip? }
+type ClipSet = {
+	fps: number,
+	Fire: Clip?,
+	Reload: Clip?,
+	ReloadEmpty: Clip?, -- empty mag: the reload ends by racking the action
+	Draw: Clip?, -- first draw of a life: raise and rack
+	Inspect: Clip?,
+}
 
 export type GunAnimator = {
 	model: Model,
@@ -23,6 +31,7 @@ export type GunAnimator = {
 	play: (self: GunAnimator, name: string, duration: number?) -> (),
 	stop: (self: GunAnimator) -> (),
 	isPlaying: (self: GunAnimator, name: string?) -> boolean,
+	has: (self: GunAnimator, name: string) -> boolean,
 	progress: (self: GunAnimator) -> number,
 	activity: (self: GunAnimator, name: string, bone: string) -> (number?, number?),
 	update: (self: GunAnimator, dt: number) -> (),
@@ -89,6 +98,11 @@ end
 
 local function isPlaying(self: GunAnimator, name: string?): boolean
 	return self.clip ~= nil and (name == nil or self.clipName == name)
+end
+
+local function has(self: GunAnimator, name: string): boolean
+	local clips = self.clips
+	return clips ~= nil and (clips :: any)[name] ~= nil
 end
 
 -- How far through the playing clip we are, 0..1.
@@ -196,6 +210,7 @@ function GunAnimator.new(model: Model, weaponId: string, scale: number): GunAnim
 		play = play,
 		stop = stop,
 		isPlaying = isPlaying,
+		has = has,
 		progress = progress,
 		activity = activity,
 		update = update,

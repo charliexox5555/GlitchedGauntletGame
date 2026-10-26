@@ -57,9 +57,6 @@ return table.freeze({
 	LOW_AMMO_FRACTION = 0.25,
 	LOW_AMMO_MIN_MAG = 5,
 
-	-- Ray Trace's charge sound is sped up to fit its 0.5 s charge.
-	CHARGE_PITCH = 1.4,
-
 	-- Pump and bolt guns cycle after each shot, this share of fireInterval later.
 	CYCLE_DELAY = 0.35,
 

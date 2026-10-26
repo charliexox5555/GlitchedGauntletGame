@@ -11,16 +11,7 @@ export type PlayerProfile = {
 -- Weapons ------------------------------------------------------------------
 
 export type Slot = "Primary" | "Secondary" | "Melee"
-export type FireMode =
-	"Semi"
-	| "Auto"
-	| "Burst"
-	| "Pump"
-	| "Bolt"
-	| "Charge"
-	| "Melee"
-	| "Projectile"
-	| "Beam"
+export type FireMode = "Semi" | "Auto" | "Burst" | "Pump" | "Bolt" | "Melee"
 export type WeaponClass =
 	"Sidearm"
 	| "SMG"
@@ -50,21 +41,6 @@ export type MeleeStats = { range: number, backDamage: number, lunge: number }
 -- Burst guns: `count` shots `interval` apart, then the gun's fireInterval.
 export type BurstStats = { count: number, interval: number, singleWhenAiming: boolean? }
 
--- Server-simulated projectile (Loopback discs).
-export type ProjectileStats = { speed: number, radius: number, bounces: number, lifetime: number }
-
--- Continuous beam (Null): damage per second ramps while it stays on the same
--- target; a battery drains while firing and recharges after a pause.
-export type BeamStats = {
-	dpsStart: number,
-	dpsEnd: number,
-	rampTime: number,
-	tick: number, -- seconds between damage ticks (each tick is one "shot")
-	battery: number, -- seconds of beam
-	rechargeDelay: number,
-	rechargeRate: number, -- battery seconds regained per second
-}
-
 -- A holographic sight added to the viewmodel gun: a glass pane with a dot and
 -- ring, centred at `center` (gun space, world-size studs). Aiming looks through
 -- it. `frame = false` draws only the reticle (inside a low-power optic whose
@@ -77,8 +53,7 @@ export type WeaponSounds = {
 	firePitch: number?,
 	reload: string?,
 	equip: string?,
-	charge: string?,
-	cycle: string?, -- bolt / pump / charging handle: after each Pump/Bolt shot and empty reloads
+	cycle: string?, -- bolt / pump / charging handle: after each Pump/Bolt shot, empty reloads and the first draw
 }
 
 export type WeaponConfig = {
@@ -93,14 +68,13 @@ export type WeaponConfig = {
 	pelletSpread: number, -- degrees, cone for pellets
 	fireInterval: number, -- seconds between shots
 	burst: BurstStats?,
-	projectile: ProjectileStats?,
-	beam: BeamStats?,
 	spinUp: SpinUp?,
-	chargeTime: number?,
 	magSize: number,
 	reloadTime: number,
 	emptyReloadTime: number,
 	equipTime: number,
+	-- The first draw of a life (racks the action, client-side only); default equipTime.
+	firstEquipTime: number?,
 	range: number,
 	falloff: Falloff?,
 	hipSpread: number, -- degrees
@@ -110,21 +84,20 @@ export type WeaponConfig = {
 	recoil: Recoil,
 	adsFov: number,
 	adsTime: number,
-	scope: boolean?,
 	moveMultiplier: number,
 	adsMoveMultiplier: number,
 	penetration: Penetration,
 	pierceCharacters: boolean?,
 	suppressed: boolean?,
 	melee: MeleeStats?,
-	moveSpreadMultiplier: number?, -- scales movement spread (Flicker: big, Dual Boot: small)
-	crouchSpreadMultiplier: number?, -- Overflow is steadier crouched
-	noAds: boolean?, -- Dual Boot
-	-- Models to hold: by default the model named like the id. Dual Boot holds two.
+	moveSpreadMultiplier: number?, -- scales movement spread
+	crouchSpreadMultiplier: number?, -- < 1: steadier crouched
+	noAds: boolean?, -- akimbo guns
+	-- Models to hold: by default the model named like the id. Akimbo guns hold two.
 	models: { right: string, left: string? }?,
 	sounds: WeaponSounds,
 	-- Viewmodel placement at the hip, camera space: long guns put their sight
-	-- height at this point at their grip's depth; sidearms, melee and Dual Boot
+	-- height at this point at their grip's depth; sidearms, melee and akimbo guns
 	-- put their grip here. Optional cant in degrees (default none: the barrel
 	-- points straight down the view).
 	viewmodelOffset: Vector3,
@@ -161,31 +134,6 @@ export type HitConfirm = {
 	zone: HitZone,
 	killed: boolean,
 	position: Vector3,
-}
-
--- Test range (TestRangeService) ----------------------------------------------
-
--- Client -> server, on the Tester remote: (action, arg1, arg2).
-export type TesterAction =
-	"SetWeapon" -- (slot: Slot, weaponId: string)
-	| "Refill"
-	| "ResetDummies"
-	| "SetBehaviour" -- (behaviourId: string, on: boolean)
-	| "ResetStats"
-
--- Server -> client (TesterStats). Every number is measured by the server.
-export type TesterStats = {
-	damage: number, -- total damage dealt since the last reset
-	shots: number, -- accepted shots (a shotgun blast is one shot)
-	hits: number, -- shots that damaged something
-	headshots: number,
-	kills: number,
-	dps: number, -- damage rate over the hits in the last Config/TestRange DPS_WINDOW seconds
-	peakDps: number,
-	lastTtk: number?, -- seconds from the first hit to the kill, last kill
-	lastTtkShots: number?, -- shots fired over that time
-	lastTtkWeapon: string?,
-	lastHit: { damage: number, zone: HitZone, distance: number, weapon: string }?,
 }
 
 return nil
