@@ -26,7 +26,8 @@ function LaunchPad.find(
 	head: Vector3,
 	aim: Vector3,
 	stats: Types.Stats,
-	params: RaycastParams
+	params: RaycastParams,
+	overlap: OverlapParams?
 ): Placeable.Spot
 	return Placeable.find(
 		head,
@@ -34,7 +35,7 @@ function LaunchPad.find(
 		stats.placeRange,
 		LaunchPad.size(stats),
 		params,
-		Placeable.overlap(false)
+		overlap or Placeable.overlap(false)
 	)
 end
 

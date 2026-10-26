@@ -88,6 +88,8 @@ export type ServerCtx = {
 	-- Fresh line-of-sight params: world only (no bodies, no effects). A call,
 	-- so a delayed effect (a fuse) sees who exists when it goes off.
 	worldParams: () -> RaycastParams,
+	-- Where the server's copy of the camera looks (else the claimed aim).
+	cameraLook: Vector3,
 	damage: (victim: Model, amount: number, at: Vector3) -> (),
 	-- `amount` over `duration` seconds (0 = at once), from the caster.
 	heal: (target: Model, amount: number, duration: number) -> (),
@@ -97,7 +99,8 @@ export type ServerCtx = {
 	-- A world object owned by the caster (ModEntities): `life` seconds, `hp`,
 	-- at most `maxActive` of this kind at once (the oldest goes).
 	place: (kind: string, part: BasePart, life: number, hp: number, maxActive: number) -> (),
-	zone: (spec: ZoneSpec) -> (),
+	-- Opens a zone; false when the caster's life has ended (nothing opens).
+	zone: (spec: ZoneSpec) -> boolean,
 	-- Shows `targets` to the caster's team only, for `duration` seconds.
 	reveal: (targets: { Model }, duration: number) -> (),
 	-- The caster's guns fire `mult` times as fast for `duration` seconds.

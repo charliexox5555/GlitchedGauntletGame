@@ -46,14 +46,16 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	ctx.active(land + stats.duration)
 	ctx.schedule(land, function()
 		local at = Projectile.positionAt(path, land)
-		ctx.zone({
+		local opened = ctx.zone({
 			center = at,
 			radius = stats.radius,
 			height = ZONE_HEIGHT,
 			duration = stats.duration,
 			slow = stats.slow,
 		})
-		ctx.fx("LagZone", { at = at, radius = stats.radius, duration = stats.duration })
+		if opened then
+			ctx.fx("LagZone", { at = at, radius = stats.radius, duration = stats.duration })
+		end
 	end)
 end
 

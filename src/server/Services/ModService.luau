@@ -7,8 +7,12 @@
 --
 -- Replicated as player attributes (the HUD and the simulation read them):
 --   Mod<n>Id, Mod<n>Level          the loadout (nil = empty slot)
+-- Owner-only (attributes on PlayerGui.ModState, which replicates to its owner
+-- alone, so enemies can't read your cooldowns):
 --   Mod<n>Charges, Mod<n>RechargeAt server Mods only (workspace:GetServerTimeNow())
 --   Mod<n>ActiveUntil              server time a slot's effect runs until (HUD bar)
+-- (Predicted Mods keep theirs on the character, which Server Authority
+-- replicates to everyone: that can't be hidden.)
 --   ModHeld                        0, or the slot the server has as held
 --   ModNoCooldown, ModResetSerial  dev panel switches (DevModService)
 --   TeamId                         team until MatchService exists (Mods/Teams)
@@ -95,14 +99,35 @@ local function settle(s: SlotState, stats: ModTypes.Stats, now: number)
 		Charges.settle(s.charges, s.rechargeAt, stats.charges, stats.cooldown, now)
 end
 
+-- The owner-only holder (a disabled ScreenGui in the player's PlayerGui).
+local function privateState(player: Player): Instance?
+	local gui = player:FindFirstChildOfClass("PlayerGui")
+	if not gui then
+		return nil
+	end
+	local existing = gui:FindFirstChild("ModState")
+	if existing then
+		return existing
+	end
+	local holder = Instance.new("ScreenGui")
+	holder.Name = "ModState"
+	holder.Enabled = false
+	holder.ResetOnSpawn = false
+	holder.Parent = gui
+	return holder
+end
+
 local function publishSlot(player: Player, slot: number, s: SlotState)
 	local p = prefix(slot)
 	local def = s.id and Mods.def(s.id)
 	player:SetAttribute(p .. "Id", s.id)
 	player:SetAttribute(p .. "Level", if s.id then s.level else nil)
 	local serverOwned = def ~= nil and def.authority == "Server"
-	player:SetAttribute(p .. "Charges", if serverOwned then s.charges else nil)
-	player:SetAttribute(p .. "RechargeAt", if serverOwned then s.rechargeAt else nil)
+	local private = privateState(player)
+	if private then
+		private:SetAttribute(p .. "Charges", if serverOwned then s.charges else nil)
+		private:SetAttribute(p .. "RechargeAt", if serverOwned then s.rechargeAt else nil)
+	end
 end
 
 -- What others see in your hand while a Mod is held: its finished model
@@ -183,13 +208,19 @@ end
 -- The claimed aim against what the server knows: the camera the client
 -- replicates (Player:GetCameraState, Server Authority), else the character's
 -- facing (first person turns the character with the camera's yaw).
-local function aimPlausible(player: Player, root: BasePart, direction: Vector3): boolean
+-- The server's copy of the player's camera look (nil if unavailable).
+local function cameraLook(player: Player): Vector3?
 	local ok, state = pcall(function()
 		return (player :: any):GetCameraState()
 	end)
 	local cf = if ok and typeof(state) == "table" then state.CFrame else nil
-	if typeof(cf) == "CFrame" then
-		return angleBetween(direction, cf.LookVector) <= Config.AIM_TOLERANCE
+	return if typeof(cf) == "CFrame" then cf.LookVector else nil
+end
+
+local function aimPlausible(player: Player, root: BasePart, direction: Vector3): boolean
+	local look = cameraLook(player)
+	if look then
+		return angleBetween(direction, look) <= Config.AIM_TOLERANCE
 	end
 	if not warnedFallback then
 		warnedFallback = true
@@ -247,7 +278,10 @@ function ModService.setSlot(player: Player, slot: number, id: string?, level: st
 	s.charges = if stats then stats.charges else 0
 	s.rechargeAt = serverNow()
 	publishSlot(player, slot, s)
-	player:SetAttribute(prefix(slot) .. "ActiveUntil", nil)
+	local private = privateState(player)
+	if private then
+		private:SetAttribute(prefix(slot) .. "ActiveUntil", nil)
+	end
 	return true
 end
 
@@ -297,6 +331,9 @@ local function onHold(player: Player, slotArg: unknown)
 	end
 	if not active() or not liveHumanoid(player.Character) then
 		return
+	end
+	if state.held == slot then
+		return -- already held (a repeat would re-clone the held model)
 	end
 	local s = state.slots[slot]
 	local def = s.id and Mods.def(s.id)
@@ -443,10 +480,12 @@ local function use(
 			end
 			ModEntities.place(player, kind, part, life, hp, maxActive)
 		end,
-		zone = function(spec: ModTypes.ZoneSpec)
+		zone = function(spec: ModTypes.ZoneSpec): boolean
 			if player.Character == character and liveHumanoid(character) then
 				ModEntities.addZone(player, spec)
+				return true
 			end
+			return false
 		end,
 		reveal = function(targets: { Model }, duration: number)
 			for _, other in Players:GetPlayers() do
@@ -467,8 +506,14 @@ local function use(
 			WeaponService.setFireRate(player, mult, duration)
 		end,
 		active = function(duration: number)
-			player:SetAttribute(prefix(slot) .. "ActiveUntil", serverNow() + duration)
+			local private = privateState(player)
+			if private then
+				private:SetAttribute(prefix(slot) .. "ActiveUntil", serverNow() + duration)
+			end
 		end,
+		-- Where the server's own copy of the camera looks (Server Authority),
+		-- else the claimed aim: for checks that must not stack tolerances.
+		cameraLook = cameraLook(player) or direction,
 		objectsNear = function(at: Vector3, radius: number): { BasePart }
 			return ModEntities.objectsNear(at, radius)
 		end,
@@ -609,6 +654,9 @@ local function onCharacter(player: Player, character: Model)
 	ModEntities.clear(player)
 	watchRollback(player, character)
 	local humanoid = character:WaitForChild("Humanoid", 10)
+	if player.Parent ~= Players or player.Character ~= character then
+		return -- left (or respawned) while we waited
+	end
 	if humanoid and humanoid:IsA("Humanoid") then
 		holdLife(
 			player,
@@ -623,6 +671,7 @@ end
 local function onPlayer(player: Player)
 	assignTeam(player)
 	states[player] = newState()
+	player:WaitForChild("PlayerGui", 10)
 	player:SetAttribute("ModHeld", 0)
 	if active() then
 		ModService.setLoadout(player, Config.TEST_LOADOUT)

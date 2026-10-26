@@ -318,7 +318,13 @@ local function outline(model: Instance)
 	if outlines[model] or not model:IsA("Model") or model:GetAttribute("DevDummy") == nil then
 		return
 	end
+	local existing = model:FindFirstChild("DevOutline")
+	if existing and existing:IsA("Highlight") then
+		outlines[model] = existing -- streamed back in with it
+		return
+	end
 	local h = Instance.new("Highlight")
+	h.Name = "DevOutline"
 	h.FillTransparency = 1
 	h.OutlineTransparency = 0.1
 	h.OutlineColor = TeamColor.forTeam(Teams.of(model))

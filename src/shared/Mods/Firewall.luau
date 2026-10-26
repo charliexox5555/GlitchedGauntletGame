@@ -18,7 +18,8 @@ function Firewall.find(
 	head: Vector3,
 	aim: Vector3,
 	stats: Types.Stats,
-	params: RaycastParams
+	params: RaycastParams,
+	overlap: OverlapParams?
 ): Placeable.Spot
 	return Placeable.find(
 		head,
@@ -26,7 +27,7 @@ function Firewall.find(
 		stats.placeRange,
 		Firewall.size(stats),
 		params,
-		Placeable.overlap(true)
+		overlap or Placeable.overlap(true)
 	)
 end
 

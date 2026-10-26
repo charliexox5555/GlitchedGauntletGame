@@ -61,7 +61,9 @@ module.validate = function(ctx: Types.ServerCtx, req: Types.Request): (boolean, 
 			if not point or (point - from).Magnitude > stats.range + RANGE_SLACK then
 				return false, "out of range"
 			end
-			if Target.angle(from, req.direction, t) > stats.aimAngle + ANGLE_SLACK then
+			-- Against the server's own camera, so the request's aim tolerance
+			-- doesn't stack on top of the crosshair cone.
+			if Target.angle(from, ctx.cameraLook, t) > stats.aimAngle + ANGLE_SLACK then
 				return false, "not in the crosshair"
 			end
 			if not Target.visible(from, t, ctx.worldParams()) then

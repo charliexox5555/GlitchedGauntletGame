@@ -34,9 +34,29 @@ local rollbackConnection: RBXScriptConnection? = nil
 
 local AbilitiesSim = {}
 
-local PREFIXES = {}
+-- Attribute names per slot, built once (the step runs 60 times a second for
+-- every character).
+type SlotNames = {
+	input: string,
+	inAttr: string,
+	id: string,
+	level: string,
+	key: string,
+	charges: string,
+	rechargeAt: string,
+}
+local NAMES: { SlotNames } = {}
 for slot = 1, Config.SLOTS do
-	PREFIXES[slot] = "Mod" .. slot
+	local p = "Mod" .. slot
+	NAMES[slot] = {
+		input = p,
+		inAttr = p .. "In",
+		id = p .. "Id",
+		level = p .. "Level",
+		key = p .. "Key",
+		charges = p .. "Charges",
+		rechargeAt = p .. "RechargeAt",
+	}
 end
 
 local function set(model: Model, name: string, value: any)
@@ -110,13 +130,13 @@ function AbilitiesSim.stepCharacter(
 		set(character, "SlideJumpSpeed", carry)
 	end
 
-	for slot, prefix in PREFIXES do
-		local input = actionDown(context, prefix)
-		local pressed = input and character:GetAttribute(prefix .. "In") ~= true
-		set(character, prefix .. "In", input)
+	for slot, names in NAMES do
+		local input = actionDown(context, names.input)
+		local pressed = input and character:GetAttribute(names.inAttr) ~= true
+		set(character, names.inAttr, input)
 
-		local id = player:GetAttribute(prefix .. "Id")
-		local level = player:GetAttribute(prefix .. "Level")
+		local id = player:GetAttribute(names.id)
+		local level = player:GetAttribute(names.level)
 		if typeof(id) ~= "string" or typeof(level) ~= "string" then
 			continue
 		end
@@ -138,9 +158,9 @@ function AbilitiesSim.stepCharacter(
 		local key = id .. ":" .. level
 		local max: number = stats.charges
 		local cooldown: number = stats.cooldown
-		local charges = number(character, prefix .. "Charges", max)
-		local rechargeAt = number(character, prefix .. "RechargeAt", now)
-		if reset or character:GetAttribute(prefix .. "Key") ~= key then
+		local charges = number(character, names.charges, max)
+		local rechargeAt = number(character, names.rechargeAt, now)
+		if reset or character:GetAttribute(names.key) ~= key then
 			charges, rechargeAt = max, now
 		end
 		charges, rechargeAt = Charges.settle(charges, rechargeAt, max, cooldown, now)
@@ -159,9 +179,9 @@ function AbilitiesSim.stepCharacter(
 				charges, rechargeAt = Charges.spend(charges, rechargeAt, max, cooldown, now)
 			end
 		end
-		set(character, prefix .. "Key", key)
-		set(character, prefix .. "Charges", charges)
-		set(character, prefix .. "RechargeAt", rechargeAt)
+		set(character, names.key, key)
+		set(character, names.charges, charges)
+		set(character, names.rechargeAt, rechargeAt)
 	end
 	set(character, "ModResetSeen", resetSerial)
 

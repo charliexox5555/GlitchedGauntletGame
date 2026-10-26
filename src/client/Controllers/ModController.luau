@@ -79,11 +79,29 @@ local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {
 	LagField = LagField.options,
 }
 -- Held placements: each Mod's spot check and box (the server uses the same).
-type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams) -> Placeable.Spot
-local PLACE: { [string]: { find: Finder, size: (ModTypes.Stats) -> Vector3 } } = {
-	LaunchPad = { find = LaunchPad.find, size = LaunchPad.size },
-	Firewall = { find = Firewall.find, size = Firewall.size },
+type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams, OverlapParams?) -> Placeable.Spot
+type PlaceDef = { find: Finder, size: (ModTypes.Stats) -> Vector3, bodies: boolean }
+local PLACE: { [string]: PlaceDef } = {
+	LaunchPad = { find = LaunchPad.find, size = LaunchPad.size, bodies = false },
+	Firewall = { find = Firewall.find, size = Firewall.size, bodies = true },
 }
+-- Overlap params for the hologram, rebuilt twice a second (not per frame).
+local overlapCache: { [boolean]: OverlapParams } = {}
+local overlapAt = -math.huge
+
+local function overlapFor(bodies: boolean): OverlapParams
+	local now = os.clock()
+	if now - overlapAt > 0.5 then
+		overlapAt = now
+		table.clear(overlapCache)
+	end
+	local o = overlapCache[bodies]
+	if not o then
+		o = Placeable.overlap(bodies)
+		overlapCache[bodies] = o
+	end
+	return o
+end
 local VALID = Color3.fromHex("4ADE80")
 local INVALID = Color3.fromHex("F87171")
 local flash: { text: string, at: number }? = nil
@@ -111,7 +129,22 @@ local function number(inst: Instance?, name: string, default: number): number
 	return if typeof(v) == "number" then v else default
 end
 
-function ModController.slot(slot: number): SlotView
+-- Your server Mods' cooldowns live on PlayerGui.ModState (owner-only).
+local function privateState(): Instance?
+	local gui = player:FindFirstChildOfClass("PlayerGui")
+	return gui and gui:FindFirstChild("ModState")
+end
+
+function ModController.privateState(): Instance?
+	return privateState()
+end
+
+-- One SlotView per slot per frame (the HUD, the hint and the update all ask).
+local views: { [number]: SlotView } = {}
+local viewsFrame = -1
+local frame = 0
+
+local function buildSlot(slot: number): SlotView
 	local p = PREFIXES[slot]
 	local id = player:GetAttribute(p .. "Id")
 	local levelAttr = player:GetAttribute(p .. "Level")
@@ -143,8 +176,8 @@ function ModController.slot(slot: number): SlotView
 	view.cooldown = stats.cooldown
 	view.built = Mods.isBuilt(id)
 	-- Predicted Mods keep their charges on the character in time(); server
-	-- Mods on the player in the server clock.
-	local source: Instance? = player
+	-- Mods on the owner-only holder in the server clock.
+	local source: Instance? = privateState()
 	local now = Workspace:GetServerTimeNow()
 	if def.authority == "Simulation" then
 		source = player.Character
@@ -156,6 +189,32 @@ function ModController.slot(slot: number): SlotView
 	view.charges = charges
 	view.remaining = Charges.remaining(charges, rechargeAt, stats.charges, now)
 	return view
+end
+
+function ModController.slot(slot: number): SlotView
+	if viewsFrame ~= frame then
+		viewsFrame = frame
+		table.clear(views)
+	end
+	local v = views[slot]
+	if not v then
+		v = buildSlot(slot)
+		views[slot] = v
+	end
+	return v
+end
+
+-- Live allies, refreshed a few times a second (not every frame).
+local alliesCache: { Model } = {}
+local alliesAt = -math.huge
+
+local function allyCount(): number
+	local now = os.clock()
+	if now - alliesAt > 0.25 then
+		alliesAt = now
+		alliesCache = PatchUp.allies(player)
+	end
+	return #alliesCache
 end
 
 local function ready(view: SlotView): boolean
@@ -375,7 +434,8 @@ local function drawPlacement(id: string, stats: ModTypes.Stats)
 		hidePlacement()
 		return
 	end
-	local spot = place.find(head, cam.CFrame.LookVector, stats, previewParams())
+	local spot =
+		place.find(head, cam.CFrame.LookVector, stats, previewParams(), overlapFor(place.bodies))
 	lastSpot = spot
 	local part = hologram
 	if not part then
@@ -502,6 +562,9 @@ local function use(mode: ModTypes.UseMode)
 		return
 	end
 	if def.activation == "HeldPlace" then
+		if not lastSpot then
+			drawPlacement(def.id, stats) -- quick-cast: no frame has drawn it yet
+		end
 		local spot = lastSpot
 		if not spot or not spot.valid then
 			deny(current, if spot and spot.reason then spot.reason else "Can't place there")
@@ -624,6 +687,7 @@ end
 -- Per frame -----------------------------------------------------------------------------
 
 local function update(_dt: number)
+	frame += 1
 	local now = os.clock()
 	local character = player.Character
 
@@ -698,7 +762,7 @@ function ModController.hint(): (string?, boolean)
 	local lmb, rmb = useLabels()
 	local parts = {}
 	local primary = def.hint.primary
-	if def.id == "PatchUp" and view.stats and #PatchUp.allies(player) == 0 then
+	if def.id == "PatchUp" and view.stats and allyCount() == 0 then
 		primary = "Heal self"
 	end
 	if primary then
@@ -740,14 +804,18 @@ function ModController.start()
 		lastDashStart = 0
 		lastRollbackAt = 0
 	end)
-	player.CharacterAdded:Connect(function(character)
+	local function watchDeath(character: Model)
 		local humanoid = character:WaitForChild("Humanoid", 10)
 		if humanoid and humanoid:IsA("Humanoid") then
 			humanoid.Died:Connect(function()
 				endHold(false)
 			end)
 		end
-	end)
+	end
+	player.CharacterAdded:Connect(watchDeath)
+	if player.Character then
+		task.spawn(watchDeath, player.Character)
+	end
 	RunService:BindToRenderStep("GGMods", Enum.RenderPriority.Input.Value + 2, update)
 end
 

@@ -19,19 +19,25 @@ local actions: { [string]: InputAction } = {}
 -- Studio: two Pressed ~50 ms apart, no Released between), which would cancel
 -- a Mod hold on the spot or double a semi-auto shot. A Pressed with no
 -- Released since the last one is dropped, and so is a Released with no Pressed.
-type Edges = { down: boolean, pressed: BindableEvent, released: BindableEvent }
+type Edges = { down: boolean, at: number, pressed: BindableEvent, released: BindableEvent }
+-- A duplicate Pressed comes within a few frames; one later than this is a
+-- new press (in case a Released was lost).
+local DUPLICATE_WINDOW = 0.2
 local edges: { [string]: Edges } = {}
 
 local function watch(name: string, action: InputAction)
 	local e: Edges = {
 		down = false,
+		at = -math.huge,
 		pressed = Instance.new("BindableEvent"),
 		released = Instance.new("BindableEvent"),
 	}
 	edges[name] = e
 	action.Pressed:Connect(function()
-		if not e.down then
+		local now = os.clock()
+		if not e.down or now - e.at > DUPLICATE_WINDOW then
 			e.down = true
+			e.at = now
 			e.pressed:Fire()
 		end
 	end)

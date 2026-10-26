@@ -12,7 +12,7 @@ local AudioController = require(script.Parent.Parent.Controllers.AudioController
 
 local ModAudio = {}
 
-export type Hum = { sound: Sound, id: string, stopped: boolean }
+export type Hum = { sound: Sound, holder: Attachment, id: string, stopped: boolean }
 
 local FADE_IN = TweenInfo.new(0.2)
 local FADE_OUT = TweenInfo.new(0.35)
@@ -50,10 +50,15 @@ function ModAudio.hum(cue: ModSounds.Cue?, holder: Instance?): Hum?
 	local s = sound :: Sound
 	s.PlaybackSpeed = cue.pitch or 1
 	s.Volume = 0
-	s.Parent = holder
+	-- Our own Attachment on the holder: if the holder is destroyed, only the
+	-- attachment and this Sound go (the Sound isn't returned to the pool).
+	local a = Instance.new("Attachment")
+	a.Name = "ModHum"
+	a.Parent = holder
+	s.Parent = a
 	s:Play()
 	TweenService:Create(s, FADE_IN, { Volume = cue.volume }):Play()
-	return { sound = s, id = cue.id, stopped = false }
+	return { sound = s, holder = a, id = cue.id, stopped = false }
 end
 
 function ModAudio.stopHum(hum: Hum?)
@@ -64,8 +69,16 @@ function ModAudio.stopHum(hum: Hum?)
 	local s = hum.sound
 	local tween = TweenService:Create(s, FADE_OUT, { Volume = 0 })
 	tween.Completed:Once(function()
-		s:Stop()
-		s.Parent = nil
+		local ok = pcall(function()
+			s:Stop()
+			s.Parent = nil
+		end)
+		pcall(function()
+			hum.holder:Destroy()
+		end)
+		if not ok then
+			return -- destroyed with its holder
+		end
 		local list = free[hum.id]
 		if not list then
 			list = {}

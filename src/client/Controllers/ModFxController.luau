@@ -384,7 +384,8 @@ local function onHeal(data: { [string]: any })
 			alpha0 = 0.2,
 		})
 	end
-	if casterModel and casterModel ~= targetModel then
+	-- The beam is for the healer's team (enemies get the 3D heal sound).
+	if friendly and casterModel and casterModel ~= targetModel then
 		local beam = takePart(Enum.PartType.Block, color)
 		table.insert(beams, {
 			part = beam,
@@ -694,7 +695,7 @@ local objectFlash: { [BasePart]: number } = {}
 local skins: { [BasePart]: { Texture } } = {}
 -- Placed objects wearing their finished model (ModProps.dress): the server
 -- part is the hitbox, hidden on this client; the model is the look.
-type Dressed = { model: Model, energy: { BasePart }, arrows: { BasePart } }
+type Dressed = { model: Model, energy: { BasePart }, arrows: { BasePart }, flashing: boolean }
 local dressed: { [BasePart]: Dressed } = {}
 local SHELL = Color3.fromHex("2A2D33")
 local CHEVRON_SPEED = 5 -- studs per second the pad's arrows scroll
@@ -759,7 +760,7 @@ local function dress(part: BasePart): boolean
 	end)
 	model.Parent = fxFolder()
 	part.LocalTransparencyModifier = 1
-	dressed[part] = { model = model, energy = energy, arrows = arrows }
+	dressed[part] = { model = model, energy = energy, arrows = arrows, flashing = false }
 	part.AncestryChanged:Connect(function()
 		if not part:IsDescendantOf(workspace) then
 			undress(part)
@@ -768,10 +769,21 @@ local function dress(part: BasePart): boolean
 	return true
 end
 
+-- Parts already dressed: StreamingEnabled parents a part to nil and back,
+-- and it must not get a second set of skins and connections.
+local known: { [BasePart]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+
 local function colourObject(part: Instance)
 	if not part:IsA("BasePart") then
 		return
 	end
+	if known[part] then
+		if not dressed[part] and not skins[part] then
+			dress(part) -- streamed back in: put the model back
+		end
+		return
+	end
+	known[part] = true
 	local kind = part:GetAttribute("Kind")
 	if dress(part) then
 		-- The finished model carries the look.
@@ -949,6 +961,7 @@ end
 
 -- Slowed: a SLOWED tag over anyone a Lag Field is slowing.
 local slowTags: { [Model]: BillboardGui } = {}
+local SLOW_TAG_RANGE = 90
 
 local function tagSlowed(model: Model?, seen: { [Model]: boolean })
 	if not model then
@@ -965,7 +978,9 @@ local function tagSlowed(model: Model?, seen: { [Model]: boolean })
 	local gui = Instance.new("BillboardGui")
 	gui.Size = UDim2.fromOffset(90, 22)
 	gui.StudsOffsetWorldSpace = Vector3.new(0, 3.2, 0)
-	gui.AlwaysOnTop = true
+	-- Hidden by walls and range-limited: never a wallhack.
+	gui.AlwaysOnTop = false
+	gui.MaxDistance = SLOW_TAG_RANGE
 	gui.Adornee = head
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
@@ -1124,12 +1139,24 @@ local function update(_dt: number)
 			objectFlash[part] = nil
 		end
 		part.Color = if done then restColor(part) else Color3.new(1, 1, 1)
-		for _, t in skins[part] or {} do
-			t.Color3 = if done then objectColor(part) else Color3.new(1, 1, 1)
+		local list = skins[part]
+		if list then
+			for _, t in list do
+				t.Color3 = if done then objectColor(part) else Color3.new(1, 1, 1)
+			end
 		end
 		local d = dressed[part]
-		if d then
-			ModProps.tint(d.model, if done then objectColor(part) else Color3.new(1, 1, 1))
+		if d and (done or not d.flashing) then
+			d.flashing = not done
+			local c = if done then objectColor(part) else Color3.new(1, 1, 1)
+			for _, e in d.energy do
+				e.Color = c
+				for _, decal in e:GetChildren() do
+					if decal:IsA("Decal") then
+						decal.Color3 = c
+					end
+				end
+			end
 		end
 	end
 	-- Launch Pad arrows chase toward the launch, back to front.

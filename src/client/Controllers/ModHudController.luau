@@ -72,6 +72,7 @@ type SlotUi = {
 	-- Touch arc button (nil off touch).
 	button: TextButton?,
 	buttonText: TextLabel?,
+	shownTouch: string,
 }
 
 local bar: Frame? = nil
@@ -334,6 +335,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		deniedAt = -math.huge,
 		button = nil,
 		buttonText = nil,
+		shownTouch = "",
 	}
 end
 
@@ -496,7 +498,8 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 	end
 	ui.wasCooling = cooling
 
-	local activeUntil = player:GetAttribute("Mod" .. slot .. "ActiveUntil")
+	local private = ModController.privateState()
+	local activeUntil = private and private:GetAttribute("Mod" .. slot .. "ActiveUntil")
 	local serverNow = workspace:GetServerTimeNow()
 	if typeof(activeUntil) == "number" and activeUntil ~= ui.activeUntil then
 		ui.activeUntil = activeUntil
@@ -541,8 +544,12 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 		ui.face.Position = UDim2.fromOffset(0, 0)
 	end
 
+	-- Touch button: written only when something it shows changed.
 	local button, label = ui.button, ui.buttonText
-	if button and label then
+	local touchKey =
+		string.format("%s|%s|%s|%s", tostring(id), secs, tostring(cooling), tostring(view.held))
+	if button and label and touchKey ~= ui.shownTouch then
+		ui.shownTouch = touchKey
 		button.Visible = id ~= nil
 		local icon = button:FindFirstChild("Icon")
 		local iconId = if view.def then view.def.icon else ""

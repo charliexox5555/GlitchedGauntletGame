@@ -53,9 +53,7 @@ local cache: { [Animator]: { [string]: AnimationTrack } } = setmetatable({}, { _
 -- Run only where this side simulates the character (the server for
 -- everyone, a client for its own character), like Animate does.
 local function isSimulated(instance: Instance): boolean
-	local ok, status = pcall(function()
-		return RunService:GetPredictionStatus(instance)
-	end)
+	local ok, status = pcall(RunService.GetPredictionStatus, RunService, instance)
 	return not ok or status ~= Enum.PredictionStatus.None
 end
 
