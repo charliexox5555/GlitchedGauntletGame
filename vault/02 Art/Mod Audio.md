@@ -1,7 +1,19 @@
 # Mod Audio: L1 sound shortlist
 
-> **Status: PROPOSAL, waiting for the user's approval (2026-10-26).** Nothing is uploaded or wired in. Audition the candidate ids in Studio's Toolbox (Creator Store → Audio, paste the id), pick per cue, then the code session wires the approved ones into `Config` and the synth cues go into the next sound atlas.
+> **Status: PROPOSAL, every pick UNAUDITIONED (2026-10-26).** The handler session reviewed the list overnight on the user's behalf, but nobody has listened to any of it yet. Nothing is uploaded or wired in. After the morning audition, the code session wires the approved picks into `Config` and the synth cues go into the next sound atlas.
 > Design: [Mods](../01%20Design/Mods.md) · audio rules: [Art Direction](Art%20Direction.md) → Audio · synth presets: `tools/audio/mod_sfx.py`
+
+## ☀️ Morning audition list (about 15 min)
+1. **Synth cues (one reel):** run `python -I tools/audio/mod_sfx.py`, then play `art-source/audio/ModSfx/_Reel.wav`. Order: Ready, Denied, Cancel, Raise, Ping ×3, Overclock ×3, Rollback ×2, Packet fuse/danger, Lag ×2, Heal ×2, WallHit ×2 (loops play 3 times so you can hear the seam). For any you dislike, try its library alternative in the tables below.
+2. **Library top picks (Studio → Toolbox → Creator Store → Audio, paste the id):**
+   - Blink: 9117161625 (use), 9120984892 (arrive)
+   - Launch Pad: 9125925576 (place), 9125577419 + 9125805579 (launch), 9125784811 (idle), 9116488211 (land), 9117869243 (destroyed)
+   - Packet: 9114659833 (pin), 9126229700 (throw), 9116617140 (bounce), 9119236749 + 9125625388 (explode)
+   - Firewall: 9125981170 + 9125819216 (deploy), 9114524164 (hum), 9114589190 (break), 9117872887 (expire)
+   - Lag Field: 9120712091 (throw), 9120059083 (zone opens), 9125640290 (expire)
+   - Patch Up: 127533251122014 (raise foley), 9126073001 (heal start)
+3. **Listen for:** each Mod sounds clearly different from the others (the family table below); the three enemy-only warnings (Packet danger, Ping revealed, Lag slowed) feel urgent; nothing is shrill when played often (Ready, WallHit).
+4. Write ✅ or the replacement id next to each cue below, then tell the handler.
 
 ## Rules this list follows
 - **Only Roblox-licensed sources:** ProSoundEffects (PSE, user 7462895450), Audioscape (group 34159607) and Roblox's own uploads (user 1). Every id below was checked on 2026-10-26 against the Creator Store API (`toolbox-service` item details): it exists, is free, the creator is one of those three and the title matches. PSE lengths are exact (from the asset description); Roblox and Audioscape only report whole seconds, so those show "~". **No id was auditioned by ear** (Claude can't listen): that's the user's step.
@@ -27,7 +39,7 @@
 ---
 
 ## 1. Blink (instant dash)
-| Cue | Heard by | Intent | Search terms | Candidates (id: title, length) | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates (id: title, length) | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Use (dash) | All 3D | Short airy digital zip, reads as "blinked" from behind cover | `zip by`, `whoosh up`, `synth zip`, `magic zoom` | **9117161625**: Oowhup Beeps Whirring Zip Bys 1, 0.8 s · 9125648149: Magic Zoom Up Sharp Tubular Whoosh Fast Hiss, 0.7 s · 9126089814: Synth Zip Short High Pitch Ascending Bursts, 1.4 s | 9117161625 |
 | Arrive (optional tail) | All 3D | Reverse-suck "pop in" at the landing spot | `reversed whoosh`, `swish suck` | **9120984892**: Zap High Pitch Glassy Reversed Whoosh 9, 1.2 s · 9119707097: Swish Suck Reversed Metallic Swoosh Impact 1, 1.2 s | 9120984892 |
@@ -35,7 +47,7 @@
 No enemy-only variant needed: the dash itself is the tell.
 
 ## 2. Launch Pad (held: place)
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Raise | You | Shared Mod raise | — | Synth `ModRaise` (shared cues) | `ModRaise` |
 | Place | All 3D | Mechanical clunk + servo, "something got built here" | `servo`, `mechanical`, `pneumatic` | **9125925576**: Servo Shut Off Giant Machine Mechanical Quick 4, 2.4 s · 9118941667: Servo Motor 1, 0.5 s · 16480551414: Roblox_Pinball_Startup_Mechanical_01 (Roblox), ~1 s | 9125925576 |
@@ -45,7 +57,7 @@ No enemy-only variant needed: the dash itself is the tell.
 | Pad destroyed | All 3D | Power-down with static | `power down`, `static burst` | **9117869243**: Power Down 1, 1.4 s · 9126160991: Video Static Distortion Short And Long Bursts 2, 1.7 s | 9117869243 |
 
 ## 3. Packet (held: throw grenade)
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Raise | You | Mod raise + pin pull | `grenade pull pin` | `ModRaise` + **9114659833**: Grenade Pull Pin 2, 0.5 s · 9114659662: Grenade Pull Pin 1, 1.4 s | `ModRaise` + 9114659833 |
 | Throw | All 3D | Quick arm swish | `throw whoosh`, `whoosh fast swish` | **9126229700**: Whoosh By Fast Airy Swooshing Whipping Thuds 5, 1.1 s · 9120711313: Whoosh Fast Swish By 6, 1.2 s | 9126229700 |
@@ -55,7 +67,7 @@ No enemy-only variant needed: the dash itself is the tell.
 | Explode | All 3D | Punchy close blast with a bright digital crackle on top | `small explosion`, `pyro explosion`, `energy bursts` | **9119236749**: Small Explosion 1, 2.9 s · 9117982449: Pyro Explosion 1, 2.2 s · 9114589178: Glass Boom 6, 3.8 s; layer 9125625388: Layered Rips High End Short Energy Bursts Spark 3, 1.1 s | 9119236749 + 9125625388 |
 
 ## 4. Firewall (held: place)
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Raise | You | Shared Mod raise | — | `ModRaise` | `ModRaise` |
 | Deploy | All 3D | Glassy build-up that lands solid | `charge up`, `power up`, `decloak` | **9125981170**: Spaceship Pre Blast Electric Charge Up Glassy 3, 1.8 s · 9119816546: Synth Power Up Multi Tone Wind Ups Rise 2, 2.7 s · 9125484235: Decloak Reversed Synth Bursts Low Pitch Growly 1, 2.0 s; slam layer 9125819216: Robot Impact Miscellaneous Metal Clangs Clunks 4, 1.4 s | 9125981170 + 9125819216 |
@@ -65,7 +77,7 @@ No enemy-only variant needed: the dash itself is the tell.
 | Expire | All 3D | Gentle power-down, unlike the break | `power down` | **9117872887**: Power Down 4, 3.2 s | 9117872887 |
 
 ## 5. Lag Field (held: throw orb)
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Raise | You | Shared Mod raise | — | `ModRaise` | `ModRaise` |
 | Throw | All 3D | Swish, a different take from Packet's | `whoosh fast swish` | **9120712091**: Whoosh Fast Swish By 2, 1.2 s | 9120712091 |
@@ -75,14 +87,14 @@ No enemy-only variant needed: the dash itself is the tell.
 | Expire | All 3D | Hum fades + a soft poof | `magic poofs` | **9125640290**: Magic Poofs Short Breathy Bursts Wheezy Punchy 2, 1.5 s | 9125640290 |
 
 ## 6. Ping (instant reveal)
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Cast | You | Rising scan sweep into a clean sonar ping with echo | `sonar`, `scanner` | Synth `ModPingCast` · alt 9125981410: Spaceship Sonar Low And High Pitch Tonal Throbs 4, 2.4 s · 9126138068: Transmission Breakup Sonar Or Tracker Tones 2, 0.5 s | `ModPingCast` |
 | **Pulse** | **All 3D** (heard by enemies near it) | Lower, harder sonar "pwomm": a scan just went out, move | `sonar` | Synth `ModPingPulse` · alt 9125984762: Spaceship Sonar Low And Mid Pitch Tonal Throbs 31, 2.5 s | `ModPingPulse` |
 | **Revealed** | **Enemy 2D** (only the revealed) | Two sharp alert chirps: "you're spotted" | `scanner beeps` | Synth `ModPingRevealed` · alt 9118777239: Scanner Beeps 5, 0.9 s | `ModPingRevealed` |
 
 ## 7. Patch Up (held: target heal)
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Raise | You | Device foley + Mod raise | `AS_scifi_foley` | `ModRaise` + **127533251122014**: AS_scifi_foley-01 (Audioscape), under 1 s | `ModRaise` + 127533251122014 |
 | Heal start | All 3D | Bright bell ding | `synth sparkle`, `magic glows` | **9126073001**: Synth Sparkle Tone High Pitch Bell Tone Ding 4, 1.2 s · 9116394545: Magic Glows Soft Clusters Of Chiming Hits 1, 2.1 s | 9126073001 |
@@ -90,7 +102,7 @@ No enemy-only variant needed: the dash itself is the tell.
 | Heal done | Healer + target | Rising major arpeggio | `synth sparkle tone burst` | Synth `ModHealDone` · alt 9119834423: Synth Sparkle Tone High Pitch Tone Burst 7, 0.6 s | `ModHealDone` |
 
 ## 8. Overclock (instant self-buff)
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Activate | All 3D | Saw spin-up with a crunchy front | `spin up`, `synth power up` | Synth `ModOverclockOn` · alt 9119816546: Synth Power Up Multi Tone Wind Ups Rise 2, 2.7 s · 9114216526: Dvd Play Motor Spin Up 1, 2.6 s | `ModOverclockOn` |
 | Hum (5 s) | All 3D, on the gun | Buzzing electric whine: the "gun hums" counter-play tell | `rizzy hum`, `energy spin` | Synth `ModOverclockLoop` · alt 9125808054: Rizzy Tone Undulating Constant Low Pitch Hum 2, 36.0 s · 9114344375: Energy Spin Speed Up To Fast Synth Motor 1, 17.9 s | `ModOverclockLoop` |
@@ -99,7 +111,7 @@ No enemy-only variant needed: the dash itself is the tell.
 Free extra (no asset): raise the gun's shot pitch ~4% while Overclock runs, so the faster fire also *sounds* faster.
 
 ## 9. Rollback (instant rewind)
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Rewind | You | VHS rewind: fast falling chirps through a flanger, under the screen effect | `rewind`, `wind suck backwards` | Synth `ModRollbackRewind` · alt 9117880715: Power Rewind Brake Engage 1, 2.0 s · 9120768061: Wind Suck Backwards Swooshing Build Up 1, 2.2 s | `ModRollbackRewind` |
 | Snap | All 3D, at **both** ends | Crushed digital glitch snap: where they left *and* where they landed | `video static distortion` | Synth `ModRollbackSnap` · alt 9120425687: Video Static Distortion Short Bursts Rizzy 2, 1.0 s · 9126160991: Video Static Distortion Short And Long Bursts 2, 1.7 s | `ModRollbackSnap` |
@@ -107,7 +119,7 @@ Free extra (no asset): raise the gun's shot pitch ~4% while Overclock runs, so t
 ---
 
 ## Shared cues
-| Cue | Heard by | Intent | Search terms | Candidates | Top pick |
+| Cue | Heard by | Intent | Search terms | Candidates | Top pick (unauditioned) |
 |---|---|---|---|---|---|
 | Cooldown ready | You | Soft rising two-note blip, never annoying | `notification`, `synth sparkle tone burst` | Synth `ModReady` · alt 17208361335: Roblox GUI - Notification High (Roblox), ~2 s · 9126076030: Synth Sparkle Tone High Pitch Tone Burst Ping 4, 0.9 s | `ModReady` |
 | Can't use | You | Low double buzz (on cooldown, blocked, Packet Loss later) | `negative`, `malfunction beeps` | Synth `ModDenied` · alt 17208353912: Roblox GUI - Negative (Roblox), under 1 s · 9116458566: Malfunction Beeps Glitch Staticky 3, 0.4 s | `ModDenied` |
