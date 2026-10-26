@@ -33,6 +33,21 @@ local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWei
 local MEDIUM = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium)
 
 local INDICATOR_TIME = 1.1 -- damage direction fade, seconds
+-- Touch layout: designed for a 760-px-tall screen, scaled down to fit (never
+-- below TOUCH_SCALE_MIN) and never up. Positions are offsets from the
+-- layer's bottom-right corner.
+local TOUCH_LAYER = Vector2.new(480, 480)
+local TOUCH_DESIGN_HEIGHT = 760
+local TOUCH_SCALE_MIN = 0.62
+
+local touchLayer: Frame? = nil
+
+-- Touch controls are built on touch devices, and in Studio when the Workspace
+-- attribute ForceTouchUI is ticked (to check the layout on a PC).
+local function touchUi(): boolean
+	return UserInputService.TouchEnabled
+		or (RunService:IsStudio() and Workspace:GetAttribute("ForceTouchUI") == true)
+end
 
 type Refs = {
 	gui: ScreenGui,
@@ -313,8 +328,37 @@ local function build(): Refs
 		}),
 	}, wedge)
 
-	-- Touch buttons (names match Config/Input).
-	if UserInputService.TouchEnabled then
+	-- Touch buttons (names match Config/Input), on their own layer: a
+	-- bottom-right frame in a ScreenGui that respects the device's safe area
+	-- (notches, rounded corners), scaled to the screen height so the whole
+	-- cluster (and the Mod arc ModHudController adds to it) fits a small
+	-- phone and stays the same shape everywhere.
+	if touchUi() then
+		local touchGui = make("ScreenGui", {
+			Name = "TouchControls",
+			ResetOnSpawn = false,
+			ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets,
+			DisplayOrder = 4,
+		}, player:WaitForChild("PlayerGui"))
+		local layer = make("Frame", {
+			Name = "Layer",
+			AnchorPoint = Vector2.new(1, 1),
+			Position = UDim2.fromScale(1, 1),
+			Size = UDim2.fromOffset(TOUCH_LAYER.X, TOUCH_LAYER.Y),
+			BackgroundTransparency = 1,
+		}, touchGui)
+		local scale = make("UIScale", { Scale = 1 }, layer)
+		local function rescale()
+			local cam = Workspace.CurrentCamera
+			local h = if cam then cam.ViewportSize.Y else TOUCH_DESIGN_HEIGHT
+			scale.Scale = math.clamp(h / TOUCH_DESIGN_HEIGHT, TOUCH_SCALE_MIN, 1)
+		end
+		rescale()
+		local cam = Workspace.CurrentCamera
+		if cam then
+			cam:GetPropertyChangedSignal("ViewportSize"):Connect(rescale)
+		end
+		touchLayer = layer
 		local function button(name: string, label: string, pos: UDim2, size: number)
 			local b = make("TextButton", {
 				Name = name,
@@ -328,7 +372,7 @@ local function build(): Refs
 				TextColor3 = WHITE,
 				Text = label,
 				AutoButtonColor = true,
-			}, gui)
+			}, layer)
 			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
 			make("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.6 }, b)
 		end
@@ -359,6 +403,12 @@ local function build(): Refs
 end
 
 -- API ------------------------------------------------------------------------
+
+-- The touch controls' layer (nil off touch): ModHudController puts its Mod
+-- arc here so it lines up with Fire at every scale.
+function HudController.touchLayer(): Frame?
+	return touchLayer
+end
 
 function HudController.setWeapon(displayName: string, ammo: number, magSize: number)
 	local r = refs
@@ -498,8 +548,9 @@ function HudController.init()
 end
 
 function HudController.start()
-	if refs and UserInputService.TouchEnabled then
-		InputController.bindTouchButtons(refs.gui)
+	local layer = touchLayer
+	if layer then
+		InputController.bindTouchButtons(layer)
 	end
 	RunService.RenderStepped:Connect(update)
 	local lastHurt = 0
