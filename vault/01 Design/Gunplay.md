@@ -171,6 +171,17 @@ Uzi-type SMG, mag in the grip, iron-sight ADS.
 
 Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode switch).
 
+### Spectre v2 (roster 05, suppressed SMG)
+| Stat | Value | Valorant Spectre |
+|---|---|---|
+| Fire | Auto, 0.075 s (13.3/s), suppressed | 13.33/s, silenced |
+| Mag / reload | 30 / 2.1 s, 2.5 s empty (rack) | 30 / 2.25 s |
+| Damage | 26 body / 58 head / 22 legs; ×0.85 from 71 studs, ×0.77 from 178 studs | 26 / 78 / 22 → 22 / 66 → 20 / 60 |
+| Spread | 0.4° → 1.4° (3 protected shots, +0.09°/shot), ADS ×0.6, recovery 0.3 s | 0.4° → 1.4° (ADS 0.25°) |
+| Movement | SMG row, ×1.0 speed, ×0.8 aimed | |
+| Recoil | 0.22° × 5, then 0.14° up + 0.15° side, 12% switch, 75% back over 0.25 s (steadier than the Stinger) | |
+| ADS | 1.15× zoom (FOV 72), 0.17 s | |
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

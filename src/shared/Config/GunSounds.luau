@@ -160,6 +160,19 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 	},
+
+	-- Spectre: suppressed SMG.
+	Spectre = {
+		fire = { id = "atlas:AK47Suppressed", volume = 0.65, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER: filtered AK, pitched up
+		fireFar = { id = "atlas:AK47Suppressed_Far", volume = 0.8, pitch = { 1.06, 1.12 } }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 1.04, 1.1 } }, -- PLACEHOLDER
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.04, 1.1 } }, -- PLACEHOLDER
+		rack = { id = RACK, volume = FOLEY, pitch = { 1.02, 1.08 } }, -- PLACEHOLDER: HK-style cocking handle slap
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
+	},
 }
 
 local GunSounds = {}

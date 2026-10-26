@@ -384,6 +384,56 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
+
+	-- Spectre v2 (roster 05): suppressed run-and-gun SMG, steadier than the
+	-- Stinger, a bigger mag.
+	Spectre = {
+		id = "Spectre",
+		displayName = "Spectre",
+		class = "SMG",
+		tier = 2,
+		slot = "Primary",
+		fireMode = "Auto",
+		damage = { body = 26, head = 58, legs = 22 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.075, -- 13.3 rounds/s
+		magSize = 30,
+		reloadTime = 2.1,
+		emptyReloadTime = 2.5, -- mag, then the cocking-handle rack
+		equipTime = 0.4,
+		firstEquipTime = 0.8,
+		range = 400,
+		-- 20 m and 50 m in Valorant.
+		falloff = { { from = 71, multiplier = 0.85 }, { from = 178, multiplier = 0.77 } },
+		spread = {
+			first = 0.4,
+			adsMultiplier = 0.6,
+			protected = 3,
+			protectedGrowth = 0.02,
+			growth = 0.09,
+			max = 1.4,
+			recoveryTime = 0.3,
+		},
+		recoil = {
+			up = 0.22,
+			protected = 5,
+			upAfter = 0.14,
+			side = 0.15,
+			switchChance = 0.12,
+			switchMinTime = 0.45,
+			recover = 0.75,
+			recoverTime = 0.25,
+		},
+		suppressed = true, -- no tracer for enemies, quieter shot, small flash
+		adsFov = 72, -- 1.15x zoom
+		adsTime = 0.17,
+		moveMultiplier = 1,
+		adsMoveMultiplier = 0.8,
+		penetration = "None",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
 }
 
 for _, w in weapons do
