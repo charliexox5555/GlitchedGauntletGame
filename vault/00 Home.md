@@ -11,6 +11,7 @@
 - **Phase:** Week 1 — "Find the fun" (prototype)
 - **Done:** research · game plan · weapon roster · art style (Style B) · all gun models made in Blender · repo + Rojo scaffold · this vault
 - **Now:** importing guns into Studio → building the gun system (start with Byte)
+- **In design:** first 9 Mods brainstormed ([Mods](01%20Design/Mods.md)), awaiting approval
 - **Next:** rounds + tier rotation → Mods → draft → **Playtest #1**
 - **Blockers:** —
 
@@ -21,7 +22,8 @@
 ### 01 Design: what the game *is*
 - [Gunplay](01%20Design/Gunplay.md): movement, shooting feel, aim assist, feedback (RIVALS core + slide)
 - [Weapons](01%20Design/Weapons.md): 22 guns + melee, tiers per round, build waves, gun mechanics
-- Mods, Draft, Rounds and Maps: in the [Game Plan](05%20Production/Game%20Plan.md) §1, §4 and §5
+- [Mods](01%20Design/Mods.md): first 9 abilities, A/B paths + Glitch path (**draft v1**)
+- Draft, Rounds and Maps: in the [Game Plan](05%20Production/Game%20Plan.md) §1, §4 and §5
 
 ### 02 Art: how it *looks*
 - [Art Direction](02%20Art/Art%20Direction.md): Style B rules, palette, model standard, import pipeline
