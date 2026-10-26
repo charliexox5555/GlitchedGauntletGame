@@ -37,3 +37,5 @@ art-source/audio/_download/
 art-source/audio/library/
 # Audition reel rendered by tools/audio/build_sound_atlas.py --preview
 art-source/audio/AtlasPreview.wav
+# Mod sound auditions rendered by tools/audio/mod_sfx.py
+art-source/audio/ModSfx/
