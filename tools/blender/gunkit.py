@@ -498,3 +498,130 @@ class Clip:
 		track.strips.new(self.name, 1, act)
 		track.mute = True  # strips are only for the exporter; keep the rig at rest in the viewport
 		return act
+
+
+# ---------------------------------------------------------------- reusable clip building blocks
+# Frame numbers are at 24 fps. Reload-type clips are stretched to their game time, so only proportions matter.
+# Hand-follow rule (Config/Viewmodel + ViewmodelController): in a reload/draw/inspect the left hand follows the
+# first part the clip moves from RELOAD_FOLLOW (Mag, Cylinder, Barrels, Pump, Bolt, ChargingHandle), then a later
+# one only if their windows, each widened by 0.14 of the clip, don't overlap.
+
+def swing(c, events, bone="Charm", tilt=0.35):
+	# Buddy swings: events = [(frame, degrees)] (swing about Y, a little outward about X).
+	for f, a in events:
+		c.key(bone, f, rot=(a * tilt, a, 0))
+
+
+def kick(c, back=0.05, climb=3.5, roll=0.4, last=12):
+	# Whole-gun recoil for a Fire clip: back and muzzle up on f2-3, settle with a small overshoot.
+	c.key("Root", 2, (-back * 0.8, 0, back * 0.15), (0, -climb * 0.8, roll * 0.8))
+	c.key("Root", 3, (-back, 0, back * 0.2), (0, -climb, roll))
+	c.key("Root", 5, (-back * 0.55, 0, back * 0.1), (0, -climb * 0.55, roll * 0.4))
+	c.key("Root", 7, (-back * 0.15, 0, back * 0.02), (0, -climb * 0.15, 0))
+	c.key("Root", 9, (back * 0.06, 0, 0), (0, climb * 0.06, 0))
+	c.key("Root", last - 1)
+	swing(c, [(3, 3 * climb), (5, -2 * climb), (7, 1.1 * climb), (9, -0.5 * climb), (last - 1, 0.15 * climb)])
+
+
+def trigger_pull(c, deg=15, bone="Trigger"):
+	c.key(bone, 2, rot=(0, deg, 0))
+	c.key(bone, 4, rot=(0, deg, 0))
+	c.key(bone, 6, rot=(0, deg * 0.25, 0))
+	c.key(bone, 7)
+
+
+def cycle(c, bones=("Bolt",), travel=0.13):
+	# Action cycling on a shot (f2-f6).
+	for b in bones:
+		c.key(b, 2, (-travel * 0.85, 0, 0))
+		c.key(b, 3, (-travel, 0, 0))
+		c.key(b, 4, (-travel * 0.65, 0, 0))
+		c.key(b, 5, (-travel * 0.2, 0, 0))
+		c.key(b, 6)
+
+
+def mag_swap(c, f0, drop=0.65, fwd=0.05, tilt=-10, bone="Mag", rock=0.0):
+	# Detachable mag/drum: release (optionally rocking forward off the catch), drop out of view, come back up and
+	# seat with a slap. Occupies f0 .. f0 + 40. Returns the frame it ends on.
+	c.key(bone, f0)
+	c.key(bone, f0 + 3, (0.004 + rock * 0.012, 0, -0.02), (0, tilt * 0.2 - rock * 9, 0))
+	c.key(bone, f0 + 9, (fwd * 0.6, 0, -drop * 0.45), (0, tilt * 0.7 - rock * 14, 0))
+	c.key(bone, f0 + 14, (fwd, 0, -drop), (0, tilt - rock * 18, 0))
+	c.key(bone, f0 + 22, (fwd * 0.8, 0, -drop * 1.08), (0, tilt * 0.85 - rock * 14, 0))
+	c.key(bone, f0 + 29, (fwd * 0.4, 0, -drop * 0.37), (0, tilt * 0.5 - rock * 9, 0))
+	c.key(bone, f0 + 34, (0.006, 0, -0.035), (0, tilt * 0.15 - rock * 6, 0))
+	c.key(bone, f0 + 37, (0, 0, 0.007), (0, 0.6, 0))  # slapped home
+	c.key(bone, f0 + 40)
+	return f0 + 40
+
+
+def reload_root(c, f0, roll=10, pitch=-5, yaw=2.5, lift=0.018):
+	# Whole-gun motion around a mag swap that starts at f0: roll the feed side toward the player, lift the muzzle,
+	# jolt when the mag is slapped home (f0 + 37).
+	c.key("Root", f0 - 1, (0, 0, lift * 0.55), (roll * 0.8, pitch * 0.8, yaw * 0.8))
+	c.key("Root", f0 + 11, (0, 0, lift), (roll, pitch, yaw))
+	c.key("Root", f0 + 33, (0, 0, lift * 0.8), (roll * 0.95, pitch, yaw * 0.8))
+	c.key("Root", f0 + 37, (0, 0, lift * 1.6), (roll * 1.2, pitch * 1.4, yaw))
+	c.key("Root", f0 + 40, (0, 0, lift * 0.65), (roll * 0.9, pitch * 0.9, yaw * 0.8))
+	swing(c, [(f0 + 3, 5), (f0 + 7, -4), (f0 + 12, 2.5), (f0 + 17, -1), (f0 + 37, 8), (f0 + 41, -5), (f0 + 45, 2.5), (f0 + 49, -1)])
+
+
+def rack(c, f0, travel=0.2, bone="ChargingHandle", jolt=1.0):
+	# Pull the charging handle (f0 .. f0 + 4), hold, release so it slams home (f0 + 8) with a small bounce,
+	# turning the left side toward the player. Occupies about f0 - 10 .. f0 + 13.
+	c.key(bone, f0)
+	c.key(bone, f0 + 4, (-travel, 0, 0))
+	c.key(bone, f0 + 6, (-travel, 0, 0))
+	c.key(bone, f0 + 8)
+	c.key(bone, f0 + 9, (-travel * 0.03, 0, 0))
+	c.key(bone, f0 + 10)
+	c.key("Root", f0 - 10, (0, 0, 0.01), (4, -3, -2))
+	c.key("Root", f0, (0, 0, 0.008), (3, -3, -3))
+	c.key("Root", f0 + 4, (-0.02 * jolt, 0, 0.01), (4.5, -4, -3.5))
+	c.key("Root", f0 + 8, (0.015 * jolt, 0, 0.004), (2, -1, -2))
+	c.key("Root", f0 + 13, (0, 0, 0), (0.4, 0, -0.3))
+	swing(c, [(f0 + 5, -6), (f0 + 9, 9 * jolt), (f0 + 12, -4.5), (f0 + 15, 2)])
+
+
+def draw_rack(c, travel=0.2, bone="ChargingHandle", selector="FireSelector", jolt=1.0):
+	# First draw (31 frames, stretched to firstEquipTime): selector off safe (if any), rack (pulled 36-48%).
+	if selector:
+		c.key(selector, 3)
+		c.key(selector, 6, rot=(0, 14, 0))
+		c.key(selector, 7, rot=(0, 12, 0))
+		c.key(selector, 9)
+	c.key("Root", 8, (0, 0, 0), (6, 0, -5))
+	c.key("Root", 12, (0, 0, 0.005), (9, -1, -7))
+	c.key("Root", 15, (-0.03 * jolt, 0, 0.008), (10, -2, -8))
+	c.key("Root", 17, (0.02 * jolt, 0, 0.004), (6, 1.5, -5))
+	c.key("Root", 19, (0, 0, 0.002), (4, -0.5, -3.5))
+	c.key("Root", 25, (0, 0, 0), (0.8, 0, -0.6))
+	c.key(bone, 12)
+	c.key(bone, 15, (-travel, 0, 0))
+	c.key(bone, 16, (-travel, 0, 0))
+	c.key(bone, 17)
+	c.key(bone, 18, (-travel * 0.04, 0, 0))
+	c.key(bone, 19)
+	swing(c, [(5, -5), (9, 4), (13, -3), (16, 8 * jolt), (19, -6), (22, 3.5), (26, -1.2)])
+
+
+def inspect_tap_check(c, mag="Mag", check="ChargingHandle", check_travel=0.085):
+	# Inspect (67 frames, alongside the viewmodel's 2.8 s track: right side 16-42%, left side 60-82%): a tap on the
+	# mag, then a press check (the charging handle / bolt half back).
+	if mag:
+		c.key(mag, 13)
+		c.key(mag, 15, (0, 0, -0.025), (0, -2, 0))
+		c.key(mag, 16, (0, 0, 0.004), (0, 0.4, 0))
+		c.key(mag, 18)
+		c.key("Root", 15, (0, 0, 0.004), (0.6, 0, 0))
+		c.key("Root", 17)
+	if check:
+		c.key(check, 42)
+		c.key(check, 45, (-check_travel, 0, 0))
+		c.key(check, 50, (-check_travel, 0, 0))
+		c.key(check, 52)
+		c.key(check, 53, (-check_travel * 0.06, 0, 0))
+		c.key(check, 54)
+		c.key("Root", 52, (0.006, 0, 0), (0, 0.4, 0))
+		c.key("Root", 54)
+	swing(c, [(6, 9), (11, -7), (16, 6), (21, -3), (28, 2), (36, -9), (41, 11), (46, -6), (52, 5), (57, -3), (62, 1.5)])
