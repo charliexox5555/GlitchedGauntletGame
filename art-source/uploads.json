@@ -341,6 +341,30 @@
   "type": "Decal",
   "uploaded": "2026-10-25 22:28:26"
  },
+ "art-source/weapons/Textures/Marshal_Color.png": {
+  "assetId": 82599784530753,
+  "name": "GG Marshal Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:33:25"
+ },
+ "art-source/weapons/Textures/Marshal_Metalness.png": {
+  "assetId": 77252030658005,
+  "name": "GG Marshal Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:33:40"
+ },
+ "art-source/weapons/Textures/Marshal_Normal.png": {
+  "assetId": 105911522849086,
+  "name": "GG Marshal Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:33:31"
+ },
+ "art-source/weapons/Textures/Marshal_Roughness.png": {
+  "assetId": 131969251770165,
+  "name": "GG Marshal Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:33:37"
+ },
  "art-source/weapons/Textures/Phantom_Color.png": {
   "assetId": 124921300326999,
   "name": "GG Phantom Color",
