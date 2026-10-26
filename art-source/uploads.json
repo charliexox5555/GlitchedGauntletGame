@@ -293,6 +293,30 @@
   "type": "Decal",
   "uploaded": "2026-10-25 21:18:01"
  },
+ "art-source/weapons/Textures/Sheriff_Color.png": {
+  "assetId": 75972239310513,
+  "name": "GG Sheriff Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:19:58"
+ },
+ "art-source/weapons/Textures/Sheriff_Metalness.png": {
+  "assetId": 71137237717786,
+  "name": "GG Sheriff Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:20:13"
+ },
+ "art-source/weapons/Textures/Sheriff_Normal.png": {
+  "assetId": 84645984888098,
+  "name": "GG Sheriff Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:20:04"
+ },
+ "art-source/weapons/Textures/Sheriff_Roughness.png": {
+  "assetId": 74171663687397,
+  "name": "GG Sheriff Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:20:10"
+ },
  "art-source/weapons/Textures/Shorty_Color.png": {
   "assetId": 87446604901881,
   "name": "GG Shorty Color",

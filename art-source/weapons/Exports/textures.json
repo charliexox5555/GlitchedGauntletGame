@@ -94,5 +94,17 @@
    "Roughness": 121424185505435,
    "Metalness": 140038410920375
   }
+ },
+ "Sheriff": {
+  "ColorMap": 120289932270415,
+  "NormalMap": 132626035185839,
+  "RoughnessMap": 74465877093979,
+  "MetalnessMap": 101711196100656,
+  "decals": {
+   "Color": 75972239310513,
+   "Normal": 84645984888098,
+   "Roughness": 74171663687397,
+   "Metalness": 71137237717786
+  }
  }
 }
