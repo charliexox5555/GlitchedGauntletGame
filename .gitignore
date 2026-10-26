@@ -31,6 +31,8 @@ desktop.ini
 
 # Temporary copy of tools/studio/rojo synced into Studio while guns are (re)built
 src/server/WeaponBuild/
+# Same for tools/studio/abilities while Mod props are (re)built
+src/server/AbilityBuild/
 
 # Downloaded sound libraries (large; only the picked/converted clips are kept)
 art-source/audio/_download/

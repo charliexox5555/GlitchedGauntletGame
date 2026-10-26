@@ -1,0 +1,204 @@
+{
+ "mod": "LaunchPad",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "ability_name": "LaunchPad",
+  "kind": "placed",
+  "size_studs": 4.7,
+  "tris": 1444
+ },
+ "parts": [
+  {
+   "name": "Plate",
+   "material": "Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "16171B"
+   },
+   "energy": false,
+   "tris": 164,
+   "center": [
+    0.0,
+    0.0,
+    0.32
+   ],
+   "size": [
+    3.0859,
+    3.54762,
+    0.16
+   ]
+  },
+  {
+   "name": "Rim_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    0.3125
+   ],
+   "size": [
+    3.42946,
+    3.96,
+    0.065
+   ]
+  },
+  {
+   "name": "Arrow1_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 68,
+   "center": [
+    -0.92,
+    0.0,
+    0.41
+   ],
+   "size": [
+    0.92501,
+    1.5,
+    0.04
+   ]
+  },
+  {
+   "name": "Arrow2_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 68,
+   "center": [
+    -0.12,
+    0.0,
+    0.41
+   ],
+   "size": [
+    0.92501,
+    1.5,
+    0.04
+   ]
+  },
+  {
+   "name": "Arrow3_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 68,
+   "center": [
+    0.68,
+    0.0,
+    0.41
+   ],
+   "size": [
+    0.92501,
+    1.5,
+    0.04
+   ]
+  },
+  {
+   "name": "Side_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 216,
+   "center": [
+    0.0,
+    0.0,
+    0.1637
+   ],
+   "size": [
+    3.94397,
+    3.94314,
+    0.07954
+   ]
+  },
+  {
+   "name": "Base_Shell",
+   "material": "Shell",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2C2E35"
+   },
+   "energy": false,
+   "tris": 164,
+   "center": [
+    0.0,
+    0.0,
+    0.16
+   ],
+   "size": [
+    4.01425,
+    4.61326,
+    0.32
+   ]
+  },
+  {
+   "name": "Base_Dark",
+   "material": "Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "16171B"
+   },
+   "energy": false,
+   "tris": 648,
+   "center": [
+    -0.0,
+    0.0,
+    0.2
+   ],
+   "size": [
+    4.46084,
+    4.92,
+    0.4
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Top",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.43
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 1444
+}

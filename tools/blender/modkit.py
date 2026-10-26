@@ -76,11 +76,12 @@ def make_materials():
 		return m
 
 	def glass(name, vfx=False):
-		# Translucent energy (Firewall panel). The UV pattern (bright rim, scan lines along V) only stands in for the
-		# scrolling texture the game will use; in Roblox it is a transparent Neon / ForceField part.
+		# Translucent energy (Firewall panel). The UV pattern (bright rim, grid lines) previews the in-game look: a
+		# Neon part at 0.5 transparency (L1 blocks bullets, not vision) with a tinted grid Decal on both faces
+		# (art-source/abilities/Textures/FirewallGrid.png, tools/vfx/make_mod_textures.py).
 		m, nt, bsdf = base(name, "Neon", ALLY)
 		m["energy"] = True
-		m["rbx_transparency"] = 0.55
+		m["rbx_transparency"] = 0.5
 		m.surface_render_method = "BLENDED"
 		m.use_backface_culling = False
 		bsdf.inputs["Base Color"].default_value = (0.0, 0.0, 0.0, 1)

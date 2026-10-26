@@ -21,7 +21,7 @@ def both(bm):
 def build():
 	mats = begin(MOD)
 
-	shell = Part("Shell")
+	shell = Part("Caps")
 	cap = lathe([(0, 0.24), (0.13, 0.24), (0.13, 0.285), (0.2, 0.262), (0.255, 0.215), (0.29, 0.15), (0.302, 0.09), (0.296, 0.058), (0.0, 0.058)], 24, SHELL)
 	shell.add(both(cap))
 	shell.add(band(24, 0.235, 0.288, -0.062, 0.062, DARK), 0.012, 2)  # belt
