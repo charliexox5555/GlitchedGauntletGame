@@ -1,4 +1,5 @@
-# anim_phantom.py: keyframes the Phantom's Fire, Reload (tactical) and ReloadEmpty clips as NLA tracks
+# anim_phantom.py: keyframes the Phantom's Fire, Reload (tactical), ReloadEmpty, Draw (first draw: selector off
+# safe, rack) and Inspect (mag tap, press check) clips as NLA tracks
 # (what tools/blender/export_weapons.py samples; tools/make_weapon_anims.py writes them to
 # src/shared/WeaponAnimations/Phantom.luau).
 #
@@ -107,10 +108,63 @@ def reload_empty():
 	return c
 
 
+def draw():
+	# First draw of a life (stretched to firstEquipTime 0.8 s): thumb the selector off safe, then the support
+	# hand racks the side charging handle (pulled 36-48%, released 52%) and the gun jolts as the bolt runs home.
+	# Same timing as the Vandal's Draw so the viewmodel's draw track lines up.
+	L = 31
+	c = gunkit.Clip(GUN, "Draw", L)
+	c.key("FireSelector", 3)
+	c.key("FireSelector", 6, rot=(0, 14, 0))
+	c.key("FireSelector", 7, rot=(0, 12, 0))
+	c.key("FireSelector", 9)
+	# Roll (+X) lifts the left side into view; yaw (-Z) swings the muzzle right so it faces the camera.
+	c.key("Root", 8, (0, 0, 0), (6, 0, -5))
+	c.key("Root", 12, (0, 0, 0.005), (8.5, -1, -6.5))
+	c.key("Root", 15, (-0.025, 0, 0.007), (9.5, -2, -7.5))  # handle pulled: the gun gives a little
+	c.key("Root", 17, (0.016, 0, 0.003), (5.5, 1.2, -4.5))  # bolt home (lighter jolt than the Vandal)
+	c.key("Root", 19, (0, 0, 0.002), (3.8, -0.4, -3.2))
+	c.key("Root", 25, (0, 0, 0), (0.7, 0, -0.5))
+	c.key("ChargingHandle", 12)
+	c.key("ChargingHandle", 15, (-0.17, 0, 0))
+	c.key("ChargingHandle", 16, (-0.17, 0, 0))
+	c.key("ChargingHandle", 17)
+	c.key("ChargingHandle", 18, (-0.006, 0, 0))
+	c.key("ChargingHandle", 19)
+	for f, a in ((5, -4.5), (9, 3.5), (13, -2.5), (16, 7), (19, -5), (22, 3), (26, -1)):
+		c.key("Charm", f, rot=(a * 0.4, a, 0))
+	return c
+
+
+def inspect():
+	# Runs alongside the viewmodel's Inspect track (2.8 s: right side shown 16-42%, left side 60-82%):
+	# a tap on the mag while the right side shows, then a press check on the left side.
+	L = 67
+	c = gunkit.Clip(GUN, "Inspect", L)
+	c.key("Mag", 13)
+	c.key("Mag", 15, (0, 0, -0.022), (0, -1.2, 0))
+	c.key("Mag", 16, (0, 0, 0.004), (0, 0.3, 0))  # tapped home
+	c.key("Mag", 18)
+	c.key("ChargingHandle", 42)
+	c.key("ChargingHandle", 45, (-0.07, 0, 0))  # half back: brass in the chamber
+	c.key("ChargingHandle", 50, (-0.07, 0, 0))
+	c.key("ChargingHandle", 52)
+	c.key("ChargingHandle", 53, (-0.004, 0, 0))
+	c.key("ChargingHandle", 54)
+	c.key("Root", 15, (0, 0, 0.004), (0.5, 0, 0))
+	c.key("Root", 17)
+	c.key("Root", 52, (0.005, 0, 0), (0, 0.35, 0))
+	c.key("Root", 54)
+	for f, a in ((6, 8), (11, -6), (16, 5), (21, -2.5), (28, 1.8), (36, -8), (41, 10), (46, -5.5), (52, 4.5),
+			(57, -2.5), (62, 1.2)):
+		c.key("Charm", f, rot=(a * 0.4, a, 0))
+	return c
+
+
 def animate():
 	bpy.context.scene.render.fps = FPS
 	out = {}
-	for clip in (fire(), reload_tactical(), reload_empty()):
+	for clip in (fire(), reload_tactical(), reload_empty(), draw(), inspect()):
 		clip.bake()
 		out[clip.name] = {"frames": clip.last, "bones": sorted(clip.keys)}
 	bpy.context.scene.frame_set(1)
