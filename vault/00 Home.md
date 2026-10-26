@@ -68,7 +68,7 @@
 ## 🔒 Locked decisions
 | Topic | Decision | Where |
 |---|---|---|
-| Gunplay | RIVALS-style run-and-gun, accurate while moving, slide is the core move, ~1.5× headshots, TTK 0.35–0.6 s | [Gunplay](01%20Design/Gunplay.md) |
+| Gunplay | **v2 (2026-10-25): precise run-and-gun.** Valorant-tight first shot, tap/burst control, learnable camera recoil; light movement penalty (~1/4 of Valorant, ADS halves it); slide is the core move; head ×2.25 (rifles: 2 headshots), no tagging, body TTK 0.3–0.5 s | [Gunplay](01%20Design/Gunplay.md) |
 | Rounds | First to 5, shared weapon tier per round (Sidearm → Light → Heavy → Wildcard) | [Weapons](01%20Design/Weapons.md) |
 | Draft | 3 Mod slots, L1→L3, both sides draft, the loser gets +1 card and +1 reroll, mirrored offers in 1v1 | [Game Plan](05%20Production/Game%20Plan.md) §4 |
 | Art | **Changed 2026-10-25:** no sci-fi look. Professional tactical guns (matte charcoal/black, PBR textures, very restrained neon accent); the Vandal is the new master reference. Style B below is retired | [Art Direction](02%20Art/Art%20Direction.md) |

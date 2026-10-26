@@ -1,6 +1,6 @@
 # Gunplay
 
-**Feel target:** RIVALS-style run-and-gun, plus a sliding move set borrowed from Hypershot. **Not** Valorant: you never have to stand still to shoot accurately.
+**Feel target (v2, 2026-10-25):** **precise** run-and-gun. Valorant-tight aim (first-shot accuracy, tap/burst control, learnable recoil, a big headshot reward) with RIVALS' freedom to move and shoot, plus a sliding move set borrowed from Hypershot. You never *have* to stand still; standing still just makes a tap laser-accurate.
 
 **Why:** most Roblox players are on phones, and the draft plus Mods already give players a lot to learn, so shooting must be easy to pick up and satisfying. Base movement stays moderate so **drafted mobility Mods (Blink, Launch Pad) feel like real upgrades**. Background: [Design Research Report](../03%20Research/Design%20Research%20Report.md).
 
@@ -21,31 +21,54 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 | Heavy guns | ×0.85 (Overflow), ×0.75 (Flood) | From [Weapons](Weapons.md) |
 | Not in base kit | Double jump, wall-run, dash | **Only from Mods**, so drafting mobility matters |
 
-## 2. Shooting
-- **Fire on press**, never on release.
-- **Accurate while moving.** Spread is added on top of each gun's base spread:
-  | State | Extra spread |
-  |---|---|
-  | Standing / crouching | 0 |
-  | Walking | +0.4° |
-  | Sprinting (first shot) | +0.6° |
-  | Sliding | +0.8° |
-  | In the air | +2.5° (snipers unscoped: huge) |
-- **Hip fire is real** for sidearms, SMGs and shotguns. **ADS** = spread ×0.35, zoom, slower movement. It matters most for rifles and snipers.
-- **Base hip spread by class:** sidearm 0.8°, SMG 1.2°, rifle 1.4°, machine gun 2.0°, shotgun pellet cone 5°, sniper unscoped 4° (scoped 0°).
-- **Bloom:** +0.15° per shot up to a per-gun cap; recovers at 6°/s after you stop firing.
-- **Recoil:** mostly **vertical** camera kick (rifle ≈ 0.35° per shot) with a small random sideways jitter (±0.12°). About 70% recovers automatically when you stop. **No spray patterns to memorise.**
-- **Swaps and reloads:** weapon swap 0.3 s (sidearms 0.2 s); swapping cancels a reload; empty reloads take longer than tactical ones.
+## 2. Shooting: v2, precise run-and-gun (decided 2026-10-25)
+**Goal:** Valorant's precision (a standing tap goes where you aim, spread and recoil you can learn and control, a big headshot reward) **without** Valorant's movement tax: moving costs a little accuracy, never a coin flip, like RIVALS. Research and per-gun Valorant numbers: [Valorant Gun Mechanics](../03%20Research/Valorant%20Gun%20Mechanics.md). The user picked all four options below.
 
-## 3. Damage
+- **Fire on press.** What you see is where you hit: no hidden bullet offset beyond the spread cone.
+- **First-shot spread** (standing, hip): rifle 0.25°, DMR 0.1°, SMG 0.45°, pistol 0.3°, revolver 0.25°, machine gun 0.8°, shotgun cone 3–4°, sniper unscoped 3° (scoped 0°). **ADS ×0.6** (rifle 0.15°). **Crouch ×0.85.**
+- **Spread shape:** standing → biased towards the centre (most shots near the crosshair); moving → uniform inside the cone.
+- **Spread growth (tap/burst control):** the first few "protected" shots add almost nothing (rifle: 3 shots, +0.02° each), then +0.12° per shot up to the gun's max (rifle 1.0°, SMG 1.4°, pistol 1.6°). Spread returns fully to first-shot accuracy after **`recoveryTime`** without firing (rifle 0.375 s); re-firing sooner keeps part of the spread.
+- **Movement penalty: light, about 1/4 of Valorant** (chosen). Added on top of spread, and it **scales smoothly with horizontal speed**, not with a binary state. **Deadzone:** under 30% of walk speed counts as standing (a counter-strafe helps but isn't required). **ADS halves** the movement penalty, so ADS-strafing is a real tactic. Landing adds +1.5° for 0.2 s.
+
+  | Class | Crouch-walk | Walk | Sprint-fire | Slide | Air |
+  |---|---|---|---|---|---|
+  | Rifle | +0.2° | +0.8° | +1.5° | +1.2° | +3° |
+  | SMG | +0.1° | +0.3° | +0.7° | +0.5° | +2° |
+  | Pistol | +0.1° | +0.35° | +0.8° | +0.6° | +2° |
+  | Shotgun | 0 | +0.2° | +0.4° | +0.3° | +1° |
+  | Machine gun | +0.3° | +1.0° | +2.0° | +1.5° | +3.5° |
+  | Sniper (scoped) | +1° | +2.5° | +5° | +4° | +8° |
+
+  Valorant's rifles, for comparison: walk +3°, run +6°, air +10°.
+- **Recoil: camera kick with a learnable pattern** (chosen). The view climbs and you pull down against it, so the crosshair is always where you shoot. Each gun's pattern: `up` degrees per shot for `protected` shots (pure vertical), then a smaller climb plus a sideways drift `side` in one direction, with a `switchChance` per shot to swap direction (at least `switchMinTime` apart). When you stop, `recover` of the climb returns over `recoverTime`. Crouch: sideways ×0.85. The viewmodel kick stays separate (already built).
+- **Sprint:** pressing fire cancels sprint instantly (kept).
+- **ADS:** rifles 1.25× zoom, move ×0.76, `adsTime` about 0.2 s.
+- **Equip:** the **first draw** each life plays the full draw with cocking (rifle ~0.9 s, pistol ~0.6 s); later swaps are quick (rifle ~0.5 s, pistol ~0.35 s).
+- **Reload:** a tactical reload swaps the mag; an **empty** reload also racks the charging handle and takes longer (rifle 2.3 s / 2.8 s).
+
+## 3. Damage (v2)
 | Rule | Value |
 |---|---|
-| Health | 100 per round, **no natural regen** (heals come from Mods) |
-| Headshot | **×1.5** by default |
+| Health | 100 per round, no armour, **no natural regen** (heals come from Mods) |
+| Headshot | **×2.25 by default, so rifles kill with 2 headshots** (chosen) |
 | Legs | ×0.85 |
-| One-shot headshot guns | Only **Root** (≤25 studs), **Checksum** and the snipers. It's their identity |
-| Target time-to-kill | **0.35–0.6 s** for main guns. That leaves just enough time to react with a Mod |
-| Falloff | Per gun (start and end distance, minimum damage) |
+| One-tap headshot guns | Only snipers, the revolver and a DMR. It's their identity |
+| Target time-to-kill | Body **0.3–0.5 s** for main guns |
+| Falloff | **Steps** per gun (a multiplier per range band, in studs); some guns (Vandal-type) have none |
+| Tagging | **None**: getting hit does not slow you (chosen) |
+| Wall penetration | Low / Medium / High tiers per gun (later; ThinWall today) |
+
+### Vandal v2 (gun 1)
+| Stat | Value | Valorant Vandal |
+|---|---|---|
+| Fire | Auto, 0.103 s (9.75/s) | 9.75/s |
+| Mag / reload | 25 / 2.3 s tactical, 2.8 s empty (with rack) | 25 / 2.5 s |
+| Equip | 0.9 s first draw (cock), 0.5 s quick | 1.0 s |
+| Damage | 30 body / 67 head / 25 legs, **no falloff**: 4 body shots (0.31 s) or 2 heads (0.10 s) | 40 / 160 / 34 |
+| Spread | 0.25° hip, 0.15° ADS → max 1.0°; 3 protected shots, +0.12°/shot after; recovery 0.375 s | 0.25° / 0.157° → 1° |
+| Movement | Rifle row above | walk +3°, run +6°, air +10° |
+| Recoil | `up` 0.42° × 6 protected shots, then 0.25° up + 0.3° side drift, `switchChance` 10% (≥ 0.6 s apart), 75% recovers over 0.3 s | vertical first, then yaw switching (6 protected, 10%) |
+| Speed | ×0.95 carrying, ×0.76 ADS | 5.4 m/s, ADS 76% |
 
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
