@@ -118,5 +118,17 @@
    "Roughness": 72377744786880,
    "Metalness": 77606348209204
   }
+ },
+ "Guardian": {
+  "ColorMap": 79395253806689,
+  "NormalMap": 86733321110789,
+  "RoughnessMap": 75375950194434,
+  "MetalnessMap": 102600851691472,
+  "decals": {
+   "Color": 106847943788676,
+   "Normal": 107311270596398,
+   "Roughness": 94012483842592,
+   "Metalness": 126256179478591
+  }
  }
 }
