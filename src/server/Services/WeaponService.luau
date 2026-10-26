@@ -92,6 +92,7 @@ local states: { [Player]: PlayerState } = {}
 local loadouts: { [Player]: { [Slot]: string } } = {}
 local limiter = RateLimit.new(Combat.RATE)
 local holsteredPlayers: { [Player]: boolean } = {}
+local busyUntil: { [Player]: number } = {} -- os.clock(): no shots before this (a Mod use)
 local motion: { [Player]: MotionTrack } = {}
 
 local WeaponsFolder: Instance? = nil
@@ -501,13 +502,24 @@ function WeaponService.heal(target: Model, amount: number): number
 	return humanoid.Health - before
 end
 
--- While a held Mod is up the gun is lowered: no shots are accepted (ModService).
-function WeaponService.setHolstered(player: Player, holstered: boolean)
+-- While a held Mod is up the gun is lowered: no shots are accepted
+-- (ModService). Lowering it ends with `busyFor` more seconds without shots
+-- (the throw / heal animation after a use).
+function WeaponService.setHolstered(player: Player, holstered: boolean, busyFor: number?)
 	if holstered then
 		holsteredPlayers[player] = true
 	else
 		holsteredPlayers[player] = nil
+		if busyFor and busyFor > 0 then
+			busyUntil[player] = os.clock() + busyFor
+		end
 	end
+end
+
+local function holstered(player: Player): boolean
+	local busy = busyUntil[player]
+	return holsteredPlayers[player] == true
+		or (busy ~= nil and os.clock() < busy - Combat.FIRE_JITTER)
 end
 
 local function notifyShot(player: Player, config: WeaponConfig, hit: boolean)
@@ -609,6 +621,9 @@ local function onReload(player: Player, action: unknown)
 	end
 	local config = slot.config
 	local now = os.clock()
+	if action == nil and holsteredPlayers[player] then
+		return -- no reloads with a Mod in hand (the client doesn't start one)
+	end
 	if action == "stop" then
 		local shell = config.shellReload
 		if shell and slot.shellFrom and slot.reloadEnd then
@@ -913,7 +928,7 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "not slot")
 		return
 	end
-	if holsteredPlayers[player] then
+	if holstered(player) then
 		reject(player, "holding a Mod")
 		return
 	end
@@ -1269,6 +1284,7 @@ function WeaponService.start()
 		loadouts[player] = nil
 		limiter:forget(player)
 		holsteredPlayers[player] = nil
+		busyUntil[player] = nil
 	end)
 end
 

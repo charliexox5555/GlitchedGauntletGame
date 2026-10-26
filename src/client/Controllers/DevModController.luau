@@ -295,6 +295,9 @@ local function build(): TextButton
 	button("Clear dummies", 140, dummyRow, function()
 		send("ClearDummies")
 	end)
+	button("Hurt me (-50)", 140, panel, function()
+		send("HurtSelf")
+	end)
 
 	noteLabel = make("TextLabel", {
 		Size = UDim2.new(1, 0, 0, 0),

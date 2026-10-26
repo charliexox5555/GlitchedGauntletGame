@@ -64,7 +64,7 @@ module.validate = function(ctx: Types.ServerCtx, req: Types.Request): (boolean, 
 			if Target.angle(from, req.direction, t) > stats.aimAngle + ANGLE_SLACK then
 				return false, "not in the crosshair"
 			end
-			if not Target.visible(from, t, ctx.worldParams) then
+			if not Target.visible(from, t, ctx.worldParams()) then
 				return false, "no line of sight"
 			end
 		end

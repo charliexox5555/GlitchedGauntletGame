@@ -363,4 +363,5 @@ return table.freeze({
 	DEV_RANK = 255,
 	DEV_DUMMY_DISTANCE = 12, -- studs in front of you a dummy spawns
 	DEV_MAX_DUMMIES = 6,
+	DEV_HURT = 50, -- "Hurt me" (never kills)
 })

@@ -12,6 +12,7 @@
 --   "NoCooldown", on
 --   "SpawnDummy", "Ally" | "Enemy"   a dummy prepared like a player, in front of you
 --   "ClearDummies"
+--   "HurtSelf"                      -50 HP (solo heal tests: nothing else hurts you)
 -- (Quick-cast is a client setting: the panel toggles it locally.)
 
 local CollectionService = game:GetService("CollectionService")
@@ -39,6 +40,7 @@ local ACTIONS: { [string]: boolean } = {
 	NoCooldown = true,
 	SpawnDummy = true,
 	ClearDummies = true,
+	HurtSelf = true,
 }
 local SIDES: { [string]: boolean } = { Ally = true, Enemy = true }
 local LEVELS: { [string]: boolean } = {}
@@ -54,15 +56,24 @@ local DUMMY_TAG = "RangeDummy" -- RangeController draws the health bar
 local limiter = RateLimit.new(Config.RATE)
 local allowed: { [Player]: boolean } = {}
 local dummies: { Model } = {}
+local spawnedBy: { [Model]: Player } = {}
 
 local function isAllowed(player: Player): boolean
 	if RunService:IsStudio() then
 		return true
 	end
-	local ok, rank = pcall(function()
-		return player:GetRankInGroup(Config.DEV_GROUP)
-	end)
-	return ok and typeof(rank) == "number" and rank >= Config.DEV_RANK
+	for attempt = 1, 2 do
+		local ok, rank = pcall(function()
+			return player:GetRankInGroup(Config.DEV_GROUP)
+		end)
+		if ok then
+			return typeof(rank) == "number" and rank >= Config.DEV_RANK
+		end
+		if attempt == 1 then
+			task.wait(2)
+		end
+	end
+	return false
 end
 
 local function dummyFolder(): Folder
@@ -77,9 +88,9 @@ local function dummyFolder(): Folder
 	return f
 end
 
-local spawnDummy: (team: number, label: string, at: CFrame) -> ()
+local spawnDummy: (team: number, label: string, at: CFrame, by: Player) -> ()
 
-spawnDummy = function(team: number, label: string, at: CFrame)
+spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 	local desc = Instance.new("HumanoidDescription")
 	desc.HeadColor = SKIN
 	desc.TorsoColor = CLOTH
@@ -108,14 +119,18 @@ spawnDummy = function(team: number, label: string, at: CFrame)
 	model.Parent = dummyFolder()
 	CharacterService.prepare(model)
 	table.insert(dummies, model)
+	spawnedBy[model] = by
 
 	humanoid.Died:Connect(function()
 		task.delay(RESPAWN, function()
 			local index = table.find(dummies, model)
 			if index then
 				table.remove(dummies, index)
+				spawnedBy[model] = nil
 				model:Destroy()
-				spawnDummy(team, label, at)
+				if by.Parent == Players then
+					spawnDummy(team, label, at, by)
+				end
 			end
 		end)
 	end)
@@ -145,11 +160,16 @@ local function spotInFront(player: Player): CFrame?
 	return CFrame.lookAt(position, position - flat.Unit)
 end
 
-local function clearDummies()
-	for _, model in dummies do
-		model:Destroy()
+-- Clears every dev dummy, or only those `by` spawned.
+local function clearDummies(by: Player?)
+	for i = #dummies, 1, -1 do
+		local model = dummies[i]
+		if by == nil or spawnedBy[model] == by then
+			table.remove(dummies, i)
+			spawnedBy[model] = nil
+			model:Destroy()
+		end
 	end
-	table.clear(dummies)
 end
 
 local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unknown, c: unknown)
@@ -191,10 +211,20 @@ local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unkno
 		local mine = Teams.of(player) or 1
 		if spot then
 			-- Your team for an ally, the other team for an enemy.
-			spawnDummy(if side == "Ally" then mine else (if mine == 1 then 2 else 1), side, spot)
+			spawnDummy(
+				if side == "Ally" then mine else (if mine == 1 then 2 else 1),
+				side,
+				spot,
+				player
+			)
 		end
 	elseif action == "ClearDummies" then
 		clearDummies()
+	elseif action == "HurtSelf" then
+		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.Health > 0 then
+			humanoid.Health = math.max(humanoid.Health - Config.DEV_HURT, 1)
+		end
 	end
 end
 
@@ -220,6 +250,7 @@ function DevModService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		allowed[player] = nil
 		limiter:forget(player)
+		clearDummies(player)
 	end)
 end
 

@@ -247,7 +247,15 @@ end
 
 -- World-only params for previews: what the server's projectile and line of
 -- sight checks ignore (bodies, dummies, effects, Mod objects, the camera).
+-- Rebuilt twice a second, not every frame.
+local cachedParams: RaycastParams? = nil
+local cachedParamsAt = -math.huge
+
 local function previewParams(): RaycastParams
+	local now = os.clock()
+	if cachedParams and now - cachedParamsAt < 0.5 then
+		return cachedParams
+	end
 	local exclude: { Instance } = { previewParent() }
 	for _, p in Players:GetPlayers() do
 		if p.Character then
@@ -267,6 +275,8 @@ local function previewParams(): RaycastParams
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = exclude
+	cachedParams = params
+	cachedParamsAt = now
 	return params
 end
 
@@ -384,7 +394,7 @@ local function endHold(tellServer: boolean)
 	if phase == "Idle" then
 		return
 	end
-	if tellServer and phase ~= "Using" then
+	if tellServer then
 		Net.event("ModHold"):FireServer(0)
 	end
 	setPhase("Idle", 0)
@@ -544,7 +554,7 @@ local function update(_dt: number)
 			use(q)
 		end
 	elseif phase == "Using" and now - phaseAt >= Config.USE_TIME then
-		endHold(false)
+		endHold(true) -- the server already let go; this is only a backstop
 	end
 
 	if phase == "Equipping" or phase == "Held" then

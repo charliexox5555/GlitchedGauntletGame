@@ -95,12 +95,14 @@ local function publishSlot(player: Player, slot: number, s: SlotState)
 	player:SetAttribute(p .. "RechargeAt", if serverOwned then s.rechargeAt else nil)
 end
 
-local function release(player: Player)
+-- Ends the hold. `busyFor`: the gun stays down this much longer (the throw /
+-- heal animation the client plays after a use).
+local function release(player: Player, busyFor: number?)
 	local state = states[player]
 	if state then
 		state.held = 0
 	end
-	WeaponService.setHolstered(player, false)
+	WeaponService.setHolstered(player, false, busyFor)
 	player:SetAttribute("ModHeld", 0)
 end
 
@@ -110,6 +112,8 @@ local function deny(player: Player, slot: number, reason: string)
 	end
 	Net.event("ModFx"):FireClient(player, "Denied", { slot = slot, reason = reason })
 end
+
+local warnedFallback = false
 
 local function angleBetween(a: Vector3, b: Vector3): number
 	return math.deg(math.acos(math.clamp(a.Unit:Dot(b.Unit), -1, 1)))
@@ -125,6 +129,10 @@ local function aimPlausible(player: Player, root: BasePart, direction: Vector3):
 	local cf = if ok and typeof(state) == "table" then state.CFrame else nil
 	if typeof(cf) == "CFrame" then
 		return angleBetween(direction, cf.LookVector) <= Config.AIM_TOLERANCE
+	end
+	if not warnedFallback then
+		warnedFallback = true
+		warn("[ModService] Player:GetCameraState unavailable: checking aim against facing only")
 	end
 	local flatAim = direction * Vector3.new(1, 0, 1)
 	local flatLook = root.CFrame.LookVector * Vector3.new(1, 0, 1)
@@ -165,7 +173,7 @@ function ModService.setSlot(player: Player, slot: number, id: string?, level: st
 		return false
 	end
 	local stats = id and Mods.stats(id, level)
-	if id and (not stats or not Mods.isBuilt(id)) then
+	if id and (not stats or not Mods.isBuilt(id) or not active()) then
 		return false
 	end
 	if state.held == slot then
@@ -244,7 +252,7 @@ local function onHold(player: Player, slotArg: unknown)
 	player:SetAttribute("ModHeld", slot)
 end
 
-local function onUse(
+local function use(
 	player: Player,
 	slotArg: unknown,
 	modeArg: unknown,
@@ -252,9 +260,6 @@ local function onUse(
 	directionArg: unknown,
 	targetArg: unknown
 )
-	if not limiter:allow(player, "ModUse") then
-		return
-	end
 	local slot = Validate.integer(slotArg, 1, Config.SLOTS)
 	local mode = Validate.enum(modeArg, MODES)
 	local origin = Validate.vector(originArg)
@@ -284,6 +289,7 @@ local function onUse(
 		deny(player, slot, "no Mod in that slot")
 		return
 	end
+	local modId: string = id
 	local apply = module.apply
 	if def.authority ~= "Server" or not apply then
 		deny(player, slot, "predicted Mod")
@@ -339,9 +345,9 @@ local function onUse(
 		level = s.level,
 		stats = stats,
 		now = now,
-		worldParams = worldParams(),
+		worldParams = worldParams,
 		damage = function(victim: Model, amount: number, at: Vector3)
-			WeaponService.damage(player, victim, amount, id, at)
+			WeaponService.damage(player, victim, amount, modId, at)
 		end,
 		heal = function(healTarget: Model, amount: number, duration: number)
 			if duration <= 0 then
@@ -357,7 +363,7 @@ local function onUse(
 		fx = function(kind: string, data: { [string]: any })
 			data.caster = player
 			data.team = Teams.of(player)
-			data.id = id
+			data.id = modId
 			data.level = s.level
 			Net.event("ModFx"):FireAllClients(kind, data)
 		end,
@@ -385,10 +391,23 @@ local function onUse(
 			Charges.spend(s.charges, s.rechargeAt, stats.charges, stats.cooldown, now)
 	end
 	publishSlot(player, slot, s)
-	if state.held == slot then
-		release(player)
-	end
 	apply(ctx, req)
+end
+
+-- Every use ends the hold, accepted or not: the client goes back to its gun
+-- either way (a refused hold left behind would silently block its shots).
+-- The gun stays down for the use animation, on the server too.
+local function onUse(player: Player, ...: unknown)
+	if limiter:allow(player, "ModUse") then
+		local ok, err = pcall(use, player, ...)
+		if not ok then
+			warn("[ModService] use failed:", err)
+		end
+	end
+	local state = states[player]
+	if state and state.held ~= 0 then
+		release(player, Config.USE_TIME)
+	end
 end
 
 -- Heals over time ---------------------------------------------------------------------

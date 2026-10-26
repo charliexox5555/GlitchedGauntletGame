@@ -75,8 +75,9 @@ export type ServerCtx = {
 	level: string,
 	stats: Stats,
 	now: number, -- workspace:GetServerTimeNow()
-	-- Line-of-sight params: world only (no bodies, no effects).
-	worldParams: RaycastParams,
+	-- Fresh line-of-sight params: world only (no bodies, no effects). A call,
+	-- so a delayed effect (a fuse) sees who exists when it goes off.
+	worldParams: () -> RaycastParams,
 	damage: (victim: Model, amount: number, at: Vector3) -> (),
 	-- `amount` over `duration` seconds (0 = at once), from the caster.
 	heal: (target: Model, amount: number, duration: number) -> (),

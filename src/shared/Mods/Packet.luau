@@ -72,6 +72,7 @@ end
 local function explode(ctx: Types.ServerCtx, at: Vector3)
 	local stats = ctx.stats
 	local caster = ctx.player
+	local params = ctx.worldParams()
 	for _, model in Target.combatants() do
 		if not Target.alive(model) then
 			continue
@@ -88,7 +89,7 @@ local function explode(ctx: Types.ServerCtx, at: Vector3)
 			continue
 		end
 		local distance = (point - at).Magnitude
-		if distance <= stats.radius and Target.visible(at, model, ctx.worldParams) then
+		if distance <= stats.radius and Target.visible(at, model, params) then
 			ctx.damage(model, Packet.damageAt(stats, distance), point)
 		end
 	end
@@ -106,9 +107,9 @@ end
 
 module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	local stats = ctx.stats
-	local origin, velocity =
-		Packet.throw(ctx.head.Position, req.direction, req.mode, stats, ctx.worldParams)
-	local path = Projectile.simulate(origin, velocity, Packet.options(stats), ctx.worldParams)
+	local params = ctx.worldParams()
+	local origin, velocity = Packet.throw(ctx.head.Position, req.direction, req.mode, stats, params)
+	local path = Projectile.simulate(origin, velocity, Packet.options(stats), params)
 	ctx.fx("PacketThrow", {
 		path = Projectile.pack(path),
 		fuse = stats.fuse,
