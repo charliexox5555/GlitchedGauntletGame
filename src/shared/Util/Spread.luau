@@ -2,6 +2,8 @@
 -- Seeded shot spread. The client and server both run this with the same seed,
 -- so the server can recompute exactly where each pellet was allowed to go.
 
+local Combat = require(script.Parent.Parent.Config.Combat)
+
 local Spread = {}
 
 local function basis(dir: Vector3): CFrame
@@ -9,27 +11,32 @@ local function basis(dir: Vector3): CFrame
 	return CFrame.lookAt(Vector3.zero, dir, up)
 end
 
--- A random direction inside a cone of `degrees` around `aim` (uniform over the cone's disk).
-function Spread.cone(aim: Vector3, rng: Random, degrees: number): Vector3
+-- A random direction inside a cone of `degrees` around `aim`: uniform over
+-- the cone's disk, or clustered near the centre when `centred` (Gunplay v2:
+-- standing shots, Config/Combat CENTRE_BIAS).
+function Spread.cone(aim: Vector3, rng: Random, degrees: number, centred: boolean?): Vector3
 	if degrees <= 0 then
 		return aim.Unit
 	end
-	local angle = math.rad(degrees) * math.sqrt(rng:NextNumber())
+	local u = rng:NextNumber()
+	local angle = math.rad(degrees) * (if centred then u ^ Combat.CENTRE_BIAS else math.sqrt(u))
 	local roll = rng:NextNumber() * math.pi * 2
 	return (basis(aim.Unit) * CFrame.Angles(0, 0, roll) * CFrame.Angles(angle, 0, 0)).LookVector
 end
 
--- Directions for one trigger pull: the whole shot is offset by `spread`, then
--- each pellet scatters by `pelletSpread` around that.
+-- Directions for one trigger pull: the whole shot is offset by `spread`
+-- (centre-biased when `centred`), then each pellet scatters by
+-- `pelletSpread` around that.
 function Spread.shot(
 	aim: Vector3,
 	seed: number,
 	pellets: number,
 	spread: number,
-	pelletSpread: number
+	pelletSpread: number,
+	centred: boolean?
 ): { Vector3 }
 	local rng = Random.new(seed)
-	local center = Spread.cone(aim, rng, spread)
+	local center = Spread.cone(aim, rng, spread, centred)
 	if pellets <= 1 then
 		return { center }
 	end

@@ -24,14 +24,37 @@ export type WeaponClass =
 export type Penetration = "None" | "ThinWall" | "All"
 export type HitZone = "Head" | "Body" | "Legs"
 
--- Damage multiplier by distance: full damage until `start`, then a straight
--- line down to `minMultiplier` at `finish`.
-export type Falloff = { start: number, finish: number, minMultiplier: number }
+-- Damage falloff in steps (Gunplay.md §3): from `from` studs on, damage is
+-- multiplied by `multiplier`. Sorted by distance; the last step that applies wins.
+export type FalloffStep = { from: number, multiplier: number }
 
+-- Spread (Gunplay.md §2, v2), degrees. A spray builds "heat" (+1 per shot,
+-- cooling to 0 over `recoveryTime` without firing); the first `protected`
+-- shots add `protectedGrowth` each, later ones `growth`, up to `max`.
+export type SpreadStats = {
+	first: number, -- first-shot cone, standing, hip
+	adsMultiplier: number, -- fully aimed
+	protected: number,
+	protectedGrowth: number,
+	growth: number,
+	max: number, -- first + growth never exceeds this (movement adds on top)
+	recoveryTime: number,
+}
+
+-- Camera recoil with a learnable pattern (Gunplay.md §2, v2), degrees per shot:
+-- `up` for the first `protected` shots of a spray (pure vertical), then
+-- `upAfter` plus `side` in one direction, which swaps with `switchChance` per
+-- shot (at least `switchMinTime` apart). Once you stop, `recover` of the climb
+-- returns over `recoverTime`.
 export type Recoil = {
-	up: number, -- degrees of camera kick per shot
-	side: number, -- +/- random sideways degrees per shot
-	recover: number, -- share of the kick that recovers on its own (0..1)
+	up: number,
+	protected: number,
+	upAfter: number,
+	side: number,
+	switchChance: number,
+	switchMinTime: number,
+	recover: number,
+	recoverTime: number,
 }
 
 export type SpinUp = { startInterval: number, endInterval: number, time: number }
@@ -63,7 +86,7 @@ export type WeaponConfig = {
 	tier: number, -- 1..4, 0 = melee
 	slot: Slot,
 	fireMode: FireMode,
-	damage: { body: number, head: number, legs: number? },
+	damage: { body: number, head: number?, legs: number? }, -- head/legs default: Weapons multipliers
 	pellets: number,
 	pelletSpread: number, -- degrees, cone for pellets
 	fireInterval: number, -- seconds between shots
@@ -76,11 +99,8 @@ export type WeaponConfig = {
 	-- The first draw of a life (racks the action, client-side only); default equipTime.
 	firstEquipTime: number?,
 	range: number,
-	falloff: Falloff?,
-	hipSpread: number, -- degrees
-	adsSpreadMultiplier: number,
-	bloomPerShot: number,
-	maxBloom: number,
+	falloff: { FalloffStep }?, -- nil = no falloff
+	spread: SpreadStats,
 	recoil: Recoil,
 	adsFov: number,
 	adsTime: number,
@@ -90,8 +110,8 @@ export type WeaponConfig = {
 	pierceCharacters: boolean?,
 	suppressed: boolean?,
 	melee: MeleeStats?,
-	moveSpreadMultiplier: number?, -- scales movement spread
-	crouchSpreadMultiplier: number?, -- < 1: steadier crouched
+	-- Row of Config/Combat MOVE_PENALTY (default: the gun's class).
+	moveClass: string?,
 	noAds: boolean?, -- akimbo guns
 	-- Models to hold: by default the model named like the id. Akimbo guns hold two.
 	models: { right: string, left: string? }?,

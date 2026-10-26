@@ -39,11 +39,29 @@ local weapons: { [string]: WeaponConfig } = {
 		equipTime = 0.5,
 		firstEquipTime = 0.9, -- first draw of a life: raise and rack the charging handle
 		range = 500,
-		hipSpread = 0.25,
-		adsSpreadMultiplier = 0.6,
-		bloomPerShot = 0.12,
-		maxBloom = 0.75, -- 1.0 degrees at most, standing
-		recoil = { up = 0.42, side = 0.15, recover = 0.75 },
+		-- No falloff. Tap-accurate, three protected shots, then the cone opens
+		-- to 1 degree; back to a first-shot tap after 0.375 s off the trigger.
+		spread = {
+			first = 0.25,
+			adsMultiplier = 0.6, -- 0.15 aimed
+			protected = 3,
+			protectedGrowth = 0.02,
+			growth = 0.12,
+			max = 1.0,
+			recoveryTime = 0.375,
+		},
+		-- Six pure-vertical kicks, then a smaller climb drifting to one side,
+		-- 10% chance per shot to swap sides (at least 0.6 s apart).
+		recoil = {
+			up = 0.42,
+			protected = 6,
+			upAfter = 0.25,
+			side = 0.3,
+			switchChance = 0.1,
+			switchMinTime = 0.6,
+			recover = 0.75,
+			recoverTime = 0.3,
+		},
 		adsFov = 68, -- 1.25x zoom from the 80 degree view
 		adsTime = 0.2,
 		moveMultiplier = 0.95,
@@ -51,6 +69,62 @@ local weapons: { [string]: WeaponConfig } = {
 		penetration = "ThinWall",
 		sounds = {
 			fire = Sounds.ShotMachineGun, -- real AK-47 full-auto shots
+			reload = Sounds.MagIn,
+			equip = Sounds.Equip,
+			cycle = Sounds.Rack,
+		},
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
+
+	-- Phantom v2 (Gunplay.md §3): the Vandal's suppressed companion. Lighter
+	-- and faster, a bigger mag, less damage, and a falloff step at 70 studs.
+	-- Installed but not in the default loadout yet (gun 2, still in progress).
+	Phantom = {
+		id = "Phantom",
+		displayName = "Phantom",
+		class = "Rifle",
+		tier = 3,
+		slot = "Primary",
+		fireMode = "Auto",
+		damage = { body = 26, head = 58, legs = 22 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.091, -- 11 rounds/s
+		magSize = 30,
+		reloadTime = 2.3,
+		emptyReloadTime = 2.8,
+		equipTime = 0.45,
+		firstEquipTime = 0.8,
+		range = 500,
+		falloff = { { from = 70, multiplier = 0.87 } },
+		spread = {
+			first = 0.2,
+			adsMultiplier = 0.6, -- 0.12 aimed
+			protected = 4,
+			protectedGrowth = 0.02,
+			growth = 0.1,
+			max = 0.9,
+			recoveryTime = 0.35,
+		},
+		recoil = {
+			up = 0.32,
+			protected = 6,
+			upAfter = 0.2,
+			side = 0.22,
+			switchChance = 0.1,
+			switchMinTime = 0.6,
+			recover = 0.75,
+			recoverTime = 0.28,
+		},
+		adsFov = 68,
+		adsTime = 0.2,
+		moveMultiplier = 0.97,
+		adsMoveMultiplier = 0.76,
+		penetration = "ThinWall",
+		suppressed = true, -- no tracer for enemies, quieter shot, small flash
+		sounds = {
+			fire = Sounds.ShotRifleSuppressed, -- real AK-47, filtered
 			reload = Sounds.MagIn,
 			equip = Sounds.Equip,
 			cycle = Sounds.Rack,
@@ -73,7 +147,9 @@ Weapons.DEFAULT_LOADOUT = table.freeze({
 	Primary = "Vandal",
 }) :: { [Types.Slot]: string }
 
--- Hit-zone multipliers used when a gun doesn't set its own head/legs damage.
+-- Hit-zone multipliers used when a gun doesn't set its own head/legs damage
+-- (Gunplay.md §3: rifles kill with two headshots).
+Weapons.HEAD_MULTIPLIER = 2.25
 Weapons.LEGS_MULTIPLIER = 0.85
 
 function Weapons.get(id: string): WeaponConfig?

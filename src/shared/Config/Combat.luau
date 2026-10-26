@@ -5,16 +5,31 @@ return table.freeze({
 	MAX_HEALTH = 100,
 	RESPAWN_TIME = 3,
 
-	-- Spread added on top of a gun's hip spread (Gunplay.md §2), degrees.
-	MOVE_SPREAD = {
-		Idle = 0,
-		Walk = 0.4,
-		Sprint = 0.6,
-		Slide = 0.8,
-		Air = 2.5,
+	-- Gunplay v2 (Gunplay.md §2): movement adds spread on top of the gun's
+	-- own, scaled smoothly by horizontal speed. Degrees per class: crouch-walk,
+	-- walk (at walk speed), sprint (firing at sprint speed), slide, air.
+	MOVE_PENALTY = {
+		Rifle = { crouchWalk = 0.2, walk = 0.8, sprint = 1.5, slide = 1.2, air = 3 },
+		SMG = { crouchWalk = 0.1, walk = 0.3, sprint = 0.7, slide = 0.5, air = 2 },
+		Sidearm = { crouchWalk = 0.1, walk = 0.35, sprint = 0.8, slide = 0.6, air = 2 },
+		Shotgun = { crouchWalk = 0, walk = 0.2, sprint = 0.4, slide = 0.3, air = 1 },
+		MachineGun = { crouchWalk = 0.3, walk = 1.0, sprint = 2.0, slide = 1.5, air = 3.5 },
+		Sniper = { crouchWalk = 1, walk = 2.5, sprint = 5, slide = 4, air = 8 },
+		Wildcard = { crouchWalk = 0.2, walk = 0.8, sprint = 1.5, slide = 1.2, air = 3 },
+		Melee = { crouchWalk = 0, walk = 0, sprint = 0, slide = 0, air = 0 },
 	},
-	BLOOM_RECOVERY = 6, -- degrees per second once you stop firing
-	BLOOM_RECOVERY_DELAY = 0.12,
+	MOVE_DEADZONE = 0.3, -- share of walk speed that still counts as standing
+	ADS_MOVE_PENALTY = 0.5, -- fully aimed, the movement penalty is halved
+	CROUCH_SPREAD = 0.85, -- crouched (standing or walking), the gun's own spread
+	CROUCH_SIDE_RECOIL = 0.85, -- crouched, sideways recoil
+	LANDING_PENALTY = 1.5, -- degrees, for LANDING_TIME after touching down
+	LANDING_TIME = 0.2,
+	-- Spray heat doesn't cool while shots come at most this many fire
+	-- intervals apart (holding the trigger); see Util/Accuracy.cool.
+	SPRAY_HOLD = 1.25,
+	-- Standing still (no movement penalty), shots cluster near the centre;
+	-- moving, they spread evenly over the cone.
+	CENTRE_BIAS = 1, -- radius = cone * u^this (0.5 would be even over the disc)
 
 	-- Server validation tolerances. Generous enough for ~250 ms ping,
 	-- tight enough that hits through walls / across the map are rejected.
@@ -30,6 +45,13 @@ return table.freeze({
 	REWIND_MAX = 0.6, -- ...capped here (seconds)
 	MAX_HITS_PER_SHOT = 12,
 	MAX_SHOT_SKIP = 3, -- shot counter may jump by at most this (lost/rejected shots)
+	-- The server recomputes each shot's spread from its own state. Slack for
+	-- network timing: spray heat may differ by this many shots, and movement
+	-- is read from the shooter's ping + FIRE_TIME_SLACK ago up to now
+	-- (WeaponService spreadBand).
+	SPREAD_HEAT_SLACK = 1,
+	FIRE_TIME_SLACK = 0.08,
+	MOTION_HISTORY = 1, -- seconds of speed / stance samples kept per player
 
 	-- Only these parts of a character count as hitboxes (R15, plus R6 names).
 	BODY_PARTS = {

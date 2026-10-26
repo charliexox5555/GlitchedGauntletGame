@@ -20,21 +20,25 @@ function Damage.zoneOf(partName: string): HitZone
 	return "Body"
 end
 
+-- Step falloff: the multiplier of the last step whose distance is reached.
 function Damage.falloff(config: WeaponConfig, distance: number): number
-	local f = config.falloff
-	if not f or distance <= f.start then
-		return 1
+	local steps = config.falloff
+	local multiplier = 1
+	if steps then
+		for _, step in steps do
+			if distance >= step.from then
+				multiplier = step.multiplier
+			end
+		end
 	end
-	if distance >= f.finish then
-		return f.minMultiplier
-	end
-	local t = (distance - f.start) / (f.finish - f.start)
-	return 1 + (f.minMultiplier - 1) * t
+	return multiplier
 end
 
+-- Head and legs use the gun's own numbers when it has them, else the defaults
+-- (head ×2.25, legs ×0.85).
 function Damage.base(config: WeaponConfig, zone: HitZone): number
 	if zone == "Head" then
-		return config.damage.head
+		return config.damage.head or config.damage.body * Weapons.HEAD_MULTIPLIER
 	elseif zone == "Legs" then
 		return config.damage.legs or config.damage.body * Weapons.LEGS_MULTIPLIER
 	end

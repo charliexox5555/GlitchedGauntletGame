@@ -695,7 +695,8 @@ local function newTracer(): Tracer
 	}
 end
 
--- `own`: our own shot (a little fainter: it runs straight away from the eye).
+-- `own`: our own shot (a little fainter: it runs straight away from the eye;
+-- fainter still from a suppressed gun, which shows enemies no tracer at all).
 function EffectsController.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: boolean?)
 	local offset = to - from
 	local dist = offset.Magnitude
@@ -715,7 +716,9 @@ function EffectsController.tracer(from: Vector3, to: Vector3, config: WeaponConf
 		t.color = color
 		t.glow.Color = ColorSequence.new(color)
 	end
-	t.core.Transparency = NumberSequence.new(if own then 0.35 else 0)
+	local faint = own and config.suppressed == true
+	t.core.Transparency = NumberSequence.new(if faint then 0.7 elseif own then 0.35 else 0)
+	t.glow.Transparency = NumberSequence.new(if faint then 0.85 else 0.55)
 	t.from = from
 	t.dir = offset / dist
 	t.dist = dist

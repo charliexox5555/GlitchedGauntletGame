@@ -32,8 +32,12 @@ local cursorVisible = false
 -- Recoil state, radians.
 local pendingPitch = 0 -- not yet applied (smoothed in over a few frames)
 local pendingYaw = 0
-local kickPitch = 0 -- applied, and recovering back to 0
+local kickPitch = 0 -- applied, and recovering back to 0 once firing stops
 local kickYaw = 0
+local kickRecoverTime = 0.3 -- the last shot's gun recoverTime
+local lastKickAt = -math.huge
+-- Recovery waits this long after a kick (so it starts when the spray stops).
+local KICK_HOLD = 0.12
 
 -- Shake on fire: a small noisy wobble that dies away (applied and removed again
 -- each frame, so it never moves the aim).
@@ -51,7 +55,6 @@ local SHAKE_MAX = math.rad(1.2)
 local SHAKE_FREQ = 38
 
 local KICK_APPLY_RATE = 45
-local KICK_RECOVER_RATE = 9
 local ROLL_RATE = 10
 
 local function lerp(a: number, b: number, t: number): number
@@ -81,14 +84,17 @@ function CameraController.currentFov(): number
 	return if cam then cam.FieldOfView else baseFov
 end
 
--- One shot of recoil. `up`/`side` in degrees; `recover` = share that comes back by itself.
-function CameraController.kick(up: number, side: number, recover: number)
+-- One shot of recoil. `up`/`side` in degrees; `recover` = share that comes
+-- back by itself, over `recoverTime` once the shooting stops.
+function CameraController.kick(up: number, side: number, recover: number, recoverTime: number?)
 	local upRad = math.rad(up)
 	local sideRad = math.rad(side)
 	pendingPitch += upRad
 	pendingYaw += sideRad
 	kickPitch += upRad * recover
 	kickYaw += sideRad * recover
+	kickRecoverTime = math.max(recoverTime or 0.3, 0.05)
+	lastKickAt = os.clock()
 end
 
 -- Camera shake, in degrees of wobble (stacks up to a cap and dies away fast).
@@ -168,7 +174,9 @@ local function step(dt: number)
 	local dYaw = pendingYaw * applyT
 	pendingPitch -= dPitch
 	pendingYaw -= dYaw
-	local recoverT = 1 - math.exp(-KICK_RECOVER_RATE * dt)
+	-- 95% of the recoverable climb returns within the gun's recoverTime.
+	local recovering = os.clock() - lastKickAt > KICK_HOLD
+	local recoverT = if recovering then 1 - math.exp(-3 / kickRecoverTime * dt) else 0
 	local rPitch = kickPitch * recoverT
 	local rYaw = kickYaw * recoverT
 	kickPitch -= rPitch

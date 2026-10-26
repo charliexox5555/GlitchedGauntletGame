@@ -14,6 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Accuracy = require(Shared.Util.Accuracy)
 local Combat = require(Shared.Config.Combat)
 local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
@@ -37,6 +38,30 @@ type SlotState = {
 	lastFire: number, -- "virtual" time of the last accepted shot (rate enforcement)
 	spinStart: number?,
 	burstShots: number,
+	-- Spray heat after the last accepted shot (Util/Accuracy), as a band:
+	-- cooled with each gap lengthened / shortened by Combat.FIRE_JITTER, so
+	-- the client's own count (its gaps differ by network timing) stays inside.
+	heatLow: number,
+	heatHigh: number,
+	lastShotAt: number, -- os.clock() of the last accepted shot
+}
+
+-- What the server's own simulation says a player was doing (sampled every
+-- Heartbeat), for recomputing spread: Gunplay v2 movement penalty and ADS.
+-- `aim` is the ADS blend the client also runs (0..1 over the gun's adsTime).
+type MotionSample = {
+	t: number,
+	state: string,
+	speed: number,
+	aim: number,
+	sinceLanding: number,
+}
+
+type MotionTrack = {
+	samples: { MotionSample },
+	aim: number,
+	lastState: string,
+	landedAt: number,
 }
 
 type PlayerState = {
@@ -57,6 +82,7 @@ local WeaponService = {}
 local states: { [Player]: PlayerState } = {}
 local loadouts: { [Player]: { [Slot]: string } } = {}
 local buckets: { [Player]: { [string]: { tokens: number, last: number } } } = {}
+local motion: { [Player]: MotionTrack } = {}
 
 local WeaponsFolder: Instance? = nil
 
@@ -184,6 +210,9 @@ local function newSlot(id: string): SlotState?
 		reloadToken = 0,
 		lastFire = -math.huge,
 		burstShots = 0,
+		heatLow = 0,
+		heatHigh = 0,
+		lastShotAt = -math.huge,
 	}
 end
 
@@ -577,6 +606,143 @@ local function readArray(value: unknown, max: number): { unknown }
 	return out
 end
 
+-- Motion history --------------------------------------------------------------
+
+local function aimHeld(player: Player): boolean
+	local context = player:FindFirstChild("PlayContext")
+	local action = context and context:FindFirstChild("Aim")
+	return action ~= nil and action:IsA("InputAction") and action:GetState() == true
+end
+
+local function equippedConfig(player: Player): WeaponConfig?
+	local state = states[player]
+	local slot = state and state.equipped and state.slots[state.equipped]
+	return slot and slot.config
+end
+
+local function sampleMotion(dt: number)
+	local now = os.clock()
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if not character or not root or not root:IsA("BasePart") then
+			continue
+		end
+		local track = motion[player]
+		if not track then
+			track = { samples = {}, aim = 0, lastState = "Idle", landedAt = -math.huge }
+			motion[player] = track
+		end
+		local state = (character:GetAttribute("MoveState") :: string?) or "Idle"
+		-- Landings, on the server's own clock (the client spots its own).
+		if track.lastState == "Air" and state ~= "Air" then
+			track.landedAt = now
+		end
+		track.lastState = state
+		-- The same ADS blend the client runs (WeaponController): toward 1 while
+		-- the Aim input is held, at 1 / adsTime per second.
+		local config = equippedConfig(player)
+		local canAim = config ~= nil and config.fireMode ~= "Melee" and not config.noAds
+		local rate = 1 / math.max(if config then config.adsTime else 0.2, 0.05)
+		local held = canAim and aimHeld(player) and state ~= "Sprint"
+		track.aim = math.clamp(track.aim + (if held then rate else -rate) * dt, 0, 1)
+		local list = track.samples
+		table.insert(list, {
+			t = now,
+			state = state,
+			speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude,
+			aim = track.aim,
+			sinceLanding = now - track.landedAt,
+		})
+		while #list > 0 and now - list[1].t > Combat.MOTION_HISTORY do
+			table.remove(list, 1)
+		end
+	end
+end
+
+-- The spread a shot is allowed to have, from the server's own state: the
+-- gun's spray heat band (from accepted shot times, plus SPREAD_HEAT_SLACK
+-- shots) and what the player was doing around when they fired: samples from
+-- `ping` + FIRE_TIME_SLACK ago up to now. The high edge also allows a jump the
+-- server hasn't simulated yet (high edges only ever cost the shooter).
+-- Returns the lowest and highest cone, and whether a centre-biased shot is
+-- allowed (only when the server saw the shooter standing at fire time).
+local function spreadBand(
+	player: Player,
+	config: WeaponConfig,
+	heatLow: number,
+	heatHigh: number,
+	ping: number
+): (number, number, boolean)
+	local now = os.clock()
+	local track = motion[player]
+	local samples = if track then track.samples else {}
+	local fireTime = now - ping
+	local recent: { MotionSample } = {}
+	local closest: MotionSample? = nil
+	for _, s in samples do
+		if s.t >= fireTime - Combat.FIRE_TIME_SLACK then
+			table.insert(recent, s)
+		end
+		if not closest or math.abs(s.t - fireTime) < math.abs(closest.t - fireTime) then
+			closest = s
+		end
+	end
+	local latest = samples[#samples]
+	if #recent == 0 and latest then
+		table.insert(recent, latest)
+	end
+	if #recent == 0 then
+		-- No samples yet (just spawned): anything from standing aimed to airborne.
+		table.insert(
+			recent,
+			{ t = now, state = "Idle", speed = 0, aim = 1, sinceLanding = math.huge }
+		)
+		table.insert(recent, { t = now, state = "Air", speed = 0, aim = 0, sinceLanding = 0 })
+	end
+	local aimLow, aimHigh = 0, 1
+	local anyCrouch, allCrouch = false, true
+	for _, s in recent do
+		aimLow = math.max(aimLow, s.aim)
+		aimHigh = math.min(aimHigh, s.aim)
+		anyCrouch = anyCrouch or s.state == "Crouch"
+		allCrouch = allCrouch and s.state == "Crouch"
+	end
+	local moveLow, moveHigh = math.huge, 0
+	for _, s in recent do
+		local m: Accuracy.Motion =
+			{ state = s.state, speed = s.speed, aim = aimLow, sinceLanding = s.sinceLanding }
+		moveLow = math.min(moveLow, Accuracy.movement(config, m))
+		m.aim = aimHigh
+		moveHigh = math.max(moveHigh, Accuracy.movement(config, m))
+	end
+	if latest and latest.state ~= "Air" then
+		local jump: Accuracy.Motion =
+			{ state = "Air", speed = latest.speed, aim = aimHigh, sinceLanding = math.huge }
+		moveHigh = math.max(moveHigh, Accuracy.movement(config, jump))
+	end
+	local slack = Combat.SPREAD_HEAT_SLACK
+	local low = Accuracy.gun(config, heatLow - slack, aimLow, anyCrouch) + moveLow
+	local high = Accuracy.gun(config, heatHigh + slack, aimHigh, allCrouch) + moveHigh
+	local standing = moveLow <= 0
+		and closest ~= nil
+		and Accuracy.movement(config, {
+				state = closest.state,
+				speed = closest.speed,
+				aim = closest.aim,
+				sinceLanding = closest.sinceLanding,
+			})
+			<= 0
+	return low, high, standing
+end
+
+local function networkPing(player: Player): number
+	local ok, ping = pcall(function()
+		return player:GetNetworkPing()
+	end)
+	return if ok and typeof(ping) == "number" and ping == ping then math.clamp(ping, 0, 1) else 0.1
+end
+
 local function rewindWindow(player: Player): number
 	local ok, ping = pcall(function()
 		return player:GetNetworkPing()
@@ -680,8 +846,16 @@ local function onFire(player: Player, payload: unknown)
 		return
 	end
 
+	-- Spray heat before this shot (cools while the trigger is off).
+	local gap = now - slot.lastShotAt
+	local heatLow = Accuracy.cool(config, slot.heatLow, gap + Combat.FIRE_JITTER)
+	local heatHigh = Accuracy.cool(config, slot.heatHigh, math.max(gap - Combat.FIRE_JITTER, 0))
+
 	-- Accept the shot.
 	state.shotIndex = shot
+	slot.heatLow = heatLow + 1
+	slot.heatHigh = heatHigh + 1
+	slot.lastShotAt = now
 	if not slot.spinStart or now - slot.lastFire > FireRate.SPIN_RESET then
 		slot.spinStart = now
 	end
@@ -710,25 +884,32 @@ local function onFire(player: Player, payload: unknown)
 	end
 
 	-- Recompute exactly where each pellet was allowed to go. The seed comes
-	-- from the server's sequence; the claimed spread can't go below the gun's
-	-- best case (aimed, standing still) or above its worst case.
-	local minSpread = config.hipSpread
-		* config.adsSpreadMultiplier
-		* (config.crouchSpreadMultiplier or 1)
-	local maxSpread = config.hipSpread
-		+ config.maxBloom
-		+ Combat.MOVE_SPREAD.Air * (config.moveSpreadMultiplier or 1)
-	local spread = math.clamp(spreadClaim, minSpread, maxSpread)
+	-- from the server's sequence, and the cone from the server's own state
+	-- (spreadBand): a claimed cone outside that band is clamped into it, so
+	-- a client that lies about its spread gets rays its hits won't match.
+	local rewindAge = rewindWindow(player)
+	local low, high, mayCentre = spreadBand(player, config, heatLow, heatHigh, networkPing(player))
+	local spread = math.clamp(spreadClaim, low, high)
+	if RunService:IsStudio() then
+		-- Tuning aid: what the client claimed and the band the server allowed.
+		player:SetAttribute(
+			"FireSpread",
+			string.format("%.3f [%.3f, %.3f]", spreadClaim, low, high)
+		)
+	end
+	-- Centre bias only when the server also saw the shooter standing (an even
+	-- spread is always allowed: it only makes the shot less accurate).
+	local centred = p.centred == true and mayCentre
 	local dirs = Spread.shot(
 		aim,
 		Spread.seedFor(state.seedBase, shot),
 		config.pellets,
 		spread,
-		config.pelletSpread
+		config.pelletSpread,
+		centred
 	)
 
 	local root = character:FindFirstChild("HumanoidRootPart")
-	local rewindAge = rewindWindow(player)
 	local maxHits = math.min(
 		Combat.MAX_HITS_PER_SHOT,
 		config.pellets * (if config.pierceCharacters then 4 else 1)
@@ -935,7 +1116,9 @@ function WeaponService.start()
 	for _, player in Players:GetPlayers() do
 		onPlayer(player)
 	end
+	RunService.Heartbeat:Connect(sampleMotion)
 	Players.PlayerRemoving:Connect(function(player)
+		motion[player] = nil
 		states[player] = nil
 		loadouts[player] = nil
 		buckets[player] = nil

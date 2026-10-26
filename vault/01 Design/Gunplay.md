@@ -46,6 +46,27 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 - **Equip:** the **first draw** each life plays the full draw with cocking (rifle ~0.9 s, pistol ~0.6 s); later swaps are quick (rifle ~0.5 s, pistol ~0.35 s).
 - **Reload:** a tactical reload swaps the mag; an **empty** reload also racks the charging handle and takes longer (rifle 2.3 s / 2.8 s).
 
+### How v2 is built (2026-10-25)
+- **Data:** per gun `spread` (`first`, `adsMultiplier`, `protected`, `protectedGrowth`, `growth`, `max`, `recoveryTime`), `recoil` (`up`, `protected`, `upAfter`, `side`, `switchChance`, `switchMinTime`, `recover`, `recoverTime`) and step `falloff` (`{ from, multiplier }`) in `Config/Weapons`; the per-class movement table and shared rules (`MOVE_DEADZONE`, `ADS_MOVE_PENALTY`, `CROUCH_SPREAD`, `CROUCH_SIDE_RECOIL`, `LANDING_*`, `CENTRE_BIAS`, `SPRAY_HOLD`) in `Config/Combat`; head ×2.25 / legs ×0.85 defaults in `Config/Weapons`.
+- **Maths** (`Util/Accuracy`, shared by client and server): spray **heat** is +1 per shot; it doesn't cool while you keep firing at the gun's rate (gaps up to 1.25 fire intervals), then cools linearly to 0 at `recoveryTime`. Cone = min(first + growth(heat), max) × ADS × crouch, plus the movement penalty (speed-scaled, deadzone, slide/air values, landing), halved fully aimed. Standing shots (no movement penalty) are centre-biased (`radius = cone × u`), moving ones even over the disc.
+- **Server-authoritative:** the server samples each player's own simulation every Heartbeat (MoveState, horizontal speed, landings, and the same ADS blend the client runs, driven by the server's Aim input over the gun's `adsTime`) and tracks each gun's heat as a band (each gap ±`FIRE_JITTER`). For a shot it reads the samples from the shooter's ping + `FIRE_TIME_SLACK` (0.08 s) ago up to now, builds the band of cones that allows, and clamps the client's claimed cone into it before recomputing the rays from its own seed. The high edge also allows a jump the server hasn't simulated yet (a higher cone only costs the shooter). Centre bias is used only if the client asks for it **and** the server's sample nearest the fire time was standing. A client that claims a tighter cone gets rays its hits don't match, so they're rejected. In Studio the claim and band go to the player attribute `FireSpread`.
+- **Known limit (security review 2026-10-25):** the spread seeds are handed out in advance (so the client can predict hits instantly), so a cheat could pre-compensate its aim for the known spread offset. That's aimbot-class cheating anyway; fixing it means revealing seeds per shot after acceptance (later, with anti-cheat).
+- **Recoil** is camera-only (client): `CameraController.kick` now waits for the spray to stop, then returns `recover` of the climb within `recoverTime`.
+- **Measured in Studio (Vandal, 2026-10-25,** server log of claim and band; no shot rejected):
+
+  | Case | Cone | Server band (low edge) |
+  |---|---|---|
+  | Standing tap (hip) | 0.25° | 0.25° |
+  | Walking (hip, 15.2 studs/s) | 0.99° | 0.99° |
+  | ADS-strafing (11.6 studs/s) | 0.39° | 0.39° |
+  | 10-round spray, standing | 0.25 → 0.27, 0.29, 0.31 (protected), then +0.12/shot → **1.0° cap at shot 10** | 0.25 → 0.39 (one shot of heat slack, jitter-cooled) |
+  | 0.35 s after the spray | 0.28° (heat ~1.2) | 0.25° |
+  | 1.1 s after the spray | 0.25° (fully recovered) | 0.25° |
+
+  High edges sit about 3° above (the unseen-jump allowance). Measured on the final version, Studio solo (near-zero ping).
+
+  Not measured live: air and landing shots (jumping can't be driven from a script under Server Authority); they use the same code path with the Air row.
+
 ## 3. Damage (v2)
 | Rule | Value |
 |---|---|

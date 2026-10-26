@@ -14,6 +14,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Accuracy = require(Shared.Util.Accuracy)
 local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
 local FireRate = require(Shared.Util.FireRate)
@@ -42,6 +43,13 @@ type LocalSlot = {
 	spinStart: number?,
 	burstShots: number, -- same counter as the server's (FireRate.nextBurstCount)
 	drawn: boolean, -- had its first draw this life (racked)
+	heat: number, -- spray heat after the last shot (Util/Accuracy), as the server counts it
+	lastShotAt: number,
+	-- Recoil pattern (Config/Weapons recoil): shots in this spray, the side
+	-- the climb drifts to, and when it last swapped.
+	sprayShots: number,
+	sideDir: number,
+	lastSwitch: number,
 }
 
 type Reload = { start: number, duration: number, token: number }
@@ -61,7 +69,6 @@ local burstQueue = 0 -- shots left in the current burst
 local nextLeft = false -- akimbo: the next shot comes from the left gun
 local aiming = false
 local adsAlpha = 0
-local bloom = 0
 local lastShotAt = 0
 local lastAimSent = 0
 local lastPitchSent = 0
@@ -118,26 +125,55 @@ local function ease(t: number): number
 	return t * t * (3 - 2 * t)
 end
 
--- The server clamps the claimed spread to this range (WeaponService.onFire);
--- staying inside it keeps both sides' pellet rays identical.
-local function spreadLimits(config: WeaponConfig): (number, number)
-	local low = config.hipSpread * config.adsSpreadMultiplier * (config.crouchSpreadMultiplier or 1)
-	local high = config.hipSpread
-		+ config.maxBloom
-		+ Combat.MOVE_SPREAD.Air * (config.moveSpreadMultiplier or 1)
-	return low, high
+-- What we're doing right now, for the spread (the server recomputes the same
+-- from its own simulation: WeaponService spreadBand).
+local landedAt = -math.huge -- os.clock() of our last landing (update() spots it)
+local lastMoveState = "Idle"
+
+local function motionNow(): Accuracy.Motion
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	return {
+		state = MovementController.getState(),
+		speed = if root and root:IsA("BasePart")
+			then (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
+			else 0,
+		aim = adsAlpha,
+		sinceLanding = os.clock() - landedAt,
+	}
 end
 
-local function currentSpread(config: WeaponConfig): number
-	local move = MovementController.getState()
-	local extra = ((Combat.MOVE_SPREAD :: any)[move] or 0) * (config.moveSpreadMultiplier or 1)
-	local hip = config.hipSpread
-	if move == "Crouch" then
-		hip *= config.crouchSpreadMultiplier or 1
+-- Gunplay v2 spread for the next shot: the gun's cone at its cooled spray
+-- heat plus the movement penalty, and whether it's centre-biased.
+local function currentSpread(s: LocalSlot): (number, boolean)
+	local heat = Accuracy.cool(s.config, s.heat, os.clock() - s.lastShotAt)
+	return Accuracy.cone(s.config, heat, motionNow())
+end
+
+-- Camera recoil for one shot, following the gun's pattern: pure vertical for
+-- the protected shots, then a smaller climb drifting to one side, now and
+-- then swapping sides.
+local function kickRecoil(s: LocalSlot, sinceLast: number, now: number)
+	local r = s.config.recoil
+	if sinceLast > r.recoverTime + s.config.fireInterval then
+		s.sprayShots = 0
+		s.sideDir = if math.random() < 0.5 then -1 else 1
+		s.lastSwitch = now
 	end
-	local adsMult = 1 + (config.adsSpreadMultiplier - 1) * ease(adsAlpha)
-	local low, high = spreadLimits(config)
-	return math.clamp((hip + extra + bloom) * adsMult, low, high)
+	s.sprayShots += 1
+	local up, side = r.up, 0
+	if s.sprayShots > r.protected then
+		if now - s.lastSwitch >= r.switchMinTime and math.random() < r.switchChance then
+			s.sideDir = -s.sideDir
+			s.lastSwitch = now
+		end
+		up = r.upAfter
+		side = r.side * s.sideDir
+		if MovementController.getState() == "Crouch" then
+			side *= Combat.CROUCH_SIDE_RECOIL
+		end
+	end
+	CameraController.kick(up, side, r.recover, r.recoverTime)
 end
 
 local function playLocal(id: string?, group: AudioController.Group, volume: number, pitch: number?)
@@ -204,7 +240,6 @@ local function applyEquip(slot: Slot)
 	pressQueued = false
 	burstQueue = 0
 	nextLeft = false
-	bloom = 0
 	-- The first draw of a life racks the action; later swaps just raise the gun.
 	local first = not s.drawn
 	s.drawn = true
@@ -337,15 +372,17 @@ local function fireShot(s: LocalSlot)
 		s.ammo -= 1
 	end
 
-	local spread = currentSpread(config)
-	bloom = math.min(bloom + config.bloomPerShot, config.maxBloom)
+	local spread, centred = currentSpread(s)
+	local sinceLast = now - s.lastShotAt
+	s.heat = Accuracy.cool(config, s.heat, sinceLast) + 1
+	s.lastShotAt = now
 	lastShotAt = now
 
 	local origin = cam.CFrame.Position
 	local aim = cam.CFrame.LookVector
 	shotIndex += 1
 	local seed = Spread.seedFor(seedBase, shotIndex)
-	local dirs = Spread.shot(aim, seed, config.pellets, spread, config.pelletSpread)
+	local dirs = Spread.shot(aim, seed, config.pellets, spread, config.pelletSpread, centred)
 
 	-- Akimbo guns alternate between their two guns.
 	local side: ViewmodelController.Side = "Right"
@@ -381,9 +418,8 @@ local function fireShot(s: LocalSlot)
 				holeSize(config)
 			)
 		end
-		if not config.suppressed then
-			EffectsController.tracer(from, result.finish, config, true)
-		end
+		-- Suppressed guns: a faint tracer for the shooter only (none for enemies).
+		EffectsController.tracer(from, result.finish, config, true)
 	end
 
 	Net.event("Fire"):FireServer({
@@ -391,6 +427,7 @@ local function fireShot(s: LocalSlot)
 		direction = aim,
 		shot = shotIndex,
 		spread = spread,
+		centred = centred,
 		hits = hits,
 		ends = ends,
 	})
@@ -418,13 +455,8 @@ local function fireShot(s: LocalSlot)
 			end
 		end)
 	end
-	local adsKick = 1 - 0.35 * adsAlpha
-	CameraController.kick(
-		config.recoil.up * adsKick,
-		(math.random() * 2 - 1) * config.recoil.side * adsKick,
-		config.recoil.recover
-	)
-	CameraController.shake((0.04 + config.recoil.up * 0.1) * adsKick)
+	kickRecoil(s, sinceLast, now)
+	CameraController.shake((0.04 + config.recoil.up * 0.1) * (1 - 0.35 * adsAlpha))
 	ViewmodelController.fire(1 - 0.5 * adsAlpha, side)
 	if predictedHit then
 		HudController.hitMarker(predictedHead)
@@ -523,11 +555,6 @@ local function update(dt: number)
 	local now = os.clock()
 	local cam = Workspace.CurrentCamera
 
-	-- Bloom recovers once you stop firing.
-	if now - lastShotAt > Combat.BLOOM_RECOVERY_DELAY then
-		bloom = math.max(0, bloom - Combat.BLOOM_RECOVERY * dt)
-	end
-
 	-- Reload progress.
 	local r = reloading
 	if r and s then
@@ -541,6 +568,13 @@ local function update(dt: number)
 			HudController.setReload(t)
 		end
 	end
+
+	-- Landing (for the landing spread), on our own clock like the server's.
+	local moveState = MovementController.getState()
+	if lastMoveState == "Air" and moveState ~= "Air" then
+		landedAt = now
+	end
+	lastMoveState = moveState
 
 	-- Aim down sights.
 	local aimingWanted = s ~= nil
@@ -562,7 +596,7 @@ local function update(dt: number)
 
 	-- Trigger.
 	if s and alive then
-		HudController.setSpread(currentSpread(s.config) + s.config.pelletSpread * 0.6)
+		HudController.setSpread(currentSpread(s) + s.config.pelletSpread * 0.6)
 		local mode = s.config.fireMode
 		if mode == "Melee" then
 			if pressQueued and now >= equipReadyAt then
@@ -668,6 +702,11 @@ local function onWeaponState(state: Types.WeaponState)
 						spinStart = nil,
 						burstShots = 0,
 						drawn = false,
+						heat = 0,
+						lastShotAt = -math.huge,
+						sprayShots = 0,
+						sideDir = 1,
+						lastSwitch = 0,
 					}
 					if equipped == slot then
 						changedEquip = true
