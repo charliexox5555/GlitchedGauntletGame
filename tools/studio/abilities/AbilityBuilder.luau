@@ -61,15 +61,18 @@ local function translation(m: { { number } }): Vector3
 	return G(m[1][4], m[2][4], m[3][4])
 end
 
--- How the importer lays out mesh geometry relative to Blender axes (found for
--- the guns; the Mod exports use the same FBX settings).
+-- How the importer lays out mesh geometry relative to Blender axes. The guns
+-- import as "Y"; the Mod uploads (no armature) import as "M" = (Blender X,
+-- Blender Z, -Blender Y), found by the code session's first build (commit 4be1d37):
+-- with "Y" the Firewall came out 6 wide x 8.26 tall and the Launch Pad stood on edge.
 local MESH_AXES: { [string]: { Vector3 } } = {
 	I = { Vector3.xAxis, Vector3.yAxis, Vector3.zAxis },
 	X = { Vector3.xAxis, -Vector3.yAxis, -Vector3.zAxis },
 	Y = { -Vector3.xAxis, Vector3.yAxis, -Vector3.zAxis },
 	Z = { -Vector3.xAxis, -Vector3.yAxis, Vector3.zAxis },
+	M = { Vector3.xAxis, Vector3.zAxis, -Vector3.yAxis },
 }
-Builder.DEFAULT_AXES = "Y"
+Builder.DEFAULT_AXES = "M"
 
 local function meshRotation(axes: string): CFrame
 	local a = MESH_AXES[axes]

@@ -36,7 +36,7 @@ The `Icons/` folder belongs to the icon pipeline (`tools/icons/`), not to these 
    print(table.concat(B.publishAll(), "\n"))
    ```
    For each Mod it inserts the upload as `ImportStaging.Raw_<Id>`, builds `ImportStaging.<Id>`, installs a copy as `ReplicatedStorage.Abilities.<Id>` and saves `art-source/abilities/Studio/<Id>.rbxm`. `B.publish("Firewall")` does one.
-5. Check every model: no `MissingParts` attribute (a mesh name the upload didn't have); if a model has `SetDoubleSidedByHand`, tick `DoubleSided` in Properties on those parts. Look at them side by side with the renders in `vault/02 Art/References/mods/` (the forward direction is -Z; if the meshes come out turned, rebuild with `B.publish(id)` after setting `B.DEFAULT_AXES` to `"I"`, `"X"` or `"Z"`, as the guns needed `"Y"`).
+5. Check every model: no `MissingParts` attribute (a mesh name the upload didn't have); if a model has `SetDoubleSidedByHand`, tick `DoubleSided` in Properties on those parts. Look at them side by side with the renders in `vault/02 Art/References/mods/` (the forward direction is -Z). The builder uses mesh axes **`"M"`** = (Blender X, Blender Z, -Blender Y), which is how these uploads import (the guns import as `"Y"`; with `"Y"` the Firewall came out 6 wide × 8.26 tall and the Launch Pad stood on its edge). First build with `"M"`: code session, commit 4be1d37: Firewall 8.26 × 6.1 × 1.5, Launch Pad flat, Patch Up upright.
 6. **Save the place.** Delete `src/server/AbilityBuild/` and the `Raw_*` and staged models in `ImportStaging`.
 7. Tick the row in `vault/06 Assets/Asset Tracker.md` and commit the `.rbxm` backups.
 

@@ -53,6 +53,12 @@
   "type": "Decal",
   "uploaded": "2026-10-26 00:26:22"
  },
+ "art-source/abilities/Textures/FirewallGrid.png": {
+  "assetId": 74639457803541,
+  "name": "GG Mod FirewallGrid",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:15:31"
+ },
  "art-source/animations/GG_AimDown.rbxm": {
   "assetId": 102741853097868,
   "name": "GG Aim Down",
@@ -160,6 +166,54 @@
   "name": "GG VFX impact_flash",
   "type": "Decal",
   "uploaded": "2026-10-25 13:52:12"
+ },
+ "art-source/vfx/mods/chevron.png": {
+  "assetId": 115738691714722,
+  "name": "GG Mod VFX chevron v2",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:17:31"
+ },
+ "art-source/vfx/mods/cross.png": {
+  "assetId": 132325416726971,
+  "name": "GG Mod VFX cross",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:13:06"
+ },
+ "art-source/vfx/mods/glow.png": {
+  "assetId": 84184455697985,
+  "name": "GG Mod VFX glow",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:13:00"
+ },
+ "art-source/vfx/mods/hex.png": {
+  "assetId": 77923844465258,
+  "name": "GG Mod VFX hex",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:12:53"
+ },
+ "art-source/vfx/mods/ring.png": {
+  "assetId": 80073883257852,
+  "name": "GG Mod VFX ring",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:12:45"
+ },
+ "art-source/vfx/mods/ring_dashed.png": {
+  "assetId": 97993541567515,
+  "name": "GG Mod VFX ring_dashed",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:12:47"
+ },
+ "art-source/vfx/mods/scan.png": {
+  "assetId": 78696138354720,
+  "name": "GG Mod VFX scan",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:12:50"
+ },
+ "art-source/vfx/mods/sparkle.png": {
+  "assetId": 133970253572133,
+  "name": "GG Mod VFX sparkle",
+  "type": "Decal",
+  "uploaded": "2026-10-26 01:13:03"
  },
  "art-source/vfx/muzzle_front.png": {
   "assetId": 129276937663758,
