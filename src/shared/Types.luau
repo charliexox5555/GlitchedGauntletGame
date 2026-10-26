@@ -163,4 +163,29 @@ export type HitConfirm = {
 	position: Vector3,
 }
 
+-- Test range (TestRangeService) ----------------------------------------------
+
+-- Client -> server, on the Tester remote: (action, arg1, arg2).
+export type TesterAction =
+	"SetWeapon" -- (slot: Slot, weaponId: string)
+	| "Refill"
+	| "ResetDummies"
+	| "SetBehaviour" -- (behaviourId: string, on: boolean)
+	| "ResetStats"
+
+-- Server -> client (TesterStats). Every number is measured by the server.
+export type TesterStats = {
+	damage: number, -- total damage dealt since the last reset
+	shots: number, -- accepted shots (a shotgun blast is one shot)
+	hits: number, -- shots that damaged something
+	headshots: number,
+	kills: number,
+	dps: number, -- damage rate over the hits in the last Config/TestRange DPS_WINDOW seconds
+	peakDps: number,
+	lastTtk: number?, -- seconds from the first hit to the kill, last kill
+	lastTtkShots: number?, -- shots fired over that time
+	lastTtkWeapon: string?,
+	lastHit: { damage: number, zone: HitZone, distance: number, weapon: string }?,
+}
+
 return nil

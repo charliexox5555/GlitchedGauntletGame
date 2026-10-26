@@ -66,6 +66,21 @@ local buckets: { [Player]: { [string]: { tokens: number, last: number } } } = {}
 
 local WeaponsFolder: Instance? = nil
 
+-- Listeners for accepted shots and applied damage (the test range's stats).
+-- They only observe: nothing they do feeds back into validation.
+export type DamageEvent = {
+	attacker: Player,
+	victim: Model,
+	damage: number,
+	zone: HitZone,
+	killed: boolean,
+	weaponId: string,
+	position: Vector3,
+	projectile: boolean,
+}
+local shotListeners: { (player: Player, weaponId: string, hit: boolean) -> () } = {}
+local damageListeners: { (event: DamageEvent) -> () } = {}
+
 -- Defined further down (used by onFire).
 local rechargeBeam: (SlotState, number) -> ()
 local beamTickDamage: (SlotState, Model, number) -> number
@@ -371,6 +386,21 @@ local function applyDamage(
 	local dealt = math.clamp(before - humanoid.Health, 0, before)
 	local killed = before > 0 and humanoid.Health <= 0
 	humanoid:SetAttribute("LastAttacker", attacker.UserId)
+	if #damageListeners > 0 then
+		local event: DamageEvent = {
+			attacker = attacker,
+			victim = victimModel,
+			damage = dealt,
+			zone = zone,
+			killed = killed,
+			weaponId = config.id,
+			position = at,
+			projectile = config.projectile ~= nil,
+		}
+		for _, fn in damageListeners do
+			task.spawn(fn, event)
+		end
+	end
 
 	Net.event("HitConfirm"):FireClient(attacker, {
 		damage = math.round(dealt),
@@ -448,20 +478,28 @@ local function blocked(
 	return true
 end
 
--- Remote handlers --------------------------------------------------------------
+local function notifyShot(player: Player, config: WeaponConfig, hit: boolean)
+	for _, fn in shotListeners do
+		task.spawn(fn, player, config.id, hit)
+	end
+end
 
-local function onEquip(player: Player, slot: unknown)
-	if not allow(player, "Equip") then
-		return
-	end
-	if not isSlot(slot) then
-		return
-	end
+function WeaponService.onShot(fn: (player: Player, weaponId: string, hit: boolean) -> ())
+	table.insert(shotListeners, fn)
+end
+
+function WeaponService.onDamage(fn: (event: DamageEvent) -> ())
+	table.insert(damageListeners, fn)
+end
+
+-- Equips one of the player's slots (the Equip remote, and server-side picks
+-- like the test range's weapon racks).
+function WeaponService.equip(player: Player, slot: Slot)
 	local state = states[player]
 	if not state or not liveHumanoid(player.Character) then
 		return
 	end
-	local target = state.slots[slot :: Slot]
+	local target = state.slots[slot]
 	if not target or state.equipped == slot then
 		return
 	end
@@ -472,10 +510,37 @@ local function onEquip(player: Player, slot: unknown)
 		current.reloadEnd = nil
 		current.chargeStart = nil
 	end
-	state.equipped = slot :: Slot
+	state.equipped = slot
 	state.equipReadyAt = os.clock() + target.config.equipTime * 0.7
 	refreshWorldModel(player)
 	sendState(player)
+end
+
+-- Fills every magazine and beam battery, cancelling a reload in progress.
+function WeaponService.refill(player: Player)
+	local state = states[player]
+	if not state then
+		return
+	end
+	for _, s in state.slots do
+		s.reloadToken += 1
+		s.reloadEnd = nil
+		s.ammo = s.config.magSize
+		s.rechargeFrom = os.clock()
+	end
+	sendState(player)
+end
+
+-- Remote handlers --------------------------------------------------------------
+
+local function onEquip(player: Player, slot: unknown)
+	if not allow(player, "Equip") then
+		return
+	end
+	if not isSlot(slot) then
+		return
+	end
+	WeaponService.equip(player, slot :: Slot)
 end
 
 local function onReload(player: Player)
@@ -843,6 +908,7 @@ local function onFire(player: Player, payload: unknown)
 	-- Projectile guns: the server flies the disc itself; there are no client hit claims.
 	if config.projectile then
 		spawnProjectile(player, character, origin, dirs[1], config)
+		notifyShot(player, config, false)
 		return
 	end
 
@@ -1011,6 +1077,7 @@ local function onFire(player: Player, payload: unknown)
 	for model, t in tally do
 		applyDamage(player, model, t.amount, t.zone, config, t.position)
 	end
+	notifyShot(player, config, next(tally) ~= nil)
 end
 
 -- Lifecycle --------------------------------------------------------------------
