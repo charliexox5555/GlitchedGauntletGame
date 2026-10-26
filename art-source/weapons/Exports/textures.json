@@ -58,5 +58,17 @@
    "Roughness": 126896661421166,
    "Metalness": 92163682723331
   }
+ },
+ "Stinger": {
+  "ColorMap": 108467645213961,
+  "NormalMap": 86014815001711,
+  "RoughnessMap": 139905998236140,
+  "MetalnessMap": 108283663977805,
+  "decals": {
+   "Color": 72600914221468,
+   "Normal": 113307817980992,
+   "Roughness": 116993535082292,
+   "Metalness": 80331237971663
+  }
  }
 }
