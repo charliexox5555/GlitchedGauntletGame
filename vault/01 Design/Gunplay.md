@@ -70,6 +70,19 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 | Recoil | `up` 0.42° × 6 protected shots, then 0.25° up + 0.3° side drift, `switchChance` 10% (≥ 0.6 s apart), 75% recovers over 0.3 s | vertical first, then yaw switching (6 protected, 10%) |
 | Speed | ×0.95 carrying, ×0.76 ADS | 5.4 m/s, ADS 76% |
 
+### Phantom v2 (gun 2)
+The user asked for: lighter than the Vandal, less damage, faster fire rate, less damage from afar, a larger mag. It's suppressed (concept: a long cylindrical integrated suppressor).
+| Stat | Value | Valorant Phantom |
+|---|---|---|
+| Fire | Auto, 0.091 s (11/s) | 11/s |
+| Mag / reload | **30** / 2.3 s tactical, 2.8 s empty | 30 / 2.5 s |
+| Equip | 0.8 s first draw, 0.45 s quick | 1.0 s |
+| Damage | 26 body / 58 head / 22 legs up to 70 studs, then ×0.87 (23 / 51 / 19): 4 body shots (0.27 s) or 2 heads at any range | 39 / 156 → ×0.897 after 20 m |
+| Spread | 0.2° hip, 0.12° ADS → max 0.9°; 4 protected shots, +0.1°/shot; recovery 0.35 s | 0.2° / 0.11° → 0.9° |
+| Recoil | `up` 0.32° × 6, then 0.2° up + 0.22° side, `switchChance` 10%, 75% recovers over 0.28 s (steadier than the Vandal) | steadier than the Vandal |
+| Speed | **×0.97** carrying (lighter), ×0.76 ADS | same as the Vandal |
+| Suppressed | No tracer for enemies (a faint one for the shooter), quieter shot, smaller flash | no tracers for enemies, quiet beyond 40 m |
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.
