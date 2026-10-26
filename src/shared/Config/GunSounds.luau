@@ -228,6 +228,18 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 	},
+
+	-- Knife: `fire` is the swing (fireFar: what others hear).
+	Knife = {
+		fire = { id = id(9125620110), volume = 0.7, pitch = { 0.95, 1.05 } }, -- PLACEHOLDER: ProSoundEffects knife swoosh
+		fireFar = { id = id(9125620110), volume = 0.6, pitch = { 0.95, 1.05 } }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = id(9125620110), volume = 0 }, -- unused (no ammo)
+		magOut = { id = MAG_OUT, volume = 0 }, -- unused
+		magIn = { id = MAG_IN, volume = 0 }, -- unused
+		draw = { id = DRAW, volume = FOLEY, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER: the twirl
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER
+	},
 }
 
 local GunSounds = {}

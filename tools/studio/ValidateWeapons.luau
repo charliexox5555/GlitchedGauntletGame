@@ -50,8 +50,10 @@ local function check(model: Model): ({ string }, { string })
 	local config = weaponsConfig and weaponsConfig.get(model.Name)
 	for _, name in REQUIRED_ATTACHMENTS do
 		local att = model:FindFirstChild(name, true)
-		-- Guns with no ADS (sidearms, shotguns) don't need a sight point.
-		local optional = name == "AimPoint" and config ~= nil and config.noAds == true
+		-- Guns with no ADS (sidearms, shotguns) don't need a sight point; a
+		-- melee weapon only needs its grip (and BladeBase / BladeTip).
+		local optional = (name == "AimPoint" and config ~= nil and config.noAds == true)
+			or (config ~= nil and config.melee ~= nil and name ~= "RightGrip")
 		if (not att or not att:IsA("Attachment")) and not optional then
 			fail("missing Attachment " .. name)
 		end

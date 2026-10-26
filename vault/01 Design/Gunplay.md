@@ -225,6 +225,13 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 | Recoil | 1.2° first kick, then 1.0° up + 0.2° side, 30% switch, 80% back over 0.3 s | |
 | ADS / speed | 1.5× (FOV 58), 0.25 s; ×0.9, ×0.76 aimed | |
 
+### Knife v2 (roster 10, melee; everyone's default melee)
+| Stat | Value | Valorant knife |
+|---|---|---|
+| Swing | 50 from the front, **100 backstab**; one swing per 0.6 s; ~7-stud reach with a short lunge on hit | front 50 / heavy 75, back 100 / 150, 2 m |
+| Heavy attack | Not built (melee has no alt attack yet) | right-click |
+| Equip | 0.45 s first draw (twirl), 0.25 s quick; ×1.05 move speed | |
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

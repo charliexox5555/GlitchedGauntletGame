@@ -631,6 +631,60 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
+
+	-- Melee --------------------------------------------------------------
+	-- Knife v2 (roster 10): everyone's melee. Front swing 50, backstab 100,
+	-- a short lunge on hit. (Valorant's heavy right-click attack isn't built.)
+	Knife = {
+		id = "Knife",
+		displayName = "Knife",
+		class = "Melee",
+		tier = 0,
+		slot = "Melee",
+		fireMode = "Melee",
+		damage = { body = 50, head = 50, legs = 50 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.6,
+		magSize = 0,
+		reloadTime = 0,
+		emptyReloadTime = 0,
+		equipTime = 0.25,
+		firstEquipTime = 0.45, -- the twirl
+		range = 7, -- about 2 m
+		spread = {
+			first = 0,
+			adsMultiplier = 1,
+			protected = 0,
+			protectedGrowth = 0,
+			growth = 0,
+			max = 0,
+			recoveryTime = 0.5,
+		},
+		recoil = {
+			up = 0,
+			protected = 0,
+			upAfter = 0,
+			side = 0,
+			switchChance = 0,
+			switchMinTime = 1,
+			recover = 1,
+			recoverTime = 0.2,
+		},
+		melee = { range = 7, backDamage = 100, lunge = 6 },
+		noAds = true,
+		shellsOnFire = false,
+		adsFov = 80,
+		adsTime = 0.1,
+		moveMultiplier = 1.05,
+		adsMoveMultiplier = 1,
+		penetration = "None",
+		-- Held bigger and blade-up so the knife reads past the hand.
+		viewmodelOffset = Vector3.new(0.5, -0.58, -1.15),
+		viewmodelRotation = Vector3.new(28, 18, -22),
+		viewmodelScale = 1.0,
+		tracerColor = TRACER,
+	},
 }
 
 for _, w in weapons do
@@ -644,6 +698,7 @@ Weapons.list = table.freeze(weapons)
 -- Starting loadout. Slots without a gun yet stay empty.
 Weapons.DEFAULT_LOADOUT = table.freeze({
 	Primary = "Vandal",
+	Melee = "Knife",
 }) :: { [Types.Slot]: string }
 
 -- Hit-zone multipliers used when a gun doesn't set its own head/legs damage
