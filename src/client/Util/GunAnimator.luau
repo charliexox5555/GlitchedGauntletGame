@@ -15,6 +15,9 @@ type ClipSet = {
 	ReloadEmpty: Clip?, -- empty mag: the reload ends by racking the action
 	Draw: Clip?, -- first draw of a life: raise and rack
 	Inspect: Clip?,
+	ReloadStart: Clip?, -- shell-by-shell reloads: into the loading pose,
+	ReloadInsert: Clip?, -- one shell (looped per shell),
+	ReloadEnd: Clip?, -- back to the hold
 }
 
 export type GunAnimator = {

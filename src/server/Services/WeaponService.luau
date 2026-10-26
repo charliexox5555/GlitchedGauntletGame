@@ -45,6 +45,12 @@ type SlotState = {
 	heatHigh: number,
 	lastShotAt: number, -- os.clock() of the last accepted shot
 	altReadyAt: number, -- alt-fire's longer cooldown: no shot of either kind before this
+	-- Shell-by-shell reloads (config shellReload): when it started and how
+	-- many shells it set out to load; and no shot before `readyAt` after one
+	-- is stopped (the gun's back in the hands).
+	shellFrom: number?,
+	shellNeeded: number,
+	readyAt: number,
 }
 
 -- What the server's own simulation says a player was doing (sampled every
@@ -215,6 +221,8 @@ local function newSlot(id: string): SlotState?
 		heatHigh = 0,
 		lastShotAt = -math.huge,
 		altReadyAt = -math.huge,
+		shellNeeded = 0,
+		readyAt = -math.huge,
 	}
 end
 
@@ -505,6 +513,28 @@ function WeaponService.onDamage(fn: (event: DamageEvent) -> ())
 	table.insert(damageListeners, fn)
 end
 
+-- Shells a shell-by-shell reload has loaded by `now` (credited RELOAD_LEAD
+-- early, like a normal reload, so the server is never behind the client).
+local function shellsLoaded(slot: SlotState, now: number): number
+	local reload = slot.config.shellReload
+	local from = slot.shellFrom
+	if not reload or not from then
+		return 0
+	end
+	local t = now + Combat.RELOAD_LEAD - from - reload.start
+	return math.clamp(math.floor(t / reload.insert), 0, slot.shellNeeded)
+end
+
+-- Ends a shell-by-shell reload in progress, keeping the shells loaded so far.
+local function settleShellReload(slot: SlotState, now: number)
+	if slot.shellFrom and slot.reloadEnd then
+		slot.ammo = math.min(slot.ammo + shellsLoaded(slot, now), slot.config.magSize)
+	end
+	slot.shellFrom = nil
+	slot.reloadToken += 1
+	slot.reloadEnd = nil
+end
+
 -- Equips one of the player's slots (the Equip remote, and server-side picks).
 function WeaponService.equip(player: Player, slot: Slot)
 	local state = states[player]
@@ -515,11 +545,11 @@ function WeaponService.equip(player: Player, slot: Slot)
 	if not target or state.equipped == slot then
 		return
 	end
-	-- Swapping cancels a reload in progress.
+	-- Swapping cancels a reload in progress (a shell-by-shell one keeps the
+	-- shells it loaded).
 	local current = state.equipped and state.slots[state.equipped]
 	if current then
-		current.reloadToken += 1
-		current.reloadEnd = nil
+		settleShellReload(current, os.clock())
 	end
 	state.equipped = slot
 	state.equipReadyAt = os.clock() + target.config.equipTime * 0.7
@@ -536,6 +566,8 @@ function WeaponService.refill(player: Player)
 	for _, s in state.slots do
 		s.reloadToken += 1
 		s.reloadEnd = nil
+		s.shellFrom = nil
+		s.readyAt = -math.huge
 		s.ammo = s.config.magSize
 	end
 	sendState(player)
@@ -553,7 +585,9 @@ local function onEquip(player: Player, slot: unknown)
 	WeaponService.equip(player, slot :: Slot)
 end
 
-local function onReload(player: Player)
+-- `action`: nil starts a reload; "stop" ends a shell-by-shell one early
+-- (the player fired), keeping the shells loaded so far.
+local function onReload(player: Player, action: unknown)
 	if not allow(player, "Reload") then
 		return
 	end
@@ -563,18 +597,41 @@ local function onReload(player: Player)
 		return
 	end
 	local config = slot.config
+	local now = os.clock()
+	if action == "stop" then
+		local shell = config.shellReload
+		if shell and slot.shellFrom and slot.reloadEnd then
+			settleShellReload(slot, now)
+			-- The gun comes back to the hands before it can fire.
+			slot.readyAt = now + shell.finish - Combat.FIRE_JITTER
+			sendState(player)
+		end
+		return
+	end
+	if action ~= nil then
+		return
+	end
 	if config.magSize <= 0 or slot.ammo >= config.magSize or slot.reloadEnd then
 		return
 	end
-	local duration = if slot.ammo == 0 then config.emptyReloadTime else config.reloadTime
+	local shell = config.shellReload
+	local duration: number
+	if shell then
+		slot.shellNeeded = config.magSize - slot.ammo
+		slot.shellFrom = now
+		duration = shell.start + shell.insert * slot.shellNeeded + shell.finish
+	else
+		duration = if slot.ammo == 0 then config.emptyReloadTime else config.reloadTime
+	end
 	slot.reloadToken += 1
 	local token = slot.reloadToken
 	-- Accept the client's reload a little early to hide latency.
-	slot.reloadEnd = os.clock() + duration - 0.1
-	task.delay(duration - 0.1, function()
+	slot.reloadEnd = now + duration - Combat.RELOAD_LEAD
+	task.delay(duration - Combat.RELOAD_LEAD, function()
 		if slot.reloadToken == token and states[player] == state then
 			slot.ammo = config.magSize
 			slot.reloadEnd = nil
+			slot.shellFrom = nil
 			sendState(player)
 		end
 	end)
@@ -820,6 +877,10 @@ local function onFire(player: Player, payload: unknown)
 	end
 	if slot.reloadEnd and now < slot.reloadEnd then
 		reject(player, "slot.reloadEnd and now < slot.reloadEnd")
+		return
+	end
+	if now < slot.readyAt then
+		reject(player, "a stopped shell reload is still finishing")
 		return
 	end
 	if config.magSize > 0 and slot.ammo < 1 then
@@ -1124,6 +1185,15 @@ local function onPlayer(player: Player)
 end
 
 function WeaponService.init()
+	-- A shell reload's start must outlast RELOAD_LEAD, or stopping and
+	-- restarting it over and over would load faster than letting it run.
+	for id, config in Weapons.list do
+		local shell = config.shellReload
+		assert(
+			not shell or shell.start > Combat.RELOAD_LEAD,
+			id .. ": shellReload.start must be longer than Combat.RELOAD_LEAD"
+		)
+	end
 	Net.event("Equip").OnServerEvent:Connect(onEquip)
 	Net.event("Fire").OnServerEvent:Connect(onFire)
 	Net.event("Reload").OnServerEvent:Connect(onReload)

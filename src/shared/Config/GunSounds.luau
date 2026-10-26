@@ -173,6 +173,35 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 	},
+
+	-- Bucky: pump shotgun, loads shell by shell.
+	Bucky = {
+		fire = { id = "atlas:Nova", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER: Benelli Nova 12ga
+		fireFar = { id = "atlas:Nova_Far", volume = 0.95, pitch = PITCH }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- unused (tube magazine)
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- unused
+		shellIn = { id = MAG_IN, volume = FOLEY * 0.85, pitch = { 1.18, 1.25 } }, -- PLACEHOLDER: shell into the tube
+		rack = { id = RACK, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: the pump, after each shot and on an empty reload
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
+	},
+
+	-- Sheriff: six-shot revolver with a speedloader.
+	Sheriff = {
+		fire = { id = "atlas:Revolver", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER: S&W .38 revolver
+		fireFar = { id = "atlas:Revolver_Far", volume = 0.95, pitch = PITCH }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER (hammer on an empty chamber)
+		open = { id = MAG_OUT, volume = FOLEY, pitch = { 1.15, 1.2 } }, -- PLACEHOLDER: cylinder swings out
+		magOut = { id = RACK, volume = FOLEY * 0.8, pitch = { 1.2, 1.28 } }, -- PLACEHOLDER: ejector rod, cases out
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- unused (no mag)
+		shellIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER: speedloader seats the rounds
+		rack = { id = RACK, volume = FOLEY, pitch = { 1.15, 1.22 } }, -- PLACEHOLDER: cylinder flicked shut
+		draw = { id = DRAW, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER
+	},
 }
 
 local GunSounds = {}

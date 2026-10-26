@@ -66,6 +66,12 @@ export type AltFire = {
 	ammo: number, -- rounds one alt shot uses
 }
 
+-- Shell-by-shell reload (pump shotguns): a start into the loading pose, one
+-- insert per shell (the game loops the gun's ReloadInsert clip), then a
+-- finish back to the hold. Firing mid-reload stops it and keeps the shells
+-- loaded so far. Seconds.
+export type ShellReload = { start: number, insert: number, finish: number }
+
 export type SpinUp = { startInterval: number, endInterval: number, time: number }
 
 export type MeleeStats = { range: number, backDamage: number, lunge: number }
@@ -92,6 +98,7 @@ export type WeaponConfig = {
 	fireInterval: number, -- seconds between shots
 	burst: BurstStats?,
 	altFire: AltFire?, -- needs noAds (it uses the Aim input)
+	shellReload: ShellReload?, -- else the whole mag at once (reloadTime / emptyReloadTime)
 	-- Muzzle attachments the shots come from in turn, by round in the mag
 	-- (a double barrel: { "Muzzle", "MuzzleLower" }). Default { "Muzzle" }.
 	muzzles: { string }?,

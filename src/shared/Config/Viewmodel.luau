@@ -114,7 +114,7 @@ return table.freeze({
 	-- HAND_CLIPS the left hand takes the first joint the clip moves, then any
 	-- later one (e.g. mag out/in, then the charging handle). Fire on pump/bolt
 	-- guns: the hand works the action.
-	HAND_CLIPS = { "Reload", "ReloadEmpty", "Draw", "Inspect" },
+	HAND_CLIPS = { "Reload", "ReloadEmpty", "ReloadInsert", "Draw", "Inspect" },
 	RELOAD_FOLLOW = {
 		{ joint = "Mag", grab = "Bottom" },
 		{ joint = "Cylinder", grab = "Center" },
@@ -123,6 +123,9 @@ return table.freeze({
 		{ joint = "Bolt", grab = "Center" },
 		{ joint = "ChargingHandle", grab = "Center" },
 		{ joint = "Slide", grab = "Center" }, -- pistols: racking the slide
+		{ joint = "Shell", grab = "Center" }, -- shell-by-shell loading: the hand carries the shell
+		-- Revolvers: the hand rides the swung-out cylinder (on its crane) and loads it.
+		{ joint = "Crane", grab = "Center", point = "ReloadInsertPoint" },
 	} :: { Follow },
 	PUMP_FOLLOW = { joint = "Pump", grab = "Grip" } :: Follow,
 	BOLT_FOLLOW = { joint = "Bolt", grab = "Center" } :: Follow,

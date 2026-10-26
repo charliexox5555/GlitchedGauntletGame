@@ -40,6 +40,7 @@ return table.freeze({
 	ARM_HIT_EXTRA_TOLERANCE = 3,
 	DIRECTION_TOLERANCE = 1.5, -- degrees between a hit and its server-recomputed pellet ray
 	FIRE_JITTER = 0.05, -- seconds of network jitter forgiven per shot
+	RELOAD_LEAD = 0.1, -- reloads (and each shell of a shell-by-shell one) count this much early
 	HISTORY_SECONDS = 1, -- how much hitbox history is kept
 	REWIND_EXTRA = 0.15, -- rewind window = 2 x the shooter's ping + this...
 	REWIND_MAX = 0.6, -- ...capped here (seconds)

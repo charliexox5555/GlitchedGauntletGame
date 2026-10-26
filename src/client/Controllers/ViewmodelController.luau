@@ -727,14 +727,21 @@ local function clipBeats(gun: Gun, clip: string): { Beat }
 			break
 		end
 	end
-	-- Break-actions: open as the barrels drop, shut (a rack) as they close,
-	-- and a shell-in as each shell prop settles in its chamber.
-	local openFrom, openTo = animator:activity(clip, "Barrels")
-	if openFrom and openTo then
-		table.insert(beats, { at = openFrom + VM.BEAT_MAG_OUT, sound = "Open" })
-		table.insert(beats, { at = math.max(openTo - VM.BEAT_RACK, openFrom), sound = "Rack" })
+	-- Break-actions and revolvers: open as the barrels drop / the cylinder
+	-- swings out, shut (a rack) as they close, the spent cases out as a
+	-- revolver's ejector rod pushes, and a shell-in as each round settles.
+	for _, joint in { "Barrels", "Crane" } do
+		local openFrom, openTo = animator:activity(clip, joint)
+		if openFrom and openTo then
+			table.insert(beats, { at = openFrom + VM.BEAT_MAG_OUT, sound = "Open" })
+			table.insert(beats, { at = math.max(openTo - VM.BEAT_RACK, openFrom), sound = "Rack" })
+		end
 	end
-	for _, shell in { "ShellUpper", "ShellLower" } do
+	local ejectFrom = animator:activity(clip, "EjectorRod")
+	if ejectFrom then
+		table.insert(beats, { at = ejectFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
+	end
+	for _, shell in { "ShellUpper", "ShellLower", "Shell", "Rounds" } do
 		local _, to = animator:activity(clip, shell)
 		if to then
 			table.insert(beats, { at = math.max(to - VM.BEAT_MAG_IN, 0), sound = "ShellIn" })
@@ -843,13 +850,32 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 	return clipBeats(right, clip)
 end
 
+local RELOAD_CLIPS = { "Reload", "ReloadEmpty", "ReloadStart", "ReloadInsert", "ReloadEnd" }
+
 function ViewmodelController.cancelReload()
 	for _, gun in guns do
-		if gun.animator:isPlaying("Reload") or gun.animator:isPlaying("ReloadEmpty") then
-			gun.animator:stop()
+		for _, clip in RELOAD_CLIPS do
+			if gun.animator:isPlaying(clip) then
+				gun.animator:stop()
+				break
+			end
 		end
 	end
 	fadeTrack("Reload")
+end
+
+-- Plays one of the gun's clips over `duration` (the parts of a shell-by-shell
+-- reload). Returns its foley cues.
+function ViewmodelController.playClip(clip: string, duration: number): { Beat }
+	ViewmodelController.cancelInspect()
+	local right = guns.Right
+	if not right or not right.animator:has(clip) then
+		return {}
+	end
+	for _, gun in guns do
+		gun.animator:play(clip, duration)
+	end
+	return clipBeats(right, clip)
 end
 
 -- Melee swing uses the weapon's Fire clip.

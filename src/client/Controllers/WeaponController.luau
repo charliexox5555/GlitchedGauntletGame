@@ -54,7 +54,18 @@ type LocalSlot = {
 	altReadyAt: number, -- alt-fire's cooldown (as WeaponService counts it)
 }
 
-type Reload = { start: number, duration: number, token: number }
+-- A shell-by-shell reload's progress (config shellReload): Start into the
+-- loading pose, one Insert per shell, then End back to the hold.
+type ShellPhase = "Start" | "Insert" | "End"
+type ShellState = {
+	phase: ShellPhase,
+	doneAt: number,
+	inserted: number,
+	needed: number,
+	wasEmpty: boolean,
+}
+
+type Reload = { start: number, duration: number, token: number, shell: ShellState? }
 
 local WeaponController = {}
 
@@ -67,6 +78,7 @@ local reloading: Reload? = nil
 local reloadToken = 0
 local triggerHeld = false
 local pressQueued = false
+local pressHoldUntil = -math.huge -- a queued press waits at least until this (a stopped shell reload)
 local altQueuedAt = -math.huge -- alt-fire press (Aim input on a gun with altFire)
 local burstQueue = 0 -- shots left in the current burst
 local nextLeft = false -- akimbo: the next shot comes from the left gun
@@ -211,6 +223,85 @@ local function cancelReload()
 	end
 end
 
+-- Plays one clip of a shell-by-shell reload with its foley.
+local function playShellClip(config: WeaponConfig, clip: string, duration: number)
+	local token = reloadToken
+	for _, beat in ViewmodelController.playClip(clip, duration) do
+		task.delay(duration * beat.at, function()
+			if reloadToken == token then
+				playGun(config, BEAT_SOUNDS[beat.sound])
+			end
+		end)
+	end
+end
+
+local function startShellReload(s: LocalSlot)
+	local shell = s.config.shellReload :: Types.ShellReload
+	local needed = s.config.magSize - s.ammo
+	reloadToken += 1
+	reloading = {
+		start = os.clock(),
+		duration = shell.start + shell.insert * needed + shell.finish,
+		token = reloadToken,
+		shell = {
+			phase = "Start",
+			doneAt = os.clock() + shell.start,
+			inserted = 0,
+			needed = needed,
+			wasEmpty = s.ammo == 0,
+		},
+	}
+	Net.event("Reload"):FireServer()
+	playShellClip(s.config, "ReloadStart", shell.start)
+end
+
+-- Steps a shell-by-shell reload: each finished insert puts a shell in the
+-- gun (the server counts the same way, from when the reload started).
+local function stepShellReload(s: LocalSlot, r: Reload, now: number)
+	local st = r.shell :: ShellState
+	local shell = s.config.shellReload :: Types.ShellReload
+	if now < st.doneAt then
+		return
+	end
+	if st.phase == "Insert" then
+		st.inserted += 1
+		s.ammo = math.min(s.ammo + 1, s.config.magSize)
+		updateHudWeapon()
+	end
+	if st.phase ~= "End" and st.inserted < st.needed then
+		st.phase = "Insert"
+		st.doneAt = now + shell.insert
+		playShellClip(s.config, "ReloadInsert", shell.insert)
+	elseif st.phase ~= "End" then
+		st.phase = "End"
+		st.doneAt = now + shell.finish
+		playShellClip(s.config, "ReloadEnd", shell.finish)
+		if st.wasEmpty then
+			playGun(s.config, "rack") -- chamber a round
+		end
+	else
+		reloading = nil
+		HudController.setReload(nil)
+	end
+end
+
+-- The trigger was pulled mid shell-by-shell reload: keep what's loaded and
+-- bring the gun back to the hands (the shot follows once it's there).
+local function stopShellReload(s: LocalSlot, r: Reload, now: number)
+	local st = r.shell :: ShellState
+	local shell = s.config.shellReload :: Types.ShellReload
+	if st.phase == "End" then
+		return
+	end
+	reloadToken += 1
+	r.token = reloadToken
+	st.phase = "End"
+	st.doneAt = now + shell.finish
+	pressHoldUntil = st.doneAt
+	Net.event("Reload"):FireServer("stop")
+	playShellClip(s.config, "ReloadEnd", shell.finish)
+end
+
 local function startReload()
 	local s = current()
 	if not s or reloading or not alive then
@@ -221,6 +312,10 @@ local function startReload()
 		return
 	end
 	burstQueue = 0
+	if config.shellReload then
+		startShellReload(s)
+		return
+	end
 	local empty = s.ammo == 0
 	local duration = if empty then config.emptyReloadTime else config.reloadTime
 	reloadToken += 1
@@ -577,6 +672,11 @@ local function onFirePressed()
 		startReload()
 		return
 	end
+	-- Mid shell-by-shell reload with a shell in: stop and fire.
+	local r = reloading
+	if r and r.shell and s.ammo >= 1 then
+		stopShellReload(s, r, os.clock())
+	end
 end
 
 local function onFireReleased()
@@ -592,7 +692,12 @@ local function update(dt: number)
 
 	-- Reload progress.
 	local r = reloading
-	if r and s then
+	if r and s and r.shell then
+		stepShellReload(s, r, now)
+		HudController.setReload(
+			if reloading then math.clamp((now - r.start) / r.duration, 0, 1) else nil
+		)
+	elseif r and s then
 		local t = (now - r.start) / r.duration
 		if t >= 1 then
 			s.ammo = s.config.magSize
@@ -685,7 +790,12 @@ local function update(dt: number)
 			end
 		end
 		-- A queued press only counts for a short moment.
-		if pressQueued and not triggerHeld and now - lastShotAt > 0.2 and mode ~= "Melee" then
+		if
+			pressQueued
+			and not triggerHeld
+			and now - math.max(lastShotAt, pressHoldUntil) > 0.2
+			and mode ~= "Melee"
+		then
 			pressQueued = false
 		end
 	end
@@ -755,8 +865,15 @@ local function onWeaponState(state: Types.WeaponState)
 					if equipped == slot then
 						changedEquip = true
 					end
-				elseif not (reloading and equipped == slot) then
-					existing.ammo = incoming.ammo
+				else
+					-- During a reload our own count leads, except when a shell-by-
+					-- shell reload was stopped: then the server's count (sent on
+					-- the stop) is the one that counts.
+					local r = reloading
+					local stopped = r ~= nil and r.shell ~= nil and r.shell.phase == "End"
+					if not (r and equipped == slot) or stopped then
+						existing.ammo = incoming.ammo
+					end
 				end
 			end
 		end

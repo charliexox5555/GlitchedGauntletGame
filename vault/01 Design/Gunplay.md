@@ -182,6 +182,29 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 | Recoil | 0.22° × 5, then 0.14° up + 0.15° side, 12% switch, 75% back over 0.25 s (steadier than the Stinger) | |
 | ADS | 1.15× zoom (FOV 72), 0.17 s | |
 
+### Bucky v2 (roster 06, pump shotgun)
+| Stat | Value | Valorant Bucky |
+|---|---|---|
+| Fire | Pump, 0.91 s (1.1/s), 15 pellets in a 3° cone | 1.1/s (alt: air-burst, not built) |
+| Mag / reload | 5, **shell by shell**: 0.25 s into the loading pose, 0.45 s per shell, 0.25 s back (full load 2.75 s); an empty reload also racks the pump. Firing mid-reload stops it and keeps the shells loaded | 5 / 2.5 s (0.5 s per shell) |
+| Damage per pellet | 17 body / 34 head / 14 legs; ×0.65 from 29 studs, ×0.45 from 43 studs (one-shots up close) | 17 / 34 / 14, ×0.65 8–12 m, ×0.45 12 m+ |
+| Movement | Shotgun row (barely affected by moving), ×0.95 speed | run +0.2° |
+| Recoil | 3° up per shot, 80% back over 0.4 s | |
+| Equip | 1.0 s first draw (pump rack), 0.5 s quick | |
+
+**Shell-by-shell reloads** (`shellReload = { start, insert, finish }`): the client plays the gun's ReloadStart, loops ReloadInsert once per shell (each finished insert adds a shell), then ReloadEnd. The server counts shells from when the reload started (credited `RELOAD_LEAD` early so it's never behind) and, when the client sends `Reload("stop")` on a trigger pull, banks the shells loaded so far and holds the next shot until the gun is back in the hands (`finish`). Swapping weapons also keeps the shells loaded. The hand carries the `Shell` prop during inserts.
+
+### Sheriff v2 (roster 07, revolver)
+| Stat | Value | Valorant Sheriff |
+|---|---|---|
+| Fire | Semi, 0.25 s (4/s) | 4/s |
+| Mag / reload | 6 / 2.25 s (speedloader, same when empty) | 6 / 2.25 s |
+| Damage | 55 body / 124 head / 46 legs: **one-taps a head** (v2 allows it for the revolver); ×0.91 from 107 studs | 55 / 159 / 46 → 50 / 145 / 42 past 30 m |
+| Spread | 0.25° → 2.75° (+0.6°/shot), recovery 0.45 s | 0.25° → 2.75° |
+| Penetration | ThinWall | high |
+| Recoil | 1.8° first kick, then 1.5° up + 0.3° side, 35% switch, 80% back over 0.35 s | |
+| Equip | 0.65 s first draw (cylinder spin), 0.4 s quick | |
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

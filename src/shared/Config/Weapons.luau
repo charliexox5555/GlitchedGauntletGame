@@ -434,6 +434,109 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
+
+	-- Bucky v2 (roster 06): pump shotgun, one-shots up close. Loads shell by
+	-- shell; firing mid-reload keeps the shells loaded so far.
+	Bucky = {
+		id = "Bucky",
+		displayName = "Bucky",
+		class = "Shotgun",
+		tier = 2,
+		slot = "Primary",
+		fireMode = "Pump",
+		damage = { body = 17, head = 34, legs = 14 }, -- per pellet
+		pellets = 15,
+		pelletSpread = 3,
+		fireInterval = 0.91, -- 1.1 shots/s (the pump)
+		magSize = 5,
+		reloadTime = 2.55, -- a full load (5 shells); fallback for the clip-based timing
+		emptyReloadTime = 2.55,
+		shellReload = { start = 0.25, insert = 0.45, finish = 0.25 },
+		equipTime = 0.5,
+		firstEquipTime = 1.0, -- racks the pump
+		range = 150,
+		-- 8 m and 12 m in Valorant.
+		falloff = { { from = 29, multiplier = 0.65 }, { from = 43, multiplier = 0.45 } },
+		spread = {
+			first = 0,
+			adsMultiplier = 1,
+			protected = 0,
+			protectedGrowth = 0,
+			growth = 0,
+			max = 0,
+			recoveryTime = 0.5,
+		},
+		recoil = {
+			up = 3,
+			protected = 1,
+			upAfter = 3,
+			side = 0.3,
+			switchChance = 0.5,
+			switchMinTime = 0.5,
+			recover = 0.8,
+			recoverTime = 0.4,
+		},
+		noAds = true,
+		adsFov = 80,
+		adsTime = 0.2,
+		moveMultiplier = 0.95,
+		adsMoveMultiplier = 1,
+		penetration = "None",
+		viewmodelOffset = Vector3.new(0.36, -0.42, -0.95), -- no sight to place it by, like the Judge
+		tracerColor = TRACER,
+	},
+
+	-- Sheriff v2 (roster 07): six-shot revolver. The one sidearm that
+	-- one-taps a head (v2 allows it for the revolver); big kick.
+	Sheriff = {
+		id = "Sheriff",
+		displayName = "Sheriff",
+		class = "Sidearm",
+		tier = 1,
+		slot = "Secondary",
+		fireMode = "Semi",
+		damage = { body = 55, head = 124, legs = 46 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.25, -- 4 rounds/s
+		magSize = 6,
+		reloadTime = 2.25, -- speedloader, same either way
+		emptyReloadTime = 2.25,
+		equipTime = 0.4,
+		firstEquipTime = 0.65, -- cylinder spin
+		range = 400,
+		falloff = { { from = 107, multiplier = 0.91 } }, -- 30 m
+		spread = {
+			first = 0.25,
+			adsMultiplier = 1, -- no ADS
+			protected = 0,
+			protectedGrowth = 0,
+			growth = 0.6,
+			max = 2.75,
+			recoveryTime = 0.45,
+		},
+		recoil = {
+			up = 1.8,
+			protected = 1,
+			upAfter = 1.5,
+			side = 0.3,
+			switchChance = 0.35,
+			switchMinTime = 0.3,
+			recover = 0.8,
+			recoverTime = 0.35,
+		},
+		noAds = true,
+		shellsOnFire = false, -- the cases leave at the reload (ejector rod)
+		hideBeyond = { Rounds = 0.45, Speedloader = 0.3 },
+		adsFov = 80,
+		adsTime = 0.2,
+		moveMultiplier = 1,
+		adsMoveMultiplier = 1,
+		penetration = "ThinWall",
+		viewmodelOffset = SIDEARM_VM,
+		viewmodelScale = SIDEARM_SCALE,
+		tracerColor = TRACER,
+	},
 }
 
 for _, w in weapons do
