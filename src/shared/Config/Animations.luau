@@ -24,6 +24,16 @@ return table.freeze({
 		Slide = id(88674421205618),
 	}),
 
+	-- Mods (tools/studio/MakeModAnimations.luau). ModHold loops while a held
+	-- Mod is up (in place of the gun hold); the others play once on a use.
+	MODS = table.freeze({
+		ModHold = id(72886949328296),
+		Throw = id(113960439440452),
+		Place = id(102573901472605),
+		Heal = id(116476893527219),
+	}),
+	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
+
 	AIM_PITCH_RANGE = 70, -- degrees baked into AimUp / AimDown
 	CROUCH_WALK_SPEED = 9, -- studs/s that CrouchWalk plays at 1x (Movement.CROUCH_SPEED)
 	MOVING_SPEED = 1.5, -- studs/s above which crouching counts as walking

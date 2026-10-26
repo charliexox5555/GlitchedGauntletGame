@@ -116,7 +116,10 @@ local studio = RunService:IsStudio()
 local lowered = false
 local lowerX, lowerV = 0, 0
 local item: WorldModel? = nil
-local itemPushAt = -math.huge
+local raiseX, raiseV = 0, 0 -- the item's own (underdamped) raise
+local actionKind: string? = nil
+local actionAt = -math.huge
+local itemHidden = false
 
 -- Small helpers ----------------------------------------------------------------
 
@@ -995,6 +998,9 @@ function ViewmodelController.holdItem(template: Model?)
 		item = nil
 	end
 	local cam = Workspace.CurrentCamera
+	actionKind = nil
+	itemHidden = false
+	raiseX, raiseV = 0, 0
 	if not template or not cam then
 		return
 	end
@@ -1015,9 +1021,64 @@ function ViewmodelController.holdItem(template: Model?)
 	item = world
 end
 
--- The use motion (a throw, a heal): the item pushes out and back.
-function ViewmodelController.itemAction()
-	itemPushAt = os.clock()
+-- A use, keyframed on the held item (Config/Viewmodel ITEM_ACTIONS): "Throw"
+-- (the item leaves the hand at the release), "Place" or "Heal".
+function ViewmodelController.itemAction(kind: string)
+	if VM.ITEM_ACTIONS[kind] then
+		actionKind = kind
+		actionAt = os.clock()
+	end
+end
+
+local function smooth(t: number): number
+	t = math.clamp(t, 0, 1)
+	return t * t * (3 - 2 * t)
+end
+
+-- The action's offset at `now` (identity when none is playing), and whether
+-- the item has left the hand.
+local function actionOffset(now: number): (CFrame, boolean)
+	local action = if actionKind then VM.ITEM_ACTIONS[actionKind] else nil
+	if not action then
+		return CFrame.identity, false
+	end
+	local t = (now - actionAt) / action.length
+	local gone = action.hideAt ~= nil and t >= action.hideAt
+	if t >= 1 then
+		return CFrame.identity, gone
+	end
+	local keys = action.keys
+	for i = 2, #keys do
+		local b = keys[i]
+		if t <= b.t then
+			local a = keys[i - 1]
+			local k = smooth((t - a.t) / math.max(b.t - a.t, 1e-3))
+			local pos = a.pos:Lerp(b.pos, k)
+			local rot = a.rot:Lerp(b.rot, k)
+			return CFrame.new(pos) * angles(rot), gone
+		end
+	end
+	return CFrame.identity, gone
+end
+
+-- One step of a damped spring with ratio `zeta` (below 1 overshoots).
+local function springStep(
+	x: number,
+	v: number,
+	goal: number,
+	w: number,
+	zeta: number,
+	dt: number
+): (number, number)
+	-- Sub-steps keep it stable at low frame rates.
+	local steps = math.max(1, math.ceil(dt / (1 / 240)))
+	local h = dt / steps
+	for _ = 1, steps do
+		local a = w * w * (goal - x) - 2 * zeta * w * v
+		v += a * h
+		x += v * h
+	end
+	return x, v
 end
 
 -- `name`: a muzzle other than "Muzzle" (a double barrel's "MuzzleLower").
@@ -1294,11 +1355,34 @@ local function update(dt: number)
 	if held then
 		local model = held:FindFirstChildOfClass("Model")
 		if model then
-			local push = (now - itemPushAt) / VM.ITEM_PUSH_TIME
-			local pos = VM.ITEM_OFFSET
-				+ VM.ITEM_FROM * (1 - lowerT)
-				+ VM.ITEM_PUSH * (if push < 1 then math.sin(math.pi * push) else 0)
-			local itemCf = root * CFrame.new(pos) * angles(VM.ITEM_ROTATION)
+			-- Raise (overshoots a little), breathing idle, then the use.
+			raiseX, raiseV = springStep(
+				raiseX,
+				raiseV,
+				if lowered then 1 else 0,
+				VM.ITEM_RAISE_FREQUENCY,
+				VM.ITEM_RAISE_DAMPING,
+				dt
+			)
+			local idle = VM.ITEM_IDLE
+			local phase = now * idle.rate * math.pi * 2
+			local idleCf = CFrame.new(
+				idle.pos * Vector3.new(math.sin(phase * 0.5), math.sin(phase), 0)
+			) * angles(
+				idle.rot
+					* Vector3.new(math.sin(phase), math.sin(phase * 0.5), math.cos(phase * 0.5))
+			)
+			local useCf, gone = actionOffset(now)
+			if gone ~= itemHidden then
+				itemHidden = gone
+				for _, d in model:GetDescendants() do
+					if d:IsA("BasePart") then
+						d.LocalTransparencyModifier = if gone then 1 else 0
+					end
+				end
+			end
+			local pos = VM.ITEM_OFFSET + VM.ITEM_FROM * (1 - raiseX)
+			local itemCf = root * CFrame.new(pos) * useCf * idleCf * angles(VM.ITEM_ROTATION)
 			local offset = model:GetAttribute("HoldOffset")
 			model:PivotTo(
 				if typeof(offset) == "Vector3" then itemCf * CFrame.new(offset) else itemCf

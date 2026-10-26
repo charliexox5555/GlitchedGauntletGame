@@ -1,6 +1,10 @@
 --!strict
 -- Third-person pose tracks (Config/Animations): holding the gun (a blend of
--- three pitch poses), the sprint carry, crouch / crouch-walk and slide.
+-- three pitch poses), the sprint carry, crouch / crouch-walk and slide, and
+-- the Mods: a hold pose while a held Mod is up (player attribute ModHeld)
+-- and a one-shot throw / place / heal on each use (ModUseKind / ModUseAt,
+-- written by ModService; the character attribute PoseUseSeen remembers the
+-- last one played).
 --
 -- Stepped inside the Server Authority simulation, the same way Roblox's own
 -- Animate module works: the server poses every player, each client predicts
@@ -29,8 +33,16 @@ local SPECS: { [string]: Spec } = {
 	Crouch = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
 	CrouchWalk = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
 	Slide = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
+	ModHold = { priority = Enum.AnimationPriority.Action, fade = Animations.MOD_FADE },
 }
-local IDS = Animations.POSES :: { [string]: string }
+local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
+IDS.ModHold = Animations.MODS.ModHold
+-- One-shots on a use, by ModUseKind.
+local USE_IDS: { [string]: string } = {
+	Throw = Animations.MODS.Throw,
+	Place = Animations.MODS.Place,
+	Heal = Animations.MODS.Heal,
+}
 -- A weight of exactly 0 lets the Animator drop the track; stay just above.
 local OFF = 0.001
 
@@ -88,6 +100,37 @@ local function trackFor(animator: Animator, name: string): AnimationTrack
 	return t
 end
 
+-- Plays a Mod use clip once (Action4, over everything else).
+local function playOnce(animator: Animator, kind: string)
+	local animId = USE_IDS[kind]
+	if not animId then
+		return
+	end
+	local a = animations["Use" .. kind]
+	if not a then
+		a = Instance.new("Animation")
+		a.Name = "Use" .. kind
+		a.AnimationId = animId
+		animations["Use" .. kind] = a
+	end
+	-- One track per clip per Animator, loaded once and replayed.
+	local byName = cache[animator]
+	if not byName then
+		byName = {}
+		cache[animator] = byName
+	end
+	local key = "Use" .. kind
+	local track = byName[key]
+	if not track then
+		track = animator:LoadAnimation(a :: Animation)
+		byName[key] = track
+	end
+	local t = track :: AnimationTrack
+	t.Priority = Enum.AnimationPriority.Action4
+	t.Looped = false
+	t:Play(0.05, 1, 1)
+end
+
 local function setWeight(animator: Animator, name: string, weight: number)
 	local step = Animations.WEIGHT_STEP
 	local w = math.clamp(math.floor(weight / step + 0.5) * step, OFF, 1)
@@ -125,7 +168,9 @@ local function stepCharacter(player: Player, character: Model)
 	local weaponId = player:GetAttribute("WeaponId")
 	local config = if typeof(weaponId) == "string" then Weapons.get(weaponId) else nil
 	-- The knife has no two-handed hold; it keeps the default arm swing.
-	local armed = if alive and config and config.fireMode ~= "Melee" then 1 else 0
+	local held = player:GetAttribute("ModHeld")
+	local holding = alive and typeof(held) == "number" and held ~= 0
+	local armed = if alive and config and config.fireMode ~= "Melee" and not holding then 1 else 0
 	local pitch = aimPitch(player)
 	local speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
 	local moving = if speed > Animations.MOVING_SPEED then 1 else 0
@@ -140,6 +185,21 @@ local function stepCharacter(player: Player, character: Model)
 	setWeight(animator, "Crouch", crouch * (1 - moving))
 	setWeight(animator, "CrouchWalk", crouch * moving)
 	setWeight(animator, "Slide", if state == "Slide" then 1 else 0)
+	setWeight(animator, "ModHold", if holding then 1 else 0)
+
+	-- A Mod use: its clip once. The first value seen (a new character) only
+	-- sets the mark, so an old use isn't replayed.
+	local useAt = player:GetAttribute("ModUseAt")
+	if typeof(useAt) == "number" then
+		local seenAt = character:GetAttribute("PoseUseSeen")
+		if seenAt ~= useAt then
+			character:SetAttribute("PoseUseSeen", useAt)
+			local kind = player:GetAttribute("ModUseKind")
+			if typeof(seenAt) == "number" and alive and typeof(kind) == "string" then
+				playOnce(animator, kind)
+			end
+		end
+	end
 
 	-- Crouch-walk stride speed follows the ground speed.
 	local walk = trackFor(animator, "CrouchWalk")

@@ -29,6 +29,9 @@ export type Track = {
 
 export type Pose = { pos: Vector3, rot: Vector3 }
 
+export type ItemKey = { t: number, pos: Vector3, rot: Vector3 }
+export type ItemAction = { length: number, hideAt: number?, keys: { ItemKey } }
+
 -- A hand: position (from its grip) and the direction its arm runs from there.
 export type Hand = { offset: Vector3, direction: Vector3 }
 
@@ -227,8 +230,45 @@ return table.freeze({
 	ITEM_ROTATION = Vector3.new(8, -12, 0), -- degrees
 	ITEM_FROM = Vector3.new(0.4, -1.3, 0.4), -- it rises from this far below
 	ITEM_ARM = Vector3.new(0.22, -0.8, 0.6), -- right arm direction from the grip
-	ITEM_PUSH = Vector3.new(0, 0.2, -0.7), -- a use (throw / heal) pushes it out this far
-	ITEM_PUSH_TIME = 0.3,
+	-- The item comes up on an underdamped spring: a little overshoot, then it settles.
+	ITEM_RAISE_FREQUENCY = 13, -- rad/s
+	ITEM_RAISE_DAMPING = 0.55, -- ratio (1 = no overshoot)
+	-- Held idle: a slow breathing drift on top of the hold (position studs,
+	-- rotation degrees, cycles per second).
+	ITEM_IDLE = { pos = Vector3.new(0.012, 0.018, 0), rot = Vector3.new(1.5, 1.8, 1), rate = 0.55 },
+	-- Uses, keyframed on top of the hold (camera space, smoothstep between
+	-- keys; `t` 0..1 over `length` seconds). Throw: wind back and up, release
+	-- forward (the item leaves the hand at `hideAt`), follow through down.
+	-- Place: push down and out. Heal: a thrust toward the target and back.
+	ITEM_ACTIONS = {
+		Throw = {
+			length = 0.34,
+			hideAt = 0.58,
+			keys = {
+				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+				{ t = 0.38, pos = Vector3.new(0.12, 0.28, 0.45), rot = Vector3.new(-32, 6, 12) },
+				{ t = 0.58, pos = Vector3.new(-0.06, 0.38, -0.95), rot = Vector3.new(38, -4, -6) },
+				{ t = 1, pos = Vector3.new(0.05, -0.7, -0.25), rot = Vector3.new(24, 0, 0) },
+			},
+		},
+		Place = {
+			length = 0.32,
+			keys = {
+				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+				{ t = 0.4, pos = Vector3.new(0, -0.38, -0.55), rot = Vector3.new(28, 0, 0) },
+				{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
+			},
+		},
+		Heal = {
+			length = 0.36,
+			keys = {
+				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+				{ t = 0.25, pos = Vector3.new(-0.02, 0.06, -0.42), rot = Vector3.new(-8, 0, 0) },
+				{ t = 0.55, pos = Vector3.new(0, 0.02, -0.22), rot = Vector3.new(-3, 0, 0) },
+				{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
+			},
+		},
+	} :: { [string]: ItemAction },
 
 	-- Pose blends (critically damped, rad/s).
 	POSE_FREQUENCY = 13,

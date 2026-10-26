@@ -855,7 +855,7 @@ local function update(dt: number)
 	-- Hide our own third-person gun(s) in first person.
 	local character = player.Character
 	if character then
-		for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
+		for _, name in { "WorldWeapon", "WorldWeaponLeft", "ModHeldItem" } do
 			local world = character:FindFirstChild(name)
 			if world then
 				for _, d in world:GetDescendants() do

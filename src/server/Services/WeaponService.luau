@@ -320,6 +320,38 @@ function WeaponService.attachWorldModel(character: Model, id: string?): Model?
 	return model
 end
 
+-- Hides the third-person gun while a Mod is in the hand (ModService), and
+-- keeps it hidden across a re-equip until shown again.
+local worldHidden: { [Player]: boolean } = {}
+
+local function applyWorldHidden(player: Player)
+	local character = player.Character
+	if not character then
+		return
+	end
+	local hide = worldHidden[player] == true
+	for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
+		local model = character:FindFirstChild(name)
+		if model then
+			for _, d in model:GetDescendants() do
+				if d:IsA("BasePart") then
+					local base = d:GetAttribute("BaseTransparency")
+					if base == nil then
+						base = d.Transparency
+						d:SetAttribute("BaseTransparency", base)
+					end
+					d.Transparency = if hide then 1 else base :: number
+				end
+			end
+		end
+	end
+end
+
+function WeaponService.setWorldWeaponHidden(player: Player, hidden: boolean)
+	worldHidden[player] = if hidden then true else nil
+	applyWorldHidden(player)
+end
+
 local function refreshWorldModel(player: Player)
 	local state = states[player]
 	local character = player.Character
@@ -328,6 +360,9 @@ local function refreshWorldModel(player: Player)
 	end
 	local slot = state.equipped and state.slots[state.equipped]
 	state.worldModel = WeaponService.attachWorldModel(character, slot and slot.id or nil)
+	if worldHidden[player] then
+		applyWorldHidden(player)
+	end
 	-- Read by the movement simulation (shared/Simulation/Movement).
 	player:SetAttribute("MoveMult", if slot then slot.config.moveMultiplier else 1)
 	player:SetAttribute("AdsMult", if slot then slot.config.adsMoveMultiplier else 1)
@@ -1431,6 +1466,7 @@ function WeaponService.start()
 		busyUntil[player] = nil
 		fireBoost[player] = nil
 		ammoHistory[player] = nil
+		worldHidden[player] = nil
 	end)
 end
 
