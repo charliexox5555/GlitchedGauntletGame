@@ -1,6 +1,6 @@
 """Generate src/shared/WeaponAnimations/<Id>.luau from the Blender exports.
 
-    python tools/make_weapon_anims.py
+    python tools/make_weapon_anims.py [Id ...]   (no ids = every export in Exports/)
 
 Each module holds the Fire, Reload and (if the gun has one) ReloadEmpty clips sampled once per frame from the
 gun's NLA strips (see tools/blender/export_weapons.py). Per bone the frames are
@@ -12,6 +12,7 @@ The Flash bone only scales (a Blender preview of the flash), so it is skipped.
 
 import json
 import os
+import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EXPORTS = os.path.join(ROOT, "art-source", "weapons", "Exports")
@@ -41,10 +42,12 @@ def clip_lua(clip, indent):
 	return "\n".join(lines)
 
 
-def main():
+def main(only=None):
 	os.makedirs(OUT, exist_ok=True)
 	for name in sorted(os.listdir(EXPORTS)):
 		if not name.endswith(".json") or name in ("assets.json", "textures.json"):
+			continue
+		if only and name[:-5] not in only:
 			continue
 		data = json.load(open(os.path.join(EXPORTS, name)))
 		gid = data["id"]
@@ -71,4 +74,4 @@ def main():
 
 
 if __name__ == "__main__":
-	main()
+	main(set(sys.argv[1:]) or None)
