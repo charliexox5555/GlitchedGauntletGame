@@ -18,13 +18,18 @@
 --   SprintBlock     time() until sprinting is allowed again (firing cancels sprint)
 --   WasGrounded     last step's ground contact
 --
--- Player attributes read here (set by the server's WeaponService):
---   MoveMult, AdsMult  equipped weapon's movement multipliers
+-- Player attributes read here (set by the server):
+--   MoveMult, AdsMult  equipped weapon's movement multipliers (WeaponService)
+--   ModSpeedMult       Mod slows and boosts (ModService; Lag Field later)
+--
+-- The predicted Mods (Simulation/Abilities) step first, inside this same
+-- step, so a dash and the walk speed it needs are decided together.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local Movement = require(script.Parent.Parent.Config.Movement)
+local AbilitiesSim = require(script.Parent.Abilities)
 
 local MovementSim = {}
 
@@ -63,6 +68,8 @@ local function stepCharacter(player: Player, character: Model)
 	end
 	local context = player:FindFirstChild("PlayContext")
 	local now = time()
+
+	AbilitiesSim.stepCharacter(player, character, humanoid, root, context, now)
 
 	local sprintIn = actionDown(context, "Sprint")
 	local crouchIn = actionDown(context, "Crouch")
@@ -143,11 +150,12 @@ local function stepCharacter(player: Player, character: Model)
 
 	local moveMult = (player:GetAttribute("MoveMult") :: number?) or 1
 	local adsMult = (player:GetAttribute("AdsMult") :: number?) or 1
-	local mult = moveMult
+	local modMult = (player:GetAttribute("ModSpeedMult") :: number?) or 1
+	local mult = moveMult * modMult
 	if aimIn and state ~= "Slide" and state ~= "Air" then
 		mult *= adsMult
 	end
-	local walkSpeed = speed * mult
+	local walkSpeed = AbilitiesSim.speedOverride(character, now) or speed * mult
 	if math.abs(humanoid.WalkSpeed - walkSpeed) > 1e-3 then
 		humanoid.WalkSpeed = walkSpeed
 	end

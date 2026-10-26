@@ -42,8 +42,14 @@ local bindings: { [string]: Binding } = {
 	Melee = { keys = { Enum.KeyCode.Three }, gamepad = {} },
 	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY }, touch = "SwapButton" },
 	QuickMelee = { keys = { Enum.KeyCode.V }, gamepad = { Enum.KeyCode.ButtonR3 } },
-	-- Inspect the held gun (Y like Valorant; F stays free for Mod 3).
+	-- Inspect the held gun (Y like Valorant).
 	Inspect = { keys = { Enum.KeyCode.Y }, gamepad = { Enum.KeyCode.DPadDown } },
+	-- Mod slots (Mods.md → Controls). Simulation input: Blink and Rollback
+	-- are predicted from these (shared/Simulation/Abilities); held Mods are
+	-- equipped by ModController. Crouch stays on C / Left Ctrl.
+	Mod1 = { keys = { Enum.KeyCode.Q }, gamepad = { Enum.KeyCode.ButtonL1 }, touch = "Mod1Button" },
+	Mod2 = { keys = { Enum.KeyCode.E }, gamepad = { Enum.KeyCode.ButtonR1 }, touch = "Mod2Button" },
+	Mod3 = { keys = { Enum.KeyCode.T }, gamepad = { Enum.KeyCode.DPadUp }, touch = "Mod3Button" },
 	-- Camera pitch / 90 degrees, fed every frame by PoseController. It's
 	-- simulation input, so the server and the predicting client pose the
 	-- character with the same pitch (shared/Simulation/Poses).
@@ -51,7 +57,7 @@ local bindings: { [string]: Binding } = {
 	-- Studio / test mode only: the weapon picker (every installed gun).
 	WeaponPicker = {
 		keys = { Enum.KeyCode.P },
-		gamepad = { Enum.KeyCode.DPadUp },
+		gamepad = { Enum.KeyCode.DPadLeft }, -- D-pad up is Mod 3
 		touch = "PickerButton",
 	},
 }

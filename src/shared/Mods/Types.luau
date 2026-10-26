@@ -1,0 +1,97 @@
+--!strict
+-- Types for the Mod (ability) system (vault/04 Tech/Mod System.md). Data
+-- lives in Config/Mods; code only ever reads stats resolved by Mods.stats.
+
+-- Instant: press and it happens. Held*: press to hold it (gun lowered),
+-- LMB / RMB to use it (Mods.md → Controls and activation).
+export type Activation = "Instant" | "HeldThrow" | "HeldPlace" | "HeldTarget"
+
+-- Simulation: predicted inside shared/Simulation/Abilities (no remote).
+-- Server: requested with ModUse; ModService validates and applies.
+export type Authority = "Simulation" | "Server"
+
+-- L1, then path A (A2 → A3), path B (B2 → B3) or the glitch path (G2 → G3).
+export type LevelId = "L1" | "A2" | "A3" | "B2" | "B3" | "G2" | "G3"
+
+-- One level's numbers. A level only lists what changes from the level before
+-- it on its path; `note` describes the level for the dev panel.
+export type Level = { [string]: any }
+
+-- Resolved stats for one (id, level): every key from L1 up to that level.
+-- Every Mod has at least `cooldown` (seconds per charge) and `charges`.
+export type Stats = { [string]: any }
+
+export type UseMode = "Primary" | "Alt"
+
+export type ModDef = {
+	id: string,
+	name: string,
+	role: string,
+	block: string, -- shared building block (Mods/Blocks)
+	activation: Activation,
+	authority: Authority,
+	icon: string, -- rbxassetid, "" until the icon is uploaded
+	glyph: string, -- placeholder icon text while `icon` is empty
+	-- Held-mode hint words for LMB / RMB (nil: that button does nothing).
+	hint: { primary: string?, alt: string? },
+	-- What quick-cast (and a mobile tap) does on press, for held Mods.
+	quickCast: UseMode?,
+	levels: { [string]: Level },
+}
+
+-- A slot of a loadout.
+export type SlotLoadout = { id: string, level: LevelId }
+
+-- Mod modules (shared/Mods/<Id>.luau) ------------------------------------------
+
+-- Inside the simulation (Simulation/Abilities): a predicted cast.
+export type SimCtx = {
+	player: Player,
+	character: Model,
+	humanoid: Humanoid,
+	root: BasePart,
+	stats: Stats,
+	slot: number,
+	now: number, -- time()
+}
+
+-- A use request after ModService checked its types.
+export type Request = {
+	mode: UseMode,
+	origin: Vector3, -- the client's camera position
+	direction: Vector3, -- unit camera look
+	target: Model?, -- Patch Up: the ally the client aimed at
+}
+
+-- What ModService hands a Mod's validate / apply. Everything that changes the
+-- world goes through these functions, so Mods never touch other services.
+export type ServerCtx = {
+	player: Player,
+	character: Model,
+	humanoid: Humanoid,
+	head: BasePart,
+	slot: number,
+	id: string,
+	level: string,
+	stats: Stats,
+	now: number, -- workspace:GetServerTimeNow()
+	-- Line-of-sight params: world only (no bodies, no effects).
+	worldParams: RaycastParams,
+	damage: (victim: Model, amount: number, at: Vector3) -> (),
+	-- `amount` over `duration` seconds (0 = at once), from the caster.
+	heal: (target: Model, amount: number, duration: number) -> (),
+	fx: (kind: string, data: { [string]: any }) -> (),
+	-- Runs `fn` after `delay` seconds unless the caster leaves first.
+	schedule: (delay: number, fn: () -> ()) -> (),
+}
+
+export type ModModule = {
+	-- Simulation Mods: returns true when it cast (spends a charge).
+	simCast: ((ctx: SimCtx) -> boolean)?,
+	-- Server Mods: Mod-specific checks, then the effect. `validate` may fill
+	-- in `req.target`. Returns false and a reason to reject.
+	validate: ((ctx: ServerCtx, req: Request) -> (boolean, string?))?,
+	apply: ((ctx: ServerCtx, req: Request) -> ())?,
+}
+
+return nil

@@ -4,6 +4,8 @@
 --
 -- Client -> server: Equip, Fire, Reload, PickWeapon (Studio / test mode), Aim (unreliable)
 -- Server -> client: WeaponState, HitConfirm, Damaged, Killed, ShotFx (unreliable)
+-- Mods (ModService): ModHold, ModUse (client -> server), ModFx (server -> clients)
+-- Dev test panel (DevModService, Studio / owner only): DevMod (both ways)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -17,6 +19,10 @@ local RELIABLE = {
 	"HitConfirm",
 	"Damaged",
 	"Killed",
+	"ModHold",
+	"ModUse",
+	"ModFx",
+	"DevMod",
 }
 local UNRELIABLE = { "Aim", "ShotFx" }
 
