@@ -22,7 +22,7 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 | **Pulse** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · 3-round burst, single shots while aiming |
 | **Checksum** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: optic tube fades in ADS, reticle shown instead |
 | **Bitrate** | Rifle | T3 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Overwrite** | Rifle | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
+| **Overwrite** | Rifle | T3 | 2 | 🟡 | ✅ | ✅ | ✅ | 🟡 | **Redesign in progress (2026-10-25):** new Vandal-style model built in `art-source/weapons/Overwrite.blend` by `tools/blender/build_overwrite.py` (concept `02 Art/References/overwrite-concept.webp`, check sheet `overwrite-blender-check.jpg`), ~5.0K tris, side buddy loop, moving Mag/ChargingHandle/Bolt/Trigger/FireSelector. Awaiting the user's check; not exported yet, the old model is still in game |
 | **Long Poll** | Sniper | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Handshake** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
 | **Kernel** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
