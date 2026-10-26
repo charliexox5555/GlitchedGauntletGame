@@ -537,6 +537,53 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = TRACER,
 	},
+
+	-- Bulldog v2 (roster 08): budget bullpup rifle, mag behind the grip.
+	-- A touch weaker than Valorant's so the body TTK stays in range.
+	Bulldog = {
+		id = "Bulldog",
+		displayName = "Bulldog",
+		class = "Rifle",
+		tier = 2,
+		slot = "Primary",
+		fireMode = "Auto",
+		damage = { body = 33, head = 74, legs = 28 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.11, -- 9.1 rounds/s
+		magSize = 24,
+		reloadTime = 2.3,
+		emptyReloadTime = 2.7,
+		equipTime = 0.5,
+		firstEquipTime = 0.9,
+		range = 500,
+		spread = {
+			first = 0.3,
+			adsMultiplier = 0.6,
+			protected = 3,
+			protectedGrowth = 0.02,
+			growth = 0.12,
+			max = 1.25,
+			recoveryTime = 0.375,
+		},
+		recoil = {
+			up = 0.38,
+			protected = 6,
+			upAfter = 0.22,
+			side = 0.25,
+			switchChance = 0.12,
+			switchMinTime = 0.6,
+			recover = 0.75,
+			recoverTime = 0.3,
+		},
+		adsFov = 68, -- 1.25x zoom
+		adsTime = 0.2,
+		moveMultiplier = 0.95,
+		adsMoveMultiplier = 0.76,
+		penetration = "ThinWall",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
 }
 
 for _, w in weapons do

@@ -205,6 +205,16 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 | Recoil | 1.8° first kick, then 1.5° up + 0.3° side, 35% switch, 80% back over 0.35 s | |
 | Equip | 0.65 s first draw (cylinder spin), 0.4 s quick | |
 
+### Bulldog v2 (roster 08, bullpup rifle)
+| Stat | Value | Valorant Bulldog |
+|---|---|---|
+| Fire | Auto, 0.11 s (9.1/s) | 10/s (ADS: 3-round burst, not built) |
+| Mag / reload | 24 / 2.3 s, 2.7 s empty (rack) | 24 / 2.5 s |
+| Damage | 33 body / 74 head / 28 legs, no falloff: 4 body shots (0.33 s) or 2 heads. Valorant's 35 body would be a 3-shot 0.2 s kill, under the v2 body TTK | 35 / 115 / 29 |
+| Spread | 0.3° → 1.25° (3 protected shots, +0.12°/shot), ADS ×0.6, recovery 0.375 s | 0.3° → 1.25° |
+| Recoil | 0.38° × 6, then 0.22° up + 0.25° side, 12% switch, 75% back over 0.3 s | |
+| ADS / speed | 1.25× (FOV 68), 0.2 s; ×0.95, ×0.76 aimed | |
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

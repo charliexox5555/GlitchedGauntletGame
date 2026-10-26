@@ -202,6 +202,19 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER
 	},
+
+	-- Bulldog: bullpup rifle.
+	Bulldog = {
+		fire = { id = "atlas:AR15", volume = 0.75, pitch = PITCH }, -- PLACEHOLDER: AR-15
+		fireFar = { id = "atlas:AR15_Far", volume = 0.9, pitch = PITCH }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER: mag out of the stock
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		rack = { id = RACK, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER: charging handle
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
+	},
 }
 
 local GunSounds = {}
