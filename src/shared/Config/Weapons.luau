@@ -335,6 +335,55 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelOffset = Vector3.new(0.36, -0.42, -0.95),
 		tracerColor = TRACER,
 	},
+
+	-- SMGs --------------------------------------------------------------
+	-- Stinger v2 (roster 04): Uzi-type SMG, mag in the grip. Shreds up
+	-- close; slower than Valorant's 16/s so the body TTK isn't instant.
+	Stinger = {
+		id = "Stinger",
+		displayName = "Stinger",
+		class = "SMG",
+		tier = 2,
+		slot = "Primary",
+		fireMode = "Auto",
+		damage = { body = 27, head = 61, legs = 23 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.075, -- 13.3 rounds/s
+		magSize = 20,
+		reloadTime = 2.1,
+		emptyReloadTime = 2.5, -- mag, then the knob rack
+		equipTime = 0.4,
+		firstEquipTime = 0.8,
+		range = 400,
+		falloff = { { from = 54, multiplier = 0.85 } }, -- 15 m
+		spread = {
+			first = 0.45,
+			adsMultiplier = 0.6,
+			protected = 2,
+			protectedGrowth = 0.03,
+			growth = 0.1,
+			max = 1.4,
+			recoveryTime = 0.3,
+		},
+		recoil = {
+			up = 0.25,
+			protected = 4,
+			upAfter = 0.15,
+			side = 0.18,
+			switchChance = 0.15,
+			switchMinTime = 0.4,
+			recover = 0.75,
+			recoverTime = 0.25,
+		},
+		adsFov = 72, -- 1.15x zoom
+		adsTime = 0.16,
+		moveMultiplier = 1,
+		adsMoveMultiplier = 0.8,
+		penetration = "None",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
 }
 
 for _, w in weapons do

@@ -157,6 +157,20 @@ New generic weapon fields it uses: `muzzles` (shots come from each muzzle in tur
 | Equip | 0.9 s first draw, 0.5 s quick | |
 | Viewmodel | No ADS; own hip offset (0.36, −0.42, −0.95), since it has no sight to be placed by | |
 
+### Stinger v2 (roster 04, SMG)
+Uzi-type SMG, mag in the grip, iron-sight ADS.
+| Stat | Value | Valorant Stinger |
+|---|---|---|
+| Fire | Auto, 0.075 s (13.3/s): slower than Valorant's 16/s so four body shots take 0.23 s, not 0.19 s | 16/s (ADS: 4-round burst) |
+| Mag / reload | 20 / 2.1 s, 2.5 s empty (knob rack) | 20 / 2.25 s |
+| Damage | 27 body / 61 head (×2.25) / 23 legs; ×0.85 from 54 studs | 27 / 67 / 22 → 23 / 57 / 19 past 15 m |
+| Spread | 0.45° → 1.4° (2 protected shots, +0.1°/shot), ADS ×0.6, recovery 0.3 s | 0.65° → 1.5° (ADS 0.35°) |
+| Movement | SMG row, ×1.0 speed, ×0.8 aimed | |
+| Recoil | 0.25° × 4, then 0.15° up + 0.18° side, 15% switch, 75% back over 0.25 s | |
+| ADS | 1.15× zoom (FOV 72), 0.16 s | |
+
+Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode switch).
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.
