@@ -9,6 +9,7 @@ Sheriff replaces the accidentally repeated Judge entry. Frenzy and Warden are ex
 
 | Sheet order | Weapon | Identity | Aiming default |
 | --- | --- | --- | --- |
+| 00 | Classic | Default semiautomatic pistol; the sidearm benchmark (added 2026-10-25) | None |
 | 01 | Shorty | Compact double-barrel shotgun sidearm | None |
 | 02 | Ghost | Slim suppressed semiautomatic pistol | None |
 | 03 | Judge | Compact automatic drum-fed shotgun | None |
@@ -54,6 +55,56 @@ Attach the relevant generated sheet and paste its complete weapon section. The c
 Do not treat a generated sheet as an exact orthographic blueprint. Maintain its silhouette and visible design; resolve small view-to-view inconsistencies into one coherent model. If the two renders disagree, use the side view for proportions and the three-quarter view for depth, checking the design requirements below. Do not copy accidental marks as logos.
 
 These deliverables are concept sheets and modeling briefs. They do not include finished Blender models or completed animation clips.
+
+---
+
+# 00. Classic — Blender Modeling Brief
+
+*Added 2026-10-25 from the user's concept `vault/02 Art/References/Gun-Image-Concepts/Classic Pistol Two-View Concept Sheet.png`. The other briefs treat the Classic as the sidearm benchmark, so it's built before the other sidearms (Ghost, Sheriff, dual pistols) and they match its grip, slide and hand conventions.*
+
+## 1. Overall Design
+
+Use the Classic concept sheet as the primary visual reference. Create an original polished game-ready Roblox asset in the same family as the approved Vandal and Phantom. Match the silhouette, major proportions, materials and amount of blockiness while simplifying minor detail where useful.
+
+**Identity:** The free default semiautomatic pistol, and the benchmark for every sidearm.
+
+**Chosen design:** Full-size polymer-frame striker pistol. Angular slide with a chamfered top and front, a thick squared muzzle face with a visible bore, and grouped rear cocking serrations. Low front and rear sights. Accessory rail ledge and a small slide-stop lever on the frame. Squared trigger guard with a flat front. Textured grip panel with a slight beavertail. Extended flared magazine base plate. Tiny blue accents: one short bar on the slide's rear side, one on the base plate.
+
+## 2. Family Compatibility
+
+Inspect the existing Vandal and Phantom assets first. Keep the same scene units, export scale, axes (+X muzzle, +Z up, +Y gun-left, origin at the grip), bone/locator naming and Motor6D workflow. This asset sets the sidearm conventions (grip angle and size, trigger reach, slide pivot, pistol hand poses) that Ghost, Sheriff and the dual pistols will reuse.
+
+## 3. Textures and Materials
+
+Matte charcoal slide (metal), near-black textured polymer frame and grip, restrained roughness differences, soft bevel highlights, tiny blue Neon accents as separate meshes on their parent component. One baked PBR set (base colour, normal, roughness, metalness) like the Vandal's.
+
+## 4. Separate Components and Structure
+
+| Component / group | Setup and movement |
+| --- | --- |
+| **Frame** | Stationary grip, trigger guard, rail, controls. |
+| **Slide** | Slides back along the bore and locks back on empty; carries the rear sight, serrations and ejection port. |
+| **Mag** | Drops straight down out of the grip and inserts back (with its base plate and neon). |
+| **Trigger** | Independent rotation. |
+| **SlideStop** | Small lever, rotates up when the slide locks and down to release (optional). |
+
+## 5. Animation Requirements
+
+- Idle, equip (draw with a slide check or rack), fire (slide cycles; the slide locks back on the last round), tactical reload (mag swap, slide stays forward), empty reload (mag swap, then slide release or rack), inspect, lowered sprint.
+
+**Aiming:** none (project default for the Classic). Hip-fire holding only, with no ADS pose or `AimPoint`. Keep the modelled sights as visual detail.
+
+## 6. Attachments and Reference Points
+
+Project names: `Muzzle` (on the Slide, at the bore exit), `RightGrip`, `LeftGrip` (support hand cupping the grip, as in the existing pistol hold), `Eject` (on the Slide, at the ejection port), `CharmPoint` (a small buddy loop on the frame, left side).
+
+## 7. Checks and Special Notes
+
+Two-handed hold per the RIVALS reference (`rivals-viewmodel/7-pistol-hip.webp`): the right hand's block covers the lower back of the slide area without blocking slide travel. Check slide-travel clearance over the hand, magazine drop clearance and the opposite side during inspect.
+
+## 8. Deliverables
+
+Same as every brief: `.blend`, FBX and textures, clean UVs, separate moving parts with useful pivots, named reference points, matching 3/4 and side previews beside the Vandal and Phantom, and short import notes.
 
 ---
 
