@@ -202,5 +202,17 @@
    "Roughness": 86630062167227,
    "Metalness": 80447006610485
   }
+ },
+ "Akimbo": {
+  "ColorMap": 78445085000594,
+  "NormalMap": 89698684943426,
+  "RoughnessMap": 82249352427753,
+  "MetalnessMap": 90585581953736,
+  "decals": {
+   "Color": 75012416492223,
+   "Normal": 123080134562179,
+   "Roughness": 112474330140052,
+   "Metalness": 139385335925808
+  }
  }
 }
