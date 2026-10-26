@@ -8,39 +8,18 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
 ## Weapons
 
+**Retired 2026-10-25 (new direction):** Byte, Root, Splinter, Flicker, Mute, Bandwidth, Burst Buffer, Hard Reset, Crash, Pulse, Checksum, Bitrate, Overwrite, Long Poll, Handshake, Kernel, Flood, Ray Trace, Loopback, Dual Boot, Null, Overflow and Cutter. Removed from Studio, config and code; their `.rbxm` backups stay in `art-source/weapons/Studio/` and git history keeps the code. (Overwrite's Open Cloud asset 73731263927417 got one extra version holding the Vandal mesh by mistake; harmless.)
+
 | Gun | Class | Tier | Wave | Modeled (Blender) | Imported (Studio) | Standard (attachments, names) | `.rbxm` in repo | Config + working in game | Notes |
 |---|---|---|---|---|---|---|---|---|---|
-| **Byte** | Sidearm | T1 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Root** | Sidearm | T1 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Splinter** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Flicker** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · big spread while moving |
-| **Mute** | Sidearm | T1 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: red-dot lens fades in ADS, reticle shown instead |
-| **Bandwidth** | SMG | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Burst Buffer** | SMG | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · 3-round burst |
-| **Hard Reset** | Shotgun | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Crash** | Shotgun | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Pulse** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · 3-round burst, single shots while aiming |
-| **Checksum** | Rifle | T2 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: optic tube fades in ADS, reticle shown instead |
-| **Bitrate** | Rifle | T3 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Overwrite** | Rifle | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Old model; being retired with the other old guns (2026-10-25 new direction). Note: its Open Cloud asset 73731263927417 got one extra version holding the Vandal mesh by mistake; the Studio copy and `.rbxm` are unaffected |
-| **Vandal** | Rifle | T3 | new | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | **Gun 1 of the new direction.** Modelled, PBR-baked, Fire/Reload clips, uploaded (asset 123991644913328), test-built in `ImportStaging` with SurfaceAppearance (25 parts, 3.96 studs). Next (Studio session): publish to `ReplicatedStorage.Weapons`, config, VFX, animations |
-| **Phantom** | Rifle | T3 | new | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | **Gun 2 of the new direction** (the Vandal's suppressed companion). Modelled by `tools/blender/build_phantom.py` on the shared `tools/blender/gunkit.py` → `art-source/weapons/Phantom.blend`: 3.6 studs, 4.75K tris, round 32-segment integrated suppressor, straight box mag, AR upper with side charging handle, flip-up sights, inset-panel stock, buddy loop like the Vandal's; same bones/locators (Muzzle at the suppressor front). Baked PBR set (`Textures/Phantom_*.png`, image ids in `Exports/textures.json`). Clips by `tools/blender/anim_phantom.py`: Fire (only the bolt cycles), Reload (tactical, mag only, 72 f), ReloadEmpty (mag + charging-handle rack, 97 f) → `src/shared/WeaponAnimations/Phantom.luau`. Uploaded (asset 102353794386214), build data `tools/studio/rojo/BuildData/Phantom.json`. Check sheet `02 Art/References/phantom-blender-check.jpg`. **Import notes:** not built in Studio yet: stage `src/server/WeaponBuild/BuildData/Phantom.json`, `WeaponBuilder.publish("Phantom")` (it adds the Motor6D rig and SurfaceAppearance), config from Gunplay "Phantom v2", game code must play `ReloadEmpty` on an empty mag. The concept wasn't on disk, so shapes were read by eye; re-trace if `02 Art/References/phantom-concept.webp` is added |
-| **Long Poll** | Sniper | T2 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Handshake** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Kernel** | Sniper | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Overflow** | Machine gun | T3 | 2 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · steadier crouched |
-| **Flood** | Machine gun | T3 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance |
-| **Ray Trace** | Wildcard | T4 | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: holo pane on top (its own sight is a closed box), battery cells fade in ADS |
-| **Loopback** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · server-flown bouncing discs, client disc follows the same path · first person: holo pane on top (closed-box sight) |
-| **Dual Boot** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · two models (DualBoot_L / DualBoot_R), fires alternately, no ADS |
-| **Null** | Wildcard | T4 | 3 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · held beam, battery shown as %, no reload · first person: holo pane on top (closed-box sight) |
-| **Cutter** | Melee | — | 1 | ✅ | ✅ | ✅ | ✅ | 🟡 | Works vs dummies in Studio (2026-10-25); needs a 2-player test + balance · first person: held bigger and blade-up, own inspect |
+| **Vandal** | Rifle | T3 | new | ✅ | ✅ | ✅ | ✅ | 🟡 | **Gun 1 of the new direction, the only gun in the game.** In `ReplicatedStorage.Weapons` with SurfaceAppearance (25 parts, 3.96 studs, validator OK), backup `Studio/Vandal.rbxm`, asset 123991644913328. Config: Gunplay "Vandal v2" numbers, default primary. Clips: Fire, Reload (tactical), ReloadEmpty (rack), Draw (first draw: selector + rack), Inspect (mag tap + press check). Realistic VFX. Playtested solo vs dummies (2026-10-25). Left: a 2-player test, the Gunplay v2 mechanics, a buddy (charm) model, a feel pass in a real match |
+| **Phantom** | Rifle | T3 | new | ✅ | 🟡 | 🟡 | ⬜ | ⬜ | **Gun 2 of the new direction** (the Vandal's suppressed companion). Modelled by `tools/blender/build_phantom.py` on the shared `tools/blender/gunkit.py` → `art-source/weapons/Phantom.blend`: 3.6 studs, 4.75K tris, round 32-segment integrated suppressor, straight box mag, AR upper with side charging handle, flip-up sights, inset-panel stock, buddy loop like the Vandal's; same bones/locators (Muzzle at the suppressor front). Baked PBR set (`Textures/Phantom_*.png`, image ids in `Exports/textures.json`). Clips by `tools/blender/anim_phantom.py`: Fire (only the bolt cycles), Reload (tactical, mag only, 72 f), ReloadEmpty (mag + charging-handle rack, 97 f) → `src/shared/WeaponAnimations/Phantom.luau`. Uploaded (asset 102353794386214), build data `tools/studio/rojo/BuildData/Phantom.json`. Check sheet `02 Art/References/phantom-blender-check.jpg`. **Import notes:** not built in Studio yet: stage `src/server/WeaponBuild/BuildData/Phantom.json`, `WeaponBuilder.publish("Phantom")` (it adds the Motor6D rig and SurfaceAppearance), config from Gunplay "Phantom v2", the game already plays `ReloadEmpty` on an empty mag (and `Draw` / `Inspect` clips if the gun has them). The concept wasn't on disk, so shapes were read by eye; re-trace if `02 Art/References/phantom-concept.webp` is added |
 
-Note: Bitrate is the master reference. Use the IDs without spaces in code/models: `BurstBuffer`, `HardReset`, `LongPoll`, `RayTrace`, `DualBoot_L` / `DualBoot_R`.
+Note: the Vandal is the master reference for the new direction. Use IDs without spaces in code/models.
 
-First-person viewmodel (all guns): one rigid rig (pass 4, 2026-10-25). Smooth bevelled block arms (skin + the player's Shirt, mesh `art-source/viewmodel/Arms.fbx`) sit on the grips in gun space. Gun, joints and arms are posed in one pass, each in its own WorldModel (exact positions under Server Authority). Primaries point straight ahead; pistols are two-handed. Hands follow the mag/pump/bolt in clips; inspect on F; ADS hides only real sight-line blockers. Measured smooth at 60 fps, and 60 vs 240 Hz stepping matches. All 23 checked at the hip in Studio (contact sheet `vault/02 Art/References/rivals-viewmodel/viewmodel-all-23-hip.jpg`). ✅ built · 🟡 needs a feel pass in a real match and at a real high frame rate.
+First-person viewmodel: one rigid rig (pass 4, 2026-10-25). Smooth bevelled block arms (skin + the player's Shirt, mesh `art-source/viewmodel/Arms.fbx`) sit on the grips in gun space. Gun, joints and arms are posed in one pass, each in its own WorldModel (exact positions under Server Authority). Primaries point straight ahead. The support hand works the gun's parts in its handling clips (Reload, ReloadEmpty, Draw, Inspect) and its arm reaches up from below while it does; inspect on **Y**; ADS hides only real sight-line blockers. ✅ built · 🟡 needs a feel pass in a real match and at a real high frame rate.
 
-Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), backups in `art-source/weapons/Studio/<Id>.rbxm`, Open Cloud asset IDs in `art-source/weapons/Exports/assets.json`. Check them with `tools/studio/ValidateWeapons.luau` (all 24 pass).
+Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), backups in `art-source/weapons/Studio/<Id>.rbxm`, Open Cloud asset IDs in `art-source/weapons/Exports/assets.json`. Check them with `tools/studio/ValidateWeapons.luau` (the Vandal passes).
 
 ## Arenas
 
@@ -50,18 +29,18 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | **Firewall** | 1v1 / 2v2 | ⬜ | ⬜ | ⬜ | ⬜ | ~90×70 |
 | **Mainframe** | 2v2 | ⬜ | ⬜ | ⬜ | ⬜ | ~100×80 |
 | **Lobby** | Hub | ⬜ | ⬜ | ⬜ | ⬜ | Pads, range, bot pad |
-| **Test range** | Testers (TestMode) | ✅ | ✅ | 🟡 | 🟡 | Built from code (`src/server/TestRange/RangeBuilder`), backup `art-source/maps/TestRange.rbxm`. Lanes + markers 10/25/50/100/150, cover/ThinWall, movement course, 23 gun racks, 6 dummy kinds. Solo Studio playtests done (2026-10-25); needs a 2-player test and a look on phone/gamepad; art pass later (lighting, props) |
+| **Test range** | Testers (TestMode) | ✅ | ✅ | 🟡 | 🟡 | Rebuilt plain (2026-10-25): an open-air concrete practice yard from code (`src/server/TestRange/RangeBuilder`): lanes + markers 10/25/50/100/150, cover with a plywood ThinWall, concrete wall, low cover and pillars, movement course. Grey dummies (6 kinds) hold the Vandal; health bars kept. No tester menu, stats or weapon racks until the new UI. `art-source/maps/TestRange.rbxm` is the old Style B version (outdated) |
 
 ## VFX, UI and audio
 
 | Asset | Status | Notes |
 |---|---|---|
-| VFX textures (17) | ✅ | Rendered by `tools/vfx/make_vfx_textures.py` (Blender, emission on transparent), PNGs in `art-source/vfx/`, uploaded; image ids in `Config/VfxTextures` |
-| Muzzle flashes / tracers / shells | ✅ | Flipbook star + side flame (3rd person), core, sparks, smoke, light pop; suppressed = small puff. Travelling Beam tracers (none when suppressed). Pooled brass / shotgun shells from `Eject` (none for Ray Trace, Null, Loopback, Root, Splinter, Handshake) |
-| Wildcard effects | ✅ | Ray Trace charge glow + helix rail that sheds pixels; Null textured energy beam with end flare; Loopback spinning disc (SurfaceGui face + camera-facing ring, trail, pixels) |
-| Impacts + bullet holes | ✅ | Flash, sparks (gold extra on metal), surface-coloured dust and chips; 48 pooled holes with a rim that cools, fade after 4 s. Characters: neon sparks, ring and pixels, no blood |
-| Pixel-dissolve death + kill flash | ✅ | White-hot hologram (Highlight) → flicker out → glitch-pixel burst; cyan / gold (headshot) screen-edge flash for the killer |
-| Hit markers, damage numbers, kill banner | ✅ | `Util/HitFeedback`: white / gold-headshot X with a pop and rotation kick, cyan kill X with a ring; damage numbers stack on the target (gold headshot, bigger on the kill) then fall off in an arc; "ELIMINATED / DOUBLE KILL…" banner. Hand-animated, pooled, always end fully hidden |
+| VFX textures (realistic set) | ✅ | `tools/vfx/make_real_vfx.py` (numpy + Pillow) → `art-source/vfx/real/`: flash front + side (colours baked), smoke, dust, rock chips, bullet hole; spark, glow and tracer kept from the first set. Image ids in `Config/VfxTextures` |
+| Muzzle flashes / tracers / shells | ✅ | Fiery star burst + ragged side flame, warm core, embers, smoke puff, barrel wisps after a burst, warm light pop; suppressed = small flash. Thin warm travelling tracers (none when suppressed). Pooled muted-brass shells from `Eject` |
+| Impacts + bullet holes | ✅ | Per surface: metal sparks; concrete dust, chips and a spark; wood splinters; ground dirt; glass glints. 64 pooled holes lit by the scene, tinted per material, fade after 14 s. Characters: a small puff, no blood |
+| Deaths | ⬜ | Default Roblox death for now (pixel dissolve retired); a ragdoll later |
+| Hit markers, damage numbers | ✅ | `Util/HitFeedback`: white / amber-headshot / red-kill X with a pop; damage numbers stack on the target (amber headshot, bigger on the kill) then fall off. Kill banner and kill feed removed until the new UI |
+| HUD | 🟡 | Plain fresh-base HUD (`HudController`): crosshair, ammo, health, damage direction, low-HP vignette, touch buttons. The full UI comes later |
 | Mod icons (8) | ⬜ | SVG → PNG |
 | Draft card frames | ⬜ | Normal / upgrade / glitch |
 | Third-person pose animations | 🟡 | 7 procedural R15 clips (aim up/level/down, sprint, crouch, crouch-walk, slide) in `art-source/animations/`, uploaded group-owned; first pass, worth a hand-keyed polish later |

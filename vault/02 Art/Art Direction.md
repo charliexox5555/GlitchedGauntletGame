@@ -55,11 +55,15 @@ Rojo **can't** live-sync MeshParts (it leaves `MeshId` empty), so finished guns 
 6. **Save the place** in Studio, run the validator, tick the [Asset Tracker](../06%20Assets/Asset%20Tracker.md).
 
 ## VFX
-All shot effects live in `EffectsController` and use one texture set in the same neon style (cyan `#00E5FF`, magenta `#FF3DCB` for wildcards, gold for metal sparks and headshots).
-- **Textures:** `blender --background --factory-startup --python tools/vfx/make_vfx_textures.py -- [names] [--preview out.png]` renders them with Cycles (emission shaders / flat emission geometry on a transparent film, straight-alpha PNG) into `art-source/vfx/`. White textures are tinted in game; the bullet hole is baked dark. `_2x2` sheets are flipbooks (each particle keeps one random frame).
+**Realistic and simple (new direction, 2026-10-25).** All shot effects live in `EffectsController`; no neon. The old Style B set (cyan flashes and tracers, glowing bullet-hole rims, Ray Trace rail, Null beam, Loopback disc, pixel-dissolve deaths, kill flash) was removed.
+- **Muzzle:** a fiery star burst down the barrel (2-frame flipbook, colours baked: white-hot core → amber → orange), a ragged side flame (third person, and smaller in first person), a soft warm core, a few embers, a grey smoke puff per shot and a warm light pop. After a burst the barrel smokes: wisps curl up while it cools (`HEAT_*`). Suppressed guns: a small flash, no side flame.
+- **Brass:** pooled cylinders flown by hand from `Eject` (one bounce, then they lie flat), muted brass so they don't glow in sun.
+- **Tracers:** thin warm streaks travelling at ~1400 studs/s (fainter for your own shots), none for suppressed guns.
+- **Impacts by surface:** metal throws a spark shower; concrete/stone gets a dust puff, chips and a spark or two; wood splinters; ground/grass kicks up dirt; glass gets glints. Dust and chips are tinted from the surface colour. Bullet holes (64 pooled, lit by the scene, fade after 14 s) are tinted per material. Characters: a small puff, no blood.
+- **Textures:** `python tools/vfx/make_real_vfx.py [--preview out.png]` (numpy + Pillow, seeded fractal noise, no Blender) writes `art-source/vfx/real/`: `flash_front_2x2`, `flash_side_2x2`, `smoke_2x2`, `dust_2x2`, `chips_2x2`, `hole`. The spark streak, soft glow and tracer gradient are kept from the first set (`art-source/vfx/`). `_2x2` sheets are flipbooks (each particle keeps one random frame).
 - **Upload:** `python tools/opencloud/upload_asset.py --group 11116787 --type Decal <png> "GG VFX <name>"` returns a *Decal* id; particles, beams and images need the *Image* id behind it (Studio: `InsertService:LoadAsset(id)` → the Decal's `Texture`). Store that in `Config/VfxTextures`.
-- **Rules:** keep beams readable on a bright sky (textured strands at `LightEmission` 0.6, thin at the muzzle); first person shows the front star only (a side flame seen down the barrel is a sliver); fast guns pop a dimmer light; pool anything an automatic gun fires (tracers, shells, holes, burst emitters).
-- **Screenshots:** in Studio set `Workspace` attribute `VfxTimeScale` (0 freezes, 0.05 is slow motion); Studio runs at ~15 fps unfocused, so a tracer otherwise lasts under a frame.
+- **Rules:** fire uses `LightEmission` 1 with `Brightness` 1 (2 blew the flash out to white); smoke, dust and chips are lit by the scene (`LightInfluence` 1); fast guns pop a dimmer light; pool anything an automatic gun fires (tracers, shells, holes, burst emitters).
+- **Screenshots:** in Studio set the `Workspace` attribute `VfxTimeScale` (0 freezes, 0.05 is slow motion); it freezes the viewmodel too. Studio runs at ~15 fps unfocused, so a tracer otherwise lasts under a frame.
 
 To restore a gun by hand: right-click `ReplicatedStorage.Weapons` → **Insert from File** → `art-source/weapons/Studio/<Id>.rbxm`.
 

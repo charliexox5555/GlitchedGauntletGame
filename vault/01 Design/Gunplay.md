@@ -91,20 +91,27 @@ The user asked for: lighter than the Vandal, less damage, faster fire rate, less
 
 ## 5. Feedback ("juice")
 This is a big part of why RIVALS feels good. Build it alongside the very first gun.
-- **Hit marker:** white for body, **gold for headshots**. Instant on the client, confirmed by the server.
-- **Sounds:** distinct body-hit tick, headshot "ding", **kill sound** (cyan X marker).
-- **Damage numbers** that stack while you keep hitting the same target, then fall off in an arc (RIVALS style); gold for headshots, bigger on the kill. A short **kill banner** ("ELIMINATED", streaks count up) under the crosshair.
-- **Victim:** directional hit indicator, red low-HP vignette, a short death recap showing **the killer's gun and Mods** (teaches the draft).
-- Kill feed, a round-win stinger, a slow-mo kill cam on the deciding round.
-- Muzzle flash, tracer (none for suppressed guns), shell ejection, impact sparks; enemies **dissolve into pixels** on death (no blood).
+Fresh base (2026-10-25): the old UI is gone; this is what the plain HUD keeps until the new UI pass.
+- **Hit marker:** white for body, **amber for headshots**, red X on a kill. Instant on the client, confirmed by the server.
+- **Sounds:** distinct body-hit tick, headshot "ding", **kill sound**.
+- **Damage numbers** that stack while you keep hitting the same target, then fall off in an arc (RIVALS style); amber for headshots, bigger on the kill.
+- **Victim:** directional hit indicator, red low-HP vignette. Later: a short death recap showing **the killer's gun and Mods** (teaches the draft).
+- Later, with the new UI: kill feed, kill banner, a round-win stinger, a slow-mo kill cam on the deciding round.
+- **Realistic shot effects** (no neon): fiery muzzle flash, smoke and barrel wisps, brass from `Eject`, warm tracers (none for suppressed guns), impacts that depend on the surface. Deaths use the default Roblox death for now (the pixel dissolve was retired with the sci-fi look; a ragdoll is a later task). No blood.
 
 ## 6. Camera and controls
 - **First person.** FOV 80 by default (setting 70–100), with ADS FOV set per gun.
 - **First-person arms (RIVALS style):** one long, smooth, softly bevelled block per arm (R6 cross-section, no elbow), coming up from off-screen into the gun's grip; the end of the block is the hand. Skin colour from the avatar; a classic Shirt is drawn on the block the way Roblox draws it on R6 arms. References: `02 Art/References/rivals-viewmodel/`.
 - **How the viewmodel works** (`ViewmodelController`, motion in `Util/ViewmodelMotion`, numbers and keyframes in `Config/Viewmodel`). Rebuilt 2026-10-25 (pass 4) the standard way (EgoMoose, "Writing an FPS framework"): **one rigid rig**, computed in this order every render frame right after the camera, then everything moved at the end of the same step:
   - **Root** = camera × motion. Bob, breathing, sway, strafe tilt, fall lift and landing dip all add up to this one offset, so the gun and both arms move as a single unit.
-  - **Gun** = root × hold pose: hip↔ADS, the movement poses (Sprint, Slide, Crouch, Air), the keyframed tracks (Equip, Inspect, InspectMelee, Reload body motion) and the recoil kick.
-  - **Hands and arms** = gun × hand. Each hand has an offset from its grip attachment and an arm direction, both in gun space (`RIFLE_RIGHT_HAND`, `RIFLE_LEFT_HAND`, `PISTOL_RIGHT_HAND`, `PISTOL_LEFT_HAND`, `MELEE_HAND`), so a hand can never drift off the gun. During the gun's Blender clips the hand blends (in gun space) to the part it works: the first moving one of `Mag`, `Cylinder`, `Barrels`, `Pump` or `Bolt` on Reload, the pump or bolt on Fire. Melee's free hand is a guard on the root (`FREE_HAND`).
+  - **Gun** = root × hold pose: hip↔ADS, the movement poses (Sprint, Slide, Crouch, Air), the keyframed tracks (Draw, Equip, Inspect, InspectMelee, Reload / ReloadEmpty body motion) and the recoil kick.
+  - **Hands and arms** = gun × hand. Each hand has an offset from its grip attachment and an arm direction, both in gun space (`RIFLE_RIGHT_HAND`, `RIFLE_LEFT_HAND`, `PISTOL_RIGHT_HAND`, `PISTOL_LEFT_HAND`, `MELEE_HAND`), so a hand can never drift off the gun. During the gun's handling clips (`HAND_CLIPS`: Reload, ReloadEmpty, Draw, Inspect) the support hand blends (in gun space) to the part it works: the first moving one of `Mag`, `Cylinder`, `Barrels`, `Pump`, `Bolt`, `ChargingHandle`, then a later one if their windows don't overlap; on Fire, the pump or bolt. While the hand works a part its arm turns toward `REACH_DIRECTION` (down-left), so it rises from below instead of crossing the screen. Melee's free hand is a guard on the root (`FREE_HAND`).
+- **Handling animations (new direction, Vandal first).** Each gun has Blender clips for its parts (`tools/blender/anim_<gun>.py`) and the viewmodel adds body-motion tracks:
+  - **First draw** of each life (`firstEquipTime`, Vandal 0.9 s): the gun swings up from low right, thumbs the selector off safe, cants left side up and the support hand racks the charging handle; it jolts as the handle slams home. Later swaps are a quick raise (`equipTime`).
+  - **Tactical reload** (mag swap, Vandal 2.3 s) and **empty reload** (mag swap then a rack, 2.8 s): the gun plays `Reload` or `ReloadEmpty`.
+  - **Inspect:** the viewmodel's show-both-sides track plus the gun's own clip: a tap on the mag, then a press check (charging handle half back) with the buddy swinging.
+  - **Foley is read off the clips** (`ViewmodelController` `clipBeats`): mag out when the Mag starts moving, mag in when it stops, the rack when the charging handle comes to rest. So sounds stay in sync for any gun.
+  - Studio: the Workspace attribute `VfxTimeScale` slows or freezes the viewmodel too (0 freezes), for reviewing poses.
   - **No per-part jitter: each gun and the arms live in their own `WorldModel` under the Camera.** Under Server Authority the Workspace snaps part positions to a coarse grid (measured: up to 0.006 studs, and the step changes with where you stand, from 1/4096 to 1/128 stud), so every viewmodel part jittered on its own, which was the "parts don't move together" look. Parts in a WorldModel keep exact positions and still render. They keep the names `Viewmodel` / `ViewmodelLeft` / `ViewmodelArms`, so EffectsController finds the muzzle as before. Raycasts against the viewmodel use the WorldModel's own `:Raycast`.
 - **Placement** (RIVALS references `rivals-viewmodel/6-rifle-hip-straight.webp`, `7-pistol-hip.webp`): every gun points **straight down the view** (no cant; perspective alone makes it converge on the crosshair).
   - Long guns: scale 0.75. Each is placed by its **sight height at its grip's depth** (`RIFLE_VM` 0.31, -0.3, -0.65): every rifle's top edge lands on the same line, and a sight mounted far forward or back on the model (Loopback, Burst Buffer) no longer pushes the gun into or away from the camera. The right hand is off-screen; the support arm rises from the bottom, leaning left, to under the handguard. Rifles with a long scope (Long Poll, Handshake, Kernel, Checksum) use `SCOPED_VM` (same screen spot, further away) so the eyepiece doesn't fill the corner.
@@ -132,7 +139,7 @@ This is a big part of why RIVALS feels good. Build it alongside the very first g
   | Arm vs gun drift while walking / sprinting | 0.013 / 0.016 studs | < 0.00001 studs |
 
   The old bob ran at about 8–9 Hz vertically (that was the shake). Stepping the motion at 60 vs 240 Hz on the same 6 s input (walk, turn, flick, sprint) gives the same result within 0.0026 studs / 0.19°. Studio's frame cap can't be raised from a script, so 240 fps was checked that way rather than live.
-- **Inspect:** **F** (Valorant uses Y; Y is the Studio dev picker). About 2.8 s: show the right side, flip to the left side, return. Fire, aim, reload and swapping cancel it. Note: the controls table plans F for Mod 3, so one of them moves when Mods are built.
+- **Inspect:** **Y** like Valorant (moved from F on 2026-10-25 when the dev picker went, so F stays free for Mod 3). About 2.8 s: show the right side, flip to the left side, return. Fire, aim, reload and swapping cancel it.
 - **ADS** (reference `rivals-viewmodel/4-ads.webp`): zoomed and close. The eye sits `adsDistance` behind the rear sight (0.7, pistols 1.0; tried 0.9 for rifles to thin the rear ring, but further back the ring reads as a solid blob with a pinhole, so it stays 0.7), so the rear aperture is big and centred with the front post inside it and the gun body fills the bottom centre; ADS FOV is about 10° tighter than before on every non-scoped gun. Smootherstep blend. Nothing is hidden unless a raycast from the eye finds it on the sight line (plus a gun's explicit `adsHide`). `adsOffset`: Root aims lower so the eye clears its hammer. `adsReticle`: Ray Trace, Loopback and Null get a holo pane (now big and close), Checksum and Mute a reticle in place of their opaque lenses. Long Poll, Handshake and Kernel keep the scope overlay; Dual Boot has no ADS.
 
 | Action | PC | Gamepad | Mobile |
@@ -146,7 +153,7 @@ This is a big part of why RIVALS feels good. Build it alongside the very first g
 | Mods 1/2/3 | Q / E / F | LB / RB / D-pad up | 3 Mod buttons in an arc |
 | Primary / secondary / melee | 1 / 2 / 3, scroll | Y cycles | Weapon tabs |
 | Melee quick-swing | V | R3 | Melee button |
-| Inspect | F (clashes with Mod 3, see above) | D-pad down | — |
+| Inspect | Y | D-pad down | — |
 
 All mobile buttons can be moved and resized in settings.
 
