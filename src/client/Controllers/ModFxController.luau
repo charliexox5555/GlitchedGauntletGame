@@ -1,8 +1,9 @@
 --!strict
 -- World effects of Mods for everyone (ModFx events from ModService), coloured
 -- per viewer (Util/TeamColor): cyan for you and your team, orange-red for
--- enemies. Cosmetic only: the server already decided every result. Stage 1
--- placeholders (pooled parts and billboards); the VFX pass replaces them.
+-- enemies. Cosmetic only: the server already decided every result. Shapes
+-- come from Util/ModVfx (pooled, stylized textures: rings, scans, hexes,
+-- chevrons, sparkles), held / thrown models from Util/ModProps.
 --
 --   PacketThrow  the grenade flying its server path (Blocks/Projectile replay),
 --                fuse blink, and a danger ring where it will go off
@@ -28,8 +29,10 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared.Net)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
+local Tex = require(Shared.Config.VfxTextures)
 
 local ModProps = require(script.Parent.Parent.Util.ModProps)
+local ModVfx = require(script.Parent.Parent.Util.ModVfx)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 local VfxPool = require(script.Parent.Parent.Util.VfxPool)
 local CameraController = require(script.Parent.CameraController)
@@ -42,15 +45,12 @@ type Flight = {
 	blink: boolean, -- Packet's fuse blink
 	model: Model,
 	glow: { BasePart },
-	ring: Part,
 	path: Projectile.Path,
 	start: number,
 	fuse: number,
 	color: Color3,
 	key: string,
 }
-
-type Boom = { sphere: Part, ring: Part, at: Vector3, radius: number, born: number }
 
 type Beam = {
 	part: Part,
@@ -62,13 +62,11 @@ type Beam = {
 
 type Floater = { gui: BillboardGui, label: TextLabel, born: number }
 
-local BOOM_TIME = 0.35
 local FLOATER_TIME = 1.1
 
 local folder: Folder? = nil
 local lastRollback = 0
 local flights: { Flight } = {}
-local booms: { Boom } = {}
 local beams: { Beam } = {}
 local floaters: { Floater } = {}
 local grenadeFree: { [string]: { Model } } = {}
@@ -126,6 +124,21 @@ local function rootOf(model: Model?): BasePart?
 	return nil
 end
 
+-- A dashed, slowly turning ring on the ground where something will go off.
+local function dangerRing(at: Vector3, radius: number, color: Color3, life: number)
+	ModVfx.quad({
+		texture = Tex.MOD_RING_DASHED,
+		cframe = CFrame.new(at - Vector3.new(0, 0.35, 0)),
+		from = radius * 2,
+		color = color,
+		life = life,
+		alpha0 = 0.15,
+		hold = true,
+		spin = 0.8,
+		pulse = 0.25,
+	})
+end
+
 -- Packet ----------------------------------------------------------------------------
 
 local function takeGrenade(id: string, color: Color3): (Model?, string)
@@ -169,14 +182,12 @@ local function onPacketThrow(data: { [string]: any })
 		end
 	end
 	-- Danger ring where it will go off.
-	local ring = takePart(Enum.PartType.Cylinder, color)
-	ring.Size = Vector3.new(0.08, radius * 2, radius * 2)
-	ring.CFrame = CFrame.new(Projectile.positionAt(path, fuse)) * CFrame.Angles(0, 0, math.pi / 2)
+	local left = math.max(fuse - (Workspace:GetServerTimeNow() - start), 0.1)
+	dangerRing(Projectile.positionAt(path, fuse), radius, color, left)
 	table.insert(flights, {
 		blink = true,
 		model = model,
 		glow = glow,
-		ring = ring,
 		path = path,
 		start = start,
 		fuse = fuse,
@@ -193,17 +204,51 @@ local function onPacketBoom(data: { [string]: any })
 	local color = if data.caster == player
 		then TeamColor.ALLY
 		else TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
-	local sphere = takePart(Enum.PartType.Ball, color)
-	local ring = takePart(Enum.PartType.Cylinder, color)
-	table.insert(
-		booms,
-		{ sphere = sphere, ring = ring, at = at, radius = radius, born = os.clock() }
-	)
+	local d = radius * 2
+	-- A hot core, a shockwave ring racing out along the ground, a glow and
+	-- a spray of sparks.
+	ModVfx.shell({
+		shape = Enum.PartType.Ball,
+		cframe = CFrame.new(at),
+		from = Vector3.one * 2,
+		to = Vector3.one * d * 0.85,
+		color = color,
+		life = 0.28,
+		alpha0 = 0.1,
+		material = Enum.Material.Neon,
+	})
+	ModVfx.shell({
+		shape = Enum.PartType.Ball,
+		cframe = CFrame.new(at),
+		from = Vector3.one * d * 0.6,
+		to = Vector3.one * d * 1.1,
+		color = color,
+		life = 0.4,
+		alpha0 = 0.8,
+	})
+	ModVfx.quad({
+		texture = Tex.MOD_RING,
+		cframe = CFrame.new(at - Vector3.new(0, 0.35, 0)),
+		from = 2,
+		to = d * 1.6,
+		color = color,
+		life = 0.5,
+	})
+	ModVfx.quad({
+		texture = Tex.MOD_GLOW,
+		cframe = CFrame.new(at - Vector3.new(0, 0.3, 0)),
+		from = d * 0.8,
+		to = d * 1.2,
+		color = color,
+		life = 0.4,
+		alpha0 = 0.2,
+	})
+	ModVfx.burst(at, color, 28, "Sparkle")
 	local cam = Workspace.CurrentCamera
 	if cam then
-		local d = (cam.CFrame.Position - at).Magnitude
-		if d < radius * 4 then
-			CameraController.shake(1.2 * (1 - d / (radius * 4)))
+		local away = (cam.CFrame.Position - at).Magnitude
+		if away < radius * 4 then
+			CameraController.shake(1.2 * (1 - away / (radius * 4)))
 		end
 	end
 end
@@ -258,6 +303,19 @@ local function onHeal(data: { [string]: any })
 	local casterModel = if typeof(caster) == "Instance" and (caster :: Instance):IsA("Player")
 		then (caster :: Player).Character
 		else nil
+	local targetRoot = rootOf(targetModel)
+	if targetRoot then
+		ModVfx.burst(targetRoot.Position, color, 12, "Cross")
+		ModVfx.quad({
+			texture = Tex.MOD_RING,
+			cframe = CFrame.new(targetRoot.Position - Vector3.new(0, 2.9, 0)),
+			from = 2,
+			to = 6,
+			color = color,
+			life = 0.6,
+			alpha0 = 0.2,
+		})
+	end
 	if casterModel and casterModel ~= targetModel then
 		local beam = takePart(Enum.PartType.Block, color)
 		table.insert(beams, {
@@ -271,55 +329,6 @@ local function onHeal(data: { [string]: any })
 	if friendly then
 		floater(targetModel, "+" .. tostring(math.round(amount)), color)
 	end
-end
-
--- Shapes: parts that grow and fade (zones, pulses, pops) -----------------------------
-
-type Shape = {
-	part: Part,
-	born: number,
-	life: number,
-	cframe: CFrame,
-	from: Vector3, -- size at birth
-	to: Vector3, -- size at the end (eased out)
-	alpha0: number, -- transparency at birth
-	alpha1: number, -- at the end
-	hold: boolean, -- keep alpha0 and fade only over the last 0.3 s (zones)
-}
-
-type ShapeSpec = {
-	shape: Enum.PartType,
-	color: Color3,
-	cframe: CFrame,
-	from: Vector3,
-	to: Vector3,
-	life: number,
-	alpha0: number,
-	alpha1: number,
-	hold: boolean?,
-	material: Enum.Material?,
-}
-
-local shapes: { Shape } = {}
-local FLAT = CFrame.Angles(0, 0, math.pi / 2) -- a Cylinder part lying flat
-
-local function shape(spec: ShapeSpec)
-	local p = takePart(spec.shape, spec.color)
-	p.Material = spec.material or Enum.Material.Neon
-	p.Size = spec.from
-	p.CFrame = spec.cframe
-	p.Transparency = spec.alpha0
-	table.insert(shapes, {
-		part = p,
-		born = os.clock(),
-		life = spec.life,
-		cframe = spec.cframe,
-		from = spec.from,
-		to = spec.to,
-		alpha0 = spec.alpha0,
-		alpha1 = spec.alpha1,
-		hold = spec.hold == true,
-	})
 end
 
 local function teamColor(data: { [string]: any }): Color3
@@ -348,14 +357,12 @@ local function onLagThrow(data: { [string]: any })
 		return
 	end
 	-- Where the zone will open.
-	local ring = takePart(Enum.PartType.Cylinder, color)
-	ring.Size = Vector3.new(0.08, radius * 2, radius * 2)
-	ring.CFrame = CFrame.new(Projectile.positionAt(path, land)) * FLAT
+	local left = math.max(land - (Workspace:GetServerTimeNow() - start), 0.1)
+	dangerRing(Projectile.positionAt(path, land), radius, color, left)
 	table.insert(flights, {
 		blink = false,
 		model = model,
 		glow = {},
-		ring = ring,
 		path = path,
 		start = start,
 		fuse = land,
@@ -370,42 +377,47 @@ local function onLagZone(data: { [string]: any })
 		return
 	end
 	local color = teamColor(data)
-	local size = Vector3.one * radius * 2
-	local disc = Vector3.new(0.1, radius * 2, radius * 2)
-	-- A soft dome, a bright rim on the ground, and an opening burst.
-	shape({
+	local d = radius * 2
+	local ground = CFrame.new(at - Vector3.new(0, 0.4, 0))
+	-- A shimmering dome, a hex floor, a turning dashed rim, and an opening
+	-- ring + sparks.
+	ModVfx.shell({
 		shape = Enum.PartType.Ball,
-		color = color,
 		cframe = CFrame.new(at),
-		from = size,
-		to = size,
-		life = duration,
-		alpha0 = 0.9,
-		alpha1 = 1,
-		hold = true,
-		material = Enum.Material.ForceField,
-	})
-	shape({
-		shape = Enum.PartType.Cylinder,
+		from = Vector3.one * d,
 		color = color,
-		cframe = CFrame.new(at) * FLAT,
-		from = disc,
-		to = disc,
 		life = duration,
-		alpha0 = 0.88,
-		alpha1 = 1,
+		alpha0 = 0.82,
 		hold = true,
 	})
-	shape({
-		shape = Enum.PartType.Ball,
+	ModVfx.quad({
+		texture = Tex.MOD_HEX,
+		cframe = ground,
+		from = d * 0.95,
 		color = color,
-		cframe = CFrame.new(at),
-		from = Vector3.one * 2,
-		to = size,
-		life = 0.35,
-		alpha0 = 0.3,
-		alpha1 = 1,
+		life = duration,
+		alpha0 = 0.72,
+		hold = true,
 	})
+	ModVfx.quad({
+		texture = Tex.MOD_RING_DASHED,
+		cframe = ground + Vector3.new(0, 0.02, 0),
+		from = d,
+		color = color,
+		life = duration,
+		alpha0 = 0.05,
+		hold = true,
+		spin = 0.5,
+	})
+	ModVfx.quad({
+		texture = Tex.MOD_RING,
+		cframe = ground + Vector3.new(0, 0.04, 0),
+		from = 2,
+		to = d * 1.1,
+		color = color,
+		life = 0.4,
+	})
+	ModVfx.burst(at, color, 18, "Sparkle")
 end
 
 -- Ping -------------------------------------------------------------------------------
@@ -417,26 +429,24 @@ local function onPingPulse(data: { [string]: any })
 	end
 	local color = teamColor(data)
 	local d = radius * 2
-	shape({
-		shape = Enum.PartType.Ball,
+	-- A scan wave across the ground and a thin bubble sweeping out.
+	ModVfx.quad({
+		texture = Tex.MOD_SCAN,
+		cframe = CFrame.new(at - Vector3.new(0, 2.8, 0)),
+		from = 2,
+		to = d,
 		color = color,
+		life = 0.7,
+		alpha0 = 0,
+	})
+	ModVfx.shell({
+		shape = Enum.PartType.Ball,
 		cframe = CFrame.new(at),
 		from = Vector3.one * 2,
 		to = Vector3.one * d,
-		life = 0.6,
-		alpha0 = 0.55,
-		alpha1 = 1,
-		material = Enum.Material.ForceField,
-	})
-	shape({
-		shape = Enum.PartType.Cylinder,
 		color = color,
-		cframe = CFrame.new(at - Vector3.new(0, 2.8, 0)) * FLAT,
-		from = Vector3.new(0.12, 2, 2),
-		to = Vector3.new(0.12, d, d),
-		life = 0.6,
-		alpha0 = 0.3,
-		alpha1 = 1,
+		life = 0.7,
+		alpha0 = 0.75,
 	})
 end
 
@@ -449,7 +459,8 @@ local function onReveal(targets: unknown, duration: unknown)
 		return
 	end
 	local untilT = os.clock() + math.clamp(duration :: number, 0, 10)
-	for _, target in ipairs(targets :: { any }) do
+	-- pairs, not ipairs: a model that isn't streamed in arrives as a hole.
+	for _, target in pairs(targets :: { [any]: any }) do
 		if typeof(target) == "Instance" and (target :: Instance):IsA("Model") then
 			local model = target :: Model
 			local mark = reveals[model]
@@ -539,19 +550,65 @@ end
 
 -- Placed objects ---------------------------------------------------------------------
 
--- Mod objects are coloured per viewer and flash white when hit.
+-- Mod objects are dressed per viewer: a Launch Pad is a charcoal plate with
+-- team-coloured chevrons scrolling toward the launch, a Firewall a team-
+-- coloured shimmer with hex panels on both faces. They flash white when hit.
 local objectFlash: { [BasePart]: number } = {}
+local skins: { [BasePart]: { Texture } } = {}
+local SHELL = Color3.fromHex("2A2D33")
+local CHEVRON_SPEED = 5 -- studs per second the pad's arrows scroll
 
 local function objectColor(part: BasePart): Color3
 	local team = part:GetAttribute("TeamId")
 	return TeamColor.forTeam(if typeof(team) == "number" then team else nil)
 end
 
+-- The part's own colour at rest (the pad's plate is charcoal).
+local function restColor(part: BasePart): Color3
+	return if part:GetAttribute("Kind") == "LaunchPad" then SHELL else objectColor(part)
+end
+
+local function skin(
+	part: BasePart,
+	face: Enum.NormalId,
+	texture: string,
+	u: number,
+	v: number,
+	alpha: number
+): Texture
+	local t = Instance.new("Texture")
+	t.Name = "ModSkin"
+	t.Face = face
+	t.Texture = texture
+	t.StudsPerTileU = u
+	t.StudsPerTileV = v
+	t.Color3 = objectColor(part)
+	t.Transparency = alpha
+	t.Parent = part
+	return t
+end
+
 local function colourObject(part: Instance)
 	if not part:IsA("BasePart") then
 		return
 	end
-	part.Color = objectColor(part)
+	local kind = part:GetAttribute("Kind")
+	if kind == "LaunchPad" then
+		part.Material = Enum.Material.SmoothPlastic
+		part.Transparency = 0
+		skins[part] =
+			{ skin(part, Enum.NormalId.Top, Tex.MOD_CHEVRON, part.Size.X, part.Size.Z, 0) }
+	elseif kind == "Firewall" then
+		local u = 2.4
+		skins[part] = {
+			skin(part, Enum.NormalId.Front, Tex.MOD_HEX, u, u * 0.866, 0.35),
+			skin(part, Enum.NormalId.Back, Tex.MOD_HEX, u, u * 0.866, 0.35),
+		}
+	end
+	part.Color = restColor(part)
+	part.Destroying:Connect(function()
+		skins[part] = nil
+	end)
 	local lastHp = part:GetAttribute("Hp")
 	part:GetAttributeChangedSignal("Hp"):Connect(function()
 		local hp = part:GetAttribute("Hp")
@@ -567,16 +624,16 @@ local function onPlaced(data: { [string]: any })
 	if typeof(at) ~= "Vector3" then
 		return
 	end
-	shape({
-		shape = Enum.PartType.Ball,
-		color = teamColor(data),
+	local color = teamColor(data)
+	ModVfx.quad({
+		texture = Tex.MOD_RING,
 		cframe = CFrame.new(at),
-		from = Vector3.one,
-		to = Vector3.one * 7,
-		life = 0.3,
-		alpha0 = 0.4,
-		alpha1 = 1,
+		from = 1,
+		to = 10,
+		color = color,
+		life = 0.35,
 	})
+	ModVfx.burst(at, color, 14, "Sparkle")
 end
 
 local function onObjectGone(data: { [string]: any })
@@ -584,17 +641,19 @@ local function onObjectGone(data: { [string]: any })
 	if typeof(at) ~= "Vector3" or typeof(size) ~= "Vector3" then
 		return
 	end
+	local color = TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
 	local broken = data.why == "Broken"
-	shape({
+	ModVfx.shell({
 		shape = Enum.PartType.Block,
-		color = TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil),
 		cframe = CFrame.new(at),
 		from = size,
-		to = size * (if broken then 1.6 else 1.1),
-		life = if broken then 0.35 else 0.25,
+		to = size * (if broken then 1.4 else 1.05),
+		color = color,
+		life = if broken then 0.3 else 0.25,
 		alpha0 = 0.3,
-		alpha1 = 1,
+		material = Enum.Material.Neon,
 	})
+	ModVfx.burst(at, color, if broken then 30 else 10, "Sparkle")
 end
 
 -- Rollback ---------------------------------------------------------------------------
@@ -806,7 +865,6 @@ local function update(_dt: number)
 				grenadeFree[f.key] = free
 			end
 			table.insert(free, f.model)
-			pool:release(f.ring)
 			continue
 		end
 		local pos = Projectile.positionAt(f.path, math.max(t, 0))
@@ -817,28 +875,8 @@ local function update(_dt: number)
 		for _, g in f.glow do
 			g.Transparency = if on then 0 else 0.6
 		end
-		f.ring.Transparency = 0.8 - 0.25 * (t / f.fuse) + (if on then 0 else 0.08)
 	end
-
-	for i = #booms, 1, -1 do
-		local b = booms[i]
-		local k = (now - b.born) / BOOM_TIME
-		if k >= 1 then
-			table.remove(booms, i)
-			pool:release(b.sphere)
-			pool:release(b.ring)
-			continue
-		end
-		local e = 1 - (1 - k) * (1 - k)
-		local d = b.radius * 2 * (0.25 + 0.75 * e)
-		b.sphere.Size = Vector3.one * d
-		b.sphere.CFrame = CFrame.new(b.at)
-		b.sphere.Transparency = 0.25 + 0.75 * k
-		local r = b.radius * 2 * (0.4 + 0.8 * e)
-		b.ring.Size = Vector3.new(0.12, r, r)
-		b.ring.CFrame = CFrame.new(b.at) * CFrame.Angles(0, 0, math.pi / 2)
-		b.ring.Transparency = 0.4 + 0.6 * k
-	end
+	ModVfx.step()
 
 	for i = #beams, 1, -1 do
 		local b = beams[i]
@@ -855,25 +893,6 @@ local function update(_dt: number)
 		b.part.Size = Vector3.new(0.12, 0.12, length)
 		b.part.CFrame = CFrame.lookAt(from:Lerp(to, 0.5), to)
 		b.part.Transparency = 0.3 + 0.5 * k
-	end
-
-	for i = #shapes, 1, -1 do
-		local s = shapes[i]
-		local k = (now - s.born) / s.life
-		if k >= 1 then
-			table.remove(shapes, i)
-			pool:release(s.part)
-			continue
-		end
-		local e = 1 - (1 - k) * (1 - k)
-		s.part.Size = s.from:Lerp(s.to, e)
-		s.part.CFrame = s.cframe
-		local fade = k
-		if s.hold then
-			local from = math.max(1 - 0.3 / s.life, 0)
-			fade = if k < from then 0 else (k - from) / (1 - from)
-		end
-		s.part.Transparency = s.alpha0 + (s.alpha1 - s.alpha0) * fade
 	end
 
 	for model, mark in reveals do
@@ -898,13 +917,21 @@ local function update(_dt: number)
 		stroke.Transparency = math.min(0.62 + 0.12 * math.sin(now * 9) + tail, 1)
 	end
 	for part, at in objectFlash do
-		if now - at >= 0.12 or not part.Parent then
+		local done = now - at >= 0.12 or not part.Parent
+		if done then
 			objectFlash[part] = nil
-			if part.Parent then
-				part.Color = objectColor(part)
-			end
-		else
-			part.Color = Color3.new(1, 1, 1)
+		end
+		part.Color = if done then restColor(part) else Color3.new(1, 1, 1)
+		for _, t in skins[part] or {} do
+			t.Color3 = if done then objectColor(part) else Color3.new(1, 1, 1)
+		end
+	end
+	for part, list in skins do
+		if not part.Parent then
+			skins[part] = nil
+		elseif part:GetAttribute("Kind") == "LaunchPad" then
+			local t = list[1]
+			t.OffsetStudsV = (now * CHEVRON_SPEED) % t.StudsPerTileV
 		end
 	end
 	stepTrails(now)

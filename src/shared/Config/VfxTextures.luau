@@ -19,4 +19,15 @@ return table.freeze({
 	SPARK = "rbxassetid://118834850594357", -- streak, head at the top
 	GLOW = "rbxassetid://135016131754746",
 	TRACER = "rbxassetid://95042043941638", -- u: tail -> head
+
+	-- Mod set (tools/vfx/make_mod_vfx.py → art-source/vfx/mods/): stylized,
+	-- all white, tinted per viewer by Util/ModVfx.
+	MOD_RING = "rbxassetid://75054036625076", -- crisp ring at r = 0.9 with an inner glow
+	MOD_RING_DASHED = "rbxassetid://103210899817055", -- segmented rim with ticks
+	MOD_SCAN = "rbxassetid://126323500739704", -- bright edge fading inward (Ping)
+	MOD_HEX = "rbxassetid://88191641918196", -- tileable hex lines, 512 x 443 (V = 0.866 U)
+	MOD_CHEVRON = "rbxassetid://129448031567779", -- three stacked chevrons pointing down (= a Top face's LookVector)
+	MOD_GLOW = "rbxassetid://112631243473700", -- soft round glow
+	MOD_SPARKLE = "rbxassetid://131441026395130", -- four-point star
+	MOD_CROSS = "rbxassetid://107533110619347", -- plus (heal motes)
 })
