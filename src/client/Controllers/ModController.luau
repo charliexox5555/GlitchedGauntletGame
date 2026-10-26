@@ -27,8 +27,12 @@ local Config = require(Shared.Config.Mods)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
+local Firewall = require(Shared.Mods.Firewall)
+local LagField = require(Shared.Mods.LagField)
+local LaunchPad = require(Shared.Mods.LaunchPad)
 local Packet = require(Shared.Mods.Packet)
 local PatchUp = require(Shared.Mods.PatchUp)
+local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 
 local ModProps = require(script.Parent.Parent.Util.ModProps)
@@ -66,6 +70,21 @@ local queued: ModTypes.UseMode? = nil -- a use pressed while still equipping
 local quickCast = false
 local itemToken = 0
 local lastDashStart = 0
+local lastRollbackAt = 0
+
+-- Held throws: each Mod's projectile options (the server uses the same).
+local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {
+	Packet = Packet.options,
+	LagField = LagField.options,
+}
+-- Held placements: each Mod's spot check and box (the server uses the same).
+type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams) -> Placeable.Spot
+local PLACE: { [string]: { find: Finder, size: (ModTypes.Stats) -> Vector3 } } = {
+	LaunchPad = { find = LaunchPad.find, size = LaunchPad.size },
+	Firewall = { find = Firewall.find, size = Firewall.size },
+}
+local VALID = Color3.fromHex("4ADE80")
+local INVALID = Color3.fromHex("F87171")
 local flash: { text: string, at: number }? = nil
 
 local denyListeners: { (slot: number, reason: string) -> () } = {}
@@ -193,6 +212,8 @@ local previewFolder: Folder? = nil
 local arcPool: VfxPool.Pool<Part>? = nil
 local arcParts: { Part } = {}
 local blastRing: Part? = nil
+local hologram: Part? = nil
+local lastSpot: Placeable.Spot? = nil
 local targetHighlight: Highlight? = nil
 local ARC_DOTS = 26
 
@@ -207,6 +228,7 @@ local function previewParent(): Folder
 	previewFolder = made
 	arcPool = nil
 	blastRing = nil
+	hologram = nil
 	return made
 end
 
@@ -238,6 +260,13 @@ local function hideArc()
 	end
 end
 
+local function hidePlacement()
+	if hologram then
+		hologram.Transparency = 1
+	end
+	lastSpot = nil
+end
+
 local function hideTarget()
 	if targetHighlight then
 		targetHighlight.Adornee = nil
@@ -246,7 +275,8 @@ local function hideTarget()
 end
 
 -- World-only params for previews: what the server's projectile and line of
--- sight checks ignore (bodies, dummies, effects, Mod objects, the camera).
+-- sight checks ignore (bodies, dummies, effects, the camera). Mod objects
+-- count, like on the server (a Firewall stops a grenade).
 -- Rebuilt twice a second, not every frame.
 local cachedParams: RaycastParams? = nil
 local cachedParamsAt = -math.huge
@@ -262,7 +292,7 @@ local function previewParams(): RaycastParams
 			table.insert(exclude, p.Character)
 		end
 	end
-	for _, name in { "Dummies", "Effects", "ModObjects" } do
+	for _, name in { "Dummies", "Effects", "ModFx" } do
 		local f = Workspace:FindFirstChild(name)
 		if f then
 			table.insert(exclude, f)
@@ -289,16 +319,17 @@ local function headPosition(): Vector3?
 	return nil
 end
 
-local function drawArc(stats: ModTypes.Stats)
+local function drawArc(id: string, stats: ModTypes.Stats)
 	local head = headPosition()
 	local cam = Workspace.CurrentCamera
-	if not head or not cam then
+	local options = THROW_OPTIONS[id]
+	if not head or not cam or not options then
 		hideArc()
 		return
 	end
 	local params = previewParams()
-	local origin, velocity = Packet.throw(head, cam.CFrame.LookVector, "Primary", stats, params)
-	local path = Projectile.simulate(origin, velocity, Packet.options(stats), params)
+	local origin, velocity = Projectile.throw(head, cam.CFrame.LookVector, "Primary", stats, params)
+	local path = Projectile.simulate(origin, velocity, options(stats), params)
 	local pool = arcPool
 	if not pool then
 		local made = VfxPool.new(function(): Part
@@ -308,7 +339,7 @@ local function drawArc(stats: ModTypes.Stats)
 		pool = made
 	end
 	local color = TeamColor.ALLY
-	local fuse: number = stats.fuse
+	local fuse = Projectile.endTime(path)
 	for i = 1, ARC_DOTS do
 		local p = arcParts[i]
 		if not p then
@@ -331,6 +362,29 @@ local function drawArc(stats: ModTypes.Stats)
 	ring.CFrame = CFrame.new(landing) * CFrame.Angles(0, 0, math.pi / 2)
 	ring.Color = color
 	ring.Transparency = 0.82
+end
+
+-- The hologram where a placed Mod would go: green when it can, red when not.
+local function drawPlacement(id: string, stats: ModTypes.Stats)
+	local head = headPosition()
+	local cam = Workspace.CurrentCamera
+	local place = PLACE[id]
+	if not head or not cam or not place then
+		hidePlacement()
+		return
+	end
+	local spot = place.find(head, cam.CFrame.LookVector, stats, previewParams())
+	lastSpot = spot
+	local part = hologram
+	if not part then
+		part = newPreviewPart(Enum.PartType.Block, Vector3.one)
+		part.Material = Enum.Material.ForceField
+		hologram = part
+	end
+	part.Size = place.size(stats)
+	part.CFrame = spot.cframe
+	part.Color = if spot.valid then VALID else INVALID
+	part.Transparency = 0.2
 end
 
 local function showTarget(model: Model?)
@@ -401,6 +455,7 @@ local function endHold(tellServer: boolean)
 	queued = nil
 	WeaponController.setHolstered("Mod", false)
 	hideArc()
+	hidePlacement()
 	hideTarget()
 	dropItem()
 end
@@ -438,6 +493,13 @@ local function use(mode: ModTypes.UseMode)
 		queued = mode
 		return
 	end
+	if def.activation == "HeldPlace" then
+		local spot = lastSpot
+		if not spot or not spot.valid then
+			deny(current, if spot and spot.reason then spot.reason else "Can't place there")
+			return
+		end
+	end
 	local target: Model? = nil
 	if def.id == "PatchUp" then
 		target = if mode == "Alt" then player.Character else healTarget(stats)
@@ -460,6 +522,7 @@ local function use(mode: ModTypes.UseMode)
 	setPhase("Using", current)
 	queued = nil
 	hideArc()
+	hidePlacement()
 	hideTarget()
 	ViewmodelController.itemAction()
 end
@@ -545,6 +608,13 @@ local function update(_dt: number)
 		CameraController.punchFov(9, 0.32)
 		CameraController.shake(0.25)
 	end
+	-- Rollback: the server gives back the old ammo; drop any reload.
+	local rollbackAt = number(character, "RollbackAt", 0)
+	if rollbackAt > lastRollbackAt then
+		lastRollbackAt = rollbackAt
+		WeaponController.cancelReload()
+		CameraController.punchFov(-8, 0.4)
+	end
 
 	if phase == "Equipping" and now - phaseAt >= Config.EQUIP_TIME then
 		phase = "Held"
@@ -574,7 +644,9 @@ local function update(_dt: number)
 			return
 		end
 		if def.activation == "HeldThrow" then
-			drawArc(stats)
+			drawArc(def.id, stats)
+		elseif def.activation == "HeldPlace" then
+			drawPlacement(def.id, stats)
 		elseif def.activation == "HeldTarget" then
 			showTarget(healTarget(stats))
 		end
@@ -639,6 +711,7 @@ function ModController.start()
 	player.CharacterRemoving:Connect(function()
 		endHold(false)
 		lastDashStart = 0
+		lastRollbackAt = 0
 	end)
 	player.CharacterAdded:Connect(function(character)
 		local humanoid = character:WaitForChild("Humanoid", 10)

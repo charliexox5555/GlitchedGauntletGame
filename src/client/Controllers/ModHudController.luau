@@ -62,6 +62,10 @@ type SlotUi = {
 	shownCharges: number,
 	shownMax: number,
 	wasCooling: boolean,
+	activeFill: Frame, -- effect running (Overclock, a pad, a zone): drains
+	activeBack: Frame,
+	activeTotal: number,
+	activeUntil: number,
 	held: boolean,
 	deniedAt: number,
 	-- Touch arc button (nil off touch).
@@ -71,6 +75,7 @@ type SlotUi = {
 
 local bar: Frame? = nil
 local hint: TextLabel? = nil
+local slowedLabel: TextLabel? = nil
 local altButton: TextButton? = nil
 local slots: { SlotUi } = {}
 local shownHint = ""
@@ -276,6 +281,22 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		make("UICorner", { CornerRadius = UDim.new(1, 0) }, pip)
 		pips[i] = pip
 	end
+	-- Effect running: a thin bar above the slot that drains.
+	local activeBack = make("Frame", {
+		Position = UDim2.fromOffset(6, -8),
+		Size = UDim2.new(1, -12, 0, 3),
+		BackgroundColor3 = BACK,
+		BackgroundTransparency = 0.3,
+		BorderSizePixel = 0,
+		Visible = false,
+	}, root)
+	make("UICorner", { CornerRadius = UDim.new(1, 0) }, activeBack)
+	local activeFill = make("Frame", {
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = CYAN,
+		BorderSizePixel = 0,
+	}, activeBack)
+	make("UICorner", { CornerRadius = UDim.new(1, 0) }, activeFill)
 	local name = text({
 		Position = UDim2.fromOffset(-20, SLOT_SIZE + 10),
 		Size = UDim2.new(1, 40, 0, 14),
@@ -304,6 +325,10 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		shownCharges = -1,
 		shownMax = -1,
 		wasCooling = false,
+		activeFill = activeFill,
+		activeBack = activeBack,
+		activeTotal = 0,
+		activeUntil = 0,
 		held = false,
 		deniedAt = -math.huge,
 		button = nil,
@@ -355,6 +380,18 @@ local function build(): ScreenGui
 		FontFace = MEDIUM,
 		TextSize = 17,
 		Text = "",
+		Visible = false,
+	}, screen)
+	-- A Lag Field is slowing you.
+	slowedLabel = text({
+		Name = "Slowed",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -(SLOT_SIZE + 92)),
+		Size = UDim2.fromOffset(200, 22),
+		FontFace = HEAVY,
+		TextSize = 18,
+		TextColor3 = Config.COLORS.enemy,
+		Text = "SLOWED",
 		Visible = false,
 	}, screen)
 
@@ -447,6 +484,18 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 	end
 	ui.wasCooling = cooling
 
+	local activeUntil = player:GetAttribute("Mod" .. slot .. "ActiveUntil")
+	local serverNow = workspace:GetServerTimeNow()
+	if typeof(activeUntil) == "number" and activeUntil ~= ui.activeUntil then
+		ui.activeUntil = activeUntil
+		ui.activeTotal = math.max(activeUntil - serverNow, 0.01)
+	end
+	local activeLeft = if typeof(activeUntil) == "number" then activeUntil - serverNow else 0
+	ui.activeBack.Visible = activeLeft > 0
+	if activeLeft > 0 then
+		ui.activeFill.Size = UDim2.fromScale(math.clamp(activeLeft / ui.activeTotal, 0, 1), 1)
+	end
+
 	if view.max ~= ui.shownMax or view.charges ~= ui.shownCharges then
 		ui.shownMax = view.max
 		ui.shownCharges = view.charges
@@ -504,6 +553,11 @@ local function update(_dt: number)
 		writeSlot(ui, view, slot, now)
 	end
 	bar.Visible = any
+	local slowed = slowedLabel
+	if slowed then
+		local mult = player:GetAttribute("ModSpeedMult")
+		slowed.Visible = typeof(mult) == "number" and mult < 1
+	end
 
 	local h = hint
 	if h then

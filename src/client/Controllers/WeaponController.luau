@@ -435,6 +435,10 @@ local function cast(
 					and CollectionService:HasTag(part, Combat.THIN_WALL_TAG)
 				)
 			if not passThrough then
+				-- A Mod object (Firewall, Launch Pad) takes the hit: report it.
+				if part:GetAttribute("MaxHp") ~= nil and part:IsA("BasePart") then
+					table.insert(out.hits, { part = part, position = result.Position })
+				end
 				out.finish = result.Position
 				out.impact = {
 					position = result.Position,
@@ -504,6 +508,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	local pelletSpread = if altFire then altFire.pelletSpread else config.pelletSpread
 	local now = os.clock()
 	local interval = FireRate.interval(config, s.spinStart, s.lastFire, now, s.burstShots)
+		/ FireRate.boost(player)
 	if now < s.lastFire + interval or now < s.altReadyAt then
 		return
 	end
@@ -801,7 +806,7 @@ local function update(dt: number)
 				burstQueue == 0
 				and pressQueued
 				and canShoot(s)
-				and now >= s.lastFire + s.config.fireInterval
+				and now >= s.lastFire + s.config.fireInterval / FireRate.boost(player)
 			then
 				pressQueued = false
 				-- Pulse fires single shots while aiming.
@@ -821,6 +826,7 @@ local function update(dt: number)
 		else
 			if pressQueued and canShoot(s) then
 				local interval = FireRate.interval(s.config, s.spinStart, s.lastFire, now)
+					/ FireRate.boost(player)
 				if now >= s.lastFire + interval then
 					pressQueued = false
 					fireShot(s)
@@ -900,6 +906,12 @@ end
 
 function WeaponController.isHolstered(): boolean
 	return isHolstered()
+end
+
+-- Rollback rewound the ammo on the server: drop a reload in progress so the
+-- server's count (WeaponState) is the one that counts.
+function WeaponController.cancelReload()
+	cancelReload()
 end
 
 -- Server state ---------------------------------------------------------------

@@ -62,6 +62,34 @@ local function placeholder(id: string, glow: Color3): Model?
 			CFrame.new(0, 0.26, 0),
 			SHELL_DARK
 		)
+	elseif id == "LagField" then
+		model:SetAttribute("HoldOffset", Vector3.new(0, 0.34, -0.12))
+		part(model, Enum.PartType.Ball, Vector3.one * 0.32, CFrame.identity, glow, true)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(0.1, 0.58, 0.58),
+			CFrame.Angles(0, 0, math.pi / 2),
+			SHELL
+		)
+		part(model, Enum.PartType.Cylinder, Vector3.new(0.1, 0.58, 0.58), CFrame.identity, SHELL)
+	elseif id == "LaunchPad" or id == "Firewall" then
+		-- A deployable puck: a charcoal disc with a team-coloured core.
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(0.22, 0.62, 0.62),
+			CFrame.new(0, 0.3, -0.1) * CFrame.Angles(0, 0, math.pi / 2),
+			SHELL
+		)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(0.24, 0.3, 0.3),
+			CFrame.new(0, 0.3, -0.1) * CFrame.Angles(0, 0, math.pi / 2),
+			glow,
+			true
+		)
 	elseif id == "PatchUp" then
 		part(
 			model,
