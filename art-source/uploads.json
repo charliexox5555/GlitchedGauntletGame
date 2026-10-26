@@ -197,6 +197,30 @@
   "type": "Model",
   "uploaded": "2026-10-25 14:50:09"
  },
+ "art-source/weapons/Textures/Ares_Color.png": {
+  "assetId": 106167842476267,
+  "name": "GG Ares Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:52:34"
+ },
+ "art-source/weapons/Textures/Ares_Metalness.png": {
+  "assetId": 102988685358304,
+  "name": "GG Ares Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:52:51"
+ },
+ "art-source/weapons/Textures/Ares_Normal.png": {
+  "assetId": 75604448284884,
+  "name": "GG Ares Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:52:41"
+ },
+ "art-source/weapons/Textures/Ares_Roughness.png": {
+  "assetId": 82268389364496,
+  "name": "GG Ares Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:52:47"
+ },
  "art-source/weapons/Textures/Bucky_Color.png": {
   "assetId": 129846688982849,
   "name": "GG Bucky Color",
