@@ -48,6 +48,23 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | **Lobby** | Hub | ⬜ | ⬜ | ⬜ | ⬜ | Pads, range, bot pad |
 | **Test range** | Testers (TestMode) | ✅ | ✅ | 🟡 | 🟡 | Rebuilt plain (2026-10-25): an open-air concrete practice yard from code (`src/server/TestRange/RangeBuilder`): lanes + markers 10/25/50/100/150, cover with a plywood ThinWall, concrete wall, low cover and pillars, movement course. Grey dummies (6 kinds) hold the Vandal; health bars kept. No tester menu, stats or weapon racks until the new UI. `art-source/maps/TestRange.rbxm` is the old Style B version (outdated) |
 
+## Abilities (Mods)
+Status of each Mod at L1 (2026-10-26, overnight). ✅ done · 🟡 provisional / needs the user · ⬜ not started. How it's built: [Mod System](../04%20Tech/Mod%20System.md); what to test: [Mods Overnight Checklist](../05%20Production/Playtests/Mods%20Overnight%20Checklist.md).
+
+| Mod | Code (L1) | Model | VFX | Sounds | 1P / 3P animation | Notes |
+|---|---|---|---|---|---|---|
+| **Blink** | ✅ predicted dash | — | ✅ FOV kick, speed lines | 🟡 provisional | ✅ / — | ~10.8 studs from a standstill (design 12) |
+| **Launch Pad** | ✅ server place, predicted launch | ✅ `Abilities.LaunchPad` | ✅ chasing arrows, place pop | 🟡 | ✅ place push / 🟡 place clip | 24 up, 29 forward measured |
+| **Packet** | ✅ server arc, LOS blast | ✅ `Abilities.Packet` | ✅ danger ring, core, shockwave mesh, sparks | 🟡 | ✅ throw / 🟡 throw clip | |
+| **Firewall** | ✅ blocks shots, 150 HP | ✅ `Abilities.Firewall` | ✅ hit flash, break / expire burst | 🟡 | ✅ place push / 🟡 place clip | Panel quite bright at Transparency 0.5 |
+| **Lag Field** | ✅ zone slows enemies | ✅ `Abilities.LagField` | ✅ dome mesh, hex floor, rim, orb | 🟡 | ✅ throw / 🟡 throw clip | |
+| **Ping** | ✅ team-only reveal | — | ✅ scan band + wave, outlines | 🟡 | — | Revealed players hear a warning |
+| **Patch Up** | ✅ ally / self heal over 2 s | ✅ `Abilities.PatchUp` | ✅ beam (team), crosses, +HP ticks | 🟡 | ✅ heal thrust / 🟡 heal clip | |
+| **Overclock** | ✅ +25% fire rate | — | ✅ screen edge, gun glow | 🟡 | — | |
+| **Rollback** | ✅ predicted 3 s rewind + ammo | — | ✅ VHS wash, scanlines, ghost trail | 🟡 | — | |
+
+Shared: icons ✅ · HUD ✅ · F8 dev panel ✅ · touch arc + context button 🟡 (checked on a PC with ForceTouchUI; needs a device) · third-person hold / throw / place / heal clips 🟡 (code-built placeholders, uploaded) · the finished models in `ReplicatedStorage.Abilities` 🟡 **save the place**.
+
 ## VFX, UI and audio
 
 | Asset | Status | Notes |
@@ -64,6 +81,6 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | Draft card frames | ⬜ | Normal / upgrade / glitch |
 | Third-person pose animations | 🟡 | 7 procedural R15 clips (aim up/level/down, sprint, crouch, crouch-walk, slide) in `art-source/animations/`, uploaded group-owned; first pass, worth a hand-keyed polish later |
 | Gun sounds | ✅ | Atlas v2 (asset 105241531021545): real CC0 recordings, polished, with recordings per class (machine guns from real full-auto bursts, snipers from big bolt rifles), 3 variants + an enemy `_Far` version per gun, built by `tools/audio/build_sound_atlas.py`. Foley: Audioscape; melee and Ray Trace: ProSoundEffects. Synthesized hit tick, headshot, kill, headshot kill, damage, dry fire, low ammo. Pooled playback and mix in `AudioController` / `Config/Audio`. See [Art Direction](../02%20Art/Art%20Direction.md) → Audio |
-| Mod sounds (L1) | 🟡 | Shortlist written, **waiting for the user's approval**: [Mod Audio](../02%20Art/Mod%20Audio.md). Library picks (ProSoundEffects / Audioscape / Roblox, ids verified, cost no upload) plus 19 synth cues from `tools/audio/mod_sfx.py` for the next atlas (1 upload). Nothing wired in yet |
+| Mod sounds (L1) | 🟡 | Shortlist: [Mod Audio](../02%20Art/Mod%20Audio.md). The Roblox-licensed library picks are **wired in as provisional** (`src/shared/Config/ModSounds.luau`, 2026-10-26), with library stand-ins where the top pick is a synth cue; **waiting for the user's audition**. The 19 synth cues (`tools/audio/mod_sfx.py`) are a local reel only (`art-source/audio/ModSfx/_Reel.wav`), not uploaded |
 | Mod props (5) + Mod VFX meshes (4) | 🟡 | Modelled in Blender by script (`tools/blender/build_mod_*.py` on `modkit.py`) in the Valorant-style Mod look, renders in `02 Art/References/mods/`, **approved** (handler, 2026-10-26). Patch Up 2.8K, Packet 2.4K, Launch Pad 1.4K, Firewall 1.4K, Lag Field 2.7K tris; Shockwave, Dome, Sphere, ScanRing ≤ 736 each. Energy parts are separate `*_Energy` objects for the team tint. Exported and **uploaded** (group 11116787; ids in `art-source/abilities/Exports/assets.json`). Firewall panel see-through in game (Neon 0.5 + tinted grid Decal). **Built into `ReplicatedStorage.Abilities`** (2026-10-26, code session; axes option `M`), `.rbxm` backups in `art-source/abilities/Studio/`, used in game. **Save the place.** See [Mod Props](../02%20Art/Mod%20Props.md) |
 | Game icon + 3 thumbnails | ⬜ | |

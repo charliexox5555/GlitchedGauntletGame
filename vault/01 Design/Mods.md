@@ -2,7 +2,7 @@
 
 > **Status: APPROVED set v1 (2026-10-26).** The 9 Mods and their names are locked; numbers are starting points for playtesting.
 > **Build order:** base **L1 of all 9 first** (Phase 1). Paths A/B and Glitch paths come after L1 is fun (Phase 2).
-> **Built (2026-10-26):** the Mod framework and **L1 of all 9 Mods** (placeholder visuals, no sounds yet). How it's built: [Mod System](../04%20Tech/Mod%20System.md). Test list: [Mods Overnight Checklist](../05%20Production/Playtests/Mods%20Overnight%20Checklist.md).
+> **Built (2026-10-26):** the Mod framework and **L1 of all 9 Mods**, with the finished models, stylized VFX, first- and third-person animations and **provisional** (unauditioned) sounds. How it's built: [Mod System](../04%20Tech/Mod%20System.md). Test list: [Mods Overnight Checklist](../05%20Production/Playtests/Mods%20Overnight%20Checklist.md).
 
 ## How a Mod upgrades
 ```
@@ -45,6 +45,7 @@ There are three ways a Mod activates:
 - **Mobile:** tapping a Mod button holds it, the Fire button uses it, and a context button appears for the alternate use (lob / heal self). Tap the Mod button again to cancel.
 - In 1v1 there are no teammates, so Patch Up's LMB falls back to healing yourself.
 - Patch Up won't heal someone already at full health: the press is refused and nothing is spent ("Full health").
+- **What enemies can see (proposed overnight, confirm):** which Mods you have and when you're holding one are public (they're visible in play anyway); your cooldowns are private. Blink and Rollback are the exception: they run in the movement simulation, so their charges are visible to a determined client.
 
 **VFX colour by viewer (readability):** a Mod's effects are **cyan `#00E5FF`** to the caster and their teammates, and **orange-red `#FF5A36`** to enemies. Glitched Mods add **magenta `#FF3DCB`** static and flicker. Each client recolours effects locally based on team.
 

@@ -2,7 +2,16 @@
 
 What to test in Studio for the Mod system, stage by stage. Built by the code session overnight 2026-10-26; how it works is in [Mod System](../../04%20Tech/Mod%20System.md), the design in [Mods](../../01%20Design/Mods.md).
 
-**Before you start:** `rojo serve`, click **Connect** in the Rojo plugin, then **Play** (solo). The place needs **no save** for the Mods (everything is code). Stop and Play again after Rojo syncs a change: a running playtest doesn't reload scripts.
+## ☀️ Test first in the morning (about 20 min)
+1. **Save the place** (Ctrl+S): the finished Mod models in `ReplicatedStorage.Abilities` were built overnight and aren't saved yet (Stage 3).
+2. `rojo serve` → Connect → **Play** solo. Press **Q / E / T**: the HUD shows the 3 icons; Blink dashes; E holds a grenade (Blender model), LMB throws it with a wind-up; T holds the heal device.
+3. **F8** → put each of the 9 Mods in a slot (No cooldown ON) and use it once. Spawn an enemy and a teammate dummy for Packet, Lag Field, Ping and Patch Up.
+4. Listen: every Mod has **provisional** sounds. Note any you hate in `vault/02 Art/Mod Audio.md`; the synth versions are in `art-source/audio/ModSfx/_Reel.wav`.
+5. **2-player test** (Test → Clients and Servers, 2 players): the other player sees your held item and throw / place / heal animations; enemy colours are orange-red; enemy-only warning sounds play; a Firewall can be shot down by the enemy.
+6. **Device emulator** (phone, landscape): the Mod arc beside FIRE, tap to hold, FIRE to use, the context button; nothing off-screen.
+7. Then go through the stage sections below as time allows.
+
+**Before you start:** `rojo serve`, click **Connect** in the Rojo plugin, then **Play** (solo). Stop and Play again after Rojo syncs a change: a running playtest doesn't reload scripts.
 
 ## Stage 1: framework + Blink, Packet, Patch Up
 
@@ -128,3 +137,46 @@ Stage 2 adds no Studio-owned content either: nothing to save in the place.
 - No Mod sounds yet (the audio shortlist is waiting for approval).
 - The Firewall panel is quite bright at its standard Transparency 0.5; tune in Blender/the builder if it hides too much.
 - Viewmodel throw / place / heal animations are still a simple push (Stage 4).
+
+## Stage 4: animations, sounds, juice, mobile
+
+### First person
+- [ ] Holding a Mod: the gun drops away, the item comes up with a small overshoot and then breathes gently.
+- [ ] Packet / Lag Field: LMB winds the hand back and up, then throws (the grenade leaves the hand at the release), then follows through down.
+- [ ] Launch Pad / Firewall: a push down and out as it's placed. Patch Up: a thrust toward the target and back.
+- [ ] Blink: FOV kick plus white speed lines at the screen edges. Rollback: grey "VHS" wash, rolling scanlines and a flickering ◀◀ REWIND for half a second.
+
+### Third person (needs a 2-player test: Test → Clients and Servers, 2 players)
+- [ ] The other player sees you holding the Mod's model in your right hand (your gun disappears while you hold it), coloured for their side.
+- [ ] Throw / place / heal play a quick arm animation; holding plays a "hand forward" pose instead of the gun hold.
+
+### Sounds (PROVISIONAL, unauditioned: `src/shared/Config/ModSounds.luau`)
+- [ ] Every Mod has sounds now: Blink zip, pad clunk / launch blast, grenade throw, bounce, fuse beeps and boom, wall power-up / hum / shatter, Lag Field throw / time-slow / hum, Ping sonar, heal ding and shimmer, Overclock spin-up / hum / power-down, Rollback rewind and glitch snap. Cancel, "not ready" and "ready again" blips.
+- [ ] Enemy-only warnings (2-player test): fuse "danger" beeps when you stand in a grenade's ring, a time-slow dive when a Lag Field slows you, two chirps when a Ping spots you.
+- [ ] Audition: the synth versions are in `art-source/audio/ModSfx/_Reel.wav` (run `python -I tools/audio/mod_sfx.py` to rebuild). Mark ✅ or a replacement in `vault/02 Art/Mod Audio.md`; nothing was uploaded.
+
+### Juice
+- [ ] A Packet near you shakes the camera; one going off on you flashes the screen.
+- [ ] Patch Up shows ticking "+N" numbers as the heal comes in.
+- [ ] A slot coming off cooldown pulses and pings.
+
+### Phone / tablet (Studio → Test → Device emulator)
+- [ ] The 3 Mod buttons (with icons) sit in an arc above-left of FIRE, the context button (LOB / HEAL SELF) appears next to FIRE while a Mod is held, and nothing is cut off by a notch.
+- [ ] On a small phone (iPhone SE, landscape) the whole cluster scales down (to 62%) and stays on screen; on a tablet it's full size.
+- [ ] Tap a Mod button: it holds (it must not hold and cancel on the same tap). FIRE uses it, tapping the Mod again cancels.
+- [ ] Tip: in Studio, ticking the Workspace attribute **ForceTouchUI** shows the touch controls on a PC (checked overnight at 1920 × 880). Untick it before publishing.
+
+### Known for now (Stage 4)
+- A Launch Pad can't go on the test range's spawn platform (its bounding box counts as in the way).
+- Third-person clips are code-built placeholders (`tools/studio/MakeModAnimations.luau`): rebuild and re-upload once they've been seen in a 2-player test.
+
+## Stage 5: review, performance, clean-up (done overnight)
+- **Security review** of every Mod and dev remote (third pass, `roblox-dev:roblox-reviewer`): no critical or high findings. Fixed: enemies could read your server Mods' cooldowns (they now live on an owner-only `PlayerGui.ModState`); SLOWED tags worked as a wallhack (now hidden by walls, 90-stud range); Patch Up's aim tolerances stacked; a dead caster's Lag Field still showed; and the low ones (quick-cast placement, pooled hums, streamed objects dressed twice, per-frame allocations, input edges). Accepted as designed: enemy **loadouts** (which Mods you have) are visible, and the predicted Mods' (Blink, Rollback) charges sit on the character where Server Authority replicates them to everyone (Rollback's ghost trail is meant as counter-play anyway).
+- **Stress test** (Studio, 6 enemy dummies, no cooldowns, 72 casts of Packet / Lag Field / Ping over 40 s): 60 fps steady (avg 16.7 ms, p99 21.7 ms, worst 23 ms); effect pools grew once to 40 parts and stayed there; Sounds 17 → 17; memory flat; the server kept no leftover objects.
+- **Leak test:** died 3 times while holding a Mod: no extra GUIs, Highlights, billboards or Lighting effects; the held item and hidden gun were back to normal on respawn.
+
+### Needs you (can't be done by Claude)
+- [ ] **8-player test** (Test → Clients and Servers, 8 players, or a private server): spam Mods for a minute; watch the frame rate and Network → Data receive in the Developer Console (F9); check nothing piles up in `Workspace.ModVfx` / `ModFx`.
+- [ ] A **late-join** test: join a server that has run a few minutes; Blink and Rollback cooldowns on the HUD must look right (their clocks are simulation `time()`).
+- [ ] Real phone / tablet: tap timings and the safe area on a notched phone.
+- [ ] Sounds: audition and approve (nothing was uploaded).
