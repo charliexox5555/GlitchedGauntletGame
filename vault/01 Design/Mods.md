@@ -1,6 +1,7 @@
 # Mods (abilities): first set of 9
 
-> **Status: DRAFT v1 (brainstorm, 2026-10-26).** Names, effects and numbers are starting points for playtesting. When this is approved, update the "Locked decisions" in [Home](../00%20Home.md).
+> **Status: APPROVED set v1 (2026-10-26).** The 9 Mods and their names are locked; numbers are starting points for playtesting.
+> **Build order:** base **L1 of all 9 first** (Phase 1). Paths A/B and Glitch paths come after L1 is fun (Phase 2).
 
 ## How a Mod upgrades
 ```
@@ -20,6 +21,43 @@ L1 (base) ──┼─ Path B: L2 ─► L3
 4. Cooldowns fit **50 s rounds**: 2–4 uses per round.
 5. Built from shared code **building blocks**: dash, projectile, placeable, zone, self-buff, reveal, rewind.
 6. Paths should be **different playstyles**, not "+10% numbers".
+
+## Controls and activation
+
+**Slots and keys:** 3 Mod slots. **PC: Q / E / C** · Gamepad: LB / RB / D-pad up · Mobile: 3 buttons in an arc next to Fire.
+
+There are three ways a Mod activates:
+| Type | How it works | Mods (at L1) |
+|---|---|---|
+| **Instant** | Press → it happens right away | Blink, Ping, Overclock, Rollback |
+| **Held: throw** | Press → you hold it (gun lowered) with an **arc preview**. **LMB** = throw, **RMB** = short lob | Packet, Lag Field |
+| **Held: place** | Press → you hold it with a **hologram preview** where it will go (green = valid, red = invalid). **LMB** = place | Launch Pad, Firewall |
+| **Held: target** (Sage-style) | Press → you hold the heal device. **LMB** = heal the teammate in your crosshair (30 studs, line of sight), **RMB** = heal yourself | Patch Up |
+
+**Rules for held Mods:**
+- Equipping takes 0.25 s (raise animation). The gun is lowered and can't fire while a Mod is held.
+- **Cancel** by pressing the same key again, swapping weapons (1/2/3/scroll) or pressing another Mod key (which switches to that Mod).
+- You can move, jump, sprint and slide while holding a Mod.
+- **The cooldown starts on use, not on equip.** Cancelling costs nothing.
+- An on-screen hint shows the controls while held (e.g. "LMB Heal ally · RMB Heal self · Q Cancel").
+- **Quick-cast** setting (off by default on PC): pressing the key uses the Mod immediately (throw/place at the crosshair, heal self).
+- **Mobile:** tapping a Mod button holds it, the Fire button uses it, and a context button appears for the alternate use (lob / heal self). Tap the Mod button again to cancel.
+- In 1v1 there are no teammates, so Patch Up's LMB falls back to healing yourself.
+
+**VFX colour by viewer (readability):** a Mod's effects are **cyan `#00E5FF`** to the caster and their teammates, and **orange-red `#FF5A36`** to enemies. Glitched Mods add **magenta `#FF3DCB`** static and flicker. Each client recolours effects locally based on team.
+
+**Assets needed per Mod (L1):**
+| Mod | Models (Blender) | VFX |
+|---|---|---|
+| Blink | — | Speed lines, afterimage trail, whoosh |
+| Launch Pad | Hex pad with arrow lights | Charge glow, launch burst, landing puff |
+| Packet | Grenade | Arc preview, fuse blink, explosion + shockwave ring, danger ring |
+| Firewall | Wall frame + energy panel | Deploy build-up, bullet impacts, break shatter |
+| Lag Field | Orb | Zone dome/ring, slow particles on affected players |
+| Ping | — | Expanding scan ring, enemy outline highlight |
+| Patch Up | **Handheld heal device** (viewmodel) | Heal beam to target, heal particles, +HP numbers |
+| Overclock | — | Gun glow, heat shimmer, hum |
+| Rollback | — | Ghost trail of the last 3 s, rewind snap, a "VHS rewind" screen effect for the caster |
 
 ## Overview
 | # | Mod | Role | Block | L1 in one line | Path A | Path B | Glitch |

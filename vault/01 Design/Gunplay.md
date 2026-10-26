@@ -13,7 +13,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 |---|---|---|
 | Walk | 16 studs/s | |
 | Sprint | 22 studs/s | Toggle or hold (setting). Pressing fire **cancels sprint instantly** |
-| Crouch | 9 studs/s | Tighter spread |
+| Crouch | 9 studs/s | Tighter spread. Key: Left Ctrl (C is a Mod slot) |
 | Jump | ~7 studs high | Standard Roblox jump. No fall damage |
 | **Slide** | Sprint + crouch → 30 studs/s burst, slowing to crouch speed over 0.7 s | 0.6 s cooldown. You can shoot while sliding |
 | **Slide-jump** | Jumping out of a slide keeps 80% of the speed | The "Hypershot" flavour. No other advanced tech |
@@ -72,8 +72,8 @@ This is a big part of why RIVALS feels good. Build it alongside the very first g
 | Reload | R | X | Reload button |
 | Jump | Space | A | Jump button |
 | Sprint | Shift | L3 | Auto-sprint when the stick is pushed fully forward |
-| Crouch / Slide | C or Ctrl | B | Slide button (appears while sprinting) |
-| Mods 1/2/3 | Q / E / F | LB / RB / D-pad up | 3 Mod buttons in an arc |
+| Crouch / Slide | Left Ctrl | B | Slide button (appears while sprinting) |
+| Mods 1/2/3 | **Q / E / C** | LB / RB / D-pad up | 3 Mod buttons in an arc |
 | Primary / secondary / melee | 1 / 2 / 3, scroll | Y cycles | Weapon tabs |
 | Melee quick-swing | V | R3 | Melee button |
 

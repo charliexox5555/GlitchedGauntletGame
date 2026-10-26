@@ -11,7 +11,7 @@
 - **Phase:** Week 1 — "Find the fun" (prototype)
 - **Done:** research · game plan · weapon roster · art style (Style B) · all gun models made in Blender · repo + Rojo scaffold · this vault
 - **Now:** importing guns into Studio → building the gun system (start with Byte)
-- **In design:** first 9 Mods brainstormed ([Mods](01%20Design/Mods.md)), awaiting approval
+- **Next up:** ability system, base (L1) of all 9 Mods ([Ability System Prompt](04%20Tech/Prompts/Ability%20System%20Prompt.md))
 - **Next:** rounds + tier rotation → Mods → draft → **Playtest #1**
 - **Blockers:** —
 
@@ -22,7 +22,7 @@
 ### 01 Design: what the game *is*
 - [Gunplay](01%20Design/Gunplay.md): movement, shooting feel, aim assist, feedback (RIVALS core + slide)
 - [Weapons](01%20Design/Weapons.md): 22 guns + melee, tiers per round, build waves, gun mechanics
-- [Mods](01%20Design/Mods.md): first 9 abilities, A/B paths + Glitch path (**draft v1**)
+- [Mods](01%20Design/Mods.md): first 9 abilities, controls and activation types, A/B paths + Glitch path (**approved**)
 - Draft, Rounds and Maps: in the [Game Plan](05%20Production/Game%20Plan.md) §1, §4 and §5
 
 ### 02 Art: how it *looks*
@@ -52,6 +52,7 @@
 |---|---|---|
 | Gunplay | RIVALS-style run-and-gun, accurate while moving, slide is the core move, ~1.5× headshots, TTK 0.35–0.6 s | [Gunplay](01%20Design/Gunplay.md) |
 | Rounds | First to 5, shared weapon tier per round (Sidearm → Light → Heavy → Wildcard) | [Weapons](01%20Design/Weapons.md) |
+| Mods | 9 approved ([Mods](01%20Design/Mods.md)); keys **Q / E / C**; instant and held types; build **L1 of all 9 first**, then paths and glitches | [Mods](01%20Design/Mods.md) |
 | Draft | 3 Mod slots, L1→L3, both sides draft, the loser gets +1 card and +1 reroll, mirrored offers in 1v1 | [Game Plan](05%20Production/Game%20Plan.md) §4 |
 | Art | Style B "Stylized Neon"; Bitrate is the master reference | [Art Direction](02%20Art/Art%20Direction.md) |
 | Camera | First person | [Gunplay](01%20Design/Gunplay.md) |
