@@ -20,6 +20,7 @@ local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
 local Spread = require(Shared.Util.Spread)
+local TestMode = require(Shared.TestMode)
 local Types = require(Shared.Types)
 local Weapons = require(Shared.Config.Weapons)
 
@@ -637,6 +638,38 @@ local function onReload(player: Player, action: unknown)
 	end)
 end
 
+-- Studio and test-mode servers only: put any installed gun in its slot and
+-- equip it (the weapon picker). Validates the id against the config and the
+-- installed models; nothing else comes from the client.
+local MAX_ID_LENGTH = 32
+
+local function onPickWeapon(player: Player, id: unknown)
+	if not allow(player, "PickWeapon") then
+		return
+	end
+	if not RunService:IsStudio() and not TestMode.isOn() then
+		return
+	end
+	if typeof(id) ~= "string" or #id == 0 or #id > MAX_ID_LENGTH then
+		return
+	end
+	local config = Weapons.get(id :: string)
+	if not config or not weaponTemplate(config.id) then
+		return
+	end
+	if not liveHumanoid(player.Character) then
+		return
+	end
+	-- Already in that slot: just switch to it (a fresh copy would be a free
+	-- reload and skip its cooldowns).
+	local state = states[player]
+	local current = state and state.slots[config.slot]
+	if not current or current.id ~= config.id then
+		WeaponService.setWeapon(player, config.slot, config.id)
+	end
+	WeaponService.equip(player, config.slot)
+end
+
 local function onAim(player: Player, pitch: unknown, aiming: unknown)
 	if not allow(player, "Aim") then
 		return
@@ -1197,6 +1230,7 @@ function WeaponService.init()
 	Net.event("Equip").OnServerEvent:Connect(onEquip)
 	Net.event("Fire").OnServerEvent:Connect(onFire)
 	Net.event("Reload").OnServerEvent:Connect(onReload)
+	Net.event("PickWeapon").OnServerEvent:Connect(onPickWeapon)
 	Net.unreliable("Aim").OnServerEvent:Connect(onAim)
 end
 

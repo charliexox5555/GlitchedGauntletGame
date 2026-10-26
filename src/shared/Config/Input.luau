@@ -48,6 +48,12 @@ local bindings: { [string]: Binding } = {
 	-- simulation input, so the server and the predicting client pose the
 	-- character with the same pitch (shared/Simulation/Poses).
 	AimPitch = { keys = {}, gamepad = {}, kind = "Direction1D" },
+	-- Studio / test mode only: the weapon picker (every installed gun).
+	WeaponPicker = {
+		keys = { Enum.KeyCode.P },
+		gamepad = { Enum.KeyCode.DPadUp },
+		touch = "PickerButton",
+	},
 }
 
 return table.freeze(bindings)

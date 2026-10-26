@@ -89,6 +89,7 @@ return table.freeze({
 		Fire = { 30, 40 },
 		Equip = { 10, 10 },
 		Reload = { 5, 5 },
+		PickWeapon = { 3, 5 },
 		Aim = { 20, 30 },
 	},
 

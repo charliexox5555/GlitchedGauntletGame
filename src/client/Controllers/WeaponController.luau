@@ -31,6 +31,7 @@ local EffectsController = require(script.Parent.EffectsController)
 local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
 local MovementController = require(script.Parent.MovementController)
+local PickerController = require(script.Parent.PickerController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 
 type Slot = Types.Slot
@@ -650,7 +651,7 @@ local function swing(s: LocalSlot)
 end
 
 local function canShoot(s: LocalSlot): boolean
-	if not alive or os.clock() < equipReadyAt or reloading then
+	if not alive or os.clock() < equipReadyAt or reloading or PickerController.isBusy() then
 		return false
 	end
 	if s.config.magSize > 0 and s.ammo < 1 then
@@ -660,6 +661,9 @@ local function canShoot(s: LocalSlot): boolean
 end
 
 local function onFirePressed()
+	if PickerController.isBusy() then
+		return -- a click in the weapon picker
+	end
 	ViewmodelController.cancelInspect()
 	triggerHeld = true
 	pressQueued = true
@@ -723,6 +727,7 @@ local function update(dt: number)
 		and not s.config.noAds
 		and InputController.isDown("Aim")
 		and not MovementController.isSprinting()
+		and not PickerController.isOpen()
 	aiming = aimingWanted
 	if s then
 		local rate = 1 / math.max(s.config.adsTime, 0.05)
@@ -937,7 +942,7 @@ function WeaponController.start()
 	-- Guns with no ADS use the Aim input for their alt-fire.
 	InputController.onPressed("Aim", function()
 		local s = current()
-		if s and s.config.altFire and s.config.noAds then
+		if s and s.config.altFire and s.config.noAds and not PickerController.isBusy() then
 			ViewmodelController.cancelInspect()
 			altQueuedAt = os.clock()
 			if s.config.magSize > 0 and s.ammo < 1 and not reloading then
