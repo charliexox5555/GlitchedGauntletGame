@@ -137,30 +137,70 @@ local function placeholder(id: string, glow: Color3): Model?
 	return model
 end
 
--- The model for Mod `id` with its neon in `glow` (nil: no model for it).
--- Returns a shared template: clone it before parenting.
+-- Recolours a finished model's energy (parts named *_Energy / Energy = true,
+-- and the Decals on them) to `glow`.
+function ModProps.tint(model: Model, glow: Color3)
+	for _, d in model:GetDescendants() do
+		if
+			d:IsA("BasePart")
+			and (d:GetAttribute("Energy") == true or d.Material == Enum.Material.Neon)
+		then
+			d.Color = glow
+			for _, decal in d:GetChildren() do
+				if decal:IsA("Decal") then
+					decal.Color3 = glow
+				end
+			end
+		end
+	end
+end
+
+-- The finished Studio model (ReplicatedStorage.Abilities) for `id`, if it's
+-- there and of one of `kinds` ("handheld", "thrown", "placed", "vfx").
+function ModProps.finished(id: string, kinds: { string }): Model?
+	local folder = ReplicatedStorage:FindFirstChild("Abilities")
+	local m = folder and folder:FindFirstChild(id)
+	if m and m:IsA("Model") and table.find(kinds, m:GetAttribute("Kind") :: any) then
+		return m
+	end
+	return nil
+end
+
+-- The model held in the hand or thrown for Mod `id`, neon in `glow` (nil: no
+-- model for it). Placed Mods hold a small puck (their finished model is the
+-- deployed object). Returns a shared template: clone it before parenting.
 function ModProps.get(id: string, glow: Color3): Model?
 	local key = id .. glow:ToHex()
 	local cached = cache[key]
 	if cached then
 		return cached
 	end
-	local folder = ReplicatedStorage:FindFirstChild("Abilities")
-	local finished = folder and folder:FindFirstChild(id)
+	local finished = ModProps.finished(id, { "handheld", "thrown" })
 	local model: Model? = nil
-	if finished and finished:IsA("Model") then
+	if finished then
 		model = finished:Clone()
-		for _, d in (model :: Model):GetDescendants() do
-			if d:IsA("BasePart") and d.Material == Enum.Material.Neon then
-				d.Color = glow
-			end
-		end
+		ModProps.tint(model :: Model, glow)
 	else
 		model = placeholder(id, glow)
 	end
 	if model then
 		cache[key] = model
 	end
+	return model
+end
+
+-- A client-side copy of the finished model standing on a placed server part
+-- (Launch Pad, Firewall): pivot at the part's floor centre, facing its
+-- LookVector. nil when there's no finished model (the part stays as it is).
+function ModProps.dress(object: BasePart, glow: Color3): Model?
+	local kind = object:GetAttribute("Kind")
+	local finished = if typeof(kind) == "string" then ModProps.finished(kind, { "placed" }) else nil
+	if not finished then
+		return nil
+	end
+	local model = finished:Clone()
+	ModProps.tint(model, glow)
+	model:PivotTo(object.CFrame * CFrame.new(0, -object.Size.Y / 2, 0))
 	return model
 end
 

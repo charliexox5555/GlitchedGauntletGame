@@ -70,6 +70,9 @@ local flights: { Flight } = {}
 local beams: { Beam } = {}
 local floaters: { Floater } = {}
 local grenadeFree: { [string]: { Model } } = {}
+-- Lag Field orbs spinning in the middle of their zone.
+type Orb = { model: Model, key: string, at: Vector3, untilT: number }
+local orbs: { Orb } = {}
 local partPool: VfxPool.Pool<Part>? = nil
 local floaterFree: { Floater } = {}
 
@@ -226,6 +229,15 @@ local function onPacketBoom(data: { [string]: any })
 		life = 0.4,
 		alpha0 = 0.8,
 	})
+	local shock = ModVfx.mesh({
+		name = "Shockwave",
+		cframe = CFrame.new(at - Vector3.new(0, 0.35, 0)),
+		from = Vector3.new(2, 0.3, 2),
+		to = Vector3.new(d * 1.5, 0.3, d * 1.5),
+		color = color,
+		life = 0.45,
+		alpha0 = 0.1,
+	})
 	ModVfx.quad({
 		texture = Tex.MOD_RING,
 		cframe = CFrame.new(at - Vector3.new(0, 0.35, 0)),
@@ -233,6 +245,7 @@ local function onPacketBoom(data: { [string]: any })
 		to = d * 1.6,
 		color = color,
 		life = 0.5,
+		alpha0 = if shock then 0.4 else 0,
 	})
 	ModVfx.quad({
 		texture = Tex.MOD_GLOW,
@@ -379,17 +392,41 @@ local function onLagZone(data: { [string]: any })
 	local color = teamColor(data)
 	local d = radius * 2
 	local ground = CFrame.new(at - Vector3.new(0, 0.4, 0))
-	-- A shimmering dome, a hex floor, a turning dashed rim, and an opening
-	-- ring + sparks.
-	ModVfx.shell({
-		shape = Enum.PartType.Ball,
-		cframe = CFrame.new(at),
-		from = Vector3.one * d,
+	-- A dome, a hex floor, a turning dashed rim, the orb spinning in the
+	-- middle, and an opening ring + sparks.
+	local dome = ModVfx.mesh({
+		name = "Dome",
+		cframe = CFrame.new(at - Vector3.new(0, 0.4, 0)),
+		from = Vector3.new(d * 0.3, radius * 0.3, d * 0.3),
+		to = Vector3.new(d, radius, d),
 		color = color,
 		life = duration,
-		alpha0 = 0.82,
+		alpha0 = 0.8,
 		hold = true,
 	})
+	if not dome then
+		ModVfx.shell({
+			shape = Enum.PartType.Ball,
+			cframe = CFrame.new(at),
+			from = Vector3.one * d,
+			color = color,
+			life = duration,
+			alpha0 = 0.82,
+			hold = true,
+		})
+	end
+	local orb, key = takeGrenade("LagField", color)
+	if orb then
+		table.insert(
+			orbs,
+			{
+				model = orb,
+				key = key,
+				at = at + Vector3.new(0, 0.6, 0),
+				untilT = os.clock() + duration,
+			}
+		)
+	end
 	ModVfx.quad({
 		texture = Tex.MOD_HEX,
 		cframe = ground,
@@ -439,15 +476,26 @@ local function onPingPulse(data: { [string]: any })
 		life = 0.7,
 		alpha0 = 0,
 	})
-	ModVfx.shell({
-		shape = Enum.PartType.Ball,
-		cframe = CFrame.new(at),
-		from = Vector3.one * 2,
-		to = Vector3.one * d,
+	local band = ModVfx.mesh({
+		name = "ScanRing",
+		cframe = CFrame.new(at - Vector3.new(0, 2.8, 0)),
+		from = Vector3.new(2, 2.5, 2),
+		to = Vector3.new(d, 1, d),
 		color = color,
 		life = 0.7,
-		alpha0 = 0.75,
+		alpha0 = 0.2,
 	})
+	if not band then
+		ModVfx.shell({
+			shape = Enum.PartType.Ball,
+			cframe = CFrame.new(at),
+			from = Vector3.one * 2,
+			to = Vector3.one * d,
+			color = color,
+			life = 0.7,
+			alpha0 = 0.75,
+		})
+	end
 end
 
 -- Revealed enemies: an orange-red outline through walls (your team only).
@@ -555,8 +603,13 @@ end
 -- coloured shimmer with hex panels on both faces. They flash white when hit.
 local objectFlash: { [BasePart]: number } = {}
 local skins: { [BasePart]: { Texture } } = {}
+-- Placed objects wearing their finished model (ModProps.dress): the server
+-- part is the hitbox, hidden on this client; the model is the look.
+type Dressed = { model: Model, energy: { BasePart }, arrows: { BasePart } }
+local dressed: { [BasePart]: Dressed } = {}
 local SHELL = Color3.fromHex("2A2D33")
 local CHEVRON_SPEED = 5 -- studs per second the pad's arrows scroll
+local ARROW_CHASE = 1.6 -- cycles per second of a finished pad's arrow chase
 
 local function objectColor(part: BasePart): Color3
 	local team = part:GetAttribute("TeamId")
@@ -588,11 +641,53 @@ local function skin(
 	return t
 end
 
+local function undress(part: BasePart)
+	local d = dressed[part]
+	if d then
+		dressed[part] = nil
+		d.model:Destroy()
+	end
+end
+
+-- The finished model on a placed part, when it's installed. Returns true
+-- when it dressed the part.
+local function dress(part: BasePart): boolean
+	local model = ModProps.dress(part, objectColor(part))
+	if not model then
+		return false
+	end
+	local energy, arrows = {}, {}
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") and d:GetAttribute("Energy") == true then
+			table.insert(energy, d)
+			if string.match(d.Name, "^Arrow%d") then
+				table.insert(arrows, d)
+			end
+		end
+	end
+	table.sort(arrows, function(a, b)
+		return a.Name < b.Name
+	end)
+	model.Parent = fxFolder()
+	part.LocalTransparencyModifier = 1
+	dressed[part] = { model = model, energy = energy, arrows = arrows }
+	part.AncestryChanged:Connect(function()
+		if not part:IsDescendantOf(workspace) then
+			undress(part)
+		end
+	end)
+	return true
+end
+
 local function colourObject(part: Instance)
 	if not part:IsA("BasePart") then
 		return
 	end
 	local kind = part:GetAttribute("Kind")
+	if dress(part) then
+		-- The finished model carries the look.
+		kind = nil
+	end
 	if kind == "LaunchPad" then
 		part.Material = Enum.Material.SmoothPlastic
 		part.Transparency = 0
@@ -877,6 +972,24 @@ local function update(_dt: number)
 		end
 	end
 	ModVfx.step()
+	for i = #orbs, 1, -1 do
+		local o = orbs[i]
+		if now >= o.untilT then
+			table.remove(orbs, i)
+			o.model.Parent = nil
+			local free = grenadeFree[o.key]
+			if not free then
+				free = {}
+				grenadeFree[o.key] = free
+			end
+			table.insert(free, o.model)
+		else
+			o.model:PivotTo(
+				CFrame.new(o.at + Vector3.new(0, 0.15 * math.sin(now * 3), 0))
+					* CFrame.Angles(0, now * 4, 0)
+			)
+		end
+	end
 
 	for i = #beams, 1, -1 do
 		local b = beams[i]
@@ -924,6 +1037,18 @@ local function update(_dt: number)
 		part.Color = if done then restColor(part) else Color3.new(1, 1, 1)
 		for _, t in skins[part] or {} do
 			t.Color3 = if done then objectColor(part) else Color3.new(1, 1, 1)
+		end
+		local d = dressed[part]
+		if d then
+			ModProps.tint(d.model, if done then objectColor(part) else Color3.new(1, 1, 1))
+		end
+	end
+	-- Launch Pad arrows chase toward the launch, back to front.
+	for _, d in dressed do
+		local n = #d.arrows
+		for i, arrow in d.arrows do
+			local phase = (now * ARROW_CHASE - (i - 1) / n) % 1
+			arrow.Transparency = 0.65 * phase
 		end
 	end
 	for part, list in skins do

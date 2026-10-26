@@ -5,6 +5,9 @@
 --   ModVfx.quad(spec)    a flat textured quad (ring, scan, chevron, glow):
 --                        grows, fades, spins, optionally holds then fades
 --   ModVfx.shell(spec)   a sphere / box shell (ForceField shimmer or Neon)
+--   ModVfx.mesh(spec)    one of the Blender VFX meshes (ReplicatedStorage.
+--                        Abilities.ModVFX: Dome, Shockwave, Sphere, ScanRing),
+--                        scaled; nil until the models are installed
 --   ModVfx.burst(at, color, count, kind)   a particle pop (sparkles, crosses)
 --   ModVfx.step()        animates everything (ModFxController, every frame)
 --
@@ -48,8 +51,22 @@ export type ShellSpec = {
 	material: Enum.Material?, -- default ForceField (an animated shimmer)
 }
 
+export type MeshSpec = {
+	name: "Dome" | "Shockwave" | "Sphere" | "ScanRing",
+	cframe: CFrame, -- the mesh's origin: Dome / Shockwave / ScanRing sit on it
+	from: Vector3, -- size at birth (the meshes are 2 across at radius 1)
+	to: Vector3?,
+	color: Color3,
+	life: number,
+	alpha0: number?,
+	alpha1: number?,
+	hold: boolean?,
+	spin: number?,
+}
+
 type Live = {
-	part: Part,
+	part: BasePart,
+	pool: VfxPool.Pool<BasePart>,
 	decal: Decal?, -- quads: the texture on the top face
 	born: number,
 	life: number,
@@ -71,11 +88,12 @@ local FADE_TAIL = 0.3
 local QUAD_THICKNESS = 0.05
 
 local folder: Folder? = nil
-local quadPool: VfxPool.Pool<Part>? = nil
-local shellPool: VfxPool.Pool<Part>? = nil
+local quadPool: VfxPool.Pool<BasePart>? = nil
+local shellPool: VfxPool.Pool<BasePart>? = nil
+local meshPools: { [string]: VfxPool.Pool<BasePart> } = {}
 local live: { Live } = {}
 
-local burstPart: Part? = nil
+local burstPart: BasePart? = nil
 local emitters: { [string]: ParticleEmitter } = {}
 
 local function fxFolder(): Folder
@@ -89,13 +107,14 @@ local function fxFolder(): Folder
 	folder = made
 	quadPool = nil
 	shellPool = nil
+	table.clear(meshPools)
 	burstPart = nil
 	table.clear(emitters)
 	table.clear(live)
 	return made
 end
 
-local function basePart(): Part
+local function basePart(): BasePart
 	local p = Instance.new("Part")
 	p.Anchored = true
 	p.CanCollide = false
@@ -107,12 +126,12 @@ local function basePart(): Part
 	return p
 end
 
-local function quads(): VfxPool.Pool<Part>
+local function quads(): VfxPool.Pool<BasePart>
 	local pool = quadPool
 	if pool then
 		return pool
 	end
-	local made = VfxPool.new(function(): Part
+	local made = VfxPool.new(function(): BasePart
 		local p = basePart()
 		p.Size = Vector3.new(1, QUAD_THICKNESS, 1)
 		local d = Instance.new("Decal")
@@ -125,7 +144,7 @@ local function quads(): VfxPool.Pool<Part>
 	return made
 end
 
-local function shells(): VfxPool.Pool<Part>
+local function shells(): VfxPool.Pool<BasePart>
 	local pool = shellPool
 	if pool then
 		return pool
@@ -153,6 +172,7 @@ function ModVfx.quad(spec: QuadSpec): Handle
 	p.Size = from
 	return track({
 		part = p,
+		pool = quads(),
 		decal = decal,
 		born = os.clock(),
 		life = spec.life,
@@ -171,7 +191,7 @@ end
 
 -- A shell: a ForceField sphere (domes, scan bubbles) or a Neon flash.
 function ModVfx.shell(spec: ShellSpec): Handle
-	local p = shells():acquire()
+	local p = shells():acquire() :: Part
 	p.Shape = spec.shape
 	p.Material = spec.material or Enum.Material.ForceField
 	p.Color = spec.color
@@ -180,6 +200,7 @@ function ModVfx.shell(spec: ShellSpec): Handle
 	p.Transparency = spec.alpha0 or 0
 	return track({
 		part = p,
+		pool = shells(),
 		decal = nil,
 		born = os.clock(),
 		life = spec.life,
@@ -190,6 +211,64 @@ function ModVfx.shell(spec: ShellSpec): Handle
 		alpha1 = spec.alpha1 or 1,
 		hold = spec.hold == true,
 		spin = 0,
+		pulse = 0,
+		quad = false,
+		stopped = false,
+	})
+end
+
+local function meshPool(name: string): VfxPool.Pool<BasePart>?
+	local pool = meshPools[name]
+	if pool then
+		return pool
+	end
+	local abilities = ReplicatedStorage:FindFirstChild("Abilities")
+	local vfx = abilities and abilities:FindFirstChild("ModVFX")
+	local template = vfx and vfx:FindFirstChild(name .. "_Energy")
+	if not template or not template:IsA("BasePart") then
+		return nil
+	end
+	local made = VfxPool.new(function(): BasePart
+		local p = template:Clone()
+		p:ClearAllChildren()
+		p.Anchored = true
+		p.CanCollide = false
+		p.CanQuery = false
+		p.CanTouch = false
+		p.CastShadow = false
+		p.Transparency = 1
+		p.Parent = fxFolder()
+		return p
+	end, fxFolder(), 2)
+	meshPools[name] = made
+	return made
+end
+
+-- One of the Blender VFX meshes, scaled and tinted (nil when the models
+-- aren't installed: the caller falls back to a shell).
+function ModVfx.mesh(spec: MeshSpec): Handle?
+	local pool = meshPool(spec.name)
+	if not pool then
+		return nil
+	end
+	local p = pool:acquire()
+	p.Color = spec.color
+	p.Size = spec.from
+	p.CFrame = spec.cframe
+	p.Transparency = spec.alpha0 or 0
+	return track({
+		part = p,
+		pool = pool,
+		decal = nil,
+		born = os.clock(),
+		life = spec.life,
+		cframe = spec.cframe,
+		from = spec.from,
+		to = spec.to or spec.from,
+		alpha0 = spec.alpha0 or 0,
+		alpha1 = spec.alpha1 or 1,
+		hold = spec.hold == true,
+		spin = spec.spin or 0,
 		pulse = 0,
 		quad = false,
 		stopped = false,
@@ -284,11 +363,7 @@ function ModVfx.step()
 		local k = (now - l.born) / l.life
 		if k >= 1 then
 			table.remove(live, i)
-			if l.quad then
-				quads():release(l.part)
-			else
-				shells():release(l.part)
-			end
+			l.pool:release(l.part)
 			continue
 		end
 		local e = 1 - (1 - k) * (1 - k)
