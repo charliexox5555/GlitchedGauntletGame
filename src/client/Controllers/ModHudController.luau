@@ -10,11 +10,12 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 
+local ModAudio = require(script.Parent.Parent.Util.ModAudio)
+local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
 local ModController = require(script.Parent.ModController)
 
@@ -337,6 +338,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 end
 
 local function pulse(ui: SlotUi)
+	ModAudio.play(ModAudio.SOUNDS.Ready)
 	ui.scale.Scale = 1.14
 	TweenService:Create(ui.scale, PULSE, { Scale = if ui.held then 1.08 else 1 }):Play()
 	ui.ring.Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE)
@@ -395,7 +397,8 @@ local function build(): ScreenGui
 		Visible = false,
 	}, screen)
 
-	if UserInputService.TouchEnabled then
+	local layer = HudController.touchLayer()
+	if layer then
 		local function touchButton(name: string, pos: UDim2, size: number): (TextButton, TextLabel)
 			local b = make("TextButton", {
 				Name = name,
@@ -406,7 +409,7 @@ local function build(): ScreenGui
 				BackgroundTransparency = 0.35,
 				Text = "",
 				AutoButtonColor = true,
-			}, screen)
+			}, layer)
 			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
 			make("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.6 }, b)
 			make("ImageLabel", {
@@ -446,7 +449,7 @@ local function build(): ScreenGui
 		end)
 		altButton = alt
 		-- The Mod buttons drive the Mod1/2/3 input actions (Config/Input touch).
-		InputController.bindTouchButtons(screen)
+		InputController.bindTouchButtons(layer)
 	end
 	return screen
 end

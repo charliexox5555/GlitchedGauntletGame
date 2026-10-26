@@ -19,11 +19,9 @@
 -- ready; your own Rollback plays a "VHS rewind" wash; anyone a Lag Field is
 -- slowing shows SLOWED.
 
-local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -31,6 +29,7 @@ local Net = require(Shared.Net)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 local Tex = require(Shared.Config.VfxTextures)
 
+local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local ModVfx = require(script.Parent.Parent.Util.ModVfx)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
@@ -38,6 +37,8 @@ local VfxPool = require(script.Parent.Parent.Util.VfxPool)
 local CameraController = require(script.Parent.CameraController)
 
 local ModFxController = {}
+
+local S = ModAudio.SOUNDS
 
 local player = Players.LocalPlayer
 
@@ -65,7 +66,6 @@ type Floater = { gui: BillboardGui, label: TextLabel, born: number }
 local FLOATER_TIME = 1.1
 
 local folder: Folder? = nil
-local lastRollback = 0
 local flights: { Flight } = {}
 local beams: { Beam } = {}
 local floaters: { Floater } = {}
@@ -185,8 +185,28 @@ local function onPacketThrow(data: { [string]: any })
 		end
 	end
 	-- Danger ring where it will go off.
-	local left = math.max(fuse - (Workspace:GetServerTimeNow() - start), 0.1)
-	dangerRing(Projectile.positionAt(path, fuse), radius, color, left)
+	local elapsed = Workspace:GetServerTimeNow() - start
+	local left = math.max(fuse - elapsed, 0.1)
+	local landing = Projectile.positionAt(path, fuse)
+	dangerRing(landing, radius, color, left)
+	-- Sounds: the throw, the first bounce, fuse beeps near the end, and the
+	-- enemy-only "get out" warning if you stand where it will go off.
+	ModAudio.play(S.Packet.throw, Projectile.positionAt(path, math.max(elapsed, 0)))
+	local bounce = path.segments[2]
+	if bounce and bounce.t > elapsed then
+		task.delay(bounce.t - elapsed, function()
+			ModAudio.play(S.Packet.bounce, bounce.p)
+		end)
+	end
+	task.delay(math.max(left - 0.8, 0), function()
+		ModAudio.play(S.Packet.fuse, landing)
+		local root = rootOf(player.Character)
+		if data.caster ~= player and not TeamColor.isFriendly(data.team) and root then
+			if (root.Position - landing).Magnitude <= radius + 2 then
+				ModAudio.play(S.Packet.danger)
+			end
+		end
+	end)
 	table.insert(flights, {
 		blink = true,
 		model = model,
@@ -208,6 +228,8 @@ local function onPacketBoom(data: { [string]: any })
 		then TeamColor.ALLY
 		else TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
 	local d = radius * 2
+	ModAudio.play(S.Packet.explode, at)
+	ModAudio.play(S.Packet.explodeCrackle, at)
 	-- A hot core, a shockwave ring racing out along the ground, a glow and
 	-- a spray of sparks.
 	ModVfx.shell({
@@ -300,6 +322,39 @@ local function floater(target: Model, text: string, color: Color3)
 	table.insert(floaters, fl)
 end
 
+-- +HP numbers as the heal ticks in (the server heals in steps): every
+-- HEAL_NUMBER_STEP seconds, what came in since the last number.
+local HEAL_NUMBER_STEP = 0.4
+
+local function healNumbers(target: Model, duration: number, color: Color3)
+	local humanoid = target:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		return
+	end
+	if duration <= 0 then
+		return
+	end
+	local last = humanoid.Health
+	local pending = 0
+	local conn = humanoid.HealthChanged:Connect(function(health)
+		if health > last then
+			pending += health - last
+		end
+		last = health
+	end)
+	task.spawn(function()
+		local untilT = os.clock() + duration + 0.3
+		while os.clock() < untilT and target.Parent do
+			task.wait(HEAL_NUMBER_STEP)
+			if pending >= 1 then
+				floater(target, "+" .. tostring(math.floor(pending + 0.5)), color)
+				pending = 0
+			end
+		end
+		conn:Disconnect()
+	end)
+end
+
 local function onHeal(data: { [string]: any })
 	local target, caster = data.target, data.caster
 	local duration, amount = data.duration, data.amount
@@ -339,8 +394,19 @@ local function onHeal(data: { [string]: any })
 			duration = math.max(duration, 0.4),
 		})
 	end
+	if targetRoot then
+		ModAudio.play(S.PatchUp.start, targetRoot.Position)
+		local hum = ModAudio.hum(S.PatchUp.hum, targetRoot)
+		local involved = caster == player or targetModel == player.Character
+		task.delay(math.max(duration, 0.3), function()
+			ModAudio.stopHum(hum)
+			if involved then
+				ModAudio.play(S.PatchUp.done)
+			end
+		end)
+	end
 	if friendly then
-		floater(targetModel, "+" .. tostring(math.round(amount)), color)
+		healNumbers(targetModel, duration, color)
 	end
 end
 
@@ -369,6 +435,10 @@ local function onLagThrow(data: { [string]: any })
 	if not model then
 		return
 	end
+	ModAudio.play(
+		S.LagField.throw,
+		Projectile.positionAt(path, math.max(Workspace:GetServerTimeNow() - start, 0))
+	)
 	-- Where the zone will open.
 	local left = math.max(land - (Workspace:GetServerTimeNow() - start), 0.1)
 	dangerRing(Projectile.positionAt(path, land), radius, color, left)
@@ -415,7 +485,14 @@ local function onLagZone(data: { [string]: any })
 			hold = true,
 		})
 	end
+	ModAudio.play(S.LagField.open, at)
 	local orb, key = takeGrenade("LagField", color)
+	local orbPart = orb and orb:FindFirstChildWhichIsA("BasePart", true)
+	local hum = ModAudio.hum(S.LagField.hum, orbPart)
+	task.delay(duration, function()
+		ModAudio.stopHum(hum)
+		ModAudio.play(S.LagField.expire, at)
+	end)
 	if orb then
 		table.insert(orbs, {
 			model = orb,
@@ -463,6 +540,7 @@ local function onPingPulse(data: { [string]: any })
 	end
 	local color = teamColor(data)
 	local d = radius * 2
+	ModAudio.play(S.Ping.pulse, at)
 	-- A scan wave across the ground and a thin bubble sweeping out.
 	ModVfx.quad({
 		texture = Tex.MOD_SCAN,
@@ -570,12 +648,26 @@ local function onOverclock(data: { [string]: any })
 	if typeof(duration) ~= "number" then
 		return
 	end
+	local caster = data.caster
+	local casterRoot = if typeof(caster) == "Instance" and (caster :: Instance):IsA("Player")
+		then rootOf((caster :: Player).Character)
+		else nil
+	if casterRoot then
+		local where = casterRoot
+		ModAudio.play(S.Overclock.on, where.Position)
+		local hum = ModAudio.hum(S.Overclock.hum, where)
+		task.delay(duration, function()
+			ModAudio.stopHum(hum)
+			if where.Parent then
+				ModAudio.play(S.Overclock.off, where.Position)
+			end
+		end)
+	end
 	if data.caster == player then
 		edgeUntil = os.clock() + duration
 		screenEdge().Visible = true
 		return
 	end
-	local caster = data.caster
 	local character = if typeof(caster) == "Instance" and (caster :: Instance):IsA("Player")
 		then (caster :: Player).Character
 		else nil
@@ -701,11 +793,26 @@ local function colourObject(part: Instance)
 	part.Destroying:Connect(function()
 		skins[part] = nil
 	end)
+	-- A quiet hum so a placed object can be found by ear.
+	local hum = ModAudio.hum(
+		if kind == "Firewall" or part:GetAttribute("Kind") == "Firewall"
+			then S.Firewall.hum
+			else S.LaunchPad.idle,
+		part
+	)
+	part.AncestryChanged:Connect(function()
+		if not part:IsDescendantOf(workspace) then
+			ModAudio.stopHum(hum)
+		end
+	end)
 	local lastHp = part:GetAttribute("Hp")
 	part:GetAttributeChangedSignal("Hp"):Connect(function()
 		local hp = part:GetAttribute("Hp")
 		if typeof(hp) == "number" and typeof(lastHp) == "number" and hp < lastHp then
 			objectFlash[part] = os.clock()
+			if part:GetAttribute("Kind") == "Firewall" then
+				ModAudio.play(S.Firewall.hit, part.Position)
+			end
 		end
 		lastHp = hp
 	end)
@@ -715,6 +822,12 @@ local function onPlaced(data: { [string]: any })
 	local at = data.at
 	if typeof(at) ~= "Vector3" then
 		return
+	end
+	if data.kind == "LaunchPad" then
+		ModAudio.play(S.LaunchPad.place, at)
+	elseif data.kind == "Firewall" then
+		ModAudio.play(S.Firewall.deploy, at)
+		ModAudio.play(S.Firewall.deploySlam, at)
 	end
 	local color = teamColor(data)
 	ModVfx.quad({
@@ -735,6 +848,11 @@ local function onObjectGone(data: { [string]: any })
 	end
 	local color = TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
 	local broken = data.why == "Broken"
+	if data.kind == "Firewall" then
+		ModAudio.play(if broken then S.Firewall.broken else S.Firewall.expire, at)
+	elseif data.kind == "LaunchPad" then
+		ModAudio.play(S.LaunchPad.destroyed, at)
+	end
 	ModVfx.shell({
 		shape = Enum.PartType.Block,
 		cframe = CFrame.new(at),
@@ -749,32 +867,6 @@ local function onObjectGone(data: { [string]: any })
 end
 
 -- Rollback ---------------------------------------------------------------------------
-
--- Your own rewind: a short "VHS" wash (desaturated, high contrast, tinted).
-local vhs: ColorCorrectionEffect? = nil
-local VHS_TIME = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-local function playVhs()
-	local effect = vhs
-	if not effect or not effect.Parent then
-		local made = Instance.new("ColorCorrectionEffect")
-		made.Name = "ModRewind"
-		made.Parent = Lighting
-		vhs = made
-		effect = made
-	end
-	local cc = effect :: ColorCorrectionEffect
-	cc.Saturation = -0.85
-	cc.Contrast = 0.35
-	cc.TintColor = Color3.fromHex("C8F7FF")
-	cc.Brightness = 0.05
-	TweenService:Create(cc, VHS_TIME, {
-		Saturation = 0,
-		Contrast = 0,
-		TintColor = Color3.new(1, 1, 1),
-		Brightness = 0,
-	}):Play()
-end
 
 -- Ghost trails: for anyone whose Rollback is ready, where they were over the
 -- last few seconds (where a rewind would take them), coloured by team. The
@@ -1058,14 +1150,6 @@ local function update(_dt: number)
 	end
 	stepTrails(now)
 
-	-- Your own Rollback.
-	local character = player.Character
-	local rollbackAt = character and character:GetAttribute("RollbackAt")
-	if typeof(rollbackAt) == "number" and rollbackAt > lastRollback then
-		lastRollback = rollbackAt
-		playVhs()
-	end
-
 	for i = #floaters, 1, -1 do
 		local f = floaters[i]
 		local k = (now - f.born) / FLOATER_TIME
@@ -1101,9 +1185,6 @@ function ModFxController.start()
 			task.wait(0.2)
 			stepSlowed()
 		end
-	end)
-	player.CharacterAdded:Connect(function()
-		lastRollback = 0
 	end)
 end
 

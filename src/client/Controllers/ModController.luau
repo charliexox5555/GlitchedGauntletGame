@@ -35,6 +35,7 @@ local PatchUp = require(Shared.Mods.PatchUp)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 
+local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 local VfxPool = require(script.Parent.Parent.Util.VfxPool)
@@ -183,6 +184,7 @@ local function useLabels(): (string, string)
 end
 
 local function deny(slot: number, reason: string)
+	ModAudio.play(ModAudio.SOUNDS.Denied)
 	flash = { text = reason, at = os.clock() }
 	for _, fn in denyListeners do
 		task.spawn(fn, slot, reason)
@@ -464,6 +466,12 @@ function ModController.cancel()
 	endHold(true)
 end
 
+-- A cancel the player asked for (same key, a weapon key): with its blip.
+local function cancelByPlayer()
+	ModAudio.play(ModAudio.SOUNDS.Cancel)
+	endHold(true)
+end
+
 local function sendUse(slot: number, mode: ModTypes.UseMode, target: Model?)
 	local cam = Workspace.CurrentCamera
 	if not cam then
@@ -524,7 +532,12 @@ local function use(mode: ModTypes.UseMode)
 	hideArc()
 	hidePlacement()
 	hideTarget()
-	ViewmodelController.itemAction()
+	ViewmodelController.itemAction(
+		if def.activation == "HeldThrow"
+			then "Throw"
+			elseif def.activation == "HeldPlace" then "Place"
+			else "Heal"
+	)
 end
 
 local function startHold(slot: number, view: SlotView)
@@ -535,6 +548,11 @@ local function startHold(slot: number, view: SlotView)
 	WeaponController.setHolstered("Mod", true)
 	ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
 	Net.event("ModHold"):FireServer(slot)
+	if def.id == "Packet" then
+		ModAudio.play(ModAudio.SOUNDS.Packet.pin)
+	elseif def.id == "PatchUp" then
+		ModAudio.play(ModAudio.SOUNDS.PatchUp.raise)
+	end
 	if quickCast and def.quickCast then
 		-- Straight to the use: skip the raise.
 		phase = "Held"
@@ -548,7 +566,7 @@ local function onModPressed(slot: number)
 	end
 	if phase ~= "Idle" and current == slot then
 		if phase ~= "Using" then
-			endHold(true) -- same key: cancel
+			cancelByPlayer() -- same key: cancel
 		end
 		return
 	end
@@ -576,6 +594,9 @@ local function onModPressed(slot: number)
 	if def.activation == "Instant" then
 		if def.authority == "Server" then
 			sendUse(slot, "Primary", nil)
+			if def.id == "Ping" then
+				ModAudio.play(ModAudio.SOUNDS.Ping.cast)
+			end
 		end
 		-- Simulation Mods (Blink) run from the same input in the simulation.
 		return
@@ -618,6 +639,7 @@ local function update(_dt: number)
 	if rollbackAt > lastRollbackAt then
 		lastRollbackAt = rollbackAt
 		WeaponController.cancelReload()
+		ModAudio.play(ModAudio.SOUNDS.Rollback.rewind)
 		CameraController.punchFov(-8, 0.4)
 	end
 
@@ -708,7 +730,7 @@ function ModController.start()
 	for _, name in { "Primary", "Secondary", "Melee", "CycleWeapon", "QuickMelee" } do
 		InputController.onPressed(name, function()
 			if phase == "Equipping" or phase == "Held" then
-				endHold(true)
+				cancelByPlayer()
 			end
 		end)
 	end

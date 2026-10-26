@@ -44,6 +44,15 @@ type PlayerState = { slots: { SlotState }, held: number }
 type Heal = { target: Model, from: Player, effect: SelfBuff.Timed }
 
 local MODES: { [string]: boolean } = { Primary = true, Alt = true }
+-- The third-person clip a use of each held kind plays (Simulation/Poses).
+local USE_KINDS: { [string]: string } = {
+	HeldThrow = "Throw",
+	HeldPlace = "Place",
+	HeldTarget = "Heal",
+}
+local HELD_ITEM = "ModHeldItem"
+-- The item sits in the right hand like a gun (WeaponService's grip).
+local HELD_GRIP = CFrame.new(0, -0.15, -0.05) * CFrame.Angles(-math.pi / 2, 0, 0)
 
 local ModService = {}
 
@@ -96,6 +105,56 @@ local function publishSlot(player: Player, slot: number, s: SlotState)
 	player:SetAttribute(p .. "RechargeAt", if serverOwned then s.rechargeAt else nil)
 end
 
+-- What others see in your hand while a Mod is held: its finished model
+-- (handheld / thrown Mods; clients tint its energy per viewer), with your
+-- third-person gun hidden. nil puts the gun back.
+local function showHeldItem(player: Player, id: string?)
+	local character = player.Character
+	if not character then
+		return
+	end
+	local old = character:FindFirstChild(HELD_ITEM)
+	if old then
+		old:Destroy()
+	end
+	local folder = ReplicatedStorage:FindFirstChild("Abilities")
+	local template = id and folder and folder:FindFirstChild(id)
+	local kind = template and template:GetAttribute("Kind")
+	local hand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
+	local show = template ~= nil
+		and template:IsA("Model")
+		and (kind == "handheld" or kind == "thrown")
+	WeaponService.setWorldWeaponHidden(player, show)
+	if not show or not hand or not hand:IsA("BasePart") then
+		return
+	end
+	local model = (template :: Model):Clone()
+	model.Name = HELD_ITEM
+	local root = model.PrimaryPart
+	if not root then
+		model:Destroy()
+		return
+	end
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = false
+			d.CanCollide = false
+			d.CanQuery = false
+			d.CanTouch = false
+			d.Massless = true
+		end
+	end
+	local offset = model:GetAttribute("HoldOffset")
+	local grip = Instance.new("Weld")
+	grip.Part0 = hand
+	grip.Part1 = root
+	grip.C0 = HELD_GRIP
+		* (if typeof(offset) == "Vector3" then CFrame.new(offset) else CFrame.identity)
+	grip.Parent = root
+	root.CFrame = hand.CFrame * grip.C0
+	model.Parent = character
+end
+
 -- Ends the hold. `busyFor`: the gun stays down this much longer (the throw /
 -- heal animation the client plays after a use).
 local function release(player: Player, busyFor: number?)
@@ -105,6 +164,7 @@ local function release(player: Player, busyFor: number?)
 	end
 	WeaponService.setHolstered(player, false, busyFor)
 	player:SetAttribute("ModHeld", 0)
+	showHeldItem(player, nil)
 end
 
 local function deny(player: Player, slot: number, reason: string)
@@ -253,6 +313,7 @@ local function onHold(player: Player, slotArg: unknown)
 	state.held = slot
 	WeaponService.setHolstered(player, true)
 	player:SetAttribute("ModHeld", slot)
+	showHeldItem(player, s.id)
 end
 
 local function use(
@@ -393,6 +454,14 @@ local function use(
 					Net.event("ModReveal"):FireClient(other, targets, duration)
 				end
 			end
+			-- Each revealed player only learns that they were spotted (their
+			-- warning sound), not by whom or who else.
+			for _, model in targets do
+				local victim = Players:GetPlayerFromCharacter(model)
+				if victim then
+					Net.event("ModFx"):FireClient(victim, "Revealed", { duration = duration })
+				end
+			end
 		end,
 		fireRate = function(mult: number, duration: number)
 			WeaponService.setFireRate(player, mult, duration)
@@ -427,6 +496,12 @@ local function use(
 			Charges.spend(s.charges, s.rechargeAt, stats.charges, stats.cooldown, now)
 	end
 	publishSlot(player, slot, s)
+	-- Third person: the throw / place / heal clip (Simulation/Poses).
+	local useKind = USE_KINDS[def.activation]
+	if useKind then
+		player:SetAttribute("ModUseKind", useKind)
+		player:SetAttribute("ModUseAt", now)
+	end
 	apply(ctx, req)
 end
 
