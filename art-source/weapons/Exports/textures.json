@@ -22,5 +22,17 @@
    "Roughness": 121448935947882,
    "Metalness": 90486061113807
   }
+ },
+ "Shorty": {
+  "ColorMap": 86082956514805,
+  "NormalMap": 94442780005947,
+  "RoughnessMap": 125921081010328,
+  "MetalnessMap": 134122143787440,
+  "decals": {
+   "Color": 87446604901881,
+   "Normal": 137854641498021,
+   "Roughness": 122904443499136,
+   "Metalness": 74337236596473
+  }
  }
 }
