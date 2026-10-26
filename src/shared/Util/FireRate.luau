@@ -36,6 +36,17 @@ function FireRate.interval(
 	return spin.startInterval + (spin.endInterval - spin.startInterval) * t
 end
 
+-- Overclock's multiplier for a player (the FireRateMult player attribute the
+-- server sets; WeaponService keeps its own copy with a little grace). Fire
+-- intervals are divided by it.
+function FireRate.boost(player: Player): number
+	local v = player:GetAttribute("FireRateMult")
+	if typeof(v) == "number" and v == v then
+		return math.clamp(v, 1, 3)
+	end
+	return 1
+end
+
 -- Burst counter after a shot at `now` that followed one at `lastFire`.
 function FireRate.nextBurstCount(
 	config: Types.WeaponConfig,

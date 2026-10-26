@@ -8,6 +8,7 @@
 -- Replicated as player attributes (the HUD and the simulation read them):
 --   Mod<n>Id, Mod<n>Level          the loadout (nil = empty slot)
 --   Mod<n>Charges, Mod<n>RechargeAt server Mods only (workspace:GetServerTimeNow())
+--   Mod<n>ActiveUntil              server time a slot's effect runs until (HUD bar)
 --   ModHeld                        0, or the slot the server has as held
 --   ModNoCooldown, ModResetSerial  dev panel switches (DevModService)
 --   TeamId                         team until MatchService exists (Mods/Teams)
@@ -142,8 +143,9 @@ local function aimPlausible(player: Player, root: BasePart, direction: Vector3):
 	return angleBetween(flatAim, flatLook) <= Config.AIM_YAW_TOLERANCE
 end
 
--- World-only raycast params: bodies, dummies, effects and Mod objects don't
--- block a Mod's line of sight or a projectile's path.
+-- World-only raycast params: bodies, dummies and effects don't block a Mod's
+-- line of sight or a projectile's path. Mod objects do (a Firewall stops a
+-- grenade and its blast).
 local function worldParams(): RaycastParams
 	local exclude: { Instance } = {}
 	for _, p in Players:GetPlayers() do
@@ -151,7 +153,7 @@ local function worldParams(): RaycastParams
 			table.insert(exclude, p.Character)
 		end
 	end
-	for _, name in { "Dummies", "Effects", "ModObjects" } do
+	for _, name in { "Dummies", "Effects" } do
 		local f = workspace:FindFirstChild(name)
 		if f then
 			table.insert(exclude, f)
@@ -185,6 +187,7 @@ function ModService.setSlot(player: Player, slot: number, id: string?, level: st
 	s.charges = if stats then stats.charges else 0
 	s.rechargeAt = serverNow()
 	publishSlot(player, slot, s)
+	player:SetAttribute(prefix(slot) .. "ActiveUntil", nil)
 	return true
 end
 
@@ -370,6 +373,31 @@ local function use(
 		schedule = function(delay: number, fn: () -> ())
 			ModEntities.schedule(player, delay, fn)
 		end,
+		place = function(kind: string, part: BasePart, life: number, hp: number, maxActive: number)
+			ModEntities.place(player, kind, part, life, hp, maxActive)
+		end,
+		zone = function(spec: ModTypes.ZoneSpec)
+			ModEntities.addZone(player, spec)
+		end,
+		reveal = function(targets: { Model }, duration: number)
+			for _, other in Players:GetPlayers() do
+				if Teams.isAlly(player, other) then
+					Net.event("ModReveal"):FireClient(other, targets, duration)
+				end
+			end
+		end,
+		fireRate = function(mult: number, duration: number)
+			WeaponService.setFireRate(player, mult, duration)
+		end,
+		active = function(duration: number)
+			player:SetAttribute(prefix(slot) .. "ActiveUntil", serverNow() + duration)
+		end,
+		objectsNear = function(at: Vector3, radius: number): { BasePart }
+			return ModEntities.objectsNear(at, radius)
+		end,
+		damageObject = function(part: BasePart, amount: number)
+			ModEntities.damage(part, amount, player)
+		end,
 	}
 	local req: ModTypes.Request = {
 		mode = mode :: ModTypes.UseMode,
@@ -444,12 +472,40 @@ local function assignTeam(player: Player)
 	player:SetAttribute(Teams.ATTRIBUTE, if counts[2] < counts[1] then 2 else 1)
 end
 
+-- Rollback (predicted) moved the character back: give back the ammo the
+-- player had then. The simulation writes RollbackAt; act outside it.
+local function watchRollback(player: Player, character: Model)
+	local last = character:GetAttribute("RollbackAt")
+	character:GetAttributeChangedSignal("RollbackAt"):Connect(function()
+		local at = character:GetAttribute("RollbackAt")
+		if typeof(at) ~= "number" or at == last then
+			return
+		end
+		last = at
+		local state = states[player]
+		if not state then
+			return
+		end
+		for _, s in state.slots do
+			local stats = s.id == "Rollback" and Mods.stats(s.id, s.level)
+			if stats then
+				task.defer(WeaponService.rewindAmmo, player, stats.rewind)
+				return
+			end
+		end
+	end)
+end
+
 local function onCharacter(player: Player, character: Model)
 	release(player)
+	-- A new life: what the last one left in the world goes.
+	ModEntities.clear(player)
+	watchRollback(player, character)
 	local humanoid = character:WaitForChild("Humanoid", 10)
 	if humanoid and humanoid:IsA("Humanoid") then
 		humanoid.Died:Connect(function()
 			release(player)
+			ModEntities.clear(player)
 		end)
 	end
 end

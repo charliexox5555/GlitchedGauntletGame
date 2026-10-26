@@ -12,11 +12,18 @@ local Types = require(script.Types)
 
 local Mods = {}
 
--- Built Mods (Stage 1). The others have config but no behaviour yet.
+-- Built Mods (all 9 at L1). A Mod with config but no module here can't be
+-- slotted (the dev panel greys it out).
 local modules: { [string]: Types.ModModule } = {
 	Blink = require(script.Blink).module,
+	LaunchPad = require(script.LaunchPad).module,
 	Packet = require(script.Packet).module,
+	Firewall = require(script.Firewall).module,
+	LagField = require(script.LagField).module,
+	Ping = require(script.Ping).module,
 	PatchUp = require(script.PatchUp).module,
+	Overclock = require(script.Overclock).module,
+	Rollback = require(script.Rollback).module,
 }
 
 local cache: { [string]: Types.Stats } = {}

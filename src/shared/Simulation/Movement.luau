@@ -191,6 +191,7 @@ function MovementSim.initialize()
 	if connection then
 		return
 	end
+	AbilitiesSim.initialize()
 	local ok, freq = pcall(function()
 		return Enum.StepFrequency.Hz60
 	end)

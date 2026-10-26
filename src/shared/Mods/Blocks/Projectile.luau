@@ -99,6 +99,37 @@ function Projectile.simulate(
 	return { segments = segments, gravity = gravity, duration = options.duration }
 end
 
+-- When it stops moving: the time it came to rest, else the end of the path.
+function Projectile.endTime(path: Path): number
+	local last = path.segments[#path.segments]
+	return if last.rest then last.t else path.duration
+end
+
+local HAND_FORWARD = 1.5 -- studs in front of the head a throw starts
+local HAND_DROP = 0.35
+
+-- A held throw (Packet, Lag Field): where it leaves the hand and its
+-- velocity, from the head and the aim. LMB ("Primary") throws with
+-- `throwSpeed` / `throwLift`, RMB ("Alt") lobs with `lobSpeed` / `lobLift`.
+-- `params` (world only) keeps the start out of a wall you're facing.
+function Projectile.throw(
+	head: Vector3,
+	aim: Vector3,
+	mode: "Primary" | "Alt",
+	stats: { [string]: any },
+	params: RaycastParams
+): (Vector3, Vector3)
+	local offset = aim * HAND_FORWARD - Vector3.new(0, HAND_DROP, 0)
+	local hit = workspace:Raycast(head, offset, params)
+	local origin = if hit
+		then head + offset.Unit * math.max(hit.Distance - stats.size, 0)
+		else head + offset
+	local lob = mode == "Alt"
+	local speed = if lob then stats.lobSpeed else stats.throwSpeed
+	local lift = if lob then stats.lobLift else stats.throwLift
+	return origin, Projectile.launch(aim, speed, lift)
+end
+
 -- Where the projectile is `t` seconds after the throw.
 function Projectile.positionAt(path: Path, t: number): Vector3
 	local segs = path.segments

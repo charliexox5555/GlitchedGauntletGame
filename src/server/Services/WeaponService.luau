@@ -27,6 +27,7 @@ local Validate = require(Shared.Util.Validate)
 local Weapons = require(Shared.Config.Weapons)
 
 local HitboxHistory = require(script.Parent.HitboxHistory)
+local ModEntities = require(script.Parent.ModEntities)
 
 type Slot = Types.Slot
 type WeaponConfig = Types.WeaponConfig
@@ -93,6 +94,13 @@ local loadouts: { [Player]: { [Slot]: string } } = {}
 local limiter = RateLimit.new(Combat.RATE)
 local holsteredPlayers: { [Player]: boolean } = {}
 local busyUntil: { [Player]: number } = {} -- os.clock(): no shots before this (a Mod use)
+-- Overclock: fire interval divided by `mult` until `untilT` (os.clock()).
+local fireBoost: { [Player]: { mult: number, untilT: number, token: number } } = {}
+local BOOST_GRACE = 0.3 -- shots this late still get the boost (latency)
+-- Ammo over the last few seconds, for Rollback (rewindAmmo).
+type AmmoSnapshot = { t: number, ammo: { [Slot]: { id: string, ammo: number } } }
+local ammoHistory: { [Player]: { AmmoSnapshot } } = {}
+local AMMO_HISTORY = 4.5 -- seconds
 local motion: { [Player]: MotionTrack } = {}
 
 local WeaponsFolder: Instance? = nil
@@ -172,9 +180,33 @@ local function snapshot(state: PlayerState): Types.WeaponState
 	}
 end
 
+-- Remembers the ammo in every slot now (Rollback gives it back later).
+local function recordAmmo(player: Player)
+	local state = states[player]
+	if not state then
+		return
+	end
+	local ammo = {}
+	for slot, s in state.slots do
+		ammo[slot] = { id = s.id, ammo = s.ammo }
+	end
+	local list = ammoHistory[player]
+	if not list then
+		list = {}
+		ammoHistory[player] = list
+	end
+	local now = os.clock()
+	table.insert(list, { t = now, ammo = ammo })
+	-- Keep one snapshot older than the window: the state at its start.
+	while #list >= 2 and now - list[2].t > AMMO_HISTORY do
+		table.remove(list, 1)
+	end
+end
+
 local function sendState(player: Player)
 	local state = states[player]
 	if state then
+		recordAmmo(player)
 		Net.event("WeaponState"):FireClient(player, snapshot(state))
 	end
 end
@@ -514,6 +546,61 @@ function WeaponService.setHolstered(player: Player, holstered: boolean, busyFor:
 			busyUntil[player] = os.clock() + busyFor
 		end
 	end
+end
+
+-- Overclock: the player's guns fire `mult` times as fast for `duration`
+-- seconds. Clients read the FireRateMult player attribute (Util/FireRate).
+function WeaponService.setFireRate(player: Player, mult: number, duration: number)
+	if mult ~= mult or duration ~= duration then
+		return
+	end
+	mult = math.clamp(mult, 1, 3)
+	local old = fireBoost[player]
+	local token = (if old then old.token else 0) + 1
+	fireBoost[player] = { mult = mult, untilT = os.clock() + duration, token = token }
+	player:SetAttribute("FireRateMult", mult)
+	task.delay(duration, function()
+		local b = fireBoost[player]
+		if b and b.token == token then
+			player:SetAttribute("FireRateMult", nil)
+		end
+	end)
+end
+
+local function rateMult(player: Player): number
+	local b = fireBoost[player]
+	if b and os.clock() < b.untilT + BOOST_GRACE then
+		return b.mult
+	end
+	return 1
+end
+
+-- Rollback: every slot gets back the ammo it had `age` seconds ago (a reload
+-- in progress is cancelled). Slots whose gun changed since keep theirs.
+function WeaponService.rewindAmmo(player: Player, age: number)
+	local state = states[player]
+	local list = ammoHistory[player]
+	if not state or not list or #list == 0 or age ~= age then
+		return
+	end
+	local target = os.clock() - age
+	local pick = list[1]
+	for i = #list, 1, -1 do
+		if list[i].t <= target then
+			pick = list[i]
+			break
+		end
+	end
+	for slot, s in state.slots do
+		local old = pick.ammo[slot]
+		if old and old.id == s.id then
+			s.ammo = math.clamp(old.ammo, 0, s.config.magSize)
+			s.reloadToken += 1
+			s.reloadEnd = nil
+			s.shellFrom = nil
+		end
+	end
+	sendState(player)
 end
 
 local function holstered(player: Player): boolean
@@ -971,6 +1058,7 @@ local function onFire(player: Player, payload: unknown)
 		else config.pellets
 	local pelletSpread = if altFire then altFire.pelletSpread else config.pelletSpread
 	local interval = FireRate.interval(config, slot.spinStart, slot.lastFire, now, slot.burstShots)
+		/ rateMult(player)
 	if now < slot.lastFire + interval - Combat.FIRE_JITTER then
 		reject(player, "now < slot.lastFire + interval - Combat.FIRE_JITTER")
 		return
@@ -1017,6 +1105,7 @@ local function onFire(player: Player, payload: unknown)
 	if altFire then
 		slot.altReadyAt = now + altFire.fireInterval
 	end
+	recordAmmo(player)
 
 	-- Replicate the visuals to everyone else (cosmetic: clamp, don't trust).
 	local ends: { Vector3 } = {}
@@ -1066,6 +1155,7 @@ local function onFire(player: Player, payload: unknown)
 	local maxHits =
 		math.min(Combat.MAX_HITS_PER_SHOT, pellets * (if config.pierceCharacters then 4 else 1))
 	local valid: { ValidHit } = {}
+	local objectHits: { { part: BasePart, position: Vector3 } } = {}
 	local seen: { [Model]: { [number]: boolean } } = {}
 	local pelletUsed: { [number]: boolean } = {}
 	for _, raw in readArray(p.hits, maxHits) do
@@ -1094,6 +1184,29 @@ local function onFire(player: Player, payload: unknown)
 			continue
 		end
 		local hitPart = part :: BasePart
+		-- A Mod object (Firewall, Launch Pad): the pellet stops on it and
+		-- takes its HP. Same ray, range and wall checks as a body hit.
+		if ModEntities.isObject(hitPart) then
+			local offset = position - origin
+			local rel = hitPart.CFrame:PointToObjectSpace(position)
+			local half = hitPart.Size / 2 + Vector3.one * Combat.HIT_POSITION_TOLERANCE
+			if
+				config.melee
+				or pelletUsed[pellet]
+				or offset.Magnitude > config.range + 5
+				or (offset.Magnitude > 1 and Spread.angle(offset, dirs[pellet]) > Combat.DIRECTION_TOLERANCE)
+				or math.abs(rel.X) > half.X
+				or math.abs(rel.Y) > half.Y
+				or math.abs(rel.Z) > half.Z
+				or blocked(exclude, origin, position, config.penetration)
+			then
+				reject(player, "bad Mod object hit")
+			else
+				pelletUsed[pellet] = true
+				table.insert(objectHits, { part = hitPart, position = position })
+			end
+			continue
+		end
 		local model = hitboxOwner(hitPart)
 		if
 			not model
@@ -1220,6 +1333,28 @@ local function onFire(player: Player, payload: unknown)
 	for model, t in tally do
 		applyDamage(player, model, t.amount, t.zone, config.id, t.position)
 	end
+	-- Mod objects: pellets summed per object, falloff by the server's distance.
+	local objectTally: { [BasePart]: { amount: number, position: Vector3 } } = {}
+	for _, hit in objectHits do
+		local amount = Damage.compute(config, "Body", (hit.position - head.Position).Magnitude)
+		local t = objectTally[hit.part]
+		if t then
+			t.amount += amount
+		else
+			objectTally[hit.part] = { amount = amount, position = hit.position }
+		end
+	end
+	for part, t in objectTally do
+		local dealt = ModEntities.damage(part, t.amount, player)
+		if dealt > 0 then
+			Net.event("HitConfirm"):FireClient(player, {
+				damage = math.round(dealt),
+				zone = "Body",
+				killed = false,
+				position = t.position,
+			})
+		end
+	end
 	notifyShot(player, config, next(tally) ~= nil)
 end
 
@@ -1285,6 +1420,8 @@ function WeaponService.start()
 		limiter:forget(player)
 		holsteredPlayers[player] = nil
 		busyUntil[player] = nil
+		fireBoost[player] = nil
+		ammoHistory[player] = nil
 	end)
 end
 

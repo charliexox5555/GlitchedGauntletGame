@@ -61,6 +61,16 @@ export type Request = {
 	origin: Vector3, -- the client's camera position
 	direction: Vector3, -- unit camera look
 	target: Model?, -- Patch Up: the ally the client aimed at
+	placement: CFrame?, -- placed Mods: the spot `validate` found (server's own check)
+}
+
+-- A slowing zone (Lag Field) for ModEntities.
+export type ZoneSpec = {
+	center: Vector3,
+	radius: number,
+	height: number,
+	duration: number,
+	slow: number, -- share of speed taken from enemies inside (0.4 = 40% slower)
 }
 
 -- What ModService hands a Mod's validate / apply. Everything that changes the
@@ -84,6 +94,19 @@ export type ServerCtx = {
 	fx: (kind: string, data: { [string]: any }) -> (),
 	-- Runs `fn` after `delay` seconds unless the caster leaves first.
 	schedule: (delay: number, fn: () -> ()) -> (),
+	-- A world object owned by the caster (ModEntities): `life` seconds, `hp`,
+	-- at most `maxActive` of this kind at once (the oldest goes).
+	place: (kind: string, part: BasePart, life: number, hp: number, maxActive: number) -> (),
+	zone: (spec: ZoneSpec) -> (),
+	-- Shows `targets` to the caster's team only, for `duration` seconds.
+	reveal: (targets: { Model }, duration: number) -> (),
+	-- The caster's guns fire `mult` times as fast for `duration` seconds.
+	fireRate: (mult: number, duration: number) -> (),
+	-- The HUD shows the slot's effect running for `duration` seconds.
+	active: (duration: number) -> (),
+	-- Mod objects near a point, and damage to one (not the caster's team's).
+	objectsNear: (at: Vector3, radius: number) -> { BasePart },
+	damageObject: (part: BasePart, amount: number) -> (),
 }
 
 export type ModModule = {

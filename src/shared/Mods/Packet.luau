@@ -13,28 +13,8 @@ local Types = require(script.Parent.Types)
 
 local Packet = {}
 
-local HAND_FORWARD = 1.5 -- studs in front of the head the throw starts
-local HAND_DROP = 0.35
-
--- Where the throw starts and its velocity, from a head position and the aim.
--- `params` (world only) keeps the start out of a wall you're facing.
-function Packet.throw(
-	head: Vector3,
-	aim: Vector3,
-	mode: Types.UseMode,
-	stats: Types.Stats,
-	params: RaycastParams
-): (Vector3, Vector3)
-	local offset = aim * HAND_FORWARD - Vector3.new(0, HAND_DROP, 0)
-	local hit = workspace:Raycast(head, offset, params)
-	local origin = if hit
-		then head + offset.Unit * math.max(hit.Distance - stats.size, 0)
-		else head + offset
-	local lob = mode == "Alt"
-	local speed = if lob then stats.lobSpeed else stats.throwSpeed
-	local lift = if lob then stats.lobLift else stats.throwLift
-	return origin, Projectile.launch(aim, speed, lift)
-end
+-- Where the throw starts and its velocity (shared with Lag Field).
+Packet.throw = Projectile.throw
 
 function Packet.options(stats: Types.Stats): Projectile.Options
 	return {
@@ -92,6 +72,10 @@ local function explode(ctx: Types.ServerCtx, at: Vector3)
 		if distance <= stats.radius and Target.visible(at, model, params) then
 			ctx.damage(model, Packet.damageAt(stats, distance), point)
 		end
+	end
+	-- Enemy Mod objects in the blast (a Packet breaks walls and pads).
+	for _, part in ctx.objectsNear(at, stats.radius) do
+		ctx.damageObject(part, Packet.damageAt(stats, (part.Position - at).Magnitude))
 	end
 	ctx.fx("PacketBoom", { at = at, radius = stats.radius })
 end

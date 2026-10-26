@@ -15,12 +15,22 @@
 --   Mod<n>Key               "id:level" the charges below belong to
 --   Mod<n>Charges, Mod<n>RechargeAt   simulation Mods' charges (time() clock)
 --   ModResetSeen            last ModResetSerial applied
---   Dashing + the Dash* attributes of Mods/Blink
+--   Dashing + the Dash* attributes of Mods/Blink, RollbackAt / RollbackFrom
+--   (Mods/Rollback), LaunchAt / LaunchVelocity / Launching (Mods/LaunchPad);
+--   SlideJumpSpeed carries a
+--   launch's forward speed through the air like a slide-jump (Movement)
+
+local RunService = game:GetService("RunService")
 
 local Charges = require(script.Parent.Parent.Mods.Charges)
 local Config = require(script.Parent.Parent.Config.Mods)
+local LaunchPad = require(script.Parent.Parent.Mods.LaunchPad)
 local Mods = require(script.Parent.Parent.Mods)
+local Rollback = require(script.Parent.Parent.Mods.Rollback)
+local Teams = require(script.Parent.Parent.Mods.Teams)
 local Types = require(script.Parent.Parent.Mods.Types)
+
+local rollbackConnection: RBXScriptConnection? = nil
 
 local AbilitiesSim = {}
 
@@ -94,6 +104,12 @@ function AbilitiesSim.stepCharacter(
 	local resetSerial = number(player, "ModResetSerial", 0)
 	local reset = resetSerial ~= number(character, "ModResetSeen", 0)
 
+	-- Your team's launch pads under your feet.
+	local carry = LaunchPad.launch(character, humanoid, root, Teams.of(player), now)
+	if carry then
+		set(character, "SlideJumpSpeed", carry)
+	end
+
 	for slot, prefix in PREFIXES do
 		local input = actionDown(context, prefix)
 		local pressed = input and character:GetAttribute(prefix .. "In") ~= true
@@ -113,6 +129,10 @@ function AbilitiesSim.stepCharacter(
 		local cast = module.simCast
 		if not cast then
 			continue
+		end
+
+		if id == "Rollback" then
+			Rollback.record(character, root, now)
 		end
 
 		local key = id .. ":" .. level
@@ -146,6 +166,24 @@ function AbilitiesSim.stepCharacter(
 	set(character, "ModResetSeen", resetSerial)
 
 	stepDash(character, root, now)
+end
+
+-- Call once per side (MovementSim.initialize does): a Server Authority
+-- rollback drops the Luau state newer than the step it rewinds to.
+function AbilitiesSim.initialize()
+	if rollbackConnection then
+		return
+	end
+	local ok, signal = pcall(function()
+		return (RunService :: any).Rollback
+	end)
+	if ok and typeof(signal) == "RBXScriptSignal" then
+		rollbackConnection = signal:Connect(function(t: number)
+			if typeof(t) == "number" then
+				Rollback.onRollback(t)
+			end
+		end)
+	end
 end
 
 return AbilitiesSim
