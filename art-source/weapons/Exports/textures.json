@@ -106,5 +106,17 @@
    "Roughness": 74171663687397,
    "Metalness": 71137237717786
   }
+ },
+ "Bulldog": {
+  "ColorMap": 71030536839045,
+  "NormalMap": 133855108572976,
+  "RoughnessMap": 118433087463328,
+  "MetalnessMap": 120353594818363,
+  "decals": {
+   "Color": 104207401904951,
+   "Normal": 98701798480604,
+   "Roughness": 72377744786880,
+   "Metalness": 77606348209204
+  }
  }
 }
