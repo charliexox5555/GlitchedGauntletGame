@@ -219,6 +219,17 @@ return table.freeze({
 	ADS_RECOIL_STIFFNESS = 700,
 	ADS_CLIP_KICK = 0.2,
 
+	-- Held Mods (ModController): the gun drops out of view (camera space,
+	-- around the root) while the Mod's item comes up in the right hand.
+	LOWER = { pos = Vector3.new(0.3, -1.5, 0.6), rot = Vector3.new(-45, 15, 25) } :: Pose,
+	LOWER_FREQUENCY = 14, -- rad/s, critically damped
+	ITEM_OFFSET = Vector3.new(0.5, -0.62, -2), -- the item's grip, camera space
+	ITEM_ROTATION = Vector3.new(8, -12, 0), -- degrees
+	ITEM_FROM = Vector3.new(0.4, -1.3, 0.4), -- it rises from this far below
+	ITEM_ARM = Vector3.new(0.22, -0.8, 0.6), -- right arm direction from the grip
+	ITEM_PUSH = Vector3.new(0, 0.2, -0.7), -- a use (throw / heal) pushes it out this far
+	ITEM_PUSH_TIME = 0.3,
+
 	-- Pose blends (critically damped, rad/s).
 	POSE_FREQUENCY = 13,
 	CANCEL_TIME = 0.14, -- seconds to fade out a cancelled track

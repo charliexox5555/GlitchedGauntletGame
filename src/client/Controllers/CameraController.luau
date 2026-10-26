@@ -26,6 +26,10 @@ local targetRoll = 0
 local moveFov = 0
 local targetMoveFov = 0
 local MOVE_FOV_RATE = 8
+-- A one-off FOV kick (a Blink dash): rises fast, then eases back.
+local punchDegrees = 0
+local punchAt = -math.huge
+local punchTime = 0.3
 -- The OS cursor stays hidden (the HUD draws a crosshair) unless a menu needs it.
 local cursorVisible = false
 
@@ -119,6 +123,27 @@ function CameraController.setMoveFov(degrees: number)
 	targetMoveFov = degrees
 end
 
+-- A quick FOV kick of `degrees` over `duration` seconds (Mod dashes).
+function CameraController.punchFov(degrees: number, duration: number)
+	if degrees ~= degrees or duration ~= duration or duration <= 0 then
+		return
+	end
+	punchDegrees = degrees
+	punchAt = os.clock()
+	punchTime = duration
+end
+
+local function punchNow(): number
+	local t = (os.clock() - punchAt) / punchTime
+	if t >= 1 or t < 0 then
+		return 0
+	elseif t < 0.2 then
+		return punchDegrees * t / 0.2
+	end
+	local k = 1 - (t - 0.2) / 0.8
+	return punchDegrees * k * k
+end
+
 -- Moves the camera by how far the smoothed character position is from the
 -- predicted one, so walking renders at an even pace. The prediction uses a
 -- velocity measured from the positions themselves and a smoothed frame time:
@@ -161,7 +186,7 @@ local function step(dt: number)
 	-- FOV
 	moveFov = lerp(moveFov, targetMoveFov, 1 - math.exp(-MOVE_FOV_RATE * dt))
 	local zoomed = if zoomFov then lerp(baseFov, zoomFov, zoomAlpha) else baseFov
-	local fov = zoomed + moveFov * (1 - zoomAlpha)
+	local fov = zoomed + (moveFov + punchNow()) * (1 - zoomAlpha)
 	cam.FieldOfView = fov
 	-- First person: the game draws its own crosshair, so hide the OS cursor.
 	UserInputService.MouseIconEnabled = cursorVisible

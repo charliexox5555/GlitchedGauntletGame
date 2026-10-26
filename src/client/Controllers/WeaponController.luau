@@ -95,6 +95,10 @@ local alive = false
 -- Spread seeds come from the server's sequence (see Util/Spread.seedFor).
 local seedBase = 0
 local shotIndex = 0
+-- Why the gun is lowered and can't fire (a held Mod: ModController). The
+-- server refuses shots while a Mod is held too (WeaponService.setHolstered).
+local holstered: { [string]: boolean } = {}
+local UNHOLSTER_TIME = 0.25 -- the gun comes back up before it can fire
 
 local CYCLE: { Slot } = { "Primary", "Secondary", "Melee" }
 
@@ -102,6 +106,10 @@ local CYCLE: { Slot } = { "Primary", "Secondary", "Melee" }
 
 local function current(): LocalSlot?
 	return if equipped then slots[equipped] else nil
+end
+
+local function isHolstered(): boolean
+	return next(holstered) ~= nil
 end
 
 local function combatantOf(part: Instance): Model?
@@ -307,7 +315,7 @@ end
 
 local function startReload()
 	local s = current()
-	if not s or reloading or not alive then
+	if not s or reloading or not alive or isHolstered() then
 		return
 	end
 	local config = s.config
@@ -672,7 +680,13 @@ local function swing(s: LocalSlot)
 end
 
 local function canShoot(s: LocalSlot): boolean
-	if not alive or os.clock() < equipReadyAt or reloading or PickerController.isBusy() then
+	if
+		not alive
+		or os.clock() < equipReadyAt
+		or reloading
+		or PickerController.isBusy()
+		or isHolstered()
+	then
 		return false
 	end
 	if s.config.magSize > 0 and s.ammo < 1 then
@@ -682,8 +696,8 @@ local function canShoot(s: LocalSlot): boolean
 end
 
 local function onFirePressed()
-	if PickerController.isBusy() then
-		return -- a click in the weapon picker
+	if PickerController.isBusy() or isHolstered() then
+		return -- a click in the weapon picker, or a held Mod's use
 	end
 	ViewmodelController.cancelInspect()
 	triggerHeld = true
@@ -749,6 +763,7 @@ local function update(dt: number)
 		and InputController.isDown("Aim")
 		and not MovementController.isSprinting()
 		and not PickerController.isOpen()
+		and not isHolstered()
 	aiming = aimingWanted
 	if s then
 		local rate = 1 / math.max(s.config.adsTime, 0.05)
@@ -858,6 +873,35 @@ local function update(dt: number)
 	end
 end
 
+-- Holster (held Mods) -----------------------------------------------------------
+
+-- Lowers the gun and stops it firing, aiming, reloading and inspecting while
+-- any reason holds it down. A reload in progress is cancelled. When the last
+-- reason goes, the gun comes back up before it can fire.
+function WeaponController.setHolstered(reason: string, on: boolean)
+	local was = isHolstered()
+	holstered[reason] = if on then true else nil
+	local now = isHolstered()
+	if was == now then
+		return
+	end
+	triggerHeld = false
+	pressQueued = false
+	burstQueue = 0
+	altQueuedAt = -math.huge
+	if now then
+		cancelReload()
+		ViewmodelController.cancelInspect()
+	else
+		equipReadyAt = math.max(equipReadyAt, os.clock() + UNHOLSTER_TIME)
+	end
+	ViewmodelController.setLowered(now)
+end
+
+function WeaponController.isHolstered(): boolean
+	return isHolstered()
+end
+
 -- Server state ---------------------------------------------------------------
 
 local function onWeaponState(state: Types.WeaponState)
@@ -943,6 +987,8 @@ end
 -- next life's WeaponState then equips (and first-draws) from scratch.
 local function endLife()
 	alive = false
+	table.clear(holstered)
+	ViewmodelController.setLowered(false)
 	triggerHeld = false
 	burstQueue = 0
 	cancelReload()
@@ -969,7 +1015,13 @@ function WeaponController.start()
 	-- Guns with no ADS use the Aim input for their alt-fire.
 	InputController.onPressed("Aim", function()
 		local s = current()
-		if s and s.config.altFire and s.config.noAds and not PickerController.isBusy() then
+		if
+			s
+			and s.config.altFire
+			and s.config.noAds
+			and not PickerController.isBusy()
+			and not isHolstered()
+		then
 			ViewmodelController.cancelInspect()
 			altQueuedAt = os.clock()
 			if s.config.magSize > 0 and s.ammo < 1 and not reloading then
@@ -981,7 +1033,7 @@ function WeaponController.start()
 	InputController.onPressed("Inspect", function()
 		-- Fire, aim, reload and swapping cancel it (ViewmodelController).
 		local s = current()
-		if alive and s and not reloading and os.clock() >= equipReadyAt then
+		if alive and s and not reloading and os.clock() >= equipReadyAt and not isHolstered() then
 			if ViewmodelController.inspect() then
 				playGun(s.config, "inspect")
 			end

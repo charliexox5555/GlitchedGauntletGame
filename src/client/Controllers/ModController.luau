@@ -1,0 +1,644 @@
+--!strict
+-- Client side of the Mods (vault/04 Tech/Mod System.md). Reads the Mod1/2/3
+-- input actions, runs the held state machine, draws the previews and sends
+-- requests; the server decides every result (ModService), and the predicted
+-- Mods (Blink) run in the simulation on their own (Simulation/Abilities).
+--
+-- Held state machine (Mods.md → Rules for held Mods):
+--   Idle → Equipping (EQUIP_TIME raise) → Held → Using (USE_TIME) → Idle
+-- Press a held Mod's key: the gun lowers (WeaponController.setHolstered), the
+-- item comes up (ViewmodelController.holdItem) and the server is told
+-- (ModHold). While held, Fire = Primary use, Aim = Alt use (and the mobile
+-- context button). Cancel with the same key, a weapon key or another Mod's
+-- key (which switches to it). Cancelling costs nothing; a use spends a
+-- charge only if the server accepts it. Quick-cast (dev panel for now) uses
+-- a held Mod on the press.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Bindings = require(Shared.Config.Input)
+local Charges = require(Shared.Mods.Charges)
+local Config = require(Shared.Config.Mods)
+local Mods = require(Shared.Mods)
+local ModTypes = require(Shared.Mods.Types)
+local Net = require(Shared.Net)
+local Packet = require(Shared.Mods.Packet)
+local PatchUp = require(Shared.Mods.PatchUp)
+local Projectile = require(Shared.Mods.Blocks.Projectile)
+
+local ModProps = require(script.Parent.Parent.Util.ModProps)
+local TeamColor = require(script.Parent.Parent.Util.TeamColor)
+local VfxPool = require(script.Parent.Parent.Util.VfxPool)
+local CameraController = require(script.Parent.CameraController)
+local InputController = require(script.Parent.InputController)
+local ViewmodelController = require(script.Parent.ViewmodelController)
+local WeaponController = require(script.Parent.WeaponController)
+
+type Phase = "Idle" | "Equipping" | "Held" | "Using"
+
+-- What the HUD shows for one slot.
+export type SlotView = {
+	id: string?,
+	level: string,
+	def: ModTypes.ModDef?,
+	stats: ModTypes.Stats?,
+	charges: number,
+	max: number,
+	remaining: number, -- seconds until the next charge (0 = full)
+	cooldown: number,
+	held: boolean,
+	built: boolean,
+}
+
+local ModController = {}
+
+local player = Players.LocalPlayer
+
+local phase: Phase = "Idle"
+local current = 0 -- slot being held / used
+local phaseAt = 0 -- os.clock() the phase began
+local queued: ModTypes.UseMode? = nil -- a use pressed while still equipping
+local quickCast = false
+local itemToken = 0
+local lastDashStart = 0
+local flash: { text: string, at: number }? = nil
+
+local denyListeners: { (slot: number, reason: string) -> () } = {}
+
+local PREFIXES = {}
+for slot = 1, Config.SLOTS do
+	PREFIXES[slot] = "Mod" .. slot
+end
+
+local GAMEPAD_NAMES: { [string]: string } = {
+	ButtonL1 = "LB",
+	ButtonR1 = "RB",
+	ButtonL2 = "LT",
+	ButtonR2 = "RT",
+	DPadUp = "D-Pad Up",
+	DPadLeft = "D-Pad Left",
+}
+
+-- Slots and status ------------------------------------------------------------------
+
+local function number(inst: Instance?, name: string, default: number): number
+	local v = inst and inst:GetAttribute(name)
+	return if typeof(v) == "number" then v else default
+end
+
+function ModController.slot(slot: number): SlotView
+	local p = PREFIXES[slot]
+	local id = player:GetAttribute(p .. "Id")
+	local levelAttr = player:GetAttribute(p .. "Level")
+	local level = if typeof(levelAttr) == "string" then levelAttr else "L1"
+	local view: SlotView = {
+		id = nil,
+		level = level,
+		def = nil,
+		stats = nil,
+		charges = 0,
+		max = 0,
+		remaining = 0,
+		cooldown = 0,
+		held = phase ~= "Idle" and current == slot,
+		built = false,
+	}
+	if typeof(id) ~= "string" then
+		return view
+	end
+	local def = Mods.def(id)
+	local stats = Mods.stats(id, level)
+	if not def or not stats then
+		return view
+	end
+	view.id = id
+	view.def = def
+	view.stats = stats
+	view.max = stats.charges
+	view.cooldown = stats.cooldown
+	view.built = Mods.isBuilt(id)
+	-- Predicted Mods keep their charges on the character in time(); server
+	-- Mods on the player in the server clock.
+	local source: Instance? = player
+	local now = Workspace:GetServerTimeNow()
+	if def.authority == "Simulation" then
+		source = player.Character
+		now = time()
+	end
+	local charges = number(source, p .. "Charges", stats.charges)
+	local rechargeAt = number(source, p .. "RechargeAt", now)
+	charges, rechargeAt = Charges.settle(charges, rechargeAt, stats.charges, stats.cooldown, now)
+	view.charges = charges
+	view.remaining = Charges.remaining(charges, rechargeAt, stats.charges, now)
+	return view
+end
+
+local function ready(view: SlotView): boolean
+	return view.charges >= 1 or player:GetAttribute("ModNoCooldown") == true
+end
+
+-- The key that drives a slot on the current device ("Q", "LB", ...).
+function ModController.keyLabel(slot: number): string
+	local b = Bindings[PREFIXES[slot]]
+	local last = UserInputService:GetLastInputType()
+	if string.find(last.Name, "Gamepad") and b.gamepad[1] then
+		local name = b.gamepad[1].Name
+		return GAMEPAD_NAMES[name] or name
+	end
+	return if b.keys[1] then b.keys[1].Name else ""
+end
+
+local function useLabels(): (string, string)
+	local last = UserInputService:GetLastInputType()
+	if string.find(last.Name, "Gamepad") then
+		return "RT", "LT"
+	elseif last == Enum.UserInputType.Touch then
+		return "FIRE", "ALT"
+	end
+	return "LMB", "RMB"
+end
+
+local function deny(slot: number, reason: string)
+	flash = { text = reason, at = os.clock() }
+	for _, fn in denyListeners do
+		task.spawn(fn, slot, reason)
+	end
+end
+
+function ModController.onDeny(fn: (slot: number, reason: string) -> ())
+	table.insert(denyListeners, fn)
+end
+
+function ModController.setQuickCast(on: boolean)
+	quickCast = on
+end
+
+function ModController.isQuickCast(): boolean
+	return quickCast
+end
+
+-- The slot being held (0 when none) and whether it can be used yet.
+function ModController.heldSlot(): number
+	return if phase == "Idle" then 0 else current
+end
+
+-- Previews ---------------------------------------------------------------------------
+
+local previewFolder: Folder? = nil
+local arcPool: VfxPool.Pool<Part>? = nil
+local arcParts: { Part } = {}
+local blastRing: Part? = nil
+local targetHighlight: Highlight? = nil
+local ARC_DOTS = 26
+
+local function previewParent(): Folder
+	local f = previewFolder
+	if f and f.Parent then
+		return f
+	end
+	local made = Instance.new("Folder")
+	made.Name = "ModPreview"
+	made.Parent = Workspace
+	previewFolder = made
+	arcPool = nil
+	blastRing = nil
+	return made
+end
+
+local function newPreviewPart(shape: Enum.PartType, size: Vector3): Part
+	local p = Instance.new("Part")
+	p.Shape = shape
+	p.Size = size
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.CastShadow = false
+	p.Material = Enum.Material.Neon
+	p.Transparency = 1
+	p.Parent = previewParent()
+	return p
+end
+
+local function hideArc()
+	local pool = arcPool
+	if pool then
+		for _, p in arcParts do
+			pool:release(p)
+		end
+	end
+	table.clear(arcParts)
+	if blastRing then
+		blastRing.Transparency = 1
+	end
+end
+
+local function hideTarget()
+	if targetHighlight then
+		targetHighlight.Adornee = nil
+		targetHighlight.Enabled = false
+	end
+end
+
+-- World-only params for previews: what the server's projectile and line of
+-- sight checks ignore (bodies, dummies, effects, Mod objects, the camera).
+local function previewParams(): RaycastParams
+	local exclude: { Instance } = { previewParent() }
+	for _, p in Players:GetPlayers() do
+		if p.Character then
+			table.insert(exclude, p.Character)
+		end
+	end
+	for _, name in { "Dummies", "Effects", "ModObjects" } do
+		local f = Workspace:FindFirstChild(name)
+		if f then
+			table.insert(exclude, f)
+		end
+	end
+	local cam = Workspace.CurrentCamera
+	if cam then
+		table.insert(exclude, cam)
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = exclude
+	return params
+end
+
+local function headPosition(): Vector3?
+	local character = player.Character
+	local head = character and character:FindFirstChild("Head")
+	if head and head:IsA("BasePart") then
+		return head.Position
+	end
+	return nil
+end
+
+local function drawArc(stats: ModTypes.Stats)
+	local head = headPosition()
+	local cam = Workspace.CurrentCamera
+	if not head or not cam then
+		hideArc()
+		return
+	end
+	local params = previewParams()
+	local origin, velocity = Packet.throw(head, cam.CFrame.LookVector, "Primary", stats, params)
+	local path = Projectile.simulate(origin, velocity, Packet.options(stats), params)
+	local pool = arcPool
+	if not pool then
+		local made = VfxPool.new(function(): Part
+			return newPreviewPart(Enum.PartType.Ball, Vector3.one * 0.18)
+		end, previewParent(), ARC_DOTS)
+		arcPool = made
+		pool = made
+	end
+	local color = TeamColor.ALLY
+	local fuse: number = stats.fuse
+	for i = 1, ARC_DOTS do
+		local p = arcParts[i]
+		if not p then
+			p = pool:acquire()
+			arcParts[i] = p
+		end
+		local t = fuse * i / ARC_DOTS
+		p.CFrame = CFrame.new(Projectile.positionAt(path, t))
+		p.Color = color
+		p.Transparency = 0.15 + 0.5 * (i / ARC_DOTS)
+	end
+	local ring = blastRing
+	if not ring then
+		ring = newPreviewPart(Enum.PartType.Cylinder, Vector3.new(0.05, 1, 1))
+		blastRing = ring
+	end
+	local landing = Projectile.positionAt(path, fuse)
+	local r: number = stats.radius
+	ring.Size = Vector3.new(0.06, r * 2, r * 2)
+	ring.CFrame = CFrame.new(landing) * CFrame.Angles(0, 0, math.pi / 2)
+	ring.Color = color
+	ring.Transparency = 0.82
+end
+
+local function showTarget(model: Model?)
+	if not model or model == player.Character then
+		hideTarget()
+		return
+	end
+	local h = targetHighlight
+	if not h then
+		local made = Instance.new("Highlight")
+		made.Name = "ModTarget"
+		made.FillTransparency = 0.85
+		made.OutlineTransparency = 0
+		made.DepthMode = Enum.HighlightDepthMode.Occluded
+		made.Parent = previewParent()
+		targetHighlight = made
+		h = made
+	end
+	h.FillColor = TeamColor.ALLY
+	h.OutlineColor = TeamColor.ALLY
+	h.Adornee = model
+	h.Enabled = true
+end
+
+-- Who Patch Up's Primary would heal right now (nil: no one aimed at).
+local function healTarget(stats: ModTypes.Stats): Model?
+	local cam = Workspace.CurrentCamera
+	if not cam then
+		return nil
+	end
+	return PatchUp.primaryTarget(
+		player,
+		cam.CFrame.Position,
+		cam.CFrame.LookVector,
+		stats,
+		previewParams()
+	)
+end
+
+-- State machine ------------------------------------------------------------------------
+
+local function setPhase(p: Phase, slot: number)
+	phase = p
+	current = slot
+	phaseAt = os.clock()
+end
+
+local function dropItem()
+	itemToken += 1
+	local token = itemToken
+	-- Let the item sink with the raising gun before it goes.
+	task.delay(0.2, function()
+		if token == itemToken then
+			ViewmodelController.holdItem(nil)
+		end
+	end)
+end
+
+-- Back to the gun (after a use, a cancel, death).
+local function endHold(tellServer: boolean)
+	if phase == "Idle" then
+		return
+	end
+	if tellServer and phase ~= "Using" then
+		Net.event("ModHold"):FireServer(0)
+	end
+	setPhase("Idle", 0)
+	queued = nil
+	WeaponController.setHolstered("Mod", false)
+	hideArc()
+	hideTarget()
+	dropItem()
+end
+
+function ModController.cancel()
+	endHold(true)
+end
+
+local function sendUse(slot: number, mode: ModTypes.UseMode, target: Model?)
+	local cam = Workspace.CurrentCamera
+	if not cam then
+		return
+	end
+	Net.event("ModUse"):FireServer(slot, mode, cam.CFrame.Position, cam.CFrame.LookVector, target)
+end
+
+-- Uses the held Mod (or queues the use while it's still coming up).
+local function use(mode: ModTypes.UseMode)
+	if phase ~= "Equipping" and phase ~= "Held" then
+		return
+	end
+	local view = ModController.slot(current)
+	local def, stats = view.def, view.stats
+	if not def or not stats then
+		endHold(true)
+		return
+	end
+	if mode == "Alt" and not def.hint.alt then
+		return
+	end
+	if mode == "Primary" and not def.hint.primary then
+		return
+	end
+	if phase == "Equipping" then
+		queued = mode
+		return
+	end
+	local target: Model? = nil
+	if def.id == "PatchUp" then
+		target = if mode == "Alt" then player.Character else healTarget(stats)
+		if not target then
+			deny(current, "No ally in your crosshair")
+			return
+		end
+		if PatchUp.full(target) then
+			deny(
+				current,
+				if target == player.Character then "Full health" else "Ally at full health"
+			)
+			return
+		end
+		if mode == "Alt" then
+			target = nil -- the server heals the caster itself
+		end
+	end
+	sendUse(current, mode, target)
+	setPhase("Using", current)
+	queued = nil
+	hideArc()
+	hideTarget()
+	ViewmodelController.itemAction()
+end
+
+local function startHold(slot: number, view: SlotView)
+	local def = view.def :: ModTypes.ModDef
+	setPhase("Equipping", slot)
+	queued = nil
+	itemToken += 1
+	WeaponController.setHolstered("Mod", true)
+	ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
+	Net.event("ModHold"):FireServer(slot)
+	if quickCast and def.quickCast then
+		-- Straight to the use: skip the raise.
+		phase = "Held"
+		use(def.quickCast)
+	end
+end
+
+local function onModPressed(slot: number)
+	if not player.Character then
+		return
+	end
+	if phase ~= "Idle" and current == slot then
+		if phase ~= "Using" then
+			endHold(true) -- same key: cancel
+		end
+		return
+	end
+	if phase == "Using" then
+		return -- mid-throw: let it finish
+	end
+	local view = ModController.slot(slot)
+	local def = view.def
+	if phase ~= "Idle" then
+		endHold(true) -- another Mod's key switches to it
+	end
+	if not def or not view.built then
+		deny(slot, if def then def.name .. " isn't built yet" else "Empty slot")
+		return
+	end
+	if not ready(view) then
+		deny(slot, "Not ready")
+		return
+	end
+	if def.activation == "Instant" then
+		if def.authority == "Server" then
+			sendUse(slot, "Primary", nil)
+		end
+		-- Simulation Mods (Blink) run from the same input in the simulation.
+		return
+	end
+	startHold(slot, view)
+end
+
+-- The server didn't accept something: put our state back.
+local function onFx(kind: unknown, data: unknown)
+	if kind ~= "Denied" or typeof(data) ~= "table" then
+		return
+	end
+	local d = data :: { [string]: any }
+	local slot = d.slot
+	local reason = d.reason
+	if typeof(slot) ~= "number" or typeof(reason) ~= "string" then
+		return
+	end
+	if phase ~= "Idle" and current == slot and phase ~= "Using" then
+		endHold(false)
+	end
+	deny(slot, reason)
+end
+
+-- Per frame -----------------------------------------------------------------------------
+
+local function update(_dt: number)
+	local now = os.clock()
+	local character = player.Character
+
+	-- Blink: the simulation dashed (DashStart moved on): lunge the camera.
+	local dashStart = number(character, "DashStart", 0)
+	if dashStart > lastDashStart then
+		lastDashStart = dashStart
+		CameraController.punchFov(9, 0.32)
+		CameraController.shake(0.25)
+	end
+
+	if phase == "Equipping" and now - phaseAt >= Config.EQUIP_TIME then
+		phase = "Held"
+		local q = queued
+		queued = nil
+		if q then
+			use(q)
+		end
+	elseif phase == "Using" and now - phaseAt >= Config.USE_TIME then
+		endHold(false)
+	end
+
+	if phase == "Equipping" or phase == "Held" then
+		local view = ModController.slot(current)
+		local def, stats = view.def, view.stats
+		if not def or not stats or view.id == nil then
+			endHold(true)
+			return
+		end
+		-- The server never took the hold (refused, or slot changed): drop it.
+		if
+			phase == "Held"
+			and now - phaseAt > 0.6
+			and player:GetAttribute("ModHeld") ~= current
+		then
+			endHold(false)
+			return
+		end
+		if def.activation == "HeldThrow" then
+			drawArc(stats)
+		elseif def.activation == "HeldTarget" then
+			showTarget(healTarget(stats))
+		end
+	end
+end
+
+-- The held-mode hint ("LMB Throw · RMB Lob · Q Cancel"), or a short warning
+-- after a refused press (second value true). nil: nothing to show.
+function ModController.hint(): (string?, boolean)
+	local f = flash
+	if f and os.clock() - f.at < 1.4 then
+		return f.text, true
+	end
+	if phase ~= "Equipping" and phase ~= "Held" then
+		return nil, false
+	end
+	local view = ModController.slot(current)
+	local def = view.def
+	if not def then
+		return nil, false
+	end
+	local lmb, rmb = useLabels()
+	local parts = {}
+	local primary = def.hint.primary
+	if def.id == "PatchUp" and view.stats and #PatchUp.allies(player) == 0 then
+		primary = "Heal self"
+	end
+	if primary then
+		table.insert(parts, lmb .. " " .. primary)
+	end
+	if def.hint.alt then
+		table.insert(parts, rmb .. " " .. def.hint.alt)
+	end
+	table.insert(parts, ModController.keyLabel(current) .. " Cancel")
+	return table.concat(parts, "  ·  "), false
+end
+
+function ModController.useAlt()
+	use("Alt")
+end
+
+function ModController.start()
+	for slot, p in PREFIXES do
+		InputController.onPressed(p, function()
+			onModPressed(slot)
+		end)
+	end
+	InputController.onPressed("Fire", function()
+		use("Primary")
+	end)
+	InputController.onPressed("Aim", function()
+		use("Alt")
+	end)
+	for _, name in { "Primary", "Secondary", "Melee", "CycleWeapon", "QuickMelee" } do
+		InputController.onPressed(name, function()
+			if phase == "Equipping" or phase == "Held" then
+				endHold(true)
+			end
+		end)
+	end
+	Net.event("ModFx").OnClientEvent:Connect(onFx)
+	player.CharacterRemoving:Connect(function()
+		endHold(false)
+		lastDashStart = 0
+	end)
+	player.CharacterAdded:Connect(function(character)
+		local humanoid = character:WaitForChild("Humanoid", 10)
+		if humanoid and humanoid:IsA("Humanoid") then
+			humanoid.Died:Connect(function()
+				endHold(false)
+			end)
+		end
+	end)
+	RunService:BindToRenderStep("GGMods", Enum.RenderPriority.Input.Value + 2, update)
+end
+
+return ModController

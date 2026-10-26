@@ -111,6 +111,13 @@ local motionInput: ViewmodelMotion.Input = {
 local DEG = math.pi / 180
 local studio = RunService:IsStudio()
 
+-- Held Mods: the gun lowered (spring 0..1) and the Mod's item in the right
+-- hand (its own WorldModel under the camera, like the guns).
+local lowered = false
+local lowerX, lowerV = 0, 0
+local item: WorldModel? = nil
+local itemPushAt = -math.huge
+
 -- Small helpers ----------------------------------------------------------------
 
 local function smoothstep(t: number): number
@@ -973,6 +980,46 @@ function ViewmodelController.setHidden(value: boolean)
 	end
 end
 
+-- Held Mods ---------------------------------------------------------------------
+
+-- Drops the gun (and the arms on it) out of view, or brings it back.
+function ViewmodelController.setLowered(value: boolean)
+	lowered = value
+end
+
+-- Puts a Mod's item (a Model; cloned) in the right hand, raised as the gun
+-- lowers. Its pivot is the grip. nil takes it away.
+function ViewmodelController.holdItem(template: Model?)
+	if item then
+		item:Destroy()
+		item = nil
+	end
+	local cam = Workspace.CurrentCamera
+	if not template or not cam then
+		return
+	end
+	local world = Instance.new("WorldModel")
+	world.Name = "ViewmodelItem"
+	local copy = template:Clone()
+	for _, d in copy:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+			d.CanCollide = false
+			d.CanQuery = false
+			d.CanTouch = false
+			d.CastShadow = false
+		end
+	end
+	copy.Parent = world
+	world.Parent = cam
+	item = world
+end
+
+-- The use motion (a throw, a heal): the item pushes out and back.
+function ViewmodelController.itemAction()
+	itemPushAt = os.clock()
+end
+
 -- `name`: a muzzle other than "Muzzle" (a double barrel's "MuzzleLower").
 function ViewmodelController.muzzleCFrame(side: Side?, name: string?): CFrame?
 	local gun = guns[side or "Right"] or guns.Right
@@ -1145,6 +1192,14 @@ local function update(dt: number)
 	motionInput.ads = adsT
 	local root = camCf * ViewmodelMotion.step(motion, motionInput, dt)
 
+	-- Held Mod: the gun drops away, the item comes up.
+	lowerX, lowerV =
+		ViewmodelMotion.spring(lowerX, lowerV, if lowered then 1 else 0, VM.LOWER_FREQUENCY, dt)
+	local lowerT = math.clamp(lowerX, 0, 1)
+	local lowerCf = if lowerT > 1e-3
+		then CFrame.new(VM.LOWER.pos * lowerT) * angles(VM.LOWER.rot * lowerT)
+		else CFrame.identity
+
 	-- 2. Guns: root * hold pose, then every joint of the gun from its clip.
 	updatePoseWeights(dt, state)
 	stepTracks(dt)
@@ -1170,7 +1225,7 @@ local function update(dt: number)
 					end
 				end
 			end
-			local handleCf = root * holdPose(gun, c, side == "Left", adsT, dt)
+			local handleCf = root * lowerCf * holdPose(gun, c, side == "Left", adsT, dt)
 			handleCFrames[side] = handleCf
 			ViewmodelRig.solve(rig, handleCf, 1 - (1 - VM.ADS_CLIP_KICK) * adsT)
 
@@ -1234,6 +1289,33 @@ local function update(dt: number)
 		end
 	end
 
+	-- 3b. A held Mod's item, in the right hand.
+	local held = item
+	if held then
+		local model = held:FindFirstChildOfClass("Model")
+		if model then
+			local push = (now - itemPushAt) / VM.ITEM_PUSH_TIME
+			local pos = VM.ITEM_OFFSET
+				+ VM.ITEM_FROM * (1 - lowerT)
+				+ VM.ITEM_PUSH * (if push < 1 then math.sin(math.pi * push) else 0)
+			local itemCf = root * CFrame.new(pos) * angles(VM.ITEM_ROTATION)
+			local offset = model:GetAttribute("HoldOffset")
+			model:PivotTo(
+				if typeof(offset) == "Vector3" then itemCf * CFrame.new(offset) else itemCf
+			)
+			if a and lowerT > 0.05 then
+				local hand = itemCf.Position
+				ViewmodelArms.place(
+					a,
+					"Right",
+					hand,
+					hand + root:VectorToWorldSpace(VM.ITEM_ARM),
+					root.RightVector
+				)
+			end
+		end
+	end
+
 	-- 4. Move everything, all from this one solve.
 	for _, side in SIDES do
 		local gun = guns[side]
@@ -1251,6 +1333,9 @@ function ViewmodelController.start()
 	RunService:BindToRenderStep("GGViewmodel", Enum.RenderPriority.Camera.Value + 2, update)
 	player.CharacterRemoving:Connect(function()
 		ViewmodelController.unequip()
+		ViewmodelController.holdItem(nil)
+		lowered = false
+		lowerX, lowerV = 0, 0
 		if arms then
 			arms.model:Destroy()
 			arms = nil
