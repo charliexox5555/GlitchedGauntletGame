@@ -49,7 +49,7 @@ rojo plugin install        # installs the Rojo plugin into Roblox Studio
 
 Check it worked:
 ```bash
-rojo --version     # Rojo 7.4.4
+rojo --version     # Rojo 7.7.1
 stylua --version
 selene --version
 ```
@@ -155,6 +155,7 @@ I just playtested. Here's what happened: [brain-dump]. Turn this into a Playtest
 |---|---|
 | `rokit` not found | Restart the terminal; rerun the Rokit installer |
 | Rojo plugin won't connect | `rojo serve` must be running in the repo folder; same port (34872) in the plugin |
+| Plugin error `attempt to index number with 'protocolVersion'` | The Studio plugin and `rojo serve` are different Rojo versions. In the repo folder run `rokit install`, then `rojo plugin install`, restart Studio, `rojo serve`, Connect. Remove any other Rojo plugin (Creator Store copy) under Plugins → Manage Plugins |
 | My Studio edits disappeared | You edited something Rojo owns (Shared, Assets, Server, Client). Edit files instead, or work in staging/Workspace |
 | `stylua --check` fails on Windows | Line endings: make sure `.gitattributes` exists (Prompt 1), then run `stylua src` |
 | `selene` std library error | Run `selene generate-roblox-std` once with internet access |
