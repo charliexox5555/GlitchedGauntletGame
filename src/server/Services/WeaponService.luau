@@ -19,9 +19,11 @@ local Combat = require(Shared.Config.Combat)
 local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
+local RateLimit = require(Shared.Util.RateLimit)
 local Spread = require(Shared.Util.Spread)
 local TestMode = require(Shared.TestMode)
 local Types = require(Shared.Types)
+local Validate = require(Shared.Util.Validate)
 local Weapons = require(Shared.Config.Weapons)
 
 local HitboxHistory = require(script.Parent.HitboxHistory)
@@ -82,14 +84,14 @@ type PlayerState = {
 }
 
 local SLOTS: { Slot } = { "Primary", "Secondary", "Melee" }
-local MAX_COORD = 1e5
 local seedRng = Random.new()
 
 local WeaponService = {}
 
 local states: { [Player]: PlayerState } = {}
 local loadouts: { [Player]: { [Slot]: string } } = {}
-local buckets: { [Player]: { [string]: { tokens: number, last: number } } } = {}
+local limiter = RateLimit.new(Combat.RATE)
+local holsteredPlayers: { [Player]: boolean } = {}
 local motion: { [Player]: MotionTrack } = {}
 
 local WeaponsFolder: Instance? = nil
@@ -111,40 +113,10 @@ local damageListeners: { (event: DamageEvent) -> () } = {}
 -- Helpers ------------------------------------------------------------------
 
 local function allow(player: Player, key: string): boolean
-	local rate = Combat.RATE[key]
-	local perSecond, burst = rate[1], rate[2]
-	local now = os.clock()
-	local pb = buckets[player]
-	if not pb then
-		pb = {}
-		buckets[player] = pb
-	end
-	local b = pb[key]
-	if not b then
-		b = { tokens = burst, last = now }
-		pb[key] = b
-	end
-	b.tokens = math.min(burst, b.tokens + (now - b.last) * perSecond)
-	b.last = now
-	if b.tokens < 1 then
-		return false
-	end
-	b.tokens -= 1
-	return true
+	return limiter:allow(player, key)
 end
 
-local function finiteVector(v: unknown): Vector3?
-	if typeof(v) ~= "Vector3" then
-		return nil
-	end
-	local vec = v :: Vector3
-	for _, c in { vec.X, vec.Y, vec.Z } do
-		if c ~= c or math.abs(c) > MAX_COORD then
-			return nil
-		end
-	end
-	return vec
-end
+local finiteVector = Validate.vector
 
 local function isSlot(v: unknown): boolean
 	return v == "Primary" or v == "Secondary" or v == "Melee"
@@ -392,12 +364,13 @@ end
 
 -- Damage ---------------------------------------------------------------------
 
+-- `sourceId`: the gun's id, or a Mod's id for Mod damage (WeaponService.damage).
 local function applyDamage(
 	attacker: Player,
 	victimModel: Model,
 	amount: number,
 	zone: HitZone,
-	config: WeaponConfig,
+	sourceId: string,
 	at: Vector3
 )
 	local humanoid = liveHumanoid(victimModel)
@@ -416,7 +389,7 @@ local function applyDamage(
 			damage = dealt,
 			zone = zone,
 			killed = killed,
-			weaponId = config.id,
+			weaponId = sourceId,
 			position = at,
 		}
 		for _, fn in damageListeners do
@@ -438,7 +411,7 @@ local function applyDamage(
 		Net.event("Damaged"):FireClient(victim, attackerRoot.Position, math.round(dealt))
 	end
 	if killed then
-		Net.event("Killed"):FireAllClients(victimModel, attacker, config.id, zone == "Head")
+		Net.event("Killed"):FireAllClients(victimModel, attacker, sourceId, zone == "Head")
 	end
 end
 
@@ -498,6 +471,43 @@ local function blocked(
 		end
 	end
 	return true
+end
+
+-- Damage from a Mod (ModService), through the same path as gun damage: kill
+-- feed, hit confirm, damage direction, LastAttacker, listeners. The amount is
+-- computed by the server's Mod code, never by a client.
+function WeaponService.damage(
+	attacker: Player,
+	victim: Model,
+	amount: number,
+	sourceId: string,
+	at: Vector3
+)
+	if amount ~= amount or amount <= 0 then
+		return
+	end
+	applyDamage(attacker, victim, amount, "Body", sourceId, at)
+end
+
+-- Heals a combatant (no natural regen: heals only come from Mods). Returns
+-- the health actually added.
+function WeaponService.heal(target: Model, amount: number): number
+	local humanoid = liveHumanoid(target)
+	if not humanoid or amount ~= amount or amount <= 0 then
+		return 0
+	end
+	local before = humanoid.Health
+	humanoid.Health = math.min(humanoid.MaxHealth, before + amount)
+	return humanoid.Health - before
+end
+
+-- While a held Mod is up the gun is lowered: no shots are accepted (ModService).
+function WeaponService.setHolstered(player: Player, holstered: boolean)
+	if holstered then
+		holsteredPlayers[player] = true
+	else
+		holsteredPlayers[player] = nil
+	end
 end
 
 local function notifyShot(player: Player, config: WeaponConfig, hit: boolean)
@@ -903,6 +913,10 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "not slot")
 		return
 	end
+	if holsteredPlayers[player] then
+		reject(player, "holding a Mod")
+		return
+	end
 	local config = slot.config
 	local now = os.clock()
 
@@ -1189,7 +1203,7 @@ local function onFire(player: Player, payload: unknown)
 		end
 	end
 	for model, t in tally do
-		applyDamage(player, model, t.amount, t.zone, config, t.position)
+		applyDamage(player, model, t.amount, t.zone, config.id, t.position)
 	end
 	notifyShot(player, config, next(tally) ~= nil)
 end
@@ -1253,7 +1267,8 @@ function WeaponService.start()
 		motion[player] = nil
 		states[player] = nil
 		loadouts[player] = nil
-		buckets[player] = nil
+		limiter:forget(player)
+		holsteredPlayers[player] = nil
 	end)
 end
 
