@@ -31,6 +31,7 @@ export type GunAnimator = {
 	play: (self: GunAnimator, name: string, duration: number?) -> (),
 	stop: (self: GunAnimator) -> (),
 	isPlaying: (self: GunAnimator, name: string?) -> boolean,
+	holdStart: (self: GunAnimator, name: string) -> (),
 	has: (self: GunAnimator, name: string) -> boolean,
 	progress: (self: GunAnimator) -> number,
 	activity: (self: GunAnimator, name: string, bone: string) -> (number?, number?),
@@ -98,6 +99,26 @@ end
 
 local function isPlaying(self: GunAnimator, name: string?): boolean
 	return self.clip ~= nil and (name == nil or self.clipName == name)
+end
+
+-- Holds the first frame of clip `name` (no clip playing) until the next
+-- play or stop: a pistol's slide locked back after its last round.
+local function holdStart(self: GunAnimator, name: string)
+	local clips = self.clips
+	local clip = clips and (clips :: any)[name] :: Clip?
+	if not clip then
+		return
+	end
+	self.clip = nil
+	self.clipName = nil
+	resetMotors(self)
+	for bone, data in clip.bones do
+		local motor = self.motors[bone]
+		if motor then
+			motor.Transform = frameCFrame(data, 0, self.scale)
+		end
+	end
+	self.dirty = true
 end
 
 local function has(self: GunAnimator, name: string): boolean
@@ -210,6 +231,7 @@ function GunAnimator.new(model: Model, weaponId: string, scale: number): GunAnim
 		play = play,
 		stop = stop,
 		isPlaying = isPlaying,
+		holdStart = holdStart,
 		has = has,
 		progress = progress,
 		activity = activity,

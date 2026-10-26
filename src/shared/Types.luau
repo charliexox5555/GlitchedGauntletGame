@@ -102,6 +102,9 @@ export type WeaponConfig = {
 	-- size) from rest: a spent shell vanishes as it's pulled clear of the gun
 	-- and the fresh one appears as it nears the chamber.
 	hideBeyond: { [string]: number }?,
+	-- After the last round the action stays open (a pistol's slide locked
+	-- back: the first frame of its ReloadEmpty clip) until the reload.
+	lockOnEmpty: boolean?,
 	spinUp: SpinUp?,
 	magSize: number,
 	reloadTime: number,

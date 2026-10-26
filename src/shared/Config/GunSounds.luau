@@ -121,6 +121,19 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 	},
+
+	-- Ghost: suppressed pistol.
+	Ghost = {
+		fire = { id = "atlas:Ruger22", volume = 0.7, pitch = { 0.95, 1.0 } }, -- PLACEHOLDER: Ruger .22, filtered (quiet)
+		fireFar = { id = "atlas:Ruger22_Far", volume = 0.75, pitch = PITCH }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
+		rack = { id = RACK, volume = FOLEY, pitch = { 1.1, 1.16 } }, -- PLACEHOLDER: slide released / racked
+		draw = { id = DRAW, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER
+	},
 }
 
 local GunSounds = {}

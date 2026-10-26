@@ -137,6 +137,9 @@ return table.freeze({
 	BEAT_MAG_OUT = 0.03,
 	BEAT_MAG_IN = 0.03,
 	BEAT_RACK = 0.02,
+	-- lockOnEmpty guns: on the last round the Fire clip is cut here (its
+	-- slide at the back) and the action holds open until the reload.
+	LOCK_AT = 0.25,
 
 	-- Motion of the whole rig (Util/ViewmodelMotion). Every spring is
 	-- critically damped and solved exactly, so it looks the same at any frame

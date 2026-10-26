@@ -134,6 +134,18 @@ Over-under break-action pocket shotgun. No ADS.
 
 New generic weapon fields it uses: `muzzles` (shots come from each muzzle in turn), `shellsOnFire = false` (the reload clip shows the spent shells), `hideBeyond` (props hidden away from rest), `moveClass`. The server now counts up to 20 hits per shot.
 
+### Ghost v2 (roster 02, suppressed pistol)
+| Stat | Value | Valorant Ghost |
+|---|---|---|
+| Fire | Semi, 0.148 s (6.75/s), suppressed (no tracer for enemies, quiet, small flash) | 6.75/s |
+| Mag / reload | 13 / 1.5 s tactical, 1.75 s empty (slide release) | 13 / 1.5 s |
+| Damage | 30 body / 67 head / 25 legs; ×0.83 from 105 studs. No one-tap headshot (v2 keeps those for snipers, the revolver and a DMR) | 30 / 105 / 25 → 25 / 87 / 21 past 30 m |
+| Spread | 0.3° → 1.65° (1 protected shot, +0.25°/shot), recovery 0.35 s | 0.3° → 1.65° |
+| Recoil | 0.45° × 2, then 0.3° up + 0.15° side, 25% switch, 80% back over 0.25 s | |
+| Equip | 0.55 s first draw (press check), 0.35 s quick | |
+
+`lockOnEmpty` (Ghost and Classic): after the last round the slide stays locked back (the first frame of the gun's ReloadEmpty clip) until the empty reload releases it.
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

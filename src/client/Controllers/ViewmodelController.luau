@@ -71,6 +71,7 @@ type Gun = {
 	adsFade: number, -- last fade written to adsHide
 	reticle: SurfaceGui?,
 	props: { Prop }, -- parts hidden while their joint is far from rest (config hideBeyond)
+	lockPending: boolean, -- the last round went: lock the action once the Fire clip's recoil peaks
 	recoil: Spring.Spring, -- hip kick
 	adsRecoil: Spring.Spring, -- aimed kick (stiff, critically damped)
 }
@@ -624,6 +625,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		adsFade = 0,
 		reticle = reticle,
 		props = {},
+		lockPending = false,
 		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
 		adsRecoil = Spring.new(VM.ADS_RECOIL_STIFFNESS, 2 * math.sqrt(VM.ADS_RECOIL_STIFFNESS)),
 	}
@@ -790,7 +792,8 @@ function ViewmodelController.equip(
 end
 
 -- `side`: which gun fired (akimbo guns alternate); normal guns are "Right".
-function ViewmodelController.fire(kickScale: number, side: Side?)
+-- `empty`: that was the last round (guns with lockOnEmpty lock the action open).
+function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean?)
 	local gun = guns[side or "Right"] or guns.Right
 	if not gun then
 		return
@@ -799,6 +802,10 @@ function ViewmodelController.fire(kickScale: number, side: Side?)
 		ViewmodelController.cancelInspect()
 	end
 	gun.animator:play("Fire")
+	gun.lockPending = empty == true
+		and config ~= nil
+		and config.lockOnEmpty == true
+		and gun.animator:has("ReloadEmpty")
 	local up = if config then config.recoil.up else 1
 	local k = math.clamp(up, 0.3, 4) * kickScale
 	gun.recoil:impulse(
@@ -1091,6 +1098,13 @@ local function update(dt: number)
 		local rig = gun and gun.rig
 		if gun and rig then
 			gun.animator:update(dt)
+			if
+				gun.lockPending
+				and (not gun.animator:isPlaying("Fire") or gun.animator:progress() >= VM.LOCK_AT)
+			then
+				gun.lockPending = false
+				gun.animator:holdStart("ReloadEmpty")
+			end
 			for _, prop in gun.props do
 				local away = prop.motor.Transform.Position.Magnitude > prop.limit
 				if away ~= prop.hiddenNow then

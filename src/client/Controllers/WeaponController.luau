@@ -488,7 +488,11 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 		CameraController.kick(config.recoil.up, 0, config.recoil.recover, config.recoil.recoverTime)
 	end
 	CameraController.shake((0.04 + config.recoil.up * 0.1) * (1 - 0.35 * adsAlpha))
-	ViewmodelController.fire((1 - 0.5 * adsAlpha) * (if altFire then 1.6 else 1), side)
+	ViewmodelController.fire(
+		(1 - 0.5 * adsAlpha) * (if altFire then 1.6 else 1),
+		side,
+		config.magSize > 0 and s.ammo <= 0
+	)
 	if predictedHit then
 		HudController.hitMarker(predictedHead)
 	end
