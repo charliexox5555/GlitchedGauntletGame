@@ -2,7 +2,7 @@
 
 > **Status: APPROVED set v1 (2026-10-26).** The 9 Mods and their names are locked; numbers are starting points for playtesting.
 > **Build order:** base **L1 of all 9 first** (Phase 1). Paths A/B and Glitch paths come after L1 is fun (Phase 2).
-> **Built (2026-10-26, Stage 1):** the Mod framework and L1 of **Blink, Packet and Patch Up** (placeholder visuals). How it's built: [Mod System](../04%20Tech/Mod%20System.md).
+> **Built (2026-10-26):** the Mod framework and **L1 of all 9 Mods** (placeholder visuals, no sounds yet). How it's built: [Mod System](../04%20Tech/Mod%20System.md). Test list: [Mods Overnight Checklist](../05%20Production/Playtests/Mods%20Overnight%20Checklist.md).
 
 ## How a Mod upgrades
 ```
@@ -101,6 +101,7 @@ There are three ways a Mod activates:
 | **G3 Zero-G** ⚡ | You're immune to your own zone's spread penalty, and enemies inside are revealed. |
 
 **Counter:** shoot people in the air (predictable arcs); destroy the pad (50 HP).
+*Built L1:* teammates (and you) only; the launch keeps its arc until you land (about 24 studs up, 29 forward).
 
 ## 3. Packet: Damage (projectile)
 | Level | Effect |

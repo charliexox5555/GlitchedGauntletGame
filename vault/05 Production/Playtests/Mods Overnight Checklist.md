@@ -54,3 +54,49 @@ You start with **Q Blink · E Packet · T Patch Up** (Studio and test-mode serve
 
 ### Nothing to save
 Stage 1 adds no Studio-owned content: nothing to save in the place.
+
+## Stage 2: Launch Pad, Firewall, Lag Field, Ping, Overclock, Rollback
+
+All 9 Mods are now built at L1. Use **F8** to put any of them in any slot (the start loadout is still Blink / Packet / Patch Up). **No cooldown** makes testing much faster.
+
+### Launch Pad (held place)
+- [ ] Press its key: the gun drops, a puck comes up, and a **green** box shows where the pad goes (red, with the reason on LMB, when it can't: no ground, no room, can't see there). Hint: "LMB Place".
+- [ ] LMB places a flat pad in your team colour. Walk onto it: you're thrown about 25 studs up and 30 forward, in a straight, predictable arc. It lasts 15 s; placing a second one removes the first (1 at a time at L1).
+- [ ] Look straight down and place it under your feet: instant launch.
+- [ ] No rubber-banding during the launch (it runs in the Server Authority simulation).
+
+### Firewall (held place)
+- [ ] An 8x6 hologram across your aim, up to 8 studs out; red if it would overlap someone (it never traps people).
+- [ ] LMB deploys a see-through team-coloured wall for 6 s. F8 → Spawn enemy behind it and shoot: the shots stop on the wall, the enemy takes nothing.
+- [ ] A Packet thrown at the wall bounces off it and its blast doesn't go through.
+- [ ] Your own shots don't damage your own wall (only enemies' shots and Packets do: 150 HP). Needs a 2-player test to see an enemy break it.
+
+### Lag Field (held throw)
+- [ ] Hold: arc preview and a 10-stud ring where the orb lands. LMB throw / RMB lob.
+- [ ] The orb opens a cyan dome for 4 s (orange-red for the enemy). F8 → Spawn enemy and throw it at the dummy: **SLOWED** over the dummy while it's inside.
+- [ ] Your own field never slows you. In a 2-player test the enemy moves 40% slower inside and sees "SLOWED" above their slots.
+
+### Ping (instant)
+- [ ] Press: a pulse sphere grows from you; enemies within 30 studs get an orange-red outline **through walls** for 2 s (only your team sees it). F8 → Spawn enemy, stand behind cover, Ping.
+- [ ] A thin bar above the slot drains while the effect runs.
+
+### Overclock (instant)
+- [ ] Press: a cyan glow round the screen edge for 5 s, and your gun fires 25% faster (hold LMB on the Vandal). No shots are refused (Studio: the player attribute `FireReject` stays empty).
+- [ ] In a 2-player test the other player sees your gun glow.
+
+### Rollback (instant, predicted)
+- [ ] Shoot a few rounds, move or Blink away, then press it within 3 s: you snap back to where you were 3 s ago (facing where you face now), with the ammo you had then, plus a short grey "VHS" wash and an FOV pull.
+- [ ] While it's ready, a dotted ghost trail shows your last 3 s of path (others see yours too: the counter-play).
+- [ ] 22 s cooldown. No rubber-banding.
+
+### All Mods
+- [ ] Dying or respawning removes your pads, walls and zones.
+- [ ] Every held Mod: same key cancels, nothing is spent; LMB never fires the gun while holding.
+
+### Known for now
+- Placeholder pads, walls, orbs and pucks (built in code), no Mod sounds yet.
+- Blink's charge refills when you respawn (its charges live on the character).
+- Guns still ignore teams; you can't damage your own Mod objects.
+
+### Nothing to save
+Stage 2 adds no Studio-owned content either: nothing to save in the place.

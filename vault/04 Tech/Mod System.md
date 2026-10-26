@@ -1,6 +1,6 @@
 # Mod System: architecture (Stage 0 proposal)
 
-> **Status:** approved 2026-10-26. **Stage 1 built** (framework + Blink, Packet, Patch Up L1): "Stage 1: as built" at the end says what changed from this proposal. Design source of truth: [Mods](../01%20Design/Mods.md). Code rules: [Architecture](Architecture.md).
+> **Status:** approved 2026-10-26. **Stages 1 and 2 built**: all 9 Mods at L1 with placeholder visuals. "Stage 1: as built" and "Stage 2: as built" at the end say what changed from this proposal. Design source of truth: [Mods](../01%20Design/Mods.md). Code rules: [Architecture](Architecture.md).
 > Scope: the framework plus **L1 of all 9 Mods**. Paths A/B and Glitch plug in later without a rewrite (see "Levels and paths").
 
 ## What exists today (surveyed 2026-10-26)
@@ -142,7 +142,7 @@ Each session commits only its own paths and never pushes; the handler checks the
 ## Stage 1: as built (2026-10-26)
 What exists, and where it differs from the proposal above.
 
-**Files.** Everything in the file list exists except `Placeable`, `Zone`, `Reveal`, `Rewind` and the other 6 Mod modules (Stage 2). New: `shared/Mods/Charges.luau` (charge maths shared by server, simulation and HUD), `client/Util/ModProps.luau` (held/thrown models: the finished model from `ReplicatedStorage.Abilities` when it exists, else a code-built placeholder), `client/Controllers/ModFxController.luau`.
+**Files.** Everything in the file list exists (the Stage 2 blocks and Mods came next). New: `shared/Mods/Charges.luau` (charge maths shared by server, simulation and HUD), `client/Util/ModProps.luau` (held/thrown models: the finished model from `ReplicatedStorage.Abilities` when it exists, else a code-built placeholder), `client/Controllers/ModFxController.luau`.
 
 **Changes from the proposal**
 - **The simulation step:** `Simulation/Abilities` isn't bound on its own; `Simulation/Movement` calls `AbilitiesSim.stepCharacter` first in every step, so the dash and the walk speed it needs are decided together, in a fixed order.
@@ -170,3 +170,20 @@ What exists, and where it differs from the proposal above.
 **Dev panel** (F8, `DevModController` + `DevModService`): slot tabs, the 9 Mods (unbuilt ones greyed; the server only accepts built ones), the 7 levels (above L1 only the numbers apply until Phase 2), reset cooldowns, no-cooldown, quick-cast, spawn an enemy / teammate dummy (R15, prepared by `CharacterService` like players, anchored, in `workspace.Dummies`, respawns after 3 s, max 6, outlined per viewer), clear dummies. Allowed in Studio, or for rank 255 in group 11116787.
 
 **Open for later stages:** sounds (shortlist waiting), real models and icons (Stage 3), viewmodel throw / heal animations (a placeholder push now), a third-person view of held Mods for other players, Blink losing ~10% of its distance from a standstill (tune `distance` or compensate), guns respecting teams.
+
+## Stage 2: as built (2026-10-26)
+All 9 Mods work at L1 (placeholder visuals). New blocks: `Placeable` (one spot check for the hologram and the server: ground facing up within range along the aim, room for the box, a clear line from the head; `Placeable.overlap(bodies)` decides whether bodies count), `Zone` (a cylinder on the ground), `Reveal` (live enemies near a point), `Rewind` (a time-keyed CFrame history). `Projectile.throw` is shared by Packet and Lag Field.
+
+**Changes from the proposal**
+- **Mod objects** (`ModEntities`): parts in `workspace.ModObjects` with attributes `Kind`, `TeamId`, `OwnerId`, `Hp`, `MaxHp`, `ExpiresAt`. At most `charges` of a kind per owner (the oldest goes). They're removed on expiry, at 0 HP, and when the owner dies, respawns or leaves (a grenade already in flight still goes off). Nobody damages their own team's objects.
+- **Mod objects block Mod line of sight and projectiles** now (`worldParams` no longer skips `ModObjects`): a Firewall stops a grenade and its blast. Packet blasts damage enemy objects in the radius.
+- **Shots on Mod objects:** the client reports a hit on any part with a `MaxHp` attribute; `WeaponService` checks it like a body hit (pellet ray ±1.5°, range, inside the part's box + 2 studs, no wall between) and `ModEntities.damage` applies the gun's body damage with falloff. Melee doesn't hit objects.
+- **Launch Pad** launches inside the simulation (`LaunchPad.launch`, called first in `Abilities.stepCharacter`): your team's pad under your feet sets the root's velocity to forward 30 + up 99 studs/s and **holds it**: the Humanoid's ground state brakes a vertical kick for a few steps (measured: 99 → 55 studs/s in one step, ~8 studs high), so the launch's own arc (up − g·t) is held for 0.2 s, then the horizontal speed is held until landing. Measured: 24 studs up, 29 forward, server and client identical.
+- **Rollback** keeps 4 s of root CFrames per character inside the simulation (only for characters with Rollback slotted), trimmed on `RunService.Rollback(time)`. The cast pivots the character to the 3 s-old position (keeping the current facing) and zeroes its velocity. The server watches the `RollbackAt` character attribute and calls `WeaponService.rewindAmmo` (snapshots on every state change and accepted shot, 4.5 s kept); the client drops a reload in progress. Measured: back to the exact spot after a 10.8-stud Blink, ammo 19 → 24.
+- **Overclock** goes through `WeaponService.setFireRate`: the server divides the fire interval by its own copy of the multiplier (with 0.3 s of grace after it ends), clients read the `FireRateMult` player attribute (`FireRate.boost`). No shots refused in a 1 s full-auto test.
+- **Lag Field** slows through `ModEntities` on Heartbeat: enemies of the zone's owner inside get `ModSpeedMult` = 1 − slow (the simulation multiplies it into the walk speed, like `MoveMult`); dummies get a `Slowed` attribute (they're scripted, so it's only shown).
+- **Ping** sends `ModReveal(targets, duration)` to the caster's team only; everyone gets the `PingPulse` effect.
+- **HUD:** `Mod<n>ActiveUntil` (server time) shows a draining bar above a slot while its effect runs; "SLOWED" above the slots when a Lag Field slows you.
+- New ModFx kinds: `LagThrow`, `LagZone`, `PingPulse`, `Overclock`, `Placed`, `ObjectGone`. New remote: `ModReveal`.
+
+**Known for later:** Blink's charges live on the character, so they refill on respawn (server Mods keep theirs); the predicted Mods' attributes use simulation `time()` (to re-check in a late-join Team Test); placeholder art everywhere; no sounds; a third-person view of held Mods.
