@@ -632,6 +632,311 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
+	-- Snipers ------------------------------------------------------------
+	-- Marshal v2 (roster 11): cheap lever-action scoped rifle. One-shots a
+	-- head; loads round by round through the side gate (firing mid-reload
+	-- keeps the rounds loaded).
+	Marshal = {
+		id = "Marshal",
+		displayName = "Marshal",
+		class = "Sniper",
+		tier = 2,
+		slot = "Primary",
+		fireMode = "Bolt", -- the lever cycles after every shot
+		damage = { body = 101, head = 202, legs = 85 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.667, -- 1.5 rounds/s
+		magSize = 5,
+		reloadTime = 2.5, -- a full load (5 rounds); fallback for the clip-based timing
+		emptyReloadTime = 2.5,
+		shellReload = { start = 0.3, insert = 0.4, finish = 0.35 },
+		equipTime = 0.7,
+		firstEquipTime = 1.2, -- works the lever
+		range = 800,
+		spread = {
+			first = 1, -- hip
+			adsMultiplier = 0, -- scoped: exactly where you aim (standing)
+			protected = 0,
+			protectedGrowth = 0,
+			growth = 0.5,
+			max = 2,
+			recoveryTime = 0.6,
+		},
+		recoil = {
+			up = 2.5,
+			protected = 1,
+			upAfter = 2.5,
+			side = 0.3,
+			switchChance = 0.5,
+			switchMinTime = 0.3,
+			recover = 0.85,
+			recoverTime = 0.35,
+		},
+		scope = { zoom = 3.5 },
+		adsFov = 50, -- unused (the scope sets the zoom)
+		adsTime = 0.25,
+		moveMultiplier = 0.95,
+		adsMoveMultiplier = 0.6,
+		penetration = "ThinWall",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
+
+	-- Outlaw v2 (roster 12): twin-barrel break-action scoped rifle. Two quick
+	-- big shots (upper barrel first), then a slow reload.
+	Outlaw = {
+		id = "Outlaw",
+		displayName = "Outlaw",
+		class = "Sniper",
+		tier = 3,
+		slot = "Primary",
+		fireMode = "Semi",
+		damage = { body = 140, head = 238, legs = 119 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.364, -- 2.75 rounds/s
+		magSize = 2,
+		reloadTime = 2.3, -- one round (the upper barrel)
+		emptyReloadTime = 3.8, -- both
+		muzzles = { "Muzzle", "MuzzleLower" },
+		shellsOnFire = false, -- the reload clip shows the spent rounds
+		hideBeyond = { RoundUpper = 0.35, RoundLower = 0.35 },
+		equipTime = 0.75,
+		firstEquipTime = 1.1, -- snaps the action
+		range = 800,
+		spread = {
+			first = 3.5, -- hip
+			adsMultiplier = 0,
+			protected = 0,
+			protectedGrowth = 0,
+			growth = 0.5,
+			max = 4,
+			recoveryTime = 0.5,
+		},
+		recoil = {
+			up = 3.6,
+			protected = 1,
+			upAfter = 3.6,
+			side = 0.5,
+			switchChance = 0.5,
+			switchMinTime = 0.2,
+			recover = 0.85,
+			recoverTime = 0.35,
+		},
+		scope = { zoom = 3.5 },
+		adsFov = 50, -- unused (the scope sets the zoom)
+		adsTime = 0.28,
+		moveMultiplier = 0.9,
+		adsMoveMultiplier = 0.55,
+		penetration = "ThinWall",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
+
+	-- Operator v2 (roster 13): heavy bolt-action sniper. One-shots the body;
+	-- slow to scope, slow to move with while scoped. (Valorant's second 5x
+	-- zoom level isn't built: one 2.5x scope.)
+	Operator = {
+		id = "Operator",
+		displayName = "Operator",
+		class = "Sniper",
+		tier = 4,
+		slot = "Primary",
+		fireMode = "Bolt",
+		damage = { body = 150, head = 255, legs = 120 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 1.667, -- 0.6 rounds/s (the bolt)
+		magSize = 5,
+		reloadTime = 3.2,
+		emptyReloadTime = 3.7, -- mag, then the bolt
+		equipTime = 0.9,
+		firstEquipTime = 1.4,
+		range = 1000,
+		spread = {
+			first = 5, -- hip
+			adsMultiplier = 0,
+			protected = 0,
+			protectedGrowth = 0,
+			growth = 0.5,
+			max = 6,
+			recoveryTime = 0.8,
+		},
+		recoil = {
+			up = 5,
+			protected = 1,
+			upAfter = 5,
+			side = 0.4,
+			switchChance = 0.5,
+			switchMinTime = 0.3,
+			recover = 0.9,
+			recoverTime = 0.45,
+		},
+		scope = { zoom = 2.5 },
+		adsFov = 50, -- unused (the scope sets the zoom)
+		adsTime = 0.38,
+		moveMultiplier = 0.85,
+		adsMoveMultiplier = 0.4,
+		penetration = "All",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
+
+	-- Machine guns -------------------------------------------------------
+	-- Ares v2 (roster 14): drum-fed LMG. The reverse of every other gun: it
+	-- tightens as it fires (1 degree down to 0.7). Iron-sight ADS.
+	Ares = {
+		id = "Ares",
+		displayName = "Ares",
+		class = "MachineGun",
+		tier = 3,
+		slot = "Primary",
+		fireMode = "Auto",
+		damage = { body = 30, head = 75, legs = 25 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.077, -- 13 rounds/s
+		magSize = 50,
+		reloadTime = 3.25,
+		emptyReloadTime = 3.8, -- drum, then the charging handle
+		equipTime = 0.8,
+		firstEquipTime = 1.25,
+		range = 500,
+		-- 30 m in Valorant.
+		falloff = { { from = 107, multiplier = 0.93 } },
+		spread = {
+			first = 1,
+			adsMultiplier = 0.75,
+			protected = 0,
+			protectedGrowth = 0,
+			growth = -0.03, -- tightens as it fires
+			max = 0.7, -- the floor it tightens to
+			recoveryTime = 0.5,
+		},
+		recoil = {
+			up = 0.28,
+			protected = 6,
+			upAfter = 0.12,
+			side = 0.18,
+			switchChance = 0.15,
+			switchMinTime = 0.5,
+			recover = 0.7,
+			recoverTime = 0.35,
+		},
+		adsFov = 70, -- 1.15x zoom
+		adsTime = 0.3,
+		moveMultiplier = 0.9,
+		adsMoveMultiplier = 0.7,
+		penetration = "ThinWall",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
+
+	-- Odin v2 (roster 15): belt-fed HMG. Spins up from 12 to 15.6 rounds/s,
+	-- a 100-round box, shoots through walls. Iron-sight ADS.
+	Odin = {
+		id = "Odin",
+		displayName = "Odin",
+		class = "MachineGun",
+		tier = 4,
+		slot = "Primary",
+		fireMode = "Auto",
+		damage = { body = 38, head = 95, legs = 32 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.064, -- 15.6 rounds/s once spun up
+		spinUp = { startInterval = 0.083, endInterval = 0.064, time = 1.0 },
+		magSize = 100,
+		reloadTime = 4.2,
+		emptyReloadTime = 5, -- box, then the charging handle
+		equipTime = 0.9,
+		firstEquipTime = 1.3,
+		range = 500,
+		-- 30 m in Valorant.
+		falloff = { { from = 107, multiplier = 0.82 } },
+		spread = {
+			first = 0.8,
+			adsMultiplier = 0.75,
+			protected = 2,
+			protectedGrowth = 0.02,
+			growth = 0.04,
+			max = 1.3,
+			recoveryTime = 0.5,
+		},
+		recoil = {
+			up = 0.3,
+			protected = 4,
+			upAfter = 0.16,
+			side = 0.22,
+			switchChance = 0.15,
+			switchMinTime = 0.45,
+			recover = 0.7,
+			recoverTime = 0.4,
+		},
+		adsFov = 70, -- 1.15x zoom
+		adsTime = 0.32,
+		adsDistance = 1.0, -- the eye further back, so the big rear sight sits lower and smaller
+		moveMultiplier = 0.85,
+		adsMoveMultiplier = 0.65,
+		penetration = "All",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
+
+	-- Akimbo v2 (roster 16): a pair of compact automatic pistols, one in each
+	-- hand, firing in turn. Hip fire only. (One shared mag for both guns.)
+	Akimbo = {
+		id = "Akimbo",
+		displayName = "Akimbo",
+		class = "SMG",
+		tier = 2,
+		slot = "Primary",
+		fireMode = "Auto",
+		damage = { body = 22, head = 48, legs = 19 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.08, -- 12.5 rounds/s, alternating guns
+		magSize = 36, -- 18 a gun
+		reloadTime = 2.3,
+		emptyReloadTime = 2.7, -- both slides locked back
+		equipTime = 0.5,
+		firstEquipTime = 0.8,
+		range = 350,
+		-- 15 m and 30 m.
+		falloff = { { from = 54, multiplier = 0.85 }, { from = 107, multiplier = 0.7 } },
+		spread = {
+			first = 0.6,
+			adsMultiplier = 1, -- no ADS
+			protected = 2,
+			protectedGrowth = 0.03,
+			growth = 0.07,
+			max = 2,
+			recoveryTime = 0.3,
+		},
+		recoil = {
+			up = 0.25,
+			protected = 4,
+			upAfter = 0.15,
+			side = 0.2,
+			switchChance = 0.3,
+			switchMinTime = 0.25,
+			recover = 0.75,
+			recoverTime = 0.25,
+		},
+		noAds = true,
+		models = { right = "Akimbo", left = "Akimbo" },
+		lockOnEmpty = true,
+		adsFov = 80,
+		adsTime = 0.2,
+		moveMultiplier = 1,
+		adsMoveMultiplier = 1,
+		penetration = "None",
+		viewmodelOffset = Vector3.new(0.48, -1.06, -1.47), -- each gun out toward its own side
+		viewmodelScale = SIDEARM_SCALE,
+		tracerColor = TRACER,
+	},
+
 	-- Melee --------------------------------------------------------------
 	-- Knife v2 (roster 10): everyone's melee. Front swing 50, backstab 100,
 	-- a short lunge on hit. (Valorant's heavy right-click attack isn't built.)
@@ -698,6 +1003,7 @@ Weapons.list = table.freeze(weapons)
 -- Starting loadout. Slots without a gun yet stay empty.
 Weapons.DEFAULT_LOADOUT = table.freeze({
 	Primary = "Vandal",
+	Secondary = "Classic",
 	Melee = "Knife",
 }) :: { [Types.Slot]: string }
 

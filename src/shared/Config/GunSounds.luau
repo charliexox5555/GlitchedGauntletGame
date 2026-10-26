@@ -240,6 +240,77 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER: the twirl
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER
 	},
+
+	-- Marshal: lever-action rifle.
+	Marshal = {
+		fire = { id = "atlas:Marlin", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER: Marlin .30-30 lever-action
+		fireFar = { id = "atlas:Marlin_Far", volume = 0.95, pitch = PITCH }, -- PLACEHOLDER
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER (unused: no mag)
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER (unused: no mag)
+		rack = { id = RACK, volume = FOLEY, pitch = { 1.05, 1.12 } }, -- PLACEHOLDER: the lever
+		shellIn = { id = MAG_IN, volume = 0.5, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER: a round through the gate
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+	},
+
+	-- Outlaw: twin-barrel break-action rifle.
+	Outlaw = {
+		fire = { id = "atlas:Mosin", volume = 0.9, pitch = { 0.92, 0.97 } }, -- PLACEHOLDER: Mosin-Nagant, pitched down
+		fireFar = { id = "atlas:Mosin_Far", volume = 1.0, pitch = PITCH }, -- PLACEHOLDER
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER (unused: no mag)
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER (unused: no mag)
+		rack = { id = RACK, volume = FOLEY, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER: the action snaps shut
+		open = { id = MAG_OUT, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: the barrels drop
+		shellIn = { id = MAG_IN, volume = 0.5, pitch = { 1.15, 1.25 } }, -- PLACEHOLDER: a round into its chamber
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+	},
+
+	-- Operator: heavy bolt-action sniper.
+	Operator = {
+		fire = { id = "atlas:Tikka", volume = 0.95, pitch = { 0.88, 0.93 } }, -- PLACEHOLDER: Tikka bolt rifle, pitched down
+		fireFar = { id = "atlas:Tikka_Far", volume = 1.0, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER
+		rack = { id = RACK, volume = 0.7, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: the bolt
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+	},
+
+	-- Ares: drum-fed light machine gun.
+	Ares = {
+		fire = { id = "atlas:PPSh", volume = 0.75, pitch = { 0.86, 0.9 } }, -- PLACEHOLDER: PPSh-41, pitched down (heavier)
+		fireFar = { id = "atlas:PPSh_Far", volume = 0.9, pitch = { 0.86, 0.9 } }, -- PLACEHOLDER
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = 0.7, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: the drum
+		magIn = { id = MAG_IN, volume = 0.7, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER
+		rack = { id = RACK, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER: charging handle
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+	},
+
+	-- Odin: belt-fed heavy machine gun.
+	Odin = {
+		fire = { id = "atlas:AKBurst", volume = 0.8, pitch = { 0.82, 0.86 } }, -- PLACEHOLDER: AK full auto, pitched well down
+		fireFar = { id = "atlas:AKBurst_Far", volume = 0.95, pitch = { 0.82, 0.86 } }, -- PLACEHOLDER
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = 0.7, pitch = { 0.8, 0.85 } }, -- PLACEHOLDER: the ammo box
+		magIn = { id = MAG_IN, volume = 0.7, pitch = { 0.8, 0.85 } }, -- PLACEHOLDER
+		rack = { id = RACK, volume = 0.7, pitch = { 0.88, 0.92 } }, -- PLACEHOLDER: charging handle
+		open = { id = MAG_OUT, volume = FOLEY, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER: the feed cover lifts
+		shellIn = { id = RACK, volume = 0.55, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER: the feed cover latches
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+	},
+
+	-- Akimbo: two compact automatic pistols.
+	Akimbo = {
+		fire = { id = "atlas:Bersa", volume = 0.7, pitch = { 1.02, 1.08 } }, -- PLACEHOLDER: Bersa .380, pitched up
+		fireFar = { id = "atlas:Bersa_Far", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
+		rack = { id = RACK, volume = FOLEY, pitch = { 1.15, 1.22 } }, -- PLACEHOLDER: the slide
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+	},
 }
 
 local GunSounds = {}

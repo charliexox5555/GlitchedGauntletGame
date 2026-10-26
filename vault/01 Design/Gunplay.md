@@ -48,7 +48,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 
 ### How v2 is built (2026-10-25)
 - **Data:** per gun `spread` (`first`, `adsMultiplier`, `protected`, `protectedGrowth`, `growth`, `max`, `recoveryTime`), `recoil` (`up`, `protected`, `upAfter`, `side`, `switchChance`, `switchMinTime`, `recover`, `recoverTime`) and step `falloff` (`{ from, multiplier }`) in `Config/Weapons`; the per-class movement table and shared rules (`MOVE_DEADZONE`, `ADS_MOVE_PENALTY`, `CROUCH_SPREAD`, `CROUCH_SIDE_RECOIL`, `LANDING_*`, `CENTRE_BIAS`, `SPRAY_HOLD`) in `Config/Combat`; head ×2.25 / legs ×0.85 defaults in `Config/Weapons`.
-- **Maths** (`Util/Accuracy`, shared by client and server): spray **heat** is +1 per shot; it doesn't cool while you keep firing at the gun's rate (gaps up to 1.25 fire intervals), then cools linearly to 0 at `recoveryTime`. Cone = min(first + growth(heat), max) × ADS × crouch, plus the movement penalty (speed-scaled, deadzone, slide/air values, landing), halved fully aimed. Standing shots (no movement penalty) are centre-biased (`radius = cone × u`), moving ones even over the disc.
+- **Maths** (`Util/Accuracy`, shared by client and server): spray **heat** is +1 per shot; it doesn't cool while you keep firing at the gun's rate (gaps up to 1.25 fire intervals), then cools linearly to 0 at `recoveryTime`. Cone = (first + growth(heat), kept between `first` and `max`) × ADS × crouch (a negative `growth` makes a gun tighten as it fires, down to `max`: the Ares), plus the movement penalty (speed-scaled, deadzone, slide/air values, landing), halved fully aimed. Standing shots (no movement penalty) are centre-biased (`radius = cone × u`), moving ones even over the disc.
 - **Server-authoritative:** the server samples each player's own simulation every Heartbeat (MoveState, horizontal speed, landings, and the same ADS blend the client runs, driven by the server's Aim input over the gun's `adsTime`) and tracks each gun's heat as a band (each gap ±`FIRE_JITTER`). For a shot it reads the samples from the shooter's ping + `FIRE_TIME_SLACK` (0.08 s) ago up to now, builds the band of cones that allows, and clamps the client's claimed cone into it before recomputing the rays from its own seed. The high edge also allows a jump the server hasn't simulated yet (a higher cone only costs the shooter). Centre bias is used only if the client asks for it **and** the server's sample nearest the fire time was standing. A client that claims a tighter cone gets rays its hits don't match, so they're rejected. In Studio the claim and band go to the player attribute `FireSpread`.
 - **Known limit (security review 2026-10-25):** the spread seeds are handed out in advance (so the client can predict hits instantly), so a cheat could pre-compensate its aim for the known spread offset. That's aimbot-class cheating anyway; fixing it means revealing seeds per shot after acceptance (later, with anti-cheat).
 - **Recoil** is camera-only (client): `CameraController.kick` now waits for the spray to stop, then returns `recover` of the climb within `recoverTime`.
@@ -118,7 +118,7 @@ The free default pistol and the sidearm benchmark. **No ADS**: right mouse (game
 | Recoil | `up` 0.55° × 2, then 0.35° up + 0.2° side, `switchChance` 25% (≥ 0.3 s apart), 80% recovers over 0.25 s; the alt burst kicks an extra 0.55° | |
 | Speed | ×1.0 | |
 
-Implemented as data (`Config/Weapons` `Classic`, `altFire`; `Config/GunSounds` `Classic`), waiting for the model. Alt-fire is generic: any gun with `noAds` and an `altFire` table gets it (the server checks the pellets, ammo cost and cooldown). Verified on a stand-in (the Vandal with the Classic's alt-fire, 2026-10-25): one press = 3 pellets, 3 rounds, 90 damage up close, next shot held for 0.45 s, no rejects.
+Implemented as data (`Config/Weapons` `Classic`, `altFire`; `Config/GunSounds` `Classic`). **Installed 2026-10-26 as the default secondary** (`DEFAULT_LOADOUT.Secondary`): slide locks back on empty, the DryFire clip plays on a dry trigger. Alt-fire is generic: any gun with `noAds` and an `altFire` table gets it (the server checks the pellets, ammo cost and cooldown). Verified on a stand-in (the Vandal with the Classic's alt-fire, 2026-10-25): one press = 3 pellets, 3 rounds, 90 damage up close, next shot held for 0.45 s, no rejects.
 
 ### Shorty v2 (roster 01, sidearm shotgun)
 Over-under break-action pocket shotgun. No ADS.
@@ -231,6 +231,79 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 | Swing | 50 from the front, **100 backstab**; one swing per 0.6 s; ~7-stud reach with a short lunge on hit | front 50 / heavy 75, back 100 / 150, 2 m |
 | Heavy attack | Not built (melee has no alt attack yet) | right-click |
 | Equip | 0.45 s first draw (twirl), 0.25 s quick; ×1.05 move speed | |
+
+### Scopes (snipers, 2026-10-26)
+A gun with `scope = { zoom }` aims like any other until the aim blend passes `Viewmodel.SCOPE_AT` (0.85); then the gun and arms hide and the HUD shows the scope: black outside a round lens, a soft rim, a duplex reticle with a red centre dot. The zoom is a true magnification of the player's own FOV (`2·atan(tan(FOV/2) / zoom)`), so it's the same at any FOV setting; mouse sensitivity already scales with FOV. Scoped, the local muzzle flash and casing are skipped (the camera kick stays). Snipers use `adsMultiplier = 0`: a standing scoped shot goes exactly where you aim (server-checked: 0° claim, 0° band low edge); moving still adds the Sniper row (halved fully scoped). Not built: the Operator's second 5× level.
+
+### Marshal v2 (roster 11, lever-action sniper)
+| Stat | Value | Valorant Marshal |
+|---|---|---|
+| Fire | Lever, 0.667 s (1.5/s); the trigger hand rides the lever each shot | 1.5/s |
+| Mag / reload | 5, **round by round** through the side gate: 0.3 s in, 0.4 s per round, 0.35 s back (full load 2.65 s); firing mid-reload keeps the rounds loaded | 5 / 2.5 s |
+| Damage | 101 body / 202 head / 85 legs, no falloff: one-shots a head, a body shot leaves 1 HP | 101 / 202 / 85 |
+| Spread | 1° hip, **0° scoped**, +0.5°/shot to 2°, recovery 0.6 s; Sniper movement row | hip 1°, scoped 0° |
+| Scope | 3.5×, 0.25 s to scope; ×0.95 speed, ×0.6 scoped | 3.5× |
+| Recoil | 2.5° per shot, 85% back over 0.35 s | |
+| Equip | 1.2 s first draw (lever cycle), 0.7 s quick | |
+
+### Outlaw v2 (roster 12, twin-barrel sniper)
+| Stat | Value | Valorant Outlaw |
+|---|---|---|
+| Fire | Semi, 0.364 s (2.75/s), upper barrel then lower (`muzzles`) | 2.75/s |
+| Mag / reload | 2 / 2.3 s one round, 3.8 s both (break open, rounds in, snap shut); no casing per shot | 2 / 2.3 s |
+| Damage | 140 body / 238 head / 119 legs, no falloff: one-shots anywhere but the legs | 140 / 238 / 119 |
+| Spread | 3.5° hip, **0° scoped**, recovery 0.5 s | hip 3.5°, scoped 0° |
+| Scope | 3.5×, 0.28 s; ×0.9 speed, ×0.55 scoped | 3.5× |
+| Recoil | 3.6° per shot, 85% back over 0.35 s | |
+| Equip | 1.1 s first draw (snap check), 0.75 s quick | |
+
+### Operator v2 (roster 13, heavy bolt-action sniper)
+| Stat | Value | Valorant Operator |
+|---|---|---|
+| Fire | Bolt, 1.667 s (0.6/s); the trigger hand works the bolt, its arm rising from the lower right | 0.6/s |
+| Mag / reload | 5 / 3.2 s, 3.7 s empty (mag, then the bolt) | 5 / 3.7 s |
+| Damage | 150 body / 255 head / 120 legs, no falloff: one-shots the body; penetrates everything | 150 / 255 / 120 |
+| Spread | 5° hip, **0° scoped**, recovery 0.8 s | hip 5°, scoped 0° |
+| Scope | 2.5× (one level), 0.38 s; ×0.85 speed, **×0.4 scoped** | 2.5× / 5× |
+| Recoil | 5° per shot, 90% back over 0.45 s | |
+| Equip | 1.4 s first draw, 0.9 s quick | 1.5 s |
+
+### Ares v2 (roster 14, light machine gun)
+| Stat | Value | Valorant Ares |
+|---|---|---|
+| Fire | Auto, 0.077 s (13/s) | 13/s |
+| Mag / reload | 50 / 3.25 s, 3.8 s empty (drum + charging handle) | 50 / 3.25 s |
+| Damage | 30 body / 75 head / 25 legs; ×0.93 from 107 studs | 30 / 75 / 25 → 28 / 70 / 23 past 30 m |
+| Spread | **1° first shot, tightening 0.03°/shot to 0.7°** (negative growth), ADS ×0.75, recovery 0.5 s; Machine-gun row | 1° → 0.7° min |
+| Recoil | 0.28° × 6, then 0.12° up + 0.18° side, 15% switch, 70% back over 0.35 s | |
+| ADS / speed | Iron sights, 1.15× (FOV 70), 0.3 s; ×0.9, ×0.7 aimed | |
+| Equip | 1.25 s first draw (selector + rack), 0.8 s quick | 1.25 s |
+
+Measured in Studio (2026-10-26, server `FireSpread`): a held spray goes 1.00, 0.97 … 0.73, then **0.70° from shot 11 on**; no rejects. The server's spread band takes both heat edges each way, so a gun whose spread falls with heat is checked correctly.
+
+### Odin v2 (roster 15, belt-fed heavy machine gun)
+| Stat | Value | Valorant Odin |
+|---|---|---|
+| Fire | Auto, **spins up** from 0.083 s (12/s) to 0.064 s (15.6/s) over 1 s | 12 → 15.6/s |
+| Mag / reload | 100 / 4.2 s, 5 s empty (feed cover, box swap, belt, cover, charging handle) | 100 / 5 s |
+| Damage | 38 body / 95 head / 32 legs; ×0.82 from 107 studs; penetrates everything | 38 / 95 / 32 → 31 / 77 / 26 past 30 m |
+| Spread | 0.8° → 1.3° (2 protected shots, +0.04°/shot), ADS ×0.75, recovery 0.5 s | 0.8° → 1.3° |
+| Recoil | 0.3° × 4, then 0.16° up + 0.22° side, 15% switch, 70% back over 0.4 s | |
+| ADS / speed | Iron sights, 1.15× (FOV 70), eye 1.0 stud back (the rear sight is big), 0.32 s; ×0.85, ×0.65 aimed | |
+
+Measured in Studio (2026-10-26, server shot gaps): 82–85 ms for the first ~9 shots, then 65–68 ms.
+
+### Akimbo v2 (roster 16, dual automatic pistols)
+| Stat | Value | Reference |
+|---|---|---|
+| Fire | Auto, 0.08 s (12.5/s), the guns fire in turn | (no Valorant equivalent; RIVALS-style akimbo) |
+| Mag / reload | 36 (18 a gun, one shared count) / 2.3 s, 2.7 s empty (both slides locked back) | |
+| Damage | 22 body / 48 head / 19 legs; ×0.85 from 54 studs, ×0.7 from 107 | |
+| Spread | 0.6° → 2.0° (2 protected shots, +0.07°/shot), recovery 0.3 s; SMG row; **no ADS** | |
+| Recoil | 0.25° × 4, then 0.15° up + 0.2° side, 75% back over 0.25 s | |
+| Hold | One pistol model in each hand (`models = { right, left }`), placed mirrored at ±0.48 | |
+
+Not built yet: per-gun ammo and one-gun-at-a-time staged reloads (the brief's ideal), an alt action for right mouse.
 
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
