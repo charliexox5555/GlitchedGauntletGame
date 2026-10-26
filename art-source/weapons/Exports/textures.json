@@ -70,5 +70,17 @@
    "Roughness": 116993535082292,
    "Metalness": 80331237971663
   }
+ },
+ "Spectre": {
+  "ColorMap": 137581286285989,
+  "NormalMap": 77853236834380,
+  "RoughnessMap": 83179167011388,
+  "MetalnessMap": 79137740899339,
+  "decals": {
+   "Color": 92753055091546,
+   "Normal": 81738081379037,
+   "Roughness": 123114096738268,
+   "Metalness": 103179258348476
+  }
  }
 }

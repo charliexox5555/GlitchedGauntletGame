@@ -293,6 +293,30 @@
   "type": "Decal",
   "uploaded": "2026-10-25 21:52:00"
  },
+ "art-source/weapons/Textures/Spectre_Color.png": {
+  "assetId": 92753055091546,
+  "name": "GG Spectre Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:10:05"
+ },
+ "art-source/weapons/Textures/Spectre_Metalness.png": {
+  "assetId": 103179258348476,
+  "name": "GG Spectre Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:10:20"
+ },
+ "art-source/weapons/Textures/Spectre_Normal.png": {
+  "assetId": 81738081379037,
+  "name": "GG Spectre Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:10:11"
+ },
+ "art-source/weapons/Textures/Spectre_Roughness.png": {
+  "assetId": 123114096738268,
+  "name": "GG Spectre Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:10:18"
+ },
  "art-source/weapons/Textures/Stinger_Color.png": {
   "assetId": 72600914221468,
   "name": "GG Stinger Color",
