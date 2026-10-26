@@ -8,6 +8,8 @@ The 9 Mod HUD icons, one white glyph per Mod on a transparent 256×256 PNG, so t
 - **Ids:** `Blink`, `LaunchPad`, `Packet`, `Firewall`, `LagField`, `Ping`, `PatchUp`, `Overclock`, `Rollback` (match `Config/Mods` ids).
 
 ## Upload (only after the user approves the icons)
+> **v1 uploaded 2026-10-26.** Image ids are in `ids.json`; Decal ids in `art-source/uploads.json`. The Open Cloud key lacks the asset-delivery scope, so step 2 runs in Studio.
+
 Open Cloud has a monthly upload limit, so upload once per approved set.
 
 1. Upload each PNG as a Decal (needs `ROBLOX_ASSETS_KEY`; results also go to `art-source/uploads.json`):

@@ -1,4 +1,58 @@
 {
+ "art-source/abilities/Icons/Blink.png": {
+  "assetId": 94881457772704,
+  "name": "GG Mod Icon Blink",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:00"
+ },
+ "art-source/abilities/Icons/Firewall.png": {
+  "assetId": 135794594669337,
+  "name": "GG Mod Icon Firewall",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:08"
+ },
+ "art-source/abilities/Icons/LagField.png": {
+  "assetId": 137404144691996,
+  "name": "GG Mod Icon LagField",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:11"
+ },
+ "art-source/abilities/Icons/LaunchPad.png": {
+  "assetId": 111508818474456,
+  "name": "GG Mod Icon LaunchPad",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:03"
+ },
+ "art-source/abilities/Icons/Overclock.png": {
+  "assetId": 82420580107954,
+  "name": "GG Mod Icon Overclock",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:19"
+ },
+ "art-source/abilities/Icons/Packet.png": {
+  "assetId": 95581165876788,
+  "name": "GG Mod Icon Packet",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:05"
+ },
+ "art-source/abilities/Icons/PatchUp.png": {
+  "assetId": 86161653556038,
+  "name": "GG Mod Icon PatchUp",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:17"
+ },
+ "art-source/abilities/Icons/Ping.png": {
+  "assetId": 78098220855733,
+  "name": "GG Mod Icon Ping",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:14"
+ },
+ "art-source/abilities/Icons/Rollback.png": {
+  "assetId": 112182980597844,
+  "name": "GG Mod Icon Rollback",
+  "type": "Decal",
+  "uploaded": "2026-10-26 00:26:22"
+ },
  "art-source/animations/GG_AimDown.rbxm": {
   "assetId": 102741853097868,
   "name": "GG Aim Down",
