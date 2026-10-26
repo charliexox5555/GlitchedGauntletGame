@@ -46,5 +46,17 @@
    "Roughness": 133606527029918,
    "Metalness": 94229677898716
   }
+ },
+ "Judge": {
+  "ColorMap": 84695768300768,
+  "NormalMap": 99260311345828,
+  "RoughnessMap": 78523030569031,
+  "MetalnessMap": 137536644934857,
+  "decals": {
+   "Color": 118137574313054,
+   "Normal": 106849947965815,
+   "Roughness": 126896661421166,
+   "Metalness": 92163682723331
+  }
  }
 }

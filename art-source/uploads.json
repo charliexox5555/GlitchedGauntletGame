@@ -221,6 +221,30 @@
   "type": "Decal",
   "uploaded": "2026-10-25 21:57:41"
  },
+ "art-source/weapons/Textures/Judge_Color.png": {
+  "assetId": 118137574313054,
+  "name": "GG Judge Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:03:35"
+ },
+ "art-source/weapons/Textures/Judge_Metalness.png": {
+  "assetId": 92163682723331,
+  "name": "GG Judge Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:03:50"
+ },
+ "art-source/weapons/Textures/Judge_Normal.png": {
+  "assetId": 106849947965815,
+  "name": "GG Judge Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:03:41"
+ },
+ "art-source/weapons/Textures/Judge_Roughness.png": {
+  "assetId": 126896661421166,
+  "name": "GG Judge Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:03:47"
+ },
  "art-source/weapons/Textures/Phantom_Color.png": {
   "assetId": 124921300326999,
   "name": "GG Phantom Color",

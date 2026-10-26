@@ -126,7 +126,8 @@ def cyl_y(x, z, r, y0, y1, segs=8, mat=METAL, rot=None):
 
 
 def stadium(x0, x1, zc, h, segs=4):
-	# Pill outline in XZ (slots, vents).
+	# Pill outline in XZ (slots, vents). The ends may come in either order.
+	x0, x1 = min(x0, x1), max(x0, x1)
 	r = h / 2
 	pts = []
 	for i in range(segs + 1):
@@ -391,9 +392,15 @@ def assemble(gun, parts, mats, bones, locators, props):
 
 # ---------------------------------------------------------------- preview stage (check renders)
 
-def preview_stage(target=(0.6, 0, 0.25)):
+def preview_stage(target=(0.6, 0, 0.25), center_on=None):
 	# Cameras and lights matching the Vandal's check renders, in a "Preview" collection (never exported).
+	# center_on: a gun collection name; the cameras then slide along X so that gun sits where the Vandal sits.
 	sc = bpy.context.scene
+	dx = 0.0
+	if center_on and bpy.data.collections.get(center_on):
+		xs = [(o.matrix_world @ Vector(c)).x for o in bpy.data.collections[center_on].all_objects if o.type == "MESH" for c in o.bound_box]
+		dx = (min(xs) + max(xs)) / 2 - 0.7  # the Vandal's centre is X 0.7
+	target = (target[0] + dx, target[1], target[2])
 	for n in ("Light", "Camera"):
 		o = bpy.data.objects.get(n)
 		if o:
@@ -409,6 +416,8 @@ def preview_stage(target=(0.6, 0, 0.25)):
 		o.rotation_euler = (Vector(t) - o.location).to_track_quat("-Z", "Y").to_euler()
 
 	def cam(name, loc, t, lens=50, ortho=None):
+		loc = (loc[0] + dx, loc[1], loc[2])
+		t = (t[0] + dx, t[1], t[2])
 		c = bpy.data.cameras.new(name)
 		if ortho:
 			c.type = "ORTHO"
@@ -421,6 +430,7 @@ def preview_stage(target=(0.6, 0, 0.25)):
 		look(o, t)
 
 	def light(name, loc, energy, color=(1, 1, 1)):
+		loc = (loc[0] + dx, loc[1], loc[2])
 		l = bpy.data.lights.new(name, "AREA")
 		l.energy = energy
 		l.size = 1.5
