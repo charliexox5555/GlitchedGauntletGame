@@ -317,6 +317,30 @@
   "type": "Decal",
   "uploaded": "2026-10-25 22:03:47"
  },
+ "art-source/weapons/Textures/Knife_Color.png": {
+  "assetId": 77993348025803,
+  "name": "GG Knife Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:28:16"
+ },
+ "art-source/weapons/Textures/Knife_Metalness.png": {
+  "assetId": 138059592260632,
+  "name": "GG Knife Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:28:28"
+ },
+ "art-source/weapons/Textures/Knife_Normal.png": {
+  "assetId": 90638368983138,
+  "name": "GG Knife Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:28:23"
+ },
+ "art-source/weapons/Textures/Knife_Roughness.png": {
+  "assetId": 80418038161623,
+  "name": "GG Knife Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:28:26"
+ },
  "art-source/weapons/Textures/Phantom_Color.png": {
   "assetId": 124921300326999,
   "name": "GG Phantom Color",

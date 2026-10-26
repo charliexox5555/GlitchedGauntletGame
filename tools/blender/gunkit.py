@@ -397,9 +397,11 @@ def preview_stage(target=(0.6, 0, 0.25), center_on=None):
 	# center_on: a gun collection name; the cameras then slide along X so that gun sits where the Vandal sits.
 	sc = bpy.context.scene
 	dx = 0.0
+	side_scale = 4.3  # the Vandal's side view; widened for guns that don't fit
 	if center_on and bpy.data.collections.get(center_on):
 		xs = [(o.matrix_world @ Vector(c)).x for o in bpy.data.collections[center_on].all_objects if o.type == "MESH" for c in o.bound_box]
 		dx = (min(xs) + max(xs)) / 2 - 0.7  # the Vandal's centre is X 0.7
+		side_scale = max(side_scale, (max(xs) - min(xs)) * 1.08)
 	target = (target[0] + dx, target[1], target[2])
 	for n in ("Light", "Camera"):
 		o = bpy.data.objects.get(n)
@@ -441,7 +443,7 @@ def preview_stage(target=(0.6, 0, 0.25), center_on=None):
 		look(o, target)
 
 	cam("Cam_34", (3.2, 4.6, 1.9), (0.55, 0, 0.22))
-	cam("Cam_Side", (0.7, 6, 0.2), (0.7, 0, 0.2), ortho=4.3)
+	cam("Cam_Side", (0.7, 6, 0.2), (0.7, 0, 0.2), ortho=side_scale)
 	cam("Cam_FP", (-0.55, 0.18, 0.62), (2.5, -0.1, 0.25), lens=30)
 	cam("Cam_Close", (1.6, 1.9, 0.75), (0.9, 0, 0.3))
 	light("Key", (1.5, 3.5, 4), 420)

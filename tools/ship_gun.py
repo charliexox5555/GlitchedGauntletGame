@@ -83,8 +83,8 @@ def sheet(gun, render_dir, vandal_34, vandal_side, notes=""):
 	pair.paste(v34, (0, 0))
 	pair.paste(g34, (750, 0))
 	rows = [("Vandal (left) and %s (right), same camera" % gun, pair),
-		("Side, same orthographic scale: Vandal", fit(load(vandal_side, (40, 330, 1560, 720)))),
-		("Side, same orthographic scale: %s" % gun, fit(load(r("Cam_Side"), (40, 330, 1560, 720))))]
+		("Side: Vandal (orthographic, 4.3-stud frame)", fit(load(vandal_side, (40, 330, 1560, 720)))),
+		("Side: %s (same frame unless the gun is longer than 4 studs, then widened to fit)" % gun, fit(load(r("Cam_Side"), (40, 330, 1560, 720))))]
 	for cam, label in (("Cam_Close", "close-up, left side (first-person side), baked PBR textures"),):
 		if os.path.exists(r(cam)):
 			rows.append(("%s %s" % (gun, label), fit(load(r(cam), (0, 0, 1600, 1000)))))
