@@ -161,6 +161,30 @@
   "type": "Model",
   "uploaded": "2026-10-25 14:50:09"
  },
+ "art-source/weapons/Textures/Phantom_Color.png": {
+  "assetId": 124921300326999,
+  "name": "GG Phantom Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:17:49"
+ },
+ "art-source/weapons/Textures/Phantom_Metalness.png": {
+  "assetId": 90486061113807,
+  "name": "GG Phantom Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:18:04"
+ },
+ "art-source/weapons/Textures/Phantom_Normal.png": {
+  "assetId": 135272891826135,
+  "name": "GG Phantom Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:17:55"
+ },
+ "art-source/weapons/Textures/Phantom_Roughness.png": {
+  "assetId": 121448935947882,
+  "name": "GG Phantom Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:18:01"
+ },
  "art-source/weapons/Textures/Vandal_Color.png": {
   "assetId": 108104182942744,
   "name": "GG Overwrite Color",

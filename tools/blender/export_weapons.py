@@ -135,6 +135,9 @@ def sample_animations(rig):
 			act = strip.action
 			if not act:
 				continue
+			# Bones this action doesn't key would keep whatever pose the file was saved in.
+			for pb in rig.pose.bones:
+				pb.matrix_basis = Matrix.Identity(4)
 			ad.action = act
 			if hasattr(ad, "action_slot") and ad.action_slot is None and len(act.slots) > 0:
 				ad.action_slot = act.slots[0]
