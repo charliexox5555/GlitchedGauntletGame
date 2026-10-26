@@ -7,8 +7,7 @@
 # Same conventions as the Vandal (see tools/blender/gunkit.py): +X muzzle, +Z up, +Y gun-left, 1 unit = 1 stud,
 # origin at the pistol grip, same bones and locators. Shapes come from the approved concept's side view
 # (vault/02 Art/References/phantom-concept.webp, 1448x1086 sheet, side view in the bottom panel), in image
-# pixels: P(px, py) converts. The concept wasn't on disk when this was written, so the pixel positions were read
-# by eye; re-trace them if the file is added.
+# pixels: P(px, py) converts. The positions were read by eye (the file was added after the user approved the model).
 
 import bmesh, bpy, importlib, math, os, sys
 from mathutils import Vector
