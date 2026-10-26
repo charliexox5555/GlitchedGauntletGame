@@ -417,15 +417,12 @@ local function onLagZone(data: { [string]: any })
 	end
 	local orb, key = takeGrenade("LagField", color)
 	if orb then
-		table.insert(
-			orbs,
-			{
-				model = orb,
-				key = key,
-				at = at + Vector3.new(0, 0.6, 0),
-				untilT = os.clock() + duration,
-			}
-		)
+		table.insert(orbs, {
+			model = orb,
+			key = key,
+			at = at + Vector3.new(0, 0.6, 0),
+			untilT = os.clock() + duration,
+		})
 	end
 	ModVfx.quad({
 		texture = Tex.MOD_HEX,
