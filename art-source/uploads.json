@@ -293,6 +293,30 @@
   "type": "Decal",
   "uploaded": "2026-10-25 22:23:31"
  },
+ "art-source/weapons/Textures/Classic_Color.png": {
+  "assetId": 123817505866060,
+  "name": "GG Classic Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 23:09:35"
+ },
+ "art-source/weapons/Textures/Classic_Metalness.png": {
+  "assetId": 83056295597153,
+  "name": "GG Classic Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 23:09:50"
+ },
+ "art-source/weapons/Textures/Classic_Normal.png": {
+  "assetId": 121260451444499,
+  "name": "GG Classic Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 23:09:42"
+ },
+ "art-source/weapons/Textures/Classic_Roughness.png": {
+  "assetId": 109422124555464,
+  "name": "GG Classic Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 23:09:48"
+ },
  "art-source/weapons/Textures/Ghost_Color.png": {
   "assetId": 139618492163077,
   "name": "GG Ghost Color",
