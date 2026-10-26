@@ -44,7 +44,7 @@ def clip_lua(clip, indent):
 def main():
 	os.makedirs(OUT, exist_ok=True)
 	for name in sorted(os.listdir(EXPORTS)):
-		if not name.endswith(".json") or name == "assets.json":
+		if not name.endswith(".json") or name in ("assets.json", "textures.json"):
 			continue
 		data = json.load(open(os.path.join(EXPORTS, name)))
 		gid = data["id"]

@@ -1,5 +1,7 @@
 # Art Direction: Style B "Stylized Neon"
 
+> **Retired 2026-10-25.** The game is dropping the sci-fi look. New standard: professional tactical guns, matte charcoal/black with PBR textures and a very restrained neon accent; master reference is the **Vandal** (`References/vandal-concept.webp`, `References/vandal-blender-check.jpg`). New guns are modelled by script (`tools/blender/build_vandal.py` is the template), baked to one shared texture set (`tools/blender/bake_textures.py`) and get a SurfaceAppearance in Studio. The model standard and import pipeline below still apply. This note gets rewritten as the new style settles.
+
 **Master reference:** the finished **Bitrate** rifle. Every asset should look like it was made by the same artist, for the same game.
 
 ![Bitrate master](References/bitrate_master.webp)

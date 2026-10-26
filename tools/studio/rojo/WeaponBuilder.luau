@@ -30,6 +30,7 @@ type PartData = {
 	bone: string?,
 	look: Look?,
 	option: string?,
+	pbr: boolean?,
 	center: { number },
 	size: { number },
 }
@@ -43,6 +44,8 @@ type BuildData = {
 	locators: { Locator },
 	options_visible: { [string]: boolean },
 	att_positions: string?,
+	-- Baked texture set shared by every non-neon part (image ids), from Exports/textures.json.
+	surface: { ColorMap: number, NormalMap: number, RoughnessMap: number, MetalnessMap: number }?,
 }
 
 local function G(x: number, y: number, z: number): Vector3
@@ -197,6 +200,15 @@ function Builder.build(id: string, axes: string?): Model
 		end
 		if p.look and p.look.color == "FF3DCB" and string.find(p.name, "Lens") then
 			part.Transparency = 0.25
+		end
+		local surface = data.surface
+		if p.pbr and surface then
+			local sa = Instance.new("SurfaceAppearance")
+			sa.ColorMap = "rbxassetid://" .. surface.ColorMap
+			sa.NormalMap = "rbxassetid://" .. surface.NormalMap
+			sa.RoughnessMap = "rbxassetid://" .. surface.RoughnessMap
+			sa.MetalnessMap = "rbxassetid://" .. surface.MetalnessMap
+			sa.Parent = part
 		end
 		if p.option then
 			part:SetAttribute("Option", p.option)

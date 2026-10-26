@@ -17,12 +17,17 @@ KEEP = ("id", "gun", "bones", "parts", "locators", "options_visible")
 def main():
 	os.makedirs(OUT, exist_ok=True)
 	assets = json.load(open(os.path.join(EXPORTS, "assets.json")))
+	# Baked SurfaceAppearance maps per gun (image ids), see tools/blender/bake_textures.py.
+	tex_path = os.path.join(EXPORTS, "textures.json")
+	textures = json.load(open(tex_path)) if os.path.exists(tex_path) else {}
 	for name in sorted(os.listdir(EXPORTS)):
-		if not name.endswith(".json") or name == "assets.json":
+		if not name.endswith(".json") or name in ("assets.json", "textures.json"):
 			continue
 		data = json.load(open(os.path.join(EXPORTS, name)))
 		out = {k: data[k] for k in KEEP}
 		out["assetId"] = assets.get(data["id"], {}).get("assetId", 0)
+		if data["id"] in textures:
+			out["surface"] = textures[data["id"]]
 		if "att_positions" in data["props"]:
 			out["att_positions"] = data["props"]["att_positions"]
 		with open(os.path.join(OUT, name), "w") as f:

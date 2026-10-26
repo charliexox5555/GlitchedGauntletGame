@@ -32,6 +32,23 @@ MATERIALS = {
 }
 
 
+def used_material(o):
+	# The material the mesh's faces use (a part can carry unused slots; single-material after splitting).
+	if not o.material_slots:
+		return None
+	idx = o.data.polygons[0].material_index if len(o.data.polygons) else 0
+	return o.material_slots[min(idx, len(o.material_slots) - 1)].material
+
+
+def look_of(o, mat):
+	# A material's Roblox look: its own rbx_material / rbx_color properties (redesigned guns),
+	# else the shared palette above.
+	m = used_material(o)
+	if m is not None and "rbx_material" in m:
+		return {"material": m["rbx_material"], "color": m["rbx_color"]}
+	return MATERIALS.get(mat)
+
+
 def gun_id(name):
 	return name.replace(" ", "")
 
@@ -192,7 +209,8 @@ def export_gun(g):
 			})
 		elif o.type == "MESH":
 			o.data.calc_loop_triangles()
-			mat = base_material(o.material_slots[0].material.name) if o.material_slots and o.material_slots[0].material else None
+			used = used_material(o)
+			mat = base_material(used.name) if used else None
 			corners = [o.matrix_world @ v.co for v in o.data.vertices]
 			lo = [min(c[i] for c in corners) for i in range(3)]
 			hi = [max(c[i] for c in corners) for i in range(3)]
@@ -200,7 +218,10 @@ def export_gun(g):
 				"name": short,
 				"bone": o.parent_bone or None,
 				"material": mat,
-				"look": MATERIALS.get(mat),
+				"look": look_of(o, mat),
+				# Guns with a baked texture set (collection property `pbr`) get a SurfaceAppearance
+				# on every part except the Neon ones.
+				"pbr": bool(g.get("pbr")) and (look_of(o, mat) or {}).get("material") != "Neon",
 				"tris": len(o.data.loop_triangles),
 				"option": option_of(o, g),
 				"center": [round((lo[i] + hi[i]) / 2, 5) for i in range(3)],

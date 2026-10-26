@@ -1,4 +1,4 @@
-# build_overwrite.py: builds the redesigned Overwrite rifle (Vandal-style, 2026-10 concept) in the open
+# build_vandal.py: builds the redesigned Vandal rifle (Vandal-style, 2026-10 concept) in the open
 # Blender scene. Re-running it replaces the gun, so tweak numbers here rather than by hand.
 #
 #   Run inside Blender (Text Editor, or the Blender MCP):
@@ -6,12 +6,12 @@
 #
 # Axes match the export pipeline (tools/blender/export_weapons.py): +X muzzle, +Z up, +Y gun-left (the side
 # the player sees in first person), 1 unit = 1 stud, origin at the pistol grip. Shapes are traced from the
-# concept's side view (vault/02 Art/References/overwrite-concept.webp) in image pixels: P(px, py) converts.
+# concept's side view (vault/02 Art/References/vandal-concept.webp) in image pixels: P(px, py) converts.
 
 import bpy, bmesh, math
 from mathutils import Matrix, Vector
 
-GUN = "Overwrite"
+GUN = "Vandal"
 PRE = GUN + "_"
 
 # Concept side view -> studs. Muzzle tip (px 94) to buttpad (px 1352) = 3.9 studs; grip centre at (948, 900).
@@ -44,6 +44,9 @@ PANEL, DARK, METAL, NEON = range(4)
 def make_materials():
 	def principled(name, color, metallic, rough, rough_var, bump=0.0, emission=None):
 		m = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+		# Roblox look for the export (the baked SurfaceAppearance covers everything but Neon).
+		m["rbx_material"] = "Neon" if emission is not None else ("Metal" if metallic > 0.5 else "SmoothPlastic")
+		m["rbx_color"] = "%06X" % color
 		m.use_nodes = True
 		nt = m.node_tree
 		nt.nodes.clear()
@@ -200,7 +203,7 @@ def bevel(bm, width, segs=2, angle=30):
 	bm.edges.ensure_lookup_table()
 	edges = [e for e in bm.edges if e.is_manifold and e.calc_face_angle(0) > math.radians(angle)]
 	if edges and width > 0:
-		bmesh.ops.bevel(bm, geom=edges, offset=width, offset_type="OFFSET", segments=segs, profile=0.5, affect="EDGES", clamp_overlap=True)
+		bmesh.ops.bevel(bm, geom=edges, offset=width, offset_type="OFFSET", segments=segs, profile=0.5, affect="EDGES", clamp_overlap=True, material=-1)  # -1: bevel faces keep the neighbouring material
 	return bm
 
 
@@ -514,6 +517,7 @@ def build():
 	col["template_version"] = 2
 	col["length_rel"] = 1.0
 	col["att_positions"] = "{}"
+	col["pbr"] = True  # baked texture set: tools/blender/bake_textures.py
 
 	SCRATCH = bpy.data.collections.new("_scratch")
 	scene.collection.children.link(SCRATCH)
@@ -580,7 +584,8 @@ def build():
 		bpy.context.view_layer.update()
 		e.matrix_world = Matrix.Translation(pos) @ (rot if rot is not None else Matrix.Identity(4))
 
-	# UVs (smart project) so PBR maps can be baked onto the parts later.
+	# UVs: smart project, then every part packed into ONE shared atlas at an even texel density,
+	# so the whole gun uses a single texture set (tools/blender/bake_textures.py).
 	meshes = [o for o in col.objects if o.type == "MESH"]
 	for o in bpy.context.view_layer.objects:
 		o.select_set(False)
@@ -590,6 +595,9 @@ def build():
 	bpy.ops.object.mode_set(mode="EDIT")
 	bpy.ops.mesh.select_all(action="SELECT")
 	bpy.ops.uv.smart_project(angle_limit=math.radians(60), island_margin=0.01, scale_to_bounds=False)
+	bpy.ops.uv.select_all(action="SELECT")
+	bpy.ops.uv.average_islands_scale()
+	bpy.ops.uv.pack_islands(rotate=True, scale=True, margin_method="FRACTION", margin=0.004, shape_method="CONCAVE")
 	bpy.ops.object.mode_set(mode="OBJECT")
 	for o in meshes:
 		o.select_set(False)
