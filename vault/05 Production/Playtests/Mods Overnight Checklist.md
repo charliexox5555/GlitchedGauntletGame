@@ -100,3 +100,31 @@ All 9 Mods are now built at L1. Use **F8** to put any of them in any slot (the s
 
 ### Nothing to save
 Stage 2 adds no Studio-owned content either: nothing to save in the place.
+
+## Stage 3: icons, finished models, stylized VFX
+
+> **⚠ Save the place first (File → Save, or Ctrl+S).** The finished Mod models now live in the Studio-owned **`ReplicatedStorage.Abilities`** (Firewall, LagField, LaunchPad, ModVFX, Packet, PatchUp), built overnight but **not saved**. If Studio closes without saving they're gone: restore each with right-click `ReplicatedStorage.Abilities` → Insert from File → `art-source/abilities/Studio/<Id>.rbxm`. Without them the game falls back to the code placeholders (nothing breaks).
+
+### Icons
+- [ ] The 9 approved icons show in the HUD slots (white glyphs) and dim while cooling down. On a phone, the Mod buttons show them too.
+
+### Finished models
+- [ ] **Patch Up:** the heal device in your right hand while held (the Blender model, cyan energy).
+- [ ] **Packet / Lag Field:** the real grenade and orb in your hand and in flight; the Packet's fuse light blinks faster before the blast; the Lag Field orb hovers and spins in the middle of its zone.
+- [ ] **Launch Pad:** the hex pad with three chevrons chasing toward the launch direction (they point the way you'll fly).
+- [ ] **Firewall:** the framed energy panel (see-through), cyan for you, orange-red for enemies; it flashes white when an enemy shoots it.
+- [ ] Held puck for Launch Pad / Firewall is still a code placeholder (their finished models are the deployed objects).
+
+### Stylized VFX (Util/ModVfx, textures from `tools/vfx/make_mod_vfx.py`)
+- [ ] **Packet:** a dashed, turning danger ring where it will land; the blast is a hot core, a shockwave ring racing out along the ground, a glow and sparks.
+- [ ] **Lag Field:** a dome (Blender mesh) over a hex floor, a turning dashed rim, an opening ring + sparks.
+- [ ] **Ping:** a scan band and a scan wave sweeping out across the ground.
+- [ ] **Patch Up:** team-coloured crosses rising off the healed player, a ring at their feet, the beam from the healer.
+- [ ] Placing a pad / wall pops a ring and sparks; breaking or expiry bursts.
+- [ ] Everything is cyan for you and your team, orange-red for enemies (check in a 2-player test).
+- [ ] No frame drops with several effects at once (everything is pooled).
+
+### Known for now
+- No Mod sounds yet (the audio shortlist is waiting for approval).
+- The Firewall panel is quite bright at its standard Transparency 0.5; tune in Blender/the builder if it hides too much.
+- Viewmodel throw / place / heal animations are still a simple push (Stage 4).

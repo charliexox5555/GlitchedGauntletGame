@@ -1,6 +1,6 @@
 # Mod System: architecture (Stage 0 proposal)
 
-> **Status:** approved 2026-10-26. **Stages 1 and 2 built**: all 9 Mods at L1 with placeholder visuals. "Stage 1: as built" and "Stage 2: as built" at the end say what changed from this proposal. Design source of truth: [Mods](../01%20Design/Mods.md). Code rules: [Architecture](Architecture.md).
+> **Status:** approved 2026-10-26. **Stages 1–3 built**: all 9 Mods at L1, icons, the finished models and the stylized VFX library. The "as built" sections at the end say what changed from this proposal. Design source of truth: [Mods](../01%20Design/Mods.md). Code rules: [Architecture](Architecture.md).
 > Scope: the framework plus **L1 of all 9 Mods**. Paths A/B and Glitch plug in later without a rewrite (see "Levels and paths").
 
 ## What exists today (surveyed 2026-10-26)
@@ -187,3 +187,10 @@ All 9 Mods work at L1 (placeholder visuals). New blocks: `Placeable` (one spot c
 - New ModFx kinds: `LagThrow`, `LagZone`, `PingPulse`, `Overclock`, `Placed`, `ObjectGone`. New remote: `ModReveal`.
 
 **Known for later:** Blink's charges live on the character, so they refill on respawn (server Mods keep theirs); the predicted Mods' attributes use simulation `time()` (to re-check in a late-join Team Test); placeholder art everywhere; no sounds; a third-person view of held Mods.
+
+## Stage 3: as built (2026-10-26, code side)
+- **Icons:** the 9 approved image ids (`art-source/abilities/Icons/ids.json`) are each Mod's `icon` in `Config/Mods`; the HUD slots and touch buttons show them (glyphs remain the fallback).
+- **VFX textures:** `tools/vfx/make_mod_vfx.py` (numpy + Pillow) renders a white set to `art-source/vfx/mods/`: ring, dashed ring, scan, tileable hex (512 × 443), chevrons (pointing down the image = a Top face's LookVector), glow, sparkle, cross. Uploaded as Decals; image ids in `Config/VfxTextures` `MOD_*`.
+- **`Util/ModVfx`** (the pooled library): `quad` (a flat textured part: grows, fades, spins, pulses, or holds then fades), `shell` (ForceField / Neon sphere or box), `mesh` (the Blender VFX meshes from `ReplicatedStorage.Abilities.ModVFX`: Dome, Shockwave, Sphere, ScanRing; nil when not installed, so callers fall back to a shell), `burst` (pooled ParticleEmitters: Sparkle, Cross, Glow), `stop`, `step` (run by ModFxController every frame). All tinted per viewer.
+- **Models:** built with the Blender session's `AbilityBuilder` into the Studio-owned **`ReplicatedStorage.Abilities`** (`.rbxm` backups in `art-source/abilities/Studio/`). The uploads import as (Blender X, Blender Z, −Blender Y), which none of the gun axis presets match: a new `M` option turns each part 90° about Y (reported to the Blender session to add to the builder). `ModProps.get` uses the finished model for held / thrown Mods (Patch Up, Packet, Lag Field; energy parts and their Decals tinted per viewer) and a code puck for placed Mods; `ModProps.dress` puts the finished Launch Pad / Firewall on the server's hitbox part (hidden on the client with `LocalTransparencyModifier`). Pad arrows chase, the Firewall panel flashes white on hits, the Lag Field orb spins in its zone.
+- **Save the place** after building: `ReplicatedStorage.Abilities` is not synced by Rojo.
