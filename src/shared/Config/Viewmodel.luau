@@ -61,6 +61,9 @@ return table.freeze({
 	-- Guns are modelled at world size; first person shows them at this scale.
 	SCALE = 0.75,
 	ADS_DISTANCE = 0.7, -- camera to the AimPoint while aiming (per gun: adsDistance)
+	-- Scoped guns (config scope): past this much aim the gun and arms hide
+	-- and the HUD scope overlay shows.
+	SCOPE_AT = 0.85,
 
 	-- Arms (Util/ViewmodelArms): one bevelled block per arm, RIVALS style.
 	-- Mesh from tools/blender/make_arm_mesh.py (art-source/viewmodel/Arms.fbx,
@@ -117,6 +120,8 @@ return table.freeze({
 	HAND_CLIPS = { "Reload", "ReloadEmpty", "ReloadInsert", "Draw", "Inspect" },
 	RELOAD_FOLLOW = {
 		{ joint = "Mag", grab = "Bottom" },
+		{ joint = "AmmoBox", grab = "Bottom" }, -- belt-fed: the box, after the feed cover
+		{ joint = "FeedCover", grab = "Center" },
 		{ joint = "Cylinder", grab = "Center" },
 		{ joint = "Barrels", grab = "Grip", point = "ForeGrip" },
 		{ joint = "Pump", grab = "Grip" },
@@ -129,6 +134,10 @@ return table.freeze({
 	} :: { Follow },
 	PUMP_FOLLOW = { joint = "Pump", grab = "Grip" } :: Follow,
 	BOLT_FOLLOW = { joint = "Bolt", grab = "Center" } :: Follow,
+	-- Lever-actions: the trigger hand rides the lever (its fingers are in the
+	-- loop), in Fire and in every handling clip; the support hand leaves the
+	-- bolt alone (the lever drives it).
+	LEVER_FOLLOW = { joint = "Lever", grab = "Center", point = "RightGrip" } :: Follow,
 	-- Share of the clip the hand takes to reach a part before it moves / to come back.
 	FOLLOW_LEAD = 0.14,
 	-- While a hand works a part, its arm turns toward this direction (gun

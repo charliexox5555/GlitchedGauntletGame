@@ -345,16 +345,23 @@ local function buildFollow(gun: Gun, weapon: WeaponConfig, dual: boolean)
 	if dual or weapon.fireMode == "Melee" then
 		return -- each hand is busy holding its own gun / nothing to work
 	end
-	-- The support hand works the gun in every handling clip it has.
+	-- The support hand works the gun in every handling clip it has (on a
+	-- lever-action the trigger hand works the lever, which drives the bolt).
+	local lever = rigJoint(gun.model, "Lever") ~= nil
 	for _, clip in VM.HAND_CLIPS do
+		if lever then
+			addFollow(gun, clip, "Right", VM.LEVER_FOLLOW)
+		end
 		for _, rule in VM.RELOAD_FOLLOW do
-			addFollow(gun, clip, "Left", rule)
+			if not (lever and rule.joint == "Bolt") then
+				addFollow(gun, clip, "Left", rule)
+			end
 		end
 	end
 	if weapon.fireMode == "Pump" then
 		addFollow(gun, "Fire", "Left", VM.PUMP_FOLLOW)
 	elseif weapon.fireMode == "Bolt" then
-		addFollow(gun, "Fire", "Right", VM.BOLT_FOLLOW)
+		addFollow(gun, "Fire", "Right", if lever then VM.LEVER_FOLLOW else VM.BOLT_FOLLOW)
 	end
 end
 
@@ -715,12 +722,21 @@ end
 local function clipBeats(gun: Gun, clip: string): { Beat }
 	local beats: { Beat } = {}
 	local animator = gun.animator
-	local magFrom, magTo = animator:activity(clip, "Mag")
-	if magFrom and magTo then
-		table.insert(beats, { at = magFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
-		table.insert(beats, { at = math.max(magTo - VM.BEAT_MAG_IN, magFrom), sound = "MagIn" })
+	-- Mags and belt boxes: out as they start moving, in as they stop. A belt
+	-- feed cover opens, then latches shut (a shell-in click).
+	for _, joint in { "Mag", "AmmoBox" } do
+		local magFrom, magTo = animator:activity(clip, joint)
+		if magFrom and magTo then
+			table.insert(beats, { at = magFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
+			table.insert(beats, { at = math.max(magTo - VM.BEAT_MAG_IN, magFrom), sound = "MagIn" })
+		end
 	end
-	for _, joint in { "ChargingHandle", "Bolt", "Slide" } do
+	local coverFrom, coverTo = animator:activity(clip, "FeedCover")
+	if coverFrom and coverTo then
+		table.insert(beats, { at = coverFrom + VM.BEAT_MAG_OUT, sound = "Open" })
+		table.insert(beats, { at = math.max(coverTo - VM.BEAT_RACK, coverFrom), sound = "ShellIn" })
+	end
+	for _, joint in { "ChargingHandle", "Bolt", "Slide", "Lever" } do
 		local _, to = animator:activity(clip, joint)
 		if to then
 			table.insert(beats, { at = math.max(to - VM.BEAT_RACK, 0), sound = "Rack" })
@@ -741,7 +757,7 @@ local function clipBeats(gun: Gun, clip: string): { Beat }
 	if ejectFrom then
 		table.insert(beats, { at = ejectFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
 	end
-	for _, shell in { "ShellUpper", "ShellLower", "Shell", "Rounds" } do
+	for _, shell in { "ShellUpper", "ShellLower", "Shell", "Rounds", "RoundUpper", "RoundLower" } do
 		local _, to = animator:activity(clip, shell)
 		if to then
 			table.insert(beats, { at = math.max(to - VM.BEAT_MAG_IN, 0), sound = "ShellIn" })
@@ -800,6 +816,19 @@ end
 
 -- `side`: which gun fired (akimbo guns alternate); normal guns are "Right".
 -- `empty`: that was the last round (guns with lockOnEmpty lock the action open).
+-- The trigger on an empty gun: the gun's DryFire clip, when it has one.
+function ViewmodelController.dryFire()
+	for _, gun in guns do
+		if gun.animator:has("DryFire") and not gun.animator:isPlaying() then
+			gun.animator:play("DryFire")
+		end
+	end
+end
+
+function ViewmodelController.isHidden(): boolean
+	return hidden
+end
+
 function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean?)
 	local gun = guns[side or "Right"] or guns.Right
 	if not gun then
@@ -1057,9 +1086,10 @@ local function holdWith(
 	local offset, direction = mirrorHand(hand, mirror)
 	local point, working = handTarget(gun, side, grip + gunCf:VectorToWorldSpace(offset))
 	if working > 0 then
-		-- Reaching for a part: the arm comes up from below instead of running
-		-- back across the screen.
-		local reach = if mirror then mirrorPos(VM.REACH_DIRECTION) else VM.REACH_DIRECTION
+		-- Reaching for a part: the arm comes up from below on its own side
+		-- instead of running back across the screen (REACH_DIRECTION is the
+		-- left hand's; the right hand, e.g. working a bolt, mirrors it).
+		local reach = if side == "Right" then mirrorPos(VM.REACH_DIRECTION) else VM.REACH_DIRECTION
 		direction = direction:Lerp(reach, working)
 	end
 	ViewmodelArms.place(

@@ -23,6 +23,7 @@ local Net = require(Shared.Net)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
 local Types = require(Shared.Types)
+local VM = require(Shared.Config.Viewmodel)
 local Weapons = require(Shared.Config.Weapons)
 
 local AudioController = require(script.Parent.AudioController)
@@ -85,6 +86,7 @@ local burstQueue = 0 -- shots left in the current burst
 local nextLeft = false -- akimbo: the next shot comes from the left gun
 local aiming = false
 local adsAlpha = 0
+local scoped = false -- a scoped gun aimed past Viewmodel.SCOPE_AT: the scope overlay is up
 local lastShotAt = 0
 local lastAimSent = 0
 local lastPitchSent = 0
@@ -456,6 +458,23 @@ local function dryFire()
 	local s = current()
 	if s then
 		playGun(s.config, "dryFire")
+		ViewmodelController.dryFire()
+	end
+end
+
+-- A scope's FOV: `zoom`x magnification of the player's own FOV.
+local function scopeFov(zoom: number): number
+	local base = CameraController.getBaseFov()
+	return 2 * math.deg(math.atan(math.tan(math.rad(base / 2)) / math.max(zoom, 1)))
+end
+
+-- Scoped in, the gun and arms hide behind the HUD scope overlay (set every
+-- frame: a new gun's viewmodel starts shown).
+local function setScoped(value: boolean)
+	ViewmodelController.setHidden(value)
+	if scoped ~= value then
+		scoped = value
+		HudController.setScope(value)
 	end
 end
 
@@ -561,7 +580,9 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	})
 
 	-- Feel.
-	EffectsController.localShot(config, side, muzzleName)
+	if not scoped then -- no flash or casing in the scope picture
+		EffectsController.localShot(config, side, muzzleName)
+	end
 	playGun(config, "fire", "Gun")
 	playGun(config, "tail", "Gun")
 	-- A hollow tick from a near-empty mag, louder as it runs dry.
@@ -736,7 +757,12 @@ local function update(dt: number)
 		adsAlpha = 0
 	end
 	ViewmodelController.setAds(adsAlpha)
-	CameraController.setZoom(if s then s.config.adsFov else nil, ease(adsAlpha))
+	local scope = s and s.config.scope
+	CameraController.setZoom(
+		if scope then scopeFov(scope.zoom) elseif s then s.config.adsFov else nil,
+		ease(adsAlpha)
+	)
+	setScoped(scope ~= nil and adsAlpha >= VM.SCOPE_AT)
 	HudController.setCrosshairVisible(adsAlpha < 0.5 and not MovementController.isSprinting())
 
 	-- Trigger.
@@ -924,6 +950,7 @@ local function endLife()
 	table.clear(slots)
 	ViewmodelController.unequip()
 	CameraController.setZoom(nil, 0)
+	setScoped(false)
 end
 
 local function onCharacter(character: Model)

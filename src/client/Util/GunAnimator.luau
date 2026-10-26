@@ -18,6 +18,7 @@ type ClipSet = {
 	ReloadStart: Clip?, -- shell-by-shell reloads: into the loading pose,
 	ReloadInsert: Clip?, -- one shell (looped per shell),
 	ReloadEnd: Clip?, -- back to the hold
+	DryFire: Clip?, -- trigger on an empty gun
 }
 
 export type GunAnimator = {

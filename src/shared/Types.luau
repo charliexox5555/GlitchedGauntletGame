@@ -37,7 +37,9 @@ export type SpreadStats = {
 	protected: number,
 	protectedGrowth: number,
 	growth: number,
-	max: number, -- first + growth never exceeds this (movement adds on top)
+	-- first + growth stays between `first` and this (movement adds on top).
+	-- Below `first` with a negative growth: the gun tightens as it fires (Ares).
+	max: number,
 	recoveryTime: number,
 }
 
@@ -84,6 +86,10 @@ export type BurstStats = { count: number, interval: number, singleWhenAiming: bo
 -- it. `frame = false` draws only the reticle (inside a low-power optic whose
 -- own lens is hidden while aiming).
 export type Reticle = { center: Vector3, size: Vector2, color: Color3, frame: boolean? }
+
+-- Snipers: aiming past Viewmodel.SCOPE_AT swaps the gun for a scope overlay
+-- at `zoom`x magnification of the player's own FOV (replaces adsFov).
+export type Scope = { zoom: number }
 
 export type WeaponConfig = {
 	id: string,
@@ -150,6 +156,7 @@ export type WeaponConfig = {
 	adsOffset: Vector3?,
 	adsHide: { string }?,
 	adsReticle: Reticle?,
+	scope: Scope?,
 	tracerColor: Color3,
 }
 

@@ -52,7 +52,11 @@ end
 -- The gun's own cone at `heat`, aimed by `aim` (0..1), crouched or not.
 function Accuracy.gun(config: WeaponConfig, heat: number, aim: number, crouched: boolean): number
 	local s = config.spread
-	local cone = math.min(s.first + Accuracy.growth(s, heat), math.max(s.max, s.first))
+	local cone = math.clamp(
+		s.first + Accuracy.growth(s, heat),
+		math.min(s.first, s.max),
+		math.max(s.first, s.max)
+	)
 	cone *= lerp(1, s.adsMultiplier, math.clamp(aim, 0, 1))
 	if crouched then
 		cone *= Combat.CROUCH_SPREAD

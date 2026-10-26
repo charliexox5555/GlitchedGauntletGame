@@ -813,9 +813,18 @@ local function spreadBand(
 			{ state = "Air", speed = latest.speed, aim = aimHigh, sinceLanding = math.huge }
 		moveHigh = math.max(moveHigh, Accuracy.movement(config, jump))
 	end
+	-- The gun's spread is monotonic in heat but may fall as it heats (Ares),
+	-- so take both heat edges each way.
 	local slack = Combat.SPREAD_HEAT_SLACK
-	local low = Accuracy.gun(config, heatLow - slack, aimLow, anyCrouch) + moveLow
-	local high = Accuracy.gun(config, heatHigh + slack, aimHigh, allCrouch) + moveHigh
+	local coolHeat, hotHeat = heatLow - slack, heatHigh + slack
+	local low = math.min(
+		Accuracy.gun(config, coolHeat, aimLow, anyCrouch),
+		Accuracy.gun(config, hotHeat, aimLow, anyCrouch)
+	) + moveLow
+	local high = math.max(
+		Accuracy.gun(config, coolHeat, aimHigh, allCrouch),
+		Accuracy.gun(config, hotHeat, aimHigh, allCrouch)
+	) + moveHigh
 	local standing = moveLow <= 0
 		and closest ~= nil
 		and Accuracy.movement(config, {

@@ -38,6 +38,7 @@ type Refs = {
 	gui: ScreenGui,
 	crosshair: CanvasGroup,
 	lines: { Frame },
+	scope: Frame,
 	ammo: TextLabel,
 	mag: TextLabel,
 	weaponName: TextLabel,
@@ -126,6 +127,59 @@ local function build(): Refs
 			}),
 		}, f)
 	end
+
+	-- Sniper scope (config scope): black outside a round lens (a huge stroke
+	-- drawn outward from a circle), a soft dark rim inside it, and a duplex
+	-- reticle: thick posts from the edge, a fine cross and dot in the middle.
+	local scope = make("Frame", {
+		Name = "Scope",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Visible = false,
+	}, gui)
+	local lens = make("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.96, 0.96),
+		SizeConstraint = Enum.SizeConstraint.RelativeYY,
+		BackgroundTransparency = 1,
+	}, scope)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, lens)
+	make("UIStroke", { Color = BLACK, Thickness = 4000 }, lens)
+	local rim = make("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.97, 0.97),
+		BackgroundTransparency = 1,
+	}, lens)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, rim)
+	make("UIStroke", { Color = BLACK, Thickness = 10, Transparency = 0.45 }, rim)
+	for _, line in
+		{
+			-- size, position (fine cross across the lens, then the four posts)
+			{ UDim2.new(1, 0, 0, 1), UDim2.fromScale(0.5, 0.5) },
+			{ UDim2.new(0, 1, 1, 0), UDim2.fromScale(0.5, 0.5) },
+			{ UDim2.new(0.38, 0, 0, 4), UDim2.fromScale(0.19, 0.5) },
+			{ UDim2.new(0.38, 0, 0, 4), UDim2.fromScale(0.81, 0.5) },
+			{ UDim2.new(0, 4, 0.38, 0), UDim2.fromScale(0.5, 0.81) },
+		}
+	do
+		make("Frame", {
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Size = line[1],
+			Position = line[2],
+			BackgroundColor3 = BLACK,
+			BorderSizePixel = 0,
+		}, lens)
+	end
+	local scopeDot = make("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(3, 3),
+		BackgroundColor3 = RED,
+		BorderSizePixel = 0,
+	}, lens)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, scopeDot)
 
 	-- Crosshair (CanvasGroup so it fades as one): a centre dot plus four short
 	-- lines that open with spread. A thin dark outline keeps it readable.
@@ -290,6 +344,7 @@ local function build(): Refs
 		gui = gui,
 		crosshair = crosshair,
 		lines = lines,
+		scope = scope,
 		ammo = ammo,
 		mag = mag,
 		weaponName = weaponName,
@@ -348,6 +403,14 @@ end
 -- Fades rather than pops (ADS, sprint).
 function HudController.setCrosshairVisible(visible: boolean)
 	crosshairWanted = visible
+end
+
+-- The sniper scope overlay (WeaponController shows it once scoped in).
+function HudController.setScope(visible: boolean)
+	local r = refs
+	if r then
+		r.scope.Visible = visible
+	end
 end
 
 -- Hit feedback (Util/HitFeedback): markers and damage numbers.
