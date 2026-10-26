@@ -63,7 +63,11 @@ local function check(model: Model): ({ string }, { string })
 	if handle and muzzle and muzzle:IsA("Attachment") then
 		if
 			handle.CFrame:PointToObjectSpace(muzzle.WorldPosition).Z >= 0
-			and model.Name ~= "Cutter"
+			and not (
+				weaponsConfig
+				and weaponsConfig.get(model.Name)
+				and weaponsConfig.get(model.Name).melee
+			)
 		then
 			fail("Muzzle is not in front of the grip (barrel must run along Handle -Z)")
 		end
@@ -129,8 +133,11 @@ local function check(model: Model): ({ string }, { string })
 			if d.MeshId == "" then
 				fail(d.Name .. " has no MeshId")
 			end
-			if d.Name == "Body" or string.sub(d.Name, 1, 5) == "Body_" then
-				hasBody = true
+			-- The main shell: Body_* (first roster) or Receiver_* (new direction).
+			for _, main in { "Body", "Receiver" } do
+				if d.Name == main or string.sub(d.Name, 1, #main + 1) == main .. "_" then
+					hasBody = true
+				end
 			end
 			if string.find(d.Name, "Neon") and d.Material ~= Enum.Material.Neon then
 				fail(d.Name .. " should use the Neon material")
@@ -141,10 +148,10 @@ local function check(model: Model): ({ string }, { string })
 		fail("no MeshParts")
 	end
 	if not hasBody then
-		fail("no Body / Body_* part")
+		fail("no Body_* / Receiver_* part")
 	end
 
-	-- Code-side pieces (notes, not failures: wave 2/3 guns have no stats yet).
+	-- Code-side pieces (notes, not failures: a gun can be built before its stats).
 	if weaponsConfig and not weaponsConfig.get(model.Name) then
 		table.insert(notes, "no Config/Weapons entry yet")
 	end

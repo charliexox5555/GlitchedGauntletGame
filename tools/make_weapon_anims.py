@@ -2,7 +2,7 @@
 
     python tools/make_weapon_anims.py [Id ...]   (no ids = every export in Exports/)
 
-Each module holds the Fire, Reload and (if the gun has one) ReloadEmpty clips sampled once per frame from the
+Each module holds the Fire and Reload clips, plus ReloadEmpty, Draw and Inspect when the gun has them, sampled once per frame from the
 gun's NLA strips (see tools/blender/export_weapons.py). Per bone the frames are
 a flat array of 7 numbers per frame: x, y, z, qw, qx, qy, qz, the bone's local
 transform relative to rest. That maps 1:1 onto the gun's Motor6D.Transform
@@ -64,7 +64,9 @@ def main(only=None):
 		]
 		# ReloadEmpty (optional): the empty reload, which adds the charging handle / bolt action;
 		# Reload is then the tactical reload (mag swap only).
-		for clip_name in ("Fire", "Reload", "ReloadEmpty"):
+		# Draw / Inspect (optional): the first draw of a life (racks the action) and the gun's part
+		# of the inspect.
+		for clip_name in ("Fire", "Reload", "ReloadEmpty", "Draw", "Inspect"):
 			if clip_name in anims:
 				body.append(f"\t{clip_name} = " + clip_lua(anims[clip_name], "\t").lstrip() + ",")
 		body.append("}")

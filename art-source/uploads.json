@@ -125,6 +125,42 @@
   "type": "Decal",
   "uploaded": "2026-10-25 13:52:20"
  },
+ "art-source/vfx/real/chips_2x2.png": {
+  "assetId": 74647839412905,
+  "name": "GG VFX real chips_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:09:40"
+ },
+ "art-source/vfx/real/dust_2x2.png": {
+  "assetId": 84956219812462,
+  "name": "GG VFX real dust_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:09:34"
+ },
+ "art-source/vfx/real/flash_front_2x2.png": {
+  "assetId": 110926553110231,
+  "name": "GG VFX real flash_front_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:09:26"
+ },
+ "art-source/vfx/real/flash_side_2x2.png": {
+  "assetId": 132848950198680,
+  "name": "GG VFX real flash_side_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:09:28"
+ },
+ "art-source/vfx/real/hole.png": {
+  "assetId": 81476328262138,
+  "name": "GG VFX real hole",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:09:42"
+ },
+ "art-source/vfx/real/smoke_2x2.png": {
+  "assetId": 83136962697654,
+  "name": "GG VFX real smoke_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-25 21:09:31"
+ },
  "art-source/vfx/ring.png": {
   "assetId": 135268580244441,
   "name": "GG VFX ring",

@@ -1,5 +1,10 @@
-# anim_vandal.py: keyframes the Vandal's Fire and Reload clips on its rig and
-# stores them as NLA tracks named "Fire" / "Reload" (what tools/blender/export_weapons.py samples).
+# anim_vandal.py: keyframes the Vandal's clips on its rig and stores them as NLA tracks (what
+# tools/blender/export_weapons.py samples):
+#   Fire         kick, bolt + charging handle cycle, trigger, buddy sway
+#   Reload       tactical: AK rock-out / rock-in, no rack
+#   ReloadEmpty  the same mag swap, then a charging-handle rack
+#   Draw         first draw of a life: safety off, rack the charging handle
+#   Inspect      mag tap, then a press check (charging handle half back), buddy swinging
 #
 #   Run inside Blender after build_vandal.py:
 #     g = {"__name__": "anim"}; exec(compile(open(path).read(), path, "exec"), g); g["animate"]()
@@ -9,11 +14,15 @@
 # swings a mag's bottom forward); a positive angle pulls the trigger back.
 #
 # Timing rules from the game (Config/Viewmodel + ViewmodelController):
-#   - Reload is stretched to the gun's reloadTime, so only proportions matter.
-#   - The left hand follows the first part the Reload clip moves (Mag, grabbed at its bottom), then a later
-#     one (ChargingHandle) only if their windows, each widened by FOLLOW_LEAD = 0.14 of the clip, don't
-#     overlap. So the mag is done by 52% and the charging handle moves from 82%. The Bolt is NOT moved in
-#     Reload (it comes before ChargingHandle in RELOAD_FOLLOW and sits on the far side).
+#   - Every clip but Fire is stretched to its time in the game (reload, empty reload, first draw, the
+#     inspect track's length), so only proportions matter.
+#   - In Reload, ReloadEmpty, Draw and Inspect the left hand follows the first part the clip moves (Mag,
+#     grabbed at its bottom), then a later one (ChargingHandle) only if their windows, each widened by
+#     FOLLOW_LEAD = 0.14 of the clip, don't overlap. So in ReloadEmpty the mag is done by 52% and the
+#     charging handle moves from 82%. The Bolt is NOT moved in these clips (it comes before
+#     ChargingHandle in RELOAD_FOLLOW and sits on the far side).
+#   - Foley is read off the clips (ViewmodelController.clipBeats): mag out when the Mag starts moving,
+#     mag in when it stops, the rack when the ChargingHandle stops.
 #   - Fire restarts on every shot; it is short and settles fast.
 
 import bpy, math
@@ -106,9 +115,8 @@ def fire():
 	return c
 
 
-def reload():
-	L = 97
-	c = Clip("Reload", L)
+def mag_swap(c):
+	"""The AK rock-out / rock-in shared by both reloads (mag seated by f51)."""
 	# Root: roll the mag side toward the player and lift the muzzle a little; jolts on the mag seat and
 	# the charging-handle release. (The viewmodel adds its own reload body motion on top.)
 	c.key("Root", 10, (0, 0, 0.01), (9, -4, 2))
@@ -116,12 +124,7 @@ def reload():
 	c.key("Root", 44, (0, 0, 0.015), (10, -5, 2))
 	c.key("Root", 48, (0.0, 0, 0.03), (12.5, -7.5, 2.5))  # mag slammed home
 	c.key("Root", 51, (0, 0, 0.012), (9.5, -4.5, 2))
-	c.key("Root", 70, (0, 0, 0.01), (4, -3, -2))  # turn to show the charging handle
-	c.key("Root", 80, (0, 0, 0.008), (3, -3, -3))
-	c.key("Root", 84, (-0.02, 0, 0.01), (4.5, -4, -3.5))  # pulled
-	c.key("Root", 88, (0.015, 0, 0.004), (2, -1, -2))  # released: snaps forward
-	c.key("Root", 93, (0, 0, 0), (0.4, 0, -0.3))
-	# Mag: rock forward off the catch, drop out of view, come back up, rock in and lock (done by f51 = 52%).
+	# Mag: rock forward off the catch, drop out of view, come back up, rock in and lock (done by f51).
 	c.key("Mag", 11)
 	c.key("Mag", 15, (0.012, 0, -0.012), (0, -9, 0))
 	c.key("Mag", 19, (0.05, 0, -0.16), (0, -16, 0))
@@ -132,6 +135,29 @@ def reload():
 	c.key("Mag", 47, (0.004, 0, 0), (0, -6, 0))  # front lug caught
 	c.key("Mag", 49, (0, 0, 0), (0, 1.2, 0))  # rocked back, click
 	c.key("Mag", 51)
+
+
+def reload():
+	# Tactical: the mag swap, then the gun settles (seated at 78%).
+	L = 65
+	c = Clip("Reload", L)
+	mag_swap(c)
+	c.key("Root", 57, (0, 0, 0.004), (2.5, -1.5, 0.6))
+	c.key("Root", 62, (0, 0, 0), (0.3, 0, 0))
+	for f, a in ((14, 6), (18, -5), (23, 3), (28, -1.5), (48, 9), (52, -6), (56, 3), (60, -1)):
+		c.key("Charm", f, rot=(a * 0.4, a, 0))
+	return c
+
+
+def reload_empty():
+	L = 97
+	c = Clip("ReloadEmpty", L)
+	mag_swap(c)
+	c.key("Root", 70, (0, 0, 0.01), (4, -3, -2))  # turn to show the charging handle
+	c.key("Root", 80, (0, 0, 0.008), (3, -3, -3))
+	c.key("Root", 84, (-0.02, 0, 0.01), (4.5, -4, -3.5))  # pulled
+	c.key("Root", 88, (0.015, 0, 0.004), (2, -1, -2))  # released: snaps forward
+	c.key("Root", 93, (0, 0, 0), (0.4, 0, -0.3))
 	# Charging handle: pulled back from 82%, released and slams forward.
 	c.key("ChargingHandle", 80)
 	c.key("ChargingHandle", 84, (-0.2, 0, 0))
@@ -145,6 +171,58 @@ def reload():
 	return c
 
 
+def draw():
+	# First draw (stretched to firstEquipTime): thumb the selector off safe, then the support hand
+	# racks the charging handle (pulled 36-48%, released 52%) and the gun jolts as it slams home.
+	L = 31
+	c = Clip("Draw", L)
+	c.key("FireSelector", 3)
+	c.key("FireSelector", 6, rot=(0, 14, 0))
+	c.key("FireSelector", 7, rot=(0, 12, 0))
+	c.key("FireSelector", 9)
+	# Roll (+X) lifts the left side into view; yaw (-Z) swings the muzzle right so it faces the camera.
+	c.key("Root", 8, (0, 0, 0), (6, 0, -5))
+	c.key("Root", 12, (0, 0, 0.005), (9, -1, -7))
+	c.key("Root", 15, (-0.03, 0, 0.008), (10, -2, -8))  # handle pulled: the gun gives a little
+	c.key("Root", 17, (0.02, 0, 0.004), (6, 1.5, -5))  # slammed home
+	c.key("Root", 19, (0, 0, 0.002), (4, -0.5, -3.5))
+	c.key("Root", 25, (0, 0, 0), (0.8, 0, -0.6))
+	c.key("ChargingHandle", 12)
+	c.key("ChargingHandle", 15, (-0.21, 0, 0))
+	c.key("ChargingHandle", 16, (-0.21, 0, 0))
+	c.key("ChargingHandle", 17)
+	c.key("ChargingHandle", 18, (-0.008, 0, 0))
+	c.key("ChargingHandle", 19)
+	for f, a in ((5, -5), (9, 4), (13, -3), (16, 8), (19, -6), (22, 3.5), (26, -1.2)):
+		c.key("Charm", f, rot=(a * 0.4, a, 0))
+	return c
+
+
+def inspect():
+	# Runs alongside the viewmodel's Inspect track (2.8 s: right side shown 16-42%, left side 60-82%).
+	# A tap on the mag while the right side shows, then a press check on the left side.
+	L = 67
+	c = Clip("Inspect", L)
+	c.key("Mag", 13)
+	c.key("Mag", 15, (0, 0, -0.025), (0, -2, 0))
+	c.key("Mag", 16, (0, 0, 0.004), (0, 0.4, 0))  # tapped home
+	c.key("Mag", 18)
+	c.key("ChargingHandle", 42)
+	c.key("ChargingHandle", 45, (-0.085, 0, 0))  # half back: brass in the chamber
+	c.key("ChargingHandle", 50, (-0.085, 0, 0))
+	c.key("ChargingHandle", 52)
+	c.key("ChargingHandle", 53, (-0.005, 0, 0))
+	c.key("ChargingHandle", 54)
+	c.key("Root", 15, (0, 0, 0.004), (0.6, 0, 0))
+	c.key("Root", 17)
+	c.key("Root", 52, (0.006, 0, 0), (0, 0.4, 0))
+	c.key("Root", 54)
+	for f, a in ((6, 9), (11, -7), (16, 6), (21, -3), (28, 2), (36, -9), (41, 11), (46, -6), (52, 5),
+			(57, -3), (62, 1.5)):
+		c.key("Charm", f, rot=(a * 0.4, a, 0))
+	return c
+
+
 def animate():
 	r = rig()
 	if r.mode != "POSE":
@@ -152,7 +230,7 @@ def animate():
 	scene = bpy.context.scene
 	scene.render.fps = FPS
 	out = {}
-	for clip in (fire(), reload()):
+	for clip in (fire(), reload(), reload_empty(), draw(), inspect()):
 		act = clip.bake(r)
 		out[clip.name] = {"frames": clip.last, "bones": sorted(clip.keys)}
 	scene.frame_set(1)
