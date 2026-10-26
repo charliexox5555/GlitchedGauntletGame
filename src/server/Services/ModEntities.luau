@@ -198,6 +198,9 @@ local function speedFor(model: Model, owner: Player?): number
 end
 
 local function stepZones()
+	if #zones == 0 and next(slowed) == nil then
+		return
+	end
 	local now = os.clock()
 	for i = #zones, 1, -1 do
 		if now >= zones[i].untilT then

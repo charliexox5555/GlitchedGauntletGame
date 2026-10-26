@@ -73,9 +73,22 @@ local function explode(ctx: Types.ServerCtx, at: Vector3)
 			ctx.damage(model, Packet.damageAt(stats, distance), point)
 		end
 	end
-	-- Enemy Mod objects in the blast (a Packet breaks walls and pads).
+	-- Enemy Mod objects in the blast (a Packet breaks walls and pads), only
+	-- with a clear line to the nearest point of each.
 	for _, part in ctx.objectsNear(at, stats.radius) do
-		ctx.damageObject(part, Packet.damageAt(stats, (part.Position - at).Magnitude))
+		local rel = part.CFrame:PointToObjectSpace(at)
+		local half = part.Size / 2
+		local nearest = part.CFrame:PointToWorldSpace(
+			Vector3.new(
+				math.clamp(rel.X, -half.X, half.X),
+				math.clamp(rel.Y, -half.Y, half.Y),
+				math.clamp(rel.Z, -half.Z, half.Z)
+			)
+		)
+		local hit = workspace:Raycast(at, nearest - at, params)
+		if not hit or hit.Instance == part then
+			ctx.damageObject(part, Packet.damageAt(stats, (nearest - at).Magnitude))
+		end
 	end
 	ctx.fx("PacketBoom", { at = at, radius = stats.radius })
 end

@@ -16,6 +16,7 @@ local Rollback = {}
 
 -- Seconds of history kept (the longest rewind any level needs, plus slack).
 Rollback.KEEP = 4
+local ROOM = Vector3.new(2, 5, 1.5) -- a character's box at the old spot
 
 -- Per character, inside the simulation. Weak keys: gone with the character.
 local histories: { [Model]: Rewind.History } = setmetatable({}, { __mode = "k" }) :: any
@@ -49,6 +50,15 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 		return false
 	end
 	local root = ctx.root
+	local objects = workspace:FindFirstChild("ModObjects")
+	if objects then
+		local overlap = OverlapParams.new()
+		overlap.FilterType = Enum.RaycastFilterType.Include
+		overlap.FilterDescendantsInstances = { objects }
+		if #workspace:GetPartBoundsInBox(CFrame.new(past.Position), ROOM, overlap) > 0 then
+			return false -- something stands there now: no rewind, no charge spent
+		end
+	end
 	local from = root.Position
 	-- Keep the current facing: only the position goes back.
 	local rotation = root.CFrame - root.CFrame.Position

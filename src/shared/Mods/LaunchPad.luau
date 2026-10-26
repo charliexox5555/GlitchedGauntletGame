@@ -38,6 +38,50 @@ function LaunchPad.find(
 	)
 end
 
+-- The pads in workspace.ModObjects, kept up to date (the simulation scans
+-- them every step: no table built per step). Events can't be connected
+-- inside a simulation callback, so AbilitiesSim.initialize calls watch().
+local pads: { BasePart } = {}
+local watching = false
+
+local function addPad(child: Instance)
+	if child:IsA("BasePart") and child.Name == "LaunchPad" and not table.find(pads, child) then
+		table.insert(pads, child)
+	end
+end
+
+local function removePad(child: Instance)
+	local i = table.find(pads, child :: any)
+	if i then
+		table.remove(pads, i)
+	end
+end
+
+local function watchFolder(folder: Instance)
+	folder.ChildAdded:Connect(addPad)
+	folder.ChildRemoved:Connect(removePad)
+	for _, child in folder:GetChildren() do
+		addPad(child)
+	end
+end
+
+-- Call once per side, outside the simulation.
+function LaunchPad.watch()
+	if watching then
+		return
+	end
+	watching = true
+	workspace.ChildAdded:Connect(function(child)
+		if child.Name == "ModObjects" then
+			watchFolder(child)
+		end
+	end)
+	local folder = workspace:FindFirstChild("ModObjects")
+	if folder then
+		watchFolder(folder)
+	end
+end
+
 local function number(inst: Instance, name: string, default: number): number
 	local v = inst:GetAttribute(name)
 	return if typeof(v) == "number" then v else default
@@ -72,19 +116,14 @@ function LaunchPad.launch(
 			root.AssemblyLinearVelocity = Vector3.new(flat.X, vel.Y, flat.Z)
 		end
 	end
-	local folder = workspace:FindFirstChild("ModObjects")
-	if not folder or team == nil then
+	if team == nil or #pads == 0 then
 		return nil
 	end
 	if now - number(character, "LaunchAt", -math.huge) < LAUNCH_GAP then
 		return nil
 	end
-	for _, pad in folder:GetChildren() do
-		if
-			pad:IsA("BasePart")
-			and pad:GetAttribute("Kind") == "LaunchPad"
-			and pad:GetAttribute("TeamId") == team
-		then
+	for _, pad in pads do
+		if pad:GetAttribute("Kind") == "LaunchPad" and pad:GetAttribute("TeamId") == team then
 			local rel = pad.CFrame:PointToObjectSpace(root.Position)
 			local half = pad.Size / 2
 			if
@@ -125,7 +164,11 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	local pad = Instance.new("Part")
 	pad.Name = "LaunchPad"
 	pad.Size = LaunchPad.size(stats)
-	pad.CFrame = req.placement :: CFrame
+	local placement = req.placement
+	if not placement then
+		return
+	end
+	pad.CFrame = placement
 	pad.Material = Enum.Material.Neon
 	pad.Color = Color3.fromHex("2A2D33") -- clients recolour by team
 	pad.Transparency = 0.15

@@ -174,6 +174,7 @@ function AbilitiesSim.initialize()
 	if rollbackConnection then
 		return
 	end
+	LaunchPad.watch()
 	local ok, signal = pcall(function()
 		return (RunService :: any).Rollback
 	end)

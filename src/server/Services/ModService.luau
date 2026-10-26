@@ -373,11 +373,19 @@ local function use(
 		schedule = function(delay: number, fn: () -> ())
 			ModEntities.schedule(player, delay, fn)
 		end,
+		-- World effects belong to the life that made them: a zone that opens
+		-- after its caster died doesn't (ModEntities clears them on death).
 		place = function(kind: string, part: BasePart, life: number, hp: number, maxActive: number)
+			if player.Character ~= character or not liveHumanoid(character) then
+				part:Destroy()
+				return
+			end
 			ModEntities.place(player, kind, part, life, hp, maxActive)
 		end,
 		zone = function(spec: ModTypes.ZoneSpec)
-			ModEntities.addZone(player, spec)
+			if player.Character == character and liveHumanoid(character) then
+				ModEntities.addZone(player, spec)
+			end
 		end,
 		reveal = function(targets: { Model }, duration: number)
 			for _, other in Players:GetPlayers() do
@@ -474,26 +482,50 @@ end
 
 -- Rollback (predicted) moved the character back: give back the ammo the
 -- player had then. The simulation writes RollbackAt; act outside it.
+local lifeConnections: { [Player]: { RBXScriptConnection } } = {}
+
+local function dropLife(player: Player)
+	local list = lifeConnections[player]
+	if list then
+		for _, c in list do
+			c:Disconnect()
+		end
+	end
+	lifeConnections[player] = nil
+end
+
+local function holdLife(player: Player, c: RBXScriptConnection)
+	local list = lifeConnections[player]
+	if not list then
+		list = {}
+		lifeConnections[player] = list
+	end
+	table.insert(list, c)
+end
+
 local function watchRollback(player: Player, character: Model)
 	local last = character:GetAttribute("RollbackAt")
-	character:GetAttributeChangedSignal("RollbackAt"):Connect(function()
-		local at = character:GetAttribute("RollbackAt")
-		if typeof(at) ~= "number" or at == last then
-			return
-		end
-		last = at
-		local state = states[player]
-		if not state then
-			return
-		end
-		for _, s in state.slots do
-			local stats = s.id == "Rollback" and Mods.stats(s.id, s.level)
-			if stats then
-				task.defer(WeaponService.rewindAmmo, player, stats.rewind)
+	holdLife(
+		player,
+		character:GetAttributeChangedSignal("RollbackAt"):Connect(function()
+			local at = character:GetAttribute("RollbackAt")
+			if typeof(at) ~= "number" or at == last then
 				return
 			end
-		end
-	end)
+			last = at
+			local state = states[player]
+			if not state then
+				return
+			end
+			for _, s in state.slots do
+				local stats = s.id == "Rollback" and Mods.stats(s.id, s.level)
+				if stats then
+					task.defer(WeaponService.rewindAmmo, player, stats.rewind)
+					return
+				end
+			end
+		end)
+	)
 end
 
 local function onCharacter(player: Player, character: Model)
@@ -503,10 +535,13 @@ local function onCharacter(player: Player, character: Model)
 	watchRollback(player, character)
 	local humanoid = character:WaitForChild("Humanoid", 10)
 	if humanoid and humanoid:IsA("Humanoid") then
-		humanoid.Died:Connect(function()
-			release(player)
-			ModEntities.clear(player)
-		end)
+		holdLife(
+			player,
+			humanoid.Died:Connect(function()
+				release(player)
+				ModEntities.clear(player)
+			end)
+		)
 	end
 end
 
@@ -519,6 +554,9 @@ local function onPlayer(player: Player)
 	end
 	player.CharacterAdded:Connect(function(character)
 		onCharacter(player, character)
+	end)
+	player.CharacterRemoving:Connect(function()
+		dropLife(player)
 	end)
 	if player.Character then
 		task.spawn(onCharacter, player, player.Character)
@@ -538,6 +576,7 @@ function ModService.start()
 	Players.PlayerRemoving:Connect(function(player)
 		states[player] = nil
 		limiter:forget(player)
+		dropLife(player)
 		for i = #heals, 1, -1 do
 			if heals[i].from == player then
 				table.remove(heals, i)

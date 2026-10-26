@@ -46,7 +46,11 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	local wall = Instance.new("Part")
 	wall.Name = "Firewall"
 	wall.Size = Firewall.size(stats)
-	wall.CFrame = req.placement :: CFrame
+	local placement = req.placement
+	if not placement then
+		return
+	end
+	wall.CFrame = placement
 	wall.Material = Enum.Material.ForceField
 	wall.Color = Color3.fromHex("2A2D33") -- clients recolour by team
 	wall.Transparency = 0.1

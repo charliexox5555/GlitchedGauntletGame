@@ -101,6 +101,7 @@ local BOOST_GRACE = 0.3 -- shots this late still get the boost (latency)
 type AmmoSnapshot = { t: number, ammo: { [Slot]: { id: string, ammo: number } } }
 local ammoHistory: { [Player]: { AmmoSnapshot } } = {}
 local AMMO_HISTORY = 4.5 -- seconds
+local OBJECT_HIT_TOLERANCE = 0.5 -- studs outside a Mod object's box a hit may claim
 local motion: { [Player]: MotionTrack } = {}
 
 local WeaponsFolder: Instance? = nil
@@ -345,6 +346,11 @@ end
 
 -- Gives the player a fresh set of weapons (full ammo) and equips the primary.
 function WeaponService.giveLoadout(player: Player)
+	-- A new life: Rollback can't reach back into the last one's ammo, and
+	-- Overclock doesn't carry over.
+	ammoHistory[player] = nil
+	fireBoost[player] = nil
+	player:SetAttribute("FireRateMult", nil)
 	local loadout = WeaponService.getLoadout(player)
 	local slots: { [Slot]: SlotState } = {}
 	for _, slot in SLOTS do
@@ -1189,7 +1195,8 @@ local function onFire(player: Player, payload: unknown)
 		if ModEntities.isObject(hitPart) then
 			local offset = position - origin
 			local rel = hitPart.CFrame:PointToObjectSpace(position)
-			local half = hitPart.Size / 2 + Vector3.one * Combat.HIT_POSITION_TOLERANCE
+			-- Objects don't move: a tight box (not the bodies' latency allowance).
+			local half = hitPart.Size / 2 + Vector3.one * OBJECT_HIT_TOLERANCE
 			if
 				config.melee
 				or pelletUsed[pellet]
@@ -1370,6 +1377,8 @@ local function onCharacter(player: Player, character: Model)
 		end
 		WeaponService.giveLoadout(player)
 		humanoid.Died:Connect(function()
+			fireBoost[player] = nil
+			player:SetAttribute("FireRateMult", nil)
 			local state = states[player]
 			if state then
 				state.equipped = nil

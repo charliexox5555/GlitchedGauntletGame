@@ -89,7 +89,8 @@ function Placeable.find(
 	local inside =
 		workspace:GetPartBoundsInBox(cframe, size * 0.92 - Vector3.new(0, 0.1, 0), overlap)
 	for _, part in inside do
-		if part.CanCollide then
+		local body = part.Parent ~= nil and part.Parent:FindFirstChildOfClass("Humanoid") ~= nil
+		if part.CanCollide or body then
 			return { cframe = cframe, valid = false, reason = "No room there" }
 		end
 	end
