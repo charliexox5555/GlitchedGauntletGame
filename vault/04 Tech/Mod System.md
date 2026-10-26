@@ -1,6 +1,6 @@
 # Mod System: architecture (Stage 0 proposal)
 
-> **Status:** proposal, 2026-10-26, waiting for approval. Design source of truth: [Mods](../01%20Design/Mods.md). Code rules: [Architecture](Architecture.md).
+> **Status:** approved 2026-10-26. **Stage 1 built** (framework + Blink, Packet, Patch Up L1): "Stage 1: as built" at the end says what changed from this proposal. Design source of truth: [Mods](../01%20Design/Mods.md). Code rules: [Architecture](Architecture.md).
 > Scope: the framework plus **L1 of all 9 Mods**. Paths A/B and Glitch plug in later without a rewrite (see "Levels and paths").
 
 ## What exists today (surveyed 2026-10-26)
@@ -138,3 +138,35 @@ One **code session** owns `src/` and Studio (Stages 1 → 2 → VFX hookup → 4
 | Audio shortlist | `vault/02 Art/Mod Audio.md` (search terms, candidate ids, jsfxr presets) | After approval |
 | Later: import + VFX meshes, animations, juice, mobile pass, security/perf review | (scheduled by the handler as stages finish) | |
 Each session commits only its own paths and never pushes; the handler checks the results and pushes.
+
+## Stage 1: as built (2026-10-26)
+What exists, and where it differs from the proposal above.
+
+**Files.** Everything in the file list exists except `Placeable`, `Zone`, `Reveal`, `Rewind` and the other 6 Mod modules (Stage 2). New: `shared/Mods/Charges.luau` (charge maths shared by server, simulation and HUD), `client/Util/ModProps.luau` (held/thrown models: the finished model from `ReplicatedStorage.Abilities` when it exists, else a code-built placeholder), `client/Controllers/ModFxController.luau`.
+
+**Changes from the proposal**
+- **The simulation step:** `Simulation/Abilities` isn't bound on its own; `Simulation/Movement` calls `AbilitiesSim.stepCharacter` first in every step, so the dash and the walk speed it needs are decided together, in a fixed order.
+- **Mod modules** export `module` (`simCast` for predicted Mods, `validate` / `apply` for server Mods, see `Mods/Types` `ModModule`) plus pure helpers both sides use (`Packet.throw` / `Packet.options`, `PatchUp.primaryTarget`). The client side (previews, FX) lives in `ModController` / `ModFxController`, chosen by activation type, not in per-Mod `preview` / `fx` hooks.
+- **Aim check:** the server compares the claimed aim with `Player:GetCameraState().CFrame` (Server Authority replicates the camera) within `AIM_TOLERANCE` 30°, falling back to the character's yaw (50°). The camera origin must be within 5 studs of the server head.
+- **No server-side equip timer:** a use needs the slot held on the server (`ModHold` first, reliable and ordered), not 0.25 s of holding; the cooldown already bounds abuse. Quick-cast sends `ModHold` then `ModUse` at once.
+- **Patch Up** refuses a target at full health (nothing spent). LMB with live allies but none in the crosshair is refused on the client ("No ally in your crosshair") and on the server.
+- **Teams:** `ModService` gives players `TeamId` 1 or 2 by join order (fewest first), so a 2-player Studio test is 1 vs 2. Dev dummies: a teammate gets your team, an enemy the other one. Guns still ignore teams (free-for-all) until MatchService.
+- **Quick-cast** is a client setting (the dev panel toggles it locally), not a server attribute.
+- **Mods are active** only in Studio and on test-mode servers (`TestMode`) until rounds exist; both start players with Blink / Packet / Patch Up (`Config/Mods TEST_LOADOUT`).
+
+**Charges and clocks.** A Mod has `charges`; while it has fewer, one comes back every `cooldown` seconds (`Mods/Charges`). Server Mods: player attributes `Mod<n>Charges` / `Mod<n>RechargeAt` in `workspace:GetServerTimeNow()`. Predicted Mods: the same names on the **character**, in simulation `time()` (measured: client `time()` tracks the server's within ~70 ms). The HUD settles both with the same function. Loadout: player attributes `Mod<n>Id` / `Mod<n>Level`; `ModHeld` (the server's held slot); dev switches `ModNoCooldown`, `ModResetSerial` (the simulation refills when it changes); `DevMods` marks who may open the panel.
+
+**Remotes.** `ModHold(slot | 0)`, `ModUse(slot, "Primary" | "Alt", cameraOrigin, cameraLook, target?)`, `ModFx(kind, data)` with kinds `PacketThrow` (the server path as ballistic segments, replayed exactly by `Projectile.positionAt`), `PacketBoom`, `Heal`, and `Denied` (to the caster only: the client drops its held state and shows the reason), `DevMod(action, ...)`. Budgets in `Config/Mods RATE` (`Util/RateLimit`), arguments through `Util/Validate`. In Studio the last refusal is written to the player attribute `ModReject`.
+
+**Per Mod**
+- **Blink:** `Mods/Blink` `simCast` picks the flat move direction (facing when still), spherecasts 12 studs (radius 1.4) to stop short of walls and bodies, then holds `AssemblyLinearVelocity` for `duration` (character attributes `DashStart` / `DashUntil` / `DashVelocity` / `DashExit`); `Movement` uses the dash speed as `WalkSpeed` meanwhile. No dash (and no charge spent) when a wall is closer than 1 stud. Measured in Studio: from standing still 10.8 studs in 0.15 s (ground friction eats a little), server and client positions identical. The client plays a 9° FOV kick (`CameraController.punchFov`) when `DashStart` moves on.
+- **Packet:** the server simulates the throw from its own head (`Blocks/Projectile`, 60 Hz fixed steps, raycasts against world geometry only, one bounce, then it stops), sends the path, and explodes it after the fuse: `damageCenter` → `damageEdge` over `radius` to the nearest body point, only with line of sight from the blast to the chest or head, through `WeaponService.damage` (hit confirm, damage direction, kill feed). No self or team damage at L1. Clients draw the grenade on the path with a fuse blink and a danger ring at the blast point (cyan for the thrower's team, orange-red for enemies). Arc preview: the same `simulate` on the client every frame (26 pooled dots + the blast ring).
+- **Patch Up:** LMB heals the ally nearest the crosshair (`Blocks/Target.pick`: 30 studs, 12°, line of sight; the server allows +3 studs / +8°), RMB heals you, LMB heals you when you have no live allies. 40 HP over 2 s as server ticks (`Blocks/SelfBuff.take`: an exact total however the server ticks), via `WeaponService.heal`. The gun comes back right after the cast. Clients: a beam to the ally and "+40" over the target for the healer's team.
+
+**Client.** `ModController`: `Idle → Equipping (0.25 s) → Held → Using (0.35 s) → Idle`. A use pressed while equipping is queued. Cancel: the same key, 1/2/3, gamepad Y (cycle), V, or another Mod's key (switches). If the server never confirms the hold (`ModHeld`) within 0.6 s, the client drops it. `WeaponController.setHolstered(reason, on)` lowers the gun and blocks fire, ADS, alt-fire, reload and inspect (the dev panel uses it too); the server refuses shots while a Mod is held (`WeaponService.setHolstered`, reject "holding a Mod"). `ViewmodelController.setLowered` / `holdItem` / `itemAction`: the gun drops away on a spring (`Config/Viewmodel LOWER`), the item rises into the right hand (`ITEM_*`), and a use pushes it out.
+
+**HUD** (`ModHudController`): 3 slots bottom-centre (key chip, glyph or icon, name), a radial sweep (two clipped halves with hard-edged gradients, inside a CanvasGroup for the rounded corners) with a pale fill for the recharged part, the seconds left, charge pips when a Mod has 2+, a cyan border and 1.08 scale while held, a pulse and ring when a charge comes back, a red shake on a refused press, and the hint above ("LMB Throw · RMB Lob · E Cancel", by input device). Touch: `Mod1Button`..`Mod3Button` in an arc above-left of Fire (bound to the input actions) and `ModAltButton` (lob / heal self) while a Mod is held.
+
+**Dev panel** (F8, `DevModController` + `DevModService`): slot tabs, the 9 Mods (unbuilt ones greyed; the server only accepts built ones), the 7 levels (above L1 only the numbers apply until Phase 2), reset cooldowns, no-cooldown, quick-cast, spawn an enemy / teammate dummy (R15, prepared by `CharacterService` like players, anchored, in `workspace.Dummies`, respawns after 3 s, max 6, outlined per viewer), clear dummies. Allowed in Studio, or for rank 255 in group 11116787.
+
+**Open for later stages:** sounds (shortlist waiting), real models and icons (Stage 3), viewmodel throw / heal animations (a placeholder push now), a third-person view of held Mods for other players, Blink losing ~10% of its distance from a standstill (tune `distance` or compensate), guns respecting teams.

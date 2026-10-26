@@ -13,7 +13,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 |---|---|---|
 | Walk | 16 studs/s | |
 | Sprint | 22 studs/s | Toggle or hold (setting). Pressing fire **cancels sprint instantly** |
-| Crouch | 9 studs/s | Tighter spread. Key: Left Ctrl (C is a Mod slot) |
+| Crouch | 9 studs/s | Tighter spread. Key: C or Left Ctrl (Mod 3 is T) |
 | Jump | ~7 studs high | Standard Roblox jump. No fall damage |
 | **Slide** | Sprint + crouch → 30 studs/s burst, slowing to crouch speed over 0.7 s | 0.6 s cooldown. You can shoot while sliding |
 | **Slide-jump** | Jumping out of a slide keeps 80% of the speed | The "Hypershot" flavour. No other advanced tech |
@@ -371,8 +371,11 @@ Fresh base (2026-10-25): the old UI is gone; this is what the plain HUD keeps un
 | Reload | R | X | Reload button |
 | Jump | Space | A | Jump button |
 | Sprint | Shift | L3 | Auto-sprint when the stick is pushed fully forward |
-| Crouch / Slide | Left Ctrl | B | Slide button (appears while sprinting) |
-| Mods 1/2/3 | **Q / E / C** | LB / RB / D-pad up | 3 Mod buttons in an arc |
+| Crouch / Slide | C / Left Ctrl | B | Slide button (appears while sprinting) |
+| Mods 1/2/3 | **Q / E / T** | LB / RB / D-pad up | 3 Mod buttons in an arc (+ a context button while one is held) |
+| Held Mod: use / alternate | LMB / RMB | RT / LT | Fire / context button |
+| Mod dev panel (Studio / owner) | F8 | — | — |
+| Weapon picker (Studio / test mode) | P | D-pad left | GUNS button |
 | Primary / secondary / melee | 1 / 2 / 3, scroll | Y cycles | Weapon tabs |
 | Melee quick-swing | V | R3 | Melee button |
 | Inspect | Y | D-pad down | — |
