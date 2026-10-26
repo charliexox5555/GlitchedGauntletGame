@@ -389,6 +389,30 @@
   "type": "Decal",
   "uploaded": "2026-10-25 22:33:37"
  },
+ "art-source/weapons/Textures/Odin_Color.png": {
+  "assetId": 139375030508273,
+  "name": "GG Odin Color",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:57:16"
+ },
+ "art-source/weapons/Textures/Odin_Metalness.png": {
+  "assetId": 80447006610485,
+  "name": "GG Odin Metalness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:57:31"
+ },
+ "art-source/weapons/Textures/Odin_Normal.png": {
+  "assetId": 107976089889125,
+  "name": "GG Odin Normal",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:57:22"
+ },
+ "art-source/weapons/Textures/Odin_Roughness.png": {
+  "assetId": 86630062167227,
+  "name": "GG Odin Roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-25 22:57:28"
+ },
  "art-source/weapons/Textures/Operator_Color.png": {
   "assetId": 109394379876232,
   "name": "GG Operator Color",
