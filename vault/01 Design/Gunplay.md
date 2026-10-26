@@ -215,6 +215,16 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 | Recoil | 0.38° × 6, then 0.22° up + 0.25° side, 12% switch, 75% back over 0.3 s | |
 | ADS / speed | 1.25× (FOV 68), 0.2 s; ×0.95, ×0.76 aimed | |
 
+### Guardian v2 (roster 09, marksman rifle / DMR)
+| Stat | Value | Valorant Guardian |
+|---|---|---|
+| Fire | Semi, 0.19 s (5.25/s) | 5.25/s |
+| Mag / reload | 12 / 2.3 s, 2.7 s empty | 12 / 2.5 s |
+| Damage | 65 body / 146 head / 49 legs, no falloff: **one-taps a head** (v2's DMR), 2 body shots | 65 / 195 / 49 |
+| Spread | 0.1° hip, **0° aimed** first shot, +0.45°/shot to 1.58°, recovery 0.4 s | 0.1° (ADS 0°) → 1.58° |
+| Recoil | 1.2° first kick, then 1.0° up + 0.2° side, 30% switch, 80% back over 0.3 s | |
+| ADS / speed | 1.5× (FOV 58), 0.25 s; ×0.9, ×0.76 aimed | |
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

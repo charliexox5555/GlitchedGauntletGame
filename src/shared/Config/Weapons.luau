@@ -584,6 +584,53 @@ local weapons: { [string]: WeaponConfig } = {
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
+
+	-- Guardian v2 (roster 09): semi-auto marksman rifle (the DMR). One-taps a
+	-- head, two body shots; perfect first shot when aimed.
+	Guardian = {
+		id = "Guardian",
+		displayName = "Guardian",
+		class = "Rifle",
+		tier = 3,
+		slot = "Primary",
+		fireMode = "Semi",
+		damage = { body = 65, head = 146, legs = 49 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.19, -- 5.25 rounds/s
+		magSize = 12,
+		reloadTime = 2.3,
+		emptyReloadTime = 2.7,
+		equipTime = 0.55,
+		firstEquipTime = 1.0,
+		range = 600,
+		spread = {
+			first = 0.1,
+			adsMultiplier = 0, -- aimed: the first shot goes exactly where you aim
+			protected = 0,
+			protectedGrowth = 0,
+			growth = 0.45,
+			max = 1.58,
+			recoveryTime = 0.4,
+		},
+		recoil = {
+			up = 1.2,
+			protected = 1,
+			upAfter = 1.0,
+			side = 0.2,
+			switchChance = 0.3,
+			switchMinTime = 0.4,
+			recover = 0.8,
+			recoverTime = 0.3,
+		},
+		adsFov = 58, -- 1.5x zoom
+		adsTime = 0.25,
+		moveMultiplier = 0.9,
+		adsMoveMultiplier = 0.76,
+		penetration = "ThinWall",
+		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
 }
 
 for _, w in weapons do

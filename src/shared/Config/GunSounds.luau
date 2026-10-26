@@ -215,6 +215,19 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 	},
+
+	-- Guardian: semi-auto marksman rifle.
+	Guardian = {
+		fire = { id = "atlas:SKS", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER: SKS
+		fireFar = { id = "atlas:SKS_Far", volume = 0.95, pitch = PITCH }, -- PLACEHOLDER
+		tail = nil,
+		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
+		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		rack = { id = RACK, volume = FOLEY, pitch = { 0.95, 1.0 } }, -- PLACEHOLDER: charging handle
+		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
+		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
+	},
 }
 
 local GunSounds = {}
