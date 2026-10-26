@@ -48,6 +48,7 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | **Firewall** | 1v1 / 2v2 | ⬜ | ⬜ | ⬜ | ⬜ | ~90×70 |
 | **Mainframe** | 2v2 | ⬜ | ⬜ | ⬜ | ⬜ | ~100×80 |
 | **Lobby** | Hub | ⬜ | ⬜ | ⬜ | ⬜ | Pads, range, bot pad |
+| **Test range** | Testers (TestMode) | ✅ | ✅ | 🟡 | 🟡 | Built from code (`src/server/TestRange/RangeBuilder`), backup `art-source/maps/TestRange.rbxm`. Lanes + markers 10/25/50/100/150, cover/ThinWall, movement course, 23 gun racks, 6 dummy kinds. Solo Studio playtests done (2026-10-25); needs a 2-player test and a look on phone/gamepad; art pass later (lighting, props) |
 
 ## VFX, UI and audio
 

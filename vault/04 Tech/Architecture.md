@@ -22,21 +22,24 @@ GlitchedGauntletGame/
 Built so far (✅) and still planned (⬜):
 ```
 src/shared/
-  Config/      Game, Camera, Movement, Combat, Weapons (wave 1), Input, Sounds, SoundAtlas, Audio, Viewmodel, Dev ✅
+  Config/      Game, Camera, Movement, Combat, Weapons (wave 1), Input, Sounds, SoundAtlas, Audio, Viewmodel, Dev, TestRange ✅
                Mods, Rounds, Arenas ⬜
   Net.luau     all RemoteEvents in one place (server creates, clients wait) ✅
+  TestMode.luau  the test mode switch (Workspace attribute "TestMode") ✅
   Types.luau   weapon config + remote payload types ✅
   Util/        Spread (seeded), Damage, FireRate, Spring ✅
   WeaponAnimations/  generated Fire/Reload keyframes per gun (tools/make_weapon_anims.py) ✅
 src/server/
   init.server.luau   two-phase bootstrap (init all → start all)
-  Services/    WeaponService, HitboxHistory, CharacterService, TestRangeService (Studio only) ✅
+  Services/    WeaponService, HitboxHistory, CharacterService, TestRangeService (test mode only) ✅
                MatchService, RoundService, DraftService, ModService, LobbyService, ArenaService,
                BotService, DataService, AnalyticsService, AntiCheatService ⬜
+  TestRange/   RangeBuilder (geometry), Dummies (kinds, movement, shooter), RangeStats (tester stats) ✅
 src/client/
   init.client.luau
   Controllers/ InputController, CameraController, MovementController, WeaponController,
-               ViewmodelController, EffectsController, HudController, PoseController ✅
+               ViewmodelController, EffectsController, HudController, PoseController,
+               TesterController + RangeController (test mode) ✅
                ModController, DraftController, LobbyController ⬜
   Util/        GunAnimator (plays the Blender clips on a gun's Motor6Ds), ViewmodelRig (anchored, hand-posed viewmodel guns), ViewmodelArms (block arms with the player's shirt), ViewmodelMotion (bob/sway/breathing as one root offset) ✅
 tools/         blender/ (export), opencloud/ (upload), studio/ (builder, validator, receiver)
@@ -47,6 +50,14 @@ Each Service/Controller is a ModuleScript returning a table with optional `init(
 1. **Client** (`WeaponController`): fire on press, local raycasts with seeded spread (`Util/Spread`), instant effects + predicted hit marker, then `Fire` → server with origin, aim, seed, the hits it saw and tracer end points.
 2. **Server** (`WeaponService`): rate limit → types/finite numbers → shot counter (must move forward by 1–3) → equipped, ammo, reload, fire interval (incl. Flood spin-up, Ray Trace charge) → origin within 5 studs of the server head with a clear line from the head → recompute every pellet ray from the **server-issued seed** (`seedBase` in WeaponState + shot counter) and the claimed spread clamped to the gun's best/worst case → per hit: a real body part (R15/R6 allowlist, never hats or held guns), live, not self, on its pellet's ray (±1.5°), on the target's hitbox **rewound to the shooter's ping** (`HitboxHistory`, max 0.6 s; arms get +3 studs because the holding pose is client-side), and no wall between shooter → hit point → rewound body part (`ThinWall` lets Flood through; Ray Trace ignores walls). Melee: reach + facing check, backstab from behind. Damage comes from `Config/Weapons` (zone × falloff measured by the server), pellets summed per target. In Studio, the last rejection reason is written to the player attribute `FireReject`.
 3. **Server → clients:** `HitConfirm` (shooter: damage numbers, sounds), `Damaged` (victim: direction indicator), `Killed` (everyone: kill feed, pixel dissolve), `ShotFx` (others: tracers, muzzle flash, shells, impacts found by a client raycast to each end point, sound).
+
+## Test range
+For testers in a published place. Kept apart from the match code: everything lives in `TestRangeService`, `src/server/TestRange/`, `Config/TestRange` and the two client controllers, and none of it runs while test mode is off.
+
+- **Switch:** the Workspace attribute `TestMode` (bool, saved with the place). `TestMode.resolve()` (server, in `TestRangeService.init`) reads it; when it's missing, Studio playtests fall back to `Config/Dev TEST_RANGE` and live servers stay off. The server writes the decided value back so clients read the same answer. **On:** tick it, save, publish. **Off:** untick it (or delete it), save, publish.
+- **When on:** the server builds `workspace.TestRange` (origin `Config/TestRange ORIGIN`, away from the map centre), disables every other SpawnLocation, spawns the dummies in `workspace.Dummies` (the folder WeaponService's wall checks skip) and hooks `WeaponService.onShot` / `onDamage` for stats. The Studio-only dev tools (P menu, `Dev` remote) are unchanged.
+- **Dummies:** R15 from a HumanoidDescription, `CharacterService.prepare` (100 HP, hitbox history) so shots go through the same validation and rewind as players. Static kinds are anchored; movers walk with `Humanoid:Move` (AutoRotate off, stock run clip, crouch clips from `Config/Animations`). The shooter only sends `ShotFx` with itself as the shooter (aimed ≥ 1.6 studs past your head); it never applies damage. Tag `RangeDummy` + `Dummy*` attributes drive the client health bars. Decorative parts have `CanQuery = false` so they're never hit claims.
+- **Remotes:** `Tester` (client → server: `SetWeapon(slot, id)`, `Refill`, `ResetDummies`, `SetBehaviour(id, bool)`, `ResetStats`). Checks: test mode on (server value) → token bucket (`Config/TestRange RATE`) → known action → slot from the fixed list, id ≤ 32 chars that exists and fits the slot, known behaviour id, boolean. Shared actions also have a per-player 0.5 s cooldown, and dummy resets a 2 s server-wide one. Weapon racks are ProximityPrompts handled on the server with a distance check. `TesterStats` (server → client) carries `Types.TesterStats`, all measured by the server: TTK runs from the first hit on a target to the kill. Behaviour state is replicated as attributes on `ReplicatedStorage.TestRangeState`.
 
 ## Rules
 1. `--!strict` at the top of every Luau file.
