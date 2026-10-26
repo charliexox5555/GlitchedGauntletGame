@@ -14,6 +14,10 @@ type WeaponConfig = Types.WeaponConfig
 -- by their sight (AimPoint) at their grip's depth and point straight ahead
 -- (RIVALS references 6 and 7), low on the right.
 local RIFLE_VM = Vector3.new(0.31, -0.3, -0.65)
+-- Pistols are placed by their grip: big, low and just right of centre, held
+-- in both hands.
+local SIDEARM_VM = Vector3.new(0.33, -1.06, -1.47)
+local SIDEARM_SCALE = 1.1
 
 local TRACER = Color3.fromHex("FFD9A0") -- warm, like a real tracer round
 
@@ -117,6 +121,58 @@ local weapons: { [string]: WeaponConfig } = {
 		penetration = "ThinWall",
 		suppressed = true, -- no tracer for enemies, quieter shot, small flash
 		viewmodelOffset = RIFLE_VM,
+		tracerColor = TRACER,
+	},
+
+	-- Sidearm --------------------------------------------------------------
+	-- Classic v2 (Gunplay.md §3): the free default pistol and the sidearm
+	-- benchmark. No ADS: right mouse fires a 3-pellet close-range burst.
+	Classic = {
+		id = "Classic",
+		displayName = "Classic",
+		class = "Sidearm",
+		tier = 1,
+		slot = "Secondary",
+		fireMode = "Semi",
+		damage = { body = 26, head = 58, legs = 22 },
+		pellets = 1,
+		pelletSpread = 0,
+		fireInterval = 0.148, -- 6.75 rounds/s
+		magSize = 12,
+		reloadTime = 1.6,
+		emptyReloadTime = 1.9,
+		equipTime = 0.35,
+		firstEquipTime = 0.6,
+		range = 400,
+		falloff = { { from = 105, multiplier = 0.85 } },
+		spread = {
+			first = 0.4,
+			adsMultiplier = 1, -- no ADS
+			protected = 1,
+			protectedGrowth = 0.05,
+			growth = 0.3,
+			max = 1.8,
+			recoveryTime = 0.4,
+		},
+		recoil = {
+			up = 0.55,
+			protected = 2,
+			upAfter = 0.35,
+			side = 0.2,
+			switchChance = 0.25,
+			switchMinTime = 0.3,
+			recover = 0.8,
+			recoverTime = 0.25,
+		},
+		altFire = { pellets = 3, pelletSpread = 3.4, fireInterval = 0.45, ammo = 3 },
+		noAds = true,
+		adsFov = 80,
+		adsTime = 0.2,
+		moveMultiplier = 1,
+		adsMoveMultiplier = 1,
+		penetration = "None",
+		viewmodelOffset = SIDEARM_VM,
+		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = TRACER,
 	},
 }

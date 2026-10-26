@@ -44,6 +44,7 @@ type SlotState = {
 	heatLow: number,
 	heatHigh: number,
 	lastShotAt: number, -- os.clock() of the last accepted shot
+	altReadyAt: number, -- alt-fire's longer cooldown: no shot of either kind before this
 }
 
 -- What the server's own simulation says a player was doing (sampled every
@@ -213,6 +214,7 @@ local function newSlot(id: string): SlotState?
 		heatLow = 0,
 		heatHigh = 0,
 		lastShotAt = -math.huge,
+		altReadyAt = -math.huge,
 	}
 end
 
@@ -824,9 +826,25 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "out of ammo")
 		return
 	end
+	-- Alt-fire (guns with no ADS, e.g. the Classic's 3-pellet burst): its own
+	-- pellets, cone and ammo cost, and a longer cooldown before the next shot.
+	local altFire = if p.alt == true and config.noAds then config.altFire else nil
+	-- An alt shot fires one pellet per round it uses, so a nearly empty mag
+	-- fires fewer.
+	local altRounds = if altFire
+		then (if config.magSize > 0 then math.min(altFire.ammo, slot.ammo) else altFire.ammo)
+		else 1
+	local pellets = if altFire
+		then math.max(1, math.floor(altFire.pellets * altRounds / altFire.ammo))
+		else config.pellets
+	local pelletSpread = if altFire then altFire.pelletSpread else config.pelletSpread
 	local interval = FireRate.interval(config, slot.spinStart, slot.lastFire, now, slot.burstShots)
 	if now < slot.lastFire + interval - Combat.FIRE_JITTER then
 		reject(player, "now < slot.lastFire + interval - Combat.FIRE_JITTER")
+		return
+	end
+	if now < slot.altReadyAt - Combat.FIRE_JITTER then
+		reject(player, "alt-fire cooldown")
 		return
 	end
 	-- The shot comes from roughly where the server thinks the player's head
@@ -853,8 +871,8 @@ local function onFire(player: Player, payload: unknown)
 
 	-- Accept the shot.
 	state.shotIndex = shot
-	slot.heatLow = heatLow + 1
-	slot.heatHigh = heatHigh + 1
+	slot.heatLow = heatLow + altRounds
+	slot.heatHigh = heatHigh + altRounds
 	slot.lastShotAt = now
 	if not slot.spinStart or now - slot.lastFire > FireRate.SPIN_RESET then
 		slot.spinStart = now
@@ -862,12 +880,15 @@ local function onFire(player: Player, payload: unknown)
 	slot.burstShots = FireRate.nextBurstCount(config, slot.burstShots, slot.lastFire, now)
 	slot.lastFire = math.max(now, slot.lastFire + interval)
 	if config.magSize > 0 then
-		slot.ammo -= 1
+		slot.ammo -= altRounds
+	end
+	if altFire then
+		slot.altReadyAt = now + altFire.fireInterval
 	end
 
 	-- Replicate the visuals to everyone else (cosmetic: clamp, don't trust).
 	local ends: { Vector3 } = {}
-	for _, e in readArray(p.ends, config.pellets) do
+	for _, e in readArray(p.ends, pellets) do
 		local v = finiteVector(e)
 		if v then
 			local offset = v - origin
@@ -903,17 +924,15 @@ local function onFire(player: Player, payload: unknown)
 	local dirs = Spread.shot(
 		aim,
 		Spread.seedFor(state.seedBase, shot),
-		config.pellets,
+		pellets,
 		spread,
-		config.pelletSpread,
+		pelletSpread,
 		centred
 	)
 
 	local root = character:FindFirstChild("HumanoidRootPart")
-	local maxHits = math.min(
-		Combat.MAX_HITS_PER_SHOT,
-		config.pellets * (if config.pierceCharacters then 4 else 1)
-	)
+	local maxHits =
+		math.min(Combat.MAX_HITS_PER_SHOT, pellets * (if config.pierceCharacters then 4 else 1))
 	local valid: { ValidHit } = {}
 	local seen: { [Model]: { [number]: boolean } } = {}
 	local pelletUsed: { [number]: boolean } = {}
@@ -937,7 +956,7 @@ local function onFire(player: Player, payload: unknown)
 			typeof(pellet) ~= "number"
 			or pellet ~= math.floor(pellet)
 			or pellet < 1
-			or pellet > config.pellets
+			or pellet > pellets
 		then
 			reject(player, "bad pellet index")
 			continue

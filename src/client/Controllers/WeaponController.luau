@@ -51,6 +51,7 @@ type LocalSlot = {
 	sprayShots: number,
 	sideDir: number,
 	lastSwitch: number,
+	altReadyAt: number, -- alt-fire's cooldown (as WeaponService counts it)
 }
 
 type Reload = { start: number, duration: number, token: number }
@@ -66,6 +67,7 @@ local reloading: Reload? = nil
 local reloadToken = 0
 local triggerHeld = false
 local pressQueued = false
+local altQueuedAt = -math.huge -- alt-fire press (Aim input on a gun with altFire)
 local burstQueue = 0 -- shots left in the current burst
 local nextLeft = false -- akimbo: the next shot comes from the left gun
 local aiming = false
@@ -360,15 +362,25 @@ local function dryFire()
 	end
 end
 
-local function fireShot(s: LocalSlot)
+-- `alt`: the gun's alt-fire (Config/Weapons altFire), if it has one.
+local function fireShot(s: LocalSlot, alt: boolean?)
 	local config = s.config
 	local cam = Workspace.CurrentCamera
 	if not cam then
 		return
 	end
+	local altFire = if alt and config.noAds then config.altFire else nil
+	-- Same rule as the server: one pellet per round the alt shot uses.
+	local altRounds = if altFire
+		then (if config.magSize > 0 then math.min(altFire.ammo, s.ammo) else altFire.ammo)
+		else 1
+	local pellets = if altFire
+		then math.max(1, math.floor(altFire.pellets * altRounds / altFire.ammo))
+		else config.pellets
+	local pelletSpread = if altFire then altFire.pelletSpread else config.pelletSpread
 	local now = os.clock()
 	local interval = FireRate.interval(config, s.spinStart, s.lastFire, now, s.burstShots)
-	if now < s.lastFire + interval then
+	if now < s.lastFire + interval or now < s.altReadyAt then
 		return
 	end
 	if not s.spinStart or now - s.lastFire > FireRate.SPIN_RESET then
@@ -377,12 +389,15 @@ local function fireShot(s: LocalSlot)
 	s.burstShots = FireRate.nextBurstCount(config, s.burstShots, s.lastFire, now)
 	s.lastFire = math.max(now, s.lastFire + interval)
 	if config.magSize > 0 then
-		s.ammo -= 1
+		s.ammo -= altRounds
+	end
+	if altFire then
+		s.altReadyAt = now + altFire.fireInterval
 	end
 
 	local spread, centred = currentSpread(s)
 	local sinceLast = now - s.lastShotAt
-	s.heat = Accuracy.cool(config, s.heat, sinceLast) + 1
+	s.heat = Accuracy.cool(config, s.heat, sinceLast) + altRounds
 	s.lastShotAt = now
 	lastShotAt = now
 
@@ -390,7 +405,7 @@ local function fireShot(s: LocalSlot)
 	local aim = cam.CFrame.LookVector
 	shotIndex += 1
 	local seed = Spread.seedFor(seedBase, shotIndex)
-	local dirs = Spread.shot(aim, seed, config.pellets, spread, config.pelletSpread, centred)
+	local dirs = Spread.shot(aim, seed, pellets, spread, pelletSpread, centred)
 
 	-- Akimbo guns alternate between their two guns.
 	local side: ViewmodelController.Side = "Right"
@@ -436,6 +451,7 @@ local function fireShot(s: LocalSlot)
 		shot = shotIndex,
 		spread = spread,
 		centred = centred,
+		alt = altFire ~= nil,
 		hits = hits,
 		ends = ends,
 	})
@@ -459,8 +475,12 @@ local function fireShot(s: LocalSlot)
 		end)
 	end
 	kickRecoil(s, sinceLast, now)
+	if altFire then
+		-- The burst kicks harder than a single shot.
+		CameraController.kick(config.recoil.up, 0, config.recoil.recover, config.recoil.recoverTime)
+	end
 	CameraController.shake((0.04 + config.recoil.up * 0.1) * (1 - 0.35 * adsAlpha))
-	ViewmodelController.fire(1 - 0.5 * adsAlpha, side)
+	ViewmodelController.fire((1 - 0.5 * adsAlpha) * (if altFire then 1.6 else 1), side)
 	if predictedHit then
 		HudController.hitMarker(predictedHead)
 	end
@@ -644,6 +664,14 @@ local function update(dt: number)
 				end
 			end
 		end
+		-- Alt-fire: one press, one burst (a press only counts for a moment).
+		if s.config.altFire and now - altQueuedAt < 0.2 and canShoot(s) then
+			local before = s.lastFire
+			fireShot(s, true)
+			if s.lastFire ~= before then
+				altQueuedAt = -math.huge
+			end
+		end
 		-- A queued press only counts for a short moment.
 		if pressQueued and not triggerHeld and now - lastShotAt > 0.2 and mode ~= "Melee" then
 			pressQueued = false
@@ -710,6 +738,7 @@ local function onWeaponState(state: Types.WeaponState)
 						sprayShots = 0,
 						sideDir = 1,
 						lastSwitch = 0,
+						altReadyAt = -math.huge,
 					}
 					if equipped == slot then
 						changedEquip = true
@@ -776,6 +805,18 @@ function WeaponController.start()
 	InputController.onPressed("Fire", onFirePressed)
 	InputController.onReleased("Fire", onFireReleased)
 	InputController.onPressed("Reload", startReload)
+	-- Guns with no ADS use the Aim input for their alt-fire.
+	InputController.onPressed("Aim", function()
+		local s = current()
+		if s and s.config.altFire and s.config.noAds then
+			ViewmodelController.cancelInspect()
+			altQueuedAt = os.clock()
+			if s.config.magSize > 0 and s.ammo < 1 and not reloading then
+				dryFire()
+				startReload()
+			end
+		end
+	end)
 	InputController.onPressed("Inspect", function()
 		-- Fire, aim, reload and swapping cancel it (ViewmodelController).
 		local s = current()

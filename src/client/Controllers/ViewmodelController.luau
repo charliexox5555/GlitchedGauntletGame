@@ -680,7 +680,7 @@ function ViewmodelController.unequip()
 end
 
 -- Foley cues read off a clip: the mag leaving and seating, the charging
--- handle (or bolt) slamming home. Empty when the gun has no such clip.
+-- handle (or bolt, or a pistol's slide) slamming home. Empty when the gun has no such clip.
 local function clipBeats(gun: Gun, clip: string): { Beat }
 	local beats: { Beat } = {}
 	local animator = gun.animator
@@ -689,7 +689,7 @@ local function clipBeats(gun: Gun, clip: string): { Beat }
 		table.insert(beats, { at = magFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
 		table.insert(beats, { at = math.max(magTo - VM.BEAT_MAG_IN, magFrom), sound = "MagIn" })
 	end
-	for _, joint in { "ChargingHandle", "Bolt" } do
+	for _, joint in { "ChargingHandle", "Bolt", "Slide" } do
 		local _, to = animator:activity(clip, joint)
 		if to then
 			table.insert(beats, { at = math.max(to - VM.BEAT_RACK, 0), sound = "Rack" })

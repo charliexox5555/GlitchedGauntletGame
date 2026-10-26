@@ -57,6 +57,15 @@ export type Recoil = {
 	recoverTime: number,
 }
 
+-- Alt-fire on the Aim input, for guns with no ADS (Valorant's Classic: a
+-- 3-pellet close-range burst). Each pellet does the gun's normal damage.
+export type AltFire = {
+	pellets: number,
+	pelletSpread: number, -- degrees, cone for the pellets
+	fireInterval: number, -- no shot of either kind until this long after an alt shot
+	ammo: number, -- rounds one alt shot uses
+}
+
 export type SpinUp = { startInterval: number, endInterval: number, time: number }
 
 export type MeleeStats = { range: number, backDamage: number, lunge: number }
@@ -82,6 +91,7 @@ export type WeaponConfig = {
 	pelletSpread: number, -- degrees, cone for pellets
 	fireInterval: number, -- seconds between shots
 	burst: BurstStats?,
+	altFire: AltFire?, -- needs noAds (it uses the Aim input)
 	spinUp: SpinUp?,
 	magSize: number,
 	reloadTime: number,

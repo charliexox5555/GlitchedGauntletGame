@@ -120,6 +120,7 @@ return table.freeze({
 		{ joint = "Pump", grab = "Grip" },
 		{ joint = "Bolt", grab = "Center" },
 		{ joint = "ChargingHandle", grab = "Center" },
+		{ joint = "Slide", grab = "Center" }, -- pistols: racking the slide
 	} :: { Follow },
 	PUMP_FOLLOW = { joint = "Pump", grab = "Grip" } :: Follow,
 	BOLT_FOLLOW = { joint = "Bolt", grab = "Center" } :: Follow,

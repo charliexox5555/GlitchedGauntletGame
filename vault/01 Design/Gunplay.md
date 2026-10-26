@@ -104,6 +104,22 @@ The user asked for: lighter than the Vandal, less damage, faster fire rate, less
 | Speed | **×0.97** carrying (lighter), ×0.76 ADS | same as the Vandal |
 | Suppressed | No tracer for enemies (a faint one for the shooter), quieter shot, smaller flash | no tracers for enemies, quiet beyond 40 m |
 
+### Classic v2 (default sidearm)
+The free default pistol and the sidearm benchmark. **No ADS**: right mouse (gamepad LT, touch AIM) fires the alt-fire instead.
+| Stat | Value | Valorant Classic |
+|---|---|---|
+| Fire | Semi, 0.148 s (6.75/s) | 6.75/s |
+| Alt-fire | 3 pellets in a 3.4° cone, uses 3 rounds (one pellet per round, so with 1–2 left it fires 1–2), 0.45 s before the next shot of either kind (2.2/s); each pellet does normal damage (3 body = 78 up close) and adds a shot of spray heat | 3-pellet burst, 2.22/s |
+| Mag / reload | 12 / 1.6 s tactical, 1.9 s empty (slide release) | 12 / 1.75 s |
+| Equip | 0.6 s first draw, 0.35 s quick | |
+| Damage | 26 body / 58 head / 22 legs; ×0.85 from 105 studs | 26 / 78 / 22 → 22 / 66 / 18 past 30 m |
+| Spread | 0.4° first shot → 1.8° max (1 protected shot, +0.3°/shot), recovery 0.4 s | 0.4° → 1.8° |
+| Movement | Pistol (Sidearm) row | |
+| Recoil | `up` 0.55° × 2, then 0.35° up + 0.2° side, `switchChance` 25% (≥ 0.3 s apart), 80% recovers over 0.25 s; the alt burst kicks an extra 0.55° | |
+| Speed | ×1.0 | |
+
+Implemented as data (`Config/Weapons` `Classic`, `altFire`; `Config/GunSounds` `Classic`), waiting for the model. Alt-fire is generic: any gun with `noAds` and an `altFire` table gets it (the server checks the pellets, ammo cost and cooldown). Verified on a stand-in (the Vandal with the Classic's alt-fire, 2026-10-25): one press = 3 pellets, 3 rounds, 90 damage up close, next shot held for 0.45 s, no rejects.
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

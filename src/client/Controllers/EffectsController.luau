@@ -1117,8 +1117,10 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 		end
 	end
 	AudioController.playSound(sounds.fireFar, "Enemy", from)
+	local maxPellets =
+		math.max(config.pellets, if config.altFire then config.altFire.pellets else 0)
 	for i, e in ends do
-		if typeof(e) ~= "Vector3" or i > config.pellets then
+		if typeof(e) ~= "Vector3" or i > maxPellets then
 			continue
 		end
 		if not config.suppressed then
