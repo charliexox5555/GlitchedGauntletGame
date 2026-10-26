@@ -1,7 +1,7 @@
 """Upload exported gun FBX files to Roblox with the Open Cloud Assets API.
 
 Usage:
-    python tools/opencloud/upload_models.py [--group 11116787 | --user <id>] [Id ...]
+    python tools/opencloud/upload_models.py [--group 11116787 | --user <id>] [--abilities] [Id ...]
 
 Reads the API key from the ROBLOX_ASSETS_KEY environment variable (never
 from a file in the repo, never printed). Needs the key's "assets" API with
@@ -9,6 +9,9 @@ read + write. Uploads art-source/weapons/Exports/<Id>.fbx, polls the
 operation until it finishes and records asset IDs in
 art-source/weapons/Exports/assets.json. Already-uploaded guns are updated
 in place (new version) instead of creating a duplicate asset.
+
+--abilities uploads the Mod props instead (tools/blender/export_mods.py ->
+art-source/abilities/Exports/<Mod>.fbx, asset IDs in that folder's assets.json).
 """
 
 import argparse
@@ -80,7 +83,7 @@ def poll(operation_path):
 	raise RuntimeError(f"operation {op_id} timed out")
 
 
-def upload(gid, creator, record):
+def upload(gid, creator, record, kind="weapon"):
 	path = os.path.join(EXPORTS, gid + ".fbx")
 	if not os.path.exists(path):
 		raise RuntimeError(f"missing {path}")
@@ -92,8 +95,8 @@ def upload(gid, creator, record):
 	else:
 		meta = {
 			"assetType": "Model",
-			"displayName": f"GG_{gid}",
-			"description": f"GlitchedGauntletGame weapon mesh: {gid}",
+			"displayName": f"GG_{gid}" if kind == "weapon" else f"GG_Mod_{gid}",
+			"description": f"GlitchedGauntletGame {kind} mesh: {gid}",
 			"creationContext": {"creator": creator},
 		}
 		body, ctype = multipart({"request": json.dumps(meta)}, "fileContent", path, "model/fbx")
@@ -107,8 +110,15 @@ def main():
 	ap = argparse.ArgumentParser()
 	ap.add_argument("--group", type=str)
 	ap.add_argument("--user", type=str)
+	ap.add_argument("--abilities", action="store_true", help="upload the Mod props (art-source/abilities/Exports)")
 	ap.add_argument("ids", nargs="*")
 	args = ap.parse_args()
+	global EXPORTS, RECORD
+	kind = "weapon"
+	if args.abilities:
+		kind = "ability"
+		EXPORTS = os.path.join(ROOT, "art-source", "abilities", "Exports")
+		RECORD = os.path.join(EXPORTS, "assets.json")
 	creator = {"groupId": args.group} if args.group else {"userId": args.user}
 	if not (args.group or args.user):
 		sys.exit("pass --group or --user")
@@ -117,7 +127,7 @@ def main():
 	failed = []
 	for gid in ids:
 		try:
-			record[gid] = upload(gid, creator, record)
+			record[gid] = upload(gid, creator, record, kind)
 			print(f"{gid}: {record[gid]['assetId']}")
 		except Exception as e:  # keep going, report at the end
 			failed.append(gid)
