@@ -48,6 +48,8 @@ local bindings: { [string]: Binding } = {
 	-- simulation input, so the server and the predicting client pose the
 	-- character with the same pitch (shared/Simulation/Poses).
 	AimPitch = { keys = {}, gamepad = {}, kind = "Direction1D" },
+	-- Test range (test mode only): opens the tester menu. Touch: the TEST button.
+	TesterMenu = { keys = { Enum.KeyCode.B }, gamepad = { Enum.KeyCode.DPadUp } },
 	-- Studio-only dev picker: weapon menu, next primary / next secondary.
 	DevMenu = { keys = { Enum.KeyCode.P }, gamepad = {} },
 	DevNextPrimary = { keys = { Enum.KeyCode.T }, gamepad = {} },

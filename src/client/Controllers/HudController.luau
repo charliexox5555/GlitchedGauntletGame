@@ -329,6 +329,7 @@ local function build(): Refs
 		button("ReloadButton", "R", UDim2.new(1, -60, 1, -310), 52)
 		button("SlideButton", "SLIDE", UDim2.new(1, -200, 1, -150), 60)
 		button("SwapButton", "SWAP", UDim2.new(1, -60, 1, -380), 52)
+		button("SprintButton", "RUN", UDim2.new(1, -290, 1, -200), 56)
 	end
 
 	return {
@@ -729,6 +730,18 @@ end
 
 function HudController.isDevMenuOpen(): boolean
 	return devMenuOpen
+end
+
+-- Other full-screen menus (the tester menu) register here, so weapons stop
+-- firing and the mouse is freed while any menu is open.
+local openMenus: { [string]: boolean } = {}
+
+function HudController.setMenuOpen(name: string, open: boolean)
+	openMenus[name] = if open then true else nil
+end
+
+function HudController.isMenuOpen(): boolean
+	return devMenuOpen or next(openMenus) ~= nil
 end
 
 -- Loop -------------------------------------------------------------------------

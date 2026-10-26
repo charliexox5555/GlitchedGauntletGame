@@ -524,7 +524,7 @@ local function swing(s: LocalSlot)
 end
 
 local function canShoot(s: LocalSlot): boolean
-	if not alive or os.clock() < equipReadyAt or reloading or HudController.isDevMenuOpen() then
+	if not alive or os.clock() < equipReadyAt or reloading or HudController.isMenuOpen() then
 		return false
 	end
 	-- `< 1`: a beam battery is fractional while it recharges (server: ammo < 1).
@@ -535,7 +535,7 @@ local function canShoot(s: LocalSlot): boolean
 end
 
 local function onFirePressed()
-	if HudController.isDevMenuOpen() then
+	if HudController.isMenuOpen() then
 		return
 	end
 	ViewmodelController.cancelInspect()
@@ -606,7 +606,7 @@ local function update(dt: number)
 	end
 
 	-- Aim down sights.
-	local menuOpen = HudController.isDevMenuOpen()
+	local menuOpen = HudController.isMenuOpen()
 	CameraController.setCursorVisible(menuOpen)
 	local aimingWanted = s ~= nil
 		and alive
@@ -851,7 +851,7 @@ function WeaponController.start()
 	InputController.onPressed("Reload", startReload)
 	InputController.onPressed("Inspect", function()
 		-- Fire, aim, reload and swapping cancel it (ViewmodelController).
-		if alive and current() and not reloading and not HudController.isDevMenuOpen() then
+		if alive and current() and not reloading and not HudController.isMenuOpen() then
 			ViewmodelController.inspect()
 		end
 	end)

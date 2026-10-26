@@ -1763,7 +1763,7 @@ end
 -- Other players' shots ---------------------------------------------------------
 
 -- Dual Boot: which side each shooter fires next (weak keys, players leave).
-local nextLeft: { [Player]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local nextLeft: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local remoteParams = RaycastParams.new()
 remoteParams.FilterType = Enum.RaycastFilterType.Exclude
 
@@ -1813,15 +1813,27 @@ local function remoteImpact(
 	end
 end
 
-local function onShotFx(shooter: Player, weaponId: string, origin: Vector3, ends: { Vector3 })
+-- `shooter` is another player, or a test range dummy model (its harmless
+-- tracers use the same effects).
+local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, ends: { Vector3 })
 	local config = Weapons.get(weaponId)
-	if not config or typeof(origin) ~= "Vector3" or typeof(ends) ~= "table" then
+	if
+		not config
+		or typeof(shooter) ~= "Instance"
+		or typeof(origin) ~= "Vector3"
+		or typeof(ends) ~= "table"
+	then
 		return
 	end
-	local character = shooter.Character
+	local character: Model? = nil
+	if shooter:IsA("Player") then
+		character = shooter.Character
+	elseif shooter:IsA("Model") then
+		character = shooter
+	end
 
 	-- Null: one continuous beam per shooter, kept alive by the ticks.
-	if config.beam then
+	if config.beam and shooter:IsA("Player") then
 		local muzzle = worldPoint(character, "Muzzle")
 		local e = ends[1]
 		if typeof(e) == "Vector3" then
