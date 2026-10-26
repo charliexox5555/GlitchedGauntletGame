@@ -1,0 +1,56 @@
+# Mods overnight checklist
+
+What to test in Studio for the Mod system, stage by stage. Built by the code session overnight 2026-10-26; how it works is in [Mod System](../../04%20Tech/Mod%20System.md), the design in [Mods](../../01%20Design/Mods.md).
+
+**Before you start:** `rojo serve`, click **Connect** in the Rojo plugin, then **Play** (solo). The place needs **no save** for the Mods (everything is code). Stop and Play again after Rojo syncs a change: a running playtest doesn't reload scripts.
+
+## Stage 1: framework + Blink, Packet, Patch Up
+
+You start with **Q Blink · E Packet · T Patch Up** (Studio and test-mode servers only).
+
+### HUD
+- [ ] 3 slots bottom-centre with key chips **Q / E / T**, a glyph (placeholder icon) and the name under each.
+- [ ] Use a Mod: a dark wedge with a pale cyan fill sweeps round clockwise, with the seconds in the middle (decimals under 1 s).
+- [ ] When it's ready again the slot pulses and a cyan ring grows out of it.
+- [ ] Pressing a Mod that isn't ready: red border shake and "Not ready" above the slots.
+- [ ] With a gamepad, the key chips change to **LB / RB / D-Pad Up**.
+
+### Blink (Q)
+- [ ] Standing still: a quick dash forward (about 11 studs), with an FOV kick. Moving: it dashes the way you move (strafe left = dash left).
+- [ ] Facing a wall up close: no dash and no cooldown spent. Dashing toward a wall stops short of it.
+- [ ] 7 s cooldown. It works while holding Packet or Patch Up (the held Mod is put away).
+- [ ] No rubber-banding after the dash (it runs in the Server Authority simulation).
+
+### Packet (E)
+- [ ] Press E: the gun drops, a grenade comes up in the right hand, a dotted cyan arc and a blast ring show where it lands. Hint: "LMB Throw · RMB Lob · E Cancel".
+- [ ] LMB throws far, RMB lobs short. The grenade bounces once, blinks faster, and explodes after 1.2 s with a flash, a ring and some shake.
+- [ ] F8 → **Spawn enemy**: a grenade at its feet does 50 at the centre down to 20 at 8 studs. A wall between the blast and the dummy blocks the damage.
+- [ ] **Spawn teammate**: Packet never hurts it, and never hurts you.
+- [ ] E again (or 1/2/3, or Q/T) cancels without a cooldown. While holding, LMB never fires the gun.
+- [ ] 14 s cooldown starts on the throw, not on the press.
+
+### Patch Up (T)
+- [ ] Press T at full health, then RMB: "Full health" and nothing is spent.
+- [ ] F8 → **Hurt me (-50)**, then T and RMB: +40 over 2 s, the gun comes back right away and you can shoot while it heals.
+- [ ] F8 → **Spawn teammate**, shoot it a few times (guns still hurt teammates for now), hold T and look at it: cyan outline on it, hint "LMB Heal ally". LMB: beam + "+40", it heals over 2 s.
+- [ ] Look away from the teammate and LMB: "No ally in your crosshair", nothing spent. Behind a wall: also refused.
+- [ ] **Clear dummies** (no teammates): the hint says "LMB Heal self" and LMB heals you (1v1 rule).
+
+### Dev panel (F8)
+- [ ] F8 opens it (mouse free, gun lowered); F8 closes it.
+- [ ] Pick a slot, then a Mod: the slot changes at once. Unbuilt Mods are greyed out (Stage 2 fills them in).
+- [ ] Levels: **A2** on Blink gives 2 charges (2 pips under the slot). Levels above L1 only change numbers until Phase 2.
+- [ ] Reset cooldowns, No cooldown (spam Q/E/T), Quick-cast (E throws at once, T heals yourself at once).
+- [ ] Spawn enemy (orange-red outline) / Spawn teammate (cyan outline), Clear dummies. Dummies respawn 3 s after dying. Hurt me takes 50 HP (never kills).
+
+### Phone / gamepad (not run by the code session: the Studio MCP can't emulate them)
+- [ ] Device emulator (phone): 3 round Mod buttons in an arc above-left of FIRE. Tap one to hold, FIRE uses it, the context button (LOB / HEAL SELF) appears next to FIRE, tap the Mod again to cancel.
+- [ ] Gamepad: LB / RB / D-pad up for the Mods, RT use, LT alternate; the weapon picker moved to **D-pad left**.
+
+### Known for now
+- Placeholder grenade and heal device (built in code), no Mod sounds yet, no third-person view of a held Mod for other players.
+- Guns ignore teams until rounds/teams exist (you can shoot the teammate dummy).
+- A 2-player test (Test → Clients and Servers, 2 players) puts the players on teams 1 and 2.
+
+### Nothing to save
+Stage 1 adds no Studio-owned content: nothing to save in the place.
