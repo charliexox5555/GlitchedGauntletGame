@@ -409,11 +409,20 @@ local function build(): ScreenGui
 			}, screen)
 			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
 			make("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.6 }, b)
+			make("ImageLabel", {
+				Name = "Icon",
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(0.5, 0.5),
+				Size = UDim2.fromScale(0.62, 0.62),
+				BackgroundTransparency = 1,
+				Image = "",
+			}, b)
 			local label = text({
 				Size = UDim2.fromScale(1, 1),
 				FontFace = HEAVY,
 				TextSize = 18,
 				Text = "",
+				ZIndex = 2,
 			}, b)
 			return b, label
 		end
@@ -532,7 +541,14 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 	local button, label = ui.button, ui.buttonText
 	if button and label then
 		button.Visible = id ~= nil
-		label.Text = if cooling then secs else (if view.def then view.def.glyph else "")
+		local icon = button:FindFirstChild("Icon")
+		local iconId = if view.def then view.def.icon else ""
+		if icon and icon:IsA("ImageLabel") then
+			icon.Image = iconId
+			icon.ImageTransparency = if cooling then 0.7 else 0
+		end
+		local glyph = if view.def and iconId == "" then view.def.glyph else ""
+		label.Text = if cooling then secs else glyph
 		local stroke = button:FindFirstChildOfClass("UIStroke")
 		if stroke then
 			stroke.Color = if view.held then CYAN else WHITE

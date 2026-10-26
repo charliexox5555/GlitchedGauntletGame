@@ -565,7 +565,12 @@ local function onModPressed(slot: number)
 		return
 	end
 	if not ready(view) then
-		deny(slot, "Not ready")
+		-- A predicted Mod may already have cast from this same press (the
+		-- simulation step ran before this handler): that's not a refusal.
+		local justCast = def.authority == "Simulation" and view.cooldown - view.remaining < 0.25
+		if not justCast then
+			deny(slot, "Not ready")
+		end
 		return
 	end
 	if def.activation == "Instant" then
