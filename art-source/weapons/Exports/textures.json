@@ -82,5 +82,17 @@
    "Roughness": 123114096738268,
    "Metalness": 103179258348476
   }
+ },
+ "Bucky": {
+  "ColorMap": 80629479405948,
+  "NormalMap": 130684402406533,
+  "RoughnessMap": 127945486552278,
+  "MetalnessMap": 126534938080289,
+  "decals": {
+   "Color": 129846688982849,
+   "Normal": 92003599423665,
+   "Roughness": 121424185505435,
+   "Metalness": 140038410920375
+  }
  }
 }

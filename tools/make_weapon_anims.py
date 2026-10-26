@@ -66,7 +66,8 @@ def main(only=None):
 		# Reload is then the tactical reload (mag swap only).
 		# Draw / Inspect (optional): the first draw of a life (racks the action) and the gun's part
 		# of the inspect.
-		for clip_name in ("Fire", "Reload", "ReloadEmpty", "Draw", "Inspect"):
+		# ReloadStart / ReloadInsert / ReloadEnd: shell-by-shell guns (one shell per ReloadInsert, looped by the game).
+		for clip_name in ("Fire", "Reload", "ReloadEmpty", "Draw", "Inspect", "ReloadStart", "ReloadInsert", "ReloadEnd"):
 			if clip_name in anims:
 				body.append(f"\t{clip_name} = " + clip_lua(anims[clip_name], "\t").lstrip() + ",")
 		body.append("}")
