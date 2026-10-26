@@ -17,7 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-local Audio = require(ReplicatedStorage.Shared.Config.Audio)
+local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -1099,11 +1099,9 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	end
 	local muzzle = worldPoint(character, "Muzzle", left) or worldPoint(character, "Muzzle")
 	local from = if muzzle then muzzle.WorldPosition else origin
+	local sounds = GunSounds.get(weaponId)
 	if config.melee then
-		AudioController.play(
-			config.sounds.fire,
-			{ group = "Enemy", at = from, volume = Audio.ENEMY_SHOT_VOLUME }
-		)
+		AudioController.playSound(sounds.fireFar, "Enemy", from)
 		return
 	end
 	local cam = Workspace.CurrentCamera
@@ -1118,13 +1116,7 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 			EffectsController.ejectShell(eject, config, 1, rootVelocity(character))
 		end
 	end
-	AudioController.play(config.sounds.fire, {
-		group = "Enemy",
-		at = from,
-		far = true,
-		volume = Audio.ENEMY_SHOT_VOLUME * (config.sounds.fireVolume or 1),
-		pitch = config.sounds.firePitch,
-	})
+	AudioController.playSound(sounds.fireFar, "Enemy", from)
 	for i, e in ends do
 		if typeof(e) ~= "Vector3" or i > config.pellets then
 			continue
@@ -1145,6 +1137,13 @@ function EffectsController.start()
 		local preload: { Instance | string } = { probe }
 		for _, id in VFX do
 			table.insert(preload, id)
+		end
+		for _, id in GunSounds.allIds() do
+			if string.sub(id, 1, 6) ~= "atlas:" then
+				local s = Instance.new("Sound")
+				s.SoundId = id
+				table.insert(preload, s)
+			end
 		end
 		game:GetService("ContentProvider"):PreloadAsync(preload)
 		probe:Destroy()

@@ -1,5 +1,7 @@
 --!strict
--- Every sound the game plays, in one place so they're easy to swap.
+-- Shared (non-gun) sounds: hit feedback, damage taken, the low-ammo tick, and
+-- the id of the sound atlas. EVERY GUN SOUND (shots, reloads, draw, inspect)
+-- lives in Config/GunSounds, one entry per gun.
 --
 -- Gunshots and the UI sounds live in one "atlas" audio asset
 -- (one upload instead of ~80; Open Cloud only allows 10 audio uploads a
@@ -12,8 +14,7 @@
 -- Gunshots: CC0 recordings of real firearms ("The Free Firearm Sound
 -- Library", Ben Jaszczak et al.), lightly polished. Handling foley:
 -- Audioscape library. Melee: ProSoundEffects library (both Roblox-licensed
--- for use in experiences). The gun names in brackets are the retired first
--- roster; the slices stay for the guns still to come.
+-- for use in experiences).
 --
 -- To go back to the first atlas (raw recordings, 2026-10-25), set ATLAS to
 -- 95621839199583 and restore this file and Config/SoundAtlas.luau from git
@@ -26,39 +27,7 @@ end
 return table.freeze({
 	ATLAS = id(105241531021545), -- v2: polished real recordings; v1 was 95621839199583
 
-	-- Gunshots (the real gun each one was recorded from)
-	ShotPistol = "atlas:PPQ", -- Walther PPQ 9mm (Byte)
-	ShotHeavyPistol = "atlas:Revolver", -- S&W 642 .38 (Root)
-	ShotDual = "atlas:M1911", -- 1911 .45 (Dual Boot)
-	ShotMachinePistol = "atlas:Bersa", -- Bersa .380, pitched up (Flicker)
-	ShotSuppressed = "atlas:Ruger22", -- Ruger Mk III .22, filtered (Mute)
-	ShotSmg = "atlas:SwedishK", -- Carl Gustav M45 (Bandwidth)
-	ShotSmgBurst = "atlas:PPSh", -- PPSh (Burst Buffer)
-	ShotRifle = "atlas:AR15", -- AR-15 (Pulse)
-	ShotRifleSuppressed = "atlas:AK47Suppressed", -- AK-47, filtered (Bitrate)
-	ShotRifleHeavy = "atlas:Marlin", -- Marlin 336 .30-30 (Overwrite)
-	ShotMarksman = "atlas:SKS", -- SKS (Checksum)
-	ShotMachineGun = "atlas:AKBurst", -- AK-47 full-auto bursts (Vandal)
-	ShotHeavyMG = "atlas:PPShBurst", -- PPSh full-auto bursts, pitched down (Flood)
-	ShotSniper = "atlas:Springfield", -- Springfield 1917 .30-06 (Long Poll)
-	ShotSniperDouble = "atlas:Tikka", -- Tikka T3 .30-06 (Handshake)
-	ShotSniperHeavy = "atlas:Mosin", -- Mosin-Nagant (Kernel)
-	ShotShotgun = "atlas:Nova", -- Benelli Nova 12ga (Hard Reset)
-	ShotShotgunAuto = "atlas:Model12", -- Winchester Model 12 (Crash)
-	ShotShotgunLight = "atlas:Mossberg", -- Mossberg 190 (Splinter)
-	ShotLauncher = "atlas:LeverThump", -- lever action, pitched down + disc whirr (Loopback)
-
-	-- Handling
-	MagOut = id(101803348893194), -- AS_gun_foley-01
-	MagIn = id(92321876028160), -- AS_gun_foley-02
-	Rack = id(135901981148051), -- AS_gun_foley-03 (charging handle, after an empty reload)
-	Bolt = id(135901981148051), -- AS_gun_foley-03
-	Pump = id(135901981148051), -- AS_gun_foley-03
-	ShellIn = id(135901981148051), -- AS_gun_foley-03
-	Equip = id(73599108833500), -- AS_gun_foley-04
-	Swing = id(9125620110), -- ProSoundEffects: Knife Swoosh Thick
-	DryFire = "atlas:DryFire", -- synthesized
-	LowAmmo = "atlas:LowAmmo", -- synthesized
+	LowAmmo = "atlas:LowAmmo", -- synthesized tick on each shot from a near-empty mag
 
 	-- Feedback (synthesized)
 	HitBody = "atlas:HitTick",
@@ -66,5 +35,4 @@ return table.freeze({
 	Kill = "atlas:Kill",
 	KillHead = "atlas:KillHead",
 	Damage = "atlas:Damage",
-	Impact = "atlas:Impact",
 })

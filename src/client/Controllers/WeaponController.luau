@@ -17,6 +17,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
 local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
+local GunSounds = require(Shared.Config.GunSounds)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
 local Sounds = require(Shared.Config.Sounds)
@@ -180,6 +181,15 @@ local function playLocal(id: string?, group: AudioController.Group, volume: numb
 	AudioController.play(id, { group = group, volume = volume, pitch = pitch })
 end
 
+-- A sound from the gun's Config/GunSounds entry, played on our side (2D).
+local function playGun(config: WeaponConfig, name: string, group: AudioController.Group?)
+	local set = GunSounds.get(config.id) :: any
+	AudioController.playSound(set[name], group or "Foley")
+end
+
+-- Clip beats (ViewmodelController clipBeats) to GunSounds names.
+local BEAT_SOUNDS: { [string]: string } = { MagOut = "magOut", MagIn = "magIn", Rack = "rack" }
+
 local function updateHudWeapon()
 	local s = current()
 	if s then
@@ -214,15 +224,11 @@ local function startReload()
 	local token = reloadToken
 	reloading = { start = os.clock(), duration = duration, token = token }
 	Net.event("Reload"):FireServer()
-	-- Foley lands on the clip's own beats (Config/Viewmodel CLIP_SOUNDS).
+	-- Foley (Config/GunSounds) lands on the clip's own beats.
 	for _, beat in ViewmodelController.reload(duration, empty) do
-		local id = if beat.sound == "MagOut"
-			then Sounds.MagOut
-			elseif beat.sound == "MagIn" then config.sounds.reload or Sounds.MagIn
-			else config.sounds.cycle or Sounds.Rack
 		task.delay(duration * beat.at, function()
 			if reloadToken == token then
-				playLocal(id, "Foley", Audio.FOLEY_VOLUME)
+				playGun(config, BEAT_SOUNDS[beat.sound])
 			end
 		end)
 	end
@@ -247,13 +253,12 @@ local function applyEquip(slot: Slot)
 	local duration = if first then config.firstEquipTime or config.equipTime else config.equipTime
 	equipReadyAt = os.clock() + duration
 	updateHudWeapon()
-	playLocal(config.sounds.equip, "Foley", Audio.FOLEY_VOLUME)
+	playGun(config, "draw")
 	local token = reloadToken
 	for _, beat in ViewmodelController.equip(config, first, duration) do
-		local id = if beat.sound == "Rack" then config.sounds.cycle or Sounds.Rack else Sounds.MagIn
 		task.delay(duration * beat.at, function()
 			if reloadToken == token and current() == s then
-				playLocal(id, "Foley", Audio.FOLEY_VOLUME)
+				playGun(config, BEAT_SOUNDS[beat.sound])
 			end
 		end)
 	end
@@ -349,7 +354,10 @@ local function cast(
 end
 
 local function dryFire()
-	playLocal(Sounds.DryFire, "Foley", Audio.FOLEY_VOLUME)
+	local s = current()
+	if s then
+		playGun(s.config, "dryFire")
+	end
 end
 
 local function fireShot(s: LocalSlot)
@@ -434,12 +442,8 @@ local function fireShot(s: LocalSlot)
 
 	-- Feel.
 	EffectsController.localShot(config, side)
-	playLocal(
-		config.sounds.fire,
-		"Gun",
-		Audio.SHOT_VOLUME * (config.sounds.fireVolume or 1),
-		config.sounds.firePitch
-	)
+	playGun(config, "fire", "Gun")
+	playGun(config, "tail", "Gun")
 	-- A hollow tick from a near-empty mag, louder as it runs dry.
 	local mag = config.magSize
 	local low = math.ceil(mag * Audio.LOW_AMMO_FRACTION)
@@ -447,11 +451,10 @@ local function fireShot(s: LocalSlot)
 		playLocal(Sounds.LowAmmo, "Foley", Audio.LOW_AMMO_VOLUME * (1.4 - 0.4 * s.ammo / low))
 	end
 	-- Pump and bolt guns work the action after every shot.
-	local cycle = config.sounds.cycle
-	if cycle and (config.fireMode == "Pump" or config.fireMode == "Bolt") and s.ammo > 0 then
+	if (config.fireMode == "Pump" or config.fireMode == "Bolt") and s.ammo > 0 then
 		task.delay(config.fireInterval * Audio.CYCLE_DELAY, function()
 			if current() == s and alive then
-				playLocal(cycle, "Foley", Audio.FOLEY_VOLUME)
+				playGun(config, "rack")
 			end
 		end)
 	end
@@ -487,7 +490,7 @@ local function swing(s: LocalSlot)
 	end
 	s.lastFire = now
 	ViewmodelController.swing()
-	playLocal(config.sounds.fire, "Gun", Audio.SHOT_VOLUME)
+	playGun(config, "fire", "Gun")
 
 	local origin = cam.CFrame.Position
 	local aim = cam.CFrame.LookVector
@@ -775,8 +778,11 @@ function WeaponController.start()
 	InputController.onPressed("Reload", startReload)
 	InputController.onPressed("Inspect", function()
 		-- Fire, aim, reload and swapping cancel it (ViewmodelController).
-		if alive and current() and not reloading and os.clock() >= equipReadyAt then
-			ViewmodelController.inspect()
+		local s = current()
+		if alive and s and not reloading and os.clock() >= equipReadyAt then
+			if ViewmodelController.inspect() then
+				playGun(s.config, "inspect")
+			end
 		end
 	end)
 	InputController.onPressed("Primary", function()

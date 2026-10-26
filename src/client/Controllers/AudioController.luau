@@ -18,6 +18,7 @@ local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
 local Audio = require(ReplicatedStorage.Shared.Config.Audio)
+local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local SoundAtlas = require(ReplicatedStorage.Shared.Config.SoundAtlas)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
@@ -29,6 +30,7 @@ export type PlayOptions = {
 	pitch: number?, -- default 1 (jitter is added on top)
 	at: Vector3?, -- play in 3D here (otherwise 2D)
 	far: boolean?, -- use the "<Name>_Far" slice if there is one
+	jitter: boolean?, -- add the group's small random pitch (default true)
 }
 
 type Voice = {
@@ -213,7 +215,7 @@ function AudioController.play(id: string?, options: PlayOptions?)
 	local o: PlayOptions = options or {}
 	local group: Group = o.group or "Foley"
 	local volume = o.volume or 0.6
-	local jitter = Audio.PITCH_JITTER[group] or 0
+	local jitter = if o.jitter == false then 0 else Audio.PITCH_JITTER[group] or 0
 	local pitch = math.max(0.05, (o.pitch or 1) * (1 + (math.random() * 2 - 1) * jitter))
 	local key, region = resolve(id, o.far)
 	if not region then
@@ -246,6 +248,30 @@ function AudioController.play(id: string?, options: PlayOptions?)
 	v.key = key
 	v.startedAt = now
 	v.endsAt = now + region.length / pitch + 0.05
+end
+
+-- Plays one entry of Config/GunSounds: its own volume (times `volumeScale`)
+-- and a random pitch inside its range. `at`: 3D at that point, else 2D.
+function AudioController.playSound(
+	sound: GunSounds.GunSound?,
+	group: Group,
+	at: Vector3?,
+	volumeScale: number?
+)
+	if not sound then
+		return
+	end
+	local range = sound.pitch
+	local pitch = if range and #range >= 2
+		then range[1] + math.random() * (range[2] - range[1])
+		else 1
+	AudioController.play(sound.id, {
+		group = group,
+		volume = sound.volume * (volumeScale or 1),
+		pitch = pitch,
+		at = at,
+		jitter = false,
+	})
 end
 
 function AudioController.init()

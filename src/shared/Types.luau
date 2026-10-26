@@ -70,15 +70,6 @@ export type BurstStats = { count: number, interval: number, singleWhenAiming: bo
 -- own lens is hidden while aiming).
 export type Reticle = { center: Vector3, size: Vector2, color: Color3, frame: boolean? }
 
-export type WeaponSounds = {
-	fire: string,
-	fireVolume: number?, -- multiplier on Audio.SHOT_VOLUME (loudness per class is baked)
-	firePitch: number?,
-	reload: string?,
-	equip: string?,
-	cycle: string?, -- bolt / pump / charging handle: after each Pump/Bolt shot, empty reloads and the first draw
-}
-
 export type WeaponConfig = {
 	id: string,
 	displayName: string,
@@ -115,7 +106,7 @@ export type WeaponConfig = {
 	noAds: boolean?, -- akimbo guns
 	-- Models to hold: by default the model named like the id. Akimbo guns hold two.
 	models: { right: string, left: string? }?,
-	sounds: WeaponSounds,
+	-- Sounds live in Config/GunSounds (one entry per gun id).
 	-- Viewmodel placement at the hip, camera space: long guns put their sight
 	-- height at this point at their grip's depth; sidearms, melee and akimbo guns
 	-- put their grip here. Optional cant in degrees (default none: the barrel

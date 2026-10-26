@@ -1,13 +1,12 @@
 --!strict
 -- Every weapon as data (vault/01 Design/Weapons.md + Gunplay.md). Adding a gun
--- = a table entry here plus its model in ReplicatedStorage.Weapons (same id)
--- and its clips in Shared/WeaponAnimations.
+-- = a table entry here plus its model in ReplicatedStorage.Weapons (same id),
+-- its clips in Shared/WeaponAnimations and its sounds in Config/GunSounds.
 --
 -- New direction (2026-10-25): guns are added one at a time, each finished
 -- properly. Gun 1 is the Vandal.
 
 local Types = require(script.Parent.Parent.Types)
-local Sounds = require(script.Parent.Sounds)
 
 type WeaponConfig = Types.WeaponConfig
 
@@ -67,12 +66,6 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
 		penetration = "ThinWall",
-		sounds = {
-			fire = Sounds.ShotMachineGun, -- real AK-47 full-auto shots
-			reload = Sounds.MagIn,
-			equip = Sounds.Equip,
-			cycle = Sounds.Rack,
-		},
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
@@ -123,12 +116,6 @@ local weapons: { [string]: WeaponConfig } = {
 		adsMoveMultiplier = 0.76,
 		penetration = "ThinWall",
 		suppressed = true, -- no tracer for enemies, quieter shot, small flash
-		sounds = {
-			fire = Sounds.ShotRifleSuppressed, -- real AK-47, filtered
-			reload = Sounds.MagIn,
-			equip = Sounds.Equip,
-			cycle = Sounds.Rack,
-		},
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
