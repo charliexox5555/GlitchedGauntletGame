@@ -60,51 +60,175 @@ These deliverables are concept sheets and modeling briefs. They do not include f
 
 # 00. Classic — Blender Modeling Brief
 
-*Added 2026-10-25 from the user's concept `vault/02 Art/References/Gun-Image-Concepts/Classic Pistol Two-View Concept Sheet.png`. The other briefs treat the Classic as the sidearm benchmark, so it's built before the other sidearms (Ghost, Sheriff, dual pistols) and they match its grip, slide and hand conventions.*
+*The user's brief (2026-10-25). Concept: `vault/02 Art/References/Gun-Image-Concepts/Classic Pistol Two-View Concept Sheet.png`. The other briefs treat the Classic as the sidearm benchmark, so it's built before the other sidearms. Project-name mapping: WeaponRoot → `Root` bone, Magazine → `Mag`, MuzzleAttachment → `Muzzle` (on the `Barrel` bone), EjectionAttachment → `Eject` (on the `Slide` bone), RightHandGrip / LeftHandGrip → `RightGrip` / `LeftGrip`.*
 
 ## 1. Overall Design
 
-Use the Classic concept sheet as the primary visual reference. Create an original polished game-ready Roblox asset in the same family as the approved Vandal and Phantom. Match the silhouette, major proportions, materials and amount of blockiness while simplifying minor detail where useful.
+Use the attached **approved Classic concept sheet** as the primary visual reference. Follow its silhouette, proportions, geometry, materials, and blue accent placement closely.
 
-**Identity:** The free default semiautomatic pistol, and the benchmark for every sidearm.
+Create a polished, game-ready pistol for the same Roblox FPS as our Vandal and Phantom rifles.
 
-**Chosen design:** Full-size polymer-frame striker pistol. Angular slide with a chamfered top and front, a thick squared muzzle face with a visible bore, and grouped rear cocking serrations. Low front and rear sights. Accessory rail ledge and a small slide-stop lever on the frame. Squared trigger guard with a flat front. Textured grip panel with a slight beavertail. Extended flared magazine base plate. Tiny blue accents: one short bar on the slide's rear side, one on the base plate.
+**All three weapons belong to the same visual family.** The Classic should share their material quality, bevel treatment, level of blockiness, naming conventions, and technical setup, while using pistol-specific construction and animations.
 
-## 2. Family Compatibility
+**Design requirements:**
 
-Inspect the existing Vandal and Phantom assets first. Keep the same scene units, export scale, axes (+X muzzle, +Z up, +Y gun-left, origin at the grip), bone/locator naming and Motor6D workflow. This asset sets the sidearm conventions (grip angle and size, trigger reach, slide pivot, pistol hand poses) that Ghost, Sheriff and the dual pistols will reuse.
+- Moderately blocky, low-poly aesthetic between Phantom Forces and Rivals.
+- Compact tactical pistol with a slightly boxy slide and softened beveled corners.
+- Sturdy charcoal frame and moderately thick grip suitable for Roblox hands.
+- Short barrel contained inside the slide.
+- Straight magazine concealed inside the grip, with a small visible baseplate.
+- Simple angular trigger guard and restrained mechanical controls.
+- Small iron sights, matching the concept.
+- Matte black and charcoal surfaces with very subtle blue accents.
+- High-quality textures and material definition.
+- No suppressor, optic, laser, or additional attachments.
+
+Preserve the approved appearance while making sensible simplifications for Roblox performance.
+
+**This pistol does not have aim down sights.** Its gameplay and animation setup should support firing from the normal holding position, similar to Valorant's Classic.
+
+## 2. Consistency With the Existing Weapons
+
+Inspect the existing Vandal and Phantom assets before building the Classic.
+
+Reuse their established conventions wherever appropriate:
+
+| Area | Requirement |
+| --- | --- |
+| **Scale and orientation** | Same scene units, export scale, forward direction, and upright axis. |
+| **Materials** | Matching charcoal palette, polymer finish, metal roughness, and restrained blue accents. |
+| **Geometry** | Similar bevel sizes, surface detail, and mesh density relative to component size. |
+| **Weapon root** | Same naming and orientation conventions, with placement appropriate to a pistol. |
+| **Rigging** | Same underlying animation workflow and joint conventions. |
+| **Attachments** | Consistent names and orientation rules for equivalent functions. |
+| **Exports** | Same organization and Roblox import conventions. |
+
+**Share the weapon framework, but create pistol-specific poses and animations.** Rifle hand positions, reload movements, and holding distances should not be reused unchanged.
+
+Match the same character hand proportions and maintain comfortable trigger reach and grip clearance.
 
 ## 3. Textures and Materials
 
-Matte charcoal slide (metal), near-black textured polymer frame and grip, restrained roughness differences, soft bevel highlights, tiny blue Neon accents as separate meshes on their parent component. One baked PBR set (base colour, normal, roughness, metalness) like the Vandal's.
+Use the same material family as the rifles:
 
-## 4. Separate Components and Structure
+- Matte black or deep graphite slide.
+- Charcoal polymer frame.
+- Darker grip panels, magazine, and secondary controls.
+- Subtle metallic highlights on appropriate surfaces.
+- Restrained roughness variation between metal and polymer.
+- Clean, understated grip texture.
+- Tiny blue accents matching the approved image.
 
-| Component / group | Setup and movement |
+Avoid heavy wear, dirt, exaggerated scratches, excessive texture noise, or strong glow.
+
+Create proper UV maps and Roblox-compatible texture maps where appropriate:
+
+**Base color, normal, roughness, and metalness.**
+
+Blue elements intended for Roblox Neon should be separate small meshes. Parent or connect each accent to its associated component: the slide accent moves with the slide, and the magazine-base accent moves with the magazine.
+
+## 4. Moving Parts — Separate and Animation-Ready
+
+**Do not merge moving components into the stationary frame.**
+
+| Component | Required setup |
 | --- | --- |
-| **Frame** | Stationary grip, trigger guard, rail, controls. |
-| **Slide** | Slides back along the bore and locks back on empty; carries the rear sight, serrations and ejection port. |
-| **Mag** | Drops straight down out of the grip and inserts back (with its base plate and neon). |
-| **Trigger** | Independent rotation. |
-| **SlideStop** | Small lever, rotates up when the slide locks and down to release (optional). |
+| **Frame** | Stationary main body, including the grip and trigger guard. |
+| **Slide** | Separate component capable of moving backward and returning forward. |
+| **Barrel** | Separate mesh, allowing appropriate visible movement if needed. |
+| **Magazine** | Independently removable through the bottom of the grip. |
+| **Trigger** | Separate component with a correctly placed rotation pivot. |
+| **SlideCatch** | Separate if animated during an empty reload. |
+| **MagazineRelease** | Separate if its movement will be visible during reloads. |
 
-## 5. Animation Requirements
+Iron sights and other slide-mounted details must move with the slide.
 
-- Idle, equip (draw with a slide check or rack), fire (slide cycles; the slide locks back on the last round), tactical reload (mag swap, slide stays forward), empty reload (mag swap, then slide release or rack), inspect, lowered sprint.
+The slide should support both brief firing movement and a held-open empty state. Ensure the geometry looks complete when the slide is pulled back or the magazine is removed.
 
-**Aiming:** none (project default for the Classic). Hip-fire holding only, with no ADS pose or `AimPoint`. Keep the modelled sights as visual detail.
+Do not add unnecessary controls or moving mechanisms absent from the approved design.
 
-## 6. Attachments and Reference Points
+## 5. Rigging and Hierarchy
 
-Project names: `Muzzle` (on the Slide, at the bore exit), `RightGrip`, `LeftGrip` (support hand cupping the grip, as in the existing pistol hold), `Eject` (on the Slide, at the ejection port), `CharmPoint` (a small buddy loop on the frame, left side).
+Use the same rigging approach as the existing weapons. Preserve the established Motor6D or bone-based workflow rather than introducing a separate animation system.
 
-## 7. Checks and Special Notes
+Suggested names:
 
-Two-handed hold per the RIVALS reference (`rivals-viewmodel/7-pistol-hip.webp`): the right hand's block covers the lower back of the slide area without blocking slide travel. Check slide-travel clearance over the hand, magazine drop clearance and the opposite side during inspect.
+`WeaponRoot`, `Frame`, `Slide`, `Barrel`, `Magazine`, `Trigger`, `SlideCatch`, `MagazineRelease`, `FrontSight`, `RearSight`.
 
-## 8. Deliverables
+Requirements:
 
-Same as every brief: `.blend`, FBX and textures, clean UVs, separate moving parts with useful pivots, named reference points, matching 3/4 and side previews beside the Vandal and Phantom, and short import notes.
+- One weapon root drives the entire pistol.
+- Stationary components remain rigidly connected to the frame.
+- The slide has a correctly aligned local movement axis.
+- The magazine can move independently during removal and insertion.
+- Rotating controls have meaningful pivots.
+- All components have a clean, documented rest pose.
+- Avoid duplicate constraints or multiple joints driving the same part.
+- Preserve correct origins and pivots when preparing exports.
+
+Blender parenting alone should not be treated as a completed Roblox animation rig. Document any Roblox-side joint setup still required.
+
+## 6. Pistol Animation Support — No ADS
+
+The model must support the following future animations:
+
+1. **Idle / Holding** — A natural pistol-specific pose with a clear view of the weapon.
+2. **Equip / Unequip** — Raising and lowering the pistol with appropriate handling.
+3. **Fire** — Whole-weapon recoil, trigger movement, and slide cycling.
+4. **Last Shot / Empty** — Slide remains held back when the weapon becomes empty.
+5. **Tactical Reload** — Magazine exchange while the slide remains forward.
+6. **Empty Reload** — Magazine exchange followed by slide release or a chosen slide-manipulation action.
+7. **Inspect** — Rotation that shows the slide, grip, opposite side, and magazine base.
+8. **Sprint / Lowered** — A pistol-specific lowered pose.
+9. **Dry Fire** — Trigger movement without normal firing effects, if used by the game.
+
+**Do not create an ADS animation, ADS camera position, or transition into iron-sight aiming.** Keep the modeled sights as visual details.
+
+Use the project's chosen pistol hand pose. If a support hand is used, check its clearance around the grip, slide, and reload path.
+
+Animations do not all need to be completed now, but the asset must be structured to support them.
+
+## 7. Attachment Points
+
+Use the same naming and orientation conventions as the rifles for equivalent functions.
+
+| Attachment | Purpose |
+| --- | --- |
+| `MuzzleAttachment` | At the barrel opening, aligned with the firing direction for shooting effects. |
+| `EjectionAttachment` | At the ejection port, oriented for casing effects. |
+| `RightHandGrip` | Primary hand placement on the pistol grip. |
+| `LeftHandGrip` | Support-hand reference if the chosen pistol pose uses one. |
+
+**An `AimPoint` for ADS is not required.**
+
+Place the muzzle reference on the appropriate barrel component so it does not accidentally follow the slide's rearward movement. Handle the ejection reference consistently with the existing effects system.
+
+## 8. Optimization and Validation
+
+- Prioritize silhouette, clean shading, and visible material quality.
+- Use geometry for moving parts and silhouette-defining details.
+- Use textures or normal maps for small stationary details.
+- Avoid excessive material slots and unnecessary hidden geometry.
+- Include only enough exposed interior detail to support slide movement and reloads.
+- Check first-person framing without ADS and third-person readability.
+- Test slide travel, magazine clearance, hand placement, and attachment orientation.
+- Verify a Roblox import for scale, materials, component separation, and pivots.
+
+Compare the finished Classic beside the Vandal and Phantom. They should clearly belong to the same game.
+
+## 9. Deliverables
+
+- Organized Blender project (`.blend`).
+- Roblox-compatible exported meshes (`FBX`).
+- UV-mapped and textured components.
+- Separate animation-ready moving parts.
+- Correct origins, pivots, and hierarchy.
+- Named attachment reference points.
+- Consistent scale and orientation with the existing weapons.
+- Brief import notes identifying remaining Roblox setup.
+- Matching three-quarter and side-profile preview renders.
+
+**Final priority:** Match the approved Classic concept, preserve the rifles' visual and technical conventions, and prepare a convincing pistol-specific animation structure with no ADS.
 
 ---
 
