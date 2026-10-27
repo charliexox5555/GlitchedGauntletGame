@@ -135,6 +135,23 @@ return table.freeze({
 		direction = Vector3.new(-0.35, -0.7, 0.6),
 	} :: Hand,
 
+	-- Dropped mags (Util/MagDrop): a reload clip's mag (or belt box) joint
+	-- counts as out of the gun `away` studs (model units) from rest; a copy
+	-- falls (studs/s, gravity studs/s²), bounces once, lies there for `life`
+	-- seconds and fades over the last `fade`.
+	MAG_DROP = {
+		bones = { "Mag", "AmmoBox" },
+		away = 0.12,
+		gravity = 60,
+		kick = 3,
+		spin = 6, -- rad/s tumble
+		bounce = 0.3,
+		restLift = 0.04,
+		life = 4,
+		fade = 0.6,
+		poolPerGun = 4,
+	},
+
 	-- Hands follow the gun's moving parts during its Blender clips. In each of
 	-- HAND_CLIPS the left hand takes the first joint the clip moves, then any
 	-- later one (e.g. mag out/in, then the charging handle). Fire on pump/bolt

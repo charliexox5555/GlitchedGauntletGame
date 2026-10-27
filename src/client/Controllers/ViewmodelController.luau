@@ -34,6 +34,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
+local MagDrop = require(script.Parent.Parent.Util.MagDrop)
 local ViewmodelArms = require(script.Parent.Parent.Util.ViewmodelArms)
 local ViewmodelMotion = require(script.Parent.Parent.Util.ViewmodelMotion)
 local ViewmodelRig = require(script.Parent.Parent.Util.ViewmodelRig)
@@ -76,12 +77,24 @@ type Gun = {
 	adsFade: number, -- last fade written to adsHide
 	reticle: SurfaceGui?,
 	props: { Prop }, -- parts hidden while their joint is far from rest (config hideBeyond)
+	mags: { Mag }, -- removable mags / belt boxes: dropped on reloads (Util/MagDrop)
+	key: string, -- pool key for its dropped mags
 	lockPending: boolean, -- the last round went: lock the action once the Fire clip's recoil peaks
 	recoil: Spring.Spring, -- hip kick
 	adsRecoil: Spring.Spring, -- aimed kick (stiff, critically damped)
 }
 
 type Prop = { motor: Motor6D, parts: { BasePart }, limit: number, hiddenNow: boolean }
+
+-- A mag during a reload clip: hidden from `outAt` (a copy drops) until the new
+-- one shows at `inAt` (0..1 through `clip`).
+type Mag = {
+	bone: string,
+	parts: { BasePart },
+	clip: string?,
+	timing: MagDrop.Timing?,
+	gone: boolean,
+}
 
 type Playing = { track: VM.Track, time: number, length: number, weight: number, fading: boolean }
 
@@ -853,6 +866,8 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		adsFade = 0,
 		reticle = reticle,
 		props = {},
+		mags = {},
+		key = name .. weapon.id,
 		lockPending = false,
 		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
 		adsRecoil = Spring.new(VM.ADS_RECOIL_STIFFNESS, 2 * math.sqrt(VM.ADS_RECOIL_STIFFNESS)),
@@ -894,6 +909,35 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 				gun.props,
 				{ motor = motor, parts = parts, limit = limit * scale, hiddenNow = false }
 			)
+		end
+	end
+	-- Mags and belt boxes, with whatever rides them (a belt on its box).
+	for _, jointName in VM.MAG_DROP.bones do
+		local joint = rigJoint(m, jointName)
+		if joint then
+			local parts: { BasePart } = {}
+			local joints = { joint }
+			local i = 1
+			while joints[i] do
+				local j = joints[i]
+				for _, d in m:GetDescendants() do
+					if (d:IsA("Weld") or d:IsA("Motor6D")) and d.Part0 == j then
+						local p = d.Part1
+						if p and p.Parent == j.Parent then
+							table.insert(joints, p) -- a child joint
+						elseif p and p.Transparency < 1 then
+							table.insert(parts, p)
+						end
+					end
+				end
+				i += 1
+			end
+			if #parts > 0 then
+				table.insert(
+					gun.mags,
+					{ parts = parts, clip = nil, timing = nil, gone = false, bone = jointName }
+				)
+			end
 		end
 	end
 	return gun
@@ -1091,6 +1135,11 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 	local clip = if empty and right.animator:has("ReloadEmpty") then "ReloadEmpty" else "Reload"
 	for _, gun in guns do
 		gun.animator:play(clip, duration)
+		local data = gun.animator.clips and (gun.animator.clips :: any)[clip]
+		for _, mag in gun.mags do
+			mag.clip = clip
+			mag.timing = if data then MagDrop.timing(data, mag.bone) else nil
+		end
 	end
 	playTrack("Reload", if clip == "ReloadEmpty" then "ReloadEmpty" else "Reload", duration)
 	return clipBeats(right, clip)
@@ -1335,6 +1384,40 @@ local function poseTarget(name: string, state: string): number
 	return 1 - 0.8 * adsAlpha
 end
 
+-- Drops the old mag as it leaves the gun and hides it until the new one
+-- comes up (MagDrop.timing). Runs after the clip has posed the joints.
+local function showMag(mag: Mag, visible: boolean)
+	mag.gone = not visible
+	for _, p in mag.parts do
+		p.LocalTransparencyModifier = if visible and not hidden then 0 else 1
+	end
+end
+
+local function stepMags(gun: Gun)
+	for _, mag in gun.mags do
+		local timing = mag.timing
+		if not timing then
+			continue
+		end
+		if not gun.animator:isPlaying(mag.clip) then
+			-- Finished or cancelled: the gun has a mag again.
+			mag.timing = nil
+			if mag.gone then
+				showMag(mag, true)
+			end
+			continue
+		end
+		local t = gun.animator:progress()
+		if not mag.gone and t >= timing.outAt and t < timing.inAt then
+			MagDrop.drop(gun.key, mag.parts)
+			showMag(mag, false)
+		elseif mag.gone and t >= timing.inAt then
+			mag.timing = nil
+			showMag(mag, true)
+		end
+	end
+end
+
 local function updatePoseWeights(dt: number, state: string)
 	for name in VM.POSES do
 		local s = poseWeights[name]
@@ -1482,10 +1565,6 @@ local function update(dt: number)
 	local cam = Workspace.CurrentCamera
 	local right = guns.Right
 	local c = config
-	if not cam or not right or not c then
-		motion.lastCamera = cam and cam.CFrame
-		return
-	end
 	dt = math.min(dt, 0.1)
 	if studio then
 		-- Studio only: Workspace attribute VfxTimeScale slows or freezes the
@@ -1494,6 +1573,11 @@ local function update(dt: number)
 		if typeof(scale) == "number" then
 			dt *= math.clamp(scale, 0, 1)
 		end
+	end
+	MagDrop.step(dt) -- dropped mags keep falling after a swap
+	if not cam or not right or not c then
+		motion.lastCamera = cam and cam.CFrame
+		return
 	end
 	local camCf = cam.CFrame
 	local now = os.clock()
@@ -1544,6 +1628,7 @@ local function update(dt: number)
 				gun.lockPending = false
 				gun.animator:holdStart("ReloadEmpty")
 			end
+			stepMags(gun)
 			for _, prop in gun.props do
 				local away = prop.motor.Transform.Position.Magnitude > prop.limit
 				if away ~= prop.hiddenNow then
