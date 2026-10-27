@@ -393,12 +393,13 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.25,
 		},
 		adsFov = 72, -- 1.15x zoom
+		adsDistance = OPEN_IRONS_ADS,
 		adsTime = 0.16,
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.8,
 		penetration = "None",
 		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
-		viewmodelOffset = SMG_VM, -- compact: further out so the whole gun reads
+		viewmodelOffset = Vector3.new(0.46, -0.324, -0.92), -- SMG_VM, raised by the round 2 sight's rise
 		tracerColor = TRACER,
 	},
 
