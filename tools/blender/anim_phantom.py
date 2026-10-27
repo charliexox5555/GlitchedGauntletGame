@@ -54,16 +54,8 @@ def fire():
 
 
 def mag_swap(c, f0):
-	# Straight box mag: release, drop out of view, come back up, seat with a slap. Done 40 frames after f0.
-	c.key("Mag", f0)
-	c.key("Mag", f0 + 3, (0.004, 0, -0.025), (0, -2, 0))
-	c.key("Mag", f0 + 9, (0.03, 0, -0.3), (0, -8, 0))
-	c.key("Mag", f0 + 14, (0.05, 0, -0.64), (0, -12, 0))
-	c.key("Mag", f0 + 22, (0.04, 0, -0.7), (0, -10, 0))
-	c.key("Mag", f0 + 29, (0.02, 0, -0.24), (0, -5, 0))
-	c.key("Mag", f0 + 34, (0.006, 0, -0.035), (0, -1.5, 0))
-	c.key("Mag", f0 + 37, (0, 0, 0.007), (0, 0.6, 0))  # slapped home
-	c.key("Mag", f0 + 40)
+	# Straight box mag: released, falls away fast, a fresh one comes up and seats with a slap. Done 40 frames after f0.
+	gunkit.mag_swap(c, f0, drop=0.62, fwd=0.05, tilt=-12)  # round 2: mag-drop timing + MagOut/MagIn markers
 	for f, a in ((f0 + 3, 5), (f0 + 7, -4), (f0 + 12, 2.5), (f0 + 17, -1), (f0 + 37, 8), (f0 + 41, -5), (f0 + 45, 2.5), (f0 + 49, -1)):
 		c.key("Charm", f, rot=(a * 0.4, a, 0))
 

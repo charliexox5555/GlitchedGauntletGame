@@ -39,7 +39,7 @@ def P(pts):
 
 
 BORE_Z = Z(790)
-SIGHT_Z = Z(729)  # rear aperture centre = front post tip
+SIGHT_Z = gunkit.sight_line(Z(742))  # round 2: open irons, rear ring centre = front post tip
 
 
 def build_parts(mats):
@@ -99,12 +99,10 @@ def build_parts(mats):
 	# ---- Flip-up sights (black): front tower with post, rear aperture
 	sights = part("Sights")
 	sights.add(box(X(478), X(445), -0.036, 0.036, Z(752), Z(742), DARK), 0.004, 1)
-	ear = [(448, 742), (474, 742), (471, 724), (464, 718), (456, 718), (451, 724)]
-	sights.add(group(prism(P(ear), "Y", 0.02, 0.034, DARK), prism(P(ear), "Y", -0.034, -0.02, DARK)), 0.003, 1)
-	sights.add(box(X(463), X(459), -0.006, 0.006, Z(742), SIGHT_Z, METAL), 0.002, 1)  # front post
 	sights.add(box(X(908), X(876), -0.036, 0.036, Z(752), Z(742), DARK), 0.004, 1)
-	tower = prism(P([(884, 742), (904, 742), (904, 726), (899, 720), (889, 720), (884, 726)]), "Y", -0.028, 0.028, DARK)
-	sights.add(cut(tower, cyl_x(X(910), X(878), 0.014, SIGHT_Z, 10), mats, bw=0.003, segs=1), 0)
+	rear, front = gunkit.open_irons(X(894), Z(742), X(461), Z(742), SIGHT_Z)  # round 2: open ring + post
+	sights.add(rear, 0.002, 1)
+	sights.add(front, 0.002, 1)
 
 	# ---- Grip and trigger guard (black polymer), same footprint as the Vandal's
 	grip = part("Grip")
@@ -210,6 +208,7 @@ def build():
 		BONES,
 		LOCATORS,
 		{"class": "Assault rifle", "tier": "T3", "template_version": 2, "length_rel": 0.92, "att_positions": "{}", "pbr": True},
+		widen={"*": 1.12, "Suppressor": 1.0, "Sights": 1.0, "Grip": 1.0, "Trigger": 1.0, "Rail": 1.0},
 	)
 
 

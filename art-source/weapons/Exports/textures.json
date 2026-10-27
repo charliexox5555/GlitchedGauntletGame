@@ -12,6 +12,10 @@
   }
  },
  "Phantom": {
+  "ColorMap": 118699841640822,
+  "NormalMap": 101088202256765,
+  "RoughnessMap": 103119042566228,
+  "MetalnessMap": 76758387055770,
   "decals": {
    "Color": 112205945588742,
    "Normal": 98838111076031,
