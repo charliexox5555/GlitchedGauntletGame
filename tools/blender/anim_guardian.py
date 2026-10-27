@@ -19,7 +19,7 @@ FPS = 24
 def fire():
 	c = Clip(GUN, "Fire", 12)
 	kick(c, back=0.06, climb=4.5, roll=0.4, last=12)
-	cycle(c, ("Bolt",), 0.13)
+	cycle(c, ("Bolt", "ChargingHandle"), 0.13)  # round 2: the handle rides the bolt on every shot
 	trigger_pull(c, 15)
 	return c
 
@@ -43,7 +43,7 @@ def reload_empty():
 
 def draw():
 	c = Clip(GUN, "Draw", 31)
-	draw_rack(c, travel=0.15, jolt=1.0)
+	draw_rack(c, travel=0.2, jolt=1.2)  # round 2: a full, visible rack
 	return c
 
 

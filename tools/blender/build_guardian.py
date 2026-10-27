@@ -37,7 +37,7 @@ def P(pts):
 
 
 BORE_Z = Z(785)
-SIGHT_Z = Z(745)
+SIGHT_Z = gunkit.sight_line(Z(767))  # round 2: open irons, rear ring centre = front post tip
 
 
 def build_parts(mats):
@@ -79,11 +79,9 @@ def build_parts(mats):
 
 	# ---- Sights (black): front post, rear aperture
 	si = part("Sights")
-	ear = [(281, 767), (281, 740), (286, 732), (301, 732), (306, 740), (306, 767)]
-	si.add(group(prism(P(ear), "Y", 0.014, 0.028, DARK), prism(P(ear), "Y", -0.028, -0.014, DARK)), 0.003, 1)
-	si.add(box(X(296), X(291), -0.005, 0.005, Z(767), SIGHT_Z, METAL), 0.002, 1)
-	rear = prism(P([(940, 767), (940, 739), (946, 732), (966, 732), (972, 739), (972, 767)]), "Y", -0.028, 0.028, DARK)
-	si.add(cut(rear, cyl_x(X(978), X(934), 0.01, SIGHT_Z, 10), mats, DARK, bw=0.003, segs=1), 0)
+	rear, front = gunkit.open_irons(X(956), Z(767), X(293.5), Z(767), SIGHT_Z)  # round 2: open ring + post
+	si.add(rear, 0.002, 1)
+	si.add(front, 0.002, 1)
 
 	# ---- Grip (black polymer)
 	grip = part("Grip")
@@ -121,7 +119,8 @@ def build_parts(mats):
 	mag.add(mirror_y(box(X(778), X(771), 0.045 - 0.002, 0.045 + 0.0025, Z(904), Z(862), NEON)), 0)
 
 	chh = part("ChargingHandle", "ChargingHandle")
-	chh.add(box(X(778), X(762), rw - 0.008, rw + 0.022, Z(799), Z(784), METAL), 0.003, 1)
+	chh.add(box(X(778), X(762), rw - 0.008, rw + 0.04, Z(799), Z(784), METAL), 0.003, 1)  # round 2: a bigger, readable knob
+	chh.add(box(X(784), X(756), rw + 0.032, rw + 0.058, Z(804), Z(779), METAL), 0.005, 1)
 
 	bolt = part("Bolt", "Bolt")
 	bolt.add(box(X(898), X(802), -rw + 0.004, -rw + 0.022, Z(813), Z(792), METAL), 0.002, 1)
@@ -167,7 +166,7 @@ def build():
 	mats = gunkit.begin(GUN)
 	parts = build_parts(mats)
 	return gunkit.assemble(GUN, parts, mats, BONES, LOCATORS,
-		{"class": "Rifle", "tier": "T2", "template_version": 2, "length_rel": 1.09, "att_positions": "{}", "pbr": True})
+		{"class": "Rifle", "tier": "T2", "template_version": 2, "length_rel": 1.09, "att_positions": "{}", "pbr": True}, widen={"*": 1.2, "Barrel": 1.0, "Sights": 1.0, "Grip": 1.05, "Trigger": 1.0})
 
 
 if __name__ == "__main__":

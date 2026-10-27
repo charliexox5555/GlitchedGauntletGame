@@ -120,15 +120,15 @@
   }
  },
  "Guardian": {
-  "ColorMap": 79395253806689,
-  "NormalMap": 86733321110789,
-  "RoughnessMap": 75375950194434,
-  "MetalnessMap": 102600851691472,
+  "ColorMap": 132866331114109,
+  "NormalMap": 94034846494618,
+  "RoughnessMap": 136021474751668,
+  "MetalnessMap": 79456650393924,
   "decals": {
-   "Color": 106847943788676,
-   "Normal": 107311270596398,
-   "Roughness": 94012483842592,
-   "Metalness": 126256179478591
+   "Color": 120581483738157,
+   "Normal": 89800846016328,
+   "Roughness": 130766114793998,
+   "Metalness": 94425356964035
   }
  },
  "Knife": {
