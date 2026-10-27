@@ -204,15 +204,15 @@
   }
  },
  "Akimbo": {
-  "ColorMap": 78445085000594,
-  "NormalMap": 89698684943426,
-  "RoughnessMap": 82249352427753,
-  "MetalnessMap": 90585581953736,
+  "ColorMap": 109264341204566,
+  "NormalMap": 119262902222669,
+  "RoughnessMap": 80019491857015,
+  "MetalnessMap": 89107814299261,
   "decals": {
-   "Color": 75012416492223,
-   "Normal": 123080134562179,
-   "Roughness": 112474330140052,
-   "Metalness": 139385335925808
+   "Color": 109410022810181,
+   "Normal": 128089755441475,
+   "Roughness": 111952921092852,
+   "Metalness": 133427789287174
   }
  },
  "Classic": {
