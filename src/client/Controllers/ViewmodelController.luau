@@ -48,7 +48,12 @@ local ViewmodelController = {}
 local player = Players.LocalPlayer
 
 -- A hand target that rides on a rig joint: `offset` is in that joint's space.
-type Anchor = { part: BasePart, offset: Vector3 }
+-- `reach`: the arm's direction (gun space) while the hand is on this part:
+-- away from the surface it touches, so the hand block rests flat on it.
+-- `frame`: when set, `offset` is a vector in that part's space (the gun's
+-- Root) from `part`'s position: the hand follows the part's travel but not
+-- its spin (a spinning cylinder would swing it through the gun).
+type Anchor = { part: BasePart, offset: Vector3, reach: Vector3?, frame: BasePart? }
 
 -- While clip `clip` plays, `hand` moves to `anchor` during [from, to] (0..1).
 type FollowRule = { clip: string, hand: Side, anchor: Anchor, from: number, to: number }
@@ -275,7 +280,9 @@ local function anchorFor(m: Model, handle: BasePart, a: Attachment?): Anchor?
 end
 
 -- The visible parts welded to a rig joint, as a box in that joint's space.
-local function jointBounds(m: Model, joint: BasePart): (Vector3?, Vector3?)
+-- Bounds of the parts on `joint`, in `frame` (default: the joint's own).
+local function jointBounds(m: Model, joint: BasePart, frame: CFrame?): (Vector3?, Vector3?)
+	local space = frame or joint.CFrame
 	local low: Vector3?, high: Vector3? = nil, nil
 	for _, d in m:GetDescendants() do
 		if (d:IsA("Weld") or d:IsA("Motor6D")) and d.Part0 == joint then
@@ -285,7 +292,7 @@ local function jointBounds(m: Model, joint: BasePart): (Vector3?, Vector3?)
 				for _, sx in { -1, 1 } do
 					for _, sy in { -1, 1 } do
 						for _, sz in { -1, 1 } do
-							local corner = joint.CFrame:PointToObjectSpace(
+							local corner = space:PointToObjectSpace(
 								p.CFrame:PointToWorldSpace(half * Vector3.new(sx, sy, sz))
 							)
 							low = if low then low:Min(corner) else corner
@@ -299,30 +306,199 @@ local function jointBounds(m: Model, joint: BasePart): (Vector3?, Vector3?)
 	return low, high
 end
 
-local function followAnchor(gun: Gun, rule: VM.Follow): Anchor?
+-- Where `hand` takes hold of `rule`'s part (nil: it can't, e.g. a part on
+-- the far side of the gun, which the other hand works).
+local function followAnchor(gun: Gun, rule: VM.Follow, hand: Side): Anchor?
 	local joint = rigJoint(gun.model, rule.joint)
 	if not joint then
 		return nil
 	end
+	local handle = gun.model.PrimaryPart
 	local point = if rule.point then attachment(gun.model, rule.point) else nil
-	if point then
-		return { part = joint, offset = joint.CFrame:PointToObjectSpace(point.WorldPosition) }
-	end
-	if rule.grab == "Grip" then
-		local left = gun.leftGrip
-		if not left then
+	local grip = if rule.grab == "Grip" and gun.leftGrip
+		then gun.leftGrip.part.CFrame:PointToWorldSpace(gun.leftGrip.offset)
+		else nil
+	local held = if point then point.WorldPosition else grip
+	if held or rule.grab == "Grip" then
+		if not held then
 			return nil
 		end
-		local world = left.part.CFrame:PointToWorldSpace(left.offset)
-		return { part = joint, offset = joint.CFrame:PointToObjectSpace(world) }
+		-- A grip that moves (a pump, break-action barrels): the hand holds it
+		-- the way it holds the handguard (RIFLE_LEFT_HAND), riding the joint.
+		-- On a pistol (a revolver's crane, a pocket shotgun's barrels) it
+		-- takes it from the left side instead.
+		local world = held
+		local reach: Vector3? = nil
+		if handle and hand == "Left" then
+			local hold = if gun.pistol then VM.PISTOL_FOLLOW_HAND else VM.RIFLE_LEFT_HAND
+			world += handle.CFrame:VectorToWorldSpace(hold.offset)
+			reach = hold.direction
+		end
+		return { part = joint, offset = joint.CFrame:PointToObjectSpace(world), reach = reach }
 	end
-	local low, high = jointBounds(gun.model, joint)
+	-- Measured in gun space (the Handle), so "Bottom" is the gun's down.
+	local frame = if handle then handle.CFrame else joint.CFrame
+	local low, high = jointBounds(gun.model, joint, frame)
 	if not low or not high then
 		return { part = joint, offset = Vector3.zero }
 	end
 	local center = (low + high) / 2
-	local offset = if rule.grab == "Bottom" then Vector3.new(center.X, low.Y, center.Z) else center
-	return { part = joint, offset = offset }
+	local at = if rule.grab == "Bottom" then Vector3.new(center.X, low.Y, center.Z) else center
+	local reach: Vector3? = nil
+	if handle then
+		-- The hand block is wide: stop it FOLLOW_CLEARANCE outside the part
+		-- (below a mag; beside anything else, from the hand's own side) with
+		-- the arm pointing away from it, so the block rests on the part
+		-- instead of swallowing it. A side part on the far side of the gun
+		-- belongs to the other hand.
+		local handSide = if hand == "Right" then 1 else -1
+		if
+			rule.grab ~= "Bottom"
+			and math.abs(at.X) > VM.FOLLOW_SIDE
+			and math.sign(at.X) ~= handSide
+		then
+			return nil
+		end
+		local out = if rule.grab == "Bottom"
+			then Vector3.new(0, -1, 0)
+			else Vector3.new(handSide, 0, 0)
+		local side = out.X ~= 0
+		local edge = if out.X > 0 then high.X elseif out.X < 0 then low.X else at.X
+		-- From the side the hand takes the part a little low, elbow out.
+		local y = if side then at.Y - VM.FOLLOW_SIDE_DROP else at.Y
+		at = Vector3.new(edge, y, at.Z)
+			+ out * (if side then VM.FOLLOW_SIDE_CLEARANCE else VM.FOLLOW_CLEARANCE)
+		reach = (out + (if side
+			then Vector3.new(0, VM.FOLLOW_SIDE_DROPS[1], VM.FOLLOW_SIDE_BACK)
+			else VM.FOLLOW_REACH_BIAS)).Unit
+		-- From the side, keep clear of the gun's other moving parts (a wide
+		-- drum just under a charging handle): lift the hand until it is, then
+		-- let the forearm hang as steeply as it can without passing through
+		-- them (FOLLOW_SIDE_DROPS, steepest first).
+		if side then
+			-- One box per visible part of the gun (gun space), except those on
+			-- the part being worked and on FOLLOW_IGNORE_JOINTS.
+			local others = {}
+			for _, d in gun.model:GetDescendants() do
+				if (d:IsA("Weld") or d:IsA("Motor6D")) and d.Part0 and d.Part0 ~= joint then
+					local p = d.Part1
+					local carrier = d.Part0
+					if
+						p
+						and p:IsA("BasePart")
+						and p.Parent ~= carrier.Parent
+						and p.Transparency < 1
+						and not table.find(VM.FOLLOW_IGNORE_JOINTS, carrier.Name)
+					then
+						local half = p.Size / 2
+						local ol: Vector3?, oh: Vector3? = nil, nil
+						for _, sx in { -1, 1 } do
+							for _, sy in { -1, 1 } do
+								for _, sz in { -1, 1 } do
+									local corner = frame:PointToObjectSpace(
+										p.CFrame:PointToWorldSpace(half * Vector3.new(sx, sy, sz))
+									)
+									ol = if ol then ol:Min(corner) else corner
+									oh = if oh then oh:Max(corner) else corner
+								end
+							end
+						end
+						table.insert(others, { ol, oh })
+					end
+				end
+			end
+			-- How deep a cube of half-size `r` around `c` sinks into the part
+			-- boxes (0 = clear).
+			local function depth(c: Vector3, r: number): number
+				local worst = 0
+				for _, box in others do
+					local ol, oh = box[1], box[2]
+					local d = math.min(
+						c.X + r - ol.X,
+						oh.X - (c.X - r),
+						c.Y + r - ol.Y,
+						oh.Y - (c.Y - r),
+						c.Z + r - ol.Z,
+						oh.Z - (c.Z - r)
+					)
+					if d > worst then
+						worst = d
+					end
+				end
+				return worst
+			end
+			for _ = 1, VM.FOLLOW_LIFT_STEPS do
+				if
+					depth(
+						at + (reach :: Vector3) * VM.FOLLOW_LIFT_PUSH,
+						VM.ARM_WIDTH / 2 - VM.FOLLOW_LIFT_BEVEL
+					) <= 0
+				then
+					break
+				end
+				at += Vector3.new(0, VM.FOLLOW_LIFT_STEP, 0)
+			end
+			-- Pick the forearm (FOLLOW_SIDE_DROPS, steepest first) and how far
+			-- out the hand steps (FOLLOW_SIDE_STEPS) that sink least into the
+			-- gun's other parts, preferring steep and close: the first clear
+			-- one, else the least deep (a step out costs FOLLOW_STEP_COST per stud).
+			-- (The square block turns about the arm: its edges reach out
+			-- further than its half-width, hence the margin.)
+			local base = at
+			local r = VM.ARM_WIDTH / 2 + VM.FOLLOW_ARM_MARGIN
+			local best = math.huge
+			for _, drop in VM.FOLLOW_SIDE_DROPS do
+				local dir = (out + Vector3.new(0, drop, VM.FOLLOW_SIDE_BACK)).Unit
+				for _, extra in VM.FOLLOW_SIDE_STEPS do
+					local spot = base + out * extra
+					local worst = 0
+					for k = 1, VM.FOLLOW_ARM_SAMPLES do
+						-- From the block's tip (it ends HAND_OVERSHOOT past the hand) up the arm.
+						local along = (k - 1) * VM.FOLLOW_ARM_STEP
+							- VM.ARM_WIDTH * VM.HAND_OVERSHOOT
+						worst = math.max(worst, depth(spot + dir * along, r))
+					end
+					local score = worst + extra * VM.FOLLOW_STEP_COST
+					if score < best - 1e-4 then
+						best, at, reach = score, spot, dir
+					end
+					if worst <= 0 then
+						break -- clear: no need to step further out
+					end
+				end
+				if best <= 0 then
+					break
+				end
+			end
+		end
+	end
+	local world = frame:PointToWorldSpace(at)
+	local root = rigJoint(gun.model, "Root")
+	if root and root ~= joint then
+		return {
+			part = joint,
+			offset = root.CFrame:VectorToObjectSpace(world - joint.Position),
+			reach = reach,
+			frame = root,
+		}
+	end
+	return { part = joint, offset = joint.CFrame:PointToObjectSpace(world), reach = reach }
+end
+
+-- Which side of the gun a "Center" rule's part sits on: 1 right, -1 left,
+-- 0 on the centre line (or not a side part).
+local function partSide(gun: Gun, rule: VM.Follow): number
+	local joint = rigJoint(gun.model, rule.joint)
+	local handle = gun.model.PrimaryPart
+	if rule.grab ~= "Center" or rule.point or not joint or not handle then
+		return 0
+	end
+	local low, high = jointBounds(gun.model, joint, handle.CFrame)
+	if not low or not high then
+		return 0
+	end
+	local x = (low.X + high.X) / 2
+	return if math.abs(x) > VM.FOLLOW_SIDE then math.sign(x) else 0
 end
 
 local function addFollow(gun: Gun, clip: string, hand: Side, rule: VM.Follow): boolean
@@ -343,7 +519,7 @@ local function addFollow(gun: Gun, clip: string, hand: Side, rule: VM.Follow): b
 			return false
 		end
 	end
-	local anchor = followAnchor(gun, rule)
+	local anchor = followAnchor(gun, rule, hand)
 	if not anchor then
 		return false
 	end
@@ -363,8 +539,12 @@ local function buildFollow(gun: Gun, weapon: WeaponConfig, dual: boolean)
 			addFollow(gun, clip, "Right", VM.LEVER_FOLLOW)
 		end
 		for _, rule in VM.RELOAD_FOLLOW do
-			if not (lever and rule.joint == "Bolt") then
-				addFollow(gun, clip, "Left", rule)
+			-- A part on the right of the gun (a bolt handle) is the trigger
+			-- hand's: the support hand would reach through the gun.
+			-- (A lever or a pump drives the bolt: nobody works it by hand.)
+			if not ((lever or weapon.fireMode == "Pump") and rule.joint == "Bolt") then
+				local hand: Side = if not lever and partSide(gun, rule) > 0 then "Right" else "Left"
+				addFollow(gun, clip, hand, rule)
 			end
 		end
 	end
@@ -390,29 +570,38 @@ end
 local function anchorPosition(gun: Gun, a: Anchor): Vector3
 	local rig = gun.rig
 	local cf = if rig then rig.world[a.part] or a.part.CFrame else a.part.CFrame
+	local frame = a.frame
+	if frame then
+		local fcf = if rig then rig.world[frame] or frame.CFrame else frame.CFrame
+		return cf.Position + fcf:VectorToWorldSpace(a.offset)
+	end
 	return cf:PointToWorldSpace(a.offset)
 end
 
--- Where a hand is this frame, and how far (0..1) it is off its grip working
--- a part of the gun.
-local function handTarget(gun: Gun, hand: Side, base: Vector3): (Vector3, number)
+-- Where a hand is this frame, how far (0..1) it is off its grip working a
+-- part of the gun, and the arm direction that part asks for (if any).
+local function handTarget(gun: Gun, hand: Side, base: Vector3): (Vector3, number, Vector3?)
 	local clip = gun.animator.clipName
 	if not clip then
-		return base, 0
+		return base, 0, nil
 	end
 	local t = gun.animator:progress()
 	local pos = base
 	local working = 0
+	local reach: Vector3? = nil
 	for _, rule in gun.follow do
 		if rule.clip == clip and rule.hand == hand then
 			local w = followWeight(rule, t)
 			if w > 0 then
 				pos = pos:Lerp(anchorPosition(gun, rule.anchor), w)
+				if w >= working then
+					reach = rule.anchor.reach
+				end
 				working = math.max(working, w)
 			end
 		end
 	end
-	return pos, working
+	return pos, working, reach
 end
 
 local function sightPart(
@@ -1145,6 +1334,29 @@ end
 
 -- Where the gun sits relative to the rig's root: hip or ADS, then the
 -- movement poses, keyframed tracks and recoil, all around the grip.
+-- Studio only: a Workspace Vector3 attribute overrides a hold value live
+-- (VmOffset, VmRotation, VmRightHand, VmRightDir, VmLeftHand, VmLeftDir), for
+-- tuning a gun's hold without restarting. Unset = the config value.
+local function tuned(name: string, value: Vector3): Vector3
+	if studio then
+		local v = Workspace:GetAttribute(name)
+		if typeof(v) == "Vector3" then
+			return v
+		end
+	end
+	return value
+end
+
+local function tunedHand(hand: VM.Hand, side: string): VM.Hand
+	if not studio then
+		return hand
+	end
+	return {
+		offset = tuned("Vm" .. side .. "Hand", hand.offset),
+		direction = tuned("Vm" .. side .. "Dir", hand.direction),
+	}
+end
+
 local function holdPose(
 	gun: Gun,
 	c: WeaponConfig,
@@ -1152,8 +1364,8 @@ local function holdPose(
 	adsT: number,
 	dt: number
 ): CFrame
-	local hipPos = c.viewmodelOffset
-	local hipRot = c.viewmodelRotation or Vector3.zero
+	local hipPos = tuned("VmOffset", c.viewmodelOffset)
+	local hipRot = tuned("VmRotation", c.viewmodelRotation or Vector3.zero)
 	if mirror then
 		hipPos, hipRot = mirrorPos(hipPos), mirrorRot(hipRot)
 	end
@@ -1192,21 +1404,58 @@ local function holdWith(
 	mirror: boolean
 )
 	local offset, direction = mirrorHand(hand, mirror)
-	local point, working = handTarget(gun, side, grip + gunCf:VectorToWorldSpace(offset))
+	local point, working, partReach = handTarget(gun, side, grip + gunCf:VectorToWorldSpace(offset))
 	if working > 0 then
-		-- Reaching for a part: the arm comes up from below on its own side
+		-- Reaching for a part: the arm turns away from the part's surface
+		-- (its anchor's reach), or comes up from below on its own side
 		-- instead of running back across the screen (REACH_DIRECTION is the
 		-- left hand's; the right hand, e.g. working a bolt, mirrors it).
-		local reach = if side == "Right" then mirrorPos(VM.REACH_DIRECTION) else VM.REACH_DIRECTION
+		local reach = partReach
+			or (if side == "Right" then mirrorPos(VM.REACH_DIRECTION) else VM.REACH_DIRECTION)
 		direction = direction:Lerp(reach, working)
+		-- On the way (between the grip and the part) the hand swings out
+		-- sideways and down along its arm (not back, where the mag is),
+		-- around the gun rather than through it.
+		-- (Beside the gun it swings straight out, never down past a drum or mag.)
+		local swing = Vector3.new(
+			reach.X,
+			if math.abs(reach.X) > 0.5 then math.max(reach.Y, 0) else reach.Y,
+			0
+		)
+		if swing.Magnitude > 1e-3 then
+			point += gunCf:VectorToWorldSpace(swing.Unit) * (VM.FOLLOW_ARC * 4 * working * (1 - working))
+		end
 	end
-	ViewmodelArms.place(
-		a,
-		side,
-		point,
-		point + gunCf:VectorToWorldSpace(direction),
-		gunCf.RightVector
-	)
+	-- A reaching arm must never run back through the eye: from inside the
+	-- block every face is a back face and the whole arm draws nothing, and
+	-- just under the eye it walls off the view. If it would pass within
+	-- ARM_EYE_CLEARANCE of the camera, bend it to point at least ARM_MIN_DROP
+	-- down the screen and at most ARM_MAX_BACK toward the camera, the rest out
+	-- to the hand's own side (a hand on a turned or rolled gun's handle).
+	local along = gunCf:VectorToWorldSpace(direction)
+	local cam = Workspace.CurrentCamera
+	if cam and working > 0 and along.Magnitude > 1e-4 then
+		local unit = along.Unit
+		local toEye = cam.CFrame.Position - point
+		local t = math.clamp(toEye:Dot(unit), 0, VM.ARM_REACH_LENGTH)
+		local c0 = cam.CFrame:VectorToObjectSpace(unit)
+		-- (A hand working a part beside the gun always reaches up from below
+		-- the screen, like a support hand racking a handle: across the view
+		-- the block would hide the gun.)
+		local across = partReach ~= nil and (c0.Y > -VM.ARM_MIN_DROP or c0.Z > VM.ARM_MAX_BACK)
+		if across or (toEye - unit * t).Magnitude < VM.ARM_EYE_CLEARANCE then
+			local c = cam.CFrame:VectorToObjectSpace(unit)
+			local y = math.min(c.Y, -VM.ARM_MIN_DROP)
+			local z = math.min(c.Z, VM.ARM_MAX_BACK)
+			local sideSign = if math.abs(c.X) > 1e-3
+				then math.sign(c.X)
+				elseif side == "Right" then 1
+				else -1
+			local x = sideSign * math.sqrt(math.max(1 - y * y - z * z, 0))
+			along = unit:Lerp(cam.CFrame:VectorToWorldSpace(Vector3.new(x, y, z)), working)
+		end
+	end
+	ViewmodelArms.place(a, side, point, point + along, gunCf.RightVector)
 end
 
 local handleCFrames: { [Side]: CFrame } = {}
@@ -1287,8 +1536,16 @@ local function update(dt: number)
 				end
 			end
 			local handleCf = root * lowerCf * holdPose(gun, c, side == "Left", adsT, dt)
-			handleCFrames[side] = handleCf
 			ViewmodelRig.solve(rig, handleCf, 1 - (1 - VM.ADS_CLIP_KICK) * adsT)
+			-- The hands hold the gun's body: the handle frame plus the clip's
+			-- Root motion, so when a clip rolls the gun in the hands (a draw,
+			-- an inspect) the arms turn with it instead of the gun turning
+			-- into them.
+			local rootMotor = rig.rootMotor
+			local body = rootMotor and rootMotor.Part1 and rig.world[rootMotor.Part1]
+			handleCFrames[side] = if body and rootMotor
+				then body * rootMotor.C1 * rootMotor.C0:Inverse()
+				else handleCf
 
 			if gun.reticle then
 				gun.reticle.Enabled = adsAlpha > 0.4 and not hidden
@@ -1317,7 +1574,7 @@ local function update(dt: number)
 		local gripR = if right.rightGrip
 			then anchorPosition(right, right.rightGrip)
 			else rightCf.Position
-		holdWith(a, "Right", right, rightCf, gripR, rightHand, false)
+		holdWith(a, "Right", right, rightCf, gripR, tunedHand(rightHand, "Right"), false)
 
 		if left and left.rightGrip and left.rig and leftCf then
 			-- Akimbo: the left hand holds the left gun, mirrored.
@@ -1339,7 +1596,10 @@ local function update(dt: number)
 				right,
 				rightCf,
 				anchorPosition(right, right.leftGrip),
-				VM.RIFLE_LEFT_HAND,
+				tunedHand({
+					offset = VM.RIFLE_LEFT_HAND.offset + (c.leftHandOffset or Vector3.zero),
+					direction = VM.RIFLE_LEFT_HAND.direction,
+				}, "Left"),
 				false
 			)
 		else

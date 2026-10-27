@@ -41,3 +41,6 @@ art-source/audio/library/
 art-source/audio/AtlasPreview.wav
 # Mod sound auditions rendered by tools/audio/mod_sfx.py
 art-source/audio/ModSfx/
+
+# Viewmodel hand-clipping samples (tools/studio/SampleHands.luau), regenerated on demand
+art-source/viewmodel/checks/

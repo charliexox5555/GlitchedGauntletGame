@@ -150,6 +150,9 @@ export type WeaponConfig = {
 	viewmodelOffset: Vector3,
 	viewmodelRotation: Vector3?,
 	viewmodelScale: number?, -- default Viewmodel.SCALE
+	-- Long guns: a gun-space nudge for the support hand from
+	-- Viewmodel.RIFLE_LEFT_HAND (e.g. a mag close ahead of the handguard).
+	leftHandOffset: Vector3?,
 	-- Sight picture: camera-to-AimPoint distance (default Viewmodel.ADS_DISTANCE),
 	-- a camera-space nudge, and parts faded out while aiming so they don't block the sight.
 	adsDistance: number?,

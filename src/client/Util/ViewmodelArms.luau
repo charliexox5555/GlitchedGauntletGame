@@ -70,7 +70,10 @@ local function block(
 ): BasePart
 	local p = Instance.new("Part")
 	p.Name = name
-	p.Size = Vector3.one * 0.2 -- the mesh draws at its own scale
+	-- The mesh draws at its own scale; the part's size only sets the bounds
+	-- the renderer culls by. A tiny part was culled whenever its centre went
+	-- behind the camera, so an arm reaching toward the camera vanished.
+	p.Size = VM.ARM_MESH_SIZE * scale
 	p.Anchored = true
 	p.CanCollide = false
 	p.CanQuery = false

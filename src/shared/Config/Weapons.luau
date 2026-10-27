@@ -11,12 +11,17 @@ local Types = require(script.Parent.Parent.Types)
 type WeaponConfig = Types.WeaponConfig
 
 -- Viewmodel: where the gun sits at the hip, camera space. Long guns are placed
--- by their sight (AimPoint) at their grip's depth and point straight ahead
--- (RIVALS references 6 and 7), low on the right.
-local RIFLE_VM = Vector3.new(0.31, -0.3, -0.65)
--- Pistols are placed by their grip: big, low and just right of centre, held
--- in both hands.
-local SIDEARM_VM = Vector3.new(0.33, -1.06, -1.47)
+-- by their sight (AimPoint) at their grip's depth and point straight ahead:
+-- big and close in the lower right, so perspective turns the muzzle in
+-- toward the centre and shows the gun's left side (the Valorant hold,
+-- vault/02 Art/References/rivals-viewmodel/valorant-vandal-hold.webp).
+local RIFLE_VM = Vector3.new(0.52, -0.3, -0.38)
+-- Tall sights sit a little further out (nothing on screen nearer than 0.35
+-- studs to the camera): scopes, and the Ares's raised iron sights.
+local SCOPED_VM = Vector3.new(0.52, -0.3, -0.47)
+-- Pistols are placed by their grip: big, low and right of centre, held in
+-- both hands.
+local SIDEARM_VM = Vector3.new(0.4, -0.94, -1.28)
 local SIDEARM_SCALE = 1.1
 
 local TRACER = Color3.fromHex("FFD9A0") -- warm, like a real tracer round
@@ -37,7 +42,7 @@ local weapons: { [string]: WeaponConfig } = {
 		pelletSpread = 0,
 		fireInterval = 0.103, -- 9.75 rounds/s
 		magSize = 25,
-		reloadTime = 2.3, -- tactical: mag swap only
+		reloadTime = 2.5, -- tactical: mag swap, then a tug on the charging handle
 		emptyReloadTime = 2.8, -- mag swap, then rack the charging handle
 		equipTime = 0.5,
 		firstEquipTime = 0.9, -- first draw of a life: raise and rack the charging handle
@@ -432,6 +437,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsMoveMultiplier = 0.8,
 		penetration = "None",
 		viewmodelOffset = RIFLE_VM,
+		leftHandOffset = Vector3.new(0, -0.02, -0.18), -- the mag sits close ahead of the grip
 		tracerColor = TRACER,
 	},
 
@@ -482,7 +488,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 1,
 		penetration = "None",
-		viewmodelOffset = Vector3.new(0.36, -0.42, -0.95), -- no sight to place it by, like the Judge
+		viewmodelOffset = Vector3.new(0.48, -0.4, -0.68), -- no sight to place it by: by the grip
 		tracerColor = TRACER,
 	},
 
@@ -679,7 +685,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.6,
 		penetration = "ThinWall",
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = SCOPED_VM,
 		tracerColor = TRACER,
 	},
 
@@ -730,7 +736,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.55,
 		penetration = "ThinWall",
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = SCOPED_VM,
 		tracerColor = TRACER,
 	},
 
@@ -779,7 +785,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.85,
 		adsMoveMultiplier = 0.4,
 		penetration = "All",
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = SCOPED_VM,
 		tracerColor = TRACER,
 	},
 
@@ -829,7 +835,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.7,
 		penetration = "ThinWall",
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = Vector3.new(0.52, -0.3, -0.43),
 		tracerColor = TRACER,
 	},
 
@@ -932,7 +938,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 1,
 		adsMoveMultiplier = 1,
 		penetration = "None",
-		viewmodelOffset = Vector3.new(0.48, -1.06, -1.47), -- each gun out toward its own side
+		viewmodelOffset = Vector3.new(0.55, -0.94, -1.28), -- each gun out toward its own side
 		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = TRACER,
 	},

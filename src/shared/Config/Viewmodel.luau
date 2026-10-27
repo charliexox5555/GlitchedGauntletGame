@@ -80,19 +80,32 @@ return table.freeze({
 	ARM_WIDTH = 0.5,
 	SLEEVE_INFLATE = 1.015, -- shirt layer sits just outside the skin block
 	HAND_OVERSHOOT = 0.3, -- in arm widths: how far the block ends past the grip
+	-- A reaching arm whose block (ARM_REACH_LENGTH long from the hand) would
+	-- pass within ARM_EYE_CLEARANCE of the camera is bent to point at least
+	-- ARM_MIN_DROP down the screen and at most ARM_MAX_BACK toward the camera
+	-- (unit direction, camera space): one running through the eye isn't drawn
+	-- at all, and one just under it walls off the view.
+	ARM_REACH_LENGTH = 2.35,
+	ARM_EYE_CLEARANCE = 0.5,
+	ARM_MIN_DROP = 0.72,
+	ARM_MAX_BACK = 0.35,
 
 	-- Hands (gun space, mirrored on an akimbo left gun): where each hand sits
 	-- from its grip attachment, and the direction its arm runs from there
 	-- (toward the elbow, off-screen). Hand and arm are rigid with the gun, so
 	-- they move as one with it; only clips (reload, pump, bolt) move a hand.
-	-- Long guns: right hand along the grip, support hand under the handguard.
+	-- Long guns: the right hand low on the grip, its forearm straight down
+	-- (it clears the receiver and stock); the support hand under the
+	-- handguard just ahead of its grip point, forearm down and back. Checked
+	-- by box overlap: neither block enters the receiver (the hand blocks are
+	-- wide, so they sit on the grips rather than around them).
 	RIFLE_RIGHT_HAND = {
-		offset = Vector3.new(0, -0.06, 0.05),
-		direction = Vector3.new(0.2, -0.68, 0.7),
+		offset = Vector3.new(0.04, -0.28, 0.02),
+		direction = Vector3.new(0.2, -0.95, 0.2),
 	} :: Hand,
 	RIFLE_LEFT_HAND = {
-		offset = Vector3.new(-0.03, -0.13, 0),
-		direction = Vector3.new(-0.52, -0.42, 0.75),
+		offset = Vector3.new(-0.02, -0.22, -0.14),
+		direction = Vector3.new(-0.18, -0.95, 0.25), -- steep: the forearm clears the mag
 	} :: Hand,
 	-- Pistols: two-handed, high grip. The right hand wraps the grip, its top
 	-- just under the back of the slide; the left hand cups it from below and
@@ -110,6 +123,12 @@ return table.freeze({
 	MELEE_HAND = {
 		offset = Vector3.new(0, -0.02, 0.14),
 		direction = Vector3.new(0.08, -0.4, 0.91),
+	} :: Hand,
+	-- Pistols: the support hand on a moving part with a held point (a
+	-- revolver's crane, break-action barrels), from the left side.
+	PISTOL_FOLLOW_HAND = {
+		offset = Vector3.new(-0.26, -0.04, 0),
+		direction = Vector3.new(-0.9, -0.25, 0.35),
 	} :: Hand,
 	FREE_HAND = {
 		offset = Vector3.new(-0.56, -0.86, -0.95),
@@ -140,9 +159,48 @@ return table.freeze({
 	-- Lever-actions: the trigger hand rides the lever (its fingers are in the
 	-- loop), in Fire and in every handling clip; the support hand leaves the
 	-- bolt alone (the lever drives it).
-	LEVER_FOLLOW = { joint = "Lever", grab = "Center", point = "RightGrip" } :: Follow,
+	LEVER_FOLLOW = { joint = "Lever", grab = "Bottom" } :: Follow, -- under the loop, riding it
 	-- Share of the clip the hand takes to reach a part before it moves / to come back.
 	FOLLOW_LEAD = 0.14,
+	-- How far outside a followed part the hand stops (studs, viewmodel scale),
+	-- so the wide hand block rests on it (checked with
+	-- tools/blender/check_hand_clipping.py): below a mag, beside anything
+	-- else (from the hand's own side). A part further than FOLLOW_SIDE off
+	-- the centre line on the far side is the other hand's.
+	FOLLOW_CLEARANCE = 0.26,
+	-- Beside a small handle (a charging handle knob, a bolt) the hand closes
+	-- on it: only this far out, so the block's end meets the knob.
+	FOLLOW_SIDE_CLEARANCE = 0.22,
+	FOLLOW_SIDE = 0.02,
+	-- On a part below or beside the gun the arm points away from it, tipped
+	-- down and back by this (so it still rises into view from below).
+	FOLLOW_REACH_BIAS = Vector3.new(0, -0.6, 0.25),
+	-- Beside the gun (a handle or bolt) the forearm hangs as steeply as it
+	-- can: each of FOLLOW_SIDE_DROPS (down component, steepest first, with
+	-- FOLLOW_SIDE_BACK toward the camera) is tried until FOLLOW_ARM_SAMPLES
+	-- points FOLLOW_ARM_STEP apart along it clear the gun's other moving parts
+	-- (elbow out over a drum); the hand a little below the part's middle.
+	FOLLOW_SIDE_DROPS = { -1.0, -0.6, -0.35, -0.12 },
+	FOLLOW_SIDE_STEPS = { 0, 0.04, 0.08, 0.12 }, -- studs further out the hand may go first
+	FOLLOW_STEP_COST = 0.5,
+	FOLLOW_SIDE_BACK = 0.3,
+	FOLLOW_ARM_SAMPLES = 6,
+	FOLLOW_ARM_STEP = 0.15,
+	FOLLOW_ARM_MARGIN = 0.06,
+	FOLLOW_SIDE_DROP = 0.06,
+	-- A hand beside the gun is lifted (FOLLOW_LIFT_STEP studs at a time, at
+	-- most FOLLOW_LIFT_STEPS) until it clears the gun's other moving parts
+	-- (tested as a cube FOLLOW_LIFT_PUSH out along the arm, the arm's
+	-- half-width less FOLLOW_LIFT_BEVEL, against each part's box); parts on
+	-- these joints don't count.
+	FOLLOW_LIFT_STEP = 0.04,
+	FOLLOW_LIFT_STEPS = 10,
+	FOLLOW_LIFT_PUSH = 0.1,
+	FOLLOW_LIFT_BEVEL = 0.03,
+	FOLLOW_IGNORE_JOINTS = { "Flash", "Charm", "Trigger", "Hammer" },
+	-- Studs the hand swings out (along its arm) halfway between its grip and
+	-- a part, so it travels around the gun, not through it.
+	FOLLOW_ARC = 0.42,
 	-- While a hand works a part, its arm turns toward this direction (gun
 	-- space): down and back, so it rises from below the gun into view.
 	REACH_DIRECTION = Vector3.new(-0.6, -0.74, 0.3),
@@ -302,36 +360,40 @@ return table.freeze({
 			},
 		},
 		-- First draw of a life (stretched to firstEquipTime), under the gun's Draw
-		-- clip: swing up from low right, hold canted while the support hand racks
-		-- the charging handle, then settle onto the sights.
+		-- clip (Valorant style): swing up from low right, roll the left side to
+		-- the camera while the support hand racks the charging handle all the
+		-- way back and holds it (clip 28-53%), slam it home (56%), settle.
 		Draw = {
 			length = 0.9,
 			pivot = "Grip",
 			keys = {
 				key(0, Vector3.new(0.12, -0.75, 0.25), Vector3.new(-50, 30, 35)),
-				-- Rolled left side up (negative roll) and dropped a little right,
-				-- so the hand on the charging handle is in plain view.
+				-- Pushed out, lifted and turned muzzle-in (positive yaw) with a
+				-- little roll, so the left side and the hand on the charging
+				-- handle face the camera, on screen, and the arm isn't in its face.
 				key(
-					0.3,
-					Vector3.new(0.03, -0.06, -0.03),
-					Vector3.new(5, 7, -20),
+					0.26,
+					Vector3.new(-0.05, 0.06, -0.3),
+					Vector3.new(8, 16, -8),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
-				key(0.4, Vector3.new(0.04, -0.07, -0.05), Vector3.new(4, 8, -24)),
-				key(0.5, Vector3.new(0.04, -0.08, -0.04), Vector3.new(3, 9, -26)), -- handle back
+				key(0.42, Vector3.new(-0.06, 0.07, -0.33), Vector3.new(7, 19, -10)), -- handle back
+				key(0.53, Vector3.new(-0.06, 0.065, -0.33), Vector3.new(6.5, 19.5, -10.5)), -- held
 				key(
 					0.6,
-					Vector3.new(0.02, -0.04, -0.01),
-					Vector3.new(5, 5, -15),
+					Vector3.new(-0.03, 0.04, -0.15),
+					Vector3.new(7, 10, -5),
 					Enum.EasingStyle.Back,
 					OUT
 				), -- slammed home
-				key(0.82, Vector3.new(0, 0.008, 0), Vector3.new(1.5, -0.5, 1)),
+				key(0.8, Vector3.new(0, 0.008, 0), Vector3.new(1.5, -0.5, 1)),
 				key(1, ZERO, ZERO, Enum.EasingStyle.Sine, INOUT),
 			},
 		},
 		-- Turn to show the right side, tilt, flip to the left side, return.
+		-- (The gun's own clip runs alongside: a mag tap, then a press check on
+		-- the charging handle, which the support hand works from the far side.)
 		Inspect = {
 			length = 2.8,
 			pivot = "Center",
@@ -389,7 +451,9 @@ return table.freeze({
 			},
 		},
 		-- Body motion layered on the gun's own Reload clip (stretched to the reload
-		-- time): tip the mag side toward you, a shove as it seats, back up.
+		-- time): tip the mag side toward you, a shove as it seats, then pushed
+		-- out, lifted and turned muzzle-in while the support hand tugs the
+		-- charging handle (clip 80-90%), so the hand reaches up beside the gun.
 		Reload = {
 			length = 1,
 			pivot = "Center",
@@ -404,17 +468,19 @@ return table.freeze({
 				),
 				key(0.55, Vector3.new(-0.06, -0.07, 0.04), Vector3.new(4, 10, -20)),
 				key(
-					0.74,
+					0.7,
 					Vector3.new(-0.03, -0.01, 0.01),
 					Vector3.new(-4, 5, -8),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
+				key(0.8, Vector3.new(-0.05, 0.05, -0.26), Vector3.new(7, 15, -8)), -- out, handle side up
+				key(0.88, Vector3.new(-0.05, 0.05, -0.27), Vector3.new(6.5, 16, -9)), -- tugged
 				key(1, ZERO, ZERO, Enum.EasingStyle.Quad, INOUT),
 			},
 		},
-		-- Empty reload: the same mag swap (seated by 52%), then canted the other
-		-- way while the support hand racks the charging handle (82-92%).
+		-- Empty reload: the same mag swap (seated by 52%), then the full rack of
+		-- the charging handle (clip 80-90%).
 		ReloadEmpty = {
 			length = 1,
 			pivot = "Center",
@@ -436,12 +502,14 @@ return table.freeze({
 					Enum.EasingStyle.Sine,
 					INOUT
 				),
-				key(0.76, Vector3.new(0.03, -0.06, -0.04), Vector3.new(4, 8, -22)), -- left side up
-				key(0.86, Vector3.new(0.04, -0.07, -0.05), Vector3.new(3, 9, -25)), -- handle back
+				-- Pushed out, lifted and turned muzzle-in (like the first draw), so
+				-- the hand on the charging handle reaches up beside the gun.
+				key(0.76, Vector3.new(-0.05, 0.06, -0.3), Vector3.new(8, 16, -8)), -- handle side up
+				key(0.86, Vector3.new(-0.06, 0.065, -0.33), Vector3.new(7, 19, -10)), -- handle back
 				key(
 					0.91,
-					Vector3.new(0.02, -0.04, -0.01),
-					Vector3.new(4, 5, -13),
+					Vector3.new(-0.03, 0.04, -0.15),
+					Vector3.new(7, 10, -5),
 					Enum.EasingStyle.Back,
 					OUT
 				), -- released

@@ -343,6 +343,16 @@ local function startReload()
 	end
 end
 
+-- Fire, aim, reload and swapping cancel it (ViewmodelController).
+local function inspect()
+	local s = current()
+	if alive and s and not reloading and os.clock() >= equipReadyAt and not isHolstered() then
+		if ViewmodelController.inspect() then
+			playGun(s.config, "inspect")
+		end
+	end
+end
+
 -- Equip ----------------------------------------------------------------------
 
 local function applyEquip(slot: Slot)
@@ -1042,15 +1052,7 @@ function WeaponController.start()
 			end
 		end
 	end)
-	InputController.onPressed("Inspect", function()
-		-- Fire, aim, reload and swapping cancel it (ViewmodelController).
-		local s = current()
-		if alive and s and not reloading and os.clock() >= equipReadyAt and not isHolstered() then
-			if ViewmodelController.inspect() then
-				playGun(s.config, "inspect")
-			end
-		end
-	end)
+	InputController.onPressed("Inspect", inspect)
 	InputController.onPressed("Primary", function()
 		equip("Primary")
 	end)
@@ -1086,6 +1088,27 @@ function WeaponController.start()
 		task.spawn(onCharacter, player.Character)
 	end
 	RunService:BindToRenderStep("GGWeapons", Enum.RenderPriority.Input.Value + 1, update)
+	-- Studio only: the Workspace attribute DevAction ("inspect", "reload",
+	-- "draw" = the first draw again) runs that action, so scripts can review
+	-- the animations (MCP key presses are unreliable).
+	if RunService:IsStudio() then
+		Workspace:GetAttributeChangedSignal("DevAction"):Connect(function()
+			local action = Workspace:GetAttribute("DevAction")
+			if action == nil then
+				return
+			end
+			Workspace:SetAttribute("DevAction", nil)
+			local s = current()
+			if action == "inspect" then
+				inspect()
+			elseif action == "reload" then
+				startReload()
+			elseif action == "draw" and s and equipped then
+				s.drawn = false
+				applyEquip(equipped)
+			end
+		end)
+	end
 end
 
 return WeaponController
