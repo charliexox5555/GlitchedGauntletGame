@@ -548,20 +548,20 @@ return table.freeze({
 				key(0, ZERO, ZERO),
 				key(
 					0.28,
-					Vector3.new(-0.3, 0.06, 0.22),
+					Vector3.new(-0.2, -0.02, 0.2),
 					Vector3.new(-22, 18, 12),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
 				key(
 					0.46,
-					Vector3.new(-0.3, 0.3, -0.55),
+					Vector3.new(-0.2, 0.05, -0.5),
 					Vector3.new(-30, 12, 6),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
 				-- Pitched down from the blade-up hold so the point leads the thrust.
-				key(0.62, Vector3.new(-0.29, 0.29, -0.52), Vector3.new(-30, 12, 6)),
+				key(0.62, Vector3.new(-0.2, 0.05, -0.47), Vector3.new(-30, 12, 6)),
 				key(1, ZERO, ZERO, Enum.EasingStyle.Sine, INOUT),
 			},
 		},

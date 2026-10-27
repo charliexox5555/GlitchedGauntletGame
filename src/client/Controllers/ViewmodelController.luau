@@ -96,7 +96,16 @@ type Mag = {
 	gone: boolean,
 }
 
-type Playing = { track: VM.Track, time: number, length: number, weight: number, fading: boolean }
+-- `rotScale`: how much of the track's rotation applies (0 = position only, when a
+-- gun clip of the same move already turns the gun).
+type Playing = {
+	track: VM.Track,
+	time: number,
+	length: number,
+	weight: number,
+	fading: boolean,
+	rotScale: number,
+}
 
 -- A foley cue inside a clip: `at` is 0..1 through it.
 export type Beat = { at: number, sound: "MagOut" | "MagIn" | "Rack" | "Open" | "ShellIn" }
@@ -117,6 +126,7 @@ local weights: { [string]: number } = {}
 
 local adsAlpha = 0
 local hidden = false
+local heavyUntil = 0 -- knife heavy stab: both hands on the handle until then
 local turnToken = 0 -- bumped to cancel akimbo turns waiting to start (playTurns)
 local motion = ViewmodelMotion.new()
 local motionInput: ViewmodelMotion.Input = {
@@ -195,7 +205,7 @@ local function sample(track: VM.Track, t: number): (Vector3, Vector3)
 	return prev.pos, prev.rot
 end
 
-local function playTrack(slot: string, trackName: string, duration: number?)
+local function playTrack(slot: string, trackName: string, duration: number?, rotScale: number?)
 	local track = VM.TRACKS[trackName]
 	if not track then
 		return
@@ -206,6 +216,7 @@ local function playTrack(slot: string, trackName: string, duration: number?)
 		length = if duration and duration > 0 then duration else track.length,
 		weight = 1,
 		fading = false,
+		rotScale = rotScale or 1,
 	}
 end
 
@@ -263,6 +274,7 @@ local function trackOffset(gun: Gun, mirror: boolean): CFrame
 		end
 		local pos, rot = sample(p.track, t)
 		local liftPos, liftRot = liftFor(slot, t)
+		rot *= p.rotScale
 		pos += liftPos
 		rot += liftRot
 		if mirror then
@@ -1252,18 +1264,37 @@ function ViewmodelController.playClip(clip: string, duration: number): { Beat }
 end
 
 -- Melee swing uses the weapon's Fire clip.
--- A melee attack: `attack` is "Slash1".."Slash3" or "HeavyStab" (the camera
--- track of that name, plus the knife's own clip of that name, else its Fire).
-function ViewmodelController.swing(attack: string?)
+-- A melee attack: `attack` is "Slash1".."Slash3" or "HeavyStab". The knife's
+-- clip of that name drives it when it has one (Blender); else its Fire clip
+-- under the placeholder camera track of that name. Returns the seconds until
+-- the blade lands (the clip's Hit marker), for the impact effects.
+function ViewmodelController.swing(attack: string?): number
 	ViewmodelController.cancelInspect()
 	local right = guns.Right
+	local hitDelay = 0
+	local length = attack and VM.TRACKS[attack] and VM.TRACKS[attack].length or 0
 	if right then
-		local clip = if attack and right.animator:has(attack) then attack else "Fire"
-		right.animator:play(clip)
+		local clips = right.animator.clips :: any
+		local data = attack and clips and clips[attack]
+		if data then
+			-- The Blender clip turns the blade at the wrist; the camera track
+			-- adds the arm's sweep (position only), over the clip's length.
+			right.animator:play(attack :: string)
+			length = math.max(data.frames - 1, 1) / clips.fps
+			local hit = data.markers and data.markers.Hit
+			hitDelay = if typeof(hit) == "number" then hit * length else 0
+			if VM.TRACKS[attack :: string] then
+				playTrack("Swing", attack :: string, length, 0)
+			end
+		else
+			right.animator:play("Fire")
+			if attack and VM.TRACKS[attack] then
+				playTrack("Swing", attack)
+			end
+		end
 	end
-	if attack and VM.TRACKS[attack] then
-		playTrack("Swing", attack)
-	end
+	heavyUntil = if attack == "HeavyStab" then os.clock() + length else 0
+	return hitDelay
 end
 
 -- Plays the inspect (Valorant / Phantom Forces style). Returns false when the
@@ -1284,7 +1315,9 @@ function ViewmodelController.inspect(): boolean
 	local track = if c.fireMode == "Melee" then "InspectMelee" else "Inspect"
 	-- Akimbo: each gun gets a whole inspect, one after the other.
 	local length = VM.TRACKS[track].length * (if guns.Left then 2 else 1)
-	playTrack("Inspect", track, length)
+	-- A knife's own Inspect clip turns the blade; the track only lifts it into view.
+	local clipTurns = c.fireMode == "Melee" and guns.Right.animator:has("Inspect")
+	playTrack("Inspect", track, length, if clipTurns then 0 else 1)
 	-- The gun's own Inspect clip (a press check, the charm swinging) runs
 	-- alongside, over the same time.
 	if guns.Right.animator:has("Inspect") then
@@ -1793,7 +1826,7 @@ local function update(dt: number)
 				}, "Left"),
 				false
 			)
-		elseif playing.Swing and playing.Swing.track == VM.TRACKS.HeavyStab and right.rightGrip then
+		elseif os.clock() < heavyUntil and right.rightGrip then
 			-- Knife heavy stab: both hands on the handle.
 			holdWith(a, "Left", right, rightCf, gripR, VM.MELEE_TWO_HAND, false)
 		else

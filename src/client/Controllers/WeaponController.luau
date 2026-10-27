@@ -684,8 +684,11 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	if heavy and altFire then
 		s.altReadyAt = now + altFire.fireInterval
 	end
-	ViewmodelController.swing(if heavy then "HeavyStab" else "Slash" .. comboStep)
+	-- Impact effects and sounds wait for the blade to land in the clip (its Hit
+	-- marker); the hit itself is checked and sent now.
+	local hitDelay = ViewmodelController.swing(if heavy then "HeavyStab" else "Slash" .. comboStep)
 	playGun(config, if heavy then "heavy" else "fire", "Gun")
+	local step = comboStep
 
 	local origin = cam.CFrame.Position
 	local aim = cam.CFrame.LookVector
@@ -696,9 +699,12 @@ local function swing(s: LocalSlot, heavy: boolean?)
 		local model = combatantOf(result.Instance)
 		if model and aliveHumanoid(model) then
 			table.insert(hits, { part = result.Instance, position = result.Position, pellet = 1 })
-			EffectsController.impact(result.Position, -aim, result.Instance)
-			HudController.hitMarker(false)
-			playGun(config, "hitBody")
+			local hit = result
+			task.delay(hitDelay, function()
+				EffectsController.impact(hit.Position, -aim, hit.Instance)
+				HudController.hitMarker(false)
+				playGun(config, "hitBody")
+			end)
 			-- Lunge toward the target on hit.
 			local flat = (aim * Vector3.new(1, 0, 1))
 			if flat.Magnitude > 0.01 then
@@ -708,14 +714,17 @@ local function swing(s: LocalSlot, heavy: boolean?)
 			end
 		elseif not model then
 			-- The world: a gouge along the blade's path and a steel tick.
-			local angle = if heavy then math.random() * math.pi else SLASH_ANGLES[comboStep]
+			local angle = if heavy then math.random() * math.pi else SLASH_ANGLES[step]
 			-- Each strike lands a little apart, as a real blade would.
 			local n = result.Normal
 			local side = n:Cross(if math.abs(n.Y) < 0.9 then Vector3.yAxis else Vector3.xAxis).Unit
 			local up = side:Cross(n)
 			local jitter = side * (math.random() - 0.5) * 0.6 + up * (math.random() - 0.5) * 0.4
-			EffectsController.slashMark(result.Position + jitter, n, angle, heavy)
-			playGun(config, "hitWall")
+			local at = result.Position + jitter
+			task.delay(hitDelay, function()
+				EffectsController.slashMark(at, n, angle, heavy)
+				playGun(config, "hitWall")
+			end)
 		end
 	end
 	shotIndex += 1
