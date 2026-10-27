@@ -43,7 +43,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 - **Recoil: camera kick with a learnable pattern** (chosen). The view climbs and you pull down against it, so the crosshair is always where you shoot. Each gun's pattern: `up` degrees per shot for `protected` shots (pure vertical), then a smaller climb plus a sideways drift `side` in one direction, with a `switchChance` per shot to swap direction (at least `switchMinTime` apart). When you stop, `recover` of the climb returns over `recoverTime`. Crouch: sideways ×0.85. The viewmodel kick stays separate (already built).
 - **Sprint:** pressing fire cancels sprint instantly (kept).
 - **ADS:** rifles 1.25× zoom, move ×0.76, `adsTime` about 0.2 s.
-- **Equip:** the **first draw** each life plays the full draw with cocking (rifle ~0.9 s, pistol ~0.6 s); later swaps are quick (rifle ~0.5 s, pistol ~0.35 s).
+- **Equip:** **every** equip or swap plays the full draw with cocking, Valorant style (rifle ~0.9 s, pistol ~0.6 s; `drawTime` in config, the server allows 70% of it). Guns without a Draw clip use the quick raise (`equipTime`). Changed in round 2: the user saw the draw skip on later swaps.
 - **Reload:** a tactical reload swaps the mag; an **empty** reload also racks the charging handle and takes longer (rifle 2.3 s / 2.8 s).
 
 ### How v2 is built (2026-10-25)
@@ -84,7 +84,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 |---|---|---|
 | Fire | Auto, 0.103 s (9.75/s) | 9.75/s |
 | Mag / reload | 25 / 2.3 s tactical, 2.8 s empty (with rack) | 25 / 2.5 s |
-| Equip | 0.9 s first draw (cock), 0.5 s quick | 1.0 s |
+| Equip | 0.9 s draw (cock), every equip | 1.0 s |
 | Damage | 30 body / 67 head / 25 legs, **no falloff**: 4 body shots (0.31 s) or 2 heads (0.10 s) | 40 / 160 / 34 |
 | Spread | 0.25° hip, 0.15° ADS → max 1.0°; 3 protected shots, +0.12°/shot after; recovery 0.375 s | 0.25° / 0.157° → 1° |
 | Movement | Rifle row above | walk +3°, run +6°, air +10° |
@@ -97,7 +97,7 @@ The user asked for: lighter than the Vandal, less damage, faster fire rate, less
 |---|---|---|
 | Fire | Auto, 0.091 s (11/s) | 11/s |
 | Mag / reload | **30** / 2.3 s tactical, 2.8 s empty | 30 / 2.5 s |
-| Equip | 0.8 s first draw, 0.45 s quick | 1.0 s |
+| Equip | 0.8 s draw, every equip | 1.0 s |
 | Damage | 26 body / 58 head / 22 legs up to 70 studs, then ×0.87 (23 / 51 / 19): 4 body shots (0.27 s) or 2 heads at any range | 39 / 156 → ×0.897 after 20 m |
 | Spread | 0.2° hip, 0.12° ADS → max 0.9°; 4 protected shots, +0.1°/shot; recovery 0.35 s | 0.2° / 0.11° → 0.9° |
 | Recoil | `up` 0.32° × 6, then 0.2° up + 0.22° side, `switchChance` 10%, 75% recovers over 0.28 s (steadier than the Vandal) | steadier than the Vandal |
@@ -111,7 +111,7 @@ The free default pistol and the sidearm benchmark. **No ADS**: right mouse (game
 | Fire | Semi, 0.148 s (6.75/s) | 6.75/s |
 | Alt-fire | 3 pellets in a 3.4° cone, uses 3 rounds (one pellet per round, so with 1–2 left it fires 1–2), 0.45 s before the next shot of either kind (2.2/s); each pellet does normal damage (3 body = 78 up close) and adds a shot of spray heat | 3-pellet burst, 2.22/s |
 | Mag / reload | 12 / 1.6 s tactical, 1.9 s empty (slide release) | 12 / 1.75 s |
-| Equip | 0.6 s first draw, 0.35 s quick | |
+| Equip | 0.6 s draw, every equip | |
 | Damage | 26 body / 58 head / 22 legs; ×0.85 from 105 studs | 26 / 78 / 22 → 22 / 66 / 18 past 30 m |
 | Spread | 0.4° first shot → 1.8° max (1 protected shot, +0.3°/shot), recovery 0.4 s | 0.4° → 1.8° |
 | Movement | Pistol (Sidearm) row | |
@@ -130,7 +130,7 @@ Over-under break-action pocket shotgun. No ADS.
 | Damage per pellet | 11 body / 22 head / 9 legs; ×0.55 from 25 studs, ×0.27 from 54 studs (one-shot up close: 165) | 11 / 22 / 9, ×0.55 7–15 m, ×0.27 15 m+ |
 | Movement | Shotgun row (placed and held as a sidearm) | |
 | Recoil | 2.4° straight up per shot, 80% back over 0.3 s | |
-| Equip | 0.55 s first draw, 0.35 s quick | |
+| Equip | 0.55 s draw, every equip | |
 
 New generic weapon fields it uses: `muzzles` (shots come from each muzzle in turn), `shellsOnFire = false` (the reload clip shows the spent shells), `hideBeyond` (props hidden away from rest), `moveClass`. The server now counts up to 20 hits per shot.
 
@@ -142,7 +142,7 @@ New generic weapon fields it uses: `muzzles` (shots come from each muzzle in tur
 | Damage | 30 body / 67 head / 25 legs; ×0.83 from 105 studs. No one-tap headshot (v2 keeps those for snipers, the revolver and a DMR) | 30 / 105 / 25 → 25 / 87 / 21 past 30 m |
 | Spread | 0.3° → 1.65° (1 protected shot, +0.25°/shot), recovery 0.35 s | 0.3° → 1.65° |
 | Recoil | 0.45° × 2, then 0.3° up + 0.15° side, 25% switch, 80% back over 0.25 s | |
-| Equip | 0.55 s first draw (press check), 0.35 s quick | |
+| Equip | 0.55 s draw (press check), every equip | |
 
 `lockOnEmpty` (Ghost and Classic): after the last round the slide stays locked back (the first frame of the gun's ReloadEmpty clip) until the empty reload releases it.
 
@@ -154,7 +154,7 @@ New generic weapon fields it uses: `muzzles` (shots come from each muzzle in tur
 | Damage per pellet | 17 body / 34 head / 14 legs; ×0.59 from 36 studs, ×0.41 from 54 studs | 17 / 34 / 14, ×0.59 10–15 m, ×0.41 15 m+ |
 | Movement | Shotgun row, ×0.95 speed | |
 | Recoil | 1.6° first kick, then 1.4° up + 0.4° side, 30% switch, 75% back over 0.35 s | |
-| Equip | 0.9 s first draw, 0.5 s quick | |
+| Equip | 0.9 s draw, every equip | |
 | Viewmodel | No ADS; own hip offset (0.36, −0.42, −0.95), since it has no sight to be placed by | |
 
 ### Stinger v2 (roster 04, SMG)
@@ -190,7 +190,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 | Damage per pellet | 17 body / 34 head / 14 legs; ×0.65 from 29 studs, ×0.45 from 43 studs (one-shots up close) | 17 / 34 / 14, ×0.65 8–12 m, ×0.45 12 m+ |
 | Movement | Shotgun row (barely affected by moving), ×0.95 speed | run +0.2° |
 | Recoil | 3° up per shot, 80% back over 0.4 s | |
-| Equip | 1.0 s first draw (pump rack), 0.5 s quick | |
+| Equip | 1.0 s draw (pump rack), every equip | |
 
 **Shell-by-shell reloads** (`shellReload = { start, insert, finish }`): the client plays the gun's ReloadStart, loops ReloadInsert once per shell (each finished insert adds a shell), then ReloadEnd. The server counts shells from when the reload started (credited `RELOAD_LEAD` early so it's never behind) and, when the client sends `Reload("stop")` on a trigger pull, banks the shells loaded so far and holds the next shot until the gun is back in the hands (`finish`). Swapping weapons also keeps the shells loaded. The hand carries the `Shell` prop during inserts.
 
@@ -203,7 +203,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 | Spread | 0.25° → 2.75° (+0.6°/shot), recovery 0.45 s | 0.25° → 2.75° |
 | Penetration | ThinWall | high |
 | Recoil | 1.8° first kick, then 1.5° up + 0.3° side, 35% switch, 80% back over 0.35 s | |
-| Equip | 0.65 s first draw (cylinder spin), 0.4 s quick | |
+| Equip | 0.65 s draw (cylinder spin), every equip | |
 
 ### Bulldog v2 (roster 08, bullpup rifle)
 | Stat | Value | Valorant Bulldog |
@@ -230,7 +230,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 |---|---|---|
 | Swing | 50 from the front, **100 backstab**; one swing per 0.6 s; ~7-stud reach with a short lunge on hit | front 50 / heavy 75, back 100 / 150, 2 m |
 | Heavy attack | Not built (melee has no alt attack yet) | right-click |
-| Equip | 0.45 s first draw (twirl), 0.25 s quick; ×1.05 move speed | |
+| Equip | 0.45 s draw (twirl), every equip; ×1.05 move speed | |
 
 ### Scopes (snipers, 2026-10-26)
 A gun with `scope = { zoom }` aims like any other until the aim blend passes `Viewmodel.SCOPE_AT` (0.85); then the gun and arms hide and the HUD shows the scope: black outside a round lens, a soft rim, a duplex reticle with a red centre dot. The zoom is a true magnification of the player's own FOV (`2·atan(tan(FOV/2) / zoom)`), so it's the same at any FOV setting; mouse sensitivity already scales with FOV. Scoped, the local muzzle flash and casing are skipped (the camera kick stays). Snipers use `adsMultiplier = 0`: a standing scoped shot goes exactly where you aim (server-checked: 0° claim, 0° band low edge); moving still adds the Sniper row (halved fully scoped). Not built: the Operator's second 5× level.
@@ -244,7 +244,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 | Spread | 1° hip, **0° scoped**, +0.5°/shot to 2°, recovery 0.6 s; Sniper movement row | hip 1°, scoped 0° |
 | Scope | 3.5×, 0.25 s to scope; ×0.95 speed, ×0.6 scoped | 3.5× |
 | Recoil | 2.5° per shot, 85% back over 0.35 s | |
-| Equip | 1.2 s first draw (lever cycle), 0.7 s quick | |
+| Equip | 1.2 s draw (lever cycle), every equip | |
 
 ### Outlaw v2 (roster 12, twin-barrel sniper)
 | Stat | Value | Valorant Outlaw |
@@ -255,7 +255,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 | Spread | 3.5° hip, **0° scoped**, recovery 0.5 s | hip 3.5°, scoped 0° |
 | Scope | 3.5×, 0.28 s; ×0.9 speed, ×0.55 scoped | 3.5× |
 | Recoil | 3.6° per shot, 85% back over 0.35 s | |
-| Equip | 1.1 s first draw (snap check), 0.75 s quick | |
+| Equip | 1.1 s draw (snap check), every equip | |
 
 ### Operator v2 (roster 13, heavy bolt-action sniper)
 | Stat | Value | Valorant Operator |
@@ -266,7 +266,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 | Spread | 5° hip, **0° scoped**, recovery 0.8 s | hip 5°, scoped 0° |
 | Scope | 2.5× (one level), 0.38 s; ×0.85 speed, **×0.4 scoped** | 2.5× / 5× |
 | Recoil | 5° per shot, 90% back over 0.45 s | |
-| Equip | 1.4 s first draw, 0.9 s quick | 1.5 s |
+| Equip | 1.4 s draw, every equip | 1.5 s |
 
 ### Ares v2 (roster 14, light machine gun)
 | Stat | Value | Valorant Ares |
@@ -277,7 +277,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 | Spread | **1° first shot, tightening 0.03°/shot to 0.7°** (negative growth), ADS ×0.75, recovery 0.5 s; Machine-gun row | 1° → 0.7° min |
 | Recoil | 0.28° × 6, then 0.12° up + 0.18° side, 15% switch, 70% back over 0.35 s | |
 | ADS / speed | Iron sights, 1.15× (FOV 70), 0.3 s; ×0.9, ×0.7 aimed | |
-| Equip | 1.25 s first draw (selector + rack), 0.8 s quick | 1.25 s |
+| Equip | 1.25 s draw (selector + rack), every equip | 1.25 s |
 
 Measured in Studio (2026-10-26, server `FireSpread`): a held spray goes 1.00, 0.97 … 0.73, then **0.70° from shot 11 on**; no rejects. The server's spread band takes both heat edges each way, so a gun whose spread falls with heat is checked correctly.
 

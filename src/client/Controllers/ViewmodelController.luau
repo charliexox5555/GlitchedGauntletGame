@@ -965,14 +965,10 @@ local function clipBeats(gun: Gun, clip: string): { Beat }
 	return beats
 end
 
--- Equips `weapon`. `first`: its first draw this life, which racks the action
--- (the gun's "Draw" clip, when it has one); otherwise a quick raise.
+-- Equips `weapon`: every equip plays the gun's "Draw" clip (raise and rack
+-- the action), when it has one; otherwise a quick raise.
 -- `duration`: the client's ready time. Returns the clip's foley cues.
-function ViewmodelController.equip(
-	weapon: WeaponConfig,
-	first: boolean?,
-	duration: number?
-): { Beat }
+function ViewmodelController.equip(weapon: WeaponConfig, duration: number?): { Beat }
 	ViewmodelController.unequip()
 	local cam = Workspace.CurrentCamera
 	if not cam then
@@ -1002,7 +998,7 @@ function ViewmodelController.equip(
 	a.model.Parent = cam
 	ViewmodelArms.setVisible(a, true)
 	local time = duration or weapon.equipTime
-	if first and right.animator:has("Draw") then
+	if right.animator:has("Draw") then
 		for _, gun in guns do
 			gun.animator:play("Draw", time)
 		end

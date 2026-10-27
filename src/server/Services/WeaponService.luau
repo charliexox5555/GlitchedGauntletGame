@@ -128,6 +128,11 @@ end
 
 local finiteVector = Validate.vector
 
+-- Every equip plays the full draw; the server allows 70% of it for latency.
+local function drawSeconds(config: WeaponConfig): number
+	return config.drawTime or config.equipTime
+end
+
 local function isSlot(v: unknown): boolean
 	return v == "Primary" or v == "Secondary" or v == "Melee"
 end
@@ -404,7 +409,7 @@ function WeaponService.giveLoadout(player: Player)
 	states[player] = {
 		slots = slots,
 		equipped = first,
-		equipReadyAt = os.clock() + (if first then slots[first].config.equipTime * 0.7 else 0),
+		equipReadyAt = os.clock() + (if first then drawSeconds(slots[first].config) * 0.7 else 0),
 		-- Keep the seed sequence across respawns so in-flight shots stay valid.
 		seedBase = if old then old.seedBase else seedRng:NextInteger(1, 2 ^ 30),
 		shotIndex = if old then old.shotIndex else 0,
@@ -430,7 +435,7 @@ function WeaponService.setWeapon(player: Player, slot: Slot, id: string)
 	end
 	state.slots[slot] = s
 	if state.equipped == slot then
-		state.equipReadyAt = os.clock() + config.equipTime * 0.7
+		state.equipReadyAt = os.clock() + drawSeconds(config) * 0.7
 		refreshWorldModel(player)
 	end
 	sendState(player)
@@ -703,7 +708,7 @@ function WeaponService.equip(player: Player, slot: Slot)
 		settleShellReload(current, os.clock())
 	end
 	state.equipped = slot
-	state.equipReadyAt = os.clock() + target.config.equipTime * 0.7
+	state.equipReadyAt = os.clock() + drawSeconds(target.config) * 0.7
 	refreshWorldModel(player)
 	sendState(player)
 end

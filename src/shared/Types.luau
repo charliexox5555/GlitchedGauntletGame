@@ -123,8 +123,8 @@ export type WeaponConfig = {
 	reloadTime: number,
 	emptyReloadTime: number,
 	equipTime: number,
-	-- The first draw of a life (racks the action, client-side only); default equipTime.
-	firstEquipTime: number?,
+	-- Every draw (raises and racks the action, the Draw clip); default equipTime.
+	drawTime: number?,
 	range: number,
 	falloff: { FalloffStep }?, -- nil = no falloff
 	spread: SpreadStats,

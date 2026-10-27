@@ -45,7 +45,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.5, -- tactical: mag swap, then a tug on the charging handle
 		emptyReloadTime = 2.8, -- mag swap, then rack the charging handle
 		equipTime = 0.5,
-		firstEquipTime = 0.9, -- first draw of a life: raise and rack the charging handle
+		drawTime = 0.9, -- every draw: raise and rack the charging handle
 		range = 500,
 		-- No falloff. Tap-accurate, three protected shots, then the cone opens
 		-- to 1 degree; back to a first-shot tap after 0.375 s off the trigger.
@@ -97,7 +97,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.3,
 		emptyReloadTime = 2.8,
 		equipTime = 0.45,
-		firstEquipTime = 0.8,
+		drawTime = 0.8,
 		range = 500,
 		falloff = { { from = 70, multiplier = 0.87 } },
 		spread = {
@@ -147,7 +147,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 1.6,
 		emptyReloadTime = 1.9,
 		equipTime = 0.35,
-		firstEquipTime = 0.6,
+		drawTime = 0.6,
 		range = 400,
 		falloff = { { from = 105, multiplier = 0.85 } },
 		spread = {
@@ -200,7 +200,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 1.5, -- one shell
 		emptyReloadTime = 1.9, -- both shells
 		equipTime = 0.35,
-		firstEquipTime = 0.55,
+		drawTime = 0.55,
 		range = 120,
 		-- 7 m and 15 m in Valorant (1 stud ~ 0.28 m).
 		falloff = { { from = 25, multiplier = 0.55 }, { from = 54, multiplier = 0.27 } },
@@ -254,7 +254,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 1.5,
 		emptyReloadTime = 1.75, -- slide release at the end
 		equipTime = 0.35,
-		firstEquipTime = 0.55,
+		drawTime = 0.55,
 		range = 400,
 		falloff = { { from = 105, multiplier = 0.83 } },
 		spread = {
@@ -306,7 +306,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.2,
 		emptyReloadTime = 2.6, -- drum, then rack
 		equipTime = 0.5,
-		firstEquipTime = 0.9,
+		drawTime = 0.9,
 		range = 150,
 		-- 10 m and 15 m in Valorant.
 		falloff = { { from = 36, multiplier = 0.59 }, { from = 54, multiplier = 0.41 } },
@@ -359,7 +359,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.1,
 		emptyReloadTime = 2.5, -- mag, then the knob rack
 		equipTime = 0.4,
-		firstEquipTime = 0.8,
+		drawTime = 0.8,
 		range = 400,
 		falloff = { { from = 54, multiplier = 0.85 } }, -- 15 m
 		spread = {
@@ -407,7 +407,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.1,
 		emptyReloadTime = 2.5, -- mag, then the cocking-handle rack
 		equipTime = 0.4,
-		firstEquipTime = 0.8,
+		drawTime = 0.8,
 		range = 400,
 		-- 20 m and 50 m in Valorant.
 		falloff = { { from = 71, multiplier = 0.85 }, { from = 178, multiplier = 0.77 } },
@@ -459,7 +459,7 @@ local weapons: { [string]: WeaponConfig } = {
 		emptyReloadTime = 2.55,
 		shellReload = { start = 0.25, insert = 0.45, finish = 0.25 },
 		equipTime = 0.5,
-		firstEquipTime = 1.0, -- racks the pump
+		drawTime = 1.0, -- racks the pump
 		range = 150,
 		-- 8 m and 12 m in Valorant.
 		falloff = { { from = 29, multiplier = 0.65 }, { from = 43, multiplier = 0.45 } },
@@ -509,7 +509,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.25, -- speedloader, same either way
 		emptyReloadTime = 2.25,
 		equipTime = 0.4,
-		firstEquipTime = 0.65, -- cylinder spin
+		drawTime = 0.65, -- cylinder spin
 		range = 400,
 		falloff = { { from = 107, multiplier = 0.91 } }, -- 30 m
 		spread = {
@@ -561,7 +561,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.3,
 		emptyReloadTime = 2.7,
 		equipTime = 0.5,
-		firstEquipTime = 0.9,
+		drawTime = 0.9,
 		range = 500,
 		spread = {
 			first = 0.3,
@@ -608,7 +608,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.3,
 		emptyReloadTime = 2.7,
 		equipTime = 0.55,
-		firstEquipTime = 1.0,
+		drawTime = 1.0,
 		range = 600,
 		spread = {
 			first = 0.1,
@@ -658,7 +658,7 @@ local weapons: { [string]: WeaponConfig } = {
 		emptyReloadTime = 2.5,
 		shellReload = { start = 0.3, insert = 0.4, finish = 0.35 },
 		equipTime = 0.7,
-		firstEquipTime = 1.2, -- works the lever
+		drawTime = 1.2, -- works the lever
 		range = 800,
 		spread = {
 			first = 1, -- hip
@@ -709,7 +709,7 @@ local weapons: { [string]: WeaponConfig } = {
 		shellsOnFire = false, -- the reload clip shows the spent rounds
 		hideBeyond = { RoundUpper = 0.35, RoundLower = 0.35 },
 		equipTime = 0.75,
-		firstEquipTime = 1.1, -- snaps the action
+		drawTime = 1.1, -- snaps the action
 		range = 800,
 		spread = {
 			first = 3.5, -- hip
@@ -758,7 +758,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 3.2,
 		emptyReloadTime = 3.7, -- mag, then the bolt
 		equipTime = 0.9,
-		firstEquipTime = 1.4,
+		drawTime = 1.4,
 		range = 1000,
 		spread = {
 			first = 5, -- hip
@@ -807,7 +807,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 3.25,
 		emptyReloadTime = 3.8, -- drum, then the charging handle
 		equipTime = 0.8,
-		firstEquipTime = 1.25,
+		drawTime = 1.25,
 		range = 500,
 		-- 30 m in Valorant.
 		falloff = { { from = 107, multiplier = 0.93 } },
@@ -857,7 +857,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 4.2,
 		emptyReloadTime = 5, -- box, then the charging handle
 		equipTime = 0.9,
-		firstEquipTime = 1.3,
+		drawTime = 1.3,
 		range = 500,
 		-- 30 m in Valorant.
 		falloff = { { from = 107, multiplier = 0.82 } },
@@ -907,7 +907,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.3,
 		emptyReloadTime = 2.7, -- both slides locked back
 		equipTime = 0.5,
-		firstEquipTime = 0.8,
+		drawTime = 0.8,
 		range = 350,
 		-- 15 m and 30 m.
 		falloff = { { from = 54, multiplier = 0.85 }, { from = 107, multiplier = 0.7 } },
@@ -961,7 +961,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 0,
 		emptyReloadTime = 0,
 		equipTime = 0.25,
-		firstEquipTime = 0.45, -- the twirl
+		drawTime = 0.45, -- the twirl
 		range = 7, -- about 2 m
 		spread = {
 			first = 0,

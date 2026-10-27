@@ -45,7 +45,6 @@ type LocalSlot = {
 	lastFire: number,
 	spinStart: number?,
 	burstShots: number, -- same counter as the server's (FireRate.nextBurstCount)
-	drawn: boolean, -- had its first draw this life (racked)
 	heat: number, -- spray heat after the last shot (Util/Accuracy), as the server counts it
 	lastShotAt: number,
 	-- Recoil pattern (Config/Weapons recoil): shots in this spray, the side
@@ -365,16 +364,14 @@ local function applyEquip(slot: Slot)
 	pressQueued = false
 	burstQueue = 0
 	nextLeft = false
-	-- The first draw of a life racks the action; later swaps just raise the gun.
-	local first = not s.drawn
-	s.drawn = true
+	-- Every equip plays the full draw (Valorant): raise and rack the action.
 	local config = s.config
-	local duration = if first then config.firstEquipTime or config.equipTime else config.equipTime
+	local duration = config.drawTime or config.equipTime
 	equipReadyAt = os.clock() + duration
 	updateHudWeapon()
 	playGun(config, "draw")
 	local token = reloadToken
-	for _, beat in ViewmodelController.equip(config, first, duration) do
+	for _, beat in ViewmodelController.equip(config, duration) do
 		task.delay(duration * beat.at, function()
 			if reloadToken == token and current() == s then
 				playGun(config, BEAT_SOUNDS[beat.sound])
@@ -951,7 +948,6 @@ local function onWeaponState(state: Types.WeaponState)
 						lastFire = -math.huge,
 						spinStart = nil,
 						burstShots = 0,
-						drawn = false,
 						heat = 0,
 						lastShotAt = -math.huge,
 						sprayShots = 0,
@@ -1104,7 +1100,6 @@ function WeaponController.start()
 			elseif action == "reload" then
 				startReload()
 			elseif action == "draw" and s and equipped then
-				s.drawn = false
 				applyEquip(equipped)
 			end
 		end)

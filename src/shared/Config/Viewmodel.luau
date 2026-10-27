@@ -359,7 +359,7 @@ return table.freeze({
 				key(1, ZERO, ZERO, Enum.EasingStyle.Sine, INOUT),
 			},
 		},
-		-- First draw of a life (stretched to firstEquipTime), under the gun's Draw
+		-- Every draw (stretched to drawTime), under the gun's Draw
 		-- clip (Valorant style): swing up from low right, roll the left side to
 		-- the camera while the support hand racks the charging handle all the
 		-- way back and holds it (clip 28-53%), slam it home (56%), settle.
