@@ -84,6 +84,7 @@ local altQueuedAt = -math.huge -- alt-fire press (Aim input on a gun with altFir
 local burstQueue = 0 -- shots left in the current burst
 local nextLeft = false -- akimbo: the next shot comes from the left gun
 local aiming = false
+local devAim = false -- Studio only: Workspace DevAim holds ADS for scripted reviews
 local adsAlpha = 0
 local scoped = false -- a scoped gun aimed past Viewmodel.SCOPE_AT: the scope overlay is up
 local lastShotAt = 0
@@ -772,7 +773,7 @@ local function update(dt: number)
 		and alive
 		and s.config.fireMode ~= "Melee"
 		and not s.config.noAds
-		and InputController.isDown("Aim")
+		and (InputController.isDown("Aim") or devAim)
 		and not MovementController.isSprinting()
 		and not PickerController.isOpen()
 		and not isHolstered()
@@ -1085,9 +1086,13 @@ function WeaponController.start()
 	end
 	RunService:BindToRenderStep("GGWeapons", Enum.RenderPriority.Input.Value + 1, update)
 	-- Studio only: the Workspace attribute DevAction ("inspect", "reload",
-	-- "draw" = the first draw again) runs that action, so scripts can review
+	-- "draw" = draw again, "fire" = one shot, or a slot name to switch to)
+	-- runs that action, and DevAim (true) holds aim down sights, so scripts can review
 	-- the animations (MCP key presses are unreliable).
 	if RunService:IsStudio() then
+		Workspace:GetAttributeChangedSignal("DevAim"):Connect(function()
+			devAim = Workspace:GetAttribute("DevAim") == true
+		end)
 		Workspace:GetAttributeChangedSignal("DevAction"):Connect(function()
 			local action = Workspace:GetAttribute("DevAction")
 			if action == nil then
@@ -1101,6 +1106,14 @@ function WeaponController.start()
 				startReload()
 			elseif action == "draw" and s and equipped then
 				applyEquip(equipped)
+			elseif action == "Primary" or action == "Secondary" or action == "Melee" then
+				equip(action)
+			elseif action == "fire" and s and alive then
+				if s.config.fireMode == "Melee" then
+					swing(s)
+				elseif canShoot(s) then
+					fireShot(s)
+				end
 			end
 		end)
 	end

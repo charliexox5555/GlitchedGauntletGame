@@ -136,6 +136,7 @@ export type WeaponConfig = {
 	penetration: Penetration,
 	pierceCharacters: boolean?,
 	suppressed: boolean?,
+	muzzleDevice: boolean?, -- brake/compensator: a grey puff, no flare (like suppressed)
 	melee: MeleeStats?,
 	-- Row of Config/Combat MOVE_PENALTY (default: the gun's class).
 	moveClass: string?,

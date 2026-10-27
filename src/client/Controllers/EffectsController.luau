@@ -38,6 +38,7 @@ local WHITE = Color3.new(1, 1, 1)
 local FIRE = Color3.fromHex("FFB45A") -- muzzle light and glow
 local EMBER = Color3.fromHex("FFC070")
 local SMOKE = Color3.fromHex("C9C7C2")
+local PUFF = Color3.fromHex("EEEDEA") -- suppressed / muzzle-device puff: light, reads on grey floors
 local BRASS = Color3.fromHex("8F7A47") -- reads as brass in direct sun
 local SPARK_HOT = Color3.fromHex("FFF1C2")
 local SPARK_COOL = Color3.fromHex("FF8A2A")
@@ -220,12 +221,13 @@ end
 -- Muzzle flash -------------------------------------------------------------------
 -- Each muzzle gets a rig of emitters the first time it fires: the front burst
 -- and side flame (locked to the gun), a hot core, embers, a smoke puff, a
--- barrel wisp and a light.
+-- barrel wisp and a light. Suppressed and muzzle-device guns (`puff`) get a
+-- subtle grey puff instead of the flare, as in Valorant.
 
 type MuzzleRig = {
 	front: ParticleEmitter,
 	side: ParticleEmitter?,
-	core: ParticleEmitter,
+	core: ParticleEmitter?,
 	embers: ParticleEmitter?,
 	smoke: ParticleEmitter,
 	wisp: ParticleEmitter,
@@ -263,39 +265,61 @@ local function buildRig(
 		return nil
 	end
 	local suppressed = config.suppressed == true
-	local s = scale * flashSize(config) * (if suppressed then 0.35 else 1)
+	local puff = suppressed or config.muzzleDevice == true
+	local s = scale * flashSize(config) * (if suppressed then 0.6 else 1)
 
 	-- The flash is a billboard: centred on the opening, the barrel (or a
 	-- suppressor) hides its back half from first person and it seems to
 	-- burst inside the muzzle. Start it just ahead of the opening instead.
+	-- ZOffset (studs, toward the camera) must stay under that lead, or it
+	-- pulls the quad back behind the muzzle face: a fixed 0.2 put a small
+	-- suppressed flash inside the Phantom's can.
 	local holder = Instance.new("Attachment")
 	holder.Name = "FxMuzzle"
 	holder.CFrame = muzzle.CFrame * CFrame.new(0, 0, -FLASH_AHEAD * s)
 	holder.Parent = parent
 
-	-- Down the barrel: a star burst, two frames long.
-	local front = emitter(holder, VFX.FLASH_FRONT_2x2, WHITE)
-	fire(front)
-	flipbook(front)
-	front.LockedToPart = true
-	front.Lifetime = NumberRange.new(0.035, 0.05)
-	front.Size = curve({ 0, 0.5 * s, 1, 0.72 * s })
-	front.Transparency = curve({ 0, 0.05, 0.5, 0.25, 1, 1 })
-	front.ZOffset = 0.2
+	local front: ParticleEmitter
+	local core: ParticleEmitter? = nil
+	if puff then
+		-- A quick grey puff out of the can or brake, no flame.
+		front = emitter(holder, VFX.SMOKE_2x2, PUFF)
+		flipbook(front)
+		front.LockedToPart = true
+		front.EmissionDirection = Enum.NormalId.Front
+		front.Speed = NumberRange.new(2 * s, 4 * s)
+		front.Drag = 6
+		front.Lifetime = NumberRange.new(0.14, 0.22)
+		front.Size = curve({ 0, 0.5 * s, 1, 1.5 * s })
+		front.Transparency = curve({ 0, 0.3, 0.4, 0.6, 1, 1 })
+		front.Rotation = NumberRange.new(0, 360)
+		front.ZOffset = 0.1 * s
+	else
+		-- Down the barrel: a star burst, two frames long.
+		front = emitter(holder, VFX.FLASH_FRONT_2x2, WHITE)
+		fire(front)
+		flipbook(front)
+		front.LockedToPart = true
+		front.Lifetime = NumberRange.new(0.035, 0.05)
+		front.Size = curve({ 0, 0.5 * s, 1, 0.72 * s })
+		front.Transparency = curve({ 0, 0.05, 0.5, 0.25, 1, 1 })
+		front.ZOffset = 0.15 * s
 
-	local core = emitter(holder, VFX.GLOW, FIRE)
-	fire(core)
-	core.LockedToPart = true
-	core.Lifetime = NumberRange.new(0.04)
-	core.Size = curve({ 0, 0.35 * s, 1, 0.2 * s })
-	core.Transparency = curve({ 0, 0.5, 1, 1 })
+		local c = emitter(holder, VFX.GLOW, FIRE)
+		fire(c)
+		c.LockedToPart = true
+		c.Lifetime = NumberRange.new(0.04)
+		c.Size = curve({ 0, 0.35 * s, 1, 0.2 * s })
+		c.Transparency = curve({ 0, 0.5, 1, 1 })
+		core = c
+	end
 
 	-- From the side: a ragged tongue of flame out of the muzzle. Seen nearly
 	-- down the barrel in first person it shrinks to a short flick, so it's
 	-- smaller there.
 	local side: ParticleEmitter? = nil
 	local embers: ParticleEmitter? = nil
-	if not suppressed then
+	if not puff then
 		local sideSize = (if firstPerson then 0.8 else 1.15) * s
 		-- The side flame's texture starts at its bottom edge, so it sits half
 		-- its size ahead of the muzzle.
@@ -356,7 +380,7 @@ local function buildRig(
 
 	local light = Instance.new("PointLight")
 	light.Color = FIRE
-	light.Range = if suppressed then 5 else 10
+	light.Range = if puff then 4 else 10
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = holder
@@ -370,7 +394,10 @@ local function buildRig(
 		wisp = wisp,
 		light = light,
 		-- Fast guns pop a dimmer light, or the room strobes.
-		brightness = if suppressed then 0.8 elseif config.fireInterval < 0.1 then 1.6 else 2.4,
+		brightness = if puff
+			then (if suppressed then 0 else 0.5)
+			elseif config.fireInterval < 0.1 then 1.6
+			else 2.4,
 		smokeCount = if config.class == "Shotgun" or config.class == "Sniper" then 3 else 1,
 		heat = 0,
 		lastShot = -math.huge,
@@ -398,7 +425,9 @@ function EffectsController.muzzleFlash(
 		return
 	end
 	rig.front:Emit(1)
-	rig.core:Emit(1)
+	if rig.core then
+		rig.core:Emit(1)
+	end
 	if rig.side then
 		rig.side:Emit(1)
 	end
