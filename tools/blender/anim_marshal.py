@@ -55,11 +55,16 @@ def fire():
 
 
 def insert(c, f0):
-	c.key("Shell", f0, (0.02, -0.42, -0.25), (0, 0, 15))
-	c.key("Shell", f0 + 6, (0, -0.08, -0.01))
-	c.key("Shell", f0 + 9)
-	c.key("Shell", f0 + 12, (0.15, 0, 0))
-	c.key("Shell", f0 + 13)
+	# Round 2, a cleaner insert: the round comes up from below-right, lines up nose-first just outside the gate, is
+	# pressed straight in through it (slight inward angle that straightens), then pushed forward into the tube.
+	c.key("Shell", f0, (-0.06, -0.3, -0.22), (0, 0, 10))
+	c.key("Shell", f0 + 5, (-0.07, -0.075, -0.004), (0, 0, 8))
+	c.key("Shell", f0 + 7, (-0.07, -0.075, 0), (0, 0, 8))
+	c.key("Shell", f0 + 9, (-0.03, -0.02, 0), (0, 0, 2))
+	c.key("Shell", f0 + 11, (0.05, 0, 0))
+	c.key("Shell", f0 + 13, (0.15, 0, 0))
+	c.key("Shell", f0 + 14)
+	c.mark("ShellIn", f0 + 10)
 	swing(c, [(f0 + 10, 4), (f0 + 13, -3), (f0 + 16, 1.5)])
 
 

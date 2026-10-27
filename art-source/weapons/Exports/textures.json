@@ -144,15 +144,15 @@
   }
  },
  "Marshal": {
-  "ColorMap": 120845077162205,
-  "NormalMap": 126760961659974,
-  "RoughnessMap": 95126943764167,
-  "MetalnessMap": 72154470383307,
+  "ColorMap": 88356961005560,
+  "NormalMap": 129069837648270,
+  "RoughnessMap": 132140479890917,
+  "MetalnessMap": 121535921316478,
   "decals": {
-   "Color": 82599784530753,
-   "Normal": 105911522849086,
-   "Roughness": 131969251770165,
-   "Metalness": 77252030658005
+   "Color": 106123656736772,
+   "Normal": 98584621612112,
+   "Roughness": 122891218078200,
+   "Metalness": 109133908613924
   }
  },
  "Outlaw": {
