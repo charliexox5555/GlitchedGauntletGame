@@ -1152,8 +1152,10 @@ function WeaponController.start()
 			elseif action == "fire" and s and alive then
 				if s.config.fireMode == "Melee" then
 					swing(s, Workspace:GetAttribute("DevHeavy") == true)
-				elseif canShoot(s) then
-					fireShot(s)
+				else
+					-- A real press and release, so it interrupts a shell reload too.
+					onFirePressed()
+					task.delay(0.05, onFireReleased)
 				end
 			end
 		end)

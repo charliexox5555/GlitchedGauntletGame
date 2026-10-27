@@ -1051,6 +1051,14 @@ local function clipBeats(gun: Gun, clip: string): { Beat }
 	if ejectFrom then
 		table.insert(beats, { at = ejectFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
 	end
+	-- Rounds going in: the clip's ShellIn marker (set in Blender) when it has
+	-- one, else as each round prop stops moving.
+	local data = animator.clips and (animator.clips :: any)[clip]
+	local shellMark = data and data.markers and data.markers.ShellIn
+	if typeof(shellMark) == "number" then
+		table.insert(beats, { at = shellMark, sound = "ShellIn" })
+		return beats
+	end
 	for _, shell in { "ShellUpper", "ShellLower", "Shell", "Rounds", "RoundUpper", "RoundLower" } do
 		local _, to = animator:activity(clip, shell)
 		if to then
