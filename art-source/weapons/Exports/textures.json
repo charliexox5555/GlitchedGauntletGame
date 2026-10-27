@@ -168,15 +168,15 @@
   }
  },
  "Operator": {
-  "ColorMap": 103989053441569,
-  "NormalMap": 116982143448847,
-  "RoughnessMap": 119482071703101,
-  "MetalnessMap": 82486844847361,
+  "ColorMap": 118033924455352,
+  "NormalMap": 119160153109858,
+  "RoughnessMap": 84775088583074,
+  "MetalnessMap": 107627688697622,
   "decals": {
-   "Color": 109394379876232,
-   "Normal": 119294999909227,
-   "Roughness": 123087992253001,
-   "Metalness": 88121565500126
+   "Color": 127842876192745,
+   "Normal": 92442332539359,
+   "Roughness": 91245978808592,
+   "Metalness": 85135550944674
   }
  },
  "Ares": {

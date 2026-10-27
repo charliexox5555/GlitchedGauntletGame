@@ -211,7 +211,7 @@ def build():
 	mats = gunkit.begin(GUN)
 	parts = build_parts(mats)
 	return gunkit.assemble(GUN, parts, mats, BONES, LOCATORS,
-		{"class": "Sniper", "tier": "T4", "template_version": 2, "length_rel": 1.24, "att_positions": "{}", "pbr": True})
+		{"class": "Sniper", "tier": "T4", "template_version": 2, "length_rel": 1.24, "att_positions": "{}", "pbr": True}, widen={"*": 1.2, "Barrel": 1.0, "Scope": 1.0, "ScopeLens": 1.0, "Grip": 1.05, "Trigger": 1.0})
 
 
 if __name__ == "__main__":
