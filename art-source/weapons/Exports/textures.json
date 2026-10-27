@@ -1,14 +1,10 @@
 {
  "Vandal": {
-  "ColorMap": 114831299949738,
-  "NormalMap": 80846698219920,
-  "RoughnessMap": 105955123531408,
-  "MetalnessMap": 122153076146660,
   "decals": {
-   "Color": 74331396699180,
-   "Normal": 117903742741861,
-   "Roughness": 100818539451683,
-   "Metalness": 134592856367433
+   "Color": 120017216843759,
+   "Normal": 78219314730039,
+   "Roughness": 72045149618865,
+   "Metalness": 78679644074346
   }
  },
  "Phantom": {
@@ -216,15 +212,15 @@
   }
  },
  "Classic": {
-  "ColorMap": 94590048477082,
-  "NormalMap": 77842119769780,
-  "RoughnessMap": 99966773240328,
-  "MetalnessMap": 93797448735247,
+  "ColorMap": 89317394366745,
+  "NormalMap": 132947100570195,
+  "RoughnessMap": 100087493781785,
+  "MetalnessMap": 107373657437502,
   "decals": {
-   "Color": 123817505866060,
-   "Normal": 121260451444499,
-   "Roughness": 109422124555464,
-   "Metalness": 83056295597153
+   "Color": 137368616933892,
+   "Normal": 93896466176234,
+   "Roughness": 120637671752777,
+   "Metalness": 94573705678773
   }
  }
 }

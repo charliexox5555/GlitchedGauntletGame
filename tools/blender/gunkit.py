@@ -592,7 +592,7 @@ def pistol_mag_drop(c, f0, back=-0.06, drop=0.62, bone="Mag"):
 	# mag_swap: MagOut, MagIn.
 	c.key(bone, f0)
 	c.key(bone, f0 + 2, (back * 0.1, 0, -0.04), (0, -1, 0))
-	c.key(bone, f0 + 4, (back, 0, -drop), (0, -6, 0))
+	c.key(bone, f0 + 4, (back * 0.95, 0, -drop * 0.96), (0, -6, 0))  # furthest point is f0 + 14 (MagIn)
 	c.key(bone, f0 + 14, (back, 0, -drop), (0, -5, 0))
 	c.key(bone, f0 + 25, (back * 0.4, 0, -0.17), (0, -2, 0))
 	c.key(bone, f0 + 30, (back * 0.07, 0, -0.02), (0, -0.5, 0))

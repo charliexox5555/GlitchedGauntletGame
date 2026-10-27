@@ -426,28 +426,28 @@
   "uploaded": "2026-10-26 23:43:42"
  },
  "art-source/weapons/Textures/Classic_Color.png": {
-  "assetId": 123817505866060,
+  "assetId": 137368616933892,
   "name": "GG Classic Color",
   "type": "Decal",
-  "uploaded": "2026-10-25 23:09:35"
+  "uploaded": "2026-10-26 23:48:10"
  },
  "art-source/weapons/Textures/Classic_Metalness.png": {
-  "assetId": 83056295597153,
+  "assetId": 94573705678773,
   "name": "GG Classic Metalness",
   "type": "Decal",
-  "uploaded": "2026-10-25 23:09:50"
+  "uploaded": "2026-10-26 23:48:27"
  },
  "art-source/weapons/Textures/Classic_Normal.png": {
-  "assetId": 121260451444499,
+  "assetId": 93896466176234,
   "name": "GG Classic Normal",
   "type": "Decal",
-  "uploaded": "2026-10-25 23:09:42"
+  "uploaded": "2026-10-26 23:48:17"
  },
  "art-source/weapons/Textures/Classic_Roughness.png": {
-  "assetId": 109422124555464,
+  "assetId": 120637671752777,
   "name": "GG Classic Roughness",
   "type": "Decal",
-  "uploaded": "2026-10-25 23:09:48"
+  "uploaded": "2026-10-26 23:48:24"
  },
  "art-source/weapons/Textures/Ghost_Color.png": {
   "assetId": 139618492163077,
@@ -762,27 +762,27 @@
   "uploaded": "2026-10-26 23:47:23"
  },
  "art-source/weapons/Textures/Vandal_Color.png": {
-  "assetId": 74331396699180,
+  "assetId": 120017216843759,
   "name": "GG Vandal Color",
   "type": "Decal",
-  "uploaded": "2026-10-26 23:36:05"
+  "uploaded": "2026-10-26 23:48:22"
  },
  "art-source/weapons/Textures/Vandal_Metalness.png": {
-  "assetId": 134592856367433,
+  "assetId": 78679644074346,
   "name": "GG Vandal Metalness",
   "type": "Decal",
-  "uploaded": "2026-10-26 23:36:22"
+  "uploaded": "2026-10-26 23:48:38"
  },
  "art-source/weapons/Textures/Vandal_Normal.png": {
-  "assetId": 117903742741861,
+  "assetId": 78219314730039,
   "name": "GG Vandal Normal",
   "type": "Decal",
-  "uploaded": "2026-10-26 23:36:13"
+  "uploaded": "2026-10-26 23:48:29"
  },
  "art-source/weapons/Textures/Vandal_Roughness.png": {
-  "assetId": 100818539451683,
+  "assetId": 72045149618865,
   "name": "GG Vandal Roughness",
   "type": "Decal",
-  "uploaded": "2026-10-26 23:36:19"
+  "uploaded": "2026-10-26 23:48:35"
  }
 }
