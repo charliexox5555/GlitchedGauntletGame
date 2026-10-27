@@ -38,7 +38,7 @@ def P(pts):
 
 
 BORE_Z = Z(766)
-SIGHT_Z = Z(708)
+SIGHT_Z = gunkit.sight_line(Z(725))  # round 2: open irons, rear ring centre = front post tip
 
 
 def build_parts(mats):
@@ -80,11 +80,9 @@ def build_parts(mats):
 
 	# ---- Sights (black): front flip post, rear aperture
 	si = part("Sights")
-	ear = [(351, 725), (351, 703), (357, 696), (391, 696), (397, 703), (397, 725)]
-	si.add(group(prism(P(ear), "Y", 0.016, 0.03, DARK), prism(P(ear), "Y", -0.03, -0.016, DARK)), 0.003, 1)
-	si.add(box(X(377), X(371), -0.005, 0.005, Z(725), SIGHT_Z, METAL), 0.002, 1)
-	rear = prism(P([(762, 725), (762, 706), (770, 699), (803, 699), (811, 706), (811, 725)]), "Y", -0.03, 0.03, DARK)
-	si.add(cut(rear, cyl_x(X(816), X(757), 0.011, SIGHT_Z, 10), mats, DARK, bw=0.003, segs=1), 0)
+	rear, front = gunkit.open_irons(X(786), Z(725), X(374), Z(725), SIGHT_Z)  # round 2: open ring + post
+	si.add(rear, 0.002, 1)
+	si.add(front, 0.002, 1)
 
 	# ---- Grip and trigger guard (black polymer)
 	grip = part("Grip")
@@ -125,7 +123,9 @@ def build_parts(mats):
 	mag.add(prism(P([(855, 990), (990, 990), (992, 1010), (853, 1010)]), "Y", -0.046, 0.046, DARK), 0.005, 1)  # base
 
 	chh = part("ChargingHandle", "ChargingHandle")
-	chh.add(prism(P([(512, 762), (518, 745), (566, 743), (573, 760)]), "Y", rw - 0.002, rw + 0.026, METAL), 0.004, 1)
+	# Round 2: a Vandal-style side handle (stem in the slot, a big knob) that racks on draw/reloads and rides each shot.
+	chh.add(prism(P([(512, 762), (518, 745), (566, 743), (573, 760)]), "Y", rw - 0.002, rw + 0.03, METAL), 0.004, 1)
+	chh.add(prism(P([(520, 768), (526, 738), (560, 736), (566, 766)]), "Y", rw + 0.026, rw + 0.06, METAL), 0.006, 1)
 
 	bolt = part("Bolt", "Bolt")
 	bolt.add(box(X(890), X(840), -rw + 0.004, -rw + 0.022, Z(808), Z(782), METAL), 0.002, 1)
@@ -168,7 +168,7 @@ def build():
 	mats = gunkit.begin(GUN)
 	parts = build_parts(mats)
 	return gunkit.assemble(GUN, parts, mats, BONES, LOCATORS,
-		{"class": "Rifle", "tier": "T2", "template_version": 2, "length_rel": 0.74, "att_positions": "{}", "pbr": True})
+		{"class": "Rifle", "tier": "T2", "template_version": 2, "length_rel": 0.74, "att_positions": "{}", "pbr": True}, widen={"*": 1.12, "Barrel": 1.0, "Sights": 1.0, "Grip": 1.0, "Trigger": 1.0})
 
 
 if __name__ == "__main__":

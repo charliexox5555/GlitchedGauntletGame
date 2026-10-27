@@ -12,15 +12,11 @@
   }
  },
  "Phantom": {
-  "ColorMap": 92329390034222,
-  "NormalMap": 78101974172865,
-  "RoughnessMap": 93508639673048,
-  "MetalnessMap": 80403930621273,
   "decals": {
-   "Color": 124921300326999,
-   "Normal": 135272891826135,
-   "Roughness": 121448935947882,
-   "Metalness": 90486061113807
+   "Color": 112205945588742,
+   "Normal": 98838111076031,
+   "Roughness": 109477249093666,
+   "Metalness": 125150925979474
   }
  },
  "Shorty": {
@@ -108,15 +104,15 @@
   }
  },
  "Bulldog": {
-  "ColorMap": 71030536839045,
-  "NormalMap": 133855108572976,
-  "RoughnessMap": 118433087463328,
-  "MetalnessMap": 120353594818363,
+  "ColorMap": 140514980299310,
+  "NormalMap": 88534764622640,
+  "RoughnessMap": 106833137558321,
+  "MetalnessMap": 91790664362656,
   "decals": {
-   "Color": 104207401904951,
-   "Normal": 98701798480604,
-   "Roughness": 72377744786880,
-   "Metalness": 77606348209204
+   "Color": 139774555732686,
+   "Normal": 72953573734745,
+   "Roughness": 75890369124944,
+   "Metalness": 90406315884107
   }
  },
  "Guardian": {

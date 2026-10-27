@@ -20,7 +20,7 @@ FPS = 24
 def fire():
 	c = Clip(GUN, "Fire", 10)
 	kick(c, back=0.045, climb=3.0, roll=0.5, last=10)
-	cycle(c, ("Bolt",), 0.1)
+	cycle(c, ("Bolt", "ChargingHandle"), 0.1)  # round 2: the side handle rides every shot, like the Vandal
 	trigger_pull(c, 14)
 	return c
 
@@ -38,13 +38,13 @@ def reload_empty():
 	c = Clip(GUN, "ReloadEmpty", 97)
 	mag_swap(c, 11, drop=0.65, fwd=-0.04, tilt=6)  # done by f51 = 52%
 	reload_root(c, 11, roll=16, pitch=-2, yaw=-8, lift=0.02)
-	rack(c, 80, travel=0.13, jolt=0.9)  # cocking knob from 82%
+	rack(c, 80, travel=0.2, jolt=1.1)  # cocking knob from 82%
 	return c
 
 
 def draw():
 	c = Clip(GUN, "Draw", 31)
-	draw_rack(c, travel=0.13, jolt=0.9)
+	draw_rack(c, travel=0.2, jolt=1.1)
 	return c
 
 
