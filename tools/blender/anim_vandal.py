@@ -1,9 +1,10 @@
 # anim_vandal.py: keyframes the Vandal's clips on its rig and stores them as NLA tracks (what
 # tools/blender/export_weapons.py samples):
 #   Fire         kick, bolt + charging handle cycle, trigger, buddy sway
-#   Reload       tactical: AK rock-out / rock-in, no rack
-#   ReloadEmpty  the same mag swap, then a charging-handle rack
-#   Draw         first draw of a life: safety off, rack the charging handle
+#   Reload       tactical: AK rock-out / rock-in, then a short tug on the charging handle
+#   ReloadEmpty  the same mag swap, then a full charging-handle rack with the gun turned to show it
+#   Draw         first draw of a life (Valorant style): safety off, the support hand racks the
+#                charging handle all the way back, holds it, lets it slam home
 #   Inspect      mag tap, then a press check (charging handle half back), buddy swinging
 #
 #   Run inside Blender after build_vandal.py:
@@ -18,9 +19,9 @@
 #     inspect track's length), so only proportions matter.
 #   - In Reload, ReloadEmpty, Draw and Inspect the left hand follows the first part the clip moves (Mag,
 #     grabbed at its bottom), then a later one (ChargingHandle) only if their windows, each widened by
-#     FOLLOW_LEAD = 0.14 of the clip, don't overlap. So in ReloadEmpty the mag is done by 52% and the
-#     charging handle moves from 82%. The Bolt is NOT moved in these clips (it comes before
-#     ChargingHandle in RELOAD_FOLLOW and sits on the far side).
+#     FOLLOW_LEAD = 0.14 of the clip, don't overlap. So in both reloads (97 frames) the mag is done by
+#     53% and the charging handle moves from 80%. The Bolt is NOT moved in these clips (it sits on the
+#     far side; the right hand would take it).
 #   - Foley is read off the clips (ViewmodelController.clipBeats): mag out when the Mag starts moving,
 #     mag in when it stops, the rack when the ChargingHandle stops.
 #   - Fire restarts on every shot; it is short and settles fast.
@@ -138,13 +139,25 @@ def mag_swap(c):
 
 
 def reload():
-	# Tactical: the mag swap, then the gun settles (seated at 78%).
-	L = 65
+	# Tactical: the mag swap (seated at 53%), then the gun turns a little and the support hand gives the
+	# charging handle a short tug (80-88%) to be sure: the action moves, it doesn't need a full rack.
+	L = 97
 	c = Clip("Reload", L)
 	mag_swap(c)
-	c.key("Root", 57, (0, 0, 0.004), (2.5, -1.5, 0.6))
-	c.key("Root", 62, (0, 0, 0), (0.3, 0, 0))
-	for f, a in ((14, 6), (18, -5), (23, 3), (28, -1.5), (48, 9), (52, -6), (56, 3), (60, -1)):
+	c.key("Root", 58, (0, 0, 0.006), (4, -2, 0))
+	c.key("Root", 70, (0, 0, 0.008), (5, -2.5, -2.5))  # turn to show the charging handle
+	c.key("Root", 78, (0, 0, 0.008), (5.5, -3, -3))
+	c.key("Root", 82, (-0.012, 0, 0.009), (6, -3.4, -3.4))  # tugged
+	c.key("Root", 86, (0.01, 0, 0.004), (3, -1, -2))  # let go
+	c.key("Root", 92, (0, 0, 0), (0.4, 0, -0.3))
+	c.key("ChargingHandle", 78)
+	c.key("ChargingHandle", 82, (-0.12, 0, 0))
+	c.key("ChargingHandle", 84, (-0.12, 0, 0))
+	c.key("ChargingHandle", 86)
+	c.key("ChargingHandle", 87, (-0.005, 0, 0))
+	c.key("ChargingHandle", 88)
+	for f, a in ((14, 6), (18, -5), (23, 3), (28, -1.5), (48, 9), (52, -6), (56, 3), (60, -1), (83, -4),
+			(87, 6), (90, -3), (94, 1)):
 		c.key("Charm", f, rot=(a * 0.4, a, 0))
 	return c
 
@@ -153,17 +166,19 @@ def reload_empty():
 	L = 97
 	c = Clip("ReloadEmpty", L)
 	mag_swap(c)
-	c.key("Root", 70, (0, 0, 0.01), (4, -3, -2))  # turn to show the charging handle
-	c.key("Root", 80, (0, 0, 0.008), (3, -3, -3))
-	c.key("Root", 84, (-0.02, 0, 0.01), (4.5, -4, -3.5))  # pulled
-	c.key("Root", 88, (0.015, 0, 0.004), (2, -1, -2))  # released: snaps forward
-	c.key("Root", 93, (0, 0, 0), (0.4, 0, -0.3))
-	# Charging handle: pulled back from 82%, released and slams forward.
-	c.key("ChargingHandle", 80)
-	c.key("ChargingHandle", 84, (-0.2, 0, 0))
-	c.key("ChargingHandle", 86, (-0.2, 0, 0))
+	c.key("Root", 66, (0, 0, 0.01), (6, -3, -3))  # turn well round to show the charging handle
+	c.key("Root", 77, (0, 0, 0.01), (8, -4, -5))
+	c.key("Root", 82, (-0.03, 0, 0.012), (9, -5, -6))  # pulled all the way: the gun gives
+	c.key("Root", 86, (-0.03, 0, 0.012), (9, -5.2, -6))
+	c.key("Root", 88, (0.022, 0, 0.004), (4, -0.5, -3))  # released: slams home
+	c.key("Root", 91, (0, 0, 0.003), (2, -1.2, -1.5))
+	c.key("Root", 95, (0, 0, 0), (0.4, 0, -0.3))
+	# Charging handle: a full rack from 80%: all the way back, held, released and slams forward.
+	c.key("ChargingHandle", 78)
+	c.key("ChargingHandle", 82, (-0.25, 0, 0))
+	c.key("ChargingHandle", 86, (-0.25, 0, 0))
 	c.key("ChargingHandle", 88)
-	c.key("ChargingHandle", 89, (-0.006, 0, 0))
+	c.key("ChargingHandle", 89, (-0.012, 0, 0))
 	c.key("ChargingHandle", 90)
 	# Selector untouched; the buddy swings with each jolt.
 	for f, a in ((14, 6), (18, -5), (23, 3), (28, -1.5), (48, 9), (52, -6), (56, 3), (60, -1), (85, -7), (89, 10), (92, -5), (95, 2)):
@@ -172,28 +187,31 @@ def reload_empty():
 
 
 def draw():
-	# First draw (stretched to firstEquipTime): thumb the selector off safe, then the support hand
-	# racks the charging handle (pulled 36-48%, released 52%) and the gun jolts as it slams home.
-	L = 31
+	# First draw (stretched to firstEquipTime, ~0.9 s), Valorant style: the gun comes up with the
+	# selector thumbed off safe, the support hand takes the charging handle and racks it all the way
+	# back (28-42%), holds it a beat (42-53%), lets it slam home (56%) with a jolt through the gun, and
+	# goes back to the handguard. The viewmodel's Draw track rolls the gun to show this side.
+	L = 36
 	c = Clip("Draw", L)
 	c.key("FireSelector", 3)
 	c.key("FireSelector", 6, rot=(0, 14, 0))
 	c.key("FireSelector", 7, rot=(0, 12, 0))
 	c.key("FireSelector", 9)
 	# Roll (+X) lifts the left side into view; yaw (-Z) swings the muzzle right so it faces the camera.
-	c.key("Root", 8, (0, 0, 0), (6, 0, -5))
-	c.key("Root", 12, (0, 0, 0.005), (9, -1, -7))
-	c.key("Root", 15, (-0.03, 0, 0.008), (10, -2, -8))  # handle pulled: the gun gives a little
-	c.key("Root", 17, (0.02, 0, 0.004), (6, 1.5, -5))  # slammed home
-	c.key("Root", 19, (0, 0, 0.002), (4, -0.5, -3.5))
-	c.key("Root", 25, (0, 0, 0), (0.8, 0, -0.6))
-	c.key("ChargingHandle", 12)
-	c.key("ChargingHandle", 15, (-0.21, 0, 0))
-	c.key("ChargingHandle", 16, (-0.21, 0, 0))
-	c.key("ChargingHandle", 17)
-	c.key("ChargingHandle", 18, (-0.008, 0, 0))
-	c.key("ChargingHandle", 19)
-	for f, a in ((5, -5), (9, 4), (13, -3), (16, 8), (19, -6), (22, 3.5), (26, -1.2)):
+	c.key("Root", 6, (0, 0, 0), (6, 0, -5))
+	c.key("Root", 10, (0, 0, 0.005), (10, -1, -8))
+	c.key("Root", 15, (-0.035, 0, 0.009), (12, -2.5, -9))  # handle pulled: the gun gives
+	c.key("Root", 19, (-0.035, 0, 0.009), (12, -2.6, -9))
+	c.key("Root", 21, (0.028, 0, 0.004), (6, 2, -5))  # slammed home
+	c.key("Root", 23, (0, 0, 0.002), (4.5, -0.8, -4))
+	c.key("Root", 29, (0, 0, 0), (1, 0, -0.8))
+	c.key("ChargingHandle", 10)
+	c.key("ChargingHandle", 15, (-0.25, 0, 0))
+	c.key("ChargingHandle", 19, (-0.25, 0, 0))
+	c.key("ChargingHandle", 20)
+	c.key("ChargingHandle", 21, (-0.012, 0, 0))
+	c.key("ChargingHandle", 22)
+	for f, a in ((5, -5), (9, 4), (14, -3), (20, 9), (23, -7), (26, 4), (30, -1.5)):
 		c.key("Charm", f, rot=(a * 0.4, a, 0))
 	return c
 
