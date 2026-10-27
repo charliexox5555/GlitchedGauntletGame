@@ -153,6 +153,8 @@ def sample_animations(rig):
 				if any(abs(a - b) > 1e-4 for fr in frames for a, b in zip(fr, frames[0])) or any(abs(v) > 1e-4 for v in frames[0][:3]) or abs(frames[0][3] - 1) > 1e-4:
 					moving[name] = frames
 			out[track.name] = {"action": act.name, "start": f0, "end": f1, "fps": bpy.context.scene.render.fps, "bones": moving}
+			if "gg_markers" in act:  # gunkit Clip.mark(): event frames as fractions of the clip
+				out[track.name]["markers"] = {k: round((v - f0) / max(f1 - f0, 1), 4) for k, v in act["gg_markers"].items()}
 	ad.action, ad.use_nla = saved
 	bpy.context.scene.frame_set(1)
 	return out

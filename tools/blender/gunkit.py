@@ -473,9 +473,13 @@ class Clip:
 		self.name = name
 		self.last = last
 		self.keys = {}  # bone -> {frame: (loc, rot_deg)}
+		self.markers = {}  # name -> frame; exported as fractions of the clip (clips are stretched to game time)
 
 	def key(self, bone, frame, loc=(0, 0, 0), rot=(0, 0, 0)):
 		self.keys.setdefault(bone, {})[frame] = (loc, rot)
+
+	def mark(self, name, frame):
+		self.markers[name] = frame
 
 	def bake(self):
 		r = bpy.data.objects[self.gun + "_Rig"]
@@ -483,6 +487,8 @@ class Clip:
 		if old:
 			bpy.data.actions.remove(old)
 		act = bpy.data.actions.new(self.gun + "_" + self.name)
+		if self.markers:
+			act["gg_markers"] = dict(self.markers)
 		ad = r.animation_data or r.animation_data_create()
 		ad.action = act
 		bones = r.pose.bones
@@ -553,17 +559,20 @@ def cycle(c, bones=("Bolt",), travel=0.13):
 
 
 def mag_swap(c, f0, drop=0.65, fwd=0.05, tilt=-10, bone="Mag", rock=0.0):
-	# Detachable mag/drum: release (optionally rocking forward off the catch), drop out of view, come back up and
-	# seat with a slap. Occupies f0 .. f0 + 40. Returns the frame it ends on.
+	# Detachable mag/drum, mag-drop style (round 2): released, the old mag leaves fast straight down (out of view by
+	# f0 + 5), a fresh one comes up from below from f0 + 18 and seats with a slap at f0 + 37. Occupies f0 .. f0 + 40.
+	# Markers for the game: MagOut (spawn the falling copy at the Mag's pose and hide the Mag) and MagIn (show the
+	# Mag again: the new one rising from below). Returns the frame it ends on.
 	c.key(bone, f0)
-	c.key(bone, f0 + 3, (0.004 + rock * 0.012, 0, -0.02), (0, tilt * 0.2 - rock * 9, 0))
-	c.key(bone, f0 + 9, (fwd * 0.6, 0, -drop * 0.45), (0, tilt * 0.7 - rock * 14, 0))
-	c.key(bone, f0 + 14, (fwd, 0, -drop), (0, tilt - rock * 18, 0))
-	c.key(bone, f0 + 22, (fwd * 0.8, 0, -drop * 1.08), (0, tilt * 0.85 - rock * 14, 0))
-	c.key(bone, f0 + 29, (fwd * 0.4, 0, -drop * 0.37), (0, tilt * 0.5 - rock * 9, 0))
-	c.key(bone, f0 + 34, (0.006, 0, -0.035), (0, tilt * 0.15 - rock * 6, 0))
+	c.key(bone, f0 + 2, (0.004 + rock * 0.012, 0, -0.03), (0, tilt * 0.2 - rock * 9, 0))
+	c.key(bone, f0 + 5, (fwd * 0.3, 0, -drop * 1.15), (0, tilt - rock * 12, 0))
+	c.key(bone, f0 + 18, (fwd, 0, -drop * 1.15), (0, tilt - rock * 18, 0))
+	c.key(bone, f0 + 27, (fwd * 0.5, 0, -drop * 0.4), (0, tilt * 0.6 - rock * 10, 0))
+	c.key(bone, f0 + 33, (0.006, 0, -0.035), (0, tilt * 0.15 - rock * 6, 0))
 	c.key(bone, f0 + 37, (0, 0, 0.007), (0, 0.6, 0))  # slapped home
 	c.key(bone, f0 + 40)
+	c.mark("MagOut", f0 + 3)
+	c.mark("MagIn", f0 + 18)
 	return f0 + 40
 
 
@@ -637,3 +646,52 @@ def inspect_tap_check(c, mag="Mag", check="ChargingHandle", check_travel=0.085):
 		c.key("Root", 52, (0.006, 0, 0), (0, 0.4, 0))
 		c.key("Root", 54)
 	swing(c, [(6, 9), (11, -7), (16, 6), (21, -3), (28, 2), (36, -9), (41, 11), (46, -6), (52, 5), (57, -3), (62, 1.5)])
+
+
+# ---------------------------------------------------------------- open iron sights (round 2)
+# RIVALS / Hypershot-style see-through irons (vault/02 Art/References/ads-refs): a thin octagonal ring aperture on a
+# slim stem at the rear, and at the front a pointed post with a smaller ring around its tip. The sight line runs
+# along +X through the rear ring's centre and the post tip; AimPoint goes at the rear ring's centre.
+
+def annulus_x(x0, x1, zc, r_out, r_in, segs=8, mat=DARK, y=0.0):
+	# Flat-topped ring (octagon by default) facing along X.
+	bm = bmesh.new()
+	rot = math.pi / segs
+	rings = []
+	for x in (x0, x1):
+		for r in (r_out, r_in):
+			rings.append([bm.verts.new((x, y + r * math.cos(rot + 2 * math.pi * i / segs), zc + r * math.sin(rot + 2 * math.pi * i / segs))) for i in range(segs)])
+	o0, i0, o1, i1 = rings
+	for k in range(segs):
+		j = (k + 1) % segs
+		bm.faces.new((o0[k], o0[j], o1[j], o1[k]))  # outer wall
+		bm.faces.new((i0[j], i0[k], i1[k], i1[j]))  # inner wall
+		bm.faces.new((o0[j], o0[k], i0[k], i0[j]))  # rear face
+		bm.faces.new((o1[k], o1[j], i1[j], i1[k]))  # front face
+	bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+	for f in bm.faces:
+		f.material_index = mat
+	return bm
+
+
+def sight_line(base_z, rear_r=0.055, stem=0.022):
+	# Height of the sight line for a rear ring of radius rear_r standing on a stem of `stem` above base_z.
+	return base_z + stem + rear_r * math.cos(math.pi / 8)
+
+
+def open_irons(rear_x, rear_base, front_x, front_base, zc, rear_r=0.055, front_r=0.03, band=0.011, mat=DARK):
+	# Returns (rear, front) bmeshes. rear_base / front_base: the tops they stand on. zc: the sight line (sight_line()).
+	flat = math.cos(math.pi / 8)
+	rear = group(
+		annulus_x(rear_x - 0.008, rear_x + 0.008, zc, rear_r, rear_r - band, 8, mat),
+		box(rear_x - 0.012, rear_x + 0.012, -0.011, 0.011, rear_base - 0.004, zc - rear_r * flat + 0.003, mat),  # stem
+		prism([(rear_x - 0.034, rear_base - 0.004), (rear_x + 0.034, rear_base - 0.004), (rear_x + 0.022, rear_base + 0.012), (rear_x - 0.022, rear_base + 0.012)], "Y", -0.024, 0.024, mat),  # foot
+	)
+	ring_bot = zc - front_r * flat
+	post = prism([(-0.008, front_base - 0.004), (0.008, front_base - 0.004), (0.008, zc - 0.016), (0.0016, zc), (-0.0016, zc)], "X", front_x - 0.006, front_x + 0.006, METAL)
+	front = group(
+		annulus_x(front_x - 0.006, front_x + 0.006, zc, front_r, front_r - band * 0.75, 8, mat),
+		box(front_x - 0.01, front_x + 0.01, -0.016, 0.016, front_base - 0.004, ring_bot - front_r * 0.15, mat),  # tower up to the ring
+		post,
+	)
+	return rear, front

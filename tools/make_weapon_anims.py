@@ -18,6 +18,9 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EXPORTS = os.path.join(ROOT, "art-source", "weapons", "Exports")
 OUT = os.path.join(ROOT, "src", "shared", "WeaponAnimations")
 SKIP_BONES = {"Flash"}
+# Every clip a gun may have, in module order (round 2 adds the knife combo).
+CLIPS = ("Fire", "Reload", "ReloadEmpty", "Draw", "Inspect", "ReloadStart", "ReloadInsert", "ReloadEnd", "DryFire",
+	"Slash1", "Slash2", "Slash3", "HeavyStab")
 
 
 def num(v):
@@ -30,7 +33,11 @@ def num(v):
 
 def clip_lua(clip, indent):
 	frames = clip["end"] - clip["start"] + 1
-	lines = [f"{indent}{{", f"{indent}\tframes = {frames},", f"{indent}\tbones = {{"]
+	lines = [f"{indent}{{", f"{indent}\tframes = {frames},"]
+	if clip.get("markers"):  # event times as fractions of the clip (e.g. MagOut / MagIn for the mag drop)
+		marks = ", ".join(f"{k} = {num(v)}" for k, v in sorted(clip["markers"].items()))
+		lines.append(f"{indent}\tmarkers = {{ {marks} }},")
+	lines.append(f"{indent}\tbones = {{")
 	for bone, data in sorted(clip["bones"].items()):
 		if bone in SKIP_BONES:
 			continue
@@ -68,7 +75,7 @@ def main(only=None):
 		# of the inspect.
 		# ReloadStart / ReloadInsert / ReloadEnd: shell-by-shell guns (one shell per ReloadInsert, looped by the game).
 		# DryFire (optional): trigger only, for a trigger pull on an empty gun.
-		for clip_name in ("Fire", "Reload", "ReloadEmpty", "Draw", "Inspect", "ReloadStart", "ReloadInsert", "ReloadEnd", "DryFire"):
+		for clip_name in CLIPS:
 			if clip_name in anims:
 				body.append(f"\t{clip_name} = " + clip_lua(anims[clip_name], "\t").lstrip() + ",")
 		body.append("}")

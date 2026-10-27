@@ -17,7 +17,7 @@ from gunkit import Clip, kick, swing, trigger_pull
 
 GUN = "Outlaw"
 FPS = 24
-OPEN = 30  # degrees the barrels drop when broken open (long barrels: less than the Shorty)
+OPEN = 46  # degrees the barrels drop when broken open (round 2: fully open, Valorant-style)
 OUT = ((-0.5, 0.06, -1.1), (0, 60, 0))  # a spent round's resting place: dropped below the frame
 
 
