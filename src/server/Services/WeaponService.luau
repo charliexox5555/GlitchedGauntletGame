@@ -1352,14 +1352,15 @@ local function onFire(player: Player, payload: unknown)
 		local zone = Damage.zoneOf(hit.part.Name)
 		local amount: number
 		if config.melee then
-			amount = config.damage.body
+			local heavy = if altFire then config.melee.heavy else nil
+			amount = if heavy then heavy.damage else config.damage.body
 			local victimRoot = hit.model:FindFirstChild("HumanoidRootPart")
 			if victimRoot and victimRoot:IsA("BasePart") and root and root:IsA("BasePart") then
 				local toVictim = (victimRoot.Position - root.Position) * Vector3.new(1, 0, 1)
 				if toVictim.Magnitude > 0.01 then
 					local facing = victimRoot.CFrame.LookVector * Vector3.new(1, 0, 1)
 					if facing.Unit:Dot(toVictim.Unit) > Combat.BACKSTAB_DOT then
-						amount = config.melee.backDamage
+						amount = if heavy then heavy.backDamage else config.melee.backDamage
 					end
 				end
 			end

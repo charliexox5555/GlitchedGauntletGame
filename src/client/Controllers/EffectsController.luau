@@ -919,7 +919,16 @@ local function newHole(): Hole
 	return { part = p, image = image, age = 0, active = false }
 end
 
-local function placeHole(position: Vector3, normal: Vector3, tint: Color3, size: number)
+-- `stretch` (width, height multipliers) and `angle` (radians around the
+-- normal, else random) make a knife's gouge out of the same decal.
+local function placeHole(
+	position: Vector3,
+	normal: Vector3,
+	tint: Color3,
+	size: number,
+	stretch: Vector2?,
+	angle: number?
+)
 	if #holes < HOLE_POOL then
 		table.insert(holes, newHole())
 	end
@@ -929,9 +938,10 @@ local function placeHole(position: Vector3, normal: Vector3, tint: Color3, size:
 		activeHoles += 1
 	end
 	local s = size * (0.85 + math.random() * 0.3)
-	h.part.Size = Vector3.new(s, s, 0.02)
+	local k = stretch or Vector2.one
+	h.part.Size = Vector3.new(s * k.X, s * k.Y, 0.02)
 	h.part.CFrame = facing(position + normal * 0.012, normal)
-		* CFrame.Angles(0, 0, math.random() * math.pi * 2)
+		* CFrame.Angles(0, 0, angle or math.random() * math.pi * 2)
 	h.image.ImageColor3 = tint
 	h.image.ImageTransparency = 0
 	h.age = 0
@@ -976,6 +986,22 @@ local function surfaceColor(hit: BasePart, material: Enum.Material): Color3
 		return (hit :: Terrain):GetMaterialColor(material)
 	end
 	return hit.Color
+end
+
+-- A knife strike on the world: a long thin gouge (the bullet-hole decal
+-- stretched) across the surface at `angle` (radians around the normal), longer
+-- for a heavy stab's tear. Pooled with the bullet holes.
+function EffectsController.slashMark(
+	position: Vector3,
+	normal: Vector3,
+	angle: number,
+	heavy: boolean?
+)
+	if heavy then
+		placeHole(position, normal, Color3.fromHex("5A5550"), 0.5, Vector2.new(1.1, 0.5), angle)
+	else
+		placeHole(position, normal, Color3.fromHex("5A5550"), 0.36, Vector2.new(3.2, 0.22), angle)
+	end
 end
 
 -- A shot landing at `position`. `hit` is the part it hit: characters get a

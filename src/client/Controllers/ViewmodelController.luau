@@ -1225,10 +1225,17 @@ function ViewmodelController.playClip(clip: string, duration: number): { Beat }
 end
 
 -- Melee swing uses the weapon's Fire clip.
-function ViewmodelController.swing()
+-- A melee attack: `attack` is "Slash1".."Slash3" or "HeavyStab" (the camera
+-- track of that name, plus the knife's own clip of that name, else its Fire).
+function ViewmodelController.swing(attack: string?)
 	ViewmodelController.cancelInspect()
-	if guns.Right then
-		guns.Right.animator:play("Fire")
+	local right = guns.Right
+	if right then
+		local clip = if attack and right.animator:has(attack) then attack else "Fire"
+		right.animator:play(clip)
+	end
+	if attack and VM.TRACKS[attack] then
+		playTrack("Swing", attack)
 	end
 end
 
@@ -1759,6 +1766,9 @@ local function update(dt: number)
 				}, "Left"),
 				false
 			)
+		elseif playing.Swing and playing.Swing.track == VM.TRACKS.HeavyStab and right.rightGrip then
+			-- Knife heavy stab: both hands on the handle.
+			holdWith(a, "Left", right, rightCf, gripR, VM.MELEE_TWO_HAND, false)
 		else
 			-- Melee: the free hand is a guard, riding the root.
 			local point = root:PointToWorldSpace(VM.FREE_HAND.offset)

@@ -990,7 +990,16 @@ local weapons: { [string]: WeaponConfig } = {
 			recover = 1,
 			recoverTime = 0.2,
 		},
-		melee = { range = 7, backDamage = 100, lunge = 6 },
+		-- Valorant-style: light slashes chain 1 -> 2 -> 3; right-click is a
+		-- two-handed heavy stab with its own 1 s cooldown (altFire).
+		melee = {
+			range = 7,
+			backDamage = 100,
+			lunge = 6,
+			comboWindow = 0.45,
+			heavy = { damage = 75, backDamage = 100, lunge = 8 },
+		},
+		altFire = { pellets = 1, pelletSpread = 0, fireInterval = 1.0, ammo = 1 },
 		noAds = true,
 		shellsOnFire = false,
 		adsFov = 80,

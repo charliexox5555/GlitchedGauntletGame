@@ -646,7 +646,16 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	end
 end
 
-local function swing(s: LocalSlot)
+-- The last light attack's place in the Slash1 -> 2 -> 3 chain.
+local comboStep = 0
+-- Gouge angle per slash (radians around the wall normal): the blade's path.
+local SLASH_ANGLES = { 0.35, -0.4, 1.35 }
+
+-- A knife attack. Light attacks chain Slash1 -> 2 -> 3 when each comes within
+-- the knife's comboWindow of the last one's cooldown; `heavy` is the
+-- right-click two-handed stab (its own cooldown, altFire.fireInterval). The
+-- server checks reach, facing, cooldowns and damage as for any shot.
+local function swing(s: LocalSlot, heavy: boolean?)
 	local config = s.config
 	local melee = config.melee
 	local cam = Workspace.CurrentCamera
@@ -654,13 +663,29 @@ local function swing(s: LocalSlot)
 	if not melee or not cam or not root or not root:IsA("BasePart") then
 		return
 	end
-	local now = os.clock()
-	if now < s.lastFire + config.fireInterval then
+	local heavyStats = if heavy then melee.heavy else nil
+	local altFire = config.altFire
+	if heavy and not (heavyStats and altFire) then
 		return
 	end
+	local now = os.clock()
+	local readyAt = s.lastFire + config.fireInterval
+	if now < readyAt or now < s.altReadyAt then
+		return
+	end
+	if heavy then
+		comboStep = 0
+	elseif comboStep < 3 and now - math.max(readyAt, s.altReadyAt) <= (melee.comboWindow or 0) then
+		comboStep += 1
+	else
+		comboStep = 1
+	end
 	s.lastFire = now
-	ViewmodelController.swing()
-	playGun(config, "fire", "Gun")
+	if heavy and altFire then
+		s.altReadyAt = now + altFire.fireInterval
+	end
+	ViewmodelController.swing(if heavy then "HeavyStab" else "Slash" .. comboStep)
+	playGun(config, if heavy then "heavy" else "fire", "Gun")
 
 	local origin = cam.CFrame.Position
 	local aim = cam.CFrame.LookVector
@@ -673,12 +698,24 @@ local function swing(s: LocalSlot)
 			table.insert(hits, { part = result.Instance, position = result.Position, pellet = 1 })
 			EffectsController.impact(result.Position, -aim, result.Instance)
 			HudController.hitMarker(false)
+			playGun(config, "hitBody")
 			-- Lunge toward the target on hit.
 			local flat = (aim * Vector3.new(1, 0, 1))
 			if flat.Magnitude > 0.01 then
-				root.AssemblyLinearVelocity = flat.Unit * (melee.lunge / 0.15)
+				local lunge = if heavyStats then heavyStats.lunge else melee.lunge
+				root.AssemblyLinearVelocity = flat.Unit * (lunge / 0.15)
 					+ Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
 			end
+		elseif not model then
+			-- The world: a gouge along the blade's path and a steel tick.
+			local angle = if heavy then math.random() * math.pi else SLASH_ANGLES[comboStep]
+			-- Each strike lands a little apart, as a real blade would.
+			local n = result.Normal
+			local side = n:Cross(if math.abs(n.Y) < 0.9 then Vector3.yAxis else Vector3.xAxis).Unit
+			local up = side:Cross(n)
+			local jitter = side * (math.random() - 0.5) * 0.6 + up * (math.random() - 0.5) * 0.4
+			EffectsController.slashMark(result.Position + jitter, n, angle, heavy)
+			playGun(config, "hitWall")
 		end
 	end
 	shotIndex += 1
@@ -689,6 +726,7 @@ local function swing(s: LocalSlot)
 		spread = 0,
 		hits = hits,
 		ends = {},
+		alt = heavy == true,
 	})
 end
 
@@ -801,6 +839,9 @@ local function update(dt: number)
 			if pressQueued and now >= equipReadyAt then
 				pressQueued = false
 				swing(s)
+			elseif now - altQueuedAt < 0.2 and now >= equipReadyAt then
+				altQueuedAt = -math.huge
+				swing(s, true)
 			end
 		elseif mode == "Auto" then
 			if triggerHeld and canShoot(s) then
@@ -842,7 +883,7 @@ local function update(dt: number)
 			end
 		end
 		-- Alt-fire: one press, one burst (a press only counts for a moment).
-		if s.config.altFire and now - altQueuedAt < 0.2 and canShoot(s) then
+		if s.config.altFire and mode ~= "Melee" and now - altQueuedAt < 0.2 and canShoot(s) then
 			local before = s.lastFire
 			fireShot(s, true)
 			if s.lastFire ~= before then
@@ -1110,7 +1151,7 @@ function WeaponController.start()
 				equip(action)
 			elseif action == "fire" and s and alive then
 				if s.config.fireMode == "Melee" then
-					swing(s)
+					swing(s, Workspace:GetAttribute("DevHeavy") == true)
 				elseif canShoot(s) then
 					fireShot(s)
 				end

@@ -132,6 +132,12 @@ return table.freeze({
 		offset = Vector3.new(-0.26, -0.04, 0),
 		direction = Vector3.new(-0.9, -0.25, 0.35),
 	} :: Hand,
+	-- Knife heavy stab: the free hand joins the right one on the handle,
+	-- behind it (gun space from the grip, like MELEE_HAND).
+	MELEE_TWO_HAND = {
+		offset = Vector3.new(-0.02, -0.04, 0.32),
+		direction = Vector3.new(-0.3, -0.45, 0.84),
+	} :: Hand,
 	FREE_HAND = {
 		offset = Vector3.new(-0.56, -0.86, -0.95),
 		direction = Vector3.new(-0.35, -0.7, 0.6),
@@ -438,35 +444,125 @@ return table.freeze({
 			},
 		},
 		-- Melee: bring the blade up, flip it over the knuckles, show both sides.
+		-- Knife inspect, plain (round 2: no whole-hand spin): turn the blade to
+		-- look along one face, then the other, and back.
 		InspectMelee = {
 			length = 2.4,
 			pivot = "Grip",
 			keys = {
 				key(0, ZERO, ZERO),
 				key(
-					0.14,
+					0.18,
 					Vector3.new(-0.2, 0.14, 0.05),
-					Vector3.new(10, 30, -35),
+					Vector3.new(5, 40, -20),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
-				key(0.24, Vector3.new(-0.2, 0.16, 0.05), Vector3.new(10, 30, -35)),
+				key(0.42, Vector3.new(-0.21, 0.15, 0.05), Vector3.new(7, 44, -22)),
 				key(
-					0.46,
-					Vector3.new(-0.2, 0.2, 0.05),
-					Vector3.new(370, 30, -35),
+					0.62,
+					Vector3.new(-0.18, 0.15, 0.05),
+					Vector3.new(5, -35, 28),
 					Enum.EasingStyle.Quad,
 					INOUT
 				),
+				key(0.84, Vector3.new(-0.17, 0.14, 0.05), Vector3.new(4, -38, 30)),
+				key(1, ZERO, ZERO, Enum.EasingStyle.Quad, INOUT),
+			},
+		},
+		-- Knife attacks (placeholders until the Blender Slash/HeavyStab clips
+		-- land; the gun clip of the same name plays on the knife when it has
+		-- one). Light slashes chain 1 -> 2 -> 3: a forehand cut right to left,
+		-- a backhand cut back across, a downward chop. The heavy stab draws back
+		-- to the centre with both hands, thrusts, holds, recovers.
+		Slash1 = {
+			length = 0.42,
+			pivot = "Grip",
+			keys = {
+				key(0, ZERO, ZERO),
 				key(
-					0.62,
-					Vector3.new(-0.16, 0.16, 0.05),
-					Vector3.new(360, -45, 25),
-					Enum.EasingStyle.Back,
+					0.18,
+					Vector3.new(0.1, 0.08, 0.04),
+					Vector3.new(-12, -25, 20),
+					Enum.EasingStyle.Quad,
 					OUT
 				),
-				key(0.8, Vector3.new(-0.15, 0.15, 0.05), Vector3.new(356, -50, 30)),
-				key(1, ZERO, Vector3.new(360, 0, 0), Enum.EasingStyle.Quad, INOUT),
+				key(
+					0.45,
+					Vector3.new(-0.38, -0.14, -0.22),
+					Vector3.new(18, 55, -40),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(1, ZERO, ZERO, Enum.EasingStyle.Sine, INOUT),
+			},
+		},
+		Slash2 = {
+			length = 0.42,
+			pivot = "Grip",
+			keys = {
+				key(0, ZERO, ZERO),
+				key(
+					0.18,
+					Vector3.new(-0.22, 0.1, 0.02),
+					Vector3.new(-10, 35, -30),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(
+					0.45,
+					Vector3.new(0.22, -0.12, -0.22),
+					Vector3.new(15, -45, 35),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(1, ZERO, ZERO, Enum.EasingStyle.Sine, INOUT),
+			},
+		},
+		Slash3 = {
+			length = 0.5,
+			pivot = "Grip",
+			keys = {
+				key(0, ZERO, ZERO),
+				key(
+					0.22,
+					Vector3.new(-0.05, 0.22, 0.08),
+					Vector3.new(-45, 5, 0),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(
+					0.48,
+					Vector3.new(-0.1, -0.24, -0.3),
+					Vector3.new(50, 10, 0),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(1, ZERO, ZERO, Enum.EasingStyle.Sine, INOUT),
+			},
+		},
+		HeavyStab = {
+			length = 0.9,
+			pivot = "Grip",
+			keys = {
+				key(0, ZERO, ZERO),
+				key(
+					0.28,
+					Vector3.new(-0.3, 0.06, 0.22),
+					Vector3.new(-22, 18, 12),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				key(
+					0.46,
+					Vector3.new(-0.3, 0.3, -0.55),
+					Vector3.new(-30, 12, 6),
+					Enum.EasingStyle.Quad,
+					OUT
+				),
+				-- Pitched down from the blade-up hold so the point leads the thrust.
+				key(0.62, Vector3.new(-0.29, 0.29, -0.52), Vector3.new(-30, 12, 6)),
+				key(1, ZERO, ZERO, Enum.EasingStyle.Sine, INOUT),
 			},
 		},
 		-- Body motion layered on the gun's own Reload clip (stretched to the reload

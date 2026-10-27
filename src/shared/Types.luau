@@ -76,7 +76,18 @@ export type ShellReload = { start: number, insert: number, finish: number }
 
 export type SpinUp = { startInterval: number, endInterval: number, time: number }
 
-export type MeleeStats = { range: number, backDamage: number, lunge: number }
+-- Melee. Light attacks (Primary) chain Slash1 -> 2 -> 3 while each comes within
+-- `comboWindow` seconds of the last one's cooldown (cosmetic: every slash hits
+-- the same). `heavy`: the alt attack (Aim input, needs altFire for its
+-- cooldown), a two-handed stab.
+export type MeleeHeavy = { damage: number, backDamage: number, lunge: number }
+export type MeleeStats = {
+	range: number,
+	backDamage: number,
+	lunge: number,
+	comboWindow: number?,
+	heavy: MeleeHeavy?,
+}
 
 -- Burst guns: `count` shots `interval` apart, then the gun's fireInterval.
 export type BurstStats = { count: number, interval: number, singleWhenAiming: boolean? }

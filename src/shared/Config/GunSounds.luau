@@ -42,6 +42,10 @@ export type GunSoundSet = {
 	shellIn: GunSound?, -- shotguns / revolvers: each round loaded
 	draw: GunSound, -- pulling the gun out (every equip)
 	inspect: GunSound?, -- start of an inspect (Y)
+	-- Melee only: the heavy attack's whoosh, and the blade striking a wall or a body.
+	heavy: GunSound?,
+	hitWall: GunSound?,
+	hitBody: GunSound?,
 }
 
 local FOLEY = 0.6 -- normal handling loudness
@@ -231,7 +235,10 @@ local sets: { [string]: GunSoundSet } = {
 
 	-- Knife: `fire` is the swing (fireFar: what others hear).
 	Knife = {
-		fire = { id = id(9125620110), volume = 0.7, pitch = { 0.95, 1.05 } }, -- PLACEHOLDER: ProSoundEffects knife swoosh
+		fire = { id = id(9125620110), volume = 0.7, pitch = { 1.0, 1.12 } }, -- PLACEHOLDER: ProSoundEffects knife swoosh (each slash re-pitched)
+		heavy = { id = id(9125620110), volume = 0.85, pitch = { 0.72, 0.78 } }, -- PLACEHOLDER: the swoosh pitched down, heavier
+		hitWall = { id = "atlas:Impact", volume = 0.7, pitch = { 1.45, 1.6 } }, -- PLACEHOLDER: impact pitched up: a steel tick on the wall
+		hitBody = { id = "atlas:Impact", volume = 0.55, pitch = { 0.7, 0.8 } }, -- PLACEHOLDER: impact pitched down: a dull thud
 		fireFar = { id = id(9125620110), volume = 0.6, pitch = { 0.95, 1.05 } }, -- PLACEHOLDER
 		tail = nil,
 		dryFire = { id = id(9125620110), volume = 0 }, -- unused (no ammo)
