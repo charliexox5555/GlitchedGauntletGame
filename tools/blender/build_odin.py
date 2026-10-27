@@ -58,6 +58,7 @@ def frustum_x(x0, x1, r0, r1, z, y=0.0, segs=10, mat=METAL):
 	for f in bm.faces:
 		f.material_index = mat
 	return bm
+SIGHT_Z = gunkit.sight_line(Z(735))  # round 2: open irons, rear ring centre = front post tip
 
 
 def build_parts(mats):
@@ -108,11 +109,10 @@ def build_parts(mats):
 	# ---- Iron sights
 	sights = part("Sights")
 	sights.add(box(X(359), X(317), -0.062, 0.062, Z(840), Z(755), DARK), 0.008, 1)
-	sights.add(box(X(342), X(328), -0.012, 0.012, Z(755), Z(712), DARK), 0.002, 1)
-	sights.add(mirror_y(box(X(346), X(324), 0.018, 0.03, Z(755), Z(720), DARK)), 0.002, 1)
 	sights.add(box(X(1065), X(1005), -0.04, 0.04, Z(745), Z(735), DARK), 0.003, 1)
-	tower = box(X(1036), X(1012), -0.028, 0.028, Z(735), Z(700), DARK)
-	sights.add(cut(tower, cyl_x(X(1045), X(1000), 0.011, Z(712), 10), mats, DARK, bw=0.003, segs=1), 0)
+	rear, front = gunkit.open_irons(X(1024), Z(735), X(335), Z(755), SIGHT_Z)  # round 2: open ring + post
+	sights.add(rear, 0.002, 1)
+	sights.add(front, 0.002, 1)
 
 	# ---- Grip and stock (window cut through)
 	grip = part("Grip")
@@ -167,7 +167,7 @@ def build_parts(mats):
 	# ---- Moving controls
 	chg = part("ChargingHandle", "ChargingHandle")
 	chg.add(box(X(1057), X(997), RW - 0.012, RW + 0.008, Z(812), Z(798), METAL), 0.003, 1)
-	chg.add(prism(P([(1040, 795), (1057, 795), (1057, 815), (1040, 815)]), "Y", RW + 0.008, RW + 0.04, METAL), 0.004, 1)
+	chg.add(prism(P([(1036, 792), (1060, 792), (1060, 818), (1036, 818)]), "Y", RW + 0.008, RW + 0.058, METAL), 0.005, 1)  # round 2: bigger
 
 	bolt = part("Bolt", "Bolt")
 	bolt.add(box(X(940), X(850), -RW + 0.025, -RW + 0.045, Z(810), Z(792), METAL), 0.003, 1)
@@ -196,7 +196,7 @@ LOCATORS = [
 	("Muzzle", "Root", (X(69), 0.0, BORE_Z), None),
 	("RightGrip", "Root", (0.0, 0.0, 0.0), None),
 	("LeftGrip", "Root", (X(540), 0.0, Z(856)), None),  # under the shroud's armour plate
-	("AimPoint", "Root", (X(1024), 0.0, Z(712)), gunkit.AIM_ROT),  # rear aperture
+	("AimPoint", "Root", (X(1024), 0.0, SIGHT_Z), gunkit.AIM_ROT),  # rear ring centre
 	("Eject", "Root", (X(895), -RW, Z(801)), gunkit.EJECT_ROT),
 	("BeltFeedPoint", "FeedBelt", (X(768), BELT_Y, Z(780)), None),
 	("CharmPoint", "Charm", CHARM, None),
@@ -207,7 +207,7 @@ def build():
 	mats = gunkit.begin(GUN)
 	parts = build_parts(mats)
 	return gunkit.assemble(GUN, parts, mats, BONES, LOCATORS,
-		{"class": "Heavy", "tier": "T4", "template_version": 2, "length_rel": 1.07, "att_positions": "{}", "pbr": True})
+		{"class": "Heavy", "tier": "T4", "template_version": 2, "length_rel": 1.07, "att_positions": "{}", "pbr": True}, widen={"*": 1.2, "Barrel": 1.0, "Sights": 1.0, "Grip": 1.05, "Trigger": 1.0})
 
 
 if __name__ == "__main__":

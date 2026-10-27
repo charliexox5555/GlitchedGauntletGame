@@ -192,15 +192,15 @@
   }
  },
  "Odin": {
-  "ColorMap": 119978620276424,
-  "NormalMap": 106518841583091,
-  "RoughnessMap": 84063677399652,
-  "MetalnessMap": 101303525000709,
+  "ColorMap": 97996490216659,
+  "NormalMap": 72189121443214,
+  "RoughnessMap": 126238645421796,
+  "MetalnessMap": 79111187063068,
   "decals": {
-   "Color": 139375030508273,
-   "Normal": 107976089889125,
-   "Roughness": 86630062167227,
-   "Metalness": 80447006610485
+   "Color": 114722266708219,
+   "Normal": 107976060202224,
+   "Roughness": 99001769030468,
+   "Metalness": 139654985393967
   }
  },
  "Akimbo": {

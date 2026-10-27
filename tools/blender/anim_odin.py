@@ -28,7 +28,7 @@ SAG = (0, 0, -0.06)  # the loose belt hanging lower before it is laid in the tra
 def fire():
 	c = Clip(GUN, "Fire", 12)
 	kick(c, back=0.045, climb=2.2, roll=0.6, last=12)
-	cycle(c, ("Bolt",), 0.1)
+	cycle(c, ("Bolt", "ChargingHandle"), 0.1)  # round 2: the handle rides the bolt on every shot
 	trigger_pull(c, 14)
 	c.key("FeedBelt", 1)
 	c.key("FeedBelt", 2, (0, 0, 0.012))
@@ -75,7 +75,7 @@ def reload_empty():
 
 def draw():
 	c = Clip(GUN, "Draw", 31)
-	draw_rack(c, travel=0.15, selector=None, jolt=1.3)
+	draw_rack(c, travel=0.2, selector=None, jolt=1.3)
 	return c
 
 
