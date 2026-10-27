@@ -107,16 +107,20 @@ function Builder.data(id: string): BuildData
 	return (require(module) :: any) :: BuildData
 end
 
--- Inserts the uploaded package as ImportStaging.Raw_<Id> (if not already there).
+-- Inserts the uploaded package as ImportStaging.Raw_<Id>, always fresh: a
+-- re-upload adds a new version to the same asset, and both an old Raw_<Id> and
+-- LoadAsset (which caches per Studio session) would hand back the old meshes
+-- (round 3: the Bulldog rebuilt with new build data on its round 2 meshes).
 function Builder.insertRaw(id: string): Model
 	local staging = ServerStorage:FindFirstChild("ImportStaging") :: Folder
 	local existing = staging:FindFirstChild("Raw_" .. id)
 	if existing then
-		return existing :: Model
+		existing:Destroy()
 	end
 	local data = Builder.data(id)
 	assert(data.assetId and data.assetId > 0, "no asset id for " .. id)
-	local raw = InsertService:LoadAsset(data.assetId)
+	local version = InsertService:GetLatestAssetVersionAsync(data.assetId)
+	local raw = InsertService:LoadAssetVersion(version)
 	raw.Name = "Raw_" .. id
 	raw.Parent = staging
 	return raw

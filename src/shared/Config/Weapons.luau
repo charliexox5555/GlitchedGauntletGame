@@ -605,7 +605,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsMoveMultiplier = 0.76,
 		penetration = "ThinWall",
 		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
-		viewmodelOffset = Vector3.new(0.44, -0.246, -0.85), -- round 2 sight sits higher: raised by the same to keep the hold
+		viewmodelOffset = Vector3.new(0.44, -0.278, -0.85), -- round 2 sight sits higher: raised by the same to keep the hold
 		-- Bullpup: the mag sits behind the grip, under the camera. Raise the gun
 		-- and push it out during reloads so the mag change is on screen.
 		trackLift = {
