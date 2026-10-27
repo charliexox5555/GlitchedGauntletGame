@@ -19,7 +19,7 @@ FPS = 24
 def fire():
 	c = Clip(GUN, "Fire", 10)
 	kick(c, back=0.03, climb=1.8, roll=0.4, last=10)
-	cycle(c, ("Bolt",), 0.11)
+	cycle(c, ("Bolt", "ChargingHandle"), 0.11)  # round 2: the handle rides every shot
 	trigger_pull(c, 14)
 	return c
 

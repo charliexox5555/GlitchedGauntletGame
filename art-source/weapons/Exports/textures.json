@@ -72,6 +72,10 @@
   }
  },
  "Spectre": {
+  "ColorMap": 105261643055557,
+  "NormalMap": 88084480449995,
+  "RoughnessMap": 75243294123881,
+  "MetalnessMap": 91413469901165,
   "decals": {
    "Color": 92530506858368,
    "Normal": 77415452927548,
