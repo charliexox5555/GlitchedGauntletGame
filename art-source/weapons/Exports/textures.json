@@ -24,15 +24,15 @@
   }
  },
  "Shorty": {
-  "ColorMap": 86082956514805,
-  "NormalMap": 94442780005947,
-  "RoughnessMap": 125921081010328,
-  "MetalnessMap": 134122143787440,
+  "ColorMap": 101150051119606,
+  "NormalMap": 101766745737465,
+  "RoughnessMap": 115637760333986,
+  "MetalnessMap": 123825942480331,
   "decals": {
-   "Color": 87446604901881,
-   "Normal": 137854641498021,
-   "Roughness": 122904443499136,
-   "Metalness": 74337236596473
+   "Color": 71350224645341,
+   "Normal": 118563187733032,
+   "Roughness": 102956952520829,
+   "Metalness": 135829311975688
   }
  },
  "Ghost": {
