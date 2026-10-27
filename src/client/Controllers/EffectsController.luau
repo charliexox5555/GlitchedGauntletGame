@@ -57,6 +57,7 @@ local LIGHT_TIME = 0.05
 -- First-person flashes are this much smaller again than the viewmodel's scale
 -- (the gun sits right in front of the camera).
 local FP_FLASH = 0.75
+local FLASH_AHEAD = 0.32 -- the flash rig sits this far (x flash size) in front of the Muzzle
 -- Other players' shells and smoke only within this range of the camera.
 local DETAIL_RANGE = 90
 -- Barrel heat: +1 per shot, cools at HEAT_COOL per second; above HEAT_WISP
@@ -264,9 +265,12 @@ local function buildRig(
 	local suppressed = config.suppressed == true
 	local s = scale * flashSize(config) * (if suppressed then 0.35 else 1)
 
+	-- The flash is a billboard: centred on the opening, the barrel (or a
+	-- suppressor) hides its back half from first person and it seems to
+	-- burst inside the muzzle. Start it just ahead of the opening instead.
 	local holder = Instance.new("Attachment")
 	holder.Name = "FxMuzzle"
-	holder.CFrame = muzzle.CFrame
+	holder.CFrame = muzzle.CFrame * CFrame.new(0, 0, -FLASH_AHEAD * s)
 	holder.Parent = parent
 
 	-- Down the barrel: a star burst, two frames long.
