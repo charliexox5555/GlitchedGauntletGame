@@ -24,7 +24,7 @@ from gunkit import Clip, kick, swing, trigger_pull
 GUN = "Bucky"
 FPS = 24
 TRAVEL = 0.26  # pump / bolt travel
-LOAD_POSE = ((0, 0, 0.03), (-22, -10, 6))  # Root: roll the bottom toward the player, muzzle up a little
+LOAD_POSE = ((0, 0, 0.05), (-38, -12, 8))  # Root: roll the bottom toward the player (round 2: well over, port in view)
 
 
 def pump(c, f0, travel=TRAVEL, hold=1):
@@ -48,11 +48,14 @@ def fire():
 
 def insert(c, f0):
 	# One shell: from below (out of view), under the port, pushed up and forward into the tube (f0 .. f0 + 12).
-	c.key("Shell", f0, (0.05, 0, -0.42), (0, 25, 0))
-	c.key("Shell", f0 + 6, (0, 0, -0.07), (0, 4, 0))
+	# Round 2: brought up into view from below, lined up under the port, thumbed straight up and forward with a click.
+	c.key("Shell", f0, (0.02, 0, -0.32), (0, 18, 0))
+	c.key("Shell", f0 + 5, (0, 0, -0.06), (0, 2, 0))
+	c.key("Shell", f0 + 7, (0, 0, -0.02))
 	c.key("Shell", f0 + 9)
 	c.key("Shell", f0 + 12, (0.16, 0, 0.004))
 	c.key("Shell", f0 + 13)
+	c.mark("ShellIn", f0 + 11)
 	swing(c, [(f0 + 10, 4), (f0 + 13, -3), (f0 + 16, 1.5)])
 
 
@@ -63,7 +66,7 @@ def hold_pose(c, *frames):
 
 def reload_start():
 	c = Clip(GUN, "ReloadStart", 12)
-	c.key("Root", 5, (0, 0, 0.015), (-12, -6, 3))
+	c.key("Root", 5, (0, 0, 0.025), (-21, -8, 5))
 	hold_pose(c, 10, 12)
 	swing(c, [(5, 6), (9, -4), (12, 2)])
 	return c
@@ -72,7 +75,7 @@ def reload_start():
 def reload_insert():
 	c = Clip(GUN, "ReloadInsert", 16)
 	hold_pose(c, 1, 8, 16)
-	c.key("Root", 10, (0.004, 0, 0.034), (-23, -11, 6))  # thumb pushes the shell home
+	c.key("Root", 10, (0.004, 0, 0.056), (-40, -13, 8))  # thumb pushes the shell home
 	insert(c, 1)
 	return c
 
@@ -88,10 +91,10 @@ def reload_end():
 
 def reload_single():
 	c = Clip(GUN, "Reload", 60)
-	c.key("Root", 5, (0, 0, 0.015), (-12, -6, 3))
+	c.key("Root", 5, (0, 0, 0.025), (-21, -8, 5))
 	hold_pose(c, 10, 26)
 	insert(c, 12)
-	c.key("Root", 22, (0.004, 0, 0.034), (-23, -11, 6))
+	c.key("Root", 22, (0.004, 0, 0.056), (-40, -13, 8))
 	c.key("Root", 40, (0, 0, 0.012), (-8, -3, 2))
 	c.key("Root", 50, (0, 0, 0.002), (-1, 0.3, 0.2))
 	return c
@@ -99,10 +102,10 @@ def reload_single():
 
 def reload_empty():
 	c = Clip(GUN, "ReloadEmpty", 86)
-	c.key("Root", 5, (0, 0, 0.015), (-12, -6, 3))
+	c.key("Root", 5, (0, 0, 0.025), (-21, -8, 5))
 	hold_pose(c, 10, 26)
 	insert(c, 12)
-	c.key("Root", 22, (0.004, 0, 0.034), (-23, -11, 6))
+	c.key("Root", 22, (0.004, 0, 0.056), (-40, -13, 8))
 	c.key("Root", 40, (0, 0, 0.01), (-4, -2, 1))  # back to the hold to rack
 	pump(c, 52, hold=2)
 	c.key("Root", 55, (-0.02, 0, 0.008), (-2, -2.5, 0.5))

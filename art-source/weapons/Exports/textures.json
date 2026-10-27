@@ -84,15 +84,15 @@
   }
  },
  "Bucky": {
-  "ColorMap": 80629479405948,
-  "NormalMap": 130684402406533,
-  "RoughnessMap": 127945486552278,
-  "MetalnessMap": 126534938080289,
+  "ColorMap": 125309969145044,
+  "NormalMap": 104766251762132,
+  "RoughnessMap": 83421815330554,
+  "MetalnessMap": 123749039699785,
   "decals": {
-   "Color": 129846688982849,
-   "Normal": 92003599423665,
-   "Roughness": 121424185505435,
-   "Metalness": 140038410920375
+   "Color": 97785847901929,
+   "Normal": 72991293305735,
+   "Roughness": 120102498318704,
+   "Metalness": 80623605430988
   }
  },
  "Sheriff": {
