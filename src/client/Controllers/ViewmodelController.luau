@@ -550,6 +550,15 @@ local function addFollow(gun: Gun, clip: string, hand: Side, rule: VM.Follow): b
 	if not from or not to then
 		return false
 	end
+	-- A dropped mag (MagDrop): the hand takes the new one from the clip's
+	-- MagIn marker, not the old one falling below the view.
+	if rule.joint == "Mag" or rule.joint == "AmmoBox" then
+		local data = gun.animator.clips and (gun.animator.clips :: any)[clip]
+		local magIn = data and data.markers and data.markers.MagIn
+		if typeof(magIn) == "number" and magIn > from and magIn < to then
+			from = magIn
+		end
+	end
 	-- One part at a time per hand: skip rules whose reach (window widened by
 	-- the lead, as followWeight uses it) overlaps an earlier one.
 	local lead = VM.FOLLOW_LEAD

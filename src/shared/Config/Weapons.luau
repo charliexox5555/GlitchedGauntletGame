@@ -84,7 +84,8 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
 		penetration = "ThinWall",
-		viewmodelOffset = RIFLE_VM,
+		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		viewmodelOffset = Vector3.new(0.52, -0.266, -0.38), -- round 2 sight sits higher: raised by the same to keep the hold
 		tracerColor = TRACER,
 	},
 
@@ -129,12 +130,13 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.28,
 		},
 		adsFov = 68,
+		adsDistance = OPEN_IRONS_ADS,
 		adsTime = 0.2,
 		moveMultiplier = 0.97,
 		adsMoveMultiplier = 0.76,
 		penetration = "ThinWall",
 		suppressed = true, -- no tracer for enemies, quieter shot, small flash
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = Vector3.new(0.52, -0.277, -0.38), -- round 2 sight sits higher: raised by the same to keep the hold
 		tracerColor = TRACER,
 	},
 
@@ -395,6 +397,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.8,
 		penetration = "None",
+		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
 		viewmodelOffset = SMG_VM, -- compact: further out so the whole gun reads
 		tracerColor = TRACER,
 	},
@@ -446,7 +449,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.8,
 		penetration = "None",
-		viewmodelOffset = SMG_VM,
+		viewmodelOffset = Vector3.new(0.46, -0.325, -0.92), -- round 2 sight sits higher: raised by the same to keep the hold
 		leftHandOffset = Vector3.new(0, -0.02, -0.18), -- the mag sits close ahead of the grip
 		tracerColor = TRACER,
 	},
@@ -593,11 +596,13 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.3,
 		},
 		adsFov = 68, -- 1.25x zoom
+		adsDistance = OPEN_IRONS_ADS,
 		adsTime = 0.2,
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
 		penetration = "ThinWall",
-		viewmodelOffset = Vector3.new(0.44, -0.3, -0.85),
+		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		viewmodelOffset = Vector3.new(0.44, -0.278, -0.85), -- round 2 sight sits higher: raised by the same to keep the hold
 		-- Bullpup: the mag sits behind the grip, under the camera. Raise the gun
 		-- and push it out during reloads so the mag change is on screen.
 		trackLift = {
@@ -650,6 +655,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.76,
 		penetration = "ThinWall",
+		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
@@ -801,6 +807,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.85,
 		adsMoveMultiplier = 0.4,
 		penetration = "All",
+		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
 		viewmodelOffset = SCOPED_VM,
 		tracerColor = TRACER,
 	},
@@ -852,7 +859,8 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.7,
 		penetration = "ThinWall",
-		viewmodelOffset = Vector3.new(0.52, -0.3, -0.43),
+		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		viewmodelOffset = Vector3.new(0.52, -0.291, -0.43), -- round 2 sight sits higher: raised by the same to keep the hold
 		tracerColor = TRACER,
 	},
 
@@ -903,6 +911,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.85,
 		adsMoveMultiplier = 0.65,
 		penetration = "All",
+		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
