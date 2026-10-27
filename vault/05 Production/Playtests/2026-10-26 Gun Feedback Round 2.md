@@ -17,17 +17,17 @@ References: ADS `02 Art/References/ads-refs/` (open ring aperture + post, see-th
 - [~] **ADS overhaul**: open, see-through classic irons (RIVALS/Hypershot) on every ADS gun once the Blender session redesigns the sights; re-align the ADS camera per gun. The Bulldog ADS "looks really bad". The user has more ADS notes coming. *358f6f0: Vandal, Spectre, Odin, Guardian, Ares installed with open irons; ADS aligns to the new `AimPoint` automatically, and the eye now sits 0.3 behind the rear ring (`OPEN_IRONS_ADS`) so the ring reads big with the post centred (`round2/vandal-ads-*`, `ares-ads-open-irons.jpg`). Phantom and Bulldog installed too (open irons, Bulldog side handle; Bulldog ADS now clean, `round2/bulldog-ads-open-irons.jpg`); hip offsets raised by each gun's AimPoint rise so the approved hold is unchanged. Stinger installed last (`round2/stinger-ads-open-irons.jpg`): all 8 open-iron guns are in. Still open: your further ADS notes. Studio: Workspace `VmAdsDistance` tunes it live (re-draw).*
 
 ## Blender (models + clips)
-- [ ] **Thickness pass**: bodies too thin. Widen (gun-left/right axis) and re-proportion: **Outlaw** (most, redesign), Odin, Judge, Akimbo, Classic, Ghost, Shorty, Guardian, Operator, Ares (slight); check every other gun against the Vandal. **Marshal stays slim** (the user likes it).
-- [ ] **Shorty redesign**: a regular sawed-off **side-by-side double-barrel** shotgun.
-- [ ] **Open iron sights** on every ADS gun (Vandal, Phantom, Stinger, Spectre, Bulldog, Guardian, Ares, Odin): a thin ring aperture or notch at the rear and a post at the front, see-through, not enclosed boxes.
-- [ ] **Actions that move**: every gun with an action cocks it on Draw (Guardian, Ares… audit all). Per-shot cycling on the Ares; **Judge gets a new top action** that cycles every shot and on draw; **Bulldog** gets a working side charging handle like the Vandal.
-- [ ] **Mag-drop-ready reload clips**: the old mag leaves quickly downward (the game spawns the falling copy), and the new mag comes up from below.
-- [ ] **Outlaw reload** (Valorant-style): breaks fully open, pulls the shells, loads only the spent one or both (clips for 1 and 2).
-- [ ] **Bucky reload**: rolls the gun and feeds shells from the bottom one by one (shell-in loop clip).
-- [ ] **Marshal reload**: cleaner shell insertion. (The "second barrel" is the tube magazine under the barrel, which is intentional.)
-- [ ] **Akimbo clips**: one gun at a time.
-- [ ] **Knife clips**: Slash1 / Slash2 / Slash3, HeavyStab (two hands), a default-style Inspect.
-- [ ] Re-bake, re-export and upload each changed gun, then hand it to the Studio session.
+- [x] **Thickness pass** (Outlaw `823a891`, Ares `0540640`, Guardian `881ec8a`, Odin `2452f9c`, Judge `67acdb2`, Classic `a66734a`, Ghost `71c9fa1`, Akimbo `e05710f`, Operator `36b0c1e`; also Phantom/Bulldog +12%, Stinger/Spectre +20%; Sheriff, Bucky left as they are): bodies too thin. Widen (gun-left/right axis) and re-proportion: **Outlaw** (most, redesign), Odin, Judge, Akimbo, Classic, Ghost, Shorty, Guardian, Operator, Ares (slight); check every other gun against the Vandal. **Marshal stays slim** (the user likes it).
+- [x] **Shorty redesign** (`abdd47b`): a regular sawed-off **side-by-side double-barrel** shotgun.
+- [x] **Open iron sights** (Vandal `06c3b6c`, Phantom `557d533`, Stinger `6f976f3`, Spectre `1a7f704`, Bulldog `cb264a4`, Guardian, Ares, Odin; AimPoint table in the shared notes `round2-blender.md`) on every ADS gun (Vandal, Phantom, Stinger, Spectre, Bulldog, Guardian, Ares, Odin): a thin ring aperture or notch at the rear and a post at the front, see-through, not enclosed boxes.
+- [x] **Actions that move** (ChargingHandle rides every shot on Ares/Guardian/Odin/Stinger/Spectre/Bulldog; full Draw rack everywhere; Judge top slide `67acdb2`; Bulldog side handle `cb264a4`): every gun with an action cocks it on Draw (Guardian, Ares… audit all). Per-shot cycling on the Ares; **Judge gets a new top action** that cycles every shot and on draw; **Bulldog** gets a working side charging handle like the Vandal.
+- [x] **Mag-drop-ready reload clips** (all mag guns; `MagOut` / `MagIn` markers; Vandal path fix `e2d88ff`): the old mag leaves quickly downward (the game spawns the falling copy), and the new mag comes up from below.
+- [x] **Outlaw reload** (`823a891`: Reload = one round, ReloadEmpty = both, opens 46°) (Valorant-style): breaks fully open, pulls the shells, loads only the spent one or both (clips for 1 and 2).
+- [x] **Bucky reload** (`58e8cee`, ShellIn marker): rolls the gun and feeds shells from the bottom one by one (shell-in loop clip).
+- [x] **Marshal reload** (`333863c`): cleaner shell insertion. (The "second barrel" is the tube magazine under the barrel, which is intentional.)
+- [x] **Akimbo clips** (`e05710f`: same clips per pistol; one-at-a-time staging is the Studio viewmodel's): one gun at a time.
+- [x] **Knife clips** (`49b573b`, Hit markers): Slash1 / Slash2 / Slash3, HeavyStab (two hands), a default-style Inspect.
+- [x] Re-bake, re-export and upload each changed gun, then hand it to the Studio session (all 19 shipped 2026-10-27; before/after sheets in `02 Art/References/round2/`).
 
 ### Blender progress (resume here)
 Per gun: edit `tools/blender/build_<id>.py` / `anim_<id>.py`, then `blender --background art-source/weapons/<Id>.blend --python tools/blender/rebuild_gun.py -- <Id>`, `python tools/ship_gun.py <Id> ship <render_dir>`, resolve the 4 decals to image ids in Studio, `python tools/ship_gun.py <Id> images ...`, `python tools/round2_sheet.py <Id> <render_dir> "<notes>"`, commit + push. Quick pre-bake look: `tools/blender/quick_look.py -- <Id> <dir> Cam_34 ADS`.
@@ -36,5 +36,5 @@ New shared tools: `gunkit.assemble(..., widen={...})` (thickness pass), `gunkit.
 - [x] Ares: +15% width, open irons, charging handle rides every shot + bigger knob, mag-drop (`0540640`)
 - [x] Guardian: +20% width, open irons, bigger handle, full draw rack + per-shot ride, mag-drop (`881ec8a`)
 - [x] Odin: +20% width, open irons, handle rides every shot (`2452f9c`)
-- [ ] Vandal, Phantom (+12%), Stinger (+20%), Spectre (+20%), Bulldog (+12%, Vandal-style side handle): open irons + mag-drop, shipping
-- [ ] Judge (width + top action), Classic, Ghost, Akimbo, Shorty (side-by-side), Operator; Bucky, Marshal reloads; Knife clips; mag-drop on the remaining mag guns (Classic, Ghost, Akimbo, Operator, Judge)
+- [x] Vandal `06c3b6c` / `e2d88ff`, Phantom `557d533`, Stinger `6f976f3`, Spectre `1a7f704`, Bulldog `cb264a4`
+- [x] Judge `67acdb2`, Classic `a66734a`, Ghost `71c9fa1`, Akimbo `e05710f`, Shorty `abdd47b`, Operator `36b0c1e`, Bucky `58e8cee`, Marshal `333863c`, Knife `49b573b`
