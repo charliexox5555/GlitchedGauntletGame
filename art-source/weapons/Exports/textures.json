@@ -180,15 +180,15 @@
   }
  },
  "Ares": {
-  "ColorMap": 129057507410704,
-  "NormalMap": 90708033689877,
-  "RoughnessMap": 131991269525222,
-  "MetalnessMap": 88658032829114,
+  "ColorMap": 85984873550965,
+  "NormalMap": 119010730302986,
+  "RoughnessMap": 73917174820325,
+  "MetalnessMap": 132095397647684,
   "decals": {
-   "Color": 106167842476267,
-   "Normal": 75604448284884,
-   "Roughness": 82268389364496,
-   "Metalness": 102988685358304
+   "Color": 116002820348010,
+   "Normal": 76450709339044,
+   "Roughness": 115330182992998,
+   "Metalness": 75551342606017
   }
  },
  "Odin": {

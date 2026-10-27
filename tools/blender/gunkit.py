@@ -295,10 +295,20 @@ AIM_ROT = Matrix(((0, 0, 1), (0, 1, 0), (-1, 0, 0))).to_4x4()
 EJECT_ROT = Matrix(((1, 0, 0), (0, 0, -1), (0, 1, 0))).to_4x4()
 
 
-def assemble(gun, parts, mats, bones, locators, props):
+def assemble(gun, parts, mats, bones, locators, props, widen=None):
 	# Turns the parts into mesh objects on an armature, adds the locators and packs one shared UV atlas.
 	# bones: [(name, parent, head)]; locators: [(name, bone, position, rotation matrix or None)].
+	# widen (round 2 thickness pass): {part name: factor, "*": default} scales parts along Y (gun-left/right) about
+	# the bore plane; bone heads and locators move with the default factor. Leave round parts (barrels) at 1.
 	global _scratch
+	if widen:
+		dflt = widen.get("*", 1.0)
+		for p in parts.values():
+			f = widen.get(p.name, dflt)
+			if f != 1.0:
+				bmesh.ops.scale(p.bm, vec=(1, f, 1), verts=p.bm.verts[:])
+		bones = [(n, par, (h[0], h[1] * dflt, h[2])) for n, par, h in bones]
+		locators = [(n, b, (pos[0], pos[1] * dflt, pos[2]), rot) for n, b, pos, rot in locators]
 	scene = bpy.context.scene
 	bpy.data.collections.remove(_scratch)
 	_scratch = None

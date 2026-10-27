@@ -19,7 +19,7 @@ FPS = 24
 def fire():
 	c = Clip(GUN, "Fire", 12)
 	kick(c, back=0.05, climb=3, roll=0.5, last=12)
-	cycle(c, ("Bolt",), 0.12)
+	cycle(c, ("Bolt", "ChargingHandle"), 0.12)  # round 2: the left-side handle rides the carrier, like the Vandal
 	trigger_pull(c, 15)
 	return c
 

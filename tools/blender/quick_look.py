@@ -13,6 +13,15 @@ sc.render.engine = "BLENDER_EEVEE"
 sc.eevee.taa_render_samples = 8
 sc.render.resolution_x, sc.render.resolution_y = 800, 500
 for cam in cams:
+	if cam == "ADS":  # looking down the sights from 0.3 studs behind AimPoint
+		aim = bpy.data.objects[gun + "_AimPoint"].matrix_world.translation
+		cd = bpy.data.cameras.new("ADS")
+		cd.lens = 35
+		ob = bpy.data.objects.new("ADS", cd)
+		sc.collection.objects.link(ob)
+		ob.location = (aim.x - 0.3, aim.y, aim.z)
+		ob.rotation_euler = (1.5708, 0, -1.5708)
+		cd.clip_start = 0.01
 	sc.camera = bpy.data.objects[cam]
 	sc.render.filepath = os.path.join(out, "%s_%s.png" % (gun, cam))
 	bpy.ops.render.render(write_still=True)

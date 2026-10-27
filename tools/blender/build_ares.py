@@ -39,6 +39,7 @@ BORE_Z = Z(764)
 DRUM_Z = Z(905)
 RW = 0.068  # receiver half width
 HW = 0.066  # handguard half width
+SIGHT_Z = gunkit.sight_line(Z(703))  # round 2: open irons, rear ring centre = front post tip
 
 
 def build_parts(mats):
@@ -94,11 +95,10 @@ def build_parts(mats):
 	# ---- Iron sights: front post with ears, rear aperture tower
 	sights = part("Sights")
 	sights.add(box(X(370), X(337), -0.03, 0.03, Z(730), Z(712), DARK), 0.004, 1)
-	sights.add(box(X(361), X(347), -0.011, 0.011, Z(712), Z(676), DARK), 0.002, 1)
-	sights.add(mirror_y(box(X(364), X(344), 0.016, 0.026, Z(712), Z(686), DARK)), 0.002, 1)
 	sights.add(box(X(1027), X(955), -0.035, 0.035, Z(719), Z(703), DARK), 0.004, 1)
-	tower = box(X(990), X(966), -0.025, 0.025, Z(703), Z(672), DARK)
-	sights.add(cut(tower, cyl_x(X(1000), X(955), 0.011, Z(684), 10), mats, DARK, bw=0.003, segs=1), 0)
+	rear, front = gunkit.open_irons(X(978), Z(703), X(354), Z(712), SIGHT_Z)  # round 2: open ring + post
+	sights.add(rear, 0.002, 1)
+	sights.add(front, 0.002, 1)
 	sights.add(drop(cyl_y(X(1012), Z(708), 0.017, 0.03, 0.05, 10), 1, -1), 0.002, 1)
 
 	# ---- Grip (textured) and stock
@@ -138,8 +138,8 @@ def build_parts(mats):
 
 	# ---- Moving controls
 	chg = part("ChargingHandle", "ChargingHandle")
-	chg.add(box(X(762), X(748), RW - 0.02, RW + 0.03, Z(800), Z(787), METAL), 0.003, 1)
-	chg.add(box(X(766), X(744), RW + 0.022, RW + 0.04, Z(803), Z(784), METAL), 0.004, 1)
+	chg.add(box(X(764), X(746), RW - 0.02, RW + 0.05, Z(800), Z(787), METAL), 0.003, 1)  # round 2: a bigger, readable knob
+	chg.add(box(X(772), X(738), RW + 0.04, RW + 0.066, Z(806), Z(781), METAL), 0.005, 1)
 
 	bolt = part("Bolt", "Bolt")
 	bolt.add(box(X(882), X(790), -0.045, -0.01, Z(775), Z(752), METAL), 0.003, 1)
@@ -171,7 +171,7 @@ LOCATORS = [
 	("Muzzle", "Root", (X(51), 0.0, BORE_Z), None),
 	("RightGrip", "Root", (0.0, 0.0, 0.0), None),
 	("LeftGrip", "Root", (X(500), 0.0, Z(822)), None),  # handguard underside
-	("AimPoint", "Root", (X(978), 0.0, Z(684)), gunkit.AIM_ROT),  # rear aperture
+	("AimPoint", "Root", (X(978), 0.0, SIGHT_Z), gunkit.AIM_ROT),  # rear ring centre
 	("Eject", "Root", (X(835), -RW, Z(763)), gunkit.EJECT_ROT),
 	("CharmPoint", "Charm", CHARM, None),
 ]
@@ -181,7 +181,7 @@ def build():
 	mats = gunkit.begin(GUN)
 	parts = build_parts(mats)
 	return gunkit.assemble(GUN, parts, mats, BONES, LOCATORS,
-		{"class": "Heavy", "tier": "T3", "template_version": 2, "length_rel": 1.0, "att_positions": "{}", "pbr": True})
+		{"class": "Heavy", "tier": "T3", "template_version": 2, "length_rel": 1.0, "att_positions": "{}", "pbr": True}, widen={"*": 1.15, "Barrel": 1.0, "Sights": 1.0, "Drum": 1.0, "Grip": 1.05, "Trigger": 1.0})
 
 
 if __name__ == "__main__":
