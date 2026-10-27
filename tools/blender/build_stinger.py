@@ -38,7 +38,7 @@ def P(pts):
 
 
 BORE_Z = Z(752)
-SIGHT_Z = Z(698)
+SIGHT_Z = gunkit.sight_line(Z(715))  # round 2: open irons, rear ring centre = front post tip
 
 
 def build_parts(mats):
@@ -75,12 +75,9 @@ def build_parts(mats):
 
 	# ---- Sights (black): front ears + post, rear block with aperture
 	si = part("Sights")
-	ear = [(402, 717), (402, 693), (406, 685), (421, 685), (425, 693), (425, 717)]
-	si.add(group(prism(P(ear), "Y", 0.016, 0.03, DARK), prism(P(ear), "Y", -0.03, -0.016, DARK)), 0.003, 1)
-	si.add(box(X(416), X(411), -0.005, 0.005, Z(717), SIGHT_Z, METAL), 0.002, 1)
-	rear = prism(P([(800, 715), (800, 694), (808, 687), (848, 687), (855, 694), (855, 715)]), "Y", -0.032, 0.032, DARK)
-	si.add(cut(rear, cyl_x(X(860), X(795), 0.011, SIGHT_Z, 10), mats, DARK, bw=0.004, segs=1), 0)
-	si.add(mirror_y(drop(cyl_y(X(838), Z(700), 0.01, 0.032, 0.04, 8), 1, -1)), 0)
+	rear, front = gunkit.open_irons(X(828), Z(715), X(413.5), Z(717), SIGHT_Z)  # round 2: open ring + post
+	si.add(rear, 0.002, 1)
+	si.add(front, 0.002, 1)
 
 	# ---- Grip and trigger guard (black polymer)
 	grip = part("Grip")
@@ -166,7 +163,7 @@ def build():
 	mats = gunkit.begin(GUN)
 	parts = build_parts(mats)
 	return gunkit.assemble(GUN, parts, mats, BONES, LOCATORS,
-		{"class": "SMG", "tier": "T2", "template_version": 2, "length_rel": 0.68, "att_positions": "{}", "pbr": True})
+		{"class": "SMG", "tier": "T2", "template_version": 2, "length_rel": 0.68, "att_positions": "{}", "pbr": True}, widen={"*": 1.2, "Barrel": 1.0, "Sights": 1.0, "Grip": 1.05, "Trigger": 1.0})
 
 
 if __name__ == "__main__":
