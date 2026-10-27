@@ -48,6 +48,7 @@ class Clip:
 		self.name = name
 		self.last = last
 		self.keys = {}  # bone -> {frame: (loc, rot_deg)}
+		self.markers = {}  # name -> frame (exported as clip fractions, see gunkit.Clip)
 
 	def key(self, bone, frame, loc=(0, 0, 0), rot=(0, 0, 0)):
 		self.keys.setdefault(bone, {})[frame] = (loc, rot)
@@ -58,6 +59,8 @@ class Clip:
 
 	def bake(self, r):
 		act = new_action(self.name)
+		if self.markers:
+			act["gg_markers"] = dict(self.markers)
 		ad = r.animation_data or r.animation_data_create()
 		ad.action = act
 		bones = r.pose.bones
@@ -125,13 +128,15 @@ def mag_swap(c):
 	c.key("Root", 44, (0, 0, 0.015), (10, -5, 2))
 	c.key("Root", 48, (0.0, 0, 0.03), (12.5, -7.5, 2.5))  # mag slammed home
 	c.key("Root", 51, (0, 0, 0.012), (9.5, -4.5, 2))
-	# Mag: rock forward off the catch, drop out of view, come back up, rock in and lock (done by f51).
+	# Mag (round 2, mag drop): rock forward off the catch and fall out of view fast (MagOut: the game spawns the
+	# falling copy and hides the Mag), a fresh one comes up from below (MagIn), rocks in and locks (done by f51).
 	c.key("Mag", 11)
-	c.key("Mag", 15, (0.012, 0, -0.012), (0, -9, 0))
-	c.key("Mag", 19, (0.05, 0, -0.16), (0, -16, 0))
-	c.key("Mag", 25, (0.12, 0, -0.62), (0, -28, 0))
-	c.key("Mag", 33, (0.1, 0, -0.7), (0, -24, 0))
+	c.key("Mag", 14, (0.012, 0, -0.02), (0, -9, 0))
+	c.key("Mag", 17, (0.06, 0, -0.78), (0, -22, 0))
+	c.key("Mag", 30, (0.1, 0, -0.75), (0, -24, 0))
 	c.key("Mag", 40, (0.05, 0, -0.2), (0, -14, 0))
+	c.markers["MagOut"] = 15
+	c.markers["MagIn"] = 30
 	c.key("Mag", 44, (0.018, 0, -0.03), (0, -10, 0))
 	c.key("Mag", 47, (0.004, 0, 0), (0, -6, 0))  # front lug caught
 	c.key("Mag", 49, (0, 0, 0), (0, 1.2, 0))  # rocked back, click

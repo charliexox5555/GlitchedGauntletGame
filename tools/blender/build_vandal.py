@@ -8,8 +8,11 @@
 # the player sees in first person), 1 unit = 1 stud, origin at the pistol grip. Shapes are traced from the
 # concept's side view (vault/02 Art/References/vandal-concept.webp) in image pixels: P(px, py) converts.
 
-import bpy, bmesh, math
+import bpy, bmesh, math, os, sys
 from mathutils import Matrix, Vector
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import gunkit  # noqa: E402  (round 2: open_irons)
 
 GUN = "Vandal"
 PRE = GUN + "_"
@@ -27,12 +30,15 @@ def Z(py):
 	return (OY - py) * S
 
 
+SIGHT_Z = gunkit.sight_line(Z(743))  # round 2: open irons, rear ring centre = front post tip
+
+
 def P(pts):
 	return [(X(a), Z(b)) for a, b in pts]
 
 
 BORE_Z = Z(808)
-SIGHT_Z = 0.515
+
 
 # Material slots, same order on every part. Names are the export pipeline's slot names.
 MAT_NAMES = ["Body_Panel", "Body_Dark", "Metal", "Neon"]
@@ -322,8 +328,8 @@ def build_parts(mats):
 	# ---- Rear sight (black): base block and flip-up aperture
 	rs = part("RearSight")
 	rs.add(prism(P([(880, 767), (880, 750), (887, 743), (946, 743), (953, 750), (953, 767)]), "Y", -0.05, 0.05, DARK), 0.006, 1)
-	tower = prism([(X(940), Z(745)), (X(940), Z(728)), (X(934), Z(722)), (X(913), Z(722)), (X(907), Z(728)), (X(907), Z(745))], "Y", -0.034, 0.034, DARK)
-	rs.add(cut(tower, cyl_x(X(945), X(902), 0.016, 10, z=SIGHT_Z), mats, bw=0.004, segs=1), 0)
+	rear, front = gunkit.open_irons(X(923), Z(743), X(303), Z(775), SIGHT_Z)  # round 2: open ring + post
+	rs.add(rear, 0.002, 1)
 	rs.add(cyl_y(X(918), Z(758), 0.011, 0.05, 0.058, 6, METAL), 0)
 	rs.add(cyl_y(X(934), Z(758), 0.011, 0.05, 0.058, 6, METAL), 0)
 
@@ -344,12 +350,7 @@ def build_parts(mats):
 	# ---- Gas block and front sight (charcoal)
 	fs = part("FrontSight")
 	fs.add(prism(P([(272, 789), (283, 775), (319, 775), (319, 837), (283, 837), (272, 826)]), "Y", -0.05, 0.05), 0.007, 1)
-	ears = group(
-		prism(P([(287, 745), (297, 732), (319, 732), (319, 776), (287, 776)]), "Y", 0.028, 0.048),
-		prism(P([(287, 745), (297, 732), (319, 732), (319, 776), (287, 776)]), "Y", -0.048, -0.028),
-	)
-	fs.add(cut(ears, cyl_y(X(303), Z(753), 0.019, -0.06, 0.06, 8), mats, bw=0.004, segs=1), 0)
-	fs.add(box(X(306), X(300), -0.0065, 0.0065, Z(776), SIGHT_Z, METAL), 0.002, 1)  # front post
+	fs.add(front, 0.002, 1)  # round 2: post in a small open ring (made with the rear sight)
 	fs.add(cyl_y(X(304), Z(815), 0.012, 0.05, 0.058, 6, METAL), 0.002, 1)
 
 	# ---- Grip and trigger guard (black polymer)

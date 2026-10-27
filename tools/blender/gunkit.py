@@ -586,6 +586,22 @@ def mag_swap(c, f0, drop=0.65, fwd=0.05, tilt=-10, bone="Mag", rock=0.0):
 	return f0 + 40
 
 
+def pistol_mag_drop(c, f0, back=-0.06, drop=0.62, bone="Mag"):
+	# Pistol mag, mag-drop style (round 2): out of the grip and gone by f0 + 4, a fresh one rises from f0 + 14 and is
+	# slapped home at f0 + 32 (done f0 + 34). back: how far it travels along X while out (grip rake). Markers as
+	# mag_swap: MagOut, MagIn.
+	c.key(bone, f0)
+	c.key(bone, f0 + 2, (back * 0.1, 0, -0.04), (0, -1, 0))
+	c.key(bone, f0 + 4, (back, 0, -drop), (0, -6, 0))
+	c.key(bone, f0 + 14, (back, 0, -drop), (0, -5, 0))
+	c.key(bone, f0 + 25, (back * 0.4, 0, -0.17), (0, -2, 0))
+	c.key(bone, f0 + 30, (back * 0.07, 0, -0.02), (0, -0.5, 0))
+	c.key(bone, f0 + 32, (0, 0, 0.005), (0, 0.4, 0))  # slapped home
+	c.key(bone, f0 + 34)
+	c.mark("MagOut", f0 + 2)
+	c.mark("MagIn", f0 + 14)
+
+
 def reload_root(c, f0, roll=10, pitch=-5, yaw=2.5, lift=0.018):
 	# Whole-gun motion around a mag swap that starts at f0: roll the feed side toward the player, lift the muzzle,
 	# jolt when the mag is slapped home (f0 + 37).

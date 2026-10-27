@@ -714,28 +714,28 @@
   "uploaded": "2026-10-25 21:52:00"
  },
  "art-source/weapons/Textures/Spectre_Color.png": {
-  "assetId": 92753055091546,
+  "assetId": 92530506858368,
   "name": "GG Spectre Color",
   "type": "Decal",
-  "uploaded": "2026-10-25 22:10:05"
+  "uploaded": "2026-10-26 23:36:05"
  },
  "art-source/weapons/Textures/Spectre_Metalness.png": {
-  "assetId": 103179258348476,
+  "assetId": 105709693028599,
   "name": "GG Spectre Metalness",
   "type": "Decal",
-  "uploaded": "2026-10-25 22:10:20"
+  "uploaded": "2026-10-26 23:36:22"
  },
  "art-source/weapons/Textures/Spectre_Normal.png": {
-  "assetId": 81738081379037,
+  "assetId": 77415452927548,
   "name": "GG Spectre Normal",
   "type": "Decal",
-  "uploaded": "2026-10-25 22:10:11"
+  "uploaded": "2026-10-26 23:36:13"
  },
  "art-source/weapons/Textures/Spectre_Roughness.png": {
-  "assetId": 123114096738268,
+  "assetId": 132926071271313,
   "name": "GG Spectre Roughness",
   "type": "Decal",
-  "uploaded": "2026-10-25 22:10:18"
+  "uploaded": "2026-10-26 23:36:19"
  },
  "art-source/weapons/Textures/Stinger_Color.png": {
   "assetId": 72600914221468,
@@ -762,27 +762,27 @@
   "uploaded": "2026-10-25 22:07:06"
  },
  "art-source/weapons/Textures/Vandal_Color.png": {
-  "assetId": 108104182942744,
-  "name": "GG Overwrite Color",
+  "assetId": 74331396699180,
+  "name": "GG Vandal Color",
   "type": "Decal",
-  "uploaded": "2026-10-25 20:52:03"
+  "uploaded": "2026-10-26 23:36:05"
  },
  "art-source/weapons/Textures/Vandal_Metalness.png": {
-  "assetId": 103060112461281,
-  "name": "GG Overwrite Metalness",
+  "assetId": 134592856367433,
+  "name": "GG Vandal Metalness",
   "type": "Decal",
-  "uploaded": "2026-10-25 20:52:19"
+  "uploaded": "2026-10-26 23:36:22"
  },
  "art-source/weapons/Textures/Vandal_Normal.png": {
-  "assetId": 101801952841740,
-  "name": "GG Overwrite Normal",
+  "assetId": 117903742741861,
+  "name": "GG Vandal Normal",
   "type": "Decal",
-  "uploaded": "2026-10-25 20:52:10"
+  "uploaded": "2026-10-26 23:36:13"
  },
  "art-source/weapons/Textures/Vandal_Roughness.png": {
-  "assetId": 110657322352120,
-  "name": "GG Overwrite Roughness",
+  "assetId": 100818539451683,
+  "name": "GG Vandal Roughness",
   "type": "Decal",
-  "uploaded": "2026-10-25 20:52:16"
+  "uploaded": "2026-10-26 23:36:19"
  }
 }

@@ -1,14 +1,14 @@
 {
  "Vandal": {
-  "ColorMap": 97209921647187,
-  "NormalMap": 113890432600206,
-  "RoughnessMap": 100877792736646,
-  "MetalnessMap": 133715774928208,
+  "ColorMap": 114831299949738,
+  "NormalMap": 80846698219920,
+  "RoughnessMap": 105955123531408,
+  "MetalnessMap": 122153076146660,
   "decals": {
-   "Color": 108104182942744,
-   "Normal": 101801952841740,
-   "Roughness": 110657322352120,
-   "Metalness": 103060112461281
+   "Color": 74331396699180,
+   "Normal": 117903742741861,
+   "Roughness": 100818539451683,
+   "Metalness": 134592856367433
   }
  },
  "Phantom": {
@@ -72,15 +72,11 @@
   }
  },
  "Spectre": {
-  "ColorMap": 137581286285989,
-  "NormalMap": 77853236834380,
-  "RoughnessMap": 83179167011388,
-  "MetalnessMap": 79137740899339,
   "decals": {
-   "Color": 92753055091546,
-   "Normal": 81738081379037,
-   "Roughness": 123114096738268,
-   "Metalness": 103179258348476
+   "Color": 92530506858368,
+   "Normal": 77415452927548,
+   "Roughness": 132926071271313,
+   "Metalness": 105709693028599
   }
  },
  "Bucky": {
