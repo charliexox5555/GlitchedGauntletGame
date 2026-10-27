@@ -64,6 +64,12 @@ return table.freeze({
 	-- Guns are modelled at world size; first person shows them at this scale.
 	SCALE = 0.75,
 	ADS_DISTANCE = 0.7, -- camera to the AimPoint while aiming (per gun: adsDistance)
+	-- Nothing on screen nearer than this to the eye while aiming: the camera's
+	-- near plane (~0.1) slices closer meshes open (round 3: the "glitched" ADS
+	-- on the Bulldog, Spectre and Odin). Parts reaching back past the eye fade
+	-- out while aimed; guns set adsDistance so the receiver ahead clears it.
+	ADS_NEAR = 0.16,
+	ADS_FADE_PREFIXES = { "Stock" }, -- parts (by name) that may fade when they pass the eye
 	-- Scoped guns (config scope): past this much aim the gun and arms hide
 	-- and the HUD scope overlay shows.
 	SCOPE_AT = 0.85,

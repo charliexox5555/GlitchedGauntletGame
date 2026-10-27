@@ -32,7 +32,11 @@ export type GunAnimator = {
 	speed: number,
 	length: number,
 	dirty: boolean,
-	play: (self: GunAnimator, name: string, duration: number?) -> (),
+	-- `holdEnd`: keep the clip's last frame when it ends (no clip playing) until
+	-- the next play or stop, for clips another one follows (a shell loop).
+	play: (self: GunAnimator, name: string, duration: number?, holdEnd: boolean?) -> (),
+	holdEnd: boolean,
+	holding: string?, -- the clip whose end frame is held
 	stop: (self: GunAnimator) -> (),
 	isPlaying: (self: GunAnimator, name: string?) -> boolean,
 	holdStart: (self: GunAnimator, name: string) -> (),
@@ -80,7 +84,7 @@ local function resetMotors(self: GunAnimator)
 	self.dirty = false
 end
 
-local function play(self: GunAnimator, name: string, duration: number?)
+local function play(self: GunAnimator, name: string, duration: number?, holdEnd: boolean?)
 	local clips = self.clips
 	local clip = clips and (clips :: any)[name] :: Clip?
 	if not clips or not clip then
@@ -88,6 +92,8 @@ local function play(self: GunAnimator, name: string, duration: number?)
 	end
 	self.clip = clip
 	self.clipName = name
+	self.holdEnd = holdEnd == true
+	self.holding = nil
 	self.time = 0
 	self.length = math.max(clip.frames - 1, 1) / clips.fps
 	self.speed = if duration and duration > 0 then self.length / duration else 1
@@ -96,6 +102,7 @@ end
 local function stop(self: GunAnimator)
 	self.clip = nil
 	self.clipName = nil
+	self.holding = nil
 	if self.dirty then
 		resetMotors(self)
 	end
@@ -115,6 +122,7 @@ local function holdStart(self: GunAnimator, name: string)
 	end
 	self.clip = nil
 	self.clipName = nil
+	self.holding = nil
 	resetMotors(self)
 	for bone, data in clip.bones do
 		local motor = self.motors[bone]
@@ -189,6 +197,21 @@ local function update(self: GunAnimator, dt: number)
 	end
 	self.time += dt * self.speed
 	if self.time >= self.length then
+		if self.holdEnd then
+			-- Pose the last frame and keep it (the next clip starts from it).
+			local last = clip.frames - 1
+			for bone, data in clip.bones do
+				local motor = self.motors[bone]
+				if motor then
+					motor.Transform = frameCFrame(data, last, self.scale)
+				end
+			end
+			self.holding = self.clipName
+			self.clip = nil
+			self.clipName = nil
+			self.dirty = true
+			return
+		end
 		stop(self)
 		return
 	end
@@ -228,6 +251,8 @@ function GunAnimator.new(model: Model, weaponId: string, scale: number): GunAnim
 		clips = loadClips(weaponId),
 		clip = nil,
 		clipName = nil,
+		holdEnd = false,
+		holding = nil,
 		time = 0,
 		speed = 1,
 		length = 0,

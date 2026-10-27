@@ -165,6 +165,9 @@ export type WeaponConfig = {
 	-- Extra camera-space lift per track slot ("Reload", "Inspect", "Equip"),
 	-- eased in and out: e.g. a bullpup raised and pushed out so its reload reads.
 	trackLift: { [string]: { pos: Vector3, rot: Vector3? } }?,
+	-- Shell-by-shell loading: the hand that feeds each round (default by the
+	-- gate's side; the Marshal's right hand loads its side gate).
+	shellHand: ("Right" | "Left")?,
 	-- Long guns: a gun-space nudge for the support hand from
 	-- Viewmodel.RIFLE_LEFT_HAND (e.g. a mag close ahead of the handguard).
 	leftHandOffset: Vector3?,

@@ -29,7 +29,9 @@ local SIDEARM_SCALE = 1.1
 
 -- Open iron sights (round 2, RIVALS / Hypershot style, vault/02 Art/References/
 -- ads-refs): the eye close behind the rear ring, so it reads big and see-through
--- with the front post centred inside it.
+-- with the front post centred inside it. Guns whose receiver would come within
+-- Viewmodel.ADS_NEAR of the eye (sliced by the near plane: round 3's "glitched"
+-- ADS) sit a little further back (measured per gun, 2026-10-27).
 local OPEN_IRONS_ADS = 0.3
 
 local TRACER = Color3.fromHex("FFD9A0") -- warm, like a real tracer round
@@ -79,7 +81,7 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.3,
 		},
 		adsFov = 68, -- 1.25x zoom from the 80 degree view
-		adsDistance = OPEN_IRONS_ADS,
+		adsDistance = 0.36, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		adsTime = 0.2,
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
@@ -130,7 +132,7 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.28,
 		},
 		adsFov = 68,
-		adsDistance = OPEN_IRONS_ADS,
+		adsDistance = 0.42, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		adsTime = 0.2,
 		moveMultiplier = 0.97,
 		adsMoveMultiplier = 0.76,
@@ -445,7 +447,7 @@ local weapons: { [string]: WeaponConfig } = {
 		},
 		suppressed = true, -- no tracer for enemies, quieter shot, small flash
 		adsFov = 72, -- 1.15x zoom
-		adsDistance = OPEN_IRONS_ADS,
+		adsDistance = 0.37, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		adsTime = 0.17,
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.8,
@@ -597,7 +599,7 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.3,
 		},
 		adsFov = 68, -- 1.25x zoom
-		adsDistance = OPEN_IRONS_ADS,
+		adsDistance = 0.38, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		adsTime = 0.2,
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
@@ -651,7 +653,7 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.3,
 		},
 		adsFov = 58, -- 1.5x zoom
-		adsDistance = OPEN_IRONS_ADS,
+		adsDistance = 0.33, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		adsTime = 0.25,
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.76,
@@ -680,6 +682,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.5, -- a full load (5 rounds); fallback for the clip-based timing
 		emptyReloadTime = 2.5,
 		shellReload = { start = 0.3, insert = 0.4, finish = 0.35 },
+		shellHand = "Right", -- round 3: rounds go in with the right hand, the left steadies the gun
 		equipTime = 0.7,
 		drawTime = 1.2, -- works the lever
 		range = 800,
@@ -855,7 +858,7 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.35,
 		},
 		adsFov = 70, -- 1.15x zoom
-		adsDistance = OPEN_IRONS_ADS,
+		adsDistance = 0.4, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		adsTime = 0.3,
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.7,
@@ -908,7 +911,7 @@ local weapons: { [string]: WeaponConfig } = {
 		},
 		adsFov = 70, -- 1.15x zoom
 		adsTime = 0.32,
-		adsDistance = OPEN_IRONS_ADS,
+		adsDistance = 0.39, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		moveMultiplier = 0.85,
 		adsMoveMultiplier = 0.65,
 		penetration = "All",

@@ -605,10 +605,17 @@ local function buildFollow(gun: Gun, weapon: WeaponConfig, dual: boolean)
 		end
 		for _, rule in VM.RELOAD_FOLLOW do
 			-- A part on the right of the gun (a bolt handle) is the trigger
-			-- hand's: the support hand would reach through the gun.
+			-- hand's: the support hand would reach through the gun. On a lever
+			-- gun the trigger hand works the lever, so only a round fed through
+			-- a right-side gate (Shell) goes to it (round 3: the Marshal loads
+			-- with the right hand while the left steadies the gun).
 			-- (A lever or a pump drives the bolt: nobody works it by hand.)
 			if not ((lever or weapon.fireMode == "Pump") and rule.joint == "Bolt") then
-				local hand: Side = if not lever and partSide(gun, rule) > 0 then "Right" else "Left"
+				local rightSide = partSide(gun, rule) > 0
+				local hand: Side = if rule.joint == "Shell" and weapon.shellHand
+					then weapon.shellHand
+					elseif rightSide and (not lever or rule.joint == "Shell") then "Right"
+					else "Left"
 				addFollow(gun, clip, hand, rule)
 			end
 		end
@@ -983,13 +990,58 @@ local function adsDistanceOf(weapon: WeaponConfig): number
 	return weapon.adsDistance or VM.ADS_DISTANCE
 end
 
+-- Stock parts that pass by the eye while aiming: reaching from behind the eye
+-- to in front of it, the camera's near plane would slice them open, so they
+-- fade out while aimed. (Only stocks: parts are merged by material, so a
+-- receiver or sights mesh also runs past the eye; guns move the eye back
+-- with adsDistance instead.)
+-- In the ADS pose the gun is aligned with the camera, so a handle-space point
+-- sits at depth distance - (p - aim).Z in front of the eye.
+local function findNearPlaneParts(gun: Gun, distance: number, adsOffset: Vector3): { BasePart }
+	local found: { BasePart } = {}
+	local h = gun.handle.CFrame
+	local eyeZ = gun.aimRel.Z - adsOffset.Z + distance
+	for _, d in gun.model:GetDescendants() do
+		local fades = false
+		for _, prefix in VM.ADS_FADE_PREFIXES do
+			if string.sub(d.Name, 1, #prefix) == prefix then
+				fades = true
+			end
+		end
+		if fades and d:IsA("BasePart") and d.Transparency < 1 then
+			local near, far = math.huge, -math.huge
+			for _, sx in { -1, 1 } do
+				for _, sy in { -1, 1 } do
+					for _, sz in { -1, 1 } do
+						local corner = d.CFrame
+							* Vector3.new(sx * d.Size.X, sy * d.Size.Y, sz * d.Size.Z)
+							/ 2
+						local depth = eyeZ - h:PointToObjectSpace(corner).Z
+						near = math.min(near, depth)
+						far = math.max(far, depth)
+					end
+				end
+			end
+			if near < VM.ADS_NEAR and far > VM.ADS_NEAR and near < 0 then
+				table.insert(found, d)
+			end
+		end
+	end
+	return found
+end
+
 -- Called once the gun is in the workspace (raycasts need it there).
 local function finishGun(gun: Gun, weapon: WeaponConfig)
 	if not weapon.noAds then
 		local distance = adsDistanceOf(weapon)
-		for _, p in findOccluders(gun, distance, weapon.adsOffset or Vector3.zero) do
-			if not table.find(gun.adsHide, p) then
-				table.insert(gun.adsHide, p)
+		local offset = weapon.adsOffset or Vector3.zero
+		for _, list in
+			{ findOccluders(gun, distance, offset), findNearPlaneParts(gun, distance, offset) }
+		do
+			for _, p in list do
+				if not table.find(gun.adsHide, p) then
+					table.insert(gun.adsHide, p)
+				end
 			end
 		end
 	end
@@ -1239,6 +1291,10 @@ local RELOAD_CLIPS = { "Reload", "ReloadEmpty", "ReloadStart", "ReloadInsert", "
 function ViewmodelController.cancelReload()
 	turnToken += 1
 	for _, gun in guns do
+		local held = gun.animator.holding
+		if held and table.find(RELOAD_CLIPS, held) then
+			gun.animator:stop()
+		end
 		for _, clip in RELOAD_CLIPS do
 			if gun.animator:isPlaying(clip) then
 				gun.animator:stop()
@@ -1257,8 +1313,11 @@ function ViewmodelController.playClip(clip: string, duration: number): { Beat }
 	if not right or not right.animator:has(clip) then
 		return {}
 	end
+	-- A shell loop's Start and Insert end in the loading pose the next clip
+	-- starts from: hold it, or the gun snaps back to rest between shells.
+	local holdEnd = clip == "ReloadStart" or clip == "ReloadInsert"
 	for _, gun in guns do
-		gun.animator:play(clip, duration)
+		gun.animator:play(clip, duration, holdEnd)
 	end
 	return clipBeats(right, clip)
 end
