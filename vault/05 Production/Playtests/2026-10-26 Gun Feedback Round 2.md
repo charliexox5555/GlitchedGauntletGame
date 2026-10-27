@@ -1,13 +1,13 @@
 # Gun feedback, round 2 (user playtest, 2026-10-26)
 
-The user's hands-on notes after round 1, turned into a checklist. Two sessions work it: **Blender** (models + gun clips) and **Studio** (game systems). Tick items off here as they land, with the commit hash, so the work can resume after a usage-limit pause. Goal in the user's words: "more professional, and interaction guns that look good, feel good and leave the player feeling satisfied."
+The user's hands-on notes after round 1, turned into a checklist. Two sessions work it: **Blender** (models + gun clips) and **Studio** (game systems). **Studio testing tips:** drive playtests from the Client datamodel only: `ReplicatedStorage.Remotes.PickWeapon:FireServer(id)`, Workspace `DevAction` (`fire`, `reload`, `inspect`, `draw`, a slot name) and `DevAim` (true), `VfxTimeScale` 0 to freeze. Never `require` server modules from MCP (it rebuilds the remotes). Tick items off here as they land, with the commit hash, so the work can resume after a usage-limit pause. Goal in the user's words: "more professional, and interaction guns that look good, feel good and leave the player feeling satisfied."
 
 References: ADS `02 Art/References/ads-refs/` (open ring aperture + post, see-through, RIVALS/Hypershot style), Valorant hold `02 Art/References/rivals-viewmodel/valorant-vandal-hold.webp`.
 
 ## Studio (game systems)
-- [ ] **Draw on every equip/switch**, not only the first pull-out (e.g. secondary → primary). All guns.
+- [x] **Draw on every equip/switch**, not only the first pull-out (e.g. secondary → primary). All guns. *816cc07: every equip plays the Draw clip at `drawTime` (was `firstEquipTime`); server allows 70% of it. Swaps are now as long as the old first draw; tune `drawTime` per gun.*
 - [ ] **Mag drop**: on every mag reload the old mag falls to the floor (physics prop, pooled, despawns) and a new one goes in; the old one never goes back in. All mag guns.
-- [ ] **Muzzle flash**: the Phantom's flash is still inside the suppressor; fix it for real. Suppressed/muzzle-device guns get a **subtle grey puff** (Valorant), not the red/orange flare.
+- [x] **Muzzle flash**: the Phantom's flash is still inside the suppressor; fix it for real. Suppressed/muzzle-device guns get a **subtle grey puff** (Valorant), not the red/orange flare. *a3fa08f: cause was the front billboard's fixed `ZOffset = 0.2` (studs toward the camera), which pulled the small suppressed flash back behind the can's face (first and third person); now scaled to the flash. Suppressed guns (Phantom, Ghost, Spectre) get a light grey puff, no flame or embers. `muzzleDevice = true` in config does the same for brakes; waiting on the Blender session's list of which guns have one. Screenshot `round2/phantom-puff-fp.jpg`.*
 - [ ] **Framing too close**: Stinger (hold and inspect), Spectre, Bulldog (can't see its reload). Audit every gun so the whole gun reads in hold, reload and inspect.
 - [ ] **Secondary hold redesign**: Classic, Ghost, Sheriff, Shorty, Akimbo look odd (no hand on the trigger; the inspect doesn't look held). Rework the pistol pose (and the hand shape if needed) so a small gun looks gripped.
 - [ ] **Akimbo**: hold, sprint, inspect, reload and draw work one gun at a time, left and right, never overlapping.
