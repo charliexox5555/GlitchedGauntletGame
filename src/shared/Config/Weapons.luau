@@ -19,12 +19,12 @@ local RIFLE_VM = Vector3.new(0.52, -0.3, -0.38)
 -- Tall sights sit a little further out (nothing on screen nearer than 0.35
 -- studs to the camera): scopes, and the Ares's raised iron sights.
 local SCOPED_VM = Vector3.new(0.52, -0.3, -0.47)
--- Pistols are placed by their grip: big, low and right of centre, held in
--- both hands.
 -- Compact SMGs at the rifle depth fill the corner and hide their own rear:
 -- further out (round 2 feedback, Stinger and Spectre "too close").
 local SMG_VM = Vector3.new(0.46, -0.34, -0.92)
-local SIDEARM_VM = Vector3.new(0.4, -0.94, -1.28)
+-- Pistols are placed by their grip: big, low and right of centre, held in
+-- both hands, high enough that the fists around the grip show.
+local SIDEARM_VM = Vector3.new(0.42, -0.76, -1.3)
 local SIDEARM_SCALE = 1.1
 
 local TRACER = Color3.fromHex("FFD9A0") -- warm, like a real tracer round
@@ -946,7 +946,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 1,
 		adsMoveMultiplier = 1,
 		penetration = "None",
-		viewmodelOffset = Vector3.new(0.55, -0.94, -1.28), -- each gun out toward its own side
+		viewmodelOffset = Vector3.new(0.55, -0.78, -1.3), -- each gun out toward its own side
 		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = TRACER,
 	},

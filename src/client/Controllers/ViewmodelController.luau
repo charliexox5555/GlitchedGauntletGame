@@ -117,6 +117,7 @@ local weights: { [string]: number } = {}
 
 local adsAlpha = 0
 local hidden = false
+local turnToken = 0 -- bumped to cancel akimbo turns waiting to start (playTurns)
 local motion = ViewmodelMotion.new()
 local motionInput: ViewmodelMotion.Input = {
 	camera = CFrame.identity,
@@ -247,11 +248,19 @@ local function liftFor(slot: string, t: number): (Vector3, Vector3)
 	return lift.pos * e, (lift.rot or Vector3.zero) * e
 end
 
+-- Track slots akimbo guns take turns on (see playTurns).
+local TURN_SLOTS = { Equip = true, Reload = true, Inspect = true }
+
 -- The combined track offset for one gun, around its pivots.
 local function trackOffset(gun: Gun, mirror: boolean): CFrame
 	local cf = CFrame.identity
+	-- Akimbo guns take turns (playTurns): the right gun's half, then the left's.
+	local turn = if guns.Left then (if mirror then 1 else 0) else nil
 	for slot, p in playing do
 		local t = math.clamp(p.time / p.length, 0, 1)
+		if turn and TURN_SLOTS[slot] then
+			t = math.clamp(t * 2 - turn, 0, 1)
+		end
 		local pos, rot = sample(p.track, t)
 		local liftPos, liftRot = liftFor(slot, t)
 		pos += liftPos
@@ -971,6 +980,7 @@ end
 -- API ----------------------------------------------------------------------------
 
 function ViewmodelController.unequip()
+	turnToken += 1
 	for _, gun in guns do
 		gun.model:Destroy()
 	end
@@ -1031,6 +1041,49 @@ local function clipBeats(gun: Gun, clip: string): { Beat }
 	return beats
 end
 
+-- Akimbo guns take turns, never both at once: the right gun's clip over the
+-- first half of `duration`, then the left gun's over the second. `onStart`
+-- runs as each gun's clip starts. Other guns just play it.
+local function playTurns(clip: string, duration: number, onStart: ((Gun) -> ())?)
+	turnToken += 1
+	local right, left = guns.Right, guns.Left
+	if not right then
+		return
+	end
+	local function start(gun: Gun, time: number)
+		gun.animator:play(clip, time)
+		if onStart then
+			onStart(gun)
+		end
+	end
+	if not left then
+		start(right, duration)
+		return
+	end
+	local half = duration / 2
+	start(right, half)
+	local token = turnToken
+	task.delay(half, function()
+		if turnToken == token and guns.Left == left then
+			start(left, half)
+		end
+	end)
+end
+
+-- A clip's foley cues for the whole turn-taking span: akimbo guns hear the
+-- right gun's cues in the first half and the left gun's in the second.
+local function turnBeats(beats: { Beat }): { Beat }
+	if not guns.Left then
+		return beats
+	end
+	local out: { Beat } = {}
+	for _, b in beats do
+		table.insert(out, { at = b.at * 0.5, sound = b.sound })
+		table.insert(out, { at = 0.5 + b.at * 0.5, sound = b.sound })
+	end
+	return out
+end
+
 -- Equips `weapon`: every equip plays the gun's "Draw" clip (raise and rack
 -- the action), when it has one; otherwise a quick raise.
 -- `duration`: the client's ready time. Returns the clip's foley cues.
@@ -1065,11 +1118,9 @@ function ViewmodelController.equip(weapon: WeaponConfig, duration: number?): { B
 	ViewmodelArms.setVisible(a, true)
 	local time = duration or weapon.equipTime
 	if right.animator:has("Draw") then
-		for _, gun in guns do
-			gun.animator:play("Draw", time)
-		end
+		playTurns("Draw", time)
 		playTrack("Equip", "Draw", time)
-		return clipBeats(right, "Draw")
+		return turnBeats(clipBeats(right, "Draw"))
 	end
 	playTrack("Equip", "Equip", math.max(time * 1.4, VM.TRACKS.Equip.length))
 	return {}
@@ -1133,21 +1184,21 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 		return {}
 	end
 	local clip = if empty and right.animator:has("ReloadEmpty") then "ReloadEmpty" else "Reload"
-	for _, gun in guns do
-		gun.animator:play(clip, duration)
+	playTurns(clip, duration, function(gun)
 		local data = gun.animator.clips and (gun.animator.clips :: any)[clip]
 		for _, mag in gun.mags do
 			mag.clip = clip
 			mag.timing = if data then MagDrop.timing(data, mag.bone) else nil
 		end
-	end
+	end)
 	playTrack("Reload", if clip == "ReloadEmpty" then "ReloadEmpty" else "Reload", duration)
-	return clipBeats(right, clip)
+	return turnBeats(clipBeats(right, clip))
 end
 
 local RELOAD_CLIPS = { "Reload", "ReloadEmpty", "ReloadStart", "ReloadInsert", "ReloadEnd" }
 
 function ViewmodelController.cancelReload()
+	turnToken += 1
 	for _, gun in guns do
 		for _, clip in RELOAD_CLIPS do
 			if gun.animator:isPlaying(clip) then
@@ -1197,18 +1248,21 @@ function ViewmodelController.inspect(): boolean
 		end
 	end
 	local track = if c.fireMode == "Melee" then "InspectMelee" else "Inspect"
-	playTrack("Inspect", track)
+	-- Akimbo: each gun gets a whole inspect, one after the other.
+	local length = VM.TRACKS[track].length * (if guns.Left then 2 else 1)
+	playTrack("Inspect", track, length)
 	-- The gun's own Inspect clip (a press check, the charm swinging) runs
 	-- alongside, over the same time.
-	for _, gun in guns do
-		if gun.animator:has("Inspect") then
-			gun.animator:play("Inspect", VM.TRACKS[track].length)
-		end
+	if guns.Right.animator:has("Inspect") then
+		playTurns("Inspect", length)
 	end
 	return true
 end
 
 function ViewmodelController.cancelInspect()
+	if playing.Inspect then
+		turnToken += 1
+	end
 	fadeTrack("Inspect")
 	for _, gun in guns do
 		if gun.animator:isPlaying("Inspect") then

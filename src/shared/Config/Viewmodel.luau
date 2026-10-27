@@ -107,16 +107,18 @@ return table.freeze({
 		offset = Vector3.new(-0.02, -0.22, -0.14),
 		direction = Vector3.new(-0.18, -0.95, 0.25), -- steep: the forearm clears the mag
 	} :: Hand,
-	-- Pistols: two-handed, high grip. The right hand wraps the grip, its top
-	-- just under the back of the slide; the left hand cups it from below and
-	-- to the left.
+	-- Pistols: two-handed, RIVALS style. The right fist closes on the grip
+	-- itself (the grip disappears into the block up to the frame, so a small
+	-- gun reads as held, not floating ahead of the hands); the left fist
+	-- wraps the right one from the left and below. Round 2 feedback: the old
+	-- hold sat both hands half a stud behind the grip.
 	PISTOL_RIGHT_HAND = {
-		offset = Vector3.new(0.01, 0.23, 0.52),
-		direction = Vector3.new(0.1, -0.6, 0.8),
+		offset = Vector3.new(0, -0.02, 0.06),
+		direction = Vector3.new(0.12, -0.75, 0.65),
 	} :: Hand,
 	PISTOL_LEFT_HAND = {
-		offset = Vector3.new(-0.22, 0.1, 0.56),
-		direction = Vector3.new(-0.45, -0.55, 0.7),
+		offset = Vector3.new(-0.15, -0.1, 0.08),
+		direction = Vector3.new(-0.45, -0.7, 0.55),
 	} :: Hand,
 	-- Melee: the hand closes around the handle (the arm runs back along it);
 	-- the free hand rests low on the left as a guard (root space).
