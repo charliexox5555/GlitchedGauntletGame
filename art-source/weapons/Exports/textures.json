@@ -1,5 +1,9 @@
 {
  "Vandal": {
+  "ColorMap": 93685886787117,
+  "NormalMap": 72795939972061,
+  "RoughnessMap": 117945566120641,
+  "MetalnessMap": 121862122626226,
   "decals": {
    "Color": 120017216843759,
    "Normal": 78219314730039,

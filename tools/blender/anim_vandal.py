@@ -133,7 +133,7 @@ def mag_swap(c):
 	c.key("Mag", 11)
 	c.key("Mag", 14, (0.012, 0, -0.02), (0, -9, 0))
 	c.key("Mag", 17, (0.06, 0, -0.78), (0, -22, 0))
-	c.key("Mag", 30, (0.1, 0, -0.75), (0, -24, 0))
+	c.key("Mag", 30, (0.1, 0, -0.8), (0, -24, 0))  # the furthest point = MagIn
 	c.key("Mag", 40, (0.05, 0, -0.2), (0, -14, 0))
 	c.markers["MagOut"] = 15
 	c.markers["MagIn"] = 30
