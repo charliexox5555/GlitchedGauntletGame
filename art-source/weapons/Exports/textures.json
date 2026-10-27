@@ -84,6 +84,10 @@
   }
  },
  "Bucky": {
+  "ColorMap": 120525810742920,
+  "NormalMap": 102395581921126,
+  "RoughnessMap": 92134503619207,
+  "MetalnessMap": 101907669330206,
   "decals": {
    "Color": 96810005228113,
    "Normal": 105200151381266,

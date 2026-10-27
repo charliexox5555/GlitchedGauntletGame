@@ -24,7 +24,7 @@ from gunkit import Clip, kick, swing, trigger_pull
 GUN = "Bucky"
 FPS = 24
 TRAVEL = 0.26  # pump / bolt travel
-LOAD_POSE = ((0, 0, 0.05), (-38, -12, 8))  # Root: roll the bottom toward the player (round 2: well over, port in view)
+LOAD_POSE = ((0, 0, 0.05), (38, -12, -6))  # Root: roll the bottom (loading port) toward the player, top outward (round 3)
 
 
 def pump(c, f0, travel=TRAVEL, hold=1):
@@ -66,7 +66,7 @@ def hold_pose(c, *frames):
 
 def reload_start():
 	c = Clip(GUN, "ReloadStart", 12)
-	c.key("Root", 5, (0, 0, 0.025), (-21, -8, 5))
+	c.key("Root", 5, (0, 0, 0.025), (21, -8, -4))
 	hold_pose(c, 10, 12)
 	swing(c, [(5, 6), (9, -4), (12, 2)])
 	return c
@@ -75,7 +75,7 @@ def reload_start():
 def reload_insert():
 	c = Clip(GUN, "ReloadInsert", 16)
 	hold_pose(c, 1, 8, 16)
-	c.key("Root", 10, (0.004, 0, 0.056), (-40, -13, 8))  # thumb pushes the shell home
+	c.key("Root", 10, (0.004, 0, 0.056), (40, -13, -6))  # thumb pushes the shell home
 	insert(c, 1)
 	return c
 
@@ -83,34 +83,34 @@ def reload_insert():
 def reload_end():
 	c = Clip(GUN, "ReloadEnd", 14)
 	hold_pose(c, 1)
-	c.key("Root", 6, (0, 0, 0.012), (-8, -3, 2))
-	c.key("Root", 11, (0, 0, 0.002), (-1, 0.3, 0.2))
+	c.key("Root", 6, (0, 0, 0.012), (8, -3, -2))
+	c.key("Root", 11, (0, 0, 0.002), (1, 0.3, -0.2))
 	swing(c, [(5, -6), (9, 4), (13, -1.5)])
 	return c
 
 
 def reload_single():
 	c = Clip(GUN, "Reload", 60)
-	c.key("Root", 5, (0, 0, 0.025), (-21, -8, 5))
+	c.key("Root", 5, (0, 0, 0.025), (21, -8, -4))
 	hold_pose(c, 10, 26)
 	insert(c, 12)
-	c.key("Root", 22, (0.004, 0, 0.056), (-40, -13, 8))
-	c.key("Root", 40, (0, 0, 0.012), (-8, -3, 2))
-	c.key("Root", 50, (0, 0, 0.002), (-1, 0.3, 0.2))
+	c.key("Root", 22, (0.004, 0, 0.056), (40, -13, -6))
+	c.key("Root", 40, (0, 0, 0.012), (8, -3, -2))
+	c.key("Root", 50, (0, 0, 0.002), (1, 0.3, -0.2))
 	return c
 
 
 def reload_empty():
 	c = Clip(GUN, "ReloadEmpty", 86)
-	c.key("Root", 5, (0, 0, 0.025), (-21, -8, 5))
+	c.key("Root", 5, (0, 0, 0.025), (21, -8, -4))
 	hold_pose(c, 10, 26)
 	insert(c, 12)
-	c.key("Root", 22, (0.004, 0, 0.056), (-40, -13, 8))
-	c.key("Root", 40, (0, 0, 0.01), (-4, -2, 1))  # back to the hold to rack
+	c.key("Root", 22, (0.004, 0, 0.056), (40, -13, -6))
+	c.key("Root", 40, (0, 0, 0.01), (4, -2, -1))  # back to the hold to rack
 	pump(c, 52, hold=2)
-	c.key("Root", 55, (-0.02, 0, 0.008), (-2, -2.5, 0.5))
-	c.key("Root", 60, (0.012, 0, 0.003), (-1, 0.5, 0.2))
-	c.key("Root", 72, (0, 0, 0.001), (-0.3, 0, 0))
+	c.key("Root", 55, (-0.02, 0, 0.008), (2, -2.5, -0.5))
+	c.key("Root", 60, (0.012, 0, 0.003), (1, 0.5, -0.2))
+	c.key("Root", 72, (0, 0, 0.001), (0.3, 0, 0))
 	swing(c, [(55, -6), (60, 9), (64, -4.5), (68, 2)])
 	return c
 
