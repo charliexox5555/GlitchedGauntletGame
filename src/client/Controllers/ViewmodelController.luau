@@ -216,11 +216,33 @@ local function stepTracks(dt: number)
 	end
 end
 
+-- A gun's extra lift for one track slot (config.trackLift, e.g. a bullpup
+-- raised so its reload shows), eased in and out over the track's ends.
+local LIFT_EASE = 0.15
+local function liftFor(slot: string, t: number): (Vector3, Vector3)
+	local lifts = config and config.trackLift
+	local lift = lifts and lifts[slot]
+	-- Studio only: Workspace VmLift<slot> (Vector3) tunes it live.
+	local live = if studio then Workspace:GetAttribute("VmLift" .. slot) else nil
+	if typeof(live) == "Vector3" then
+		lift = { pos = live, rot = if lift then lift.rot else nil }
+	end
+	if not lift then
+		return Vector3.zero, Vector3.zero
+	end
+	local e = smoothstep(math.clamp(math.min(t, 1 - t) / LIFT_EASE, 0, 1))
+	return lift.pos * e, (lift.rot or Vector3.zero) * e
+end
+
 -- The combined track offset for one gun, around its pivots.
 local function trackOffset(gun: Gun, mirror: boolean): CFrame
 	local cf = CFrame.identity
-	for _, p in playing do
-		local pos, rot = sample(p.track, math.clamp(p.time / p.length, 0, 1))
+	for slot, p in playing do
+		local t = math.clamp(p.time / p.length, 0, 1)
+		local pos, rot = sample(p.track, t)
+		local liftPos, liftRot = liftFor(slot, t)
+		pos += liftPos
+		rot += liftRot
 		if mirror then
 			pos, rot = mirrorPos(pos), mirrorRot(rot)
 		end

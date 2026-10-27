@@ -151,6 +151,9 @@ export type WeaponConfig = {
 	viewmodelOffset: Vector3,
 	viewmodelRotation: Vector3?,
 	viewmodelScale: number?, -- default Viewmodel.SCALE
+	-- Extra camera-space lift per track slot ("Reload", "Inspect", "Equip"),
+	-- eased in and out: e.g. a bullpup raised and pushed out so its reload reads.
+	trackLift: { [string]: { pos: Vector3, rot: Vector3? } }?,
 	-- Long guns: a gun-space nudge for the support hand from
 	-- Viewmodel.RIFLE_LEFT_HAND (e.g. a mag close ahead of the handguard).
 	leftHandOffset: Vector3?,

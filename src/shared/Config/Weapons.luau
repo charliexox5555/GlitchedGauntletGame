@@ -21,6 +21,9 @@ local RIFLE_VM = Vector3.new(0.52, -0.3, -0.38)
 local SCOPED_VM = Vector3.new(0.52, -0.3, -0.47)
 -- Pistols are placed by their grip: big, low and right of centre, held in
 -- both hands.
+-- Compact SMGs at the rifle depth fill the corner and hide their own rear:
+-- further out (round 2 feedback, Stinger and Spectre "too close").
+local SMG_VM = Vector3.new(0.46, -0.34, -0.92)
 local SIDEARM_VM = Vector3.new(0.4, -0.94, -1.28)
 local SIDEARM_SCALE = 1.1
 
@@ -386,7 +389,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.8,
 		penetration = "None",
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = SMG_VM, -- compact: further out so the whole gun reads
 		tracerColor = TRACER,
 	},
 
@@ -436,7 +439,7 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.8,
 		penetration = "None",
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = SMG_VM,
 		leftHandOffset = Vector3.new(0, -0.02, -0.18), -- the mag sits close ahead of the grip
 		tracerColor = TRACER,
 	},
@@ -587,7 +590,12 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
 		penetration = "ThinWall",
-		viewmodelOffset = RIFLE_VM,
+		viewmodelOffset = Vector3.new(0.44, -0.3, -0.85),
+		-- Bullpup: the mag sits behind the grip, under the camera. Raise the gun
+		-- and push it out during reloads so the mag change is on screen.
+		trackLift = {
+			Reload = { pos = Vector3.new(-0.2, 0.32, -0.4) },
+		},
 		tracerColor = TRACER,
 	},
 
