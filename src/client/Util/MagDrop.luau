@@ -4,10 +4,10 @@
 -- fades (Viewmodel.MAG_DROP). Copies are pooled per gun and flown by hand
 -- (anchored, no physics ownership or collision groups needed), like casings.
 --
--- When the mag leaves and the new one arrives is read off the reload clip
--- itself: it leaves at the first frame its bone is MAG_DROP.away from rest and
--- the new mag is the one at the bone's furthest point (agreed with the Blender
--- session: one clean out-then-back trip per clip).
+-- When the mag leaves and the new one arrives: the clip's MagOut / MagIn
+-- markers (fractions of the clip, set in Blender) when it has them; else read
+-- off the clip itself: it leaves at the first frame its bone is MAG_DROP.away
+-- from rest and the new mag is the one at the bone's furthest point.
 
 local Workspace = game:GetService("Workspace")
 
@@ -17,7 +17,7 @@ local MagDrop = {}
 
 local GRAVITY = Vector3.new(0, -VM.MAG_DROP.gravity, 0)
 
-type Clip = { frames: number, bones: { [string]: { number } } }
+type Clip = { frames: number, bones: { [string]: { number } }, markers: { [string]: number }? }
 
 export type Timing = { outAt: number, inAt: number }
 
@@ -59,7 +59,10 @@ function MagDrop.timing(clip: Clip, bone: string): Timing?
 	end
 	local data = clip.bones[bone]
 	local result: Timing | false = false
-	if data and clip.frames > 1 then
+	local marks = clip.markers
+	if data and marks and marks.MagOut and marks.MagIn and marks.MagIn > marks.MagOut then
+		result = { outAt = marks.MagOut, inAt = marks.MagIn }
+	elseif data and clip.frames > 1 then
 		local outFrame: number? = nil
 		local peakFrame, peak = 0, 0
 		for f = 0, clip.frames - 1 do

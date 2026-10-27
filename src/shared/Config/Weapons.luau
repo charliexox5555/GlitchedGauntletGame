@@ -27,6 +27,11 @@ local SMG_VM = Vector3.new(0.46, -0.34, -0.92)
 local SIDEARM_VM = Vector3.new(0.42, -0.76, -1.3)
 local SIDEARM_SCALE = 1.1
 
+-- Open iron sights (round 2, RIVALS / Hypershot style, vault/02 Art/References/
+-- ads-refs): the eye close behind the rear ring, so it reads big and see-through
+-- with the front post centred inside it.
+local OPEN_IRONS_ADS = 0.3
+
 local TRACER = Color3.fromHex("FFD9A0") -- warm, like a real tracer round
 
 local weapons: { [string]: WeaponConfig } = {
@@ -74,6 +79,7 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.3,
 		},
 		adsFov = 68, -- 1.25x zoom from the 80 degree view
+		adsDistance = OPEN_IRONS_ADS,
 		adsTime = 0.2,
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
@@ -435,6 +441,7 @@ local weapons: { [string]: WeaponConfig } = {
 		},
 		suppressed = true, -- no tracer for enemies, quieter shot, small flash
 		adsFov = 72, -- 1.15x zoom
+		adsDistance = OPEN_IRONS_ADS,
 		adsTime = 0.17,
 		moveMultiplier = 1,
 		adsMoveMultiplier = 0.8,
@@ -638,6 +645,7 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.3,
 		},
 		adsFov = 58, -- 1.5x zoom
+		adsDistance = OPEN_IRONS_ADS,
 		adsTime = 0.25,
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.76,
@@ -839,6 +847,7 @@ local weapons: { [string]: WeaponConfig } = {
 			recoverTime = 0.35,
 		},
 		adsFov = 70, -- 1.15x zoom
+		adsDistance = OPEN_IRONS_ADS,
 		adsTime = 0.3,
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.7,
@@ -890,7 +899,7 @@ local weapons: { [string]: WeaponConfig } = {
 		},
 		adsFov = 70, -- 1.15x zoom
 		adsTime = 0.32,
-		adsDistance = 1.0, -- the eye further back, so the big rear sight sits lower and smaller
+		adsDistance = OPEN_IRONS_ADS,
 		moveMultiplier = 0.85,
 		adsMoveMultiplier = 0.65,
 		penetration = "All",

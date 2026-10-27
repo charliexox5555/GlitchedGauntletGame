@@ -952,10 +952,20 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	return gun
 end
 
+-- Eye to AimPoint while aiming. Studio only: a Workspace number attribute
+-- VmAdsDistance overrides it (re-draw to refresh the sight-line hiding).
+local function adsDistanceOf(weapon: WeaponConfig): number
+	local live = if studio then Workspace:GetAttribute("VmAdsDistance") else nil
+	if typeof(live) == "number" then
+		return live
+	end
+	return weapon.adsDistance or VM.ADS_DISTANCE
+end
+
 -- Called once the gun is in the workspace (raycasts need it there).
 local function finishGun(gun: Gun, weapon: WeaponConfig)
 	if not weapon.noAds then
-		local distance = weapon.adsDistance or VM.ADS_DISTANCE
+		local distance = adsDistanceOf(weapon)
 		for _, p in findOccluders(gun, distance, weapon.adsOffset or Vector3.zero) do
 			if not table.find(gun.adsHide, p) then
 				table.insert(gun.adsHide, p)
@@ -1535,7 +1545,7 @@ local function holdPose(
 	local base = hip
 	if adsT > 0 then
 		local ads = CFrame.new(c.adsOffset or Vector3.zero)
-			* CFrame.new(0, 0, -(c.adsDistance or VM.ADS_DISTANCE))
+			* CFrame.new(0, 0, -adsDistanceOf(c))
 			* CFrame.new(-gun.aimRel)
 		base = hip:Lerp(ads, adsT)
 	end
