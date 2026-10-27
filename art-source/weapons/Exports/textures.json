@@ -36,15 +36,15 @@
   }
  },
  "Ghost": {
-  "ColorMap": 124071189534447,
-  "NormalMap": 97339435079338,
-  "RoughnessMap": 72053498096665,
-  "MetalnessMap": 106314264416327,
+  "ColorMap": 80809447868952,
+  "NormalMap": 74440337594607,
+  "RoughnessMap": 97203996102190,
+  "MetalnessMap": 112267814769103,
   "decals": {
-   "Color": 139618492163077,
-   "Normal": 139282482468499,
-   "Roughness": 133606527029918,
-   "Metalness": 94229677898716
+   "Color": 137027317040622,
+   "Normal": 127308460653695,
+   "Roughness": 126511191448379,
+   "Metalness": 79731574267504
   }
  },
  "Judge": {

@@ -142,7 +142,7 @@ def build():
 	mats = gunkit.begin(GUN)
 	parts = build_parts(mats)
 	return gunkit.assemble(GUN, parts, mats, BONES, LOCATORS,
-		{"class": "Sidearm", "tier": "T1", "template_version": 2, "length_rel": 0.64, "att_positions": "{}", "pbr": True})
+		{"class": "Sidearm", "tier": "T1", "template_version": 2, "length_rel": 0.64, "att_positions": "{}", "pbr": True}, widen={"*": 1.4, "Suppressor": 1.0, "Frame": 1.3, "Mag": 1.25, "Trigger": 1.0})
 
 
 if __name__ == "__main__":
