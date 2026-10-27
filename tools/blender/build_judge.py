@@ -5,7 +5,7 @@
 # Family conventions in tools/blender/gunkit.py. Traced from the side view of
 # vault/02 Art/References/Gun-Image-Concepts/Compact Drum-Fed Shotgun Concept Sheet-3.png (P converts pixels).
 # No ADS (shotgun): no AimPoint. The drum is the "Mag" bone (one detachable assembly; its axis runs along the
-# barrel and it never spins). Side charging handle on the left, bolt seen through a right-side port.
+# barrel and it never spins). Round 2: top cocking slide (ChargingHandle bone), bolt seen through a right-side port.
 
 import bmesh, bpy, importlib, math, os, sys
 from mathutils import Vector
@@ -132,8 +132,13 @@ def build_parts(mats):
 	mag.add(box(X(690), X(590), -0.06, 0.06, Z(865), Z(826), DARK), 0.006, 1)  # feed tower into the receiver
 
 	chh = part("ChargingHandle", "ChargingHandle")
-	chh.add(box(X(724), X(706), rw - 0.008, rw + 0.012, Z(803), Z(787), METAL), 0.003, 1)
-	chh.add(box(X(724), X(712), rw + 0.01, rw + 0.034, Z(802), Z(788), METAL), 0.003, 1)
+	# Round 2: a top action. A serrated cocking slide rides on the receiver top (racked on draw, cycles every shot)
+	# with a knob standing up at its rear; it keeps the ChargingHandle name so the game's rules apply unchanged.
+	slide = prism(P([(560, 729), (566, 715), (700, 715), (706, 729)]), "Y", -0.05, 0.05, METAL)
+	serr = mirror_y(group(*[box(X(x + 4), X(x), 0.044, 0.07, Z(726), Z(716)) for x in range(640, 694, 9)]))
+	chh.add(cut(slide, serr, mats, DARK, bw=0.004, segs=1), 0)
+	chh.add(prism(P([(684, 716), (688, 698), (708, 698), (712, 716)]), "Y", -0.024, 0.024, METAL), 0.005, 1)  # knob
+	chh.add(prism(P([(690, 700), (692, 694), (704, 694), (706, 700)]), "Y", -0.03, 0.03, DARK), 0.004, 1)  # knob cap
 
 	bolt = part("Bolt", "Bolt")
 	bolt.add(box(X(798), X(702), -rw + 0.004, -rw + 0.026, Z(798), Z(772), METAL), 0.002, 1)
@@ -152,7 +157,7 @@ CHARM = (X(520), 0.08 + 0.002 + 0.012, Z(840) - 0.049)
 BONES = [
 	("Root", None, (0.0, 0.0, 0.15)),
 	("Mag", "Root", (X(642), 0.0, Z(850))),
-	("ChargingHandle", "Root", (X(715), 0.09, Z(795))),
+	("ChargingHandle", "Root", (X(700), 0.0, Z(720))),  # round 2: top slide
 	("Bolt", "Root", (X(750), -0.065, Z(785))),
 	("Trigger", "Root", (X(812), 0.0, Z(864))),
 	("FireSelector", "Root", (X(856), 0.09, Z(838))),
@@ -175,7 +180,7 @@ def build():
 	mats = gunkit.begin(GUN)
 	parts = build_parts(mats)
 	return gunkit.assemble(GUN, parts, mats, BONES, LOCATORS,
-		{"class": "Shotgun", "tier": "T2", "template_version": 2, "length_rel": 0.8, "att_positions": "{}", "pbr": True})
+		{"class": "Shotgun", "tier": "T2", "template_version": 2, "length_rel": 0.8, "att_positions": "{}", "pbr": True}, widen={"*": 1.25, "Barrel": 1.0, "Mag": 1.0, "Sights": 1.0, "Grip": 1.05, "Trigger": 1.0, "ChargingHandle": 1.0})
 
 
 if __name__ == "__main__":
