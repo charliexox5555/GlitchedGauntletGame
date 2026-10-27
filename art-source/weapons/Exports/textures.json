@@ -84,15 +84,11 @@
   }
  },
  "Bucky": {
-  "ColorMap": 125309969145044,
-  "NormalMap": 104766251762132,
-  "RoughnessMap": 83421815330554,
-  "MetalnessMap": 123749039699785,
   "decals": {
-   "Color": 97785847901929,
-   "Normal": 72991293305735,
-   "Roughness": 120102498318704,
-   "Metalness": 80623605430988
+   "Color": 96810005228113,
+   "Normal": 105200151381266,
+   "Roughness": 126073163677164,
+   "Metalness": 100542870909332
   }
  },
  "Sheriff": {
@@ -108,15 +104,15 @@
   }
  },
  "Bulldog": {
-  "ColorMap": 140514980299310,
-  "NormalMap": 88534764622640,
-  "RoughnessMap": 106833137558321,
-  "MetalnessMap": 91790664362656,
+  "ColorMap": 81686267290109,
+  "NormalMap": 91349281778727,
+  "RoughnessMap": 105134151457586,
+  "MetalnessMap": 115882065631611,
   "decals": {
-   "Color": 139774555732686,
-   "Normal": 72953573734745,
-   "Roughness": 75890369124944,
-   "Metalness": 90406315884107
+   "Color": 94875947731877,
+   "Normal": 105794818223998,
+   "Roughness": 97005507954608,
+   "Metalness": 123548629157196
   }
  },
  "Guardian": {

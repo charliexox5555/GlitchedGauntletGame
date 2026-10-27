@@ -38,7 +38,7 @@ def P(pts):
 
 
 BORE_Z = Z(766)
-SIGHT_Z = gunkit.sight_line(Z(725))  # round 2: open irons, rear ring centre = front post tip
+SIGHT_Z = gunkit.sight_line(Z(725), stem=0.065)  # round 3: the ring stands on a taller post so the bullpup top clears it  # round 2: open irons, rear ring centre = front post tip
 
 
 def build_parts(mats):
