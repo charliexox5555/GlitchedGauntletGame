@@ -1,0 +1,34 @@
+# Abilities: base redesign (one by one)
+
+We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time, Valorant-style. The specs pile up here and then **get built together in one Claude Code session**. Paths and glitches come later.
+
+> These specs **override** the L1 sections in [Mods](../Mods.md) where they differ.
+> **Theme (2026-10-28):** the digital/glitch theme is **shelved for now**. This is a classic gun game; names and looks are plain and readable. It may come back later.
+
+## Status
+| # | Ability | Was | Spec | Built |
+|---|---|---|---|---|
+| 1 | [Dash](Dash.md) | Blink | ✅ locked 2026-10-28 | ⬜ |
+| 2 | [Updraft](Updraft.md) | Launch Pad | ✅ locked 2026-10-28 | ⬜ |
+| 3 | Packet | — | ⬜ to redesign | — |
+| 4 | Firewall | — | ⬜ to redesign | — |
+| 5 | Lag Field | — | ⬜ to redesign | — |
+| 6 | Ping | — | ⬜ to redesign | — |
+| 7 | Patch Up | — | ⬜ to redesign | — |
+| 8 | Overclock | — | ⬜ to redesign | — |
+| 9 | Rollback | — | ⬜ to redesign | — |
+
+## Rules for every base ability
+- **Charges, not one cooldown rule for all.** Each ability sets its own: a number of **charges per round** (refilled at round start, no recharge) and/or a **cooldown**, like Valorant (Jett's dash vs Sova's dart). It's decided per ability below.
+- **Test mode:** there's no round system yet, so the dev panel has a **"Test mode: unlimited charges"** toggle (on by default in Studio). RoundService will later call a "refill charges" function at round start.
+- **Keys:** PC **Q / E / T** · gamepad LB / RB / D-pad up · mobile buttons. Instant abilities fire on press (mobile-friendly).
+- **Readable for enemies:** clear look and a 3D sound others can hear.
+- **Sound:** every ability gets named sound **hooks** in `Config/ModSounds` (separate slots, own volume and pitch, one ID to swap). The user does the final sound design.
+- Server-authoritative; movement abilities run in the movement simulation like the current Blink.
+
+## Build prompt (paste into Claude Code when the specs are ready)
+```text
+Build the abilities whose spec is "locked" and built "⬜" in vault/01 Design/Abilities/00 Abilities.md. Read CLAUDE.md, that overview and each ability's note first; the notes override vault/01 Design/Mods.md for L1. Inspect the current Mod code (src/shared/Mods, Config/Mods.luau, ModService, ModController, ModFeelController, ModFxController, ViewmodelController, ModSounds) and build on it.
+Do one ability at a time, in the order of the table. For each: implement it, STOP and tell me exactly what to test in Studio, and wait for my OK. Then run stylua and selene, tick "Built" in the overview, update the ability note if any number changed, update vault/00 Home.md Status, and commit and push.
+First, before any ability: add the per-ability charge system (charges per round and/or cooldown, as data in Config/Mods.luau), the "Test mode: unlimited charges" dev toggle, and a refill function for the future RoundService.
+```
