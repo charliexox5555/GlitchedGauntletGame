@@ -6,6 +6,9 @@ through the Studio MCP. With -o it writes the bundle to a file instead.
 
     python tools/studio/lobby/bundle.py Hub
     python tools/studio/lobby/bundle.py Hub Wing_Duels Wing_Market Wing_Weapons Wing_Range -o all.luau
+    python tools/studio/lobby/bundle.py Art_Hub -o art.luau
+
+Art_* bodies also get ArtKit.luau (after GreyboxKit) for the kit placement helpers.
 """
 
 import argparse
@@ -23,10 +26,12 @@ def body(name: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("names", nargs="+", help="Hub, Wing_Duels, Wing_Market, Wing_Weapons, Wing_Range")
+    ap.add_argument("names", nargs="+", help="Hub, Wing_*, Art_*")
     ap.add_argument("-o", "--out", help="write the bundle here instead of stdout")
     args = ap.parse_args()
     parts = [(HERE / "GreyboxKit.luau").read_text(encoding="utf-8")]
+    if any(n.startswith("Art_") for n in args.names):
+        parts.append(body("ArtKit"))
     for name in args.names:
         # Each body runs in its own do-block so their locals don't collide.
         parts.append(f"do -- {name}\n{body(name)}\nend")

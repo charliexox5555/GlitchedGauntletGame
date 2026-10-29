@@ -12,6 +12,8 @@ in place (new version) instead of creating a duplicate asset.
 
 --abilities uploads the Mod props instead (tools/blender/export_mods.py ->
 art-source/abilities/Exports/<Mod>.fbx, asset IDs in that folder's assets.json).
+--lobby uploads the Lobby kit groups (tools/blender/export_lobby_kit.py ->
+art-source/lobby/Exports/<Group>.fbx, asset IDs in that folder's assets.json).
 """
 
 import argparse
@@ -95,7 +97,7 @@ def upload(gid, creator, record, kind="weapon"):
 	else:
 		meta = {
 			"assetType": "Model",
-			"displayName": f"GG_{gid}" if kind == "weapon" else f"GG_Mod_{gid}",
+			"displayName": {"weapon": f"GG_{gid}", "ability": f"GG_Mod_{gid}", "lobby": f"GG_Lobby_{gid}"}[kind],
 			"description": f"GlitchedGauntletGame {kind} mesh: {gid}",
 			"creationContext": {"creator": creator},
 		}
@@ -111,6 +113,7 @@ def main():
 	ap.add_argument("--group", type=str)
 	ap.add_argument("--user", type=str)
 	ap.add_argument("--abilities", action="store_true", help="upload the Mod props (art-source/abilities/Exports)")
+	ap.add_argument("--lobby", action="store_true", help="upload the Lobby kit groups (art-source/lobby/Exports)")
 	ap.add_argument("ids", nargs="*")
 	args = ap.parse_args()
 	global EXPORTS, RECORD
@@ -118,6 +121,10 @@ def main():
 	if args.abilities:
 		kind = "ability"
 		EXPORTS = os.path.join(ROOT, "art-source", "abilities", "Exports")
+		RECORD = os.path.join(EXPORTS, "assets.json")
+	if args.lobby:
+		kind = "lobby"
+		EXPORTS = os.path.join(ROOT, "art-source", "lobby", "Exports")
 		RECORD = os.path.join(EXPORTS, "assets.json")
 	creator = {"groupId": args.group} if args.group else {"userId": args.user}
 	if not (args.group or args.user):
