@@ -2,7 +2,7 @@
 
 **Status:** design locked 2026-10-29 · **phase 1 (build and art only) next**
 
-> **Locked 2026-10-29:** the Lobby is a **new place named "Lobby" in the same experience**, and Claude works in both places. **Phase 1 is building and art only:** geometry, Blender kit, lighting and decorative scripts. **No game-structure code until the user approves the build** (phase 2). Prompt: [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md). Art plan and dimensioned layout: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md) (step 1 redone for the circular bunker hub, waiting for OK).
+> **Locked 2026-10-29:** the Lobby is a **new place named "Lobby" in the same experience**, and Claude works in both places. **Phase 1 is building and art only:** geometry, Blender kit, lighting and decorative scripts. **No game-structure code until the user approves the build** (phase 2). Prompt: [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md). Art plan and dimensioned layout: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md) (approved 2026-10-29; greybox next).
 **What it is:** the pre-game hub. Players spawn here in **third person**, hang out, slide around, queue (alone or with a party), shop, set their loadout, and practise in a separate **Range wing**. Matches happen in a different place.
 
 ---

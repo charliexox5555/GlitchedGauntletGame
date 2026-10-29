@@ -2,7 +2,7 @@
 
 The art plan for the [Lobby](../01%20Design/Lobby.md) place, phase 1 (build and art only). It holds the mood board, palette, materials and the top-down layout with dimensions, and it feeds the greybox (step 2) and the Blender kit (steps 3–4).
 
-**Status (2026-10-29):** step 1 redone for the **circular bunker hub** (user decision, 2026-10-29: a round spawn rotunda with a skylight, an outer ring and four wings; no courtyard). **Waiting for the user's OK.**
+**Status (2026-10-29):** step 1 redone for the **circular bunker hub** (user decision, 2026-10-29: a round spawn rotunda with a skylight, an outer ring and four wings; no courtyard). **Approved 2026-10-29** with the defaults: 88-stud rotunda (the greybox walk is the scale check), one-way ENTER/EXIT range gates, Market west / Weapons east, no ring light wells yet. **Step 2 greybox built 2026-10-29**, waiting for the user's walk test (see Greybox below).
 - **Research:** 3 reference sweeps (bunker and skylight architecture, moody game lobbies and weapon showrooms, Roblox hub scale).
 - **Layouts:** 3 independent layouts (readability, flow, mood), then a judge that rechecked the geometry and merged them into **"Sunwell Bunker"**.
 - **Superseded:** the earlier rectangular "Axis Hall" with a courtyard.
@@ -234,5 +234,26 @@ About 40 SurfaceGuis in total, each with a long side ≤ 1000 px.
 - **Range descent:** a slide down the 14° ramp toward the glass has 16 studs of run-off.
 - **Geometry:** RangeBuilder needs re-origining in phase 2 (floor −12, firing line z 146). Ring tiles must cut cleanly at the portals and alcoves. There must be open sky above y 60 for the beam.
 
+## Greybox (step 2, 2026-10-29)
+- **Built** in the Lobby place as `Workspace.Lobby.Greybox` by [`tools/studio/LobbyGreybox.luau`](../../tools/studio/LobbyGreybox.luau). Re-running it replaces the greybox, and it refuses any other place. 7 folders, about 690 parts: Rotunda, Ring, Wing_Duels, Wing_Market, Wing_Weapons, Wing_Range, RangeShell.
+- **Removed:** the template Baseplate and SpawnLocation (the baseplate covered the sunken Range). The spawn is `Rotunda.LobbySpawn`.
+- **Lighting:** the planned sun is set (ClockTime 12, GeographicLatitude 33.5 gives exactly (0, 0.985, 0.174)). Ambient is lifted only for the greybox walk; step 6 sets the real values.
+- **Checked by three independent read-only passes (all fixed):**
+  - plan match: every zone is within tolerance
+  - floor holes: 36K downward rays, none
+  - leaks: 400-direction ray spheres from 35 points; the only openings are the skylight and the range roof slots
+  - spawn sightlines
+- **Changes the checks forced** (these replace the numbers in the Signs table above):
+  - The flat title bands sank into the curved lintels, so they now sit at R66.3 (side wings) and R64.4 (DUELS) and are 10 tall (y 16.5–26.5). WEAPONS is 4.0 caps.
+  - The Duels floor and ceiling start at z −64.6, so they don't poke into the ring.
+  - End pad signs are 14 × 9.5 (y 8–17.5), so the 5-cap mode and the count both fit.
+  - Leaderboards hang at y 12–25.5 and show the top 3 rows (5 don't fit at 1.8 caps). Their PPS is about 28, so TextSize stays ≤ 100. The arrows on their backs were mirrored and are fixed.
+  - Pier plaques are 15 wide, because "WEAPONS >" at a readable size is about 14 studs of GothamBlack.
+  - All sign text scales down to fit its panel and never goes above the planned cap.
+  - The 25 marker is 2.6 caps (the gallery is about 70–75 studs away). The range shell has its roof with 3 north–south sun slots.
+- **Screenshots:** `References/lobby/greybox/`: 01 spawn, 02 duels, 03 market, 04 weapons-locker, 05 range-gallery, 06 ring, 07 skylight.
+
+![Spawn view](References/lobby/greybox/01-spawn.jpg)
+
 ## Next
-Step 2: greybox in the Lobby place from the zone table, with simple coloured parts per zone at real scale, and the round parts built by script on the 32-segment grid, so the user can walk and slide it.
+The user walk-tests the greybox at real scale (walk, sprint, slide the ring, ramp down to the range) and approves or asks for size changes. Then step 3: the Blender modular kit design sheet.
