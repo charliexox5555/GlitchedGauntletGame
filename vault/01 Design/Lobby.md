@@ -2,7 +2,7 @@
 
 **Status:** design locked 2026-10-29 · **phase 1 (build and art only) next**
 
-> **Locked 2026-10-29:** the Lobby is a **new place named "Lobby" in the same experience**, and Claude works in both places. **Phase 1 is building and art only:** geometry, Blender kit, lighting and decorative scripts. **No game-structure code until the user approves the build** (phase 2). Prompt: [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md). Art plan and dimensioned layout: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md) (step 1, waiting for OK; it proposes moving the shop and locker south, see §5 there).
+> **Locked 2026-10-29:** the Lobby is a **new place named "Lobby" in the same experience**, and Claude works in both places. **Phase 1 is building and art only:** geometry, Blender kit, lighting and decorative scripts. **No game-structure code until the user approves the build** (phase 2). Prompt: [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md). Art plan and dimensioned layout: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md) (step 1 redone for the circular bunker hub, waiting for OK).
 **What it is:** the pre-game hub. Players spawn here in **third person**, hang out, slide around, queue (alone or with a party), shop, set their loadout, and practise in a separate **Range wing**. Matches happen in a different place.
 
 ---
@@ -29,37 +29,36 @@
 - **After a match:** results screen → everyone teleports back to the lobby → a **"Queue again"** button; parties stay together.
 
 ## Look and feel
-- **Theme:** a **modern tactical training facility**: concrete, brushed steel, big glass walls, clean LED signage. A classic gun game, no sci-fi.
-- **Setting:** mixed. A bright **indoor central hall** that opens through glass doors onto an **outdoor courtyard**.
-- **Lighting:** **bright late afternoon**, with warm sun pouring through the glass. Inviting, readable on phones, and good for thumbnails.
+> **Changed 2026-10-29 (user):** a circular hub in an underground bunker replaced the rectangular glass hall with an outdoor courtyard. Dimensions and the full plan: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md).
+- **Theme:** a **modern tactical training facility built underground into rock** (a bunker): clean concrete, brushed and black steel, glass, warm oak, clean LED signage, with raw rock showing around the outer ring. Clean, never rundown. A classic gun game, no sci-fi.
+- **Setting:** fully enclosed, **no courtyard**. A big round **skylight over the spawn rotunda** drops a sunbeam onto the spawn.
+- **Lighting:** moody overall but bright where it matters (spawn, signs, pads). Each wing has its own light mood: **Duels dark and cold, like a horror-game lobby**; Market warm; Weapons neutral museum light; the Range bright daylight.
 - **Camera:** **third person** in the hub, with an optional **shift-lock** toggle. The Range wing switches to **first person**, so practice feels like a match.
 
-## Layout: central queue hall
+## Layout: circular hub with four wings
 ```
-              [ outdoor courtyard: benches, planters, slide ramps, open space ]
-                              ║ glass doors ║
-   ┌──────────────────────────────────────────────────────────┐
-   │  SHOP          ┌─── LEADERBOARDS (main wall) ───┐   LOCKER   │
-   │  (counter,     │                                │  (loadout, │
-   │   displays)    │   [1v1]    [2v2]    [3v3]     │   skins,   │
-   │                │      queue pads + counts       │   preview) │
-   │                └────────────────────────────────┘            │
-   │                         SPAWN                              │
-   │                 ══ RANGE WING GATE (back) ══                │
-   └──────────────────────────────────────────────────────────┘
+                     ┌──────── DUELS ────────┐
+                     │ dark hall, queue pads │
+                     │ + queue terminals     │
+                     └───────────┬───────────┘
+           ╭──────────── outer ring (slide loop, seats) ────────────╮
+ MARKET ───┤          ( spawn rotunda + skylight + leaderboards )   ├─── WEAPONS + LOCKER
+           ╰────────────────────────┬───────────────────────────────╯
+                                RANGE wing
+                      ramp down → viewing glass → gates → range
 ```
-Rough sizes (greybox to tune): hall ~120 × 90 studs with a ~40-stud ceiling; courtyard ~150 × 100 studs.
+Rough sizes (greybox to tune): rotunda 88 across, ring 24 wide, hub about 250 across, Range shell 244 × 242 one level down. Full zone table: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md).
 
 | Area | First version |
 |---|---|
-| **Spawn** | Facing the pads and the leaderboard wall, so new players see "play here" immediately |
-| **Queue pads** | **1v1, 2v2, 3v3** pads in the centre, with big signs and **live "X queued" counts**. Stand on a pad to join (party members on the same pad queue together). 4v4 and Gauntlet get added later |
-| **Play button** | A menu button that queues from **anywhere**, including inside the Range wing |
-| **Shop** | Counter + display stands. First version: browse cosmetics, placeholder items (the economy comes later) |
-| **Locker** | Set your loadout and skins, with a **3D preview of your character and guns** |
-| **Leaderboards** | Big screens on the main wall: wins, levels (ranked ladder later) |
-| **Courtyard** | Open space to hang out and slide around: benches, planters, a few ramps |
-| **Range wing gate** | The door to the Range wing at the back of the hall |
+| **Spawn rotunda** | Round hall under the skylight; you spawn on a dais in the sunbeam, **facing the Duels wing** |
+| **Leaderboards** | Big screens around the rotunda (wins, rating, streaks, eliminations), visible from spawn |
+| **Outer ring** | Wide concourse around the rotunda with a rock wall: the hang-out and **slide loop**, with seating alcoves cut into the rock |
+| **Duels wing** | Straight ahead from spawn. A dark, dramatic hall with **queue pads** for **1v1, 2v2, 3v3** (stand on a pad to queue; party members on the same pad queue together), big signs with **live "X queued" counts**, plus **queue terminals** that open the queue menu. Bays for 4v4 and Gauntlet are built but closed until those modes ship |
+| **Play button** | A menu button that queues from **anywhere**, including inside the Range |
+| **Market wing** | Shops, the battle pass wall and featured items. First version: placeholder items (the economy comes later) |
+| **Weapons wing** | Guns shown at a **big scale** on turntables and a giant hero gun (buying comes with the economy), plus the **Locker**: loadout and skins with a **3D preview of your character and guns** |
+| **Range wing** | Behind spawn: a ramp **down** to a viewing gallery whose glass looks onto the range, then you walk through the gate into the range |
 
 ## Hub rules
 - **Full movement:** sprint, **slide** and jump, like in matches. **No abilities** in the hub.
@@ -69,7 +68,7 @@ Rough sizes (greybox to tune): hall ~120 × 90 studs with a ~40-stud ceiling; co
   - an **emote wheel** (cosmetic emotes come later in the shop)
 
 ## Range wing
-A **walled zone inside the lobby place** (not a separate place): walk through the gate or press **"Range"** to enter. No loading screen, friends can join you, and you **can still queue from inside**.
+A **walled zone inside the lobby place** (not a separate place), one level down: walk down the Range wing past the viewing glass and through the ENTER gate, or press **"Range"**. No loading screen, friends can join you, and you **can still queue from inside**.
 - **All access:** every gun and **every ability** usable for practice.
 - **First person** inside, so it feels like a match.
 - **One shooting range:**
@@ -92,10 +91,10 @@ A **walled zone inside the lobby place** (not a separate place): walk through th
 **Phase 2: code (after the build is approved):** steps 1, 3, 4 and 6.
 
 1. **Places + Rojo:** swap the start place (see above) and split Rojo into lobby and match projects.
-2. **Greybox:** block out the hall, courtyard and Range wing with simple parts. Walk and slide test it, tune the sizes.
+2. **Greybox:** block out the rotunda, ring, four wings and the Range shell with simple parts. Walk and slide test it, tune the sizes.
 3. **Hub systems:** third-person camera + shift-lock, hub movement (no guns/abilities), queue pads + Play button + counts, teleport to and from the Match place, party invites, emotes.
 4. **Range wing:** move the test range in, with first person, all guns and abilities, and the zone rules.
-5. **Art pass in Blender:** a modular kit (walls, floors, glass, trims, signage, pads, shop counter, lockers, benches, planters) in the tactical facility style, with Blender preview renders first, then assembled in Studio. Late-afternoon lighting.
+5. **Art pass in Blender:** a modular kit (rotunda and ring segments, rock, portals, floors, trims, signage, pads, terminals, shop kiosks, gun turntables, lockers, seating) in the tactical bunker style, with Blender preview renders first, then assembled in Studio. Skylight sunbeam and per-wing lighting.
 6. **Shop/locker/leaderboard UIs** (placeholder data until the economy and stats exist).
 
 ## Build prompt

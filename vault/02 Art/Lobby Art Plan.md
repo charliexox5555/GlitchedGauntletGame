@@ -2,194 +2,237 @@
 
 The art plan for the [Lobby](../01%20Design/Lobby.md) place, phase 1 (build and art only). It holds the mood board, palette, materials and the top-down layout with dimensions, and it feeds the greybox (step 2) and the Blender kit (steps 3–4).
 
-**Status (2026-10-29):** step 1 drafted, **waiting for the user's OK**. Research: 4 reference sweeps (tactical facilities, glass-and-concrete architecture, esports venues and game hubs, RIVALS and Roblox scale), 3 independent layouts (readability, flow, light), and a judge that rechecked every number and merged them into **"Axis Hall"**.
+**Status (2026-10-29):** step 1 redone for the **circular bunker hub** (user decision, 2026-10-29: a round spawn rotunda with a skylight, an outer ring and four wings; no courtyard). **Waiting for the user's OK.**
+- **Research:** 3 reference sweeps (bunker and skylight architecture, moody game lobbies and weapon showrooms, Roblox hub scale).
+- **Layouts:** 3 independent layouts (readability, flow, mood), then a judge that rechecked the geometry and merged them into **"Sunwell Bunker"**.
+- **Superseded:** the earlier rectangular "Axis Hall" with a courtyard.
 
 ---
 
 ## 1. Mood board
 
-**One line:** a premium police/pro-sports training centre on a sunny late afternoon. It's built from pale polished concrete, warm oak, black steel and big glass, with a bronze accent. The only saturated colour is on the queue pads and screens. It should look clean and expensive, not gritty or sci-fi.
+**One line:** a clean, expensive tactical training bunker cut into rock. A single sunbeam falls through a round skylight onto the spawn. Each wing has its own light mood, and the Duels hall is dark and tense like a horror-game lobby. Clean, never rundown, never sci-fi.
 
 ### What it should feel like
-- **Premium comes from finishes, not detail:** polished concrete, oak, one stone, glass, all flat and clean. No grime, rust or clutter decals. (Gallery Sportsman's Club set out to avoid the "dark, dingy range" look.)
-- **Neutral shell, one warm hero accent:** a monochrome concrete/white/charcoal hall, with **bronze** only on the things a new player should walk to (spawn kiosk, SHOP/LOCKER blade pylons, Range gate). This follows Budakeszi's copper reception desk.
-- **Warm wood overhead, cool concrete at the sides, pale floor underfoot.** Nearly every premium training centre puts the warm material in the ceiling, and a third-person camera sees a lot of ceiling.
-- **Colour means "play here":** the mode colours appear only on pads, pad signs and the HUD, never in the building, so the pads are the most saturated thing in every frame and thumbnail.
-- **The sun is the show:** low warm sun through black-steel mullions lays long striped shadows on a light floor, with cool blue shadow fill. The thick dark roof fascia frames the glow (Neue Nationalgalerie at sunset).
-- **Glass divides without hiding:** viewing glass into the Range, glass vitrines for featured guns, and a glazed joint between the bright hall and the solid "loud block" of the Range wing.
+- **One hole, one beam, one target.** The hero shot is a mid-dark coffered dome around one bright disc of sky. Its beam lands on the spawn, which is the brightest thing in the building.
+- **Raw rock against crisp architecture.** Rock shows only on the outer ring wall, around the skylight and high in the wings. Floors, plinths, signs and furniture stay dead straight and clean. Finished parts never butt into rock: a glowing gap, a deep concrete portal frame or a shadow gap always separates them.
+- **Compress, then release.** You pass through a lower, narrower portal from the ring, then each wing opens up. The Range adds a step down to a viewing wall as its own reveal.
+- **Every wing reads by three cues:** a big white-on-charcoal title over its portal, its own light temperature, and one hero object visible down its axis.
+  - **Duels:** cold and dark, with lit pads glowing in their mode colours.
+  - **Market:** warm and bright, with a battle-pass LED wall.
+  - **Weapons:** neutral museum light, with a giant hero rifle.
+  - **Range:** bright daylight lanes seen through glass.
+- **The horror-lobby mood comes from darkness plus thin bright lines.** One light pool per pad, darkness between pools, light slits, deep-red edge strips and low haze, with no coloured rooms. The pads stay the most saturated things on screen.
+- **Never show the light source.** Hidden cove strips, ceiling slots and back-lit panels read as premium, while visible bulbs read as cheap.
+- **Mass behind, one hero in front.** In Weapons, a wall of real-size guns forms the backdrop for a single giant hero gun. In Market, calm repeated counters frame one slowly turning centrepiece.
 
 ### References
-Links only (the images stay on their sites). **Take** is the specific thing to borrow.
+These are links only, so the images stay on their sites. **Take** is the specific thing to borrow.
 
 | Zone | Reference | Take |
 |---|---|---|
-| Hall | [Budakeszi shooting range (Monarch ZT)](https://www.heinze.de/architekturobjekt/schiessstand/13127281/) | Black/white/grey shell with one copper accent; double-height glazed entry |
-| Hall | [Neue Nationalgalerie at sunset](https://commons.wikimedia.org/wiki/File:Neue_Nationalgalerie_at_sunset.jpg) | **Lighting target:** low sun in a glass hall, dark roof fascia, long mullion shadows on a pale floor |
-| Hall | [S. R. Crown Hall (Mies)](https://en.wikipedia.org/wiki/S._R._Crown_Hall) | Mullion rhythm with a transom; frosted glass below it, clear above |
-| Hall | [Detroit Pistons Performance Center (HOK)](https://www.hok.com/projects/view/henry-ford-health-detroit-pistons-performance-center/) | Solid concrete plinth with the glass band above it; frit gradient on sun-facing glass |
-| Hall | [Jacksonville Jaguars Performance Center (HOK)](https://www.hok.com/projects/view/jacksonville-jaguars-miller-electric-performance-center/) | Accent colour on ~10% of surfaces (pads, signs, trim) only; warm wood slat portal |
-| Hall | [Esports Stadium Arlington (Populous)](https://populous.com/project/esports-stadium-arlington) | Competition core in the middle, retail and player wings on either side; one sign family |
-| Materials | [Spurs Performance Center (ZGF)](https://www.bdcnetwork.com/building-sector-reports/sports-and-recreational-facilities/news/55165951/san-antonio-spurs-new-practice-facility-aims-to-help-players-win-championships-and-maintain-well-being) | Warm glulam/wood ceiling over cool board-formed concrete |
-| Materials | [Salk Institute (Kahn)](https://en.wikipedia.org/wiki/Salk_Institute_for_Biological_Studies) | Concrete V-groove joints on a 4 × 8-stud grid with tie-hole dots, done as texture rather than geometry |
-| Materials | [Akademie der Polizei Hamburg (Troldtekt)](https://www.troldtekt.dk/referencer/erhverv/akademie-polizei-hamburg/) | Linear acoustic slats whose direction turns per zone, marking zones from the ceiling |
-| Pads | [RIVALS (Roblox)](https://www.roblox.com/games/17625359962/RIVALS) and the [RIVALS Lobby wiki](https://robloxrivals.fandom.com/wiki/Lobby) | Pads are the first thing you see; a row ordered by team size; a sign over each pad |
-| Pads | [Call of Duty: WWII Headquarters](https://kotaku.com/call-of-duty-wwiis-hq-lets-you-socialize-duel-and-1820123460) | Every function is a station you walk to; the queue is a visible place others watch |
-| Leaderboard | [Syracuse Esports Center LED walls](https://www.sportsvideo.org/2025/04/04/direct-view-led-video-walls-from-daktronics-bring-esports-and-gaming-to-life-at-syracuse-university/) | LED ribbon trims; big screens framed in black steel |
-| Leaderboard | [NYPD Police Academy (Perkins+Will)](https://interiordesign.net/projects/perkins-will-teams-with-michael-fieldman-for-mammoth-nyc-police-academy/) | Coloured light only on one hero piece; everything else neutral or warm |
-| Shop | [Kolchuga gun salon (Archpoint)](https://www.archilovers.com/projects/293284/kolchuga.html) | Terrazzo floor only in the shop; tall LED-lit glass cabinets; black track lights |
-| Shop | [Gallery Sportsman's Club (Nadel)](https://www.nadelarc.com/work/the-gallery-sportsman's-club-%26-range) | Polished concrete, solid wood fixtures, one stone counter top; glass views into the lanes |
-| Shop | [LoL Park, Seoul](https://www.invenglobal.com/articles/6239/sights-from-the-riots-new-lck-stadium-in-korea-lol-park) | Shop visible on arrival; lit plinths face the spawn |
-| Locker | [5.11 Tactical HQ (LPA)](https://lpadesignstudios.com/projects/511-tactical) | Tactical showroom: kitted figures on plinths, steel casework, a big screen behind the pedestal, exposed charcoal ducts |
-| Locker | [Team Liquid training facility (AHH)](https://www.ahh.nl/en/projects/team-liquids-alienware-training-facility-eu) | A tall glass vitrine as a see-through divider; exposed cable trays as "real facility" ornament |
-| Range | [Tübingen police training centre](https://www.baunetzwissen.de/sicherheitstechnik/objekte/behoerden-justiz/einsatztrainings--und-schiesszentrum-polizeidirektion-tuebingen-1091755) | Glazed public wing + solid concrete "loud block" + a glazed joint, which becomes our gate and vestibule; aluminium sun louvres |
-| Range | [Caracal Shooting Club (PTW)](https://worldarchitecture.org/architecture-projects/engn/caracal-shooting-club-project-pages.html) | Staged thresholds into the range; a raised viewing gallery (later) |
-| Range | [Valorant Range critique (THESPIKE)](https://www.thespike.gg/news/opinion-how-can-the-range-be-improved/402) | Practice activities as clearly bounded, labelled bays |
-| Courtyard | [Clark Art Institute (Ando)](https://www.designboom.com/architecture/tadao-ando-connects-the-clark-institute-with-new-visitor-center-12-18-2013/) | Shallow terraces, dark granite paving bands, a long low feature strip |
-| Courtyard | [Apple Park Visitor Center (Foster)](https://www.gooood.cn/apple-park-visitor-center-by-foster-partners.htm?lang=en) | Wood-slat ceiling over a glass box; trees in a grid of square planters |
-| Courtyard | [Sunset at the Salk Institute](https://www.eurekalert.org/multimedia/600427) | Warm sun on concrete, cool shadow fill, one strong axis toward the sun |
-| Courtyard | [Blackrock Police Training Centre (Dezeen)](https://www.dezeen.com/2015/11/27/haverstock-blackrock-police-training-centre-gabions-shooting-range-disused-quarry-bristol-england/) | Gabion planter walls: rich palette in front of house, plain and robust in the Range |
-| Signage | [London 2012 Shooting Venue (Magma)](https://www.archdaily.com/244370/olympic-shooting-venue-magma-architecture) | White planes with a few bold colour accents, which read at thumbnail size |
-| Scale | [Roblox docs: Greybox your environment](https://create.roblox.com/docs/tutorials/curriculums/environmental-art/greybox-your-environment) | 5-stud snap, doors ≥ 10 wide, walls taller than a jump |
+| Rotunda | [Pantheon, Rome](https://en.wikipedia.org/wiki/Pantheon,_Rome) | Rotunda + oculus proportions (oculus ≈ 0.2–0.36 of the diameter), coffered dome, a sun disc moving over the coffers. Lower it for a phone camera |
+| Rotunda | [Turrell, Twilight Epiphany Skyspace](https://www.metalocus.es/en/news/turrell-skyspace-rice-university) | Knife-edge skylight rim, so the sky reads as a crisp disc; a perimeter bench |
+| Rotunda | [Destiny 2: The Tower](https://www.destinypedia.com/Tower_(Destiny_2)) | Spawn slightly raised, overlooking the hub; every wing has one named destination |
+| Ring | [Temppeliaukio rock church](https://en.wikipedia.org/wiki/Temppeliaukio_Church) | Rock wall → continuous light gap → floating finished ceiling on radial beams |
+| Ring | [Washington Metro vaults](https://savingplaces.org/stories/save-brutalism-inside-washington-dc-metro) | Hidden uplight slot washing a coffered ceiling; no visible fixtures |
+| Ring | [Teshima Art Museum](https://architizer.com/projects/teshima-art-museum) | Small knife-edged light wells repeat the skylight motif (option for the diagonals) |
+| Materials | [Pionen bunker, Stockholm](https://en.wikipedia.org/wiki/Pionen) | Raw rock with clean steel and glass set into it (leave out its sci-fi props); oak and plants for warmth |
+| Materials | [Church of the Light (Ando)](https://detail.de/de_en/sensory-masterpiece-church-of-the-light-by-tadao-ando-in-ibaraki-1991) | Concrete formwork grid 3.2 × 6.4 studs with tie-hole dots; light slits in a dark room (Duels) |
+| Materials | [Stockholm metro rock stations](https://en.wikipedia.org/wiki/List_of_Stockholm_metro_stations) | Irregular cave plus crisp, level built elements; rock as one flat colour wash |
+| Materials | [Hill Country Wine Cave](https://www.theplan.it/eng/design/hill-country-wine-cave-a-cellar-carved-entirely-out-of-rock) | Deep board-formed concrete portal frames cut into rock at each wing mouth |
+| Materials | [Cheyenne Mountain Complex](https://www.airandspaceforces.com/article/fifty-years-of-mission-in-the-mountain/) | Rooms as clean pavilions standing free of the rock, with a lit shadow gap |
+| Flow | [Hill of the Buddha (Ando)](https://www.asla.org/news-insights/dirt/tadao-andos-hill-of-the-buddha) | Compress-then-release approach into each wing |
+| Duels | [Dead by Daylight: Campfire](https://deadbydaylight.wiki.gg/wiki/Campfire) | One warm pool per group and darkness between pools |
+| Duels | [Phasmophobia truck](https://www.thegamer.com/phasmophobia-truck-overhaul-update-version-0620-explained/) | Wall consoles whose screen glow is the only light on your face (queue terminals) |
+| Duels | [Rainbow Six Siege rim lighting](https://www.trustedreviews.com/news/rainbow-six-sieges-old-operators-could-be-getting-a-visual-redesign-to-make-them-look-like-heroes-3810646) | Cool rim light behind standing areas, so silhouettes pop against black |
+| Duels | [Tower Defense Simulator elevators](https://tds.fandom.com/wiki/Elevators) | Pad sign hierarchy: MODE / X of N QUEUED / waiting or countdown bar |
+| Market | [Gentle Monster flagship](https://hypebeast.com/2026/9/look-inside-gentle-monster-reimagined-new-york-flagship-store) | One slow-moving centrepiece with calm repeated counters around it |
+| Weapons | [Royal Armouries, Hall of Steel](https://en.wikipedia.org/wiki/Royal_Armouries_Museum) | Trophy wall of real-size guns as a backdrop |
+| Weapons | [Beretta Gallery](https://www.hookandbarrel.com/shooting/new-york-beretta-gun-gallery) | Hero gun on an island plinth you can walk around |
+| Weapons | [Giant factice display models](https://www.jhmay.com/giant-perfume-display-bottle-models/) | Scale to a target on-screen size, not a fixed factor: rifles 4–6×, pistols 8–10× |
+| Weapons | [Chichu Art Museum](https://benesse-artsite.jp/en/story/20210611-1671.html) | Hidden-slot daylight for display rooms, with rounded corners so the object is the only hard edge |
+| Range | [Ready or Not: Headquarters](https://readyornot.wiki.gg/wiki/Headquarters) | Going down to the range is a ritual: a wide gentle descent with the viewing glass on the high side |
+| Range | [Valorant: The Range](https://www.redbull.com/au-en/the-practice-range-map-guide-valorant) | The range is brighter and cooler than the hub: "lights on, focus" |
+| Lighting | [Roblox: Beams](https://create.roblox.com/docs/effects/beams.md) and [Atmosphere](https://create.roblox.com/docs/environment/atmosphere) | Fake god rays need Beams + a bright floor hot-spot + one shadowless SpotLight; haze only shows on long sightlines |
+| Scale | [RIVALS lobby video](https://www.youtube.com/watch?v=JJQYje2J3lM) | Visual check only: count avatar heights across a rotunda before locking our size |
 
-**Gap:** no text source gives RIVALS's exact pad size or spacing (the Fandom wiki blocks fetching). Before locking the pad size in step 2, measure it against avatar widths in the [1v1 walkthrough](https://www.youtube.com/watch?v=vJZc8h8fU2U), or in game.
+**Gap:** no public source gives lobby sizes in studs. All our numbers are derived from our movement and readability rules, so measure once against a lobby video before the greybox is locked (see Open questions).
 
 ## 2. Palette and materials
 
 ![Palette](References/lobby/lobby-palette.svg)
 
-| Material | Colour | Roblox | Where |
-|---|---|---|---|
-| Polished concrete floor | `#CFCAC1` | Concrete MaterialVariant, low reflectance, light so the mullion shadows read | Hall floor |
-| Board-formed concrete | `#B5AD9C` | Concrete MaterialVariant (board marks, V-grooves, tie holes) | Hall side and back walls, leaderboard wall, Range shell |
-| Light precast | `#E6E3DC` | SmoothPlastic + subtle texture | Upper panels, courtyard walls, planters |
-| Black steel | `#23262A` | Metal / SmoothPlastic | Mullions, roof fascia (4–6 studs), door and sign frames, track lights |
-| Brushed steel | `#9CA2A8` | Metal, reflectance 0.1–0.15 (not DiamondPlate) | Rails, pad rims, display bases, louvres |
-| Warm oak | `#B98A5A` | Wood MaterialVariant | Ceiling slats and beams, shop counter, benches |
-| Glass | `#A9C9CF` | Glass, one layer, CastShadow off | Curtain walls, doors, vitrines |
-| Bronze (hero accent) | `#B8733F` | Metal | Spawn kiosk, SHOP/LOCKER blade pylons, Range gate frame (nothing else) |
-| Terrazzo | light speckled grey | Concrete MaterialVariant | Shop floor only (marks the zone) |
-| Courtyard paving | `#D9CDB6` with `#5F6166` bands | Concrete_Tiles variant | Courtyard; dark bands every ~12 studs |
+| Material | Colour | Where |
+|---|---|---|
+| Board-formed concrete (3.2 × 6.4 formwork grid, tie holes) | `#8E8C87` | Rotunda drum and piers, portal frames, wing walls |
+| Polished floor | `#B9B4AA` | Rotunda floor, with a lighter sun hot-spot inlay `#F2EADB` |
+| Dark honed concrete | `#3A3B3D` | Ring floor (with an oak slide band), Duels floor |
+| Granite rock | `#55524E` (dark `#2E2F33` in Duels) | Ring outer wall, around the skylight, high in the wings |
+| Black steel | `#1C1D20` | Skylight rim and spokes, portal lintels, trusses, frames |
+| Brushed steel | `#A7ABB0` | Rails, pad rims, plinth trims |
+| Warm oak | `#A0703F` | Seating alcove tiers, Market slat walls and counters, the ring slide band |
+| Brass | `#B8873F` | Spawn dais compass inlay, locker pedestal (the only warm metal) |
+| Glass | one layer, Transparency ~0.7 | Range viewing wall, Market featured cases |
 
-**Signs (one sign family):** white (`#F4F6F8`) heavy sans-serif, all caps, on a charcoal steel panel (`#23272B`) with a thin edge strip. Screens are `#0B0D10` with LightInfluence 0. Never put light text directly on sunlit concrete.
-**Mode colours (pads, pad sign edges and HUD only):** 1v1 green `#3DDC84` · 2v2 blue `#3B8CFF` · 3v3 purple `#9B5CFF` · 4v4 orange `#FF7A1A` (later) · Gauntlet gold `#FFC83D` (later; the game's existing accent gold). Mode identity is always colour **plus** a big numeral, never colour alone. 4v4 is orange rather than red so it doesn't read as the enemy colour `#FF5A36`.
-**Floor markings (tactical touch):** safety yellow `#F2C230` guide lines and pad-edge chevrons; firing-line red `#D3262E` in the Range only.
-**Light:** sun `#FFD7A3`, shadow fill `#5D6B7C` (blue shadows against warm sun).
+**Signs (one sign family):** white `#F4F4F2` heavy sans-serif, all caps, on charcoal steel `#2A2C30`. Screens are `#0B0D10` with LightInfluence 0. Never put light text straight onto rock or sunlit concrete.
+**Mode colours (pads, pad signs and HUD only):** 1v1 green `#3DDC84` · 2v2 blue `#3B8CFF` · 3v3 purple `#9B5CFF` · 4v4 orange `#FF7A1A` (later) · Gauntlet gold `#FFC83D` (later). Always shown with a big numeral.
+**Duels accent:** deep red `#B3262E` only (edge strips, tally lamps). No amber, so it never clashes with 4v4 orange or Gauntlet gold.
+**Light per zone:**
+- **Sunbeam:** `#FFE2B8`
+- **Ring:** warm cove light `#FFF1DC` (3000K)
+- **Duels:** cold `#B8D4FF` (7000K)
+- **Market:** warm `#FFD9A8` (3200K)
+- **Weapons:** neutral `#F2F0EA` (4500K)
+- **Range:** cool daylight `#DDE8F2` (6000K)
 
-## 3. Layout: "Axis Hall"
+## 3. Layout: "Sunwell Bunker"
 
 ![Lobby layout](References/lobby/lobby-layout.svg)
 
-**The idea:** everything that matters sits on one north–south axis seen from spawn. From the spawn camera, the pad row, the Gauntlet dais and the leaderboard wall stack in the frame without overlapping. The SHOP and LOCKER blade signs sit at the frame edges, and the Range gate is directly behind spawn.
+**The idea:**
+- **Spawn:** a round brass-and-oak dais in an 88-stud concrete rotunda. A 32-stud open skylight drops a real sunbeam onto it, while the default camera behind you stays in shade, for contrast.
+- **Straight ahead:** the only double-width portal (52 wide), titled **DUELS**. Through it, three lit pads glow in their mode colours at the back of a dark, hazy room, and their signs read from spawn.
+- **The ring:** a 24-wide concourse around the rotunda, with an exposed rock outer wall. Its floor is kept completely clear as the slide loop, and four oak seating alcoves are cut into the rock on the diagonals.
+- **The other wings:** **MARKET** to the west, **WEAPONS + LOCKER** to the east and **RANGE** to the south (behind you), each through a 26.5-wide portal.
+- **Range descent:** the Range wing ramps down 8 studs to a viewing gallery. Its glass wall looks down another 4 studs onto the lanes, and one-way ENTER/EXIT gates sit on either side of the glass.
 
-**Conventions:** studs; origin at the hall centre on the floor; **+X east, −Z north** (toward the courtyard); everything snaps to a **5-stud grid** (props and signs to 0.5). 1 stud ≈ 28 cm, so the hall is about 34 × 25 m with an 11 m ceiling.
+**Conventions:**
+- Units are studs. The origin is the rotunda centre on the floor, with **+X east and −Z north**.
+- Bearings run from 0 = north, clockwise.
+- The round parts use **32 segments of 11.25°**, so the 4 axes and 4 diagonals land on segment joints. Radii are on a 2-stud step.
+- 1 stud ≈ 0.28 m, so the rotunda is about 25 m across.
 
 ### Zones
-| Zone | X | Z | Height / floor | Notes |
-|---|---|---|---|---|
-| Hall building (with 5-stud walls) | −65…65 | −50…50 | roof y 40–43, parapet 46 | No interior columns; E–W roof beams (underside 36) |
-| **Hall interior** | −60…60 | −45…45 | 40 clear | Polished concrete; no mezzanine in phase 1 |
-| Leaderboard wall (north) | −35…35 | −50…−45 | 40, solid concrete | Inside (shaded): centre screen 20 × 14 (y 24–38) and side screens 15 × 12. Outside: **exterior queue board** 50 × 8 + logo for the courtyard |
-| Glass doors W / E | −55…−35 / 35…55 | −50…−45 | 15 + glass transom to 40 | 20 wide each (40 total) for 30 players; leaves parked open |
-| Glass curtain W / E | −60…−55 / 55…60 | −50…−45 | 40 | Black mullions every 5 |
-| West clerestory | west wall | −45…45 | glass y 22–38 | Second sun entry; diagonal light bars over the shop front |
-| **Pad row** | −45…45 | −15…0 | — | Four 15 × 15 bays, 10-stud aisles; the centre aisle is on the spawn axis |
-| 1v1 / 2v2 / 3v3 pads | −45…−30 / −20…−5 / 5…20 | −15…0 | deck +0.5 | 13 × 13 standing (party of 3–4), 1-stud LED ring, one SurfaceLight each |
-| 4v4 bay (reserved) | 30…45 | −15…0 | deck +0.5 | Built but dormant: unlit ring, COMING SOON at half brightness |
-| Gauntlet dais (reserved) | −10…10 | −35…−25 | +1 | On the spawn axis under the leaderboard; 16 × 6 teaser sign |
-| Party aprons | −45…45 | 0…5 | flush | Mode-colour floor graphics where parties gather (standing here doesn't queue) |
-| Front plaza | −30…30 | 0…30 | — | Nothing over 4 studs tall between spawn and the pads |
-| **Spawn** | −10…10 | 20…30 | flush | 8 SpawnLocations (2 rows of 4) facing north; main point (0, 25) |
-| Info kiosk | 15…20 | 25…30 | 3.5 | Bronze; off every sightline |
-| Watch steps W / E | ±(15…30) | 35…45 | 2 tiers of 1 × 5 | Hangout and watch spot above the spawn crowd |
-| **Shop** (west) | −60…−30 | 10…45 | canopy underside 14 | Terrazzo floor, counter (−55…−50, 25…40), four display plinths facing the plaza, blade pylon at (−30, 10) |
-| **Locker** (east) | 30…60 | 10…45 | canopy underside 14 | 10-wide preview turntable at (45, 25), locker bank on the east wall, blade pylon at (30, 10) |
-| **Range gate** | −10…10 | 45…50 | 20 × 15 portal | Bronze frame, RANGE sign 20 × 5 above |
-| Range vestibule | −10…10 | 50…60 | 15, glazed | The "glazed joint"; first-person switch and streaming break (phase 2) |
-| **Range wing shell** | −115…115 | 45…305 | walls 20, open sky | **Empty in phase 1.** Sized to fit the existing RangeBuilder yard rotated 180° (firing line z 100; lanes −42…42 × 100…270; movement course west; ability area + cover yard east) |
-| **Courtyard** | −75…75 | −150…−50 | — | Paving; 4-stud parapets with glass balustrade to 15 on N/W, 15-stud wall E |
-| Door terrace | −75…75 | −65…−50 | — | Kept clear for door traffic |
-| Slide run | −10…10 | −135…−65 | — | 70 × 20 polished strip, about 5 chained slides |
-| Planter-benches (4) | ±(20…40) | −90…−85, −125…−120 | 2.5 | Seat rims, one tree each (canopy ≥ 12, no collision) |
-| Sun decks W / E | −75…−50 / 50…75 | −150…−115 | +5 | Reached by 15-run ramps (18°); thumbnail spots |
-| Landmark (logo letters) | −20…20 | −150…−145 | 10 | Sheer letters, meeting point, end of the axis |
+| Zone | Where | Size / height | Notes |
+|---|---|---|---|
+| **Spawn rotunda** | circle R44 | floor 0; colonnade openings 0–28; drum to 46; coffered dome to the rim at 54 | 8 concrete piers (3 × 3) at 22.5° + 45°k, 4 slim steel columns on the diagonals; the axis openings are 30.7 clear |
+| **Skylight (oculus)** | circle R16 | rim y 54, 6-deep shaft, open sky at 60 | No glass; knife-edge steel rim, 8 thin spokes cast a spoke pattern into the sun patch |
+| **Spawn dais** | circle R12, +0.5 | SpawnLocation 12 × 12 at (0, −3), facing north | Brass compass inlay whose north arrow points at Duels |
+| Sun patch | about 31 × 32, centre (0, −10) | — | Real sun plus a lighter floor inlay, so it still reads with shadows off |
+| **Leaderboards** (4) | diagonals, on the colonnade | 18 × 13.5 screens at y 13–26.5, double-sided | NE "top wins today", NW "top rating" (both in the first frame); SE/SW seen on turning; back faces carry wing arrows for the ring |
+| **Outer ring** | ring R44–68 | 24 wide, ceiling 28 | Dark honed floor with an oak slide band on R54–58; lap 352 studs (16 s sprint); **nothing on the floor** |
+| Ring rock wall | R68–70 | 28 | Rock above a 1.5 concrete plinth with a glowing warm gap at its foot |
+| Seating alcoves (4) | diagonals, R68–80 | 3 oak tiers, 1.5 rise × 3 deep | About 21–27 seats each, facing the rotunda |
+| **DUELS portal** | bearings 337.5–22.5 | 52 wide × 16 | Title band 40 × 8, "DUELS" 5.5-stud caps, "STEP ON A PAD TO QUEUE" |
+| MARKET / WEAPONS / RANGE portals | bearings 270 / 90 / 180 | 26.5 wide × 16 | Title bands 26 × 8, 4.5-stud caps |
+| **Duels wing** | x −28…28, z −128…−63 | ceiling 22 | Near-black walls, open trusses, rock above y 16; haze down the 22-wide aisle |
+| End pads 2V2 · 1V1 · 3V3 | z −126…−111 | 15 × 15 bays, 13 × 13 decks at +0.5 | 1V1 dead centre on the spawn axis; signs 14 × 7 at y 8–15 (collision off), mode 5-stud caps |
+| Side pads 1V1 + 2V2 (row 1) | x ±(11…26), z −86…−71 | same kit | Second queues for a 30-player load, facing the aisle |
+| Reserved 4V4 + GAUNTLET (row 2) | x ±(11…26), z −104…−89 | same kit, unpowered | Behind steel shutters until they ship; kept off the hero axis |
+| Queue terminals (4) | vestibule and cross aisle | 3 × 3, screen 2.5 × 1.6 | Open the queue menu; their screen glow is the light on your face |
+| **Market wing** | x −124…−70, z −26…26 | ceiling 26 | Terrazzo + oak runner, oak slat walls, warm coffers |
+| Battle-pass LED wall | end wall, x −122 | 36 × 16 (y 4–20) | The wing's hero, fully visible from spawn when you turn west |
+| Shop kiosks (4) | two each side | 12 × 6 counters | Skins, bundles, currency, passes/codes |
+| Featured podiums (2) | (−110, ±12) | 8 across, slow turntable under glass | Frame the battle-pass wall |
+| **Weapons wing** | x 70…124, z −26…26 | ceiling 26 | Neutral gallery: smoked concrete, black steel |
+| Big-gun turntables (4) | (80/96, ±15) | 12 across, gun ~18 long at y 7–10 | Guns scaled to a target size (rifles 4–6×, pistols 8–10×); white under-ring |
+| Hero rifle (8×) | end wall, x 122 | 28 × 7 at y 10–17 | Slow specular sweep, on the axis |
+| **Locker** | back of the Weapons wing, x 104…122 | blade sign 10 × 3 | Preview pedestal (8 across, brass) at (113, 0) under the hero rifle; 2 terminals |
+| **Range descent** | x −16…16, z 67…102 | 28 wide inside, ramp 0 → −8 (1:4, 14°) | The flat ceiling at 16 gives 16 → 24 headroom |
+| Viewing gallery | x −48…48, z 102…118 | floor −8, ceiling 16 | Dim, so the glass is the light; lean rails |
+| Viewing glass | x −30…30 | 60 × 16, one pane | Mullions on the lane dividers; looks down onto the range |
+| ENTER (west) / EXIT (east) gates | x ±(30…42) | 12 × 10 | One-way loop; 1:4 inner ramps down to the range floor at −12 |
+| **Range shell** | x −122…122, z 118…360 | floor −12, 40 clear, roof slots for sun | **Empty in phase 1.** Fits the RangeBuilder yard: lanes x −42…42 (firing line z 146, berm z 316–328), movement course x −118…−60, cover yard x 60…116 |
 
-### Sightlines from spawn (0, 25), camera about (0, 7, 37.5)
-| To | Distance | In first frame? |
+### From spawn
+| From the spawn camera (0, 7, 9.5) to | Distance | In the first frame? |
 |---|---|---|
-| 2v2 / 3v3 pads | 34.8 | Yes, centre of frame |
-| 1v1 / 4v4 pads | 49.6 | Yes, inside the 16:9 half-FOV (51°) |
-| Gauntlet teaser | 55 | Yes, through the gap between the 2v2 and 3v3 signs |
-| Leaderboard centre screen | 70 | Yes, above the pad signs (11.6–20.6° up) |
-| Glass doors W / E | 85.3 | Yes, framed between the outer pad signs; the sunlit door is the wayfinding cue |
-| SHOP / LOCKER blade signs | 33.5 | Yes on 16:9 (47.5°); **lost on 4:3 tablets** |
-| Range gate | 22.5 | Behind you (kiosk arrow + HUD Range button) |
-| Courtyard | — | Hidden by the solid leaderboard wall (deliberately) |
+| DUELS title | 74 | Yes, centre (5.5 caps read to 165) |
+| 1V1 / 2V2 / 3V3 end pad signs | 135–136 | Yes, framed by the portal (5 caps read to 150) |
+| Side 1V1 pad deck + ring | 90 | Yes, 12° left |
+| Leaderboards NE / NW | 51 | Yes, 37° right / left (1.8-cap rows read to 54) |
+| "WEAPONS >" / "< MARKET" pier plaques | 52 | Yes, 18° off forward |
+| MARKET / WEAPONS portals | 69 | **No** (82° to the side). Covered by the plaques, the arrows on the backs of the leaderboards and the light spill from each wing |
+| Battle-pass wall / hero rifle (turned west / east) | 136 | Yes, the whole object is visible through the portal |
+| Range viewing glass (turned south) | 134 | Yes, glowing at the end of the ramp |
 
 ### Walk times (walk 16 / sprint 22 studs/s)
-Spawn → 2v2/3v3: 2.2 s / 1.6 s · Spawn → 1v1/4v4: 3.1 / 2.3 · Spawn → shop counter: 2.9 / 2.1 · Spawn → locker: 2.8 / 2.1 · Spawn → Range gate: 1.4 / 1.0 · Spawn → courtyard centre: 9.9 / 7.2 · Courtyard → 1v1 via the doors: 6.9 / 5.0. The courtyard is far, so phase 2 needs HUD fast travel ("Go to Pads") and the Play button.
+| Route | Walk | Sprint |
+|---|---|---|
+| Spawn → Duels side pad | 4.9 s | 3.5 s |
+| Spawn → Duels end pads | 7.2 s | 5.3 s |
+| Spawn → queue terminal | 4.4 s | 3.2 s |
+| Spawn → Weapons turntable | 5.1 s | 3.7 s |
+| Spawn → Locker pedestal | 7.1 s | 5.1 s |
+| Spawn → Market kiosk | 5.1 s | 3.7 s |
+| Spawn → battle-pass wall | 7.4 s | 5.4 s |
+| Spawn → ENTER RANGE gate | 8.6 s | 6.2 s |
+| Spawn → firing line | 11.9 s | 8.7 s |
+| Full ring lap | 22 s | 16 s |
 
-### Heights and signs
-- **Rule for readable text:** cap height h reads to about d = 30 h from a phone in third person.
-- **Pad signs:** 14 × 7 charcoal panels at y 8–15, double-sided, **collision off** (a jump from a deck reaches 12.7). Mode name 4-stud caps, count line 2-stud caps ("2 / 6 QUEUED"). Both read from spawn.
-- **Leaderboard:** headers 3-stud caps (read from the camera), top-3 rows 1.4 caps (read from the 2v2/3v3 pads), ranks 4–6 at 1.0 caps (read from the cross-aisle).
-- **Other signs:** SHOP/LOCKER blades 10 × 4.5 (3 caps), angled 45° toward spawn. RANGE 20 × 5 (3.5 caps). Courtyard queue board: counts at 3.5 caps read to 105 studs, which reaches the far sun decks.
-- **Blocking:** walls and barriers must beat a 7.2-stud jump (≥ 12). The courtyard edge is 15 high with invisible collision to y 60, and the hall has a solid roof cap.
+Every interactive point in the hub is within 5.4 s of sprint from spawn.
 
-### Sun
-- **Target:** late sun **from NNW (330°), 24° up**, ClockTime about 16.5–17, no day cycle.
-- **Where it lands:** it pours through the west glass and doors and lays a warm, mullion-striped shaft across the 1v1 pad and the plaza toward spawn. The leaderboard and sign faces stay in shade, so they read at full contrast.
-- **Spawn view:** the roof hides the sun disc from the spawn camera.
-- **Courtyard and Range:** the courtyard facade is front-lit for thumbnails, and the hall's shadow covers the Range firing line, so shooters get no glare.
-- **To check in step 2:** Roblox sets the sun from ClockTime + GeographicLatitude (probably a negative latitude for a northern sun). Measure `Lighting:GetSunDirection()` against (−0.46, 0.41, −0.79) before tuning anything.
+### Lighting plan
+- **Global:**
+  - Future lighting. The sun is the **only** shadow caster, and props have CastShadow off.
+  - Ambient `#1E222A`, OutdoorAmbient `#3A3F48`.
+  - Atmosphere: Density 0.3, Haze 1.4. It only reads down the Duels aisle, the ramp and the lanes.
+  - Bloom threshold 1.5, so only Neon and the sun patch bloom.
+  - Colour correction: slight desaturation, so the concrete greys out and the pads pop.
+- **Sun:** high, **due south at about 80° up**, so the beam lands on the spawn dais and leans 10° toward Duels.
+  - This replaces the old "late afternoon" low sun, which can't get down a skylight shaft. The warm colour grade keeps the late-day warmth.
+  - Target sun direction is about (0, 0.985, +0.174): start at ClockTime 12 with GeographicLatitude 33.5 (or 13.5 if the sun lands north). **Verify in Studio first.**
+- **Fake sunbeam (works on low-quality phones):**
+  - 4 additive Beams from the skylight rim to the floor patch
+  - one shadowless SpotLight on the rim
+  - a slow dust emitter
+  - the lighter floor inlay
+- **8 dynamic lights in total, all with Shadows off:**
+  - 1 rotunda
+  - 3 Duels (one pool over the end trio, one over each live side pad)
+  - 1 Market
+  - 1 Weapons (front-top 30° on the hero rifle and the pedestal)
+  - 2 Range
+- **Everything else glows with Neon or screens:** coves, rock gaps, light slits, pad rings, terminals and leaderboards.
+
+### Signs (readable at d = 30 × cap height on a phone)
+| Sign | Size | Text size | Reads to / from |
+|---|---|---|---|
+| DUELS title | 40 × 8 | 5.5 caps | 165 studs |
+| Other portal titles | 26 × 8 | 4.5 caps | 135 studs, across the whole rotunda |
+| End pad signs | 14 × 7 | mode 5 caps, "X / N QUEUED" 1.2 caps | read close |
+| Side pad signs | 14 × 7 | mode 2.5 caps | read close |
+| Leaderboards | 18 × 13.5, 50 PPS | title 2.4 caps, 5 rows at 1.8 caps | from spawn |
+| Pier plaques | — | 2.2 caps | — |
+| Range gate headers | — | 2.2 caps | — |
+| Range markers | — | 2 caps at 10/25 m up to 6.5 caps at 150 m | the gallery |
+
+About 40 SurfaceGuis in total, each with a long side ≤ 1000 px.
 
 ## 4. Performance plan (30 players on phones)
-- **Streaming:** StreamingEnabled, MinRadius 96 (the whole hall from spawn), TargetRadius 384, Opportunistic stream-out, ModelStreamingBehavior Improved. Each pad is an **Atomic** model; the hall, courtyard and Range shells are Nonatomic with SLIM LOD. The vestibule is the streaming break.
-- **Kit reuse:** about 15 Blender modules on the 5-stud grid:
-  - wall panel 5 × 40 (about 60 uses), glass strip with mullions, transom, roof beam
-  - pad kit (×5 including the dais), sign panel (about 13), blade pylon
-  - counter, locker module, plinth, planter-bench, bench, tree (2 variants)
-  - parapet + balustrade segment, step tier
+- **Round core from 6 instanced Blender meshes**, placed by script at exact 11.25° steps:
+  - drum panel, dome coffer wedge, ring floor wedge, ring ceiling coffer, rock wall panel, alcove tier
+  - plus piers, columns and one reused portal frame
+  - About 180 MeshParts that share MeshIds, so they batch into a few draw calls.
+  - Invisible Box collision per segment; **no CSG unions**.
+- **Budget:** the hub stays under 2,500 instances and 250K triangles; the Range shell is about 150 instances in phase 1. 8 dynamic lights; at most 2 stacked transparent layers in any view; 3 low-rate particle emitters.
+- **Streaming:**
+  - StreamingEnabled with Improved model streaming, Opportunistic stream-out, PauseOutsideLoadedArea.
+  - MinRadius 136, which covers the whole hub from spawn so the pads never show as a void. Fallback: 96 + Persistent end pads.
+  - TargetRadius 512.
+  - **Atomic** models: each pad bay, terminal, kiosk, podium, turntable, pedestal, leaderboard and portal frame, plus the beam rig.
+  - **SLIM** only on the rock and static dressing.
+  - The Range shell pre-streams when a player reaches the top of the ramp (phase 2).
+- **Folders:** `Workspace.Lobby.{Rotunda, Ring, Wing_Duels, Wing_Market, Wing_Weapons, Wing_Range, RangeShell, Rock, Ambience}`.
 
-  Floors are a few big parts with MaterialVariants.
-- **Budgets:**
-  - Instances and triangles: hall ≤ 600 instances / 120K tris, courtyard ≤ 400 / 80K (≤ 8 trees + low-poly backdrop), Range shell ≤ 150 in phase 1.
-  - Small props: CastShadow off, CanTouch/CanQuery off, Box collision.
-- **Lights:**
-  - 6 active SurfaceLights/SpotLights, all with Shadows off: 3 pads, shop canopy, locker pedestal, Range gate.
-  - The sun is the only shadow caster.
-  - Neon rings and screens make no light; screens use LightInfluence 0.
-  - About 20 SurfaceGuis at 30–50 PPS with MaxDistance 150–200.
-- **Seasonal dressing** goes in one swappable `Lobby.Dressing` folder.
+## 5. Open questions (the user's call)
+1. **Scale:** keep the compact 88-stud rotunda, with everything within about 5.4 s of sprint, or go grander at 96–110? Grander means longer walks and leaderboards that are harder to read. Best settled by counting avatar heights across a lobby video.
+2. **Range entry:**
+   - Two one-way gates (ENTER west, EXIT east) beside a 60-wide glass wall, or one central two-way gate with a full 84-wide glass wall.
+   - Does first person start at the gate, or only on a lane?
+3. **Side wings:** Market west and Weapons east, or swap them? This decides which wing a new player finds on their right.
+4. **Skylight over the ring** (option): four small light wells on the diagonals, echoing the main skylight, cost one more Beam rig each.
 
-## 5. Changes from the locked sketch (need the user's OK)
-If approved, these get copied into [Lobby](../01%20Design/Lobby.md) and the Home "Locked decisions" table.
-1. **Shop and locker move to the south half** of the west and east walls, beside spawn instead of beside the leaderboard. The north side is then the pads, the leaderboard wall and two glass door bays.
-2. **Two courtyard door bays (W and E)** flank a solid leaderboard wall, instead of one central glass door. The courtyard is hidden from spawn, so the pads are the only call to action.
-3. **Gauntlet goes on a centre dais** at the end of the spawn axis. A fifth bay in the row would need a ~140–150-wide hall.
-4. **Range wing shell is 230 × 260**, wider than the hall, so the existing RangeBuilder yard fits unchanged (rotated 180°).
-
-## 6. Open questions (the user's call)
-1. **Sun side:**
-   - **NNW 330° (the plan):** front-lit courtyard and a warm shaft over 1v1, but spawn looks toward the bright side.
-   - **WNW 290°:** side-lights the spawn view with no backlight, but only rakes across the facade.
-2. **Pad order:**
-   - **Strict west → east 1v1 → 4v4 (the plan):** 1v1 is 3.1 s from spawn.
-   - **Centre-out:** 1v1 on a centre bay, 2.2 s from spawn.
-3. **Leaderboard wall:**
-   - **Solid concrete (the plan):** calm backdrop.
-   - **Glass below a floating screen band:** the courtyard and more sun show behind the pads, with more glare risk on phones.
-4. **Mezzanine/catwalk** at ~14 studs, later: it breaks up the tall volume and gives high-angle thumbnails, but costs more instances.
-
-## 7. Risks to check in the greybox
-- The sun vector (see Sun).
-- Bloom from the bright west glass on phones (use Bloom threshold > 1 and dark mullions).
-- At graphics level 1 the Future shadow stripes vanish; set Ambient and OutdoorAmbient so the shaded east half doesn't go flat.
-- 3v3 sits in shade, so its ring must read as strongly as the sunlit 1v1.
-- Pad size against RIVALS (measure).
-- 4:3 tablets lose the edge signs.
-- Slide-jump escapes from the decks, ramps and landmark.
-- MinRadius 96 memory on a low-end Android.
-- Range traffic crossing the spawn.
+## 6. Risks to check in the greybox
+- **Sun:** the sun vector and latitude (does the patch land north or south?).
+- **Low graphics quality:** phones below quality 4 lose shadows, so the inlay, Beams and SpotLight must carry the hero shot alone.
+- **Duels mood:** light from the rotunda may wash out the dark Duels room. If it does, drop the lintel.
+- **Leaderboard margin:** the rows read to 54 studs and the spawn camera is 51 away, so a 2.7-stud margin. Don't shrink them.
+- **Side wings:** they are out of the first frame, so consider a short first-join camera pan (phase 2).
+- **Streaming:** MinRadius 136 memory on low-end Android.
+- **Range descent:** a slide down the 14° ramp toward the glass has 16 studs of run-off.
+- **Geometry:** RangeBuilder needs re-origining in phase 2 (floor −12, firing line z 146). Ring tiles must cut cleanly at the portals and alcoves. There must be open sky above y 60 for the beam.
 
 ## Next
-Step 2: greybox in the Lobby place from the zone table above, in simple coloured parts per zone, at real scale, so the user can walk it.
+Step 2: greybox in the Lobby place from the zone table, with simple coloured parts per zone at real scale, and the round parts built by script on the 32-segment grid, so the user can walk and slide it.
