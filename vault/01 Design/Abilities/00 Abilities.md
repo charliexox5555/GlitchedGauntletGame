@@ -10,7 +10,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 |---|---|---|---|---|
 | 1 | [Dash](Dash.md) | Blink | ✅ locked 2026-10-28 | ⬜ |
 | 2 | [Updraft](Updraft.md) | Launch Pad | ✅ locked 2026-10-28 | ⬜ |
-| 3 | Packet | — | ⬜ to redesign | — |
+| 3 | [Molly](Molly.md) | Packet | ✅ locked 2026-10-28 | ⬜ |
 | 4 | Firewall | — | ⬜ to redesign | — |
 | 5 | Lag Field | — | ⬜ to redesign | — |
 | 6 | Ping | — | ⬜ to redesign | — |
