@@ -151,10 +151,19 @@ local actionKind: string? = nil
 local actionAt = -math.huge
 local itemHidden = false
 -- A Mod gesture (Dash, Updraft): the gun's dip and the free hand's gesture
--- (Config/Viewmodel MOD_GESTURES, DASH_DIP / UPDRAFT_TILT).
+-- (Config/Viewmodel MOD_GESTURES, DASH_DIP / UPDRAFT_DIP).
 local gestureKind: string? = nil
 local dipKind: string? = nil
 local gestureAt = -math.huge
+-- A prop in the gesturing fist (the Stim beacon) until the gesture's release.
+local gestureProp: WorldModel? = nil
+
+local function dropGestureProp()
+	if gestureProp then
+		gestureProp:Destroy()
+		gestureProp = nil
+	end
+end
 -- A held free-hand pose (Config/Viewmodel FREE_POSES), eased toward; and the
 -- flame that burns in it (a part under the camera, moved with the fist).
 local freePose: string? = nil
@@ -1077,6 +1086,7 @@ end
 
 function ViewmodelController.unequip()
 	turnToken += 1
+	dropGestureProp()
 	for _, gun in guns do
 		gun.model:Destroy()
 	end
@@ -1472,21 +1482,46 @@ end
 
 local DIPS: { [string]: VM.ItemAction } = {
 	Dash = VM.DASH_DIP,
-	Updraft = VM.UPDRAFT_TILT,
+	Updraft = VM.UPDRAFT_DIP,
 	Stim = VM.STIM_DIP,
 	Recall = VM.RECALL_DIP,
 }
 
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",
 -- "DashBack", "DashLeft", "DashRight" camera-relative, "UpdraftDown",
--- "MollyPinPull", "StimSlam") while the gun moves by `dip` ("Dash": out of
--- view; "Updraft": a small tilt; "Stim": a short dip; nil: the gun stays as
--- it is).
-function ViewmodelController.gesture(gesture: string, dip: string?)
-	if VM.MOD_GESTURES[gesture] and (dip == nil or DIPS[dip]) then
-		gestureKind = gesture
-		dipKind = dip
-		gestureAt = os.clock()
+-- "MollyPinPull", "StimToss") while the gun moves by `dip` ("Dash": out of
+-- view; "Updraft": down while rising; "Stim": a short dip; nil: the gun stays as
+-- it is). `prop`: a model carried in the fist until the gesture's release
+-- (the Stim beacon), at its propScale.
+function ViewmodelController.gesture(gesture: string, dip: string?, prop: Model?)
+	local g = VM.MOD_GESTURES[gesture]
+	if not g or (dip ~= nil and not DIPS[dip]) then
+		return
+	end
+	gestureKind = gesture
+	dipKind = dip
+	gestureAt = os.clock()
+	dropGestureProp()
+	local cam = Workspace.CurrentCamera
+	if prop and cam and g.release then
+		local world = Instance.new("WorldModel")
+		world.Name = "ViewmodelGestureProp"
+		local copy = prop:Clone()
+		for _, d in copy:GetDescendants() do
+			if d:IsA("BasePart") then
+				d.Anchored = true
+				d.CanCollide = false
+				d.CanQuery = false
+				d.CanTouch = false
+				d.CastShadow = false
+			end
+		end
+		if g.propScale then
+			copy:ScaleTo(copy:GetScale() * g.propScale)
+		end
+		copy.Parent = world
+		world.Parent = cam
+		gestureProp = world
 	end
 end
 
@@ -1910,6 +1945,7 @@ local function update(dt: number)
 	MagDrop.step(dt) -- dropped mags keep falling after a swap
 	if not cam or not right or not c then
 		motion.lastCamera = cam and cam.CFrame
+		dropGestureProp() -- nothing to hold it
 		return
 	end
 	local camCf = cam.CFrame
@@ -2080,6 +2116,21 @@ local function update(dt: number)
 				point + root:VectorToWorldSpace(dir),
 				root.RightVector
 			)
+			-- The prop sits upright on the fist, tipping forward into the toss.
+			local propWorld = gestureProp
+			local prop = propWorld and propWorld:FindFirstChildOfClass("Model")
+			if prop and gesture.release and gestureT < gesture.release then
+				local tilt = (gesture.propTilt or 0) * smooth(gestureT / gesture.release)
+				prop:PivotTo(
+					CFrame.new(point + root.UpVector * 0.08)
+						* root.Rotation
+						* CFrame.Angles(math.rad(tilt), 0, 0)
+				)
+			elseif propWorld then
+				dropGestureProp()
+			end
+		elseif gestureProp then
+			dropGestureProp()
 		end
 		-- A held free-hand pose (the Firewall's burning hand), and its flame.
 		local pose = if freePose then VM.FREE_POSES[freePose] else nil
@@ -2181,6 +2232,7 @@ function ViewmodelController.start()
 		gestureKind = nil
 		dipKind = nil
 		gestureAt = -math.huge
+		dropGestureProp()
 		ViewmodelController.setFreeHand(nil)
 		if arms then
 			arms.model:Destroy()

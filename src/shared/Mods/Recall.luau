@@ -5,12 +5,14 @@
 --      spot on walkable ground within `placeRange` where you look); LMB
 --      plants it. Planting costs nothing: the charge is the teleport.
 --   2. Anchor down: the key asks the server to teleport (ModRecall: within
---      `range`, a `windup` with no shooting, then you appear on it and it's
---      used up); holding the key `pickupHold` s within `pickupRange` picks it
---      back up instead.
+--      `range`, a `windup` with no shooting, then you appear on it). The
+--      anchor stays: the next teleport waits for the `cooldown` (Chamber's
+--      Rendezvous). Holding the key `pickupHold` s within `pickupRange`
+--      picks it back up instead (any time, even on cooldown).
 -- The anchor is a Mod object (ModEntities) that `hp` bullet hits destroy:
--- then the teleport is lost for the round (its charge is spent). One anchor
--- at a time; a spot needs room for you to arrive (roomAt).
+-- then the teleport goes on its full cooldown, and you plant again after.
+-- One anchor at a time; a spot needs room for you to arrive (roomAt).
+-- Its owner sees the `range` as a ring on the floor (ModController).
 --
 -- The move itself runs in the simulation (step, called by
 -- Simulation/Abilities every step), like Dash: the server publishes the

@@ -78,6 +78,10 @@ All ProSoundEffects library audio (public, no upload). Search terms that worked:
 - **First person:** the javelin throw (`Config/Viewmodel ITEM_ACTIONS.Javelin`), the Molly's underhand lob.
 - **Icon:** still the Lag Field's.
 
+
+## Changes from the user's feedback (2026-10-29)
+- **Longer throws** (same change as the Molly): `throwSpeed` 92 → **108**, `dropTime` 0.9 → **1.3**. Longest javelin throw on flat ground: **74 → 115 studs**.
+
 ## Mobile
 Same as the Molly: tap to hold, **Fire** throws, a **Lob** button appears, tap again to cancel.
 

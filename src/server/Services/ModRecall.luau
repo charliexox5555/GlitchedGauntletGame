@@ -99,7 +99,8 @@ function ModRecall.cancel(player: Player)
 	end
 end
 
--- The key with an anchor down: wind up, then appear on it.
+-- The key with an anchor down: wind up, then appear on it. The anchor
+-- stays: the next teleport waits for the slot's cooldown.
 function ModRecall.teleport(player: Player, slot: number, stats: { [string]: any }, hooks: Hooks)
 	if windups[player] then
 		return -- already winding up
@@ -166,13 +167,12 @@ function ModRecall.teleport(player: Player, slot: number, stats: { [string]: any
 			hooks.deny("No room at the anchor") -- nothing spent, the anchor stays
 			return
 		end
-		hooks.spend()
+		hooks.spend() -- the cooldown starts; the anchor stays for the next one
 		local from = bodyRoot.Position
 		local to = floor + Vector3.new(0, humanoid.HipHeight + bodyRoot.Size.Y / 2 + 0.05, 0)
 		player:SetAttribute("RecallTo", to)
 		local serial = player:GetAttribute("RecallSerial")
 		player:SetAttribute("RecallSerial", (if typeof(serial) == "number" then serial else 0) + 1)
-		ModEntities.remove(anchor.part, "Used")
 		hooks.fx("RecallArrive", { from = from, at = floor })
 	end)
 end

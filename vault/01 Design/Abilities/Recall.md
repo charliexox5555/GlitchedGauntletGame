@@ -14,8 +14,9 @@
 | Teleport | Once the anchor is placed, press the key while **within 40 studs** of it → a **0.6 s wind-up**, then you appear on the anchor |
 | Out of range | Pressing beyond 40 studs is refused ("Out of range" cue); nothing is spent |
 | Move it | Before you've teleported, **hold the key ~0.5 s near the anchor** (within ~6 studs) to pick it up and place it again |
-| Uses | The **anchor stays all round** until you teleport to it; then it's used up. **1 teleport per round**, no recharge (unlimited in test mode) |
-| Destroyable | **2 bullet hits** destroy the anchor (the teleport is lost for that round) |
+| Uses | The **anchor stays** after you teleport to it (Chamber-style): teleport again once the **15 s cooldown** is over (changed 2026-10-29). Pick it up any time, even on cooldown (unlimited charges in test mode) |
+| Destroyable | **2 bullet hits** destroy the anchor: the teleport goes on its **full cooldown** (restarts if already cooling), then you plant again |
+| Range ring | **Only you** see the teleport range as a subtle dashed violet ring on the floor around your anchor (and around the hologram while you aim the plant); it turns red while you're outside it |
 | Gun | **You can't shoot during the 0.6 s wind-up.** You **arrive with the gun up** and can fire right away |
 | During the wind-up | You can still be shot. Dying cancels the teleport |
 
@@ -83,8 +84,14 @@ Alternates the search found: Equip: Metal Latches 17 (9116725218), Seat Belt Lat
 - **Rollback removed:** its module, ghost trails, VHS rewind and sounds. `WeaponService.rewindAmmo` and its ammo history stay (unused for now).
 - **Verified (playtest):** planting (no charge spent), teleport from 25 studs (server and client roots on the anchor, charge spent), pick-up by holding the key, out-of-range press refused with the anchor kept, a broken anchor spends the charge, another Mod's key during the wind-up refused, a shot fired straight after arriving. Not tested in Studio: actually shooting the anchor twice (the hit counting is code-checked only).
 
+
+## Changes from the user's feedback (2026-10-29)
+- **Reusable with a cooldown:** `Config/Mods` Recall L1 `cooldown` 0 → **15**. `ModRecall` no longer removes the anchor after a teleport; the teleport spends the charge and the cooldown starts. A broken anchor spends the charge (or restarts the cooldown if it's already cooling; no more spending below 0). Client: a pick-up works on cooldown, a teleport press on cooldown is refused ("Not ready").
+- **Range ring:** `Util/RecallRing` (72 dashes, each on the floor found under it, so it follows stairs and drops; parts are `CanQuery = false`), driven by `ModController` for your own anchor or the hologram; rebuilt at most every 0.12 s while the hologram moves.
+- **Verified (playtest):** ring around the anchor and the hologram, teleport onto it with the anchor kept, cooldown 15 s, a tap on cooldown refused, a hold picks it up on cooldown (ring gone).
+
 ## Mobile (provisional)
 Tap to hold the anchor and **Fire** to place it. After that, tapping the Recall button teleports, and long-pressing near the anchor picks it up.
 
 ## Counter-play
-Find and shoot the anchor (2 hits). Shoot the player during the 0.6 s shimmer. Pre-aim the anchor, since you know where they'll appear.
+Find and shoot the anchor (2 hits: it costs them the full cooldown). Shoot the player during the 0.6 s shimmer. Pre-aim the anchor, since you know where they'll appear.

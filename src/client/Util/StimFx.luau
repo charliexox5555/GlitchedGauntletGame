@@ -1,6 +1,7 @@
 --!strict
 -- The Stim for everyone (vault/01 Design/Abilities/Stim.md → Look, Screen):
--- the beacon dropping at the caster's feet and snapping open, its zone (an
+-- the beacon tossed underhand a few steps ahead (an arc from the hand,
+-- tumbling a little), landing and snapping open, its zone (an
 -- electric-yellow ring on the floor with arcs crackling along the edge and
 -- bolts from the mast), the electric crackle on anyone stimmed (players and
 -- dummies, read from their StimmedUntil, so enemies see who's stimmed), and
@@ -29,7 +30,9 @@ local player = Players.LocalPlayer
 
 local YELLOW = Color3.fromHex("FFD23F")
 local BEACON_SCALE = 1.5 -- the Blender beacon is 1.1 studs tall; knee-high reads better
-local DROP_TIME = 0.12 -- the fall onto the floor
+local TOSS_HEIGHT = 1.4 -- studs the toss arcs above the straight line
+local TOSS_TUMBLE = 300 -- degrees it pitches over in the air (lands upright)
+local BOUNCE_TIME = 0.14 -- the little hop as it lands
 local POP_TIME = 0.15 -- snapping open
 local EDGE_ARCS = 14 -- arc emitters around the zone's edge
 local BOLT_EVERY = 0.35 -- seconds between bolts from the mast to the edge
@@ -126,8 +129,12 @@ end
 type Beacon = {
 	model: Model,
 	spot: CFrame, -- floor, facing the caster's look
+	from: Vector3, -- where it leaves the hand
+	own: boolean,
 	radius: number,
-	born: number, -- os.clock() of the drop
+	releaseAt: number, -- os.clock() it leaves the hand (hidden before)
+	landAt: number, -- os.clock() it lands
+	landed: boolean,
 	deployAt: number, -- os.clock() it snaps open
 	endsAt: number, -- os.clock() the zone ends
 	ring: ModVfx.Handle?,
@@ -139,32 +146,46 @@ type Beacon = {
 	nextBolt: number,
 	deployed: boolean,
 	fading: boolean,
+	shown: boolean, -- put in the world (a missing parent after that: it's gone)
 }
 local beacons: { Beacon } = {}
 
--- The beacon lands at `at` (the floor) facing `look`; the zone runs from
--- `deploy` s after `start` (server time) for `duration` s.
-function StimFx.drop(
+-- A toss (the StimDrop fx): from `start` (server time) the beacon leaves
+-- the hand at `from` after `release` s, flies `toss` s to `at` (the floor),
+-- facing `look`; the zone runs from `deploy` s after `start` for `duration`.
+export type Drop = {
 	at: Vector3,
 	look: Vector3,
+	from: Vector3,
+	release: number,
+	toss: number,
 	radius: number,
 	duration: number,
 	deploy: number,
 	start: number,
-	color: Color3
-)
+	color: Color3,
+	own: boolean, -- ours: it leaves from our first-person hand (OWN_HAND)
+}
+
+-- Where our toss lets go, in camera space (Config/Viewmodel StimToss at its
+-- release).
+local OWN_HAND = Vector3.new(-0.22, -0.62, -1.65)
+
+function StimFx.drop(d: Drop)
 	-- Shown late (streaming, lag): skip what has already happened.
-	local late = math.max(Workspace:GetServerTimeNow() - start, 0)
-	if late > deploy + duration then
+	local late = math.max(Workspace:GetServerTimeNow() - d.start, 0)
+	if late > d.deploy + d.duration then
 		return
 	end
+	local at, radius = d.at, d.radius
 	local now = os.clock() - late
-	local flat = Vector3.new(look.X, 0, look.Z)
+	local flat = Vector3.new(d.look.X, 0, d.look.Z)
 	flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
 	local spot = CFrame.lookAt(at, at + flat)
-	local model = beaconModel(color)
-	model:PivotTo(spot + Vector3.new(0, 1.2, 0))
-	model.Parent = fxFolder()
+	local model = beaconModel(d.color)
+	model:PivotTo(CFrame.new(d.from) * spot.Rotation)
+	-- Out of sight until it leaves the hand (stepBeacon parents it).
+	model.Parent = nil
 	-- The edge: one invisible part per beacon, arc emitters around it.
 	local edge = anchoredPart("StimEdge", Vector3.one * 0.2, CFrame.new(at))
 	local arcs = {}
@@ -177,18 +198,22 @@ function StimFx.drop(
 	end
 	edge.Parent = fxFolder()
 	local top: Attachment? = nil
-	for _, d in model:GetDescendants() do
-		if d:IsA("Attachment") and d.Name == "Top" then
-			top = d
+	for _, desc in model:GetDescendants() do
+		if desc:IsA("Attachment") and desc.Name == "Top" then
+			top = desc
 		end
 	end
 	local b: Beacon = {
 		model = model,
 		spot = spot,
+		from = d.from,
+		own = d.own,
 		radius = radius,
-		born = now,
-		deployAt = now + deploy,
-		endsAt = now + deploy + duration,
+		releaseAt = now + d.release,
+		landAt = now + d.release + d.toss,
+		landed = late > d.release + d.toss + 0.2, -- long down already: no landing sound
+		deployAt = now + d.deploy,
+		endsAt = now + d.deploy + d.duration,
 		ring = nil,
 		edge = edge,
 		arcs = arcs,
@@ -198,11 +223,9 @@ function StimFx.drop(
 		nextBolt = 0,
 		deployed = false,
 		fading = false,
+		shown = false,
 	}
 	table.insert(beacons, b)
-	if late < 0.2 then
-		ModAudio.play(S.drop, at)
-	end
 end
 
 -- The beacon snaps open: the crackle, the ring spreading out, the hum.
@@ -301,16 +324,43 @@ local function remove(b: Beacon)
 end
 
 local function stepBeacon(b: Beacon, now: number): boolean
-	if not b.model.Parent then
-		remove(b)
-		return false
+	-- Still in the hand: nothing in the world yet.
+	if now < b.releaseAt then
+		return true
 	end
-	-- Falling onto the floor, then a pop as it snaps open.
-	local t = now - b.born
-	if t < DROP_TIME then
-		local k = t / DROP_TIME
-		b.model:PivotTo(b.spot + Vector3.new(0, 1.2 * (1 - k * k), 0))
-	elseif not b.deployed then
+	if not b.model.Parent then
+		if b.shown then
+			remove(b)
+			return false
+		end
+		b.model.Parent = fxFolder()
+		b.shown = true
+		local cam = Workspace.CurrentCamera
+		if b.own and cam then
+			b.from = cam.CFrame:PointToWorldSpace(OWN_HAND)
+		end
+	end
+	if now < b.landAt then
+		-- In the air: an arc from the hand, pitching over to land upright.
+		local k = (now - b.releaseAt) / math.max(b.landAt - b.releaseAt, 1e-3)
+		local pos = b.from:Lerp(b.spot.Position, k)
+			+ Vector3.new(0, TOSS_HEIGHT * 4 * k * (1 - k), 0)
+		b.model:PivotTo(
+			CFrame.new(pos)
+				* b.spot.Rotation
+				* CFrame.Angles(math.rad(-TOSS_TUMBLE * (1 - k)), 0, 0)
+		)
+	elseif not b.landed then
+		b.landed = true
+		ModAudio.play(S.drop, b.spot.Position)
+		ModVfx.burst(b.spot.Position + Vector3.new(0, 0.3, 0), YELLOW, 5, "Sparkle")
+	end
+	-- A small hop as it lands, then a pop as it snaps open.
+	local since = now - b.landAt
+	if since >= 0 and since < BOUNCE_TIME then
+		local k = since / BOUNCE_TIME
+		b.model:PivotTo(b.spot + Vector3.new(0, 0.25 * math.sin(k * math.pi), 0))
+	elseif since >= BOUNCE_TIME and not b.deployed then
 		b.model:PivotTo(b.spot)
 	end
 	if not b.deployed and now >= b.deployAt then

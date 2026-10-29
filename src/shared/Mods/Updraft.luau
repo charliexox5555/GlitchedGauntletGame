@@ -12,6 +12,8 @@
 --   UpdraftUp     the launch's vertical speed (studs/s)
 --   UpdraftGravity  the gravity it was launched under (a status lowers it)
 --   Updrafting    true from the launch until you land
+--   UpdraftGunDown  seconds from the launch the gun is down (no shots; both
+--                 sides gate on it, Mods/Dash.stepGate)
 
 local Movement = require(script.Parent.Parent.Config.Movement)
 local Types = require(script.Parent.Types)
@@ -80,6 +82,7 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 	character:SetAttribute("UpdraftUp", up)
 	character:SetAttribute("UpdraftGravity", gravity)
 	character:SetAttribute("Updrafting", true)
+	character:SetAttribute("UpdraftGunDown", ctx.stats.gunDown)
 	return true
 end
 

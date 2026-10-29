@@ -38,7 +38,16 @@ export type Hand = { offset: Vector3, direction: Vector3 }
 -- A free-hand key (camera space around the root): where the fist is and the
 -- direction its arm runs from there (toward the shoulder, off-screen).
 export type HandKey = { t: number, pos: Vector3, dir: Vector3 }
-export type Gesture = { length: number, keys: { HandKey } }
+-- `release` (0..1): a gesture that carries a prop (ViewmodelController.
+-- gesture's `prop`) lets go of it then; `propScale` sizes the prop in the
+-- fist, `propTilt` tips it forward (degrees) by the release.
+export type Gesture = {
+	length: number,
+	keys: { HandKey },
+	release: number?,
+	propScale: number?,
+	propTilt: number?,
+}
 
 -- Bob amplitude: studs (pos) and degrees (rot: pitch, yaw, roll).
 export type Bob = { pos: Vector3, rot: Vector3 }
@@ -426,19 +435,22 @@ return table.freeze({
 			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
 		},
 	} :: ItemAction,
-	-- Updraft: the gun only tilts a little (it stays ready to shoot).
-	UPDRAFT_TILT = {
-		length = 0.32,
+	-- Updraft: the gun drops down and away while you rise (no shots for the
+	-- stats' gunDown), then swings back up near the peak.
+	UPDRAFT_DIP = {
+		length = 0.5,
 		keys = {
 			{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
-			{ t = 0.25, pos = Vector3.new(0.02, -0.09, 0.05), rot = Vector3.new(-7, 2, -5) },
+			{ t = 0.2, pos = Vector3.new(0.15, -1.15, 0.45), rot = Vector3.new(-38, 8, 14) },
+			{ t = 0.62, pos = Vector3.new(0.15, -1.2, 0.45), rot = Vector3.new(-40, 8, 15) },
+			{ t = 0.86, pos = Vector3.new(0, 0.04, -0.03), rot = Vector3.new(3, 0, -1) },
 			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
 		},
 	} :: ItemAction,
-	-- Stim: the gun dips down and to the side while the free hand slams the
-	-- beacon down, then comes straight back.
+	-- Stim: the gun dips down and to the side while the free hand tosses the
+	-- beacon, then comes straight back.
 	STIM_DIP = {
-		length = 0.45,
+		length = 0.55,
 		keys = {
 			{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
 			{ t = 0.25, pos = Vector3.new(0.18, -0.65, 0.3), rot = Vector3.new(-24, 8, 12) },
@@ -567,10 +579,14 @@ return table.freeze({
 				{ t = 1, pos = Vector3.new(-0.55, -1.6, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
 			},
 		},
-		-- Stim: the hand comes up from the belt with the beacon, then slams it
-		-- down at your feet and holds a beat.
-		StimSlam = {
-			length = 0.45,
+		-- Stim (Brimstone-style): the hand comes up from the belt with the
+		-- beacon, dips back and tosses it underhand a few steps ahead
+		-- (it leaves the hand at `release`, the stats' tossRelease), then
+		-- follows through and drops away.
+		StimToss = {
+			length = 0.55,
+			release = 0.55, -- the beacon (ModProps' hand-sized one) leaves the fist
+			propTilt = -35,
 			keys = {
 				{
 					t = 0,
@@ -578,19 +594,24 @@ return table.freeze({
 					dir = Vector3.new(-0.3, -0.8, 0.5),
 				},
 				{
-					t = 0.3,
-					pos = Vector3.new(-0.35, -0.75, -1.25),
-					dir = Vector3.new(-0.3, -0.55, 0.75),
+					t = 0.24,
+					pos = Vector3.new(-0.42, -0.92, -1.2),
+					dir = Vector3.new(-0.35, -0.5, 0.8),
 				},
 				{
-					t = 0.58,
-					pos = Vector3.new(-0.3, -1.35, -1.35),
-					dir = Vector3.new(-0.2, 0.3, 0.93),
+					t = 0.4,
+					pos = Vector3.new(-0.4, -1.12, -1.0),
+					dir = Vector3.new(-0.3, -0.25, 0.92),
 				},
 				{
-					t = 0.76,
-					pos = Vector3.new(-0.3, -1.4, -1.3),
-					dir = Vector3.new(-0.2, 0.3, 0.93),
+					t = 0.55,
+					pos = Vector3.new(-0.22, -0.62, -1.65),
+					dir = Vector3.new(-0.15, -0.45, 0.88),
+				},
+				{
+					t = 0.72,
+					pos = Vector3.new(-0.16, -0.48, -1.72),
+					dir = Vector3.new(-0.1, -0.6, 0.8),
 				},
 				{ t = 1, pos = Vector3.new(-0.55, -1.7, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
 			},

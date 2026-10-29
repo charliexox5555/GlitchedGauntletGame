@@ -30,6 +30,7 @@
 - **Launcher out + load dart:** the gun lowers, the launcher comes up and a dart slides in.
 - **Charge:** while holding LMB, the launcher hums and a charge light fills. RMB clicks a **bounce counter** (0/1/2 small lights on the launcher).
 - **Fire:** a solid thump and recoil kick, then the launcher drops and the gun comes back.
+- **Charge meter (placeholder HUD, Valorant-style):** under the crosshair while the launcher is up: a POWER bar with ticks at 25/50/75% and the percent (MAX, flickering, at full), and BOUNCES pips for the RMB pick.
 
 ## Look (Blender)
 - **Dart launcher:** a compact, chunky flare-gun-style launcher with a charge light and a 3-light bounce counter, in the current tactical style (matte, PBR). It goes through the gun pipeline.
@@ -75,6 +76,11 @@ All ProSoundEffects library audio (public, no upload). Search terms that worked:
 - **Models:** Blender `tools/blender/build_mod_recon.py` (launcher, handheld, 2.9K tris, `Charge_Energy`, `Bounce1/2_Energy`, the loaded `Dart_*` hidden when fired) and `build_mod_recondart.py` (sensor dart, 1.3K tris, `Light_Energy` blinks and flashes on pulses), uploaded (101313572671047, 116053167550293) and built into **`ReplicatedStorage.Abilities.Recon` / `ReconDart`** (backups in `art-source/abilities/Studio/`). Preview `02 Art/References/abilities/recon/recon_model.jpg`.
 - **Effects:** Blender-rendered textures (`tools/vfx/make_recon_vfx.py`, `Config/VfxTextures RECON_*`): the scan ring on each pulse (plus the ground scan wave), the dart's glow trail in flight. The launcher kicks on fire (`ITEM_ACTIONS.LauncherFire`).
 - **Icon:** still the Ping's. The Look section mentions a 3-light bounce counter; the model has 2 (0 / 1 / 2 needs only two).
+
+
+## Changes from the user's feedback (2026-10-29)
+- **Charge meter:** `ModController.chargeState()` feeds a meter in `ModHudController` (fades in with the launcher, the fill eases to the charge). Temporary until the HUD rework.
+- **The dart reads in flight:** a bright light streak behind it (a camera-facing `Trail` with the `RECON_TRAIL` texture, white to team colour, 0.3 s) and a small team-coloured light on it, both off when it sticks; bigger glow particles (`ModFxController` `streakOf`).
 
 ## Mobile
 Tap the Recon button to ready it. **Hold Fire** to charge, release to shoot. A **Bounce** context button cycles 0/1/2. Tap the Recon button again to cancel.

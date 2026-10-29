@@ -299,6 +299,9 @@ function ModService.setSlot(player: Player, slot: number, id: string?, level: st
 		release(player)
 	end
 	local s = state.slots[slot]
+	if s.id == "Recall" then
+		ModRecall.cancel(player) -- no teleport finishing for a Mod that's gone
+	end
 	s.id = id
 	s.level = level
 	s.charges = if stats then stats.charges else 0
@@ -646,14 +649,19 @@ local function use(
 		end,
 		anchor = function(part: BasePart)
 			ModRecall.track(player, slot, part, function()
-				-- Broken by enemies: the teleport is lost for the round.
+				-- Broken by enemies: the teleport goes on its full cooldown
+				-- (already recharging: it starts over); then plant again.
 				if s.id ~= modId or unlimited(player) then
 					return
 				end
 				local t = serverNow()
 				settle(s, stats, t)
-				s.charges, s.rechargeAt =
-					Charges.spend(s.charges, s.rechargeAt, stats.charges, stats.cooldown, t)
+				if s.charges >= 1 then
+					s.charges, s.rechargeAt =
+						Charges.spend(s.charges, s.rechargeAt, stats.charges, stats.cooldown, t)
+				elseif stats.cooldown > 0 then
+					s.rechargeAt = math.max(s.rechargeAt, t + stats.cooldown)
+				end
 				publishSlot(player, slot, s)
 			end)
 		end,
@@ -745,9 +753,14 @@ local function onRecall(player: Player, slotArg: unknown, actionArg: unknown)
 			return s.charges >= 1 or unlimited(player)
 		end,
 		spend = function()
+			-- The slot may have changed during the wind-up (dev panel): only
+			-- Recall's own charge, and never below 0.
+			if s.id ~= "Recall" then
+				return
+			end
 			local now = serverNow()
 			settle(s, stats, now)
-			if not unlimited(player) then
+			if not unlimited(player) and s.charges >= 1 then
 				s.charges, s.rechargeAt =
 					Charges.spend(s.charges, s.rechargeAt, stats.charges, stats.cooldown, now)
 			end

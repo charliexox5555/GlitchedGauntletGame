@@ -37,6 +37,8 @@ return table.freeze({
 	DASH_AIR_BURST_2x2 = "rbxassetid://130185238645234", -- gust ring expanding over 4 frames
 	DASH_PUFF_2x2 = "rbxassetid://86393263788167", -- soft dust puff dissipating over 4 frames
 	DASH_SCREEN_STREAK = "rbxassetid://75317717584279", -- one wind streak, head on the left
+	-- Updraft (tools/vfx/make_updraft_vfx.py): white, tinted in game.
+	UPDRAFT_EDGE = "rbxassetid://123162845090695", -- full-screen wind rising along the sides and bottom (centre clear)
 
 	-- Molly (tools/vfx/make_molly_vfx.py → art-source/vfx/abilities/molly/).
 	-- Fire keeps its own colours (Util/MollyFx).

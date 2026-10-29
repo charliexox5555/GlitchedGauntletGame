@@ -9,7 +9,7 @@
 ## How it works
 | Rule | Value |
 |---|---|
-| Activation | **Instant on press:** you **drop the beacon at your feet** |
+| Activation | **Instant on press:** you **toss the beacon underhand** and it lands **5 studs ahead** (short of a wall; Brimstone-style, changed 2026-10-29). It leaves the hand 0.3 s after the press, flies 0.4 s, and the zone switches on 0.25 s after it lands |
 | Zone | **10-stud radius**, lasts **8 s** |
 | Who | **You and your teammates only.** Enemies are never affected |
 | Buff | **Stimmed** while inside the zone **and for 4 s after leaving** (re-entering refreshes it) |
@@ -28,7 +28,7 @@
 - **Combining with Hinder:** the effects multiply (a stimmed and hindered player is roughly back to normal speed). All numbers are in config.
 
 ## First person
-- **Pull beacon from belt + slam down:** the gun dips, your hand grabs the beacon and drops/slams it at your feet with a quick crouch-press, and the gun comes right back.
+- **Pull beacon from belt + toss:** the gun dips, your free hand brings the beacon up from the belt, dips back and tosses it underhand a few steps ahead; the beacon leaves your hand and arcs (tumbling over) to the floor, hops, then snaps open, and the gun comes right back.
 - **Deploy:** the beacon snaps open and **crackles with yellow electricity**, and the zone ring spreads out.
 
 ## Screen (for a stimmed player)
@@ -73,8 +73,15 @@ Alternates the search found: Grab: Cloth Rip Zippy 3 (9113836527), Cloth Rip Rap
 - **Hands / poses:** gun dips (`STIM_DIP`) while the free hand comes up and slams the beacon down (`StimSlam` gesture), small camera dip; third person plays the Place clip (`useKind`). The beacon isn't shown in the hand yet.
 - **Verified (playtest):** the ally dummy is stimmed, the enemy dummy isn't; walk speed 15.2 → 17.5 (×1.15); the HUD counts down from 4.0 after leaving; the ring, beacon and screen edge show.
 
+
+## Changes from the user's feedback (2026-10-29)
+- **Brimstone-style toss** instead of dropping it at your feet. `Mods/Stim.landing` (shared by the client's check and the server): `tossDistance` 5 studs ahead along your flat look at waist height, short of a wall, onto the floor below; else the floor under you; refused with neither ("No ground"). `Config/Mods` Stim L1: `tossDistance` 5, `tossRelease` 0.3, `tossTime` 0.4, `deployTime` 0.25; the zone's pulses start after all three.
+- **First person:** new free-hand gesture `StimToss` (`Config/Viewmodel MOD_GESTURES`) carrying the beacon (`ModProps`, hand size) until its release; `ViewmodelController.gesture` takes an optional prop. Our world beacon starts from our first-person hand at the release, so the hand-off is seamless. Third person: the Lob clip (`useKind = "Lob"`).
+- **World:** `Util/StimFx` flies the beacon on an arc from the hand (1.4 studs high, pitching over to land upright), plays the drop sound and a few sparks on landing, a small hop, then deploys as before.
+- **Verified (playtest):** in the hand for 0.3 s, out of the hand at the release point, landed 5.0 studs ahead at ~0.73 s, zone on and STIMMED shown.
+
 ## Mobile (provisional)
 Tap the Stim button to drop it.
 
 ## Counter-play
-Enemies can see the zone and who's stimmed, so back off or fight outside the zone. The stim only lasts 4 s after leaving it, and it's one per round.
+Enemies can see the zone and who's stimmed, so back off or fight outside the zone. The stim only lasts 4 s after leaving it, and it's one per round. The toss is short and readable: you see where it will land.

@@ -407,6 +407,12 @@
   "type": "Decal",
   "uploaded": "2026-10-29 00:16:46"
  },
+ "art-source/vfx/abilities/updraft/updraft_edge.png": {
+  "assetId": 111265912872141,
+  "name": "GG Updraft Edge",
+  "type": "Decal",
+  "uploaded": "2026-10-29 11:56:12"
+ },
  "art-source/vfx/beam_energy.png": {
   "assetId": 140396211249137,
   "name": "GG VFX beam_energy v2",

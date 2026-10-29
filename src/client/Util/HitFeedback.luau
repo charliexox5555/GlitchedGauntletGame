@@ -63,6 +63,8 @@ type DamageNumber = {
 	velocity: Vector2,
 	spin: number,
 	size: number, -- base scale
+	offscreen: boolean, -- its hit point is out of view: not drawn
+	crosshair: boolean, -- no hit point: it sits by the crosshair
 }
 
 local container: Frame? = nil
@@ -209,6 +211,8 @@ local function newNumber(parent: Instance): DamageNumber
 		velocity = Vector2.zero,
 		spin = 0,
 		size = 1,
+		offscreen = false,
+		crosshair = false,
 	}
 end
 
@@ -224,24 +228,43 @@ local function hide(n: DamageNumber)
 	n.label.Rotation = 0
 end
 
--- Where a stack's number sits: just off its hit point, or off the crosshair
--- when the point is behind the camera.
-local function screenPoint(world: Vector3): Vector2
+-- Where a stack's number sits: just off its hit point (it stays on the
+-- target, e.g. someone burning in a Molly). nil while the point is out of
+-- view: the number isn't drawn then (never parked on the crosshair).
+local function screenPoint(world: Vector3): Vector2?
 	local cam = Workspace.CurrentCamera
 	if not cam then
-		return Vector2.zero
+		return nil
 	end
 	local p, onScreen = cam:WorldToViewportPoint(world)
-	local size = cam.ViewportSize
 	if not onScreen or p.Z < 0 then
-		return size / 2 + NUMBER_OFFSET
+		return nil
 	end
+	local size = cam.ViewportSize
 	local x = math.clamp(p.X + NUMBER_OFFSET.X, 40, size.X - 40)
 	local y = math.clamp(p.Y + NUMBER_OFFSET.Y, 30, size.Y - 30)
 	return Vector2.new(x, y)
 end
 
+-- Follows the hit point on screen; hidden while it's out of view. A hit
+-- with no point sits by the crosshair.
+local function place(n: DamageNumber)
+	local cam = Workspace.CurrentCamera
+	local p = if n.crosshair and cam
+		then cam.ViewportSize / 2 + NUMBER_OFFSET
+		else screenPoint(n.world)
+	n.offscreen = p == nil
+	n.label.Visible = p ~= nil
+	if p then
+		n.position = p
+	end
+end
+
 local function startFall(n: DamageNumber)
+	if n.offscreen then
+		hide(n) -- nothing to see fall
+		return
+	end
 	n.state = "Fall"
 	n.t = 0
 	local side = if math.random() < 0.5 then -1 else 1
@@ -304,18 +327,14 @@ function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3
 	stack.size = if stack.killed then 1.3 elseif headshot then 1.12 else 1
 	stack.label.TextColor3 = if headshot then AMBER else WHITE
 	stack.label.Text = tostring(math.round(stack.total))
-	if position == nil then
-		-- No hit point: sit by the crosshair.
-		local cam = Workspace.CurrentCamera
-		stack.world = if cam then cam.CFrame.Position + cam.CFrame.LookVector * 20 else Vector3.zero
-	end
-	stack.position = screenPoint(stack.world)
+	stack.crosshair = position == nil -- no hit point: by the crosshair
+	place(stack)
 end
 
 local function stepNumber(n: DamageNumber, dt: number, now: number)
 	if n.state == "Stack" then
 		n.t += dt
-		n.position = screenPoint(n.world)
+		place(n)
 		local pop = 1 - easeOut(n.t / POP_TIME)
 		n.scale.Scale = n.size * (1 + 0.5 * pop)
 		n.label.Position = UDim2.fromOffset(n.position.X, n.position.Y)

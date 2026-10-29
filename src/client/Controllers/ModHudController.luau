@@ -3,7 +3,9 @@
 -- icon, a radial cooldown sweep with the seconds left, charges, a highlight
 -- while held, a pulse when one comes back, and the held hint above them
 -- ("LMB Throw · RMB Lob · E Cancel"). Touch adds an arc of 3 Mod buttons by
--- Fire and a context button (lob / heal self) while a Mod is held.
+-- Fire and a context button (lob / heal self) while a Mod is held. A charged
+-- Mod (Recon) shows a charge meter under the crosshair (placeholder until the
+-- HUD rework): power fill with ticks and the picked bounces.
 -- Everything is read from ModController each frame; GUI properties are only
 -- written when they change.
 
@@ -83,6 +85,19 @@ type SlotUi = {
 
 local bar: Frame? = nil
 local hint: TextLabel? = nil
+-- The charge meter (Recon).
+type Meter = {
+	group: CanvasGroup,
+	fill: Frame,
+	gradient: UIGradient,
+	percent: TextLabel,
+	pips: { Frame },
+	shown: number, -- the fill drawn (eased toward the charge)
+	alpha: number, -- group fade 0 (shown) .. 1
+}
+local meter: Meter? = nil
+local METER_WIDTH = 240
+local METER_MAX_PIPS = 3
 local slowedLabel: TextLabel? = nil -- the status line (Hinder countdown)
 local altButton: TextButton? = nil
 local slots: { SlotUi } = {}
@@ -406,6 +421,104 @@ local function build(): ScreenGui
 		Visible = false,
 	}, screen)
 
+	-- Charge meter: under the crosshair, faded in while a charged Mod is up.
+	local group = make("CanvasGroup", {
+		Name = "ChargeMeter",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0.5, 58),
+		Size = UDim2.fromOffset(METER_WIDTH + 80, 58),
+		BackgroundTransparency = 1,
+		GroupTransparency = 1,
+		Visible = false,
+	}, screen)
+	text({
+		Name = "Label",
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 40, 0, 14),
+		Size = UDim2.fromOffset(100, 14),
+		FontFace = HEAVY,
+		TextSize = 12,
+		TextColor3 = MUTED,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "POWER",
+	}, group)
+	local percent = text({
+		Name = "Percent",
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(0, 40 + METER_WIDTH, 0, 14),
+		Size = UDim2.fromOffset(80, 14),
+		FontFace = HEAVY,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Text = "0%",
+	}, group)
+	local track = make("Frame", {
+		Name = "Track",
+		Position = UDim2.fromOffset(40, 18),
+		Size = UDim2.fromOffset(METER_WIDTH, 8),
+		BackgroundColor3 = BACK,
+		BackgroundTransparency = 0.3,
+		BorderSizePixel = 0,
+	}, group)
+	make("UICorner", { CornerRadius = UDim.new(0, 3) }, track)
+	make("UIStroke", { Color = WHITE, Thickness = 1, Transparency = 0.55 }, track)
+	local fill = make("Frame", {
+		Name = "Fill",
+		Size = UDim2.fromScale(0, 1),
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+	}, track)
+	make("UICorner", { CornerRadius = UDim.new(0, 3) }, fill)
+	local gradient = make("UIGradient", {
+		Color = ColorSequence.new(CYAN:Lerp(BLACK, 0.25), CYAN:Lerp(WHITE, 0.35)),
+	}, fill)
+	for _, at in { 0.25, 0.5, 0.75 } do
+		make("Frame", {
+			Name = "Tick",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.new(at, 0, 0, 0),
+			Size = UDim2.new(0, 2, 1, 0),
+			BackgroundColor3 = BLACK,
+			BackgroundTransparency = 0.45,
+			BorderSizePixel = 0,
+			ZIndex = 2,
+		}, track)
+	end
+	text({
+		Name = "BouncesLabel",
+		AnchorPoint = Vector2.new(0, 0),
+		Position = UDim2.fromOffset(40, 34),
+		Size = UDim2.fromOffset(80, 14),
+		FontFace = HEAVY,
+		TextSize = 12,
+		TextColor3 = MUTED,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "BOUNCES",
+	}, group)
+	local pips = {}
+	for i = 1, METER_MAX_PIPS do
+		local pip = make("Frame", {
+			Name = "Bounce" .. i,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromOffset(40 + 80 + (i - 1) * 20, 41),
+			Size = UDim2.fromOffset(9, 9),
+			Rotation = 45,
+			BackgroundColor3 = CYAN,
+			BorderSizePixel = 0,
+		}, group)
+		make("UIStroke", { Color = WHITE, Thickness = 1, Transparency = 0.4 }, pip)
+		pips[i] = pip
+	end
+	meter = {
+		group = group,
+		fill = fill,
+		gradient = gradient,
+		percent = percent,
+		pips = pips,
+		shown = 0,
+		alpha = 1,
+	}
+
 	local layer = HudController.touchLayer()
 	if layer then
 		local function touchButton(name: string, pos: UDim2, size: number): (TextButton, TextLabel)
@@ -579,10 +692,44 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 	end
 end
 
-local function update(_dt: number)
+-- The charge meter: fades in with a charged Mod up, the fill eases to the
+-- charge, flashes white at full; the pips show the picked bounces.
+local function updateMeter(dt: number, now: number)
+	local m = meter
+	if not m then
+		return
+	end
+	local state = ModController.chargeState()
+	m.alpha = math.clamp(m.alpha + (if state then -dt / 0.12 else dt / 0.2), 0, 1)
+	m.group.GroupTransparency = m.alpha
+	m.group.Visible = m.alpha < 1
+	if not state then
+		return
+	end
+	local k = 1 - math.exp(-30 * dt)
+	m.shown += (state.charge - m.shown) * k
+	if not state.charging then
+		m.shown = 0
+	end
+	m.fill.Size = UDim2.fromScale(m.shown, 1)
+	local full = state.charge >= 1
+	-- At full the fill flickers plain white (the gradient off).
+	m.gradient.Enabled = not (full and math.sin(now * 30) > 0)
+	m.percent.Text = if full then "MAX" else string.format("%d%%", math.floor(state.charge * 100))
+	m.percent.TextColor3 = if full then CYAN else WHITE
+	for i, pip in m.pips do
+		pip.Visible = i <= state.maxBounces
+		local on = i <= state.bounces
+		pip.BackgroundColor3 = if on then CYAN else BACK
+		pip.BackgroundTransparency = if on then 0 else 0.3
+	end
+end
+
+local function update(dt: number)
 	if not bar then
 		return
 	end
+	updateMeter(dt, os.clock())
 	local now = os.clock()
 	local any = false
 	for slot, ui in slots do

@@ -16,7 +16,7 @@
 --                its path, a light trail, a whistle, ricochet ticks), it
 --                sticking (the stuck dart is a Mod object), and each pulse:
 --                a scan wave everyone sees, the dart's light flashing
---   StimDrop     the beacon at the caster's feet and its zone (Util/StimFx;
+--   StimDrop     the beacon tossed just ahead of the caster and its zone (Util/StimFx;
 --                the stimmed players' crackle and screen are there too)
 --   Placed / ObjectGone  a pop when a Mod object goes up / breaks or expires
 --   FirewallCast  the cast whoosh; the wall itself is Util/WallFx (it dresses
@@ -70,6 +70,7 @@ type Flight = {
 	spin: number?, -- tumble speed (default 9)
 	hum: ModAudio.Hum?, -- a sound riding it (stopped when it lands)
 	sparks: ParticleEmitter?, -- turned off when it lands
+	streak: Trail?, -- the Recon dart's light streak (off when it lands)
 	pointed: boolean?, -- points along its path (a dart) instead of tumbling
 }
 
@@ -130,8 +131,8 @@ end
 
 -- A thrown canister's trail, made once per pooled model: the Molly's fuse
 -- sparks, the Frost's cold vapour.
-type Trail = { name: string, texture: string, color: Color3, size: number, rate: number }
-local TRAILS: { [string]: Trail } = {
+type TrailSpec = { name: string, texture: string, color: Color3, size: number, rate: number }
+local TRAILS: { [string]: TrailSpec } = {
 	Molly = {
 		name = "MollySparks",
 		texture = Tex.MOLLY_EMBER,
@@ -143,8 +144,8 @@ local TRAILS: { [string]: Trail } = {
 		name = "ReconTrail",
 		texture = Tex.RECON_GLOW,
 		color = Color3.fromHex("9BE7FF"),
-		size = 0.25,
-		rate = 50,
+		size = 0.5,
+		rate = 80,
 	},
 	Frost = {
 		name = "FrostVapor",
@@ -155,7 +156,7 @@ local TRAILS: { [string]: Trail } = {
 	},
 }
 
-local function sparksOf(model: Model, trail: Trail): ParticleEmitter?
+local function sparksOf(model: Model, trail: TrailSpec): ParticleEmitter?
 	local existing = model:FindFirstChild(trail.name, true)
 	if existing and existing:IsA("ParticleEmitter") then
 		return existing
@@ -178,6 +179,59 @@ local function sparksOf(model: Model, trail: Trail): ParticleEmitter?
 	e.Color = ColorSequence.new(trail.color)
 	e.Parent = if fuse and fuse:IsA("Attachment") then fuse else root
 	return e
+end
+
+-- The Recon dart's flight streak (made once per pooled model): a bright
+-- light trail that faces the camera, and a light, so the dart reads in flight.
+local function streakOf(model: Model, color: Color3): (Trail?, PointLight?)
+	local root = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if not root then
+		return nil, nil
+	end
+	local existing = root:FindFirstChild("ReconStreak")
+	local light = root:FindFirstChild("ReconLight")
+	if existing and existing:IsA("Trail") and light and light:IsA("PointLight") then
+		return existing, light
+	end
+	local a0 = Instance.new("Attachment")
+	a0.Name = "StreakA"
+	a0.Position = Vector3.new(0.14, 0, 0)
+	a0.Parent = root
+	local a1 = Instance.new("Attachment")
+	a1.Name = "StreakB"
+	a1.Position = Vector3.new(-0.14, 0, 0)
+	a1.Parent = root
+	local t = Instance.new("Trail")
+	t.Name = "ReconStreak"
+	t.Attachment0 = a0
+	t.Attachment1 = a1
+	t.Texture = Tex.RECON_TRAIL
+	t.TextureMode = Enum.TextureMode.Stretch
+	t.FaceCamera = true
+	t.LightEmission = 1
+	t.LightInfluence = 0
+	t.Lifetime = 0.3
+	t.MinLength = 0.05
+	t.Color = ColorSequence.new(Color3.new(1, 1, 1), color)
+	t.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	t.WidthScale = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(1, 0.2),
+	})
+	t.Enabled = false
+	t.Parent = root
+	local l = Instance.new("PointLight")
+	l.Name = "ReconLight"
+	l.Color = color
+	l.Brightness = 3
+	l.Range = 8
+	l.Shadows = false
+	l.Enabled = false
+	l.Parent = root
+	return t, l
 end
 
 -- A thrown canister (Molly, Frost) flying its server path: spinning, its
@@ -221,6 +275,20 @@ local function onCanisterThrow(id: string, sounds: CanisterSounds, data: { [stri
 	if sparks and trail then
 		sparks.Rate = trail.rate
 	end
+	local streak: Trail? = nil
+	if id == "ReconDart" then
+		local light: PointLight?
+		streak, light = streakOf(model, color:Lerp(Color3.new(1, 1, 1), 0.3))
+		-- Start the streak from where it is now (a pooled model was elsewhere).
+		model:PivotTo(CFrame.new(Projectile.positionAt(path, math.max(elapsed, 0))))
+		if streak then
+			streak:Clear()
+			streak.Enabled = true
+		end
+		if light then
+			light.Enabled = true
+		end
+	end
 	table.insert(flights, {
 		blink = false,
 		model = model,
@@ -237,6 +305,7 @@ local function onCanisterThrow(id: string, sounds: CanisterSounds, data: { [stri
 			model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
 		),
 		sparks = sparks,
+		streak = streak,
 	})
 end
 
@@ -764,12 +833,27 @@ local function onFx(kind: unknown, data: unknown)
 		if
 			typeof(d.at) == "Vector3"
 			and typeof(d.look) == "Vector3"
+			and typeof(d.from) == "Vector3"
+			and typeof(d.release) == "number"
+			and typeof(d.toss) == "number"
 			and typeof(d.radius) == "number"
 			and typeof(d.duration) == "number"
 			and typeof(d.deploy) == "number"
 			and typeof(d.start) == "number"
 		then
-			StimFx.drop(d.at, d.look, d.radius, d.duration, d.deploy, d.start, teamColor(d))
+			StimFx.drop({
+				at = d.at,
+				look = d.look,
+				from = d.from,
+				release = d.release,
+				toss = d.toss,
+				radius = d.radius,
+				duration = d.duration,
+				deploy = d.deploy,
+				start = d.start,
+				color = teamColor(d),
+				own = d.caster == player, -- leaves from our first-person hand
+			})
 		end
 	elseif kind == "Placed" then
 		onPlaced(d)
@@ -793,6 +877,14 @@ local function update(_dt: number)
 			local sparks = f.sparks
 			if sparks then
 				sparks.Rate = 0
+			end
+			local streak = f.streak
+			if streak then
+				streak.Enabled = false
+				local light = streak.Parent and streak.Parent:FindFirstChild("ReconLight")
+				if light and light:IsA("PointLight") then
+					light.Enabled = false
+				end
 			end
 			f.model.Parent = nil
 			local free = grenadeFree[f.key]

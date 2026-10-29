@@ -13,7 +13,7 @@
 | Cancel | Press the key again, or swap weapons. Costs nothing |
 | Gun | Lowered while holding; comes back after the throw |
 | In flight | **Bounces off walls, bursts the moment it touches the ground** (a surface facing up). No bouncing on the floor |
-| Phoenix-style drop | If it's been in the air too long (start at **0.9 s**, config), it **stops flying forward and drops straight down** where it is, then bursts on landing |
+| Phoenix-style drop | If it's been in the air too long (**1.3 s**, config; was 0.9), it **stops flying forward and drops straight down** where it is, then bursts on landing |
 | Fire patch | **~9-stud radius** on the ground where it lands, **4 s** |
 | Damage | **45 damage per second** while standing in it (ticks every 0.25 s); ~2 s kills from full HP |
 | Who burns | **Everyone:** enemies full damage; **you and teammates take 50%** (the shared friendly-fire rule) |
@@ -79,6 +79,11 @@ All ProSoundEffects library audio (public, no upload). Search terms that worked:
 - **Effects:** `Util/MollyFx` from Blender-rendered textures (`tools/vfx/make_molly_vfx.py`, ids in `Config/VfxTextures MOLLY_*`, preview `molly_vfx_preview.png`): looping low flames over the patch, a taller burning edge, smoke, embers, a flickering light, the whoomp sheet, a scorch that lingers 3 s, flames on whoever is burning. In flight: the canister spins with fuse sparks and a hiss, and clinks off walls. `molly_edge.png` is rendered but not used yet (the edge is flame sprites).
 - **Animations:** first person: the free hand pulls the pin on equip (the pin disappears), overhand `Throw` / underhand `Lob` (`Config/Viewmodel`); third person: new `GG_ModLob` clip for RMB.
 - **Icon:** still the Packet's until Molly gets its own.
+
+
+## Changes from the user's feedback (2026-10-29)
+- **Longer throws:** `throwSpeed` 72 → **88**, `dropTime` 0.9 → **1.3**. Longest LMB throw on flat ground (the game's own projectile code, best angle): **54 → 82 studs**. The lob is unchanged.
+- **Damage numbers stay on the target:** a burning enemy's number sits beside them and is hidden while they're off your screen (`Util/HitFeedback`); before, an off-screen hit point parked the number by your crosshair. This applies to every damage number (Firewall too).
 
 ## Mobile
 Tapping the Molly button holds it. The **Fire** button throws (overhand) and a **Lob** context button appears for the underhand toss. Tap the Molly button again to cancel.

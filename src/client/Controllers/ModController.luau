@@ -39,6 +39,7 @@ local Projectile = require(Shared.Mods.Blocks.Projectile)
 
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
+local RecallRing = require(script.Parent.Parent.Util.RecallRing)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 local VfxPool = require(script.Parent.Parent.Util.VfxPool)
 local CameraController = require(script.Parent.CameraController)
@@ -768,7 +769,42 @@ recallPress = function(slot: number, view: SlotView)
 		recallHold = { slot = slot, at = os.clock() }
 		return
 	end
+	if not ready(view) then
+		deny(slot, "Not ready")
+		return
+	end
 	recallTeleport(slot, stats)
+end
+
+-- Per frame: the range ring (ours only): around the planted anchor, or
+-- around the hologram while the plant is aimed; red while we're outside it.
+local function stepRecallRing()
+	local stats: ModTypes.Stats? = nil
+	for slot = 1, Config.SLOTS do
+		local view = ModController.slot(slot)
+		if view.id == "Recall" then
+			stats = view.stats
+			break
+		end
+	end
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not stats or not root or not root:IsA("BasePart") then
+		RecallRing.hide()
+		return
+	end
+	local at = recallAnchor()
+	if not at and (phase == "Equipping" or phase == "Held") then
+		local view = ModController.slot(current)
+		local spot = lastSpot
+		if view.id == "Recall" and spot then
+			at = spot.cframe.Position
+		end
+	end
+	if at then
+		RecallRing.show(at, stats.range, (root.Position - at).Magnitude <= stats.range)
+	else
+		RecallRing.hide()
+	end
 end
 
 -- Per frame: a key held next to the anchor.
@@ -784,7 +820,12 @@ stepRecallHold = function(now: number)
 	end
 	if not InputController.isDown(PREFIXES[hold.slot]) then
 		recallHold = nil
-		recallTeleport(hold.slot, stats) -- a tap: teleport after all
+		-- A tap: teleport after all (if it's off cooldown).
+		if ready(ModController.slot(hold.slot)) then
+			recallTeleport(hold.slot, stats)
+		else
+			deny(hold.slot, "Not ready")
+		end
 	elseif now - hold.at >= stats.pickupHold then
 		recallHold = nil
 		Net.event("ModRecall"):FireServer(hold.slot, "PickUp")
@@ -817,6 +858,10 @@ local function onModPressed(slot: number)
 		deny(slot, if def then def.name .. " isn't built yet" else "Empty slot")
 		return
 	end
+	if def.id == "Recall" and recallAnchor() then
+		recallPress(slot, view) -- a pick-up works on cooldown; a teleport doesn't
+		return
+	end
 	if not ready(view) then
 		-- A predicted Mod may already have cast from this same press (the
 		-- simulation step ran before this handler): that's not a refusal.
@@ -830,18 +875,17 @@ local function onModPressed(slot: number)
 		end
 		return
 	end
-	if def.id == "Recall" and recallAnchor() then
-		recallPress(slot, view)
-		return
-	end
 	if def.activation == "Instant" then
 		if def.id == "Stim" then
-			-- Nothing under you to drop it on: refused here, nothing spent.
+			-- No floor to land it on: refused here, nothing spent.
 			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			local cam = Workspace.CurrentCamera
 			if
 				not root
 				or not root:IsA("BasePart")
-				or not Stim.floorUnder(root, previewParams())
+				or not cam
+				or not view.stats
+				or not Stim.landing(root, cam.CFrame.LookVector, view.stats, previewParams())
 			then
 				deny(slot, "No ground")
 				return
@@ -851,10 +895,11 @@ local function onModPressed(slot: number)
 			sendUse(slot, "Primary", nil)
 		end
 		if def.id == "Stim" then
-			-- Off the belt and slammed down at your feet with a quick crouch.
+			-- Off the belt and tossed underhand a few steps ahead (it leaves
+			-- the hand at the gesture's release; ModFx flies the world one).
 			ModAudio.play(ModAudio.SOUNDS.Stim.grab)
-			ViewmodelController.gesture("StimSlam", "Stim")
-			CameraController.lunge(Vector3.new(0, -0.45, 0), 0.3)
+			ViewmodelController.gesture("StimToss", "Stim", ModProps.get("Stim", TeamColor.ALLY))
+			CameraController.lunge(Vector3.new(0, -0.2, -0.15), 0.35)
 		end
 		-- Simulation Mods (Dash) run from the same input in the simulation.
 		return
@@ -982,8 +1027,8 @@ local function update(_dt: number)
 			CameraController.shake(feel.shake)
 		end
 	end
-	-- Updraft: the free hand flicks down, the gun tilts a little (it stays
-	-- ready), the camera lurches up.
+	-- Updraft: the free hand flicks down, the gun drops away while you rise
+	-- (no shots: Mods/Dash.stepGate), the camera lurches up.
 	local updraftAt = number(character, "UpdraftAt", 0)
 	if updraftAt > lastUpdraftAt + 0.05 then
 		lastUpdraftAt = updraftAt
@@ -1012,6 +1057,7 @@ local function update(_dt: number)
 		CameraController.shake(1.2)
 	end
 	stepRecallHold(now)
+	stepRecallRing()
 
 	if phase == "Equipping" and now - phaseAt >= Config.EQUIP_TIME then
 		phase = "Held"
@@ -1100,6 +1146,32 @@ end
 
 function ModController.useAlt()
 	use("Alt")
+end
+
+-- A charged Mod held up (Recon): how far it's charged (0..1, 0 until LMB
+-- goes down), the bounces RMB picked and the most it allows. nil when none
+-- is held (the HUD's charge meter).
+export type ChargeState = { charge: number, charging: boolean, bounces: number, maxBounces: number }
+
+function ModController.chargeState(): ChargeState?
+	if phase ~= "Equipping" and phase ~= "Held" and phase ~= "Charging" then
+		return nil
+	end
+	local view = ModController.slot(current)
+	local def, stats = view.def, view.stats
+	if not def or not stats or def.activation ~= "HeldCharge" then
+		return nil
+	end
+	local charging = phase == "Charging"
+	local charge = if charging
+		then math.clamp((os.clock() - chargeStart) / (stats.chargeTime or 1), 0, 1)
+		else 0
+	return {
+		charge = charge,
+		charging = charging,
+		bounces = chargeBounces,
+		maxBounces = stats.maxBounces or 2,
+	}
 end
 
 function ModController.start()

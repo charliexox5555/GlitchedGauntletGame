@@ -13,12 +13,13 @@
 | Horizontal speed | Keep your current horizontal momentum (running + Updraft = an arc) |
 | Mid-air | **Yes, like a double jump:** it resets your fall and launches you up again |
 | After the peak | **Normal fall**. No glide, no hover |
-| Shooting | **Gun stays up, you can shoot**, with the **normal in-air spread** penalty (no bonus) |
+| Shooting | **Gun goes down while you rise** (no shooting for `gunDown` 0.35 s, like Dash), then comes back up near the peak; normal in-air spread after (changed 2026-10-29, the user's feedback) |
 | Charges | **2 per round, no recharge, no cooldown** (unlimited in test mode) |
 | Combos | Works with Dash (e.g. Updraft, then Dash forward in the air) |
 
 ## First person
-- **Hand gesture:** the free hand flicks/pushes downward as you launch, Jett-style; the gun tilts slightly but stays ready.
+- **Hand gesture:** the free hand flicks/pushes downward as you launch, Jett-style; the gun drops out of view while you rise and swings back up near the peak (like Dash).
+- **Screen edge:** wind rushing up the sides and off the bottom of the screen while you rise, fading out by the peak.
 - **Camera kick + FOV:** a quick upward camera lurch and a small FOV punch, so it feels like a real launch.
 
 ## What others see
@@ -51,6 +52,11 @@ No steady 1–4 s wind loop exists in the library; the wind pick is a long stead
 - **First person:** free-hand flick down (`Config/Viewmodel MOD_GESTURES.UpdraftDown`), a small gun tilt (`UPDRAFT_TILT`; the gun stays ready), camera lurch up + FOV +6 (`Config/Mods UPDRAFT_FEEL`).
 - **Others see:** `Util/WindFx`: a gust ring flat on the ground and dust at the feet, a trail under you while rising (Dash's wind textures), and a knees-tuck clip `GG_Updraft` (ids in `Config/Animations MODS`).
 - **Icon:** still the Launch Pad's until Updraft gets its own.
+
+
+## Changes from the user's feedback (2026-10-29)
+- **Gun down while rising:** `Config/Mods` Updraft L1 `gunDown` 0.35. The simulation writes `UpdraftGunDown`; the Dash gun gate (`Mods/Dash.stepGate`) holds shots on both sides for that long after `UpdraftAt` (no Dash Focus after it). First person: `Config/Viewmodel UPDRAFT_DIP` (replaces the small tilt). Verified: an auto rifle held on fire stops for ~0.33 s, then fires again; the gun is out of view from ~0.1 to 0.35 s.
+- **Screen edge:** Blender texture `tools/vfx/make_updraft_vfx.py` → `art-source/vfx/abilities/updraft/updraft_edge.png` (`VfxTextures.UPDRAFT_EDGE`, preview in `vault/02 Art/References/abilities/updraft/`), drawn by `ModFeelController`: in over 0.06 s, sliding down the screen as you rise, gone by the peak.
 
 ## Mobile
 Tapping the Updraft button launches you.

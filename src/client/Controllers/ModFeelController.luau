@@ -6,8 +6,9 @@
 --   UpdraftAt / Updrafting (Updraft) and RecallAt (Recall) attributes
 --   replicate, so a new value here means that player just cast: play its 3D
 --   sound there (and, for others' Dash and Updraft, Util/WindFx).
---   Your screen: Dash wind streaks and blur, a violet flash as your Recall
---   lands, and the enemy-only warnings (revealed by a Recon dart).
+--   Your screen: Dash wind streaks and blur, the Updraft's rising-wind edge
+--   while you go up, a violet flash as your Recall lands, and the enemy-only
+--   warnings (revealed by a Recon dart).
 --
 -- All overlays are built once and reused.
 
@@ -57,6 +58,13 @@ local blur: BlurEffect? = nil
 -- Updraft: our wind loop while rising.
 local windHum: ModAudio.Hum? = nil
 local windUntil = -math.huge
+-- Updraft: the rising-wind screen edge (in fast, sliding down the screen
+-- as you go up, gone by the peak).
+local updraftEdge: ImageLabel? = nil
+local updraftAt = -math.huge
+local updraftRise = 0.4
+local UPDRAFT_EDGE_IN = 0.06
+local UPDRAFT_EDGE_PEAK = 0.25 -- image transparency at its strongest
 local flash: Frame? = nil
 local revealedTag: TextLabel? = nil
 local revealedAt = -math.huge
@@ -100,6 +108,18 @@ local function build(): ScreenGui
 			ImageTransparency = 1,
 		}, screen)
 	end
+	-- Updraft: wind rising along the sides and the bottom (Blender texture),
+	-- a little larger than the screen so it can slide.
+	updraftEdge = make("ImageLabel", {
+		Name = "UpdraftEdge",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(1.08, 1.08),
+		BackgroundTransparency = 1,
+		Image = VFX.UPDRAFT_EDGE,
+		ImageColor3 = Color3.fromHex("E6F4FF"),
+		ImageTransparency = 1,
+	}, screen)
 	-- "REVEALED" (placeholder) when an enemy Recon spots you.
 	revealedTag = make("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0),
@@ -225,6 +245,8 @@ local function stepCharacters()
 				ModAudio.stopHum(windHum)
 				windHum = ModAudio.hum(S.Updraft.wind, root)
 				windUntil = os.clock() + rise
+				updraftAt = os.clock()
+				updraftRise = math.clamp(rise, 0.2, 1)
 			else
 				ModAudio.play(S.Updraft.world, root.Position)
 				WindFx.updraft(character, root, rise, TeamColor.forOwner(other))
@@ -253,6 +275,25 @@ local function update(_dt: number)
 	if windHum and now >= windUntil then
 		ModAudio.stopHum(windHum)
 		windHum = nil
+	end
+
+	-- Updraft edge: in fast, then fading out toward the peak while it slides
+	-- down the screen (the world falls away below you).
+	local ue = updraftEdge
+	if ue then
+		local t = now - updraftAt
+		local total = updraftRise + 0.15
+		if t >= total then
+			if ue.ImageTransparency ~= 1 then
+				ue.ImageTransparency = 1
+			end
+		else
+			local strength = if t < UPDRAFT_EDGE_IN
+				then t / UPDRAFT_EDGE_IN
+				else (1 - (t - UPDRAFT_EDGE_IN) / (total - UPDRAFT_EDGE_IN)) ^ 1.5
+			ue.ImageTransparency = 1 - (1 - UPDRAFT_EDGE_PEAK) * strength
+			ue.Position = UDim2.fromScale(0.5, 0.47 + 0.06 * (t / total))
+		end
 	end
 
 	-- Dash streaks: weighted to the dash's side (a sideways dash), all round

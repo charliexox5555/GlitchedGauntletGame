@@ -55,21 +55,30 @@ Dash.module = module
 -- the gun is down until `readyAt` (the rest of the dash plus DashFireDelay),
 -- then the first shot until `focusUntil` has no movement spread (Dash Focus).
 -- Keyed on DashStart, so a chained dash pushes it on and a frame that
--- missed the Dashing flag can't skip it.
+-- missed the Dashing flag can't skip it. An Updraft lowers the gun too
+-- (UpdraftGunDown seconds from UpdraftAt), with no Focus after it.
 export type GunGate = {
 	lastStart: number, -- DashStart of the last dash seen
+	lastUpdraft: number, -- UpdraftAt of the last Updraft seen
 	readyAt: number,
 	focusUntil: number,
 	focusOpen: boolean,
 }
 
 function Dash.newGate(): GunGate
-	return { lastStart = 0, readyAt = -math.huge, focusUntil = -math.huge, focusOpen = false }
+	return {
+		lastStart = 0,
+		lastUpdraft = 0,
+		readyAt = -math.huge,
+		focusUntil = -math.huge,
+		focusOpen = false,
+	}
 end
 
 -- A new life: forget the last one's dash (its character had its own DashStart).
 function Dash.resetGate(gate: GunGate)
 	gate.lastStart = 0
+	gate.lastUpdraft = 0
 	gate.readyAt = -math.huge
 	gate.focusOpen = false
 end
@@ -93,6 +102,15 @@ function Dash.stepGate(gate: GunGate, character: Model, now: number, simNow: num
 		gate.readyAt =
 			math.max(gate.readyAt, now + left + (if typeof(delay) == "number" then delay else 0))
 		gate.focusUntil = gate.readyAt + (if typeof(window) == "number" then window else 0)
+	end
+	local updraft = character:GetAttribute("UpdraftAt")
+	if typeof(updraft) == "number" and updraft > gate.lastUpdraft + 0.05 then
+		gate.lastUpdraft = updraft
+		local down = character:GetAttribute("UpdraftGunDown")
+		local left = if typeof(down) == "number"
+			then math.clamp(updraft + down - simNow, 0, 1)
+			else 0
+		gate.readyAt = math.max(gate.readyAt, now + left)
 	end
 end
 
