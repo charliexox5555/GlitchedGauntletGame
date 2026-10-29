@@ -1,6 +1,8 @@
 # Lobby
 
-**Status:** design locked 2026-10-29 · not built
+**Status:** design locked 2026-10-29 · **phase 1 (build and art only) next**
+
+> **Locked 2026-10-29:** the Lobby is a **new place named "Lobby" in the same experience**, and Claude works in both places. **Phase 1 is building and art only:** geometry, Blender kit, lighting and decorative scripts. **No game-structure code until the user approves the build** (phase 2). Prompt: [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md).
 **What it is:** the pre-game hub. Players spawn here in **third person**, hang out, slide around, queue (alone or with a party), shop, set their loadout, and practise in a separate **Range wing**. Matches happen in a different place.
 
 ---
@@ -21,7 +23,8 @@
                              ▼
                         LOBBY ("Queue again", party kept)
 ```
-- **Lobby place** = the experience's start place, **30 players per server**.
+- **Lobby place** = a new place named **"Lobby"** in the same experience, which becomes the start place, **30 players per server**.
+- **Start place swap (later, phase 2):** Roblox can't switch the start place directly. The official way is to back up the current game place (publish it as a new "Match" place), then open the Lobby and **File → Publish to Roblox As… → overwrite the start place**.
 - **Match place** = one reserved (private) server per match. The current game place becomes the Match place.
 - **After a match:** results screen → everyone teleports back to the lobby → a **"Queue again"** button; parties stay together.
 
@@ -85,7 +88,10 @@ A **walled zone inside the lobby place** (not a separate place): walk through th
 - 30 players: keep the hub performant (StreamingEnabled, instanced props, few dynamic lights).
 
 ## Build plan
-1. **Places + Rojo:** create the Lobby place in the experience (set it as the start place) and split Rojo into lobby and match projects.
+**Phase 1: build and art only (no game code):** create the "Lobby" place, then steps 2 and 5 below, plus lighting and decorative ambience. See the [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md).
+**Phase 2: code (after the build is approved):** steps 1, 3, 4 and 6.
+
+1. **Places + Rojo:** swap the start place (see above) and split Rojo into lobby and match projects.
 2. **Greybox:** block out the hall, courtyard and Range wing with simple parts. Walk and slide test it, tune the sizes.
 3. **Hub systems:** third-person camera + shift-lock, hub movement (no guns/abilities), queue pads + Play button + counts, teleport to and from the Match place, party invites, emotes.
 4. **Range wing:** move the test range in, with first person, all guns and abilities, and the zone rules.
