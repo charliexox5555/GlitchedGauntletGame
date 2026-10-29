@@ -4,6 +4,8 @@
 **Inspiration:** Sage's Healing Orb (Valorant), not a copy. It has the same **mystical feel**: an orb of light forms in your hand, you give it to a teammate or take it yourself, and it **heals over time** (no instant heal).
 **Remove from the old Patch Up:** the handheld "remote" device and the instant/simple heal.
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|

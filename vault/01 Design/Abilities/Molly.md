@@ -4,6 +4,8 @@
 **Inspiration:** Valorant mollies (Brimstone's incendiary, Phoenix's Hot Hands). A thrown incendiary canister that lands and spreads a **fire patch**.
 **Remove from the old Packet:** the arc/trajectory preview, the ground bounce, the fuse timer and the explosion damage.
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|

@@ -4,6 +4,8 @@
 **Inspiration:** Brimstone's Stim Beacon (Valorant). You drop a beacon; **teammates (and you) who step into its zone get a combat stim** that boosts fire rate, movement speed, weapon swapping and reloading. **Team only:** it never affects enemies.
 **Remove from the old Overclock:** the instant self-only fire-rate buff.
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|

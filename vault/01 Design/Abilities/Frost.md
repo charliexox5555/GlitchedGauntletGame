@@ -4,6 +4,8 @@
 **Inspiration:** Waylay's Saturate (Valorant): a thrown burst that **hinders** everyone it catches. Valorant's hinder slows fire rate, recoil recovery, equip time, reload speed, movement speed and jump speed. Saturate only detonates on the ground. No stun, no damage.
 **Remove from the old Lag Field:** the lingering slow zone and its orb.
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|

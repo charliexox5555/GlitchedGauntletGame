@@ -4,6 +4,8 @@
 **Inspiration:** Sova's Recon Bolt (Valorant), **without the bow**. You fire a sensor dart from a **compact dart launcher**; it sticks, pulses twice, and reveals enemies the dart can see.
 **Remove from the old Ping:** the instant reveal pulse around yourself.
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|

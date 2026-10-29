@@ -3,6 +3,8 @@
 **Status:** spec locked 2026-10-28 · not built
 **Inspiration:** Jett's Updraft (Valorant). An instant launch straight up, for yourself only. **No pad, nothing placed:** remove the Launch Pad placeable.
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|

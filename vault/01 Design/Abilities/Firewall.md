@@ -4,6 +4,8 @@
 **Inspiration:** Phoenix's Blaze (Valorant). A **wall of fire you steer** that **blocks vision**, not a cover wall.
 **Remove from the old Firewall:** the short placed bullet-blocking wall, its HP and the placement hologram. (The cover-wall idea is parked as a future power: see "Bench" in the [overview](00%20Abilities.md).)
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|

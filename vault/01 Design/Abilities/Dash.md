@@ -4,6 +4,8 @@
 **Inspiration:** Jett's dash (Valorant). A physical, instant dash.
 **What to change from the current Blink:** the *feel* is already good. The rework is the **name, the charge rule, gun handling, the first-person animation, the effects and the sound hooks**.
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|
@@ -34,7 +36,7 @@
 - A quick **wind trail/streak** along the path (team-tinted: your team vs enemies), a small **air burst** at the start and a light **puff** at the end.
 - The character **leans** into the dash direction.
 
-## Sound (hooks only: the user does the sound design)
+## Sound (hooks + placeholder sounds: the user does the final sound design)
 | Hook | What |
 |---|---|
 | `Dash_Whoosh` | The main air whoosh (first person) |

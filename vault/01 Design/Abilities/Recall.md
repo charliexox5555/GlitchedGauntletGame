@@ -5,6 +5,8 @@
 **Remove from the old Rollback:** rewinding to where you were 3 s ago.
 **Later upgrade idea (not now):** a bigger teleport range.
 
+> **Look & sound:** follow the [Look & sound standard](00%20Abilities.md#look--sound-standard-every-ability-this-is-not-optional): Blender models, Blender-rendered effect textures, real hand animations, placeholder sounds in every hook.
+
 ## How it works
 | Rule | Value |
 |---|---|
