@@ -44,7 +44,7 @@ end
 local function placeholder(id: string, glow: Color3): Model?
 	local model = Instance.new("Model")
 	model.Name = id
-	if id == "Packet" then
+	if id == "Molly" then
 		model:SetAttribute("HoldOffset", Vector3.new(0, 0.32, -0.12))
 		part(model, Enum.PartType.Ball, Vector3.one * 0.5, CFrame.identity, SHELL)
 		part(
@@ -134,6 +134,10 @@ local function placeholder(id: string, glow: Color3): Model?
 		return nil
 	end
 	model.WorldPivot = CFrame.identity
+	-- A root for things that ride the model (a thrown canister's sparks and hiss).
+	if not model.PrimaryPart then
+		model.PrimaryPart = model:FindFirstChildWhichIsA("BasePart")
+	end
 	return model
 end
 

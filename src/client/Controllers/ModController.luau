@@ -29,7 +29,6 @@ local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
 local Firewall = require(Shared.Mods.Firewall)
 local LagField = require(Shared.Mods.LagField)
-local Packet = require(Shared.Mods.Packet)
 local PatchUp = require(Shared.Mods.PatchUp)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
@@ -73,9 +72,9 @@ local lastDashStart = 0
 local lastUpdraftAt = 0
 local lastRollbackAt = 0
 
--- Held throws: each Mod's projectile options (the server uses the same).
+-- Held throws with an arc preview: each Mod's projectile options (the server
+-- uses the same). The Molly has none: you just throw it (Molly.md).
 local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {
-	Packet = Packet.options,
 	LagField = LagField.options,
 }
 -- Held placements: each Mod's spot check and box (the server uses the same).
@@ -596,7 +595,7 @@ local function use(mode: ModTypes.UseMode)
 	hideTarget()
 	ViewmodelController.itemAction(
 		if def.activation == "HeldThrow"
-			then "Throw"
+			then (if mode == "Alt" then "Lob" else "Throw")
 			elseif def.activation == "HeldPlace" then "Place"
 			else "Heal"
 	)
@@ -610,8 +609,18 @@ local function startHold(slot: number, view: SlotView)
 	WeaponController.setHolstered("Mod", true)
 	ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
 	Net.event("ModHold"):FireServer(slot)
-	if def.id == "Packet" then
-		ModAudio.play(ModAudio.SOUNDS.Packet.pin)
+	if def.id == "Molly" then
+		-- Canister out, then the free hand pulls the pin.
+		ModAudio.play(ModAudio.SOUNDS.Molly.equip)
+		local token = itemToken
+		task.delay(Config.MOLLY_PIN_AT, function()
+			-- Not once the throw has started (a quick-cast or a queued click).
+			if token == itemToken and (phase == "Equipping" or phase == "Held") then
+				ViewmodelController.gesture("MollyPinPull")
+				ViewmodelController.hideItemPart("Pin", Config.MOLLY_PIN_GONE)
+				ModAudio.play(ModAudio.SOUNDS.Molly.pinPull)
+			end
+		end)
 	elseif def.id == "PatchUp" then
 		ModAudio.play(ModAudio.SOUNDS.PatchUp.raise)
 	end

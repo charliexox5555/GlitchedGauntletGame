@@ -40,6 +40,7 @@ IDS.ModHold = Animations.MODS.ModHold
 -- One-shots on a use, by ModUseKind.
 local USE_IDS: { [string]: string } = {
 	Throw = Animations.MODS.Throw,
+	Lob = Animations.MODS.Lob, -- a held throw's underhand (Molly RMB)
 	Place = Animations.MODS.Place,
 	Heal = Animations.MODS.Heal,
 	-- Dash leans (Mods/Dash), by direction relative to the body.

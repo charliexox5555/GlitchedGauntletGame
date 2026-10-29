@@ -1,5 +1,5 @@
 --!strict
--- Projectile building block (Packet, Lag Field). A thrown object's whole path
+-- Projectile building block (Molly, Lag Field). A thrown object's whole path
 -- is computed once, deterministically, with fixed steps and raycasts: the
 -- server does it from its own head position, and sends the result (a few
 -- ballistic segments) to clients, which replay positionAt() exactly. The
@@ -25,11 +25,17 @@ export type Options = {
 	restitution: number?, -- share of normal speed kept on a bounce (default 0.45)
 	friction: number?, -- share of along-surface speed kept (default 0.7)
 	duration: number, -- seconds to simulate
+	-- Molly: it stops on the first surface facing up (walls still bounce),
+	-- and after `dropAfter` seconds in the air it stops flying forward and
+	-- drops straight down.
+	groundStop: boolean?,
+	dropAfter: number?,
 }
 
 local STEP = 1 / 60
 local MAX_SEGMENTS = 8
 local REST_SPEED = 8 -- slower than this after a bounce: it stops
+local GROUND_NORMAL = 0.7 -- a surface this flat (normal.Y) is ground for groundStop
 
 local Projectile = {}
 
@@ -64,8 +70,16 @@ function Projectile.simulate(
 	local bounces = 0
 	local pos, vel = origin, velocity
 	local t = 0
+	local dropAfter = options.dropAfter
+	local dropped = false
 	local steps = math.ceil(options.duration / STEP)
 	for _ = 1, steps do
+		-- Too long in the air: drop straight down from here (a new segment).
+		if dropAfter and not dropped and t >= dropAfter and #segments < MAX_SEGMENTS - 1 then
+			dropped = true
+			vel = Vector3.new(0, math.min(vel.Y, 0), 0)
+			table.insert(segments, { t = t, p = pos, v = vel, rest = false })
+		end
 		local nextVel = vel + Vector3.new(0, -gravity * STEP, 0)
 		local nextPos = pos + vel * STEP + Vector3.new(0, -0.5 * gravity * STEP * STEP, 0)
 		local delta = nextPos - pos
@@ -81,9 +95,23 @@ function Projectile.simulate(
 			local normalPart = normal * into
 			local along = hitVel - normalPart
 			local bounced = along * friction - normalPart * restitution
-			local stop = bounces > options.bounces
+			local ground = options.groundStop == true and normal.Y >= GROUND_NORMAL
+			local stop = ground
+				or bounces > options.bounces
 				or bounced.Magnitude < REST_SPEED
 				or #segments >= MAX_SEGMENTS - 1
+			if stop and options.groundStop and not ground then
+				-- groundStop: only a floor ends it. A wall that would stop it
+				-- drops it straight down instead (leaving a segment free for
+				-- the floor); out of segments, the path just ends (no rest).
+				if #segments >= MAX_SEGMENTS - 2 then
+					break
+				end
+				local fall = Vector3.new(0, math.min(bounced.Y, 0), 0)
+				table.insert(segments, { t = hitT, p = at, v = fall, rest = false })
+				pos, vel, t = at, fall, hitT
+				continue
+			end
 			table.insert(
 				segments,
 				{ t = hitT, p = at, v = if stop then Vector3.zero else bounced, rest = stop }
@@ -108,7 +136,7 @@ end
 local HAND_FORWARD = 1.5 -- studs in front of the head a throw starts
 local HAND_DROP = 0.35
 
--- A held throw (Packet, Lag Field): where it leaves the hand and its
+-- A held throw (Molly, Lag Field): where it leaves the hand and its
 -- velocity, from the head and the aim. LMB ("Primary") throws with
 -- `throwSpeed` / `throwLift`, RMB ("Alt") lobs with `lobSpeed` / `lobLift`.
 -- `params` (world only) keeps the start out of a wall you're facing.

@@ -5,9 +5,10 @@
 -- come from Util/ModVfx (pooled, stylized textures: rings, scans, hexes,
 -- chevrons, sparkles), held / thrown models from Util/ModProps.
 --
---   PacketThrow  the grenade flying its server path (Blocks/Projectile replay),
---                fuse blink, and a danger ring where it will go off
---   PacketBoom   flash sphere + shockwave ring, camera shake nearby
+--   MollyThrow   the canister flying its server path (Blocks/Projectile
+--                replay), spinning, fuse sparks, hiss, a clink per wall bounce
+--   MollyBurst / MollyFizzle   the fire patch (Util/MollyFx), or nothing to
+--                burn on
 --   Heal         a beam from the healer to the ally, +HP over the target
 --   LagThrow / LagZone   the orb's flight, then the slowing dome
 --   PingPulse    an expanding scan sphere (everyone sees it)
@@ -30,6 +31,7 @@ local Projectile = require(Shared.Mods.Blocks.Projectile)
 local Tex = require(Shared.Config.VfxTextures)
 
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
+local MollyFx = require(script.Parent.Parent.Util.MollyFx)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local ModVfx = require(script.Parent.Parent.Util.ModVfx)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
@@ -43,14 +45,17 @@ local S = ModAudio.SOUNDS
 local player = Players.LocalPlayer
 
 type Flight = {
-	blink: boolean, -- Packet's fuse blink
+	blink: boolean, -- a fuse blink
 	model: Model,
 	glow: { BasePart },
 	path: Projectile.Path,
 	start: number,
-	fuse: number,
+	fuse: number, -- when it lands (it goes back to the pool)
 	color: Color3,
 	key: string,
+	spin: number?, -- tumble speed (default 9)
+	hum: ModAudio.Hum?, -- a sound riding it (stopped when it lands)
+	sparks: ParticleEmitter?, -- turned off when it lands
 }
 
 type Beam = {
@@ -142,7 +147,14 @@ local function dangerRing(at: Vector3, radius: number, color: Color3, life: numb
 	})
 end
 
--- Packet ----------------------------------------------------------------------------
+local function teamColor(data: { [string]: any }): Color3
+	if data.caster == player then
+		return TeamColor.ALLY
+	end
+	return TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
+end
+
+-- Molly -----------------------------------------------------------------------------
 
 local function takeGrenade(id: string, color: Color3): (Model?, string)
 	local key = id .. color:ToHex()
@@ -159,131 +171,97 @@ local function takeGrenade(id: string, color: Color3): (Model?, string)
 	return model, key
 end
 
-local function onPacketThrow(data: { [string]: any })
+-- The canister's fuse sparks, made once per pooled model.
+local function sparksOf(model: Model): ParticleEmitter?
+	local existing = model:FindFirstChild("MollySparks", true)
+	if existing and existing:IsA("ParticleEmitter") then
+		return existing
+	end
+	local root = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+	if not root then
+		return nil
+	end
+	local fuse = root:FindFirstChild("Fuse")
+	local e = Instance.new("ParticleEmitter")
+	e.Name = "MollySparks"
+	e.Texture = Tex.MOLLY_EMBER
+	e.Rate = 0
+	e.Lifetime = NumberRange.new(0.25, 0.45)
+	e.Speed = NumberRange.new(1, 3)
+	e.SpreadAngle = Vector2.new(60, 60)
+	e.Size = NumberSequence.new(0.12, 0.03)
+	e.LightEmission = 1
+	e.LightInfluence = 0
+	e.Color = ColorSequence.new(Color3.fromRGB(255, 190, 110))
+	e.Parent = if fuse and fuse:IsA("Attachment") then fuse else root
+	return e
+end
+
+local function onMollyThrow(data: { [string]: any })
 	local path = Projectile.unpack(data.path)
-	local start, fuse, radius = data.start, data.fuse, data.radius
-	if
-		not path
-		or typeof(start) ~= "number"
-		or typeof(fuse) ~= "number"
-		or typeof(radius) ~= "number"
-	then
+	local start, land = data.start, data.land
+	if not path or typeof(start) ~= "number" or typeof(land) ~= "number" then
 		return
 	end
-	local color = TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
-	if data.caster == player then
-		color = TeamColor.ALLY
-	end
-	local model, key = takeGrenade("Packet", color)
+	local color = teamColor(data)
+	local model, key = takeGrenade("Molly", color)
 	if not model then
 		return
 	end
-	local glow = {}
-	for _, d in model:GetDescendants() do
-		if d:IsA("BasePart") and d.Material == Enum.Material.Neon then
-			table.insert(glow, d)
-		end
-	end
-	-- Danger ring where it will go off.
 	local elapsed = Workspace:GetServerTimeNow() - start
-	local left = math.max(fuse - elapsed, 0.1)
-	local landing = Projectile.positionAt(path, fuse)
-	dangerRing(landing, radius, color, left)
-	-- Sounds: the throw, the first bounce, fuse beeps near the end, and the
-	-- enemy-only "get out" warning if you stand where it will go off.
-	ModAudio.play(S.Packet.throw, Projectile.positionAt(path, math.max(elapsed, 0)))
-	local bounce = path.segments[2]
-	if bounce and bounce.t > elapsed then
-		task.delay(bounce.t - elapsed, function()
-			ModAudio.play(S.Packet.bounce, bounce.p)
-		end)
-	end
-	task.delay(math.max(left - 0.8, 0), function()
-		ModAudio.play(S.Packet.fuse, landing)
-		local root = rootOf(player.Character)
-		if data.caster ~= player and not TeamColor.isFriendly(data.team) and root then
-			if (root.Position - landing).Magnitude <= radius + 2 then
-				ModAudio.play(S.Packet.danger)
-			end
+	ModAudio.play(
+		if data.lob == true then S.Molly.throwLob else S.Molly.throw,
+		Projectile.positionAt(path, math.max(elapsed, 0))
+	)
+	-- A metal clink off each wall it bounces from (a drop isn't a bounce: it
+	-- has no sideways speed; the last segment is the landing).
+	for i = 2, #path.segments - 1 do
+		local seg = path.segments[i]
+		local sideways = seg.v * Vector3.new(1, 0, 1)
+		if sideways.Magnitude > 0.5 and seg.t > elapsed then
+			task.delay(seg.t - elapsed, function()
+				ModAudio.play(S.Molly.bounce, seg.p)
+			end)
 		end
-	end)
+	end
+	local sparks = sparksOf(model)
+	if sparks then
+		sparks.Rate = 40
+	end
 	table.insert(flights, {
-		blink = true,
+		blink = false,
 		model = model,
-		glow = glow,
+		glow = {},
 		path = path,
 		start = start,
-		fuse = fuse,
+		fuse = land,
 		color = color,
 		key = key,
+		spin = 11,
+		hum = ModAudio.hum(
+			S.Molly.flight,
+			model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		),
+		sparks = sparks,
 	})
 end
 
-local function onPacketBoom(data: { [string]: any })
-	local at, radius = data.at, data.radius
-	if typeof(at) ~= "Vector3" or typeof(radius) ~= "number" then
+local function onMollyBurst(data: { [string]: any })
+	local at, radius, duration, start = data.at, data.radius, data.duration, data.start
+	if
+		typeof(at) ~= "Vector3"
+		or typeof(radius) ~= "number"
+		or typeof(duration) ~= "number"
+		or typeof(start) ~= "number"
+	then
 		return
 	end
-	local color = if data.caster == player
-		then TeamColor.ALLY
-		else TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
-	local d = radius * 2
-	ModAudio.play(S.Packet.explode, at)
-	ModAudio.play(S.Packet.explodeCrackle, at)
-	-- A hot core, a shockwave ring racing out along the ground, a glow and
-	-- a spray of sparks.
-	ModVfx.shell({
-		shape = Enum.PartType.Ball,
-		cframe = CFrame.new(at),
-		from = Vector3.one * 2,
-		to = Vector3.one * d * 0.85,
-		color = color,
-		life = 0.28,
-		alpha0 = 0.1,
-		material = Enum.Material.Neon,
-	})
-	ModVfx.shell({
-		shape = Enum.PartType.Ball,
-		cframe = CFrame.new(at),
-		from = Vector3.one * d * 0.6,
-		to = Vector3.one * d * 1.1,
-		color = color,
-		life = 0.4,
-		alpha0 = 0.8,
-	})
-	local shock = ModVfx.mesh({
-		name = "Shockwave",
-		cframe = CFrame.new(at - Vector3.new(0, 0.35, 0)),
-		from = Vector3.new(2, 0.3, 2),
-		to = Vector3.new(d * 1.5, 0.3, d * 1.5),
-		color = color,
-		life = 0.45,
-		alpha0 = 0.1,
-	})
-	ModVfx.quad({
-		texture = Tex.MOD_RING,
-		cframe = CFrame.new(at - Vector3.new(0, 0.35, 0)),
-		from = 2,
-		to = d * 1.6,
-		color = color,
-		life = 0.5,
-		alpha0 = if shock then 0.4 else 0,
-	})
-	ModVfx.quad({
-		texture = Tex.MOD_GLOW,
-		cframe = CFrame.new(at - Vector3.new(0, 0.3, 0)),
-		from = d * 0.8,
-		to = d * 1.2,
-		color = color,
-		life = 0.4,
-		alpha0 = 0.2,
-	})
-	ModVfx.burst(at, color, 28, "Sparkle")
+	MollyFx.ignite(at, radius, duration, start)
 	local cam = Workspace.CurrentCamera
 	if cam then
 		local away = (cam.CFrame.Position - at).Magnitude
-		if away < radius * 4 then
-			CameraController.shake(1.2 * (1 - away / (radius * 4)))
+		if away < radius * 3 then
+			CameraController.shake(0.6 * (1 - away / (radius * 3)))
 		end
 	end
 end
@@ -409,13 +387,6 @@ local function onHeal(data: { [string]: any })
 	if friendly then
 		healNumbers(targetModel, duration, color)
 	end
-end
-
-local function teamColor(data: { [string]: any }): Color3
-	if data.caster == player then
-		return TeamColor.ALLY
-	end
-	return TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
 end
 
 -- Lag Field --------------------------------------------------------------------------
@@ -1013,10 +984,14 @@ local function onFx(kind: unknown, data: unknown)
 		return
 	end
 	local d = data :: { [string]: any }
-	if kind == "PacketThrow" then
-		onPacketThrow(d)
-	elseif kind == "PacketBoom" then
-		onPacketBoom(d)
+	if kind == "MollyThrow" then
+		onMollyThrow(d)
+	elseif kind == "MollyBurst" then
+		onMollyBurst(d)
+	elseif kind == "MollyFizzle" then
+		if typeof(d.at) == "Vector3" then
+			MollyFx.fizzle(d.at)
+		end
 	elseif kind == "Heal" then
 		onHeal(d)
 	elseif kind == "LagThrow" then
@@ -1046,6 +1021,11 @@ local function update(_dt: number)
 		local t = serverNow - f.start
 		if t >= f.fuse then
 			table.remove(flights, i)
+			ModAudio.stopHum(f.hum)
+			local sparks = f.sparks
+			if sparks then
+				sparks.Rate = 0
+			end
 			f.model.Parent = nil
 			local free = grenadeFree[f.key]
 			if not free then
@@ -1056,7 +1036,8 @@ local function update(_dt: number)
 			continue
 		end
 		local pos = Projectile.positionAt(f.path, math.max(t, 0))
-		f.model:PivotTo(CFrame.new(pos) * CFrame.Angles(t * 9, t * 5, 0))
+		local spin = f.spin or 9
+		f.model:PivotTo(CFrame.new(pos) * CFrame.Angles(t * spin, t * spin * 0.55, 0))
 		-- Fuse blink, faster as it runs out.
 		local rate = 4 + 14 * (t / f.fuse)
 		local on = not f.blink or math.sin(now * rate * math.pi * 2) > 0
@@ -1065,6 +1046,7 @@ local function update(_dt: number)
 		end
 	end
 	ModVfx.step()
+	MollyFx.step()
 	for i = #orbs, 1, -1 do
 		local o = orbs[i]
 		if now >= o.untilT then

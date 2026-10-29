@@ -1,12 +1,13 @@
 --!strict
 -- Server-owned Mod things that outlive the request that made them, all
 -- tracked by owner so they go away when the owner dies or leaves:
---   timers   a Packet's fuse, a Lag Field opening (schedule)
+--   timers   a Molly's landing and fire ticks, a Lag Field opening (schedule;
+--            they outlive the owner's death, not their leaving)
 --   objects  placed parts in workspace.ModObjects (Launch Pad, Firewall) with
 --            HP and a lifetime; shots and blasts damage them (damage)
 --   zones    Lag Field: enemies inside get the ModSpeedMult player attribute
 --            (the movement simulation multiplies it in), dummies "Slowed"
--- A Packet has no server part at all: its path is maths (Mods/Blocks/
+-- A Molly has no server part at all: its path is maths (Mods/Blocks/
 -- Projectile) and clients draw it from the ModFx event.
 --
 -- Object attributes (clients colour and label them): Kind, TeamId, OwnerId,

@@ -7,7 +7,7 @@
 --   replicate, so a new value here means that player just cast: play its 3D
 --   sound there (and, for others' Dash and Updraft, Util/WindFx).
 --   Your screen: Dash wind streaks and blur, the Rollback "VHS rewind" (wash,
---   scanlines, a REWIND tag), a flash when a Packet goes off on you, and the
+--   scanlines, a REWIND tag), and the
 --   enemy-only warnings (slowed by a Lag Field, revealed by a Ping).
 --
 -- All overlays are built once and reused.
@@ -374,25 +374,10 @@ local function onFx(kind: unknown, data: unknown)
 	if typeof(data) ~= "table" then
 		return
 	end
-	local d = data :: { [string]: any }
 	if kind == "Revealed" then
 		-- An enemy Ping spotted you.
 		ModAudio.play(S.Ping.revealed)
 		blastFlash(TeamColor.ENEMY, 0.18)
-	elseif kind == "PacketBoom" then
-		-- A blast on you: a flash by how close it was.
-		local at, radius = d.at, d.radius
-		local root = player.Character and rootOf(player.Character)
-		if typeof(at) == "Vector3" and typeof(radius) == "number" and root then
-			local dist = (root.Position - at).Magnitude
-			if dist < radius then
-				local mine = d.caster == player
-				blastFlash(
-					if mine then TeamColor.ALLY else Color3.fromHex("FFE2C8"),
-					0.55 * (1 - dist / radius)
-				)
-			end
-		end
 	end
 end
 

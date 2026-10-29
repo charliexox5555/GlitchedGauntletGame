@@ -46,12 +46,15 @@ function ModAudio.hum(cue: ModSounds.Cue?, holder: Instance?): Hum?
 		local s = Instance.new("Sound")
 		s.SoundId = cue.id
 		s.Looped = true
-		s.RollOffMinDistance = 10
-		s.RollOffMaxDistance = 120
 		sound = s
 	end
 	local s = sound :: Sound
 	s.PlaybackSpeed = cue.pitch or 1
+	-- Pooled by id: set the range every time (a cue's own, else 120 studs).
+	local far = cue.range or 120
+	s.RollOffMode = Enum.RollOffMode.InverseTapered
+	s.RollOffMinDistance = math.min(10, far * 0.25)
+	s.RollOffMaxDistance = far
 	s.Volume = 0
 	s.TimePosition = cue.start or 0
 	-- Our own Attachment on the holder: if the holder is destroyed, only the

@@ -619,7 +619,10 @@ local function use(
 	end
 	publishSlot(player, slot, s)
 	-- Third person: the throw / place / heal clip (Simulation/Poses).
-	local useKind = USE_KINDS[def.activation]
+	-- A held throw's Alt is an underhand lob (Molly).
+	local useKind = if def.activation == "HeldThrow" and mode == "Alt"
+		then "Lob"
+		else USE_KINDS[def.activation]
 	if useKind then
 		player:SetAttribute("ModUseKind", useKind)
 		player:SetAttribute("ModUseAt", now)

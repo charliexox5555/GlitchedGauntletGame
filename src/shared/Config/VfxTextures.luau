@@ -37,4 +37,12 @@ return table.freeze({
 	DASH_AIR_BURST_2x2 = "rbxassetid://130185238645234", -- gust ring expanding over 4 frames
 	DASH_PUFF_2x2 = "rbxassetid://86393263788167", -- soft dust puff dissipating over 4 frames
 	DASH_SCREEN_STREAK = "rbxassetid://75317717584279", -- one wind streak, head on the left
+
+	-- Molly (tools/vfx/make_molly_vfx.py → art-source/vfx/abilities/molly/).
+	-- Fire keeps its own colours (Util/MollyFx).
+	MOLLY_FLAME_4x4 = "rbxassetid://105580186626619", -- 16-frame looping flame cluster, base at the bottom
+	MOLLY_SMOKE_2x2 = "rbxassetid://78112081932784", -- grey puff billowing and thinning (greyscale)
+	MOLLY_EMBER = "rbxassetid://101128795307568", -- hot core + halo (greyscale)
+	MOLLY_BURST_2x2 = "rbxassetid://132280358321008", -- the whoomp, side view, base at the bottom
+	MOLLY_SCORCH = "rbxassetid://114053963453641", -- top-down burn mark; char in the middle 60%
 })

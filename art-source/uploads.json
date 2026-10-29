@@ -125,6 +125,12 @@
   "type": "Animation",
   "uploaded": "2026-10-26 01:31:23"
  },
+ "art-source/animations/GG_ModLob.rbxm": {
+  "assetId": 91729570520010,
+  "name": "GG Mod Lob",
+  "type": "Animation",
+  "uploaded": "2026-10-28 21:39:45"
+ },
  "art-source/animations/GG_ModPlace.rbxm": {
   "assetId": 102573901472605,
   "name": "GG Mod Place",
@@ -190,6 +196,36 @@
   "name": "GG VFX dash_wind_trail",
   "type": "Decal",
   "uploaded": "2026-10-28 21:09:33"
+ },
+ "art-source/vfx/abilities/molly/molly_burst_2x2.png": {
+  "assetId": 113204922015509,
+  "name": "GG VFX molly_burst_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-28 22:25:36"
+ },
+ "art-source/vfx/abilities/molly/molly_ember.png": {
+  "assetId": 136937213019091,
+  "name": "GG VFX molly_ember",
+  "type": "Decal",
+  "uploaded": "2026-10-28 22:25:30"
+ },
+ "art-source/vfx/abilities/molly/molly_flame_4x4.png": {
+  "assetId": 109932632002079,
+  "name": "GG VFX molly_flame_4x4",
+  "type": "Decal",
+  "uploaded": "2026-10-28 22:25:24"
+ },
+ "art-source/vfx/abilities/molly/molly_scorch.png": {
+  "assetId": 140479446116275,
+  "name": "GG VFX molly_scorch",
+  "type": "Decal",
+  "uploaded": "2026-10-28 22:25:46"
+ },
+ "art-source/vfx/abilities/molly/molly_smoke_2x2.png": {
+  "assetId": 126726006808361,
+  "name": "GG VFX molly_smoke_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-28 22:25:27"
  },
  "art-source/vfx/beam_energy.png": {
   "assetId": 140396211249137,

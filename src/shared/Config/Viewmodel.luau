@@ -345,6 +345,17 @@ return table.freeze({
 				{ t = 1, pos = Vector3.new(0.05, -0.7, -0.25), rot = Vector3.new(24, 0, 0) },
 			},
 		},
+		-- Lob: underhand, a swing down and back, then out low and soft.
+		Lob = {
+			length = 0.4,
+			hideAt = 0.62,
+			keys = {
+				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+				{ t = 0.35, pos = Vector3.new(0.06, -0.4, 0.3), rot = Vector3.new(32, 4, 4) },
+				{ t = 0.62, pos = Vector3.new(0, -0.08, -0.75), rot = Vector3.new(-38, -2, 0) },
+				{ t = 1, pos = Vector3.new(0.02, -0.5, -0.35), rot = Vector3.new(-12, 0, 0) },
+			},
+		},
 		Place = {
 			length = 0.32,
 			keys = {
@@ -473,6 +484,30 @@ return table.freeze({
 					pos = Vector3.new(0.15, -1.6, -0.75),
 					dir = Vector3.new(-0.5, -0.75, 0.45),
 				},
+			},
+		},
+		-- Molly: the free hand comes up to the canister's top (the held item
+		-- sits at ITEM_OFFSET), pulls the pin and drops away.
+		MollyPinPull = {
+			length = 0.45,
+			keys = {
+				{ t = 0, pos = Vector3.new(-0.55, -1.6, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
+				{
+					t = 0.38,
+					pos = Vector3.new(0.3, -0.36, -1.85),
+					dir = Vector3.new(-0.65, -0.35, 0.68),
+				},
+				{
+					t = 0.5,
+					pos = Vector3.new(0.28, -0.34, -1.8),
+					dir = Vector3.new(-0.65, -0.35, 0.68),
+				},
+				{
+					t = 0.72,
+					pos = Vector3.new(-0.15, -0.3, -1.5),
+					dir = Vector3.new(-0.5, -0.5, 0.7),
+				},
+				{ t = 1, pos = Vector3.new(-0.55, -1.6, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
 			},
 		},
 		UpdraftDown = {

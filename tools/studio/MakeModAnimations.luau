@@ -9,6 +9,7 @@
 --
 --   GG_ModHold   (looped)   right hand forward at chest height, holding a Mod
 --   GG_ModThrow  (one-shot) wind back over the shoulder, release, follow through
+--   GG_ModLob    (one-shot) underhand: swing down and back, out low and soft
 --   GG_ModPlace  (one-shot) dip and push the object down in front
 --   GG_ModHeal   (one-shot) thrust the device toward the target and back
 --   GG_DashForward / Back / Left / Right (one-shot) the body leans into a
@@ -124,6 +125,28 @@ local THROW_FOLLOW: Frame = {
 	LeftLowerArm = { 20, 0, 0 },
 }
 
+local LOB_BACK: Frame = {
+	UpperTorso = { 6, 10, 0 },
+	RightUpperArm = { -30, 10, 0 },
+	RightLowerArm = { 10, 0, 0 },
+	LeftUpperArm = { 25, -10, 0 },
+	LeftLowerArm = { 20, 0, 0 },
+}
+local LOB_RELEASE: Frame = {
+	UpperTorso = { -6, -6, 0 },
+	RightUpperArm = { 55, 0, 0 },
+	RightLowerArm = { 5, 0, 0 },
+	LeftUpperArm = { 20, -8, 0 },
+	LeftLowerArm = { 20, 0, 0 },
+}
+local LOB_FOLLOW: Frame = {
+	UpperTorso = { -2, -4, 0 },
+	RightUpperArm = { 70, -5, 0 },
+	RightLowerArm = { 20, 0, 0 },
+	LeftUpperArm = { 18, -8, 0 },
+	LeftLowerArm = { 20, 0, 0 },
+}
+
 local PLACE_DOWN: Frame = {
 	LowerTorso = { -6, 0, 0, 0, -0.45, 0 },
 	UpperTorso = { -22, 0, 0 },
@@ -178,6 +201,12 @@ local sequences = {
 		{ 0.13, THROW_BACK },
 		{ 0.22, THROW_RELEASE },
 		{ 0.42, THROW_FOLLOW },
+	}),
+	sequence("GG_ModLob", ACTION4, false, {
+		{ 0, HOLD },
+		{ 0.14, LOB_BACK },
+		{ 0.26, LOB_RELEASE },
+		{ 0.45, LOB_FOLLOW },
 	}),
 	sequence("GG_ModPlace", ACTION4, false, {
 		{ 0, HOLD },

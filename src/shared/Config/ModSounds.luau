@@ -75,14 +75,27 @@ return table.freeze({
 		-- Updraft_World: 3D for everyone else, ~40 studs. "Giant Air Blast ... Many Versions 7"
 		world = cue(9125577419, 1, 0.95, nil, 40, 1.1, 0.2),
 	}),
-	Packet = table.freeze({
-		pin = cue(9114659833, 0.6), -- you, on raise
-		throw = cue(9126229700, 0.55), -- 3D
-		bounce = cue(9116617140, 0.5), -- 3D, first contact only
-		fuse = cue(9118777437, 0.45), -- 3D, stand-in for ModPacketFuse
-		danger = cue(9118777437, 0.6, 1.35), -- enemy 2D, stand-in for ModPacketDanger
-		explode = cue(9119236749, 0.9), -- 3D
-		explodeCrackle = cue(9125625388, 0.5), -- 3D layer
+	-- Molly hooks (vault/01 Design/Abilities/Molly.md → Sound). Placeholders
+	-- (ProSoundEffects, unauditioned), listed in the Molly note; one id each.
+	Molly = table.freeze({
+		equip = cue(9114701864, 0.5, 1.1, nil, nil, 0.75), -- Molly_Equip: you. "Gun From Holster 1"
+		pinPull = cue(9114659833, 0.65), -- Molly_PinPull: you. "Grenade Pull Pin 2"
+		-- Molly_Throw: 3D at the hand. Overhand "Swish Med High End Sharp ...",
+		-- underhand "Wood Swish Ruler Whoosh ..."
+		throw = cue(9126013811, 0.5, 0.9, nil, 40, 0.4, 0.1),
+		throwLob = cue(9126283272, 0.35, 0.85, nil, 40, nil, 0.18),
+		-- Molly_Flight: 3D hiss on the canister. "Fireworks Sparks 2"
+		flight = cue(9114447275, 0.4, 1, true, 35, nil, 1),
+		-- Molly_Bounce: 3D clink off a wall. "Canister Drop Canister Impact 1"
+		bounce = cue(9113704665, 0.6, 1, nil, 40, 0.45),
+		-- Molly_Burst: 3D pop + whoomp, ~50 studs. "Fire Whoosh 2"
+		burst = cue(9114442751, 0.9, 0.85, nil, 50),
+		-- Molly_FireLoop: 3D, ~40 studs. "Fire Whoosh 1" (a kerosene fire loop)
+		fireLoop = cue(9112780561, 0.5, 1, true, 40),
+		-- Molly_SizzleOut: 3D. "Fireball Sizzle 2", its tail from 3.3 s
+		sizzleOut = cue(9114428855, 0.6, 1, nil, 40, 1, 3.3),
+		-- Molly_Burning: you, while burning. "Sizzle Short And Explosive Sear 13"
+		burning = cue(9119166425, 0.35, 1, nil, nil, 0.35),
 	}),
 	Firewall = table.freeze({
 		deploy = cue(9125981170, 0.6), -- 3D

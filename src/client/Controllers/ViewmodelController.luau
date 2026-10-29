@@ -1468,14 +1468,31 @@ local DIPS: { [string]: VM.ItemAction } = {
 }
 
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",
--- "DashBack", "DashLeft", "DashRight" camera-relative, "UpdraftDown") while
--- the gun moves by `dip` ("Dash": out of view; "Updraft": a small tilt).
-function ViewmodelController.gesture(gesture: string, dip: string)
-	if VM.MOD_GESTURES[gesture] and DIPS[dip] then
+-- "DashBack", "DashLeft", "DashRight" camera-relative, "UpdraftDown",
+-- "MollyPinPull") while the gun moves by `dip` ("Dash": out of view;
+-- "Updraft": a small tilt; nil: the gun stays as it is).
+function ViewmodelController.gesture(gesture: string, dip: string?)
+	if VM.MOD_GESTURES[gesture] and (dip == nil or DIPS[dip]) then
 		gestureKind = gesture
 		dipKind = dip
 		gestureAt = os.clock()
 	end
+end
+
+-- Hides the held item's part named `name` after `delay` seconds (the
+-- Molly's pin, pulled). The item comes back whole the next time it's held.
+function ViewmodelController.hideItemPart(name: string, delay: number)
+	local held = item
+	task.delay(delay, function()
+		if item ~= held or not held then
+			return
+		end
+		for _, d in held:GetDescendants() do
+			if d.Name == name and d:IsA("BasePart") then
+				d.Transparency = 1
+			end
+		end
+	end)
 end
 
 -- A use, keyframed on the held item (Config/Viewmodel ITEM_ACTIONS): "Throw"

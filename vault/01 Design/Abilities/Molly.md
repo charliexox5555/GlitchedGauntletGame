@@ -1,6 +1,6 @@
 # Molly (was Packet)
 
-**Status:** spec locked 2026-10-28 · not built
+**Status:** spec locked 2026-10-28 · built 2026-10-29 (tested by the user in Studio)
 **Inspiration:** Valorant mollies (Brimstone's incendiary, Phoenix's Hot Hands). A thrown incendiary canister that lands and spreads a **fire patch**.
 **Remove from the old Packet:** the arc/trajectory preview, the ground bounce, the fuse timer and the explosion damage.
 
@@ -55,6 +55,30 @@ The server simulates the canister (authoritative: bounces, drop, landing point) 
 | `Molly_FireLoop` | Crackling fire loop (3D, ~40 studs) |
 | `Molly_SizzleOut` | Fire dying |
 | `Molly_Burning` | Sizzle/hurt for the player taking fire damage |
+
+### Placeholder sounds (in `Config/ModSounds` → `Molly`; unauditioned, swap the id)
+All ProSoundEffects library audio (public, no upload). Search terms that worked: `"Grenade Pull Pin"`, `"Gun From Holster"`, `"Swish"`, `"Fireworks Sparks"`, `"Canister"`, `"Fire Whoosh"`, `"Fireball"`, `"Sizzle" Pro Sound Effects`.
+| Hook | Id | Name (start / cut) | Volume / pitch | Alternatives |
+|---|---|---|---|---|
+| `Molly_Equip` | 9114701864 | Gun From Holster 1 (cut 0.75 s) | 0.5 / 1.1 | 9114659662, 9114701872 |
+| `Molly_PinPull` | 9114659833 | Grenade Pull Pin 2 | 0.65 / 1.0 | 9114659662, 9121005566 |
+| `Molly_Throw` (overhand) | 9126013811 | Swish Med High End Sharp Swords Fast Punches (from 0.1, 0.4 s) | 0.5 / 0.9 | 9126283592 |
+| `Molly_Throw` (underhand) | 9126283272 | Wood Swish Ruler Whoosh Fast Movement In Air (from 0.18) | 0.35 / 0.85 | 9126283592 |
+| `Molly_Flight` | 9114447275 | Fireworks Sparks 2 (loop from 1.0 s, 35 studs) | 0.4 | 9114447505, 9120192302 |
+| `Molly_Bounce` | 9113704665 | Canister Drop Canister Impact 1 (cut 0.45 s) | 0.6 | 9113704798, 9116617140 |
+| `Molly_Burst` | 9114442751 | Fire Whoosh 2 (50 studs) | 0.9 / 0.85 | 9114428537, 9114428560 |
+| `Molly_FireLoop` | 9112780561 | Fire Whoosh 1, kerosene fire loop (40 studs) | 0.5 | 9112780462, 9112780193 |
+| `Molly_SizzleOut` | 9114428855 | Fireball Sizzle 2 (from 3.3, 1 s) | 0.6 | 9114428859, 9119165930 |
+| `Molly_Burning` | 9119166425 | Sizzle Short And Explosive Sear 13 (cut 0.35 s, every 0.3 s while burning) | 0.35 | 9119165650, 9119166435 |
+
+## Build notes (2026-10-29)
+- **Removed:** the Packet grenade (arc preview, floor bounces, fuse, explosion). `ReplicatedStorage.Abilities.Packet` (Studio) is now unused.
+- **Rules:** `Mods/Molly` (server). `Blocks/Projectile` got `groundStop` (only a floor ends the flight; a wall that would stop it drops it straight down) and `dropAfter` (0.9 s). On landing the fire ticks every 0.25 s for 4 s through owner timers (it keeps burning if the thrower dies): 11.25 per tick to enemies, `Config/Mods FRIENDLY_FIRE` 0.5 of that to you and your team, only with a clear line from the fire. Measured in Studio: an enemy dummy 100 → 0 in ~2 s; you and an ally dummy 100 → 10 over the 4 s.
+- **Numbers to tune** (`Config/Mods` Molly L1): `throwSpeed` 72 (a level throw lands ~25 studs out; aim up for more, it drops at 0.9 s), `lobSpeed` 24 (~9 studs).
+- **Model:** Blender `tools/blender/build_mod_molly.py` (AN-M14-style canister, 0.56 studs, 2.3K tris; `Pin`, `Lever`, `Fuse_Energy` team-tinted), uploaded (asset 81883123985254) and built into **`ReplicatedStorage.Abilities.Molly`** (backup `art-source/abilities/Studio/Molly.rbxm`). Preview `02 Art/References/abilities/molly/molly_model.jpg`.
+- **Effects:** `Util/MollyFx` from Blender-rendered textures (`tools/vfx/make_molly_vfx.py`, ids in `Config/VfxTextures MOLLY_*`, preview `molly_vfx_preview.png`): looping low flames over the patch, a taller burning edge, smoke, embers, a flickering light, the whoomp sheet, a scorch that lingers 3 s, flames on whoever is burning. In flight: the canister spins with fuse sparks and a hiss, and clinks off walls. `molly_edge.png` is rendered but not used yet (the edge is flame sprites).
+- **Animations:** first person: the free hand pulls the pin on equip (the pin disappears), overhand `Throw` / underhand `Lob` (`Config/Viewmodel`); third person: new `GG_ModLob` clip for RMB.
+- **Icon:** still the Packet's until Molly gets its own.
 
 ## Mobile
 Tapping the Molly button holds it. The **Fire** button throws (overhand) and a **Lob** context button appears for the underhand toss. Tap the Molly button again to cancel.

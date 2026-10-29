@@ -77,38 +77,40 @@ local defs: { [string]: ModDef } = {
 			G3 = { note = "Zero-G: immune to own zone spread, reveals enemies", zoneReveal = true },
 		},
 	},
-	Packet = {
-		id = "Packet",
-		name = "Packet",
+	Molly = {
+		id = "Molly",
+		name = "Molly",
 		role = "Damage",
 		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
-		icon = "rbxassetid://116682455753318",
+		icon = "rbxassetid://116682455753318", -- the Packet icon until Molly has its own
 		glyph = "●",
 		hint = { primary = "Throw", alt = "Lob" },
 		quickCast = "Primary",
 		levels = {
 			L1 = {
-				note = "Grenade: bounces once, explodes after 1.2 s",
-				cooldown = 0, -- Molly: 1 per round, no recharge
+				note = "Incendiary: a 9-stud fire patch for 4 s, 45 damage/s",
+				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
-				fuse = 1.2,
-				bounces = 1,
-				damageCenter = 50,
-				damageEdge = 20,
-				radius = 8,
-				throwSpeed = 80,
-				lobSpeed = 40,
+				throwSpeed = 72, -- LMB, overhand: across a mid-size room
+				lobSpeed = 24, -- RMB, underhand: a few studs in front of you
 				throwLift = 0.12, -- added to the aim's up component before scaling
-				lobLift = 0.35,
+				lobLift = 0.3,
 				gravity = 100, -- studs/s², lighter than the world's for readable arcs
-				restitution = 0.45, -- speed kept on a bounce
-				friction = 0.7, -- along-surface speed kept on a bounce
-				size = 0.45, -- projectile radius
-				selfDamage = false,
-				friendlyFire = false,
+				bounces = 4, -- wall bounces (it bursts on the first floor it touches)
+				restitution = 0.45, -- speed kept on a wall bounce
+				friction = 0.7, -- along-surface speed kept on a wall bounce
+				size = 0.3, -- projectile radius
+				dropTime = 0.9, -- seconds in the air before it drops straight down
+				maxFlight = 4, -- seconds simulated; still flying then = no fire
+				radius = 9, -- fire patch (studs)
+				height = 5, -- studs above the floor the fire reaches
+				duration = 4,
+				dps = 45, -- to enemies; FRIENDLY_FIRE of it to you and your team
+				tick = 0.25,
 			},
+			-- The paths below are the Packet's, not redesigned yet.
 			A2 = { note = "Payload: 2 charges", charges = 2 },
 			A3 = { note = "Payload: 11-stud blast and a 3 s burn zone", radius = 11, burnDps = 10 },
 			B2 = { note = "Sticky: sticks to the first hit, 0.8 s fuse", behaviour = "Sticky" },
@@ -304,7 +306,7 @@ local defs: { [string]: ModDef } = {
 local ORDER = {
 	"Dash",
 	"Updraft",
-	"Packet",
+	"Molly",
 	"Firewall",
 	"LagField",
 	"Ping",
@@ -335,6 +337,15 @@ return table.freeze({
 	-- Held Mods (Mods.md → Rules for held Mods).
 	EQUIP_TIME = 0.25, -- raise before a held Mod can be used
 	USE_TIME = 0.35, -- throw / heal animation before the gun comes back
+
+	-- Molly in first person: the pin pull starts this long after the raise,
+	-- and the pin leaves the canister this far into it (seconds).
+	MOLLY_PIN_AT = 0.12,
+	MOLLY_PIN_GONE = 0.2,
+
+	-- Damage from your own Mods to you and your team, as a share of the
+	-- enemy damage (00 Abilities.md → Friendly fire). Exceptions per Mod.
+	FRIENDLY_FIRE = 0.5,
 
 	-- Dash feel (vault/01 Design/Abilities/Dash.md → First person, What
 	-- others see, Sound). Client-only look; the rules are in the Dash stats.
@@ -379,7 +390,7 @@ return table.freeze({
 	-- Studio and test-mode servers start everyone with these (no draft yet).
 	TEST_LOADOUT = {
 		{ id = "Dash", level = "L1" },
-		{ id = "Packet", level = "L1" },
+		{ id = "Molly", level = "L1" },
 		{ id = "PatchUp", level = "L1" },
 	} :: { Types.SlotLoadout },
 
