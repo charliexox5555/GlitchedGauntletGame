@@ -39,6 +39,7 @@ local ModSounds = require(Shared.Config.ModSounds)
 
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
+local HealFx = require(script.Parent.Parent.Util.HealFx)
 local MollyFx = require(script.Parent.Parent.Util.MollyFx)
 local WallFx = require(script.Parent.Parent.Util.WallFx)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
@@ -333,22 +334,40 @@ end
 -- HEAL_NUMBER_STEP seconds, what came in since the last number.
 local HEAL_NUMBER_STEP = 0.4
 
-local function healNumbers(target: Model, duration: number, color: Color3)
-	local humanoid = target:FindFirstChildOfClass("Humanoid")
-	if not humanoid then
-		return
+-- The heal running on each target (one at a time: a new orb replaces the
+-- rest of the old heal, as on the server). A stale delay or number loop sees
+-- that its record is no longer the target's.
+type HealRecord = { hum: ModAudio.Hum?, conns: { RBXScriptConnection } }
+local activeHeals: { [Model]: HealRecord } = {}
+
+local function endHeal(target: Model, record: HealRecord)
+	if activeHeals[target] == record then
+		activeHeals[target] = nil
 	end
-	if duration <= 0 then
+	ModAudio.stopHum(record.hum)
+	record.hum = nil
+	for _, c in record.conns do
+		c:Disconnect()
+	end
+	table.clear(record.conns)
+end
+
+local function healNumbers(target: Model, record: HealRecord, duration: number, color: Color3)
+	local humanoid = target:FindFirstChildOfClass("Humanoid")
+	if not humanoid or duration <= 0 then
 		return
 	end
 	local last = humanoid.Health
 	local pending = 0
-	local conn = humanoid.HealthChanged:Connect(function(health)
-		if health > last then
-			pending += health - last
-		end
-		last = health
-	end)
+	table.insert(
+		record.conns,
+		humanoid.HealthChanged:Connect(function(health)
+			if health > last then
+				pending += health - last
+			end
+			last = health
+		end)
+	)
 	task.spawn(function()
 		local untilT = os.clock() + duration + 0.3
 		while os.clock() < untilT and target.Parent do
@@ -357,8 +376,10 @@ local function healNumbers(target: Model, duration: number, color: Color3)
 				floater(target, "+" .. tostring(math.floor(pending + 0.5)), color)
 				pending = 0
 			end
+			if activeHeals[target] ~= record then
+				return -- replaced (the new heal shows its own numbers) or ended
+			end
 		end
-		conn:Disconnect()
 	end)
 end
 
@@ -378,43 +399,60 @@ local function onHeal(data: { [string]: any })
 	local casterModel = if typeof(caster) == "Instance" and (caster :: Instance):IsA("Player")
 		then (caster :: Player).Character
 		else nil
+	-- The ribbon (or the self-heal burst) and the glow on the healed player:
+	-- everyone sees who's being healed (Util/HealFx).
+	HealFx.start(targetModel, casterModel, duration)
+	-- A new orb replaces the heal already running (no Complete for that one).
+	local old = activeHeals[targetModel]
+	if old then
+		endHeal(targetModel, old)
+	end
+	local record: HealRecord = { hum = nil, conns = {} }
+	activeHeals[targetModel] = record
 	local targetRoot = rootOf(targetModel)
 	if targetRoot then
-		ModVfx.burst(targetRoot.Position, color, 12, "Cross")
-		ModVfx.quad({
-			texture = Tex.MOD_RING,
-			cframe = CFrame.new(targetRoot.Position - Vector3.new(0, 2.9, 0)),
-			from = 2,
-			to = 6,
-			color = color,
-			life = 0.6,
-			alpha0 = 0.2,
-		})
+		record.hum = ModAudio.hum(S.HealOrb.healLoop, targetRoot)
 	end
-	-- The beam is for the healer's team (enemies get the 3D heal sound).
-	if friendly and casterModel and casterModel ~= targetModel then
-		local beam = takePart(Enum.PartType.Block, color)
-		table.insert(beams, {
-			part = beam,
-			from = casterModel,
-			to = targetModel,
-			born = os.clock(),
-			duration = math.max(duration, 0.4),
-		})
+	-- Dying cuts the heal short on the server: the loop and glow stop, no Complete.
+	local humanoid = targetModel:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		table.insert(
+			record.conns,
+			humanoid.Died:Connect(function()
+				HealFx.stop(targetModel)
+				endHeal(targetModel, record)
+			end)
+		)
 	end
-	if targetRoot then
-		ModAudio.play(S.PatchUp.start, targetRoot.Position)
-		local hum = ModAudio.hum(S.PatchUp.hum, targetRoot)
-		local involved = caster == player or targetModel == player.Character
-		task.delay(math.max(duration, 0.3), function()
-			ModAudio.stopHum(hum)
-			if involved then
-				ModAudio.play(S.PatchUp.done)
+	table.insert(
+		record.conns,
+		targetModel.AncestryChanged:Connect(function()
+			if not targetModel:IsDescendantOf(workspace) then
+				endHeal(targetModel, record)
 			end
 		end)
-	end
+	)
+	local involved = caster == player or targetModel == player.Character
+	task.delay(math.max(duration, 0.3), function()
+		if activeHeals[targetModel] ~= record then
+			return -- replaced, or cut short
+		end
+		-- The numbers loop still collects the last tick (it ends on its own).
+		activeHeals[targetModel] = nil
+		ModAudio.stopHum(record.hum)
+		record.hum = nil
+		task.delay(0.4, function()
+			for _, c in record.conns do
+				c:Disconnect()
+			end
+			table.clear(record.conns)
+		end)
+		if involved then
+			ModAudio.play(S.HealOrb.complete)
+		end
+	end)
 	if friendly then
-		healNumbers(targetModel, duration, color)
+		healNumbers(targetModel, record, duration, color)
 	end
 end
 
@@ -959,6 +997,7 @@ local function update(_dt: number)
 	end
 	ModVfx.step()
 	MollyFx.step()
+	HealFx.step()
 	WallFx.step()
 	FrostFx.step()
 	for i = #beams, 1, -1 do

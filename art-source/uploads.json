@@ -245,6 +245,48 @@
   "type": "Decal",
   "uploaded": "2026-10-28 23:33:56"
  },
+ "art-source/vfx/abilities/healorb/healorb_burst_2x2.png": {
+  "assetId": 75975973170364,
+  "name": "GG VFX healorb_burst_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:08:20"
+ },
+ "art-source/vfx/abilities/healorb/healorb_edge.png": {
+  "assetId": 78393743637542,
+  "name": "GG VFX healorb_edge",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:08:25"
+ },
+ "art-source/vfx/abilities/healorb/healorb_mote.png": {
+  "assetId": 80726349162026,
+  "name": "GG VFX healorb_mote",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:08:08"
+ },
+ "art-source/vfx/abilities/healorb/healorb_ribbon.png": {
+  "assetId": 107970845434319,
+  "name": "GG VFX healorb_ribbon",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:08:14"
+ },
+ "art-source/vfx/abilities/healorb/healorb_ring.png": {
+  "assetId": 88529659982830,
+  "name": "GG VFX healorb_ring",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:08:23"
+ },
+ "art-source/vfx/abilities/healorb/healorb_swirl.png": {
+  "assetId": 135901326678634,
+  "name": "GG VFX healorb_swirl",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:08:06"
+ },
+ "art-source/vfx/abilities/healorb/healorb_wisp_2x2.png": {
+  "assetId": 77363893333120,
+  "name": "GG VFX healorb_wisp_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:08:11"
+ },
  "art-source/vfx/abilities/molly/molly_burst_2x2.png": {
   "assetId": 113204922015509,
   "name": "GG VFX molly_burst_2x2",

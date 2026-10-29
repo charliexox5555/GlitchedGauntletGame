@@ -544,6 +544,12 @@ local function use(
 		worldParams = worldParams,
 		damage = damage,
 		heal = function(healTarget: Model, amount: number, duration: number)
+			-- A new heal replaces what's left of an old one (no stacking).
+			for i = #heals, 1, -1 do
+				if heals[i].target == healTarget then
+					table.remove(heals, i)
+				end
+			end
 			if duration <= 0 then
 				WeaponService.heal(healTarget, amount)
 			else

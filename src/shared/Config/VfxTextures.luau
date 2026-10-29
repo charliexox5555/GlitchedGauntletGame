@@ -62,4 +62,14 @@ return table.freeze({
 	RECON_GLOW = "rbxassetid://112986690063111", -- soft glow, hot core (the dart's light)
 	RECON_TRAIL = "rbxassetid://102081301769659", -- a thin light streak, head on the left
 	RECON_SPARK = "rbxassetid://100198570257307", -- a spark streak (the dart destroyed)
+
+	-- Heal Orb (tools/vfx/make_healorb_vfx.py → art-source/vfx/abilities/healorb/),
+	-- tinted soft green-teal in Util/HealFx.
+	HEALORB_SWIRL = "rbxassetid://125851907441357", -- swirling light, seamless (the orb's ForceField shell)
+	HEALORB_MOTE = "rbxassetid://139817771058197", -- a soft glowing mote
+	HEALORB_WISP_2x2 = "rbxassetid://88575531654697", -- a curling light wisp (flipbook)
+	HEALORB_RIBBON = "rbxassetid://115665578237713", -- braided light, u along the beam (seamless in u)
+	HEALORB_BURST_2x2 = "rbxassetid://100726640186038", -- a soft light burst (flipbook)
+	HEALORB_RING = "rbxassetid://126560015232294", -- top-view soft halo ring
+	HEALORB_EDGE = "rbxassetid://110803234844699", -- full-screen edge glow (centre clear)
 })

@@ -168,11 +168,24 @@ return table.freeze({
 		destroyed = cue(9119594871, 0.6, 1, nil, 40),
 		destroyedBreak = cue(9116264240, 0.4, 1.2, nil, 40, 0.6, 0.08),
 	}),
-	PatchUp = table.freeze({
-		raise = cue(127533251122014, 0.5), -- you
-		start = cue(9126073001, 0.6), -- 3D
-		hum = cue(9125986205, 0.25, 1, true), -- 3D while healing, stand-in for ModHealLoop
-		done = cue(9119834423, 0.5), -- healer + target, stand-in for ModHealDone
+	-- Heal Orb hooks (vault/01 Design/Abilities/Heal Orb.md → Sound). Placeholders
+	-- (ProSoundEffects, unauditioned; acoustic recordings picked over the
+	-- library's designed tones), listed in the Heal Orb note; one id each.
+	HealOrb = table.freeze({
+		-- HealOrb_Form: you. "Sparkle Bell Tree Wind Chimes 1", 0.3 s on
+		form = cue(9119447936, 0.4, 1.1, nil, nil, 2.5, 0.3),
+		-- HealOrb_HeldLoop: you, quiet. "Wind Chimes 1" ("Delicate Tuned Ringing")
+		heldLoop = cue(9120750051, 1.2, 1.15, true, nil, nil, 1.5, 22),
+		-- HealOrb_Send: 2D for you. "Whoosh By Airy Whomping Humming Rumbling 6"
+		send = cue(9120696273, 0.35, 1.15, nil, nil, nil, 0.15),
+		-- HealOrb_Absorb: you. "Cloth Impact 1", the thump
+		absorb = cue(9113821561, 0.35, 0.9, nil, nil, 0.85, 0.75),
+		-- HealOrb_HealLoop: 3D on the healed player, ~30 studs. "Wind Chimes 2"
+		healLoop = cue(9120750072, 2, 1, true, 30, nil, 1, 30.5),
+		-- HealOrb_Complete: the healed player. "Door Chime Single Dings 5"
+		complete = cue(9114133866, 0.35, 1.2, nil, nil, 2.3, 0.2),
+		-- HealOrb_Refused: you. "Metal Thunk 3"
+		refused = cue(9116895615, 0.35, 0.75),
 	}),
 	Overclock = table.freeze({
 		on = cue(9119816546, 0.6), -- 3D, stand-in for ModOverclockOn

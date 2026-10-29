@@ -21,7 +21,7 @@ local modules: { [string]: Types.ModModule } = {
 	Firewall = require(script.Firewall).module,
 	Frost = require(script.Frost).module,
 	Recon = require(script.Recon).module,
-	PatchUp = require(script.PatchUp).module,
+	HealOrb = require(script.HealOrb).module,
 	Overclock = require(script.Overclock).module,
 	Rollback = require(script.Rollback).module,
 }

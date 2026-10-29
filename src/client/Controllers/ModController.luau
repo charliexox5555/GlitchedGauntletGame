@@ -31,7 +31,7 @@ local Config = require(Shared.Config.Mods)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
-local PatchUp = require(Shared.Mods.PatchUp)
+local HealOrb = require(Shared.Mods.HealOrb)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 
@@ -79,6 +79,8 @@ local STEER_RATE = 0.05 -- seconds between ModSteer looks (the server prefers it
 local chargeStart = 0
 local chargeBounces = 0
 local chargeHum: ModAudio.Hum? = nil
+-- The Heal Orb's hum while it's held.
+local orbHum: ModAudio.Hum? = nil
 local itemToken = 0
 local lastDashStart = 0
 local lastUpdraftAt = 0
@@ -208,19 +210,6 @@ function ModController.slot(slot: number): SlotView
 		views[slot] = v
 	end
 	return v
-end
-
--- Live allies, refreshed a few times a second (not every frame).
-local alliesCache: { Model } = {}
-local alliesAt = -math.huge
-
-local function allyCount(): number
-	local now = os.clock()
-	if now - alliesAt > 0.25 then
-		alliesAt = now
-		alliesCache = PatchUp.allies(player)
-	end
-	return #alliesCache
 end
 
 local function ready(view: SlotView): boolean
@@ -477,13 +466,14 @@ local function showTarget(model: Model?)
 	h.Enabled = true
 end
 
--- Who Patch Up's Primary would heal right now (nil: no one aimed at).
+-- Who the Heal Orb's LMB would heal right now: the ally in the crosshair,
+-- else yourself (nil: no character).
 local function healTarget(stats: ModTypes.Stats): Model?
 	local cam = Workspace.CurrentCamera
 	if not cam then
 		return nil
 	end
-	return PatchUp.primaryTarget(
+	return HealOrb.primaryTarget(
 		player,
 		cam.CFrame.Position,
 		cam.CFrame.LookVector,
@@ -521,6 +511,8 @@ end
 local function stopChargeHum()
 	ModAudio.stopHum(chargeHum)
 	chargeHum = nil
+	ModAudio.stopHum(orbHum)
+	orbHum = nil
 end
 
 -- Back to the gun (after a use, a cancel, death).
@@ -619,13 +611,13 @@ local function use(mode: ModTypes.UseMode)
 		end
 	end
 	local target: Model? = nil
-	if def.id == "PatchUp" then
+	if def.id == "HealOrb" then
 		target = if mode == "Alt" then player.Character else healTarget(stats)
 		if not target then
-			deny(current, "No ally in your crosshair")
 			return
 		end
-		if PatchUp.full(target) then
+		if HealOrb.full(target) then
+			ModAudio.play(ModAudio.SOUNDS.HealOrb.refused)
 			deny(
 				current,
 				if target == player.Character then "Full health" else "Ally at full health"
@@ -656,8 +648,19 @@ local function use(mode: ModTypes.UseMode)
 		if def.activation == "HeldThrow"
 			then (if mode == "Alt" then "Lob" elseif def.id == "Frost" then "Javelin" else "Throw")
 			elseif def.activation == "HeldPlace" then "Place"
-			else "Heal"
+			elseif
+				target == nil or target == player.Character
+			then "OrbChest" -- yourself: into your chest
+			else "Heal" -- to an ally: pushed forward
 	)
+	if def.id == "HealOrb" then
+		stopChargeHum()
+		ModAudio.play(
+			if target == nil or target == player.Character
+				then ModAudio.SOUNDS.HealOrb.absorb
+				else ModAudio.SOUNDS.HealOrb.send
+		)
+	end
 end
 
 local function startHold(slot: number, view: SlotView)
@@ -693,8 +696,12 @@ local function startHold(slot: number, view: SlotView)
 				ModAudio.play(ModAudio.SOUNDS.Molly.pinPull)
 			end
 		end)
-	elseif def.id == "PatchUp" then
-		ModAudio.play(ModAudio.SOUNDS.PatchUp.raise)
+	elseif def.id == "HealOrb" then
+		-- The orb gathers in the palm, then hums while it's held.
+		ModAudio.play(ModAudio.SOUNDS.HealOrb.form)
+		ModAudio.stopHum(orbHum)
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		orbHum = ModAudio.hum(ModAudio.SOUNDS.HealOrb.heldLoop, root)
 	end
 	if quickCast and def.quickCast then
 		-- Straight to the use: skip the raise.
@@ -927,7 +934,8 @@ local function update(_dt: number)
 		elseif def.activation == "HeldPlace" then
 			drawPlacement(def.id, stats)
 		elseif def.activation == "HeldTarget" then
-			showTarget(healTarget(stats))
+			local t = healTarget(stats)
+			showTarget(if t == player.Character then nil else t)
 		end
 	end
 end
@@ -950,7 +958,7 @@ function ModController.hint(): (string?, boolean)
 	local lmb, rmb = useLabels()
 	local parts = {}
 	local primary = def.hint.primary
-	if def.id == "PatchUp" and view.stats and allyCount() == 0 then
+	if def.id == "HealOrb" and view.stats and healTarget(view.stats) == player.Character then
 		primary = "Heal self"
 	end
 	if primary then

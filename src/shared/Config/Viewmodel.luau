@@ -385,8 +385,21 @@ return table.freeze({
 				{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
 			},
 		},
+		-- OrbChest (Heal Orb on yourself): the hand presses the orb into your
+		-- chest, low and toward you.
+		OrbChest = {
+			length = 0.4,
+			hideAt = 0.5,
+			keys = {
+				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+				{ t = 0.25, pos = Vector3.new(-0.05, 0.08, -0.12), rot = Vector3.new(-6, 0, 0) },
+				{ t = 0.5, pos = Vector3.new(-0.35, -0.55, 1.05), rot = Vector3.new(30, 20, 0) },
+				{ t = 1, pos = Vector3.new(-0.2, -0.9, 0.6), rot = Vector3.new(20, 10, 0) },
+			},
+		},
 		Heal = {
 			length = 0.36,
+			hideAt = 0.25, -- the orb leaves the hand at full extension
 			keys = {
 				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
 				{ t = 0.25, pos = Vector3.new(-0.02, 0.06, -0.42), rot = Vector3.new(-8, 0, 0) },

@@ -1,0 +1,155 @@
+{
+ "mod": "HealOrb",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "ability_name": "HealOrb",
+  "kind": "handheld",
+  "size_studs": 0.458,
+  "ring1_axis": "0.8002,0.4695,-0.3731",
+  "ring2_axis": "-0.5451,0.5299,0.6496",
+  "tris": 1264
+ },
+ "parts": [
+  {
+   "name": "Core",
+   "material": "HealCore",
+   "look": {
+    "material": "Neon",
+    "color": "5CFFC8"
+   },
+   "energy": false,
+   "tris": 196,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.136,
+    0.13259,
+    0.136
+   ]
+  },
+  {
+   "name": "Shell",
+   "material": "HealShell",
+   "look": {
+    "material": "ForceField",
+    "color": "5CFFC8"
+   },
+   "energy": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.3,
+    0.3,
+    0.3
+   ]
+  },
+  {
+   "name": "Ring1",
+   "material": "HealRing",
+   "look": {
+    "material": "Neon",
+    "color": "8CFFDA"
+   },
+   "energy": false,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.39757,
+    0.27545,
+    0.39425
+   ]
+  },
+  {
+   "name": "Ring2",
+   "material": "HealRing",
+   "look": {
+    "material": "Neon",
+    "color": "8CFFDA"
+   },
+   "energy": false,
+   "tris": 276,
+   "center": [
+    0.00215,
+    -0.00145,
+    -0.00218
+   ],
+   "size": [
+    0.35345,
+    0.3888,
+    0.3911
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Center",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 1264
+}

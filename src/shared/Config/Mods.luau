@@ -234,9 +234,9 @@ local defs: { [string]: ModDef } = {
 			G3 = { note = "Ping Spike: +20% damage to revealed enemies", bonusDamage = 0.2 },
 		},
 	},
-	PatchUp = {
-		id = "PatchUp",
-		name = "Patch Up",
+	HealOrb = {
+		id = "HealOrb",
+		name = "Heal Orb",
 		role = "Sustain",
 		block = "Target",
 		activation = "HeldTarget",
@@ -247,11 +247,12 @@ local defs: { [string]: ModDef } = {
 		quickCast = "Alt",
 		levels = {
 			L1 = {
-				note = "Heal 40 HP over 2 s (ally in your crosshair or yourself)",
-				cooldown = 0, -- Heal Orb: 1 per round, no recharge
+				note = "Heal orb: an ally 60 HP over 3 s, or yourself 30",
+				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
-				heal = 40,
-				duration = 2,
+				heal = 60, -- to an ally
+				selfHeal = 30, -- to yourself (half)
+				duration = 3, -- seconds the heal runs (it keeps going under fire)
 				range = 30,
 				aimAngle = 12, -- degrees from the crosshair an ally may be
 			},
@@ -333,7 +334,7 @@ local ORDER = {
 	"Firewall",
 	"Frost",
 	"Recon",
-	"PatchUp",
+	"HealOrb",
 	"Overclock",
 	"Rollback",
 }
@@ -414,7 +415,7 @@ return table.freeze({
 	TEST_LOADOUT = {
 		{ id = "Dash", level = "L1" },
 		{ id = "Molly", level = "L1" },
-		{ id = "PatchUp", level = "L1" },
+		{ id = "HealOrb", level = "L1" },
 	} :: { Types.SlotLoadout },
 
 	-- Remote budgets (per player): rate per second, burst.

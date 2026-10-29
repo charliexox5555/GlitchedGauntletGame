@@ -25,6 +25,12 @@ EXTRA = {
 	# never held; "thrown" for the builder (no shadows, RightGrip = Handle = the tip, which is also the pivot).
 	"Recon": {"kind": "handheld"},
 	"ReconDart": {"kind": "thrown"},
+	# HealOrb: pivot at the orb centre; it hovers above and a little in front of the open palm (no contact with the hand,
+	# clear of the fingers even with the rings, ~0.23 studs out). Tune with the open-palm hold pose.
+	"HealOrb": {"kind": "handheld", "holdOffset": [0, 0.4, -0.15]},
+	# Stim: the beacon dropped at your feet (pivot = floor centre, like the Launch Pad). Coil_Yellow is Neon in a fixed
+	# electric yellow (#FFD23F), NOT team-tinted: code that recolours Neon parts must skip it.
+	"Stim": {"kind": "placed"},
 }
 # Parts that are seen from both sides.
 DOUBLE_SIDED = {"Panel_Energy", "Shockwave_Energy", "Dome_Energy", "Sphere_Energy", "ScanRing_Energy"}

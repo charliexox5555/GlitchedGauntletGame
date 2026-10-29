@@ -7,12 +7,20 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
+
 local ModProps = {}
 
 local SHELL = Color3.fromHex("2A2D33")
 local SHELL_DARK = Color3.fromHex("1B1D21")
 
 local cache: { [string]: Model } = {}
+
+-- Mods whose light isn't a team colour (the Heal Orb is soft green-teal for
+-- everyone).
+local OWN_COLOUR: { [string]: Color3 } = {
+	HealOrb = Color3.fromHex("5CFFC8"),
+}
 
 local function part(
 	model: Model,
@@ -90,45 +98,12 @@ local function placeholder(id: string, glow: Color3): Model?
 			glow,
 			true
 		)
-	elseif id == "PatchUp" then
-		part(
-			model,
-			Enum.PartType.Block,
-			Vector3.new(0.2, 0.45, 0.24),
-			CFrame.new(0, 0, 0.05),
-			SHELL_DARK
-		)
-		part(
-			model,
-			Enum.PartType.Block,
-			Vector3.new(0.36, 0.3, 0.7),
-			CFrame.new(0, 0.34, -0.2),
-			SHELL
-		)
-		part(
-			model,
-			Enum.PartType.Cylinder,
-			Vector3.new(0.12, 0.26, 0.26),
-			CFrame.new(0, 0.34, -0.58) * CFrame.Angles(0, math.pi / 2, 0),
-			glow,
-			true
-		)
-		part(
-			model,
-			Enum.PartType.Block,
-			Vector3.new(0.07, 0.04, 0.24),
-			CFrame.new(0, 0.5, -0.15),
-			glow,
-			true
-		)
-		part(
-			model,
-			Enum.PartType.Block,
-			Vector3.new(0.22, 0.04, 0.07),
-			CFrame.new(0, 0.5, -0.15),
-			glow,
-			true
-		)
+	elseif id == "HealOrb" then
+		-- An orb of light hovering above the palm: a neon core in a soft halo.
+		model:SetAttribute("HoldOffset", Vector3.new(0, 0.34, -0.12))
+		part(model, Enum.PartType.Ball, Vector3.one * 0.16, CFrame.identity, glow, true)
+		local halo = part(model, Enum.PartType.Ball, Vector3.one * 0.32, CFrame.identity, glow)
+		halo.Material = Enum.Material.ForceField
 	else
 		model:Destroy()
 		return nil
@@ -179,13 +154,23 @@ function ModProps.get(id: string, glow: Color3): Model?
 	if cached then
 		return cached
 	end
+	local own = OWN_COLOUR[id]
 	local finished = ModProps.finished(id, { "handheld", "thrown" })
 	local model: Model? = nil
 	if finished then
 		model = finished:Clone()
-		ModProps.tint(model :: Model, glow)
+		if not own then
+			ModProps.tint(model :: Model, glow)
+		end
 	else
-		model = placeholder(id, glow)
+		model = placeholder(id, own or glow)
+	end
+	if model and id == "HealOrb" then
+		-- The swirl on the orb's ForceField shell (it animates on its own).
+		local shell = model:FindFirstChild("Shell", true)
+		if shell and shell:IsA("MeshPart") then
+			shell.TextureID = VFX.HEALORB_SWIRL
+		end
 	end
 	if model then
 		cache[key] = model

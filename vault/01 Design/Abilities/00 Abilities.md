@@ -16,7 +16,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 | 4 | [Firewall](Firewall.md) | Firewall (cover wall) | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
 | 5 | [Frost](Frost.md) | Lag Field | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
 | 6 | [Recon](Recon.md) | Ping | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
-| 7 | [Heal Orb](Heal%20Orb.md) | Patch Up | ✅ locked 2026-10-29 | ⬜ |
+| 7 | [Heal Orb](Heal%20Orb.md) | Patch Up | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
 | 8 | [Stim](Stim.md) | Overclock | ✅ locked 2026-10-29 | ⬜ |
 | 9 | [Recall](Recall.md) | Rollback | ✅ locked 2026-10-29 | ⬜ |
 
