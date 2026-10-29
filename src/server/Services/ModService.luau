@@ -658,7 +658,7 @@ local function use(
 	-- A held throw's Alt is an underhand lob (Molly).
 	local useKind = if def.activation == "HeldThrow" and mode == "Alt"
 		then "Lob"
-		else USE_KINDS[def.activation]
+		else def.useKind or USE_KINDS[def.activation]
 	if useKind then
 		player:SetAttribute("ModUseKind", useKind)
 		player:SetAttribute("ModUseAt", now)

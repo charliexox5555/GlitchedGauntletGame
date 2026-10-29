@@ -267,24 +267,30 @@ local defs: { [string]: ModDef } = {
 			G3 = { note = "Corrupted Patch: overheal to +50 shield", shield = 50 },
 		},
 	},
-	Overclock = {
-		id = "Overclock",
-		name = "Overclock",
-		role = "Weapon buff",
-		block = "SelfBuff",
+	Stim = {
+		id = "Stim",
+		name = "Stim",
+		role = "Team buff",
+		block = "Zone",
 		activation = "Instant",
 		authority = "Server",
-		icon = "rbxassetid://78196418309045",
+		icon = "rbxassetid://78196418309045", -- the Overclock icon until Stim has its own
 		glyph = "⚡",
 		hint = {},
+		useKind = "Place", -- third person: dip and push it down
 		levels = {
 			L1 = {
-				note = "+25% fire rate for 5 s",
-				cooldown = 0, -- Stim: 1 per round, no recharge
+				note = "Stim beacon at your feet: you and your team in it fire and move 15% faster, swap and reload faster",
+				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
-				duration = 5,
-				fireRate = 1.25,
+				radius = 10, -- studs (the zone, around the beacon)
+				height = 8, -- studs up from the floor that still count
+				duration = 8, -- seconds the zone lasts
+				linger = 4, -- seconds you stay Stimmed after leaving it
+				deployTime = 0.25, -- seconds from the drop to the zone switching on
+				tick = 0.1, -- seconds between zone checks
 			},
+			-- The paths below are the Overclock's, not redesigned yet.
 			A2 = { note = "Turbo: also +40% reload speed", reloadSpeed = 1.4 },
 			A3 = { note = "Turbo: kills extend it by 3 s", killExtend = 3 },
 			B2 = { note = "Precision: no spread or bloom instead", behaviour = "Precision" },
@@ -335,7 +341,7 @@ local ORDER = {
 	"Frost",
 	"Recon",
 	"HealOrb",
-	"Overclock",
+	"Stim",
 	"Rollback",
 }
 

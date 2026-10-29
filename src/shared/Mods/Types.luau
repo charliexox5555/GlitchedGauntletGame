@@ -46,6 +46,9 @@ export type ModDef = {
 	hint: { primary: string?, alt: string? },
 	-- What quick-cast (and a mobile tap) does on press, for held Mods.
 	quickCast: UseMode?,
+	-- The third-person clip a use plays (Simulation/Poses), when it isn't
+	-- the activation's own (Stim: "Place").
+	useKind: string?,
 	levels: { [string]: Level },
 }
 

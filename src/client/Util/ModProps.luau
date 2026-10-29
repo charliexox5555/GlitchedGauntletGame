@@ -117,12 +117,14 @@ local function placeholder(id: string, glow: Color3): Model?
 end
 
 -- Recolours a finished model's energy (parts named *_Energy / Energy = true,
--- and the Decals on them) to `glow`.
+-- and the Decals on them) to `glow`. Parts named *_Yellow keep their own
+-- colour (the Stim's electric coil).
 function ModProps.tint(model: Model, glow: Color3)
 	for _, d in model:GetDescendants() do
 		if
 			d:IsA("BasePart")
 			and (d:GetAttribute("Energy") == true or d.Material == Enum.Material.Neon)
+			and string.sub(d.Name, -7) ~= "_Yellow"
 		then
 			d.Color = glow
 			for _, decal in d:GetChildren() do

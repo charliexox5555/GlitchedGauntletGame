@@ -16,7 +16,8 @@
 --                its path, a light trail, a whistle, ricochet ticks), it
 --                sticking (the stuck dart is a Mod object), and each pulse:
 --                a scan wave everyone sees, the dart's light flashing
---   Overclock    the caster's gun glows (a screen-edge glow for the caster)
+--   StimDrop     the beacon at the caster's feet and its zone (Util/StimFx;
+--                the stimmed players' crackle and screen are there too)
 --   Placed / ObjectGone  a pop when a Mod object goes up / breaks or expires
 --   FirewallCast  the cast whoosh; the wall itself is Util/WallFx (it dresses
 --                the server's pieces in workspace.ModWalls)
@@ -40,6 +41,7 @@ local ModSounds = require(Shared.Config.ModSounds)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local HealFx = require(script.Parent.Parent.Util.HealFx)
+local StimFx = require(script.Parent.Parent.Util.StimFx)
 local MollyFx = require(script.Parent.Parent.Util.MollyFx)
 local WallFx = require(script.Parent.Parent.Util.WallFx)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
@@ -577,87 +579,6 @@ local function onReveal(targets: unknown, duration: unknown)
 	end
 end
 
--- Overclock --------------------------------------------------------------------------
-
-type Glow = { highlight: Highlight, untilT: number }
-local glows: { Glow } = {}
-local edge: Frame? = nil
-local edgeStroke: UIStroke? = nil
-local edgeUntil = 0
-
-local function screenEdge(): Frame
-	local f = edge
-	if f and f.Parent then
-		return f
-	end
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "ModScreenFx"
-	gui.IgnoreGuiInset = true
-	gui.ResetOnSpawn = false
-	gui.DisplayOrder = 1
-	gui.Parent = player:WaitForChild("PlayerGui")
-	-- A stroke draws outside its frame: inset the frame by the thickness so
-	-- the glow sits on the screen's edge.
-	local frame = Instance.new("Frame")
-	frame.AnchorPoint = Vector2.new(0.5, 0.5)
-	frame.Position = UDim2.fromScale(0.5, 0.5)
-	frame.Size = UDim2.new(1, -40, 1, -40)
-	frame.BackgroundTransparency = 1
-	frame.Visible = false
-	frame.Parent = gui
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = TeamColor.ALLY
-	stroke.Thickness = 20
-	stroke.Transparency = 0.6
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Parent = frame
-	edge = frame
-	edgeStroke = stroke
-	return frame
-end
-
-local function onOverclock(data: { [string]: any })
-	local duration = data.duration
-	if typeof(duration) ~= "number" then
-		return
-	end
-	local caster = data.caster
-	local casterRoot = if typeof(caster) == "Instance" and (caster :: Instance):IsA("Player")
-		then rootOf((caster :: Player).Character)
-		else nil
-	if casterRoot then
-		local where = casterRoot
-		ModAudio.play(S.Overclock.on, where.Position)
-		local hum = ModAudio.hum(S.Overclock.hum, where)
-		task.delay(duration, function()
-			ModAudio.stopHum(hum)
-			if where.Parent then
-				ModAudio.play(S.Overclock.off, where.Position)
-			end
-		end)
-	end
-	if data.caster == player then
-		edgeUntil = os.clock() + duration
-		screenEdge().Visible = true
-		return
-	end
-	local character = if typeof(caster) == "Instance" and (caster :: Instance):IsA("Player")
-		then (caster :: Player).Character
-		else nil
-	local gun = character and character:FindFirstChild("WorldWeapon")
-	if gun then
-		local color = teamColor(data)
-		local h = Instance.new("Highlight")
-		h.DepthMode = Enum.HighlightDepthMode.Occluded
-		h.FillColor = color
-		h.OutlineColor = color
-		h.FillTransparency = 0.3
-		h.Adornee = gun
-		h.Parent = fxFolder()
-		table.insert(glows, { highlight = h, untilT = os.clock() + duration })
-	end
-end
-
 -- Placed objects ---------------------------------------------------------------------
 
 -- Mod objects are dressed per viewer: a Launch Pad is a charcoal plate with
@@ -942,8 +863,17 @@ local function onFx(kind: unknown, data: unknown)
 		end
 	elseif kind == "ReconPulse" then
 		onReconPulse(d)
-	elseif kind == "Overclock" then
-		onOverclock(d)
+	elseif kind == "StimDrop" then
+		if
+			typeof(d.at) == "Vector3"
+			and typeof(d.look) == "Vector3"
+			and typeof(d.radius) == "number"
+			and typeof(d.duration) == "number"
+			and typeof(d.deploy) == "number"
+			and typeof(d.start) == "number"
+		then
+			StimFx.drop(d.at, d.look, d.radius, d.duration, d.deploy, d.start, teamColor(d))
+		end
 	elseif kind == "Placed" then
 		onPlaced(d)
 	elseif kind == "ObjectGone" then
@@ -998,6 +928,7 @@ local function update(_dt: number)
 	ModVfx.step()
 	MollyFx.step()
 	HealFx.step()
+	StimFx.step()
 	WallFx.step()
 	FrostFx.step()
 	for i = #beams, 1, -1 do
@@ -1022,21 +953,6 @@ local function update(_dt: number)
 			mark.highlight:Destroy()
 			reveals[model] = nil
 		end
-	end
-	for i = #glows, 1, -1 do
-		local g = glows[i]
-		local adornee = g.highlight.Adornee
-		if now >= g.untilT or not adornee or not adornee.Parent then
-			g.highlight:Destroy()
-			table.remove(glows, i)
-		end
-	end
-	local frame, stroke = edge, edgeStroke
-	if frame and stroke and frame.Visible then
-		local left = edgeUntil - now
-		frame.Visible = left > 0
-		local tail = if left < 0.5 then 0.4 * (1 - left / 0.5) else 0
-		stroke.Transparency = math.min(0.62 + 0.12 * math.sin(now * 9) + tail, 1)
 	end
 	for part, at in objectFlash do
 		local done = now - at >= 0.12 or not part.Parent

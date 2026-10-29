@@ -36,6 +36,18 @@ local effects: { [string]: Effect } = {
 		equip = 0.7,
 		recoil = 0.7,
 	},
+	-- Stimmed (vault/01 Design/Abilities/Stim.md → Stimmed): swap and reload
+	-- times are 30% / 15% shorter.
+	Stimmed = {
+		attribute = "StimmedUntil",
+		move = 1.15,
+		jump = 1,
+		gravity = 1,
+		fireRate = 1.15,
+		reload = 1 / 0.85,
+		equip = 1 / 0.7,
+		recoil = 1,
+	},
 }
 
 return table.freeze({

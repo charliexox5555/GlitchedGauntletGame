@@ -347,6 +347,36 @@
   "type": "Decal",
   "uploaded": "2026-10-29 00:00:17"
  },
+ "art-source/vfx/abilities/stim/stim_arc_2x2.png": {
+  "assetId": 97872636348670,
+  "name": "GG VFX stim_arc_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:16:36"
+ },
+ "art-source/vfx/abilities/stim/stim_bolt.png": {
+  "assetId": 78656559957210,
+  "name": "GG VFX stim_bolt",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:16:39"
+ },
+ "art-source/vfx/abilities/stim/stim_edge.png": {
+  "assetId": 131466221424604,
+  "name": "GG VFX stim_edge",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:16:49"
+ },
+ "art-source/vfx/abilities/stim/stim_ring.png": {
+  "assetId": 101878809703861,
+  "name": "GG VFX stim_ring",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:16:43"
+ },
+ "art-source/vfx/abilities/stim/stim_spark.png": {
+  "assetId": 119302981826650,
+  "name": "GG VFX stim_spark",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:16:46"
+ },
  "art-source/vfx/beam_energy.png": {
   "assetId": 140396211249137,
   "name": "GG VFX beam_energy v2",

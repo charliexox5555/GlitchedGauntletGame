@@ -72,4 +72,12 @@ return table.freeze({
 	HEALORB_BURST_2x2 = "rbxassetid://100726640186038", -- a soft light burst (flipbook)
 	HEALORB_RING = "rbxassetid://126560015232294", -- top-view soft halo ring
 	HEALORB_EDGE = "rbxassetid://110803234844699", -- full-screen edge glow (centre clear)
+
+	-- Stim (tools/vfx/make_stim_vfx.py → art-source/vfx/abilities/stim/), tinted
+	-- electric yellow in Util/StimFx.
+	STIM_ARC_2x2 = "rbxassetid://114482185748553", -- four crackle frames (flipbook, random frame)
+	STIM_BOLT = "rbxassetid://113538195562079", -- a lightning bolt, u along it (Beam)
+	STIM_RING = "rbxassetid://89495836564073", -- top-view zone edge with arcs, centre clear
+	STIM_SPARK = "rbxassetid://93602845421112", -- a spark streak (VelocityParallel)
+	STIM_EDGE = "rbxassetid://105967176478968", -- full-screen electric edge glow (centre clear)
 })

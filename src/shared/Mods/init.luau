@@ -22,7 +22,7 @@ local modules: { [string]: Types.ModModule } = {
 	Frost = require(script.Frost).module,
 	Recon = require(script.Recon).module,
 	HealOrb = require(script.HealOrb).module,
-	Overclock = require(script.Overclock).module,
+	Stim = require(script.Stim).module,
 	Rollback = require(script.Rollback).module,
 }
 

@@ -187,10 +187,25 @@ return table.freeze({
 		-- HealOrb_Refused: you. "Metal Thunk 3"
 		refused = cue(9116895615, 0.35, 0.75),
 	}),
-	Overclock = table.freeze({
-		on = cue(9119816546, 0.6), -- 3D, stand-in for ModOverclockOn
-		hum = cue(9114344375, 0.22, 1, true), -- 3D on the gun, stand-in for ModOverclockLoop
-		off = cue(9117869243, 0.45, 1.2), -- 3D, stand-in for ModOverclockOff
+	-- Stim hooks (vault/01 Design/Abilities/Stim.md → Sound). Placeholders
+	-- (ProSoundEffects recordings, unauditioned), listed in the Stim note.
+	Stim = table.freeze({
+		-- Stim_Grab: you. "Cloth Rip Violent 14" (nylon rip, the velcro)
+		grab = cue(9113835765, 0.45, 1.1, nil, nil, 0.4, 0.03),
+		-- Stim_Drop: 3D. "Metal Case Impact 1", the slam
+		drop = cue(9116539107, 0.7, 0.95, nil, 40, 0.3),
+		-- Stim_Deploy: 3D, two layers. "Circuit Breaker 1" (the snap) ...
+		deploy = cue(9113808115, 0.7, 1.1, nil, 50, 0.3, 0.14),
+		-- ... and "Tesla Coil 3" (the crackle)
+		deployCrackle = cue(9119992532, 0.4, 1, nil, 50, 1.1),
+		-- Stim_ZoneLoop: 3D on the beacon, ~40 studs. "Tesla Coil 2"
+		zoneLoop = cue(9119993024, 0.8, 1, true, 40, nil, 1, 19.5),
+		-- (the zone dying out: the loop's tail, "Static Zap Mix Reverberant Bursts 3")
+		zoneEnd = cue(9119595114, 0.3, 1.1, nil, 40, 0.8, 0.4),
+		-- Stim_Gained: 2D for you. "Static Zap Blast 2" (the build into a zap)
+		gained = cue(9119594571, 0.35, 1.1, nil, nil, 0.65, 0.7),
+		-- Stim_Ending: 2D for you. "Static Zap Mix Reverberant Bursts 3", the fizzle
+		ending = cue(9119595114, 0.35, 0.9, nil, nil, nil, 0.4),
 	}),
 	Rollback = table.freeze({
 		rewind = cue(9117880715, 0.6), -- you, stand-in for ModRollbackRewind

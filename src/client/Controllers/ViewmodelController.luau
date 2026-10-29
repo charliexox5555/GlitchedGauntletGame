@@ -1473,12 +1473,14 @@ end
 local DIPS: { [string]: VM.ItemAction } = {
 	Dash = VM.DASH_DIP,
 	Updraft = VM.UPDRAFT_TILT,
+	Stim = VM.STIM_DIP,
 }
 
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",
 -- "DashBack", "DashLeft", "DashRight" camera-relative, "UpdraftDown",
--- "MollyPinPull") while the gun moves by `dip` ("Dash": out of view;
--- "Updraft": a small tilt; nil: the gun stays as it is).
+-- "MollyPinPull", "StimSlam") while the gun moves by `dip` ("Dash": out of
+-- view; "Updraft": a small tilt; "Stim": a short dip; nil: the gun stays as
+-- it is).
 function ViewmodelController.gesture(gesture: string, dip: string?)
 	if VM.MOD_GESTURES[gesture] and (dip == nil or DIPS[dip]) then
 		gestureKind = gesture

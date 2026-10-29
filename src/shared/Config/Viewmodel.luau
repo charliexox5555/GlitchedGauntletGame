@@ -435,6 +435,18 @@ return table.freeze({
 			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
 		},
 	} :: ItemAction,
+	-- Stim: the gun dips down and to the side while the free hand slams the
+	-- beacon down, then comes straight back.
+	STIM_DIP = {
+		length = 0.45,
+		keys = {
+			{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+			{ t = 0.25, pos = Vector3.new(0.18, -0.65, 0.3), rot = Vector3.new(-24, 8, 12) },
+			{ t = 0.65, pos = Vector3.new(0.18, -0.7, 0.3), rot = Vector3.new(-26, 8, 12) },
+			{ t = 0.88, pos = Vector3.new(0, 0.03, -0.02), rot = Vector3.new(2, 0, -1) },
+			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
+		},
+	} :: ItemAction,
 	-- The free hand, starting and ending below the screen. Dash: the way you
 	-- dash (Forward: the palm pushes out; Left / Right: a sweep to that side;
 	-- Back: reach out, then pull back). Updraft: a flick down, pushing off.
@@ -542,6 +554,34 @@ return table.freeze({
 					dir = Vector3.new(-0.5, -0.5, 0.7),
 				},
 				{ t = 1, pos = Vector3.new(-0.55, -1.6, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
+			},
+		},
+		-- Stim: the hand comes up from the belt with the beacon, then slams it
+		-- down at your feet and holds a beat.
+		StimSlam = {
+			length = 0.45,
+			keys = {
+				{
+					t = 0,
+					pos = Vector3.new(-0.55, -1.6, -0.75),
+					dir = Vector3.new(-0.3, -0.8, 0.5),
+				},
+				{
+					t = 0.3,
+					pos = Vector3.new(-0.35, -0.75, -1.25),
+					dir = Vector3.new(-0.3, -0.55, 0.75),
+				},
+				{
+					t = 0.58,
+					pos = Vector3.new(-0.3, -1.35, -1.35),
+					dir = Vector3.new(-0.2, 0.3, 0.93),
+				},
+				{
+					t = 0.76,
+					pos = Vector3.new(-0.3, -1.4, -1.3),
+					dir = Vector3.new(-0.2, 0.3, 0.93),
+				},
+				{ t = 1, pos = Vector3.new(-0.55, -1.7, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
 			},
 		},
 		UpdraftDown = {

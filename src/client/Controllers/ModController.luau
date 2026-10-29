@@ -32,6 +32,7 @@ local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
 local HealOrb = require(Shared.Mods.HealOrb)
+local Stim = require(Shared.Mods.Stim)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 
@@ -746,8 +747,26 @@ local function onModPressed(slot: number)
 		return
 	end
 	if def.activation == "Instant" then
+		if def.id == "Stim" then
+			-- Nothing under you to drop it on: refused here, nothing spent.
+			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			if
+				not root
+				or not root:IsA("BasePart")
+				or not Stim.floorUnder(root, previewParams())
+			then
+				deny(slot, "No ground")
+				return
+			end
+		end
 		if def.authority == "Server" then
 			sendUse(slot, "Primary", nil)
+		end
+		if def.id == "Stim" then
+			-- Off the belt and slammed down at your feet with a quick crouch.
+			ModAudio.play(ModAudio.SOUNDS.Stim.grab)
+			ViewmodelController.gesture("StimSlam", "Stim")
+			CameraController.lunge(Vector3.new(0, -0.45, 0), 0.3)
 		end
 		-- Simulation Mods (Dash) run from the same input in the simulation.
 		return

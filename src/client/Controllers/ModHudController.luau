@@ -15,6 +15,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
+local StimFx = require(script.Parent.Parent.Util.StimFx)
+
+-- The status line's colours: Hinder (Frost's ice), Stimmed (electric yellow).
+local ICE = Color3.fromHex("BFE8FF")
+local ELECTRIC = Color3.fromHex("FFD23F")
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
@@ -64,7 +69,7 @@ type SlotUi = {
 	shownCharges: number,
 	shownMax: number,
 	wasCooling: boolean,
-	activeFill: Frame, -- effect running (Overclock, a pad, a zone): drains
+	activeFill: Frame, -- effect running (a zone, a heal): drains
 	activeBack: Frame,
 	activeTotal: number,
 	activeUntil: number,
@@ -387,7 +392,8 @@ local function build(): ScreenGui
 		Text = "",
 		Visible = false,
 	}, screen)
-	-- Placeholder status line (Frost.md → Screen): "HINDERED 2.4".
+	-- Placeholder status line (Frost.md, Stim.md → Screen): "HINDERED 2.4",
+	-- "STIMMED 3.1" (both when both).
 	slowedLabel = text({
 		Name = "Status",
 		AnchorPoint = Vector2.new(0.5, 1),
@@ -395,7 +401,7 @@ local function build(): ScreenGui
 		Size = UDim2.fromOffset(200, 22),
 		FontFace = HEAVY,
 		TextSize = 18,
-		TextColor3 = Color3.fromHex("BFE8FF"),
+		TextColor3 = ICE,
 		Text = "",
 		Visible = false,
 	}, screen)
@@ -587,10 +593,18 @@ local function update(_dt: number)
 	bar.Visible = any
 	local status = slowedLabel
 	if status then
-		local left = FrostFx.hinderedLeft()
-		status.Visible = left > 0
-		if left > 0 then
-			status.Text = string.format("HINDERED  %.1f", left)
+		local hindered = FrostFx.hinderedLeft()
+		local stimmed = StimFx.stimmedLeft()
+		status.Visible = hindered > 0 or stimmed > 0
+		if hindered > 0 and stimmed > 0 then
+			status.Text = string.format("HINDERED  %.1f  ·  STIMMED  %.1f", hindered, stimmed)
+			status.TextColor3 = ICE
+		elseif hindered > 0 then
+			status.Text = string.format("HINDERED  %.1f", hindered)
+			status.TextColor3 = ICE
+		elseif stimmed > 0 then
+			status.Text = string.format("STIMMED  %.1f", stimmed)
+			status.TextColor3 = ELECTRIC
 		end
 	end
 
