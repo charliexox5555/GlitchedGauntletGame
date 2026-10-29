@@ -14,7 +14,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 | 4 | [Firewall](Firewall.md) | Firewall (cover wall) | ✅ locked 2026-10-29 | ⬜ |
 | 5 | [Frost](Frost.md) | Lag Field | ✅ locked 2026-10-29 | ⬜ |
 | 6 | [Recon](Recon.md) | Ping | ✅ locked 2026-10-29 | ⬜ |
-| 7 | Patch Up | — | ⬜ to redesign | — |
+| 7 | [Heal Orb](Heal%20Orb.md) | Patch Up | ✅ locked 2026-10-29 | ⬜ |
 | 8 | Overclock | — | ⬜ to redesign | — |
 | 9 | Rollback | — | ⬜ to redesign | — |
 
@@ -22,6 +22,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 - **Charges, not one cooldown rule for all.** Each ability sets its own: a number of **charges per round** (refilled at round start, no recharge) and/or a **cooldown**, like Valorant (Jett's dash vs Sova's dart). It's decided per ability below.
 - **Test mode:** there's no round system yet, so the dev panel has a **"Test mode: unlimited charges"** toggle (on by default in Studio). RoundService will later call a "refill charges" function at round start.
 - **Keys:** PC **Q / E / T** · gamepad LB / RB / D-pad up · mobile buttons. Instant abilities fire on press (mobile-friendly).
+- **Mobile is provisional:** each spec has a basic mobile layout so it works; a full mobile controls/HUD pass comes later.
 - **Status effects:** shared, server-enforced effects with an expiry time, reusable by any ability. First one: **Hinder** (see [Frost](Frost.md)).
 - **Friendly fire (2026-10-29):** damage from your own abilities to **you and your teammates is 50%** of the enemy damage (one config value). Exceptions are set per ability; e.g. you're immune to your own Firewall.
 - **Readable for enemies:** clear look and a 3D sound others can hear.
