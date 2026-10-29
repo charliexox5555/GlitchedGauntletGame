@@ -2,7 +2,7 @@
 -- Client side of the Mods (vault/04 Tech/Mod System.md). Reads the Mod1/2/3
 -- input actions, runs the held state machine, draws the previews and sends
 -- requests; the server decides every result (ModService), and the predicted
--- Mods (Blink) run in the simulation on their own (Simulation/Abilities).
+-- Mods (Dash) run in the simulation on their own (Simulation/Abilities).
 --
 -- Held state machine (Mods.md → Rules for held Mods):
 --   Idle → Equipping (EQUIP_TIME raise) → Held → Using (USE_TIME) → Idle
@@ -665,7 +665,7 @@ local function onModPressed(slot: number)
 				ModAudio.play(ModAudio.SOUNDS.Ping.cast)
 			end
 		end
-		-- Simulation Mods (Blink) run from the same input in the simulation.
+		-- Simulation Mods (Dash) run from the same input in the simulation.
 		return
 	end
 	startHold(slot, view)
@@ -695,12 +695,28 @@ local function update(_dt: number)
 	local now = os.clock()
 	local character = player.Character
 
-	-- Blink: the simulation dashed (DashStart moved on): lunge the camera.
+	-- Dash: the simulation dashed (DashStart moved on). The gun dips and the
+	-- free hand gestures the way we go; the camera punches, rolls and leads.
+	-- (A re-simulated start a few ms off isn't a new dash.)
 	local dashStart = number(character, "DashStart", 0)
-	if dashStart > lastDashStart then
+	if dashStart > lastDashStart + 0.05 then
 		lastDashStart = dashStart
-		CameraController.punchFov(9, 0.32)
-		CameraController.shake(0.25)
+		local velocity = character and character:GetAttribute("DashVelocity")
+		local cam = Workspace.CurrentCamera
+		if typeof(velocity) == "Vector3" and velocity.Magnitude > 0.1 and cam then
+			local feel = Config.DASH_FEEL
+			local dir = velocity.Unit
+			local localDir = cam.CFrame:VectorToObjectSpace(dir)
+			ViewmodelController.dash(
+				if math.abs(localDir.X) > math.abs(localDir.Z)
+					then (if localDir.X > 0 then "Right" else "Left")
+					else (if localDir.Z < 0 then "Forward" else "Back")
+			)
+			CameraController.punchFov(feel.fov, feel.fovTime)
+			CameraController.rollKick(-localDir.X * feel.roll, feel.rollTime)
+			CameraController.lunge(dir * feel.lunge, feel.lungeTime)
+			CameraController.shake(feel.shake)
+		end
 	end
 	-- Rollback: the server gives back the old ammo; drop any reload.
 	local rollbackAt = number(character, "RollbackAt", 0)

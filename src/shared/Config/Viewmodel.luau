@@ -35,6 +35,11 @@ export type ItemAction = { length: number, hideAt: number?, keys: { ItemKey } }
 -- A hand: position (from its grip) and the direction its arm runs from there.
 export type Hand = { offset: Vector3, direction: Vector3 }
 
+-- A free-hand key (camera space around the root): where the fist is and the
+-- direction its arm runs from there (toward the shoulder, off-screen).
+export type HandKey = { t: number, pos: Vector3, dir: Vector3 }
+export type Gesture = { length: number, keys: { HandKey } }
+
 -- Bob amplitude: studs (pos) and degrees (rot: pitch, yaw, roll).
 export type Bob = { pos: Vector3, rot: Vector3 }
 
@@ -358,6 +363,107 @@ return table.freeze({
 			},
 		},
 	} :: { [string]: ItemAction },
+
+	-- Dash (Mods/Dash, ModController): the gun dips down and out of view
+	-- (camera space around the root, smoothstep between keys) and snaps back
+	-- up with a small overshoot; it's down by the dash's end and back up as
+	-- the fire delay ends (~0.25 s). Keep in step with Config/Mods Dash.
+	DASH_DIP = {
+		length = 0.34,
+		keys = {
+			{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+			{ t = 0.17, pos = Vector3.new(0.3, -1.3, 0.5), rot = Vector3.new(-40, 14, 22) },
+			{ t = 0.68, pos = Vector3.new(0.3, -1.35, 0.5), rot = Vector3.new(-42, 14, 24) },
+			{ t = 0.88, pos = Vector3.new(0, 0.035, -0.03), rot = Vector3.new(3, 0, -1) },
+			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
+		},
+	} :: ItemAction,
+	-- While the gun is down the free (left) hand gestures the way you dash,
+	-- starting and ending below the screen. Forward: the palm pushes out.
+	-- Left / Right: a sweep to that side. Back: reach out, then pull back.
+	DASH_GESTURES = {
+		Forward = {
+			length = 0.24,
+			keys = {
+				{ t = 0, pos = Vector3.new(-0.55, -1.6, -0.7), dir = Vector3.new(-0.3, -0.8, 0.5) },
+				{
+					t = 0.3,
+					pos = Vector3.new(-0.35, -0.72, -1.15),
+					dir = Vector3.new(-0.3, -0.55, 0.75),
+				},
+				{
+					t = 0.55,
+					pos = Vector3.new(-0.12, -0.42, -1.75),
+					dir = Vector3.new(-0.25, -0.4, 0.88),
+				},
+				{
+					t = 0.78,
+					pos = Vector3.new(-0.2, -0.55, -1.6),
+					dir = Vector3.new(-0.25, -0.45, 0.85),
+				},
+				{ t = 1, pos = Vector3.new(-0.55, -1.6, -0.7), dir = Vector3.new(-0.3, -0.8, 0.5) },
+			},
+		},
+		Back = {
+			length = 0.24,
+			keys = {
+				{ t = 0, pos = Vector3.new(-0.55, -1.6, -0.7), dir = Vector3.new(-0.3, -0.8, 0.5) },
+				{
+					t = 0.3,
+					pos = Vector3.new(-0.25, -0.45, -1.55),
+					dir = Vector3.new(-0.3, -0.5, 0.8),
+				},
+				{
+					t = 0.65,
+					pos = Vector3.new(-0.6, -0.85, -0.75),
+					dir = Vector3.new(-0.4, -0.75, 0.5),
+				},
+				{ t = 1, pos = Vector3.new(-0.6, -1.6, -0.6), dir = Vector3.new(-0.3, -0.8, 0.5) },
+			},
+		},
+		Left = {
+			length = 0.24,
+			keys = {
+				{ t = 0, pos = Vector3.new(-0.4, -1.6, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
+				{
+					t = 0.3,
+					pos = Vector3.new(-0.1, -0.55, -1.3),
+					dir = Vector3.new(-0.15, -0.6, 0.8),
+				},
+				{
+					t = 0.62,
+					pos = Vector3.new(-1.15, -0.5, -1.05),
+					dir = Vector3.new(-0.5, -0.55, 0.65),
+				},
+				{
+					t = 1,
+					pos = Vector3.new(-0.95, -1.6, -0.7),
+					dir = Vector3.new(-0.4, -0.8, 0.45),
+				},
+			},
+		},
+		Right = {
+			length = 0.24,
+			keys = {
+				{ t = 0, pos = Vector3.new(-0.6, -1.6, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
+				{
+					t = 0.3,
+					pos = Vector3.new(-0.55, -0.55, -1.25),
+					dir = Vector3.new(-0.3, -0.55, 0.75),
+				},
+				{
+					t = 0.62,
+					pos = Vector3.new(0.45, -0.5, -1.2),
+					dir = Vector3.new(-0.65, -0.45, 0.6),
+				},
+				{
+					t = 1,
+					pos = Vector3.new(0.15, -1.6, -0.75),
+					dir = Vector3.new(-0.5, -0.75, 0.45),
+				},
+			},
+		},
+	} :: { [string]: Gesture },
 
 	-- Pose blends (critically damped, rad/s).
 	POSE_FREQUENCY = 13,

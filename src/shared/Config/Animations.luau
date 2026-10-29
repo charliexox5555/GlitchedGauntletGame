@@ -31,6 +31,11 @@ return table.freeze({
 		Throw = id(113960439440452),
 		Place = id(102573901472605),
 		Heal = id(116476893527219),
+		-- Dash: the torso leans into the dash (Simulation/Poses, by direction).
+		DashForward = id(132740788102457),
+		DashBack = id(128130101853691),
+		DashLeft = id(117063604285762),
+		DashRight = id(107635192627945),
 	}),
 	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
 

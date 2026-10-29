@@ -89,6 +89,30 @@
   "type": "Animation",
   "uploaded": "2026-10-25 13:53:29"
  },
+ "art-source/animations/GG_DashBack.rbxm": {
+  "assetId": 128130101853691,
+  "name": "GG Dash Back",
+  "type": "Animation",
+  "uploaded": "2026-10-28 21:01:13"
+ },
+ "art-source/animations/GG_DashForward.rbxm": {
+  "assetId": 132740788102457,
+  "name": "GG Dash Forward",
+  "type": "Animation",
+  "uploaded": "2026-10-28 21:01:09"
+ },
+ "art-source/animations/GG_DashLeft.rbxm": {
+  "assetId": 117063604285762,
+  "name": "GG Dash Left",
+  "type": "Animation",
+  "uploaded": "2026-10-28 21:01:16"
+ },
+ "art-source/animations/GG_DashRight.rbxm": {
+  "assetId": 107635192627945,
+  "name": "GG Dash Right",
+  "type": "Animation",
+  "uploaded": "2026-10-28 21:03:22"
+ },
  "art-source/animations/GG_ModHeal.rbxm": {
   "assetId": 116476893527219,
   "name": "GG Mod Heal",
@@ -136,6 +160,30 @@
   "name": "GG Gun Sound Atlas",
   "type": "Audio",
   "uploaded": "2026-10-25 12:37:39"
+ },
+ "art-source/vfx/abilities/dash/dash_air_burst_2x2.png": {
+  "assetId": 113880445566591,
+  "name": "GG VFX dash_air_burst_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-28 21:09:39"
+ },
+ "art-source/vfx/abilities/dash/dash_puff_2x2.png": {
+  "assetId": 70676535969836,
+  "name": "GG VFX dash_puff_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-28 21:09:43"
+ },
+ "art-source/vfx/abilities/dash/dash_screen_streak.png": {
+  "assetId": 86236361684782,
+  "name": "GG VFX dash_screen_streak",
+  "type": "Decal",
+  "uploaded": "2026-10-28 21:09:45"
+ },
+ "art-source/vfx/abilities/dash/dash_wind_trail.png": {
+  "assetId": 95244638311939,
+  "name": "GG VFX dash_wind_trail",
+  "type": "Decal",
+  "uploaded": "2026-10-28 21:09:33"
  },
  "art-source/vfx/beam_energy.png": {
   "assetId": 140396211249137,

@@ -53,7 +53,7 @@ Status of each Mod at L1 (2026-10-26, overnight). ✅ done · 🟡 provisional /
 
 | Mod | Code (L1) | Model | VFX | Sounds | 1P / 3P animation | Notes |
 |---|---|---|---|---|---|---|
-| **Blink** | ✅ predicted dash | — | ✅ FOV kick, speed lines | 🟡 provisional | ✅ / — | ~10.8 studs from a standstill (design 12) |
+| **Dash** (was Blink) | ✅ predicted dash, 1 per round, gun down + 0.1 s shoot delay, Dash Focus (server-checked) | — | ✅ Blender textures (`art-source/vfx/abilities/dash/`): wind trail, gust ring, puff, screen streaks + blur | 🟡 4 hooks, ProSoundEffects placeholders (unauditioned) | ✅ gun dip + hand gesture / ✅ lean clips (4 directions) | Built 2026-10-29 to [Dash](../01%20Design/Abilities/Dash.md); user-tested in Studio |
 | **Launch Pad** | ✅ server place, predicted launch | ✅ `Abilities.LaunchPad` | ✅ chasing arrows, place pop | 🟡 | ✅ place push / 🟡 place clip | 24 up, 29 forward measured |
 | **Packet** | ✅ server arc, LOS blast | ✅ `Abilities.Packet` | ✅ danger ring, core, shockwave mesh, sparks | 🟡 | ✅ throw / 🟡 throw clip | |
 | **Firewall** | ✅ blocks shots, 150 HP | ✅ `Abilities.Firewall` | ✅ hit flash, break / expire burst | 🟡 | ✅ place push / 🟡 place clip | Panel quite bright at Transparency 0.5 |

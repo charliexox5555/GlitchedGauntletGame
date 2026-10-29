@@ -21,7 +21,7 @@
 --   Mod<n>CastAt            time() of the last cast (the client's "just cast")
 --   Mod<n>SerialSeen        last Mod<n>Serial applied
 --   ModResetSeen            last ModResetSerial applied
---   Dashing + the Dash* attributes of Mods/Blink, RollbackAt / RollbackFrom
+--   Dashing + the Dash* attributes of Mods/Dash, RollbackAt / RollbackFrom
 --   (Mods/Rollback), LaunchAt / LaunchVelocity / Launching (Mods/LaunchPad);
 --   SlideJumpSpeed carries a
 --   launch's forward speed through the air like a slide-jump (Movement)

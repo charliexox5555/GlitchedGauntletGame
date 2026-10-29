@@ -42,6 +42,11 @@ local USE_IDS: { [string]: string } = {
 	Throw = Animations.MODS.Throw,
 	Place = Animations.MODS.Place,
 	Heal = Animations.MODS.Heal,
+	-- Dash leans (Mods/Dash), by direction relative to the body.
+	DashForward = Animations.MODS.DashForward,
+	DashBack = Animations.MODS.DashBack,
+	DashLeft = Animations.MODS.DashLeft,
+	DashRight = Animations.MODS.DashRight,
 }
 -- A weight of exactly 0 lets the Animator drop the track; stay just above.
 local OFF = 0.001
@@ -184,6 +189,25 @@ local function stepCharacter(player: Player, character: Model)
 	setWeight(animator, "CrouchWalk", crouch * moving)
 	setWeight(animator, "Slide", if state == "Slide" then 1 else 0)
 	setWeight(animator, "ModHold", if holding then 1 else 0)
+
+	-- A dash (simulation-written DashStart): lean into it. A new character
+	-- starts its mark at 0, so its first dash plays.
+	local dashStart = character:GetAttribute("DashStart")
+	local dashMark = if typeof(dashStart) == "number" then dashStart else 0
+	local dashSeen = character:GetAttribute("PoseDashSeen")
+	if dashSeen ~= dashMark then
+		character:SetAttribute("PoseDashSeen", dashMark)
+		local velocity = character:GetAttribute("DashVelocity")
+		if typeof(dashSeen) == "number" and alive and typeof(velocity) == "Vector3" then
+			local rel = root.CFrame:VectorToObjectSpace(velocity)
+			playOnce(
+				animator,
+				if math.abs(rel.X) > math.abs(rel.Z)
+					then (if rel.X > 0 then "DashRight" else "DashLeft")
+					else (if rel.Z < 0 then "DashForward" else "DashBack")
+			)
+		end
+	end
 
 	-- A Mod use: its clip once. The first value seen (a new character) only
 	-- sets the mark, so an old use isn't replayed.

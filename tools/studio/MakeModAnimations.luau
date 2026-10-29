@@ -11,6 +11,8 @@
 --   GG_ModThrow  (one-shot) wind back over the shoulder, release, follow through
 --   GG_ModPlace  (one-shot) dip and push the object down in front
 --   GG_ModHeal   (one-shot) thrust the device toward the target and back
+--   GG_DashForward / Back / Left / Right (one-shot) the body leans into a
+--                dash and comes back (torso only: the arms keep the gun hold)
 --
 -- Joint angles in degrees (R15 Transforms): +X swings a limb forward (arms
 -- up); on UpperTorso (Waist) it leans the chest back.
@@ -132,6 +134,16 @@ local HEAL_PUSH: Frame = {
 	LeftLowerArm = { 20, 0, 0 },
 }
 
+-- Dash leans: only the torso joints, so the arms keep holding the gun. Into
+-- the dash for ~0.2 s, then back. LowerTorso roll +Z leans left.
+local LEAN_REST: Frame = { LowerTorso = { 0, 0, 0 }, UpperTorso = { 0, 0, 0 }, Head = { 0, 0, 0 } }
+local LEAN: { [string]: Frame } = {
+	Forward = { LowerTorso = { -10, 0, 0 }, UpperTorso = { -16, 0, 0 }, Head = { 10, 0, 0 } },
+	Back = { LowerTorso = { 6, 0, 0 }, UpperTorso = { 12, 0, 0 }, Head = { -6, 0, 0 } },
+	Left = { LowerTorso = { -4, 0, 14 }, UpperTorso = { 0, 0, 8 }, Head = { 0, 0, -8 } },
+	Right = { LowerTorso = { -4, 0, -14 }, UpperTorso = { 0, 0, -8 }, Head = { 0, 0, 8 } },
+}
+
 local ACTION = Enum.AnimationPriority.Action
 local ACTION4 = Enum.AnimationPriority.Action4
 
@@ -154,6 +166,17 @@ local sequences = {
 		{ 0.38, HOLD },
 	}),
 }
+for _, dir in { "Forward", "Back", "Left", "Right" } do
+	table.insert(
+		sequences,
+		sequence("GG_Dash" .. dir, ACTION4, false, {
+			{ 0, LEAN_REST },
+			{ 0.06, LEAN[dir] },
+			{ 0.2, LEAN[dir] },
+			{ 0.36, LEAN_REST },
+		})
+	)
+end
 
 local saved = {}
 for _, ks in sequences do

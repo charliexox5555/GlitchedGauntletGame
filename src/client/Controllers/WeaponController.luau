@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
+local DashMod = require(Shared.Mods.Dash)
 local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
 local GunSounds = require(Shared.Config.GunSounds)
@@ -155,6 +156,20 @@ end
 -- from its own simulation: WeaponService spreadBand).
 local landedAt = -math.huge -- os.clock() of our last landing (update() spots it)
 local lastMoveState = "Idle"
+-- Dash (Mods/Dash.stepGate), on our own clock like the server's copy
+-- (WeaponService sampleMotion): the gun is down while dashing and for
+-- DashFireDelay after; then the first shot until focusUntil has no movement
+-- spread (Dash Focus).
+local dashGate = DashMod.newGate()
+
+local function dashBlocked(): boolean
+	return os.clock() < dashGate.readyAt
+end
+
+local function focusNow(): boolean
+	local now = os.clock()
+	return dashGate.focusOpen and now >= dashGate.readyAt and now <= dashGate.focusUntil
+end
 
 local function motionNow(): Accuracy.Motion
 	local character = player.Character
@@ -173,7 +188,17 @@ end
 -- heat plus the movement penalty, and whether it's centre-biased.
 local function currentSpread(s: LocalSlot): (number, boolean)
 	local heat = Accuracy.cool(s.config, s.heat, os.clock() - s.lastShotAt)
-	return Accuracy.cone(s.config, heat, motionNow())
+	local motion = motionNow()
+	if focusNow() then
+		-- No movement spread, but a crouch still steadies the gun.
+		motion = {
+			state = if motion.state == "Crouch" then "Crouch" else "Idle",
+			speed = 0,
+			aim = motion.aim,
+			sinceLanding = math.huge,
+		}
+	end
+	return Accuracy.cone(s.config, heat, motion)
 end
 
 -- Camera recoil for one shot, following the gun's pattern: pure vertical for
@@ -533,6 +558,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	end
 
 	local spread, centred = currentSpread(s)
+	dashGate.focusOpen = false -- only the first shot after a dash
 	local sinceLast = now - s.lastShotAt
 	s.heat = Accuracy.cool(config, s.heat, sinceLast) + altRounds
 	s.lastShotAt = now
@@ -668,6 +694,7 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	if heavy and not (heavyStats and altFire) then
 		return
 	end
+	dashGate.focusOpen = false
 	local now = os.clock()
 	local readyAt = s.lastFire + config.fireInterval
 	if now < readyAt or now < s.altReadyAt then
@@ -746,6 +773,7 @@ local function canShoot(s: LocalSlot): boolean
 		or reloading
 		or PickerController.isBusy()
 		or isHolstered()
+		or dashBlocked()
 	then
 		return false
 	end
@@ -815,6 +843,12 @@ local function update(dt: number)
 	end
 	lastMoveState = moveState
 
+	-- Dash: the gun gate (Mods/Dash.stepGate).
+	local body = player.Character
+	if body then
+		DashMod.stepGate(dashGate, body, now, time())
+	end
+
 	-- Aim down sights.
 	local aimingWanted = s ~= nil
 		and alive
@@ -824,6 +858,7 @@ local function update(dt: number)
 		and not MovementController.isSprinting()
 		and not PickerController.isOpen()
 		and not isHolstered()
+		and not dashBlocked()
 	aiming = aimingWanted
 	if s then
 		local rate = 1 / math.max(s.config.adsTime, 0.05)
@@ -845,10 +880,10 @@ local function update(dt: number)
 		HudController.setSpread(currentSpread(s) + s.config.pelletSpread * 0.6)
 		local mode = s.config.fireMode
 		if mode == "Melee" then
-			if pressQueued and now >= equipReadyAt then
+			if pressQueued and now >= equipReadyAt and not dashBlocked() then
 				pressQueued = false
 				swing(s)
-			elseif now - altQueuedAt < 0.2 and now >= equipReadyAt then
+			elseif now - altQueuedAt < 0.2 and now >= equipReadyAt and not dashBlocked() then
 				altQueuedAt = -math.huge
 				swing(s, true)
 			end
@@ -1056,6 +1091,7 @@ end
 -- next life's WeaponState then equips (and first-draws) from scratch.
 local function endLife()
 	alive = false
+	DashMod.resetGate(dashGate)
 	table.clear(holstered)
 	ViewmodelController.setLowered(false)
 	triggerHeld = false

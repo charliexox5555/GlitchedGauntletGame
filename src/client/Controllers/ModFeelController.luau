@@ -2,10 +2,11 @@
 -- Mod "feel" (Stage 4 juice): what the predicted Mods sound like for everyone,
 -- and the local screen effects.
 --
---   Everyone's character: the simulation's DashStart (Blink), LaunchAt
---   (Launch Pad) and RollbackAt (Rollback) attributes replicate, so a new
---   value here means that player just cast: play its 3D sound there.
---   Your screen: Blink speed lines, the Rollback "VHS rewind" (wash,
+--   Everyone's character: the simulation's DashStart / Dashing (Dash),
+--   LaunchAt (Launch Pad) and RollbackAt (Rollback) attributes replicate, so
+--   a new value here means that player just cast: play its 3D sound there
+--   (and, for others' dashes, Util/DashFx's trail, burst and puff).
+--   Your screen: Dash wind streaks and blur, the Rollback "VHS rewind" (wash,
 --   scanlines, a REWIND tag), a flash when a Packet goes off on you, and the
 --   enemy-only warnings (slowed by a Lag Field, revealed by a Ping).
 --
@@ -16,9 +17,13 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 
+local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local Net = require(ReplicatedStorage.Shared.Net)
+local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
+local DashFx = require(script.Parent.Parent.Util.DashFx)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
@@ -29,19 +34,24 @@ local ModFeelController = {}
 local player = Players.LocalPlayer
 local S = ModAudio.SOUNDS
 
-type Seen = { dash: number, launch: number, rollback: number }
+type Seen = { dash: number, dashing: boolean, dashDir: Vector3, launch: number, rollback: number }
 local seen: { [Model]: Seen } = setmetatable({}, { __mode = "k" }) :: any
 -- Held Mod items in other players' hands, already tinted for this viewer.
 local tinted: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
 local SPEED_LINES = 18
-local LINES_TIME = 0.28
+local DASH = Config.DASH_FEEL
 local VHS_TIME = 0.55
 local SCANLINES = 28
 local FLASH_TIME = 0.35
 
-local lines: { Frame } = {}
+-- Dash wind streaks: radial streaks near the edges, weighted toward the
+-- way you dash (all round going forward or back), drifting with the wind.
+local lines: { ImageLabel } = {}
+local lineAngles: { number } = {}
 local linesAt = -math.huge
+local linesDir = Vector3.new(0, 0, -1) -- the dash in camera space
+local blur: BlurEffect? = nil
 local scan: Frame? = nil
 local scanRows: { Frame } = {}
 local rewindTag: TextLabel? = nil
@@ -75,26 +85,18 @@ local function build(): ScreenGui
 		ResetOnSpawn = false,
 		DisplayOrder = 3,
 	}, player:WaitForChild("PlayerGui"))
-	-- Speed lines: thin streaks pointing at the centre, near the edges.
+	-- Dash streaks: the streak texture (head on the left) pointing outward.
 	for i = 1, SPEED_LINES do
 		local angle = (i - 1) / SPEED_LINES * math.pi * 2 + (i % 3) * 0.13
-		local f = make("Frame", {
+		lineAngles[i] = angle
+		lines[i] = make("ImageLabel", {
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromScale(0.5 + math.cos(angle) * 0.42, 0.5 + math.sin(angle) * 0.42),
-			Size = UDim2.fromOffset(160 + (i % 4) * 40, 3),
-			Rotation = math.deg(angle),
-			BackgroundColor3 = Color3.new(1, 1, 1),
+			Size = UDim2.fromOffset(170 + (i % 4) * 45, 14),
+			Rotation = math.deg(angle) + 180,
 			BackgroundTransparency = 1,
-			BorderSizePixel = 0,
+			Image = VFX.DASH_SCREEN_STREAK,
+			ImageTransparency = 1,
 		}, screen)
-		make("UIGradient", {
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 1),
-				NumberSequenceKeypoint.new(0.5, 0.2),
-				NumberSequenceKeypoint.new(1, 1),
-			}),
-		}, f)
-		lines[i] = f
 	end
 	-- VHS: scanlines rolling down and a REWIND tag.
 	local s = make("Frame", {
@@ -184,12 +186,19 @@ local function stepCharacters()
 			continue
 		end
 		local dash = number(character, "DashStart")
+		local dashing = character:GetAttribute("Dashing") == true
 		local launch = number(character, "LaunchAt")
 		local rollback = number(character, "RollbackAt")
 		local s = seen[character]
 		if not s then
 			-- First sight: remember, don't replay old casts.
-			seen[character] = { dash = dash, launch = launch, rollback = rollback }
+			seen[character] = {
+				dash = dash,
+				dashing = dashing,
+				dashDir = root.CFrame.LookVector,
+				launch = launch,
+				rollback = rollback,
+			}
 			continue
 		end
 		local mine = other == player
@@ -198,17 +207,47 @@ local function stepCharacters()
 			tinted[heldItem] = true
 			ModProps.tint(heldItem, TeamColor.forOwner(other))
 		end
-		if dash > s.dash then
-			ModAudio.play(S.Blink.use, root.Position)
-			task.delay(0.15, function()
-				if root.Parent then
-					ModAudio.play(S.Blink.arrive, root.Position)
-				end
-			end)
+		-- (A re-simulated start a few ms off isn't a new dash.)
+		local started = false
+		if dash > s.dash + 0.05 then
+			started = true
+			local velocity = character:GetAttribute("DashVelocity")
+			local flat = if typeof(velocity) == "Vector3"
+				then velocity * Vector3.new(1, 0, 1)
+				else Vector3.zero
+			local dir = if flat.Magnitude > 0.1 then flat.Unit else root.CFrame.LookVector
+			s.dashDir = dir
 			if mine then
+				ModAudio.play(S.Dash.whoosh)
+				if DASH.crackle then
+					ModAudio.play(S.Dash.crackle)
+				end
+				local cam = Workspace.CurrentCamera
 				linesAt = os.clock()
+				linesDir = if cam
+					then cam.CFrame:VectorToObjectSpace(dir)
+					else Vector3.new(0, 0, -1)
+			else
+				local untilT = character:GetAttribute("DashUntil")
+				ModAudio.play(S.Dash.world, root.Position)
+				DashFx.start(
+					character,
+					root,
+					dir,
+					if typeof(untilT) == "number" then untilT - dash else 0.15,
+					TeamColor.forOwner(other)
+				)
 			end
 		end
+		-- The end (also when a whole short dash fell between two frames).
+		if (s.dashing or started) and not dashing then
+			if mine then
+				ModAudio.play(S.Dash.land)
+			else
+				DashFx.finish(character, root, s.dashDir, TeamColor.forOwner(other))
+			end
+		end
+		s.dashing = dashing
 		if launch > s.launch then
 			ModAudio.play(S.LaunchPad.launch, root.Position)
 			ModAudio.play(S.LaunchPad.launchHiss, root.Position)
@@ -236,15 +275,38 @@ end
 local function update(_dt: number)
 	local now = os.clock()
 	stepCharacters()
+	DashFx.step()
 
-	local k = (now - linesAt) / LINES_TIME
+	-- Dash streaks: weighted to the dash's side (a sideways dash), all round
+	-- going forward (drifting out) or back (drifting in); then a blur pulse.
+	local k = (now - linesAt) / DASH.streakTime
+	local side, ahead = linesDir.X, -linesDir.Z
 	for i, f in lines do
 		if k >= 1 then
-			if f.BackgroundTransparency ~= 1 then
-				f.BackgroundTransparency = 1
+			if f.ImageTransparency ~= 1 then
+				f.ImageTransparency = 1
 			end
 		else
-			f.BackgroundTransparency = 0.25 + 0.75 * k + (i % 2) * 0.1
+			local angle = lineAngles[i]
+			local cx, cy = math.cos(angle), math.sin(angle)
+			local toward = math.max(cx * side, 0) -- this edge is the dash's side
+			local weight = math.clamp(math.abs(ahead) + math.sqrt(toward) * math.abs(side), 0, 1)
+			local drift = 0.06 * k * (if ahead >= 0 then 1 else -1)
+			local r = 0.42 + drift * math.abs(ahead)
+			f.Position = UDim2.fromScale(0.5 + cx * r - side * 0.05 * k, 0.5 + cy * r)
+			f.ImageTransparency = 1 - (1 - k) * (1 - k) * (0.85 - (i % 2) * 0.15) * weight
+		end
+	end
+	local b = blur
+	local bk = (now - linesAt) / DASH.blurTime
+	if bk < 1 and not b then
+		b = make("BlurEffect", { Name = "DashBlur", Size = 0 }, Lighting)
+		blur = b
+	end
+	if b then
+		local size = if bk < 1 then DASH.blur * (1 - bk) * (1 - bk) else 0
+		if b.Size ~= size then
+			b.Size = size
 		end
 	end
 

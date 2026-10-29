@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
 local Combat = require(Shared.Config.Combat)
+local DashMod = require(Shared.Mods.Dash)
 local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
@@ -73,6 +74,10 @@ type MotionTrack = {
 	aim: number,
 	lastState: string,
 	landedAt: number,
+	-- Dash (Mods/Dash.stepGate), on the server's own clock from its own
+	-- simulation's dash attributes: no shots before dash.readyAt; the first
+	-- shot until dash.focusUntil has no movement spread (Dash Focus).
+	dash: DashMod.GunGate,
 }
 
 type PlayerState = {
@@ -649,6 +654,12 @@ function WeaponService.rewindAmmo(player: Player, age: number)
 	sendState(player)
 end
 
+-- Dash: the gun is down while dashing and for the dash's fire delay after.
+local function dashBlocked(player: Player): boolean
+	local track = motion[player]
+	return track ~= nil and os.clock() < track.dash.readyAt - Combat.DASH_FIRE_SLACK
+end
+
 local function holstered(player: Player): boolean
 	local busy = busyUntil[player]
 	return holsteredPlayers[player] == true
@@ -880,10 +891,18 @@ local function sampleMotion(dt: number)
 		end
 		local track = motion[player]
 		if not track then
-			track = { samples = {}, aim = 0, lastState = "Idle", landedAt = -math.huge }
+			track = {
+				samples = {},
+				aim = 0,
+				lastState = "Idle",
+				landedAt = -math.huge,
+				dash = DashMod.newGate(),
+			}
 			motion[player] = track
 		end
 		local state = (character:GetAttribute("MoveState") :: string?) or "Idle"
+		-- Dash: the gun gate, from this server's own simulation.
+		DashMod.stepGate(track.dash, character, now, time())
 		-- Landings, on the server's own clock (the client spots its own).
 		if track.lastState == "Air" and state ~= "Air" then
 			track.landedAt = now
@@ -917,12 +936,15 @@ end
 -- server hasn't simulated yet (high edges only ever cost the shooter).
 -- Returns the lowest and highest cone, and whether a centre-biased shot is
 -- allowed (only when the server saw the shooter standing at fire time).
+-- `focus` (Dash Focus): the shot may have no movement spread at all, and be
+-- centre-biased like a standing shot.
 local function spreadBand(
 	player: Player,
 	config: WeaponConfig,
 	heatLow: number,
 	heatHigh: number,
-	ping: number
+	ping: number,
+	focus: boolean
 ): (number, number, boolean)
 	local now = os.clock()
 	local track = motion[player]
@@ -971,6 +993,9 @@ local function spreadBand(
 			{ state = "Air", speed = latest.speed, aim = aimHigh, sinceLanding = math.huge }
 		moveHigh = math.max(moveHigh, Accuracy.movement(config, jump))
 	end
+	if focus then
+		moveLow = 0
+	end
 	-- The gun's spread is monotonic in heat but may fall as it heats (Ares),
 	-- so take both heat edges each way.
 	local slack = Combat.SPREAD_HEAT_SLACK
@@ -983,15 +1008,15 @@ local function spreadBand(
 		Accuracy.gun(config, coolHeat, aimHigh, allCrouch),
 		Accuracy.gun(config, hotHeat, aimHigh, allCrouch)
 	) + moveHigh
-	local standing = moveLow <= 0
-		and closest ~= nil
-		and Accuracy.movement(config, {
+	local standing = focus
+		or moveLow <= 0
+			and closest ~= nil
+			and Accuracy.movement(config, {
 				state = closest.state,
 				speed = closest.speed,
 				aim = closest.aim,
 				sinceLanding = closest.sinceLanding,
-			})
-			<= 0
+			}) <= 0
 	return low, high, standing
 end
 
@@ -1065,6 +1090,10 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "holding a Mod")
 		return
 	end
+	if dashBlocked(player) then
+		reject(player, "dashing")
+		return
+	end
 	local config = slot.config
 	local now = os.clock()
 
@@ -1135,7 +1164,17 @@ local function onFire(player: Player, payload: unknown)
 	local heatLow = Accuracy.cool(config, slot.heatLow, gap + Combat.FIRE_JITTER)
 	local heatHigh = Accuracy.cool(config, slot.heatHigh, math.max(gap - Combat.FIRE_JITTER, 0))
 
+	-- Dash Focus: the first shot after a dash, inside its window (the server
+	-- saw the dash itself; the client never claims it).
+	local track = motion[player]
+	local focus = track ~= nil
+		and track.dash.focusOpen
+		and now <= track.dash.focusUntil + Combat.DASH_FIRE_SLACK + networkPing(player)
+
 	-- Accept the shot.
+	if track then
+		track.dash.focusOpen = false
+	end
 	state.shotIndex = shot
 	slot.heatLow = heatLow + altRounds
 	slot.heatHigh = heatHigh + altRounds
@@ -1176,7 +1215,8 @@ local function onFire(player: Player, payload: unknown)
 	-- (spreadBand): a claimed cone outside that band is clamped into it, so
 	-- a client that lies about its spread gets rays its hits won't match.
 	local rewindAge = rewindWindow(player)
-	local low, high, mayCentre = spreadBand(player, config, heatLow, heatHigh, networkPing(player))
+	local low, high, mayCentre =
+		spreadBand(player, config, heatLow, heatHigh, networkPing(player), focus)
 	local spread = math.clamp(spreadClaim, low, high)
 	if RunService:IsStudio() then
 		-- Tuning aid: what the client claimed and the band the server allowed.
@@ -1417,6 +1457,11 @@ local function onCharacter(player: Player, character: Model)
 			return
 		end
 		WeaponService.giveLoadout(player)
+		-- A new life: no dash left over from the last one.
+		local track = motion[player]
+		if track then
+			DashMod.resetGate(track.dash)
+		end
 		humanoid.Died:Connect(function()
 			fireBoost[player] = nil
 			player:SetAttribute("FireRateMult", nil)

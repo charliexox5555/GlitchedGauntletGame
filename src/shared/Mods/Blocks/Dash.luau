@@ -1,5 +1,5 @@
 --!strict
--- Dash building block (Blink, later Burst/Ghost/Desync). Pure maths plus one
+-- Dash building block (the Dash Mod, later Burst/Ghost/Desync). Pure maths plus one
 -- spherecast, safe inside the simulation: which way to go, and how far before
 -- a wall.
 

@@ -20,9 +20,9 @@ local Types = require(script.Parent.Parent.Mods.Types)
 type ModDef = Types.ModDef
 
 local defs: { [string]: ModDef } = {
-	Blink = {
-		id = "Blink",
-		name = "Blink",
+	Dash = {
+		id = "Dash",
+		name = "Dash",
 		role = "Mobility",
 		block = "Dash",
 		activation = "Instant",
@@ -39,6 +39,8 @@ local defs: { [string]: ModDef } = {
 				duration = 0.15, -- seconds the dash lasts
 				exitSpeed = 22, -- horizontal speed kept when the dash ends
 				radius = 1.4, -- spherecast radius: stops short of walls
+				fireDelay = 0.1, -- the gun is down while dashing and this long after
+				focusWindow = 0.6, -- Dash Focus: the first shot this soon after has no move/air spread
 			},
 			A2 = { note = "Burst: 2 charges", charges = 2 },
 			A3 = { note = "Burst: each dash reloads 50% of the magazine", onDash = "Reload" },
@@ -304,7 +306,7 @@ local defs: { [string]: ModDef } = {
 
 -- The order Mods are listed in (dev panel, draft later).
 local ORDER = {
-	"Blink",
+	"Dash",
 	"LaunchPad",
 	"Packet",
 	"Firewall",
@@ -338,6 +340,23 @@ return table.freeze({
 	EQUIP_TIME = 0.25, -- raise before a held Mod can be used
 	USE_TIME = 0.35, -- throw / heal animation before the gun comes back
 
+	-- Dash feel (vault/01 Design/Abilities/Dash.md → First person, What
+	-- others see, Sound). Client-only look; the rules are in the Dash stats.
+	DASH_FEEL = {
+		fov = 11, -- FOV punch (degrees), eased back over fovTime
+		fovTime = 0.25,
+		roll = 4, -- camera roll toward a sideways dash (degrees)
+		rollTime = 0.3,
+		lunge = 0.35, -- studs the camera leads the dash, then settles back
+		lungeTime = 0.3,
+		shake = 0.12,
+		blur = 4, -- BlurEffect size at the start, gone after blurTime
+		blurTime = 0.18,
+		streakTime = 0.3, -- screen-edge wind streaks
+		trailTime = 0.35, -- the wind trail others see lingers this long
+		crackle = true, -- play the Dash_Crackle layer (on/off to try the classic feel)
+	},
+
 	-- Colours by viewer: you and your team / enemies / glitch static.
 	COLORS = {
 		ally = Color3.fromHex("00E5FF"),
@@ -352,7 +371,7 @@ return table.freeze({
 
 	-- Studio and test-mode servers start everyone with these (no draft yet).
 	TEST_LOADOUT = {
-		{ id = "Blink", level = "L1" },
+		{ id = "Dash", level = "L1" },
 		{ id = "Packet", level = "L1" },
 		{ id = "PatchUp", level = "L1" },
 	} :: { Types.SlotLoadout },

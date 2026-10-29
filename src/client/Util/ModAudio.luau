@@ -29,6 +29,8 @@ function ModAudio.play(cue: ModSounds.Cue?, at: Vector3?, pitch: number?)
 		volume = cue.volume,
 		pitch = (cue.pitch or 1) * (pitch or 1),
 		at = at,
+		range = cue.range,
+		cut = cue.cut,
 	})
 end
 

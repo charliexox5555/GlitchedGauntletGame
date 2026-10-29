@@ -44,7 +44,7 @@ local bindings: { [string]: Binding } = {
 	QuickMelee = { keys = { Enum.KeyCode.V }, gamepad = { Enum.KeyCode.ButtonR3 } },
 	-- Inspect the held gun (Y like Valorant).
 	Inspect = { keys = { Enum.KeyCode.Y }, gamepad = { Enum.KeyCode.DPadDown } },
-	-- Mod slots (Mods.md → Controls). Simulation input: Blink and Rollback
+	-- Mod slots (Mods.md → Controls). Simulation input: Dash and Rollback
 	-- are predicted from these (shared/Simulation/Abilities); held Mods are
 	-- equipped by ModController. Crouch stays on C / Left Ctrl.
 	Mod1 = { keys = { Enum.KeyCode.Q }, gamepad = { Enum.KeyCode.ButtonL1 }, touch = "Mod1Button" },

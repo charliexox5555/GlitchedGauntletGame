@@ -15,6 +15,7 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
+local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Audio = require(ReplicatedStorage.Shared.Config.Audio)
@@ -31,6 +32,8 @@ export type PlayOptions = {
 	at: Vector3?, -- play in 3D here (otherwise 2D)
 	far: boolean?, -- use the "<Name>_Far" slice if there is one
 	jitter: boolean?, -- add the group's small random pitch (default true)
+	range: number?, -- 3D: audible up to this many studs (default Config/Audio ROLLOFF_MAX)
+	cut: number?, -- plain ids: fade out and stop this many seconds in
 }
 
 type Voice = {
@@ -182,14 +185,26 @@ local function resolve(id: string, far: boolean?): (string, SoundAtlas.Region?)
 end
 
 -- A plain asset id (not in the atlas): a one-off Sound, cleaned up after.
-local function playLoose(id: string, group: Group, volume: number, pitch: number, at: Vector3?)
+local CUT_FADE = TweenInfo.new(0.1)
+
+local function playLoose(
+	id: string,
+	group: Group,
+	volume: number,
+	pitch: number,
+	at: Vector3?,
+	range: number?,
+	cut: number?
+)
 	local s = Instance.new("Sound")
 	s.SoundId = id
 	s.Volume = volume
 	s.PlaybackSpeed = pitch
 	s.SoundGroup = groups[group]
-	s.RollOffMinDistance = Audio.ROLLOFF_MIN
-	s.RollOffMaxDistance = Audio.ROLLOFF_MAX
+	s.RollOffMode = Enum.RollOffMode.InverseTapered
+	local far = range or Audio.ROLLOFF_MAX
+	s.RollOffMinDistance = math.min(Audio.ROLLOFF_MIN, far * 0.25)
+	s.RollOffMaxDistance = far
 	local holder: Instance = voiceFolder or SoundService
 	if at then
 		local a = Instance.new("Attachment")
@@ -206,6 +221,22 @@ local function playLoose(id: string, group: Group, volume: number, pitch: number
 		end
 	end)
 	s:Play()
+	if cut then
+		task.delay(math.max(cut - 0.1, 0), function()
+			if s.Parent then
+				local fade = TweenService:Create(s, CUT_FADE, { Volume = 0 })
+				fade.Completed:Once(function()
+					s:Stop() -- Stop doesn't fire Ended: clean up here
+					if holder:IsA("Attachment") then
+						holder:Destroy()
+					else
+						s:Destroy()
+					end
+				end)
+				fade:Play()
+			end
+		end)
+	end
 end
 
 function AudioController.play(id: string?, options: PlayOptions?)
@@ -220,7 +251,7 @@ function AudioController.play(id: string?, options: PlayOptions?)
 	local key, region = resolve(id, o.far)
 	if not region then
 		if string.sub(id, 1, 6) ~= "atlas:" then
-			playLoose(id, group, volume, pitch, o.at)
+			playLoose(id, group, volume, pitch, o.at, o.range, o.cut)
 		end
 		return
 	end
@@ -242,6 +273,10 @@ function AudioController.play(id: string?, options: PlayOptions?)
 	local holder = v.holder
 	if holder and at then
 		holder.WorldPosition = at
+		-- Voices are reused: set the range every play.
+		local far = o.range or Audio.ROLLOFF_MAX
+		s.RollOffMinDistance = math.min(Audio.ROLLOFF_MIN, far * 0.25)
+		s.RollOffMaxDistance = far
 	end
 	s.TimePosition = region.start
 	s:Play()

@@ -149,6 +149,9 @@ local raiseX, raiseV = 0, 0 -- the item's own (underdamped) raise
 local actionKind: string? = nil
 local actionAt = -math.huge
 local itemHidden = false
+-- Dash: the gun dip and the free hand's gesture (Config/Viewmodel DASH_*).
+local dashKind: string? = nil
+local dashAt = -math.huge
 
 -- Small helpers ----------------------------------------------------------------
 
@@ -1457,6 +1460,15 @@ function ViewmodelController.holdItem(template: Model?)
 	item = world
 end
 
+-- A dash (Mods/Dash): the gun dips out of view and the free hand gestures
+-- the way you go: "Forward", "Back", "Left" or "Right" (camera-relative).
+function ViewmodelController.dash(kind: string)
+	if VM.DASH_GESTURES[kind] then
+		dashKind = kind
+		dashAt = os.clock()
+	end
+end
+
 -- A use, keyframed on the held item (Config/Viewmodel ITEM_ACTIONS): "Throw"
 -- (the item leaves the hand at the release), "Place" or "Heal".
 function ViewmodelController.itemAction(kind: string)
@@ -1471,6 +1483,22 @@ local function smooth(t: number): number
 	return t * t * (3 - 2 * t)
 end
 
+-- Keyed offsets (ITEM_ACTIONS, DASH_DIP) at `t` 0..1, smoothstep between keys.
+local function keyedOffset(keys: { VM.ItemKey }, t: number): CFrame
+	if t < 0 or t >= 1 then
+		return CFrame.identity
+	end
+	for i = 2, #keys do
+		local b = keys[i]
+		if t <= b.t then
+			local a = keys[i - 1]
+			local k = smooth((t - a.t) / math.max(b.t - a.t, 1e-3))
+			return CFrame.new(a.pos:Lerp(b.pos, k)) * angles(a.rot:Lerp(b.rot, k))
+		end
+	end
+	return CFrame.identity
+end
+
 -- The action's offset at `now` (identity when none is playing), and whether
 -- the item has left the hand.
 local function actionOffset(now: number): (CFrame, boolean)
@@ -1480,21 +1508,22 @@ local function actionOffset(now: number): (CFrame, boolean)
 	end
 	local t = (now - actionAt) / action.length
 	local gone = action.hideAt ~= nil and t >= action.hideAt
-	if t >= 1 then
-		return CFrame.identity, gone
-	end
-	local keys = action.keys
+	return keyedOffset(action.keys, t), gone
+end
+
+-- The dash gesture's free hand at `t` 0..1: fist position and arm direction
+-- (root space).
+local function gestureHand(keys: { VM.HandKey }, t: number): (Vector3, Vector3)
 	for i = 2, #keys do
 		local b = keys[i]
 		if t <= b.t then
 			local a = keys[i - 1]
 			local k = smooth((t - a.t) / math.max(b.t - a.t, 1e-3))
-			local pos = a.pos:Lerp(b.pos, k)
-			local rot = a.rot:Lerp(b.rot, k)
-			return CFrame.new(pos) * angles(rot), gone
+			return a.pos:Lerp(b.pos, k), a.dir:Lerp(b.dir, k)
 		end
 	end
-	return CFrame.identity, gone
+	local last = keys[#keys]
+	return last.pos, last.dir
 end
 
 -- One step of a damped spring with ratio `zeta` (below 1 overshoots).
@@ -1776,9 +1805,21 @@ local function update(dt: number)
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 	local adsT = adsEase(adsAlpha)
 	motionInput.camera = camCf
-	motionInput.velocity = if rootPart and rootPart:IsA("BasePart")
+	local velocity = if rootPart and rootPart:IsA("BasePart")
 		then rootPart.AssemblyLinearVelocity
 		else Vector3.zero
+	-- Mid-dash the body moves ~80 studs/s: feed the sway its exit speed, so a
+	-- sideways dash doesn't tilt the gun over (the dip and gesture show it).
+	local exitSpeed = character and character:GetAttribute("DashExit")
+	if
+		character
+		and character:GetAttribute("Dashing") == true
+		and typeof(exitSpeed) == "number"
+		and velocity.Magnitude > exitSpeed
+	then
+		velocity = velocity.Unit * exitSpeed
+	end
+	motionInput.velocity = velocity
 	motionInput.grounded = state ~= "Air" and state ~= "Slide"
 	motionInput.sprinting = state == "Sprint"
 	motionInput.ads = adsT
@@ -1791,6 +1832,11 @@ local function update(dt: number)
 	local lowerCf = if lowerT > 1e-3
 		then CFrame.new(VM.LOWER.pos * lowerT) * angles(VM.LOWER.rot * lowerT)
 		else CFrame.identity
+	-- Dash: the dip rides on top of the lower.
+	local dashT = (now - dashAt) / VM.DASH_DIP.length
+	if dashT < 1 then
+		lowerCf *= keyedOffset(VM.DASH_DIP.keys, dashT)
+	end
 
 	-- 2. Guns: root * hold pose, then every joint of the gun from its clip.
 	updatePoseWeights(dt, state)
@@ -1894,6 +1940,20 @@ local function update(dt: number)
 			local toward = point + root:VectorToWorldSpace(VM.FREE_HAND.direction)
 			ViewmodelArms.place(a, "Left", point, toward, root.RightVector)
 		end
+		-- Dash: the free hand leaves the (dipped) gun and gestures.
+		local gesture = if dashKind then VM.DASH_GESTURES[dashKind] else nil
+		local gestureT = if gesture then (now - dashAt) / gesture.length else 1
+		if gesture and gestureT < 1 and not hidden then
+			local pos, dir = gestureHand(gesture.keys, gestureT)
+			local point = root:PointToWorldSpace(pos)
+			ViewmodelArms.place(
+				a,
+				"Left",
+				point,
+				point + root:VectorToWorldSpace(dir),
+				root.RightVector
+			)
+		end
 	end
 
 	-- 3b. A held Mod's item, in the right hand.
@@ -1966,6 +2026,8 @@ function ViewmodelController.start()
 		ViewmodelController.holdItem(nil)
 		lowered = false
 		lowerX, lowerV = 0, 0
+		dashKind = nil
+		dashAt = -math.huge
 		if arms then
 			arms.model:Destroy()
 			arms = nil

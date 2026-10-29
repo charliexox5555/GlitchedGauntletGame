@@ -26,10 +26,18 @@ local targetRoll = 0
 local moveFov = 0
 local targetMoveFov = 0
 local MOVE_FOV_RATE = 8
--- A one-off FOV kick (a Blink dash): rises fast, then eases back.
+-- A one-off FOV kick (a Dash): rises fast, then eases back.
 local punchDegrees = 0
 local punchAt = -math.huge
 local punchTime = 0.3
+-- A one-off roll (degrees, a sideways Dash) and position lead (a Dash lunge),
+-- both applied fresh each frame on top of everything else.
+local rollKickDegrees = 0
+local rollKickAt = -math.huge
+local rollKickTime = 0.3
+local lungeOffset = Vector3.zero
+local lungeAt = -math.huge
+local lungeTime = 0.3
 -- The OS cursor stays hidden (the HUD draws a crosshair) unless a menu needs it.
 local cursorVisible = false
 
@@ -133,6 +141,57 @@ function CameraController.punchFov(degrees: number, duration: number)
 	punchTime = duration
 end
 
+-- A quick roll of `degrees` (positive leans left) that eases back over
+-- `duration` seconds.
+function CameraController.rollKick(degrees: number, duration: number)
+	if degrees ~= degrees or duration ~= duration or duration <= 0 then
+		return
+	end
+	rollKickDegrees = degrees
+	rollKickAt = os.clock()
+	rollKickTime = duration
+end
+
+-- Leads the camera by `offset` (world studs), then settles back with a small
+-- overshoot, over `duration` seconds (a Dash: lunge, then settle).
+function CameraController.lunge(offset: Vector3, duration: number)
+	if offset.Magnitude ~= offset.Magnitude or duration ~= duration or duration <= 0 then
+		return
+	end
+	lungeOffset = offset
+	lungeAt = os.clock()
+	lungeTime = duration
+end
+
+local function rollKickNow(): number
+	local t = (os.clock() - rollKickAt) / rollKickTime
+	if t >= 1 or t < 0 then
+		return 0
+	end
+	-- Up fast (first 20%), then eased back.
+	local k = if t < 0.2 then t / 0.2 else (1 - (t - 0.2) / 0.8) ^ 2
+	return math.rad(rollKickDegrees) * k
+end
+
+local function lungeNow(): Vector3
+	local t = (os.clock() - lungeAt) / lungeTime
+	if t >= 1 or t < 0 then
+		return Vector3.zero
+	end
+	-- Lead (0 → 1 by 30%), swing back past rest (-0.25 at 70%: the settle), home.
+	local k
+	if t < 0.3 then
+		k = math.sin(t / 0.3 * math.pi / 2)
+	elseif t < 0.7 then
+		local u = (t - 0.3) / 0.4
+		k = 1 - 1.25 * (u * u * (3 - 2 * u))
+	else
+		local u = (t - 0.7) / 0.3
+		k = -0.25 * (1 - u * u * (3 - 2 * u))
+	end
+	return lungeOffset * k
+end
+
 local function punchNow(): number
 	local t = (os.clock() - punchAt) / punchTime
 	if t >= 1 or t < 0 then
@@ -182,6 +241,10 @@ local function step(dt: number)
 		return
 	end
 	smoothFollow(cam, dt)
+	local lead = lungeNow()
+	if lead ~= Vector3.zero then
+		cam.CFrame += lead -- a position offset: rebuilt next frame, never builds up
+	end
 
 	-- FOV
 	moveFov = lerp(moveFov, targetMoveFov, 1 - math.exp(-MOVE_FOV_RATE * dt))
@@ -222,7 +285,7 @@ local function step(dt: number)
 
 	roll = lerp(roll, targetRoll, 1 - math.exp(-ROLL_RATE * dt))
 
-	local totalRoll = roll + shakeRoll
+	local totalRoll = roll + shakeRoll + rollKickNow()
 	if math.abs(pitch) > 1e-6 or math.abs(yaw) > 1e-6 or math.abs(totalRoll) > 1e-5 then
 		local cf = cam.CFrame
 		local rotation = CFrame.Angles(0, -yaw, 0) * (cf - cf.Position) * CFrame.Angles(pitch, 0, 0)

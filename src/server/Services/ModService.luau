@@ -3,7 +3,7 @@
 -- player's 3 slots ({ id, level }), charges and cooldowns (server clock;
 -- per-round charges come back only through refillCharges, Mods/Charges),
 -- the held slot, and every requested Mod's validation and effect. Predicted
--- Mods (Blink) run in shared/Simulation/Abilities instead; this service only
+-- Mods (Dash) run in shared/Simulation/Abilities instead; this service only
 -- hands them their slot.
 --
 -- Replicated as player attributes (the HUD and the simulation read them):

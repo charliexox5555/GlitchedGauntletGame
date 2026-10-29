@@ -15,7 +15,7 @@ local Mods = {}
 -- Built Mods (all 9 at L1). A Mod with config but no module here can't be
 -- slotted (the dev panel greys it out).
 local modules: { [string]: Types.ModModule } = {
-	Blink = require(script.Blink).module,
+	Dash = require(script.Dash).module,
 	LaunchPad = require(script.LaunchPad).module,
 	Packet = require(script.Packet).module,
 	Firewall = require(script.Firewall).module,

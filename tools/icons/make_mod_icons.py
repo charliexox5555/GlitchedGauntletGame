@@ -241,7 +241,7 @@ def rollback():
 
 
 MODS = [
-	("Blink", "Blink", blink),
+	("Dash", "Dash", blink),
 	("LaunchPad", "Launch Pad", launch_pad),
 	("Packet", "Packet", packet),
 	("Firewall", "Firewall", firewall),

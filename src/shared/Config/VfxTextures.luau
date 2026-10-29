@@ -30,4 +30,11 @@ return table.freeze({
 	MOD_GLOW = "rbxassetid://112631243473700", -- soft round glow
 	MOD_SPARKLE = "rbxassetid://131441026395130", -- four-point star
 	MOD_CROSS = "rbxassetid://107533110619347", -- plus (heal motes)
+
+	-- Dash (tools/vfx/make_dash_vfx.py → art-source/vfx/abilities/dash/), all
+	-- white, tinted per viewer (Util/DashFx, ModFeelController).
+	DASH_WIND_TRAIL = "rbxassetid://93485856775142", -- wind wisps; u: head (left) -> tail
+	DASH_AIR_BURST_2x2 = "rbxassetid://130185238645234", -- gust ring expanding over 4 frames
+	DASH_PUFF_2x2 = "rbxassetid://86393263788167", -- soft dust puff dissipating over 4 frames
+	DASH_SCREEN_STREAK = "rbxassetid://75317717584279", -- one wind streak, head on the left
 })

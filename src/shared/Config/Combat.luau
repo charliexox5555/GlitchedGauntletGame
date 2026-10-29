@@ -53,6 +53,11 @@ return table.freeze({
 	SPREAD_HEAT_SLACK = 1,
 	FIRE_TIME_SLACK = 0.08,
 	MOTION_HISTORY = 1, -- seconds of speed / stance samples kept per player
+	-- Dash (Mods/Dash): the dash reaches the server through the simulation and
+	-- shots through a remote, so the server's dash can end later than the
+	-- client's (its input buffer). Shots this early against the server's own
+	-- end of the fire delay are still accepted (and may still be Dash Focus).
+	DASH_FIRE_SLACK = 0.15,
 
 	-- Only these parts of a character count as hitboxes (R15, plus R6 names).
 	BODY_PARTS = {

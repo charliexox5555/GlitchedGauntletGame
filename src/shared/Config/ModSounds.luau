@@ -18,14 +18,25 @@ export type Cue = {
 	volume: number,
 	pitch: number?, -- default 1
 	loop: boolean?, -- a hum: played Looped and faded out
+	range: number?, -- 3D: audible up to this many studs (louder up close)
+	cut: number?, -- fade out and stop this many seconds in (a long recording)
 }
 
-local function cue(n: number, volume: number, pitch: number?, loop: boolean?): Cue
+local function cue(
+	n: number,
+	volume: number,
+	pitch: number?,
+	loop: boolean?,
+	range: number?,
+	cut: number?
+): Cue
 	return table.freeze({
 		id = "rbxassetid://" .. tostring(n),
 		volume = volume,
 		pitch = pitch,
 		loop = loop,
+		range = range,
+		cut = cut,
 	})
 end
 
@@ -36,9 +47,18 @@ return table.freeze({
 	Cancel = cue(15675032796, 0.35), -- stand-in for ModCancel
 	-- ModRaise has no library stand-in: silent until the synth set lands.
 
-	Blink = table.freeze({
-		use = cue(9117161625, 0.7), -- 3D
-		arrive = cue(9120984892, 0.45), -- 3D, optional tail
+	-- Dash hooks (vault/01 Design/Abilities/Dash.md → Sound). Placeholders
+	-- (ProSoundEffects, unauditioned), listed in the Dash note; one id each.
+	Dash = table.freeze({
+		-- Dash_Whoosh: you. "Whoosh By Fast Airy Swooshing Whipping Thuds 1", 0.6 s
+		whoosh = cue(9126229267, 0.6, 1.05),
+		-- Dash_Crackle: you, a layer (Config/Mods DASH_FEEL.crackle).
+		-- "Doppler Whooshes Crackly Airy Bursts 2", cut at 0.6 s
+		crackle = cue(9114157098, 0.25, 1.15, nil, nil, 0.6),
+		-- Dash_Land: you. "Cloth Movement 24", cut at 0.35 s
+		land = cue(9113824230, 0.35, 1.1, nil, nil, 0.35),
+		-- Dash_World: 3D for everyone else, ~40 studs. "Fast Pass By Airy Whooshes Windy 4"
+		world = cue(9114373678, 0.8, 1, nil, 40),
 	}),
 	LaunchPad = table.freeze({
 		place = cue(9125925576, 0.6), -- 3D
