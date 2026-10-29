@@ -4,7 +4,7 @@
 > **Build order:** base **L1 of all 9 first** (Phase 1). Paths A/B and Glitch paths come after L1 is fun (Phase 2).
 > **Built (2026-10-26):** the Mod framework and **L1 of all 9 Mods**, with the finished models, stylized VFX, first- and third-person animations and **provisional** (unauditioned) sounds. How it's built: [Mod System](../04%20Tech/Mod%20System.md). Test list: [Mods Overnight Checklist](../05%20Production/Playtests/Mods%20Overnight%20Checklist.md).
 
-> **Redesign in progress (2026-10-28):** the base abilities are being redesigned one by one in [Abilities](Abilities/00%20Abilities.md). Those notes **override the L1 sections below** (Blink → Dash, Launch Pad → Updraft, Packet → Molly, Firewall → Phoenix-style fire wall, Lag Field → Frost, Ping → Recon, Patch Up → Heal Orb, Overclock → Stim, more to come).
+> **Redesign in progress (2026-10-28):** the base abilities are being redesigned one by one in [Abilities](Abilities/00%20Abilities.md). Those notes **override the L1 sections below** (Blink → Dash, Launch Pad → Updraft, Packet → Molly, Firewall → Phoenix-style fire wall, Lag Field → Frost, Ping → Recon, Patch Up → Heal Orb, Overclock → Stim, Rollback → Recall; all 9 locked).
 
 ## How a Mod upgrades
 ```

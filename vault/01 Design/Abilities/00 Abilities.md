@@ -5,6 +5,8 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 > These specs **override** the L1 sections in [Mods](../Mods.md) where they differ.
 > **Theme (2026-10-28):** the digital/glitch theme is **shelved for now**. This is a classic gun game; names and looks are plain and readable. It may come back later.
 
+> **All 9 base specs are locked (2026-10-29).** Next: paste the build prompt below into Claude Code.
+
 ## Status
 | # | Ability | Was | Spec | Built |
 |---|---|---|---|---|
@@ -16,7 +18,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 | 6 | [Recon](Recon.md) | Ping | ✅ locked 2026-10-29 | ⬜ |
 | 7 | [Heal Orb](Heal%20Orb.md) | Patch Up | ✅ locked 2026-10-29 | ⬜ |
 | 8 | [Stim](Stim.md) | Overclock | ✅ locked 2026-10-29 | ⬜ |
-| 9 | Rollback | — | ⬜ to redesign | — |
+| 9 | [Recall](Recall.md) | Rollback | ✅ locked 2026-10-29 | ⬜ |
 
 ## Rules for every base ability
 - **Charges, not one cooldown rule for all.** Each ability sets its own: a number of **charges per round** (refilled at round start, no recharge) and/or a **cooldown**, like Valorant (Jett's dash vs Sova's dart). It's decided per ability below.
@@ -31,6 +33,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 
 ## Bench (ideas for later powers or upgrades)
 - **Barrier:** a placeable cover wall you can hide behind (the old Firewall idea).
+- **Recall range upgrade:** a bigger teleport range (a later level).
 
 ## Build prompt (paste into Claude Code when the specs are ready)
 ```text
