@@ -10,6 +10,7 @@
 -- Character attributes (simulation-written):
 --   UpdraftAt     time() of the launch (clients play the effects on change)
 --   UpdraftUp     the launch's vertical speed (studs/s)
+--   UpdraftGravity  the gravity it was launched under (a status lowers it)
 --   Updrafting    true from the launch until you land
 
 local Movement = require(script.Parent.Parent.Config.Movement)
@@ -22,9 +23,16 @@ local Updraft = {}
 -- own arc this long, until it's clear of the floor.
 local RISE_HOLD = 0.2
 
--- Launch speed for a peak `peak` studs up under the world's gravity.
-function Updraft.launchSpeed(peak: number): number
-	return math.sqrt(2 * workspace.Gravity * math.max(peak, 0))
+-- The gravity this character falls under (a status like Hinder lowers it:
+-- Simulation/Movement gives the rest back every step).
+local function gravityOf(player: Player): number
+	local mult = player:GetAttribute("StatusGravityMult")
+	return workspace.Gravity * (if typeof(mult) == "number" then mult else 1)
+end
+
+-- Launch speed for a peak `peak` studs up under `gravity`.
+function Updraft.launchSpeed(peak: number, gravity: number?): number
+	return math.sqrt(2 * (gravity or workspace.Gravity) * math.max(peak, 0))
 end
 
 local function number(inst: Instance, name: string, default: number): number
@@ -40,7 +48,8 @@ function Updraft.step(character: Model, humanoid: Humanoid, root: BasePart, now:
 	end
 	local since = now - number(character, "UpdraftAt", 0)
 	if since < RISE_HOLD then
-		local up = number(character, "UpdraftUp", 0) - workspace.Gravity * since
+		local gravity = number(character, "UpdraftGravity", workspace.Gravity)
+		local up = number(character, "UpdraftUp", 0) - gravity * since
 		local vel = root.AssemblyLinearVelocity
 		if vel.Y < up then
 			root.AssemblyLinearVelocity = Vector3.new(vel.X, up, vel.Z)
@@ -55,7 +64,8 @@ local module: Types.ModModule = {}
 module.simCast = function(ctx: Types.SimCtx): boolean
 	local root = ctx.root
 	local character = ctx.character
-	local up = Updraft.launchSpeed(ctx.stats.peak)
+	local gravity = gravityOf(ctx.player)
+	local up = Updraft.launchSpeed(ctx.stats.peak, gravity)
 	local vel = root.AssemblyLinearVelocity
 	-- Straight up, from whatever you were doing (a fall is reset).
 	root.AssemblyLinearVelocity = Vector3.new(vel.X, up, vel.Z)
@@ -68,6 +78,7 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 	character:SetAttribute("SlideJumpSpeed", carry)
 	character:SetAttribute("UpdraftAt", ctx.now)
 	character:SetAttribute("UpdraftUp", up)
+	character:SetAttribute("UpdraftGravity", gravity)
 	character:SetAttribute("Updrafting", true)
 	return true
 end

@@ -62,7 +62,7 @@ local function placeholder(id: string, glow: Color3): Model?
 			CFrame.new(0, 0.26, 0),
 			SHELL_DARK
 		)
-	elseif id == "LagField" then
+	elseif id == "Frost" then
 		model:SetAttribute("HoldOffset", Vector3.new(0, 0.34, -0.12))
 		part(model, Enum.PartType.Ball, Vector3.one * 0.32, CFrame.identity, glow, true)
 		part(

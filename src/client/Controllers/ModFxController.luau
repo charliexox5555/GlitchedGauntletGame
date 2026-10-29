@@ -10,7 +10,8 @@
 --   MollyBurst / MollyFizzle   the fire patch (Util/MollyFx), or nothing to
 --                burn on
 --   Heal         a beam from the healer to the ally, +HP over the target
---   LagThrow / LagZone   the orb's flight, then the slowing dome
+--   FrostThrow / FrostBurst / FrostFizzle   the frost canister's flight (as
+--                the Molly's), its burst (Util/FrostFx; Hinder is shown there)
 --   PingPulse    an expanding scan sphere (everyone sees it)
 --   Overclock    the caster's gun glows (a screen-edge glow for the caster)
 --   Placed / ObjectGone  a pop when a Mod object goes up / breaks or expires
@@ -31,8 +32,10 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared.Net)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 local Tex = require(Shared.Config.VfxTextures)
+local ModSounds = require(Shared.Config.ModSounds)
 
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
+local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local MollyFx = require(script.Parent.Parent.Util.MollyFx)
 local WallFx = require(script.Parent.Parent.Util.WallFx)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
@@ -78,9 +81,6 @@ local flights: { Flight } = {}
 local beams: { Beam } = {}
 local floaters: { Floater } = {}
 local grenadeFree: { [string]: { Model } } = {}
--- Lag Field orbs spinning in the middle of their zone.
-type Orb = { model: Model, key: string, at: Vector3, untilT: number }
-local orbs: { Orb } = {}
 local partPool: VfxPool.Pool<Part>? = nil
 local floaterFree: { Floater } = {}
 
@@ -135,21 +135,6 @@ local function rootOf(model: Model?): BasePart?
 	return nil
 end
 
--- A dashed, slowly turning ring on the ground where something will go off.
-local function dangerRing(at: Vector3, radius: number, color: Color3, life: number)
-	ModVfx.quad({
-		texture = Tex.MOD_RING_DASHED,
-		cframe = CFrame.new(at - Vector3.new(0, 0.35, 0)),
-		from = radius * 2,
-		color = color,
-		life = life,
-		alpha0 = 0.15,
-		hold = true,
-		spin = 0.8,
-		pulse = 0.25,
-	})
-end
-
 local function teamColor(data: { [string]: any }): Color3
 	if data.caster == player then
 		return TeamColor.ALLY
@@ -174,9 +159,28 @@ local function takeGrenade(id: string, color: Color3): (Model?, string)
 	return model, key
 end
 
--- The canister's fuse sparks, made once per pooled model.
-local function sparksOf(model: Model): ParticleEmitter?
-	local existing = model:FindFirstChild("MollySparks", true)
+-- A thrown canister's trail, made once per pooled model: the Molly's fuse
+-- sparks, the Frost's cold vapour.
+type Trail = { name: string, texture: string, color: Color3, size: number, rate: number }
+local TRAILS: { [string]: Trail } = {
+	Molly = {
+		name = "MollySparks",
+		texture = Tex.MOLLY_EMBER,
+		color = Color3.fromRGB(255, 190, 110),
+		size = 0.12,
+		rate = 40,
+	},
+	Frost = {
+		name = "FrostVapor",
+		texture = Tex.FROST_VAPOR,
+		color = Color3.fromHex("BFE8FF"),
+		size = 0.4,
+		rate = 30,
+	},
+}
+
+local function sparksOf(model: Model, trail: Trail): ParticleEmitter?
+	local existing = model:FindFirstChild(trail.name, true)
 	if existing and existing:IsA("ParticleEmitter") then
 		return existing
 	end
@@ -186,34 +190,43 @@ local function sparksOf(model: Model): ParticleEmitter?
 	end
 	local fuse = root:FindFirstChild("Fuse")
 	local e = Instance.new("ParticleEmitter")
-	e.Name = "MollySparks"
-	e.Texture = Tex.MOLLY_EMBER
+	e.Name = trail.name
+	e.Texture = trail.texture
 	e.Rate = 0
 	e.Lifetime = NumberRange.new(0.25, 0.45)
 	e.Speed = NumberRange.new(1, 3)
 	e.SpreadAngle = Vector2.new(60, 60)
-	e.Size = NumberSequence.new(0.12, 0.03)
+	e.Size = NumberSequence.new(trail.size, trail.size * 0.25)
 	e.LightEmission = 1
 	e.LightInfluence = 0
-	e.Color = ColorSequence.new(Color3.fromRGB(255, 190, 110))
+	e.Color = ColorSequence.new(trail.color)
 	e.Parent = if fuse and fuse:IsA("Attachment") then fuse else root
 	return e
 end
 
-local function onMollyThrow(data: { [string]: any })
+-- A thrown canister (Molly, Frost) flying its server path: spinning, its
+-- trail, a hiss, a clink off each wall.
+type CanisterSounds = {
+	throw: ModSounds.Cue,
+	throwLob: ModSounds.Cue,
+	bounce: ModSounds.Cue,
+	flight: ModSounds.Cue,
+}
+
+local function onCanisterThrow(id: string, sounds: CanisterSounds, data: { [string]: any })
 	local path = Projectile.unpack(data.path)
 	local start, land = data.start, data.land
 	if not path or typeof(start) ~= "number" or typeof(land) ~= "number" then
 		return
 	end
 	local color = teamColor(data)
-	local model, key = takeGrenade("Molly", color)
+	local model, key = takeGrenade(id, color)
 	if not model then
 		return
 	end
 	local elapsed = Workspace:GetServerTimeNow() - start
 	ModAudio.play(
-		if data.lob == true then S.Molly.throwLob else S.Molly.throw,
+		if data.lob == true then sounds.throwLob else sounds.throw,
 		Projectile.positionAt(path, math.max(elapsed, 0))
 	)
 	-- A metal clink off each wall it bounces from (a drop isn't a bounce: it
@@ -223,13 +236,14 @@ local function onMollyThrow(data: { [string]: any })
 		local sideways = seg.v * Vector3.new(1, 0, 1)
 		if sideways.Magnitude > 0.5 and seg.t > elapsed then
 			task.delay(seg.t - elapsed, function()
-				ModAudio.play(S.Molly.bounce, seg.p)
+				ModAudio.play(sounds.bounce, seg.p)
 			end)
 		end
 	end
-	local sparks = sparksOf(model)
-	if sparks then
-		sparks.Rate = 40
+	local trail = TRAILS[id]
+	local sparks = if trail then sparksOf(model, trail) else nil
+	if sparks and trail then
+		sparks.Rate = trail.rate
 	end
 	table.insert(flights, {
 		blink = false,
@@ -242,7 +256,7 @@ local function onMollyThrow(data: { [string]: any })
 		key = key,
 		spin = 11,
 		hum = ModAudio.hum(
-			S.Molly.flight,
+			sounds.flight,
 			model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
 		),
 		sparks = sparks,
@@ -392,118 +406,21 @@ local function onHeal(data: { [string]: any })
 	end
 end
 
--- Lag Field --------------------------------------------------------------------------
+-- Frost ------------------------------------------------------------------------------
 
-local function onLagThrow(data: { [string]: any })
-	local path = Projectile.unpack(data.path)
-	local start, land, radius = data.start, data.land, data.radius
-	if
-		not path
-		or typeof(start) ~= "number"
-		or typeof(land) ~= "number"
-		or typeof(radius) ~= "number"
-	then
+local function onFrostBurst(data: { [string]: any })
+	local at, radius = data.at, data.radius
+	if typeof(at) ~= "Vector3" or typeof(radius) ~= "number" then
 		return
 	end
-	local color = teamColor(data)
-	local model, key = takeGrenade("LagField", color)
-	if not model then
-		return
+	FrostFx.burst(at, radius)
+	local cam = Workspace.CurrentCamera
+	if cam then
+		local away = (cam.CFrame.Position - at).Magnitude
+		if away < radius * 3 then
+			CameraController.shake(0.5 * (1 - away / (radius * 3)))
+		end
 	end
-	ModAudio.play(
-		S.LagField.throw,
-		Projectile.positionAt(path, math.max(Workspace:GetServerTimeNow() - start, 0))
-	)
-	-- Where the zone will open.
-	local left = math.max(land - (Workspace:GetServerTimeNow() - start), 0.1)
-	dangerRing(Projectile.positionAt(path, land), radius, color, left)
-	table.insert(flights, {
-		blink = false,
-		model = model,
-		glow = {},
-		path = path,
-		start = start,
-		fuse = land,
-		color = color,
-		key = key,
-	})
-end
-
-local function onLagZone(data: { [string]: any })
-	local at, radius, duration = data.at, data.radius, data.duration
-	if typeof(at) ~= "Vector3" or typeof(radius) ~= "number" or typeof(duration) ~= "number" then
-		return
-	end
-	local color = teamColor(data)
-	local d = radius * 2
-	local ground = CFrame.new(at - Vector3.new(0, 0.4, 0))
-	-- A dome, a hex floor, a turning dashed rim, the orb spinning in the
-	-- middle, and an opening ring + sparks.
-	local dome = ModVfx.mesh({
-		name = "Dome",
-		cframe = CFrame.new(at - Vector3.new(0, 0.4, 0)),
-		from = Vector3.new(d * 0.3, radius * 0.3, d * 0.3),
-		to = Vector3.new(d, radius, d),
-		color = color,
-		life = duration,
-		alpha0 = 0.8,
-		hold = true,
-	})
-	if not dome then
-		ModVfx.shell({
-			shape = Enum.PartType.Ball,
-			cframe = CFrame.new(at),
-			from = Vector3.one * d,
-			color = color,
-			life = duration,
-			alpha0 = 0.82,
-			hold = true,
-		})
-	end
-	ModAudio.play(S.LagField.open, at)
-	local orb, key = takeGrenade("LagField", color)
-	local orbPart = orb and orb:FindFirstChildWhichIsA("BasePart", true)
-	local hum = ModAudio.hum(S.LagField.hum, orbPart)
-	task.delay(duration, function()
-		ModAudio.stopHum(hum)
-		ModAudio.play(S.LagField.expire, at)
-	end)
-	if orb then
-		table.insert(orbs, {
-			model = orb,
-			key = key,
-			at = at + Vector3.new(0, 0.6, 0),
-			untilT = os.clock() + duration,
-		})
-	end
-	ModVfx.quad({
-		texture = Tex.MOD_HEX,
-		cframe = ground,
-		from = d * 0.95,
-		color = color,
-		life = duration,
-		alpha0 = 0.72,
-		hold = true,
-	})
-	ModVfx.quad({
-		texture = Tex.MOD_RING_DASHED,
-		cframe = ground + Vector3.new(0, 0.02, 0),
-		from = d,
-		color = color,
-		life = duration,
-		alpha0 = 0.05,
-		hold = true,
-		spin = 0.5,
-	})
-	ModVfx.quad({
-		texture = Tex.MOD_RING,
-		cframe = ground + Vector3.new(0, 0.04, 0),
-		from = 2,
-		to = d * 1.1,
-		color = color,
-		life = 0.4,
-	})
-	ModVfx.burst(at, color, 18, "Sparkle")
 end
 
 -- Ping -------------------------------------------------------------------------------
@@ -869,66 +786,6 @@ local function stepTrails(now: number)
 	end
 end
 
--- Slowed: a SLOWED tag over anyone a Lag Field is slowing.
-local slowTags: { [Model]: BillboardGui } = {}
-local SLOW_TAG_RANGE = 90
-
-local function tagSlowed(model: Model?, seen: { [Model]: boolean })
-	if not model then
-		return
-	end
-	local head = model:FindFirstChild("Head")
-	if not head or not head:IsA("BasePart") then
-		return
-	end
-	seen[model] = true
-	if slowTags[model] then
-		return
-	end
-	local gui = Instance.new("BillboardGui")
-	gui.Size = UDim2.fromOffset(90, 22)
-	gui.StudsOffsetWorldSpace = Vector3.new(0, 3.2, 0)
-	-- Hidden by walls and range-limited: never a wallhack.
-	gui.AlwaysOnTop = false
-	gui.MaxDistance = SLOW_TAG_RANGE
-	gui.Adornee = head
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 1
-	label.FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
-	label.TextSize = 16
-	label.TextColor3 = TeamColor.forOwner(Players:GetPlayerFromCharacter(model) or model)
-	label.TextStrokeTransparency = 0.4
-	label.Text = "SLOWED"
-	label.Parent = gui
-	gui.Parent = player:FindFirstChild("PlayerGui")
-	slowTags[model] = gui
-end
-
-local function stepSlowed()
-	local seen: { [Model]: boolean } = {}
-	for _, other in Players:GetPlayers() do
-		local mult = other:GetAttribute("ModSpeedMult")
-		if other ~= player and typeof(mult) == "number" and mult < 1 then
-			tagSlowed(other.Character, seen)
-		end
-	end
-	local dummies = Workspace:FindFirstChild("Dummies")
-	if dummies then
-		for _, m in dummies:GetChildren() do
-			if m:IsA("Model") and m:GetAttribute("Slowed") == true then
-				tagSlowed(m, seen)
-			end
-		end
-	end
-	for model, gui in slowTags do
-		if not seen[model] then
-			gui:Destroy()
-			slowTags[model] = nil
-		end
-	end
-end
-
 local function onFx(kind: unknown, data: unknown)
 	if typeof(kind) ~= "string" or typeof(data) ~= "table" then
 		return
@@ -940,7 +797,15 @@ local function onFx(kind: unknown, data: unknown)
 			ModAudio.play(S.Firewall.cast, d.at)
 		end
 	elseif kind == "MollyThrow" then
-		onMollyThrow(d)
+		onCanisterThrow("Molly", S.Molly, d)
+	elseif kind == "FrostThrow" then
+		onCanisterThrow("Frost", S.Frost, d)
+	elseif kind == "FrostBurst" then
+		onFrostBurst(d)
+	elseif kind == "FrostFizzle" then
+		if typeof(d.at) == "Vector3" then
+			FrostFx.fizzle(d.at)
+		end
 	elseif kind == "MollyBurst" then
 		onMollyBurst(d)
 	elseif kind == "MollyFizzle" then
@@ -949,10 +814,6 @@ local function onFx(kind: unknown, data: unknown)
 		end
 	elseif kind == "Heal" then
 		onHeal(d)
-	elseif kind == "LagThrow" then
-		onLagThrow(d)
-	elseif kind == "LagZone" then
-		onLagZone(d)
 	elseif kind == "PingPulse" then
 		onPingPulse(d)
 	elseif kind == "Overclock" then
@@ -1003,25 +864,7 @@ local function update(_dt: number)
 	ModVfx.step()
 	MollyFx.step()
 	WallFx.step()
-	for i = #orbs, 1, -1 do
-		local o = orbs[i]
-		if now >= o.untilT then
-			table.remove(orbs, i)
-			o.model.Parent = nil
-			local free = grenadeFree[o.key]
-			if not free then
-				free = {}
-				grenadeFree[o.key] = free
-			end
-			table.insert(free, o.model)
-		else
-			o.model:PivotTo(
-				CFrame.new(o.at + Vector3.new(0, 0.15 * math.sin(now * 3), 0))
-					* CFrame.Angles(0, now * 4, 0)
-			)
-		end
-	end
-
+	FrostFx.step()
 	for i = #beams, 1, -1 do
 		local b = beams[i]
 		local a, z = rootOf(b.from), rootOf(b.to)
@@ -1130,12 +973,6 @@ function ModFxController.start()
 		end)
 		for _, child in objects:GetChildren() do
 			colourObject(child)
-		end
-	end)
-	task.spawn(function()
-		while true do
-			task.wait(0.2)
-			stepSlowed()
 		end
 	end)
 end

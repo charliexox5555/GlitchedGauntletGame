@@ -66,15 +66,6 @@ export type Request = {
 	placement: CFrame?, -- placed Mods: the spot `validate` found (server's own check)
 }
 
--- A slowing zone (Lag Field) for ModEntities.
-export type ZoneSpec = {
-	center: Vector3,
-	radius: number,
-	height: number,
-	duration: number,
-	slow: number, -- share of speed taken from enemies inside (0.4 = 40% slower)
-}
-
 -- What ModService hands a Mod's validate / apply. Everything that changes the
 -- world goes through these functions, so Mods never touch other services.
 export type ServerCtx = {
@@ -101,8 +92,9 @@ export type ServerCtx = {
 	-- A world object owned by the caster (ModEntities): `life` seconds, `hp`,
 	-- at most `maxActive` of this kind at once (the oldest goes).
 	place: (kind: string, part: BasePart, life: number, hp: number, maxActive: number) -> (),
-	-- Opens a zone; false when the caster's life has ended (nothing opens).
-	zone: (spec: ZoneSpec) -> boolean,
+	-- Puts a shared status effect (Config/StatusEffects: "Hinder") on
+	-- `model` for `duration` seconds (a refresh: no stacking).
+	status: (model: Model, name: string, duration: number) -> (),
 	-- Shows `targets` to the caster's team only, for `duration` seconds.
 	reveal: (targets: { Model }, duration: number) -> (),
 	-- The caster's guns fire `mult` times as fast for `duration` seconds.

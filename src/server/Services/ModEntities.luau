@@ -1,12 +1,10 @@
 --!strict
 -- Server-owned Mod things that outlive the request that made them, all
 -- tracked by owner so they go away when the owner dies or leaves:
---   timers   a Molly's landing and fire ticks, a Lag Field opening (schedule;
+--   timers   a Molly's landing and fire ticks, a Frost's burst (schedule;
 --            they outlive the owner's death, not their leaving)
 --   objects  placed parts in workspace.ModObjects (Launch Pad, Firewall) with
 --            HP and a lifetime; shots and blasts damage them (damage)
---   zones    Lag Field: enemies inside get the ModSpeedMult player attribute
---            (the movement simulation multiplies it in), dummies "Slowed"
 -- A Molly has no server part at all: its path is maths (Mods/Blocks/
 -- Projectile) and clients draw it from the ModFx event.
 --
@@ -18,11 +16,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
-local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
-local Target = require(Shared.Mods.Blocks.Target)
 local Teams = require(Shared.Mods.Teams)
-local Zone = require(Shared.Mods.Blocks.Zone)
 
 local ModEntities = {}
 
@@ -36,18 +31,9 @@ type Object = {
 	hp: number,
 }
 
-type ZoneState = {
-	owner: Player,
-	zone: Zone.Zone,
-	untilT: number, -- os.clock()
-	slow: number,
-}
-
 local timers: { [number]: Timer } = {}
 local nextId = 0
 local objects: { [BasePart]: Object } = {}
-local zones: { ZoneState } = {}
-local slowed: { [Instance]: boolean } = {} -- players and dummies currently slowed
 
 -- Where placed Mod objects live. Queryable world parts there block shots
 -- like any wall.
@@ -171,76 +157,9 @@ function ModEntities.objectsNear(at: Vector3, radius: number): { BasePart }
 	return out
 end
 
--- Zones -----------------------------------------------------------------------------
-
-function ModEntities.addZone(owner: Player, spec: ModTypes.ZoneSpec)
-	table.insert(zones, {
-		owner = owner,
-		zone = { center = spec.center, radius = spec.radius, height = spec.height },
-		untilT = os.clock() + spec.duration,
-		slow = spec.slow,
-	})
-end
-
--- The slow on one combatant from every zone it's in (1 = none).
-local function speedFor(model: Model, owner: Player?): number
-	local root = model:FindFirstChild("HumanoidRootPart")
-	if not root or not root:IsA("BasePart") then
-		return 1
-	end
-	local mult = 1
-	for _, z in zones do
-		local victim: Instance = owner or model
-		if not Teams.isAlly(z.owner, victim) and Zone.contains(z.zone, root.Position) then
-			mult = math.min(mult, 1 - z.slow)
-		end
-	end
-	return mult
-end
-
-local function stepZones()
-	if #zones == 0 and next(slowed) == nil then
-		return
-	end
-	local now = os.clock()
-	for i = #zones, 1, -1 do
-		if now >= zones[i].untilT then
-			table.remove(zones, i)
-		end
-	end
-	local seen: { [Instance]: boolean } = {}
-	for _, player in Players:GetPlayers() do
-		local character = player.Character
-		local mult = if character and #zones > 0 then speedFor(character, player) else 1
-		if player:GetAttribute("ModSpeedMult") ~= mult and (mult < 1 or slowed[player]) then
-			player:SetAttribute("ModSpeedMult", if mult < 1 then mult else nil)
-		end
-		slowed[player] = if mult < 1 then true else nil
-		seen[player] = true
-	end
-	-- Dummies can't be slowed (they're scripted), but they show it.
-	if #zones > 0 or next(slowed) then
-		for _, model in Target.combatants() do
-			if not Players:GetPlayerFromCharacter(model) then
-				local isSlowed = #zones > 0 and speedFor(model, nil) < 1
-				if isSlowed ~= (slowed[model] == true) then
-					model:SetAttribute("Slowed", if isSlowed then true else nil)
-				end
-				slowed[model] = if isSlowed then true else nil
-				seen[model] = true
-			end
-		end
-	end
-	for inst in slowed do
-		if not seen[inst] then
-			slowed[inst] = nil
-		end
-	end
-end
-
 -- Lifecycle -------------------------------------------------------------------------
 
--- Everything `owner` has in the world goes (objects, zones). `timers` too
+-- Everything `owner` has in the world goes (objects). `timers` too
 -- when they leave (a grenade in flight still goes off after its thrower dies).
 function ModEntities.clear(owner: Player, timersToo: boolean?)
 	if timersToo then
@@ -254,11 +173,6 @@ function ModEntities.clear(owner: Player, timersToo: boolean?)
 	for _, obj in objects do
 		if obj.owner == owner then
 			remove(obj, "Expired")
-		end
-	end
-	for i = #zones, 1, -1 do
-		if zones[i].owner == owner then
-			table.remove(zones, i)
 		end
 	end
 end
@@ -279,11 +193,9 @@ end
 function ModEntities.start()
 	Players.PlayerRemoving:Connect(function(player)
 		ModEntities.clear(player, true)
-		slowed[player] = nil
 	end)
 	RunService.Heartbeat:Connect(function()
 		stepObjects()
-		stepZones()
 	end)
 end
 

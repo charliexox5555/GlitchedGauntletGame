@@ -17,6 +17,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
 local Combat = require(Shared.Config.Combat)
 local DashMod = require(Shared.Mods.Dash)
+local Status = require(Shared.Mods.Status)
+local StatusEffects = require(Shared.Config.StatusEffects)
 local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
@@ -27,6 +29,7 @@ local Types = require(Shared.Types)
 local Validate = require(Shared.Util.Validate)
 local Weapons = require(Shared.Config.Weapons)
 
+local StatusService = require(script.Parent.StatusService)
 local HitboxHistory = require(script.Parent.HitboxHistory)
 local ModEntities = require(script.Parent.ModEntities)
 
@@ -55,6 +58,7 @@ type SlotState = {
 	-- is stopped (the gun's back in the hands).
 	shellFrom: number?,
 	shellNeeded: number,
+	shellSlow: number, -- each shell phase takes this × its time (a status at the start)
 	readyAt: number,
 }
 
@@ -134,6 +138,19 @@ end
 local finiteVector = Validate.vector
 
 -- Every equip plays the full draw; the server allows 70% of it for latency.
+-- A status effect's multiplier on `field` for `player` (Mods/Status), the
+-- most lenient one the client could be using (StatusEffects.GRACE).
+local function statusMult(player: Player, field: "fireRate" | "reload" | "equip"): number
+	local character = player.Character
+	return Status.lenient(
+		character,
+		workspace:GetServerTimeNow(),
+		StatusEffects.GRACE,
+		StatusService.startedAt(character),
+		field
+	)
+end
+
 local function drawSeconds(config: WeaponConfig): number
 	return config.drawTime or config.equipTime
 end
@@ -239,6 +256,7 @@ local function newSlot(id: string): SlotState?
 		lastShotAt = -math.huge,
 		altReadyAt = -math.huge,
 		shellNeeded = 0,
+		shellSlow = 1,
 		readyAt = -math.huge,
 	}
 end
@@ -414,7 +432,9 @@ function WeaponService.giveLoadout(player: Player)
 	states[player] = {
 		slots = slots,
 		equipped = first,
-		equipReadyAt = os.clock() + (if first then drawSeconds(slots[first].config) * 0.7 else 0),
+		equipReadyAt = os.clock() + (if first
+			then drawSeconds(slots[first].config) * 0.7 / statusMult(player, "equip")
+			else 0),
 		-- Keep the seed sequence across respawns so in-flight shots stay valid.
 		seedBase = if old then old.seedBase else seedRng:NextInteger(1, 2 ^ 30),
 		shotIndex = if old then old.shotIndex else 0,
@@ -440,7 +460,7 @@ function WeaponService.setWeapon(player: Player, slot: Slot, id: string)
 	end
 	state.slots[slot] = s
 	if state.equipped == slot then
-		state.equipReadyAt = os.clock() + drawSeconds(config) * 0.7
+		state.equipReadyAt = os.clock() + drawSeconds(config) * 0.7 / statusMult(player, "equip")
 		refreshWorldModel(player)
 	end
 	sendState(player)
@@ -688,8 +708,8 @@ local function shellsLoaded(slot: SlotState, now: number): number
 	if not reload or not from then
 		return 0
 	end
-	local t = now + Combat.RELOAD_LEAD - from - reload.start
-	return math.clamp(math.floor(t / reload.insert), 0, slot.shellNeeded)
+	local t = now + Combat.RELOAD_LEAD - from - reload.start * slot.shellSlow
+	return math.clamp(math.floor(t / (reload.insert * slot.shellSlow)), 0, slot.shellNeeded)
 end
 
 -- Ends a shell-by-shell reload in progress, keeping the shells loaded so far.
@@ -719,7 +739,7 @@ function WeaponService.equip(player: Player, slot: Slot)
 		settleShellReload(current, os.clock())
 	end
 	state.equipped = slot
-	state.equipReadyAt = os.clock() + drawSeconds(target.config) * 0.7
+	state.equipReadyAt = os.clock() + drawSeconds(target.config) * 0.7 / statusMult(player, "equip")
 	refreshWorldModel(player)
 	sendState(player)
 end
@@ -773,7 +793,7 @@ local function onReload(player: Player, action: unknown)
 		if shell and slot.shellFrom and slot.reloadEnd then
 			settleShellReload(slot, now)
 			-- The gun comes back to the hands before it can fire.
-			slot.readyAt = now + shell.finish - Combat.FIRE_JITTER
+			slot.readyAt = now + shell.finish * slot.shellSlow - Combat.FIRE_JITTER
 			sendState(player)
 		end
 		return
@@ -785,13 +805,17 @@ local function onReload(player: Player, action: unknown)
 		return
 	end
 	local shell = config.shellReload
+	-- A status (Hinder) slows reloads; the most lenient view of it (one that
+	-- only just started doesn't count yet: the client may not have seen it).
+	local slow = 1 / statusMult(player, "reload")
 	local duration: number
 	if shell then
 		slot.shellNeeded = config.magSize - slot.ammo
 		slot.shellFrom = now
-		duration = shell.start + shell.insert * slot.shellNeeded + shell.finish
+		slot.shellSlow = slow
+		duration = (shell.start + shell.insert * slot.shellNeeded + shell.finish) * slow
 	else
-		duration = if slot.ammo == 0 then config.emptyReloadTime else config.reloadTime
+		duration = (if slot.ammo == 0 then config.emptyReloadTime else config.reloadTime) * slow
 	end
 	slot.reloadToken += 1
 	local token = slot.reloadToken
@@ -1133,7 +1157,7 @@ local function onFire(player: Player, payload: unknown)
 		else config.pellets
 	local pelletSpread = if altFire then altFire.pelletSpread else config.pelletSpread
 	local interval = FireRate.interval(config, slot.spinStart, slot.lastFire, now, slot.burstShots)
-		/ rateMult(player)
+		/ (rateMult(player) * statusMult(player, "fireRate"))
 	if now < slot.lastFire + interval - Combat.FIRE_JITTER then
 		reject(player, "now < slot.lastFire + interval - Combat.FIRE_JITTER")
 		return
@@ -1188,7 +1212,8 @@ local function onFire(player: Player, payload: unknown)
 		slot.ammo -= altRounds
 	end
 	if altFire then
-		slot.altReadyAt = now + altFire.fireInterval
+		slot.altReadyAt = now
+			+ altFire.fireInterval / (rateMult(player) * statusMult(player, "fireRate"))
 	end
 	recordAmmo(player)
 

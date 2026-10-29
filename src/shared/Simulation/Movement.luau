@@ -20,7 +20,9 @@
 --
 -- Player attributes read here (set by the server):
 --   MoveMult, AdsMult  equipped weapon's movement multipliers (WeaponService)
---   ModSpeedMult       Mod slows and boosts (ModService; Lag Field later)
+--   StatusMoveMult, StatusJumpMult, StatusGravityMult   status effects
+--                      (StatusService: Hinder's slow, lower jump and floaty
+--                      fall; nil = 1)
 --
 -- The predicted Mods (Simulation/Abilities) step first, inside this same
 -- step, so a dash and the walk speed it needs are decided together.
@@ -32,6 +34,8 @@ local Movement = require(script.Parent.Parent.Config.Movement)
 local AbilitiesSim = require(script.Parent.Abilities)
 
 local MovementSim = {}
+
+local STEP = 1 / 60 -- the simulation's fixed step (Hz60, initialize)
 
 local connection: RBXScriptConnection? = nil
 
@@ -152,14 +156,32 @@ local function stepCharacter(player: Player, character: Model)
 
 	local moveMult = (player:GetAttribute("MoveMult") :: number?) or 1
 	local adsMult = (player:GetAttribute("AdsMult") :: number?) or 1
-	local modMult = (player:GetAttribute("ModSpeedMult") :: number?) or 1
-	local mult = moveMult * modMult
+	local statusMove = (player:GetAttribute("StatusMoveMult") :: number?) or 1
+	local mult = moveMult * statusMove
 	if aimIn and state ~= "Slide" and state ~= "Air" then
 		mult *= adsMult
 	end
 	local walkSpeed = AbilitiesSim.speedOverride(character, now) or speed * mult
 	if math.abs(humanoid.WalkSpeed - walkSpeed) > 1e-3 then
 		humanoid.WalkSpeed = walkSpeed
+	end
+
+	-- Status jump and gravity (Hinder: lower and floatier). The Humanoid's
+	-- takeoff uses full gravity, so for a peak of JUMP_HEIGHT * jump under
+	-- gravity * g the height to ask for is JUMP_HEIGHT * jump * g. In the air,
+	-- part of gravity is given back every step.
+	local jumpMult = (player:GetAttribute("StatusJumpMult") :: number?) or 1
+	local gravityMult = (player:GetAttribute("StatusGravityMult") :: number?) or 1
+	local jumpHeight = Movement.JUMP_HEIGHT * jumpMult * gravityMult
+	if math.abs(humanoid.JumpHeight - jumpHeight) > 1e-3 then
+		humanoid.JumpHeight = jumpHeight
+	end
+	if not grounded and gravityMult < 1 then
+		root.AssemblyLinearVelocity += Vector3.new(
+			0,
+			workspace.Gravity * (1 - gravityMult) * STEP,
+			0
+		)
 	end
 
 	set(character, "MoveState", state)

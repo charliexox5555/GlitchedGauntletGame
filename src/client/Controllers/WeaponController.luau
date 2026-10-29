@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
 local DashMod = require(Shared.Mods.Dash)
+local Status = require(Shared.Mods.Status)
 local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
 local GunSounds = require(Shared.Config.GunSounds)
@@ -65,6 +66,7 @@ type ShellState = {
 	inserted: number,
 	needed: number,
 	wasEmpty: boolean,
+	slow: number, -- each phase's time is multiplied by this (a status at the start)
 }
 
 type Reload = { start: number, duration: number, token: number, shell: ShellState? }
@@ -104,6 +106,17 @@ local UNHOLSTER_TIME = 0.25 -- the gun comes back up before it can fire
 local CYCLE: { Slot } = { "Primary", "Secondary", "Melee" }
 
 -- Helpers ------------------------------------------------------------------
+
+-- Our status effects (Mods/Status: Hinder slows fire, reload, swap and
+-- recoil recovery); the server enforces the same.
+local function statusMults(): Status.Mults
+	return Status.mults(player.Character, Workspace:GetServerTimeNow())
+end
+
+-- Overclock's boost and our statuses: shots per second, relative.
+local function fireRateMult(): number
+	return FireRate.boost(player) * statusMults().fireRate
+end
 
 local function current(): LocalSlot?
 	return if equipped then slots[equipped] else nil
@@ -224,7 +237,7 @@ local function kickRecoil(s: LocalSlot, sinceLast: number, now: number)
 			side *= Combat.CROUCH_SIDE_RECOIL
 		end
 	end
-	CameraController.kick(up, side, r.recover, r.recoverTime)
+	CameraController.kick(up, side, r.recover, r.recoverTime / statusMults().recoil)
 end
 
 local function playLocal(id: string?, group: AudioController.Group, volume: number, pitch: number?)
@@ -274,21 +287,23 @@ end
 local function startShellReload(s: LocalSlot)
 	local shell = s.config.shellReload :: Types.ShellReload
 	local needed = s.config.magSize - s.ammo
+	local slow = 1 / statusMults().reload
 	reloadToken += 1
 	reloading = {
 		start = os.clock(),
-		duration = shell.start + shell.insert * needed + shell.finish,
+		duration = (shell.start + shell.insert * needed + shell.finish) * slow,
 		token = reloadToken,
 		shell = {
 			phase = "Start",
-			doneAt = os.clock() + shell.start,
+			doneAt = os.clock() + shell.start * slow,
 			inserted = 0,
 			needed = needed,
 			wasEmpty = s.ammo == 0,
+			slow = slow,
 		},
 	}
 	Net.event("Reload"):FireServer()
-	playShellClip(s.config, "ReloadStart", shell.start)
+	playShellClip(s.config, "ReloadStart", shell.start * slow)
 end
 
 -- Steps a shell-by-shell reload: each finished insert puts a shell in the
@@ -306,12 +321,12 @@ local function stepShellReload(s: LocalSlot, r: Reload, now: number)
 	end
 	if st.phase ~= "End" and st.inserted < st.needed then
 		st.phase = "Insert"
-		st.doneAt = now + shell.insert
-		playShellClip(s.config, "ReloadInsert", shell.insert)
+		st.doneAt = now + shell.insert * st.slow
+		playShellClip(s.config, "ReloadInsert", shell.insert * st.slow)
 	elseif st.phase ~= "End" then
 		st.phase = "End"
-		st.doneAt = now + shell.finish
-		playShellClip(s.config, "ReloadEnd", shell.finish)
+		st.doneAt = now + shell.finish * st.slow
+		playShellClip(s.config, "ReloadEnd", shell.finish * st.slow)
 		if st.wasEmpty then
 			playGun(s.config, "rack") -- chamber a round
 		end
@@ -332,10 +347,10 @@ local function stopShellReload(s: LocalSlot, r: Reload, now: number)
 	reloadToken += 1
 	r.token = reloadToken
 	st.phase = "End"
-	st.doneAt = now + shell.finish
+	st.doneAt = now + shell.finish * st.slow
 	pressHoldUntil = st.doneAt
 	Net.event("Reload"):FireServer("stop")
-	playShellClip(s.config, "ReloadEnd", shell.finish)
+	playShellClip(s.config, "ReloadEnd", shell.finish * st.slow)
 end
 
 local function startReload()
@@ -353,7 +368,8 @@ local function startReload()
 		return
 	end
 	local empty = s.ammo == 0
-	local duration = if empty then config.emptyReloadTime else config.reloadTime
+	local duration = (if empty then config.emptyReloadTime else config.reloadTime)
+		/ statusMults().reload
 	reloadToken += 1
 	local token = reloadToken
 	reloading = { start = os.clock(), duration = duration, token = token }
@@ -392,7 +408,7 @@ local function applyEquip(slot: Slot)
 	nextLeft = false
 	-- Every equip plays the full draw (Valorant): raise and rack the action.
 	local config = s.config
-	local duration = config.drawTime or config.equipTime
+	local duration = (config.drawTime or config.equipTime) / statusMults().equip
 	equipReadyAt = os.clock() + duration
 	updateHudWeapon()
 	playGun(config, "draw")
@@ -541,7 +557,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	local pelletSpread = if altFire then altFire.pelletSpread else config.pelletSpread
 	local now = os.clock()
 	local interval = FireRate.interval(config, s.spinStart, s.lastFire, now, s.burstShots)
-		/ FireRate.boost(player)
+		/ fireRateMult()
 	if now < s.lastFire + interval or now < s.altReadyAt then
 		return
 	end
@@ -554,7 +570,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 		s.ammo -= altRounds
 	end
 	if altFire then
-		s.altReadyAt = now + altFire.fireInterval
+		s.altReadyAt = now + altFire.fireInterval / fireRateMult()
 	end
 
 	local spread, centred = currentSpread(s)
@@ -649,7 +665,12 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	kickRecoil(s, sinceLast, now)
 	if altFire then
 		-- The burst kicks harder than a single shot.
-		CameraController.kick(config.recoil.up, 0, config.recoil.recover, config.recoil.recoverTime)
+		CameraController.kick(
+			config.recoil.up,
+			0,
+			config.recoil.recover,
+			config.recoil.recoverTime / statusMults().recoil
+		)
 	end
 	CameraController.shake((0.04 + config.recoil.up * 0.1) * (1 - 0.35 * adsAlpha))
 	ViewmodelController.fire(
@@ -696,7 +717,7 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	end
 	dashGate.focusOpen = false
 	local now = os.clock()
-	local readyAt = s.lastFire + config.fireInterval
+	local readyAt = s.lastFire + config.fireInterval / fireRateMult()
 	if now < readyAt or now < s.altReadyAt then
 		return
 	end
@@ -709,7 +730,7 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	end
 	s.lastFire = now
 	if heavy and altFire then
-		s.altReadyAt = now + altFire.fireInterval
+		s.altReadyAt = now + altFire.fireInterval / fireRateMult()
 	end
 	-- Impact effects and sounds wait for the blade to land in the clip (its Hit
 	-- marker); the hit itself is checked and sent now.
@@ -899,7 +920,7 @@ local function update(dt: number)
 				burstQueue == 0
 				and pressQueued
 				and canShoot(s)
-				and now >= s.lastFire + s.config.fireInterval / FireRate.boost(player)
+				and now >= s.lastFire + s.config.fireInterval / fireRateMult()
 			then
 				pressQueued = false
 				-- Pulse fires single shots while aiming.
@@ -919,7 +940,7 @@ local function update(dt: number)
 		else
 			if pressQueued and canShoot(s) then
 				local interval = FireRate.interval(s.config, s.spinStart, s.lastFire, now)
-					/ FireRate.boost(player)
+					/ fireRateMult()
 				if now >= s.lastFire + interval then
 					pressQueued = false
 					fireShot(s)

@@ -203,6 +203,48 @@
   "type": "Decal",
   "uploaded": "2026-10-28 21:09:33"
  },
+ "art-source/vfx/abilities/frost/frost_burst_2x2.png": {
+  "assetId": 83583013629064,
+  "name": "GG VFX frost_burst_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-28 23:33:43"
+ },
+ "art-source/vfx/abilities/frost/frost_crystals.png": {
+  "assetId": 135673166059668,
+  "name": "GG VFX frost_crystals",
+  "type": "Decal",
+  "uploaded": "2026-10-28 23:33:53"
+ },
+ "art-source/vfx/abilities/frost/frost_ground.png": {
+  "assetId": 74441474604659,
+  "name": "GG VFX frost_ground",
+  "type": "Decal",
+  "uploaded": "2026-10-28 23:33:47"
+ },
+ "art-source/vfx/abilities/frost/frost_mist_2x2.png": {
+  "assetId": 138983255940313,
+  "name": "GG VFX frost_mist_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-28 23:33:40"
+ },
+ "art-source/vfx/abilities/frost/frost_shard.png": {
+  "assetId": 92431138004727,
+  "name": "GG VFX frost_shard",
+  "type": "Decal",
+  "uploaded": "2026-10-28 23:33:50"
+ },
+ "art-source/vfx/abilities/frost/frost_vapor.png": {
+  "assetId": 117859093843474,
+  "name": "GG VFX frost_vapor",
+  "type": "Decal",
+  "uploaded": "2026-10-28 23:33:59"
+ },
+ "art-source/vfx/abilities/frost/frost_vignette.png": {
+  "assetId": 99269276076906,
+  "name": "GG VFX frost_vignette",
+  "type": "Decal",
+  "uploaded": "2026-10-28 23:33:56"
+ },
  "art-source/vfx/abilities/molly/molly_burst_2x2.png": {
   "assetId": 113204922015509,
   "name": "GG VFX molly_burst_2x2",

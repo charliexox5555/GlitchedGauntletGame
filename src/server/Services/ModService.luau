@@ -52,6 +52,7 @@ local Validate = require(Shared.Util.Validate)
 
 local ModEntities = require(script.Parent.ModEntities)
 local ModWalls = require(script.Parent.ModWalls)
+local StatusService = require(script.Parent.StatusService)
 local WeaponService = require(script.Parent.WeaponService)
 
 type SlotState = { id: string?, level: string, charges: number, rechargeAt: number }
@@ -567,12 +568,8 @@ local function use(
 			end
 			ModEntities.place(player, kind, part, life, hp, maxActive)
 		end,
-		zone = function(spec: ModTypes.ZoneSpec): boolean
-			if player.Character == character and liveHumanoid(character) then
-				ModEntities.addZone(player, spec)
-				return true
-			end
-			return false
+		status = function(model: Model, name: string, duration: number)
+			StatusService.apply(model, name, duration)
 		end,
 		reveal = function(targets: { Model }, duration: number)
 			for _, other in Players:GetPlayers() do

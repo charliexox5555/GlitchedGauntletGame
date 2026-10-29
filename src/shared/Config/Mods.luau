@@ -154,33 +154,37 @@ local defs: { [string]: ModDef } = {
 			G3 = { note = "Mirror Wall: 50% reflection, 2 charges", reflect = 0.5, charges = 2 },
 		},
 	},
-	LagField = {
-		id = "LagField",
-		name = "Lag Field",
+	Frost = {
+		id = "Frost",
+		name = "Frost",
 		role = "Control",
-		block = "Zone",
+		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
-		icon = "rbxassetid://98630150227573",
-		glyph = "◎",
+		icon = "rbxassetid://98630150227573", -- the Lag Field icon until Frost has its own
+		glyph = "❄",
 		hint = { primary = "Throw", alt = "Lob" },
 		quickCast = "Primary",
 		levels = {
 			L1 = {
-				note = "Orb makes a 10-stud zone for 4 s; enemies slowed 40%",
-				cooldown = 0, -- Frost: 1 per round, no recharge
+				note = "Frost burst: everyone within 10 studs is Hindered for 3 s",
+				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
-				radius = 10,
-				duration = 4,
-				slow = 0.4,
-				throwSpeed = 70,
-				lobSpeed = 35,
-				throwLift = 0.12,
-				lobLift = 0.35,
+				throwSpeed = 92, -- LMB, javelin: flatter and faster than the Molly
+				lobSpeed = 24, -- RMB, underhand
+				throwLift = 0.06,
+				lobLift = 0.3,
 				gravity = 100,
-				size = 0.5,
-				maxFlight = 3, -- seconds before it opens mid-air
+				bounces = 4, -- wall bounces (it bursts on the first floor it touches)
+				restitution = 0.45,
+				friction = 0.7,
+				size = 0.3,
+				dropTime = 0.9, -- seconds in the air before it drops straight down
+				maxFlight = 4, -- still flying then: no burst
+				radius = 10,
+				hinder = 3, -- seconds of Hinder (Config/StatusEffects)
 			},
+			-- The paths below are the Lag Field's, not redesigned yet.
 			A2 = { note = "Latency: enemies inside fire and reload 30% slower", latency = 0.3 },
 			A3 = { note = "Latency: enemies inside take +15% damage", vulnerable = 0.15 },
 			B2 = { note = "Buffer: 14 studs, lasts 7 s", radius = 14, duration = 7 },
@@ -312,7 +316,7 @@ local ORDER = {
 	"Updraft",
 	"Molly",
 	"Firewall",
-	"LagField",
+	"Frost",
 	"Ping",
 	"PatchUp",
 	"Overclock",

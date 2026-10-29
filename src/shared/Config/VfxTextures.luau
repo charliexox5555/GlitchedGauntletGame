@@ -45,4 +45,14 @@ return table.freeze({
 	MOLLY_EMBER = "rbxassetid://101128795307568", -- hot core + halo (greyscale)
 	MOLLY_BURST_2x2 = "rbxassetid://132280358321008", -- the whoomp, side view, base at the bottom
 	MOLLY_SCORCH = "rbxassetid://114053963453641", -- top-down burn mark; char in the middle 60%
+
+	-- Frost (tools/vfx/make_frost_vfx.py → art-source/vfx/abilities/frost/),
+	-- tinted cold blue in Util/FrostFx.
+	FROST_MIST_2x2 = "rbxassetid://96058305432942", -- cold mist billowing and thinning
+	FROST_BURST_2x2 = "rbxassetid://131740442911737", -- icy flash + shard front, shattering
+	FROST_GROUND = "rbxassetid://79536369659364", -- top-down frost feathers (a floor decal)
+	FROST_SHARD = "rbxassetid://110957978264323", -- a sharp ice glint
+	FROST_CRYSTALS = "rbxassetid://71167177461946", -- a cluster of ice crystals (on bodies)
+	FROST_VIGNETTE = "rbxassetid://127776803853487", -- frosted screen edges, clear centre
+	FROST_VAPOR = "rbxassetid://112352390447122", -- a thin vapour wisp (u along it)
 })

@@ -15,7 +15,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Status = require(ReplicatedStorage.Shared.Mods.Status)
 local TestRange = require(ReplicatedStorage.Shared.Config.TestRange)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
@@ -225,7 +227,7 @@ end
 
 -- Per-frame behaviour ----------------------------------------------------------------
 
-local function stepMover(d: Dummy, now: number)
+local function stepMover(d: Dummy, now: number, dt: number)
 	local kind = TestRange.KINDS[d.spot.kind]
 	local speed = kind.speed :: number
 	local sway = kind.sway or 4
@@ -255,6 +257,20 @@ local function stepMover(d: Dummy, now: number)
 		d.humanoid:Move(d.home:VectorToWorldSpace(Vector3.new(-rel.X, 0, -rel.Z).Unit), false)
 	else
 		d.humanoid:Move(Vector3.zero, false)
+	end
+	-- Status effects (Hinder): slower, a lower and floatier jump, like players
+	-- (Simulation/Movement does the same for them).
+	local m = Status.mults(d.model, workspace:GetServerTimeNow())
+	local walkSpeed = speed * m.move
+	if math.abs(d.humanoid.WalkSpeed - walkSpeed) > 1e-3 then
+		d.humanoid.WalkSpeed = walkSpeed
+	end
+	local jumpHeight = Movement.JUMP_HEIGHT * m.jump * m.gravity
+	if math.abs(d.humanoid.JumpHeight - jumpHeight) > 1e-3 then
+		d.humanoid.JumpHeight = jumpHeight
+	end
+	if m.gravity < 1 and d.humanoid.FloorMaterial == Enum.Material.Air then
+		d.root.AssemblyLinearVelocity += Vector3.new(0, workspace.Gravity * (1 - m.gravity) * dt, 0)
 	end
 	-- Keep facing the firing line.
 	if math.abs(d.root.CFrame.LookVector:Dot(d.home.LookVector)) < 0.999 then
@@ -296,7 +312,7 @@ local function step(dt: number)
 			continue
 		end
 		if moves(d.spot) then
-			stepMover(d, now)
+			stepMover(d, now, dt)
 			-- Fell out of the range somehow: put it back.
 			if (d.root.Position - d.home.Position).Magnitude > 40 then
 				d.model:PivotTo(d.home)

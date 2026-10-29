@@ -117,12 +117,27 @@ return table.freeze({
 		-- Firewall_End: 3D. "Fire Burst 8", its natural tail from 7 s
 		ending = cue(9114429835, 0.3, 1, nil, 40, nil, 7),
 	}),
-	LagField = table.freeze({
-		throw = cue(9120712091, 0.55), -- 3D
-		open = cue(9120059083, 0.7), -- 3D
-		hum = cue(9125636597, 0.25, 0.9, true), -- 3D, stand-in for ModLagLoop
-		slowed = cue(9120059060, 0.55), -- enemy 2D, stand-in for ModLagSlowed
-		expire = cue(9125640290, 0.5), -- 3D
+	-- Frost hooks (vault/01 Design/Abilities/Frost.md → Sound). Placeholders
+	-- (ProSoundEffects, unauditioned), listed in the Frost note; one id each.
+	Frost = table.freeze({
+		-- Frost_Equip: you. "Air Release Valve Scuba Tank 1", 0.15 s on
+		equip = cue(9113074345, 0.35, 1.05, nil, nil, 0.9, 0.15),
+		-- Frost_Throw: 3D at the hand. Javelin "Whoosh Heavy Punches 2",
+		-- underhand "Dowel Swish Bamboo Thick 5"
+		throw = cue(9120728883, 0.5, 0.95, nil, 40, 0.45, 0.08),
+		throwLob = cue(9125495498, 0.35, 0.9, nil, 40, 0.3),
+		-- Frost_Flight: 3D hiss on the canister. "Spray Paint Aerosol Air Hiss Constant 2"
+		flight = cue(9119525650, 1.5, 1.1, true, 35, nil, 8.4, 13.2),
+		-- Frost_Bounce: 3D. "Canister Drop Canister Impact 3"
+		bounce = cue(9113704875, 0.6, 1.1, nil, 40, 0.5, 0.08),
+		-- Frost_Burst: 3D, ~50 studs. "Fire Extinguisher 2" + an ice crackle
+		-- layer "Ice Freeze Large Piece Crackles Liquid Nitrogen 3"
+		burst = cue(9114437277, 0.9, 0.9, nil, 50),
+		burstCrackle = cue(9125611419, 0.6, 1, nil, 50, nil, 0.2),
+		-- Frost_HinderedLoop: you while hindered. "Barstow Wind Light Blustery Low Howl 1"
+		hinderedLoop = cue(9113286782, 1, 0.95, true, nil, nil, 1.8, 6.6),
+		-- Frost_Recover: you. "Ice Crackle Large Block Cracks 1", 0.1 s on
+		recover = cue(9114858583, 0.5, 1.05, nil, nil, 0.65, 0.1),
 	}),
 	Ping = table.freeze({
 		cast = cue(9125981410, 0.6), -- you, stand-in for ModPingCast

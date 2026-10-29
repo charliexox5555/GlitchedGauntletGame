@@ -29,7 +29,6 @@ local Config = require(Shared.Config.Mods)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
-local LagField = require(Shared.Mods.LagField)
 local PatchUp = require(Shared.Mods.PatchUp)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
@@ -81,9 +80,7 @@ local lastRollbackAt = 0
 
 -- Held throws with an arc preview: each Mod's projectile options (the server
 -- uses the same). The Molly has none: you just throw it (Molly.md).
-local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {
-	LagField = LagField.options,
-}
+local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {}
 -- Held placements: each Mod's spot check and box (the server uses the same).
 type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams, OverlapParams?) -> Placeable.Spot
 type PlaceDef = { find: Finder, size: (ModTypes.Stats) -> Vector3, bodies: boolean }
@@ -611,7 +608,7 @@ local function use(mode: ModTypes.UseMode)
 	setPhase("Using", current)
 	ViewmodelController.itemAction(
 		if def.activation == "HeldThrow"
-			then (if mode == "Alt" then "Lob" else "Throw")
+			then (if mode == "Alt" then "Lob" elseif def.id == "Frost" then "Javelin" else "Throw")
 			elseif def.activation == "HeldPlace" then "Place"
 			else "Heal"
 	)
@@ -632,7 +629,9 @@ local function startHold(slot: number, view: SlotView)
 		ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
 	end
 	Net.event("ModHold"):FireServer(slot)
-	if def.id == "Molly" then
+	if def.id == "Frost" then
+		ModAudio.play(ModAudio.SOUNDS.Frost.equip)
+	elseif def.id == "Molly" then
 		-- Canister out, then the free hand pulls the pin.
 		ModAudio.play(ModAudio.SOUNDS.Molly.equip)
 		local token = itemToken

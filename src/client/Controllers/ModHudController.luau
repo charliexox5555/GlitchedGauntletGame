@@ -14,6 +14,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 
+local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
@@ -77,7 +78,7 @@ type SlotUi = {
 
 local bar: Frame? = nil
 local hint: TextLabel? = nil
-local slowedLabel: TextLabel? = nil
+local slowedLabel: TextLabel? = nil -- the status line (Hinder countdown)
 local altButton: TextButton? = nil
 local slots: { SlotUi } = {}
 local shownHint = ""
@@ -386,16 +387,16 @@ local function build(): ScreenGui
 		Text = "",
 		Visible = false,
 	}, screen)
-	-- A Lag Field is slowing you.
+	-- Placeholder status line (Frost.md → Screen): "HINDERED 2.4".
 	slowedLabel = text({
-		Name = "Slowed",
+		Name = "Status",
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -(SLOT_SIZE + 92)),
 		Size = UDim2.fromOffset(200, 22),
 		FontFace = HEAVY,
 		TextSize = 18,
-		TextColor3 = Config.COLORS.enemy,
-		Text = "SLOWED",
+		TextColor3 = Color3.fromHex("BFE8FF"),
+		Text = "",
 		Visible = false,
 	}, screen)
 
@@ -584,10 +585,13 @@ local function update(_dt: number)
 		writeSlot(ui, view, slot, now)
 	end
 	bar.Visible = any
-	local slowed = slowedLabel
-	if slowed then
-		local mult = player:GetAttribute("ModSpeedMult")
-		slowed.Visible = typeof(mult) == "number" and mult < 1
+	local status = slowedLabel
+	if status then
+		local left = FrostFx.hinderedLeft()
+		status.Visible = left > 0
+		if left > 0 then
+			status.Text = string.format("HINDERED  %.1f", left)
+		end
 	end
 
 	local h = hint

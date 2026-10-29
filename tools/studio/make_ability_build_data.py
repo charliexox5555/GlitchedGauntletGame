@@ -20,6 +20,7 @@ EXTRA = {
 	"Packet": {"holdOffset": [0, 0.32, -0.12]},
 	"LagField": {"holdOffset": [0, 0.34, -0.12]},
 	"Molly": {"holdOffset": [0, 0.32, -0.12]},
+	"Frost": {"holdOffset": [0, 0.32, -0.12]},
 }
 # Parts that are seen from both sides.
 DOUBLE_SIDED = {"Panel_Energy", "Shockwave_Energy", "Dome_Energy", "Sphere_Energy", "ScanRing_Energy"}

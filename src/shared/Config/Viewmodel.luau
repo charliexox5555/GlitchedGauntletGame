@@ -345,6 +345,18 @@ return table.freeze({
 				{ t = 1, pos = Vector3.new(0.05, -0.7, -0.25), rot = Vector3.new(24, 0, 0) },
 			},
 		},
+		-- Javelin (Frost LMB): the arm draws back level with the shoulder and
+		-- spears it forward, flat.
+		Javelin = {
+			length = 0.32,
+			hideAt = 0.55,
+			keys = {
+				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+				{ t = 0.35, pos = Vector3.new(0.22, 0.1, 0.55), rot = Vector3.new(-8, 18, 4) },
+				{ t = 0.55, pos = Vector3.new(-0.05, 0.12, -1.05), rot = Vector3.new(6, -6, -4) },
+				{ t = 1, pos = Vector3.new(0.05, -0.55, -0.4), rot = Vector3.new(18, 0, 0) },
+			},
+		},
 		-- Lob: underhand, a swing down and back, then out low and soft.
 		Lob = {
 			length = 0.4,

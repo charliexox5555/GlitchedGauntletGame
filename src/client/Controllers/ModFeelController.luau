@@ -69,7 +69,6 @@ local flash: Frame? = nil
 local flashAt = -math.huge
 local flashPeak = 0
 local vhs: ColorCorrectionEffect? = nil
-local slowedNow = false
 
 local function number(inst: Instance, name: string): number
 	local v = inst:GetAttribute(name)
@@ -264,7 +263,9 @@ local function stepCharacters()
 		if updraft > s.updraft + 0.05 then
 			launched = true
 			local up = character:GetAttribute("UpdraftUp")
-			local rise = if typeof(up) == "number" then up / workspace.Gravity else 0.4
+			local g = character:GetAttribute("UpdraftGravity")
+			local gravity = if typeof(g) == "number" and g > 0 then g else workspace.Gravity
+			local rise = if typeof(up) == "number" then up / gravity else 0.4
 			if mine then
 				ModAudio.play(S.Updraft.launch)
 				ModAudio.stopHum(windHum)
@@ -360,14 +361,6 @@ local function update(_dt: number)
 		local fk = (now - flashAt) / FLASH_TIME
 		f.BackgroundTransparency = if fk >= 1 then 1 else 1 - flashPeak * (1 - fk) ^ 2
 	end
-
-	-- Slowed by an enemy Lag Field: one warning on the way in.
-	local mult = player:GetAttribute("ModSpeedMult")
-	local slowed = typeof(mult) == "number" and mult < 1
-	if slowed and not slowedNow then
-		ModAudio.play(S.LagField.slowed)
-	end
-	slowedNow = slowed
 end
 
 local function onFx(kind: unknown, data: unknown)
@@ -385,9 +378,6 @@ function ModFeelController.start()
 	build()
 	Net.event("ModFx").OnClientEvent:Connect(onFx)
 	RunService.RenderStepped:Connect(update)
-	player.CharacterAdded:Connect(function()
-		slowedNow = false
-	end)
 end
 
 return ModFeelController
