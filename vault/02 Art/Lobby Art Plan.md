@@ -2,7 +2,7 @@
 
 The art plan for the [Lobby](../01%20Design/Lobby.md) place, phase 1 (build and art only). It holds the mood board, palette, materials and the top-down layout with dimensions, and it feeds the greybox (step 2) and the Blender kit (steps 3–4).
 
-**Status (2026-10-29):** step 1 redone for the **circular bunker hub** (user decision, 2026-10-29: a round spawn rotunda with a skylight, an outer ring and four wings; no courtyard). **Approved 2026-10-29** with the defaults: 88-stud rotunda (the greybox walk is the scale check), one-way ENTER/EXIT range gates, Market west / Weapons east, no ring light wells yet. **Step 2 greybox built 2026-10-29**, waiting for the user's walk test (see Greybox below).
+**Status (2026-10-29):** step 1 redone for the **circular bunker hub** (user decision, 2026-10-29: a round spawn rotunda with a skylight, an outer ring and four wings; no courtyard). **Approved 2026-10-29** with the defaults: 88-stud rotunda (the greybox walk is the scale check), one-way ENTER/EXIT range gates, Market west / Weapons east, no ring light wells yet. **Step 2 greybox approved 2026-10-29** after a second pass (see Greybox v2 below). Step 3 (Blender kit design) in progress.
 - **Research:** 3 reference sweeps (bunker and skylight architecture, moody game lobbies and weapon showrooms, Roblox hub scale).
 - **Layouts:** 3 independent layouts (readability, flow, mood), then a judge that rechecked the geometry and merged them into **"Sunwell Bunker"**.
 - **Superseded:** the earlier rectangular "Axis Hall" with a courtyard.
@@ -235,7 +235,7 @@ About 40 SurfaceGuis in total, each with a long side ≤ 1000 px.
 - **Geometry:** RangeBuilder needs re-origining in phase 2 (floor −12, firing line z 146). Ring tiles must cut cleanly at the portals and alcoves. There must be open sky above y 60 for the beam.
 
 ## Greybox (step 2, 2026-10-29)
-- **Built** in the Lobby place as `Workspace.Lobby.Greybox` by [`tools/studio/LobbyGreybox.luau`](../../tools/studio/LobbyGreybox.luau). Re-running it replaces the greybox, and it refuses any other place. 7 folders, about 690 parts: Rotunda, Ring, Wing_Duels, Wing_Market, Wing_Weapons, Wing_Range, RangeShell.
+- **Built** in the Lobby place as `Workspace.Lobby.Greybox`. Since v2 the scripts are in [`tools/studio/lobby/`](../../tools/studio/lobby/): `GreyboxKit.luau` (colours and helpers), `Hub.luau` and one `Wing_*.luau` per wing. `python tools/studio/lobby/bundle.py Hub Wing_Duels ...` writes a script for the Studio Command Bar. Each script replaces its own folder and refuses any other place. 7 folders, about 690 parts: Rotunda, Ring, Wing_Duels, Wing_Market, Wing_Weapons, Wing_Range, RangeShell.
 - **Removed:** the template Baseplate and SpawnLocation (the baseplate covered the sunken Range). The spawn is `Rotunda.LobbySpawn`.
 - **Lighting:** the planned sun is set (ClockTime 12, GeographicLatitude 33.5 gives exactly (0, 0.985, 0.174)). Ambient is lifted only for the greybox walk; step 6 sets the real values.
 - **Checked by three independent read-only passes (all fixed):**
@@ -255,5 +255,25 @@ About 40 SurfaceGuis in total, each with a long side ≤ 1000 px.
 
 ![Spawn view](References/lobby/greybox/01-spawn.jpg)
 
+## Greybox v2 (2026-10-29, after the user's walk test)
+The user liked the walkthrough but asked for bigger, deeper, less boxy wings (in the spirit of RIVALS' long queue hall and cave-like market), a radial Weapons wing, and a **separate range** reached through a gate from a "mini version" in the hub. The hub (rotunda and ring) is unchanged. Each wing was rebuilt by its own script inside a fixed envelope, so wings can't overlap. Every wing passed checks for floor holes (raycast grid), leaks (400-direction ray spheres), its envelope, the connection to its portal and sign direction. Whole place: 1,548 greybox parts; hub leak test: all 26 escaping rays leave through the skylight.
+
+| Wing | What it is now | Size |
+|---|---|---|
+| **Duels** (`Wing_Duels`, 308 parts) | A basilica-like dark hall on the spawn axis. A 22-wide aisle runs to a dormant GAUNTLET chamber with an apse and a gate. 5 arches (ceiling 16) open into 26-high mode sections with side "chapel" bays under 14-high soffits: **1V1 ×6** (12×12), **2V2 ×4** (15×15), **3V3 ×4** (17×16), **4V4 ×2** dormant (18×17), 2 dormant Gauntlet pads (18×18). Entrance vestibule with 4 queue terminals ("OR JUST PRESS PLAY"). Red edge strips. | x ±38, z −63…−299; first 1V1 bay 5 s walk |
+| **Market** (`Wing_Market`, 285 parts) | A deep concrete portal, then one winding rock "street" (219 long, bends left, right, left), 44 wide between rock walls with a 20-wide oak runner. Leaning slate slabs, rock pillars and drops; the ceiling changes per segment (20–32). 6 built-in shop pavilions in facing pairs (SKINS/WRAPS, CHARMS/EMOTES, BUNDLES/CURRENCY) and 3 FEATURED podiums at the bends. The path ends in a **Battle Pass cavern** (68×92, 40 tall): 40×20 LED wall, a dais with reward plinths, CODES and PREMIUM kiosks. | x −70…−334, z −48…+66 |
+| **Weapons** (`Wing_Weapons`, 303 parts) | A low corridor (two steel frames, 13.5 clear) into a round **ARMOURY**: R42, 30 tall, piers, ribs to a glazed lantern. 8 gun chapels (6 rifles 14–18 long, 2 pistols) with turntables and names; a central dais with the 8× hero rifle on pylons; the **LOCKER** apse straight ahead (brass pedestal, mannequin, 2 loadout terminals). | x 70…201, z ±60 |
+| **Range, hub side** (`Wing_Range`, 141 parts) | A 1:4 ramp down 8 through steel frames into the **Range Lobby** (128×94, 28 clear). Its hero is a 44-wide window onto a **1:3 scale model of the range** (7 lanes, distance boards, silhouettes, berm) under a big RANGE title. Along the west aisle is the **ENTER RANGE** gate into a sealed transfer vestibule (`RangeEnterTrigger`); `RangeReturnPoint` sits beside it, and a RANGE STATUS screen balances the east side. | x ±64, z 67…216, floor −8 |
+| **Real range** (`RangeFar`, 160 parts) | A separate sealed concrete building **1,000 studs south** (floor y 0, roof with 3 sun slots) laid out for RangeBuilder: 7×12 lanes, 170 long, firing line at z 1214, markers 10/25/50/100/150, berm, movement course 58×230, cover/ability yard 56×64. Arrival pad `RangeArrivalPoint` under a canopy facing the lanes, plus an **EXIT TO LOBBY** alcove (`RangeExitTrigger`). | x ±122, z 1010…1298 |
+
+**Phase 2 hooks (code later):**
+- Stepping into `RangeEnterTrigger` teleports to `RangeArrivalPoint`; `RangeExitTrigger` returns the player to `RangeReturnPoint`, in third person with the gun put away.
+- `TestRange.ORIGIN` goes to about (0, 0.2, 1214).
+- Pre-stream the range before the teleport.
+
+**Screenshots:** `References/lobby/greybox-v2/` (01 spawn … 12 range arrival).
+
+![Duels hall](References/lobby/greybox-v2/02-duels-hall.jpg)
+
 ## Next
-The user walk-tests the greybox at real scale (walk, sprint, slide the ring, ramp down to the range) and approves or asks for size changes. Then step 3: the Blender modular kit design sheet.
+Step 3: the Blender modular kit, designed for these shapes (round segments, arches, rock panels, shop pavilions, pads, chapels, signs). Preview renders before modelling everything.

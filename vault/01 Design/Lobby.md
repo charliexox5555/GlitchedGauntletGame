@@ -54,11 +54,11 @@ Rough sizes (greybox to tune): rotunda 88 across, ring 24 wide, hub about 250 ac
 | **Spawn rotunda** | Round hall under the skylight; you spawn on a dais in the sunbeam, **facing the Duels wing** |
 | **Leaderboards** | Big screens around the rotunda (wins, rating, streaks, eliminations), visible from spawn |
 | **Outer ring** | Wide concourse around the rotunda with a rock wall: the hang-out and **slide loop**, with seating alcoves cut into the rock |
-| **Duels wing** | Straight ahead from spawn. A dark, dramatic hall with **queue pads** for **1v1, 2v2, 3v3** (stand on a pad to queue; party members on the same pad queue together), big signs with **live "X queued" counts**, plus **queue terminals** that open the queue menu. Bays for 4v4 and Gauntlet are built but closed until those modes ship |
+| **Duels wing** | Straight ahead from spawn. A **long, dark queue hallway** (changed 2026-10-29: about 230 studs, like a basilica) split into **sections per mode**, each with several bays: **1v1** (6 bays, nearest), **2v2** (4), **3v3** (4), then dormant **4v4** bays and a **Gauntlet** chamber at the far end. Stand on a pad to queue; party members on the same pad queue together. Each bay has a sign with a **live "X queued" count**, plus **queue terminals** at the entrance that open the queue menu. Most players will just press Play |
 | **Play button** | A menu button that queues from **anywhere**, including inside the Range |
-| **Market wing** | Shops, the battle pass wall and featured items. First version: placeholder items (the economy comes later) |
-| **Weapons wing** | Guns shown at a **big scale** on turntables and a giant hero gun (buying comes with the economy), plus the **Locker**: loadout and skins with a **3D preview of your character and guns** |
-| **Range wing** | Behind spawn: a ramp **down** to a viewing gallery whose glass looks onto the range, then you walk through the gate into the range |
+| **Market wing** | A **long winding path that feels carved into the rock** (changed 2026-10-29), with shop fronts built into the walls (skins, wraps, charms, emotes, bundles, currency), featured podiums at the bends, ending in a **Battle Pass cavern** with the big battle-pass wall. First version: placeholder items (the economy comes later) |
+| **Weapons wing** | A larger, **round armoury** (changed 2026-10-29): guns shown at a **big scale** in chapels around the wall and a giant hero gun in the centre (buying comes with the economy), plus the **Locker** apse: loadout and skins with a **3D preview of your character and guns** |
+| **Range wing** | Behind spawn: a ramp **down** to a Range Lobby that is a **scaled-down version of the range** (a 1:3 model behind glass) with an **ENTER RANGE** gate. Stepping in takes you to the real range, a **separate building in the same place** (changed 2026-10-29) |
 
 ## Hub rules
 - **Full movement:** sprint, **slide** and jump, like in matches. **No abilities** in the hub.
@@ -68,7 +68,7 @@ Rough sizes (greybox to tune): rotunda 88 across, ring 24 wide, hub about 250 ac
   - an **emote wheel** (cosmetic emotes come later in the shop)
 
 ## Range wing
-A **walled zone inside the lobby place** (not a separate place), one level down: walk down the Range wing past the viewing glass and through the ENTER gate, or press **"Range"**. No loading screen, friends can join you, and you **can still queue from inside**.
+**Changed 2026-10-29 (user):** the real range is a **separate building in the same place** (not a separate Roblox place), far from the hub, because players there carry guns. In the hub, the Range wing is the "mini version": walk down the ramp to the Range Lobby (a scaled-down model of the range behind glass) and step through the **ENTER RANGE** gate, or press **"Range"**. That moves you to the range building (an in-place teleport, phase 2 code). Its **EXIT TO LOBBY** door brings you back to a return point beside the gate. No loading screen, friends can join you, and you **can still queue from inside**.
 - **All access:** every gun and **every ability** usable for practice.
 - **First person** inside, so it feels like a match.
 - **One shooting range:**
