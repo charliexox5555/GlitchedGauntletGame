@@ -15,7 +15,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 | 5 | [Frost](Frost.md) | Lag Field | ✅ locked 2026-10-29 | ⬜ |
 | 6 | [Recon](Recon.md) | Ping | ✅ locked 2026-10-29 | ⬜ |
 | 7 | [Heal Orb](Heal%20Orb.md) | Patch Up | ✅ locked 2026-10-29 | ⬜ |
-| 8 | Overclock | — | ⬜ to redesign | — |
+| 8 | [Stim](Stim.md) | Overclock | ✅ locked 2026-10-29 | ⬜ |
 | 9 | Rollback | — | ⬜ to redesign | — |
 
 ## Rules for every base ability
@@ -23,7 +23,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 - **Test mode:** there's no round system yet, so the dev panel has a **"Test mode: unlimited charges"** toggle (on by default in Studio). RoundService will later call a "refill charges" function at round start.
 - **Keys:** PC **Q / E / T** · gamepad LB / RB / D-pad up · mobile buttons. Instant abilities fire on press (mobile-friendly).
 - **Mobile is provisional:** each spec has a basic mobile layout so it works; a full mobile controls/HUD pass comes later.
-- **Status effects:** shared, server-enforced effects with an expiry time, reusable by any ability. First one: **Hinder** (see [Frost](Frost.md)).
+- **Status effects:** shared, server-enforced effects with an expiry time, reusable by any ability. **Hinder** (debuff, see [Frost](Frost.md)) and **Stimmed** (team buff, see [Stim](Stim.md)); they multiply when combined.
 - **Friendly fire (2026-10-29):** damage from your own abilities to **you and your teammates is 50%** of the enemy damage (one config value). Exceptions are set per ability; e.g. you're immune to your own Firewall.
 - **Readable for enemies:** clear look and a 3D sound others can hear.
 - **Sound:** every ability gets named sound **hooks** in `Config/ModSounds` (separate slots, own volume and pitch, one ID to swap). The user does the final sound design.
