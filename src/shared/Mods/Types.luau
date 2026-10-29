@@ -121,6 +121,10 @@ export type ServerCtx = {
 	-- Starts building a wall from the caster's feet (HeldSteer): the hold
 	-- lasts until it's built.
 	wall: (spec: WallSpec) -> (),
+	-- Recall: the anchor just placed (Services/ModRecall keeps it), and
+	-- whether one is already down.
+	anchor: (part: BasePart) -> (),
+	anchorDown: boolean,
 }
 
 -- A wall to build (Firewall → Services/ModWalls): the way it starts going,
@@ -137,6 +141,9 @@ export type ModModule = {
 	-- in `req.target`. Returns false and a reason to reject.
 	validate: ((ctx: ServerCtx, req: Request) -> (boolean, string?))?,
 	apply: ((ctx: ServerCtx, req: Request) -> ())?,
+	-- Whether this use spends a charge (nil: it does). Recall's planting
+	-- doesn't: its charge is the teleport.
+	spends: ((ctx: ServerCtx, req: Request) -> boolean)?,
 }
 
 return nil

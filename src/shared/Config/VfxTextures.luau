@@ -80,4 +80,12 @@ return table.freeze({
 	STIM_RING = "rbxassetid://89495836564073", -- top-view zone edge with arcs, centre clear
 	STIM_SPARK = "rbxassetid://93602845421112", -- a spark streak (VelocityParallel)
 	STIM_EDGE = "rbxassetid://105967176478968", -- full-screen electric edge glow (centre clear)
+
+	-- Recall (tools/vfx/make_recall_vfx.py → art-source/vfx/abilities/recall/),
+	-- tinted violet in Util/RecallFx.
+	RECALL_SHIMMER_2x2 = "rbxassetid://112883056580484", -- glints and fragments (flipbook, random frame)
+	RECALL_FLASH = "rbxassetid://85958731477951", -- a soft flash with streaks (arrival / departure)
+	RECALL_RING = "rbxassetid://90555324299037", -- top-view ring, centre clear (anchor halo, arrival)
+	RECALL_MOTE = "rbxassetid://92235284417353", -- a soft glowing mote
+	RECALL_WARP = "rbxassetid://96699089140331", -- full-screen streaks pulling inward (centre clear)
 })

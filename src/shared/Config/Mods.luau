@@ -299,23 +299,34 @@ local defs: { [string]: ModDef } = {
 			G3 = { note = "Overheat: bullets pierce walls and players", pierce = true },
 		},
 	},
-	Rollback = {
-		id = "Rollback",
-		name = "Rollback",
+	Recall = {
+		id = "Recall",
+		name = "Recall",
 		role = "Escape",
-		block = "Rewind",
-		activation = "Instant",
-		authority = "Simulation",
-		icon = "rbxassetid://139660148791653",
+		block = "Placeable",
+		activation = "HeldPlace",
+		authority = "Server",
+		icon = "rbxassetid://139660148791653", -- the Rollback icon until Recall has its own
 		glyph = "↺",
-		hint = {},
+		hint = { primary = "Plant" },
 		levels = {
 			L1 = {
-				note = "Snap back to where you were 3 s ago, with that ammo",
-				cooldown = 0, -- Recall: 1 per round, no recharge
+				note = "Plant an anchor; press again within 40 studs to teleport to it (0.6 s wind-up)",
+				cooldown = 0, -- 1 teleport per round, no recharge (planting is free)
 				charges = 1,
-				rewind = 3,
+				placeRange = 10, -- studs from the head to where it's planted
+				size = 1.2, -- the anchor's box across (studs)
+				height = 1.6, -- and up
+				range = 40, -- studs from the anchor you can teleport from
+				windup = 0.6, -- seconds from the press to arriving (no shooting)
+				pickupRange = 6, -- studs from the anchor you can pick it up
+				pickupHold = 0.5, -- seconds the key is held to pick it up
+				roomWidth = 2.5, -- studs: the space a spot needs for you to arrive
+				roomHeight = 5,
+				hp = 2, -- bullet hits that destroy it
+				life = 600, -- seconds (all round, until rounds exist)
 			},
+			-- The paths below are the Rollback's, not redesigned yet.
 			A2 = { note = "Undo: also restores HP from 3 s ago", restoreHealth = true },
 			A3 = { note = "Undo: 15 s cooldown, 30% damage reduction 2 s", cooldown = 15 },
 			B2 = {
@@ -342,7 +353,7 @@ local ORDER = {
 	"Recon",
 	"HealOrb",
 	"Stim",
-	"Rollback",
+	"Recall",
 }
 
 return table.freeze({
@@ -429,6 +440,7 @@ return table.freeze({
 		ModHold = { 8, 10 },
 		ModUse = { 6, 8 },
 		ModSteer = { 30, 40 }, -- the Firewall's steering stream (~20 a second)
+		ModRecall = { 4, 6 }, -- Recall's teleport / pick-up
 		DevMod = { 6, 10 },
 	},
 

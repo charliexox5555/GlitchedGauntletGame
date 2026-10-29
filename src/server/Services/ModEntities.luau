@@ -9,7 +9,11 @@
 -- Projectile) and clients draw it from the ModFx event.
 --
 -- Object attributes (clients colour and label them): Kind, TeamId, OwnerId,
--- Hp, MaxHp, ExpiresAt (workspace:GetServerTimeNow()).
+-- Hp, MaxHp, ExpiresAt (workspace:GetServerTimeNow()). CountsHits (set by
+-- the Mod before placing): each hit takes 1 HP whatever its damage (the
+-- Recall anchor: "2 hits"). RemovedWhy is set just before an object goes
+-- ("Broken", "Expired", "Replaced", "Used", "PickedUp"), so whoever watches
+-- the part can tell why.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -71,6 +75,7 @@ local function remove(obj: Object, why: string)
 		return
 	end
 	objects[obj.part] = nil
+	obj.part:SetAttribute("RemovedWhy", why)
 	Net.event("ModFx"):FireAllClients("ObjectGone", {
 		kind = obj.kind,
 		at = obj.part.Position,
@@ -130,6 +135,9 @@ function ModEntities.damage(part: BasePart, amount: number, attacker: Player?): 
 	if attacker and Teams.isAlly(attacker, obj.owner) then
 		return 0
 	end
+	if part:GetAttribute("CountsHits") == true then
+		amount = 1
+	end
 	local dealt = math.min(amount, obj.hp)
 	obj.hp -= dealt
 	part:SetAttribute("Hp", math.max(obj.hp, 0))
@@ -137,6 +145,15 @@ function ModEntities.damage(part: BasePart, amount: number, attacker: Player?): 
 		remove(obj, "Broken")
 	end
 	return dealt
+end
+
+-- Takes a live object out now (`why`: "Used", "PickedUp"; clients get
+-- ObjectGone like any other).
+function ModEntities.remove(part: BasePart, why: string)
+	local obj = objects[part]
+	if obj then
+		remove(obj, why)
+	end
 end
 
 -- Objects whose box is within `radius` of `at`.

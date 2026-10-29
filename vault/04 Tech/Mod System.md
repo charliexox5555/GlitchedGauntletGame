@@ -3,6 +3,12 @@
 > **Status:** approved 2026-10-26. **Stages 1–3 built**: all 9 Mods at L1, icons, the finished models and the stylized VFX library. The "as built" sections at the end say what changed from this proposal. Design source of truth: [Mods](../01%20Design/Mods.md). Code rules: [Architecture](Architecture.md).
 > Scope: the framework plus **L1 of all 9 Mods**. Paths A/B and Glitch plug in later without a rewrite (see "Levels and paths").
 
+> **2026-10-29: the 9 base abilities were redesigned and rebuilt** (Dash, Updraft, Molly, Firewall, Frost, Recon, Heal Orb, Stim, Recall). Their notes in [Abilities](../01%20Design/Abilities/00%20Abilities.md) are the source of truth, each with "Build notes". The sections below are the original Stage 0–5 record: where they name Blink, Launch Pad, Packet, Lag Field, Ping, Patch Up, Overclock or Rollback, that code is gone. What the rebuild added to the framework:
+> - **Charges:** `charges` per round + `cooldown` per Mod (`Mods/Charges`), the "Test mode: unlimited charges" toggle, `ModService.refillCharges` / `refillAllCharges` for RoundService.
+> - **Activations:** `HeldSteer` (Firewall, `ModSteer` remote, `Services/ModWalls`) and `HeldCharge` (Recon) next to the held throw / place / target ones; Recall uses `HeldPlace` for planting and its own `ModRecall` remote (`Services/ModRecall`) for the teleport and pick-up. `ModModule.spends` lets a use cost nothing; `ModDef.useKind` picks the third-person clip.
+> - **Shared status effects:** `Config/StatusEffects` (Hinder, Stimmed), `Mods/Status`, `Services/StatusService`; they multiply, and the simulation, both weapon sides and dummies read them.
+> - **Server-published moves in the simulation:** the server writes player attributes (`StatusMoveMult`, `RecallTo` / `RecallSerial`) that `Simulation/Abilities` and `Movement` apply, so server-decided movement stays predicted.
+
 ## What exists today (surveyed 2026-10-26)
 - **Server Authority is on.** Movement runs in `shared/Simulation/Movement.luau` (`BindToSimulation`, 60 Hz, both sides), reads `PlayContext` InputActions and moves the character only through `Humanoid.WalkSpeed` × the player attributes `MoveMult` / `AdsMult`. State lives in character attributes (`MoveState`, `SlideStart`, …). Poses are a second simulation module.
 - **Inputs:** `Config/Input` → `InputContextService` builds one `PlayContext` per player (under the Player, so the server receives it). `InputController` has `onPressed` / `isDown` / `bindTouchButtons`.

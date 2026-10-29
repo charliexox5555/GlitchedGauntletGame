@@ -1474,6 +1474,7 @@ local DIPS: { [string]: VM.ItemAction } = {
 	Dash = VM.DASH_DIP,
 	Updraft = VM.UPDRAFT_TILT,
 	Stim = VM.STIM_DIP,
+	Recall = VM.RECALL_DIP,
 }
 
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",

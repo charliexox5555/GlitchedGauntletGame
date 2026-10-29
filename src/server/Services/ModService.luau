@@ -51,6 +51,7 @@ local TestMode = require(Shared.TestMode)
 local Validate = require(Shared.Util.Validate)
 
 local ModEntities = require(script.Parent.ModEntities)
+local ModRecall = require(script.Parent.ModRecall)
 local ModWalls = require(script.Parent.ModWalls)
 local StatusService = require(script.Parent.StatusService)
 local WeaponService = require(script.Parent.WeaponService)
@@ -417,6 +418,10 @@ local function onHold(player: Player, slotArg: unknown)
 	if ModWalls.isBuilding(player) then
 		return -- no other Mod while a wall builds
 	end
+	if ModRecall.isWinding(player) then
+		deny(player, slot, "teleporting") -- the client puts its gun back up
+		return
+	end
 	if not active() or not liveHumanoid(player.Character) then
 		return
 	end
@@ -427,6 +432,10 @@ local function onHold(player: Player, slotArg: unknown)
 	local def = s.id and Mods.def(s.id)
 	local stats = s.id and Mods.stats(s.id, s.level)
 	if not def or not stats or def.activation == "Instant" then
+		return
+	end
+	if s.id == "Recall" and ModRecall.anchor(player) then
+		deny(player, slot, "Anchor already planted")
 		return
 	end
 	settle(s, stats, serverNow())
@@ -508,6 +517,10 @@ local function use(
 	end
 	if def.activation ~= "Instant" and state.held ~= slot then
 		deny(player, slot, "not held")
+		return
+	end
+	if ModRecall.isWinding(player) then
+		deny(player, slot, "teleporting")
 		return
 	end
 	if (origin - head.Position).Magnitude > Config.ORIGIN_TOLERANCE then
@@ -631,6 +644,20 @@ local function use(
 				end,
 			})
 		end,
+		anchor = function(part: BasePart)
+			ModRecall.track(player, slot, part, function()
+				-- Broken by enemies: the teleport is lost for the round.
+				if s.id ~= modId or unlimited(player) then
+					return
+				end
+				local t = serverNow()
+				settle(s, stats, t)
+				s.charges, s.rechargeAt =
+					Charges.spend(s.charges, s.rechargeAt, stats.charges, stats.cooldown, t)
+				publishSlot(player, slot, s)
+			end)
+		end,
+		anchorDown = ModRecall.anchor(player) ~= nil,
 	}
 	local req: ModTypes.Request = {
 		charge = if chargeArg == nil then nil else Validate.number(chargeArg, 0, 1),
@@ -649,7 +676,8 @@ local function use(
 		end
 	end
 
-	if not free then
+	local spends = module.spends == nil or module.spends(ctx, req)
+	if not free and spends then
 		s.charges, s.rechargeAt =
 			Charges.spend(s.charges, s.rechargeAt, stats.charges, stats.cooldown, now)
 	end
@@ -680,6 +708,70 @@ local function onUse(player: Player, ...: unknown)
 	-- A wall still building keeps the hold (ModWalls lets go when it's built).
 	if state and state.held ~= 0 and not ModWalls.isBuilding(player) then
 		release(player, Config.USE_TIME)
+	end
+end
+
+-- ModRecall(slot, action): Recall with its anchor down ("Teleport", or
+-- "PickUp" after holding the key next to it). Services/ModRecall runs it;
+-- the slot, the charge and the request checks are here.
+local RECALL_ACTIONS: { [string]: boolean } = { Teleport = true, PickUp = true }
+
+local function onRecall(player: Player, slotArg: unknown, actionArg: unknown)
+	if not limiter:allow(player, "ModRecall") then
+		return
+	end
+	local slot = Validate.integer(slotArg, 1, Config.SLOTS)
+	local action = Validate.enum(actionArg, RECALL_ACTIONS)
+	local state = states[player]
+	if not slot or not action or not state then
+		return
+	end
+	local s = state.slots[slot]
+	local stats = s.id == "Recall" and Mods.stats(s.id, s.level)
+	if not stats then
+		deny(player, slot, "no Recall in that slot")
+		return
+	end
+	if not active() or not liveHumanoid(player.Character) then
+		return
+	end
+	if state.held ~= 0 or ModWalls.isBuilding(player) then
+		deny(player, slot, "busy")
+		return
+	end
+	local hooks: ModRecall.Hooks = {
+		ready = function(): boolean
+			settle(s, stats, serverNow())
+			return s.charges >= 1 or unlimited(player)
+		end,
+		spend = function()
+			local now = serverNow()
+			settle(s, stats, now)
+			if not unlimited(player) then
+				s.charges, s.rechargeAt =
+					Charges.spend(s.charges, s.rechargeAt, stats.charges, stats.cooldown, now)
+			end
+			publishSlot(player, slot, s)
+		end,
+		deny = function(reason: string)
+			deny(player, slot, reason)
+		end,
+		fx = function(kind: string, data: { [string]: any })
+			data.caster = player
+			data.team = Teams.of(player)
+			data.id = "Recall"
+			data.level = s.level
+			Net.event("ModFx"):FireAllClients(kind, data)
+		end,
+		pose = function(kind: string)
+			player:SetAttribute("ModUseKind", kind)
+			player:SetAttribute("ModUseAt", serverNow())
+		end,
+	}
+	if action == "Teleport" then
+		ModRecall.teleport(player, slot, stats, hooks)
+	else
+		ModRecall.pickUp(player, slot, stats, hooks)
 	end
 end
 
@@ -748,8 +840,7 @@ local function assignTeam(player: Player)
 	player:SetAttribute(Teams.ATTRIBUTE, if counts[2] < counts[1] then 2 else 1)
 end
 
--- Rollback (predicted) moved the character back: give back the ammo the
--- player had then. The simulation writes RollbackAt; act outside it.
+-- Connections that belong to one life (dropped when the character goes).
 local lifeConnections: { [Player]: { RBXScriptConnection } } = {}
 
 local function dropLife(player: Player)
@@ -771,37 +862,12 @@ local function holdLife(player: Player, c: RBXScriptConnection)
 	table.insert(list, c)
 end
 
-local function watchRollback(player: Player, character: Model)
-	local last = character:GetAttribute("RollbackAt")
-	holdLife(
-		player,
-		character:GetAttributeChangedSignal("RollbackAt"):Connect(function()
-			local at = character:GetAttribute("RollbackAt")
-			if typeof(at) ~= "number" or at == last then
-				return
-			end
-			last = at
-			local state = states[player]
-			if not state then
-				return
-			end
-			for _, s in state.slots do
-				local stats = s.id == "Rollback" and Mods.stats(s.id, s.level)
-				if stats then
-					task.defer(WeaponService.rewindAmmo, player, stats.rewind)
-					return
-				end
-			end
-		end)
-	)
-end
-
 local function onCharacter(player: Player, character: Model)
 	ModWalls.stop(player)
+	ModRecall.cancel(player)
 	release(player)
 	-- A new life: what the last one left in the world goes.
 	ModEntities.clear(player)
-	watchRollback(player, character)
 	local humanoid = character:WaitForChild("Humanoid", 10)
 	if player.Parent ~= Players or player.Character ~= character then
 		return -- left (or respawned) while we waited
@@ -811,6 +877,7 @@ local function onCharacter(player: Player, character: Model)
 			player,
 			humanoid.Died:Connect(function()
 				ModWalls.stop(player) -- a wall stops growing (it keeps burning)
+				ModRecall.cancel(player) -- dying cancels a teleport
 				release(player)
 				ModEntities.clear(player)
 			end)
@@ -845,6 +912,7 @@ function ModService.init()
 	Net.event("ModHold").OnServerEvent:Connect(onHold)
 	Net.event("ModUse").OnServerEvent:Connect(onUse)
 	Net.event("ModSteer").OnServerEvent:Connect(onSteer)
+	Net.event("ModRecall").OnServerEvent:Connect(onRecall)
 end
 
 function ModService.start()

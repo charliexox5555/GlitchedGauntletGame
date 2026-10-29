@@ -23,7 +23,7 @@ local modules: { [string]: Types.ModModule } = {
 	Recon = require(script.Recon).module,
 	HealOrb = require(script.HealOrb).module,
 	Stim = require(script.Stim).module,
-	Rollback = require(script.Rollback).module,
+	Recall = require(script.Recall).module,
 }
 
 local cache: { [string]: Types.Stats } = {}

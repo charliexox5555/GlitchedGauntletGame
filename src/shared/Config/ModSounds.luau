@@ -207,8 +207,28 @@ return table.freeze({
 		-- Stim_Ending: 2D for you. "Static Zap Mix Reverberant Bursts 3", the fizzle
 		ending = cue(9119595114, 0.35, 0.9, nil, nil, nil, 0.4),
 	}),
-	Rollback = table.freeze({
-		rewind = cue(9117880715, 0.6), -- you, stand-in for ModRollbackRewind
-		snap = cue(9120425687, 0.55), -- 3D at both ends, stand-in for ModRollbackSnap
+	-- Recall hooks (vault/01 Design/Abilities/Recall.md → Sound). Placeholders
+	-- (ProSoundEffects recordings, unauditioned), listed in the Recall note.
+	Recall = table.freeze({
+		-- Recall_Equip: you. "Metal Latches 3"
+		equip = cue(9116722779, 0.45, 1.1, nil, nil, 0.5),
+		-- Recall_Place: 3D. "Metal Box Set Down Metal Drawer 1"
+		place = cue(9116527569, 0.75, 0.95, nil, 40, 0.35),
+		-- Recall_Idle: 3D on the anchor, ~20 studs. "Transformer Hum 1 (Steady, Loop)"
+		idle = cue(9112889082, 0.25, 1, true, 20, nil, 1, 35),
+		-- Recall_PickUp: 3D. "Locking Wrench 1"
+		pickUp = cue(9116320625, 0.45, 1.05, nil, 30, 0.3),
+		-- Recall_OutOfRange: you. "Static Many Various Length Bursts 24"
+		outOfRange = cue(9119583983, 0.35, 1, nil, nil, 0.45),
+		-- Recall_WindUp: 3D, ~40 studs. "Power Up Accelerating Motors 3"
+		windUp = cue(9117882661, 0.6, 1.25, nil, 40, 0.6, 0.8),
+		-- Recall_Depart: 3D. "Spaceship Doors Air Release Some With Suck Hiss 2"
+		depart = cue(9125975673, 0.6, 1.1, nil, 40, 0.8, 0.45),
+		-- Recall_Arrive: 3D, ~50 studs. "Whoosh By Fast Airy Swooshing Whipping Thuds 2"
+		arrive = cue(9126229255, 0.8, 0.95, nil, 50, 0.5, 0.05),
+		-- Recall_Destroyed: 3D, two layers. "Lightning Flashes Quick Electrical Bursts 56" ...
+		destroyed = cue(9116279560, 0.55, 1.1, nil, 40, 0.6),
+		-- ... and "Glass Breaks 17"
+		destroyedBreak = cue(9114593205, 0.4, 1.2, nil, 40, 0.4),
 	}),
 })

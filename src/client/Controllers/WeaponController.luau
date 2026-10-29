@@ -174,9 +174,12 @@ local lastMoveState = "Idle"
 -- DashFireDelay after; then the first shot until focusUntil has no movement
 -- spread (Dash Focus).
 local dashGate = DashMod.newGate()
+-- Recall's wind-up: no shots until this (the gun stays up).
+local fireBlockedUntil = 0
 
 local function dashBlocked(): boolean
-	return os.clock() < dashGate.readyAt
+	local now = os.clock()
+	return now < dashGate.readyAt or now < fireBlockedUntil
 end
 
 local function focusNow(): boolean
@@ -1016,6 +1019,12 @@ function WeaponController.setHolstered(reason: string, on: boolean)
 		equipReadyAt = math.max(equipReadyAt, os.clock() + UNHOLSTER_TIME)
 	end
 	ViewmodelController.setLowered(now)
+end
+
+-- No shots for `seconds` (0 lifts it) without lowering the gun: Recall's
+-- wind-up, so you arrive ready to fire.
+function WeaponController.blockFire(seconds: number)
+	fireBlockedUntil = os.clock() + math.max(seconds, 0)
 end
 
 function WeaponController.isHolstered(): boolean

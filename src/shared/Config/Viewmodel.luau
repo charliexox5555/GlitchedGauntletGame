@@ -447,6 +447,17 @@ return table.freeze({
 			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
 		},
 	} :: ItemAction,
+	-- Recall: over the wind-up the gun sinks a little and tilts in while the
+	-- free hand twists; it's back up just as you arrive.
+	RECALL_DIP = {
+		length = 0.6,
+		keys = {
+			{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+			{ t = 0.3, pos = Vector3.new(0.06, -0.22, 0.1), rot = Vector3.new(-8, 6, 10) },
+			{ t = 0.8, pos = Vector3.new(0.06, -0.26, 0.12), rot = Vector3.new(-9, 6, 12) },
+			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
+		},
+	} :: ItemAction,
 	-- The free hand, starting and ending below the screen. Dash: the way you
 	-- dash (Forward: the palm pushes out; Left / Right: a sweep to that side;
 	-- Back: reach out, then pull back). Updraft: a flick down, pushing off.
@@ -580,6 +591,34 @@ return table.freeze({
 					t = 0.76,
 					pos = Vector3.new(-0.3, -1.4, -1.3),
 					dir = Vector3.new(-0.2, 0.3, 0.93),
+				},
+				{ t = 1, pos = Vector3.new(-0.55, -1.7, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
+			},
+		},
+		-- Recall: the hand comes up in front, twists (a snap of the wrist)
+		-- and holds while the teleport charges, then drops away.
+		RecallTwist = {
+			length = 0.6,
+			keys = {
+				{
+					t = 0,
+					pos = Vector3.new(-0.55, -1.6, -0.75),
+					dir = Vector3.new(-0.3, -0.8, 0.5),
+				},
+				{
+					t = 0.25,
+					pos = Vector3.new(-0.32, -0.55, -1.3),
+					dir = Vector3.new(-0.45, -0.6, 0.65),
+				},
+				{
+					t = 0.45,
+					pos = Vector3.new(-0.22, -0.5, -1.35),
+					dir = Vector3.new(0.1, -0.7, 0.7),
+				},
+				{
+					t = 0.85,
+					pos = Vector3.new(-0.22, -0.52, -1.35),
+					dir = Vector3.new(0.12, -0.7, 0.7),
 				},
 				{ t = 1, pos = Vector3.new(-0.55, -1.7, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
 			},

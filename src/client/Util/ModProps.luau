@@ -15,6 +15,12 @@ local SHELL = Color3.fromHex("2A2D33")
 local SHELL_DARK = Color3.fromHex("1B1D21")
 
 local cache: { [string]: Model } = {}
+local HELD_PLACED_SCALE = 0.45 -- a placed Mod's model held in the hand
+-- Placed models drawn bigger than built, so they're easy to find (the
+-- Recall anchor is 1.1 studs tall in Blender).
+local PLACED_SCALE: { [string]: number } = {
+	Recall = 1.3,
+}
 
 -- Mods whose light isn't a team colour (the Heal Orb is soft green-teal for
 -- everyone).
@@ -117,14 +123,15 @@ local function placeholder(id: string, glow: Color3): Model?
 end
 
 -- Recolours a finished model's energy (parts named *_Energy / Energy = true,
--- and the Decals on them) to `glow`. Parts named *_Yellow keep their own
--- colour (the Stim's electric coil).
+-- and the Decals on them) to `glow`. Parts named *_Yellow / *_Violet keep
+-- their own colour (the Stim's electric coil, the Recall anchor's light).
 function ModProps.tint(model: Model, glow: Color3)
 	for _, d in model:GetDescendants() do
 		if
 			d:IsA("BasePart")
 			and (d:GetAttribute("Energy") == true or d.Material == Enum.Material.Neon)
 			and string.sub(d.Name, -7) ~= "_Yellow"
+			and string.sub(d.Name, -7) ~= "_Violet"
 		then
 			d.Color = glow
 			for _, decal in d:GetChildren() do
@@ -166,6 +173,16 @@ function ModProps.get(id: string, glow: Color3): Model?
 		end
 	else
 		model = placeholder(id, own or glow)
+		-- A placed Mod held in the hand: its finished model, small, above
+		-- the palm (the Recall anchor).
+		local placed = if model then nil else ModProps.finished(id, { "placed" })
+		if placed then
+			local small = placed:Clone()
+			ModProps.tint(small, glow)
+			small:ScaleTo(HELD_PLACED_SCALE)
+			small:SetAttribute("HoldOffset", Vector3.new(0, 0.12, -0.15))
+			model = small
+		end
 	end
 	if model and id == "HealOrb" then
 		-- The swirl on the orb's ForceField shell (it animates on its own).
@@ -191,6 +208,10 @@ function ModProps.dress(object: BasePart, glow: Color3): Model?
 	end
 	local model = finished:Clone()
 	ModProps.tint(model, glow)
+	local scale = PLACED_SCALE[kind :: string]
+	if scale then
+		model:ScaleTo(scale)
+	end
 	model:PivotTo(object.CFrame * CFrame.new(0, -object.Size.Y / 2, 0))
 	return model
 end

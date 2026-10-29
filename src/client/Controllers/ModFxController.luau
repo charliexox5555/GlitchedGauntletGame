@@ -23,9 +23,11 @@
 --                the server's pieces in workspace.ModWalls)
 -- Also: ModReveal (sent to your team only) outlines revealed enemies through
 -- walls; Mod objects in workspace.ModObjects are coloured per viewer and
--- flash when hit; a Rollback ghost trail follows anyone whose Rollback is
--- ready; your own Rollback plays a "VHS rewind" wash; anyone a Lag Field is
--- slowing shows SLOWED.
+-- flash when hit.
+--   RecallPlaced / RecallWindup / RecallArrive / RecallPickedUp   the anchor
+--                planted, the teleport's wind-up, the pop out and the flash
+--                in, the anchor picked up (Util/RecallFx; the anchors' glow
+--                and hum and the wind-up shimmer are there too)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -41,13 +43,13 @@ local ModSounds = require(Shared.Config.ModSounds)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local HealFx = require(script.Parent.Parent.Util.HealFx)
+local RecallFx = require(script.Parent.Parent.Util.RecallFx)
 local StimFx = require(script.Parent.Parent.Util.StimFx)
 local MollyFx = require(script.Parent.Parent.Util.MollyFx)
 local WallFx = require(script.Parent.Parent.Util.WallFx)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local ModVfx = require(script.Parent.Parent.Util.ModVfx)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
-local VfxPool = require(script.Parent.Parent.Util.VfxPool)
 local CameraController = require(script.Parent.CameraController)
 
 local ModFxController = {}
@@ -71,24 +73,14 @@ type Flight = {
 	pointed: boolean?, -- points along its path (a dart) instead of tumbling
 }
 
-type Beam = {
-	part: Part,
-	from: Model,
-	to: Model,
-	born: number,
-	duration: number,
-}
-
 type Floater = { gui: BillboardGui, label: TextLabel, born: number }
 
 local FLOATER_TIME = 1.1
 
 local folder: Folder? = nil
 local flights: { Flight } = {}
-local beams: { Beam } = {}
 local floaters: { Floater } = {}
 local grenadeFree: { [string]: { Model } } = {}
-local partPool: VfxPool.Pool<Part>? = nil
 local floaterFree: { Floater } = {}
 
 local function fxFolder(): Folder
@@ -100,38 +92,8 @@ local function fxFolder(): Folder
 	made.Name = "ModFx"
 	made.Parent = Workspace
 	folder = made
-	partPool = nil
 	table.clear(grenadeFree)
 	return made
-end
-
-local function parts(): VfxPool.Pool<Part>
-	local pool = partPool
-	if pool then
-		return pool
-	end
-	local made = VfxPool.new(function(): Part
-		local p = Instance.new("Part")
-		p.Anchored = true
-		p.CanCollide = false
-		p.CanQuery = false
-		p.CanTouch = false
-		p.CastShadow = false
-		p.Material = Enum.Material.Neon
-		p.Transparency = 1
-		p.Parent = fxFolder()
-		return p
-	end, fxFolder(), 8)
-	partPool = made
-	return made
-end
-
-local function takePart(shape: Enum.PartType, color: Color3): Part
-	local p = parts():acquire()
-	p.Shape = shape
-	p.Color = color
-	p.Material = Enum.Material.Neon -- pooled parts may come back as ForceField
-	return p
 end
 
 local function rootOf(model: Model?): BasePart?
@@ -728,6 +690,14 @@ local function onObjectGone(data: { [string]: any })
 	end
 	local color = TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
 	local broken = data.why == "Broken"
+	if data.kind == "Recall" and (data.why == "Used" or data.why == "PickedUp") then
+		return -- the teleport / pick-up has its own effects (RecallFx)
+	end
+	if data.kind == "Recall" and broken then
+		ModAudio.play(S.Recall.destroyed, at)
+		ModAudio.play(S.Recall.destroyedBreak, at)
+		ModVfx.burst(at, Color3.fromHex("9B6BFF"), 16, "Sparkle")
+	end
 	if data.kind == "ReconDart" and broken then
 		ModAudio.play(S.Recon.destroyed, at)
 		ModAudio.play(S.Recon.destroyedBreak, at)
@@ -744,87 +714,6 @@ local function onObjectGone(data: { [string]: any })
 		material = Enum.Material.Neon,
 	})
 	ModVfx.burst(at, color, if broken then 30 else 10, "Sparkle")
-end
-
--- Rollback ---------------------------------------------------------------------------
-
--- Ghost trails: for anyone whose Rollback is ready, where they were over the
--- last few seconds (where a rewind would take them), coloured by team. The
--- big dot is where they'd land.
-type Trail = { times: { number }, points: { Vector3 }, dots: { Part } }
-local trails: { [Player]: Trail } = {}
-local TRAIL_STEP = 0.2
-local TRAIL_SPAN = 3
-local nextTrailSample = 0
-
-local function rollbackReady(other: Player): boolean
-	local character = other.Character
-	for slot = 1, 3 do
-		if other:GetAttribute("Mod" .. slot .. "Id") == "Rollback" then
-			local charges = character and character:GetAttribute("Mod" .. slot .. "Charges")
-			return typeof(charges) ~= "number" or charges >= 1
-		end
-	end
-	return false
-end
-
-local function dropTrail(other: Player)
-	local trail = trails[other]
-	if trail then
-		local pool = parts()
-		for _, dot in trail.dots do
-			pool:release(dot)
-		end
-		trails[other] = nil
-	end
-end
-
-local function stepTrails(now: number)
-	if now < nextTrailSample then
-		return
-	end
-	nextTrailSample = now + TRAIL_STEP
-	for other in trails do
-		if other.Parent ~= Players then
-			dropTrail(other)
-		end
-	end
-	for _, other in Players:GetPlayers() do
-		local root = rootOf(other.Character)
-		if not root or not rollbackReady(other) then
-			dropTrail(other)
-			continue
-		end
-		local trail = trails[other]
-		if not trail then
-			trail = { times = {}, points = {}, dots = {} }
-			trails[other] = trail
-		end
-		local t = trail :: Trail
-		table.insert(t.times, now)
-		table.insert(t.points, root.Position - Vector3.new(0, 2.5, 0))
-		while #t.times > 0 and now - t.times[1] > TRAIL_SPAN do
-			table.remove(t.times, 1)
-			table.remove(t.points, 1)
-		end
-		local color = TeamColor.forOwner(other)
-		for i, point in t.points do
-			local dot = t.dots[i]
-			if not dot then
-				dot = takePart(Enum.PartType.Ball, color)
-				t.dots[i] = dot
-			end
-			local age = (now - t.times[i]) / TRAIL_SPAN
-			dot.Color = color
-			dot.Size = Vector3.one * (if i == 1 then 0.9 else 0.35)
-			dot.CFrame = CFrame.new(point)
-			dot.Transparency = 0.35 + 0.5 * (1 - age)
-		end
-		for i = #t.dots, #t.points + 1, -1 do
-			parts():release(t.dots[i])
-			t.dots[i] = nil
-		end
-	end
 end
 
 local function onFx(kind: unknown, data: unknown)
@@ -863,6 +752,14 @@ local function onFx(kind: unknown, data: unknown)
 		end
 	elseif kind == "ReconPulse" then
 		onReconPulse(d)
+	elseif kind == "RecallPlaced" then
+		RecallFx.placed(d)
+	elseif kind == "RecallWindup" then
+		RecallFx.windup(d)
+	elseif kind == "RecallArrive" then
+		RecallFx.arrive(d)
+	elseif kind == "RecallPickedUp" then
+		RecallFx.pickedUp(d)
 	elseif kind == "StimDrop" then
 		if
 			typeof(d.at) == "Vector3"
@@ -886,7 +783,6 @@ end
 local function update(_dt: number)
 	local now = os.clock()
 	local serverNow = Workspace:GetServerTimeNow()
-	local pool = parts()
 
 	for i = #flights, 1, -1 do
 		local f = flights[i]
@@ -929,25 +825,9 @@ local function update(_dt: number)
 	MollyFx.step()
 	HealFx.step()
 	StimFx.step()
+	RecallFx.step()
 	WallFx.step()
 	FrostFx.step()
-	for i = #beams, 1, -1 do
-		local b = beams[i]
-		local a, z = rootOf(b.from), rootOf(b.to)
-		local k = (now - b.born) / b.duration
-		if k >= 1 or not a or not z then
-			table.remove(beams, i)
-			pool:release(b.part)
-			continue
-		end
-		local from = a.Position + Vector3.new(0, 0.6, 0)
-		local to = z.Position + Vector3.new(0, 0.6, 0)
-		local length = (to - from).Magnitude
-		b.part.Size = Vector3.new(0.12, 0.12, length)
-		b.part.CFrame = CFrame.lookAt(from:Lerp(to, 0.5), to)
-		b.part.Transparency = 0.3 + 0.5 * k
-	end
-
 	for model, mark in reveals do
 		if now >= mark.untilT or not model.Parent then
 			mark.highlight:Destroy()
@@ -993,7 +873,6 @@ local function update(_dt: number)
 			skins[part] = nil
 		end
 	end
-	stepTrails(now)
 	-- Recon darts: a slow blink, a bright flash on each pulse.
 	for i = #recentPulses, 1, -1 do
 		if now - recentPulses[i].t > 0.25 then

@@ -317,6 +317,36 @@
   "type": "Decal",
   "uploaded": "2026-10-28 22:25:27"
  },
+ "art-source/vfx/abilities/recall/recall_flash.png": {
+  "assetId": 75453278205946,
+  "name": "GG VFX recall_flash",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:33:26"
+ },
+ "art-source/vfx/abilities/recall/recall_mote.png": {
+  "assetId": 74338671701244,
+  "name": "GG VFX recall_mote",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:33:33"
+ },
+ "art-source/vfx/abilities/recall/recall_ring.png": {
+  "assetId": 74849355454681,
+  "name": "GG VFX recall_ring",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:33:29"
+ },
+ "art-source/vfx/abilities/recall/recall_shimmer_2x2.png": {
+  "assetId": 101724244573183,
+  "name": "GG VFX recall_shimmer_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:33:23"
+ },
+ "art-source/vfx/abilities/recall/recall_warp.png": {
+  "assetId": 79516469998197,
+  "name": "GG VFX recall_warp",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:33:36"
+ },
  "art-source/vfx/abilities/recon/recon_glow.png": {
   "assetId": 134324061866250,
   "name": "GG VFX recon_glow",

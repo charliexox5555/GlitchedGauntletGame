@@ -3,12 +3,11 @@
 -- and the local screen effects.
 --
 --   Everyone's character: the simulation's DashStart / Dashing (Dash),
---   UpdraftAt / Updrafting (Updraft) and RollbackAt (Rollback) attributes
+--   UpdraftAt / Updrafting (Updraft) and RecallAt (Recall) attributes
 --   replicate, so a new value here means that player just cast: play its 3D
 --   sound there (and, for others' Dash and Updraft, Util/WindFx).
---   Your screen: Dash wind streaks and blur, the Rollback "VHS rewind" (wash,
---   scanlines, a REWIND tag), and the
---   enemy-only warnings (revealed by a Recon dart).
+--   Your screen: Dash wind streaks and blur, a violet flash as your Recall
+--   lands, and the enemy-only warnings (revealed by a Recon dart).
 --
 -- All overlays are built once and reused.
 
@@ -16,7 +15,6 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
@@ -39,7 +37,7 @@ type Seen = {
 	dashDir: Vector3,
 	updraft: number,
 	updrafting: boolean,
-	rollback: number,
+	recall: number,
 }
 local seen: { [Model]: Seen } = setmetatable({}, { __mode = "k" }) :: any
 -- Held Mod items in other players' hands, already tinted for this viewer.
@@ -47,8 +45,6 @@ local tinted: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: an
 
 local SPEED_LINES = 18
 local DASH = Config.DASH_FEEL
-local VHS_TIME = 0.55
-local SCANLINES = 28
 local FLASH_TIME = 0.35
 
 -- Dash wind streaks: radial streaks near the edges, weighted toward the
@@ -61,17 +57,12 @@ local blur: BlurEffect? = nil
 -- Updraft: our wind loop while rising.
 local windHum: ModAudio.Hum? = nil
 local windUntil = -math.huge
-local scan: Frame? = nil
-local scanRows: { Frame } = {}
-local rewindTag: TextLabel? = nil
-local vhsAt = -math.huge
 local flash: Frame? = nil
 local revealedTag: TextLabel? = nil
 local revealedAt = -math.huge
 local REVEALED_TIME = 1.2
 local flashAt = -math.huge
 local flashPeak = 0
-local vhs: ColorCorrectionEffect? = nil
 
 local function number(inst: Instance, name: string): number
 	local v = inst:GetAttribute(name)
@@ -109,34 +100,6 @@ local function build(): ScreenGui
 			ImageTransparency = 1,
 		}, screen)
 	end
-	-- VHS: scanlines rolling down and a REWIND tag.
-	local s = make("Frame", {
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Visible = false,
-		ClipsDescendants = true,
-	}, screen)
-	for i = 1, SCANLINES do
-		scanRows[i] = make("Frame", {
-			Position = UDim2.fromScale(0, (i - 1) / SCANLINES),
-			Size = UDim2.new(1, 0, 0, 2),
-			BackgroundColor3 = Color3.new(1, 1, 1),
-			BackgroundTransparency = 0.88,
-			BorderSizePixel = 0,
-		}, s)
-	end
-	rewindTag = make("TextLabel", {
-		Position = UDim2.fromOffset(36, 30),
-		Size = UDim2.fromOffset(240, 40),
-		BackgroundTransparency = 1,
-		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy),
-		TextSize = 30,
-		TextColor3 = Color3.new(1, 1, 1),
-		TextStrokeTransparency = 0.5,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "◀◀ REWIND",
-	}, s)
-	scan = s
 	-- "REVEALED" (placeholder) when an enemy Recon spots you.
 	revealedTag = make("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0),
@@ -158,31 +121,6 @@ local function build(): ScreenGui
 		BorderSizePixel = 0,
 	}, screen)
 	return screen
-end
-
-local function playVhs()
-	vhsAt = os.clock()
-	local effect = vhs
-	if not effect or not effect.Parent then
-		local made = Instance.new("ColorCorrectionEffect")
-		made.Name = "ModRewind"
-		made.Parent = Lighting
-		vhs = made
-		effect = made
-	end
-	local cc = effect :: ColorCorrectionEffect
-	cc.Saturation = -0.85
-	cc.Contrast = 0.35
-	cc.TintColor = Color3.fromHex("C8F7FF")
-	cc.Brightness = 0.05
-	TweenService
-		:Create(cc, TweenInfo.new(VHS_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Saturation = 0,
-			Contrast = 0,
-			TintColor = Color3.new(1, 1, 1),
-			Brightness = 0,
-		})
-		:Play()
 end
 
 -- A flash over the whole screen (a blast on you), `peak` 0..1.
@@ -213,7 +151,7 @@ local function stepCharacters()
 		local dashing = character:GetAttribute("Dashing") == true
 		local updraft = number(character, "UpdraftAt")
 		local updrafting = character:GetAttribute("Updrafting") == true
-		local rollback = number(character, "RollbackAt")
+		local recall = number(character, "RecallAt")
 		local s = seen[character]
 		if not s then
 			-- First sight: remember, don't replay old casts.
@@ -223,7 +161,7 @@ local function stepCharacters()
 				dashDir = root.CFrame.LookVector,
 				updraft = updraft,
 				updrafting = updrafting,
-				rollback = rollback,
+				recall = recall,
 			}
 			continue
 		end
@@ -296,17 +234,12 @@ local function stepCharacters()
 			ModAudio.play(S.Updraft.land)
 		end
 		s.updrafting = updrafting
-		if rollback > s.rollback then
-			local from = character:GetAttribute("RollbackFrom")
-			if typeof(from) == "Vector3" then
-				ModAudio.play(S.Rollback.snap, from)
-			end
-			ModAudio.play(S.Rollback.snap, root.Position)
-			if mine then
-				playVhs()
-			end
+		-- Recall: a violet flash on our screen as we arrive (the pop and
+		-- the sounds everyone gets come with RecallArrive, Util/RecallFx).
+		if recall > s.recall + 0.05 and mine then
+			blastFlash(Color3.fromHex("9B6BFF"), 0.35)
 		end
-		s.dash, s.updraft, s.rollback = dash, updraft, rollback
+		s.dash, s.updraft, s.recall = dash, updraft, recall
 	end
 end
 
@@ -352,23 +285,6 @@ local function update(_dt: number)
 		local size = if bk < 1 then DASH.blur * (1 - bk) * (1 - bk) else 0
 		if b.Size ~= size then
 			b.Size = size
-		end
-	end
-
-	local s = scan
-	local v = (now - vhsAt) / VHS_TIME
-	if s then
-		s.Visible = v < 1
-		if v < 1 then
-			local roll = (now * 0.9) % (1 / SCANLINES)
-			for i, row in scanRows do
-				row.Position = UDim2.fromScale(0, (i - 1) / SCANLINES + roll)
-				row.BackgroundTransparency = 0.8 + 0.2 * v
-			end
-			local tag = rewindTag
-			if tag then
-				tag.TextTransparency = if math.floor(now * 12) % 2 == 0 then 0.1 + 0.9 * v else 0.6
-			end
 		end
 	end
 

@@ -21,21 +21,18 @@
 --   Mod<n>CastAt            time() of the last cast (the client's "just cast")
 --   Mod<n>SerialSeen        last Mod<n>Serial applied
 --   ModResetSeen            last ModResetSerial applied
---   Dashing + the Dash* attributes of Mods/Dash, RollbackAt / RollbackFrom
---   (Mods/Rollback), UpdraftAt / UpdraftUp / Updrafting (Mods/Updraft);
+--   Dashing + the Dash* attributes of Mods/Dash, RecallSeen / RecallAt
+--   (Mods/Recall: the server's teleport, from the player's RecallTo /
+--   RecallSerial), UpdraftAt / UpdraftUp / Updrafting (Mods/Updraft);
 --   SlideJumpSpeed carries an Updraft's running speed through the air like a
 --   slide-jump (Movement)
-
-local RunService = game:GetService("RunService")
 
 local Charges = require(script.Parent.Parent.Mods.Charges)
 local Config = require(script.Parent.Parent.Config.Mods)
 local Mods = require(script.Parent.Parent.Mods)
-local Rollback = require(script.Parent.Parent.Mods.Rollback)
+local Recall = require(script.Parent.Parent.Mods.Recall)
 local Types = require(script.Parent.Parent.Mods.Types)
 local Updraft = require(script.Parent.Parent.Mods.Updraft)
-
-local rollbackConnection: RBXScriptConnection? = nil
 
 local AbilitiesSim = {}
 
@@ -147,6 +144,8 @@ function AbilitiesSim.stepCharacter(
 
 	-- An Updraft in progress: hold its rise, end it on landing.
 	Updraft.step(character, humanoid, root, now)
+	-- A Recall teleport the server published.
+	Recall.step(player, character, root, now)
 
 	for slot, names in NAMES do
 		local input = actionDown(context, names.input)
@@ -167,10 +166,6 @@ function AbilitiesSim.stepCharacter(
 		local cast = module.simCast
 		if not cast then
 			continue
-		end
-
-		if id == "Rollback" then
-			Rollback.record(character, root, now)
 		end
 
 		local key = id .. ":" .. level
@@ -223,22 +218,9 @@ function AbilitiesSim.stepCharacter(
 	stepDash(character, root, now)
 end
 
--- Call once per side (MovementSim.initialize does): a Server Authority
--- rollback drops the Luau state newer than the step it rewinds to.
-function AbilitiesSim.initialize()
-	if rollbackConnection then
-		return
-	end
-	local ok, signal = pcall(function()
-		return (RunService :: any).Rollback
-	end)
-	if ok and typeof(signal) == "RBXScriptSignal" then
-		rollbackConnection = signal:Connect(function(t: number)
-			if typeof(t) == "number" then
-				Rollback.onRollback(t)
-			end
-		end)
-	end
-end
+-- Call once per side (MovementSim.initialize does). Nothing here keeps
+-- Luau-side history across a Server Authority rollback any more (Rollback's
+-- went with it): all state is in attributes.
+function AbilitiesSim.initialize() end
 
 return AbilitiesSim

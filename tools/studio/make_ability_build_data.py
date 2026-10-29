@@ -31,6 +31,10 @@ EXTRA = {
 	# Stim: the beacon dropped at your feet (pivot = floor centre, like the Launch Pad). Coil_Yellow is Neon in a fixed
 	# electric yellow (#FFD23F), NOT team-tinted: code that recolours Neon parts must skip it.
 	"Stim": {"kind": "placed"},
+	# Recall: the teleport anchor planted on the ground (pivot = floor centre, like the Stim). Core_Violet, Ring_Violet and
+	# Strips_Violet are Neon in a fixed cool violet (#9B6BFF), NOT team-tinted: code that recolours Neon parts must skip
+	# them (only Light_Energy, the small status light, takes the team colour).
+	"Recall": {"kind": "placed"},
 }
 # Parts that are seen from both sides.
 DOUBLE_SIDED = {"Panel_Energy", "Shockwave_Energy", "Dome_Energy", "Sphere_Energy", "ScanRing_Energy"}

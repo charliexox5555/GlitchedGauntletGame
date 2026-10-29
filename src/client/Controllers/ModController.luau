@@ -32,6 +32,7 @@ local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
 local HealOrb = require(Shared.Mods.HealOrb)
+local Recall = require(Shared.Mods.Recall)
 local Stim = require(Shared.Mods.Stim)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
@@ -85,7 +86,15 @@ local orbHum: ModAudio.Hum? = nil
 local itemToken = 0
 local lastDashStart = 0
 local lastUpdraftAt = 0
-local lastRollbackAt = 0
+-- Recall: the wind-up and the arrival last seen on our character, and a
+-- key held next to the anchor (a pick-up once it's held long enough).
+local lastRecallWindup = 0
+local lastRecallAt = 0
+local recallHold: { slot: number, at: number }? = nil
+local recallPress: (slot: number, view: SlotView) -> ()
+-- Seconds a teleport request may take to show its wind-up (a ping and a bit).
+local RECALL_CONFIRM = 0.35
+local stepRecallHold: (now: number) -> ()
 
 -- Held throws with an arc preview: each Mod's projectile options (the server
 -- uses the same). The Molly has none: you just throw it (Molly.md).
@@ -93,7 +102,9 @@ local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {}
 -- Held placements: each Mod's spot check and box (the server uses the same).
 type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams, OverlapParams?) -> Placeable.Spot
 type PlaceDef = { find: Finder, size: (ModTypes.Stats) -> Vector3, bodies: boolean }
-local PLACE: { [string]: PlaceDef } = {}
+local PLACE: { [string]: PlaceDef } = {
+	Recall = { find = Recall.find, size = Recall.size, bodies = false },
+}
 -- Overlap params for the hologram, rebuilt twice a second (not per frame).
 local overlapCache: { [boolean]: OverlapParams } = {}
 local overlapAt = -math.huge
@@ -679,7 +690,9 @@ local function startHold(slot: number, view: SlotView)
 		ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
 	end
 	Net.event("ModHold"):FireServer(slot)
-	if def.id == "Recon" then
+	if def.id == "Recall" then
+		ModAudio.play(ModAudio.SOUNDS.Recall.equip)
+	elseif def.id == "Recon" then
 		ModAudio.play(ModAudio.SOUNDS.Recon.equip)
 		chargeBounces = 0
 		launcherLights(0)
@@ -711,6 +724,73 @@ local function startHold(slot: number, view: SlotView)
 	end
 end
 
+-- Recall with its anchor down -------------------------------------------------------
+
+-- Where our anchor stands (nil: none planted).
+local function recallAnchor(): Vector3?
+	local a = player:GetAttribute("RecallAnchor")
+	return if typeof(a) == "Vector3" then a else nil
+end
+
+-- When we last asked to teleport (os.clock()).
+local recallSentAt = -math.huge
+
+-- Our teleport is winding up (or just asked for and not confirmed yet).
+local function recallBusy(): boolean
+	local untilT = number(player.Character, "RecallWindupUntil", 0)
+	return untilT > Workspace:GetServerTimeNow() or os.clock() - recallSentAt < RECALL_CONFIRM
+end
+
+local function recallTeleport(slot: number, _stats: ModTypes.Stats)
+	recallSentAt = os.clock()
+	Net.event("ModRecall"):FireServer(slot, "Teleport")
+	-- No shots until the server's wind-up is seen (it then blocks the rest:
+	-- update, RecallWindupUntil); a refusal lifts it (onFx).
+	WeaponController.blockFire(RECALL_CONFIRM)
+end
+
+-- The key with the anchor down: out of range is refused here; next to it,
+-- a tap teleports and a hold picks it up (stepRecallHold); else teleport.
+recallPress = function(slot: number, view: SlotView)
+	local stats = view.stats
+	local anchor = recallAnchor()
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not stats or not anchor or not root or not root:IsA("BasePart") then
+		return
+	end
+	local distance = (root.Position - anchor).Magnitude
+	if distance > stats.range then
+		ModAudio.play(ModAudio.SOUNDS.Recall.outOfRange)
+		deny(slot, "Out of range")
+		return
+	end
+	if distance <= stats.pickupRange then
+		recallHold = { slot = slot, at = os.clock() }
+		return
+	end
+	recallTeleport(slot, stats)
+end
+
+-- Per frame: a key held next to the anchor.
+stepRecallHold = function(now: number)
+	local hold = recallHold
+	if not hold then
+		return
+	end
+	local stats = ModController.slot(hold.slot).stats
+	if not stats or not recallAnchor() then
+		recallHold = nil
+		return
+	end
+	if not InputController.isDown(PREFIXES[hold.slot]) then
+		recallHold = nil
+		recallTeleport(hold.slot, stats) -- a tap: teleport after all
+	elseif now - hold.at >= stats.pickupHold then
+		recallHold = nil
+		Net.event("ModRecall"):FireServer(hold.slot, "PickUp")
+	end
+end
+
 local function onModPressed(slot: number)
 	if not player.Character then
 		return
@@ -723,6 +803,10 @@ local function onModPressed(slot: number)
 	end
 	if phase == "Using" or phase == "Steering" then
 		return -- mid-throw / mid-wall: let it finish
+	end
+	if recallBusy() then
+		deny(slot, "Teleporting") -- no other Mod (or a second Recall) mid-teleport
+		return
 	end
 	local view = ModController.slot(slot)
 	local def = view.def
@@ -744,6 +828,10 @@ local function onModPressed(slot: number)
 		if not justCast then
 			deny(slot, "Not ready")
 		end
+		return
+	end
+	if def.id == "Recall" and recallAnchor() then
+		recallPress(slot, view)
 		return
 	end
 	if def.activation == "Instant" then
@@ -801,6 +889,11 @@ local function onFx(kind: unknown, data: unknown)
 	end
 	if phase ~= "Idle" and current == slot and phase ~= "Using" then
 		endHold(false)
+	end
+	-- A refused teleport: shoot again at once (unless a wind-up is running).
+	if number(player.Character, "RecallWindupUntil", 0) <= Workspace:GetServerTimeNow() then
+		recallSentAt = -math.huge
+		WeaponController.blockFire(0)
 	end
 	deny(slot, reason)
 end
@@ -900,14 +993,25 @@ local function update(_dt: number)
 		CameraController.lunge(Vector3.new(0, feel.lurch, 0), feel.lurchTime)
 		CameraController.shake(feel.shake)
 	end
-	-- Rollback: the server gives back the old ammo; drop any reload.
-	local rollbackAt = number(character, "RollbackAt", 0)
-	if rollbackAt > lastRollbackAt then
-		lastRollbackAt = rollbackAt
-		WeaponController.cancelReload()
-		ModAudio.play(ModAudio.SOUNDS.Rollback.rewind)
-		CameraController.punchFov(-8, 0.4)
+	-- Recall: the wind-up (the hand twists, the view pulls in, no shots),
+	-- then the arrival (a kick and a settle).
+	local windupUntil = number(character, "RecallWindupUntil", 0)
+	if windupUntil > lastRecallWindup + 0.05 then
+		lastRecallWindup = windupUntil
+		local left = windupUntil - Workspace:GetServerTimeNow()
+		if left > 0 then
+			ViewmodelController.gesture("RecallTwist", "Recall")
+			CameraController.punchFov(-12, left)
+			WeaponController.blockFire(left + 0.05)
+		end
 	end
+	local recallAt = number(character, "RecallAt", 0)
+	if recallAt > lastRecallAt + 0.05 then
+		lastRecallAt = recallAt
+		CameraController.punchFov(6, 0.3)
+		CameraController.shake(1.2)
+	end
+	stepRecallHold(now)
 
 	if phase == "Equipping" and now - phaseAt >= Config.EQUIP_TIME then
 		phase = "Held"
@@ -1022,7 +1126,9 @@ function ModController.start()
 		endHold(false)
 		lastDashStart = 0
 		lastUpdraftAt = 0
-		lastRollbackAt = 0
+		lastRecallWindup = 0
+		lastRecallAt = 0
+		recallHold = nil
 	end)
 	local function watchDeath(character: Model)
 		local humanoid = character:WaitForChild("Humanoid", 10)
