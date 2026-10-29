@@ -16,7 +16,8 @@
 -- replicates to everyone: that can't be hidden.)
 --   ModHeld                        0, or the slot the server has as held
 --   ModUnlimitedCharges            test mode: casting spends nothing (dev panel;
---                                  on by default in Studio, Config/Dev)
+--                                  on by default in Studio, Config/Dev, and in
+--                                  test mode, Config/TestRange)
 --   ModResetSerial                 bumped by refillCharges (the simulation
 --                                  refills predicted Mods when it changes)
 --   Mod<n>Serial                   bumped by setSlot (the simulation refills
@@ -48,6 +49,7 @@ local RateLimit = require(Shared.Util.RateLimit)
 local SelfBuff = require(Shared.Mods.Blocks.SelfBuff)
 local Teams = require(Shared.Mods.Teams)
 local TestMode = require(Shared.TestMode)
+local TestRange = require(Shared.Config.TestRange)
 local Validate = require(Shared.Util.Validate)
 
 local ModEntities = require(script.Parent.ModEntities)
@@ -903,7 +905,11 @@ local function onPlayer(player: Player)
 	states[player] = newState()
 	player:WaitForChild("PlayerGui", 10)
 	player:SetAttribute("ModHeld", 0)
-	if RunService:IsStudio() and Dev.UNLIMITED_CHARGES then
+	-- Studio follows Config/Dev; a published test-mode server, Config/TestRange.
+	local startUnlimited = if RunService:IsStudio()
+		then Dev.UNLIMITED_CHARGES
+		else TestMode.isOn() and TestRange.TESTER_UNLIMITED_CHARGES
+	if startUnlimited then
 		ModService.setUnlimitedCharges(player, true)
 	end
 	if active() then

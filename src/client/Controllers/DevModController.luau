@@ -1,12 +1,15 @@
 --!strict
--- Mod dev test panel (F8). Opens only when the server marked us allowed
--- (player attribute "DevMods", DevModService: Studio or the game's owner);
--- every action is a DevMod request the server checks again. Pick a slot, then
--- a Mod and a level; refill charges, toggle unlimited charges and quick-cast,
--- spawn or clear dummies. Dev dummies get a per-viewer outline (cyan ally,
+-- Mod dev test panel (F8, gamepad View/Select, touch TEST button: the
+-- DevPanel input action). Opens only when the server marked us allowed
+-- (player attribute "DevMods", DevModService: Studio, everyone in a test-mode
+-- server, or the game's owner); every action is a DevMod request the server
+-- checks again. Pick a slot, then a Mod and a level; refill charges, toggle
+-- unlimited charges and quick-cast, spawn or clear your dummies. On small
+-- screens the panel shrinks to fit. Dev dummies get a per-viewer outline (cyan ally,
 -- orange-red enemy) so teams read at a glance.
 
 local CollectionService = game:GetService("CollectionService")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
@@ -19,6 +22,7 @@ local Teams = require(Shared.Mods.Teams)
 
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 local CameraController = require(script.Parent.CameraController)
+local InputController = require(script.Parent.InputController)
 local ModController = require(script.Parent.ModController)
 local WeaponController = require(script.Parent.WeaponController)
 
@@ -35,12 +39,14 @@ local CYAN = Config.COLORS.ally
 local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
 local MEDIUM = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium)
 
-local TOGGLE_KEY = Enum.KeyCode.F8
 local DUMMY_TAG = "RangeDummy"
+local SCREEN_MARGIN = 24 -- px kept clear around the panel when it's scaled to fit
 
 type Button = { button: TextButton, stroke: UIStroke }
 
 local root: TextButton? = nil
+local panelFrame: Frame? = nil
+local panelScale: UIScale? = nil
 local open = false
 local selectedSlot = 1
 local selectedLevel = "L1"
@@ -171,6 +177,24 @@ local function refresh()
 	end
 end
 
+-- Shrinks the panel to fit small screens (phones), never grows it.
+local function fit()
+	local panel, scale, camera = panelFrame, panelScale, workspace.CurrentCamera
+	if not panel or not scale or not camera or scale.Scale <= 0 then
+		return
+	end
+	local natural = panel.AbsoluteSize / scale.Scale
+	if natural.X <= 0 or natural.Y <= 0 then
+		return
+	end
+	local view = camera.ViewportSize
+	scale.Scale = math.clamp(
+		math.min((view.X - SCREEN_MARGIN * 2) / natural.X, (view.Y - SCREEN_MARGIN * 2) / natural.Y),
+		0.4,
+		1
+	)
+end
+
 local function setOpen(value: boolean)
 	local r = root
 	if not r or open == value then
@@ -184,6 +208,16 @@ local function setOpen(value: boolean)
 	if value then
 		ModController.cancel()
 		refresh()
+		task.defer(fit) -- after the layout sizes the panel
+		local first = slotButtons[1]
+		if first and UserInputService.GamepadEnabled then
+			GuiService.SelectedObject = first.button
+		end
+	else
+		local selected = GuiService.SelectedObject
+		if selected and selected:IsDescendantOf(r) then
+			GuiService.SelectedObject = nil
+		end
 	end
 end
 
@@ -202,6 +236,7 @@ local function build(): TextButton
 		Modal = true,
 		Visible = false,
 		AutoButtonColor = false,
+		Selectable = false,
 	}, screen)
 	local panel = make("Frame", {
 		AnchorPoint = Vector2.new(0, 0.5),
@@ -214,6 +249,15 @@ local function build(): TextButton
 	}, r)
 	make("UICorner", { CornerRadius = UDim.new(0, 10) }, panel)
 	make("UIStroke", { Color = WHITE, Transparency = 0.85, Thickness = 1 }, panel)
+	panelFrame = panel
+	panelScale = make("UIScale", { Scale = 1 }, panel)
+	-- The layout settles after opening (AutomaticSize, the note's text):
+	-- fit again. Stable: fit() divides out the scale it set.
+	panel:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		if open then
+			fit()
+		end
+	end)
 	make("UIPadding", {
 		PaddingTop = UDim.new(0, 14),
 		PaddingBottom = UDim.new(0, 14),
@@ -226,7 +270,7 @@ local function build(): TextButton
 		panel
 	)
 
-	label("MOD DEV PANEL  ·  F8", 18, panel)
+	label("MOD TEST PANEL  ·  F8 / View", 18, panel)
 
 	label("Slot", 13, panel, MUTED)
 	local slotRow = row(panel, 30)
@@ -314,6 +358,26 @@ local function build(): TextButton
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "",
 	}, panel)
+
+	-- Touch: a small TEST button under the GUNS button (above the panel's
+	-- backdrop, so it closes the panel too), linked to the DevPanel action.
+	if UserInputService.TouchEnabled then
+		local b = make("TextButton", {
+			Name = "DevPanelButton",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -16, 0, 96),
+			Size = UDim2.fromOffset(64, 32),
+			BackgroundColor3 = BACK,
+			BackgroundTransparency = 0.4,
+			FontFace = BOLD,
+			TextSize = 14,
+			TextColor3 = WHITE,
+			Text = "TEST",
+			ZIndex = 2,
+		}, screen)
+		make("UICorner", { CornerRadius = UDim.new(0, 6) }, b)
+		InputController.bindTouchButtons(screen)
+	end
 	return r
 end
 
@@ -356,11 +420,25 @@ function DevModController.start()
 	end
 	player:GetAttributeChangedSignal("DevMods"):Connect(ready)
 	ready()
-	UserInputService.InputBegan:Connect(function(input, processed)
-		if input.KeyCode == TOGGLE_KEY and not processed and root then
+	InputController.onPressed("DevPanel", function()
+		if root then
 			setOpen(not open)
 		end
 	end)
+	-- Gamepad B (back) closes it too.
+	UserInputService.InputBegan:Connect(function(input)
+		if open and input.KeyCode == Enum.KeyCode.ButtonB then
+			setOpen(false)
+		end
+	end)
+	local camera = workspace.CurrentCamera
+	if camera then
+		camera:GetPropertyChangedSignal("ViewportSize"):Connect(function()
+			if open then
+				fit()
+			end
+		end)
+	end
 	-- Reflect server changes (slot set, unlimited charges) while open.
 	for _, name in
 		{

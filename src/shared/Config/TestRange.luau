@@ -117,6 +117,12 @@ return table.freeze({
 		{ id = "Regen", default = true }, -- full health REGEN_DELAY after the last hit
 	}) :: { Behaviour },
 
+	-- Tester tools in a published test-mode server (Studio always has the
+	-- panel and follows Config/Dev for charges). With test mode off, only the
+	-- game's owner gets the panel (Config/Mods DEV_GROUP).
+	TESTER_DEV_PANEL = true, -- every player can open the Mod dev panel (F8)
+	TESTER_UNLIMITED_CHARGES = true, -- players start with unlimited charges on
+
 	-- Roblox's stock R15 clips, for dummies moving without the Animate script.
 	ANIMATIONS = table.freeze({
 		Run = "rbxassetid://913376220",

@@ -1,9 +1,14 @@
 --!strict
 -- Backend of the Mod dev test panel (DevModController, F8). The draft
 -- doesn't exist yet, so this is how Mods get tested. Gated on the server:
--- only in Studio, or for the game's owner (group Config/Mods DEV_GROUP at rank
--- DEV_RANK). Allowed players get the player attribute "DevMods" = true; the
--- panel only opens for them, and every request is checked again here.
+-- in Studio, for everyone in a test-mode server (shared/TestMode, published
+-- places too; Config/TestRange TESTER_DEV_PANEL), or for the game's owner
+-- (group Config/Mods DEV_GROUP at rank DEV_RANK). Allowed players get the
+-- player attribute "DevMods" = true; the panel only opens for them, and every
+-- request is checked again here. Several testers can share a server, so
+-- dummies are capped per player (and per server), spawning has its own slow
+-- budget, each tester clears only their own, and dummies are never solid
+-- (nobody can wall in a doorway or another player with them).
 --
 -- DevMod(action, ...):
 --   "SetSlot", slot, id, level   any built Mod at any level in any slot
@@ -11,7 +16,7 @@
 --   "RefillCharges"                every charge back (what a new round does)
 --   "UnlimitedCharges", on         test mode: casting spends nothing
 --   "SpawnDummy", "Ally" | "Enemy"   a dummy prepared like a player, in front of you
---   "ClearDummies"
+--   "ClearDummies"                 the dummies you spawned
 --   "HurtSelf"                      -50 HP (solo heal tests: nothing else hurts you)
 -- (Quick-cast is a client setting: the panel toggles it locally.)
 
@@ -26,6 +31,8 @@ local Mods = require(Shared.Mods)
 local Net = require(Shared.Net)
 local RateLimit = require(Shared.Util.RateLimit)
 local Teams = require(Shared.Mods.Teams)
+local TestMode = require(Shared.TestMode)
+local TestRange = require(Shared.Config.TestRange)
 local Validate = require(Shared.Util.Validate)
 
 local CharacterService = require(script.Parent.CharacterService)
@@ -59,7 +66,7 @@ local dummies: { Model } = {}
 local spawnedBy: { [Model]: Player } = {}
 
 local function isAllowed(player: Player): boolean
-	if RunService:IsStudio() then
+	if RunService:IsStudio() or (TestMode.isOn() and TestRange.TESTER_DEV_PANEL) then
 		return true
 	end
 	for attempt = 1, 2 do
@@ -88,6 +95,16 @@ local function dummyFolder(): Folder
 	return f
 end
 
+local function dummiesOf(by: Player): number
+	local n = 0
+	for _, model in dummies do
+		if spawnedBy[model] == by then
+			n += 1
+		end
+	end
+	return n
+end
+
 local spawnDummy: (team: number, label: string, at: CFrame, by: Player) -> ()
 
 spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
@@ -99,6 +116,16 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 	desc.LeftLegColor = CLOTH
 	desc.RightLegColor = CLOTH
 	local model = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
+	-- That yielded: check the caps again (a burst of requests, or a respawn
+	-- after the spawner left), so the check and the insert below are one step.
+	if
+		by.Parent ~= Players
+		or dummiesOf(by) >= Config.DEV_MAX_DUMMIES
+		or #dummies >= Config.DEV_MAX_DUMMIES_TOTAL
+	then
+		model:Destroy()
+		return
+	end
 	model.Name = "DevDummy_" .. label
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	local animate = model:FindFirstChild("Animate")
@@ -110,6 +137,10 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
 	humanoid.AutoRotate = false
+	-- An anchored rig falls into FallingDown, and entering it turns the
+	-- limbs' collision back on (measured), so dummies never enter it.
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+	humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
 	model:PivotTo(at)
 	root.Anchored = true -- stays on its mark: shove-proof, easy to aim at
 	model:SetAttribute(Teams.ATTRIBUTE, team)
@@ -118,6 +149,12 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 	CollectionService:AddTag(model, DUMMY_TAG)
 	model.Parent = dummyFolder()
 	CharacterService.prepare(model)
+	-- Targets only: players walk through them (shots still hit: CanQuery).
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.CanCollide = false
+		end
+	end
 	table.insert(dummies, model)
 	spawnedBy[model] = by
 
@@ -160,11 +197,11 @@ local function spotInFront(player: Player): CFrame?
 	return CFrame.lookAt(position, position - flat.Unit)
 end
 
--- Clears every dev dummy, or only those `by` spawned.
-local function clearDummies(by: Player?)
+-- Clears the dev dummies `by` spawned.
+local function clearDummies(by: Player)
 	for i = #dummies, 1, -1 do
 		local model = dummies[i]
-		if by == nil or spawnedBy[model] == by then
+		if spawnedBy[model] == by then
 			table.remove(dummies, i)
 			spawnedBy[model] = nil
 			model:Destroy()
@@ -204,7 +241,13 @@ local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unkno
 		end
 	elseif action == "SpawnDummy" then
 		local side = Validate.enum(a, SIDES)
-		if not side or #dummies >= Config.DEV_MAX_DUMMIES then
+		if not side or not limiter:allow(player, "DevDummy") then
+			return
+		end
+		if
+			dummiesOf(player) >= Config.DEV_MAX_DUMMIES
+			or #dummies >= Config.DEV_MAX_DUMMIES_TOTAL
+		then
 			return
 		end
 		local spot = spotInFront(player)
@@ -219,7 +262,7 @@ local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unkno
 			)
 		end
 	elseif action == "ClearDummies" then
-		clearDummies()
+		clearDummies(player)
 	elseif action == "HurtSelf" then
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 		if humanoid and humanoid.Health > 0 then

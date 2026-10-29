@@ -60,6 +60,13 @@ local bindings: { [string]: Binding } = {
 		gamepad = { Enum.KeyCode.DPadLeft }, -- D-pad up is Mod 3
 		touch = "PickerButton",
 	},
+	-- Studio / test mode / owner only: the Mod dev test panel (DevModController).
+	DevPanel = {
+		keys = { Enum.KeyCode.F8 },
+		-- View / Select: the D-pad moves between the panel's buttons.
+		gamepad = { Enum.KeyCode.ButtonSelect },
+		touch = "DevPanelButton",
+	},
 }
 
 return table.freeze(bindings)

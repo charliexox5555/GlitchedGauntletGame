@@ -6,7 +6,7 @@
 -- Server -> client: WeaponState, HitConfirm, Damaged, Killed, ShotFx (unreliable)
 -- Mods (ModService): ModHold, ModUse, ModSteer, ModRecall (client -> server), ModFx (server -> clients),
 -- ModReveal (server -> the caster's team only)
--- Dev test panel (DevModService, Studio / owner only): DevMod (both ways)
+-- Dev test panel (DevModService; Studio, test mode or the owner): DevMod (client -> server)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")

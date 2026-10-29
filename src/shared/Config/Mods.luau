@@ -446,12 +446,15 @@ return table.freeze({
 		ModSteer = { 30, 40 }, -- the Firewall's steering stream (~20 a second)
 		ModRecall = { 4, 6 }, -- Recall's teleport / pick-up
 		DevMod = { 6, 10 },
+		DevDummy = { 0.5, 3 }, -- SpawnDummy on top of DevMod: one every 2 s, burst 3
 	},
 
-	-- Dev test panel (DevModService): who may use it outside Studio.
+	-- Dev test panel (DevModService): who may use it outside Studio and test
+	-- mode (Config/TestRange TESTER_DEV_PANEL opens it to every tester).
 	DEV_GROUP = 11116787,
 	DEV_RANK = 255,
 	DEV_DUMMY_DISTANCE = 12, -- studs in front of you a dummy spawns
-	DEV_MAX_DUMMIES = 6,
+	DEV_MAX_DUMMIES = 6, -- per player
+	DEV_MAX_DUMMIES_TOTAL = 18, -- per server (several testers)
 	DEV_HURT = 50, -- "Hurt me" (never kills)
 })
