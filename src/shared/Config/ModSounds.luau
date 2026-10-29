@@ -21,6 +21,7 @@ export type Cue = {
 	range: number?, -- 3D: audible up to this many studs (louder up close)
 	cut: number?, -- fade out and stop this many seconds after `start` (a long recording)
 	start: number?, -- seconds into the file to start from (skip silence; a loop's steady part)
+	loopEnd: number?, -- loops: loop only start..loopEnd (the file's steady part)
 }
 
 local function cue(
@@ -30,7 +31,8 @@ local function cue(
 	loop: boolean?,
 	range: number?,
 	cut: number?,
-	start: number?
+	start: number?,
+	loopEnd: number?
 ): Cue
 	return table.freeze({
 		id = "rbxassetid://" .. tostring(n),
@@ -40,6 +42,7 @@ local function cue(
 		range = range,
 		cut = cut,
 		start = start,
+		loopEnd = loopEnd,
 	})
 end
 
@@ -97,13 +100,22 @@ return table.freeze({
 		-- Molly_Burning: you, while burning. "Sizzle Short And Explosive Sear 13"
 		burning = cue(9119166425, 0.35, 1, nil, nil, 0.35),
 	}),
+	-- Firewall hooks (vault/01 Design/Abilities/Firewall.md → Sound). Placeholders
+	-- (ProSoundEffects, unauditioned), listed in the Firewall note; one id each.
+	-- A deep roar, unlike the Molly's crackle, so the two fires sound apart.
 	Firewall = table.freeze({
-		deploy = cue(9125981170, 0.6), -- 3D
-		deploySlam = cue(9125819216, 0.5), -- 3D layer
-		hum = cue(9114524164, 0.2, 1, true), -- 3D
-		hit = cue(9119073329, 0.35), -- 3D, stand-in for ModWallHit
-		broken = cue(9114589190, 0.8), -- 3D
-		expire = cue(9117872887, 0.5), -- 3D
+		-- Firewall_Ignite: you. "Fire Whoosh 15"
+		ignite = cue(9114446852, 0.5, 1.1, nil, nil, nil, 0.05),
+		-- Firewall_Cast: you / 3D at the caster. "Fire Whoosh 8", 0.38 s on
+		cast = cue(9114441555, 0.7, 1, nil, 40, 1.1, 0.38),
+		-- Firewall_Build: 3D, the wall racing on. "Fire Burst 2", 0.45 s on
+		build = cue(9114430091, 0.6, 1.1, nil, 60, 1.2, 0.45),
+		-- Firewall_Loop: 3D, ~50 studs. "Fire Burst 8", looping its steady 2.8–6.2 s
+		loop = cue(9114429835, 0.2, 1, true, 50, nil, 2.8, 6.2),
+		-- Firewall_PassThrough: you. "Kerosene Explosion Whooshing Poofs Crackling 6"
+		passThrough = cue(9125616715, 0.6, 1.05),
+		-- Firewall_End: 3D. "Fire Burst 8", its natural tail from 7 s
+		ending = cue(9114429835, 0.3, 1, nil, 40, nil, 7),
 	}),
 	LagField = table.freeze({
 		throw = cue(9120712091, 0.55), -- 3D

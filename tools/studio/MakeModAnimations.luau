@@ -10,6 +10,7 @@
 --   GG_ModHold   (looped)   right hand forward at chest height, holding a Mod
 --   GG_ModThrow  (one-shot) wind back over the shoulder, release, follow through
 --   GG_ModLob    (one-shot) underhand: swing down and back, out low and soft
+--   GG_ModCast   (one-shot) the free hand pushes out and guides (Firewall)
 --   GG_ModPlace  (one-shot) dip and push the object down in front
 --   GG_ModHeal   (one-shot) thrust the device toward the target and back
 --   GG_DashForward / Back / Left / Right (one-shot) the body leans into a
@@ -147,6 +148,15 @@ local LOB_FOLLOW: Frame = {
 	LeftLowerArm = { 20, 0, 0 },
 }
 
+local CAST_PUSH: Frame = {
+	UpperTorso = { -6, 12, 0 },
+	RightUpperArm = { 40, 10, 0 },
+	RightLowerArm = { 30, 0, 0 },
+	LeftUpperArm = { 88, -12, 0 },
+	LeftLowerArm = { 6, 0, 0 },
+	LeftHand = { -20, 0, 0 },
+}
+
 local PLACE_DOWN: Frame = {
 	LowerTorso = { -6, 0, 0, 0, -0.45, 0 },
 	UpperTorso = { -22, 0, 0 },
@@ -207,6 +217,12 @@ local sequences = {
 		{ 0.14, LOB_BACK },
 		{ 0.26, LOB_RELEASE },
 		{ 0.45, LOB_FOLLOW },
+	}),
+	sequence("GG_ModCast", ACTION4, false, {
+		{ 0, HOLD },
+		{ 0.12, CAST_PUSH },
+		{ 0.75, CAST_PUSH },
+		{ 1, HOLD },
 	}),
 	sequence("GG_ModPlace", ACTION4, false, {
 		{ 0, HOLD },

@@ -56,6 +56,12 @@ function ModAudio.hum(cue: ModSounds.Cue?, holder: Instance?): Hum?
 	s.RollOffMinDistance = math.min(10, far * 0.25)
 	s.RollOffMaxDistance = far
 	s.Volume = 0
+	-- A cue may loop only the steady part of its file.
+	local loopEnd = cue.loopEnd
+	s.PlaybackRegionsEnabled = loopEnd ~= nil
+	if loopEnd then
+		s.LoopRegion = NumberRange.new(cue.start or 0, loopEnd)
+	end
 	s.TimePosition = cue.start or 0
 	-- Our own Attachment on the holder: if the holder is destroyed, only the
 	-- attachment and this Sound go (the Sound isn't returned to the pool).

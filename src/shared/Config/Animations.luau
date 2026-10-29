@@ -32,6 +32,7 @@ return table.freeze({
 		Place = id(102573901472605),
 		Heal = id(116476893527219),
 		Lob = id(91729570520010), -- a held throw's underhand (Molly RMB)
+		Cast = id(131757439176866), -- HeldSteer: the free hand pushes out (Firewall)
 		-- Dash: the torso leans into the dash (Simulation/Poses, by direction).
 		DashForward = id(132740788102457),
 		DashBack = id(128130101853691),

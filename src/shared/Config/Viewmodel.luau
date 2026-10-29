@@ -533,6 +533,24 @@ return table.freeze({
 		},
 	} :: { [string]: Gesture },
 
+	-- Held free-hand poses (ViewmodelController.setFreeHand): root space, the
+	-- fist and its arm direction, eased toward at FREE_POSE_RATE. Firewall:
+	-- the hand held up with a flame in it, then pushed out to guide the wall.
+	FREE_POSES = {
+		FirewallReady = {
+			offset = Vector3.new(-0.42, -0.5, -1.35),
+			direction = Vector3.new(-0.35, -0.75, 0.55),
+		},
+		FirewallGuide = {
+			offset = Vector3.new(-0.2, -0.42, -1.85),
+			direction = Vector3.new(-0.25, -0.45, 0.86),
+		},
+	} :: { [string]: Hand },
+	FREE_POSE_RATE = 16, -- 1/s
+	FREE_POSE_FROM = Vector3.new(-0.55, -1.6, -0.8), -- where the hand comes up from
+	-- The flame in the hand (a small fire on the fist; Util/... MOLLY flipbook).
+	HAND_FLAME_SIZE = 0.55,
+
 	-- Pose blends (critically damped, rad/s).
 	POSE_FREQUENCY = 13,
 	CANCEL_TIME = 0.14, -- seconds to fade out a cancelled track

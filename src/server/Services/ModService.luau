@@ -51,6 +51,7 @@ local TestMode = require(Shared.TestMode)
 local Validate = require(Shared.Util.Validate)
 
 local ModEntities = require(script.Parent.ModEntities)
+local ModWalls = require(script.Parent.ModWalls)
 local WeaponService = require(script.Parent.WeaponService)
 
 type SlotState = { id: string?, level: string, charges: number, rechargeAt: number }
@@ -63,6 +64,7 @@ local USE_KINDS: { [string]: string } = {
 	HeldThrow = "Throw",
 	HeldPlace = "Place",
 	HeldTarget = "Heal",
+	HeldSteer = "Cast",
 }
 local HELD_ITEM = "ModHeldItem"
 -- The item sits in the right hand like a gun (WeaponService's grip).
@@ -290,6 +292,7 @@ function ModService.setSlot(player: Player, slot: number, id: string?, level: st
 		return false
 	end
 	if state.held == slot then
+		ModWalls.stop(player)
 		release(player)
 	end
 	local s = state.slots[slot]
@@ -403,8 +406,14 @@ local function onHold(player: Player, slotArg: unknown)
 		return
 	end
 	if slot == 0 then
+		-- A wall still building ends where it is: the gun only comes back
+		-- once nothing is being built.
+		ModWalls.stop(player)
 		release(player)
 		return
+	end
+	if ModWalls.isBuilding(player) then
+		return -- no other Mod while a wall builds
 	end
 	if not active() or not liveHumanoid(player.Character) then
 		return
@@ -513,6 +522,9 @@ local function use(
 		return
 	end
 
+	local function damage(victim: Model, amount: number, at: Vector3)
+		WeaponService.damage(player, victim, amount, modId, at)
+	end
 	local ctx: ModTypes.ServerCtx = {
 		player = player,
 		character = character,
@@ -524,9 +536,7 @@ local function use(
 		stats = stats,
 		now = now,
 		worldParams = worldParams,
-		damage = function(victim: Model, amount: number, at: Vector3)
-			WeaponService.damage(player, victim, amount, modId, at)
-		end,
+		damage = damage,
 		heal = function(healTarget: Model, amount: number, duration: number)
 			if duration <= 0 then
 				WeaponService.heal(healTarget, amount)
@@ -597,6 +607,22 @@ local function use(
 		damageObject = function(part: BasePart, amount: number)
 			ModEntities.damage(part, amount, player)
 		end,
+		-- HeldSteer (Firewall): the hold (gun down) lasts until it's built.
+		wall = function(spec: ModTypes.WallSpec)
+			ModWalls.build(player, root, stats, spec, {
+				damage = damage,
+				look = function(): Vector3?
+					return if player.Character == character then cameraLook(player) else nil
+				end,
+				built = function()
+					local st = states[player]
+					if st and st.held == slot then
+						release(player, Config.USE_TIME)
+					end
+					Net.event("ModFx"):FireClient(player, "WallBuilt", { slot = slot })
+				end,
+			})
+		end,
 	}
 	local req: ModTypes.Request = {
 		mode = mode :: ModTypes.UseMode,
@@ -641,8 +667,40 @@ local function onUse(player: Player, ...: unknown)
 		end
 	end
 	local state = states[player]
-	if state and state.held ~= 0 then
+	-- A wall still building keeps the hold (ModWalls lets go when it's built).
+	if state and state.held ~= 0 and not ModWalls.isBuilding(player) then
 		release(player, Config.USE_TIME)
+	end
+end
+
+-- ModSteer(slot, lookX, lookZ, stop): the Firewall's steering stream while
+-- LMB is held (the server prefers its own copy of the camera), and the
+-- release that ends it early. Only for a wall that is building.
+local function onSteer(
+	player: Player,
+	slotArg: unknown,
+	xArg: unknown,
+	zArg: unknown,
+	stopArg: unknown
+)
+	if not limiter:allow(player, "ModSteer") then
+		return
+	end
+	local slot = Validate.integer(slotArg, 1, Config.SLOTS)
+	local x = Validate.number(xArg, -1.01, 1.01)
+	local z = Validate.number(zArg, -1.01, 1.01)
+	local stop = Validate.boolean(stopArg)
+	local state = states[player]
+	if not slot or not x or not z or stop == nil or not state or state.held ~= slot then
+		return
+	end
+	if stop then
+		ModWalls.steer(player, nil)
+		return
+	end
+	local look = Vector3.new(x, 0, z)
+	if look.Magnitude > 0.05 then
+		ModWalls.steer(player, look.Unit)
 	end
 end
 
@@ -729,6 +787,7 @@ local function watchRollback(player: Player, character: Model)
 end
 
 local function onCharacter(player: Player, character: Model)
+	ModWalls.stop(player)
 	release(player)
 	-- A new life: what the last one left in the world goes.
 	ModEntities.clear(player)
@@ -741,6 +800,7 @@ local function onCharacter(player: Player, character: Model)
 		holdLife(
 			player,
 			humanoid.Died:Connect(function()
+				ModWalls.stop(player) -- a wall stops growing (it keeps burning)
 				release(player)
 				ModEntities.clear(player)
 			end)
@@ -774,6 +834,7 @@ end
 function ModService.init()
 	Net.event("ModHold").OnServerEvent:Connect(onHold)
 	Net.event("ModUse").OnServerEvent:Connect(onUse)
+	Net.event("ModSteer").OnServerEvent:Connect(onSteer)
 end
 
 function ModService.start()

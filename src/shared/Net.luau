@@ -4,7 +4,7 @@
 --
 -- Client -> server: Equip, Fire, Reload, PickWeapon (Studio / test mode), Aim (unreliable)
 -- Server -> client: WeaponState, HitConfirm, Damaged, Killed, ShotFx (unreliable)
--- Mods (ModService): ModHold, ModUse (client -> server), ModFx (server -> clients),
+-- Mods (ModService): ModHold, ModUse, ModSteer (client -> server), ModFx (server -> clients),
 -- ModReveal (server -> the caster's team only)
 -- Dev test panel (DevModService, Studio / owner only): DevMod (both ways)
 
@@ -22,6 +22,7 @@ local RELIABLE = {
 	"Killed",
 	"ModHold",
 	"ModUse",
+	"ModSteer",
 	"ModFx",
 	"ModReveal",
 	"DevMod",

@@ -122,26 +122,30 @@ local defs: { [string]: ModDef } = {
 	Firewall = {
 		id = "Firewall",
 		name = "Firewall",
-		role = "Defense",
-		block = "Placeable",
-		activation = "HeldPlace",
+		role = "Control",
+		block = "Wall",
+		activation = "HeldSteer",
 		authority = "Server",
-		icon = "rbxassetid://124672546555888",
+		icon = "rbxassetid://124672546555888", -- the old wall's icon until Firewall has its own
 		glyph = "▮",
-		hint = { primary = "Deploy" },
-		quickCast = "Primary",
+		hint = { primary = "Hold: steer", alt = "Straight" },
+		quickCast = "Alt",
 		levels = {
 			L1 = {
-				note = "8x6 wall that blocks bullets both ways",
+				note = "Steerable fire wall, 40 x 10: blocks vision, 30 damage/s",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
-				placeRange = 8,
-				width = 8,
-				height = 6,
-				thickness = 0.6,
-				hp = 150,
-				life = 6,
+				speed = 40, -- studs/s it builds forward
+				maxLength = 40,
+				turnRate = 110, -- degrees/s it may curve while you steer
+				height = 10, -- fully blocks sight
+				thickness = 1.5,
+				segment = 4, -- studs per wall piece (the server's parts)
+				duration = 6, -- seconds after it finishes building
+				dps = 30, -- to enemies; FRIENDLY_FIRE of it to your team; none to you
+				tick = 0.25,
 			},
+			-- The paths below are the old cover wall's, not redesigned yet.
 			A2 = { note = "Rampart: 250 HP, lasts 10 s", hp = 250, life = 10 },
 			A3 = { note = "Rampart: your team shoots out through it", oneWay = true },
 			B2 = { note = "Burn Wall: fire curtain you can walk through", behaviour = "Burn" },
@@ -398,6 +402,7 @@ return table.freeze({
 	RATE = {
 		ModHold = { 8, 10 },
 		ModUse = { 6, 8 },
+		ModSteer = { 30, 40 }, -- the Firewall's steering stream (~20 a second)
 		DevMod = { 6, 10 },
 	},
 

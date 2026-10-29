@@ -41,6 +41,7 @@ IDS.ModHold = Animations.MODS.ModHold
 local USE_IDS: { [string]: string } = {
 	Throw = Animations.MODS.Throw,
 	Lob = Animations.MODS.Lob, -- a held throw's underhand (Molly RMB)
+	Cast = Animations.MODS.Cast, -- HeldSteer: the free hand pushes out (Firewall)
 	Place = Animations.MODS.Place,
 	Heal = Animations.MODS.Heal,
 	-- Dash leans (Mods/Dash), by direction relative to the body.

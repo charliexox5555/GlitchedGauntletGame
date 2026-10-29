@@ -3,8 +3,9 @@
 -- lives in Config/Mods; code only ever reads stats resolved by Mods.stats.
 
 -- Instant: press and it happens. Held*: press to hold it (gun lowered),
--- LMB / RMB to use it (Mods.md → Controls and activation).
-export type Activation = "Instant" | "HeldThrow" | "HeldPlace" | "HeldTarget"
+-- LMB / RMB to use it (Mods.md → Controls and activation). HeldSteer: the use
+-- keeps going while you steer it (Firewall: hold LMB, turn to curve).
+export type Activation = "Instant" | "HeldThrow" | "HeldPlace" | "HeldTarget" | "HeldSteer"
 
 -- Simulation: predicted inside shared/Simulation/Abilities (no remote).
 -- Server: requested with ModUse; ModService validates and applies.
@@ -111,6 +112,16 @@ export type ServerCtx = {
 	-- Mod objects near a point, and damage to one (not the caster's team's).
 	objectsNear: (at: Vector3, radius: number) -> { BasePart },
 	damageObject: (part: BasePart, amount: number) -> (),
+	-- Starts building a wall from the caster's feet (HeldSteer): the hold
+	-- lasts until it's built.
+	wall: (spec: WallSpec) -> (),
+}
+
+-- A wall to build (Firewall → Services/ModWalls): the way it starts going,
+-- and whether it ignores steering.
+export type WallSpec = {
+	heading: Vector3, -- flat unit
+	straight: boolean,
 }
 
 export type ModModule = {

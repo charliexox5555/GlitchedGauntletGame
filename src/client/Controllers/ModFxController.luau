@@ -14,6 +14,8 @@
 --   PingPulse    an expanding scan sphere (everyone sees it)
 --   Overclock    the caster's gun glows (a screen-edge glow for the caster)
 --   Placed / ObjectGone  a pop when a Mod object goes up / breaks or expires
+--   FirewallCast  the cast whoosh; the wall itself is Util/WallFx (it dresses
+--                the server's pieces in workspace.ModWalls)
 -- Also: ModReveal (sent to your team only) outlines revealed enemies through
 -- walls; Mod objects in workspace.ModObjects are coloured per viewer and
 -- flash when hit; a Rollback ghost trail follows anyone whose Rollback is
@@ -32,6 +34,7 @@ local Tex = require(Shared.Config.VfxTextures)
 
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local MollyFx = require(script.Parent.Parent.Util.MollyFx)
+local WallFx = require(script.Parent.Parent.Util.WallFx)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local ModVfx = require(script.Parent.Parent.Util.ModVfx)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
@@ -680,26 +683,6 @@ local function restColor(part: BasePart): Color3
 	return objectColor(part)
 end
 
-local function skin(
-	part: BasePart,
-	face: Enum.NormalId,
-	texture: string,
-	u: number,
-	v: number,
-	alpha: number
-): Texture
-	local t = Instance.new("Texture")
-	t.Name = "ModSkin"
-	t.Face = face
-	t.Texture = texture
-	t.StudsPerTileU = u
-	t.StudsPerTileV = v
-	t.Color3 = objectColor(part)
-	t.Transparency = alpha
-	t.Parent = part
-	return t
-end
-
 local function undress(part: BasePart)
 	local d = dressed[part]
 	if d then
@@ -753,42 +736,16 @@ local function colourObject(part: Instance)
 		return
 	end
 	known[part] = true
-	local kind = part:GetAttribute("Kind")
-	if dress(part) then
-		-- The finished model carries the look.
-		kind = nil
-	end
-	if kind == "Firewall" then
-		local u = 2.4
-		skins[part] = {
-			skin(part, Enum.NormalId.Front, Tex.MOD_HEX, u, u * 0.866, 0.35),
-			skin(part, Enum.NormalId.Back, Tex.MOD_HEX, u, u * 0.866, 0.35),
-		}
-	end
+	dress(part) -- the finished model carries the look, if there is one
 	part.Color = restColor(part)
 	part.Destroying:Connect(function()
 		skins[part] = nil
-	end)
-	-- A quiet hum so a placed object can be found by ear.
-	local hum = ModAudio.hum(
-		if kind == "Firewall" or part:GetAttribute("Kind") == "Firewall"
-			then S.Firewall.hum
-			else nil,
-		part
-	)
-	part.AncestryChanged:Connect(function()
-		if not part:IsDescendantOf(workspace) then
-			ModAudio.stopHum(hum)
-		end
 	end)
 	local lastHp = part:GetAttribute("Hp")
 	part:GetAttributeChangedSignal("Hp"):Connect(function()
 		local hp = part:GetAttribute("Hp")
 		if typeof(hp) == "number" and typeof(lastHp) == "number" and hp < lastHp then
 			objectFlash[part] = os.clock()
-			if part:GetAttribute("Kind") == "Firewall" then
-				ModAudio.play(S.Firewall.hit, part.Position)
-			end
 		end
 		lastHp = hp
 	end)
@@ -798,10 +755,6 @@ local function onPlaced(data: { [string]: any })
 	local at = data.at
 	if typeof(at) ~= "Vector3" then
 		return
-	end
-	if data.kind == "Firewall" then
-		ModAudio.play(S.Firewall.deploy, at)
-		ModAudio.play(S.Firewall.deploySlam, at)
 	end
 	local color = teamColor(data)
 	ModVfx.quad({
@@ -822,9 +775,6 @@ local function onObjectGone(data: { [string]: any })
 	end
 	local color = TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
 	local broken = data.why == "Broken"
-	if data.kind == "Firewall" then
-		ModAudio.play(if broken then S.Firewall.broken else S.Firewall.expire, at)
-	end
 	ModVfx.shell({
 		shape = Enum.PartType.Block,
 		cframe = CFrame.new(at),
@@ -984,7 +934,12 @@ local function onFx(kind: unknown, data: unknown)
 		return
 	end
 	local d = data :: { [string]: any }
-	if kind == "MollyThrow" then
+	if kind == "FirewallCast" then
+		-- The push-out whoosh at the caster (ours is played on the press).
+		if d.caster ~= player and typeof(d.at) == "Vector3" then
+			ModAudio.play(S.Firewall.cast, d.at)
+		end
+	elseif kind == "MollyThrow" then
 		onMollyThrow(d)
 	elseif kind == "MollyBurst" then
 		onMollyBurst(d)
@@ -1047,6 +1002,7 @@ local function update(_dt: number)
 	end
 	ModVfx.step()
 	MollyFx.step()
+	WallFx.step()
 	for i = #orbs, 1, -1 do
 		local o = orbs[i]
 		if now >= o.untilT then
@@ -1164,6 +1120,7 @@ end
 function ModFxController.start()
 	Net.event("ModFx").OnClientEvent:Connect(onFx)
 	Net.event("ModReveal").OnClientEvent:Connect(onReveal)
+	WallFx.start()
 	RunService.RenderStepped:Connect(update)
 	-- Mod objects: coloured for this viewer as they stream in.
 	task.spawn(function()

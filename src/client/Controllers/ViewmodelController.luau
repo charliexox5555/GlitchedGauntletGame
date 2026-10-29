@@ -32,6 +32,7 @@ local Workspace = game:GetService("Workspace")
 local Spring = require(ReplicatedStorage.Shared.Util.Spring)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
+local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local MagDrop = require(script.Parent.Parent.Util.MagDrop)
@@ -154,6 +155,13 @@ local itemHidden = false
 local gestureKind: string? = nil
 local dipKind: string? = nil
 local gestureAt = -math.huge
+-- A held free-hand pose (Config/Viewmodel FREE_POSES), eased toward; and the
+-- flame that burns in it (a part under the camera, moved with the fist).
+local freePose: string? = nil
+local freePos: Vector3 = VM.FREE_POSE_FROM
+local freeDir: Vector3 = Vector3.new(-0.3, -0.8, 0.5)
+local handFlame: Part? = nil
+local handFlameEmitter: ParticleEmitter? = nil
 
 -- Small helpers ----------------------------------------------------------------
 
@@ -1479,6 +1487,76 @@ function ViewmodelController.gesture(gesture: string, dip: string?)
 	end
 end
 
+-- Holds the free hand in a FREE_POSES pose until nil (the Firewall's
+-- burning hand: "FirewallReady", "FirewallGuide"). A Firewall pose lights
+-- the flame in it.
+function ViewmodelController.setFreeHand(pose: string?)
+	if pose and not VM.FREE_POSES[pose] then
+		return
+	end
+	if pose and not freePose then
+		freePos = VM.FREE_POSE_FROM
+	end
+	freePose = pose
+	-- Put the flame out at once (update may not run: no gun, dead).
+	local flame = handFlameEmitter
+	if not pose and flame then
+		flame.Rate = 0
+	end
+end
+
+local function flameEmitter(): (Part, ParticleEmitter)
+	local p = handFlame
+	local e = handFlameEmitter
+	if p and e and p.Parent then
+		return p, e
+	end
+	local part = Instance.new("Part")
+	part.Name = "HandFlame"
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanQuery = false
+	part.CanTouch = false
+	part.CastShadow = false
+	part.Transparency = 1
+	part.Size = Vector3.new(0.25, 0.25, 0.25)
+	local size = VM.HAND_FLAME_SIZE
+	local made = Instance.new("ParticleEmitter")
+	made.Texture = VFX.MOLLY_FLAME_4x4
+	made.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid4x4
+	made.FlipbookMode = Enum.ParticleFlipbookMode.Loop
+	made.FlipbookFramerate = NumberRange.new(20, 24)
+	made.FlipbookStartRandom = true
+	made.LockedToPart = true
+	made.Lifetime = NumberRange.new(0.35, 0.55)
+	made.Speed = NumberRange.new(0.3, 0.8)
+	made.EmissionDirection = Enum.NormalId.Top
+	made.SpreadAngle = Vector2.new(15, 15)
+	made.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, size * 0.7),
+		NumberSequenceKeypoint.new(0.4, size),
+		NumberSequenceKeypoint.new(1, size * 0.5),
+	})
+	made.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.5),
+		NumberSequenceKeypoint.new(0.2, 0.05),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	made.LightEmission = 0.7
+	made.LightInfluence = 0
+	made.Rate = 0
+	made.Parent = part
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(255, 150, 70)
+	light.Range = 6
+	light.Brightness = 1.5
+	light.Parent = part
+	part.Parent = Workspace.CurrentCamera
+	handFlame = part
+	handFlameEmitter = made
+	return part, made
+end
+
 -- Hides the held item's part named `name` after `delay` seconds (the
 -- Molly's pin, pulled). The item comes back whole the next time it's held.
 function ViewmodelController.hideItemPart(name: string, delay: number)
@@ -1983,6 +2061,31 @@ local function update(dt: number)
 				root.RightVector
 			)
 		end
+		-- A held free-hand pose (the Firewall's burning hand), and its flame.
+		local pose = if freePose then VM.FREE_POSES[freePose] else nil
+		local flamePart: Part?, flame: ParticleEmitter? = nil, nil
+		if pose or handFlameEmitter then
+			flamePart, flame = flameEmitter()
+		end
+		if pose and not hidden then
+			local k = 1 - math.exp(-VM.FREE_POSE_RATE * dt)
+			freePos = freePos:Lerp(pose.offset, k)
+			freeDir = freeDir:Lerp(pose.direction, k)
+			local point = root:PointToWorldSpace(freePos)
+			ViewmodelArms.place(
+				a,
+				"Left",
+				point,
+				point + root:VectorToWorldSpace(freeDir),
+				root.RightVector
+			)
+			if flamePart then
+				flamePart.CFrame = CFrame.new(point + root.UpVector * 0.12)
+			end
+		end
+		if flame then
+			flame.Rate = if pose and not hidden then 40 else 0
+		end
 	end
 
 	-- 3b. A held Mod's item, in the right hand.
@@ -2058,6 +2161,7 @@ function ViewmodelController.start()
 		gestureKind = nil
 		dipKind = nil
 		gestureAt = -math.huge
+		ViewmodelController.setFreeHand(nil)
 		if arms then
 			arms.model:Destroy()
 			arms = nil

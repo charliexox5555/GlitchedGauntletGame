@@ -6,6 +6,8 @@
 --
 -- Held state machine (Mods.md → Rules for held Mods):
 --   Idle → Equipping (EQUIP_TIME raise) → Held → Using (USE_TIME) → Idle
+--   (HeldSteer, the Firewall: Held → Steering until the server says the
+--   wall is built; LMB held streams the look (ModSteer), releasing stops it)
 -- Press a held Mod's key: the gun lowers (WeaponController.setHolstered), the
 -- item comes up (ViewmodelController.holdItem) and the server is told
 -- (ModHold). While held, Fire = Primary use, Aim = Alt use (and the mobile
@@ -27,7 +29,6 @@ local Config = require(Shared.Config.Mods)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
-local Firewall = require(Shared.Mods.Firewall)
 local LagField = require(Shared.Mods.LagField)
 local PatchUp = require(Shared.Mods.PatchUp)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
@@ -42,7 +43,7 @@ local InputController = require(script.Parent.InputController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
 
-type Phase = "Idle" | "Equipping" | "Held" | "Using"
+type Phase = "Idle" | "Equipping" | "Held" | "Using" | "Steering"
 
 -- What the HUD shows for one slot.
 export type SlotView = {
@@ -67,6 +68,12 @@ local current = 0 -- slot being held / used
 local phaseAt = 0 -- os.clock() the phase began
 local queued: ModTypes.UseMode? = nil -- a use pressed while still equipping
 local quickCast = false
+-- Steering (HeldSteer): how the wall was started, whether LMB was let go,
+-- and when the look was last sent.
+local steerMode: ModTypes.UseMode = "Primary"
+local steerStopped = false
+local steerSentAt = -math.huge
+local STEER_RATE = 0.05 -- seconds between ModSteer looks (the server prefers its own camera copy)
 local itemToken = 0
 local lastDashStart = 0
 local lastUpdraftAt = 0
@@ -80,9 +87,7 @@ local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {
 -- Held placements: each Mod's spot check and box (the server uses the same).
 type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams, OverlapParams?) -> Placeable.Spot
 type PlaceDef = { find: Finder, size: (ModTypes.Stats) -> Vector3, bodies: boolean }
-local PLACE: { [string]: PlaceDef } = {
-	Firewall = { find = Firewall.find, size = Firewall.size, bodies = true },
-}
+local PLACE: { [string]: PlaceDef } = {}
 -- Overlap params for the hologram, rebuilt twice a second (not per frame).
 local overlapCache: { [boolean]: OverlapParams } = {}
 local overlapAt = -math.huge
@@ -514,6 +519,7 @@ local function endHold(tellServer: boolean)
 	setPhase("Idle", 0)
 	queued = nil
 	WeaponController.setHolstered("Mod", false)
+	ViewmodelController.setFreeHand(nil)
 	hideArc()
 	hidePlacement()
 	hideTarget()
@@ -588,11 +594,21 @@ local function use(mode: ModTypes.UseMode)
 		end
 	end
 	sendUse(current, mode, target)
-	setPhase("Using", current)
 	queued = nil
 	hideArc()
 	hidePlacement()
 	hideTarget()
+	if def.activation == "HeldSteer" then
+		-- The hand pushes out and guides the wall while it builds.
+		setPhase("Steering", current)
+		steerMode = mode
+		steerStopped = false
+		steerSentAt = -math.huge
+		ViewmodelController.setFreeHand("FirewallGuide")
+		ModAudio.play(ModAudio.SOUNDS.Firewall.cast)
+		return
+	end
+	setPhase("Using", current)
 	ViewmodelController.itemAction(
 		if def.activation == "HeldThrow"
 			then (if mode == "Alt" then "Lob" else "Throw")
@@ -607,7 +623,14 @@ local function startHold(slot: number, view: SlotView)
 	queued = nil
 	itemToken += 1
 	WeaponController.setHolstered("Mod", true)
-	ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
+	if def.activation == "HeldSteer" then
+		-- Nothing in the hand: the free hand ignites.
+		ViewmodelController.holdItem(nil)
+		ViewmodelController.setFreeHand("FirewallReady")
+		ModAudio.play(ModAudio.SOUNDS.Firewall.ignite)
+	else
+		ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
+	end
 	Net.event("ModHold"):FireServer(slot)
 	if def.id == "Molly" then
 		-- Canister out, then the free hand pulls the pin.
@@ -636,13 +659,13 @@ local function onModPressed(slot: number)
 		return
 	end
 	if phase ~= "Idle" and current == slot then
-		if phase ~= "Using" then
-			cancelByPlayer() -- same key: cancel
+		if phase ~= "Using" and phase ~= "Steering" then
+			cancelByPlayer() -- same key: cancel (a wall being built finishes)
 		end
 		return
 	end
-	if phase == "Using" then
-		return -- mid-throw: let it finish
+	if phase == "Using" or phase == "Steering" then
+		return -- mid-throw / mid-wall: let it finish
 	end
 	local view = ModController.slot(slot)
 	local def = view.def
@@ -680,8 +703,22 @@ local function onModPressed(slot: number)
 end
 
 -- The server didn't accept something: put our state back.
+-- The server finished building our wall (and let go of the hold).
+local function onWallBuilt(data: { [string]: any })
+	if phase == "Steering" and data.slot == current then
+		endHold(false)
+	end
+end
+
 local function onFx(kind: unknown, data: unknown)
-	if kind ~= "Denied" or typeof(data) ~= "table" then
+	if typeof(data) ~= "table" then
+		return
+	end
+	if kind == "WallBuilt" then
+		onWallBuilt(data :: { [string]: any })
+		return
+	end
+	if kind ~= "Denied" then
 		return
 	end
 	local d = data :: { [string]: any }
@@ -694,6 +731,35 @@ local function onFx(kind: unknown, data: unknown)
 		endHold(false)
 	end
 	deny(slot, reason)
+end
+
+-- Steering a wall: stream the flat look while LMB is held; let go = stop.
+-- A backstop ends it if the server's "built" never comes.
+local function stepSteer(now: number)
+	local view = ModController.slot(current)
+	local stats = view.stats
+	local limit = if stats then stats.maxLength / stats.speed + 1.5 else 3
+	if now - phaseAt > limit then
+		endHold(false)
+		return
+	end
+	if steerMode ~= "Primary" or steerStopped then
+		return
+	end
+	if not InputController.isDown("Fire") then
+		steerStopped = true
+		Net.event("ModSteer"):FireServer(current, 0, 0, true)
+		return
+	end
+	local cam = Workspace.CurrentCamera
+	if cam and now - steerSentAt >= STEER_RATE then
+		steerSentAt = now
+		local flat = cam.CFrame.LookVector * Vector3.new(1, 0, 1)
+		if flat.Magnitude > 0.05 then
+			flat = flat.Unit
+			Net.event("ModSteer"):FireServer(current, flat.X, flat.Z, false)
+		end
+	end
 end
 
 -- Per frame -----------------------------------------------------------------------------
@@ -756,6 +822,8 @@ local function update(_dt: number)
 		end
 	elseif phase == "Using" and now - phaseAt >= Config.USE_TIME then
 		endHold(true) -- the server already let go; this is only a backstop
+	elseif phase == "Steering" then
+		stepSteer(now)
 	end
 
 	if phase == "Equipping" or phase == "Held" then
