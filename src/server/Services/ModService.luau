@@ -1,6 +1,7 @@
 --!strict
 -- Server-authoritative Mods (vault/04 Tech/Mod System.md). Owns every
--- player's 3 slots ({ id, level }), charges and cooldowns (server clock),
+-- player's 3 slots ({ id, level }), charges and cooldowns (server clock;
+-- per-round charges come back only through refillCharges, Mods/Charges),
 -- the held slot, and every requested Mod's validation and effect. Predicted
 -- Mods (Blink) run in shared/Simulation/Abilities instead; this service only
 -- hands them their slot.
@@ -14,7 +15,15 @@
 -- (Predicted Mods keep theirs on the character, which Server Authority
 -- replicates to everyone: that can't be hidden.)
 --   ModHeld                        0, or the slot the server has as held
---   ModNoCooldown, ModResetSerial  dev panel switches (DevModService)
+--   ModUnlimitedCharges            test mode: casting spends nothing (dev panel;
+--                                  on by default in Studio, Config/Dev)
+--   ModResetSerial                 bumped by refillCharges (the simulation
+--                                  refills predicted Mods when it changes)
+--   Mod<n>Serial                   bumped by setSlot (the simulation refills
+--                                  that predicted slot)
+--   Mod<n>Carry, Mod<n>CarryAt     predicted Mods: charges and next recharge
+--                                  (simulation time()) the last life ended
+--                                  with, so a respawn doesn't refill them
 --   TeamId                         team until MatchService exists (Mods/Teams)
 --
 -- Request ladder (roblox-security): rate limit → types (finite, ranges,
@@ -31,6 +40,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Charges = require(Shared.Mods.Charges)
 local Config = require(Shared.Config.Mods)
+local Dev = require(Shared.Config.Dev)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
@@ -84,6 +94,10 @@ end
 
 local function prefix(slot: number): string
 	return "Mod" .. slot
+end
+
+local function unlimited(player: Player): boolean
+	return player:GetAttribute("ModUnlimitedCharges") == true
 end
 
 local function newState(): PlayerState
@@ -256,6 +270,12 @@ local function worldParams(): RaycastParams
 	return params
 end
 
+-- The next life starts full (setSlot, refillCharges).
+local function clearCarry(player: Player, slot: number)
+	player:SetAttribute(prefix(slot) .. "Carry", nil)
+	player:SetAttribute(prefix(slot) .. "CarryAt", nil)
+end
+
 -- Loadout API (draft later; the dev panel now) ------------------------------------
 
 -- Puts Mod `id` at `level` in `slot` (nil id empties it), full charges.
@@ -277,6 +297,12 @@ function ModService.setSlot(player: Player, slot: number, id: string?, level: st
 	s.level = level
 	s.charges = if stats then stats.charges else 0
 	s.rechargeAt = serverNow()
+	clearCarry(player, slot)
+	local serial = player:GetAttribute(prefix(slot) .. "Serial")
+	player:SetAttribute(
+		prefix(slot) .. "Serial",
+		(if typeof(serial) == "number" then serial else 0) + 1
+	)
 	publishSlot(player, slot, s)
 	local private = privateState(player)
 	if private then
@@ -292,17 +318,22 @@ function ModService.setLoadout(player: Player, loadout: { ModTypes.SlotLoadout }
 	end
 end
 
--- Every charge back, server and simulation Mods alike.
-function ModService.resetCooldowns(player: Player)
+-- Charges ------------------------------------------------------------------------------
+
+-- Every charge back, server and simulation Mods alike. RoundService calls this
+-- at the start of each round; the dev panel's "Refill charges" too.
+function ModService.refillCharges(player: Player)
 	local state = states[player]
 	if not state then
 		return
 	end
+	local now = serverNow()
 	for slot, s in state.slots do
+		clearCarry(player, slot)
 		local stats = s.id and Mods.stats(s.id, s.level)
 		if stats then
 			s.charges = stats.charges
-			s.rechargeAt = serverNow()
+			s.rechargeAt = now
 			publishSlot(player, slot, s)
 		end
 	end
@@ -310,8 +341,54 @@ function ModService.resetCooldowns(player: Player)
 	player:SetAttribute("ModResetSerial", (if typeof(serial) == "number" then serial else 0) + 1)
 end
 
-function ModService.setNoCooldown(player: Player, on: boolean)
-	player:SetAttribute("ModNoCooldown", on)
+-- Round start: everyone's charges back.
+function ModService.refillAllCharges()
+	for _, player in Players:GetPlayers() do
+		ModService.refillCharges(player)
+	end
+end
+
+-- Test mode: casting spends nothing (charges stay where they are).
+function ModService.setUnlimitedCharges(player: Player, on: boolean)
+	player:SetAttribute("ModUnlimitedCharges", on)
+end
+
+-- A life ends: remember the predicted Mods' charges (the simulation keeps them
+-- on the character, which goes) for the next life. Only when the old life
+-- applied the latest refill and setSlot and still held the current loadout;
+-- otherwise refillCharges / setSlot already cleared the carry, and the next
+-- life starts full.
+local function carryCharges(player: Player, character: Model)
+	local state = states[player]
+	local serial = player:GetAttribute("ModResetSerial")
+	local seen = character:GetAttribute("ModResetSeen")
+	if not state or seen ~= (if typeof(serial) == "number" then serial else 0) then
+		return
+	end
+	for slot, s in state.slots do
+		local id = s.id
+		local def = id and Mods.def(id)
+		if not id or not def or def.authority ~= "Simulation" then
+			continue
+		end
+		local p = prefix(slot)
+		local charges = character:GetAttribute(p .. "Charges")
+		local rechargeAt = character:GetAttribute(p .. "RechargeAt")
+		local slotSerial = player:GetAttribute(p .. "Serial")
+		if
+			character:GetAttribute(p .. "Key") == id .. ":" .. s.level
+			and character:GetAttribute(p .. "SerialSeen") == (if typeof(slotSerial) == "number"
+				then slotSerial
+				else 0)
+			and typeof(charges) == "number"
+		then
+			player:SetAttribute(p .. "Carry", charges)
+			player:SetAttribute(
+				p .. "CarryAt",
+				if typeof(rechargeAt) == "number" then rechargeAt else nil
+			)
+		end
+	end
 end
 
 -- Remote handlers --------------------------------------------------------------------
@@ -342,7 +419,7 @@ local function onHold(player: Player, slotArg: unknown)
 		return
 	end
 	settle(s, stats, serverNow())
-	if s.charges < 1 and player:GetAttribute("ModNoCooldown") ~= true then
+	if s.charges < 1 and not unlimited(player) then
 		deny(player, slot, "not ready")
 		release(player)
 		return
@@ -430,7 +507,7 @@ local function use(
 
 	local now = serverNow()
 	settle(s, stats, now)
-	local free = player:GetAttribute("ModNoCooldown") == true
+	local free = unlimited(player)
 	if s.charges < 1 and not free then
 		deny(player, slot, "not ready")
 		return
@@ -673,13 +750,17 @@ local function onPlayer(player: Player)
 	states[player] = newState()
 	player:WaitForChild("PlayerGui", 10)
 	player:SetAttribute("ModHeld", 0)
+	if RunService:IsStudio() and Dev.UNLIMITED_CHARGES then
+		ModService.setUnlimitedCharges(player, true)
+	end
 	if active() then
 		ModService.setLoadout(player, Config.TEST_LOADOUT)
 	end
 	player.CharacterAdded:Connect(function(character)
 		onCharacter(player, character)
 	end)
-	player.CharacterRemoving:Connect(function()
+	player.CharacterRemoving:Connect(function(character)
+		carryCharges(player, character)
 		dropLife(player)
 	end)
 	if player.Character then

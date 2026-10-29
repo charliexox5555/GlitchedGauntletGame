@@ -8,12 +8,18 @@
 --
 -- Reads (player attributes, written by ModService outside the simulation):
 --   Mod<n>Id, Mod<n>Level   the loadout
---   ModNoCooldown           dev panel: casting spends nothing
---   ModResetSerial          dev panel: bumped to refill every charge
+--   ModUnlimitedCharges     test mode: casting spends nothing
+--   ModResetSerial          bumped to refill every charge (ModService.refillCharges)
+--   Mod<n>Serial            bumped by ModService.setSlot: that slot starts full
+--   Mod<n>Carry, Mod<n>CarryAt   charges and next recharge the last life ended
+--                           with (a new character starts with these, so dying
+--                           doesn't refill)
 -- Writes (character attributes):
 --   Mod<n>In                last step's Mod<n> input (to detect presses)
 --   Mod<n>Key               "id:level" the charges below belong to
 --   Mod<n>Charges, Mod<n>RechargeAt   simulation Mods' charges (time() clock)
+--   Mod<n>CastAt            time() of the last cast (the client's "just cast")
+--   Mod<n>SerialSeen        last Mod<n>Serial applied
 --   ModResetSeen            last ModResetSerial applied
 --   Dashing + the Dash* attributes of Mods/Blink, RollbackAt / RollbackFrom
 --   (Mods/Rollback), LaunchAt / LaunchVelocity / Launching (Mods/LaunchPad);
@@ -44,6 +50,11 @@ type SlotNames = {
 	key: string,
 	charges: string,
 	rechargeAt: string,
+	castAt: string,
+	carry: string,
+	carryAt: string,
+	serial: string,
+	serialSeen: string,
 }
 local NAMES: { SlotNames } = {}
 for slot = 1, Config.SLOTS do
@@ -56,6 +67,11 @@ for slot = 1, Config.SLOTS do
 		key = p .. "Key",
 		charges = p .. "Charges",
 		rechargeAt = p .. "RechargeAt",
+		castAt = p .. "CastAt",
+		carry = p .. "Carry",
+		carryAt = p .. "CarryAt",
+		serial = p .. "Serial",
+		serialSeen = p .. "SerialSeen",
 	}
 end
 
@@ -120,9 +136,11 @@ function AbilitiesSim.stepCharacter(
 	context: Instance?,
 	now: number
 )
-	local noCooldown = player:GetAttribute("ModNoCooldown") == true
+	local unlimited = player:GetAttribute("ModUnlimitedCharges") == true
 	local resetSerial = number(player, "ModResetSerial", 0)
-	local reset = resetSerial ~= number(character, "ModResetSeen", 0)
+	-- A new character hasn't seen a refill yet: it starts from the carry.
+	local seen = character:GetAttribute("ModResetSeen")
+	local reset = typeof(seen) == "number" and seen ~= resetSerial
 
 	-- Your team's launch pads under your feet.
 	local carry = LaunchPad.launch(character, humanoid, root, Teams.of(player), now)
@@ -160,12 +178,25 @@ function AbilitiesSim.stepCharacter(
 		local cooldown: number = stats.cooldown
 		local charges = number(character, names.charges, max)
 		local rechargeAt = number(character, names.rechargeAt, now)
-		if reset or character:GetAttribute(names.key) ~= key then
+		local storedKey = character:GetAttribute(names.key)
+		local slotSerial = number(player, names.serial, 0)
+		local slotSeen = character:GetAttribute(names.serialSeen)
+		local refill = reset or (typeof(slotSeen) == "number" and slotSeen ~= slotSerial)
+		if refill or storedKey ~= key then
 			charges, rechargeAt = max, now
+			-- A new life keeps what the last one had left this round.
+			local carried = player:GetAttribute(names.carry)
+			if not refill and storedKey == nil and typeof(carried) == "number" then
+				charges = math.clamp(math.floor(carried), 0, max)
+				local carriedAt = player:GetAttribute(names.carryAt)
+				if typeof(carriedAt) == "number" then
+					rechargeAt = carriedAt
+				end
+			end
 		end
 		charges, rechargeAt = Charges.settle(charges, rechargeAt, max, cooldown, now)
 
-		if pressed and charges >= 1 and humanoid.Health > 0 then
+		if pressed and (charges >= 1 or unlimited) and humanoid.Health > 0 then
 			local ctx: Types.SimCtx = {
 				player = player,
 				character = character,
@@ -175,11 +206,15 @@ function AbilitiesSim.stepCharacter(
 				slot = slot,
 				now = now,
 			}
-			if cast(ctx) and not noCooldown then
-				charges, rechargeAt = Charges.spend(charges, rechargeAt, max, cooldown, now)
+			if cast(ctx) then
+				set(character, names.castAt, now)
+				if not unlimited then
+					charges, rechargeAt = Charges.spend(charges, rechargeAt, max, cooldown, now)
+				end
 			end
 		end
 		set(character, names.key, key)
+		set(character, names.serialSeen, slotSerial)
 		set(character, names.charges, charges)
 		set(character, names.rechargeAt, rechargeAt)
 	end

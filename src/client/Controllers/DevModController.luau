@@ -2,7 +2,7 @@
 -- Mod dev test panel (F8). Opens only when the server marked us allowed
 -- (player attribute "DevMods", DevModService: Studio or the game's owner);
 -- every action is a DevMod request the server checks again. Pick a slot, then
--- a Mod and a level; reset cooldowns, toggle no-cooldown and quick-cast,
+-- a Mod and a level; refill charges, toggle unlimited charges and quick-cast,
 -- spawn or clear dummies. Dev dummies get a per-viewer outline (cyan ally,
 -- orange-red enemy) so teams read at a glance.
 
@@ -47,7 +47,7 @@ local selectedLevel = "L1"
 local slotButtons: { Button } = {}
 local modButtons: { [string]: Button } = {}
 local levelButtons: { [string]: Button } = {}
-local noCooldownButton: TextButton? = nil
+local unlimitedButton: TextButton? = nil
 local quickCastButton: TextButton? = nil
 local noteLabel: TextLabel? = nil
 local outlines: { [Instance]: Highlight } = {}
@@ -147,7 +147,11 @@ local function refresh()
 	for level, b in levelButtons do
 		b.stroke.Enabled = level == selectedLevel
 	end
-	setToggle(noCooldownButton, "No cooldown", player:GetAttribute("ModNoCooldown") == true)
+	setToggle(
+		unlimitedButton,
+		"Test mode: unlimited charges",
+		player:GetAttribute("ModUnlimitedCharges") == true
+	)
 	setToggle(quickCastButton, "Quick-cast", ModController.isQuickCast())
 	local note = noteLabel
 	if note then
@@ -271,14 +275,14 @@ local function build(): TextButton
 		end)
 	end
 
-	label("Cooldowns", 13, panel, MUTED)
-	local cdRow = row(panel, 30)
-	button("Reset cooldowns", 140, cdRow, function()
-		send("ResetCooldowns")
-	end)
-	noCooldownButton = button("No cooldown", 140, cdRow, function()
-		send("NoCooldown", player:GetAttribute("ModNoCooldown") ~= true)
+	label("Charges (refill = what a new round does)", 13, panel, MUTED)
+	local cdRow = row(panel, 66)
+	unlimitedButton = button("Test mode: unlimited charges", 286, cdRow, function()
+		send("UnlimitedCharges", player:GetAttribute("ModUnlimitedCharges") ~= true)
 	end).button
+	button("Refill charges", 140, cdRow, function()
+		send("RefillCharges")
+	end)
 	quickCastButton = button("Quick-cast", 140, cdRow, function()
 		ModController.setQuickCast(not ModController.isQuickCast())
 		refresh()
@@ -357,9 +361,17 @@ function DevModController.start()
 			setOpen(not open)
 		end
 	end)
-	-- Reflect server changes (slot set, no-cooldown) while open.
+	-- Reflect server changes (slot set, unlimited charges) while open.
 	for _, name in
-		{ "Mod1Id", "Mod2Id", "Mod3Id", "Mod1Level", "Mod2Level", "Mod3Level", "ModNoCooldown" }
+		{
+			"Mod1Id",
+			"Mod2Id",
+			"Mod3Id",
+			"Mod1Level",
+			"Mod2Level",
+			"Mod3Level",
+			"ModUnlimitedCharges",
+		}
 	do
 		player:GetAttributeChangedSignal(name):Connect(function()
 			if open then

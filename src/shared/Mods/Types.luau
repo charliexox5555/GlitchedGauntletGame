@@ -18,7 +18,8 @@ export type LevelId = "L1" | "A2" | "A3" | "B2" | "B3" | "G2" | "G3"
 export type Level = { [string]: any }
 
 -- Resolved stats for one (id, level): every key from L1 up to that level.
--- Every Mod has at least `cooldown` (seconds per charge) and `charges`.
+-- Every Mod has at least `charges` (per round) and `cooldown` (seconds per
+-- charge; 0 = no recharge until the next round), see Mods/Charges.
 export type Stats = { [string]: any }
 
 export type UseMode = "Primary" | "Alt"

@@ -6,6 +6,12 @@
 -- change what a Mod does; each Mod module dispatches on them. Levels above L1
 -- are shaped here but not built yet (Phase 2): their notes say what they do.
 --
+-- Charges (vault/01 Design/Abilities/00 Abilities.md → Charges): every L1 has
+-- `charges`, how many uses a round starts with (RoundService refills them:
+-- ModService.refillCharges), and `cooldown`, the seconds one spent charge
+-- takes to come back; 0 = no recharge, it's gone until the next round. The
+-- dev panel's "Test mode: unlimited charges" makes casting free.
+--
 -- Shared by the server (authoritative) and the client (HUD, previews):
 -- nothing secret here, and the server never trusts a client-sent number.
 
@@ -27,7 +33,7 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "Dash 12 studs in your move direction",
-				cooldown = 7,
+				cooldown = 0, -- Dash: 1 per round, no recharge
 				charges = 1,
 				distance = 12,
 				duration = 0.15, -- seconds the dash lasts
@@ -56,8 +62,8 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "Pad that launches you ~25 studs up and forward",
-				cooldown = 12,
-				charges = 1,
+				cooldown = 0, -- Updraft: 2 per round, no recharge
+				charges = 2,
 				placeRange = 12,
 				size = 6,
 				life = 15,
@@ -87,7 +93,7 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "Grenade: bounces once, explodes after 1.2 s",
-				cooldown = 14,
+				cooldown = 0, -- Molly: 1 per round, no recharge
 				charges = 1,
 				fuse = 1.2,
 				bounces = 1,
@@ -127,7 +133,7 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "8x6 wall that blocks bullets both ways",
-				cooldown = 15,
+				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
 				placeRange = 8,
 				width = 8,
@@ -158,7 +164,7 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "Orb makes a 10-stud zone for 4 s; enemies slowed 40%",
-				cooldown = 16,
+				cooldown = 0, -- Frost: 1 per round, no recharge
 				charges = 1,
 				radius = 10,
 				duration = 4,
@@ -192,7 +198,7 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "Reveal enemies within 30 studs for 2 s",
-				cooldown = 14,
+				cooldown = 30, -- Recon: 1 charge, back 30 s after use
 				charges = 1,
 				radius = 30,
 				duration = 2,
@@ -219,7 +225,7 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "Heal 40 HP over 2 s (ally in your crosshair or yourself)",
-				cooldown = 18,
+				cooldown = 0, -- Heal Orb: 1 per round, no recharge
 				charges = 1,
 				heal = 40,
 				duration = 2,
@@ -250,7 +256,7 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "+25% fire rate for 5 s",
-				cooldown = 18,
+				cooldown = 0, -- Stim: 1 per round, no recharge
 				charges = 1,
 				duration = 5,
 				fireRate = 1.25,
@@ -276,7 +282,7 @@ local defs: { [string]: ModDef } = {
 		levels = {
 			L1 = {
 				note = "Snap back to where you were 3 s ago, with that ammo",
-				cooldown = 22,
+				cooldown = 0, -- Recall: 1 per round, no recharge
 				charges = 1,
 				rewind = 3,
 			},

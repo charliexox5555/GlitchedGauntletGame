@@ -8,8 +8,8 @@
 -- DevMod(action, ...):
 --   "SetSlot", slot, id, level   any built Mod at any level in any slot
 --   "ClearSlot", slot
---   "ResetCooldowns"
---   "NoCooldown", on
+--   "RefillCharges"                every charge back (what a new round does)
+--   "UnlimitedCharges", on         test mode: casting spends nothing
 --   "SpawnDummy", "Ally" | "Enemy"   a dummy prepared like a player, in front of you
 --   "ClearDummies"
 --   "HurtSelf"                      -50 HP (solo heal tests: nothing else hurts you)
@@ -36,8 +36,8 @@ local DevModService = {}
 local ACTIONS: { [string]: boolean } = {
 	SetSlot = true,
 	ClearSlot = true,
-	ResetCooldowns = true,
-	NoCooldown = true,
+	RefillCharges = true,
+	UnlimitedCharges = true,
 	SpawnDummy = true,
 	ClearDummies = true,
 	HurtSelf = true,
@@ -195,12 +195,12 @@ local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unkno
 		if slot then
 			ModService.setSlot(player, slot, nil, "L1")
 		end
-	elseif action == "ResetCooldowns" then
-		ModService.resetCooldowns(player)
-	elseif action == "NoCooldown" then
+	elseif action == "RefillCharges" then
+		ModService.refillCharges(player)
+	elseif action == "UnlimitedCharges" then
 		local on = Validate.boolean(a)
 		if on ~= nil then
-			ModService.setNoCooldown(player, on)
+			ModService.setUnlimitedCharges(player, on)
 		end
 	elseif action == "SpawnDummy" then
 		local side = Validate.enum(a, SIDES)

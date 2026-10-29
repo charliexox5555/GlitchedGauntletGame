@@ -478,11 +478,16 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 		ui.key.Text = key
 	end
 
-	local cooling = id ~= nil and view.charges < 1 and player:GetAttribute("ModNoCooldown") ~= true
-	local share = if cooling and view.cooldown > 0 then view.remaining / view.cooldown else 0
+	-- Out of charges: a recharging Mod sweeps and counts down; a per-round
+	-- one just stays dimmed until the next refill.
+	local cooling = id ~= nil
+		and view.charges < 1
+		and player:GetAttribute("ModUnlimitedCharges") ~= true
+	local recharging = cooling and view.cooldown > 0
+	local share = if recharging then view.remaining / view.cooldown else 0
 	setSweep(ui.sweep, share)
 	local secs = ""
-	if cooling then
+	if recharging then
 		secs = if view.remaining >= 1
 			then tostring(math.ceil(view.remaining))
 			else string.format("%.1f", view.remaining)
