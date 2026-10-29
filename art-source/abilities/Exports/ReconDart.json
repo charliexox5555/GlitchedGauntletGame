@@ -1,0 +1,222 @@
+{
+ "mod": "ReconDart",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "ability_name": "ReconDart",
+  "kind": "thrown",
+  "size_studs": 0.9,
+  "tris": 1276
+ },
+ "parts": [
+  {
+   "name": "Tip",
+   "material": "Steel",
+   "look": {
+    "material": "Metal",
+    "color": "9EA2A8"
+   },
+   "energy": false,
+   "tris": 196,
+   "center": [
+    -0.054,
+    -0.0055,
+    -0.0
+   ],
+   "size": [
+    0.108,
+    0.049,
+    0.05446
+   ]
+  },
+  {
+   "name": "Fins",
+   "material": "Polymer",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2B2D31"
+   },
+   "energy": false,
+   "tris": 144,
+   "center": [
+    -0.76324,
+    -0.01308,
+    -0.0
+   ],
+   "size": [
+    0.20352,
+    0.08584,
+    0.09849
+   ]
+  },
+  {
+   "name": "Light_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 272,
+   "center": [
+    -0.16325,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.0655,
+    0.087,
+    0.087
+   ]
+  },
+  {
+   "name": "Body_Dark",
+   "material": "Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "16171B"
+   },
+   "energy": false,
+   "tris": 40,
+   "center": [
+    -0.535,
+    0.0,
+    -0.0
+   ],
+   "size": [
+    0.53,
+    0.02568,
+    0.027
+   ]
+  },
+  {
+   "name": "Body_Gunmetal",
+   "material": "Gunmetal",
+   "look": {
+    "material": "Metal",
+    "color": "4A4F57"
+   },
+   "energy": false,
+   "tris": 552,
+   "center": [
+    -0.502,
+    0.0,
+    -0.0
+   ],
+   "size": [
+    0.796,
+    0.084,
+    0.084
+   ]
+  },
+  {
+   "name": "Body_Steel",
+   "material": "Steel",
+   "look": {
+    "material": "Metal",
+    "color": "9EA2A8"
+   },
+   "energy": false,
+   "tris": 72,
+   "center": [
+    -0.222,
+    0.0,
+    -0.00906
+   ],
+   "size": [
+    0.011,
+    0.08184,
+    0.07088
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Light",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.187
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Tail",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.9
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 1276
+}

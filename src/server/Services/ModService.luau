@@ -56,7 +56,7 @@ local StatusService = require(script.Parent.StatusService)
 local WeaponService = require(script.Parent.WeaponService)
 
 type SlotState = { id: string?, level: string, charges: number, rechargeAt: number }
-type PlayerState = { slots: { SlotState }, held: number }
+type PlayerState = { slots: { SlotState }, held: number, heldAt: number }
 type Heal = { target: Model, from: Player, effect: SelfBuff.Timed }
 
 local MODES: { [string]: boolean } = { Primary = true, Alt = true }
@@ -66,6 +66,7 @@ local USE_KINDS: { [string]: string } = {
 	HeldPlace = "Place",
 	HeldTarget = "Heal",
 	HeldSteer = "Cast",
+	HeldCharge = "Heal", -- the launcher's shove forward
 }
 local HELD_ITEM = "ModHeldItem"
 -- The item sits in the right hand like a gun (WeaponService's grip).
@@ -108,7 +109,7 @@ local function newState(): PlayerState
 	for i = 1, Config.SLOTS do
 		slots[i] = { id = nil, level = "L1", charges = 0, rechargeAt = 0 }
 	end
-	return { slots = slots, held = 0 }
+	return { slots = slots, held = 0, heldAt = 0 }
 end
 
 local function settle(s: SlotState, stats: ModTypes.Stats, now: number)
@@ -435,6 +436,7 @@ local function onHold(player: Player, slotArg: unknown)
 		return
 	end
 	state.held = slot
+	state.heldAt = os.clock()
 	WeaponService.setHolstered(player, true)
 	player:SetAttribute("ModHeld", slot)
 	showHeldItem(player, s.id)
@@ -446,7 +448,9 @@ local function use(
 	modeArg: unknown,
 	originArg: unknown,
 	directionArg: unknown,
-	targetArg: unknown
+	targetArg: unknown,
+	chargeArg: unknown,
+	bouncesArg: unknown
 )
 	local slot = Validate.integer(slotArg, 1, Config.SLOTS)
 	local mode = Validate.enum(modeArg, MODES)
@@ -536,6 +540,7 @@ local function use(
 		level = s.level,
 		stats = stats,
 		now = now,
+		heldFor = if state.held == slot then os.clock() - state.heldAt else 0,
 		worldParams = worldParams,
 		damage = damage,
 		heal = function(healTarget: Model, amount: number, duration: number)
@@ -622,6 +627,8 @@ local function use(
 		end,
 	}
 	local req: ModTypes.Request = {
+		charge = if chargeArg == nil then nil else Validate.number(chargeArg, 0, 1),
+		bounces = if bouncesArg == nil then nil else Validate.integer(bouncesArg, 0, 2),
 		mode = mode :: ModTypes.UseMode,
 		origin = origin,
 		direction = direction,

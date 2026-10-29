@@ -12,7 +12,10 @@
 --   Heal         a beam from the healer to the ally, +HP over the target
 --   FrostThrow / FrostBurst / FrostFizzle   the frost canister's flight (as
 --                the Molly's), its burst (Util/FrostFx; Hinder is shown there)
---   PingPulse    an expanding scan sphere (everyone sees it)
+--   ReconThrow / ReconStick / ReconPulse   the dart's flight (pointing along
+--                its path, a light trail, a whistle, ricochet ticks), it
+--                sticking (the stuck dart is a Mod object), and each pulse:
+--                a scan wave everyone sees, the dart's light flashing
 --   Overclock    the caster's gun glows (a screen-edge glow for the caster)
 --   Placed / ObjectGone  a pop when a Mod object goes up / breaks or expires
 --   FirewallCast  the cast whoosh; the wall itself is Util/WallFx (it dresses
@@ -62,6 +65,7 @@ type Flight = {
 	spin: number?, -- tumble speed (default 9)
 	hum: ModAudio.Hum?, -- a sound riding it (stopped when it lands)
 	sparks: ParticleEmitter?, -- turned off when it lands
+	pointed: boolean?, -- points along its path (a dart) instead of tumbling
 }
 
 type Beam = {
@@ -170,6 +174,13 @@ local TRAILS: { [string]: Trail } = {
 		size = 0.12,
 		rate = 40,
 	},
+	ReconDart = {
+		name = "ReconTrail",
+		texture = Tex.RECON_GLOW,
+		color = Color3.fromHex("9BE7FF"),
+		size = 0.25,
+		rate = 50,
+	},
 	Frost = {
 		name = "FrostVapor",
 		texture = Tex.FROST_VAPOR,
@@ -255,6 +266,7 @@ local function onCanisterThrow(id: string, sounds: CanisterSounds, data: { [stri
 		color = color,
 		key = key,
 		spin = 11,
+		pointed = id == "ReconDart",
 		hum = ModAudio.hum(
 			sounds.flight,
 			model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
@@ -423,20 +435,51 @@ local function onFrostBurst(data: { [string]: any })
 	end
 end
 
--- Ping -------------------------------------------------------------------------------
+-- Recon ------------------------------------------------------------------------------
 
-local function onPingPulse(data: { [string]: any })
+-- Recent pulses (where, os.clock()): the stuck dart there flashes its light.
+type Pulse = { at: Vector3, t: number }
+local recentPulses: { Pulse } = {}
+
+local function onReconPulse(data: { [string]: any })
 	local at, radius = data.at, data.radius
 	if typeof(at) ~= "Vector3" or typeof(radius) ~= "number" then
 		return
 	end
 	local color = teamColor(data)
 	local d = radius * 2
-	ModAudio.play(S.Ping.pulse, at)
+	ModAudio.play(S.Recon.pulse, at)
+	table.insert(recentPulses, { at = at, t = os.clock() })
+	-- The ground wave sits on the floor under the dart (or at the dart, if
+	-- it's high on a wall or a ceiling).
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local exclude: { Instance } = { fxFolder() }
+	for _, other in Players:GetPlayers() do
+		if other.Character then
+			table.insert(exclude, other.Character)
+		end
+	end
+	local objects = Workspace:FindFirstChild("ModObjects")
+	if objects then
+		table.insert(exclude, objects)
+	end
+	params.FilterDescendantsInstances = exclude
+	local down = Workspace:Raycast(at, Vector3.new(0, -8, 0), params)
+	local floor = if down then down.Position + Vector3.new(0, 0.05, 0) else at
+	ModVfx.quad({
+		texture = Tex.RECON_SCAN_RING,
+		cframe = CFrame.new(at),
+		from = 1,
+		to = d,
+		color = color,
+		life = 0.8,
+		alpha0 = 0,
+	})
 	-- A scan wave across the ground and a thin bubble sweeping out.
 	ModVfx.quad({
 		texture = Tex.MOD_SCAN,
-		cframe = CFrame.new(at - Vector3.new(0, 2.8, 0)),
+		cframe = CFrame.new(floor),
 		from = 2,
 		to = d,
 		color = color,
@@ -445,7 +488,7 @@ local function onPingPulse(data: { [string]: any })
 	})
 	local band = ModVfx.mesh({
 		name = "ScanRing",
-		cframe = CFrame.new(at - Vector3.new(0, 2.8, 0)),
+		cframe = CFrame.new(floor),
 		from = Vector3.new(2, 2.5, 2),
 		to = Vector3.new(d, 1, d),
 		color = color,
@@ -642,18 +685,52 @@ end
 -- and it must not get a second set of skins and connections.
 local known: { [BasePart]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
+-- The stuck Recon dart: the thrown dart model at the part's tip (the part's
+-- -Z is the way it flew in).
+local function dressDart(part: BasePart)
+	local template = ModProps.get("ReconDart", objectColor(part))
+	if not template then
+		return
+	end
+	local model = template:Clone()
+	model:PivotTo(part.CFrame * CFrame.new(0, 0, -part.Size.Z / 2))
+	local energy = {}
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") and d.Material == Enum.Material.Neon then
+			table.insert(energy, d)
+		end
+	end
+	model.Parent = fxFolder()
+	part.LocalTransparencyModifier = 1
+	dressed[part] = { model = model, energy = energy, arrows = {}, flashing = false }
+	part.AncestryChanged:Connect(function()
+		if not part:IsDescendantOf(workspace) then
+			undress(part)
+		end
+	end)
+end
+
 local function colourObject(part: Instance)
 	if not part:IsA("BasePart") then
 		return
 	end
 	if known[part] then
 		if not dressed[part] and not skins[part] then
-			dress(part) -- streamed back in: put the model back
+			-- Streamed back in: put the model back.
+			if part:GetAttribute("Kind") == "ReconDart" then
+				dressDart(part)
+			else
+				dress(part)
+			end
 		end
 		return
 	end
 	known[part] = true
-	dress(part) -- the finished model carries the look, if there is one
+	if part:GetAttribute("Kind") == "ReconDart" then
+		dressDart(part)
+	else
+		dress(part) -- the finished model carries the look, if there is one
+	end
 	part.Color = restColor(part)
 	part.Destroying:Connect(function()
 		skins[part] = nil
@@ -692,6 +769,11 @@ local function onObjectGone(data: { [string]: any })
 	end
 	local color = TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
 	local broken = data.why == "Broken"
+	if data.kind == "ReconDart" and broken then
+		ModAudio.play(S.Recon.destroyed, at)
+		ModAudio.play(S.Recon.destroyedBreak, at)
+		ModVfx.burst(at, Color3.fromHex("9BE7FF"), 16, "Sparkle")
+	end
 	ModVfx.shell({
 		shape = Enum.PartType.Block,
 		cframe = CFrame.new(at),
@@ -814,8 +896,14 @@ local function onFx(kind: unknown, data: unknown)
 		end
 	elseif kind == "Heal" then
 		onHeal(d)
-	elseif kind == "PingPulse" then
-		onPingPulse(d)
+	elseif kind == "ReconThrow" then
+		onCanisterThrow("ReconDart", S.Recon, d)
+	elseif kind == "ReconStick" then
+		if typeof(d.at) == "Vector3" then
+			ModAudio.play(S.Recon.stick, d.at)
+		end
+	elseif kind == "ReconPulse" then
+		onReconPulse(d)
 	elseif kind == "Overclock" then
 		onOverclock(d)
 	elseif kind == "Placed" then
@@ -853,7 +941,15 @@ local function update(_dt: number)
 		end
 		local pos = Projectile.positionAt(f.path, math.max(t, 0))
 		local spin = f.spin or 9
-		f.model:PivotTo(CFrame.new(pos) * CFrame.Angles(t * spin, t * spin * 0.55, 0))
+		if f.pointed then
+			-- A dart points where it's going (its tip is -Z).
+			local ahead = Projectile.positionAt(f.path, math.max(t, 0) + 0.02)
+			if (ahead - pos).Magnitude > 1e-3 then
+				f.model:PivotTo(CFrame.lookAt(pos, ahead))
+			end
+		else
+			f.model:PivotTo(CFrame.new(pos) * CFrame.Angles(t * spin, t * spin * 0.55, 0))
+		end
 		-- Fuse blink, faster as it runs out.
 		local rate = 4 + 14 * (t / f.fuse)
 		local on = not f.blink or math.sin(now * rate * math.pi * 2) > 0
@@ -943,6 +1039,26 @@ local function update(_dt: number)
 		end
 	end
 	stepTrails(now)
+	-- Recon darts: a slow blink, a bright flash on each pulse.
+	for i = #recentPulses, 1, -1 do
+		if now - recentPulses[i].t > 0.25 then
+			table.remove(recentPulses, i)
+		end
+	end
+	for part, d in dressed do
+		if part:GetAttribute("Kind") == "ReconDart" then
+			local flashing = false
+			for _, p in recentPulses do
+				if (p.at - part.Position).Magnitude < 2 then
+					flashing = true
+				end
+			end
+			local on = flashing or math.sin(now * 8) > 0.3
+			for _, g in d.energy do
+				g.Transparency = if flashing then 0 elseif on then 0.2 else 0.75
+			end
+		end
+	end
 
 	for i = #floaters, 1, -1 do
 		local f = floaters[i]

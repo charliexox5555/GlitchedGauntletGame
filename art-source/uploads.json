@@ -275,6 +275,36 @@
   "type": "Decal",
   "uploaded": "2026-10-28 22:25:27"
  },
+ "art-source/vfx/abilities/recon/recon_glow.png": {
+  "assetId": 134324061866250,
+  "name": "GG VFX recon_glow",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:00:14"
+ },
+ "art-source/vfx/abilities/recon/recon_scan_ring.png": {
+  "assetId": 138670258051519,
+  "name": "GG VFX recon_scan_ring",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:00:08"
+ },
+ "art-source/vfx/abilities/recon/recon_scan_sphere_2x2.png": {
+  "assetId": 106969349351685,
+  "name": "GG VFX recon_scan_sphere_2x2",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:00:11"
+ },
+ "art-source/vfx/abilities/recon/recon_spark.png": {
+  "assetId": 73354899277765,
+  "name": "GG VFX recon_spark",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:00:19"
+ },
+ "art-source/vfx/abilities/recon/recon_trail.png": {
+  "assetId": 84351040414725,
+  "name": "GG VFX recon_trail",
+  "type": "Decal",
+  "uploaded": "2026-10-29 00:00:17"
+ },
  "art-source/vfx/beam_energy.png": {
   "assetId": 140396211249137,
   "name": "GG VFX beam_energy v2",

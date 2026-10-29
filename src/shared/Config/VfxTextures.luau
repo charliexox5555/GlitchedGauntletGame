@@ -55,4 +55,11 @@ return table.freeze({
 	FROST_CRYSTALS = "rbxassetid://71167177461946", -- a cluster of ice crystals (on bodies)
 	FROST_VIGNETTE = "rbxassetid://127776803853487", -- frosted screen edges, clear centre
 	FROST_VAPOR = "rbxassetid://112352390447122", -- a thin vapour wisp (u along it)
+
+	-- Recon (tools/vfx/make_recon_vfx.py → art-source/vfx/abilities/recon/).
+	RECON_SCAN_RING = "rbxassetid://71532207555430", -- crisp scan edge, glow trailing inward
+	RECON_SCAN_SPHERE_2x2 = "rbxassetid://80233919811742", -- an expanding scan shell (flipbook)
+	RECON_GLOW = "rbxassetid://112986690063111", -- soft glow, hot core (the dart's light)
+	RECON_TRAIL = "rbxassetid://102081301769659", -- a thin light streak, head on the left
+	RECON_SPARK = "rbxassetid://100198570257307", -- a spark streak (the dart destroyed)
 })

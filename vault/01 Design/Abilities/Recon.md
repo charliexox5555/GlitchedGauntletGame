@@ -1,6 +1,6 @@
 # Recon (was Ping)
 
-**Status:** spec locked 2026-10-29 · not built
+**Status:** spec locked 2026-10-29 · built 2026-10-29 (built overnight; waiting for the user's Studio test)
 **Inspiration:** Sova's Recon Bolt (Valorant), **without the bow**. You fire a sensor dart from a **compact dart launcher**; it sticks, pulses twice, and reveals enemies the dart can see.
 **Remove from the old Ping:** the instant reveal pulse around yourself.
 
@@ -52,6 +52,29 @@
 | `Recon_Pulse` | Scan pulse (3D, ~60 studs: everyone hears it) |
 | `Recon_Revealed` | Cue for the player who got revealed (2D) |
 | `Recon_Destroyed` | Dart shot down (3D) |
+
+### Placeholder sounds (in `Config/ModSounds` → `Recon`; unauditioned, swap the id)
+All ProSoundEffects library audio (public, no upload). Search terms that worked: `"Crossbow Movement"`, `"Power Up"`, `"Selector Switch"`, `"Launcher" Pro Sound Effects`, `"Arrow Pass"`, `"Ricochet"`, `"Arrow"`, `"Spaceship Sonar"`, `"Radar Bleeps"`, `"Alarm"`, `"Electricity"`, `"Light Bulb"`.
+| Hook | Id | Name (start / cut) | Volume / pitch | Alternatives |
+|---|---|---|---|---|
+| `Recon_Equip` | 9114004483 | Crossbow Movement Latches 13 (from 0.18, 1.6 s) | 0.5 / 1.1 | 9116973855, 9114004334 |
+| `Recon_Charge` | 9117882920 | Power Up Accelerating Motors 1 (from 0.25, loops to 2 s, pitched up by code) | 0.5 | 9117882918, 9118327718 |
+| `Recon_BounceSelect` | 9118727210 | Rotary Selector Switch Twisting 9 (from 0.2, 0.15 s) | 0.6 / 1.1 | 9118726753, 9118727189 |
+| `Recon_Fire` | 9114659666 | Grenade Launcher 2 (one thoonk, 0.22 s) | 0.7 / 1.1 | 9114659685, 9117052716 |
+| `Recon_Flight` | 9125363711 | Arrow Pass Bys Zooming Past Distant Landing 7 (loops 0.8–1.5 s) | 0.6 / 1.15 | 9113168250, 9113166206 |
+| `Recon_Bounce` | 9118168962 | Ricochet Metal 5 (from 0.14, 0.3 s) | 0.5 / 1.3 | 9118168612, 9118168610 |
+| `Recon_Stick` | 9113162981 | Arrow In And Hit 6 (from 0.5) | 0.6 / 0.95 | 9113161857, 9113160887 |
+| `Recon_Pulse` | 9125981390 | Spaceship Sonar Low And High Pitch Tonal Throbs 1 (1.5 s; 60 studs). A library recording but synth-like: if too synthetic, try 9112776779 (Vintage Radar Bleeps) | 0.9 | 9125984483, 9112776779 |
+| `Recon_Revealed` | 9113719080 | Car Alarm Chirp 1 (from 0.14, 0.35 s) | 0.5 / 1.05 | 9113719083, 9118777141 |
+| `Recon_Destroyed` | 9119594871 + 9116264240 | Static Zap Body Two Buzzy Impacts 2 + Light Bulb 1 | 0.6 + 0.4 | 9114247527, 9114249288 |
+
+## Build notes (2026-10-29)
+- **Removed:** the Ping's instant pulse. `ReplicatedStorage.Abilities` has no Ping model.
+- **New use type `HeldCharge`:** hold the Mod (the launcher comes up), hold LMB to charge (`chargeTime` 1 s; the charge light fills, the hum rises), release to fire; RMB before firing cycles 0 / 1 / 2 bounces (the launcher's two bounce lights, and the hint shows "Bounces: n"). `ModUse` carries the charge and bounces; the server caps the charge to how long it saw the hold, and the bounces to 0–2.
+- **Rules:** `Mods/Recon`: speed 45 (tap) to 130 (full), a slight arc; the shared projectile code bounces it then it sticks to the next surface. Stuck, it's a 1-HP Mod object (`ModEntities`; any bullet destroys it through the existing object-hit path). Pulses at 0.5 s and 2 s after sticking: enemies within 40 studs the dart can see are revealed to your team only (`ModReveal`, outline through walls, 2 s); revealed players get the cue, a red edge flash and "REVEALED". Measured in Studio: the dart stuck 0.18 s after the shot, two pulses 1.5 s apart, each revealed the enemy dummy and a range dummy.
+- **Models:** Blender `tools/blender/build_mod_recon.py` (launcher, handheld, 2.9K tris, `Charge_Energy`, `Bounce1/2_Energy`, the loaded `Dart_*` hidden when fired) and `build_mod_recondart.py` (sensor dart, 1.3K tris, `Light_Energy` blinks and flashes on pulses), uploaded (101313572671047, 116053167550293) and built into **`ReplicatedStorage.Abilities.Recon` / `ReconDart`** (backups in `art-source/abilities/Studio/`). Preview `02 Art/References/abilities/recon/recon_model.jpg`.
+- **Effects:** Blender-rendered textures (`tools/vfx/make_recon_vfx.py`, `Config/VfxTextures RECON_*`): the scan ring on each pulse (plus the ground scan wave), the dart's glow trail in flight. The launcher kicks on fire (`ITEM_ACTIONS.LauncherFire`).
+- **Icon:** still the Ping's. The Look section mentions a 3-light bounce counter; the model has 2 (0 / 1 / 2 needs only two).
 
 ## Mobile
 Tap the Recon button to ready it. **Hold Fire** to charge, release to shoot. A **Bounce** context button cycles 0/1/2. Tap the Recon button again to cancel.

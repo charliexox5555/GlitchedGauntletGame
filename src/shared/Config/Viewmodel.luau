@@ -357,6 +357,15 @@ return table.freeze({
 				{ t = 1, pos = Vector3.new(0.05, -0.55, -0.4), rot = Vector3.new(18, 0, 0) },
 			},
 		},
+		-- LauncherFire (Recon): the launcher kicks up and back, then settles.
+		LauncherFire = {
+			length = 0.3,
+			keys = {
+				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+				{ t = 0.15, pos = Vector3.new(0, 0.06, 0.28), rot = Vector3.new(16, 0, 2) },
+				{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
+			},
+		},
 		-- Lob: underhand, a swing down and back, then out low and soft.
 		Lob = {
 			length = 0.4,

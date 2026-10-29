@@ -24,7 +24,7 @@ from export_weapons import mat_list, split_by_material, strip_prefix, used_mater
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 SRC = os.path.join(ROOT, "art-source", "abilities")
-MODS = ["PatchUp", "Packet", "LaunchPad", "Firewall", "LagField", "Molly", "Frost", "ModVFX"]
+MODS = ["PatchUp", "Packet", "LaunchPad", "Firewall", "LagField", "Molly", "Frost", "Recon", "ReconDart", "ModVFX"]
 
 
 def blend_of(mod):

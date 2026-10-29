@@ -8,6 +8,8 @@
 --   Idle → Equipping (EQUIP_TIME raise) → Held → Using (USE_TIME) → Idle
 --   (HeldSteer, the Firewall: Held → Steering until the server says the
 --   wall is built; LMB held streams the look (ModSteer), releasing stops it)
+--   (HeldCharge, Recon: Held → Charging while LMB is held → release fires
+--   with the charge and the bounces RMB picked → Using)
 -- Press a held Mod's key: the gun lowers (WeaponController.setHolstered), the
 -- item comes up (ViewmodelController.holdItem) and the server is told
 -- (ModHold). While held, Fire = Primary use, Aim = Alt use (and the mobile
@@ -42,7 +44,7 @@ local InputController = require(script.Parent.InputController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
 
-type Phase = "Idle" | "Equipping" | "Held" | "Using" | "Steering"
+type Phase = "Idle" | "Equipping" | "Held" | "Using" | "Steering" | "Charging"
 
 -- What the HUD shows for one slot.
 export type SlotView = {
@@ -73,6 +75,10 @@ local steerMode: ModTypes.UseMode = "Primary"
 local steerStopped = false
 local steerSentAt = -math.huge
 local STEER_RATE = 0.05 -- seconds between ModSteer looks (the server prefers its own camera copy)
+-- Charging (HeldCharge): when LMB went down, the bounces RMB picked, the hum.
+local chargeStart = 0
+local chargeBounces = 0
+local chargeHum: ModAudio.Hum? = nil
 local itemToken = 0
 local lastDashStart = 0
 local lastUpdraftAt = 0
@@ -505,6 +511,18 @@ local function dropItem()
 	end)
 end
 
+-- Recon's launcher lights: the bounce counter (0 / 1 / 2) and the charge.
+local function launcherLights(charge: number)
+	ViewmodelController.setItemPart("Bounce1_Energy", if chargeBounces >= 1 then 0 else 0.85)
+	ViewmodelController.setItemPart("Bounce2_Energy", if chargeBounces >= 2 then 0 else 0.85)
+	ViewmodelController.setItemPart("Charge_Energy", 0.9 - 0.9 * charge)
+end
+
+local function stopChargeHum()
+	ModAudio.stopHum(chargeHum)
+	chargeHum = nil
+end
+
 -- Back to the gun (after a use, a cancel, death).
 local function endHold(tellServer: boolean)
 	if phase == "Idle" then
@@ -515,6 +533,7 @@ local function endHold(tellServer: boolean)
 	end
 	setPhase("Idle", 0)
 	queued = nil
+	stopChargeHum()
 	WeaponController.setHolstered("Mod", false)
 	ViewmodelController.setFreeHand(nil)
 	hideArc()
@@ -533,12 +552,19 @@ local function cancelByPlayer()
 	endHold(true)
 end
 
-local function sendUse(slot: number, mode: ModTypes.UseMode, target: Model?)
+local function sendUse(
+	slot: number,
+	mode: ModTypes.UseMode,
+	target: Model?,
+	charge: number?,
+	bounces: number?
+)
 	local cam = Workspace.CurrentCamera
 	if not cam then
 		return
 	end
-	Net.event("ModUse"):FireServer(slot, mode, cam.CFrame.Position, cam.CFrame.LookVector, target)
+	Net.event("ModUse")
+		:FireServer(slot, mode, cam.CFrame.Position, cam.CFrame.LookVector, target, charge, bounces)
 end
 
 -- Uses the held Mod (or queues the use while it's still coming up).
@@ -550,6 +576,26 @@ local function use(mode: ModTypes.UseMode)
 	local def, stats = view.def, view.stats
 	if not def or not stats then
 		endHold(true)
+		return
+	end
+	if def.activation == "HeldCharge" then
+		if mode == "Alt" then
+			-- RMB picks the bounces (it isn't a use).
+			chargeBounces = (chargeBounces + 1) % ((stats.maxBounces or 2) + 1)
+			ModAudio.play(ModAudio.SOUNDS.Recon.bounceSelect)
+			launcherLights(0)
+			return
+		end
+		if phase == "Equipping" then
+			queued = mode
+			return
+		end
+		-- LMB down: charge until it's let go (stepCharge fires).
+		setPhase("Charging", current)
+		chargeStart = os.clock()
+		stopChargeHum()
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		chargeHum = ModAudio.hum(ModAudio.SOUNDS.Recon.charge, root)
 		return
 	end
 	if mode == "Alt" and not def.hint.alt then
@@ -629,7 +675,11 @@ local function startHold(slot: number, view: SlotView)
 		ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
 	end
 	Net.event("ModHold"):FireServer(slot)
-	if def.id == "Frost" then
+	if def.id == "Recon" then
+		ModAudio.play(ModAudio.SOUNDS.Recon.equip)
+		chargeBounces = 0
+		launcherLights(0)
+	elseif def.id == "Frost" then
 		ModAudio.play(ModAudio.SOUNDS.Frost.equip)
 	elseif def.id == "Molly" then
 		-- Canister out, then the free hand pulls the pin.
@@ -691,9 +741,6 @@ local function onModPressed(slot: number)
 	if def.activation == "Instant" then
 		if def.authority == "Server" then
 			sendUse(slot, "Primary", nil)
-			if def.id == "Ping" then
-				ModAudio.play(ModAudio.SOUNDS.Ping.cast)
-			end
 		end
 		-- Simulation Mods (Dash) run from the same input in the simulation.
 		return
@@ -730,6 +777,30 @@ local function onFx(kind: unknown, data: unknown)
 		endHold(false)
 	end
 	deny(slot, reason)
+end
+
+-- Charging the Recon launcher: the light fills and the hum rises; letting
+-- go of LMB fires with the charge and the picked bounces.
+local function stepCharge(now: number)
+	local view = ModController.slot(current)
+	local stats = view.stats
+	local chargeTime = if stats then stats.chargeTime else 1
+	local charge = math.clamp((now - chargeStart) / chargeTime, 0, 1)
+	launcherLights(charge)
+	local hum = chargeHum
+	if hum then
+		hum.sound.PlaybackSpeed = 0.8 + 0.6 * charge
+	end
+	if InputController.isDown("Fire") then
+		return
+	end
+	stopChargeHum()
+	sendUse(current, "Primary", nil, charge, chargeBounces)
+	setPhase("Using", current)
+	ModAudio.play(ModAudio.SOUNDS.Recon.fire)
+	ViewmodelController.setItemPart("Dart", 1)
+	ViewmodelController.itemAction("LauncherFire")
+	CameraController.kick(1.2, 0, 1, 0.25)
 end
 
 -- Steering a wall: stream the flat look while LMB is held; let go = stop.
@@ -823,6 +894,16 @@ local function update(_dt: number)
 		endHold(true) -- the server already let go; this is only a backstop
 	elseif phase == "Steering" then
 		stepSteer(now)
+	elseif phase == "Charging" then
+		-- The same watchdog as Held: no Mod, or the server never took the hold.
+		local view = ModController.slot(current)
+		if not view.def or not view.stats or view.id == nil then
+			endHold(true)
+		elseif now - phaseAt > 0.6 and player:GetAttribute("ModHeld") ~= current then
+			endHold(false)
+		else
+			stepCharge(now)
+		end
 	end
 
 	if phase == "Equipping" or phase == "Held" then
@@ -876,7 +957,11 @@ function ModController.hint(): (string?, boolean)
 		table.insert(parts, lmb .. " " .. primary)
 	end
 	if def.hint.alt then
-		table.insert(parts, rmb .. " " .. def.hint.alt)
+		local alt = def.hint.alt
+		if def.activation == "HeldCharge" then
+			alt ..= ": " .. chargeBounces
+		end
+		table.insert(parts, rmb .. " " .. alt)
 	end
 	table.insert(parts, ModController.keyLabel(current) .. " Cancel")
 	return table.concat(parts, "  ·  "), false

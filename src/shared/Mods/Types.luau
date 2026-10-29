@@ -5,7 +5,15 @@
 -- Instant: press and it happens. Held*: press to hold it (gun lowered),
 -- LMB / RMB to use it (Mods.md → Controls and activation). HeldSteer: the use
 -- keeps going while you steer it (Firewall: hold LMB, turn to curve).
-export type Activation = "Instant" | "HeldThrow" | "HeldPlace" | "HeldTarget" | "HeldSteer"
+-- HeldCharge: hold LMB to charge, release to use; RMB sets an option (Recon:
+-- the shot's power and its bounces).
+export type Activation =
+	"Instant"
+	| "HeldThrow"
+	| "HeldPlace"
+	| "HeldTarget"
+	| "HeldSteer"
+	| "HeldCharge"
 
 -- Simulation: predicted inside shared/Simulation/Abilities (no remote).
 -- Server: requested with ModUse; ModService validates and applies.
@@ -64,6 +72,8 @@ export type Request = {
 	direction: Vector3, -- unit camera look
 	target: Model?, -- Patch Up: the ally the client aimed at
 	placement: CFrame?, -- placed Mods: the spot `validate` found (server's own check)
+	charge: number?, -- HeldCharge: 0..1 (validate clamps it to how long it was held)
+	bounces: number?, -- Recon: 0..2 wall bounces
 }
 
 -- What ModService hands a Mod's validate / apply. Everything that changes the
@@ -78,6 +88,7 @@ export type ServerCtx = {
 	level: string,
 	stats: Stats,
 	now: number, -- workspace:GetServerTimeNow()
+	heldFor: number, -- seconds the server has had this Mod held (0 for Instant)
 	-- Fresh line-of-sight params: world only (no bodies, no effects). A call,
 	-- so a delayed effect (a fuse) sees who exists when it goes off.
 	worldParams: () -> RaycastParams,

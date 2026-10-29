@@ -1557,6 +1557,23 @@ local function flameEmitter(): (Part, ParticleEmitter)
 	return part, made
 end
 
+-- Sets the transparency of the held item's part named `name`, or its
+-- pieces `name`_<Material> (the export splits multi-material parts): Recon's
+-- launcher lights, its loaded dart. The item comes back as built the next
+-- time it's held.
+function ViewmodelController.setItemPart(name: string, transparency: number)
+	local held = item
+	if not held then
+		return
+	end
+	local prefix = name .. "_"
+	for _, d in held:GetDescendants() do
+		if d:IsA("BasePart") and (d.Name == name or string.sub(d.Name, 1, #prefix) == prefix) then
+			d.Transparency = transparency
+		end
+	end
+end
+
 -- Hides the held item's part named `name` after `delay` seconds (the
 -- Molly's pin, pulled). The item comes back whole the next time it's held.
 function ViewmodelController.hideItemPart(name: string, delay: number)

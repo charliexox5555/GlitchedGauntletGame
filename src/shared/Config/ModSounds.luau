@@ -139,10 +139,34 @@ return table.freeze({
 		-- Frost_Recover: you. "Ice Crackle Large Block Cracks 1", 0.1 s on
 		recover = cue(9114858583, 0.5, 1.05, nil, nil, 0.65, 0.1),
 	}),
-	Ping = table.freeze({
-		cast = cue(9125981410, 0.6), -- you, stand-in for ModPingCast
-		pulse = cue(9125984762, 0.6), -- 3D, stand-in for ModPingPulse
-		revealed = cue(9118777239, 0.6), -- enemy 2D, stand-in for ModPingRevealed
+	-- Recon hooks (vault/01 Design/Abilities/Recon.md → Sound). Placeholders
+	-- (ProSoundEffects, unauditioned), listed in the Recon note; one id each.
+	Recon = table.freeze({
+		-- Recon_Equip: you. "Crossbow Movement Latches 13", 0.18 s on
+		equip = cue(9114004483, 0.5, 1.1, nil, nil, 1.6, 0.18),
+		-- Recon_Charge: you, a motor spinning up (looped at its peak, pitched by code).
+		-- "Power Up Accelerating Motors 1"
+		charge = cue(9117882920, 0.5, 1, true, nil, nil, 0.25, 2),
+		-- Recon_BounceSelect: you. "Rotary Selector Switch Twisting 9"
+		bounceSelect = cue(9118727210, 0.6, 1.1, nil, nil, 0.15, 0.2),
+		-- Recon_Fire: you. "Grenade Launcher 2", one thoonk
+		fire = cue(9114659666, 0.7, 1.1, nil, nil, 0.22),
+		-- (the dart leaving the launcher, 3D for others: the same thoonk)
+		throw = cue(9114659666, 0.6, 1.1, nil, 40, 0.22),
+		throwLob = cue(9114659666, 0.6, 1.1, nil, 40, 0.22),
+		-- Recon_Flight: 3D. "Arrow Pass Bys Zooming Past Distant Landing 7"
+		flight = cue(9125363711, 0.6, 1.15, true, 40, nil, 0.8, 1.5),
+		-- Recon_Bounce: 3D. "Ricochet Metal 5", a short tick
+		bounce = cue(9118168962, 0.5, 1.3, nil, 40, 0.3, 0.14),
+		-- Recon_Stick: 3D. "Arrow In And Hit 6"
+		stick = cue(9113162981, 0.6, 0.95, nil, 40, nil, 0.5),
+		-- Recon_Pulse: 3D, ~60 studs. "Spaceship Sonar Low And High Pitch Tonal Throbs 1"
+		pulse = cue(9125981390, 0.9, 1, nil, 60, 1.5, 0.05),
+		-- Recon_Revealed: the revealed player. "Car Alarm Chirp 1"
+		revealed = cue(9113719080, 0.5, 1.05, nil, nil, 0.35, 0.14),
+		-- Recon_Destroyed: 3D. "Static Zap Body Two Buzzy Impacts 2" + "Light Bulb 1"
+		destroyed = cue(9119594871, 0.6, 1, nil, 40),
+		destroyedBreak = cue(9116264240, 0.4, 1.2, nil, 40, 0.6, 0.08),
 	}),
 	PatchUp = table.freeze({
 		raise = cue(127533251122014, 0.5), -- you

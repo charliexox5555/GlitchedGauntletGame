@@ -193,24 +193,39 @@ local defs: { [string]: ModDef } = {
 			G3 = { note = "Freeze Frame: 2.5 s, +20% damage after", freeze = 2.5 },
 		},
 	},
-	Ping = {
-		id = "Ping",
-		name = "Ping",
+	Recon = {
+		id = "Recon",
+		name = "Recon",
 		role = "Info",
 		block = "Reveal",
-		activation = "Instant",
+		activation = "HeldCharge",
 		authority = "Server",
-		icon = "rbxassetid://94197716144737",
+		icon = "rbxassetid://94197716144737", -- the Ping icon until Recon has its own
 		glyph = "◉",
-		hint = {},
+		hint = { primary = "Hold: charge", alt = "Bounces" },
 		levels = {
 			L1 = {
-				note = "Reveal enemies within 30 studs for 2 s",
-				cooldown = 30, -- Recon: 1 charge, back 30 s after use
+				note = "Recon dart: sticks, pulses twice, reveals enemies it sees (40 studs)",
+				cooldown = 30, -- 1 charge, back 30 s after use
 				charges = 1,
-				radius = 30,
-				duration = 2,
+				chargeTime = 1, -- seconds of LMB to full power
+				minSpeed = 45, -- a tap
+				maxSpeed = 130, -- full charge
+				lift = 0.04, -- added to the aim's up component (a slight arc)
+				gravity = 45,
+				size = 0.15,
+				restitution = 0.85, -- a dart keeps most of its speed off a wall
+				friction = 0.9,
+				maxBounces = 2,
+				maxFlight = 3,
+				pulseDelay = 0.5, -- first pulse after sticking
+				pulseGap = 1.5,
+				pulses = 2,
+				radius = 40, -- reveal range (enemies the dart can see)
+				reveal = 2, -- seconds the outline lasts
+				hp = 1, -- any bullet destroys it
 			},
+			-- The paths below are the Ping's, not redesigned yet.
 			A2 = { note = "Traceroute: marked 4 s for the whole team", duration = 4 },
 			A3 = { note = "Traceroute: marked enemies take +10% damage", vulnerable = 0.1 },
 			B2 = { note = "Sonar: 50 studs and a sensor pulsing for 9 s", radius = 50 },
@@ -317,7 +332,7 @@ local ORDER = {
 	"Molly",
 	"Firewall",
 	"Frost",
-	"Ping",
+	"Recon",
 	"PatchUp",
 	"Overclock",
 	"Rollback",

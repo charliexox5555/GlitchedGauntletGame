@@ -8,7 +8,7 @@
 --   sound there (and, for others' Dash and Updraft, Util/WindFx).
 --   Your screen: Dash wind streaks and blur, the Rollback "VHS rewind" (wash,
 --   scanlines, a REWIND tag), and the
---   enemy-only warnings (slowed by a Lag Field, revealed by a Ping).
+--   enemy-only warnings (revealed by a Recon dart).
 --
 -- All overlays are built once and reused.
 
@@ -66,6 +66,9 @@ local scanRows: { Frame } = {}
 local rewindTag: TextLabel? = nil
 local vhsAt = -math.huge
 local flash: Frame? = nil
+local revealedTag: TextLabel? = nil
+local revealedAt = -math.huge
+local REVEALED_TIME = 1.2
 local flashAt = -math.huge
 local flashPeak = 0
 local vhs: ColorCorrectionEffect? = nil
@@ -134,6 +137,19 @@ local function build(): ScreenGui
 		Text = "◀◀ REWIND",
 	}, s)
 	scan = s
+	-- "REVEALED" (placeholder) when an enemy Recon spots you.
+	revealedTag = make("TextLabel", {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 90),
+		Size = UDim2.fromOffset(260, 34),
+		BackgroundTransparency = 1,
+		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy),
+		TextSize = 26,
+		TextColor3 = TeamColor.ENEMY,
+		TextStrokeTransparency = 0.5,
+		Text = "REVEALED",
+		TextTransparency = 1,
+	}, screen)
 	-- Blast flash.
 	flash = make("Frame", {
 		Size = UDim2.fromScale(1, 1),
@@ -356,6 +372,12 @@ local function update(_dt: number)
 		end
 	end
 
+	local tag = revealedTag
+	if tag then
+		local rk = (now - revealedAt) / REVEALED_TIME
+		tag.TextTransparency = if rk >= 1 then 1 else math.max(rk * 1.5 - 0.5, 0)
+	end
+
 	local f = flash
 	if f then
 		local fk = (now - flashAt) / FLASH_TIME
@@ -368,9 +390,10 @@ local function onFx(kind: unknown, data: unknown)
 		return
 	end
 	if kind == "Revealed" then
-		-- An enemy Ping spotted you.
-		ModAudio.play(S.Ping.revealed)
+		-- An enemy Recon dart spotted you: its cue, a red edge flash, a tag.
+		ModAudio.play(S.Recon.revealed)
 		blastFlash(TeamColor.ENEMY, 0.18)
+		revealedAt = os.clock()
 	end
 end
 

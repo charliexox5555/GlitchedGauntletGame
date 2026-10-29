@@ -140,6 +140,19 @@ local HAND_DROP = 0.35
 -- velocity, from the head and the aim. LMB ("Primary") throws with
 -- `throwSpeed` / `throwLift`, RMB ("Alt") lobs with `lobSpeed` / `lobLift`.
 -- `params` (world only) keeps the start out of a wall you're facing.
+-- Where something thrown or fired from the hand starts: in front of the
+-- head along the aim, kept out of a wall you're facing (`size`: its radius).
+function Projectile.handOrigin(
+	head: Vector3,
+	aim: Vector3,
+	size: number,
+	params: RaycastParams
+): Vector3
+	local offset = aim * HAND_FORWARD - Vector3.new(0, HAND_DROP, 0)
+	local hit = workspace:Raycast(head, offset, params)
+	return if hit then head + offset.Unit * math.max(hit.Distance - size, 0) else head + offset
+end
+
 function Projectile.throw(
 	head: Vector3,
 	aim: Vector3,
@@ -147,11 +160,7 @@ function Projectile.throw(
 	stats: { [string]: any },
 	params: RaycastParams
 ): (Vector3, Vector3)
-	local offset = aim * HAND_FORWARD - Vector3.new(0, HAND_DROP, 0)
-	local hit = workspace:Raycast(head, offset, params)
-	local origin = if hit
-		then head + offset.Unit * math.max(hit.Distance - stats.size, 0)
-		else head + offset
+	local origin = Projectile.handOrigin(head, aim, stats.size, params)
 	local lob = mode == "Alt"
 	local speed = if lob then stats.lobSpeed else stats.throwSpeed
 	local lift = if lob then stats.lobLift else stats.throwLift
