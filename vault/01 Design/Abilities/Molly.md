@@ -14,7 +14,7 @@
 | Phoenix-style drop | If it's been in the air too long (start at **0.9 s**, config), it **stops flying forward and drops straight down** where it is, then bursts on landing |
 | Fire patch | **~9-stud radius** on the ground where it lands, **4 s** |
 | Damage | **45 damage per second** while standing in it (ticks every 0.25 s); ~2 s kills from full HP |
-| Who burns | **Everyone:** enemies, **teammates and yourself** |
+| Who burns | **Everyone:** enemies full damage; **you and teammates take 50%** (the shared friendly-fire rule) |
 | Leaving the fire | **Damage stops instantly** (no afterburn) |
 | Vision | **Low flames**, about knee-high, with a little smoke. You can see and shoot over it |
 | Charges | **1 per round, no recharge, no cooldown** (unlimited in test mode) |

@@ -11,7 +11,7 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 | 1 | [Dash](Dash.md) | Blink | ✅ locked 2026-10-28 | ⬜ |
 | 2 | [Updraft](Updraft.md) | Launch Pad | ✅ locked 2026-10-28 | ⬜ |
 | 3 | [Molly](Molly.md) | Packet | ✅ locked 2026-10-28 | ⬜ |
-| 4 | Firewall | — | ⬜ to redesign | — |
+| 4 | [Firewall](Firewall.md) | Firewall (cover wall) | ✅ locked 2026-10-29 | ⬜ |
 | 5 | Lag Field | — | ⬜ to redesign | — |
 | 6 | Ping | — | ⬜ to redesign | — |
 | 7 | Patch Up | — | ⬜ to redesign | — |
@@ -22,9 +22,13 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 - **Charges, not one cooldown rule for all.** Each ability sets its own: a number of **charges per round** (refilled at round start, no recharge) and/or a **cooldown**, like Valorant (Jett's dash vs Sova's dart). It's decided per ability below.
 - **Test mode:** there's no round system yet, so the dev panel has a **"Test mode: unlimited charges"** toggle (on by default in Studio). RoundService will later call a "refill charges" function at round start.
 - **Keys:** PC **Q / E / T** · gamepad LB / RB / D-pad up · mobile buttons. Instant abilities fire on press (mobile-friendly).
+- **Friendly fire (2026-10-29):** damage from your own abilities to **you and your teammates is 50%** of the enemy damage (one config value). Exceptions are set per ability; e.g. you're immune to your own Firewall.
 - **Readable for enemies:** clear look and a 3D sound others can hear.
 - **Sound:** every ability gets named sound **hooks** in `Config/ModSounds` (separate slots, own volume and pitch, one ID to swap). The user does the final sound design.
 - Server-authoritative; movement abilities run in the movement simulation like the current Blink.
+
+## Bench (ideas for later powers or upgrades)
+- **Barrier:** a placeable cover wall you can hide behind (the old Firewall idea).
 
 ## Build prompt (paste into Claude Code when the specs are ready)
 ```text
