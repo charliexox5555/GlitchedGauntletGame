@@ -33,7 +33,8 @@ export type PlayOptions = {
 	far: boolean?, -- use the "<Name>_Far" slice if there is one
 	jitter: boolean?, -- add the group's small random pitch (default true)
 	range: number?, -- 3D: audible up to this many studs (default Config/Audio ROLLOFF_MAX)
-	cut: number?, -- plain ids: fade out and stop this many seconds in
+	cut: number?, -- plain ids: fade out and stop this many seconds after `start`
+	start: number?, -- plain ids: seconds into the file to start from
 }
 
 type Voice = {
@@ -194,7 +195,8 @@ local function playLoose(
 	pitch: number,
 	at: Vector3?,
 	range: number?,
-	cut: number?
+	cut: number?,
+	start: number?
 )
 	local s = Instance.new("Sound")
 	s.SoundId = id
@@ -213,6 +215,9 @@ local function playLoose(
 		holder = a
 	end
 	s.Parent = holder
+	if start then
+		s.TimePosition = start
+	end
 	s.Ended:Once(function()
 		if holder:IsA("Attachment") then
 			holder:Destroy()
@@ -251,7 +256,7 @@ function AudioController.play(id: string?, options: PlayOptions?)
 	local key, region = resolve(id, o.far)
 	if not region then
 		if string.sub(id, 1, 6) ~= "atlas:" then
-			playLoose(id, group, volume, pitch, o.at, o.range, o.cut)
+			playLoose(id, group, volume, pitch, o.at, o.range, o.cut, o.start)
 		end
 		return
 	end

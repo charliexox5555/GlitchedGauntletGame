@@ -73,7 +73,7 @@ local function placeholder(id: string, glow: Color3): Model?
 			SHELL
 		)
 		part(model, Enum.PartType.Cylinder, Vector3.new(0.1, 0.58, 0.58), CFrame.identity, SHELL)
-	elseif id == "LaunchPad" or id == "Firewall" then
+	elseif id == "Firewall" then
 		-- A deployable puck: a charcoal disc with a team-coloured core.
 		part(
 			model,

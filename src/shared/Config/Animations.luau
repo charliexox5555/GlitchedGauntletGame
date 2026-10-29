@@ -36,6 +36,8 @@ return table.freeze({
 		DashBack = id(128130101853691),
 		DashLeft = id(117063604285762),
 		DashRight = id(107635192627945),
+		-- Updraft: knees tuck on the launch.
+		Updraft = id(125684824115691),
 	}),
 	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
 

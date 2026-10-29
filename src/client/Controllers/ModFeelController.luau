@@ -3,9 +3,9 @@
 -- and the local screen effects.
 --
 --   Everyone's character: the simulation's DashStart / Dashing (Dash),
---   LaunchAt (Launch Pad) and RollbackAt (Rollback) attributes replicate, so
---   a new value here means that player just cast: play its 3D sound there
---   (and, for others' dashes, Util/DashFx's trail, burst and puff).
+--   UpdraftAt / Updrafting (Updraft) and RollbackAt (Rollback) attributes
+--   replicate, so a new value here means that player just cast: play its 3D
+--   sound there (and, for others' Dash and Updraft, Util/WindFx).
 --   Your screen: Dash wind streaks and blur, the Rollback "VHS rewind" (wash,
 --   scanlines, a REWIND tag), a flash when a Packet goes off on you, and the
 --   enemy-only warnings (slowed by a Lag Field, revealed by a Ping).
@@ -23,18 +23,24 @@ local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local Net = require(ReplicatedStorage.Shared.Net)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
-local DashFx = require(script.Parent.Parent.Util.DashFx)
+local WindFx = require(script.Parent.Parent.Util.WindFx)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
-local CameraController = require(script.Parent.CameraController)
 
 local ModFeelController = {}
 
 local player = Players.LocalPlayer
 local S = ModAudio.SOUNDS
 
-type Seen = { dash: number, dashing: boolean, dashDir: Vector3, launch: number, rollback: number }
+type Seen = {
+	dash: number,
+	dashing: boolean,
+	dashDir: Vector3,
+	updraft: number,
+	updrafting: boolean,
+	rollback: number,
+}
 local seen: { [Model]: Seen } = setmetatable({}, { __mode = "k" }) :: any
 -- Held Mod items in other players' hands, already tinted for this viewer.
 local tinted: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
@@ -52,6 +58,9 @@ local lineAngles: { number } = {}
 local linesAt = -math.huge
 local linesDir = Vector3.new(0, 0, -1) -- the dash in camera space
 local blur: BlurEffect? = nil
+-- Updraft: our wind loop while rising.
+local windHum: ModAudio.Hum? = nil
+local windUntil = -math.huge
 local scan: Frame? = nil
 local scanRows: { Frame } = {}
 local rewindTag: TextLabel? = nil
@@ -187,7 +196,8 @@ local function stepCharacters()
 		end
 		local dash = number(character, "DashStart")
 		local dashing = character:GetAttribute("Dashing") == true
-		local launch = number(character, "LaunchAt")
+		local updraft = number(character, "UpdraftAt")
+		local updrafting = character:GetAttribute("Updrafting") == true
 		local rollback = number(character, "RollbackAt")
 		local s = seen[character]
 		if not s then
@@ -196,7 +206,8 @@ local function stepCharacters()
 				dash = dash,
 				dashing = dashing,
 				dashDir = root.CFrame.LookVector,
-				launch = launch,
+				updraft = updraft,
+				updrafting = updrafting,
 				rollback = rollback,
 			}
 			continue
@@ -230,7 +241,7 @@ local function stepCharacters()
 			else
 				local untilT = character:GetAttribute("DashUntil")
 				ModAudio.play(S.Dash.world, root.Position)
-				DashFx.start(
+				WindFx.dashStart(
 					character,
 					root,
 					dir,
@@ -244,18 +255,30 @@ local function stepCharacters()
 			if mine then
 				ModAudio.play(S.Dash.land)
 			else
-				DashFx.finish(character, root, s.dashDir, TeamColor.forOwner(other))
+				WindFx.dashEnd(character, root, s.dashDir, TeamColor.forOwner(other))
 			end
 		end
 		s.dashing = dashing
-		if launch > s.launch then
-			ModAudio.play(S.LaunchPad.launch, root.Position)
-			ModAudio.play(S.LaunchPad.launchHiss, root.Position)
+		-- Updraft: launch sounds, our wind loop while rising; others see WindFx.
+		local launched = false
+		if updraft > s.updraft + 0.05 then
+			launched = true
+			local up = character:GetAttribute("UpdraftUp")
+			local rise = if typeof(up) == "number" then up / workspace.Gravity else 0.4
 			if mine then
-				CameraController.shake(0.5)
-				CameraController.punchFov(6, 0.5)
+				ModAudio.play(S.Updraft.launch)
+				ModAudio.stopHum(windHum)
+				windHum = ModAudio.hum(S.Updraft.wind, root)
+				windUntil = os.clock() + rise
+			else
+				ModAudio.play(S.Updraft.world, root.Position)
+				WindFx.updraft(character, root, rise, TeamColor.forOwner(other))
 			end
 		end
+		if (s.updrafting or launched) and not updrafting and mine then
+			ModAudio.play(S.Updraft.land)
+		end
+		s.updrafting = updrafting
 		if rollback > s.rollback then
 			local from = character:GetAttribute("RollbackFrom")
 			if typeof(from) == "Vector3" then
@@ -266,7 +289,7 @@ local function stepCharacters()
 				playVhs()
 			end
 		end
-		s.dash, s.launch, s.rollback = dash, launch, rollback
+		s.dash, s.updraft, s.rollback = dash, updraft, rollback
 	end
 end
 
@@ -275,7 +298,12 @@ end
 local function update(_dt: number)
 	local now = os.clock()
 	stepCharacters()
-	DashFx.step()
+	WindFx.step()
+	-- Our Updraft wind fades out at the top of the rise.
+	if windHum and now >= windUntil then
+		ModAudio.stopHum(windHum)
+		windHum = nil
+	end
 
 	-- Dash streaks: weighted to the dash's side (a sideways dash), all round
 	-- going forward (drifting out) or back (drifting in); then a blur pulse.

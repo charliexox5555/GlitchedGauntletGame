@@ -47,6 +47,7 @@ local USE_IDS: { [string]: string } = {
 	DashBack = Animations.MODS.DashBack,
 	DashLeft = Animations.MODS.DashLeft,
 	DashRight = Animations.MODS.DashRight,
+	Updraft = Animations.MODS.Updraft, -- knees tuck on the launch (Mods/Updraft)
 }
 -- A weight of exactly 0 lets the Animator drop the track; stay just above.
 local OFF = 0.001
@@ -206,6 +207,17 @@ local function stepCharacter(player: Player, character: Model)
 					then (if rel.X > 0 then "DashRight" else "DashLeft")
 					else (if rel.Z < 0 then "DashForward" else "DashBack")
 			)
+		end
+	end
+
+	-- An Updraft (simulation-written UpdraftAt): the tuck, the same way.
+	local updraftAt = character:GetAttribute("UpdraftAt")
+	local updraftMark = if typeof(updraftAt) == "number" then updraftAt else 0
+	local updraftSeen = character:GetAttribute("PoseUpdraftSeen")
+	if updraftSeen ~= updraftMark then
+		character:SetAttribute("PoseUpdraftSeen", updraftMark)
+		if typeof(updraftSeen) == "number" and alive then
+			playOnce(animator, "Updraft")
 		end
 	end
 

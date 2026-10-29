@@ -697,8 +697,6 @@ local skins: { [BasePart]: { Texture } } = {}
 -- part is the hitbox, hidden on this client; the model is the look.
 type Dressed = { model: Model, energy: { BasePart }, arrows: { BasePart }, flashing: boolean }
 local dressed: { [BasePart]: Dressed } = {}
-local SHELL = Color3.fromHex("2A2D33")
-local CHEVRON_SPEED = 5 -- studs per second the pad's arrows scroll
 local ARROW_CHASE = 1.6 -- cycles per second of a finished pad's arrow chase
 
 local function objectColor(part: BasePart): Color3
@@ -706,9 +704,9 @@ local function objectColor(part: BasePart): Color3
 	return TeamColor.forTeam(if typeof(team) == "number" then team else nil)
 end
 
--- The part's own colour at rest (the pad's plate is charcoal).
+-- The part's own colour at rest.
 local function restColor(part: BasePart): Color3
-	return if part:GetAttribute("Kind") == "LaunchPad" then SHELL else objectColor(part)
+	return objectColor(part)
 end
 
 local function skin(
@@ -789,12 +787,7 @@ local function colourObject(part: Instance)
 		-- The finished model carries the look.
 		kind = nil
 	end
-	if kind == "LaunchPad" then
-		part.Material = Enum.Material.SmoothPlastic
-		part.Transparency = 0
-		skins[part] =
-			{ skin(part, Enum.NormalId.Top, Tex.MOD_CHEVRON, part.Size.X, part.Size.Z, 0) }
-	elseif kind == "Firewall" then
+	if kind == "Firewall" then
 		local u = 2.4
 		skins[part] = {
 			skin(part, Enum.NormalId.Front, Tex.MOD_HEX, u, u * 0.866, 0.35),
@@ -809,7 +802,7 @@ local function colourObject(part: Instance)
 	local hum = ModAudio.hum(
 		if kind == "Firewall" or part:GetAttribute("Kind") == "Firewall"
 			then S.Firewall.hum
-			else S.LaunchPad.idle,
+			else nil,
 		part
 	)
 	part.AncestryChanged:Connect(function()
@@ -835,9 +828,7 @@ local function onPlaced(data: { [string]: any })
 	if typeof(at) ~= "Vector3" then
 		return
 	end
-	if data.kind == "LaunchPad" then
-		ModAudio.play(S.LaunchPad.place, at)
-	elseif data.kind == "Firewall" then
+	if data.kind == "Firewall" then
 		ModAudio.play(S.Firewall.deploy, at)
 		ModAudio.play(S.Firewall.deploySlam, at)
 	end
@@ -862,8 +853,6 @@ local function onObjectGone(data: { [string]: any })
 	local broken = data.why == "Broken"
 	if data.kind == "Firewall" then
 		ModAudio.play(if broken then S.Firewall.broken else S.Firewall.expire, at)
-	elseif data.kind == "LaunchPad" then
-		ModAudio.play(S.LaunchPad.destroyed, at)
 	end
 	ModVfx.shell({
 		shape = Enum.PartType.Block,
@@ -1167,12 +1156,9 @@ local function update(_dt: number)
 			arrow.Transparency = 0.65 * phase
 		end
 	end
-	for part, list in skins do
+	for part in skins do
 		if not part.Parent then
 			skins[part] = nil
-		elseif part:GetAttribute("Kind") == "LaunchPad" then
-			local t = list[1]
-			t.OffsetStudsV = (now * CHEVRON_SPEED) % t.StudsPerTileV
 		end
 	end
 	stepTrails(now)

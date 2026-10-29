@@ -1,12 +1,15 @@
 --!strict
--- Dash as other players see it (vault/01 Design/Abilities/Dash.md → What
--- others see): a team-tinted wind trail along the path, an air burst where it
--- starts (wisps blown back) and a soft puff where it ends. Layered from the
--- Dash textures (Config/VfxTextures DASH_*) with ParticleEmitters and a
--- Trail. ModFeelController spots the dash (DashStart / Dashing) and calls in.
+-- The wind Mods as other players see them, team-tinted, layered from the
+-- wind textures (Config/VfxTextures DASH_*) with ParticleEmitters and Trails.
+-- ModFeelController spots the casts (simulation attributes) and calls in.
+--   Dash (vault/01 Design/Abilities/Dash.md → What others see): a wind trail
+--   along the path, a gust ring where it starts (wisps blown back) and a
+--   soft puff where it ends.
+--   Updraft (Updraft.md → What others see): a gust ring and dust at your
+--   feet where you launched, and a short trail under you while rising.
 --
--- Pooled: one Trail per character (on its root, made on its first dash and
--- gone with it), one emitter part per layer shared by everyone.
+-- Pooled: one Trail of each kind per character (on its root, made on first
+-- use and gone with it), one emitter part per layer shared by everyone.
 
 local Workspace = game:GetService("Workspace")
 
@@ -14,7 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
-local DashFx = {}
+local WindFx = {}
 
 local WHITE = Color3.new(1, 1, 1)
 -- Air reads as air: mostly white, with the team colour through it.
@@ -28,7 +31,37 @@ type Layers = {
 }
 
 local layers: Layers? = nil
-local trails: { [Model]: Trail } = setmetatable({}, { __mode = "k" }) :: any
+
+-- Trail kinds: where its two attachments sit on the root.
+type TrailSpec = {
+	name: string,
+	a: Vector3,
+	b: Vector3,
+	lifetime: number,
+	faceCamera: boolean,
+}
+local TRAILS: { [string]: TrailSpec } = {
+	-- Head to shins: a ribbon along the dash.
+	Dash = {
+		name = "DashTrail",
+		a = Vector3.new(0, 1.1, 0),
+		b = Vector3.new(0, -1.6, 0),
+		lifetime = Config.DASH_FEEL.trailTime,
+		faceCamera = true,
+	},
+	-- Across the feet: a sheet left under you as you rise.
+	Updraft = {
+		name = "UpdraftTrail",
+		a = Vector3.new(-1.1, -2.6, 0),
+		b = Vector3.new(1.1, -2.6, 0),
+		lifetime = Config.UPDRAFT_FEEL.trailTime,
+		faceCamera = false,
+	},
+}
+local trails: { [string]: { [Model]: Trail } } = {
+	Dash = setmetatable({}, { __mode = "k" }) :: any,
+	Updraft = setmetatable({}, { __mode = "k" }) :: any,
+}
 -- os.clock() each trail turns off by itself (in case the end is never seen).
 local trailsOff: { [Trail]: number } = setmetatable({}, { __mode = "k" }) :: any
 local TRAIL_SLACK = 0.15
@@ -75,7 +108,7 @@ end
 local function build(): Layers
 	local folder = Workspace:FindFirstChild("Effects") or Workspace
 	local part = Instance.new("Part")
-	part.Name = "DashFx"
+	part.Name = "WindFx"
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanQuery = false
@@ -139,43 +172,65 @@ local function getLayers(): Layers
 	return build()
 end
 
--- The character's Trail (made once, on its root; StreamingEnabled can take
--- the root away, so a missing one is rebuilt).
-local function trailOf(character: Model, root: BasePart): Trail
-	local existing = trails[character]
+-- The character's Trail of `kind` (made once, on its root; StreamingEnabled
+-- can take the root away, so a missing one is rebuilt).
+local function trailOf(kind: string, character: Model, root: BasePart): Trail
+	local spec = TRAILS[kind]
+	local list = trails[kind]
+	local existing = list[character]
 	if existing and existing.Parent == root then
 		return existing
 	end
-	local top = Instance.new("Attachment")
-	top.Name = "DashTrailTop"
-	top.Position = Vector3.new(0, 1.1, 0)
-	top.Parent = root
-	local bottom = Instance.new("Attachment")
-	bottom.Name = "DashTrailBottom"
-	bottom.Position = Vector3.new(0, -1.6, 0)
-	bottom.Parent = root
+	local a = Instance.new("Attachment")
+	a.Name = spec.name .. "A"
+	a.Position = spec.a
+	a.Parent = root
+	local b = Instance.new("Attachment")
+	b.Name = spec.name .. "B"
+	b.Position = spec.b
+	b.Parent = root
 	local trail = Instance.new("Trail")
-	trail.Name = "DashTrail"
-	trail.Attachment0 = top
-	trail.Attachment1 = bottom
+	trail.Name = spec.name
+	trail.Attachment0 = a
+	trail.Attachment1 = b
 	trail.Texture = VFX.DASH_WIND_TRAIL
 	trail.TextureMode = Enum.TextureMode.Stretch
-	trail.Lifetime = Config.DASH_FEEL.trailTime
+	trail.Lifetime = spec.lifetime
 	trail.MinLength = 0.05
 	trail.LightEmission = 0.7
 	trail.LightInfluence = 0
-	trail.FaceCamera = true
+	trail.FaceCamera = spec.faceCamera
 	trail.Transparency = curve({ 0, 0.2, 0.4, 0.45, 1, 1 })
 	trail.WidthScale = curve({ 0, 1, 1, 0.35 })
 	trail.Enabled = false
 	trail.Parent = root
-	trails[character] = trail
+	list[character] = trail
 	return trail
+end
+
+-- Turns a trail on for `seconds` (it turns off by itself after that).
+local function trailFor(
+	kind: string,
+	character: Model,
+	root: BasePart,
+	color: ColorSequence,
+	seconds: number
+)
+	local trail = trailOf(kind, character, root)
+	trail.Color = color
+	trail.Enabled = true
+	trailsOff[trail] = os.clock() + math.clamp(seconds, 0, 1)
 end
 
 -- The dash starts at `root` going `dir` for `length` seconds: burst,
 -- wisps, trail on.
-function DashFx.start(character: Model, root: BasePart, dir: Vector3, length: number, color: Color3)
+function WindFx.dashStart(
+	character: Model,
+	root: BasePart,
+	dir: Vector3,
+	length: number,
+	color: Color3
+)
 	dir = flatDir(dir, root)
 	local l = getLayers()
 	local c = ColorSequence.new(tint(color))
@@ -192,15 +247,12 @@ function DashFx.start(character: Model, root: BasePart, dir: Vector3, length: nu
 			l.burst:Emit(1)
 		end
 	end)
-	local trail = trailOf(character, root)
-	trail.Color = c
-	trail.Enabled = true
-	trailsOff[trail] = os.clock() + math.clamp(length, 0, 1) + TRAIL_SLACK
+	trailFor("Dash", character, root, c, length + TRAIL_SLACK)
 end
 
 -- The dash ended at `root` (it was going `dir`): trail off, a settling puff.
-function DashFx.finish(character: Model, root: BasePart, dir: Vector3, color: Color3)
-	local trail = trails[character]
+function WindFx.dashEnd(character: Model, root: BasePart, dir: Vector3, color: Color3)
+	local trail = trails.Dash[character]
 	if trail then
 		trail.Enabled = false
 		trailsOff[trail] = nil
@@ -213,8 +265,29 @@ function DashFx.finish(character: Model, root: BasePart, dir: Vector3, color: Co
 	l.puff:Emit(3)
 end
 
--- Per frame: turns off trails whose dash should be over (a missed end).
-function DashFx.step()
+-- An Updraft launched from `root` (rising for `rise` seconds): a gust ring
+-- flat on the ground and dust at the feet, and a trail under you.
+function WindFx.updraft(character: Model, root: BasePart, rise: number, color: Color3)
+	local l = getLayers()
+	local c = ColorSequence.new(tint(color))
+	local feet = root.Position - Vector3.new(0, 2.8, 0)
+	l.part.CFrame = CFrame.lookAt(feet, feet + Vector3.yAxis, Vector3.zAxis)
+	l.burst.Color = c
+	l.burst:Emit(1)
+	l.puff.Color = c
+	l.puff:Emit(3)
+	task.delay(0.05, function()
+		if l.part.Parent then
+			l.part.CFrame =
+				CFrame.lookAt(feet + Vector3.yAxis * 0.6, feet + Vector3.yAxis * 1.6, Vector3.zAxis)
+			l.burst:Emit(1)
+		end
+	end)
+	trailFor("Updraft", character, root, c, math.min(rise, Config.UPDRAFT_FEEL.trailTime))
+end
+
+-- Per frame: turns off trails whose cast should be over (a missed end).
+function WindFx.step()
 	local now = os.clock()
 	for trail, offAt in trailsOff do
 		if now >= offAt then
@@ -224,4 +297,4 @@ function DashFx.step()
 	end
 end
 
-return DashFx
+return WindFx

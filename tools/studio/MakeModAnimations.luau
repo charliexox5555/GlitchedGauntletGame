@@ -13,6 +13,8 @@
 --   GG_ModHeal   (one-shot) thrust the device toward the target and back
 --   GG_DashForward / Back / Left / Right (one-shot) the body leans into a
 --                dash and comes back (torso only: the arms keep the gun hold)
+--   GG_Updraft   (one-shot) knees tuck up as you launch, then hang down for
+--                the fall (legs and hips only: the arms keep the gun hold)
 --
 -- Joint angles in degrees (R15 Transforms): +X swings a limb forward (arms
 -- up); on UpperTorso (Waist) it leans the chest back.
@@ -36,6 +38,12 @@ local PARENT: { [string]: string } = {
 	LeftUpperArm = "UpperTorso",
 	LeftLowerArm = "LeftUpperArm",
 	LeftHand = "LeftLowerArm",
+	RightUpperLeg = "LowerTorso",
+	RightLowerLeg = "RightUpperLeg",
+	RightFoot = "RightLowerLeg",
+	LeftUpperLeg = "LowerTorso",
+	LeftLowerLeg = "LeftUpperLeg",
+	LeftFoot = "LeftLowerLeg",
 }
 
 local function cf(p: JointPose): CFrame
@@ -144,6 +152,22 @@ local LEAN: { [string]: Frame } = {
 	Right = { LowerTorso = { -4, 0, -14 }, UpperTorso = { 0, 0, -8 }, Head = { 0, 0, 8 } },
 }
 
+-- Updraft: legs tuck (knees up, shins back), a slight forward hunch.
+local LEGS_REST: Frame = {
+	LowerTorso = { 0, 0, 0 },
+	RightUpperLeg = { 0, 0, 0 },
+	RightLowerLeg = { 0, 0, 0 },
+	LeftUpperLeg = { 0, 0, 0 },
+	LeftLowerLeg = { 0, 0, 0 },
+}
+local UPDRAFT_TUCK: Frame = {
+	LowerTorso = { -6, 0, 0 },
+	RightUpperLeg = { 55, 0, 4 },
+	RightLowerLeg = { -75, 0, 0 },
+	LeftUpperLeg = { 40, 0, -4 },
+	LeftLowerLeg = { -60, 0, 0 },
+}
+
 local ACTION = Enum.AnimationPriority.Action
 local ACTION4 = Enum.AnimationPriority.Action4
 
@@ -166,6 +190,15 @@ local sequences = {
 		{ 0.38, HOLD },
 	}),
 }
+table.insert(
+	sequences,
+	sequence("GG_Updraft", ACTION4, false, {
+		{ 0, LEGS_REST },
+		{ 0.08, UPDRAFT_TUCK },
+		{ 0.32, UPDRAFT_TUCK },
+		{ 0.6, LEGS_REST },
+	})
+)
 for _, dir in { "Forward", "Back", "Left", "Right" } do
 	table.insert(
 		sequences,

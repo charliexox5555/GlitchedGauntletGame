@@ -364,10 +364,13 @@ return table.freeze({
 		},
 	} :: { [string]: ItemAction },
 
-	-- Dash (Mods/Dash, ModController): the gun dips down and out of view
-	-- (camera space around the root, smoothstep between keys) and snaps back
-	-- up with a small overshoot; it's down by the dash's end and back up as
-	-- the fire delay ends (~0.25 s). Keep in step with Config/Mods Dash.
+	-- Mod gestures (ModController → ViewmodelController.gesture): the gun
+	-- moves by one of MOD_DIPS (camera space around the root, smoothstep
+	-- between keys) while the free (left) hand plays one of MOD_GESTURES.
+	--
+	-- Dash: the gun dips out of view and snaps back up with a small
+	-- overshoot; it's down by the dash's end and back up as the fire delay
+	-- ends (~0.25 s). Keep in step with Config/Mods Dash.
 	DASH_DIP = {
 		length = 0.34,
 		keys = {
@@ -378,11 +381,20 @@ return table.freeze({
 			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
 		},
 	} :: ItemAction,
-	-- While the gun is down the free (left) hand gestures the way you dash,
-	-- starting and ending below the screen. Forward: the palm pushes out.
-	-- Left / Right: a sweep to that side. Back: reach out, then pull back.
-	DASH_GESTURES = {
-		Forward = {
+	-- Updraft: the gun only tilts a little (it stays ready to shoot).
+	UPDRAFT_TILT = {
+		length = 0.32,
+		keys = {
+			{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
+			{ t = 0.25, pos = Vector3.new(0.02, -0.09, 0.05), rot = Vector3.new(-7, 2, -5) },
+			{ t = 1, pos = Vector3.zero, rot = Vector3.zero },
+		},
+	} :: ItemAction,
+	-- The free hand, starting and ending below the screen. Dash: the way you
+	-- dash (Forward: the palm pushes out; Left / Right: a sweep to that side;
+	-- Back: reach out, then pull back). Updraft: a flick down, pushing off.
+	MOD_GESTURES = {
+		DashForward = {
 			length = 0.24,
 			keys = {
 				{ t = 0, pos = Vector3.new(-0.55, -1.6, -0.7), dir = Vector3.new(-0.3, -0.8, 0.5) },
@@ -404,7 +416,7 @@ return table.freeze({
 				{ t = 1, pos = Vector3.new(-0.55, -1.6, -0.7), dir = Vector3.new(-0.3, -0.8, 0.5) },
 			},
 		},
-		Back = {
+		DashBack = {
 			length = 0.24,
 			keys = {
 				{ t = 0, pos = Vector3.new(-0.55, -1.6, -0.7), dir = Vector3.new(-0.3, -0.8, 0.5) },
@@ -421,7 +433,7 @@ return table.freeze({
 				{ t = 1, pos = Vector3.new(-0.6, -1.6, -0.6), dir = Vector3.new(-0.3, -0.8, 0.5) },
 			},
 		},
-		Left = {
+		DashLeft = {
 			length = 0.24,
 			keys = {
 				{ t = 0, pos = Vector3.new(-0.4, -1.6, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
@@ -442,7 +454,7 @@ return table.freeze({
 				},
 			},
 		},
-		Right = {
+		DashRight = {
 			length = 0.24,
 			keys = {
 				{ t = 0, pos = Vector3.new(-0.6, -1.6, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
@@ -461,6 +473,27 @@ return table.freeze({
 					pos = Vector3.new(0.15, -1.6, -0.75),
 					dir = Vector3.new(-0.5, -0.75, 0.45),
 				},
+			},
+		},
+		UpdraftDown = {
+			length = 0.26,
+			keys = {
+				{
+					t = 0,
+					pos = Vector3.new(-0.55, -1.6, -0.75),
+					dir = Vector3.new(-0.3, -0.8, 0.5),
+				},
+				{
+					t = 0.3,
+					pos = Vector3.new(-0.42, -0.5, -1.2),
+					dir = Vector3.new(-0.3, -0.6, 0.7),
+				},
+				{
+					t = 0.7,
+					pos = Vector3.new(-0.5, -1.25, -1.05),
+					dir = Vector3.new(-0.25, 0.2, 0.95),
+				},
+				{ t = 1, pos = Vector3.new(-0.55, -1.7, -0.8), dir = Vector3.new(-0.3, -0.8, 0.5) },
 			},
 		},
 	} :: { [string]: Gesture },

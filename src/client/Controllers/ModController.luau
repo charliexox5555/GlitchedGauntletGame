@@ -29,7 +29,6 @@ local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
 local Firewall = require(Shared.Mods.Firewall)
 local LagField = require(Shared.Mods.LagField)
-local LaunchPad = require(Shared.Mods.LaunchPad)
 local Packet = require(Shared.Mods.Packet)
 local PatchUp = require(Shared.Mods.PatchUp)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
@@ -71,6 +70,7 @@ local queued: ModTypes.UseMode? = nil -- a use pressed while still equipping
 local quickCast = false
 local itemToken = 0
 local lastDashStart = 0
+local lastUpdraftAt = 0
 local lastRollbackAt = 0
 
 -- Held throws: each Mod's projectile options (the server uses the same).
@@ -82,7 +82,6 @@ local THROW_OPTIONS: { [string]: (ModTypes.Stats) -> Projectile.Options } = {
 type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams, OverlapParams?) -> Placeable.Spot
 type PlaceDef = { find: Finder, size: (ModTypes.Stats) -> Vector3, bodies: boolean }
 local PLACE: { [string]: PlaceDef } = {
-	LaunchPad = { find = LaunchPad.find, size = LaunchPad.size, bodies = false },
 	Firewall = { find = Firewall.find, size = Firewall.size, bodies = true },
 }
 -- Overlap params for the hologram, rebuilt twice a second (not per frame).
@@ -707,16 +706,28 @@ local function update(_dt: number)
 			local feel = Config.DASH_FEEL
 			local dir = velocity.Unit
 			local localDir = cam.CFrame:VectorToObjectSpace(dir)
-			ViewmodelController.dash(
+			ViewmodelController.gesture(
 				if math.abs(localDir.X) > math.abs(localDir.Z)
-					then (if localDir.X > 0 then "Right" else "Left")
-					else (if localDir.Z < 0 then "Forward" else "Back")
+					then (if localDir.X > 0 then "DashRight" else "DashLeft")
+					else (if localDir.Z < 0 then "DashForward" else "DashBack"),
+				"Dash"
 			)
 			CameraController.punchFov(feel.fov, feel.fovTime)
 			CameraController.rollKick(-localDir.X * feel.roll, feel.rollTime)
 			CameraController.lunge(dir * feel.lunge, feel.lungeTime)
 			CameraController.shake(feel.shake)
 		end
+	end
+	-- Updraft: the free hand flicks down, the gun tilts a little (it stays
+	-- ready), the camera lurches up.
+	local updraftAt = number(character, "UpdraftAt", 0)
+	if updraftAt > lastUpdraftAt + 0.05 then
+		lastUpdraftAt = updraftAt
+		local feel = Config.UPDRAFT_FEEL
+		ViewmodelController.gesture("UpdraftDown", "Updraft")
+		CameraController.punchFov(feel.fov, feel.fovTime)
+		CameraController.lunge(Vector3.new(0, feel.lurch, 0), feel.lurchTime)
+		CameraController.shake(feel.shake)
 	end
 	-- Rollback: the server gives back the old ammo; drop any reload.
 	local rollbackAt = number(character, "RollbackAt", 0)
@@ -822,6 +833,7 @@ function ModController.start()
 	player.CharacterRemoving:Connect(function()
 		endHold(false)
 		lastDashStart = 0
+		lastUpdraftAt = 0
 		lastRollbackAt = 0
 	end)
 	local function watchDeath(character: Model)

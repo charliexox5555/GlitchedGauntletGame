@@ -149,9 +149,11 @@ local raiseX, raiseV = 0, 0 -- the item's own (underdamped) raise
 local actionKind: string? = nil
 local actionAt = -math.huge
 local itemHidden = false
--- Dash: the gun dip and the free hand's gesture (Config/Viewmodel DASH_*).
-local dashKind: string? = nil
-local dashAt = -math.huge
+-- A Mod gesture (Dash, Updraft): the gun's dip and the free hand's gesture
+-- (Config/Viewmodel MOD_GESTURES, DASH_DIP / UPDRAFT_TILT).
+local gestureKind: string? = nil
+local dipKind: string? = nil
+local gestureAt = -math.huge
 
 -- Small helpers ----------------------------------------------------------------
 
@@ -1460,12 +1462,19 @@ function ViewmodelController.holdItem(template: Model?)
 	item = world
 end
 
--- A dash (Mods/Dash): the gun dips out of view and the free hand gestures
--- the way you go: "Forward", "Back", "Left" or "Right" (camera-relative).
-function ViewmodelController.dash(kind: string)
-	if VM.DASH_GESTURES[kind] then
-		dashKind = kind
-		dashAt = os.clock()
+local DIPS: { [string]: VM.ItemAction } = {
+	Dash = VM.DASH_DIP,
+	Updraft = VM.UPDRAFT_TILT,
+}
+
+-- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",
+-- "DashBack", "DashLeft", "DashRight" camera-relative, "UpdraftDown") while
+-- the gun moves by `dip` ("Dash": out of view; "Updraft": a small tilt).
+function ViewmodelController.gesture(gesture: string, dip: string)
+	if VM.MOD_GESTURES[gesture] and DIPS[dip] then
+		gestureKind = gesture
+		dipKind = dip
+		gestureAt = os.clock()
 	end
 end
 
@@ -1483,7 +1492,7 @@ local function smooth(t: number): number
 	return t * t * (3 - 2 * t)
 end
 
--- Keyed offsets (ITEM_ACTIONS, DASH_DIP) at `t` 0..1, smoothstep between keys.
+-- Keyed offsets (ITEM_ACTIONS, the dips) at `t` 0..1, smoothstep between keys.
 local function keyedOffset(keys: { VM.ItemKey }, t: number): CFrame
 	if t < 0 or t >= 1 then
 		return CFrame.identity
@@ -1511,8 +1520,8 @@ local function actionOffset(now: number): (CFrame, boolean)
 	return keyedOffset(action.keys, t), gone
 end
 
--- The dash gesture's free hand at `t` 0..1: fist position and arm direction
--- (root space).
+-- A gesture's free hand at `t` 0..1: fist position and arm direction (root
+-- space).
 local function gestureHand(keys: { VM.HandKey }, t: number): (Vector3, Vector3)
 	for i = 2, #keys do
 		local b = keys[i]
@@ -1832,10 +1841,13 @@ local function update(dt: number)
 	local lowerCf = if lowerT > 1e-3
 		then CFrame.new(VM.LOWER.pos * lowerT) * angles(VM.LOWER.rot * lowerT)
 		else CFrame.identity
-	-- Dash: the dip rides on top of the lower.
-	local dashT = (now - dashAt) / VM.DASH_DIP.length
-	if dashT < 1 then
-		lowerCf *= keyedOffset(VM.DASH_DIP.keys, dashT)
+	-- A Mod gesture's dip rides on top of the lower.
+	local dip = if dipKind then DIPS[dipKind] else nil
+	if dip then
+		local dipT = (now - gestureAt) / dip.length
+		if dipT < 1 then
+			lowerCf *= keyedOffset(dip.keys, dipT)
+		end
 	end
 
 	-- 2. Guns: root * hold pose, then every joint of the gun from its clip.
@@ -1940,9 +1952,9 @@ local function update(dt: number)
 			local toward = point + root:VectorToWorldSpace(VM.FREE_HAND.direction)
 			ViewmodelArms.place(a, "Left", point, toward, root.RightVector)
 		end
-		-- Dash: the free hand leaves the (dipped) gun and gestures.
-		local gesture = if dashKind then VM.DASH_GESTURES[dashKind] else nil
-		local gestureT = if gesture then (now - dashAt) / gesture.length else 1
+		-- A Mod gesture: the free hand leaves the gun and gestures.
+		local gesture = if gestureKind then VM.MOD_GESTURES[gestureKind] else nil
+		local gestureT = if gesture then (now - gestureAt) / gesture.length else 1
 		if gesture and gestureT < 1 and not hidden then
 			local pos, dir = gestureHand(gesture.keys, gestureT)
 			local point = root:PointToWorldSpace(pos)
@@ -2026,8 +2038,9 @@ function ViewmodelController.start()
 		ViewmodelController.holdItem(nil)
 		lowered = false
 		lowerX, lowerV = 0, 0
-		dashKind = nil
-		dashAt = -math.huge
+		gestureKind = nil
+		dipKind = nil
+		gestureAt = -math.huge
 		if arms then
 			arms.model:Destroy()
 			arms = nil

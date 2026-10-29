@@ -16,7 +16,7 @@ local Mods = {}
 -- slotted (the dev panel greys it out).
 local modules: { [string]: Types.ModModule } = {
 	Dash = require(script.Dash).module,
-	LaunchPad = require(script.LaunchPad).module,
+	Updraft = require(script.Updraft).module,
 	Packet = require(script.Packet).module,
 	Firewall = require(script.Firewall).module,
 	LagField = require(script.LagField).module,

@@ -19,7 +19,8 @@ export type Cue = {
 	pitch: number?, -- default 1
 	loop: boolean?, -- a hum: played Looped and faded out
 	range: number?, -- 3D: audible up to this many studs (louder up close)
-	cut: number?, -- fade out and stop this many seconds in (a long recording)
+	cut: number?, -- fade out and stop this many seconds after `start` (a long recording)
+	start: number?, -- seconds into the file to start from (skip silence; a loop's steady part)
 }
 
 local function cue(
@@ -28,7 +29,8 @@ local function cue(
 	pitch: number?,
 	loop: boolean?,
 	range: number?,
-	cut: number?
+	cut: number?,
+	start: number?
 ): Cue
 	return table.freeze({
 		id = "rbxassetid://" .. tostring(n),
@@ -37,6 +39,7 @@ local function cue(
 		loop = loop,
 		range = range,
 		cut = cut,
+		start = start,
 	})
 end
 
@@ -60,12 +63,17 @@ return table.freeze({
 		-- Dash_World: 3D for everyone else, ~40 studs. "Fast Pass By Airy Whooshes Windy 4"
 		world = cue(9114373678, 0.8, 1, nil, 40),
 	}),
-	LaunchPad = table.freeze({
-		place = cue(9125925576, 0.6), -- 3D
-		idle = cue(9125784811, 0.18, 1, true), -- 3D, quiet throb on the pad
-		launch = cue(9125577419, 0.75), -- 3D
-		launchHiss = cue(9125805579, 0.45), -- 3D layer
-		destroyed = cue(9117869243, 0.6), -- 3D
+	-- Updraft hooks (vault/01 Design/Abilities/Updraft.md → Sound). Placeholders
+	-- (ProSoundEffects, unauditioned), listed in the Updraft note; one id each.
+	Updraft = table.freeze({
+		-- Updraft_Launch: you. "Giant Air Blast Low Bursts Pound Many Versions 5", 0.2–0.85 s
+		launch = cue(9125577266, 0.7, 1.05, nil, nil, 0.65, 0.2),
+		-- Updraft_Wind: you, a loop while rising. "Plasma Trails Constant Airy Whooshing Windy 1"
+		wind = cue(9125742111, 0.35, 1, true, nil, nil, 2.8),
+		-- Updraft_Land: you. "Body Fall Master 10", cut at 0.35 s
+		land = cue(9113472118, 0.5, 1.1, nil, nil, 0.35),
+		-- Updraft_World: 3D for everyone else, ~40 studs. "Giant Air Blast ... Many Versions 7"
+		world = cue(9125577419, 1, 0.95, nil, 40, 1.1, 0.2),
 	}),
 	Packet = table.freeze({
 		pin = cue(9114659833, 0.6), -- you, on raise

@@ -22,19 +22,18 @@
 --   Mod<n>SerialSeen        last Mod<n>Serial applied
 --   ModResetSeen            last ModResetSerial applied
 --   Dashing + the Dash* attributes of Mods/Dash, RollbackAt / RollbackFrom
---   (Mods/Rollback), LaunchAt / LaunchVelocity / Launching (Mods/LaunchPad);
---   SlideJumpSpeed carries a
---   launch's forward speed through the air like a slide-jump (Movement)
+--   (Mods/Rollback), UpdraftAt / UpdraftUp / Updrafting (Mods/Updraft);
+--   SlideJumpSpeed carries an Updraft's running speed through the air like a
+--   slide-jump (Movement)
 
 local RunService = game:GetService("RunService")
 
 local Charges = require(script.Parent.Parent.Mods.Charges)
 local Config = require(script.Parent.Parent.Config.Mods)
-local LaunchPad = require(script.Parent.Parent.Mods.LaunchPad)
 local Mods = require(script.Parent.Parent.Mods)
 local Rollback = require(script.Parent.Parent.Mods.Rollback)
-local Teams = require(script.Parent.Parent.Mods.Teams)
 local Types = require(script.Parent.Parent.Mods.Types)
+local Updraft = require(script.Parent.Parent.Mods.Updraft)
 
 local rollbackConnection: RBXScriptConnection? = nil
 
@@ -112,6 +111,10 @@ local function stepDash(character: Model, root: BasePart, now: number)
 			flat = flat.Unit * exit
 			root.AssemblyLinearVelocity = Vector3.new(flat.X, vel.Y, flat.Z)
 		end
+		-- An air speed carried from mid-dash (an Updraft) can't beat the exit.
+		if number(character, "SlideJumpSpeed", 0) > exit then
+			set(character, "SlideJumpSpeed", exit)
+		end
 		set(character, "Dashing", false)
 	end
 end
@@ -142,11 +145,8 @@ function AbilitiesSim.stepCharacter(
 	local seen = character:GetAttribute("ModResetSeen")
 	local reset = typeof(seen) == "number" and seen ~= resetSerial
 
-	-- Your team's launch pads under your feet.
-	local carry = LaunchPad.launch(character, humanoid, root, Teams.of(player), now)
-	if carry then
-		set(character, "SlideJumpSpeed", carry)
-	end
+	-- An Updraft in progress: hold its rise, end it on landing.
+	Updraft.step(character, humanoid, root, now)
 
 	for slot, names in NAMES do
 		local input = actionDown(context, names.input)
@@ -229,7 +229,6 @@ function AbilitiesSim.initialize()
 	if rollbackConnection then
 		return
 	end
-	LaunchPad.watch()
 	local ok, signal = pcall(function()
 		return (RunService :: any).Rollback
 	end)

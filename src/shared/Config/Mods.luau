@@ -50,29 +50,25 @@ local defs: { [string]: ModDef } = {
 			G3 = { note = "Desync: the decoy fires blanks; you're invisible", decoyFires = true },
 		},
 	},
-	LaunchPad = {
-		id = "LaunchPad",
-		name = "Launch Pad",
+	Updraft = {
+		id = "Updraft",
+		name = "Updraft",
 		role = "Mobility",
-		block = "Placeable",
-		activation = "HeldPlace",
-		authority = "Server",
-		icon = "rbxassetid://99871732908404",
+		block = "Launch",
+		activation = "Instant",
+		authority = "Simulation",
+		icon = "rbxassetid://99871732908404", -- the Launch Pad icon until Updraft has its own
 		glyph = "^",
-		hint = { primary = "Place" },
-		quickCast = "Primary",
+		hint = {},
 		levels = {
 			L1 = {
-				note = "Pad that launches you ~25 studs up and forward",
-				cooldown = 0, -- Updraft: 2 per round, no recharge
+				note = "Launch straight up ~14 studs (works mid-air)",
+				cooldown = 0, -- 2 per round, no recharge
 				charges = 2,
-				placeRange = 12,
-				size = 6,
-				life = 15,
-				hp = 50,
-				launchUp = 99, -- studs/s up
-				launchForward = 30, -- studs/s along the pad's facing
+				peak = 14, -- studs above where you used it (speed from Workspace.Gravity)
+				maxCarry = 24, -- most running speed carried into the air (a slide-jump's)
 			},
+			-- The paths below are the Launch Pad's, not redesigned yet.
 			A2 = { note = "Jump Grid: 2 pads at once", charges = 2 },
 			A3 = { note = "Jump Grid: +30% move speed for 2 s on landing", landingBoost = 0.3 },
 			B2 = { note = "Air Strike: no airborne spread for 2 s after launch", airAccurate = 2 },
@@ -307,7 +303,7 @@ local defs: { [string]: ModDef } = {
 -- The order Mods are listed in (dev panel, draft later).
 local ORDER = {
 	"Dash",
-	"LaunchPad",
+	"Updraft",
 	"Packet",
 	"Firewall",
 	"LagField",
@@ -355,6 +351,17 @@ return table.freeze({
 		streakTime = 0.3, -- screen-edge wind streaks
 		trailTime = 0.35, -- the wind trail others see lingers this long
 		crackle = true, -- play the Dash_Crackle layer (on/off to try the classic feel)
+	},
+
+	-- Updraft feel (vault/01 Design/Abilities/Updraft.md → First person, What
+	-- others see). Client-only look.
+	UPDRAFT_FEEL = {
+		fov = 6, -- FOV punch (degrees) over fovTime
+		fovTime = 0.3,
+		lurch = 0.4, -- studs the camera leads upward, then settles
+		lurchTime = 0.3,
+		shake = 0.1,
+		trailTime = 0.3, -- the wind trail under you while rising
 	},
 
 	-- Colours by viewer: you and your team / enemies / glitch static.

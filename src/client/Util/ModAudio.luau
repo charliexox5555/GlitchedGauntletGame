@@ -31,6 +31,7 @@ function ModAudio.play(cue: ModSounds.Cue?, at: Vector3?, pitch: number?)
 		at = at,
 		range = cue.range,
 		cut = cue.cut,
+		start = cue.start,
 	})
 end
 
@@ -52,6 +53,7 @@ function ModAudio.hum(cue: ModSounds.Cue?, holder: Instance?): Hum?
 	local s = sound :: Sound
 	s.PlaybackSpeed = cue.pitch or 1
 	s.Volume = 0
+	s.TimePosition = cue.start or 0
 	-- Our own Attachment on the holder: if the holder is destroyed, only the
 	-- attachment and this Sound go (the Sound isn't returned to the pool).
 	local a = Instance.new("Attachment")

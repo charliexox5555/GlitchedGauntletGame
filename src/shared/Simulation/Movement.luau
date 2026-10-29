@@ -106,8 +106,10 @@ local function stepCharacter(player: Player, character: Model)
 		sliding = false
 		slideEnd = now
 	end
-	if grounded and not wasGrounded then
-		slideJump = 0 -- landed
+	-- Landed (not on the step an Updraft leaves the floor: it ends itself on
+	-- the real landing, before this runs).
+	if grounded and not wasGrounded and character:GetAttribute("Updrafting") ~= true then
+		slideJump = 0
 	end
 
 	-- Start / end a slide.

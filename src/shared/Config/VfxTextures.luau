@@ -32,7 +32,7 @@ return table.freeze({
 	MOD_CROSS = "rbxassetid://107533110619347", -- plus (heal motes)
 
 	-- Dash (tools/vfx/make_dash_vfx.py → art-source/vfx/abilities/dash/), all
-	-- white, tinted per viewer (Util/DashFx, ModFeelController).
+	-- white, tinted per viewer (Util/WindFx, ModFeelController).
 	DASH_WIND_TRAIL = "rbxassetid://93485856775142", -- wind wisps; u: head (left) -> tail
 	DASH_AIR_BURST_2x2 = "rbxassetid://130185238645234", -- gust ring expanding over 4 frames
 	DASH_PUFF_2x2 = "rbxassetid://86393263788167", -- soft dust puff dissipating over 4 frames
