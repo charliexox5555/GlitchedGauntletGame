@@ -2,7 +2,7 @@
 
 The art plan for the [Lobby](../01%20Design/Lobby.md) place, phase 1 (build and art only). It holds the mood board, palette, materials and the top-down layout with dimensions, and it feeds the greybox (step 2) and the Blender kit (steps 3–4).
 
-**Status (2026-10-29):** step 1 redone for the **circular bunker hub** (user decision, 2026-10-29: a round spawn rotunda with a skylight, an outer ring and four wings; no courtyard). **Approved 2026-10-29** with the defaults: 88-stud rotunda (the greybox walk is the scale check), one-way ENTER/EXIT range gates, Market west / Weapons east, no ring light wells yet. **Step 2 greybox approved 2026-10-29** after a second pass (see Greybox v2 below). Step 3 (Blender kit design) in progress.
+**Status (2026-10-29):** step 1 redone for the **circular bunker hub** (user decision, 2026-10-29: a round spawn rotunda with a skylight, an outer ring and four wings; no courtyard). **Approved 2026-10-29** with the defaults: 88-stud rotunda (the greybox walk is the scale check), one-way ENTER/EXIT range gates, Market west / Weapons east, no ring light wells yet. **Step 2 greybox approved 2026-10-29** after a second pass (see Greybox v2 below). Step 3 (Blender kit design) done; **steps 4-7 built 2026-10-30** (run straight through at the user's request), see [Lobby Kit](Lobby%20Kit.md) → Built lobby. Waiting for the user's approval.
 - **Research:** 3 reference sweeps (bunker and skylight architecture, moody game lobbies and weapon showrooms, Roblox hub scale).
 - **Layouts:** 3 independent layouts (readability, flow, mood), then a judge that rechecked the geometry and merged them into **"Sunwell Bunker"**.
 - **Superseded:** the earlier rectangular "Axis Hall" with a courtyard.

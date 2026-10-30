@@ -2,7 +2,7 @@
 
 The Blender modular kit for the [Lobby](../01%20Design/Lobby.md) (step 3 of phase 1). Every piece below replaces greybox parts from [`tools/studio/lobby/`](../../tools/studio/lobby/) and follows the [Lobby Art Plan](Lobby%20Art%20Plan.md) (palette, mood, budgets).
 
-**Status (2026-10-29):** step 3 done. The style sheet, material library and preview renders below were made and reviewed by an art-director pass. The user asked for steps 4-7 to run straight through without stopping (they review the finished lobby), so the full kit is being built per area (see Pipeline).
+**Status (2026-10-30):** phase 1 steps 3-7 built. The kit is modelled, uploaded and assembled in the Lobby place for every area, with lighting, ambience, a review and fix pass and a final check (see **Built lobby** at the end). Waiting for the user's walk-through and approval.
 
 ## Conventions (what the importer can rely on)
 - **Axes and scale:** same as the guns and Mods: Blender +X forward, +Z up, +Y left, **1 unit = 1 stud**.
@@ -124,3 +124,34 @@ Sources: `tools/blender/lobbykit.py` (materials, helpers, stage), `build_lobby_s
 5. `tools/studio/lobby/Art_<Area>.luau` places the pieces with the `ArtKit.luau` helpers (`put`, `segCF`, `ringCF`, `finish`, `hide`, `tint`); `python tools/studio/lobby/bundle.py Art_<Area> -o art.luau`, run in the Lobby place. The greybox stays the collision: replaced parts are hidden, never deleted.
 
 Materials tile on MeshParts at the same stud density as on Parts (tested with the RotundaPier), so the kit's stud UVs need no rescaling.
+
+## Built lobby (steps 4-7, 2026-10-30)
+
+Final screenshots: `References/lobby/final/` (spawn, dome, ring, Duels portal/hall/bays, Market street, Battle Pass, Armoury, Locker, Range Lobby, real range). Per-area work shots are in `References/lobby/art/` and art-director review shots in `References/lobby/review/`.
+
+| Area | Kit group (asset) | Art script | Notes |
+|---|---|---|---|
+| Hub (rotunda + ring) | Hub (103195583303691) | `Art_Hub.luau` | coffered dome, oculus with sun shaft, bezel leaderboards (ring-side wing signs on the backs), compass dais, ring floor with oak slide band, rock alcoves with oak tiers; 8 invisible jamb colliders in `Art.Ring.JambCollision` |
+| Duels | Duels (130727707369173) | `Art_Duels.luau` | dark hall with mode-coloured arches, 16 chapel bays with queue pads (live 1V1/2V2/3V3, dormant 4V4), queue terminals, Gauntlet chamber "coming soon" |
+| Market | Market (136918066833549) | `Art_Market_Street.luau`, `Art_Market_Cavern.luau` | winding rock street with oak runner, 6 shops, 3 featured podiums with real guns, Battle Pass cavern with a season key-art LED wall |
+| Weapons | Weapons + GunDisplay (81330914960667) | `Art_Weapons.luau` | Armoury with 8 gun chapels and trophy walls (flat museum finish, no SurfaceAppearances), hero Vandal on pylons, Locker apse with a mannequin |
+| Range | Range (80078330894956) | `Art_Range.luau` | Range Lobby (scale model, ENTER gate, records lounge) and the real range (booths, lanes, berm, cover yard, movement course) |
+| Surfaces | none | `Materials.luau` | 6 `Lobby_*` MaterialVariants from `tools/textures/make_lobby_textures.py` |
+| Lighting | none | `Lighting.luau` | ClockTime 12 sun through the oculus, sky, atmosphere, bloom, colour correction, sun shaft (2 beams), bounce and ring cove washes |
+| Ambience | none | `art-source/lobby/scripts/` | `AmbienceSetup.luau` builds `Workspace.Lobby.Ambience`; `AmbienceClient.luau` (a Script with RunContext Client) runs turntables, pad ripples, pulses, flicker, LED shimmer and dust; tag-driven and streaming-safe |
+
+**Run order** (all re-runnable): greybox scripts → `kit_bundle.py <Group>` installers → `Materials` → `Art_*` → `Lighting` → `ambience_bundle.py` → `KitFidelity.luau` (sets CollisionFidelity Box through ApplyMesh, which a plain property write can't do from the MCP).
+
+**Backups:** `art-source/lobby/Studio/` (LobbyKit, Lobby_Greybox, Lobby_Art, Lobby_Ambience, Lighting_Effects, MaterialVariants `.rbxm`).
+
+**Final check (2026-10-30):** greybox collision unchanged (13,427 floor rays, 0 holes; no leaks except the oculus and the range roof slots); 30 routes clear; one SpawnLocation; Range hooks in place; 4,648 MeshParts on 793 unique meshes, all Box fidelity; 79 lights (2 cast shadows); 6 particle emitters; SurfaceGuis about 19 MB; one script in the place (AmbienceClient).
+
+**Known issues / for phase 2:**
+- `Lighting.Technology` can't be set from a script: set it to **Future** by hand (Lighting → Properties).
+- Workspace streaming (not scriptable from the MCP): set **StreamingTargetRadius about 384**, **StreamingMinRadius 64-128** and **StreamOutBehavior Opportunistic**. When the Range teleport is coded, call `RequestStreamAroundAsync` on the arrival point before moving the player.
+- Dynamic lights are above the original ~6 per area (Duels 24, Market 20, Weapons 11, Range 9 + 6), all shadowless except 2. Check on a low-end phone.
+- Real range: the floor in front of the booths is dark, and the PRACTICE RANGE header hides behind lane signs 4 and 5 from the arrival pad.
+- Market: the charm, emote, bundle and currency display items are still blocky placeholders; the Market podium guns keep their SurfaceAppearances (119).
+- RangeReturnPoint stays where the greybox put it, so the Range isn't a one-way loop yet (a phase-2 decision).
+- Studio's lighting lags a big camera jump by a few seconds; the real Range teleport may show the same brief settle.
+- selene is blocked on this PC by Windows Application Control; stylua passes.

@@ -45,8 +45,24 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | **Cache** | 1v1 | ⬜ | ⬜ | ⬜ | ⬜ | ~64×64 studs |
 | **Firewall** | 1v1 / 2v2 | ⬜ | ⬜ | ⬜ | ⬜ | ~90×70 |
 | **Mainframe** | 2v2 | ⬜ | ⬜ | ⬜ | ⬜ | ~100×80 |
-| **Lobby** | Hub (separate place) | ✅ | ✅ | ⬜ | ⬜ | Circular underground bunker hub, plan in [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md). Greybox v2 built 2026-10-29 in the Lobby place (`Workspace.Lobby.Greybox`, scripts `tools/studio/lobby/`): hub + long Duels hall, cave Market path, round Armoury, Range Lobby with a scale model + separate range building (`RangeFar`). Verified for holes, leaks and envelopes; approved by the user. Screenshots `02 Art/References/lobby/greybox-v2/`. Next: Blender kit |
+| **Lobby** | Hub (separate place) | ✅ | ✅ | ⬜ | 🟡 | Circular underground bunker hub, plan in [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md). Greybox v2 built 2026-10-29 in the Lobby place (`Workspace.Lobby.Greybox`, scripts `tools/studio/lobby/`): hub + long Duels hall, cave Market path, round Armoury, Range Lobby with a scale model + separate range building (`RangeFar`). Verified for holes, leaks and envelopes; approved by the user. Screenshots `02 Art/References/lobby/greybox-v2/`. **Art pass built 2026-10-30, waiting for approval** (see the Lobby section below) |
 | **Test range** | Testers (TestMode) | ✅ | ✅ | 🟡 | 🟡 | Rebuilt plain (2026-10-25): an open-air concrete practice yard from code (`src/server/TestRange/RangeBuilder`): lanes + markers 10/25/50/100/150, cover with a plywood ThinWall, concrete wall, low cover and pillars, movement course. Grey dummies (6 kinds) hold the Vandal; health bars kept. No tester menu, stats or weapon racks until the new UI. `art-source/maps/TestRange.rbxm` is the old Style B version (outdated) |
+
+## Lobby
+Phase 1 (build and art) of the [Lobby](../01%20Design/Lobby.md) place, built 2026-10-30. ✅ done · 🟡 built, waiting for the user's approval. Details: [Lobby Kit](../02%20Art/Lobby%20Kit.md) → Built lobby.
+
+| Area | Blender kit | Uploaded | In Studio | Lit | Backup | Notes |
+|---|---|---|---|---|---|---|
+| Hub (rotunda + ring) | ✅ `Kit_Hub.blend` | ✅ 103195583303691 | 🟡 | 🟡 | ✅ | leaderboard content is phase 2 |
+| Duels | ✅ `Kit_Duels.blend` | ✅ 130727707369173 | 🟡 | 🟡 | ✅ | 4V4 and Gauntlet dormant ("coming soon") |
+| Market | ✅ `Kit_Market.blend` | ✅ 136918066833549 | 🟡 | 🟡 | ✅ | charm/emote/bundle displays still placeholders |
+| Weapons + Locker | ✅ `Kit_Weapons.blend` | ✅ 81330914960667 | 🟡 | 🟡 | ✅ | gun displays use a flat museum finish |
+| Range Lobby + real range | ✅ `Kit_Range.blend` | ✅ 80078330894956 | 🟡 | 🟡 | ✅ | real range floor a bit dark |
+| Surfaces (6 MaterialVariants) | ✅ textures | ✅ | 🟡 | n/a | ✅ | `Materials.luau` |
+| Lighting + sky | n/a | ✅ sky, beam, mote | 🟡 | 🟡 | ✅ | set Technology = Future by hand |
+| Ambience script + VFX | ✅ sprites | ✅ | 🟡 | n/a | ✅ | `art-source/lobby/scripts/` |
+
+Backups: `art-source/lobby/Studio/*.rbxm`.
 
 ## Abilities (Mods)
 Status of each Mod at L1 (2026-10-26, overnight). ✅ done · 🟡 provisional / needs the user · ⬜ not started. How it's built: [Mod System](../04%20Tech/Mod%20System.md); what to test: [Mods Overnight Checklist](../05%20Production/Playtests/Mods%20Overnight%20Checklist.md).
