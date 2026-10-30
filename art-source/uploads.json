@@ -233,6 +233,12 @@
   "type": "Decal",
   "uploaded": "2026-10-29 19:08:40"
  },
+ "art-source/lobby/textures/Lobby_DustMote.png": {
+  "assetId": 138082655441656,
+  "name": "GG Lobby DustMote",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:37:34"
+ },
  "art-source/lobby/textures/Lobby_Oak_color.png": {
   "assetId": 87114986692220,
   "name": "GG Lobby Lobby_Oak color",
@@ -252,22 +258,64 @@
   "uploaded": "2026-10-29 19:05:08"
  },
  "art-source/lobby/textures/Lobby_Rock_color.png": {
-  "assetId": 136720975761218,
-  "name": "GG Lobby Lobby_Rock color",
+  "assetId": 117278880557983,
+  "name": "GG Lobby Lobby_Rock color v3",
   "type": "Decal",
-  "uploaded": "2026-10-29 19:12:22"
+  "uploaded": "2026-10-29 22:20:38"
  },
  "art-source/lobby/textures/Lobby_Rock_normal.png": {
-  "assetId": 96269806037115,
-  "name": "GG Lobby Lobby_Rock normal",
+  "assetId": 127496860542819,
+  "name": "GG Lobby Lobby_Rock normal v3",
   "type": "Decal",
-  "uploaded": "2026-10-29 19:12:25"
+  "uploaded": "2026-10-29 22:20:41"
  },
  "art-source/lobby/textures/Lobby_Rock_roughness.png": {
-  "assetId": 126895190685602,
-  "name": "GG Lobby Lobby_Rock roughness",
+  "assetId": 97537243785155,
+  "name": "GG Lobby Lobby_Rock roughness v3",
   "type": "Decal",
-  "uploaded": "2026-10-29 19:12:28"
+  "uploaded": "2026-10-29 22:20:44"
+ },
+ "art-source/lobby/textures/Lobby_Sky_Bk.png": {
+  "assetId": 87199469264055,
+  "name": "GG Lobby Sky Bk",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:53:26"
+ },
+ "art-source/lobby/textures/Lobby_Sky_Dn.png": {
+  "assetId": 97901748112820,
+  "name": "GG Lobby Sky Dn",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:53:14"
+ },
+ "art-source/lobby/textures/Lobby_Sky_Ft.png": {
+  "assetId": 102517595534046,
+  "name": "GG Lobby Sky Ft",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:53:20"
+ },
+ "art-source/lobby/textures/Lobby_Sky_Lf.png": {
+  "assetId": 123180123246122,
+  "name": "GG Lobby Sky Lf",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:53:31"
+ },
+ "art-source/lobby/textures/Lobby_Sky_Rt.png": {
+  "assetId": 137044830797265,
+  "name": "GG Lobby Sky Rt",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:53:38"
+ },
+ "art-source/lobby/textures/Lobby_Sky_Up.png": {
+  "assetId": 109801296619429,
+  "name": "GG Lobby Sky Up",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:53:11"
+ },
+ "art-source/lobby/textures/Lobby_SunBeam.png": {
+  "assetId": 87067089378880,
+  "name": "GG Lobby SunBeam v3 (X across the beam)",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:43:59"
  },
  "art-source/lobby/textures/Lobby_Terrazzo_color.png": {
   "assetId": 136365333239307,
@@ -286,6 +334,18 @@
   "name": "GG Lobby Lobby_Terrazzo roughness",
   "type": "Decal",
   "uploaded": "2026-10-29 19:08:46"
+ },
+ "art-source/lobby/vfx/lobby_dust.png": {
+  "assetId": 134469003945987,
+  "name": "GG Lobby VFX Dust",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:40:06"
+ },
+ "art-source/lobby/vfx/lobby_wisp.png": {
+  "assetId": 74222974828437,
+  "name": "GG Lobby VFX Wisp",
+  "type": "Decal",
+  "uploaded": "2026-10-29 22:40:09"
  },
  "art-source/vfx/abilities/dash/dash_air_burst_2x2.png": {
   "assetId": 113880445566591,

@@ -312,7 +312,7 @@ def piece_dais(mats, col):
 			if f.normal.z < 0:
 				f.normal_flip()
 	ring_uv = polar_uvs()
-	K.add_obj("SpawnDais_Top", top, [mats["ConcretePolishedInlay"]], col, smooth_angle=0)
+	K.add_obj("SpawnDais_Top", top, [mats["ConcretePolishedSun"]], col, smooth_angle=0)
 	K.add_obj("SpawnDais_OakBand", oak, [mats["Oak"]], col, uvs=ring_uv, smooth_angle=0)
 	K.add_obj("SpawnDais_Rim", rim, [mats["SteelBrushed"]], col, uvs=ring_uv, smooth_angle=50)
 	K.add_obj("SpawnDais_CompassRing", ring, [mats["Brass"]], col, smooth_angle=0)
@@ -320,14 +320,61 @@ def piece_dais(mats, col):
 	K.add_obj("SpawnDais_CompassSteel", rose_d, [mats["SteelBlack"]], col, smooth_angle=0)
 
 
+def flat_strip(r0, r1, b, w, z):
+	# One up-facing quad from radius r0 to r1 along bearing b, w wide, at height z (an inlay line on a floor).
+	bm = bmesh.new()
+	d = K.bearing_dir(b)
+	n = K.bearing_dir(b + 90)
+	pts = [d * r0 - n * (w / 2), d * r1 - n * (w / 2), d * r1 + n * (w / 2), d * r0 + n * (w / 2)]
+	f = bm.faces.new([bm.verts.new((p.x, p.y, z)) for p in pts])
+	f.normal_update()
+	if f.normal.z < 0:
+		f.normal_flip()
+	return bm
+
+
+def flat_ring(r0, r1, z, steps=64, center=(0.0, 0.0)):
+	return K.lathe([(r0, z), (r1, z)], 0, 360, steps=steps, center=center)
+
+
+R_DAIS_RING = 13.3
+R_BRASS_MID = (26.85, 27.15)
+R_FIELD = 39.4
+R_BORDER = 39.6
+
+
 def piece_rotunda_floor(mats, col):
-	# RotundaFloor: the polished disc (top z 0; placed 0.02 up on the greybox floor), the sun hot-spot inlay (R16
-	# around plan (0, -10), 0.02 proud) and a brushed-steel joint strip where the disc meets the ring floor at R44.
-	disc = K.arc(0.0, R_ROT - 0.15, 0, 360, -0.6, 0.0, steps=64)
+	# RotundaFloor (fix pass): a patterned floor instead of one flat disc. Flush rings (top z 0; placed 0.02 up on
+	# the greybox floor top): a dark honed ring round the dais, the polished inner field, a flush brass ring at R27, a
+	# warm terrazzo outer band, a flush brass line at R39.5 and a honed border (R39.6-43.85) with a saw joint per kit
+	# segment, then the brushed-steel edge strip at R44. Inlay lines 0.012 proud: four brass cardinal lines from the
+	# dais to the four portals (Duels, Weapons, Range, Market) and twelve dark saw joints between them. The sun inlay
+	# (R16 round plan (0, -10), 0.02 proud, the greybox inlay's top) is a toned-down cream (#D6CEC0, the art review:
+	# #F2EADB clipped to white under the beam) inside a 0.025-proud brass rim. Under the dais (R < 11.9) is left open.
+	K.add_obj("RotundaFloor_Field", flat_ring(R_DAIS_RING, R_BRASS_MID[0], 0.0), [mats["ConcretePolished"]], col, smooth_angle=0)
+	K.add_obj("RotundaFloor_Band", flat_ring(R_BRASS_MID[1], R_FIELD, 0.0), [mats["Terrazzo"]], col, smooth_angle=0)
+	K.add_obj("RotundaFloor_Border", flat_ring(R_BORDER, R_ROT - 0.15, 0.0), [mats["ConcreteHoned"]], col, smooth_angle=0)
+	dark = flat_ring(11.9, R_DAIS_RING, 0.0, steps=48)
+	for k in range(16):
+		b = 22.5 * k
+		if k % 4:
+			K.merge(dark, flat_strip(R_DAIS_RING, R_FIELD, b, 0.07, 0.012))
+	for k in range(32):
+		K.merge(dark, flat_strip(R_BORDER, R_ROT - 0.15, k * SEG, 0.07, 0.012))
+	K.add_obj("RotundaFloor_Joints", dark, [mats["ConcreteDark"]], col, smooth_angle=0)
+	brass = flat_ring(*R_BRASS_MID, 0.0)
+	K.merge(brass, flat_ring(R_FIELD, R_BORDER, 0.0))
+	for k in range(4):
+		K.merge(brass, flat_strip(R_DAIS_RING, R_FIELD, 90.0 * k, 0.3, 0.012))
+	K.merge(brass, K.lathe([(16.0, 0.02), (16.0, 0.025), (16.3, 0.025)], 0, 360, steps=48, center=(0.0, 10.0)))
+	K.add_obj("RotundaFloor_Brass", brass, [mats["Brass"]], col, smooth_angle=0)
+	# A thin light line along each brass cardinal (wayfinding from the dais to the four portals; recoloured per
+	# wing in Studio: N Duels, E Weapons, S Range, W Market).
+	for k, d in enumerate("NESW"):
+		K.add_glow("RotundaFloor_Line%s" % d, flat_strip(R_DAIS_RING + 0.6, R_FIELD - 0.6, 90.0 * k, 0.1, 0.016), mats["Glow_Cove"], col)
 	inlay = K.lathe([(0.0, 0.02), (16.0, 0.02)], 0, 360, steps=48, center=(0.0, 10.0))
-	edge = K.arc(R_ROT - 0.15, R_ROT, 0, 360, -0.6, 0.005, steps=64)
-	K.add_obj("RotundaFloor_Disc", disc, [mats["ConcretePolished"]], col)
-	K.add_obj("RotundaFloor_SunInlay", inlay, [mats["ConcretePolishedInlay"]], col, smooth_angle=0)
+	K.add_obj("RotundaFloor_SunInlay", inlay, [mats["ConcretePolishedSun"]], col, smooth_angle=0)
+	edge = K.lathe([(R_ROT - 0.15, 0.005), (R_ROT, 0.005), (R_ROT, -0.6)], 0, 360, steps=64)
 	K.add_obj("RotundaFloor_Edge", edge, [mats["SteelBrushed"]], col, smooth_angle=0)
 
 
@@ -599,6 +646,18 @@ def piece_leaderboard_frame(mats, col):
 	K.add_obj("LeaderboardFrame_Bezel", fr, [mats["SteelBlack"]], col)
 	K.add_obj("LeaderboardFrame_Hangers", K.group(hang, cap), [mats["SteelBrushed"]], col)
 	K.add_glow("LeaderboardFrame_Edge", glow, mats["Glow_Cool"], col)
+	# Ring side (fix pass): the back face only carries the two wing arrows, so a charcoal plate covers its lower
+	# 8.4 studs (two reveal lines), a black-steel mullion caps it at z 20.45-20.75, and a wing-colour line sits on the
+	# mullion under each arrow (BackPosY = the ring walker's left, BackNegY = right; recoloured in Studio).
+	zm = 20.45
+	plate = K.box(-0.24, -0.18, -w / 2, w / 2, zb + 0.05, zm)
+	K.add_obj("LeaderboardFrame_BackPlate", plate, [mats["SignPanel"]], col)
+	mull = K.cbox(-0.32, -0.16, -w / 2, w / 2, zm, zm + 0.3, ch=0.03)
+	for z in (15.2, 17.9):
+		K.merge(mull, K.box(-0.27, -0.23, -w / 2, w / 2, z - 0.05, z + 0.05))
+	K.add_obj("LeaderboardFrame_Mullion", mull, [mats["SteelBlack"]], col)
+	K.add_glow("LeaderboardFrame_BackPosY", K.glow_strip(-0.38, -0.32, 1.8, w / 2 - 0.6, zm + 0.08, zm + 0.22), mats["Glow_Cool"], col)
+	K.add_glow("LeaderboardFrame_BackNegY", K.glow_strip(-0.38, -0.32, -w / 2 + 0.6, -1.8, zm + 0.08, zm + 0.22), mats["Glow_Cool"], col)
 
 
 def piece_pier_plaque(mats, col):
@@ -715,6 +774,8 @@ def contact_sheet(pieces, path, samples=16, tile=(400, 300), cols=5):
 def main():
 	t0 = time.time()
 	mats = K.begin()
+	# Fix pass: the sun inlay / dais top tone (#D6CEC0): #F2EADB clipped to white under the sunbeam in Studio.
+	mats["ConcretePolishedSun"] = K._concrete_polished("ConcretePolishedSun", 0xD6CEC0, rough=(0.2, 0.34))
 	pieces = []
 
 	def add(name, fn, *a):

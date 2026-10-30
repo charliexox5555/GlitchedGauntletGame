@@ -39,6 +39,7 @@
    "parts": [
     "DuelsApseWall_Wall",
     "DuelsApseWall_Toe",
+    "DuelsApseWall_Cove_Glow",
     "DuelsApseWall_Band",
     "DuelsApseWall_Gap_Glow"
    ]
@@ -127,13 +128,15 @@
   "DuelsTruss_22": {
    "props": {},
    "parts": [
-    "DuelsTruss_22_Truss"
+    "DuelsTruss_22_Truss",
+    "DuelsTruss_22_Under_Glow"
    ]
   },
   "DuelsTruss_76": {
    "props": {},
    "parts": [
-    "DuelsTruss_76_Truss"
+    "DuelsTruss_76_Truss",
+    "DuelsTruss_76_Under_Glow"
    ]
   },
   "GauntletDais": {
@@ -532,6 +535,27 @@
     0.3,
     7.12,
     0.45
+   ]
+  },
+  {
+   "piece": "DuelsApseWall",
+   "name": "DuelsApseWall_Cove_Glow",
+   "material": "Glow_Apse",
+   "look": {
+    "material": "Neon",
+    "color": "8FA4C4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.3,
+    0.0,
+    0.3
+   ],
+   "size": [
+    0.08,
+    7.08,
+    0.2
    ]
   },
   {
@@ -1277,10 +1301,10 @@
   {
    "piece": "DuelsRock_A",
    "name": "DuelsRock_A_Rock",
-   "material": "RockDuels",
+   "material": "RockDuelsLit",
    "look": {
     "material": "Slate",
-    "color": "2E2F33",
+    "color": "54565C",
     "variant": "Lobby_Rock"
    },
    "glow": false,
@@ -1299,10 +1323,10 @@
   {
    "piece": "DuelsRock_B",
    "name": "DuelsRock_B_Rock",
-   "material": "RockDuels",
+   "material": "RockDuelsLit",
    "look": {
     "material": "Slate",
-    "color": "2E2F33",
+    "color": "54565C",
     "variant": "Lobby_Rock"
    },
    "glow": false,
@@ -1321,10 +1345,10 @@
   {
    "piece": "DuelsRock_C",
    "name": "DuelsRock_C_Rock",
-   "material": "RockDuels",
+   "material": "RockDuelsLit",
    "look": {
     "material": "Slate",
-    "color": "2E2F33",
+    "color": "54565C",
     "variant": "Lobby_Rock"
    },
    "glow": false,
@@ -1362,6 +1386,27 @@
    ]
   },
   {
+   "piece": "DuelsTruss_22",
+   "name": "DuelsTruss_22_Under_Glow",
+   "material": "Glow_Truss",
+   "look": {
+    "material": "Neon",
+    "color": "6F7F99"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    20.925
+   ],
+   "size": [
+    0.24,
+    22.4,
+    0.15
+   ]
+  },
+  {
    "piece": "DuelsTruss_76",
    "name": "DuelsTruss_76_Truss",
    "material": "SteelBlack",
@@ -1383,12 +1428,33 @@
    ]
   },
   {
+   "piece": "DuelsTruss_76",
+   "name": "DuelsTruss_76_Under_Glow",
+   "material": "Glow_Truss",
+   "look": {
+    "material": "Neon",
+    "color": "6F7F99"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    28.325
+   ],
+   "size": [
+    0.24,
+    75.0,
+    0.15
+   ]
+  },
+  {
    "piece": "GauntletDais",
    "name": "GauntletDais_Apron",
    "material": "AisleDark",
    "look": {
     "material": "Concrete",
-    "color": "242528",
+    "color": "3A3B3D",
     "variant": "Lobby_ConcreteDark"
    },
    "glow": false,
@@ -1450,10 +1516,11 @@
   {
    "piece": "GauntletDais",
    "name": "GauntletDais_Top",
-   "material": "SteelBlack",
+   "material": "DaisTop",
    "look": {
-    "material": "Metal",
-    "color": "1C1D20"
+    "material": "Concrete",
+    "color": "5E5C58",
+    "variant": "Lobby_ConcretePolished"
    },
    "glow": false,
    "tris": 240,
@@ -2232,22 +2299,22 @@
   {
    "piece": "QueueTerminal",
    "name": "QueueTerminal_Toe_Glow",
-   "material": "Glow_Dim",
+   "material": "Glow_Term",
    "look": {
     "material": "Neon",
-    "color": "5E6E86"
+    "color": "B8D4FF"
    },
    "glow": true,
    "tris": 12,
    "center": [
-    0.27,
+    0.32,
     0.0,
-    0.06
+    0.11
    ],
    "size": [
-    0.1,
+    0.2,
     2.6,
-    0.08
+    0.18
    ]
   },
   {
@@ -2461,5 +2528,5 @@
    ]
   }
  ],
- "tris": 7996
+ "tris": 8032
 }

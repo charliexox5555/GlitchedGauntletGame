@@ -40,7 +40,11 @@
    "parts": [
     "LeaderboardFrame_Bezel",
     "LeaderboardFrame_Hangers",
-    "LeaderboardFrame_Edge_Glow"
+    "LeaderboardFrame_Edge_Glow",
+    "LeaderboardFrame_BackPlate",
+    "LeaderboardFrame_Mullion",
+    "LeaderboardFrame_BackPosY_Glow",
+    "LeaderboardFrame_BackNegY_Glow"
    ]
   },
   "OculusRim_R16": {
@@ -141,7 +145,15 @@
   "RotundaFloor": {
    "props": {},
    "parts": [
-    "RotundaFloor_Disc",
+    "RotundaFloor_Field",
+    "RotundaFloor_Band",
+    "RotundaFloor_Border",
+    "RotundaFloor_Joints",
+    "RotundaFloor_Brass",
+    "RotundaFloor_LineN_Glow",
+    "RotundaFloor_LineE_Glow",
+    "RotundaFloor_LineS_Glow",
+    "RotundaFloor_LineW_Glow",
     "RotundaFloor_SunInlay",
     "RotundaFloor_Edge"
    ]
@@ -633,6 +645,90 @@
     0.72,
     16.8,
     0.12
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_BackPlate",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -0.21,
+    0.0,
+    16.25
+   ],
+   "size": [
+    0.06,
+    18.0,
+    8.4
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_Mullion",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    -0.24,
+    0.0,
+    17.95
+   ],
+   "size": [
+    0.16,
+    18.0,
+    5.6
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_BackPosY_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    -0.35,
+    5.1,
+    20.6
+   ],
+   "size": [
+    0.06,
+    6.6,
+    0.14
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_BackNegY_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    -0.35,
+    -5.1,
+    20.6
+   ],
+   "size": [
+    0.06,
+    6.6,
+    0.14
    ]
   },
   {
@@ -1387,7 +1483,7 @@
   },
   {
    "piece": "RotundaFloor",
-   "name": "RotundaFloor_Disc",
+   "name": "RotundaFloor_Field",
    "material": "ConcretePolished",
    "look": {
     "material": "Concrete",
@@ -1395,25 +1491,196 @@
     "variant": "Lobby_ConcretePolished"
    },
    "glow": false,
-   "tris": 256,
+   "tris": 128,
    "center": [
     0.0,
     0.0,
-    -0.3
+    0.0
+   ],
+   "size": [
+    53.7,
+    53.7,
+    0.0
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_Band",
+   "material": "Terrazzo",
+   "look": {
+    "material": "Concrete",
+    "color": "D6C8B0",
+    "variant": "Lobby_Terrazzo"
+   },
+   "glow": false,
+   "tris": 128,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    78.8,
+    78.8,
+    0.0
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_Border",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 128,
+   "center": [
+    0.0,
+    0.0,
+    0.0
    ],
    "size": [
     87.7,
     87.7,
-    0.6
+    0.0
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_Joints",
+   "material": "ConcreteDark",
+   "look": {
+    "material": "Concrete",
+    "color": "3A3B3D",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 184,
+   "center": [
+    0.0,
+    0.0,
+    0.006
+   ],
+   "size": [
+    87.7,
+    87.7,
+    0.012
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_Brass",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 456,
+   "center": [
+    0.0,
+    0.0,
+    0.0125
+   ],
+   "size": [
+    79.2,
+    79.2,
+    0.025
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_LineN_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 2,
+   "center": [
+    0.0,
+    26.35,
+    0.016
+   ],
+   "size": [
+    0.1,
+    24.9,
+    0.0
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_LineE_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 2,
+   "center": [
+    26.35,
+    0.0,
+    0.016
+   ],
+   "size": [
+    24.9,
+    0.1,
+    0.0
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_LineS_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 2,
+   "center": [
+    0.0,
+    -26.35,
+    0.016
+   ],
+   "size": [
+    0.1,
+    24.9,
+    0.0
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_LineW_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 2,
+   "center": [
+    -26.35,
+    0.0,
+    0.016
+   ],
+   "size": [
+    24.9,
+    0.1,
+    0.0
    ]
   },
   {
    "piece": "RotundaFloor",
    "name": "RotundaFloor_SunInlay",
-   "material": "ConcretePolishedInlay",
+   "material": "ConcretePolishedSun",
    "look": {
     "material": "Concrete",
-    "color": "F2EADB",
+    "color": "D6CEC0",
     "variant": "Lobby_ConcretePolished"
    },
    "glow": false,
@@ -1438,7 +1705,7 @@
     "color": "A7ABB0"
    },
    "glow": false,
-   "tris": 512,
+   "tris": 256,
    "center": [
     0.0,
     0.0,
@@ -1496,10 +1763,10 @@
   {
    "piece": "SpawnDais",
    "name": "SpawnDais_Top",
-   "material": "ConcretePolishedInlay",
+   "material": "ConcretePolishedSun",
    "look": {
     "material": "Concrete",
-    "color": "F2EADB",
+    "color": "D6CEC0",
     "variant": "Lobby_ConcretePolished"
    },
    "glow": false,
@@ -1748,5 +2015,5 @@
    ]
   }
  ],
- "tris": 6386
+ "tris": 7010
 }

@@ -1,10 +1,12 @@
 --!strict
 -- Lobby art pass: the Duels wing (phase 1 step 5). Dresses Greybox.Wing_Duels with the
 -- "Duels" kit group (tools/blender/build_lobby_kit_duels.py) and rebuilds three Art folders:
---   Art.DuelsHall     entry vestibule, section arches, nave trusses, clerestory rock, the
---                     section light rigs (6 SurfaceLights, shadowless)
---   Art.DuelsBays     chapel bay shells, queue pads and bay sign frames (16 bays)
+--   Art.DuelsHall     entry vestibule, section arches (mode-colour jambs and thresholds), nave
+--                     trusses, clerestory rock and the hall light rig
+--   Art.DuelsBays     chapel bay shells, queue pads and bay sign frames (16 bays), pad spills
 --   Art.DuelsChamber  the GAUNTLET chamber: walls, apse, rock, trusses, pads, dais and gate
+-- Lights (fix pass, 24, all shadowless): 5 bay pools, 5 arch pools, 2 clerestory washes, 2
+-- terminal glows, 2 queue-sign washes, 6 mode spills, the chamber wash and the hero key.
 -- The greybox stays the collision: parts the kit replaces are hidden (they keep CanCollide),
 -- the rest get a finished look. Signs keep their greybox panels (phase-2 hooks) and get
 -- restyled SurfaceGuis inside kit bezels. Re-runnable: publishArt replaces the folders and
@@ -31,7 +33,10 @@ local DORMANT = Color3.fromHex("5A5C60")
 local DIM_TEXT = Color3.fromRGB(150, 154, 162)
 local DUELS_LIGHT = Color3.fromHex("B8D4FF")
 local WALL = Color3.fromHex("2C2D30") -- Lobby_ConcreteDark, the Duels wall tone (kit ConcreteDuels)
-local AISLE_TONE = Color3.fromHex("242528")
+-- Fix pass: the aisle takes the section floor tone (#3A3B3D) so the honed variant shows.
+local AISLE_TONE = Color3.fromHex("3A3B3D")
+local TERMINAL_LIGHT = Color3.fromHex("9FB8FF")
+local HERO_WARM = Color3.fromHex("FFE2A8")
 local NORTH_V = Vector3.new(0, 0, -1)
 local SOUTH_V = Vector3.new(0, 0, 1)
 
@@ -152,7 +157,9 @@ local function surfaceLight(
 	size: Vector3,
 	range: number,
 	bright: number,
-	angle: number
+	angle: number,
+	face: Enum.NormalId?,
+	color: Color3?
 )
 	local p = Instance.new("Part")
 	p.Name = name
@@ -165,8 +172,8 @@ local function surfaceLight(
 	p.Size = size
 	p.CFrame = cf
 	local l = Instance.new("SurfaceLight")
-	l.Face = Enum.NormalId.Bottom
-	l.Color = DUELS_LIGHT
+	l.Face = face or Enum.NormalId.Bottom
+	l.Color = color or DUELS_LIGHT
 	l.Range = range
 	l.Brightness = bright
 	l.Angle = angle
@@ -175,6 +182,74 @@ local function surfaceLight(
 	p.Parent = parent
 	stats.lights += 1
 	return p
+end
+
+-- A SpotLight on a small invisible emitter, pointing straight down (aisle pools), or at
+-- `target` when one is given (the hero key).
+local function spotLight(
+	parent: Instance,
+	name: string,
+	pos: Vector3,
+	range: number,
+	bright: number,
+	angle: number,
+	color: Color3,
+	shadows: boolean,
+	target: Vector3?
+)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.CastShadow = false
+	p.Transparency = 1
+	p.Size = Vector3.new(0.4, 0.2, 0.4)
+	p.CFrame = if target then CFrame.lookAt(pos, target) else CFrame.new(pos)
+	local l = Instance.new("SpotLight")
+	l.Face = if target then Enum.NormalId.Front else Enum.NormalId.Bottom
+	l.Color = color
+	l.Range = range
+	l.Brightness = bright
+	l.Angle = angle
+	l.Shadows = shadows
+	l.Parent = p
+	p.Parent = parent
+	stats.lights += 1
+	return p
+end
+
+-- A thin Neon strip with no collision (threshold lines).
+local function glowStrip(parent: Instance, name: string, cf: CFrame, size: Vector3, color: Color3)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.CastShadow = false
+	p.Material = Enum.Material.Neon
+	p.Color = color
+	p.Size = size
+	p.CFrame = cf
+	p:SetAttribute("Glow", true)
+	p.Parent = parent
+	return p
+end
+
+-- Mode-colour Neon lines up both jambs of an arch's south face (zN is its north face), so
+-- the arches read from the hub as nested coloured frames.
+local function jambs(i: number, zN: number, color: Color3)
+	for _, side in { -1, 1 } do
+		glowStrip(
+			hall,
+			"Jamb" .. i .. (side < 0 and "W" or "E"),
+			CFrame.new(side * 10.92, 6.6, zN + 3.6),
+			Vector3.new(0.12, 12.4, 0.25),
+			color
+		)
+	end
 end
 
 -- ---------------------------------------------------------------- sign restyle
@@ -191,7 +266,13 @@ type SignLine = { name: string, text: string, cap: number, color: Color3, font: 
 
 -- Rebuilds a sign's front SurfaceGui: GothamBlack title, GothamBold sub lines, optional slot
 -- pips (outlined squares in the mode colour, filled when queued; phase 2 drives them).
-local function signGui(p: BasePart, lines: { SignLine }, pips: number?, pipColor: Color3?)
+local function signGui(
+	p: BasePart,
+	lines: { SignLine },
+	pips: number?,
+	pipColor: Color3?,
+	maxDistance: number?
+)
 	clearGuis(p)
 	local h = p.Size.Y
 	local stack = 0
@@ -206,14 +287,15 @@ local function signGui(p: BasePart, lines: { SignLine }, pips: number?, pipColor
 	for _, l in lines do
 		maxFont = math.max(maxFont, l.cap / 0.72 * k)
 	end
-	local pps = math.clamp(math.floor(95 / maxFont), 4, 50)
+	-- Capped at 25 pixels per stud (performance audit: SurfaceGui texture memory).
+	local pps = math.clamp(math.floor(95 / maxFont), 4, 25)
 	local gui = Instance.new("SurfaceGui")
 	gui.Face = Enum.NormalId.Front
 	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 	gui.PixelsPerStud = pps
 	gui.LightInfluence = 0
 	gui.Brightness = 1.4
-	gui.MaxDistance = 250
+	gui.MaxDistance = maxDistance or 120
 	gui.ClipsDescendants = true
 	local layout = Instance.new("UIListLayout")
 	layout.FillDirection = Enum.FillDirection.Vertical
@@ -268,7 +350,13 @@ local function signGui(p: BasePart, lines: { SignLine }, pips: number?, pipColor
 	gui.Parent = p
 end
 
-local function restyleTitle(p: Instance, title: string, titleColor: Color3, sub: string?)
+local function restyleTitle(
+	p: Instance,
+	title: string,
+	titleColor: Color3,
+	sub: string?,
+	maxDistance: number?
+)
 	if not p:IsA("BasePart") then
 		return
 	end
@@ -288,7 +376,7 @@ local function restyleTitle(p: Instance, title: string, titleColor: Color3, sub:
 			{ name = "Sub", text = sub, cap = 1.15, color = DIM_TEXT, font = Enum.Font.GothamBold }
 		)
 	end
-	signGui(p, lines)
+	signGui(p, lines, nil, nil, maxDistance)
 end
 
 -- ---------------------------------------------------------------- greybox pass
@@ -361,7 +449,8 @@ for _, p in W:GetChildren() do
 	elseif string.sub(n, -12) == "_NaveCeiling" or n == "Entry_Ceiling" or n == "Chamber_Roof" then
 		finishP(p, "SteelBlack")
 	elseif string.sub(n, -5) == "_Pier" or n == "Entry_Wall" or n == "Chamber_Wall" then
-		finishP(p, "ConcreteDark", WALL)
+		-- The vestibule walls take the lighter section-floor tone so the sign wash reads on them.
+		finishP(p, "ConcreteDark", if n == "Entry_Wall" then nil else WALL)
 	elseif n == "Entry_Pilaster" or n == "Chamber_Column" then
 		finishP(p, "SteelBlack")
 	end
@@ -396,10 +485,10 @@ for _, side in { -1, 1 } do
 		local gui = Instance.new("SurfaceGui")
 		gui.Face = Enum.NormalId.Front
 		gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		gui.PixelsPerStud = 50
+		gui.PixelsPerStud = 25
 		gui.LightInfluence = 0
 		gui.Brightness = 1.3
-		gui.MaxDistance = 120
+		gui.MaxDistance = 50
 		gui.ClipsDescendants = true
 		local bg = Instance.new("Frame")
 		bg.Size = UDim2.fromScale(1, 1)
@@ -439,6 +528,30 @@ for _, side in { -1, 1 } do
 		gui.Parent = scr
 		scr.Parent = m
 	end
+	-- Screen glow (art review P1): one cool SurfaceLight per terminal pair, a plane over both
+	-- screens facing the aisle, so the consoles light the faces of the players using them.
+	local sp = Vector3.new(side * 23.4, 4.4, -71.65)
+	surfaceLight(
+		hall,
+		"TerminalGlow" .. (side < 0 and "W" or "E"),
+		CFrame.lookAt(sp, sp + face),
+		Vector3.new(9, 1.5, 0.2),
+		7,
+		3,
+		90,
+		Enum.NormalId.Front,
+		TERMINAL_LIGHT
+	)
+	-- A wash down the wall and over the terminals from under the queue sign.
+	surfaceLight(
+		hall,
+		"QueueSignWash" .. (side < 0 and "W" or "E"),
+		CFrame.new(side * 23.5, 8, -71.25),
+		Vector3.new(3, 0.2, 13),
+		12,
+		4,
+		90
+	)
 	-- Queue sign (11 x 3 on the pilaster) in a kit bezel with a red strip.
 	put(
 		hall,
@@ -470,7 +583,7 @@ for _, p in child("Entry_QueueSign") do
 			color = DIM_TEXT,
 			font = Enum.Font.GothamBold,
 		},
-	})
+	}, nil, nil, 60)
 end
 
 -- ---------------------------------------------------------------- hall + bays: sections
@@ -496,9 +609,22 @@ for i, s in SECTIONS do
 			p,
 			s.title,
 			titleTint,
-			if s.live then string.format("%d PLAYERS", s.party) else "COMING SOON"
+			if s.live then string.format("%d PLAYERS", s.party) else "COMING SOON",
+			250
 		)
 	end
+	-- Mode colour on the axis (art review P1): a Neon threshold line across the aisle in the
+	-- arch throat, and a cool pool from a spot just past the arch (one pool per arch,
+	-- darkness between).
+	glowStrip(
+		hall,
+		"Threshold" .. i,
+		CFrame.new(0, 0.13, zN + 2),
+		Vector3.new(2 * AISLE, 0.04, 0.5),
+		if s.live then ring else DORMANT
+	)
+	spotLight(hall, "ArchPool" .. i, Vector3.new(0, 23, zN - 2), 32, 5, 55, DUELS_LIGHT, false)
+	jambs(i, zN, if s.live then ring else DORMANT)
 
 	local sS = zN
 	local sN = sS - (s.perSide * s.len + (s.perSide - 1) * DIVIDER)
@@ -529,6 +655,18 @@ for i, s in SECTIONS do
 			)
 			tint(pad, ring)
 			atomic(pad)
+			-- Ambience ripple (AmbienceSetup's Lobby_PadRing tags, kept here so a rebuild keeps
+			-- them): live rings breathe, entrance pads peak first.
+			if s.live then
+				for _, d in pad:GetChildren() do
+					if d:IsA("BasePart") and string.find(d.Name, "Ring_Glow$") then
+						d:AddTag("Lobby_PadRing")
+						d:SetAttribute("AmbPeriod", 3.6)
+						d:SetAttribute("AmbDepth", 0.4)
+						d:SetAttribute("AmbPhase", (260 + zc) * 0.03)
+					end
+				end
+			end
 			local sg = put(
 				bays,
 				"BaySign_" .. (s.len - 3),
@@ -554,7 +692,7 @@ for i, s in SECTIONS do
 						color = if s.live then C.white else C.unpowered,
 						font = Enum.Font.GothamBold,
 					},
-				}, if s.live then s.party else nil, s.color)
+				}, if s.live then s.party else nil, s.color, 100)
 			end
 			if side > 0 then
 				put(
@@ -579,6 +717,23 @@ for i, s in SECTIONS do
 			)
 		end
 	end
+	-- Mode colour spill (art review P1): one low SurfaceLight per live pad row, shining down
+	-- onto the decks in the mode colour.
+	if s.live then
+		for _, side in { -1, 1 } do
+			surfaceLight(
+				bays,
+				string.format("%s_Spill%s", s.key, side < 0 and "W" or "E"),
+				CFrame.new(side * (BAY_X + s.depth / 2), 2.5, (sS + sN) / 2),
+				Vector3.new(s.depth - 2, 0.2, sS - sN - 2),
+				8,
+				3,
+				90,
+				Enum.NormalId.Bottom,
+				RING[s.key]
+			)
+		end
+	end
 	if s.key == "3v3" then
 		surfaceLight(
 			hall,
@@ -597,10 +752,36 @@ end
 local gTint = C.gauntlet:Lerp(C.unpowered, 0.35)
 archAt(5, z - ARCH_DEPTH, gTint)
 for _, p in child("ArchGauntlet_Title") do
-	restyleTitle(p, "GAUNTLET", gTint, "COMING SOON")
+	restyleTitle(p, "GAUNTLET", gTint, "COMING SOON", 250)
 end
+glowStrip(
+	hall,
+	"Threshold5",
+	CFrame.new(0, 0.13, z - ARCH_DEPTH + 2),
+	Vector3.new(2 * AISLE, 0.04, 0.5),
+	gTint
+)
+spotLight(hall, "ArchPool5", Vector3.new(0, 23, z - ARCH_DEPTH - 2), 32, 5, 55, DUELS_LIGHT, false)
+jambs(5, z - ARCH_DEPTH, gTint)
 for _, p in child("HubSign") do
-	restyleTitle(p, "HUB", C.white, "BACK TO SPAWN")
+	restyleTitle(p, "HUB", C.white, "BACK TO SPAWN", 150)
+end
+
+-- Upper volume (art review P1): a cool grazing wash up the clerestory rock on each side, the
+-- length of the nave, from just in front of the soffit nose.
+local naveS, naveN = -82, z - ARCH_DEPTH
+for _, side in { -1, 1 } do
+	surfaceLight(
+		hall,
+		"ClerestoryWash" .. (side < 0 and "W" or "E"),
+		CFrame.new(side * 10.5, 14.7, (naveS + naveN) / 2)
+			* CFrame.Angles(0, 0, -side * math.rad(25)),
+		Vector3.new(1, 0.2, naveS - naveN),
+		16,
+		6,
+		70,
+		Enum.NormalId.Top
+	)
 end
 put(hall, "SignFrame_14x45", faceCF(Vector3.new(0, 16.0, -82.05), NORTH_V), "HubSignFrame")
 
@@ -677,7 +858,9 @@ end
 local dais = put(chamber, "GauntletDais", CFrame.new(0, 0, -270), "GauntletDais")
 for _, d in dais:GetDescendants() do
 	if d:IsA("BasePart") and d.Name == "GauntletDais_Ring_Glow" then
-		d.Color = gTint:Lerp(DORMANT, 0.3)
+		-- The real Gauntlet gold, dimmed by transparency: reads "coming soon", not broken.
+		d.Color = C.gauntlet
+		d.Transparency = 0.35
 	end
 end
 local gate = put(chamber, "GauntletGate", faceCF(Vector3.new(0, 0, -287), SOUTH_V), "GauntletGate")
@@ -689,16 +872,23 @@ for _, d in gate:GetDescendants() do
 		d.Color = gTint
 	end
 end
--- The gate's key light (the sixth): a cool wash down the gate and over the dais, so the
--- end of the axis reads from the hub portal.
-surfaceLight(
+-- A cool wash down over the front of the chamber (pads, signs, floor), so the room is not a
+-- void round the lit sign (art review P1; it replaces the old tilted gate wash).
+surfaceLight(chamber, "Gate_Light", CFrame.new(0, 24, -240), Vector3.new(56, 0.2, 18), 30, 2, 90)
+-- The chamber's key light (art review P1): a warm light raked over the dais and up the gate
+-- shutter. It hangs south of the dais, under and clear of the -250 truss. Shadows stay off: with
+-- Shadows on, Studio rendered this light fully black (no occluder found on the light path), and
+-- the shadowless pool reads the same.
+spotLight(
 	chamber,
-	"Gate_Light",
-	CFrame.new(0, 30, -258) * CFrame.Angles(math.rad(35), 0, 0),
-	Vector3.new(30, 0.2, 4),
-	36,
-	1.4,
-	100
+	"HeroKey",
+	Vector3.new(0, 27, -256),
+	40,
+	8,
+	70,
+	HERO_WARM,
+	false,
+	Vector3.new(0, 2, -276)
 )
 for _, p in child("Gate_Title") do
 	finishP(p, "Sign")
@@ -717,7 +907,7 @@ for _, p in child("Gate_Title") do
 			color = DIM_TEXT,
 			font = Enum.Font.GothamBold,
 		},
-	})
+	}, nil, nil, 250)
 end
 
 publishArt(hall)

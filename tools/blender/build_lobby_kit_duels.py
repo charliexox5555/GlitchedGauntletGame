@@ -147,7 +147,18 @@ def extra_materials(mats):
 	# stark white lines in the dark hall, so these glow at about a third of the cool strip's value.
 	mats["Glow_Dim"] = K._emissive("Glow_Dim", 0x5E6E86, 1.2)
 	mats["ConcreteDuels"] = K._concrete_dark("ConcreteDuels", 0x2C2D30)  # Lobby_ConcreteDark, darker: Duels walls
-	mats["AisleDark"] = K._concrete_dark("AisleDark", 0x242528)
+	# The aisle tone (fix pass: #3A3B3D, the section floor tone, so the dais apron no longer reads as a black hole).
+	mats["AisleDark"] = K._concrete_dark("AisleDark", 0x3A3B3D)
+	# Fix pass (art review): brighter cool glows where the hall read black.
+	mats["Glow_Term"] = K._emissive("Glow_Term", 0xB8D4FF, 2.0)  # queue terminal floor halo (the Duels light colour)
+	mats["Glow_Apse"] = K._emissive("Glow_Apse", 0x8FA4C4, 1.6)  # apse foot cove: reads the curved wall
+	# Truss underside: silhouettes the roof steel. #DDE8F2 read as hanging strip lights in Studio, so it glows dimmer.
+	mats["Glow_Truss"] = K._emissive("Glow_Truss", 0x6F7F99, 1.4)
+	# Fix pass: the nave rock at #2E2F33 stayed black even under a grazing wash (albedo ~3%); a mid charcoal granite
+	# catches the clerestory wash and still reads dark against the board-formed hub.
+	mats["RockDuelsLit"] = K._rock("RockDuelsLit", 0x54565C)
+	# The dais top takes polished concrete so the hero pool reads on it (black steel swallowed the light).
+	mats["DaisTop"] = K._concrete_polished("DaisTop", 0x5E5C58)
 
 
 # ---------------------------------------------------------------- bays
@@ -253,7 +264,8 @@ def piece_queue_terminal(kit, mats):
 	K.bevel(body, 0.1, segs=1, angle=30)
 	parts = {"Body": (drop_back(body, -1.5), "SteelBlack")}
 	parts["Toe"] = (drop_feet(B(-1.35, 0.3, -1.35, 1.35, 0, 0.36)), "SteelBlack")
-	parts["Toe_Glow"] = (K.glow_strip(0.22, 0.32, -1.3, 1.3, 0.02, 0.1), "Glow_Dim")
+	# A 2x-thick cool halo under the lectern's nose (art review: the consoles need a floor halo).
+	parts["Toe_Glow"] = (K.glow_strip(0.22, 0.42, -1.3, 1.3, 0.02, 0.2), "Glow_Term")
 	a, b = Vector((1.5, 0, 3.5)), Vector((-0.15, 0, 4.95))
 	s = (b - a).normalized()
 	n = Vector((-s.z, 0, s.x))
@@ -332,7 +344,12 @@ def truss_mesh(span, z0, depth_z, bay, chord=0.6, thick=0.7, web=0.45):
 
 def piece_truss(kit, mats, name, span, z0, depth_z, bay):
 	# DuelsTruss_<span>: open black steel truss across the hall, origin on the floor under its centre, chords along Y.
-	return build(name, {"Truss": (truss_mesh(span, z0, depth_z, bay), "SteelBlack")}, mats, kit)
+	# A 0.15-thick cool Neon strip under the bottom chord, so the truss silhouettes against the dark roof.
+	parts = {
+		"Truss": (truss_mesh(span, z0, depth_z, bay), "SteelBlack"),
+		"Under_Glow": (K.glow_strip(-0.12, 0.12, -span / 2 + 0.3, span / 2 - 0.3, z0 - 0.15, z0), "Glow_Truss"),
+	}
+	return build(name, parts, mats, kit)
 
 
 def piece_gauntlet_gate(kit, mats):
@@ -386,7 +403,7 @@ def piece_gauntlet_dais(kit, mats):
 		"Apron": (apron, "AisleDark"),
 		"Low": (low, "PadDeck"),
 		"Nose": (nose, "SteelBrushed"),
-		"Top": (top, "SteelBlack"),
+		"Top": (top, "DaisTop"),
 		"Ring_Glow": (rings, "Glow_Gauntlet"),
 		"Riser_Glow": (riser, "Glow_Dim"),
 	}
@@ -399,7 +416,7 @@ def piece_rock(kit, mats, name, seed):
 	# DuelsRock_<v>: an 8 x 12 faceted dark rock panel (rock_face), front +X: the surface lies between x = 0.2 and 1.6.
 	bm = K.rock_face(8.0, 12.0, seed=seed, cell=1.7, depth=1.6, relief=1.4, ledges=3, chips=0.3)
 	col = K.collection("Lobby_" + name, kit)
-	K.add_obj(name + "_Rock", K.mat_all(bm, 0), [mats["RockDuels"]], col, smooth_angle=0)
+	K.add_obj(name + "_Rock", K.mat_all(bm, 0), [mats["RockDuelsLit"]], col, smooth_angle=0)
 	return col
 
 
@@ -428,6 +445,8 @@ def piece_apse_wall(kit, mats):
 	parts = {
 		"Wall": (wall, "ConcreteDuels"),
 		"Toe": (drop_back(drop_feet(B(0.0, 0.3, -hl, hl, 0.0, 0.45))), "SteelBlack"),
+		# Low cove in the toe recess (art review): a 0.2-tall cool line at the foot so the curved wall reads.
+		"Cove_Glow": (K.glow_strip(0.26, 0.34, -hl + 0.02, hl - 0.02, 0.2, 0.4), "Glow_Apse"),
 	}
 	g = gap_parts(w, 16.0)
 	for k, (bm, m) in g.items():

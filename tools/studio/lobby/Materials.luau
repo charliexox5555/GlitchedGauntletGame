@@ -59,12 +59,13 @@ local VARIANTS: { [string]: Spec } = {
 		normal = img(115627889317006),
 		roughness = img(91995919876503),
 	},
+	-- Pass 2 maps: split-granite chips in the normal map, salt-and-pepper crystals.
 	Lobby_Rock = {
 		base = Enum.Material.Slate,
 		studs = 16,
-		color = img(96295784205709),
-		normal = img(122710927767001),
-		roughness = img(132568734225553),
+		color = img(112743048244039),
+		normal = img(99866886731542),
+		roughness = img(82013202403349),
 	},
 	-- Grain along U, boards 1 stud wide in V.
 	Lobby_Oak = {

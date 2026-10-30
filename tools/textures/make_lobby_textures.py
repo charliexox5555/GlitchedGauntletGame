@@ -297,11 +297,87 @@ def terrazzo():
 	save("Lobby_Terrazzo", color, normal_map(h, t.P), rough)
 
 
+def voronoi_cells(t, count, jitter_seed):
+	# Periodic Voronoi on the tile: per pixel the nearest site index, the offset from it (studs, wrapped) and the
+	# gap F2 - F1 (studs) to the next site, which is ~0 on the cell borders. Chunked by rows to bound memory.
+	rng = np.random.default_rng(jitter_seed)
+	sx, sy = rng.uniform(0, t.S, count), rng.uniform(0, t.S, count)
+	idx = np.zeros((N, N), np.int32)
+	ox = np.zeros((N, N), np.float32)
+	oy = np.zeros((N, N), np.float32)
+	gap = np.zeros((N, N), np.float32)
+	half = t.S / 2.0
+	step = max(4, int(1.6e7 // (N * count)))
+	for r0 in range(0, N, step):
+		xs = t.x[r0 : r0 + step, :][..., None]
+		ys = t.y[r0 : r0 + step, :][..., None]
+		dx = np.mod(xs - sx + half, t.S) - half
+		dy = np.mod(ys - sy + half, t.S) - half
+		d2 = dx * dx + dy * dy
+		part = np.argpartition(d2, 1, axis=-1)[..., :2]
+		da = np.take_along_axis(d2, part, -1)
+		order = np.argsort(da, axis=-1)
+		part = np.take_along_axis(part, order, -1)
+		da = np.take_along_axis(da, order, -1)
+		i0 = part[..., 0]
+		idx[r0 : r0 + step] = i0
+		ox[r0 : r0 + step] = np.take_along_axis(dx, i0[..., None], -1)[..., 0]
+		oy[r0 : r0 + step] = np.take_along_axis(dy, i0[..., None], -1)[..., 0]
+		gap[r0 : r0 + step] = np.sqrt(da[..., 1]) - np.sqrt(da[..., 0])
+	return idx, ox, oy, gap
+
+
 def rock():
-	# Granite: grain, small light and dark crystals, faint strata and sparse hairline cracks. The facets come from the
-	# meshes, and the rock meshes use box-projected stud UVs, so every facet edge is a UV seam: the texture keeps NO
-	# large-scale tone (nothing longer than ~2 studs), otherwise seams and the 16-stud tile show as a blotchy grid
-	# (seen in Studio on RockWall_R68). Tone drift and occlusion come from the lighting on the facets.
+	# Granite: the big facets come from the meshes, and the rock meshes use box-projected stud UVs, so every facet
+	# edge is a UV seam: the texture keeps NO large-scale tone (nothing longer than ~2 studs), otherwise seams and the
+	# 16-stud tile show as a blotchy grid (seen in Studio on RockWall_R68). Tone drift and occlusion come from the
+	# lighting on the facets.
+	# Pass 2 (art review: flat rock read as grainy stucco/felt): the normal map now carries fractured CHIPS (two
+	# periodic Voronoi layers, 1.2-2.6 and ~0.5 studs, each cell a randomly tilted plane; the small layer only a
+	# whisper, at full strength it read as flat camouflage polygons in Studio; a fine crack on some big borders) so even the flatter rock faces break up the light like split granite; the micro grain is calmer, and
+	# the colour gets salt-and-pepper crystals (light feldspar, dark mica) and per-chip tone.
+	t = Tile(TILE["Lobby_Rock"], 55)
+	# Chips: per-cell plane tilts (gradient of a height field, studs per stud).
+	big_i, big_x, big_y, big_gap = voronoi_cells(t, 64, 551)
+	sm_i, sm_x, sm_y, sm_gap = voronoi_cells(t, 900, 552)
+	rng = np.random.default_rng(553)
+	bt = rng.normal(0.0, 0.08, (64, 2)).astype(np.float32)
+	st = rng.normal(0.0, 0.025, (900, 2)).astype(np.float32)
+	b_tone = rng.uniform(-0.025, 0.025, 64).astype(np.float32)
+	s_tone = rng.uniform(-0.008, 0.008, 900).astype(np.float32)
+	gx = bt[big_i, 0] + st[sm_i, 0]
+	gy = bt[big_i, 1] + st[sm_i, 1]
+	# Borders: a narrow V crack on the big chips, a softer crease on the small ones.
+	# Only some stretches of the big borders crack (a mask noise), so the chips never outline a flagstone pattern.
+	crack_mask = smooth(0.4, 1.4, t.noise(1.5, 6.0, 1.0))
+	b_edge = (1.0 - smooth(0.0, 0.05, big_gap)) * crack_mask
+	s_edge = 1.0 - smooth(0.0, 0.03, sm_gap)
+	edge_h = -0.012 * b_edge - 0.0012 * s_edge
+	micro_h = 0.005 * t.noise(0.1, 0.8, 0.9) + 0.0015 * t.noise(0.03, 0.12, 0.3)
+	# Normal: analytic chip tilt plus the finite-difference gradient of the crack and grain height.
+	hx = (np.roll(edge_h + micro_h, -1, axis=1) - np.roll(edge_h + micro_h, 1, axis=1)) * (t.P / 2.0)
+	hy = (np.roll(edge_h + micro_h, -1, axis=0) - np.roll(edge_h + micro_h, 1, axis=0)) * (t.P / 2.0)
+	dx_tot = gx + hx
+	drow_tot = gy + hy
+	nx, ny, nz = -dx_tot, drow_tot, np.ones_like(dx_tot)
+	ln = np.sqrt(nx * nx + ny * ny + nz * nz)
+	normal = np.stack([nx / ln, ny / ln, nz / ln], axis=-1)
+	# Colour.
+	grain = remap(t.noise(0.06, 0.4, 0.5), 0.92, 1.08)
+	fine = remap(t.noise(0.2, 1.2, 0.8), 0.95, 1.05)
+	cryst = t.noise(0.03, 0.1, 0.0)
+	light_x = smooth(1.3, 2.0, cryst)
+	dark_x = smooth(1.5, 2.2, -cryst)
+	f = (1.0 + b_tone[big_i] + s_tone[sm_i]) * grain * fine
+	f *= 1.0 + 0.38 * light_x - 0.4 * dark_x
+	f *= 1.0 - 0.22 * b_edge
+	color = norm_mean(f, 0.87)
+	rough = remap(t.noise(0.06, 0.4, 0.5), 0.84, 0.72) + 0.06 * b_edge - 0.06 * light_x
+	save("Lobby_Rock", color, normal, rough)
+
+
+def rock_v1():
+	# Pass 1 granite (kept for reference; not in ALL): grain, small crystals, faint strata, sparse hairline cracks.
 	t = Tile(TILE["Lobby_Rock"], 55)
 	tone = remap(t.noise(0.6, 2.0, 1.0), 0.95, 1.05)
 	grain = remap(t.noise(0.06, 0.4, 0.5), 0.86, 1.12)
