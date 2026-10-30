@@ -1,0 +1,1966 @@
+{
+ "group": "Range",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "Berm": {
+   "props": {},
+   "parts": [
+    "Berm_Earth",
+    "Berm_Rocks",
+    "Berm_Bags"
+   ]
+  },
+  "DistancePost": {
+   "props": {},
+   "parts": [
+    "DistancePost_Steel",
+    "DistancePost_Panel",
+    "DistancePost_Strip_Glow"
+   ]
+  },
+  "EnterGate": {
+   "props": {},
+   "parts": [
+    "EnterGate_Frame",
+    "EnterGate_Plates",
+    "EnterGate_Sill",
+    "EnterGate_Light_Glow"
+   ]
+  },
+  "JerseyBarrier": {
+   "props": {},
+   "parts": [
+    "JerseyBarrier_Body",
+    "JerseyBarrier_Tabs",
+    "JerseyBarrier_Slots"
+   ]
+  },
+  "LaneDivider": {
+   "props": {},
+   "parts": [
+    "LaneDivider_Frame",
+    "LaneDivider_Infill",
+    "LaneDivider_Shelf",
+    "LaneDivider_ShelfTop",
+    "LaneDivider_Light_Glow"
+   ]
+  },
+  "RangeBench": {
+   "props": {},
+   "parts": [
+    "RangeBench_Seat",
+    "RangeBench_Frame"
+   ]
+  },
+  "RangeCrate": {
+   "props": {},
+   "parts": [
+    "RangeCrate_Body",
+    "RangeCrate_Battens",
+    "RangeCrate_Caps",
+    "RangeCrate_Plate"
+   ]
+  },
+  "RangeEdge": {
+   "props": {},
+   "parts": [
+    "RangeEdge_Angle",
+    "RangeEdge_Band"
+   ]
+  },
+  "RangeFrame": {
+   "props": {},
+   "parts": [
+    "RangeFrame_Steel",
+    "RangeFrame_Plates",
+    "RangeFrame_Light_Glow"
+   ]
+  },
+  "RangeLightBar": {
+   "props": {},
+   "parts": [
+    "RangeLightBar_Housing",
+    "RangeLightBar_Diffuser_Glow"
+   ]
+  },
+  "RangePlanter": {
+   "props": {},
+   "parts": [
+    "RangePlanter_Body",
+    "RangePlanter_Kick",
+    "RangePlanter_Cap",
+    "RangePlanter_Soil",
+    "RangePlanter_Leaves"
+   ]
+  },
+  "RangePlinth": {
+   "props": {},
+   "parts": [
+    "RangePlinth_Body",
+    "RangePlinth_Nosing"
+   ]
+  },
+  "RangeRod": {
+   "props": {},
+   "parts": [
+    "RangeRod_Rod"
+   ]
+  },
+  "RangeSignFrame": {
+   "props": {},
+   "parts": [
+    "RangeSignFrame_Bar",
+    "RangeSignFrame_Panel",
+    "RangeSignFrame_Strip_Glow"
+   ]
+  },
+  "RangeTruss": {
+   "props": {},
+   "parts": [
+    "RangeTruss_Steel"
+   ]
+  },
+  "RangeWallPanel": {
+   "props": {},
+   "parts": [
+    "RangeWallPanel_BoardA",
+    "RangeWallPanel_BoardB"
+   ]
+  },
+  "RangeWallPanelHalf": {
+   "props": {},
+   "parts": [
+    "RangeWallPanelHalf_BoardA",
+    "RangeWallPanelHalf_BoardB"
+   ]
+  },
+  "ScaleModel": {
+   "props": {},
+   "parts": [
+    "ScaleModel_RangeFloor",
+    "ScaleModel_RubberMat",
+    "ScaleModel_LaneLight",
+    "ScaleModel_LinePaint",
+    "ScaleModel_SafetyYellow",
+    "ScaleModel_SteelBlack",
+    "ScaleModel_Acoustic",
+    "ScaleModel_SteelBrushed",
+    "ScaleModel_Lights_Glow",
+    "ScaleModel_TargetPaint",
+    "ScaleModel_ConcreteBoard",
+    "ScaleModel_BermEarth",
+    "ScaleModel_Rock",
+    "ScaleModel_Sandbag",
+    "ScaleModel_SignPanel"
+   ]
+  },
+  "ScaleModelYards": {
+   "props": {},
+   "parts": [
+    "ScaleModelYards_ConcreteDark",
+    "ScaleModelYards_AbilityFloor",
+    "ScaleModelYards_LinePaint",
+    "ScaleModelYards_CourseFloor",
+    "ScaleModelYards_LaneLight",
+    "ScaleModelYards_ConcreteBoard",
+    "ScaleModelYards_ConcreteHoned",
+    "ScaleModelYards_Plate",
+    "ScaleModelYards_Steel",
+    "ScaleModelYards_SafetyYellow",
+    "ScaleModelYards_Oak"
+   ]
+  },
+  "TargetStand": {
+   "props": {},
+   "parts": [
+    "TargetStand_Plate",
+    "TargetStand_Stand",
+    "TargetStand_Marks",
+    "TargetStand_Stripe"
+   ]
+  },
+  "ViewingWindow": {
+   "props": {},
+   "parts": [
+    "ViewingWindow_Frame",
+    "ViewingWindow_Glass",
+    "ViewingWindow_Cap",
+    "ViewingWindow_Kick",
+    "ViewingWindow_Rail",
+    "ViewingWindow_Light_Glow"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "Berm",
+   "name": "Berm_Earth",
+   "material": "BermEarth",
+   "look": {
+    "material": "Ground",
+    "color": "8E7A5A"
+   },
+   "glow": false,
+   "tris": 178,
+   "center": [
+    0.0,
+    0.0,
+    7.11658
+   ],
+   "size": [
+    14.0,
+    24.0,
+    14.23316
+   ]
+  },
+  {
+   "piece": "Berm",
+   "name": "Berm_Rocks",
+   "material": "Rock",
+   "look": {
+    "material": "Slate",
+    "color": "625D57",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    3.9008,
+    -0.55726,
+    5.60038
+   ],
+   "size": [
+    3.89763,
+    17.28595,
+    4.14608
+   ]
+  },
+  {
+   "piece": "Berm",
+   "name": "Berm_Bags",
+   "material": "Sandbag",
+   "look": {
+    "material": "Fabric",
+    "color": "8A7E66"
+   },
+   "glow": false,
+   "tris": 956,
+   "center": [
+    2.4641,
+    0.0046,
+    7.13703
+   ],
+   "size": [
+    9.4762,
+    23.91065,
+    14.52594
+   ]
+  },
+  {
+   "piece": "DistancePost",
+   "name": "DistancePost_Steel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 104,
+   "center": [
+    0.0,
+    0.0,
+    3.475
+   ],
+   "size": [
+    1.0,
+    3.4,
+    6.95
+   ]
+  },
+  {
+   "piece": "DistancePost",
+   "name": "DistancePost_Panel",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    6.075
+   ],
+   "size": [
+    0.2,
+    3.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "DistancePost",
+   "name": "DistancePost_Strip_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.05,
+    0.0,
+    5.325
+   ],
+   "size": [
+    0.1,
+    3.0,
+    0.15
+   ]
+  },
+  {
+   "piece": "EnterGate",
+   "name": "EnterGate_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    16.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "EnterGate",
+   "name": "EnterGate_Plates",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    2.1,
+    0.0,
+    6.1
+   ],
+   "size": [
+    0.2,
+    16.4,
+    12.2
+   ]
+  },
+  {
+   "piece": "EnterGate",
+   "name": "EnterGate_Sill",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    1.1,
+    0.0,
+    0.02
+   ],
+   "size": [
+    2.2,
+    12.0,
+    0.04
+   ]
+  },
+  {
+   "piece": "EnterGate",
+   "name": "EnterGate_Light_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    1.78,
+    0.0,
+    5.575
+   ],
+   "size": [
+    0.96,
+    15.2,
+    10.95
+   ]
+  },
+  {
+   "piece": "JerseyBarrier",
+   "name": "JerseyBarrier_Body",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    1.8
+   ],
+   "size": [
+    2.0,
+    7.96,
+    3.6
+   ]
+  },
+  {
+   "piece": "JerseyBarrier",
+   "name": "JerseyBarrier_Tabs",
+   "material": "SafetyYellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2B93B"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    2.80794
+   ],
+   "size": [
+    0.69671,
+    5.7,
+    0.26166
+   ]
+  },
+  {
+   "piece": "JerseyBarrier",
+   "name": "JerseyBarrier_Slots",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    0.175
+   ],
+   "size": [
+    2.02,
+    5.6,
+    0.35
+   ]
+  },
+  {
+   "piece": "LaneDivider",
+   "name": "LaneDivider_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    0.0,
+    3.5
+   ],
+   "size": [
+    6.0,
+    0.7,
+    7.0
+   ]
+  },
+  {
+   "piece": "LaneDivider",
+   "name": "LaneDivider_Infill",
+   "material": "Acoustic",
+   "look": {
+    "material": "Fabric",
+    "color": "2E3034"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    3.6
+   ],
+   "size": [
+    5.2,
+    0.5,
+    6.0
+   ]
+  },
+  {
+   "piece": "LaneDivider",
+   "name": "LaneDivider_Shelf",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    1.7
+   ],
+   "size": [
+    5.2,
+    2.3,
+    3.4
+   ]
+  },
+  {
+   "piece": "LaneDivider",
+   "name": "LaneDivider_ShelfTop",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    -1.55,
+    0.0,
+    3.44
+   ],
+   "size": [
+    2.0,
+    2.24,
+    0.08
+   ]
+  },
+  {
+   "piece": "LaneDivider",
+   "name": "LaneDivider_Light_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    -3.03,
+    0.0,
+    3.55
+   ],
+   "size": [
+    0.06,
+    0.16,
+    5.7
+   ]
+  },
+  {
+   "piece": "RangeBench",
+   "name": "RangeBench_Seat",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 220,
+   "center": [
+    0.0,
+    0.0,
+    1.4
+   ],
+   "size": [
+    2.9,
+    20.0,
+    0.2
+   ]
+  },
+  {
+   "piece": "RangeBench",
+   "name": "RangeBench_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.0,
+    0.65
+   ],
+   "size": [
+    2.8,
+    18.0,
+    1.3
+   ]
+  },
+  {
+   "piece": "RangeCrate",
+   "name": "RangeCrate_Body",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.1
+   ],
+   "size": [
+    2.4,
+    4.0,
+    2.0
+   ]
+  },
+  {
+   "piece": "RangeCrate",
+   "name": "RangeCrate_Battens",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    0.0,
+    1.115
+   ],
+   "size": [
+    2.56,
+    4.12,
+    2.13
+   ]
+  },
+  {
+   "piece": "RangeCrate",
+   "name": "RangeCrate_Caps",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    1.1
+   ],
+   "size": [
+    2.64,
+    4.24,
+    2.2
+   ]
+  },
+  {
+   "piece": "RangeCrate",
+   "name": "RangeCrate_Plate",
+   "material": "SafetyYellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2B93B"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    1.295,
+    0.0,
+    0.95
+   ],
+   "size": [
+    0.03,
+    1.8,
+    0.8
+   ]
+  },
+  {
+   "piece": "RangeEdge",
+   "name": "RangeEdge_Angle",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    -0.175,
+    0.0,
+    -0.175
+   ],
+   "size": [
+    0.45,
+    1.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "RangeEdge",
+   "name": "RangeEdge_Band",
+   "material": "SafetyYellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2B93B"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -0.675,
+    0.0,
+    0.01
+   ],
+   "size": [
+    0.55,
+    1.0,
+    0.02
+   ]
+  },
+  {
+   "piece": "RangeFrame",
+   "name": "RangeFrame_Steel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    0.0,
+    13.0
+   ],
+   "size": [
+    2.0,
+    28.0,
+    26.0
+   ]
+  },
+  {
+   "piece": "RangeFrame",
+   "name": "RangeFrame_Plates",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    13.15
+   ],
+   "size": [
+    2.4,
+    28.0,
+    26.3
+   ]
+  },
+  {
+   "piece": "RangeFrame",
+   "name": "RangeFrame_Light_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    12.0
+   ],
+   "size": [
+    0.3,
+    24.0,
+    24.0
+   ]
+  },
+  {
+   "piece": "RangeLightBar",
+   "name": "RangeLightBar_Housing",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    -0.725
+   ],
+   "size": [
+    0.7,
+    12.0,
+    1.45
+   ]
+  },
+  {
+   "piece": "RangeLightBar",
+   "name": "RangeLightBar_Diffuser_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    -1.475
+   ],
+   "size": [
+    0.4,
+    11.8,
+    0.05
+   ]
+  },
+  {
+   "piece": "RangePlanter",
+   "name": "RangePlanter_Body",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    0.0,
+    0.0,
+    0.9
+   ],
+   "size": [
+    2.4,
+    8.0,
+    1.8
+   ]
+  },
+  {
+   "piece": "RangePlanter",
+   "name": "RangePlanter_Kick",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    0.09
+   ],
+   "size": [
+    2.44,
+    8.04,
+    0.18
+   ]
+  },
+  {
+   "piece": "RangePlanter",
+   "name": "RangePlanter_Cap",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    1.875
+   ],
+   "size": [
+    2.6,
+    8.2,
+    0.15
+   ]
+  },
+  {
+   "piece": "RangePlanter",
+   "name": "RangePlanter_Soil",
+   "material": "Soil",
+   "look": {
+    "material": "Ground",
+    "color": "3A2F25"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    1.67
+   ],
+   "size": [
+    2.0,
+    7.6,
+    0.14
+   ]
+  },
+  {
+   "piece": "RangePlanter",
+   "name": "RangePlanter_Leaves",
+   "material": "Foliage",
+   "look": {
+    "material": "LeafyGrass",
+    "color": "4E6B3C"
+   },
+   "glow": false,
+   "tris": 144,
+   "center": [
+    -0.22722,
+    0.09444,
+    2.30024
+   ],
+   "size": [
+    1.53582,
+    6.92108,
+    1.16047
+   ]
+  },
+  {
+   "piece": "RangePlinth",
+   "name": "RangePlinth_Body",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.14,
+    0.0,
+    0.69
+   ],
+   "size": [
+    0.28,
+    1.0,
+    1.38
+   ]
+  },
+  {
+   "piece": "RangePlinth",
+   "name": "RangePlinth_Nosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.15,
+    0.0,
+    1.44
+   ],
+   "size": [
+    0.3,
+    1.0,
+    0.12
+   ]
+  },
+  {
+   "piece": "RangeRod",
+   "name": "RangeRod_Rod",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.95106,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "piece": "RangeSignFrame",
+   "name": "RangeSignFrame_Bar",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.6,
+    1.0,
+    0.4
+   ]
+  },
+  {
+   "piece": "RangeSignFrame",
+   "name": "RangeSignFrame_Panel",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.4,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "piece": "RangeSignFrame",
+   "name": "RangeSignFrame_Strip_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.1,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "piece": "RangeTruss",
+   "name": "RangeTruss_Steel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 120,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    0.8,
+    24.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "RangeWallPanel",
+   "name": "RangeWallPanel_BoardA",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.05,
+    -1.6,
+    9.6
+   ],
+   "size": [
+    0.1,
+    16.0,
+    19.2
+   ]
+  },
+  {
+   "piece": "RangeWallPanel",
+   "name": "RangeWallPanel_BoardB",
+   "material": "ConcreteBoardB",
+   "look": {
+    "material": "Concrete",
+    "color": "868480",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    0.05,
+    0.0,
+    9.6
+   ],
+   "size": [
+    0.1,
+    19.2,
+    19.2
+   ]
+  },
+  {
+   "piece": "RangeWallPanelHalf",
+   "name": "RangeWallPanelHalf_BoardA",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.05,
+    0.0,
+    9.6
+   ],
+   "size": [
+    0.1,
+    9.6,
+    19.2
+   ]
+  },
+  {
+   "piece": "RangeWallPanelHalf",
+   "name": "RangeWallPanelHalf_BoardB",
+   "material": "ConcreteBoardB",
+   "look": {
+    "material": "Concrete",
+    "color": "868480",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 50,
+   "center": [
+    0.05,
+    0.0,
+    9.6
+   ],
+   "size": [
+    0.1,
+    9.6,
+    19.2
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_RangeFloor",
+   "material": "RangeFloor",
+   "look": {
+    "material": "Concrete",
+    "color": "A9ACAF",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.025,
+    0.0,
+    0.02
+   ],
+   "size": [
+    65.95,
+    43.9,
+    0.04
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_RubberMat",
+   "material": "RubberMat",
+   "look": {
+    "material": "Rubber",
+    "color": "2B2D30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    31.525,
+    0.0,
+    0.05
+   ],
+   "size": [
+    2.75,
+    21.0,
+    0.02
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_LaneLight",
+   "material": "LaneLight",
+   "look": {
+    "material": "Concrete",
+    "color": "C9CDD1",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    1.66667,
+    0.0,
+    0.05
+   ],
+   "size": [
+    56.66667,
+    21.0,
+    0.02
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_LinePaint",
+   "material": "LinePaint",
+   "look": {
+    "material": "Concrete",
+    "color": "EDEEEF"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    1.66667,
+    0.0,
+    0.0675
+   ],
+   "size": [
+    56.66667,
+    21.2,
+    0.015
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_SafetyYellow",
+   "material": "SafetyYellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2B93B"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    14.045,
+    0.0,
+    1.035
+   ],
+   "size": [
+    32.21,
+    21.0,
+    1.99
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_SteelBlack",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 1320,
+   "center": [
+    -0.39,
+    0.0,
+    6.0
+   ],
+   "size": [
+    65.12,
+    43.9,
+    12.0
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_Acoustic",
+   "material": "Acoustic",
+   "look": {
+    "material": "Fabric",
+    "color": "2E3034"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    31.17,
+    0.0,
+    1.1
+   ],
+   "size": [
+    1.73333,
+    21.16667,
+    2.2
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_SteelBrushed",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 216,
+   "center": [
+    2.685,
+    0.0,
+    1.24667
+   ],
+   "size": [
+    58.70333,
+    24.1,
+    0.29333
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_Lights_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 72,
+   "center": [
+    4.87333,
+    0.0,
+    6.64
+   ],
+   "size": [
+    52.65333,
+    40.0,
+    8.68
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_TargetPaint",
+   "material": "TargetPaint",
+   "look": {
+    "material": "Metal",
+    "color": "E4E6E8"
+   },
+   "glow": false,
+   "tris": 364,
+   "center": [
+    3.33333,
+    0.0,
+    1.06588
+   ],
+   "size": [
+    46.72,
+    18.63333,
+    1.2651
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_ConcreteBoard",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    -0.50833,
+    0.0,
+    6.0
+   ],
+   "size": [
+    55.68333,
+    43.9,
+    12.0
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_BermEarth",
+   "material": "BermEarth",
+   "look": {
+    "material": "Ground",
+    "color": "8E7A5A"
+   },
+   "glow": false,
+   "tris": 124,
+   "center": [
+    -29.0,
+    0.0,
+    2.36701
+   ],
+   "size": [
+    4.66667,
+    24.0,
+    4.73403
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_Rock",
+   "material": "Rock",
+   "look": {
+    "material": "Slate",
+    "color": "625D57",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 38,
+   "center": [
+    -27.68315,
+    0.26399,
+    1.80873
+   ],
+   "size": [
+    1.01008,
+    13.07913,
+    0.95598
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_Sandbag",
+   "material": "Sandbag",
+   "look": {
+    "material": "Fabric",
+    "color": "8A7E66"
+   },
+   "glow": false,
+   "tris": 204,
+   "center": [
+    -28.18637,
+    -0.00028,
+    2.33879
+   ],
+   "size": [
+    3.25902,
+    23.81021,
+    4.92242
+   ]
+  },
+  {
+   "piece": "ScaleModel",
+   "name": "ScaleModel_SignPanel",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -32.675,
+    0.0,
+    9.8
+   ],
+   "size": [
+    0.15,
+    28.0,
+    3.4
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_ConcreteDark",
+   "material": "ConcreteDark",
+   "look": {
+    "material": "Concrete",
+    "color": "3A3B3D",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    21.45,
+    -16.7,
+    0.05
+   ],
+   "size": [
+    22.9,
+    9.3,
+    0.02
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_AbilityFloor",
+   "material": "AbilityFloor",
+   "look": {
+    "material": "Concrete",
+    "color": "5E5B56",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -6.0,
+    -16.7,
+    0.05
+   ],
+   "size": [
+    28.0,
+    9.3,
+    0.02
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_LinePaint",
+   "material": "LinePaint",
+   "look": {
+    "material": "Concrete",
+    "color": "EDEEEF"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    -6.0,
+    -16.7,
+    0.065
+   ],
+   "size": [
+    27.4,
+    8.7,
+    0.01
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_CourseFloor",
+   "material": "CourseFloor",
+   "look": {
+    "material": "Concrete",
+    "color": "9E9A92",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    16.7,
+    0.05
+   ],
+   "size": [
+    65.8,
+    9.3,
+    0.02
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_LaneLight",
+   "material": "LaneLight",
+   "look": {
+    "material": "Concrete",
+    "color": "C9CDD1",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    16.33333,
+    13.7226,
+    0.0675
+   ],
+   "size": [
+    52.66667,
+    1.31507,
+    0.015
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_ConcreteBoard",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 144,
+   "center": [
+    14.75,
+    0.13801,
+    1.66667
+   ],
+   "size": [
+    24.83333,
+    38.63767,
+    3.33333
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_ConcreteHoned",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    19.0,
+    -16.93774,
+    0.6
+   ],
+   "size": [
+    6.0,
+    8.43027,
+    1.2
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_Plate",
+   "material": "SteelPlate",
+   "look": {
+    "material": "DiamondPlate",
+    "color": "5A5F66"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    23.33333,
+    -15.5637,
+    1.5
+   ],
+   "size": [
+    0.2,
+    2.5,
+    3.0
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_Steel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    -14.66667,
+    16.08973,
+    0.535
+   ],
+   "size": [
+    9.73333,
+    2.7,
+    1.07
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_SafetyYellow",
+   "material": "SafetyYellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2B93B"
+   },
+   "glow": false,
+   "tris": 300,
+   "center": [
+    10.995,
+    -0.94658,
+    1.71167
+   ],
+   "size": [
+    62.11,
+    40.80685,
+    3.30333
+   ]
+  },
+  {
+   "piece": "ScaleModelYards",
+   "name": "ScaleModelYards_Oak",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    9.41667,
+    20.87658,
+    0.36667
+   ],
+   "size": [
+    2.83333,
+    0.6,
+    0.73333
+   ]
+  },
+  {
+   "piece": "TargetStand",
+   "name": "TargetStand_Plate",
+   "material": "TargetPaint",
+   "look": {
+    "material": "Metal",
+    "color": "E4E6E8"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    3.17907
+   ],
+   "size": [
+    0.16,
+    1.9,
+    3.75813
+   ]
+  },
+  {
+   "piece": "TargetStand",
+   "name": "TargetStand_Stand",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    0.675
+   ],
+   "size": [
+    2.0,
+    2.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "TargetStand",
+   "name": "TargetStand_Marks",
+   "material": "TargetMark",
+   "look": {
+    "material": "Metal",
+    "color": "3A3D42"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.09,
+    0.0,
+    3.55
+   ],
+   "size": [
+    0.02,
+    0.9,
+    2.5
+   ]
+  },
+  {
+   "piece": "TargetStand",
+   "name": "TargetStand_Stripe",
+   "material": "SafetyYellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E2B93B"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.68225,
+    0.0,
+    0.20375
+   ],
+   "size": [
+    0.1495,
+    1.76,
+    0.1325
+   ]
+  },
+  {
+   "piece": "ViewingWindow",
+   "name": "ViewingWindow_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 432,
+   "center": [
+    0.0,
+    0.0,
+    7.6
+   ],
+   "size": [
+    0.8,
+    44.0,
+    9.2
+   ]
+  },
+  {
+   "piece": "ViewingWindow",
+   "name": "ViewingWindow_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "Glass",
+    "color": "A9C9CF",
+    "transparency": 0.7
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    7.5
+   ],
+   "size": [
+    0.08,
+    43.0,
+    8.0
+   ]
+  },
+  {
+   "piece": "ViewingWindow",
+   "name": "ViewingWindow_Cap",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.8,
+    0.0,
+    2.805
+   ],
+   "size": [
+    0.8,
+    44.0,
+    0.51
+   ]
+  },
+  {
+   "piece": "ViewingWindow",
+   "name": "ViewingWindow_Kick",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    2.275,
+    0.0,
+    1.625
+   ],
+   "size": [
+    2.55,
+    44.0,
+    3.25
+   ]
+  },
+  {
+   "piece": "ViewingWindow",
+   "name": "ViewingWindow_Rail",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 148,
+   "center": [
+    3.4,
+    0.0,
+    1.825
+   ],
+   "size": [
+    0.38042,
+    44.0,
+    3.65
+   ]
+  },
+  {
+   "piece": "ViewingWindow",
+   "name": "ViewingWindow_Light_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 24,
+   "center": [
+    2.25,
+    0.0,
+    1.775
+   ],
+   "size": [
+    2.5,
+    43.6,
+    2.55
+   ]
+  }
+ ],
+ "tris": 8378
+}
