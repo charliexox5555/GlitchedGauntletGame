@@ -695,10 +695,12 @@ for i, s in SECTIONS do
 				}, if s.live then s.party else nil, s.color, 100)
 			end
 			if side > 0 then
+				-- Lifted 2.5 (bottom y 23.5, the top runs into the nave ceiling) so the trusses
+				-- stay above the eye-height sightline to the next arch title (y 17-25).
 				put(
 					hall,
 					"DuelsTruss_22",
-					faceCF(Vector3.new(0, 0, zc), SOUTH_V),
+					faceCF(Vector3.new(0, 2.5, zc), SOUTH_V),
 					s.key .. "_Truss" .. b
 				)
 			end

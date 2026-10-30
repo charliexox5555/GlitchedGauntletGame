@@ -4,7 +4,8 @@
 -- values and rebuilds Workspace.Lobby.Art.Lighting).
 --
 -- Owns: the Lighting service and its effects, and Workspace.Lobby.Art.Lighting (the fake
--- sunbeam rig, dust and the rotunda bounce light). It also sets absolute brightness, range
+-- sunbeam rig, the rotunda bounce light and the ring cove washes). The dust in the shaft is
+-- Ambience.Emitters.SunbeamDust (art-source/lobby/scripts/AmbienceSetup.luau). It also sets absolute brightness, range
 -- and colour on a few lights the area agents placed (BALANCE below) so the wings sit
 -- together; it never moves or deletes art.
 --
@@ -19,7 +20,8 @@
 --
 -- Findings (Studio, 2026-10-29):
 -- - Beam Transparency/Color sequences are sampled only at segment vertices: Segments = 1
---   shows just the two end keys, so the rig uses 24 segments.
+--   shows just the two end keys. 10 segments keep the fade under the rim (key 0.1) and
+--   are cheap; the polish pass cut 3 stacked beams at 24 segments to 2 at 10 (phone fill rate).
 -- - The skybox drives EnvironmentDiffuse/Specular, and the clear blue sky turned every
 --   polished floor navy. Indoors both scales stay low (diffuse 0, specular 0.15).
 
@@ -118,7 +120,7 @@ atmo.Offset = 0.1
 atmo.Color = hex("#4A4D54")
 atmo.Decay = hex("#2C3038")
 atmo.Glare = 0
-atmo.Haze = 1.4
+atmo.Haze = 1.0
 
 local bloom = effect("BloomEffect", "Bloom") :: BloomEffect
 bloom.Enabled = true
@@ -208,27 +210,21 @@ type BeamSpec = {
 	t: { { number } },
 }
 
--- Nested camera-facing ribbons: a wide soft halo, the main shaft, a brighter core.
+-- Two nested camera-facing ribbons: the shaft (with the old halo folded in) and a brighter core.
 -- Transparency runs along the beam (0 = oculus, 1 = floor): brightest just under the rim,
 -- thinning toward the floor so the spawn view to DUELS stays clear.
 local BEAMS: { BeamSpec } = {
 	{
-		name = "Halo",
-		w0 = 48,
-		w1 = 50,
-		t = { { 0, 1 }, { 0.05, 0.75 }, { 0.35, 0.82 }, { 0.75, 0.9 }, { 1, 0.95 } },
-	},
-	{
 		name = "Shaft",
-		w0 = 32,
-		w1 = 34,
-		t = { { 0, 1 }, { 0.05, 0.6 }, { 0.35, 0.7 }, { 0.75, 0.76 }, { 1, 0.85 } },
+		w0 = 40,
+		w1 = 42,
+		t = { { 0, 1 }, { 0.1, 0.62 }, { 0.4, 0.72 }, { 0.8, 0.8 }, { 1, 0.9 } },
 	},
 	{
 		name = "Core",
 		w0 = 18,
 		w1 = 20,
-		t = { { 0, 1 }, { 0.05, 0.55 }, { 0.4, 0.66 }, { 0.8, 0.72 }, { 1, 0.8 } },
+		t = { { 0, 1 }, { 0.1, 0.58 }, { 0.4, 0.68 }, { 0.8, 0.76 }, { 1, 0.85 } },
 	},
 }
 
@@ -244,7 +240,7 @@ for _, spec in BEAMS do
 	b.TextureSpeed = 0
 	b.Width0 = spec.w0
 	b.Width1 = spec.w1
-	b.Segments = 24
+	b.Segments = 10
 	b.LightEmission = 1
 	b.LightInfluence = 0
 	b.Brightness = 1
@@ -257,39 +253,6 @@ for _, spec in BEAMS do
 	b.Parent = anchor
 end
 
--- Slow dust drifting in the shaft (one low-rate emitter, a volume along the beam).
-local mid = (top + bottom) / 2
-local dustBox = lightPart(
-	rig,
-	"DustVolume",
-	CFrame.lookAt(mid, mid + down) * CFrame.Angles(math.rad(90), 0, 0),
-	Vector3.new(22, 40, 22)
-)
-local dust = Instance.new("ParticleEmitter")
-dust.Name = "Dust"
-dust.Texture = IMG_MOTE
-dust.Shape = Enum.ParticleEmitterShape.Box
-dust.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
-dust.Rate = 6
-dust.Lifetime = NumberRange.new(10, 14)
-dust.Speed = NumberRange.new(0.15, 0.5)
-dust.SpreadAngle = Vector2.new(180, 180)
-dust.Acceleration = Vector3.new(0, -0.03, 0)
-dust.Drag = 0.2
-dust.RotSpeed = NumberRange.new(-20, 20)
-dust.Size = NumberSequence.new(0.14)
-dust.LightEmission = 1
-dust.LightInfluence = 0
-dust.Brightness = 1.4
-dust.Color = ColorSequence.new(L_SUN)
-dust.Transparency = NumberSequence.new({
-	NumberSequenceKeypoint.new(0, 1),
-	NumberSequenceKeypoint.new(0.2, 0.55),
-	NumberSequenceKeypoint.new(0.8, 0.55),
-	NumberSequenceKeypoint.new(1, 1),
-})
-dust.Parent = dustBox
-
 -- Rotunda bounce: Roblox has no GI, so the sunlit patch would not warm the room. A warm,
 -- shadowless up-facing SurfaceLight on the patch fakes the bounce onto the columns, the
 -- dome coffers (Range 60 reaches them; without it the dome was black) and players' faces.
@@ -300,7 +263,7 @@ bounce.Name = "Bounce"
 bounce.Face = Enum.NormalId.Top
 bounce.Angle = 90
 bounce.Range = 60
-bounce.Brightness = 1.8
+bounce.Brightness = 1.2
 bounce.Color = L_SUN
 bounce.Shadows = false
 bounce.Parent = bouncePart
@@ -344,21 +307,8 @@ type Balance = {
 	enabled: boolean?,
 }
 local BALANCE: { [string]: Balance } = {
-	-- Market street: the shop washes blew the oak floor and rock out to orange at 3.0.
-	["Market_Street/Built/ShopLight1/PointLight"] = { brightness = 1.5, range = 26 },
-	["Market_Street/Built/ShopLight2/PointLight"] = { brightness = 1.5, range = 26 },
-	["Market_Street/Built/ShopLight3/PointLight"] = { brightness = 1.5, range = 26 },
-	["Market_Street/Built/PodiumLight2/PointLight"] = { brightness = 1.4 },
-	-- Weapons: museum light, so the hero rifle and the chapels read brighter than the ring.
-	["Weapons/Lights/LightRig/HeroKey/HeroKey"] = { brightness = 2.6 },
-	["Weapons/Lights/LightRig/ChapelFill_326.25/ChapelFill_326.25"] = { brightness = 2 },
-	["Weapons/Lights/LightRig/ChapelFill_33.75/ChapelFill_33.75"] = { brightness = 2 },
-	["Weapons/Lights/LightRig/ChapelFill_146.25/ChapelFill_146.25"] = { brightness = 2 },
-	["Weapons/Lights/LightRig/ChapelFill_213.75/ChapelFill_213.75"] = { brightness = 2 },
-	-- Real range: "lights on, focus". The 236 x 240 ceiling SurfaceLight at y 31.5 needs the
-	-- full Range to reach the floor.
-	["RangeFar/Lights/HallDaylight/SurfaceLight"] = { brightness = 1.3, range = 60 },
 	-- Range Lobby: cool daylight, brighter than the hub. The gate end of the hall was black.
+	-- (The Market, Weapons and real-range lights are now tuned in their own Art_* scripts.)
 	["Range/Lights/FacadeWash/SurfaceLight"] = { brightness = 1.4, range = 40 },
 	["Range/Lights/GateGlow/PointLight"] = { brightness = 1.6, range = 26 },
 }

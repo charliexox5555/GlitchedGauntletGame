@@ -527,7 +527,7 @@ do
 	right = if right.Magnitude > 0.1 then right.Unit else Vector3.xAxis
 	local beam =
 		host("SunbeamDust", CFrame.fromMatrix(centre, right, sun), Vector3.new(16, length, 16))
-	dust(beam, 10, 2, Color3.fromHex("FFF1DC"))
+	dust(beam, 8, 2, Color3.fromHex("FFF1DC"))
 	note(
 		string.format(
 			"sunbeam centre (%.1f, %.1f, %.1f) len %.1f",
