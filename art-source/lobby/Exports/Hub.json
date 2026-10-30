@@ -1,0 +1,1752 @@
+{
+ "group": "Hub",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "Alcove_R68": {
+   "props": {},
+   "parts": [
+    "Alcove_R68_Floor",
+    "Alcove_R68_Risers",
+    "Alcove_R68_Treads",
+    "Alcove_R68_TierUnder_Glow",
+    "Alcove_R68_Sides",
+    "Alcove_R68_Back",
+    "Alcove_R68_Soffit",
+    "Alcove_R68_BackReveal_Glow",
+    "Alcove_R68_Jambs",
+    "Alcove_R68_Head",
+    "Alcove_R68_GapLiner",
+    "Alcove_R68_Gap_Glow",
+    "Alcove_R68_Rock"
+   ]
+  },
+  "DomeCoffer_R44": {
+   "props": {},
+   "parts": [
+    "DomeCoffer_R44_Shell_ConcreteBoard",
+    "DomeCoffer_R44_Shell_ConcreteBoardShade"
+   ]
+  },
+  "Drum_R44": {
+   "props": {},
+   "parts": [
+    "Drum_R44_Wall",
+    "Drum_R44_CoveLip",
+    "Drum_R44_Cove_Glow"
+   ]
+  },
+  "LeaderboardFrame": {
+   "props": {},
+   "parts": [
+    "LeaderboardFrame_Bezel",
+    "LeaderboardFrame_Hangers",
+    "LeaderboardFrame_Edge_Glow"
+   ]
+  },
+  "OculusRim_R16": {
+   "props": {},
+   "parts": [
+    "OculusRim_R16_Shaft",
+    "OculusRim_R16_Lip",
+    "OculusRim_R16_Spokes",
+    "OculusRim_R16_Cove_Glow"
+   ]
+  },
+  "PierPlaque": {
+   "props": {},
+   "parts": [
+    "PierPlaque_Frame",
+    "PierPlaque_Strip_Glow"
+   ]
+  },
+  "PortalFrame_26": {
+   "props": {},
+   "parts": [
+    "PortalFrame_26_Frame_ConcreteBoard",
+    "PortalFrame_26_Frame_ConcreteBoardShade",
+    "PortalFrame_26_Pelmet",
+    "PortalFrame_26_Soffit_Glow",
+    "PortalFrame_26_Reveal",
+    "PortalFrame_26_Sill",
+    "PortalFrame_26_SillNosing"
+   ]
+  },
+  "PortalFrame_52": {
+   "props": {},
+   "parts": [
+    "PortalFrame_52_Frame_ConcreteBoard",
+    "PortalFrame_52_Frame_ConcreteBoardShade",
+    "PortalFrame_52_Pelmet",
+    "PortalFrame_52_Soffit_Glow",
+    "PortalFrame_52_Reveal",
+    "PortalFrame_52_Sill",
+    "PortalFrame_52_SillNosing"
+   ]
+  },
+  "RingBeam_R44": {
+   "props": {},
+   "parts": [
+    "RingBeam_R44_Beam"
+   ]
+  },
+  "RingCeiling_R44_68": {
+   "props": {},
+   "parts": [
+    "RingCeiling_R44_68_Slab",
+    "RingCeiling_R44_68_Slot_Glow"
+   ]
+  },
+  "RingFloor_R44_68": {
+   "props": {},
+   "parts": [
+    "RingFloor_R44_68_Floor_ConcreteDark",
+    "RingFloor_R44_68_Floor_Oak",
+    "RingFloor_R44_68_Floor_SteelBrushed"
+   ]
+  },
+  "RockPlinth_R68": {
+   "props": {},
+   "parts": [
+    "RockPlinth_R68_Plinth",
+    "RockPlinth_R68_Nosing",
+    "RockPlinth_R68_GapLiner",
+    "RockPlinth_R68_Gap_Glow"
+   ]
+  },
+  "RockWall_R68_A": {
+   "props": {},
+   "parts": [
+    "RockWall_R68_A_Rock"
+   ]
+  },
+  "RockWall_R68_B": {
+   "props": {},
+   "parts": [
+    "RockWall_R68_B_Rock"
+   ]
+  },
+  "RockWall_R68_C": {
+   "props": {},
+   "parts": [
+    "RockWall_R68_C_Rock"
+   ]
+  },
+  "RotundaColumn": {
+   "props": {},
+   "parts": [
+    "RotundaColumn_Shaft",
+    "RotundaColumn_Base"
+   ]
+  },
+  "RotundaFloor": {
+   "props": {},
+   "parts": [
+    "RotundaFloor_Disc",
+    "RotundaFloor_SunInlay",
+    "RotundaFloor_Edge"
+   ]
+  },
+  "RotundaPier": {
+   "props": {},
+   "parts": [
+    "RotundaPier_Shaft",
+    "RotundaPier_Shoe"
+   ]
+  },
+  "SpawnDais": {
+   "props": {},
+   "parts": [
+    "SpawnDais_Top",
+    "SpawnDais_OakBand",
+    "SpawnDais_Rim",
+    "SpawnDais_CompassRing",
+    "SpawnDais_CompassBrass",
+    "SpawnDais_CompassSteel"
+   ]
+  },
+  "TitleBand_26": {
+   "props": {},
+   "parts": [
+    "TitleBand_26_Frame",
+    "TitleBand_26_Backing",
+    "TitleBand_26_Strip_Glow"
+   ]
+  },
+  "TitleBand_40": {
+   "props": {},
+   "parts": [
+    "TitleBand_40_Frame",
+    "TitleBand_40_Backing",
+    "TitleBand_40_Strip_Glow"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Floor",
+   "material": "ConcreteDark",
+   "look": {
+    "material": "Concrete",
+    "color": "3A3B3D",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    13.63805,
+    68.02842,
+    -0.2
+   ],
+   "size": [
+    26.29019,
+    6.33962,
+    0.4
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Risers",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    14.73246,
+    71.39163,
+    2.05
+   ],
+   "size": [
+    28.46492,
+    11.21293,
+    4.1
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Treads",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    15.29601,
+    72.79893,
+    2.8
+   ],
+   "size": [
+    29.59484,
+    14.39816,
+    3.4
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_TierUnder_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 108,
+   "center": [
+    14.72646,
+    71.3303,
+    2.3
+   ],
+   "size": [
+    28.45434,
+    11.27559,
+    3.16
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Sides",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    15.38387,
+    72.21243,
+    6.0
+   ],
+   "size": [
+    30.76774,
+    16.37514,
+    12.0
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Back",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 4,
+   "center": [
+    15.30734,
+    76.95518,
+    8.25
+   ],
+   "size": [
+    30.61467,
+    6.08964,
+    7.5
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Soffit",
+   "material": "ConcreteBoardShade",
+   "look": {
+    "material": "Concrete",
+    "color": "6B6965",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    15.30734,
+    72.05862,
+    12.0
+   ],
+   "size": [
+    30.61467,
+    15.88276,
+    0.0
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_BackReveal_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 4,
+   "center": [
+    15.29966,
+    76.91658,
+    11.535
+   ],
+   "size": [
+    29.47468,
+    5.86288,
+    0.17
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Jambs",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    13.20284,
+    65.6934,
+    7.1
+   ],
+   "size": [
+    28.90567,
+    7.6132,
+    14.2
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Head",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    13.24691,
+    65.63425,
+    13.1
+   ],
+   "size": [
+    29.07156,
+    7.70761,
+    2.2
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    13.25998,
+    66.0619,
+    14.475
+   ],
+   "size": [
+    26.51996,
+    6.4762,
+    0.55
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Gap_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 8,
+   "center": [
+    13.24467,
+    66.58547,
+    14.67
+   ],
+   "size": [
+    26.48935,
+    5.26906,
+    0.14
+   ]
+  },
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Rock",
+   "material": "Rock",
+   "look": {
+    "material": "Slate",
+    "color": "625D57",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 374,
+   "center": [
+    13.18344,
+    66.66719,
+    23.15
+   ],
+   "size": [
+    26.36689,
+    6.22694,
+    16.7
+   ]
+  },
+  {
+   "piece": "DomeCoffer_R44",
+   "name": "DomeCoffer_R44_Shell_ConcreteBoard",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 180,
+   "center": [
+    4.38932,
+    30.34519,
+    51.2
+   ],
+   "size": [
+    8.77864,
+    29.30526,
+    10.4
+   ]
+  },
+  {
+   "piece": "DomeCoffer_R44",
+   "name": "DomeCoffer_R44_Shell_ConcreteBoardShade",
+   "material": "ConcreteBoardShade",
+   "look": {
+    "material": "Concrete",
+    "color": "6B6965",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    4.20365,
+    31.42354,
+    51.00131
+   ],
+   "size": [
+    7.2024,
+    23.2326,
+    7.82344
+   ]
+  },
+  {
+   "piece": "Drum_R44",
+   "name": "Drum_R44_Wall",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    4.30369,
+    42.99977,
+    38.8
+   ],
+   "size": [
+    8.60738,
+    2.24047,
+    15.6
+   ]
+  },
+  {
+   "piece": "Drum_R44",
+   "name": "Drum_R44_CoveLip",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    4.17981,
+    42.36477,
+    45.2
+   ],
+   "size": [
+    8.35962,
+    0.97047,
+    0.6
+   ]
+  },
+  {
+   "piece": "Drum_R44",
+   "name": "Drum_R44_Cove_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 20,
+   "center": [
+    4.20615,
+    42.59784,
+    45.4
+   ],
+   "size": [
+    8.41229,
+    1.04431,
+    1.0
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_Bezel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    18.75
+   ],
+   "size": [
+    0.6,
+    18.9,
+    14.4
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_Hangers",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 244,
+   "center": [
+    0.0,
+    0.0,
+    26.87
+   ],
+   "size": [
+    0.7,
+    18.9,
+    1.96
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_Edge_Glow",
+   "material": "Glow_Cool",
+   "look": {
+    "material": "Neon",
+    "color": "DDE8F2"
+   },
+   "glow": true,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    11.74
+   ],
+   "size": [
+    0.72,
+    16.8,
+    0.12
+   ]
+  },
+  {
+   "piece": "OculusRim_R16",
+   "name": "OculusRim_R16_Shaft",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 64,
+   "center": [
+    0.0,
+    0.0,
+    58.175
+   ],
+   "size": [
+    32.0,
+    32.0,
+    3.65
+   ]
+  },
+  {
+   "piece": "OculusRim_R16",
+   "name": "OculusRim_R16_Lip",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 128,
+   "center": [
+    0.0,
+    0.0,
+    54.04
+   ],
+   "size": [
+    37.2,
+    37.2,
+    0.52
+   ]
+  },
+  {
+   "piece": "OculusRim_R16",
+   "name": "OculusRim_R16_Spokes",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 124,
+   "center": [
+    -0.0,
+    -0.0,
+    59.65
+   ],
+   "size": [
+    30.67937,
+    30.67937,
+    0.7
+   ]
+  },
+  {
+   "piece": "OculusRim_R16",
+   "name": "OculusRim_R16_Cove_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 64,
+   "center": [
+    0.0,
+    0.0,
+    54.47
+   ],
+   "size": [
+    31.8,
+    31.8,
+    0.18
+   ]
+  },
+  {
+   "piece": "PierPlaque",
+   "name": "PierPlaque_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 188,
+   "center": [
+    0.25,
+    0.0,
+    10.5
+   ],
+   "size": [
+    0.5,
+    15.7,
+    3.7
+   ]
+  },
+  {
+   "piece": "PierPlaque",
+   "name": "PierPlaque_Strip_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.52,
+    0.0,
+    8.825
+   ],
+   "size": [
+    0.04,
+    14.6,
+    0.13
+   ]
+  },
+  {
+   "piece": "PortalFrame_26",
+   "name": "PortalFrame_26_Frame_ConcreteBoard",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 202,
+   "center": [
+    3.6533,
+    0.0,
+    15.75
+   ],
+   "size": [
+    7.3066,
+    32.2,
+    31.5
+   ]
+  },
+  {
+   "piece": "PortalFrame_26",
+   "name": "PortalFrame_26_Frame_ConcreteBoardShade",
+   "material": "ConcreteBoardShade",
+   "look": {
+    "material": "Concrete",
+    "color": "6B6965",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    6.8316,
+    0.0,
+    21.925
+   ],
+   "size": [
+    0.25,
+    26.2,
+    10.65
+   ]
+  },
+  {
+   "piece": "PortalFrame_26",
+   "name": "PortalFrame_26_Pelmet",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    6.0316,
+    0.0,
+    15.46
+   ],
+   "size": [
+    0.15,
+    26.2,
+    0.82
+   ]
+  },
+  {
+   "piece": "PortalFrame_26",
+   "name": "PortalFrame_26_Soffit_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    5.8766,
+    0.0,
+    15.775
+   ],
+   "size": [
+    0.12,
+    25.6,
+    0.15
+   ]
+  },
+  {
+   "piece": "PortalFrame_26",
+   "name": "PortalFrame_26_Reveal",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    7.3116,
+    0.0,
+    7.925
+   ],
+   "size": [
+    0.05,
+    27.52,
+    15.25
+   ]
+  },
+  {
+   "piece": "PortalFrame_26",
+   "name": "PortalFrame_26_Sill",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    3.5783,
+    0.0,
+    -0.125
+   ],
+   "size": [
+    7.1566,
+    26.2,
+    0.35
+   ]
+  },
+  {
+   "piece": "PortalFrame_26",
+   "name": "PortalFrame_26_SillNosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    7.2316,
+    0.0,
+    -0.125
+   ],
+   "size": [
+    0.15,
+    26.2,
+    0.35
+   ]
+  },
+  {
+   "piece": "PortalFrame_52",
+   "name": "PortalFrame_52_Frame_ConcreteBoard",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 202,
+   "center": [
+    3.0,
+    0.0,
+    15.75
+   ],
+   "size": [
+    6.0,
+    57.6,
+    31.5
+   ]
+  },
+  {
+   "piece": "PortalFrame_52",
+   "name": "PortalFrame_52_Frame_ConcreteBoardShade",
+   "material": "ConcreteBoardShade",
+   "look": {
+    "material": "Concrete",
+    "color": "6B6965",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    5.525,
+    0.0,
+    21.925
+   ],
+   "size": [
+    0.25,
+    51.6,
+    10.65
+   ]
+  },
+  {
+   "piece": "PortalFrame_52",
+   "name": "PortalFrame_52_Pelmet",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    4.725,
+    0.0,
+    15.46
+   ],
+   "size": [
+    0.15,
+    51.6,
+    0.82
+   ]
+  },
+  {
+   "piece": "PortalFrame_52",
+   "name": "PortalFrame_52_Soffit_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    4.57,
+    0.0,
+    15.775
+   ],
+   "size": [
+    0.12,
+    51.0,
+    0.15
+   ]
+  },
+  {
+   "piece": "PortalFrame_52",
+   "name": "PortalFrame_52_Reveal",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    6.005,
+    0.0,
+    7.925
+   ],
+   "size": [
+    0.05,
+    52.92,
+    15.25
+   ]
+  },
+  {
+   "piece": "PortalFrame_52",
+   "name": "PortalFrame_52_Sill",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    4.0369,
+    0.0,
+    -0.125
+   ],
+   "size": [
+    3.62619,
+    51.6,
+    0.35
+   ]
+  },
+  {
+   "piece": "PortalFrame_52",
+   "name": "PortalFrame_52_SillNosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    5.925,
+    0.0,
+    -0.125
+   ],
+   "size": [
+    0.15,
+    51.6,
+    0.35
+   ]
+  },
+  {
+   "piece": "RingBeam_R44",
+   "name": "RingBeam_R44_Beam",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    4.46757,
+    43.74169,
+    29.675
+   ],
+   "size": [
+    8.93514,
+    4.11663,
+    3.85
+   ]
+  },
+  {
+   "piece": "RingCeiling_R44_68",
+   "name": "RingCeiling_R44_68_Slab",
+   "material": "ConcreteBoardShade",
+   "look": {
+    "material": "Concrete",
+    "color": "6B6965",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    6.87693,
+    57.56286,
+    30.0
+   ],
+   "size": [
+    13.75387,
+    25.87427,
+    4.0
+   ]
+  },
+  {
+   "piece": "RingCeiling_R44_68",
+   "name": "RingCeiling_R44_68_Slot_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 20,
+   "center": [
+    6.56479,
+    66.50631,
+    31.43
+   ],
+   "size": [
+    13.12958,
+    1.58739,
+    0.1
+   ]
+  },
+  {
+   "piece": "RingFloor_R44_68",
+   "name": "RingFloor_R44_68_Floor_ConcreteDark",
+   "material": "ConcreteDark",
+   "look": {
+    "material": "Concrete",
+    "color": "3A3B3D",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    6.82816,
+    56.57728,
+    -0.3
+   ],
+   "size": [
+    13.65632,
+    26.84545,
+    0.6
+   ]
+  },
+  {
+   "piece": "RingFloor_R44_68",
+   "name": "RingFloor_R44_68_Floor_Oak",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    5.64591,
+    55.48005,
+    -0.3
+   ],
+   "size": [
+    11.29183,
+    4.7999,
+    0.6
+   ]
+  },
+  {
+   "piece": "RingFloor_R44_68",
+   "name": "RingFloor_R44_68_Floor_SteelBrushed",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 32,
+   "center": [
+    5.65762,
+    55.4812,
+    -0.3
+   ],
+   "size": [
+    11.31524,
+    5.0376,
+    0.6
+   ]
+  },
+  {
+   "piece": "RockPlinth_R68",
+   "name": "RockPlinth_R68_Plinth",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    6.74037,
+    68.01929,
+    0.75
+   ],
+   "size": [
+    13.48074,
+    2.16141,
+    1.5
+   ]
+  },
+  {
+   "piece": "RockPlinth_R68",
+   "name": "RockPlinth_R68_Nosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    6.65746,
+    67.55507,
+    1.45
+   ],
+   "size": [
+    13.31491,
+    1.38987,
+    0.1
+   ]
+  },
+  {
+   "piece": "RockPlinth_R68",
+   "name": "RockPlinth_R68_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    6.73549,
+    67.8717,
+    1.775
+   ],
+   "size": [
+    13.47099,
+    2.35661,
+    0.55
+   ]
+  },
+  {
+   "piece": "RockPlinth_R68",
+   "name": "RockPlinth_R68_Gap_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 4,
+   "center": [
+    6.72671,
+    68.29747,
+    1.97
+   ],
+   "size": [
+    13.45343,
+    1.32505,
+    0.14
+   ]
+  },
+  {
+   "piece": "RockWall_R68_A",
+   "name": "RockWall_R68_A_Rock",
+   "material": "Rock",
+   "look": {
+    "material": "Slate",
+    "color": "625D57",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 390,
+   "center": [
+    6.72086,
+    68.51724,
+    16.8
+   ],
+   "size": [
+    13.44172,
+    2.74695,
+    29.4
+   ]
+  },
+  {
+   "piece": "RockWall_R68_B",
+   "name": "RockWall_R68_B_Rock",
+   "material": "Rock",
+   "look": {
+    "material": "Slate",
+    "color": "625D57",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 316,
+   "center": [
+    6.72086,
+    68.55568,
+    16.8
+   ],
+   "size": [
+    13.44172,
+    2.76531,
+    29.4
+   ]
+  },
+  {
+   "piece": "RockWall_R68_C",
+   "name": "RockWall_R68_C_Rock",
+   "material": "Rock",
+   "look": {
+    "material": "Slate",
+    "color": "625D57",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 386,
+   "center": [
+    6.72086,
+    68.42669,
+    16.8
+   ],
+   "size": [
+    13.44172,
+    2.82054,
+    29.4
+   ]
+  },
+  {
+   "piece": "RotundaColumn",
+   "name": "RotundaColumn_Shaft",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 272,
+   "center": [
+    0.40769,
+    0.0,
+    14.0
+   ],
+   "size": [
+    2.38463,
+    1.56926,
+    28.0
+   ]
+  },
+  {
+   "piece": "RotundaColumn",
+   "name": "RotundaColumn_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 124,
+   "center": [
+    0.0,
+    0.0,
+    0.25
+   ],
+   "size": [
+    1.66734,
+    1.66734,
+    0.5
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_Disc",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 256,
+   "center": [
+    0.0,
+    0.0,
+    -0.3
+   ],
+   "size": [
+    87.7,
+    87.7,
+    0.6
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_SunInlay",
+   "material": "ConcretePolishedInlay",
+   "look": {
+    "material": "Concrete",
+    "color": "F2EADB",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    10.0,
+    0.02
+   ],
+   "size": [
+    32.0,
+    32.0,
+    0.0
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_Edge",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 512,
+   "center": [
+    0.0,
+    0.0,
+    -0.2975
+   ],
+   "size": [
+    88.0,
+    88.0,
+    0.605
+   ]
+  },
+  {
+   "piece": "RotundaPier",
+   "name": "RotundaPier_Shaft",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 144,
+   "center": [
+    1.5,
+    0.0,
+    14.525
+   ],
+   "size": [
+    3.0,
+    3.0,
+    26.95
+   ]
+  },
+  {
+   "piece": "RotundaPier",
+   "name": "RotundaPier_Shoe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    1.5,
+    0.0,
+    0.525
+   ],
+   "size": [
+    3.24,
+    3.24,
+    1.05
+   ]
+  },
+  {
+   "piece": "SpawnDais",
+   "name": "SpawnDais_Top",
+   "material": "ConcretePolishedInlay",
+   "look": {
+    "material": "Concrete",
+    "color": "F2EADB",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 32,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    20.0,
+    20.0,
+    0.0
+   ]
+  },
+  {
+   "piece": "SpawnDais",
+   "name": "SpawnDais_OakBand",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 64,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    23.2,
+    23.2,
+    0.0
+   ]
+  },
+  {
+   "piece": "SpawnDais",
+   "name": "SpawnDais_Rim",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    0.25
+   ],
+   "size": [
+    24.0,
+    24.0,
+    0.5
+   ]
+  },
+  {
+   "piece": "SpawnDais",
+   "name": "SpawnDais_CompassRing",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 64,
+   "center": [
+    0.0,
+    0.0,
+    0.53
+   ],
+   "size": [
+    19.9,
+    19.9,
+    0.0
+   ]
+  },
+  {
+   "piece": "SpawnDais",
+   "name": "SpawnDais_CompassBrass",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    0.0,
+    1.35,
+    0.54
+   ],
+   "size": [
+    17.2,
+    19.9,
+    0.01
+   ]
+  },
+  {
+   "piece": "SpawnDais",
+   "name": "SpawnDais_CompassSteel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    0.0,
+    1.35,
+    0.54
+   ],
+   "size": [
+    17.2,
+    19.9,
+    0.01
+   ]
+  },
+  {
+   "piece": "TitleBand_26",
+   "name": "TitleBand_26_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.25,
+    0.0,
+    5.0
+   ],
+   "size": [
+    0.5,
+    26.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "TitleBand_26",
+   "name": "TitleBand_26_Backing",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.1,
+    0.0,
+    5.0
+   ],
+   "size": [
+    0.2,
+    25.2,
+    9.2
+   ]
+  },
+  {
+   "piece": "TitleBand_26",
+   "name": "TitleBand_26_Strip_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.31,
+    0.0,
+    0.55
+   ],
+   "size": [
+    0.22,
+    25.2,
+    0.3
+   ]
+  },
+  {
+   "piece": "TitleBand_40",
+   "name": "TitleBand_40_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.25,
+    0.0,
+    5.0
+   ],
+   "size": [
+    0.5,
+    40.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "TitleBand_40",
+   "name": "TitleBand_40_Backing",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.1,
+    0.0,
+    5.0
+   ],
+   "size": [
+    0.2,
+    39.2,
+    9.2
+   ]
+  },
+  {
+   "piece": "TitleBand_40",
+   "name": "TitleBand_40_Strip_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.31,
+    0.0,
+    0.55
+   ],
+   "size": [
+    0.22,
+    39.2,
+    0.3
+   ]
+  }
+ ],
+ "tris": 6386
+}

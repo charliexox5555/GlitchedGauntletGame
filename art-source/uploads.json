@@ -179,6 +179,114 @@
   "type": "Audio",
   "uploaded": "2026-10-25 12:37:39"
  },
+ "art-source/lobby/textures/Lobby_ConcreteBoard_color.png": {
+  "assetId": 133857331280168,
+  "name": "GG Lobby Lobby_ConcreteBoard color",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:08:22"
+ },
+ "art-source/lobby/textures/Lobby_ConcreteBoard_normal.png": {
+  "assetId": 112833027753802,
+  "name": "GG Lobby Lobby_ConcreteBoard normal",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:08:28"
+ },
+ "art-source/lobby/textures/Lobby_ConcreteBoard_roughness.png": {
+  "assetId": 95074301316475,
+  "name": "GG Lobby Lobby_ConcreteBoard roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:08:34"
+ },
+ "art-source/lobby/textures/Lobby_ConcreteDark_color.png": {
+  "assetId": 92738866064070,
+  "name": "GG Lobby Lobby_ConcreteDark color",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:11:09"
+ },
+ "art-source/lobby/textures/Lobby_ConcreteDark_normal.png": {
+  "assetId": 88477065619092,
+  "name": "GG Lobby Lobby_ConcreteDark normal",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:04:11"
+ },
+ "art-source/lobby/textures/Lobby_ConcreteDark_roughness.png": {
+  "assetId": 131627126738383,
+  "name": "GG Lobby Lobby_ConcreteDark roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:04:17"
+ },
+ "art-source/lobby/textures/Lobby_ConcretePolished_color.png": {
+  "assetId": 139344717425849,
+  "name": "GG Lobby Lobby_ConcretePolished color",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:03:46"
+ },
+ "art-source/lobby/textures/Lobby_ConcretePolished_normal.png": {
+  "assetId": 90174249800955,
+  "name": "GG Lobby Lobby_ConcretePolished normal",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:03:56"
+ },
+ "art-source/lobby/textures/Lobby_ConcretePolished_roughness.png": {
+  "assetId": 105579247063552,
+  "name": "GG Lobby Lobby_ConcretePolished roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:08:40"
+ },
+ "art-source/lobby/textures/Lobby_Oak_color.png": {
+  "assetId": 87114986692220,
+  "name": "GG Lobby Lobby_Oak color",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:04:55"
+ },
+ "art-source/lobby/textures/Lobby_Oak_normal.png": {
+  "assetId": 131449746588615,
+  "name": "GG Lobby Lobby_Oak normal",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:05:05"
+ },
+ "art-source/lobby/textures/Lobby_Oak_roughness.png": {
+  "assetId": 86253188632153,
+  "name": "GG Lobby Lobby_Oak roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:05:08"
+ },
+ "art-source/lobby/textures/Lobby_Rock_color.png": {
+  "assetId": 136720975761218,
+  "name": "GG Lobby Lobby_Rock color",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:12:22"
+ },
+ "art-source/lobby/textures/Lobby_Rock_normal.png": {
+  "assetId": 96269806037115,
+  "name": "GG Lobby Lobby_Rock normal",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:12:25"
+ },
+ "art-source/lobby/textures/Lobby_Rock_roughness.png": {
+  "assetId": 126895190685602,
+  "name": "GG Lobby Lobby_Rock roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:12:28"
+ },
+ "art-source/lobby/textures/Lobby_Terrazzo_color.png": {
+  "assetId": 136365333239307,
+  "name": "GG Lobby Lobby_Terrazzo color",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:04:23"
+ },
+ "art-source/lobby/textures/Lobby_Terrazzo_normal.png": {
+  "assetId": 72776392150231,
+  "name": "GG Lobby Lobby_Terrazzo normal",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:04:33"
+ },
+ "art-source/lobby/textures/Lobby_Terrazzo_roughness.png": {
+  "assetId": 75281924898523,
+  "name": "GG Lobby Lobby_Terrazzo roughness",
+  "type": "Decal",
+  "uploaded": "2026-10-29 19:08:46"
+ },
  "art-source/vfx/abilities/dash/dash_air_burst_2x2.png": {
   "assetId": 113880445566591,
   "name": "GG VFX dash_air_burst_2x2",

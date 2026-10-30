@@ -1,0 +1,2465 @@
+{
+ "group": "Duels",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "BaySign_12": {
+   "props": {},
+   "parts": [
+    "BaySign_12_Frame",
+    "BaySign_12_Backer",
+    "BaySign_12_Strip_Glow"
+   ]
+  },
+  "BaySign_14": {
+   "props": {},
+   "parts": [
+    "BaySign_14_Frame",
+    "BaySign_14_Backer",
+    "BaySign_14_Strip_Glow"
+   ]
+  },
+  "BaySign_15": {
+   "props": {},
+   "parts": [
+    "BaySign_15_Frame",
+    "BaySign_15_Backer",
+    "BaySign_15_Strip_Glow"
+   ]
+  },
+  "BaySign_9": {
+   "props": {},
+   "parts": [
+    "BaySign_9_Frame",
+    "BaySign_9_Backer",
+    "BaySign_9_Strip_Glow"
+   ]
+  },
+  "DuelsApseWall": {
+   "props": {},
+   "parts": [
+    "DuelsApseWall_Wall",
+    "DuelsApseWall_Toe",
+    "DuelsApseWall_Band",
+    "DuelsApseWall_Gap_Glow"
+   ]
+  },
+  "DuelsArch": {
+   "props": {},
+   "parts": [
+    "DuelsArch_Frame",
+    "DuelsArch_TitleBezel",
+    "DuelsArch_TitleBacker",
+    "DuelsArch_Strip_Glow",
+    "DuelsArch_Edge_Glow",
+    "DuelsArch_TallyHousing",
+    "DuelsArch_Tally_Glow"
+   ]
+  },
+  "DuelsBayShell_12": {
+   "props": {},
+   "parts": [
+    "DuelsBayShell_12_Shell",
+    "DuelsBayShell_12_Toe",
+    "DuelsBayShell_12_Kerb",
+    "DuelsBayShell_12_SignRecess",
+    "DuelsBayShell_12_Grazer_Glow",
+    "DuelsBayShell_12_Coffer_Glow"
+   ]
+  },
+  "DuelsBayShell_15": {
+   "props": {},
+   "parts": [
+    "DuelsBayShell_15_Shell",
+    "DuelsBayShell_15_Toe",
+    "DuelsBayShell_15_Kerb",
+    "DuelsBayShell_15_SignRecess",
+    "DuelsBayShell_15_Grazer_Glow",
+    "DuelsBayShell_15_Coffer_Glow"
+   ]
+  },
+  "DuelsBayShell_17": {
+   "props": {},
+   "parts": [
+    "DuelsBayShell_17_Shell",
+    "DuelsBayShell_17_Toe",
+    "DuelsBayShell_17_Kerb",
+    "DuelsBayShell_17_SignRecess",
+    "DuelsBayShell_17_Grazer_Glow",
+    "DuelsBayShell_17_Coffer_Glow"
+   ]
+  },
+  "DuelsBayShell_18": {
+   "props": {},
+   "parts": [
+    "DuelsBayShell_18_Shell",
+    "DuelsBayShell_18_Toe",
+    "DuelsBayShell_18_Kerb",
+    "DuelsBayShell_18_SignRecess",
+    "DuelsBayShell_18_Grazer_Glow",
+    "DuelsBayShell_18_Coffer_Glow"
+   ]
+  },
+  "DuelsGap_12": {
+   "props": {},
+   "parts": [
+    "DuelsGap_12_Band",
+    "DuelsGap_12_Gap_Glow"
+   ]
+  },
+  "DuelsRock_A": {
+   "props": {},
+   "parts": [
+    "DuelsRock_A_Rock"
+   ]
+  },
+  "DuelsRock_B": {
+   "props": {},
+   "parts": [
+    "DuelsRock_B_Rock"
+   ]
+  },
+  "DuelsRock_C": {
+   "props": {},
+   "parts": [
+    "DuelsRock_C_Rock"
+   ]
+  },
+  "DuelsTruss_22": {
+   "props": {},
+   "parts": [
+    "DuelsTruss_22_Truss"
+   ]
+  },
+  "DuelsTruss_76": {
+   "props": {},
+   "parts": [
+    "DuelsTruss_76_Truss"
+   ]
+  },
+  "GauntletDais": {
+   "props": {},
+   "parts": [
+    "GauntletDais_Apron",
+    "GauntletDais_Low",
+    "GauntletDais_Nose",
+    "GauntletDais_Top",
+    "GauntletDais_Ring_Glow",
+    "GauntletDais_Riser_Glow"
+   ]
+  },
+  "GauntletGate": {
+   "props": {},
+   "parts": [
+    "GauntletGate_Frame",
+    "GauntletGate_Shutter",
+    "GauntletGate_TitleBezel",
+    "GauntletGate_TitleBacker",
+    "GauntletGate_Strip_Glow",
+    "GauntletGate_Edge_Glow",
+    "GauntletGate_Slit_Glow"
+   ]
+  },
+  "QueuePad_12": {
+   "props": {},
+   "parts": [
+    "QueuePad_12_Base",
+    "QueuePad_12_Deck",
+    "QueuePad_12_Channel",
+    "QueuePad_12_Ring_Glow",
+    "QueuePad_12_Inlay"
+   ]
+  },
+  "QueuePad_15": {
+   "props": {},
+   "parts": [
+    "QueuePad_15_Base",
+    "QueuePad_15_Deck",
+    "QueuePad_15_Channel",
+    "QueuePad_15_Ring_Glow",
+    "QueuePad_15_Inlay"
+   ]
+  },
+  "QueuePad_17": {
+   "props": {},
+   "parts": [
+    "QueuePad_17_Base",
+    "QueuePad_17_Deck",
+    "QueuePad_17_Channel",
+    "QueuePad_17_Ring_Glow",
+    "QueuePad_17_Inlay"
+   ]
+  },
+  "QueuePad_18": {
+   "props": {},
+   "parts": [
+    "QueuePad_18_Base",
+    "QueuePad_18_Deck",
+    "QueuePad_18_Channel",
+    "QueuePad_18_Ring_Glow",
+    "QueuePad_18_Inlay"
+   ]
+  },
+  "QueuePad_G18": {
+   "props": {},
+   "parts": [
+    "QueuePad_G18_Base",
+    "QueuePad_G18_Deck",
+    "QueuePad_G18_Channel",
+    "QueuePad_G18_Ring_Glow",
+    "QueuePad_G18_Inlay"
+   ]
+  },
+  "QueueTerminal": {
+   "props": {},
+   "parts": [
+    "QueueTerminal_Body",
+    "QueueTerminal_Toe",
+    "QueueTerminal_Toe_Glow",
+    "QueueTerminal_Bezel",
+    "QueueTerminal_Screen",
+    "QueueTerminal_Ledge",
+    "QueueTerminal_Tally_Glow"
+   ]
+  },
+  "SignFrame_11x3": {
+   "props": {},
+   "parts": [
+    "SignFrame_11x3_Frame",
+    "SignFrame_11x3_Backer",
+    "SignFrame_11x3_Strip_Glow"
+   ]
+  },
+  "SignFrame_14x45": {
+   "props": {},
+   "parts": [
+    "SignFrame_14x45_Frame",
+    "SignFrame_14x45_Backer",
+    "SignFrame_14x45_Strip_Glow"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "BaySign_12",
+   "name": "BaySign_12_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.3,
+    0.0,
+    3.575
+   ],
+   "size": [
+    0.6,
+    12.8,
+    7.15
+   ]
+  },
+  {
+   "piece": "BaySign_12",
+   "name": "BaySign_12_Backer",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.02,
+    0.0,
+    3.575
+   ],
+   "size": [
+    0.04,
+    12.0,
+    6.35
+   ]
+  },
+  {
+   "piece": "BaySign_12",
+   "name": "BaySign_12_Strip_Glow",
+   "material": "Glow_2v2",
+   "look": {
+    "material": "Neon",
+    "color": "3B8CFF"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.21,
+    0.0,
+    0.575
+   ],
+   "size": [
+    0.26,
+    12.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "BaySign_14",
+   "name": "BaySign_14_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.3,
+    0.0,
+    3.575
+   ],
+   "size": [
+    0.6,
+    14.8,
+    7.15
+   ]
+  },
+  {
+   "piece": "BaySign_14",
+   "name": "BaySign_14_Backer",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.02,
+    0.0,
+    3.575
+   ],
+   "size": [
+    0.04,
+    14.0,
+    6.35
+   ]
+  },
+  {
+   "piece": "BaySign_14",
+   "name": "BaySign_14_Strip_Glow",
+   "material": "Glow_3v3",
+   "look": {
+    "material": "Neon",
+    "color": "9B5CFF"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.21,
+    0.0,
+    0.575
+   ],
+   "size": [
+    0.26,
+    14.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "BaySign_15",
+   "name": "BaySign_15_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.3,
+    0.0,
+    3.575
+   ],
+   "size": [
+    0.6,
+    15.8,
+    7.15
+   ]
+  },
+  {
+   "piece": "BaySign_15",
+   "name": "BaySign_15_Backer",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.02,
+    0.0,
+    3.575
+   ],
+   "size": [
+    0.04,
+    15.0,
+    6.35
+   ]
+  },
+  {
+   "piece": "BaySign_15",
+   "name": "BaySign_15_Strip_Glow",
+   "material": "Glow_4v4",
+   "look": {
+    "material": "Neon",
+    "color": "FF7A1A"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.21,
+    0.0,
+    0.575
+   ],
+   "size": [
+    0.26,
+    15.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "BaySign_9",
+   "name": "BaySign_9_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.3,
+    0.0,
+    3.575
+   ],
+   "size": [
+    0.6,
+    9.8,
+    7.15
+   ]
+  },
+  {
+   "piece": "BaySign_9",
+   "name": "BaySign_9_Backer",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.02,
+    0.0,
+    3.575
+   ],
+   "size": [
+    0.04,
+    9.0,
+    6.35
+   ]
+  },
+  {
+   "piece": "BaySign_9",
+   "name": "BaySign_9_Strip_Glow",
+   "material": "Glow_1v1",
+   "look": {
+    "material": "Neon",
+    "color": "3DDC84"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.21,
+    0.0,
+    0.575
+   ],
+   "size": [
+    0.26,
+    9.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "DuelsApseWall",
+   "name": "DuelsApseWall_Wall",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.2,
+    0.0,
+    8.225
+   ],
+   "size": [
+    0.4,
+    7.12,
+    15.55
+   ]
+  },
+  {
+   "piece": "DuelsApseWall",
+   "name": "DuelsApseWall_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    0.15,
+    0.0,
+    0.225
+   ],
+   "size": [
+    0.3,
+    7.12,
+    0.45
+   ]
+  },
+  {
+   "piece": "DuelsApseWall",
+   "name": "DuelsApseWall_Band",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.56,
+    0.0,
+    16.36
+   ],
+   "size": [
+    0.32,
+    7.12,
+    0.72
+   ]
+  },
+  {
+   "piece": "DuelsApseWall",
+   "name": "DuelsApseWall_Gap_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.58,
+    0.0,
+    16.54
+   ],
+   "size": [
+    0.12,
+    7.12,
+    0.12
+   ]
+  },
+  {
+   "piece": "DuelsArch",
+   "name": "DuelsArch_Frame",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 112,
+   "center": [
+    2.0,
+    0.0,
+    13.5
+   ],
+   "size": [
+    4.1,
+    30.0,
+    27.0
+   ]
+  },
+  {
+   "piece": "DuelsArch",
+   "name": "DuelsArch_TitleBezel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    4.275,
+    0.0,
+    20.875
+   ],
+   "size": [
+    0.55,
+    20.8,
+    9.05
+   ]
+  },
+  {
+   "piece": "DuelsArch",
+   "name": "DuelsArch_TitleBacker",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    4.05,
+    0.0,
+    21.0
+   ],
+   "size": [
+    0.04,
+    20.0,
+    8.0
+   ]
+  },
+  {
+   "piece": "DuelsArch",
+   "name": "DuelsArch_Strip_Glow",
+   "material": "Glow_1v1",
+   "look": {
+    "material": "Neon",
+    "color": "3DDC84"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    4.58,
+    0.0,
+    16.675
+   ],
+   "size": [
+    0.06,
+    19.2,
+    0.25
+   ]
+  },
+  {
+   "piece": "DuelsArch",
+   "name": "DuelsArch_Edge_Glow",
+   "material": "Glow_DuelsRed",
+   "look": {
+    "material": "Neon",
+    "color": "B3262E"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    3.575,
+    0.0,
+    15.95
+   ],
+   "size": [
+    0.25,
+    15.7,
+    0.1
+   ]
+  },
+  {
+   "piece": "DuelsArch",
+   "name": "DuelsArch_TallyHousing",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    3.35,
+    0.0,
+    11.5
+   ],
+   "size": [
+    0.7,
+    21.9,
+    2.2
+   ]
+  },
+  {
+   "piece": "DuelsArch",
+   "name": "DuelsArch_Tally_Glow",
+   "material": "Glow_DuelsRed",
+   "look": {
+    "material": "Neon",
+    "color": "B3262E"
+   },
+   "glow": true,
+   "tris": 24,
+   "center": [
+    3.35,
+    0.0,
+    11.5
+   ],
+   "size": [
+    0.3,
+    21.74,
+    1.8
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_12",
+   "name": "DuelsBayShell_12_Shell",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 148,
+   "center": [
+    7.5,
+    0.0,
+    8.0
+   ],
+   "size": [
+    15.0,
+    14.0,
+    16.0
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_12",
+   "name": "DuelsBayShell_12_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.925,
+    0.0,
+    0.225
+   ],
+   "size": [
+    1.85,
+    12.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_12",
+   "name": "DuelsBayShell_12_Kerb",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    14.49,
+    0.0,
+    0.15
+   ],
+   "size": [
+    0.98,
+    13.96,
+    0.3
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_12",
+   "name": "DuelsBayShell_12_SignRecess",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    2.02,
+    0.0,
+    9.3
+   ],
+   "size": [
+    0.08,
+    10.8,
+    8.4
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_12",
+   "name": "DuelsBayShell_12_Grazer_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    2.625,
+    0.0,
+    15.225
+   ],
+   "size": [
+    0.13,
+    11.2,
+    0.15
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_12",
+   "name": "DuelsBayShell_12_Coffer_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    8.0,
+    0.0,
+    15.41
+   ],
+   "size": [
+    7.8,
+    7.8,
+    0.14
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_15",
+   "name": "DuelsBayShell_15_Shell",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 148,
+   "center": [
+    9.0,
+    0.0,
+    8.0
+   ],
+   "size": [
+    18.0,
+    17.0,
+    16.0
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_15",
+   "name": "DuelsBayShell_15_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.925,
+    0.0,
+    0.225
+   ],
+   "size": [
+    1.85,
+    15.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_15",
+   "name": "DuelsBayShell_15_Kerb",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    17.49,
+    0.0,
+    0.15
+   ],
+   "size": [
+    0.98,
+    16.96,
+    0.3
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_15",
+   "name": "DuelsBayShell_15_SignRecess",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    2.02,
+    0.0,
+    9.3
+   ],
+   "size": [
+    0.08,
+    13.8,
+    8.4
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_15",
+   "name": "DuelsBayShell_15_Grazer_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    2.625,
+    0.0,
+    15.225
+   ],
+   "size": [
+    0.13,
+    14.2,
+    0.15
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_15",
+   "name": "DuelsBayShell_15_Coffer_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    9.5,
+    0.0,
+    15.41
+   ],
+   "size": [
+    10.8,
+    10.8,
+    0.14
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_17",
+   "name": "DuelsBayShell_17_Shell",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 148,
+   "center": [
+    9.5,
+    0.0,
+    8.0
+   ],
+   "size": [
+    19.0,
+    19.0,
+    16.0
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_17",
+   "name": "DuelsBayShell_17_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.925,
+    0.0,
+    0.225
+   ],
+   "size": [
+    1.85,
+    17.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_17",
+   "name": "DuelsBayShell_17_Kerb",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    18.49,
+    0.0,
+    0.15
+   ],
+   "size": [
+    0.98,
+    18.96,
+    0.3
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_17",
+   "name": "DuelsBayShell_17_SignRecess",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    2.02,
+    0.0,
+    9.3
+   ],
+   "size": [
+    0.08,
+    15.8,
+    8.4
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_17",
+   "name": "DuelsBayShell_17_Grazer_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    2.625,
+    0.0,
+    15.225
+   ],
+   "size": [
+    0.13,
+    16.2,
+    0.15
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_17",
+   "name": "DuelsBayShell_17_Coffer_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    10.0,
+    0.0,
+    15.41
+   ],
+   "size": [
+    11.8,
+    12.8,
+    0.14
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_18",
+   "name": "DuelsBayShell_18_Shell",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 148,
+   "center": [
+    10.0,
+    0.0,
+    8.0
+   ],
+   "size": [
+    20.0,
+    20.0,
+    16.0
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_18",
+   "name": "DuelsBayShell_18_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.925,
+    0.0,
+    0.225
+   ],
+   "size": [
+    1.85,
+    18.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_18",
+   "name": "DuelsBayShell_18_Kerb",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    19.49,
+    0.0,
+    0.15
+   ],
+   "size": [
+    0.98,
+    19.96,
+    0.3
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_18",
+   "name": "DuelsBayShell_18_SignRecess",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    2.02,
+    0.0,
+    9.3
+   ],
+   "size": [
+    0.08,
+    16.8,
+    8.4
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_18",
+   "name": "DuelsBayShell_18_Grazer_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    2.625,
+    0.0,
+    15.225
+   ],
+   "size": [
+    0.13,
+    17.2,
+    0.15
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_18",
+   "name": "DuelsBayShell_18_Coffer_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    10.5,
+    0.0,
+    15.41
+   ],
+   "size": [
+    12.8,
+    13.8,
+    0.14
+   ]
+  },
+  {
+   "piece": "DuelsGap_12",
+   "name": "DuelsGap_12_Band",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.16,
+    0.0,
+    0.36
+   ],
+   "size": [
+    0.32,
+    12.0,
+    0.72
+   ]
+  },
+  {
+   "piece": "DuelsGap_12",
+   "name": "DuelsGap_12_Gap_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.18,
+    0.0,
+    0.54
+   ],
+   "size": [
+    0.12,
+    12.0,
+    0.12
+   ]
+  },
+  {
+   "piece": "DuelsRock_A",
+   "name": "DuelsRock_A_Rock",
+   "material": "RockDuels",
+   "look": {
+    "material": "Slate",
+    "color": "2E2F33",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 166,
+   "center": [
+    0.9695,
+    0.0,
+    6.0
+   ],
+   "size": [
+    1.20043,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "DuelsRock_B",
+   "name": "DuelsRock_B_Rock",
+   "material": "RockDuels",
+   "look": {
+    "material": "Slate",
+    "color": "2E2F33",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    1.15543,
+    0.0,
+    6.0
+   ],
+   "size": [
+    0.88913,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "DuelsRock_C",
+   "name": "DuelsRock_C_Rock",
+   "material": "RockDuels",
+   "look": {
+    "material": "Slate",
+    "color": "2E2F33",
+    "variant": "Lobby_Rock"
+   },
+   "glow": false,
+   "tris": 162,
+   "center": [
+    0.9467,
+    0.0,
+    6.0
+   ],
+   "size": [
+    1.24861,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "DuelsTruss_22",
+   "name": "DuelsTruss_22_Truss",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 290,
+   "center": [
+    0.0,
+    0.0,
+    23.0
+   ],
+   "size": [
+    0.7,
+    23.45,
+    4.0
+   ]
+  },
+  {
+   "piece": "DuelsTruss_76",
+   "name": "DuelsTruss_76_Truss",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 530,
+   "center": [
+    0.0,
+    0.0,
+    30.9
+   ],
+   "size": [
+    0.7,
+    76.05,
+    5.0
+   ]
+  },
+  {
+   "piece": "GauntletDais",
+   "name": "GauntletDais_Apron",
+   "material": "AisleDark",
+   "look": {
+    "material": "Concrete",
+    "color": "242528",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 144,
+   "center": [
+    0.0,
+    0.0,
+    0.055
+   ],
+   "size": [
+    40.0,
+    40.0,
+    0.11
+   ]
+  },
+  {
+   "piece": "GauntletDais",
+   "name": "GauntletDais_Low",
+   "material": "PadDeck",
+   "look": {
+    "material": "Concrete",
+    "color": "7A7771",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 288,
+   "center": [
+    0.0,
+    0.0,
+    0.3
+   ],
+   "size": [
+    32.0,
+    32.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "GauntletDais",
+   "name": "GauntletDais_Nose",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    0.51
+   ],
+   "size": [
+    32.08,
+    32.08,
+    0.18
+   ]
+  },
+  {
+   "piece": "GauntletDais",
+   "name": "GauntletDais_Top",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.0,
+    0.9
+   ],
+   "size": [
+    24.0,
+    24.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "GauntletDais",
+   "name": "GauntletDais_Ring_Glow",
+   "material": "Glow_Gauntlet",
+   "look": {
+    "material": "Neon",
+    "color": "FFC83D"
+   },
+   "glow": true,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    1.2
+   ],
+   "size": [
+    21.2,
+    21.2,
+    0.08
+   ]
+  },
+  {
+   "piece": "GauntletDais",
+   "name": "GauntletDais_Riser_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    0.73
+   ],
+   "size": [
+    24.04,
+    24.04,
+    0.14
+   ]
+  },
+  {
+   "piece": "GauntletGate",
+   "name": "GauntletGate_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 128,
+   "center": [
+    2.0,
+    0.0,
+    15.025
+   ],
+   "size": [
+    4.1,
+    42.1,
+    30.05
+   ]
+  },
+  {
+   "piece": "GauntletGate",
+   "name": "GauntletGate_Shutter",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 758,
+   "center": [
+    0.675,
+    0.0,
+    13.0
+   ],
+   "size": [
+    0.55,
+    34.0,
+    26.0
+   ]
+  },
+  {
+   "piece": "GauntletGate",
+   "name": "GauntletGate_TitleBezel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    4.275,
+    0.0,
+    12.85
+   ],
+   "size": [
+    0.55,
+    34.0,
+    13.3
+   ]
+  },
+  {
+   "piece": "GauntletGate",
+   "name": "GauntletGate_TitleBacker",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    2.475,
+    0.0,
+    13.0
+   ],
+   "size": [
+    3.05,
+    34.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "GauntletGate",
+   "name": "GauntletGate_Strip_Glow",
+   "material": "Glow_Gauntlet",
+   "look": {
+    "material": "Neon",
+    "color": "FFC83D"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    4.58,
+    0.0,
+    6.575
+   ],
+   "size": [
+    0.06,
+    32.8,
+    0.35
+   ]
+  },
+  {
+   "piece": "GauntletGate",
+   "name": "GauntletGate_Edge_Glow",
+   "material": "Glow_DuelsRed",
+   "look": {
+    "material": "Neon",
+    "color": "B3262E"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    3.35,
+    0.0,
+    25.925
+   ],
+   "size": [
+    0.3,
+    33.8,
+    0.15
+   ]
+  },
+  {
+   "piece": "GauntletGate",
+   "name": "GauntletGate_Slit_Glow",
+   "material": "Glow_Gauntlet",
+   "look": {
+    "material": "Neon",
+    "color": "FFC83D"
+   },
+   "glow": true,
+   "tris": 24,
+   "center": [
+    4.075,
+    0.0,
+    12.75
+   ],
+   "size": [
+    0.05,
+    38.3,
+    23.5
+   ]
+  },
+  {
+   "piece": "QueuePad_12",
+   "name": "QueuePad_12_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    12.0,
+    12.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_12",
+   "name": "QueuePad_12_Deck",
+   "material": "PadDeck",
+   "look": {
+    "material": "Concrete",
+    "color": "7A7771",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    10.0,
+    10.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_12",
+   "name": "QueuePad_12_Channel",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    12.0,
+    12.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_12",
+   "name": "QueuePad_12_Ring_Glow",
+   "material": "Glow_1v1",
+   "look": {
+    "material": "Neon",
+    "color": "3DDC84"
+   },
+   "glow": true,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.21
+   ],
+   "size": [
+    11.6,
+    11.6,
+    0.42
+   ]
+  },
+  {
+   "piece": "QueuePad_12",
+   "name": "QueuePad_12_Inlay",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.5075
+   ],
+   "size": [
+    8.12,
+    8.12,
+    0.035
+   ]
+  },
+  {
+   "piece": "QueuePad_15",
+   "name": "QueuePad_15_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    15.0,
+    15.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_15",
+   "name": "QueuePad_15_Deck",
+   "material": "PadDeck",
+   "look": {
+    "material": "Concrete",
+    "color": "7A7771",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    13.0,
+    13.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_15",
+   "name": "QueuePad_15_Channel",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    15.0,
+    15.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_15",
+   "name": "QueuePad_15_Ring_Glow",
+   "material": "Glow_2v2",
+   "look": {
+    "material": "Neon",
+    "color": "3B8CFF"
+   },
+   "glow": true,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.21
+   ],
+   "size": [
+    14.6,
+    14.6,
+    0.42
+   ]
+  },
+  {
+   "piece": "QueuePad_15",
+   "name": "QueuePad_15_Inlay",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.5075
+   ],
+   "size": [
+    11.12,
+    11.12,
+    0.035
+   ]
+  },
+  {
+   "piece": "QueuePad_17",
+   "name": "QueuePad_17_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    16.0,
+    17.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_17",
+   "name": "QueuePad_17_Deck",
+   "material": "PadDeck",
+   "look": {
+    "material": "Concrete",
+    "color": "7A7771",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    14.0,
+    15.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_17",
+   "name": "QueuePad_17_Channel",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    16.0,
+    17.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_17",
+   "name": "QueuePad_17_Ring_Glow",
+   "material": "Glow_3v3",
+   "look": {
+    "material": "Neon",
+    "color": "9B5CFF"
+   },
+   "glow": true,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.21
+   ],
+   "size": [
+    15.6,
+    16.6,
+    0.42
+   ]
+  },
+  {
+   "piece": "QueuePad_17",
+   "name": "QueuePad_17_Inlay",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.5075
+   ],
+   "size": [
+    12.12,
+    13.12,
+    0.035
+   ]
+  },
+  {
+   "piece": "QueuePad_18",
+   "name": "QueuePad_18_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    17.0,
+    18.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_18",
+   "name": "QueuePad_18_Deck",
+   "material": "PadDeck",
+   "look": {
+    "material": "Concrete",
+    "color": "7A7771",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    15.0,
+    16.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_18",
+   "name": "QueuePad_18_Channel",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    17.0,
+    18.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_18",
+   "name": "QueuePad_18_Ring_Glow",
+   "material": "Glow_4v4",
+   "look": {
+    "material": "Neon",
+    "color": "FF7A1A"
+   },
+   "glow": true,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.21
+   ],
+   "size": [
+    16.6,
+    17.6,
+    0.42
+   ]
+  },
+  {
+   "piece": "QueuePad_18",
+   "name": "QueuePad_18_Inlay",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.5075
+   ],
+   "size": [
+    13.12,
+    14.12,
+    0.035
+   ]
+  },
+  {
+   "piece": "QueuePad_G18",
+   "name": "QueuePad_G18_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    18.0,
+    18.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_G18",
+   "name": "QueuePad_G18_Deck",
+   "material": "PadDeck",
+   "look": {
+    "material": "Concrete",
+    "color": "7A7771",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    16.0,
+    16.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_G18",
+   "name": "QueuePad_G18_Channel",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.26
+   ],
+   "size": [
+    18.0,
+    18.0,
+    0.52
+   ]
+  },
+  {
+   "piece": "QueuePad_G18",
+   "name": "QueuePad_G18_Ring_Glow",
+   "material": "Glow_Gauntlet",
+   "look": {
+    "material": "Neon",
+    "color": "FFC83D"
+   },
+   "glow": true,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.21
+   ],
+   "size": [
+    17.6,
+    17.6,
+    0.42
+   ]
+  },
+  {
+   "piece": "QueuePad_G18",
+   "name": "QueuePad_G18_Inlay",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.5075
+   ],
+   "size": [
+    14.12,
+    14.12,
+    0.035
+   ]
+  },
+  {
+   "piece": "QueueTerminal",
+   "name": "QueueTerminal_Body",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 66,
+   "center": [
+    -0.03756,
+    0.0,
+    2.65
+   ],
+   "size": [
+    2.92488,
+    3.0,
+    4.6
+   ]
+  },
+  {
+   "piece": "QueueTerminal",
+   "name": "QueueTerminal_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    -0.525,
+    0.0,
+    0.18
+   ],
+   "size": [
+    1.65,
+    2.7,
+    0.36
+   ]
+  },
+  {
+   "piece": "QueueTerminal",
+   "name": "QueueTerminal_Toe_Glow",
+   "material": "Glow_Dim",
+   "look": {
+    "material": "Neon",
+    "color": "5E6E86"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.27,
+    0.0,
+    0.06
+   ],
+   "size": [
+    0.1,
+    2.6,
+    0.08
+   ]
+  },
+  {
+   "piece": "QueueTerminal",
+   "name": "QueueTerminal_Bezel",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.6948,
+    0.0,
+    4.24753
+   ],
+   "size": [
+    1.42721,
+    2.8,
+    1.25968
+   ]
+  },
+  {
+   "piece": "QueueTerminal",
+   "name": "QueueTerminal_Screen",
+   "material": "Screen",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0B0D10"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.72451,
+    0.0,
+    4.28134
+   ],
+   "size": [
+    1.22167,
+    2.5,
+    1.07872
+   ]
+  },
+  {
+   "piece": "QueueTerminal",
+   "name": "QueueTerminal_Ledge",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.075,
+    0.0,
+    3.27
+   ],
+   "size": [
+    1.35,
+    2.7,
+    0.18
+   ]
+  },
+  {
+   "piece": "QueueTerminal",
+   "name": "QueueTerminal_Tally_Glow",
+   "material": "Glow_DuelsRed",
+   "look": {
+    "material": "Neon",
+    "color": "B3262E"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    -1.0,
+    1.53,
+    4.65
+   ],
+   "size": [
+    0.4,
+    0.06,
+    0.2
+   ]
+  },
+  {
+   "piece": "SignFrame_11x3",
+   "name": "SignFrame_11x3_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.3,
+    0.0,
+    2.075
+   ],
+   "size": [
+    0.6,
+    11.8,
+    4.15
+   ]
+  },
+  {
+   "piece": "SignFrame_11x3",
+   "name": "SignFrame_11x3_Backer",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.02,
+    0.0,
+    2.075
+   ],
+   "size": [
+    0.04,
+    11.0,
+    3.35
+   ]
+  },
+  {
+   "piece": "SignFrame_11x3",
+   "name": "SignFrame_11x3_Strip_Glow",
+   "material": "Glow_DuelsRed",
+   "look": {
+    "material": "Neon",
+    "color": "B3262E"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.21,
+    0.0,
+    0.575
+   ],
+   "size": [
+    0.26,
+    11.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "SignFrame_14x45",
+   "name": "SignFrame_14x45_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.3,
+    0.0,
+    2.825
+   ],
+   "size": [
+    0.6,
+    14.8,
+    5.65
+   ]
+  },
+  {
+   "piece": "SignFrame_14x45",
+   "name": "SignFrame_14x45_Backer",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.02,
+    0.0,
+    2.825
+   ],
+   "size": [
+    0.04,
+    14.0,
+    4.85
+   ]
+  },
+  {
+   "piece": "SignFrame_14x45",
+   "name": "SignFrame_14x45_Strip_Glow",
+   "material": "Glow_DuelsRed",
+   "look": {
+    "material": "Neon",
+    "color": "B3262E"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.21,
+    0.0,
+    0.575
+   ],
+   "size": [
+    0.26,
+    14.0,
+    0.27
+   ]
+  }
+ ],
+ "tris": 7996
+}
