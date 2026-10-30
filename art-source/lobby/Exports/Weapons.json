@@ -1,0 +1,2830 @@
+{
+ "group": "Weapons",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "ArmouryDrum_R42": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "ArmouryDrum_R42_Head",
+    "ArmouryDrum_R42_Soffit",
+    "ArmouryDrum_R42_Shelf",
+    "ArmouryDrum_R42_Lip",
+    "ArmouryDrum_R42_Cornice_Glow"
+   ]
+  },
+  "ArmouryPier_R42": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "ArmouryPier_R42_Pier",
+    "ArmouryPier_R42_Shoe",
+    "ArmouryPier_R42_Rib"
+   ]
+  },
+  "DisplayRod": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "DisplayRod_Rod"
+   ]
+  },
+  "DisplaySaddle": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "DisplaySaddle_Saddle",
+    "DisplaySaddle_Foot"
+   ]
+  },
+  "FloorRing_R20": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "FloorRing_R20_Ring"
+   ]
+  },
+  "GunChapel": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "GunChapel_Stage",
+    "GunChapel_Nosing",
+    "GunChapel_Toe_Glow",
+    "GunChapel_Roof",
+    "GunChapel_Pelmet",
+    "GunChapel_Slot_Glow",
+    "GunChapel_Walls"
+   ]
+  },
+  "GunChapel_R50": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "GunChapel_R50_Stage",
+    "GunChapel_R50_Roof",
+    "GunChapel_R50_Pelmet",
+    "GunChapel_R50_Slot_Glow",
+    "GunChapel_R50_Nosing",
+    "GunChapel_R50_Toe_Glow",
+    "GunChapel_R50_Walls"
+   ]
+  },
+  "GunPlaque": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "GunPlaque_Body",
+    "GunPlaque_Foot"
+   ]
+  },
+  "GunTurntable": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "GunTurntable_Toe",
+    "GunTurntable_Drum",
+    "GunTurntable_Band",
+    "GunTurntable_Rim",
+    "GunTurntable_Deck",
+    "GunTurntable_Under_Glow"
+   ]
+  },
+  "GunTurntable_7": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "GunTurntable_7_Toe",
+    "GunTurntable_7_Drum",
+    "GunTurntable_7_Band",
+    "GunTurntable_7_Rim",
+    "GunTurntable_7_Deck",
+    "GunTurntable_7_Under_Glow"
+   ]
+  },
+  "HeroCradle": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "HeroCradle_Cradle",
+    "HeroCradle_Pad"
+   ]
+  },
+  "HeroDais": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "HeroDais_Lower",
+    "HeroDais_LowerTop",
+    "HeroDais_LowerNosing",
+    "HeroDais_Upper",
+    "HeroDais_UpperTop",
+    "HeroDais_UpperNosing",
+    "HeroDais_Gap_Glow",
+    "HeroDais_Channel",
+    "HeroDais_Ring_Glow"
+   ]
+  },
+  "HeroLectern": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "HeroLectern_Body",
+    "HeroLectern_Kick",
+    "HeroLectern_Face",
+    "HeroLectern_Kick_Glow"
+   ]
+  },
+  "HeroPylon": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "HeroPylon_Column"
+   ]
+  },
+  "HeroPylonBase": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "HeroPylonBase_Plinth",
+    "HeroPylonBase_Collar"
+   ]
+  },
+  "HeroPylonCollar": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "HeroPylonCollar_Collar",
+    "HeroPylonCollar_Ring"
+   ]
+  },
+  "LanternRing_R16": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "LanternRing_R16_Drum",
+    "LanternRing_R16_BaseRing",
+    "LanternRing_R16_Lip",
+    "LanternRing_R16_Cove_Glow",
+    "LanternRing_R16_Rim"
+   ]
+  },
+  "LoadoutTerminal": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "LoadoutTerminal_Body",
+    "LoadoutTerminal_Head",
+    "LoadoutTerminal_Kick",
+    "LoadoutTerminal_Screen",
+    "LoadoutTerminal_Kick_Glow"
+   ]
+  },
+  "LockerApse_R16": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "LockerApse_R16_Backing",
+    "LockerApse_R16_Plinth",
+    "LockerApse_R16_Pelmet",
+    "LockerApse_R16_Slats",
+    "LockerApse_R16_Wash_Glow"
+   ]
+  },
+  "LockerBacklight": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "LockerBacklight_Frame",
+    "LockerBacklight_Field",
+    "LockerBacklight_Edge_Glow",
+    "LockerBacklight_Stand"
+   ]
+  },
+  "LockerCheek": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "LockerCheek_Backing",
+    "LockerCheek_Plinth",
+    "LockerCheek_Slats",
+    "LockerCheek_Pelmet",
+    "LockerCheek_Wash_Glow"
+   ]
+  },
+  "LockerPedestal": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "LockerPedestal_Toe",
+    "LockerPedestal_Drum",
+    "LockerPedestal_Top",
+    "LockerPedestal_Toe_Glow"
+   ]
+  },
+  "Mannequin": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "Mannequin_Body",
+    "Mannequin_Feet",
+    "Mannequin_Base"
+   ]
+  },
+  "SignFrame_16x3": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "SignFrame_16x3_Frame",
+    "SignFrame_16x3_Panel",
+    "SignFrame_16x3_Strip_Glow"
+   ]
+  },
+  "SignFrame_16x6": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "SignFrame_16x6_Frame",
+    "SignFrame_16x6_Panel",
+    "SignFrame_16x6_Strip_Glow"
+   ]
+  },
+  "SignFrame_20x2": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "SignFrame_20x2_Frame",
+    "SignFrame_20x2_Panel",
+    "SignFrame_20x2_Strip_Glow"
+   ]
+  },
+  "SignFrame_5x1": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "SignFrame_5x1_Frame",
+    "SignFrame_5x1_Panel",
+    "SignFrame_5x1_Strip_Glow"
+   ]
+  },
+  "SteelFrame_135": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "SteelFrame_135_Frame",
+    "SteelFrame_135_Line_Glow"
+   ]
+  },
+  "SteelFrame_14": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "SteelFrame_14_Frame",
+    "SteelFrame_14_Line_Glow"
+   ]
+  },
+  "TrophyTab": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "TrophyTab_Tab",
+    "TrophyTab_Lip"
+   ]
+  },
+  "TrophyWall": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "TrophyWall_Tray",
+    "TrophyWall_Panel",
+    "TrophyWall_Frame",
+    "TrophyWall_Down_Glow"
+   ]
+  },
+  "TrophyWall_10": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "TrophyWall_10_Tray",
+    "TrophyWall_10_Panel",
+    "TrophyWall_10_Frame",
+    "TrophyWall_10_Down_Glow"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "ArmouryDrum_R42",
+   "name": "ArmouryDrum_R42_Head",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    4.29199,
+    42.59649,
+    24.3
+   ],
+   "size": [
+    8.58397,
+    2.80702,
+    11.4
+   ]
+  },
+  {
+   "piece": "ArmouryDrum_R42",
+   "name": "ArmouryDrum_R42_Soffit",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    4.29199,
+    42.54745,
+    18.3
+   ],
+   "size": [
+    8.58397,
+    2.9051,
+    0.6
+   ]
+  },
+  {
+   "piece": "ArmouryDrum_R42",
+   "name": "ArmouryDrum_R42_Shelf",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    4.0969,
+    41.1061,
+    28.55
+   ],
+   "size": [
+    8.19379,
+    1.7878,
+    0.3
+   ]
+  },
+  {
+   "piece": "ArmouryDrum_R42",
+   "name": "ArmouryDrum_R42_Lip",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    4.01398,
+    40.6811,
+    28.975
+   ],
+   "size": [
+    8.02797,
+    0.93781,
+    0.55
+   ]
+  },
+  {
+   "piece": "ArmouryDrum_R42",
+   "name": "ArmouryDrum_R42_Cornice_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 16,
+   "center": [
+    4.04812,
+    40.95418,
+    28.775
+   ],
+   "size": [
+    8.09625,
+    1.09165,
+    0.15
+   ]
+  },
+  {
+   "piece": "ArmouryPier_R42",
+   "name": "ArmouryPier_R42_Pier",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    41.25,
+    15.0
+   ],
+   "size": [
+    3.0,
+    2.5,
+    30.0
+   ]
+  },
+  {
+   "piece": "ArmouryPier_R42",
+   "name": "ArmouryPier_R42_Shoe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    41.19,
+    0.6
+   ],
+   "size": [
+    3.24,
+    2.62,
+    1.2
+   ]
+  },
+  {
+   "piece": "ArmouryPier_R42",
+   "name": "ArmouryPier_R42_Rib",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 38,
+   "center": [
+    0.0,
+    28.1,
+    28.50449
+   ],
+   "size": [
+    1.5,
+    23.8,
+    2.99102
+   ]
+  },
+  {
+   "piece": "DisplayRod",
+   "name": "DisplayRod_Rod",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    0.24727,
+    0.26,
+    1.0
+   ]
+  },
+  {
+   "piece": "DisplaySaddle",
+   "name": "DisplaySaddle_Saddle",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.08
+   ],
+   "size": [
+    0.7,
+    0.56,
+    0.16
+   ]
+  },
+  {
+   "piece": "DisplaySaddle",
+   "name": "DisplaySaddle_Foot",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 34,
+   "center": [
+    0.0,
+    0.0,
+    -0.02
+   ],
+   "size": [
+    0.61819,
+    0.61819,
+    0.08
+   ]
+  },
+  {
+   "piece": "FloorRing_R20",
+   "name": "FloorRing_R20_Ring",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    0.0325
+   ],
+   "size": [
+    40.4,
+    40.4,
+    0.065
+   ]
+  },
+  {
+   "piece": "GunChapel",
+   "name": "GunChapel_Stage",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    15.55597,
+    46.29233,
+    0.25
+   ],
+   "size": [
+    31.11193,
+    19.41534,
+    0.5
+   ]
+  },
+  {
+   "piece": "GunChapel",
+   "name": "GunChapel_Nosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    12.23996,
+    40.34975,
+    0.25
+   ],
+   "size": [
+    22.19488,
+    6.87176,
+    0.5
+   ]
+  },
+  {
+   "piece": "GunChapel",
+   "name": "GunChapel_Toe_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 10,
+   "center": [
+    15.48049,
+    51.03235,
+    0.56
+   ],
+   "size": [
+    28.85011,
+    8.85585,
+    0.12
+   ]
+  },
+  {
+   "piece": "GunChapel",
+   "name": "GunChapel_Roof",
+   "material": "ConcreteBoardSmoked",
+   "look": {
+    "material": "Concrete",
+    "color": "5A5955",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 105,
+   "center": [
+    15.55597,
+    45.46086,
+    18.8
+   ],
+   "size": [
+    31.11193,
+    21.07828,
+    1.6
+   ]
+  },
+  {
+   "piece": "GunChapel",
+   "name": "GunChapel_Pelmet",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    12.34351,
+    40.6309,
+    17.76
+   ],
+   "size": [
+    23.76236,
+    7.33334,
+    0.52
+   ]
+  },
+  {
+   "piece": "GunChapel",
+   "name": "GunChapel_Slot_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 28,
+   "center": [
+    12.40161,
+    40.83563,
+    18.775
+   ],
+   "size": [
+    23.25694,
+    7.15521,
+    0.15
+   ]
+  },
+  {
+   "piece": "GunChapel",
+   "name": "GunChapel_Walls",
+   "material": "ConcreteBoardSmoked",
+   "look": {
+    "material": "Concrete",
+    "color": "5A5955",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 120,
+   "center": [
+    15.77368,
+    46.50005,
+    9.8
+   ],
+   "size": [
+    32.57957,
+    22.10295,
+    19.6
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Stage",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    13.88926,
+    43.29233,
+    0.25
+   ],
+   "size": [
+    27.77851,
+    13.41534,
+    0.5
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Roof",
+   "material": "ConcreteBoardSmoked",
+   "look": {
+    "material": "Concrete",
+    "color": "5A5955",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 111,
+   "center": [
+    13.88926,
+    42.46086,
+    18.8
+   ],
+   "size": [
+    27.77851,
+    15.07828,
+    1.6
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Pelmet",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    12.34351,
+    40.6309,
+    17.76
+   ],
+   "size": [
+    23.76236,
+    7.33334,
+    0.52
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Slot_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 28,
+   "center": [
+    12.40161,
+    40.83563,
+    18.775
+   ],
+   "size": [
+    23.25694,
+    7.15521,
+    0.15
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Nosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 30,
+   "center": [
+    12.32252,
+    40.5772,
+    0.25
+   ],
+   "size": [
+    22.26052,
+    6.889,
+    0.5
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Toe_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 36,
+   "center": [
+    13.89439,
+    45.77014,
+    0.56
+   ],
+   "size": [
+    25.46307,
+    7.8264,
+    0.12
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Walls",
+   "material": "ConcreteBoardSmoked",
+   "look": {
+    "material": "Concrete",
+    "color": "5A5955",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 200,
+   "center": [
+    14.18848,
+    43.47558,
+    9.8
+   ],
+   "size": [
+    28.93485,
+    16.054,
+    19.6
+   ]
+  },
+  {
+   "piece": "GunPlaque",
+   "name": "GunPlaque_Body",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.56106
+   ],
+   "size": [
+    1.2,
+    6.0,
+    0.88211
+   ]
+  },
+  {
+   "piece": "GunPlaque",
+   "name": "GunPlaque_Foot",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.06
+   ],
+   "size": [
+    1.0,
+    5.6,
+    0.12
+   ]
+  },
+  {
+   "piece": "GunTurntable",
+   "name": "GunTurntable_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.15
+   ],
+   "size": [
+    8.57349,
+    8.57349,
+    0.3
+   ]
+  },
+  {
+   "piece": "GunTurntable",
+   "name": "GunTurntable_Drum",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.0,
+    1.425
+   ],
+   "size": [
+    9.27133,
+    9.27133,
+    2.25
+   ]
+  },
+  {
+   "piece": "GunTurntable",
+   "name": "GunTurntable_Band",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 160,
+   "center": [
+    0.0,
+    0.0,
+    1.26
+   ],
+   "size": [
+    9.4,
+    9.4,
+    0.12
+   ]
+  },
+  {
+   "piece": "GunTurntable",
+   "name": "GunTurntable_Rim",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.0,
+    2.7
+   ],
+   "size": [
+    10.0,
+    10.0,
+    0.4
+   ]
+  },
+  {
+   "piece": "GunTurntable",
+   "name": "GunTurntable_Deck",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 278,
+   "center": [
+    0.0,
+    0.0,
+    2.75
+   ],
+   "size": [
+    9.07195,
+    9.07195,
+    0.3
+   ]
+  },
+  {
+   "piece": "GunTurntable",
+   "name": "GunTurntable_Under_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 160,
+   "center": [
+    0.0,
+    0.0,
+    0.11
+   ],
+   "size": [
+    9.0,
+    9.0,
+    0.18
+   ]
+  },
+  {
+   "piece": "GunTurntable_7",
+   "name": "GunTurntable_7_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.15
+   ],
+   "size": [
+    6.00144,
+    6.00144,
+    0.3
+   ]
+  },
+  {
+   "piece": "GunTurntable_7",
+   "name": "GunTurntable_7_Drum",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.0,
+    1.425
+   ],
+   "size": [
+    6.48993,
+    6.48993,
+    2.25
+   ]
+  },
+  {
+   "piece": "GunTurntable_7",
+   "name": "GunTurntable_7_Band",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 160,
+   "center": [
+    0.0,
+    0.0,
+    1.26
+   ],
+   "size": [
+    6.58,
+    6.58,
+    0.12
+   ]
+  },
+  {
+   "piece": "GunTurntable_7",
+   "name": "GunTurntable_7_Rim",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.0,
+    2.7
+   ],
+   "size": [
+    7.0,
+    7.0,
+    0.4
+   ]
+  },
+  {
+   "piece": "GunTurntable_7",
+   "name": "GunTurntable_7_Deck",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 278,
+   "center": [
+    0.0,
+    0.0,
+    2.75
+   ],
+   "size": [
+    6.35036,
+    6.35036,
+    0.3
+   ]
+  },
+  {
+   "piece": "GunTurntable_7",
+   "name": "GunTurntable_7_Under_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 160,
+   "center": [
+    0.0,
+    0.0,
+    0.11
+   ],
+   "size": [
+    6.3,
+    6.3,
+    0.18
+   ]
+  },
+  {
+   "piece": "HeroCradle",
+   "name": "HeroCradle_Cradle",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.25
+   ],
+   "size": [
+    1.5,
+    1.8,
+    0.5
+   ]
+  },
+  {
+   "piece": "HeroCradle",
+   "name": "HeroCradle_Pad",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    0.37
+   ],
+   "size": [
+    1.4,
+    0.96,
+    0.32
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_Lower",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 190,
+   "center": [
+    0.0,
+    0.0,
+    0.31
+   ],
+   "size": [
+    25.66904,
+    25.66904,
+    0.62
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_LowerTop",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    0.71
+   ],
+   "size": [
+    25.7,
+    25.7,
+    0.18
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_LowerNosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    0.4
+   ],
+   "size": [
+    26.0,
+    26.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_Upper",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 190,
+   "center": [
+    0.0,
+    0.0,
+    1.11
+   ],
+   "size": [
+    19.67627,
+    19.67627,
+    0.62
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_UpperTop",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 190,
+   "center": [
+    0.0,
+    0.0,
+    1.51
+   ],
+   "size": [
+    19.67627,
+    19.67627,
+    0.18
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_UpperNosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    1.2
+   ],
+   "size": [
+    20.0,
+    20.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_Gap_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    0.86
+   ],
+   "size": [
+    20.16,
+    20.16,
+    0.08
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_Channel",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    0.125
+   ],
+   "size": [
+    27.1,
+    27.1,
+    0.25
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_Ring_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    0.1
+   ],
+   "size": [
+    26.76,
+    26.76,
+    0.2
+   ]
+  },
+  {
+   "piece": "HeroLectern",
+   "name": "HeroLectern_Body",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.8,
+    0.0,
+    1.06
+   ],
+   "size": [
+    1.6,
+    9.0,
+    1.88
+   ]
+  },
+  {
+   "piece": "HeroLectern",
+   "name": "HeroLectern_Kick",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.8,
+    0.0,
+    0.06
+   ],
+   "size": [
+    1.3,
+    8.7,
+    0.12
+   ]
+  },
+  {
+   "piece": "HeroLectern",
+   "name": "HeroLectern_Face",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    1.63,
+    0.0,
+    1.05
+   ],
+   "size": [
+    0.06,
+    8.4,
+    1.4
+   ]
+  },
+  {
+   "piece": "HeroLectern",
+   "name": "HeroLectern_Kick_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    1.42,
+    0.0,
+    0.06
+   ],
+   "size": [
+    0.08,
+    8.6,
+    0.08
+   ]
+  },
+  {
+   "piece": "HeroPylon",
+   "name": "HeroPylon_Column",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    0.88892,
+    0.88892,
+    1.0
+   ]
+  },
+  {
+   "piece": "HeroPylonBase",
+   "name": "HeroPylonBase_Plinth",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.175
+   ],
+   "size": [
+    1.7,
+    1.7,
+    0.35
+   ]
+  },
+  {
+   "piece": "HeroPylonBase",
+   "name": "HeroPylonBase_Collar",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 138,
+   "center": [
+    0.0,
+    0.0,
+    0.475
+   ],
+   "size": [
+    1.22473,
+    1.22473,
+    0.25
+   ]
+  },
+  {
+   "piece": "HeroPylonCollar",
+   "name": "HeroPylonCollar_Collar",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.0,
+    -0.225
+   ],
+   "size": [
+    1.18523,
+    1.18523,
+    0.45
+   ]
+  },
+  {
+   "piece": "HeroPylonCollar",
+   "name": "HeroPylonCollar_Ring",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    -0.24
+   ],
+   "size": [
+    1.26424,
+    1.26424,
+    0.12
+   ]
+  },
+  {
+   "piece": "LanternRing_R16",
+   "name": "LanternRing_R16_Drum",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    33.6
+   ],
+   "size": [
+    28.0,
+    28.0,
+    6.0
+   ]
+  },
+  {
+   "piece": "LanternRing_R16",
+   "name": "LanternRing_R16_BaseRing",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 288,
+   "center": [
+    0.0,
+    0.0,
+    30.27
+   ],
+   "size": [
+    32.4,
+    32.4,
+    0.66
+   ]
+  },
+  {
+   "piece": "LanternRing_R16",
+   "name": "LanternRing_R16_Lip",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 288,
+   "center": [
+    0.0,
+    0.0,
+    30.825
+   ],
+   "size": [
+    27.1,
+    27.1,
+    0.45
+   ]
+  },
+  {
+   "piece": "LanternRing_R16",
+   "name": "LanternRing_R16_Cove_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 384,
+   "center": [
+    0.0,
+    0.0,
+    30.675
+   ],
+   "size": [
+    27.7,
+    27.7,
+    0.15
+   ]
+  },
+  {
+   "piece": "LanternRing_R16",
+   "name": "LanternRing_R16_Rim",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 288,
+   "center": [
+    0.0,
+    0.0,
+    36.8
+   ],
+   "size": [
+    33.0,
+    33.0,
+    0.4
+   ]
+  },
+  {
+   "piece": "LoadoutTerminal",
+   "name": "LoadoutTerminal_Body",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    1.725
+   ],
+   "size": [
+    1.6,
+    3.0,
+    3.15
+   ]
+  },
+  {
+   "piece": "LoadoutTerminal",
+   "name": "LoadoutTerminal_Head",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 52,
+   "center": [
+    0.075,
+    0.0,
+    4.35
+   ],
+   "size": [
+    1.75,
+    3.0,
+    2.1
+   ]
+  },
+  {
+   "piece": "LoadoutTerminal",
+   "name": "LoadoutTerminal_Kick",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.0,
+    0.0,
+    0.075
+   ],
+   "size": [
+    1.4,
+    2.8,
+    0.15
+   ]
+  },
+  {
+   "piece": "LoadoutTerminal",
+   "name": "LoadoutTerminal_Screen",
+   "material": "Screen",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0B0D10"
+   },
+   "glow": false,
+   "tris": 2,
+   "center": [
+    0.75489,
+    0.0,
+    4.45103
+   ],
+   "size": [
+    0.3382,
+    2.6,
+    1.60644
+   ]
+  },
+  {
+   "piece": "LoadoutTerminal",
+   "name": "LoadoutTerminal_Kick_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.67,
+    0.0,
+    0.06
+   ],
+   "size": [
+    0.1,
+    2.7,
+    0.08
+   ]
+  },
+  {
+   "piece": "LockerApse_R16",
+   "name": "LockerApse_R16_Backing",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    1.59974,
+    16.0085,
+    10.75
+   ],
+   "size": [
+    3.19948,
+    0.783,
+    18.5
+   ]
+  },
+  {
+   "piece": "LockerApse_R16",
+   "name": "LockerApse_R16_Plinth",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    1.59974,
+    15.98398,
+    0.75
+   ],
+   "size": [
+    3.19948,
+    0.83204,
+    1.5
+   ]
+  },
+  {
+   "piece": "LockerApse_R16",
+   "name": "LockerApse_R16_Pelmet",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    1.55321,
+    15.47574,
+    19.65
+   ],
+   "size": [
+    3.10641,
+    0.89443,
+    0.7
+   ]
+  },
+  {
+   "piece": "LockerApse_R16",
+   "name": "LockerApse_R16_Slats",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    1.54615,
+    15.65733,
+    10.4
+   ],
+   "size": [
+    2.55204,
+    0.53607,
+    17.8
+   ]
+  },
+  {
+   "piece": "LockerApse_R16",
+   "name": "LockerApse_R16_Wash_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 20,
+   "center": [
+    1.52265,
+    15.4142,
+    19.21
+   ],
+   "size": [
+    2.82885,
+    0.37676,
+    0.18
+   ]
+  },
+  {
+   "piece": "LockerBacklight",
+   "name": "LockerBacklight_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 178,
+   "center": [
+    0.3,
+    0.0,
+    8.5
+   ],
+   "size": [
+    0.6,
+    10.0,
+    14.0
+   ]
+  },
+  {
+   "piece": "LockerBacklight",
+   "name": "LockerBacklight_Field",
+   "material": "LightPanel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "CFCAC2"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.35,
+    0.0,
+    8.5
+   ],
+   "size": [
+    0.1,
+    8.76,
+    12.76
+   ]
+  },
+  {
+   "piece": "LockerBacklight",
+   "name": "LockerBacklight_Edge_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    0.21,
+    0.0,
+    8.5
+   ],
+   "size": [
+    0.18,
+    9.0,
+    13.0
+   ]
+  },
+  {
+   "piece": "LockerBacklight",
+   "name": "LockerBacklight_Stand",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.3,
+    0.0,
+    0.75
+   ],
+   "size": [
+    0.6,
+    10.0,
+    1.5
+   ]
+  },
+  {
+   "piece": "LockerCheek",
+   "name": "LockerCheek_Backing",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    -0.015,
+    0.0,
+    10.75
+   ],
+   "size": [
+    0.07,
+    8.0,
+    18.5
+   ]
+  },
+  {
+   "piece": "LockerCheek",
+   "name": "LockerCheek_Plinth",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.0,
+    0.0,
+    0.75
+   ],
+   "size": [
+    0.1,
+    8.0,
+    1.5
+   ]
+  },
+  {
+   "piece": "LockerCheek",
+   "name": "LockerCheek_Slats",
+   "material": "Oak",
+   "look": {
+    "material": "Wood",
+    "color": "94683F",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 200,
+   "center": [
+    0.15,
+    0.0,
+    10.4
+   ],
+   "size": [
+    0.3,
+    7.4,
+    17.8
+   ]
+  },
+  {
+   "piece": "LockerCheek",
+   "name": "LockerCheek_Pelmet",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.3,
+    0.0,
+    19.65
+   ],
+   "size": [
+    0.6,
+    8.0,
+    0.7
+   ]
+  },
+  {
+   "piece": "LockerCheek",
+   "name": "LockerCheek_Wash_Glow",
+   "material": "Glow_Cove",
+   "look": {
+    "material": "Neon",
+    "color": "FFDDB0"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.37,
+    0.0,
+    19.21
+   ],
+   "size": [
+    0.1,
+    7.6,
+    0.18
+   ]
+  },
+  {
+   "piece": "LockerPedestal",
+   "name": "LockerPedestal_Toe",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    0.125
+   ],
+   "size": [
+    7.48394,
+    7.48394,
+    0.25
+   ]
+  },
+  {
+   "piece": "LockerPedestal",
+   "name": "LockerPedestal_Drum",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 288,
+   "center": [
+    0.0,
+    0.0,
+    0.65
+   ],
+   "size": [
+    7.98287,
+    7.98287,
+    0.8
+   ]
+  },
+  {
+   "piece": "LockerPedestal",
+   "name": "LockerPedestal_Top",
+   "material": "ConcreteHoned",
+   "look": {
+    "material": "Concrete",
+    "color": "7E7C78",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 334,
+   "center": [
+    0.0,
+    0.0,
+    1.125
+   ],
+   "size": [
+    7.68351,
+    7.68351,
+    0.15
+   ]
+  },
+  {
+   "piece": "LockerPedestal",
+   "name": "LockerPedestal_Toe_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    0.09
+   ],
+   "size": [
+    7.9,
+    7.9,
+    0.14
+   ]
+  },
+  {
+   "piece": "Mannequin",
+   "name": "Mannequin_Body",
+   "material": "MannequinSatin",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B9B4AA"
+   },
+   "glow": false,
+   "tris": 814,
+   "center": [
+    0.0,
+    0.0,
+    2.725
+   ],
+   "size": [
+    1.28,
+    4.0,
+    5.09
+   ]
+  },
+  {
+   "piece": "Mannequin",
+   "name": "Mannequin_Feet",
+   "material": "MannequinSatin",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B9B4AA"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    0.0,
+    0.12
+   ],
+   "size": [
+    1.1,
+    2.0,
+    0.12
+   ]
+  },
+  {
+   "piece": "Mannequin",
+   "name": "Mannequin_Base",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 518,
+   "center": [
+    0.0,
+    0.0,
+    0.05
+   ],
+   "size": [
+    3.24,
+    3.24,
+    0.1
+   ]
+  },
+  {
+   "piece": "SignFrame_16x3",
+   "name": "SignFrame_16x3_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.3,
+    0.0,
+    2.05
+   ],
+   "size": [
+    0.6,
+    16.8,
+    4.1
+   ]
+  },
+  {
+   "piece": "SignFrame_16x3",
+   "name": "SignFrame_16x3_Panel",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.225,
+    0.0,
+    2.2
+   ],
+   "size": [
+    0.45,
+    16.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "SignFrame_16x3",
+   "name": "SignFrame_16x3_Strip_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.31,
+    0.0,
+    0.55
+   ],
+   "size": [
+    0.22,
+    16.0,
+    0.3
+   ]
+  },
+  {
+   "piece": "SignFrame_16x6",
+   "name": "SignFrame_16x6_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.3,
+    0.0,
+    3.55
+   ],
+   "size": [
+    0.6,
+    16.8,
+    7.1
+   ]
+  },
+  {
+   "piece": "SignFrame_16x6",
+   "name": "SignFrame_16x6_Panel",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.225,
+    0.0,
+    3.7
+   ],
+   "size": [
+    0.45,
+    16.0,
+    6.0
+   ]
+  },
+  {
+   "piece": "SignFrame_16x6",
+   "name": "SignFrame_16x6_Strip_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.31,
+    0.0,
+    0.55
+   ],
+   "size": [
+    0.22,
+    16.0,
+    0.3
+   ]
+  },
+  {
+   "piece": "SignFrame_20x2",
+   "name": "SignFrame_20x2_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.3,
+    0.0,
+    1.75
+   ],
+   "size": [
+    0.6,
+    20.8,
+    3.5
+   ]
+  },
+  {
+   "piece": "SignFrame_20x2",
+   "name": "SignFrame_20x2_Panel",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.225,
+    0.0,
+    1.9
+   ],
+   "size": [
+    0.45,
+    20.0,
+    2.4
+   ]
+  },
+  {
+   "piece": "SignFrame_20x2",
+   "name": "SignFrame_20x2_Strip_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.31,
+    0.0,
+    0.55
+   ],
+   "size": [
+    0.22,
+    20.0,
+    0.3
+   ]
+  },
+  {
+   "piece": "SignFrame_5x1",
+   "name": "SignFrame_5x1_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.3,
+    0.0,
+    1.15
+   ],
+   "size": [
+    0.6,
+    5.8,
+    2.3
+   ]
+  },
+  {
+   "piece": "SignFrame_5x1",
+   "name": "SignFrame_5x1_Panel",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.225,
+    0.0,
+    1.3
+   ],
+   "size": [
+    0.45,
+    5.0,
+    1.2
+   ]
+  },
+  {
+   "piece": "SignFrame_5x1",
+   "name": "SignFrame_5x1_Strip_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.31,
+    0.0,
+    0.55
+   ],
+   "size": [
+    0.22,
+    5.0,
+    0.3
+   ]
+  },
+  {
+   "piece": "SteelFrame_135",
+   "name": "SteelFrame_135_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 126,
+   "center": [
+    1.0,
+    0.0,
+    8.0
+   ],
+   "size": [
+    2.0,
+    26.54,
+    16.0
+   ]
+  },
+  {
+   "piece": "SteelFrame_135",
+   "name": "SteelFrame_135_Line_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 36,
+   "center": [
+    1.0,
+    0.0,
+    6.95
+   ],
+   "size": [
+    0.2,
+    22.54,
+    13.1
+   ]
+  },
+  {
+   "piece": "SteelFrame_14",
+   "name": "SteelFrame_14_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 126,
+   "center": [
+    1.0,
+    0.0,
+    8.0
+   ],
+   "size": [
+    2.0,
+    26.54,
+    16.0
+   ]
+  },
+  {
+   "piece": "SteelFrame_14",
+   "name": "SteelFrame_14_Line_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 36,
+   "center": [
+    1.0,
+    0.0,
+    7.2
+   ],
+   "size": [
+    0.2,
+    22.54,
+    13.6
+   ]
+  },
+  {
+   "piece": "TrophyTab",
+   "name": "TrophyTab_Tab",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.06,
+    0.0,
+    0.2
+   ],
+   "size": [
+    0.12,
+    2.4,
+    0.4
+   ]
+  },
+  {
+   "piece": "TrophyTab",
+   "name": "TrophyTab_Lip",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.08,
+    0.0,
+    0.425
+   ],
+   "size": [
+    0.16,
+    2.4,
+    0.05
+   ]
+  },
+  {
+   "piece": "TrophyWall",
+   "name": "TrophyWall_Tray",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    0.06,
+    0.0,
+    12.5
+   ],
+   "size": [
+    0.12,
+    20.0,
+    7.8
+   ]
+  },
+  {
+   "piece": "TrophyWall",
+   "name": "TrophyWall_Panel",
+   "material": "TrophyPanel",
+   "look": {
+    "material": "Concrete",
+    "color": "6F6C67",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.26,
+    0.0,
+    12.5
+   ],
+   "size": [
+    0.28,
+    19.5,
+    7.3
+   ]
+  },
+  {
+   "piece": "TrophyWall",
+   "name": "TrophyWall_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 220,
+   "center": [
+    0.375,
+    0.0,
+    12.5
+   ],
+   "size": [
+    0.75,
+    20.6,
+    8.4
+   ]
+  },
+  {
+   "piece": "TrophyWall",
+   "name": "TrophyWall_Down_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.51,
+    0.0,
+    16.23
+   ],
+   "size": [
+    0.18,
+    19.4,
+    0.06
+   ]
+  },
+  {
+   "piece": "TrophyWall_10",
+   "name": "TrophyWall_10_Tray",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    0.06,
+    0.0,
+    12.5
+   ],
+   "size": [
+    0.12,
+    9.2,
+    7.8
+   ]
+  },
+  {
+   "piece": "TrophyWall_10",
+   "name": "TrophyWall_10_Panel",
+   "material": "TrophyPanel",
+   "look": {
+    "material": "Concrete",
+    "color": "6F6C67",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.26,
+    0.0,
+    12.5
+   ],
+   "size": [
+    0.28,
+    8.7,
+    7.3
+   ]
+  },
+  {
+   "piece": "TrophyWall_10",
+   "name": "TrophyWall_10_Frame",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 220,
+   "center": [
+    0.375,
+    0.0,
+    12.5
+   ],
+   "size": [
+    0.75,
+    9.8,
+    8.4
+   ]
+  },
+  {
+   "piece": "TrophyWall_10",
+   "name": "TrophyWall_10_Down_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.51,
+    0.0,
+    16.23
+   ],
+   "size": [
+    0.18,
+    8.6,
+    0.06
+   ]
+  }
+ ],
+ "tris": 13516
+}
