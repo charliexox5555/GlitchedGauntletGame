@@ -55,6 +55,8 @@
 - **Done (2026-10-29, ability 9: Recall, built overnight):** Rollback is replaced by **Recall**: plant an anchor (free), then press within 40 studs for a 0.6 s wind-up (no shooting, dying cancels) and appear on it, gun up. Holding the key next to it picks it up; 2 bullet hits destroy it. Server-owned anchor and teleport (new `ModRecall` remote and service), the move itself runs in the movement simulation like Dash. Blender anchor (`ReplicatedStorage.Abilities.Recall`, **save the place**), Blender violet textures, 9 sound hooks with placeholders. Verified by playtest; waiting for the user's test. **All 9 base abilities are now built** ([Recall](01%20Design/Abilities/Recall.md))
 - **Done (2026-10-29, changes from the user's ability test):** **Updraft**: the gun goes down while you rise (0.35 s, no shooting, like Dash) and a rising-wind screen edge (Blender texture). **Molly / Frost**: longer throws (max 54 → 82 / 74 → 115 studs). **Damage numbers** stay beside the target and hide while it's off screen (no more numbers parked at the crosshair). **Recon**: a placeholder charge meter under the crosshair (power + bounces) and a bright light streak on the dart in flight. **Stim**: a Brimstone-style underhand toss that lands 5 studs ahead (beacon in your hand, then the world beacon arcs, hops and deploys). **Recall**: the anchor stays and the teleport has a 15 s cooldown; only you see a dashed range ring on the floor. Verified by playtest; waiting for the user's test
 - **Done (2026-10-29, tester tools in published test servers):** with `TestMode` on, **every player** gets the Mod test panel (**F8**, gamepad View, touch **TEST** button) and starts with **unlimited charges** on, so testers can try any ability at any level in a published place. Untick `TestMode`, save and publish for the real game: then only the owner has the panel. Switches in `Config/TestRange`. Panel dummies are capped per player (6) and per server (18), spawn at most every 2 s, aren't solid, and "Clear dummies" clears only your own. Security-reviewed (5 findings fixed). Verified in a Studio playtest (F8 opens/closes, caps, clear, dummies stay non-solid and a raycast still hits them; gamepad and touch not tried on a device) ([Architecture](04%20Tech/Architecture.md) → Test range)
+- **Maps (2026-11-02):** first map planned: **[Whitebox](01%20Design/Maps/Whitebox.md)**, a white panel arena above the clouds (RIVALS look, Valorant Skirmish layout), with references and a checked layout (`tools/maps/whitebox_layout.py`). **Waiting for the user's approval; nothing is built in Studio yet.** Other map ideas: [Maps](01%20Design/Maps/00%20Maps.md). The old Cache / Firewall / Mainframe names are retired.
+- **LihFolk (2026-11-02):** the plugin works and its 1,329 notes are now in this vault under `LihFolk/` (git-ignored copy, left out of the graph). Details: [LihFolk](04%20Tech/LihFolk.md). CLAUDE.md now says to use it and to keep playtest results in `05 Production/Playtests/`.
 - **Next up:** the user's morning test of the Mods ([Mods Overnight Checklist](05%20Production/Playtests/Mods%20Overnight%20Checklist.md)): save the place, audition the sounds, a 2-player and an 8-player test → then rounds + the draft, and Phase 2 (Mod paths and glitches)
 - **Next:** 2-player test in the test range (Studio Test → Clients and Servers, 2 players: not run yet, the MCP can't start it) → tune numbers → aim assist (touch/gamepad) → rounds + tier rotation → Mods → draft → **Playtest #1**
 - **Blockers:** none. (Server Authority is on; movement and poses run in the shared simulation.)
@@ -69,7 +71,8 @@
 - [Mods](01%20Design/Mods.md): first 9 abilities, controls and activation types, A/B paths + Glitch path (**approved**)
 - [Abilities redesign](01%20Design/Abilities/00%20Abilities.md): base abilities reworked one by one, Valorant-style: **all 9 base specs locked**, ready to build with the build prompt in the overview; specs collected here, then built together
 - [Lobby](01%20Design/Lobby.md): the pre-game hub place (third person, queue pads, shop, locker, Range wing): **design locked**, ready to build
-- Draft, Rounds and Maps: in the [Game Plan](05%20Production/Game%20Plan.md) §1, §4 and §5
+- [Maps](01%20Design/Maps/00%20Maps.md): the match map roster and ideas; first map [Whitebox](01%20Design/Maps/Whitebox.md) (plan, waiting for approval)
+- Draft, Rounds and map rules: in the [Game Plan](05%20Production/Game%20Plan.md) §1, §4 and §5
 
 ### 02 Art: how it *looks*
 - [Art Direction](02%20Art/Art%20Direction.md): Style B rules, palette, model standard, import pipeline
@@ -85,6 +88,7 @@
 ### 04 Tech: how it's *built*
 - [Setup Guide](04%20Tech/Setup%20Guide.md): install, Rojo, Obsidian, Claude, prompts
 - [Architecture](04%20Tech/Architecture.md): folders, Rojo mapping, code rules
+- [LihFolk](04%20Tech/LihFolk.md): the Roblox knowledge plugin and its notes in `LihFolk/`
 
 ### 05 Production: *when* things happen
 - [Game Plan](05%20Production/Game%20Plan.md): day-by-day plan → beta → Season 1

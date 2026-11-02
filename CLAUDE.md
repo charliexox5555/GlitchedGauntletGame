@@ -9,8 +9,10 @@ Roblox competitive shooter: RIVALS-style run-and-gun duels (1v1 → 4v4) where p
   - **Guns:** `vault/01 Design/Weapons.md`
   - **Code layout and rules:** `vault/04 Tech/Architecture.md`
   - **Art and model standard:** `vault/02 Art/Art Direction.md`
+  - **Maps:** `vault/01 Design/Maps/00 Maps.md`
   - **Schedule:** `vault/05 Production/Game Plan.md`
 - Research background: `vault/03 Research/` (only when a decision needs the "why").
+- **LihFolk:** before non-trivial Roblox work, check the LihFolk plugin (`lihfolk` router skill, or its `lihfolk-lookup` agent) and use its specialist skills, such as `lihfolk-worldbuilding` for maps. Its notes are also in `vault/LihFolk/` for the user to read (`vault/04 Tech/LihFolk.md`). Project notes and measured numbers win over its general advice.
 
 ## Commands
 - `rojo serve`: live sync into Studio (the user clicks Connect in the Rojo plugin).
@@ -37,6 +39,7 @@ Roblox competitive shooter: RIVALS-style run-and-gun duels (1v1 → 4v4) where p
 
 ## Vault upkeep (do this, it's how the project stays organized)
 - After finishing a task, update `vault/00 Home.md` → **Status**, and the relevant row in `vault/06 Assets/Asset Tracker.md`.
+- Plans, specs and results go in the vault, not only in chat. Each playtest or feedback round gets a note in `vault/05 Production/Playtests/`; bugs and parked ideas go in `vault/05 Production/Bugs & Ideas.md`.
 - When the user says "end of day", write `vault/05 Production/Daily Log/YYYY-MM-DD.md` from `vault/Templates/Daily Log.md`.
 - When a design decision changes, update the design note **and** the "Locked decisions" table in Home. Don't leave contradictions.
 - Notes use relative Markdown links with `%20` for spaces (Obsidian and GitHub both read them).

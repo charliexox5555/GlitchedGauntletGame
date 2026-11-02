@@ -211,12 +211,7 @@ Ability buttons: 3 on screen (one per slot). Every Mod reuses one of a few code 
 - Spawns are out of sight of each other.
 
 ### Launch maps
-| Arena | Mode | Size | Theme |
-|---|---|---|---|
-| **Cache** | 1v1 | ~64 × 64 studs | Tight data vault, good for shotgun and SMG rounds |
-| **Firewall** | 1v1 / 2v2 | ~90 × 70 studs | Glowing wall lanes, a central bridge |
-| **Mainframe** | 2v2 | ~100 × 80 studs | Server racks, a raised middle, long sightline |
-| **Lobby** | Hub | Large | Queue pads, aim range, bot pad, leaderboards, a "Gauntlet coming soon" board |
+The roster moved to [Maps](../01%20Design/Maps/00%20Maps.md) (2026-11-02). The old Cache, Firewall and Mainframe ideas are retired with the digital theme. The hub is its own place: see [Lobby](../01%20Design/Lobby.md).
 
 ### How to make a map (half a day each)
 1. **Sketch** it top-down on paper or in a drawing app, 10 minutes: lanes, cover, spawns.

@@ -42,9 +42,7 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 
 | Arena | Mode | Sketch | Greybox | Playtested | Art pass | Notes |
 |---|---|---|---|---|---|---|
-| **Cache** | 1v1 | ⬜ | ⬜ | ⬜ | ⬜ | ~64×64 studs |
-| **Firewall** | 1v1 / 2v2 | ⬜ | ⬜ | ⬜ | ⬜ | ~90×70 |
-| **Mainframe** | 2v2 | ⬜ | ⬜ | ⬜ | ⬜ | ~100×80 |
+| **[Whitebox](../01%20Design/Maps/Whitebox.md)** | 1v1 / 2v2 | 🟡 | ⬜ | ⬜ | ⬜ | Plan and checked layout done 2026-11-02, waiting for approval. 80×112 room + spawn alcoves. Other ideas: [Maps](../01%20Design/Maps/00%20Maps.md) |
 | **Lobby** | Hub (separate place) | ✅ | ✅ | ⬜ | 🟡 | Circular underground bunker hub, plan in [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md). Greybox v2 built 2026-10-29 in the Lobby place (`Workspace.Lobby.Greybox`, scripts `tools/studio/lobby/`): hub + long Duels hall, cave Market path, round Armoury, Range Lobby with a scale model + separate range building (`RangeFar`). Verified for holes, leaks and envelopes; approved by the user. Screenshots `02 Art/References/lobby/greybox-v2/`. **Art pass built 2026-10-30, waiting for approval** (see the Lobby section below) |
 | **Test range** | Testers (TestMode) | ✅ | ✅ | 🟡 | 🟡 | Rebuilt plain (2026-10-25): an open-air concrete practice yard from code (`src/server/TestRange/RangeBuilder`): lanes + markers 10/25/50/100/150, cover with a plywood ThinWall, concrete wall, low cover and pillars, movement course. Grey dummies (6 kinds) hold the Vandal; health bars kept. No tester menu, stats or weapon racks until the new UI. `art-source/maps/TestRange.rbxm` is the old Style B version (outdated) |
 

@@ -20,6 +20,12 @@ vault/.obsidian/workspace-mobile.json
 vault/.obsidian/cache
 vault/.trash/
 
+# LihFolk notes: a local copy of the plugin's vault, 53 MB (see vault/04 Tech/LihFolk.md)
+vault/LihFolk/
+
+# Other games' screenshots used as map references: local only, the notes link their sources
+vault/02 Art/References/maps/**/third-party/
+
 # Blender backups
 *.blend1
 *.blend2
