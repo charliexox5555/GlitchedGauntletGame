@@ -8,7 +8,8 @@
 -- flipped before publishing without touching code. When the attribute is
 -- missing, Studio playtests fall back to Config/Dev TEST_RANGE and live
 -- servers stay off. At start the server writes the value it decided on back
--- to the attribute, so clients read the same answer.
+-- to the attribute, so clients read the same answer. Off means a real match
+-- (MatchService).
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")

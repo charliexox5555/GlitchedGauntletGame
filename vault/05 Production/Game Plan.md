@@ -54,9 +54,9 @@ Simple blocky shapes, dark surfaces, bright neon edges, and hit effects that dis
 First person, like RIVALS. Add an optional third-person spectator view later.
 
 ### Match format (every queue)
-- **First to 5 round wins.** One life per round, and everyone resets to 100 HP each round.
-- Rounds last **50 seconds**. After that comes **15 seconds of shrinking-zone overtime**. If it's still tied, the side with more total HP wins.
-- **Between rounds: a 12-second draft.** The opening draft before round 1 gets 20 seconds, which also covers the loadout check.
+- **First to 5 round wins.** One life per round, and everyone resets to **150 HP** each round (changed from 100, 2026-11-02).
+- Rounds last **50 seconds**; then the side with more total HP wins. The **15-second shrinking-zone overtime** is parked for later.
+- **Between rounds: a draft** of 15 seconds, 25 before round 1 (first version, 2026-11-02). Full flow: [Match Flow](../01%20Design/Match%20Flow.md).
 
 ### Gun-class rounds (your idea, and the big difference from OVERKILL)
 Every round has a **weapon class both sides share**, announced *before* the draft, so you draft for the gun you're about to use.
@@ -167,7 +167,7 @@ src/
 
 ## 4. Starting numbers (tune them in playtests)
 
-### Guns (100 HP per round)
+### Guns (written for 100 HP; health is 150 since 2026-11-02)
 **Moved to [Weapons](../01%20Design/Weapons.md):** the full 22-gun roster, weapon tiers per round (Sidearm / Light / Heavy / Wildcard), build waves and gun mechanics. Rounds now open a shared weapon **tier** instead of one fixed class.
 
 Target time-to-kill is about 0.4–0.6 s for automatics. Movement speed is 16 studs/s, sprint 22, with a slide.

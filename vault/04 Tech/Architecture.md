@@ -23,7 +23,7 @@ Built so far (✅) and still planned (⬜):
 ```
 src/shared/
   Config/      Game, Camera, Movement, Combat, Weapons (Vandal), Input, Sounds, SoundAtlas, Audio, Viewmodel, VfxTextures, Dev, TestRange ✅
-               Mods, Rounds, Arenas ⬜
+               Mods, Match ✅
   Net.luau     all RemoteEvents in one place (server creates, clients wait) ✅
   TestMode.luau  the test mode switch (Workspace attribute "TestMode") ✅
   Types.luau   weapon config + remote payload types ✅
@@ -32,15 +32,16 @@ src/shared/
 src/server/
   init.server.luau   two-phase bootstrap (init all → start all)
   Services/    WeaponService, HitboxHistory, CharacterService, TestRangeService (test mode only) ✅
-               MatchService, RoundService, DraftService, ModService, LobbyService, ArenaService,
-               BotService, DataService, AnalyticsService, AntiCheatService ⬜
+               MatchService, DraftService, MapService, TestOpponent (Studio only) ✅
+               LobbyService, BotService, DataService, AnalyticsService, AntiCheatService ⬜
   TestRange/   RangeBuilder (geometry), Dummies (kinds, movement, shooter) ✅
 src/client/
   init.client.luau
   Controllers/ InputController, CameraController, MovementController, WeaponController,
                ViewmodelController, EffectsController, HudController, PoseController,
                AudioController, RangeController (test mode) ✅
-               ModController, DraftController, LobbyController ⬜
+               DraftController, MatchHudController ✅
+               LobbyController ⬜
   Util/        HitFeedback (hit markers, damage numbers), GunAnimator (plays the Blender clips on a gun's Motor6Ds), ViewmodelRig (anchored, hand-posed viewmodel guns), ViewmodelArms (block arms with the player's shirt), ViewmodelMotion (bob/sway/breathing as one root offset) ✅
 tools/         blender/ (export), opencloud/ (upload), studio/ (builder, validator, receiver)
 ```
@@ -51,15 +52,29 @@ Each Service/Controller is a ModuleScript returning a table with optional `init(
 2. **Server** (`WeaponService`): rate limit → types/finite numbers → shot counter (must move forward by 1–3) → equipped, ammo, reload, fire interval (incl. spin-up and burst cadence) → origin within 5 studs of the server head with a clear line from the head → recompute every pellet ray from the **server-issued seed** (`seedBase` in WeaponState + shot counter) and the claimed cone clamped into the band the server's own state allows (`spreadBand`: the gun's spray heat from accepted shot times ± `FIRE_JITTER`, and the shooter's MoveState / speed / Aim input / landing sampled every Heartbeat over their rewind window; see [Gunplay](../01%20Design/Gunplay.md) §2 "How v2 is built") → per hit: a real body part (R15/R6 allowlist, never hats or held guns), live, not self, on its pellet's ray (±1.5°), on the target's hitbox **rewound to the shooter's ping** (`HitboxHistory`, max 0.6 s; arms get +3 studs because the holding pose is client-side), and no wall between shooter → hit point → rewound body part (`ThinWall` penetration, e.g. the Vandal, goes through `ThinWall`-tagged parts). Melee: reach + facing check, backstab from behind. Damage comes from `Config/Weapons` (zone × step falloff, distance measured by the server), pellets summed per target. In Studio, the last rejection reason is written to the player attribute `FireReject`.
 3. **Server → clients:** `HitConfirm` (shooter: damage numbers, sounds), `Damaged` (victim: direction indicator), `Killed` (everyone; no listener in the fresh base, kept for the kill feed), `ShotFx` (others: tracers, muzzle flash, shells, impacts found by a client raycast to each end point, sound).
 
+## Match system
+Design: [Match Flow](../01%20Design/Match%20Flow.md). Runs on any server with test mode off (`TestMode` attribute false); with test mode on, you get the practice yard instead.
+
+- **`MatchService`:** the one loop, in a pcall: Waiting → Ready → (Draft → Countdown → Live → RoundEnd) → MatchEnd. `Players.CharacterAutoLoads` is off: it spawns everyone with `LoadCharacterAsync` at each round, through `player.RespawnLocation`. One life per round; there's no respawn until the next one.
+- **State for clients:** `shared/MatchState`, attributes on ReplicatedStorage named `Match*` (Phase, EndsAt, Round, Score1/2, RoundWinner, MatchWinner, WeaponPhase). String attributes are limited to 50 characters in this Studio build, so they stay short. Timers are one server-time end point.
+- **`DraftService`:** the server rolls and stores each player's offer. `DraftPick(action, id)` (rate limited) is checked against that stored list: `Gun`, `Ability`, `Lock`, `Sync` (resend the offer). `DraftOffer` goes to one client. Kits and picks stay on the server until the draft closes.
+- **`MapService`:** clones the map model from `ServerStorage.Maps` into `workspace.ActiveMap` (Persistent streaming). **A map still in Workspace moves to ServerStorage.Maps for that run only**, so it stays editable in Studio. Tags it needs: `ArenaSpawn_A` / `ArenaSpawn_B` on SpawnLocations, `ArenaBarrier` on the spawn barriers.
+- **Combat lock:** player attribute `CombatLocked` (server-set). `WeaponService.holstered` and `ModService.active` refuse shots and Mods while it's on, and the clients skip the input. Dash and Updraft run in the simulation so they can still fire behind the barrier, which is why charges refill when the round goes live.
+- **`TestOpponent`:** Studio only (`Config/Match TEST_OPPONENT`). When one team is empty it takes that side: a plain rig that drafts randomly, walks a route and does direct damage when it has line of sight. It isn't the practice bot.
+- **Guns have no friendly fire now:** `WeaponService` rejects hits on allies (`Teams.isAlly`).
+- **Between rounds:** `ModService.clearRound` removes walls, fires and timers at round end, so nothing burns into the next round. Inside a round they still outlive the caster. Map spawns have no shield (`Duration = 0`): the barrier does that job.
+- **Shot counter:** a new loadout sends `resync` once with `WeaponState`, and the client takes the server's counter as it is. Shots refused at the end of a life moved only the client's counter, which could end up past `MAX_SHOT_SKIP` and lock the gun for the session.
+- **Nobody home:** before the barrier drops, `MatchService` spawns anyone with no live character, then gives them up to 3 s. If a side still has nobody alive, the round scores nothing. If a whole side leaves, whoever stayed wins the match. Teams rebalance so they differ by at most one (a third player in a 1v1 still makes 2v1: match servers will need a size cap with the Lobby).
+- **UI:** `DraftController` (the draft screen) and `MatchHudController` (score, clock, banners). Scale inside a 16:9 panel. Rough, PC first.
+
 ## Test range
 For testers in a published place. Kept apart from the match code: everything lives in `TestRangeService`, `src/server/TestRange/`, `Config/TestRange` and `RangeController`, and none of it runs while test mode is off.
 
 - **Switch:** the Workspace attribute `TestMode` (bool, saved with the place). `TestMode.resolve()` (server, in `TestRangeService.init`) reads it; when it's missing, Studio playtests fall back to `Config/Dev TEST_RANGE` and live servers stay off. The server writes the decided value back so clients read the same answer. **On:** tick it, save, publish. **Off:** untick it (or delete it), save, publish.
 - **When on:** the server builds `workspace.TestRange` (origin `Config/TestRange ORIGIN`, away from the map centre), disables every other SpawnLocation, spawns the dummies in `workspace.Dummies` (the folder WeaponService's wall checks skip) It is a plain concrete practice yard (lanes, cover with a plywood ThinWall, movement course).
-- **Walking a map (`TestMap`):** the Workspace attribute `TestMap` (string, saved with the place) names a map in Workspace. When it's set, only that map's SpawnLocations stay on, so everyone spawns there instead of in the yard. The yard and dummies still get built. Clear it to spawn in the yard. It's a stand-in until the map system exists.
 - **Dummies:** R15 from a HumanoidDescription, `CharacterService.prepare` (100 HP, hitbox history) so shots go through the same validation and rewind as players. Static kinds are anchored; movers walk with `Humanoid:Move` (AutoRotate off, stock run clip, crouch clips from `Config/Animations`). The shooter only sends `ShotFx` with itself as the shooter (aimed ≥ 1.6 studs past your head); it never applies damage. Tag `RangeDummy` + `Dummy*` attributes drive the client health bars. Decorative parts have `CanQuery = false` so they're never hit claims.
 - **Weapon picker** (2026-10-25): **P** (gamepad D-pad up, touch GUNS) opens `PickerController`'s menu of every installed gun (a `Config/Weapons` entry whose model is in `ReplicatedStorage.Weapons`). Picking sends `PickWeapon(id)`; `WeaponService` accepts it only in Studio or with test mode on (server value), rate-limits it (`Combat.RATE.PickWeapon`), checks the id (string ≤ 32, a real gun with its model installed) and a live character, then puts the gun in its own slot and equips it. Weapon input is ignored while the menu is open and for 0.25 s after it closes. The old tester menu, stats panel and weapon racks are gone (`Tester` / `TesterStats` remotes removed; git history has them). The range switches (dummies move, shooter fires back, dummies heal) are fixed defaults in `Config/TestRange BEHAVIOURS`.
-- **Tester tools** (2026-10-29): with test mode on, every player is a tester. They get the **Mod test panel** (F8 / gamepad View / touch TEST: any Mod and level in any slot, unlimited charges on/off, refill, quick-cast, spawn and clear their own dummies, hurt me) and start with **unlimited charges** on. Switches in `Config/TestRange`: `TESTER_DEV_PANEL`, `TESTER_UNLIMITED_CHARGES`. With test mode off, nobody gets them except the game's owner (the panel; `Config/Mods DEV_GROUP` rank 255). Dummies from the panel: 6 per player, 18 per server, one spawn every 2 s, not solid (no walling in doorways or players).
+- **Tester tools** (2026-10-29): with test mode on, every player is a tester. They get the **Mod test panel** (F8 / gamepad View / touch TEST: any Mod and level in any slot, unlimited charges on/off, refill, quick-cast, spawn and clear their own dummies, hurt me) and start with **unlimited charges** on. Switches in `Config/TestRange`: `TESTER_DEV_PANEL`, `TESTER_UNLIMITED_CHARGES`. With test mode off, a live server gives them to nobody, owner included, since a real match is running; Studio always has them. Dummies from the panel: 6 per player, 18 per server, one spawn every 2 s, not solid (no walling in doorways or players).
 
 ## Rules
 1. `--!strict` at the top of every Luau file.

@@ -833,7 +833,7 @@ stepRecallHold = function(now: number)
 end
 
 local function onModPressed(slot: number)
-	if not player.Character then
+	if not player.Character or player:GetAttribute("CombatLocked") == true then
 		return
 	end
 	if phase ~= "Idle" and current == slot then

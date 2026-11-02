@@ -35,17 +35,10 @@ function TestRangeService.start()
 		return
 	end
 	local built = RangeBuilder.build()
-	-- Everyone spawns in the range: other spawns are switched off. The Workspace
-	-- attribute "TestMap" names a map in Workspace to spawn in instead, for
-	-- walking a map before the round system exists.
-	local testMapName = workspace:GetAttribute(TestRange.TEST_MAP_ATTRIBUTE)
-	local testMap = if typeof(testMapName) == "string"
-		then workspace:FindFirstChild(testMapName)
-		else nil
+	-- Everyone spawns in the range: other spawns are switched off.
 	for _, d in workspace:GetDescendants() do
-		if d:IsA("SpawnLocation") then
-			local inMap = testMap ~= nil and d:IsDescendantOf(testMap)
-			d.Enabled = if testMap then inMap else d == built.spawn
+		if d:IsA("SpawnLocation") and d ~= built.spawn then
+			d.Enabled = false
 		end
 	end
 

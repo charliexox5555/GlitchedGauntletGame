@@ -25,6 +25,7 @@ vault/LihFolk/
 
 # Other games' screenshots used as map references: local only, the notes link their sources
 vault/02 Art/References/maps/**/third-party/
+vault/02 Art/References/match-ui/third-party/
 
 # Blender backups
 *.blend1

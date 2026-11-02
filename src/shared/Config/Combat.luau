@@ -2,7 +2,7 @@
 -- Combat rules shared by the server (authoritative) and the client (feel).
 
 return table.freeze({
-	MAX_HEALTH = 100,
+	MAX_HEALTH = 150,
 	RESPAWN_TIME = 3,
 
 	-- Gunplay v2 (Gunplay.md §2): movement adds spread on top of the gun's

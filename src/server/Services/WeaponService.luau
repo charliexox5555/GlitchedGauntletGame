@@ -17,7 +17,9 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
 local Combat = require(Shared.Config.Combat)
 local DashMod = require(Shared.Mods.Dash)
+local MatchState = require(Shared.MatchState)
 local Status = require(Shared.Mods.Status)
+local Teams = require(Shared.Mods.Teams)
 local StatusEffects = require(Shared.Config.StatusEffects)
 local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
@@ -91,6 +93,7 @@ type PlayerState = {
 	worldModel: Model?,
 	seedBase: number, -- server-issued: spread seeds can't be chosen by the client
 	shotIndex: number, -- last accepted shot counter
+	resync: boolean?, -- the next state sent sets the client's counter to ours
 }
 
 local SLOTS: { Slot } = { "Primary", "Secondary", "Melee" }
@@ -205,6 +208,7 @@ local function snapshot(state: PlayerState): Types.WeaponState
 		equipped = state.equipped,
 		seedBase = state.seedBase,
 		shotIndex = state.shotIndex,
+		resync = state.resync,
 	}
 end
 
@@ -236,6 +240,7 @@ local function sendState(player: Player)
 	if state then
 		recordAmmo(player)
 		Net.event("WeaponState"):FireClient(player, snapshot(state))
+		state.resync = nil -- once only: later states must not move a counter in use
 	end
 end
 
@@ -438,12 +443,22 @@ function WeaponService.giveLoadout(player: Player)
 		-- Keep the seed sequence across respawns so in-flight shots stay valid.
 		seedBase = if old then old.seedBase else seedRng:NextInteger(1, 2 ^ 30),
 		shotIndex = if old then old.shotIndex else 0,
+		-- Shots refused at the end of the last life (locked, dead) moved the
+		-- client's counter but not ours: without this it could stay out of reach
+		-- of MAX_SHOT_SKIP and every shot after it would be refused.
+		resync = true,
 	}
 	refreshWorldModel(player)
 	sendState(player)
 end
 
--- Swaps one slot's weapon (used by the draft later).
+-- The match's loadout for the player (MatchService): what the next
+-- giveLoadout hands out, with empty slots left empty.
+function WeaponService.setMatchLoadout(player: Player, loadout: { [Slot]: string })
+	loadouts[player] = loadout
+end
+
+-- Swaps one slot's weapon.
 function WeaponService.setWeapon(player: Player, slot: Slot, id: string)
 	local config = Weapons.get(id)
 	if not config or config.slot ~= slot then
@@ -683,6 +698,7 @@ end
 local function holstered(player: Player): boolean
 	local busy = busyUntil[player]
 	return holsteredPlayers[player] == true
+		or player:GetAttribute(MatchState.COMBAT_LOCKED) == true
 		or (busy ~= nil and os.clock() < busy - Combat.FIRE_JITTER)
 end
 
@@ -1327,6 +1343,11 @@ local function onFire(player: Player, payload: unknown)
 			or not HitboxHistory.isTracked(model)
 		then
 			reject(player, "not a live tracked hitbox: " .. hitPart.Name)
+			continue
+		end
+		-- No friendly fire from guns. Dummies with no team are nobody's ally.
+		if Teams.isAlly(player, model) then
+			reject(player, "ally")
 			continue
 		end
 

@@ -287,6 +287,15 @@ function ModWalls.stop(owner: Player)
 	ModWalls.steer(owner, nil)
 end
 
+-- The round is over: the caster's walls go, burning or not.
+function ModWalls.clear(owner: Player)
+	for i = #walls, 1, -1 do
+		if walls[i].owner == owner then
+			remove(i)
+		end
+	end
+end
+
 local function step(dt: number)
 	if #walls == 0 then
 		return

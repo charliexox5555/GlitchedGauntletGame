@@ -21,6 +21,7 @@ local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
 local GunSounds = require(Shared.Config.GunSounds)
 local FireRate = require(Shared.Util.FireRate)
+local MatchState = require(Shared.MatchState)
 local Net = require(Shared.Net)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
@@ -790,12 +791,18 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	})
 end
 
+-- Behind the barrier and between rounds (the server refuses shots too).
+local function combatLocked(): boolean
+	return player:GetAttribute(MatchState.COMBAT_LOCKED) == true
+end
+
 local function canShoot(s: LocalSlot): boolean
 	if
 		not alive
 		or os.clock() < equipReadyAt
 		or reloading
 		or PickerController.isBusy()
+		or combatLocked()
 		or isHolstered()
 		or dashBlocked()
 	then
@@ -808,7 +815,7 @@ local function canShoot(s: LocalSlot): boolean
 end
 
 local function onFirePressed()
-	if PickerController.isBusy() or isHolstered() then
+	if PickerController.isBusy() or isHolstered() or combatLocked() then
 		return -- a click in the weapon picker, or a held Mod's use
 	end
 	ViewmodelController.cancelInspect()
@@ -1046,7 +1053,10 @@ local function onWeaponState(state: Types.WeaponState)
 	if typeof(state.seedBase) == "number" then
 		seedBase = state.seedBase
 	end
-	if typeof(state.shotIndex) == "number" and state.shotIndex > shotIndex then
+	if
+		typeof(state.shotIndex) == "number"
+		and (state.resync == true or state.shotIndex > shotIndex)
+	then
 		shotIndex = state.shotIndex
 	end
 	local changedEquip = false
@@ -1155,6 +1165,7 @@ function WeaponController.start()
 			and s.config.altFire
 			and s.config.noAds
 			and not PickerController.isBusy()
+			and not combatLocked()
 			and not isHolstered()
 		then
 			ViewmodelController.cancelInspect()

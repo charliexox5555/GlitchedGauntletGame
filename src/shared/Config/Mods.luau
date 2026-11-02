@@ -432,7 +432,7 @@ return table.freeze({
 	AIM_TOLERANCE = 30, -- degrees between the aim and the server's copy of the camera
 	AIM_YAW_TOLERANCE = 50, -- fallback: degrees between the aim and the character's facing
 
-	-- Studio and test-mode servers start everyone with these (no draft yet).
+	-- Test-mode servers start everyone with these (a match drafts them).
 	TEST_LOADOUT = {
 		{ id = "Dash", level = "L1" },
 		{ id = "Molly", level = "L1" },

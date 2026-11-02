@@ -14,7 +14,7 @@ The first map: a clean white test arena floating above the clouds, built mostly 
 - **Collisions:** box Parts collide exactly, and the ramps are WedgeParts. No Blender meshes were needed.
 - **Size:** 74 parts (46 solid), 178 textures, no lights.
 - **Scale:** a player stands 5.44 studs tall here. Tested in a playtest: [first walk](../../05%20Production/Playtests/2026-11-02%20Whitebox%20First%20Walk.md).
-- **To walk it:** press Play. The Workspace attribute `TestMap` = `Whitebox` spawns you in the Blue alcove. Clear the attribute to spawn in the practice yard again. **Clear it, or decide to keep it, before publishing for testers.**
+- **To play it:** press Play. A match loads it from Workspace or `ServerStorage.Maps` ([Match Flow](../Match%20Flow.md)). It has spawn barriers now (`Barriers` folder, tag `ArenaBarrier`).
 - **Changed from the plan:**
   - **Texture:** Roblox's default Baseplate grid turned out to be a busy checker, so we made one simple panel texture (`tools/textures/make_whitebox_panel.py`, Decal 115771155467964, image 104451231800023). It's an overlay on each face (Texture objects, 8-stud panels), not a MaterialVariant, and centred on each face so panels sit evenly. If phones struggle, baking it into a MaterialVariant would remove the 178 instances.
   - **Sky:** the existing sky plus Roblox's built-in clouds (`Terrain.Clouds`), so no Blender render was needed.

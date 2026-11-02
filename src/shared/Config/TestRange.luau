@@ -39,10 +39,6 @@ return table.freeze({
 	-- use the middle of the baseplate.
 	ORIGIN = Vector3.new(0, 0.2, 500),
 
-	-- Workspace attribute naming a map in Workspace to spawn in instead of the
-	-- range (see TestRangeService). Clear it to spawn in the range again.
-	TEST_MAP_ATTRIBUTE = "TestMap",
-
 	-- Distance markers on the lanes (studs from the firing line). Falloff in
 	-- Config/Weapons uses the same units.
 	MARKERS = { 10, 25, 50, 100, 150 },

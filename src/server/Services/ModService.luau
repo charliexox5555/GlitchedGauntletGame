@@ -42,6 +42,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Charges = require(Shared.Mods.Charges)
 local Config = require(Shared.Config.Mods)
 local Dev = require(Shared.Config.Dev)
+local MatchState = require(Shared.MatchState)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
@@ -87,8 +88,9 @@ end
 
 -- Mods work only where there's something to test them in: Studio and test
 -- mode for now (rounds will add "in a round").
-local function active(): boolean
-	return RunService:IsStudio() or TestMode.isOn()
+-- Behind the barrier and between rounds, no Mods (MatchService).
+local function active(player: Player): boolean
+	return player:GetAttribute(MatchState.COMBAT_LOCKED) ~= true
 end
 
 local function liveHumanoid(model: Model?): Humanoid?
@@ -293,7 +295,7 @@ function ModService.setSlot(player: Player, slot: number, id: string?, level: st
 		return false
 	end
 	local stats = id and Mods.stats(id, level)
-	if id and (not stats or not Mods.isBuilt(id) or not active()) then
+	if id and (not stats or not Mods.isBuilt(id)) then
 		return false
 	end
 	if state.held == slot then
@@ -357,6 +359,15 @@ function ModService.refillAllCharges()
 	for _, player in Players:GetPlayers() do
 		ModService.refillCharges(player)
 	end
+end
+
+-- The round is over: everything the player's Mods left running stops, fires and
+-- walls and timers alike, so nothing reaches into the next round. (Inside a
+-- round they outlive the caster's death.)
+function ModService.clearRound(player: Player)
+	ModWalls.clear(player)
+	ModRecall.cancel(player)
+	ModEntities.clear(player, true)
 end
 
 -- Test mode: casting spends nothing (charges stay where they are).
@@ -427,7 +438,7 @@ local function onHold(player: Player, slotArg: unknown)
 		deny(player, slot, "teleporting") -- the client puts its gun back up
 		return
 	end
-	if not active() or not liveHumanoid(player.Character) then
+	if not active(player) or not liveHumanoid(player.Character) then
 		return
 	end
 	if state.held == slot then
@@ -501,7 +512,7 @@ local function use(
 		deny(player, slot, "predicted Mod")
 		return
 	end
-	if not active() then
+	if not active(player) then
 		deny(player, slot, "Mods are off")
 		return
 	end
@@ -742,7 +753,7 @@ local function onRecall(player: Player, slotArg: unknown, actionArg: unknown)
 		deny(player, slot, "no Recall in that slot")
 		return
 	end
-	if not active() or not liveHumanoid(player.Character) then
+	if not active(player) or not liveHumanoid(player.Character) then
 		return
 	end
 	if state.held ~= 0 or ModWalls.isBuilding(player) then
@@ -905,14 +916,19 @@ local function onPlayer(player: Player)
 	states[player] = newState()
 	player:WaitForChild("PlayerGui", 10)
 	player:SetAttribute("ModHeld", 0)
-	-- Studio follows Config/Dev; a published test-mode server, Config/TestRange.
-	local startUnlimited = if RunService:IsStudio()
-		then Dev.UNLIMITED_CHARGES
-		else TestMode.isOn() and TestRange.TESTER_UNLIMITED_CHARGES
+	-- Test mode only, never in a match. Studio follows Config/Dev; a published
+	-- test-mode server, Config/TestRange.
+	local startUnlimited = TestMode.isOn()
+		and (
+			if RunService:IsStudio()
+				then Dev.UNLIMITED_CHARGES
+				else TestRange.TESTER_UNLIMITED_CHARGES
+		)
 	if startUnlimited then
 		ModService.setUnlimitedCharges(player, true)
 	end
-	if active() then
+	-- In a match the draft fills the slots.
+	if TestMode.isOn() then
 		ModService.setLoadout(player, Config.TEST_LOADOUT)
 	end
 	player.CharacterAdded:Connect(function(character)

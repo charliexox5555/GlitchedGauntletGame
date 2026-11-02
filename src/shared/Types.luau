@@ -196,6 +196,7 @@ export type WeaponState = {
 	equipped: Slot?,
 	seedBase: number, -- spread seeds come from this + the shot counter
 	shotIndex: number, -- last shot counter the server accepted
+	resync: boolean?, -- take shotIndex as it is, even if it's lower than yours
 }
 
 export type HitConfirm = {

@@ -69,6 +69,10 @@ local function isAllowed(player: Player): boolean
 	if RunService:IsStudio() or (TestMode.isOn() and TestRange.TESTER_DEV_PANEL) then
 		return true
 	end
+	-- A live match: nobody, the owner included (it could change a real result).
+	if not TestMode.isOn() then
+		return false
+	end
 	for attempt = 1, 2 do
 		local ok, rank = pcall(function()
 			return player:GetRankInGroup(Config.DEV_GROUP)

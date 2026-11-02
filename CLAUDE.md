@@ -10,6 +10,7 @@ Roblox competitive shooter: RIVALS-style run-and-gun duels (1v1 → 4v4) where p
   - **Code layout and rules:** `vault/04 Tech/Architecture.md`
   - **Art and model standard:** `vault/02 Art/Art Direction.md`
   - **Maps:** `vault/01 Design/Maps/00 Maps.md`
+  - **Rounds and draft:** `vault/01 Design/Match Flow.md`
   - **Schedule:** `vault/05 Production/Game Plan.md`
 - Research background: `vault/03 Research/` (only when a decision needs the "why").
 - **LihFolk:** before non-trivial Roblox work, check the LihFolk plugin (`lihfolk` router skill, or its `lihfolk-lookup` agent) and use its specialist skills, such as `lihfolk-worldbuilding` for maps. Its notes are also in `vault/LihFolk/` for the user to read (`vault/04 Tech/LihFolk.md`). Project notes and measured numbers win over its general advice.

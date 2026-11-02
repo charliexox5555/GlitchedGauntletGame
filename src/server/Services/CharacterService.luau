@@ -1,5 +1,5 @@
 --!strict
--- Prepares every combatant (player characters and test dummies): 100 HP with
+-- Prepares every combatant (player characters and test dummies): full health with
 -- no natural regen, standard jump, hats that bullets ignore, hitbox history.
 
 local Players = game:GetService("Players")
