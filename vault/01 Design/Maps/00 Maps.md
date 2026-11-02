@@ -2,12 +2,12 @@
 
 The match maps: a mix of RIVALS (fast, simple, run-and-gun readable) and Valorant (disciplined layouts, callouts, clean value structure). The rules for building one are in the [Game Plan](../../05%20Production/Game%20Plan.md) §5.
 
-**Status (2026-11-02):** the old sci-fi names (Cache, Firewall, Mainframe) are retired with the shelved digital theme. [Whitebox](Whitebox.md) is planned and waiting for approval; the rest are ideas.
+**Status (2026-11-02):** the old sci-fi names (Cache, Firewall, Mainframe) are retired with the shelved digital theme. [Whitebox](Whitebox.md) is built and waiting for approval; the rest are ideas.
 
 ## Roster
 | Map | Status | Modes | Idea | Built with |
 |---|---|---|---|---|
-| [Whitebox](Whitebox.md) | 🟡 Plan, waiting for approval | 1v1, 2v2 | White panels above the clouds; four pillars around a diamond | Parts; Blender only for the sky |
+| [Whitebox](Whitebox.md) | 🟡 Built, waiting for approval | 1v1, 2v2 | White panels under a big sky; four pillars around a diamond | Parts in Studio |
 | **Bunker** | 💡 Idea | 2v2, 3v3 | Concrete halls and a sunlit central shaft, tying the maps to the Lobby. Tight flanks, one bright middle | The Lobby's Blender kits, which already exist |
 | **Container Yard** | 💡 Idea | 1v1, 2v2 | Stacked shipping containers at a dock at dusk. Stack tops are the high lane | One Blender container kit, repeated |
 | **Metro** | 💡 Idea | 2v2, 3v3 | A station: two platforms with a lower track lane between them and a parked train as cover | Blender kit plus Parts |

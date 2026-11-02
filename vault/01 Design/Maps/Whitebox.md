@@ -2,7 +2,25 @@
 
 The first map: a clean white test arena floating above the clouds, built mostly from Roblox Parts. It takes the look of RIVALS' Arena and the layout discipline of Valorant's Skirmish maps. See [Maps](00%20Maps.md) for the rest of the roster.
 
-**Status (2026-11-02):** plan only, **waiting for the user's approval**. Nothing is built in Studio yet. "Whitebox" is a working name.
+**Status (2026-11-02):** plan approved, and the arena is **built as a Studio model at `Workspace.Whitebox`**, with textures and lighting. **Waiting for the user's approval.** Map loading and rounds come after that. "Whitebox" is a working name.
+
+![Whitebox at eye level](../../02%20Art/References/maps/white-arena/whitebox-eye-level.jpg)
+![Whitebox in game](../../02%20Art/References/maps/white-arena/whitebox-in-game.jpg)
+![Whitebox from the perch](../../02%20Art/References/maps/white-arena/whitebox-from-perch.jpg)
+
+### As built
+- **What it is:** a plain Model of anchored Parts, saved in the gauntletgame place, with no runtime script building it. Edit it in Studio directly. Backup: `art-source/maps/Whitebox.rbxm`.
+- **Where:** floor top at Y = 200, centred over the Baseplate, so it stays clear of the practice yard at Z = 500. The Baseplate still sits below; you can't see it from inside.
+- **Collisions:** box Parts collide exactly, and the ramps are WedgeParts. No Blender meshes were needed.
+- **Size:** 74 parts (46 solid), 178 textures, no lights.
+- **Scale:** a player stands 5.44 studs tall here. Tested in a playtest: [first walk](../../05%20Production/Playtests/2026-11-02%20Whitebox%20First%20Walk.md).
+- **To walk it:** press Play. The Workspace attribute `TestMap` = `Whitebox` spawns you in the Blue alcove. Clear the attribute to spawn in the practice yard again. **Clear it, or decide to keep it, before publishing for testers.**
+- **Changed from the plan:**
+  - **Texture:** Roblox's default Baseplate grid turned out to be a busy checker, so we made one simple panel texture (`tools/textures/make_whitebox_panel.py`, Decal 115771155467964, image 104451231800023). It's an overlay on each face (Texture objects, 8-stud panels), not a MaterialVariant, and centred on each face so panels sit evenly. If phones struggle, baking it into a MaterialVariant would remove the 178 instances.
+  - **Sky:** the existing sky plus Roblox's built-in clouds (`Terrain.Clouds`), so no Blender render was needed.
+  - **Slabs:** 13.6 long, which clears the 6-stud gap rule.
+  - **Frame posts:** 12 tall, so the lintel is 3 thick (from 9 up).
+- **Lighting is place-wide for now**, until `MapService` sets it per map. It was ClockTime 14.5, Brightness 3, Ambient and OutdoorAmbient 70 grey, environment scales 1, no ColorShift. It is now ClockTime 13.3, Brightness 2, Ambient (136,138,150), OutdoorAmbient (150,152,166), ColorShift_Top (255,244,230), EnvironmentDiffuseScale 0.25, EnvironmentSpecularScale 0.2.
 
 ---
 
@@ -87,7 +105,7 @@ Generated and checked by `tools/maps/whitebox_layout.py`. Change a number there,
 | Enemy-half floor that can see a spawn point | 1.0% | Close to 0 |
 | Spawn to centre, sprinting | 2.5 s | 2–3 s |
 | Spawn to enemy spawn, sprinting | 6.4 s | Under 8 s |
-| Tightest walking gap | 5.9 studs (slab beside pillar and wall) | Game Plan says 6: move 0.1 in the greybox |
+| Tightest walking gap | 6.1 studs (slab beside pillar and wall) | Game Plan says 6 |
 | Average / worst distance to full cover | 5.2 / 12.6 studs | Worst under about 15 |
 | Longest sightline | **94 studs**, corner to corner, 6.4% of sampled rays are over 70 | Game Plan says about 70 |
 | Highest a player can reach | 43.2 studs (8 cover + 7.2 jump + two 14 Updrafts) | Under the 48 walls |
@@ -124,7 +142,7 @@ These are flat 2D checks at standing eye height. They don't replace walking it.
 Colours get re-sampled under real lighting in Studio. The team colours (cyan `#00E5FF`, orange-red `#FF5A36`) stay reserved for players and abilities, so the paint avoids them.
 
 - **The Valorant part:** paint gives orientation and callouts. One end is blue and the other yellow, with big letters (**B** / **Y**) and short names for places (Perch, Frame, Slab, Diamond, Long) that work in 2v2 comms. In a rotated map, this is how you know which end you're looking at.
-- **Texture:** one original panel texture on a single MaterialVariant, not a Texture object on every face. That's one asset and no extra instances.
+- **Texture:** one original panel texture, overlaid on each visible face (see As built).
 - **Lighting:** a high sun (about 70°) running along the X axis, so wall shadows hit both teams equally and stay short. Warm sun, cool ambient. Bloom stays at threshold 2 or higher so the white doesn't blow out. Lit faces about twice as bright as shaded ones.
 - **Avatars on white:** the RIVALS wiki notes players pick white clothes to camouflage. We'll test a white avatar against the walls early, and if it's a real problem, we'll darken the walls first and add an enemy outline last.
 - **Event recolours, later:** RIVALS turns Arena black for Halloween. Ours is a colour and sky swap, so it costs almost nothing.
@@ -133,14 +151,14 @@ Colours get re-sampled under real lighting in Studio. The team colours (cyan `#0
 | Use | For |
 |---|---|
 | **Roblox Parts** | Everything you walk on or shoot: floor, walls, cover, ramps. Sharp boxes are the style |
-| **Python or Blender** | The panel texture and the 6-sided sky render. Nothing else unless a greybox review asks for it |
+| **Python** | The panel texture. Blender wasn't needed, and only comes in if a later review asks for a custom sky or special shape |
 
 ---
 
 ## 5. Build plan
-Each stage stops for your review, like the Lobby.
+**The user approved the plan on 2026-11-02 and asked for the arena to be built as a Studio model with textures, then reviewed before any game functionality.** Steps 1 and 4 and most of 5 are done (see As built above). Steps 2 and 3 wait for that review, and the model moves from Workspace to `ServerStorage.Maps` in step 2.
 
-1. **Greybox.** A build script (`tools/studio/maps/`, in the style of `tools/studio/lobby/GreyboxKit`) places the layout in the gauntletgame place. Plain parts, correct sizes. **Stop: you walk it.**
+1. **Greybox.** Places the layout in the gauntletgame place at the correct sizes. **Stop: you walk it.**
 2. **Map loading.** A small `MapService` and `Config/Maps`: clones `ServerStorage.Maps.Whitebox` into `workspace.ActiveMap`, spawn parts tagged `ArenaSpawn_A` / `ArenaSpawn_B`, the map set to stream whole (Persistent) so an enemy never unloads mid-fight, and a test-mode switch to load it in place of the practice yard. No new remotes. Round and draft logic stays out of this: that's the next system after the map.
 3. **Play and tune.** Every gun class and all 9 abilities, against dummies and then in a 2-player test. Results go in `05 Production/Playtests/`. Move cover, not art. **Stop: you confirm it plays well.**
 4. **Look pass.** Panel texture and MaterialVariant, colour steps, end paint and letters, sky, per-map lighting in `Config/Maps`. Greyscale and no-shadow checks on a phone view. **Stop: you confirm the look.**
@@ -150,12 +168,12 @@ Each stage stops for your review, like the Lobby.
 
 ---
 
-## 6. Your call before I start
-These are my defaults. They stand if you approve without changes.
+## 6. Decisions
+The user approved these defaults on 2026-11-02.
 
-| Decision | Default | Other choice |
+| Decision | Chosen | Other choice |
 |---|---|---|
-| **Symmetry** | 180° rotation, like the Skirmish minimaps (RIVALS' Arena top view looks the same, though its wiki calls Big Arena mirrored) | Mirror, which is the current Game Plan rule and needs a layout redo. Approving changes that rule |
+| **Symmetry** | 180° rotation, like the Skirmish minimaps (RIVALS' Arena top view looks the same, though its wiki calls Big Arena mirrored) | Mirror, the old Game Plan rule |
 | **Setting** | Open sky above the clouds | A roofed white hall with skylights: moodier, but loses the sky and limits Updraft |
 | **Size** | 1v1 and 2v2 first, the 3v3/4v4 version after | Build one larger map for every mode |
 | **Long diagonals** | Keep them, cut them if they dominate | Cut to 70 now, which hurts the scoped-gun rounds |

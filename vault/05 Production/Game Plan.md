@@ -202,9 +202,9 @@ Ability buttons: 3 on screen (one per slot). Every Mod reuses one of a few code 
 ## 5. Maps
 
 ### Rules for every arena
-- **Mirror-symmetric**, so neither spawn has an advantage.
+- **Symmetric by 180° rotation** (changed from mirror, 2026-11-02), so neither spawn has an advantage.
 - **Three lanes** (left / middle / right) with a contested middle.
-- Because of gun-class rounds, every arena must work for **shotgun AND marksman**: close-quarters rooms on the flanks, one longer middle sightline (max ~70 studs).
+- Because of gun-class rounds, every arena must work for **shotgun AND marksman**: close-quarters rooms on the flanks, one longer middle sightline (max ~70 studs). Whitebox keeps one 94-stud diagonal per side for the scoped guns (2026-11-02); cut it if it dominates in testing.
 - **Cover heights:** half cover 3 studs (crouch), full cover 7+ studs. The character is ~5 studs tall.
 - Doorways at least 6 studs wide, and not too much height so it plays well on mobile.
 - No dead-end camping spots; every room has 2 exits.

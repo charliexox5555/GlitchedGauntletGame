@@ -65,7 +65,7 @@ HALF = [
     Box("Side block", 25, 0, 8, 10, 8),
     Box("Mid post", 3, 33, 12, 3, 8),
     Box("Low wall", -6.5, 33, 7, 3, 3, 0, "low"),
-    Box("Angled slab", -27, 17, 14, 4, 8, 28),
+    Box("Angled slab", -27, 17, 13.6, 4, 8, 28),
     Box("Long wall box", 37, 14, 6, 10, 8),
     Box("Perch", 28, 46, 24, 20, 7, 0, "perch"),
     Box("Perch ramp", 35, 30, 10, 12, 7, 0, "ramp"),
