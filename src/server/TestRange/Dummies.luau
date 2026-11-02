@@ -1,6 +1,6 @@
 --!strict
 -- Test range dummies (Config/TestRange DUMMIES): plain grey R15 rigs holding
--- a gun, prepared by CharacterService like player characters (100 HP, hitbox
+-- a gun, prepared by CharacterService like player characters (full health, hitbox
 -- history), so every shot at them goes through the normal WeaponService
 -- validation and rewind. Kinds: static, strafe, strafe + jump, crouch-walk,
 -- long range and a shooter that fires harmless tracers (ShotFx only: it never

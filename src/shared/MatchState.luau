@@ -5,6 +5,9 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Config = require(script.Parent.Config.Match)
+local Weapons = require(script.Parent.Config.Weapons)
+
 export type Phase = "Waiting" | "Ready" | "Draft" | "Countdown" | "Live" | "RoundEnd" | "MatchEnd"
 
 -- A gun or ability card the server dealt to one player.
@@ -38,6 +41,17 @@ end
 
 function MatchState.phase(): Phase?
 	return MatchState.get("Phase")
+end
+
+-- The shield a gun gives in a weapon phase (vault/01 Design/Gun Balance.md).
+function MatchState.shieldFor(phaseName: string, gunId: string?): number
+	for _, phase in Config.PHASES do
+		if phase.name == phaseName and phase.flatShield then
+			return phase.flatShield
+		end
+	end
+	local gun = gunId and Weapons.get(gunId)
+	return gun and gun.shield or 0
 end
 
 -- Seconds left on the current phase's clock.

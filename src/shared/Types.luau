@@ -108,6 +108,7 @@ export type WeaponConfig = {
 	class: WeaponClass,
 	tier: number, -- 1..4, 0 = melee
 	slot: Slot,
+	shield: number?, -- shield you get for choosing this gun, in phases without a flat shield
 	fireMode: FireMode,
 	damage: { body: number, head: number?, legs: number? }, -- head/legs default: Weapons multipliers
 	pellets: number,

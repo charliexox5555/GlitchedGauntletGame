@@ -1,6 +1,6 @@
 # Weapons: Roster, Tiers and Mechanics
 
-> **Superseded 2026-10-25.** The old roster is being removed and the game rebuilt one gun at a time (gun 1: Vandal). Gunplay numbers now follow [Gunplay](Gunplay.md) v2 (headshot ×2.25, not 1.5×). The tier/round structure below is kept as a reference until the new roster is planned.
+> **Superseded 2026-10-25.** The old roster is being removed and the game rebuilt one gun at a time (gun 1: Vandal). Damage now follows [Gun Balance](Gun%20Balance.md) (headshot about ×1.6). The tier/round structure below is kept as a reference until the new roster is planned.
 
 All numbers are **starting values for playtesting**, not final balance. Every player has **100 HP** per round. "TTK" means time-to-kill on body shots at close range, with every shot hitting.
 

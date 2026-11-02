@@ -8,13 +8,13 @@ How a match runs in the match place, from the map loading to someone winning. Th
 3. **Round loop:**
    - **Draft:** every player picks **1 of 3 guns** (top row) and **1 of 3 abilities** (below), behind their spawn barrier. It ends early when everyone has locked in.
    - **Countdown:** 3 seconds, guns in hand, barrier still up.
-   - **Fight:** the barrier drops. One life each. The round ends when a team is dead or the timer runs out, then more total HP wins. Equal HP scores nobody.
+   - **Fight:** the barrier drops. One life each. The round ends when a team is dead or the timer runs out, then more health plus shield wins. Equal totals score nobody.
    - **Round end:** who won, the score.
 4. **Match end:** first to 5 rounds. In testing a new match then starts by itself; later this goes back to the Lobby.
 
 | Number | Value | Where |
 |---|---|---|
-| Health | **150** every round (was 100) | `Config/Combat` |
+| Health | **100**, plus a shield of 0–50 from your gun or the phase ([Gun Balance](Gun%20Balance.md)) | `Config/Combat`, `Config/Weapons` |
 | Get ready | 5 s | `Config/Match` |
 | First draft / later drafts | 25 s / 15 s | `Config/Match` |
 | Countdown | 3 s | `Config/Match` |
@@ -33,6 +33,7 @@ Both sides see the same 3 guns. The offer stays the same through a phase and cha
 | 4–6 | Heavy | Tier 3 |
 | 7+ | Elite | Tier 4, filled up from Tier 3 (only 2 guns in Tier 4 so far) |
 
+- **Shield:** in the Sidearm and Light phases the gun you choose sets your shield, and the card shows it. From Heavy on, everyone gets 50. See [Gun Balance](Gun%20Balance.md).
 - **Sidearms** go in the secondary slot and stay for the match. Other guns go in the primary slot. The knife is always carried. In round 1 there's no primary.
 - **Timeout:** your last click counts. With no click, you get the first card.
 

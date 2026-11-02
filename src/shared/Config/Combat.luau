@@ -2,7 +2,11 @@
 -- Combat rules shared by the server (authoritative) and the client (feel).
 
 return table.freeze({
-	MAX_HEALTH = 150,
+	MAX_HEALTH = 100,
+	-- Shield sits on top of health and takes damage first. It comes from your
+	-- gun or the weapon phase (Config/Match), lasts the round and never comes back.
+	MAX_SHIELD = 50,
+	SHIELD_ATTRIBUTE = "Shield", -- on the Humanoid; the server writes it
 	RESPAWN_TIME = 3,
 
 	-- Gunplay v2 (Gunplay.md §2): movement adds spread on top of the gun's

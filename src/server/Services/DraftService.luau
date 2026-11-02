@@ -27,6 +27,7 @@ export type Seat = {
 	kit: { string }, -- abilities in slot order
 	sidearm: string?,
 	primary: string?,
+	shield: number, -- what the gun chosen this round gives
 	-- This draft:
 	guns: { string },
 	abilities: { string },
@@ -114,6 +115,7 @@ function DraftService.seat(key: any): Seat
 		s = {
 			key = key,
 			kit = {},
+			shield = 0,
 			guns = {},
 			abilities = {},
 			locked = false,
@@ -207,6 +209,7 @@ end
 -- and guns are updated, and MatchService gives them out.
 function DraftService.close(keys: { any })
 	open = false
+	local phaseName = gunOfferPhase
 	for _, key in keys do
 		local s = DraftService.seat(key)
 		local gun = s.gun or s.guns[1]
@@ -218,6 +221,7 @@ function DraftService.close(keys: { any })
 				s.primary = gun
 			end
 		end
+		s.shield = MatchState.shieldFor(phaseName, gun)
 		local ability = s.ability or s.abilities[1]
 		if ability and #s.kit < ModsConfig.SLOTS and not table.find(s.kit, ability) then
 			table.insert(s.kit, ability)

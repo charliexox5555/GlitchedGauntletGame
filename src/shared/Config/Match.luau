@@ -2,7 +2,8 @@
 -- The match: timers, the round win, weapon phases and the draft
 -- (vault/01 Design/Match Flow.md). Replicated: nothing secret here.
 
-export type Phase = { name: string, tier: number, fromRound: number }
+-- flatShield: everyone's shield this phase. Without it, your gun's `shield` decides.
+export type Phase = { name: string, tier: number, fromRound: number, flatShield: number? }
 
 return table.freeze({
 	MAP = "Whitebox", -- a Model in ServerStorage.Maps (or still in Workspace)
@@ -23,8 +24,8 @@ return table.freeze({
 	PHASES = {
 		{ name = "Sidearm", tier = 1, fromRound = 1 },
 		{ name = "Light", tier = 2, fromRound = 2 },
-		{ name = "Heavy", tier = 3, fromRound = 4 },
-		{ name = "Elite", tier = 4, fromRound = 7 },
+		{ name = "Heavy", tier = 3, fromRound = 4, flatShield = 50 },
+		{ name = "Elite", tier = 4, fromRound = 7, flatShield = 50 },
 	} :: { Phase },
 	GUN_OFFERS = 3,
 	ABILITY_OFFERS = 3,

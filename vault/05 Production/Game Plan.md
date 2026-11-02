@@ -54,7 +54,7 @@ Simple blocky shapes, dark surfaces, bright neon edges, and hit effects that dis
 First person, like RIVALS. Add an optional third-person spectator view later.
 
 ### Match format (every queue)
-- **First to 5 round wins.** One life per round, and everyone resets to **150 HP** each round (changed from 100, 2026-11-02).
+- **First to 5 round wins.** One life per round, and everyone resets to 100 health plus a shield each round: see [Gun Balance](../01%20Design/Gun%20Balance.md).
 - Rounds last **50 seconds**; then the side with more total HP wins. The **15-second shrinking-zone overtime** is parked for later.
 - **Between rounds: a draft** of 15 seconds, 25 before round 1 (first version, 2026-11-02). Full flow: [Match Flow](../01%20Design/Match%20Flow.md).
 
@@ -167,10 +167,10 @@ src/
 
 ## 4. Starting numbers (tune them in playtests)
 
-### Guns (written for 100 HP; health is 150 since 2026-11-02)
+### Guns (current numbers: [Gun Balance](../01%20Design/Gun%20Balance.md))
 **Moved to [Weapons](../01%20Design/Weapons.md):** the full 22-gun roster, weapon tiers per round (Sidearm / Light / Heavy / Wildcard), build waves and gun mechanics. Rounds now open a shared weapon **tier** instead of one fixed class.
 
-Target time-to-kill is about 0.4–0.6 s for automatics. Movement speed is 16 studs/s, sprint 22, with a slide.
+Target time-to-kill is about 0.5–0.75 s for automatics. Movement speed is 16 studs/s, sprint 22, with a slide.
 
 ### 8 launch Mods (original abilities)
 | # | Mod | Role | L1 | L2 | L3 | Glitch (MVP has 3) |

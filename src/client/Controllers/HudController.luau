@@ -12,6 +12,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Audio = require(ReplicatedStorage.Shared.Config.Audio)
+local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
@@ -29,6 +30,7 @@ local MUTED = Color3.fromHex("C9CCD1")
 local AMBER = Color3.fromHex("F2C94C")
 local RED = Color3.fromHex("EB5757")
 local BACK = Color3.fromHex("16181B")
+local SHIELD_BLUE = Color3.fromHex("6FC3FF")
 local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
 local MEDIUM = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium)
 
@@ -61,6 +63,9 @@ type Refs = {
 	reloadFill: Frame,
 	healthFill: Frame,
 	healthText: TextLabel,
+	shieldText: TextLabel,
+	shieldBar: Frame,
+	shieldFill: Frame,
 	vignette: CanvasGroup,
 	indicator: Frame,
 	wedge: Frame,
@@ -290,6 +295,28 @@ local function build(): Refs
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Text = "100",
 	}, healthPanel)
+	local shieldText = text({
+		Size = UDim2.fromOffset(100, 30),
+		Position = UDim2.fromOffset(92, 24),
+		FontFace = BOLD,
+		TextSize = 26,
+		TextColor3 = SHIELD_BLUE,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "",
+	}, healthPanel)
+	local shieldBar = make("Frame", {
+		Position = UDim2.fromOffset(0, 56),
+		Size = UDim2.fromOffset(220, 4),
+		BackgroundColor3 = BACK,
+		BackgroundTransparency = 0.3,
+		BorderSizePixel = 0,
+		Visible = false,
+	}, healthPanel)
+	local shieldFill = make("Frame", {
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = SHIELD_BLUE,
+		BorderSizePixel = 0,
+	}, shieldBar)
 	local healthBar = make("Frame", {
 		Position = UDim2.fromOffset(0, 62),
 		Size = UDim2.fromOffset(220, 5),
@@ -396,6 +423,9 @@ local function build(): Refs
 		reloadFill = reloadFill,
 		healthFill = healthFill,
 		healthText = healthText,
+		shieldText = shieldText,
+		shieldBar = shieldBar,
+		shieldFill = shieldFill,
 		vignette = vignette,
 		indicator = indicator,
 		wedge = wedge,
@@ -536,6 +566,14 @@ local function update(dt: number)
 		r.healthFill.Size = UDim2.fromScale(frac, 1)
 		r.healthFill.BackgroundColor3 = if frac < 0.35 then RED else WHITE
 		r.healthText.Text = tostring(math.ceil(humanoid.Health))
+		local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+		local hasShield = typeof(shield) == "number" and shield > 0
+		r.shieldBar.Visible = hasShield
+		r.shieldText.Text = if hasShield then "+" .. math.ceil(shield :: number) else ""
+		if hasShield then
+			r.shieldFill.Size =
+				UDim2.fromScale(math.clamp((shield :: number) / Combat.MAX_SHIELD, 0, 1), 1)
+		end
 		local hurt = if frac > 0 then math.clamp((0.45 - frac) / 0.35, 0, 1) else 0
 		r.vignette.GroupTransparency = 1 - hurt
 	end

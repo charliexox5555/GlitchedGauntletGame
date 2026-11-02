@@ -149,7 +149,7 @@ local function gunPicture(parent: Instance, id: string, props: { [string]: any }
 	camera.CFrame = CFrame.lookAt(box.Position + box.RightVector * distance, box.Position)
 end
 
-local function gunCard(parent: Instance, id: string, index: number): Card
+local function gunCard(parent: Instance, id: string, index: number, phaseName: string): Card
 	local config = Weapons.get(id)
 	local button = make("TextButton", {
 		Name = id,
@@ -176,13 +176,17 @@ local function gunCard(parent: Instance, id: string, index: number): Card
 			Size = UDim2.fromScale(0.37, 0.24),
 			TextXAlignment = Enum.TextXAlignment.Left,
 		})
-		text(button, config.class, {
-			Position = UDim2.fromScale(0.6, 0.36),
-			Size = UDim2.fromScale(0.37, 0.13),
-			TextXAlignment = Enum.TextXAlignment.Left,
-			FontFace = MEDIUM,
-			TextColor3 = MUTED,
-		})
+		text(
+			button,
+			string.format("%s · Shield %d", config.class, MatchState.shieldFor(phaseName, id)),
+			{
+				Position = UDim2.fromScale(0.6, 0.36),
+				Size = UDim2.fromScale(0.37, 0.13),
+				TextXAlignment = Enum.TextXAlignment.Left,
+				FontFace = MEDIUM,
+				TextColor3 = MUTED,
+			}
+		)
 		local head = config.damage.head
 		text(
 			button,
@@ -375,7 +379,7 @@ local function show(o: MatchState.DraftOffer)
 		BackgroundTransparency = 1,
 	}, p)
 	for i, id in o.guns do
-		table.insert(gunCards, gunCard(guns, id, i))
+		table.insert(gunCards, gunCard(guns, id, i, o.phase))
 	end
 
 	-- Abilities.

@@ -38,29 +38,28 @@ An independent code review found no way to get an unoffered card or to fire or c
 | Owner's dev panel worked in live matches | Off on live servers with test mode off | ❌ By code only |
 | A missing map or a mid-round error left the server stuck | Retries the map; relocks and raises barriers | ❌ By code only |
 
+## Shields and the new gun numbers
+| Test | Result |
+|---|---|
+| Draft cards show each gun's shield | ✅ Classic 50, Ghost 25, Shorty 25 |
+| Chosen gun sets your shield | ✅ Shorty 25, Akimbo 50; the opponent got its own |
+| Heavy phase gives a flat 50 | ✅ Outlaw and the opponent both 50 |
+| Damage takes shield first, then health | ✅ One Shorty blast at point blank did 90: opponent's shield 50 → 0, health 100 → 60 |
+| HUD shows the shield | ✅ `+` number and a thin blue bar over health |
+| The new numbers in a real fight | ❌ Sheet only, nobody has played them. Only the Shorty was fired for real |
+
 ## Not tested yet
 - **Two real players.** Everything so far is one player plus the stand-in
 - All 9 abilities inside a match, and their leftovers clearing between rounds
 - A player leaving mid-match, or joining late
-- Whether the numbers feel right: 150 health, 15-second drafts, 50-second rounds
+- Whether the numbers feel right: 15-second drafts, 50-second rounds, gun balance
 - Anything but PC
 
 ## What the user should look at
 - Does the draft feel right, and is 15 seconds enough?
-- 150 health changes kills: see "Health" below.
 
 ## Health
-Going from 100 to 150 means more shots to kill, because gun damage hasn't changed:
-
-| Gun | At 100 health | At 150 health |
-|---|---|---|
-| Vandal | 4 body or 2 head | 5 body or 3 head |
-| Phantom | 4 body or 2 head | 6 body or 3 head |
-| Classic | 4 body or 2 head | 6 body or 3 head |
-| Guardian | 2 body or 1 head | 3 body or 2 head |
-| Outlaw | 1 body | 2 body or 1 head |
-| Marshal | 1 body | 2 body or 1 head |
-| Operator | 1 body | 1 body (exactly 150) |
+This run used a flat 150 health and the old gun numbers. Both changed straight after: see [Gun Balance](../../01%20Design/Gun%20Balance.md).
 
 ## Top fixes (ranked)
 None known. Waiting for the user's run.

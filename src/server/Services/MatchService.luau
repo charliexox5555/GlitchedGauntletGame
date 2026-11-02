@@ -8,6 +8,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
@@ -190,7 +191,8 @@ local function teamState(team: number): (number, number)
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		if humanoid and humanoid.Health > 0 then
 			alive += 1
-			health += humanoid.Health
+			local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+			health += humanoid.Health + (if typeof(shield) == "number" then shield else 0)
 		end
 	end
 	if activeOpponent == team and TestOpponent.isAlive() then
@@ -265,6 +267,19 @@ local function applyDraft(keys: { any })
 	end
 end
 
+-- Everyone's shield for the round, from the gun they chose or the phase.
+local function giveShields()
+	for _, key in seatKeys() do
+		local character = if key == TestOpponent.KEY
+			then TestOpponent.model()
+			else (key :: Player).Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, DraftService.seat(key).shield)
+		end
+	end
+end
+
 local function runDraft(round: number)
 	local seconds = if round == 1 then Config.OPENING_DRAFT_TIME else Config.DRAFT_TIME
 	local keys = seatKeys()
@@ -280,6 +295,7 @@ local function runDraft(round: number)
 	end)
 	DraftService.close(seatKeys()) -- anyone who left in the meantime is out
 	applyDraft(seatKeys())
+	giveShields()
 end
 
 -- One match --------------------------------------------------------------------
@@ -349,6 +365,7 @@ local function runMatch()
 		-- A side with nobody alive at the start isn't a fight: no point, go again.
 		local winner = 0
 		if not someoneOut() then
+			giveShields() -- anyone spawned late has one too
 			-- Fight. Charges come back here, so nothing spent behind the barrier counts.
 			for _, player in Players:GetPlayers() do
 				ModService.refillCharges(player)

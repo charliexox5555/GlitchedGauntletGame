@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
@@ -52,7 +53,11 @@ end
 function TestOpponent.health(): number
 	local m = model
 	local humanoid = m and m:FindFirstChildOfClass("Humanoid")
-	return if humanoid then math.max(humanoid.Health, 0) else 0
+	if not humanoid then
+		return 0
+	end
+	local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+	return math.max(humanoid.Health, 0) + (if typeof(shield) == "number" then shield else 0)
 end
 
 function TestOpponent.remove()
@@ -126,7 +131,7 @@ local function shoot(m: Model, root: BasePart, target: Player, head: BasePart)
 	if hit then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if humanoid then
-			humanoid:TakeDamage(CFG.damage)
+			WeaponService.hurt(humanoid, CFG.damage)
 			Net.event("Damaged"):FireClient(target, origin, CFG.damage)
 		end
 	else

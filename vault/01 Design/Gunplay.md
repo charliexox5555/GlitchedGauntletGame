@@ -1,6 +1,6 @@
 # Gunplay
 
-> **Health is 150 since 2026-11-02** (see [Match Flow](Match%20Flow.md)). Shots-to-kill and TTK below were written for 100 HP and haven't been retuned.
+> **Damage, health and shields moved to [Gun Balance](Gun%20Balance.md) on 2026-11-02.** The damage rows in §3 show the current numbers; the Valorant column is for comparison.
 
 **Feel target (v2, 2026-10-25):** **precise** run-and-gun. Valorant-tight aim (first-shot accuracy, tap/burst control, learnable recoil, a big headshot reward) with RIVALS' freedom to move and shoot, plus a sliding move set borrowed from Hypershot. You never *have* to stand still; standing still just makes a tap laser-accurate.
 
@@ -72,11 +72,11 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 ## 3. Damage (v2)
 | Rule | Value |
 |---|---|
-| Health | 100 per round, no armour, **no natural regen** (heals come from Mods) |
-| Headshot | **×2.25 by default, so rifles kill with 2 headshots** (chosen) |
+| Health | 100 per round, **plus a shield from your gun or the phase** ([Gun Balance](Gun%20Balance.md)), **no natural regen** (heals come from Mods) |
+| Headshot | **About ×1.6** (changed from ×2.25, 2026-11-02): 3–5 headshots to kill at 150 on anything but a sniper |
 | Legs | ×0.85 |
-| One-tap headshot guns | Only snipers, the revolver and a DMR. It's their identity |
-| Target time-to-kill | Body **0.3–0.5 s** for main guns |
+| One-tap headshot guns | Only snipers (the Marshal only against no shield) |
+| Target time-to-kill | Body **0.5–0.75 s** against 150 for main guns (changed from 0.3–0.5 s) |
 | Falloff | **Steps** per gun (a multiplier per range band, in studs); some guns (Vandal-type) have none |
 | Tagging | **None**: getting hit does not slow you (chosen) |
 | Wall penetration | Low / Medium / High tiers per gun (later; ThinWall today) |
@@ -87,7 +87,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 | Fire | Auto, 0.103 s (9.75/s) | 9.75/s |
 | Mag / reload | 25 / 2.3 s tactical, 2.8 s empty (with rack) | 25 / 2.5 s |
 | Equip | 0.9 s draw (cock), every equip | 1.0 s |
-| Damage | 30 body / 67 head / 25 legs, **no falloff**: 4 body shots (0.31 s) or 2 heads (0.10 s) | 40 / 160 / 34 |
+| Damage | 24 body / 40 head / 20 legs, **no falloff**: 7 body (0.62 s) or 4 heads (0.31 s) at 150 | 40 / 160 / 34 |
 | Spread | 0.25° hip, 0.15° ADS → max 1.0°; 3 protected shots, +0.12°/shot after; recovery 0.375 s | 0.25° / 0.157° → 1° |
 | Movement | Rifle row above | walk +3°, run +6°, air +10° |
 | Recoil | `up` 0.42° × 6 protected shots, then 0.25° up + 0.3° side drift, `switchChance` 10% (≥ 0.6 s apart), 75% recovers over 0.3 s | vertical first, then yaw switching (6 protected, 10%) |
@@ -100,7 +100,7 @@ The user asked for: lighter than the Vandal, less damage, faster fire rate, less
 | Fire | Auto, 0.091 s (11/s) | 11/s |
 | Mag / reload | **30** / 2.3 s tactical, 2.8 s empty | 30 / 2.5 s |
 | Equip | 0.8 s draw, every equip | 1.0 s |
-| Damage | 26 body / 58 head / 22 legs up to 70 studs, then ×0.87 (23 / 51 / 19): 4 body shots (0.27 s) or 2 heads at any range | 39 / 156 → ×0.897 after 20 m |
+| Damage | 21 body / 34 head / 18 legs up to 70 studs, then ×0.87: 8 body (0.64 s) or 5 heads (0.36 s) at 150 | 39 / 156 → ×0.897 after 20 m |
 | Spread | 0.2° hip, 0.12° ADS → max 0.9°; 4 protected shots, +0.1°/shot; recovery 0.35 s | 0.2° / 0.11° → 0.9° |
 | Recoil | `up` 0.32° × 6, then 0.2° up + 0.22° side, `switchChance` 10%, 75% recovers over 0.28 s (steadier than the Vandal) | steadier than the Vandal |
 | Speed | **×0.97** carrying (lighter), ×0.76 ADS | same as the Vandal |
@@ -114,7 +114,7 @@ The free default pistol and the sidearm benchmark. **No ADS**: right mouse (game
 | Alt-fire | 3 pellets in a 3.4° cone, uses 3 rounds (one pellet per round, so with 1–2 left it fires 1–2), 0.45 s before the next shot of either kind (2.2/s); each pellet does normal damage (3 body = 78 up close) and adds a shot of spray heat | 3-pellet burst, 2.22/s |
 | Mag / reload | 12 / 1.6 s tactical, 1.9 s empty (slide release) | 12 / 1.75 s |
 | Equip | 0.6 s draw, every equip | |
-| Damage | 26 body / 58 head / 22 legs; ×0.85 from 105 studs | 26 / 78 / 22 → 22 / 66 / 18 past 30 m |
+| Damage | 20 body / 32 head / 17 legs; ×0.85 from 105 studs; shield 50 | 26 / 78 / 22 → 22 / 66 / 18 past 30 m |
 | Spread | 0.4° first shot → 1.8° max (1 protected shot, +0.3°/shot), recovery 0.4 s | 0.4° → 1.8° |
 | Movement | Pistol (Sidearm) row | |
 | Recoil | `up` 0.55° × 2, then 0.35° up + 0.2° side, `switchChance` 25% (≥ 0.3 s apart), 80% recovers over 0.25 s; the alt burst kicks an extra 0.55° | |
@@ -129,7 +129,7 @@ Over-under break-action pocket shotgun. No ADS.
 | Fire | Semi, 0.333 s (3/s); upper barrel, then lower | 3.33/s |
 | Mag / reload | 2 / 1.5 s one shell, 1.9 s both | 2 / 1.75 s |
 | Pellets | 15 in a 4° cone; centre shot exact (spread 0) | 15, 4° |
-| Damage per pellet | 11 body / 22 head / 9 legs; ×0.55 from 25 studs, ×0.27 from 54 studs (one-shot up close: 165) | 11 / 22 / 9, ×0.55 7–15 m, ×0.27 15 m+ |
+| Damage per pellet | 6 body / 9 head / 5 legs; ×0.55 from 25 studs, ×0.27 from 54 studs; shield 25. Two shells up close to kill | 11 / 22 / 9, ×0.55 7–15 m, ×0.27 15 m+ |
 | Movement | Shotgun row (placed and held as a sidearm) | |
 | Recoil | 2.4° straight up per shot, 80% back over 0.3 s | |
 | Equip | 0.55 s draw, every equip | |
@@ -141,7 +141,7 @@ New generic weapon fields it uses: `muzzles` (shots come from each muzzle in tur
 |---|---|---|
 | Fire | Semi, 0.148 s (6.75/s), suppressed (no tracer for enemies, quiet, small flash) | 6.75/s |
 | Mag / reload | 13 / 1.5 s tactical, 1.75 s empty (slide release) | 13 / 1.5 s |
-| Damage | 30 body / 67 head / 25 legs; ×0.83 from 105 studs. No one-tap headshot (v2 keeps those for snipers, the revolver and a DMR) | 30 / 105 / 25 → 25 / 87 / 21 past 30 m |
+| Damage | 23 body / 37 head / 20 legs; ×0.83 from 105 studs; shield 25 | 30 / 105 / 25 → 25 / 87 / 21 past 30 m |
 | Spread | 0.3° → 1.65° (1 protected shot, +0.25°/shot), recovery 0.35 s | 0.3° → 1.65° |
 | Recoil | 0.45° × 2, then 0.3° up + 0.15° side, 25% switch, 80% back over 0.25 s | |
 | Equip | 0.55 s draw (press check), every equip | |
@@ -153,7 +153,7 @@ New generic weapon fields it uses: `muzzles` (shots come from each muzzle in tur
 |---|---|---|
 | Fire | Auto, 0.286 s (3.5/s), 12 pellets in a 2.5° cone; the cone's centre wanders up to 1.5° while you hold the trigger | 3.5/s, 2.5° → 4° |
 | Mag / reload | 7 (drum) / 2.2 s, 2.6 s empty (rack) | 7 / 2.2 s |
-| Damage per pellet | 17 body / 34 head / 14 legs; ×0.59 from 36 studs, ×0.41 from 54 studs | 17 / 34 / 14, ×0.59 10–15 m, ×0.41 15 m+ |
+| Damage per pellet | 6 body / 9 head / 5 legs; ×0.59 from 36 studs, ×0.41 from 54 studs; shield 25 | 17 / 34 / 14, ×0.59 10–15 m, ×0.41 15 m+ |
 | Movement | Shotgun row, ×0.95 speed | |
 | Recoil | 1.6° first kick, then 1.4° up + 0.4° side, 30% switch, 75% back over 0.35 s | |
 | Equip | 0.9 s draw, every equip | |
@@ -165,7 +165,7 @@ Uzi-type SMG, mag in the grip, iron-sight ADS.
 |---|---|---|
 | Fire | Auto, 0.075 s (13.3/s): slower than Valorant's 16/s so four body shots take 0.23 s, not 0.19 s | 16/s (ADS: 4-round burst) |
 | Mag / reload | 20 / 2.1 s, 2.5 s empty (knob rack) | 20 / 2.25 s |
-| Damage | 27 body / 61 head (×2.25) / 23 legs; ×0.85 from 54 studs | 27 / 67 / 22 → 23 / 57 / 19 past 15 m |
+| Damage | 19 body / 30 head / 16 legs; ×0.85 from 54 studs; shield 25 | 27 / 67 / 22 → 23 / 57 / 19 past 15 m |
 | Spread | 0.45° → 1.4° (2 protected shots, +0.1°/shot), ADS ×0.6, recovery 0.3 s | 0.65° → 1.5° (ADS 0.35°) |
 | Movement | SMG row, ×1.0 speed, ×0.8 aimed | |
 | Recoil | 0.25° × 4, then 0.15° up + 0.18° side, 15% switch, 75% back over 0.25 s | |
@@ -178,7 +178,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 |---|---|---|
 | Fire | Auto, 0.075 s (13.3/s), suppressed | 13.33/s, silenced |
 | Mag / reload | 30 / 2.1 s, 2.5 s empty (rack) | 30 / 2.25 s |
-| Damage | 26 body / 58 head / 22 legs; ×0.85 from 71 studs, ×0.77 from 178 studs | 26 / 78 / 22 → 22 / 66 → 20 / 60 |
+| Damage | 16 body / 26 head / 14 legs; ×0.85 from 71 studs, ×0.77 from 178 studs; shield 25 | 26 / 78 / 22 → 22 / 66 → 20 / 60 |
 | Spread | 0.4° → 1.4° (3 protected shots, +0.09°/shot), ADS ×0.6, recovery 0.3 s | 0.4° → 1.4° (ADS 0.25°) |
 | Movement | SMG row, ×1.0 speed, ×0.8 aimed | |
 | Recoil | 0.22° × 5, then 0.14° up + 0.15° side, 12% switch, 75% back over 0.25 s (steadier than the Stinger) | |
@@ -189,7 +189,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 |---|---|---|
 | Fire | Pump, 0.91 s (1.1/s), 15 pellets in a 3° cone | 1.1/s (alt: air-burst, not built) |
 | Mag / reload | 5, **shell by shell**: 0.25 s into the loading pose, 0.45 s per shell, 0.25 s back (full load 2.75 s); an empty reload also racks the pump. Firing mid-reload stops it and keeps the shells loaded | 5 / 2.5 s (0.5 s per shell) |
-| Damage per pellet | 17 body / 34 head / 14 legs; ×0.65 from 29 studs, ×0.45 from 43 studs (one-shots up close) | 17 / 34 / 14, ×0.65 8–12 m, ×0.45 12 m+ |
+| Damage per pellet | 8 body / 12 head / 7 legs; ×0.65 from 29 studs, ×0.45 from 43 studs; shield 25. Two pumps up close | 17 / 34 / 14, ×0.65 8–12 m, ×0.45 12 m+ |
 | Movement | Shotgun row (barely affected by moving), ×0.95 speed | run +0.2° |
 | Recoil | 3° up per shot, 80% back over 0.4 s | |
 | Equip | 1.0 s draw (pump rack), every equip | |
@@ -201,7 +201,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 |---|---|---|
 | Fire | Semi, 0.25 s (4/s) | 4/s |
 | Mag / reload | 6 / 2.25 s (speedloader, same when empty) | 6 / 2.25 s |
-| Damage | 55 body / 124 head / 46 legs: **one-taps a head** (v2 allows it for the revolver); ×0.91 from 107 studs | 55 / 159 / 46 → 50 / 145 / 42 past 30 m |
+| Damage | 50 body / 74 head / 43 legs; ×0.91 from 107 studs; shield 0. Three body or three heads at 150 | 55 / 159 / 46 → 50 / 145 / 42 past 30 m |
 | Spread | 0.25° → 2.75° (+0.6°/shot), recovery 0.45 s | 0.25° → 2.75° |
 | Penetration | ThinWall | high |
 | Recoil | 1.8° first kick, then 1.5° up + 0.3° side, 35% switch, 80% back over 0.35 s | |
@@ -212,7 +212,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 |---|---|---|
 | Fire | Auto, 0.11 s (9.1/s) | 10/s (ADS: 3-round burst, not built) |
 | Mag / reload | 24 / 2.3 s, 2.7 s empty (rack) | 24 / 2.5 s |
-| Damage | 33 body / 74 head / 28 legs, no falloff: 4 body shots (0.33 s) or 2 heads. Valorant's 35 body would be a 3-shot 0.2 s kill, under the v2 body TTK | 35 / 115 / 29 |
+| Damage | 22 body / 36 head / 19 legs, no falloff; shield 25 | 35 / 115 / 29 |
 | Spread | 0.3° → 1.25° (3 protected shots, +0.12°/shot), ADS ×0.6, recovery 0.375 s | 0.3° → 1.25° |
 | Recoil | 0.38° × 6, then 0.22° up + 0.25° side, 12% switch, 75% back over 0.3 s | |
 | ADS / speed | 1.25× (FOV 68), 0.2 s; ×0.95, ×0.76 aimed | |
@@ -222,7 +222,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 |---|---|---|
 | Fire | Semi, 0.19 s (5.25/s) | 5.25/s |
 | Mag / reload | 12 / 2.3 s, 2.7 s empty | 12 / 2.5 s |
-| Damage | 65 body / 146 head / 49 legs, no falloff: **one-taps a head** (v2's DMR), 2 body shots | 65 / 195 / 49 |
+| Damage | 46 body / 74 head / 39 legs, no falloff: 4 body (0.57 s) or 3 heads (0.38 s) at 150 | 65 / 195 / 49 |
 | Spread | 0.1° hip, **0° aimed** first shot, +0.45°/shot to 1.58°, recovery 0.4 s | 0.1° (ADS 0°) → 1.58° |
 | Recoil | 1.2° first kick, then 1.0° up + 0.2° side, 30% switch, 80% back over 0.3 s | |
 | ADS / speed | 1.5× (FOV 58), 0.25 s; ×0.9, ×0.76 aimed | |
@@ -242,7 +242,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 |---|---|---|
 | Fire | Lever, 0.667 s (1.5/s); the trigger hand rides the lever each shot | 1.5/s |
 | Mag / reload | 5, **round by round** through the side gate: 0.3 s in, 0.4 s per round, 0.35 s back (full load 2.65 s); firing mid-reload keeps the rounds loaded | 5 / 2.5 s |
-| Damage | 101 body / 202 head / 85 legs, no falloff: one-shots a head, a body shot leaves 1 HP | 101 / 202 / 85 |
+| Damage | 60 body / 120 head / 51 legs, no falloff; shield 0. One-shots a head only with no shield up | 101 / 202 / 85 |
 | Spread | 1° hip, **0° scoped**, +0.5°/shot to 2°, recovery 0.6 s; Sniper movement row | hip 1°, scoped 0° |
 | Scope | 3.5×, 0.25 s to scope; ×0.95 speed, ×0.6 scoped | 3.5× |
 | Recoil | 2.5° per shot, 85% back over 0.35 s | |
@@ -253,7 +253,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 |---|---|---|
 | Fire | Semi, 0.364 s (2.75/s), upper barrel then lower (`muzzles`) | 2.75/s |
 | Mag / reload | 2 / 2.3 s one round, 3.8 s both (break open, rounds in, snap shut); no casing per shot | 2 / 2.3 s |
-| Damage | 140 body / 238 head / 119 legs, no falloff: one-shots anywhere but the legs | 140 / 238 / 119 |
+| Damage | 75 body / 160 head / 64 legs, no falloff: 2 body or 1 head at 150 | 140 / 238 / 119 |
 | Spread | 3.5° hip, **0° scoped**, recovery 0.5 s | hip 3.5°, scoped 0° |
 | Scope | 3.5×, 0.28 s; ×0.9 speed, ×0.55 scoped | 3.5× |
 | Recoil | 3.6° per shot, 85% back over 0.35 s | |
@@ -264,7 +264,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 |---|---|---|
 | Fire | Bolt, 1.667 s (0.6/s); the trigger hand works the bolt, its arm rising from the lower right | 0.6/s |
 | Mag / reload | 5 / 3.2 s, 3.7 s empty (mag, then the bolt) | 5 / 3.7 s |
-| Damage | 150 body / 255 head / 120 legs, no falloff: one-shots the body; penetrates everything | 150 / 255 / 120 |
+| Damage | 125 body / 250 head / 106 legs, no falloff: 2 body or 1 head at 150; penetrates everything | 150 / 255 / 120 |
 | Spread | 5° hip, **0° scoped**, recovery 0.8 s | hip 5°, scoped 0° |
 | Scope | 2.5× (one level), 0.38 s; ×0.85 speed, **×0.4 scoped** | 2.5× / 5× |
 | Recoil | 5° per shot, 90% back over 0.45 s | |
@@ -275,7 +275,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 |---|---|---|
 | Fire | Auto, 0.077 s (13/s) | 13/s |
 | Mag / reload | 50 / 3.25 s, 3.8 s empty (drum + charging handle) | 50 / 3.25 s |
-| Damage | 30 body / 75 head / 25 legs; ×0.93 from 107 studs | 30 / 75 / 25 → 28 / 70 / 23 past 30 m |
+| Damage | 18 body / 27 head / 15 legs; ×0.93 from 107 studs | 30 / 75 / 25 → 28 / 70 / 23 past 30 m |
 | Spread | **1° first shot, tightening 0.03°/shot to 0.7°** (negative growth), ADS ×0.75, recovery 0.5 s; Machine-gun row | 1° → 0.7° min |
 | Recoil | 0.28° × 6, then 0.12° up + 0.18° side, 15% switch, 70% back over 0.35 s | |
 | ADS / speed | Iron sights, 1.15× (FOV 70), 0.3 s; ×0.9, ×0.7 aimed | |
@@ -288,7 +288,7 @@ Measured in Studio (2026-10-26, server `FireSpread`): a held spray goes 1.00, 0.
 |---|---|---|
 | Fire | Auto, **spins up** from 0.083 s (12/s) to 0.064 s (15.6/s) over 1 s | 12 → 15.6/s |
 | Mag / reload | 100 / 4.2 s, 5 s empty (feed cover, box swap, belt, cover, charging handle) | 100 / 5 s |
-| Damage | 38 body / 95 head / 32 legs; ×0.82 from 107 studs; penetrates everything | 38 / 95 / 32 → 31 / 77 / 26 past 30 m |
+| Damage | 20 body / 30 head / 17 legs; ×0.82 from 107 studs; penetrates everything | 38 / 95 / 32 → 31 / 77 / 26 past 30 m |
 | Spread | 0.8° → 1.3° (2 protected shots, +0.04°/shot), ADS ×0.75, recovery 0.5 s | 0.8° → 1.3° |
 | Recoil | 0.3° × 4, then 0.16° up + 0.22° side, 15% switch, 70% back over 0.4 s | |
 | ADS / speed | Iron sights, 1.15× (FOV 70), eye 1.0 stud back (the rear sight is big), 0.32 s; ×0.85, ×0.65 aimed | |
@@ -300,7 +300,7 @@ Measured in Studio (2026-10-26, server shot gaps): 82–85 ms for the first ~9 s
 |---|---|---|
 | Fire | Auto, 0.08 s (12.5/s), the guns fire in turn | (no Valorant equivalent; RIVALS-style akimbo) |
 | Mag / reload | 36 (18 a gun, one shared count) / 2.3 s, 2.7 s empty (both slides locked back) | |
-| Damage | 22 body / 48 head / 19 legs; ×0.85 from 54 studs, ×0.7 from 107 | |
+| Damage | 15 body / 23 head / 13 legs; ×0.85 from 54 studs, ×0.7 from 107; shield 50 | |
 | Spread | 0.6° → 2.0° (2 protected shots, +0.07°/shot), recovery 0.3 s; SMG row; **no ADS** | |
 | Recoil | 0.25° × 4, then 0.15° up + 0.2° side, 75% back over 0.25 s | |
 | Hold | One pistol model in each hand (`models = { right, left }`), placed mirrored at ±0.48 | |

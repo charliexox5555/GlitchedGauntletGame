@@ -484,6 +484,20 @@ end
 -- Damage ---------------------------------------------------------------------
 
 -- `sourceId`: the gun's id, or a Mod's id for Mod damage (WeaponService.damage).
+-- All damage goes through here: shield first, then health. Returns what it took.
+function WeaponService.hurt(humanoid: Humanoid, amount: number): number
+	local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+	local fromShield = if typeof(shield) == "number" then math.min(shield, amount) else 0
+	if fromShield > 0 then
+		humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, (shield :: number) - fromShield)
+	end
+	local before = humanoid.Health
+	if amount > fromShield then
+		humanoid:TakeDamage(amount - fromShield)
+	end
+	return fromShield + math.clamp(before - humanoid.Health, 0, before)
+end
+
 local function applyDamage(
 	attacker: Player,
 	victimModel: Model,
@@ -497,8 +511,7 @@ local function applyDamage(
 		return
 	end
 	local before = humanoid.Health
-	humanoid:TakeDamage(amount)
-	local dealt = math.clamp(before - humanoid.Health, 0, before)
+	local dealt = WeaponService.hurt(humanoid, amount)
 	local killed = before > 0 and humanoid.Health <= 0
 	humanoid:SetAttribute("LastAttacker", attacker.UserId)
 	if #damageListeners > 0 then

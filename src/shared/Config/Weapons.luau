@@ -38,8 +38,8 @@ local TRACER = Color3.fromHex("FFD9A0") -- warm, like a real tracer round
 
 local weapons: { [string]: WeaponConfig } = {
 	-- Rifle -------------------------------------------------------------
-	-- Vandal v2 (Gunplay.md §3): heavy-hitting automatic rifle, no falloff.
-	-- Four body shots (0.31 s) or two headshots.
+	-- Vandal (Gun Balance.md): heavy-hitting automatic rifle, no falloff, the
+	-- hardest-hitting head of the automatics. 7 body or 4 head against 150.
 	Vandal = {
 		id = "Vandal",
 		displayName = "Vandal",
@@ -47,7 +47,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 30, head = 67, legs = 25 },
+		damage = { body = 24, head = 40, legs = 20 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.103, -- 9.75 rounds/s
@@ -91,9 +91,8 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Phantom v2 (Gunplay.md §3): the Vandal's suppressed companion. Lighter
-	-- and faster, a bigger mag, less damage, and a falloff step at 70 studs.
-	-- Installed but not in the default loadout yet (gun 2, still in progress).
+	-- Phantom (Gun Balance.md): the Vandal's suppressed companion. Lighter and
+	-- faster, a bigger mag, less damage, and a falloff step at 70 studs.
 	Phantom = {
 		id = "Phantom",
 		displayName = "Phantom",
@@ -101,7 +100,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 26, head = 58, legs = 22 },
+		damage = { body = 21, head = 34, legs = 18 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.091, -- 11 rounds/s
@@ -143,16 +142,17 @@ local weapons: { [string]: WeaponConfig } = {
 	},
 
 	-- Sidearm --------------------------------------------------------------
-	-- Classic v2 (Gunplay.md §3): the free default pistol and the sidearm
-	-- benchmark. No ADS: right mouse fires a 3-pellet close-range burst.
+	-- Classic (Gun Balance.md): the default pistol and the sidearm benchmark:
+	-- weakest shots, most shield. No ADS: right mouse fires a 3-pellet close burst.
 	Classic = {
 		id = "Classic",
 		displayName = "Classic",
 		class = "Sidearm",
 		tier = 1,
 		slot = "Secondary",
+		shield = 50, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 26, head = 58, legs = 22 },
+		damage = { body = 20, head = 32, legs = 17 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.148, -- 6.75 rounds/s
@@ -195,8 +195,8 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Shorty v2 (roster 01): over-under break-action pocket shotgun. Two
-	-- shells, the upper barrel fires first; one-shots up close, useless far.
+	-- Shorty (roster 01): over-under break-action pocket shotgun. Two shells,
+	-- the upper barrel fires first; both up close kill, useless far.
 	Shorty = {
 		id = "Shorty",
 		displayName = "Shorty",
@@ -204,8 +204,9 @@ local weapons: { [string]: WeaponConfig } = {
 		moveClass = "Shotgun",
 		tier = 1,
 		slot = "Secondary",
+		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 11, head = 22, legs = 9 }, -- per pellet
+		damage = { body = 6, head = 9, legs = 5 }, -- per pellet
 		pellets = 15,
 		pelletSpread = 4,
 		fireInterval = 0.333, -- 3 shots/s
@@ -250,16 +251,16 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Ghost v2 (roster 02): slim suppressed pistol, accurate. No one-tap
-	-- headshot (v2 keeps those for snipers, the revolver and a DMR).
+	-- Ghost (roster 02): slim suppressed pistol, the accurate one.
 	Ghost = {
 		id = "Ghost",
 		displayName = "Ghost",
 		class = "Sidearm",
 		tier = 1,
 		slot = "Secondary",
+		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 30, head = 67, legs = 25 },
+		damage = { body = 23, head = 37, legs = 20 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.148, -- 6.75 rounds/s
@@ -310,8 +311,9 @@ local weapons: { [string]: WeaponConfig } = {
 		class = "Shotgun",
 		tier = 2,
 		slot = "Primary",
+		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 17, head = 34, legs = 14 }, -- per pellet
+		damage = { body = 6, head = 9, legs = 5 }, -- per pellet
 		pellets = 12,
 		pelletSpread = 2.5,
 		fireInterval = 0.286, -- 3.5 shots/s
@@ -363,8 +365,9 @@ local weapons: { [string]: WeaponConfig } = {
 		class = "SMG",
 		tier = 2,
 		slot = "Primary",
+		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 27, head = 61, legs = 23 },
+		damage = { body = 19, head = 30, legs = 16 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.075, -- 13.3 rounds/s
@@ -413,8 +416,9 @@ local weapons: { [string]: WeaponConfig } = {
 		class = "SMG",
 		tier = 2,
 		slot = "Primary",
+		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 26, head = 58, legs = 22 },
+		damage = { body = 16, head = 26, legs = 14 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.075, -- 13.3 rounds/s
@@ -457,7 +461,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Bucky v2 (roster 06): pump shotgun, one-shots up close. Loads shell by
+	-- Bucky (roster 06): pump shotgun, two pumps up close. Loads shell by
 	-- shell; firing mid-reload keeps the shells loaded so far.
 	Bucky = {
 		id = "Bucky",
@@ -465,8 +469,9 @@ local weapons: { [string]: WeaponConfig } = {
 		class = "Shotgun",
 		tier = 2,
 		slot = "Primary",
+		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Pump",
-		damage = { body = 17, head = 34, legs = 14 }, -- per pellet
+		damage = { body = 8, head = 12, legs = 7 }, -- per pellet
 		pellets = 15,
 		pelletSpread = 3,
 		fireInterval = 0.91, -- 1.1 shots/s (the pump)
@@ -508,16 +513,17 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Sheriff v2 (roster 07): six-shot revolver. The one sidearm that
-	-- one-taps a head (v2 allows it for the revolver); big kick.
+	-- Sheriff (roster 07): six-shot revolver: the hardest-hitting sidearm, big
+	-- kick, and no shield to go with it.
 	Sheriff = {
 		id = "Sheriff",
 		displayName = "Sheriff",
 		class = "Sidearm",
 		tier = 1,
 		slot = "Secondary",
+		shield = 0, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 55, head = 124, legs = 46 },
+		damage = { body = 50, head = 74, legs = 43 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.25, -- 4 rounds/s
@@ -560,16 +566,16 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Bulldog v2 (roster 08): budget bullpup rifle, mag behind the grip.
-	-- A touch weaker than Valorant's so the body TTK stays in range.
+	-- Bulldog (roster 08): budget bullpup rifle, mag behind the grip.
 	Bulldog = {
 		id = "Bulldog",
 		displayName = "Bulldog",
 		class = "Rifle",
 		tier = 2,
 		slot = "Primary",
+		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 33, head = 74, legs = 28 },
+		damage = { body = 22, head = 36, legs = 19 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.11, -- 9.1 rounds/s
@@ -614,8 +620,8 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Guardian v2 (roster 09): semi-auto marksman rifle (the DMR). One-taps a
-	-- head, two body shots; perfect first shot when aimed.
+	-- Guardian (roster 09): semi-auto marksman rifle (the DMR): the biggest
+	-- single shots outside the snipers; perfect first shot when aimed.
 	Guardian = {
 		id = "Guardian",
 		displayName = "Guardian",
@@ -623,7 +629,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Semi",
-		damage = { body = 65, head = 146, legs = 49 },
+		damage = { body = 46, head = 74, legs = 39 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.19, -- 5.25 rounds/s
@@ -664,8 +670,8 @@ local weapons: { [string]: WeaponConfig } = {
 	},
 
 	-- Snipers ------------------------------------------------------------
-	-- Marshal v2 (roster 11): cheap lever-action scoped rifle. One-shots a
-	-- head; loads round by round through the side gate (firing mid-reload
+	-- Marshal (roster 11): cheap lever-action scoped rifle. One-shots a head
+	-- only with no shield up; loads round by round through the side gate (firing mid-reload
 	-- keeps the rounds loaded).
 	Marshal = {
 		id = "Marshal",
@@ -673,8 +679,9 @@ local weapons: { [string]: WeaponConfig } = {
 		class = "Sniper",
 		tier = 2,
 		slot = "Primary",
+		shield = 0, -- with this gun in the Sidearm and Light phases
 		fireMode = "Bolt", -- the lever cycles after every shot
-		damage = { body = 101, head = 202, legs = 85 },
+		damage = { body = 60, head = 120, legs = 51 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.667, -- 1.5 rounds/s
@@ -724,7 +731,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Semi",
-		damage = { body = 140, head = 238, legs = 119 },
+		damage = { body = 75, head = 160, legs = 64 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.364, -- 2.75 rounds/s
@@ -766,8 +773,8 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Operator v2 (roster 13): heavy bolt-action sniper. One-shots the body;
-	-- slow to scope, slow to move with while scoped. (Valorant's second 5x
+	-- Operator (roster 13): heavy bolt-action sniper. One-shots a head, two to
+	-- the body; slow to scope, slow to move with while scoped. (Valorant's second 5x
 	-- zoom level isn't built: one 2.5x scope.)
 	Operator = {
 		id = "Operator",
@@ -776,7 +783,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 4,
 		slot = "Primary",
 		fireMode = "Bolt",
-		damage = { body = 150, head = 255, legs = 120 },
+		damage = { body = 125, head = 250, legs = 106 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 1.667, -- 0.6 rounds/s (the bolt)
@@ -826,7 +833,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 30, head = 75, legs = 25 },
+		damage = { body = 18, head = 27, legs = 15 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.077, -- 13 rounds/s
@@ -877,7 +884,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 4,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 38, head = 95, legs = 32 },
+		damage = { body = 20, head = 30, legs = 17 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.064, -- 15.6 rounds/s once spun up
@@ -928,8 +935,9 @@ local weapons: { [string]: WeaponConfig } = {
 		class = "SMG",
 		tier = 2,
 		slot = "Primary",
+		shield = 50, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 22, head = 48, legs = 19 },
+		damage = { body = 15, head = 23, legs = 13 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.08, -- 12.5 rounds/s, alternating guns
@@ -974,7 +982,7 @@ local weapons: { [string]: WeaponConfig } = {
 	},
 
 	-- Melee --------------------------------------------------------------
-	-- Knife v2 (roster 10): everyone's melee. Front swing 50, backstab 100,
+	-- Knife (roster 10): everyone's melee. Front swing 50, backstab 100,
 	-- a short lunge on hit. (Valorant's heavy right-click attack isn't built.)
 	Knife = {
 		id = "Knife",
@@ -1053,8 +1061,8 @@ Weapons.DEFAULT_LOADOUT = table.freeze({
 }) :: { [Types.Slot]: string }
 
 -- Hit-zone multipliers used when a gun doesn't set its own head/legs damage
--- (Gunplay.md §3: rifles kill with two headshots).
-Weapons.HEAD_MULTIPLIER = 2.25
+-- (vault/01 Design/Gun Balance.md).
+Weapons.HEAD_MULTIPLIER = 1.6
 Weapons.LEGS_MULTIPLIER = 0.85
 
 function Weapons.get(id: string): WeaponConfig?
