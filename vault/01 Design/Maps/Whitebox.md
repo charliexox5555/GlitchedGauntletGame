@@ -2,7 +2,7 @@
 
 The first map: a clean white test arena floating above the clouds, built mostly from Roblox Parts. It takes the look of RIVALS' Arena and the layout discipline of Valorant's Skirmish maps. See [Maps](00%20Maps.md) for the rest of the roster.
 
-**Status (2026-11-02):** plan approved, and the arena is **built as a Studio model at `Workspace.Whitebox`**, with textures and lighting. **The user approved the layout on 2026-11-02** and is fixing some overlapping parts and refining it by hand in Studio, so the Studio model now wins over `tools/maps/whitebox_layout.py` and the backup `.rbxm` until it's re-saved. Next: map loading, then rounds. "Whitebox" is a working name.
+**Status (2026-11-02):** plan approved, and the arena is **built as a Studio model at `Workspace.Whitebox`**, with textures and lighting. **The user approved the layout on 2026-11-02** and is fixing some overlapping parts and refining it by hand in Studio, so the Studio model now wins over `tools/maps/whitebox_layout.py` and the backup `.rbxm` until it's re-saved. Matches load it now: [Match Flow](../Match%20Flow.md). "Whitebox" is a working name.
 
 ![Whitebox at eye level](../../02%20Art/References/maps/white-arena/whitebox-eye-level.jpg)
 ![Whitebox in game](../../02%20Art/References/maps/white-arena/whitebox-in-game.jpg)
