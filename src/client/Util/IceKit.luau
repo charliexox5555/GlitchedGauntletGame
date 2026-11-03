@@ -64,6 +64,7 @@ type Template = { part: BasePart, rel: CFrame }
 local templates: { [string]: Template } = {}
 local pools: { [string]: VfxPool.Pool<BasePart> } = {}
 local nameOf: { [BasePart]: string } = {}
+local lastScale: { [BasePart]: Vector3 } = {} -- skip Size writes that wouldn't change it
 local folder: Folder? = nil
 local installed = false
 local nextCheck = 0
@@ -79,6 +80,7 @@ local function fxFolder(): Folder
 	folder = made
 	table.clear(pools)
 	table.clear(nameOf)
+	table.clear(lastScale)
 	return made
 end
 
@@ -89,9 +91,15 @@ function IceKit.ready(): boolean
 		if any and templates[any].part.Parent then
 			return true
 		end
+		-- The model went away: drop the pools and their parked parts.
 		installed = false
 		table.clear(templates)
 		table.clear(pools)
+		for p in nameOf do
+			p:Destroy()
+		end
+		table.clear(nameOf)
+		table.clear(lastScale)
 	end
 	local now = os.clock()
 	if now < nextCheck then
@@ -156,7 +164,9 @@ function IceKit.release(part: BasePart)
 	local pool = name and pools[name]
 	if pool and part.Parent then
 		pool:release(part)
-	elseif not pool then
+	else
+		nameOf[part] = nil
+		lastScale[part] = nil
 		part:Destroy()
 	end
 end
@@ -169,8 +179,11 @@ function IceKit.place(part: BasePart, at: CFrame, scale: Vector3)
 		return
 	end
 	local rel = t.rel
-	local s = rel:VectorToObjectSpace(scale) -- the scale along the part's own axes
-	part.Size = t.part.Size * Vector3.new(math.abs(s.X), math.abs(s.Y), math.abs(s.Z))
+	if lastScale[part] ~= scale then
+		lastScale[part] = scale
+		local s = rel:VectorToObjectSpace(scale) -- the scale along the part's own axes
+		part.Size = t.part.Size * Vector3.new(math.abs(s.X), math.abs(s.Y), math.abs(s.Z))
+	end
 	part.CFrame = at * CFrame.new(rel.Position * scale) * rel.Rotation
 end
 
@@ -232,7 +245,11 @@ function IceKit.stop(h: Handle)
 		return
 	end
 	h.stopped = true
-	local age = math.max(os.clock() - h.born, 0)
+	if os.clock() < h.born then
+		h.life = 0 -- still waiting out its delay: never shows
+		return
+	end
+	local age = os.clock() - h.born
 	h.life = math.min(h.life, age + (h.spec.fade or 0.3))
 end
 

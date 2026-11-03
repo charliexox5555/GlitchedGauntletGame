@@ -69,6 +69,7 @@ local GROUND_TIME = 3.5
 local running: { (now: number) -> boolean } = {}
 
 local folder: Folder? = nil
+local slicePool: VfxPool.Pool<Part>? = nil -- the Freeze Frame slices (in this folder)
 local function fxFolder(): Folder
 	local f = folder
 	if f and f.Parent then
@@ -78,6 +79,7 @@ local function fxFolder(): Folder
 	made.Name = "FreezeFrameFx"
 	made.Parent = Workspace
 	folder = made
+	slicePool = nil
 	return made
 end
 
@@ -492,7 +494,6 @@ local SLICES = 2
 local SHELL_ALPHA = 0.45 -- the frozen body shows through the ice
 
 -- Thin magenta slices sweeping down through the kit's block (pooled).
-local slicePool: VfxPool.Pool<Part>? = nil
 local function slices(): VfxPool.Pool<Part>
 	local pool = slicePool
 	if pool then

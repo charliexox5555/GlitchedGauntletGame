@@ -480,7 +480,7 @@ function FrostWallFx.dress(part: BasePart): boolean
 			scale = Vector3.new(th * 1.3, 1.5, len * 0.62),
 			color = ICE,
 			alpha = 0.35,
-			life = 60, -- stopped once the wall is gone
+			life = math.huge, -- stopped once the wall is gone
 			from = 0.4,
 			grow = RISE,
 			fade = 0.6,
@@ -561,7 +561,11 @@ local function glitch(p: Piece, now: number)
 		s.part.Color = GLITCH
 		s.part.Material = Enum.Material.Neon
 		s.part.Transparency = 0.3
-		s.part.CFrame = s.cf * CFrame.new(rng:NextNumber(-0.5, 0.5), rng:NextNumber(-0.3, 0.3), 0)
+		-- Across the wall and a little up (the wall's axes: a kit slab's own are turned).
+		local wall = p.part.CFrame
+		s.part.CFrame = s.cf
+			+ wall.RightVector * rng:NextNumber(-0.5, 0.5)
+			+ wall.UpVector * rng:NextNumber(-0.3, 0.3)
 	end
 	local size = p.part.Size
 	for _, a in p.accents do

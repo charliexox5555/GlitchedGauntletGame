@@ -280,7 +280,9 @@ type Body = {
 	iceBorn: number,
 	seen: number, -- the last step that checked it
 }
-local bodies: { [Model]: Body } = setmetatable({}, { __mode = "k" }) :: any
+-- Strong keys: a Body can hold pooled kit parts, which must be released (the
+-- step drops bodies it no longer sees).
+local bodies: { [Model]: Body } = {}
 
 local FEET_ICE = 3 -- crystals at a hindered body's feet
 local ICE_GROW = 0.15
@@ -503,9 +505,10 @@ function FrostFx.step()
 		end
 	end
 	-- A body gone from the world (a dummy removed, a player left) drops its ice.
-	for _, b in bodies do
-		if b.ice and b.seen ~= stepCount then
+	for model, b in bodies do
+		if b.seen ~= stepCount then
 			freeIce(b, false)
+			bodies[model] = nil
 		end
 	end
 	local mine = Status.active(player.Character, "Hinder", serverNow)
