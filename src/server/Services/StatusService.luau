@@ -24,6 +24,7 @@ local StatusService = {}
 
 -- Server time each effect last started on a model (weak: models go away).
 local started: { [Instance]: { [string]: number } } = setmetatable({}, { __mode = "k" }) :: any
+local applyListeners: { (model: Model, name: string) -> () } = {}
 
 -- Puts `name` on `model` for `duration` seconds from now (a refresh, never
 -- longer: a new hit restarts the timer).
@@ -43,6 +44,15 @@ function StatusService.apply(model: Model, name: string, duration: number)
 		list[name] = now
 	end
 	model:SetAttribute(effect.attribute, now + duration)
+	for _, fn in applyListeners do
+		task.spawn(fn, model, name)
+	end
+end
+
+-- `fn(model, name)` after every apply (a start or a refresh): WeaponService
+-- drops a reload when a stun (Frozen) lands.
+function StatusService.onApply(fn: (model: Model, name: string) -> ())
+	table.insert(applyListeners, fn)
 end
 
 -- When each effect started on `model` (for Status.lenient).
