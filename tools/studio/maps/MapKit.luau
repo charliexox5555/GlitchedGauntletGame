@@ -125,8 +125,9 @@ local function box(
 	return make("Part", parent, name, size, cf, color, look)
 end
 
--- A ramp: rises toward the part's -Z face (WedgePart's sloped face looks +Z... up),
--- so `cf` should face the way you walk up.
+-- A ramp (WedgePart): low at its local -Z end, full height at its +Z end
+-- (measured in Studio 2026-11-03). So you walk UP toward the part's +Z, i.e.
+-- against its LookVector: at(x, y, z, yaw) with the ramp's top end at +Z.
 local function wedge(
 	parent: Instance,
 	name: string,
