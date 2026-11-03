@@ -157,7 +157,7 @@ The previews are Blender EEVEE stand-ins for the Roblox look (no end-colour tint
 5. **Run order** for the hub (match place, edit mode, Studio MCP or Command Bar):
    1. `python tools/studio/maps/kit_bundle.py Metro Station -o metro_kit.luau` → run it (installs `ServerStorage.MapKit.Metro`).
    2. `python tools/studio/maps/bundle.py Metro Greybox Art Lighting -o metro.luau` → run it (re-runnable; it builds `Workspace.Metro` at (1500, 200, 0)).
-   3. Set `Workspace.ForceMap = "Metro"` and press Play to see the lighting (MapService applies it on load).
+   3. Set the Workspace attribute `ForceMap` to `Metro` and press Play to see the lighting (MapService applies it on load).
    4. Screenshots, then save the place and back up `art-source/maps/Metro/Metro.rbxm`.
 
 ### What to check in the screenshots
