@@ -77,6 +77,16 @@ return table.freeze({
 		land = cue(9113472118, 0.5, 1.1, nil, nil, 0.35),
 		-- Updraft_World: 3D for everyone else, ~40 studs. "Giant Air Blast ... Many Versions 7"
 		world = cue(9125577419, 1, 0.95, nil, 40, 1.1, 0.2),
+		-- Crash Down (G2/G3 slam, Util/UpgradeFx/Updraft). Placeholders, unauditioned.
+		-- Updraft_SlamDive: you, the drop. "Fast Pass By Airy Whooshes Windy 4", pitched down
+		slamDive = cue(9114373678, 0.6, 0.75, nil, nil, 0.5),
+		-- Updraft_SlamDiveWorld: 3D warning for everyone else, ~60 studs (same file)
+		slamDiveWorld = cue(9114373678, 0.9, 0.7, nil, 60, 0.6),
+		-- Updraft_SlamImpact: you 2D, everyone else 3D ~80 studs. "Meaty Thud 7"
+		slamImpact = cue(9116488211, 1, 0.85, nil, 80, 0.9),
+		-- Updraft_SlamGlitch: the digital crackle on top (3D for all, ~60 studs).
+		-- "Layered Rips High End Short Energy Bursts Spark 3"
+		slamGlitch = cue(9125625388, 0.55, 0.9, nil, 60, 0.6),
 	}),
 	-- Molly hooks (vault/01 Design/Abilities/Molly.md → Sound). Placeholders
 	-- (ProSoundEffects, unauditioned), listed in the Molly note; one id each.
