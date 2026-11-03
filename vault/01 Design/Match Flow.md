@@ -39,7 +39,7 @@ Both sides see the same 3 guns. The offer stays the same through a phase and cha
 
 ### Abilities
 - 3 random abilities you don't own yet. Both sides are dealt from the same shuffled order, so 1v1 offers match until someone owns one of them.
-- Each pick fills the next slot: **Q, then E, then T**. Abilities stay for the whole match. Charges refill every round.
+- Each pick fills the next slot: **Q, then E, then T**. *(Changing, decided 2026-11-03: each ability will have its own fixed key, e.g. Dash is always E. See [Upgrade Paths](Abilities/Upgrade%20Paths.md).)* Abilities stay for the whole match. Charges refill every round.
 - **After 3 picks** the row shows your 3 abilities as "Upgrades coming soon" cards you can't pick. That's the spot for the L1 → L3 upgrades later.
 - The draft screen shows the enemy's abilities, as the locked draft rules say.
 

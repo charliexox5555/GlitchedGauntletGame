@@ -20,6 +20,8 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 | 8 | [Stim](Stim.md) | Overclock | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
 | 9 | [Recall](Recall.md) | Rollback | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
 
+L2/L3 upgrade paths and fixed keys per ability: in review in [Upgrade Paths](Upgrade%20Paths.md) (started 2026-11-03).
+
 ## Rules for every base ability
 - **Charges, not one cooldown rule for all.** Each ability sets its own: a number of **charges per round** (refilled at round start, no recharge) and/or a **cooldown**, like Valorant (Jett's dash vs Sova's dart). It's decided per ability below.
 - **Test mode:** there's no round system yet, so the dev panel has a **"Test mode: unlimited charges"** toggle (on by default in Studio). RoundService will later call a "refill charges" function at round start.

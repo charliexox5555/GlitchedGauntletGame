@@ -14,7 +14,7 @@
 | Mid-air | **Yes, like a double jump:** it resets your fall and launches you up again |
 | After the peak | **Normal fall**. No glide, no hover |
 | Shooting | **Gun goes down while you rise** (no shooting for `gunDown` 0.35 s, like Dash), then comes back up near the peak; normal in-air spread after (changed 2026-10-29, the user's feedback) |
-| Charges | **2 per round, no recharge, no cooldown** (unlimited in test mode) |
+| Charges | **1 per round, no recharge, no cooldown** (unlimited in test mode). Was 2; lowered 2026-11-03 so the upgrade path can add charges ([Upgrade Paths](Upgrade%20Paths.md)) |
 | Combos | Works with Dash (e.g. Updraft, then Dash forward in the air) |
 
 ## First person

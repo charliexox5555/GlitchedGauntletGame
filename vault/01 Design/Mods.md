@@ -6,6 +6,8 @@
 
 > **Redesign in progress (2026-10-28):** the base abilities are being redesigned one by one in [Abilities](Abilities/00%20Abilities.md). Those notes **override the L1 sections below** (Blink → Dash, Launch Pad → Updraft, Packet → Molly, Firewall → Phoenix-style fire wall, Lag Field → Frost, Ping → Recon, Patch Up → Heal Orb, Overclock → Stim, Rollback → Recall; all 9 locked).
 
+> **Upgrade paths decided (2026-11-03):** the A/B/glitch tables below are out of date. The current L2/L3 paths and the fixed key per ability are in [Upgrade Paths](Abilities/Upgrade%20Paths.md).
+
 ## How a Mod upgrades
 ```
             ┌─ Path A: L2 ─► L3

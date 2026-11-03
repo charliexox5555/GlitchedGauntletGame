@@ -14,7 +14,7 @@
 | Teleport | Once the anchor is placed, press the key while **within 40 studs** of it → a **0.6 s wind-up**, then you appear on the anchor |
 | Out of range | Pressing beyond 40 studs is refused ("Out of range" cue); nothing is spent |
 | Move it | Before you've teleported, **hold the key ~0.5 s near the anchor** (within ~6 studs) to pick it up and place it again |
-| Uses | The **anchor stays** after you teleport to it (Chamber-style): teleport again once the **15 s cooldown** is over (changed 2026-10-29). Pick it up any time, even on cooldown (unlimited charges in test mode) |
+| Uses | The **anchor stays** after you teleport to it (Chamber-style): teleport again once the **20 s cooldown** is over (15 s on 2026-10-29, raised to 20 s on 2026-11-03 for the [Upgrade Paths](Upgrade%20Paths.md)). Pick it up any time, even on cooldown (unlimited charges in test mode) |
 | Destroyable | **2 bullet hits** destroy the anchor: the teleport goes on its **full cooldown** (restarts if already cooling), then you plant again |
 | Range ring | **Only you** see the teleport range as a subtle dashed violet ring on the floor around your anchor (and around the hologram while you aim the plant); it turns red while you're outside it |
 | Gun | **You can't shoot during the 0.6 s wind-up.** You **arrive with the gun up** and can fire right away |
