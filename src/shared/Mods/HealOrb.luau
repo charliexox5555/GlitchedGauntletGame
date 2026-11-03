@@ -62,26 +62,46 @@ function HealOrb.isBarrier(stats: Types.Stats): boolean
 	return stats.behaviour == "Barrier"
 end
 
--- Who cast the Barrier on each character (the fx's owner), and the death
--- watch that clears it. Weak keys: a character that's gone takes its entry.
-local barrierFrom: { [Model]: Player } = setmetatable({}, { __mode = "k" }) :: any
-local deathWatch: { [Model]: RBXScriptConnection } = setmetatable({}, { __mode = "k" }) :: any
+-- Who cast the Barrier on each character (the fx's owner), and the watches
+-- that clear it (death, the character going). Cleared with the Barrier.
+local barrierFrom: { [Model]: Player } = {}
+local watches: { [Model]: { RBXScriptConnection } } = {}
 
 local function clearBarrier(model: Model)
-	model:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, nil)
+	if model.Parent then
+		model:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, nil)
+	end
 	barrierFrom[model] = nil
+	local list = watches[model]
+	watches[model] = nil
+	if list then
+		for _, c in list do
+			c:Disconnect()
+		end
+	end
 end
 
 local function giveBarrier(target: Model, hits: number, caster: Player)
 	target:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, hits) -- replaces, never adds
 	barrierFrom[target] = caster
-	local humanoid = target:FindFirstChildOfClass("Humanoid")
-	if humanoid and not deathWatch[target] then
-		deathWatch[target] = humanoid.Died:Once(function()
-			deathWatch[target] = nil
-			clearBarrier(target)
-		end)
+	if watches[target] then
+		return
 	end
+	local list = {
+		target.Destroying:Once(function()
+			clearBarrier(target)
+		end),
+	}
+	local humanoid = target:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		table.insert(
+			list,
+			humanoid.Died:Once(function()
+				clearBarrier(target)
+			end)
+		)
+	end
+	watches[target] = list
 end
 
 local module: Types.ModModule = {}
@@ -151,7 +171,7 @@ module.server = function(api: Types.ServerApi)
 		if typeof(left) ~= "number" or left < 1 or amount <= 0 or humanoid.Health <= 0 then
 			return amount
 		end
-		if attacker and Teams.isAlly(attacker, victim) then
+		if attacker and (attacker.Character == victim or Teams.isAlly(attacker, victim)) then
 			return amount
 		end
 		left -= 1

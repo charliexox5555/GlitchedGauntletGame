@@ -91,11 +91,11 @@ Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → 7. Heal Orb (the n
 - The count is the `BarrierHits` attribute on the target's character, written only by the server. A new cast **replaces** the count (never adds).
 - A damage guard (`module.server` → `api.guard`) runs first in `WeaponService.hurt`, before the gun shield and health. While hits are left, one **enemy damage instance** uses one up and deals 0: a bullet, a whole shotgun blast (pellets are summed per target first), one fire tick, one slam. Damage with no player behind it (the test opponent) counts as enemy.
 - **Own and team damage goes past it without using it up** (a Molly at your own feet, a teammate's fire). Proposed by the build; change in the guard if the user wants "any hit".
-- Gone when used up, on death (a `Died` watch clears it), on respawn (new character), and at the next round's start (`api.onRefill`).
+- Gone when used up, on death (a `Died` watch clears it), when the character goes, and at the next round's start (`api.onRefill`). The dev panel's "Refill charges" also fires `onRefill`, so it clears live Barriers too (expected in testing).
 - Each block sends ModFx `BarrierBlock` {target, left, at}; the shooter's `HitConfirm` carries `blocked = true`.
 
 **Look (`Util/BarrierFx.luau`, driven from `Util/UpgradeFx/HealOrb.luau`):**
-- A see-through **hex bubble** around the whole body: a ForceField-material ellipsoid (SpecialMesh sphere) with the `MOD_HEX` texture, 5.8 × 7.6 × 5.8 studs. Cyan to you and your team, orange-red to enemies (and more opaque for enemies, so they read it clearly). One layer per hit left (G3 shows two nested bubbles).
+- A see-through **hex bubble** around the whole body: a ForceField-material ellipsoid (SpecialMesh sphere) with the `MOD_HEX` texture, 5.8 × 7.6 × 5.8 studs. Cyan to you and your team, orange-red to enemies (and more opaque for enemies, so they read it clearly). One layer per hit left (G3 shows two nested bubbles; a block shatters pixels off the outer skin and the inner one goes).
 - **Glitch:** a faint magenta ForceField shell just outside, magenta static pixels (tiny Neon cubes) popping on its skin, and every 0.7–1.6 s a 0.12 s flicker (jumps sideways, colour stutters to magenta).
 - **Cast:** a ribbon in the team colour from the caster (or a burst on yourself), the bubble grows in over 0.25 s, a glassy shimmer + a static zap.
 - **Block:** the outer layer **shatters into pixels** (34 Neon cubes, 16 for a layer pop on G3) with a quick flash and sparkles, "Glass Breaks 17" + a buzzy zap (3D, 2D for the one it saved). The shooter sees a grey X and a **BLOCKED** tag at the hit point instead of a damage number (`Util/HitFeedback.blocked`), and no hit sound.
@@ -111,6 +111,7 @@ Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → 7. Heal Orb (the n
 | `barrierBreakZap` | 9119594871 | Static Zap Body Two Buzzy Impacts 2 | 3D 60, cut 0.35 s |
 
 **Open questions / follow-ups:**
+- A fully blocked hit still sends `Damaged` (0) to the victim (`WeaponService.applyDamage`), so they get the hurt sound and direction marker for a hit that did nothing. Hub fix: skip `Damaged` when `blocked`.
 - The held orb in your hand is still the green-teal heal orb at G levels; a glitched (magenta / hex) orb would sell the change.
 - Names: "Barrier" also names the arena barrier in the match HUD ("The barrier drops soon"). Proposed alternatives below.
 
