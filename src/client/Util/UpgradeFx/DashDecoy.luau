@@ -13,6 +13,10 @@
 --   - at the end it glitches out in magenta static
 -- The split (the dash start) gets the same static, so nobody can tell which
 -- of the two walked away from it.
+-- Look (stylized, 2026-11-03): with the GlitchVFX kit installed (Util/
+-- GlitchVfx) the static is two stacks of scanline slivers slipping sideways
+-- out of step with a spray of voxels coming off them (pooled), and the decoy's
+-- last frame pops into a voxel clump.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,6 +32,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local AudioController = require(script.Parent.Parent.Parent.Controllers.AudioController)
 local EffectsController = require(script.Parent.Parent.Parent.Controllers.EffectsController)
+local GlitchVfx = require(script.Parent.Parent.GlitchVfx)
 local ModVfx = require(script.Parent.Parent.ModVfx)
 local TeamColor = require(script.Parent.Parent.TeamColor)
 
@@ -52,7 +57,16 @@ export type Spawn = {
 	stats: { [string]: any },
 }
 
-type Static = { slices: { BasePart }, cframe: CFrame, size: Vector3, born: number, life: number }
+type Static = {
+	slices: { BasePart }, -- Neon slices (without the kit)
+	slivers: { BasePart }, -- the kit's scanline stacks
+	cframe: CFrame,
+	size: Vector3,
+	born: number,
+	life: number,
+}
+local SLIVER_STACKS = 2 -- the kit's sliver stacks per static
+local SLIVER_DEPTH = 0.6 -- of the body's depth
 
 type Decoy = {
 	owner: Player,
@@ -125,7 +139,30 @@ end
 -- the glitch path's look (Config/Mods COLORS.glitch).
 function DashDecoy.static(cframe: CFrame, size: Vector3, life: number): Static
 	local slices: { BasePart } = {}
-	for _ = 1, SLICES do
+	local slivers: { BasePart } = {}
+	for _ = 1, if GlitchVfx.ready() then SLIVER_STACKS else 0 do
+		local p = GlitchVfx.take("Slivers_Energy")
+		if p then
+			p.Color = TeamColor.GLITCH
+			p.Size = Vector3.new(size.X, size.Y, size.Z * SLIVER_DEPTH)
+			table.insert(slivers, p)
+		end
+	end
+	if #slivers > 0 then
+		-- Voxels coming off it.
+		GlitchVfx.piece({
+			name = "PixelSpray_Energy",
+			cframe = cframe * CFrame.Angles(0, math.random() * math.pi * 2, 0),
+			scale = Vector3.one * (size.X / 2.2),
+			scale1 = Vector3.one * (size.X / 1.4),
+			color = TeamColor.GLITCH,
+			life = life + 0.1,
+			alpha0 = 0.1,
+			stutter = 0.3,
+			spin = Vector3.new(0, 4, 0),
+		})
+	end
+	for _ = 1, if #slivers > 0 then 0 else SLICES do
 		local p = Instance.new("Part")
 		p.Anchored = true
 		p.CanCollide = false
@@ -138,8 +175,14 @@ function DashDecoy.static(cframe: CFrame, size: Vector3, life: number): Static
 		p.Parent = fxFolder()
 		table.insert(slices, p)
 	end
-	local s: Static =
-		{ slices = slices, cframe = cframe, size = size, born = os.clock(), life = life }
+	local s: Static = {
+		slices = slices,
+		slivers = slivers,
+		cframe = cframe,
+		size = size,
+		born = os.clock(),
+		life = life,
+	}
 	table.insert(statics, s)
 	return s
 end
@@ -153,8 +196,20 @@ local function stepStatics()
 			for _, p in s.slices do
 				p:Destroy()
 			end
+			for _, p in s.slivers do
+				GlitchVfx.give("Slivers_Energy", p)
+			end
 			table.remove(statics, i)
 			continue
+		end
+		for _, p in s.slivers do
+			-- Out of step with each other: a sideways slip, sometimes mirrored.
+			local x = (math.random() - 0.5) * s.size.X * 0.35
+			local flip = if math.random() < 0.5 then math.pi else 0
+			p.CFrame = s.cframe
+				* CFrame.new(x, (math.random() - 0.5) * 0.3, 0)
+				* CFrame.Angles(0, flip, 0)
+			p.Transparency = if math.random() < 0.3 then 1 else 0.1 + 0.9 * k
 		end
 		for _, p in s.slices do
 			local y = (math.random() - 0.5) * s.size.Y
@@ -463,6 +518,16 @@ local function stepDecoy(d: Decoy, dt: number, now: number)
 		local k = (os.clock() - d.glitchAt) / GLITCH_TIME
 		if k >= 1 then
 			ModVfx.burst(d.pos, TeamColor.GLITCH, 14, "Cross")
+			GlitchVfx.piece({
+				name = "Pixels_Energy",
+				cframe = CFrame.new(d.pos) * CFrame.Angles(0, math.random() * math.pi * 2, 0),
+				scale = Vector3.one * 1.8,
+				scale1 = Vector3.one * 0.4,
+				color = TeamColor.GLITCH,
+				life = 0.25,
+				alpha0 = 0,
+				stutter = 0.2,
+			})
 			remove(d)
 			return
 		end

@@ -16,6 +16,10 @@
 --                sees "+20%" over them while the bonus lasts
 --   Revealed     (the revealed player) magenta screen tears and a static
 --                burst on top of the usual warning (ModFeelController)
+-- Look (stylized, 2026-11-03): with the GlitchVFX kit installed (Util/
+-- GlitchVfx) the wave is three stacked datamosh scan bands (torn, stepped
+-- slabs on a ring, each band slipping round on its own every dropped frame)
+-- instead of the ForceField shimmer shell, with fewer loose slabs.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -26,6 +30,7 @@ local Mods = require(Shared.Mods)
 local Tex = require(Shared.Config.VfxTextures)
 
 local CameraController = require(script.Parent.Parent.Parent.Controllers.CameraController)
+local GlitchVfx = require(script.Parent.Parent.GlitchVfx)
 local ModAudio = require(script.Parent.Parent.ModAudio)
 local ModVfx = require(script.Parent.Parent.ModVfx)
 local TeamColor = require(script.Parent.Parent.TeamColor)
@@ -41,6 +46,11 @@ local WAVE_TIME = 0.9 -- the wave's sweep out to the radius
 local WAVE_FADE = 0.45 -- then it breaks up
 local WAVE_FPS = 14 -- it grows in steps (dropped frames), not smoothly
 local WAVE_SLABS = 36 -- torn pixel slabs around the wave front
+local KIT_SLABS = 12 -- fewer with the kit's scan bands
+local BAND_HEIGHTS = { -3, 0, 3 } -- the kit's scan bands: centre heights from the dart
+local BAND_TALL = 2.6 -- studs each band stands
+local BAND_SPAN = 1.25 -- ScanWave_Energy's box is 2.5 x 1.15 x 2.5 for a ring of r 1
+local BAND_HEIGHT = 1.15
 local TEAR_HZ = 12 -- how often outlines, tags and slabs re-roll their glitch
 local PASS_TEAR = 0.25 -- screen tear (seconds) as the wave passes you
 local REVEALED_TEAR = 0.45 -- the revealed player's screen tear
@@ -282,7 +292,8 @@ type Wave = {
 	color: Color3,
 	born: number,
 	model: Model,
-	shell: Part,
+	shell: Part?, -- the ForceField shimmer (without the kit)
+	bands: { BasePart }, -- the kit's scan bands
 	slabs: { BasePart },
 	angles: { number },
 	highlight: Highlight,
@@ -352,26 +363,42 @@ local function onSpike(data: { [string]: any })
 	-- walls without the shell's fill covering the screen.
 	local model = Instance.new("Model")
 	model.Name = "ReconSpikeWave"
-	local shell = Instance.new("Part")
-	shell.Shape = Enum.PartType.Ball
-	shell.Anchored = true
-	shell.CanCollide = false
-	shell.CanQuery = false
-	shell.CanTouch = false
-	shell.CastShadow = false
-	shell.Material = Enum.Material.ForceField
-	shell.Color = GLITCH
-	shell.Size = Vector3.one * 2
-	shell.CFrame = CFrame.new(at)
-	shell.Parent = fxFolder()
+	local bands: { BasePart } = {}
+	if GlitchVfx.ready() then
+		for _ = 1, #BAND_HEIGHTS do
+			local band = GlitchVfx.take("ScanWave_Energy")
+			if band then
+				band.Color = GLITCH
+				band.Parent = model
+				table.insert(bands, band)
+			end
+		end
+	end
+	local shell: Part? = nil
+	if #bands == 0 then
+		local made = Instance.new("Part")
+		made.Shape = Enum.PartType.Ball
+		made.Anchored = true
+		made.CanCollide = false
+		made.CanQuery = false
+		made.CanTouch = false
+		made.CastShadow = false
+		made.Material = Enum.Material.ForceField
+		made.Color = GLITCH
+		made.Size = Vector3.one * 2
+		made.CFrame = CFrame.new(at)
+		made.Parent = fxFolder()
+		shell = made
+	end
 	local slabs = {}
 	local angles = {}
-	for i = 1, WAVE_SLABS do
+	local slabCount = if #bands > 0 then KIT_SLABS else WAVE_SLABS
+	for i = 1, slabCount do
 		local p = takePixel()
 		p.Transparency = 1
 		p.Parent = model
 		table.insert(slabs, p)
-		table.insert(angles, (i - 1) / WAVE_SLABS * math.pi * 2)
+		table.insert(angles, (i - 1) / slabCount * math.pi * 2)
 	end
 	local h = Instance.new("Highlight")
 	h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -389,6 +416,7 @@ local function onSpike(data: { [string]: any })
 		born = os.clock(),
 		model = model,
 		shell = shell,
+		bands = bands,
 		slabs = slabs,
 		angles = angles,
 		highlight = h,
@@ -414,8 +442,14 @@ local function stepWaves(now: number)
 			for _, p in w.slabs do
 				freePixel(p)
 			end
+			for _, band in w.bands do
+				GlitchVfx.give("ScanWave_Energy", band)
+			end
 			w.model:Destroy()
-			w.shell:Destroy()
+			local shell = w.shell
+			if shell then
+				shell:Destroy()
+			end
 			table.remove(waves, i)
 			continue
 		end
@@ -437,10 +471,26 @@ local function stepWaves(now: number)
 		local fade = if t > WAVE_TIME then (t - WAVE_TIME) / WAVE_FADE else 0
 		local jitter =
 			Vector3.new(rng:NextNumber(-1, 1), rng:NextNumber(-0.5, 0.5), rng:NextNumber(-1, 1))
-		w.shell.Size = Vector3.one * math.max(r * 2, 2)
-		w.shell.CFrame = CFrame.new(w.at + jitter)
-		w.shell.Color = if rng:NextNumber() < 0.75 then GLITCH else w.color
-		w.shell.Transparency = fade
+		local shell = w.shell
+		if shell then
+			shell.Size = Vector3.one * math.max(r * 2, 2)
+			shell.CFrame = CFrame.new(w.at + jitter)
+			shell.Color = if rng:NextNumber() < 0.75 then GLITCH else w.color
+			shell.Transparency = fade
+		end
+		-- The kit's bands: each slips round on its own and drops a frame now and then.
+		local span = math.max(r, 1) * 2 * BAND_SPAN
+		for j, band in w.bands do
+			if rng:NextNumber() < 0.12 + 0.6 * fade then
+				band.Transparency = 1
+				continue
+			end
+			band.Size = Vector3.new(span, BAND_HEIGHT * BAND_TALL, span)
+			band.CFrame = CFrame.new(w.at + jitter + Vector3.new(0, BAND_HEIGHTS[j], 0))
+				* CFrame.Angles(0, rng:NextNumber(0, math.pi * 2), 0)
+			band.Color = glitchColor(w.color)
+			band.Transparency = rng:NextNumber(0, 0.2) + 0.8 * fade
+		end
 		w.highlight.OutlineColor = if rng:NextNumber() < 0.7 then GLITCH else w.color
 		w.highlight.OutlineTransparency = 0.2 + 0.8 * fade
 		w.highlight.FillTransparency = 0.4 + 0.6 * fade

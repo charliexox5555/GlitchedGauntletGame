@@ -11,6 +11,10 @@
 -- corrupted blue "fatal error" flash, then rewind static and scanlines
 -- running up the screen while the view settles.
 --
+-- Look (stylized, 2026-11-03): with the GlitchVFX kit installed (Util/
+-- GlitchVfx) the streak home is two bundles of pixel bars along the path (no
+-- shimmer Beam), a stack of scanline slivers flickers over the frozen ghost,
+-- and a voxel clump pops where they land. Without the kit:
 -- Built in code (no new assets): Neon parts, a Beam, ScreenGui frames, the
 -- Recall textures (Config/VfxTextures RECALL_*) and the Recall sounds
 -- re-pitched (Config/ModSounds Recall).
@@ -24,6 +28,7 @@ local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local CameraController = require(script.Parent.Parent.Parent.Controllers.CameraController)
+local GlitchVfx = require(script.Parent.Parent.GlitchVfx)
 local ModAudio = require(script.Parent.Parent.ModAudio)
 local ModVfx = require(script.Parent.Parent.ModVfx)
 local RecallFx = require(script.Parent.Parent.RecallFx)
@@ -48,6 +53,7 @@ local PULL_SPREAD = 0.14 -- each pixel leaves up to this much later
 local PIXELS_PER_PART = 5
 local STREAK_LIFE = 0.5
 local ARRIVE_LIFT = 2.5 -- studs above the anchor's floor the pixels fly to
+local STREAK_LENGTH = 4 -- the kit's Streak_Energy is 4 long (along Z)
 
 -- Our screen (seconds from the event).
 local TEAR_TIME = 0.18
@@ -162,6 +168,17 @@ local function ghost(from: CFrame, to: Vector3, color: Color3, caster: Player?)
 		split.Parent = f
 		table.insert(g.parts, { box = box, main = main, split = split })
 	end
+	-- The kit: scanlines over the frozen frame.
+	GlitchVfx.piece({
+		name = "Slivers_Energy",
+		cframe = from,
+		scale = Vector3.new(1, 1.05, 1.2),
+		color = GLITCH,
+		life = GHOST_TIME,
+		alpha0 = 0.25,
+		hold = true,
+		stutter = 0.4,
+	})
 	table.insert(ghosts, g)
 end
 
@@ -179,7 +196,48 @@ local function stutter(g: Ghost)
 	end
 end
 
+-- The kit's streak: bars along the path, the team one and a magenta one
+-- torn off it. False when the kit isn't installed.
+local function kitStreak(from: Vector3, to: Vector3, color: Color3): boolean
+	local length = (to - from).Magnitude
+	if length < 0.5 or not GlitchVfx.ready() then
+		return false
+	end
+	local along = length / STREAK_LENGTH
+	local cf = CFrame.lookAt((from + to) / 2, to)
+	for i, tint in { color, GLITCH } do
+		local thick = if i == 1 then 1.8 else 1.1
+		GlitchVfx.piece({
+			name = "Streak_Energy",
+			cframe = cf
+				* CFrame.new((i - 1) * 0.35, (i - 1) * -0.25, 0)
+				* CFrame.Angles(0, 0, math.random() * 6.3),
+			scale = Vector3.new(thick, thick, along),
+			scale1 = Vector3.new(thick * 0.2, thick * 0.2, along),
+			color = tint,
+			life = STREAK_LIFE,
+			alpha0 = 0.05,
+			stutter = if i == 1 then 0.1 else 0.3,
+		})
+	end
+	GlitchVfx.piece({
+		name = "Pixels_Energy",
+		cframe = CFrame.new(to),
+		scale = Vector3.one * 0.6,
+		scale1 = Vector3.one * 2.2,
+		color = color,
+		life = BURST_TIME + PULL_TIME + PULL_SPREAD,
+		alpha0 = 0.2,
+		stutter = 0.2,
+		spin = Vector3.new(0, 5, 0),
+	})
+	return true
+end
+
 local function streak(from: Vector3, to: Vector3, color: Color3)
+	if kitStreak(from, to, color) then
+		return
+	end
 	local holder = block(Vector3.one * 0.1, color, 1)
 	holder.CFrame = CFrame.identity
 	local a0 = Instance.new("Attachment")

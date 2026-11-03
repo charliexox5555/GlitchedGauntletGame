@@ -4,7 +4,8 @@
 -- the Mods: a hold pose while a held Mod is up (player attribute ModHeld)
 -- and a one-shot throw / place / heal on each use (ModUseKind / ModUseAt,
 -- written by ModService; the character attribute PoseUseSeen remembers the
--- last one played).
+-- last one played). Updraft's Crash Down: a dive pose while UpdraftSlam is
+-- "Down" and a landing clip once per UpdraftSlamAt.
 --
 -- Stepped inside the Server Authority simulation, the same way Roblox's own
 -- Animate module works: the server poses every player, each client predicts
@@ -34,9 +35,15 @@ local SPECS: { [string]: Spec } = {
 	CrouchWalk = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
 	Slide = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
 	ModHold = { priority = Enum.AnimationPriority.Action, fade = Animations.MOD_FADE },
+	UpdraftSlam = { priority = Enum.AnimationPriority.Action4, fade = Animations.SLAM_FADE },
 }
 local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
 IDS.ModHold = Animations.MODS.ModHold
+-- The Crash Down clips are "" until uploaded (the dive borrows Crouch).
+local SLAM_POSE = Animations.MODS.UpdraftSlam ~= ""
+if SLAM_POSE then
+	IDS.UpdraftSlam = Animations.MODS.UpdraftSlam
+end
 -- One-shots on a use, by ModUseKind.
 local USE_IDS: { [string]: string } = {
 	Throw = Animations.MODS.Throw,
@@ -51,12 +58,20 @@ local USE_IDS: { [string]: string } = {
 	DashRight = Animations.MODS.DashRight,
 	Updraft = Animations.MODS.Updraft, -- knees tuck on the launch (Mods/Updraft)
 }
+if Animations.MODS.UpdraftSlamLand ~= "" then
+	USE_IDS.UpdraftSlamLand = Animations.MODS.UpdraftSlamLand -- Crash Down's landing
+end
 -- A weight of exactly 0 lets the Animator drop the track; stay just above.
 local OFF = 0.001
 
 local connection: RBXScriptConnection? = nil
 local animations: { [string]: Animation } = {}
 local cache: { [Animator]: { [string]: AnimationTrack } } = setmetatable({}, { __mode = "k" }) :: any
+-- The last Crash Down landing (UpdraftSlamAt) posed per character. Kept here,
+-- not as an attribute (a character's attributes are nearly full: Mod System →
+-- Character attribute budget); only a clearly later landing plays, so a
+-- rollback that rewrites the same value can't replay it.
+local slamSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
 -- Run only where this side simulates the character (the server for
 -- everyone, a client for its own character), like Animate does.
@@ -180,7 +195,9 @@ local function stepCharacter(player: Player, character: Model)
 	local pitch = aimPitch(player)
 	local speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
 	local moving = if speed > Animations.MOVING_SPEED then 1 else 0
-	local crouch = if state == "Crouch" then 1 else 0
+	-- Crash Down's dive (simulation-written UpdraftSlam).
+	local diving = alive and character:GetAttribute("UpdraftSlam") == "Down"
+	local crouch = if state == "Crouch" or (diving and not SLAM_POSE) then 1 else 0
 
 	-- Aim: a blend space of three held poses (Action priority).
 	setWeight(animator, "AimUp", armed * math.max(pitch, 0))
@@ -192,6 +209,17 @@ local function stepCharacter(player: Player, character: Model)
 	setWeight(animator, "CrouchWalk", crouch * moving)
 	setWeight(animator, "Slide", if state == "Slide" then 1 else 0)
 	setWeight(animator, "ModHold", if holding then 1 else 0)
+	if SLAM_POSE then
+		setWeight(animator, "UpdraftSlam", if diving then 1 else 0)
+	end
+	if diving then
+		-- The launch tuck gives way to the dive.
+		local byName = cache[animator]
+		local tuck = byName and byName.UseUpdraft
+		if tuck and tuck.IsPlaying then
+			tuck:Stop(Animations.SLAM_FADE)
+		end
+	end
 
 	-- A dash (simulation-written DashStart): lean into it. A new character
 	-- starts its mark at 0, so its first dash plays.
@@ -220,6 +248,20 @@ local function stepCharacter(player: Player, character: Model)
 		character:SetAttribute("PoseUpdraftSeen", updraftMark)
 		if typeof(updraftSeen) == "number" and alive then
 			playOnce(animator, "Updraft")
+		end
+	end
+
+	-- A Crash Down landing: the slam clip once (the first value seen only
+	-- sets the mark).
+	local slamAt = character:GetAttribute("UpdraftSlamAt")
+	if typeof(slamAt) == "number" then
+		-- (A re-simulated landing a few ms off isn't a new one.)
+		local last = slamSeen[character]
+		if last == nil or slamAt > last + 0.05 then
+			slamSeen[character] = slamAt
+			if last ~= nil and alive then
+				playOnce(animator, "UpdraftSlamLand")
+			end
 		end
 	end
 

@@ -14,6 +14,11 @@
 -- The server owns the count (the BarrierHits character attribute,
 -- Mods/HealOrb); this module reads it, and the ModFx events Barrier /
 -- BarrierBlock add the cast and the shatter.
+-- Look (stylized, 2026-11-03), with the GlitchVFX kit installed (Util/
+-- GlitchVfx; the ForceField look above stays until then): each layer is a
+-- solid-reading hex shell (inset panels with a brighter frame, flickering
+-- magenta), a block bursts it into flying hex tiles, and a hit that leaves a
+-- layer cracks the next one on the side facing you for a moment.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,6 +28,7 @@ local Shared = ReplicatedStorage.Shared
 local HealOrb = require(Shared.Mods.HealOrb)
 local VFX = require(Shared.Config.VfxTextures)
 
+local GlitchVfx = require(script.Parent.GlitchVfx)
 local HealFx = require(script.Parent.HealFx)
 local ModAudio = require(script.Parent.ModAudio)
 local ModVfx = require(script.Parent.ModVfx)
@@ -69,6 +75,15 @@ local EDGE_ALPHA = 0.7 -- the hex pattern at its strongest (at the edge)
 local EDGE_DEPTH = 0.2 -- how far in from each edge it reaches (screen share)
 local CRACK_TIME = 0.45
 local CRACKS = 7
+
+-- The kit's hex shell (GlitchVFX: panels at r 1, frame 1.01, crack 1.02, all
+-- in a 2.04 box): a layer's part is SIZE x KIT_SPAN at full size.
+local KIT_SPAN = 1.02
+local KIT_PANEL_ALPHA = { ally = 0.62, enemy = 0.45 } -- the panels (see-through for your side)
+local KIT_EDGE_ALPHA = { ally = 0.2, enemy = 0.05 } -- the frame reads solid
+local SHELL_CRACK_TIME = 0.6 -- a hit that leaves a layer cracks the next one this long
+local TILES_FULL = 18 -- hex tiles a full break throws (the pixels come too, fewer)
+local TILES_LAYER = 9
 
 local folder: Folder? = nil
 
@@ -213,9 +228,43 @@ local function stepShards(dt: number, now: number)
 	end
 end
 
+-- Hex tiles flying off a `size` ellipsoid at `center` (the GlitchVFX kit's
+-- shatter: its panels coming apart). False when the kit isn't installed.
+local function shatterTiles(center: CFrame, size: Vector3, color: Color3, count: number): boolean
+	if not GlitchVfx.ready() then
+		return false
+	end
+	for _ = 1, count do
+		local offset, out = onSkin(size)
+		local pos = center:PointToWorldSpace(offset)
+		local dir = center:VectorToWorldSpace(out)
+		local roll = math.random()
+		-- Lying on the skin (the tile's face is its Y), spinning off it.
+		local cf = CFrame.lookAt(pos, pos + dir)
+			* CFrame.Angles(math.pi / 2, 0, math.random() * 6.3)
+		GlitchVfx.piece({
+			name = "HexTile_Energy",
+			cframe = cf,
+			scale = Vector3.one * (0.6 + math.random() * 0.35),
+			scale1 = Vector3.one * 0.25,
+			color = if roll < 0.65 then color elseif roll < 0.9 then GLITCH else WHITE,
+			life = 0.5 + math.random() * 0.35,
+			alpha0 = 0.05,
+			alpha1 = 0.9,
+			velocity = dir * (9 + math.random() * 9) + Vector3.new(0, 5, 0),
+			gravity = SHARD_GRAVITY,
+			spin = Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5) * 16,
+			stutter = 0.08,
+		})
+	end
+	return true
+end
+
 -- Bubbles --------------------------------------------------------------------------
 
-type Layer = { part: Part, mesh: SpecialMesh, scale: number }
+-- A layer is a ForceField ellipsoid (the old look: `mesh` scales it) or, with
+-- the GlitchVFX kit, a hex panel shell (`part`, sized directly) and its frame.
+type Layer = { part: BasePart, mesh: SpecialMesh?, edges: BasePart?, scale: number }
 
 type Bubble = {
 	model: Model,
@@ -224,8 +273,12 @@ type Bubble = {
 	color: Color3,
 	own: boolean,
 	layers: { Layer },
-	glitch: Part,
-	glitchMesh: SpecialMesh,
+	kit: boolean, -- drawn with the GlitchVFX hex shell
+	glitch: Part?, -- the magenta static shell (the old look only)
+	glitchMesh: SpecialMesh?,
+	crack: BasePart?, -- the kit's shell crack
+	crackDir: Vector3, -- where it faces (flat, world)
+	crackUntil: number,
 	pixels: { Part },
 	pixelAt: { Vector3 }, -- each pixel's spot on the skin (from the centre)
 	born: number,
@@ -240,9 +293,24 @@ local bubbles: { [Model]: Bubble } = {}
 
 local function freeBubble(b: Bubble)
 	for _, l in b.layers do
-		l.part:Destroy()
+		local edges = l.edges
+		if l.mesh then
+			l.part:Destroy()
+		else
+			GlitchVfx.give("HexShell_Energy", l.part)
+		end
+		if edges then
+			GlitchVfx.give("HexEdge_Energy", edges)
+		end
 	end
-	b.glitch:Destroy()
+	local glitch = b.glitch
+	if glitch then
+		glitch:Destroy()
+	end
+	local crack = b.crack
+	if crack then
+		GlitchVfx.give("ShellCrack_Energy", crack)
+	end
 	for _, p in b.pixels do
 		p:Destroy()
 	end
@@ -255,13 +323,34 @@ local function makeBubble(model: Model, hits: number, form: boolean): Bubble
 	local own = model == player.Character
 	local color = TeamColor.forOwner(model)
 	local layers: { Layer } = {}
+	local kit = GlitchVfx.ready()
+	local glitch: Part?, glitchMesh: SpecialMesh? = nil, nil
 	for i = 1, MAX_LAYERS do
-		local part, mesh = newShell(VFX.MOD_HEX)
-		part.Color = color
-		table.insert(layers, { part = part, mesh = mesh, scale = LAYER_GAP ^ (i - 1) })
+		local scale = LAYER_GAP ^ (i - 1)
+		local panels = if kit then GlitchVfx.take("HexShell_Energy") else nil
+		local edges = if kit then GlitchVfx.take("HexEdge_Energy") else nil
+		if panels and edges then
+			panels.Color = color
+			edges.Color = color
+			table.insert(layers, { part = panels, mesh = nil, edges = edges, scale = scale })
+		else
+			if panels then
+				GlitchVfx.give("HexShell_Energy", panels)
+			end
+			if edges then
+				GlitchVfx.give("HexEdge_Energy", edges)
+			end
+			kit = false
+			local part, mesh = newShell(VFX.MOD_HEX)
+			part.Color = color
+			table.insert(layers, { part = part, mesh = mesh, edges = nil, scale = scale })
+		end
 	end
-	local glitch, glitchMesh = newShell(nil)
-	glitch.Color = GLITCH
+	if not kit then
+		local g, gm = newShell(nil)
+		g.Color = GLITCH
+		glitch, glitchMesh = g, gm
+	end
 	local pixels = {}
 	for i = 1, STATIC_PIXELS do
 		local p = newPart()
@@ -278,8 +367,12 @@ local function makeBubble(model: Model, hits: number, form: boolean): Bubble
 		color = color,
 		own = own,
 		layers = layers,
+		kit = kit,
 		glitch = glitch,
 		glitchMesh = glitchMesh,
+		crack = if kit then GlitchVfx.take("ShellCrack_Energy") else nil,
+		crackDir = Vector3.zAxis,
+		crackUntil = 0,
 		pixels = pixels,
 		pixelAt = table.create(STATIC_PIXELS, Vector3.zero),
 		born = if form then now else now - FORM_TIME,
@@ -319,8 +412,19 @@ local function drawBubble(b: Bubble, now: number, camPos: Vector3?)
 	if not center then
 		for _, l in b.layers do
 			l.part.Transparency = 1
+			local edges = l.edges
+			if edges then
+				edges.Transparency = 1
+			end
 		end
-		b.glitch.Transparency = 1
+		local glitch = b.glitch
+		if glitch then
+			glitch.Transparency = 1
+		end
+		local crack = b.crack
+		if crack then
+			crack.Transparency = 1
+		end
 		for _, p in b.pixels do
 			p.Transparency = 1
 		end
@@ -337,7 +441,13 @@ local function drawBubble(b: Bubble, now: number, camPos: Vector3?)
 			+ FLICKER_EVERY.Min
 			+ math.random() * (FLICKER_EVERY.Max - FLICKER_EVERY.Min)
 	end
-	local base = if b.color == TeamColor.ALLY then ALPHA_ALLY else ALPHA_ENEMY
+	local ally = b.color == TeamColor.ALLY
+	local base = if ally then ALPHA_ALLY else ALPHA_ENEMY
+	local edgeBase = if ally then KIT_EDGE_ALPHA.ally else KIT_EDGE_ALPHA.enemy
+	if b.kit then
+		base = if ally then KIT_PANEL_ALPHA.ally else KIT_PANEL_ALPHA.enemy
+	end
+	local grown = 0.35 + 0.65 * grow
 	-- A glitch: the bubble jumps sideways a hair and its alpha stutters.
 	local jitter = if flicker
 		then CFrame.new((math.random() - 0.5) * 0.35, (math.random() - 0.5) * 0.15, 0)
@@ -349,17 +459,53 @@ local function drawBubble(b: Bubble, now: number, camPos: Vector3?)
 			alpha = math.min(alpha + math.random() * 0.4, 1)
 		end
 		l.part.Transparency = alpha
+		local mesh, edges = l.mesh, l.edges
 		if shown then
 			l.part.Color = if flicker and math.random() < 0.5 then GLITCH else b.color
-			l.mesh.Scale = Vector3.one * (l.scale * (0.35 + 0.65 * grow))
 			l.part.CFrame = center * jitter
+			if mesh then
+				mesh.Scale = Vector3.one * (l.scale * grown)
+			else
+				l.part.Size = SIZE * (KIT_SPAN * l.scale * grown)
+			end
+		end
+		if edges then
+			-- The frame: bright and nearly solid, magenta in a flicker.
+			local edgeAlpha = if shown then edgeBase + (1 - edgeBase) * fade else 1
+			edges.Transparency = edgeAlpha
+			if shown then
+				edges.Color = if flicker then GLITCH else b.color
+				edges.Size = SIZE * (KIT_SPAN * l.scale * grown)
+				edges.CFrame = center * jitter
+			end
 		end
 	end
 	-- The magenta static shell: faint, louder in a flicker.
-	local glitchAlpha = if inside then 1 elseif flicker then 0.35 else 0.88 + math.random() * 0.1
-	b.glitch.Transparency = glitchAlpha + (1 - glitchAlpha) * fade
-	b.glitchMesh.Scale = Vector3.one * (GLITCH_SCALE * (0.35 + 0.65 * grow))
-	b.glitch.CFrame = center * jitter:Inverse()
+	local glitch, glitchMesh = b.glitch, b.glitchMesh
+	if glitch and glitchMesh then
+		local glitchAlpha = if inside then 1 elseif flicker then 0.35 else 0.88 + math.random() * 0.1
+		glitch.Transparency = glitchAlpha + (1 - glitchAlpha) * fade
+		glitchMesh.Scale = Vector3.one * (GLITCH_SCALE * grown)
+		glitch.CFrame = center * jitter:Inverse()
+	end
+	-- The kit's crack on the outer layer left, facing whoever is looking.
+	local crack = b.crack
+	if crack then
+		local k = 1 - (b.crackUntil - now) / SHELL_CRACK_TIME
+		if k < 0 or k >= 1 or inside or b.hits <= 0 then
+			crack.Transparency = 1
+		else
+			local layer = b.layers[math.clamp(b.hits, 1, #b.layers)]
+			local pos = center.Position
+			-- Turned about Y only, so the ellipsoid's stretch keeps it on the skin.
+			crack.CFrame = CFrame.lookAt(pos, pos + b.crackDir)
+			crack.Size = SIZE * (KIT_SPAN * layer.scale * grown)
+			crack.Color = if flicker and math.random() < 0.5
+				then GLITCH
+				else b.color:Lerp(WHITE, 0.4)
+			crack.Transparency = k * k
+		end
+	end
 	-- Static pixels on the skin.
 	if now >= b.nextStatic then
 		b.nextStatic = now + STATIC_STEP
@@ -669,8 +815,11 @@ function BarrierFx.block(data: { [string]: any })
 	end
 	local color = if b then b.color elseif model then TeamColor.forOwner(model) else TeamColor.ENEMY
 	-- The pixels fly off the outer skin; any layer left stays at full size.
+	-- With the kit, hex tiles fly too (and fewer pixels).
 	local size = SIZE
-	shatter(center, size, color, if left > 0 then SHARDS_LAYER else SHARDS_FULL)
+	local tiles = shatterTiles(center, size, color, if left > 0 then TILES_LAYER else TILES_FULL)
+	local pixelCount = if left > 0 then SHARDS_LAYER else SHARDS_FULL
+	shatter(center, size, color, if tiles then pixelCount // 2 else pixelCount)
 	ModVfx.shell({
 		shape = Enum.PartType.Ball,
 		cframe = center,
@@ -687,6 +836,14 @@ function BarrierFx.block(data: { [string]: any })
 		b.flickerUntil = os.clock() + 0.3 -- a hard stutter
 		if left <= 0 then
 			freeBubble(b) -- it's the pixels now
+		else
+			-- The layer left cracks on the side facing this viewer.
+			local cam = Workspace.CurrentCamera
+			local toCam = if cam
+				then (cam.CFrame.Position - center.Position) * Vector3.new(1, 0, 1)
+				else Vector3.zero
+			b.crackDir = if toCam.Magnitude > 0.1 then toCam.Unit else Vector3.zAxis
+			b.crackUntil = os.clock() + SHELL_CRACK_TIME
 		end
 	end
 	local mine = model ~= nil and model == player.Character

@@ -7,7 +7,7 @@ The `Icons/` folder belongs to the icon pipeline (`tools/icons/`), not to these 
 ## What is where
 | Path | What |
 |---|---|
-| `<Mod>/<Mod>.blend`, `VFX/ModVFX.blend` | Blender sources, rebuilt by `tools/blender/build_mod_<name>.py` (never edit by hand) |
+| `<Mod>/<Mod>.blend`, `VFX/ModVFX.blend`, `GlitchVFX/GlitchVFX.blend` | Blender sources, rebuilt by `tools/blender/build_mod_<name>.py` (never edit by hand) |
 | `Exports/<Mod>.fbx`, `<Mod>.json` | Export (`tools/blender/export_mods.py`): meshes, parts, locators |
 | `Exports/assets.json` | Open Cloud model asset ids (group 11116787) |
 | `Exports/textures.json` | Decal ids (the Firewall grid) |
@@ -25,6 +25,7 @@ The `Icons/` folder belongs to the icon pipeline (`tools/icons/`), not to these 
 | `LagField` | 134077650766119 | thrown |
 | `ModVFX` | 130699290674585 | VFX meshes (4 parts) |
 | `FireVFX` | 115228227823248 | stylized fire kit (10 parts; uploaded 2026-11-03) |
+| `GlitchVFX` | 79752940515956 | glitch VFX kit (17 parts; uploaded 2026-11-03) |
 | Firewall grid decal | 74639457803541 (Decal; the builder looks up its image) | texture |
 
 ## Build steps (code session, Stage 3)
@@ -60,6 +61,32 @@ Every Model: `PrimaryPart = Root` (invisible 0.2 part, pivot at the Blender orig
 | `ModVFX` | each mesh at the origin | none | `Shockwave_Energy` (flat ring r 0.7 → 1), `Dome_Energy` (hemisphere r 1), `Sphere_Energy` (r 1), `ScanRing_Energy` (vertical band r 1, 0.25 tall): clone and scale; U wraps around, V runs along the effect |
 
 **Firewall panel standard (handler, 2026-10-26):** L1 blocks bullets, **not vision**, so the panel is see-through: Neon at **Transparency 0.5** with the tinted grid Decals reading on top (white lines and a glowing rim on transparent, `FirewallGrid.png`). It is `CanQuery = false` in the template: the server's bullet blocking should use its own hitbox, not this mesh. B2 Burn Wall is the variant that blocks vision (make it opaque in code, not a separate model).
+
+## GlitchVFX kit
+Stylized meshes for the glitched upgrade levels (Art Direction → "Ability VFX: stylized, mesh-first"), built by
+`tools/blender/build_mod_glitchvfx.py` (check render `vault/02 Art/References/mods/glitchvfx.jpg`), 2.8K tris in all,
+≤ 546 per mesh. Untextured: code sets colour, material and transparency, sizes each from its installed Size and
+pools it (`src/client/Util/GlitchVfx.luau`; every user falls back to its old look while the kit isn't installed).
+Build it with `B.publish("GlitchVFX")` → `ReplicatedStorage.Abilities.GlitchVFX`. Every part is centred on its box
+(a MeshPart's CFrame is its box centre); the sphere pieces and the cracks carry tiny anchor triangles so their box is
+the whole sphere / disc.
+
+| Part | Authored size (Roblox X × Y × Z) | Used by |
+|---|---|---|
+| `Crack_Energy`, `CrackGap` (Dark) | 2.02 × 0.01 × 2.02, flat radial cracks | Updraft Crash Down floor cracks |
+| `Rubble1..3` (Shell) | ~0.5 rock chunks | Crash Down rubble (floor colour) |
+| `HexShell_Energy`, `HexEdge_Energy`, `ShellCrack_Energy` | 2.04 cube (sphere r 1 / 1.01 / 1.02; the crack faces -Z) | Heal Orb Barrier |
+| `HexTile_Energy` | 1 × 0.06 × 0.87 | Barrier shatter |
+| `ScanWave_Energy` | 2.5 × 1.15 × 2.5 (ring r 1, sits on its bottom) | Recon Ping Spike wave |
+| `Pixels_Energy`, `PixelSpray_Energy` | ~1 / ~2 voxel clusters | Desync, Crash Recovery |
+| `Slivers_Energy` | 2.87 × 5.26 × 0.94 (body box) | Desync static, Crash Recovery ghost |
+| `Streak_Energy` | 0.77 × 0.93 × 4 (bars along Z) | Crash Down dive, Crash Recovery streak |
+| `HexFloor_Energy` | 1.77 × 0.04 × 1.77 | Crash Down corrupted floor, Stim Heal Zone |
+| `Plus_Energy` | 1 × 1 × 0.3 (faces Z) | Heal Zone pluses |
+| `PixelRing_Energy` | 2.05 × 0.15 × 2.05 | Crash Down shockwave, Heal Zone edge |
+
+DoubleSided (set by the builder, else tick by hand): `HexShell_Energy`, `HexEdge_Energy`, `ShellCrack_Energy`,
+`ScanWave_Energy`. `export_mods.py` doesn't list it in `MODS`: pass the name (`-- GlitchVFX`).
 
 ## Rebuilding after a model change
 `blender --background --factory-startup --python tools/blender/build_mod_<name>.py -- --render` → `blender --background --factory-startup --python tools/blender/export_mods.py -- <Mod>` → `python tools/opencloud/upload_models.py --abilities --group 11116787 <Mod>` (adds a new version to the same asset) → `python tools/studio/make_ability_build_data.py <Mod>` → steps 2–7 above.

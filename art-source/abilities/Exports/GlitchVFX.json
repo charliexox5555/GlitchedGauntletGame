@@ -1,0 +1,353 @@
+{
+ "mod": "GlitchVFX",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "ability_name": "GlitchVFX",
+  "kind": "vfx",
+  "tris": 2791
+ },
+ "parts": [
+  {
+   "name": "Crack_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 168,
+   "center": [
+    0.0,
+    0.0,
+    0.01698
+   ],
+   "size": [
+    2.02,
+    2.02,
+    0.00996
+   ]
+  },
+  {
+   "name": "CrackGap",
+   "material": "Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "16171B"
+   },
+   "energy": false,
+   "tris": 182,
+   "center": [
+    0.0,
+    0.0,
+    0.00498
+   ],
+   "size": [
+    2.02,
+    2.02,
+    0.00996
+   ]
+  },
+  {
+   "name": "Rubble1",
+   "material": "Shell",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2C2E35"
+   },
+   "energy": false,
+   "tris": 18,
+   "center": [
+    0.02813,
+    -0.02889,
+    0.02825
+   ],
+   "size": [
+    0.48423,
+    0.53981,
+    0.3839
+   ]
+  },
+  {
+   "name": "Rubble2",
+   "material": "Shell",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2C2E35"
+   },
+   "energy": false,
+   "tris": 18,
+   "center": [
+    0.04129,
+    0.00291,
+    0.0292
+   ],
+   "size": [
+    0.52861,
+    0.35071,
+    0.30209
+   ]
+  },
+  {
+   "name": "Rubble3",
+   "material": "Shell",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2C2E35"
+   },
+   "energy": false,
+   "tris": 18,
+   "center": [
+    0.01196,
+    0.00746,
+    -0.01529
+   ],
+   "size": [
+    0.51053,
+    0.50024,
+    0.37144
+   ]
+  },
+  {
+   "name": "HexShell_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 362,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    2.04,
+    2.04,
+    2.04
+   ]
+  },
+  {
+   "name": "HexEdge_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 546,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    2.04,
+    2.04,
+    2.04
+   ]
+  },
+  {
+   "name": "HexTile_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.0,
+    0.86603,
+    0.06
+   ]
+  },
+  {
+   "name": "ShellCrack_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 136,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    2.04,
+    2.04,
+    2.04
+   ]
+  },
+  {
+   "name": "ScanWave_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 131,
+   "center": [
+    0.00075,
+    0.00075,
+    0.57585
+   ],
+   "size": [
+    2.5015,
+    2.5015,
+    1.1517
+   ]
+  },
+  {
+   "name": "Pixels_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 132,
+   "center": [
+    0.07153,
+    -0.00155,
+    0.16471
+   ],
+   "size": [
+    0.90736,
+    0.72232,
+    1.04152
+   ]
+  },
+  {
+   "name": "PixelSpray_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 216,
+   "center": [
+    -0.16774,
+    -0.04084,
+    -0.24076
+   ],
+   "size": [
+    1.97128,
+    1.95748,
+    2.06523
+   ]
+  },
+  {
+   "name": "Slivers_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 156,
+   "center": [
+    -0.00229,
+    0.0,
+    -0.12242
+   ],
+   "size": [
+    2.86884,
+    0.93696,
+    5.25516
+   ]
+  },
+  {
+   "name": "Streak_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 108,
+   "center": [
+    -0.1293,
+    0.0,
+    0.02049
+   ],
+   "size": [
+    0.76541,
+    4.0,
+    0.92512
+   ]
+  },
+  {
+   "name": "HexFloor_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 196,
+   "center": [
+    0.0,
+    0.0,
+    0.02
+   ],
+   "size": [
+    1.7608,
+    1.7732,
+    0.04
+   ]
+  },
+  {
+   "name": "Plus_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.0,
+    0.3,
+    1.0
+   ]
+  },
+  {
+   "name": "PixelRing_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 340,
+   "center": [
+    0.00789,
+    0.00789,
+    0.075
+   ],
+   "size": [
+    2.04747,
+    2.04747,
+    0.15
+   ]
+  }
+ ],
+ "locators": [],
+ "tris": 2791
+}

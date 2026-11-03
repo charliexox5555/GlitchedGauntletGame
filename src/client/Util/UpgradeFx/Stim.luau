@@ -18,6 +18,11 @@
 --                         magenta, the beacon jittering. Anyone being healed
 --                         inside glows and shows "+N"; read from their health
 --                         going up, so it only shows what the server healed.
+--                         Look (stylized, 2026-11-03), with the GlitchVFX kit
+--                         installed (Util/GlitchVfx): a hex-tile floor and a
+--                         stepped pixel ring instead of the soft glow, chunky
+--                         pixel pluses rising instead of the cross and mote
+--                         particles, the wisps cut to an accent.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -29,6 +34,7 @@ local Mods = require(ReplicatedStorage.Shared.Mods)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local Zone = require(ReplicatedStorage.Shared.Mods.Blocks.Zone)
 
+local GlitchVfx = require(script.Parent.Parent.GlitchVfx)
 local ModAudio = require(script.Parent.Parent.ModAudio)
 local ModVfx = require(script.Parent.Parent.ModVfx)
 local StimFx = require(script.Parent.Parent.StimFx)
@@ -113,6 +119,12 @@ local STRONG_LOOK: StimFx.Look = {
 
 local PIXEL_RATE = 32 -- static pixels a second
 local PIXEL_MAX = 16 -- live at once per zone
+-- With the GlitchVFX kit (sizes: the hex floor is 1.77 across, the ring 2.05).
+local KIT_HEX_SPAN = 1.77
+local KIT_RING_SPAN = 2.05
+local PLUS_RATE = 2.5 -- pixel pluses rising a second
+local PLUS_RISE = 2.4 -- studs/s
+local PLUS_LIFE = 1.1
 
 type Pixel = { part: Part, untilT: number }
 type HealState = {
@@ -125,6 +137,9 @@ type HealState = {
 	glitchUntil: number,
 	nextTear: number,
 	jittered: boolean, -- the beacon is off its spot
+	kit: { GlitchVfx.Handle }, -- the kit's floor and ring (stopped with the zone)
+	floor: GlitchVfx.Handle?,
+	plus: number, -- pluses owed (fractional; the kit only)
 }
 local healZones: { [StimFx.Zone]: HealState } = {}
 
@@ -209,12 +224,16 @@ local function floorEmitters(zone: StimFx.Zone, state: HealState)
 		p.Parent = zone.edge
 		local motes = moteEmitter(p)
 		motes.Shape = Enum.ParticleEmitterShape.Box
-		motes.Rate = 7
-		local crosses = crossEmitter(p)
-		crosses.Shape = Enum.ParticleEmitterShape.Box
-		crosses.Rate = 2
 		table.insert(state.fill, motes)
-		table.insert(state.fill, crosses)
+		if state.floor then
+			motes.Rate = 2 -- the kit's pluses carry it
+		else
+			motes.Rate = 7
+			local crosses = crossEmitter(p)
+			crosses.Shape = Enum.ParticleEmitterShape.Box
+			crosses.Rate = 2
+			table.insert(state.fill, crosses)
+		end
 	end
 end
 
@@ -224,21 +243,52 @@ local function healDeploy(zone: StimFx.Zone)
 	local life = math.max(zone.endsAt - now, 0.1) + 0.4
 	ModVfx.burst(at + Vector3.new(0, 1, 0), HEAL, 16, "Cross")
 	ModVfx.burst(at + Vector3.new(0, 1, 0), GLITCH, 8, "Sparkle")
-	-- A soft glowing floor, and the glitch's dashed magenta rim just outside
-	-- the halo, flickering.
-	table.insert(
-		zone.handles,
-		ModVfx.quad({
-			texture = VFX.MOD_GLOW,
-			cframe = CFrame.new(at + Vector3.new(0, 0.04, 0)),
-			from = zone.radius * 2,
+	-- A soft glowing floor (with the kit: hex tiles and a stepped ring), and
+	-- the glitch's dashed magenta rim just outside the halo, flickering.
+	local kit: { GlitchVfx.Handle } = {}
+	local hex = zone.radius * 2 / KIT_HEX_SPAN
+	local floor = GlitchVfx.piece({
+		name = "HexFloor_Energy",
+		cframe = CFrame.new(at + Vector3.new(0, 0.06, 0)),
+		scale = Vector3.new(hex * 0.3, 1, hex * 0.3),
+		scale1 = Vector3.new(hex, 1, hex),
+		color = HEAL,
+		life = life,
+		alpha0 = 0.6,
+		hold = true,
+		spin = Vector3.new(0, 0.25, 0),
+	})
+	if floor then
+		table.insert(kit, floor)
+		local ring = zone.radius * 2 / KIT_RING_SPAN
+		local edge = GlitchVfx.piece({
+			name = "PixelRing_Energy",
+			cframe = CFrame.new(at + Vector3.new(0, 0.05, 0)),
+			scale = Vector3.new(ring, 2, ring),
 			color = HEAL,
 			life = life,
-			alpha0 = 0.8,
-			alpha1 = 1,
+			alpha0 = 0.2,
 			hold = true,
+			spin = Vector3.new(0, -0.35, 0),
 		})
-	)
+		if edge then
+			table.insert(kit, edge)
+		end
+	else
+		table.insert(
+			zone.handles,
+			ModVfx.quad({
+				texture = VFX.MOD_GLOW,
+				cframe = CFrame.new(at + Vector3.new(0, 0.04, 0)),
+				from = zone.radius * 2,
+				color = HEAL,
+				life = life,
+				alpha0 = 0.8,
+				alpha1 = 1,
+				hold = true,
+			})
+		)
+	end
 	table.insert(
 		zone.handles,
 		ModVfx.quad({
@@ -264,6 +314,9 @@ local function healDeploy(zone: StimFx.Zone)
 		glitchUntil = 0,
 		nextTear = now + 0.4,
 		jittered = false,
+		kit = kit,
+		floor = floor,
+		plus = 0,
 	}
 	floorEmitters(zone, state)
 	healZones[zone] = state
@@ -318,6 +371,28 @@ local function tear(zone: StimFx.Zone, state: HealState, now: number)
 		* CFrame.new(0, 0, off)
 end
 
+-- A chunky pixel plus rising off the floor and turning (the kit).
+local function risePlus(zone: StimFx.Zone)
+	local a = math.random() * math.pi * 2
+	local r = zone.radius * math.sqrt(math.random()) * 0.85
+	local s = 0.45 + math.random() * 0.25
+	GlitchVfx.piece({
+		name = "Plus_Energy",
+		cframe = CFrame.new(
+			zone.spot.Position
+				+ Vector3.new(math.cos(a) * r, 0.4 + math.random() * 0.6, math.sin(a) * r)
+		) * CFrame.Angles(0, math.random() * math.pi * 2, 0),
+		scale = Vector3.one * s,
+		scale1 = Vector3.one * s * 0.4,
+		color = if math.random() < 0.15 then GLITCH else HEAL,
+		life = PLUS_LIFE,
+		alpha0 = 0.1,
+		velocity = Vector3.new(0, PLUS_RISE, 0),
+		spin = Vector3.new(0, 3, 0),
+		stutter = 0.04,
+	})
+end
+
 local glitchBlip: ModSounds.Cue = table.clone(S.zoneEnd)
 glitchBlip.volume = 0.12
 
@@ -350,6 +425,13 @@ local function healStep(zone: StimFx.Zone, now: number)
 		state.nextTear = now + 0.7 + math.random() * 1.1
 		tear(zone, state, now)
 	end
+	if state.floor then
+		state.plus += dt * PLUS_RATE
+		while state.plus >= 1 do
+			state.plus -= 1
+			risePlus(zone)
+		end
+	end
 	-- Now and then a glitch moment: the halo blinks, the coil flashes
 	-- magenta, the beacon jumps off its spot, a quiet static blip.
 	if now >= state.nextGlitch then
@@ -367,6 +449,10 @@ local function healStep(zone: StimFx.Zone, now: number)
 	end
 	for _, coil in zone.coils do
 		coil.Color = if glitching and math.random() < 0.7 then GLITCH else HEAL
+	end
+	local floor = state.floor
+	if floor then
+		floor.part.Color = if glitching and math.random() < 0.6 then GLITCH else HEAL
 	end
 	local popped = now - zone.deployAt > 0.25 -- StimFx's snap-open is done
 	if glitching and popped then
@@ -386,12 +472,21 @@ local function healFade(zone: StimFx.Zone)
 		for _, e in state.fill do
 			e.Rate = 0
 		end
+		for _, h in state.kit do
+			GlitchVfx.stop(h)
+		end
 	end
 end
 
 local function healRemove(zone: StimFx.Zone)
 	-- The pixels and floor emitters are children of the zone's edge part,
-	-- which StimFx destroys.
+	-- which StimFx destroys. The kit's pieces are pooled: stop them.
+	local state = healZones[zone]
+	if state then
+		for _, h in state.kit do
+			GlitchVfx.stop(h)
+		end
+	end
 	healZones[zone] = nil
 end
 
@@ -419,6 +514,10 @@ local HEAL_LOOK: StimFx.Look = {
 	onFade = healFade,
 	onRemove = healRemove,
 }
+-- With the GlitchVFX kit the edge wisps are only an accent (the pixel ring
+-- and the pluses carry the zone).
+local HEAL_KIT_LOOK: StimFx.Look = table.clone(HEAL_LOOK)
+HEAL_KIT_LOOK.edgeRate = 0.5
 
 -- Who's being healed inside a Heal Zone: a glow while their health climbs,
 -- "+N" over their head every NUMBER_EVERY s, and a soft screen edge for us.
@@ -650,7 +749,7 @@ handler.onFx = function(kind: string, data: { [string]: any }): boolean
 		return false
 	end
 	local look = if stats.behaviour == "Heal"
-		then HEAL_LOOK
+		then (if GlitchVfx.ready() then HEAL_KIT_LOOK else HEAL_LOOK)
 		elseif stats.status == "StimStrong" then STRONG_LOOK
 		else nil
 	if not look then

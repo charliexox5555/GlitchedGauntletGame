@@ -38,6 +38,8 @@ EXTRA = {
 }
 # Parts that are seen from both sides.
 DOUBLE_SIDED = {"Panel_Energy", "Shockwave_Energy", "Dome_Energy", "Sphere_Energy", "ScanRing_Energy"}
+# GlitchVFX (tools/blender/build_mod_glitchvfx.py): the shells and the open scan band.
+DOUBLE_SIDED |= {"HexShell_Energy", "HexEdge_Energy", "ShellCrack_Energy", "ScanWave_Energy"}
 
 
 def main(only=None):
