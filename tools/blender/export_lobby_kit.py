@@ -10,6 +10,11 @@
 # Text stand-ins (FONT objects, `preview_only`) and objects with `kit_skip` are left out. The file is never saved.
 # Next: python tools/opencloud/upload_models.py --lobby --group 11116787 <Group>
 #       python tools/studio/lobby/kit_bundle.py <Group>  (then run the bundle in the Lobby place)
+#
+# Match maps use the same exporter with `--maps <Map>` first (vault/01 Design/Maps/00 Maps.md → How a map is built):
+#   blender --background --factory-startup art-source/maps/<Map>/Kit_<Map>.blend --python tools/blender/export_lobby_kit.py -- --maps <Map> <Group> [Piece ...]
+# reads Map_<Piece> collections and writes art-source/maps/<Map>/Exports/<Group>.fbx + .json (each map has its own
+# Exports folder and assets.json, so maps can be built in parallel).
 
 import bpy, json, os, sys
 
@@ -41,11 +46,18 @@ def look(o):
 
 
 def main(argv):
+	global OUT
+	prefix = "Lobby_"
+	if argv and argv[0] == "--maps":
+		OUT = os.path.join(ROOT, "art-source", "maps", argv[1], "Exports")
+		prefix = "Map_"
+		argv = argv[2:]
 	group = argv[0]
 	only = set(argv[1:])
 	os.makedirs(OUT, exist_ok=True)
-	pieces = [c for c in bpy.data.collections if c.name.startswith("Lobby_") and (not only or c.name[6:] in only)]
-	assert pieces, "no Lobby_<Piece> collections in this file"
+	n = len(prefix)
+	pieces = [c for c in bpy.data.collections if c.name.startswith(prefix) and (not only or c.name[n:] in only)]
+	assert pieces, "no " + prefix + "<Piece> collections in this file"
 	data = {
 		"group": group,
 		"axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
@@ -55,7 +67,7 @@ def main(argv):
 	export = []
 	names = set()
 	for col in pieces:
-		piece = col.name[6:]
+		piece = col.name[n:]
 		objs = []
 		for o in list(col.all_objects):
 			if o.type != "MESH" or o.get("preview_only") or o.get("kit_skip"):
