@@ -88,7 +88,7 @@ local function glowOn(root: BasePart): Glow
 end
 
 -- The ribbon of light from `from` to `to`, gone after RIBBON_TIME.
-local function ribbon(from: BasePart, to: BasePart)
+local function ribbon(from: BasePart, to: BasePart, color: Color3)
 	local a0 = Instance.new("Attachment")
 	a0.Position = Vector3.new(0, 0.6, -0.8)
 	a0.Parent = from
@@ -101,7 +101,7 @@ local function ribbon(from: BasePart, to: BasePart)
 	beam.Texture = VFX.HEALORB_RIBBON
 	beam.TextureMode = Enum.TextureMode.Stretch
 	beam.TextureSpeed = 2.5
-	beam.Color = ColorSequence.new(HEAL)
+	beam.Color = ColorSequence.new(color)
 	beam.LightEmission = 1
 	beam.LightInfluence = 0
 	beam.FaceCamera = true
@@ -191,7 +191,7 @@ function HealFx.start(target: Model, caster: Model?, duration: number)
 	end
 	local fromRoot = rootOf(caster)
 	if fromRoot and caster ~= target then
-		ribbon(fromRoot, root)
+		ribbon(fromRoot, root, HEAL)
 	else
 		burst(root)
 		ModVfx.burst(root.Position, HEAL, 10, "Sparkle")
@@ -212,6 +212,14 @@ function HealFx.start(target: Model, caster: Model?, duration: number)
 	if target == player.Character then
 		edgeUntil = os.clock() + duration
 		TweenService:Create(screenEdge(), EDGE_IN, { ImageTransparency = 0.35 }):Play()
+	end
+end
+
+-- Just the ribbon, in `color` (the Barrier's cast: Util/BarrierFx).
+function HealFx.ribbon(caster: Model?, target: Model, color: Color3)
+	local fromRoot, root = rootOf(caster), rootOf(target)
+	if fromRoot and root and caster ~= target then
+		ribbon(fromRoot, root, color)
 	end
 end
 

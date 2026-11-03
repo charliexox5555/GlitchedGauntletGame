@@ -1,6 +1,8 @@
 --!strict
 -- Hit feedback on the combat HUD (Gunplay.md §5): hit / headshot / kill X
--- markers and stacking damage numbers that fall off when the stack ends.
+-- markers and stacking damage numbers that fall off when the stack ends. A
+-- hit a damage guard took (a Heal Orb Barrier, a Ghost dash) shows a cool
+-- grey X and a BLOCKED tag at the hit point instead of a number.
 -- Everything is animated by hand from step(dt) (no tweens), so each element
 -- always ends fully hidden, and rapid fire just restarts it.
 
@@ -12,6 +14,7 @@ local HitFeedback = {}
 local WHITE = Color3.new(1, 1, 1)
 local AMBER = Color3.fromHex("F2C94C") -- headshots
 local RED = Color3.fromHex("EB5757") -- kills
+local BLOCKED = Color3.fromHex("A9BCD6") -- a guard took it: no damage
 local BLACK = Color3.new(0, 0, 0)
 local NUMBER_FONT = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
 
@@ -36,7 +39,14 @@ local STYLES: { [string]: MarkerStyle } = {
 	Body = { color = WHITE, life = 0.2, peak = 1.35, kick = 6 },
 	Head = { color = AMBER, life = 0.28, peak = 1.55, kick = 10 },
 	Kill = { color = RED, life = 0.45, peak = 1.7, kick = 16 },
+	Blocked = { color = BLOCKED, life = 0.3, peak = 1.2, kick = 0 },
 }
+
+-- The BLOCKED tag: pops in at the hit point, holds, rises and fades.
+local TAG_POP = 0.1
+local TAG_HOLD = 0.45
+local TAG_FADE = 0.3
+local TAG_RISE = 26 -- px over the fade
 
 type Marker = {
 	root: CanvasGroup,
@@ -72,6 +82,15 @@ local hitMarker: Marker? = nil
 local killMarker: Marker? = nil
 local numbers: { DamageNumber } = {}
 local current: DamageNumber? = nil
+type Tag = {
+	label: TextLabel,
+	stroke: UIStroke,
+	scale: UIScale,
+	t: number,
+	active: boolean,
+	world: Vector3?, -- nil: by the crosshair
+}
+local tag: Tag? = nil
 -- Feedback time (advanced by step). Studio only: Workspace attribute
 -- VfxTimeScale slows or freezes it too, for screenshots.
 local clock = 0
@@ -172,6 +191,21 @@ end
 function HitFeedback.kill()
 	if killMarker then
 		popMarker(killMarker, STYLES.Kill)
+	end
+end
+
+-- A hit that a guard took whole: the grey X and the BLOCKED tag, no number.
+-- `position`: the world hit point (nil: by the crosshair).
+function HitFeedback.blocked(position: Vector3?)
+	if hitMarker then
+		popMarker(hitMarker, STYLES.Blocked)
+	end
+	local tg = tag
+	if tg then
+		tg.t = 0
+		tg.active = true
+		tg.world = position
+		tg.label.Visible = true
 	end
 end
 
@@ -362,6 +396,60 @@ local function stepNumber(n: DamageNumber, dt: number, now: number)
 	end
 end
 
+-- The BLOCKED tag -------------------------------------------------------------------
+
+local function newTag(parent: Instance): Tag
+	local label = Instance.new("TextLabel")
+	label.AnchorPoint = Vector2.new(0.5, 0.5)
+	label.Size = UDim2.fromOffset(160, 36)
+	label.BackgroundTransparency = 1
+	label.FontFace = NUMBER_FONT
+	label.TextSize = 22
+	label.TextColor3 = BLOCKED
+	label.TextTransparency = 1
+	label.Text = "BLOCKED"
+	label.Visible = false
+	label.ZIndex = 4
+	label.Parent = parent
+	local outline = Instance.new("UIStroke")
+	outline.Color = BLACK
+	outline.Thickness = 2
+	outline.Transparency = 1
+	outline.Parent = label
+	local scale = Instance.new("UIScale")
+	scale.Parent = label
+	return { label = label, stroke = outline, scale = scale, t = 0, active = false, world = nil }
+end
+
+local function stepTag(tg: Tag, dt: number)
+	tg.t += dt
+	local t = tg.t
+	local fadeK = math.clamp((t - TAG_HOLD) / TAG_FADE, 0, 1)
+	if fadeK >= 1 then
+		tg.active = false
+		tg.label.Visible = false
+		tg.label.TextTransparency = 1
+		tg.stroke.Transparency = 1
+		return
+	end
+	local cam = Workspace.CurrentCamera
+	local world = tg.world
+	local p: Vector2? = if world
+		then screenPoint(world)
+		elseif cam then cam.ViewportSize / 2 + NUMBER_OFFSET
+		else nil
+	tg.label.Visible = p ~= nil
+	if not p then
+		return
+	end
+	local pop = 1 - easeOut(t / TAG_POP)
+	tg.scale.Scale = 1 + 0.45 * pop
+	tg.label.Position = UDim2.fromOffset(p.X, p.Y - TAG_RISE * easeOut(fadeK))
+	local alpha = fadeK ^ 1.4
+	tg.label.TextTransparency = alpha
+	tg.stroke.Transparency = 0.2 + 0.8 * alpha
+end
+
 -- Setup -------------------------------------------------------------------------------
 
 function HitFeedback.build(gui: ScreenGui)
@@ -377,6 +465,7 @@ function HitFeedback.build(gui: ScreenGui)
 	for i = 1, POOL_SIZE do
 		numbers[i] = newNumber(root)
 	end
+	tag = newTag(root)
 end
 
 function HitFeedback.step(frameDt: number)
@@ -402,6 +491,10 @@ function HitFeedback.step(frameDt: number)
 		if n.state ~= "Idle" then
 			stepNumber(n, dt, now)
 		end
+	end
+	local tg = tag
+	if tg and tg.active then
+		stepTag(tg, dt)
 	end
 end
 
