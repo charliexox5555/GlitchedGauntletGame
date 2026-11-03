@@ -742,15 +742,16 @@ local function update(dt: number)
 	if status then
 		local hindered = FrostFx.hinderedLeft()
 		local stimmed = StimFx.stimmedLeft()
+		local stimWord = if StimFx.strong() then "STRONG STIM" else "STIMMED"
 		status.Visible = hindered > 0 or stimmed > 0
 		if hindered > 0 and stimmed > 0 then
-			status.Text = string.format("HINDERED  %.1f  ·  STIMMED  %.1f", hindered, stimmed)
+			status.Text = string.format("HINDERED  %.1f  ·  %s  %.1f", hindered, stimWord, stimmed)
 			status.TextColor3 = ICE
 		elseif hindered > 0 then
 			status.Text = string.format("HINDERED  %.1f", hindered)
 			status.TextColor3 = ICE
 		elseif stimmed > 0 then
-			status.Text = string.format("STIMMED  %.1f", stimmed)
+			status.Text = string.format("%s  %.1f", stimWord, stimmed)
 			status.TextColor3 = ELECTRIC
 		end
 	end
