@@ -2,7 +2,10 @@
 
 A large outdoor map for 2v2 to 4v4 (playable 1v1): a sunlit stone plaza with a fountain in the middle, arcades down both sides, two-storey houses with balconies, narrow alleys behind them and a clock tower over the roofs. The most Valorant-looking map of the set. See [Maps](00%20Maps.md) for the roster.
 
-**Status (2026-11-03):** concept, layout, greybox script, Blender kit, art and lighting scripts written; not yet run in Studio. The hub runs the scripts in the match place, screenshots and iterates (run order in **Build** below).
+**Status (2026-11-03):** concept, checked layout, generated greybox, Blender kit (uploaded), generated art pass and lighting are done and previewed offline in Blender; **not yet run in Studio**. The hub runs the scripts in the match place, screenshots and iterates: run order and checks in **6. Build and run** below.
+
+![Old Town from the Cafe Terrace (offline preview)](../../02%20Art/References/maps/oldtown/preview-terrace.jpg)
+![Overview (offline preview)](../../02%20Art/References/maps/oldtown/preview-overview.jpg)
 
 **Map id** `OldTown` · **World origin** (0, 200, 1500) · **Modes** 2v2, 3v3, 4v4 (`Config.Match` MAPS: minTeam 2, maxTeam 4).
 
@@ -112,7 +115,9 @@ These are checks at standing eye height on a 1-stud grid, with the terraces and 
 |---|---|---|
 | Stucco walls (three tones per house) | cream `#E9DCC0`, ochre `#E0BE8A`, rose `#DDAA8F` | Plaster |
 | Stone trim (plinths, arches, cornices, quoins) | `#D3C3A0` | Limestone |
-| Roof tiles | terracotta `#B4532F` | ClayRoofTiles |
+| Roof tiles | terracotta `#AD5230` | ClayRoofTiles |
+| Clock tower shaft | brick `#9E5A40`, stone quoins | Brick |
+| Window glass | slate `#3B4652` | SmoothPlastic |
 | Plaza and forecourt paving | `#D8C9AA` with darker bands `#B9A584` | Limestone, Cobblestone bands |
 | Streets and alleys | `#9C8D7A` | Cobblestone |
 | Doors, shutters frame, tables | walnut `#6B4A2E` | Wood |
@@ -137,9 +142,10 @@ Warm afternoon, sun low in the west (about 40° up) so shadows run across the ma
 ### Budget (mobile)
 | Item | Target |
 |---|---|
-| Visible triangles | ≤ 500k (facade modules ≤ 400 each, props ≤ 1.5k, heroes ≤ 6k) |
-| Per mesh | ≤ 20k |
-| Collision | the greybox Parts only (about 270); every mesh is CanCollide/CanQuery/CanTouch off, Box fidelity |
+| Triangles | **351k for the whole map** (2,043 kit pieces), so well under 500k visible; facade modules 12–484, props ≤ 852, heroes ≤ 4.6k |
+| Per mesh | ≤ 20k (largest: the tower's stone, 2,976) |
+| Collision | the greybox Parts only (271 + paving); every mesh is CanCollide/CanQuery/CanTouch off, Box fidelity |
+| Instances | about 5,900 MeshParts (one per piece material) + 140 plain decor parts: watch this on a phone |
 | Shadows | CastShadow only on wall-sized pieces (kit_bundle rule) |
 | Textures | none of our own: Roblox materials (Plaster, Limestone, ClayRoofTiles, Cobblestone, Wood, Metal) |
 | Lights | no dynamic lights (daytime) |
@@ -147,14 +153,57 @@ Warm afternoon, sun low in the west (about 40° up) so shadows run across the ma
 ---
 
 ## 5. Build
-Parts are the gameplay and collision; the Blender kit is the look ([Maps](00%20Maps.md) → How a map is built).
+Parts are the gameplay and collision; the Blender kit is the look ([Maps](00%20Maps.md) → How a map is built). One source of truth: `tools/maps/oldtown_layout.py` holds the plan as 3D boxes, wedges and buildings (an outer box minus rooms and doors); `--write` regenerates both `Greybox.luau` and `Art.luau` from it, so the art always lines up with the collision.
 
 | Step | File |
 |---|---|
-| Layout + checks + SVG + greybox/art generation | `tools/maps/oldtown_layout.py` (`--write` rewrites `Greybox.luau` and `Art.luau`), art placement rules in `tools/maps/oldtown_art.py` |
-| Greybox | `tools/studio/maps/OldTown/Greybox.luau` (generated) |
-| Blender kit | `tools/blender/build_map_kit_oldtown.py` → `art-source/maps/OldTown/Kit_OldTown.blend`, contact sheets in `vault/02 Art/References/maps/oldtown/` |
-| Art | `tools/studio/maps/OldTown/Art.luau` (generated) |
+| Layout, checks, SVG, generation | `tools/maps/oldtown_layout.py [--write]`; art placement rules in `tools/maps/oldtown_art.py` |
+| Greybox (generated) | `tools/studio/maps/OldTown/Greybox.luau` |
+| Blender kit | `tools/blender/build_map_kit_oldtown.py` → `art-source/maps/OldTown/Kit_OldTown.blend`, contact sheets `oldtown-kit-sheet.jpg`, `-vignette.jpg`, `-heroes.jpg` |
+| Export + upload | two groups: **Structure** (asset `96772424739648`) and **Props** (asset `92082436481108`), in `art-source/maps/OldTown/Exports/` |
+| Art (generated) | `tools/studio/maps/OldTown/Art.luau` |
 | Lighting | `tools/studio/maps/OldTown/Lighting.luau` |
+| Offline preview | `tools/blender/preview_map_oldtown.py` → `References/maps/oldtown/preview-*.jpg` (the assembled map as Studio will build it, without the tints) |
 
-Run order and what to check: see the end of this note once the kit is uploaded.
+![Kit contact sheet](../../02%20Art/References/maps/oldtown/oldtown-kit-sheet.jpg)
+![Kit vignette](../../02%20Art/References/maps/oldtown/oldtown-kit-vignette.jpg)
+![Kit heroes](../../02%20Art/References/maps/oldtown/oldtown-kit-heroes.jpg)
+
+### The kit (56 pieces)
+- **Facade modules** (8 / 4 / 2 wide, 12 per storey, 2 thick like the greybox walls): ground `F_GroundDoor` (an open 6 × 9 arched doorway), `F_GroundShop` (shop window and striped awning), `F_GroundWindow` (barred), `F_GroundClosed` (wooden doors), plain; upper `F_UpperWindow` (shutters), `F_UpperBalcony` (iron balcony), `F_UpperDoor` (the terrace door), plain. The origin is on the floor at the centre of the wall's front face, facing +X.
+- **Trims:** `Cornice*` (the inner houses' eaves), `Parapet*` (flat roofs), `Attic*` (the perimeter's 48–52 band), `Quoin12` (corner stones).
+- **Roofs:** `Roof12_*` and `Roof16_*` slopes (30°, raised tile rolls, ridge cap), `Gable24` and `Gable32` ends with an oculus.
+- **Arcade:** `ArcadeBay` (pier, arch, keystone), `Balustrade8`, `ArcadeRoof8` (the west arcade's lean-to), `Arch8` (lane-mouth and cloister-gate arches), `Stair12`.
+- **Heroes:** `CityGate` (the Blue and Green Gates: rusticated base, offset arch, banners, crenellations, bell gable), `Pavilion`, `Fountain`, `ClockTower` (brick shaft, four clocks at ten to four, an open belfry with a bell, a tiled spire, 108 tall).
+- **Props:** `MarketStall`, `Kiosk`, `Cart`, `PlanterLow`, `CypressPlanter`, `CafeSet`, `Well`, `Shrine`, `Crates`, `Barrels`, `StairPorch`, `WallLantern`, `Banner`, `LaundryLine`, `PlazaRing`, `PavingBand16`, `Bench`, `CeilingBeam`. Every cover block in the layout gets the prop that fills it.
+- **Colour rules in Studio** (Art.luau): each piece's stucco is tinted to its house's tone (cream, ochre or rose), and the side accent `#2F6BB3` turns green `#4E8A3E` on the Green half.
+
+---
+
+## 6. Build and run (for the hub)
+In the **match place**, edit mode, from the Command Bar or the Studio MCP. Everything is re-runnable.
+1. `python tools/studio/maps/kit_bundle.py OldTown Structure -o kit1.luau`, then run it (it installs `ServerStorage.MapKit.OldTown`).
+2. `python tools/studio/maps/kit_bundle.py OldTown Props -o kit2.luau`, then run it.
+3. `python tools/studio/maps/bundle.py OldTown Greybox Art Lighting -o oldtown.luau`, then run it. It builds `Workspace.OldTown` at (0, 200, 1500) and returns one report line per body: greybox parts, art pieces placed (expect "all kit pieces found"), lighting.
+   The greybox alone, before the kit: `python tools/studio/maps/bundle.py OldTown Greybox -o oldtown-greybox.luau`.
+4. If CollisionFidelity Box didn't stick on the kit meshes, use the Lobby's `KitFidelity.luau` approach (the meshes neither collide nor take queries either way).
+5. Play it: set the Workspace attribute `ForceMap = "OldTown"` and run a 2-player test (MapService applies the map's lighting when it loads). For edit-mode lighting screenshots, set `PREVIEW = true` at the top of `Lighting.luau` for that run only, and don't save the place with it.
+6. Save the place and back up `art-source/maps/OldTown.rbxm`.
+
+### What to check in screenshots
+- **Spawn** (each cloister, from a spawn pad toward the gates): the two gates read as the only exits, the barriers fill them, and there's no view of the plaza or the other team.
+- **Forecourt to Blue Gate** (eye height): the paving band leads to the arch, the kiosk sits in front of it, and the clock tower shows over the roofs.
+- **Plaza from each gate and from each terrace**: the fountain is the focal point, the stalls and kiosks read as cover, and the Green half's shutters, awnings, banners and gate shield are **green** (the tint ran).
+- **Arcades:** the arches line up with the greybox piers (no pier through an arch), the balustrade sits on the slab edge, the banners hang on the piers, and the west arcade's tiled roof sits on its wedge.
+- **Cafe stair:** the steps cover the wedge, and the landing and terrace door line up. The interiors (Bakery, Cafe, Tavern, Bookshop) have plaster walls, plank floors and beams, with no see-through gaps at the doors.
+- **Alleys:** the alternating jogs, the laundry overhead, the perimeter windows; the tower base sits flush in the east perimeter with no facade modules through it.
+- **Roofs from the terrace:** the slopes sit on the roof wedges, gable ends close the open ends, flat roofs show their tops and parapets. Check which way the ClayRoofTiles texture runs on the slopes.
+- **Overview:** nothing floating, and no holes where hidden greybox shows through (a missing module shows as a see-through wall).
+- **Lighting:** shadows run across the map toward the tower (east), not toward a spawn; cream walls don't blow out; the alleys are shaded but readable; a phone at quality 1–3 (no shadows) still separates paving, cobbles, walls and roofs.
+- **Budget:** `budgetReport` on `Workspace.OldTown` (about 5,900 MeshParts and 351k triangles) and frame time on a phone.
+
+### Known risks
+- First sight at a sprint is 4.5 s (the target is 5–8; it is 6.1 s walking). Walk it before changing anything.
+- Second Wind B3 (three Updrafts) can top the 52-stud perimeter; it's the same open question as Whitebox, and a kill volume above the roofs would close it.
+- The perimeter's outside faces show the backs of windows; nobody can see them from the playable map.
+- The interiors have no lights (daytime ambient only); check they aren't too dark.
