@@ -90,6 +90,36 @@ Alternates the search found: Equip: Metal Latches 17 (9116725218), Seat Belt Lat
 - **Range ring:** `Util/RecallRing` (72 dashes, each on the floor found under it, so it follows stairs and drops; parts are `CanQuery = false`), driven by `ModController` for your own anchor or the hologram; rebuilt at most every 0.12 s while the hologram moves.
 - **Verified (playtest):** ring around the anchor and the hologram, teleport onto it with the anchor kept, cooldown 15 s, a tap on cooldown refused, a hold picks it up on cooldown (ring gone).
 
+## Upgrades (L2/L3)
+Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → 9. Recall (the numbers live there and in `Config/Mods` → `Recall`). **Built 2026-11-03, not playtested yet** (the hub tests in Studio).
+
+| Level | What it does | Card text (`note`) |
+|---|---|---|
+| **A2 Recharge** | 10 s cooldown | "Recharge: teleport again after 10 s (was 20 s)" |
+| **A3 Recharge** | 5 s cooldown | "Recharge: teleport again after just 5 s" |
+| **B2 Long Range** | Teleport from 60 studs | "Long Range: teleport back from 60 studs away (was 40)" |
+| **B3 Long Range** | 80 studs | "Long Range: teleport back from 80 studs away" |
+| **G2 Crash Recovery** ⚡ | Passive: once a round, the hit that would kill you within `range` (40) of your standing anchor pulls you onto it at **1 HP**; the anchor breaks | "Crash Recovery: once a round, die near your anchor: back on it at 1 HP" |
+| **G3 Crash Recovery** ⚡ | You come back with **40 HP** | "Crash Recovery: you come back with 40 HP instead of 1" |
+
+### How it's built
+- **A / B are numbers only.** Every range check already reads the level's stats: the server (`ModRecall.teleport`, `stats.range` + 2 studs slack), the client press (`ModController.recallPress`), the owner's ring (`ModController.stepRecallRing` → `RecallRing.show`), and the cooldown sweep (the HUD reads the slot's stats). No hard-coded 40 left.
+- **Crash Recovery** (`behaviour = "Crash"`, `rescueHealth`, plus `rescueGrace` 0.25 s, a tuning number added in the build, not one of the decided ones) is a **damage guard**: `Services/ModRecall` binds it into `Mods/Recall`'s `server` hook (`Recall.bindServer`, so shared code never requires server code), and `ModService.start` registers it in `Config/Mods ORDER`. Heal Orb's Barrier guard runs first, so a hit the Barrier takes never triggers it.
+  - It fires when the victim has Recall at G2/G3, hasn't used it this round, and the hit is lethal (amount ≥ health + gun shield, as `WeaponService.hurt` takes it). Then `ModRecall.rescue`: the anchor must still stand, you must be within `range` of it (server positions, no slack) and there must be room on it (`roomAt`). Else the hit lands as normal.
+  - The rescue blocks the hit (returns 0, so the attacker's hit confirm says "blocked"), sets health to `rescueHealth` and the shield to 0, cancels a wind-up in progress (and lifts its no-shots), and publishes `RecallTo` / `RecallSerial` at once (no wind-up; the simulation moves you as for a normal teleport). Deferred to after the hit: the anchor is removed as **"Crashed"** (not "Broken", so no charge is lost: plant again for normal use) and `RecallCrash { from = root CFrame, at = anchor floor, health }` goes to everyone. For `rescueGrace` s after, no damage lands (the trip, shots already fired at where you stood).
+  - Spent: the player attribute `RecallCrashUsed`. Every round start re-arms it (`api.onRefill`, i.e. `ModService.refillCharges`; the dev panel's "Refill charges" too).
+  - Not covered: deaths that don't go through `WeaponService.hurt` (none today besides leaving the map).
+- **Look** (all in code, existing Recall textures and sounds re-pitched):
+  - **Armed (you only, until it's spent):** your anchor's light and halo turn magenta and shed glitch static (`RecallFx.setArmed`), the range ring turns magenta while you're inside it (you're covered; red outside), and a chip above the Mod bar reads **CRASH RECOVERY READY** (dimmed to "· OUT OF RANGE" / "· PLANT ANCHOR"), with a cyan colour split and the odd glitch hiccup (`Util/UpgradeFx/Recall.luau`). It reads **CRASH RECOVERED** for 1.4 s after the rescue, then goes.
+  - **The rescue, for everyone** (`Util/UpgradeFx/RecallCrash.luau`): you pop in on the anchor at once (flash and ring in your team colour with a magenta glitch ring, `RecallFx.crashArrive`); where you "died", a frozen ghost of your body (Neon blocks in your team colour, a magenta copy jittering beside it, parts dropping out) stutters for 0.32 s, then shatters into pixels that burst out and get pulled along a beam back to the anchor. The anchor breaks into magenta shards.
+  - **The rescue, for you:** the screen crashes: dark, torn glitch bands and dead pixels (the freeze), a flickering corrupted blue "FATAL EXCEPTION / RESTORING LAST CHECKPOINT..." flash, then rewind static: scanlines running up, magenta inward streaks and a blinking "◀◀ REWIND", about 1 s in all; a static burst and an electrical crunch, a camera shake and roll.
+
+### Name and text proposals (not applied)
+`Config/Mods` keeps the decided names (Recharge / Long Range / Crash Recovery). Ideas in the game's computer-glitch voice, for the user to pick from:
+- **A Recharge** → "Quick Relink" or "Hot Swap" (fast cooldown; "Recharge" is clear but generic).
+- **B Long Range** → "Long Link" or "Wide Area" (range; "Long Range" reads like a gun stat).
+- **G Crash Recovery** → keep. Alternatives: "Autosave", "Safe Mode", "Failsafe".
+
 ## Mobile (provisional)
 Tap to hold the anchor and **Fire** to place it. After that, tapping the Recall button teleports, and long-pressing near the anchor picks it up.
 
