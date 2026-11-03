@@ -65,6 +65,43 @@ All ProSoundEffects library audio (public, no upload); a deep roar, unlike the M
 - **Icon:** still the old wall's.
 - **Not tested by me:** the curve while steering (the test tools can't turn the camera mid-hold).
 
+## Upgrades (L2/L3)
+Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md#4-firewall-decided-2026-11-03) (the source of truth for the numbers); built 2026-11-03, **not yet playtested in Studio**. Numbers live in `Config/Mods` → Firewall `levels`.
+
+| Level | What it does | Where |
+|---|---|---|
+| **A2 Short Wall** | 20-stud wall (`maxLength` 20), recharges **15 s** after use (`cooldown` 15) | numbers only: `Services/ModWalls`, `Mods/Charges`, HUD recharge |
+| **A3 Short Wall** | Recharges after **6 s** | numbers only |
+| **B2 Long Wall** | 60-stud wall (builds in 1.5 s at 40 studs/s; the hold lasts until it's built) | numbers only |
+| **B3 Long Wall** | **2 charges**: a second wall while the first still burns (both live and burn on their own) | numbers only |
+| **G2 Frost Wall** ⚡ | A 60-stud wall of **ice**: no damage at all; enemies in it are **Hindered 1.5 s** (refreshed every 0.25 s tick while they touch it; never shortens a longer Hinder, e.g. a Frost burst). You and your team are unaffected | `ModWalls.burn` branches on `behaviour = "Frost"`; pieces carry `WallKind = "Frost"` |
+| **G3 Frost Wall** ⚡ | **2 charges** | numbers only |
+
+### Frost Wall look (`Util/FrostWallFx`)
+- Each 4-stud piece becomes a row of **frosted ice slabs** (Ice material, slightly leaning, random heights) with **glassy crests** on top (a jagged top edge) and **glass shards** jutting out of the foot on both sides. They **rise out of the floor** with a little overshoot as the wall races on.
+- **Cold mist** pours off the foot and sinks; **frost glints** wink all over the ice; a cold light on every other piece; **frost feathers** on the floor (linger 2.5 s after).
+- **Per-viewer colour:** a thin neon line along the foot, and a faint tint in the ice: cyan for yours or your team's, orange-red for an enemy's.
+- **Glitch:** magenta `#FF3DCB` static. Slabs jump sideways in magenta neon for a few frames, a piece sometimes flickers see-through, and static squares flash on the faces.
+- **End:** the ice shatters (shard and glint burst, mist puff) and sinks over 0.5 s.
+- **Standing in it:** a cold blue tint and a light blur (instead of the heat haze); the Hinder look and sound are the Frost's (`Util/FrostFx`).
+- **Hand:** your first-person flame becomes cold vapour falling off the hand, with glints and an icy light (`UpgradeFx/Firewall` restyles the `HandFlame`); others see a cold vapour in your hand instead of a flame.
+- **Long walls:** any length is a row of the same pieces; every 8th piece (32 studs) gets its own loop so a 60-stud wall is heard along its length.
+
+### Frost Wall sounds (`Config/ModSounds` → `FirewallFrost`; unauditioned, reusing the Frost's library recordings)
+| Hook | Id | Name (start / cut) | Volume / pitch |
+|---|---|---|---|
+| Ignite (you) | 9113074345 | Air Release Valve Scuba Tank 1 (from 0.15 s, 0.9 s) | 0.35 / 0.95 |
+| Cast (you / 3D) | 9114437277 | Fire Extinguisher 2 (0.7 s) | 0.6 / 1.05 |
+| Build (3D, every 4th piece) | 9125611419 | Ice Freeze Large Piece Crackles Liquid Nitrogen 3 (from 0.2 s) | 0.55 / 1.05 ±10% |
+| Loop (3D, ~45 studs) | 9119525650 | Spray Paint Aerosol Air Hiss Constant 2 (loops 8.4–13.2 s) | 0.25 / 0.7 |
+| Pass-through (you) | 9114858583 | Ice Crackle Large Block Cracks 1 (from 0.1 s) | 0.55 / 1.1 |
+| End: shatter (3D) | 9114858583 | Ice Crackle Large Block Cracks 1 (from 0.1 s) | 0.6 / 0.9 |
+
+### Watch in playtests
+- A3: the 6 s recharge equals the wall's 6 s life, so a short wall can be up almost all the time.
+- Frost Wall: does the frosted ice block sight as well as the fire (it should)? Is 1.5 s of Hinder after touching it enough to matter?
+- Name ideas (not applied): Short Wall → **Rekindle**, Long Wall → **Wildfire**, Frost Wall → **Frostbyte** (or **Black ICE**, the cyberpunk name for a firewall's counter-intrusion ice).
+
 ## Mobile
 Tap the Firewall button to ready it. **Hold Fire** to build, dragging the camera to steer. A **Straight** context button appears for the straight cast. Tap the Firewall button again to cancel.
 
