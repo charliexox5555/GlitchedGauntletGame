@@ -954,7 +954,7 @@ def luau() -> str:
         "\tlocal small = math.min(size.X, size.Z) < 4 or size.Y < 4",
         "\tlocal p = box(sec(s[1] :: string), s[2] :: string, size, at((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), KIND[kind], {",
         "\t\tmaterial = MATERIAL[kind],",
-        "\t\tcastShadow = not small and kind ~= \"ceiling\",",
+        "\t\tcastShadow = not small or kind == \"ceiling\", -- ceilings keep the inside dark",
         "\t})",
         "\tp:SetAttribute(\"Kind\", kind)",
         "\t-- Train side sheets: guns with ThinWall penetration shoot through them (Config/Combat).",

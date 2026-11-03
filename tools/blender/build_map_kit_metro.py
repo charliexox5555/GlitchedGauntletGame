@@ -708,7 +708,7 @@ def p_gantry(mats, kit):
 			a = math.radians(i * 30)
 			L = 0.55 if i % 3 == 0 else 0.3
 			wdt = 0.16 if i % 3 == 0 else 0.09
-			m = rb(-wdt, wdt, 2.7 - L, 2.7, sz * 1.47, sz * 1.5)
+			m = rb(-wdt, wdt, 6.8 + 2.75 - L, 6.8 + 2.75, sz * 1.47, sz * 1.5)
 			K.place(m, Matrix.Translation((0, 0, 6.8)) @ Matrix.Rotation(-a * sz, 4, "Y") @ Matrix.Translation((0, 0, -6.8)))
 			merge(marks, m)
 		# hands at 10:10, the station-clock look

@@ -253,7 +253,7 @@ for _, s in BOXES do
 		KIND[kind],
 		{
 			material = MATERIAL[kind],
-			castShadow = not small and kind ~= "ceiling",
+			castShadow = not small or kind == "ceiling", -- ceilings keep the inside dark
 		}
 	)
 	p:SetAttribute("Kind", kind)
