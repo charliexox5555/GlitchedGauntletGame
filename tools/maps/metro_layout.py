@@ -176,11 +176,11 @@ CENTER: list = [
 HALF: list = [
     # --- Platforms and corridor (each spans the whole hall; its rotation is the other side)
     B("PlatformEast", "Hall", TRENCH_X, PLAT_X, TRENCH - 1, PLAT, -HALL_Z, HALL_Z, "floor"),
-    B("DoorSill", "Hall", PLAT_X, WALL_X, PLAT - 1, PLAT, -46, -38, "floor"),
+    B("DoorSill", "Hall", PLAT_X, WALL_X, PLAT - 1, PLAT, -44, -36, "floor"),
     B("DoorSill", "Hall", PLAT_X, WALL_X, PLAT - 1, PLAT, -4, 4, "floor"),
-    B("HallWallEast", "Hall", PLAT_X, WALL_X, PLAT, CEIL, -HALL_Z, -46),
-    B("HallWallEast", "Hall", PLAT_X, WALL_X, 10, CEIL, -46, -38),  # over the far door
-    B("HallWallEast", "Hall", PLAT_X, WALL_X, PLAT, CEIL, -38, -4),
+    B("HallWallEast", "Hall", PLAT_X, WALL_X, PLAT, CEIL, -HALL_Z, -44),
+    B("HallWallEast", "Hall", PLAT_X, WALL_X, 10, CEIL, -44, -36),  # over the far door
+    B("HallWallEast", "Hall", PLAT_X, WALL_X, PLAT, CEIL, -36, -4),
     B("HallWallEast", "Hall", PLAT_X, WALL_X, 10, CEIL, -4, 4),  # over the mid door
     B("HallWallEast", "Hall", PLAT_X, WALL_X, PLAT, CEIL, 4, HALL_Z),
     B("CorridorFloor", "Corridor", WALL_X, OUT_X, PLAT - 1, PLAT, -HALL_Z, HALL_Z, "floor"),

@@ -12,8 +12,8 @@
 <rect x="64.4" y="784.4" width="345.6" height="122.4" fill="#EEF0F4" stroke="none" stroke-width="0" />
 <rect x="186.8" y="71.6" width="100.8" height="72.0" fill="#EEF0F4" stroke="none" stroke-width="0" />
 <rect x="186.8" y="906.8" width="100.8" height="72.0" fill="#EEF0F4" stroke="none" stroke-width="0" />
-<rect x="359.6" y="690.8" width="7.2" height="7.2" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
-<rect x="359.6" y="539.6" width="7.2" height="122.4" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
+<rect x="359.6" y="683.6" width="7.2" height="14.4" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
+<rect x="359.6" y="539.6" width="7.2" height="115.2" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
 <rect x="359.6" y="352.4" width="7.2" height="158.4" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
 <rect x="388.4" y="438.8" width="21.6" height="36.0" fill="#5C6273" stroke="#20232C" stroke-width="0.6" />
 <rect x="366.8" y="575.6" width="21.6" height="36.0" fill="#5C6273" stroke="#20232C" stroke-width="0.6" />
@@ -48,8 +48,8 @@
 <rect x="249.8" y="545.0" width="36.0" height="1.8" fill="#B8BEC9" stroke="#20232C" stroke-width="0.6" />
 <rect x="251.6" y="449.6" width="5.4" height="7.2" fill="#B8BEC9" stroke="#20232C" stroke-width="0.6" />
 <rect x="278.6" y="449.6" width="5.4" height="7.2" fill="#B8BEC9" stroke="#20232C" stroke-width="0.6" />
-<rect x="107.6" y="352.4" width="7.2" height="7.2" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
-<rect x="107.6" y="388.4" width="7.2" height="122.4" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
+<rect x="107.6" y="352.4" width="7.2" height="14.4" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
+<rect x="107.6" y="395.6" width="7.2" height="115.2" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
 <rect x="107.6" y="539.6" width="7.2" height="158.4" fill="#3A3F4C" stroke="#20232C" stroke-width="0.6" />
 <rect x="64.4" y="575.6" width="21.6" height="36.0" fill="#5C6273" stroke="#20232C" stroke-width="0.6" />
 <rect x="86.0" y="438.8" width="21.6" height="36.0" fill="#5C6273" stroke="#20232C" stroke-width="0.6" />
