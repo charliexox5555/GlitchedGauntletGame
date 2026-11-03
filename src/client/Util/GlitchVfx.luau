@@ -12,6 +12,8 @@
 --   GlitchVfx.piece(spec)    one mesh, sized from its authored size; nil when
 --                            the kit isn't installed
 --   GlitchVfx.stop(handle)   ends a long one early (fades over FADE_TAIL)
+--   GlitchVfx.take(name) / give(name, part)   a pooled part the caller drives
+--                            itself (follows a body without a frame of lag)
 --
 -- Pieces (authored sizes in studs; every CFrame is the mesh's box centre):
 --   Crack_Energy / CrackGap  radial floor cracks 2.02 across (glow lines /
@@ -260,6 +262,28 @@ function GlitchVfx.piece(spec: Spec): Handle?
 		connection = RunService.RenderStepped:Connect(step)
 	end
 	return entry
+end
+
+-- A kit part for the caller to drive itself every frame (a bubble that must
+-- not lag the body it follows), or nil. Hand it back with give().
+function GlitchVfx.take(name: Name): BasePart?
+	local tpl = template(name)
+	if not tpl then
+		return nil
+	end
+	local p = poolFor(name, tpl):acquire()
+	p.Material = tpl.material
+	p.Size = tpl.size
+	return p
+end
+
+function GlitchVfx.give(name: Name, part: BasePart)
+	local pool = pools[name]
+	if pool and part.Parent == folder then
+		pool:release(part)
+	else
+		part:Destroy()
+	end
 end
 
 -- The authored size of a piece (studs), or nil when the kit isn't installed.
