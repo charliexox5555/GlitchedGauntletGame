@@ -40,6 +40,10 @@ local lungeAt = -math.huge
 local lungeTime = 0.3
 -- The OS cursor stays hidden (the HUD draws a crosshair) unless a menu needs it.
 local cursorVisible = false
+-- A cap on how fast the view turns (radians/s, nil = none): Frozen. Last
+-- frame's final look, to measure this frame's turn against.
+local turnCap: number? = nil
+local lastLook: Vector3? = nil
 
 -- Recoil state, radians.
 local pendingPitch = 0 -- not yet applied (smoothed in over a few frames)
@@ -115,6 +119,12 @@ function CameraController.shake(degrees: number)
 		return
 	end
 	shakeAmp = math.min(shakeAmp + math.rad(degrees), SHAKE_MAX)
+end
+
+-- The view may turn at most `degreesPerSecond` (nil lifts it), whatever the
+-- input device: a frozen player creaks round instead of flicking.
+function CameraController.setTurnCap(degreesPerSecond: number?)
+	turnCap = if degreesPerSecond then math.rad(degreesPerSecond) else nil
 end
 
 -- Shows the OS cursor while a menu is open (the dev weapon menu).
@@ -241,6 +251,20 @@ local function step(dt: number)
 		return
 	end
 	smoothFollow(cam, dt)
+	-- The camera module turned the view from last frame's look by this
+	-- frame's input: keep only what the cap allows (it builds on this next).
+	local cap, last = turnCap, lastLook
+	if cap and last then
+		local cf = cam.CFrame
+		local look = cf.LookVector
+		local angle = math.acos(math.clamp(last:Dot(look), -1, 1))
+		local axis = last:Cross(look)
+		local allowed = cap * dt
+		if angle > allowed and axis.Magnitude > 1e-4 then
+			local capped = CFrame.fromAxisAngle(axis.Unit, allowed):VectorToWorldSpace(last)
+			cam.CFrame = CFrame.lookAt(cf.Position, cf.Position + capped)
+		end
+	end
 	local lead = lungeNow()
 	if lead ~= Vector3.zero then
 		cam.CFrame += lead -- a position offset: rebuilt next frame, never builds up
@@ -291,6 +315,7 @@ local function step(dt: number)
 		local rotation = CFrame.Angles(0, -yaw, 0) * (cf - cf.Position) * CFrame.Angles(pitch, 0, 0)
 		cam.CFrame = CFrame.new(cf.Position) * rotation * CFrame.Angles(0, 0, totalRoll)
 	end
+	lastLook = cam.CFrame.LookVector
 end
 
 function CameraController.start()

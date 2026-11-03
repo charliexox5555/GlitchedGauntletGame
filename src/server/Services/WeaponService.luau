@@ -882,6 +882,9 @@ local function onReload(player: Player, action: unknown)
 	if action == nil and holsteredPlayers[player] then
 		return -- no reloads with a Mod in hand (the client doesn't start one)
 	end
+	if action == nil and Status.stunned(player.Character, workspace:GetServerTimeNow()) then
+		return -- or frozen (the client drops its reload when it sees the freeze)
+	end
 	if action == "stop" then
 		local shell = config.shellReload
 		if shell and slot.shellFrom and slot.reloadEnd then
@@ -1632,6 +1635,26 @@ function WeaponService.start()
 		onPlayer(player)
 	end
 	RunService.Heartbeat:Connect(sampleMotion)
+	-- A stun (Frozen) drops a reload in progress (a shell-by-shell one keeps
+	-- the shells it loaded), like the client does when it sees the freeze.
+	StatusService.onApply(function(model: Model, name: string)
+		local effect = StatusEffects.effects[name]
+		local player = Players:GetPlayerFromCharacter(model)
+		local state = player and states[player]
+		if not effect or not effect.stun or not player or not state then
+			return
+		end
+		local dropped = false
+		for _, s in state.slots do
+			if s.reloadEnd then
+				settleShellReload(s, os.clock())
+				dropped = true
+			end
+		end
+		if dropped then
+			sendState(player)
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		motion[player] = nil
 		states[player] = nil

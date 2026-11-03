@@ -227,12 +227,18 @@ end
 
 -- Per-frame behaviour ----------------------------------------------------------------
 
+-- Track speeds from before a freeze, put back when it ends (weak: dummies respawn).
+local paused: { [Dummy]: { [AnimationTrack]: number } } = setmetatable({}, { __mode = "k" }) :: any
+
 local function stepMover(d: Dummy, now: number, dt: number)
 	local kind = TestRange.KINDS[d.spot.kind]
 	local speed = kind.speed :: number
 	local sway = kind.sway or 4
 	local rel = d.home:PointToObjectSpace(d.root.Position)
-	local moving = behaviour("Move")
+	-- Frozen (a stun): stands still, legs paused mid-stride (WalkSpeed 0
+	-- comes from the status below).
+	local frozen = Status.stunned(d.model, workspace:GetServerTimeNow())
+	local moving = behaviour("Move") and not frozen
 	if moving then
 		-- Random left/right changes (ADAD), kept inside the dummy's lane. The
 		-- home CFrame faces +Z, so its local -X is the range's +X.
@@ -252,7 +258,7 @@ local function stepMover(d: Dummy, now: number, dt: number)
 			d.humanoid.Jump = true
 			d.nextJump = now + between(kind.jumpAfter)
 		end
-	elseif Vector3.new(rel.X, 0, rel.Z).Magnitude > 0.5 then
+	elseif not frozen and Vector3.new(rel.X, 0, rel.Z).Magnitude > 0.5 then
 		-- Movement off: walk back to the spot and stand there.
 		d.humanoid:Move(d.home:VectorToWorldSpace(Vector3.new(-rel.X, 0, -rel.Z).Unit), false)
 	else
@@ -282,6 +288,24 @@ local function stepMover(d: Dummy, now: number, dt: number)
 	local ground = v.Magnitude
 	local stride = math.clamp(ground / speed, 0, 1)
 	local run = d.tracks.Run
+	if frozen then
+		local saved = paused[d] or {}
+		paused[d] = saved
+		for _, track in d.tracks do
+			if track.Speed ~= 0 then
+				saved[track] = track.Speed
+				track:AdjustSpeed(0)
+			end
+		end
+		return
+	end
+	local saved = paused[d]
+	if saved then
+		paused[d] = nil
+		for track, was in saved do
+			track:AdjustSpeed(was)
+		end
+	end
 	if run then
 		run:AdjustWeight(math.max(stride, 0.001), 0.15)
 		run:AdjustSpeed(math.max(ground / 16, 0.1))
@@ -295,6 +319,9 @@ local function stepMover(d: Dummy, now: number, dt: number)
 end
 
 local function stepShooterTurn(d: Dummy, dt: number)
+	if Status.stunned(d.model, workspace:GetServerTimeNow()) then
+		return -- frozen: no turning
+	end
 	local k = 1 - math.exp(-TestRange.SHOOTER.turnResponsiveness * dt)
 	local diff = (d.targetYaw - d.yaw + math.pi) % (2 * math.pi) - math.pi
 	if math.abs(diff) < 0.002 then
@@ -416,6 +443,7 @@ local function shooterLoop(d: Dummy)
 			or d.humanoid.Health <= 0
 			or not behaviour("Shoot")
 			or not config
+			or Status.stunned(d.model, workspace:GetServerTimeNow())
 		then
 			continue
 		end
@@ -433,7 +461,12 @@ local function shooterLoop(d: Dummy)
 		end
 		task.wait(0.25)
 		for _ = 1, cfg.burst do
-			if dummies[d.index] ~= d or d.humanoid.Health <= 0 or not target.Parent then
+			if
+				dummies[d.index] ~= d
+				or d.humanoid.Health <= 0
+				or not target.Parent
+				or Status.stunned(d.model, workspace:GetServerTimeNow())
+			then
 				break
 			end
 			fakeShot(d, target, params)

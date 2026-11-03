@@ -266,16 +266,16 @@ local defs: { [string]: ModDef } = {
 				radius = 10,
 				hinder = 3, -- seconds of Hinder (Config/StatusEffects)
 			},
-			A2 = { note = "Stockpile: 2 charges", charges = 2 },
-			A3 = { note = "Stockpile: 3 charges", charges = 3 },
-			B2 = { note = "Big Burst: double the area (14 studs)", radius = 14 },
-			B3 = { note = "Big Burst: triple the area (17 studs)", radius = 17 },
+			A2 = { note = "Stockpile: 2 canisters a round", charges = 2 },
+			A3 = { note = "Stockpile: 3 canisters a round", charges = 3 },
+			B2 = { note = "Big Burst: 14-stud burst, double the area", radius = 14 },
+			B3 = { note = "Big Burst: 17-stud burst, triple the area", radius = 17 },
 			G2 = {
-				note = "Freeze Frame: everyone in the burst is frozen solid 1.5 s, you too",
-				behaviour = "Freeze",
-				freeze = 1.5,
+				note = "Freeze Frame: frozen solid 1.5 s, can't move or shoot. Hits you too",
+				behaviour = "Freeze", -- Frozen (Config/StatusEffects) instead of Hinder
+				freeze = 1.5, -- seconds frozen
 			},
-			G3 = { note = "Freeze Frame: frozen for 2.5 s", freeze = 2.5 },
+			G3 = { note = "Freeze Frame: frozen solid for 2.5 s", freeze = 2.5 },
 		},
 	},
 	Recon = {

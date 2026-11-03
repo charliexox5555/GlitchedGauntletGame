@@ -82,6 +82,42 @@ All ProSoundEffects library audio (public, no upload). Search terms that worked:
 ## Changes from the user's feedback (2026-10-29)
 - **Longer throws** (same change as the Molly): `throwSpeed` 92 → **108**, `dropTime` 0.9 → **1.3**. Longest javelin throw on flat ground: **74 → 115 studs**.
 
+## Upgrades (L2/L3) (built 2026-11-03, not playtested yet)
+Decided in [Upgrade Paths](Upgrade%20Paths.md) → 5. Frost (that note owns the numbers). Code: `Config/Mods` Frost `levels`, `Mods/Frost` (`behaviour = "Freeze"`), client `Util/UpgradeFx/Frost` (look) and `Util/Frozen` (the rules of being frozen on the client).
+
+| Level | What it does | Card text (`note`) |
+|---|---|---|
+| **A2 Stockpile** | 2 charges a round (no recharge) | Stockpile: 2 canisters a round |
+| **A3 Stockpile** | 3 charges | Stockpile: 3 canisters a round |
+| **B2 Big Burst** | 14-stud radius | Big Burst: 14-stud burst, double the area |
+| **B3 Big Burst** | 17-stud radius | Big Burst: 17-stud burst, triple the area |
+| **G2 Freeze Frame** ⚡ | Everyone in the burst with a clear line (enemies, team, you) is **Frozen 1.5 s** instead of Hindered | Freeze Frame: frozen solid 1.5 s, can't move or shoot. Hits you too |
+| **G3 Freeze Frame** ⚡ | Frozen **2.5 s** | Freeze Frame: frozen solid for 2.5 s |
+
+**A and B** are numbers only: the burst effect (`Util/FrostFx`) already scales its mist and floor frost to the radius, and the HUD has 3 charge pips.
+
+### Frozen (`Config/StatusEffects` Frozen, a stun)
+- **Server:** move 0, jump 0 (you still fall); no shots (`WeaponService`, after the 0.3 s grace), no reload can start, and a **reload in progress is dropped** when it lands (shell-by-shell keeps the shells loaded; `StatusService.onApply`); no Mods (`ModService` denies "frozen"); no predicted casts (Dash, Updraft: `StatusStunned`). A new freeze refreshes the timer.
+- **Your client (`Util/Frozen`):** a held Mod is put away, a reload and an inspect are cancelled, and the view turns at most **25°/s** (`StatusEffects` Frozen `turn`, `CameraController.setTurnCap`), so your body barely turns: you creak round, no flicks.
+- **Every client:** frozen bodies' animations pause mid-pose (Animator tracks at speed 0 before each animation step, restored on thaw).
+- **Dummies:** stand still, legs paused, shooters don't turn or fire.
+
+### Look and sound (glitched: a paused video frame)
+- **Burst:** a snap-freeze shockwave instead of the frost puff. The ring (team colour) races out in 0.1 s and **stops dead** at the edge, held 0.45 s with magenta and cyan ghost copies jittering beside it (a stuck frame), a magenta hex grid flashes on the floor, ice spikes (some corrupted magenta slivers) burst out of the floor around the edge, a "❚❚" pause mark flickers over it, then it pops. A neon core flash, sparkles, floor frost. Sound: a tape brake (the frame stopping), the ice crackle pitched down, video static.
+- **Frozen bodies:** a jagged glass ice block around the body, crystals jutting out (one in four a magenta neon sliver), magenta scanlines crawling over it, datamosh jumps (it skips sideways and flashes magenta for a frame), and a "❚❚ 1.4" tag above it: **cyan for your team, orange-red for enemies**. No outline through walls (the tag is hidden by walls too). When it thaws (or the body dies) it **shatters**: glass chunks, sparkles, a glass-break sound.
+- **You while frozen:** the frosted vignette, a desaturated cold colour grade, VHS scanlines, tearing bars, a big "❚❚ FROZEN" with a chromatic split and the countdown, "❚❚ PAUSE" in the corner, a static sting. At the end it shatters off: a flash, glass break, the thaw crack.
+- **Placeholder sounds** (`Config/ModSounds` Frost, ids from [Mod Audio](../../02%20Art/Mod%20Audio.md)'s checked list, unauditioned): `freezeSnap` 9117880715 "Power Rewind Brake Engage 1", `freezeStatic` 9120425687 "Video Static Distortion Short Bursts Rizzy 2", `shatter` 9114592117 "Glass Breaks 1", `frozenStatic` 9126160991 "Video Static Distortion Short And Long Bursts 2".
+
+### Name ideas (proposals, not applied)
+- A "Stockpile" → **Cold Storage** (more canisters, a fridge pun).
+- B "Big Burst" → **Cold Front** (weather that covers a wide area) or **Blizzard**.
+- G "Freeze Frame" → keep it: it says exactly what happens and sells the paused-video look.
+
+### Known gaps
+- A Dash already in progress finishes (about 0.2 s), and a Recall wind-up that started before the freeze still teleports.
+- A Mod key pressed while frozen raises the item, then the server's "frozen" deny puts it away (with the deny buzz).
+- The thrown canister looks the same on every level.
+
 ## Mobile
 Same as the Molly: tap to hold, **Fire** throws, a **Lob** button appears, tap again to cancel.
 

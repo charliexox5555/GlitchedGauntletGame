@@ -13,6 +13,8 @@
 --   equip     equip / swap speed
 --   recoil    recoil recovery speed
 --   stun      (optional) no shooting, no abilities, no dash: Frozen
+--   turn      (optional) the view turns at most this many degrees a second
+--             (the client's camera, so the body barely turns: Frozen)
 
 export type Effect = {
 	attribute: string, -- the character attribute holding the expiry (server time)
@@ -24,6 +26,7 @@ export type Effect = {
 	equip: number,
 	recoil: number,
 	stun: boolean?,
+	turn: number?,
 }
 
 local effects: { [string]: Effect } = {
@@ -76,6 +79,7 @@ local effects: { [string]: Effect } = {
 		equip = 1,
 		recoil = 1,
 		stun = true,
+		turn = 25, -- a slow creak, not a flick
 	},
 }
 
