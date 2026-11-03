@@ -67,6 +67,15 @@ Rojo **can't** live-sync MeshParts (it leaves `MeshId` empty), so finished guns 
 
 To restore a gun by hand: right-click `ReplicatedStorage.Weapons` → **Insert from File** → `art-source/weapons/Studio/<Id>.rbxm`.
 
+## Ability VFX: stylized, mesh-first (decided 2026-11-03)
+The user's feedback after the upgrades: some ability effects (the fire wall, the molly) are **too realistic** and won't hold up. Abilities follow the Mod look ([Mod System](../04%20Tech/Mod%20System.md) → "Art: the Mod look"), so their effects move to a **stylized, Valorant-like** look (still a bit more grounded than Valorant):
+- **Shapes over particles.** Build the effect from **Blender meshes** (flame tongues, crystal shards, rings, cracks, debris) with clean gradient textures, animated in code (scale, pulse, scroll, flicker), not from piles of realistic particles. A few particles for accent only.
+- **Low-end first.** A wall or zone is a handful of MeshParts (pooled, reused), a few textures, no per-frame instance creation, small particle counts. It must look right on a phone at low graphics.
+- **Readable.** Bold silhouettes and bright cores. Something that **blocks vision** (the Firewall) is visibly solid: an opaque curtain, not see-through smoke.
+- **References:** fire like Phoenix's Blaze wall and Brimstone/Phoenix incendiaries (stylized flame tongues on a glowing ground ring); ice as faceted crystal shards; glitches add magenta `#FF3DCB` pixel/scanline accents on top.
+- **Colours:** keep each ability's existing per-viewer rule (ally / enemy tint where it has one; fire stays fire-coloured).
+- **Pipeline:** the Mod props pipeline ([`art-source/abilities/README.md`](../../art-source/abilities/README.md)): `tools/blender/build_mod_*.py` (headless Blender) → `export_mods.py` → `tools/opencloud/upload_models.py` → `AbilityBuilder` in Studio → `ReplicatedStorage.Abilities` (Studio-owned; save the place). Code falls back to the old look while a mesh isn't installed.
+
 ## Audio
 > **How to change a gun's sound (2026-10-25):** every gun sound lives in **`src/shared/Config/GunSounds.luau`**, one entry per gun id: `fire` (your shot), `fireFar` (what others hear), optional `tail`, `dryFire`, `magOut`, `magIn`, `rack` (charging handle / bolt / pump), optional `shellIn`, `draw`, optional `inspect`. Each is `{ id = "rbxassetid://…", volume = …, pitch = { min, max } }`. Upload the sound, paste its id over the placeholder, save; Rojo syncs it. Ids starting with `atlas:` are placeholders (slices of the gun atlas below; the file lists them). Reload, draw and inspect foley plays on the gun's own animation beats (mag out when the mag starts moving, mag in when it seats, rack when the charging handle stops), so new sounds stay in sync. `Config/Sounds` now only holds the shared sounds (hit feedback, damage, low-ammo tick) and the atlas id. Every gun is placeholder-only for now; the user will replace them by hand later.
 
