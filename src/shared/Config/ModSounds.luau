@@ -138,6 +138,16 @@ return table.freeze({
 		hinderedLoop = cue(9113286782, 1, 0.95, true, nil, nil, 1.8, 6.6),
 		-- Frost_Recover: you. "Ice Crackle Large Block Cracks 1", 0.1 s on
 		recover = cue(9114858583, 0.5, 1.05, nil, nil, 0.65, 0.1),
+		-- Freeze Frame (the glitch path, Upgrade Paths.md → 5. Frost), ids from
+		-- Mod Audio.md's checked list. Snap: 3D, ~60 studs, the frame stopping:
+		-- "Power Rewind Brake Engage 1" (a tape brake) over the burst's ice
+		-- crackle pitched down, and "Video Static Distortion Short Bursts Rizzy 2"
+		freezeSnap = cue(9117880715, 0.6, 1.35, nil, 60, 0.55),
+		freezeStatic = cue(9120425687, 0.45, 1, nil, 50, 0.45),
+		-- Shatter: 3D at the body when it thaws. "Glass Breaks 1", higher
+		shatter = cue(9114592117, 0.45, 1.25, nil, 40, 0.7),
+		-- Frozen: you, the "paused" hum. "Video Static Distortion Short And Long Bursts 2"
+		frozenStatic = cue(9126160991, 0.25, 0.8, nil, nil, 1.7),
 	}),
 	-- Recon hooks (vault/01 Design/Abilities/Recon.md → Sound). Placeholders
 	-- (ProSoundEffects, unauditioned), listed in the Recon note; one id each.
