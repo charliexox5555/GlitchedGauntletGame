@@ -24,16 +24,18 @@ end
 local config = Instance.new("Configuration")
 config.Name = "Lighting"
 local PROPS: { [string]: any } = {
-	ClockTime = 17.75,
+	-- Tuned in Studio 2026-11-03: 17.75 / ambient 68-112 left the spawns and the
+	-- container lanes too dark to read players in first person.
+	ClockTime = 17.3,
 	GeographicLatitude = 0,
-	Brightness = 1.8,
-	Ambient = Color3.fromRGB(68, 62, 92),
-	OutdoorAmbient = Color3.fromRGB(112, 100, 140),
+	Brightness = 2.4,
+	Ambient = Color3.fromRGB(118, 108, 140),
+	OutdoorAmbient = Color3.fromRGB(168, 152, 186),
 	ColorShift_Top = Color3.fromRGB(255, 168, 108),
 	ColorShift_Bottom = Color3.fromRGB(70, 60, 110),
-	EnvironmentDiffuseScale = 0.35,
+	EnvironmentDiffuseScale = 0.5,
 	EnvironmentSpecularScale = 0.5,
-	ExposureCompensation = 0.1,
+	ExposureCompensation = 0.45,
 	GlobalShadows = true,
 	ShadowSoftness = 0.25,
 }
