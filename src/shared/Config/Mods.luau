@@ -150,19 +150,42 @@ local defs: { [string]: ModDef } = {
 				dps = 45, -- to enemies; FRIENDLY_FIRE of it to you and your team
 				tick = 0.25,
 			},
+			-- Recharge / Bigger Fire are numbers only (Mods/Charges, Util/MollyFx
+			-- scales the fire's look and sound to `radius` and `duration`).
 			A2 = { note = "Recharge: a used Molly comes back after 15 s", cooldown = 15 },
-			A3 = { note = "Recharge: comes back after 10 s", cooldown = 10 },
-			B2 = { note = "Bigger Fire: a 12-stud fire patch", radius = 12 },
-			B3 = { note = "Bigger Fire: 14 studs, burns for 6 s", radius = 14, duration = 6 },
+			A3 = { note = "Recharge: your Molly comes back after only 10 s", cooldown = 10 },
+			B2 = { note = "Bigger Fire: the fire patch grows to 12 studs", radius = 12 },
+			B3 = {
+				note = "Bigger Fire: a 14-stud patch that burns for 6 s",
+				radius = 14,
+				duration = 6,
+			},
+			-- Fork Fire (Mods/Molly → Fork): no big fire; where the canister comes
+			-- to rest it splits into `forks` bomblets (server RNG) that scatter,
+			-- hop off the floor and burst into small fires (same dps / duration).
 			G2 = {
-				note = "Fork Fire: splits into 3 small fires that scatter; they burn you too",
+				note = "Fork Fire: splits into 3 bouncing firebombs; their fire burns you too",
 				behaviour = "Fork",
 				forks = 3,
 				forkRadius = 5,
 				forkSpeed = 30, -- studs/s the bomblets scatter at
+				forkSpeedJitter = 0.25, -- each one's speed is ± this share of forkSpeed
+				forkLift = 0.8, -- up component of the scatter (before scaling), ± forkLiftJitter
+				forkLiftJitter = 0.3,
+				forkHops = 1, -- floor bounces before a bomblet bursts
+				forkBounces = 2, -- wall bounces
+				forkSize = 0.25, -- bomblet radius
+				forkFlight = 2.5, -- seconds simulated; still flying then = no fire
 				selfFire = 1, -- share of the damage to you and your team
 			},
-			G3 = { note = "Fork Fire: 5 fires, one more bounce first", forks = 5, bounces = 5 },
+			-- `hops`: the canister skips off the floor this many times before it
+			-- splits (the "bounces once more"); `bounces` 5 is one more wall bounce.
+			G3 = {
+				note = "Fork Fire: 5 firebombs, and it bounces once more before splitting",
+				forks = 5,
+				bounces = 5,
+				hops = 1,
+			},
 		},
 	},
 	Firewall = {

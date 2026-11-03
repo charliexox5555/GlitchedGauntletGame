@@ -30,6 +30,9 @@ export type Options = {
 	-- drops straight down.
 	groundStop: boolean?,
 	dropAfter: number?,
+	-- groundStop: the first this many floors it hits bounce it instead (a
+	-- hop; Molly's Fork Fire), then the next floor stops it.
+	groundHops: number?,
 }
 
 local STEP = 1 / 60
@@ -68,6 +71,7 @@ function Projectile.simulate(
 	local friction = options.friction or 0.7
 	local segments: { Segment } = { { t = 0, p = origin, v = velocity, rest = false } }
 	local bounces = 0
+	local hops = 0
 	local pos, vel = origin, velocity
 	local t = 0
 	local dropAfter = options.dropAfter
@@ -96,6 +100,17 @@ function Projectile.simulate(
 			local along = hitVel - normalPart
 			local bounced = along * friction - normalPart * restitution
 			local ground = options.groundStop == true and normal.Y >= GROUND_NORMAL
+			if
+				ground
+				and hops < (options.groundHops or 0)
+				and bounced.Magnitude >= REST_SPEED
+				and #segments < MAX_SEGMENTS - 2
+			then
+				hops += 1
+				table.insert(segments, { t = hitT, p = at, v = bounced, rest = false })
+				pos, vel, t = at, bounced, hitT
+				continue
+			end
 			local stop = ground
 				or bounces > options.bounces
 				or bounced.Magnitude < REST_SPEED

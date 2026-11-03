@@ -11,11 +11,24 @@
 -- Textures: Config/VfxTextures MOLLY_* (rendered in Blender by
 -- tools/vfx/make_molly_vfx.py). Fire rigs are pooled; burning flames are one
 -- emitter per character, made on first burn.
+--
+-- Any size (Molly.md → Upgrades): the flames' density, the embers, the
+-- whoomp, the light and the pitch of the burst and the loop follow `radius`
+-- (Bigger Fire's 12 / 14 studs read bigger and deeper, Fork Fire's 5-stud
+-- fires smaller and higher), the time follows `duration`.
+--
+-- Glitch fire (Fork Fire, `glitch`): the same fire, corrupted. Its flames
+-- keep flipping between fire and hot magenta (COLORS.glitch), magenta crackle
+-- arcs and embers, neon "dead pixels" and screen-tear slivers blinking in
+-- and out over the patch, a light that jumps between levels instead of
+-- flickering smoothly, a pitched-up loop with stuttering digital crackles,
+-- and it dissolves into magenta static when it goes out.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
@@ -34,6 +47,26 @@ local FADE_TIME = 0.5 -- flames die down over this at the end
 local SCORCH_LINGER = 3 -- seconds the scorch stays after the fire
 local LIGHT_COLOR = Color3.fromRGB(255, 150, 70)
 local FIRE_TINT = Color3.fromRGB(255, 255, 255) -- the flame textures carry their own colour
+local BASE_RADIUS = 9 -- L1's patch: the rates below are tuned for it
+local EMBER_COLOR = ColorSequence.new(Color3.fromRGB(255, 214, 120), Color3.fromRGB(200, 50, 20))
+local SMOKE_COLOR = ColorSequence.new(Color3.fromHex("3A3A3C"))
+
+-- Glitch fire.
+local GLITCH = Config.COLORS.glitch
+local GLITCH_VIOLET = Color3.fromRGB(120, 50, 255)
+-- The flame sheet is orange: a pink-violet tint turns it hot pink.
+local GLITCH_FLAME = ColorSequence.new(Color3.fromRGB(255, 120, 255), Color3.fromRGB(200, 90, 255))
+local GLITCH_EMBER = ColorSequence.new(Color3.fromRGB(255, 200, 245), GLITCH)
+local GLITCH_SMOKE = ColorSequence.new(Color3.fromRGB(60, 28, 64))
+local GLITCH_SCORCH = Color3.fromRGB(255, 160, 235)
+local PIXEL_COLORS = { GLITCH, GLITCH, Color3.new(1, 1, 1), GLITCH_VIOLET, LIGHT_COLOR }
+local FLIP_GAP = 0.09 -- seconds between colour flips of the flames
+local FLIP_SHARE = 0.35 -- share of the flames flipped each time
+local LIGHT_STEP = 0.07 -- the light holds each level at least this long
+local CRACKLE_MIN, CRACKLE_MAX = 0.35, 0.9 -- seconds between crackles
+local CRACKLE_PITCHES = { 1, 1.5, 2 } -- stepped, so it sounds digital
+
+local rng = Random.new()
 
 type Rig = {
 	part: Part,
@@ -42,9 +75,14 @@ type Rig = {
 	smoke: { ParticleEmitter },
 	embers: ParticleEmitter,
 	burst: ParticleEmitter,
+	arcs: ParticleEmitter, -- glitch fire only
 	light: PointLight,
 	attachments: { Attachment },
 }
+
+-- A blinking neon block over a glitch fire (a dead pixel, or a wide sliver:
+-- a screen tear).
+type Pixel = { part: Part, shown: boolean, untilT: number }
 
 type Fire = {
 	rig: Rig,
@@ -55,10 +93,19 @@ type Fire = {
 	hum: ModAudio.Hum?,
 	sizzled: boolean,
 	scorch: any,
+	area: number, -- the patch's area / L1's (flame and ember rates)
+	rim: number, -- its rim / L1's (edge and smoke rates)
+	glitch: boolean,
+	pixels: { Pixel },
+	nextFlip: number,
+	nextLight: number,
+	lightLevel: number,
+	nextCrackle: number,
 }
 
 local fires: { Fire } = {}
 local freeRigs: { Rig } = {}
+local freePixels: { Part } = {}
 local folder: Folder? = nil
 
 local function curve(points: { number }): NumberSequence
@@ -79,6 +126,7 @@ local function fxFolder(): Folder
 	made.Parent = Workspace
 	folder = made
 	table.clear(freeRigs)
+	table.clear(freePixels)
 	return made
 end
 
@@ -153,7 +201,7 @@ local function build(): Rig
 		local e = emitter(attach(), VFX.MOLLY_SMOKE_2x2)
 		e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
 		e.FlipbookMode = Enum.ParticleFlipbookMode.OneShot -- billows, then thins
-		e.Color = ColorSequence.new(Color3.fromHex("3A3A3C"))
+		e.Color = SMOKE_COLOR
 		e.Lifetime = NumberRange.new(1.8, 2.6)
 		e.Speed = NumberRange.new(2, 3.5)
 		e.Acceleration = Vector3.new(0, 1.2, 0)
@@ -178,7 +226,7 @@ local function build(): Rig
 	embers.EmissionDirection = Enum.NormalId.Top
 	embers.SpreadAngle = Vector2.new(25, 25)
 	embers.Size = curve({ 0, 0.14, 1, 0.05 })
-	embers.Color = ColorSequence.new(Color3.fromRGB(255, 214, 120), Color3.fromRGB(200, 50, 20))
+	embers.Color = EMBER_COLOR
 	embers.Transparency = curve({ 0, 0, 0.8, 0.3, 1, 1 })
 	embers.LightEmission = 1
 	embers.Brightness = 2
@@ -194,6 +242,19 @@ local function build(): Rig
 	burst.LightEmission = 0.6
 	burst.Brightness = 1.4
 	burst.Orientation = Enum.ParticleOrientation.FacingCamera
+	-- Glitch fire's crackle arcs: blink-short magenta sparks over the patch.
+	local arcs = emitter(part, VFX.STIM_ARC_2x2)
+	arcs.Shape = Enum.ParticleEmitterShape.Cylinder
+	arcs.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+	arcs.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+	arcs.FlipbookMode = Enum.ParticleFlipbookMode.Random
+	arcs.Lifetime = NumberRange.new(0.06, 0.14)
+	arcs.Speed = NumberRange.new(0)
+	arcs.Size = NumberSequence.new(1.6)
+	arcs.Rotation = NumberRange.new(0, 360)
+	arcs.Color = ColorSequence.new(GLITCH)
+	arcs.LightEmission = 1
+	arcs.Brightness = 2
 	local light = Instance.new("PointLight")
 	light.Color = LIGHT_COLOR
 	light.Shadows = false
@@ -206,6 +267,7 @@ local function build(): Rig
 		smoke = smoke,
 		embers = embers,
 		burst = burst,
+		arcs = arcs,
 		light = light,
 		attachments = attachments,
 	}
@@ -247,29 +309,156 @@ local function layout(rig: Rig, at: Vector3, radius: number)
 	rig.part.Size = Vector3.new(radius * 2, 0.2, radius * 2)
 end
 
-local function setRates(rig: Rig, k: number)
+-- Emission at `k` (1 = full) for a fire of this size.
+local function setRates(f: Fire, k: number)
+	local rig = f.rig
 	for _, e in rig.flames do
-		e.Rate = 5 * k
+		e.Rate = 5 * k * f.area
 	end
 	for _, e in rig.edge do
-		e.Rate = 7 * k
+		e.Rate = 7 * k * f.rim
 	end
 	for _, e in rig.smoke do
-		e.Rate = 1.2 * k
+		e.Rate = 1.2 * k * f.rim
 	end
-	rig.embers.Rate = 14 * k
+	rig.embers.Rate = 14 * k * f.area
+	rig.arcs.Rate = if f.glitch then 10 * k * f.area else 0
+end
+
+-- A pooled rig is recoloured on every use (fire or glitch fire).
+local function paint(rig: Rig, glitch: boolean)
+	local flame = if glitch then GLITCH_FLAME else ColorSequence.new(FIRE_TINT)
+	for _, e in rig.flames do
+		e.Color = flame
+	end
+	for _, e in rig.edge do
+		e.Color = flame
+	end
+	for _, e in rig.smoke do
+		e.Color = if glitch then GLITCH_SMOKE else SMOKE_COLOR
+	end
+	rig.embers.Color = if glitch then GLITCH_EMBER else EMBER_COLOR
+	rig.burst.Color = flame
+	rig.light.Color = if glitch then GLITCH else LIGHT_COLOR
+end
+
+-- How the fire sounds for its size: deeper when bigger, higher when smaller.
+local function pitchFor(radius: number): number
+	return math.clamp((BASE_RADIUS / radius) ^ 0.35, 0.8, 1.35)
+end
+
+-- Glitch fire's blinking blocks ---------------------------------------------------
+
+local function takePixel(): Part
+	local p = table.remove(freePixels)
+	if p and p.Parent then
+		return p
+	end
+	local made = Instance.new("Part")
+	made.Name = "GlitchPixel"
+	made.Anchored = true
+	made.CanCollide = false
+	made.CanQuery = false
+	made.CanTouch = false
+	made.CastShadow = false
+	made.Material = Enum.Material.Neon
+	made.Transparency = 1
+	made.CFrame = CFrame.new(0, -10000, 0)
+	made.Parent = fxFolder()
+	return made
+end
+
+local function hidePixel(px: Pixel, now: number, k: number)
+	px.shown = false
+	px.part.Transparency = 1
+	-- Fewer of them as the fire dies down.
+	px.untilT = now + rng:NextNumber(0.02, 0.3) / math.max(k, 0.15)
+end
+
+local function showPixel(px: Pixel, f: Fire, now: number)
+	local r = f.radius * 0.95 * math.sqrt(rng:NextNumber())
+	local a = rng:NextNumber(0, math.pi * 2)
+	local offset = Vector3.new(math.cos(a) * r, rng:NextNumber(0.15, 2.8), math.sin(a) * r)
+	local part = px.part
+	if rng:NextNumber() < 0.2 then
+		-- A tear: a thin sliver across the fire.
+		local long = rng:NextNumber(1.5, f.radius * 1.2)
+		part.Size = Vector3.new(long, 0.08, rng:NextNumber(0.15, 0.4))
+		part.CFrame = CFrame.new(f.at + offset * Vector3.new(0.5, 1, 0.5))
+			* CFrame.Angles(0, rng:NextNumber(0, math.pi), 0)
+	else
+		local s = rng:NextNumber(0.2, 0.55)
+		part.Size = Vector3.new(s, s, s)
+		part.CFrame = CFrame.new(f.at + offset)
+	end
+	part.Color = PIXEL_COLORS[rng:NextInteger(1, #PIXEL_COLORS)]
+	part.Transparency = rng:NextNumber(0, 0.25)
+	px.shown = true
+	px.untilT = now + rng:NextNumber(0.04, 0.12)
+end
+
+local function releasePixels(f: Fire)
+	for _, px in f.pixels do
+		px.part.Transparency = 1
+		px.part.CFrame = CFrame.new(0, -10000, 0)
+		table.insert(freePixels, px.part)
+	end
+	table.clear(f.pixels)
+end
+
+-- One frame of a glitch fire: the flames flip colour, the blocks blink, the
+-- light jumps between levels, a crackle now and then.
+local function stepGlitch(f: Fire, now: number, k: number)
+	local rig = f.rig
+	if now >= f.nextFlip then
+		f.nextFlip = now + FLIP_GAP
+		local fire = ColorSequence.new(FIRE_TINT)
+		for _, list in { rig.flames, rig.edge } do
+			for _, e in list do
+				if rng:NextNumber() < FLIP_SHARE then
+					e.Color = if rng:NextNumber() < 0.6 then GLITCH_FLAME else fire
+				end
+			end
+		end
+	end
+	for _, px in f.pixels do
+		if now >= px.untilT then
+			if px.shown or rng:NextNumber() > k then
+				hidePixel(px, now, k)
+			else
+				showPixel(px, f, now)
+			end
+		end
+	end
+	if now >= f.nextLight then
+		f.nextLight = now + LIGHT_STEP * rng:NextInteger(1, 3)
+		f.lightLevel = if rng:NextNumber() < 0.15 then 0.3 else rng:NextNumber(1.6, 3.4)
+	end
+	local spike = math.max(0, 1 - (now - f.startAt) / 0.35) * 4
+	rig.light.Brightness = f.lightLevel * k + spike
+	if now >= f.nextCrackle and k >= 1 then
+		f.nextCrackle = now + rng:NextNumber(CRACKLE_MIN, CRACKLE_MAX)
+		ModAudio.play(S.glitchCrackle, f.at, CRACKLE_PITCHES[rng:NextInteger(1, #CRACKLE_PITCHES)])
+	end
 end
 
 -- The canister bursts at `at` (the floor): a fire of `radius` until
--- `duration` after server time `start`.
-function MollyFx.ignite(at: Vector3, radius: number, duration: number, start: number)
+-- `duration` after server time `start`; `glitch`: Fork Fire's glitch fire.
+function MollyFx.ignite(
+	at: Vector3,
+	radius: number,
+	duration: number,
+	start: number,
+	glitch: boolean?
+)
 	local left = duration - (Workspace:GetServerTimeNow() - start)
 	if left <= 0 then
 		return
 	end
+	local isGlitch = glitch == true
 	local rig = takeRig()
 	layout(rig, at + Vector3.new(0, 0.1, 0), radius)
-	setRates(rig, 1)
+	paint(rig, isGlitch)
 	rig.light.Range = radius * 1.8
 	-- The whoomp: the sheet as wide as the patch (its base on the floor), a
 	-- smaller one a beat later, and a light spike.
@@ -282,31 +471,62 @@ function MollyFx.ignite(at: Vector3, radius: number, duration: number, start: nu
 		rig.burst:Emit(1)
 	end)
 	rig.light.Brightness = 6
-	ModAudio.play(S.burst, at)
+	local pitch = pitchFor(radius)
+	ModAudio.play(S.burst, at, pitch)
+	if isGlitch then
+		ModAudio.play(S.glitchCrackle, at, 1.5)
+		ModVfx.burst(at + Vector3.new(0, 1, 0), GLITCH, 10, "Sparkle")
+	end
 	local now = os.clock()
 	local scorch = ModVfx.quad({
 		texture = VFX.MOLLY_SCORCH,
 		cframe = CFrame.new(at + Vector3.new(0, 0.05, 0)),
 		from = radius * 2.6, -- the char fills the middle 60%
-		color = Color3.new(1, 1, 1),
+		color = if isGlitch then GLITCH_SCORCH else Color3.new(1, 1, 1),
 		life = left + SCORCH_LINGER,
 		alpha0 = 0.05,
 		hold = true,
 	})
-	table.insert(fires, {
+	local hum = ModAudio.hum(if isGlitch then S.glitchLoop else S.fireLoop, rig.part)
+	if hum then
+		hum.sound.PlaybackSpeed *= pitch
+	end
+	local pixels: { Pixel } = {}
+	if isGlitch then
+		for _ = 1, math.clamp(math.floor(radius * 1.6 + 0.5), 6, 20) do
+			table.insert(pixels, { part = takePixel(), shown = false, untilT = now })
+		end
+	end
+	local f: Fire = {
 		rig = rig,
 		at = at,
 		radius = radius,
 		startAt = now,
 		endAt = now + left,
-		hum = ModAudio.hum(S.fireLoop, rig.part),
+		hum = hum,
 		sizzled = false,
 		scorch = scorch,
-	})
+		area = math.clamp((radius / BASE_RADIUS) ^ 2, 0.3, 2.4),
+		rim = math.clamp(radius / BASE_RADIUS, 0.55, 1.6),
+		glitch = isGlitch,
+		pixels = pixels,
+		nextFlip = now,
+		nextLight = now,
+		lightLevel = 2.2,
+		nextCrackle = now + rng:NextNumber(CRACKLE_MIN, CRACKLE_MAX),
+	}
+	setRates(f, 1)
+	table.insert(fires, f)
 end
 
--- A canister that never found a floor: a small pop, nothing burns.
-function MollyFx.fizzle(at: Vector3)
+-- A canister that never found a floor: a small pop, nothing burns (`glitch`:
+-- a Fork Fire bomblet: a pop of magenta static).
+function MollyFx.fizzle(at: Vector3, glitch: boolean?)
+	if glitch then
+		ModAudio.play(S.glitchCrackle, at, 2)
+		ModVfx.burst(at, GLITCH, 8, "Sparkle")
+		return
+	end
 	ModAudio.play(S.sizzleOut, at)
 end
 
@@ -391,6 +611,7 @@ function MollyFx.step()
 			ModAudio.stopHum(f.hum)
 			f.hum = nil
 			table.remove(fires, i)
+			releasePixels(f)
 			rig.light.Brightness = 0
 			rig.part.CFrame = CFrame.new(0, -10000, 0)
 			table.insert(freeRigs, rig)
@@ -400,10 +621,20 @@ function MollyFx.step()
 			f.sizzled = true
 			ModAudio.stopHum(f.hum)
 			f.hum = nil
-			ModAudio.play(S.sizzleOut, f.at)
+			ModAudio.play(S.sizzleOut, f.at, pitchFor(f.radius))
+			if f.glitch then
+				-- It goes out as static.
+				ModAudio.play(S.glitchCrackle, f.at, 1)
+				local count = math.floor(f.radius * 2)
+				ModVfx.burst(f.at + Vector3.new(0, 1, 0), GLITCH, count, "Sparkle")
+			end
 		end
 		local k = math.clamp(left / FADE_TIME, 0, 1)
-		setRates(rig, k)
+		setRates(f, k)
+		if f.glitch then
+			stepGlitch(f, now, k)
+			continue
+		end
 		-- Flicker: a warm light that never sits still; the burst's spike decays.
 		local since = now - f.startAt
 		local base = 2.2

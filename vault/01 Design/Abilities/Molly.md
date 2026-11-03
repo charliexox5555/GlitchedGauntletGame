@@ -85,6 +85,40 @@ All ProSoundEffects library audio (public, no upload). Search terms that worked:
 - **Longer throws:** `throwSpeed` 72 → **88**, `dropTime` 0.9 → **1.3**. Longest LMB throw on flat ground (the game's own projectile code, best angle): **54 → 82 studs**. The lob is unchanged.
 - **Damage numbers stay on the target:** a burning enemy's number sits beside them and is hidden while they're off your screen (`Util/HitFeedback`); before, an off-screen hit point parked the number by your crosshair. This applies to every damage number (Firewall too).
 
+## Upgrades (L2/L3)
+Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md#3-molly-decided-2026-11-03) (the source of truth for the numbers). Built 2026-11-03 on branch `claude/practical-antonelli-be0598`, not yet playtested. Numbers in `Config/Mods` → `Molly`.
+
+| Level | What it does | How it's built |
+|---|---|---|
+| **A2 Recharge** | A used Molly comes back after **15 s** (still 1 charge) | `cooldown` 15 through `Mods/Charges`; the HUD sweeps and counts down; a round start refills it as usual |
+| **A3 Recharge** | Comes back after **10 s** | `cooldown` 10 |
+| **B2 Bigger Fire** | **12-stud** patch | `radius` 12. `Util/MollyFx` scales the flames' density, the edge, the embers, the whoomp, the light and the camera shake to the radius, and pitches the burst and the fire loop down (deeper for a bigger fire) |
+| **B3 Bigger Fire** | **14 studs**, burns **6 s** | `radius` 14, `duration` 6 (the patch, the loop and the scorch all follow it) |
+| **G2 Fork Fire** ⚡ | No big fire: where the canister comes to rest it **splits into 3 bomblets** that scatter, **hop once** off the floor and each burst into a **5-stud** fire (45 dps, 4 s). **They burn you and your team at full damage** | `behaviour` "Fork" in `Mods/Molly`. Server RNG: the bomblets are spread evenly around a random angle with jitter on angle, lift and speed (`forkSpeed` 30 ± 25%), so they never all go one way; each is simulated with `Blocks/Projectile` (`forkHops` 1, `forkBounces` 2) and lands about 6 to 15 studs out on flat ground. `selfFire` 1 replaces the 50% friendly fire. A body standing in two fork fires at once still burns at one fire's rate (no stacking) |
+| **G3 Fork Fire** ⚡ | **5 bomblets**, and the canister **hops once off the floor** before it splits | `forks` 5, `hops` 1 (new `Blocks/Projectile` option `groundHops`: the first floor bounces it instead of stopping it), `bounces` 5 (one more wall bounce too) |
+
+### Fork Fire look and sound (glitch fire)
+On top of the magenta glitch static (`COLORS.glitch` `#FF3DCB`), so the glitch level reads at a glance:
+- **In the air:** the usual canister, with magenta static streaming off it.
+- **The split:** a high pop, a digital crackle, a magenta ring and a burst of static.
+- **Bomblets:** small neon blocks in the thrower's team colour (cyan to you and your team, orange-red to enemies), moving at a choppy 20 fps, snapping to new angles, now and then skipping a little off their path; a magenta static trail and a light; a tick and a spit of static on every bounce.
+- **Glitch fire:** the Molly fire, corrupted: the flames keep flipping between fire orange and hot pink, magenta crackle arcs and embers, neon "dead pixels" and thin screen-tear slivers blinking over the patch, a light that jumps between levels instead of flickering smoothly, a magenta-tinted scorch. Sound: the fire loop pitched up (smaller fires sound higher) with short digital crackles at stepped pitches. It goes out in a pop of magenta static.
+- Placeholder sounds (`Config/ModSounds` → `Molly`, reusing ids, unauditioned): `forkSplit` (the burst, high and short), `forkBounce` (the bounce clink, higher), `glitchCrackle` (Stim's deploy crackle, cut to 0.14 s), `glitchLoop` (the fire loop at 1.3x).
+
+### Name and card text proposals (not applied: the path names stay as decided)
+| Path | Now | Proposal | Why |
+|---|---|---|---|
+| A | Recharge | **Refuel** | Says the same thing in the fire's own words |
+| B | Bigger Fire | **Wildfire** | Bigger and longer, one word |
+| G | Fork Fire | **Fork Bomb** | A fork bomb is the classic program that copies itself until the system crashes: a glitch name that also says "it splits" |
+
+Card text (the `note`s in `Config/Mods`, already updated, all under 70 characters): "Recharge: your Molly comes back after only 10 s", "Bigger Fire: a 14-stud patch that burns for 6 s", "Fork Fire: splits into 3 bouncing firebombs; their fire burns you too", "Fork Fire: 5 firebombs, and it bounces once more before splitting".
+
+### Watch in playtests
+- Fork Fire's spread (about 6 to 15 studs) against the 5-stud fires: wide enough to cover a doorway and the corners behind it, not so wide that the fires are useless.
+- Fork Fire at your own feet (lobbed) burns you at full damage: that's the drawback, check it's readable before you're hurt.
+- Five glitch fires at once: frame time on a phone (each fire has ~8 blinking blocks and the usual emitters).
+
 ## Mobile
 Tapping the Molly button holds it. The **Fire** button throws (overhand) and a **Lob** context button appears for the underhand toss. Tap the Molly button again to cancel.
 
