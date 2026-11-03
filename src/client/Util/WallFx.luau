@@ -1,13 +1,21 @@
 --!strict
 -- The Firewall for everyone (vault/01 Design/Abilities/Firewall.md → Look):
 -- each piece the server builds (workspace.ModWalls, Services/ModWalls) is
--- dressed as a tall curtain of fire with smoke off the top, so it blocks
--- sight: the Molly's Blender-rendered flame and smoke flipbooks (the two
--- fires match), embers, a warm light along it, a scorch line on the floor.
--- The newest piece flares while the wall races forward. At ExpiresAt the
--- flames sink and die out over ~0.5 s (the server removes the pieces just
--- after). Also: the heat haze while you stand in a wall, the flame in a
+-- dressed as a tall, opaque curtain of fire, so it blocks sight. The
+-- stylized look (Util/FireKit, the Blender FireVFX meshes): an orange sheet
+-- with a jagged flame top, bright yellow licks low on both faces, and three
+-- flame tongues dancing on top (two orange, a taller red one) that flicker,
+-- lean and swap shapes; each piece rises out of the floor with a little
+-- overshoot as the wall races on, and is turned at random so the pieces
+-- don't repeat. A few embers, a warm light along it, a scorch line on the
+-- floor. The newest piece flares while the wall races forward. At ExpiresAt
+-- the flames sink into the floor over ~0.5 s (the server removes the pieces
+-- just after). Also: the heat haze while you stand in a wall, the flame in a
 -- Firewall caster's hand for others, and the wall's sounds.
+--
+-- Until the hub has installed ReplicatedStorage.Abilities.FireVFX, pieces
+-- keep the old look: the Molly's Blender-rendered flame and smoke
+-- flipbooks.
 --
 -- A piece marked WallKind "Frost" (the glitch path's ice wall) is dressed by
 -- Util/FrostWallFx instead, with ice sounds (ModSounds.FirewallFrost), a
@@ -25,6 +33,7 @@ local Firewall = require(ReplicatedStorage.Shared.Mods.Firewall)
 local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
+local FireKit = require(script.Parent.FireKit)
 local FrostWallFx = require(script.Parent.FrostWallFx)
 local ModAudio = require(script.Parent.ModAudio)
 local ModVfx = require(script.Parent.ModVfx)
@@ -46,13 +55,38 @@ local HAZE_OUT = TweenInfo.new(0.4)
 local HUM_EVERY = 8 -- pieces (segment 4: a loop every 32 studs)
 local CRACKLE_EVERY = 4 -- an ice wall crackles every this many pieces as it races on
 
+-- The mesh wall (FireKit). Sizes are for a 10-stud wall, 1.5 thick, 4-stud
+-- pieces (Config/Mods Firewall L1); a piece scales to its own size.
+local MESH_HEIGHT, MESH_THICK, MESH_SEGMENT = 10, 1.5, 4
+local MESH_EMBER_RATE = 3 -- embers are an accent only
+local ANIM_GAP = 1 / 30 -- the flames move at most this often
+local ANIM_RANGE = 220 -- pieces farther than this from the camera hold still
+-- The flames on top of each piece: along (studs from the middle), base
+-- height, height, width scale, and whether it's the tall red one.
+type Slot = { along: number, y: number, h: number, w: number, tip: boolean }
+local SLOTS: { Slot } = {
+	{ along = -1.25, y = 7.0, h = 2.8, w = 2.4, tip = false },
+	{ along = 0.15, y = 6.8, h = 3.7, w = 1.9, tip = true },
+	{ along = 1.35, y = 7.2, h = 2.5, w = 2.2, tip = false },
+}
+local SLOT_DEPTH = 1.8 -- tongue depth scale: as thin as the sheet's top
+
+type MeshWall = {
+	sheet: BasePart,
+	core: BasePart,
+	flames: { FireKit.Flame },
+	turn: number, -- 0 or pi
+	settled: boolean, -- sheet and core are at full size (only the flames move)
+}
+
 type Piece = {
 	part: BasePart,
-	flames: ParticleEmitter,
-	tall: ParticleEmitter,
-	smoke: ParticleEmitter,
+	flames: ParticleEmitter?, -- the particle look only
+	tall: ParticleEmitter?,
+	smoke: ParticleEmitter?,
 	embers: ParticleEmitter,
 	light: PointLight?,
+	mesh: MeshWall?,
 	born: number, -- os.clock()
 	scorched: boolean,
 }
@@ -140,6 +174,86 @@ local function stopHums(ws: WallSound)
 	table.clear(ws.hums)
 end
 
+-- The mesh wall for a piece (nil when the kit isn't installed).
+local function meshWall(part: BasePart): MeshWall?
+	if not FireKit.available() then
+		return nil
+	end
+	local sheet = FireKit.take("Sheet")
+	local core = FireKit.take("Core")
+	if not sheet or not core then
+		return nil
+	end
+	sheet.Color = FireKit.SHEET
+	core.Color = FireKit.CORE
+	local now = os.clock()
+	local made: { FireKit.Flame } = {}
+	for _, slot in SLOTS do
+		local f = FireKit.flame(if slot.tip then FireKit.TIP else FireKit.BODY, now)
+		if f then
+			table.insert(made, f)
+		end
+	end
+	-- Turned at random (the sheet's ends match either way), so neighbours differ.
+	local index = part:GetAttribute("Index")
+	local odd = typeof(index) == "number" and index % 2 == 1
+	return {
+		sheet = sheet,
+		core = core,
+		flames = made,
+		turn = if odd ~= (math.random() < 0.3) then math.pi else 0,
+		settled = false,
+	}
+end
+
+local function dropMesh(m: MeshWall)
+	FireKit.give("Sheet", m.sheet)
+	FireKit.give("Core", m.core)
+	for _, f in m.flames do
+		FireKit.drop(f)
+	end
+	table.clear(m.flames)
+end
+
+-- Places a piece's mesh wall: `grow` (rising out of the floor, sinking at
+-- the end) scales its height, `front` stretches the flames on the newest piece.
+local function placeMesh(
+	p: Piece,
+	m: MeshWall,
+	now: number,
+	grow: number,
+	front: number,
+	all: boolean
+)
+	local part = p.part
+	local size = part.Size
+	local anchor = part.CFrame * CFrame.new(0, -size.Y / 2, 0) * CFrame.Angles(0, m.turn, 0)
+	local hk = size.Y / MESH_HEIGHT
+	local along = size.Z / MESH_SEGMENT
+	local across = size.X / MESH_THICK
+	if all then
+		local body = Vector3.new(across, math.max(hk * grow, 0.02), along)
+		FireKit.place(m.sheet, "Sheet", anchor, body)
+		FireKit.place(m.core, "Core", anchor, body)
+	end
+	for i, f in m.flames do
+		local slot = SLOTS[i]
+		FireKit.swap(f, now)
+		local h, lean = FireKit.flicker(f.seed, now, 1)
+		h *= front
+		local w = slot.w * along / math.sqrt(h)
+		local at = anchor
+			* CFrame.new(0, slot.y * hk * grow, slot.along * along)
+			* CFrame.Angles(lean, f.turn, 0)
+		FireKit.place(
+			f.part,
+			f.name,
+			at,
+			Vector3.new(SLOT_DEPTH * across, math.max(slot.h * hk * h * grow, 0.02), w)
+		)
+	end
+end
+
 local function dress(part: BasePart)
 	if pieces[part] then
 		return
@@ -152,28 +266,35 @@ local function dress(part: BasePart)
 		return
 	end
 	local h = part.Size.Y
-	-- Dense low flames through the whole curtain, a taller layer, smoke above.
-	local low = flames(part, 4, LOW_RATE)
-	local tall = flames(part, 6.5, TALL_RATE)
-	tall.Lifetime = NumberRange.new(0.7, 1.1)
-	local smoke = Instance.new("ParticleEmitter")
-	smoke.Texture = VFX.MOLLY_SMOKE_2x2
-	smoke.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
-	smoke.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
-	smoke.Color = ColorSequence.new(Color3.fromHex("1E1C1B"))
-	smoke.Shape = Enum.ParticleEmitterShape.Box
-	smoke.Lifetime = NumberRange.new(1.6, 2.4)
-	smoke.Speed = NumberRange.new(h * 0.5, h * 0.8)
-	smoke.Acceleration = Vector3.new(0, 1.5, 0)
-	smoke.Drag = 0.8
-	smoke.EmissionDirection = Enum.NormalId.Top
-	smoke.SpreadAngle = Vector2.new(15, 15)
-	smoke.Size = curve({ 0, 3, 1, 7 })
-	smoke.Transparency = curve({ 0, 1, 0.2, 0.3, 1, 1 })
-	smoke.Rotation = NumberRange.new(0, 360)
-	smoke.LightInfluence = 0.6
-	smoke.Rate = SMOKE_RATE
-	smoke.Parent = part
+	local mesh = meshWall(part)
+	local low: ParticleEmitter?, tall: ParticleEmitter?, smoke: ParticleEmitter? = nil, nil, nil
+	if not mesh then
+		-- The particle look: dense low flames through the whole curtain, a
+		-- taller layer, smoke above.
+		low = flames(part, 4, LOW_RATE)
+		local t = flames(part, 6.5, TALL_RATE)
+		t.Lifetime = NumberRange.new(0.7, 1.1)
+		tall = t
+		local e = Instance.new("ParticleEmitter")
+		e.Texture = VFX.MOLLY_SMOKE_2x2
+		e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+		e.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
+		e.Color = ColorSequence.new(Color3.fromHex("1E1C1B"))
+		e.Shape = Enum.ParticleEmitterShape.Box
+		e.Lifetime = NumberRange.new(1.6, 2.4)
+		e.Speed = NumberRange.new(h * 0.5, h * 0.8)
+		e.Acceleration = Vector3.new(0, 1.5, 0)
+		e.Drag = 0.8
+		e.EmissionDirection = Enum.NormalId.Top
+		e.SpreadAngle = Vector2.new(15, 15)
+		e.Size = curve({ 0, 3, 1, 7 })
+		e.Transparency = curve({ 0, 1, 0.2, 0.3, 1, 1 })
+		e.Rotation = NumberRange.new(0, 360)
+		e.LightInfluence = 0.6
+		e.Rate = SMOKE_RATE
+		e.Parent = part
+		smoke = e
+	end
 	local embers = Instance.new("ParticleEmitter")
 	embers.Texture = VFX.MOLLY_EMBER
 	embers.Shape = Enum.ParticleEmitterShape.Box
@@ -186,7 +307,7 @@ local function dress(part: BasePart)
 	embers.Color = ColorSequence.new(Color3.fromRGB(255, 214, 120), Color3.fromRGB(200, 50, 20))
 	embers.LightEmission = 1
 	embers.LightInfluence = 0
-	embers.Rate = 6
+	embers.Rate = if mesh then MESH_EMBER_RATE else 6
 	embers.Parent = part
 	-- A warm light on every other piece.
 	local light: PointLight? = nil
@@ -200,21 +321,32 @@ local function dress(part: BasePart)
 		l.Parent = part
 		light = l
 	end
-	pieces[part] = {
+	local piece: Piece = {
 		part = part,
 		flames = low,
 		tall = tall,
 		smoke = smoke,
 		embers = embers,
 		light = light,
+		mesh = mesh,
 		born = os.clock(),
 		scorched = false,
 	}
+	pieces[part] = piece
+	if mesh then
+		placeMesh(piece, mesh, piece.born, 0.02, 1, true)
+	end
 	sound(part, kind)
 end
 
 local function forget(part: BasePart)
+	local p = pieces[part]
 	pieces[part] = nil
+	local m = p and p.mesh
+	if p and m then
+		p.mesh = nil
+		dropMesh(m)
+	end
 end
 
 -- The heat haze while we stand in a wall (and the pass-through sizzle); a
@@ -327,6 +459,16 @@ local function stepHands()
 	end
 end
 
+-- A piece rising out of the floor: 0 -> a little over 1 -> 1 over FRONT_TIME.
+local function rise(age: number): number
+	local t = math.clamp(age / FRONT_TIME, 0, 1)
+	local back = 1.7
+	local u = t - 1
+	return math.max(1 + (back + 1) * u * u * u + back * u * u, 0.02)
+end
+
+local lastAnim = 0
+
 -- Per frame (ModFxController.update).
 function WallFx.step()
 	local now = os.clock()
@@ -334,6 +476,12 @@ function WallFx.step()
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	local at = if root and root:IsA("BasePart") then root.Position else nil
 	local inside: string? = nil
+	local animate = now - lastAnim >= ANIM_GAP
+	if animate then
+		lastAnim = now
+	end
+	local camera = Workspace.CurrentCamera
+	local eye = if camera then camera.CFrame.Position else nil
 	for part, p in pieces do
 		if not part.Parent then
 			forget(part)
@@ -360,10 +508,32 @@ function WallFx.step()
 				})
 			end
 		end
-		p.flames.Rate = LOW_RATE * k * front
-		p.tall.Rate = TALL_RATE * k * front
-		p.smoke.Rate = SMOKE_RATE * k
-		p.embers.Rate = 6 * k * front
+		local m = p.mesh
+		if m then
+			p.embers.Rate = MESH_EMBER_RATE * k * front
+			if k <= 0 then
+				-- Sunk: back to the pools (the server removes the piece next).
+				p.mesh = nil
+				dropMesh(m)
+			else
+				local growing = age < FRONT_TIME or k < 1
+				local near = not eye or (eye - part.Position).Magnitude < ANIM_RANGE
+				if growing or (animate and near) then
+					local grow = rise(age) * k
+					-- The flames flare a little less than the particles did.
+					placeMesh(p, m, now, grow, 1 + (front - 1) * 0.25, growing or not m.settled)
+					m.settled = not growing
+				end
+			end
+		else
+			local low, tall, smoke = p.flames, p.tall, p.smoke
+			if low and tall and smoke then
+				low.Rate = LOW_RATE * k * front
+				tall.Rate = TALL_RATE * k * front
+				smoke.Rate = SMOKE_RATE * k
+			end
+			p.embers.Rate = 6 * k * front
+		end
 		local light = p.light
 		if light then
 			light.Brightness = (2.2 + 0.5 * math.noise(now * 6, part.Position.X)) * k
@@ -405,6 +575,7 @@ function WallFx.step()
 		end
 	end
 	stepHands()
+	FireKit.flush()
 end
 
 function WallFx.start()
