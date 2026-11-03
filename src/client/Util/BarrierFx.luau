@@ -4,7 +4,8 @@
 --   - a see-through hex bubble around the whole body (ForceField material
 --     with the hex texture), cyan on your team and orange-red on enemies,
 --     with magenta glitch static: pixels popping on its skin and a flicker
---     every second or so. Each Barrier hit left is one layer (G3: two).
+--     every second or so. Each Barrier hit left is one layer (G3: two
+--     nested bubbles; a block takes the inner one away).
 --   - when it blocks: the layer shatters into pixels (Neon cubes) with a
 --     flash and a glassy break; on your own screen a crack flash.
 --   - your own Barrier: a faint hex pattern at the screen edges and a pip
@@ -390,6 +391,7 @@ type Screen = {
 	edges: { ImageLabel },
 	flash: ImageLabel,
 	cracks: { Frame },
+	crackStrokes: { UIStroke },
 	pips: { Frame },
 	pipRow: Frame,
 }
@@ -453,9 +455,11 @@ local function buildScreen(): Screen
 	flash.ScaleType = Enum.ScaleType.Stretch
 	flash.Parent = gui
 	local cracks = {}
+	local crackStrokes = {}
 	for i = 1, CRACKS * 2 do
+		-- Centre-anchored: GUI rotation always pivots on the centre.
 		local c = Instance.new("Frame")
-		c.AnchorPoint = Vector2.new(0, 0.5)
+		c.AnchorPoint = Vector2.new(0.5, 0.5)
 		c.BorderSizePixel = 0
 		c.BackgroundColor3 = WHITE
 		c.BackgroundTransparency = 1
@@ -467,6 +471,7 @@ local function buildScreen(): Screen
 		stroke.Parent = c
 		c.Parent = gui
 		cracks[i] = c
+		crackStrokes[i] = stroke
 	end
 	-- Pips: one per hit left, just above the health readout (bottom left).
 	local row = Instance.new("Frame")
@@ -512,8 +517,15 @@ local function buildScreen(): Screen
 		pip.Parent = row
 		pips[i] = pip
 	end
-	local made: Screen =
-		{ gui = gui, edges = edges, flash = flash, cracks = cracks, pips = pips, pipRow = row }
+	local made: Screen = {
+		gui = gui,
+		edges = edges,
+		flash = flash,
+		cracks = cracks,
+		crackStrokes = crackStrokes,
+		pips = pips,
+		pipRow = row,
+	}
 	screen = made
 	return made
 end
@@ -536,22 +548,24 @@ local function crackScreen()
 		local toward = (view / 2 - from).Unit
 		local angle = math.atan2(toward.Y, toward.X) + (math.random() - 0.5) * 0.5
 		local length = view.Y * (0.14 + math.random() * 0.12)
+		local dir = Vector2.new(math.cos(angle), math.sin(angle))
+		local mid = from + dir * (length / 2)
 		local main = s.cracks[i * 2 - 1]
-		main.Position = UDim2.fromOffset(from.X, from.Y)
+		main.Position = UDim2.fromOffset(mid.X, mid.Y)
 		main.Size = UDim2.fromOffset(length, 2)
 		main.Rotation = math.deg(angle)
 		main.Visible = true
 		-- A branch off its middle.
-		local at = from
-			+ Vector2.new(math.cos(angle), math.sin(angle))
-				* length
-				* (0.45 + math.random() * 0.2)
+		local at = from + dir * length * (0.45 + math.random() * 0.2)
+		local branchAngle = angle
+			+ (if math.random() < 0.5 then -1 else 1) * (0.35 + math.random() * 0.35)
+		local branchLength = length * 0.45
+		local branchMid = at
+			+ Vector2.new(math.cos(branchAngle), math.sin(branchAngle)) * (branchLength / 2)
 		local branch = s.cracks[i * 2]
-		branch.Position = UDim2.fromOffset(at.X, at.Y)
-		branch.Size = UDim2.fromOffset(length * 0.45, 1)
-		branch.Rotation = math.deg(
-			angle + (if math.random() < 0.5 then -1 else 1) * (0.35 + math.random() * 0.35)
-		)
+		branch.Position = UDim2.fromOffset(branchMid.X, branchMid.Y)
+		branch.Size = UDim2.fromOffset(branchLength, 1)
+		branch.Rotation = math.deg(branchAngle)
 		branch.Visible = true
 	end
 end
@@ -562,6 +576,16 @@ local function stepScreen(dt: number, now: number)
 	local s = screen
 	if not s and hits == 0 then
 		return
+	end
+	local k = (now - crackAt) / CRACK_TIME
+	if s and hits == 0 and edgeShown < 0.01 and k >= 1 and s.flash.ImageTransparency >= 1 then
+		if s.pipRow.Visible or s.edges[1].Visible then
+			s.pipRow.Visible = false
+			for _, e in s.edges do
+				e.Visible = false
+			end
+		end
+		return -- nothing showing: no per-frame work
 	end
 	local sc = s or buildScreen()
 	-- The edge hex eases in and out; a magenta stutter now and then.
@@ -579,18 +603,14 @@ local function stepScreen(dt: number, now: number)
 		pip.Visible = i <= hits
 	end
 	-- The crack flash.
-	local k = (now - crackAt) / CRACK_TIME
 	if k < 1 then
 		local alpha = k ^ 0.7
 		sc.flash.ImageTransparency = 0.05 + 0.95 * alpha
 		sc.flash.ImageColor3 = WHITE:Lerp(GLITCH, math.min(k * 2, 1))
-		for _, c in sc.cracks do
+		for i, c in sc.cracks do
 			if c.Visible then
 				c.BackgroundTransparency = alpha
-				local stroke = c:FindFirstChildOfClass("UIStroke")
-				if stroke then
-					stroke.Transparency = 0.3 + 0.7 * alpha
-				end
+				sc.crackStrokes[i].Transparency = 0.3 + 0.7 * alpha
 			end
 		end
 	elseif sc.flash.ImageTransparency < 1 then
@@ -648,9 +668,8 @@ function BarrierFx.block(data: { [string]: any })
 		return
 	end
 	local color = if b then b.color elseif model then TeamColor.forOwner(model) else TeamColor.ENEMY
-	-- The layer that went: the outermost one still showing.
-	local layer = math.max(left + 1, 1)
-	local size = SIZE * (LAYER_GAP ^ (layer - 1))
+	-- The pixels fly off the outer skin; any layer left stays at full size.
+	local size = SIZE
 	shatter(center, size, color, if left > 0 then SHARDS_LAYER else SHARDS_FULL)
 	ModVfx.shell({
 		shape = Enum.PartType.Ball,
