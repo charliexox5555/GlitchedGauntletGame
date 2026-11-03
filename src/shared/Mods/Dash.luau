@@ -15,6 +15,17 @@
 --                 gate shots on this; WeaponService checks it on its own)
 --   DashFocus     Dash Focus window: the first shot this soon after the gun
 --                 is back up has no movement or air spread
+-- Upgrade levels (vault/01 Design/Abilities/Dash.md → Upgrades), nil when
+-- the level doesn't have them (each cast rewrites them, so a stale one from
+-- another level can't linger):
+--   DashDodgeUntil    B2/B3 Ghost: time() until which damage passes through
+--                     you (the server's guard below; everyone sees the ghost)
+--   DashCloakUntil    B3 Ghost, G3 Desync: time() until which you're nearly
+--                     invisible (client-side per viewer, UpgradeFx/Dash)
+--   DashDecoyFrom, DashDecoyYaw, DashDecoyVelocity, DashDecoyUntil
+--                     G2/G3 Desync: where the decoy starts, its facing, the
+--                     way it keeps running and when it glitches out
+--   DashDecoyFires    G3: the decoy fires fake shots
 
 local Types = require(script.Parent.Types)
 local DashBlock = require(script.Parent.Blocks.Dash)
@@ -22,6 +33,24 @@ local DashBlock = require(script.Parent.Blocks.Dash)
 local Dash = {}
 
 local module: Types.ModModule = {}
+
+-- The simulation's fixed step (Simulation/Movement STEP). A dash lasts a
+-- whole number of steps, so a fast one (A3: 160 studs/s, 2.7 studs a step)
+-- ends exactly at the wall instead of overshooting into it.
+local SIM_STEP = 1 / 60
+
+-- G2/G3 Desync: the way the decoy keeps running: the way you were already
+-- going (the press may have changed the input, not yet the velocity), or
+-- your facing from a standstill, at a run.
+local function decoyVelocity(stats: Types.Stats, root: BasePart): Vector3
+	local flat = root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)
+	local speed = math.clamp(flat.Magnitude, stats.decoyMinSpeed, stats.decoyMaxSpeed)
+	if flat.Magnitude > 2 then
+		return flat.Unit * speed
+	end
+	local look = root.CFrame.LookVector * Vector3.new(1, 0, 1)
+	return if look.Magnitude > 0.01 then look.Unit * speed else Vector3.zero
+end
 
 module.simCast = function(ctx: Types.SimCtx): boolean
 	local stats = ctx.stats
@@ -37,15 +66,58 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 	if reach < 1 then
 		return false -- against a wall: no dash, no charge spent
 	end
-	local duration = stats.duration * reach / stats.distance
+	-- Whole steps at no more than the full speed, covering exactly `reach`.
+	-- DashUntil sits half a step before the end of the last one, so the
+	-- `now < DashUntil` check can't hold the velocity a step too long.
+	local steps = math.max(math.ceil(stats.duration * reach / stats.distance / SIM_STEP - 1e-6), 1)
+	local duration = steps * SIM_STEP
 	local character = ctx.character
-	character:SetAttribute("DashStart", ctx.now)
-	character:SetAttribute("DashUntil", ctx.now + duration)
-	character:SetAttribute("DashVelocity", dir * (stats.distance / stats.duration))
+	local now = ctx.now
+
+	-- The upgrade levels' attributes go first: clients key on DashStart.
+	character:SetAttribute(
+		"DashDodgeUntil",
+		if stats.dodgeWindow then now + stats.dodgeWindow else nil
+	)
+	local cloakUntil: number? = nil
+	if stats.cloakAfter then
+		cloakUntil = now + duration + stats.cloakAfter
+	elseif stats.decoyCloak then
+		cloakUntil = now + stats.decoyTime
+	end
+	character:SetAttribute("DashCloakUntil", cloakUntil)
+	local desync = stats.behaviour == "Desync"
+	character:SetAttribute("DashDecoyFrom", if desync then root.Position else nil)
+	character:SetAttribute(
+		"DashDecoyYaw",
+		if desync then math.atan2(-root.CFrame.LookVector.X, -root.CFrame.LookVector.Z) else nil
+	)
+	character:SetAttribute("DashDecoyVelocity", if desync then decoyVelocity(stats, root) else nil)
+	character:SetAttribute("DashDecoyUntil", if desync then now + stats.decoyTime else nil)
+	character:SetAttribute("DashDecoyFires", if desync and stats.decoyFires then true else nil)
+
+	character:SetAttribute("DashStart", now)
+	character:SetAttribute("DashUntil", now + duration - SIM_STEP / 2)
+	character:SetAttribute("DashVelocity", dir * (reach / duration))
 	character:SetAttribute("DashExit", stats.exitSpeed)
 	character:SetAttribute("DashFireDelay", stats.fireDelay)
 	character:SetAttribute("DashFocus", stats.focusWindow)
 	return true
+end
+
+-- B2/B3 Ghost: while the dasher's dodge window is open on the server's own
+-- simulation clock, every hit on them passes through (HitConfirm shows the
+-- shooter "blocked"). Runs for every hit in the game: one attribute read.
+module.server = function(api: Types.ServerApi)
+	api.guard(
+		function(victim: Model, _humanoid: Humanoid, amount: number, _attacker: Player?): number
+			local untilT = victim:GetAttribute("DashDodgeUntil")
+			if typeof(untilT) == "number" and time() < untilT then
+				return 0
+			end
+			return amount
+		end
+	)
 end
 
 Dash.module = module

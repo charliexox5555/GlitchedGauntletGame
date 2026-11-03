@@ -29,7 +29,7 @@ local defs: { [string]: ModDef } = {
 		name = "Dash",
 		role = "Mobility",
 		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
-		paths = { A = "Distance", B = "Ghost", G = "Desync" },
+		paths = { A = "Long Dash", B = "Ghost", G = "Desync" },
 		block = "Dash",
 		activation = "Instant",
 		authority = "Simulation",
@@ -48,28 +48,42 @@ local defs: { [string]: ModDef } = {
 				fireDelay = 0.1, -- the gun is down while dashing and this long after
 				focusWindow = 0.6, -- Dash Focus: the first shot this soon after has no move/air spread
 			},
-			A2 = { note = "Distance: dash 18 studs (150%) in the same time", distance = 18 },
-			A3 = { note = "Distance: dash 24 studs (200%), 2 charges", distance = 24, charges = 2 },
+			A2 = { note = "Dash 18 studs instead of 12, just as fast", distance = 18 },
+			A3 = { note = "Dash 24 studs, just as fast, and 2 charges", distance = 24, charges = 2 },
 			B2 = {
-				note = "Ghost: bullets pass through you for 0.35 s from the press",
-				dodgeWindow = 0.35,
+				note = "Bullets pass through you for 0.35 s from the press",
+				dodgeWindow = 0.35, -- seconds from the press: every hit on you is blocked
+				ghostAlpha = 0.55, -- how see-through everyone sees you meanwhile (0..1)
 			},
 			B3 = {
-				note = "Ghost: nearly invisible for 1 s after a dash, 2 charges",
+				note = "Vanish for 1 s after a dash (a shimmer up close), 2 charges",
 				cloakAfter = 1, -- seconds after the dash ends
 				cloakShimmer = 10, -- enemies this close still see a shimmer
+				cloakAlpha = 0.95, -- how see-through enemies further away see you
+				cloakShimmerAlpha = 0.75, -- ... and close enemies (it flickers around this)
+				cloakAllyAlpha = 0.5, -- ... and your team
 				charges = 2,
 			},
 			G2 = {
-				note = "Desync: a decoy keeps running for 1.5 s; you can't shoot for 0.3 s",
+				note = "Leave a decoy that keeps running for 1.5 s; no shots for 0.3 s",
 				behaviour = "Desync",
-				decoyTime = 1.5,
+				decoyTime = 1.5, -- seconds the decoy runs before it glitches out
+				decoyMinSpeed = 16, -- its run speed: yours before the dash, kept in this range
+				decoyMaxSpeed = 22,
 				fireDelay = 0.3,
 			},
 			G3 = {
-				note = "Desync: the decoy fires fake shots and you're invisible while it runs",
+				note = "The decoy fires fake shots, and you vanish while it runs",
 				decoyFires = true,
-				decoyCloak = true,
+				decoyShotRange = 150, -- it shoots at the nearest enemy this close, in sight
+				decoyShotDelay = 0.2, -- seconds after the dash before the first fake shot
+				decoyShotMinGap = 0.12, -- never faster than this, whatever the gun
+				decoyShotSpread = 2.5, -- degrees: the fake shots miss a little
+				decoyCloak = true, -- you're invisible for decoyTime from the press
+				cloakShimmer = 10,
+				cloakAlpha = 0.95,
+				cloakShimmerAlpha = 0.75,
+				cloakAllyAlpha = 0.5,
 			},
 		},
 	},
