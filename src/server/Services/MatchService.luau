@@ -229,13 +229,14 @@ end
 
 -- The draft --------------------------------------------------------------------
 
+-- "id:level" for each ability on the other team.
 local function enemyKit(key: any): { string }
 	local kit: { string } = {}
 	local mine = teamOfKey(key)
 	for _, other in seatKeys() do
 		if teamOfKey(other) ~= mine then
-			for _, id in DraftService.seat(other).kit do
-				table.insert(kit, id)
+			for _, entry in DraftService.kitOf(other) do
+				table.insert(kit, entry)
 			end
 		end
 	end
@@ -261,7 +262,14 @@ local function applyDraft(keys: { any })
 				WeaponService.giveLoadout(player)
 			end
 			for slot = 1, ModsConfig.SLOTS do
-				ModService.setSlot(player, slot, seat.kit[slot], Config.ABILITY_LEVEL)
+				local id = seat.kit[slot]
+				local level = seat.levels[slot]
+				ModService.setSlot(
+					player,
+					slot,
+					if id ~= "" then id else nil,
+					if level ~= "" then level else Config.ABILITY_LEVEL
+				)
 			end
 		end
 	end

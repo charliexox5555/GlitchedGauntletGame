@@ -1,13 +1,22 @@
 --!strict
 -- The between-round draft (vault/01 Design/Match Flow.md): deals each player 3
--- guns and 3 abilities, takes their picks, then hands them to MatchService. The
--- server rolls and stores every offer, and a pick is only ever checked against
--- that stored list, so a client can't ask for anything it wasn't dealt.
+-- guns and 3 ability cards, takes their picks, then hands them to MatchService.
+-- The server rolls and stores every offer, and a pick is only ever checked
+-- against that stored list, so a client can't ask for anything it wasn't dealt.
+--
+-- Abilities live in fixed slots (Config/Mods `slot`): new abilities are only
+-- offered for slots you haven't filled. With nothing new to offer, the cards
+-- are upgrades (vault/01 Design/Abilities/Upgrade Paths.md): for each ability
+-- at level 1, path A and path B (and sometimes the glitch path); at level 2,
+-- the next level of its path. One card per draft.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local RunService = game:GetService("RunService")
+
 local Config = require(ReplicatedStorage.Shared.Config.Match)
+local Dev = require(ReplicatedStorage.Shared.Config.Dev)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local Mods = require(ReplicatedStorage.Shared.Mods)
@@ -24,15 +33,18 @@ local ACTIONS = { Gun = true, Ability = true, Lock = true, Sync = true }
 -- opponent alike; `key` is a Player or the opponent's marker table).
 export type Seat = {
 	key: any,
-	kit: { string }, -- abilities in slot order
+	kit: { string }, -- ability per slot, "" = empty
+	levels: { string }, -- its level per slot, "" = empty
 	sidearm: string?,
 	primary: string?,
 	shield: number, -- what the gun chosen this round gives
 	-- This draft:
 	guns: { string },
 	abilities: { string },
+	upgrades: { MatchState.UpgradeCard },
 	gun: string?,
-	ability: string?,
+	ability: string?, -- a new ability's id, or an upgrade card's key
+	glitchBonus: number, -- the glitch chance's rise since the last glitch card
 	locked: boolean,
 	offer: MatchState.DraftOffer?,
 }
@@ -101,6 +113,77 @@ function DraftService.phaseFor(round: number): Config.Phase
 	return found
 end
 
+local function emptyKit(): { string }
+	local list: { string } = {}
+	for slot = 1, ModsConfig.SLOTS do
+		list[slot] = ""
+	end
+	return list
+end
+
+-- The next level on each path (vault/01 Design/Abilities/Upgrade Paths.md).
+local NEXT: { [string]: string } = { A2 = "A3", B2 = "B3", G2 = "G3" }
+
+local function card(id: string, slot: number, level: string): MatchState.UpgradeCard
+	return { key = id .. ":" .. level, id = id, slot = slot, level = level }
+end
+
+-- The upgrade cards for a seat whose slots are settled: the next level of
+-- each ability, and at level 1 its two paths plus, by chance, the glitch.
+local function rollUpgrades(s: Seat): { MatchState.UpgradeCard }
+	local cards: { MatchState.UpgradeCard } = {}
+	local glitch = Config.GLITCH
+	local eligible, glitched = false, false
+	for slot = 1, ModsConfig.SLOTS do
+		local id, level = s.kit[slot], s.levels[slot]
+		if id == "" or not Mods.isBuilt(id) then
+			continue
+		end
+		if level == "L1" then
+			eligible = true
+			table.insert(cards, card(id, slot, "A2"))
+			table.insert(cards, card(id, slot, "B2"))
+			local chance = math.min(glitch.chance + s.glitchBonus, glitch.cap)
+			if Dev.ALWAYS_GLITCH_CARDS and RunService:IsStudio() then
+				chance = 1
+			end
+			if rng:NextNumber() < chance then
+				glitched = true
+				table.insert(cards, card(id, slot, "G2"))
+			end
+		elseif NEXT[level] then
+			table.insert(cards, card(id, slot, NEXT[level]))
+		end
+	end
+	if glitched then
+		s.glitchBonus = 0
+	elseif eligible then
+		s.glitchBonus += glitch.step
+	end
+	return cards
+end
+
+local function upgradeByKey(s: Seat, key: string): MatchState.UpgradeCard?
+	for _, c in s.upgrades do
+		if c.key == key then
+			return c
+		end
+	end
+	return nil
+end
+
+-- "id:level" for each ability a seat has (the enemy's kit on the draft screen).
+function DraftService.kitOf(key: any): { string }
+	local s = DraftService.seat(key)
+	local out: { string } = {}
+	for slot = 1, ModsConfig.SLOTS do
+		if s.kit[slot] ~= "" then
+			table.insert(out, s.kit[slot] .. ":" .. s.levels[slot])
+		end
+	end
+	return out
+end
+
 -- A new match: everyone's kit is gone.
 function DraftService.reset()
 	table.clear(seats)
@@ -114,11 +197,14 @@ function DraftService.seat(key: any): Seat
 	if not s then
 		s = {
 			key = key,
-			kit = {},
+			kit = emptyKit(),
+			levels = emptyKit(),
 			shield = 0,
 			guns = {},
 			abilities = {},
+			upgrades = {},
 			locked = false,
+			glitchBonus = 0,
 		}
 		seats[key] = s
 	end
@@ -148,6 +234,7 @@ function DraftService.open(
 		local s = DraftService.seat(key)
 		s.guns = gunOffer
 		s.abilities = {}
+		s.upgrades = {}
 		s.gun = nil
 		s.ability = nil
 		s.locked = false
@@ -156,15 +243,18 @@ function DraftService.open(
 		if current and table.find(gunOffer, current) then
 			s.gun = current
 		end
-		if #s.kit < ModsConfig.SLOTS then
-			for _, id in abilityOrder do
-				if not table.find(s.kit, id) then
-					table.insert(s.abilities, id)
-				end
-				if #s.abilities == Config.ABILITY_OFFERS then
-					break
-				end
+		-- New abilities for the empty slots; with none to offer, upgrades.
+		for _, id in abilityOrder do
+			local def = Mods.def(id)
+			if def and s.kit[def.slot] == "" then
+				table.insert(s.abilities, id)
 			end
+			if #s.abilities == Config.ABILITY_OFFERS then
+				break
+			end
+		end
+		if #s.abilities == 0 then
+			s.upgrades = rollUpgrades(s)
 		end
 		if typeof(key) == "Instance" and key:IsA("Player") then
 			key:SetAttribute("DraftLocked", false)
@@ -174,7 +264,9 @@ function DraftService.open(
 				endsAt = endsAt,
 				guns = s.guns,
 				abilities = s.abilities,
+				upgrades = s.upgrades,
 				kit = s.kit,
+				levels = s.levels,
 				enemyKit = enemyKitOf(key),
 				gun = s.gun,
 			}
@@ -191,6 +283,8 @@ function DraftService.autoPick(key: any)
 	s.gun = s.gun or s.guns[rng:NextInteger(1, math.max(#s.guns, 1))]
 	if #s.abilities > 0 then
 		s.ability = s.abilities[rng:NextInteger(1, #s.abilities)]
+	elseif #s.upgrades > 0 then
+		s.ability = s.upgrades[rng:NextInteger(1, #s.upgrades)].key
 	end
 	s.locked = true
 end
@@ -222,9 +316,16 @@ function DraftService.close(keys: { any })
 			end
 		end
 		s.shield = MatchState.shieldFor(phaseName, gun)
-		local ability = s.ability or s.abilities[1]
-		if ability and #s.kit < ModsConfig.SLOTS and not table.find(s.kit, ability) then
-			table.insert(s.kit, ability)
+		-- Your pick, else the first card.
+		local first = s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)
+		local pick = s.ability or first
+		local def = pick and Mods.def(pick)
+		local upgrade = pick and upgradeByKey(s, pick)
+		if def and table.find(s.abilities, def.id) and s.kit[def.slot] == "" then
+			s.kit[def.slot] = def.id
+			s.levels[def.slot] = Config.ABILITY_LEVEL
+		elseif upgrade and s.kit[upgrade.slot] == upgrade.id then
+			s.levels[upgrade.slot] = upgrade.level
 		end
 		s.locked = true
 	end
@@ -254,7 +355,8 @@ local function onPick(player: Player, actionArg: unknown, idArg: unknown)
 	end
 	if action == "Lock" then
 		-- Nothing to confirm until both rows have a pick.
-		if s.gun ~= nil and (s.ability ~= nil or #s.abilities == 0) then
+		local nothingToPick = #s.abilities == 0 and #s.upgrades == 0
+		if s.gun ~= nil and (s.ability ~= nil or nothingToPick) then
 			s.locked = true
 			player:SetAttribute("DraftLocked", true)
 		end
@@ -265,7 +367,7 @@ local function onPick(player: Player, actionArg: unknown, idArg: unknown)
 	end
 	if action == "Gun" and table.find(s.guns, idArg) then
 		s.gun = idArg
-	elseif action == "Ability" and table.find(s.abilities, idArg) then
+	elseif action == "Ability" and (table.find(s.abilities, idArg) or upgradeByKey(s, idArg)) then
 		s.ability = idArg
 	end
 end

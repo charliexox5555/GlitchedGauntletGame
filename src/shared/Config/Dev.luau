@@ -11,4 +11,7 @@ return table.freeze({
 	-- charges" on (casting spends nothing; there are no rounds to refill
 	-- charges yet). The panel (F8) turns it off to test the real charges.
 	UNLIMITED_CHARGES = true,
+	-- Studio matches: every level-1 ability's upgrade cards include its glitch
+	-- path (to see and test glitches without waiting on the ~8% roll).
+	ALWAYS_GLITCH_CARDS = false,
 })

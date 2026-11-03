@@ -38,13 +38,20 @@ Both sides see the same 3 guns. The offer stays the same through a phase and cha
 - **Timeout:** your last click counts. With no click, you get the first card.
 
 ### Abilities
-- 3 random abilities you don't own yet. Both sides are dealt from the same shuffled order, so 1v1 offers match until someone owns one of them.
-- Each pick fills the next slot: **Q, then E, then T**. *(Changing, decided 2026-11-03: each ability will have its own fixed key, e.g. Dash is always E. See [Upgrade Paths](Abilities/Upgrade%20Paths.md).)* Abilities stay for the whole match. Charges refill every round.
-- **After 3 picks** the row shows your 3 abilities as "Upgrades coming soon" cards you can't pick. That's the spot for the L1 → L3 upgrades later.
-- The draft screen shows the enemy's abilities, as the locked draft rules say.
+- **Fixed slots (2026-11-03):** every ability lives in one slot: slot 1 = Q, slot 2 = E, slot 3 = T (keys become rebindable later). The list is in [Upgrade Paths](Abilities/Upgrade%20Paths.md) → Keys (Q: Updraft, Stim · E: Dash, Molly, Recon, Heal Orb, Recall · T: Firewall, Frost).
+- **New abilities:** up to 3 random abilities **for the slots you haven't filled** (an ability for a filled slot is never offered). Both sides are dealt from the same shuffled order. A slot with few abilities (Q and T have 2 each) can mean fewer than 3 cards.
+- **Upgrades:** once there's nothing new to offer (all 3 slots full), the row shows **one column per slot** with that ability's upgrade cards. You pick **one card per draft**:
+  - an ability at level 1 offers **path A** and **path B**, plus the **glitch path** by chance (8% per ability, +3% every draft that offered none, capped at 25%; magenta card);
+  - an ability at level 2 offers the **next level of its path**; level 3 is **MAXED**.
+  - Studio: `Config/Dev ALWAYS_GLITCH_CARDS` puts the glitch card in every level-1 column.
+- **Timeout:** your last click counts; with no click, the first card.
+- Abilities and levels stay for the whole match. Charges refill every round.
+- The draft screen shows the enemy's abilities with their levels.
+- Code: `DraftService` (offers and picks, server-checked), `DraftController` (cards), numbers in `Config/Match` (`ABILITY_OFFERS`, `GLITCH`).
+- **Tested 2026-11-03 (Studio match vs the test opponent):** abilities go into their own slots, round 4 offers A/B per ability, a pity-rolled glitch card appeared, Firewall L1 → B2 → B3 applied in game.
 
 ### Parked for later
-Set aside for this first version, not dropped: the loser's extra card and reroll, upgrades and paths, glitches, overtime with a shrinking zone, rematch, mobile and gamepad controls, final UI design.
+Set aside for this first version, not dropped: the loser's extra card and reroll, overtime with a shrinking zone, rematch, mobile and gamepad controls, final UI design.
 
 ## Rough UI
 Only built to be playable: full-screen layout in Scale with a 16:9 aspect constraint, on PC. Final design comes later.

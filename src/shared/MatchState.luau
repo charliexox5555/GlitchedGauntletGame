@@ -10,15 +10,25 @@ local Weapons = require(script.Parent.Config.Weapons)
 
 export type Phase = "Waiting" | "Ready" | "Draft" | "Countdown" | "Live" | "RoundEnd" | "MatchEnd"
 
+-- One upgrade card: ability `id` in `slot` to `level` (path A, B or G).
+export type UpgradeCard = {
+	key: string, -- "id:level", what a pick sends
+	id: string,
+	slot: number,
+	level: string,
+}
+
 -- A gun or ability card the server dealt to one player.
 export type DraftOffer = {
 	round: number,
 	phase: string, -- the weapon phase's name
 	endsAt: number,
 	guns: { string },
-	abilities: { string }, -- empty once every slot is full
-	kit: { string }, -- your abilities, Q / E / T order
-	enemyKit: { string },
+	abilities: { string }, -- new abilities, only for empty slots
+	upgrades: { UpgradeCard }, -- once there's no new ability to offer
+	kit: { string }, -- your ability per slot (Q / E / T), "" = empty
+	levels: { string }, -- their levels, "" = empty
+	enemyKit: { string }, -- "id:level" for each enemy ability
 	gun: string?, -- already selected (your gun, while the phase's offer lasts)
 }
 

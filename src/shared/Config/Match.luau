@@ -29,7 +29,12 @@ return table.freeze({
 	} :: { Phase },
 	GUN_OFFERS = 3,
 	ABILITY_OFFERS = 3,
-	ABILITY_LEVEL = "L1", -- upgrades come later
+	ABILITY_LEVEL = "L1", -- a newly drafted ability's level
+	-- Upgrades (vault/01 Design/Abilities/Upgrade Paths.md): once every slot is
+	-- full, the draft offers each ability's next level instead. At level 1 that
+	-- is path A and path B, plus the glitch path with this chance per ability,
+	-- rising by `step` every draft that offered none (capped).
+	GLITCH = { chance = 0.08, step = 0.03, cap = 0.25 },
 
 	-- Studio only: with nobody on the other team, a test opponent plays it.
 	TEST_OPPONENT = {
