@@ -74,3 +74,48 @@ Tap Heal Orb to hold it. **Fire** heals the teammate in your crosshair (or you, 
 
 ## Counter-play
 The heal is slow and visible (the glow is on the target), so focus the healing player and kill them before it finishes. It's one per round.
+
+## Upgrades (L2/L3)
+Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → 7. Heal Orb (the numbers live in `Config/Mods` → `HealOrb`). Built 2026-11-03 on branch `claude/zen-booth-83efe3`, not yet playtested.
+
+| Level | What it does | Code |
+|---|---|---|
+| **A2 / A3 Charges** | 2 / 3 orbs a round (no recharge). | numbers only (`charges`) |
+| **B2 / B3 Long Heal** | Same rate, longer: 6 s → 120 ally / 60 self; 9 s → 180 / 90. Keeps running under fire, stops on death. | numbers only (`duration`, `heal`, `selfHeal`); `HealFx` glow, screen edge, +HP numbers and the heal loop all follow the level's `duration` |
+| **G2 Barrier** | No heal: the target gets a Barrier that blocks their next enemy hit. | `behaviour = "Barrier"`, `barrierHits` 1 |
+| **G3 Barrier** | The Barrier blocks 2 hits. | `barrierHits` 2 |
+
+## Barrier
+**Rules (server, `Mods/HealOrb.luau`):**
+- Cast like a heal: LMB on the ally in the crosshair, else yourself; RMB yourself. **No full-health refusal** (server `validate` and the client check in `ModController` both skip it).
+- The count is the `BarrierHits` attribute on the target's character, written only by the server. A new cast **replaces** the count (never adds).
+- A damage guard (`module.server` → `api.guard`) runs first in `WeaponService.hurt`, before the gun shield and health. While hits are left, one **enemy damage instance** uses one up and deals 0: a bullet, a whole shotgun blast (pellets are summed per target first), one fire tick, one slam. Damage with no player behind it (the test opponent) counts as enemy.
+- **Own and team damage goes past it without using it up** (a Molly at your own feet, a teammate's fire). Proposed by the build; change in the guard if the user wants "any hit".
+- Gone when used up, on death (a `Died` watch clears it), on respawn (new character), and at the next round's start (`api.onRefill`).
+- Each block sends ModFx `BarrierBlock` {target, left, at}; the shooter's `HitConfirm` carries `blocked = true`.
+
+**Look (`Util/BarrierFx.luau`, driven from `Util/UpgradeFx/HealOrb.luau`):**
+- A see-through **hex bubble** around the whole body: a ForceField-material ellipsoid (SpecialMesh sphere) with the `MOD_HEX` texture, 5.8 × 7.6 × 5.8 studs. Cyan to you and your team, orange-red to enemies (and more opaque for enemies, so they read it clearly). One layer per hit left (G3 shows two nested bubbles).
+- **Glitch:** a faint magenta ForceField shell just outside, magenta static pixels (tiny Neon cubes) popping on its skin, and every 0.7–1.6 s a 0.12 s flicker (jumps sideways, colour stutters to magenta).
+- **Cast:** a ribbon in the team colour from the caster (or a burst on yourself), the bubble grows in over 0.25 s, a glassy shimmer + a static zap.
+- **Block:** the outer layer **shatters into pixels** (34 Neon cubes, 16 for a layer pop on G3) with a quick flash and sparkles, "Glass Breaks 17" + a buzzy zap (3D, 2D for the one it saved). The shooter sees a grey X and a **BLOCKED** tag at the hit point instead of a damage number (`Util/HitFeedback.blocked`), and no hit sound.
+- **Your own Barrier (first person):** the bubble hides while the camera is inside it (you see out); a faint hex pattern at the screen edges (stutters magenta with the flicker), and "BARRIER" + one diamond pip per hit left just above the health readout. When it blocks: a white-to-magenta edge flash and cracks running in from the screen edges.
+
+**Sounds (placeholders, reused library ids, unauditioned; `Config/ModSounds` → `HealOrb`):**
+
+| Hook | Id | Recording | Use |
+|---|---|---|---|
+| `barrierUp` | 9119447936 | Sparkle Bell Tree Wind Chimes 1 | pitch 1.45, from 0.3 s, cut 0.6 s; 3D 40 |
+| `barrierUpStatic` | 9119595114 | Static Zap Mix Reverberant Bursts 3 | pitch 1.3, from 0.4 s, cut 0.3 s |
+| `barrierBreak` | 9114593205 | Glass Breaks 17 | 3D 60, cut 0.6 s (pitch 1.15 for a layer pop) |
+| `barrierBreakZap` | 9119594871 | Static Zap Body Two Buzzy Impacts 2 | 3D 60, cut 0.35 s |
+
+**Open questions / follow-ups:**
+- The held orb in your hand is still the green-teal heal orb at G levels; a glitched (magenta / hex) orb would sell the change.
+- Names: "Barrier" also names the arena barrier in the match HUD ("The barrier drops soon"). Proposed alternatives below.
+
+**Name and card text proposals (not applied; the path names are the user's):**
+- A "Charges" → **Spare Orbs** ("2 orbs a round").
+- B "Long Heal" → **Lingering Light** ("Heals for 6 s: an ally 120, yourself 60").
+- G "Barrier" → **Hex Barrier** (keeps the decided word, avoids the arena-barrier clash, names the look); alt **Firewall Bubble** is out (Firewall is an ability).
+- Card text applied in `Config/Mods`: A "Charges: 2 / 3 orbs a round"; G2 "Barrier: no heal; a hex bubble blocks the target's next enemy hit"; G3 "Barrier: the bubble blocks the next 2 enemy hits".
