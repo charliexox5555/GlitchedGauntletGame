@@ -1,0 +1,213 @@
+{
+ "mod": "FireVFX",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "ability_name": "FireVFX",
+  "kind": "vfx",
+  "tris": 5400
+ },
+ "parts": [
+  {
+   "name": "Sheet_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 896,
+   "center": [
+    0.10564,
+    0.0,
+    4.79301
+   ],
+   "size": [
+    4.61128,
+    1.09,
+    9.78602
+   ]
+  },
+  {
+   "name": "Core_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 696,
+   "center": [
+    0.02606,
+    0.0,
+    3.086
+   ],
+   "size": [
+    4.45213,
+    1.23,
+    6.37201
+   ]
+  },
+  {
+   "name": "Tongue1_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 384,
+   "center": [
+    0.0049,
+    0.0,
+    0.47
+   ],
+   "size": [
+    0.48122,
+    0.24061,
+    1.06
+   ]
+  },
+  {
+   "name": "Tongue2_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 384,
+   "center": [
+    -0.01369,
+    0.0,
+    0.47
+   ],
+   "size": [
+    0.40072,
+    0.1986,
+    1.06
+   ]
+  },
+  {
+   "name": "Tongue3_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 584,
+   "center": [
+    0.00622,
+    0.0,
+    0.47
+   ],
+   "size": [
+    0.45593,
+    0.22796,
+    1.06
+   ]
+  },
+  {
+   "name": "Pool_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 448,
+   "center": [
+    0.0,
+    0.02625,
+    0.015
+   ],
+   "size": [
+    1.97381,
+    1.952,
+    0.03
+   ]
+  },
+  {
+   "name": "Ring_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 512,
+   "center": [
+    0.0,
+    0.0,
+    0.03
+   ],
+   "size": [
+    2.0,
+    2.0,
+    0.06
+   ]
+  },
+  {
+   "name": "CrownA_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 704,
+   "center": [
+    0.0,
+    0.0,
+    0.45657
+   ],
+   "size": [
+    1.95,
+    1.95,
+    1.01314
+   ]
+  },
+  {
+   "name": "CrownB_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 784,
+   "center": [
+    0.0,
+    6e-05,
+    0.2663
+   ],
+   "size": [
+    1.84,
+    1.83918,
+    0.6326
+   ]
+  },
+  {
+   "name": "Spark_Energy",
+   "material": "Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 8,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.24,
+    0.24,
+    1.0
+   ]
+  }
+ ],
+ "locators": [],
+ "tris": 5400
+}

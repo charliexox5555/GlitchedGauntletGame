@@ -43,6 +43,16 @@ The server simulates the canister (authoritative: bounces, drop, landing point) 
 - **End:** the flames die down and sizzle out over ~0.5 s; the scorch mark fades after a few seconds.
 - **Burning player:** a small flame/ember effect on whoever is taking fire damage.
 
+## Look (stylized, 2026-11-03)
+The user found the particle fire too realistic and too heavy for low-end devices, so the fire patch moves to the stylized, mesh-first look ([Art Direction](../../02%20Art/Art%20Direction.md#ability-vfx-stylized-mesh-first-decided-2026-11-03)): Brimstone's / Phoenix's incendiary, a bit more grounded. It replaces the flipbook fire above once the hub installs the kit; until then the old look stays as the fallback. The canister, scorch and burning-player flames are unchanged.
+- **Kit:** the Blender `FireVFX` meshes (`tools/blender/build_mod_firevfx.py`, render `References/mods/firevfx.jpg`), placed by `Util/FireKit` and `Util/MollyFx`. No textures: Neon parts coloured in code.
+- **The patch:** a **glowing orange disc** on the floor, a **bright yellow ring** on the edge (the safe line), **two rings of flame tongues** standing on the edge (orange outside, yellow inside, turning opposite ways and flickering), and **4–13 flame tongues** dancing over it (one per ~1.1 studs of radius), turned to face you, flickering, leaning and swapping shapes. Sizes follow the radius (L1 9, Bigger Fire 12 / 14, Fork Fire 5).
+- **Burst:** the rings shoot up tall and small and spread out to the radius over 0.3 s; 6 ember shards fly out; the light spike.
+- **End:** everything sinks into the floor over 0.5 s; parts go back to the pool.
+- **Kept:** a few embers (accent only), the flickering light, the scorch, the sounds. No smoke.
+- **Fork Fire (glitch):** the same meshes, flipping between fire colours and magenta / hot pink, moving at a choppy 12 fps, a ring of flames now and then skipping sideways for a frame; the dead pixels, arcs, stepped light and static end as before (Fork Fire look below).
+- **Low end:** a 9-stud patch is ~12 parts, a Fork Fire ~9; pooled, one `BulkMoveTo` a frame, 30 Hz, fires over 220 studs away hold still.
+
 ## Sound (hooks + placeholder sounds)
 | Hook | What |
 |---|---|
