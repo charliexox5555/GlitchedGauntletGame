@@ -108,13 +108,50 @@ local live: { Live } = {}
 local connection: RBXScriptConnection? = nil
 local lastStep = os.clock()
 
+local NAMES: { Name } = {
+	"Crack_Energy",
+	"CrackGap",
+	"Rubble1",
+	"Rubble2",
+	"Rubble3",
+	"HexShell_Energy",
+	"HexEdge_Energy",
+	"HexTile_Energy",
+	"ShellCrack_Energy",
+	"ScanWave_Energy",
+	"Pixels_Energy",
+	"PixelSpray_Energy",
+	"Slivers_Energy",
+	"Streak_Energy",
+	"HexFloor_Energy",
+	"Plus_Energy",
+	"PixelRing_Energy",
+}
+local checked: Instance? = nil -- the installed kit, once every piece was found in it
+
 local function kit(): Instance?
 	local abilities = ReplicatedStorage:FindFirstChild("Abilities")
 	return abilities and abilities:FindFirstChild("GlitchVFX")
 end
 
+-- Only a complete kit counts: callers skip their old look when this is true,
+-- so an older build missing a piece must not half-draw an effect.
 function GlitchVfx.ready(): boolean
-	return kit() ~= nil
+	local model = kit()
+	if not model then
+		return false
+	end
+	if model == checked then
+		return true
+	end
+	for _, name in NAMES do
+		local part = model:FindFirstChild(name)
+		if not part or not part:IsA("BasePart") then
+			return false
+		end
+	end
+	checked = model
+	return true
 end
 
 local function fxFolder(): Folder
@@ -137,7 +174,7 @@ local function template(name: string): Template?
 	if t and t.part.Parent then
 		return t
 	end
-	local model = kit()
+	local model = if GlitchVfx.ready() then kit() else nil
 	local part = model and model:FindFirstChild(name)
 	if not part or not part:IsA("BasePart") then
 		return nil
@@ -278,6 +315,9 @@ function GlitchVfx.take(name: Name): BasePart?
 end
 
 function GlitchVfx.give(name: Name, part: BasePart)
+	if part.Parent == nil then
+		return -- destroyed with an old folder
+	end
 	local pool = pools[name]
 	local f = folder
 	if pool and f and f.Parent then

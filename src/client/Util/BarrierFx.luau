@@ -334,6 +334,12 @@ local function makeBubble(model: Model, hits: number, form: boolean): Bubble
 			edges.Color = color
 			table.insert(layers, { part = panels, mesh = nil, edges = edges, scale = scale })
 		else
+			if panels then
+				GlitchVfx.give("HexShell_Energy", panels)
+			end
+			if edges then
+				GlitchVfx.give("HexEdge_Energy", edges)
+			end
 			kit = false
 			local part, mesh = newShell(VFX.MOD_HEX)
 			part.Color = color

@@ -18,8 +18,8 @@
 --   GlitchVfx; the old look stays until then): the floor cracks open to the
 --   slam's radius (glowing cracks over dark splits, lingering a few seconds),
 --   rubble chunks in the floor's own colour and material are thrown up and
---   land, the shockwave is a stepped pixel ring, the corrupted floor a hex
---   tile disc, and the dive trails a bundle of falling bars.
+--   land, a stepped pixel ring rides out over the shockwave, the corrupted
+--   floor is a hex tile disc, and the dive trails a bundle of falling bars.
 --   The prompt: while you're up in an Updraft with Crash Down, a "C  CRASH
 --   DOWN" prompt under the crosshair (B on a gamepad; on touch a CRASH button
 --   that presses Crouch), so the slam can be found.
@@ -752,6 +752,9 @@ local function buildPrompt(): Prompt
 	made = { gui = gui, row = row, key = key, label = label, split = split, button = button }
 	prompt = made
 	promptBound = false
+	promptShown = false
+	promptTouch = false
+	promptKey = ""
 	return made
 end
 
@@ -763,6 +766,10 @@ local function bindPromptButton(p: Prompt)
 	local ok, action = pcall(InputController.action, "Crouch")
 	if not ok then
 		return
+	end
+	local old = action:FindFirstChild("Touch_CrashDownButton")
+	if old then
+		old:Destroy() -- a rebuilt prompt's button replaces the old one
 	end
 	local binding = Instance.new("InputBinding")
 	binding.Name = "Touch_CrashDownButton"
