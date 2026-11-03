@@ -279,7 +279,9 @@ end
 
 function GlitchVfx.give(name: Name, part: BasePart)
 	local pool = pools[name]
-	if pool and part.Parent == folder then
+	local f = folder
+	if pool and f and f.Parent then
+		part.Parent = f -- it may have been borrowed into a model (a Highlight's adornee)
 		pool:release(part)
 	else
 		part:Destroy()
