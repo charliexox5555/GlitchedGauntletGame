@@ -211,6 +211,10 @@ local function stepCharacters()
 				linesDir = if cam
 					then cam.CFrame:VectorToObjectSpace(dir)
 					else Vector3.new(0, 0, -1)
+			elseif number(character, "DashDecoyUntil") > dash then
+				-- Desync: no wind trail to tell the real one from the decoy
+				-- (UpgradeFx/Dash draws the split).
+				ModAudio.play(S.Dash.world, root.Position)
 			else
 				local untilT = character:GetAttribute("DashUntil")
 				ModAudio.play(S.Dash.world, root.Position)
@@ -227,7 +231,7 @@ local function stepCharacters()
 		if (s.dashing or started) and not dashing then
 			if mine then
 				ModAudio.play(S.Dash.land)
-			else
+			elseif number(character, "DashDecoyUntil") <= dash then -- (Desync: no puff)
 				WindFx.dashEnd(character, root, s.dashDir, TeamColor.forOwner(other))
 			end
 		end
