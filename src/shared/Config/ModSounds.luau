@@ -99,6 +99,15 @@ return table.freeze({
 		sizzleOut = cue(9114428855, 0.6, 1, nil, 40, 1, 3.3),
 		-- Molly_Burning: you, while burning. "Sizzle Short And Explosive Sear 13"
 		burning = cue(9119166425, 0.35, 1, nil, nil, 0.35),
+		-- Fork Fire (Molly.md → Upgrades), stand-ins reusing ids above, unauditioned.
+		-- Molly_ForkSplit: 3D, the canister popping apart. Molly_Burst, high and short.
+		forkSplit = cue(9114442751, 0.7, 1.5, nil, 50, 0.5),
+		-- Molly_ForkBounce: 3D tick of a bomblet off the floor. Molly_Bounce, higher.
+		forkBounce = cue(9113704665, 0.4, 1.7, nil, 35, 0.3),
+		-- Molly_GlitchCrackle: 3D, a short digital crackle. Stim_DeployCrackle, cut.
+		glitchCrackle = cue(9119992532, 0.35, 1.6, nil, 35, 0.14),
+		-- Molly_GlitchLoop: 3D, a glitch fire. Molly_FireLoop pitched up, quieter.
+		glitchLoop = cue(9112780561, 0.3, 1.3, true, 35),
 	}),
 	-- Firewall hooks (vault/01 Design/Abilities/Firewall.md → Sound). Placeholders
 	-- (ProSoundEffects, unauditioned), listed in the Firewall note; one id each.
