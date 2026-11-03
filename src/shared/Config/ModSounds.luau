@@ -186,6 +186,16 @@ return table.freeze({
 		complete = cue(9114133866, 0.35, 1.2, nil, nil, 2.3, 0.2),
 		-- HealOrb_Refused: you. "Metal Thunk 3"
 		refused = cue(9116895615, 0.35, 0.75),
+		-- Barrier (G2/G3; Heal Orb.md → Barrier). Reused library picks, unauditioned.
+		-- Barrier_Up: 3D on the target. "Sparkle Bell Tree Wind Chimes 1", pitched
+		-- up and cut short (a glassy shimmer) ...
+		barrierUp = cue(9119447936, 0.45, 1.45, nil, 40, 0.6, 0.3),
+		-- ... and "Static Zap Mix Reverberant Bursts 3" (the glitch)
+		barrierUpStatic = cue(9119595114, 0.25, 1.3, nil, 40, 0.3, 0.4),
+		-- Barrier_Break: 3D, ~60 studs (2D for the one it saved). "Glass Breaks 17" ...
+		barrierBreak = cue(9114593205, 0.75, 1.1, nil, 60, 0.6),
+		-- ... and "Static Zap Body Two Buzzy Impacts 2" (the pixels)
+		barrierBreakZap = cue(9119594871, 0.4, 1.2, nil, 60, 0.35),
 	}),
 	-- Stim hooks (vault/01 Design/Abilities/Stim.md → Sound). Placeholders
 	-- (ProSoundEffects recordings, unauditioned), listed in the Stim note.
