@@ -40,8 +40,14 @@ return table.freeze({
 		DashRight = id(107635192627945),
 		-- Updraft: knees tuck on the launch.
 		Updraft = id(125684824115691),
+		-- Updraft Crash Down (tools/studio/MakeSlamAnimations.luau): the dive
+		-- (looped while UpdraftSlam = "Down") and the knee-and-fist landing
+		-- (once). "" until uploaded: the dive borrows the Crouch pose meanwhile.
+		UpdraftSlam = "",
+		UpdraftSlamLand = "",
 	}),
 	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
+	SLAM_FADE = 0.08, -- seconds the Crash Down dive pose fades in / out
 
 	AIM_PITCH_RANGE = 70, -- degrees baked into AimUp / AimDown
 	CROUCH_WALK_SPEED = 9, -- studs/s that CrouchWalk plays at 1x (Movement.CROUCH_SPEED)

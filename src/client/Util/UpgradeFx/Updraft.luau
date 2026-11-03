@@ -13,10 +13,20 @@
 --   the server's UpdraftSlam ModFx): a small flash, a shockwave ring at the
 --   radius, a magenta ring that skips frames as it grows, a hex "corrupted
 --   floor" patch, dust thrown out flat, chips up, magenta voxel static, one
---   light; for the caster a camera punch.
+--   light; for the caster a camera punch (a smaller one for anyone near).
+--   Look (stylized, 2026-11-03), with the GlitchVFX kit installed (Util/
+--   GlitchVfx; the old look stays until then): the floor cracks open to the
+--   slam's radius (glowing cracks over dark splits, lingering a few seconds),
+--   rubble chunks in the floor's own colour and material are thrown up and
+--   land, the shockwave is a stepped pixel ring, the corrupted floor a hex
+--   tile disc, and the dive trails a bundle of falling bars.
+--   The prompt: while you're up in an Updraft with Crash Down, a "C  CRASH
+--   DOWN" prompt under the crosshair (B on a gamepad; on touch a CRASH button
+--   that presses Crouch), so the slam can be found.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
@@ -25,6 +35,8 @@ local Tex = require(Shared.Config.VfxTextures)
 local UpdraftMod = require(Shared.Mods.Updraft)
 
 local CameraController = require(script.Parent.Parent.Parent.Controllers.CameraController)
+local InputController = require(script.Parent.Parent.Parent.Controllers.InputController)
+local GlitchVfx = require(script.Parent.Parent.GlitchVfx)
 local ModAudio = require(script.Parent.Parent.ModAudio)
 local ModVfx = require(script.Parent.Parent.ModVfx)
 local TeamColor = require(script.Parent.Parent.TeamColor)
@@ -36,11 +48,17 @@ local player = Players.LocalPlayer
 local FEEL = {
 	diveFov = 5, -- FOV push as the dive starts (degrees, over diveFovTime)
 	diveFovTime = 0.25,
-	impactFov = -7, -- squeeze on the landing
+	impactFov = -8, -- squeeze on the landing
 	impactFovTime = 0.3,
-	impactShake = 0.7, -- degrees of wobble
-	impactDip = -1.2, -- the view nods down (degrees, all of it comes back)
-	impactDipTime = 0.2,
+	impactShake = 1.2, -- degrees of wobble
+	impactDip = -2.2, -- the view nods down (degrees, all of it comes back)
+	impactDipTime = 0.22,
+	nearShake = 0.5, -- someone else's slam this close (radius x nearRange) shakes your view
+	nearRange = 2,
+	crackLife = 3, -- seconds the floor cracks stay
+	rubble = 9, -- chunks thrown up
+	rubbleLife = 2.2,
+	rubbleGravity = 110, -- studs/s²
 }
 
 local RING_SCALE = 1 / 0.9 -- MOD_RING / MOD_RING_DASHED draw their rim at r = 0.9
@@ -49,12 +67,28 @@ local GREY = Color3.fromRGB(150, 145, 140)
 local DIVE_LIFE = 1.5
 local RING_START = 1.35 -- the danger ring starts this much wider and closes in to the radius
 local QUAD_THICKNESS = 0.05 -- ModVfx quads' thickness -- longest a dive's pieces live if its end is missed
+local DARK = Color3.fromRGB(18, 16, 22)
+local RUBBLE: { GlitchVfx.Name } = { "Rubble1", "Rubble2", "Rubble3" }
+-- Kit sizes (tools/blender/build_mod_glitchvfx.py): the crack and the ring
+-- are 2.02 / 2.05 across, the hex floor 1.77.
+local CRACK_SPAN = 2.02
+local RING_SPAN = 2.05
+local HEX_SPAN = 1.77
+-- Floors that make no sense as rubble.
+local NO_RUBBLE_MATERIAL: { [Enum.Material]: boolean } = {
+	[Enum.Material.Neon] = true,
+	[Enum.Material.ForceField] = true,
+	[Enum.Material.Glass] = true,
+	[Enum.Material.Water] = true,
+	[Enum.Material.Air] = true,
+}
 
 type Dive = {
 	ring: ModVfx.Handle,
 	fill: ModVfx.Handle,
 	core: ModVfx.Handle,
 	slice: ModVfx.Handle,
+	streak: GlitchVfx.Handle?, -- falling bars round the column (the kit installed)
 	top: Vector3, -- where the dive started
 	size: number, -- the ring's size at the radius
 	born: number,
@@ -217,6 +251,14 @@ local function column(dive: Dive, root: BasePart)
 	local slice = Vector3.new(1.2, length * (0.55 + math.random() * 0.35), 0.15)
 	dive.slice.cframe = CFrame.new(mid + jitter) * CFrame.Angles(0, math.random() * math.pi, 0)
 	dive.slice.from, dive.slice.to = slice, slice
+	local streak = dive.streak
+	if streak then
+		-- Its bars run along Z: stood up, stretched over the column, turning.
+		local size = Vector3.new(1.3, 1.3, length * 1.1)
+		streak.cframe = CFrame.new(mid)
+			* CFrame.Angles(math.pi / 2, 0, os.clock() * 7 % (math.pi * 2))
+		streak.from, streak.to = size, size
+	end
 end
 
 local function placeRing(dive: Dive, root: BasePart)
@@ -281,6 +323,16 @@ local function startDive(other: Player, root: BasePart): Dive
 			hold = true,
 			material = Enum.Material.Neon,
 		}),
+		streak = GlitchVfx.piece({
+			name = "Streak_Energy",
+			cframe = root.CFrame,
+			scale = Vector3.one * 0.3,
+			color = color:Lerp(TeamColor.GLITCH, 0.5),
+			life = DIVE_LIFE,
+			alpha0 = 0.2,
+			hold = true,
+			stutter = 0.15,
+		}),
 		top = root.Position + Vector3.new(0, 2, 0),
 		size = size,
 		born = os.clock(),
@@ -322,14 +374,140 @@ local function endDive(dive: Dive)
 	ModVfx.stop(dive.fill)
 	ModVfx.stop(dive.core)
 	ModVfx.stop(dive.slice)
+	local streak = dive.streak
+	if streak then
+		GlitchVfx.stop(streak)
+	end
 end
 
 -- The impact -----------------------------------------------------------------
+
+-- The floor under `at`: where it is (the cracks lie on it) and what it's
+-- made of (the rubble), or nils.
+local function floorLook(at: Vector3): (Vector3?, Color3?, Enum.Material?)
+	local result = Workspace:Raycast(at + Vector3.new(0, 2, 0), Vector3.new(0, -6, 0), rayParams)
+	if not result then
+		return nil, nil, nil
+	end
+	local hit = result.Instance
+	if hit:IsA("Terrain") then
+		local ok, c = pcall(hit.GetMaterialColor, hit, result.Material)
+		return result.Position, if ok then c else nil, result.Material
+	elseif hit:IsA("BasePart") then
+		return result.Position, hit.Color, hit.Material
+	end
+	return result.Position, nil, nil
+end
+
+-- The GlitchVFX kit's part of the impact: the floor cracks open, rubble flies,
+-- a stepped shockwave ring. False when the kit isn't installed.
+local function kitImpact(feet: Vector3, radius: number, color: Color3): boolean
+	if not GlitchVfx.ready() then
+		return false
+	end
+	local ground, floorColor, floorMaterial = floorLook(feet)
+	local at = ground or feet
+	local yaw = CFrame.Angles(0, math.random() * math.pi * 2, 0)
+	local span = radius * 2 / CRACK_SPAN
+	local flat = Vector3.new(span, 1, span)
+	-- Dark splits, glowing cracks over them, and a hot copy that snaps open.
+	GlitchVfx.piece({
+		name = "CrackGap",
+		cframe = CFrame.new(at + Vector3.new(0, 0.03, 0)) * yaw,
+		scale = flat,
+		color = DARK,
+		life = FEEL.crackLife,
+		alpha0 = 0.05,
+		hold = true,
+	})
+	GlitchVfx.piece({
+		name = "Crack_Energy",
+		cframe = CFrame.new(at + Vector3.new(0, 0.05, 0)) * yaw,
+		scale = flat,
+		color = color,
+		life = FEEL.crackLife,
+		alpha0 = 0.15,
+		hold = true,
+	})
+	GlitchVfx.piece({
+		name = "Crack_Energy",
+		cframe = CFrame.new(at + Vector3.new(0, 0.07, 0)) * yaw,
+		scale = flat * Vector3.new(0.35, 1, 0.35),
+		scale1 = flat * Vector3.new(1.04, 1, 1.04),
+		color = color:Lerp(WHITE, 0.55),
+		life = 0.28,
+		alpha0 = 0,
+	})
+	-- The shockwave: a stepped ring out to the radius, a magenta one stuttering behind.
+	local ring = radius * 2 / RING_SPAN
+	GlitchVfx.piece({
+		name = "PixelRing_Energy",
+		cframe = CFrame.new(at + Vector3.new(0, 0.1, 0)) * yaw,
+		scale = Vector3.new(0.2, 6, 0.2),
+		scale1 = Vector3.new(ring * 1.05, 1.5, ring * 1.05),
+		color = color:Lerp(WHITE, 0.25),
+		life = 0.34,
+		alpha0 = 0,
+		alpha1 = 0.9,
+	})
+	later(0.05, function()
+		GlitchVfx.piece({
+			name = "PixelRing_Energy",
+			cframe = CFrame.new(at + Vector3.new(0, 0.1, 0)) * yaw:Inverse(),
+			scale = Vector3.new(0.3, 3, 0.3),
+			scale1 = Vector3.new(ring * 0.9, 1, ring * 0.9),
+			color = TeamColor.GLITCH,
+			life = 0.3,
+			alpha0 = 0.1,
+			stutter = 0.35,
+		})
+	end)
+	-- The floor glitching out: a hex tile disc.
+	local hex = radius * 2 / HEX_SPAN
+	GlitchVfx.piece({
+		name = "HexFloor_Energy",
+		cframe = CFrame.new(at + Vector3.new(0, 0.09, 0)) * yaw,
+		scale = Vector3.new(hex, 1, hex),
+		color = TeamColor.GLITCH,
+		life = 0.65,
+		alpha0 = 0.45,
+		hold = true,
+		stutter = 0.25,
+	})
+	-- Rubble in the floor's own colour, thrown up and out; it lands and lies.
+	local material = if floorMaterial and not NO_RUBBLE_MATERIAL[floorMaterial]
+		then floorMaterial
+		else Enum.Material.Slate
+	local rubbleColor = (floorColor or GREY):Lerp(Color3.new(0, 0, 0), 0.15)
+	for i = 1, FEEL.rubble do
+		local angle = (i / FEEL.rubble) * math.pi * 2 + math.random() * 0.5
+		local out = Vector3.new(math.cos(angle), 0, math.sin(angle))
+		local start = at + out * (0.5 + math.random() * radius * 0.3) + Vector3.new(0, 0.4, 0)
+		GlitchVfx.piece({
+			name = RUBBLE[math.random(1, #RUBBLE)],
+			cframe = CFrame.new(start)
+				* CFrame.Angles(math.random() * 6.3, math.random() * 6.3, math.random() * 6.3),
+			scale = Vector3.one * (1.3 + math.random() * 1.1),
+			color = rubbleColor,
+			material = material,
+			life = FEEL.rubbleLife,
+			alpha0 = 0,
+			hold = true,
+			velocity = out * (7 + math.random() * 12) + Vector3.new(0, 24 + math.random() * 16, 0),
+			gravity = FEEL.rubbleGravity,
+			floorY = at.Y,
+			spin = Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5) * 18,
+		})
+	end
+	return true
+end
 
 local function impact(at: Vector3, radius: number, color: Color3, mine: boolean)
 	local floor = at + Vector3.new(0, 0.08, 0)
 	local cf = CFrame.new(floor)
 	local size = radius * 2 * RING_SCALE
+	refreshRayFilter()
+	local kit = kitImpact(at, radius, color)
 
 	-- A small hot flash, a frame or two.
 	ModVfx.shell({
@@ -376,16 +554,18 @@ local function impact(at: Vector3, radius: number, color: Color3, mine: boolean)
 			})
 		end)
 	end
-	-- The floor under it glitches out for a moment.
-	ModVfx.quad({
-		texture = Tex.MOD_HEX,
-		cframe = cf,
-		from = radius * 2,
-		color = TeamColor.GLITCH,
-		life = 0.65,
-		alpha0 = 0.4,
-		hold = true,
-	})
+	-- The floor under it glitches out for a moment (the kit draws its hex disc).
+	if not kit then
+		ModVfx.quad({
+			texture = Tex.MOD_HEX,
+			cframe = cf,
+			from = radius * 2,
+			color = TeamColor.GLITCH,
+			life = 0.65,
+			alpha0 = 0.4,
+			hold = true,
+		})
+	end
 
 	-- Dust out flat in every direction, chips up.
 	local h = getHolder()
@@ -438,7 +618,212 @@ local function impact(at: Vector3, radius: number, color: Color3, mine: boolean)
 	else
 		ModAudio.play(S.Updraft.slamImpact, at)
 		ModAudio.play(S.Updraft.slamGlitch, at)
+		-- Felt nearby too: a smaller shake, fading with distance.
+		local camera = Workspace.CurrentCamera
+		if camera then
+			local near = radius * FEEL.nearRange
+			local away = (camera.CFrame.Position - at).Magnitude
+			if away < near then
+				CameraController.shake(FEEL.nearShake * (1 - away / near))
+			end
+		end
 	end
+end
+
+-- The prompt -------------------------------------------------------------------
+
+-- "C  CRASH DOWN" under the crosshair while a slam is ready (up in an Updraft
+-- with Crash Down), so it can be found. Touch: a CRASH button that presses
+-- Crouch (an InputBinding on the Crouch action, like HudController's buttons).
+local HEAVY = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
+local BACK = Color3.fromHex("16181B")
+local PROMPT_Y = 0.62 -- screen height of the prompt (under the crosshair)
+
+type Prompt = {
+	gui: ScreenGui,
+	row: Frame,
+	key: TextLabel,
+	label: TextLabel,
+	split: TextLabel,
+	button: TextButton,
+}
+local prompt: Prompt? = nil
+local promptShown = false
+local promptTouch = false
+local promptKey = ""
+local promptBound = false
+
+local function buildPrompt(): Prompt
+	local made = prompt
+	if made and made.gui.Parent then
+		return made
+	end
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "CrashDownPrompt"
+	gui.IgnoreGuiInset = true
+	gui.ResetOnSpawn = false
+	gui.DisplayOrder = 3
+	gui.Enabled = false
+	gui.Parent = player:WaitForChild("PlayerGui")
+
+	local row = Instance.new("Frame")
+	row.Name = "Row"
+	row.AnchorPoint = Vector2.new(0.5, 0.5)
+	row.Position = UDim2.fromScale(0.5, PROMPT_Y)
+	row.Size = UDim2.fromOffset(0, 34)
+	row.AutomaticSize = Enum.AutomaticSize.X
+	row.BackgroundTransparency = 1
+	row.Parent = gui
+	local layout = Instance.new("UIListLayout")
+	layout.FillDirection = Enum.FillDirection.Horizontal
+	layout.VerticalAlignment = Enum.VerticalAlignment.Center
+	layout.Padding = UDim.new(0, 8)
+	layout.SortOrder = Enum.SortOrder.LayoutOrder
+	layout.Parent = row
+
+	local key = Instance.new("TextLabel")
+	key.Name = "Key"
+	key.LayoutOrder = 1
+	key.Size = UDim2.fromOffset(34, 34)
+	key.BackgroundColor3 = BACK
+	key.BackgroundTransparency = 0.2
+	key.FontFace = HEAVY
+	key.TextSize = 20
+	key.TextColor3 = WHITE
+	key.Parent = row
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 6)
+	corner.Parent = key
+	local stroke = Instance.new("UIStroke")
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Color = TeamColor.GLITCH
+	stroke.Thickness = 2
+	stroke.Parent = key
+
+	local text = Instance.new("Frame")
+	text.Name = "Text"
+	text.LayoutOrder = 2
+	text.Size = UDim2.fromOffset(150, 34)
+	text.BackgroundTransparency = 1
+	text.Parent = row
+	local function line(name: string, color: Color3, z: number): TextLabel
+		local l = Instance.new("TextLabel")
+		l.Name = name
+		l.Size = UDim2.fromScale(1, 1)
+		l.BackgroundTransparency = 1
+		l.FontFace = HEAVY
+		l.TextSize = 22
+		l.TextXAlignment = Enum.TextXAlignment.Left
+		l.TextColor3 = color
+		l.TextStrokeTransparency = 0.6
+		l.Text = "CRASH DOWN"
+		l.ZIndex = z
+		l.Parent = text
+		return l
+	end
+	-- A cyan copy behind the magenta text: the colour split of a bad signal.
+	local split = line("Split", TeamColor.ALLY, 1)
+	split.TextTransparency = 0.55
+	local label = line("Label", TeamColor.GLITCH, 2)
+
+	local button = Instance.new("TextButton")
+	button.Name = "CrashDownButton"
+	button.AnchorPoint = Vector2.new(0.5, 0)
+	button.Position = UDim2.new(0.5, 0, PROMPT_Y, 26)
+	button.Size = UDim2.fromOffset(84, 84)
+	button.BackgroundColor3 = BACK
+	button.BackgroundTransparency = 0.3
+	button.FontFace = HEAVY
+	button.TextSize = 16
+	button.TextColor3 = TeamColor.GLITCH
+	button.Text = "CRASH"
+	button.AutoButtonColor = true
+	button.Visible = false
+	button.Parent = gui
+	local round = Instance.new("UICorner")
+	round.CornerRadius = UDim.new(0.5, 0)
+	round.Parent = button
+	local ring = Instance.new("UIStroke")
+	ring.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	ring.Color = TeamColor.GLITCH
+	ring.Thickness = 2.5
+	ring.Parent = button
+
+	made = { gui = gui, row = row, key = key, label = label, split = split, button = button }
+	prompt = made
+	promptBound = false
+	return made
+end
+
+-- The touch button presses Crouch (once the input context is ready).
+local function bindPromptButton(p: Prompt)
+	if promptBound then
+		return
+	end
+	local ok, action = pcall(InputController.action, "Crouch")
+	if not ok then
+		return
+	end
+	local binding = Instance.new("InputBinding")
+	binding.Name = "Touch_CrashDownButton"
+	binding.UIButton = p.button
+	binding.Parent = action
+	promptBound = true
+end
+
+-- (ready, a press waiting for the arm time)
+local function slamReady(): (boolean, boolean)
+	local character = player.Character
+	if not character or character:GetAttribute("Updrafting") ~= true then
+		return false, false
+	end
+	local slam = character:GetAttribute("UpdraftSlam")
+	if slam == "Down" or not UpdraftMod.slamStats(player) then
+		return false, false
+	end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid or humanoid.Health <= 0 then
+		return false, false
+	end
+	return true, slam == "Queued"
+end
+
+local function stepPrompt(now: number)
+	local ready, waiting = slamReady()
+	if not ready and not promptShown then
+		return
+	end
+	local p = buildPrompt()
+	if ready ~= promptShown then
+		promptShown = ready
+		p.gui.Enabled = ready
+	end
+	if not ready then
+		return
+	end
+	local last = UserInputService:GetLastInputType()
+	local touch = last == Enum.UserInputType.Touch
+	local pad = string.find(last.Name, "Gamepad") ~= nil
+	local key = if pad then "B" else "C"
+	if touch ~= promptTouch then
+		promptTouch = touch
+		p.row.Visible = not touch
+		p.button.Visible = touch
+		if touch then
+			bindPromptButton(p)
+		end
+	end
+	if key ~= promptKey then
+		promptKey = key
+		p.key.Text = key
+	end
+	-- A press waiting for the arm time reads as taken; otherwise it pulses,
+	-- with a glitch slip now and then.
+	local pulse = if waiting then 0.5 else 0.15 * (0.5 + 0.5 * math.sin(now * 10))
+	p.label.TextTransparency = pulse
+	p.key.TextTransparency = pulse
+	local slip = if math.random() < 0.06 then (math.random() - 0.5) * 8 else 0
+	p.split.Position = UDim2.fromOffset(2 + slip, 0)
 end
 
 -- Hooks --------------------------------------------------------------------
@@ -464,6 +849,7 @@ end
 
 handler.step = function(_dt: number)
 	local now = os.clock()
+	stepPrompt(now)
 	for i = #queued, 1, -1 do
 		local q = queued[i]
 		if now >= q.at then
