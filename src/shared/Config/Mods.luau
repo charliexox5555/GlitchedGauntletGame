@@ -286,18 +286,28 @@ local defs: { [string]: ModDef } = {
 				reveal = 2, -- seconds the outline lasts
 				hp = 1, -- any bullet destroys it
 			},
-			A2 = { note = "Recharge: the dart comes back after 20 s", cooldown = 20 },
-			A3 = { note = "Recharge: comes back after 12 s", cooldown = 12 },
-			B2 = { note = "More Pulses: 3 pulses", pulses = 3 },
-			B3 = { note = "More Pulses: 5 pulses", pulses = 5 },
+			-- Upgrades (Upgrade Paths.md → 6. Recon; built in Mods/Recon and
+			-- client Util/UpgradeFx/Recon). The dart lives pulseDelay +
+			-- pulseGap * (pulses - 1) + 0.6 s, so More Pulses keeps it up longer.
+			A2 = { note = "Recharge: the dart comes back 20 s after use", cooldown = 20 },
+			A3 = { note = "Recharge: the dart comes back 12 s after use", cooldown = 12 },
+			B2 = { note = "More Pulses: the dart pulses 3 times, 1.5 s apart", pulses = 3 },
+			B3 = { note = "More Pulses: the dart pulses 5 times, 1.5 s apart", pulses = 5 },
+			-- Spike: one pulse `pulseDelay` after sticking, every enemy within
+			-- `radius`, no line-of-sight check (it can still be shot down first).
 			G2 = {
-				note = "Ping Spike: one big pulse reveals every enemy in 60 studs through walls for 4 s",
+				note = "Ping Spike: one pulse finds every enemy in 60 studs through walls, 4 s",
 				behaviour = "Spike",
 				radius = 60,
 				reveal = 4,
 				pulses = 1,
 			},
-			G3 = { note = "Ping Spike: +20% damage to enemies it revealed", bonusDamage = 0.2 },
+			-- The caster's damage (guns and Mods) to enemies it revealed, while
+			-- the reveal lasts.
+			G3 = {
+				note = "Ping Spike: you deal +20% damage to enemies it revealed (4 s)",
+				bonusDamage = 0.2,
+			},
 		},
 	},
 	HealOrb = {
