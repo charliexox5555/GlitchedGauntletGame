@@ -203,6 +203,16 @@ return table.freeze({
 		-- Recon_Destroyed: 3D. "Static Zap Body Two Buzzy Impacts 2" + "Light Bulb 1"
 		destroyed = cue(9119594871, 0.6, 1, nil, 40),
 		destroyedBreak = cue(9116264240, 0.4, 1.2, nil, 40, 0.6, 0.08),
+		-- Ping Spike (G2/G3, Upgrade Paths.md → 6. Recon): ids reused from the
+		-- lists above, retuned, until the user picks its own.
+		-- Recon_SpikeArm: 3D. The dart arming: "Power Up Accelerating Motors 3", fast
+		spikeArm = cue(9117882661, 0.55, 1.5, nil, 60, 0.5, 0.8),
+		-- Recon_Spike: 3D, ~120 studs. The sonar throb pitched down into a boom
+		spike = cue(9125981390, 1, 0.62, nil, 120, 2.2, 0.05),
+		-- (its static layer: "Static Many Various Length Bursts 24")
+		spikeStatic = cue(9119583983, 0.6, 0.85, nil, 120, 0.7),
+		-- Recon_SpikeRevealed: the revealed player, on top of Recon_Revealed
+		spikeRevealed = cue(9119583983, 0.35, 1.2, nil, nil, 0.35),
 	}),
 	-- Heal Orb hooks (vault/01 Design/Abilities/Heal Orb.md → Sound). Placeholders
 	-- (ProSoundEffects, unauditioned; acoustic recordings picked over the

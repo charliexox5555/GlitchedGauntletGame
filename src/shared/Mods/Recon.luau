@@ -9,6 +9,15 @@
 -- `pulses` times, `pulseGap` apart (the first `pulseDelay` after sticking):
 -- each pulse reveals the enemies within `radius` it can see, to the caster's
 -- team only, for `reveal` seconds. The pulse itself is seen and heard by all.
+--
+-- Upgrades (Upgrade Paths.md → 6. Recon): A Recharge and B More Pulses are
+-- numbers only (`cooldown`, `pulses`). G Ping Spike (`behaviour = "Spike"`):
+-- one big pulse that reveals every enemy within `radius`, through walls; at
+-- G3 (`bonusDamage`) the caster deals that much more damage to them while
+-- the reveal lasts (the damage modifier in `module.server`).
+
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
 
 local Projectile = require(script.Parent.Blocks.Projectile)
 local Reveal = require(script.Parent.Blocks.Reveal)
@@ -72,6 +81,42 @@ local function pulse(ctx: Types.ServerCtx, dart: BasePart)
 	ctx.fx("ReconPulse", { at = at, radius = stats.radius })
 end
 
+-- Ping Spike's marks: marks[caster][victim] = when the bonus ends (server
+-- time) and how big it is. Victims are characters (or dummies).
+type Mark = { untilT: number, bonus: number }
+local marks: { [Player]: { [Model]: Mark } } = {}
+
+-- Ping Spike: every enemy in range, no line-of-sight check.
+local function spike(ctx: Types.ServerCtx, dart: BasePart)
+	if not dart.Parent then
+		return -- shot down before it went off
+	end
+	local stats = ctx.stats
+	local at = dart.Position
+	local seen = Reveal.enemiesNear(ctx.player, at, stats.radius)
+	ctx.reveal(seen, stats.reveal, "Spike")
+	ctx.fx("ReconPulse", { at = at, radius = stats.radius, spike = true })
+	local bonus = stats.bonusDamage
+	if typeof(bonus) ~= "number" or bonus <= 0 or #seen == 0 then
+		return
+	end
+	local now = Workspace:GetServerTimeNow()
+	local mine = marks[ctx.player]
+	if not mine then
+		mine = {}
+		marks[ctx.player] = mine
+	end
+	for victim, mark in mine do
+		if mark.untilT <= now then
+			mine[victim] = nil -- over (and maybe a body that's gone)
+		end
+	end
+	local untilT = now + stats.reveal
+	for _, victim in seen do
+		mine[victim] = { untilT = untilT, bonus = bonus }
+	end
+end
+
 local module: Types.ModModule = {}
 
 module.validate = function(ctx: Types.ServerCtx, req: Types.Request): (boolean, string?)
@@ -118,11 +163,47 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 		if not dart.Parent then
 			return -- the caster died before it stuck
 		end
-		ctx.fx("ReconStick", { at = tip, dir = dir })
+		ctx.fx("ReconStick", { at = tip, dir = dir, delay = stats.pulseDelay })
+		local fire = if stats.behaviour == "Spike" then spike else pulse
 		for i = 0, stats.pulses - 1 do
 			ctx.schedule(stats.pulseDelay + stats.pulseGap * i, function()
-				pulse(ctx, dart)
+				fire(ctx, dart)
 			end)
+		end
+	end)
+end
+
+-- G3: the caster's damage (guns and Mods) to enemies their Ping Spike
+-- revealed, while the reveal lasts. Marks go at round start and with the
+-- caster.
+module.server = function(api: Types.ServerApi)
+	api.modifier(
+		function(attacker: Player, victim: Model, amount: number, _sourceId: string): number
+			local mine = marks[attacker]
+			local mark = mine and mine[victim]
+			if not mine or not mark then
+				return amount
+			end
+			if api.now() >= mark.untilT then
+				mine[victim] = nil
+				if next(mine) == nil then
+					marks[attacker] = nil
+				end
+				return amount
+			end
+			return amount * (1 + mark.bonus)
+		end
+	)
+	api.onRefill(function(player: Player)
+		marks[player] = nil
+	end)
+	Players.PlayerRemoving:Connect(function(player: Player)
+		marks[player] = nil
+		local character = player.Character
+		if character then
+			for _, mine in marks do
+				mine[character] = nil
+			end
 		end
 	end)
 end

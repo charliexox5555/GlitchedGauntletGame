@@ -646,10 +646,13 @@ local function use(
 		status = function(model: Model, name: string, duration: number)
 			StatusService.apply(model, name, duration)
 		end,
-		reveal = function(targets: { Model }, duration: number)
+		reveal = function(targets: { Model }, duration: number, style: string?)
+			local info = if style
+				then { style = style, caster = player, id = modId, level = s.level }
+				else nil
 			for _, other in Players:GetPlayers() do
 				if Teams.isAlly(player, other) then
-					Net.event("ModReveal"):FireClient(other, targets, duration)
+					Net.event("ModReveal"):FireClient(other, targets, duration, info)
 				end
 			end
 			-- Each revealed player only learns that they were spotted (their
@@ -657,7 +660,8 @@ local function use(
 			for _, model in targets do
 				local victim = Players:GetPlayerFromCharacter(model)
 				if victim then
-					Net.event("ModFx"):FireClient(victim, "Revealed", { duration = duration })
+					Net.event("ModFx")
+						:FireClient(victim, "Revealed", { duration = duration, style = style })
 				end
 			end
 		end,
