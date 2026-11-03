@@ -78,7 +78,8 @@ local defs: { [string]: ModDef } = {
 		name = "Updraft",
 		role = "Mobility",
 		slot = 1, -- Q (vault/01 Design/Abilities/Upgrade Paths.md)
-		paths = { A = "Height", B = "Charges", G = "Slam" },
+		-- Upgrade Paths.md calls them Height / Charges / Slam.
+		paths = { A = "High Rise", B = "Second Wind", G = "Crash Down" },
 		block = "Launch",
 		activation = "Instant",
 		authority = "Simulation",
@@ -92,23 +93,24 @@ local defs: { [string]: ModDef } = {
 				charges = 1,
 				peak = 14, -- studs above where you used it (speed from Workspace.Gravity)
 				maxCarry = 24, -- most running speed carried into the air (a slide-jump's)
-				gunDown = 0.35, -- seconds the gun is down after the launch (most of the rise)
+				gunDown = 0.35, -- seconds the gun is down after the launch (the cost, not height-scaled)
 			},
-			A2 = { note = "Height: launch 150% as high (~21 studs)", peak = 21 },
-			A3 = { note = "Height: launch 200% as high (~28 studs)", peak = 28 },
-			B2 = { note = "Charges: 2 charges", charges = 2 },
-			B3 = { note = "Charges: 3 charges", charges = 3 },
+			A2 = { note = "High Rise: launch 50% higher, about 21 studs", peak = 21 },
+			A3 = { note = "High Rise: launch twice as high, about 28 studs", peak = 28 },
+			B2 = { note = "Second Wind: 2 Updrafts every round", charges = 2 },
+			B3 = { note = "Second Wind: 3 Updrafts every round", charges = 3 },
 			G2 = {
-				note = "Slam: crouch in the air to slam down, 30 damage in 8 studs",
+				note = "Crash Down: crouch mid-air to slam, 30 damage within 8 studs",
 				behaviour = "Slam",
-				slamDamage = 30,
-				slamRadius = 8,
+				slamDamage = 30, -- enemies in sight of the landing (no self or team damage)
+				slamRadius = 8, -- studs from your root where you land
 				slamSpeed = 90, -- studs/s straight down
+				slamArm = 0.15, -- seconds after the launch before a slam starts (a press waits)
 			},
 			G3 = {
-				note = "Slam: 45 damage, Hinders for 1 s, 2 charges",
+				note = "Crash Down: 45 damage, Hinders for 1 s, 2 Updrafts a round",
 				slamDamage = 45,
-				slamHinder = 1,
+				slamHinder = 1, -- seconds of Hinder on everyone it hits
 				charges = 2,
 			},
 		},
