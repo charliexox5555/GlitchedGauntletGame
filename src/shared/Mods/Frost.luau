@@ -7,6 +7,12 @@
 -- within `radius` with a clear line from it (enemies, your team and you, the
 -- same) for `hinder` seconds: Config/StatusEffects Hinder, applied by the
 -- server's StatusService (a new hit refreshes it). No damage.
+--
+-- Upgrades (Upgrade Paths.md → 5. Frost): Stockpile (A) and Big Burst (B)
+-- are only numbers (`charges`, `radius`). Freeze Frame (G, `behaviour =
+-- "Freeze"`) freezes the same people solid instead: Config/StatusEffects
+-- Frozen for `freeze` seconds (no moving, shooting or Mods; the stun is
+-- enforced by WeaponService, ModService and the simulation).
 
 local Molly = require(script.Parent.Molly)
 local Projectile = require(script.Parent.Blocks.Projectile)
@@ -22,6 +28,7 @@ local function burst(ctx: Types.ServerCtx, at: Vector3)
 	local stats = ctx.stats
 	local params = ctx.worldParams()
 	local eye = at + Vector3.new(0, 0.5, 0)
+	local freeze = stats.behaviour == "Freeze"
 	for _, model in Target.combatants() do
 		if not Target.alive(model) then
 			continue
@@ -32,10 +39,19 @@ local function burst(ctx: Types.ServerCtx, at: Vector3)
 			and (point - at).Magnitude <= stats.radius
 			and Target.visible(eye, model, params)
 		then
-			ctx.status(model, "Hinder", stats.hinder)
+			if freeze then
+				ctx.status(model, "Frozen", stats.freeze)
+			else
+				ctx.status(model, "Hinder", stats.hinder)
+			end
 		end
 	end
-	ctx.fx("FrostBurst", { at = at, radius = stats.radius })
+	-- `freeze`: the glitched snap-freeze look (UpgradeFx/Frost) instead of the puff.
+	ctx.fx("FrostBurst", {
+		at = at,
+		radius = stats.radius,
+		freeze = if freeze then stats.freeze else nil,
+	})
 end
 
 local module: Types.ModModule = {}
