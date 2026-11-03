@@ -11,7 +11,17 @@
 -- leaving. Enemies are never affected. The beacon can't be destroyed: the
 -- zone's ticks are owner timers, clients draw the beacon and zone from the
 -- "StimDrop" fx.
+--
+-- Upgrades (vault/01 Design/Abilities/Upgrade Paths.md → 8. Stim): path A
+-- is numbers only (more charges, shorter zones; each toss runs its own
+-- zone and timers). Path B gives `stats.status` "StimStrong" instead of
+-- "Stimmed" (never both: they'd multiply, so a strong zone ends a Stimmed
+-- from another zone and a plain zone leaves a StimStrong alone). The glitch
+-- path (`behaviour = "Heal"`) gives no stim: friendlies inside heal
+-- `healPerSecond` through ctx.restore, so a Heal Orb's heal over time on
+-- them keeps running.
 
+local Status = require(script.Parent.Status)
 local Target = require(script.Parent.Blocks.Target)
 local Teams = require(script.Parent.Teams)
 local Types = require(script.Parent.Types)
@@ -21,6 +31,8 @@ local Stim = {}
 
 local GROUND_SEARCH = 12 -- studs below the root a floor is looked for
 local WALL_GAP = 1 -- studs a toss lands short of a wall in the way
+-- Re-applying a status for this long ends it (StatusService ignores 0).
+local END_NOW = 1e-3
 
 -- Where a toss from `root` along the flat `look` lands: `stats.tossDistance`
 -- ahead at waist height (short of a wall), on the floor below that; else on
@@ -48,9 +60,29 @@ function Stim.landing(
 	return if under then under.Position else nil
 end
 
--- One tick: everyone friendly inside gets (or keeps) the stim.
+-- What one tick does to a friendly inside: the stim (plain or strong), or
+-- the glitch path's heal.
+local function touch(ctx: Types.ServerCtx, model: Model, serverNow: number)
+	local stats = ctx.stats
+	if stats.behaviour == "Heal" then
+		ctx.restore(model, stats.healPerSecond * stats.tick)
+		return
+	end
+	local name: string = stats.status
+	if name == "StimStrong" then
+		if Status.active(model, "Stimmed", serverNow) then
+			ctx.status(model, "Stimmed", END_NOW)
+		end
+	elseif Status.active(model, "StimStrong", serverNow) then
+		return -- a stronger stim from another zone is running
+	end
+	ctx.status(model, name, stats.linger)
+end
+
+-- One tick: everyone friendly inside gets (or keeps) the stim, or heals.
 local function pulse(ctx: Types.ServerCtx, zone: Zone.Zone)
 	local caster = ctx.player
+	local serverNow = workspace:GetServerTimeNow()
 	for _, model in Target.combatants() do
 		if not Target.alive(model) then
 			continue
@@ -60,7 +92,7 @@ local function pulse(ctx: Types.ServerCtx, zone: Zone.Zone)
 		end
 		local root = model:FindFirstChild("HumanoidRootPart")
 		if root and root:IsA("BasePart") and Zone.contains(zone, root.Position) then
-			ctx.status(model, "Stimmed", ctx.stats.linger)
+			touch(ctx, model, serverNow)
 		end
 	end
 end

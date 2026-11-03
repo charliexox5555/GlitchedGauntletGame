@@ -375,23 +375,29 @@ local defs: { [string]: ModDef } = {
 				tossTime = 0.4, -- seconds in the air
 				deployTime = 0.25, -- seconds from landing to the zone switching on
 				tick = 0.1, -- seconds between zone checks
+				-- The status the zone gives (Config/StatusEffects); path B
+				-- swaps it for "StimStrong" (one or the other, never both).
+				status = "Stimmed",
 			},
 			A2 = {
-				note = "Quick Stims: 2 charges, each lasts half as long",
+				note = "Quick Stims: 2 charges; each zone lasts 4 s, 2 s after you leave",
 				charges = 2,
 				duration = 4,
 				linger = 2,
 			},
-			A3 = { note = "Quick Stims: 4 charges", charges = 4 },
+			A3 = { note = "Quick Stims: 4 charges of the 4 s zone", charges = 4 },
 			B2 = {
-				note = "Strong Stim: +25% fire rate and speed, faster reloads and swaps",
+				note = "Strong Stim: +25% speed and fire rate, much faster reloads and swaps",
 				status = "StimStrong",
 			},
-			B3 = { note = "Strong Stim: the zone lasts twice as long (16 s)", duration = 16 },
+			B3 = {
+				note = "Strong Stim: the zone lasts 16 s (you stay stimmed 4 s after)",
+				duration = 16,
+			},
 			G2 = {
-				note = "Heal Zone: no stim; you and your team heal 60 HP over the zone's 8 s",
-				behaviour = "Heal",
-				healPerSecond = 7.5,
+				note = "Heal Zone: no stim; you and your team inside heal 60 HP over 8 s",
+				behaviour = "Heal", -- Mods/Stim: heals friendlies inside instead of a stim
+				healPerSecond = 7.5, -- via ctx.restore each tick (a Heal Orb's heal keeps running)
 			},
 			G3 = { note = "Heal Zone: 2 charges", charges = 2 },
 		},

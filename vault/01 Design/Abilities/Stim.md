@@ -85,3 +85,38 @@ Tap the Stim button to drop it.
 
 ## Counter-play
 Enemies can see the zone and who's stimmed, so back off or fight outside the zone. The stim only lasts 4 s after leaving it, and it's one per round. The toss is short and readable: you see where it will land.
+
+## Upgrades (L2/L3), built 2026-11-03
+Paths and numbers: [Upgrade Paths → 8. Stim](Upgrade%20Paths.md#8-stim-decided-2026-11-03) (decided by the user). Built on its own branch, **not playtested yet** (the hub tests in Studio).
+
+| Level | What it does in game |
+|---|---|
+| **A2 Quick Stims** | 2 charges; each zone lasts 4 s and you stay Stimmed 2 s after leaving. Numbers only (`Config/Mods` A2). Two zones at once each run their own beacon, ring and server timers. |
+| **A3 Quick Stims** | 4 charges, same 4 s zone. |
+| **B2 Strong Stim** | The zone gives **StimStrong** (`Config/StatusEffects`: +25% move and fire rate, reloads 25% and swaps 45% shorter) instead of Stimmed. Never both: a strong zone ends a Stimmed from another zone, and a plain zone leaves a StimStrong alone. |
+| **B3 Strong Stim** | The zone lasts 16 s (you still stay stimmed 4 s after leaving). |
+| **G2 Heal Zone** ⚡ | No stim. You and your team inside heal 7.5 HP/s (0.75 every 0.1 s tick, 60 HP over the full 8 s) through `ctx.restore`, so a Heal Orb heal over time on the same person keeps running. Enemies never. |
+| **G3 Heal Zone** ⚡ | 2 charges. |
+
+### How it's built
+- **Server** (`Mods/Stim.luau`): each tick, `touch` either restores HP (`behaviour = "Heal"`) or applies `stats.status` (L1 default `"Stimmed"`, B2 sets `"StimStrong"`). Ending a Stimmed early re-applies it for 0.001 s (`StatusService.apply` ignores 0).
+- **Client looks** (`Util/StimFx.luau`): a drop can carry a `Look` (colours, ring texture, edge and mast emitters, bolts, coil colour, hum and deploy sounds, plus `onDeploy` / `onStep` / `onFade` / `onRemove` hooks). `Util/UpgradeFx/Stim.luau` picks the look from the drop's level (`Mods.stats("Stim", data.level)`) and draws it; L1 and path A keep the plain look.
+- **Strong Stim look:** white-hot-to-gold (`FFC21F`) arcs, bigger and three times as many along the edge, bolts twice as often and thicker, a white-hot coil, a dashed ring spinning just inside the edge, the zone hum pitched up. Stimmed bodies crackle hotter and bigger with sparks spitting up; your screen edge goes gold and pulses deeper and faster; the HUD says **STRONG STIM 3.1**.
+- **Heal Zone look (glitched):** the Heal Orb's green-teal (`5CFFC8`) halo ring (`HEALORB_RING`), a soft glowing floor, wisps rising along the edge, motes and heal crosses rising across the floor and off the mast, the coil green-teal, the Heal Orb's chimes as a soft hum. The glitch on top: a dashed magenta rim flickering just outside the halo, magenta static pixels popping on the rim and inside (~32 a second), thin scanlines tearing across, and every 1.2–3 s a glitch moment (the halo blinks, the coil flashes magenta, the beacon jumps a few tenths of a stud, sometimes a quiet static blip). It dies out with the static fizzle.
+- **People being healed** (anyone inside whose health goes up, so only what the server healed shows): green-teal motes and crosses rising off the body, "+N" over their head every second, and for you a soft green-teal screen edge that flicks magenta now and then.
+- The Heal Zone is green-teal for every viewer, like the Heal Orb; whose it is shows on the beacon's status light (team colour).
+
+### Playtest checklist (hub)
+- [ ] A2: two Stims down at once: two beacons, two rings, each ends after 4 s; stimmed time after leaving is 2 s. A3 starts the round with 4.
+- [ ] B2: walk speed ×1.25 (e.g. 15.2 → 19), HUD says STRONG STIM, gold crackle and screen. Standing in an L1 zone and a B2 zone together: only StimStrong (speed ×1.25, not ×1.44).
+- [ ] B3: zone lasts 16 s, stim lasts 4 s after leaving.
+- [ ] G2: hurt yourself (dev panel "Hurt me"), stand in it: +60 HP over 8 s, "+N" on an ally dummy, nothing on the enemy dummy, no Stimmed. Heal Orb on yourself inside: both heals land.
+- [ ] G2 look: green-teal halo and motes with magenta static and flicker, beacon jitters, gentle chime hum, not too noisy.
+- [ ] G3: 2 charges.
+
+### Name and card text proposals (not applied; the names stay as decided)
+| Path | Now | Proposal | Why |
+|---|---|---|---|
+| A | Quick Stims | **Microdose** | Says "smaller, more often" in one word; fits the stim theme. |
+| B | Strong Stim | **Overdrive** | Reads as a bigger buff; "Strong Stim" is also the status name, so the card and the HUD wouldn't repeat it. |
+| G ⚡ | Heal Zone | **Restore Point** | A computer-glitch name like Recall's Crash Recovery: the beacon turns into a system restore that heals. |
