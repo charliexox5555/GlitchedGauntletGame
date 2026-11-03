@@ -54,6 +54,7 @@ local KIT_MIST_RATE = 2 -- the kit's look: shapes, few particles
 local KIT_GLINT_RATE = 2
 local GLITCH_GAP = NumberRange.new(0.5, 1.8) -- seconds between a piece's glitches
 local GLITCH_TIME = NumberRange.new(0.05, 0.12)
+local SLABS: { IceKit.Name } = { "SlabA", "SlabB" }
 
 type Slab = {
 	part: BasePart,
@@ -360,7 +361,7 @@ local function dressKit(c: Ctx, held: { BasePart }, accents: { Accent }): boolea
 		end
 		return p
 	end
-	local slab = take(if rng:NextNumber() < 0.5 then "SlabA" else "SlabB")
+	local slab = take(IceKit.pick(rng, SLABS))
 	local cluster = take("Cluster")
 	local pixels = take("Pixels_Energy")
 	local lines = take("Scanlines_Energy")
