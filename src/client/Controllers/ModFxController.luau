@@ -584,9 +584,18 @@ end
 type RevealMark = { highlight: Highlight, untilT: number }
 local reveals: { [Model]: RevealMark } = {}
 
-local function onReveal(targets: unknown, duration: unknown)
+local function onReveal(targets: unknown, duration: unknown, info: unknown)
 	if typeof(targets) ~= "table" or typeof(duration) ~= "number" then
 		return
+	end
+	-- An upgrade's own look (Recon's Ping Spike) may replace the outline.
+	if typeof(info) == "table" then
+		local d = table.clone(info :: { [string]: any })
+		d.targets = targets
+		d.duration = duration
+		if UpgradeFx.onFx("Reveal", d) then
+			return
+		end
 	end
 	local untilT = os.clock() + math.clamp(duration :: number, 0, 10)
 	-- pairs, not ipairs: a model that isn't streamed in arrives as a hole.

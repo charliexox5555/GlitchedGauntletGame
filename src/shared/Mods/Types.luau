@@ -118,7 +118,9 @@ export type ServerCtx = {
 	-- `model` for `duration` seconds (a refresh: no stacking).
 	status: (model: Model, name: string, duration: number) -> (),
 	-- Shows `targets` to the caster's team only, for `duration` seconds.
-	reveal: (targets: { Model }, duration: number) -> (),
+	-- `style` (an upgrade's own look, Recon's "Spike") reaches the clients'
+	-- UpgradeFx with the caster and level, and the revealed players' warning.
+	reveal: (targets: { Model }, duration: number, style: string?) -> (),
 	-- The caster's guns fire `mult` times as fast for `duration` seconds.
 	fireRate: (mult: number, duration: number) -> (),
 	-- The HUD shows the slot's effect running for `duration` seconds.
