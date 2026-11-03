@@ -12,7 +12,7 @@ The match maps: a mix of RIVALS (fast, simple, run-and-gun readable) and Valoran
 | **Container Yard** | 💡 Idea | 1v1, 2v2 | Stacked shipping containers at a dock at dusk. Stack tops are the high lane | One Blender container kit, repeated |
 | **Metro** | 💡 Idea | 2v2, 3v3 | A station: two platforms with a lower track lane between them and a parked train as cover | Blender kit plus Parts |
 | **Rooftops** | 💡 Idea | 1v1, 2v2 | Two buildings joined by a bridge and ziplines or Updraft routes. Falling off is a real risk | Parts plus light Blender props |
-| **Courtyard** | 💡 Idea | 2v2, 3v3 | A warm stone plaza with arches and a central fountain, the most Valorant-looking of the set (Ascent's open middle) | Blender kit |
+| [Old Town](Old%20Town.md) | 🟠 Scripts written, not run in Studio | 2v2–4v4 (large) | Sunlit stone plaza, fountain, arcades with a cafe terrace, shaded alleys, a clock tower; origin (0, 200, 1500) | Blender kit plus Parts |
 
 ## What every map shares
 - **Rules:** Game Plan §5: three lanes, half cover 3 / full cover 7+, doors at least 6 wide, two exits per room, spawns out of sight.
