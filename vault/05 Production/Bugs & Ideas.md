@@ -5,7 +5,7 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 ## 🐛 Bugs
 | # | Found | What happens | Steps to reproduce | Severity | Status |
 |---|---|---|---|---|---|
-| | | | | | |
+| 1 | 2026-11-03 | "Attribute total payload exceeds 1024 bytes" spam from `Mods/Updraft` step; abilities stop working | Upgraded Dash + Updraft (+ statuses) on one character | High | ✅ Fixed 2026-11-03: attributes packed / nil instead of false (Mod System → Character attribute budget). Watch for it if more per-character state is added |
 
 ## 💡 Ideas
 | Idea | Why it might be good | Parked until |

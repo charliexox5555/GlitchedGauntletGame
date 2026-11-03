@@ -10,22 +10,26 @@
 --   DashStart     time() the dash began (the client plays the lunge on change)
 --   DashUntil     time() it ends
 --   DashVelocity  horizontal velocity while it lasts
---   DashExit      horizontal speed kept when it ends
---   DashFireDelay seconds after it ends before the gun can fire (both sides
---                 gate shots on this; WeaponService checks it on its own)
---   DashFocus     Dash Focus window: the first shot this soon after the gun
---                 is back up has no movement or air spread
+--   DashTune      Vector3(exit, fireDelay, focus): the horizontal speed kept
+--                 when it ends; seconds after it ends before the gun can fire
+--                 (both sides gate shots on this; WeaponService checks it on
+--                 its own); the Dash Focus window (the first shot this soon
+--                 after the gun is back up has no movement or air spread).
+--                 One attribute for three: a character's attributes share a
+--                 1024-byte budget under Server Authority
 -- Upgrade levels (vault/01 Design/Abilities/Dash.md → Upgrades), nil when
 -- the level doesn't have them (each cast rewrites them, so a stale one from
--- another level can't linger):
---   DashDodgeUntil    B2/B3 Ghost: time() until which damage passes through
---                     you (the server's guard below; everyone sees the ghost)
---   DashCloakUntil    B3 Ghost, G3 Desync: time() until which you're nearly
---                     invisible (client-side per viewer, UpgradeFx/Dash)
---   DashDecoyFrom, DashDecoyYaw, DashDecoyVelocity, DashDecoyUntil
---                     G2/G3 Desync: where the decoy starts, its facing, the
---                     way it keeps running and when it glitches out
---   DashDecoyFires    G3: the decoy fires fake shots
+-- another level can't linger). Packed into three attributes: a character's
+-- attributes share a 1024-byte budget under Server Authority (read them
+-- with Dash.windows / Dash.decoy):
+--   DashWindows   Vector3(dodge, cloak, decoy): time() until which
+--                 B2/B3 Ghost lets damage pass through you (the server's
+--                 guard below; everyone sees the ghost), B3 Ghost / G3
+--                 Desync keeps you nearly invisible (client-side per viewer,
+--                 UpgradeFx/Dash), and the G2/G3 decoy runs; 0 = none
+--   DashDecoy     G2/G3 Desync: CFrame where the decoy starts, facing its yaw
+--   DashDecoyRun  the way it keeps running (flat); Y = 1 when it fires
+--                 fake shots (G3)
 
 local Types = require(script.Parent.Types)
 local DashBlock = require(script.Parent.Blocks.Dash)
@@ -75,33 +79,38 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 	local now = ctx.now
 
 	-- The upgrade levels' attributes go first: clients key on DashStart.
-	character:SetAttribute(
-		"DashDodgeUntil",
-		if stats.dodgeWindow then now + stats.dodgeWindow else nil
-	)
-	local cloakUntil: number? = nil
+	local dodgeUntil = if stats.dodgeWindow then now + stats.dodgeWindow else 0
+	local cloakUntil = 0
 	if stats.cloakAfter then
 		cloakUntil = now + duration + stats.cloakAfter
 	elseif stats.decoyCloak then
 		cloakUntil = now + stats.decoyTime
 	end
-	character:SetAttribute("DashCloakUntil", cloakUntil)
 	local desync = stats.behaviour == "Desync"
-	character:SetAttribute("DashDecoyFrom", if desync then root.Position else nil)
+	local decoyUntil = if desync then now + stats.decoyTime else 0
+	local any = dodgeUntil > 0 or cloakUntil > 0 or decoyUntil > 0
 	character:SetAttribute(
-		"DashDecoyYaw",
-		if desync then math.atan2(-root.CFrame.LookVector.X, -root.CFrame.LookVector.Z) else nil
+		"DashWindows",
+		if any then Vector3.new(dodgeUntil, cloakUntil, decoyUntil) else nil
 	)
-	character:SetAttribute("DashDecoyVelocity", if desync then decoyVelocity(stats, root) else nil)
-	character:SetAttribute("DashDecoyUntil", if desync then now + stats.decoyTime else nil)
-	character:SetAttribute("DashDecoyFires", if desync and stats.decoyFires then true else nil)
+	local yaw = math.atan2(-root.CFrame.LookVector.X, -root.CFrame.LookVector.Z)
+	character:SetAttribute(
+		"DashDecoy",
+		if desync then CFrame.new(root.Position) * CFrame.Angles(0, yaw, 0) else nil
+	)
+	local run = if desync then decoyVelocity(stats, root) else nil
+	character:SetAttribute(
+		"DashDecoyRun",
+		if run then Vector3.new(run.X, if stats.decoyFires then 1 else 0, run.Z) else nil
+	)
 
 	character:SetAttribute("DashStart", now)
 	character:SetAttribute("DashUntil", now + duration - SIM_STEP / 2)
 	character:SetAttribute("DashVelocity", dir * (reach / duration))
-	character:SetAttribute("DashExit", stats.exitSpeed)
-	character:SetAttribute("DashFireDelay", stats.fireDelay)
-	character:SetAttribute("DashFocus", stats.focusWindow)
+	character:SetAttribute(
+		"DashTune",
+		Vector3.new(stats.exitSpeed, stats.fireDelay, stats.focusWindow)
+	)
 	return true
 end
 
@@ -111,8 +120,8 @@ end
 module.server = function(api: Types.ServerApi)
 	api.guard(
 		function(victim: Model, _humanoid: Humanoid, amount: number, _attacker: Player?): number
-			local untilT = victim:GetAttribute("DashDodgeUntil")
-			if typeof(untilT) == "number" and time() < untilT then
+			local dodgeUntil = Dash.windows(victim)
+			if time() < dodgeUntil then
 				return 0
 			end
 			return amount
@@ -122,13 +131,34 @@ end
 
 Dash.module = module
 
+-- The upgrade windows a dash opened (time(); 0 = none): dodge, cloak, decoy.
+function Dash.windows(character: Instance): (number, number, number)
+	local w = character:GetAttribute("DashWindows")
+	if typeof(w) ~= "Vector3" then
+		return 0, 0, 0
+	end
+	return w.X, w.Y, w.Z
+end
+
+-- The Desync decoy of the last dash: where it starts, its yaw, the way it
+-- runs (flat) and whether it fires fake shots. nil `from`: no decoy.
+function Dash.decoy(character: Instance): (Vector3?, number, Vector3, boolean)
+	local cf = character:GetAttribute("DashDecoy")
+	local run = character:GetAttribute("DashDecoyRun")
+	if typeof(cf) ~= "CFrame" or typeof(run) ~= "Vector3" then
+		return nil, 0, Vector3.zero, false
+	end
+	local _, yaw, _ = cf:ToOrientation()
+	return cf.Position, yaw, Vector3.new(run.X, 0, run.Z), run.Y > 0.5
+end
+
 -- The gun gate around a dash, kept per character by WeaponController (our
 -- own) and WeaponService (everyone, the truth), each on its own os.clock():
 -- the gun is down until `readyAt` (the rest of the dash plus DashFireDelay),
 -- then the first shot until `focusUntil` has no movement spread (Dash Focus).
 -- Keyed on DashStart, so a chained dash pushes it on and a frame that
 -- missed the Dashing flag can't skip it. An Updraft lowers the gun too
--- (UpdraftGunDown seconds from UpdraftAt), with no Focus after it.
+-- (UpdraftLaunch's gun-down seconds from UpdraftAt), with no Focus after it.
 export type GunGate = {
 	lastStart: number, -- DashStart of the last dash seen
 	lastUpdraft: number, -- UpdraftAt of the last Updraft seen
@@ -168,8 +198,9 @@ function Dash.stepGate(gate: GunGate, character: Model, now: number, simNow: num
 	end
 	if fresh or character:GetAttribute("Dashing") == true then
 		local untilT = character:GetAttribute("DashUntil")
-		local delay = character:GetAttribute("DashFireDelay")
-		local window = character:GetAttribute("DashFocus")
+		local tune = character:GetAttribute("DashTune")
+		local delay = if typeof(tune) == "Vector3" then tune.Y else nil
+		local window = if typeof(tune) == "Vector3" then tune.Z else nil
 		local left = if typeof(untilT) == "number" then math.clamp(untilT - simNow, 0, 1) else 0
 		gate.readyAt =
 			math.max(gate.readyAt, now + left + (if typeof(delay) == "number" then delay else 0))
@@ -178,7 +209,8 @@ function Dash.stepGate(gate: GunGate, character: Model, now: number, simNow: num
 	local updraft = character:GetAttribute("UpdraftAt")
 	if typeof(updraft) == "number" and updraft > gate.lastUpdraft + 0.05 then
 		gate.lastUpdraft = updraft
-		local down = character:GetAttribute("UpdraftGunDown")
+		local launch = character:GetAttribute("UpdraftLaunch")
+		local down = if typeof(launch) == "Vector3" then launch.Z else nil
 		local left = if typeof(down) == "number"
 			then math.clamp(updraft + down - simNow, 0, 1)
 			else 0

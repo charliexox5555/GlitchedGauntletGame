@@ -1970,7 +1970,8 @@ local function update(dt: number)
 		else Vector3.zero
 	-- Mid-dash the body moves ~80 studs/s: feed the sway its exit speed, so a
 	-- sideways dash doesn't tilt the gun over (the dip and gesture show it).
-	local exitSpeed = character and character:GetAttribute("DashExit")
+	local tune = character and character:GetAttribute("DashTune")
+	local exitSpeed = if typeof(tune) == "Vector3" then tune.X else nil
 	if
 		character
 		and character:GetAttribute("Dashing") == true

@@ -9,6 +9,9 @@
 
 local Players = game:GetService("Players")
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local DashMod = require(ReplicatedStorage.Shared.Mods.Dash)
 local DashDecoy = require(script.Parent.DashDecoy)
 local DashGhost = require(script.Parent.DashGhost)
 local TeamColor = require(script.Parent.Parent.TeamColor)
@@ -30,29 +33,28 @@ local function onDash(owner: Player, character: Model, start: number)
 	local now = time()
 	local root = character:FindFirstChild("HumanoidRootPart")
 	-- Ghost: a team-tinted pop as the dodge window opens.
-	if number(character, "DashDodgeUntil") > now and root and root:IsA("BasePart") then
+	local dodgeUntil, _, decoyUntil = DashMod.windows(character)
+	if dodgeUntil > now and root and root:IsA("BasePart") then
 		ModVfx.burst(root.Position, TeamColor.forOwner(owner), 10, "Sparkle")
 	end
 	-- Desync: the decoy.
-	local untilT = number(character, "DashDecoyUntil")
-	if untilT <= now then
+	if decoyUntil <= now then
 		return
 	end
-	local from = character:GetAttribute("DashDecoyFrom")
-	local velocity = character:GetAttribute("DashDecoyVelocity")
+	local from, yaw, velocity, fires = DashMod.decoy(character)
 	local stats = DashGhost.statsOf(owner)
-	if typeof(from) ~= "Vector3" or typeof(velocity) ~= "Vector3" or not stats then
+	if not from or not stats then
 		return
 	end
 	DashDecoy.spawn({
 		owner = owner,
 		character = character,
 		from = from,
-		yaw = number(character, "DashDecoyYaw"),
+		yaw = yaw,
 		velocity = velocity,
 		start = start,
-		untilT = untilT,
-		fires = character:GetAttribute("DashDecoyFires") == true,
+		untilT = decoyUntil,
+		fires = fires,
 		stats = stats,
 	})
 end

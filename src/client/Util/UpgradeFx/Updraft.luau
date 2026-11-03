@@ -4,7 +4,7 @@
 -- the L1 look already scales with the rise (ModFeelController, WindFx) and
 -- the HUD has 3 charge pips. Crash Down (G, the slam) is drawn here, in the
 -- glitch theme "a corrupted packet crashing into the floor":
---   The dive (UpdraftSlamming / UpdraftSlamStart, simulation-written: ours
+--   The dive (UpdraftSlam = "Down" / UpdraftSlamStart, simulation-written: ours
 --   predicted, others' replicated): a streak above the body with a magenta
 --   slice jittering beside it, magenta static round the body, and a ring on
 --   the floor where it lands, sized to the slam's radius (cyan for your side,
@@ -488,7 +488,7 @@ handler.step = function(_dt: number)
 		end
 		local start = number(character, "UpdraftSlamStart", 0)
 		local landed = number(character, "UpdraftSlamAt", 0)
-		local slamming = character:GetAttribute("UpdraftSlamming") == true
+		local slamming = character:GetAttribute("UpdraftSlam") == "Down"
 		local s = seen[character]
 		if not s then
 			-- First sight: remember, don't replay old slams.

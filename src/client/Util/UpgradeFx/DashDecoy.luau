@@ -1,7 +1,7 @@
 --!strict
 -- Dash Desync's decoy (G2/G3; vault/01 Design/Abilities/Dash.md → Upgrades).
 -- Every client builds it on its own from the dasher's character attributes
--- (Mods/Dash: DashDecoyFrom / Yaw / Velocity / Until / Fires), so nothing
+-- (Mods/Dash: DashWindows / DashDecoy / DashDecoyRun, read with Dash.decoy), so nothing
 -- crosses the network and nothing about it is real:
 --   - a copy of the dasher's character (scripts, sounds and effects
 --     stripped, joints made kinematic), anchored at the root, nothing in it

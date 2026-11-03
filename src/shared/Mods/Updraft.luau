@@ -17,14 +17,16 @@
 --
 -- Character attributes (simulation-written):
 --   UpdraftAt     time() of the launch (clients play the effects on change)
---   UpdraftUp     the launch's vertical speed (studs/s)
---   UpdraftGravity  the gravity it was launched under (a status lowers it)
---   Updrafting    true from the launch until you land
---   UpdraftGunDown  seconds from the launch the gun is down (no shots; both
---                 sides gate on it, Mods/Dash.stepGate)
+--   UpdraftLaunch Vector3(up, gravity, gunDown): the launch's vertical speed
+--                 (studs/s), the gravity it was launched under (a status
+--                 lowers it), and the seconds from the launch the gun is down
+--                 (no shots; both sides gate on it, Mods/Dash.stepGate). One
+--                 attribute for three: a character's attributes share a
+--                 1024-byte budget under Server Authority
+--   Updrafting    true from the launch until you land (nil otherwise)
 --   UpdraftCrouchIn  last step's Crouch input (Slam owners only: presses)
---   UpdraftSlamQueued  a Crouch press waiting for `slamArm`
---   UpdraftSlamming  true from the slam's start until its landing
+--   UpdraftSlam   "Queued": a Crouch press waiting for `slamArm`; "Down":
+--                 from the slam's start until its landing; nil otherwise
 --   UpdraftSlamStart time() the slam started (clients: the dive effects)
 --   UpdraftSlamAt / UpdraftSlamPos  time() and root position of the last
 --                 slam landing (the server's hook deals the damage)
@@ -124,9 +126,11 @@ function Updraft.slamStats(player: Player): Types.Stats?
 	return nil
 end
 
+-- The slam's state in one attribute (a character's attributes share a
+-- 1024-byte budget under Server Authority): UpdraftSlam = "Queued" (pressed,
+-- waiting for the arm time), "Down" (slamming), nil (none).
 local function endSlam(character: Model)
-	set(character, "UpdraftSlamQueued", false)
-	set(character, "UpdraftSlamming", false)
+	set(character, "UpdraftSlam", nil)
 end
 
 -- Simulation, every step (before the cast): holds the rise, runs a slam, and
@@ -146,7 +150,7 @@ function Updraft.step(
 		-- Only a new press: crouch held from a slide into the launch isn't one.
 		local crouch = actionDown(context, "Crouch")
 		pressed = crouch and character:GetAttribute("UpdraftCrouchIn") ~= true
-		set(character, "UpdraftCrouchIn", crouch)
+		set(character, "UpdraftCrouchIn", if crouch then true else nil)
 	end
 	if character:GetAttribute("Updrafting") ~= true then
 		return
@@ -155,28 +159,27 @@ function Updraft.step(
 	local airborne = humanoid.FloorMaterial == Enum.Material.Air
 
 	if slam then
-		if character:GetAttribute("UpdraftSlamming") == true then
+		if character:GetAttribute("UpdraftSlam") == "Down" then
 			if airborne then
 				-- Straight down (no air steering, no carried run speed).
 				root.AssemblyLinearVelocity = Vector3.new(0, -slam.slamSpeed, 0)
 			else
 				endSlam(character)
-				set(character, "Updrafting", false)
+				set(character, "Updrafting", nil)
 				character:SetAttribute("UpdraftSlamPos", root.Position)
 				character:SetAttribute("UpdraftSlamAt", now)
 			end
 			return
 		end
 		if pressed then
-			set(character, "UpdraftSlamQueued", true)
+			set(character, "UpdraftSlam", "Queued")
 		end
 		if
-			character:GetAttribute("UpdraftSlamQueued") == true
+			character:GetAttribute("UpdraftSlam") == "Queued"
 			and since >= slam.slamArm
 			and airborne
 		then
-			set(character, "UpdraftSlamQueued", false)
-			set(character, "UpdraftSlamming", true)
+			set(character, "UpdraftSlam", "Down")
 			set(character, "UpdraftSlamStart", now)
 			set(character, "SlideJumpSpeed", 0)
 			root.AssemblyLinearVelocity = Vector3.new(0, -slam.slamSpeed, 0)
@@ -185,15 +188,16 @@ function Updraft.step(
 	end
 
 	if since < RISE_HOLD then
-		local gravity = number(character, "UpdraftGravity", workspace.Gravity)
-		local up = number(character, "UpdraftUp", 0) - gravity * since
+		local launch = character:GetAttribute("UpdraftLaunch")
+		local gravity = if typeof(launch) == "Vector3" then launch.Y else workspace.Gravity
+		local up = (if typeof(launch) == "Vector3" then launch.X else 0) - gravity * since
 		local vel = root.AssemblyLinearVelocity
 		if vel.Y < up then
 			root.AssemblyLinearVelocity = Vector3.new(vel.X, up, vel.Z)
 		end
 	elseif not airborne then
 		endSlam(character) -- a press still waiting is dropped
-		set(character, "Updrafting", false) -- landed
+		set(character, "Updrafting", nil) -- landed
 	end
 end
 
@@ -268,10 +272,8 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 		math.clamp(flat, Movement.WALK_SPEED, math.max(ctx.stats.maxCarry, Movement.WALK_SPEED))
 	character:SetAttribute("SlideJumpSpeed", carry)
 	character:SetAttribute("UpdraftAt", ctx.now)
-	character:SetAttribute("UpdraftUp", up)
-	character:SetAttribute("UpdraftGravity", gravity)
+	character:SetAttribute("UpdraftLaunch", Vector3.new(up, gravity, ctx.stats.gunDown))
 	character:SetAttribute("Updrafting", true)
-	character:SetAttribute("UpdraftGunDown", ctx.stats.gunDown)
 	-- A new launch mid-slam cancels the slam.
 	endSlam(character)
 	return true

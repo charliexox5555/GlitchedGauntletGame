@@ -23,7 +23,7 @@
 --   ModResetSeen            last ModResetSerial applied
 --   Dashing + the Dash* attributes of Mods/Dash, RecallSeen / RecallAt
 --   (Mods/Recall: the server's teleport, from the player's RecallTo /
---   RecallSerial), UpdraftAt / UpdraftUp / Updrafting (Mods/Updraft);
+--   RecallSerial), UpdraftAt / UpdraftLaunch / Updrafting (Mods/Updraft);
 --   SlideJumpSpeed carries an Updraft's running speed through the air like a
 --   slide-jump (Movement)
 
@@ -103,7 +103,8 @@ local function stepDash(character: Model, root: BasePart, now: number)
 	elseif character:GetAttribute("Dashing") == true then
 		local vel = root.AssemblyLinearVelocity
 		local flat = vel * Vector3.new(1, 0, 1)
-		local exit = number(character, "DashExit", 16)
+		local tune = character:GetAttribute("DashTune")
+		local exit = if typeof(tune) == "Vector3" then tune.X else 16
 		if flat.Magnitude > exit then
 			flat = flat.Unit * exit
 			root.AssemblyLinearVelocity = Vector3.new(flat.X, vel.Y, flat.Z)
@@ -112,7 +113,7 @@ local function stepDash(character: Model, root: BasePart, now: number)
 		if number(character, "SlideJumpSpeed", 0) > exit then
 			set(character, "SlideJumpSpeed", exit)
 		end
-		set(character, "Dashing", false)
+		set(character, "Dashing", nil) -- nil, not false: the attribute budget
 	end
 end
 
@@ -150,7 +151,7 @@ function AbilitiesSim.stepCharacter(
 	for slot, names in NAMES do
 		local input = actionDown(context, names.input)
 		local pressed = input and character:GetAttribute(names.inAttr) ~= true
-		set(character, names.inAttr, input)
+		set(character, names.inAttr, if input then true else nil)
 
 		local id = player:GetAttribute(names.id)
 		local level = player:GetAttribute(names.level)

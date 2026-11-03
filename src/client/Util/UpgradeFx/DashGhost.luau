@@ -2,10 +2,10 @@
 -- Dash Ghost and the Desync cloak on the client (vault/01 Design/Abilities/
 -- Dash.md → Upgrades): how see-through each dasher is to this viewer.
 --
---   B2/B3 Ghost: while DashDodgeUntil runs (damage passes through you, the
+--   B2/B3 Ghost: while the dodge window runs (Dash.windows) (damage passes through you, the
 --   server's guard in Mods/Dash), everyone sees you half see-through, with
 --   team-tinted afterimages peeling off behind you.
---   B3 Ghost, G3 Desync: while DashCloakUntil runs you're nearly invisible
+--   B3 Ghost, G3 Desync: while the cloak window runs you're nearly invisible
 --   to enemies (a flickering shimmer to the ones within cloakShimmer studs,
 --   half see-through to your team), name tag included. A Recon reveal's
 --   outline still shows (the body never goes fully invisible under it).
@@ -20,6 +20,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local DashMod = require(ReplicatedStorage.Shared.Mods.Dash)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
@@ -152,8 +153,8 @@ end
 -- How see-through `character` (owned by `owner`) is to us right now, and
 -- whether it's a cloak (name tag hidden).
 local function alphaFor(owner: Player, character: Model, now: number): (number, boolean)
-	local dodgeUntil = number(character, "DashDodgeUntil")
-	local cloakUntil = number(character, "DashCloakUntil")
+	local dodgeUntil = select(1, DashMod.windows(character))
+	local cloakUntil = select(2, DashMod.windows(character))
 	local start = number(character, "DashStart")
 	if now >= dodgeUntil and now >= cloakUntil then
 		return 0, false
@@ -205,10 +206,10 @@ end
 -- washed-out tint (cloaked), so you know it's running.
 local function stepCue(now: number)
 	local character = player.Character
-	local dodge = character ~= nil and now < number(character, "DashDodgeUntil")
+	local dodge = character ~= nil and now < select(1, DashMod.windows(character))
 	local cloak = character ~= nil
 		and now >= number(character, "DashStart")
-		and now < number(character, "DashCloakUntil")
+		and now < select(2, DashMod.windows(character))
 	local c = cue
 	if not dodge and not cloak then
 		if c then
@@ -227,7 +228,7 @@ local function stepCue(now: number)
 	effect.Enabled = true
 	local ally = TeamColor.ALLY
 	if cloak then
-		local left = number(character :: Model, "DashCloakUntil") - now
+		local left = select(2, DashMod.windows(character :: Model)) - now
 		local k = math.clamp(left / FADE_OUT, 0, 1)
 		effect.Saturation = -0.35 * k
 		effect.Contrast = 0.05 * k
@@ -262,7 +263,7 @@ function DashGhost.step()
 		setAlpha(character, alpha)
 		state.alpha = alpha
 		-- Ghost afterimages while the dodge window is open.
-		if now < number(character, "DashDodgeUntil") and os.clock() >= state.nextImage then
+		if now < select(1, DashMod.windows(character)) and os.clock() >= state.nextImage then
 			state.nextImage = os.clock() + AFTERIMAGE_EVERY
 			afterimage(character, TeamColor.forOwner(other))
 		end

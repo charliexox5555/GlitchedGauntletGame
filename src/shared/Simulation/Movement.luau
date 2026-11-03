@@ -188,7 +188,7 @@ local function stepCharacter(player: Player, character: Model)
 	set(character, "SlideStart", slideStart)
 	set(character, "SlideEnd", slideEnd)
 	set(character, "SlideJumpSpeed", slideJump)
-	set(character, "CrouchHeld", crouchIn)
+	set(character, "CrouchHeld", if crouchIn then true else nil)
 	set(character, "SprintBlock", sprintBlock)
 	set(character, "WasGrounded", grounded)
 end

@@ -19,6 +19,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
+local DashMod = require(ReplicatedStorage.Shared.Mods.Dash)
 local Net = require(ReplicatedStorage.Shared.Net)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
@@ -211,7 +212,7 @@ local function stepCharacters()
 				linesDir = if cam
 					then cam.CFrame:VectorToObjectSpace(dir)
 					else Vector3.new(0, 0, -1)
-			elseif number(character, "DashDecoyUntil") > dash then
+			elseif select(3, DashMod.windows(character)) > dash then
 				-- Desync: no wind trail to tell the real one from the decoy
 				-- (UpgradeFx/Dash draws the split).
 				ModAudio.play(S.Dash.world, root.Position)
@@ -231,7 +232,7 @@ local function stepCharacters()
 		if (s.dashing or started) and not dashing then
 			if mine then
 				ModAudio.play(S.Dash.land)
-			elseif number(character, "DashDecoyUntil") <= dash then -- (Desync: no puff)
+			elseif select(3, DashMod.windows(character)) <= dash then -- (Desync: no puff)
 				WindFx.dashEnd(character, root, s.dashDir, TeamColor.forOwner(other))
 			end
 		end
@@ -240,8 +241,9 @@ local function stepCharacters()
 		local launched = false
 		if updraft > s.updraft + 0.05 then
 			launched = true
-			local up = character:GetAttribute("UpdraftUp")
-			local g = character:GetAttribute("UpdraftGravity")
+			local launch = character:GetAttribute("UpdraftLaunch")
+			local up = if typeof(launch) == "Vector3" then launch.X else nil
+			local g = if typeof(launch) == "Vector3" then launch.Y else nil
 			local gravity = if typeof(g) == "number" and g > 0 then g else workspace.Gravity
 			local rise = if typeof(up) == "number" then up / gravity else 0.4
 			if mine then

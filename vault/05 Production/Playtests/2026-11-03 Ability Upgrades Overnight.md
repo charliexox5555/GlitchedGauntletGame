@@ -39,3 +39,7 @@
 
 ## Changes during the test
 - The dev panel's **Hurt me (−50)** now goes through the real damage path (the guards, then shield, then health) so Barrier / Ghost / Crash Recovery can be tested alone. It can kill now.
+
+## Found after the morning handoff
+- **Attribute budget overflow** (High, fixed): with upgraded Dash + Updraft used on one character, its attributes went past Server Authority's 1,024-byte limit and the simulation spammed errors. Packed the new attributes and wrote `nil` instead of `false`; re-measured with Dash G3 + Updraft G3 + Frost G3 all used: no errors, room left for ~6 more.
+- **Test mode switch:** a Studio toolbar button "Test Mode" (Plugins tab → Glitched Gauntlet), source `tools/studio/plugins/TestModeToggle.lua`, installed in `%LOCALAPPDATA%\Roblox\Plugins`. Shows after a Studio restart. Without it: Workspace → Properties → Attributes → `TestMode`.
