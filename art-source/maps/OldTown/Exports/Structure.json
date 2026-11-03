@@ -1,0 +1,2686 @@
+{
+ "group": "Structure",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "ArcadeBay": {
+   "props": {},
+   "parts": [
+    "ArcadeBay_Stone",
+    "ArcadeBay_Plinth"
+   ]
+  },
+  "ArcadeRoof8": {
+   "props": {},
+   "parts": [
+    "ArcadeRoof8_Tile",
+    "ArcadeRoof8_Stone"
+   ]
+  },
+  "Arch8": {
+   "props": {},
+   "parts": [
+    "Arch8_Stucco",
+    "Arch8_Stone"
+   ]
+  },
+  "Attic2": {
+   "props": {},
+   "parts": [
+    "Attic2_Stucco",
+    "Attic2_Stone"
+   ]
+  },
+  "Attic4": {
+   "props": {},
+   "parts": [
+    "Attic4_Stucco",
+    "Attic4_Stone"
+   ]
+  },
+  "Attic8": {
+   "props": {},
+   "parts": [
+    "Attic8_Glass",
+    "Attic8_Stucco",
+    "Attic8_Stone"
+   ]
+  },
+  "Balustrade8": {
+   "props": {},
+   "parts": [
+    "Balustrade8_Stone"
+   ]
+  },
+  "CityGate": {
+   "props": {},
+   "parts": [
+    "CityGate_Stone",
+    "CityGate_Plinth",
+    "CityGate_AccentWood",
+    "CityGate_Glass",
+    "CityGate_Wood",
+    "CityGate_AccentCloth",
+    "CityGate_Iron",
+    "CityGate_Brass"
+   ]
+  },
+  "ClockTower": {
+   "props": {},
+   "parts": [
+    "ClockTower_Plinth",
+    "ClockTower_Brick",
+    "ClockTower_Stone",
+    "ClockTower_Glass",
+    "ClockTower_ClockFace",
+    "ClockTower_Iron",
+    "ClockTower_Brass",
+    "ClockTower_Wood",
+    "ClockTower_Tile"
+   ]
+  },
+  "Cornice2": {
+   "props": {},
+   "parts": [
+    "Cornice2_Stone"
+   ]
+  },
+  "Cornice4": {
+   "props": {},
+   "parts": [
+    "Cornice4_Stone"
+   ]
+  },
+  "Cornice8": {
+   "props": {},
+   "parts": [
+    "Cornice8_Stone"
+   ]
+  },
+  "F_Ground2": {
+   "props": {},
+   "parts": [
+    "F_Ground2_Stucco",
+    "F_Ground2_Plinth",
+    "F_Ground2_Stone"
+   ]
+  },
+  "F_Ground4": {
+   "props": {},
+   "parts": [
+    "F_Ground4_Stucco",
+    "F_Ground4_Plinth",
+    "F_Ground4_Stone"
+   ]
+  },
+  "F_Ground8": {
+   "props": {},
+   "parts": [
+    "F_Ground8_Stucco",
+    "F_Ground8_Plinth",
+    "F_Ground8_Stone"
+   ]
+  },
+  "F_GroundClosed": {
+   "props": {},
+   "parts": [
+    "F_GroundClosed_Wood",
+    "F_GroundClosed_Stucco",
+    "F_GroundClosed_Stone",
+    "F_GroundClosed_Iron",
+    "F_GroundClosed_Plinth"
+   ]
+  },
+  "F_GroundDoor": {
+   "props": {},
+   "parts": [
+    "F_GroundDoor_Stucco",
+    "F_GroundDoor_Stone",
+    "F_GroundDoor_Plinth"
+   ]
+  },
+  "F_GroundShop": {
+   "props": {},
+   "parts": [
+    "F_GroundShop_Glass",
+    "F_GroundShop_Stucco",
+    "F_GroundShop_Wood",
+    "F_GroundShop_Stone",
+    "F_GroundShop_AccentCloth",
+    "F_GroundShop_Cloth",
+    "F_GroundShop_Iron",
+    "F_GroundShop_Plinth"
+   ]
+  },
+  "F_GroundWindow": {
+   "props": {},
+   "parts": [
+    "F_GroundWindow_Glass",
+    "F_GroundWindow_Stucco",
+    "F_GroundWindow_Iron",
+    "F_GroundWindow_Stone",
+    "F_GroundWindow_Plinth"
+   ]
+  },
+  "F_Upper2": {
+   "props": {},
+   "parts": [
+    "F_Upper2_Stucco"
+   ]
+  },
+  "F_Upper4": {
+   "props": {},
+   "parts": [
+    "F_Upper4_Stucco"
+   ]
+  },
+  "F_Upper8": {
+   "props": {},
+   "parts": [
+    "F_Upper8_Stucco"
+   ]
+  },
+  "F_UpperBalcony": {
+   "props": {},
+   "parts": [
+    "F_UpperBalcony_Glass",
+    "F_UpperBalcony_Stucco",
+    "F_UpperBalcony_Wood",
+    "F_UpperBalcony_Stone",
+    "F_UpperBalcony_AccentWood",
+    "F_UpperBalcony_Iron"
+   ]
+  },
+  "F_UpperDoor": {
+   "props": {},
+   "parts": [
+    "F_UpperDoor_Stucco",
+    "F_UpperDoor_Stone"
+   ]
+  },
+  "F_UpperWindow": {
+   "props": {},
+   "parts": [
+    "F_UpperWindow_Glass",
+    "F_UpperWindow_Stucco",
+    "F_UpperWindow_Wood",
+    "F_UpperWindow_Stone",
+    "F_UpperWindow_AccentWood"
+   ]
+  },
+  "Fountain": {
+   "props": {},
+   "parts": [
+    "Fountain_Stone",
+    "Fountain_Plinth",
+    "Fountain_Water",
+    "Fountain_Brass"
+   ]
+  },
+  "Gable24": {
+   "props": {},
+   "parts": [
+    "Gable24_Stucco",
+    "Gable24_Stone",
+    "Gable24_Glass"
+   ]
+  },
+  "Gable32": {
+   "props": {},
+   "parts": [
+    "Gable32_Stucco",
+    "Gable32_Stone",
+    "Gable32_Glass"
+   ]
+  },
+  "Parapet2": {
+   "props": {},
+   "parts": [
+    "Parapet2_Stucco",
+    "Parapet2_Stone"
+   ]
+  },
+  "Parapet4": {
+   "props": {},
+   "parts": [
+    "Parapet4_Stucco",
+    "Parapet4_Stone"
+   ]
+  },
+  "Parapet8": {
+   "props": {},
+   "parts": [
+    "Parapet8_Stucco",
+    "Parapet8_Stone"
+   ]
+  },
+  "Pavilion": {
+   "props": {},
+   "parts": [
+    "Pavilion_Stucco",
+    "Pavilion_Stone",
+    "Pavilion_Glass",
+    "Pavilion_AccentWood",
+    "Pavilion_Tile"
+   ]
+  },
+  "Quoin12": {
+   "props": {},
+   "parts": [
+    "Quoin12_Stone"
+   ]
+  },
+  "Roof12_4": {
+   "props": {},
+   "parts": [
+    "Roof12_4_Tile",
+    "Roof12_4_Wood"
+   ]
+  },
+  "Roof12_8": {
+   "props": {},
+   "parts": [
+    "Roof12_8_Tile",
+    "Roof12_8_Wood"
+   ]
+  },
+  "Roof16_4": {
+   "props": {},
+   "parts": [
+    "Roof16_4_Tile",
+    "Roof16_4_Wood"
+   ]
+  },
+  "Roof16_8": {
+   "props": {},
+   "parts": [
+    "Roof16_8_Tile",
+    "Roof16_8_Wood"
+   ]
+  },
+  "Stair12": {
+   "props": {},
+   "parts": [
+    "Stair12_Stone",
+    "Stair12_Plinth",
+    "Stair12_Iron"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "ArcadeBay",
+   "name": "ArcadeBay_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 224,
+   "center": [
+    -0.95,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.6,
+    8.6,
+    12.0
+   ]
+  },
+  {
+   "piece": "ArcadeBay",
+   "name": "ArcadeBay_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    -0.975,
+    0.0,
+    0.5
+   ],
+   "size": [
+    2.45,
+    8.5,
+    1.0
+   ]
+  },
+  {
+   "piece": "ArcadeRoof8",
+   "name": "ArcadeRoof8_Tile",
+   "material": "Tile",
+   "look": {
+    "material": "ClayRoofTiles",
+    "color": "AD5230"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    -4.5,
+    0.0,
+    1.63
+   ],
+   "size": [
+    11.0,
+    8.0,
+    3.86
+   ]
+  },
+  {
+   "piece": "ArcadeRoof8",
+   "name": "ArcadeRoof8_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.175,
+    0.0,
+    -0.4
+   ],
+   "size": [
+    0.35,
+    8.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "Arch8",
+   "name": "Arch8_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    1.4
+   ],
+   "size": [
+    4.0,
+    8.0,
+    5.2
+   ]
+  },
+  {
+   "piece": "Arch8",
+   "name": "Arch8_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 160,
+   "center": [
+    0.0,
+    0.0,
+    1.4
+   ],
+   "size": [
+    4.5,
+    8.0,
+    5.2
+   ]
+  },
+  {
+   "piece": "Attic2",
+   "name": "Attic2_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    2.0
+   ],
+   "size": [
+    2.0,
+    2.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "Attic2",
+   "name": "Attic2_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -0.7,
+    0.0,
+    2.0
+   ],
+   "size": [
+    3.0,
+    2.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "Attic4",
+   "name": "Attic4_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    2.0
+   ],
+   "size": [
+    2.0,
+    4.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "Attic4",
+   "name": "Attic4_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -0.7,
+    0.0,
+    2.0
+   ],
+   "size": [
+    3.0,
+    4.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "Attic8",
+   "name": "Attic8_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    -1.2,
+    0.0,
+    2.2
+   ],
+   "size": [
+    1.6,
+    5.2,
+    1.2
+   ]
+  },
+  {
+   "piece": "Attic8",
+   "name": "Attic8_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    -1.0,
+    0.0,
+    2.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "Attic8",
+   "name": "Attic8_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -0.7,
+    0.0,
+    2.0
+   ],
+   "size": [
+    3.0,
+    8.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "Balustrade8",
+   "name": "Balustrade8_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 448,
+   "center": [
+    -0.515,
+    0.0,
+    1.5
+   ],
+   "size": [
+    1.27,
+    8.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "CityGate",
+   "name": "CityGate_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 748,
+   "center": [
+    0.0,
+    0.0,
+    15.8
+   ],
+   "size": [
+    25.0,
+    5.2,
+    31.6
+   ]
+  },
+  {
+   "piece": "CityGate",
+   "name": "CityGate_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 336,
+   "center": [
+    0.0,
+    0.0,
+    5.025
+   ],
+   "size": [
+    24.4,
+    4.36,
+    9.55
+   ]
+  },
+  {
+   "piece": "CityGate",
+   "name": "CityGate_AccentWood",
+   "material": "AccentWood",
+   "look": {
+    "material": "Wood",
+    "color": "2F6BB3"
+   },
+   "glow": false,
+   "tris": 32,
+   "center": [
+    -5.0,
+    0.0,
+    16.05
+   ],
+   "size": [
+    3.2,
+    4.6,
+    3.7
+   ]
+  },
+  {
+   "piece": "CityGate",
+   "name": "CityGate_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 64,
+   "center": [
+    1.7,
+    0.0,
+    21.7
+   ],
+   "size": [
+    15.8,
+    4.12,
+    13.4
+   ]
+  },
+  {
+   "piece": "CityGate",
+   "name": "CityGate_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    6.2,
+    0.0,
+    17.3
+   ],
+   "size": [
+    4.56,
+    4.2,
+    4.6
+   ]
+  },
+  {
+   "piece": "CityGate",
+   "name": "CityGate_AccentCloth",
+   "material": "AccentCloth",
+   "look": {
+    "material": "Fabric",
+    "color": "2F6BB3"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    -4.8,
+    0.0,
+    16.7
+   ],
+   "size": [
+    14.0,
+    5.06,
+    8.2
+   ]
+  },
+  {
+   "piece": "CityGate",
+   "name": "CityGate_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "Metal",
+    "color": "2B2A28"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    -4.8,
+    0.0,
+    20.9
+   ],
+   "size": [
+    14.4,
+    5.5,
+    0.2
+   ]
+  },
+  {
+   "piece": "CityGate",
+   "name": "CityGate_Brass",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -5.0,
+    0.0,
+    26.2
+   ],
+   "size": [
+    1.47821,
+    1.47821,
+    1.6
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    2.0
+   ],
+   "size": [
+    14.6,
+    14.6,
+    4.0
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_Brick",
+   "material": "Brick",
+   "look": {
+    "material": "Brick",
+    "color": "9E5A40"
+   },
+   "glow": false,
+   "tris": 296,
+   "center": [
+    -0.0,
+    0.0,
+    47.2
+   ],
+   "size": [
+    14.0,
+    14.0,
+    86.4
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 2976,
+   "center": [
+    0.0,
+    0.0,
+    47.6
+   ],
+   "size": [
+    15.8,
+    15.8,
+    87.2
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 208,
+   "center": [
+    0.0,
+    0.0,
+    51.6
+   ],
+   "size": [
+    14.16,
+    14.16,
+    75.2
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_ClockFace",
+   "material": "ClockFace",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EBDD"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    -0.0,
+    0.0,
+    64.0
+   ],
+   "size": [
+    15.1,
+    15.1,
+    6.2
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "Metal",
+    "color": "2B2A28"
+   },
+   "glow": false,
+   "tris": 672,
+   "center": [
+    0.0,
+    0.0,
+    64.0
+   ],
+   "size": [
+    15.36,
+    15.36,
+    5.44
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_Brass",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 164,
+   "center": [
+    0.0,
+    0.0,
+    90.5
+   ],
+   "size": [
+    5.32592,
+    5.6,
+    35.0
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    77.4
+   ],
+   "size": [
+    0.6,
+    10.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "ClockTower",
+   "name": "ClockTower_Tile",
+   "material": "Tile",
+   "look": {
+    "material": "ClayRoofTiles",
+    "color": "AD5230"
+   },
+   "glow": false,
+   "tris": 6,
+   "center": [
+    0.0,
+    0.0,
+    97.6
+   ],
+   "size": [
+    11.6,
+    11.6,
+    12.8
+   ]
+  },
+  {
+   "piece": "Cornice2",
+   "name": "Cornice2_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 52,
+   "center": [
+    0.525,
+    0.0,
+    -0.825
+   ],
+   "size": [
+    1.05,
+    2.0,
+    2.15
+   ]
+  },
+  {
+   "piece": "Cornice4",
+   "name": "Cornice4_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 76,
+   "center": [
+    0.525,
+    0.0,
+    -0.825
+   ],
+   "size": [
+    1.05,
+    4.0,
+    2.15
+   ]
+  },
+  {
+   "piece": "Cornice8",
+   "name": "Cornice8_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 124,
+   "center": [
+    0.525,
+    0.0,
+    -0.825
+   ],
+   "size": [
+    1.05,
+    8.0,
+    2.15
+   ]
+  },
+  {
+   "piece": "F_Ground2",
+   "name": "F_Ground2_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    2.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_Ground2",
+   "name": "F_Ground2_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.15,
+    0.0,
+    0.675
+   ],
+   "size": [
+    0.3,
+    2.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "F_Ground2",
+   "name": "F_Ground2_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.125,
+    0.0,
+    11.6
+   ],
+   "size": [
+    0.25,
+    2.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "F_Ground4",
+   "name": "F_Ground4_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    4.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_Ground4",
+   "name": "F_Ground4_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.15,
+    0.0,
+    0.675
+   ],
+   "size": [
+    0.3,
+    4.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "F_Ground4",
+   "name": "F_Ground4_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.125,
+    0.0,
+    11.6
+   ],
+   "size": [
+    0.25,
+    4.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "F_Ground8",
+   "name": "F_Ground8_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_Ground8",
+   "name": "F_Ground8_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.15,
+    0.0,
+    0.675
+   ],
+   "size": [
+    0.3,
+    8.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "F_Ground8",
+   "name": "F_Ground8_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.125,
+    0.0,
+    11.6
+   ],
+   "size": [
+    0.25,
+    8.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "F_GroundClosed",
+   "name": "F_GroundClosed_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    -1.18,
+    0.0,
+    4.25
+   ],
+   "size": [
+    1.64,
+    5.0,
+    8.5
+   ]
+  },
+  {
+   "piece": "F_GroundClosed",
+   "name": "F_GroundClosed_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_GroundClosed",
+   "name": "F_GroundClosed_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 128,
+   "center": [
+    0.175,
+    0.0,
+    6.0
+   ],
+   "size": [
+    0.35,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_GroundClosed",
+   "name": "F_GroundClosed_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "Metal",
+    "color": "2B2A28"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    -0.35,
+    0.0,
+    3.75
+   ],
+   "size": [
+    0.3,
+    1.4,
+    0.3
+   ]
+  },
+  {
+   "piece": "F_GroundClosed",
+   "name": "F_GroundClosed_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.15,
+    0.0,
+    0.675
+   ],
+   "size": [
+    0.3,
+    8.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "F_GroundDoor",
+   "name": "F_GroundDoor_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_GroundDoor",
+   "name": "F_GroundDoor_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 152,
+   "center": [
+    0.175,
+    0.0,
+    6.0
+   ],
+   "size": [
+    0.35,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_GroundDoor",
+   "name": "F_GroundDoor_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    -0.85,
+    0.0,
+    0.675
+   ],
+   "size": [
+    2.3,
+    8.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "F_GroundShop",
+   "name": "F_GroundShop_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.3,
+    0.0,
+    4.7
+   ],
+   "size": [
+    1.4,
+    5.2,
+    6.6
+   ]
+  },
+  {
+   "piece": "F_GroundShop",
+   "name": "F_GroundShop_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_GroundShop",
+   "name": "F_GroundShop_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    -0.51,
+    0.0,
+    4.7
+   ],
+   "size": [
+    0.18,
+    5.2,
+    6.6
+   ]
+  },
+  {
+   "piece": "F_GroundShop",
+   "name": "F_GroundShop_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 82,
+   "center": [
+    0.225,
+    0.0,
+    6.525
+   ],
+   "size": [
+    0.45,
+    8.0,
+    10.95
+   ]
+  },
+  {
+   "piece": "F_GroundShop",
+   "name": "F_GroundShop_AccentCloth",
+   "material": "AccentCloth",
+   "look": {
+    "material": "Fabric",
+    "color": "2F6BB3"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    1.5,
+    -0.53333,
+    9.06
+   ],
+   "size": [
+    3.0,
+    5.33333,
+    2.12
+   ]
+  },
+  {
+   "piece": "F_GroundShop",
+   "name": "F_GroundShop_Cloth",
+   "material": "Cloth",
+   "look": {
+    "material": "Fabric",
+    "color": "EFE6D2"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    1.5,
+    0.53333,
+    9.06
+   ],
+   "size": [
+    3.0,
+    5.33333,
+    2.12
+   ]
+  },
+  {
+   "piece": "F_GroundShop",
+   "name": "F_GroundShop_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "Metal",
+    "color": "2B2A28"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    1.5,
+    0.0,
+    8.71
+   ],
+   "size": [
+    3.0,
+    6.5,
+    0.1
+   ]
+  },
+  {
+   "piece": "F_GroundShop",
+   "name": "F_GroundShop_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.15,
+    0.0,
+    0.675
+   ],
+   "size": [
+    0.3,
+    8.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "F_GroundWindow",
+   "name": "F_GroundWindow_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.3,
+    0.0,
+    5.8
+   ],
+   "size": [
+    1.4,
+    2.4,
+    3.6
+   ]
+  },
+  {
+   "piece": "F_GroundWindow",
+   "name": "F_GroundWindow_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_GroundWindow",
+   "name": "F_GroundWindow_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "Metal",
+    "color": "2B2A28"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    -0.325,
+    0.0,
+    5.8
+   ],
+   "size": [
+    0.15,
+    2.4,
+    3.6
+   ]
+  },
+  {
+   "piece": "F_GroundWindow",
+   "name": "F_GroundWindow_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.225,
+    0.0,
+    7.825
+   ],
+   "size": [
+    0.45,
+    8.0,
+    8.35
+   ]
+  },
+  {
+   "piece": "F_GroundWindow",
+   "name": "F_GroundWindow_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.15,
+    0.0,
+    0.675
+   ],
+   "size": [
+    0.3,
+    8.0,
+    1.35
+   ]
+  },
+  {
+   "piece": "F_Upper2",
+   "name": "F_Upper2_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    2.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_Upper4",
+   "name": "F_Upper4_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    4.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_Upper8",
+   "name": "F_Upper8_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_UpperBalcony",
+   "name": "F_UpperBalcony_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.3,
+    0.0,
+    4.15
+   ],
+   "size": [
+    1.4,
+    3.2,
+    7.7
+   ]
+  },
+  {
+   "piece": "F_UpperBalcony",
+   "name": "F_UpperBalcony_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_UpperBalcony",
+   "name": "F_UpperBalcony_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    -0.51,
+    0.0,
+    4.15
+   ],
+   "size": [
+    0.18,
+    3.2,
+    7.7
+   ]
+  },
+  {
+   "piece": "F_UpperBalcony",
+   "name": "F_UpperBalcony_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 76,
+   "center": [
+    0.7,
+    0.0,
+    3.825
+   ],
+   "size": [
+    1.4,
+    5.2,
+    9.85
+   ]
+  },
+  {
+   "piece": "F_UpperBalcony",
+   "name": "F_UpperBalcony_AccentWood",
+   "material": "AccentWood",
+   "look": {
+    "material": "Wood",
+    "color": "2F6BB3"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.12,
+    0.0,
+    4.15
+   ],
+   "size": [
+    0.2,
+    7.9,
+    7.7
+   ]
+  },
+  {
+   "piece": "F_UpperBalcony",
+   "name": "F_UpperBalcony_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "Metal",
+    "color": "2B2A28"
+   },
+   "glow": false,
+   "tris": 180,
+   "center": [
+    0.66,
+    0.0,
+    1.745
+   ],
+   "size": [
+    1.32,
+    5.0,
+    2.79
+   ]
+  },
+  {
+   "piece": "F_UpperDoor",
+   "name": "F_UpperDoor_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_UpperDoor",
+   "name": "F_UpperDoor_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 128,
+   "center": [
+    -0.825,
+    0.0,
+    4.825
+   ],
+   "size": [
+    2.35,
+    7.2,
+    9.95
+   ]
+  },
+  {
+   "piece": "F_UpperWindow",
+   "name": "F_UpperWindow_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.3,
+    0.0,
+    5.75
+   ],
+   "size": [
+    1.4,
+    3.0,
+    5.5
+   ]
+  },
+  {
+   "piece": "F_UpperWindow",
+   "name": "F_UpperWindow_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    -1.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    2.0,
+    8.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "F_UpperWindow",
+   "name": "F_UpperWindow_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    -0.51,
+    0.0,
+    5.75
+   ],
+   "size": [
+    0.18,
+    3.0,
+    5.5
+   ]
+  },
+  {
+   "piece": "F_UpperWindow",
+   "name": "F_UpperWindow_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.225,
+    0.0,
+    5.95
+   ],
+   "size": [
+    0.45,
+    4.3,
+    6.6
+   ]
+  },
+  {
+   "piece": "F_UpperWindow",
+   "name": "F_UpperWindow_AccentWood",
+   "material": "AccentWood",
+   "look": {
+    "material": "Wood",
+    "color": "2F6BB3"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.12,
+    0.0,
+    5.75
+   ],
+   "size": [
+    0.2,
+    7.5,
+    5.5
+   ]
+  },
+  {
+   "piece": "Fountain",
+   "name": "Fountain_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 744,
+   "center": [
+    0.0,
+    0.0,
+    10.1
+   ],
+   "size": [
+    22.7,
+    22.7,
+    19.4
+   ]
+  },
+  {
+   "piece": "Fountain",
+   "name": "Fountain_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 360,
+   "center": [
+    0.0,
+    0.0,
+    5.2
+   ],
+   "size": [
+    23.4,
+    23.4,
+    10.4
+   ]
+  },
+  {
+   "piece": "Fountain",
+   "name": "Fountain_Water",
+   "material": "Water",
+   "look": {
+    "material": "Glass",
+    "color": "5FA8B8",
+    "transparency": 0.35
+   },
+   "glow": false,
+   "tris": 496,
+   "center": [
+    0.0,
+    0.0,
+    6.425
+   ],
+   "size": [
+    20.7,
+    20.7,
+    8.85
+   ]
+  },
+  {
+   "piece": "Fountain",
+   "name": "Fountain_Brass",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 110,
+   "center": [
+    0.0,
+    0.0,
+    22.2
+   ],
+   "size": [
+    2.47275,
+    2.6,
+    4.8
+   ]
+  },
+  {
+   "piece": "Gable24",
+   "name": "Gable24_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    -1.0,
+    0.0,
+    3.4641
+   ],
+   "size": [
+    2.0,
+    24.0,
+    6.9282
+   ]
+  },
+  {
+   "piece": "Gable24",
+   "name": "Gable24_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 66,
+   "center": [
+    0.15,
+    0.0,
+    3.7891
+   ],
+   "size": [
+    0.3,
+    24.8,
+    7.7782
+   ]
+  },
+  {
+   "piece": "Gable24",
+   "name": "Gable24_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.2,
+    0.0,
+    2.90985
+   ],
+   "size": [
+    0.04,
+    2.0,
+    2.0
+   ]
+  },
+  {
+   "piece": "Gable32",
+   "name": "Gable32_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    -1.0,
+    0.0,
+    4.6188
+   ],
+   "size": [
+    2.0,
+    32.0,
+    9.2376
+   ]
+  },
+  {
+   "piece": "Gable32",
+   "name": "Gable32_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 66,
+   "center": [
+    0.15,
+    0.0,
+    4.9438
+   ],
+   "size": [
+    0.3,
+    32.8,
+    10.0876
+   ]
+  },
+  {
+   "piece": "Gable32",
+   "name": "Gable32_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.2,
+    0.0,
+    3.87979
+   ],
+   "size": [
+    0.04,
+    2.6,
+    2.6
+   ]
+  },
+  {
+   "piece": "Parapet2",
+   "name": "Parapet2_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -0.75,
+    0.0,
+    1.3
+   ],
+   "size": [
+    1.5,
+    2.0,
+    2.6
+   ]
+  },
+  {
+   "piece": "Parapet2",
+   "name": "Parapet2_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -0.6,
+    0.0,
+    1.1
+   ],
+   "size": [
+    2.2,
+    2.0,
+    3.8
+   ]
+  },
+  {
+   "piece": "Parapet4",
+   "name": "Parapet4_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -0.75,
+    0.0,
+    1.3
+   ],
+   "size": [
+    1.5,
+    4.0,
+    2.6
+   ]
+  },
+  {
+   "piece": "Parapet4",
+   "name": "Parapet4_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -0.6,
+    0.0,
+    1.1
+   ],
+   "size": [
+    2.2,
+    4.0,
+    3.8
+   ]
+  },
+  {
+   "piece": "Parapet8",
+   "name": "Parapet8_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -0.75,
+    0.0,
+    1.3
+   ],
+   "size": [
+    1.5,
+    8.0,
+    2.6
+   ]
+  },
+  {
+   "piece": "Parapet8",
+   "name": "Parapet8_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -0.6,
+    0.0,
+    1.1
+   ],
+   "size": [
+    2.2,
+    8.0,
+    3.8
+   ]
+  },
+  {
+   "piece": "Pavilion",
+   "name": "Pavilion_Stucco",
+   "material": "Stucco",
+   "look": {
+    "material": "Plaster",
+    "color": "E9DCC0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    1.0,
+    0.0,
+    12.0
+   ],
+   "size": [
+    32.0,
+    8.0,
+    24.0
+   ]
+  },
+  {
+   "piece": "Pavilion",
+   "name": "Pavilion_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 496,
+   "center": [
+    -0.5,
+    0.0,
+    13.8
+   ],
+   "size": [
+    35.8,
+    9.2,
+    27.6
+   ]
+  },
+  {
+   "piece": "Pavilion",
+   "name": "Pavilion_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B4652"
+   },
+   "glow": false,
+   "tris": 90,
+   "center": [
+    0.0,
+    0.0,
+    10.75
+   ],
+   "size": [
+    34.1,
+    8.1,
+    19.5
+   ]
+  },
+  {
+   "piece": "Pavilion",
+   "name": "Pavilion_AccentWood",
+   "material": "AccentWood",
+   "look": {
+    "material": "Wood",
+    "color": "2F6BB3"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    -12.75,
+    0.0,
+    15.12798
+   ],
+   "size": [
+    9.9,
+    8.3,
+    22.25595
+   ]
+  },
+  {
+   "piece": "Pavilion",
+   "name": "Pavilion_Tile",
+   "material": "Tile",
+   "look": {
+    "material": "ClayRoofTiles",
+    "color": "AD5230"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    25.50291
+   ],
+   "size": [
+    35.2,
+    9.2,
+    3.00581
+   ]
+  },
+  {
+   "piece": "Quoin12",
+   "name": "Quoin12_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    -0.83,
+    0.83,
+    6.0
+   ],
+   "size": [
+    1.94,
+    1.94,
+    11.88
+   ]
+  },
+  {
+   "piece": "Roof12_4",
+   "name": "Roof12_4_Tile",
+   "material": "Tile",
+   "look": {
+    "material": "ClayRoofTiles",
+    "color": "AD5230"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    -5.65351,
+    0.0,
+    3.65011
+   ],
+   "size": [
+    13.69199,
+    4.0,
+    8.45493
+   ]
+  },
+  {
+   "piece": "Roof12_4",
+   "name": "Roof12_4_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.8,
+    0.0,
+    -0.80235
+   ],
+   "size": [
+    0.4,
+    4.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "Roof12_8",
+   "name": "Roof12_8_Tile",
+   "material": "Tile",
+   "look": {
+    "material": "ClayRoofTiles",
+    "color": "AD5230"
+   },
+   "glow": false,
+   "tris": 148,
+   "center": [
+    -5.65351,
+    0.0,
+    3.65011
+   ],
+   "size": [
+    13.69199,
+    8.0,
+    8.45493
+   ]
+  },
+  {
+   "piece": "Roof12_8",
+   "name": "Roof12_8_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.8,
+    0.0,
+    -0.80235
+   ],
+   "size": [
+    0.4,
+    8.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "Roof16_4",
+   "name": "Roof16_4_Tile",
+   "material": "Tile",
+   "look": {
+    "material": "ClayRoofTiles",
+    "color": "AD5230"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    -7.65351,
+    0.0,
+    4.80481
+   ],
+   "size": [
+    17.69199,
+    4.0,
+    10.76433
+   ]
+  },
+  {
+   "piece": "Roof16_4",
+   "name": "Roof16_4_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.8,
+    0.0,
+    -0.80235
+   ],
+   "size": [
+    0.4,
+    4.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "Roof16_8",
+   "name": "Roof16_8_Tile",
+   "material": "Tile",
+   "look": {
+    "material": "ClayRoofTiles",
+    "color": "AD5230"
+   },
+   "glow": false,
+   "tris": 148,
+   "center": [
+    -7.65351,
+    0.0,
+    4.80481
+   ],
+   "size": [
+    17.69199,
+    8.0,
+    10.76433
+   ]
+  },
+  {
+   "piece": "Roof16_8",
+   "name": "Roof16_8_Wood",
+   "material": "Wood",
+   "look": {
+    "material": "Wood",
+    "color": "6B4A2E"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.8,
+    0.0,
+    -0.80235
+   ],
+   "size": [
+    0.4,
+    8.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "Stair12",
+   "name": "Stair12_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D3C3A0"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    8.025,
+    0.0,
+    6.0
+   ],
+   "size": [
+    16.05,
+    6.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "Stair12",
+   "name": "Stair12_Plinth",
+   "material": "Plinth",
+   "look": {
+    "material": "Limestone",
+    "color": "B9A584"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    7.52,
+    0.0,
+    6.315
+   ],
+   "size": [
+    15.2,
+    6.04,
+    11.37
+   ]
+  },
+  {
+   "piece": "Stair12",
+   "name": "Stair12_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "Metal",
+    "color": "2B2A28"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    8.0,
+    0.0,
+    7.875
+   ],
+   "size": [
+    16.0,
+    6.2,
+    14.25
+   ]
+  }
+ ],
+ "tris": 13860
+}
