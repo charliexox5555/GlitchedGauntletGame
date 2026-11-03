@@ -205,6 +205,7 @@ export type HitConfirm = {
 	zone: HitZone,
 	killed: boolean,
 	position: Vector3,
+	blocked: boolean?, -- a damage guard took it all (a Barrier, a Ghost dash)
 }
 
 return nil

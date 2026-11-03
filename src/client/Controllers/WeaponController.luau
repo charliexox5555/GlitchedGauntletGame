@@ -38,6 +38,8 @@ local MovementController = require(script.Parent.MovementController)
 local PickerController = require(script.Parent.PickerController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 
+local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
+
 type Slot = Types.Slot
 type WeaponConfig = Types.WeaponConfig
 
@@ -1111,6 +1113,11 @@ end
 
 local function onHitConfirm(confirm: Types.HitConfirm)
 	if typeof(confirm) ~= "table" then
+		return
+	end
+	-- A guard took the hit (a Barrier, a Ghost dash): BLOCKED, no damage.
+	if confirm.blocked == true then
+		HitFeedback.blocked(if typeof(confirm.position) == "Vector3" then confirm.position else nil)
 		return
 	end
 	local head = confirm.zone == "Head"
