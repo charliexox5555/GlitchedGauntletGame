@@ -9,7 +9,7 @@ The match maps: a mix of RIVALS (fast, simple, run-and-gun readable) and Valoran
 |---|---|---|---|---|
 | [Whitebox](Whitebox.md) | 🟡 Built, layout approved | 1v1, 2v2 | White panels under a big sky; four pillars around a diamond | Parts in Studio |
 | **Bunker** | 💡 Idea | 2v2, 3v3 | Concrete halls and a sunlit central shaft, tying the maps to the Lobby. Tight flanks, one bright middle | The Lobby's Blender kits, which already exist |
-| **Container Yard** | 💡 Idea | 1v1, 2v2 | Stacked shipping containers at a dock at dusk. Stack tops are the high lane | One Blender container kit, repeated |
+| [Dockyard](Dockyard.md) | 🟡 Layout checked, scripts + kit built, not yet run in Studio | 1v1 to 4v4 | A container pier at dusk: red / blue / green lanes, a gantry crane over the middle, a Shed on each flank, harbour on both sides. Origin (-1500, 200, 0) | Parts greybox + one Blender kit |
 | **Metro** | 💡 Idea | 2v2, 3v3 | A station: two platforms with a lower track lane between them and a parked train as cover | Blender kit plus Parts |
 | **Rooftops** | 💡 Idea | 1v1, 2v2 | Two buildings joined by a bridge and ziplines or Updraft routes. Falling off is a real risk | Parts plus light Blender props |
 | **Courtyard** | 💡 Idea | 2v2, 3v3 | A warm stone plaza with arches and a central fountain, the most Valorant-looking of the set (Ascent's open middle) | Blender kit |
