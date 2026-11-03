@@ -10,9 +10,15 @@
 -- "LightingFx" of Sky / Atmosphere / post-processing effects. Loading the map
 -- applies them on top of the place's own lighting (remembered the first time),
 -- and loading a map without them puts the place's lighting back.
+--
+-- Kill height: anyone who falls this far below the map's pivot (a harbour, a
+-- rooftop edge) dies at once instead of falling to FallenPartsDestroyHeight.
+-- The map's "KillDepth" attribute (studs) overrides the default.
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 
 local MapService = {}
@@ -21,6 +27,9 @@ local BARRIER_TAG = "ArenaBarrier"
 local SPAWN_TAGS = { "ArenaSpawn_A", "ArenaSpawn_B" }
 
 local active: Model? = nil
+
+local KILL_DEPTH = 40 -- studs below the map's pivot
+local KILL_CHECK = 0.2 -- seconds between checks
 
 -- The place's own lighting, captured before the first map changes it.
 type Baseline = { props: { [string]: any }, fx: { Instance } }
@@ -222,6 +231,38 @@ function MapService.toWorld(position: Vector3): Vector3?
 		return nil
 	end
 	return active:GetPivot():PointToWorldSpace(position)
+end
+
+-- Falling off the map kills (the kill height above).
+local sinceCheck = 0
+local function checkFalls(dt: number)
+	sinceCheck += dt
+	local map = active
+	if sinceCheck < KILL_CHECK or not map then
+		return
+	end
+	sinceCheck = 0
+	local depth = map:GetAttribute("KillDepth")
+	local killY = map:GetPivot().Position.Y
+		- (if typeof(depth) == "number" then depth else KILL_DEPTH)
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if
+			root
+			and root:IsA("BasePart")
+			and humanoid
+			and humanoid.Health > 0
+			and root.Position.Y < killY
+		then
+			humanoid.Health = 0
+		end
+	end
+end
+
+function MapService.start()
+	RunService.Heartbeat:Connect(checkFalls)
 end
 
 function MapService.map(): Model?
