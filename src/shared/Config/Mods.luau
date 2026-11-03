@@ -324,8 +324,8 @@ local defs: { [string]: ModDef } = {
 				range = 30,
 				aimAngle = 12, -- degrees from the crosshair an ally may be
 			},
-			A2 = { note = "Charges: 2 charges", charges = 2 },
-			A3 = { note = "Charges: 3 charges", charges = 3 },
+			A2 = { note = "Charges: 2 orbs a round", charges = 2 },
+			A3 = { note = "Charges: 3 orbs a round", charges = 3 },
 			B2 = {
 				note = "Long Heal: twice as long (6 s): an ally 120, yourself 60",
 				duration = 6,
@@ -339,11 +339,13 @@ local defs: { [string]: ModDef } = {
 				selfHeal = 90,
 			},
 			G2 = {
-				note = "Barrier: no heal; the target's next hit is blocked",
+				-- No heal: a hex bubble on the target that takes whole enemy hits
+				-- (Mods/HealOrb). Lasts until used up, death or the next round.
+				note = "Barrier: no heal; a hex bubble blocks the target's next enemy hit",
 				behaviour = "Barrier",
 				barrierHits = 1,
 			},
-			G3 = { note = "Barrier: blocks 2 hits", barrierHits = 2 },
+			G3 = { note = "Barrier: the bubble blocks the next 2 enemy hits", barrierHits = 2 },
 		},
 	},
 	Stim = {

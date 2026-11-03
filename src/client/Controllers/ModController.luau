@@ -629,7 +629,7 @@ local function use(mode: ModTypes.UseMode)
 		if not target then
 			return
 		end
-		if HealOrb.full(target) then
+		if not HealOrb.isBarrier(stats) and HealOrb.full(target) then
 			ModAudio.play(ModAudio.SOUNDS.HealOrb.refused)
 			deny(
 				current,
@@ -1127,14 +1127,17 @@ function ModController.hint(): (string?, boolean)
 	local lmb, rmb = useLabels()
 	local parts = {}
 	local primary = def.hint.primary
+	local barrier = def.id == "HealOrb" and view.stats ~= nil and HealOrb.isBarrier(view.stats)
 	if def.id == "HealOrb" and view.stats and healTarget(view.stats) == player.Character then
-		primary = "Heal self"
+		primary = if barrier then "Barrier self" else "Heal self"
+	elseif barrier then
+		primary = "Barrier ally"
 	end
 	if primary then
 		table.insert(parts, lmb .. " " .. primary)
 	end
 	if def.hint.alt then
-		local alt = def.hint.alt
+		local alt = if barrier then "Barrier self" else def.hint.alt
 		if def.activation == "HeldCharge" then
 			alt ..= ": " .. chargeBounces
 		end

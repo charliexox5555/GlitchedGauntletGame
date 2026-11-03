@@ -7,8 +7,18 @@
 -- that keep going while they take damage. A new orb on someone already
 -- healing replaces the rest of the old heal (no stacking). A target at full
 -- health is refused (nothing spent).
+--
+-- Upgrades (Heal Orb.md → Upgrades): A Charges and B Long Heal are numbers
+-- only. G Barrier (`behaviour = "Barrier"`) heals nothing: the target gets
+-- `barrierHits` Barrier hits (a character attribute, server-written; a new
+-- cast replaces the count). Each enemy damage instance (a bullet, a whole
+-- shotgun blast, a fire tick, a slam) uses one up and deals nothing, before
+-- the gun shield and health. It lasts until used up, death or the next round.
+
+local Players = game:GetService("Players")
 
 local Target = require(script.Parent.Blocks.Target)
+local Teams = require(script.Parent.Teams)
 local Types = require(script.Parent.Types)
 
 local HealOrb = {}
@@ -44,6 +54,36 @@ end
 
 HealOrb.full = full
 
+-- Barrier hits left on a character (clients read it to draw the bubble).
+HealOrb.BARRIER_ATTRIBUTE = "BarrierHits"
+
+-- Whether this level gives a Barrier instead of a heal.
+function HealOrb.isBarrier(stats: Types.Stats): boolean
+	return stats.behaviour == "Barrier"
+end
+
+-- Who cast the Barrier on each character (the fx's owner), and the death
+-- watch that clears it. Weak keys: a character that's gone takes its entry.
+local barrierFrom: { [Model]: Player } = setmetatable({}, { __mode = "k" }) :: any
+local deathWatch: { [Model]: RBXScriptConnection } = setmetatable({}, { __mode = "k" }) :: any
+
+local function clearBarrier(model: Model)
+	model:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, nil)
+	barrierFrom[model] = nil
+end
+
+local function giveBarrier(target: Model, hits: number, caster: Player)
+	target:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, hits) -- replaces, never adds
+	barrierFrom[target] = caster
+	local humanoid = target:FindFirstChildOfClass("Humanoid")
+	if humanoid and not deathWatch[target] then
+		deathWatch[target] = humanoid.Died:Once(function()
+			deathWatch[target] = nil
+			clearBarrier(target)
+		end)
+	end
+end
+
 local module: Types.ModModule = {}
 
 module.validate = function(ctx: Types.ServerCtx, req: Types.Request): (boolean, string?)
@@ -77,7 +117,8 @@ module.validate = function(ctx: Types.ServerCtx, req: Types.Request): (boolean, 
 		end
 	end
 	local target = req.target :: Model
-	if full(target) then
+	-- A Barrier goes on anyone; only a heal needs missing health.
+	if not HealOrb.isBarrier(stats) and full(target) then
 		return false, "full health"
 	end
 	return true
@@ -86,6 +127,12 @@ end
 module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	local target = req.target :: Model
 	local self = target == ctx.character
+	if HealOrb.isBarrier(ctx.stats) then
+		local hits = math.max(math.floor(ctx.stats.barrierHits), 1)
+		giveBarrier(target, hits, ctx.player)
+		ctx.fx("Barrier", { target = target, hits = hits, self = self })
+		return
+	end
 	local amount = if self then ctx.stats.selfHeal else ctx.stats.heal
 	ctx.heal(target, amount, ctx.stats.duration)
 	ctx.fx("Heal", {
@@ -94,6 +141,44 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 		amount = amount,
 		self = self,
 	})
+end
+
+module.server = function(api: Types.ServerApi)
+	-- One enemy damage instance per Barrier hit. Your own and your team's
+	-- damage (a Molly at your feet) goes past it without using it up.
+	api.guard(function(victim: Model, humanoid: Humanoid, amount: number, attacker: Player?): number
+		local left = victim:GetAttribute(HealOrb.BARRIER_ATTRIBUTE)
+		if typeof(left) ~= "number" or left < 1 or amount <= 0 or humanoid.Health <= 0 then
+			return amount
+		end
+		if attacker and Teams.isAlly(attacker, victim) then
+			return amount
+		end
+		left -= 1
+		local caster = barrierFrom[victim]
+		if left >= 1 then
+			victim:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, left)
+		else
+			clearBarrier(victim)
+		end
+		local owner = caster or Players:GetPlayerFromCharacter(victim)
+		if owner then
+			local root = victim:FindFirstChild("HumanoidRootPart")
+			api.fx(owner, "HealOrb", "BarrierBlock", {
+				target = victim,
+				left = left,
+				at = if root and root:IsA("BasePart") then root.Position else nil,
+			})
+		end
+		return 0
+	end)
+	-- A new round starts clean.
+	api.onRefill(function(player: Player)
+		local character = player.Character
+		if character then
+			clearBarrier(character)
+		end
+	end)
 end
 
 HealOrb.module = module
