@@ -7,6 +7,8 @@ local Types = require(script.Types)
 
 local UpgradeFx = {}
 
+local warned: { [Types.Handler]: boolean } = {}
+
 local handlers: { Types.Handler } = {
 	require(script.Dash),
 	require(script.Updraft),
@@ -44,11 +46,17 @@ function UpgradeFx.onFx(kind: string, data: { [string]: any }): boolean
 	return false
 end
 
+-- One handler failing mustn't stop ModFxController's frame (reveal
+-- highlights would never be cleared): each runs on its own, warned once.
 function UpgradeFx.step(dt: number)
 	for _, h in handlers do
 		local fn = h.step
 		if fn then
-			fn(dt)
+			local ok, err = pcall(fn, dt)
+			if not ok and not warned[h] then
+				warned[h] = true
+				warn("[UpgradeFx] step failed:", err)
+			end
 		end
 	end
 end

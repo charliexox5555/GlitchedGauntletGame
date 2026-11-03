@@ -131,8 +131,11 @@ local function shoot(m: Model, root: BasePart, target: Player, head: BasePart)
 	if hit then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if humanoid then
-			WeaponService.hurt(humanoid, CFG.damage)
-			Net.event("Damaged"):FireClient(target, origin, CFG.damage)
+			-- A blocked hit (Barrier, Ghost dash, Crash Recovery) shows nothing.
+			local dealt = WeaponService.hurt(humanoid, CFG.damage)
+			if dealt > 0 then
+				Net.event("Damaged"):FireClient(target, origin, math.round(dealt))
+			end
 		end
 	else
 		aim += rng:NextUnitVector() * MISS_OFFSET

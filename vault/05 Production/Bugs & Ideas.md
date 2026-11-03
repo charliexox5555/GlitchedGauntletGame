@@ -16,4 +16,5 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 | **Decide:** the Barrier ignores your own and your team's damage (a Molly at your feet burns through without using it up) | The Heal Orb session's call; the spec said "the next hit" | User's morning review |
 | **Decide:** the Frost Wall Hinders enemies only (your team walks through freely) | The Firewall session's call; matches "slows enemies on contact" | User's morning review |
 | **Decide:** Ghost's 0.35 s dodge window starts when the *server* runs the dash (a few frames after your press, by ping) | Server-authoritative; a hit right on the press can still land | Two-player test |
+| **Watch (2026-11-03 review):** the Barrier's `BarrierHits` is a server-written attribute on the (predicted) character, which the WeaponService notes say can cause Server Authority corrections; `HinderedUntil` etc. already do the same | Look for rubber-banding on the shielded player when a hit is blocked; if so, move it to the Player | Two-player test |
 | Q and T have only 2 abilities each, so the round 3 draft can show just 2 cards | Add Q/T abilities in the next set | Next ability set |

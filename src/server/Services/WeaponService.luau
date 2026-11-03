@@ -526,6 +526,9 @@ end
 -- Returns what it took (0 when a guard blocked it). `attacker`: the player
 -- behind it, if any.
 function WeaponService.hurt(humanoid: Humanoid, amount: number, attacker: Player?): number
+	if amount ~= amount or amount <= 0 or amount == math.huge then
+		return 0
+	end
 	local victim = humanoid.Parent
 	if victim and victim:IsA("Model") then
 		for _, guard in damageGuards do

@@ -33,6 +33,7 @@ local Combat = require(Shared.Config.Combat)
 local Mods = require(Shared.Mods)
 local ModTypes = require(Shared.Mods.Types)
 local Recall = require(Shared.Mods.Recall)
+local Teams = require(Shared.Mods.Teams)
 
 local ModEntities = require(script.Parent.ModEntities)
 local WeaponService = require(script.Parent.WeaponService)
@@ -281,9 +282,14 @@ end
 -- The damage guard: cheap until the victim is a player with Crash Recovery
 -- armed and the hit would kill them (health + gun shield, as hurt takes it).
 local function crashGuard(api: ModTypes.ServerApi)
-	return function(victim: Model, humanoid: Humanoid, amount: number, _attacker: Player?): number
+	return function(victim: Model, humanoid: Humanoid, amount: number, attacker: Player?): number
 		local player = Players:GetPlayerFromCharacter(victim)
 		if not player then
+			return amount
+		end
+		-- Your own and your team's damage never trigger it (a Molly at your
+		-- feet would make it an escape button), like the Barrier.
+		if attacker and (attacker == player or Teams.isAlly(attacker, player)) then
 			return amount
 		end
 		local grace = graceUntil[player]
