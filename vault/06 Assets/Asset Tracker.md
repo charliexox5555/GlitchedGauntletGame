@@ -81,6 +81,8 @@ Status of each Mod at L1 (2026-10-26, overnight). ✅ done · 🟡 provisional /
 
 Shared: icons ✅ · HUD ✅ · F8 dev panel ✅ (testers in published test-mode servers too; touch TEST button 🟡 needs a device) · touch arc + context button 🟡 (checked on a PC with ForceTouchUI; needs a device) · third-person hold / throw / place / heal clips 🟡 (code-built placeholders, uploaded) · the finished models in `ReplicatedStorage.Abilities` 🟡 **save the place**.
 
+**Ice VFX kit (2026-11-03):** 🟡 `IceVFX` (15 flat-shaded meshes, 1,860 tris, `tools/blender/build_mod_icevfx.py`, render `02 Art/References/mods/icevfx.jpg`) uploaded as 99804256205553, build data in `tools/studio/abilities/BuildData/IceVFX.json`; used by the Frost burst, Freeze Frame and Frost Wall (`Util/IceKit`). Left: `AbilityBuilder.publish("IceVFX")` in Studio, save the place, the user's look test.
+
 ## VFX, UI and audio
 
 | Asset | Status | Notes |

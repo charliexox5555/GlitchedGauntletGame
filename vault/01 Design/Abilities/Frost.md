@@ -108,6 +108,13 @@ Decided in [Upgrade Paths](Upgrade%20Paths.md) → 5. Frost (that note owns the 
 - **You while frozen:** the frosted vignette, a desaturated cold colour grade, VHS scanlines, tearing bars, a big "❚❚ FROZEN" with a chromatic split and the countdown, "❚❚ PAUSE" in the corner, a static sting. At the end it shatters off: a flash, glass break, the thaw crack.
 - **Placeholder sounds** (`Config/ModSounds` Frost, ids from [Mod Audio](../../02%20Art/Mod%20Audio.md)'s checked list, unauditioned): `freezeSnap` 9117880715 "Power Rewind Brake Engage 1", `freezeStatic` 9120425687 "Video Static Distortion Short Bursts Rizzy 2", `shatter` 9114592117 "Glass Breaks 1", `frozenStatic` 9126160991 "Video Static Distortion Short And Long Bursts 2".
 
+### Look (stylized, 2026-11-03)
+The user found some ability effects too realistic for low-end devices, so the ice moved to the stylized, mesh-first look ([Art Direction](../../02%20Art/Art%20Direction.md) → "Ability VFX"). Kit: **IceVFX** (Blender `tools/blender/build_mod_icevfx.py` → `art-source/abilities/IceVFX/`, render `02 Art/References/mods/icevfx.jpg`, asset 99804256205553): 3 crystal shards, a crystal cluster, 2 wall slabs, the body Shell, 3 chips, the snap-freeze Ring, a frost patch with Cracks, magenta Pixels and Scanlines; flat-shaded, untextured, ≤ 430 tris each (1,860 in all). `Util/IceKit` pools and places them; colour, material and transparency are set in code.
+- **Burst (L1, A, B):** a crisp ice-white crystal ring snaps out to the radius, a faceted frost patch with glowing cracks under it, a crystal cluster bursts up at the centre and 6–12 crystal spikes snap out around it, then they sink back into the floor; the patch lingers 3.5 s. Only a 4-particle mist puff, 12 sparkles and the flash ball.
+- **Hindered bodies:** 3 crystals and a small frost patch at the feet (instead of the crystal particles; mist down to rate 2); they break off in 3 chips when it ends.
+- **Freeze Frame (G):** the ring and its magenta / cyan ghosts are the crystal ring mesh; the spikes are faceted crystals (one in four a flickering magenta sliver); the floor frost is the faceted patch with **magenta cracks** flickering in it. A frozen body stands in the **faceted Shell** (see-through, sized to the body) with two magenta crystal slivers, two **magenta slices** sweeping down through it and **pixel cubes** on its datamosh jumps; it shatters into 7 faceted chips (code-animated, no physics).
+- **Fallback:** without `ReplicatedStorage.Abilities.IceVFX`, the older look (texture particles, decal rings, glass block).
+
 ### Name ideas (proposals, not applied)
 - A "Stockpile" → **Cold Storage** (more canisters, a fridge pun).
 - B "Big Burst" → **Cold Front** (weather that covers a wide area) or **Blizzard**.
