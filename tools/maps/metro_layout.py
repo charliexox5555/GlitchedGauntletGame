@@ -3,6 +3,7 @@
 
 Run:  python tools/maps/metro_layout.py            checks + SVG
       python tools/maps/metro_layout.py --luau     ...and rewrites tools/studio/maps/Metro/Greybox.luau
+                                                   (then: stylua tools/studio/maps/Metro/Greybox.luau)
 
 The map is a list of collision blocks (boxes and ramps) in map space: studs, origin on the
 platform floor at the centre of the hall, +X across (east), +Z along (team B's end, the blue
@@ -893,9 +894,8 @@ def luau() -> str:
         "-- Map space (MapKit.luau): origin on the platform floor at the hall centre, +Z = team B's",
         "-- (blue) end. Every part here is collision; Art.luau hides the ones the kit replaces.",
         "",
-        'local map = newMap("Metro", CFrame.new(1500, 200, 0))',
-        "",
-        "type Spec = { string } -- section, name, kind, then numbers as strings (x0 x1 y0 y1 z0 z1 [up])",
+        'newMap("Metro", CFrame.new(1500, 200, 0))',
+        'local CollectionServiceM = game:GetService("CollectionService")',
         "",
         "local KIND: { [string]: Color3 } = {",
     ]
@@ -957,6 +957,11 @@ def luau() -> str:
         "\t\tcastShadow = not small and kind ~= \"ceiling\",",
         "\t})",
         "\tp:SetAttribute(\"Kind\", kind)",
+        "\t-- Train side sheets: guns with ThinWall penetration shoot through them (Config/Combat).",
+        "\tlocal name = s[2] :: string",
+        "\tif kind == \"train\" and (string.sub(name, 1, 5) == \"Lower\" or string.sub(name, 1, 5) == \"Upper\") then",
+        "\t\tCollectionServiceM:AddTag(p, \"ThinWall\")",
+        "\tend",
         "\tcount += 1",
         "end",
         "",
@@ -980,8 +985,6 @@ def luau() -> str:
         "\tbarrier(\"Barrier\" .. i, Vector3.new(b[2] - b[1], b[4] - b[3], b[6] - b[5]), at((b[1] + b[2]) / 2, (b[3] + b[4]) / 2, (b[5] + b[6]) / 2))",
         "end",
         "",
-        "map:SetAttribute(\"MinTeam\", 2)",
-        "map:SetAttribute(\"MaxTeam\", 4)",
         'report(string.format("Metro greybox: %d parts, %d spawns, %d barriers", count, #SPAWNS, #BARRIERS))',
         "",
     ]
