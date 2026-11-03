@@ -683,6 +683,9 @@ local function use(
 		wall = function(spec: ModTypes.WallSpec)
 			ModWalls.build(player, root, stats, spec, {
 				damage = damage,
+				status = function(victim: Model, name: string, duration: number)
+					StatusService.apply(victim, name, duration)
+				end,
 				look = function(): Vector3?
 					return if player.Character == character then cameraLook(player) else nil
 				end,

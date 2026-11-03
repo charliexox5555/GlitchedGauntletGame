@@ -12,6 +12,12 @@
 --
 -- The server side is Services/ModWalls (segments in workspace.ModWalls,
 -- damage ticks); clients dress the segments (Util/WallFx).
+--
+-- Upgrades (Upgrade Paths.md → Firewall; numbers in Config/Mods): Short Wall
+-- (A) is 20 studs and recharges (15 s, then 6 s); Long Wall (B) is 60 studs,
+-- then 2 charges; Frost Wall (G, `behaviour = "Frost"`) is 60 studs of ice
+-- that deals no damage but Hinders enemies who touch it (`hinder` s), then
+-- 2 charges. Several walls live at once (each burns on its own).
 
 local Types = require(script.Parent.Types)
 
