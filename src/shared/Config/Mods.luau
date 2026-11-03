@@ -194,20 +194,21 @@ local defs: { [string]: ModDef } = {
 				tick = 0.25,
 			},
 			A2 = {
-				note = "Short Wall: recharges after 15 s, but half as long (20 studs)",
+				note = "Short Wall: a 20-stud wall that recharges after 15 s",
 				cooldown = 15,
 				maxLength = 20,
 			},
-			A3 = { note = "Short Wall: recharges after 6 s", cooldown = 6 },
-			B2 = { note = "Long Wall: 60 studs long", maxLength = 60 },
-			B3 = { note = "Long Wall: 2 charges", charges = 2 },
+			A3 = { note = "Short Wall: recharges after just 6 s", cooldown = 6 },
+			B2 = { note = "Long Wall: a 60-stud wall (50% longer)", maxLength = 60 },
+			B3 = { note = "Long Wall: 2 walls per round", charges = 2 },
+			-- Ice instead of fire (Services/ModWalls, Util/FrostWallFx).
 			G2 = {
-				note = "Frost Wall: a wall of ice, 60 studs; no damage, touching it Hinders 1.5 s",
+				note = "Frost Wall: a 60-stud ice wall; no damage, Hinders enemies 1.5 s",
 				behaviour = "Frost",
-				hinder = 1.5,
+				hinder = 1.5, -- seconds of Hinder (Config/StatusEffects), refreshed while they touch it
 				maxLength = 60,
 			},
-			G3 = { note = "Frost Wall: 2 charges", charges = 2 },
+			G3 = { note = "Frost Wall: 2 ice walls per round", charges = 2 },
 		},
 	},
 	Frost = {

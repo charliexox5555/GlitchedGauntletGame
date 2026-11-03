@@ -127,6 +127,23 @@ return table.freeze({
 		-- Firewall_End: 3D. "Fire Burst 8", its natural tail from 7 s
 		ending = cue(9114429835, 0.3, 1, nil, 40, nil, 7),
 	}),
+	-- Frost Wall (Firewall G2/G3, vault/01 Design/Abilities/Firewall.md →
+	-- Upgrades): the same hooks as Firewall, in ice. Placeholders reusing the
+	-- Frost's library recordings (unauditioned), tuned for a wall.
+	FirewallFrost = table.freeze({
+		-- you: a cold valve hiss as the hand frosts over. "Air Release Valve Scuba Tank 1"
+		ignite = cue(9113074345, 0.35, 0.95, nil, nil, 0.9, 0.15),
+		-- you / 3D at the caster: a cold blast. "Fire Extinguisher 2"
+		cast = cue(9114437277, 0.6, 1.05, nil, 40, 0.7),
+		-- 3D, the ice racing on (every few pieces). "Ice Freeze Large Piece Crackles Liquid Nitrogen 3"
+		build = cue(9125611419, 0.55, 1.05, nil, 60, 0.9, 0.2),
+		-- 3D, ~45 studs: a low cold hiss. "Spray Paint Aerosol Air Hiss Constant 2", pitched down
+		loop = cue(9119525650, 0.25, 0.7, true, 45, nil, 8.4, 13.2),
+		-- you, walking through it. "Ice Crackle Large Block Cracks 1"
+		passThrough = cue(9114858583, 0.55, 1.1, nil, nil, 0.65, 0.1),
+		-- 3D: the ice shatters. "Ice Crackle Large Block Cracks 1"
+		ending = cue(9114858583, 0.6, 0.9, nil, 45, nil, 0.1),
+	}),
 	-- Frost hooks (vault/01 Design/Abilities/Frost.md → Sound). Placeholders
 	-- (ProSoundEffects, unauditioned), listed in the Frost note; one id each.
 	Frost = table.freeze({

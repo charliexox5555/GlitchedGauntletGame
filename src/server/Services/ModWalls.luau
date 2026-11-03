@@ -7,12 +7,16 @@
 -- It stops at `maxLength`, when the caster lets go (ModSteer stop), dies or
 -- leaves. Every `segment` studs it adds a part to workspace.ModWalls:
 -- invisible, no collision, no queries (shots and players pass through), with
--- attributes clients dress as fire (Util/WallFx):
+-- attributes clients dress as fire or ice (Util/WallFx):
 --   WallId, Index, OwnerId, TeamId, BuiltAt (server time)
+--   WallKind    "Fire", or "Frost" for the glitch path's ice wall
 --   ExpiresAt   set on every piece when the wall is finished (server time)
 -- Every `tick` from the start, everyone standing in a piece burns: enemies
 -- full `dps`, the caster's team Config/Mods FRIENDLY_FIRE of it, the caster
 -- not at all (BurningUntil + BurnKind "Firewall" for the client effect).
+-- A Frost wall (`behaviour = "Frost"`, Upgrade Paths → Firewall G2/G3) deals
+-- no damage: enemies in it are Hindered for `hinder` seconds instead
+-- (refreshed every tick they stay in), your team and you not at all.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -21,6 +25,7 @@ local RunService = game:GetService("RunService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config.Mods)
 local Firewall = require(Shared.Mods.Firewall)
+local StatusEffects = require(Shared.Config.StatusEffects)
 local ModTypes = require(Shared.Mods.Types)
 local Target = require(Shared.Mods.Blocks.Target)
 local Teams = require(Shared.Mods.Teams)
@@ -32,10 +37,13 @@ local GROUND_BELOW = 30 -- ...down to this far
 local START_AHEAD = 1.5 -- studs in front of the feet the wall starts
 local BODY_MARGIN = 1 -- a body this far out of a piece's thickness is in it
 local FADE = 0.5 -- the pieces stay this long after ExpiresAt (the flames sink)
+local HINDERED = StatusEffects.effects.Hinder.attribute
 
 export type Hooks = {
 	-- Damage to `victim` (the caster's ModService ctx.damage).
 	damage: (victim: Model, amount: number, at: Vector3) -> (),
+	-- A status effect on `victim` (the caster's ModService ctx.status).
+	status: (victim: Model, name: string, duration: number) -> (),
 	-- Where the caster looks now (nil: fall back to the streamed look).
 	look: () -> Vector3?,
 	-- The wall stopped growing (the hold can end).
@@ -127,6 +135,7 @@ local function addPiece(wall: Wall, a: Vector3, b: Vector3)
 	part:SetAttribute("OwnerId", wall.owner.UserId)
 	part:SetAttribute("TeamId", wall.team)
 	part:SetAttribute("BuiltAt", workspace:GetServerTimeNow())
+	part:SetAttribute("WallKind", if stats.behaviour == "Frost" then "Frost" else "Fire")
 	part.Parent = folder()
 	table.insert(wall.pieces, part)
 end
@@ -185,8 +194,10 @@ end
 
 local function burn(wall: Wall)
 	local stats = wall.stats
+	local frost = stats.behaviour == "Frost"
 	local amount = stats.dps * stats.tick
-	local untilT = workspace:GetServerTimeNow() + stats.tick + 0.1
+	local serverNow = workspace:GetServerTimeNow()
+	local untilT = serverNow + stats.tick + 0.1
 	for _, model in Target.combatants() do
 		if not Target.alive(model) or model == wall.owner.Character then
 			continue -- you're immune to your own wall
@@ -202,7 +213,16 @@ local function burn(wall: Wall)
 				break
 			end
 		end
-		if inside then
+		if inside and frost then
+			-- Ice: no damage; enemies are Hindered while they touch it (and
+			-- `hinder` seconds after). Your team walks through it unharmed.
+			-- (Never shortens a longer Hinder already on them: a Frost burst.)
+			local hindered = model:GetAttribute(HINDERED)
+			local longer = typeof(hindered) == "number" and hindered >= serverNow + stats.hinder
+			if not Teams.isAlly(wall.owner, model) and not longer then
+				wall.hooks.status(model, "Hinder", stats.hinder)
+			end
+		elseif inside then
 			local ally = Teams.isAlly(wall.owner, model)
 			wall.hooks.damage(
 				model,

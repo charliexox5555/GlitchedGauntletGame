@@ -8,6 +8,12 @@
 -- flames sink and die out over ~0.5 s (the server removes the pieces just
 -- after). Also: the heat haze while you stand in a wall, the flame in a
 -- Firewall caster's hand for others, and the wall's sounds.
+--
+-- A piece marked WallKind "Frost" (the glitch path's ice wall) is dressed by
+-- Util/FrostWallFx instead, with ice sounds (ModSounds.FirewallFrost), a
+-- cold tint while you stand in it and a cold vapour in the caster's hand.
+-- Walls of any length (20 to 60 studs) are a row of the same pieces; a
+-- long wall gets a loop every HUM_EVERY pieces so its far end is heard.
 
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
@@ -19,12 +25,14 @@ local Firewall = require(ReplicatedStorage.Shared.Mods.Firewall)
 local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
+local FrostWallFx = require(script.Parent.FrostWallFx)
 local ModAudio = require(script.Parent.ModAudio)
 local ModVfx = require(script.Parent.ModVfx)
 
 local WallFx = {}
 
-local S = ModSounds.Firewall
+local SOUNDS: { [string]: typeof(ModSounds.Firewall) } =
+	{ Fire = ModSounds.Firewall, Frost = ModSounds.FirewallFrost }
 local player = Players.LocalPlayer
 
 local FADE = 0.5 -- the flames sink over this at the end
@@ -35,6 +43,8 @@ local TALL_RATE = 6
 local SMOKE_RATE = 8
 local HAZE_IN = TweenInfo.new(0.15)
 local HAZE_OUT = TweenInfo.new(0.4)
+local HUM_EVERY = 8 -- pieces (segment 4: a loop every 32 studs)
+local CRACKLE_EVERY = 4 -- an ice wall crackles every this many pieces as it races on
 
 type Piece = {
 	part: BasePart,
@@ -48,9 +58,19 @@ type Piece = {
 }
 
 local pieces: { [BasePart]: Piece } = {}
--- One loop per wall (on its first piece), and its end sound.
-type WallSound = { hum: ModAudio.Hum?, ended: boolean, at: Vector3 }
+-- Each wall's loops (one every HUM_EVERY pieces) and its end sound.
+type WallSound = {
+	kind: string,
+	hums: { ModAudio.Hum },
+	parts: { BasePart },
+	ended: boolean,
+	at: Vector3,
+}
 local wallSounds: { [number]: WallSound } = {}
+
+local function kindOf(part: BasePart): string
+	return if part:GetAttribute("WallKind") == "Frost" then "Frost" else "Fire"
+end
 
 local function curve(points: { number }): NumberSequence
 	local keys = {}
@@ -86,8 +106,49 @@ local function flames(part: BasePart, size: number, rate: number): ParticleEmitt
 	return e
 end
 
+-- The wall's sounds: the build as it starts (an ice wall crackles along its
+-- length), a loop every HUM_EVERY pieces.
+local function sound(part: BasePart, kind: string)
+	local wallId = part:GetAttribute("WallId")
+	local index = part:GetAttribute("Index")
+	if typeof(wallId) ~= "number" or typeof(index) ~= "number" then
+		return
+	end
+	local S = SOUNDS[kind]
+	local ws = wallSounds[wallId]
+	if not ws then
+		ModAudio.play(S.build, part.Position)
+		ws = { kind = kind, hums = {}, parts = {}, ended = false, at = part.Position }
+		wallSounds[wallId] = ws
+	elseif kind == "Frost" and (index - 1) % CRACKLE_EVERY == 0 then
+		ModAudio.play(S.build, part.Position, 0.9 + 0.2 * math.random())
+	end
+	local w = ws :: WallSound
+	table.insert(w.parts, part)
+	if (index - 1) % HUM_EVERY == 0 and not w.ended then
+		local hum = ModAudio.hum(S.loop, part)
+		if hum then
+			table.insert(w.hums, hum)
+		end
+	end
+end
+
+local function stopHums(ws: WallSound)
+	for _, hum in ws.hums do
+		ModAudio.stopHum(hum)
+	end
+	table.clear(ws.hums)
+end
+
 local function dress(part: BasePart)
 	if pieces[part] then
+		return
+	end
+	local kind = kindOf(part)
+	if kind == "Frost" then
+		if FrostWallFx.dress(part) then
+			sound(part, kind)
+		end
 		return
 	end
 	local h = part.Size.Y
@@ -149,24 +210,22 @@ local function dress(part: BasePart)
 		born = os.clock(),
 		scorched = false,
 	}
-	-- The wall's sound: a loop on its first piece, the rush as it builds.
-	local wallId = part:GetAttribute("WallId")
-	if typeof(wallId) == "number" and not wallSounds[wallId] then
-		ModAudio.play(S.build, part.Position)
-		wallSounds[wallId] = { hum = ModAudio.hum(S.loop, part), ended = false, at = part.Position }
-	end
+	sound(part, kind)
 end
 
 local function forget(part: BasePart)
 	pieces[part] = nil
 end
 
--- The heat haze while we stand in a wall (and the pass-through sizzle).
+-- The heat haze while we stand in a wall (and the pass-through sizzle); a
+-- cold tint in an ice wall.
 local haze: ColorCorrectionEffect? = nil
 local hazeBlur: BlurEffect? = nil
-local insideNow = false
+local insideNow: string? = nil
 
-local function setHaze(on: boolean)
+local function setHaze(kind: string?)
+	local on = kind ~= nil
+	local frost = kind == "Frost"
 	if not haze then
 		local cc = Instance.new("ColorCorrectionEffect")
 		cc.Name = "FirewallHaze"
@@ -183,23 +242,55 @@ local function setHaze(on: boolean)
 	local blur = hazeBlur :: BlurEffect
 	local info = if on then HAZE_IN else HAZE_OUT
 	TweenService:Create(cc, info, {
-		TintColor = if on then Color3.fromRGB(255, 165, 110) else Color3.new(1, 1, 1),
-		Brightness = if on then -0.05 else 0,
+		TintColor = if frost
+			then Color3.fromRGB(185, 220, 255)
+			elseif on then Color3.fromRGB(255, 165, 110)
+			else Color3.new(1, 1, 1),
+		Brightness = if frost then 0.05 elseif on then -0.05 else 0,
 		Contrast = if on then 0.1 else 0,
-		Saturation = if on then 0.15 else 0,
+		Saturation = if frost then -0.25 elseif on then 0.15 else 0,
 	}):Play()
-	TweenService:Create(blur, info, { Size = if on then 6 else 0 }):Play()
+	TweenService:Create(blur, info, { Size = if frost then 4 elseif on then 6 else 0 }):Play()
 end
 
--- The flame in a Firewall caster's free hand, for other players.
-local handFlames: { [Model]: ParticleEmitter } = setmetatable({}, { __mode = "k" }) :: any
+-- The flame in a Firewall caster's free hand, for other players (a cold
+-- vapour for the ice wall).
+type Hand = { emitter: ParticleEmitter, kind: string }
+local hands: { [Model]: Hand } = setmetatable({}, { __mode = "k" }) :: any
 
-local function firewallHeld(other: Player): boolean
+-- "Fire" / "Frost" while `other` holds a Firewall, else nil.
+local function firewallHeld(other: Player): string?
 	local held = other:GetAttribute("ModHeld")
 	if typeof(held) ~= "number" or held == 0 then
-		return false
+		return nil
 	end
-	return other:GetAttribute("Mod" .. held .. "Id") == "Firewall"
+	if other:GetAttribute("Mod" .. held .. "Id") ~= "Firewall" then
+		return nil
+	end
+	return if FrostWallFx.isFrost(other:GetAttribute("Mod" .. held .. "Level"))
+		then "Frost"
+		else "Fire"
+end
+
+local function coldHand(hand: BasePart): ParticleEmitter
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = VFX.FROST_MIST_2x2
+	e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
+	e.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
+	e.Shape = Enum.ParticleEmitterShape.Sphere
+	e.Color = ColorSequence.new(FrostWallFx.ICE)
+	e.Lifetime = NumberRange.new(0.5, 0.8)
+	e.Speed = NumberRange.new(0.3, 1)
+	e.Acceleration = Vector3.new(0, -1.5, 0) -- cold vapour falls off the hand
+	e.Size = curve({ 0, 0.5, 1, 1.4 })
+	e.Transparency = curve({ 0, 0.4, 1, 1 })
+	e.Rotation = NumberRange.new(0, 360)
+	e.LightEmission = 0.3
+	e.LightInfluence = 0.3
+	e.LockedToPart = true
+	e.Rate = 0
+	e.Parent = hand
+	return e
 end
 
 local function stepHands()
@@ -212,18 +303,26 @@ local function stepHands()
 		if not character or not hand or not hand:IsA("BasePart") then
 			continue
 		end
-		local on = firewallHeld(other)
-		local e = handFlames[character]
-		if on and (not e or e.Parent ~= hand) then
-			local made = flames(hand, 0.9, 0)
-			made.Shape = Enum.ParticleEmitterShape.Sphere
-			made.LockedToPart = true
-			made.Speed = NumberRange.new(0.5, 1.5)
-			handFlames[character] = made
-			e = made
+		local kind = firewallHeld(other)
+		local h = hands[character]
+		if kind and (not h or h.emitter.Parent ~= hand or h.kind ~= kind) then
+			if h then
+				h.emitter:Destroy()
+			end
+			local made: ParticleEmitter
+			if kind == "Frost" then
+				made = coldHand(hand)
+			else
+				made = flames(hand, 0.9, 0)
+				made.Shape = Enum.ParticleEmitterShape.Sphere
+				made.LockedToPart = true
+				made.Speed = NumberRange.new(0.5, 1.5)
+			end
+			h = { emitter = made, kind = kind }
+			hands[character] = h
 		end
-		if e then
-			e.Rate = if on then 26 else 0
+		if h then
+			h.emitter.Rate = if kind then (if h.kind == "Frost" then 20 else 26) else 0
 		end
 	end
 end
@@ -233,16 +332,12 @@ function WallFx.step()
 	local now = os.clock()
 	local serverNow = Workspace:GetServerTimeNow()
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-	local inside = false
-	local live: { [number]: boolean } = {}
+	local at = if root and root:IsA("BasePart") then root.Position else nil
+	local inside: string? = nil
 	for part, p in pieces do
 		if not part.Parent then
 			forget(part)
 			continue
-		end
-		local wallId = part:GetAttribute("WallId")
-		if typeof(wallId) == "number" then
-			live[wallId] = true
 		end
 		-- The newest piece flares as the wall races on.
 		local age = now - p.born
@@ -264,15 +359,6 @@ function WallFx.step()
 					hold = true,
 				})
 			end
-			if typeof(wallId) == "number" then
-				local ws = wallSounds[wallId]
-				if ws and not ws.ended and expires - serverNow <= FADE then
-					ws.ended = true
-					ModAudio.stopHum(ws.hum)
-					ws.hum = nil
-					ModAudio.play(S.ending, ws.at)
-				end
-			end
 		end
 		p.flames.Rate = LOW_RATE * k * front
 		p.tall.Rate = TALL_RATE * k * front
@@ -282,26 +368,40 @@ function WallFx.step()
 		if light then
 			light.Brightness = (2.2 + 0.5 * math.noise(now * 6, part.Position.X)) * k
 		end
-		if
-			root
-			and root:IsA("BasePart")
-			and k > 0
-			and Firewall.inside(part, root.Position, 0.8)
-		then
-			inside = true
+		if at and k > 0 and Firewall.inside(part, at, 0.8) then
+			inside = "Fire"
 		end
 	end
+	if FrostWallFx.step(now, serverNow, at) and not inside then
+		inside = "Frost"
+	end
+	-- Sounds: the end as a wall's pieces start to go; gone with its pieces.
 	for wallId, ws in wallSounds do
-		if not live[wallId] then
-			ModAudio.stopHum(ws.hum)
+		local alive: BasePart? = nil
+		for i = #ws.parts, 1, -1 do
+			if ws.parts[i].Parent then
+				alive = ws.parts[i]
+			else
+				table.remove(ws.parts, i)
+			end
+		end
+		if not alive then
+			stopHums(ws)
 			wallSounds[wallId] = nil
+			continue
+		end
+		local expires = (alive :: BasePart):GetAttribute("ExpiresAt")
+		if not ws.ended and typeof(expires) == "number" and expires - serverNow <= FADE then
+			ws.ended = true
+			stopHums(ws)
+			ModAudio.play(SOUNDS[ws.kind].ending, ws.at)
 		end
 	end
 	if inside ~= insideNow then
 		insideNow = inside
 		setHaze(inside)
 		if inside then
-			ModAudio.play(S.passThrough)
+			ModAudio.play(SOUNDS[inside].passThrough)
 		end
 	end
 	stepHands()

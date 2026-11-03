@@ -572,6 +572,13 @@ local function sendUse(
 		:FireServer(slot, mode, cam.CFrame.Position, cam.CFrame.LookVector, target, charge, bounces)
 end
 
+-- The Firewall's sounds: fire, or ice for the Frost Wall (behaviour "Frost").
+local function wallSounds(stats: ModTypes.Stats?)
+	return if stats and stats.behaviour == "Frost"
+		then ModAudio.SOUNDS.FirewallFrost
+		else ModAudio.SOUNDS.Firewall
+end
+
 -- Uses the held Mod (or queues the use while it's still coming up).
 local function use(mode: ModTypes.UseMode)
 	if phase ~= "Equipping" and phase ~= "Held" then
@@ -653,7 +660,7 @@ local function use(mode: ModTypes.UseMode)
 		steerStopped = false
 		steerSentAt = -math.huge
 		ViewmodelController.setFreeHand("FirewallGuide")
-		ModAudio.play(ModAudio.SOUNDS.Firewall.cast)
+		ModAudio.play(wallSounds(stats).cast)
 		return
 	end
 	setPhase("Using", current)
@@ -686,7 +693,7 @@ local function startHold(slot: number, view: SlotView)
 		-- Nothing in the hand: the free hand ignites.
 		ViewmodelController.holdItem(nil)
 		ViewmodelController.setFreeHand("FirewallReady")
-		ModAudio.play(ModAudio.SOUNDS.Firewall.ignite)
+		ModAudio.play(wallSounds(view.stats).ignite)
 	else
 		ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
 	end
