@@ -165,11 +165,18 @@ local function refresh()
 			then Mods.stats(slotId, slotLevel)
 			else nil
 		local built = typeof(slotLevel) == "string" and Config.BUILT[slotLevel] == true
+		local def = if typeof(slotId) == "string" then Mods.def(slotId) else nil
+		local path = if def
+				and typeof(slotLevel) == "string"
+				and slotLevel ~= "L1"
+			then (def.paths :: any)[string.sub(slotLevel, 1, 1)]
+			else nil
 		note.Text = if stats
 			then string.format(
-				"%s %s: %s%s",
+				"%s %s%s: %s%s",
 				tostring(slotId),
 				tostring(slotLevel),
+				if path then " (" .. path .. ")" else "",
 				tostring(stats.note),
 				if built then "" else "  (numbers only: behaviour not built yet)"
 			)
@@ -290,8 +297,15 @@ local function build(): TextButton
 	for _, id in Config.ORDER do
 		local def = Mods.def(id)
 		local built = Mods.isBuilt(id)
-		local b = button(if def then def.name else id, 140, modRow, function()
+		-- Each Mod has its own slot (Config/Mods `slot`): picking one jumps there.
+		local name = if def
+			then string.format("%s (%s)", def.name, ModController.keyLabel(def.slot))
+			else id
+		local b = button(name, 140, modRow, function()
 			if built then
+				if def then
+					selectedSlot = def.slot
+				end
 				send("SetSlot", selectedSlot, id, selectedLevel)
 			end
 		end)
@@ -306,7 +320,7 @@ local function build(): TextButton
 		send("ClearSlot", selectedSlot)
 	end)
 
-	label("Level (A/B/G: numbers only until Phase 2)", 13, panel, MUTED)
+	label("Level (L1, path A, path B, glitch G)", 13, panel, MUTED)
 	local levelRow = row(panel, 30)
 	for _, level in Config.LEVELS do
 		levelButtons[level] = button(level, 56, levelRow, function()
