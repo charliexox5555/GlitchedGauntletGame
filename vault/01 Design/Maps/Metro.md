@@ -2,7 +2,7 @@
 
 A large indoor map for 2v2 to 4v4 (playable 1v1): **Meridian**, an underground metro station. Two side platforms, a sunken track lane between them with two parked trains, a concourse terrace over each end of the hall, service corridors behind the walls. See [Maps](00%20Maps.md) for the roster.
 
-**Status (2026-11-03):** concept, layout (checked), greybox script, Blender kit and art + lighting scripts are written. **Not yet run in Studio**: the hub runs the scripts, screenshots and iterates (run order at the end).
+**Status (2026-11-03):** concept, layout (checked), greybox script, Blender kit (uploaded, asset `107161243155344`) and art + lighting scripts are done and tested in a mock place. **Not yet run in Studio**: the hub runs the scripts, screenshots and iterates (run order and checklist in §5).
 
 ![Metro layout](../../02%20Art/References/maps/metro/metro-layout.svg)
 
@@ -113,39 +113,61 @@ Every wall and ceiling is real and taller than anyone can reach; Updraft into th
 | Dado and plinth tile | `#2E3440` charcoal | CeramicTiles |
 | End colour (B, blue end) | `#2F64C8` | name band, portal trim, signs |
 | End colour (A, yellow end) | `#E0A82E` | name band, portal trim, signs |
-| Platform floor | `#B8B4AC` warm grey | Granite |
+| Platform floor | `#A8A49C` warm grey | Granite |
 | Platform edge | `#E8C547` tactile strip, `#8D8A84` coping | Plastic / Concrete |
 | Trench, ballast | `#3C3D40`, sleepers `#5A524A`, rails `#9A9EA4` | Concrete / Slate / Metal |
-| Coffered ceiling | `#C9C6BF` concrete | Concrete |
+| Coffered ceiling, upper walls, gantry beam | `#A7A49D` concrete (mid grey, so the tile reads against it); coffer panels glow `#B8C8DC` | Concrete / Neon |
 | Columns | `#D8D6D0` with a brushed steel base | Concrete / Metal |
 | Train body | `#C9CDD2` stainless, stripe in the end colour | Metal |
+| Kiosks, vending | stainless and oak; vending fronts red `#B3262E` | Metal / Wood |
 | Black steel (gantry, frames, rails) | `#22252A` | Metal |
 | Light | cool `#DDE8F2`, warm `#FFB547` (board text), `#FFD9A8` (kiosks) | Neon (thin), a few real lights |
 
 - **Wayfinding is the Valorant part:** B's end is blue, A's end is yellow (same as Whitebox): the name band tiles, the train's stripe, the portal trims and the end walls carry the colour, so you always know which way you face. Team colours (cyan, orange-red) stay reserved for players and abilities.
 - **Landmarks:** the departure gantry (amber board, clock), the station-name panels over the tunnel portals (MERIDIAN in tile letters on the end colour), the two trains with their lit cabs.
-- **Light plan:** coffers glow (Neon cove strips inside, no real lights), platform pendant lines are Neon tubes; real lights only at focal points (departure board, kiosks, escalator wells, cab headlights, ticket hall): about 14 shadowless lights in the whole map.
+- **Light plan:** coffers glow (Neon cove strips inside, no real lights), platform pendant lines are Neon tubes; real lights only at focal points (departure board, kiosks, escalator wells, cab headlights, ticket hall): 16 shadowless lights in the whole map.
 - **Phones:** no shadows below quality 4, so the lanes read by value: dark trench, mid-grey platforms, white walls, bright coffers.
 
-### Budget
-| Item | Budget |
-|---|---|
-| Triangles in view | ≤ 500k on phones; the kit is about 90k unique, most of it instanced |
-| Per mesh | ≤ 20k (the train car is the biggest piece) |
-| Textures | none: base materials and colour (no MaterialVariants needed in the match place) |
-| Lights | about 14, all shadowless |
-| CastShadow | off on everything smaller than a wall panel (kit_bundle.py does it) |
+### Budget (as built)
+| Item | Budget | Built |
+|---|---|---|
+| Triangles | ≤ 500k in view on phones | **65k for the whole map** (261 kit pieces of 29 kinds, 16.7k unique tris) plus 168 greybox parts |
+| Per mesh | ≤ 20k | largest object 1.4k (escalator nosings); largest piece 2.4k (EscalatorBank) |
+| Textures | ≤ 512 px | none: base materials and colour, no MaterialVariants needed in the match place |
+| Lights | a few at focal points | 16 PointLights/SpotLights, all shadowless |
+| CastShadow | off on small parts | kit_bundle.py: only pieces 8+ studs cast; greybox ceilings cast (they keep the inside dark) |
+
+### Kit (group `Station`, asset `107161243155344`)
+`tools/blender/build_map_kit_metro.py` → `art-source/maps/Metro/Kit_Metro.blend`, 29 `Map_<Piece>` collections: `WallBay8`, `WallEnd4`, `WallDoor8`, `NameSign`, `Coffer10`, `Coffer14`, `PendantLight`, `Column`, `PlatformEdge8`, `TrackBay8`, `TrackBox`, `TrainCarHead`, `TrainCarTail`, `TrainGangway`, `EscalatorBank`, `HallStairs`, `CorridorStair`, `Gantry` (board, platform signs, station clock), `EndWall` (tunnel portal, buffer stop, signals, name panel, parapets, escalator mouth), `Kiosk`, `Vending`, `Bench`, `FareGateRow`, `TicketOffice`, `Portal10`, `DoorFrame8`, `PipeRun8`, `CorridorLight`, `PumpDoor`. Parts ending `_Band`, `_Stripe`, `_Trim` take the end colour in Studio (Art.luau). Signs are SurfaceGuis made by Art.luau (the text in the renders is a preview stand-in).
+
+![Contact sheet](../../02%20Art/References/maps/metro/contact-station.jpg)
+![From team B's west perch](../../02%20Art/References/maps/metro/preview-terrace.jpg)
+![West platform toward B's end](../../02%20Art/References/maps/metro/preview-hall.jpg)
+![The trench gap under the clock](../../02%20Art/References/maps/metro/preview-trench.jpg)
+
+The previews are Blender EEVEE stand-ins for the Roblox look (no end-colour tint: both trains show blue there). Review notes from them, already applied: the ceiling concrete was darkened so the white tile reads against it, the kiosk body went stainless (it read as a black box), the column capitals were slimmed, the platform-side door leaves were removed (they covered shoot-through windows), the clock ticks were moved onto the face.
 
 ---
 
 ## 5. Build
-1. **Greybox:** `python tools/maps/metro_layout.py --luau` writes `tools/studio/maps/Metro/Greybox.luau` (162 boxes, 6 wedges, 8 spawns, 4 barriers).
-2. **Kit:** `tools/blender/build_map_kit_metro.py` → `art-source/maps/Metro/Kit_Metro.blend` (group `Station`), contact sheets in `02 Art/References/maps/metro/`.
-3. **Art and light:** `tools/studio/maps/Metro/Art.luau` places the kit and hides replaced greybox; `Lighting.luau` adds the map's `Lighting` Configuration, `LightingFx` and the focal lights.
-4. **Run order** for the hub (match place, edit mode):
+1. **Greybox:** `python tools/maps/metro_layout.py --luau` (then `stylua` on it) writes `tools/studio/maps/Metro/Greybox.luau`: 166 boxes and 6 wedges in sections Hall / Train / Concourse / Corridor / Spawn / Shell, 8 spawns, 4 barriers; the train's side sheets are tagged `ThinWall`.
+2. **Kit:** `"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" --background --factory-startup --python tools/blender/build_map_kit_metro.py -- [--no-render]`, then export (`export_lobby_kit.py -- --maps Metro Station`) and upload (`upload_models.py --maps Metro --group 11116787 Station`).
+3. **Art and light:** `tools/studio/maps/Metro/Art.luau` places the kit (each placement in team B's half and its 180° turn), hides the greybox it replaced (collision kept), finishes the rest (granite floors, tile concourse walls, concrete corridors), tints the end colours and makes the signs; `Lighting.luau` adds the map's `Lighting` Configuration (no sun: ClockTime 0, Brightness 0, cool Ambient), `LightingFx` (Atmosphere, Bloom, ColorCorrection) and 16 shadowless focal lights in `Art.Lighting`.
+4. **Tested without Studio:** the full bundle (Greybox + Art + Lighting) runs clean in Lune against a mock place built from the export JSON: 168 greybox parts, 261 pieces placed, 87 greybox parts hidden, 81 finished, 30 signs, 16 lights, every piece's bounds on its greybox. Not yet run in Studio.
+5. **Run order** for the hub (match place, edit mode, Studio MCP or Command Bar):
    1. `python tools/studio/maps/kit_bundle.py Metro Station -o metro_kit.luau` → run it (installs `ServerStorage.MapKit.Metro`).
-   2. `python tools/studio/maps/bundle.py Metro Greybox Art Lighting -o metro.luau` → run it.
-   3. Screenshot from each spawn, each terrace, both platforms at the gantry, the trench gap, inside a train, a corridor and an overview; save the place; back up `art-source/maps/Metro/Metro.rbxm`.
+   2. `python tools/studio/maps/bundle.py Metro Greybox Art Lighting -o metro.luau` → run it (re-runnable; it builds `Workspace.Metro` at (1500, 200, 0)).
+   3. Set `Workspace.ForceMap = "Metro"` and press Play to see the lighting (MapService applies it on load).
+   4. Screenshots, then save the place and back up `art-source/maps/Metro/Metro.rbxm`.
+
+### What to check in the screenshots
+- **Orientation of the kit:** the trains sit on the tracks with their wheels on the rails, cabs at the ends (B's head under B's terrace), platform-side doors facing the platforms; the escalator steps go up toward the ticket hall; the end wall's tunnel portal lines up with the trench and its escalator mouth with the well. If anything is mirrored or turned 180°, the axis note in `kit_bundle.py` is the place to look.
+- **Signs:** MERIDIAN reads the right way round on the name panels and wall bands, the departure board's two faces each show DEPARTURES with three amber rows and PLATFORM 1 on the east side, kiosk/ticket/portal signs aren't mirrored or on the wrong face.
+- **End colours:** B half blue, A half yellow (bands, column bands, train stripes, trims), charcoal on the middle door bay, amber gantry trim.
+- **No gaps:** coffers tile the hall ceiling edge to edge (the greybox ceiling is invisible but still casts shadow); the wall bays meet the end walls; nothing of the void shows above the corridors or behind the portals.
+- **Light:** the hall should be evenly cool with the coffer panels glowing, warm pools at the board and kiosks, the tail-cab headlights down the trench. If Neon coffers bloom too much, darken `Coffer*_Panel_Glow` colour; if the hall is too dark, raise `Ambient` in `Workspace.Metro.Lighting`.
+- **Readability:** the dark trench, mid-grey platforms and white walls stay distinct with shadows off (phone quality); a player in the trench and on a train roof is easy to spot.
+- **Shots:** each spawn, each terrace perch, both platforms at the gantry, the trench gap under the clock, inside a train, a service corridor, the ticket hall and a top-down overview.
 
 ## 6. Decisions for the user
 | Decision | Chosen | Other choice |
