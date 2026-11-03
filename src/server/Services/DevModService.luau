@@ -17,7 +17,8 @@
 --   "UnlimitedCharges", on         test mode: casting spends nothing
 --   "SpawnDummy", "Ally" | "Enemy"   a dummy prepared like a player, in front of you
 --   "ClearDummies"                 the dummies you spawned
---   "HurtSelf"                      -50 HP (solo heal tests: nothing else hurts you)
+--   "HurtSelf"                      a 50-damage hit from nobody, through the damage
+--                                  guards (solo Barrier / Crash Recovery / heal tests; can kill)
 -- (Quick-cast is a client setting: the panel toggles it locally.)
 
 local CollectionService = game:GetService("CollectionService")
@@ -37,6 +38,7 @@ local Validate = require(Shared.Util.Validate)
 
 local CharacterService = require(script.Parent.CharacterService)
 local ModService = require(script.Parent.ModService)
+local WeaponService = require(script.Parent.WeaponService)
 
 local DevModService = {}
 
@@ -271,9 +273,12 @@ local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unkno
 	elseif action == "ClearDummies" then
 		clearDummies(player)
 	elseif action == "HurtSelf" then
+		-- Through the real damage path (WeaponService.hurt: the damage guards,
+		-- then shield, then health), as a hit from nobody, so a Barrier, a
+		-- Ghost dash or Crash Recovery can be tested alone. It can kill.
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 		if humanoid and humanoid.Health > 0 then
-			humanoid.Health = math.max(humanoid.Health - Config.DEV_HURT, 1)
+			WeaponService.hurt(humanoid, Config.DEV_HURT)
 		end
 	end
 end

@@ -621,5 +621,5 @@ return table.freeze({
 	DEV_DUMMY_DISTANCE = 12, -- studs in front of you a dummy spawns
 	DEV_MAX_DUMMIES = 6, -- per player
 	DEV_MAX_DUMMIES_TOTAL = 18, -- per server (several testers)
-	DEV_HURT = 50, -- "Hurt me" (never kills)
+	DEV_HURT = 50, -- "Hurt me": a hit from nobody through the damage guards (can kill)
 })
