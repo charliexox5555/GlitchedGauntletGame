@@ -66,3 +66,34 @@ Tapping the Dash button dashes in the joystick direction.
 
 ## Counter-play
 It's a one-use escape or engage per round. Listen for the whoosh, and punish the short shoot delay after it.
+
+## Upgrades (L2/L3)
+Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → "1. Dash" (the numbers are the user's; don't change them here). Built 2026-11-03 on branch `claude/loving-lewin-c22dba`, **not playtested yet** (the hub runs the checklist below in Studio).
+
+### Names and card text
+Path names: **A Long Dash** (was "Distance": "Dash · Long Dash" reads as what it does), **B Ghost**, **G Desync** (kept: your client and the server "disagree" about where you are, which fits the glitch theme). Card text (`note` in `Config/Mods`):
+
+| Level | Card text |
+|---|---|
+| L1 | Dash 12 studs in your move direction |
+| A2 Long Dash | Dash 18 studs instead of 12, just as fast |
+| A3 Long Dash | Dash 24 studs, just as fast, and 2 charges |
+| B2 Ghost | Bullets pass through you for 0.35 s from the press |
+| B3 Ghost | Vanish for 1 s after a dash (a shimmer up close), 2 charges |
+| G2 Desync ⚡ | Leave a decoy that keeps running for 1.5 s; no shots for 0.3 s |
+| G3 Desync ⚡ | The decoy fires fake shots, and you vanish while it runs |
+
+### What each level does
+- **A2 / A3 Long Dash:** numbers only. 18 / 24 studs in the same 0.15 s (120 / 160 studs/s); A3 has 2 charges. Exit speed is still capped at `exitSpeed` 22.
+- **B2 Ghost:** for `dodgeWindow` 0.35 s from the press, **every hit on you is blocked** (guns and ability damage alike; the shooter gets the BLOCKED marker from `HitConfirm.blocked`). Everyone sees you half see-through (`ghostAlpha` 0.55, a fast shimmer) with team-tinted ForceField afterimages peeling off behind you; you get a pale screen wash.
+- **B3 Ghost:** B2, plus **nearly invisible** from the dash until `cloakAfter` 1 s after it ends (it fades in over the dash, off over the last 0.15 s), 2 charges. Enemies further than `cloakShimmer` 10 studs see you at `cloakAlpha` 0.95 (5% visible), closer ones a flickering shimmer around `cloakShimmerAlpha` 0.75; your team sees you half see-through (`cloakAllyAlpha`). Your name tag is hidden from enemies while cloaked. A Recon reveal still shows: a revealed dasher is never more than 60% see-through, so the outline always draws. You get a cold, washed-out screen tint.
+- **G2 Desync ⚡:** the dash leaves a **decoy** at the spot you pressed: a copy of your character (same avatar, gun, name tag) that keeps running the way you were already going (your facing from a standstill) at your old speed (16–22 studs/s), with your run clip and gun pose (the sprint carry above walking speed). It follows the ground, falls off ledges, stops at walls, and after `decoyTime` 1.5 s freezes mid-stride and glitches out in magenta static. Nothing hits it (no hit marker). There's no wind trail on a Desync dash, and the split point gets the same magenta static, so the trail can't tell enemies which one is you. Drawback: no shots for `fireDelay` 0.3 s after the dash.
+- **G3 Desync ⚡:** G2, plus the decoy **turns to the nearest enemy in sight (150 studs) and fires fake shots** (tracers, muzzle flash, the gun's far sound, wall impacts; no damage) at your gun's fire rate (never faster than 0.12 s), from 0.2 s after the press, with 2.5° of miss. **You're nearly invisible** (as B3) for the whole 1.5 s from the press.
+
+### Build notes
+- **Simulation (`Mods/Dash.simCast`):** writes the upgrade attributes before `DashStart` (clients key on it), each cast rewriting them (nil when the level hasn't got them): `DashDodgeUntil`, `DashCloakUntil`, `DashDecoyFrom` / `DashDecoyYaw` / `DashDecoyVelocity` / `DashDecoyUntil`, `DashDecoyFires`, all on the simulation's `time()` clock.
+- **Fast dashes:** a dash now lasts a whole number of simulation steps (60 Hz) at no more than full speed, covering exactly the spherecast's reach, and `DashUntil` sits half a step before the end. At 160 studs/s one step is 2.7 studs, so before this a dash cut short by a wall could hold full speed one step too long and push into it. A full-length dash is unchanged (9 steps).
+- **Ghost on the server:** `Mods/Dash` `module.server` registers an `api.guard` that returns 0 while `time() < DashDodgeUntil` on the victim (the server's own simulation wrote it, so a client can't open the window itself).
+- **Client:** `Util/UpgradeFx/Dash` watches every character's `DashStart`; `DashGhost` sets `LocalTransparencyModifier` on other characters' parts and decals (gun and held item included) per viewer, and puts it back to 0 after; `DashDecoy` builds the decoy (character clone with `Archivable` on for the copy, scripts / sounds / particles / highlights stripped, `AnimationConstraint` joints turned into `Motor6D`s so the anchored-root copy poses kinematically, every part `CanQuery` off). Fake shots go through `EffectsController.tracer` / `muzzleFlash` / `impact` and `GunSounds.fireFar`, the same calls a real remote shot uses. Everything lives in `workspace.DashFx` (client-only).
+- **Shared-file hunk:** `ModFeelController` skips `WindFx.dashStart` / `dashEnd` on a Desync dash (the 3D whoosh still plays).
+- **Open:** shooting while cloaked doesn't break the cloak (your tracers give you away anyway); decide after a playtest.
