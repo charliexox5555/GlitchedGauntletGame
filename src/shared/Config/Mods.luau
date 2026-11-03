@@ -452,7 +452,7 @@ local defs: { [string]: ModDef } = {
 		hint = { primary = "Plant" },
 		levels = {
 			L1 = {
-				note = "Plant an anchor; press within 40 studs to teleport to it (0.6 s wind-up, 20 s cooldown)",
+				note = "Plant an anchor; teleport back to it from 40 studs (20 s cooldown)",
 				cooldown = 20, -- seconds between teleports; the anchor stays (planting is free)
 				charges = 1,
 				placeRange = 10, -- studs from the head to where it's planted
@@ -467,16 +467,25 @@ local defs: { [string]: ModDef } = {
 				hp = 2, -- bullet hits that destroy it
 				life = 600, -- seconds (all round, until rounds exist)
 			},
-			A2 = { note = "Recharge: 10 s cooldown", cooldown = 10 },
-			A3 = { note = "Recharge: 5 s cooldown", cooldown = 5 },
-			B2 = { note = "Long Range: teleport from 60 studs away", range = 60 },
-			B3 = { note = "Long Range: from 80 studs away", range = 80 },
+			-- Card text (`note`) stays under ~70 characters (the draft cards).
+			A2 = { note = "Recharge: teleport again after 10 s (was 20 s)", cooldown = 10 },
+			A3 = { note = "Recharge: teleport again after just 5 s", cooldown = 5 },
+			B2 = { note = "Long Range: teleport back from 60 studs away (was 40)", range = 60 },
+			B3 = { note = "Long Range: teleport back from 80 studs away", range = 80 },
+			-- Crash Recovery: a passive on top of the normal Recall (Services/
+			-- ModRecall.rescue): once a round, the hit that would kill you within
+			-- `range` of your standing anchor pulls you onto it instead, at
+			-- `rescueHealth`; the anchor breaks (no charge lost, plant again).
 			G2 = {
-				note = "Crash Recovery: once a round, a death within range pulls you back to the anchor at 1 HP",
+				note = "Crash Recovery: once a round, die near your anchor: back on it at 1 HP",
 				behaviour = "Crash",
 				rescueHealth = 1,
+				rescueGrace = 0.25, -- seconds nothing lands after a rescue (the trip; shots already fired)
 			},
-			G3 = { note = "Crash Recovery: you arrive with 40 HP", rescueHealth = 40 },
+			G3 = {
+				note = "Crash Recovery: you come back with 40 HP instead of 1",
+				rescueHealth = 40,
+			},
 		},
 	},
 }

@@ -5,7 +5,8 @@
 -- planted anchor, or the hologram while you aim the plant). Each dash sits on
 -- the floor found under it (stairs, ramps), so the ring follows the ground;
 -- where there is no floor (a drop) the ring has a gap. It turns red while
--- you're outside the range.
+-- you're outside the range. Crash Recovery armed (glitch path,
+-- Util/UpgradeFx/Recall) tints it magenta: inside it, you're covered.
 
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -32,6 +33,14 @@ local center: Vector3? = nil
 local radius = 0
 local builtAt = -math.huge
 local inside = true
+local tint: Color3? = nil -- replaces the violet while set
+
+local function recolor()
+	local color = if inside then tint or VIOLET else RED
+	for _, p in dashes do
+		p.Color = color
+	end
+end
 
 local function parts(): Folder
 	local f = folder
@@ -58,6 +67,7 @@ local function parts(): Folder
 		p.Parent = made
 		dashes[i] = p
 	end
+	recolor()
 	return made
 end
 
@@ -125,10 +135,17 @@ function RecallRing.show(at: Vector3, r: number, isInside: boolean)
 		end
 	end
 	if insideChanged then
-		for _, p in dashes do
-			p.Color = if inside then VIOLET else RED
-		end
+		recolor()
 	end
+end
+
+-- The in-range colour (nil: back to violet).
+function RecallRing.setTint(color: Color3?)
+	if color == tint then
+		return
+	end
+	tint = color
+	recolor()
 end
 
 function RecallRing.hide()

@@ -24,6 +24,13 @@
 --   RecallSeen     the last RecallSerial applied (a new character starts
 --                  from the current one: no teleport carried into a new life)
 --   RecallAt       time() of the last arrival (the client's arrival feel)
+--
+-- Upgrades (vault/01 Design/Abilities/Upgrade Paths.md → 9. Recall): A
+-- (shorter `cooldown`) and B (longer `range`) are numbers only. The glitch
+-- path (`behaviour = "Crash"`, Crash Recovery) is a passive in the server
+-- hook below: once a round, a hit that would kill you within `range` of your
+-- standing anchor pulls you back to it at `rescueHealth` instead, and the
+-- anchor breaks (Services/ModRecall.rescue).
 
 local Placeable = require(script.Parent.Blocks.Placeable)
 local Types = require(script.Parent.Types)
@@ -134,6 +141,25 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	end
 	ctx.anchor(anchor)
 	ctx.fx("RecallPlaced", { at = anchor.Position })
+end
+
+-- Crash Recovery needs the anchors, which live in the server half
+-- (Services/ModRecall): it hands its hook in when it loads (before
+-- ModService starts the Mods' server hooks), so shared code never requires
+-- server code.
+local serverHook: ((api: Types.ServerApi) -> ())? = nil
+
+function Recall.bindServer(hook: (api: Types.ServerApi) -> ())
+	serverHook = hook
+end
+
+module.server = function(api: Types.ServerApi)
+	local hook = serverHook
+	if hook then
+		hook(api)
+	else
+		warn("[Recall] no server half bound: Crash Recovery is off")
+	end
 end
 
 Recall.module = module
