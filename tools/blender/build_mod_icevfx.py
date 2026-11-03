@@ -274,7 +274,7 @@ def floor_patch():
 
 
 def cracks():
-	# Seven jagged radial cracks, flat strips just above the Floor's top (it peaks at 0.045).
+	# Seven jagged radial cracks, thin ridges just above the Floor's top (it peaks at 0.045).
 	rng = random.Random(61)
 	bm = bmesh.new()
 	for k in range(7):
@@ -289,11 +289,15 @@ def cracks():
 			d = (p1 - p0).normalized()
 			nrm = Vector((-d.y, d.x))
 			w0, w1 = 0.035 * (1 - s / 4.5), 0.035 * (1 - (s + 1) / 4.5)
-			vs = [bm.verts.new((*(p0 + nrm * w0), 0.055)), bm.verts.new((*(p1 + nrm * w1), 0.055)), bm.verts.new((*(p1 - nrm * w1), 0.055)), bm.verts.new((*(p0 - nrm * w0), 0.055))]
-			f = bm.faces.new(vs)
-			if f.normal.z < 0:
-				f.normal_flip()
-			f.material_index = ENERGY
+			# A low ridge (two sloped faces), so the mesh has some height: a zero-thick MeshPart can't be scaled.
+			l0, l1 = bm.verts.new((*(p0 + nrm * w0), 0.048)), bm.verts.new((*(p1 + nrm * w1), 0.048))
+			r0, r1 = bm.verts.new((*(p0 - nrm * w0), 0.048)), bm.verts.new((*(p1 - nrm * w1), 0.048))
+			c0, c1 = bm.verts.new((*p0, 0.065)), bm.verts.new((*p1, 0.065))
+			for vs in ((l0, l1, c1, c0), (c0, c1, r1, r0)):
+				f = bm.faces.new(vs)
+				if f.normal.z < 0:
+					f.normal_flip()
+				f.material_index = ENERGY
 	return bm
 
 
