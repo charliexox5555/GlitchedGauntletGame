@@ -245,10 +245,10 @@ BUILDINGS: list[Building] = [
         INNER_EAVE,
         ("gable", "x"),
         voids=[
-            (28, 52, -58, -38, 0, SLAB),  # the bakery hall
+            (28, 54, -58, -38, 0, SLAB),  # the bakery hall
             (37, 43, -38, -36, 0, DOOR_H),  # door to the east arcade's end
             (29, 35, -60, -58, 0, DOOR_H),  # door to Bakery Lane
-            (46, 52, -38, -36, 0, DOOR_H),  # inner door to the Cafe
+            (47, 53, -38, -36, 0, DOOR_H),  # inner door to the Cafe
         ],
         tone="cream",
         label="Bakery",
@@ -265,7 +265,7 @@ BUILDINGS: list[Building] = [
         voids=[
             (46, 66, -34, -6, 0, SLAB),  # cafe room
             (44, 46, -27, -21, 0, DOOR_H),  # arcade door
-            (46, 52, -36, -34, 0, DOOR_H),  # inner door from the Bakery
+            (47, 53, -36, -34, 0, DOOR_H),  # inner door from the Bakery
             (66, 68, -19, -13, 0, DOOR_H),  # alley door
             (54, 60, -28, -12, SLAB, 22),  # stairwell (the stair rises north)
             (46, 60, -12, -6, UPPER, 22),  # upstairs landing
@@ -337,10 +337,10 @@ HALF: list[Solid] = [
     # Passage arches over lane mouths (decorative arches; collision above head height).
     B("ArchBakeryW", 12, 14, -68, -60, 11, 15, "lintel", "Arches"),
     B("ArchBakeryE", 66, 68, -68, -60, 11, 15, "lintel", "Arches"),
-    B("ArchCourtS", -44, -36, -94, -92, 11, 15, "lintel", "Arches"),
+    B("ArchCourtS", -44, -36, -92, -90, 11, 15, "lintel", "Arches"),
     B("ArchCourtE", -14, -12, -76, -68, 11, 15, "lintel", "Arches"),
-    B("ArchCourtW", -70, -68, -60, -52, 11, 15, "lintel", "Arches"),
-    B("ArchLaneW", -70, -68, -24, -16, 11, 15, "lintel", "Arches"),
+    B("ArchCourtW", -68, -66, -60, -52, 11, 15, "lintel", "Arches"),
+    B("ArchLaneW", -68, -66, -24, -16, 11, 15, "lintel", "Arches"),
     # East arcade + Cafe Terrace above it (the high layer at 12).
     B("PierE1", 34, 36, -29, -27, 0, SLAB, "arcade", "Arcades"),
     B("PierE2", 34, 36, -21, -19, 0, SLAB, "arcade", "Arcades"),
