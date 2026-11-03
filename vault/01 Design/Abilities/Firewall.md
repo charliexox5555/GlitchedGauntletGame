@@ -97,6 +97,14 @@ Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md#4-firewall-decided-2026
 - **Hand:** your first-person flame becomes cold vapour falling off the hand, with glints and an icy light (`UpgradeFx/Firewall` restyles the `HandFlame`); others see a cold vapour in your hand instead of a flame.
 - **Long walls:** any length is a row of the same pieces; every 8th piece (32 studs) gets its own loop so a 60-stud wall is heard along its length.
 
+### Look (stylized, 2026-11-03)
+The Frost Wall moved to the stylized, mesh-first look ([Art Direction](../../02%20Art/Art%20Direction.md) → "Ability VFX"), built from the **IceVFX** kit (Blender, `tools/blender/build_mod_icevfx.py`, render `02 Art/References/mods/icevfx.jpg`; code `Util/IceKit`):
+- **One faceted crystal slab per 4-stud piece** (`SlabA` / `SlabB`: three chunky columns with cleaved tops, nearly opaque SmoothPlastic ice, a 8% tint of the viewer's colour), so it reads as a **solid wall of ice** (it Hinders on contact). A **crystal cluster** leans off its foot; it still rises with an overshoot and sinks at the end.
+- **Glitch:** the slab jumps sideways in magenta neon and the magenta `Pixels` / `Scanlines` meshes flash flat on its faces.
+- **Floor:** a faceted frost patch (mesh) instead of the frost-feather decal. **End:** a couple of faceted chips fly off each piece.
+- **Fewer particles:** mist from every other piece only (rate 2), glints at rate 2. The edge line, mist, glints and light are a pooled rig per piece.
+- **Fallback:** until `ReplicatedStorage.Abilities.IceVFX` is installed, the older look above (Ice blocks, Glass crests).
+
 ### Frost Wall sounds (`Config/ModSounds` → `FirewallFrost`; unauditioned, reusing the Frost's library recordings)
 | Hook | Id | Name (start / cut) | Volume / pitch |
 |---|---|---|---|

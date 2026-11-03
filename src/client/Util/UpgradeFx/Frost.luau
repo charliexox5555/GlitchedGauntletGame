@@ -17,6 +17,14 @@
 --     team, orange-red for enemies); it shatters when it thaws;
 --   - us while frozen: a frosted, desaturated screen with VHS scanlines,
 --     tearing bars and a "❚❚ FROZEN" countdown; it shatters off at the end.
+-- Stylized look (2026-11-03, Util/IceKit): the ring is the kit's faceted
+-- crystal crown, the spikes are faceted crystals (magenta slivers flicker),
+-- the floor frost is a faceted patch with magenta cracks, and a frozen body
+-- stands in the faceted Shell with two magenta crystal slivers, magenta
+-- slices sweeping down through it and pixel cubes on its datamosh jumps; it
+-- shatters into faceted chips. Without ReplicatedStorage.Abilities.IceVFX it
+-- falls back to the older look (decal rings, glass blocks with SurfaceGui
+-- scanlines, physics glass chunks).
 -- The rules of being frozen (dropped hold / reload, turn cap, paused
 -- animations) live in Util/Frozen, started and stepped from here.
 
@@ -32,10 +40,12 @@ local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local CameraController = require(script.Parent.Parent.Parent.Controllers.CameraController)
 local Frozen = require(script.Parent.Parent.Frozen)
+local IceKit = require(script.Parent.Parent.IceKit)
 local ModAudio = require(script.Parent.Parent.ModAudio)
 local ModVfx = require(script.Parent.Parent.ModVfx)
 local TeamColor = require(script.Parent.Parent.TeamColor)
 local Types = require(script.Parent.Types)
+local VfxPool = require(script.Parent.Parent.VfxPool)
 
 local S = ModSounds.Frost
 local player = Players.LocalPlayer
@@ -59,6 +69,7 @@ local GROUND_TIME = 3.5
 local running: { (now: number) -> boolean } = {}
 
 local folder: Folder? = nil
+local slicePool: VfxPool.Pool<Part>? = nil -- the Freeze Frame slices (in this folder)
 local function fxFolder(): Folder
 	local f = folder
 	if f and f.Parent then
@@ -68,6 +79,7 @@ local function fxFolder(): Folder
 	made.Name = "FreezeFrameFx"
 	made.Parent = Workspace
 	folder = made
+	slicePool = nil
 	return made
 end
 
@@ -96,16 +108,54 @@ local function jitter(amount: number): Vector3
 	return Vector3.new(rng:NextNumber(-amount, amount), 0, rng:NextNumber(-amount, amount))
 end
 
--- A flat ring (MOD_RING on a thin part's top face).
-local function ring(color: Color3, alpha: number): (Part, Decal)
+-- A flat ring on the floor: the kit's crystal crown (Ring_Energy) or, without
+-- the kit, MOD_RING on a thin part's top face.
+type Ring = {
+	part: BasePart,
+	set: (center: Vector3, diameter: number, alpha: number) -> (),
+	free: () -> (),
+}
+
+local function ring(color: Color3): Ring
+	local found = IceKit.acquire("Ring_Energy")
+	if found then
+		local kit: BasePart = found -- non-optional for the closures below
+		kit.Color = color
+		kit.Material = Enum.Material.Neon
+		local yaw = IceKit.yaw(rng)
+		return {
+			part = kit,
+			set = function(center: Vector3, diameter: number, alpha: number)
+				IceKit.place(
+					kit,
+					CFrame.new(center) * yaw,
+					Vector3.new(diameter / 2, 1.5, diameter / 2)
+				)
+				kit.Transparency = alpha
+			end,
+			free = function()
+				IceKit.release(kit)
+			end,
+		}
+	end
 	local p = part({ Size = Vector3.new(1, 0.05, 1), Transparency = 1 })
 	local d = Instance.new("Decal")
 	d.Face = Enum.NormalId.Top
 	d.Texture = VFX.MOD_RING
 	d.Color3 = color
-	d.Transparency = alpha
+	d.Transparency = 1
 	d.Parent = p
-	return p, d
+	return {
+		part = p,
+		set = function(center: Vector3, diameter: number, alpha: number)
+			p.Size = Vector3.new(diameter, 0.05, diameter)
+			p.CFrame = CFrame.new(center)
+			d.Transparency = alpha
+		end,
+		free = function()
+			p:Destroy()
+		end,
+	}
 end
 
 -- A pause mark ("❚❚" as two bars, so no font has to have the glyph) and
@@ -203,7 +253,44 @@ end
 
 -- The burst -------------------------------------------------------------------------
 
+-- The kit's spikes: faceted crystals snapping out of the floor, one in four
+-- a flickering magenta sliver. False when the kit isn't installed.
+local function kitSpikes(at: Vector3, radius: number): boolean
+	if not IceKit.ready() then
+		return false
+	end
+	local count = math.clamp(math.floor(radius * 1.2), 10, 22)
+	for i = 1, count do
+		local angle = (i + rng:NextNumber(-0.3, 0.3)) / count * math.pi * 2
+		local out = Vector3.new(math.cos(angle), 0, math.sin(angle))
+		local len = rng:NextNumber(2, 4.5) * math.clamp(radius / 10, 1, 1.4)
+		local base = at + out * radius * rng:NextNumber(0.82, 1)
+		local neon = i % 4 == 0
+		IceKit.spawn({
+			name = if neon then IceKit.SHARDS[3] else IceKit.pick(rng, IceKit.SHARDS),
+			at = CFrame.lookAt(base, base + out)
+				* CFrame.Angles(-math.rad(rng:NextNumber(15, 35)), rng:NextNumber(0, math.pi), 0)
+				* CFrame.new(0, -len * 0.15, 0),
+			scale = Vector3.new(len * 1.3, len, len * 1.3),
+			color = if neon then GLITCH elseif rng:NextNumber() < 0.5 then ICE else ICE_DEEP,
+			material = if neon then Enum.Material.Neon else Enum.Material.SmoothPlastic,
+			alpha = if neon then 0.35 else 0.12,
+			flicker = if neon then 0.45 else nil,
+			life = SPIKE_RISE + SPIKE_HOLD + SPIKE_SINK,
+			from = 0.05,
+			grow = SPIKE_RISE,
+			snap = true,
+			fade = SPIKE_SINK,
+			sink = len * 0.6,
+		})
+	end
+	return true
+end
+
 local function spikeRing(at: Vector3, radius: number)
+	if kitSpikes(at, radius) then
+		return
+	end
 	local count = math.clamp(math.floor(radius * 1.2), 10, 22)
 	local spikes: { { p: Part, home: CFrame, len: number, neon: boolean } } = {}
 	for i = 1, count do
@@ -256,46 +343,44 @@ local function snapFreeze(at: Vector3, radius: number, team: number?)
 	local born = os.clock()
 
 	-- The ring and its two chromatic ghosts.
-	local main, mainDecal = ring(rim, 0)
-	local magenta, magentaDecal = ring(GLITCH, 0.35)
-	local cyan, cyanDecal = ring(GHOST, 0.35)
+	local main = ring(rim)
+	local magenta = ring(GLITCH)
+	local cyan = ring(GHOST)
 	local light = Instance.new("PointLight")
 	light.Color = ICE
 	light.Brightness = 6
 	light.Range = radius * 2
 	light.Shadows = false
-	light.Parent = main
-	local glyph, glyphMarks = pauseTag(main, Vector3.new(0, 4.5, 0), 2.2, rim, false)
+	light.Parent = main.part
+	local glyph, glyphMarks = pauseTag(main.part, Vector3.new(0, 4.5, 0), 2.2, rim, false)
 	local nextTick = 0
+	local magentaAt, cyanAt = floor, floor
 	table.insert(running, function(now: number): boolean
 		local t = os.clock() - born
 		if t >= RING_OUT + RING_HOLD + RING_POP then
-			main:Destroy()
-			magenta:Destroy()
-			cyan:Destroy()
+			light:Destroy()
 			glyph:Destroy()
+			main.free()
+			magenta.free()
+			cyan.free()
 			return false
 		end
 		local d = radius * 2 * easeOut(t / RING_OUT)
 		local pop = math.clamp((t - RING_OUT - RING_HOLD) / RING_POP, 0, 1)
-		local size = Vector3.new(d * (1 + 0.12 * pop), 0.05, d * (1 + 0.12 * pop))
-		main.Size = size
-		main.CFrame = CFrame.new(floor)
-		mainDecal.Transparency = pop
+		local size = d * (1 + 0.12 * pop)
+		main.set(floor, size, pop)
 		light.Brightness = 6 * (1 - math.clamp(t / (RING_OUT + RING_HOLD), 0, 1))
 		-- Held: the ghosts jitter on a stepped clock (a stuck frame), the glyph flickers.
 		local held = t >= RING_OUT and pop == 0
 		if now >= nextTick then
 			nextTick = now + rng:NextNumber(0.04, 0.09)
-			magenta.CFrame = CFrame.new(floor + jitter(if held then 0.7 else 0.3))
-			cyan.CFrame = CFrame.new(floor + jitter(if held then 0.7 else 0.3))
+			magentaAt = floor + jitter(if held then 0.7 else 0.3)
+			cyanAt = floor + jitter(if held then 0.7 else 0.3)
 			glyph.Enabled = held and rng:NextNumber() < 0.8
 			splitGhosts(glyphMarks, 4)
 		end
-		magenta.Size = size
-		cyan.Size = size
-		magentaDecal.Transparency = if pop > 0 then 1 else 0.35
-		cyanDecal.Transparency = if pop > 0 then 1 else 0.35
+		magenta.set(magentaAt, size, if pop > 0 then 1 else 0.35)
+		cyan.set(cyanAt, size, if pop > 0 then 1 else 0.35)
 		return true
 	end)
 
@@ -312,16 +397,46 @@ local function snapFreeze(at: Vector3, radius: number, team: number?)
 	})
 	ModVfx.burst(at + Vector3.new(0, 1, 0), ICE, 30, "Sparkle")
 	ModVfx.burst(at + Vector3.new(0, 1, 0), GLITCH, 12, "Sparkle")
-	ModVfx.quad({
-		texture = VFX.FROST_GROUND,
-		cframe = CFrame.new(at + Vector3.new(0, 0.05, 0)),
-		from = radius * 1.9,
-		to = radius * 2.1,
-		color = ICE_DEEP,
-		life = GROUND_TIME,
-		alpha0 = 0.05,
-		hold = true,
-	})
+	-- Frost on the floor: the kit's faceted patch with magenta cracks
+	-- flickering in it, or the older frost decal.
+	local patch = CFrame.new(at + Vector3.new(0, 0.02, 0)) * IceKit.yaw(rng)
+	local flat = Vector3.new(radius, 1.5, radius)
+	if
+		not IceKit.spawn({
+			name = "Floor",
+			at = patch,
+			scale = flat,
+			color = ICE_DEEP,
+			alpha = 0.3,
+			life = GROUND_TIME,
+			from = 0.95,
+			grow = RING_OUT,
+			fade = 0.6,
+		})
+	then
+		ModVfx.quad({
+			texture = VFX.FROST_GROUND,
+			cframe = CFrame.new(at + Vector3.new(0, 0.05, 0)),
+			from = radius * 1.9,
+			to = radius * 2.1,
+			color = ICE_DEEP,
+			life = GROUND_TIME,
+			alpha0 = 0.05,
+			hold = true,
+		})
+	else
+		IceKit.spawn({
+			name = "Cracks_Energy",
+			at = patch,
+			scale = flat,
+			color = GLITCH,
+			material = Enum.Material.Neon,
+			alpha = 0.2,
+			flicker = 0.5,
+			life = RING_OUT + RING_HOLD + RING_POP,
+			fade = RING_POP,
+		})
+	end
 	ModVfx.quad({
 		texture = VFX.MOD_HEX,
 		cframe = CFrame.new(at + Vector3.new(0, 0.06, 0)),
@@ -349,25 +464,53 @@ end
 
 type Line = { frame: Frame, base: number }
 
+type Shard = { p: BasePart, rel: CFrame, neon: boolean, scale: Vector3 }
+
 type Block = {
 	model: Model,
 	root: BasePart,
 	rel: CFrame, -- the block's centre from the root
 	size: Vector3,
-	main: Part,
-	shards: { { p: Part, rel: CFrame, neon: boolean } },
+	kit: boolean, -- the ice kit's Shell (else the older glass block)
+	scale: Vector3, -- the Shell's kit scale
+	main: BasePart,
+	shards: { Shard },
 	lines: { Line },
 	tear: { Frame },
+	slices: { Part }, -- the kit's look: magenta scanline slices through the ice
+	pixels: BasePart?, -- the kit's look: magenta pixel cubes on a datamosh jump
 	tag: BillboardGui,
 	tagMarks: { Mark },
 	nextGlitch: number,
 	glitchUntil: number,
 	offset: Vector3,
+	pixelAt: CFrame,
 }
 
 local blocks: { [Model]: Block } = {}
 
 local LINES = 7
+local SLICES = 2
+local SHELL_ALPHA = 0.45 -- the frozen body shows through the ice
+
+-- Thin magenta slices sweeping down through the kit's block (pooled).
+local function slices(): VfxPool.Pool<Part>
+	local pool = slicePool
+	if pool then
+		return pool
+	end
+	local made = VfxPool.new(function(): Part
+		return part({
+			Name = "FreezeFrameSlice",
+			Size = Vector3.new(1, 0.05, 1),
+			Material = Enum.Material.Neon,
+			Color = GLITCH,
+			Transparency = 1,
+		})
+	end, fxFolder(), 0)
+	slicePool = made
+	return made
+end
 
 -- Magenta scanlines over one face of the block, scrolled in step.
 local function scanFace(block: Block, face: Enum.NormalId)
@@ -398,6 +541,65 @@ local function scanFace(block: Block, face: Enum.NormalId)
 	gui.Parent = block.main
 end
 
+-- The kit's block: the faceted Shell around the body, two magenta crystal
+-- slivers, scanline slices and a pixel accent. Nil when the kit isn't installed.
+local function kitShell(
+	size: Vector3,
+	cf: CFrame
+): (BasePart?, Vector3, { Shard }, { Part }, BasePart?)
+	local core = IceKit.SHELL_CORE
+	local scale = size / core
+	local shell = IceKit.acquire("Shell")
+	if not shell then
+		return nil, scale, {}, {}, nil
+	end
+	shell.Color = ICE
+	shell.Material = Enum.Material.SmoothPlastic
+	shell.Transparency = SHELL_ALPHA
+	IceKit.place(shell, cf, scale)
+	local shards: { Shard } = {}
+	local half = size / 2
+	for i = 1, 2 do
+		local p = IceKit.acquire("Shard3")
+		if p then
+			local side = if i == 1 then -1 else 1
+			local spot = Vector3.new(
+				side * half.X * 0.9,
+				rng:NextNumber(-0.2, 0.6) * half.Y,
+				rng:NextNumber(-0.5, 0.5) * half.Z
+			)
+			local out = Vector3.new(side, 0.7, 0).Unit
+			local len = rng:NextNumber(1.3, 2)
+			p.Color = GLITCH
+			p.Material = Enum.Material.Neon
+			p.Transparency = 0.3
+			table.insert(shards, {
+				p = p,
+				rel = CFrame.lookAt(spot, spot + out)
+					* CFrame.Angles(-math.pi / 2, rng:NextNumber(0, math.pi), 0)
+					* CFrame.new(0, -len * 0.3, 0),
+				neon = true,
+				scale = Vector3.one * len,
+			})
+		end
+	end
+	local cuts: { Part } = {}
+	local pool = slices()
+	for _ = 1, SLICES do
+		local s = pool:acquire()
+		s.Size = Vector3.new(size.X * 0.9, 0.05, size.Z * 0.9)
+		s.Transparency = 0.35
+		table.insert(cuts, s)
+	end
+	local pixels = IceKit.acquire("Pixels_Energy")
+	if pixels then
+		pixels.Color = GLITCH
+		pixels.Material = Enum.Material.Neon
+		pixels.Transparency = 1
+	end
+	return shell, scale, shards, cuts, pixels
+end
+
 local function encase(model: Model, root: BasePart): Block
 	-- The body's box, padded, in the root's frame (accessories and a long
 	-- gun stay within sane limits).
@@ -414,31 +616,41 @@ local function encase(model: Model, root: BasePart): Block
 		math.clamp(c.Z, -0.5, 0.5)
 	)
 	local teamColor = TeamColor.forOwner(Players:GetPlayerFromCharacter(model) or model)
-	local main = part({
-		Name = "FreezeFrameIce",
-		Size = size,
-		Material = Enum.Material.Glass,
-		Color = ICE,
-		Transparency = 0.55,
-		Reflectance = 0.1,
-		CFrame = root.CFrame * rel,
-	})
+	local shell, scale, kitShards, cuts, pixels = kitShell(size, root.CFrame * rel)
+	local main: BasePart = shell
+		or part({
+			Name = "FreezeFrameIce",
+			Size = size,
+			Material = Enum.Material.Glass,
+			Color = ICE,
+			Transparency = 0.55,
+			Reflectance = 0.1,
+			CFrame = root.CFrame * rel,
+		})
 	local tag, tagMarks = pauseTag(main, Vector3.new(0, size.Y / 2 + 1.2, 0), 1.1, teamColor, true)
 	local block: Block = {
 		model = model,
 		root = root,
 		rel = rel,
 		size = size,
+		kit = shell ~= nil,
+		scale = scale,
 		main = main,
-		shards = {},
+		shards = kitShards,
 		lines = {},
 		tear = {},
+		slices = cuts,
+		pixels = pixels,
 		tag = tag,
 		tagMarks = tagMarks,
 		nextGlitch = 0,
 		glitchUntil = 0,
 		offset = Vector3.zero,
+		pixelAt = CFrame.identity,
 	}
+	if block.kit then
+		return block
+	end
 	for _, face in
 		{ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }
 	do
@@ -473,65 +685,120 @@ local function encase(model: Model, root: BasePart): Block
 			Reflectance = if neon then 0 else 0.2,
 			CFrame = main.CFrame * shardRel,
 		})
-		table.insert(block.shards, { p = shard, rel = shardRel, neon = neon })
+		table.insert(block.shards, { p = shard, rel = shardRel, neon = neon, scale = Vector3.one })
 	end
 	return block
 end
 
--- Breaks the block apart: glass chunks flying out, a pop of shards and static.
-local function shatter(block: Block, loud: boolean)
-	local center = block.main.Position
+-- The kit's shatter: faceted chips flying out (one in five magenta).
+local function kitChips(block: Block)
 	local half = block.size / 2
-	local chunks: { Part } = {}
-	for _ = 1, 12 do
+	local base = block.root.CFrame * block.rel -- the block's own axes (the mesh part's are turned)
+	for i = 1, 7 do
 		local spot = Vector3.new(
 			rng:NextNumber(-half.X, half.X),
 			rng:NextNumber(-half.Y, half.Y),
 			rng:NextNumber(-half.Z, half.Z)
 		)
-		local s = rng:NextNumber(0.3, 0.9)
-		local p = part({
-			Size = Vector3.new(s, s * rng:NextNumber(0.6, 1.8), s),
-			Material = Enum.Material.Glass,
-			Color = if rng:NextNumber() < 0.2 then GLITCH else ICE,
-			Transparency = 0.2,
-			CFrame = block.main.CFrame
-				* CFrame.new(spot)
-				* CFrame.Angles(rng:NextNumber(0, math.pi), rng:NextNumber(0, math.pi), 0),
-		})
-		p.Anchored = false
-		p.Massless = true
 		local out = spot * Vector3.new(1, 0, 1)
 		local dir = if out.Magnitude > 0.01 then out.Unit else Vector3.xAxis
-		p.AssemblyLinearVelocity = dir * rng:NextNumber(10, 22)
-			+ Vector3.new(0, rng:NextNumber(8, 18), 0)
-		p.AssemblyAngularVelocity =
-			Vector3.new(rng:NextNumber(-12, 12), rng:NextNumber(-12, 12), rng:NextNumber(-12, 12))
-		table.insert(chunks, p)
+		local neon = i % 5 == 0
+		IceKit.spawn({
+			name = IceKit.FRAGMENTS[(i - 1) % 3 + 1],
+			at = base * CFrame.new(spot) * IceKit.yaw(rng),
+			scale = Vector3.one * rng:NextNumber(0.6, 1.2),
+			color = if neon then GLITCH else ICE,
+			material = if neon then Enum.Material.Neon else Enum.Material.SmoothPlastic,
+			alpha = 0.1,
+			life = 0.8,
+			fade = 0.45,
+			velocity = base:VectorToWorldSpace(dir) * rng:NextNumber(10, 22)
+				+ Vector3.new(0, rng:NextNumber(8, 18), 0),
+			spin = Vector3.new(
+				rng:NextNumber(-12, 12),
+				rng:NextNumber(-12, 12),
+				rng:NextNumber(-12, 12)
+			),
+		})
 	end
-	local born = os.clock()
-	table.insert(running, function(_now: number): boolean
-		local t = os.clock() - born
-		if t >= 0.8 then
-			for _, c in chunks do
-				c:Destroy()
+end
+
+-- Breaks the block apart: chunks flying out, a pop of shards and static.
+local function shatter(block: Block, loud: boolean)
+	local center = block.main.Position
+	if block.kit then
+		kitChips(block)
+	else
+		local half = block.size / 2
+		local chunks: { Part } = {}
+		for _ = 1, 12 do
+			local spot = Vector3.new(
+				rng:NextNumber(-half.X, half.X),
+				rng:NextNumber(-half.Y, half.Y),
+				rng:NextNumber(-half.Z, half.Z)
+			)
+			local s = rng:NextNumber(0.3, 0.9)
+			local p = part({
+				Size = Vector3.new(s, s * rng:NextNumber(0.6, 1.8), s),
+				Material = Enum.Material.Glass,
+				Color = if rng:NextNumber() < 0.2 then GLITCH else ICE,
+				Transparency = 0.2,
+				CFrame = block.main.CFrame
+					* CFrame.new(spot)
+					* CFrame.Angles(rng:NextNumber(0, math.pi), rng:NextNumber(0, math.pi), 0),
+			})
+			p.Anchored = false
+			p.Massless = true
+			local out = spot * Vector3.new(1, 0, 1)
+			local dir = if out.Magnitude > 0.01 then out.Unit else Vector3.xAxis
+			p.AssemblyLinearVelocity = dir * rng:NextNumber(10, 22)
+				+ Vector3.new(0, rng:NextNumber(8, 18), 0)
+			p.AssemblyAngularVelocity = Vector3.new(
+				rng:NextNumber(-12, 12),
+				rng:NextNumber(-12, 12),
+				rng:NextNumber(-12, 12)
+			)
+			table.insert(chunks, p)
+		end
+		local born = os.clock()
+		table.insert(running, function(_now: number): boolean
+			local t = os.clock() - born
+			if t >= 0.8 then
+				for _, c in chunks do
+					c:Destroy()
+				end
+				return false
 			end
-			return false
-		end
-		for _, c in chunks do
-			c.Transparency = 0.2 + 0.8 * math.clamp((t - 0.35) / 0.45, 0, 1)
-		end
-		return true
-	end)
-	ModVfx.burst(center, ICE, 24, "Sparkle")
-	ModVfx.burst(center, GLITCH, 8, "Sparkle")
+			for _, c in chunks do
+				c.Transparency = 0.2 + 0.8 * math.clamp((t - 0.35) / 0.45, 0, 1)
+			end
+			return true
+		end)
+	end
+	ModVfx.burst(center, ICE, if block.kit then 14 else 24, "Sparkle")
+	ModVfx.burst(center, GLITCH, if block.kit then 5 else 8, "Sparkle")
 	if loud then
 		ModAudio.play(S.shatter, center)
 	end
-	block.main:Destroy()
 	block.tag:Destroy()
-	for _, s in block.shards do
-		s.p:Destroy()
+	if block.kit then
+		IceKit.release(block.main)
+		for _, s in block.shards do
+			IceKit.release(s.p)
+		end
+		local pool = slices()
+		for _, s in block.slices do
+			pool:release(s)
+		end
+		local pixels = block.pixels
+		if pixels then
+			IceKit.release(pixels)
+		end
+	else
+		block.main:Destroy()
+		for _, s in block.shards do
+			s.p:Destroy()
+		end
 	end
 end
 
@@ -548,18 +815,45 @@ local function stepBlock(block: Block, now: number, left: number)
 			tear.Position = UDim2.fromScale(0, rng:NextNumber(0, 0.9))
 			tear.Size = UDim2.fromScale(1, rng:NextNumber(0.03, 0.12))
 		end
+		-- The kit's pixel cubes land on a random side of the block.
+		local half = block.size / 2
+		local side = if rng:NextNumber() < 0.5 then -1 else 1
+		block.pixelAt = CFrame.new(0, rng:NextNumber(-0.4, 0.6) * half.Y, side * (half.Z + 0.1))
 	end
 	local glitching = now < block.glitchUntil
 	local offset = if glitching then block.offset else Vector3.zero
 	local base = block.root.CFrame * block.rel * CFrame.new(offset)
-	block.main.CFrame = base
-	block.main.Color = if glitching then GLITCH else ICE
-	for _, s in block.shards do
-		s.p.CFrame = base * s.rel
-		if s.neon then
+	if block.kit then
+		IceKit.place(block.main, base, block.scale)
+		for _, s in block.shards do
+			IceKit.place(s.p, base * s.rel, s.scale)
 			s.p.Transparency = if glitching then 0 else 0.3
 		end
+		-- Two magenta slices sweep down through the ice, a stuck video line.
+		local h = block.size.Y
+		for i, s in block.slices do
+			local y = h / 2 - ((now * 0.6 + (i - 1) / #block.slices) % 1) * h
+			s.CFrame = base * CFrame.new(0, y, 0)
+		end
+		local pixels = block.pixels
+		if pixels then
+			if glitching then
+				IceKit.place(pixels, base * block.pixelAt, Vector3.one * 1.1)
+				pixels.Transparency = 0.05
+			else
+				pixels.Transparency = 1
+			end
+		end
+	else
+		block.main.CFrame = base
+		for _, s in block.shards do
+			s.p.CFrame = base * s.rel
+			if s.neon then
+				s.p.Transparency = if glitching then 0 else 0.3
+			end
+		end
 	end
+	block.main.Color = if glitching then GLITCH else ICE
 	-- Scanlines crawl down the faces.
 	local scroll = (now * 0.35) % 1
 	for _, line in block.lines do

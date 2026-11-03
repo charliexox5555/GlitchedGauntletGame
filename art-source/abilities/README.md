@@ -26,6 +26,7 @@ The `Icons/` folder belongs to the icon pipeline (`tools/icons/`), not to these 
 | `ModVFX` | 130699290674585 | VFX meshes (4 parts) |
 | `FireVFX` | 115228227823248 | stylized fire kit (10 parts; uploaded 2026-11-03) |
 | `GlitchVFX` | 79752940515956 | glitch VFX kit (17 parts; uploaded 2026-11-03) |
+| `IceVFX` | 99804256205553 (2026-11-03) | VFX meshes (15 parts): the ice kit |
 | Firewall grid decal | 74639457803541 (Decal; the builder looks up its image) | texture |
 
 ## Build steps (code session, Stage 3)
@@ -59,6 +60,7 @@ Every Model: `PrimaryPart = Root` (invisible 0.2 part, pivot at the Blender orig
 | `LagField` | the centre | `Handle` + `RightGrip` | **`Spinner_Energy`** (spin it about the model's Y axis while the zone is up), `Core_Energy`; `HoldOffset` attribute |
 | `FireVFX` | each mesh at its anchor (Blender origin): a flame's base, the wall's / patch's floor centre, the spark's middle | none | All `*_Energy`, coloured in code by `Util/FireKit` (fire colours, magenta for Fork Fire; **not** team-tinted). `Sheet` (wall curtain 4.4 long (Z) x 1 thick (X) x 9.3 tall), `Core` (yellow licks on both faces), `Tongue1`-`3` (flame tongues, 1 tall, width along Z), `Pool` (floor disc r 0.95), `Ring` (edge band r 0.88-1), `CrownA` / `CrownB` (rings of rim flames r 0.975 / 0.92), `Spark` (ember shard). Closed volumes: no DoubleSided needed |
 | `ModVFX` | each mesh at the origin | none | `Shockwave_Energy` (flat ring r 0.7 → 1), `Dome_Energy` (hemisphere r 1), `Sphere_Energy` (r 1), `ScanRing_Energy` (vertical band r 1, 0.25 tall): clone and scale; U wraps around, V runs along the effect |
+| `IceVFX` | each mesh at its kit origin (crystals and slabs: the base; Shell, chips, Pixels, Scanlines: the centre; Ring, Floor, Cracks: the floor) | none | Every part. `Shard1`–`Shard3`, `Cluster` (~1 tall), `SlabA` / `SlabB` (wall segment: core 1.2 thick × 10 tall × 4 along the wall), `Shell` (frozen-body block: core 4 wide × 5.6 tall × 2.4 deep), `Fragment1`–`3`, `Ring_Energy` (r 1), `Floor` + `Cracks_Energy` (r 1), `Pixels_Energy`, `Scanlines_Energy`. Untextured and flat-shaded: `Util/IceKit` clones, scales and colours them (ice SmoothPlastic, Neon for `*_Energy`). Source `tools/blender/build_mod_icevfx.py` |
 
 **Firewall panel standard (handler, 2026-10-26):** L1 blocks bullets, **not vision**, so the panel is see-through: Neon at **Transparency 0.5** with the tinted grid Decals reading on top (white lines and a glowing rim on transparent, `FirewallGrid.png`). It is `CanQuery = false` in the template: the server's bullet blocking should use its own hitbox, not this mesh. B2 Burn Wall is the variant that blocks vision (make it opaque in code, not a separate model).
 

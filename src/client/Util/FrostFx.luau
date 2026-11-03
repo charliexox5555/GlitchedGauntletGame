@@ -4,8 +4,16 @@
 -- shards, frost spreading on the floor and fading after a few seconds), the
 -- frost crystals and cold mist on anyone hindered (players and dummies, read
 -- from their HinderedUntil), and for us while hindered: an icy screen-edge
--- vignette, a cold loop, and the thaw when it ends. Textures are the Frost's
--- Blender renders (Config/VfxTextures FROST_*), tinted cold blue here.
+-- vignette, a cold loop, and the thaw when it ends.
+--
+-- Stylized look (2026-11-03, Util/IceKit): faceted Blender crystals instead of
+-- realistic mist. The burst is a crisp ring snapping out, a faceted frost
+-- patch with glowing cracks, a crystal cluster bursting up at the centre and
+-- a ring of crystal spikes, all sinking back into the floor; a hindered body
+-- has a few crystals and a small frost patch at its feet that shatter off
+-- when it ends. A puff of mist and a few sparkles are the only particles.
+-- Until ReplicatedStorage.Abilities.IceVFX is installed it falls back to the
+-- older look from the Frost's Blender renders (Config/VfxTextures FROST_*).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,6 +24,7 @@ local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local Status = require(ReplicatedStorage.Shared.Mods.Status)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
+local IceKit = require(script.Parent.IceKit)
 local ModAudio = require(script.Parent.ModAudio)
 local ModVfx = require(script.Parent.ModVfx)
 
@@ -25,7 +34,10 @@ local S = ModSounds.Frost
 local player = Players.LocalPlayer
 
 local ICE = Color3.fromHex("BFE8FF")
+local DEEP = Color3.fromHex("7FD4FF") -- every other crystal: a deeper blue
+local CRACK = Color3.fromHex("E8F8FF") -- the ring and the cracks glow ice white
 local GROUND_TIME = 3.5 -- the frost on the floor lingers, then fades
+local rng = Random.new()
 local VIGNETTE_IN = TweenInfo.new(0.2)
 local VIGNETTE_OUT = TweenInfo.new(0.5)
 
@@ -126,18 +138,116 @@ local function rig(): Burst
 	return made
 end
 
+-- The stylized burst from the ice kit; false when it isn't installed.
+local function kitBurst(at: Vector3, radius: number): boolean
+	if not IceKit.ready() then
+		return false
+	end
+	local floor = CFrame.new(at + Vector3.new(0, 0.02, 0)) * IceKit.yaw(rng)
+	local flat = Vector3.new(radius, 1.5, radius)
+	-- The frost patch and its cracks snap out under the ring.
+	IceKit.spawn({
+		name = "Floor",
+		at = floor,
+		scale = flat,
+		color = ICE,
+		alpha = 0.35,
+		life = GROUND_TIME,
+		from = 0.3,
+		grow = 0.15,
+		fade = 0.6,
+	})
+	IceKit.spawn({
+		name = "Cracks_Energy",
+		at = floor,
+		scale = flat,
+		color = CRACK,
+		material = Enum.Material.Neon,
+		alpha = 0.15,
+		life = 1,
+		from = 0.3,
+		grow = 0.15,
+		fade = 0.6,
+	})
+	IceKit.spawn({
+		name = "Ring_Energy",
+		at = floor * IceKit.yaw(rng),
+		scale = flat,
+		color = CRACK,
+		material = Enum.Material.Neon,
+		life = 0.45,
+		from = 0.25,
+		grow = 0.16,
+		fade = 0.25,
+	})
+	-- A crystal cluster bursts up at the centre, spikes around it.
+	local big = math.sqrt(radius / 10)
+	IceKit.spawn({
+		name = "Cluster",
+		at = floor,
+		scale = Vector3.one * 2.6 * big,
+		color = ICE,
+		alpha = 0.1,
+		life = 1.2,
+		from = 0.1,
+		grow = 0.12,
+		snap = true,
+		fade = 0.35,
+		sink = 2.8 * big,
+	})
+	local count = math.clamp(math.floor(radius * 0.7), 6, 12)
+	for i = 1, count do
+		local angle = (i + rng:NextNumber(-0.3, 0.3)) / count * math.pi * 2
+		local out = Vector3.new(math.cos(angle), 0, math.sin(angle))
+		local dist = radius * rng:NextNumber(0.35, 0.7)
+		local len = rng:NextNumber(1.6, 2.6) * big
+		local base = at + out * dist
+		IceKit.spawn({
+			name = IceKit.pick(rng, IceKit.SHARDS),
+			at = CFrame.lookAt(base, base + out)
+				* CFrame.Angles(-math.rad(rng:NextNumber(20, 35)), rng:NextNumber(0, math.pi), 0),
+			scale = Vector3.new(len * 1.2, len, len * 1.2),
+			color = if i % 2 == 0 then DEEP else ICE,
+			alpha = 0.1,
+			delay = dist / radius * 0.08,
+			life = 0.9,
+			from = 0.05,
+			grow = 0.1,
+			snap = true,
+			fade = 0.3,
+			sink = len,
+		})
+	end
+	ModVfx.shell({
+		shape = Enum.PartType.Ball,
+		cframe = CFrame.new(at + Vector3.new(0, 1, 0)),
+		from = Vector3.one * 2,
+		to = Vector3.one * radius * 0.6,
+		color = ICE,
+		life = 0.14,
+		alpha0 = 0.3,
+		material = Enum.Material.Neon,
+	})
+	ModVfx.burst(at + Vector3.new(0, 1, 0), ICE, 12, "Sparkle")
+	return true
+end
+
 -- The canister burst at `at` (the floor).
 function FrostFx.burst(at: Vector3, radius: number)
 	local r = rig()
 	r.part.CFrame = CFrame.new(at + Vector3.new(0, 0.5, 0))
 	r.mist.Speed = NumberRange.new(radius * 1.1, radius * 1.9)
-	r.mist:Emit(14)
-	r.flash:Emit(1)
-	r.shards:Emit(24)
 	r.light.Brightness = 5
 	TweenService:Create(r.light, TweenInfo.new(0.5), { Brightness = 0 }):Play()
 	ModAudio.play(S.burst, at)
 	ModAudio.play(S.burstCrackle, at)
+	if kitBurst(at, radius) then
+		r.mist:Emit(4) -- just a soft puff under the crystals
+		return
+	end
+	r.mist:Emit(14)
+	r.flash:Emit(1)
+	r.shards:Emit(24)
 	-- Frost spreading on the floor, then fading.
 	ModVfx.quad({
 		texture = VFX.FROST_GROUND,
@@ -159,14 +269,120 @@ function FrostFx.fizzle(at: Vector3)
 	r.mist:Emit(3)
 end
 
--- Frost on anyone hindered: crystals and cold mist on the body.
-type Body = { crystals: ParticleEmitter, mist: ParticleEmitter, root: BasePart }
-local bodies: { [Model]: Body } = setmetatable({}, { __mode = "k" }) :: any
+-- Frost on anyone hindered: crystals and cold mist on the body (with the kit:
+-- crystals and a frost patch at the feet, and much less mist).
+type Ice = { part: BasePart, rel: CFrame, scale: Vector3 }
+type Body = {
+	crystals: ParticleEmitter,
+	mist: ParticleEmitter,
+	root: BasePart,
+	ice: { Ice }?,
+	iceBorn: number,
+	seen: number, -- the last step that checked it
+}
+-- Strong keys: a Body can hold pooled kit parts, which must be released (the
+-- step drops bodies it no longer sees).
+local bodies: { [Model]: Body } = {}
+
+local FEET_ICE = 3 -- crystals at a hindered body's feet
+local ICE_GROW = 0.15
+
+-- From the root down to the floor under the body.
+local function feetOf(model: Instance, root: BasePart): CFrame
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	local hip = if humanoid then humanoid.HipHeight else 2
+	return root.CFrame * CFrame.new(0, -(hip + root.Size.Y / 2), 0)
+end
+
+-- Takes the feet ice off (`shatter`: it breaks off in a few chips).
+local function freeIce(b: Body, shatter: boolean)
+	local ice = b.ice
+	if not ice then
+		return
+	end
+	b.ice = nil
+	for _, piece in ice do
+		IceKit.release(piece.part)
+	end
+	local model = b.root.Parent
+	if not shatter or not model then
+		return
+	end
+	local at = feetOf(model, b.root).Position + Vector3.new(0, 0.6, 0)
+	for i = 1, 3 do
+		local dir = Vector3.new(rng:NextNumber(-1, 1), 0, rng:NextNumber(-1, 1))
+		IceKit.spawn({
+			name = IceKit.FRAGMENTS[i],
+			at = CFrame.new(at) * IceKit.yaw(rng),
+			scale = Vector3.one * rng:NextNumber(0.35, 0.55),
+			color = ICE,
+			alpha = 0.1,
+			life = 0.5,
+			fade = 0.2,
+			velocity = dir * 8 + Vector3.new(0, rng:NextNumber(8, 14), 0),
+			spin = Vector3.new(rng:NextNumber(-9, 9), rng:NextNumber(-9, 9), 0),
+		})
+	end
+end
+
+-- Crystals and a frost patch at the feet (false: the kit isn't installed).
+local function holdIce(b: Body, model: Model): boolean
+	local ice = b.ice
+	if not ice then
+		if not IceKit.ready() then
+			return false
+		end
+		local patch = IceKit.acquire("Floor")
+		if not patch then
+			return false
+		end
+		patch.Color = ICE
+		patch.Material = Enum.Material.SmoothPlastic
+		patch.Transparency = 0.4
+		local made: { Ice } = {
+			{
+				part = patch,
+				rel = CFrame.new(0, 0.03, 0) * IceKit.yaw(rng),
+				scale = Vector3.new(1.7, 1.5, 1.7),
+			},
+		}
+		for i = 1, FEET_ICE do
+			local p = IceKit.acquire(IceKit.SHARDS[i])
+			if p then
+				local angle = (i + rng:NextNumber(-0.25, 0.25)) / FEET_ICE * math.pi * 2
+				local out = Vector3.new(math.cos(angle), 0, math.sin(angle))
+				local len = rng:NextNumber(0.9, 1.4)
+				p.Color = if i == 2 then DEEP else ICE
+				p.Material = Enum.Material.SmoothPlastic
+				p.Transparency = 0.1
+				table.insert(made, {
+					part = p,
+					rel = CFrame.lookAt(out * 0.8, out * 2)
+						* CFrame.Angles(-math.rad(rng:NextNumber(25, 40)), 0, 0),
+					scale = Vector3.new(len * 1.2, len, len * 1.2),
+				})
+			end
+		end
+		ice = made
+		b.ice = made
+		b.iceBorn = os.clock()
+	end
+	local feet = feetOf(model, b.root)
+	local x = math.clamp((os.clock() - b.iceBorn) / ICE_GROW, 0, 1)
+	local grow = 0.1 + 0.9 * (1 - (1 - x) * (1 - x))
+	for _, piece in ice do
+		IceKit.place(piece.part, feet * piece.rel, piece.scale * grow)
+	end
+	return true
+end
 
 local function bodyOf(model: Model, root: BasePart): Body
 	local b = bodies[model]
 	if b and b.root == root and b.crystals.Parent then
 		return b
+	end
+	if b then
+		freeIce(b, false) -- a new character: the old feet ice goes
 	end
 	local existing = root:FindFirstChild("FrostCrystals")
 	local crystals: ParticleEmitter
@@ -197,7 +413,7 @@ local function bodyOf(model: Model, root: BasePart): Body
 		mist.Transparency = curve({ 0, 1, 0.3, 0.6, 1, 1 })
 	end
 	mist.Name = "FrostMist"
-	local made = { crystals = crystals, mist = mist, root = root }
+	local made = { crystals = crystals, mist = mist, root = root, ice = nil, iceBorn = 0, seen = 0 }
 	bodies[model] = made
 	return made
 end
@@ -246,8 +462,13 @@ local function setHindered(on: boolean)
 	end
 end
 
--- Per frame (ModFxController.update).
+local stepCount = 0
+
+-- Per frame (ModFxController.update). Also animates the ice kit's timed
+-- pieces for every ice effect (Util/IceKit).
 function FrostFx.step()
+	IceKit.step()
+	stepCount += 1
 	local serverNow = Workspace:GetServerTimeNow()
 	local function check(model: Instance)
 		if not model:IsA("Model") then
@@ -263,8 +484,13 @@ function FrostFx.step()
 			return
 		end
 		local body = bodyOf(model, root)
-		body.crystals.Rate = if on then 16 else 0
-		body.mist.Rate = if on then 5 else 0
+		body.seen = stepCount
+		local kit = on and holdIce(body, model)
+		if not on then
+			freeIce(body, true)
+		end
+		body.crystals.Rate = if on and not kit then 16 else 0
+		body.mist.Rate = if not on then 0 elseif kit then 2 else 5
 	end
 	for _, other in Players:GetPlayers() do
 		local character = other.Character
@@ -276,6 +502,13 @@ function FrostFx.step()
 	if dummies then
 		for _, d in dummies:GetChildren() do
 			check(d)
+		end
+	end
+	-- A body gone from the world (a dummy removed, a player left) drops its ice.
+	for model, b in bodies do
+		if b.seen ~= stepCount then
+			freeIce(b, false)
+			bodies[model] = nil
 		end
 	end
 	local mine = Status.active(player.Character, "Hinder", serverNow)
