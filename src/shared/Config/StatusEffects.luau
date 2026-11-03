@@ -12,6 +12,7 @@
 --   reload    reload speed (0.7: a reload takes 1 / 0.7 as long)
 --   equip     equip / swap speed
 --   recoil    recoil recovery speed
+--   stun      (optional) no shooting, no abilities, no dash: Frozen
 
 export type Effect = {
 	attribute: string, -- the character attribute holding the expiry (server time)
@@ -22,6 +23,7 @@ export type Effect = {
 	reload: number,
 	equip: number,
 	recoil: number,
+	stun: boolean?,
 }
 
 local effects: { [string]: Effect } = {
@@ -47,6 +49,33 @@ local effects: { [string]: Effect } = {
 		reload = 1 / 0.85,
 		equip = 1 / 0.7,
 		recoil = 1,
+	},
+	-- Strong Stim (Stim path B, vault/01 Design/Abilities/Upgrade Paths.md):
+	-- +25% move and fire rate, reloads 25% and swaps 45% shorter. Replaces
+	-- Stimmed (the zone gives one or the other, never both).
+	StimStrong = {
+		attribute = "StimStrongUntil",
+		move = 1.25,
+		jump = 1,
+		gravity = 1,
+		fireRate = 1.25,
+		reload = 1 / 0.75,
+		equip = 1 / 0.55,
+		recoil = 1,
+	},
+	-- Frozen (Frost's glitch, Freeze Frame): frozen solid. No moving, jumping,
+	-- shooting or abilities; you fall normally. The other fields stay 1 so
+	-- no timing maths divides by zero: `stun` does the blocking.
+	Frozen = {
+		attribute = "FrozenUntil",
+		move = 0,
+		jump = 0,
+		gravity = 1,
+		fireRate = 1,
+		reload = 1,
+		equip = 1,
+		recoil = 1,
+		stun = true,
 	},
 }
 

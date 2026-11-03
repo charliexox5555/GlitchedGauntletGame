@@ -6,6 +6,7 @@
 --   Status.mults(model, serverNow)   the combined multipliers right now
 --   Status.until_(model, name)       when `name` ends (0 = not on)
 --   Status.active(model, name, now)  whether `name` is on
+--   Status.stunned(model, now)       whether a stun (Frozen) is on
 
 local Config = require(script.Parent.Parent.Config.StatusEffects)
 
@@ -40,6 +41,19 @@ end
 
 function Status.active(model: Instance?, name: string, serverNow: number): boolean
 	return serverNow < Status.until_(model, name)
+end
+
+-- A stunning effect (Frozen) is on: no shots, no abilities, no dash.
+function Status.stunned(model: Instance?, serverNow: number): boolean
+	if not model then
+		return false
+	end
+	for name, e in Config.effects do
+		if e.stun and serverNow < Status.until_(model, name) then
+			return true
+		end
+	end
+	return false
 end
 
 -- Every active effect's multipliers, multiplied together.

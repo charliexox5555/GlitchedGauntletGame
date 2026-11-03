@@ -48,6 +48,7 @@ local StimFx = require(script.Parent.Parent.Util.StimFx)
 local MollyFx = require(script.Parent.Parent.Util.MollyFx)
 local WallFx = require(script.Parent.Parent.Util.WallFx)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
+local UpgradeFx = require(script.Parent.Parent.Util.UpgradeFx)
 local ModVfx = require(script.Parent.Parent.Util.ModVfx)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 local CameraController = require(script.Parent.CameraController)
@@ -790,6 +791,10 @@ local function onFx(kind: unknown, data: unknown)
 		return
 	end
 	local d = data :: { [string]: any }
+	-- The upgrade levels' own effects first (a glitched look may replace ours).
+	if UpgradeFx.onFx(kind, d) then
+		return
+	end
 	if kind == "FirewallCast" then
 		-- The push-out whoosh at the caster (ours is played on the press).
 		if d.caster ~= player and typeof(d.at) == "Vector3" then
@@ -864,7 +869,7 @@ end
 
 -- Per frame ---------------------------------------------------------------------------
 
-local function update(_dt: number)
+local function update(dt: number)
 	local now = os.clock()
 	local serverNow = Workspace:GetServerTimeNow()
 
@@ -920,6 +925,7 @@ local function update(_dt: number)
 	RecallFx.step()
 	WallFx.step()
 	FrostFx.step()
+	UpgradeFx.step(dt)
 	for model, mark in reveals do
 		if now >= mark.untilT or not model.Parent then
 			mark.highlight:Destroy()
@@ -1006,6 +1012,7 @@ function ModFxController.start()
 	Net.event("ModFx").OnClientEvent:Connect(onFx)
 	Net.event("ModReveal").OnClientEvent:Connect(onReveal)
 	WallFx.start()
+	UpgradeFx.start()
 	RunService.RenderStepped:Connect(update)
 	-- Mod objects: coloured for this viewer as they stream in.
 	task.spawn(function()

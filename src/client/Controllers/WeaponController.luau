@@ -127,6 +127,12 @@ local function isHolstered(): boolean
 	return next(holstered) ~= nil
 end
 
+-- The gun can't be used: a held Mod, or a stun (Frozen: no shots, reloads
+-- or swaps; the server refuses them too).
+local function gunBlocked(): boolean
+	return isHolstered() or Status.stunned(player.Character, Workspace:GetServerTimeNow())
+end
+
 local function combatantOf(part: Instance): Model?
 	local node: Instance? = part.Parent
 	while node and node ~= Workspace do
@@ -359,7 +365,7 @@ end
 
 local function startReload()
 	local s = current()
-	if not s or reloading or not alive or isHolstered() then
+	if not s or reloading or not alive or gunBlocked() then
 		return
 	end
 	local config = s.config
@@ -391,7 +397,7 @@ end
 -- Fire, aim, reload and swapping cancel it (ViewmodelController).
 local function inspect()
 	local s = current()
-	if alive and s and not reloading and os.clock() >= equipReadyAt and not isHolstered() then
+	if alive and s and not reloading and os.clock() >= equipReadyAt and not gunBlocked() then
 		if ViewmodelController.inspect() then
 			playGun(s.config, "inspect")
 		end
@@ -803,7 +809,7 @@ local function canShoot(s: LocalSlot): boolean
 		or reloading
 		or PickerController.isBusy()
 		or combatLocked()
-		or isHolstered()
+		or gunBlocked()
 		or dashBlocked()
 	then
 		return false
@@ -815,7 +821,7 @@ local function canShoot(s: LocalSlot): boolean
 end
 
 local function onFirePressed()
-	if PickerController.isBusy() or isHolstered() or combatLocked() then
+	if PickerController.isBusy() or gunBlocked() or combatLocked() then
 		return -- a click in the weapon picker, or a held Mod's use
 	end
 	ViewmodelController.cancelInspect()
@@ -888,7 +894,7 @@ local function update(dt: number)
 		and (InputController.isDown("Aim") or devAim)
 		and not MovementController.isSprinting()
 		and not PickerController.isOpen()
-		and not isHolstered()
+		and not gunBlocked()
 		and not dashBlocked()
 	aiming = aimingWanted
 	if s then
@@ -1166,7 +1172,7 @@ function WeaponController.start()
 			and s.config.noAds
 			and not PickerController.isBusy()
 			and not combatLocked()
-			and not isHolstered()
+			and not gunBlocked()
 		then
 			ViewmodelController.cancelInspect()
 			altQueuedAt = os.clock()

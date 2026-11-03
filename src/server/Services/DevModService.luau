@@ -11,7 +11,7 @@
 -- (nobody can wall in a doorway or another player with them).
 --
 -- DevMod(action, ...):
---   "SetSlot", slot, id, level   any built Mod at any level in any slot
+--   "SetSlot", slot, id, level   any built Mod at any level (into its own slot)
 --   "ClearSlot", slot
 --   "RefillCharges"                every charge back (what a new round does)
 --   "UnlimitedCharges", on         test mode: casting spends nothing
@@ -228,8 +228,11 @@ local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unkno
 		local slot = Validate.integer(a, 1, Config.SLOTS)
 		local id = Validate.string(b, 32)
 		local level = Validate.enum(c, LEVELS)
-		if slot and id and level and Mods.def(id) and Mods.isBuilt(id) then
-			ModService.setSlot(player, slot, id, level)
+		local def = id and Mods.def(id)
+		if slot and id and level and def and Mods.isBuilt(id) then
+			-- Every ability has its own slot (Config/Mods `slot`): it goes there,
+			-- whichever tab asked.
+			ModService.setSlot(player, def.slot, id, level)
 		end
 	elseif action == "ClearSlot" then
 		local slot = Validate.integer(a, 1, Config.SLOTS)

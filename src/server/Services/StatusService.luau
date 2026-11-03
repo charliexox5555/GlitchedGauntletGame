@@ -6,7 +6,8 @@
 --
 -- For the movement simulation it publishes the combined movement multipliers
 -- as player attributes (written here, outside the simulation, read inside it
--- like MoveMult): StatusMoveMult, StatusJumpMult, StatusGravityMult (nil = 1).
+-- like MoveMult): StatusMoveMult, StatusJumpMult, StatusGravityMult (nil = 1),
+-- and StatusStunned (true while a stun like Frozen is on: no casts).
 -- Weapon checks read Mods/Status directly (WeaponService uses lenient() with
 -- the start times kept here, so a slowdown that just started doesn't reject
 -- shots the client fired before it saw it).
@@ -63,6 +64,10 @@ local function step()
 		set(player, "StatusMoveMult", m.move)
 		set(player, "StatusJumpMult", m.jump)
 		set(player, "StatusGravityMult", m.gravity)
+		local stunned = Status.stunned(player.Character, now) or nil
+		if player:GetAttribute("StatusStunned") ~= stunned then
+			player:SetAttribute("StatusStunned", stunned)
+		end
 	end
 end
 

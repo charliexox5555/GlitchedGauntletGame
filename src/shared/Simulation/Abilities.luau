@@ -143,7 +143,7 @@ function AbilitiesSim.stepCharacter(
 	local reset = typeof(seen) == "number" and seen ~= resetSerial
 
 	-- An Updraft in progress: hold its rise, end it on landing.
-	Updraft.step(character, humanoid, root, now)
+	Updraft.step(player, character, humanoid, root, context, now)
 	-- A Recall teleport the server published.
 	Recall.step(player, character, root, now)
 
@@ -191,7 +191,13 @@ function AbilitiesSim.stepCharacter(
 		end
 		charges, rechargeAt = Charges.settle(charges, rechargeAt, max, cooldown, now)
 
-		if pressed and (charges >= 1 or unlimited) and humanoid.Health > 0 then
+		-- Frozen (StatusStunned, published by the server's StatusService): no casts.
+		if
+			pressed
+			and (charges >= 1 or unlimited)
+			and humanoid.Health > 0
+			and player:GetAttribute("StatusStunned") ~= true
+		then
 			local ctx: Types.SimCtx = {
 				player = player,
 				character = character,

@@ -2,9 +2,13 @@
 -- All Mod (ability) data (vault/01 Design/Mods.md, numbers are starting points
 -- for playtesting). Code reads stats only through Mods.stats(id, level), which
 -- resolves L1 → A2 → A3 (or B2 → B3, G2 → G3): each level lists only what
--- changes. Behaviour switches (e.g. `onDash = "Reload"`) are how later levels
--- change what a Mod does; each Mod module dispatches on them. Levels above L1
--- are shaped here but not built yet (Phase 2): their notes say what they do.
+-- changes. Behaviour switches (e.g. `behaviour = "Slam"`) are how later
+-- levels change what a Mod does; each Mod module dispatches on them. The
+-- upgrade paths: vault/01 Design/Abilities/Upgrade Paths.md (2026-11-03).
+--
+-- `slot`: every ability lives in one fixed slot (1 = Q, 2 = E, 3 = T for now;
+-- keys become rebindable later). The draft only fills a slot with its own
+-- abilities. `paths`: the names of path A, path B and the glitch path.
 --
 -- Charges (vault/01 Design/Abilities/00 Abilities.md → Charges): every L1 has
 -- `charges`, how many uses a round starts with (RoundService refills them:
@@ -24,6 +28,8 @@ local defs: { [string]: ModDef } = {
 		id = "Dash",
 		name = "Dash",
 		role = "Mobility",
+		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Distance", B = "Ghost", G = "Desync" },
 		block = "Dash",
 		activation = "Instant",
 		authority = "Simulation",
@@ -42,18 +48,37 @@ local defs: { [string]: ModDef } = {
 				fireDelay = 0.1, -- the gun is down while dashing and this long after
 				focusWindow = 0.6, -- Dash Focus: the first shot this soon after has no move/air spread
 			},
-			A2 = { note = "Burst: 2 charges", charges = 2 },
-			A3 = { note = "Burst: each dash reloads 50% of the magazine", onDash = "Reload" },
-			B2 = { note = "Ghost: bullets pass through you while dashing", dashImmune = true },
-			B3 = { note = "Ghost: near-invisible for 1 s after a dash", cloakAfter = 1 },
-			G2 = { note = "Desync: decoy afterimage; no shooting 0.3 s", behaviour = "Desync" },
-			G3 = { note = "Desync: the decoy fires blanks; you're invisible", decoyFires = true },
+			A2 = { note = "Distance: dash 18 studs (150%) in the same time", distance = 18 },
+			A3 = { note = "Distance: dash 24 studs (200%), 2 charges", distance = 24, charges = 2 },
+			B2 = {
+				note = "Ghost: bullets pass through you for 0.35 s from the press",
+				dodgeWindow = 0.35,
+			},
+			B3 = {
+				note = "Ghost: nearly invisible for 1 s after a dash, 2 charges",
+				cloakAfter = 1, -- seconds after the dash ends
+				cloakShimmer = 10, -- enemies this close still see a shimmer
+				charges = 2,
+			},
+			G2 = {
+				note = "Desync: a decoy keeps running for 1.5 s; you can't shoot for 0.3 s",
+				behaviour = "Desync",
+				decoyTime = 1.5,
+				fireDelay = 0.3,
+			},
+			G3 = {
+				note = "Desync: the decoy fires fake shots and you're invisible while it runs",
+				decoyFires = true,
+				decoyCloak = true,
+			},
 		},
 	},
 	Updraft = {
 		id = "Updraft",
 		name = "Updraft",
 		role = "Mobility",
+		slot = 1, -- Q (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Height", B = "Charges", G = "Slam" },
 		block = "Launch",
 		activation = "Instant",
 		authority = "Simulation",
@@ -69,19 +94,31 @@ local defs: { [string]: ModDef } = {
 				maxCarry = 24, -- most running speed carried into the air (a slide-jump's)
 				gunDown = 0.35, -- seconds the gun is down after the launch (most of the rise)
 			},
-			-- The paths below are the Launch Pad's, not redesigned yet.
-			A2 = { note = "Jump Grid: 2 pads at once", charges = 2 },
-			A3 = { note = "Jump Grid: +30% move speed for 2 s on landing", landingBoost = 0.3 },
-			B2 = { note = "Air Strike: no airborne spread for 2 s after launch", airAccurate = 2 },
-			B3 = { note = "Air Strike: landing slam, 40 damage in 8 studs", slamDamage = 40 },
-			G2 = { note = "Zero-G: 14-stud low-gravity zone for 5 s", behaviour = "ZeroG" },
-			G3 = { note = "Zero-G: immune to own zone spread, reveals enemies", zoneReveal = true },
+			A2 = { note = "Height: launch 150% as high (~21 studs)", peak = 21 },
+			A3 = { note = "Height: launch 200% as high (~28 studs)", peak = 28 },
+			B2 = { note = "Charges: 2 charges", charges = 2 },
+			B3 = { note = "Charges: 3 charges", charges = 3 },
+			G2 = {
+				note = "Slam: crouch in the air to slam down, 30 damage in 8 studs",
+				behaviour = "Slam",
+				slamDamage = 30,
+				slamRadius = 8,
+				slamSpeed = 90, -- studs/s straight down
+			},
+			G3 = {
+				note = "Slam: 45 damage, Hinders for 1 s, 2 charges",
+				slamDamage = 45,
+				slamHinder = 1,
+				charges = 2,
+			},
 		},
 	},
 	Molly = {
 		id = "Molly",
 		name = "Molly",
 		role = "Damage",
+		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Recharge", B = "Bigger Fire", G = "Fork Fire" },
 		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
@@ -111,19 +148,27 @@ local defs: { [string]: ModDef } = {
 				dps = 45, -- to enemies; FRIENDLY_FIRE of it to you and your team
 				tick = 0.25,
 			},
-			-- The paths below are the Packet's, not redesigned yet.
-			A2 = { note = "Payload: 2 charges", charges = 2 },
-			A3 = { note = "Payload: 11-stud blast and a 3 s burn zone", radius = 11, burnDps = 10 },
-			B2 = { note = "Sticky: sticks to the first hit, 0.8 s fuse", behaviour = "Sticky" },
-			B3 = { note = "Sticky: hit enemies get Packet Loss for 2.5 s", packetLoss = 2.5 },
-			G2 = { note = "Fork Bomb: 3 random mini-bombs that can hurt you", behaviour = "Fork" },
-			G3 = { note = "Fork Bomb: 5 mini-bombs that bounce twice", forks = 5 },
+			A2 = { note = "Recharge: a used Molly comes back after 15 s", cooldown = 15 },
+			A3 = { note = "Recharge: comes back after 10 s", cooldown = 10 },
+			B2 = { note = "Bigger Fire: a 12-stud fire patch", radius = 12 },
+			B3 = { note = "Bigger Fire: 14 studs, burns for 6 s", radius = 14, duration = 6 },
+			G2 = {
+				note = "Fork Fire: splits into 3 small fires that scatter; they burn you too",
+				behaviour = "Fork",
+				forks = 3,
+				forkRadius = 5,
+				forkSpeed = 30, -- studs/s the bomblets scatter at
+				selfFire = 1, -- share of the damage to you and your team
+			},
+			G3 = { note = "Fork Fire: 5 fires, one more bounce first", forks = 5, bounces = 5 },
 		},
 	},
 	Firewall = {
 		id = "Firewall",
 		name = "Firewall",
 		role = "Control",
+		slot = 3, -- T (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Short Wall", B = "Long Wall", G = "Frost Wall" },
 		block = "Wall",
 		activation = "HeldSteer",
 		authority = "Server",
@@ -146,19 +191,29 @@ local defs: { [string]: ModDef } = {
 				dps = 30, -- to enemies; FRIENDLY_FIRE of it to your team; none to you
 				tick = 0.25,
 			},
-			-- The paths below are the old cover wall's, not redesigned yet.
-			A2 = { note = "Rampart: 250 HP, lasts 10 s", hp = 250, life = 10 },
-			A3 = { note = "Rampart: your team shoots out through it", oneWay = true },
-			B2 = { note = "Burn Wall: fire curtain you can walk through", behaviour = "Burn" },
-			B3 = { note = "Burn Wall: moves forward 10 studs over 4 s", advance = 10 },
-			G2 = { note = "Mirror Wall: reflects 25% of bullet damage", behaviour = "Mirror" },
-			G3 = { note = "Mirror Wall: 50% reflection, 2 charges", reflect = 0.5, charges = 2 },
+			A2 = {
+				note = "Short Wall: recharges after 15 s, but half as long (20 studs)",
+				cooldown = 15,
+				maxLength = 20,
+			},
+			A3 = { note = "Short Wall: recharges after 6 s", cooldown = 6 },
+			B2 = { note = "Long Wall: 60 studs long", maxLength = 60 },
+			B3 = { note = "Long Wall: 2 charges", charges = 2 },
+			G2 = {
+				note = "Frost Wall: a wall of ice, 60 studs; no damage, touching it Hinders 1.5 s",
+				behaviour = "Frost",
+				hinder = 1.5,
+				maxLength = 60,
+			},
+			G3 = { note = "Frost Wall: 2 charges", charges = 2 },
 		},
 	},
 	Frost = {
 		id = "Frost",
 		name = "Frost",
 		role = "Control",
+		slot = 3, -- T (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Stockpile", B = "Big Burst", G = "Freeze Frame" },
 		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
@@ -185,19 +240,24 @@ local defs: { [string]: ModDef } = {
 				radius = 10,
 				hinder = 3, -- seconds of Hinder (Config/StatusEffects)
 			},
-			-- The paths below are the Lag Field's, not redesigned yet.
-			A2 = { note = "Latency: enemies inside fire and reload 30% slower", latency = 0.3 },
-			A3 = { note = "Latency: enemies inside take +15% damage", vulnerable = 0.15 },
-			B2 = { note = "Buffer: 14 studs, lasts 7 s", radius = 14, duration = 7 },
-			B3 = { note = "Buffer: first exit pulls them back to the centre", pullBack = true },
-			G2 = { note = "Freeze Frame: everything inside freezes 1.5 s", behaviour = "Freeze" },
-			G3 = { note = "Freeze Frame: 2.5 s, +20% damage after", freeze = 2.5 },
+			A2 = { note = "Stockpile: 2 charges", charges = 2 },
+			A3 = { note = "Stockpile: 3 charges", charges = 3 },
+			B2 = { note = "Big Burst: double the area (14 studs)", radius = 14 },
+			B3 = { note = "Big Burst: triple the area (17 studs)", radius = 17 },
+			G2 = {
+				note = "Freeze Frame: everyone in the burst is frozen solid 1.5 s, you too",
+				behaviour = "Freeze",
+				freeze = 1.5,
+			},
+			G3 = { note = "Freeze Frame: frozen for 2.5 s", freeze = 2.5 },
 		},
 	},
 	Recon = {
 		id = "Recon",
 		name = "Recon",
 		role = "Info",
+		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Recharge", B = "More Pulses", G = "Ping Spike" },
 		block = "Reveal",
 		activation = "HeldCharge",
 		authority = "Server",
@@ -226,19 +286,26 @@ local defs: { [string]: ModDef } = {
 				reveal = 2, -- seconds the outline lasts
 				hp = 1, -- any bullet destroys it
 			},
-			-- The paths below are the Ping's, not redesigned yet.
-			A2 = { note = "Traceroute: marked 4 s for the whole team", duration = 4 },
-			A3 = { note = "Traceroute: marked enemies take +10% damage", vulnerable = 0.1 },
-			B2 = { note = "Sonar: 50 studs and a sensor pulsing for 9 s", radius = 50 },
-			B3 = { note = "Sonar: the sensor shows enemy Mod cooldowns", showCooldowns = true },
-			G2 = { note = "Ping Spike: everyone in 60 studs for 4 s, you too", behaviour = "Spike" },
-			G3 = { note = "Ping Spike: +20% damage to revealed enemies", bonusDamage = 0.2 },
+			A2 = { note = "Recharge: the dart comes back after 20 s", cooldown = 20 },
+			A3 = { note = "Recharge: comes back after 12 s", cooldown = 12 },
+			B2 = { note = "More Pulses: 3 pulses", pulses = 3 },
+			B3 = { note = "More Pulses: 5 pulses", pulses = 5 },
+			G2 = {
+				note = "Ping Spike: one big pulse reveals every enemy in 60 studs through walls for 4 s",
+				behaviour = "Spike",
+				radius = 60,
+				reveal = 4,
+				pulses = 1,
+			},
+			G3 = { note = "Ping Spike: +20% damage to enemies it revealed", bonusDamage = 0.2 },
 		},
 	},
 	HealOrb = {
 		id = "HealOrb",
 		name = "Heal Orb",
 		role = "Sustain",
+		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Charges", B = "Long Heal", G = "Barrier" },
 		block = "Target",
 		activation = "HeldTarget",
 		authority = "Server",
@@ -257,21 +324,34 @@ local defs: { [string]: ModDef } = {
 				range = 30,
 				aimAngle = 12, -- degrees from the crosshair an ally may be
 			},
-			A2 = { note = "Hotfix: the heal is instant", duration = 0 },
-			A3 = { note = "Hotfix: also cleanses and gives +25 overshield", shield = 25 },
-			B2 = { note = "Support Patch: heal pad, 15 HP/s for 4 s", behaviour = "Pad" },
-			B3 = { note = "Support Patch: the pad gives 20% damage reduction", reduction = 0.2 },
-			G2 = {
-				note = "Corrupted Patch: instant full heal, then -4 HP/s",
-				behaviour = "Corrupt",
+			A2 = { note = "Charges: 2 charges", charges = 2 },
+			A3 = { note = "Charges: 3 charges", charges = 3 },
+			B2 = {
+				note = "Long Heal: twice as long (6 s): an ally 120, yourself 60",
+				duration = 6,
+				heal = 120,
+				selfHeal = 60,
 			},
-			G3 = { note = "Corrupted Patch: overheal to +50 shield", shield = 50 },
+			B3 = {
+				note = "Long Heal: three times as long (9 s): an ally 180, yourself 90",
+				duration = 9,
+				heal = 180,
+				selfHeal = 90,
+			},
+			G2 = {
+				note = "Barrier: no heal; the target's next hit is blocked",
+				behaviour = "Barrier",
+				barrierHits = 1,
+			},
+			G3 = { note = "Barrier: blocks 2 hits", barrierHits = 2 },
 		},
 	},
 	Stim = {
 		id = "Stim",
 		name = "Stim",
 		role = "Team buff",
+		slot = 1, -- Q (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Quick Stims", B = "Strong Stim", G = "Heal Zone" },
 		block = "Zone",
 		activation = "Instant",
 		authority = "Server",
@@ -294,19 +374,32 @@ local defs: { [string]: ModDef } = {
 				deployTime = 0.25, -- seconds from landing to the zone switching on
 				tick = 0.1, -- seconds between zone checks
 			},
-			-- The paths below are the Overclock's, not redesigned yet.
-			A2 = { note = "Turbo: also +40% reload speed", reloadSpeed = 1.4 },
-			A3 = { note = "Turbo: kills extend it by 3 s", killExtend = 3 },
-			B2 = { note = "Precision: no spread or bloom instead", behaviour = "Precision" },
-			B3 = { note = "Precision: headshots x2", headMultiplier = 2 },
-			G2 = { note = "Overheat: +60%, no ammo use, -8 HP/s for 4 s", behaviour = "Overheat" },
-			G3 = { note = "Overheat: bullets pierce walls and players", pierce = true },
+			A2 = {
+				note = "Quick Stims: 2 charges, each lasts half as long",
+				charges = 2,
+				duration = 4,
+				linger = 2,
+			},
+			A3 = { note = "Quick Stims: 4 charges", charges = 4 },
+			B2 = {
+				note = "Strong Stim: +25% fire rate and speed, faster reloads and swaps",
+				status = "StimStrong",
+			},
+			B3 = { note = "Strong Stim: the zone lasts twice as long (16 s)", duration = 16 },
+			G2 = {
+				note = "Heal Zone: no stim; you and your team heal 60 HP over the zone's 8 s",
+				behaviour = "Heal",
+				healPerSecond = 7.5,
+			},
+			G3 = { note = "Heal Zone: 2 charges", charges = 2 },
 		},
 	},
 	Recall = {
 		id = "Recall",
 		name = "Recall",
 		role = "Escape",
+		slot = 2, -- E (vault/01 Design/Abilities/Upgrade Paths.md)
+		paths = { A = "Recharge", B = "Long Range", G = "Crash Recovery" },
 		block = "Placeable",
 		activation = "HeldPlace",
 		authority = "Server",
@@ -330,19 +423,16 @@ local defs: { [string]: ModDef } = {
 				hp = 2, -- bullet hits that destroy it
 				life = 600, -- seconds (all round, until rounds exist)
 			},
-			-- The paths below are the Rollback's, not redesigned yet.
-			A2 = { note = "Undo: also restores HP from 3 s ago", restoreHealth = true },
-			A3 = { note = "Undo: 15 s cooldown, 30% damage reduction 2 s", cooldown = 15 },
-			B2 = {
-				note = "Save State: press to drop a checkpoint, again to return",
-				behaviour = "Save",
-			},
-			B3 = { note = "Save State: returning leaves a 30-damage shockwave", shockwave = 30 },
+			A2 = { note = "Recharge: 10 s cooldown", cooldown = 10 },
+			A3 = { note = "Recharge: 5 s cooldown", cooldown = 5 },
+			B2 = { note = "Long Range: teleport from 60 studs away", range = 60 },
+			B3 = { note = "Long Range: from 80 studs away", range = 80 },
 			G2 = {
-				note = "Crash Recovery: passive auto-rewind once, max HP 60",
+				note = "Crash Recovery: once a round, a death within range pulls you back to the anchor at 1 HP",
 				behaviour = "Crash",
+				rescueHealth = 1,
 			},
-			G3 = { note = "Crash Recovery: reveals who damaged you", revealAttackers = 4 },
+			G3 = { note = "Crash Recovery: you arrive with 40 HP", rescueHealth = 40 },
 		},
 	},
 }
@@ -377,7 +467,15 @@ return table.freeze({
 	} :: { [string]: { string } },
 	-- Levels whose behaviour is built (the rest resolve, but only their
 	-- numbers apply). The dev panel marks the others.
-	BUILT = { L1 = true } :: { [string]: boolean },
+	BUILT = {
+		L1 = true,
+		A2 = true,
+		A3 = true,
+		B2 = true,
+		B3 = true,
+		G2 = true,
+		G3 = true,
+	} :: { [string]: boolean },
 
 	-- Held Mods (Mods.md → Rules for held Mods).
 	EQUIP_TIME = 0.25, -- raise before a held Mod can be used
@@ -434,9 +532,9 @@ return table.freeze({
 
 	-- Test-mode servers start everyone with these (a match drafts them).
 	TEST_LOADOUT = {
-		{ id = "Dash", level = "L1" },
-		{ id = "Molly", level = "L1" },
-		{ id = "HealOrb", level = "L1" },
+		{ id = "Updraft", level = "L1" }, -- slot 1 (Q)
+		{ id = "Dash", level = "L1" }, -- slot 2 (E)
+		{ id = "Firewall", level = "L1" }, -- slot 3 (T)
 	} :: { Types.SlotLoadout },
 
 	-- Remote budgets (per player): rate per second, burst.

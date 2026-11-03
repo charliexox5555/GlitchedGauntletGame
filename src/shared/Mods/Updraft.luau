@@ -43,8 +43,15 @@ local function number(inst: Instance, name: string, default: number): number
 end
 
 -- Simulation, every step (before the cast): holds the rise, and ends the
--- Updraft on landing.
-function Updraft.step(character: Model, humanoid: Humanoid, root: BasePart, now: number)
+-- Updraft on landing. `context`: the player's PlayContext (InputActions).
+function Updraft.step(
+	_player: Player,
+	character: Model,
+	humanoid: Humanoid,
+	root: BasePart,
+	_context: Instance?,
+	now: number
+)
 	if character:GetAttribute("Updrafting") ~= true then
 		return
 	end

@@ -131,6 +131,12 @@ export type DamageEvent = {
 }
 local shotListeners: { (player: Player, weaponId: string, hit: boolean) -> () } = {}
 local damageListeners: { (event: DamageEvent) -> () } = {}
+-- Damage rules from Mods (ModService's ServerApi): modifiers change
+-- player-on-player damage, guards see every hit and may block it.
+type DamageGuard = (victim: Model, humanoid: Humanoid, amount: number, attacker: Player?) -> number
+type DamageModifier = (attacker: Player, victim: Model, amount: number, sourceId: string) -> number
+local damageGuards: { DamageGuard } = {}
+local damageModifiers: { DamageModifier } = {}
 
 -- Helpers ------------------------------------------------------------------
 
@@ -152,6 +158,26 @@ local function statusMult(player: Player, field: "fireRate" | "reload" | "equip"
 		StatusService.startedAt(character),
 		field
 	)
+end
+
+-- A stun (Frozen) that started more than StatusEffects.GRACE ago: no shots
+-- (a shot fired just before the client saw it still counts).
+local function stunned(player: Player): boolean
+	local character = player.Character
+	local now = workspace:GetServerTimeNow()
+	if not Status.stunned(character, now) then
+		return false
+	end
+	local started = StatusService.startedAt(character)
+	for name, effect in StatusEffects.effects do
+		if effect.stun and Status.active(character, name, now) then
+			local at = started and started[name]
+			if not at or now - at >= StatusEffects.GRACE then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 local function drawSeconds(config: WeaponConfig): number
@@ -483,9 +509,37 @@ end
 
 -- Damage ---------------------------------------------------------------------
 
+-- A Mod's damage guard: sees every hit on a combatant and returns the amount
+-- to deal (0 blocks it: a Barrier, a Ghost dash, Crash Recovery).
+function WeaponService.addDamageGuard(fn: DamageGuard)
+	table.insert(damageGuards, fn)
+end
+
+-- A Mod's damage modifier: player-on-player damage (guns and Mods) before
+-- the guards (Ping Spike's bonus on revealed enemies).
+function WeaponService.addDamageModifier(fn: DamageModifier)
+	table.insert(damageModifiers, fn)
+end
+
 -- `sourceId`: the gun's id, or a Mod's id for Mod damage (WeaponService.damage).
--- All damage goes through here: shield first, then health. Returns what it took.
-function WeaponService.hurt(humanoid: Humanoid, amount: number): number
+-- All damage goes through here: the guards, then shield first, then health.
+-- Returns what it took (0 when a guard blocked it). `attacker`: the player
+-- behind it, if any.
+function WeaponService.hurt(humanoid: Humanoid, amount: number, attacker: Player?): number
+	local victim = humanoid.Parent
+	if victim and victim:IsA("Model") then
+		for _, guard in damageGuards do
+			local ok, result = pcall(guard, victim, humanoid, amount, attacker)
+			if not ok then
+				warn("[WeaponService] damage guard failed:", result)
+			elseif typeof(result) == "number" and result == result then
+				amount = math.max(result, 0)
+			end
+			if amount <= 0 then
+				return 0
+			end
+		end
+	end
 	local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
 	local fromShield = if typeof(shield) == "number" then math.min(shield, amount) else 0
 	if fromShield > 0 then
@@ -510,9 +564,18 @@ local function applyDamage(
 	if not humanoid then
 		return
 	end
+	for _, modify in damageModifiers do
+		local ok, result = pcall(modify, attacker, victimModel, amount, sourceId)
+		if not ok then
+			warn("[WeaponService] damage modifier failed:", result)
+		elseif typeof(result) == "number" and result == result then
+			amount = math.max(result, 0)
+		end
+	end
 	local before = humanoid.Health
-	local dealt = WeaponService.hurt(humanoid, amount)
+	local dealt = WeaponService.hurt(humanoid, amount, attacker)
 	local killed = before > 0 and humanoid.Health <= 0
+	local blocked = dealt <= 0 and amount > 0
 	humanoid:SetAttribute("LastAttacker", attacker.UserId)
 	if #damageListeners > 0 then
 		local event: DamageEvent = {
@@ -534,6 +597,7 @@ local function applyDamage(
 		zone = zone,
 		killed = killed,
 		position = at,
+		blocked = blocked or nil, -- a guard took it (Barrier, Ghost dash)
 	})
 
 	local victim = Players:GetPlayerFromCharacter(victimModel)
@@ -713,6 +777,7 @@ local function holstered(player: Player): boolean
 	return holsteredPlayers[player] == true
 		or player:GetAttribute(MatchState.COMBAT_LOCKED) == true
 		or (busy ~= nil and os.clock() < busy - Combat.FIRE_JITTER)
+		or stunned(player)
 end
 
 local function notifyShot(player: Player, config: WeaponConfig, hit: boolean)

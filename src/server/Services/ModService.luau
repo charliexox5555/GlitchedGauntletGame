@@ -48,6 +48,7 @@ local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
 local RateLimit = require(Shared.Util.RateLimit)
 local SelfBuff = require(Shared.Mods.Blocks.SelfBuff)
+local Status = require(Shared.Mods.Status)
 local Teams = require(Shared.Mods.Teams)
 local TestMode = require(Shared.TestMode)
 local TestRange = require(Shared.Config.TestRange)
@@ -80,6 +81,7 @@ local ModService = {}
 
 local states: { [Player]: PlayerState } = {}
 local heals: { Heal } = {}
+local refillListeners: { (player: Player) -> () } = {}
 local limiter = RateLimit.new(Config.RATE)
 
 local function serverNow(): number
@@ -91,6 +93,11 @@ end
 -- Behind the barrier and between rounds, no Mods (MatchService).
 local function active(player: Player): boolean
 	return player:GetAttribute(MatchState.COMBAT_LOCKED) ~= true
+end
+
+-- Frozen (a stun): no abilities.
+local function stunned(player: Player): boolean
+	return Status.stunned(player.Character, workspace:GetServerTimeNow())
 end
 
 local function liveHumanoid(model: Model?): Humanoid?
@@ -352,6 +359,23 @@ function ModService.refillCharges(player: Player)
 	end
 	local serial = player:GetAttribute("ModResetSerial")
 	player:SetAttribute("ModResetSerial", (if typeof(serial) == "number" then serial else 0) + 1)
+	for _, fn in refillListeners do
+		task.spawn(fn, player)
+	end
+end
+
+-- The slot and level `player` has Mod `id` in (nil: not slotted).
+function ModService.slotOf(player: Player, id: string): (number?, string?)
+	local state = states[player]
+	if not state then
+		return nil, nil
+	end
+	for slot, s in state.slots do
+		if s.id == id then
+			return slot, s.level
+		end
+	end
+	return nil, nil
 end
 
 -- Round start: everyone's charges back.
@@ -441,6 +465,10 @@ local function onHold(player: Player, slotArg: unknown)
 	if not active(player) or not liveHumanoid(player.Character) then
 		return
 	end
+	if stunned(player) then
+		deny(player, slot, "frozen")
+		return
+	end
 	if state.held == slot then
 		return -- already held (a repeat would re-clone the held model)
 	end
@@ -516,6 +544,10 @@ local function use(
 		deny(player, slot, "Mods are off")
 		return
 	end
+	if stunned(player) then
+		deny(player, slot, "frozen")
+		return
+	end
 	local character = player.Character
 	local humanoid = liveHumanoid(character)
 	local head = character and character:FindFirstChild("Head")
@@ -588,6 +620,9 @@ local function use(
 					effect = SelfBuff.timed(os.clock(), duration, amount),
 				})
 			end
+		end,
+		restore = function(healTarget: Model, amount: number)
+			WeaponService.heal(healTarget, amount)
 		end,
 		fx = function(kind: string, data: { [string]: any })
 			data.caster = player
@@ -754,6 +789,10 @@ local function onRecall(player: Player, slotArg: unknown, actionArg: unknown)
 		return
 	end
 	if not active(player) or not liveHumanoid(player.Character) then
+		return
+	end
+	if stunned(player) then
+		deny(player, slot, "frozen")
 		return
 	end
 	if state.held ~= 0 or ModWalls.isBuilding(player) then
@@ -966,6 +1005,38 @@ function ModService.start()
 		end
 	end)
 	RunService.Heartbeat:Connect(stepHeals)
+	-- Mods' own server hooks (passives, damage rules, simulation landings).
+	local api: ModTypes.ServerApi = {
+		slotOf = ModService.slotOf,
+		damage = function(attacker: Player, victim: Model, amount: number, at: Vector3, id: string)
+			WeaponService.damage(attacker, victim, amount, id, at)
+		end,
+		status = function(model: Model, name: string, duration: number)
+			StatusService.apply(model, name, duration)
+		end,
+		fx = function(caster: Player, id: string, kind: string, data: { [string]: any })
+			local _, level = ModService.slotOf(caster, id)
+			data.caster = caster
+			data.team = Teams.of(caster)
+			data.id = id
+			data.level = level
+			Net.event("ModFx"):FireAllClients(kind, data)
+		end,
+		guard = WeaponService.addDamageGuard,
+		modifier = WeaponService.addDamageModifier,
+		onRefill = function(fn: (player: Player) -> ())
+			table.insert(refillListeners, fn)
+		end,
+		worldParams = worldParams,
+		now = serverNow,
+	}
+	for _, id in Config.ORDER do
+		local module = Mods.module(id)
+		local hook = module and module.server
+		if hook then
+			hook(api)
+		end
+	end
 end
 
 return ModService

@@ -37,6 +37,10 @@ export type ModDef = {
 	id: string,
 	name: string,
 	role: string,
+	-- The one slot this ability lives in (1 = Q, 2 = E, 3 = T for now).
+	slot: number,
+	-- Names of path A, path B and the glitch path (draft cards, dev panel).
+	paths: { A: string, B: string, G: string },
 	block: string, -- shared building block (Mods/Blocks)
 	activation: Activation,
 	authority: Authority,
@@ -98,8 +102,12 @@ export type ServerCtx = {
 	-- Where the server's copy of the camera looks (else the claimed aim).
 	cameraLook: Vector3,
 	damage: (victim: Model, amount: number, at: Vector3) -> (),
-	-- `amount` over `duration` seconds (0 = at once), from the caster.
+	-- `amount` over `duration` seconds (0 = at once), from the caster. A new
+	-- heal on the same target replaces what's left of the old one.
 	heal: (target: Model, amount: number, duration: number) -> (),
+	-- `amount` at once, without touching a heal over time already running
+	-- (a heal zone's ticks).
+	restore: (target: Model, amount: number) -> (),
 	fx: (kind: string, data: { [string]: any }) -> (),
 	-- Runs `fn` after `delay` seconds unless the caster leaves first.
 	schedule: (delay: number, fn: () -> ()) -> (),
@@ -134,6 +142,37 @@ export type WallSpec = {
 	straight: boolean,
 }
 
+-- What a Mod module's `server` hook gets once, when ModService starts: for
+-- effects that aren't a use (a passive, a landing in the simulation, a
+-- damage rule). Damage guards and modifiers run for every hit in the game,
+-- so keep them cheap and return the amount unchanged when they don't apply.
+export type ServerApi = {
+	-- The slot and level `player` has this Mod in (nil: not slotted).
+	slotOf: (player: Player, id: string) -> (number?, string?),
+	-- Damage from `attacker`'s Mod `id` (kill feed, hit confirm, as ctx.damage).
+	damage: (attacker: Player, victim: Model, amount: number, at: Vector3, id: string) -> (),
+	status: (model: Model, name: string, duration: number) -> (),
+	-- ModFx to every client (kind, data); data.caster / team / id are filled in.
+	fx: (caster: Player, id: string, kind: string, data: { [string]: any }) -> (),
+	-- Every hit on a combatant passes through each guard first (WeaponService.hurt):
+	-- return the amount to deal (0 blocks it). `attacker` is nil for damage
+	-- with no player behind it (the test opponent).
+	guard: (
+		fn: (victim: Model, humanoid: Humanoid, amount: number, attacker: Player?) -> number
+	) -> (),
+	-- Player-on-player damage (guns and Mods) passes through each modifier
+	-- before the guards: return the new amount.
+	modifier: (
+		fn: (attacker: Player, victim: Model, amount: number, sourceId: string) -> number
+	) -> (),
+	-- Called at every round start (ModService.refillCharges), per player.
+	onRefill: (fn: (player: Player) -> ()) -> (),
+	-- World-only raycast params (as ctx.worldParams).
+	worldParams: () -> RaycastParams,
+	-- Server time (workspace:GetServerTimeNow()).
+	now: () -> number,
+}
+
 export type ModModule = {
 	-- Simulation Mods: returns true when it cast (spends a charge).
 	simCast: ((ctx: SimCtx) -> boolean)?,
@@ -144,6 +183,8 @@ export type ModModule = {
 	-- Whether this use spends a charge (nil: it does). Recall's planting
 	-- doesn't: its charge is the teleport.
 	spends: ((ctx: ServerCtx, req: Request) -> boolean)?,
+	-- Server only, once at start (see ServerApi).
+	server: ((api: ServerApi) -> ())?,
 }
 
 return nil
