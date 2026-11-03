@@ -578,12 +578,20 @@ end
 
 local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number, now: number)
 	local id = view.id
-	if id ~= ui.shownId then
-		ui.shownId = id
+	-- The level shows after the name ("DASH 2"; a glitch level in magenta's
+	-- spirit: "DASH G2"), so a change of level redraws it too.
+	local shown = if id then id .. ":" .. view.level else nil
+	if shown ~= ui.shownId then
+		ui.shownId = shown
 		local def = view.def
 		ui.root.Visible = true
 		ui.glyph.Text = if def then def.glyph else ""
-		ui.name.Text = if def then string.upper(def.name) else ""
+		local level = view.level
+		local suffix = if level == "L1"
+			then ""
+			elseif string.sub(level, 1, 1) == "G" then " G" .. string.sub(level, 2, 2)
+			else " " .. string.sub(level, 2, 2)
+		ui.name.Text = if def then string.upper(def.name) .. suffix else ""
 		local iconId = def and def.icon or ""
 		ui.icon.Image = iconId
 		ui.icon.Visible = iconId ~= ""
