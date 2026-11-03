@@ -52,7 +52,7 @@ class Box:
     sx: float
     sz: float
     h: float
-    kind: str = "box"  # box, low, wall, office, rack, pillar, ramp, roof, beam, edge, backdrop
+    kind: str = "box"  # box, low, wall, office, rack, pillar, ramp, roof, beam, lintel, edge, backdrop
     y0: float = 0.0
     up: tuple[float, float] | None = None  # ramps: direction the ramp rises toward
     piece: str = ""  # art hint: C40 / C20 (stacked h / 8 high), Crate, ...
@@ -81,7 +81,7 @@ class Box:
         return replace(self, name=self.name + "'", x=-self.x, z=-self.z, up=up)
 
     def lane(self) -> str:
-        if self.kind in ("backdrop", "edge", "wall", "roof", "beam", "pillar", "office", "rack"):
+        if self.kind in ("backdrop", "edge", "wall", "roof", "beam", "pillar", "office", "rack", "lintel"):
             return "neutral"
         if self.x < -24:
             return "west"
@@ -160,6 +160,10 @@ HALF = [
     Box("Shed wall W", WH_X0 + 0.5, 42, 1, 8, 16, "wall"),
     Box("Shed wall W", WH_X0 + 0.5, 56.5, 1, 5, 16, "wall"),
     Box("Shed wall E", WH_X1 - 0.5, 42, 1, 36, 16, "wall"),
+    # Door heads (overhead: they block sight and bullets above the openings, like the art shows).
+    Box("Shed lintel S", 55, WH_Z0 + 0.5, 10, 1, 3, "lintel", y0=13),
+    Box("Shed lintel W", WH_X0 + 0.5, 34, 1, 8, 7, "lintel", y0=9),
+    Box("Shed lintel W", WH_X0 + 0.5, 50, 1, 8, 7, "lintel", y0=9),
     Box("Shed roof", (WH_X0 + WH_X1) / 2, (WH_Z0 + WH_Z1) / 2, WH_X1 - WH_X0 + 1, WH_Z1 - WH_Z0 + 1, 6, "roof", y0=16),
     Box("Shed rack", 55, 45, 2.5, 14, 8, "rack"),
     Box("Shed office", 63.5, 29, 7, 8, 9, "office"),
@@ -220,7 +224,7 @@ def build_grids():
     for b in BOXES:
         inside = (np.abs(gx - b.x) <= b.sx / 2) & (np.abs(gz - b.z) <= b.sz / 2)
         top = surface_height(b, gx, gz)
-        if b.kind in ("roof", "beam"):
+        if b.kind in ("roof", "beam", "lintel"):
             over_lo = np.where(inside, np.minimum(over_lo, b.y0), over_lo)
             over_hi = np.where(inside, np.maximum(over_hi, top), over_hi)
             continue
@@ -355,7 +359,7 @@ def standable_tops():
     """Points on top of pieces a player can stand on (eye = surface + EYE)."""
     out = []
     for b in BOXES:
-        if b.kind in ("beam", "pillar", "edge", "low", "rack", "wall"):
+        if b.kind in ("beam", "pillar", "edge", "low", "rack", "wall", "lintel"):
             continue
         if b.y0 + b.h > REACH:
             continue  # out of reach (the backdrop walls)
@@ -532,6 +536,7 @@ FILL = {
     "pillar": "#E0AE2E",
     "ramp": "#B8BCC6",
     "roof": "none",
+    "lintel": "none",
     "beam": "none",
     "edge": "#9C9A94",
     "backdrop": "#55575C",
@@ -568,11 +573,11 @@ def svg(res) -> str:
     for p in res["spawn_seen_from"]:
         a = px(p[0] - 1, p[1] + 1)
         o.append(f'<rect x="{a[0]:.1f}" y="{a[1]:.1f}" width="{2 * scale}" height="{2 * scale}" fill="#D1495B" opacity="0.5"/>')
-    order = sorted(BOXES, key=lambda b: (b.kind == "roof", b.kind == "beam"))
+    order = sorted(BOXES, key=lambda b: (b.kind in ("roof", "lintel"), b.kind == "beam"))
     for b in order:
         a = px(b.x0, b.z1)
         wv, hv = b.sx * scale, b.sz * scale
-        if b.kind in ("roof", "beam"):
+        if b.kind in ("roof", "beam", "lintel"):
             o.append(f'<rect x="{a[0]:.1f}" y="{a[1]:.1f}" width="{wv:.1f}" height="{hv:.1f}" fill="none" stroke="#E0AE2E" stroke-width="1.2" stroke-dasharray="5 4"/>')
             continue
         fill = LANE_HUE[b.lane()] if b.kind == "box" else FILL[b.kind]
