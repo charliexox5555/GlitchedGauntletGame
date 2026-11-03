@@ -24,6 +24,7 @@ The `Icons/` folder belongs to the icon pipeline (`tools/icons/`), not to these 
 | `Firewall` | 91482638324310 | placed |
 | `LagField` | 134077650766119 | thrown |
 | `ModVFX` | 130699290674585 | VFX meshes (4 parts) |
+| `FireVFX` | 115228227823248 | stylized fire kit (10 parts; uploaded 2026-11-03) |
 | Firewall grid decal | 74639457803541 (Decal; the builder looks up its image) | texture |
 
 ## Build steps (code session, Stage 3)
@@ -55,6 +56,7 @@ Every Model: `PrimaryPart = Root` (invisible 0.2 part, pivot at the Blender orig
 | `LaunchPad` | floor centre (launch direction -Z) | **`Top`** (plate centre: launch burst, stand point) | `Plate` (pop it up on a launch), **`Arrow1_Energy`, `Arrow2_Energy`, `Arrow3_Energy`** (back to front: chase them), `Rim_Energy`, `Side_Energy` |
 | `Firewall` | floor centre (faces -Z; spans X -4..4, 6 tall) | **`Center`** (middle of the panel: hits, shatter) | **`Panel_Energy`** (build-up, hit flicker, shatter), `Frame_Energy` |
 | `LagField` | the centre | `Handle` + `RightGrip` | **`Spinner_Energy`** (spin it about the model's Y axis while the zone is up), `Core_Energy`; `HoldOffset` attribute |
+| `FireVFX` | each mesh at its anchor (Blender origin): a flame's base, the wall's / patch's floor centre, the spark's middle | none | All `*_Energy`, coloured in code by `Util/FireKit` (fire colours, magenta for Fork Fire; **not** team-tinted). `Sheet` (wall curtain 4.4 long (Z) x 1 thick (X) x 9.3 tall), `Core` (yellow licks on both faces), `Tongue1`-`3` (flame tongues, 1 tall, width along Z), `Pool` (floor disc r 0.95), `Ring` (edge band r 0.88-1), `CrownA` / `CrownB` (rings of rim flames r 0.975 / 0.92), `Spark` (ember shard). Closed volumes: no DoubleSided needed |
 | `ModVFX` | each mesh at the origin | none | `Shockwave_Energy` (flat ring r 0.7 → 1), `Dome_Energy` (hemisphere r 1), `Sphere_Energy` (r 1), `ScanRing_Energy` (vertical band r 1, 0.25 tall): clone and scale; U wraps around, V runs along the effect |
 
 **Firewall panel standard (handler, 2026-10-26):** L1 blocks bullets, **not vision**, so the panel is see-through: Neon at **Transparency 0.5** with the tinted grid Decals reading on top (white lines and a glowing rim on transparent, `FirewallGrid.png`). It is `CanQuery = false` in the template: the server's bullet blocking should use its own hitbox, not this mesh. B2 Burn Wall is the variant that blocks vision (make it opaque in code, not a separate model).

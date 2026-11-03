@@ -35,6 +35,16 @@
 - **End:** the flames sink and die out; the scorch line fades.
 - **Third person:** others see the caster's burning hand and push-out pose.
 
+## Look (stylized, 2026-11-03)
+The user found the particle fire too realistic and too heavy for low-end devices, so the wall moves to the stylized, mesh-first look ([Art Direction](../../02%20Art/Art%20Direction.md#ability-vfx-stylized-mesh-first-decided-2026-11-03)): Phoenix's Blaze, a bit more grounded. It replaces the "Look (Blender)" flipbook curtain above once the hub installs the kit; until then the old look stays as the fallback.
+- **Kit:** the Blender `FireVFX` meshes (`tools/blender/build_mod_firevfx.py`, render `References/mods/firevfx.jpg`), placed by `Util/FireKit` and `Util/WallFx`. No textures: Neon parts coloured in code.
+- **Each 4-stud piece:** an **opaque orange sheet** with a jagged flame top (7–9.5 studs tall: it really blocks sight), **bright yellow licks** low on both faces (the core), and **three flame tongues on top** (two orange, a taller red one in the middle: the darker tips) that flicker, lean and swap between three shapes. Pieces are turned at random so the row doesn't repeat. 5 parts a piece; a 60-stud wall is ~75 parts.
+- **Build:** each piece rises out of the floor with a little overshoot as the wall races on; the newest piece's tongues flare taller.
+- **End:** everything sinks into the floor over 0.5 s; the parts go back to the pool.
+- **Kept:** a few embers (accent only, 3/s a piece), the warm light on every other piece, the scorch line, the heat haze inside, the sounds, the flame in a caster's hand (still particles). No smoke.
+- **Sizes:** from the piece the server builds (height, thickness, length), so A (20 studs), B (60 studs, 2 walls) look the same per piece. The Frost Wall (G) is untouched (`Util/FrostWallFx`).
+- **Low end:** pooled parts, no per-frame instances, all moves in one `BulkMoveTo`, flames animate at 30 Hz, pieces over 220 studs away hold still.
+
 ## Sound (hooks + placeholder sounds)
 | Hook | What |
 |---|---|
