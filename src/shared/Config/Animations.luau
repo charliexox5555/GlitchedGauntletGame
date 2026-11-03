@@ -42,9 +42,9 @@ return table.freeze({
 		Updraft = id(125684824115691),
 		-- Updraft Crash Down (tools/studio/MakeSlamAnimations.luau): the dive
 		-- (looped while UpdraftSlam = "Down") and the knee-and-fist landing
-		-- (once). "" until uploaded: the dive borrows the Crouch pose meanwhile.
-		UpdraftSlam = "",
-		UpdraftSlamLand = "",
+		-- (once). Uploaded 2026-11-03.
+		UpdraftSlam = id(81823689314585),
+		UpdraftSlamLand = id(139188293218588),
 	}),
 	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
 	SLAM_FADE = 0.08, -- seconds the Crash Down dive pose fades in / out
