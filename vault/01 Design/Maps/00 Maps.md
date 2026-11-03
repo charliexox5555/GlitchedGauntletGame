@@ -2,17 +2,33 @@
 
 The match maps: a mix of RIVALS (fast, simple, run-and-gun readable) and Valorant (disciplined layouts, callouts, clean value structure). The rules for building one are in the [Game Plan](../../05%20Production/Game%20Plan.md) §5.
 
-**Status (2026-11-02):** the old sci-fi names (Cache, Firewall, Mainframe) are retired with the shelved digital theme. [Whitebox](Whitebox.md) is built and its layout is approved; the rest are ideas.
+**Status (2026-11-03):** the **release lineup is 8 maps** (decided by Claude overnight on the user's "use your judgement"; research below). **Built in Studio:** Whitebox, Big Whitebox, Dockyard, Metro, Old Town (all playable as matches; `Workspace.ForceMap` = map id in Studio to test one). **Concepts:** Rooftops, Bunker. Matches pick a map by team size from `Config/Match MAPS`.
+
+## Release lineup (2026-11-03)
+Why 8: Valorant launched with 4 maps, its TDM and Skirmish modes with 3 each; RIVALS (about 30 maps now) holds a vote before each duel and forces its "Big" maps at 3v3 and up, reusing one layout family at two sizes. So: enough variety for a vote at every team size, small maps for duels, big ones for 3v3–4v4, indoor and outdoor, and one cheap "Big" twin of the first map.
+
+| Size | Map | Teams | Where | Theme |
+|---|---|---|---|---|
+| Small | Whitebox | 1v1–2v2 | outdoor (sky) | white panel arena |
+| Small | Rooftops | 1v1–2v2 | outdoor | concept |
+| Medium | Bunker | 1v1–3v3 | indoor | concept |
+| Medium–large | Dockyard | 1v1–4v4 | outdoor, dusk | container port |
+| Large | Metro | 2v2–4v4 | indoor | metro station |
+| Large | Old Town | 2v2–4v4 | outdoor, afternoon | stone plaza |
+| Large | Big Whitebox | 3v3–4v4 | outdoor (sky) | Whitebox, bigger |
+
+(8th slot open: a second indoor medium after the first playtests, e.g. a museum or a greenhouse.)
 
 ## Roster
 | Map | Status | Modes | Idea | Built with |
 |---|---|---|---|---|
 | [Whitebox](Whitebox.md) | 🟡 Built, layout approved | 1v1, 2v2 | White panels under a big sky; four pillars around a diamond | Parts in Studio |
-| **Bunker** | 💡 Idea | 2v2, 3v3 | Concrete halls and a sunlit central shaft, tying the maps to the Lobby. Tight flanks, one bright middle | The Lobby's Blender kits, which already exist |
-| [Dockyard](Dockyard.md) | 🟡 Layout checked, scripts + kit built, not yet run in Studio | 1v1 to 4v4 | A container pier at dusk: red / blue / green lanes, a gantry crane over the middle, a Shed on each flank, harbour on both sides. Origin (-1500, 200, 0) | Parts greybox + one Blender kit |
-| [Metro](Metro.md) | 🟠 Scripted, not yet run in Studio | 2v2–4v4 | Meridian station: two platforms, a sunken track lane with two staggered trains, a terrace over each end, service-corridor flanks. Origin (1500, 200, 0) | Blender kit (`Station`) plus Parts |
-| **Rooftops** | 💡 Idea | 1v1, 2v2 | Two buildings joined by a bridge and ziplines or Updraft routes. Falling off is a real risk | Parts plus light Blender props |
-| [Old Town](Old%20Town.md) | 🟠 Scripts written, not run in Studio | 2v2–4v4 (large) | Sunlit stone plaza, fountain, arcades with a cafe terrace, shaded alleys, a clock tower; origin (0, 200, 1500) | Blender kit plus Parts |
+| [Big Whitebox](Big%20Whitebox.md) | 🟡 Built in Studio 2026-11-03, playtested solo | 3v3–4v4 | Whitebox scaled up: 120 × 176 room, three lanes, two perches a side. Origin (0, 200, -1500) | Parts (MapKit script) |
+| [Dockyard](Dockyard.md) | 🟡 Built in Studio 2026-11-03, playtested solo (lighting brightened) | 1v1 to 4v4 | A container pier at dusk: red / blue / green lanes, a gantry crane over the middle, a Shed on each flank, harbour on both sides. Origin (-1500, 200, 0) | Blender kit (`Kit`) plus Parts |
+| [Metro](Metro.md) | 🟡 Built in Studio 2026-11-03, playtested solo | 2v2–4v4 | Meridian station: two platforms, a sunken track lane with two staggered trains, a terrace over each end, service-corridor flanks. Origin (1500, 200, 0) | Blender kit (`Station`) plus Parts |
+| [Old Town](Old%20Town.md) | 🟡 Built in Studio 2026-11-03, playtested solo | 2v2–4v4 (large) | Sunlit stone plaza, fountain, arcades with a cafe terrace, shaded alleys, a clock tower; origin (0, 200, 1500) | Blender kits (`Structure`, `Props`) plus Parts |
+| **Rooftops** | 💡 Concept | 1v1, 2v2 | Two rooftops joined by a bridge, with Updraft routes between levels and a real fall risk (the MapService kill height covers it) | Parts plus light Blender props |
+| **Bunker** | 💡 Concept | 1v1–3v3 | Concrete halls and a sunlit central shaft, tying the maps to the Lobby. Tight flanks, one bright middle | The Lobby's Blender kits, which already exist |
 
 ## What every map shares
 - **Rules:** Game Plan §5: three lanes, half cover 3 / full cover 7+, doors at least 6 wide, two exits per room, spawns out of sight.

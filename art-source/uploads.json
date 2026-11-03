@@ -167,6 +167,18 @@
   "type": "Animation",
   "uploaded": "2026-10-28 21:20:05"
  },
+ "art-source/animations/GG_UpdraftSlam.rbxm": {
+  "assetId": 81823689314585,
+  "name": "GG Updraft Slam",
+  "type": "Animation",
+  "uploaded": "2026-11-03 13:34:13"
+ },
+ "art-source/animations/GG_UpdraftSlamLand.rbxm": {
+  "assetId": 139188293218588,
+  "name": "GG Updraft Slam Land",
+  "type": "Animation",
+  "uploaded": "2026-11-03 13:34:16"
+ },
  "art-source/audio/GunAtlas.flac": {
   "assetId": 105241531021545,
   "name": "GG Gun Sound Atlas v2",

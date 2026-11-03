@@ -51,3 +51,6 @@ art-source/audio/ModSfx/
 
 # Viewmodel hand-clipping samples (tools/studio/SampleHands.luau), regenerated on demand
 art-source/viewmodel/checks/
+
+# Python bytecode
+__pycache__/
