@@ -2,7 +2,12 @@
 
 A container terminal on a pier at dusk: three lanes of stacked shipping containers, a yellow gantry crane over the middle, a corrugated shed on each flank, and the harbour on both sides. Outdoor, medium-large, built to play from 1v1 up to 4v4 (like RIVALS' Docks and Station). See [Maps](00%20Maps.md) for the roster.
 
-**Status (2026-11-03):** concept, layout (checked), greybox script, Blender kit, art and lighting scripts written by a parallel map session. **Not yet run in Studio**: the hub runs the scripts, screenshots and iterates (run order at the end). Map id `Dockyard`, world origin **(-1500, 200, 0)**.
+**Status (2026-11-03):** concept, layout (checked), greybox script, Blender kit (**uploaded, asset 109909832133442**), art and lighting scripts are done. **Not yet run in Studio**: the hub runs the scripts, screenshots and iterates (run order in §5). Map id `Dockyard`, world origin **(-1500, 200, 0)**.
+
+![Dockyard dusk preview, overview](../../02%20Art/References/maps/dockyard/dockyard-preview-overview.jpg)
+![From the B spawn](../../02%20Art/References/maps/dockyard/dockyard-preview-from-b-spawn.jpg)
+
+These are Blender renders of the whole layout dressed with the kit exactly as `Art.luau` places it (`build_map_kit_dockyard.py` imports the layout), under a dusk stand-in for the Roblox lighting. Roblox will be flatter (no GI) and brighter in the shade.
 
 ---
 
@@ -118,24 +123,47 @@ Over the quay barrier is open water about 9 studs below the deck. The water is a
 
 Team colours (cyan `#00E5FF`, orange-red `#FF5A36`) stay reserved for players and abilities; the red lane is a dark rust, never orange-red.
 
-**Lighting mood:** dusk, the sun on the horizon down the X axis (across the pier, so neither team looks into it), ClockTime ~18.1, GeographicLatitude 0 (so the sun sets exactly along X: check `Lighting:GetSunDirection()` in Studio). Warm low sun and ColorShift, violet ambient and atmosphere decay, sodium lamp pools at the crane, the sheds and the stair heads. Lit faces about twice the shaded ones; enemies (players) must stay readable against containers in shade, so OutdoorAmbient stays fairly high.
+**Lighting mood:** dusk, the sun on the horizon down the X axis (across the pier, so neither team looks into it), ClockTime 17.75, GeographicLatitude 0 (so the sun sets exactly along X: check `Lighting:GetSunDirection()` in Studio). Warm low sun and ColorShift, violet ambient and atmosphere decay, sodium lamp pools at the crane, the sheds and the stair heads. Lit faces about twice the shaded ones; enemies (players) must stay readable against containers in shade, so OutdoorAmbient stays fairly high.
 
 ### Built with
 | Use | For |
 |---|---|
-| **Roblox Parts** (greybox) | Everything you walk on or shoot: deck, containers, dividers, walls, ramps, barrier. Hidden where the art covers them, never deleted |
-| **Blender kit** (`Kit_Dockyard.blend`, one upload) | The look: 40 ft and 20 ft containers (one mesh each, tinted per instance), the stair, the gantry crane, the Shed, rack, office, crates, quay barrier and quay face, bollards, high-mast lamps, a ship-to-shore crane and a ship for the skyline |
+| **Roblox Parts** (greybox) | Everything you walk on or shoot: deck, containers, dividers, walls, door heads, roof, ramps, barrier, end walls. Hidden where the art covers them, never deleted. Each part carries `Kind`, `Lane`, `Piece`, `Stack` and `Half` attributes, which the art pass reads |
+| **Blender kit** (`art-source/maps/Dockyard/Kit_Dockyard.blend`, group `Kit`, asset **109909832133442**) | The look, below |
+
+![Kit contact sheet](../../02%20Art/References/maps/dockyard/kit-contact.jpg)
+
+| Piece | Tris | Notes |
+|---|---|---|
+| `C40` / `C20` | 1,158 / 998 | Corrugated (pitch 1.6, caps dropped), corner posts and castings, doors with locking bars on +Z. `_Body` takes the lane colour, `_Frame` a darker step, `_Hardware` stays dark |
+| `C40Lo` | 108 | Flat box for the ships and the far quays |
+| `Stair` | 528 | 11 steel treads with yellow nosings and rails, rising toward +Z like the WedgePart it dresses |
+| `Crane` | 2,124 | The RTG: legs on hazard-banded bogies, side portals, girders at 52–56, trolley, cab, spreader at 26–29 over the Crane stack (clear of anyone standing on it), sodium floodlights |
+| `Shed` | 2,672 | Corrugated cladding on a concrete plinth, lane stripe, gable roof with ribs, inside portal frames, pendant and wall-pack lamps, roller drum, sign board |
+| `Rack`, `Office`, `Crate` | 1,596 / 160 / 272 | Rack packed full (it is full cover); site cabin; crate on a pallet |
+| `QuayBarrier8`, `QuayFace8`, `Bollard` | 80 / 104 / 116 | Hazard-striped quay wall, deck edge face with fenders, mooring bollards on the wall |
+| `LampMast` | 220 | High mast with four sodium heads |
+| `StsCrane`, `Ship` | 448 / 516 | The skyline: ship-to-shore cranes on the far quays reaching over a moored container ship, one set per side (rotated) |
 
 ### Budget (mobile)
-≤ 500k visible triangles; ≤ 20k per mesh; reuse meshes (every container is one of two meshes); Box collision on everything; CastShadow off on small parts (kit_bundle does this under 8 studs); no textures beyond Roblox materials; ≤ 12 lights, all shadowless.
+Placed by `Art.luau`: 52 × C40 + 88 × C20 (the lane boxes and the 7-high end walls), 86 × C40Lo, 2 Sheds, the crane, 4 masts, 4 STS cranes, 2 ships, 94 quay faces, 36 barrier segments: about **192k triangles for the whole map**, less in any one view (target ≤ 500k visible), largest mesh 1,232 tris (≤ 20k). Every container is one of three meshes. The art is CanCollide/CanQuery/CanTouch off; kit_bundle turns shadows off below 8 studs. No textures beyond Roblox materials. **9 lights**, all shadowless (Lighting.luau).
 
 ---
 
 ## 5. Build and run order
-Built 2026-11-03 by a parallel map session (no Studio): the hub runs it.
-1. Layout: `python tools/maps/dockyard_layout.py --luau` (prints the checks, writes the SVG and the greybox data).
-2. Greybox: `python tools/studio/maps/bundle.py Dockyard Greybox -o dockyard_greybox.luau`, run in the match place (edit mode).
-3. Kit: `blender --background --factory-startup --python tools/blender/build_map_kit_dockyard.py` → `art-source/maps/Dockyard/Kit_Dockyard.blend` + contact sheets; export `-- --maps Dockyard Kit`; upload `python tools/opencloud/upload_models.py --maps Dockyard --group 11116787 Kit`.
-4. Install the kit: `python tools/studio/maps/kit_bundle.py Dockyard Kit -o dockyard_kit.luau`, run in the match place.
-5. Art + lighting: `python tools/studio/maps/bundle.py Dockyard Art Lighting -o dockyard_art.luau`, run in the match place.
+Built 2026-11-03 by a parallel map session (no Studio, no Blender MCP): the hub runs it in the match place, edit mode.
+1. Layout (already done; rerun after any change): `python tools/maps/dockyard_layout.py --luau` prints the checks, writes the SVG and the greybox data.
+2. Greybox: `python tools/studio/maps/bundle.py Dockyard Greybox -o dockyard_greybox.luau`, run it. Expect `Dockyard greybox: deck + 93 parts, 4 + 4 spawns, 2 barriers` (the gables are two wedges each).
+3. Kit (already uploaded): `blender --background --factory-startup --python tools/blender/build_map_kit_dockyard.py -- [--no-render]`, export `blender --background --factory-startup art-source/maps/Dockyard/Kit_Dockyard.blend --python tools/blender/export_lobby_kit.py -- --maps Dockyard Kit`, upload `python tools/opencloud/upload_models.py --maps Dockyard --group 11116787 Kit` (updates asset 109909832133442).
+4. Install the kit: `python tools/studio/maps/kit_bundle.py Dockyard Kit -o dockyard_kit.luau`, run it (`ServerStorage.MapKit.Dockyard`, 15 pieces).
+5. Art + lighting: `python tools/studio/maps/bundle.py Dockyard Art Lighting -o dockyard_art.luau`, run it. The report should say `all kit pieces found`.
 6. Check: walk it, screenshots from each spawn, the middle, a stack top and an overview; the mobile budget; save the place and back up `art-source/maps/Dockyard/Dockyard.rbxm`.
+
+**What to check in the first screenshots**
+- **Kit axes:** containers sit flush on their greybox boxes (no 180° or 90° turns, doors on the short end), the stairs climb from the spawn side up to the divider top (B: from Z 72 up to Z 56), the Shed's roller door faces the middle and its wall gaps line up with the greybox doorways, the crane legs stand on the greybox legs.
+- **Lane colours** read under the dusk light from each spawn: red west, blue middle, green east; the end walls stay muted behind them.
+- **Sun direction:** `Lighting:GetSunDirection()` mostly ±X (raking across the pier). If it runs along Z, one team faces the sun: change ClockTime toward 18 or swap the sign with ClockTime 6.25 (dawn) in Lighting.luau.
+- **Readability in shade:** a player avatar against a blue container in shadow; raise OutdoorAmbient if it's lost.
+- **The middle and the high lane:** the spreader stays above a player on the Crane stack; the divider tops feel like a lane, not a perch.
+- **The edges:** the barrier stops a Dash; going over it falls through the water (and the death takes ~2.7 s until a kill height exists).
+- **Budget:** MeshParts (the report prints the count), triangles on a phone view, 9 lights.
