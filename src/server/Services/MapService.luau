@@ -3,8 +3,16 @@
 -- workspace.ActiveMap. A map still sitting in Workspace (being edited in
 -- Studio) moves into ServerStorage.Maps first, for this run only. It finds the
 -- map's spawns and barriers by tag: ArenaSpawn_A / ArenaSpawn_B, ArenaBarrier.
+--
+-- Per-map lighting (vault/01 Design/Maps/00 Maps.md → How a map is built): a
+-- map may carry a Configuration named "Lighting" whose attributes are Lighting
+-- properties (ClockTime = 17.5, Ambient = Color3, ...), and a Folder named
+-- "LightingFx" of Sky / Atmosphere / post-processing effects. Loading the map
+-- applies them on top of the place's own lighting (remembered the first time),
+-- and loading a map without them puts the place's lighting back.
 
 local CollectionService = game:GetService("CollectionService")
+local Lighting = game:GetService("Lighting")
 local ServerStorage = game:GetService("ServerStorage")
 
 local MapService = {}
@@ -13,6 +21,103 @@ local BARRIER_TAG = "ArenaBarrier"
 local SPAWN_TAGS = { "ArenaSpawn_A", "ArenaSpawn_B" }
 
 local active: Model? = nil
+
+-- The place's own lighting, captured before the first map changes it.
+type Baseline = { props: { [string]: any }, fx: { Instance } }
+local baseline: Baseline? = nil
+local LIGHTING_PROPS = {
+	"Ambient",
+	"Brightness",
+	"ClockTime",
+	"ColorShift_Bottom",
+	"ColorShift_Top",
+	"EnvironmentDiffuseScale",
+	"EnvironmentSpecularScale",
+	"ExposureCompensation",
+	"FogColor",
+	"FogEnd",
+	"FogStart",
+	"GeographicLatitude",
+	"GlobalShadows",
+	"OutdoorAmbient",
+	"ShadowSoftness",
+}
+local FX_CLASSES: { [string]: boolean } = {
+	Sky = true,
+	Atmosphere = true,
+	BloomEffect = true,
+	ColorCorrectionEffect = true,
+	SunRaysEffect = true,
+	DepthOfFieldEffect = true,
+	BlurEffect = true,
+}
+local MAP_FX_ATTRIBUTE = "FromMap"
+
+local function captureBaseline()
+	if baseline then
+		return
+	end
+	local props: { [string]: any } = {}
+	for _, name in LIGHTING_PROPS do
+		props[name] = (Lighting :: any)[name]
+	end
+	local fx: { Instance } = {}
+	for _, child in Lighting:GetChildren() do
+		if FX_CLASSES[child.ClassName] then
+			table.insert(fx, child:Clone())
+		end
+	end
+	baseline = { props = props, fx = fx }
+end
+
+-- The place's lighting back, then the map's own on top (if it has any).
+local function applyLighting(map: Model)
+	captureBaseline()
+	local base = baseline :: Baseline
+	local config = map:FindFirstChild("Lighting")
+	local mapFx = map:FindFirstChild("LightingFx")
+	for name, value in base.props do
+		pcall(function()
+			(Lighting :: any)[name] = value
+		end)
+	end
+	-- Effects: the map's replace the place's of the same class.
+	local replace: { [string]: boolean } = {}
+	if mapFx then
+		for _, child in mapFx:GetChildren() do
+			replace[child.ClassName] = true
+		end
+	end
+	for _, child in Lighting:GetChildren() do
+		if FX_CLASSES[child.ClassName] then
+			child:Destroy()
+		end
+	end
+	for _, fx in base.fx do
+		if not replace[fx.ClassName] then
+			fx:Clone().Parent = Lighting
+		end
+	end
+	if mapFx then
+		for _, child in mapFx:GetChildren() do
+			if FX_CLASSES[child.ClassName] then
+				local c = child:Clone()
+				c:SetAttribute(MAP_FX_ATTRIBUTE, map.Name)
+				c.Parent = Lighting
+			end
+		end
+	end
+	if config and config:IsA("Configuration") then
+		for name, value in config:GetAttributes() do
+			local ok = pcall(function()
+				(Lighting :: any)[name] = value
+			end)
+			if not ok then
+				warn("[MapService] map lighting: can't set Lighting." .. name)
+			end
+		end
+	end
+end
 
 local function mapsFolder(): Folder
 	local folder = ServerStorage:FindFirstChild("Maps")
@@ -41,12 +146,22 @@ end
 
 -- Loads the map (replacing any loaded one) and switches off every spawn that
 -- isn't its own. Returns false if the map doesn't exist.
+-- Whether a map with this id is installed (ServerStorage.Maps or Workspace).
+function MapService.has(id: string): boolean
+	local stored = mapsFolder():FindFirstChild(id)
+	local inWorkspace = workspace:FindFirstChild(id)
+	return (stored ~= nil and stored:IsA("Model"))
+		or (inWorkspace ~= nil and inWorkspace:IsA("Model"))
+end
+
 function MapService.load(id: string): boolean
 	local source = template(id)
 	if not source then
 		warn("[MapService] no map named", id)
 		return false
 	end
+	-- The template's lighting (the clone carries the same children).
+	applyLighting(source)
 	if active then
 		active:Destroy()
 	end

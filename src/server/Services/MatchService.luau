@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
@@ -430,12 +431,45 @@ local function waitForPlayers()
 	end
 end
 
+-- The map for the next match: a random installed map from Config.MAPS that fits
+-- the bigger team, not the last one when there's another (Studio: the
+-- Workspace attribute ForceMap wins). nil keeps the current map.
+local lastMap: string? = nil
+local function pickMap(): string?
+	local forced = workspace:GetAttribute("ForceMap")
+	if RunService:IsStudio() and typeof(forced) == "string" and MapService.has(forced) then
+		return forced
+	end
+	local size = math.max(#playersOn(1), #playersOn(2), 1)
+	local fits: { string } = {}
+	for _, entry in Config.MAPS do
+		if size >= entry.minTeam and size <= entry.maxTeam and MapService.has(entry.id) then
+			table.insert(fits, entry.id)
+		end
+	end
+	if #fits > 1 and lastMap then
+		local i = table.find(fits, lastMap)
+		if i then
+			table.remove(fits, i)
+		end
+	end
+	if #fits == 0 then
+		return nil
+	end
+	return fits[math.random(1, #fits)]
+end
+
 local function loop()
 	while not MapService.load(Config.MAP) do
 		task.wait(MAP_RETRY)
 	end
+	lastMap = Config.MAP
 	while true do
 		waitForPlayers()
+		local nextMap = pickMap()
+		if nextMap and nextMap ~= lastMap and MapService.load(nextMap) then
+			lastMap = nextMap
+		end
 		matchesPlayed += 1
 		local ok, err = pcall(runMatch)
 		TestOpponent.remove()

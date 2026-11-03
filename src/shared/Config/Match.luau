@@ -4,9 +4,24 @@
 
 -- flatShield: everyone's shield this phase. Without it, your gun's `shield` decides.
 export type Phase = { name: string, tier: number, fromRound: number, flatShield: number? }
+export type MapEntry = { id: string, minTeam: number, maxTeam: number }
 
 return table.freeze({
-	MAP = "Whitebox", -- a Model in ServerStorage.Maps (or still in Workspace)
+	MAP = "Whitebox", -- the default map: a Model in ServerStorage.Maps (or still in Workspace)
+	-- The map pool (vault/01 Design/Maps/00 Maps.md → Roster): before each match one
+	-- installed map is picked at random among those that fit the bigger team
+	-- (minTeam..maxTeam players), not the last one when there's a choice. Big
+	-- maps take over from 3v3 (like RIVALS). In Studio the Workspace attribute
+	-- "ForceMap" (a map id) overrides the pick, to test one map.
+	MAPS = {
+		{ id = "Whitebox", minTeam = 1, maxTeam = 2 },
+		{ id = "Rooftops", minTeam = 1, maxTeam = 2 },
+		{ id = "Bunker", minTeam = 1, maxTeam = 3 },
+		{ id = "Dockyard", minTeam = 1, maxTeam = 4 },
+		{ id = "Metro", minTeam = 2, maxTeam = 4 },
+		{ id = "OldTown", minTeam = 2, maxTeam = 4 },
+		{ id = "BigWhitebox", minTeam = 3, maxTeam = 4 },
+	} :: { MapEntry },
 
 	ROUNDS_TO_WIN = 5,
 
