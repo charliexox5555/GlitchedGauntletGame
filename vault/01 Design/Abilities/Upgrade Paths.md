@@ -1,6 +1,6 @@
 # Upgrade paths: L2 and L3 for every ability
 
-> **Status: all 9 decided (2026-11-03), not built yet.** Reviewed one by one with the user; next step is building it. Base changes made during the review are already in `Config/Mods`: Updraft 1 charge, Recall 20 s cooldown. Overrides the old A/B/G tables in [Mods](../Mods.md) (those were written for the abilities before the redesign).
+> **Status: all 9 decided and BUILT (2026-11-03 overnight), tested solo in Studio** ([playtest](../../05%20Production/Playtests/2026-11-03%20Ability%20Upgrades%20Overnight.md)); waiting for the user's test. Base changes from the review: Updraft 1 charge, Recall 20 s cooldown. Each ability note has an "Upgrades (L2/L3)" section with how its levels were built. Numbers and card text live in `Config/Mods`. Overrides the old A/B/G tables in [Mods](../Mods.md) (those were written for the abilities before the redesign).
 
 ## How upgrades work
 - **L1** is the base ability you draft.
@@ -25,7 +25,22 @@ Every ability belongs to one key and is always on that key, instead of picks fil
 
 E has 5 abilities and Q and T have 2 each; the user is fine with that for now (more abilities are coming).
 
-Open: does the draft then offer one card per key (so you always end with one Q, one E and one T)?
+**The draft (decided 2026-11-03, built):** a filled slot locks its key: new abilities are only offered for your empty slots, and an ability for a filled slot never shows up. Once every slot is full the draft offers upgrades instead. See [Match Flow](../Match%20Flow.md) → Abilities.
+
+## Path names as built (proposed by the ability sessions; the user can rename)
+| Ability | Path A | Path B | Glitch |
+|---|---|---|---|
+| Dash | Long Dash | Ghost | Desync |
+| Updraft | High Rise | Second Wind | Crash Down |
+| Molly | Recharge | Bigger Fire | Fork Fire |
+| Firewall | Short Wall | Long Wall | Frost Wall |
+| Frost | Stockpile | Big Burst | Freeze Frame |
+| Recon | Recharge | More Pulses | Ping Spike |
+| Heal Orb | Charges | Long Heal | Barrier |
+| Stim | Quick Stims | Strong Stim | Heal Zone |
+| Recall | Recharge | Long Range | Crash Recovery |
+
+The names below in each section are the ones decided in the review (e.g. Updraft "Height" / "Charges" / "Slam"); the table above is what the cards say now. Two glitches both start with "Crash" (Crash Down, Crash Recovery): see [Bugs & Ideas](../../05%20Production/Bugs%20%26%20Ideas.md).
 
 ## 1. Dash (E): decided 2026-11-03
 L1 (unchanged): 12 studs in 0.15 s, 1 per round, no recharge.

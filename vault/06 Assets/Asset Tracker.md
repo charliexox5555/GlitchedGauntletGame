@@ -65,6 +65,8 @@ Backups: `art-source/lobby/Studio/*.rbxm`.
 ## Abilities (Mods)
 Status of each Mod at L1 (2026-10-26, overnight). ✅ done · 🟡 provisional / needs the user · ⬜ not started. How it's built: [Mod System](../04%20Tech/Mod%20System.md); what to test: [Mods Overnight Checklist](../05%20Production/Playtests/Mods%20Overnight%20Checklist.md).
 
+**Upgrades (2026-11-03):** every Mod's L2/L3 paths (A, B, glitch) are built and solo-tested in Studio ([Upgrade Paths](../01%20Design/Abilities/Upgrade%20Paths.md), [playtest](../05%20Production/Playtests/2026-11-03%20Ability%20Upgrades%20Overnight.md)). Their looks are code-built VFX (no new models); new sounds are placeholders in `Config/ModSounds` (unauditioned). 🟡 until the user's test.
+
 | Mod | Code (L1) | Model | VFX | Sounds | 1P / 3P animation | Notes |
 |---|---|---|---|---|---|---|
 | **Dash** (was Blink) | ✅ predicted dash, 1 per round, gun down + 0.1 s shoot delay, Dash Focus (server-checked) | — | ✅ Blender textures (`art-source/vfx/abilities/dash/`): wind trail, gust ring, puff, screen streaks + blur | 🟡 4 hooks, ProSoundEffects placeholders (unauditioned) | ✅ gun dip + hand gesture / ✅ lean clips (4 directions) | Built 2026-10-29 to [Dash](../01%20Design/Abilities/Dash.md); user-tested in Studio |

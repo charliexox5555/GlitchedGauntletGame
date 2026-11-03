@@ -209,3 +209,13 @@ All 9 Mods work at L1 (placeholder visuals). New blocks: `Placeable` (one spot c
 - **Visibility (decided overnight; confirm):** enemy loadouts (`Mod<n>Id` / `Level`) and the held state are public, since everyone can see them in play anyway. Server Mods' charges, recharge and active times are **owner-only** (`PlayerGui.ModState`). The predicted Mods' (Blink, Rollback) charges are character attributes that Server Authority replicates to everyone; they can't be hidden without moving those Mods out of the simulation.
 - **Review, stress and leak results:** see the [checklist](../05%20Production/Playtests/Mods%20Overnight%20Checklist.md) → Stage 5.
 
+
+## Upgrades: as built (2026-11-03)
+The L2/L3 levels of all 9 abilities ([Upgrade Paths](../01%20Design/Abilities/Upgrade%20Paths.md)). Each ability note has its own "Upgrades (L2/L3)" build notes; the shared pieces:
+- **Data:** every level's numbers and behaviour switches (`behaviour = "Slam"`, `"Barrier"`, ...) in `Config/Mods`, resolved by `Mods.stats(id, level)`; `slot` (1 = Q, 2 = E, 3 = T) and `paths` (card names) per ability; `BUILT` marks every level.
+- **Fixed slots:** the draft (`DraftService`) only fills a slot with its own abilities; the dev panel (`DevModService`) puts an ability in its own slot whatever tab asked.
+- **`ModModule.server(api)`** (`Mods/Types` `ServerApi`), run once by `ModService.start` in `Config/Mods ORDER`: for things that aren't a use. `api.guard` registers a **damage guard** that every hit on a combatant passes through in `WeaponService.hurt` (return the amount to deal, 0 blocks it): Dash Ghost's dodge, Heal Orb's Barrier, Recall's Crash Recovery, in that order. `api.modifier` changes player-on-player damage before the guards (Recon Ping Spike's +20%). `api.onRefill` runs at every round start. Guards are pcall-wrapped and must not yield. A fully blocked hit sends `HitConfirm.blocked` (the shooter's BLOCKED marker).
+- **`ctx.restore`**: an instant heal that leaves a running heal-over-time alone (Stim's Heal Zone).
+- **Statuses:** `Frozen` (a stun: `stun = true` blocks shots on both sides, Mod use in ModService, casts in the simulation via the `StatusStunned` player attribute) and `StimStrong`, in `Config/StatusEffects`.
+- **Client:** `Util/UpgradeFx/<Id>.luau`, one handler per ability (`start`, `onFx` before ModFxController's own handling, `step`), so each ability's glitched look lives in its own files.
+- **HUD / dev:** slot names show the level ("DASH 3", "FROST G3"); the dev panel's level note names the path; "Hurt me" goes through the guards (it can kill).
