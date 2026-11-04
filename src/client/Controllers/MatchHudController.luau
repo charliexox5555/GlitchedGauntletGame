@@ -17,6 +17,7 @@ local TestMode = require(ReplicatedStorage.Shared.TestMode)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local Ui = require(script.Parent.Parent.Util.Ui)
+local UiSound = require(script.Parent.Parent.Util.UiSound)
 
 local MatchHudController = {}
 
@@ -29,11 +30,33 @@ local HEALTH_TICK = 0.25 -- seconds between team health scans
 local FIGHT_MESSAGE_TIME = 1 -- seconds "FIGHT" stays up
 local RESET_TRIES = 10
 local BAR_W = 220
+local BAND_SIZE = UDim2.fromScale(1, 260 / 1080)
+local TICK_FROM: { [string]: number } = { Draft = 5, Countdown = 3, Live = 5 } -- seconds left when the clock ticks
+local URGENT_LIVE = 10 -- the round clock turns red this many seconds from the end
 
-type Side = { name: TextLabel, score: TextLabel, fill: Frame, pips: { Frame } }
+-- The sound a banner makes as it comes in (by its title).
+local BANNER_SOUND: { [string]: string } = {
+	["GET READY"] = "Banner",
+	FIGHT = "Fight",
+	["ROUND WON"] = "RoundWon",
+	["ROUND LOST"] = "RoundLost",
+	DRAW = "Banner",
+	VICTORY = "Victory",
+	DEFEAT = "RoundLost",
+}
+
+type Side = {
+	name: TextLabel,
+	score: TextLabel,
+	scorePop: UIScale,
+	fill: Frame,
+	pips: { Frame },
+	shown: number, -- the score drawn (-1 before the first refresh)
+}
 type Ui = {
 	bar: Frame,
 	clock: TextLabel,
+	clockPop: UIScale,
 	round: TextLabel,
 	ally: Side,
 	enemy: Side,
@@ -97,7 +120,14 @@ local function side(bar: Frame, enemy: boolean): Side
 			BackgroundTransparency = 0.75,
 		}, bar)
 	end
-	return { name = name, score = score, fill = fill, pips = pips }
+	return {
+		name = name,
+		score = score,
+		scorePop = make("UIScale", {}, score),
+		fill = fill,
+		pips = pips,
+		shown = -1,
+	}
 end
 
 local function build(): Ui
@@ -136,7 +166,8 @@ local function build(): Ui
 		Name = "Banner",
 		AnchorPoint = Vector2.new(0, 0.5),
 		Position = UDim2.fromScale(0, 0.45),
-		Size = UDim2.fromScale(1, 260 / 1080),
+		Size = BAND_SIZE,
+		ClipsDescendants = true,
 		BorderSizePixel = 0,
 		BackgroundColor3 = C.white,
 		Visible = false,
@@ -192,6 +223,7 @@ local function build(): Ui
 	return {
 		bar = bar,
 		clock = clock,
+		clockPop = make("UIScale", {}, clock),
 		round = round,
 		ally = side(bar, false),
 		enemy = side(bar, true),
@@ -257,12 +289,38 @@ end
 
 local liveSince = -math.huge
 local lastHealth = -math.huge
+local lastTick = -1
+local bandToken = 0
+
+-- A quick pop through a UIScale.
+local function pop(scale: UIScale, peak: number)
+	scale.Scale = peak
+	Ui.tween(scale, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+end
 
 local function setSide(s: Side, score: number, share: number?, names: { string }?)
 	s.score.Text = tostring(score)
 	for i, pip in s.pips do
 		pip.BackgroundTransparency = if i <= score then 0 else 0.75
 	end
+	if s.shown >= 0 and score > s.shown then
+		-- A point: the new diamond and the number pop.
+		local pip = s.pips[score]
+		if pip then
+			pip.Size = UDim2.fromOffset(16, 16)
+			pip.Position -= UDim2.fromOffset(4, 4)
+			local home = pip.Position + UDim2.fromOffset(4, 4)
+			Ui.tween(
+				pip,
+				0.35,
+				{ Size = UDim2.fromOffset(8, 8), Position = home },
+				Enum.EasingStyle.Back
+			)
+		end
+		pop(s.scorePop, 1.4)
+		UiSound.play("Score")
+	end
+	s.shown = score
 	if share then
 		s.fill.Size = UDim2.fromScale(math.clamp(share, 0, 1), 1)
 	end
@@ -276,10 +334,12 @@ end
 
 -- The band's look: a colour that fades out to both sides.
 local function tintBand(ui: Ui, color: Color3)
+	-- Neutral banners (countdown, GET READY, FIGHT) are just a dark band.
+	local edge = if color == C.white then C.scrim else color
 	ui.bandGradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, color),
+		ColorSequenceKeypoint.new(0, edge),
 		ColorSequenceKeypoint.new(0.5, C.scrim),
-		ColorSequenceKeypoint.new(1, color),
+		ColorSequenceKeypoint.new(1, edge),
 	})
 	ui.bandGradient.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
@@ -287,7 +347,7 @@ local function tintBand(ui: Ui, color: Color3)
 		NumberSequenceKeypoint.new(1, 1),
 	})
 	for _, line in ui.lines do
-		line.BackgroundColor3 = color
+		line.BackgroundColor3 = if color == C.white then C.lineStrong else color
 	end
 	ui.title.TextColor3 = if color == C.white then C.text else color
 end
@@ -309,6 +369,20 @@ local function refresh(ui: Ui)
 	end
 	local left = MatchState.timeLeft()
 	ui.clock.Text = clockText(left)
+	-- The last seconds: the clock ticks (sound + pop) and goes red.
+	local second = math.ceil(left)
+	local from = TICK_FROM[phase or ""]
+	if from and second >= 1 and second <= from and second ~= lastTick then
+		lastTick = second
+		UiSound.play(if second == 1 then "TickFinal" else "Tick")
+		pop(ui.clockPop, 1.18)
+	elseif not from or second > from then
+		lastTick = -1
+	end
+	local urgent = (phase == "Draft" and second <= TICK_FROM.Draft)
+		or phase == "Countdown"
+		or (phase == "Live" and second <= URGENT_LIVE)
+	ui.clock.TextColor3 = if urgent and second > 0 then C.enemy else C.text
 	local round = MatchState.get("Round") or 0
 	ui.round.Text = if round > 0
 		then string.format("ROUND %d  //  %s", round, phaseName(round))
@@ -363,16 +437,42 @@ local function refresh(ui: Ui)
 			if won then C.ally else C.enemy
 	end
 
-	ui.band.Visible = title ~= ""
 	ui.kicker.Text = kicker
 	ui.sub.Text = sub
 	if title ~= ui.shownTitle then
+		local was = ui.shownTitle
 		ui.shownTitle = title
+		bandToken += 1
+		local token = bandToken
+		if title == "" then
+			-- Out: the band folds shut, then hides.
+			Ui.tween(
+				ui.band,
+				Theme.MOTION.exit,
+				{ Size = UDim2.fromScale(1, 0) },
+				Enum.EasingStyle.Quint,
+				Enum.EasingDirection.In
+			)
+			task.delay(Theme.MOTION.exit, function()
+				if token == bandToken then
+					ui.band.Visible = false
+				end
+			end)
+			return
+		end
 		ui.title.Text = title
 		tintBand(ui, color)
-		if title ~= "" then
-			ui.pop.Scale = 1.12
-			Ui.tween(ui.pop, Theme.MOTION.enter, { Scale = 1 }, Enum.EasingStyle.Back)
+		if was == "" then
+			-- In: the band opens from its middle line.
+			ui.band.Size = UDim2.fromScale(1, 0)
+			ui.band.Visible = true
+			Ui.tween(ui.band, 0.22, { Size = BAND_SIZE }, Enum.EasingStyle.Quint)
+		end
+		ui.pop.Scale = 1.15
+		Ui.tween(ui.pop, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+		local sound = BANNER_SOUND[title]
+		if sound then
+			UiSound.play(sound)
 		end
 	end
 end

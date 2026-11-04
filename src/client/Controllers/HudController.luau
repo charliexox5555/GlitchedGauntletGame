@@ -66,6 +66,7 @@ type Refs = {
 	reloadBar: Frame,
 	reloadFill: Frame,
 	healthFill: Frame,
+	healthChip: Frame, -- the health just lost, which drains after a beat
 	healthText: TextLabel,
 	shieldText: TextLabel,
 	shieldBar: Frame,
@@ -81,6 +82,12 @@ local shownGap = 6
 local crosshairWanted = true
 local crosshairAlpha = 1
 local indicatorAge = math.huge
+-- Health chip: the bar's lost part stays red for CHIP_HOLD, then drains.
+local CHIP_HOLD = 0.4
+local CHIP_DRAIN = 0.35
+local shownHealth = -1
+local chipFrac = 1
+local chipHoldUntil = 0
 
 local function make(className: string, props: { [string]: any }, parent: Instance?): any
 	local inst = Instance.new(className)
@@ -340,6 +347,12 @@ local function build(): Refs
 		BackgroundColor3 = T.raised,
 		BorderSizePixel = 0,
 	}, healthPanel)
+	local healthChip = make("Frame", {
+		Name = "Chip",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = RED,
+		BorderSizePixel = 0,
+	}, healthBar)
 	local healthFill = make("Frame", {
 		Size = UDim2.fromScale(1, 1),
 		BackgroundColor3 = WHITE,
@@ -438,6 +451,7 @@ local function build(): Refs
 		reloadBar = reloadBar,
 		reloadFill = reloadFill,
 		healthFill = healthFill,
+		healthChip = healthChip,
 		healthText = healthText,
 		shieldText = shieldText,
 		shieldBar = shieldBar,
@@ -584,7 +598,23 @@ local function update(dt: number)
 		local frac = math.clamp(humanoid.Health / math.max(humanoid.MaxHealth, 1), 0, 1)
 		r.healthFill.Size = UDim2.fromScale(frac, 1)
 		r.healthFill.BackgroundColor3 = if frac < 0.35 then RED else WHITE
-		r.healthText.Text = tostring(math.ceil(humanoid.Health))
+		local health = math.ceil(humanoid.Health)
+		if health ~= shownHealth then
+			if shownHealth >= 0 and health < shownHealth then
+				-- Hit: the number flashes red and the chip holds the lost part.
+				chipHoldUntil = os.clock() + CHIP_HOLD
+				r.healthText.TextColor3 = RED
+				Ui.tween(r.healthText, 0.4, { TextColor3 = WHITE })
+			end
+			shownHealth = health
+			r.healthText.Text = tostring(health)
+		end
+		if frac >= chipFrac then
+			chipFrac = frac -- healed (or a new life): no chip
+		elseif os.clock() >= chipHoldUntil then
+			chipFrac = math.max(frac, chipFrac - dt / CHIP_DRAIN)
+		end
+		r.healthChip.Size = UDim2.fromScale(chipFrac, 1)
 		local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
 		local hasShield = typeof(shield) == "number" and shield > 0
 		r.shieldBar.Visible = hasShield

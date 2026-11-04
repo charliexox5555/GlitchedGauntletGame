@@ -10,6 +10,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local MatchConfig = require(ReplicatedStorage.Shared.Config.Match)
@@ -22,6 +23,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local CameraController = require(script.Parent.CameraController)
 local Ui = require(script.Parent.Parent.Util.Ui)
+local UiSound = require(script.Parent.Parent.Util.UiSound)
 
 local DraftController = {}
 
@@ -32,6 +34,12 @@ local make = Ui.make
 local KEYS = { "Q", "E", "T" }
 local COL_W, COL_GAP, TOP = 380, 30, 446
 local COL_H = 540
+local LIFT = 6 -- design px a card rises on hover
+local REVEAL_FROM = 48 -- design px below its place a card starts when the draft opens
+local REVEAL_STEP = 0.05 -- seconds between cards (capped so the whole row takes 0.4 s)
+local URGENT = 5 -- seconds left when the hint names your default pick
+local GUN_KEYS = { Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three }
+local SLOT_KEYS = { [Enum.KeyCode.Q] = 1, [Enum.KeyCode.E] = 2, [Enum.KeyCode.T] = 3 }
 local GUN_W, GUN_GAP, GUN_Y = 300, 24, 190
 
 -- Upgrade numbers worth showing on a card ("PEAK  14 → 21 STUDS"), in order.
@@ -56,6 +64,9 @@ type Card = {
 	rest: Color3,
 	restLine: Color3,
 	glowColor: Color3,
+	slot: number, -- 0 for guns
+	home: UDim2?, -- where it rests (set by hookCard)
+	pick: (() -> ())?, -- click it (set by hookCard; the keyboard uses it too)
 }
 
 local backdrop: TextButton? = nil
@@ -70,17 +81,57 @@ local offer: MatchState.DraftOffer? = nil
 local selectedGun: string? = nil
 local selectedAbility: string? = nil
 local isOpen = false
+local lockPulse: Tween? = nil
+local locked = false
+local revealToken = 0
+local openToken = 0
+local shownHint = ""
 
+-- Opens with a quick fade of the backdrop; closes by fading it and sinking
+-- the cards, then hides (the cards come in on their own, see `reveal`).
 local function setOpen(value: boolean)
 	if isOpen == value then
 		return
 	end
 	isOpen = value
-	if backdrop then
-		backdrop.Visible = value
-		backdrop.Modal = value -- frees the mouse in first person
-	end
+	openToken += 1
+	local token = openToken
 	CameraController.setCursorVisible(value)
+	local back = backdrop
+	if not back then
+		return
+	end
+	back.Modal = value -- frees the mouse in first person
+	local content = canvas and canvas:FindFirstChild("Content") :: Frame?
+	if value then
+		back.Visible = true
+		back.BackgroundTransparency = 1
+		Ui.tween(back, Theme.MOTION.enter, { BackgroundTransparency = 0 })
+		UiSound.play("Open")
+	else
+		UiSound.play("Close")
+		Ui.tween(
+			back,
+			Theme.MOTION.exit,
+			{ BackgroundTransparency = 1 },
+			Enum.EasingStyle.Quint,
+			Enum.EasingDirection.In
+		)
+		if content then
+			Ui.tween(
+				content,
+				Theme.MOTION.exit,
+				{ Position = UDim2.fromOffset(0, 40) },
+				Enum.EasingStyle.Quint,
+				Enum.EasingDirection.In
+			)
+		end
+		task.delay(Theme.MOTION.exit + 0.02, function()
+			if token == openToken then
+				back.Visible = false
+			end
+		end)
+	end
 end
 
 local function nothingToPick(o: MatchState.DraftOffer): boolean
@@ -158,28 +209,120 @@ local function chargesText(id: string): string
 	return string.format("%d PER ROUND", charges)
 end
 
+-- A card's short name for the hint ("Recon", "Stim · Quick Stims").
+local function cardName(key: string): string
+	local id, level = string.match(key, "^(%w+):(%w+)$")
+	local def = Mods.def(id or key)
+	if not def then
+		return key
+	end
+	local pathName = if level then (def.paths :: any)[string.sub(level, 1, 1)] else nil
+	return if pathName then def.name .. " · " .. pathName else def.name
+end
+
+local function hintText(): (string, Color3)
+	local o = offer
+	if not o then
+		return "", C.textSecondary
+	end
+	if locked then
+		return "Locked in. Waiting for the other players.", C.ready
+	end
+	if canLock() then
+		return "Ready: press Enter or LOCK IN.", C.textSecondary
+	end
+	local left = MatchState.timeLeft()
+	if left <= URGENT and left > 0 then
+		-- What the server gives you if the clock runs out (DraftService.close).
+		local gun = selectedGun or o.guns[1]
+		local config = gun and Weapons.get(gun)
+		local first = selectedAbility
+			or o.abilities[1]
+			or (o.upgrades and o.upgrades[1] and o.upgrades[1].key)
+		local parts = { if config then config.displayName else gun or "" }
+		if first then
+			table.insert(parts, cardName(first))
+		end
+		return string.format(
+			"%ds left. You'll get: %s",
+			math.ceil(left),
+			table.concat(parts, " + ")
+		),
+			C.gold
+	end
+	if not selectedGun then
+		return "Pick a gun (1, 2, 3) and one card (Q, E, T).", C.textSecondary
+	end
+	if not nothingToPick(o) then
+		return "Now pick one card: a new ability or an upgrade (Q, E, T).", C.textSecondary
+	end
+	return "", C.textSecondary
+end
+
+local function updateHint()
+	local label = lockHint
+	if not label then
+		return
+	end
+	local text, color = hintText()
+	if text ~= shownHint then
+		shownHint = text
+		label.Text = text
+		label.TextColor3 = color
+	end
+end
+
+local function setLockReady(ready: boolean)
+	local button = lockButton
+	if not button then
+		return
+	end
+	local pulse = button:FindFirstChild("Pulse") :: UIScale?
+	if ready and not lockPulse and pulse then
+		-- A slow breathe while it's ready, so the eye finds it.
+		local tween = TweenService:Create(
+			pulse,
+			TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+			{ Scale = 1.04 }
+		)
+		tween:Play()
+		lockPulse = tween
+	elseif not ready and lockPulse then
+		lockPulse:Cancel()
+		lockPulse = nil
+		if pulse then
+			pulse.Scale = 1
+		end
+	end
+end
+
 local function refreshSelection()
 	for _, list in { gunCards, abilityCards } do
 		for _, c in list do
 			local on = c.id == selectedGun or c.id == selectedAbility
 			c.line.ImageColor3 = if on then C.white else c.restLine
-			c.glow.Visible = on
+			c.glow.Visible = on and c.button.Visible
 		end
 	end
-	local ready = canLock()
+	local ready = canLock() and not locked
 	if lockButton and lockLabel and lockIcon then
-		lockButton.ImageColor3 = if ready then C.gold else C.raised
-		lockLabel.TextColor3 = if ready then C.onAccent else C.textDim
+		lockButton.ImageColor3 = if locked then C.ready elseif ready then C.gold else C.raised
+		lockLabel.TextColor3 = if ready or locked then C.onAccent else C.textDim
+		lockLabel.Text = if locked then "LOCKED" else "LOCK IN"
 		lockIcon.ImageColor3 = lockLabel.TextColor3
 	end
-	if lockHint then
-		local o = offer
-		lockHint.Text = if ready
-			then "Ready. Lock in, or keep looking until the timer runs out."
-			elseif not selectedGun then "Choose a gun."
-			elseif o and not nothingToPick(o) then "Choose one card: a new ability or an upgrade."
-			else ""
-	end
+	setLockReady(ready)
+	updateHint()
+end
+
+-- A quick press pop through a UIScale.
+local function popScale(scale: UIScale, peak: number)
+	scale.Scale = 1
+	Ui.tween(scale, 0.07, { Scale = peak }).Completed:Once(function(state)
+		if state == Enum.PlaybackState.Completed then
+			Ui.tween(scale, 0.25, { Scale = 1 }, Enum.EasingStyle.Back)
+		end
+	end)
 end
 
 -- A card shell: the cut shape, its outline and a selection glow behind it.
@@ -201,7 +344,9 @@ local function shell(
 	}, { corner = corner + 4, color = glowColor or C.white, transparency = 0.86 })
 	local button = Ui.cut(parent, {
 		Name = name,
-		Position = pos,
+		-- Centre-anchored, so hover lifts and press pops grow from the middle.
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = pos + UDim2.fromOffset(size.X / 2, size.Y / 2),
 		Size = UDim2.fromOffset(size.X, size.Y),
 		ClipsDescendants = false,
 	}, {
@@ -216,17 +361,63 @@ local function shell(
 	return button, line, glow
 end
 
+-- Hover lifts the card (and its glow) a little with a soft tick; a click or
+-- its key pops it and picks it.
 local function hookCard(card: Card, onPick: () -> ())
-	card.button.MouseEnter:Connect(function()
-		card.button.ImageColor3 = C.hover
+	local button, glow = card.button, card.glow
+	local home, glowHome = button.Position, glow.Position
+	card.home = home
+	local pop = make("UIScale", { Name = "Pop" }, button)
+	local up = UDim2.fromOffset(0, -LIFT)
+	button.MouseEnter:Connect(function()
+		if not isOpen then
+			return
+		end
+		button.ImageColor3 = C.hover
+		Ui.tween(button, Theme.MOTION.select, { Position = home + up })
+		Ui.tween(glow, Theme.MOTION.select, { Position = glowHome + up })
+		UiSound.play("Hover")
 	end)
-	card.button.MouseLeave:Connect(function()
-		card.button.ImageColor3 = card.rest
+	button.MouseLeave:Connect(function()
+		button.ImageColor3 = card.rest
+		Ui.tween(button, Theme.MOTION.select, { Position = home })
+		Ui.tween(glow, Theme.MOTION.select, { Position = glowHome })
 	end)
-	card.button.Activated:Connect(function()
+	local function pick()
+		if locked then
+			return
+		end
 		onPick()
 		refreshSelection()
-	end)
+		popScale(pop, 1.05)
+		UiSound.play("Select")
+	end
+	card.pick = pick
+	button.Activated:Connect(pick)
+end
+
+-- The cards rise into place one after another when the draft opens.
+local function reveal(cards: { Card })
+	revealToken += 1
+	local token = revealToken
+	local step = if #cards > 1 then math.min(REVEAL_STEP, 0.4 / (#cards - 1)) else 0
+	for _, c in cards do
+		c.button.Visible = false
+		c.glow.Visible = false
+	end
+	for i, c in cards do
+		task.delay((i - 1) * step + 0.05, function()
+			local home = c.home
+			if token ~= revealToken or not home then
+				return
+			end
+			c.button.Position = home + UDim2.fromOffset(0, REVEAL_FROM)
+			c.button.Visible = true
+			Ui.tween(c.button, 0.32, { Position = home }, Enum.EasingStyle.Quint)
+			UiSound.play("CardIn")
+			refreshSelection()
+		end)
+	end
 end
 
 local function header(parent: Instance, label: string, y: number)
@@ -277,6 +468,7 @@ local function gunCard(parent: Instance, id: string, index: number, phaseName: s
 		rest = C.card,
 		restLine = C.lineSoft,
 		glowColor = C.white,
+		slot = 0,
 	}
 	hookCard(card, function()
 		selectedGun = id
@@ -411,6 +603,7 @@ local function abilityCard(parent: Instance, id: string, slot: number): Card
 		rest = C.card,
 		restLine = C.lineSoft,
 		glowColor = C.white,
+		slot = slot,
 	}
 	hookCard(card, function()
 		selectedAbility = id
@@ -555,6 +748,7 @@ local function upgradeCard(
 		rest = C.card,
 		restLine = if glitch then C.glitch else C.lineSoft,
 		glowColor = if glitch then C.glitch else C.white,
+		slot = c.slot,
 	}
 	hookCard(card, function()
 		selectedAbility = c.key
@@ -683,8 +877,79 @@ local function enemyKit(parent: Instance, entries: { string })
 end
 
 local function lock()
+	local button = lockButton
+	if locked then
+		return
+	end
 	if canLock() then
+		locked = true
 		Net.event("DraftPick"):FireServer("Lock")
+		UiSound.play("LockIn")
+		refreshSelection()
+		local pulse = button and button:FindFirstChild("Pulse") :: UIScale?
+		if pulse then
+			popScale(pulse, 1.08)
+		end
+		return
+	end
+	-- Not ready: a "no" shake and the hint flashes.
+	UiSound.play("Denied")
+	if button then
+		local home = UDim2.fromOffset(960, 1000)
+		for i, dx in { -10, 8, -5, 0 } do
+			task.delay((i - 1) * 0.04, function()
+				button.Position = home + UDim2.fromOffset(dx, 0)
+			end)
+		end
+	end
+	local label = lockHint
+	if label then
+		label.TextColor3 = C.gold
+		Ui.tween(label, 0.6, { TextColor3 = C.textSecondary })
+	end
+end
+
+-- Keys: 1 / 2 / 3 pick a gun, Q / E / T a card in that column (pressing the
+-- same key again steps through its cards), Enter locks in.
+local function onKey(input: InputObject)
+	if not isOpen or UserInputService:GetFocusedTextBox() then
+		return
+	end
+	local key = input.KeyCode
+	if key == Enum.KeyCode.Return or key == Enum.KeyCode.KeypadEnter then
+		lock()
+		return
+	end
+	for i, k in GUN_KEYS do
+		local card = gunCards[i]
+		if key == k and card and card.pick then
+			card.pick()
+			return
+		end
+	end
+	local slot = SLOT_KEYS[key]
+	if not slot then
+		return
+	end
+	local column: { Card } = {}
+	for _, c in abilityCards do
+		if c.slot == slot then
+			table.insert(column, c)
+		end
+	end
+	if #column == 0 then
+		UiSound.play("Denied")
+		return
+	end
+	local at = 0
+	for i, c in column do
+		if c.id == selectedAbility then
+			at = i
+		end
+	end
+	local nextCard = column[at % #column + 1]
+	if nextCard.pick then
+		nextCard.pick()
 	end
 end
 
@@ -702,6 +967,12 @@ local function show(o: MatchState.DraftOffer)
 	offer = o
 	selectedGun = o.gun
 	selectedAbility = nil
+	locked = false
+	shownHint = ""
+	if lockPulse then
+		lockPulse:Cancel()
+		lockPulse = nil
+	end
 	local content = make("Frame", {
 		Name = "Content",
 		Size = UDim2.fromScale(1, 1),
@@ -711,7 +982,13 @@ local function show(o: MatchState.DraftOffer)
 
 	header(content, "SELECT A GUN", 136)
 	for i, id in o.guns do
-		table.insert(gunCards, gunCard(content, id, i, o.phase))
+		local card = gunCard(content, id, i, o.phase)
+		Ui.text(card.button, tostring(i), "key", {
+			Position = UDim2.fromOffset(14, 10),
+			Size = UDim2.fromOffset(20, 18),
+			TextColor3 = C.textDim,
+		})
+		table.insert(gunCards, card)
 	end
 
 	local upgrades = o.upgrades or {}
@@ -773,6 +1050,12 @@ local function show(o: MatchState.DraftOffer)
 		TextSize = 36,
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
+	make("UIScale", { Name = "Pulse" }, button)
+	button.MouseEnter:Connect(function()
+		if canLock() and not locked then
+			UiSound.play("Hover")
+		end
+	end)
 	button.Activated:Connect(lock)
 	lockButton = button
 	enemyKit(content, o.enemyKit)
@@ -780,6 +1063,14 @@ local function show(o: MatchState.DraftOffer)
 	refreshSelection()
 	setOpen(true)
 	Ui.tween(scale, Theme.MOTION.enter, { Scale = 1 }, Enum.EasingStyle.Back)
+	local order: { Card } = {}
+	for _, c in gunCards do
+		table.insert(order, c)
+	end
+	for _, c in abilityCards do
+		table.insert(order, c)
+	end
+	reveal(order)
 end
 
 local function build()
@@ -839,9 +1130,15 @@ function DraftController.start()
 	end)
 	MatchState.changed("Phase"):Connect(syncVisibility)
 	player:GetAttributeChangedSignal("DraftLocked"):Connect(syncVisibility)
-	UserInputService.InputBegan:Connect(function(input, processed)
-		if isOpen and not processed and input.KeyCode == Enum.KeyCode.Return then
-			lock()
+	UiSound.preload()
+	UserInputService.InputBegan:Connect(onKey)
+	-- The hint counts down your default pick in the last seconds.
+	task.spawn(function()
+		while true do
+			task.wait(0.25)
+			if isOpen then
+				updateHint()
+			end
 		end
 	end)
 	-- Started up mid-draft: ask for the cards.

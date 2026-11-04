@@ -3,7 +3,7 @@
 -- atlas (tools/audio/build_sound_atlas.py), so these are mix levels, not
 -- per-gun fixes. Volumes are Sound.Volume; gains in dB.
 
-export type Group = "Gun" | "Enemy" | "Feedback" | "Foley"
+export type Group = "Gun" | "Enemy" | "Feedback" | "Foley" | "Ui"
 
 return table.freeze({
 	-- SoundGroups under SoundService.Combat (the master bus).
@@ -13,6 +13,7 @@ return table.freeze({
 		Enemy = 0.8, -- everyone else's shots (3D)
 		Feedback = 1, -- hit ticks, headshot, kill, damage taken
 		Foley = 0.75, -- reload, equip, dry fire, low ammo, swing
+		Ui = 0.7, -- menus, draft, banners, countdown (Config/UiSounds)
 	} :: { [string]: number }),
 
 	-- Your gun ducks a little under hit feedback so ticks always cut through.
@@ -40,6 +41,7 @@ return table.freeze({
 		Enemy = 0.04,
 		Feedback = 0.02,
 		Foley = 0.04,
+		Ui = 0.02,
 	} :: { [string]: number }),
 
 	-- Voices. A name plays at most this many times at once (the oldest is

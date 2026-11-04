@@ -76,7 +76,7 @@ local function buildGroups()
 	master.Volume = Audio.GROUP_VOLUME.Master or 1
 	compressor(master, Audio.MASTER_LIMIT, 0)
 	master.Parent = SoundService
-	for _, name in { "Gun", "Enemy", "Feedback", "Foley" } do
+	for _, name in { "Gun", "Enemy", "Feedback", "Foley", "Ui" } do
 		local g = Instance.new("SoundGroup")
 		g.Name = name
 		g.Volume = Audio.GROUP_VOLUME[name] or 1

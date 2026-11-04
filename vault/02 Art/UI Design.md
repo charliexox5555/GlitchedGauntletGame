@@ -84,6 +84,32 @@ On a 667×375 phone the 1080p layout scales to 0.35, so 14 px body text ends up 
 
 **Not built yet:** per-round stat chips on the round banner (no per-round stats exist yet), ability kit icons under the top-bar plates (only the draft knows the enemy kit), weapon slot pictures, a phone layout (the 1080p design scales down, too small on phones), gamepad selection in the draft.
 
+## Sound, motion and feel (2026-11-04)
+**Sounds** (`Config/UiSounds`, played by `Util/UiSound` in a new "Ui" sound group): Roblox's own UI pack (`Roblox_UI_*`) plus one APM sting, all licensed, nothing uploaded. **Provisional until the user auditions them:** paste `tools/studio/AuditionUiSounds.luau` into Studio's command bar (Edit mode); it plays each cue with its name in the Output.
+
+| Moment | Cue |
+|---|---|
+| Hover a card / LOCK IN | Hover (soft tick, at most every 0.06 s) |
+| Pick a card | Select |
+| Lock in / not ready yet | LockIn / Denied (with a shake) |
+| Draft opens, each card lands, draft leaves | Open, CardIn, Close |
+| Last 5 s of the draft and round, the 3-2-1 countdown | Tick, TickFinal on 1 |
+| GET READY / FIGHT / ROUND WON / ROUND LOST / DRAW / VICTORY / DEFEAT | Banner / Fight / RoundWon / RoundLost / Banner / Victory / RoundLost |
+| A point scored | Score |
+
+**Motion** (LihFolk: UI Motion Language and Timing):
+- **Draft:** the backdrop fades in (0.25 s); the cards rise into place one after another (48 px, 0.32 s Quint, 0.05 s apart, capped at 0.4 s); hover lifts a card 6 px and lights it; a pick pops it (1.05, 0.07 s out, 0.25 s Back back); LOCK IN breathes while ready, pops and turns green LOCKED; leaving sinks the cards and fades out (0.15 s Quint In).
+- **Banners:** the band opens from its middle (0.22 s), the title punches in (1.15 → 1, Back), and it folds shut when it ends. Neutral banners are a plain dark band; results use the team colour.
+- **Top bar:** in the last seconds the clock goes red and pops on every tick; a point pops the new diamond and the score.
+- **HUD:** taking damage flashes the health number red, and a red chip holds the lost health for 0.4 s, then drains; kill feed rows slide in from the right and out again.
+
+**Feel (UX):**
+- **Draft keys:** 1 / 2 / 3 pick a gun (numbers on the cards), Q / E / T pick a card in that column (press again to step through its cards), Enter locks in.
+- **The hint under the cards** says what's missing. In the last 5 s it names **what you'll get if time runs out** ("3s left. You'll get: Ghost + Molly").
+- **Locked:** the button turns green LOCKED and the screen leaves.
+
+Tested 2026-11-04 in a Studio match: keys 2 + E picked Ghost and Molly, hover lifted the card, Enter locked in and the draft left; the countdown ticked with a red clock; the round's DRAW banner opened and closed. Sounds not heard (no audio in the MCP), so audition them.
+
 ## How it was planned
 1. Export from Figma: icons (2x PNG, max 1024), 9-slice corner pieces, gun renders. Upload under the group.
 2. A `Config/Theme` module holds the tokens above. No hex values or fonts inside builders (LihFolk: Figma to Roblox UI pipeline).

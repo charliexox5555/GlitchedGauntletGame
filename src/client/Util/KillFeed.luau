@@ -134,13 +134,26 @@ local function row(killer: Instance?, victim: Instance?, sourceId: string, heads
 		return
 	end
 	local mine = killer == player
+	local holder = make("Frame", {
+		Size = UDim2.fromOffset(ROW_W, ROW_H),
+		BackgroundTransparency = 1,
+		LayoutOrder = -math.floor(os.clock() * 100),
+	}, list)
+	-- The visible row slides in from the right inside its layout slot.
 	local frame = make("Frame", {
+		Name = "Body",
+		Position = UDim2.fromOffset(60, 0),
 		Size = UDim2.fromOffset(ROW_W, ROW_H),
 		BackgroundColor3 = C.panel,
 		BackgroundTransparency = 0.22,
 		BorderSizePixel = 0,
-		LayoutOrder = -math.floor(os.clock() * 100),
-	}, list)
+	}, holder)
+	Ui.tween(
+		frame,
+		Theme.MOTION.enter,
+		{ Position = UDim2.fromOffset(0, 0) },
+		Enum.EasingStyle.Quint
+	)
 	if mine then
 		make("UIStroke", { Color = C.ally, Thickness = 1.5 }, frame)
 	end
@@ -194,8 +207,18 @@ local function row(killer: Instance?, victim: Instance?, sourceId: string, heads
 		rows[i]:Destroy()
 	end
 	task.delay(ROW_LIFE, function()
-		if frame.Parent then
-			frame:Destroy()
+		if holder.Parent then
+			-- Out: slides back right, then goes.
+			Ui.tween(
+				frame,
+				Theme.MOTION.exit,
+				{ Position = UDim2.fromOffset(ROW_W, 0) },
+				Enum.EasingStyle.Quint,
+				Enum.EasingDirection.In
+			)
+			task.delay(Theme.MOTION.exit, function()
+				holder:Destroy()
+			end)
 		end
 	end)
 end
