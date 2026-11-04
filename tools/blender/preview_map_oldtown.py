@@ -80,8 +80,11 @@ def check(art):
 				objs.append((ob.name, co[idx]))
 		local[c.name[4:]] = objs
 	tris, owners, labels = [], [], []
+	parts = set()  # owners that are block Parts (they can bury a face, like in the Studio audit)
 
-	def add(label, arr):
+	def add(label, arr, part=False):
+		if part:
+			parts.add(len(labels))
 		owners.extend([len(labels)] * len(arr))
 		labels.append(label)
 		tris.append(np.asarray(arr, dtype=float))
@@ -92,22 +95,24 @@ def check(art):
 		T = np.array([x, -z, y])
 		for name, t in local.get(piece, []):
 			add("%s@(%.0f,%.0f,%.0f)" % (name, x, y, z), t @ R.T + T)
-	add("Greybox.Ground", box_tris(-L.OUT_X - 4, L.OUT_X + 4, -2, 0, -L.OUT_Z - 4, L.OUT_Z + 4))
+	add("Greybox.Ground", part=True, arr=box_tris(-L.OUT_X - 4, L.OUT_X + 4, -2, 0, -L.OUT_Z - 4, L.OUT_Z + 4))
 	for name, a, b, c, d in L.FLOORS_A:
 		for s in (1, -1):
 			xa, xb = sorted((a * s, b * s))
 			za, zb = sorted((c * s, d * s))
-			add("Greybox.%s%s" % (name, "_A" if s > 0 else "_B"), box_tris(xa, xb, -0.16, 0.04, za, zb))
+			add("Greybox.%s%s" % (name, "_A" if s > 0 else "_B"), box_tris(xa, xb, -0.16, 0.04, za, zb), True)
 	for s in L.all_solids():
 		if s.shape != "box" or s.kind == "ground":
 			continue
 		if (s.kind in ("bldg", "perim") and not s.shell) or s.kind == "floor":
-			add("Greybox." + s.name, box_tris(s.cx - s.sx / 2, s.cx + s.sx / 2, s.y0, s.y1, s.cz - s.sz / 2, s.cz + s.sz / 2))
+			add("Greybox." + s.name, box_tris(s.cx - s.sx / 2, s.cx + s.sx / 2, s.y0, s.y1, s.cz - s.sz / 2, s.cz + s.sz / 2), True)
+	for name, x0, x1, z0, z1 in L.BARRIERS_A + [(n.replace("A_", "B_"), -b, -a, -d, -c) for n, a, b, c, d in L.BARRIERS_A]:
+		add("Barriers." + name, box_tris(x0 - L.BARRIER_SINK, x1 + L.BARRIER_SINK, 0, 10, z0 + 0.05, z1 - 0.05), True)
 	for sec, name, x0, x1, y0, y1, z0, z1, color, material in art.parts:
-		add("Art.%s.%s" % (sec, name), box_tris(x0, x1, y0, y1, z0, z1))
+		add("Art.%s.%s" % (sec, name), box_tris(x0, x1, y0, y1, z0, z1), True)
 	allt = np.concatenate(tris)
 	print("MAPZ triangles", len(allt), "surfaces", len(labels))
-	found = Z.find(allt, owners, labels, same_owner=False)
+	found = Z.find(allt, owners, labels, same_owner=False, buriers=parts)
 	same = [c for c in found if c[0] == "same"]
 	print("MAPZ visible pairs (same plane, overlapping, both seen): %d; buried %d; touching %d" % (len(same), sum(1 for c in found if c[0] == "buried"), sum(1 for c in found if c[0] == "opposite")))
 	for k, v in Z.summary(found, "same", 40):

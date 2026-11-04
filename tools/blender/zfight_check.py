@@ -10,8 +10,9 @@
 #   "same"     both face the same way: both can be seen at once, so the renderer flickers. Always a bug.
 #   "opposite" they face each other (two solids touching): each is buried in the other, so nothing flickers; the
 #              Studio audit skips buried faces too. Reported for information only.
-#   "buried"   same-facing, but where they overlap a third, opposite-facing surface lies on them (two trims sitting
-#              on one wall: their back faces press against the wall's face). Invisible; information only.
+#   "buried"   same-facing, but where they overlap a third, opposite-facing surface lies on them. Mirrors the Studio
+#              audit (tools/studio/maps/Audit.luau): between two different parts only a visible block Part can bury
+#              (pass its owners as `buriers`; a MeshPart never does), inside one part any surface can. Invisible.
 # Plain Python + numpy (both ship with Blender), no bpy, so it can be unit-tested anywhere.
 
 import math
@@ -81,7 +82,7 @@ def _inside(p, t):
 	return not (neg and pos)
 
 
-def find(tris, owners, labels, same_owner=True, max_report=None):
+def find(tris, owners, labels, same_owner=True, max_report=None, buriers=frozenset()):
 	"""tris: (N, 3, 3) float array of world-space triangles. owners: (N,) int surface ids (a part, a face group);
 	labels: list of names per owner id (dict or list). Returns a list of (kind, label_a, label_b, point, normal, area)."""
 	tris = np.asarray(tris, dtype=float)
@@ -161,6 +162,8 @@ def find(tris, owners, labels, same_owner=True, max_report=None):
 						cy = sum(q[1] for q in poly) / len(poly)
 						for m in set(cellm) | set(grid.get((int(math.floor(cx / cell)), int(math.floor(cy / cell))), [])):
 							km = cand[m]
+							if oa != ob and owners[idx[km]] not in buriers:
+								continue
 							if sgn[km] != sgn[ka] and abs(d[km] - d[ka]) < PLANE_TOL and _inside((cx, cy), [tuple(q) for q in P[m]]):
 								kind = "buried"
 								break
