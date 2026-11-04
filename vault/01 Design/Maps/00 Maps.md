@@ -16,8 +16,10 @@ Why 8: Valorant launched with 4 maps, its TDM and Skirmish modes with 3 each; RI
 | Large | Metro | 2v2–4v4 | indoor | metro station |
 | Large | Old Town | 2v2–4v4 | outdoor, afternoon | stone plaza |
 | Large | Big Whitebox | 3v3–4v4 | outdoor (sky) | Whitebox, bigger |
+| Medium–large | Greenhouse | 2v2–4v4 | glass halls + garden | botanical conservatory (chosen by the user 2026-11-03) |
+| Medium | Snowpeak Lodge | 1v1–3v3 | snow, lodge interior | ski lodge and cable-car station (chosen by the user 2026-11-03) |
 
-(8th slot open: a second indoor medium after the first playtests, e.g. a museum or a greenhouse.)
+**9 maps** after the user's 2026-11-03 review: Rooftops and Bunker confirmed, Greenhouse and Snowpeak Lodge picked from four candidates (Greenhouse, Snowpeak Lodge, Museum, Canyon Outpost; the last two stay as ideas).
 
 ## Roster
 | Map | Status | Modes | Idea | Built with |

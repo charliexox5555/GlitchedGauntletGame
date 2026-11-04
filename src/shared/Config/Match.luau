@@ -21,6 +21,8 @@ return table.freeze({
 		{ id = "Metro", minTeam = 2, maxTeam = 4 },
 		{ id = "OldTown", minTeam = 2, maxTeam = 4 },
 		{ id = "BigWhitebox", minTeam = 3, maxTeam = 4 },
+		{ id = "Greenhouse", minTeam = 2, maxTeam = 4 },
+		{ id = "Snowpeak", minTeam = 1, maxTeam = 3 },
 	} :: { MapEntry },
 
 	ROUNDS_TO_WIN = 5,
