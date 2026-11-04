@@ -1,7 +1,10 @@
 --!strict
--- The match's on-screen state (rough, PC first; final design comes later): the
--- score and clock at the top, and big messages for each phase. It only shows
--- what MatchState says; the server decides all of it. Layout is in Scale.
+-- The match's on-screen state, UI v1 (vault/02 Art/UI Design.md): the top bar
+-- (both team plates with names and health, the score, first-to-5 diamonds, the
+-- round and weapon phase, the clock) and the full-width banners (get ready,
+-- countdown, fight, round won / lost, match end). It only shows what
+-- MatchState says; the server decides all of it. The top bar sits above the
+-- draft screen, which has none of its own.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,56 +12,92 @@ local StarterGui = game:GetService("StarterGui")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
-local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+
+local Ui = require(script.Parent.Parent.Util.Ui)
 
 local MatchHudController = {}
 
 local player = Players.LocalPlayer
-
-local WHITE = Color3.new(1, 1, 1)
-local BACK = Color3.fromHex("16181B")
-local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
-local MEDIUM = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium)
+local C = Theme.COLORS
+local make = Ui.make
 
 local TICK = 0.1 -- seconds between refreshes
+local HEALTH_TICK = 0.25 -- seconds between team health scans
 local FIGHT_MESSAGE_TIME = 1 -- seconds "FIGHT" stays up
 local RESET_TRIES = 10
+local BAR_W = 220
 
+type Side = { name: TextLabel, score: TextLabel, fill: Frame, pips: { Frame } }
 type Ui = {
 	bar: Frame,
-	myScore: TextLabel,
-	enemyScore: TextLabel,
 	clock: TextLabel,
 	round: TextLabel,
-	banner: TextLabel,
+	ally: Side,
+	enemy: Side,
+	band: Frame,
+	bandGradient: UIGradient,
+	lines: { Frame },
+	content: Frame,
+	pop: UIScale,
+	kicker: TextLabel,
+	title: TextLabel,
 	sub: TextLabel,
+	shownTitle: string,
 }
 
-local function make(className: string, props: { [string]: any }, parent: Instance?): any
-	local inst = Instance.new(className)
-	for k, v in props do
-		(inst :: any)[k] = v
-	end
-	if parent then
-		inst.Parent = parent
-	end
-	return inst
+local function plate(bar: Frame, image: string, x: number, w: number, h: number)
+	make("ImageLabel", {
+		Position = UDim2.fromOffset(x, 0),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundTransparency = 1,
+		Image = image,
+	}, bar)
 end
 
-local function text(parent: Instance, props: { [string]: any }): TextLabel
-	local label = make("TextLabel", {
-		BackgroundTransparency = 1,
-		FontFace = BOLD,
-		TextColor3 = WHITE,
-		TextScaled = true,
-		Text = "",
-	}, parent)
-	for k, v in props do
-		(label :: any)[k] = v
+local function side(bar: Frame, enemy: boolean): Side
+	local color = if enemy then C.enemy else C.ally
+	local name = Ui.text(bar, "", "label", {
+		Position = UDim2.fromOffset(if enemy then 824 else 56, 14),
+		Size = UDim2.fromOffset(BAR_W, 16),
+		TextColor3 = color,
+		TextXAlignment = if enemy then Enum.TextXAlignment.Right else Enum.TextXAlignment.Left,
+	})
+	local back = make("Frame", {
+		Position = UDim2.fromOffset(if enemy then 824 else 56, 40),
+		Size = UDim2.fromOffset(BAR_W, 8),
+		BorderSizePixel = 0,
+		BackgroundColor3 = C.raised,
+	}, bar)
+	local fill = make("Frame", {
+		AnchorPoint = Vector2.new(if enemy then 1 else 0, 0),
+		Position = UDim2.fromScale(if enemy then 1 else 0, 0),
+		Size = UDim2.fromScale(1, 1),
+		BorderSizePixel = 0,
+		BackgroundColor3 = color,
+	}, back)
+	local score = Ui.text(bar, "0", "displayM", {
+		Position = UDim2.fromOffset(if enemy then 722 else 318, 6),
+		Size = UDim2.fromOffset(60, 56),
+		TextSize = 48,
+		TextColor3 = color,
+	})
+	local pips = {}
+	for i = 1, Config.ROUNDS_TO_WIN do
+		-- Ally diamonds fill toward the clock from the left, enemy from the right.
+		local x = if enemy then 560 + (i - 1) * 14 else 476 + (Config.ROUNDS_TO_WIN - i) * 14
+		pips[i] = make("Frame", {
+			Position = UDim2.fromOffset(x, 90),
+			Size = UDim2.fromOffset(8, 8),
+			Rotation = 45,
+			BorderSizePixel = 0,
+			BackgroundColor3 = color,
+			BackgroundTransparency = 0.75,
+		}, bar)
 	end
-	return label
+	return { name = name, score = score, fill = fill, pips = pips }
 end
 
 local function build(): Ui
@@ -66,64 +105,105 @@ local function build(): Ui
 		Name = "MatchHud",
 		ResetOnSpawn = false,
 		IgnoreGuiInset = true,
-		DisplayOrder = 5,
+		DisplayOrder = 9, -- above the draft screen (8)
 	}, player:WaitForChild("PlayerGui"))
 
 	local bar = make("Frame", {
-		Name = "ScoreBar",
+		Name = "TopBar",
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0.015),
-		Size = UDim2.fromScale(0.26, 0.085),
-		BackgroundColor3 = BACK,
-		BackgroundTransparency = 0.25,
+		Position = UDim2.fromScale(0.5, 0),
+		Size = UDim2.fromOffset(1100, 110),
+		BackgroundTransparency = 1,
 		Visible = false,
 	}, gui)
-	make("UIAspectRatioConstraint", { AspectRatio = 4.6 }, bar)
-	make("UICorner", { CornerRadius = UDim.new(0.15, 0) }, bar)
-
-	local myScore = text(bar, {
-		Position = UDim2.fromScale(0.03, 0.12),
-		Size = UDim2.fromScale(0.22, 0.76),
-		TextColor3 = ModsConfig.COLORS.ally,
+	Ui.fit(bar)
+	plate(bar, Theme.IMAGE.plateLeft, 0, 420, 70)
+	plate(bar, Theme.IMAGE.plateRight, 680, 420, 70)
+	plate(bar, Theme.IMAGE.plateTimer, 400, 300, 104)
+	local round = Ui.text(bar, "", "label", {
+		Position = UDim2.fromOffset(400, 12),
+		Size = UDim2.fromOffset(300, 16),
+		TextColor3 = C.textSecondary,
 	})
-	local enemyScore = text(bar, {
-		Position = UDim2.fromScale(0.75, 0.12),
-		Size = UDim2.fromScale(0.22, 0.76),
-		TextColor3 = ModsConfig.COLORS.enemy,
-	})
-	local clock = text(bar, {
-		Position = UDim2.fromScale(0.3, 0.06),
-		Size = UDim2.fromScale(0.4, 0.58),
-	})
-	local round = text(bar, {
-		Position = UDim2.fromScale(0.3, 0.64),
-		Size = UDim2.fromScale(0.4, 0.28),
-		FontFace = MEDIUM,
+	local clock = Ui.text(bar, "", "timer", {
+		Position = UDim2.fromOffset(400, 30),
+		Size = UDim2.fromOffset(300, 52),
 	})
 
-	local banner = text(gui, {
+	-- Banner: a full-width band in the result's colour, its words in a
+	-- design-size frame in the middle.
+	local band = make("Frame", {
 		Name = "Banner",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromScale(0, 0.45),
+		Size = UDim2.fromScale(1, 260 / 1080),
+		BorderSizePixel = 0,
+		BackgroundColor3 = C.white,
+		Visible = false,
+	}, gui)
+	local bandGradient = make("UIGradient", {}, band)
+	local lines = {}
+	for i, y in { 0, 1 } do
+		local line = make("Frame", {
+			AnchorPoint = Vector2.new(0, y),
+			Position = UDim2.fromScale(0, y),
+			Size = UDim2.new(1, 0, 0, 3),
+			BorderSizePixel = 0,
+			BackgroundColor3 = C.white,
+		}, band)
+		make("UIGradient", {
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 1),
+				NumberSequenceKeypoint.new(0.5, 0),
+				NumberSequenceKeypoint.new(1, 1),
+			}),
+		}, line)
+		lines[i] = line
+	end
+	local content = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.3),
-		Size = UDim2.fromScale(0.7, 0.11),
-		TextStrokeTransparency = 0.5,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(1920, 260),
+		BackgroundTransparency = 1,
+	}, band)
+	Ui.fit(content)
+	local inner = make("Frame", {
+		Name = "Pop",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+	}, content)
+	local pop = make("UIScale", {}, inner)
+	local kicker = Ui.text(inner, "", "label", {
+		Position = UDim2.fromOffset(0, 26),
+		Size = UDim2.fromOffset(1920, 16),
+		TextColor3 = C.textSecondary,
 	})
-	local sub = text(gui, {
-		Name = "Sub",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0.36),
-		Size = UDim2.fromScale(0.6, 0.04),
-		FontFace = MEDIUM,
-		TextStrokeTransparency = 0.5,
+	local title = Ui.text(inner, "", "displayXL", {
+		Position = UDim2.fromOffset(0, 46),
+		Size = UDim2.fromOffset(1920, 150),
 	})
+	local sub = Ui.text(inner, "", "displayM", {
+		Position = UDim2.fromOffset(0, 196),
+		Size = UDim2.fromOffset(1920, 44),
+		TextSize = 34,
+		RichText = true,
+	})
+
 	return {
 		bar = bar,
-		myScore = myScore,
-		enemyScore = enemyScore,
 		clock = clock,
 		round = round,
-		banner = banner,
+		ally = side(bar, false),
+		enemy = side(bar, true),
+		band = band,
+		bandGradient = bandGradient,
+		lines = lines,
+		content = content,
+		pop = pop,
+		kicker = kicker,
+		title = title,
 		sub = sub,
+		shownTitle = "",
 	}
 end
 
@@ -136,55 +216,165 @@ local function clockText(seconds: number): string
 	return string.format("%d:%02d", math.floor(whole / 60), whole % 60)
 end
 
+local function phaseName(round: number): string
+	local found = Config.PHASES[1]
+	for _, p in Config.PHASES do
+		if round >= p.fromRound then
+			found = p
+		end
+	end
+	return string.upper(found.name)
+end
+
+-- Every fighter on a team: players' characters, plus dummies with a TeamId
+-- (the test opponent, in Workspace.Dummies). Health share 0..1, and the names.
+local function teamState(team: number): (number, { string })
+	local health, max = 0, 0
+	local names: { string } = {}
+	for _, p in Players:GetPlayers() do
+		if Teams.of(p) == team then
+			table.insert(names, if p == player then "YOU" else string.upper(p.DisplayName))
+			local humanoid = p.Character and p.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				health += math.max(humanoid.Health, 0)
+				max += humanoid.MaxHealth
+			end
+		end
+	end
+	local dummies = workspace:FindFirstChild("Dummies")
+	for _, model in if dummies then dummies:GetChildren() else {} do
+		if model:IsA("Model") and model:GetAttribute("TeamId") == team then
+			local humanoid = model:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				table.insert(names, string.upper(model.Name))
+				health += math.max(humanoid.Health, 0)
+				max += humanoid.MaxHealth
+			end
+		end
+	end
+	return if max > 0 then health / max else 1, names
+end
+
 local liveSince = -math.huge
+local lastHealth = -math.huge
+
+local function setSide(s: Side, score: number, share: number?, names: { string }?)
+	s.score.Text = tostring(score)
+	for i, pip in s.pips do
+		pip.BackgroundTransparency = if i <= score then 0 else 0.75
+	end
+	if share then
+		s.fill.Size = UDim2.fromScale(math.clamp(share, 0, 1), 1)
+	end
+	if names then
+		s.name.Text = if #names == 0
+			then ""
+			elseif #names == 1 then names[1]
+			else table.concat(names, " · ")
+	end
+end
+
+-- The band's look: a colour that fades out to both sides.
+local function tintBand(ui: Ui, color: Color3)
+	ui.bandGradient.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, color),
+		ColorSequenceKeypoint.new(0.5, C.scrim),
+		ColorSequenceKeypoint.new(1, color),
+	})
+	ui.bandGradient.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.5, 0.12),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	for _, line in ui.lines do
+		line.BackgroundColor3 = color
+	end
+	ui.title.TextColor3 = if color == C.white then C.text else color
+end
 
 local function refresh(ui: Ui)
 	local phase = MatchState.phase()
 	ui.bar.Visible = phase ~= nil and phase ~= "Waiting"
-	if not phase then
-		ui.banner.Text = ""
-		ui.sub.Text = ""
-		return
-	end
-
 	local mine = myTeam()
+	local theirs = if mine == 1 then 2 else 1
 	local scoreOne = MatchState.get("Score1") or 0
 	local scoreTwo = MatchState.get("Score2") or 0
-	ui.myScore.Text = tostring(if mine == 1 then scoreOne else scoreTwo)
-	ui.enemyScore.Text = tostring(if mine == 1 then scoreTwo else scoreOne)
+	local now = os.clock()
+	if now - lastHealth > HEALTH_TICK then
+		lastHealth = now
+		local myShare, myNames = teamState(mine)
+		local theirShare, theirNames = teamState(theirs)
+		setSide(ui.ally, if mine == 1 then scoreOne else scoreTwo, myShare, myNames)
+		setSide(ui.enemy, if mine == 1 then scoreTwo else scoreOne, theirShare, theirNames)
+	end
 	local left = MatchState.timeLeft()
 	ui.clock.Text = clockText(left)
 	local round = MatchState.get("Round") or 0
 	ui.round.Text = if round > 0
-		then string.format("ROUND %d · FIRST TO %d", round, Config.ROUNDS_TO_WIN)
+		then string.format("ROUND %d  //  %s", round, phaseName(round))
 		else string.format("FIRST TO %d", Config.ROUNDS_TO_WIN)
 
-	local banner, sub = "", ""
+	local kicker, title, sub, color = "", "", "", C.white
+	local myScore = if mine == 1 then scoreOne else scoreTwo
+	local theirScore = if mine == 1 then scoreTwo else scoreOne
+	local scoreLine = string.format(
+		'<font color="#%s">%d</font>   —   <font color="#%s">%d</font>',
+		C.ally:ToHex(),
+		myScore,
+		C.enemy:ToHex(),
+		theirScore
+	)
 	if phase == "Waiting" then
-		banner, sub = "WAITING FOR OPPONENT", ""
+		title = "WAITING FOR OPPONENT"
 	elseif phase == "Ready" then
-		banner, sub = "GET READY", string.format("Match starts in %d", math.ceil(left))
+		kicker, title, sub =
+			string.format("FIRST TO %d", Config.ROUNDS_TO_WIN),
+			"GET READY",
+			tostring(math.ceil(left))
 	elseif phase == "Draft" then
-		-- The draft screen covers this until you've locked in.
+		-- The draft screen covers the middle until you've locked in.
 		if player:GetAttribute("DraftLocked") == true then
-			banner, sub = "LOCKED IN", "Waiting for the other players"
+			kicker, title, sub =
+				string.format("ROUND %d", round), "LOCKED IN", "Waiting for the other players"
+			color = C.ready
 		end
 	elseif phase == "Countdown" then
-		banner, sub = tostring(math.max(math.ceil(left), 1)), "The barrier drops soon"
+		kicker, title = string.format("ROUND %d", round), tostring(math.max(math.ceil(left), 1))
 	elseif phase == "Live" then
-		if os.clock() - liveSince < FIGHT_MESSAGE_TIME then
-			banner = "FIGHT"
+		if now - liveSince < FIGHT_MESSAGE_TIME then
+			kicker, title = string.format("ROUND %d", round), "FIGHT"
 		end
 	elseif phase == "RoundEnd" then
 		local winner = MatchState.get("RoundWinner") or 0
-		banner = if winner == 0 then "DRAW" elseif winner == mine then "ROUND WON" else "ROUND LOST"
-		sub = if winner == 0 then "No point for either side" else ""
+		kicker = string.format("ROUND %d", round)
+		if winner == 0 then
+			title, sub = "DRAW", "No point for either side"
+		elseif winner == mine then
+			title, sub, color = "ROUND WON", scoreLine, C.ally
+		else
+			title, sub, color = "ROUND LOST", scoreLine, C.enemy
+		end
 	elseif phase == "MatchEnd" then
-		banner = if MatchState.get("MatchWinner") == mine then "YOU WIN" else "YOU LOSE"
-		sub = "A new match starts soon"
+		local won = MatchState.get("MatchWinner") == mine
+		kicker, title, sub, color =
+			"MATCH OVER",
+			if won then "VICTORY" else "DEFEAT",
+			scoreLine,
+			if won then C.ally else C.enemy
 	end
-	ui.banner.Text = banner
+
+	ui.band.Visible = title ~= ""
+	ui.kicker.Text = kicker
 	ui.sub.Text = sub
+	if title ~= ui.shownTitle then
+		ui.shownTitle = title
+		ui.title.Text = title
+		tintBand(ui, color)
+		if title ~= "" then
+			ui.pop.Scale = 1.12
+			Ui.tween(ui.pop, Theme.MOTION.enter, { Scale = 1 }, Enum.EasingStyle.Back)
+		end
+	end
 end
 
 -- One life per round, so no Reset Character in a match. SetCore isn't ready

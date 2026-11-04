@@ -269,7 +269,12 @@ local BEAT_SOUNDS: { [string]: string } =
 local function updateHudWeapon()
 	local s = current()
 	if s then
-		HudController.setWeapon(s.config.displayName, math.floor(s.ammo), s.config.magSize)
+		HudController.setWeapon(
+			s.config.displayName,
+			math.floor(s.ammo),
+			s.config.magSize,
+			s.config.id
+		)
 	end
 end
 

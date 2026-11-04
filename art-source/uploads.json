@@ -365,6 +365,264 @@
   "type": "Decal",
   "uploaded": "2026-11-02 01:32:55"
  },
+ "art-source/ui/guns/Akimbo.png": {
+  "assetId": 93251046927204,
+  "name": "GG UI gun Akimbo",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:40"
+ },
+ "art-source/ui/guns/Ares.png": {
+  "assetId": 134739568989083,
+  "name": "GG UI gun Ares",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:44"
+ },
+ "art-source/ui/guns/Bucky.png": {
+  "assetId": 70694789597333,
+  "name": "GG UI gun Bucky",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:48"
+ },
+ "art-source/ui/guns/Bulldog.png": {
+  "assetId": 139570191610113,
+  "name": "GG UI gun Bulldog",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:51"
+ },
+ "art-source/ui/guns/Classic.png": {
+  "assetId": 109600209613206,
+  "name": "GG UI gun Classic",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:59"
+ },
+ "art-source/ui/guns/Ghost.png": {
+  "assetId": 127858400901783,
+  "name": "GG UI gun Ghost",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:06"
+ },
+ "art-source/ui/guns/Guardian.png": {
+  "assetId": 126040331816811,
+  "name": "GG UI gun Guardian",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:09"
+ },
+ "art-source/ui/guns/Judge.png": {
+  "assetId": 95642183751550,
+  "name": "GG UI gun Judge",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:13"
+ },
+ "art-source/ui/guns/Knife.png": {
+  "assetId": 113212518710745,
+  "name": "GG UI gun Knife",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:16"
+ },
+ "art-source/ui/guns/Marshal.png": {
+  "assetId": 130657462306148,
+  "name": "GG UI gun Marshal",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:20"
+ },
+ "art-source/ui/guns/Odin.png": {
+  "assetId": 96244512724850,
+  "name": "GG UI gun Odin",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:23"
+ },
+ "art-source/ui/guns/Operator.png": {
+  "assetId": 76794720484722,
+  "name": "GG UI gun Operator",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:26"
+ },
+ "art-source/ui/guns/Outlaw.png": {
+  "assetId": 85904970828633,
+  "name": "GG UI gun Outlaw",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:29"
+ },
+ "art-source/ui/guns/Phantom.png": {
+  "assetId": 134311464832083,
+  "name": "GG UI gun Phantom",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:33"
+ },
+ "art-source/ui/guns/Sheriff.png": {
+  "assetId": 125822393163948,
+  "name": "GG UI gun Sheriff",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:36"
+ },
+ "art-source/ui/guns/Shorty.png": {
+  "assetId": 140723838129662,
+  "name": "GG UI gun Shorty",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:40"
+ },
+ "art-source/ui/guns/Spectre.png": {
+  "assetId": 103295595217834,
+  "name": "GG UI gun Spectre",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:44"
+ },
+ "art-source/ui/guns/Stinger.png": {
+  "assetId": 102089222631496,
+  "name": "GG UI gun Stinger",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:47"
+ },
+ "art-source/ui/guns/Vandal.png": {
+  "assetId": 90155751881159,
+  "name": "GG UI gun Vandal",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:22:50"
+ },
+ "art-source/ui/icons/Dash.png": {
+  "assetId": 88550544340734,
+  "name": "GG UI icons Dash",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:03"
+ },
+ "art-source/ui/icons/Firewall.png": {
+  "assetId": 133346036582008,
+  "name": "GG UI icons Firewall",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:07"
+ },
+ "art-source/ui/icons/Frost.png": {
+  "assetId": 134198107251886,
+  "name": "GG UI icons Frost",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:11"
+ },
+ "art-source/ui/icons/Glitch.png": {
+  "assetId": 96562477512570,
+  "name": "GG UI icons Glitch",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:15"
+ },
+ "art-source/ui/icons/HealOrb.png": {
+  "assetId": 79615508085114,
+  "name": "GG UI icons HealOrb",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:19"
+ },
+ "art-source/ui/icons/Lock.png": {
+  "assetId": 124904976333222,
+  "name": "GG UI icons Lock",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:23"
+ },
+ "art-source/ui/icons/Molly.png": {
+  "assetId": 84474927804958,
+  "name": "GG UI icons Molly",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:29"
+ },
+ "art-source/ui/icons/Recall.png": {
+  "assetId": 106835283958442,
+  "name": "GG UI icons Recall",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:33"
+ },
+ "art-source/ui/icons/Recon.png": {
+  "assetId": 134065397820690,
+  "name": "GG UI icons Recon",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:36"
+ },
+ "art-source/ui/icons/Reroll.png": {
+  "assetId": 88815256414493,
+  "name": "GG UI icons Reroll",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:40"
+ },
+ "art-source/ui/icons/Shield.png": {
+  "assetId": 91668259810161,
+  "name": "GG UI icons Shield",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:43"
+ },
+ "art-source/ui/icons/Skull.png": {
+  "assetId": 114263633391793,
+  "name": "GG UI icons Skull",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:47"
+ },
+ "art-source/ui/icons/Stim.png": {
+  "assetId": 95098461975876,
+  "name": "GG UI icons Stim",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:50"
+ },
+ "art-source/ui/icons/Updraft.png": {
+  "assetId": 132222888398100,
+  "name": "GG UI icons Updraft",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:53"
+ },
+ "art-source/ui/shapes/CutFill.png": {
+  "assetId": 132247906553397,
+  "name": "GG UI shapes CutFill",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:20:57"
+ },
+ "art-source/ui/shapes/CutLine.png": {
+  "assetId": 105420816856672,
+  "name": "GG UI shapes CutLine",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:01"
+ },
+ "art-source/ui/shapes/KeyTabFill.png": {
+  "assetId": 84270874409474,
+  "name": "GG UI shapes KeyTabFill",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:05"
+ },
+ "art-source/ui/shapes/KeyTabLine.png": {
+  "assetId": 82869094624369,
+  "name": "GG UI shapes KeyTabLine",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:08"
+ },
+ "art-source/ui/shapes/PlateLeft.png": {
+  "assetId": 134183214889440,
+  "name": "GG UI shapes PlateLeft",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:12"
+ },
+ "art-source/ui/shapes/PlateRight.png": {
+  "assetId": 83814075917164,
+  "name": "GG UI shapes PlateRight",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:15"
+ },
+ "art-source/ui/shapes/PlateTimer.png": {
+  "assetId": 118002015935036,
+  "name": "GG UI shapes PlateTimer",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:18"
+ },
+ "art-source/ui/shapes/ShieldFill.png": {
+  "assetId": 73309423117019,
+  "name": "GG UI shapes ShieldFill",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:22"
+ },
+ "art-source/ui/shapes/ShieldLine.png": {
+  "assetId": 127081766188828,
+  "name": "GG UI shapes ShieldLine",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:26"
+ },
+ "art-source/ui/shapes/Slant.png": {
+  "assetId": 103821592705896,
+  "name": "GG UI shapes Slant",
+  "type": "Decal",
+  "uploaded": "2026-11-03 23:21:30"
+ },
  "art-source/vfx/abilities/dash/dash_air_burst_2x2.png": {
   "assetId": 113880445566591,
   "name": "GG VFX dash_air_burst_2x2",

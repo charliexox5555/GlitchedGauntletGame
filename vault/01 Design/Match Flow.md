@@ -53,8 +53,8 @@ Both sides see the same 3 guns. The offer stays the same through a phase and cha
 ### Parked for later
 Set aside for this first version, not dropped: the loser's extra card and reroll, overtime with a shrinking zone, rematch, mobile and gamepad controls.
 
-## Rough UI
-Only built to be playable: full-screen layout in Scale with a 16:9 aspect constraint, on PC. The final design is in Figma: [UI Design](../02%20Art/UI%20Design.md) (v1, waiting for review).
+## UI
+UI v1 (2026-11-03): built from the Figma design, PC first. [UI Design](../02%20Art/UI%20Design.md).
 
 ## References
 Saved in `02 Art/References/match-ui/third-party/` (git-ignored, the repo is public).

@@ -1,8 +1,8 @@
 --!strict
--- Combat HUD (Gunplay.md §5), the fresh-base version: a dynamic crosshair,
--- hit markers and damage numbers (Util/HitFeedback), ammo + reload, health,
--- a low-HP vignette, the damage direction and the touch buttons. Plain and
--- neutral: white text with a soft shadow, no neon. The full UI comes later.
+-- Combat HUD (Gunplay.md §5): a dynamic crosshair, hit markers and damage
+-- numbers (Util/HitFeedback), ammo + reload, health and shield in the UI v1
+-- look (vault/02 Art/UI Design.md), a low-HP vignette, the damage direction
+-- and the touch buttons. The kill feed and kill banner are Util/KillFeed.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,7 +16,11 @@ local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
+local KillFeed = require(script.Parent.Parent.Util.KillFeed)
+local Ui = require(script.Parent.Parent.Util.Ui)
 local AudioController = require(script.Parent.AudioController)
 local InputController = require(script.Parent.InputController)
 
@@ -26,13 +30,11 @@ local player = Players.LocalPlayer
 
 local WHITE = Color3.new(1, 1, 1)
 local BLACK = Color3.new(0, 0, 0)
-local MUTED = Color3.fromHex("C9CCD1")
 local AMBER = Color3.fromHex("F2C94C")
 local RED = Color3.fromHex("EB5757")
 local BACK = Color3.fromHex("16181B")
-local SHIELD_BLUE = Color3.fromHex("6FC3FF")
+local T = Theme.COLORS
 local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
-local MEDIUM = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium)
 
 local INDICATOR_TIME = 1.1 -- damage direction fade, seconds
 -- Touch layout: designed for a 760-px-tall screen, scaled down to fit (never
@@ -58,6 +60,8 @@ type Refs = {
 	scope: Frame,
 	ammo: TextLabel,
 	mag: TextLabel,
+	gunPicture: ImageLabel,
+	shieldBadge: ImageLabel,
 	weaponName: TextLabel,
 	reloadBar: Frame,
 	reloadFill: Frame,
@@ -87,23 +91,6 @@ local function make(className: string, props: { [string]: any }, parent: Instanc
 		inst.Parent = parent
 	end
 	return inst
-end
-
--- Soft drop shadow on text: readable on bright sky and dark walls alike.
-local function shadow(label: TextLabel, thickness: number?)
-	make("UIStroke", {
-		Color = BLACK,
-		Thickness = thickness or 1.5,
-		Transparency = 0.55,
-	}, label)
-end
-
-local function text(props: { [string]: any }, parent: Instance): TextLabel
-	props.BackgroundTransparency = 1
-	props.TextColor3 = props.TextColor3 or WHITE
-	local label = make("TextLabel", props, parent)
-	shadow(label)
-	return label
 end
 
 local function build(): Refs
@@ -230,47 +217,55 @@ local function build(): Refs
 	}, crosshair)
 	make("UIStroke", { Color = BLACK, Thickness = 1, Transparency = 0.5 }, dot)
 
-	-- Ammo (bottom right): rounds in the mag, big; the mag size and the gun's
-	-- name small; a thin reload bar underneath.
+	-- Ammo (bottom right, UI v1): the gun's picture, rounds in the mag big, the
+	-- mag size and the gun's name small, a thin reload bar. Design px, scaled.
 	local ammoPanel = make("Frame", {
+		Name = "Ammo",
 		AnchorPoint = Vector2.new(1, 1),
-		Position = UDim2.new(1, -36, 1, -30),
-		Size = UDim2.fromOffset(220, 84),
+		Position = UDim2.new(1, -48, 1, -40),
+		Size = UDim2.fromOffset(420, 200),
 		BackgroundTransparency = 1,
 	}, gui)
-	local weaponName = text({
-		Size = UDim2.new(1, 0, 0, 18),
-		FontFace = MEDIUM,
-		TextSize = 16,
-		TextColor3 = MUTED,
-		TextXAlignment = Enum.TextXAlignment.Right,
-		Text = "",
+	Ui.fit(ammoPanel)
+	local ammoBack = make("Frame", {
+		Position = UDim2.fromOffset(0, 80),
+		Size = UDim2.fromOffset(420, 120),
+		BorderSizePixel = 0,
+		BackgroundColor3 = T.panel,
 	}, ammoPanel)
-	local mag = text({
+	make("UIGradient", { Transparency = NumberSequence.new(1, 0.15) }, ammoBack)
+	local gunPicture = make("ImageLabel", {
+		Name = "Gun",
+		Position = UDim2.fromOffset(190, 14),
+		Size = UDim2.fromOffset(210, 62),
+		BackgroundTransparency = 1,
+		ScaleType = Enum.ScaleType.Fit,
+		Image = "",
+	}, ammoPanel)
+	local weaponName = Ui.text(ammoPanel, "", "label", {
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, 0, 0, 30),
-		Size = UDim2.fromOffset(52, 30),
-		FontFace = MEDIUM,
-		TextSize = 22,
-		TextColor3 = MUTED,
+		Position = UDim2.fromOffset(404, 178),
+		Size = UDim2.fromOffset(220, 16),
+		TextColor3 = T.textSecondary,
+		TextXAlignment = Enum.TextXAlignment.Right,
+	})
+	local mag = Ui.text(ammoPanel, "", "titleS", {
+		Position = UDim2.fromOffset(330, 134),
+		Size = UDim2.fromOffset(80, 28),
+		TextColor3 = T.textSecondary,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "",
-	}, ammoPanel)
-	local ammo = text({
+	})
+	local ammo = Ui.text(ammoPanel, "", "numberHud", {
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -56, 0, 16),
-		Size = UDim2.fromOffset(140, 48),
-		FontFace = BOLD,
-		TextSize = 46,
+		Position = UDim2.fromOffset(322, 88),
+		Size = UDim2.fromOffset(200, 84),
 		TextXAlignment = Enum.TextXAlignment.Right,
-		Text = "",
-	}, ammoPanel)
+	})
 	local reloadBar = make("Frame", {
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, 0, 0, 72),
-		Size = UDim2.fromOffset(150, 3),
-		BackgroundColor3 = BACK,
-		BackgroundTransparency = 0.3,
+		Position = UDim2.fromOffset(404, 170),
+		Size = UDim2.fromOffset(220, 4),
+		BackgroundColor3 = T.raised,
 		BorderSizePixel = 0,
 		Visible = false,
 	}, ammoPanel)
@@ -280,48 +275,69 @@ local function build(): Refs
 		BorderSizePixel = 0,
 	}, reloadBar)
 
-	-- Health (bottom left): the number, and a bar under it.
+	-- Health (bottom left, UI v1): a shield badge with the shield in it, the
+	-- health number big, a shield bar over the health bar.
 	local healthPanel = make("Frame", {
+		Name = "Health",
 		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.new(0, 36, 1, -30),
-		Size = UDim2.fromOffset(240, 70),
+		Position = UDim2.new(0, 48, 1, -40),
+		Size = UDim2.fromOffset(420, 120),
 		BackgroundTransparency = 1,
 	}, gui)
-	local healthText = text({
-		Size = UDim2.fromOffset(120, 48),
-		Position = UDim2.fromOffset(0, 10),
-		FontFace = BOLD,
-		TextSize = 46,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "100",
+	Ui.fit(healthPanel)
+	local healthBack = make("Frame", {
+		Size = UDim2.fromScale(1, 1),
+		BorderSizePixel = 0,
+		BackgroundColor3 = T.panel,
 	}, healthPanel)
-	local shieldText = text({
-		Size = UDim2.fromOffset(100, 30),
-		Position = UDim2.fromOffset(92, 24),
-		FontFace = BOLD,
-		TextSize = 26,
-		TextColor3 = SHIELD_BLUE,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		Text = "",
+	make("UIGradient", { Transparency = NumberSequence.new(0.15, 1) }, healthBack)
+	local badge = make("ImageLabel", {
+		Name = "ShieldBadge",
+		Position = UDim2.fromOffset(20, 18),
+		Size = UDim2.fromOffset(60, 76),
+		BackgroundTransparency = 1,
+		Image = Theme.IMAGE.shieldFill,
+		ImageColor3 = T.ally,
+		ImageTransparency = 0.82,
 	}, healthPanel)
+	make("ImageLabel", {
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Image = Theme.IMAGE.shieldLine,
+		ImageColor3 = T.ally,
+	}, badge)
+	local shieldText = Ui.text(badge, "0", "titleS", {
+		Position = UDim2.fromOffset(0, 22),
+		Size = UDim2.fromOffset(60, 28),
+		TextColor3 = T.ally,
+	})
+	local healthText = Ui.text(healthPanel, "100", "numberHud", {
+		Position = UDim2.fromOffset(96, 2),
+		Size = UDim2.fromOffset(170, 84),
+		TextXAlignment = Enum.TextXAlignment.Left,
+	})
+	Ui.text(healthPanel, "HEALTH", "label", {
+		Position = UDim2.fromOffset(250, 34),
+		Size = UDim2.fromOffset(100, 16),
+		TextColor3 = T.textSecondary,
+		TextXAlignment = Enum.TextXAlignment.Left,
+	})
 	local shieldBar = make("Frame", {
-		Position = UDim2.fromOffset(0, 56),
-		Size = UDim2.fromOffset(220, 4),
-		BackgroundColor3 = BACK,
-		BackgroundTransparency = 0.3,
+		Position = UDim2.fromOffset(96, 84),
+		Size = UDim2.fromOffset(300, 6),
+		BackgroundColor3 = T.raised,
 		BorderSizePixel = 0,
 		Visible = false,
 	}, healthPanel)
 	local shieldFill = make("Frame", {
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = SHIELD_BLUE,
+		BackgroundColor3 = T.ally,
 		BorderSizePixel = 0,
 	}, shieldBar)
 	local healthBar = make("Frame", {
-		Position = UDim2.fromOffset(0, 62),
-		Size = UDim2.fromOffset(220, 5),
-		BackgroundColor3 = BACK,
-		BackgroundTransparency = 0.3,
+		Position = UDim2.fromOffset(96, 96),
+		Size = UDim2.fromOffset(300, 10),
+		BackgroundColor3 = T.raised,
 		BorderSizePixel = 0,
 	}, healthPanel)
 	local healthFill = make("Frame", {
@@ -427,6 +443,8 @@ local function build(): Refs
 		shieldBar = shieldBar,
 		shieldFill = shieldFill,
 		vignette = vignette,
+		gunPicture = gunPicture,
+		shieldBadge = badge,
 		indicator = indicator,
 		wedge = wedge,
 	}
@@ -440,12 +458,13 @@ function HudController.touchLayer(): Frame?
 	return touchLayer
 end
 
-function HudController.setWeapon(displayName: string, ammo: number, magSize: number)
+function HudController.setWeapon(displayName: string, ammo: number, magSize: number, id: string?)
 	local r = refs
 	if not r then
 		return
 	end
 	r.weaponName.Text = string.upper(displayName)
+	r.gunPicture.Image = if id then Theme.GUN[id] or "" else ""
 	HudController.setAmmo(ammo, magSize)
 end
 
@@ -569,7 +588,8 @@ local function update(dt: number)
 		local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
 		local hasShield = typeof(shield) == "number" and shield > 0
 		r.shieldBar.Visible = hasShield
-		r.shieldText.Text = if hasShield then "+" .. math.ceil(shield :: number) else ""
+		r.shieldBadge.Visible = hasShield
+		r.shieldText.Text = if hasShield then tostring(math.ceil(shield :: number)) else ""
 		if hasShield then
 			r.shieldFill.Size =
 				UDim2.fromScale(math.clamp((shield :: number) / Combat.MAX_SHIELD, 0, 1), 1)
@@ -583,6 +603,7 @@ end
 function HudController.init()
 	refs = build()
 	HitFeedback.build((refs :: Refs).gui)
+	KillFeed.build((refs :: Refs).gui)
 end
 
 function HudController.start()
@@ -591,6 +612,7 @@ function HudController.start()
 		InputController.bindTouchButtons(layer)
 	end
 	RunService.RenderStepped:Connect(update)
+	Net.event("Killed").OnClientEvent:Connect(KillFeed.kill)
 	local lastHurt = 0
 	Net.event("Damaged").OnClientEvent:Connect(function(from: Vector3)
 		if typeof(from) == "Vector3" then

@@ -1,6 +1,6 @@
 # UI Design
 
-The look of every screen: Valorant's clean, tactical layout with RIVALS' chunky readability, built for Roblox (PC first, then phone and gamepad). **Status: v1 designed in Figma (2026-11-03), waiting for the user's review. Not built in game yet.** The draft mechanic it shows is built: [Match Flow](../01%20Design/Match%20Flow.md) → Abilities.
+The look of every screen: Valorant's clean, tactical layout with RIVALS' chunky readability, built for Roblox (PC first, then phone and gamepad). **Status: v1 approved by the user and built in game (2026-11-03): draft screen, top bar, round banners, health, ammo, ability slots, kill feed and ELIMINATED pop-up.** Current art is used; images can be swapped later (e.g. ChatGPT concepts). The draft mechanic it shows is built: [Match Flow](../01%20Design/Match%20Flow.md) → Abilities.
 
 **Figma file:** [Glitched Gauntlet — Game UI](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN) (pages: Screens, Components; tokens in the "Theme" variable collection, type in text styles).
 
@@ -61,10 +61,30 @@ On a 667×375 phone the 1080p layout scales to 0.35, so 14 px body text ends up 
 **Round end.** A wide band in the winner's team colour, the score, three stat chips, "next draft in 3".
 
 ## Assets made for it
-- **Gun pictures:** side renders of 9 guns from their Blender files (`art-source/ui/guns/*.png`, light grey like Gauntlet's), made by `tools/blender/render_ui_gun.py` (Workbench, then mirrored and cropped); the other 9 guns are one command each. In game these can be ImageLabels instead of the current ViewportFrames, which are cheaper and match the design.
-- **Ability icons:** a new set of 9 white glyphs plus Reroll, Lock, Shield, Skull and Glitch (Figma Components page). The old `art-source/abilities/Icons` are the retired Mod names. They need exporting as PNGs and uploading.
+- **Gun pictures:** side renders of all 19 guns (uploaded) from their Blender files (`art-source/ui/guns/*.png`, light grey like Gauntlet's), made by `tools/blender/render_ui_gun.py` (Workbench, then mirrored and cropped); the other 9 guns are one command each. In game these can be ImageLabels instead of the current ViewportFrames, which are cheaper and match the design.
+- **Ability icons:** a new set of 9 white glyphs plus Reroll, Lock, Shield, Skull and Glitch (Figma Components page), exported at 256 px to `art-source/ui/icons/` and uploaded. The old `art-source/abilities/Icons` are the retired Mod names.
 
-## Building it in Roblox (next)
+## Built in Roblox (2026-11-03)
+![In game: draft round 1](References/ui-v1/ingame-draft-round1.jpg)
+![In game: draft round 2](References/ui-v1/ingame-draft-round2.jpg)
+![In game: draft round 3](References/ui-v1/ingame-draft-round3.jpg)
+![In game: HUD](References/ui-v1/ingame-hud.jpg)
+
+| Piece | Where |
+|---|---|
+| Tokens, fonts, image ids | `src/shared/Config/Theme.luau` |
+| Kit: text styles, cut-corner 9-slice cards, tags, key tab, gun picture, `fit` (UIScale from the ScreenGui's size), `tween` | `src/client/Util/Ui.luau` |
+| Draft screen | `DraftController` (Figma Draft screens; the top bar is the match HUD's, drawn above it; Enter locks in) |
+| Top bar + banners | `MatchHudController` (team plates with names and health, score, first-to-5 diamonds, round // phase, clock; GET READY, countdown, FIGHT, LOCKED IN, ROUND WON / LOST / DRAW, VICTORY / DEFEAT) |
+| Health, shield, ammo, gun picture | `HudController` |
+| Q / E / T slots | `ModHudController` (square slots, ready bar, key under, charge diamonds above; same logic as before) |
+| Kill feed + ELIMINATED | `Util/KillFeed`, fed by the `Killed` remote (gun and ability kills) |
+| Ability icons | `Config/Mods` `icon` (the new set) |
+| Assets | `art-source/ui/{icons,shapes,guns}`, made by `tools/ui_shapes.py` and `tools/blender/render_ui_gun.py`; ids in `art-source/uploads.json` (decals) and `Config/Theme` (images) |
+
+**Not built yet:** per-round stat chips on the round banner (no per-round stats exist yet), ability kit icons under the top-bar plates (only the draft knows the enemy kit), weapon slot pictures, a phone layout (the 1080p design scales down, too small on phones), gamepad selection in the draft.
+
+## How it was planned
 1. Export from Figma: icons (2x PNG, max 1024), 9-slice corner pieces, gun renders. Upload under the group.
 2. A `Config/Theme` module holds the tokens above. No hex values or fonts inside builders (LihFolk: Figma to Roblox UI pipeline).
 3. Root layout: design at 1920×1080 with Offset sizes and one UIScale = min(w/1920, h/1080) on the root, and `ScreenInsets = CoreUISafeInsets`. Phone gets its own sizes later.

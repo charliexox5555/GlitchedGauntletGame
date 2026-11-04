@@ -26,6 +26,8 @@ local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
 local ModController = require(script.Parent.ModController)
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local Ui = require(script.Parent.Parent.Util.Ui)
 
 local ModHudController = {}
 
@@ -36,14 +38,14 @@ local BLACK = Color3.new(0, 0, 0)
 local MUTED = Color3.fromHex("C9CCD1")
 local AMBER = Color3.fromHex("F2C94C")
 local RED = Color3.fromHex("EB5757")
-local BACK = Color3.fromHex("16181B")
+local BACK = Theme.COLORS.panel
 local CYAN = Config.COLORS.ally
 local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
 local HEAVY = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
 local MEDIUM = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium)
 
-local SLOT_SIZE = 62
-local SLOT_GAP = 16
+local SLOT_SIZE = 84 -- UI v1 (vault/02 Art/UI Design.md → HUD), design px scaled by Util/Ui
+local SLOT_GAP = 24
 local MAX_PIPS = 3
 local PULSE = TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local RING = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -64,6 +66,7 @@ type SlotUi = {
 	pips: { Frame },
 	ring: Frame,
 	ringStroke: UIStroke,
+	readyBar: Frame, -- ally under a ready slot, grey while it recharges
 	-- Last written, to skip unchanged writes.
 	shownId: string?,
 	shownKey: string,
@@ -183,7 +186,7 @@ end
 local function buildSlot(index: number, parent: Instance): SlotUi
 	local root = make("Frame", {
 		Name = "Slot" .. index,
-		Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE + 26),
+		Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE + 44),
 		BackgroundTransparency = 1,
 		LayoutOrder = index,
 	}, parent)
@@ -192,10 +195,9 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		Name = "Face",
 		Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE),
 		BackgroundColor3 = BACK,
-		BackgroundTransparency = 0.2,
+		BackgroundTransparency = 0.28,
 		BorderSizePixel = 0,
 	}, root)
-	make("UICorner", { CornerRadius = UDim.new(0, 12) }, face)
 	-- The shading is its own frame: a UIGradient on a CanvasGroup would tint
 	-- everything in it.
 	local shade = make("Frame", {
@@ -205,7 +207,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 	}, face)
 	make("UIGradient", {
 		Rotation = 90,
-		Color = ColorSequence.new(Color3.fromHex("2E333B"), Color3.fromHex("121417")),
+		Color = ColorSequence.new(Theme.COLORS.raised, Theme.COLORS.panel),
 	}, shade)
 	local glyph = text({
 		Size = UDim2.fromScale(1, 1),
@@ -237,11 +239,10 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		BackgroundTransparency = 1,
 		ZIndex = 5,
 	}, root)
-	make("UICorner", { CornerRadius = UDim.new(0, 12) }, frame)
 	local border = make("UIStroke", {
-		Color = WHITE,
+		Color = Theme.COLORS.lineStrong,
 		Thickness = 1.5,
-		Transparency = 0.7,
+		Transparency = 0,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 	}, frame)
 	-- Ready ring: grows out and fades when a charge comes back.
@@ -252,61 +253,53 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		BackgroundTransparency = 1,
 		ZIndex = 5,
 	}, root)
-	make("UICorner", { CornerRadius = UDim.new(0, 14) }, ring)
 	local ringStroke = make("UIStroke", {
 		Color = CYAN,
 		Thickness = 2,
 		Transparency = 1,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 	}, ring)
-	-- Key chip, top-left corner.
-	local chip = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromOffset(4, 4),
-		Size = UDim2.fromOffset(22, 22),
-		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundColor3 = Color3.fromHex("E8EAED"),
+	-- Ready bar right under the box, the key letter under that.
+	local readyBar = make("Frame", {
+		Position = UDim2.fromOffset(0, SLOT_SIZE),
+		Size = UDim2.fromOffset(SLOT_SIZE, 4),
+		BackgroundColor3 = CYAN,
 		BorderSizePixel = 0,
-		ZIndex = 6,
+		ZIndex = 5,
 	}, root)
-	make("UICorner", { CornerRadius = UDim.new(0, 6) }, chip)
-	make("UIPadding", { PaddingLeft = UDim.new(0, 5), PaddingRight = UDim.new(0, 5) }, chip)
-	local key = make("TextLabel", {
-		Size = UDim2.fromScale(0, 1),
-		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundTransparency = 1,
-		FontFace = HEAVY,
-		TextSize = 14,
-		TextColor3 = BACK,
-		Text = "",
+	local key = Ui.text(root, "", "key", {
+		Position = UDim2.fromOffset(0, SLOT_SIZE + 8),
+		Size = UDim2.fromOffset(SLOT_SIZE, 18),
+		TextColor3 = Theme.COLORS.textSecondary,
 		ZIndex = 7,
-	}, chip)
-	-- Charges (pips) and the name under the slot.
+	})
+	-- Charges: diamonds above the box.
 	local pipRow = make("Frame", {
-		Position = UDim2.fromOffset(0, SLOT_SIZE + 5),
-		Size = UDim2.new(1, 0, 0, 4),
+		Position = UDim2.fromOffset(0, -16),
+		Size = UDim2.new(1, 0, 0, 10),
 		BackgroundTransparency = 1,
 	}, root)
 	make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		Padding = UDim.new(0, 4),
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 8),
 	}, pipRow)
 	local pips = {}
 	for i = 1, MAX_PIPS do
 		local pip = make("Frame", {
-			Size = UDim2.fromOffset(12, 4),
-			BackgroundColor3 = WHITE,
+			Size = UDim2.fromOffset(8, 8),
+			Rotation = 45,
+			BackgroundColor3 = CYAN,
 			BorderSizePixel = 0,
 			Visible = false,
 			LayoutOrder = i,
 		}, pipRow)
-		make("UICorner", { CornerRadius = UDim.new(1, 0) }, pip)
 		pips[i] = pip
 	end
-	-- Effect running: a thin bar above the slot that drains.
+	-- Effect running: a thin bar under the key that drains.
 	local activeBack = make("Frame", {
-		Position = UDim2.fromOffset(6, -8),
+		Position = UDim2.fromOffset(6, SLOT_SIZE + 30),
 		Size = UDim2.new(1, -12, 0, 3),
 		BackgroundColor3 = BACK,
 		BackgroundTransparency = 0.3,
@@ -321,12 +314,13 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 	}, activeBack)
 	make("UICorner", { CornerRadius = UDim.new(1, 0) }, activeFill)
 	local name = text({
-		Position = UDim2.fromOffset(-20, SLOT_SIZE + 10),
-		Size = UDim2.new(1, 40, 0, 14),
+		Position = UDim2.fromOffset(-20, SLOT_SIZE + 26),
+		Size = UDim2.new(1, 40, 0, 0),
 		FontFace = BOLD,
 		TextSize = 12,
 		TextColor3 = MUTED,
 		Text = "",
+		Visible = false, -- UI v1 shows the key, not the name
 	}, root)
 	return {
 		root = root,
@@ -342,6 +336,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		pips = pips,
 		ring = ring,
 		ringStroke = ringStroke,
+		readyBar = readyBar,
 		shownId = "?",
 		shownKey = "",
 		shownSeconds = "",
@@ -383,10 +378,11 @@ local function build(): ScreenGui
 	local row = make("Frame", {
 		Name = "Slots",
 		AnchorPoint = Vector2.new(0.5, 1),
-		Position = UDim2.new(0.5, 0, 1, -26),
-		Size = UDim2.fromOffset(width, SLOT_SIZE + 26),
+		Position = UDim2.new(0.5, 0, 1, -24),
+		Size = UDim2.fromOffset(width, SLOT_SIZE + 44),
 		BackgroundTransparency = 1,
 	}, screen)
+	Ui.fit(row)
 	make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -611,6 +607,7 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 	local cooling = id ~= nil
 		and view.charges < 1
 		and player:GetAttribute("ModUnlimitedCharges") ~= true
+	ui.readyBar.BackgroundColor3 = if cooling or id == nil then Theme.COLORS.lineStrong else CYAN
 	local recharging = cooling and view.cooldown > 0
 	local share = if recharging then view.remaining / view.cooldown else 0
 	setSweep(ui.sweep, share)
@@ -648,8 +645,8 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 		ui.shownMax = view.max
 		ui.shownCharges = view.charges
 		for i, pip in ui.pips do
-			pip.Visible = view.max > 1 and i <= view.max
-			pip.BackgroundTransparency = if i <= view.charges then 0 else 0.7
+			pip.Visible = view.max >= 1 and i <= view.max
+			pip.BackgroundTransparency = if i <= view.charges then 0 else 0.75
 		end
 	end
 
@@ -671,8 +668,8 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 		ui.border.Thickness = 2.5
 		ui.face.Position = UDim2.fromOffset(0, 0)
 	else
-		ui.border.Color = WHITE
-		ui.border.Transparency = if cooling or id == nil then 0.82 else 0.55
+		ui.border.Color = Theme.COLORS.lineStrong
+		ui.border.Transparency = if cooling or id == nil then 0.5 else 0
 		ui.border.Thickness = 1.5
 		ui.face.Position = UDim2.fromOffset(0, 0)
 	end
