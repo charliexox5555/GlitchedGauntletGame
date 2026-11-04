@@ -71,6 +71,7 @@
 - **Next up:** the user's morning test of the Mods ([Mods Overnight Checklist](05%20Production/Playtests/Mods%20Overnight%20Checklist.md)): save the place, audition the sounds, a 2-player and an 8-player test → then rounds + the draft, and Phase 2 (Mod paths and glitches)
 - **Next:** 2-player test in the test range (Studio Test → Clients and Servers, 2 players: not run yet, the MCP can't start it) → tune numbers → aim assist (touch/gamepad) → rounds + tier rotation → Mods → draft → **Playtest #1**
 - **Done (2026-11-04, third-person legs):** players (and the test opponent) run with our own direction-blended legs: forward / back / strafe / sprint clips, a ready idle, jump, fall and a landing dip (`MakeLocomotionAnimations.luau`, `Poses.stepLegs`); Roblox's Animate plays an empty walk/run. Needs the user's look in play. [Gunplay](01%20Design/Gunplay.md) §5 roadmap
+- **Done (2026-11-04, slide + death polish):** a slide now looks like one from outside: a kick-out-and-drop into it, a hold with a scrape chatter that calms as it slows, and a push back up (`MakeSlideAnimations.luau`); you get light wind streaks as it starts. A downed body crumples at the knees before it tips over. All pose clips preload, so the first slide, landing or dash of a match no longer skips its clip. Needs the user's look in play. [Gunplay](01%20Design/Gunplay.md) §5 roadmap
 - **Blockers:** none. (Server Authority is on; movement and poses run in the shared simulation.)
 
 ---

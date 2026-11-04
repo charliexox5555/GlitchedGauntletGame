@@ -14,3 +14,9 @@
 - ✅ Next round: a fresh character (HP 100, not downed), colour back.
 - ✅ A downed dummy: the real body is hidden on the client (LocalTransparencyModifier 1) and the falling copy was spawned. The fall itself was only glimpsed (the guns covered it), so judge it in play.
 - Jump 5.6 + fall gravity 1.3: built, not measured in this run.
+
+## Slide streaks and third-person slide (same day)
+- ✅ Slide start shows the wind streaks (lowest streak transparency 0.63, about a 45% Dash), no blur; Output clean.
+- ✅ Third-person slide clips (`MakeSlideAnimations.luau`): SlideIn (0.28 s), the Slide hold (0.26 s loop, rate 0.99 at full slide speed) and SlideOut (0.30 s) all played at weight > 0.3 on one Sprint → Slide → Sprint, on the **first** slide of a fresh session (after adding the clip preload; before it, the first slide's one-shots had length 0 and skipped).
+- Still poses checked in a side view (stride, kick, drop, hold, plant, rise). The motion in play still needs the user's look from a second player's view.
+- Test note: under Server Authority, `Humanoid:Move` / `Player:Move` from the MCP don't move the character. Use real keypresses (about 3 s input lag through the MCP; a crate about 13 studs ahead of the spawn stops long run-ups).
