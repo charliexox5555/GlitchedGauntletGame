@@ -580,6 +580,10 @@ local function applyDamage(
 	local killed = Health.isDowned(humanoid)
 	local blocked = dealt <= 0 and amount > 0
 	humanoid:SetAttribute("LastAttacker", attacker.UserId)
+	local victimPlayer = Players:GetPlayerFromCharacter(victimModel)
+	if victimPlayer and dealt > 0 then
+		victimPlayer:SetAttribute("HitAt", workspace:GetServerTimeNow()) -- the flinch others see
+	end
 	if #damageListeners > 0 then
 		local event: DamageEvent = {
 			attacker = attacker,
@@ -917,6 +921,9 @@ local function onReload(player: Player, action: unknown)
 	end
 	slot.reloadToken += 1
 	local token = slot.reloadToken
+	-- Others see the reload (Simulation/Poses plays it at this length).
+	player:SetAttribute("ReloadFor", duration)
+	player:SetAttribute("ReloadAt", workspace:GetServerTimeNow())
 	-- Accept the client's reload a little early to hide latency.
 	slot.reloadEnd = now + duration - Combat.RELOAD_LEAD
 	task.delay(duration - Combat.RELOAD_LEAD, function()

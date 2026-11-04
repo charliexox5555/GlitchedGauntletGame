@@ -59,6 +59,24 @@
   "type": "Decal",
   "uploaded": "2026-10-26 01:15:31"
  },
+ "art-source/animations/GG_AdsDown.rbxm": {
+  "assetId": 97664620704166,
+  "name": "GG AdsDown",
+  "type": "Animation",
+  "uploaded": "2026-11-04 02:03:35"
+ },
+ "art-source/animations/GG_AdsLevel.rbxm": {
+  "assetId": 95555774738385,
+  "name": "GG AdsLevel",
+  "type": "Animation",
+  "uploaded": "2026-11-04 02:03:33"
+ },
+ "art-source/animations/GG_AdsUp.rbxm": {
+  "assetId": 130705905330180,
+  "name": "GG AdsUp",
+  "type": "Animation",
+  "uploaded": "2026-11-04 02:03:30"
+ },
  "art-source/animations/GG_AimDown.rbxm": {
   "assetId": 102741853097868,
   "name": "GG Aim Down",
@@ -119,6 +137,12 @@
   "type": "Animation",
   "uploaded": "2026-11-04 01:49:27"
  },
+ "art-source/animations/GG_Flinch.rbxm": {
+  "assetId": 114576995497102,
+  "name": "GG Flinch",
+  "type": "Animation",
+  "uploaded": "2026-11-04 02:03:41"
+ },
  "art-source/animations/GG_Idle.rbxm": {
   "assetId": 91664102456591,
   "name": "GG Idle",
@@ -178,6 +202,12 @@
   "name": "GG Null",
   "type": "Animation",
   "uploaded": "2026-11-04 01:49:32"
+ },
+ "art-source/animations/GG_Reload.rbxm": {
+  "assetId": 123720437640794,
+  "name": "GG Reload",
+  "type": "Animation",
+  "uploaded": "2026-11-04 02:03:38"
  },
  "art-source/animations/GG_RunB.rbxm": {
   "assetId": 81677261253829,

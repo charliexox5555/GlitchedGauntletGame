@@ -1,0 +1,189 @@
+--!strict
+-- Builds the third-person combat poses (R15 KeyframeSequences) others see on
+-- you: aiming down sights (three pitch poses, like the hip aim set in
+-- MakePoseAnimations), a reload one-shot and a hit flinch. Saves each as a
+-- Studio-serialized .rbxm in art-source/animations/ through
+-- tools/studio/receive_server.py. Run in Studio (Edit) via the MCP or the
+-- Command Bar, upload with tools/opencloud/upload_asset.py --type Animation,
+-- and put the ids in src/shared/Config/Animations.luau (COMBAT).
+--
+-- Conventions as in MakePoseAnimations: pose CFrames are joint Transforms;
+-- +X swings an arm forward/up; on UpperTorso it leans the chest back.
+-- Angles in degrees. The reload is made 1 s long and played at the gun's
+-- reload time (Simulation/Poses adjusts its speed).
+
+local HttpService = game:GetService("HttpService")
+local SerializationService = game:GetService("SerializationService")
+local EncodingService = game:GetService("EncodingService")
+
+local RECEIVER = "http://127.0.0.1:34999/save?path=art-source/animations/"
+
+type JointPose = { number }
+type Frame = { [string]: JointPose }
+
+local PARENT: { [string]: string } = {
+	LowerTorso = "HumanoidRootPart",
+	UpperTorso = "LowerTorso",
+	Head = "UpperTorso",
+	RightUpperArm = "UpperTorso",
+	RightLowerArm = "RightUpperArm",
+	RightHand = "RightLowerArm",
+	LeftUpperArm = "UpperTorso",
+	LeftLowerArm = "LeftUpperArm",
+	LeftHand = "LeftLowerArm",
+}
+
+local function cf(p: JointPose): CFrame
+	local r = CFrame.Angles(0, math.rad(p[2] or 0), 0)
+		* CFrame.Angles(math.rad(p[1]), 0, math.rad(p[3] or 0))
+	return CFrame.new(p[4] or 0, p[5] or 0, p[6] or 0) * r
+end
+
+local function keyframe(time: number, frame: Frame, easing: Enum.PoseEasingStyle?): Keyframe
+	local kf = Instance.new("Keyframe")
+	kf.Time = time
+	local poses: { [string]: Pose } = {}
+	local function poseFor(name: string): Pose
+		local existing = poses[name]
+		if existing then
+			return existing
+		end
+		local p = Instance.new("Pose")
+		p.Name = name
+		p.CFrame = CFrame.identity
+		p.Weight = 0
+		p.EasingStyle = easing or Enum.PoseEasingStyle.Cubic
+		p.EasingDirection = Enum.PoseEasingDirection.InOut
+		poses[name] = p
+		local parentName = PARENT[name]
+		p.Parent = if parentName then poseFor(parentName) else kf
+		return p
+	end
+	for name, jp in frame do
+		local p = poseFor(name)
+		p.CFrame = cf(jp)
+		p.Weight = 1
+	end
+	return kf
+end
+
+local function sequence(
+	name: string,
+	priority: Enum.AnimationPriority,
+	frames: { Frame },
+	times: { number },
+	loop: boolean
+): KeyframeSequence
+	local ks = Instance.new("KeyframeSequence")
+	ks.Name = name
+	ks.Loop = loop
+	ks.Priority = priority
+	for i, frame in frames do
+		keyframe(times[i], frame).Parent = ks
+	end
+	return ks
+end
+
+-- The hip hold (MakePoseAnimations `aim`), so the clips start and end on it.
+local function hip(deg: number): Frame
+	local arm = 90 + deg * 0.65
+	return {
+		UpperTorso = { deg * 0.35, 0, 0 },
+		RightUpperArm = { arm, 8, 0 },
+		RightLowerArm = { 0, 0, 0 },
+		LeftUpperArm = { arm, -38, 0 },
+		LeftLowerArm = { 18, 0, 0 },
+	}
+end
+
+-- Aiming down sights at pitch `deg`: the gun comes up to the eye and in to
+-- the centre line, elbows bent to pull it close, the cheek dropped onto the
+-- stock (head tilted toward the gun), the leading shoulder turned in.
+local function ads(deg: number): Frame
+	local arm = 98 + deg * 0.7
+	return {
+		UpperTorso = { deg * 0.35, -10, 0 },
+		Head = { -6 + deg * 0.15, -6, 9 },
+		RightUpperArm = { arm, 24, 6 },
+		RightLowerArm = { 22, 0, 0 },
+		LeftUpperArm = { arm + 4, -22, 0 },
+		LeftLowerArm = { 34, 0, 0 },
+	}
+end
+
+-- Reload (1 s at speed 1): the gun tips in and down, the support hand drops
+-- to the magazine, pulls it, comes back up with the new one and seats it.
+local function reloadFrames(): ({ Frame }, { number })
+	local start = hip(0)
+	local tilt: Frame = {
+		UpperTorso = { -6, 8, 0 },
+		RightUpperArm = { 72, 22, 18 },
+		RightLowerArm = { 30, 0, 0 },
+		LeftUpperArm = { 58, -30, 0 },
+		LeftLowerArm = { 62, 0, 0 },
+	}
+	local magOut: Frame = {
+		UpperTorso = { -8, 10, 0 },
+		Head = { -14, 8, 0 },
+		RightUpperArm = { 70, 24, 20 },
+		RightLowerArm = { 32, 0, 0 },
+		LeftUpperArm = { 18, -18, 8 },
+		LeftLowerArm = { 46, 0, 0 },
+	}
+	local magIn: Frame = {
+		UpperTorso = { -7, 9, 0 },
+		Head = { -12, 6, 0 },
+		RightUpperArm = { 72, 22, 18 },
+		RightLowerArm = { 30, 0, 0 },
+		LeftUpperArm = { 52, -26, 0 },
+		LeftLowerArm = { 70, 0, 0 },
+	}
+	local seat: Frame = {
+		UpperTorso = { -4, 6, 0 },
+		Head = { -6, 2, 0 },
+		RightUpperArm = { 80, 18, 10 },
+		RightLowerArm = { 18, 0, 0 },
+		LeftUpperArm = { 70, -32, 0 },
+		LeftLowerArm = { 48, 0, 0 },
+	}
+	local back = hip(0)
+	back.Head = { 0, 0, 0 }
+	start.Head = { 0, 0, 0 }
+	return { start, tilt, magOut, magIn, seat, back }, { 0, 0.14, 0.38, 0.62, 0.8, 1 }
+end
+
+-- Flinch (0.3 s): the chest and head snap back, then settle. Only those two
+-- joints, so it plays over whatever the arms are doing.
+local FLINCH_HIT: Frame = { UpperTorso = { 11, 4, -3 }, Head = { 14, -5, 4 } }
+local FLINCH_REST: Frame = { UpperTorso = { 0, 0, 0 }, Head = { 0, 0, 0 } }
+
+local ACTION = Enum.AnimationPriority.Action
+local ACTION4 = Enum.AnimationPriority.Action4
+
+local reload, reloadTimes = reloadFrames()
+local sequences = {
+	sequence("GG_AdsUp", ACTION, { ads(70), ads(70) }, { 0, 1 }, true),
+	sequence("GG_AdsLevel", ACTION, { ads(0), ads(0) }, { 0, 1 }, true),
+	sequence("GG_AdsDown", ACTION, { ads(-70), ads(-70) }, { 0, 1 }, true),
+	sequence("GG_Reload", ACTION4, reload, reloadTimes, false),
+	sequence(
+		"GG_Flinch",
+		ACTION4,
+		{ FLINCH_REST, FLINCH_HIT, FLINCH_REST },
+		{ 0, 0.05, 0.3 },
+		false
+	),
+}
+
+local saved = {}
+for _, ks in sequences do
+	local blob = SerializationService:SerializeInstancesAsync({ ks })
+	local res = HttpService:RequestAsync({
+		Url = RECEIVER .. ks.Name .. ".rbxm",
+		Method = "POST",
+		Body = buffer.tostring(EncodingService:Base64Encode(blob)),
+	})
+	table.insert(saved, res.StatusCode)
+	ks.Parent = game:GetService("ServerStorage")
+end
+return table.concat(saved, ",")

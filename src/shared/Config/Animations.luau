@@ -35,6 +35,22 @@ return table.freeze({
 		SprintRun = id(81006580789818),
 		Land = id(88050773886302),
 	}),
+	-- What others see you do with the gun (tools/studio/MakeCombatPoseAnimations.luau,
+	-- 2026-11-04): aiming down sights (three pitch poses blended like the hip
+	-- set, by the Aim input), a reload one-shot played at the gun's reload
+	-- time (server player attributes ReloadAt / ReloadFor) and a flinch when
+	-- hit (HitAt).
+	COMBAT = table.freeze({
+		AdsUp = id(130705905330180),
+		AdsLevel = id(95555774738385),
+		AdsDown = id(97664620704166),
+		Reload = id(123720437640794),
+		Flinch = id(114576995497102),
+	}),
+	ADS_SMOOTHING = 12, -- 1/s: how fast the hold moves between hip and sights
+	RELOAD_LENGTH = 1, -- seconds the reload clip is made at
+	FLINCH_WEIGHT = 0.8, -- the flinch plays over the rest at this weight
+
 	-- Roblox's Animate plays these instead of its stock clips (CharacterService).
 	-- Its walk and run are an empty clip: the LOCOMOTION set carries the legs.
 	ANIMATE = table.freeze({

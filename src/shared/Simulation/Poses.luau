@@ -42,11 +42,17 @@ local SPECS: { [string]: Spec } = {
 	RunL = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
 	RunR = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
 	SprintRun = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
+	AdsUp = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	AdsLevel = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	AdsDown = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 }
 local RUN_SET = { "RunF", "RunB", "RunL", "RunR" }
 local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
 for _, name in { "RunF", "RunB", "RunL", "RunR", "SprintRun" } do
 	IDS[name] = (Animations.LOCOMOTION :: any)[name]
+end
+for _, name in { "AdsUp", "AdsLevel", "AdsDown" } do
+	IDS[name] = (Animations.COMBAT :: any)[name]
 end
 IDS.ModHold = Animations.MODS.ModHold
 -- The Crash Down clips are "" until uploaded (the dive borrows Crouch).
@@ -68,11 +74,13 @@ local USE_IDS: { [string]: string } = {
 	DashRight = Animations.MODS.DashRight,
 	Updraft = Animations.MODS.Updraft, -- knees tuck on the launch (Mods/Updraft)
 	Land = Animations.LOCOMOTION.Land, -- a knee dip on touching down
+	Reload = Animations.COMBAT.Reload, -- at the gun's reload time (ReloadAt / ReloadFor)
+	Flinch = Animations.COMBAT.Flinch, -- hit (HitAt), at FLINCH_WEIGHT
 }
 if Animations.MODS.UpdraftSlamLand ~= "" then
 	USE_IDS.UpdraftSlamLand = Animations.MODS.UpdraftSlamLand -- Crash Down's landing
 end
--- A weight of exactly 0 lets the Animator drop the track; stay just above.
+-- A fading layer's floor (setWeight stops a layer once it's faded out).
 local OFF = 0.001
 
 local connection: RBXScriptConnection? = nil
@@ -132,8 +140,9 @@ local function trackFor(animator: Animator, name: string): AnimationTrack
 	return t
 end
 
--- Plays a Mod use clip once (Action4, over everything else).
-local function playOnce(animator: Animator, kind: string)
+-- Plays a one-shot clip (Action4, over everything else), at `speed` and
+-- `weight` (default 1).
+local function playOnce(animator: Animator, kind: string, speed: number?, weight: number?)
 	local animId = USE_IDS[kind]
 	if not animId then
 		return
@@ -160,12 +169,38 @@ local function playOnce(animator: Animator, kind: string)
 	local t = track :: AnimationTrack
 	t.Priority = Enum.AnimationPriority.Action4
 	t.Looped = false
-	t:Play(0.05, 1, 1)
+	t:Play(0.05, weight or 1, speed or 1)
 end
 
+-- The cached track for `name` if it's playing (nil when it's stopped).
+local function playing(animator: Animator, name: string): AnimationTrack?
+	local byName = cache[animator]
+	local track = byName and byName[name]
+	return if track and track.IsPlaying then track else nil
+end
+
+-- Fades a layer toward `weight`. A layer that's off fades out and then
+-- stops: an Animator runs at most 16 tracks at once (measured 2026-11-04:
+-- a 17th reports IsPlaying but never plays), so idle layers can't sit at a
+-- tiny weight any more; one comes back (from 0, fading in) when it's needed.
 local function setWeight(animator: Animator, name: string, weight: number)
 	local step = Animations.WEIGHT_STEP
 	local w = math.clamp(math.floor(weight / step + 0.5) * step, OFF, 1)
+	if w <= OFF then
+		local track = playing(animator, name)
+		if track then
+			if track.WeightCurrent <= 0.01 then
+				track:Stop(0)
+				local byName = cache[animator]
+				if byName then
+					byName[name] = nil
+				end
+			elseif math.abs(track.WeightTarget - OFF) > 1e-3 then
+				track:AdjustWeight(OFF, SPECS[name].fade)
+			end
+		end
+		return
+	end
 	local track = trackFor(animator, name)
 	if math.abs(track.WeightTarget - w) > 1e-3 then
 		track:AdjustWeight(w, SPECS[name].fade)
@@ -186,6 +221,29 @@ end
 
 -- The pitch each character is posed with, eased toward its AimPitch input.
 local posedPitch: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+-- How far each character is between the hip hold (0) and the sights (1).
+local posedAds: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+-- The last reload (ReloadAt) and hit (HitAt) posed per character.
+local reloadSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+local hitSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+local function aiming(player: Player): boolean
+	local context = player:FindFirstChild("PlayContext")
+	local action = context and context:FindFirstChild("Aim")
+	return action ~= nil and action:IsA("InputAction") and action:GetState() == true
+end
+
+-- A server time stamp (player attribute) newer than the last one posed. The
+-- first look at a character only sets the mark (to the stamp, or -1 when it
+-- has none yet), so an old one doesn't replay on join but the first real
+-- one after that plays.
+local function newMark(seen: { [Model]: number }, character: Model, value: unknown): boolean
+	local stamp = if typeof(value) == "number" then value else -1
+	local last = seen[character]
+	seen[character] = stamp
+	return last ~= nil and stamp > last
+end
+
 -- Whether each character was in the air last step (for the landing clip).
 local wasAir: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
@@ -228,14 +286,14 @@ local function stepLegs(
 		local rate = Animations.RUN_RATE
 		local runRate = math.clamp(speed / Animations.RUN_SPEED, rate.min, rate.max)
 		for _, name in RUN_SET do
-			local t = trackFor(animator, name)
-			if math.abs(t.Speed - runRate) > 0.05 then
+			local t = playing(animator, name)
+			if t and math.abs(t.Speed - runRate) > 0.05 then
 				t:AdjustSpeed(runRate)
 			end
 		end
-		local sprintTrack = trackFor(animator, "SprintRun")
+		local sprintTrack = playing(animator, "SprintRun")
 		local sprintRate = math.clamp(speed / Animations.SPRINT_RUN_SPEED, rate.min, rate.max)
-		if math.abs(sprintTrack.Speed - sprintRate) > 0.05 then
+		if sprintTrack and math.abs(sprintTrack.Speed - sprintRate) > 0.05 then
 			sprintTrack:AdjustSpeed(sprintRate)
 		end
 	end
@@ -274,9 +332,29 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	local crouch = if state == "Crouch" or (diving and not SLAM_POSE) then 1 else 0
 
 	-- Aim: a blend space of three held poses (Action priority).
-	setWeight(animator, "AimUp", armed * math.max(pitch, 0))
-	setWeight(animator, "AimDown", armed * math.max(-pitch, 0))
-	setWeight(animator, "AimLevel", armed * (1 - math.abs(pitch)))
+	-- Hip hold and sights blend by the Aim input (smoothed like the pitch).
+	local adsTarget = if armed > 0 and aiming(player) and state ~= "Sprint" then 1 else 0
+	local adsWas = posedAds[character] or adsTarget
+	local ads = adsWas + (adsTarget - adsWas) * (1 - math.exp(-Animations.ADS_SMOOTHING * dt))
+	posedAds[character] = ads
+	local hip = armed * (1 - ads)
+	local sights = armed * ads
+	setWeight(animator, "AimUp", hip * math.max(pitch, 0))
+	setWeight(animator, "AimDown", hip * math.max(-pitch, 0))
+	setWeight(animator, "AimLevel", hip * (1 - math.abs(pitch)))
+	setWeight(animator, "AdsUp", sights * math.max(pitch, 0))
+	setWeight(animator, "AdsDown", sights * math.max(-pitch, 0))
+	setWeight(animator, "AdsLevel", sights * (1 - math.abs(pitch)))
+	-- A reload (timed to the gun) and a flinch when hit, from the server.
+	if newMark(reloadSeen, character, player:GetAttribute("ReloadAt")) and alive and armed > 0 then
+		local duration = player:GetAttribute("ReloadFor")
+		if typeof(duration) == "number" and duration > 0.1 then
+			playOnce(animator, "Reload", Animations.RELOAD_LENGTH / duration)
+		end
+	end
+	if newMark(hitSeen, character, player:GetAttribute("HitAt")) and alive then
+		playOnce(animator, "Flinch", 1, Animations.FLINCH_WEIGHT)
+	end
 	-- Movement (Action2 / Action3) layers over the aim and the walk cycle.
 	setWeight(animator, "Sprint", if state == "Sprint" then 1 else 0)
 	setWeight(animator, "Crouch", crouch * (1 - moving))
@@ -362,9 +440,9 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	wasAir[character] = inAir
 
 	-- Crouch-walk stride speed follows the ground speed.
-	local walk = trackFor(animator, "CrouchWalk")
+	local walk = playing(animator, "CrouchWalk")
 	local stride = math.clamp(speed / Animations.CROUCH_WALK_SPEED, 0.4, 1.6)
-	if math.abs(walk.Speed - stride) > 0.1 then
+	if walk and math.abs(walk.Speed - stride) > 0.1 then
 		walk:AdjustSpeed(stride)
 	end
 end
