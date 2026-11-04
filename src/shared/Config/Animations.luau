@@ -73,12 +73,14 @@ return table.freeze({
 	-- Mods (tools/studio/MakeModAnimations.luau). ModHold loops while a held
 	-- Mod is up (in place of the gun hold); the others play once on a use.
 	MODS = table.freeze({
-		ModHold = id(72886949328296),
-		Throw = id(113960439440452),
-		Place = id(102573901472605),
-		Heal = id(116476893527219),
-		Lob = id(91729570520010), -- a held throw's underhand (Molly RMB)
-		Cast = id(131757439176866), -- HeldSteer: the free hand pushes out (Firewall)
+		-- Hold and use clips (tools/studio/MakeModAnimations.luau; pass 2,
+		-- 2026-11-04: wind-ups, snaps and follow-throughs, ending on the gun hold).
+		ModHold = id(115940553232675),
+		Throw = id(115956567313242),
+		Place = id(100402076753145),
+		Heal = id(101178239488481),
+		Lob = id(91952970218420), -- a held throw's underhand (Molly RMB)
+		Cast = id(93574122239655), -- HeldSteer: the free hand pushes out (Firewall)
 		-- Dash: the torso leans into the dash (Simulation/Poses, by direction).
 		DashForward = id(132740788102457),
 		DashBack = id(128130101853691),

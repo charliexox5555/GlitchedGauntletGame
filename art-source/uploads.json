@@ -168,40 +168,40 @@
   "uploaded": "2026-11-04 01:49:30"
  },
  "art-source/animations/GG_ModCast.rbxm": {
-  "assetId": 131757439176866,
-  "name": "GG Mod Cast",
+  "assetId": 93574122239655,
+  "name": "GG ModCast",
   "type": "Animation",
-  "uploaded": "2026-10-28 22:58:08"
+  "uploaded": "2026-11-04 02:57:40"
  },
  "art-source/animations/GG_ModHeal.rbxm": {
-  "assetId": 116476893527219,
-  "name": "GG Mod Heal",
+  "assetId": 101178239488481,
+  "name": "GG ModHeal",
   "type": "Animation",
-  "uploaded": "2026-10-26 01:31:35"
+  "uploaded": "2026-11-04 02:57:46"
  },
  "art-source/animations/GG_ModHold.rbxm": {
-  "assetId": 72886949328296,
-  "name": "GG Mod Hold",
+  "assetId": 115940553232675,
+  "name": "GG ModHold",
   "type": "Animation",
-  "uploaded": "2026-10-26 01:31:23"
+  "uploaded": "2026-11-04 02:57:32"
  },
  "art-source/animations/GG_ModLob.rbxm": {
-  "assetId": 91729570520010,
-  "name": "GG Mod Lob",
+  "assetId": 91952970218420,
+  "name": "GG ModLob",
   "type": "Animation",
-  "uploaded": "2026-10-28 21:39:45"
+  "uploaded": "2026-11-04 02:57:38"
  },
  "art-source/animations/GG_ModPlace.rbxm": {
-  "assetId": 102573901472605,
-  "name": "GG Mod Place",
+  "assetId": 100402076753145,
+  "name": "GG ModPlace",
   "type": "Animation",
-  "uploaded": "2026-10-26 01:31:29"
+  "uploaded": "2026-11-04 02:57:43"
  },
  "art-source/animations/GG_ModThrow.rbxm": {
-  "assetId": 113960439440452,
-  "name": "GG Mod Throw",
+  "assetId": 115956567313242,
+  "name": "GG ModThrow",
   "type": "Animation",
-  "uploaded": "2026-10-26 01:31:26"
+  "uploaded": "2026-11-04 02:57:35"
  },
  "art-source/animations/GG_Null.rbxm": {
   "assetId": 86109711469782,

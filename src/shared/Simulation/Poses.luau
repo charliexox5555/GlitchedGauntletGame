@@ -89,6 +89,7 @@ local OFF = 0.001
 local connection: RBXScriptConnection? = nil
 local animations: { [string]: Animation } = {}
 local cache: { [Animator]: { [string]: AnimationTrack } } = setmetatable({}, { __mode = "k" }) :: any
+local primed: { [Animator]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 -- The last Crash Down landing (UpdraftSlamAt) posed per character. Kept here,
 -- not as an attribute (a character's attributes are nearly full: Mod System →
 -- Character attribute budget); only a clearly later landing plays, so a
@@ -145,31 +146,39 @@ end
 
 -- Plays a one-shot clip (Action4, over everything else), at `speed` and
 -- `weight` (default 1).
-local function playOnce(animator: Animator, kind: string, speed: number?, weight: number?)
+-- The one-shot track for `kind` on this Animator: one per clip, loaded once
+-- and replayed.
+local function useTrack(animator: Animator, kind: string): AnimationTrack?
 	local animId = USE_IDS[kind]
 	if not animId then
-		return
+		return nil
 	end
-	local a = animations["Use" .. kind]
+	local key = "Use" .. kind
+	local a = animations[key]
 	if not a then
 		a = Instance.new("Animation")
-		a.Name = "Use" .. kind
+		a.Name = key
 		a.AnimationId = animId
-		animations["Use" .. kind] = a
+		animations[key] = a
 	end
-	-- One track per clip per Animator, loaded once and replayed.
 	local byName = cache[animator]
 	if not byName then
 		byName = {}
 		cache[animator] = byName
 	end
-	local key = "Use" .. kind
 	local track = byName[key]
 	if not track then
 		track = animator:LoadAnimation(a :: Animation)
 		byName[key] = track
 	end
-	local t = track :: AnimationTrack
+	return track
+end
+
+local function playOnce(animator: Animator, kind: string, speed: number?, weight: number?)
+	local t = useTrack(animator, kind)
+	if not t then
+		return
+	end
 	t.Priority = Enum.AnimationPriority.Action4
 	t.Looped = false
 	t:Play(0.05, weight or 1, speed or 1)
@@ -313,6 +322,15 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	end
 	if not isSimulated(root) or not isSimulated(animator) then
 		return
+	end
+	-- Load every one-shot on a new Animator (loaded, not playing: no track
+	-- slot used), so its first use doesn't find it still loading (length 0)
+	-- and skip. ContentProvider's preload only helps on clients.
+	if not primed[animator] then
+		primed[animator] = true
+		for kind in USE_IDS do
+			useTrack(animator, kind)
+		end
 	end
 
 	local alive = Health.isAlive(humanoid)
@@ -525,10 +543,14 @@ function PoseSim.initialize()
 			table.insert(list, animationFor(name))
 		end
 		for kind, animId in USE_IDS do
-			local a = Instance.new("Animation")
-			a.AnimationId = animId
-			animations["Use" .. kind] = animations["Use" .. kind] or a
-			table.insert(list, animations["Use" .. kind])
+			local key = "Use" .. kind
+			if not animations[key] then
+				local a = Instance.new("Animation")
+				a.Name = key
+				a.AnimationId = animId
+				animations[key] = a
+			end
+			table.insert(list, animations[key])
 		end
 		pcall(ContentProvider.PreloadAsync, ContentProvider, list)
 	end)
