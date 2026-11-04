@@ -6,6 +6,7 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 | # | Found | What happens | Steps to reproduce | Severity | Status |
 |---|---|---|---|---|---|
 | 1 | 2026-11-03 | "Attribute total payload exceeds 1024 bytes" spam from `Mods/Updraft` step; abilities stop working | Upgraded Dash + Updraft (+ statuses) on one character | High | ✅ Fixed 2026-11-03: attributes packed / nil instead of false (Mod System → Character attribute budget). Watch for it if more per-character state is added |
+| 2 | 2026-11-04 | Output shows `ContentId: rbxassetid://203785492 failed due to: Asset type does not match requested type` ×3 in every playtest (both places) | Any Studio playtest | Low | Not the game: the asset is a sound ("Pop Close Sound") that a Studio plugin requests as another type; no script, place or package refers to it. Ignore (live servers won't show it) |
 
 ## 💡 Ideas
 | Idea | Why it might be good | Parked until |

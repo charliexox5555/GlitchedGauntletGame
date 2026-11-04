@@ -20,3 +20,10 @@
 - ✅ Third-person slide clips (`MakeSlideAnimations.luau`): SlideIn (0.28 s), the Slide hold (0.26 s loop, rate 0.99 at full slide speed) and SlideOut (0.30 s) all played at weight > 0.3 on one Sprint → Slide → Sprint, on the **first** slide of a fresh session (after adding the clip preload; before it, the first slide's one-shots had length 0 and skipped).
 - Still poses checked in a side view (stride, kick, drop, hold, plant, rise). The motion in play still needs the user's look from a second player's view.
 - Test note: under Server Authority, `Humanoid:Move` / `Player:Move` from the MCP don't move the character. Use real keypresses (about 3 s input lag through the MCP; a crate about 13 studs ahead of the spawn stops long run-ups).
+
+## Mod clips, crouch-walk, knife and draw (same day)
+- ✅ Mod clips pass 2: still poses measured in Edit (hand positions in the body's space, chest yaw, planted feet for Place: within 0.13 studs). In play: the new hold (2.40 s loop) and the Throw (0.62 s) played on Molly; the server played Cast at weight 1.00 for its full 1.00 s on Firewall (the owning client doesn't list server-played one-shots, so judge the rest from a second player). Lob, Place and Heal load at their lengths (0.62 / 0.70 / 0.55 s); their in-play use wasn't driven (the dev SetSlot for slot 1 got re-dealt by the round).
+- ✅ Crouch-walk: crouch + strafe right → CrouchWalkR 1.00; crouch + back → CrouchWalkB 1.00; forward 0.04. Five tracks playing after.
+- ✅ Knife: Melee → KnifeReady (2.40 s loop); LMB → KnifeSlash (0.42 s); RMB → KnifeHeavy (0.62 s), `SwingHeavy` true.
+- ✅ Draw: knife → Classic plays the draw at speed 1.43 (0.5 s clip / 0.35 s equipTime); to the knife there's no draw (its ready hold fades in).
+- Output: only the `rbxassetid://203785492` warning, which is a Studio plugin's sound ("Pop Close Sound") requested as another type. It's not in the game or either place, so live servers won't show it ([Bugs & Ideas](../Bugs%20%26%20Ideas.md)).
