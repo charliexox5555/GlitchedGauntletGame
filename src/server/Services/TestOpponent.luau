@@ -13,6 +13,7 @@ local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Net = require(ReplicatedStorage.Shared.Net)
+local PoseSim = require(ReplicatedStorage.Shared.Simulation.Poses)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local CharacterService = require(script.Parent.CharacterService)
@@ -158,6 +159,7 @@ local function brain(
 	local nextShot = 0
 	while generation == gen and m.Parent and Health.isAlive(humanoid) do
 		task.wait(STEP)
+		PoseSim.legs(m) -- the players' direction-blended run, so a solo test shows it
 		if not fighting then
 			continue
 		end
@@ -227,6 +229,7 @@ function TestOpponent.spawn(spawnAt: CFrame, team: number, toMapWorld: (Vector3)
 	m:SetAttribute(Teams.ATTRIBUTE, team)
 	m.Parent = dummyFolder()
 	CharacterService.prepare(m)
+	CharacterService.useOurAnimations(m)
 	model = m
 
 	task.defer(function()

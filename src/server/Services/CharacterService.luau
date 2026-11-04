@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
@@ -64,12 +65,34 @@ function CharacterService.prepare(model: Model)
 	end)
 end
 
+-- Roblox's Animate plays our idle / jump / fall, and an empty walk / run (the
+-- direction-blended run set in Simulation/Poses carries the legs). Animate
+-- reloads a set when one of its Animation ids changes.
+function CharacterService.useOurAnimations(character: Model)
+	local animate = character:FindFirstChild("Animate")
+	if not animate then
+		return
+	end
+	for name, animationId in Animations.ANIMATE do
+		local holder = animate:FindFirstChild(name)
+		if holder then
+			for _, a in holder:GetChildren() do
+				if a:IsA("Animation") and a.AnimationId ~= animationId then
+					a.AnimationId = animationId
+				end
+			end
+		end
+	end
+end
+
 local function onCharacter(character: Model)
 	-- The Health script and accessories arrive with the character; wait a frame.
 	task.defer(function()
 		if character.Parent then
 			character:WaitForChild("HumanoidRootPart", 5)
 			CharacterService.prepare(character)
+			character:WaitForChild("Animate", 5)
+			CharacterService.useOurAnimations(character)
 		end
 	end)
 end

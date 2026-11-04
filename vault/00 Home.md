@@ -70,6 +70,7 @@
 - **Done (2026-11-04, health + jump):** the game's own health (`shared/Health`, `HealthService`): Roblox health never drops, at 0 HP you're **downed** with a fake death (the body tips over and fades; your screen greys) until the next round. Jump 7.2 → 5.6 with 1.3× gravity on the way down and a takeoff sound. Tested in a Studio match (shield → HP → downed → round end → fresh next round). [Gunplay](01%20Design/Gunplay.md) §3
 - **Next up:** the user's morning test of the Mods ([Mods Overnight Checklist](05%20Production/Playtests/Mods%20Overnight%20Checklist.md)): save the place, audition the sounds, a 2-player and an 8-player test → then rounds + the draft, and Phase 2 (Mod paths and glitches)
 - **Next:** 2-player test in the test range (Studio Test → Clients and Servers, 2 players: not run yet, the MCP can't start it) → tune numbers → aim assist (touch/gamepad) → rounds + tier rotation → Mods → draft → **Playtest #1**
+- **Done (2026-11-04, third-person legs):** players (and the test opponent) run with our own direction-blended legs: forward / back / strafe / sprint clips, a ready idle, jump, fall and a landing dip (`MakeLocomotionAnimations.luau`, `Poses.stepLegs`); Roblox's Animate plays an empty walk/run. Needs the user's look in play. [Gunplay](01%20Design/Gunplay.md) §5 roadmap
 - **Blockers:** none. (Server Authority is on; movement and poses run in the shared simulation.)
 
 ---

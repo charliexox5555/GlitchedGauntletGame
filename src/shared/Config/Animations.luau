@@ -24,6 +24,32 @@ return table.freeze({
 		Slide = id(88674421205618),
 	}),
 
+	-- Legs and hips by move direction (tools/studio/MakeLocomotionAnimations.luau,
+	-- Movement priority, 2026-11-04), blended in Simulation/Poses by where you
+	-- move relative to where you face. Land plays once on touching down.
+	LOCOMOTION = table.freeze({
+		RunF = id(115636402441240),
+		RunB = id(81677261253829),
+		RunL = id(126639525655633),
+		RunR = id(103693381646071),
+		SprintRun = id(81006580789818),
+		Land = id(88050773886302),
+	}),
+	-- Roblox's Animate plays these instead of its stock clips (CharacterService).
+	-- Its walk and run are an empty clip: the LOCOMOTION set carries the legs.
+	ANIMATE = table.freeze({
+		idle = id(91664102456591),
+		walk = id(86109711469782),
+		run = id(86109711469782),
+		jump = id(104715456957101),
+		fall = id(125318466462876),
+	} :: { [string]: string }),
+	RUN_SPEED = 16, -- studs/s the run clips are made for (rate = speed / this)
+	SPRINT_RUN_SPEED = 22,
+	RUN_RATE = table.freeze({ min = 0.6, max = 1.5 }), -- clip speed clamp
+	RUN_FROM = 1, -- studs/s where the legs start to run...
+	RUN_FULL = 4, -- ...and where they're fully running
+
 	-- Mods (tools/studio/MakeModAnimations.luau). ModHold loops while a held
 	-- Mod is up (in place of the gun hold); the others play once on a use.
 	MODS = table.freeze({
@@ -61,6 +87,7 @@ return table.freeze({
 		sprint = 0.25,
 		crouch = 0.2,
 		slide = 0.15,
+		run = 0.15, -- direction changes in the run set
 	}),
 	-- Weights snap to steps of this size, so tiny pitch changes don't restart
 	-- a fade every simulation step (0.05 made the aim move in ~3.5 deg steps).

@@ -113,6 +113,30 @@
   "type": "Animation",
   "uploaded": "2026-10-28 21:03:22"
  },
+ "art-source/animations/GG_Fall.rbxm": {
+  "assetId": 125318466462876,
+  "name": "GG Fall",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:27"
+ },
+ "art-source/animations/GG_Idle.rbxm": {
+  "assetId": 91664102456591,
+  "name": "GG Idle",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:22"
+ },
+ "art-source/animations/GG_Jump.rbxm": {
+  "assetId": 104715456957101,
+  "name": "GG Jump",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:24"
+ },
+ "art-source/animations/GG_Land.rbxm": {
+  "assetId": 88050773886302,
+  "name": "GG Land",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:30"
+ },
  "art-source/animations/GG_ModCast.rbxm": {
   "assetId": 131757439176866,
   "name": "GG Mod Cast",
@@ -149,6 +173,36 @@
   "type": "Animation",
   "uploaded": "2026-10-26 01:31:26"
  },
+ "art-source/animations/GG_Null.rbxm": {
+  "assetId": 86109711469782,
+  "name": "GG Null",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:32"
+ },
+ "art-source/animations/GG_RunB.rbxm": {
+  "assetId": 81677261253829,
+  "name": "GG RunB",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:11"
+ },
+ "art-source/animations/GG_RunF.rbxm": {
+  "assetId": 115636402441240,
+  "name": "GG RunF",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:08"
+ },
+ "art-source/animations/GG_RunL.rbxm": {
+  "assetId": 126639525655633,
+  "name": "GG RunL",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:16"
+ },
+ "art-source/animations/GG_RunR.rbxm": {
+  "assetId": 103693381646071,
+  "name": "GG RunR",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:14"
+ },
  "art-source/animations/GG_Slide.rbxm": {
   "assetId": 88674421205618,
   "name": "GG Slide",
@@ -160,6 +214,12 @@
   "name": "GG Sprint",
   "type": "Animation",
   "uploaded": "2026-10-25 13:53:24"
+ },
+ "art-source/animations/GG_SprintRun.rbxm": {
+  "assetId": 81006580789818,
+  "name": "GG SprintRun",
+  "type": "Animation",
+  "uploaded": "2026-11-04 01:49:19"
  },
  "art-source/animations/GG_Updraft.rbxm": {
   "assetId": 125684824115691,

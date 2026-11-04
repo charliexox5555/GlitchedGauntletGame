@@ -37,8 +37,17 @@ local SPECS: { [string]: Spec } = {
 	Slide = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
 	ModHold = { priority = Enum.AnimationPriority.Action, fade = Animations.MOD_FADE },
 	UpdraftSlam = { priority = Enum.AnimationPriority.Action4, fade = Animations.SLAM_FADE },
+	RunF = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
+	RunB = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
+	RunL = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
+	RunR = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
+	SprintRun = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
 }
+local RUN_SET = { "RunF", "RunB", "RunL", "RunR" }
 local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
+for _, name in { "RunF", "RunB", "RunL", "RunR", "SprintRun" } do
+	IDS[name] = (Animations.LOCOMOTION :: any)[name]
+end
 IDS.ModHold = Animations.MODS.ModHold
 -- The Crash Down clips are "" until uploaded (the dive borrows Crouch).
 local SLAM_POSE = Animations.MODS.UpdraftSlam ~= ""
@@ -58,6 +67,7 @@ local USE_IDS: { [string]: string } = {
 	DashLeft = Animations.MODS.DashLeft,
 	DashRight = Animations.MODS.DashRight,
 	Updraft = Animations.MODS.Updraft, -- knees tuck on the launch (Mods/Updraft)
+	Land = Animations.LOCOMOTION.Land, -- a knee dip on touching down
 }
 if Animations.MODS.UpdraftSlamLand ~= "" then
 	USE_IDS.UpdraftSlamLand = Animations.MODS.UpdraftSlamLand -- Crash Down's landing
@@ -176,6 +186,60 @@ end
 
 -- The pitch each character is posed with, eased toward its AimPitch input.
 local posedPitch: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+-- Whether each character was in the air last step (for the landing clip).
+local wasAir: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+
+-- The legs: the run set blended by where the body moves relative to where it
+-- faces (forward / back / left / right), the sprint stride when sprinting
+-- forward, all off while crouched, sliding or in the air. The clips share
+-- one length so blended feet stay in step; their rate follows ground speed.
+local function stepLegs(
+	animator: Animator,
+	root: BasePart,
+	state: unknown,
+	speed: number,
+	alive: boolean
+)
+	local onFeet = alive
+		and (state == "Walk" or state == "Sprint" or state == "Idle" or state == nil)
+	local run = if onFeet
+		then math.clamp(
+			(speed - Animations.RUN_FROM) / (Animations.RUN_FULL - Animations.RUN_FROM),
+			0,
+			1
+		)
+		else 0
+	local flat = root.CFrame:VectorToObjectSpace(root.AssemblyLinearVelocity * Vector3.new(1, 0, 1))
+	local f, b = math.max(-flat.Z, 0), math.max(flat.Z, 0)
+	local r, l = math.max(flat.X, 0), math.max(-flat.X, 0)
+	local sum = f + b + r + l
+	if sum > 1e-3 then
+		f, b, r, l = f / sum, b / sum, r / sum, l / sum
+	else
+		f, b, r, l = 1, 0, 0, 0
+	end
+	local sprint = if state == "Sprint" then 1 else 0
+	setWeight(animator, "RunF", run * f * (1 - sprint))
+	setWeight(animator, "SprintRun", run * f * sprint)
+	setWeight(animator, "RunB", run * b)
+	setWeight(animator, "RunL", run * l)
+	setWeight(animator, "RunR", run * r)
+	if run > 0 then
+		local rate = Animations.RUN_RATE
+		local runRate = math.clamp(speed / Animations.RUN_SPEED, rate.min, rate.max)
+		for _, name in RUN_SET do
+			local t = trackFor(animator, name)
+			if math.abs(t.Speed - runRate) > 0.05 then
+				t:AdjustSpeed(runRate)
+			end
+		end
+		local sprintTrack = trackFor(animator, "SprintRun")
+		local sprintRate = math.clamp(speed / Animations.SPRINT_RUN_SPEED, rate.min, rate.max)
+		if math.abs(sprintTrack.Speed - sprintRate) > 0.05 then
+			sprintTrack:AdjustSpeed(sprintRate)
+		end
+	end
+end
 
 local function stepCharacter(player: Player, character: Model, dt: number)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -289,6 +353,14 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		end
 	end
 
+	stepLegs(animator, root, state, speed, alive)
+	-- Touching down: a quick knee dip over whatever the legs are doing.
+	local inAir = state == "Air"
+	if wasAir[character] and not inAir and alive then
+		playOnce(animator, "Land")
+	end
+	wasAir[character] = inAir
+
 	-- Crouch-walk stride speed follows the ground speed.
 	local walk = trackFor(animator, "CrouchWalk")
 	local stride = math.clamp(speed / Animations.CROUCH_WALK_SPEED, 0.4, 1.6)
@@ -312,6 +384,19 @@ local function step(dt: number)
 			stepCharacter(player, character, dt)
 		end
 	end
+end
+
+-- The same legs for a character no player drives (the test opponent): call
+-- it from its own loop on the server; it moves on foot whenever it has speed.
+function PoseSim.legs(character: Model)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local root = character:FindFirstChild("HumanoidRootPart")
+	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+	if not humanoid or not root or not root:IsA("BasePart") or not animator then
+		return
+	end
+	local speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
+	stepLegs(animator, root, "Walk", speed, Health.isAlive(humanoid))
 end
 
 -- Call once on the server and once on each client.
