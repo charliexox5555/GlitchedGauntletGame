@@ -90,6 +90,11 @@ return table.freeze({
 		Glitch = "rbxassetid://130733349548186",
 	}),
 
+	-- Art behind a new ability's card (Config/Mods ids): 760 x 600 images with the
+	-- card's cut corner and a bottom fade baked in (tools/ui_chatgpt.py). A card
+	-- without one shows its big faded icon instead.
+	CARD_ART = table.freeze({} :: { [string]: string }),
+
 	-- Side renders of each gun, muzzle to the right (Config/Weapons ids).
 	GUN = table.freeze({
 		Akimbo = "rbxassetid://118285175926149",

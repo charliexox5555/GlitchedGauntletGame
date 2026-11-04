@@ -311,13 +311,24 @@ local function abilityCard(parent: Instance, id: string, slot: number): Card
 		Transparency = NumberSequence.new(1, 0.58),
 	}, tint)
 	local icon = if def then def.icon else ""
-	make("ImageLabel", {
-		Position = UDim2.fromOffset(150, 10),
-		Size = UDim2.fromOffset(220, 220),
-		BackgroundTransparency = 1,
-		Image = icon,
-		ImageTransparency = 0.93,
-	}, button)
+	local art = Theme.CARD_ART[id]
+	if art then
+		make("ImageLabel", {
+			Name = "Art",
+			Size = UDim2.fromOffset(COL_W, 300),
+			BackgroundTransparency = 1,
+			Image = art,
+			ScaleType = Enum.ScaleType.Crop,
+		}, button)
+	else
+		make("ImageLabel", {
+			Position = UDim2.fromOffset(150, 10),
+			Size = UDim2.fromOffset(220, 220),
+			BackgroundTransparency = 1,
+			Image = icon,
+			ImageTransparency = 0.93,
+		}, button)
+	end
 	make("ImageLabel", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(COL_W / 2, 62),
