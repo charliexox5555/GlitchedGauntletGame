@@ -1321,6 +1321,11 @@ local function onFire(player: Player, payload: unknown)
 			+ altFire.fireInterval / (rateMult(player) * statusMult(player, "fireRate"))
 	end
 	recordAmmo(player)
+	-- Others see the knife swing (Simulation/Poses: KnifeSlash / KnifeHeavy).
+	if config.melee then
+		player:SetAttribute("SwingHeavy", altFire ~= nil and config.melee.heavy ~= nil)
+		player:SetAttribute("SwingAt", now)
+	end
 
 	-- Replicate the visuals to everyone else (cosmetic: clamp, don't trust).
 	local ends: { Vector3 } = {}

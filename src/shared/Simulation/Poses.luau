@@ -49,6 +49,7 @@ local SPECS: { [string]: Spec } = {
 	AdsUp = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	AdsLevel = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	AdsDown = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	KnifeReady = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 }
 local RUN_SET = { "RunF", "RunB", "RunL", "RunR" }
 local CROUCH_SET = { "CrouchWalk", "CrouchWalkB", "CrouchWalkL", "CrouchWalkR" }
@@ -56,7 +57,7 @@ local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
 for _, name in { "RunF", "RunB", "RunL", "RunR", "SprintRun" } do
 	IDS[name] = (Animations.LOCOMOTION :: any)[name]
 end
-for _, name in { "AdsUp", "AdsLevel", "AdsDown" } do
+for _, name in { "AdsUp", "AdsLevel", "AdsDown", "KnifeReady" } do
 	IDS[name] = (Animations.COMBAT :: any)[name]
 end
 IDS.ModHold = Animations.MODS.ModHold
@@ -83,6 +84,8 @@ local USE_IDS: { [string]: string } = {
 	SlideOut = Animations.LOCOMOTION.SlideOut, -- the push back up when a slide ends on your feet
 	Reload = Animations.COMBAT.Reload, -- at the gun's reload time (ReloadAt / ReloadFor)
 	Flinch = Animations.COMBAT.Flinch, -- hit (HitAt), at FLINCH_WEIGHT
+	KnifeSlash = Animations.COMBAT.KnifeSlash, -- a knife swing (SwingAt)
+	KnifeHeavy = Animations.COMBAT.KnifeHeavy, -- ...the heavy one (SwingHeavy)
 }
 if Animations.MODS.UpdraftSlamLand ~= "" then
 	USE_IDS.UpdraftSlamLand = Animations.MODS.UpdraftSlamLand -- Crash Down's landing
@@ -242,6 +245,7 @@ local posedAds: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 -- The last reload (ReloadAt) and hit (HitAt) posed per character.
 local reloadSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 local hitSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+local swingSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
 local function aiming(player: Player): boolean
 	local context = player:FindFirstChild("PlayContext")
@@ -386,6 +390,16 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	end
 	if newMark(hitSeen, character, player:GetAttribute("HitAt")) and alive then
 		playOnce(animator, "Flinch", 1, Animations.FLINCH_WEIGHT)
+	end
+	-- The knife: its ready hold while it's out, and each swing (also a quick
+	-- melee with a gun out).
+	local knife = alive and config ~= nil and config.fireMode == "Melee" and not holding
+	setWeight(animator, "KnifeReady", if knife then 1 else 0)
+	if newMark(swingSeen, character, player:GetAttribute("SwingAt")) and alive then
+		playOnce(
+			animator,
+			if player:GetAttribute("SwingHeavy") == true then "KnifeHeavy" else "KnifeSlash"
+		)
 	end
 	-- Movement (Action2 / Action3) layers over the aim and the walk cycle.
 	setWeight(animator, "Sprint", if state == "Sprint" then 1 else 0)

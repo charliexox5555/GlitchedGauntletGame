@@ -55,6 +55,11 @@ return table.freeze({
 		Reload = id(123720437640794),
 		Flinch = id(114576995497102),
 		Death = id(81024323443020), -- going down (DeathFxController, on the falling copy)
+		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
+		-- on each swing (server player attributes SwingAt / SwingHeavy).
+		KnifeReady = id(98422551486900),
+		KnifeSlash = id(103765524428295),
+		KnifeHeavy = id(87481489934854),
 	}),
 	ADS_SMOOTHING = 12, -- 1/s: how fast the hold moves between hip and sights
 	RELOAD_LENGTH = 1, -- seconds the reload clip is made at

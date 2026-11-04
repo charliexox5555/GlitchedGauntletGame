@@ -1,7 +1,8 @@
 --!strict
 -- Builds the third-person combat poses (R15 KeyframeSequences) others see on
 -- you: aiming down sights (three pitch poses, like the hip aim set in
--- MakePoseAnimations), a reload one-shot, a hit flinch and going down. Saves each as a
+-- MakePoseAnimations), a reload one-shot, a hit flinch, going down, and the
+-- knife's ready hold, slash and heavy. Saves each as a
 -- Studio-serialized .rbxm in art-source/animations/ through
 -- tools/studio/receive_server.py. Run in Studio (Edit) via the MCP or the
 -- Command Bar, upload with tools/opencloud/upload_asset.py --type Animation,
@@ -208,6 +209,76 @@ local DEATH_DOWN: Frame = {
 	LeftFoot = { 55, 0, 0 },
 }
 
+-- The knife (2026-11-04). Yaw (+Y) turns a joint left; a right arm at yaw
+-- -55 is out to the right, at +45 across the body.
+-- Ready: knife low and forward, the free hand up as a guard, a slow breath.
+local function knifeReady(breath: number): Frame
+	return {
+		UpperTorso = { 2 + breath * 1.5, -6, 0 },
+		Head = { -breath, 6, 0 },
+		RightUpperArm = { 52 + breath * 2, 10, 0 },
+		RightLowerArm = { 46, 0, 0 },
+		RightHand = { -12, 0, 0 },
+		LeftUpperArm = { 62 + breath * 2, -26, 0 },
+		LeftLowerArm = { 72, 0, 0 },
+		LeftHand = { 0, 0, 0 },
+	}
+end
+local KNIFE = knifeReady(0)
+-- Slash: the arm swings out to the right with the chest, then cuts across
+-- to the left and follows through.
+local SLASH_WIND: Frame = {
+	UpperTorso = { 2, -26, 0 },
+	Head = { 0, 20, 0 },
+	RightUpperArm = { 82, -58, 0 },
+	RightLowerArm = { 24, 0, 0 },
+	RightHand = { 0, -20, 0 },
+	LeftUpperArm = { 66, -10, 0 },
+	LeftLowerArm = { 66, 0, 0 },
+	LeftHand = { 0, 0, 0 },
+}
+local SLASH_CUT: Frame = {
+	UpperTorso = { -6, 24, 0 },
+	Head = { 0, -18, 0 },
+	RightUpperArm = { 86, 44, 0 },
+	RightLowerArm = { 8, 0, 0 },
+	RightHand = { 0, 20, 0 },
+	LeftUpperArm = { 40, -30, 0 },
+	LeftLowerArm = { 70, 0, 0 },
+	LeftHand = { 0, 0, 0 },
+}
+local SLASH_FOLLOW: Frame = {
+	UpperTorso = { -8, 30, 0 },
+	Head = { 0, -22, 0 },
+	RightUpperArm = { 70, 60, 0 },
+	RightLowerArm = { 26, 0, 0 },
+	RightHand = { 0, 14, 0 },
+	LeftUpperArm = { 34, -30, 0 },
+	LeftLowerArm = { 68, 0, 0 },
+	LeftHand = { 0, 0, 0 },
+}
+-- Heavy (alt): the knife comes up high, then drives down and forward.
+local HEAVY_RAISE: Frame = {
+	UpperTorso = { 8, -10, 0 },
+	Head = { -4, 8, 0 },
+	RightUpperArm = { 158, 0, 0 },
+	RightLowerArm = { 62, 0, 0 },
+	RightHand = { 20, 0, 0 },
+	LeftUpperArm = { 70, -24, 0 },
+	LeftLowerArm = { 60, 0, 0 },
+	LeftHand = { 0, 0, 0 },
+}
+local HEAVY_STRIKE: Frame = {
+	UpperTorso = { -20, 8, 0 },
+	Head = { 14, -6, 0 },
+	RightUpperArm = { 64, 10, 0 },
+	RightLowerArm = { 2, 0, 0 },
+	RightHand = { -30, 0, 0 },
+	LeftUpperArm = { 30, -24, 0 },
+	LeftLowerArm = { 60, 0, 0 },
+	LeftHand = { 0, 0, 0 },
+}
+
 local ACTION = Enum.AnimationPriority.Action
 local ACTION4 = Enum.AnimationPriority.Action4
 
@@ -224,7 +295,28 @@ local sequences = {
 		{ 0, 0.05, 0.3 },
 		false
 	),
-	sequence("GG_Death", ACTION4, { DEATH_START, DEATH_BUCKLE, DEATH_DOWN }, { 0, 0.16, 0.34 }, false),
+	sequence("GG_KnifeReady", ACTION, { KNIFE, knifeReady(1), KNIFE }, { 0, 1.2, 2.4 }, true),
+	sequence(
+		"GG_KnifeSlash",
+		ACTION4,
+		{ KNIFE, SLASH_WIND, SLASH_CUT, SLASH_FOLLOW, KNIFE },
+		{ 0, 0.07, 0.13, 0.22, 0.42 },
+		false
+	),
+	sequence(
+		"GG_KnifeHeavy",
+		ACTION4,
+		{ KNIFE, HEAVY_RAISE, HEAVY_STRIKE, HEAVY_STRIKE, KNIFE },
+		{ 0, 0.14, 0.24, 0.36, 0.62 },
+		false
+	),
+	sequence(
+		"GG_Death",
+		ACTION4,
+		{ DEATH_START, DEATH_BUCKLE, DEATH_DOWN },
+		{ 0, 0.16, 0.34 },
+		false
+	),
 }
 
 local saved = {}

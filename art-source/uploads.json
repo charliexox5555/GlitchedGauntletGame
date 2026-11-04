@@ -179,6 +179,24 @@
   "type": "Animation",
   "uploaded": "2026-11-04 01:49:24"
  },
+ "art-source/animations/GG_KnifeHeavy.rbxm": {
+  "assetId": 87481489934854,
+  "name": "GG KnifeHeavy",
+  "type": "Animation",
+  "uploaded": "2026-11-04 03:06:20"
+ },
+ "art-source/animations/GG_KnifeReady.rbxm": {
+  "assetId": 98422551486900,
+  "name": "GG KnifeReady",
+  "type": "Animation",
+  "uploaded": "2026-11-04 03:06:15"
+ },
+ "art-source/animations/GG_KnifeSlash.rbxm": {
+  "assetId": 103765524428295,
+  "name": "GG KnifeSlash",
+  "type": "Animation",
+  "uploaded": "2026-11-04 03:06:17"
+ },
  "art-source/animations/GG_Land.rbxm": {
   "assetId": 88050773886302,
   "name": "GG Land",
