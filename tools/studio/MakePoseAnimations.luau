@@ -4,7 +4,7 @@
 -- tools/studio/receive_server.py. Run in Studio (Edit) via the MCP or the
 -- Command Bar, then upload with:
 --     python tools/opencloud/upload_asset.py --group 11116787 --type Animation \
---         art-source/animations/GG_Slide.rbxm "GG Slide"
+--         art-source/animations/GG_Sprint.rbxm "GG Sprint"
 -- and put the ids in src/shared/Config/Animations.luau.
 --
 -- Pose CFrames are joint Transforms (R15): +X rotation swings a limb forward
@@ -151,22 +151,10 @@ local function crouchWalk(): { Frame }
 	return frames
 end
 
--- Slide: low and leaning back, right leg out in front, left leg tucked under,
--- chest straightened so the gun stays level.
-local SLIDE: Frame = {
-	LowerTorso = { 18, 0, 0, 0, -1.45, 0.2 },
-	UpperTorso = { -18, 0, 0 },
-	RightUpperLeg = { 70, 0, -4 },
-	RightLowerLeg = { -10, 0, 0 },
-	RightFoot = { -20, 0, 0 },
-	LeftUpperLeg = { 12, 0, 6 },
-	LeftLowerLeg = { -105, 0, 0 },
-	LeftFoot = { 60, 0, 0 },
-}
+-- (The slide's hold, in and out: tools/studio/MakeSlideAnimations.luau.)
 
 local ACTION = Enum.AnimationPriority.Action
 local ACTION2 = Enum.AnimationPriority.Action2
-local ACTION3 = Enum.AnimationPriority.Action3
 
 local sequences = {
 	sequence("GG_AimUp", ACTION, { aim(70) }, 1),
@@ -175,7 +163,6 @@ local sequences = {
 	sequence("GG_Sprint", ACTION2, { SPRINT }, 1),
 	sequence("GG_Crouch", ACTION2, { crouch(0, 0) }, 1),
 	sequence("GG_CrouchWalk", ACTION2, crouchWalk(), 0.9),
-	sequence("GG_Slide", ACTION3, { SLIDE }, 1),
 }
 
 local EncodingService = game:GetService("EncodingService")

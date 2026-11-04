@@ -15,6 +15,7 @@
 -- get stopped by the server. Weights move through the Animator's own fades,
 -- so state changes blend instead of popping.
 
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
@@ -74,6 +75,8 @@ local USE_IDS: { [string]: string } = {
 	DashRight = Animations.MODS.DashRight,
 	Updraft = Animations.MODS.Updraft, -- knees tuck on the launch (Mods/Updraft)
 	Land = Animations.LOCOMOTION.Land, -- a knee dip on touching down
+	SlideIn = Animations.LOCOMOTION.SlideIn, -- the kick-out and drop into a slide
+	SlideOut = Animations.LOCOMOTION.SlideOut, -- the push back up when a slide ends on your feet
 	Reload = Animations.COMBAT.Reload, -- at the gun's reload time (ReloadAt / ReloadFor)
 	Flinch = Animations.COMBAT.Flinch, -- hit (HitAt), at FLINCH_WEIGHT
 }
@@ -246,6 +249,8 @@ end
 
 -- Whether each character was in the air last step (for the landing clip).
 local wasAir: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+-- Whether each character was sliding last step (the slide's way in and out).
+local wasSlide: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
 -- The legs: the run set blended by where the body moves relative to where it
 -- faces (forward / back / left / right), the sprint stride when sprinting
@@ -438,6 +443,33 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		playOnce(animator, "Land")
 	end
 	wasAir[character] = inAir
+	-- The slide: dropping into it, and getting up out of it when it ends on
+	-- your feet (a slide-jump has the jump; into a crouch, the crouch fades in).
+	-- The first look at a character only sets the mark.
+	local sliding = state == "Slide"
+	local slidWas = wasSlide[character]
+	if sliding and slidWas == false and alive then
+		playOnce(animator, "SlideIn")
+	elseif
+		slidWas
+		and not sliding
+		and alive
+		and (state == "Walk" or state == "Sprint" or state == "Idle")
+	then
+		local into = playing(animator, "UseSlideIn")
+		if into then
+			into:Stop(0.05) -- a very short slide
+		end
+		playOnce(animator, "SlideOut")
+	end
+	wasSlide[character] = sliding
+	-- The hold's scrape chatter calms as the slide slows.
+	local hold = playing(animator, "Slide")
+	local chatter =
+		math.clamp(speed / Animations.SLIDE_CHATTER_SPEED, Animations.SLIDE_CHATTER_MIN, 1)
+	if hold and math.abs(hold.Speed - chatter) > 0.05 then
+		hold:AdjustSpeed(chatter)
+	end
 
 	-- Crouch-walk stride speed follows the ground speed.
 	local walk = playing(animator, "CrouchWalk")
@@ -485,6 +517,21 @@ function PoseSim.initialize()
 	-- Priority 4000 runs after the movement step (default 2000) has written
 	-- this tick's MoveState, like Animate.
 	connection = RunService:BindToSimulation(step, Enum.StepFrequency.Hz60, 4000)
+	-- Load every clip up front: a one-shot that isn't loaded yet has length
+	-- 0 and ends at once, so the first slide / landing / dash would skip it.
+	task.spawn(function()
+		local list: { Instance } = {}
+		for name in IDS do
+			table.insert(list, animationFor(name))
+		end
+		for kind, animId in USE_IDS do
+			local a = Instance.new("Animation")
+			a.AnimationId = animId
+			animations["Use" .. kind] = animations["Use" .. kind] or a
+			table.insert(list, animations["Use" .. kind])
+		end
+		pcall(ContentProvider.PreloadAsync, ContentProvider, list)
+	end)
 end
 
 return PoseSim

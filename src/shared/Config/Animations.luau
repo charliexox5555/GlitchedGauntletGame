@@ -21,7 +21,7 @@ return table.freeze({
 		Sprint = id(97534488837117), -- gun lowered across the body
 		Crouch = id(99568083489164),
 		CrouchWalk = id(120617369360340), -- one stride, looped
-		Slide = id(88674421205618),
+		Slide = id(93625856625211), -- the hold, with a scrape chatter (tools/studio/MakeSlideAnimations.luau)
 	}),
 
 	-- Legs and hips by move direction (tools/studio/MakeLocomotionAnimations.luau,
@@ -34,6 +34,9 @@ return table.freeze({
 		RunR = id(103693381646071),
 		SprintRun = id(81006580789818),
 		Land = id(88050773886302),
+		-- The slide's way in and out (one-shots, tools/studio/MakeSlideAnimations.luau).
+		SlideIn = id(120864176700391),
+		SlideOut = id(131047407212338),
 	}),
 	-- What others see you do with the gun (tools/studio/MakeCombatPoseAnimations.luau,
 	-- 2026-11-04): aiming down sights (three pitch poses blended like the hip
@@ -95,6 +98,8 @@ return table.freeze({
 	AIM_PITCH_RANGE = 70, -- degrees baked into AimUp / AimDown
 	CROUCH_WALK_SPEED = 9, -- studs/s that CrouchWalk plays at 1x (Movement.CROUCH_SPEED)
 	MOVING_SPEED = 1.5, -- studs/s above which crouching counts as walking
+	SLIDE_CHATTER_SPEED = 30, -- studs/s the slide hold's chatter plays at 1x (it calms as the slide slows)
+	SLIDE_CHATTER_MIN = 0.35, -- ...down to this rate
 
 	-- Seconds each pose takes to fade in or out (the Animator's own weight
 	-- fade), so state changes blend instead of popping.

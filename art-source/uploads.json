@@ -240,10 +240,22 @@
   "uploaded": "2026-11-04 01:49:14"
  },
  "art-source/animations/GG_Slide.rbxm": {
-  "assetId": 88674421205618,
+  "assetId": 93625856625211,
   "name": "GG Slide",
   "type": "Animation",
-  "uploaded": "2026-10-25 13:53:32"
+  "uploaded": "2026-11-04 02:22:52"
+ },
+ "art-source/animations/GG_SlideIn.rbxm": {
+  "assetId": 120864176700391,
+  "name": "GG SlideIn",
+  "type": "Animation",
+  "uploaded": "2026-11-04 02:22:49"
+ },
+ "art-source/animations/GG_SlideOut.rbxm": {
+  "assetId": 131047407212338,
+  "name": "GG SlideOut",
+  "type": "Animation",
+  "uploaded": "2026-11-04 02:22:55"
  },
  "art-source/animations/GG_Sprint.rbxm": {
   "assetId": 97534488837117,
