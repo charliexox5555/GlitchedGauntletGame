@@ -27,7 +27,7 @@ Why 8: Valorant launched with 4 maps, its TDM and Skirmish modes with 3 each; RI
 | [Dockyard](Dockyard.md) | 🟡 Built in Studio 2026-11-03, playtested solo (lighting brightened) | 1v1 to 4v4 | A container pier at dusk: red / blue / green lanes, a gantry crane over the middle, a Shed on each flank, harbour on both sides. Origin (-1500, 200, 0) | Blender kit (`Kit`) plus Parts |
 | [Metro](Metro.md) | 🟡 Built in Studio 2026-11-03, playtested solo | 2v2–4v4 | Meridian station: two platforms, a sunken track lane with two staggered trains, a terrace over each end, service-corridor flanks. Origin (1500, 200, 0) | Blender kit (`Station`) plus Parts |
 | [Old Town](Old%20Town.md) | 🟡 Built in Studio 2026-11-03, playtested solo | 2v2–4v4 (large) | Sunlit stone plaza, fountain, arcades with a cafe terrace, shaded alleys, a clock tower; origin (0, 200, 1500) | Blender kits (`Structure`, `Props`) plus Parts |
-| **Rooftops** | 💡 Concept | 1v1, 2v2 | Two rooftops joined by a bridge, with Updraft routes between levels and a real fall risk (the MapService kill height covers it) | Parts plus light Blender props |
+| [Rooftops](Rooftops.md) | 🟡 Built offline 2026-11-03 (kit uploaded), not yet run in Studio | 1v1, 2v2 | A city block at blue hour: two team roofs over a sunken Pit with a water-tank tower, side towers (+8) on a gangway and a plank ramp, 8-wide alleys to fall into (KillDepth 24). Origin (1500, 200, 1500) | Blender kit (`Kit`, asset 112960022711405) plus Parts |
 | **Bunker** | 💡 Concept | 1v1–3v3 | Concrete halls and a sunlit central shaft, tying the maps to the Lobby. Tight flanks, one bright middle | The Lobby's Blender kits, which already exist |
 
 ## What every map shares
