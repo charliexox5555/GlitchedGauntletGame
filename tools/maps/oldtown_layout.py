@@ -345,15 +345,15 @@ HALF: list[Solid] = [
     B("PierE1", 34, 36, -29, -27, 0, SLAB, "arcade", "Arcades"),
     B("PierE2", 34, 36, -21, -19, 0, SLAB, "arcade", "Arcades"),
     B("PierE3", 34, 36, -13, -11, 0, SLAB, "arcade", "Arcades"),
-    B("SpandrelE", 34, 36, -36, -4, 10, SLAB, "arcade", "Arcades"),
-    B("TerraceE", 34, 44, -36, -4, SLAB, UPPER, "floor", "Arcades"),
+    B("SpandrelE", 34, 36, -36, -4, 10, UPPER, "arcade", "Arcades"),
+    B("TerraceE", 36, 44, -36, -4, SLAB, UPPER, "floor", "Arcades"),
     B("BalustradeE", 34, 35, -36, -4, UPPER, UPPER + 3, "rail", "Arcades"),
     # West arcade: same piers, a tiled lean-to roof instead of a terrace.
     B("PierW1", -36, -34, -29, -27, 0, SLAB, "arcade", "Arcades"),
     B("PierW2", -36, -34, -21, -19, 0, SLAB, "arcade", "Arcades"),
     B("PierW3", -36, -34, -13, -11, 0, SLAB, "arcade", "Arcades"),
-    B("SpandrelW", -36, -34, -36, -4, 10, SLAB, "arcade", "Arcades"),
-    B("CeilingW", -44, -34, -36, -4, SLAB, UPPER, "floor", "Arcades"),
+    B("SpandrelW", -36, -34, -36, -4, 10, UPPER, "arcade", "Arcades"),
+    B("CeilingW", -44, -36, -36, -4, SLAB, UPPER, "floor", "Arcades"),
     ramp("ArcadeRoofW", -44, -34, -36, -4, UPPER, UPPER + 3, "-x", "roof", "Roofs"),
     # Cafe stair (inside the Cafe, up to the landing and the terrace door).
     ramp("CafeStair", 54, 60, -28, -12, 0, UPPER, "+z", "stair", "Stairs"),
@@ -389,7 +389,7 @@ HALF: list[Solid] = [
 
 # On the centre point: their own rotated partners.
 CENTER: list[Solid] = [
-    B("Ground", -OUT_X, OUT_X, -OUT_Z, OUT_Z, -2, 0, "ground", "Ground"),
+    B("Ground", -OUT_X - 4, OUT_X + 4, -OUT_Z - 4, OUT_Z + 4, -2, 0, "ground", "Ground"),  # past the outer walls (no shared edge plane)
     cyl("FountainBasin", 0, 0, 22, 0, 3, "low", "Fountain"),
     cyl("FountainPedestal", 0, 0, 12, 3, 9, "cover", "Fountain"),
     cyl("FountainColumn", 0, 0, 4, 9, 22, "cover", "Fountain"),
@@ -1085,8 +1085,8 @@ def greybox_luau() -> str:
         "floors": "\n".join(floors),
         "spawns": "\n".join(spawns),
         "barriers": "\n".join(barriers),
-        "out_x": lua_num(OUT_X),
-        "out_z": lua_num(OUT_Z),
+        "out_x": lua_num(OUT_X + 4),
+        "out_z": lua_num(OUT_Z + 4),
         "count": len(rows),
     }
 

@@ -251,14 +251,14 @@ local ROWS: { Row } = {
 	{ "Arcades", "PierE1", "arcade", "box", 35, 5.5, -28, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "PierE2", "arcade", "box", 35, 5.5, -20, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "PierE3", "arcade", "box", 35, 5.5, -12, 2, 11, 2, 0, "A", false },
-	{ "Arcades", "SpandrelE", "arcade", "box", 35, 10.5, -20, 2, 1, 32, 0, "A", false },
-	{ "Arcades", "TerraceE", "floor", "box", 39, 11.5, -20, 10, 1, 32, 0, "A", false },
+	{ "Arcades", "SpandrelE", "arcade", "box", 35, 11, -20, 2, 2, 32, 0, "A", false },
+	{ "Arcades", "TerraceE", "floor", "box", 40, 11.5, -20, 8, 1, 32, 0, "A", false },
 	{ "Arcades", "BalustradeE", "rail", "box", 34.5, 13.5, -20, 1, 3, 32, 0, "A", false },
 	{ "Arcades", "PierW1", "arcade", "box", -35, 5.5, -28, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "PierW2", "arcade", "box", -35, 5.5, -20, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "PierW3", "arcade", "box", -35, 5.5, -12, 2, 11, 2, 0, "A", false },
-	{ "Arcades", "SpandrelW", "arcade", "box", -35, 10.5, -20, 2, 1, 32, 0, "A", false },
-	{ "Arcades", "CeilingW", "floor", "box", -39, 11.5, -20, 10, 1, 32, 0, "A", false },
+	{ "Arcades", "SpandrelW", "arcade", "box", -35, 11, -20, 2, 2, 32, 0, "A", false },
+	{ "Arcades", "CeilingW", "floor", "box", -40, 11.5, -20, 8, 1, 32, 0, "A", false },
 	{ "Roofs", "ArcadeRoofW", "roof", "wedge", -39, 13.5, -20, 32, 3, 10, 270, "A", false },
 	{ "Stairs", "CafeStair", "stair", "wedge", 57, 6, -20, 6, 12, 16, 0, "A", false },
 	{ "Spawn", "ShrineE", "cover", "box", 10, 4, -94.5, 6, 8, 7, 0, "A", false },
@@ -294,14 +294,14 @@ local ROWS: { Row } = {
 	{ "Arcades", "PierE1'", "arcade", "box", -35, 5.5, 28, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "PierE2'", "arcade", "box", -35, 5.5, 20, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "PierE3'", "arcade", "box", -35, 5.5, 12, 2, 11, 2, 180, "B", false },
-	{ "Arcades", "SpandrelE'", "arcade", "box", -35, 10.5, 20, 2, 1, 32, 180, "B", false },
-	{ "Arcades", "TerraceE'", "floor", "box", -39, 11.5, 20, 10, 1, 32, 180, "B", false },
+	{ "Arcades", "SpandrelE'", "arcade", "box", -35, 11, 20, 2, 2, 32, 180, "B", false },
+	{ "Arcades", "TerraceE'", "floor", "box", -40, 11.5, 20, 8, 1, 32, 180, "B", false },
 	{ "Arcades", "BalustradeE'", "rail", "box", -34.5, 13.5, 20, 1, 3, 32, 180, "B", false },
 	{ "Arcades", "PierW1'", "arcade", "box", 35, 5.5, 28, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "PierW2'", "arcade", "box", 35, 5.5, 20, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "PierW3'", "arcade", "box", 35, 5.5, 12, 2, 11, 2, 180, "B", false },
-	{ "Arcades", "SpandrelW'", "arcade", "box", 35, 10.5, 20, 2, 1, 32, 180, "B", false },
-	{ "Arcades", "CeilingW'", "floor", "box", 39, 11.5, 20, 10, 1, 32, 180, "B", false },
+	{ "Arcades", "SpandrelW'", "arcade", "box", 35, 11, 20, 2, 2, 32, 180, "B", false },
+	{ "Arcades", "CeilingW'", "floor", "box", 40, 11.5, 20, 8, 1, 32, 180, "B", false },
 	{ "Roofs", "ArcadeRoofW'", "roof", "wedge", 39, 13.5, 20, 32, 3, 10, 90, "B", false },
 	{ "Stairs", "CafeStair'", "stair", "wedge", -57, 6, 20, 6, 12, 16, 180, "B", false },
 	{ "Spawn", "ShrineE'", "cover", "box", -10, 4, 94.5, 6, 8, 7, 180, "B", false },
@@ -389,7 +389,7 @@ end
 
 -- Ground: one slab under everything, then the paving zones (0.04 proud, no z-fighting).
 local ground = folder("Ground")
-box(ground, "Ground", Vector3.new(2 * 92, 2, 2 * 148), at(0, -1, 0), hex("#9C8D7A"), {
+box(ground, "Ground", Vector3.new(2 * 96, 2, 2 * 152), at(0, -1, 0), hex("#9C8D7A"), {
 	material = Enum.Material.Cobblestone,
 })
 for _, f in FLOORS do
