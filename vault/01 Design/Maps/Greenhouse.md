@@ -2,7 +2,10 @@
 
 A medium-large map for 2v2 to 4v4 (playable 1v1): **the Conservatory**, a Victorian botanical glasshouse complex on a bright day. White cast-iron frames, glass roofs that let the sun straight in, jungle beds and palms, a gallery and a bridge over the middle, potting sheds and a service corridor down one flank, an outdoor garden terrace down the other. See [Maps](00%20Maps.md) for the roster.
 
-**Status (2026-11-03):** concept. Layout, greybox, kit, art and lighting follow in this note as they're built (§3 onward).
+**Status (2026-11-03):** concept, checked layout, generated greybox, Blender kit (uploaded: Structure `84230850917519`, Garden `76145141177308`), generated art pass and lighting are done and previewed offline (0 z-fighting triangles). **Not yet run in Studio**: run order and screenshot checklist in §5.
+
+![Overview (offline preview)](../../02%20Art/References/maps/greenhouse/preview-overview.jpg)
+![From team B's gallery (offline preview)](../../02%20Art/References/maps/greenhouse/preview-dome.jpg)
 
 **Map id** `Greenhouse` · **World origin** (1500, 200, -1500) · **Modes** 2v2, 3v3, 4v4, playable 1v1.
 
@@ -64,7 +67,10 @@ Other games' screenshots and photos stay out of the public repo (`References/map
 
 ---
 
-## 3. Layout (plan; measured numbers follow when `tools/maps/greenhouse_layout.py` runs)
+## 3. Layout
+![Greenhouse layout](../../02%20Art/References/maps/greenhouse/greenhouse-layout.svg)
+
+Generated and checked by `tools/maps/greenhouse_layout.py` (the same data writes the greybox and, through `tools/maps/greenhouse_art.py`, the art pass). Change a number there and rerun it with `--write`.
 **Shape:** about 152 × 240 studs inside a 40-stud glass shell. **Symmetry:** 180° rotation about the dome's centre; team B spawns at +Z (blue end), team A at −Z (yellow end).
 
 From team B's spawn to the middle:
@@ -86,6 +92,24 @@ From team B's spawn to the middle:
 | Gallery | 12 | The two dome galleries and the bridge between them. Each team's stair rises along its end wall of the dome; the drop is the second way off |
 | (shell) | 40 | Every glass hall and the Orangery are 40 tall, so the Terrace is a walled garden nobody can climb out of (floor 3 + jump 7.2 + 28 of Updraft = 38.2) |
 
+### Measured (from the script)
+| Check | Result | Target |
+|---|---|---|
+| Spawn sees enemy spawn / enemy half sees a spawn point | Never / 0% | Never / 0 |
+| Spawn to the Fern House, Terrace, Sheds corridor | 3.6 / 3.3 / 4.0 s sprint | |
+| Spawn to the Dome centre / gallery | 7.1 / 6.9 s sprint | |
+| Spawn to spawn | 271 studs walked (straight line 222): 12.3 s sprint, 17.0 s walk | 180–230 straight |
+| First sight within 70 studs | 4.7 s sprint, **6.4 s walk** (West Wing end to end) | 5–8 s |
+| First sight at any range | 4.0 s sprint, 5.5 s walk (Fern House to Fern House through both Dome doors, 117 studs, one end standing on a bed) | a glimpse |
+| First contact | 6.2 s sprint, **8.5 s walk** | ~10 s walk |
+| Long lines | 1.6% of spot pairs over 70 apart see each other, 0.22% over 100; longest 128 (a gallery end down into a Wing door) | one per side |
+| Gallery | sees 76% of the Dome floor and the other gallery; 9.5% of spots outside the Dome | high ground over the middle only |
+| Cover spread (worst / average to full cover) | Dome 15.0 / 5.6, Wings 13.5 / 5.4, Fern House 10.1 / 4.7, Terrace 13.9 / 4.6, Sheds 9.8 / 3.2 | worst under ~15 |
+| Updraft | highest open-sky apex 38.2 (feet) vs 40-tall walls round the Terrace; 0 reachable ledges; every hall roof at 40 and the dome's facets are collision | nobody leaves the map |
+| Coplanar (z-fighting) | 0 pairs among visible Parts (box audit); 0 triangle pairs over the assembled map (kit meshes + visible Parts, `preview_map_greenhouse.py`) | 0 |
+
+These are 2.5D checks on a 0.5-stud voxel grid (Metro's method), not a replacement for walking it. **Watch in play:** the galleries (they see the whole Dome), the bridge over the fountain, and the Wing pools (wading, not cover).
+
 ### Rules this follows
 Game Plan §5: three lanes, half cover 3 / full cover 8, doors 8 wide, two exits per room, spawns out of sight, one long line per side at most. "What every map shares": no z-fighting (a coplanar check runs in the layout and art scripts), doors and frames generated from the same numbers as the collision so they always match.
 
@@ -96,7 +120,7 @@ Game Plan §5: three lanes, half cover 3 / full cover 8, doors 8 wide, two exits
 | Part | Colour | Roblox material |
 |---|---|---|
 | Iron frames, ribs, gallery, bridge | white `#F1F1EA` | Metal |
-| Wall glass (whitewashed, opaque) | pale mint `#DCE9E2` | SmoothPlastic |
+| Wall glass (whitewashed, opaque) | pale mint `#CDE2D8` | SmoothPlastic |
 | Roof and dome glass (see-through) | `#CFE6EA`, Transparency 0.55, one layer | SmoothPlastic |
 | Dwarf walls, Sheds | brick `#9C5B44` | Brick |
 | Copings, bed walls, urns | limestone `#D9D0BE` | Limestone |
@@ -121,3 +145,45 @@ Bright midday, sun high (about 70°), so the iron ribs throw stripes on the floo
 - **The Dome** with its lantern and gilded finial, seen through the roof glass from every hall and over the walls from the Terrace.
 - **The fountain** under the bridge.
 - **The Orangery** facade (cream stucco, tall arched windows) at each end, tinted blue or yellow.
+
+### Budget (as built)
+| Item | Budget | Built |
+|---|---|---|
+| Triangles | ≤ 500k visible on phones | **223k for the whole map** (251 placements of 38 pieces) |
+| Per mesh | ≤ 20k | largest object 4.7k (`Gallery_Iron`) |
+| MeshParts | well under 2,000 | **937** (one per piece material) + about 300 greybox Parts |
+| Transparent surfaces | one layer, few | roof and dome glass (0.55), water (0.35); wall glass is opaque |
+| Lights | daytime | none |
+
+---
+
+## 5. Build and run (for the hub)
+Kit: `tools/blender/build_map_kit_greenhouse.py` → `art-source/maps/Greenhouse/Kit_Greenhouse.blend` (38 `Map_<Piece>` collections; contact sheet `greenhouse-kit-sheet.jpg`), groups **Structure** (walls, doors, roofs, Dome, Fountain, Gallery, Bridge, IronStair, ShedDoor8) and **Garden** (beds, planters, props). Offline preview and triangle z-fight check: `tools/blender/preview_map_greenhouse.py` (prints `GREENHOUSE_ZFIGHT 0`).
+
+![Kit](../../02%20Art/References/maps/greenhouse/greenhouse-kit-sheet.jpg)
+![Terrace](../../02%20Art/References/maps/greenhouse/preview-terrace.jpg)
+![Fern House](../../02%20Art/References/maps/greenhouse/preview-fern.jpg)
+
+In the **match place**, edit mode, Command Bar or Studio MCP; everything is re-runnable:
+1. `python tools/studio/maps/kit_bundle.py Greenhouse Structure -o gh_kit1.luau` → run it.
+2. `python tools/studio/maps/kit_bundle.py Greenhouse Garden -o gh_kit2.luau` → run it (both install `ServerStorage.MapKit.Greenhouse`).
+3. `python tools/studio/maps/bundle.py Greenhouse Greybox Art Lighting -o greenhouse.luau` → run it. It builds `Workspace.Greenhouse` at (1500, 200, -1500); expect "251 of 251 pieces placed … all kit pieces found". Greybox alone: `bundle.py Greenhouse Greybox`.
+4. Audit: `loadstring(Audit.luau)("Greenhouse")`, target 0.
+5. Play: Workspace attribute `ForceMap = "Greenhouse"` (it isn't in `Config/Match` MAPS yet: add it with minTeam 2, maxTeam 4 when approved). `PREVIEW = true` in `Lighting.luau` for edit-mode screenshots only.
+6. Save the place, back up `art-source/maps/Greenhouse/Greenhouse.rbxm`.
+
+### What to check in screenshots
+- **Orientation:** gallery balustrade gaps line up with the bridge and each stair top; stairs climb toward their gallery (B's along the north wall to the west gallery); the fountain's tiers sit in their collision; door frames fill every 8 × 10 opening (glass, stucco and timber).
+- **Glass:** roof and dome glass see-through with the iron ribs throwing stripes; wall glass opaque mint with white bars; no shadows from glass (Art.luau sets CastShadow off on `*_Glass` and `*_Water`). If the halls look dark, check CastShadow on the wall glass.
+- **End colours:** hedge boxes, tubs, Wardian stands and shed door frames blue in B's half, yellow in A's.
+- **No gaps or overlaps:** wall runs meet at corners and T-junctions; roof bays tile each hall; the dome sits on the walls.
+- **Readability:** players stand out against mint glass and green beds; a phone at quality 1–3 still separates frames, glass, beds and stone. Foliage stays above head height or below the bed tops.
+- **Shots:** each Lodge exit, the Orangery, the Fern House, each gallery, the bridge, a Wing, the Terrace, the Sheds corridor, an overview.
+
+### Quality score (world rubric, 2026-11-03)
+Self-score from the offline evidence: **8.8 / 10**, gates pass (0 z-fights, every floor reachable, spawns safe, within budget). W1 composition 2, W2 navigation 2, W3 cohesion 2, **W4 lighting 1** (tuned offline, not seen in Studio), **W5 detail density 1** (the 40-tall frosted walls are bare above the dwarf wall), W6 scale 2. This is not the 3-reviewer pass decision; do that from the Studio screenshots. Next fixes: climbers or hanging baskets on the big glass walls (W5), then tune the lighting in Studio (W4).
+
+### Known risks
+- First sight at any range is 4.0 s sprint: a 117-stud glimpse between the Fern Houses through both Dome doors (one end on a bed). Walk it first; a taller fountain top would close it.
+- The Wing pools leave a 4-wide wading ring round the central urn (not a route).
+- The images listed in §2 haven't been downloaded (no approval to download yet); the links are the references.
