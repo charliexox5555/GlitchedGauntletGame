@@ -108,7 +108,7 @@ def R(name, x0, x1, z0, z1, h, kind="full", y0=0.0, up=None, piece=""):
     return Box(name, (x0 + x1) / 2, (z0 + z1) / 2, x1 - x0, z1 - z0, h, kind, y0, up, piece)
 
 
-def wall(name, axis, t0, t1, a0, a1, bays, height=WALL_H):
+def wall(name, axis, t0, t1, a0, a1, bays, height=WALL_H, piece="Lodge"):
     """A wall along `axis` ("x" or "z"), thickness t0..t1 across it, from a0 to a1 along it.
     bays: [(b0, b1, [(open_y0, open_y1), ...])]; between bays the wall is solid full height.
     Solid bits below an opening are sills, above it lintels (kinds sill / lintel)."""
@@ -122,9 +122,9 @@ def wall(name, axis, t0, t1, a0, a1, bays, height=WALL_H):
         if s1 - s0 <= 1e-6 or y1 - y0 <= 1e-6:
             return
         if axis == "x":
-            out.append(R(name, s0, s1, t0, t1, y1 - y0, kind, y0))
+            out.append(R(name, s0, s1, t0, t1, y1 - y0, kind, y0, piece=piece))
         else:
-            out.append(R(name, t0, t1, s0, s1, y1 - y0, kind, y0))
+            out.append(R(name, t0, t1, s0, s1, y1 - y0, kind, y0, piece=piece))
 
     for i in range(0, len(edges), 2):
         put(edges[i], edges[i + 1], 0.0, height, "wall")
@@ -211,26 +211,26 @@ HALF = (
     + wall("Lodge wall N", "x", LODGE_Z - 1, LODGE_Z, -LODGE_X + 1, LODGE_X - 1, END_WALL_BAYS)
     + [
         # Inside: the B loft (height 10), its rail over the lounge, the stair up to it beside the hearth.
-        R("Loft", -LODGE_X + 1, LODGE_X - 1, 13, LODGE_Z - 1, 1, "slab", y0=STOREY - 1),
-        R("Loft rail", -LODGE_X + 1, 5, 13, 13.6, 3, "rail", y0=STOREY, piece="LoftRail"),
-        R("Loft rail", 11, LODGE_X - 1, 13, 13.6, 3, "rail", y0=STOREY, piece="LoftRail"),
+        R("Loft", -LODGE_X + 1, LODGE_X - 1, 13, LODGE_Z - 1, 1, "slab", y0=STOREY - 1, piece="LodgeInside"),
+        R("Loft rail", -LODGE_X + 1, 5, 13, 13.6, 3, "rail", y0=STOREY, piece="LodgeInside"),
+        R("Loft rail", 11, LODGE_X - 1, 13, 13.6, 3, "rail", y0=STOREY, piece="LodgeInside"),
         R("Lodge stair", 5, 11, -3, 13, STOREY, "ramp", up=(0, 1), piece="LodgeStair"),
-        R("Sofa", -4, 4, 8.5, 10.5, 3, "low", piece="Sofa"),
+        R("Sofa", -4, 4, 8.5, 10.5, 3, "low", piece="LodgeInside"),
         # Under the loft: the entry hall (10 wide) between the back bar (west, shelves up to the loft)
         # and the boot-room wall (east); the bar room (west door) and boot room (east door) either side.
         # The bar counter faces the back bar across a 2.5 bartender aisle.
-        R("Back bar", -7, -5, 13, LODGE_Z - 1, STOREY - 1, "full", piece="BackBar"),
-        R("Boot wall", 5, 7, 13, LODGE_Z - 1, STOREY - 1, "full", piece="BootWall"),
-        R("Bar counter", -11, -9.5, 16, LODGE_Z - 1, 3.5, "low", piece="BarCounter"),        # The entry porch under the end balcony: side walls so the main door only looks straight in.
-        R("Porch wall", -6, -5, LODGE_Z, LODGE_Z + BAL, STOREY - 1, "wall", piece="Porch"),
-        R("Porch wall", 5, 6, LODGE_Z, LODGE_Z + BAL, STOREY - 1, "wall", piece="Porch"),
+        R("Back bar", -7, -5, 13, LODGE_Z - 1, STOREY - 1, "full", piece="LodgeInside"),
+        R("Boot wall", 5, 7, 13, LODGE_Z - 1, STOREY - 1, "full", piece="LodgeInside"),
+        R("Bar counter", -11, -9.5, 16, LODGE_Z - 1, 3.5, "low", piece="LodgeInside"),        # The entry porch under the end balcony: side walls so the main door only looks straight in.
+        R("Porch wall", -6, -5, LODGE_Z, LODGE_Z + BAL, STOREY - 1, "wall", piece="Lodge"),
+        R("Porch wall", 5, 6, LODGE_Z, LODGE_Z + BAL, STOREY - 1, "wall", piece="Lodge"),
         # Firewood stacked under the end balcony at its west corner (closes the corner line).
         R("Firewood", -LODGE_X, -12, LODGE_Z, LODGE_Z + BAL, 7, "full", piece="Firewood"),
         # Outside: the balcony (east side and B end) and B's outside stair up to it.
-        R("Balcony E", LODGE_X, LODGE_X + BAL, -LODGE_Z - BAL, LODGE_Z + BAL, 1, "slab", y0=STOREY - 1),
-        R("Balcony N", -LODGE_X, LODGE_X, LODGE_Z, LODGE_Z + BAL, 1, "slab", y0=STOREY - 1),
-        R("Balcony rail E", LODGE_X + BAL - 0.6, LODGE_X + BAL, -LODGE_Z - BAL, LODGE_Z + BAL - 0.6, 3, "rail", y0=STOREY, piece="BalconyRail"),
-        R("Balcony rail N", -LODGE_X - BAL + 0.6, LODGE_X, LODGE_Z + BAL - 0.6, LODGE_Z + BAL, 3, "rail", y0=STOREY, piece="BalconyRail"),
+        R("Balcony E", LODGE_X, LODGE_X + BAL, -LODGE_Z - BAL, LODGE_Z + BAL, 1, "slab", y0=STOREY - 1, piece="Lodge"),
+        R("Balcony N", -LODGE_X, LODGE_X, LODGE_Z, LODGE_Z + BAL, 1, "slab", y0=STOREY - 1, piece="Lodge"),
+        R("Balcony rail E", LODGE_X + BAL - 0.6, LODGE_X + BAL, -LODGE_Z - BAL, LODGE_Z + BAL - 0.6, 3, "rail", y0=STOREY, piece="Lodge"),
+        R("Balcony rail N", -LODGE_X - BAL + 0.6, LODGE_X, LODGE_Z + BAL - 0.6, LODGE_Z + BAL, 3, "rail", y0=STOREY, piece="Lodge"),
         R("Deck stair", LODGE_X, LODGE_X + BAL, LODGE_Z + BAL, LODGE_Z + BAL + 16, STOREY, "ramp", up=(0, -1), piece="DeckStair"),
         # B's gondola station (west flank): base with a garage passage, deck at 10, housing, cabin.
         # The garage is an L under the deck: in at the south end, out through the east side (no straight line).
@@ -254,15 +254,15 @@ HALF = (
         R("Pond ice", *POND, 1, "ice", y0=-ICE_DROP - 1, piece="Pond"),
         R("Island", 42, 50, 28, 36, 7 + ICE_DROP, "rock", y0=-ICE_DROP, piece="Island"),
         R("Skate hut", 44, 56, 60, 68, 9, "full", piece="SkateHut"),
-        R("Snow pile", LODGE_X + BAL, 32, 34, 42, 8, "full", piece="SnowPile"),
-        R("Boulder", 38, 44, 46, 52, 8 + ICE_DROP, "rock", y0=-ICE_DROP, piece="Boulder"),
+        R("Snow pile", LODGE_X + BAL, 32, 34, 42, 8, "full", piece="SnowPile8"),
+        R("Boulder", 38, 44, 46, 52, 8 + ICE_DROP, "rock", y0=-ICE_DROP, piece="Boulder6"),
         # Mid flank: the snowcat; the woodshed on the other flank (their partners sit opposite).
         R("Snowcat", 38, 46, -7, 7, 8, "full", piece="Snowcat"),
         R("Woodshed", -40, -28, 14, 22, 8, "full", piece="Woodshed"),
         R("Woodpile", -34, -26, 29, 32, 7, "full", piece="Woodpile"),
-        R("Boulder", -FX, -56, 6, 14, 8, "rock", piece="Boulder"),
+        R("Boulder", -FX, -56, 6, 14, 8, "rock", piece="Boulder8"),
         # A snow pile against the far end of the side porch (the stair closes the other side).
-        R("Snow pile", -LODGE_X - BAL - 6, -12, 40, 48, 8, "full", piece="SnowPile"),
+        R("Snow pile", -LODGE_X - BAL - 6, -12, 40, 48, 8, "full", piece="SnowPile18"),
         # Spawn side: the patrol hut screens the whole alcove mouth; ski racks by the station stair.
         R("Patrol hut", -ALCOVE_X - 4, ALCOVE_X + 4, 64, 70, 10, "full", piece="PatrolHut"),
         R("Rental kiosk", -34, -26, 56, 62, 8, "full", piece="Kiosk"),
@@ -271,10 +271,10 @@ HALF = (
         R("Fire pit", -6, 0, 34, 40, 2.5, "low", piece="FirePit"),
         R("Ski rack", 26, 34, 58, 59.5, 3, "low", piece="SkiRack"),
         # Edges: the fence on the drop-off, the rock cliffs at the end with the spawn alcove.
-        R("Fence", FX, EDGE_X, -FZ, FZ, 3, "edge", piece="Fence"),
-        R("Cliff", -EDGE_X, -ALCOVE_X, FZ, CLIFF_END, CLIFF_H, "cliff"),
-        R("Cliff", ALCOVE_X, EDGE_X, FZ, CLIFF_END, CLIFF_H, "cliff"),
-        R("Cliff", -ALCOVE_X, ALCOVE_X, ALCOVE_END, CLIFF_END, CLIFF_H, "cliff"),
+        R("Fence", FX, EDGE_X, -FZ, FZ, 3, "edge", piece="Parapet8"),
+        R("Cliff", -EDGE_X, -ALCOVE_X, FZ, CLIFF_END, CLIFF_H, "cliff", piece="Cliffs"),
+        R("Cliff", ALCOVE_X, EDGE_X, FZ, CLIFF_END, CLIFF_H, "cliff", piece="Cliffs"),
+        R("Cliff", -ALCOVE_X, ALCOVE_X, ALCOVE_END, CLIFF_END, CLIFF_H, "cliff", piece="Cliffs"),
     ]
 )
 # Ground: snow over the field and the alcoves, with holes for the terrace (and Lodge floor) and ponds.
