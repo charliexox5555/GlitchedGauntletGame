@@ -39,6 +39,7 @@ local Validate = require(Shared.Util.Validate)
 local CharacterService = require(script.Parent.CharacterService)
 local ModService = require(script.Parent.ModService)
 local WeaponService = require(script.Parent.WeaponService)
+local Health = require(ReplicatedStorage.Shared.Health)
 
 local DevModService = {}
 
@@ -164,7 +165,7 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 	table.insert(dummies, model)
 	spawnedBy[model] = by
 
-	humanoid.Died:Connect(function()
+	Health.onDowned(humanoid, function()
 		task.delay(RESPAWN, function()
 			local index = table.find(dummies, model)
 			if index then
@@ -277,7 +278,7 @@ local function onDevMod(player: Player, actionArg: unknown, a: unknown, b: unkno
 		-- then shield, then health), as a hit from nobody, so a Barrier, a
 		-- Ghost dash or Crash Recovery can be tested alone. It can kill.
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-		if humanoid and humanoid.Health > 0 then
+		if humanoid and Health.isAlive(humanoid) then
 			WeaponService.hurt(humanoid, Config.DEV_HURT)
 		end
 	end

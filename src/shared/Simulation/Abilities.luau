@@ -27,6 +27,7 @@
 --   SlideJumpSpeed carries an Updraft's running speed through the air like a
 --   slide-jump (Movement)
 
+local Health = require(script.Parent.Parent.Health)
 local Charges = require(script.Parent.Parent.Mods.Charges)
 local Config = require(script.Parent.Parent.Config.Mods)
 local Mods = require(script.Parent.Parent.Mods)
@@ -196,7 +197,7 @@ function AbilitiesSim.stepCharacter(
 		if
 			pressed
 			and (charges >= 1 or unlimited)
-			and humanoid.Health > 0
+			and Health.isAlive(humanoid)
 			and player:GetAttribute("StatusStunned") ~= true
 		then
 			local ctx: Types.SimCtx = {

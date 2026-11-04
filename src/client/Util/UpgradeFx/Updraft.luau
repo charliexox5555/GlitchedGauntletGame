@@ -30,6 +30,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
+local Health = require(ReplicatedStorage.Shared.Health)
 local S = require(Shared.Config.ModSounds)
 local Tex = require(Shared.Config.VfxTextures)
 local UpdraftMod = require(Shared.Mods.Updraft)
@@ -789,7 +790,7 @@ local function slamReady(): (boolean, boolean)
 		return false, false
 	end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	if not humanoid or humanoid.Health <= 0 then
+	if not humanoid or not Health.isAlive(humanoid) then
 		return false, false
 	end
 	return true, slam == "Queued"

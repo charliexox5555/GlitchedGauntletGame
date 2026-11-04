@@ -41,6 +41,10 @@ local function update(dt: number)
 	state = ((c:GetAttribute("MoveState") :: string?) or "Idle") :: MoveState
 	local root = c:FindFirstChild("HumanoidRootPart")
 	local vy = if root and root:IsA("BasePart") then root.AssemblyLinearVelocity.Y else 0
+	if state == "Air" and previous ~= "Air" and vy > Juice.JUMP.minRise then
+		local jump = Juice.JUMP.sound
+		AudioController.play(jump.id, { group = "Foley", volume = jump.volume, pitch = jump.pitch })
+	end
 	if state == "Air" then
 		fallSpeed = math.max(fallSpeed, -vy)
 	elseif previous == "Air" then

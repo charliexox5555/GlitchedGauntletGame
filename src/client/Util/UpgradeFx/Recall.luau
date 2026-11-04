@@ -15,6 +15,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Health = require(ReplicatedStorage.Shared.Health)
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 
@@ -174,7 +175,7 @@ handler.step = function(_dt: number)
 	local stats = level and Mods.stats("Recall", level)
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	local alive = humanoid ~= nil and humanoid.Health > 0
+	local alive = Health.isAlive(humanoid)
 	local armed = stats ~= nil
 		and stats.behaviour == "Crash"
 		and player:GetAttribute("RecallCrashUsed") ~= true

@@ -25,6 +25,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Health = require(ReplicatedStorage.Shared.Health)
 local Bindings = require(Shared.Config.Input)
 local Charges = require(Shared.Mods.Charges)
 local Config = require(Shared.Config.Mods)
@@ -1215,7 +1216,7 @@ function ModController.start()
 	local function watchDeath(character: Model)
 		local humanoid = character:WaitForChild("Humanoid", 10)
 		if humanoid and humanoid:IsA("Humanoid") then
-			humanoid.Died:Connect(function()
+			Health.onDowned(humanoid, function()
 				endHold(false)
 			end)
 		end

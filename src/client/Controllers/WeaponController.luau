@@ -14,6 +14,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Health = require(Shared.Health)
 local Accuracy = require(Shared.Util.Accuracy)
 local DashMod = require(Shared.Mods.Dash)
 local Status = require(Shared.Mods.Status)
@@ -148,7 +149,7 @@ end
 
 local function aliveHumanoid(model: Model): boolean
 	local h = model:FindFirstChildOfClass("Humanoid")
-	return h ~= nil and h.Health > 0
+	return Health.isAlive(h)
 end
 
 local function rayParams(): RaycastParams
@@ -1171,7 +1172,7 @@ local function onCharacter(character: Model)
 		return
 	end
 	alive = true
-	humanoid.Died:Connect(endLife)
+	Health.onDowned(humanoid, endLife)
 end
 
 function WeaponController.start()

@@ -11,6 +11,7 @@ local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
+local Health = require(ReplicatedStorage.Shared.Health)
 local Audio = require(ReplicatedStorage.Shared.Config.Audio)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -617,10 +618,10 @@ local function update(dt: number)
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if humanoid then
-		local frac = math.clamp(humanoid.Health / math.max(humanoid.MaxHealth, 1), 0, 1)
+		local frac = math.clamp(Health.get(humanoid) / Health.max(humanoid), 0, 1)
 		r.healthFill.Size = UDim2.fromScale(frac, 1)
 		r.healthFill.BackgroundColor3 = if frac < 0.35 then RED else WHITE
-		local health = math.ceil(humanoid.Health)
+		local health = math.ceil(Health.get(humanoid))
 		if health ~= shownHealth then
 			if shownHealth >= 0 and health < shownHealth then
 				-- Hit: the number flashes red and the chip holds the lost part.

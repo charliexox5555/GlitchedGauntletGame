@@ -30,6 +30,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
+local Health = require(script.Parent.Parent.Health)
 local Movement = require(script.Parent.Parent.Config.Movement)
 local AbilitiesSim = require(script.Parent.Abilities)
 
@@ -67,7 +68,7 @@ end
 local function stepCharacter(player: Player, character: Model)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	local root = character:FindFirstChild("HumanoidRootPart")
-	if not humanoid or not root or not root:IsA("BasePart") or humanoid.Health <= 0 then
+	if not humanoid or not root or not root:IsA("BasePart") or not Health.isAlive(humanoid) then
 		return
 	end
 	local context = player:FindFirstChild("PlayContext")
@@ -180,6 +181,15 @@ local function stepCharacter(player: Player, character: Model)
 		root.AssemblyLinearVelocity += Vector3.new(
 			0,
 			workspace.Gravity * (1 - gravityMult) * STEP,
+			0
+		)
+	end
+	-- Falling: a little extra gravity (Movement.FALL_GRAVITY), so jumps land
+	-- crisply instead of floating down.
+	if not grounded and root.AssemblyLinearVelocity.Y < 0 and Movement.FALL_GRAVITY > 1 then
+		root.AssemblyLinearVelocity -= Vector3.new(
+			0,
+			workspace.Gravity * gravityMult * (Movement.FALL_GRAVITY - 1) * STEP,
 			0
 		)
 	end

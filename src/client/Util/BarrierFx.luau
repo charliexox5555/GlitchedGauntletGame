@@ -25,6 +25,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
+local Health = require(ReplicatedStorage.Shared.Health)
 local HealOrb = require(Shared.Mods.HealOrb)
 local VFX = require(Shared.Config.VfxTextures)
 
@@ -132,7 +133,7 @@ end
 
 local function alive(model: Model): boolean
 	local h = model:FindFirstChildOfClass("Humanoid")
-	return h ~= nil and h.Health > 0
+	return Health.isAlive(h)
 end
 
 local function hitsOn(model: Model): number

@@ -28,6 +28,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local Health = require(ReplicatedStorage.Shared.Health)
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local Mods = require(ReplicatedStorage.Shared.Mods)
@@ -620,7 +621,7 @@ local function track(model: Model, humanoid: Humanoid, root: BasePart): Healed
 	crosses.Name = "HealZoneGlowCrosses"
 	crosses.Shape = Enum.ParticleEmitterShape.Box
 	local rec: Healed = {
-		last = humanoid.Health,
+		last = Health.get(humanoid),
 		pending = 0,
 		nextNumber = 0,
 		glowUntil = 0,
@@ -646,7 +647,7 @@ local function watch(model: Instance, now: number)
 	if not humanoid or not root or not root:IsA("BasePart") then
 		return
 	end
-	local inside = humanoid.Health > 0 and insideAny(root)
+	local inside = Health.isAlive(humanoid) and insideAny(root)
 	local rec = healed[model]
 	if not rec then
 		if not inside then
@@ -655,7 +656,7 @@ local function watch(model: Instance, now: number)
 		rec = track(model, humanoid, root)
 	end
 	local r = rec :: Healed
-	local health = humanoid.Health
+	local health = Health.get(humanoid)
 	if inside and health > r.last + 1e-3 then
 		r.pending += health - r.last
 		r.glowUntil = now + GLOW_HOLD

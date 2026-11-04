@@ -45,6 +45,13 @@ return table.freeze({
 		sound = { id = "rbxassetid://9125380604", volume = 0.5, cut = 0.8, range = 70 },
 	}),
 
+	-- Jumping: a soft cloth sound as you leave the ground.
+	JUMP = table.freeze({
+		minRise = 8, -- studs/s up that counts as a jump (not a step or a bump)
+		-- "Cloth Flap 2" (ProSoundEffects), higher and quieter. PROVISIONAL, audition.
+		sound = { id = "rbxassetid://9113819222", volume = 0.25, pitch = 1.35 },
+	}),
+
 	-- Landing: the camera dips by how fast you fell (k = fall speed / `fullFall`,
 	-- dip scales with k^2), and a thud for falls past `soundFrom`.
 	LAND = table.freeze({
@@ -54,5 +61,20 @@ return table.freeze({
 		soundFrom = 24, -- studs/s
 		-- "Cloth Flap 2" (ProSoundEffects, a muffled whump). PROVISIONAL, audition.
 		sound = { id = "rbxassetid://9113819222", volume = 0.4 },
+	}),
+
+	-- The death look (DeathFxController): the body is hidden and a still copy
+	-- of it falls over, rests, then fades with a dust puff. The downed player's
+	-- own screen drains of colour.
+	DEATH = table.freeze({
+		fall = 0.45, -- seconds to hit the floor
+		tilt = 82, -- degrees it tips over
+		rest = 1.4, -- seconds it lies there
+		fade = 0.5, -- seconds to fade out
+		dust = 18, -- particles in the puff
+		saturation = -0.85, -- your screen while downed
+		brightness = -0.08,
+		tint = Color3.fromRGB(255, 220, 220),
+		screenFade = 0.4, -- seconds
 	}),
 })

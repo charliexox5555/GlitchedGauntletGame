@@ -9,6 +9,8 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
+local Health = require(game:GetService("ReplicatedStorage").Shared.Health)
+
 local RangeController = {}
 
 local TAG = "RangeDummy"
@@ -132,8 +134,8 @@ local function addBar(model: Instance)
 	local fillTween: Tween? = nil
 	local trailTween: Tween? = nil
 	local function refresh(instant: boolean)
-		local max = math.max(humanoid.MaxHealth, 1)
-		local health = math.clamp(humanoid.Health, 0, max)
+		local max = Health.max(humanoid)
+		local health = math.clamp(Health.get(humanoid), 0, max)
 		local fraction = health / max
 		local size = UDim2.fromScale(fraction, 1)
 		fill.BackgroundColor3 = fillColor(fraction)
@@ -159,7 +161,7 @@ local function addBar(model: Instance)
 	bars[model] = {
 		gui = gui,
 		connections = {
-			humanoid.HealthChanged:Connect(function()
+			humanoid:GetAttributeChangedSignal(Health.HP):Connect(function()
 				refresh(false)
 			end),
 			model.AncestryChanged:Connect(function()

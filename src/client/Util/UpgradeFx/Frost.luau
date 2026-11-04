@@ -34,6 +34,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local Health = require(ReplicatedStorage.Shared.Health)
 local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local Status = require(ReplicatedStorage.Shared.Mods.Status)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
@@ -1060,7 +1061,7 @@ end
 -- Seconds `model` stays frozen (0: not frozen, or dead: a body shatters when it dies).
 local function frozenLeft(model: Model, now: number): number
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
-	if not humanoid or humanoid.Health <= 0 then
+	if not humanoid or not Health.isAlive(humanoid) then
 		return 0
 	end
 	return math.max(Status.until_(model, "Frozen") - now, 0)

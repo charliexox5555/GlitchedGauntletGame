@@ -21,6 +21,10 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 
+local Health = require(game:GetService("ReplicatedStorage").Shared.Health)
+
+local HealthService = require(script.Parent.HealthService)
+
 local MapService = {}
 
 local BARRIER_TAG = "ArenaBarrier"
@@ -235,13 +239,34 @@ end
 
 -- Falling off the map kills (the kill height above).
 local sinceCheck = 0
+local VOID_MARGIN = 50 -- studs above FallenPartsDestroyHeight
 local function checkFalls(dt: number)
 	sinceCheck += dt
 	local map = active
-	if sinceCheck < KILL_CHECK or not map then
+	if sinceCheck < KILL_CHECK then
 		return
 	end
 	sinceCheck = 0
+	-- No map (the test range, a lobby): down anyone falling toward the void
+	-- before the engine deletes their parts (nobody dies on their own now).
+	if not map then
+		local voidY = workspace.FallenPartsDestroyHeight + VOID_MARGIN
+		for _, player in Players:GetPlayers() do
+			local character = player.Character
+			local root = character and character:FindFirstChild("HumanoidRootPart")
+			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+			if
+				root
+				and root:IsA("BasePart")
+				and humanoid
+				and Health.isAlive(humanoid)
+				and root.Position.Y < voidY
+			then
+				HealthService.down(humanoid)
+			end
+		end
+		return
+	end
 	local depth = map:GetAttribute("KillDepth")
 	local killY = map:GetPivot().Position.Y
 		- (if typeof(depth) == "number" then depth else KILL_DEPTH)
@@ -253,10 +278,10 @@ local function checkFalls(dt: number)
 			root
 			and root:IsA("BasePart")
 			and humanoid
-			and humanoid.Health > 0
+			and Health.isAlive(humanoid)
 			and root.Position.Y < killY
 		then
-			humanoid.Health = 0
+			HealthService.down(humanoid)
 		end
 	end
 end

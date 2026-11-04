@@ -34,6 +34,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
+local Health = require(script.Parent.Parent.Health)
 local Config = require(script.Parent.Parent.Config.Mods)
 local Movement = require(script.Parent.Parent.Config.Movement)
 local Target = require(script.Parent.Blocks.Target)
@@ -215,7 +216,7 @@ local function slamLanded(api: Types.ServerApi, player: Player, character: Model
 	local center = character:GetAttribute("UpdraftSlamPos")
 	if
 		not humanoid
-		or humanoid.Health <= 0
+		or not Health.isAlive(humanoid)
 		or not root
 		or not root:IsA("BasePart")
 		or typeof(center) ~= "Vector3"

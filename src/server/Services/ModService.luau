@@ -59,6 +59,7 @@ local ModRecall = require(script.Parent.ModRecall)
 local ModWalls = require(script.Parent.ModWalls)
 local StatusService = require(script.Parent.StatusService)
 local WeaponService = require(script.Parent.WeaponService)
+local Health = require(ReplicatedStorage.Shared.Health)
 
 type SlotState = { id: string?, level: string, charges: number, rechargeAt: number }
 type PlayerState = { slots: { SlotState }, held: number, heldAt: number }
@@ -102,7 +103,7 @@ end
 
 local function liveHumanoid(model: Model?): Humanoid?
 	local h = model and model:FindFirstChildOfClass("Humanoid")
-	if h and h.Health > 0 then
+	if h and Health.isAlive(h) then
 		return h
 	end
 	return nil
@@ -947,7 +948,7 @@ local function onCharacter(player: Player, character: Model)
 	if humanoid and humanoid:IsA("Humanoid") then
 		holdLife(
 			player,
-			humanoid.Died:Connect(function()
+			Health.onDowned(humanoid, function()
 				ModWalls.stop(player) -- a wall stops growing (it keeps burning)
 				ModRecall.cancel(player) -- dying cancels a teleport
 				release(player)

@@ -18,6 +18,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
+local Health = require(script.Parent.Parent.Health)
 local Animations = require(script.Parent.Parent.Config.Animations)
 local Weapons = require(script.Parent.Parent.Config.Weapons)
 
@@ -187,7 +188,7 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		return
 	end
 
-	local alive = humanoid.Health > 0
+	local alive = Health.isAlive(humanoid)
 	local state = if alive then character:GetAttribute("MoveState") else nil
 	local weaponId = player:GetAttribute("WeaponId")
 	local config = if typeof(weaponId) == "string" then Weapons.get(weaponId) else nil

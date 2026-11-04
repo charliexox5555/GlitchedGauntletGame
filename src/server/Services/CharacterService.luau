@@ -1,13 +1,17 @@
 --!strict
 -- Prepares every combatant (player characters and test dummies): full health with
--- no natural regen, standard jump, hats that bullets ignore, hitbox history.
+-- no natural regen (the game's own HP, HealthService: nobody truly dies),
+-- standard jump, hats that bullets ignore, hitbox history. In test mode
+-- (characters auto-load) a downed player comes back after RESPAWN_TIME.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
+local Health = require(ReplicatedStorage.Shared.Health)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local HitboxHistory = require(script.Parent.HitboxHistory)
+local HealthService = require(script.Parent.HealthService)
 
 local CharacterService = {}
 
@@ -28,11 +32,9 @@ function CharacterService.prepare(model: Model)
 	if not humanoid then
 		return
 	end
-	humanoid.MaxHealth = Combat.MAX_HEALTH
-	humanoid.Health = Combat.MAX_HEALTH
+	HealthService.prepare(humanoid)
 	humanoid.UseJumpPower = false
 	humanoid.JumpHeight = Movement.JUMP_HEIGHT
-	humanoid.BreakJointsOnDeath = false
 
 	-- No natural regen (Gunplay.md §3): heals only come from Mods.
 	local regen = model:FindFirstChild("Health")
@@ -44,6 +46,17 @@ function CharacterService.prepare(model: Model)
 		ignoreAccessory(child)
 	end
 	model.ChildAdded:Connect(ignoreAccessory)
+
+	-- Lost its root (the engine deleted it in the void, or a script did):
+	-- down it, since a Humanoid doesn't die on its own any more.
+	local root = model:FindFirstChild("HumanoidRootPart")
+	if root then
+		root.AncestryChanged:Connect(function()
+			if not root:IsDescendantOf(model) and model.Parent and Health.isAlive(humanoid) then
+				HealthService.down(humanoid)
+			end
+		end)
+	end
 
 	HitboxHistory.track(model)
 	model.Destroying:Connect(function()
@@ -70,6 +83,18 @@ end
 
 function CharacterService.init()
 	Players.RespawnTime = Combat.RESPAWN_TIME
+	HealthService.onDowned(function(humanoid)
+		local character = humanoid.Parent
+		local player = character and Players:GetPlayerFromCharacter(character)
+		if not player or not Players.CharacterAutoLoads then
+			return -- a match respawns everyone at the next round
+		end
+		task.delay(Combat.RESPAWN_TIME, function()
+			if player.Parent == Players and player.Character == character then
+				player:LoadCharacter()
+			end
+		end)
+	end)
 end
 
 function CharacterService.start()

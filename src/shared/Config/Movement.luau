@@ -12,7 +12,12 @@ return table.freeze({
 	SLIDE_MIN_SPEED = 12, -- must be moving at least this fast to start a slide
 	SLIDE_JUMP_KEEP = 0.8, -- share of slide speed kept when jumping out of it
 
-	JUMP_HEIGHT = 7.2,
+	-- 2026-11-04: was 7.2 (over a standing head: "jumps too high"). Whitebox's
+	-- 7-tall perches are ramp-only now.
+	JUMP_HEIGHT = 5.6,
+	-- Extra gravity on the way down only: same peak, a quicker, less floaty
+	-- landing (1 = plain Workspace.Gravity).
+	FALL_GRAVITY = 1.3,
 
 	CROUCH_CAMERA_DROP = 1.4, -- studs the camera lowers while crouched
 	SLIDE_CAMERA_DROP = 1.9,

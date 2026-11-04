@@ -91,7 +91,7 @@ Generated and checked by `tools/maps/whitebox_layout.py`. Change a number there,
 | **Pillars** (4) | 6 × 6, 48 tall | The landmark; tight peeks around the centre |
 | **Side blocks** (2) | 8 × 10, 8 tall | Split the middle into three lanes |
 | **Mid walls** (2) | 12 × 3, 8 tall, with a 7 × 3 low wall on one side | Shield each end's approach to the centre; crouch fights on the low side |
-| **Perches** (2) | 24 × 20, 7 tall, with a 10-wide ramp | Height advantage, each overlooked by the other team's. Jumpable as well as by ramp |
+| **Perches** (2) | 24 × 20, 7 tall, with a 10-wide ramp | Height advantage, each overlooked by the other team's. Ramp-only since the jump went to 5.6 (2026-11-04); was jumpable at 7.2 |
 | **Frames** (2) | Two posts and a low sill between them, a lintel from 9 up | A window to shoot and hop through. The pocket behind it has two exits |
 | **Angled slabs** (2) | 14 × 4, 8 tall, turned 28° | The RIVALS angle. Breaks straight lines and takes bullets from wall-penetrating guns (`ThinWall` tag, so they look different) |
 | **Wall boxes, corner cubes** | 6 × 10 and 8 × 8, 8 tall | Break up the long wall lanes |
@@ -108,7 +108,7 @@ Generated and checked by `tools/maps/whitebox_layout.py`. Change a number there,
 | Tightest walking gap | 6.1 studs (slab beside pillar and wall) | Game Plan says 6 |
 | Average / worst distance to full cover | 5.2 / 12.6 studs | Worst under about 15 |
 | Longest sightline | **94 studs**, corner to corner, 6.4% of sampled rays are over 70 | Game Plan says about 70 |
-| Highest a player can reach | 43.2 studs (8 cover + 7.2 jump + two 14 Updrafts) | Under the 48 walls |
+| Highest a player can reach | 41.6 studs (8 cover + 5.6 jump + two 14 Updrafts) | Under the 48 walls |
 
 These are flat 2D checks at standing eye height. They don't replace walking it.
 

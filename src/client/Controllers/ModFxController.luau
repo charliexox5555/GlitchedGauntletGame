@@ -35,6 +35,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Health = require(ReplicatedStorage.Shared.Health)
 local Net = require(Shared.Net)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
 local Tex = require(Shared.Config.VfxTextures)
@@ -391,11 +392,12 @@ local function healNumbers(target: Model, record: HealRecord, duration: number, 
 	if not humanoid or duration <= 0 then
 		return
 	end
-	local last = humanoid.Health
+	local last = Health.get(humanoid)
 	local pending = 0
 	table.insert(
 		record.conns,
-		humanoid.HealthChanged:Connect(function(health)
+		humanoid:GetAttributeChangedSignal(Health.HP):Connect(function()
+			local health = Health.get(humanoid)
 			if health > last then
 				pending += health - last
 			end
@@ -452,9 +454,11 @@ local function onHeal(data: { [string]: any })
 	if humanoid then
 		table.insert(
 			record.conns,
-			humanoid.Died:Connect(function()
-				HealFx.stop(targetModel)
-				endHeal(targetModel, record)
+			humanoid:GetAttributeChangedSignal(Health.DOWNED):Connect(function()
+				if Health.isDowned(humanoid) then
+					HealFx.stop(targetModel)
+					endHeal(targetModel, record)
+				end
 			end)
 		)
 	end

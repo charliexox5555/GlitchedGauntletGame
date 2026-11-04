@@ -16,7 +16,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 | Walk | 16 studs/s | |
 | Sprint | 22 studs/s | Toggle or hold (setting). Pressing fire **cancels sprint instantly** |
 | Crouch | 9 studs/s | Tighter spread. Key: C or Left Ctrl (Mod 3 is T) |
-| Jump | ~7 studs high | Standard Roblox jump. No fall damage |
+| Jump | **5.6 studs** (was 7.2, changed 2026-11-04: "jumps too high") | Falling uses 1.3× gravity (`FALL_GRAVITY`): same peak, a crisper landing. Soft takeoff sound, landing dip + thud. No fall damage |
 | **Slide** | Sprint + crouch → 30 studs/s burst, slowing to crouch speed over 0.7 s | 0.6 s cooldown. You can shoot while sliding |
 | **Slide-jump** | Jumping out of a slide keeps 80% of the speed | The "Hypershot" flavour. No other advanced tech |
 | ADS move speed | ×0.75 (snipers scoped ×0.55) | |
@@ -69,7 +69,13 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 
   Not measured live: air and landing shots (jumping can't be driven from a script under Server Authority); they use the same code path with the Air row.
 
-## 3. Damage (v2)
+## 3. Health: nobody truly dies (decided 2026-11-04)
+- **The game's own health.** Roblox's `Humanoid.Health` stays full and the Dead state is off. HP lives in Humanoid attributes `HP` / `MaxHP` / `Downed`, written only by the server (`Services/HealthService`), read everywhere through `shared/Health`. Shield first, then HP, as before.
+- **At 0 HP you're downed**, not dead: you can't move, shoot or use Mods, the body stops blocking shots and players, and the round counts you out. The next round spawns everyone fresh (`MatchService`); in test mode a downed player comes back after `RESPAWN_TIME`.
+- **It looks like a death:** every client hides the body and a still copy of it tips over (bounces once on the floor), lies there 1.4 s, then fades with a dust puff (`DeathFxController`, `Config/Juice` DEATH). The downed player's own screen drains of colour until the next round.
+- Why: no Roblox death or respawn mid-round (no reset timing, lost characters or broken joints), and full control over how a kill looks.
+
+## 3b. Damage (v2)
 | Rule | Value |
 |---|---|
 | Health | 100 per round, **plus a shield from your gun or the phase** ([Gun Balance](Gun%20Balance.md)), **no natural regen** (heals come from Mods) |

@@ -17,6 +17,7 @@ local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local CharacterService = require(script.Parent.CharacterService)
 local WeaponService = require(script.Parent.WeaponService)
+local Health = require(ReplicatedStorage.Shared.Health)
 
 local TestOpponent = {}
 
@@ -47,7 +48,7 @@ end
 function TestOpponent.isAlive(): boolean
 	local m = model
 	local humanoid = m and m:FindFirstChildOfClass("Humanoid")
-	return humanoid ~= nil and humanoid.Health > 0
+	return Health.isAlive(humanoid)
 end
 
 function TestOpponent.health(): number
@@ -57,7 +58,7 @@ function TestOpponent.health(): number
 		return 0
 	end
 	local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
-	return math.max(humanoid.Health, 0) + (if typeof(shield) == "number" then shield else 0)
+	return Health.get(humanoid) + (if typeof(shield) == "number" then shield else 0)
 end
 
 function TestOpponent.remove()
@@ -101,7 +102,7 @@ local function nearestEnemy(from: Vector3, team: number): (Player?, BasePart?)
 		local head = character and character:FindFirstChild("Head")
 		if
 			humanoid
-			and humanoid.Health > 0
+			and Health.isAlive(humanoid)
 			and head
 			and head:IsA("BasePart")
 			and Teams.of(player) ~= team
@@ -155,7 +156,7 @@ local function brain(
 	local lastDistance = math.huge
 	local lastProgress = os.clock()
 	local nextShot = 0
-	while generation == gen and m.Parent and humanoid.Health > 0 do
+	while generation == gen and m.Parent and Health.isAlive(humanoid) do
 		task.wait(STEP)
 		if not fighting then
 			continue

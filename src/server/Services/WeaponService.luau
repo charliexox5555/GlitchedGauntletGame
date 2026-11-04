@@ -34,6 +34,8 @@ local Weapons = require(Shared.Config.Weapons)
 local StatusService = require(script.Parent.StatusService)
 local HitboxHistory = require(script.Parent.HitboxHistory)
 local ModEntities = require(script.Parent.ModEntities)
+local Health = require(ReplicatedStorage.Shared.Health)
+local HealthService = require(script.Parent.HealthService)
 
 type Slot = Types.Slot
 type WeaponConfig = Types.WeaponConfig
@@ -193,7 +195,7 @@ local function liveHumanoid(model: Model?): Humanoid?
 		return nil
 	end
 	local h = model:FindFirstChildOfClass("Humanoid")
-	if h and h.Health > 0 then
+	if h and Health.isAlive(h) then
 		return h
 	end
 	return nil
@@ -548,11 +550,10 @@ function WeaponService.hurt(humanoid: Humanoid, amount: number, attacker: Player
 	if fromShield > 0 then
 		humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, (shield :: number) - fromShield)
 	end
-	local before = humanoid.Health
-	if amount > fromShield then
-		humanoid:TakeDamage(amount - fromShield)
-	end
-	return fromShield + math.clamp(before - humanoid.Health, 0, before)
+	local taken = if amount > fromShield
+		then HealthService.damage(humanoid, amount - fromShield)
+		else 0
+	return fromShield + taken
 end
 
 local function applyDamage(
@@ -575,9 +576,8 @@ local function applyDamage(
 			amount = math.max(result, 0)
 		end
 	end
-	local before = humanoid.Health
 	local dealt = WeaponService.hurt(humanoid, amount, attacker)
-	local killed = before > 0 and humanoid.Health <= 0
+	local killed = Health.isDowned(humanoid)
 	local blocked = dealt <= 0 and amount > 0
 	humanoid:SetAttribute("LastAttacker", attacker.UserId)
 	if #damageListeners > 0 then
@@ -695,9 +695,7 @@ function WeaponService.heal(target: Model, amount: number): number
 	if not humanoid or amount ~= amount or amount <= 0 then
 		return 0
 	end
-	local before = humanoid.Health
-	humanoid.Health = math.min(humanoid.MaxHealth, before + amount)
-	return humanoid.Health - before
+	return HealthService.heal(humanoid, amount)
 end
 
 -- While a held Mod is up the gun is lowered: no shots are accepted
@@ -1592,7 +1590,7 @@ local function onCharacter(player: Player, character: Model)
 		if track then
 			DashMod.resetGate(track.dash)
 		end
-		humanoid.Died:Connect(function()
+		Health.onDowned(humanoid, function()
 			fireBoost[player] = nil
 			player:SetAttribute("FireRateMult", nil)
 			local state = states[player]

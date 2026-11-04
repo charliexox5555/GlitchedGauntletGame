@@ -37,6 +37,8 @@ local Teams = require(Shared.Mods.Teams)
 
 local ModEntities = require(script.Parent.ModEntities)
 local WeaponService = require(script.Parent.WeaponService)
+local Health = require(ReplicatedStorage.Shared.Health)
+local HealthService = require(script.Parent.HealthService)
 
 local ModRecall = {}
 
@@ -67,7 +69,7 @@ end
 
 local function liveHumanoid(model: Model?): Humanoid?
 	local h = model and model:FindFirstChildOfClass("Humanoid")
-	return if h and h.Health > 0 then h else nil
+	return if h and Health.isAlive(h) then h else nil
 end
 
 -- The anchor `player` planted, while it stands.
@@ -264,8 +266,8 @@ function ModRecall.rescue(
 		-- Lift what's left of the wind-up's no-shots: you arrive ready.
 		WeaponService.setHolstered(player, false, 0.01)
 	end
-	local health = math.clamp(stats.rescueHealth, 1, humanoid.MaxHealth)
-	humanoid.Health = health
+	local health = math.clamp(stats.rescueHealth, 1, Health.max(humanoid))
+	HealthService.set(humanoid, health)
 	if typeof(humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)) == "number" then
 		humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, 0) -- the hit took it all
 	end
@@ -296,7 +298,7 @@ local function crashGuard(api: ModTypes.ServerApi)
 		if grace and serverNow() < grace then
 			return 0
 		end
-		if crashUsed[player] or humanoid.Health <= 0 then
+		if crashUsed[player] or not Health.isAlive(humanoid) then
 			return amount
 		end
 		local _, level = api.slotOf(player, "Recall")
@@ -305,7 +307,7 @@ local function crashGuard(api: ModTypes.ServerApi)
 			return amount
 		end
 		local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
-		local cover = humanoid.Health
+		local cover = Health.get(humanoid)
 			+ (if typeof(shield) == "number" then math.max(shield, 0) else 0)
 		if amount < cover then
 			return amount

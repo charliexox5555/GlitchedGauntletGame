@@ -8,3 +8,9 @@
 - ✅ UI pops now grow from the centre (clock, scores, banners, draft, LOCK IN, ability slots).
 - Output clean (only the known `rbxassetid://203785492` warning).
 - **Not checked live:** the world-gun kick and the flinch need someone shooting (a 2-player test), the slide and land sounds weren't heard (no audio through the MCP), smoother third-person aim needs a second player to watch.
+
+## Health and jump (same day)
+- ✅ Dev "Hurt me" ×3 in a match: shield 25 → 0 and HP 100 → 75 → 25 → 0, then `Downed`; Roblox `Humanoid.Health` stayed 100; WalkSpeed 0; screen saturation −0.85; the round ended (team out).
+- ✅ Next round: a fresh character (HP 100, not downed), colour back.
+- ✅ A downed dummy: the real body is hidden on the client (LocalTransparencyModifier 1) and the falling copy was spawned. The fall itself was only glimpsed (the guns covered it), so judge it in play.
+- Jump 5.6 + fall gravity 1.3: built, not measured in this run.

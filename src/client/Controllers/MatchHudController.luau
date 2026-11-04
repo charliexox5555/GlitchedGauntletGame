@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 
+local Health = require(ReplicatedStorage.Shared.Health)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
@@ -274,8 +275,8 @@ local function teamState(team: number): (number, { string })
 			table.insert(names, if p == player then "YOU" else string.upper(p.DisplayName))
 			local humanoid = p.Character and p.Character:FindFirstChildOfClass("Humanoid")
 			if humanoid then
-				health += math.max(humanoid.Health, 0)
-				max += humanoid.MaxHealth
+				health += Health.get(humanoid)
+				max += Health.max(humanoid)
 			end
 		end
 	end
@@ -285,8 +286,8 @@ local function teamState(team: number): (number, { string })
 			local humanoid = model:FindFirstChildOfClass("Humanoid")
 			if humanoid then
 				table.insert(names, string.upper(model.Name))
-				health += math.max(humanoid.Health, 0)
-				max += humanoid.MaxHealth
+				health += Health.get(humanoid)
+				max += Health.max(humanoid)
 			end
 		end
 	end

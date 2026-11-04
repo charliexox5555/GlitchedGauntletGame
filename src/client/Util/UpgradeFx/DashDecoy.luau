@@ -22,6 +22,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local Health = require(ReplicatedStorage.Shared.Health)
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
@@ -319,7 +320,7 @@ end
 
 local function alive(model: Model): boolean
 	local h = model:FindFirstChildOfClass("Humanoid")
-	return h ~= nil and h.Health > 0
+	return Health.isAlive(h)
 end
 
 -- The nearest live enemy of the dasher within range and in sight of `eye`.

@@ -24,6 +24,8 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Services = script.Parent.Parent.Services
 local CharacterService = require(Services.CharacterService)
 local WeaponService = require(Services.WeaponService)
+local Health = require(ReplicatedStorage.Shared.Health)
+local HealthService = require(Services.HealthService)
 
 type DummySpot = TestRange.DummySpot
 
@@ -159,14 +161,18 @@ makeDummy = function(index: number)
 	dummies[index] = d
 	local gen = generation
 
-	local lastHealth = humanoid.Health
-	humanoid.HealthChanged:Connect(function(health)
-		if health < lastHealth then
-			d.lastHit = os.clock()
-		end
-		lastHealth = health
-	end)
-	humanoid.Died:Connect(function()
+	local lastHealth = Health.get(humanoid)
+	local changed = Health.changed(humanoid)
+	if changed then
+		changed:Connect(function()
+			local health = Health.get(humanoid)
+			if health < lastHealth then
+				d.lastHit = os.clock()
+			end
+			lastHealth = health
+		end)
+	end
+	Health.onDowned(humanoid, function()
 		onDied(d, gen)
 	end)
 
@@ -335,7 +341,7 @@ local function step(dt: number)
 	local now = os.clock()
 	local regen = behaviour("Regen")
 	for _, d in dummies do
-		if d.humanoid.Health <= 0 or not d.model.Parent then
+		if not Health.isAlive(d.humanoid) or not d.model.Parent then
 			continue
 		end
 		if moves(d.spot) then
@@ -349,10 +355,10 @@ local function step(dt: number)
 		end
 		if
 			regen
-			and d.humanoid.Health < d.humanoid.MaxHealth
+			and Health.get(d.humanoid) < Health.max(d.humanoid)
 			and now - d.lastHit >= TestRange.REGEN_DELAY
 		then
-			d.humanoid.Health = d.humanoid.MaxHealth
+			HealthService.set(d.humanoid, Health.max(d.humanoid))
 		end
 	end
 end
@@ -383,7 +389,7 @@ local function pickTarget(d: Dummy, from: Vector3, params: RaycastParams): BaseP
 		local character = p.Character
 		local head = character and character:FindFirstChild("Head")
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-		if not head or not head:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
+		if not head or not head:IsA("BasePart") or not humanoid or not Health.isAlive(humanoid) then
 			continue
 		end
 		local offset = head.Position - from
@@ -436,11 +442,11 @@ end
 local function shooterLoop(d: Dummy)
 	local cfg = TestRange.SHOOTER
 	local config = Weapons.get(d.spot.weapon)
-	while dummies[d.index] == d and d.humanoid.Health > 0 do
+	while dummies[d.index] == d and Health.isAlive(d.humanoid) do
 		task.wait(between(cfg.burstGap))
 		if
 			dummies[d.index] ~= d
-			or d.humanoid.Health <= 0
+			or not Health.isAlive(d.humanoid)
 			or not behaviour("Shoot")
 			or not config
 			or Status.stunned(d.model, workspace:GetServerTimeNow())
@@ -463,7 +469,7 @@ local function shooterLoop(d: Dummy)
 		for _ = 1, cfg.burst do
 			if
 				dummies[d.index] ~= d
-				or d.humanoid.Health <= 0
+				or not Health.isAlive(d.humanoid)
 				or not target.Parent
 				or Status.stunned(d.model, workspace:GetServerTimeNow())
 			then

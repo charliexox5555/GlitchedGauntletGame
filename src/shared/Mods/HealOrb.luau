@@ -17,6 +17,7 @@
 
 local Players = game:GetService("Players")
 
+local Health = require(script.Parent.Parent.Health)
 local Target = require(script.Parent.Blocks.Target)
 local Teams = require(script.Parent.Teams)
 local Types = require(script.Parent.Types)
@@ -29,7 +30,7 @@ local ANGLE_SLACK = 8
 
 local function full(model: Model): boolean
 	local h = model:FindFirstChildOfClass("Humanoid")
-	return h == nil or h.Health >= h.MaxHealth
+	return h == nil or Health.get(h) >= Health.max(h)
 end
 
 -- Who LMB would heal right now, as the client sees it: the ally in the
@@ -96,9 +97,9 @@ local function giveBarrier(target: Model, hits: number, caster: Player)
 	if humanoid then
 		table.insert(
 			list,
-			humanoid.Died:Once(function()
+			Health.onDowned(humanoid, function()
 				clearBarrier(target)
-			end)
+			end) :: RBXScriptConnection
 		)
 	end
 	watches[target] = list
@@ -168,7 +169,7 @@ module.server = function(api: Types.ServerApi)
 	-- damage (a Molly at your feet) goes past it without using it up.
 	api.guard(function(victim: Model, humanoid: Humanoid, amount: number, attacker: Player?): number
 		local left = victim:GetAttribute(HealOrb.BARRIER_ATTRIBUTE)
-		if typeof(left) ~= "number" or left < 1 or amount <= 0 or humanoid.Health <= 0 then
+		if typeof(left) ~= "number" or left < 1 or amount <= 0 or not Health.isAlive(humanoid) then
 			return amount
 		end
 		if attacker and (attacker.Character == victim or Teams.isAlly(attacker, victim)) then

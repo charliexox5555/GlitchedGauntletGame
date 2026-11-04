@@ -22,6 +22,7 @@ local MapService = require(script.Parent.MapService)
 local ModService = require(script.Parent.ModService)
 local TestOpponent = require(script.Parent.TestOpponent)
 local WeaponService = require(script.Parent.WeaponService)
+local Health = require(ReplicatedStorage.Shared.Health)
 
 local MatchService = {}
 
@@ -132,7 +133,7 @@ end
 local function isAlive(player: Player): boolean
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	return humanoid ~= nil and humanoid.Health > 0
+	return Health.isAlive(humanoid)
 end
 
 local function spawnPlayer(player: Player, spawn: SpawnLocation?)
@@ -190,10 +191,10 @@ local function teamState(team: number): (number, number)
 	for _, player in playersOn(team) do
 		local character = player.Character
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-		if humanoid and humanoid.Health > 0 then
+		if humanoid and Health.isAlive(humanoid) then
 			alive += 1
 			local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
-			health += humanoid.Health + (if typeof(shield) == "number" then shield else 0)
+			health += Health.get(humanoid) + (if typeof(shield) == "number" then shield else 0)
 		end
 	end
 	if activeOpponent == team and TestOpponent.isAlive() then

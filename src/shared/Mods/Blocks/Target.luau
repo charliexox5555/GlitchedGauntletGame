@@ -7,13 +7,14 @@
 
 local Players = game:GetService("Players")
 
+local Health = require(script.Parent.Parent.Parent.Health)
 local Teams = require(script.Parent.Parent.Teams)
 
 local Target = {}
 
 function Target.alive(model: Model?): boolean
 	local h = model and model:FindFirstChildOfClass("Humanoid")
-	return h ~= nil and h.Health > 0
+	return Health.isAlive(h)
 end
 
 -- Every combatant model: player characters, then dummies.
