@@ -469,7 +469,7 @@ class Art:
             # Forecourt leading line toward the gate arch (x -5 on the Blue side), plaza border bands.
             for zc in (-84, -68, -52):
                 self.put("Paving", "PavingBand16", -5 * half, 0.05, zc * half, 0, side)
-            for zc in (-28, -12):
+            for zc in (-27.94, -11.94):  # the end band stops 0.06 short of the facade at z -36
                 self.put("Paving", "PavingBand16", 33 * half, 0.05, zc * half, 0, side)
                 self.put("Paving", "PavingBand16", -33 * half, 0.05, zc * half, 0, side)
             for xc in (-24, -8, 8, 24):
@@ -503,7 +503,8 @@ class Art:
                         self.part("Interiors", f"{b.name}_Soffit{vi}", x0 + 0.16, x1 - 0.16, y1 - 0.16, y1 - 0.06, z0, z1, INTERIOR, "Plaster")
                 if v in rooms:
                     fy = y0 + 0.01
-                    self.part("Interiors", f"{b.name}_Floor{vi}", x0, x1, fy, fy + 0.1, z0, z1, FLOORING, "WoodPlanks")
+                    # Inside the linings (their ends never share a plane with the floor's edges).
+                    self.part("Interiors", f"{b.name}_Floor{vi}", x0 + 0.16, x1 - 0.16, fy, fy + 0.1, z0 + 0.16, z1 - 0.16, FLOORING, "WoodPlanks")
                     if y0 == 0 and abs(y1 - L.SLAB) < 1e-6:
                         self.beams(b, v)
 

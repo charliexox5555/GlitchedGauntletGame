@@ -346,14 +346,14 @@ HALF: list[Solid] = [
     B("PierE2", 34, 36, -21, -19, 0, SLAB, "arcade", "Arcades"),
     B("PierE3", 34, 36, -13, -11, 0, SLAB, "arcade", "Arcades"),
     B("SpandrelE", 34, 36, -36, -4, 10, UPPER, "arcade", "Arcades"),
-    B("TerraceE", 36, 44, -36, -4, SLAB, UPPER, "floor", "Arcades"),
+    B("TerraceE", 36, 43.9, -35.9, -4.1, SLAB, UPPER, "floor", "Arcades"),  # visible slab: its ends stay off the facades
     B("BalustradeE", 34, 35, -36, -4, UPPER, UPPER + 3, "rail", "Arcades"),
     # West arcade: same piers, a tiled lean-to roof instead of a terrace.
     B("PierW1", -36, -34, -29, -27, 0, SLAB, "arcade", "Arcades"),
     B("PierW2", -36, -34, -21, -19, 0, SLAB, "arcade", "Arcades"),
     B("PierW3", -36, -34, -13, -11, 0, SLAB, "arcade", "Arcades"),
     B("SpandrelW", -36, -34, -36, -4, 10, UPPER, "arcade", "Arcades"),
-    B("CeilingW", -44, -36, -36, -4, SLAB, UPPER, "floor", "Arcades"),
+    B("CeilingW", -43.9, -36, -35.9, -4.1, SLAB, UPPER, "floor", "Arcades"),
     ramp("ArcadeRoofW", -44, -34, -36, -4, UPPER, UPPER + 3, "-x", "roof", "Roofs"),
     # Cafe stair (inside the Cafe, up to the landing and the terrace door).
     ramp("CafeStair", 54, 60, -28, -12, 0, UPPER, "+z", "stair", "Stairs"),
@@ -398,12 +398,14 @@ CENTER: list[Solid] = [
 SPAWNS_A = [(-6.0, -128.0), (6.0, -128.0), (-6.0, -118.0), (6.0, -118.0)]
 SPAWNS_B = [(-x, -z) for x, z in SPAWNS_A]
 BARRIERS_A = [("BarrierA_E", 12, 20, -108, -104), ("BarrierA_W", -20, -12, -108, -104)]
+BARRIER_SINK = 0.1  # a barrier reaches this far into the walls either side of its gate, and stays 0.05 off the facades
 
 # Floors drawn over the ground (the art pass gives them their stone): plaza and interiors.
+# Inset 0.1 from the facades they meet (their edges stay out of the walls' planes, under the plinths).
 FLOORS_A = [
-    ("PlazaFloor", -34, 34, -36, 0),
-    ("ForecourtFloor", -12, 12, -92, -40),
-    ("CloisterFloor", -20, 20, -136, -108),
+    ("PlazaFloor", -33.9, 33.9, -35.9, 0),
+    ("ForecourtFloor", -11.9, 11.9, -92, -40.1),
+    ("CloisterFloor", -19.9, 19.9, -135.9, -108.1),
 ]
 
 # The clock tower: outside the east perimeter, centred on z = 0. Art only (out of reach);
@@ -1078,8 +1080,9 @@ def greybox_luau() -> str:
             spawns.append(f'\t{{ "{team}", {k + 1}, {lua_num(x)}, {lua_num(z)}, {yaw} }},')
     barriers = []
     for name, a, b, c, d in BARRIERS_A:
-        barriers.append(f'\t{{ "{name}", {lua_num((a + b) / 2)}, {lua_num((c + d) / 2)}, {lua_num(b - a)}, {lua_num(d - c)} }},')
-        barriers.append(f'\t{{ "{name.replace("A_", "B_")}", {lua_num(-(a + b) / 2)}, {lua_num(-(c + d) / 2)}, {lua_num(b - a)}, {lua_num(d - c)} }},')
+        w, dz = b - a + 2 * BARRIER_SINK, d - c - 0.1
+        barriers.append(f'\t{{ "{name}", {lua_num((a + b) / 2)}, {lua_num((c + d) / 2)}, {lua_num(w)}, {lua_num(dz)} }},')
+        barriers.append(f'\t{{ "{name.replace("A_", "B_")}", {lua_num(-(a + b) / 2)}, {lua_num(-(c + d) / 2)}, {lua_num(w)}, {lua_num(dz)} }},')
     return GREYBOX_TEMPLATE % {
         "rows": "\n".join(rows),
         "floors": "\n".join(floors),

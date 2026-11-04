@@ -465,23 +465,23 @@ def f_upper(kind, W=8.0):
 		surround(a, y0, y1, z0, z1, sill=False)
 		shutters(a, y0 - 0.35, y1 + 0.35, z0, z1)
 		# Stone slab on two consoles, iron railing.
-		a.add("Stone", B(-EMB, 1.4, -2.6, 2.6, -0.1, 0.4))
+		a.add("Stone", B(-SINK, 1.4, -2.6, 2.6, -0.15, 0.34))
 		for yv in (-2.0, 2.0):
-			a.add("Stone", yprism([(-EMB, -1.1), (-EMB, -0.1), (1.0, -0.1)], yv - 0.25, yv + 0.25))
+			a.add("Stone", yprism([(-SINK, -1.1), (-SINK, -0.15), (1.0, -0.15)], yv - 0.25, yv + 0.25))  # into the wall: off the string course's plane
 		rail = bmesh.new()
 		merge(rail, B(-EMB, 1.32, -2.5, -2.38, 3.0, 3.14))
 		merge(rail, B(-EMB, 1.32, 2.38, 2.5, 3.0, 3.14))
 		merge(rail, B(1.2, 1.32, -2.38, 2.38, 3.0, 3.14))
-		merge(rail, B(1.2, 1.32, -2.38, 2.38, 0.4, 0.5))
+		merge(rail, B(1.2, 1.32, -2.38, 2.38, 0.34, 0.5))
 		for k in range(1, 6):
 			yv = -2.4 + 4.8 * k / 6
 			merge(rail, B(1.22, 1.3, yv - 0.04, yv + 0.04, 0.5, 3.0))
-		merge(rail, B(1.2, 1.32, -2.5, -2.38, 0.4, 3.0))
-		merge(rail, B(1.2, 1.32, 2.38, 2.5, 0.4, 3.0))
+		merge(rail, B(1.2, 1.32, -2.5, -2.38, 0.34, 3.0))
+		merge(rail, B(1.2, 1.32, 2.38, 2.5, 0.34, 3.0))
 		for k in range(1, 3):
 			xv = 1.2 * k / 3
-			merge(rail, B(xv - 0.04, xv + 0.04, -2.48, -2.4, 0.4, 3.0))
-			merge(rail, B(xv - 0.04, xv + 0.04, 2.4, 2.48, 0.4, 3.0))
+			merge(rail, B(xv - 0.04, xv + 0.04, -2.48, -2.4, 0.34, 3.0))
+			merge(rail, B(xv - 0.04, xv + 0.04, 2.4, 2.48, 0.34, 3.0))
 		a.add("Iron", rail)
 	elif kind == "Door":
 		# The terrace door: the greybox opening is 6 x 9 from the upper floor.
@@ -510,7 +510,7 @@ def parapet(W):
 	a = Acc(W=W, joint=2.4 * JOINT)
 	a.add("Stucco", B(-1.5, 0, -W / 2, W / 2, 0, 2.65))  # its top is buried in the coping
 	a.add("Stone", B(-1.7, 0.2, -W / 2, W / 2, 2.6, 3.0))
-	a.add("Stone", yprism([(-EMB, -0.75), (0.15, -0.75), (0.45, -0.3), (0.5, 0.1), (-EMB, 0.1)], -W / 2, W / 2))  # clear of a string course
+	a.add("Stone", yprism([(-SINK, -0.75), (0.15, -0.75), (0.45, -0.3), (0.5, 0.1), (-SINK, 0.1)], -W / 2, W / 2))  # clear of a string course
 	return a
 
 
@@ -626,15 +626,15 @@ def arcade_roof():
 	# Lean-to tiles over the west arcade: 12 at the front face, 15 at the back wall (10 in), plus a front cornice.
 	a = Acc(W=8, roof=True, ground=False)
 	t = 0.3
-	a.add("Tile", yprism([(1.0, -t), (1.0, -t + 0.4), (-10, 3.0 + 0.4), (-10, 3.0)], -4, 4))
+	a.add("Tile", yprism([(1.0, -t), (1.0, -t + 0.4), (-10.05, 3.015 + 0.4), (-10.05, 3.015)], -4, 4))  # into the back wall
 	rolls = bmesh.new()
 	for k in range(8):
 		yv = -3.5 + k
-		r = xprism([(yv - 0.32, -EMB), (yv + 0.32, -EMB), (yv + 0.16, 0.16), (yv - 0.16, 0.16)], -10, 1.0)
+		r = xprism([(yv - 0.32, -EMB), (yv + 0.32, -EMB), (yv + 0.16, 0.16), (yv - 0.16, 0.16)], -10.05, 1.0)
 		shear_z(r, t, 0.4)
 		merge(rolls, r)
 	a.add("Tile", rolls)
-	a.add("Plinth", B(-EMB, 0.45, -4, 4, -0.35, 0.05))  # eave band, proud of the arcade's entablature
+	a.add("Plinth", B(-SINK, 0.45, -4, 4, -0.35, 0.05))  # eave band, proud of the arcade's entablature
 	return a
 
 
@@ -706,7 +706,7 @@ def city_gate():
 		for k in range(7):
 			z = 0.25 + k * 1.4
 			for x0, x1 in ((-11.95, -10.6), (0.6, 11.95)):
-				a.add("Plinth", B(x0, x1, min(ys0, ys1), max(ys0, ys1), z, z + 1.15))
+				a.add("Plinth", B(x0, x1, *sorted((y_face - 0.05 * s, ys1)), z, z + 1.15))
 		# Arch ring and keystone with a shield (the side accent).
 		ring = [(yc + 5.0 * math.cos(t), 7 + 5.0 * math.sin(t)) for t in [math.pi * i / 12 for i in range(13)]]
 		ring += [(yc + 6.2 * math.cos(t), 7 + 6.2 * math.sin(t)) for t in [math.pi * (12 - i) / 12 for i in range(13)]]
@@ -721,7 +721,7 @@ def city_gate():
 		for xc in (4.0, 8.4):
 			g0, g1 = sorted((y_face, y_face + 0.06 * s))
 			f0, f1 = sorted((y_face, y_face + 0.22 * s))
-			a.add("Glass", B(xc - 1.2, xc + 1.2, g0, g1, 15.0, 19.6))
+			a.add("Glass", B(xc - 1.2, xc + 1.2, *sorted((y_face - 0.05 * s, y_face + 0.06 * s)), 15.0, 19.6))
 			a.add("Wood", B(xc - 0.08, xc + 0.08, *sorted((y_face, y_face + 0.1 * s)), 15.0, 19.6))
 			a.add("Stone", B(xc - 1.55, xc - 1.2, f0, f1, 15.0, 19.6), B(xc + 1.2, xc + 1.55, f0, f1, 15.0, 19.6))
 			a.add("Stone", B(xc - 1.7, xc + 1.7, *sorted((y_face, y_face + 0.35 * s)), 19.6, 20.2))
@@ -761,13 +761,13 @@ def pavilion():
 	archivolt(front, 0, 7.5, 2.0, 2.6, prot=0.2)
 	keystone(front, 0, 10.0)
 	front.add("Stone", B(0, 0.2, -2.6, -2.0, 1.0, 7.5), B(0, 0.2, 2.0, 2.6, 1.0, 7.5), B(0, 0.35, -2.8, 2.8, 0.6, 1.0))
-	front.add("Glass", B(0, 0.05, -2.0, 2.0, 1.0, 7.5), xprism(arc_pts(0, 7.5, 2.0, 0, math.pi, 8), 0, 0.05))
+	front.add("Glass", B(-SINK, 0.05, -2.0, 2.0, 1.0, 7.5), xprism(arc_pts(0, 7.5, 2.0, 0, math.pi, 8), -SINK, 0.05))
 	front.add("AccentWood", xprism([(-1.0, 4.0), (1.0, 4.0), (1.0, 5.6), (0, 6.6), (-1.0, 5.6)], 0.05, 0.15))
 	for mat, bm in front.d.items():
 		tf(bm, Matrix.Translation((-17.0, 0, 0)) @ Matrix.Rotation(math.radians(180), 4, "Z"))
 		a.add(mat, bm)
 	# Upper loggia: a balcony on two consoles with balusters (above head height, 1.4 proud).
-	a.add("Glass", B(-17.05, -17.0, -2.4, 2.4, 13.0, 20.5))
+	a.add("Glass", B(-17.05, -16.95, -2.4, 2.4, 13.0, 20.5))
 	a.add("Stone", B(-18.4, -17.0, -3.0, 3.0, 12.4, 13.0), B(-18.3, -17.0, -2.9, 2.9, 15.4, 15.8))
 	for yv in (-2.4, 2.4):
 		a.add("Stone", yprism([(-17.0, 11.4), (-17.0, 12.4), (-18.0, 12.4)], yv - 0.25, yv + 0.25))
@@ -776,11 +776,11 @@ def pavilion():
 		a.add("Stone", frustum(-17.7, yv, 0.2, 0.28, 13.0, 15.4, 6))
 	a.add("Stone", B(-17.4, -17.0, -3.0, -2.4, 13.0, 21.0), B(-17.4, -17.0, 2.4, 3.0, 13.0, 21.0), B(-17.5, -17.0, -3.05, 3.05, 20.5, 21.3))
 	for yv in (-3.6, 3.6):
-		a.add("Stone", B(-17.38, -17.0, yv - 0.5, yv + 0.5, 0, 22.5))
+		a.add("Stone", B(-17.38, -16.9, yv - 0.5, yv + 0.5, 0, 22.5))  # backs sunk into the stone end
 	a.add("Stone", B(-17.4, 17.3, -4.3, 4.3, 11.6, 12.4))
-	a.add("Stone", B(-17.8, 17.3, -4.6, 4.6, 22.5, 23.4), B(-17.6, 17.1, -4.4, 4.4, 23.4, 24.0))
+	a.add("Stone", B(-17.8, 16.95, -4.6, 4.6, 22.5, 23.4), B(-17.6, 16.9, -4.4, 4.4, 23.4, 24.0))
 	# Pediment over the plaza end with the side roundel.
-	a.add("Stone", xprism([(-4.4, 24), (4.4, 24), (0, 27.6)], -17.6, -15.2))
+	a.add("Stone", xprism([(-4.4, 23.95), (4.4, 23.95), (0, 27.6)], -17.66, -15.2))
 	a.add("AccentWood", xprism(arc_pts(0, 25.4, 0.9, 0, 2 * math.pi, 10)[:-1], -17.7, -17.55))
 	# Windows on the two long faces over the arcade / terrace (x -15..-7) and on the alley end.
 	for s_ in (-1, 1):
@@ -1052,7 +1052,7 @@ def cypress_planter():
 	a.add("Soil", B(-1.2, 1.2, -3.7, 3.7, 2.8, 2.86))
 	tr = bmesh.new()
 	for k, (yv, h) in enumerate(((-2.7, 12.5), (0.0, 13.5), (2.7, 12.0))):
-		merge(tr, frustum(0, yv, 1.25, 1.45, 2.8, 3.8, 7))
+		merge(tr, frustum(0, yv, 1.25, 1.45, 2.75, 3.8, 7))
 		merge(tr, frustum(0, yv, 1.45, 1.15, 3.8, 8.5, 7))
 		merge(tr, frustum(0, yv, 1.15, 0.0, 8.5, h, 7))
 	a.add("Cypress", tr)
@@ -1111,7 +1111,7 @@ def shrine():
 		a.add("Cloth", B(2.36, 2.4, -1.6, 1.6, z - 0.05, z + 0.05))
 	a.add("Cloth", B(2.36, 2.4, -0.05, 0.05, 2.8, 6.0))
 	a.add("Stone", xprism(arc_pts(0, 6.0, 1.6, 0, math.pi, 8), 2.3, 2.6))
-	a.add("Brass", tf(xcyl(0, 0, 0.12, 0, 0.9, 6), Matrix.Translation((2.3, 0, 3.4))))
+	a.add("Brass", tf(xcyl(0, 0, 0.12, -0.05, 0.9, 6), Matrix.Translation((2.3, 0, 3.4))))
 	a.add("Stone", xprism([(-3.2, 8.0), (3.2, 8.0), (0, 9.4)], -3.7, 2.5))
 	return a
 
@@ -1139,7 +1139,7 @@ def stair_porch():
 	# landing with an iron rail.
 	a = Acc()
 	a.add("Stucco", B(-3.05, 1.2, -4, 4, 0, 6.25))
-	a.add("Stone", B(-3.0, 1.5, -4.2, 4.2, 6.2, 6.6), B(-3.0, 1.6, -4.3, 4.3, 0, 0.6))
+	a.add("Stone", B(-3.1, 1.5, -4.2, 4.2, 6.2, 6.6), B(-3.1, 1.6, -4.3, 4.3, 0, 0.6))  # backs into the house wall
 	st = bmesh.new()
 	for i in range(8):
 		merge(st, B(1.2, 3.0, -4 + i, -3 + i, 0, 0.78 * (i + 1)))
@@ -1186,8 +1186,8 @@ def laundry_line():
 		(y0, z0), (y1, z1) = pts[i], pts[i + 1]
 		seg = xprism([(y0, z0), (y1, z1), (y1, z1 + 0.06), (y0, z0 + 0.06)], -0.03, 0.03)
 		merge(line, seg)
-	merge(line, B(-0.15, 0.15, -6.0, -5.7, -0.2, 0.2))
-	merge(line, B(-0.15, 0.15, 5.7, 6.0, -0.2, 0.2))
+	merge(line, B(-0.15, 0.15, -6.05, -5.7, -0.2, 0.2))  # hooks reach into the walls
+	merge(line, B(-0.15, 0.15, 5.7, 6.05, -0.2, 0.2))
 	a.add("Iron", line)
 	for k, (yc, w, h, m) in enumerate(((-3.6, 1.4, 2.2, "Cloth"), (-1.6, 1.8, 1.4, "AccentCloth"), (0.6, 1.2, 2.6, "Cloth"), (2.8, 1.6, 1.8, "Cloth"))):
 		zt = -0.8 * (1 - ((yc / 6 * 4) / 4) ** 2) - 0.05

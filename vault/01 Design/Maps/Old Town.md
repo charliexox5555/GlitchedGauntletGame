@@ -224,6 +224,9 @@ Two visible surfaces in one plane flicker. The rules the kit and the placement f
 - `build_map_kit_oldtown.py` checks every piece on its own with `tools/blender/zfight_check.py` before saving the .blend (so before any export): same plane (< 0.02 apart, parallel), overlapping (> 0.01 studs²), both facing the same way and not pressed against an opposite face = z-fighting.
 - `blender --background --factory-startup art-source/maps/OldTown/Kit_OldTown.blend --python tools/blender/preview_map_oldtown.py -- --check` assembles the map exactly as Art.luau places it (every MeshPart, the visible greybox, Art's plain parts) and runs the same test; it writes `art-source/maps/OldTown/zfight-offline.json` and exits 1 on any visible pair. Last run: 338,764 triangles, 7,613 surfaces, **0 visible pairs** (1,144 buried and 52,631 touching pairs are faces pressed together, invisible, and the Studio audit skips them too).
 
+### Fix round 2 (2026-11-03): the triangle-level Studio audit's 183 pairs
+The offline check now matches `tools/studio/maps/Audit.luau`: it includes the barriers, and only a visible block Part can bury a face between two parts (never a MeshPart). Fixes: paving floors, the terrace slab and the west arcade ceiling stop 0.1 short of the facades; barriers reach 0.1 into the gate walls and stay 0.05 off the facades; interior floors sit inside the linings; balcony slabs, consoles, parapet bands, the arcade roof's band, porch stones, laundry hooks and the lean-to roof's back end sink into the wall behind them; shrine spout, cypress trunks, gate rustication / glass and pavilion pilasters, glass and pediment moved off shared planes. Offline: 0 visible pairs (kit pieces and assembled map).
+
 ### Fix round 1 (2026-11-03, from the user's playtest and the Studio audit)
 | Flagged | Fix |
 |---|---|

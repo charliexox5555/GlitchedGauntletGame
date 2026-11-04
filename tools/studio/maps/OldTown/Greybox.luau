@@ -252,13 +252,13 @@ local ROWS: { Row } = {
 	{ "Arcades", "PierE2", "arcade", "box", 35, 5.5, -20, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "PierE3", "arcade", "box", 35, 5.5, -12, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "SpandrelE", "arcade", "box", 35, 11, -20, 2, 2, 32, 0, "A", false },
-	{ "Arcades", "TerraceE", "floor", "box", 40, 11.5, -20, 8, 1, 32, 0, "A", false },
+	{ "Arcades", "TerraceE", "floor", "box", 39.95, 11.5, -20, 7.9, 1, 31.8, 0, "A", false },
 	{ "Arcades", "BalustradeE", "rail", "box", 34.5, 13.5, -20, 1, 3, 32, 0, "A", false },
 	{ "Arcades", "PierW1", "arcade", "box", -35, 5.5, -28, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "PierW2", "arcade", "box", -35, 5.5, -20, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "PierW3", "arcade", "box", -35, 5.5, -12, 2, 11, 2, 0, "A", false },
 	{ "Arcades", "SpandrelW", "arcade", "box", -35, 11, -20, 2, 2, 32, 0, "A", false },
-	{ "Arcades", "CeilingW", "floor", "box", -40, 11.5, -20, 8, 1, 32, 0, "A", false },
+	{ "Arcades", "CeilingW", "floor", "box", -39.95, 11.5, -20, 7.9, 1, 31.8, 0, "A", false },
 	{ "Roofs", "ArcadeRoofW", "roof", "wedge", -39, 13.5, -20, 32, 3, 10, 270, "A", false },
 	{ "Stairs", "CafeStair", "stair", "wedge", 57, 6, -20, 6, 12, 16, 0, "A", false },
 	{ "Spawn", "ShrineE", "cover", "box", 10, 4, -94.5, 6, 8, 7, 0, "A", false },
@@ -295,13 +295,13 @@ local ROWS: { Row } = {
 	{ "Arcades", "PierE2'", "arcade", "box", -35, 5.5, 20, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "PierE3'", "arcade", "box", -35, 5.5, 12, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "SpandrelE'", "arcade", "box", -35, 11, 20, 2, 2, 32, 180, "B", false },
-	{ "Arcades", "TerraceE'", "floor", "box", -40, 11.5, 20, 8, 1, 32, 180, "B", false },
+	{ "Arcades", "TerraceE'", "floor", "box", -39.95, 11.5, 20, 7.9, 1, 31.8, 180, "B", false },
 	{ "Arcades", "BalustradeE'", "rail", "box", -34.5, 13.5, 20, 1, 3, 32, 180, "B", false },
 	{ "Arcades", "PierW1'", "arcade", "box", 35, 5.5, 28, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "PierW2'", "arcade", "box", 35, 5.5, 20, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "PierW3'", "arcade", "box", 35, 5.5, 12, 2, 11, 2, 180, "B", false },
 	{ "Arcades", "SpandrelW'", "arcade", "box", 35, 11, 20, 2, 2, 32, 180, "B", false },
-	{ "Arcades", "CeilingW'", "floor", "box", 40, 11.5, 20, 8, 1, 32, 180, "B", false },
+	{ "Arcades", "CeilingW'", "floor", "box", 39.95, 11.5, 20, 7.9, 1, 31.8, 180, "B", false },
 	{ "Roofs", "ArcadeRoofW'", "roof", "wedge", 39, 13.5, 20, 32, 3, 10, 90, "B", false },
 	{ "Stairs", "CafeStair'", "stair", "wedge", -57, 6, 20, 6, 12, 16, 180, "B", false },
 	{ "Spawn", "ShrineE'", "cover", "box", -10, 4, 94.5, 6, 8, 7, 180, "B", false },
@@ -330,12 +330,12 @@ local ROWS: { Row } = {
 
 -- Paving zones over the ground slab (name, x0, x1, z0, z1).
 local FLOORS: { { any } } = {
-	{ "PlazaFloor_A", -34, 34, -36, 0 },
-	{ "PlazaFloor_B", -34, 34, 0, 36 },
-	{ "ForecourtFloor_A", -12, 12, -92, -40 },
-	{ "ForecourtFloor_B", -12, 12, 40, 92 },
-	{ "CloisterFloor_A", -20, 20, -136, -108 },
-	{ "CloisterFloor_B", -20, 20, 108, 136 },
+	{ "PlazaFloor_A", -33.9, 33.9, -35.9, 0 },
+	{ "PlazaFloor_B", -33.9, 33.9, 0, 35.9 },
+	{ "ForecourtFloor_A", -11.9, 11.9, -92, -40.1 },
+	{ "ForecourtFloor_B", -11.9, 11.9, 40.1, 92 },
+	{ "CloisterFloor_A", -19.9, 19.9, -135.9, -108.1 },
+	{ "CloisterFloor_B", -19.9, 19.9, 108.1, 135.9 },
 }
 
 -- Team, index, x, z, yaw (degrees; the pad faces the enemy end).
@@ -352,10 +352,10 @@ local SPAWNS: { { any } } = {
 
 -- Name, centre x, z, width x, depth z (12 tall, in the cloister gates).
 local BARRIERS: { { any } } = {
-	{ "BarrierA_E", 16, -106, 8, 4 },
-	{ "BarrierB_E", -16, 106, 8, 4 },
-	{ "BarrierA_W", -16, -106, 8, 4 },
-	{ "BarrierB_W", 16, 106, 8, 4 },
+	{ "BarrierA_E", 16, -106, 8.2, 3.9 },
+	{ "BarrierB_E", -16, 106, 8.2, 3.9 },
+	{ "BarrierA_W", -16, -106, 8.2, 3.9 },
+	{ "BarrierB_W", 16, 106, 8.2, 3.9 },
 }
 
 local function hex(s: string): Color3
