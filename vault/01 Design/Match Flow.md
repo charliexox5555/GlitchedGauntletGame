@@ -39,8 +39,7 @@ Both sides see the same 3 guns. The offer stays the same through a phase and cha
 
 ### Abilities
 - **Fixed slots (2026-11-03):** every ability lives in one slot: slot 1 = Q, slot 2 = E, slot 3 = T (keys become rebindable later). The list is in [Upgrade Paths](Abilities/Upgrade%20Paths.md) → Keys (Q: Updraft, Stim · E: Dash, Molly, Recon, Heal Orb, Recall · T: Firewall, Frost).
-- **New abilities:** up to 3 random abilities **for the slots you haven't filled** (an ability for a filled slot is never offered). Both sides are dealt from the same shuffled order. A slot with few abilities (Q and T have 2 each) can mean fewer than 3 cards.
-- **Upgrades:** once there's nothing new to offer (all 3 slots full), the row shows **one column per slot** with that ability's upgrade cards. You pick **one card per draft**:
+- **One column per slot (changed 2026-11-03, like Gauntlet: Glitched):** the ability row always has 3 columns, Q / E / T. An **empty** slot's column offers **one new ability for that slot** (the first of a shuffled order both sides share). A **filled** slot's column offers **that ability's upgrades**. So once you draft an ability it's locked into its key, and the next draft shows its upgrade next to new abilities for your other keys. You pick **one card per draft**, from any column:
   - an ability at level 1 offers **path A** and **path B**, plus the **glitch path** by chance (8% per ability, +3% every draft that offered none, capped at 25%; magenta card);
   - an ability at level 2 offers the **next level of its path**; level 3 is **MAXED**.
   - Studio: `Config/Dev ALWAYS_GLITCH_CARDS` puts the glitch card in every level-1 column.
@@ -49,12 +48,13 @@ Both sides see the same 3 guns. The offer stays the same through a phase and cha
 - The draft screen shows the enemy's abilities with their levels.
 - Code: `DraftService` (offers and picks, server-checked), `DraftController` (cards), numbers in `Config/Match` (`ABILITY_OFFERS`, `GLITCH`).
 - **Tested 2026-11-03 (Studio match vs the test opponent):** abilities go into their own slots, round 4 offers A/B per ability, a pity-rolled glitch card appeared, Firewall L1 → B2 → B3 applied in game.
+- **Tested 2026-11-03, one column per slot:** round 1 offered Stim (Q), Molly (E), Frost (T); after picking Stim, round 2 showed Stim A2 / B2 in Q next to Dash (E) and Firewall (T); after A2, round 3 offered Stim A3. [Playtest](../05%20Production/Playtests/2026-11-03%20Draft%20Columns.md)
 
 ### Parked for later
-Set aside for this first version, not dropped: the loser's extra card and reroll, overtime with a shrinking zone, rematch, mobile and gamepad controls, final UI design.
+Set aside for this first version, not dropped: the loser's extra card and reroll, overtime with a shrinking zone, rematch, mobile and gamepad controls.
 
 ## Rough UI
-Only built to be playable: full-screen layout in Scale with a 16:9 aspect constraint, on PC. Final design comes later.
+Only built to be playable: full-screen layout in Scale with a 16:9 aspect constraint, on PC. The final design is in Figma: [UI Design](../02%20Art/UI%20Design.md) (v1, waiting for review).
 
 ## References
 Saved in `02 Art/References/match-ui/third-party/` (git-ignored, the repo is public).

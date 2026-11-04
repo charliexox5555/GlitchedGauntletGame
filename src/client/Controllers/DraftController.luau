@@ -3,8 +3,8 @@
 -- abilities below, your kit and LOCK IN at the bottom, like Gauntlet: Glitched
 -- (vault/01 Design/Match Flow.md). The server dealt these cards and checks every
 -- pick; this only shows them and asks. Layout is Scale inside a 16:9 panel.
--- Each ability has its own slot (its key chip shows it). Once the slots are
--- full, the row shows one column per slot with that ability's upgrade cards
+-- The ability row has one column per slot (its key chip shows it): an empty
+-- slot shows a new ability for it, a filled slot that ability's upgrade cards
 -- (vault/01 Design/Abilities/Upgrade Paths.md); the glitch card is magenta.
 
 local Players = game:GetService("Players")
@@ -142,12 +142,10 @@ local function refreshSelection()
 	end
 	if lockHint then
 		local o = offer
-		local slot = if o and #o.abilities > 0 then "ability" else nil
 		lockHint.Text = if ready
 			then "Ready"
 			elseif not selectedGun then "Choose a gun"
-			elseif o and #(o.upgrades or {}) > 0 then "Choose an upgrade"
-			elseif slot then "Choose an ability"
+			elseif o and not nothingToPick(o) then "Choose an ability or upgrade"
 			else ""
 	end
 end
@@ -299,10 +297,10 @@ local function abilityFace(button: Instance, id: string, dim: boolean)
 	return stats
 end
 
-local function abilityCard(parent: Instance, id: string, index: number): Card
+local function abilityCard(parent: Instance, id: string, slot: number): Card
 	local button = make("TextButton", {
 		Name = id,
-		Position = UDim2.fromScale((index - 1) * 0.34, 0),
+		Position = UDim2.fromScale((slot - 1) * 0.34, 0),
 		Size = UDim2.fromScale(0.32, 1),
 		BackgroundColor3 = CARD,
 		AutoButtonColor = false,
@@ -404,8 +402,8 @@ local function upgradeCard(
 	return { button = button, stroke = stroke, id = c.key, rest = rest }
 end
 
--- A slot's column once every slot is full: the ability, its level, and the
--- upgrade cards for it (none left: maxed).
+-- A filled slot's column: the ability, its level, and the upgrade cards for
+-- it (none left: maxed).
 local function upgradeColumn(
 	parent: Instance,
 	slot: number,
@@ -552,39 +550,36 @@ local function show(o: MatchState.DraftOffer)
 
 	-- Abilities.
 	local upgrades = o.upgrades or {}
-	text(
-		p,
-		if #o.abilities > 0
-			then "DRAFT AN ABILITY"
-			elseif #upgrades > 0 then "UPGRADE AN ABILITY"
-			else "YOUR ABILITIES",
-		{
-			Position = UDim2.fromScale(0.02, 0.385),
-			Size = UDim2.fromScale(0.4, 0.032),
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = MUTED,
-		}
-	)
+	text(p, if #o.abilities > 0 or #upgrades > 0 then "DRAFT AN ABILITY" else "YOUR ABILITIES", {
+		Position = UDim2.fromScale(0.02, 0.385),
+		Size = UDim2.fromScale(0.4, 0.032),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = MUTED,
+	})
 	local abilities = make("Frame", {
 		Name = "AbilityRow",
 		Position = UDim2.fromScale(0.02, 0.422),
 		Size = UDim2.fromScale(0.96, 0.42),
 		BackgroundTransparency = 1,
 	}, p)
-	if #o.abilities > 0 then
-		for i, id in o.abilities do
-			table.insert(abilityCards, abilityCard(abilities, id, i))
-		end
-	else
-		for slot = 1, ModsConfig.SLOTS do
-			local cards: { MatchState.UpgradeCard } = {}
-			for _, c in upgrades do
-				if c.slot == slot then
-					table.insert(cards, c)
+	for slot = 1, ModsConfig.SLOTS do
+		local owned = o.kit[slot] or ""
+		if owned == "" then
+			for _, id in o.abilities do
+				local def = Mods.def(id)
+				if def and def.slot == slot then
+					table.insert(abilityCards, abilityCard(abilities, id, slot))
 				end
 			end
-			upgradeColumn(abilities, slot, o.kit[slot] or "", (o.levels or {})[slot] or "", cards)
+			continue
 		end
+		local cards: { MatchState.UpgradeCard } = {}
+		for _, c in upgrades do
+			if c.slot == slot then
+				table.insert(cards, c)
+			end
+		end
+		upgradeColumn(abilities, slot, owned, (o.levels or {})[slot] or "", cards)
 	end
 
 	-- Your kit, and lock in.

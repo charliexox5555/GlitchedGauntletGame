@@ -4,11 +4,12 @@
 -- The server rolls and stores every offer, and a pick is only ever checked
 -- against that stored list, so a client can't ask for anything it wasn't dealt.
 --
--- Abilities live in fixed slots (Config/Mods `slot`): new abilities are only
--- offered for slots you haven't filled. With nothing new to offer, the cards
--- are upgrades (vault/01 Design/Abilities/Upgrade Paths.md): for each ability
--- at level 1, path A and path B (and sometimes the glitch path); at level 2,
--- the next level of its path. One card per draft.
+-- Abilities live in fixed slots (Config/Mods `slot`), and the ability row has
+-- one column per slot, like Gauntlet: Glitched: an empty slot offers one new
+-- ability for that slot; a filled slot offers its upgrades
+-- (vault/01 Design/Abilities/Upgrade Paths.md): at level 1, path A and path B
+-- (and sometimes the glitch path); at level 2, the next level of its path. One
+-- card per draft, from any column.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -128,8 +129,8 @@ local function card(id: string, slot: number, level: string): MatchState.Upgrade
 	return { key = id .. ":" .. level, id = id, slot = slot, level = level }
 end
 
--- The upgrade cards for a seat whose slots are settled: the next level of
--- each ability, and at level 1 its two paths plus, by chance, the glitch.
+-- The upgrade cards for a seat's filled slots: the next level of each ability,
+-- and at level 1 its two paths plus, by chance, the glitch.
 local function rollUpgrades(s: Seat): { MatchState.UpgradeCard }
 	local cards: { MatchState.UpgradeCard } = {}
 	local glitch = Config.GLITCH
@@ -243,19 +244,21 @@ function DraftService.open(
 		if current and table.find(gunOffer, current) then
 			s.gun = current
 		end
-		-- New abilities for the empty slots; with none to offer, upgrades.
-		for _, id in abilityOrder do
-			local def = Mods.def(id)
-			if def and s.kit[def.slot] == "" then
-				table.insert(s.abilities, id)
+		-- One new ability for each empty slot (the first of the shared order
+		-- that fits it), and the upgrades of every filled slot.
+		for slot = 1, ModsConfig.SLOTS do
+			if s.kit[slot] ~= "" then
+				continue
 			end
-			if #s.abilities == Config.ABILITY_OFFERS then
-				break
+			for _, id in abilityOrder do
+				local def = Mods.def(id)
+				if def and def.slot == slot then
+					table.insert(s.abilities, id)
+					break
+				end
 			end
 		end
-		if #s.abilities == 0 then
-			s.upgrades = rollUpgrades(s)
-		end
+		s.upgrades = rollUpgrades(s)
 		if typeof(key) == "Instance" and key:IsA("Player") then
 			key:SetAttribute("DraftLocked", false)
 			local offer: MatchState.DraftOffer = {

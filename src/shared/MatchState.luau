@@ -24,8 +24,8 @@ export type DraftOffer = {
 	phase: string, -- the weapon phase's name
 	endsAt: number,
 	guns: { string },
-	abilities: { string }, -- new abilities, only for empty slots
-	upgrades: { UpgradeCard }, -- once there's no new ability to offer
+	abilities: { string }, -- new abilities, one per empty slot
+	upgrades: { UpgradeCard }, -- for the filled slots
 	kit: { string }, -- your ability per slot (Q / E / T), "" = empty
 	levels: { string }, -- their levels, "" = empty
 	enemyKit: { string }, -- "id:level" for each enemy ability
