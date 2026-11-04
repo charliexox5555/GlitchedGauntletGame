@@ -26,14 +26,14 @@ end
 local PROPS: { [string]: any } = {
 	ClockTime = 13.2,
 	GeographicLatitude = 38,
-	Brightness = 2.6,
-	Ambient = rgb(128, 136, 130),
-	OutdoorAmbient = rgb(160, 170, 164),
+	Brightness = 2.2,
+	Ambient = rgb(92, 100, 96),
+	OutdoorAmbient = rgb(126, 136, 130),
 	ColorShift_Top = rgb(255, 244, 226),
 	ColorShift_Bottom = rgb(0, 0, 0),
-	EnvironmentDiffuseScale = 0.45,
+	EnvironmentDiffuseScale = 0.35,
 	EnvironmentSpecularScale = 0.35,
-	ExposureCompensation = 0,
+	ExposureCompensation = -0.3, -- tuned in Studio 2026-11-03: 0 washed the white floor and glass out
 	ShadowSoftness = 0.2,
 	GlobalShadows = true,
 }
@@ -67,12 +67,12 @@ sky.Parent = fx
 -- A light green-white haze: depth for the dome and the far halls; the floors stay crisp.
 local atmosphere = Instance.new("Atmosphere")
 atmosphere.Name = "GreenhouseAtmosphere"
-atmosphere.Density = 0.22
+atmosphere.Density = 0.16
 atmosphere.Offset = 0.1
 atmosphere.Color = rgb(222, 234, 226)
 atmosphere.Decay = rgb(162, 190, 172)
 atmosphere.Glare = 0.2
-atmosphere.Haze = 1.0
+atmosphere.Haze = 0.4
 atmosphere.Parent = fx
 
 local bloom = Instance.new("BloomEffect")
@@ -85,9 +85,9 @@ bloom.Parent = fx
 local grade = Instance.new("ColorCorrectionEffect")
 grade.Name = "GreenhouseGrade"
 grade.Brightness = 0
-grade.Contrast = 0.08
-grade.Saturation = 0.12
-grade.TintColor = rgb(250, 255, 248)
+grade.Contrast = 0.18
+grade.Saturation = 0.22
+grade.TintColor = rgb(255, 248, 238) -- warm, against the glass's cyan cast
 grade.Parent = fx
 
 local rays = Instance.new("SunRaysEffect")

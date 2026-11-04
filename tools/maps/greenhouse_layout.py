@@ -374,7 +374,8 @@ BLOCKS: list = CENTER + HALF + [s.rotated() for s in HALF]
 
 SPAWNS_B = [(-6.0, 108.0), (6.0, 108.0), (-6.0, 114.0), (6.0, 114.0)]
 SPAWNS_A = [(-x, -z) for x, z in SPAWNS_B]
-BARRIERS_B = [B("Barrier", "Barriers", -18, -16, 0, DOOR_H, 106, 114, "barrier"), B("Barrier", "Barriers", 16, 18, 0, DOOR_H, 106, 114, "barrier")]
+# 0.1 inside each wall face, so the barrier never shares a plane with the door frame.
+BARRIERS_B = [B("Barrier", "Barriers", -17.9, -16.1, 0, DOOR_H, 106, 114, "barrier"), B("Barrier", "Barriers", 16.1, 17.9, 0, DOOR_H, 106, 114, "barrier")]
 
 # Places, for routes and labels (team B's set; A's are turned).
 WAYPOINTS = {
