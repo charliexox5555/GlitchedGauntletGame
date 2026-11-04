@@ -24,6 +24,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 
 local AudioController = require(script.Parent.AudioController)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
@@ -1096,6 +1097,149 @@ local function animateWorldWeapon(character: Model?, modelName: string, clipId: 
 	animator:play("Fire")
 end
 
+-- Other players' guns kick in their hands on every shot: the grip's C1 is
+-- offset on this client only (back along the barrel, muzzle up) and springs
+-- home (Config/Juice WORLD_KICK). Part1 = Part0 * C0 * T * C1^-1, so moving
+-- Part1 by K in its own space is C1 = K^-1 * C1.
+type GunKick = {
+	motor: Motor6D,
+	base: CFrame,
+	forward: Vector3,
+	back: number,
+	rise: number,
+	k: number,
+}
+local gunKicks: { [Motor6D]: GunKick } = {}
+
+local function kickWorldGun(
+	character: Model?,
+	modelName: string,
+	config: WeaponConfig,
+	muzzle: Attachment?
+)
+	local weapon = character and character:FindFirstChild(modelName)
+	local motor = weapon and weapon:FindFirstChild("WeaponGrip", true)
+	if not motor or not motor:IsA("Motor6D") or not motor.Part1 then
+		return
+	end
+	local kick = gunKicks[motor]
+	if not kick then
+		local forward = Vector3.new(0, 0, -1)
+		local handle = motor.Part1
+		if muzzle and handle then
+			local toMuzzle = handle.CFrame:PointToObjectSpace(muzzle.WorldPosition)
+			if toMuzzle.Magnitude > 0.05 then
+				forward = toMuzzle.Unit
+			end
+		end
+		local new: GunKick =
+			{ motor = motor, base = motor.C1, forward = forward, back = 0, rise = 0, k = 0 }
+		kick = new
+		gunKicks[motor] = new
+		motor.Destroying:Once(function()
+			gunKicks[motor] = nil
+		end)
+	end
+	local w = Juice.WORLD_KICK
+	local recoil = config.recoil
+	local up = if recoil then recoil.up else 0.4
+	local active = kick :: GunKick
+	active.back = w.back + w.backPerUp * up
+	active.rise = math.rad(w.rise + w.risePerUp * up)
+	active.k = 1
+end
+
+local function stepGunKicks(dt: number)
+	local decay = math.exp(-Juice.WORLD_KICK.recover * dt)
+	for motor, kick in gunKicks do
+		if kick.k <= 0 then
+			continue
+		end
+		kick.k *= decay
+		if kick.k < 0.01 then
+			kick.k = 0
+			motor.C1 = kick.base
+			continue
+		end
+		local handle = motor.Part1
+		if not handle then
+			continue
+		end
+		-- Muzzle up: turn the barrel toward the world's up, seen from the gun.
+		local upLocal = handle.CFrame:VectorToObjectSpace(Vector3.yAxis)
+		local axis = kick.forward:Cross(upLocal)
+		if axis.Magnitude < 1e-3 then
+			continue
+		end
+		local k = kick.k
+		local offset = CFrame.new(-kick.forward * kick.back * k)
+			* CFrame.fromAxisAngle(axis.Unit, kick.rise * k)
+		motor.C1 = offset:Inverse() * kick.base
+	end
+end
+
+-- The body you hit flashes for a moment (Config/Juice HIT_FLASH).
+type Flash = { highlight: Highlight, startedAt: number, time: number, from: number }
+local flashes: { [Model]: Flash } = {}
+
+local function bodyAt(position: Vector3): Model?
+	local params = OverlapParams.new()
+	local own = Players.LocalPlayer.Character
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = if own then { own } else {}
+	for _, part in Workspace:GetPartBoundsInRadius(position, Juice.HIT_FLASH.search, params) do
+		local node: Instance? = part.Parent
+		while node and node ~= Workspace do
+			if node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") then
+				return node
+			end
+			node = node.Parent
+		end
+	end
+	return nil
+end
+
+function EffectsController.hitFlash(position: Vector3, head: boolean, killed: boolean)
+	local body = bodyAt(position)
+	if not body then
+		return
+	end
+	local f = Juice.HIT_FLASH
+	local spec = if killed then f.kill elseif head then f.head else f.body
+	local flash = flashes[body]
+	if not flash then
+		local highlight = Instance.new("Highlight")
+		highlight.Name = "HitFlash"
+		highlight.OutlineTransparency = 1
+		highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+		highlight.Adornee = body
+		highlight.Parent = body
+		local new: Flash = { highlight = highlight, startedAt = 0, time = 0, from = 1 }
+		flash = new
+		flashes[body] = new
+	end
+	local active = flash :: Flash
+	active.highlight.FillColor = spec.color
+	active.highlight.FillTransparency = spec.transparency
+	active.highlight.Enabled = true
+	active.startedAt = os.clock()
+	active.time = spec.time
+	active.from = spec.transparency
+end
+
+local function stepFlashes()
+	local now = os.clock()
+	for body, flash in flashes do
+		local t = (now - flash.startedAt) / flash.time
+		if t >= 1 or not body.Parent then
+			flash.highlight:Destroy()
+			flashes[body] = nil
+		else
+			flash.highlight.FillTransparency = flash.from + (1 - flash.from) * t
+		end
+	end
+end
+
 -- Where a remote shot from `origin` toward `finish` landed (for its impact).
 local function remoteImpact(
 	character: Model?,
@@ -1157,6 +1301,14 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 		animateWorldWeapon(character, "WorldWeaponLeft", models.left)
 	else
 		animateWorldWeapon(character, "WorldWeapon", if models then models.right else weaponId)
+	end
+	if not config.melee then
+		kickWorldGun(
+			character,
+			if left then "WorldWeaponLeft" else "WorldWeapon",
+			config,
+			worldPoint(character, "Muzzle", left)
+		)
 	end
 	-- Guns with several muzzles fire them in turn (we don't know their
 	-- ammo, so just alternate per shooter).
@@ -1235,6 +1387,8 @@ function EffectsController.start()
 		end)
 	end
 	RunService.RenderStepped:Connect(function(frameDt)
+		stepGunKicks(frameDt)
+		stepFlashes()
 		local dt = frameDt * timeScale
 		fxClock += dt
 		for _, animator in worldAnimators do

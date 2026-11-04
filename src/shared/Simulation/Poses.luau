@@ -173,7 +173,10 @@ local function aimPitch(player: Player): number
 	return 0
 end
 
-local function stepCharacter(player: Player, character: Model)
+-- The pitch each character is posed with, eased toward its AimPitch input.
+local posedPitch: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+
+local function stepCharacter(player: Player, character: Model, dt: number)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	local root = character:FindFirstChild("HumanoidRootPart")
 	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
@@ -192,9 +195,15 @@ local function stepCharacter(player: Player, character: Model)
 	local held = player:GetAttribute("ModHeld")
 	local holding = alive and typeof(held) == "number" and held ~= 0
 	local armed = if alive and config and config.fireMode ~= "Melee" and not holding then 1 else 0
-	local pitch = aimPitch(player)
+	local target = aimPitch(player)
+	local previous = posedPitch[character] or target
+	local pitch = previous + (target - previous) * (1 - math.exp(-Animations.AIM_SMOOTHING * dt))
+	posedPitch[character] = pitch
 	local speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
-	local moving = if speed > Animations.MOVING_SPEED then 1 else 0
+	-- Crouch blends into crouch-walk over a small speed range instead of a
+	-- hard switch at MOVING_SPEED.
+	local moving =
+		math.clamp((speed - Animations.MOVING_SPEED * 0.5) / Animations.MOVING_SPEED, 0, 1)
 	-- Crash Down's dive (simulation-written UpdraftSlam).
 	local diving = alive and character:GetAttribute("UpdraftSlam") == "Down"
 	local crouch = if state == "Crouch" or (diving and not SLAM_POSE) then 1 else 0
@@ -287,19 +296,19 @@ local function stepCharacter(player: Player, character: Model)
 	end
 end
 
-local function step(_dt: number)
+local function step(dt: number)
 	if RunService:IsServer() then
 		for _, player in Players:GetPlayers() do
 			local character = player.Character
 			if character then
-				stepCharacter(player, character)
+				stepCharacter(player, character, dt)
 			end
 		end
 	else
 		local player = Players.LocalPlayer
 		local character = player and player.Character
 		if character then
-			stepCharacter(player, character)
+			stepCharacter(player, character, dt)
 		end
 	end
 end

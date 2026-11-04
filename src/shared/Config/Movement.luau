@@ -16,7 +16,7 @@ return table.freeze({
 
 	CROUCH_CAMERA_DROP = 1.4, -- studs the camera lowers while crouched
 	SLIDE_CAMERA_DROP = 1.9,
-	SLIDE_CAMERA_TILT = 5, -- degrees of roll while sliding
+	SLIDE_CAMERA_TILT = 3, -- degrees of roll while sliding (was 5: small for comfort, Config/Juice)
 	CAMERA_STIFFNESS = 140, -- crouch/slide camera spring
 	CAMERA_DAMPING_RATIO = 0.9, -- 1 = no overshoot, lower = a little bounce
 	SPRINT_FOV_KICK = 4, -- extra degrees of FOV while sprinting

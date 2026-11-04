@@ -55,13 +55,17 @@ return table.freeze({
 
 	-- Seconds each pose takes to fade in or out (the Animator's own weight
 	-- fade), so state changes blend instead of popping.
+	-- (gait changes 0.15-0.25 s: LihFolk "Playback, Priorities and Blending").
 	FADE = table.freeze({
-		aim = 0.15,
-		sprint = 0.2,
-		crouch = 0.15,
-		slide = 0.12,
+		aim = 0.1, -- short: the pitch itself is already smoothed (AIM_SMOOTHING)
+		sprint = 0.25,
+		crouch = 0.2,
+		slide = 0.15,
 	}),
 	-- Weights snap to steps of this size, so tiny pitch changes don't restart
-	-- a fade every simulation step.
-	WEIGHT_STEP = 0.05,
+	-- a fade every simulation step (0.05 made the aim move in ~3.5 deg steps).
+	WEIGHT_STEP = 0.02,
+	-- How fast the posed pitch follows the camera pitch (1/s, exponential), so
+	-- other players' aim glides instead of stepping with each input update.
+	AIM_SMOOTHING = 14,
 })

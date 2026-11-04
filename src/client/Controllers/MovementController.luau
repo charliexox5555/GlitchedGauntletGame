@@ -9,9 +9,11 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
+local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local MovementSim = require(ReplicatedStorage.Shared.Simulation.Movement)
 
+local AudioController = require(script.Parent.AudioController)
 local CameraController = require(script.Parent.CameraController)
 
 export type MoveState = "Idle" | "Walk" | "Sprint" | "Crouch" | "Slide" | "Air"
@@ -23,6 +25,7 @@ local player = Players.LocalPlayer
 local state: MoveState = "Idle"
 local cameraDrop = 0
 local dropVelocity = 0
+local fallSpeed = 0 -- the fastest downward speed of this time in the air
 
 local function character(): Model?
 	return player.Character
@@ -34,7 +37,37 @@ local function update(dt: number)
 	if not c or not humanoid then
 		return
 	end
+	local previous = state
 	state = ((c:GetAttribute("MoveState") :: string?) or "Idle") :: MoveState
+	local root = c:FindFirstChild("HumanoidRootPart")
+	local vy = if root and root:IsA("BasePart") then root.AssemblyLinearVelocity.Y else 0
+	if state == "Air" then
+		fallSpeed = math.max(fallSpeed, -vy)
+	elseif previous == "Air" then
+		-- Landed: the camera dips by how fast we fell (k^2), with a thud.
+		local land = Juice.LAND
+		if fallSpeed > land.minFall then
+			local k = math.min(fallSpeed / land.fullFall, 1)
+			-- An impulse on the height spring: its peak is about v / (omega * e).
+			dropVelocity += land.dip * k * k * math.sqrt(Movement.CAMERA_STIFFNESS) * math.exp(1)
+			if fallSpeed > land.soundFrom then
+				AudioController.play(
+					land.sound.id,
+					{ group = "Foley", volume = land.sound.volume * (0.6 + 0.4 * k) }
+				)
+			end
+		end
+		fallSpeed = 0
+	end
+	if state == "Slide" and previous ~= "Slide" then
+		-- Slide start: a quick FOV punch and the scrape.
+		local slide = Juice.SLIDE
+		CameraController.punchFov(slide.fovPunch, slide.punchTime)
+		AudioController.play(
+			slide.sound.id,
+			{ group = "Foley", volume = slide.sound.volume, cut = slide.sound.cut }
+		)
+	end
 
 	-- Camera height: a damped spring so crouch/slide dips feel weighty, not snappy.
 	local target = if state == "Slide"

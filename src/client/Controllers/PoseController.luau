@@ -16,8 +16,9 @@ local InputController = require(script.Parent.InputController)
 
 local PoseController = {}
 
--- Only send a new pitch when it moved this much (fraction of 90 degrees).
-local PITCH_STEP = 0.01
+-- Only send a new pitch when it moved this much (fraction of 90 degrees,
+-- about 0.45 deg); the simulation smooths it (Config/Animations AIM_SMOOTHING).
+local PITCH_STEP = 0.005
 
 local lastSent = 0
 

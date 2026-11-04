@@ -21,7 +21,9 @@ local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 local KillFeed = require(script.Parent.Parent.Util.KillFeed)
 local Ui = require(script.Parent.Parent.Util.Ui)
+local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local AudioController = require(script.Parent.AudioController)
+local CameraController = require(script.Parent.CameraController)
 local InputController = require(script.Parent.InputController)
 
 local HudController = {}
@@ -82,6 +84,7 @@ local shownGap = 6
 local crosshairWanted = true
 local crosshairAlpha = 1
 local indicatorAge = math.huge
+local hitPulse = 0 -- the red edge pulse when hit (0..1), fades over Juice.FLINCH.pulseTime
 -- Health chip: the bar's lost part stays red for CHIP_HOLD, then drains.
 local CHIP_HOLD = 0.4
 local CHIP_DRAIN = 0.35
@@ -562,6 +565,25 @@ function HudController.damageFrom(sourcePosition: Vector3)
 	indicatorAge = 0
 end
 
+-- Getting hit: the camera is pushed a little away from the shot and rolls
+-- (never turned, so your aim stays put), and the screen edges pulse red.
+function HudController.flinch(sourcePosition: Vector3, amount: number)
+	local cam = Workspace.CurrentCamera
+	if not cam then
+		return
+	end
+	local f = Juice.FLINCH
+	local s = math.clamp(amount / f.fullDamage, 0.25, 1)
+	local away = (cam.CFrame.Position - sourcePosition) * Vector3.new(1, 0, 1)
+	if away.Magnitude > 0.1 then
+		CameraController.lunge(away.Unit * f.offset * s, 0.25)
+		-- Roll away from the side the shot came from.
+		local side = cam.CFrame.RightVector:Dot(-away.Unit)
+		CameraController.rollKick((if side >= 0 then 1 else -1) * f.roll * s, 0.3)
+	end
+	hitPulse = math.max(hitPulse, f.pulse * s)
+end
+
 -- Loop -------------------------------------------------------------------------
 
 local function update(dt: number)
@@ -625,7 +647,8 @@ local function update(dt: number)
 				UDim2.fromScale(math.clamp((shield :: number) / Combat.MAX_SHIELD, 0, 1), 1)
 		end
 		local hurt = if frac > 0 then math.clamp((0.45 - frac) / 0.35, 0, 1) else 0
-		r.vignette.GroupTransparency = 1 - hurt
+		hitPulse = math.max(hitPulse - dt / Juice.FLINCH.pulseTime, 0)
+		r.vignette.GroupTransparency = 1 - math.max(hurt, hitPulse)
 	end
 end
 
@@ -644,9 +667,13 @@ function HudController.start()
 	RunService.RenderStepped:Connect(update)
 	Net.event("Killed").OnClientEvent:Connect(KillFeed.kill)
 	local lastHurt = 0
-	Net.event("Damaged").OnClientEvent:Connect(function(from: Vector3)
+	Net.event("Damaged").OnClientEvent:Connect(function(from: Vector3, amount: number?)
 		if typeof(from) == "Vector3" then
 			HudController.damageFrom(from)
+			HudController.flinch(
+				from,
+				if typeof(amount) == "number" and amount == amount then amount else 20
+			)
 		end
 		local now = os.clock()
 		if now - lastHurt >= Audio.DAMAGE_MIN_GAP then

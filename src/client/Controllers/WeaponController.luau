@@ -1127,6 +1127,9 @@ local function onHitConfirm(confirm: Types.HitConfirm)
 	end
 	local head = confirm.zone == "Head"
 	HudController.hitMarker(head)
+	if typeof(confirm.position) == "Vector3" then
+		EffectsController.hitFlash(confirm.position, head, confirm.killed == true)
+	end
 	HudController.damageNumber(
 		confirm.damage,
 		head,
