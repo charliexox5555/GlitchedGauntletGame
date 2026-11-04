@@ -238,8 +238,8 @@ def plan():
         B("LodgeFloor", "Lodge", -27, 27, -1, 0, 101, 119, "floor", "boards"),
         B("TerraceFloor", "Terrace", -OUT - 1, -25, -1, 0, 41, 83, "floor", "gravel"),
         B("LawnFloor", "Terrace", -OUT - 1, -41, -1, 0, 83, 101, "floor", "gravel"),
-        B("ShedFloor", "Sheds", 25, OUT + 1, -1, 0, 41, 83, "floor", "shed_floor"),
-        B("YardFloor", "Sheds", 41, OUT + 1, -1, 0, 83, 101, "floor", "shed_floor"),
+        B("ShedFloor", "Sheds", 41, OUT + 1, -1, 0, 41, 101, "floor", "shed_floor"),  # seams away from walls
+        B("ShedFloorW", "Sheds", 25, 41, -1, 0, 41, 83, "floor", "shed_floor"),
     ]
 
     # ---------------- the Dome (80 x 80 inside, walls 40 tall, dome above)
@@ -258,8 +258,9 @@ def plan():
         d = np.array([math.cos(phi), 0.0, math.sin(phi)])
         t = np.array([-math.sin(phi), 0.0, math.cos(phi)])
         ctr.append(OBB("FountainRim", "Fountain", d * 11.5 + np.array([0, 1.5, 0]), (10.4, 3.0, 1.0), (t, (0, 1, 0), np.cross(t, (0, 1, 0))), "low"))
-    ctr.append(CYL("FountainPedestal", "Fountain", 0, 0, 8, 0, 9, "cover"))
-    ctr.append(CYL("FountainBowl", "Fountain", 0, 0, 14, 5, 6, "cover"))
+    # The fountain's tiers, each a cylinder matching the Blender piece: base, shaft, bowl, upper shaft, top basin.
+    for nm, d, y0, y1 in (("FountainBase", 8, 0, 1.2), ("FountainShaft", 6, 1.2, 5), ("FountainBowl", 14, 5, 6), ("FountainUpper", 5, 6, 9.6), ("FountainTop", 6.4, 9.6, 10.2)):
+        ctr.append(CYL(nm, "Fountain", 0, 0, d, y0, y1, "cover"))
     # Bridge over the fountain, gallery to gallery, open iron railings (top rail only stops you walking off).
     ctr.append(B("Bridge", "Gallery", -28, 28, GAL - 1, GAL, -4, 4, "deck"))
     ctr.append(B("BridgeRail", "Gallery", -28, 28, GAL + 3.2, GAL + 3.5, 3.7, 4, "rail"))
@@ -352,7 +353,7 @@ def plan():
     hb += run_z("brick", "ShedPerimeter", "Shell", 42, 102, OUT + 1, SHED_CEIL + 1, look=brick)
     hb += run_x("brick", "ShedWallN", "Sheds", 42, OUT, 101, SHED_CEIL + 1, look=brick)
     hb += run_z("brick", "CorridorWall", "Sheds", 42, 100, 59, SHED_CEIL, doors=[(44, 52), (88, 96)], look=brick)
-    hb += run_x("brick", "SeedWall", "Sheds", 26, 58, 63, SHED_CEIL, doors=[(28, 36), (50, 58)], look=brick)
+    hb += run_x("brick", "SeedWall", "Sheds", 26, 58, 63, SHED_CEIL, doors=[(28, 36), (48, 56)], look=brick)
     hb += run_x("brick", "SeedWallN", "Sheds", 42, 58, 83, SHED_CEIL, doors=[(44, 52)], look=brick)
     hb.append(B("ShedCeiling", "Sheds", 26, OUT, SHED_CEIL, SHED_CEIL + 1, 42, 82, "ceiling", "shed_ceiling"))
     hb.append(B("ShedCeiling", "Sheds", 42, OUT, SHED_CEIL, SHED_CEIL + 1, 82, 100, "ceiling", "shed_ceiling"))

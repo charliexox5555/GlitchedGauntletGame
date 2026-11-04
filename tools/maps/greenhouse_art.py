@@ -147,9 +147,9 @@ class Art:
         self.walls()
         # Roofs: ridge-and-furrow bays over the Fern House and the Wing.
         for z in range(46, 82, 8):
-            self.both("Roofs", "RoofSpan48", 0, L.HALL, z, 0)
+            self.both("Roofs", "RoofSpan48", 0, 0, z, 0)
         for z in range(-36, 40, 8):
-            self.both("Roofs", "RoofSpan32", 58, L.HALL, z, 0)
+            self.both("Roofs", "RoofSpan32", 58, 0, z, 0)
         # Heroes in the middle (self-symmetric: placed once), the gallery and each team's stair.
         self.put("Dome", "Dome", 0, 0, 0, 0)
         self.put("Dome", "Fountain", 0, 0, 0, 0)
@@ -248,9 +248,13 @@ def check(verbose=True):
         print(f"Art: {len(art.place)} kit placements of {len(counts)} pieces, {len(art.parts)} decor Parts, {meshparts} MeshParts")
         if missing:
             print(f"  not in the export yet: {', '.join(sorted(missing))}")
-    bad = L.coplanar_boxes(boxes)
+    # Strict: any pair with a Part in it (Parts are boxes, so box faces are their real faces). Kit-only pairs are
+    # bounding-box candidates; the Studio audit and tools/blender/preview_map_greenhouse.py test the real triangles.
+    allbad = L.coplanar_boxes(boxes)
+    bad = [f for f in allbad if not (f[0].startswith("K:") and f[1].startswith("K:"))]
     if verbose:
-        print(f"Coplanar check (visible Parts + kit MeshPart boxes, {len(boxes)} boxes): {len(bad)} z-fighting pairs")
+        print(f"Coplanar check ({len(boxes)} boxes: visible Parts and kit MeshPart boxes): {len(bad)} z-fighting pairs with a Part; "
+              f"{len(allbad) - len(bad)} kit-only box candidates (the triangle check in the Blender preview decides those)")
         for a, b, where, hits in bad[:40]:
             ax, pa, u, v = where
             print(f"  {a}  +  {b}   plane {'xyz'[ax]}={pa:.2f} near ({u:.1f}, {v:.1f}), {hits} hits")
