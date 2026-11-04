@@ -43,11 +43,6 @@ K.RENDER_DIR = os.path.join(K.ROOT, "vault", "02 Art", "References", "maps", "do
 LANE = {"west": 0x9A3B2E, "mid": 0x2F5E9E, "east": 0x3E7D4F}
 WALL_MIX = [0x6E7277, 0xC9C2B0, 0x3B4A63, 0x6B3A33, 0x3C6766, 0x8A8F96, 0x5B6B4F]
 
-# The skyline (also placed by Art.luau; keep the two in step). Map space; the east set, the west set is it rotated.
-# Ship on the far side of the channel (hull x 90..126), STS cranes on the far quay (x 132+) reaching back over it.
-SKY_CRANES = ((158, 60, 180), (158, -12, 180), (-158, -60, 0), (-158, 12, 0))
-SHIP_STACKS = [(x, z, n) for z, ns in ((-50, (2, 3, 3, 2)), (-16, (3, 2, 3, 3)), (18, (2, 3, 2, 1))) for x, n in zip((-12, -4, 4, 12), ns)]
-FAR_STACKS = ((190, -120, 2), (190, -86, 3), (222, -120, 1), (222, 100, 2), (190, 120, 3), (254, 40, 2))
 
 
 # ---------------------------------------------------------------- Roblox-space geometry helpers
@@ -200,42 +195,46 @@ def make_mats():
 # ---------------------------------------------------------------- containers
 
 def p_container(name, L, mats, kit):
+	# Everything stays inside the 8 x 8 x L envelope (castings are the only faces on it), so stacked or touching
+	# boxes never share a visible face; no two parts share a plane where they overlap (the z-fight rule).
 	h = L / 2
 	acc = Acc()
-	# Frame: corner posts, side rails, end rails, corner castings.
 	fr = []
 	for sx in (-1, 1):
 		for sz in (-1, 1):
-			fr.append(RB(sx * 3.45, sx * 4.0, 0, 8, sz * (h - 0.55), sz * h, ch=0.05))
-			fr.append(RB(sx * 3.35, sx * 4.05, 0, 0.6, sz * (h - 0.65), sz * (h + 0.05)))
-			fr.append(RB(sx * 3.35, sx * 4.05, 7.4, 8.0, sz * (h - 0.65), sz * (h + 0.05)))
-		fr.append(RB(sx * 3.55, sx * 4.0, 0, 0.5, -h + 0.5, h - 0.5))
-		fr.append(RB(sx * 3.55, sx * 4.0, 7.55, 8.0, -h + 0.5, h - 0.5))
+			# Corner castings: the outermost faces (x +-4, z +-h, y 0 / 8).
+			fr.append(RB(sx * 3.35, sx * 4.0, 0, 0.6, sz * (h - 0.65), sz * h))
+			fr.append(RB(sx * 3.35, sx * 4.0, 7.4, 8.0, sz * (h - 0.65), sz * h))
+			# Corner posts between the castings, 0.05 inside them.
+			fr.append(RB(sx * 3.45, sx * 3.95, 0.6, 7.4, sz * (h - 0.55), sz * (h - 0.05)))
+		# Side rails between the castings.
+		fr.append(RB(sx * 3.55, sx * 3.95, 0.08, 0.5, -h + 0.65, h - 0.65))
+		fr.append(RB(sx * 3.55, sx * 3.95, 7.5, 7.92, -h + 0.65, h - 0.65))
 	for sz in (-1, 1):
-		fr.append(RB(-3.5, 3.5, 0, 0.6, sz * (h - 0.4), sz * h))
-		fr.append(RB(-3.5, 3.5, 7.35, 8.0, sz * (h - 0.4), sz * h))
+		fr.append(RB(-3.35, 3.35, 0.08, 0.6, sz * (h - 0.4), sz * (h - 0.05)))
+		fr.append(RB(-3.35, 3.35, 7.4, 7.92, sz * (h - 0.4), sz * (h - 0.05)))
 	acc.add("Frame", "ContainerFrame", *fr)
-	# Body: corrugated sides, corrugated blind end (-Z), roof, doors (+Z).
+	# Body: corrugated sides, corrugated blind end (-Z), roof, doors recessed 0.4 in the +Z end frame.
 	body = []
 	for sx in (-1, 1):
-		body.append(corrugated("x", sx, sx * 3.92, 0.22, 0.34, -h + 0.5, h - 0.5, 0.5, 7.55, 1.6))
-	body.append(corrugated("z", -1, -h + 0.06, 0.18, 0.3, -3.45, 3.45, 0.6, 7.35, 1.4))
-	body.append(RB(-3.55, 3.55, 7.3, 7.88, -h + 0.4, h - 0.4))
-	for x0, x1 in ((-3.45, -0.03), (0.03, 3.45)):
-		body.append(RB(x0, x1, 0.6, 7.35, h - 0.3, h - 0.08))
+		body.append(corrugated("x", sx, sx * 3.92, 0.22, 0.34, -h + 0.65, h - 0.65, 0.5, 7.5, 1.6))
+	body.append(corrugated("z", -1, -h + 0.1, 0.18, 0.3, -3.35, 3.35, 0.6, 7.4, 1.4))
+	body.append(RB(-3.55, 3.55, 7.3, 7.85, -h + 0.4, h - 0.4))
+	for x0, x1 in ((-3.35, -0.03), (0.03, 3.35)):
+		body.append(RB(x0, x1, 0.6, 7.4, h - 0.6, h - 0.42))
 		for y in (1.6, 3.95, 6.3):  # pressed horizontal ribs on the door leaves
-			body.append(RB(x0 + 0.25, x1 - 0.25, y - 0.35, y + 0.35, h - 0.08, h - 0.02))
+			body.append(RB(x0 + 0.25, x1 - 0.25, y - 0.35, y + 0.35, h - 0.42, h - 0.36))
 	acc.add("Body", "ContainerPaint", *body)
-	# Hardware: four locking bars with handles and cam keepers, door hinges.
+	# Hardware on the doors, all inside the end frame: four locking bars, cam keepers, handles, hinges.
 	hw = []
 	for x in (-2.6, -0.9, 0.9, 2.6):
-		hw.append(vcyl(x, h + 0.12, 0.09, 0.62, 7.33, segs=6))
-		hw.append(RB(x - 0.12, x + 0.12, 0.62, 0.95, h - 0.02, h + 0.3))
-		hw.append(RB(x - 0.12, x + 0.12, 7.0, 7.33, h - 0.02, h + 0.3))
-		hw.append(beam((x, 3.3, h + 0.15), (x + (0.75 if x < 0 else -0.75), 3.3, h + 0.3), 0.12, 0.12))
+		hw.append(vcyl(x, h - 0.25, 0.09, 0.62, 7.33, segs=6))
+		hw.append(RB(x - 0.12, x + 0.12, 0.62, 0.95, h - 0.42, h - 0.1))
+		hw.append(RB(x - 0.12, x + 0.12, 7.0, 7.33, h - 0.42, h - 0.1))
+		hw.append(beam((x, 3.3, h - 0.22), (x + (0.75 if x < 0 else -0.75), 3.3, h - 0.14), 0.12, 0.12))
 	for sx in (-1, 1):
 		for y in (1.2, 3.0, 4.9, 6.7):
-			hw.append(RB(sx * 3.3, sx * 3.62, y - 0.18, y + 0.18, h - 0.02, h + 0.14))
+			hw.append(RB(sx * 3.05, sx * 3.3, y - 0.18, y + 0.18, h - 0.42, h - 0.12))
 	acc.add("Hardware", "SteelDark", *hw)
 	return piece(name, acc.parts(), mats, kit)
 
@@ -257,8 +256,9 @@ def p_stair(mats, kit):
 	for i in range(n):
 		z0 = -8 + i * run
 		y = (i + 1) * rise
-		treads.append(RB(-3.55, 3.55, y - 0.18, y, z0, z0 + run + 0.05))
-		nose.append(RB(-3.55, 3.55, y - 0.2, y + 0.01, z0, z0 + 0.22))
+		top = y - 0.03  # just under the slope (and under the container top at 8)
+		treads.append(RB(-3.55, 3.55, top - 0.18, top, z0, z0 + run))
+		nose.append(RB(-3.5, 3.5, top - 0.2, top + 0.03, z0 - 0.03, z0 + 0.22))
 	acc.add("Treads", "SteelDark", *treads)
 	acc.add("Nosing", "SafetyYellow", *nose)
 	rail = []
@@ -342,13 +342,14 @@ def p_shed(mats, kit):
 	runs = [
 		("z", -1, -18.0, -13, -5), ("z", -1, -18.0, 5, 13),  # south, beside the roller door
 		("z", 1, 18.0, -13, 13),  # north
-		("x", -1, -13.0, -18, -12), ("x", -1, -13.0, -4, 4), ("x", -1, -13.0, 12, 18),  # west, between the doors
-		("x", 1, 13.0, -18, 18),  # east (water side)
+		# The long walls run between the end walls' backs (z +-17), so no two walls share a corner face.
+		("x", -1, -13.0, -17, -12), ("x", -1, -13.0, -4, 4), ("x", -1, -13.0, 12, 17),  # west, between the doors
+		("x", 1, 13.0, -17, 17),  # east (water side)
 	]
 	for axis, side, outer, a0, a1 in runs:
 		clad.append(corrugated(axis, side, outer, 0.18, 1.0, a0, a1, 2.5, H, 0.9))
 		if axis == "x":
-			plinth.append(RB(outer - side * 1.05, outer + side * 0.12, 0, 2.5, a0, a1))
+			plinth.append(RB(outer - side * 1.05, outer + side * 0.12, 0, 2.5, max(a0, -16.95), min(a1, 16.95)))
 		else:
 			plinth.append(RB(a0, a1, 0, 2.5, outer - side * 1.05, outer + side * 0.12))
 	# Heads over the openings (the greybox lintels: roller door from 13, side doors from 9).
@@ -369,12 +370,13 @@ def p_shed(mats, kit):
 			trim.append(RB(sx * 13.25, sx * 12.6, 0, H + 0.2, sz * 18.25, sz * 17.6))
 			trim.append(vcyl(sx * 13.4, sz * 17.2, 0.22, 0, H, segs=6))
 		trim.append(RB(sx * 13.0, sx * 14.0, H - 0.3, H + 0.3, -18.6, 18.6))
+	# Door frames just outside the greybox openings (roller x -5..5 to 13, doors z -12..-4 / 4..12 to 9).
 	for x in (-5.4, 5.4):
-		trim.append(RB(x - 0.4, x + 0.4, 0, 13.4, -18.5, -17.7))
+		trim.append(RB(x - 0.4, x + 0.4, 0, 13.0, -18.5, -17.7))
 	trim.append(RB(-5.8, 5.8, 13.0, 13.4, -18.5, -17.7))
 	for z0, z1 in ((-12, -4), (4, 12)):
-		trim.append(RB(-13.5, -12.7, 0, 9.4, z0 - 0.4, z0))
-		trim.append(RB(-13.5, -12.7, 0, 9.4, z1, z1 + 0.4))
+		trim.append(RB(-13.5, -12.7, 0, 9.0, z0 - 0.4, z0))
+		trim.append(RB(-13.5, -12.7, 0, 9.0, z1, z1 + 0.4))
 		trim.append(RB(-13.5, -12.7, 9.0, 9.4, z0 - 0.4, z1 + 0.4))
 	acc.add("Trim", "ShedTrim", *trim)
 	# Lane stripe band (tinted per instance) and the sign board over the roller door.
@@ -386,7 +388,7 @@ def p_shed(mats, kit):
 			stripe.append(RB(a0, a1, 10.6, 12.0, outer + side * 0.05, outer + side * 0.22))
 	acc.add("Stripe", "ShedStripe", *stripe)
 	# Roller door: the rolled-up drum and guides.
-	roller = [K.place(prism(ring_pts(0, 0, 1.0, 10, 0), "X", -5.4, 5.4), Matrix.Translation(rb((0, 14.4, -17.0))))]
+	roller = [K.place(prism(ring_pts(0, 0, 1.0, 10, 0), "X", -5.4, 5.4), Matrix.Translation(rb((0, 14.2, -16.0))))]
 	for x in (-5.15, 5.15):
 		roller.append(RB(x - 0.25, x + 0.25, 0, 13.2, -17.6, -17.2))
 	acc.add("Roller", "SteelDark", *roller)
@@ -406,12 +408,15 @@ def p_shed(mats, kit):
 	acc.add("RoofRibs", "RoofSheet", *ribs)
 	# Inside: portal frames (columns and rafters) and the floor slab tone.
 	steel = []
-	for z in (-13.5, -4.5, 4.5, 13.5):
+	# Portal frames at the solid wall bays (never in a doorway). The middle frame has a column on the water side
+	# only: on the alley side a crate stands against that bay.
+	for z in (-14.5, 0.0, 14.5):
 		for sx in (-1, 1):
-			steel.append(RB(sx * 12.0, sx * 11.4, 0, H, z - 0.3, z + 0.3))
+			if z != 0.0 or sx > 0:
+				steel.append(RB(sx * 12.0, sx * 11.4, 0, H, z - 0.3, z + 0.3))
 			steel.append(beam((sx * 11.7, H - 0.6, z), (0, R - 0.9, z), 0.5, 0.8))
 	acc.add("Frames", "RackBlue", *steel)
-	acc.add("Floor", "ShedFloor", RB(-12, 12, 0, 0.04, -17, 17))
+	acc.add("Floor", "ShedFloor", RB(-11.9, 11.9, 0.02, 0.05, -16.9, 16.9))
 	# Lights: pendant lamps inside, wall packs over the doors outside.
 	lamps, housings = [], []
 	for z in (-10, 0, 10):
@@ -419,7 +424,7 @@ def p_shed(mats, kit):
 			lamps.append(RB(x - 0.6, x + 0.6, 13.3, 13.4, z - 0.6, z + 0.6))
 			housings.append(RB(x - 0.7, x + 0.7, 13.4, 13.8, z - 0.7, z + 0.7))
 			housings.append(rod((x, 13.8, z), (x, R - 1.2, z), 0.05, segs=4))
-	for p in ((0, 15.2, -18.6), (-13.6, 10.4, -8), (-13.6, 10.4, 8)):
+	for p in ((0, 12.6, -18.6), (-13.6, 10.4, -8), (-13.6, 10.4, 8)):
 		x, y, z = p
 		if z < -18:
 			lamps.append(RB(-0.9, 0.9, y - 0.12, y, z - 0.6, z))
@@ -435,14 +440,16 @@ def p_shed(mats, kit):
 
 
 def p_office(mats, kit):
-	# Site cabin 7 (x) x 8 (z), 9 tall: door and windows on -X (facing the shed floor).
+	# Site cabin in the greybox's 7 (x) x 8 (z) x 9 footprint, door and windows on -X (the shed floor). The back
+	# (+X) stops 0.7 short of the greybox so it clears the Shed's wall columns.
 	acc = Acc()
-	acc.add("Shell", "OfficeWhite", RB(-3.5, 3.5, 0.4, 8.4, -4, 4, ch=0.12))
-	acc.add("Base", "SteelDark", RB(-3.4, 3.4, 0, 0.4, -3.9, 3.9), RB(-3.6, 3.6, 8.4, 8.7, -4.1, 4.1))
+	acc.add("Shell", "OfficeWhite", RB(-3.5, 2.8, 0.4, 8.4, -4, 4, ch=0.12))
+	acc.add("Base", "SteelDark", RB(-3.4, 2.7, 0, 0.4, -3.9, 3.9))
+	acc.add("Roof", "SteelDark", RB(-3.6, 2.9, 8.4, 8.7, -4.1, 4.1))
 	acc.add("Window_Glow", "Glow_Window", RB(-3.56, -3.5, 4.0, 6.6, 0.4, 3.4), RB(-3.56, -3.5, 4.0, 6.6, -3.4, -2.2))
 	acc.add("Door", "SteelDark", RB(-3.58, -3.5, 0.5, 6.8, -1.8, 0.0))
 	acc.add("Unit", "ContainerFrame", RB(-1.5, 1.5, 8.7, 9.0, -1.5, 1.5, ch=0.08))
-	acc.add("Stair", "SafetyYellow", RB(-4.6, -3.5, 0, 0.45, -2.2, 0.4))
+	acc.add("Stair", "SafetyYellow", RB(-4.6, -3.5, 0.06, 0.45, -2.2, 0.4))
 	return piece("Office", acc.parts(), mats, kit)
 
 
@@ -455,7 +462,7 @@ def p_rack(mats, kit):
 			up.append(RB(x - 0.12, x + 0.12, 0, 8, z - 0.12, z + 0.12))
 	for y in (0.25, 2.85, 5.45):
 		for x in (-1.2, 1.2):
-			beams.append(RB(x - 0.08, x + 0.08, y, y + 0.3, -7, 7))
+			beams.append(RB(x - 0.1 if x < 0 else x - 0.08, x + 0.08 if x < 0 else x + 0.1, y, y + 0.3, -7.05, 7.05))
 	rnd = random.Random(3)
 	for k, z0 in enumerate((-6.9, -2.2, 2.45)):
 		for lvl, y in enumerate((0.55, 3.15, 5.75)):
@@ -479,7 +486,7 @@ def p_crate(mats, kit):
 	# Pallet + wooden crate, 4 x 4 x 3.5 (the greybox low cover).
 	acc = Acc()
 	pal = []
-	for x in (-1.8, 0, 1.8):
+	for x in (-1.75, 0, 1.75):
 		pal.append(RB(x - 0.25, x + 0.25, 0, 0.35, -2, 2))
 	for z in (-1.75, -0.6, 0.6, 1.75):
 		pal.append(RB(-2, 2, 0.35, 0.5, z - 0.22, z + 0.22))
@@ -488,8 +495,8 @@ def p_crate(mats, kit):
 	bat = []
 	for sx in (-1, 1):
 		for y0 in (0.5, 3.05):
-			bat.append(RB(sx * 1.85, sx * 1.98, y0, y0 + 0.35, -1.9, 1.9))
-			bat.append(RB(-1.9, 1.9, y0, y0 + 0.35, sx * 1.85, sx * 1.98))
+			bat.append(RB(sx * 1.85, sx * 1.98, y0, y0 + 0.35, -1.98, 1.98))
+			bat.append(RB(-1.84, 1.84, y0 + 0.02, y0 + 0.33, sx * 1.85, sx * 1.98))
 		bat.append(beam((sx * 1.92, 0.7, -1.6), (sx * 1.92, 3.2, 1.6), 0.15, 0.3, up=(1, 0, 0)))
 		bat.append(beam((-1.6, 0.7, sx * 1.92), (1.6, 3.2, sx * 1.92), 0.3, 0.15, up=(0, 0, 1)))
 	acc.add("Crate", "CrateWood", *crate)
@@ -499,29 +506,29 @@ def p_crate(mats, kit):
 
 # ---------------------------------------------------------------- quay
 
-def p_quay_barrier(mats, kit):
-	# 3-tall quay wall, wall on x = -2..0 (water at +X), 8 long, with a yellow/black hazard top edge.
+def p_quay_barrier(mats, kit, length=8.0, name="QuayBarrier8"):
+	# 3-tall quay wall, wall on x = -2..0 (water at +X), `length` long; a yellow band on top with black blocks
+	# standing 0.02 proud of it (never two paints in one plane). No base plinth: a plinth proud of the wall put a
+	# face under every crate and container that stands against the wall.
 	acc = Acc()
-	prof = [(-2.0, 0), (0.0, 0), (0.0, 2.6), (-0.25, 3.0), (-1.75, 3.0), (-2.0, 2.6)]
-	bm = prism([(x, y) for x, y in prof], "Y", -4.0, 4.0)
-	acc.add("Wall", "QuayConcrete", bm)
-	paint, black = [], []
-	for k in range(4):
-		z0 = -4 + k * 2
-		(paint if k % 2 == 0 else black).append(RB(-1.78, -0.22, 3.0, 3.04, z0, z0 + 2))
-	acc.add("Paint", "SafetyYellow", *paint)
-	acc.add("PaintBlack", "HazardBlack", *black)
-	acc.add("Base", "QuayConcreteDark", RB(-2.08, 0.08, 0, 0.35, -4.0, 4.0))
-	return piece("QuayBarrier8", acc.parts(), mats, kit)
+	h = length / 2
+	prof = [(-2.0, 0.0), (0.0, 0.0), (0.0, 2.6), (-0.25, 3.0), (-1.75, 3.0), (-2.0, 2.6)]
+	acc.add("Wall", "QuayConcrete", prism(prof, "Y", -h, h))
+	acc.add("Paint", "SafetyYellow", RB(-1.7, -0.3, 3.0, 3.03, -h + 0.03, h - 0.03))
+	blocks = [RB(-1.65, -0.35, 3.03, 3.05, z - 1.0, z + 1.0) for z in ((-2.0, 2.0) if length > 5 else (0.0,))]
+	acc.add("PaintBlack", "HazardBlack", *blocks)
+	return piece(name, acc.parts(), mats, kit)
 
 
 def p_quay_face(mats, kit):
-	# Deck edge: a concrete face at x = 0 down to y = -12, coping on top, tyre fender on +X.
+	# Deck edge: a concrete face standing 0.1 proud of the deck side (x = 0) down to y = -12, a coping 0.05 above
+	# the deck and 0.4 out over the water, tyre fender on +X.
 	acc = Acc()
-	acc.add("Face", "QuayConcreteDark", RB(-1.0, 0.0, -12, -0.4, -4, 4))
-	acc.add("Coping", "QuayConcrete", RB(-1.0, 0.35, -0.6, 0.05, -4, 4, ch=0.06))
-	fend = K.place(prism(ring_pts(0, 0, 1.1, 10, 0), "X", -0.6, 0.6), Matrix.Translation(rb((0.85, -4.5, 0))) @ Matrix.Rotation(math.radians(90), 4, "Z"))
-	acc.add("Fender", "Rubber", fend, RB(0.0, 0.5, -9.5, -1.0, -0.5, 0.5))
+	acc.add("Face", "QuayConcreteDark", RB(-0.5, 0.1, -12, -0.45, -4, 4))
+	# The coping starts at the deck edge (x = 0) so the quay wall above it never shares its plane.
+	acc.add("Coping", "QuayConcrete", RB(0.0, 0.4, -0.45, 0.05, -4, 4, ch=0.04))
+	fend = K.place(prism(ring_pts(0, 0, 1.1, 10, 0), "X", -0.6, 0.6), Matrix.Translation(rb((1.05, -4.5, 0))) @ Matrix.Rotation(math.radians(90), 4, "Z"))
+	acc.add("Fender", "Rubber", fend, RB(0.05, 0.55, -9.5, -1.0, -0.5, 0.5))
 	return piece("QuayFace8", acc.parts(), mats, kit)
 
 
@@ -593,8 +600,8 @@ def p_container_lo(mats, kit):
 	for sz in (-1, 1):
 		for sx in (-1, 1):
 			fr.append(RB(sx * 3.5, sx * 4.0, 0, 8, sz * 15.5, sz * 16))
-		fr.append(RB(-4, 4, 0, 0.5, sz * 15.5, sz * 16))
-		fr.append(RB(-4, 4, 7.5, 8, sz * 15.5, sz * 16))
+		fr.append(RB(-3.5, 3.5, 0.05, 0.5, sz * 15.5, sz * 15.98))
+		fr.append(RB(-3.5, 3.5, 7.5, 7.95, sz * 15.5, sz * 15.98))
 	acc.add("Frame", "ContainerFrame", *fr)
 	return piece("C40Lo", acc.parts(), mats, kit)
 
@@ -610,11 +617,11 @@ def p_ship(mats, kit):
 	acc.add("Hull", "HullDark", top)
 	acc.add("Bottom", "StsRed", bot)
 	acc.add("Boot", "CabWhite", prism([(x * 1.003, -z * 1.003) for x, z in plan], "Z", 1.6, 2.4))
-	deck = [RB(-17.5, 17.5, 17, 17.6, -88, 54)]
+	deck = [RB(-17.5, 17.5, 17, 17.6, -91.5, 54)]
 	for z0 in (-66, -32, 2, 36):
 		deck.append(RB(-16, 16, 17.6, 18.4, z0 + 0.6, z0 + 33.4, ch=0.1))  # hatch covers
 	acc.add("Deck", "HatchGreen", *deck)
-	bridge = [RB(-15, 15, 17, 41, -90, -76, ch=0.2), RB(-18, 18, 41, 43, -88, -78, ch=0.15), RB(-5, 5, 43, 52, -90, -84, ch=0.3)]
+	bridge = [RB(-15, 15, 17.3, 41, -90, -76, ch=0.2), RB(-18, 18, 41.02, 43, -88, -78, ch=0.15), RB(-5, 5, 43.02, 52, -90, -84, ch=0.3)]
 	acc.add("Bridge", "CabWhite", *bridge)
 	acc.add("Funnel", "SteelDark", RB(-4.5, 4.5, 52, 58, -90, -85, ch=0.3))
 	glow = [RB(-15.05, 15.05, 37.5, 39.0, -76.05, -75.9), RB(-15.05, 15.05, 30, 30.8, -76.05, -75.9), RB(-15.05, 15.05, 25, 25.8, -76.05, -75.9)]
@@ -695,6 +702,7 @@ def instance(col_name, cf, parent, tint=None, tint_parts=("Body", "Frame", "Stri
 	x, y, z, yaw = cf
 	m = Matrix.Translation(rb((x, y, z))) @ Matrix.Rotation(math.radians(yaw), 4, "Z")
 	src = bpy.data.collections["Map_" + col_name]
+	out = []
 	for ob in src.objects:
 		if ob.type != "MESH":
 			continue
@@ -706,6 +714,8 @@ def instance(col_name, cf, parent, tint=None, tint_parts=("Body", "Frame", "Stri
 		if ob.get("glow"):
 			o.visible_shadow = False
 		parent.objects.link(o)
+		out.append(o)
+	return out
 
 
 def shade(c, k):
@@ -714,101 +724,132 @@ def shade(c, k):
 
 
 def yard_preview(mats):
-	# The whole layout (tools/maps/dockyard_layout.py) dressed with the kit, at dusk: the art pass as Art.luau will
-	# place it, so the renders show the real composition.
+	# The whole map as Studio will have it: the greybox parts that stay visible (deck, spawn barriers), every kit
+	# placement and art Part from tools/maps/dockyard_art.py (the same list Art.luau's ART block is generated
+	# from). Returns (collection, [objects to audit]).
+	import dockyard_art as A
 	import dockyard_layout as L
 
 	col = K.collection("Preview")
-	rnd = random.Random(11)
+	objs = []
 	tints = {}
-
-	def lane_tint(lane, k):
-		key = (lane, k)
-		if key not in tints:
-			tints[key] = tinted("Tint_%s_%d" % (lane, k), shade(LANE[lane], (0.9, 1.0, 1.08)[k]))
-		return tints[key]
-
-	def wall_tint(i):
-		key = ("wall", i)
-		if key not in tints:
-			tints[key] = tinted("Tint_wall_%d" % i, WALL_MIX[i])
-		return tints[key]
-
-	def stack(piece, x, z, along_x, n, tint_fn):
-		for k in range(n):
-			yaw = (90 if along_x else 0) + (180 if rnd.random() < 0.5 else 0)
-			instance(piece, (x, 8 * k, z, yaw), col, tint_fn(k))
-
-	sheds = set()
-	for b in L.BOXES:
-		if b.kind == "box":
-			n = int(round(b.h / 8))
-			stack(b.piece, b.x, b.z, b.sx > b.sz, n, lambda k, b=b: lane_tint(b.lane() if b.lane() in LANE else "mid", rnd.randrange(3)))
-		elif b.kind == "low":
-			instance("Crate", (b.x, 0, b.z, rnd.choice((0, 90))), col)
-		elif b.kind == "ramp":
-			yaw = math.degrees(math.atan2(b.up[0], b.up[1]))
-			instance("Stair", (b.x, 0, b.z, yaw), col)
-		elif b.kind == "rack":
-			instance("Rack", (b.x, 0, b.z, 0), col)
-		elif b.kind == "office":
-			instance("Office", (b.x, 0, b.z, 0 if b.x > 0 else 180), col)
-		elif b.kind == "wall":
-			sheds.add(1 if b.z > 0 else -1)
-		elif b.kind == "edge":
-			n = int(round(b.sz / 8))
-			for i in range(n):
-				z = b.z0 + 4 + i * 8
-				instance("QuayBarrier8", (b.x + (1 if b.x > 0 else -1), 0, z, 0 if b.x > 0 else 180), col)
-				if i % 2 == 0:
-					instance("Bollard", (b.x, 3, z, 0), col)
-		elif b.kind == "backdrop":
-			pass
-	for s in sheds:
-		instance("Shed", (55 * s, 0, 42 * s, 0 if s > 0 else 180), col, tinted("Tint_shed_%d" % s, LANE["east" if s > 0 else "west"]))
-	instance("Crane", (0, 0, 0, 0), col)
-	# End walls: 7-high faces toward the yard and the alcoves.
-	for s in (1, -1):
-		for k in range(7):
-			y = 8 * k
-			for x, z, piece, yaw in ((-52, 96, "C40", 90), (-31, 100, "C20", 0), (-22, 102, "C20", 0), (52, 96, "C40", 90), (31, 100, "C20", 0), (22, 102, "C20", 0), (0, 114, "C40", 90)):
-				instance(piece, (x * s, y, z * s, yaw + (180 if s < 0 else 0) + (180 if rnd.random() < 0.3 else 0)), col, wall_tint(rnd.randrange(len(WALL_MIX))))
-	# Quay faces all round, lamp masts, skyline cranes.
-	for s in (1, -1):
-		for i in range(30):
-			instance("QuayFace8", (68 * s, 0, -116 + i * 8, 0 if s > 0 else 180), col)
-		for i in range(17):
-			instance("QuayFace8", (-64 + i * 8, 0, 118 * s, -90 if s > 0 else 90), col)
-	for x, z in ((-67, 40), (67, 84), (67, -40), (-67, -84)):
-		instance("LampMast", (x, 3, z, 0), col)
-	for x, z, yaw in SKY_CRANES:
-		instance("StsCrane", (x, -8, z, yaw), col)
-	for s_ in (1, -1):
-		instance("Ship", (108 * s_, -9, 20 * s_, 0 if s_ > 0 else 180), col)
-		for bx, bz, n in SHIP_STACKS:
-			for k in range(n):
-				instance("C40Lo", ((108 + bx) * s_, 9.4 + 8 * k, (20 + bz) * s_, 0), col, wall_tint(rnd.randrange(len(WALL_MIX))))
-		for fx, fz, n in FAR_STACKS:
-			for k in range(n):
-				instance("C40Lo", (fx * s_, -8 + 8 * k, fz * s_, 90), col, wall_tint(rnd.randrange(len(WALL_MIX))))
-	# Deck, water and far quays (Parts in Studio; preview-only here).
+	for p in A.build()[0]:
+		tint = None
+		if p.tint is not None:
+			tint = tints.get(p.tint) or tinted("Tint_%06X" % p.tint, p.tint)
+			tints[p.tint] = tint
+		objs += instance(p.piece, (p.x, p.y, p.z, p.yaw), col, tint)
+	pm = {}
+	for q in A.build()[1]:
+		m = pm.get((q.color, q.reflectance))
+		if m is None:
+			m = K._flat("Prev_%06X" % q.color, q.color, 0.08 if q.reflectance else 0.8)
+			m["preview_only"] = True
+			pm[(q.color, q.reflectance)] = m
+		(sx, sy, sz), (x, y, z) = q.size, q.pos
+		objs.append(K.add_obj("Prev" + q.name, RB(x - sx / 2, x + sx / 2, y - sy / 2, y + sy / 2, z - sz / 2, z + sz / 2), [m], col))
 	deck_m = K._flat("PrevAsphalt", 0x4A4A4C, 0.85)
-	line_m = K._flat("PrevLine", 0xD9B23A, 0.6)
-	water_m = K._flat("PrevWater", 0x1E2A44, 0.08, metallic=0.0)
-	far_m = K._flat("PrevFarQuay", 0x77736C, 0.9)
-	for m in (deck_m, line_m, water_m, far_m):
-		m["preview_only"] = True
-	K.add_obj("PrevDeck", RB(-68, 68, -12, 0, -118, 118), [deck_m], col)
-	lines = bmesh.new()
-	for x in range(-64, 65, 16):
-		merge(lines, RB(x - 0.25, x + 0.25, 0, 0.03, -92, 92))
-	for z in range(-80, 81, 16):
-		merge(lines, RB(-66, 66, 0, 0.03, z - 0.25, z + 0.25))
-	K.add_obj("PrevLines", lines, [line_m], col)
-	K.add_obj("PrevWater", RB(-900, 900, -10, -9, -900, 900), [water_m], col)
+	deck_m["preview_only"] = True
+	objs.append(K.add_obj("PrevDeck", RB(-L.PIER_X, L.PIER_X, -4, 0, -L.DECK_END, L.DECK_END), [deck_m], col))
+	bar_m = K._flat("PrevBarrier", 0x3D8BFF, 0.5)
+	bar_m["preview_only"] = True
 	for s in (1, -1):
-		K.add_obj("PrevFarQuay%d" % s, RB(s * 132, s * 400, -12, -8, -500, 500), [far_m], col)
-	return col
+		o = K.add_obj("PrevBarrier", RB(-18, 18, 0, 30, s * 92 - 0.5, s * 92 + 0.5), [bar_m], col)
+		o.hide_render = True  # see-through in game; audited, not rendered
+		objs.append(o)
+	return col, objs
+
+
+# ---------------------------------------------------------------- z-fight audit (mirrors tools/studio/maps/Audit.luau)
+
+PLANE_TOL = 0.02  # parallel box faces closer than this share a plane
+HIT_TOL = 0.006  # both surfaces hit this close together = coincident
+SAMPLES = 5
+MIN_HITS = 3
+
+
+def zfight_audit(objs):
+	# For every pair of placed objects whose world boxes touch: box faces that are parallel, within PLANE_TOL of
+	# one plane and overlap by >= 0.05 x 0.05 are sampled 5 x 5; a ray from each side is cast at each object
+	# alone (front faces only, so a ray starting inside a closed mesh finds nothing, like Roblox). Both hit within
+	# HIT_TOL at >= MIN_HITS samples = a z-fight. Every placement here is a multiple of 90 degrees of yaw, so
+	# world boxes are axis aligned. Returns the list of (a, b, point, normal, hits).
+	from mathutils.bvhtree import BVHTree
+
+	info = []
+	for o in objs:
+		me = o.data
+		mw = o.matrix_world
+		verts = [mw @ v.co for v in me.vertices]
+		if not verts:
+			continue
+		lo = Vector((min(v.x for v in verts), min(v.y for v in verts), min(v.z for v in verts)))
+		hi = Vector((max(v.x for v in verts), max(v.y for v in verts), max(v.z for v in verts)))
+		info.append({"o": o, "lo": lo, "hi": hi, "verts": verts, "bvh": None})
+
+	def bvh(e):
+		if e["bvh"] is None:
+			e["bvh"] = BVHTree.FromPolygons(e["verts"], [tuple(p.vertices) for p in e["o"].data.polygons])
+		return e["bvh"]
+
+	cell = 16.0
+	grid = {}
+	for idx, e in enumerate(info):
+		for gx in range(int(math.floor(e["lo"].x / cell)), int(math.floor(e["hi"].x / cell)) + 1):
+			for gy in range(int(math.floor(e["lo"].y / cell)), int(math.floor(e["hi"].y / cell)) + 1):
+				grid.setdefault((gx, gy), []).append(idx)
+	pairs = set()
+	for ids in grid.values():
+		if len(ids) > 400:
+			ids = ids  # dense cells are fine at this scale
+		for i in range(len(ids)):
+			for j in range(i + 1, len(ids)):
+				a, b = info[ids[i]], info[ids[j]]
+				if all(a["lo"][k] <= b["hi"][k] + 0.05 and b["lo"][k] <= a["hi"][k] + 0.05 for k in range(3)):
+					pairs.add((min(ids[i], ids[j]), max(ids[i], ids[j])))
+
+	def hit(e, origin, d):
+		loc, nrm, _, dist = bvh(e).ray_cast(origin, d, 1.0)
+		if loc is None or nrm.dot(d) >= 0:
+			return None
+		return dist
+
+	found = []
+	for ia, ib in pairs:
+		a, b = info[ia], info[ib]
+		best = (0, None, None)
+		for k in range(3):
+			u, v = (k + 1) % 3, (k + 2) % 3
+			for pa in (a["lo"][k], a["hi"][k]):
+				for pb in (b["lo"][k], b["hi"][k]):
+					if abs(pa - pb) > PLANE_TOL:
+						continue
+					u0, u1 = max(a["lo"][u], b["lo"][u]), min(a["hi"][u], b["hi"][u])
+					v0, v1 = max(a["lo"][v], b["lo"][v]), min(a["hi"][v], b["hi"][v])
+					if u1 - u0 < 0.05 or v1 - v0 < 0.05:
+						continue
+					hits = 0
+					for i in range(SAMPLES):
+						for j in range(SAMPLES):
+							pt = Vector((0, 0, 0))
+							pt[k] = pa
+							pt[u] = u0 + (u1 - u0) * (i + 0.5) / SAMPLES
+							pt[v] = v0 + (v1 - v0) * (j + 0.5) / SAMPLES
+							for side in (1, -1):
+								n = Vector((0, 0, 0))
+								n[k] = side
+								da = hit(a, pt + n * 0.5, -n)
+								db = hit(b, pt + n * 0.5, -n)
+								if da is not None and db is not None and abs(da - db) < HIT_TOL:
+									hits += 1
+									break
+					if hits > best[0]:
+						n = [0, 0, 0]
+						n[k] = 1
+						best = (hits, (pa, k), n)
+		if best[0] >= MIN_HITS:
+			found.append((a["o"].name, b["o"].name, best[1], best[2], best[0]))
+	return found
 
 
 def dusk_world(sun_az=90.0, sun_el=4.0):
@@ -892,6 +933,15 @@ def yard_renders(mats):
 		("middle", (-22, 5.5, 20), (16, 12, -18), 24),
 		("high-lane", (30, 14, 50), (20, 8, -30), 24),
 		("apron", (-60, 7, 80), (-40, 6, 0), 24),
+		# Close-ups for the placement review (doorways, office, quay edge, stair landing, stacks).
+		("check-shed-doors", (35, 6, 30), (43, 4.5, 46), 24),
+		("check-roller-door", (64, 6, 20), (53, 6, 25), 24),
+		("check-office", (51, 6, 37), (63.5, 4, 29), 24),
+		("check-crane-foot", (22, 5, 24), (30, 4, 15), 26),
+		("check-shed-inside", (46, 6, 54), (63, 3.5, 28), 22),
+		("check-quay-edge", (56, 7, -2), (67, 2, 16), 24),
+		("check-stair", (24, 11, 80), (30, 6, 58), 26),
+		("check-stacks", (-8, 6, -60), (0, 12, -84), 24),
 	]
 	only = None
 	if "--shots" in ARGS:
@@ -916,6 +966,7 @@ def main():
 		("Rack", p_rack(mats, kit)),
 		("Crate", p_crate(mats, kit)),
 		("QuayBarrier8", p_quay_barrier(mats, kit)),
+		("QuayBarrierShort", p_quay_barrier(mats, kit, 3.7, "QuayBarrierShort")),
 		("QuayFace8", p_quay_face(mats, kit)),
 		("Bollard", p_bollard(mats, kit)),
 		("LampMast", p_lamp_mast(mats, kit)),
@@ -934,11 +985,30 @@ def main():
 	print("DOCKYARD_MAX_OBJECT " + json.dumps(max(worst.items(), key=lambda kv: kv[1])))
 	sheet(built, mats, tris)
 	bpy.context.view_layer.layer_collection.children["Kit"].exclude = True
+	found = []
 	if "--no-preview" not in ARGS:
-		yard_preview(mats)
+		_, objs = yard_preview(mats)
+		found = zfight_audit(objs)
+		groups = {}
+		for a, b, _, _, _ in found:
+			key = " + ".join(sorted(n.rsplit("_p", 1)[0].split(".")[0] for n in (a, b)))
+			groups[key] = groups.get(key, 0) + 1
+		print("DOCKYARD_ZFIGHT %d pairs over %d objects" % (len(found), len(objs)))
+		for key, n in sorted(groups.items(), key=lambda kv: -kv[1])[:30]:
+			print("  %4d  %s" % (n, key))
+		if "--zfight-detail" in ARGS:
+			for a_, b_, (pd, k), n, h in found:
+				print("    %s | %s  plane %s=%.3f (blender axes)  hits %d" % (a_, b_, "xyz"[k], pd, h))
+				for nm in (a_, b_):
+					o = bpy.data.objects[nm]
+					vs = [o.matrix_world @ v.co for v in o.data.vertices]
+					print("      %s lo %s hi %s" % (nm, tuple(round(min(v[i] for v in vs), 2) for i in range(3)), tuple(round(max(v[i] for v in vs), 2) for i in range(3))))
 		bpy.context.view_layer.layer_collection.children["Preview"].exclude = True
 	path = K.save("Kit_Dockyard")
 	print("DOCKYARD saved", path)
+	if found and "--allow-zfight" not in ARGS:
+		# Fail before anything is exported (the export reads this .blend; fix the kit or the placements first).
+		raise SystemExit("DOCKYARD_ZFIGHT_FAIL: %d coplanar overlaps (see the list above)" % len(found))
 	if "--no-render" in ARGS:
 		return
 	if "--no-sheet" not in ARGS:
