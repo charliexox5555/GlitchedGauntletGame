@@ -263,7 +263,7 @@ def steps(x0, x1, z0, run, rise, n, nose=0.08):
 		za, zb = z0 + i * dz, z0 + (i + 1) * dz
 		ya = (i + 1) * dy
 		merge(tr, rb(x0, x1, 0.0, ya - nose, za, zb))
-		merge(no, rb(x0 + 0.03, x1 - 0.03, ya - nose, ya, za, zb))
+		merge(no, rb(x0 + 0.03, x1 - 0.03, ya - nose, ya, za + (0.03 if i == 0 else 0.0), zb - (0.03 if i == n - 1 else 0.0)))
 	return tr, no
 
 
@@ -277,18 +277,22 @@ def slope_panel(x0, x1, z0, z1, y0a, y1a, ya_top, yb_top):
 def wall_layers(z0, z1, rib=True, door=False):
 	# The hall wall cladding between z0 and z1 (faces +X, wall face at x = 0). Bands stack edge to edge in height
 	# (skirting 0..0.35, dado ..3, field ..9.4, trim, band, trim ..12.6, field ..18.7, cove shelf ..19, field ..20,
-	# concrete upper ..28) and each stands at its own depth; the rib stands in front of the upper concrete.
+	# concrete upper ..28) and each stands at its own depth; the rib stands in front of the upper concrete. Every
+	# part is ONE box, so its bounds (what Studio's raycasts hit on Box-fidelity parts) are exactly its shape.
 	p = {
-		"Field": (G(rb(0, 0.25, 12.6, 18.7, z0, z1), rb(0, 0.25, 19.0, 20.0, z0, z1)) if door else
-				  G(rb(0, 0.25, 3.0, 9.4, z0, z1), rb(0, 0.25, 12.6, 18.7, z0, z1), rb(0, 0.25, 19.0, 20.0, z0, z1)), "M_TileWhite"),
+		"FieldMid": (rb(0, 0.25, 12.6, 18.7, z0, z1), "M_TileWhite"),
+		"FieldTop": (rb(0, 0.25, 19.0, 20.0, z0, z1), "M_TileWhite"),
 		"Band": (rb(0, 0.32, 10.2 if door else 9.6, 12.4, z0, z1), "M_TileBand"),
-		"BandTrim": (rb(0, 0.42, 12.4, 12.6, z0, z1) if door else G(rb(0, 0.42, 9.4, 9.6, z0, z1), rb(0, 0.42, 12.4, 12.6, z0, z1)), "M_Steel"),
+		"BandEdgeHigh": (rb(0, 0.42, 12.4, 12.6, z0, z1), "M_Steel"),
 		"Upper": (rb(0, 0.15, 20.0, CEIL, z0, z1), "M_Concrete"),
 		# Uplight cove: a shelf at 18.7..19 and a lip on its front edge; the strip lies on the shelf behind the lip.
-		"Cove": (G(rb(0, 1.4, 18.7, 19.0, z0, z1), rb(1.25, 1.4, 19.0, 19.55, z0, z1)), "M_Steel"),
+		"Cove": (rb(0, 1.4, 18.7, 19.0, z0, z1), "M_Steel"),
+		"CoveLip": (rb(1.25, 1.4, 19.0, 19.55, z0, z1), "M_Steel"),
 		"Cove_Glow": (rb(0.85, 1.15, 19.0, 19.12, z0 + 0.05, z1 - 0.05), "G_Cool"),
 	}
 	if not door:
+		p["Field"] = (rb(0, 0.25, 3.0, 9.4, z0, z1), "M_TileWhite")
+		p["BandEdgeLow"] = (rb(0, 0.42, 9.4, 9.6, z0, z1), "M_Steel")
 		p["Dado"] = (rb(0, 0.35, 0.35, 3.0, z0, z1), "M_TileDark")
 		p["Skirting"] = (rb(0, 0.5, 0, 0.35, z0, z1), "M_Steel")
 	if rib:
@@ -314,7 +318,7 @@ def p_wall_door(mats, kit):
 		rb(0.0, 0.3, 0, 10.2, -4.0, -3.7), rb(0.0, 0.3, 0, 10.2, 3.7, 4.0),
 		rb(0.0, 0.3, 9.85, 10.2, -3.7, 3.7),
 	), "M_Steel")
-	p["Kick"] = (rb(-1.97, 0.0, 0, 0.05, -3.85, 3.85), "M_Rubber")
+	p["Kick"] = (rb(-1.9, 0.0, 0, 0.05, -3.85, 3.85), "M_Rubber")
 	p["Sign"] = (rb(0.32, 1.0, 10.6, 11.9, -2.2, 2.2, ch=0.05), "M_Steel")
 	p["Sign_Glow"] = (rb(1.0, 1.0 + P, 10.75, 11.75, -2.05, 2.05), "G_Green")
 	piece("WallDoor8", p, mats, kit)
@@ -551,7 +555,7 @@ def train():
 		for x in (-3.3, 3.3):
 			merge(head, rb(x - 0.55, x + 0.55, 1.35, 1.85, hz0, hz1))
 			merge(tail, rb(x - 0.35, x + 0.35, 0.6, 0.95, hz0, hz1))
-		merge(route, rb(-2.6, 2.6, 7.85, 8.3, fz0, fz1))
+		merge(route, rb(-2.6, 2.6, 7.85, 8.2, fz0, fz1))
 		bz0, bz1 = sorted((f + 0.3 * s, f + 0.75 * s))
 		merge(bumper, rb(-hw + 0.4, hw - 0.4, -1.55, -1.1, bz0, bz1, ch=0.08))
 	# Underframe: a continuous frame under the floor, three bogies (one under the gangway), skirts between them.
@@ -560,7 +564,7 @@ def train():
 	bz = (-18.0, 0.0, 18.0)
 	for za, zb in gaps([(b - 2.8, b + 2.8) for b in bz], -hz + 0.8, hz - 0.8):
 		for s in (1, -1):
-			x0, x1 = (hw - 0.6, hw - 0.3) if s > 0 else (-hw + 0.3, -hw + 0.6)
+			x0, x1 = (hw - 0.62, hw - 0.25) if s > 0 else (-hw + 0.25, -hw + 0.62)
 			merge(skirts, rb(x0, x1, -1.7, -1.0, za, zb))
 	for b in bz:
 		merge(bogies, rb(-3.0, 3.0, -2.5, -1.0, b - 2.6, b + 2.6, ch=0.1))
@@ -639,7 +643,7 @@ def p_escalators(mats, kit):
 	deck, glass, rail = bmesh.new(), bmesh.new(), bmesh.new()
 	for xa, xb in decks:
 		xc = (xa + xb) / 2
-		merge(deck, slope_panel(xa, xb, 0.0, run - 0.1, 0.0, rise, 1.2, rise + 1.2))
+		merge(deck, slope_panel(xa, xb, 0.1, run - 0.2, rise * 0.1 / run, rise * (run - 0.2) / run, 1.2 + rise * 0.1 / run, 1.2 + rise * (run - 0.2) / run))
 		merge(glass, slope_panel(xc - 0.04, xc + 0.04, 0.3, run - 0.4, 1.2, rise + 1.2, 3.2, rise + 3.2))
 		merge(rail, slope_panel(max(xc - 0.12, -4.5), min(xc + 0.12, 4.5), 0.2, run - 0.3, 3.2, rise + 3.2, 3.5, rise + 3.5))
 	combs = G(rb(-4.3, -1.5, 0.0, P, -1.0, 0.0), rb(1.5, 4.0, 0.0, P, -1.0, 0.0))
@@ -659,11 +663,12 @@ def p_hall_stairs(mats, kit):
 	# solid wedge) beside the treads, black steel caps on the sides, a rail on posts.
 	run, rise, n = 22.0, 14.0, 21
 	t, no = steps(-3.9, 3.9, 0.0, run - 0.1, rise, n)
-	sides, caps = bmesh.new(), bmesh.new()
-	for s in (-1, 1):
-		x0, x1 = sorted((s * 3.9, s * 4.06))
-		merge(sides, rx([(0.0, 0.0), (run - 0.1, 0.0), (run - 0.1, rise - 0.2), (0.0, 0.45)], x0, x1))
-		c0, c1 = sorted((s * 3.83, s * 4.16))
+	sides = {}
+	caps = bmesh.new()
+	for sgn, key in ((-1, "SideL"), (1, "SideR")):
+		x0, x1 = sorted((sgn * 3.9, sgn * 4.06))
+		sides[key] = rx([(0.05, 0.0), (run - 0.15, 0.0), (run - 0.15, rise - 0.25), (0.05, 0.45)], x0, x1)
+		c0, c1 = sorted((sgn * 3.83, sgn * 4.16))
 		merge(caps, slope_panel(c0, c1, 0.1, run - 0.2, 0.33, rise - 0.27, 0.73, rise + 0.13))
 	posts, rail = bmesh.new(), bmesh.new()
 	for xc in (-3.95, 3.95):
@@ -675,7 +680,8 @@ def p_hall_stairs(mats, kit):
 	p = {
 		"Treads": (t, "M_Granite"),
 		"Nosing": (no, "M_GraniteDark"),
-		"Sides": (sides, "M_TileWhite"),
+		"SideL": (sides["SideL"], "M_TileWhite"),
+		"SideR": (sides["SideR"], "M_TileWhite"),
 		"Caps": (caps, "M_Steel"),
 		"Posts": (posts, "M_Steel"),
 		"Rail": (rail, "M_Brushed"),
@@ -688,7 +694,7 @@ def p_corridor_stair(mats, kit):
 	t, no = steps(-5.9, 5.9, 0.0, run - 0.1, rise, 21)
 	rail = bmesh.new()
 	for xc in (-5.75, 5.75):
-		merge(rail, slope_panel(xc - 0.1, xc + 0.1, 0.0, run - 0.3, 3.2, rise + 3.2, 3.4, rise + 3.4))
+		merge(rail, slope_panel(xc - 0.1, xc + 0.1, 0.2, run - 0.3, 3.2 + rise * 0.2 / run, rise + 3.2, 3.4 + rise * 0.2 / run, rise + 3.4))
 		for i in range(5):
 			z = 1.0 + i * (run - 2.0) / 4
 			y = rise * z / run
@@ -771,12 +777,12 @@ def p_end_wall(mats, kit):
 		merge(skirting, rb(x0, x1, 0.0, 0.35, -0.5, 0.0))
 		merge(dado, rb(x0, x1, 0.35, 3.0, -0.35, 0.0))
 		merge(tile, G(rb(x0, x1, 3.0, 9.6, -0.25, 0.0), rb(x0, x1, 12.4, 13.4, -0.25, 0.0)))
-		merge(band, rb(x0, x1, 9.6, 12.4, -0.32, 0.0))
+		merge(band, rb(x0 + 0.05, x1 - 0.05, 9.6, 12.4, -0.32, 0.0))
 	# Portal: steel liners in the reveal, a trim ring standing in front of the face, a dark tunnel back.
 	portal = G(rb(-14.0, -13.45, TRENCH, 9.4, -0.6, 2.9), rb(13.45, 14.0, TRENCH, 9.4, -0.6, 2.9), rb(-14.0, 14.0, 9.4, 9.97, -0.6, 2.9))
 	trim = G(rb(-14.6, -13.8, TRENCH, 10.0, -0.7, -0.2), rb(13.8, 14.6, TRENCH, 10.0, -0.7, -0.2), rb(-14.6, 14.6, 10.0, 10.6, -0.7, -0.2))
 	tunnel = rb(-13.45, 13.45, TRENCH + 0.02, 9.4, 2.9, 3.0)
-	lintel_face = rb(-14.6, 14.6, 10.6, 13.4, -0.3, 0.0)
+	lintel_face = rb(-14.6, 14.6, 10.6, 13.4, -0.4, 0.0)
 	ledge = rb(-33.4, 24.4, 13.4, 13.94, -0.5, 0.0)
 	# Buffer stop on the open track at this end (the west track at team B's end: track centre x = -8.5).
 	buffer = G(rb(-11.0, -6.0, TRENCH + 0.7, TRENCH + 2.6, 1.6, 2.4, ch=0.1))
@@ -793,8 +799,10 @@ def p_end_wall(mats, kit):
 	panel_face = rb(-13.2, 13.2, 14.8, 21.2, -P, 0.0)
 	roundels = G(zcyl(-11.0, 18.0, 1.6, -2 * P, -P, segs=24), zcyl(11.0, 18.0, 1.6, -2 * P, -P, segs=24))
 	bars = G(rb(-13.0, -9.0, 17.6, 18.4, -3 * P, -2 * P), rb(9.0, 13.0, 17.6, 18.4, -3 * P, -2 * P))
-	parapet = G(rb(-35.9, -22.0, 14.0, 17.0, 0.0, 1.0), rb(14.0, 23.9, 14.0, 17.0, 0.0, 1.0))
-	cap = G(rb(-35.9, -22.0, 17.0, 17.25, -0.1, 1.1), rb(14.0, 23.9, 17.0, 17.25, -0.1, 1.1))
+	parapet_w = rb(-35.9, -22.0, 14.0, 17.0, 0.0, 1.0)
+	parapet_e = rb(14.0, 23.9, 14.0, 17.0, 0.0, 1.0)
+	cap_w = rb(-35.9, -22.0, 17.0, 17.25, -0.25, 1.1)
+	cap_e = rb(14.0, 23.9, 17.0, 17.25, -0.25, 1.1)
 	p = {
 		"Skirting": (skirting, "M_Steel"),
 		"Tile": (tile, "M_TileWhite"),
@@ -812,11 +820,13 @@ def p_end_wall(mats, kit):
 		"Lamp_Glow": (G(red, lamps, sig_r), "G_Red"),
 		"MouthSign": (msign, "M_Steel"),
 		"Panel": (panel, "M_Concrete"),
-		"Parapet": (parapet, "M_TileWhite"),
+		"ParapetW": (parapet_w, "M_TileWhite"),
+		"ParapetE": (parapet_e, "M_TileWhite"),
 		"PanelTrim": (panel_face, "M_Trim"),
 		"Roundel": (roundels, "M_White"),
 		"RoundelBar": (bars, "M_Steel"),
-		"Cap": (cap, "M_Steel"),
+		"CapW": (cap_w, "M_Steel"),
+		"CapE": (cap_e, "M_Steel"),
 	}
 	col = piece("EndWall", p, mats, kit)
 	rtext(col, mats, "MERIDIAN", 3.6, 0, 18.0, -0.1, "-z")
@@ -837,10 +847,12 @@ def p_kiosk(mats, kit):
 		s0, s1 = sorted((sx * 2.4, sx * 2.72))
 		for i, y in enumerate((4.3, 5.3)):
 			merge(shelves, rb(s0, s1, y - 0.08, y, -2.2, 2.2))
-			p0, p1 = sorted((sx * 2.45, sx * 2.65))
 			for j in range(7):
 				z = -1.9 + j * 0.62
-				merge(prods[1 + (i + j) % 3], rb(p0, p1, y, y + 0.5 - 0.1 * ((i + j) % 2), z - 0.22, z + 0.22))
+				g = 1 + (i + j) % 3
+				p0, p1 = sorted((sx * 2.45, sx * (2.6 + 0.03 * g)))
+				dz = 0.03 * (g - 1)
+				merge(prods[g], rb(p0, p1, y, y + 0.5 - 0.1 * ((i + j) % 2) - dz, z - 0.22 + dz, z + 0.22 + dz))
 		g0, g1 = sorted((sx * 2.4, sx * 2.47))
 		merge(glow, rb(g0, g1, 6.2, 6.45, -2.2, 2.2))
 	sign = G(rb(2.8, 2.8 + P, 6.8, 8.2, -2.4, 2.4), rb(-2.8 - P, -2.8, 6.8, 8.2, -2.4, 2.4))
@@ -882,7 +894,9 @@ def p_vending(mats, kit):
 			y = 2.0 + r * 1.0
 			for c in range(3):
 				z = zc - 0.68 + c * 0.32
-				merge(prods[1 + (r + c + k) % 3], rb(F + P, F + 2 * P, y, y + 0.55, z - 0.11, z + 0.11))
+				g = 1 + (r + c + k) % 3
+				dy = 0.03 * (g - 1)  # each colour group's bounds on their own planes
+				merge(prods[g], rb(F + P, F + P + 0.03 + 0.03 * g, y + dy, y + 0.55 + dy, z - 0.11 + dy, z + 0.11 + dy))
 	p = {
 		"Body": (body, "M_Red"),
 		"Front_Glow": (glow, "G_Cool"),
@@ -932,7 +946,7 @@ def p_ticket_office(mats, kit):
 	# 10 deep (x -10..0) x 18 long (z -9..9) x 10 tall; the front faces +X with dark (solid) windows, a counter,
 	# a warm-lit sign band.
 	shell = G(rb(-10.0, 0.0, 0.0, 1.2, -9.0, 9.0), rb(-10.0, 0.0, 7.4, 10.0, -9.0, 9.0))
-	mull = G(*[rb(-0.4, 0.0, 1.2, 7.0, z - 0.2, z + 0.2) for z in (-8.75, -4.5, 0.0, 4.5, 8.75)], rb(-0.5, 0.0, 7.0, 7.4, -8.95, 8.95))
+	mull = G(*[rb(-0.4, -0.04, 1.2, 7.0, z - 0.2, z + 0.2) for z in (-8.75, -4.5, 0.0, 4.5, 8.75)], rb(-0.5, -0.04, 7.0, 7.4, -8.95, 8.95))
 	win = rb(-0.3, -0.24, 1.25, 6.95, -8.55, 8.55)
 	walls = G(rb(-10.0, -0.3, 1.2, 7.4, -9.0, -8.95), rb(-10.0, -0.3, 1.2, 7.4, 8.95, 9.0), rb(-10.0, -9.95, 1.2, 7.4, -8.95, 8.95))
 	counter = rb(0.0, 0.8, 2.6, 2.8, -8.5, 8.5)

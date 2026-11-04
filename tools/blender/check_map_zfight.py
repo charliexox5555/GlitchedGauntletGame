@@ -11,8 +11,9 @@
 # same way, lie in the same plane (within PLANE_TOL) and overlap by more than MIN_AREA; pairs inside one
 # mesh object count too (two boxes merged into one part). Like tools/studio/maps/Audit.luau, a face pair
 # buried in a visible solid block (the point just outside it is inside a greybox box) is skipped.
-# --bounds checks each kit part's bounding box instead of its mesh (stricter: what a raycast against a part with
-# Box collision fidelity sees), to look for pairs Studio's ray audit may still report.
+# --bounds checks each kit part's bounding box instead of its mesh: what Studio's ray audit sees on parts with Box
+# collision fidelity (kit_bundle.py sets Box), so a part made of separate boxes counts as its whole bounds. In this
+# mode the kit parts' boxes bury faces too. Run both modes; both must report 0.
 # Prints the pairs grouped by part names and exits with code 1 when any are found (so it can gate an export).
 
 import bpy, json, math, os, sys
@@ -44,14 +45,15 @@ def piece_polys():
 			mw = ob.matrix_world
 			verts = [mw @ v.co for v in ob.data.vertices]
 			verts = [Vector((v.x, v.z, -v.y)) for v in verts]
+			lo = Vector([min(v[i] for v in verts) for i in range(3)])
+			hi = Vector([max(v[i] for v in verts) for i in range(3)])
+			bounds = ((lo + hi) / 2, hi - lo)
 			if "--bounds" in ARGS:
-				# Whole-part bounds instead of the mesh: what a Box-fidelity raycast (Studio's audit) can hit.
-				lo = Vector([min(v[i] for v in verts) for i in range(3)])
-				hi = Vector([max(v[i] for v in verts) for i in range(3)])
-				polys = box_polys(Matrix.Translation((lo + hi) / 2), list(hi - lo))
+				# Whole-part bounds instead of the mesh: what a raycast against a Box-fidelity part hits.
+				polys = box_polys(Matrix.Translation(bounds[0]), list(bounds[1]))
 			else:
 				polys = [[verts[i] for i in p.vertices] for p in ob.data.polygons]
-			parts.append((ob.name, polys))
+			parts.append((ob.name, polys, bounds))
 		out[col.name[4:]] = parts
 	return out
 
@@ -139,7 +141,8 @@ def main():
 	dump = json.load(open(ARGS[0]))
 	report_path = ARGS[ARGS.index("--report") + 1] if "--report" in ARGS else None
 	kit = piece_polys()
-	polys = []  # (owner, part name, normal, d, verts)
+	polys = []  # (owner, part name, verts)
+	solids = []  # (inverse placement, half size) of every solid block that can bury a face
 	missing = set()
 	for i, pl in enumerate(dump["pieces"]):
 		parts = kit.get(pl["piece"])
@@ -147,11 +150,13 @@ def main():
 			missing.add(pl["piece"])
 			continue
 		m = cf_matrix(pl["cf"])
-		for name, plist in parts:
+		for name, plist, (bc, bs) in parts:
 			owner = "%s#%d/%s" % (pl["piece"], i, name)
 			for poly in plist:
 				polys.append((owner, name, [m @ v for v in poly]))
-	solids = []
+			if "--bounds" in ARGS:
+				# in bounds mode a kit part's box also buries faces (as in Audit.luau)
+				solids.append(((m @ Matrix.Translation(bc)).inverted(), [s / 2 for s in bs]))
 	for j, p in enumerate(dump["parts"]):
 		m = cf_matrix(p["cf"])
 		owner = "%s#g%d" % (p["name"], j)

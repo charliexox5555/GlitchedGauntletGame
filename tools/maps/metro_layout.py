@@ -262,8 +262,8 @@ RAMPS: list = HALF_RAMPS + [r.rotated() for r in HALF_RAMPS]
 SPAWNS_B = [(-3.0, SPAWN_Z + 5), (3.0, SPAWN_Z + 5), (-3.0, SPAWN_Z + 10), (3.0, SPAWN_Z + 10)]
 SPAWNS_A = [(-x, -z) for x, z in SPAWNS_B]
 BARRIERS_B = [
-    B("Barrier", "Barriers", -13.8, -6.2, TERR, TERR + 9.8, SPAWN_Z, SPAWN_Z + 1),
-    B("Barrier", "Barriers", 6.2, 13.8, TERR, TERR + 9.8, SPAWN_Z, SPAWN_Z + 1),
+    B("Barrier", "Barriers", -13.8, -6.2, TERR, TERR + 9.8, SPAWN_Z + 0.1, SPAWN_Z + 0.9),
+    B("Barrier", "Barriers", 6.2, 13.8, TERR, TERR + 9.8, SPAWN_Z + 0.1, SPAWN_Z + 0.9),
 ]
 
 # Places, for routes and labels (team B's half; A's are rotated).

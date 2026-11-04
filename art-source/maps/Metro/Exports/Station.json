@@ -76,11 +76,13 @@
     "EndWall_Lamp_Glow",
     "EndWall_MouthSign",
     "EndWall_Panel",
-    "EndWall_Parapet",
+    "EndWall_ParapetW",
+    "EndWall_ParapetE",
     "EndWall_PanelTrim",
     "EndWall_Roundel",
     "EndWall_RoundelBar",
-    "EndWall_Cap"
+    "EndWall_CapW",
+    "EndWall_CapE"
    ]
   },
   "EscalatorBank": {
@@ -124,7 +126,8 @@
    "parts": [
     "HallStairs_Treads",
     "HallStairs_Nosing",
-    "HallStairs_Sides",
+    "HallStairs_SideL",
+    "HallStairs_SideR",
     "HallStairs_Caps",
     "HallStairs_Posts",
     "HallStairs_Rail"
@@ -281,12 +284,16 @@
   "WallBay8": {
    "props": {},
    "parts": [
-    "WallBay8_Field",
+    "WallBay8_FieldMid",
+    "WallBay8_FieldTop",
     "WallBay8_Band",
-    "WallBay8_BandTrim",
+    "WallBay8_BandEdgeHigh",
     "WallBay8_Upper",
     "WallBay8_Cove",
+    "WallBay8_CoveLip",
     "WallBay8_Cove_Glow",
+    "WallBay8_Field",
+    "WallBay8_BandEdgeLow",
     "WallBay8_Dado",
     "WallBay8_Skirting",
     "WallBay8_Rib"
@@ -295,11 +302,13 @@
   "WallDoor8": {
    "props": {},
    "parts": [
-    "WallDoor8_Field",
+    "WallDoor8_FieldMid",
+    "WallDoor8_FieldTop",
     "WallDoor8_Band",
-    "WallDoor8_BandTrim",
+    "WallDoor8_BandEdgeHigh",
     "WallDoor8_Upper",
     "WallDoor8_Cove",
+    "WallDoor8_CoveLip",
     "WallDoor8_Cove_Glow",
     "WallDoor8_Rib",
     "WallDoor8_Liner",
@@ -312,12 +321,16 @@
   "WallEnd4": {
    "props": {},
    "parts": [
-    "WallEnd4_Field",
+    "WallEnd4_FieldMid",
+    "WallEnd4_FieldTop",
     "WallEnd4_Band",
-    "WallEnd4_BandTrim",
+    "WallEnd4_BandEdgeHigh",
     "WallEnd4_Upper",
     "WallEnd4_Cove",
+    "WallEnd4_CoveLip",
     "WallEnd4_Cove_Glow",
+    "WallEnd4_Field",
+    "WallEnd4_BandEdgeLow",
     "WallEnd4_Dado",
     "WallEnd4_Skirting"
    ]
@@ -677,7 +690,7 @@
    ],
    "size": [
     11.74,
-    23.9,
+    23.84,
     13.41333
    ]
   },
@@ -693,13 +706,13 @@
    "tris": 144,
    "center": [
     0.0,
-    -11.85,
-    10.3
+    -11.95,
+    10.35833
    ],
    "size": [
     12.14,
-    23.7,
-    14.2
+    23.5,
+    14.08333
    ]
   },
   {
@@ -823,7 +836,7 @@
     11.0
    ],
    "size": [
-    57.8,
+    57.7,
     0.32,
     2.8
    ]
@@ -924,12 +937,12 @@
    "tris": 12,
    "center": [
     0.0,
-    0.15,
+    0.2,
     12.0
    ],
    "size": [
     29.2,
-    0.3,
+    0.4,
     2.8
    ]
   },
@@ -1082,21 +1095,42 @@
   },
   {
    "piece": "EndWall",
-   "name": "EndWall_Parapet",
+   "name": "EndWall_ParapetW",
    "material": "M_TileWhite",
    "look": {
     "material": "CeramicTiles",
     "color": "E7E6E1"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
-    -6.0,
+    -28.95,
     -0.5,
     15.5
    ],
    "size": [
-    59.8,
+    13.9,
+    1.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "EndWall",
+   "name": "EndWall_ParapetE",
+   "material": "M_TileWhite",
+   "look": {
+    "material": "CeramicTiles",
+    "color": "E7E6E1"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    18.95,
+    -0.5,
+    15.5
+   ],
+   "size": [
+    9.9,
     1.0,
     3.0
    ]
@@ -1166,22 +1200,43 @@
   },
   {
    "piece": "EndWall",
-   "name": "EndWall_Cap",
+   "name": "EndWall_CapW",
    "material": "M_Steel",
    "look": {
     "material": "Metal",
     "color": "22252A"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
-    -6.0,
-    -0.5,
+    -28.95,
+    -0.425,
     17.125
    ],
    "size": [
-    59.8,
-    1.2,
+    13.9,
+    1.35,
+    0.25
+   ]
+  },
+  {
+   "piece": "EndWall",
+   "name": "EndWall_CapE",
+   "material": "M_Steel",
+   "look": {
+    "material": "Metal",
+    "color": "22252A"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    18.95,
+    -0.425,
+    17.125
+   ],
+   "size": [
+    9.9,
+    1.35,
     0.25
    ]
   },
@@ -1223,7 +1278,7 @@
    ],
    "size": [
     8.54,
-    23.9,
+    23.84,
     13.41333
    ]
   },
@@ -1240,12 +1295,12 @@
    "center": [
     0.0,
     -11.95,
-    7.6
+    7.57083
    ],
    "size": [
     9.0,
-    23.9,
-    15.2
+    23.7,
+    15.025
    ]
   },
   {
@@ -1665,29 +1720,50 @@
    ],
    "size": [
     7.74,
-    21.9,
+    21.84,
     13.41333
    ]
   },
   {
    "piece": "HallStairs",
-   "name": "HallStairs_Sides",
+   "name": "HallStairs_SideL",
    "material": "M_TileWhite",
    "look": {
     "material": "CeramicTiles",
     "color": "E7E6E1"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
-    0.0,
+    -3.98,
     -10.95,
-    6.9
+    6.875
    ],
    "size": [
-    8.12,
-    21.9,
-    13.8
+    0.16,
+    21.8,
+    13.75
+   ]
+  },
+  {
+   "piece": "HallStairs",
+   "name": "HallStairs_SideR",
+   "material": "M_TileWhite",
+   "look": {
+    "material": "CeramicTiles",
+    "color": "E7E6E1"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    3.98,
+    -10.95,
+    6.875
+   ],
+   "size": [
+    0.16,
+    21.8,
+    13.75
    ]
   },
   {
@@ -1895,7 +1971,7 @@
     5.05
    ],
    "size": [
-    5.3,
+    5.26,
     4.16,
     1.5
    ]
@@ -1912,13 +1988,13 @@
    "tris": 120,
    "center": [
     0.0,
-    0.04,
-    5.05
+    0.01,
+    5.035
    ],
    "size": [
-    5.3,
+    5.32,
     4.16,
-    1.5
+    1.47
    ]
   },
   {
@@ -1933,13 +2009,13 @@
    "tris": 96,
    "center": [
     0.0,
-    0.04,
-    5.05
+    -0.02,
+    5.02
    ],
    "size": [
-    5.3,
+    5.38,
     2.92,
-    1.5
+    1.44
    ]
   },
   {
@@ -2604,12 +2680,12 @@
    "glow": false,
    "tris": 72,
    "center": [
-    -0.25,
+    -0.27,
     0.0,
     4.3
    ],
    "size": [
-    0.5,
+    0.46,
     17.9,
     6.2
    ]
@@ -3095,7 +3171,7 @@
     -1.35
    ],
    "size": [
-    9.4,
+    9.5,
     50.4,
     0.7
    ]
@@ -3344,12 +3420,12 @@
    "center": [
     0.0,
     0.0,
-    8.075
+    8.025
    ],
    "size": [
     5.2,
     53.12,
-    0.45
+    0.35
    ]
   },
   {
@@ -3447,12 +3523,12 @@
    "glow": false,
    "tris": 180,
    "center": [
-    2.14,
-    0.36,
-    4.275
+    2.155,
+    0.33,
+    4.305
    ],
    "size": [
-    0.06,
+    0.09,
     4.86,
     4.55
    ]
@@ -3468,12 +3544,12 @@
    "glow": false,
    "tris": 180,
    "center": [
-    2.14,
-    0.36,
-    4.275
+    2.17,
+    0.3,
+    4.335
    ],
    "size": [
-    0.06,
+    0.12,
     4.86,
     4.55
    ]
@@ -3501,23 +3577,44 @@
   },
   {
    "piece": "WallBay8",
-   "name": "WallBay8_Field",
+   "name": "WallBay8_FieldMid",
    "material": "M_TileWhite",
    "look": {
     "material": "CeramicTiles",
     "color": "E7E6E1"
    },
    "glow": false,
-   "tris": 36,
+   "tris": 12,
    "center": [
     0.125,
     0.0,
-    11.5
+    15.65
    ],
    "size": [
     0.25,
     8.0,
-    17.0
+    6.1
+   ]
+  },
+  {
+   "piece": "WallBay8",
+   "name": "WallBay8_FieldTop",
+   "material": "M_TileWhite",
+   "look": {
+    "material": "CeramicTiles",
+    "color": "E7E6E1"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.125,
+    0.0,
+    19.5
+   ],
+   "size": [
+    0.25,
+    8.0,
+    1.0
    ]
   },
   {
@@ -3543,23 +3640,23 @@
   },
   {
    "piece": "WallBay8",
-   "name": "WallBay8_BandTrim",
+   "name": "WallBay8_BandEdgeHigh",
    "material": "M_Steel",
    "look": {
     "material": "Metal",
     "color": "22252A"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
     0.21,
     0.0,
-    11.0
+    12.5
    ],
    "size": [
     0.42,
     8.0,
-    3.2
+    0.2
    ]
   },
   {
@@ -3592,16 +3689,37 @@
     "color": "22252A"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
     0.7,
     0.0,
-    19.125
+    18.85
    ],
    "size": [
     1.4,
     8.0,
-    0.85
+    0.3
+   ]
+  },
+  {
+   "piece": "WallBay8",
+   "name": "WallBay8_CoveLip",
+   "material": "M_Steel",
+   "look": {
+    "material": "Metal",
+    "color": "22252A"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    1.325,
+    0.0,
+    19.275
+   ],
+   "size": [
+    0.15,
+    8.0,
+    0.55
    ]
   },
   {
@@ -3623,6 +3741,48 @@
     0.3,
     7.9,
     0.12
+   ]
+  },
+  {
+   "piece": "WallBay8",
+   "name": "WallBay8_Field",
+   "material": "M_TileWhite",
+   "look": {
+    "material": "CeramicTiles",
+    "color": "E7E6E1"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.125,
+    0.0,
+    6.2
+   ],
+   "size": [
+    0.25,
+    8.0,
+    6.4
+   ]
+  },
+  {
+   "piece": "WallBay8",
+   "name": "WallBay8_BandEdgeLow",
+   "material": "M_Steel",
+   "look": {
+    "material": "Metal",
+    "color": "22252A"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.21,
+    0.0,
+    9.5
+   ],
+   "size": [
+    0.42,
+    8.0,
+    0.2
    ]
   },
   {
@@ -3690,23 +3850,44 @@
   },
   {
    "piece": "WallDoor8",
-   "name": "WallDoor8_Field",
+   "name": "WallDoor8_FieldMid",
    "material": "M_TileWhite",
    "look": {
     "material": "CeramicTiles",
     "color": "E7E6E1"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
     0.125,
     0.0,
-    16.3
+    15.65
    ],
    "size": [
     0.25,
     8.0,
-    7.4
+    6.1
+   ]
+  },
+  {
+   "piece": "WallDoor8",
+   "name": "WallDoor8_FieldTop",
+   "material": "M_TileWhite",
+   "look": {
+    "material": "CeramicTiles",
+    "color": "E7E6E1"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.125,
+    0.0,
+    19.5
+   ],
+   "size": [
+    0.25,
+    8.0,
+    1.0
    ]
   },
   {
@@ -3732,7 +3913,7 @@
   },
   {
    "piece": "WallDoor8",
-   "name": "WallDoor8_BandTrim",
+   "name": "WallDoor8_BandEdgeHigh",
    "material": "M_Steel",
    "look": {
     "material": "Metal",
@@ -3781,16 +3962,37 @@
     "color": "22252A"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
     0.7,
     0.0,
-    19.125
+    18.85
    ],
    "size": [
     1.4,
     8.0,
-    0.85
+    0.3
+   ]
+  },
+  {
+   "piece": "WallDoor8",
+   "name": "WallDoor8_CoveLip",
+   "material": "M_Steel",
+   "look": {
+    "material": "Metal",
+    "color": "22252A"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    1.325,
+    0.0,
+    19.275
+   ],
+   "size": [
+    0.15,
+    8.0,
+    0.55
    ]
   },
   {
@@ -3888,12 +4090,12 @@
    "glow": false,
    "tris": 12,
    "center": [
-    -0.985,
+    -0.95,
     0.0,
     0.025
    ],
    "size": [
-    1.97,
+    1.9,
     7.7,
     0.05
    ]
@@ -3942,23 +4144,44 @@
   },
   {
    "piece": "WallEnd4",
-   "name": "WallEnd4_Field",
+   "name": "WallEnd4_FieldMid",
    "material": "M_TileWhite",
    "look": {
     "material": "CeramicTiles",
     "color": "E7E6E1"
    },
    "glow": false,
-   "tris": 36,
+   "tris": 12,
    "center": [
     0.125,
     0.0,
-    11.5
+    15.65
    ],
    "size": [
     0.25,
     4.0,
-    17.0
+    6.1
+   ]
+  },
+  {
+   "piece": "WallEnd4",
+   "name": "WallEnd4_FieldTop",
+   "material": "M_TileWhite",
+   "look": {
+    "material": "CeramicTiles",
+    "color": "E7E6E1"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.125,
+    0.0,
+    19.5
+   ],
+   "size": [
+    0.25,
+    4.0,
+    1.0
    ]
   },
   {
@@ -3984,23 +4207,23 @@
   },
   {
    "piece": "WallEnd4",
-   "name": "WallEnd4_BandTrim",
+   "name": "WallEnd4_BandEdgeHigh",
    "material": "M_Steel",
    "look": {
     "material": "Metal",
     "color": "22252A"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
     0.21,
     0.0,
-    11.0
+    12.5
    ],
    "size": [
     0.42,
     4.0,
-    3.2
+    0.2
    ]
   },
   {
@@ -4033,16 +4256,37 @@
     "color": "22252A"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 12,
    "center": [
     0.7,
     0.0,
-    19.125
+    18.85
    ],
    "size": [
     1.4,
     4.0,
-    0.85
+    0.3
+   ]
+  },
+  {
+   "piece": "WallEnd4",
+   "name": "WallEnd4_CoveLip",
+   "material": "M_Steel",
+   "look": {
+    "material": "Metal",
+    "color": "22252A"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    1.325,
+    0.0,
+    19.275
+   ],
+   "size": [
+    0.15,
+    4.0,
+    0.55
    ]
   },
   {
@@ -4064,6 +4308,48 @@
     0.3,
     3.9,
     0.12
+   ]
+  },
+  {
+   "piece": "WallEnd4",
+   "name": "WallEnd4_Field",
+   "material": "M_TileWhite",
+   "look": {
+    "material": "CeramicTiles",
+    "color": "E7E6E1"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.125,
+    0.0,
+    6.2
+   ],
+   "size": [
+    0.25,
+    4.0,
+    6.4
+   ]
+  },
+  {
+   "piece": "WallEnd4",
+   "name": "WallEnd4_BandEdgeLow",
+   "material": "M_Steel",
+   "look": {
+    "material": "Metal",
+    "color": "22252A"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.21,
+    0.0,
+    9.5
+   ],
+   "size": [
+    0.42,
+    4.0,
+    0.2
    ]
   },
   {
