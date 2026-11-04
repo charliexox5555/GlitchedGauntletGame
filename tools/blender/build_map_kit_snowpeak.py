@@ -1147,7 +1147,10 @@ def p_cliffs(mats, kit):
 
 
 def range_grid():
-	pos = [0.0, 8.0, 16.0, 28.0, 40.0, 53.0, 66.0, 72.0, 80.0, 90.0, 100.0, 106.0, 118.0, 134.0, 154.0, 178.0, 206.0, 238.0, 274.0, 314.0, 358.0, 406.0, 458.0, 514.0, 574.0, 638.0, 706.0, 778.0, 856.0, 940.0, 1030.0, 1130.0, 1240.0, 1360.0, 1500.0]
+	# Ends at 1000: each half is then 1000 x 2000 studs. Roblox caps a mesh at 2048 per axis and shrinks a bigger
+	# one to fit on upload (the old 3000-long halves came in at 68 %, so the Range's inner edge hung in the air
+	# 240 studs out and its underside showed as floating shards).
+	pos = [0.0, 8.0, 16.0, 28.0, 40.0, 53.0, 66.0, 72.0, 80.0, 90.0, 100.0, 106.0, 118.0, 134.0, 154.0, 178.0, 206.0, 238.0, 274.0, 314.0, 358.0, 406.0, 458.0, 514.0, 574.0, 638.0, 706.0, 778.0, 856.0, 940.0, 1000.0]
 	return sorted({-p for p in pos} | set(pos))
 
 
