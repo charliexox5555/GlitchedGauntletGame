@@ -33,6 +33,7 @@ local SAMPLES = 5 -- per axis over the shared rectangle (25 rays per face pair)
 local MIN_HITS = 3 -- coincident samples needed to report a pair
 local CHUNK = 150 -- parts per yield
 
+local AssetService = game:GetService("AssetService")
 local HttpService = game:GetService("HttpService")
 
 local root = workspace:FindFirstChild(MAP)
@@ -107,7 +108,131 @@ local function buried(q: Vector3, a: BasePart, b: BasePart): boolean
 	return false
 end
 
+-- MeshParts are tested against their real triangles (EditableMesh), not their
+-- collision box: kit pieces have Box collision, so a raycast would hit the
+-- piece's bounding box and report planes the mesh never has. Only triangles
+-- facing the ray count (back faces are culled when rendered, so a trim's back
+-- pressed on a wall face never fights it). Triangles wind counter-clockwise
+-- seen from the front: (b - a) x (c - a) points out (checked in Studio).
+type Tri = { a: Vector3, e1: Vector3, e2: Vector3, n: Vector3, lo: Vector3, hi: Vector3 }
+local meshCache: { [string]: any } = {} -- MeshId -> { {Vector3} } (mesh space, centred) or false
+local worldTris: { [BasePart]: any } = {} -- MeshPart -> { Tri } or false
+local meshFailed = 0
+
+local function trisOf(p: MeshPart): { Tri }?
+	local cached = worldTris[p]
+	if cached ~= nil then
+		return if cached then cached else nil
+	end
+	local id = p.MeshId
+	local localTris = meshCache[id]
+	if localTris == nil then
+		local ok, em = pcall(function()
+			return AssetService:CreateEditableMeshAsync(Content.fromUri(id))
+		end)
+		if ok and em then
+			local raw = {}
+			local mn, mx = Vector3.one * math.huge, -Vector3.one * math.huge
+			for _, f in em:GetFaces() do
+				local vs = em:GetFaceVertices(f)
+				if #vs >= 3 then
+					local t =
+						{ em:GetPosition(vs[1]), em:GetPosition(vs[2]), em:GetPosition(vs[3]) }
+					for _, v in t do
+						mn, mx = mn:Min(v), mx:Max(v)
+					end
+					table.insert(raw, t)
+				end
+			end
+			em:Destroy()
+			local centre = (mn + mx) / 2
+			for _, t in raw do
+				for i = 1, 3 do
+					t[i] -= centre
+				end
+			end
+			localTris = raw
+		else
+			meshFailed += 1
+			localTris = false
+		end
+		meshCache[id] = localTris
+	end
+	if not localTris then
+		worldTris[p] = false
+		return nil
+	end
+	local scale = p.Size / p.MeshSize
+	local cf = p.CFrame
+	local list: { Tri } = {}
+	for _, t in localTris do
+		local a = cf:PointToWorldSpace(t[1] * scale)
+		local b = cf:PointToWorldSpace(t[2] * scale)
+		local c = cf:PointToWorldSpace(t[3] * scale)
+		local e1, e2 = b - a, c - a
+		local n = e1:Cross(e2)
+		if n.Magnitude > 1e-9 then
+			table.insert(
+				list,
+				{ a = a, e1 = e1, e2 = e2, n = n.Unit, lo = a:Min(b):Min(c), hi = a:Max(b):Max(c) }
+			)
+		end
+	end
+	worldTris[p] = list
+	return list
+end
+
+-- Möller–Trumbore, front faces only; the nearest hit within the ray's length.
+local function triHit(list: { Tri }, from: Vector3, dir: Vector3): number?
+	local len = dir.Magnitude
+	local d = dir / len
+	local lo, hi = from:Min(from + dir), from:Max(from + dir)
+	local best: number? = nil
+	for _, t in list do
+		if t.n:Dot(d) >= 0 then
+			continue
+		end
+		if
+			t.hi.X < lo.X - 1e-4
+			or t.lo.X > hi.X + 1e-4
+			or t.hi.Y < lo.Y - 1e-4
+			or t.lo.Y > hi.Y + 1e-4
+			or t.hi.Z < lo.Z - 1e-4
+			or t.lo.Z > hi.Z + 1e-4
+		then
+			continue
+		end
+		local pv = d:Cross(t.e2)
+		local det = t.e1:Dot(pv)
+		if math.abs(det) < 1e-9 then
+			continue
+		end
+		local inv = 1 / det
+		local tv = from - t.a
+		local u = tv:Dot(pv) * inv
+		if u < -1e-5 or u > 1 + 1e-5 then
+			continue
+		end
+		local qv = tv:Cross(t.e1)
+		local v = d:Dot(qv) * inv
+		if v < -1e-5 or u + v > 1 + 1e-5 then
+			continue
+		end
+		local dist = t.e2:Dot(qv) * inv
+		if dist >= 0 and dist <= len and (best == nil or dist < best) then
+			best = dist
+		end
+	end
+	return best
+end
+
 local function hitDistance(part: BasePart, from: Vector3, dir: Vector3): number?
+	if part:IsA("MeshPart") then
+		local list = trisOf(part)
+		if list then
+			return triHit(list, from, dir)
+		end
+	end
 	params.FilterDescendantsInstances = { part }
 	local r = workspace:Raycast(from, dir, params)
 	return if r then r.Distance else nil
@@ -319,11 +444,14 @@ table.sort(list, function(x, y)
 end)
 local lines = {
 	string.format(
-		"%s: %d visible parts, %d z-fighting pairs%s",
+		"%s: %d visible parts, %d z-fighting pairs%s%s",
 		MAP,
 		#parts,
 		#found,
-		if FIX then string.format(" (fixed %d)", fixed) else ""
+		if FIX then string.format(" (fixed %d)", fixed) else "",
+		if meshFailed > 0
+			then string.format(" (%d meshes unreadable, tested as boxes)", meshFailed)
+			else ""
 	),
 }
 for i = 1, math.min(#list, 25) do
