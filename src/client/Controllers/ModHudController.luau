@@ -190,14 +190,23 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		BackgroundTransparency = 1,
 		LayoutOrder = index,
 	}, parent)
-	local scale = make("UIScale", { Scale = 1 }, root)
+	-- Everything sits in a centre-anchored body, so the held / ready pulse
+	-- (a UIScale) grows from the slot's middle, not its corner.
+	local body = make("Frame", {
+		Name = "Body",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+	}, root)
+	local scale = make("UIScale", { Scale = 1 }, body)
 	local face = make("CanvasGroup", {
 		Name = "Face",
 		Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE),
 		BackgroundColor3 = BACK,
 		BackgroundTransparency = 0.28,
 		BorderSizePixel = 0,
-	}, root)
+	}, body)
 	-- The shading is its own frame: a UIGradient on a CanvasGroup would tint
 	-- everything in it.
 	local shade = make("Frame", {
@@ -238,7 +247,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE),
 		BackgroundTransparency = 1,
 		ZIndex = 5,
-	}, root)
+	}, body)
 	local border = make("UIStroke", {
 		Color = Theme.COLORS.lineStrong,
 		Thickness = 1.5,
@@ -252,7 +261,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE),
 		BackgroundTransparency = 1,
 		ZIndex = 5,
-	}, root)
+	}, body)
 	local ringStroke = make("UIStroke", {
 		Color = CYAN,
 		Thickness = 2,
@@ -266,8 +275,8 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		BackgroundColor3 = CYAN,
 		BorderSizePixel = 0,
 		ZIndex = 5,
-	}, root)
-	local key = Ui.text(root, "", "key", {
+	}, body)
+	local key = Ui.text(body, "", "key", {
 		Position = UDim2.fromOffset(0, SLOT_SIZE + 8),
 		Size = UDim2.fromOffset(SLOT_SIZE, 18),
 		TextColor3 = Theme.COLORS.textSecondary,
@@ -278,7 +287,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		Position = UDim2.fromOffset(0, -16),
 		Size = UDim2.new(1, 0, 0, 10),
 		BackgroundTransparency = 1,
-	}, root)
+	}, body)
 	make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -305,7 +314,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		BackgroundTransparency = 0.3,
 		BorderSizePixel = 0,
 		Visible = false,
-	}, root)
+	}, body)
 	make("UICorner", { CornerRadius = UDim.new(1, 0) }, activeBack)
 	local activeFill = make("Frame", {
 		Size = UDim2.fromScale(1, 1),
@@ -321,7 +330,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		TextColor3 = MUTED,
 		Text = "",
 		Visible = false, -- UI v1 shows the key, not the name
-	}, root)
+	}, body)
 	return {
 		root = root,
 		scale = scale,

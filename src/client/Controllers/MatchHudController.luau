@@ -102,7 +102,9 @@ local function side(bar: Frame, enemy: boolean): Side
 		BackgroundColor3 = color,
 	}, back)
 	local score = Ui.text(bar, "0", "displayM", {
-		Position = UDim2.fromOffset(if enemy then 722 else 318, 6),
+		-- Centre-anchored: its pop (a UIScale) grows from the middle.
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromOffset(if enemy then 752 else 348, 34),
 		Size = UDim2.fromOffset(60, 56),
 		TextSize = 48,
 		TextColor3 = color,
@@ -156,7 +158,9 @@ local function build(): Ui
 		TextColor3 = C.textSecondary,
 	})
 	local clock = Ui.text(bar, "", "timer", {
-		Position = UDim2.fromOffset(400, 30),
+		-- Centre-anchored: its pop (a UIScale) grows from the middle.
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromOffset(550, 56),
 		Size = UDim2.fromOffset(300, 52),
 	})
 
@@ -200,6 +204,8 @@ local function build(): Ui
 	Ui.fit(content)
 	local inner = make("Frame", {
 		Name = "Pop",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
 	}, content)

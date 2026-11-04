@@ -121,7 +121,7 @@ local function setOpen(value: boolean)
 			Ui.tween(
 				content,
 				Theme.MOTION.exit,
-				{ Position = UDim2.fromOffset(0, 40) },
+				{ Position = UDim2.new(0.5, 0, 0.5, 40) },
 				Enum.EasingStyle.Quint,
 				Enum.EasingDirection.In
 			)
@@ -895,7 +895,7 @@ local function lock()
 	-- Not ready: a "no" shake and the hint flashes.
 	UiSound.play("Denied")
 	if button then
-		local home = UDim2.fromOffset(960, 1000)
+		local home = UDim2.fromOffset(960, 1032)
 		for i, dx in { -10, 8, -5, 0 } do
 			task.delay((i - 1) * 0.04, function()
 				button.Position = home + UDim2.fromOffset(dx, 0)
@@ -975,6 +975,8 @@ local function show(o: MatchState.DraftOffer)
 	end
 	local content = make("Frame", {
 		Name = "Content",
+		AnchorPoint = Vector2.new(0.5, 0.5), -- the open pop grows from the middle
+		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
 	}, p)
@@ -1034,8 +1036,8 @@ local function show(o: MatchState.DraftOffer)
 	})
 	local button = Ui.cut(content, {
 		Name = "LockIn",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(960, 1000),
+		AnchorPoint = Vector2.new(0.5, 0.5), -- its pulse grows from the middle
+		Position = UDim2.fromOffset(960, 1032),
 		Size = UDim2.fromOffset(340, 64),
 	}, { corner = 14, color = C.raised, className = "ImageButton" })
 	lockIcon = make("ImageLabel", {
