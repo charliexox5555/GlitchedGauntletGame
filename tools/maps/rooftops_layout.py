@@ -1007,7 +1007,7 @@ if __name__ == "__main__":
 	res = report()
 	target = ROOT / "vault/02 Art/References/maps/rooftops/rooftops-layout.svg"
 	target.parent.mkdir(parents=True, exist_ok=True)
-	target.write_text(svg(res), encoding="utf-8")
+	target.write_text(svg(res), encoding="utf-8", newline="\n")
 	print(f"\nWrote {target.relative_to(ROOT)}")
 	if "--write" in sys.argv:
 		import rooftops_art as A  # noqa: E402

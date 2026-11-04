@@ -195,8 +195,12 @@ class Art:
 					continue  # the sign tower stands there
 				ring.append((sx * (NEIGHBOUR_X + 14), z, 180.0 if sx > 0 else 0.0, 20 + i * 2 + (sx > 0)))
 		for x, z, yaw, k in ring:
-			piece = ("CityA", "CityB", "CityC")[int(h01("city", k) * 3) % 3]
-			scale = 0.8 + 0.5 * h01("scale", k)
+			# mostly at or under the roofs, so the sky stays open over the map and the landmark reads; one in
+			# four a little taller (CityB at 0.7-0.8: tops about +5..+16)
+			if h01("city", k) < 0.25:
+				piece, scale = "CityB", 0.7 + 0.1 * h01("scale", k)
+			else:
+				piece, scale = "CityA", 0.75 + 0.45 * h01("scale", k)
 			self.put("Skyline", piece, x, STREET + 0.4, z, yaw, scale=round(scale, 2))
 		# the far skyline: taller towers further out
 		for i in range(14):
@@ -206,7 +210,7 @@ class Art:
 			if abs(math.atan2(z - 18, x + 122)) < 0.2 and x < 0:
 				continue
 			piece = ("CityB", "CityC")[i % 2]
-			self.put("Skyline", piece, x, STREET, z, (math.degrees(-a) + 180) % 360, scale=round(1.4 + 0.8 * h01("farscale", i), 2))
+			self.put("Skyline", piece, x, STREET, z, (math.degrees(-a) + 180) % 360, scale=round(0.9 + 0.5 * h01("farscale", i), 2))
 
 	def build(self):
 		self.facades()
@@ -276,13 +280,12 @@ def luau_place() -> str:
 			extra += f', glow = "{glow[1:]}"'
 		if scale != 1.0:
 			extra += f", scale = {L.num(scale)}"
-		lines.append(f'\t{{ "{sec}", "{piece}", {L.num(x)}, {L.num(y)}, {L.num(z)}, {L.num(yaw)}{extra} }},')
+		lines.append(f'\t{{ sec = "{sec}", piece = "{piece}", x = {L.num(x)}, y = {L.num(y)}, z = {L.num(z)}, yaw = {L.num(yaw)}{extra} }},')
 	lines.append("}")
 	lines.append("local PARTS: { { any } } = {")
 	for s in plain_parts():
 		lines.append(f'\t{{ "{s.name}", "{s.look}", {L.num(s.x0)}, {L.num(s.x1)}, {L.num(s.y0)}, {L.num(s.y1)}, {L.num(s.z0)}, {L.num(s.z1)} }},')
 	lines.append("}")
-	lines.append("local TONES: { [string]: string } = { " + ", ".join(f'{k} = "{v[1:]}"' for k, v in TONES.items()) + " }")
 	return "\n".join(lines)
 
 
