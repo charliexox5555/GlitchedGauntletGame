@@ -72,7 +72,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 ## 3. Health: nobody truly dies (decided 2026-11-04)
 - **The game's own health.** Roblox's `Humanoid.Health` stays full and the Dead state is off. HP lives in Humanoid attributes `HP` / `MaxHP` / `Downed`, written only by the server (`Services/HealthService`), read everywhere through `shared/Health`. Shield first, then HP, as before.
 - **At 0 HP you're downed**, not dead: you can't move, shoot or use Mods, the body stops blocking shots and players, and the round counts you out. The next round spawns everyone fresh (`MatchService`); in test mode a downed player comes back after `RESPAWN_TIME`.
-- **It looks like a death:** every client hides the body and a still copy of it tips over (bounces once on the floor), lies there 1.4 s, then fades with a dust puff (`DeathFxController`, `Config/Juice` DEATH). The downed player's own screen drains of colour until the next round.
+- **It looks like a death:** every client hides the body and a copy of it crumples (the `GG_Death` clip: knees buckle, the gun arm drops, the head folds; 0.28 s), then tips over off the knees, mostly face first (bounces once on the floor), lies there 1.4 s and fades with a dust puff (`DeathFxController`, `Config/Juice` DEATH). Screenshot: `02 Art/References/ui-v1/ingame-death-crumple.jpg`. The downed player's own screen drains of colour until the next round.
 - Why: no Roblox death or respawn mid-round (no reset timing, lost characters or broken joints), and full control over how a kill looks.
 
 ## 3b. Damage (v2)

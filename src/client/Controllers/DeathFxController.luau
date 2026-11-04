@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local VfxTextures = require(ReplicatedStorage.Shared.Config.VfxTextures)
@@ -33,7 +34,8 @@ local function hide(body: Model)
 	end
 end
 
--- A still, anchored copy of the body: parts and accessories only.
+-- A copy of the body that can't move or be hit: its root is anchored, the
+-- other parts hang off it by their joints, so the Death clip can fold it.
 local function copyOf(body: Model): Model?
 	local was = body.Archivable
 	body.Archivable = true
@@ -46,7 +48,7 @@ local function copyOf(body: Model): Model?
 	end
 	for _, d in copy:GetDescendants() do
 		if d:IsA("BasePart") then
-			d.Anchored = true
+			d.Anchored = d.Name == "HumanoidRootPart"
 			d.CanCollide = false
 			d.CanQuery = false
 			d.CanTouch = false
@@ -54,7 +56,7 @@ local function copyOf(body: Model): Model?
 		elseif
 			d:IsA("Script")
 			or d:IsA("LocalScript")
-			or d:IsA("Humanoid")
+			or d:IsA("ModuleScript")
 			or d:IsA("Sound")
 			or d:IsA("ParticleEmitter")
 			or d:IsA("Highlight")
@@ -66,6 +68,17 @@ local function copyOf(body: Model): Model?
 		end
 	end
 	copy.Name = body.Name .. "Down"
+	-- No team, health or state: nothing should treat the copy as a fighter
+	-- (the enemy outline reads TeamId).
+	for name in copy:GetAttributes() do
+		copy:SetAttribute(name, nil)
+	end
+	local humanoid = copy:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+		humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+	end
 	return copy
 end
 
@@ -112,11 +125,43 @@ local function fall(body: Model)
 		return
 	end
 	copy.Parent = Workspace
+	-- The knees buckle and the head drops first (the Death clip).
+	local humanoid = copy:FindFirstChildOfClass("Humanoid")
+	local animator: Animator? = humanoid and humanoid:FindFirstChildOfClass("Animator")
+	if humanoid and not animator then
+		local made = Instance.new("Animator")
+		made.Parent = humanoid
+		animator = made
+	end
+	if animator then
+		for _, t in animator:GetPlayingAnimationTracks() do
+			t:Stop(0)
+		end
+		local clip = Instance.new("Animation")
+		clip.AnimationId = Animations.COMBAT.Death
+		local track = animator:LoadAnimation(clip)
+		track.Priority = Enum.AnimationPriority.Action4
+		track.Looped = false
+		track:Play(0.05)
+		track.Stopped:Once(function()
+			-- Hold the last frame: replay frozen at the end.
+			if copy.Parent then
+				track:Play(0)
+				track.TimePosition = track.Length
+				track:AdjustSpeed(0)
+			end
+		end)
+	end
+	task.wait(D.buckle)
+	if not copy.Parent then
+		return
+	end
 	local start = copy:GetPivot()
 	local _, size = copy:GetBoundingBox()
 	local feet = start.Position - Vector3.new(0, size.Y / 2, 0)
-	-- Backward or forward, a little to one side, so no two look the same.
-	local dir = if math.random() < 0.6 then 1 else -1
+	-- Mostly forward off the knees (sometimes backward), a little to one
+	-- side, so no two look the same.
+	local dir = if math.random() < 0.7 then -1 else 1
 	local side = math.rad((math.random() * 2 - 1) * 20)
 	local hinge = CFrame.new(feet) * (start - start.Position)
 	local offset = hinge:ToObjectSpace(start)
@@ -190,7 +235,7 @@ local function step(body: Model)
 			-- Your own: the screen drains (your body is out of view in first person).
 			setGrade(true)
 		elseif seen == false then
-			fall(body)
+			task.spawn(fall, body) -- it waits (the buckle) before the tip
 		else
 			hide(body) -- went down before we saw it (a late join): no replayed fall
 		end

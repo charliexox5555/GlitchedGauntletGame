@@ -1,7 +1,7 @@
 --!strict
 -- Builds the third-person combat poses (R15 KeyframeSequences) others see on
 -- you: aiming down sights (three pitch poses, like the hip aim set in
--- MakePoseAnimations), a reload one-shot and a hit flinch. Saves each as a
+-- MakePoseAnimations), a reload one-shot, a hit flinch and going down. Saves each as a
 -- Studio-serialized .rbxm in art-source/animations/ through
 -- tools/studio/receive_server.py. Run in Studio (Edit) via the MCP or the
 -- Command Bar, upload with tools/opencloud/upload_asset.py --type Animation,
@@ -31,6 +31,12 @@ local PARENT: { [string]: string } = {
 	LeftUpperArm = "UpperTorso",
 	LeftLowerArm = "LeftUpperArm",
 	LeftHand = "LeftLowerArm",
+	RightUpperLeg = "LowerTorso",
+	RightLowerLeg = "RightUpperLeg",
+	RightFoot = "RightLowerLeg",
+	LeftUpperLeg = "LowerTorso",
+	LeftLowerLeg = "LeftUpperLeg",
+	LeftFoot = "LeftLowerLeg",
 }
 
 local function cf(p: JointPose): CFrame
@@ -157,6 +163,51 @@ end
 local FLINCH_HIT: Frame = { UpperTorso = { 11, 4, -3 }, Head = { 14, -5, 4 } }
 local FLINCH_REST: Frame = { UpperTorso = { 0, 0, 0 }, Head = { 0, 0, 0 } }
 
+-- Going down (DeathFxController plays it on the still copy of a downed
+-- body, before the copy tips over): knees buckle, the gun arm drops, the
+-- head and chest fold forward. Not looped; holds its last frame.
+local DEATH_START: Frame = {
+	LowerTorso = { 0, 0, 0 },
+	UpperTorso = { 0, 0, 0 },
+	Head = { 0, 0, 0 },
+	RightUpperArm = { 90, 8, 0 },
+	LeftUpperArm = { 90, -38, 0 },
+	RightUpperLeg = { 0, 0, 0 },
+	RightLowerLeg = { 0, 0, 0 },
+	LeftUpperLeg = { 0, 0, 0 },
+	LeftLowerLeg = { 0, 0, 0 },
+}
+local DEATH_BUCKLE: Frame = {
+	LowerTorso = { -14, 6, 4, 0, -0.9, 0 },
+	UpperTorso = { -22, -8, 6 },
+	Head = { -28, 10, -8 },
+	RightUpperArm = { 30, 20, -10 },
+	RightLowerArm = { 20, 0, 0 },
+	LeftUpperArm = { 15, -10, 14 },
+	LeftLowerArm = { 25, 0, 0 },
+	RightUpperLeg = { 48, 0, -6 },
+	RightLowerLeg = { -78, 0, 0 },
+	RightFoot = { 30, 0, 0 },
+	LeftUpperLeg = { 30, 0, 8 },
+	LeftLowerLeg = { -92, 0, 0 },
+	LeftFoot = { 50, 0, 0 },
+}
+local DEATH_DOWN: Frame = {
+	LowerTorso = { -26, 10, 6, 0, -1.6, 0 },
+	UpperTorso = { -30, -10, 10 },
+	Head = { -35, 14, -12 },
+	RightUpperArm = { 10, 26, -24 },
+	RightLowerArm = { 12, 0, 0 },
+	LeftUpperArm = { 0, -14, 22 },
+	LeftLowerArm = { 18, 0, 0 },
+	RightUpperLeg = { 80, 0, -8 },
+	RightLowerLeg = { -112, 0, 0 },
+	RightFoot = { 40, 0, 0 },
+	LeftUpperLeg = { 66, 0, 10 },
+	LeftLowerLeg = { -120, 0, 0 },
+	LeftFoot = { 55, 0, 0 },
+}
+
 local ACTION = Enum.AnimationPriority.Action
 local ACTION4 = Enum.AnimationPriority.Action4
 
@@ -173,6 +224,7 @@ local sequences = {
 		{ 0, 0.05, 0.3 },
 		false
 	),
+	sequence("GG_Death", ACTION4, { DEATH_START, DEATH_BUCKLE, DEATH_DOWN }, { 0, 0.16, 0.34 }, false),
 }
 
 local saved = {}

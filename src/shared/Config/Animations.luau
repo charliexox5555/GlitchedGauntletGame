@@ -46,6 +46,7 @@ return table.freeze({
 		AdsDown = id(97664620704166),
 		Reload = id(123720437640794),
 		Flinch = id(114576995497102),
+		Death = id(81024323443020), -- going down (DeathFxController, on the falling copy)
 	}),
 	ADS_SMOOTHING = 12, -- 1/s: how fast the hold moves between hip and sights
 	RELOAD_LENGTH = 1, -- seconds the reload clip is made at

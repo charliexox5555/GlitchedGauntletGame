@@ -67,6 +67,7 @@ return table.freeze({
 	-- of it falls over, rests, then fades with a dust puff. The downed player's
 	-- own screen drains of colour.
 	DEATH = table.freeze({
+		buckle = 0.28, -- seconds the knees buckle (the Death clip) before it tips
 		fall = 0.45, -- seconds to hit the floor
 		tilt = 82, -- degrees it tips over
 		rest = 1.4, -- seconds it lies there
