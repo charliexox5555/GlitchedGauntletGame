@@ -119,46 +119,49 @@ def B(name, section, x0, x1, y0, y1, z0, z1, kind="wall"):
 
 
 def train_doors(t: dict):
-    """Door openings (z0, z1) of a train: four on the platform side; on the track side only the
-    two next to the gangway are open (the rest of that side is dark glass: solid)."""
-    z0, z1 = t["z0"], t["z1"]
-    mid = (z0 + z1) / 2
-    cars = [(z0, mid - 1), (mid + 1, z1)]
-    platform = []
-    for a, b in cars:
-        platform += [(a + 4.5, a + 10.5), (b - 10.5, b - 4.5)]
+    """Door and window openings (z0, z1) of a train, in map z. One two-section unit with an open gangway: four
+    platform-side doors (6 wide, every 13 studs), a 5-wide window in each long wall stretch, and on the track side
+    only the two inner doors are open (the rest of that side is dark glass: solid)."""
+    z0 = t["z0"]
+    platform = [(z0 + c - 3, z0 + c + 3) for c in (6.5, 19.5, 32.5, 45.5)]
+    windows = [(z0 + 10.5, z0 + 15.5), (z0 + 36.5, z0 + 41.5)]
     track = [platform[1], platform[2]]
-    return platform, track, mid
+    return platform, windows, track
+
+
+def _gaps(intervals, a, b):
+    out, cur = [], a
+    for x0, x1 in sorted(intervals):
+        x0, x1 = max(x0, a), min(x1, b)
+        if x1 <= x0:
+            continue
+        if x0 > cur:
+            out.append((cur, x0))
+        cur = max(cur, x1)
+    if cur < b:
+        out.append((cur, b))
+    return out
 
 
 def train_blocks(t: dict) -> list[Block]:
-    """Two coupled cars on one track, flush with the platform: floor at platform level, doors
-    and short windows (3.5 to 7, see- and shoot-through) on the platform side, two open doors
-    on the track side, a roof you can stand on (Updraft, or a drop from your own terrace)."""
+    """The train, flush with its platform: floor at platform level, doors and two windows (3.5 to 7, see- and
+    shoot-through) on the platform side, two open doors on the track side, a roof you can stand on (Updraft)."""
     x0, x1, z0, z1, roof = t["x0"], t["x1"], t["z0"], t["z1"], t["roof"]
     s = "Train"
-    platform, track, mid = train_doors(t)
+    platform, windows, track = train_doors(t)
     out = [
         B("Underframe", s, x0, x1, TRENCH, PLAT, z0, z1, "train"),
         B("Roof", s, x0, x1, roof, roof + 1, z0, z1, "train"),
         B("EndCab", s, x0, x1, PLAT, roof, z1 - 0.5, z1, "train"),
         B("EndRear", s, x0, x1, PLAT, roof, z0, z0 + 0.5, "train"),
-        B("Gangway", s, x0 + 0.5, x0 + 2, PLAT, roof, mid - 1, mid + 1, "train"),
-        B("Gangway", s, x1 - 2, x1 - 0.5, PLAT, roof, mid - 1, mid + 1, "train"),
     ]
-    for side, (wx0, wx1), doors, low in (
-        ("Track", (x0, x0 + 0.5), track, 7.0),
-        ("Platform", (x1 - 0.5, x1), platform, 3.5),
-    ):
+    for side, (wx0, wx1), opens in (("Track", (x0, x0 + 0.5), track), ("Platform", (x1 - 0.5, x1), platform + windows)):
         out.append(B("Upper" + side, s, wx0, wx1, 7.0, roof, z0 + 0.5, z1 - 0.5, "train"))
-        edges = [z0 + 0.5] + [e for d in doors for e in d] + [z1 - 0.5]
-        for i in range(0, len(edges), 2):
-            if edges[i + 1] - edges[i] > 0.01:
-                out.append(B("Lower" + side, s, wx0, wx1, PLAT, low, edges[i], edges[i + 1], "train"))
+        for a, b in _gaps(opens, z0 + 0.5, z1 - 0.5):
+            out.append(B("Lower" + side, s, wx0, wx1, PLAT, 7.0, a, b, "train"))
         if side == "Platform":
-            for da, db in doors:
-                out.append(B("DoorPost", s, wx0, wx1, 3.5, 7.0, da - 1, da, "train"))
-                out.append(B("DoorPost", s, wx0, wx1, 3.5, 7.0, db, db + 1, "train"))
+            for a, b in windows:
+                out.append(B("LowerPlatform", s, wx0, wx1, PLAT, 3.5, a, b, "train"))
     return out
 
 
@@ -190,12 +193,12 @@ HALF: list = [
     B("PumpRoom", "Corridor", 42, OUT_X, PLAT, CORR_CEIL, 14, 24, "cover"),
     B("PumpRoom", "Corridor", WALL_X, 42, PLAT, CORR_CEIL, -24, -14, "cover"),
     # --- Concourse level (team B): terrace over the hall end, ticket hall, spawn room
-    B("TerraceBlock", "Concourse", -OUT_X, ESC_X - 1, TRENCH - 1, TERR, 51, 72, "floor"),
+    B("TerraceBlock", "Concourse", -OUT_X, ESC_X, TRENCH - 1, TERR, 51, 72, "floor"),
     B("TerraceFront", "Concourse", -OUT_X, -TRENCH_X, TRENCH - 1, TERR, HALL_Z, 51, "floor"),
-    B("TerraceFront", "Concourse", TRENCH_X, ESC_X - 1, TRENCH - 1, TERR, HALL_Z, 51, "floor"),
+    B("TerraceFront", "Concourse", TRENCH_X, ESC_X, TRENCH - 1, TERR, HALL_Z, 51, "floor"),
     B("PortalLintel", "Concourse", -TRENCH_X, TRENCH_X, 10, TERR, HALL_Z, 51, "floor"),
     B("WingWall", "Concourse", -OUT_X, -WALL_X, TERR - 1, CEIL, HALL_Z - 1, HALL_Z),
-    B("CorridorHead", "Corridor", WALL_X, OUT_X, CORR_CEIL, CEIL, HALL_Z - 1, HALL_Z),
+    B("CorridorHead", "Corridor", WALL_X, OUT_X, CORR_CEIL + 1, CEIL, HALL_Z - 1, HALL_Z),
     B("Parapet", "Concourse", -WALL_X, -22, TERR, TERR + 3, HALL_Z, HALL_Z + 1, "low"),
     B("Parapet", "Concourse", TRENCH_X, ESC_X - 1, TERR, TERR + 3, HALL_Z, HALL_Z + 1, "low"),
     # The station-name panel over the tunnel portal (the landmark): no drop from the terrace
@@ -215,8 +218,8 @@ HALF: list = [
     B("PortalHead", "Concourse", ESC_X - 1, PLAT_X, 22, CEIL, TICKET_Z - 2, TICKET_Z),
     B("TicketFloor", "Concourse", -OUT_X, OUT_X, TERR - 1, TERR, 72, SPAWN_Z, "floor"),
     B("ConcourseCeiling", "Concourse", -50, 50, CEIL, CEIL + 1, HALL_Z, SPAWN_Z + 22, "ceiling"),
-    B("TicketWallNorth", "Concourse", -OUT_X, -16, TERR, CEIL, SPAWN_Z, SPAWN_Z + 2),
-    B("TicketWallNorth", "Concourse", 16, OUT_X, TERR, CEIL, SPAWN_Z, SPAWN_Z + 2),
+    B("TicketWallNorth", "Concourse", -OUT_X, -14, TERR, CEIL, SPAWN_Z, SPAWN_Z + 1),
+    B("TicketWallNorth", "Concourse", 14, OUT_X, TERR, CEIL, SPAWN_Z, SPAWN_Z + 1),
     # Fare gates: a line of half cover with three wide gaps; the ticket office is full cover.
     B("FareGates", "Concourse", -30, -10, TERR, TERR + 3.5, 82, 83.5, "low"),
     B("FareGates", "Concourse", 10, 30, TERR, TERR + 3.5, 82, 83.5, "low"),
@@ -238,7 +241,7 @@ HALF: list = [
     B("Column", "Hall", -26, -22, PLAT, CEIL, 22, 26, "cover"),
     B("Column", "Hall", -26, -22, PLAT, CEIL, 38, 42, "cover"),
     B("Bench", "Hall", -PLAT_X, -32, PLAT, 3, 13, 19, "low"),
-    B("TrackBox", "Hall", -TRENCH_X, -11, TRENCH, -0.5, 28, 34, "low"),
+    B("TrackBox", "Hall", -TRENCH_X, -11, TRENCH, -0.5, 29, 35, "low"),
 ]
 
 HALF_RAMPS: list = [
@@ -259,8 +262,8 @@ RAMPS: list = HALF_RAMPS + [r.rotated() for r in HALF_RAMPS]
 SPAWNS_B = [(-3.0, SPAWN_Z + 5), (3.0, SPAWN_Z + 5), (-3.0, SPAWN_Z + 10), (3.0, SPAWN_Z + 10)]
 SPAWNS_A = [(-x, -z) for x, z in SPAWNS_B]
 BARRIERS_B = [
-    B("Barrier", "Barriers", -14, -6, TERR, TERR + 10, SPAWN_Z, SPAWN_Z + 1),
-    B("Barrier", "Barriers", 6, 14, TERR, TERR + 10, SPAWN_Z, SPAWN_Z + 1),
+    B("Barrier", "Barriers", -13.8, -6.2, TERR, TERR + 9.8, SPAWN_Z, SPAWN_Z + 1),
+    B("Barrier", "Barriers", 6.2, 13.8, TERR, TERR + 9.8, SPAWN_Z, SPAWN_Z + 1),
 ]
 
 # Places, for routes and labels (team B's half; A's are rotated).
@@ -751,9 +754,13 @@ def svg(res) -> str:
         x0, x1 = (t["x0"], t["x1"]) if sign > 0 else (-t["x1"], -t["x0"])
         z0, z1 = (t["z0"], t["z1"]) if sign > 0 else (-t["z1"], -t["z0"])
         out.append(rect(x0, x1, z0, z1, FILL["train"], "#596070", 1.2, 'rx="4"'))
-    for b in BLOCKS:
-        if b.section == "Train" and b.name.startswith("DoorPost"):
-            out.append(rect(b.x0, b.x1, b.z0, b.z1, "#596070"))
+    # Door marks: platform-side doors on the platform edge of each train, track-side doors on the other side.
+    platform, _, track = train_doors(TRAIN)
+    for sign in (1, -1):
+        for (a, b), xs in [(d, (TRAIN["x1"] - 0.8, TRAIN["x1"])) for d in platform] + [(d, (TRAIN["x0"], TRAIN["x0"] + 0.8)) for d in track]:
+            x0, x1 = xs if sign > 0 else (-xs[1], -xs[0])
+            z0, z1 = (a, b) if sign > 0 else (-b, -a)
+            out.append(rect(x0, x1, z0, z1, "#E8C547"))
     # Ramps with an arrow pointing up-slope
     for r in RAMPS:
         out.append(rect(r.x0, r.x1, r.z0, r.z1, "#A9B4CC", "#596070", 1))
