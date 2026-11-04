@@ -91,9 +91,19 @@ return table.freeze({
 	}),
 
 	-- Art behind a new ability's card (Config/Mods ids): 760 x 600 images with the
-	-- card's cut corner and a bottom fade baked in (tools/ui_chatgpt.py). A card
+	-- card's cut corner and a bottom fade baked in (tools/ui_chatgpt.py, made with ChatGPT). A card
 	-- without one shows its big faded icon instead.
-	CARD_ART = table.freeze({} :: { [string]: string }),
+	CARD_ART = table.freeze({
+		Dash = "rbxassetid://140533506579264",
+		Updraft = "rbxassetid://104192200505705",
+		Molly = "rbxassetid://85118788731965",
+		Firewall = "rbxassetid://74192677647271",
+		Frost = "rbxassetid://138876276704481",
+		Recon = "rbxassetid://134354078754707",
+		HealOrb = "rbxassetid://91450560774587",
+		Stim = "rbxassetid://136778934313659",
+		Recall = "rbxassetid://81529533451310",
+	} :: { [string]: string }),
 
 	-- Side renders of each gun, muzzle to the right (Config/Weapons ids).
 	GUN = table.freeze({

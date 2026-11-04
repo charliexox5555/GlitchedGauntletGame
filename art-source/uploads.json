@@ -365,6 +365,114 @@
   "type": "Decal",
   "uploaded": "2026-11-02 01:32:55"
  },
+ "art-source/ui/chatgpt/out/cards/Dash.png": {
+  "assetId": 72562045359198,
+  "name": "GG UI chatgpt cards Dash",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:26"
+ },
+ "art-source/ui/chatgpt/out/cards/Firewall.png": {
+  "assetId": 124029731902618,
+  "name": "GG UI chatgpt cards Firewall",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:32"
+ },
+ "art-source/ui/chatgpt/out/cards/Frost.png": {
+  "assetId": 106101579785511,
+  "name": "GG UI chatgpt cards Frost",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:39"
+ },
+ "art-source/ui/chatgpt/out/cards/HealOrb.png": {
+  "assetId": 104448113647289,
+  "name": "GG UI chatgpt cards HealOrb",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:46"
+ },
+ "art-source/ui/chatgpt/out/cards/Molly.png": {
+  "assetId": 121612586956140,
+  "name": "GG UI chatgpt cards Molly",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:53"
+ },
+ "art-source/ui/chatgpt/out/cards/Recall.png": {
+  "assetId": 134238154525744,
+  "name": "GG UI chatgpt cards Recall",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:59"
+ },
+ "art-source/ui/chatgpt/out/cards/Recon.png": {
+  "assetId": 121162699929579,
+  "name": "GG UI chatgpt cards Recon",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:36:06"
+ },
+ "art-source/ui/chatgpt/out/cards/Stim.png": {
+  "assetId": 87032961459715,
+  "name": "GG UI chatgpt cards Stim",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:36:12"
+ },
+ "art-source/ui/chatgpt/out/cards/Updraft.png": {
+  "assetId": 116413282082571,
+  "name": "GG UI chatgpt cards Updraft",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:36:19"
+ },
+ "art-source/ui/chatgpt/out/icons/Dash.png": {
+  "assetId": 91496859098992,
+  "name": "GG UI chatgpt icons Dash",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:34:55"
+ },
+ "art-source/ui/chatgpt/out/icons/Firewall.png": {
+  "assetId": 117593260088843,
+  "name": "GG UI chatgpt icons Firewall",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:34:58"
+ },
+ "art-source/ui/chatgpt/out/icons/Frost.png": {
+  "assetId": 86157201267939,
+  "name": "GG UI chatgpt icons Frost",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:01"
+ },
+ "art-source/ui/chatgpt/out/icons/HealOrb.png": {
+  "assetId": 105515711441058,
+  "name": "GG UI chatgpt icons HealOrb",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:04"
+ },
+ "art-source/ui/chatgpt/out/icons/Molly.png": {
+  "assetId": 137384399409688,
+  "name": "GG UI chatgpt icons Molly",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:07"
+ },
+ "art-source/ui/chatgpt/out/icons/Recall.png": {
+  "assetId": 72292317068872,
+  "name": "GG UI chatgpt icons Recall",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:10"
+ },
+ "art-source/ui/chatgpt/out/icons/Recon.png": {
+  "assetId": 117591325924616,
+  "name": "GG UI chatgpt icons Recon",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:13"
+ },
+ "art-source/ui/chatgpt/out/icons/Stim.png": {
+  "assetId": 94330961139710,
+  "name": "GG UI chatgpt icons Stim",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:16"
+ },
+ "art-source/ui/chatgpt/out/icons/Updraft.png": {
+  "assetId": 70937071493917,
+  "name": "GG UI chatgpt icons Updraft",
+  "type": "Decal",
+  "uploaded": "2026-11-04 00:35:19"
+ },
  "art-source/ui/guns/Akimbo.png": {
   "assetId": 93251046927204,
   "name": "GG UI gun Akimbo",

@@ -113,5 +113,6 @@ Shared: icons ✅ · HUD ✅ · F8 dev panel ✅ (testers in published test-mode
 | Game icon + 3 thumbnails | ⬜ | |
 | UI v1 | 🟡 | [UI Design](../02%20Art/UI%20Design.md): designed in [Figma](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN), **approved and built in game** (draft, top bar, banners, health/ammo, ability slots, kill feed). Left: phone layout, gamepad draft, round stat chips |
 | UI gun renders | ✅ | All 19 (18 guns + knife) in `art-source/ui/guns/` by `tools/blender/render_ui_gun.py`, uploaded, ids in `Config/Theme` `GUN` |
-| UI ability icons | ✅ | New set of 9 + Reroll, Lock, Shield, Skull, Glitch: `art-source/ui/icons/` (256 px), uploaded; abilities use them via `Config/Mods` `icon`. Placeholder-grade glyphs, can be replaced with nicer art later |
+| UI ability icons | ✅ | **ChatGPT set (2026-11-04)** for the 9 abilities: `art-source/ui/chatgpt/icons` → `out/icons`, uploaded, in `Config/Mods` `icon`. Reroll, Lock, Shield, Skull, Glitch are still the Figma glyphs in `art-source/ui/icons/` |
+| UI card art | ✅ | 9 ChatGPT key-art pictures for the new-ability cards: `art-source/ui/chatgpt/cards` → `out/cards` (cut corner + fade by `tools/ui_chatgpt.py`), uploaded, `Config/Theme` `CARD_ART`. [UI Art Brief](../02%20Art/UI%20Art%20Brief%20(ChatGPT).md) |
 | UI shapes | ✅ | Cut-corner 9-slice card + outline, key tab, top bar plates, slant band, shield badge: `tools/ui_shapes.py` → `art-source/ui/shapes/`, uploaded, ids in `Config/Theme` `IMAGE` |

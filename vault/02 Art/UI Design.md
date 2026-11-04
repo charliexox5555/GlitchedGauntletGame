@@ -1,6 +1,6 @@
 # UI Design
 
-The look of every screen: Valorant's clean, tactical layout with RIVALS' chunky readability, built for Roblox (PC first, then phone and gamepad). **Status: v1 approved by the user and built in game (2026-11-03): draft screen, top bar, round banners, health, ammo, ability slots, kill feed and ELIMINATED pop-up.** Current art is used; images can be swapped later (e.g. ChatGPT concepts). The draft mechanic it shows is built: [Match Flow](../01%20Design/Match%20Flow.md) → Abilities.
+The look of every screen: Valorant's clean, tactical layout with RIVALS' chunky readability, built for Roblox (PC first, then phone and gamepad). **Status: v1 approved by the user and built in game (2026-11-03): draft screen, top bar, round banners, health, ammo, ability slots, kill feed and ELIMINATED pop-up.** Ability icons and new-ability card art are ChatGPT-made since 2026-11-04 ([UI Art Brief](UI%20Art%20Brief%20(ChatGPT).md)). The draft mechanic it shows is built: [Match Flow](../01%20Design/Match%20Flow.md) → Abilities.
 
 **Figma file:** [Glitched Gauntlet — Game UI](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN) (pages: Screens, Components; tokens in the "Theme" variable collection, type in text styles).
 

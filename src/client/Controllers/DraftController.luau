@@ -329,13 +329,30 @@ local function abilityCard(parent: Instance, id: string, slot: number): Card
 			ImageTransparency = 0.93,
 		}, button)
 	end
-	make("ImageLabel", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(COL_W / 2, 62),
-		Size = UDim2.fromOffset(104, 104),
-		BackgroundTransparency = 1,
-		Image = icon,
-	}, button)
+	if art then
+		-- The picture is the hero; the icon sits in a small badge in the corner.
+		local badge = make("Frame", {
+			Position = UDim2.fromOffset(22, 26),
+			Size = UDim2.fromOffset(52, 52),
+			BackgroundColor3 = C.panel,
+			BackgroundTransparency = 0.25,
+		}, button)
+		make("UIStroke", { Color = role, Thickness = 1.5 }, badge)
+		make("ImageLabel", {
+			Position = UDim2.fromOffset(8, 8),
+			Size = UDim2.fromOffset(36, 36),
+			BackgroundTransparency = 1,
+			Image = icon,
+		}, badge)
+	else
+		make("ImageLabel", {
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.fromOffset(COL_W / 2, 62),
+			Size = UDim2.fromOffset(104, 104),
+			BackgroundTransparency = 1,
+			Image = icon,
+		}, button)
+	end
 	Ui.text(button, string.upper(if def then def.name else id), "titleCard", {
 		Position = UDim2.fromOffset(20, 186),
 		Size = UDim2.fromOffset(COL_W - 40, 54),

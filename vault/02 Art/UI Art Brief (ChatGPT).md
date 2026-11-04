@@ -27,4 +27,11 @@ Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall.
 > Save them as `art-source/ui/chatgpt/icons/<Name>.png` and `art-source/ui/chatgpt/cards/<Name>.png` (names: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall). Do the icons first. If you can't save files, show them here and I'll download them.
 
 ## Result
-(filled in after the run)
+Completed: all nine icons and nine cards saved under `art-source/ui/chatgpt/`, using the exact ability IDs above. Icons verified as 512x512 RGBA PNGs with pure white glyphs, transparent backgrounds and approximately 12% padding. Cards verified as 1024x768 PNGs. `art-source/ui/chatgpt/Preview.png` provides a contact sheet. Artwork only; Roblox asset upload and in-game wiring are separate steps.
+
+**In game (2026-11-04):** `python tools/ui_chatgpt.py` made white 256 px icons and 760 × 600 card art (cut corner, bottom fade) in `art-source/ui/chatgpt/out/`; all 18 uploaded and wired: icons in `Config/Mods` `icon` (draft, HUD slots, kill feed), card art in `Config/Theme` `CARD_ART`. With art, a new-ability card shows the picture on top and its icon in a small badge in the corner (the big centred icon covered the picture's subject). Checked in a Studio draft:
+
+![Draft with ChatGPT art](References/ui-v1/ingame-draft-chatgpt-art.jpg)
+
+Note: ChatGPT's desktop app refused Claude's clicks (Windows UIPI, likely run as administrator), so the user pasted the prompt by hand.
+
