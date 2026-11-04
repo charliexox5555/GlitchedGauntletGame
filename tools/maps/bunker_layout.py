@@ -141,10 +141,18 @@ def B(name, section, x0, x1, y0, y1, z0, z1, kind="wall", art=""):
     return Block(name, section, x0, x1, y0, y1, z0, z1, kind, art)
 
 
-def wall_with_door(name, section, axis, a0, a1, t0, t1, y1, doors, art="", lintel_from=DOOR_H):
+DOORS_HALF: list = []  # (kind, x0, x1, y0, y1, z0, z1): each opening's box through its wall (team B's half)
+
+
+def wall_with_door(name, section, axis, a0, a1, t0, t1, y1, doors, art="", lintel_from=DOOR_H, kind="door"):
     """A wall along `axis` ("x" or "z") from a0 to a1, thickness t0..t1 across, floor to y1, with door openings
     (d0, d1) floor to `lintel_from`. Returns butt-jointed boxes: piers between doors (full height) and a lintel
-    over each door. No two boxes overlap."""
+    over each door. No two boxes overlap. The openings are recorded in DOORS_HALF (the art pass lines them)."""
+    for d0, d1 in doors:
+        if axis == "x":
+            DOORS_HALF.append((kind, d0, d1, FLOOR, lintel_from, t0, t1))
+        else:
+            DOORS_HALF.append((kind, t0, t1, FLOOR, lintel_from, d0, d1))
     out = []
     edges = [a0]
     for d0, d1 in sorted(doors):
@@ -179,16 +187,17 @@ CENTER: list = [
 HALF: list = []
 
 # --- Sunwell (the atrium): walls, roof, shaft, ring catwalk -------------------------------------------------
-# B wall (z 20..22): a ground door to the B gallery (x 4..12), the ring deck level, an upper opening (x -8..8,
+# B wall (z 20..22): a ground door to the B gallery (x 3..11), the ring deck level, an upper opening (x -8..8,
 # deck to 22) from the B overlook onto the ring.
 HALF += [
-    B("SunwellWallB", "Sunwell", -22, 4, FLOOR, DOOR_H, ATR, ATR + 2),
-    B("SunwellWallB", "Sunwell", 12, 22, FLOOR, DOOR_H, ATR, ATR + 2),
+    B("SunwellWallB", "Sunwell", -22, 3, FLOOR, DOOR_H, ATR, ATR + 2),
+    B("SunwellWallB", "Sunwell", 11, 22, FLOOR, DOOR_H, ATR, ATR + 2),
     B("SunwellWallBBand", "Sunwell", -22, 22, DOOR_H, DECK, ATR, ATR + 2),
     B("SunwellWallB", "Sunwell", -22, -4, DECK, ROOF, ATR, ATR + 2),
     B("SunwellWallB", "Sunwell", 4, 22, DECK, ROOF, ATR, ATR + 2),
     B("SunwellWallBHead", "Sunwell", -4, 4, 22, ROOF, ATR, ATR + 2),
 ]
+DOORS_HALF += [("door", 3, 11, FLOOR, DOOR_H, ATR, ATR + 2), ("door", -4, 4, DECK, DECK + DOOR_H, ATR, ATR + 2)]
 # East wall (x 20..22): a ground door into the east pump room (z -4..4).
 HALF += wall_with_door("SunwellWallE", "Sunwell", "z", -ATR, ATR, ATR, ATR + 2, ROOF, [(-4, 4)])
 # Roof around the shaft hole (pinwheel: N and E here, S and W by rotation).
@@ -217,16 +226,16 @@ HALF += [
     B("GalleryFloor", "Gallery", -GAL - 2, GAL + 2, -1, FLOOR, ATR + 2, VEST_Z0, "floor", "honed"),
     B("GalleryRoof", "Gallery", -GAL, GAL, HALL, ROOF, ATR + 2, GAL_Z1, "roof"),
     # The overlook: a balcony over the gallery's sunwell end, level with the ring.
-    B("OverlookDeck", "Gallery", -GAL, GAL, DECK_UNDER, DECK, ATR + 2, 30, "deck", "ring"),
+    B("OverlookDeck", "Gallery", -GAL, GAL, DECK_UNDER, DECK, ATR + 2, 31, "deck", "ring"),
     B("OverlookParapet", "Gallery", -GAL, 6, DECK, DECK + 3, 30, 31, "low", "ring"),
     # The jammed blast door: a 16-wide frame (x -4..12) whose east leaf stuck shut; the west half is the passage.
-    B("BlastLeaf", "Gallery", 4, GAL, FLOOR, DECK, GAL_Z1 + 0.5, GAL_Z1 + 1.5, "cover", "hide"),
+    B("BlastLeaf", "Gallery", 4, 10, FLOOR, DECK, GAL_Z1 + 0.5, GAL_Z1 + 1.5, "cover", "hide"),
     # Cover: a generator in the open half of the gallery.
     B("Generator", "Gallery", -6, 0, FLOOR, 7, 38, 44, "cover", "hide"),
 ]
-HALF += wall_with_door("GalleryWallE", "Gallery", "z", ATR + 2, GAL_Z1, GAL, GAL + 2, ROOF, [(22, 30)])
+HALF += wall_with_door("GalleryWallE", "Gallery", "z", ATR + 2, GAL_Z1, GAL, GAL + 2, ROOF, [(23, 31)])
 HALF += wall_with_door("GalleryWallW", "Gallery", "z", ATR + 2, GAL_Z1, -GAL - 2, -GAL, ROOF, [(36, 44)])
-HALF += wall_with_door("GalleryBack", "Gallery", "x", -GAL - 2, GAL + 2, GAL_Z1, GAL_Z1 + 2, ROOF, [(-4, GAL)], lintel_from=DECK)
+HALF += wall_with_door("GalleryBack", "Gallery", "x", -GAL - 2, GAL + 2, GAL_Z1, GAL_Z1 + 2, ROOF, [(-4, 10)], lintel_from=DECK, kind="blast")
 
 # --- East side, team B: the locker room and the east corridor --------------------------------------------------
 HALF += [
@@ -238,7 +247,7 @@ HALF += [
     B("Lockers", "Lockers", GAL + 2, 30, FLOOR, 8, 48, 50, "cover", "hide"),
     B("LockerIsland", "Lockers", 20, 24, FLOOR, 8, 30, 38, "cover", "hide"),
 ]
-HALF += wall_with_door("LockerWallE", "Lockers", "z", 16, 50, 30, COR_X0, LOW, [(40, 48)])
+HALF += wall_with_door("LockerWallE", "Lockers", "z", 16, 50, 30, COR_X0, LOW, [(39, 47)])
 
 # --- East pump room (crosses the middle; the west one is its rotation) ----------------------------------------
 HALF += [
@@ -266,7 +275,7 @@ HALF += [
     B("Racks", "Control", -30, -GAL - 2, FLOOR, 8, 48, 50, "cover", "hide"),
     B("ControlDesk", "Control", -24, -20, FLOOR, 3, 32, 40, "low", "hide"),
 ]
-HALF += wall_with_door("ControlWallW", "Control", "z", 16, 50, -COR_X0, -30, LOW, [(22, 30)])
+HALF += wall_with_door("ControlWallW", "Control", "z", 16, 50, -COR_X0, -30, LOW, [(23, 31)])
 
 # --- Vestibule and spawn ---------------------------------------------------------------------------------------
 HALF += [
@@ -281,21 +290,22 @@ HALF += [
     B("SpawnWallBack", "Spawn", -SPAWN_X - 2, SPAWN_X + 2, FLOOR, LOW, SPAWN_Z1, SPAWN_Z1 + 2),
 ]
 # Vestibule north wall: two 8-wide spawn doors either side of a 12-wide baffle.
-HALF += wall_with_door("VestibuleWallN", "Vestibule", "x", -COR_X1, COR_X1, VEST_Z1, VEST_Z1 + 2, LOW, [(-SPAWN_X, -10), (10, SPAWN_X)])
+HALF += wall_with_door("VestibuleWallN", "Vestibule", "x", -COR_X1, COR_X1, VEST_Z1, VEST_Z1 + 2, LOW, [(-SPAWN_X + 1, -9), (9, SPAWN_X - 1)])
 
 HALF_RAMPS: list = [
     # The gallery stair up to the overlook (rises toward the sunwell).
-    Ramp("GalleryStair", "Gallery", 6, GAL, FLOOR, DECK, 30, 48, -1),
+    Ramp("GalleryStair", "Gallery", 6, GAL, FLOOR, DECK, 31, 49, -1),
 ]
 
 BLOCKS: list = CENTER + HALF + [b.rotated() for b in HALF]
 RAMPS: list = HALF_RAMPS + [r.rotated() for r in HALF_RAMPS]
+DOORS: list = DOORS_HALF + [(k, -x1, -x0, y0, y1, -z1, -z0) for k, x0, x1, y0, y1, z0, z1 in DOORS_HALF]
 
 SPAWNS_B = [(-6.0, 88.0), (6.0, 88.0), (-6.0, 94.0), (6.0, 94.0)]
 SPAWNS_A = [(-x, -z) for x, z in SPAWNS_B]
 BARRIERS_B = [
-    B("Barrier", "Barriers", -SPAWN_X, -10, FLOOR, DOOR_H, VEST_Z1, VEST_Z1 + 2),
-    B("Barrier", "Barriers", 10, SPAWN_X, FLOOR, DOOR_H, VEST_Z1, VEST_Z1 + 2),
+    B("Barrier", "Barriers", -SPAWN_X + 1, -9, FLOOR, DOOR_H, VEST_Z1, VEST_Z1 + 2),
+    B("Barrier", "Barriers", 9, SPAWN_X - 1, FLOOR, DOOR_H, VEST_Z1, VEST_Z1 + 2),
 ]
 
 # Places (team A's own side; for route times from A's spawn).
