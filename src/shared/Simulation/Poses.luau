@@ -35,6 +35,9 @@ local SPECS: { [string]: Spec } = {
 	Sprint = { priority = Enum.AnimationPriority.Action2, fade = FADE.sprint },
 	Crouch = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
 	CrouchWalk = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
+	CrouchWalkB = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
+	CrouchWalkL = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
+	CrouchWalkR = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
 	Slide = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
 	ModHold = { priority = Enum.AnimationPriority.Action, fade = Animations.MOD_FADE },
 	UpdraftSlam = { priority = Enum.AnimationPriority.Action4, fade = Animations.SLAM_FADE },
@@ -48,6 +51,7 @@ local SPECS: { [string]: Spec } = {
 	AdsDown = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 }
 local RUN_SET = { "RunF", "RunB", "RunL", "RunR" }
+local CROUCH_SET = { "CrouchWalk", "CrouchWalkB", "CrouchWalkL", "CrouchWalkR" }
 local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
 for _, name in { "RunF", "RunB", "RunL", "RunR", "SprintRun" } do
 	IDS[name] = (Animations.LOCOMOTION :: any)[name]
@@ -261,6 +265,19 @@ local wasAir: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 -- Whether each character was sliding last step (the slide's way in and out).
 local wasSlide: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
+-- How much the body moves forward / back / left / right relative to where
+-- it faces (shares summing to 1; standing still counts as forward).
+local function directions(root: BasePart): (number, number, number, number)
+	local flat = root.CFrame:VectorToObjectSpace(root.AssemblyLinearVelocity * Vector3.new(1, 0, 1))
+	local f, b = math.max(-flat.Z, 0), math.max(flat.Z, 0)
+	local r, l = math.max(flat.X, 0), math.max(-flat.X, 0)
+	local sum = f + b + r + l
+	if sum > 1e-3 then
+		return f / sum, b / sum, l / sum, r / sum
+	end
+	return 1, 0, 0, 0
+end
+
 -- The legs: the run set blended by where the body moves relative to where it
 -- faces (forward / back / left / right), the sprint stride when sprinting
 -- forward, all off while crouched, sliding or in the air. The clips share
@@ -281,15 +298,7 @@ local function stepLegs(
 			1
 		)
 		else 0
-	local flat = root.CFrame:VectorToObjectSpace(root.AssemblyLinearVelocity * Vector3.new(1, 0, 1))
-	local f, b = math.max(-flat.Z, 0), math.max(flat.Z, 0)
-	local r, l = math.max(flat.X, 0), math.max(-flat.X, 0)
-	local sum = f + b + r + l
-	if sum > 1e-3 then
-		f, b, r, l = f / sum, b / sum, r / sum, l / sum
-	else
-		f, b, r, l = 1, 0, 0, 0
-	end
+	local f, b, l, r = directions(root)
 	local sprint = if state == "Sprint" then 1 else 0
 	setWeight(animator, "RunF", run * f * (1 - sprint))
 	setWeight(animator, "SprintRun", run * f * sprint)
@@ -381,7 +390,13 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	-- Movement (Action2 / Action3) layers over the aim and the walk cycle.
 	setWeight(animator, "Sprint", if state == "Sprint" then 1 else 0)
 	setWeight(animator, "Crouch", crouch * (1 - moving))
-	setWeight(animator, "CrouchWalk", crouch * moving)
+	-- Crouch-walking blends its four directions like the run.
+	local wf, wb, wl, wr = directions(root)
+	local walking = crouch * moving
+	setWeight(animator, "CrouchWalk", walking * wf)
+	setWeight(animator, "CrouchWalkB", walking * wb)
+	setWeight(animator, "CrouchWalkL", walking * wl)
+	setWeight(animator, "CrouchWalkR", walking * wr)
 	setWeight(animator, "Slide", if state == "Slide" then 1 else 0)
 	setWeight(animator, "ModHold", if holding then 1 else 0)
 	if SLAM_POSE then
@@ -490,10 +505,12 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	end
 
 	-- Crouch-walk stride speed follows the ground speed.
-	local walk = playing(animator, "CrouchWalk")
 	local stride = math.clamp(speed / Animations.CROUCH_WALK_SPEED, 0.4, 1.6)
-	if walk and math.abs(walk.Speed - stride) > 0.1 then
-		walk:AdjustSpeed(stride)
+	for _, name in CROUCH_SET do
+		local walk = playing(animator, name)
+		if walk and math.abs(walk.Speed - stride) > 0.1 then
+			walk:AdjustSpeed(stride)
+		end
 	end
 end
 

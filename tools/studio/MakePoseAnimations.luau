@@ -151,6 +151,44 @@ local function crouchWalk(): { Frame }
 	return frames
 end
 
+-- Crouch-walking backward: the same stride with the lift on the backswing
+-- (the foot travels back through the air), a little more upright.
+local function crouchWalkBack(): { Frame }
+	local frames = {}
+	for i = 0, 8 do
+		local phase = i / 8 * math.pi * 2
+		local f = crouch(18 * math.sin(phase), -16 * math.cos(phase))
+		f.LowerTorso = { -4, 0, 0, 0, -0.75, 0 }
+		table.insert(frames, f)
+	end
+	return frames
+end
+
+-- Crouch-walking sideways (`side` +1 right, -1 left): at crouch height the
+-- legs step out and close (roll), the stepping knee lifts, the body leans a
+-- little into the move.
+local function crouchWalkSide(side: number): { Frame }
+	local frames = {}
+	for i = 0, 8 do
+		local phase = i / 8 * math.pi * 2
+		local f = crouch(0, 0)
+		local function step(q: number): (number, number)
+			return 14 * math.sin(q), math.max(math.cos(q), 0)
+		end
+		local ro, rAir = step(phase)
+		local lo, lAir = step(phase + math.pi)
+		f.LowerTorso = { -8, 0, -4 * side, 0, -0.75, 0 }
+		f.RightUpperLeg = { 62 + 6 * rAir, 0, -ro * side }
+		f.RightLowerLeg = { -88 - 14 * rAir, 0, 0 }
+		f.RightFoot = { -(-8 + 62 + 6 * rAir - 88 - 14 * rAir), 0, ro * side * 0.6 }
+		f.LeftUpperLeg = { 62 + 6 * lAir, 0, -lo * side }
+		f.LeftLowerLeg = { -88 - 14 * lAir, 0, 0 }
+		f.LeftFoot = { -(-8 + 62 + 6 * lAir - 88 - 14 * lAir), 0, lo * side * 0.6 }
+		table.insert(frames, f)
+	end
+	return frames
+end
+
 -- (The slide's hold, in and out: tools/studio/MakeSlideAnimations.luau.)
 
 local ACTION = Enum.AnimationPriority.Action
@@ -163,6 +201,10 @@ local sequences = {
 	sequence("GG_Sprint", ACTION2, { SPRINT }, 1),
 	sequence("GG_Crouch", ACTION2, { crouch(0, 0) }, 1),
 	sequence("GG_CrouchWalk", ACTION2, crouchWalk(), 0.9),
+	-- The other directions share the stride length, so blended feet stay in step.
+	sequence("GG_CrouchWalkB", ACTION2, crouchWalkBack(), 0.9),
+	sequence("GG_CrouchWalkL", ACTION2, crouchWalkSide(-1), 0.9),
+	sequence("GG_CrouchWalkR", ACTION2, crouchWalkSide(1), 0.9),
 }
 
 local EncodingService = game:GetService("EncodingService")

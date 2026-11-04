@@ -21,6 +21,11 @@ return table.freeze({
 		Sprint = id(97534488837117), -- gun lowered across the body
 		Crouch = id(99568083489164),
 		CrouchWalk = id(120617369360340), -- one stride, looped
+		-- The other crouch-walk directions (same stride length), blended by
+		-- where you move like the run set (2026-11-04).
+		CrouchWalkB = id(139454894380024),
+		CrouchWalkL = id(104336317188168),
+		CrouchWalkR = id(96202691168303),
 		Slide = id(93625856625211), -- the hold, with a scrape chatter (tools/studio/MakeSlideAnimations.luau)
 	}),
 
