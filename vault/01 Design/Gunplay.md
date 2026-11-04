@@ -323,6 +323,23 @@ Fresh base (2026-10-25): the old UI is gone; this is what the plain HUD keeps un
 - Later, with the new UI: kill feed, kill banner, a round-win stinger, a slow-mo kill cam on the deciding round.
 - **Realistic shot effects** (no neon): fiery muzzle flash, smoke and barrel wisps, brass from `Eject`, warm tracers (none for suppressed guns), impacts that depend on the surface. Deaths use the default Roblox death for now (the pixel dissolve was retired with the sci-fi look; a ragdoll is a later task). No blood.
 
+### Feel pass 1 (2026-11-04)
+Numbers in `Config/Juice` (new). Competitive rule from LihFolk ("Motion Sensitivity and Camera Comfort"): feedback may move and roll the camera a little, **never turn it**, so it never moves your aim.
+- **Other players look smoother:** the posed aim pitch eases toward the camera pitch inside the simulation (`AIM_SMOOTHING` 14/s) and weights snap to 0.02 instead of 0.05 (that made aim move in ~3.5° steps); fades are 0.1 aim / 0.25 sprint / 0.2 crouch / 0.15 slide; crouch blends into crouch-walk by speed instead of a hard switch.
+- **Their guns kick:** on every shot another player's or dummy's gun jumps back along the barrel and muzzle-up in their hand, then springs home (`WORLD_KICK`, scaled by the gun's `recoil.up`). Done on each viewer by offsetting the grip's C1, so nothing replicates.
+- **The body you hit flashes:** white on the body, amber on a headshot, orange-red on the kill (`HIT_FLASH`, a short Highlight).
+- **Getting hit:** the camera is pushed a little away from the shot and rolls away from its side, scaled by damage (`FLINCH`), and the screen edges pulse red on top of the low-HP vignette.
+- **Slide:** a quick FOV punch on top of the slide FOV, roll down from 5° to 3°, a dirt-scrape sound (2D for you, 3D for everyone else) and dust at the feet that everyone sees (`CharacterFxController`).
+- **Landing:** the camera height spring gets an impulse by fall speed (k² of 70 studs/s, peak ~0.55 studs) and a soft thud past 24 studs/s.
+- Sounds are **provisional** licensed ProSoundEffects picks (dirt slide, cloth whump): audition them.
+
+### Polish roadmap (next)
+1. **Custom third-person locomotion** with the gun: run, strafe left/right, backpedal, crouch-walk, sprint, slide in/loop/out, land. Today legs are Roblox's stock `Animate` walk/run, which reads "default Roblox". Make the clips in Blender like the viewmodel clips (or in Studio's animation editor), upload with `tools/opencloud/upload_asset.py --type Animation`, and blend them by move direction in `Simulation/Poses`.
+2. **Third-person reload and ADS poses** for other players (nothing shows today), plus an upper-body fire kick through a short additive clip.
+3. **Footsteps** on animation markers, per surface, culled past ~80 studs (LihFolk "Custom Character Sounds"); replace Roblox's stock character sounds.
+4. **Death:** a ragdoll instead of the default death, and a short kill cam later.
+5. **VFX textures:** muzzle flash, impact sparks and dust flipbooks could be redone with ChatGPT's image generation (same pipeline as the UI art).
+
 ## 6. Camera and controls
 - **First person.** FOV 80 by default (setting 70–100), with ADS FOV set per gun.
 - **First-person arms (RIVALS style):** one long, smooth, softly bevelled block per arm (R6 cross-section, no elbow), coming up from off-screen into the gun's grip; the end of the block is the hand. Skin colour from the avatar; a classic Shirt is drawn on the block the way Roblox draws it on R6 arms. References: `02 Art/References/rivals-viewmodel/`.
