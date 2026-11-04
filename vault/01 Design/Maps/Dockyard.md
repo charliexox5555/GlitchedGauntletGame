@@ -2,7 +2,7 @@
 
 A container terminal on a pier at dusk: three lanes of stacked shipping containers, a yellow gantry crane over the middle, a corrugated shed on each flank, and the harbour on both sides. Outdoor, medium-large, built to play from 1v1 up to 4v4 (like RIVALS' Docks and Station). See [Maps](00%20Maps.md) for the roster.
 
-**Status (2026-11-03):** concept, layout (checked), greybox script, Blender kit (**uploaded, asset 109909832133442**), art and lighting scripts are done. **Not yet run in Studio**: the hub runs the scripts, screenshots and iterates (run order in §5). Map id `Dockyard`, world origin **(-1500, 200, 0)**.
+**Status (2026-11-03):** concept, layout (checked), greybox script, Blender kit (**uploaded, asset 109909832133442**), art and lighting scripts are done. Built in Studio by the hub on 2026-11-03 (backups `art-source/maps/Dockyard/Dockyard.rbxm`, `MapKit_Dockyard.rbxm`; dusk brightened there for readability). **Z-fight pass (2026-11-03):** the Studio audit found 568 coplanar pairs (371 visible); the kit and the placements are fixed and the build now checks for them itself (§5, "No z-fighting"). Waiting for the hub's rebuild and re-audit. Map id `Dockyard`, world origin **(-1500, 200, 0)**.
 
 ![Dockyard dusk preview, overview](../../02%20Art/References/maps/dockyard/dockyard-preview-overview.jpg)
 ![From the B spawn](../../02%20Art/References/maps/dockyard/dockyard-preview-from-b-spawn.jpg)
@@ -103,7 +103,7 @@ These are flat checks at standing eye height plus a 3D line test from every stac
 | **Recall** (anchors) | 141 studs to the middle: an anchor can't reach from spawn, so it stays a choice |
 
 ### Falling in the harbour
-Over the quay barrier is open water about 9 studs below the deck. The water is a non-colliding, non-query surface, so a player who jumps or Dashes over falls through it and dies when they pass `Workspace.FallenPartsDestroyHeight` (default −500; about 2.7 s after leaving the deck at this origin). **Suggestion for the hub:** a map kill height in MapService (for example origin Y − 30) would make the fall instant and count it properly; Rooftops needs the same. No invisible walls: the barrier is real, 3 tall, and shoots like cover.
+Over the quay barrier is open water about 9 studs below the deck. The water is a non-colliding, non-query surface; MapService's kill height (40 below the map pivot, on main since 2026-11-03) kills a player who goes over at once. No invisible walls: the barrier is real, 3 tall, and shoots like cover.
 
 ---
 
@@ -135,27 +135,27 @@ Team colours (cyan `#00E5FF`, orange-red `#FF5A36`) stay reserved for players an
 
 | Piece | Tris | Notes |
 |---|---|---|
-| `C40` / `C20` | 1,158 / 998 | Corrugated (pitch 1.6, caps dropped), corner posts and castings, doors with locking bars on +Z. `_Body` takes the lane colour, `_Frame` a darker step, `_Hardware` stays dark |
+| `C40` / `C20` | 1,030 / 870 | Corrugated (pitch 1.6, caps dropped), corner posts and castings, doors with locking bars recessed 0.4 into the +Z end frame. Only the castings touch the 8 x 8 x L envelope, so stacked and neighbouring boxes never share a face. `_Body` takes the lane colour, `_Frame` a darker step, `_Hardware` stays dark |
 | `C40Lo` | 108 | Flat box for the ships and the far quays |
 | `Stair` | 528 | 11 steel treads with yellow nosings and rails, rising toward +Z like the WedgePart it dresses |
 | `Crane` | 2,124 | The RTG: legs on hazard-banded bogies, side portals, girders at 52–56, trolley, cab, spreader at 26–29 over the Crane stack (clear of anyone standing on it), sodium floodlights |
 | `Shed` | 2,672 | Corrugated cladding on a concrete plinth, lane stripe, gable roof with ribs, inside portal frames, pendant and wall-pack lamps, roller drum, sign board |
 | `Rack`, `Office`, `Crate` | 1,596 / 160 / 272 | Rack packed full (it is full cover); site cabin; crate on a pallet |
-| `QuayBarrier8`, `QuayFace8`, `Bollard` | 80 / 104 / 116 | Hazard-striped quay wall, deck edge face with fenders, mooring bollards on the wall |
+| `QuayBarrier8`, `QuayBarrierShort` (3.7), `QuayFace8`, `Bollard` | 68 / 56 / 104 / 116 | Quay wall with a yellow band and black blocks 0.02 proud of it; the deck edge face 0.1 proud of the deck side with its coping 0.05 above the deck; mooring bollards set 0.1 into the wall top |
 | `LampMast` | 220 | High mast with four sodium heads |
 | `StsCrane`, `Ship` | 448 / 516 | The skyline: ship-to-shore cranes on the far quays reaching over a moored container ship, one set per side (rotated) |
 
 ### Budget (mobile)
-Placed by `Art.luau`: 52 × C40 + 88 × C20 (the lane boxes and the 7-high end walls), 86 × C40Lo, 2 Sheds, the crane, 4 masts, 4 STS cranes, 2 ships, 94 quay faces, 36 barrier segments: about **192k triangles for the whole map**, less in any one view (target ≤ 500k visible), largest mesh 1,232 tris (≤ 20k). Every container is one of three meshes. The art is CanCollide/CanQuery/CanTouch off; kit_bundle turns shadows off below 8 studs. No textures beyond Roblox materials. **9 lights**, all shadowless (Lighting.luau).
+Placed by `Art.luau`: 52 × C40 + 88 × C20 (the lane boxes and the 7-high end walls), 84 × C40Lo, 2 Sheds, the crane, 4 masts, 4 STS cranes, 2 ships, 92 quay faces, 40 barrier segments, 16 bollards, 115 bay-line Parts: about **192k triangles for the whole map**, less in any one view (target ≤ 500k visible), largest mesh 1,232 tris (≤ 20k). Every container is one of three meshes. The art is CanCollide/CanQuery/CanTouch off; kit_bundle turns shadows off below 8 studs. No textures beyond Roblox materials. **9 lights**, all shadowless (Lighting.luau).
 
 ---
 
 ## 5. Build and run order
 Built 2026-11-03 by a parallel map session (no Studio, no Blender MCP): the hub runs it in the match place, edit mode.
-1. Layout (already done; rerun after any change): `python tools/maps/dockyard_layout.py --luau` prints the checks, writes the SVG and the greybox data.
+1. Layout and placements (already done; rerun after any change): `python tools/maps/dockyard_layout.py --luau` prints the checks, writes the SVG, the greybox LAYOUT block (Greybox.luau) and the ART block (Art.luau, from `tools/maps/dockyard_art.py`).
 2. Greybox: `python tools/studio/maps/bundle.py Dockyard Greybox -o dockyard_greybox.luau`, run it. Expect `Dockyard greybox: deck + 93 parts, 4 + 4 spawns, 2 barriers` (the gables are two wedges each).
-3. Kit (already uploaded): `blender --background --factory-startup --python tools/blender/build_map_kit_dockyard.py -- [--no-render]`, export `blender --background --factory-startup art-source/maps/Dockyard/Kit_Dockyard.blend --python tools/blender/export_lobby_kit.py -- --maps Dockyard Kit`, upload `python tools/opencloud/upload_models.py --maps Dockyard --group 11116787 Kit` (updates asset 109909832133442).
-4. Install the kit: `python tools/studio/maps/kit_bundle.py Dockyard Kit -o dockyard_kit.luau`, run it (`ServerStorage.MapKit.Dockyard`, 15 pieces).
+3. Kit (already uploaded): `blender --background --factory-startup --python tools/blender/build_map_kit_dockyard.py -- [--no-render]` (it **fails** if the assembled map has a z-fight; `--zfight-detail` lists the pairs), export `blender --background --factory-startup art-source/maps/Dockyard/Kit_Dockyard.blend --python tools/blender/export_lobby_kit.py -- --maps Dockyard Kit`, upload `python tools/opencloud/upload_models.py --maps Dockyard --group 11116787 Kit` (updates asset 109909832133442).
+4. Install the kit: `python tools/studio/maps/kit_bundle.py Dockyard Kit -o dockyard_kit.luau`, run it (`ServerStorage.MapKit.Dockyard`, 16 pieces).
 5. Art + lighting: `python tools/studio/maps/bundle.py Dockyard Art Lighting -o dockyard_art.luau`, run it. The report should say `all kit pieces found`.
 6. Check: walk it, screenshots from each spawn, the middle, a stack top and an overview; the mobile budget; save the place and back up `art-source/maps/Dockyard/Dockyard.rbxm`.
 
@@ -165,5 +165,21 @@ Built 2026-11-03 by a parallel map session (no Studio, no Blender MCP): the hub 
 - **Sun direction:** `Lighting:GetSunDirection()` mostly ±X (raking across the pier). If it runs along Z, one team faces the sun: change ClockTime toward 18 or swap the sign with ClockTime 6.25 (dawn) in Lighting.luau.
 - **Readability in shade:** a player avatar against a blue container in shadow; raise OutdoorAmbient if it's lost.
 - **The middle and the high lane:** the spreader stays above a player on the Crane stack; the divider tops feel like a lane, not a perch.
-- **The edges:** the barrier stops a Dash; going over it falls through the water (and the death takes ~2.7 s until a kill height exists).
+- **The edges:** the barrier stops a Dash; going over it falls through the water and the kill height takes over.
 - **Budget:** MeshParts (the report prints the count), triangles on a phone view, 9 lights.
+
+### No z-fighting (2026-11-03)
+The hub's Studio audit (`tools/studio/maps/Audit.luau`) found 568 pairs of coplanar overlapping faces (371 visible). What changed:
+
+| Group (pairs) | Cause | Fix |
+|---|---|---|
+| BayLine + BayLine (99), + barrier, frames, pallets, office, shed floor, spawn barriers | Lines crossed each other in one plane and lay at y 0 under everything | Lines are 0.03-0.05 above the deck, butt-joined at crossings (no overlaps), cut out of the Shed footprints and stopped short of the quay wall |
+| Deck + QuayFace (94), Coping + Face (98), Coping + Coping (4) | The face sat flush with the deck side; the coping shared the face's planes | Face 0.1 proud of the deck side, coping from the deck edge outward and 0.05 above the deck; the end rows sit 0.5 out so no corner face lies in the deck's side plane |
+| QuayBarrier Base + Wall (38), Paint + PaintBlack (38), Bollard / LampMast + Paint (44) | A base plinth flush with the wall; two paints in one plane; props standing on the paint | No plinth; one yellow band with black blocks 0.02 proud; bollards and masts set 0.1 into the wall top |
+| Barrier segments over the Sheds and end walls; containers / crates against the barrier | Runs of 8-long segments overshot their greybox run by 4 | Exact fit: each run starts 0.3 clear of the Shed and ends at the end wall, with 3.7-long segments to finish |
+| C# Frame + C# Frame (12), Frame + crate | Corner castings 0.05 outside the box | Everything inside the envelope; stacks keep a 0.03 hairline gap (pitch 8.03) |
+| Crate + Shed frames, Office + Shed frames, pallets + shed floor, stair tread + container top, nosing + tread, ship bridge + deck | Props flush with a neighbour | No wall column behind the alley crate; the cabin's back stops 0.7 short of the wall columns; shed floor slab lifted to 0.02-0.05; treads 0.03 under the slope and never past the container edge; nosings narrower and proud; bridge set into the deck |
+
+**Check before export:** `build_map_kit_dockyard.py` assembles the whole map from the same placement list Art.luau uses (`tools/maps/dockyard_art.py`), plus the deck and the spawn barriers, and runs the same test as the Studio audit: box faces of every pair of touching objects that are parallel and within 0.02 of one plane and overlap by at least 0.05 x 0.05 get 5 x 5 rays from both sides against each object alone (front faces only); both hit within 0.006 at 3+ samples is a z-fight. It reports **0 pairs over 1,268 objects** and stops the build when it finds any.
+
+**Placement review** (Blender close-ups in `References/maps/dockyard/dockyard-preview-check-*.jpg`): Shed doors and roller door (frames outside the greybox openings, door heads at 9 / 13 like the greybox lintels, the roller drum inside behind the head), the site cabin, the quay edge with bollards, the stair landing on the divider top, stacked containers, the crane foot. Fixed on the way: a wall column stood in a Shed doorway (columns now only in the solid bays), the roller drum cut through the door head, a wall lamp overlapped the sign board.
