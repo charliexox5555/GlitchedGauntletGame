@@ -15,6 +15,7 @@ local MovementSim = require(ReplicatedStorage.Shared.Simulation.Movement)
 
 local AudioController = require(script.Parent.AudioController)
 local CameraController = require(script.Parent.CameraController)
+local ModFeelController = require(script.Parent.ModFeelController)
 
 export type MoveState = "Idle" | "Walk" | "Sprint" | "Crouch" | "Slide" | "Air"
 
@@ -67,6 +68,16 @@ local function update(dt: number)
 		-- Slide start: a quick FOV punch and the scrape.
 		local slide = Juice.SLIDE
 		CameraController.punchFov(slide.fovPunch, slide.punchTime)
+		local cam = workspace.CurrentCamera
+		local velocity = if root and root:IsA("BasePart")
+			then root.AssemblyLinearVelocity
+			else Vector3.zero
+		ModFeelController.streaks(
+			if cam
+				then cam.CFrame:VectorToObjectSpace(velocity * Vector3.new(1, 0, 1))
+				else Vector3.new(0, 0, -1),
+			slide.streaks
+		)
 		AudioController.play(
 			slide.sound.id,
 			{ group = "Foley", volume = slide.sound.volume, cut = slide.sound.cut }

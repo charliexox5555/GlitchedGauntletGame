@@ -39,6 +39,7 @@ return table.freeze({
 	SLIDE = table.freeze({
 		fovPunch = 6, -- degrees, eases out over `punchTime`
 		punchTime = 0.35,
+		streaks = 0.45, -- the Dash's wind streaks at this strength (no blur)
 		dustRate = 60, -- particles/s while sliding fast
 		dustMinSpeed = 13, -- studs/s below which the dust stops
 		-- "Baseball Runner Slide On Dirt Into Home Plate 4": its first 0.8 s.

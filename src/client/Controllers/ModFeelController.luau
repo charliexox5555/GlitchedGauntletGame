@@ -55,6 +55,8 @@ local lines: { ImageLabel } = {}
 local lineAngles: { number } = {}
 local linesAt = -math.huge
 local linesDir = Vector3.new(0, 0, -1) -- the dash in camera space
+local linesStrength = 1 -- 1 for a dash; lighter for a slide (ModFeelController.streaks)
+local blurWith = true -- the blur pulse goes with the streaks (not for a slide)
 local blur: BlurEffect? = nil
 -- Updraft: our wind loop while rising.
 local windHum: ModAudio.Hum? = nil
@@ -209,6 +211,8 @@ local function stepCharacters()
 				end
 				local cam = Workspace.CurrentCamera
 				linesAt = os.clock()
+				linesStrength = 1
+				blurWith = true
 				linesDir = if cam
 					then cam.CFrame:VectorToObjectSpace(dir)
 					else Vector3.new(0, 0, -1)
@@ -319,11 +323,12 @@ local function update(_dt: number)
 			local drift = 0.06 * k * (if ahead >= 0 then 1 else -1)
 			local r = 0.42 + drift * math.abs(ahead)
 			f.Position = UDim2.fromScale(0.5 + cx * r - side * 0.05 * k, 0.5 + cy * r)
-			f.ImageTransparency = 1 - (1 - k) * (1 - k) * (0.85 - (i % 2) * 0.15) * weight
+			f.ImageTransparency = 1
+				- (1 - k) * (1 - k) * (0.85 - (i % 2) * 0.15) * weight * linesStrength
 		end
 	end
 	local b = blur
-	local bk = (now - linesAt) / DASH.blurTime
+	local bk = if blurWith then (now - linesAt) / DASH.blurTime else 1
 	if bk < 1 and not b then
 		b = make("BlurEffect", { Name = "DashBlur", Size = 0 }, Lighting)
 		blur = b
@@ -358,6 +363,15 @@ local function onFx(kind: unknown, data: unknown)
 		blastFlash(TeamColor.ENEMY, 0.18)
 		revealedAt = os.clock()
 	end
+end
+
+-- The wind streaks on their own (a slide start): `dir` in camera space,
+-- `strength` 0..1 of a dash's, no blur pulse.
+function ModFeelController.streaks(dir: Vector3, strength: number)
+	linesAt = os.clock()
+	linesDir = if dir.Magnitude > 1e-3 then dir.Unit else Vector3.new(0, 0, -1)
+	linesStrength = math.clamp(strength, 0, 1)
+	blurWith = false
 end
 
 function ModFeelController.start()
