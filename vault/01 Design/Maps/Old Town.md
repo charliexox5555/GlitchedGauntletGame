@@ -2,7 +2,7 @@
 
 A large outdoor map for 2v2 to 4v4 (playable 1v1): a sunlit stone plaza with a fountain in the middle, arcades down both sides, two-storey houses with balconies, narrow alleys behind them and a clock tower over the roofs. The most Valorant-looking map of the set. See [Maps](00%20Maps.md) for the roster.
 
-**Status (2026-11-03):** concept, checked layout, generated greybox, Blender kit (uploaded), generated art pass and lighting are done and previewed offline in Blender; **not yet run in Studio**. The hub runs the scripts in the match place, screenshots and iterates: run order and checks in **6. Build and run** below.
+**Status (2026-11-03):** built in Studio once by the hub; the user loved it but flagged z-fighting (the Studio audit found 1,780 pairs, 1,490 of them visible), unnatural windows and doorways, the cart's lumpy load, the bell tower's arches and the bare outer walls. **Fixed in the source** (see **7. No z-fighting** and **Fix round 1** below): the offline check of the assembled map now finds **0 visible coplanar pairs**; kit re-uploaded as new versions of the same assets. Waiting for the hub to rebuild and re-run the Studio audit.
 
 ![Old Town from the Cafe Terrace (offline preview)](../../02%20Art/References/maps/oldtown/preview-terrace.jpg)
 ![Overview (offline preview)](../../02%20Art/References/maps/oldtown/preview-overview.jpg)
@@ -142,10 +142,10 @@ Warm afternoon, sun low in the west (about 40° up) so shadows run across the ma
 ### Budget (mobile)
 | Item | Target |
 |---|---|
-| Triangles | **351k for the whole map** (2,043 kit pieces), so well under 500k visible; facade modules 12–484, props ≤ 852, heroes ≤ 4.6k |
+| Triangles | **339k for the whole map** (3,025 kit pieces), so well under 500k visible; facade modules 12–442, props ≤ 852, heroes ≤ 4.7k |
 | Per mesh | ≤ 20k (largest: the tower's stone, 2,976) |
 | Collision | the greybox Parts only (271 + paving); every mesh is CanCollide/CanQuery/CanTouch off, Box fidelity |
-| Instances | about 5,900 MeshParts (one per piece material) + 140 plain decor parts: watch this on a phone |
+| Instances | about 7,500 MeshParts (one per piece material; the closed outer walls added ~1,600) + 130 plain decor parts: watch this on a phone |
 | Shadows | CastShadow only on wall-sized pieces (kit_bundle rule) |
 | Textures | none of our own: Roblox materials (Plaster, Limestone, ClayRoofTiles, Cobblestone, Wood, Metal) |
 | Lights | no dynamic lights (daytime) |
@@ -169,20 +169,20 @@ Parts are the gameplay and collision; the Blender kit is the look ([Maps](00%20M
 ![Kit vignette](../../02%20Art/References/maps/oldtown/oldtown-kit-vignette.jpg)
 ![Kit heroes](../../02%20Art/References/maps/oldtown/oldtown-kit-heroes.jpg)
 
-### The kit (56 pieces)
+### The kit (61 pieces)
 - **Facade modules** (8 / 4 / 2 wide, 12 per storey, 2 thick like the greybox walls): ground `F_GroundDoor` (an open 6 × 9 arched doorway), `F_GroundShop` (shop window and striped awning), `F_GroundWindow` (barred), `F_GroundClosed` (wooden doors), plain; upper `F_UpperWindow` (shutters), `F_UpperBalcony` (iron balcony), `F_UpperDoor` (the terrace door), plain. The origin is on the floor at the centre of the wall's front face, facing +X.
-- **Trims:** `Cornice*` (the inner houses' eaves), `Parapet*` (flat roofs), `Attic*` (the perimeter's 48–52 band), `Quoin12` (corner stones).
-- **Roofs:** `Roof12_*` and `Roof16_*` slopes (30°, raised tile rolls, ridge cap), `Gable24` and `Gable32` ends with an oculus.
-- **Arcade:** `ArcadeBay` (pier, arch, keystone), `Balustrade8`, `ArcadeRoof8` (the west arcade's lean-to), `Arch8` (lane-mouth and cloister-gate arches), `Stair12`.
-- **Heroes:** `CityGate` (the Blue and Green Gates: rusticated base, offset arch, banners, crenellations, bell gable), `Pavilion`, `Fountain`, `ClockTower` (brick shaft, four clocks at ten to four, an open belfry with a bell, a tiled spire, 108 tall).
-- **Props:** `MarketStall`, `Kiosk`, `Cart`, `PlanterLow`, `CypressPlanter`, `CafeSet`, `Well`, `Shrine`, `Crates`, `Barrels`, `StairPorch`, `WallLantern`, `Banner`, `LaundryLine`, `PlazaRing`, `PavingBand16`, `Bench`, `CeilingBeam`. Every cover block in the layout gets the prop that fills it.
+- **Trims:** `Cornice*` (the inner houses' eaves), `Parapet*` (flat roofs), `Attic*` (the perimeter's 48–52 band), `OuterBand*` (the perimeter's outer side up to a shed roof's high edge), `Quoin12` (slim corner stones between plinth and string course).
+- **Roofs:** `Roof12_*` and `Roof16_*` slopes (30°, raised tile rolls), `RidgeCap8/4` (one per ridge, so the two slopes never overlap), `Gable24` and `Gable32` ends with an oculus.
+- **Arcade:** `ArcadeBay` (pier, arch, keystone), `Balustrade8`, `ArcadeRoof8` (the west arcade's lean-to), `Arch8` / `Arch8D4` (lane-mouth and cloister-gate arches, 1.85 / 3.85 deep, just inside their lintels), `Stair12` (one solid stepped mass).
+- **Heroes:** `CityGate` (the Blue and Green Gates: rusticated base, offset arch, banners, crenellations, bell gable), `Pavilion`, `Fountain`, `ClockTower` (brick shaft, four clocks at ten to four, an open belfry: a round-arched brick wall per side under the cornice with a stone ring and sill, a brick ceiling, a bronze bell with a clapper hung from a timber yoke on iron straps; a tiled spire, 108 tall).
+- **Props:** `MarketStall`, `Kiosk`, `Cart` (a hand cart loaded with stacked crates, tailboards and a prop leg), `PlanterLow`, `CypressPlanter`, `CafeSet`, `Well`, `Shrine`, `Crates`, `Barrels`, `StairPorch`, `WallLantern`, `Banner`, `LaundryLine`, `PlazaRing`, `PavingBand16`, `Bench`, `CeilingBeam`. Every cover block in the layout gets the prop that fills it.
 - **Colour rules in Studio** (Art.luau): each piece's stucco is tinted to its house's tone (cream, ochre or rose), and the side accent `#2F6BB3` turns green `#4E8A3E` on the Green half.
 
 ---
 
 ## 6. Build and run (for the hub)
 In the **match place**, edit mode, from the Command Bar or the Studio MCP. Everything is re-runnable.
-1. `python tools/studio/maps/kit_bundle.py OldTown Structure -o kit1.luau`, then run it (it installs `ServerStorage.MapKit.OldTown`).
+1. `python tools/studio/maps/kit_bundle.py OldTown Structure -o kit1.luau`, then run it (it installs `ServerStorage.MapKit.OldTown`; it replaces the group's old pieces, so re-run it after every upload).
 2. `python tools/studio/maps/kit_bundle.py OldTown Props -o kit2.luau`, then run it.
 3. `python tools/studio/maps/bundle.py OldTown Greybox Art Lighting -o oldtown.luau`, then run it. It builds `Workspace.OldTown` at (0, 200, 1500) and returns one report line per body: greybox parts, art pieces placed (expect "all kit pieces found"), lighting.
    The greybox alone, before the kit: `python tools/studio/maps/bundle.py OldTown Greybox -o oldtown-greybox.luau`.
@@ -207,3 +207,31 @@ In the **match place**, edit mode, from the Command Bar or the Studio MCP. Every
 - Second Wind B3 (three Updrafts) can top the 52-stud perimeter; it's the same open question as Whitebox, and a kill volume above the roofs would close it.
 - The perimeter's outside faces show the backs of windows; nobody can see them from the playable map.
 - The interiors have no lights (daytime ambient only); check they aren't too dark.
+
+---
+
+## 7. No z-fighting
+Two visible surfaces in one plane flicker. The rules the kit and the placement follow (vault/01 Design/Maps/00 Maps.md):
+- **A layer on a surface sits on it** (trim, sill, band, coping, cloth, iron): its back face touches the surface, so both faces are buried and nothing flickers; it stands proud by at least 0.05. A part that must pass into a solid reaches 0.05 into it, never flush with one of its faces. A wall's top is buried in its coping, not level with it.
+- **Recessed windows are two layers:** the front layer has the opening, the back layer is solid, and the glass stands 0.05 proud of it and 0.05 into the reveals. From behind, a window is plain wall (no dark rectangles on the outer sides).
+- **Modules butt edge to edge:** the kit drops the wall body's end faces (the neighbour or, at a corner, the other facade covers the plane) and pulls trim ends in by 0.03 (eave trims by 0.07), so neighbours meet at a hairline joint instead of a shared plane. Faces resting on the ground or on the storey below are dropped.
+- **Roofs:** slopes have no end or ridge faces; one `RidgeCap` per ridge covers the line where they meet; gable bands stop 0.05 inside the corners.
+- **Corners:** everything on a W/E facade (modules, eave trims, W/E eave roofs) sits 0.06 lower than on S/N facades, so corner trims and perpendicular fascias never share a plane.
+- **Attachments:** windows never sit under an arch, a porch, a shrine or crates against a wall (those spans get plain modules); modules never straddle a corner where another house (or the clock tower) stands against the facade (the rhythm breaks at its edges); awnings and balconies stay off corners and breaks.
+- **Linings and plain parts** (Art.luau): room linings butt at corners and stop under the ceiling; flat roof tops are inset 0.1 and below every coping; beams stop inside the linings; the visible arcade slabs start behind the arcade wall; the ground slab reaches past the outer walls.
+
+**Checks (both fail the build):**
+- `build_map_kit_oldtown.py` checks every piece on its own with `tools/blender/zfight_check.py` before saving the .blend (so before any export): same plane (< 0.02 apart, parallel), overlapping (> 0.01 studs²), both facing the same way and not pressed against an opposite face = z-fighting.
+- `blender --background --factory-startup art-source/maps/OldTown/Kit_OldTown.blend --python tools/blender/preview_map_oldtown.py -- --check` assembles the map exactly as Art.luau places it (every MeshPart, the visible greybox, Art's plain parts) and runs the same test; it writes `art-source/maps/OldTown/zfight-offline.json` and exits 1 on any visible pair. Last run: 338,764 triangles, 7,613 surfaces, **0 visible pairs** (1,144 buried and 52,631 touching pairs are faces pressed together, invisible, and the Studio audit skips them too).
+
+### Fix round 1 (2026-11-03, from the user's playtest and the Studio audit)
+| Flagged | Fix |
+|---|---|
+| 1,780 z-fighting pairs (`Attic` stone/stucco 178, `Cornice` + roof tiles 84, roof + roof 82, facade modules where they meet, parapets, arcade bays, shop awnings, arches against windows, props on the ground) | The rules above, in the kit and in the placement; checked offline to 0 |
+| Wall-top cap with pink stucco flickering through (a jut's attic) | Wall tops buried 0.35 under their copings; flat roof tops inset and lowered |
+| Bell tower: white arch soffits broke through the brick arches (the arch crowned above the cornice), odd bell and clapper | Belfry rebuilt: arched brick walls crowned at 81.2 under the cornice, stone rings and sills, brick ceiling, new bell profile, clapper, yoke on straps |
+| Cart with lumpy rocks piled high | A load of six stacked crates in the bed (still full cover), tailboards, prop leg |
+| Outer back walls: dark rectangles at random, a roof eave alone | Two-layer walls (no window backs); every outer face of the perimeter gets plain walls, the attic band and, under a shed roof's high edge, an outer band |
+| Windows and doors not natural | A regular rhythm per face: openings stack storey over storey; plaza faces alternate shop / window, streets window / shop, alleys window / plain, a closed door in the middle of odd runs; balconies on the first floor on alternate bays (every third on the four-storey houses); no windows cut by arches, porches or neighbouring houses |
+| Doorways vs their greybox openings | Door modules match the 6 × 9 voids (jambs at ±3, crown at 9); inner doors get plaster linings and soffits; the terrace door's threshold steps 0.14 over the terrace floor |
+
