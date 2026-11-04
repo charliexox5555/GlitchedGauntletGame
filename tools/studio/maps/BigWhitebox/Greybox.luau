@@ -142,16 +142,20 @@ do
 				COLORS.floor
 			)
 		)
-		-- End wall either side of the alcove mouth.
+		-- End wall either side of the alcove mouth. Walls butt edge to edge,
+		-- never overlap (an overlap leaves coplanar faces that z-fight): the end
+		-- wall spans the alcove mouth's edge to the side wall's inner face, and
+		-- the alcove's side walls start behind it.
 		local endW = ROOM_X - ALCOVE_X
+		local sideD = ALCOVE_D - WALL_T
 		local endZ = s * (ROOM_Z + WALL_T / 2)
 		for _, lr in { -1, 1 } do
 			panel(
 				box(
 					g,
 					string.format("EndWall_%s_%s", team, if lr < 0 then "L" else "R"),
-					Vector3.new(endW + WALL_T, WALL_H, WALL_T),
-					at(lr * (ALCOVE_X + endW / 2 + WALL_T / 2), WALL_H / 2, endZ),
+					Vector3.new(endW, WALL_H, WALL_T),
+					at(lr * (ALCOVE_X + endW / 2), WALL_H / 2, endZ),
 					COLORS.wall
 				)
 			)
@@ -160,8 +164,8 @@ do
 				box(
 					g,
 					string.format("AlcoveSide_%s_%s", team, if lr < 0 then "L" else "R"),
-					Vector3.new(WALL_T, WALL_H, ALCOVE_D),
-					at(lr * (ALCOVE_X + WALL_T / 2), WALL_H / 2, zAlc),
+					Vector3.new(WALL_T, WALL_H, sideD),
+					at(lr * (ALCOVE_X + WALL_T / 2), WALL_H / 2, s * (ROOM_Z + WALL_T + sideD / 2)),
 					COLORS.wall
 				)
 			)
@@ -223,7 +227,7 @@ do
 			p,
 			"Band_Baffle_" .. team,
 			Vector3.new(20.1, 2, 3.1),
-			at(0, 9, s * 76),
+			at(0, 8.9, s * 76), -- top 0.1 under the baffle's (no shared plane)
 			color,
 			{ castShadow = false }
 		)
