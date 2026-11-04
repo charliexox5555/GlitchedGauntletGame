@@ -1,8 +1,8 @@
 --!strict
 -- Builds the third-person combat poses (R15 KeyframeSequences) others see on
 -- you: aiming down sights (three pitch poses, like the hip aim set in
--- MakePoseAnimations), a reload one-shot, a hit flinch, going down, and the
--- knife's ready hold, slash and heavy. Saves each as a
+-- MakePoseAnimations), a reload one-shot, a hit flinch, going down, a draw
+-- on a weapon swap, and the knife's ready hold, slash and heavy. Saves each as a
 -- Studio-serialized .rbxm in art-source/animations/ through
 -- tools/studio/receive_server.py. Run in Studio (Edit) via the MCP or the
 -- Command Bar, upload with tools/opencloud/upload_asset.py --type Animation,
@@ -279,6 +279,23 @@ local HEAVY_STRIKE: Frame = {
 	LeftHand = { 0, 0, 0 },
 }
 
+-- Draw (0.5 s at speed 1, played at the gun's equip time): the new gun
+-- comes in low, rises a touch past the hold and settles on it.
+local DRAW_LOW: Frame = {
+	UpperTorso = { -4, 0, 0 },
+	RightUpperArm = { 34, 10, 0 },
+	RightLowerArm = { 30, 0, 0 },
+	LeftUpperArm = { 26, -20, 0 },
+	LeftLowerArm = { 44, 0, 0 },
+}
+local DRAW_RISE: Frame = {
+	UpperTorso = { 1, 0, 0 },
+	RightUpperArm = { 94, 8, 0 },
+	RightLowerArm = { 0, 0, 0 },
+	LeftUpperArm = { 93, -38, 0 },
+	LeftLowerArm = { 16, 0, 0 },
+}
+
 local ACTION = Enum.AnimationPriority.Action
 local ACTION4 = Enum.AnimationPriority.Action4
 
@@ -295,6 +312,7 @@ local sequences = {
 		{ 0, 0.05, 0.3 },
 		false
 	),
+	sequence("GG_Draw", ACTION4, { DRAW_LOW, DRAW_RISE, hip(0) }, { 0, 0.32, 0.5 }, false),
 	sequence("GG_KnifeReady", ACTION, { KNIFE, knifeReady(1), KNIFE }, { 0, 1.2, 2.4 }, true),
 	sequence(
 		"GG_KnifeSlash",

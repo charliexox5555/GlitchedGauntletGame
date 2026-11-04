@@ -57,12 +57,16 @@ return table.freeze({
 		Death = id(81024323443020), -- going down (DeathFxController, on the falling copy)
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
 		-- on each swing (server player attributes SwingAt / SwingHeavy).
+		-- A weapon swap: the new gun comes in low and rises (played at its
+		-- equipTime; made DRAW_LENGTH long).
+		Draw = id(116384882246844),
 		KnifeReady = id(98422551486900),
 		KnifeSlash = id(103765524428295),
 		KnifeHeavy = id(87481489934854),
 	}),
 	ADS_SMOOTHING = 12, -- 1/s: how fast the hold moves between hip and sights
 	RELOAD_LENGTH = 1, -- seconds the reload clip is made at
+	DRAW_LENGTH = 0.5, -- seconds the draw clip is made at
 	FLINCH_WEIGHT = 0.8, -- the flinch plays over the rest at this weight
 
 	-- Roblox's Animate plays these instead of its stock clips (CharacterService).

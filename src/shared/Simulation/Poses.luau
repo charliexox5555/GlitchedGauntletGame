@@ -84,6 +84,7 @@ local USE_IDS: { [string]: string } = {
 	SlideOut = Animations.LOCOMOTION.SlideOut, -- the push back up when a slide ends on your feet
 	Reload = Animations.COMBAT.Reload, -- at the gun's reload time (ReloadAt / ReloadFor)
 	Flinch = Animations.COMBAT.Flinch, -- hit (HitAt), at FLINCH_WEIGHT
+	Draw = Animations.COMBAT.Draw, -- a weapon swap (at the gun's equipTime)
 	KnifeSlash = Animations.COMBAT.KnifeSlash, -- a knife swing (SwingAt)
 	KnifeHeavy = Animations.COMBAT.KnifeHeavy, -- ...the heavy one (SwingHeavy)
 }
@@ -246,6 +247,8 @@ local posedAds: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 local reloadSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 local hitSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 local swingSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
+-- The weapon each character was last posed with (for the draw on a swap).
+local weaponSeen: { [Model]: string } = setmetatable({}, { __mode = "k" }) :: any
 
 local function aiming(player: Player): boolean
 	local context = player:FindFirstChild("PlayContext")
@@ -390,6 +393,14 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	end
 	if newMark(hitSeen, character, player:GetAttribute("HitAt")) and alive then
 		playOnce(animator, "Flinch", 1, Animations.FLINCH_WEIGHT)
+	end
+	-- A weapon swap: the new gun comes up (not on the first look).
+	if typeof(weaponId) == "string" then
+		local was = weaponSeen[character]
+		weaponSeen[character] = weaponId
+		if was ~= nil and was ~= weaponId and armed > 0 and config then
+			playOnce(animator, "Draw", Animations.DRAW_LENGTH / math.max(config.equipTime, 0.1))
+		end
 	end
 	-- The knife: its ready hold while it's out, and each swing (also a quick
 	-- melee with a gun out).
