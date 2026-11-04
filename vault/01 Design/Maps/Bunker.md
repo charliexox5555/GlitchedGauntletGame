@@ -2,7 +2,7 @@
 
 A medium indoor map for 1v1 to 3v3: **the Sunwell Bunker's lower levels**, a board-formed concrete shelter dug under the Lobby. One tall light shaft drops a column of sun onto the middle; tight service corridors, a locker room, a control room and two pump rooms wrap around it. See [Maps](00%20Maps.md) for the roster.
 
-**Status (2026-11-03):** concept, checked layout and greybox script done; kit, art and lighting follow in this note's §5. **Not yet run in Studio:** the hub runs the scripts, screenshots and iterates.
+**Status (2026-11-03):** concept, checked layout, greybox, Blender kit (uploaded, asset `85762988512275`), art and lighting scripts are done; the coplanar (z-fighting) check is **0** on the greybox and the dressed map. **Not yet run in Studio:** the hub runs the scripts, screenshots and iterates (run order and checklist in §5).
 
 ![Bunker layout](../../02%20Art/References/maps/bunker/bunker-layout.svg)
 
@@ -81,7 +81,7 @@ Generated and checked by `tools/maps/bunker_layout.py` (the same data writes the
 | **Consoles** | 8 × 2 × 3 | Half cover in the sunwell; the control desk in the control room |
 | **Ring** | band 13..20, deck +12 | High ground over the middle that you reach from your overlook (or by Updraft over the parapet); it sees 100% of the sunwell floor but only 14% of the rest of the map |
 | **Overlook + stair** | 24 × 8 deck, stair 6 × 18 | Your balcony at the gallery's front; the stair rises toward the sunwell |
-| **Blast door** | 16-wide frame, one leaf jammed shut | The gallery's back: an 8-wide passage from the vestibule, the hero prop of each half |
+| **Blast door** | 14-wide frame, one leaf jammed shut | The gallery's back: an 8-wide passage from the vestibule, the hero prop of each half |
 | **Lockers** | 16 × 28 room | Lockers along the back wall, a locker island (full cover); doors to the gallery front, the corridor and the pump room |
 | **Control** | 16 × 28 room | Server racks along the back wall, a desk island (half cover); doors to the gallery and the corridor |
 | **Pump rooms** | 18 × 28 | The flank's middle: a pump unit (10 × 12 × 8) blocks the straight corridor line, so the flank weaves through the room; door into the sunwell |
@@ -102,18 +102,18 @@ Generated and checked by `tools/maps/bunker_layout.py` (the same data writes the
 | Greybox volume overlaps / coplanar faces | 0 / 0 | 0 |
 | Spawn sees enemy spawn | Never | Never |
 | Anywhere outside a team's vestibule and spawn that sees its spawn points | 0% | 0 |
-| Spawn to the middle | 97 studs: 4.4 s sprint, 6.1 s walk | 5-6 s for a medium map |
-| Spawn to spawn | 195 studs walked (176 straight): 8.9 s sprint, 12.2 s walk | 150-190 straight |
-| First sight | 3.4 s sprint, **4.6 s walk**: overlook to overlook across the shaft, 52 studs | 5-8 s |
-| First contact | 4.4 s sprint, **6.1 s walk**, in the sunwell | ~10 s (see below) |
+| Spawn to the middle | 96 studs: 4.4 s sprint, 6.0 s walk | 5-6 s for a medium map |
+| Spawn to spawn | 193 studs walked (176 straight): 8.8 s sprint, 12.0 s walk | 150-190 straight |
+| First sight | 3.3 s sprint, **4.5 s walk**: overlook to overlook across the shaft, 56 studs | 5-8 s |
+| First contact | 4.4 s sprint, **6.0 s walk**, in the sunwell | ~10 s (see below) |
 | Tightest gap between cover and walls | 6 or more everywhere | 6 |
 | Distance to full cover | average 3.2, worst 8.7 (sunwell, beside the dais) | worst under about 15 |
-| Long lines | 0.5% of spot pairs over 60 apart see each other, none over 81; the longest is from the sunwell through a gallery and its passage into that team's vestibule (81) | one long line per side |
+| Long lines | 0.5% of spot pairs over 60 apart see each other, none over 81; the longest are the flank diagonal from a control room through a pump room (82) and the sunwell through a gallery and its passage into that team's vestibule (81) | one long line per side |
 | Ring | sees 100% of the sunwell floor, 14% of the rest | high ground that doesn't own the map |
 | Shell | sealed: no standing spot outside the walls or above the ceilings | closed |
 | Highest reach | ring 12 + jump 7.2 + Updraft 28 = 47 (three 14s: 61); skylight at 64 | under the skylight |
 
-**First sight and contact** come a little earlier than the research's 5-8 s and ~10 s. That is the cost of the brief's 150-190 studs spawn to spawn: half of 195 walked studs is 6 s at walking speed. The overlook-to-overlook look (4.6 s) is a glimpse across the shaft at 52 studs, the contact is in the sunwell at 6 s. If playtests want slower openings, push the spawn rooms 8 studs back (the map has room).
+**First sight and contact** come a little earlier than the research's 5-8 s and ~10 s. That is the cost of the brief's 150-190 studs spawn to spawn: half of 195 walked studs is 6 s at walking speed. The overlook-to-overlook look (4.5 s) is a glimpse across the shaft at 52 studs, the contact is in the sunwell at 6 s. If playtests want slower openings, push the spawn rooms 8 studs back (the map has room).
 
 The checks are 2.5D (a voxel model with eye-to-eye lines, walking, jumping up to 7 and dropping); they don't replace walking it. **Watch in play:** whether the ring is too strong (the parapet is half cover, the shaft void separates the two sides), whether the plinth top (reachable only by Updraft) becomes a camping spot, and whether the 81-stud mid-to-vestibule line matters.
 
@@ -163,8 +163,41 @@ Every wall, ceiling and the skylight are visible and higher than anyone can reac
 
 ---
 
+### Kit (group `Bunker`, asset `85762988512275`)
+`tools/blender/build_map_kit_bunker.py` → `art-source/maps/Bunker/Kit_Bunker.blend`, 33 `Map_<Piece>` collections, 11.1k unique triangles (largest object 824, the blast door frame): `Clad12` / `Clad10` (skirting, painted lower wall, end-colour line, board-formed courses; 10 under a deck), `Field14` (upper courses in the tall rooms), `CornerPost12`, `DoorLining` (box-out steel frame, end-colour head stripe, a sign plate over each face), `BlastDoor`, `Pilaster14`, `Corbel`, `Beam8`, `ShaftPanel8` (rim, warm cove, courses, tie holes), `ShaftTop` (skylight curb, bars, glass), `SunDais` (brass compass), `SunPlinth` (courses, tie holes, brass cap and gnomon), `RingEdge8` (fascia, cove light), `Rail8` (coping, rail), `GalleryStair`, `Lockers4`, `LockerIsland`, `Rack4`, `Console8`, `Gen46`, `Gen66`, `PumpUnit`, `Manifold`, `CrateStack`, `CrateRow`, `LinearLight`, `CageLamp`, `WallLamp`, `PipeRun8`, `SpawnPanel`, `HazardSill` (+ `SignPlate`, spare). Base materials only (the match place has no MaterialVariants). Parts ending `_Band` / `_Trim` take the end colour.
+
+**Placement** is generated, not hand-written: `tools/maps/bunker_art.py` rasterises the wall blocks at two heights and puts cladding on every wall face that bounds a walkable space (runs break at doors, the ones along X stop 0.32 short of inside corners, convex corners get a steel post), a lining in every door, and a prop on every cover block; the same data writes `Art.luau` and dresses the Blender previews. Runs of any length use one module stretched along its length (the courses are horizontal, so nothing visibly distorts): **307 placements, 926 MeshParts, 68k triangles** for the whole map.
+
+**No z-fighting, checked three ways:** (1) the greybox blocks never overlap (they only butt); (2) inside each kit piece, every axis-aligned face patch is compared with every other (0); (3) on the dressed map, all 15,656 face rectangles of the placed kit parts and the visible greybox Parts are compared: same plane within 0.02, same facing, overlapping more than 0.05 × 0.05 and not buried in a visible greybox block = a z-fight. **Result: 0.** Fixes the check forced: doors moved 1 stud off room corners (their frames cut into the next wall), box-out door frames instead of flanges, the blast door narrowed to 14 with no head on the vestibule side (its ceiling is at the opening's top), ring rails as separate sections, compass ring broken at the points, the skylight glass inset from the bars.
+
+![Contact sheet](../../02%20Art/References/maps/bunker/contact-bunker.jpg)
+![The sun plinth from the sunwell floor](../../02%20Art/References/maps/bunker/preview-sunwell.jpg)
+![B gallery toward the blast door](../../02%20Art/References/maps/bunker/preview-gallery.jpg)
+![East corridor toward the pump room](../../02%20Art/References/maps/bunker/preview-corridor.jpg)
+![The ring corner](../../02%20Art/References/maps/bunker/preview-overlook.jpg)
+
+The previews are Blender EEVEE stand-ins for the Roblox look (sun at the zenith through the skylight, a cool ambient, a few lights). Review notes from them, already applied: the gallery pilasters started mid-wall (now corbels under the beams), the ring rails overshot each other at the corners, a door frame and the locker bank clipped, the preview avatar floated over the void.
+
+**Quality score (LihFolk world rubric, from the previews, self-review):** W1 composition 2 (the plinth in the sun, framed by the ring), W2 navigation 2 (three named lanes, end colours, door signs), W3 cohesion 2 (the Lobby's materials), W4 lighting 1 (striking in the previews, not yet seen in Roblox), W5 detail 1 (corridors were plain; warm bulkheads added between doors), W6 scale 2 → **8.75 / 10**. The two 1s are the first things to judge in Studio.
+
 ## 5. Build
-1. **Greybox:** `python tools/maps/bunker_layout.py --luau` (then `stylua tools/studio/maps/Bunker`) writes `tools/studio/maps/Bunker/Greybox.luau`: 152 boxes and 2 ramps in sections Sunwell / Shaft / Ring / Gallery / Lockers / Pump / Control / Vestibule / Spawn / Shell, 8 spawns, 4 barriers, at origin (-1500, 200, 1500).
+1. **Greybox:** `python tools/maps/bunker_layout.py --luau` (then `stylua tools/studio/maps/Bunker`) writes `tools/studio/maps/Bunker/Greybox.luau`: 152 boxes and 2 ramps in sections Sunwell / Shaft / Ring / Gallery / Lockers / Pump / Control / Vestibule / Spawn / Shell, 8 spawns, 4 barriers, at origin (-1500, 200, 1500). The same command writes `Art.luau` and runs every check (exit 1 on any failure).
+2. **Kit:** `"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" --background --factory-startup --python tools/blender/build_map_kit_bunker.py -- [--no-render]`, then export (`export_lobby_kit.py -- --maps Bunker Bunker`) and upload (`upload_models.py --maps Bunker --group 11116787 Bunker`).
+3. **Art and light:** `Art.luau` places the kit, stretches runs, tints the end colours, writes the door signs, hides the replaced greybox (collision kept; the hidden shaft walls still cast shadow) and finishes the rest. `Lighting.luau` adds the map's `Lighting` Configuration (ClockTime 12, latitude 23.5: the sun at the zenith), `LightingFx` (Sky, Atmosphere, Bloom, ColorCorrection, SunRays) and `Art.Lighting` (the sunbeam Beams and dust with the Lobby's textures, a bounce SurfaceLight on the dais, 16 shadowless PointLights).
+4. **Tested without Studio:** both bundles compile (Lune); not yet run in Studio.
+5. **Run order** for the hub (match place, edit mode):
+   1. `python tools/studio/maps/kit_bundle.py Bunker Bunker -o bunker_kit.luau` → run it (installs `ServerStorage.MapKit.Bunker`).
+   2. `python tools/studio/maps/bundle.py Bunker Greybox Art Lighting -o bunker.luau` → run it (re-runnable; builds `Workspace.Bunker` at (-1500, 200, 1500)).
+   3. Run the audit (`tools/studio/maps/Audit.luau` with `"Bunker"`); expected 0.
+   4. Set the Workspace attribute `ForceMap` to `Bunker` and press Play to see the lighting (MapService applies it).
+   5. Screenshots, then save the place and back up `art-source/maps/Bunker/Bunker.rbxm`.
+
+### What to check in the screenshots
+- **Stretched pieces:** cladding runs end exactly at door linings and inside corners, the paint line is continuous and level all round; pipe runs reach the corner walls; rails and fascias meet the corners. If a stretched piece is mis-scaled, `stretch()` in Art.luau is the place to look.
+- **Orientation:** door signs face out of each door and name the room beyond (no sign under a deck); the blast door's frame faces the gallery and its hazard edge is on the leaf beside the passage; lockers, racks and the pump cabinet face into their rooms; the stairs rise toward the sunwell.
+- **The sun:** the beam falls straight down the shaft onto the dais (both teams see the same thing), the skylight bars cast stripes on the dais, the sunwell is the brightest place; the rest is shade, readable, not black. If the beam is too strong, raise its Transparency keys; if rooms are dark, raise `Ambient` in `Workspace.Bunker.Lighting`.
+- **Readability:** players against the painted lower walls and in the beam; with shadows off (phone quality), the sunwell floor still reads lighter than the corridors.
+- **Shots:** each spawn, each vestibule, a gallery toward the blast door, an overlook, the ring corner, the plinth in the sun, looking up the shaft, a corridor, the lockers, the control room, a pump room, and an overview.
 
 ## 6. Decisions for the user
 | Decision | Chosen | Other choice |
