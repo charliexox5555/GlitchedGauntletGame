@@ -128,7 +128,9 @@ both("Hall", "Kiosk", 24, 0, 8, 0)
 both("Hall", "Vending", 34, 0, 18, 180)
 both("Hall", "Bench", -34, 0, 16, 0)
 for zc = -44, 44, 8 do
-	both("Hall", "PlatformEdge8", 14, 0, zc, 180)
+	-- under team A's hall stairs (x 14..22, z -48..-26) the edge has no tactile strip
+	local plain = zc == -28 or zc == -36 or zc == -44
+	both("Hall", if plain then "PlatformEdge8Plain" else "PlatformEdge8", 14, 0, zc, 180)
 end
 for _, x in { 18, 30, -18, -30 } do
 	for _, z in { 16, 32 } do
@@ -144,10 +146,9 @@ both("Hall", "HallStairs", -18, 0, 26, 0)
 for zc = -48, 48, 8 do
 	both("Track", "TrackBay8", 8.5, -4, zc, 0)
 end
-both("Track", "TrackBox", -14, -4, 31, 0)
-both("Trains", "TrainCarHead", 8.5, 0, 33.5, 0)
-both("Trains", "TrainCarTail", 8.5, 0, 6.5, 0)
-both("Trains", "TrainGangway", 8.5, 0, 20, 0)
+both("Track", "TrackBox", -14, -4, 32, 0)
+-- One two-section unit per track, its centre at z 20 (team B's runs z -6..46 on the east track).
+both("Trains", "Train", 8.5, 0, 20, 0)
 
 -- Concourse: portals, fare gates, ticket office, spawn doors, pendant lights over the ticket hall.
 both("Concourse", "Portal10", -9, 14, 67, 0)
