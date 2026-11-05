@@ -41,8 +41,8 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Deck": ("7E776D", "Slate", "Dock2_Deck"),  # pier deck slabs (ground band, V ~49%)
     "Concrete": ("A59D90", "Concrete", "Dock2_Concrete"),  # plinths, quay coping, shed base
     "ConcreteDark": ("6E675E", "Concrete", "Dock2_Concrete"),  # quay face, footings
-    "Cladding": ("C3C8CB", "SmoothPlastic", ""),  # round 1: the brushed texture read as smears on big walls  # shed wall panels (structure band, one step over the deck)
-    "Roof": ("56616B", "Concrete", "Dock2_Concrete"),
+    "Cladding": ("D3D5D0", "SmoothPlastic", ""),  # round 1: the brushed texture read as smears on big walls  # shed wall panels (structure band, one step over the deck)
+    "Roof": ("66717B", "Concrete", "Dock2_Concrete"),
     "Grate": ("4A525A", "DiamondPlate", "Dock2_Grate"),  # stair treads, landings
     # lane colour (set per container in Studio from LANE / BACKDROP; these are the kit defaults)
     "Lane": ("52708E", "SmoothPlastic", ""),  # container body; round 1: clean paint, the ribs carry the detail
@@ -55,10 +55,13 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Rubber": ("2A2D31", "SmoothPlastic", ""),  # fenders, tyres
     "Wood": ("A7865E", "SmoothPlastic", ""),  # pallets, crates
     "Glass": ("9FD3E0", "Glass", ""),
+    "Backfill": ("8A9096", "SmoothPlastic", ""),  # end-wall filler between containers: reads as more stacks, not a slab
     "Water": ("2A6878", "SmoothPlastic", ""),  # pass 1: #2F8C9C read as a loud cyan
     # Neon accents (thin strips only)
     "SignWest": ("AD5843", "SmoothPlastic", ""),  # spawn sign lane words (keep equal to LANE)
     "SignEast": ("438C6A", "SmoothPlastic", ""),
+    "SignMid": ("52708E", "SmoothPlastic", ""),
+    "Hull": ("4C5D70", "SmoothPlastic", ""),  # ships (round 2: the dark hull read as an unfinished slab)
     "GlowWarm": ("FFE2B8", "Neon", ""),  # lamp heads, cab light
     "GlowSignal": ("FF8A3D", "Neon", ""),  # crane beacons (tiny)
 }
@@ -67,7 +70,7 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 # "red", "blue", "green"). The red is a terracotta, far from the enemy team colour #FF5A36.
 # Studio pass 1 (2026-11-05): on Roblox Metal the painted boxes mirrored the blue sky and read far too saturated, so
 # painted surfaces use Dock2_Paint (the same textures on a non-metal Plastic base) and the lanes sit a step calmer.
-LANE = {"west": "AD5843", "mid": "52708E", "east": "438C6A"}
+LANE = {"west": "AD5843", "mid": "52708E", "east": "438C6A", "crane": "E2DED3"}  # crane: the white reefers under the crane (round 2)
 FRAME_SHADE = 0.72  # LaneFrame = lane colour x this
 # The end walls and far stacks: the same hues, lighter and greyer (aerial perspective), never saturated.
 # Warm-leaning on purpose: the first style frame read all blue with a cool backdrop behind the blue lane.

@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 642" font-family="Segoe UI, Arial, sans-serif">
-<rect width="760" height="642" fill="#1B2233"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 744" font-family="Segoe UI, Arial, sans-serif">
+<rect width="760" height="744" fill="#1B2233"/>
 <text x="24" y="40" font-size="24" font-weight="700" fill="#F4F1EA">Dockyard2 palette</text>
 <text x="24" y="64" font-size="13" fill="#B9BDCB">tools/maps/dockyard2_style.py (roles; Studio applies them, so a change needs no upload)</text>
 <rect x="24" y="86" width="44" height="26" rx="4" fill="#7E776D" stroke="#0E1320"/>
@@ -11,12 +11,12 @@
 <rect x="24" y="120" width="44" height="26" rx="4" fill="#6E675E" stroke="#0E1320"/>
 <text x="78" y="132" font-size="13" font-weight="700" fill="#F4F1EA">ConcreteDark</text>
 <text x="78" y="145" font-size="11" fill="#B9BDCB">#6E675E  Concrete / Dock2_Concrete</text>
-<rect x="394" y="120" width="44" height="26" rx="4" fill="#C3C8CB" stroke="#0E1320"/>
+<rect x="394" y="120" width="44" height="26" rx="4" fill="#D3D5D0" stroke="#0E1320"/>
 <text x="448" y="132" font-size="13" font-weight="700" fill="#F4F1EA">Cladding</text>
-<text x="448" y="145" font-size="11" fill="#B9BDCB">#C3C8CB  SmoothPlastic</text>
-<rect x="24" y="154" width="44" height="26" rx="4" fill="#56616B" stroke="#0E1320"/>
+<text x="448" y="145" font-size="11" fill="#B9BDCB">#D3D5D0  SmoothPlastic</text>
+<rect x="24" y="154" width="44" height="26" rx="4" fill="#66717B" stroke="#0E1320"/>
 <text x="78" y="166" font-size="13" font-weight="700" fill="#F4F1EA">Roof</text>
-<text x="78" y="179" font-size="11" fill="#B9BDCB">#56616B  Concrete / Dock2_Concrete</text>
+<text x="78" y="179" font-size="11" fill="#B9BDCB">#66717B  Concrete / Dock2_Concrete</text>
 <rect x="394" y="154" width="44" height="26" rx="4" fill="#4A525A" stroke="#0E1320"/>
 <text x="448" y="166" font-size="13" font-weight="700" fill="#F4F1EA">Grate</text>
 <text x="448" y="179" font-size="11" fill="#B9BDCB">#4A525A  DiamondPlate / Dock2_Grate</text>
@@ -47,47 +47,62 @@
 <rect x="24" y="324" width="44" height="26" rx="4" fill="#9FD3E0" stroke="#0E1320"/>
 <text x="78" y="336" font-size="13" font-weight="700" fill="#F4F1EA">Glass</text>
 <text x="78" y="349" font-size="11" fill="#B9BDCB">#9FD3E0  Glass</text>
-<rect x="394" y="324" width="44" height="26" rx="4" fill="#2A6878" stroke="#0E1320"/>
-<text x="448" y="336" font-size="13" font-weight="700" fill="#F4F1EA">Water</text>
-<text x="448" y="349" font-size="11" fill="#B9BDCB">#2A6878  SmoothPlastic</text>
-<rect x="24" y="358" width="44" height="26" rx="4" fill="#AD5843" stroke="#0E1320"/>
-<text x="78" y="370" font-size="13" font-weight="700" fill="#F4F1EA">SignWest</text>
-<text x="78" y="383" font-size="11" fill="#B9BDCB">#AD5843  SmoothPlastic</text>
-<rect x="394" y="358" width="44" height="26" rx="4" fill="#438C6A" stroke="#0E1320"/>
-<text x="448" y="370" font-size="13" font-weight="700" fill="#F4F1EA">SignEast</text>
-<text x="448" y="383" font-size="11" fill="#B9BDCB">#438C6A  SmoothPlastic</text>
-<rect x="24" y="392" width="44" height="26" rx="4" fill="#FFE2B8" stroke="#0E1320"/>
-<text x="78" y="404" font-size="13" font-weight="700" fill="#F4F1EA">GlowWarm</text>
-<text x="78" y="417" font-size="11" fill="#B9BDCB">#FFE2B8  Neon</text>
-<rect x="394" y="392" width="44" height="26" rx="4" fill="#FF8A3D" stroke="#0E1320"/>
-<text x="448" y="404" font-size="13" font-weight="700" fill="#F4F1EA">GlowSignal</text>
-<text x="448" y="417" font-size="11" fill="#B9BDCB">#FF8A3D  Neon</text>
-<rect x="24" y="426" width="44" height="26" rx="4" fill="#AD5843" stroke="#0E1320"/>
-<text x="78" y="438" font-size="13" font-weight="700" fill="#F4F1EA">Lane west</text>
-<text x="78" y="451" font-size="11" fill="#B9BDCB">#AD5843  Metal / Dock2_Metal</text>
-<rect x="394" y="426" width="44" height="26" rx="4" fill="#52708E" stroke="#0E1320"/>
-<text x="448" y="438" font-size="13" font-weight="700" fill="#F4F1EA">Lane mid</text>
-<text x="448" y="451" font-size="11" fill="#B9BDCB">#52708E  Metal / Dock2_Metal</text>
-<rect x="24" y="460" width="44" height="26" rx="4" fill="#438C6A" stroke="#0E1320"/>
-<text x="78" y="472" font-size="13" font-weight="700" fill="#F4F1EA">Lane east</text>
-<text x="78" y="485" font-size="11" fill="#B9BDCB">#438C6A  Metal / Dock2_Metal</text>
-<rect x="394" y="460" width="44" height="26" rx="4" fill="#7D3F30" stroke="#0E1320"/>
-<text x="448" y="472" font-size="13" font-weight="700" fill="#F4F1EA">Lane west frame</text>
-<text x="448" y="485" font-size="11" fill="#B9BDCB">#7D3F30  SmoothPlastic</text>
-<rect x="24" y="494" width="44" height="26" rx="4" fill="#3B5166" stroke="#0E1320"/>
-<text x="78" y="506" font-size="13" font-weight="700" fill="#F4F1EA">Lane mid frame</text>
-<text x="78" y="519" font-size="11" fill="#B9BDCB">#3B5166  SmoothPlastic</text>
-<rect x="394" y="494" width="44" height="26" rx="4" fill="#30654C" stroke="#0E1320"/>
-<text x="448" y="506" font-size="13" font-weight="700" fill="#F4F1EA">Lane east frame</text>
-<text x="448" y="519" font-size="11" fill="#B9BDCB">#30654C  SmoothPlastic</text>
-<text x="24" y="544" font-size="13" font-weight="700" fill="#F4F1EA">Backdrop stacks (aerial perspective)</text>
-<rect x="24" y="554" width="46" height="26" rx="4" fill="#A9A296" stroke="#0E1320"/>
-<rect x="78" y="554" width="46" height="26" rx="4" fill="#C8C0B0" stroke="#0E1320"/>
-<rect x="132" y="554" width="46" height="26" rx="4" fill="#8F959B" stroke="#0E1320"/>
-<rect x="186" y="554" width="46" height="26" rx="4" fill="#B98F78" stroke="#0E1320"/>
-<rect x="240" y="554" width="46" height="26" rx="4" fill="#92A29A" stroke="#0E1320"/>
-<rect x="294" y="554" width="46" height="26" rx="4" fill="#C9B58F" stroke="#0E1320"/>
-<rect x="348" y="554" width="46" height="26" rx="4" fill="#7F8C99" stroke="#0E1320"/>
-<text x="24" y="606" font-size="12" fill="#B9BDCB">Bevels: primary 0.45, secondary 0.14, tertiary 0.05 studs. Sun ClockTime 15.0, latitude 23.5.</text>
-<text x="24" y="624" font-size="12" fill="#B9BDCB">Reserved, never on the map: team cyan #00E5FF, team orange-red #FF5A36.</text>
+<rect x="394" y="324" width="44" height="26" rx="4" fill="#8A9096" stroke="#0E1320"/>
+<text x="448" y="336" font-size="13" font-weight="700" fill="#F4F1EA">Backfill</text>
+<text x="448" y="349" font-size="11" fill="#B9BDCB">#8A9096  SmoothPlastic</text>
+<rect x="24" y="358" width="44" height="26" rx="4" fill="#2A6878" stroke="#0E1320"/>
+<text x="78" y="370" font-size="13" font-weight="700" fill="#F4F1EA">Water</text>
+<text x="78" y="383" font-size="11" fill="#B9BDCB">#2A6878  SmoothPlastic</text>
+<rect x="394" y="358" width="44" height="26" rx="4" fill="#AD5843" stroke="#0E1320"/>
+<text x="448" y="370" font-size="13" font-weight="700" fill="#F4F1EA">SignWest</text>
+<text x="448" y="383" font-size="11" fill="#B9BDCB">#AD5843  SmoothPlastic</text>
+<rect x="24" y="392" width="44" height="26" rx="4" fill="#438C6A" stroke="#0E1320"/>
+<text x="78" y="404" font-size="13" font-weight="700" fill="#F4F1EA">SignEast</text>
+<text x="78" y="417" font-size="11" fill="#B9BDCB">#438C6A  SmoothPlastic</text>
+<rect x="394" y="392" width="44" height="26" rx="4" fill="#52708E" stroke="#0E1320"/>
+<text x="448" y="404" font-size="13" font-weight="700" fill="#F4F1EA">SignMid</text>
+<text x="448" y="417" font-size="11" fill="#B9BDCB">#52708E  SmoothPlastic</text>
+<rect x="24" y="426" width="44" height="26" rx="4" fill="#4C5D70" stroke="#0E1320"/>
+<text x="78" y="438" font-size="13" font-weight="700" fill="#F4F1EA">Hull</text>
+<text x="78" y="451" font-size="11" fill="#B9BDCB">#4C5D70  SmoothPlastic</text>
+<rect x="394" y="426" width="44" height="26" rx="4" fill="#FFE2B8" stroke="#0E1320"/>
+<text x="448" y="438" font-size="13" font-weight="700" fill="#F4F1EA">GlowWarm</text>
+<text x="448" y="451" font-size="11" fill="#B9BDCB">#FFE2B8  Neon</text>
+<rect x="24" y="460" width="44" height="26" rx="4" fill="#FF8A3D" stroke="#0E1320"/>
+<text x="78" y="472" font-size="13" font-weight="700" fill="#F4F1EA">GlowSignal</text>
+<text x="78" y="485" font-size="11" fill="#B9BDCB">#FF8A3D  Neon</text>
+<rect x="394" y="460" width="44" height="26" rx="4" fill="#AD5843" stroke="#0E1320"/>
+<text x="448" y="472" font-size="13" font-weight="700" fill="#F4F1EA">Lane west</text>
+<text x="448" y="485" font-size="11" fill="#B9BDCB">#AD5843  Metal / Dock2_Metal</text>
+<rect x="24" y="494" width="44" height="26" rx="4" fill="#52708E" stroke="#0E1320"/>
+<text x="78" y="506" font-size="13" font-weight="700" fill="#F4F1EA">Lane mid</text>
+<text x="78" y="519" font-size="11" fill="#B9BDCB">#52708E  Metal / Dock2_Metal</text>
+<rect x="394" y="494" width="44" height="26" rx="4" fill="#438C6A" stroke="#0E1320"/>
+<text x="448" y="506" font-size="13" font-weight="700" fill="#F4F1EA">Lane east</text>
+<text x="448" y="519" font-size="11" fill="#B9BDCB">#438C6A  Metal / Dock2_Metal</text>
+<rect x="24" y="528" width="44" height="26" rx="4" fill="#E2DED3" stroke="#0E1320"/>
+<text x="78" y="540" font-size="13" font-weight="700" fill="#F4F1EA">Lane crane</text>
+<text x="78" y="553" font-size="11" fill="#B9BDCB">#E2DED3  Metal / Dock2_Metal</text>
+<rect x="394" y="528" width="44" height="26" rx="4" fill="#7D3F30" stroke="#0E1320"/>
+<text x="448" y="540" font-size="13" font-weight="700" fill="#F4F1EA">Lane west frame</text>
+<text x="448" y="553" font-size="11" fill="#B9BDCB">#7D3F30  SmoothPlastic</text>
+<rect x="24" y="562" width="44" height="26" rx="4" fill="#3B5166" stroke="#0E1320"/>
+<text x="78" y="574" font-size="13" font-weight="700" fill="#F4F1EA">Lane mid frame</text>
+<text x="78" y="587" font-size="11" fill="#B9BDCB">#3B5166  SmoothPlastic</text>
+<rect x="394" y="562" width="44" height="26" rx="4" fill="#30654C" stroke="#0E1320"/>
+<text x="448" y="574" font-size="13" font-weight="700" fill="#F4F1EA">Lane east frame</text>
+<text x="448" y="587" font-size="11" fill="#B9BDCB">#30654C  SmoothPlastic</text>
+<rect x="24" y="596" width="44" height="26" rx="4" fill="#A3A098" stroke="#0E1320"/>
+<text x="78" y="608" font-size="13" font-weight="700" fill="#F4F1EA">Lane crane frame</text>
+<text x="78" y="621" font-size="11" fill="#B9BDCB">#A3A098  SmoothPlastic</text>
+<text x="24" y="646" font-size="13" font-weight="700" fill="#F4F1EA">Backdrop stacks (aerial perspective)</text>
+<rect x="24" y="656" width="46" height="26" rx="4" fill="#A9A296" stroke="#0E1320"/>
+<rect x="78" y="656" width="46" height="26" rx="4" fill="#C8C0B0" stroke="#0E1320"/>
+<rect x="132" y="656" width="46" height="26" rx="4" fill="#8F959B" stroke="#0E1320"/>
+<rect x="186" y="656" width="46" height="26" rx="4" fill="#B98F78" stroke="#0E1320"/>
+<rect x="240" y="656" width="46" height="26" rx="4" fill="#92A29A" stroke="#0E1320"/>
+<rect x="294" y="656" width="46" height="26" rx="4" fill="#C9B58F" stroke="#0E1320"/>
+<rect x="348" y="656" width="46" height="26" rx="4" fill="#7F8C99" stroke="#0E1320"/>
+<text x="24" y="708" font-size="12" fill="#B9BDCB">Bevels: primary 0.45, secondary 0.14, tertiary 0.05 studs. Sun ClockTime 15.0, latitude 23.5.</text>
+<text x="24" y="726" font-size="12" fill="#B9BDCB">Reserved, never on the map: team cyan #00E5FF, team orange-red #FF5A36.</text>
 </svg>

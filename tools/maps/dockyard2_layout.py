@@ -18,6 +18,8 @@ CHANGES against Dockyard (each one measured by this script; old -> new):
      cover mid-quay (worst distance to cover 17.9 -> 16.0) that keeps a 6-wide quay walk, and the Apron box
      moves in to the middle band (44, 6) to cut the band's lateral lines (longest lateral 138 -> 122).
   5. Flank routes come within 0.5 s of the middle (247 vs 237 studs; old 248 vs 226).
+  6. (Blind-review fix round 2) The 2-high spawn baffle becomes stepped: 1-high 40-footer plus a 20-footer on its
+     west half. Spawn safety unchanged (0% floor / 0% tops see a spawn); the spawn view opens over the low half.
 
 Run: python tools/maps/dockyard2_layout.py [--luau]
 Prints gaps, sightlines (ground and from the stack tops), spawn safety, cover spread, route
@@ -152,7 +154,10 @@ HALF = [
     C20("Mid post box", 10, 24),  # along the lane: cuts the lateral lines just past the crane
     C20("Mid box", -18, 50, along="x"),
     C20("Ramp box", 18, 66, along="x"),
-    C40("Spawn baffle", 0, 80, along="x", stack=2),  # 2-high: covers the alcove from every far angle and roof
+    # Stepped (fix round 2): a 1-high 40-footer with a 20-footer on its west half. The high half still covers the
+    # alcove from the enemy Shed roof (0% of tops see a spawn); the low east half lets the spawn see the yard and crane.
+    C40("Spawn baffle", 0, 80, along="x", stack=1),
+    Box("Baffle top", -8, 80, 16, 8, 8, "box", y0=8, piece="C20"),
     # East divider: a 40-footer whose top (8) is the high lane, a ramp up from the spawn side.
     C40("East divider", 30, 40),
     Box("Divider ramp", 30, 64, 8, 16, 8, "ramp", up=(0, -1)),

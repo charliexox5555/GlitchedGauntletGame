@@ -420,22 +420,33 @@ def p_spawn_sign(team):
 	c = piece("SpawnSign" + team)
 	left, right = ("RED", "GREEN") if team == "B" else ("GREEN", "RED")
 	lrole, rrole = ("SignWest", "SignEast") if team == "B" else ("SignEast", "SignWest")
-	ring = ring_prism(rrect(24.4, 6.6, 0.8, 4, 0.0, 12.0), rrect(23.2, 5.4, 0.5, 4, 0.0, 12.0), -0.42, -0.06, "Y")
+	# Round 2: sized for the 20-footer on top of the stepped baffle (origin = that box's face centre).
+	ring = ring_prism(rrect(15.0, 6.2, 0.8, 4, 0.0, 12.0), rrect(13.9, 5.1, 0.5, 4, 0.0, 12.0), -0.42, -0.06, "Y")
 	obj(c, "Frame", finish(ring, BT, ST), "Charcoal")
-	obj(c, "Plate", RB(-11.75, 11.75, 9.25, 14.75, 0.08, 0.3, BT, ST), "White")
-	brackets = [RB(x - 0.3, x + 0.3, y - 0.3, y + 0.3, -0.25, 0.12, BT, ST) for x in (-9.0, 9.0) for y in (9.6, 14.4)]
+	obj(c, "Plate", RB(-7.05, 7.05, 9.4, 14.6, 0.08, 0.3, BT, ST), "White")
+	brackets = [RB(x - 0.3, x + 0.3, y - 0.3, y + 0.3, -0.25, 0.12, BT, ST) for x in (-5.0, 5.0) for y in (9.7, 14.3)]
 	obj(c, "Brackets", merge(*brackets), "Charcoal")
-	bm, w = text_mesh("DOCK " + team, 2.0, depth=0.14)
-	xform(bm, T(0.0, -0.3, 12.15))
+	bm, w = text_mesh("DOCK " + team, 1.9, depth=0.14)
+	xform(bm, T(0.0, -0.3, 12.2))
 	obj(c, "Title", bm, "Charcoal", smooth=0)
-	bm, w = text_mesh(left, 0.95, depth=0.12)
-	xform(bm, T(-10.3 + 1.6 + w / 2, -0.3, 9.85))
-	bm2 = arrow(-10.4, 10.32, 0.3, 0.42, -1)
+	bm, w = text_mesh(left, 0.85, depth=0.12)
+	xform(bm, T(-6.2 + 1.4 + w / 2, -0.3, 10.0))
+	bm2 = arrow(-6.3, 10.43, 0.3, 0.42, -1, 0.95, 0.9)
 	obj(c, "Left", merge(bm, bm2), lrole, smooth=0)
-	bm, w = text_mesh(right, 0.95, depth=0.12)
-	xform(bm, T(10.3 - 1.6 - w / 2, -0.3, 9.85))
-	bm2 = arrow(10.4, 10.32, 0.3, 0.42, 1)
+	bm, w = text_mesh(right, 0.85, depth=0.12)
+	xform(bm, T(6.2 - 1.4 - w / 2, -0.3, 10.0))
+	bm2 = arrow(6.3, 10.43, 0.3, 0.42, 1, 0.95, 0.9)
 	obj(c, "Right", merge(bm, bm2), rrole, smooth=0)
+
+
+def p_deck_word(word, role):
+	# Round 2: a lane name painted on the deck (top 0.07; bay lines are 0.05), letters' tops toward local -Z, so it
+	# reads for someone walking out of the spawn (-Z for B; the A copies are turned 180).
+	c = piece("DeckWord" + word)
+	bm, w = text_mesh(word, 3.4, depth=0.12)
+	# text_mesh: upright, facing -Y (Roblox +Z), baseline at z 0. Lay it flat: letters' up -> Roblox -Z (Blender +Y).
+	xform(bm, T(0.0, -1.7, 0.01) @ Matrix.Rotation(math.radians(-90), 4, "X") @ T(0.0, 0.06, 0.0))
+	obj(c, "Paint", bm, role, smooth=0)
 
 
 def p_chevron():
@@ -532,7 +543,7 @@ def p_sts_crane():
 	legs = [RB(x - 0.9, x + 0.9, 0.0, 30.0, z - 0.9, z + 0.9, 0.3, 1) for x in (-6.0, 6.0) for z in (-10.0, 10.0)]
 	legs.append(RB(-7.0, 7.0, 28.0, 31.0, -11.0, 11.0, 0.3, 1))
 	legs.append(RB(-1.0, 1.0, 31.0, 47.0, -9.0, 9.0, 0.3, 1))
-	obj(c, "Frame", merge(*legs), "White")
+	obj(c, "Frame", merge(*legs), "Backfill")
 	obj(c, "Boom", RB(-24.0, 46.0, 34.0, 37.0, -2.5, 2.5, 0.3, 1), "Charcoal")
 	obj(c, "House", RB(-16.0, -6.0, 37.0, 41.0, -3.5, 3.5, 0.3, 1), "Roof")
 
@@ -540,7 +551,7 @@ def p_sts_crane():
 def p_ship():
 	c = piece("Ship")
 	hull = [(-16.0, -62.0), (16.0, -62.0), (16.0, 30.0), (9.0, 44.0), (0.0, 50.0), (-9.0, 44.0), (-16.0, 30.0)]
-	obj(c, "Hull", RPY(hull, 0.0, 18.4, 0.4, 1), "Roof")
+	obj(c, "Hull", RPY(hull, 0.0, 18.4, 0.4, 1), "Hull")
 	sheer = [(x * 1.004, z * 1.004) for x, z in hull]
 	obj(c, "Stripe", RPY(sheer, 15.6, 16.6, 0.0, 1), "White")
 	obj(c, "Bridge", RB(-14.0, 14.0, 18.3, 34.0, -61.0, -52.0, 0.4, 1), "White")
@@ -579,6 +590,9 @@ def build():
 	p_spawn_sign("A")
 	p_spawn_sign("B")
 	p_chevron()
+	p_deck_word("RED", "SignWest")
+	p_deck_word("BLUE", "SignMid")
+	p_deck_word("GREEN", "SignEast")
 	tris = {}
 	for n, col in PIECES.items():
 		t = 0

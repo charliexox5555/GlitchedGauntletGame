@@ -125,6 +125,9 @@ def build() -> tuple[list[Put], list[Part]]:
         # The containers that form the crane court belong to the middle (blue), whatever their x.
         if b.name.startswith("Crane box"):
             return "mid"
+        # Fix round 2: the crane stack and its steps are white reefers, the ground-level landmark of the middle.
+        if b.name.startswith("Crane stack") or b.name.startswith("Stack step"):
+            return "crane"
         return b.lane()
 
     shed_ids = {1: [], -1: []}
@@ -134,7 +137,8 @@ def build() -> tuple[list[Put], list[Part]]:
             along_x = b.sx > b.sz
             for k in range(int(round(b.h / 8))):
                 yaw = (90 if along_x else 0) + (180 if rnd.random() < 0.5 else 0)
-                puts.append(Put(b.piece, b.x, STACK * k, b.z, yaw, lane_tint(lane_of(b)), "Containers", [i]))
+                y = b.y0 + STACK * k
+                puts.append(Put(b.piece, b.x, y + (0.03 if b.y0 > 0 else 0.0), b.z, yaw, lane_tint(lane_of(b)), "Containers", [i]))
         elif b.kind == "low":
             puts.append(Put("Crate", b.x, 0, b.z, 0 if rnd.random() < 0.5 else 90, None, "Yard", [i]))
         elif b.kind == "ramp":
@@ -200,13 +204,17 @@ def build() -> tuple[list[Put], list[Part]]:
     # Spawn wayfinding (round 1): a framed sign on the baffle naming the dock and the lane each way round it,
     # and white chevrons on the deck from the alcove round both sides of the baffle.
     for s in (1, -1):
-        puts.append(Put("SpawnSign" + ("B" if s > 0 else "A"), 0, 0, 84.0 * s, 0 if s > 0 else 180, None, "Spawn", []))
+        # On the high (west for B) half of the stepped baffle.
+        puts.append(Put("SpawnSign" + ("B" if s > 0 else "A"), -8.0 * s, 0, 84.0 * s, 0 if s > 0 else 180, None, "Spawn", []))
+        # Lane words painted on the deck where each lane leaves the spawn end (fix round 2), read walking out.
+        for word, x, z in (("RED", -56.0, 41.0), ("BLUE", 0.0, 38.0), ("GREEN", 56.0, 67.0)):
+            puts.append(Put("DeckWord" + word, x * s, 0, z * s, 0 if s > 0 else 180, None, "Spawn", []))
         for x in (-20.5, 20.5):
             for z in (89.0, 85.0):
                 puts.append(Put("Chevron", x * s, 0, z * s, 0 if s > 0 else 180, None, "Spawn", []))
     for b in L.BOXES:
         if b.kind == "backdrop":
-            parts.append(Part("Filler", "EndWalls", (b.sx - 1, b.h - 1, b.sz - 1), (b.x, (b.h - 1) / 2 + 0.01, b.z), "Roof"))
+            parts.append(Part("Filler", "EndWalls", (b.sx - 1, b.h - 1, b.sz - 1), (b.x, (b.h - 1) / 2 + 0.01, b.z), "Backfill"))
 
     # The deck edge all round: 29 faces down each long side (z -116..116) and 17 across each end.
     for s in (1, -1):
@@ -239,7 +247,7 @@ def build() -> tuple[list[Put], list[Part]]:
     # 1000 wide: ends 24 short of the old Dockyard's water (origin 1500 east), and 0.1 lower, so the two never overlap.
     parts.append(Part("Water", "Deck", (1000, 1, 2040), (0, -9.6, 0), "Water", 0.15))
     for s in (1, -1):
-        parts.append(Part("FarQuay", "Skyline", (268, 4, 1000), (266 * s, -10, 0), "ConcreteDark"))
+        parts.append(Part("FarQuay", "Skyline", (268, 4, 1000), (266 * s, -10, 0), "Deck"))
         for x, z, yaw in SKY_CRANES:
             puts.append(Put("StsCrane", x * s, -8, z * s, yaw + (180 if s < 0 else 0), None, "Skyline", []))
         puts.append(Put("Ship", SHIP[0] * s, -9, SHIP[1] * s, 0 if s > 0 else 180, None, "Skyline", []))
