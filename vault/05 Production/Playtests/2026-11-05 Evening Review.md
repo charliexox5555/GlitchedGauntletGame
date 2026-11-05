@@ -36,7 +36,8 @@ The user played the day's work ([Day Plan 2026-11-05](../Day%20Plan%202026-11-05
   - They are quality references, **not one-to-one blueprints**: take the quality, silhouettes, materials, height and identity from them, and keep our own layouts and measured numbers.
   - The map rebuild starts, Rooftops first.
   - The UI images go into the §10 board for the user's pick.
-- **Match avatar:** a standard avatar in matches only, like RIVALS and Hypershot (blocky, smoother, slimmer arms without a visible elbow/wrist split, built to fit the weapons). The Lobby keeps players' own avatars. Research, then a plan in `01 Design/Match Avatar.md`, then the build with per-weapon holds (session `anim-knife`).
+- **Match avatar:** a standard avatar in matches only, like RIVALS and Hypershot (blocky, smoother, slimmer arms without a visible elbow/wrist split, built to fit the weapons). The Lobby keeps players' own avatars. **Accessories in matches: hair only** (user's decision). Plan: [Match Avatar](../../01%20Design/Match%20Avatar.md).
+- **Bug found and fixed:** the Lobby teleported to its own PlaceId. The match place is 133387545285290 and the Lobby is 71551303511506 (`6e9b6fb`). Research, then a plan in `01 Design/Match Avatar.md`, then the build with per-weapon holds (session `anim-knife`).
 
 ## Actions
 - Lane E (`lobby-ui-2`): revert the match screens to the v1 look. Keep the inset, clearance and phone-layout fixes where they work under v1.
