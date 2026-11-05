@@ -10,6 +10,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+local CoreUi = require(script.Parent.CoreUi)
 local Fx = require(script.Parent.Fx)
 local Sound = require(script.Parent.Sound)
 
@@ -61,6 +62,8 @@ local function getControls(): any
 end
 
 local function setWorldDimmed(on: boolean)
+	-- Chat and the player list step aside while a full-screen menu is open.
+	CoreUi.menuMode(on)
 	if on then
 		blur.Enabled = true
 		grade.Enabled = true

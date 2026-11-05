@@ -9,15 +9,14 @@
 -- Idle loops pause while their ScreenGui is disabled.
 
 local GuiService = game:GetService("GuiService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
-local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Sound = require(script.Parent.Sound)
+local Style = require(script.Parent.Style)
 
 local Fx = {}
 
-local C = Theme.COLORS
+local C = Style.COLOR
 
 Fx.MOTION = table.freeze({
 	press = 0.05,
@@ -211,16 +210,38 @@ function Fx.shine(parent: GuiObject, color: Color3?, strength: number?): () -> (
 end
 
 -- The gamepad focus ring (LihFolk: Gamepad and Console UX): a 3 px gold
--- outline, shared by every lobby button through SelectionImageObject.
-local ring = Instance.new("Frame")
-ring.Name = "LobbySelectionRing"
-ring.BackgroundTransparency = 1
-ring.Size = UDim2.new(1, 8, 1, 8)
-ring.Position = UDim2.fromOffset(-4, -4)
-local ringStroke = Instance.new("UIStroke")
-ringStroke.Color = C.gold
-ringStroke.Thickness = 3
-ringStroke.Parent = ring
+-- outline 4 px outside the button, its corner the button's own radius + 4
+-- (nested-radius rule), so the ring is concentric with rounded buttons.
+local rings: { [number]: Frame } = {}
+
+local function ringFor(button: GuiObject): Frame
+	local corner = button:FindFirstChildWhichIsA("UICorner")
+	local radius = 0
+	if corner then
+		local r = corner.CornerRadius
+		radius = if r.Scale >= 0.5 then 999 else r.Offset + 4
+	end
+	local ring = rings[radius]
+	if ring then
+		return ring
+	end
+	ring = Instance.new("Frame")
+	ring.Name = "LobbySelectionRing"
+	ring.BackgroundTransparency = 1
+	ring.Size = UDim2.new(1, 8, 1, 8)
+	ring.Position = UDim2.fromOffset(-4, -4)
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = C.primary
+	stroke.Thickness = 3
+	stroke.Parent = ring
+	if radius > 0 then
+		local c = Instance.new("UICorner")
+		c.CornerRadius = if radius >= 999 then UDim.new(0.5, 0) else UDim.new(0, radius)
+		c.Parent = ring
+	end
+	rings[radius] = ring
+	return ring
+end
 
 -- Each button's resting position, so hover lifts and entrances share one base.
 local bases: { [GuiObject]: UDim2 } = setmetatable({}, { __mode = "k" }) :: any
@@ -237,6 +258,7 @@ export type ButtonOptions = {
 	silent: boolean?,
 	enabled: (() -> boolean)?,
 	noScale: boolean?, -- skip the 1.04 hover scale (big cards)
+	onPress: ((down: boolean) -> ())?, -- e.g. sink a primary button's face
 }
 
 -- Hover / press / click feel for any GuiButton. `onClick` runs on Activated
@@ -252,7 +274,7 @@ function Fx.button(button: GuiButton, onClick: () -> (), opts: ButtonOptions?)
 		button.AnchorPoint = Vector2.new(0.5, 0.5)
 		button.Position = UDim2.fromScale(0.5, 0.5)
 	end
-	button.SelectionImageObject = ring
+	button.SelectionImageObject = ringFor(button)
 	local scale = Fx.scale(button)
 	local liftBy = o.liftBy or Fx.HOVER_LIFT
 	if o.lift then
@@ -306,6 +328,22 @@ function Fx.button(button: GuiButton, onClick: () -> (), opts: ButtonOptions?)
 			or input.KeyCode == Enum.KeyCode.ButtonA
 		then
 			Fx.tween(scale, Fx.MOTION.press, { Scale = Fx.PRESS_SCALE }, Enum.EasingStyle.Quad)
+			if o.onPress then
+				o.onPress(true)
+			end
+		end
+	end)
+	button.InputEnded:Connect(function(input)
+		local t = input.UserInputType
+		if
+			o.onPress
+			and (
+				t == Enum.UserInputType.MouseButton1
+				or t == Enum.UserInputType.Touch
+				or input.KeyCode == Enum.KeyCode.ButtonA
+			)
+		then
+			o.onPress(false)
 		end
 	end)
 	button.Activated:Connect(function()
@@ -326,11 +364,9 @@ end
 -- A short horizontal shake (denied / not allowed). Reduced motion: a red flash.
 function Fx.shake(obj: GuiObject)
 	if Fx.reduced() then
-		if obj:IsA("ImageButton") or obj:IsA("ImageLabel") then
-			local before = obj.ImageColor3
-			obj.ImageColor3 = C.enemy
-			Fx.tween(obj, 0.3, { ImageColor3 = before })
-		end
+		local before = obj.BackgroundColor3
+		obj.BackgroundColor3 = C.danger
+		Fx.tween(obj, 0.3, { BackgroundColor3 = before })
 		return
 	end
 	local base = obj.Position

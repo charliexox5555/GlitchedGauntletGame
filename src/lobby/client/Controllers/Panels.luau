@@ -4,51 +4,44 @@
 -- with a believable skeleton of what will live there and a clear "coming soon"
 -- line. Locker uses the real gun renders; Settings has one working toggle.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
-local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local Theme = require(ReplicatedStorage.Shared.Config.Theme) -- gun renders (Theme.GUN)
 
 local Fx = require(script.Parent.Parent.Util.Fx)
 local Icons = require(script.Parent.Parent.Util.Icons)
+local Kit = require(script.Parent.Parent.Util.Kit)
 local Layout = require(script.Parent.Parent.Util.Layout)
+local Menu = require(script.Parent.Parent.Util.Menu)
 local Router = require(script.Parent.Parent.Util.Router)
 local Sound = require(script.Parent.Parent.Util.Sound)
+local Style = require(script.Parent.Parent.Util.Style)
 local Ui = require(script.Parent.Parent.SharedUi)
 
 local Panels = {}
 
-local C = Theme.COLORS
-local player = Players.LocalPlayer
+local C = Style.COLOR
 
 -- Desktop: 1920 x 1080 canvas. Phone: 800 x 420 (LihFolk: Responsive UI for
 -- Phone Tablet Console and PC); placeholder panels collapse to one card there.
 local PHONE = Layout.isPhone()
-local CANVAS = Layout.pick(Vector2.new(1920, 1080), Vector2.new(800, 420))
-local HEADER = Layout.pick(Vector2.new(120, 120), Vector2.new(24, 4))
-local CLOSE = Layout.pick(Vector2.new(1800, 128), Vector2.new(780, 2))
-local CLOSE_SIZE = Layout.pick(64, 60) -- 44+ px drawn on a 667 x 375 phone
-local BODY = Layout.pick(Vector2.new(120, 260), Vector2.new(24, 70))
-local BODY_SIZE = Layout.pick(Vector2.new(1680, 700), Vector2.new(752, 340))
+local BODY = Layout.pick(Vector2.new(96, 228), Vector2.new(24, 76))
+local BODY_SIZE = Layout.pick(Vector2.new(1728, 700), Vector2.new(752, 330))
 -- Settings toggles: 44+ px drawn on a phone too.
 local TOGGLE = Layout.pick(Vector2.new(84, 44), Vector2.new(100, 60))
 
 type Panel = {
-	gui: ScreenGui,
-	backdrop: ScreenGui,
+	chrome: Menu.Chrome,
 	focus: GuiObject?,
-	scrim: Frame,
-	content: CanvasGroup,
-	header: Frame,
 	body: Frame,
 	isOpen: boolean,
 }
 
 -- A skeleton bar with a light sweeping through it on a loop.
 local function skeleton(parent: Instance, props: { [string]: any }): Frame
-	local bar = Ui.make("Frame", {
+	local bar = Kit.make("Frame", {
 		BackgroundColor3 = C.white,
 		BorderSizePixel = 0,
 		ZIndex = 4,
@@ -56,11 +49,12 @@ local function skeleton(parent: Instance, props: { [string]: any }): Frame
 	for k, v in props do
 		(bar :: any)[k] = v
 	end
-	local g = Ui.make("UIGradient", {
+	Kit.corner(bar, Style.RADIUS.xs)
+	local g = Kit.make("UIGradient", {
 		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, C.raised),
-			ColorSequenceKeypoint.new(0.5, C.hover),
-			ColorSequenceKeypoint.new(1, C.raised),
+			ColorSequenceKeypoint.new(0, C.surfaceDeep),
+			ColorSequenceKeypoint.new(0.5, C.surfaceHover),
+			ColorSequenceKeypoint.new(1, C.surfaceDeep),
 		}),
 		Offset = Vector2.new(-1, 0),
 	}, bar)
@@ -79,28 +73,36 @@ local function card(
 	w: number,
 	h: number,
 	line: Color3?
-): ImageLabel
-	return Ui.cut(parent, {
+): Frame
+	local c = Kit.surface(parent, {
 		Position = UDim2.fromOffset(x, y),
 		Size = UDim2.fromOffset(w, h),
-	}, { color = C.card, transparency = 0.04, line = line or C.lineSoft, corner = 18 })
+		ZIndex = 2,
+	}, {
+		radius = Style.RADIUS.lg,
+		transparency = 0.02,
+		stroke = line or true,
+		strokeTransparency = if line then 0.3 else nil,
+	})
+	Kit.shadow(c, Style.RADIUS.lg, 0.8)
+	return c
 end
 
 local function soon(parent: Instance, text: string, y: number)
 	-- An auto-layout row, so the tag and the line never touch at any text size.
-	local row = Ui.make("Frame", {
+	local row = Kit.make("Frame", {
 		Position = UDim2.fromOffset(0, y),
 		Size = UDim2.fromOffset(1600, 32),
 		BackgroundTransparency = 1,
 	}, parent)
-	Ui.make("UIListLayout", {
+	Kit.make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		VerticalAlignment = Enum.VerticalAlignment.Center,
 		Padding = UDim.new(0, 16),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	}, row)
-	local tag = Ui.tag(row, "COMING SOON", C.gold, { LayoutOrder = 1 }, true)
-	Ui.text(row, text, "bodyM", {
+	local tag = Kit.tag(row, "COMING SOON", C.primary, { LayoutOrder = 1 }, true)
+	Kit.text(row, text, "body", {
 		AutomaticSize = Enum.AutomaticSize.X,
 		Size = UDim2.fromOffset(0, 24),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -111,131 +113,16 @@ local function soon(parent: Instance, text: string, y: number)
 end
 
 local function build(name: string, kicker: string, title: string): Panel
-	-- Two layers (LihFolk: Safe Areas and Insets): the dimmer bleeds to every
-	-- edge, the panel content stays inside the core-UI safe area.
-	local backdrop = Ui.make("ScreenGui", {
-		Name = "Lobby" .. name .. "Backdrop",
-		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
-		ScreenInsets = Enum.ScreenInsets.None,
-		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 19,
-		Enabled = false,
-	}, player:WaitForChild("PlayerGui"))
-	local gui = Ui.make("ScreenGui", {
-		Name = "Lobby" .. name,
-		ResetOnSpawn = false,
-		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
-		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 20,
-		Enabled = false,
-	}, player:WaitForChild("PlayerGui"))
-	local scrim = Ui.make("TextButton", {
-		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = C.scrim,
-		BackgroundTransparency = 1,
-		AutoButtonColor = false,
-		Text = "",
-		Modal = true,
-		Selectable = false,
-	}, backdrop)
-	for _, top in { true, false } do
-		local band = Ui.make("Frame", {
-			AnchorPoint = Vector2.new(0, if top then 0 else 1),
-			Position = UDim2.fromScale(0, if top then 0 else 1),
-			Size = UDim2.fromScale(1, 0.3),
-			BackgroundColor3 = C.scrim,
-			BorderSizePixel = 0,
-		}, scrim)
-		Ui.make("UIGradient", {
-			Rotation = if top then 90 else -90,
-			Transparency = NumberSequence.new(0.15, 1),
-		}, band)
-	end
-	local content = Ui.make("CanvasGroup", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(CANVAS.X, CANVAS.Y),
-		BackgroundTransparency = 1,
-		SelectionGroup = true,
-		SelectionBehaviorUp = Enum.SelectionBehavior.Stop,
-		SelectionBehaviorDown = Enum.SelectionBehavior.Stop,
-		SelectionBehaviorLeft = Enum.SelectionBehavior.Stop,
-		SelectionBehaviorRight = Enum.SelectionBehavior.Stop,
-	}, gui)
-	Layout.fit(content, "menu")
-	local header = Ui.make("Frame", {
-		Position = UDim2.fromOffset(HEADER.X, HEADER.Y),
-		Size = UDim2.fromOffset(900, 110),
-		BackgroundTransparency = 1,
-	}, content)
-	Ui.make("Frame", {
-		Position = UDim2.fromOffset(0, 6),
-		Size = UDim2.fromOffset(4, Layout.pick(92, 54)),
-		BackgroundColor3 = C.gold,
-		BorderSizePixel = 0,
-	}, header)
-	Ui.text(header, kicker, "label", {
-		Position = UDim2.fromOffset(22, 4),
-		Size = UDim2.fromOffset(600, 24),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.gold,
-		TextSize = 15,
-	})
-	Ui.text(header, title, "displayL", {
-		Position = UDim2.fromOffset(20, Layout.pick(26, 22)),
-		Size = UDim2.fromOffset(Layout.pick(800, 600), Layout.pick(64, 40)),
-		TextSize = Layout.pick(56, 32),
-		TextXAlignment = Enum.TextXAlignment.Left,
-	})
-	-- The same close button, same corner, same size on every menu (LihFolk: Menu Archetypes).
-	local closeHolder = Ui.make("Frame", {
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(CLOSE.X, CLOSE.Y),
-		Size = UDim2.fromOffset(CLOSE_SIZE, CLOSE_SIZE),
-		BackgroundTransparency = 1,
-	}, content)
-	local close = Ui.cut(closeHolder, { Size = UDim2.fromScale(1, 1) }, {
-		className = "ImageButton",
-		color = C.panel,
-		transparency = 0.1,
-		line = C.lineStrong,
-		corner = 12,
-	})
-	for _, r in { 45, -45 } do
-		Ui.make("Frame", {
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(28, 3),
-			Rotation = r,
-			BackgroundColor3 = C.text,
-			BorderSizePixel = 0,
-			ZIndex = 4,
-		}, close)
-	end
-	Fx.button(close, function()
-		Router.close()
-	end, {
-		silent = true,
-		onHover = function(on)
-			Fx.tween(close, Fx.MOTION.hover, { ImageColor3 = if on then C.hover else C.panel })
-		end,
-	})
-	local body = Ui.make("Frame", {
+	local chrome = Menu.build("Lobby" .. name, kicker, title)
+	local body = Kit.make("Frame", {
+		Name = "Body",
 		Position = UDim2.fromOffset(BODY.X, BODY.Y),
 		Size = UDim2.fromOffset(BODY_SIZE.X, BODY_SIZE.Y),
 		BackgroundTransparency = 1,
-	}, content)
-
+	}, chrome.content)
 	local panel: Panel = {
-		gui = gui,
-		backdrop = backdrop,
-		focus = close,
-		scrim = scrim,
-		content = content,
-		header = header,
+		chrome = chrome,
+		focus = chrome.close,
 		body = body,
 		isOpen = false,
 	}
@@ -245,14 +132,7 @@ local function build(name: string, kicker: string, title: string): Panel
 				return
 			end
 			panel.isOpen = true
-			gui.Enabled = true
-			backdrop.Enabled = true
-			scrim.BackgroundTransparency = 1
-			Fx.tween(scrim, Fx.MOTION.dimIn, { BackgroundTransparency = 0.38 })
-			content.GroupTransparency = 1
-			Fx.tween(content, Fx.MOTION.enter, { GroupTransparency = 0 })
-			header.Position = UDim2.fromOffset(HEADER.X - 36, HEADER.Y)
-			Fx.tween(header, Fx.MOTION.enter, { Position = UDim2.fromOffset(HEADER.X, HEADER.Y) })
+			Menu.show(chrome)
 			body.Position = UDim2.fromOffset(BODY.X, BODY.Y + 32)
 			Fx.tween(body, Fx.MOTION.enter, { Position = UDim2.fromOffset(BODY.X, BODY.Y) })
 		end,
@@ -261,43 +141,41 @@ local function build(name: string, kicker: string, title: string): Panel
 				return
 			end
 			panel.isOpen = false
-			Fx.out(content, { GroupTransparency = 1 })
-			Fx.tween(
-				scrim,
-				Fx.MOTION.dimOut,
-				{ BackgroundTransparency = 1 },
-				Enum.EasingStyle.Quad,
-				Enum.EasingDirection.In
-			)
-			task.delay(Fx.MOTION.exit + 0.02, function()
-				if not panel.isOpen then
-					gui.Enabled = false
-					backdrop.Enabled = false
-				end
+			Menu.hide(chrome, function()
+				return panel.isOpen
 			end)
 		end,
 		focus = function(): GuiObject?
 			return panel.focus
 		end,
 	})
+	-- Built content is added after the Fit pass: re-run the text floor and
+	-- stroke snap once everything exists.
+	task.defer(function()
+		local fit = chrome.content:FindFirstChild("Fit")
+		if fit and fit:IsA("UIScale") then
+			Layout.floorText(chrome.content, fit.Scale)
+			Layout.snapStrokes(chrome.content, fit.Scale)
+		end
+	end)
 	return panel
 end
 
 -- Phone: a placeholder panel is one card (icon, what it will be, COMING SOON).
 local function compact(p: Panel, icon: string, headline: string, text: string)
-	local c = card(p.body, 0, 0, BODY_SIZE.X, 230, C.lineStrong)
+	local c = card(p.body, 0, 0, BODY_SIZE.X, 230)
 	Icons.draw(c, icon, 72, C.textSecondary, {
 		Position = UDim2.fromOffset(28, 28),
 		ZIndex = 4,
 	})
-	Ui.text(c, headline, "displayM", {
+	Kit.text(c, headline, "title", {
 		Position = UDim2.fromOffset(124, 30),
 		Size = UDim2.fromOffset(600, 44),
 		TextSize = 32,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 4,
 	})
-	Ui.text(c, text, "bodyM", {
+	Kit.text(c, text, "body", {
 		Position = UDim2.fromOffset(126, 82),
 		Size = UDim2.fromOffset(590, 80),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -306,7 +184,7 @@ local function compact(p: Panel, icon: string, headline: string, text: string)
 		TextColor3 = C.textSecondary,
 		ZIndex = 4,
 	})
-	Ui.tag(c, "COMING SOON", C.gold, {
+	Kit.tag(c, "COMING SOON", C.primary, {
 		Position = UDim2.fromOffset(126, 178),
 		ZIndex = 4,
 	}, true)
@@ -324,8 +202,14 @@ local function buildShop()
 		)
 		return
 	end
-	local featured = card(p.body, 0, 0, 620, 560, C.gold)
-	Ui.tag(featured, "FEATURED", C.gold, { Position = UDim2.fromOffset(28, 28), ZIndex = 5 }, true)
+	local featured = card(p.body, 0, 0, 620, 560, C.primary)
+	Kit.tag(
+		featured,
+		"FEATURED",
+		C.primary,
+		{ Position = UDim2.fromOffset(28, 28), ZIndex = 5 },
+		true
+	)
 	skeleton(featured, { Position = UDim2.fromOffset(28, 400), Size = UDim2.fromOffset(340, 30) })
 	skeleton(featured, { Position = UDim2.fromOffset(28, 448), Size = UDim2.fromOffset(220, 18) })
 	skeleton(featured, { Position = UDim2.fromOffset(470, 488), Size = UDim2.fromOffset(122, 44) })
@@ -350,22 +234,22 @@ local function buildBattlePass()
 		)
 		return
 	end
-	Ui.text(p.body, "TIER 1", "titleCard", {
+	Kit.text(p.body, "TIER 1", "heading", {
 		Size = UDim2.fromOffset(200, 48),
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
-	local track = Ui.make("Frame", {
+	local track = Kit.make("Frame", {
 		Position = UDim2.fromOffset(170, 20),
 		Size = UDim2.fromOffset(1100, 10),
-		BackgroundColor3 = C.raised,
+		BackgroundColor3 = C.surfaceDeep,
 		BorderSizePixel = 0,
 	}, p.body)
-	Ui.make(
+	Kit.make(
 		"Frame",
-		{ Size = UDim2.fromScale(0.03, 1), BackgroundColor3 = C.gold, BorderSizePixel = 0 },
+		{ Size = UDim2.fromScale(0.03, 1), BackgroundColor3 = C.primary, BorderSizePixel = 0 },
 		track
 	)
-	Ui.text(p.body, "0 / 1,000 XP", "label", {
+	Kit.text(p.body, "0 / 1,000 XP", "label", {
 		Position = UDim2.fromOffset(1290, 14),
 		Size = UDim2.fromOffset(200, 20),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -373,15 +257,15 @@ local function buildBattlePass()
 	})
 	for _, rowDef in
 		{
-			{ y = 80, label = "PREMIUM", line = C.gold, h = 250 },
-			{ y = 360, label = "FREE", line = C.lineSoft, h = 190 },
+			{ y = 80, label = "PREMIUM", line = C.primary :: Color3?, h = 250 },
+			{ y = 360, label = "FREE", line = nil :: Color3?, h = 190 },
 		}
 	do
-		Ui.text(p.body, rowDef.label, "label", {
+		Kit.text(p.body, rowDef.label, "label", {
 			Position = UDim2.fromOffset(0, rowDef.y),
 			Size = UDim2.fromOffset(120, 20),
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = if rowDef.label == "PREMIUM" then C.gold else C.textSecondary,
+			TextColor3 = if rowDef.label == "PREMIUM" then C.primary else C.textSecondary,
 		})
 		for i = 0, 7 do
 			local c = card(
@@ -392,11 +276,11 @@ local function buildBattlePass()
 				rowDef.h,
 				if i == 0 then C.text else rowDef.line
 			)
-			Ui.text(c, tostring(i + 1), "titleS", {
+			Kit.text(c, tostring(i + 1), "heading", {
 				Position = UDim2.fromOffset(16, 10),
 				Size = UDim2.fromOffset(40, 26),
 				TextXAlignment = Enum.TextXAlignment.Left,
-				TextColor3 = if i == 0 then C.gold else C.textDim,
+				TextColor3 = if i == 0 then C.primary else C.textMuted,
 				ZIndex = 4,
 			})
 			skeleton(c, {
@@ -433,13 +317,13 @@ local function buildLocker()
 		Size = UDim2.fromOffset(820, 360),
 		ZIndex = 4,
 	})
-	local bigName = Ui.text(preview, "VANDAL", "displayM", {
+	local bigName = Kit.text(preview, "VANDAL", "title", {
 		Position = UDim2.fromOffset(32, 24),
 		Size = UDim2.fromOffset(400, 48),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 4,
 	})
-	Ui.text(preview, "DEFAULT SKIN", "label", {
+	Kit.text(preview, "DEFAULT SKIN", "label", {
 		Position = UDim2.fromOffset(34, 72),
 		Size = UDim2.fromOffset(400, 18),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -447,26 +331,25 @@ local function buildLocker()
 		ZIndex = 4,
 	})
 	for i, entry in LOADOUT do
-		local holder = Ui.make("Frame", {
+		local holder = Kit.make("Frame", {
 			Position = UDim2.fromOffset(0, (i - 1) * 190),
 			Size = UDim2.fromOffset(490, 170),
 			BackgroundTransparency = 1,
 		}, p.body)
-		local button = Ui.cut(holder, { Size = UDim2.fromScale(1, 1) }, {
-			className = "ImageButton",
-			color = C.card,
-			transparency = 0.04,
-			line = C.lineSoft,
-			corner = 18,
+		local button = Kit.surface(holder, { Size = UDim2.fromScale(1, 1), ZIndex = 2 }, {
+			className = "TextButton",
+			radius = Style.RADIUS.lg,
+			transparency = 0.02,
 		})
-		Ui.text(button, entry.slot, "label", {
+		Kit.shadow(button, Style.RADIUS.lg, 0.8)
+		Kit.text(button, entry.slot, "label", {
 			Position = UDim2.fromOffset(22, 18),
 			Size = UDim2.fromOffset(200, 18),
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextColor3 = C.textSecondary,
 			ZIndex = 4,
 		})
-		Ui.text(button, string.upper(entry.gun), "titleS", {
+		Kit.text(button, string.upper(entry.gun), "heading", {
 			Position = UDim2.fromOffset(22, 44),
 			Size = UDim2.fromOffset(220, 36),
 			TextSize = 32, -- the gun name outranks the slot label
@@ -479,7 +362,7 @@ local function buildLocker()
 			Size = UDim2.fromOffset(280, 120),
 			ZIndex = 4,
 		})
-		local shine = Fx.shine(button, C.white, 0.12)
+		local shine = if Style.FLAGS.shine then Fx.shine(button, C.white, 0.08) else nil
 		Fx.button(button, function()
 			big.Image = Theme.GUN[entry.gun] or ""
 			bigName.Text = string.upper(entry.gun)
@@ -489,7 +372,11 @@ local function buildLocker()
 			liftBy = 4,
 			shine = shine,
 			onHover = function(on)
-				Fx.tween(button, 0.15, { ImageColor3 = if on then C.hover else C.card })
+				Fx.tween(
+					button,
+					Fx.MOTION.hover,
+					{ BackgroundColor3 = if on then C.surfaceHover else C.surface }
+				)
 			end,
 		})
 	end
@@ -536,14 +423,14 @@ local function buildSettings()
 	for i, row in rows do
 		local live = row.set ~= nil
 		local c = card(p.body, 0, (i - 1) * rowGap, rowW, rowH)
-		Ui.text(c, row.name, "titleS", {
+		Kit.text(c, row.name, "heading", {
 			Position = UDim2.fromOffset(28, Layout.pick(14, 8)),
 			Size = UDim2.fromOffset(600, 26),
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = if live then C.text else C.textDim,
+			TextColor3 = if live then C.text else C.textMuted,
 			ZIndex = 4,
 		})
-		Ui.text(c, row.hint, "bodyS", {
+		Kit.text(c, row.hint, "bodyS", {
 			Position = UDim2.fromOffset(28, Layout.pick(46, 38)),
 			Size = UDim2.fromOffset(Layout.pick(600, 520), 20),
 			TextXAlignment = Enum.TextXAlignment.Left,
@@ -552,7 +439,7 @@ local function buildSettings()
 		})
 		local value, set = row.value, row.set
 		if value and set then
-			local holder = Ui.make("Frame", {
+			local holder = Kit.make("Frame", {
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, -28, 0.5, 0),
 				Size = UDim2.fromOffset(TOGGLE.X, TOGGLE.Y),
@@ -560,15 +447,15 @@ local function buildSettings()
 				ZIndex = 4,
 			}, c)
 			local on = value()
-			local toggle = Ui.make("TextButton", {
+			local toggle = Kit.make("TextButton", {
 				Size = UDim2.fromScale(1, 1),
-				BackgroundColor3 = if on then C.ready else C.lineStrong,
+				BackgroundColor3 = if on then C.success else C.surfaceHover,
 				AutoButtonColor = false,
 				Text = "",
 				ZIndex = 4,
 			}, holder)
-			Ui.make("UICorner", { CornerRadius = UDim.new(1, 0) }, toggle)
-			local knob = Ui.make("Frame", {
+			Kit.make("UICorner", { CornerRadius = UDim.new(1, 0) }, toggle)
+			local knob = Kit.make("Frame", {
 				AnchorPoint = Vector2.new(0, 0.5),
 				Position = if on
 					then UDim2.new(1, -(TOGGLE.Y - 5), 0.5, 0)
@@ -578,9 +465,9 @@ local function buildSettings()
 				BorderSizePixel = 0,
 				ZIndex = 5,
 			}, toggle)
-			Ui.make("UICorner", { CornerRadius = UDim.new(1, 0) }, knob)
+			Kit.make("UICorner", { CornerRadius = UDim.new(1, 0) }, knob)
 			-- State is a word too, not only the colour (LihFolk: Accessibility).
-			local stateLabel = Ui.text(c, if on then "ON" else "OFF", "label", {
+			local stateLabel = Kit.text(c, if on then "ON" else "OFF", "label", {
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, -(TOGGLE.X + 40), 0.5, 0),
 				Size = UDim2.fromOffset(50, 20),
@@ -598,7 +485,7 @@ local function buildSettings()
 				Fx.tween(
 					toggle,
 					Fx.MOTION.enter,
-					{ BackgroundColor3 = if on then C.ready else C.lineStrong }
+					{ BackgroundColor3 = if on then C.success else C.surfaceHover }
 				)
 				Fx.tween(knob, Fx.MOTION.enter, {
 					Position = if on
@@ -607,7 +494,7 @@ local function buildSettings()
 				}, Enum.EasingStyle.Back)
 			end)
 		else
-			Ui.tag(c, "SOON", C.textDim, {
+			Kit.tag(c, "SOON", C.textMuted, {
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, -28, 0.5, 0),
 				ZIndex = 4,
@@ -635,21 +522,21 @@ local function buildRange()
 		)
 		return
 	end
-	local c = card(p.body, 0, 0, 1100, 420, C.lineStrong)
+	local c = card(p.body, 0, 0, 1100, 420)
 	Icons.draw(c, "Range", 120, C.textSecondary, {
 		Position = UDim2.fromOffset(60, 60),
 		ZIndex = 4,
 	})
-	Ui.text(c, "EVERY GUN. EVERY MOD.", "displayM", {
+	Kit.text(c, "EVERY GUN. EVERY MOD.", "title", {
 		Position = UDim2.fromOffset(230, 70),
 		Size = UDim2.fromOffset(800, 50),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 4,
 	})
-	Ui.text(
+	Kit.text(
 		c,
 		"Firing lanes, moving dummies that shoot back, a movement course and an ability test area. Walk down the ramp behind spawn, or press RANGE.",
-		"bodyM",
+		"body",
 		{
 			Position = UDim2.fromOffset(232, 136),
 			Size = UDim2.fromOffset(800, 80),
