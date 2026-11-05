@@ -240,3 +240,120 @@ Final screenshots (`References/maps/dockyard2/r3-*.jpg`). Captures are edit mode
 3. Kit: `blender --background --factory-startup --python tools/blender/build_map_kit_dockyard2.py -- [--render] [--preview]` (prints `COPLANAR 0`). Export: `blender --background --factory-startup art-source/maps/Dockyard2/Kit_Dockyard2.blend --python tools/blender/export_lobby_kit.py -- --maps Dockyard2 Kit`. Upload: `python tools/opencloud/upload_models.py --maps Dockyard2 --group 11116787 Kit` (updates asset 127619569582290).
 4. In the match place, edit mode: `python tools/studio/maps/bundle.py Dockyard2 Greybox`, then `python tools/studio/maps/kit_bundle.py Dockyard2 Kit`, then `python tools/studio/maps/bundle.py Dockyard2 Art Lighting`; run each.
 5. Check: `tools/studio/maps/Audit.luau` with argument `"Dockyard2"` (target 0). Then screenshots, saving the place and the backups `art-source/maps/Dockyard2/Dockyard2.rbxm` / `MapKit_Dockyard2.rbxm`.
+
+## Concept pass 2026-11-05
+Status: **in progress.** Brief: [Evening Review](../../05%20Production/Playtests/2026-11-05%20Evening%20Review.md).
+- The user's verdict: better than the old map but "too simple": smooth plastic blocks, no depth, no levels. The crates work because they have texture and meaning.
+- Target: Valorant-level detail with RIVALS clarity. The user approves the concepts before any modelling.
+- Skills and notes used:
+  - `gauntlet-vault`;
+  - `lihfolk-worldbuilding`: focal hierarchy, three reads, materials at three scales, hero ≥ 1.5× taller;
+  - `roblox-blender-modeling`;
+  - LihFolk notes: *Modular Environment Kits*, *Trim Sheets Atlases and Vertex Colors*, *Textures Decals and Texture Memory*, *Materials MaterialVariants and SurfaceAppearance*, *Art Budgets - Triangles Draw Calls Memory*, *Combat Arena and Encounter Layout*, *Level Design Principles - Flow Sightlines and Landmarks*.
+
+### What's wrong now (in-play evidence)
+Screenshots:
+- [spawn A in play](../../02%20Art/References/maps/dockyard2/whats-wrong/play-spawnA.jpg)
+- [spawn A exit](../../02%20Art/References/maps/dockyard2/whats-wrong/play-spawnA-exit.jpg)
+- [quay stacks](../../02%20Art/References/maps/dockyard2/whats-wrong/edit-quay-stacks.jpg)
+- the round 3 set (`r3-*.jpg`)
+
+1. **Silhouettes are boxes.** Every container, shed and wall is a rectangle with a thin bevel. Nothing breaks the skyline except the crane legs. There are no overhangs, diagonal bracing, cantilevers or stepped roofs.
+2. **No height.** The whole map plays on one floor (y 0):
+   - the crane is scenery;
+   - the sheds have no upper floor;
+   - the stacks can't be climbed;
+   - there are no drops, ledges or catwalks, so a fight plays the same everywhere.
+3. **Flat surfaces.** Container sides are one colour with moulded ribs. There's no rust, chipped edges, streaks, stencilled numbers or dirt. The quay deck is a clean grid of square tiles with no expansion joints, tyre marks or stains. SmoothPlastic everywhere reads as a toy.
+4. **Missing trims and edges.**
+   - Containers: corner castings and door hardware are token at best.
+   - Sheds: no flashing, gutters, downpipes or roller-door frames.
+   - Quay: no edge capping, kerb or fender line.
+5. **The landmark is weak.** The crane is a yellow frame (two legs and a beam) about as tall as the stacks behind it, so it doesn't own the skyline. The backdrop ship and the STS crane are flat and far away.
+6. **No place identity.** Apart from the "DOCK A" sign, nothing says which port this is. There's no terminal name, bay numbers, livery, reefer plugs, lashing gear, pallets or ropes.
+7. **What works:**
+   - the coloured container lanes;
+   - the signs naming the lanes;
+   - the yellow crane as the middle marker.
+
+   Keep all three.
+
+### Direction (keep the layout: 3 lanes, crane in the middle, sheds on the flanks)
+- **Height levels (new).** Cover heights follow *Combat Arena and Encounter Layout*: low 2.5–3.5, full 7+ studs, no chest-high middle band. Jump height is about 7 studs. The levels stay rotationally symmetric so neither side gets a longer view.
+  - **Crane gantry catwalk:** a grated walkway about 12 studs up between the crane legs, reached by caged ladders on each team's side. An exposed power spot over the middle lane.
+  - **Shed mezzanines:** an office floor with a window strip over each flank lane, reached by an inside stair. A drop from the window ledge onto a container is the fast exit.
+  - **Climbable stacks:** 2-high stacks with a top route and a grated bridge between two stacks.
+  - **Lower jetty:** a timber walkway about 4 studs below the quay edge as a flank under-route, with ladders back up.
+- **Landmark:** a large ship-to-shore gantry crane with a container hanging from its spreader over the middle.
+  - At least 1.5× taller than anything else, and 3–5° of view from both spawns.
+  - The docked ship's hull is the backdrop wall.
+- **Identity:** a fictional terminal ("Port Halden, Terminal 7"; the names are ours) with painted bay numbers and a terminal livery. Props:
+  - reefer containers with cables;
+  - lashing bars;
+  - bollards with mooring ropes;
+  - tyre fenders;
+  - light masts;
+  - pallets and oil drums;
+  - hazard stripes.
+- **Zone colour (RIVALS clarity):**
+  - A side: warm orange and red containers.
+  - B side: cool teal and blue.
+  - Middle: the yellow crane.
+  - The deck stays neutral concrete grey.
+- **Materials:**
+  - corrugated painted steel with chipped edges and rust streaks;
+  - stencilled lettering;
+  - concrete with expansion joints, tyre marks and paint lines;
+  - galvanised grating;
+  - weathered timber;
+  - ribbed sheet-metal cladding with flashing;
+  - rusty iron bollards.
+
+### Prompts (ChatGPT image generation)
+Shared style block, appended to every prompt:
+> Original stylized competitive FPS map concept art, 3D game environment with the detail level of a polished AAA hero shooter: worn painted materials, chamfered edges, panel lines, decals and grime, but clean readable shapes and strong colour zoning for gameplay clarity. Bright late-afternoon sun from the side, soft blue sky, crisp shadows. No people, no real brands or logos, only short fictional signage. Not a copy of any existing game map.
+
+1. **Hero, middle:**
+   > Player eye height, 24 mm lens, standing in the middle lane of a container-terminal pier looking along the lane. Ahead, a towering yellow ship-to-shore gantry crane straddles the lane, with a grated catwalk 12 ft up between its legs, caged ladders and a red container hanging from its spreader. Left: orange and rust-red 40 ft containers stacked two high, with a grated bridge between two stacks. Right: teal and blue containers. Concrete quay deck with expansion joints, yellow lane lines and tyre marks. A docked cargo ship hull forms the far wall.
+2. **Hero, spawn A:**
+   > Eye height, 24 mm, looking out from the warm-side spawn: a corrugated metal shed with a roller door and an upstairs office with a long window strip, an orange container stack with a ladder, a painted bay number "A7" on the ground, a light mast, and the yellow gantry crane rising in the middle distance.
+3. **Hero, spawn B:** the same for the cool side.
+   > A teal container stack, the shed mezzanine on the right, a timber jetty stair dropping off the quay edge to the left with tyre fenders and bollards, and the crane ahead.
+4. **Overview:**
+   > High three-quarter aerial view of a compact arena shooter map on a container pier with 180-degree rotational symmetry. Three parallel lanes: the left lane runs through a long metal shed with a mezzanine office, the middle lane passes under a giant yellow gantry crane with a catwalk, and the right lane runs along the quay edge with a lower timber jetty. Spawns are at the two short ends. Orange containers on one half, teal on the other. Water around the pier, a cargo ship moored alongside.
+5. **Kit sheet:**
+   > Environment kit sheet on a neutral grey background, three-quarter views, numbered only:
+   > - 20 ft and 40 ft shipping containers (doors, corner castings, ribs, chipped paint);
+   > - a reefer container with a cable;
+   > - a gantry crane leg segment and a catwalk section with railings;
+   > - a caged ladder;
+   > - a corrugated shed wall module with a roller door and a window strip;
+   > - a mezzanine stair;
+   > - a timber jetty section with tyre fenders;
+   > - a bollard with rope;
+   > - a light mast;
+   > - a pallet stack and oil drums;
+   > - a lashing-bar rack;
+   > - a concrete barrier with hazard stripes.
+6. **Material sheet:**
+   > Material and trim swatch sheet, flat square tiles in a grid, stylized hand-painted PBR look, tileable:
+   > - corrugated container steel in orange, teal and blue, with chipped edges and rust streaks;
+   > - a stencilled lettering strip;
+   > - galvanised steel grating;
+   > - weathered timber planks;
+   > - concrete quay with expansion joints and tyre marks;
+   > - ribbed shed cladding;
+   > - a hazard-stripe trim;
+   > - a rusty iron trim strip;
+   > - a rubber fender.
+
+### Birds (map life)
+The current gulls are boxy (the verdict: "blocky and bad").
+
+**Recommendation:** remove them until there's a proper replacement. The replacement:
+- a modelled low-poly gull with a real silhouette: tapered wings bent at the elbow, a tail fan, a beak, two-tone paint;
+- a flap animation instead of rotating plates;
+- about 300–500 tris;
+- over the water only, never in a sightline.
+
+This is lane F's area (map life), so it's a recommendation only.
