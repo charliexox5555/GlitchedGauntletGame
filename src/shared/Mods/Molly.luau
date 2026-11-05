@@ -113,7 +113,7 @@ local function burn(ctx: Types.ServerCtx, zone: Zone.Zone, fire: Fire, until_: n
 		if lastHit then
 			lastHit[model] = now
 		end
-		local friendly = model == caster.Character or Teams.isAlly(caster, model)
+		local friendly = model == Teams.characterOf(caster) or Teams.isAlly(caster, model)
 		ctx.damage(model, if friendly then amount * fire.friendly else amount, root.Position)
 		model:SetAttribute("BurningUntil", until_)
 	end

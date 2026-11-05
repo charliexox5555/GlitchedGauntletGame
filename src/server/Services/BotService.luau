@@ -149,6 +149,7 @@ local function newBot(team: number): Bot
 		wantSprint = false,
 		wantCrouch = false,
 		lookAt = nil,
+		roamGoal = nil,
 		yaw = 0,
 		pitch = 0,
 		yawVel = 0,
@@ -209,6 +210,7 @@ local function dropLife(bot: Bot)
 		align:Destroy()
 		aligns[bot] = nil
 	end
+	BotMods.clear(bot, bot.model)
 	if bot.model then
 		Pawns.remove(bot.model)
 		bot.model:Destroy()
@@ -297,6 +299,7 @@ local function spawnBot(bot: Bot, at: CFrame)
 	bot.lastHealth = Health.get(humanoid)
 	bot.aimError, bot.recoil = Vector2.zero, Vector2.zero
 	bot.goal, bot.goalSince = "Roam", 0
+	bot.roamGoal = nil
 	bot.nextThink = os.clock() + rng:NextNumber() / BotsConfig.THINK_RATE
 	Pawns.add(bot.owner, model)
 
@@ -387,6 +390,7 @@ local function worldFor(bot: Bot): Brain.World
 		allies = allyScratch,
 		focus = focusScratch,
 		roam = BotService.roamPoint(bot.team),
+		patrol = patrol,
 		lane = lane,
 	}
 end
@@ -394,13 +398,26 @@ end
 -- Where a bot with no information heads: the enemy side (set by
 -- MatchService per map), else the middle of the map.
 local roamPoints: { [number]: Vector3 } = {}
+local patrol: { Vector3 } = {}
 function BotService.setRoamPoints(forTeam1: Vector3?, forTeam2: Vector3?)
 	table.clear(roamPoints)
+	table.clear(patrol)
 	if forTeam1 then
 		roamPoints[1] = forTeam1
+		table.insert(patrol, forTeam1)
 	end
 	if forTeam2 then
 		roamPoints[2] = forTeam2
+		table.insert(patrol, forTeam2)
+	end
+	-- The middle and both flanks between the two ends.
+	if forTeam1 and forTeam2 then
+		local mid = (forTeam1 + forTeam2) / 2
+		local axis = (forTeam1 - forTeam2) * Vector3.new(1, 0, 1)
+		local side = Vector3.new(-axis.Z, 0, axis.X) * 0.3
+		table.insert(patrol, mid)
+		table.insert(patrol, mid + side)
+		table.insert(patrol, mid - side)
 	end
 end
 
@@ -594,6 +611,20 @@ function BotService.start()
 		end
 	end)
 	RunService.Heartbeat:Connect(step)
+	-- A teammate's Recon: every bot on that team learns where they are.
+	BotMods.setRevealListener(function(team: number, targets: { Model })
+		local now = os.clock()
+		for _, bot in bots do
+			if bot.team == team and bot.model then
+				for _, model in targets do
+					local root = model:FindFirstChild("HumanoidRootPart")
+					if root and root:IsA("BasePart") then
+						Perception.reveal(bot, model, root.Position, now)
+					end
+				end
+			end
+		end
+	end)
 end
 
 return BotService

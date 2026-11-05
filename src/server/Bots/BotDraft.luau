@@ -51,7 +51,7 @@ function BotDraft.pick(seat: SeatView, aggression: number, rng: Random)
 		local config = Weapons.get(id)
 		local score = (
 			if config then classScore(config.class, aggression) + config.tier * 0.1 else 0
-		) + rng:NextNumber() * 0.25
+		) + rng:NextNumber() * 0.5
 		if score > bestScore then
 			bestGun, bestScore = id, score
 		end

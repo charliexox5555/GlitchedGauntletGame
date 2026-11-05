@@ -172,6 +172,17 @@ function Perception.hear(bot: Bot, source: Model, at: Vector3, now: number)
 	m.heard = true
 end
 
+-- A teammate's Mod revealed `model` at `at`: the exact spot, as if seen.
+function Perception.reveal(bot: Bot, model: Model, at: Vector3, now: number)
+	local m = memoryFor(bot, model, at)
+	if m.visible then
+		return
+	end
+	m.lastPos = at
+	m.seenAt = now
+	m.heard = false
+end
+
 -- Picks the target: engageable enemies scored by distance, a teammate's
 -- target (focus fire) and how hurt they are; sticks for a moment.
 function Perception.pickTarget(bot: Bot, now: number, focus: { [Model]: number }): Memory?

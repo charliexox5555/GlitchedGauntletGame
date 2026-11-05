@@ -67,7 +67,7 @@ end
 function Target.allies(owner: Player): { Model }
 	local out: { Model } = {}
 	for _, m in Target.combatants() do
-		if m ~= owner.Character and Target.alive(m) and Teams.isAlly(owner, m) then
+		if m ~= Teams.characterOf(owner) and Target.alive(m) and Teams.isAlly(owner, m) then
 			table.insert(out, m)
 		end
 	end

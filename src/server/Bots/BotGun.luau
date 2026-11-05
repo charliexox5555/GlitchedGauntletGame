@@ -342,8 +342,13 @@ local function tracePellet(
 end
 
 -- Pulls the trigger along `aim` (a unit vector from the head). Returns
--- whether a shot went off and the recoil kick (degrees up, degrees side).
-function BotGun.fire(gun: GunState, character: Model, aim: Vector3): (boolean, number, number)
+-- whether a shot went off, the recoil kick (degrees up, degrees side) and
+-- whether it hit anyone.
+function BotGun.fire(
+	gun: GunState,
+	character: Model,
+	aim: Vector3
+): (boolean, number, number, boolean)
 	local s = BotGun.current(gun)
 	local head = character:FindFirstChild("Head")
 	local root = character:FindFirstChild("HumanoidRootPart")
@@ -355,11 +360,11 @@ function BotGun.fire(gun: GunState, character: Model, aim: Vector3): (boolean, n
 		or not root:IsA("BasePart")
 		or not BotGun.ready(gun, character)
 	then
-		return false, 0, 0
+		return false, 0, 0, false
 	end
 	local config = s.config
 	if config.melee then
-		return false, 0, 0 -- bots don't knife yet
+		return false, 0, 0, false -- bots don't knife yet
 	end
 	local now = os.clock()
 	local cone = BotGun.cone(gun, root)
@@ -416,7 +421,7 @@ function BotGun.fire(gun: GunState, character: Model, aim: Vector3): (boolean, n
 	local r = config.recoil
 	local up = if s.sprayShots <= r.protected then r.up else r.upAfter
 	local side = (gun.rng:NextNumber() * 2 - 1) * r.side
-	return true, up * m.recoil, side * m.recoil
+	return true, up * m.recoil, side * m.recoil, next(tally) ~= nil
 end
 
 return BotGun

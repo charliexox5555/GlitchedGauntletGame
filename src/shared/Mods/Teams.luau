@@ -30,6 +30,19 @@ function Teams.of(x: Instance?): number?
 	return nil
 end
 
+-- The character behind a caster: a Player's Character, or the model itself
+-- (an AI bot casts as its character model: vault/01 Design/Bots.md).
+function Teams.characterOf(x: Instance?): Model?
+	if not x then
+		return nil
+	elseif x:IsA("Player") then
+		return x.Character
+	elseif x:IsA("Model") then
+		return x
+	end
+	return nil
+end
+
 -- Same team (both must have one). Something is always its own ally.
 function Teams.isAlly(a: Instance?, b: Instance?): boolean
 	if a == nil or b == nil then

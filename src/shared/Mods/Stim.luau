@@ -87,7 +87,7 @@ local function pulse(ctx: Types.ServerCtx, zone: Zone.Zone)
 		if not Target.alive(model) then
 			continue
 		end
-		if model ~= caster.Character and not Teams.isAlly(caster, model) then
+		if model ~= Teams.characterOf(caster) and not Teams.isAlly(caster, model) then
 			continue -- never enemies
 		end
 		local root = model:FindFirstChild("HumanoidRootPart")

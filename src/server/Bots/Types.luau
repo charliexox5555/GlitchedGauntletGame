@@ -58,6 +58,7 @@ export type Bot = {
 	wantSprint: boolean,
 	wantCrouch: boolean,
 	lookAt: Vector3?, -- where to face when not aiming at a target
+	roamGoal: Vector3?, -- the patrol point it's heading for with no information
 	-- Aim (Bots/Aim).
 	yaw: number,
 	pitch: number,

@@ -111,7 +111,8 @@ function ModEntities.place(
 	part.Anchored = true
 	part:SetAttribute("Kind", kind)
 	part:SetAttribute("TeamId", Teams.of(owner))
-	part:SetAttribute("OwnerId", owner.UserId)
+	-- An AI bot's things are owned by its character model (no UserId).
+	part:SetAttribute("OwnerId", if owner:IsA("Player") then owner.UserId else 0)
 	part:SetAttribute("Hp", hp)
 	part:SetAttribute("MaxHp", hp)
 	part:SetAttribute("ExpiresAt", workspace:GetServerTimeNow() + life)

@@ -10,6 +10,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
+local RunService = game:GetService("RunService")
+
+local STUDIO = RunService:IsStudio()
 
 local Aim = require(script.Parent.Aim)
 local BotGun = require(script.Parent.BotGun)
@@ -24,7 +27,8 @@ export type World = {
 	enemies: { Model },
 	allies: { Model }, -- teammates' characters (not this bot)
 	focus: { [Model]: number }, -- how many teammates target each enemy
-	roam: Vector3?, -- where to go with no information (enemy side / centre)
+	roam: Vector3?, -- where to go first with no information (the enemy side)
+	patrol: { Vector3 }, -- then from point to point over the map (spawns, middle, flanks)
 	lane: number, -- -1, 0, 1: this bot's flank offset (team play)
 }
 
@@ -187,6 +191,11 @@ function Brain.think(bot: Bot, world: World, now: number)
 		best = bot.goal
 	end
 	setGoal(bot, best, now)
+	if STUDIO then
+		-- Tuning aid (Studio only): what it is doing and who it's after.
+		bot.owner:SetAttribute("BotGoal", best)
+		bot.owner:SetAttribute("BotTarget", if target then target.model.Name else nil)
+	end
 
 	-- Plan the movement for the goal.
 	local pos = root.Position
@@ -248,20 +257,25 @@ function Brain.think(bot: Bot, world: World, now: number)
 		bot.lookAt = known.lastPos
 		bot.wantCrouch = true
 	else
-		local goal = world.roam
-		if goal then
-			if world.lane ~= 0 then
-				goal += Vector3.new(world.lane * 12, 0, 0)
+		-- No information: the enemy side first, then point to point over
+		-- the map (never parking: two bots that miss each other keep looking).
+		local goal = bot.roamGoal or world.roam
+		if goal and ((goal - pos) * Vector3.new(1, 0, 1)).Magnitude < 8 and #world.patrol > 0 then
+			local options: { Vector3 } = {}
+			for _, p in world.patrol do
+				if ((p - pos) * Vector3.new(1, 0, 1)).Magnitude > 20 then
+					table.insert(options, p)
+				end
 			end
+			if #options > 0 then
+				goal = options[rng:NextInteger(1, #options)]
+			end
+		end
+		bot.roamGoal = goal
+		if goal then
 			Nav.setGoal(bot, goal)
 			bot.wantSprint = true
 			bot.lookAt = goal
-			if (goal - pos).Magnitude < 8 then
-				Nav.clear(bot.nav) -- arrived: look around until something shows
-				bot.lookAt = pos
-					+ root.CFrame.LookVector * 10
-					+ Vector3.new(rng:NextNumber(-10, 10), 0, 0)
-			end
 		end
 	end
 	bot.moveDir += spacing(bot, world.allies)
@@ -310,6 +324,8 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 	local escalate = Nav.checkStuck(bot, dir.Magnitude > 0.2)
 	if escalate == 1 then
 		humanoid.Jump = true
+	elseif escalate == 3 and bot.goal == "Roam" then
+		bot.roamGoal = root.Position -- can't get there: the next think picks another point
 	elseif escalate == 2 then
 		bot.strafeDir = if rng:NextNumber() < 0.5 then -1 else 1
 		bot.strafeUntil = now + 0.5
@@ -370,9 +386,16 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 				+ rng:NextNumber() * (BotsConfig.TRIGGER_DELAY[2] - BotsConfig.TRIGGER_DELAY[1])
 		elseif now >= bot.triggerAt and now >= bot.burstRestUntil and distance <= config.range then
 			triggerHeld = true
-			local ok, up, side = BotGun.fire(bot.gun, model, Aim.direction(bot))
+			local ok, up, side, hit = BotGun.fire(bot.gun, model, Aim.direction(bot))
 			if ok then
 				fired = true
+				if STUDIO then
+					local o = bot.owner
+					o:SetAttribute("BotShots", ((o:GetAttribute("BotShots") :: number?) or 0) + 1)
+					if hit then
+						o:SetAttribute("BotHits", ((o:GetAttribute("BotHits") :: number?) or 0) + 1)
+					end
+				end
 				Aim.kick(bot, up, side)
 				-- Auto guns at range: short bursts, then a rest.
 				if config.fireMode == "Auto" and distance > BotsConfig.TAP_RANGE then

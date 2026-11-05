@@ -13,7 +13,7 @@ function Reveal.enemiesNear(caster: Player, center: Vector3, radius: number): { 
 	local out: { Model } = {}
 	for _, model in Target.combatants() do
 		if
-			model ~= caster.Character
+			model ~= Teams.characterOf(caster)
 			and Target.alive(model)
 			and not Teams.isAlly(caster, model)
 		then

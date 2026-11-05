@@ -44,9 +44,10 @@ function HealOrb.primaryTarget(
 ): Model?
 	local allies = HealOrb.allies(player)
 	if #allies == 0 then
-		return player.Character
+		return Teams.characterOf(player)
 	end
-	return Target.pick(origin, dir, stats.range, stats.aimAngle, allies, params) or player.Character
+	return Target.pick(origin, dir, stats.range, stats.aimAngle, allies, params)
+		or Teams.characterOf(player)
 end
 
 function HealOrb.allies(player: Player): { Model }
