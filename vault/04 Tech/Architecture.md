@@ -32,7 +32,7 @@ src/shared/
 src/server/
   init.server.luau   two-phase bootstrap (init all → start all)
   Services/    WeaponService, HitboxHistory, CharacterService, TestRangeService (test mode only) ✅
-               MatchService, DraftService, MapService, TestOpponent (Studio only) ✅
+               MatchService, DraftService, MapService, BotService (AI bots; brain in src/server/Bots) ✅
                LobbyService, BotService, DataService, AnalyticsService, AntiCheatService ⬜
   TestRange/   RangeBuilder (geometry), Dummies (kinds, movement, shooter) ✅
 src/client/
@@ -60,7 +60,7 @@ Design: [Match Flow](../01%20Design/Match%20Flow.md). Runs on any server with te
 - **`DraftService`:** the server rolls and stores each player's offer. `DraftPick(action, id)` (rate limited) is checked against that stored list: `Gun`, `Ability`, `Lock`, `Sync` (resend the offer). `DraftOffer` goes to one client. Kits and picks stay on the server until the draft closes.
 - **`MapService`:** clones the map model from `ServerStorage.Maps` into `workspace.ActiveMap` (Persistent streaming). **A map still in Workspace moves to ServerStorage.Maps for that run only**, so it stays editable in Studio. Tags it needs: `ArenaSpawn_A` / `ArenaSpawn_B` on SpawnLocations, `ArenaBarrier` on the spawn barriers.
 - **Combat lock:** player attribute `CombatLocked` (server-set). `WeaponService.holstered` and `ModService.active` refuse shots and Mods while it's on, and the clients skip the input. Dash and Updraft run in the simulation so they can still fire behind the barrier, which is why charges refill when the round goes live.
-- **`TestOpponent`:** Studio only (`Config/Match TEST_OPPONENT`). When one team is empty it takes that side: a plain rig that drafts randomly, walks a route and does direct damage when it has line of sight. It isn't the practice bot.
+- **`BotService` + `src/server/Bots/`** (2026-11-04, replaces the test opponent): AI bots that fill empty team slots (a Lobby party with `bots = true`, read by `Bots/MatchPlan` from TeleportData; in Studio the Workspace attribute `BotMatch`, or one bot for a lone player). Each bot has a server-only owner stand-in so the shared movement, Mod and pose simulations drive it through `Simulation/Pawns`; guns and server Mods use their shared rules and WeaponService's damage path. Design, hooks and tuning: [Bots](../01%20Design/Bots.md).
 - **Guns have no friendly fire now:** `WeaponService` rejects hits on allies (`Teams.isAlly`).
 - **Between rounds:** `ModService.clearRound` removes walls, fires and timers at round end, so nothing burns into the next round. Inside a round they still outlive the caster. Map spawns have no shield (`Duration = 0`): the barrier does that job.
 - **Shot counter:** a new loadout sends `resync` once with `WeaponState`, and the client takes the server's counter as it is. Shots refused at the end of a life moved only the client's counter, which could end up past `MAX_SHOT_SKIP` and lock the gun for the session.
