@@ -1,20 +1,21 @@
 --!strict
 -- Lighting_Bunker2.luau: lighting for the "Sunwell Bunker, redone" Lobby (rebuild 2026-11-04). Safe to re-run.
+-- Pass 2 (core review 2026-11-05): darker base, coloured pools from the build's lights, more bloom on neon.
 -- Underground hub: a near-overhead sun through the oculus onto the spawn dais, a cool readable base (not black),
 -- warm practical pools from the build's PointLights, gentle bloom on the neon accents. Technology stays Future (set by
 -- hand; scripts can't set it).
 assert(game.PlaceId == 133387545285290, "not the Lobby")
 local Lighting = game:GetService("Lighting")
 
-Lighting.ClockTime = 12.4
-Lighting.GeographicLatitude = 8
-Lighting.Brightness = 2.2
-Lighting.Ambient = Color3.fromRGB(84, 86, 96)
-Lighting.OutdoorAmbient = Color3.fromRGB(108, 108, 116)
+Lighting.ClockTime = 12
+Lighting.GeographicLatitude = 24 -- sun straight down the oculus onto the spawn dais
+Lighting.Brightness = 2.0
+Lighting.Ambient = Color3.fromRGB(58, 62, 74)
+Lighting.OutdoorAmbient = Color3.fromRGB(74, 78, 92)
 Lighting.EnvironmentDiffuseScale = 0.55
 Lighting.EnvironmentSpecularScale = 0.5
 Lighting.ShadowSoftness = 0.25
-Lighting.ExposureCompensation = 0
+Lighting.ExposureCompensation = -0.1
 Lighting.ColorShift_Top = Color3.fromRGB(255, 236, 210)
 Lighting.ColorShift_Bottom = Color3.fromRGB(0, 0, 0)
 
@@ -33,22 +34,22 @@ local function get(class: string, name: string): any
 end
 
 local atmo = get("Atmosphere", "Atmosphere")
-atmo.Density = 0.3
+atmo.Density = 0.36
 atmo.Offset = 0
-atmo.Haze = 1.1
+atmo.Haze = 2.0
 atmo.Glare = 0
-atmo.Color = Color3.fromRGB(190, 182, 168)
-atmo.Decay = Color3.fromRGB(92, 98, 110)
+atmo.Color = Color3.fromRGB(150, 152, 165)
+atmo.Decay = Color3.fromRGB(70, 76, 96)
 
 local bloom = get("BloomEffect", "Bloom")
-bloom.Intensity = 0.45
-bloom.Size = 22
-bloom.Threshold = 1.6
+bloom.Intensity = 0.7
+bloom.Size = 24
+bloom.Threshold = 1.3
 
 local cc = get("ColorCorrectionEffect", "ColorCorrection")
 cc.Brightness = 0.03
-cc.Contrast = 0.12
-cc.Saturation = 0.16
+cc.Contrast = 0.16
+cc.Saturation = 0.2
 cc.TintColor = Color3.fromRGB(255, 244, 232)
 
 local rays = get("SunRaysEffect", "SunRays")

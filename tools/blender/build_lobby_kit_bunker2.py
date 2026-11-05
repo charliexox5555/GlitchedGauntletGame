@@ -45,6 +45,7 @@ def materials():
 	M["Screen"] = _flat("B_Screen", 0x121822, 0.3)
 	M["White"] = _flat("B_White", 0xF2F0EA, 0.4)
 	M["Panel"] = _flat("B_Panel", 0xE6EBEE, 0.4)
+	M["Glass"] = _flat("B_Glass", 0xA8DCEB, 0.1, rbx="Glass", rbx_transparency=0.55)
 	for k, c in {"GlowWarm": 0xFFB45A, "GlowWhite": 0xFFF1DC, "GlowAccent": 0xFFFFFF, "GlowBlue": 0x4FC8FF}.items():
 		M[k] = _emissive("B_" + k, c, 5.0)
 
@@ -114,9 +115,8 @@ def text_mesh(body, height, depth=0.45, fnt="Montserrat-Black.ttf", spacing=1.0)
 	cu.font = bpy.data.fonts.load(font(fnt), check_existing=True)
 	cu.align_x, cu.align_y = "CENTER", "BOTTOM"
 	cu.size = 1.0
-	cu.extrude = depth / 2 - 0.04
-	cu.bevel_depth = 0.04
-	cu.bevel_resolution = 1
+	cu.extrude = depth / 2
+	cu.bevel_depth = 0.0
 	cu.resolution_u = 3
 	cu.space_character = spacing
 	ob = bpy.data.objects.new("T_" + body, cu)
@@ -139,6 +139,7 @@ def text_mesh(body, height, depth=0.45, fnt="Montserrat-Black.ttf", spacing=1.0)
 	ys = [v.co.y for v in bm.verts]
 	cx, y0 = (min(xs) + max(xs)) / 2, min(ys)
 	xform(bm, T(0, -depth / 2, 0) @ RX(90) @ T(-cx, -y0, 0))
+	bm = finish(bm, 0.0, 1)
 	return bm, max(xs) - min(xs)
 
 
@@ -324,7 +325,7 @@ def p_pads():
 		c = piece("DuelPad_%d" % S, size=S)
 		obj(c, "Frame", finish(ring_prism(rrect(S, S, 1.6, 5), rrect(S - 1.6, S - 1.6, 1.0, 5), -0.1, 0.25), 0.1, 2), "Metal")
 		obj(c, "Edge", ring_prism(rrect(S - 1.6, S - 1.6, 1.0, 5), rrect(S - 2.1, S - 2.1, 0.75, 5), -0.05, 0.18), "GlowAccent")
-		obj(c, "Plate", prism(rrect(S - 2.1, S - 2.1, 0.75, 5), "Z", -0.1, 0.1), "Grate")
+		obj(c, "Plate", finish(prism(rrect(S - 2.1, S - 2.1, 0.75, 5), "Z", -0.1, 0.1), 0.0, 1), "Grate")
 		rings = [annulus(S * 0.33, S * 0.33 + 0.5, 0.05, 0.16, n=64, bev=0.02), annulus(S * 0.18, S * 0.18 + 0.45, 0.05, 0.16, n=48, bev=0.02),
 			rcyl(0.8, 0.05, 0.16, 24, 0.02)]
 		obj(c, "Rings", merge(*rings), "GlowAccent")
@@ -334,7 +335,7 @@ def p_pads():
 	obj(c, "Status", rbox(-2.0, 2.0, -0.6, -0.4, 7.15, 7.4, 0.05, 1), "GlowAccent")
 	for mode in ("1V1", "2V2", "3V3"):
 		c = piece("ModeTab_" + mode, mode=mode)
-		obj(c, "Plate", prism(rrect(6.4, 2.8, 0.8, 5), "Y", -0.3, 0.3), "White")
+		obj(c, "Plate", finish(prism(rrect(6.4, 2.8, 0.8, 5), "Y", -0.3, 0.3), 0.0, 1), "White")
 		obj(c, "Rim", finish(ring_prism(rrect(6.9, 3.3, 1.05, 5), rrect(6.4, 2.8, 0.8, 5), -0.4, 0.4, "Y"), 0.08, 1), "Slate")
 		t, w = text_mesh(mode, 1.7, 0.35, spacing=1.12)
 		xform(t, T(0, -0.25, -0.85))
@@ -375,7 +376,7 @@ def p_market():
 	obj(c, "Sill", rbox(-6.8, 6.8, 0.2, 3.0, -0.1, 1.2, 0.15, 2), "ConcreteDark")
 	obj(c, "Cove", rbox(-6.8, 6.8, 0.9, 1.15, 10.6, 10.85, 0.05, 1), "GlowWarm")
 	c = piece("ShopCounter", width=15)
-	obj(c, "Kick", prism(rrect(13.4, 2.6, 0.8, 4), "Z", -0.1, 0.6), "Dark")
+	obj(c, "Kick", finish(prism(rrect(13.4, 2.6, 0.8, 4), "Z", -0.1, 0.6), 0.0, 1), "Dark")
 	obj(c, "Body", finish(prism(rrect(14.0, 3.2, 1.0, 4), "Z", 0.5, 3.4), 0.12, 2), "Metal")
 	obj(c, "Panels", merge(*[rbox(x - 1.9, x + 1.9, -1.75, -1.55, 1.0, 2.9, 0.12, 2) for x in (-4.4, 0.0, 4.4)]), "ConcreteLight")
 	obj(c, "Top", finish(prism(rrect(14.8, 4.0, 1.3, 4), "Z", 3.3, 3.75), 0.12, 2), "ConcreteLight")
@@ -507,7 +508,7 @@ def p_signs():
 		c = piece("Sign_" + key, text=label, width=round(W, 2), height=4.8)
 		xform(t, T(iw / 2, -0.38, -H / 2))
 		obj(c, "Text", t, "White", smooth=0)
-		obj(c, "Plate", prism(rrect(W, 4.8, 1.2, 5), "Y", -0.3, 0.5), "Slate")
+		obj(c, "Plate", finish(prism(rrect(W, 4.8, 1.2, 5), "Y", -0.3, 0.5), 0.0, 1), "Slate")
 		obj(c, "Rim", finish(ring_prism(rrect(W + 0.9, 5.7, 1.6, 5), rrect(W, 4.8, 1.2, 5), -0.5, 0.6, "Y"), 0.12, 2), "Metal")
 		obj(c, "Tube", ring_prism(rrect(W - 0.7, 4.1, 0.85, 5), rrect(W - 1.15, 3.65, 0.62, 5), -0.62, -0.42, "Y"), "GlowAccent")
 		if ico:
@@ -518,6 +519,57 @@ def p_signs():
 
 # ---------------------------------------------------------------- build
 
+def p_dressing():
+	# Set dressing in the kit style (core review 2026-11-05: "too empty"): cases, vents, cable trays, racks, glass cases,
+	# benches, barriers. Busy edges, clear walking paths.
+	for name, L, W, H in (("HardCase_S", 4.0, 2.4, 2.0), ("HardCase_L", 6.0, 3.0, 3.0)):
+		c = piece(name)
+		obj(c, "Body", rbox(-L / 2, L / 2, -W / 2, W / 2, -0.1, H, 0.3), "Slate")
+		obj(c, "Seam", rbox(-L / 2 - 0.06, L / 2 + 0.06, -W / 2 - 0.06, W / 2 + 0.06, H * 0.55, H * 0.55 + 0.22, 0.06, 1), "Dark")
+		obj(c, "Ribs", merge(*[rbox(x - 0.15, x + 0.15, -W / 2 - 0.12, W / 2 + 0.12, 0.25, H - 0.25, 0.06, 1) for x in (-L * 0.32, L * 0.32)]), "Metal")
+		obj(c, "Latches", merge(*[rbox(x - 0.3, x + 0.3, -W / 2 - 0.22, -W / 2 + 0.05, H * 0.45, H * 0.75, 0.06, 1) for x in (-L * 0.18, L * 0.18)]), "Ochre")
+		obj(c, "Handle", rbox(-0.7, 0.7, -0.15, 0.15, H - 0.05, H + 0.3, 0.1, 1), "Dark")
+	c = piece("WallVent")
+	obj(c, "Frame", frame(4.0, 3.0, 0.45, 3.3, 2.3, 0.25, -0.3, 0.05, "Y", 1.5), "Metal")
+	obj(c, "Grille", rbox(-1.7, 1.7, -0.05, 0.1, 0.3, 2.7, 0.03, 1), "Grate")
+	c = piece("CableTray_16")
+	obj(c, "Tray", merge(rbox(-8, 8, -1.3, 0.0, 0.0, 0.18, 0.05, 1), rbox(-8, 8, -1.3, -1.12, 0.1, 0.7, 0.05, 1)), "Metal")
+	cables = []
+	for k, (y, r) in enumerate(((-0.35, 0.18), (-0.72, 0.2))):
+		cables.append(finish(prism([(y + r * math.cos(a * math.pi / 4), 0.18 + r + r * math.sin(a * math.pi / 4)) for a in range(8)], "X", -7.98, 7.98), 0.0, 1))
+	obj(c, "Cables", merge(*cables), "Dark")
+	obj(c, "Cable2", finish(prism([(-0.98 + 0.13 * math.cos(a * math.pi / 4), 0.31 + 0.13 * math.sin(a * math.pi / 4)) for a in range(8)], "X", -7.98, 7.98), 0.0, 1), "Ochre")
+	obj(c, "Brackets", merge(*[rbox(x - 0.2, x + 0.2, -0.3, 0.05, -0.7, 0.05, 0.05, 1) for x in (-6, 0, 6)]), "Dark")
+	c = piece("WeaponRack", width=8)
+	obj(c, "Board", rbox(-4, 4, -0.35, 0.05, 0.0, 6.0, 0.2, 2), "Slate")
+	obj(c, "Rails", merge(*[rbox(-3.7, 3.7, -0.7, -0.3, z, z + 0.25, 0.06, 1) for z in (1.4, 3.2, 5.0)]), "Metal")
+	obj(c, "Strip", rbox(-3.6, 3.6, -0.5, -0.33, 5.65, 5.8, 0.03, 1), "GlowAccent")
+	c = piece("GlassCase")
+	obj(c, "Base", rbox(-1.5, 1.5, -1.5, 1.5, -0.1, 3.0, 0.2, 2), "Metal")
+	obj(c, "Glass", rbox(-1.28, 1.28, -1.28, 1.28, 3.0, 5.4, 0.05, 1), "Glass")
+	obj(c, "Posts", merge(*[rbox(sx * 1.3 - 0.09, sx * 1.3 + 0.09, sy * 1.3 - 0.09, sy * 1.3 + 0.09, 2.95, 5.45, 0.03, 1) for sx in (-1, 1) for sy in (-1, 1)]), "Metal")
+	obj(c, "Cap", rbox(-1.5, 1.5, -1.5, 1.5, 5.4, 5.75, 0.12, 2), "Metal")
+	obj(c, "Light", rbox(-1.0, 1.0, -1.0, 1.0, 5.18, 5.32, 0.03, 1), "GlowWhite")
+	obj(c, "Band", rbox(-1.2, 1.2, -1.58, -1.5, 1.2, 1.5, 0.03, 1), "GlowAccent")
+	c = piece("BunkerBench", length=6)
+	obj(c, "Frame", merge(rbox(-2.8, -2.3, -0.8, 0.8, -0.1, 1.5, 0.12, 1), rbox(2.3, 2.8, -0.8, 0.8, -0.1, 1.5, 0.12, 1), rbox(-2.6, 2.6, -0.15, 0.15, 0.5, 0.8, 0.08, 1)), "Metal")
+	obj(c, "Seat", rbox(-3.0, 3.0, -0.95, 0.95, 1.45, 2.05, 0.28, 2), "Slate")
+	c = piece("Barrier", length=6)
+	obj(c, "Body", finish(prism([(-0.8, -0.1), (0.8, -0.1), (0.45, 2.2), (-0.45, 2.2)], "X", -3, 3), 0.15, 2), "ConcreteDark")
+	stripes = [finish(prism([(x0, 1.0), (x0 + 0.5, 1.0), (x0 + 1.1, 1.7), (x0 + 0.6, 1.7)], "Y", -0.72, -0.62), 0.0, 1) for x0 in (-2.4, -1.4, -0.4, 0.6, 1.6)]
+	obj(c, "Stripes", merge(*stripes), "Ochre")
+	c = piece("LockerAlcove", radius=6.6)
+	obj(c, "Shell", lath([(6.6, -0.1), (6.6, 11.6), (6.1, 12.5), (4.8, 13.2), (0.0, 13.2)], 0.2, -70, 70), "Slate")
+	obj(c, "CoveLow", lath([(6.6, 0.45), (6.48, 0.45), (6.48, 0.75)], 0.0, -66, 66), "GlowAccent")
+	obj(c, "CoveTop", lath([(6.08, 12.25), (5.98, 12.25), (5.98, 12.45)], 0.0, -66, 66), "GlowAccent")
+	fins = []
+	for b in (-70, 70):
+		f = rbox(-0.35, 0.35, 6.3, 8.2, -0.1, 13.6, 0.2, 2)
+		xform(f, RZ(-b))
+		fins.append(f)
+	obj(c, "Fins", merge(*fins), "Metal")
+
+
 def build():
 	for o in list(bpy.data.objects):
 		bpy.data.objects.remove(o)
@@ -525,7 +577,7 @@ def build():
 	global KIT
 	KIT = collection("Kit_Bunker2")
 	for f in (p_pier, p_drum, p_dome, p_dais, p_floor_ring, p_guide, p_ring, p_portals, lambda: steps(40, 3, "Steps_40_3"),
-			lambda: steps(24, 2, "Steps_24_2"), lambda: steps(24, 3, "Steps_24_3"), p_hall, p_pads, p_blastdoor, p_market, p_armoury, p_range, p_signs):
+			lambda: steps(24, 2, "Steps_24_2"), lambda: steps(24, 3, "Steps_24_3"), p_hall, p_pads, p_blastdoor, p_market, p_armoury, p_range, p_signs, p_dressing):
 		f()
 	tris = {}
 	for n, c in PIECES.items():

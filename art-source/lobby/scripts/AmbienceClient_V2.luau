@@ -8,16 +8,20 @@
 --   LobbyPulse  Neon BasePart: soft breathing (Transparency 0..0.35)
 --   LobbyGlitch BasePart: rare flicker. Magenta sign ghosts flash in with a small jitter; holo lines blink out.
 --   LobbyScroll UIGradient: slow sweep across a screen
+--   LobbyLight  Light: switched off beyond LIGHT_RANGE studs (LihFolk "Light Sources and Shadows": about 8-12 visible
+--               local lights on mid phones; tag and disable, never delete)
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
 
 local WAKE = 160
+local LIGHT_RANGE = 120
 
 type Mover = { inst: Instance, base: CFrame, spin: number, amp: number, freq: number, phase: number }
 local movers: { [Instance]: Mover } = {}
 local pulses: { [BasePart]: number } = {}
 local glitches: { [BasePart]: { base: CFrame, base_t: number, next: number, until_: number, ghost: boolean } } = {}
 local scrolls: { [UIGradient]: number } = {}
+local lights: { [Light]: boolean } = {}
 
 local function pivotOf(i: Instance): CFrame?
 	if i:IsA("Model") then
@@ -88,6 +92,31 @@ watch("LobbyScroll", function(i)
 end, function(i)
 	if i:IsA("UIGradient") then
 		scrolls[i] = nil
+	end
+end)
+
+watch("LobbyLight", function(i)
+	if i:IsA("Light") then
+		lights[i] = i.Enabled
+	end
+end, function(i)
+	if i:IsA("Light") then
+		lights[i] = nil
+	end
+end)
+task.spawn(function()
+	while true do
+		local camera = workspace.CurrentCamera
+		if camera then
+			local cam = camera.CFrame.Position
+			for l, wanted in lights do
+				local holder = l.Parent
+				if holder and holder:IsA("BasePart") then
+					l.Enabled = wanted and (holder.Position - cam).Magnitude < LIGHT_RANGE
+				end
+			end
+		end
+		task.wait(0.5)
 	end
 end)
 

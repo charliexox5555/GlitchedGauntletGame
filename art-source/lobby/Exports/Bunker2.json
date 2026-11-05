@@ -2,6 +2,15 @@
  "group": "Bunker2",
  "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
  "pieces": {
+  "Barrier": {
+   "props": {
+    "length": 6
+   },
+   "parts": [
+    "Barrier_Body",
+    "Barrier_Stripes"
+   ]
+  },
   "BlastDoor": {
    "props": {
     "opening": 12,
@@ -17,6 +26,15 @@
     "BlastDoor_Beacon_Glow"
    ]
   },
+  "BunkerBench": {
+   "props": {
+    "length": 6
+   },
+   "parts": [
+    "BunkerBench_Frame",
+    "BunkerBench_Seat"
+   ]
+  },
   "Buttress": {
    "props": {
     "height": 20
@@ -25,6 +43,15 @@
     "Buttress_Body",
     "Buttress_Cap",
     "Buttress_Band"
+   ]
+  },
+  "CableTray_16": {
+   "props": {},
+   "parts": [
+    "CableTray_16_Tray",
+    "CableTray_16_Cables",
+    "CableTray_16_Cable2",
+    "CableTray_16_Brackets"
    ]
   },
   "CageCorner": {
@@ -105,6 +132,17 @@
     "FanBlades_Blades"
    ]
   },
+  "GlassCase": {
+   "props": {},
+   "parts": [
+    "GlassCase_Base",
+    "GlassCase_Glass",
+    "GlassCase_Posts",
+    "GlassCase_Cap",
+    "GlassCase_Light_Glow",
+    "GlassCase_Band_Glow"
+   ]
+  },
   "GuideLine": {
    "props": {
     "length": 12
@@ -143,11 +181,42 @@
     "HallTruss_Gussets"
    ]
   },
+  "HardCase_L": {
+   "props": {},
+   "parts": [
+    "HardCase_L_Body",
+    "HardCase_L_Seam",
+    "HardCase_L_Ribs",
+    "HardCase_L_Latches",
+    "HardCase_L_Handle"
+   ]
+  },
+  "HardCase_S": {
+   "props": {},
+   "parts": [
+    "HardCase_S_Body",
+    "HardCase_S_Seam",
+    "HardCase_S_Ribs",
+    "HardCase_S_Latches",
+    "HardCase_S_Handle"
+   ]
+  },
   "HeroPlinth": {
    "props": {},
    "parts": [
     "HeroPlinth_Body",
     "HeroPlinth_Ring_Glow"
+   ]
+  },
+  "LockerAlcove": {
+   "props": {
+    "radius": 6.6
+   },
+   "parts": [
+    "LockerAlcove_Shell",
+    "LockerAlcove_CoveLow_Glow",
+    "LockerAlcove_CoveTop_Glow",
+    "LockerAlcove_Fins"
    ]
   },
   "LockerBackdrop": {
@@ -413,7 +482,7 @@
   "Sign_ARMOURY": {
    "props": {
     "text": "ARMOURY",
-    "width": 24.46,
+    "width": 25.29,
     "height": 4.8
    },
    "parts": [
@@ -427,7 +496,7 @@
   "Sign_BATTLEPASS": {
    "props": {
     "text": "BATTLE PASS",
-    "width": 30.46,
+    "width": 31.31,
     "height": 4.8
    },
    "parts": [
@@ -441,7 +510,7 @@
   "Sign_DUELS": {
    "props": {
     "text": "DUELS",
-    "width": 17.54,
+    "width": 17.9,
     "height": 4.8
    },
    "parts": [
@@ -455,7 +524,7 @@
   "Sign_EVENT": {
    "props": {
     "text": "EVENT",
-    "width": 18.21,
+    "width": 18.6,
     "height": 4.8
    },
    "parts": [
@@ -469,7 +538,7 @@
   "Sign_LOCKER": {
    "props": {
     "text": "LOCKER",
-    "width": 20.36,
+    "width": 20.8,
     "height": 4.8
    },
    "parts": [
@@ -483,7 +552,7 @@
   "Sign_RANGE": {
    "props": {
     "text": "RANGE",
-    "width": 18.23,
+    "width": 18.62,
     "height": 4.8
    },
    "parts": [
@@ -497,7 +566,7 @@
   "Sign_SHOP": {
    "props": {
     "text": "SHOP",
-    "width": 15.88,
+    "width": 16.17,
     "height": 4.8
    },
    "parts": [
@@ -574,9 +643,69 @@
     "WallModule_Cornice",
     "WallModule_Cove_Glow"
    ]
+  },
+  "WallVent": {
+   "props": {},
+   "parts": [
+    "WallVent_Frame",
+    "WallVent_Grille"
+   ]
+  },
+  "WeaponRack": {
+   "props": {
+    "width": 8
+   },
+   "parts": [
+    "WeaponRack_Board",
+    "WeaponRack_Rails",
+    "WeaponRack_Strip_Glow"
+   ]
   }
  },
  "parts": [
+  {
+   "piece": "Barrier",
+   "name": "Barrier_Body",
+   "material": "B_ConcreteDark",
+   "look": {
+    "material": "Concrete",
+    "color": "625C55",
+    "variant": "Bunker_Concrete"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    1.05
+   ],
+   "size": [
+    6.0,
+    1.55487,
+    2.3
+   ]
+  },
+  {
+   "piece": "Barrier",
+   "name": "Barrier_Stripes",
+   "material": "B_Ochre",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B8672E"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.15,
+    -0.67,
+    1.35
+   ],
+   "size": [
+    5.1,
+    0.1,
+    0.7
+   ]
+  },
   {
    "piece": "BlastDoor",
    "name": "BlastDoor_Frame",
@@ -728,6 +857,49 @@
    ]
   },
   {
+   "piece": "BunkerBench",
+   "name": "BunkerBench_Frame",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    0.0,
+    0.7
+   ],
+   "size": [
+    5.6,
+    1.6,
+    1.6
+   ]
+  },
+  {
+   "piece": "BunkerBench",
+   "name": "BunkerBench_Seat",
+   "material": "B_Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F4250"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    1.75
+   ],
+   "size": [
+    6.0,
+    1.9,
+    0.6
+   ]
+  },
+  {
    "piece": "Buttress",
    "name": "Buttress_Body",
    "material": "B_ConcreteDark",
@@ -790,6 +962,91 @@
     3.24,
     0.92,
     1.0
+   ]
+  },
+  {
+   "piece": "CableTray_16",
+   "name": "CableTray_16_Tray",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    -0.65,
+    0.35
+   ],
+   "size": [
+    16.0,
+    1.3,
+    0.7
+   ]
+  },
+  {
+   "piece": "CableTray_16",
+   "name": "CableTray_16_Cables",
+   "material": "B_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1E2329"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    -0.545,
+    0.38
+   ],
+   "size": [
+    15.96,
+    0.75,
+    0.4
+   ]
+  },
+  {
+   "piece": "CableTray_16",
+   "name": "CableTray_16_Cable2",
+   "material": "B_Ochre",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B8672E"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    -0.98,
+    0.31
+   ],
+   "size": [
+    15.96,
+    0.26,
+    0.26
+   ]
+  },
+  {
+   "piece": "CableTray_16",
+   "name": "CableTray_16_Brackets",
+   "material": "B_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1E2329"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    -0.125,
+    -0.325
+   ],
+   "size": [
+    12.4,
+    0.35,
+    0.75
    ]
   },
   {
@@ -1201,6 +1458,136 @@
    ]
   },
   {
+   "piece": "GlassCase",
+   "name": "GlassCase_Base",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    1.45
+   ],
+   "size": [
+    3.0,
+    3.0,
+    3.1
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_Glass",
+   "material": "B_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "A8DCEB",
+    "transparency": 0.55
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    2.56,
+    2.56,
+    2.4
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_Posts",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    2.78,
+    2.78,
+    2.5
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_Cap",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    5.575
+   ],
+   "size": [
+    3.0,
+    3.0,
+    0.35
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_Light_Glow",
+   "material": "B_GlowWhite",
+   "look": {
+    "material": "Neon",
+    "color": "FFF1DC"
+   },
+   "glow": true,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    5.25
+   ],
+   "size": [
+    2.0,
+    2.0,
+    0.14
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_Band_Glow",
+   "material": "B_GlowAccent",
+   "look": {
+    "material": "Neon",
+    "color": "FFFFFF"
+   },
+   "glow": true,
+   "tris": 44,
+   "center": [
+    0.0,
+    -1.54,
+    1.35
+   ],
+   "size": [
+    2.4,
+    0.08,
+    0.3
+   ]
+  },
+  {
    "piece": "GuideLine",
    "name": "GuideLine_Strip_Glow",
    "material": "B_GlowAccent",
@@ -1439,6 +1826,218 @@
    ]
   },
   {
+   "piece": "HardCase_L",
+   "name": "HardCase_L_Body",
+   "material": "B_Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F4250"
+   },
+   "glow": false,
+   "tris": 188,
+   "center": [
+    0.0,
+    0.0,
+    1.45
+   ],
+   "size": [
+    6.0,
+    3.0,
+    3.1
+   ]
+  },
+  {
+   "piece": "HardCase_L",
+   "name": "HardCase_L_Seam",
+   "material": "B_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1E2329"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.76
+   ],
+   "size": [
+    6.12,
+    3.12,
+    0.22
+   ]
+  },
+  {
+   "piece": "HardCase_L",
+   "name": "HardCase_L_Ribs",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    4.14,
+    3.24,
+    2.5
+   ]
+  },
+  {
+   "piece": "HardCase_L",
+   "name": "HardCase_L_Latches",
+   "material": "B_Ochre",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B8672E"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    -1.585,
+    1.8
+   ],
+   "size": [
+    2.76,
+    0.27,
+    0.9
+   ]
+  },
+  {
+   "piece": "HardCase_L",
+   "name": "HardCase_L_Handle",
+   "material": "B_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1E2329"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    3.125
+   ],
+   "size": [
+    1.4,
+    0.3,
+    0.35
+   ]
+  },
+  {
+   "piece": "HardCase_S",
+   "name": "HardCase_S_Body",
+   "material": "B_Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F4250"
+   },
+   "glow": false,
+   "tris": 188,
+   "center": [
+    0.0,
+    0.0,
+    0.95
+   ],
+   "size": [
+    4.0,
+    2.4,
+    2.1
+   ]
+  },
+  {
+   "piece": "HardCase_S",
+   "name": "HardCase_S_Seam",
+   "material": "B_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1E2329"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.21
+   ],
+   "size": [
+    4.12,
+    2.52,
+    0.22
+   ]
+  },
+  {
+   "piece": "HardCase_S",
+   "name": "HardCase_S_Ribs",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    2.86,
+    2.64,
+    1.5
+   ]
+  },
+  {
+   "piece": "HardCase_S",
+   "name": "HardCase_S_Latches",
+   "material": "B_Ochre",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B8672E"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    -1.285,
+    1.2
+   ],
+   "size": [
+    2.04,
+    0.27,
+    0.6
+   ]
+  },
+  {
+   "piece": "HardCase_S",
+   "name": "HardCase_S_Handle",
+   "material": "B_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1E2329"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.125
+   ],
+   "size": [
+    1.4,
+    0.3,
+    0.35
+   ]
+  },
+  {
    "piece": "HeroPlinth",
    "name": "HeroPlinth_Body",
    "material": "B_ConcreteDark",
@@ -1479,6 +2078,91 @@
     10.2,
     10.2,
     0.15
+   ]
+  },
+  {
+   "piece": "LockerAlcove",
+   "name": "LockerAlcove_Shell",
+   "material": "B_Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F4250"
+   },
+   "glow": false,
+   "tris": 325,
+   "center": [
+    0.0,
+    3.29606,
+    6.55
+   ],
+   "size": [
+    12.40394,
+    6.59212,
+    13.3
+   ]
+  },
+  {
+   "piece": "LockerAlcove",
+   "name": "LockerAlcove_CoveLow_Glow",
+   "material": "B_GlowAccent",
+   "look": {
+    "material": "Neon",
+    "color": "FFFFFF"
+   },
+   "glow": true,
+   "tris": 96,
+   "center": [
+    0.0,
+    4.61783,
+    0.6
+   ],
+   "size": [
+    12.0588,
+    3.96435,
+    0.3
+   ]
+  },
+  {
+   "piece": "LockerAlcove",
+   "name": "LockerAlcove_CoveTop_Glow",
+   "material": "B_GlowAccent",
+   "look": {
+    "material": "Neon",
+    "color": "FFFFFF"
+   },
+   "glow": true,
+   "tris": 96,
+   "center": [
+    0.0,
+    4.25614,
+    12.35
+   ],
+   "size": [
+    11.10871,
+    3.64771,
+    0.2
+   ]
+  },
+  {
+   "piece": "LockerAlcove",
+   "name": "LockerAlcove_Fins",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 216,
+   "center": [
+    0.0,
+    2.47965,
+    6.75
+   ],
+   "size": [
+    15.51356,
+    1.17082,
+    13.7
    ]
   },
   {
@@ -1853,16 +2537,16 @@
     "color": "1E2329"
    },
    "glow": false,
-   "tris": 270,
+   "tris": 94,
    "center": [
     0.0,
     -0.425,
-    -0.0035
+    -0.0
    ],
    "size": [
-    4.0286,
+    4.1616,
     0.35,
-    1.69299
+    1.7
    ]
   },
   {
@@ -1937,16 +2621,16 @@
     "color": "1E2329"
    },
    "glow": false,
-   "tris": 1374,
+   "tris": 462,
    "center": [
     0.0,
     -0.425,
-    -0.00339
+    0.0
    ],
    "size": [
-    4.94115,
+    5.1038,
     0.35,
-    1.69321
+    1.7
    ]
   },
   {
@@ -2021,16 +2705,16 @@
     "color": "1E2329"
    },
    "glow": false,
-   "tris": 1346,
+   "tris": 466,
    "center": [
     0.0,
     -0.425,
-    -0.00339
+    0.0
    ],
    "size": [
-    4.93613,
+    5.1038,
     0.35,
-    1.69322
+    1.7
    ]
   },
   {
@@ -3442,16 +4126,16 @@
     "color": "F2F0EA"
    },
    "glow": false,
-   "tris": 3194,
+   "tris": 1146,
    "center": [
     1.3,
     -0.63,
-    -0.01925
+    -0.0
    ],
    "size": [
-    18.65925,
+    19.49246,
     0.5,
-    2.36149
+    2.4
    ]
   },
   {
@@ -3470,7 +4154,7 @@
     0.0
    ],
    "size": [
-    24.45925,
+    25.29246,
     0.8,
     4.8
    ]
@@ -3492,7 +4176,7 @@
     0.0
    ],
    "size": [
-    25.35925,
+    26.19246,
     1.1,
     5.7
    ]
@@ -3513,7 +4197,7 @@
     0.0
    ],
    "size": [
-    23.75925,
+    24.59246,
     0.2,
     4.1
    ]
@@ -3529,7 +4213,7 @@
    "glow": true,
    "tris": 208,
    "center": [
-    -9.47463,
+    -9.89123,
     -0.57,
     -0.132
    ],
@@ -3548,16 +4232,16 @@
     "color": "F2F0EA"
    },
    "glow": false,
-   "tris": 4530,
+   "tris": 1562,
    "center": [
     1.3,
     -0.63,
-    -0.00393
+    -0.0
    ],
    "size": [
-    24.65993,
+    25.51476,
     0.5,
-    2.39213
+    2.4
    ]
   },
   {
@@ -3576,7 +4260,7 @@
     0.0
    ],
    "size": [
-    30.45993,
+    31.31475,
     0.8,
     4.8
    ]
@@ -3598,7 +4282,7 @@
     0.0
    ],
    "size": [
-    31.35993,
+    32.21476,
     1.1,
     5.7
    ]
@@ -3619,7 +4303,7 @@
     0.0
    ],
    "size": [
-    29.75993,
+    30.61475,
     0.2,
     4.1
    ]
@@ -3635,7 +4319,7 @@
    "glow": true,
    "tris": 116,
    "center": [
-    -12.52997,
+    -12.95738,
     -0.57,
     0.10951
    ],
@@ -3654,16 +4338,16 @@
     "color": "F2F0EA"
    },
    "glow": false,
-   "tris": 2320,
+   "tris": 768,
    "center": [
     1.3,
     -0.63,
-    -0.00395
+    -0.0
    ],
    "size": [
-    11.73996,
+    12.10426,
     0.5,
-    2.3921
+    2.4
    ]
   },
   {
@@ -3682,7 +4366,7 @@
     0.0
    ],
    "size": [
-    17.53996,
+    17.90426,
     0.8,
     4.8
    ]
@@ -3704,7 +4388,7 @@
     0.0
    ],
    "size": [
-    18.43996,
+    18.80426,
     1.1,
     5.7
    ]
@@ -3725,7 +4409,7 @@
     0.0
    ],
    "size": [
-    16.83996,
+    17.20426,
     0.2,
     4.1
    ]
@@ -3741,7 +4425,7 @@
    "glow": true,
    "tris": 136,
    "center": [
-    -6.06998,
+    -6.25213,
     -0.57,
     0.0
    ],
@@ -3760,16 +4444,16 @@
     "color": "F2F0EA"
    },
    "glow": false,
-   "tris": 638,
+   "tris": 222,
    "center": [
     1.3,
     -0.63,
-    -0.00416
+    0.0
    ],
    "size": [
-    12.41046,
+    12.8016,
     0.5,
-    2.39167
+    2.4
    ]
   },
   {
@@ -3788,7 +4472,7 @@
     0.0
    ],
    "size": [
-    18.21046,
+    18.6016,
     0.8,
     4.8
    ]
@@ -3810,7 +4494,7 @@
     0.0
    ],
    "size": [
-    19.11046,
+    19.5016,
     1.1,
     5.7
    ]
@@ -3831,7 +4515,7 @@
     0.0
    ],
    "size": [
-    17.51046,
+    17.9016,
     0.2,
     4.1
    ]
@@ -3847,7 +4531,7 @@
    "glow": true,
    "tris": 116,
    "center": [
-    -6.40523,
+    -6.6008,
     -0.57,
     0.10951
    ],
@@ -3866,16 +4550,16 @@
     "color": "F2F0EA"
    },
    "glow": false,
-   "tris": 3014,
+   "tris": 1038,
    "center": [
     1.3,
     -0.63,
-    -0.00394
+    -0.0
    ],
    "size": [
-    14.56251,
+    14.99672,
     0.5,
-    2.39212
+    2.4
    ]
   },
   {
@@ -3894,7 +4578,7 @@
     0.0
    ],
    "size": [
-    20.3625,
+    20.79672,
     0.8,
     4.8
    ]
@@ -3916,7 +4600,7 @@
     0.0
    ],
    "size": [
-    21.2625,
+    21.69672,
     1.1,
     5.7
    ]
@@ -3937,7 +4621,7 @@
     0.0
    ],
    "size": [
-    19.66251,
+    20.09672,
     0.2,
     4.1
    ]
@@ -3953,7 +4637,7 @@
    "glow": true,
    "tris": 164,
    "center": [
-    -7.49338,
+    -7.71049,
     -0.57,
     0.26668
    ],
@@ -3972,16 +4656,16 @@
     "color": "F2F0EA"
    },
    "glow": false,
-   "tris": 1984,
+   "tris": 712,
    "center": [
     1.3,
     -0.63,
-    -0.00394
+    -0.0
    ],
    "size": [
-    12.43221,
+    12.82229,
     0.5,
-    2.39213
+    2.4
    ]
   },
   {
@@ -4000,7 +4684,7 @@
     0.0
    ],
    "size": [
-    18.23221,
+    18.6223,
     0.8,
     4.8
    ]
@@ -4022,7 +4706,7 @@
     0.0
    ],
    "size": [
-    19.13221,
+    19.52229,
     1.1,
     5.7
    ]
@@ -4043,7 +4727,7 @@
     0.0
    ],
    "size": [
-    17.53221,
+    17.92229,
     0.2,
     4.1
    ]
@@ -4059,7 +4743,7 @@
    "glow": true,
    "tris": 2156,
    "center": [
-    -6.41611,
+    -6.61115,
     -0.57,
     0.0
    ],
@@ -4078,16 +4762,16 @@
     "color": "F2F0EA"
    },
    "glow": false,
-   "tris": 3066,
+   "tris": 1042,
    "center": [
     1.3,
     -0.63,
-    -0.00394
+    -0.0
    ],
    "size": [
-    10.08093,
+    10.36918,
     0.5,
-    2.39212
+    2.4
    ]
   },
   {
@@ -4106,7 +4790,7 @@
     0.0
    ],
    "size": [
-    15.88093,
+    16.16918,
     0.8,
     4.8
    ]
@@ -4128,7 +4812,7 @@
     0.0
    ],
    "size": [
-    16.78093,
+    17.06918,
     1.1,
     5.7
    ]
@@ -4149,7 +4833,7 @@
     0.0
    ],
    "size": [
-    15.18093,
+    15.46918,
     0.2,
     4.1
    ]
@@ -4165,7 +4849,7 @@
    "glow": true,
    "tris": 184,
    "center": [
-    -5.24046,
+    -5.38459,
     -0.57,
     0.055
    ],
@@ -4629,7 +5313,115 @@
     0.15,
     0.22
    ]
+  },
+  {
+   "piece": "WallVent",
+   "name": "WallVent_Frame",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 576,
+   "center": [
+    0.0,
+    -0.125,
+    1.5
+   ],
+   "size": [
+    4.0,
+    0.35,
+    3.0
+   ]
+  },
+  {
+   "piece": "WallVent",
+   "name": "WallVent_Grille",
+   "material": "B_Grate",
+   "look": {
+    "material": "DiamondPlate",
+    "color": "3A434C",
+    "variant": "Bunker_Grate"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.025,
+    1.5
+   ],
+   "size": [
+    3.4,
+    0.15,
+    2.4
+   ]
+  },
+  {
+   "piece": "WeaponRack",
+   "name": "WeaponRack_Board",
+   "material": "B_Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F4250"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    -0.15,
+    3.0
+   ],
+   "size": [
+    8.0,
+    0.4,
+    6.0
+   ]
+  },
+  {
+   "piece": "WeaponRack",
+   "name": "WeaponRack_Rails",
+   "material": "B_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "34495A",
+    "variant": "Bunker_Metal"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    -0.5,
+    3.325
+   ],
+   "size": [
+    7.4,
+    0.4,
+    3.85
+   ]
+  },
+  {
+   "piece": "WeaponRack",
+   "name": "WeaponRack_Strip_Glow",
+   "material": "B_GlowAccent",
+   "look": {
+    "material": "Neon",
+    "color": "FFFFFF"
+   },
+   "glow": true,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.415,
+    5.725
+   ],
+   "size": [
+    7.2,
+    0.17,
+    0.15
+   ]
   }
  ],
- "tris": 90988
+ "tris": 80541
 }
