@@ -43,6 +43,13 @@ local aligns: { [Bot]: AlignOrientation } = {}
 local templates: { [number]: Model } = {}
 local usedNames: { [string]: boolean } = {}
 local rng = Random.new()
+-- Owner attributes clients need too, copied onto the bot's model.
+local MIRRORED: { [string]: boolean } = {
+	ReloadAt = true,
+	ReloadFor = true,
+	ModHeld = true,
+	ModUseAt = true,
+}
 
 -- Per-think scratch, reused (no allocations per frame).
 local enemyScratch: { Model } = {}
@@ -302,6 +309,20 @@ local function spawnBot(bot: Bot, at: CFrame)
 	bot.roamGoal = nil
 	bot.nextThink = os.clock() + rng:NextNumber() / BotsConfig.THINK_RATE
 	Pawns.add(bot.owner, model)
+
+	-- The owner lives in ServerStorage; clients read these off the model
+	-- (lane D's GripController lets go of the gun during reloads and Mods).
+	for name in MIRRORED do
+		model:SetAttribute(name, bot.owner:GetAttribute(name))
+	end
+	table.insert(
+		bot.connections,
+		bot.owner.AttributeChanged:Connect(function(name: string)
+			if MIRRORED[name] then
+				model:SetAttribute(name, bot.owner:GetAttribute(name))
+			end
+		end)
+	)
 
 	-- Hurt: the flinch others see (Poses: HitAt) and the brain's "under fire".
 	local changed = Health.changed(humanoid)
