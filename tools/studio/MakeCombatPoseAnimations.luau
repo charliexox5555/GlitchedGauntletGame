@@ -2,22 +2,16 @@
 -- Builds the third-person combat poses (R15 KeyframeSequences) others see on
 -- you: aiming down sights (three pitch poses, like the hip aim set in
 -- MakePoseAnimations), a reload one-shot, a hit flinch, going down, a draw
--- on a weapon swap, and the knife's ready hold, slash and heavy. Saves each as a
--- Studio-serialized .rbxm in art-source/animations/ through
--- tools/studio/receive_server.py. Run in Studio (Edit) via the MCP or the
--- Command Bar, upload with tools/opencloud/upload_asset.py --type Animation,
+-- on a weapon swap, and the knife's ready hold, slash and heavy. Run in Studio
+-- (Edit) via the MCP or the Command Bar: it returns pose text; build the .rbxm
+-- files with tools/studio/pose_text_to_rbxm.py, upload with
+-- tools/opencloud/upload_asset.py --type Animation,
 -- and put the ids in src/shared/Config/Animations.luau (COMBAT).
 --
 -- Conventions as in MakePoseAnimations: pose CFrames are joint Transforms;
 -- +X swings an arm forward/up; on UpperTorso it leans the chest back.
 -- Angles in degrees. The reload is made 1 s long and played at the gun's
 -- reload time (Simulation/Poses adjusts its speed).
-
-local HttpService = game:GetService("HttpService")
-local SerializationService = game:GetService("SerializationService")
-local EncodingService = game:GetService("EncodingService")
-
-local RECEIVER = "http://127.0.0.1:34999/save?path=art-source/animations/"
 
 type JointPose = { number }
 type Frame = { [string]: JointPose }
@@ -91,37 +85,25 @@ local function sequence(
 	return ks
 end
 
--- The hip hold (MakePoseAnimations `aim`), so the clips start and end on it.
-local function hip(deg: number): Frame
-	local arm = 90 + deg * 0.65
+-- The hip hold, so the clips start and end on it: the level pose solved by
+-- tools/studio/MakeHoldAnimations (GG_AimLevel, both hands on the gun).
+local function hip(): Frame
 	return {
-		UpperTorso = { deg * 0.35, 0, 0 },
-		RightUpperArm = { arm, 8, 0 },
-		RightLowerArm = { 0, 0, 0 },
-		LeftUpperArm = { arm, -38, 0 },
-		LeftLowerArm = { 18, 0, 0 },
-	}
-end
-
--- Aiming down sights at pitch `deg`: the gun comes up to the eye and in to
--- the centre line, elbows bent to pull it close, the cheek dropped onto the
--- stock (head tilted toward the gun), the leading shoulder turned in.
-local function ads(deg: number): Frame
-	local arm = 98 + deg * 0.7
-	return {
-		UpperTorso = { deg * 0.35, -10, 0 },
-		Head = { -6 + deg * 0.15, -6, 9 },
-		RightUpperArm = { arm, 24, 6 },
-		RightLowerArm = { 22, 0, 0 },
-		LeftUpperArm = { arm + 4, -22, 0 },
-		LeftLowerArm = { 34, 0, 0 },
+		UpperTorso = { 2, -26, 0 },
+		Head = { -10, 22, 8 },
+		RightUpperArm = { -22.77, -115.29, -46.57 },
+		RightLowerArm = { -56.78, -99.02, 97.57 },
+		RightHand = { -28.35, 163.68, 41 },
+		LeftUpperArm = { -63.04, 128.15, 68 },
+		LeftLowerArm = { -14.98, 9.96, -34.18 },
+		LeftHand = { -45.44, -76.84, 3.71 },
 	}
 end
 
 -- Reload (1 s at speed 1): the gun tips in and down, the support hand drops
 -- to the magazine, pulls it, comes back up with the new one and seats it.
 local function reloadFrames(): ({ Frame }, { number })
-	local start = hip(0)
+	local start = hip()
 	local tilt: Frame = {
 		UpperTorso = { -6, 8, 0 },
 		RightUpperArm = { 72, 22, 18 },
@@ -153,9 +135,7 @@ local function reloadFrames(): ({ Frame }, { number })
 		LeftUpperArm = { 70, -32, 0 },
 		LeftLowerArm = { 48, 0, 0 },
 	}
-	local back = hip(0)
-	back.Head = { 0, 0, 0 }
-	start.Head = { 0, 0, 0 }
+	local back = hip()
 	return { start, tilt, magOut, magIn, seat, back }, { 0, 0.14, 0.38, 0.62, 0.8, 1 }
 end
 
@@ -288,22 +268,15 @@ local DRAW_LOW: Frame = {
 	LeftUpperArm = { 26, -20, 0 },
 	LeftLowerArm = { 44, 0, 0 },
 }
-local DRAW_RISE: Frame = {
-	UpperTorso = { 1, 0, 0 },
-	RightUpperArm = { 94, 8, 0 },
-	RightLowerArm = { 0, 0, 0 },
-	LeftUpperArm = { 93, -38, 0 },
-	LeftLowerArm = { 16, 0, 0 },
-}
+local DRAW_RISE: Frame = hip()
+DRAW_RISE.UpperTorso = { 6, -24, 0 } -- a touch past the hold, then settle
 
 local ACTION = Enum.AnimationPriority.Action
 local ACTION4 = Enum.AnimationPriority.Action4
 
 local reload, reloadTimes = reloadFrames()
 local sequences = {
-	sequence("GG_AdsUp", ACTION, { ads(70), ads(70) }, { 0, 1 }, true),
-	sequence("GG_AdsLevel", ACTION, { ads(0), ads(0) }, { 0, 1 }, true),
-	sequence("GG_AdsDown", ACTION, { ads(-70), ads(-70) }, { 0, 1 }, true),
+	-- GG_AdsUp / Level / Down: tools/studio/MakeHoldAnimations (2026-11-04).
 	sequence("GG_Reload", ACTION4, reload, reloadTimes, false),
 	sequence(
 		"GG_Flinch",
@@ -312,7 +285,7 @@ local sequences = {
 		{ 0, 0.05, 0.3 },
 		false
 	),
-	sequence("GG_Draw", ACTION4, { DRAW_LOW, DRAW_RISE, hip(0) }, { 0, 0.32, 0.5 }, false),
+	sequence("GG_Draw", ACTION4, { DRAW_LOW, DRAW_RISE, hip() }, { 0, 0.32, 0.5 }, false),
 	sequence("GG_KnifeReady", ACTION, { KNIFE, knifeReady(1), KNIFE }, { 0, 1.2, 2.4 }, true),
 	sequence(
 		"GG_KnifeSlash",
@@ -337,15 +310,42 @@ local sequences = {
 	),
 }
 
-local saved = {}
+-- Pose text for tools/studio/pose_text_to_rbxm.py (the Studio assistant's
+-- HTTP allowlist blocks the old localhost receiver), one clip per line:
+-- Name|Priority|Loop|Length|t>Joint:pitch,yaw,roll[,x,y,z];...|t>...
+local lines = {}
 for _, ks in sequences do
-	local blob = SerializationService:SerializeInstancesAsync({ ks })
-	local res = HttpService:RequestAsync({
-		Url = RECEIVER .. ks.Name .. ".rbxm",
-		Method = "POST",
-		Body = buffer.tostring(EncodingService:Base64Encode(blob)),
-	})
-	table.insert(saved, res.StatusCode)
-	ks.Parent = game:GetService("ServerStorage")
+	local keys = {}
+	local length = 0
+	for _, kf in ks:GetKeyframes() do
+		local k = kf :: Keyframe
+		length = math.max(length, k.Time)
+		local parts = {}
+		for _, p in k:GetDescendants() do
+			if p:IsA("Pose") and p.Weight > 0 then
+				local x, y, z = p.CFrame:ToEulerAnglesYXZ()
+				local pos = p.CFrame.Position
+				local text = string.format(
+					"%s:%.2f,%.2f,%.2f",
+					p.Name,
+					math.deg(x),
+					math.deg(y),
+					math.deg(z)
+				)
+				if pos.Magnitude > 1e-4 then
+					text ..= string.format(",%.3f,%.3f,%.3f", pos.X, pos.Y, pos.Z)
+				end
+				table.insert(parts, text)
+			end
+		end
+		table.insert(keys, string.format("%g>", k.Time) .. table.concat(parts, ";"))
+	end
+	local loop = if ks.Loop then "1" else "0"
+	table.insert(
+		lines,
+		table.concat({ ks.Name, ks.Priority.Name, loop, string.format("%g", length) }, "|")
+			.. "|"
+			.. table.concat(keys, "|")
+	)
 end
-return table.concat(saved, ",")
+return table.concat(lines, "\n")

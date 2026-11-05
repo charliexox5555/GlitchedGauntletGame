@@ -18,6 +18,7 @@ local Health = require(Shared.Health)
 local Accuracy = require(Shared.Util.Accuracy)
 local DashMod = require(Shared.Mods.Dash)
 local Status = require(Shared.Mods.Status)
+local Animations = require(Shared.Config.Animations)
 local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
 local GunSounds = require(Shared.Config.GunSounds)
@@ -713,8 +714,6 @@ end
 
 -- The last light attack's place in the Slash1 -> 2 -> 3 chain.
 local comboStep = 0
--- Gouge angle per slash (radians around the wall normal): the blade's path.
-local SLASH_ANGLES = { 0.35, -0.4, 1.35 }
 
 -- A knife attack. Light attacks chain Slash1 -> 2 -> 3 when each comes within
 -- the knife's comboWindow of the last one's cooldown; `heavy` is the
@@ -778,17 +777,21 @@ local function swing(s: LocalSlot, heavy: boolean?)
 				root.AssemblyLinearVelocity = flat.Unit * (lunge / 0.15)
 					+ Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
 			end
-		elseif not model then
-			-- The world: a gouge along the blade's path and a steel tick.
-			local angle = if heavy then math.random() * math.pi else SLASH_ANGLES[step]
-			-- Each strike lands a little apart, as a real blade would.
-			local n = result.Normal
-			local side = n:Cross(if math.abs(n.Y) < 0.9 then Vector3.yAxis else Vector3.xAxis).Unit
-			local up = side:Cross(n)
-			local jitter = side * (math.random() - 0.5) * 0.6 + up * (math.random() - 0.5) * 0.4
-			local at = result.Position + jitter
+		end
+	end
+	-- The world: a gouge where the blade actually lands, i.e. where the aim
+	-- ray meets the surface (not the reach sphere's contact point, which sits
+	-- off the crosshair on angled walls and catches nearby edges first), laid
+	-- along this swing's path as seen on screen (Config/Animations KNIFE_MARK).
+	if #hits == 0 then
+		local wall = Workspace:Raycast(origin, aim * melee.range, params)
+		if wall and wall.Instance:IsA("BasePart") and not combatantOf(wall.Instance) then
+			local path = Animations.KNIFE_MARK.paths[if heavy then "HeavyStab" else "Slash" .. step]
+				or Vector2.new(-1, 0)
+			local along = cam.CFrame.RightVector * path.X + cam.CFrame.UpVector * path.Y
+			local at, n = wall.Position, wall.Normal
 			task.delay(hitDelay, function()
-				EffectsController.slashMark(at, n, angle, heavy)
+				EffectsController.slashMark(at, n, along, heavy)
 				playGun(config, "hitWall")
 			end)
 		end

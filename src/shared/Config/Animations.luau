@@ -13,12 +13,21 @@ end
 
 return table.freeze({
 	POSES = table.freeze({
-		-- Holding the gun, blended by aim pitch (Action priority).
-		AimUp = id(106670838845808), -- looking AIM_PITCH_RANGE degrees up
-		AimLevel = id(107890457643267),
-		AimDown = id(102741853097868), -- looking AIM_PITCH_RANGE degrees down
+		-- Holding the gun, blended by aim pitch (Action priority). Solved on a
+		-- rig with both hands on the gun (tools/studio/MakeHoldAnimations,
+		-- 2026-11-04): shouldered long-gun hold, sidearms two-handed.
+		AimUp = id(78682673128245), -- looking AIM_PITCH_RANGE degrees up
+		AimLevel = id(76409026204499),
+		AimDown = id(106463785721042), -- looking AIM_PITCH_RANGE degrees down
+		-- Sidearms' two-handed hold, the same pitch blend (MakeHoldAnimations).
+		PistolAimUp = id(140253199214811),
+		PistolAimLevel = id(110910062022130),
+		PistolAimDown = id(133519096095205),
+		PistolAdsUp = id(128330306630748),
+		PistolAdsLevel = id(135875126472492),
+		PistolAdsDown = id(136703616644049),
 		-- Movement (Action2; Slide is Action3 so it wins over everything).
-		Sprint = id(97534488837117), -- gun lowered across the body
+		Sprint = id(77315179450394), -- gun lowered across the body
 		Crouch = id(99568083489164),
 		CrouchWalk = id(120617369360340), -- one stride, looped
 		-- The other crouch-walk directions (same stride length), blended by
@@ -26,7 +35,7 @@ return table.freeze({
 		CrouchWalkB = id(139454894380024),
 		CrouchWalkL = id(104336317188168),
 		CrouchWalkR = id(96202691168303),
-		Slide = id(93625856625211), -- the hold, with a scrape chatter (tools/studio/MakeSlideAnimations.luau)
+		Slide = id(96499572762397), -- the full-body ground slide hold, with a scrape chatter (tools/studio/make_slide_poses.py)
 	}),
 
 	-- Legs and hips by move direction (tools/studio/MakeLocomotionAnimations.luau,
@@ -39,9 +48,9 @@ return table.freeze({
 		RunR = id(103693381646071),
 		SprintRun = id(81006580789818),
 		Land = id(88050773886302),
-		-- The slide's way in and out (one-shots, tools/studio/MakeSlideAnimations.luau).
-		SlideIn = id(120864176700391),
-		SlideOut = id(131047407212338),
+		-- The slide's way in and out (one-shots, tools/studio/make_slide_poses.py).
+		SlideIn = id(104032142094006),
+		SlideOut = id(133079582347537),
 	}),
 	-- What others see you do with the gun (tools/studio/MakeCombatPoseAnimations.luau,
 	-- 2026-11-04): aiming down sights (three pitch poses blended like the hip
@@ -49,21 +58,66 @@ return table.freeze({
 	-- time (server player attributes ReloadAt / ReloadFor) and a flinch when
 	-- hit (HitAt).
 	COMBAT = table.freeze({
-		AdsUp = id(130705905330180),
-		AdsLevel = id(95555774738385),
-		AdsDown = id(97664620704166),
-		Reload = id(123720437640794),
+		AdsUp = id(82864178351536),
+		AdsLevel = id(135344308216590),
+		AdsDown = id(70841541332145),
+		Reload = id(109761655273266),
 		Flinch = id(114576995497102),
 		Death = id(81024323443020), -- going down (DeathFxController, on the falling copy)
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
 		-- on each swing (server player attributes SwingAt / SwingHeavy).
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
-		Draw = id(116384882246844),
+		Draw = id(88153750230726),
 		KnifeReady = id(98422551486900),
 		KnifeSlash = id(103765524428295),
 		KnifeHeavy = id(87481489934854),
 	}),
+	-- The left hand on each gun's LeftGrip (GripController IK, every visible
+	-- character, 2026-11-04). Positions in studs, angles in degrees.
+	GRIP = table.freeze({
+		reachFraction = 0.88, -- of the arm's length: how far the left hand may reach (elbow soft)
+		maxSlide = 1.5, -- how far back along the barrel the hand may slide to reach
+		leftPole = Vector3.new(-1.2, -1.6, -0.3), -- the left elbow points here (UpperTorso space)
+		long = table.freeze({ under = 0.14, side = 0, palm = 90 }), -- palm up under the guard
+		sidearm = table.freeze({ under = 0.1, side = -0.16, palm = 0 }), -- cupping the grip hand
+		fadeIn = 14, -- 1/s
+		fadeOut = 20,
+		regrip = 0.15, -- seconds after a reload ends before the hand goes back
+		afterModUse = 0.6, -- seconds the hand stays off after a Mod use (throw, place...)
+		maxDistance = 220, -- studs from the camera beyond which nobody's grip is solved
+	}),
+	-- What others see when someone fires (GripController, on ShotFx): the right
+	-- forearm pulls back `back` studs along the barrel and the muzzle flips up
+	-- `rise` degrees, reaching it in FIRE_KICK_RISE, then easing home at
+	-- `recover` (1/s, exponential: 90% back in ln(10) / recover seconds). On top
+	-- of the gun's own flip in the hand (Config/Juice WORLD_KICK).
+	FIRE_KICK_RISE = 0.05,
+	FIRE_KICK = table.freeze({
+		Sidearm = table.freeze({ back = 0.16, rise = 9, recover = 20 }), -- ~0.12 s
+		SMG = table.freeze({ back = 0.1, rise = 5, recover = 30 }), -- ~0.08 s
+		Rifle = table.freeze({ back = 0.15, rise = 6, recover = 25 }), -- ~0.09 s
+		MachineGun = table.freeze({ back = 0.14, rise = 5, recover = 28 }),
+		Shotgun = table.freeze({ back = 0.34, rise = 15, recover = 9 }), -- ~0.26 s
+		Sniper = table.freeze({ back = 0.4, rise = 16, recover = 7 }), -- ~0.33 s
+	} :: { [string]: { back: number, rise: number, recover: number } }),
+
+	-- Knife marks on the world (WeaponController / EffectsController.slashMark):
+	-- centred where the aim ray meets the surface, the gouge laid along each
+	-- swing's path on screen (x right, y up), matching the first-person clips
+	-- (Config/Viewmodel Slash1-3 / HeavyStab).
+	KNIFE_MARK = table.freeze({
+		paths = table.freeze({
+			Slash1 = Vector2.new(-0.9, -0.42), -- forehand: right to left, falling
+			Slash2 = Vector2.new(0.9, -0.45), -- backhand: back across, falling
+			Slash3 = Vector2.new(-0.1, -1), -- the downward chop
+			HeavyStab = Vector2.new(0.15, -1), -- the thrust: a short upright tear
+		} :: { [string]: Vector2 }),
+		light = table.freeze({ size = 0.36, stretch = Vector2.new(3.2, 0.22) }),
+		heavy = table.freeze({ size = 0.5, stretch = Vector2.new(1.1, 0.5) }),
+		tint = Color3.fromHex("5A5550"),
+	}),
+
 	ADS_SMOOTHING = 12, -- 1/s: how fast the hold moves between hip and sights
 	RELOAD_LENGTH = 1, -- seconds the reload clip is made at
 	DRAW_LENGTH = 0.5, -- seconds the draw clip is made at

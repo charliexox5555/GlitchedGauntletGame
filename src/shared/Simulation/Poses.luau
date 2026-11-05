@@ -50,6 +50,12 @@ local SPECS: { [string]: Spec } = {
 	AdsUp = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	AdsLevel = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	AdsDown = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	PistolAimUp = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	PistolAimLevel = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	PistolAimDown = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	PistolAdsUp = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	PistolAdsLevel = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
+	PistolAdsDown = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	KnifeReady = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 }
 local RUN_SET = { "RunF", "RunB", "RunL", "RunR" }
@@ -62,6 +68,26 @@ for _, name in { "AdsUp", "AdsLevel", "AdsDown", "KnifeReady" } do
 	IDS[name] = (Animations.COMBAT :: any)[name]
 end
 IDS.ModHold = Animations.MODS.ModHold
+-- The hold sets (tools/studio/MakeHoldAnimations): long guns, and sidearms'
+-- own two-handed hold ("" until uploaded: then sidearms borrow the long set).
+local PISTOL_SET = Animations.POSES.PistolAimLevel ~= ""
+local HOLD_SETS: { [string]: { string } } = {
+	long = { "AimUp", "AimLevel", "AimDown", "AdsUp", "AdsLevel", "AdsDown" },
+	pistol = {
+		"PistolAimUp",
+		"PistolAimLevel",
+		"PistolAimDown",
+		"PistolAdsUp",
+		"PistolAdsLevel",
+		"PistolAdsDown",
+	},
+}
+if not PISTOL_SET then
+	for _, name in HOLD_SETS.pistol do
+		IDS[name] = nil
+	end
+	HOLD_SETS.pistol = nil :: any
+end
 -- The Crash Down clips are "" until uploaded (the dive borrows Crouch).
 local SLAM_POSE = Animations.MODS.UpdraftSlam ~= ""
 if SLAM_POSE then
@@ -379,12 +405,16 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	posedAds[character] = ads
 	local hip = armed * (1 - ads)
 	local sights = armed * ads
-	setWeight(animator, "AimUp", hip * math.max(pitch, 0))
-	setWeight(animator, "AimDown", hip * math.max(-pitch, 0))
-	setWeight(animator, "AimLevel", hip * (1 - math.abs(pitch)))
-	setWeight(animator, "AdsUp", sights * math.max(pitch, 0))
-	setWeight(animator, "AdsDown", sights * math.max(-pitch, 0))
-	setWeight(animator, "AdsLevel", sights * (1 - math.abs(pitch)))
+	local pistol = PISTOL_SET and config ~= nil and config.class == "Sidearm"
+	for setName, names in HOLD_SETS do
+		local on = if (setName == "pistol") == pistol then 1 else 0
+		setWeight(animator, names[1], on * hip * math.max(pitch, 0))
+		setWeight(animator, names[2], on * hip * (1 - math.abs(pitch)))
+		setWeight(animator, names[3], on * hip * math.max(-pitch, 0))
+		setWeight(animator, names[4], on * sights * math.max(pitch, 0))
+		setWeight(animator, names[5], on * sights * (1 - math.abs(pitch)))
+		setWeight(animator, names[6], on * sights * math.max(-pitch, 0))
+	end
 	-- A reload (timed to the gun) and a flinch when hit, from the server.
 	if newMark(reloadSeen, character, player:GetAttribute("ReloadAt")) and alive and armed > 0 then
 		local duration = player:GetAttribute("ReloadFor")

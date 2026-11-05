@@ -1,4 +1,6 @@
 --!strict
+-- SUPERSEDED (2026-11-04): the slide clips now come from tools/studio/make_slide_poses.py
+-- (a full-body ground slide checked against the floor). Kept for reference.
 -- Builds the third-person slide (R15 KeyframeSequences, hips, chest and legs
 -- only: the arms stay on the gun-holding aim layers) and saves each as a
 -- Studio-serialized .rbxm in art-source/animations/ through

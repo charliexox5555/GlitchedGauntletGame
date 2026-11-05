@@ -17,6 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
@@ -928,7 +929,8 @@ local function placeHole(
 	tint: Color3,
 	size: number,
 	stretch: Vector2?,
-	angle: number?
+	angle: number?,
+	exact: boolean?
 )
 	if #holes < HOLE_POOL then
 		table.insert(holes, newHole())
@@ -938,7 +940,7 @@ local function placeHole(
 	if not h.active then
 		activeHoles += 1
 	end
-	local s = size * (0.85 + math.random() * 0.3)
+	local s = if exact then size else size * (0.85 + math.random() * 0.3)
 	local k = stretch or Vector2.one
 	h.part.Size = Vector3.new(s * k.X, s * k.Y, 0.02)
 	h.part.CFrame = facing(position + normal * 0.012, normal)
@@ -990,19 +992,29 @@ local function surfaceColor(hit: BasePart, material: Enum.Material): Color3
 end
 
 -- A knife strike on the world: a long thin gouge (the bullet-hole decal
--- stretched) across the surface at `angle` (radians around the normal), longer
--- for a heavy stab's tear. Pooled with the bullet holes.
+-- stretched) centred exactly on `position`, its long side laid along `along`
+-- (the blade's path in world space; flattened onto the surface here), a short
+-- wide tear for a heavy stab. Pooled with the bullet holes. Numbers:
+-- Config/Animations KNIFE_MARK.
 function EffectsController.slashMark(
 	position: Vector3,
 	normal: Vector3,
-	angle: number,
+	along: Vector3,
 	heavy: boolean?
 )
-	if heavy then
-		placeHole(position, normal, Color3.fromHex("5A5550"), 0.5, Vector2.new(1.1, 0.5), angle)
-	else
-		placeHole(position, normal, Color3.fromHex("5A5550"), 0.36, Vector2.new(3.2, 0.22), angle)
+	if normal.Magnitude < 1e-3 then
+		return
 	end
+	local n = normal.Unit
+	-- The decal's frame from facing(): its back (+Z) faces into the surface.
+	local frame = facing(position, n)
+	local flat = along - n * along:Dot(n)
+	local angle = if flat.Magnitude > 1e-3
+		then math.atan2(frame.UpVector:Dot(flat), frame.RightVector:Dot(flat))
+		else 0
+	local mark = Animations.KNIFE_MARK
+	local look = if heavy then mark.heavy else mark.light
+	placeHole(position, n, mark.tint, look.size, look.stretch, angle, true)
 end
 
 -- A shot landing at `position`. `hit` is the part it hit: characters get a

@@ -99,29 +99,6 @@ end
 
 -- Poses ----------------------------------------------------------------------
 
--- Holding the gun at pitch `deg` (look up = +). 35% of the pitch goes into
--- the chest, the rest into the arms. Right hand on the grip, left hand
--- reaching across to the front of the gun.
-local function aim(deg: number): Frame
-	local arm = 90 + deg * 0.65
-	return {
-		UpperTorso = { deg * 0.35, 0, 0 },
-		RightUpperArm = { arm, 8, 0 },
-		RightLowerArm = { 0, 0, 0 },
-		LeftUpperArm = { arm, -38, 0 },
-		LeftLowerArm = { 18, 0, 0 },
-	}
-end
-
--- Sprint: gun lowered and angled across the body, chest leaning forward.
-local SPRINT: Frame = {
-	UpperTorso = { -12, 0, 0 },
-	RightUpperArm = { 30, 28, -10 },
-	RightLowerArm = { 45, 0, 0 },
-	LeftUpperArm = { 42, -45, 0 },
-	LeftLowerArm = { 55, 0, 0 },
-}
-
 -- Crouch: hips lowered and leaning forward a little, knees bent, feet flat.
 local function crouch(swing: number, kneeSwing: number): Frame
 	local lean, hip, knee = -8, 62, -88
@@ -191,14 +168,11 @@ end
 
 -- (The slide's hold, in and out: tools/studio/MakeSlideAnimations.luau.)
 
-local ACTION = Enum.AnimationPriority.Action
 local ACTION2 = Enum.AnimationPriority.Action2
 
 local sequences = {
-	sequence("GG_AimUp", ACTION, { aim(70) }, 1),
-	sequence("GG_AimLevel", ACTION, { aim(0) }, 1),
-	sequence("GG_AimDown", ACTION, { aim(-70) }, 1),
-	sequence("GG_Sprint", ACTION2, { SPRINT }, 1),
+	-- GG_AimUp / Level / Down and GG_Sprint: tools/studio/MakeHoldAnimations
+	-- (solved two-handed holds, 2026-11-04).
 	sequence("GG_Crouch", ACTION2, { crouch(0, 0) }, 1),
 	sequence("GG_CrouchWalk", ACTION2, crouchWalk(), 0.9),
 	-- The other directions share the stride length, so blended feet stay in step.
