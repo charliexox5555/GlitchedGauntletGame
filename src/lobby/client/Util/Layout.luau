@@ -17,7 +17,10 @@ local Layout = {}
 export type Family = "desktop" | "phone"
 export type Kind = "hud" | "menu" | "found"
 
-Layout.MIN_TEXT_PX = 12
+-- Drawn text floor: LihFolk allows 12 px; 13 reads better over the blurred lobby.
+Layout.MIN_TEXT_PX = 13
+-- Smallest authored text, in design units (LihFolk UI Spec: 15 or more).
+Layout.MIN_TEXT_DESIGN = 15
 Layout.PHONE_SHORT_SIDE = 640
 Layout.PHONE_CANVAS = Vector2.new(800, 420)
 
@@ -109,7 +112,7 @@ function Layout.floorText(root: Instance, scale: number)
 				base = d.TextSize
 				d:SetAttribute("BaseTextSize", base)
 			end
-			d.TextSize = math.max(base :: number, floor)
+			d.TextSize = math.max(base :: number, floor, Layout.MIN_TEXT_DESIGN)
 		end
 	end
 	apply(root)

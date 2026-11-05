@@ -171,7 +171,7 @@ local function buildProfile()
 		Position = UDim2.fromOffset(340, 45),
 		Size = UDim2.fromOffset(70, 20),
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.textDim,
+		TextColor3 = C.textSecondary,
 		ZIndex = 4,
 	})
 end
@@ -621,7 +621,8 @@ local function refresh()
 	end
 
 	-- Pill.
-	local showPill = status ~= "idle" and not queueOpen
+	-- Searching only: MATCH FOUND has its own full-width band.
+	local showPill = status == "searching" and not queueOpen
 	local holder = pill.Parent :: Frame
 	if showPill and not holder.Visible then
 		holder.Visible = true
@@ -639,7 +640,7 @@ local function refresh()
 	elseif not showPill and holder.Visible then
 		Fx.out(holder, { Position = PILL_HIDDEN })
 		task.delay(Fx.MOTION.exit + 0.02, function()
-			if Router.current() == "Queue" or QueueState.status() == "idle" then
+			if Router.current() == "Queue" or QueueState.status() ~= "searching" then
 				holder.Visible = false
 			end
 		end)
@@ -678,9 +679,10 @@ local function onMenuChanged(name: string?)
 	else
 		Fx.tween(bottom, Fx.MOTION.enter, { Position = BOTTOM_SHOWN })
 	end
-	-- Phones: the whole HUD steps aside for an open menu (LihFolk: HUD Design).
+	-- The profile steps aside for an open menu (its header sits there); on
+	-- phones the whole HUD does (LihFolk: HUD Design).
+	topLeft.Visible = not open
 	if PHONE then
-		topLeft.Visible = not open
 		topRight.Visible = not open
 	end
 	refresh()

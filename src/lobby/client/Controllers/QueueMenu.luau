@@ -110,7 +110,6 @@ local L = if PHONE
 		cancelSize = Vector2.new(150, 64),
 	}
 local CARD_W, CARD_H, CARD_GAP, CARD_Y = L.cardW, L.cardH, L.cardGap, L.cardY
-local MONO = Font.new("rbxasset://fonts/families/RobotoMono.json", Enum.FontWeight.Medium)
 
 type Card = {
 	info: Config.ModeInfo,
@@ -204,7 +203,7 @@ local function teamsRow(parent: Instance, teamSize: number, y: number)
 	Ui.text(row, "VS", "titleS", {
 		Position = UDim2.fromOffset(w + 6, 0),
 		Size = UDim2.fromOffset(40, 46),
-		TextColor3 = C.textDim,
+		TextColor3 = C.textSecondary,
 		ZIndex = 4,
 	})
 	for i = 1, teamSize do
@@ -413,7 +412,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		Position = UDim2.fromOffset(32, 326),
 		Size = UDim2.fromOffset(CARD_W - 64, 18),
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.textDim,
+		TextColor3 = C.textSecondary,
 		ZIndex = 4,
 	})
 	Ui.make("Frame", {
@@ -434,18 +433,18 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	Fx.loop(dot, 0.9, { BackgroundTransparency = 0.6 })
 	local count = Ui.text(button, "0 SEARCHING", "label", {
 		Position = UDim2.fromOffset(52, L.countY),
-		Size = UDim2.fromOffset(180, 22),
+		Size = UDim2.fromOffset(CARD_W - 84, 22),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextSize = 14,
 		ZIndex = 4,
 	})
-	Ui.text(button, `BOTS AFTER {Fx.clock(QueueState.botFillAfter())}`, "label", {
+	-- Its own row under the live count, so the text floor can't make them touch.
+	Ui.text(button, `BOTS FILL AFTER {Fx.clock(QueueState.botFillAfter())}`, "label", {
 		Visible = L.details,
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(CARD_W - 32, 386),
-		Size = UDim2.fromOffset(180, 22),
-		TextXAlignment = Enum.TextXAlignment.Right,
-		TextColor3 = C.textDim,
+		Position = UDim2.fromOffset(32, 418),
+		Size = UDim2.fromOffset(CARD_W - 64, 22),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = C.textSecondary,
 		ZIndex = 4,
 	})
 	local queuedTag = Ui.tag(button, "IN QUEUE", C.gold, {
@@ -856,7 +855,7 @@ local function buildMenu()
 			AnchorPoint = Vector2.new(0.5, 0),
 			Position = UDim2.fromOffset(960, 924),
 			Size = UDim2.fromOffset(1400, 20),
-			TextColor3 = C.textDim,
+			TextColor3 = C.textSecondary,
 			Visible = not PHONE and UserInputService.KeyboardEnabled,
 		}
 	)
@@ -903,7 +902,7 @@ local function slot(parent: Instance, userId: number?, color: Color3, order: num
 			card,
 			"BOT",
 			"displayM",
-			{ Size = UDim2.fromScale(1, 1), TextColor3 = C.textDim, ZIndex = 4 }
+			{ Size = UDim2.fromScale(1, 1), TextColor3 = C.textSecondary, ZIndex = 4 }
 		)
 	end
 	Ui.text(f, name, "bodyM", {
@@ -937,7 +936,7 @@ local function buildFound()
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.new(1, 0, 0, 0),
 		BackgroundColor3 = C.scrim,
-		BackgroundTransparency = 0.08,
+		BackgroundTransparency = 0.03,
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
 	}, foundGui)
@@ -998,10 +997,9 @@ local function buildFound()
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(960, 430),
 		Size = UDim2.fromOffset(1500, 70),
-		FontFace = MONO,
 		TextSize = 15,
 		TextWrapped = true,
-		TextColor3 = C.ally,
+		TextColor3 = C.textSecondary,
 		Visible = false,
 		ZIndex = 4,
 	})
@@ -1125,7 +1123,7 @@ local function onQueueEvent(payload: any)
 		if foundOpen and typeof(payload.payload) == "string" then
 			foundCountdown.Text =
 				"STUDIO: TELEPORT SKIPPED. THIS IS THE TELEPORTDATA IT WOULD SEND:"
-			foundCountdown.TextColor3 = C.ally
+			foundCountdown.TextColor3 = C.textSecondary
 			foundStudio.Text = payload.payload
 			foundStudio.Visible = true
 		end

@@ -87,14 +87,25 @@ local function card(
 end
 
 local function soon(parent: Instance, text: string, y: number)
-	local tag = Ui.tag(parent, "COMING SOON", C.gold, {
+	-- An auto-layout row, so the tag and the line never touch at any text size.
+	local row = Ui.make("Frame", {
 		Position = UDim2.fromOffset(0, y),
-	}, true)
-	Ui.text(parent, text, "bodyM", {
-		Position = UDim2.fromOffset(150, y + 1),
-		Size = UDim2.fromOffset(1400, 24),
+		Size = UDim2.fromOffset(1600, 32),
+		BackgroundTransparency = 1,
+	}, parent)
+	Ui.make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 16),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, row)
+	local tag = Ui.tag(row, "COMING SOON", C.gold, { LayoutOrder = 1 }, true)
+	Ui.text(row, text, "bodyM", {
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 24),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = C.textSecondary,
+		LayoutOrder = 2,
 	})
 	return tag
 end
@@ -432,7 +443,7 @@ local function buildLocker()
 		Position = UDim2.fromOffset(34, 72),
 		Size = UDim2.fromOffset(400, 18),
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.textDim,
+		TextColor3 = C.textSecondary,
 		ZIndex = 4,
 	})
 	for i, entry in LOADOUT do
@@ -452,12 +463,13 @@ local function buildLocker()
 			Position = UDim2.fromOffset(22, 18),
 			Size = UDim2.fromOffset(200, 18),
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.textDim,
+			TextColor3 = C.textSecondary,
 			ZIndex = 4,
 		})
 		Ui.text(button, string.upper(entry.gun), "titleS", {
-			Position = UDim2.fromOffset(22, 40),
-			Size = UDim2.fromOffset(200, 26),
+			Position = UDim2.fromOffset(22, 44),
+			Size = UDim2.fromOffset(220, 36),
+			TextSize = 32, -- the gun name outranks the slot label
 			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 4,
 		})
@@ -535,7 +547,7 @@ local function buildSettings()
 			Position = UDim2.fromOffset(28, Layout.pick(46, 38)),
 			Size = UDim2.fromOffset(Layout.pick(600, 520), 20),
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.textDim,
+			TextColor3 = C.textSecondary,
 			ZIndex = 4,
 		})
 		local value, set = row.value, row.set
