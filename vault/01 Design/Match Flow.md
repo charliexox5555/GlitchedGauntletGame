@@ -3,7 +3,7 @@
 How a match runs in the match place, from the map loading to someone winning. The user set this flow on 2026-11-02, based on Valorant's Gauntlet: Glitched. **Status: first version built, rough UI, PC only.** Tech: [Architecture](../04%20Tech/Architecture.md) → Match system.
 
 ## The flow
-1. **Waiting:** the map loads and players get in. A match needs both teams. In a Studio playtest with one player, a **test opponent** fills the other side.
+1. **Waiting:** the map loads and players get in. A match needs both teams. In a Studio playtest with one player, an **AI bot** fills the other side ([Bots](Bots.md)); a Lobby party can ask for bots in its empty slots.
 2. **Get ready:** a short countdown before the first draft.
 3. **Round loop:**
    - **Draft:** every player picks **1 of 3 guns** (top row) and **1 of 3 abilities** (below), behind their spawn barrier. It ends early when everyone has locked in.
