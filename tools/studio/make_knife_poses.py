@@ -81,10 +81,10 @@ S1_CUT = pose(
 	LeftLowerArm=(70, 0, 0),
 )
 S1_FOLLOW = pose(
-	UpperTorso=(-8, 32, 0),
+	UpperTorso=(-8, 34, 0),
 	Head=(0, -24, 0),
-	RightUpperArm=(70, 64, 4),
-	RightLowerArm=(26, 0, 0),
+	RightUpperArm=(82, 42, 4),
+	RightLowerArm=(10, 0, 0),
 	RightHand=(-6, 18, 0),
 	LeftUpperArm=(40, -32, 0),
 	LeftLowerArm=(66, 0, 0),
@@ -93,10 +93,10 @@ S1_SETTLE = pose(UpperTorso=(1, -9, 0), RightUpperArm=(50, 6, 0))
 
 # Slash2: backhand, from across the body out to the right.
 S2_WIND = pose(
-	UpperTorso=(4, 26, 0),
+	UpperTorso=(4, 28, 0),
 	Head=(0, -20, 0),
-	RightUpperArm=(84, 50, 0),
-	RightLowerArm=(78, 0, 0),
+	RightUpperArm=(100, 40, 0),
+	RightLowerArm=(56, 0, 0),
 	RightHand=(0, 32, 0),
 	LeftUpperArm=(46, -30, 0),
 	LeftLowerArm=(72, 0, 0),
@@ -176,7 +176,8 @@ H_THRUST = pose(
 H_OVER = pose(H_THRUST, UpperTorso=(-16, 12, 0), RightUpperArm=(95, 9, 0))
 H_SETTLE = pose(UpperTorso=(0, -8, 0), RightUpperArm=(50, 8, 0))
 
-# (name, [(time, pose, easing of the segment that starts here)])
+# (name, [(time, pose, easing of the segment that starts here)]); every
+# key's arms are nudged clear of the torso afterwards (clear(), below).
 CLIPS = [
 	(
 		"GG_KnifeSlash1",
@@ -415,7 +416,127 @@ def draw_tip(p, view, ox, oy, scale):
 	return project(tip_world(p), view, ox, oy, scale)
 
 
+# --- Overlap check (rubric gate: no limb deeper than 0.05 studs in the torso
+# or head). Oriented boxes of the block rig, separating-axis depth; joint
+# neighbours are skipped (they always touch at the joint).
+PAIRS = [
+	(a, b)
+	for a in ("RightLowerArm", "RightHand", "LeftLowerArm", "LeftHand", "RightUpperArm", "LeftUpperArm")
+	for b in ("UpperTorso", "Head", "LowerTorso")
+	if not (a.endswith("UpperArm") and b == "UpperTorso")
+] + [("RightHand", "LeftHand"), ("RightLowerArm", "LeftLowerArm")]
+
+
+def obb_depth(ma, sa, mb, sb):
+	"""Smallest overlap along the 15 SAT axes (<= 0: apart)."""
+	ra, rb = ma[:3, :3], mb[:3, :3]
+	ha, hb = np.array(sa) / 2, np.array(sb) / 2
+	d = mb[:3, 3] - ma[:3, 3]
+	axes = [ra[:, i] for i in range(3)] + [rb[:, i] for i in range(3)]
+	axes += [np.cross(ra[:, i], rb[:, j]) for i in range(3) for j in range(3)]
+	best = math.inf
+	for ax in axes:
+		n = np.linalg.norm(ax)
+		if n < 1e-6:
+			continue
+		ax = ax / n
+		pa = sum(ha[i] * abs(np.dot(ra[:, i], ax)) for i in range(3))
+		pb = sum(hb[i] * abs(np.dot(rb[:, i], ax)) for i in range(3))
+		best = min(best, pa + pb - abs(np.dot(d, ax)))
+	return best
+
+
+def overlaps():
+	worst = {}
+	for name, keys in CLIPS:
+		length = keys[-1][0]
+		top = (0.0, None, None)
+		for k in range(int(length * 60) + 1):
+			w = fk(sample(keys, k / 60))
+			w["LowerTorso"] = w["LowerTorso"]
+			for a, b in PAIRS:
+				depth = obb_depth(w[a], SIZE[a], w[b], SIZE[b])
+				if depth > top[0]:
+					top = (depth, f"{a}/{b}", round(k / 60, 3))
+		worst[name] = {"depth": round(top[0], 3), "pair": top[1], "at": top[2]}
+	return worst
+
+
+def arm_depth(p, side):
+	w = fk(p)
+	worst = 0.0
+	for a, b in PAIRS:
+		if a.startswith(side) or b.startswith(side):
+			worst = max(worst, obb_depth(w[a], SIZE[a], w[b], SIZE[b]))
+	return worst
+
+
+def clear(p, limit=0.01):
+	"""Moves the joints the least it takes to keep the limbs out of the torso
+	and head while the blade tip and the guard hand stay where the key put
+	them (the arc is what reads), coordinate descent over the arms and the
+	chest twist."""
+	p = dict(p)
+	names = [
+		("RightUpperArm", 0),
+		("RightUpperArm", 1),
+		("RightUpperArm", 2),
+		("RightLowerArm", 0),
+		("RightHand", 0),
+		("RightHand", 1),
+		("LeftUpperArm", 0),
+		("LeftUpperArm", 1),
+		("LeftLowerArm", 0),
+		("UpperTorso", 1),
+	]
+	base = [p[j][i] for j, i in names]
+	w0 = fk(p)
+	tip0 = (w0["RightHand"] @ np.array([*KNIFE[1], 1]))[:3]
+	hand0 = w0["LeftHand"][:3, 3]
+
+	def build(v):
+		q = dict(p)
+		for (j, i), x in zip(names, v):
+			t = list(q[j])
+			t[i] = x
+			q[j] = tuple(t)
+		return q
+
+	def cost(v):
+		q = build(v)
+		w = fk(q)
+		d = 0.0
+		for a, b in PAIRS:
+			d = max(d, obb_depth(w[a], SIZE[a], w[b], SIZE[b]))
+		tip = (w["RightHand"] @ np.array([*KNIFE[1], 1]))[:3]
+		hand = w["LeftHand"][:3, 3]
+		move = np.sum((tip - tip0) ** 2) / 0.15**2 + np.sum((hand - hand0) ** 2) / 0.4**2
+		dev = sum(((x - b0) / 45) ** 2 for x, b0 in zip(v, base))
+		return max(0.0, d - limit) * 900 + move + dev
+
+	v = list(base)
+	best = cost(v)
+	for step in (12, 6, 3):
+		improved = True
+		while improved:
+			improved = False
+			for k, (j, i) in enumerate(names):
+				for dlt in (-step, step):
+					u = list(v)
+					u[k] += dlt
+					if abs(u[k] - base[k]) > 60 or (j.endswith("LowerArm") and not 0 <= u[k] <= 135):
+						continue
+					c = cost(u)
+					if c < best - 1e-9:
+						best, v, improved = c, u, True
+	return build(v)
+
+
 def main():
+	if len(sys.argv) > 1 and sys.argv[1] == "--overlap":
+		for k, v in overlaps().items():
+			print(k, v)
+		return
 	if len(sys.argv) > 2 and sys.argv[1] == "--sheet":
 		for k, v in sheets(sys.argv[2]).items():
 			print(k, v)
@@ -423,6 +544,51 @@ def main():
 	print("# Third-person knife clips (tools/studio/make_knife_poses.py)")
 	for name, keys in CLIPS:
 		print(line(name, keys))
+	# The ready loop (was MakeCombatPoseAnimations' GG_KnifeReady), with the
+	# same cleared arms the clips start and end on, and a slow breath.
+	breath = [(0.0, READY_CLEARED, "Cubic/InOut"), (1.2, clear(ready(1)), "Cubic/InOut"), (2.4, READY_CLEARED, None)]
+	print(line("GG_KnifeReady", breath).replace("|Action4|0|", "|Action|1|", 1))
+
+
+
+# Clear every key once (the ready pose too, so GG_KnifeReady matches).
+_cleared = {}
+
+
+def _clear_cached(p):
+	k = id(p)
+	if k not in _cleared:
+		_cleared[k] = clear(p)
+	return _cleared[k]
+
+
+def _segment_depth(p0, p1, st):
+	worst = 0.0
+	for k in range(1, 12):
+		q = lerp_pose(p0, p1, ease(st, k / 12))
+		w = fk(q)
+		for a, b in PAIRS:
+			worst = max(worst, obb_depth(w[a], SIZE[a], w[b], SIZE[b]))
+	return worst
+
+
+def _split(keys):
+	"""An ease-in-out segment whose in-betweens cut into the body gets a
+	cleared midpoint key (its easing split into In / Out halves, so the
+	timing is unchanged)."""
+	out = []
+	for (t0, p0, st), (t1, p1, _) in zip(keys, keys[1:]):
+		if st == "Cubic/InOut" and _segment_depth(p0, p1, st) > 0.05:
+			mid = clear(lerp_pose(p0, p1, 0.5))
+			out += [(t0, p0, "Cubic/In"), (round((t0 + t1) / 2, 4), mid, "Cubic/Out")]
+		else:
+			out.append((t0, p0, st))
+	out.append(keys[-1])
+	return out
+
+
+CLIPS[:] = [(name, _split([(t, _clear_cached(p), st) for t, p, st in keys])) for name, keys in CLIPS]
+READY_CLEARED = _clear_cached(R)
 
 
 if __name__ == "__main__":

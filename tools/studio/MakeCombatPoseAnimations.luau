@@ -286,6 +286,9 @@ local sequences = {
 		false
 	),
 	sequence("GG_Draw", ACTION4, { DRAW_LOW, DRAW_RISE, hip() }, { 0, 0.32, 0.5 }, false),
+	-- GG_KnifeReady / GG_KnifeSlash / GG_KnifeHeavy below are superseded
+	-- (2026-11-05) by tools/studio/make_knife_poses.py (GG_KnifeReady,
+	-- GG_KnifeSlash1-3, GG_KnifeHeavy; the ids in Config/Animations).
 	sequence("GG_KnifeReady", ACTION, { KNIFE, knifeReady(1), KNIFE }, { 0, 1.2, 2.4 }, true),
 	sequence(
 		"GG_KnifeSlash",
