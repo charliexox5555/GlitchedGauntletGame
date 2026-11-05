@@ -69,15 +69,15 @@ return table.freeze({
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
 		Draw = id(118928673381535),
-		KnifeReady = id(137684522801301), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
+		KnifeReady = id(116692680582291), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
 		-- Knife swings (2026-11-05, tools/studio/make_knife_poses.py; every
 		-- frame keeps the limbs within 0.015 studs of the torso on the block
 		-- rig). The old single slash was 103765524428295, the old heavy
 		-- 87481489934854.
-		KnifeSlash = id(120075368789466), -- GG_KnifeSlash1: forehand (SwingStep 1)
-		KnifeSlash2 = id(114967799820164), -- GG_KnifeSlash2: backhand (SwingStep 2)
-		KnifeSlash3 = id(137186406401882), -- GG_KnifeSlash3: the overhead chop (SwingStep 3)
-		KnifeHeavy = id(95581858309258), -- GG_KnifeHeavy: pull back, coil, thrust
+		KnifeSlash = id(93885278536146), -- GG_KnifeSlash1: forehand (SwingStep 1)
+		KnifeSlash2 = id(138622195195928), -- GG_KnifeSlash2: backhand (SwingStep 2)
+		KnifeSlash3 = id(83936340288160), -- GG_KnifeSlash3: the overhead chop (SwingStep 3)
+		KnifeHeavy = id(125552226626615), -- GG_KnifeHeavy: pull back, coil, thrust
 	}),
 	-- The left hand on each gun's LeftGrip (GripController IK, every visible
 	-- character, 2026-11-04). Positions in studs, angles in degrees.

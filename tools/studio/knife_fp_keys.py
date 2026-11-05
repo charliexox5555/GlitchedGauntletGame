@@ -79,7 +79,7 @@ ATTACKS = {
 		0.3,
 		[
 			(0.2, ((0.9, -0.28, -0.98), (0.35, 0.88, -0.32), (-1, 0, 0)), ("Quad", OUT)),
-			(0.3, ((0.55, -0.62, -1.25), (-0.55, 0.67, -1.05), (-1, -0.1, -0.3)), ("Linear", None)),
+			(0.3, ((0.62, -0.48, -1.28), (-0.62, 0.5, -0.97), (-1, -0.1, -0.3)), ("Linear", None)),
 			(0.42, ((0.22, -0.88, -1.3), (-0.82, 0.05, -0.57), (-0.5, -0.85, 0)), ("Quad", OUT)),
 			(0.56, ((0.12, -0.98, -1.22), (-0.85, -0.15, -0.5), (-0.4, -0.9, 0)), ("Sine", OUT)),
 			(0.86, near(0.02, -0.01, 0.01, -4), ("Quad", INOUT)),
@@ -93,8 +93,8 @@ ATTACKS = {
 		0.3,
 		[
 			(0.2, ((0.12, -0.4, -1.1), (-0.85, 0.4, -0.35), (0.2, -0.95, 0)), ("Quad", OUT)),
-			(0.3, ((0.42, -0.66, -1.3), (-0.45, 0.72, -1.0), (0.8, 0.2, 0.3)), ("Linear", None)),
-			(0.42, ((0.85, -0.82, -1.25), (0.75, 0.15, -0.65), (0.55, -0.8, 0)), ("Quad", OUT)),
+			(0.3, ((-0.45, -0.45, -1.35), (0.45, 0.47, -0.9), (1, -0.2, 0.2)), ("Linear", None)),
+			(0.42, ((0.55, -0.8, -1.3), (0.8, 0.1, -0.6), (0.55, -0.8, 0)), ("Quad", OUT)),
 			(0.56, ((0.95, -0.92, -1.15), (0.8, -0.1, -0.58), (0.45, -0.85, 0)), ("Sine", OUT)),
 			(0.86, near(-0.01, -0.01, 0.01, 4), ("Quad", INOUT)),
 		],
@@ -140,6 +140,33 @@ def luau_v(v):
 	return "Vector3.new(" + ", ".join(f"{x:.3f}".rstrip("0").rstrip(".") if abs(x) > 5e-4 else "0" for x in v) + ")"
 
 
+# Each strike (the Linear segment into contact) gets a mid key pushed out
+# along the arc (`BULGE` studs, away from the view axis and up), so the blade
+# travels a curve, not a straight line between two keys.
+BULGE = 0.1
+
+
+def curved(keys):
+	out = []
+	prev = (0.0, REST)
+	for t, k, style in keys:
+		if style[0] == "Linear":
+			t0, (g0, b0, e0) = prev
+			g0, g1 = np.asarray(g0, float), np.asarray(k[0], float)
+			mid = (g0 + g1) / 2
+			chord = g1 - g0
+			out_dir = np.cross(chord, [0, 0, 1.0])
+			if np.dot(out_dir, [0, 1, 0]) < 0:
+				out_dir = -out_dir
+			mid = mid + unit(out_dir) * BULGE
+			blade = unit(unit(b0) + unit(k[1]))
+			edge = unit(unit(np.asarray(e0, float)) + unit(np.asarray(k[2], float)))
+			out.append(((t0 + t) / 2, (tuple(mid), tuple(blade), tuple(edge)), ("Linear", None)))
+		out.append((t, k, style))
+		prev = (t, k)
+	return out
+
+
 def main():
 	check = "--check" in sys.argv
 	for name, (length, hit, keys) in ATTACKS.items():
@@ -149,7 +176,7 @@ def main():
 			print(f"\t\t{name} = {{")
 			print(f"\t\t\tlength = {length},\n\t\t\tpivot = \"Grip\",\n\t\t\town = true,\n\t\t\tscreen = true,\n\t\t\thit = {hit},")
 			print("\t\t\tkeys = {\n\t\t\t\tkey(0, ZERO, ZERO),")
-		for t, (grip, blade, edge), (style, d) in keys:
+		for t, (grip, blade, edge), (style, d) in curved(keys):
 			pos, rot = key(grip, blade, edge)
 			if check:
 				tip = np.asarray(grip, float) + unit(blade) * np.linalg.norm(REST_TIP - REST_GRIP)

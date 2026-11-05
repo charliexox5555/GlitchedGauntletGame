@@ -792,8 +792,9 @@ return table.freeze({
 			},
 		},
 		-- Knife inspect (2026-11-05, lane F): raise it into view turned to show
-		-- one face, flip it over the knuckles (a half turn about the blade) to
-		-- show the other face, flip again, settle back. The track drives the
+		-- one face, roll it a quarter turn and tip it so the spine faces you
+		-- (round 3: the two faces read the same), then flip it the rest of the
+		-- way round over the knuckles, settle back. The track drives the
 		-- whole move (`own`): the knife's Blender Inspect clip doesn't play.
 		-- Roll ends at 360 (= the hold) so nothing unspins at the end.
 		InspectMelee = {
@@ -813,22 +814,22 @@ return table.freeze({
 				key(
 					0.39,
 					Vector3.new(-0.2, 0.23, 0.05),
-					Vector3.new(12, 40, 60),
+					Vector3.new(16, 38, 20),
 					Enum.EasingStyle.Quad,
 					IN
 				),
 				key(
 					0.46,
 					Vector3.new(-0.2, 0.17, 0.04),
-					Vector3.new(7, 42, 158),
+					Vector3.new(30, 26, 72),
 					Enum.EasingStyle.Back,
 					OUT
 				),
-				key(0.66, Vector3.new(-0.21, 0.165, 0.04), Vector3.new(9, 46, 152)),
+				key(0.66, Vector3.new(-0.21, 0.165, 0.04), Vector3.new(33, 22, 68)),
 				key(
 					0.73,
 					Vector3.new(-0.2, 0.23, 0.05),
-					Vector3.new(12, 40, 250),
+					Vector3.new(14, 36, 200),
 					Enum.EasingStyle.Quad,
 					IN
 				),
@@ -880,9 +881,15 @@ return table.freeze({
 					OUT
 				),
 				key(
+					0.25,
+					Vector3.new(0.084, 0.397, -0.009),
+					Vector3.new(16.465, -2.054, -50.882),
+					Enum.EasingStyle.Linear
+				),
+				key(
 					0.3,
-					Vector3.new(-0.068, 0.076, -0.129),
-					Vector3.new(0.456, 9.673, -33.979),
+					Vector3.new(0.002, 0.216, -0.159),
+					Vector3.new(-5.43, 14.472, -30.683),
 					Enum.EasingStyle.Linear
 				),
 				key(
@@ -925,15 +932,21 @@ return table.freeze({
 					OUT
 				),
 				key(
+					0.25,
+					Vector3.new(-0.792, 0.371, -0.104),
+					Vector3.new(60.12, -5.87, 73.294),
+					Enum.EasingStyle.Linear
+				),
+				key(
 					0.3,
-					Vector3.new(-0.198, 0.036, -0.179),
-					Vector3.new(70.994, 32.236, 129.535),
+					Vector3.new(-1.068, 0.246, -0.229),
+					Vector3.new(63.933, -20.677, 129.542),
 					Enum.EasingStyle.Linear
 				),
 				key(
 					0.42,
-					Vector3.new(0.232, -0.124, -0.129),
-					Vector3.new(69.257, -67.144, 111.986),
+					Vector3.new(-0.068, -0.104, -0.179),
+					Vector3.new(75.797, -71.31, 119.723),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
@@ -968,6 +981,12 @@ return table.freeze({
 					Vector3.new(76.26, -39.506, 28.945),
 					Enum.EasingStyle.Quad,
 					OUT
+				),
+				key(
+					0.285,
+					Vector3.new(-0.215, 0.329, -0.029),
+					Vector3.new(55.558, -25.881, 30.298),
+					Enum.EasingStyle.Linear
 				),
 				key(
 					0.33,
@@ -1022,6 +1041,12 @@ return table.freeze({
 					OUT
 				),
 				key(0.38, Vector3.new(0.202, 0.166, 0.501), Vector3.new(53.685, 52.314, 161.422)),
+				key(
+					0.41,
+					Vector3.new(0.009, 0.281, -0.064),
+					Vector3.new(43.181, 51.332, 173.3),
+					Enum.EasingStyle.Linear
+				),
 				key(
 					0.44,
 					Vector3.new(-0.198, 0.196, -0.629),

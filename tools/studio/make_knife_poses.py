@@ -78,7 +78,7 @@ S1_CUT = pose(
 	Head=(0, -14, 0),
 	RightUpperArm=(90, 26, 0),
 	RightLowerArm=(8, 0, 0),
-	RightHand=(0, 14, 0),
+	RightHand=(-55, 45, 0),
 	LeftUpperArm=(50, -30, 0),
 	LeftLowerArm=(70, 0, 0),
 )
@@ -87,7 +87,7 @@ S1_FOLLOW = pose(
 	Head=(0, -24, 0),
 	RightUpperArm=(82, 42, 4),
 	RightLowerArm=(10, 0, 0),
-	RightHand=(-6, 18, 0),
+	RightHand=(-50, 55, 0),
 	LeftUpperArm=(40, -32, 0),
 	LeftLowerArm=(66, 0, 0),
 )
@@ -108,16 +108,16 @@ S2_CUT = pose(
 	Head=(0, 12, 0),
 	RightUpperArm=(90, -24, 0),
 	RightLowerArm=(14, 0, 0),
-	RightHand=(0, -18, 0),
+	RightHand=(-50, -45, 0),
 	LeftUpperArm=(66, -14, 0),
 	LeftLowerArm=(72, 0, 0),
 )
 S2_FOLLOW = pose(
 	UpperTorso=(-6, -28, 0),
 	Head=(0, 22, 0),
-	RightUpperArm=(76, -62, -8),
-	RightLowerArm=(22, 0, 0),
-	RightHand=(-6, -24, 0),
+	RightUpperArm=(64, -40, -6),
+	RightLowerArm=(18, 0, 0),
+	RightHand=(-45, -50, 0),
 	LeftUpperArm=(72, -4, 0),
 	LeftLowerArm=(70, 0, 0),
 )
@@ -129,7 +129,7 @@ S3_WIND = pose(
 	Head=(-8, 10, 0),
 	RightUpperArm=(166, -12, 0),
 	RightLowerArm=(68, 0, 0),
-	RightHand=(30, 0, 0),
+	RightHand=(45, 0, 0),
 	LeftUpperArm=(78, -20, 0),
 	LeftLowerArm=(60, 0, 0),
 )
@@ -533,8 +533,9 @@ def clear(p, limit=0.01):
 					u[k] += dlt
 					if abs(u[k] - base[k]) > 60 or (j.endswith("LowerArm") and not 0 <= u[k] <= 135):
 						continue
-					# A real wrist: flexion within 80 deg, side to side within 40.
-					if j == "RightHand" and abs(u[k]) > (80 if i == 0 else 40):
+					# A real wrist and forearm: flexion within 80 deg; the hand's
+					# yaw is the forearm's turn (pronation), within 85.
+					if j == "RightHand" and abs(u[k]) > (80 if i == 0 else 85):
 						continue
 					c = cost(u)
 					if c < best - 1e-9:

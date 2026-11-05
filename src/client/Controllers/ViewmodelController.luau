@@ -336,7 +336,11 @@ local function trackOffset(gun: Gun, mirror: boolean, screen: boolean): CFrame
 			local t = math.clamp(p.time / p.length, 0, 1)
 			-- The blade's turn trails the hand's travel by SCREEN_LAG (the
 			-- wrist follows through: overlapping action, not one rigid piece).
-			local lag = VM.SCREEN_LAG / math.max(p.length, 1e-3)
+			-- It builds up after contact, so the blade is exactly on the
+			-- impact point at `hit`.
+			local hit = p.track.hit
+			local ramp = if hit then math.clamp((t - hit) * p.length / 0.08, 0, 1) else 1
+			local lag = VM.SCREEN_LAG * ramp / math.max(p.length, 1e-3)
 			local travel = sampleKeys(p.track, t)
 			local wrist = sampleKeys(p.track, math.max(t - lag, 0))
 			local full = CFrame.new(travel.Position) * wrist.Rotation
