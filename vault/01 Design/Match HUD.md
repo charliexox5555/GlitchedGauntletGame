@@ -193,3 +193,30 @@ That's the last of the three allowed fix rounds, so the score stops at **6.7, be
    - nothing under the thumbstick or the jump button.
 4. Try the touch buttons for size (72 design px now). Say if the layer feels too big on an iPad (it's 1.0x there).
 5. **Real phone test** from the Roblox app, since none of this ran on a device.
+
+### Compact phone draft cards (2026-11-05, ~11:15)
+Built in `c08bbea` and `79fe1ba`. On compact screens:
+- A new-ability card shrinks from 540 to 306 design px. It keeps a 180 px art band with the name and role on it, plus up to 3 description lines ending in "…".
+- Upgrade columns always use their short (160 px) cards.
+- The MAXED panel gets the same squeeze.
+- Holding a card (touch), or right-clicking it, opens a **details sheet** with all of the card's text; tap to close.
+- The scroller height follows the real cards, and the draft opens far enough down that the whole ability row is in view.
+- The hint names the preselected gun: "Gun: SHERIFF (scroll up to change). Tap a card, hold it for details."
+
+Measured with the harness:
+
+| Size | Ability row at open | Result |
+|---|---|---|
+| iPhone SE | 70..229 of a 245 px view | fits |
+| 844 x 390 | 52..255 of a 259 px view | fits |
+| 1024 x 768 | | fits |
+
+At all three sizes text is 13 px or more and there's no overflow. The detail sheet was checked in play.
+
+Screenshots: `phone-draft-compact-cards.jpg`, `phone-detail-sheet.jpg`, `phone-hud-live-forced.jpg`, `figma-phone-compact-card.png` (Figma, Screens page, y 7720).
+
+**Not done:** the re-score with three fresh blind reviewers. It was started but stopped when the usage limit was reached, so the last recorded score is still 6.7 (from before the compact cards). Re-run `lihfolk:quality-score` on the screenshots above.
+
+**Known gap:** a long-press opens the sheet, and releasing it also picks the card.
+
+**Check tonight:** on a phone (or with ForceLayout = "phone" and ForceTouchUI), the draft should open with the full ability row visible. Hold a card: the sheet should show its full text.
