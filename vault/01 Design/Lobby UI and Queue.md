@@ -299,3 +299,146 @@ Logged in `.lihfolk/ledger.jsonl`.
 
 ## 9. Match HUD v2 (2026-11-05)
 The in-match UI (score bar, draft, health, ammo, ability slots, kill feed, banners) now uses this same v2 look, through shared modules (`src/shared/Config/UiStyle.luau`, `src/shared/UiKit.luau`, `src/shared/CoreUi.luau`). Details, screenshots, scores and a check list: [Match HUD](Match%20HUD.md).
+
+**Update (evening):** the user reverted the match UI to the v1 look (cut corners, Oswald). The shared modules stay because the Lobby uses them. See [Match HUD](Match%20HUD.md) → "Decision 2026-11-05".
+
+## 10. UI concept pass (2026-11-05, evening, lane E)
+**Why:** the user on the Lobby v2: the fonts and some of the effects are good, but the round, circular, pill look reads as "AI-made", not like a professional game. The match HUD is back on v1 (cut corners) by the user's choice. This pass proposes **one shape language for both**, before anything is built in Roblox. The user picks first.
+
+### Reference board
+28 captures are in `vault/02 Art/References/ui/third-party/`. They are third-party screenshots for study only, and **never committed** (the repo is public). Most come from Interface In Game's archive. They cover Valorant, Overwatch 2, Apex, The Finals, Marvel Rivals, Fortnite, CS2 and XDefiant, plus RIVALS and Arsenal on Roblox. A Phantom Forces capture was blocked (HTTP 403).
+
+What makes each one read as professional:
+
+| Game (files) | Hierarchy | Edges and corners | Type | Spacing and texture | Motion (known from play) |
+|---|---|---|---|---|---|
+| Valorant (01-06) | A full-width top nav with PLAY as a raised centre tab. The main action is a flat block at the bottom centre. | Square panels. The signature is hairline 1 px rules with small notches, chevrons and corner ticks. The agent banners have a pointed bottom. | Small tracked caps for labels; one big display word per screen (BUY PHASE, CLUTCH, MVP). | Pale or dark translucent panels on a blurred scene, lots of air, left-aligned lists. | Short slides and fades; the banner pops once. |
+| Overwatch 2 (07-10) | A giant italic page title at the top left, a card row, and keybind hints in the bottom corners. The queue is a compact block at the top centre with CANCEL. | Nearly square cards (about 2 px radius). The selected card is filled with colour. | Heavy italic display; bold caps labels. | Flat white cards on a blurred world; one accent per state. | Cards lift on hover. |
+| Apex (11-12) | Tabs along the top with a red underline on the active one. READY is the biggest block, at the bottom left. | **Slanted cuts** on blocks, tabs and the health plate. | Condensed caps. | Dark slabs with a red accent, chunky and military. | — |
+| The Finals (13-15) | An italic title with the logo at the top left. Mode cards with a dark label bar at the foot. | Sharp rectangles; slanted background shapes. | Heavy **italic** condensed caps. | One loud brand colour (red) as the background, flat colour fields, no gradients on the controls. | Snappy. |
+| Marvel Rivals (16-19) | A huge italic mode name. Parallelogram mode tiles. A big timer in hero select. | Parallelograms and diagonal cuts throughout. | Heavy italic. | Diagonal light shafts and bold background shapes. | Lots of sweep and slide. |
+| Fortnite (20-21) | Text tabs with a yellow active tab. A huge yellow READY at the bottom right. | Slanted tabs and buttons. | Heavy condensed. | Flat colour blocks. | — |
+| CS2 (22-23) | The HUD is just numbers on hairlines: health and ammo at the bottom, team portraits at the top. | Almost no panels. | Clean sans with large numerals. | Minimal. | — |
+| XDefiant (24-25) | Small sharp HUD plates; a giant WINNERS word with score columns. | Sharp rectangles, light transparency. | Heavy italic numerals. | Clean. | — |
+| RIVALS, Arsenal (26-28) | A Roblox-scale HUD: a big ammo count, a portrait strip at the top, a bottom icon dock in the lobby. | RIVALS is rounded and playful. Arsenal is sharp and blocky. | Bold sans. | Lighter polish than the PC games. This is the bar we want to beat. | — |
+
+**What they share:**
+- **Few, sharp shapes.** Corners are square, or cut or slanted on purpose. None of them uses one soft radius everywhere.
+- Each game has **one signature detail** and repeats it: Valorant's notches and hairlines, Apex's slants, the italic slabs in The Finals and Marvel Rivals.
+- **Navigation is text along the top edge**, and PLAY/READY is the one biggest block, anchored to an edge or corner.
+- **Strong size contrast:** one huge italic word against small tracked caps.
+- **Flat accent fills** for the action; glow is only for focus or reward moments.
+- Panels are **anchored to the screen edges**, not floating capsules.
+
+### Why v2 reads as "AI-made"
+Taken from our own captures (`lobby-ui/20261105/after-hud-desktop-hover.jpg`, `after-play-desktop.jpg`):
+1. **One radius on everything.** The player chip, currency chip, dock buttons, PLAY, the mode cards, the SELECTED tag, the key hints and the close button are all rounded in the same family (12-16 px or full pill), and the avatar, "+", gear and close are circles. That reads like a web component kit. LihFolk *UI Design Systems* treats radius as role-based steps, not one value.
+2. **Floating capsules.** The top-left profile pill and the top-right currency pill float with gaps on every side. Professional HUDs anchor bars to an edge.
+3. **A soft drop shadow and glow halo on every surface**, plus an outer glow on the selected card and on PLAY. It's the glassmorphism or Dribbble look; there's no restraint.
+4. **A gradient gold capsule with a lip** for PLAY and FIND MATCH. It reads as a casual mobile CTA. Shooters use a flat or angled block.
+5. **An icon-over-label dock.** The bottom bar (LOCKER, SHOP, PLAY, BATTLE PASS, RANGE) is a phone-app tab bar. Shooters put text nav at the top edge.
+6. **No structural detail.** There are no rules, ticks, cut corners or slants, so nothing says "engineered" or makes the UI ours. LihFolk *UI Style Directions*: every direction needs one signature detail.
+7. **Centred, symmetric layouts with even padding** everywhere (the PLAY menu is a centred row with a centred button). Professional screens are asymmetric: title top left, content, action bottom right.
+8. **Weak type contrast.** Montserrat Heavy is right, but the titles aren't much bigger than the labels and nothing is italic or condensed. All the references use one huge display word.
+9. **The mode-card art** is glossy, generic AI illustration. It reads AI even with perfect UI. Replace it with in-engine renders of our own characters and maps.
+
+**Keep from v2** (the user liked these):
+- the fonts (Montserrat Heavy and Builder Sans);
+- the press and hover feedback (sink and lift);
+- the selection ring, recast as a sharp 2 px frame;
+- the MATCH FOUND pulse and shine sweep;
+- the safe-area and chat fixes;
+- the phone layout.
+
+### LihFolk rules applied
+Notes are in `vault/LihFolk/`:
+- *UI Style Directions - A Visual Vocabulary for Briefs* (05):
+  - Name one direction and say who owns palette and shape. Here: shape = "clipped/angular competitive", palette = our v2 tokens.
+  - One signature detail.
+  - Brief with 3-5 references plus take/leave lists.
+  - Test on several screens, not one.
+  - Third-party screenshots are study-only, **so none are uploaded to ChatGPT**: the prompts describe what to take in words.
+- *UI Design Systems* (05): radii as role steps, here 0 / 2 / 6 px plus a 45° cut. Colours by role, never per screen. Two type families.
+- *LihFolk UI Spec* (21): the nested-radius rule is kept for the few rounded items. The spacing scale is 4/8/12/16/24/32. **Only its numbers are taken.** Its candy-pill look is exactly what's being dropped.
+- *HUD Design* (05):
+  - One giant primary action, placed on an edge.
+  - Status at the top, actions at the bottom, the centre third clear.
+  - Slots for stackable elements.
+  - A popup lane for the round banner and the draft.
+- *Text Fonts and Rich Text* (05): Montserrat Heavy for display and Builder Sans for labels; no TextScaled.
+- *Race HUD - Position, Laps, Splits, Speedometer and Minimap* (05): monospaced digits for timers and ammo, so they don't wobble.
+- *Accessibility*, *Colour-Blind Safe Design*, *Readable Text and UI Scale* (05/42):
+  - 4.5:1 body contrast.
+  - Ally and enemy differ in lightness and by icon, not hue alone.
+  - 12 px drawn minimum (13 in matches).
+  - Near-opaque plates over a busy world.
+- *Responsive UI for Phone Tablet Console and PC*, *Safe Areas and Insets* (05): 44 px taps (48 on the HUD); concepts checked against a 667 x 375 frame.
+- *UI Motion Language and Timing* (05):
+  - Enter 0.18-0.30 s, exit 0.10-0.18 s.
+  - Linear only for cooldown sweeps.
+  - Stagger capped at 0.4 s.
+- *Squash Stretch and Anticipation in UI and Characters* (47): professional UI presses 3-5%, not cartoon 8-15%.
+- *Reward Moments and Celebrations* (47): banner and MVP tiers; the button becomes active only after about 0.3 s.
+- *Gamepad and Console UX* (05), *Top 25 QoL Wins by Effort* (58): a strong 2-3 px selection frame shared by mouse and gamepad.
+- *AI Image Generation for Icons Thumbnails and Concepts*, *Prompting and Verifying AI Output* (15):
+  - Image AI is used for mood and layout only, then rebuilt in Figma.
+  - Ask for options first.
+  - Prompts say what **not** to do.
+- *What Craft Looks Like on Roblox - Lessons from Top Studios* (60): escalation without clutter; the loudest treatment only at the top tier.
+
+### Proposed direction: "Clipped steel"
+The shape language is **the match HUD's v1 cut corner** (the look the user chose to keep), taken further and used in the Lobby too. One language covers the whole game.
+- **Shapes:**
+  - Square rectangles. Primary panels and buttons get a **45° cut on the top-left and bottom-right corners**: 8 px small, 12 px medium, 20 px large. That cut is the signature.
+  - **1 px hairline rules and corner ticks** for structure. The ticks mark the selected or primary element.
+  - No pills, no circles (except the crosshair), no soft shadows, no glow halos, no gradient buttons.
+- **Type:** v2's fonts kept. Montserrat **Black Italic / ExtraBold Italic** for display words and numbers; small tracked caps for labels (Builder Sans in Roblox; Inter stands in for it in Figma).
+- **Colour:** the v2 palette, used flatly:
+  - near-black panels at about 90%;
+  - **gold only for the main action and the selection**;
+  - cyan for ally and coral for enemy, each always paired with a word or edge position.
+- **Layout:**
+  - text tabs in a top bar anchored to the edge;
+  - PLAY as the one big flat block at the bottom right;
+  - titles at the top left, actions at the bottom right, key hints at the bottom left.
+- **Motion** (from the v2 effects that were kept):
+  - enter 0.22 s Out, exit 0.14 s In;
+  - press scale 0.97;
+  - hover lifts by 4 px and brightens the stroke;
+  - the selection frame and ticks snap in;
+  - the shine sweep only on PLAY / FIND MATCH / LOCK IN once they're ready;
+  - the MATCH FOUND pulse is kept.
+
+**Figma frames** (file `UbCKQXuZijn0Gpryt0uUxN`, Screens page), with renders in `assets/UI/concepts/figma-v3-clipped-*.png`:
+- [Lobby 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=25-696): the top bar with text tabs, the searching bar (state), DAILY at the bottom left, PLAY at the bottom right.
+- [PLAY menu 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=26-706): a left-aligned title, sharp mode cards with the gold selected frame and ticks, FIND MATCH, key hints.
+- [Match HUD 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=27-716): the clipped score plates under Roblox's bar, the kill feed, the one-word round banner in the popup lane, health with segments, Q/E/T slots with a cooldown, ammo.
+- [Draft 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=28-726): gun row, Q/E/T ability cards with key tabs and role rules, timer, LOCK IN.
+- [Phone HUD 667x375](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=29-736) and [Phone Lobby 667x375](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=29-794):
+  - Roblox's top bar, thumbstick and jump zones are drawn as `skip_` layers, and nothing interactive sits in them. Ammo and the Lobby's PLAY were moved out of them on the first check.
+  - Touch buttons are 48-64 px clipped squares, not circles.
+  - On phones the Lobby tabs become a right-edge rail.
+
+**Tokens:** a Figma variable collection named **"UI v3 Clipped (concept)"**, with 40 variables. All the frames' colours are bound to it.
+- **Colour:**
+  - surface `11151C`, surface-raised `1A2029`, surface-select `232B36`;
+  - text `F5F7FA`, text-muted `A6B0BE`, text-dim `6B7482`;
+  - action `FFC83D`, on-action `11151C`;
+  - ally `2FD3E6`, enemy `FF5A4E`, success `3FD68A`;
+  - line `3A4350`, line-strong `6B7482`.
+- **Shape:** cut-sm 8, cut-md 12, cut-lg 20; radius-none 0, radius-xs 2.
+- **Stroke:** hair 1, select 2, accent 3.
+- **Space:** 4, 8, 12, 16, 24, 32, plus edge 48.
+- **Type:** display-xl 96, display-l 64, display-m 40, number-hud 56, title 24, label 15, body 17, small 13.
+- **Size:** tap-min 52, topbar 64.
+- **Alpha:** panel 0.9, scrim 0.6.
+
+In Roblox this would replace `Config/UiStyle`'s RADIUS / SHADOW / GLOW groups with a `CUT` group. The cut shapes need a 9-slice set (the match already has `cutFill` / `cutLine` at 32 px cuts). That's a build decision for after the user picks.
+
+**ChatGPT concept images: blocked on sign-in.** chatgpt.com is open in lane E's built-in browser. Signed out, it accepted the first prompt (three directions side by side), then answered "Image creation is only available when you're logged in". Prompts 1-4 are ready in `assets/UI/concepts/prompts.md`, with a shared style block and the do-nots. Once the user signs in there (the pane opens with Ctrl+Shift+B in the `lobby-ui-2` session), lane E runs them: the options round first, then one image per screen. The best images get saved in `assets/UI/concepts/`.
+
+### For the user to decide
+1. **Is "Clipped steel" the direction**, the v1 cut corner across the whole game with v2's fonts? The other two from the prompt are B "Slant" (parallelograms, heavy italic) and C "Hairline pro" (almost no panels). The ChatGPT options image will show all three once signed in.
+2. **Bottom dock vs top tabs** in the Lobby. Top text tabs are what every reference does; the bottom icon dock is the RIVALS-on-Roblox pattern.
+3. **Mode-card art:** replace the AI-illustrated art with in-engine renders of our characters on our maps (recommended).
+4. **Should the match HUD move to this exact version** (italic numbers, segmented health, square Q/E/T with outlined key boxes), or stay pure v1 for now?
