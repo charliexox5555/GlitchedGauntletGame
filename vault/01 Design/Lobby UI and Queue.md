@@ -296,3 +296,6 @@ Logged in `.lihfolk/ledger.jsonl`.
 5. In Test → Device emulator, try **iPhone SE**, an **iPad** and a **1080p TV**. The harness numbers above say everything fits, but please look. On phones there's no pill, just a red ✕ on PLAY while searching.
 6. Decide the 5 style choices above, or tell me your own. Each one is a token change.
 7. Figma: the v2 frames (Screens page, y 4700-6440) show the design before the build. Since then the phone pill became the ✕ badge and the close / cancel buttons got bigger. The build is now the reference.
+
+## 9. Match HUD v2 (2026-11-05)
+The in-match UI (score bar, draft, health, ammo, ability slots, kill feed, banners) now uses this same v2 look, through shared modules (`src/shared/Config/UiStyle.luau`, `src/shared/UiKit.luau`, `src/shared/CoreUi.luau`). Details, screenshots, scores and a check list: [Match HUD](Match%20HUD.md).

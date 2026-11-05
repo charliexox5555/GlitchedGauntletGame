@@ -7,6 +7,7 @@
 -- ScreenGui's size (min of width / 1920 and height / 1080), scaled around its
 -- AnchorPoint.
 
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
@@ -244,6 +245,18 @@ function Ui.fit(obj: GuiObject): UIScale
 	return scale
 end
 
+-- Reduced motion (GuiService.ReducedMotionEnabled; LihFolk: UI Motion Language
+-- and Timing, Accessibility): movement jumps to its end value, while fades and
+-- colour still ease.
+local MOVEMENT = { Position = true, Size = true, Rotation = true, Scale = true }
+
+local function reducedMotion(): boolean
+	local ok, on = pcall(function()
+		return (GuiService :: any).ReducedMotionEnabled
+	end)
+	return ok and on == true
+end
+
 -- Tween, replacing any tween still running on that object.
 function Ui.tween(
 	obj: Instance,
@@ -255,6 +268,17 @@ function Ui.tween(
 	local old = tweens[obj]
 	if old then
 		old:Cancel()
+	end
+	if reducedMotion() then
+		local rest: { [string]: any } = {}
+		for k, v in props do
+			if MOVEMENT[k] then
+				(obj :: any)[k] = v
+			else
+				rest[k] = v
+			end
+		end
+		props = rest
 	end
 	local tween = TweenService:Create(
 		obj,
