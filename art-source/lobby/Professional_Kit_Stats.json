@@ -1,0 +1,26 @@
+{
+  "Lobby_ArenaHeader": {
+    "parts": 11,
+    "tris": 676
+  },
+  "Lobby_ArenaFin": {
+    "parts": 7,
+    "tris": 356
+  },
+  "Lobby_VersusCrest": {
+    "parts": 6,
+    "tris": 420
+  },
+  "Lobby_GauntletTrophy": {
+    "parts": 25,
+    "tris": 1404
+  },
+  "Lobby_EquipmentCase": {
+    "parts": 15,
+    "tris": 660
+  },
+  "Lobby_KeyDisplay": {
+    "parts": 5,
+    "tris": 432
+  }
+}

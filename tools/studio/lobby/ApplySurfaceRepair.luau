@@ -1,0 +1,528 @@
+--!strict
+-- Remove coplanar face overlap. No range descendants, no collision changes.
+assert(game.PlaceId == 133387545285290)
+local changes = {
+	{
+		name = "RotundaFloor_Field",
+		piece = "RotundaFloor",
+		oldCenter = { 0.0, 0.0, 0.0 },
+		oldSize = { 53.7, 53.7, 0.0 },
+		removedProjectedArea = 0.10561,
+		trisBefore = 128,
+		trisAfter = 937,
+		newCenter = { 0.0, 0.0, 0.0 },
+		newSize = { 53.7, 53.7, 0.0 },
+	},
+	{
+		name = "RotundaColumn_Shaft",
+		piece = "RotundaColumn",
+		oldCenter = { 0.40769, 0.0, 14.0 },
+		oldSize = { 2.38463, 1.56926, 28.0 },
+		removedProjectedArea = 2.20426,
+		trisBefore = 272,
+		trisAfter = 371,
+		newCenter = { 0.40769, 0.0, 14.0 },
+		newSize = { 2.38463, 1.56926, 28.0 },
+	},
+	{
+		name = "OculusRim_R16_Spokes",
+		piece = "OculusRim_R16",
+		oldCenter = { -0.0, -0.0, 59.65 },
+		oldSize = { 30.67937, 30.67937, 0.7 },
+		removedProjectedArea = 0.38627,
+		trisBefore = 124,
+		trisAfter = 280,
+		newCenter = { -0.0, -0.0, 59.65 },
+		newSize = { 30.67937, 30.67937, 0.7 },
+	},
+	{
+		name = "LeaderboardFrame_Hangers",
+		piece = "LeaderboardFrame",
+		oldCenter = { 0.0, 0.0, 26.87 },
+		oldSize = { 0.7, 18.9, 1.96 },
+		removedProjectedArea = 0.06845,
+		trisBefore = 244,
+		trisAfter = 316,
+		newCenter = { 0.0, 0.0, 26.87 },
+		newSize = { 0.7, 18.9, 1.96 },
+	},
+	{
+		name = "LeaderboardFrame_BackPlate",
+		piece = "LeaderboardFrame",
+		oldCenter = { -0.21, 0.0, 16.25 },
+		oldSize = { 0.06, 18.0, 8.4 },
+		removedProjectedArea = 0.004,
+		trisBefore = 12,
+		trisAfter = 36,
+		newCenter = { -0.21, 0.0, 16.25 },
+		newSize = { 0.06, 18.0, 8.4 },
+	},
+	{
+		name = "Alcove_R68_Head",
+		piece = "Alcove_R68",
+		oldCenter = { 13.24691, 65.63425, 13.1 },
+		oldSize = { 29.07156, 7.70761, 2.2 },
+		removedProjectedArea = 7.12854,
+		trisBefore = 36,
+		trisAfter = 84,
+		newCenter = { 13.24691, 65.63425, 13.1 },
+		newSize = { 29.07156, 7.70761, 2.2 },
+	},
+	{
+		name = "QueuePad_G18_Base",
+		piece = "QueuePad_G18",
+		oldCenter = { 0.0, 0.0, 0.135 },
+		oldSize = { 18.0, 18.0, 0.27 },
+		removedProjectedArea = 4.984,
+		trisBefore = 42,
+		trisAfter = 34,
+		newCenter = { 0.0, 0.0, 0.135 },
+		newSize = { 18.0, 18.0, 0.27 },
+	},
+	{
+		name = "QueuePad_18_Base",
+		piece = "QueuePad_18",
+		oldCenter = { 0.0, 0.0, 0.135 },
+		oldSize = { 17.0, 18.0, 0.27 },
+		removedProjectedArea = 4.844,
+		trisBefore = 42,
+		trisAfter = 34,
+		newCenter = { 0.0, 0.0, 0.135 },
+		newSize = { 17.0, 18.0, 0.27 },
+	},
+	{
+		name = "QueuePad_17_Base",
+		piece = "QueuePad_17",
+		oldCenter = { 0.0, 0.0, 0.135 },
+		oldSize = { 16.0, 17.0, 0.27 },
+		removedProjectedArea = 4.564,
+		trisBefore = 42,
+		trisAfter = 34,
+		newCenter = { 0.0, 0.0, 0.135 },
+		newSize = { 16.0, 17.0, 0.27 },
+	},
+	{
+		name = "QueuePad_15_Base",
+		piece = "QueuePad_15",
+		oldCenter = { 0.0, 0.0, 0.135 },
+		oldSize = { 15.0, 15.0, 0.27 },
+		removedProjectedArea = 4.144,
+		trisBefore = 42,
+		trisAfter = 34,
+		newCenter = { 0.0, 0.0, 0.135 },
+		newSize = { 15.0, 15.0, 0.27 },
+	},
+	{
+		name = "QueuePad_12_Base",
+		piece = "QueuePad_12",
+		oldCenter = { 0.0, 0.0, 0.135 },
+		oldSize = { 12.0, 12.0, 0.27 },
+		removedProjectedArea = 3.304,
+		trisBefore = 42,
+		trisAfter = 34,
+		newCenter = { 0.0, 0.0, 0.135 },
+		newSize = { 12.0, 12.0, 0.27 },
+	},
+	{
+		name = "GauntletDais_Low",
+		piece = "GauntletDais",
+		oldCenter = { 0.0, 0.0, 0.3 },
+		oldSize = { 32.0, 32.0, 0.6 },
+		removedProjectedArea = 31.59694,
+		trisBefore = 288,
+		trisAfter = 641,
+		newCenter = { 0.0, 0.0, 0.3 },
+		newSize = { 32.0, 32.0, 0.6 },
+	},
+	{
+		name = "DuelsTruss_76_Truss",
+		piece = "DuelsTruss_76",
+		oldCenter = { 0.0, 0.0, 30.9 },
+		oldSize = { 0.7, 76.05, 5.0 },
+		removedProjectedArea = 6.51761,
+		trisBefore = 530,
+		trisAfter = 468,
+		newCenter = { 0.0, 0.0, 30.9 },
+		newSize = { 0.7, 76.05, 5.0 },
+	},
+	{
+		name = "DuelsTruss_22_Truss",
+		piece = "DuelsTruss_22",
+		oldCenter = { 0.0, 0.0, 23.0 },
+		oldSize = { 0.7, 23.45, 4.0 },
+		removedProjectedArea = 2.74461,
+		trisBefore = 290,
+		trisAfter = 267,
+		newCenter = { 0.0, 0.0, 23.0 },
+		newSize = { 0.7, 23.45, 4.0 },
+	},
+	{
+		name = "DuelsBayShell_18_Shell",
+		piece = "DuelsBayShell_18",
+		oldCenter = { 10.0, 0.0, 8.0 },
+		oldSize = { 20.0, 20.0, 16.0 },
+		removedProjectedArea = 1.52,
+		trisBefore = 148,
+		trisAfter = 160,
+		newCenter = { 10.0, 0.0, 8.0 },
+		newSize = { 20.0, 20.0, 16.0 },
+	},
+	{
+		name = "DuelsBayShell_17_Shell",
+		piece = "DuelsBayShell_17",
+		oldCenter = { 9.5, 0.0, 8.0 },
+		oldSize = { 19.0, 19.0, 16.0 },
+		removedProjectedArea = 1.52,
+		trisBefore = 148,
+		trisAfter = 159,
+		newCenter = { 9.5, 0.0, 8.0 },
+		newSize = { 19.0, 19.0, 16.0 },
+	},
+	{
+		name = "DuelsBayShell_15_Shell",
+		piece = "DuelsBayShell_15",
+		oldCenter = { 9.0, 0.0, 8.0 },
+		oldSize = { 18.0, 17.0, 16.0 },
+		removedProjectedArea = 1.52,
+		trisBefore = 148,
+		trisAfter = 159,
+		newCenter = { 9.0, 0.0, 8.0 },
+		newSize = { 18.0, 17.0, 16.0 },
+	},
+	{
+		name = "DuelsBayShell_12_Shell",
+		piece = "DuelsBayShell_12",
+		oldCenter = { 7.5, 0.0, 8.0 },
+		oldSize = { 15.0, 14.0, 16.0 },
+		removedProjectedArea = 1.52,
+		trisBefore = 148,
+		trisAfter = 159,
+		newCenter = { 7.5, 0.0, 8.0 },
+		newSize = { 15.0, 14.0, 16.0 },
+	},
+	{
+		name = "ShopPavilion_Canopy",
+		piece = "ShopPavilion",
+		oldCenter = { 11.1, 0.0, 10.1 },
+		oldSize = { 2.2, 17.0, 0.6 },
+		removedProjectedArea = 6.36438,
+		trisBefore = 176,
+		trisAfter = 258,
+		newCenter = { 11.1, 0.0, 10.1 },
+		newSize = { 2.2, 17.0, 0.6 },
+	},
+	{
+		name = "ShopPavilion_TopLiner",
+		piece = "ShopPavilion",
+		oldCenter = { 4.85, 0.0, 14.775 },
+		oldSize = { 9.7, 16.0, 0.35 },
+		removedProjectedArea = 3.08001,
+		trisBefore = 10,
+		trisAfter = 20,
+		newCenter = { 4.85, 0.0, 14.775 },
+		newSize = { 9.7, 16.0, 0.35 },
+	},
+	{
+		name = "MarketShowCoins_Coins",
+		piece = "MarketShowCoins",
+		oldCenter = { 0.10967, 0.30637, 0.47 },
+		oldSize = { 2.55708, 1.67149, 0.94 },
+		removedProjectedArea = 0.08767,
+		trisBefore = 572,
+		trisAfter = 785,
+		newCenter = { 0.10967, 0.30637, 0.47 },
+		newSize = { 2.55708, 1.67149, 0.94 },
+	},
+	{
+		name = "MarketRunnerBend_Oak",
+		piece = "MarketRunnerBend",
+		oldCenter = { 16.23327, 32.15704, -0.07 },
+		oldSize = { 32.24787, 27.20512, 0.26 },
+		removedProjectedArea = 0.04701,
+		trisBefore = 84,
+		trisAfter = 258,
+		newCenter = { 16.23327, 32.15704, -0.07 },
+		newSize = { 32.24787, 27.20512, 0.26 },
+	},
+	{
+		name = "MarketRunnerBend_Inlay",
+		piece = "MarketRunnerBend",
+		oldCenter = { 11.52246, 34.21482, -0.07 },
+		oldSize = { 23.04492, 23.09035, 0.26 },
+		removedProjectedArea = 0.00167,
+		trisBefore = 30,
+		trisAfter = 55,
+		newCenter = { 11.52246, 34.21482, -0.07 },
+		newSize = { 23.04492, 23.09035, 0.26 },
+	},
+	{
+		name = "MarketRockWall_Feature_GapLiner",
+		piece = "MarketRockWall_Feature",
+		oldCenter = { -0.29, 0.0, 1.83 },
+		oldSize = { 0.62, 12.0, 0.66 },
+		removedProjectedArea = 0.042,
+		trisBefore = 20,
+		trisAfter = 29,
+		newCenter = { -0.29, 0.0, 1.83 },
+		newSize = { 0.62, 12.0, 0.66 },
+	},
+	{
+		name = "MarketRockWall_E_GapLiner",
+		piece = "MarketRockWall_E",
+		oldCenter = { -0.29, 0.0, 1.83 },
+		oldSize = { 0.62, 12.0, 0.66 },
+		removedProjectedArea = 0.042,
+		trisBefore = 20,
+		trisAfter = 29,
+		newCenter = { -0.29, 0.0, 1.83 },
+		newSize = { 0.62, 12.0, 0.66 },
+	},
+	{
+		name = "MarketRockWall_D_GapLiner",
+		piece = "MarketRockWall_D",
+		oldCenter = { -0.29, 0.0, 1.83 },
+		oldSize = { 0.62, 12.0, 0.66 },
+		removedProjectedArea = 0.042,
+		trisBefore = 20,
+		trisAfter = 29,
+		newCenter = { -0.29, 0.0, 1.83 },
+		newSize = { 0.62, 12.0, 0.66 },
+	},
+	{
+		name = "MarketRockWall_C_GapLiner",
+		piece = "MarketRockWall_C",
+		oldCenter = { -0.29, 0.0, 1.83 },
+		oldSize = { 0.62, 12.0, 0.66 },
+		removedProjectedArea = 0.042,
+		trisBefore = 20,
+		trisAfter = 29,
+		newCenter = { -0.29, 0.0, 1.83 },
+		newSize = { 0.62, 12.0, 0.66 },
+	},
+	{
+		name = "MarketRockWall_B_GapLiner",
+		piece = "MarketRockWall_B",
+		oldCenter = { -0.29, 0.0, 1.83 },
+		oldSize = { 0.62, 12.0, 0.66 },
+		removedProjectedArea = 0.042,
+		trisBefore = 20,
+		trisAfter = 29,
+		newCenter = { -0.29, 0.0, 1.83 },
+		newSize = { 0.62, 12.0, 0.66 },
+	},
+	{
+		name = "MarketRockWall_A_GapLiner",
+		piece = "MarketRockWall_A",
+		oldCenter = { -0.29, 0.0, 1.83 },
+		oldSize = { 0.62, 12.0, 0.66 },
+		removedProjectedArea = 0.042,
+		trisBefore = 20,
+		trisAfter = 29,
+		newCenter = { -0.29, 0.0, 1.83 },
+		newSize = { 0.62, 12.0, 0.66 },
+	},
+	{
+		name = "MarketRockCore_B_GapLiner",
+		piece = "MarketRockCore_B",
+		oldCenter = { 2.68261, 13.19999, 1.83 },
+		oldSize = { 5.36522, 1.64001, 0.66 },
+		removedProjectedArea = 0.0404,
+		trisBefore = 56,
+		trisAfter = 72,
+		newCenter = { 2.68261, 13.19999, 1.83 },
+		newSize = { 5.36522, 1.64001, 0.66 },
+	},
+	{
+		name = "MarketRockCore_A_GapLiner",
+		piece = "MarketRockCore_A",
+		oldCenter = { 2.68261, 13.19999, 1.83 },
+		oldSize = { 5.36522, 1.64001, 0.66 },
+		removedProjectedArea = 0.0404,
+		trisBefore = 56,
+		trisAfter = 72,
+		newCenter = { 2.68261, 13.19999, 1.83 },
+		newSize = { 5.36522, 1.64001, 0.66 },
+	},
+	{
+		name = "MarketPendant_Collar",
+		piece = "MarketPendant",
+		oldCenter = { 0.0, 0.0, 0.89 },
+		oldSize = { 2.84, 2.84, 1.78 },
+		removedProjectedArea = 0.41483,
+		trisBefore = 220,
+		trisAfter = 261,
+		newCenter = { 0.0, 0.0, 0.89 },
+		newSize = { 2.84, 2.84, 1.78 },
+	},
+	{
+		name = "BattlePassWall_Hood",
+		piece = "BattlePassWall",
+		oldCenter = { 1.3, 0.0, 26.275 },
+		oldSize = { 2.6, 43.6, 0.85 },
+		removedProjectedArea = 19.17684,
+		trisBefore = 88,
+		trisAfter = 121,
+		newCenter = { 1.3, 0.0, 26.275 },
+		newSize = { 2.6, 43.6, 0.85 },
+	},
+	{
+		name = "BattlePassWall_Step1",
+		piece = "BattlePassWall",
+		oldCenter = { 8.0, 0.0, 0.375 },
+		oldSize = { 16.0, 48.0, 0.75 },
+		removedProjectedArea = 0.0162,
+		trisBefore = 42,
+		trisAfter = 49,
+		newCenter = { 8.0, 0.0, 0.375 },
+		newSize = { 16.0, 48.0, 0.75 },
+	},
+	{
+		name = "BattlePassWall_Step2",
+		piece = "BattlePassWall",
+		oldCenter = { 5.5, 0.0, 1.125 },
+		oldSize = { 11.0, 40.0, 0.75 },
+		removedProjectedArea = 0.0162,
+		trisBefore = 42,
+		trisAfter = 51,
+		newCenter = { 5.5, 0.0, 1.125 },
+		newSize = { 11.0, 40.0, 0.75 },
+	},
+	{
+		name = "LockerCheek_Backing",
+		piece = "LockerCheek",
+		oldCenter = { -0.015, 0.0, 10.75 },
+		oldSize = { 0.07, 8.0, 18.5 },
+		removedProjectedArea = 0.028,
+		trisBefore = 8,
+		trisAfter = 17,
+		newCenter = { -0.015, 0.0, 10.75 },
+		newSize = { 0.07, 8.0, 18.5 },
+	},
+	{
+		name = "LockerBacklight_Edge_Glow",
+		piece = "LockerBacklight",
+		oldCenter = { 0.21, 0.0, 8.5 },
+		oldSize = { 0.18, 9.0, 13.0 },
+		removedProjectedArea = 0.288,
+		trisBefore = 48,
+		trisAfter = 58,
+		newCenter = { 0.21, 0.0, 8.5 },
+		newSize = { 0.18, 9.0, 13.0 },
+	},
+	{
+		name = "HeroDais_UpperTop",
+		piece = "HeroDais",
+		oldCenter = { 0.0, 0.0, 1.51 },
+		oldSize = { 19.67627, 19.67627, 0.18 },
+		removedProjectedArea = 0.18339,
+		trisBefore = 190,
+		trisAfter = 1444,
+		newCenter = { 0.0, 0.0, 1.51 },
+		newSize = { 19.67627, 19.67627, 0.18 },
+	},
+	{
+		name = "GunChapel_R50_Stage",
+		piece = "GunChapel_R50",
+		oldCenter = { 13.88926, 43.29233, 0.25 },
+		oldSize = { 27.77851, 13.41534, 0.5 },
+		removedProjectedArea = 6.58336,
+		trisBefore = 22,
+		trisAfter = 55,
+		newCenter = { 13.88926, 43.29233, 0.25 },
+		newSize = { 27.77851, 13.41534, 0.5 },
+	},
+	{
+		name = "GunChapel_R50_Nosing",
+		piece = "GunChapel_R50",
+		oldCenter = { 12.32252, 40.5772, 0.25 },
+		oldSize = { 22.26052, 6.889, 0.5 },
+		removedProjectedArea = 8e-05,
+		trisBefore = 30,
+		trisAfter = 40,
+		newCenter = { 12.32252, 40.5772, 0.25 },
+		newSize = { 22.26052, 6.889, 0.5 },
+	},
+	{
+		name = "GunChapel_Stage",
+		piece = "GunChapel",
+		oldCenter = { 15.55597, 46.29233, 0.25 },
+		oldSize = { 31.11193, 19.41534, 0.5 },
+		removedProjectedArea = 9.83361,
+		trisBefore = 10,
+		trisAfter = 21,
+		newCenter = { 15.55597, 46.29233, 0.25 },
+		newSize = { 31.11193, 19.41534, 0.5 },
+	},
+	{
+		name = "ArmouryPier_R42_Pier",
+		piece = "ArmouryPier_R42",
+		oldCenter = { 0.0, 41.25, 15.0 },
+		oldSize = { 3.0, 2.5, 30.0 },
+		removedProjectedArea = 2.225,
+		trisBefore = 40,
+		trisAfter = 42,
+		newCenter = { 0.0, 41.25, 15.0 },
+		newSize = { 3.0, 2.5, 30.0 },
+	},
+}
+local raw = game:GetService("InsertService"):LoadAsset(101831697423135)
+local sources = {}
+for _, p in raw:GetDescendants() do
+	if p:IsA("MeshPart") then
+		sources[p.Name] = p
+	end
+end
+local targets = {}
+for _, p in workspace.Lobby.Art:GetDescendants() do
+	if
+		p:IsA("MeshPart")
+		and not p:GetFullName():find("Range")
+		and not p:IsDescendantOf(workspace.Lobby.Art.ProfessionalPass)
+	then
+		table.insert(targets, p)
+	end
+end
+for _, p in game.ServerStorage.LobbyKit:GetDescendants() do
+	if p:IsA("MeshPart") and p.Parent:GetAttribute("KitGroup") ~= "Range" then
+		table.insert(targets, p)
+	end
+end
+local byName = {}
+for _, v in changes do
+	byName[v.name] = v
+end
+local changed = 0
+for _, p in targets do
+	local v = byName[p.Name]
+	if v and not p:GetAttribute("Professional_CoplanarRepair") then
+		local src = sources[p.Name]
+		assert(src, "Missing repaired mesh " .. p.Name)
+		local oldSize = Vector3.new(v.oldSize[1], v.oldSize[3], v.oldSize[2])
+		local scale = Vector3.new(
+			p.Size.X / math.max(oldSize.X, 0.0001),
+			p.Size.Y / math.max(oldSize.Y, 0.0001),
+			p.Size.Z / math.max(oldSize.Z, 0.0001)
+		)
+		local d = Vector3.new(
+			-(v.newCenter[1] - v.oldCenter[1]),
+			v.newCenter[3] - v.oldCenter[3],
+			v.newCenter[2] - v.oldCenter[2]
+		)
+		local cf = p.CFrame * CFrame.new(d * scale)
+		local size = Vector3.new(v.newSize[1], v.newSize[3], v.newSize[2]) * scale
+		p:SetAttribute("Professional_OriginalMeshId", p.MeshId)
+		local can = p.CanCollide
+		local query = p.CanQuery
+		local touch = p.CanTouch
+		p:ApplyMesh(src)
+		p.Size = size
+		p.CFrame = cf
+		p.CanCollide = can
+		p.CanQuery = query
+		p.CanTouch = touch
+		p:SetAttribute("Professional_CoplanarRepair", true)
+		changed += 1
+	end
+end
+raw:Destroy()
+return { repairedInstances = changed, uniqueRepairedMeshes = #changes }

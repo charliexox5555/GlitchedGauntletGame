@@ -1,0 +1,50 @@
+{
+  "placeId": 133387545285290,
+  "date": "2026-11-04",
+  "direction": "Grounded tactical bunker + Valorant shape language + restrained RIVALS display energy",
+  "newKit": {
+    "pieces": 6,
+    "uniqueTriangles": 3948,
+    "assetId": 95814097679730
+  },
+  "surfaceRepair": {
+    "uniqueMeshes": 42,
+    "placedInstances": 193,
+    "kitMasters": 42,
+    "assetId": 101831697423135,
+    "coplanarOverlapsAfterFullKitVerification": 0,
+    "thresholdProjectedAreaStudsSquared": 0.03
+  },
+  "newDecor": {
+    "parts": 239,
+    "meshParts": 182,
+    "invalidPhysicsFlags": 0,
+    "newScripts": 0
+  },
+  "collision": {
+    "parts": 1293,
+    "beforeHash": 1847246261,
+    "afterHash": 1847246261
+  },
+  "protectedRangeHashes": {
+    "Art.Range": 1506584249,
+    "Art.RangeFar": 1354505418,
+    "Greybox.Wing_Range": 1391339369,
+    "Greybox.RangeFar": 1954230840
+  },
+  "protectedRangeChecks": "all unchanged",
+  "playCheck": {
+    "spawnToFirstBay": "passed",
+    "firstBayToChamber": "passed",
+    "gauntletAnimationDegreesOver1point5Seconds": 1.7427106004542943,
+    "animationDistanceCulling": "confirmed",
+    "newScriptErrors": 0,
+    "unrelatedAssetWarning": "203785492: asset type does not match requested type"
+  },
+  "limitations": [
+    "Kit-level coplanar scan, not an exhaustive all-view map intersection proof.",
+    "Physical phone performance was not measured.",
+    "Leaderboards, signs and bays remain presentation only.",
+    "Open Studio place has not been published; serialized final Lobby backup provided."
+  ]
+}

@@ -1,5 +1,7 @@
 # Lobby
 
+**Art refinement 2026-11-04:** built a grounded tactical / Valorant / RIVALS presentation pass in the existing structure, with original entrances/props, new sign layouts and coplanar surface repairs. No gameplay or range changes. [Brief](../02%20Art/Lobby%20Professional%20Pass.md) · [Review and backups](../05%20Production/Playtests/2026-11-04%20Lobby%20Professional%20Pass.md).
+
 **Status:** design locked 2026-10-29 · **phase 1 (build and art) built 2026-10-30, waiting for the user's approval** · phase 2 (game code) after that. What was built: [Lobby Kit](../02%20Art/Lobby%20Kit.md) → Built lobby; final screenshots in `02 Art/References/lobby/final/`.
 
 > **Locked 2026-10-29:** the Lobby is a **new place named "Lobby" in the same experience**, and Claude works in both places. **Phase 1 is building and art only:** geometry, Blender kit, lighting and decorative scripts. **No game-structure code until the user approves the build** (phase 2). Prompt: [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md). Art plan and dimensioned layout: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md) (approved 2026-10-29; greybox next).

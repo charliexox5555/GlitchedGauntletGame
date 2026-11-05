@@ -116,3 +116,10 @@ Shared: icons ✅ · HUD ✅ · F8 dev panel ✅ (testers in published test-mode
 | UI ability icons | ✅ | **ChatGPT set (2026-11-04)** for the 9 abilities: `art-source/ui/chatgpt/icons` → `out/icons`, uploaded, in `Config/Mods` `icon`. Reroll, Lock, Shield, Skull, Glitch are still the Figma glyphs in `art-source/ui/icons/` |
 | UI card art | ✅ | 9 ChatGPT key-art pictures for the new-ability cards: `art-source/ui/chatgpt/cards` → `out/cards` (cut corner + fade by `tools/ui_chatgpt.py`), uploaded, `Config/Theme` `CARD_ART`. [UI Art Brief](../02%20Art/UI%20Art%20Brief%20(ChatGPT).md) |
 | UI shapes | ✅ | Cut-corner 9-slice card + outline, key tab, top bar plates, slant band, shield badge: `tools/ui_shapes.py` → `art-source/ui/shapes/`, uploaded, ids in `Config/Theme` `IMAGE` |
+
+## Lobby refinement — 2026-11-04
+
+| Asset | Status | Notes |
+|---|---|---|
+| Professional lobby kit + signs | 🟡 Review | 6 original Blender pieces / 3,948 tris; asset 95814097679730. Three entrances, four leaderboard faces, sixteen bays, decorative trophy. Built in Lobby; awaiting creator visual feedback. |
+| Lobby coplanar surface repairs | ✅ Verified | 42 unique meshes / 193 placed instances; asset 101831697423135. Four-kit overlap scan passes; ranges and collision unchanged. Full before/after `.rbxm` backups. [Review](../05%20Production/Playtests/2026-11-04%20Lobby%20Professional%20Pass.md) |

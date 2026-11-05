@@ -1,0 +1,30 @@
+{
+  "name": "GlitchedGauntletLobby",
+  "servePort": 34873,
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "Assets": {
+        "$path": "assets"
+      },
+      "Lobby": {
+        "$path": "src/lobby/shared"
+      }
+    },
+    "ServerScriptService": {
+      "LobbyServer": {
+        "$path": "src/lobby/server"
+      }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "LobbyClient": {
+          "$path": "src/lobby/client"
+        }
+      }
+    }
+  }
+}

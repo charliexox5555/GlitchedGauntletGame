@@ -1,0 +1,716 @@
+[
+  {
+    "name": "RotundaFloor_Field",
+    "piece": "RotundaFloor",
+    "oldCenter": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "oldSize": [
+      53.70000076293945,
+      53.70000076293945,
+      0.0
+    ],
+    "removedProjectedArea": 0.10561,
+    "trisBefore": 128,
+    "trisAfter": 937
+  },
+  {
+    "name": "RotundaColumn_Shaft",
+    "piece": "RotundaColumn",
+    "oldCenter": [
+      0.40768590569496155,
+      0.0,
+      14.0
+    ],
+    "oldSize": [
+      2.3846282362937927,
+      1.5692564249038696,
+      28.0
+    ],
+    "removedProjectedArea": 2.20426,
+    "trisBefore": 272,
+    "trisAfter": 371
+  },
+  {
+    "name": "OculusRim_R16_Spokes",
+    "piece": "OculusRim_R16",
+    "oldCenter": [
+      -9.5367431640625e-07,
+      -4.76837158203125e-07,
+      59.64999961853027
+    ],
+    "oldSize": [
+      30.67936897277832,
+      30.67936611175537,
+      0.7000007629394531
+    ],
+    "removedProjectedArea": 0.38627,
+    "trisBefore": 124,
+    "trisAfter": 280
+  },
+  {
+    "name": "LeaderboardFrame_Hangers",
+    "piece": "LeaderboardFrame",
+    "oldCenter": [
+      0.0,
+      0.0,
+      26.869999885559082
+    ],
+    "oldSize": [
+      0.699999988079071,
+      18.899999618530273,
+      1.960000991821289
+    ],
+    "removedProjectedArea": 0.06845,
+    "trisBefore": 244,
+    "trisAfter": 316
+  },
+  {
+    "name": "LeaderboardFrame_BackPlate",
+    "piece": "LeaderboardFrame",
+    "oldCenter": [
+      -0.21000000089406967,
+      0.0,
+      16.250000476837158
+    ],
+    "oldSize": [
+      0.0599999874830246,
+      18.0,
+      8.40000057220459
+    ],
+    "removedProjectedArea": 0.004,
+    "trisBefore": 12,
+    "trisAfter": 36
+  },
+  {
+    "name": "Alcove_R68_Head",
+    "piece": "Alcove_R68",
+    "oldCenter": [
+      13.246907711029053,
+      65.63424873352051,
+      13.099999904632568
+    ],
+    "oldSize": [
+      29.071560859680176,
+      7.707607269287109,
+      2.1999998092651367
+    ],
+    "removedProjectedArea": 7.12854,
+    "trisBefore": 36,
+    "trisAfter": 84
+  },
+  {
+    "name": "QueuePad_G18_Base",
+    "piece": "QueuePad_G18",
+    "oldCenter": [
+      0.0,
+      0.0,
+      0.13500000536441803
+    ],
+    "oldSize": [
+      18.0,
+      18.0,
+      0.27000001072883606
+    ],
+    "removedProjectedArea": 4.984,
+    "trisBefore": 42,
+    "trisAfter": 34
+  },
+  {
+    "name": "QueuePad_18_Base",
+    "piece": "QueuePad_18",
+    "oldCenter": [
+      0.0,
+      0.0,
+      0.13500000536441803
+    ],
+    "oldSize": [
+      17.0,
+      18.0,
+      0.27000001072883606
+    ],
+    "removedProjectedArea": 4.844,
+    "trisBefore": 42,
+    "trisAfter": 34
+  },
+  {
+    "name": "QueuePad_17_Base",
+    "piece": "QueuePad_17",
+    "oldCenter": [
+      0.0,
+      0.0,
+      0.13500000536441803
+    ],
+    "oldSize": [
+      16.0,
+      17.0,
+      0.27000001072883606
+    ],
+    "removedProjectedArea": 4.564,
+    "trisBefore": 42,
+    "trisAfter": 34
+  },
+  {
+    "name": "QueuePad_15_Base",
+    "piece": "QueuePad_15",
+    "oldCenter": [
+      0.0,
+      0.0,
+      0.13500000536441803
+    ],
+    "oldSize": [
+      15.0,
+      15.0,
+      0.27000001072883606
+    ],
+    "removedProjectedArea": 4.144,
+    "trisBefore": 42,
+    "trisAfter": 34
+  },
+  {
+    "name": "QueuePad_12_Base",
+    "piece": "QueuePad_12",
+    "oldCenter": [
+      0.0,
+      0.0,
+      0.13500000536441803
+    ],
+    "oldSize": [
+      12.0,
+      12.0,
+      0.27000001072883606
+    ],
+    "removedProjectedArea": 3.304,
+    "trisBefore": 42,
+    "trisAfter": 34
+  },
+  {
+    "name": "GauntletDais_Low",
+    "piece": "GauntletDais",
+    "oldCenter": [
+      0.0,
+      0.0,
+      0.30000001192092896
+    ],
+    "oldSize": [
+      32.0,
+      32.0,
+      0.6000000238418579
+    ],
+    "removedProjectedArea": 31.59694,
+    "trisBefore": 288,
+    "trisAfter": 641
+  },
+  {
+    "name": "DuelsTruss_76_Truss",
+    "piece": "DuelsTruss_76",
+    "oldCenter": [
+      0.0,
+      0.0,
+      30.90000057220459
+    ],
+    "oldSize": [
+      0.699999988079071,
+      76.05000305175781,
+      5.000001907348633
+    ],
+    "removedProjectedArea": 6.51761,
+    "trisBefore": 530,
+    "trisAfter": 468
+  },
+  {
+    "name": "DuelsTruss_22_Truss",
+    "piece": "DuelsTruss_22",
+    "oldCenter": [
+      0.0,
+      0.0,
+      23.0
+    ],
+    "oldSize": [
+      0.699999988079071,
+      23.450000762939453,
+      4.0
+    ],
+    "removedProjectedArea": 2.74461,
+    "trisBefore": 290,
+    "trisAfter": 267
+  },
+  {
+    "name": "DuelsBayShell_18_Shell",
+    "piece": "DuelsBayShell_18",
+    "oldCenter": [
+      10.0,
+      0.0,
+      8.0
+    ],
+    "oldSize": [
+      20.0,
+      20.0,
+      16.0
+    ],
+    "removedProjectedArea": 1.52,
+    "trisBefore": 148,
+    "trisAfter": 160
+  },
+  {
+    "name": "DuelsBayShell_17_Shell",
+    "piece": "DuelsBayShell_17",
+    "oldCenter": [
+      9.5,
+      0.0,
+      8.0
+    ],
+    "oldSize": [
+      19.0,
+      19.0,
+      16.0
+    ],
+    "removedProjectedArea": 1.52,
+    "trisBefore": 148,
+    "trisAfter": 159
+  },
+  {
+    "name": "DuelsBayShell_15_Shell",
+    "piece": "DuelsBayShell_15",
+    "oldCenter": [
+      9.0,
+      0.0,
+      8.0
+    ],
+    "oldSize": [
+      18.0,
+      17.0,
+      16.0
+    ],
+    "removedProjectedArea": 1.52,
+    "trisBefore": 148,
+    "trisAfter": 159
+  },
+  {
+    "name": "DuelsBayShell_12_Shell",
+    "piece": "DuelsBayShell_12",
+    "oldCenter": [
+      7.5,
+      0.0,
+      8.0
+    ],
+    "oldSize": [
+      15.0,
+      14.0,
+      16.0
+    ],
+    "removedProjectedArea": 1.52,
+    "trisBefore": 148,
+    "trisAfter": 159
+  },
+  {
+    "name": "ShopPavilion_Canopy",
+    "piece": "ShopPavilion",
+    "oldCenter": [
+      11.099999904632568,
+      0.0,
+      10.099999904632568
+    ],
+    "oldSize": [
+      2.1999998092651367,
+      17.0,
+      0.5999994277954102
+    ],
+    "removedProjectedArea": 6.36438,
+    "trisBefore": 176,
+    "trisAfter": 258
+  },
+  {
+    "name": "ShopPavilion_TopLiner",
+    "piece": "ShopPavilion",
+    "oldCenter": [
+      4.849999904632568,
+      0.0,
+      14.775000095367432
+    ],
+    "oldSize": [
+      9.699999809265137,
+      16.0,
+      0.34999942779541016
+    ],
+    "removedProjectedArea": 3.08001,
+    "trisBefore": 10,
+    "trisAfter": 20
+  },
+  {
+    "name": "MarketShowCoins_Coins",
+    "piece": "MarketShowCoins",
+    "oldCenter": [
+      0.10967278480529785,
+      0.3063686490058899,
+      0.4699999988079071
+    ],
+    "oldSize": [
+      2.5570828914642334,
+      1.671493649482727,
+      0.9399999976158142
+    ],
+    "removedProjectedArea": 0.08767,
+    "trisBefore": 572,
+    "trisAfter": 785
+  },
+  {
+    "name": "MarketRunnerBend_Oak",
+    "piece": "MarketRunnerBend",
+    "oldCenter": [
+      16.233268730342388,
+      32.15704154968262,
+      -0.07000000216066837
+    ],
+    "oldSize": [
+      32.24787141382694,
+      27.205120086669922,
+      0.26000000163912773
+    ],
+    "removedProjectedArea": 0.04701,
+    "trisBefore": 84,
+    "trisAfter": 258
+  },
+  {
+    "name": "MarketRunnerBend_Inlay",
+    "piece": "MarketRunnerBend",
+    "oldCenter": [
+      11.522461891174316,
+      34.214820861816406,
+      -0.07000000216066837
+    ],
+    "oldSize": [
+      23.044923782348633,
+      23.090354919433594,
+      0.26000000163912773
+    ],
+    "removedProjectedArea": 0.00167,
+    "trisBefore": 30,
+    "trisAfter": 55
+  },
+  {
+    "name": "MarketRockWall_Feature_GapLiner",
+    "piece": "MarketRockWall_Feature",
+    "oldCenter": [
+      -0.2900000121444464,
+      0.0,
+      1.8300000429153442
+    ],
+    "oldSize": [
+      0.6200000233948231,
+      12.0,
+      0.6600000858306885
+    ],
+    "removedProjectedArea": 0.042,
+    "trisBefore": 20,
+    "trisAfter": 29
+  },
+  {
+    "name": "MarketRockWall_E_GapLiner",
+    "piece": "MarketRockWall_E",
+    "oldCenter": [
+      -0.2900000121444464,
+      0.0,
+      1.8300000429153442
+    ],
+    "oldSize": [
+      0.6200000233948231,
+      12.0,
+      0.6600000858306885
+    ],
+    "removedProjectedArea": 0.042,
+    "trisBefore": 20,
+    "trisAfter": 29
+  },
+  {
+    "name": "MarketRockWall_D_GapLiner",
+    "piece": "MarketRockWall_D",
+    "oldCenter": [
+      -0.2900000121444464,
+      0.0,
+      1.8300000429153442
+    ],
+    "oldSize": [
+      0.6200000233948231,
+      12.0,
+      0.6600000858306885
+    ],
+    "removedProjectedArea": 0.042,
+    "trisBefore": 20,
+    "trisAfter": 29
+  },
+  {
+    "name": "MarketRockWall_C_GapLiner",
+    "piece": "MarketRockWall_C",
+    "oldCenter": [
+      -0.2900000121444464,
+      0.0,
+      1.8300000429153442
+    ],
+    "oldSize": [
+      0.6200000233948231,
+      12.0,
+      0.6600000858306885
+    ],
+    "removedProjectedArea": 0.042,
+    "trisBefore": 20,
+    "trisAfter": 29
+  },
+  {
+    "name": "MarketRockWall_B_GapLiner",
+    "piece": "MarketRockWall_B",
+    "oldCenter": [
+      -0.2900000121444464,
+      0.0,
+      1.8300000429153442
+    ],
+    "oldSize": [
+      0.6200000233948231,
+      12.0,
+      0.6600000858306885
+    ],
+    "removedProjectedArea": 0.042,
+    "trisBefore": 20,
+    "trisAfter": 29
+  },
+  {
+    "name": "MarketRockWall_A_GapLiner",
+    "piece": "MarketRockWall_A",
+    "oldCenter": [
+      -0.2900000121444464,
+      0.0,
+      1.8300000429153442
+    ],
+    "oldSize": [
+      0.6200000233948231,
+      12.0,
+      0.6600000858306885
+    ],
+    "removedProjectedArea": 0.042,
+    "trisBefore": 20,
+    "trisAfter": 29
+  },
+  {
+    "name": "MarketRockCore_B_GapLiner",
+    "piece": "MarketRockCore_B",
+    "oldCenter": [
+      2.6826107849027743,
+      13.199993133544922,
+      1.8300000429153442
+    ],
+    "oldSize": [
+      5.3652214309879085,
+      1.6400146484375,
+      0.6600000858306885
+    ],
+    "removedProjectedArea": 0.0404,
+    "trisBefore": 56,
+    "trisAfter": 72
+  },
+  {
+    "name": "MarketRockCore_A_GapLiner",
+    "piece": "MarketRockCore_A",
+    "oldCenter": [
+      2.6826107849027743,
+      13.199993133544922,
+      1.8300000429153442
+    ],
+    "oldSize": [
+      5.3652214309879085,
+      1.6400146484375,
+      0.6600000858306885
+    ],
+    "removedProjectedArea": 0.0404,
+    "trisBefore": 56,
+    "trisAfter": 72
+  },
+  {
+    "name": "MarketPendant_Collar",
+    "piece": "MarketPendant",
+    "oldCenter": [
+      0.0,
+      0.0,
+      0.8899999856948853
+    ],
+    "oldSize": [
+      2.8399999141693115,
+      2.8399999141693115,
+      1.7799999713897705
+    ],
+    "removedProjectedArea": 0.41483,
+    "trisBefore": 220,
+    "trisAfter": 261
+  },
+  {
+    "name": "BattlePassWall_Hood",
+    "piece": "BattlePassWall",
+    "oldCenter": [
+      1.2999999523162842,
+      0.0,
+      26.27500057220459
+    ],
+    "oldSize": [
+      2.5999999046325684,
+      43.599998474121094,
+      0.8500003814697266
+    ],
+    "removedProjectedArea": 19.17684,
+    "trisBefore": 88,
+    "trisAfter": 121
+  },
+  {
+    "name": "BattlePassWall_Step1",
+    "piece": "BattlePassWall",
+    "oldCenter": [
+      8.0,
+      0.0,
+      0.375
+    ],
+    "oldSize": [
+      16.0,
+      48.0,
+      0.75
+    ],
+    "removedProjectedArea": 0.0162,
+    "trisBefore": 42,
+    "trisAfter": 49
+  },
+  {
+    "name": "BattlePassWall_Step2",
+    "piece": "BattlePassWall",
+    "oldCenter": [
+      5.5,
+      0.0,
+      1.125
+    ],
+    "oldSize": [
+      11.0,
+      40.0,
+      0.75
+    ],
+    "removedProjectedArea": 0.0162,
+    "trisBefore": 42,
+    "trisAfter": 51
+  },
+  {
+    "name": "LockerCheek_Backing",
+    "piece": "LockerCheek",
+    "oldCenter": [
+      -0.015000000596046448,
+      0.0,
+      10.75
+    ],
+    "oldSize": [
+      0.07000000029802322,
+      8.0,
+      18.5
+    ],
+    "removedProjectedArea": 0.028,
+    "trisBefore": 8,
+    "trisAfter": 17
+  },
+  {
+    "name": "LockerBacklight_Edge_Glow",
+    "piece": "LockerBacklight",
+    "oldCenter": [
+      0.21000000461935997,
+      0.0,
+      8.5
+    ],
+    "oldSize": [
+      0.18000001460313797,
+      9.0,
+      13.0
+    ],
+    "removedProjectedArea": 0.288,
+    "trisBefore": 48,
+    "trisAfter": 58
+  },
+  {
+    "name": "HeroDais_UpperTop",
+    "piece": "HeroDais",
+    "oldCenter": [
+      0.0,
+      0.0,
+      1.5099999904632568
+    ],
+    "oldSize": [
+      19.676271438598633,
+      19.676271438598633,
+      0.18000006675720215
+    ],
+    "removedProjectedArea": 0.18339,
+    "trisBefore": 190,
+    "trisAfter": 1444
+  },
+  {
+    "name": "GunChapel_R50_Stage",
+    "piece": "GunChapel_R50",
+    "oldCenter": [
+      13.889256477355957,
+      43.29233169555664,
+      0.25
+    ],
+    "oldSize": [
+      27.778512954711914,
+      13.415336608886719,
+      0.5
+    ],
+    "removedProjectedArea": 6.58336,
+    "trisBefore": 22,
+    "trisAfter": 55
+  },
+  {
+    "name": "GunChapel_R50_Nosing",
+    "piece": "GunChapel_R50",
+    "oldCenter": [
+      12.322521567344666,
+      40.57720375061035,
+      0.25
+    ],
+    "oldSize": [
+      22.260520219802856,
+      6.889003753662109,
+      0.5
+    ],
+    "removedProjectedArea": 8e-05,
+    "trisBefore": 30,
+    "trisAfter": 40
+  },
+  {
+    "name": "GunChapel_Stage",
+    "piece": "GunChapel",
+    "oldCenter": [
+      15.555967330932617,
+      46.29233169555664,
+      0.25
+    ],
+    "oldSize": [
+      31.111934661865234,
+      19.41533660888672,
+      0.5
+    ],
+    "removedProjectedArea": 9.83361,
+    "trisBefore": 10,
+    "trisAfter": 21
+  },
+  {
+    "name": "ArmouryPier_R42_Pier",
+    "piece": "ArmouryPier_R42",
+    "oldCenter": [
+      0.0,
+      41.25,
+      15.0
+    ],
+    "oldSize": [
+      3.0,
+      2.5,
+      30.0
+    ],
+    "removedProjectedArea": 2.225,
+    "trisBefore": 40,
+    "trisAfter": 42
+  }
+]

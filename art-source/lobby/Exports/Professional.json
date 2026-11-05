@@ -1,0 +1,1557 @@
+{
+ "group": "Professional",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "ArenaFin": {
+   "props": {},
+   "parts": [
+    "ArenaFin_Spine",
+    "ArenaFin_Armour",
+    "ArenaFin_Inset",
+    "ArenaFin_Light_Glow",
+    "ArenaFin_Fastener1.1",
+    "ArenaFin_Fastener14.5",
+    "ArenaFin_Foot"
+   ]
+  },
+  "ArenaHeader": {
+   "props": {},
+   "parts": [
+    "ArenaHeader_Backing",
+    "ArenaHeader_BrushedLip",
+    "ArenaHeader_Face",
+    "ArenaHeader_Accent-1",
+    "ArenaHeader_Vent-1_0",
+    "ArenaHeader_Vent-1_1",
+    "ArenaHeader_Vent-1_2",
+    "ArenaHeader_Accent1",
+    "ArenaHeader_Vent1_0",
+    "ArenaHeader_Vent1_1",
+    "ArenaHeader_Vent1_2"
+   ]
+  },
+  "EquipmentCase": {
+   "props": {},
+   "parts": [
+    "EquipmentCase_Body",
+    "EquipmentCase_Lid",
+    "EquipmentCase_TopInset",
+    "EquipmentCase_Strap-1.8",
+    "EquipmentCase_Latch-1.8",
+    "EquipmentCase_Corner-1.8-1.16",
+    "EquipmentCase_Corner-1.81.16",
+    "EquipmentCase_Strap1.8",
+    "EquipmentCase_Latch1.8",
+    "EquipmentCase_Corner1.8-1.16",
+    "EquipmentCase_Corner1.81.16",
+    "EquipmentCase_HandleTop",
+    "EquipmentCase_HandlePost-0.65",
+    "EquipmentCase_HandlePost0.65",
+    "EquipmentCase_Label"
+   ]
+  },
+  "GauntletTrophy": {
+   "props": {},
+   "parts": [
+    "GauntletTrophy_PlinthFoot",
+    "GauntletTrophy_PlinthEdge",
+    "GauntletTrophy_Plinth",
+    "GauntletTrophy_PlinthTop",
+    "GauntletTrophy_Mount",
+    "GauntletTrophy_Cuff",
+    "GauntletTrophy_CuffInset",
+    "GauntletTrophy_CuffMark",
+    "GauntletTrophy_Palm",
+    "GauntletTrophy_BackPlate",
+    "GauntletTrophy_FingerRecess0",
+    "GauntletTrophy_Knuckle0",
+    "GauntletTrophy_FingerPlate0",
+    "GauntletTrophy_FingerRecess1",
+    "GauntletTrophy_Knuckle1",
+    "GauntletTrophy_FingerPlate1",
+    "GauntletTrophy_FingerRecess2",
+    "GauntletTrophy_Knuckle2",
+    "GauntletTrophy_FingerPlate2",
+    "GauntletTrophy_FingerRecess3",
+    "GauntletTrophy_Knuckle3",
+    "GauntletTrophy_FingerPlate3",
+    "GauntletTrophy_ThumbBase",
+    "GauntletTrophy_ThumbArmour",
+    "GauntletTrophy_ThumbTip"
+   ]
+  },
+  "KeyDisplay": {
+   "props": {},
+   "parts": [
+    "KeyDisplay_KeyBow",
+    "KeyDisplay_Shaft",
+    "KeyDisplay_Tooth1",
+    "KeyDisplay_Tooth2",
+    "KeyDisplay_BowInlay"
+   ]
+  },
+  "VersusCrest": {
+   "props": {},
+   "parts": [
+    "VersusCrest_Shield",
+    "VersusCrest_Face",
+    "VersusCrest_Recess",
+    "VersusCrest_DuelChevron-1",
+    "VersusCrest_DuelChevron1",
+    "VersusCrest_Ridge"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "ArenaFin",
+   "name": "ArenaFin_Spine",
+   "material": "Professional_Graphite",
+   "look": {
+    "material": "Metal",
+    "color": "222831"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.65,
+    8.0
+   ],
+   "size": [
+    3.2,
+    1.7,
+    16.0
+   ]
+  },
+  {
+   "piece": "ArenaFin",
+   "name": "ArenaFin_Armour",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    -0.37,
+    7.625
+   ],
+   "size": [
+    2.4,
+    0.26,
+    13.95
+   ]
+  },
+  {
+   "piece": "ArenaFin",
+   "name": "ArenaFin_Inset",
+   "material": "Professional_Graphite",
+   "look": {
+    "material": "Metal",
+    "color": "222831"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    -0.595,
+    7.8
+   ],
+   "size": [
+    1.8,
+    0.13,
+    11.6
+   ]
+  },
+  {
+   "piece": "ArenaFin",
+   "name": "ArenaFin_Light_Glow",
+   "material": "Professional_Accent",
+   "look": {
+    "material": "Neon",
+    "color": "F16B63"
+   },
+   "glow": true,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.73,
+    8.0
+   ],
+   "size": [
+    0.2,
+    0.08,
+    8.2
+   ]
+  },
+  {
+   "piece": "ArenaFin",
+   "name": "ArenaFin_Fastener1.1",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.78,
+    1.1
+   ],
+   "size": [
+    0.42,
+    0.12,
+    0.25
+   ]
+  },
+  {
+   "piece": "ArenaFin",
+   "name": "ArenaFin_Fastener14.5",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.78,
+    14.5
+   ],
+   "size": [
+    0.42,
+    0.12,
+    0.25
+   ]
+  },
+  {
+   "piece": "ArenaFin",
+   "name": "ArenaFin_Foot",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.2,
+    0.3
+   ],
+   "size": [
+    3.8,
+    2.5,
+    0.6
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Backing",
+   "material": "Professional_Graphite",
+   "look": {
+    "material": "Metal",
+    "color": "222831"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    0.0,
+    0.45,
+    0.0
+   ],
+   "size": [
+    40.0,
+    0.9,
+    8.0
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_BrushedLip",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    0.0,
+    -0.145,
+    0.0
+   ],
+   "size": [
+    38.9,
+    0.19,
+    7.2
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Face",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    0.0,
+    -0.35,
+    0.0
+   ],
+   "size": [
+    38.1,
+    0.16,
+    6.5
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Accent-1",
+   "material": "Professional_Carmine",
+   "look": {
+    "material": "Metal",
+    "color": "C84849"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    -16.51135,
+    -0.5,
+    -0.2
+   ],
+   "size": [
+    2.97729,
+    0.12,
+    4.4
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Vent-1_0",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -18.1,
+    -0.57,
+    -2.5
+   ],
+   "size": [
+    0.12,
+    0.06,
+    0.55
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Vent-1_1",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -17.78,
+    -0.57,
+    -2.5
+   ],
+   "size": [
+    0.12,
+    0.06,
+    0.55
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Vent-1_2",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -17.46,
+    -0.57,
+    -2.5
+   ],
+   "size": [
+    0.12,
+    0.06,
+    0.55
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Accent1",
+   "material": "Professional_Carmine",
+   "look": {
+    "material": "Metal",
+    "color": "C84849"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    16.51135,
+    -0.5,
+    -0.2
+   ],
+   "size": [
+    2.97729,
+    0.12,
+    4.4
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Vent1_0",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    18.1,
+    -0.57,
+    -2.5
+   ],
+   "size": [
+    0.12,
+    0.06,
+    0.55
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Vent1_1",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    17.78,
+    -0.57,
+    -2.5
+   ],
+   "size": [
+    0.12,
+    0.06,
+    0.55
+   ]
+  },
+  {
+   "piece": "ArenaHeader",
+   "name": "ArenaHeader_Vent1_2",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    17.46,
+    -0.57,
+    -2.5
+   ],
+   "size": [
+    0.12,
+    0.06,
+    0.55
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Body",
+   "material": "Professional_Graphite",
+   "look": {
+    "material": "Metal",
+    "color": "222831"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.15
+   ],
+   "size": [
+    4.6,
+    2.8,
+    2.3
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Lid",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.32
+   ],
+   "size": [
+    4.8,
+    3.0,
+    0.3
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_TopInset",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.51
+   ],
+   "size": [
+    3.8,
+    2.1,
+    0.08
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Strap-1.8",
+   "material": "Professional_Carmine",
+   "look": {
+    "material": "Metal",
+    "color": "C84849"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.8,
+    -1.49,
+    1.1
+   ],
+   "size": [
+    0.32,
+    0.2,
+    1.95
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Latch-1.8",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.8,
+    -1.63,
+    1.8
+   ],
+   "size": [
+    0.5,
+    0.18,
+    0.57
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Corner-1.8-1.16",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.8,
+    -1.16,
+    0.24
+   ],
+   "size": [
+    0.85,
+    0.65,
+    0.48
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Corner-1.81.16",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.8,
+    1.16,
+    0.24
+   ],
+   "size": [
+    0.85,
+    0.65,
+    0.48
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Strap1.8",
+   "material": "Professional_Carmine",
+   "look": {
+    "material": "Metal",
+    "color": "C84849"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.8,
+    -1.49,
+    1.1
+   ],
+   "size": [
+    0.32,
+    0.2,
+    1.95
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Latch1.8",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.8,
+    -1.63,
+    1.8
+   ],
+   "size": [
+    0.5,
+    0.18,
+    0.57
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Corner1.8-1.16",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.8,
+    -1.16,
+    0.24
+   ],
+   "size": [
+    0.85,
+    0.65,
+    0.48
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Corner1.81.16",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.8,
+    1.16,
+    0.24
+   ],
+   "size": [
+    0.85,
+    0.65,
+    0.48
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_HandleTop",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -1.8,
+    1.43
+   ],
+   "size": [
+    1.45,
+    0.22,
+    0.24
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_HandlePost-0.65",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -0.65,
+    -1.65,
+    1.15
+   ],
+   "size": [
+    0.2,
+    0.35,
+    0.6
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_HandlePost0.65",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.65,
+    -1.65,
+    1.15
+   ],
+   "size": [
+    0.2,
+    0.35,
+    0.6
+   ]
+  },
+  {
+   "piece": "EquipmentCase",
+   "name": "EquipmentCase_Label",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -1.51,
+    0.55
+   ],
+   "size": [
+    1.6,
+    0.06,
+    0.45
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_PlinthFoot",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    0.35
+   ],
+   "size": [
+    8.15859,
+    8.15859,
+    0.7
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_PlinthEdge",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 124,
+   "center": [
+    0.0,
+    0.0,
+    0.79
+   ],
+   "size": [
+    7.7,
+    7.7,
+    0.18
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_Plinth",
+   "material": "Professional_Graphite",
+   "look": {
+    "material": "Metal",
+    "color": "222831"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    0.0,
+    0.0,
+    1.45
+   ],
+   "size": [
+    6.9,
+    6.9,
+    1.15
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_PlinthTop",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    2.08
+   ],
+   "size": [
+    7.08758,
+    7.08758,
+    0.16
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_Mount",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.8
+   ],
+   "size": [
+    1.8,
+    1.8,
+    1.35
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_Cuff",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.05,
+    4.75
+   ],
+   "size": [
+    4.13883,
+    2.3,
+    2.9
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_CuffInset",
+   "material": "Professional_Graphite",
+   "look": {
+    "material": "Metal",
+    "color": "222831"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -1.325,
+    4.775
+   ],
+   "size": [
+    2.97215,
+    0.17,
+    2.15
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_CuffMark",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -1.49,
+    4.7
+   ],
+   "size": [
+    1.06124,
+    0.12,
+    1.2542
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_Palm",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    -0.02095,
+    0.025,
+    7.475
+   ],
+   "size": [
+    4.27861,
+    2.35,
+    3.35
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_BackPlate",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    -0.00066,
+    -1.285,
+    7.475
+   ],
+   "size": [
+    3.37373,
+    0.23,
+    2.35
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_FingerRecess0",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.64,
+    -0.13,
+    9.35
+   ],
+   "size": [
+    0.98,
+    2.3,
+    1.8
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_Knuckle0",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.64,
+    -0.35,
+    9.8
+   ],
+   "size": [
+    0.94,
+    2.12,
+    1.02
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_FingerPlate0",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.64,
+    -1.28,
+    8.91
+   ],
+   "size": [
+    0.89,
+    0.43,
+    0.85
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_FingerRecess1",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -0.58,
+    -0.13,
+    9.6
+   ],
+   "size": [
+    0.98,
+    2.3,
+    1.8
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_Knuckle1",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -0.58,
+    -0.35,
+    10.05
+   ],
+   "size": [
+    0.94,
+    2.12,
+    1.02
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_FingerPlate1",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -0.58,
+    -1.28,
+    9.16
+   ],
+   "size": [
+    0.89,
+    0.43,
+    0.85
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_FingerRecess2",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.48,
+    -0.13,
+    9.6
+   ],
+   "size": [
+    0.98,
+    2.3,
+    1.8
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_Knuckle2",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.48,
+    -0.35,
+    10.05
+   ],
+   "size": [
+    0.94,
+    2.12,
+    1.02
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_FingerPlate2",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.48,
+    -1.28,
+    9.16
+   ],
+   "size": [
+    0.89,
+    0.43,
+    0.85
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_FingerRecess3",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.54,
+    -0.13,
+    9.35
+   ],
+   "size": [
+    0.98,
+    2.3,
+    1.8
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_Knuckle3",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.54,
+    -0.35,
+    9.8
+   ],
+   "size": [
+    0.94,
+    2.12,
+    1.02
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_FingerPlate3",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.54,
+    -1.28,
+    8.91
+   ],
+   "size": [
+    0.89,
+    0.43,
+    0.85
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_ThumbBase",
+   "material": "Professional_Graphite",
+   "look": {
+    "material": "Metal",
+    "color": "222831"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.94,
+    -0.2,
+    7.2
+   ],
+   "size": [
+    1.71017,
+    2.1,
+    2.247
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_ThumbArmour",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    2.24,
+    -0.48,
+    7.65
+   ],
+   "size": [
+    1.79776,
+    2.05,
+    2.24966
+   ]
+  },
+  {
+   "piece": "GauntletTrophy",
+   "name": "GauntletTrophy_ThumbTip",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    1.75,
+    -1.23,
+    8.2
+   ],
+   "size": [
+    1.44064,
+    1.0,
+    1.2617
+   ]
+  },
+  {
+   "piece": "KeyDisplay",
+   "name": "KeyDisplay_KeyBow",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 256,
+   "center": [
+    0.0,
+    0.0,
+    3.2
+   ],
+   "size": [
+    2.3,
+    0.38,
+    2.3
+   ]
+  },
+  {
+   "piece": "KeyDisplay",
+   "name": "KeyDisplay_Shaft",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.4
+   ],
+   "size": [
+    0.55,
+    0.38,
+    2.2
+   ]
+  },
+  {
+   "piece": "KeyDisplay",
+   "name": "KeyDisplay_Tooth1",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.52,
+    0.0,
+    0.65
+   ],
+   "size": [
+    0.9,
+    0.38,
+    0.42
+   ]
+  },
+  {
+   "piece": "KeyDisplay",
+   "name": "KeyDisplay_Tooth2",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.39,
+    0.0,
+    1.25
+   ],
+   "size": [
+    0.65,
+    0.38,
+    0.35
+   ]
+  },
+  {
+   "piece": "KeyDisplay",
+   "name": "KeyDisplay_BowInlay",
+   "material": "Professional_Carmine",
+   "look": {
+    "material": "Metal",
+    "color": "C84849"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.23,
+    4.1
+   ],
+   "size": [
+    0.55,
+    0.08,
+    0.2
+   ]
+  },
+  {
+   "piece": "VersusCrest",
+   "name": "VersusCrest_Shield",
+   "material": "Professional_Graphite",
+   "look": {
+    "material": "Metal",
+    "color": "222831"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.2,
+    -0.21877
+   ],
+   "size": [
+    7.16959,
+    0.7,
+    7.43753
+   ]
+  },
+  {
+   "piece": "VersusCrest",
+   "name": "VersusCrest_Face",
+   "material": "Professional_Titanium",
+   "look": {
+    "material": "Metal",
+    "color": "9AA7B5"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    -0.26,
+    -0.20952
+   ],
+   "size": [
+    6.18502,
+    0.16,
+    6.21904
+   ]
+  },
+  {
+   "piece": "VersusCrest",
+   "name": "VersusCrest_Recess",
+   "material": "Professional_Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "0D1219"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    -0.425,
+    -0.16246
+   ],
+   "size": [
+    5.58641,
+    0.11,
+    5.52493
+   ]
+  },
+  {
+   "piece": "VersusCrest",
+   "name": "VersusCrest_DuelChevron-1",
+   "material": "Professional_Carmine",
+   "look": {
+    "material": "Metal",
+    "color": "C84849"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    -1.359,
+    -0.595,
+    -0.32378
+   ],
+   "size": [
+    1.482,
+    0.19,
+    3.50444
+   ]
+  },
+  {
+   "piece": "VersusCrest",
+   "name": "VersusCrest_DuelChevron1",
+   "material": "Professional_Carmine",
+   "look": {
+    "material": "Metal",
+    "color": "C84849"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    1.359,
+    -0.595,
+    -0.32378
+   ],
+   "size": [
+    1.482,
+    0.19,
+    3.50444
+   ]
+  },
+  {
+   "piece": "VersusCrest",
+   "name": "VersusCrest_Ridge",
+   "material": "Professional_Champagne",
+   "look": {
+    "material": "Metal",
+    "color": "CDA45C"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.63,
+    0.3
+   ],
+   "size": [
+    0.15,
+    0.14,
+    3.5
+   ]
+  }
+ ],
+ "tris": 3948
+}

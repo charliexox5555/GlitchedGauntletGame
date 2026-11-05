@@ -1,0 +1,1185 @@
+{
+ "group": "SurfaceRepair",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "Alcove_R68": {
+   "props": {},
+   "parts": [
+    "Alcove_R68_Head"
+   ]
+  },
+  "ArmouryPier_R42": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "ArmouryPier_R42_Pier"
+   ]
+  },
+  "BattlePassWall": {
+   "props": {
+    "kit_group": "Market"
+   },
+   "parts": [
+    "BattlePassWall_Hood",
+    "BattlePassWall_Step1",
+    "BattlePassWall_Step2"
+   ]
+  },
+  "DuelsBayShell_12": {
+   "props": {},
+   "parts": [
+    "DuelsBayShell_12_Shell"
+   ]
+  },
+  "DuelsBayShell_15": {
+   "props": {},
+   "parts": [
+    "DuelsBayShell_15_Shell"
+   ]
+  },
+  "DuelsBayShell_17": {
+   "props": {},
+   "parts": [
+    "DuelsBayShell_17_Shell"
+   ]
+  },
+  "DuelsBayShell_18": {
+   "props": {},
+   "parts": [
+    "DuelsBayShell_18_Shell"
+   ]
+  },
+  "DuelsTruss_22": {
+   "props": {},
+   "parts": [
+    "DuelsTruss_22_Truss"
+   ]
+  },
+  "DuelsTruss_76": {
+   "props": {},
+   "parts": [
+    "DuelsTruss_76_Truss"
+   ]
+  },
+  "GauntletDais": {
+   "props": {},
+   "parts": [
+    "GauntletDais_Low"
+   ]
+  },
+  "GunChapel": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "GunChapel_Stage"
+   ]
+  },
+  "GunChapel_R50": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "GunChapel_R50_Stage",
+    "GunChapel_R50_Nosing"
+   ]
+  },
+  "HeroDais": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "HeroDais_UpperTop"
+   ]
+  },
+  "LeaderboardFrame": {
+   "props": {},
+   "parts": [
+    "LeaderboardFrame_Hangers",
+    "LeaderboardFrame_BackPlate"
+   ]
+  },
+  "LockerBacklight": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "LockerBacklight_Edge_Glow"
+   ]
+  },
+  "LockerCheek": {
+   "props": {
+    "KitGroup": "Weapons"
+   },
+   "parts": [
+    "LockerCheek_Backing"
+   ]
+  },
+  "MarketPendant": {
+   "props": {
+    "kit_group": "Market",
+    "rod": "z 1.75..2.75, stretched in Studio"
+   },
+   "parts": [
+    "MarketPendant_Collar"
+   ]
+  },
+  "MarketRockCore_A": {
+   "props": {
+    "kit_group": "Market",
+    "radius": 14.0,
+    "span": 22.5
+   },
+   "parts": [
+    "MarketRockCore_A_GapLiner"
+   ]
+  },
+  "MarketRockCore_B": {
+   "props": {
+    "kit_group": "Market",
+    "radius": 14.0,
+    "span": 22.5
+   },
+   "parts": [
+    "MarketRockCore_B_GapLiner"
+   ]
+  },
+  "MarketRockWall_A": {
+   "props": {
+    "kit_group": "Market",
+    "width": 12.0,
+    "height": 34.0
+   },
+   "parts": [
+    "MarketRockWall_A_GapLiner"
+   ]
+  },
+  "MarketRockWall_B": {
+   "props": {
+    "kit_group": "Market",
+    "width": 12.0,
+    "height": 34.0
+   },
+   "parts": [
+    "MarketRockWall_B_GapLiner"
+   ]
+  },
+  "MarketRockWall_C": {
+   "props": {
+    "kit_group": "Market",
+    "width": 12.0,
+    "height": 34.0
+   },
+   "parts": [
+    "MarketRockWall_C_GapLiner"
+   ]
+  },
+  "MarketRockWall_D": {
+   "props": {
+    "kit_group": "Market",
+    "width": 12.0,
+    "height": 34.0
+   },
+   "parts": [
+    "MarketRockWall_D_GapLiner"
+   ]
+  },
+  "MarketRockWall_E": {
+   "props": {
+    "kit_group": "Market",
+    "width": 12.0,
+    "height": 34.0
+   },
+   "parts": [
+    "MarketRockWall_E_GapLiner"
+   ]
+  },
+  "MarketRockWall_Feature": {
+   "props": {
+    "kit_group": "Market",
+    "width": 12.0,
+    "height": 34.0
+   },
+   "parts": [
+    "MarketRockWall_Feature_GapLiner"
+   ]
+  },
+  "MarketRunnerBend": {
+   "props": {
+    "kit_group": "Market",
+    "radius": 36.0,
+    "span": 45.0
+   },
+   "parts": [
+    "MarketRunnerBend_Oak",
+    "MarketRunnerBend_Inlay"
+   ]
+  },
+  "MarketShowCoins": {
+   "props": {
+    "kit_group": "Market"
+   },
+   "parts": [
+    "MarketShowCoins_Coins"
+   ]
+  },
+  "OculusRim_R16": {
+   "props": {},
+   "parts": [
+    "OculusRim_R16_Spokes"
+   ]
+  },
+  "QueuePad_12": {
+   "props": {},
+   "parts": [
+    "QueuePad_12_Base"
+   ]
+  },
+  "QueuePad_15": {
+   "props": {},
+   "parts": [
+    "QueuePad_15_Base"
+   ]
+  },
+  "QueuePad_17": {
+   "props": {},
+   "parts": [
+    "QueuePad_17_Base"
+   ]
+  },
+  "QueuePad_18": {
+   "props": {},
+   "parts": [
+    "QueuePad_18_Base"
+   ]
+  },
+  "QueuePad_G18": {
+   "props": {},
+   "parts": [
+    "QueuePad_G18_Base"
+   ]
+  },
+  "RotundaColumn": {
+   "props": {},
+   "parts": [
+    "RotundaColumn_Shaft"
+   ]
+  },
+  "RotundaFloor": {
+   "props": {},
+   "parts": [
+    "RotundaFloor_Field"
+   ]
+  },
+  "ShopPavilion": {
+   "props": {
+    "kit_group": "Market",
+    "size": "16 x 10 x 14.6"
+   },
+   "parts": [
+    "ShopPavilion_Canopy",
+    "ShopPavilion_TopLiner"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "Alcove_R68",
+   "name": "Alcove_R68_Head",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    13.24691,
+    65.63425,
+    13.1
+   ],
+   "size": [
+    29.07156,
+    7.70761,
+    2.2
+   ]
+  },
+  {
+   "piece": "ArmouryPier_R42",
+   "name": "ArmouryPier_R42_Pier",
+   "material": "ConcreteBoard",
+   "look": {
+    "material": "Concrete",
+    "color": "8E8C87",
+    "variant": "Lobby_ConcreteBoard"
+   },
+   "glow": false,
+   "tris": 42,
+   "center": [
+    0.0,
+    41.25,
+    15.0
+   ],
+   "size": [
+    3.0,
+    2.5,
+    30.0
+   ]
+  },
+  {
+   "piece": "BattlePassWall",
+   "name": "BattlePassWall_Hood",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 121,
+   "center": [
+    1.3,
+    0.0,
+    26.275
+   ],
+   "size": [
+    2.6,
+    43.6,
+    0.85
+   ]
+  },
+  {
+   "piece": "BattlePassWall",
+   "name": "BattlePassWall_Step1",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 49,
+   "center": [
+    8.0,
+    0.0,
+    0.375
+   ],
+   "size": [
+    16.0,
+    48.0,
+    0.75
+   ]
+  },
+  {
+   "piece": "BattlePassWall",
+   "name": "BattlePassWall_Step2",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 51,
+   "center": [
+    5.5,
+    0.0,
+    1.125
+   ],
+   "size": [
+    11.0,
+    40.0,
+    0.75
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_12",
+   "name": "DuelsBayShell_12_Shell",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 159,
+   "center": [
+    7.5,
+    0.0,
+    8.0
+   ],
+   "size": [
+    15.0,
+    14.0,
+    16.0
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_15",
+   "name": "DuelsBayShell_15_Shell",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 159,
+   "center": [
+    9.0,
+    0.0,
+    8.0
+   ],
+   "size": [
+    18.0,
+    17.0,
+    16.0
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_17",
+   "name": "DuelsBayShell_17_Shell",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 159,
+   "center": [
+    9.5,
+    0.0,
+    8.0
+   ],
+   "size": [
+    19.0,
+    19.0,
+    16.0
+   ]
+  },
+  {
+   "piece": "DuelsBayShell_18",
+   "name": "DuelsBayShell_18_Shell",
+   "material": "ConcreteDuels",
+   "look": {
+    "material": "Concrete",
+    "color": "2C2D30",
+    "variant": "Lobby_ConcreteDark"
+   },
+   "glow": false,
+   "tris": 160,
+   "center": [
+    10.0,
+    0.0,
+    8.0
+   ],
+   "size": [
+    20.0,
+    20.0,
+    16.0
+   ]
+  },
+  {
+   "piece": "DuelsTruss_22",
+   "name": "DuelsTruss_22_Truss",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 267,
+   "center": [
+    0.0,
+    0.0,
+    23.0
+   ],
+   "size": [
+    0.7,
+    23.45,
+    4.0
+   ]
+  },
+  {
+   "piece": "DuelsTruss_76",
+   "name": "DuelsTruss_76_Truss",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 468,
+   "center": [
+    0.0,
+    0.0,
+    30.9
+   ],
+   "size": [
+    0.7,
+    76.05,
+    5.0
+   ]
+  },
+  {
+   "piece": "GauntletDais",
+   "name": "GauntletDais_Low",
+   "material": "PadDeck",
+   "look": {
+    "material": "Concrete",
+    "color": "7A7771",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 641,
+   "center": [
+    0.0,
+    0.0,
+    0.3
+   ],
+   "size": [
+    32.0,
+    32.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "GunChapel",
+   "name": "GunChapel_Stage",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 21,
+   "center": [
+    15.55597,
+    46.29233,
+    0.25
+   ],
+   "size": [
+    31.11193,
+    19.41534,
+    0.5
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Stage",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 55,
+   "center": [
+    13.88926,
+    43.29233,
+    0.25
+   ],
+   "size": [
+    27.77851,
+    13.41534,
+    0.5
+   ]
+  },
+  {
+   "piece": "GunChapel_R50",
+   "name": "GunChapel_R50_Nosing",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    12.32252,
+    40.5772,
+    0.25
+   ],
+   "size": [
+    22.26052,
+    6.889,
+    0.5
+   ]
+  },
+  {
+   "piece": "HeroDais",
+   "name": "HeroDais_UpperTop",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 1444,
+   "center": [
+    0.0,
+    0.0,
+    1.51
+   ],
+   "size": [
+    19.67627,
+    19.67627,
+    0.18
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_Hangers",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 316,
+   "center": [
+    0.0,
+    0.0,
+    26.87
+   ],
+   "size": [
+    0.7,
+    18.9,
+    1.96
+   ]
+  },
+  {
+   "piece": "LeaderboardFrame",
+   "name": "LeaderboardFrame_BackPlate",
+   "material": "SignPanel",
+   "look": {
+    "material": "Metal",
+    "color": "2A2C30"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    -0.21,
+    0.0,
+    16.25
+   ],
+   "size": [
+    0.06,
+    18.0,
+    8.4
+   ]
+  },
+  {
+   "piece": "LockerBacklight",
+   "name": "LockerBacklight_Edge_Glow",
+   "material": "Glow_Neutral",
+   "look": {
+    "material": "Neon",
+    "color": "F2EEE4"
+   },
+   "glow": true,
+   "tris": 58,
+   "center": [
+    0.21,
+    0.0,
+    8.5
+   ],
+   "size": [
+    0.18,
+    9.0,
+    13.0
+   ]
+  },
+  {
+   "piece": "LockerCheek",
+   "name": "LockerCheek_Backing",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 17,
+   "center": [
+    -0.015,
+    0.0,
+    10.75
+   ],
+   "size": [
+    0.07,
+    8.0,
+    18.5
+   ]
+  },
+  {
+   "piece": "MarketPendant",
+   "name": "MarketPendant_Collar",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 261,
+   "center": [
+    0.0,
+    0.0,
+    0.89
+   ],
+   "size": [
+    2.84,
+    2.84,
+    1.78
+   ]
+  },
+  {
+   "piece": "MarketRockCore_A",
+   "name": "MarketRockCore_A_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    2.68261,
+    13.19999,
+    1.83
+   ],
+   "size": [
+    5.36522,
+    1.64001,
+    0.66
+   ]
+  },
+  {
+   "piece": "MarketRockCore_B",
+   "name": "MarketRockCore_B_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    2.68261,
+    13.19999,
+    1.83
+   ],
+   "size": [
+    5.36522,
+    1.64001,
+    0.66
+   ]
+  },
+  {
+   "piece": "MarketRockWall_A",
+   "name": "MarketRockWall_A_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 29,
+   "center": [
+    -0.29,
+    0.0,
+    1.83
+   ],
+   "size": [
+    0.62,
+    12.0,
+    0.66
+   ]
+  },
+  {
+   "piece": "MarketRockWall_B",
+   "name": "MarketRockWall_B_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 29,
+   "center": [
+    -0.29,
+    0.0,
+    1.83
+   ],
+   "size": [
+    0.62,
+    12.0,
+    0.66
+   ]
+  },
+  {
+   "piece": "MarketRockWall_C",
+   "name": "MarketRockWall_C_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 29,
+   "center": [
+    -0.29,
+    0.0,
+    1.83
+   ],
+   "size": [
+    0.62,
+    12.0,
+    0.66
+   ]
+  },
+  {
+   "piece": "MarketRockWall_D",
+   "name": "MarketRockWall_D_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 29,
+   "center": [
+    -0.29,
+    0.0,
+    1.83
+   ],
+   "size": [
+    0.62,
+    12.0,
+    0.66
+   ]
+  },
+  {
+   "piece": "MarketRockWall_E",
+   "name": "MarketRockWall_E_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 29,
+   "center": [
+    -0.29,
+    0.0,
+    1.83
+   ],
+   "size": [
+    0.62,
+    12.0,
+    0.66
+   ]
+  },
+  {
+   "piece": "MarketRockWall_Feature",
+   "name": "MarketRockWall_Feature_GapLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 29,
+   "center": [
+    -0.29,
+    0.0,
+    1.83
+   ],
+   "size": [
+    0.62,
+    12.0,
+    0.66
+   ]
+  },
+  {
+   "piece": "MarketRunnerBend",
+   "name": "MarketRunnerBend_Oak",
+   "material": "OakRunner",
+   "look": {
+    "material": "Wood",
+    "color": "5A4635",
+    "variant": "Lobby_Oak"
+   },
+   "glow": false,
+   "tris": 258,
+   "center": [
+    16.23327,
+    32.15704,
+    -0.07
+   ],
+   "size": [
+    32.24787,
+    27.20512,
+    0.26
+   ]
+  },
+  {
+   "piece": "MarketRunnerBend",
+   "name": "MarketRunnerBend_Inlay",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 55,
+   "center": [
+    11.52246,
+    34.21482,
+    -0.07
+   ],
+   "size": [
+    23.04492,
+    23.09035,
+    0.26
+   ]
+  },
+  {
+   "piece": "MarketShowCoins",
+   "name": "MarketShowCoins_Coins",
+   "material": "Brass",
+   "look": {
+    "material": "Metal",
+    "color": "B08D55"
+   },
+   "glow": false,
+   "tris": 785,
+   "center": [
+    0.10967,
+    0.30637,
+    0.47
+   ],
+   "size": [
+    2.55708,
+    1.67149,
+    0.94
+   ]
+  },
+  {
+   "piece": "OculusRim_R16",
+   "name": "OculusRim_R16_Spokes",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 280,
+   "center": [
+    -0.0,
+    -0.0,
+    59.65
+   ],
+   "size": [
+    30.67937,
+    30.67937,
+    0.7
+   ]
+  },
+  {
+   "piece": "QueuePad_12",
+   "name": "QueuePad_12_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 34,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    12.0,
+    12.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_15",
+   "name": "QueuePad_15_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 34,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    15.0,
+    15.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_17",
+   "name": "QueuePad_17_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 34,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    16.0,
+    17.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_18",
+   "name": "QueuePad_18_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 34,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    17.0,
+    18.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "QueuePad_G18",
+   "name": "QueuePad_G18_Base",
+   "material": "SteelBrushed",
+   "look": {
+    "material": "Metal",
+    "color": "A7ABB0"
+   },
+   "glow": false,
+   "tris": 34,
+   "center": [
+    0.0,
+    0.0,
+    0.135
+   ],
+   "size": [
+    18.0,
+    18.0,
+    0.27
+   ]
+  },
+  {
+   "piece": "RotundaColumn",
+   "name": "RotundaColumn_Shaft",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 371,
+   "center": [
+    0.40769,
+    0.0,
+    14.0
+   ],
+   "size": [
+    2.38463,
+    1.56926,
+    28.0
+   ]
+  },
+  {
+   "piece": "RotundaFloor",
+   "name": "RotundaFloor_Field",
+   "material": "ConcretePolished",
+   "look": {
+    "material": "Concrete",
+    "color": "B9B4AA",
+    "variant": "Lobby_ConcretePolished"
+   },
+   "glow": false,
+   "tris": 937,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    53.7,
+    53.7,
+    0.0
+   ]
+  },
+  {
+   "piece": "ShopPavilion",
+   "name": "ShopPavilion_Canopy",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 258,
+   "center": [
+    11.1,
+    0.0,
+    10.1
+   ],
+   "size": [
+    2.2,
+    17.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "ShopPavilion",
+   "name": "ShopPavilion_TopLiner",
+   "material": "SteelBlack",
+   "look": {
+    "material": "Metal",
+    "color": "1C1D20"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    4.85,
+    0.0,
+    14.775
+   ],
+   "size": [
+    9.7,
+    16.0,
+    0.35
+   ]
+  }
+ ],
+ "tris": 8060
+}
