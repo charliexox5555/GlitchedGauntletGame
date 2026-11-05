@@ -241,78 +241,168 @@ Screenshots:
 
    Keep all four.
 
+### Reference board (local only, never committed: third-party images)
+21 images in `vault/02 Art/References/maps/rooftops/third-party/`. What to take from each is listed in that folder's `SOURCES.md`.
+- **Games (11):**
+  - Valorant Split ×2: height stacking, trim bands, worn plaster and metal.
+  - Valorant Ascent ×2: old-town identity, tiled roofs, colour zoning.
+  - Valorant Sunset ×2: sun-baked palette, signage and trim.
+  - CS2 Vertigo ×2: roof edges, steel and plank silhouettes, drops, parapets.
+  - Overwatch Rialto: Mediterranean roofs and chimneys.
+  - Overwatch Dorado: balconies, awnings, zoning.
+  - RIVALS Station: clarity and zone colour.
+- **Real (10):**
+  - Lisbon rooftops ×3: roof planes at many heights, chimneys and antennas.
+  - NYC water towers ×3: the tank silhouette (conical roof, hoops, stilted frame).
+  - Fire escapes ×3: landings, stairs, railings, peeling paint.
+  - A Marseille roofscape: clutter, lean-to roofs.
+- **Gaps:** no Krunker, and only one RIVALS image (no rooftop map exists there).
+
+### LihFolk rules applied (what changes, and the note it comes from)
+The folders read are the same as for [Dockyard2](Dockyard2.md#lihfolk-rules-applied-what-changes-and-the-note-it-comes-from), and its rules 6–15 apply here unchanged:
+- bevels by material; shape hierarchy; panel lines; modelled undersides; prop exaggeration;
+- triangle budget; one 1024 trim sheet plus ≤ 6 variants at 512; TintMask tinting;
+- wear baked, not decals; opaque grating.
+
+The Rooftops-specific rules:
+1. **The water-tank platform is not a lone power seat** (*Combat Arena and Encounter Layout* §6).
+   - It needs two contested ways up (a ladder from each side) and a low parapet of 2.5–3.5 studs.
+   - Before building, run the perch-share check. Rooftops already has ten tops only Updraft can reach; cap the share at ≤ 40%.
+   - The platform must not see into either spawn court (*Spawn Points Safe Zones and Respawn Flow* §3).
+2. **Jump is 5.6 studs** ([Gunplay](../Gunplay.md)). Penthouse roofs (+10) and billboard catwalks (+8) are reached only by stairs or ladders, never by a jump off AC units or planters.
+   - Every rise is ≤ 4 studs per hop.
+   - Rule 3 below keeps the props that could serve as steps in the decor band.
+3. **Cover is low (2.5–3.5) or full (7+).** AC units, planters and chimney stacks in the 4–6 band become non-colliding decor or are resized (*Combat Arena and Encounter Layout* §2).
+4. **One global landmark.** The timber water tank on a steel tower with the neon sign frame is the single landmark:
+   - unique as a black silhouette;
+   - at least 1.5× taller than anything else;
+   - in the first frame after spawning;
+   - not hiding a route exit.
+
+   The many small cobalt tanks go. The old "Sunset Soda" billboard must stay dimmer than the landmark sign (*Level Design Principles - Flow Sightlines and Landmarks* §4; *World Composition and Set Dressing* §2).
+5. **Neon is the single hot spot.**
+   - It covers about one sixth of the sign frame's area, and nothing else glows as bright (*Stylized Lighting Recipes*).
+   - Bloom threshold goes to about 1.1 so the neon actually blooms. It stays above the walls' brightness.
+6. **Lighting: Golden hour** (*Stylized Lighting Recipes* §3.3), with the arena rule from §3.2 that the environment stays desaturated while team tones and the landmark carry the saturation.
+   - About 17 h; top shift (255,190,120); bottom shift (60,40,80).
+   - Peach haze (255,200,160) at density about 0.35, glare 0.4. No SunRays.
+   - Low key and warm dominant, so it's the opposite of Dockyard2's high-key cool (*Colour Scripts and Value Structure for Untextured Art*: neighbouring maps differ in at least two of hue, key and saturation).
+   - Greyscale and no-shadow tests, because colour has to come from the shifts when phones drop shadows.
+7. **Detail goes where the camera looks** (*Teardown - Phantom Forces*; *Environment Art Styles*).
+   - Facades at eye height get reveals, sills, shutters and drainpipes.
+   - The skyline towers stay simple silhouettes, faded by haze toward the sky's value.
+8. **Same process as Dockyard2:** silhouettes, then the overview, then the hero images, critiqued in a fixed order.
+
+### Identity brief
+- **Identity sentence:** "The sun-baked rooftops of an old harbour quarter at golden hour, where two neighbours' roofs face off across a sunken courtyard under a giant water tank." The district name is ours.
+- **Story groups (2–3):**
+  - a rooftop party left half-set: string lights, folding chairs, a cooler;
+  - a laundry line with one sheet blown onto the parapet;
+  - a pigeon loft with an open hatch.
+- **Not this:**
+  - plaster cubes with caps;
+  - flat navy windows;
+  - neon everywhere;
+  - a copy of Venice, Lisbon or any real square;
+  - thin antennas crossing sightlines;
+  - noisy decals on floors.
+
 ### Direction (keep the layout: two team roofs, the Pit between them, east and west routes)
-- **Height levels (new, rotationally symmetric):**
-  - **Penthouse roof (+10):** a flat roof with a parapet above each spawn court, reached by an outside fire-escape stair. It overlooks the team's own roof only, so it's not a spawn-peek.
-  - **Water-tank platform (+12):** in the middle above the Pit, reached by a ladder from each side. This is the power position, exposed from both sides.
-  - **Plank and steel bridges:** across the alley gaps on the east and west routes, with a drop to a lower fire-escape landing (-6) as the flank route.
-  - **Billboard catwalk:** a grated walkway behind each billboard at +8. It looks into the Pit through the gap between the panels.
-- **Landmark:** one big timber water tank on a steel tower in the middle, wrapped in a tall rooftop neon sign frame (an original fictional name). It stands at least 1.5× taller than anything else and is visible from both spawns.
-- **Identity:** the sun-baked old quarter of a fictional coastal city ("Calle Ventura district"; the name is ours), with:
-  - terracotta tile and tar-and-gravel roofs;
-  - plaster over brick with patched corners;
-  - green and blue shutters;
-  - laundry lines, satellite dishes, antenna masts and AC units on brackets;
-  - skylights, chimney stacks and potted plants;
-  - a rooftop garden on one flank.
-- **Zone colour (RIVALS clarity):**
-  - A roof: apricot plaster and terracotta.
-  - B roof: sage plaster and slate tile.
-  - The Pit: cream with cobalt accents.
-  - The tank sign: the one neon spike.
-- **Materials:**
-  - plaster with cracks and stains;
-  - exposed brick;
-  - terracotta roof tiles;
+- **Height levels (new, 180° symmetric):**
+  - **Penthouse roof (+10):** reached by an outside fire-escape stair. It overlooks the team's own roof only, so it can't spawn-peek.
+  - **Water-tank platform (+12):** a ladder from each side and a low parapet. Perch share ≤ 40%.
+  - **Bridges:** plank and steel bridges over the alley gaps. Beside each bridge, a drop to a fire-escape landing (-6) gives a flank route with a ladder back up.
+  - **Billboard catwalk (+8):** behind each billboard, looking into the Pit through the gap between the panels.
+- **Landmark:** one big timber water tank on a steel lattice tower in a neon sign frame (the sign is blank in the concepts; our own lettering comes later).
+- **Colour:**
+  - A roof: apricot plaster and terracotta tiles.
+  - B roof: sage plaster and slate tiles.
+  - The Pit: cream with cobalt trims.
+  - The neon is the one spike.
+- **Materials:** in one 1024 trim sheet plus ≤ 6 variants at 512:
+  - plaster, with low-frequency cracks and stains;
+  - exposed-brick corner patches;
+  - terracotta and slate tiles;
   - tar-and-gravel roofing with flashing;
-  - painted timber shutters;
-  - rusted steel fire escapes and grating;
-  - weathered plank;
-  - stone cornices and sills;
-  - galvanised ducting.
+  - painted shutter wood;
+  - fire-escape steel (opaque grating);
+  - stone cornice;
+  - plank.
 
-### Prompts (ChatGPT image generation)
-The same shared style block as Dockyard2, with "golden late-afternoon sun, warm haze" instead of "bright late-afternoon sun".
+### Prompts (ChatGPT image generation, revised after the LihFolk read)
+Attach the current Rooftops2 [overview](../../02%20Art/References/maps/rooftops2/r8-overview.jpg), one Lobby screenshot, and 2–3 of the third-party references.
 
-1. **Hero, middle (the Pit):**
-   > Player eye height, 24 mm lens, standing in a sunken rooftop courtyard between two old city buildings, looking up at a towering timber water tank on a steel lattice tower with ladders and a small grated platform, framed by a tall neon rooftop sign. Left and right: cream plaster walls with green shutters, AC units, drainpipes and a fire escape. Ahead: a stair up to a terracotta-tiled roof. Tar seams and gravel on the floor.
-2. **Hero, spawn A:**
-   > Eye height, looking out from the warm-side spawn court across an apricot plaster rooftop with terracotta tiles, chimney stacks, skylights and potted plants; a rusted fire escape stair climbing to a penthouse roof on the right; laundry lines; the water tank landmark in the middle distance.
-3. **Hero, spawn B:**
-   > The cool-side roof in sage plaster and slate tile, a plank-and-steel bridge across an alley gap with the street far below, satellite dishes, and the water tank ahead.
-4. **Overview:**
-   > High three-quarter aerial view of a compact arena shooter map across the rooftops of two old city blocks, with 180-degree rotational symmetry. Each end has a team roof with a spawn court and a penthouse (one apricot, one sage). In the middle, a sunken courtyard (the Pit) under a giant water-tank landmark with a platform. Plank bridges cross the alleys on both flanks, and billboards with catwalks stand between the roofs. Streets and the city far below, golden hour.
+The shared style block is the same as Dockyard2's (chunky proportions, trims 2–4× real thickness, wear on edges only, value bands, no text, no thin wires, original). Only the palette and light lines change:
+> Palette: apricot plaster #E3AA84, sage plaster #A9C2B0, cream plaster #D4B98F, terracotta tile #B5735A, slate tile #6E7B86, charcoal steel #3A3F47, cobalt trim #2F62C8, warm neon #FFB14A (landmark sign only).
+> Light: golden late afternoon, low warm sun from the side, peach haze, cool violet shade; the landmark sign is the brightest point.
+
+0. **Silhouette round:**
+   > 12 black silhouettes on white of rooftop water-tank-on-tower landmarks with a sign frame, each unique when blacked out, chunky, side view.
+1. **Overview** (generate first; it becomes the reference for 2–4):
+   > High three-quarter aerial view of a compact arena shooter map across the rooftops of two old city blocks, 180-degree rotational symmetry.
+   > - Each end: a team roof with a walled spawn court and a penthouse with a fire-escape stair to its roof (one roof apricot plaster with terracotta tiles, one sage with slate).
+   > - Middle: a sunken rooftop courtyard (the Pit) under a giant timber water tank on a steel lattice tower with a blank neon sign frame and a ladder platform.
+   > - Flanks: plank-and-steel bridges cross the alley gaps, with fire-escape landings below.
+   > - Two back-to-back billboards with catwalks stand between the roofs.
+   > - The streets far below. Golden hour.
+2. **Hero, the Pit:**
+   > Wide game camera, about 100° horizontal FOV, player eye height, standing in the sunken courtyard looking up at the water tank and tower (from image 1). Ladders up both sides, cream plaster walls with green shutters and drainpipes, a stair up to the terracotta roof ahead, tar-and-gravel floor.
+3. **Hero, spawn A:**
+   > Same camera, looking out of the apricot spawn court across the terracotta roof: chimney stacks, skylights, a fire-escape stair climbing to the penthouse roof on the right, a laundry line, the landmark mid-distance.
+4. **Hero, spawn B:**
+   > The rotated twin: the sage roof with slate tiles, a plank-and-steel bridge over an alley gap with the street far below, a rooftop party corner, the landmark ahead.
 5. **Kit sheet:**
-   > Environment kit sheet, numbered only:
-   > - facade modules (window bay with shutters and sill, corner pier with quoins, cornice);
-   > - parapet with coping;
-   > - a penthouse block with a pitched tile roof;
-   > - a fire escape stair and landing;
-   > - a plank bridge and a steel bridge;
-   > - a timber water tank on a lattice tower;
-   > - a billboard with a catwalk;
-   > - AC units on brackets, a chimney stack, a skylight, a roof hatch;
-   > - a satellite dish and an antenna mast;
-   > - a laundry line, potted plants, a planter box.
-6. **Material sheet:**
-   > Swatches, tileable:
-   > - apricot, sage and cream plaster with cracks and stains;
-   > - exposed brick patch;
-   > - terracotta tiles and slate tiles;
-   > - tar-and-gravel roofing;
-   > - painted shutter wood;
-   > - rusted fire-escape steel and grating;
-   > - stone cornice trim;
-   > - metal flashing trim;
-   > - weathered plank.
+   > Orthographic front, side and top views plus one three-quarter view, a 5-ft mannequin for scale, on a 4-unit grid:
+   > - window bay facade module with shutters and sill;
+   > - corner pier with quoins;
+   > - cornice and parapet with coping;
+   > - penthouse block;
+   > - fire-escape stair and landing;
+   > - plank bridge and steel bridge;
+   > - water tank on lattice tower;
+   > - billboard with catwalk;
+   > - AC unit on brackets;
+   > - chimney stack;
+   > - skylight and roof hatch;
+   > - planter box.
+6. **Trim sheet:**
+   > Game trim sheet texture, 1:1, horizontal tiling strips:
+   > - plaster panel;
+   > - exposed brick;
+   > - terracotta tile row;
+   > - slate tile row;
+   > - tar-and-gravel;
+   > - shutter slats;
+   > - stone cornice profile;
+   > - metal flashing;
+   > - fire-escape grating (opaque);
+   > - plank;
+   > - a blank sign plate row;
+   > - a flat palette strip.
+   >
+   > All tintable near-white except the palette strip; wear on edges only; low noise.
+
+### Modelling plan (after the concepts are approved)
+- **Blender, real detail** (scripted kit, derived dimensions, seed per piece, A1–A18 gates, coplanar 0):
+  - the water tank and tower (hero, 5–12k);
+  - facade modules with real reveals, shutters and sills (these replace the flat navy windows and blank slabs);
+  - corner piers and cornices;
+  - the penthouse with roof and parapet;
+  - fire escapes and bridges with stringers underneath;
+  - billboard catwalks;
+  - AC, chimney, skylight and hatch;
+  - laundry lines and cables (`lihfolk_curves`).
+- **Textures and budget:**
+  - One 1024 trim sheet (colour + normal) with baked edge wear, cavity and AO. Up to 6 MaterialVariants at 512 for plaster, tile, gravel and plank.
+  - Repeated props at 100–800 tris; the map ≤ 450k visible tris.
+  - Measured in Studio before the art pass is called done.
+- **Order:** layout re-check (perch share, jump 5.6, spawn-court sightlines), greybox heights, kit, trim sheet, art, blind score.
 
 ### Birds (map life)
-The current pigeons are boxy.
-
-**Recommendation:** remove them until there's a modelled replacement. The replacement:
-- a real silhouette, with rounded body, tapered wings and tail;
+The current pigeons are boxy. **Recommendation: remove them until there's a modelled replacement.** Use the same rules as Dockyard2's gulls:
+- a rounded body, tapered wings, tail fan and neck collar;
 - 300–500 tris;
-- a flap animation;
-- perches on the parapets away from sightlines.
+- flaps in bursts with glides, on spline paths;
+- client-only, capped and culled.
 
-This is lane F's area, so it's a recommendation only.
+They perch on parapets and the pigeon loft away from routes, and take off only when a player comes near, never across a duel sightline. This is lane F's area; it's a recommendation only.
