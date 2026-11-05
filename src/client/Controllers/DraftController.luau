@@ -1125,11 +1125,19 @@ local function phoneCanvas(content: Instance)
 	end
 	local bottom = TOP
 	for _, c in content:GetChildren() do
-		if c:IsA("GuiObject") and c.Visible and c.Size.Y.Scale == 0 then
+		-- Cards are still hidden for their reveal here, so Visible isn't checked.
+		if c:IsA("GuiObject") and c.Size.Y.Scale == 0 then
 			bottom = math.max(bottom, c.Position.Y.Offset + (1 - c.AnchorPoint.Y) * c.Size.Y.Offset)
 		end
 	end
 	scroll.CanvasSize = UDim2.fromOffset(0, (bottom + 24 - PHONE_CROP_TOP) * fit.Scale)
+	-- The ability cards are the main choice and a gun comes preselected, so a
+	-- phone opens on the cards (scroll up for the guns).
+	local target = (ABILITY_HEADER_Y - PHONE_CROP_TOP) * fit.Scale
+	-- ...far enough that the whole card row fits the view.
+	local rowBottom = (TOP + PHONE_CARD_H + 8 - PHONE_CROP_TOP) * fit.Scale
+	target = math.max(target, rowBottom - scroll.AbsoluteSize.Y)
+	scroll.CanvasPosition = if selectedGun then Vector2.new(0, target) else Vector2.zero
 end
 
 -- Phone: the bottom bar (hint, LOCK IN, enemy kit) moves from the scrolling
@@ -1294,16 +1302,6 @@ local function show(o: MatchState.DraftOffer)
 	end
 	if canvas then
 		Ui.refit(canvas) -- the new cards get the text floor and snapped strokes
-	end
-	local scroll = scroller
-	if scroll then
-		-- The ability cards are the main choice and a gun comes preselected,
-		-- so a phone opens on the cards (scroll up for the guns).
-		local fit = canvas and canvas:FindFirstChild("Fit")
-		local s = if fit and fit:IsA("UIScale") then fit.Scale else 0.5
-		scroll.CanvasPosition = if selectedGun
-			then Vector2.new(0, (ABILITY_HEADER_Y - PHONE_CROP_TOP) * s)
-			else Vector2.zero
 	end
 	reveal(order)
 end
