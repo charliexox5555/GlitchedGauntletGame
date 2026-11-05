@@ -10,6 +10,11 @@
 - **Evening review 2026-11-05 ([note](05%20Production/Playtests/2026-11-05%20Evening%20Review.md)):**
   - **Maps are too simple** ("smooth plastic blocks"). Next: reference boards and ChatGPT concept images for Rooftops and Dockyard, approved before any rebuild.
   - **Match HUD reverted to v1.** Next: a UI concept pass (references, ChatGPT screens, Figma) for the Lobby UI and the HUD. Keep the v2 fonts and effects; lose the rounded "AI" look.
+  - **Results while the user was out (to 17:45):**
+    - Codex made 20 concept images. Rooftops2 and Dockyard2 are rebuilt from them (ForceMap only), with modelled kits and their own trim-sheet textures. Blind scores: Rooftops2 v3 **7.92**, Dockyard2 v3 **6.67** (below 8.5).
+    - The [Match Avatar](01%20Design/Match%20Avatar.md) is built: blocky R15, slim arms, hair only, forward-reaching holds. It scores **5.0**: long guns read well, pistols and akimbo weakest.
+    - The Lobby teleport PlaceId is fixed. The match place is saved.
+    - The UI direction ("Clipped steel", larger) waits for the user's pick.
   - Sounds and the knife are good for now. The Lobby structure is good; comments later.
 - **Day 2026-11-05 (three lanes while the user was at school, [day plan](05%20Production/Day%20Plan%202026-11-05.md); tonight's review list is at the bottom):**
   - **Match maps redesigned in the new style, as new versions** (ForceMap only; the old maps are untouched):
