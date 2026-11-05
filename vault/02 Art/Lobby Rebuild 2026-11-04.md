@@ -76,7 +76,9 @@ Sunbeam (Beams + bright floor hot spot) with dust over spawn; ceiling fans in th
 ### Phases and approval gates
 1. **This plan:** the user approves or edits it.
 2. **Style board (gate):** one rotunda bay, a Duels pad with its sign, the Market counter and a sign box, rendered in Blender **and** placed in Studio under the real lighting, with two sign-font options. The user approves the look before the full build.
-3. **Greybox** of the compact layout in Studio: walk it, screenshot every area from spawn and close up.
+3. **Blockout** of the compact layout in Studio (plain parts, built beside the current lobby so nothing is demolished until it passes): walk it, screenshot every area from spawn, mid and close, and **write a critique against the reference set** below in this note (what reads, what doesn't, what changes). Only then demolish and build.
+   - Reference set: the user's RIVALS lobby screenshots (`01 Design/RivalsMapConcepts/`), the current bunker's final shots (`02 Art/References/lobby/final/`, what to keep from the concept), the scrapped attempt's lessons (above), and the Valorant / Overwatch texture references in the research list.
+   - Checks: every wing sign readable from spawn within one camera turn; walk times in the table above; one clear focal point per view; pads readable as one group; no dead floor between areas.
 4. **Kit + textures**, import, assemble area by area, screenshot and iterate.
 5. **Lighting and effects pass**, audits (zero overlaps), save the place, `.rbxm` backups, notes and the test checklist.
 
