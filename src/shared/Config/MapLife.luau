@@ -31,6 +31,7 @@
 -- own centre at that height. Rotor puts client copies of Template (a model in
 -- the Life folder) at Offset1..Offset4 on each match and spins them (Spin
 -- attributes). The rules survive a rebuild of the art.
+-- LifeGull models may override FlapHz, FlapDeg (circling pigeons use them).
 -- LifePigeon models may override FlapHz, FlapDeg, Away, Rise, Sound, Volume
 -- (perched gulls on Dockyard2 use the same take-off code as the pigeons).
 -- Wing parts are named WingL* / WingR* and hinge at the Model's HingeX
@@ -65,9 +66,9 @@ return table.freeze({
 	PIGEON = table.freeze({
 		scare = 15, -- a character this close (studs) sends the flock up
 		calm = 32, -- they come back only when nobody is this close
-		flyTime = 3.0, -- seconds from the perch to gone
-		rise = 16,
-		away = 46,
+		flyTime = 4.2, -- seconds from the perch to gone
+		rise = 28,
+		away = 110, -- out over the street, past the parapets, before they fade
 		back = { 22, 40 }, -- seconds away before they return
 		flapHz = 8,
 		flapDeg = 55,

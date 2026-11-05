@@ -142,7 +142,7 @@ end
 -- fly back once nobody is near (the pigeon code with gull numbers). Real size:
 -- a bird on a 1-stud bollard at the quay edge hides nobody.
 local PERCHES = {
-	{ at = Vector3.new(67, 3.5, -44), flee = Vector3.new(1, 0.25, -0.35) },
+	{ at = Vector3.new(67, 3.5, -12), flee = Vector3.new(1, 0.25, -0.35) },
 	{ at = Vector3.new(67, 3.5, 64), flee = Vector3.new(1, 0.25, 0.35) },
 	{ at = Vector3.new(-67, 3.5, 44), flee = Vector3.new(-1, 0.25, 0.35) },
 	{ at = Vector3.new(-67, 3.5, -64), flee = Vector3.new(-1, 0.25, -0.35) },
@@ -155,8 +155,8 @@ for i, perch in PERCHES do
 		FleeDir = perch.flee.Unit,
 		FlapHz = 3.2,
 		FlapDeg = 50,
-		Away = 70,
-		Rise = 22,
+		Away = 130,
+		Rise = 30,
 		Sound = "atlas:AmbGulls",
 		Volume = 0.5,
 	})
@@ -308,8 +308,9 @@ local function farShip(name: string, z: number, from: number, to: number, speed:
 		CFrame.new(at + Vector3.new(0, 7.3, 30)), -- sunk 0.2 into the hull
 		Color3.fromRGB(236, 230, 214)
 	)
+	-- Blue, mustard, green (no team orange-red).
 	local colours =
-		{ Color3.fromRGB(46, 86, 150), Color3.fromRGB(176, 64, 44), Color3.fromRGB(70, 128, 84) }
+		{ Color3.fromRGB(46, 86, 150), Color3.fromRGB(214, 168, 62), Color3.fromRGB(70, 128, 84) }
 	for k = 0, 2 do
 		part(
 			m,

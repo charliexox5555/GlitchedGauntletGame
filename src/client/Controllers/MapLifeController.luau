@@ -222,7 +222,11 @@ local function add(kind: string, inst: Instance, src: Instance?)
 		e.rig = rig
 		if kind == "Spin" then
 			e.data = {
-				speed = math.rad(num(a, "SpinSpeed", 120)),
+				-- SpinJitter: each copy's speed off by up to this fraction;
+				-- SpinWander: the speed drifts by this fraction over ~30 s (gusts).
+				speed = math.rad(num(a, "SpinSpeed", 120))
+					* (1 + num(a, "SpinJitter", 0) * (math.random() * 2 - 1)),
+				wander = num(a, "SpinWander", 0),
 				axis = (vec(a, "Axis") or cf.UpVector).Unit,
 				centre = cf.Position,
 			}
@@ -284,6 +288,8 @@ local function add(kind: string, inst: Instance, src: Instance?)
 				centre = centre,
 				radius = radius,
 				speed = math.rad(num(a, "Speed", 14)),
+				flapHz = num(a, "FlapHz", MapLife.GULL.flapHz),
+				flapDeg = math.rad(num(a, "FlapDeg", MapLife.GULL.flapDeg)),
 			}
 		else
 			local flee = vec(a, "FleeDir") or -bird.rest.LookVector
@@ -375,12 +381,17 @@ local function updatePigeon(e: Entry, now: number)
 					d.nodAt = now + 1.5 + math.random() * 3.5
 					if math.random() < 0.3 then
 						d.yaw = math.rad(math.random(-35, 35))
+						d.posed = false
 					end
 				else
 					nod = math.sin(into / 0.3 * math.pi)
 				end
 			end
-			poseBird(b, rest, 0, 1, nod)
+			-- A still bird is posed once, not every frame.
+			if nod ~= 0 or not d.posed then
+				poseBird(b, rest, 0, 1, nod)
+				d.posed = nod == 0
+			end
 			return
 		end
 	end
@@ -404,6 +415,7 @@ local function updatePigeon(e: Entry, now: number)
 		s = 1 - (now - d.since) / fly
 		if s <= 0 then
 			d.state = "perched"
+			d.posed = true
 			fadeBird(b, 0)
 			poseBird(b, rest, 0, 1, 0)
 			return
@@ -429,7 +441,10 @@ local function update(e: Entry, now: number)
 	local d = e.data
 	if kind == "Spin" then
 		local c: Vector3 = d.centre
-		local angle = d.speed * now + e.phase
+		-- Angular speed = speed * (1 + wander * sin(0.2 t + phase)).
+		local angle = d.speed * now
+			+ e.phase
+			- d.speed * d.wander / 0.2 * math.cos(0.2 * now + e.phase)
 		move(e.rig :: Rig, CFrame.new(c) * CFrame.fromAxisAngle(d.axis, angle) * CFrame.new(-c))
 	elseif kind == "Sway" then
 		local w = TAU * d.hz * now
@@ -495,8 +510,7 @@ local function update(e: Entry, now: number)
 		-- Bursts of flapping between glides.
 		local c = (now * 0.22 + e.phase / TAU) % 1
 		local k = if c < 0.4 then math.sin(math.pi * c / 0.4) else 0
-		local flap = math.rad(7)
-			+ math.rad(cfg.flapDeg) * k * math.sin(now * cfg.flapHz * TAU + e.phase)
+		local flap = math.rad(7) + d.flapDeg * k * math.sin(now * d.flapHz * TAU + e.phase)
 		poseBird(d.bird, cf, flap, 0, 0)
 	elseif kind == "Pigeon" then
 		updatePigeon(e, now)

@@ -62,6 +62,8 @@ local function part(
 		local m = Instance.new("SpecialMesh")
 		m.MeshType = Enum.MeshType.Sphere
 		m.Parent = p
+	elseif shape == "cylinder" then
+		p.Shape = Enum.PartType.Cylinder
 	end
 	p.Parent = parent
 	return p
@@ -93,19 +95,19 @@ local function steam(name: string, at: Vector3, rate: number)
 	e.Drag = 0.6
 	e.Size = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0.8), -- narrow until it has risen
-		NumberSequenceKeypoint.new(0.35, 2.6),
-		NumberSequenceKeypoint.new(1, 5.6),
+		NumberSequenceKeypoint.new(0.35, 2.8),
+		NumberSequenceKeypoint.new(1, 7),
 	})
 	e.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.12, 0.3),
-		NumberSequenceKeypoint.new(0.55, 0.6),
+		NumberSequenceKeypoint.new(0.12, 0.25),
+		NumberSequenceKeypoint.new(0.55, 0.55),
 		NumberSequenceKeypoint.new(1, 1),
 	})
-	-- Grey-white: reads against the bright evening sky without going muddy.
-	e.Color = ColorSequence.new(Color3.fromRGB(214, 210, 206))
-	e.LightEmission = 0.1
-	e.LightInfluence = 0.4 -- less of the golden light, so it never goes brown
+	-- Near-white and self-lit: reads as steam against the warm evening sky.
+	e.Color = ColorSequence.new(Color3.fromRGB(236, 236, 234))
+	e.LightEmission = 0.2
+	e.LightInfluence = 0.1 -- barely lit, so the golden light never turns it brown
 	e.Rotation = NumberRange.new(0, 360)
 	e.RotSpeed = NumberRange.new(-20, 20)
 	e.Shape = Enum.ParticleEmitterShape.Box
@@ -114,14 +116,14 @@ local function steam(name: string, at: Vector3, rate: number)
 	tag(e, "LifeEmitter", { Range = 140 })
 end
 -- Flue tops at y 208.4, lift-house vent tops at y 211.2: the steam starts
--- 1.2 studs above them, 5+ studs over a standing head (about 205), and stays
--- narrow (0.8 -> 2.6) for its first second.
-steam("Steam_Flue1", Vector3.new(3024, 210, 21), 3.2)
-steam("Steam_Flue2", Vector3.new(2976, 210, 21), 3.2)
-steam("Steam_Flue3", Vector3.new(2976, 210, -21), 3.2)
-steam("Steam_Flue4", Vector3.new(3024, 210, -21), 3.2)
-steam("Steam_Lift1", Vector3.new(3030, 212.7, 50), 2.4)
-steam("Steam_Lift2", Vector3.new(2970, 212.7, -50), 2.4)
+-- 3.6 / 5.5 studs above them, 7+ studs over a standing head (about 205),
+-- and stays narrow (0.8 -> 2.8) for its first second.
+steam("Steam_Flue1", Vector3.new(3024, 212, 21), 4.5)
+steam("Steam_Flue2", Vector3.new(2976, 212, 21), 4.5)
+steam("Steam_Flue3", Vector3.new(2976, 212, -21), 4.5)
+steam("Steam_Flue4", Vector3.new(3024, 212, -21), 4.5)
+steam("Steam_Lift1", Vector3.new(3030, 216.7, 50), 3.4)
+steam("Steam_Lift2", Vector3.new(2970, 216.7, -50), 3.4)
 
 -- Pigeons ----------------------------------------------------------------------
 
@@ -130,12 +132,13 @@ local HEAD = Color3.fromRGB(84, 90, 106)
 local WING = Color3.fromRGB(152, 157, 172)
 local BAR = Color3.fromRGB(58, 60, 70)
 
--- 1.4x a real pigeon (about 1.15 studs long), so a flock reads at the
--- 15-40 studs players see it from.
-local P = 1.4
-local function pigeon(name: string, top: Vector3, facing: Vector3, flee: Vector3)
+local BELLY = Color3.fromRGB(198, 200, 208)
+
+-- 1.8x a real pigeon (about 1.5 studs long), so a flock reads at the 15-40
+-- studs players see it from; a pale belly lifts it off the shaded cornice.
+local P = 1.8
+local function pigeonModel(name: string, at: Vector3, facing: Vector3): Model
 	local m = model(name)
-	local at = top + Vector3.new(0, 0.29 * P, 0)
 	local cf = CFrame.lookAt(at, at + facing)
 	local function v(x: number, y: number, z: number): Vector3
 		return Vector3.new(x, y, z) * P
@@ -144,6 +147,7 @@ local function pigeon(name: string, top: Vector3, facing: Vector3, flee: Vector3
 		return cf * CFrame.new(x * P, y * P, z * P)
 	end
 	local body = part(m, "Body", v(0.46, 0.42, 0.82), cf, BODY, "ball")
+	part(m, "Belly", v(0.36, 0.28, 0.6), o(0, -0.08, 0.02), BELLY, "ball")
 	part(m, "Head", v(0.27, 0.27, 0.29), o(0, 0.27, -0.36), HEAD, "ball")
 	part(m, "HeadBeak", v(0.06, 0.06, 0.13), o(0, 0.25, -0.54), BAR)
 	part(m, "Tail", v(0.26, 0.05, 0.32), o(0, 0.04, 0.52), BAR)
@@ -155,6 +159,10 @@ local function pigeon(name: string, top: Vector3, facing: Vector3, flee: Vector3
 	end
 	m.PrimaryPart = body
 	m:SetAttribute("HingeX", 0.15 * P)
+	return m
+end
+local function pigeon(name: string, top: Vector3, facing: Vector3, flee: Vector3)
+	local m = pigeonModel(name, top + Vector3.new(0, 0.29 * P, 0), facing)
 	tag(m, "LifePigeon", { FleeDir = flee.Unit })
 end
 
@@ -184,6 +192,21 @@ for k, z in { -4.2, -0.4, 3.6 } do
 		Vector3.new(if k == 2 then 1 else -1, 0, 0.2),
 		Vector3.new(1, 0.25, (k - 2) * 0.7)
 	)
+end
+
+-- A small flock circling over the block, 28-32 studs above the roofs (far
+-- over every sightline), so the sky moves too; flap-and-glide like the gulls.
+for k, phase in { 0, 22, 47 } do
+	local centre = Vector3.new(3000, 230 + k, 6)
+	local m = pigeonModel("SkyPigeon_" .. k, centre + Vector3.new(34, 0, 0), Vector3.zAxis)
+	tag(m, "LifeGull", {
+		Center = centre,
+		Radius = 34 + k * 2,
+		Speed = 20,
+		Phase = phase,
+		FlapHz = 5,
+		FlapDeg = 50,
+	})
 end
 
 -- Banners on the outer street walls ------------------------------------------------
@@ -252,6 +275,21 @@ rotor.Name = "RotorTemplate"
 local hub = CFrame.new(3000, -300, 0)
 rotor.PrimaryPart = part(rotor, "BladeA", Vector3.new(2.3, 0.06, 0.34), hub, BLADE)
 part(rotor, "BladeB", Vector3.new(0.34, 0.16, 2.3), hub, BLADE) -- 0.05 proud of A
+-- A faint disc under the blades reads as their motion blur.
+local blur = part(
+	rotor,
+	"Blur",
+	Vector3.new(0.03, 2.4, 2.4),
+	hub * CFrame.new(0, -0.09, 0) * CFrame.Angles(0, 0, math.pi / 2),
+	BLADE,
+	"cylinder"
+)
+blur.Transparency = 0.78
+for _, b in rotor:GetChildren() do
+	if b:IsA("BasePart") and string.sub(b.Name, 1, 5) == "Blade" then
+		b.Transparency = 0.2
+	end
+end
 part(rotor, "Hub", Vector3.new(0.5, 0.3, 0.5), hub, Color3.fromRGB(70, 72, 78))
 rotor.Parent = folder
 rule("Rotor", "ACUnit_Fans", {
@@ -259,11 +297,15 @@ rule("Rotor", "ACUnit_Fans", {
 	Offset1 = Vector3.new(-1.62, 0.22, 0),
 	Offset2 = Vector3.new(1.62, 0.22, 0),
 	SpinSpeed = 300,
+	SpinJitter = 0.15,
+	SpinWander = 0.2,
 })
 rule("Rotor", "Condenser_Fan", {
 	Template = "RotorTemplate",
 	Offset1 = Vector3.new(0, 0.22, 0),
 	SpinSpeed = 340,
+	SpinJitter = 0.1,
+	SpinWander = 0.2,
 })
 rule("Flicker", "RoofSign_Neon_Glow", { FlickerTo = 0.85, FlickerGap = Vector2.new(5, 14) })
 rule(
