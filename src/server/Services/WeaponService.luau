@@ -692,6 +692,50 @@ function WeaponService.damage(
 	applyDamage(attacker, victim, amount, "Body", sourceId, at)
 end
 
+-- AI bots (vault/01 Design/Bots.md, Services/BotService): damage from a
+-- bot's gun or Mod. The same path as a player's (guards, shield, health,
+-- the victim's damage direction, kill feed) minus what needs a Player
+-- attacker (damage modifiers, hit confirm). The server computed `amount`.
+-- Returns what it took.
+function WeaponService.damageBy(
+	attacker: Model,
+	victimModel: Model,
+	amount: number,
+	zone: HitZone,
+	sourceId: string,
+	_at: Vector3
+): number
+	local humanoid = liveHumanoid(victimModel)
+	if not humanoid or amount ~= amount or amount <= 0 or amount == math.huge then
+		return 0
+	end
+	local dealt = WeaponService.hurt(humanoid, amount, nil)
+	local killed = Health.isDowned(humanoid)
+	local victim = Players:GetPlayerFromCharacter(victimModel)
+	if victim and dealt > 0 then
+		victim:SetAttribute("HitAt", workspace:GetServerTimeNow())
+		local root = attacker:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") then
+			Net.event("Damaged"):FireClient(victim, root.Position, math.round(dealt))
+		end
+	end
+	if killed then
+		Net.event("Killed"):FireAllClients(victimModel, attacker, sourceId, zone == "Head")
+	end
+	return dealt
+end
+
+-- AI bots: is there a wall between `from` and `to` that a gun with this
+-- penetration can't go through? The same check player shots get.
+function WeaponService.wallBlocked(
+	shooter: Model,
+	from: Vector3,
+	to: Vector3,
+	penetration: Types.Penetration
+): boolean
+	return blocked(wallExclusions(shooter), from, to, penetration)
+end
+
 -- Heals a combatant (no natural regen: heals only come from Mods). Returns
 -- the health actually added.
 function WeaponService.heal(target: Model, amount: number): number

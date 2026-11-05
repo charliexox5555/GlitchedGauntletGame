@@ -20,6 +20,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local Health = require(script.Parent.Parent.Health)
+local Pawns = require(script.Parent.Pawns)
 local Animations = require(script.Parent.Parent.Config.Animations)
 local Weapons = require(script.Parent.Parent.Config.Weapons)
 
@@ -546,6 +547,10 @@ local function step(dt: number)
 			if character then
 				stepCharacter(player, character, dt)
 			end
+		end
+		-- AI bots (Simulation/Pawns): posed from their owner's attributes.
+		for _, pawn in Pawns.list() do
+			stepCharacter(pawn.owner :: any, pawn.character, dt)
 		end
 	else
 		local player = Players.LocalPlayer

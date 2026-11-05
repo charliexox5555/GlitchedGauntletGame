@@ -52,27 +52,7 @@ return table.freeze({
 	-- per ability, rising by `step` every draft that offered none (capped).
 	GLITCH = { chance = 0.08, step = 0.03, cap = 0.25 },
 
-	-- Studio only: with nobody on the other team, a test opponent plays it.
-	TEST_OPPONENT = {
-		enabled = true,
-		joinGrace = 3, -- seconds to wait for a second player first
-		walkSpeed = 12,
-		weapon = "Classic", -- what it holds (looks and tracers only)
-		fireEvery = 0.55, -- seconds between shots while it can see you
-		hitChance = 0.4,
-		damage = 12,
-		range = 90, -- studs
-		-- Its route in map space (X across, Z along), written for its spawn end
-		-- at Z < 0: out of the alcove, then back and forth across its half.
-		route = {
-			Vector3.new(-12, 0, -50),
-			Vector3.new(-14, 0, -30),
-			Vector3.new(16, 0, -14),
-			Vector3.new(30, 0, -22),
-			Vector3.new(-16, 0, -14),
-			Vector3.new(-14, 0, -30),
-		},
-	},
+	-- Studio: with nobody on the other team, a bot plays it (Config/Bots).
 
 	-- Remote budget per player: rate per second, burst.
 	RATE = {
