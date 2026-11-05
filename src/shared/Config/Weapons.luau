@@ -1037,9 +1037,10 @@ local weapons: { [string]: WeaponConfig } = {
 		moveMultiplier = 1.05,
 		adsMoveMultiplier = 1,
 		penetration = "None",
-		-- Held bigger and blade-up so the knife reads past the hand.
-		viewmodelOffset = Vector3.new(0.5, -0.58, -1.15),
-		viewmodelRotation = Vector3.new(28, 18, -22),
+		-- Low-right ready hold (Valorant / RIVALS): the blade angles up and
+		-- in toward the centre without pointing at the crosshair.
+		viewmodelOffset = Vector3.new(0.62, -0.7, -1.12),
+		viewmodelRotation = Vector3.new(16, 30, -34),
 		viewmodelScale = 1.0,
 		tracerColor = TRACER,
 	},

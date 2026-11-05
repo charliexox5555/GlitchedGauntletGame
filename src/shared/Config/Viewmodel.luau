@@ -158,9 +158,12 @@ return table.freeze({
 		offset = Vector3.new(-0.02, -0.04, 0.32),
 		direction = Vector3.new(-0.3, -0.45, 0.84),
 	} :: Hand,
+	-- The knife's free hand: low and out of frame like Valorant / RIVALS (it
+	-- read as a stray fist in the corner at -0.56, -0.86, -0.95); it comes up
+	-- onto the handle for the heavy stab (MELEE_TWO_HAND).
 	FREE_HAND = {
-		offset = Vector3.new(-0.56, -0.86, -0.95),
-		direction = Vector3.new(-0.35, -0.7, 0.6),
+		offset = Vector3.new(-0.7, -1.45, -0.75),
+		direction = Vector3.new(-0.2, -0.8, 0.55),
 	} :: Hand,
 
 	-- Dropped mags (Util/MagDrop): a reload clip's mag (or belt box) joint
