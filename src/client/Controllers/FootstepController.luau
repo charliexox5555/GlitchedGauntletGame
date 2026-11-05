@@ -43,12 +43,28 @@ local SURFACE: { [Enum.Material]: string } = {
 	[Enum.Material.Glacier] = "Snow",
 }
 
-type Track = { last: Vector3?, travelled: number }
+type Track = { last: Vector3?, travelled: number, mute: RBXScriptConnection? }
 
 local tracks: { [Model]: Track } = setmetatable({}, { __mode = "k" }) :: any
 local params = RaycastParams.new()
 params.FilterType = Enum.RaycastFilterType.Exclude
 params.IgnoreWater = true
+
+-- Roblox's default character sounds (RbxCharacterSounds) loop a "Running"
+-- footstep of their own; it's silenced on every character tracked here so
+-- steps don't double. Its other sounds (jump, land, swim) are left alone.
+local function silenceDefault(sound: Instance)
+	if sound:IsA("Sound") and sound.Name == "Running" then
+		sound.Volume = 0
+	end
+end
+
+local function muteDefaultSteps(root: BasePart): RBXScriptConnection
+	for _, c in root:GetChildren() do
+		silenceDefault(c)
+	end
+	return root.ChildAdded:Connect(silenceDefault)
+end
 
 -- What the character stands on (nil: in the air).
 local function ground(character: Model, root: BasePart, humanoid: Humanoid): RaycastResult?
@@ -61,12 +77,16 @@ local function stepFor(character: Model, own: boolean, dt: number)
 	local root = character:FindFirstChild("HumanoidRootPart")
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if not root or not root:IsA("BasePart") or not humanoid or not Health.isAlive(humanoid) then
+		local old = tracks[character]
+		if old and old.mute then
+			old.mute:Disconnect()
+		end
 		tracks[character] = nil
 		return
 	end
 	local t = tracks[character]
 	if not t then
-		t = { last = nil, travelled = 0 }
+		t = { last = nil, travelled = 0, mute = muteDefaultSteps(root) }
 		tracks[character] = t
 	end
 	local pos = root.Position
