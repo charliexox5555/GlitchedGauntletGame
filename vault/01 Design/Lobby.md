@@ -1,5 +1,7 @@
 # Lobby
 
+> **Rebuilt 2026-11-05 ("Sunwell Bunker, redone", waiting for the user's approval).** Same bunker concept and layout, about a third of the size, in a new stylized-but-grounded look (textured, rounded, professional, semi-tactical). Result, dimensions and test list: [Lobby Rebuild 2026-11-04](../02%20Art/Lobby%20Rebuild%202026-11-04.md). Look for the match maps: [Lobby Style Guide](../02%20Art/Lobby%20Style%20Guide.md). Range interior options: [Range Brainstorm](Range%20Brainstorm.md). Where this note's older sections give sizes or wing interiors, the rebuild table below wins.
+
 **Art refinement 2026-11-04:** built a grounded tactical / Valorant / RIVALS presentation pass in the existing structure, with original entrances/props, new sign layouts and coplanar surface repairs. No gameplay or range changes. [Brief](../02%20Art/Lobby%20Professional%20Pass.md) · [Review and backups](../05%20Production/Playtests/2026-11-04%20Lobby%20Professional%20Pass.md).
 
 **Status:** design locked 2026-10-29 · **phase 1 (build and art) built 2026-10-30, waiting for the user's approval** · phase 2 (game code) after that. What was built: [Lobby Kit](../02%20Art/Lobby%20Kit.md) → Built lobby; final screenshots in `02 Art/References/lobby/final/`.
@@ -49,7 +51,16 @@
                                 RANGE wing
                       ramp down → viewing glass → gates → range
 ```
-Rough sizes (greybox to tune): rotunda 88 across, ring 24 wide, hub about 250 across, Range shell 244 × 242 one level down. Full zone table: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md).
+Sizes since the 2026-11-05 rebuild: rotunda R30 (60 across), ring R30–44, whole lobby about 176 × 230 (was about 550 × 600). Levels: rotunda and ring 0, Duels −3, Market −2 then −5, Armoury +2, Range room 0. The older zone table in the [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md) is superseded.
+
+| Area (rebuild 2026-11-05) | Now |
+|---|---|
+| **Spawn rotunda** | R30 under the oculus; spawn on the dais in the sun, facing the Duels portal; 2 leaderboards on the ring wall seen through the NE / NW openings |
+| **Duels** | One **long, open hall** (44 × 94, 3 steps down) like RIVALS: a central walkway with chevrons, pads on both sides with no walls between them (1V1 ×4, 2V2 ×2, 3V3 ×2), a count screen behind each pad, hanging mode tabs; a sealed blast door for 4V4 / Gauntlet at the end |
+| **Market** | Short and deeper: an Event niche (left) and a Battle Pass niche (right), then down to a small cross hall with the Shop counter, the seasonal centrepiece and decorative industrial doors |
+| **Weapons + Locker** | A small round armoury (R22, 2 steps up): hero rifle, 4 display guns, the Locker bay with an avatar on a turntable |
+| **Range** | A room with the scale model of the range in a blue holo cage; walk past it into the RANGE gate to teleport to the real range |
+
 
 | Area | First version |
 |---|---|

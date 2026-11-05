@@ -1,6 +1,6 @@
 # Lobby Rebuild 2026-11-04 (lane A)
 
-**Status: plan approved by the user (2026-11-04, with the clarifications below); phase 3 blockout next.** The Lobby place is back to the bunker exactly as it was before tonight (restored from the in-place archive, 10,020 instances, original lighting). Range brainstorm: [Range Brainstorm](../01%20Design/Range%20Brainstorm.md).
+**Status (2026-11-05): built in the Lobby place, self-checked, waiting for the user's approval.** Style for the maps: [Lobby Style Guide](Lobby%20Style%20Guide.md). Range brainstorm: [Range Brainstorm](../01%20Design/Range%20Brainstorm.md).
 
 ## What happened tonight
 1. A first rebuild went in a **bright pastel, flat-colour, open-roof hall** direction (compact, open Duels arena, 3D letter signs). The user saw it and rejected it: **too bright, no textures, dull, and not the bunker.** It is scrapped. It lives only as an archive in the Lobby place (`ServerStorage.Archive.StylizedHub_Scrapped_20261104`) and as the kit script `tools/blender/build_lobby_kit_stylized.py` (its 3D-letter sign builder and coplanar fixes are reusable).
@@ -108,12 +108,92 @@ Critique against the references:
 - **Weak:** the piers (4 wide) look thin and the colonnade reads as a fence, so they need to be chunkier, with framed portals on the four axes. Market and Armoury are 90° to the side (as in the old design and in RIVALS), so floor guide lines from the dais to each portal, plus portal signs lit in the wing colour, must do the wayfinding. The ring is plain, so it needs rhythm (ribs, light slots, vents with fans). The hall needs the RIVALS details: pad screens, hanging tabs, edge lines, warm pendant lights.
 - **Decision:** keep this layout for the build, with chunkier piers (6 × 6), framed axis portals and guide lines.
 
+
+## User feedback on the blockout (2026-11-04, before bed)
+Overall structure approved. Changes:
+- **More depth and levels:** go down a few steps into Duels, up a bit into another wing; vary heights and spacing so it isn't one flat plane.
+- **Market goes deeper, RIVALS-style:** step down; on the **left an inset niche showing the current Event**, on the **right an inset niche for the Battle Pass**; then down again into a **small entrance hall that splits four ways**, with a **seasonal centrepiece on the wall** (RIVALS uses a gargoyle; ours is an original piece that changes per season) and **decorative industrial bunker doors** (not functional, just cool).
+- **Range:** a **larger box room** with the **scale model of the range inside a blue sci-fi wire / hologram cage**; walking further in teleports you to the range.
+- **Locker:** needs to look better and more professional.
+- The user is asleep: build it, run the checks, send screenshots to the main chat for a comparison pass; the user gives final approval on waking.
+
+### Levels and layout v3 (supersedes the blockout numbers where they differ)
+| Area | Floor | Shape |
+|---|---|---|
+| Rotunda, ring | 0 (spawn dais +1) | R30 rotunda, R30–44 ring |
+| Duels hall | **−3** (three wide steps inside the portal, z −44…−50) | 44 × 90, z −50…−140, ceiling at 25 (28 above the floor) |
+| Market, niche hall | **−2** (steps x −44…−48) | x −48…−72, 28 wide; Event niche south, Battle Pass niche north |
+| Market, shop cross | **−5** (steps x −72…−76) | x −76…−104 cross hall: Shop counter west, industrial doors north and south, seasonal centrepiece on the back wall |
+| Armoury + Locker | **+2** (steps up inside the portal) | R22 room at x 66; Locker bay at the back |
+| Range room | 0 | 48 × 40 (x −24…24, z 46…86); caged scale model in the middle, teleport threshold at the back |
+
 ## Questions for the user (answered 2026-11-04: compact yes, Duels a long open hall, rest as recommended)
 1. **Size:** compact as above (recommended), or keep the original sizes?
 2. **Duels:** one open arena with all pads together (recommended, from your earlier feedback), or the original long hall of bays?
 3. **Weapons wing:** keep a small round armoury with the Locker (recommended), or fold the Locker into the Market and drop the armoury?
 4. Anything from the old build you particularly liked and want kept as it was (for example the coffered dome, the oak, the rock)?
 
+## Build result (2026-11-05)
+![Spawn](References/lobby/rebuild-20261104/01-spawn.jpg)
+![Duels hall](References/lobby/rebuild-20261104/02-duels-hall.jpg)
+![Market niches](References/lobby/rebuild-20261104/04-market-niches.jpg)
+![Shop hall](References/lobby/rebuild-20261104/05-shop-hall.jpg)
+![Armoury](References/lobby/rebuild-20261104/06-armoury.jpg)
+![Locker](References/lobby/rebuild-20261104/07-locker.jpg)
+![Range room](References/lobby/rebuild-20261104/08-range-room.jpg)
+More in `References/lobby/rebuild-20261104/` (spawn looking south, a leaderboard close-up).
+
+### Layout as built (Roblox studs, hub centre 0,0,0, spawn faces north)
+| Area | Floor | Built |
+|---|---|---|
+| Rotunda | 0 (dais +1.2) | R30, 8 notched piers with warm light slots, drum with cornice and cove light, coffered dome with 16 ribs, oculus R11 with the sun on the spawn dais (round grate with a blue under-glow) |
+| Ring | 0 | R30–44, ceiling 22 with a lit coffer band, 4 vent fans, 8 pilaster + rib frames, light gap at the wall foot, 2 leaderboards (NE / NW) seen through the colonnade, guide strips in each wing colour |
+| Portals | 0 | N 40 wide (DUELS), W / E / S 28 wide (SHOP, ARMOURY, RANGE): chamfered jambs, reveal, accent edge light, neon-outline sign box on the header, threshold plate |
+| Duels hall | −3 (3 steps) | 44 × 94, z −46…−141: walkway with chevrons and yellow / purple lines, pads on both sides (1V1 12² ×4, 2V2 14² ×2, 3V3 16² ×2) with glowing ring inlays and light columns, a count screen in the wall bay behind each pad, hanging mode tabs, buttresses, trusses with pendants, a blast door with "4V4 / Gauntlet coming soon" screens at the end, steam vents |
+| Market | −2, then −5 | Niche hall (x −46…−80): **Event niche on the left** (trophy + screen), **Battle Pass niche on the right** (season badge + screen), each with its sign. Steps down to the **shop cross** (x −86…−119): shop counter + shelf backdrop, SHOP sign, the **season crest** above, **industrial blast doors** north and south (decorative), a medallion floor |
+| Armoury + Locker | +2 (2 steps up) | Round room R22 at x 73 with a ceiling light disc: hero rifle on a stepped plinth, 4 game guns on pedestals, and the **Locker bay**: lit backdrop with a neon outline, an R15 avatar on a turntable, 2 locker cabinets, LOCKER sign |
+| Range room | 0 | 50 × 41, z 46…87: the **scale model of the range in a blue holo-wire cage** on a plinth, and the **RANGE gate** at the back (portal frame + shimmering surface): walk past the model into it |
+
+Walk test (play mode, Humanoid:MoveTo): spawn → 1V1 pad 3.8 s, → 3V3 pad 4.2 s more, ring → shop counter 4.6 s; every leg reached. Footprint about 176 × 230 (was about 550 × 600).
+
+### What changed and how it's built
+- New kit **Bunker2** (54 pieces, 189 parts, 91k triangles, asset 99236623542589): `tools/blender/build_lobby_kit_bunker2.py` → `art-source/lobby/Kit_Bunker2.blend` → `export_lobby_kit.py -- Bunker2` → `upload_models.py --lobby Bunker2`, installed in `ServerStorage.LobbyKit` (KitGroup "Bunker2").
+- Textures: 4 stylized MaterialVariants (`Bunker_Concrete`, `_Floor`, `_Metal`, `_Grate`) from `tools/textures/make_lobby_textures_v2.py`, set by `tools/studio/lobby/Materials_V2.luau`.
+- Build: `tools/studio/lobby/Build_Bunker2.luau` (re-runnable; clears the old hub, keeps `RangeFar`), lighting `Lighting_Bunker2.luau`, motion `art-source/lobby/scripts/AmbienceClient_V2.luau` (installed as `Workspace.Lobby.Ambience.AmbienceClient`; master copy in `ServerStorage.LobbyTools`). Run order: Materials_V2 → kit install → Lighting_Bunker2 → Build_Bunker2.
+- Tags (World → UI contract): `LobbySpawn` 1, `LobbyQueue` 8 (attributes `Mode` 1v1 / 2v2 / 3v3 and `PadId`), `LobbyShop` 1, `LobbyBattlePass` 1, `LobbyLocker` 1, `LobbyRangeEntrance` 1 (trigger box in the Range gate). `Workspace.Lobby.Hub.Markers.RangeReturnPoint` at (0, 0.5, 52) facing the hub; `Greybox.RangeFar.RangeArrivalPoint` unchanged. Tags were stripped from the archives in ServerStorage, so server-side `GetTagged` only sees the live hub.
+- Budget: 858 MeshParts on 330 unique meshes, 253 Parts, 25 PointLights (none shadowed), 13 particle emitters, 8 beams, 14 SurfaceGuis. Visual meshes never collide; collision is invisible boxes.
+
+### Checks
+- **Kit:** Blender coplanar audit **0 findings** (19 fixed: a self-crossing dome-rib outline, shared back planes, bevel overlaps on near-sharp corners, self-crossing icons and pilaster outlines, overlapping glyphs).
+- **Build:** `AuditOverlaps.luau` started at 200 candidates. Every real one was fixed (stair landings level with floors, threshold plates level with landings, a sign inside the shelves, the niche band under the niche ceiling, plinth tops level at corners, doubled wall faces). The 73 left are box approximations checked by hand as hidden: lathe-skin and hollow-ring bounding boxes, wall-module corners buried in full-size piers and ceiling slabs, slab sides below floors.
+- Routes: floor rays every half stud along every route, no holes; chest-height blockers only where a straight test line passes through a pier or plinth.
+- Play test: spawn on the dais facing north, all routes walkable, Output clean (only the known 203785492 plugin warning).
+
+### Open questions for the user
+1. Look: is this the right balance (structured, textured walls, clean trims, readable, not dark)? Brighter or darker, warmer or cooler?
+2. Duels: 4 bays with 8 pads (1V1 ×4, 2V2 ×2, 3V3 ×2). More pads per mode, or 4V4 bays now?
+3. Locker: lane B can swap the default avatar for the player's own (HumanoidDescription). OK?
+4. Seasonal centrepiece: the shop crest is the swap slot (`SeasonCentrepiece`, attribute `Season`). Our own statue next season?
+5. Range: the gate teleports to the existing real range (RangeFar). Pick a brainstorm option for its rebuild.
+
+### Not done / known limits
+- **`.rbxm` backups weren't written:** the Studio MCP blocks HTTP to localhost (the old `receive_server.py` route). The build is fully reproducible from the committed scripts and the uploaded kit; the pre-rebuild Lobby and the scrapped pastel hub are archived in `ServerStorage.Archive`. To export by hand: right-click `Workspace.Lobby` → Save to File → `art-source/lobby/Studio/Lobby_Bunker2_20261105.rbxm`.
+- **The place may not be saved yet** (lane B was in a playtest at the end): save it with File → Save to Roblox (not Publish).
+- StyLua and selene are blocked on this PC by Windows Application Control, so the Luau files are hand-formatted to the house style.
+- The light shafts were removed (they read as grey sheets); the sunbeam is the real sun through the oculus, plus dust.
+
+## What the user should test tomorrow
+- [ ] Spawn: the first view (DUELS through the north portal, leaderboards left and right, sun on the dais). Turn around: RANGE, then SHOP and ARMOURY at the sides.
+- [ ] Walk the ring once and slide; check nothing snags at the piers, portals or thresholds.
+- [ ] Duels hall: go down the steps, stand on each pad, read the screens and hanging tabs. Does it feel like RIVALS (open, connected)?
+- [ ] Market: Event niche on the left, Battle Pass niche on the right, steps down to the shop cross with the crest and blast doors.
+- [ ] Armoury: steps up, hero rifle and display guns spinning, the Locker bay with the avatar.
+- [ ] Range room: walk past the caged scale model into the RANGE gate (the teleport is lane B's code).
+- [ ] Look for any flicker (z-fighting), gaps showing the sky, or floating pieces; note where.
+- [ ] Phone / low graphics: frame rate in the Duels hall and at spawn.
+- [ ] Approve the style (or not) before it's used for the match maps: [Lobby Style Guide](Lobby%20Style%20Guide.md).
+
 ## Notes for the other lanes
-- The scrapped hub carried the World → UI tags; it's archived, so **the tags don't exist in the Lobby place until the rebuild**. The contract is unchanged.
-- **Backups:** the Studio MCP blocks HTTP to localhost, so tonight's `.rbxm` export couldn't be written from Studio. The pre-rebuild Lobby is identical to `art-source/lobby/Studio/Lobby_Professional_20261104.rbxm`, and an archive copy sits in the place (`ServerStorage.Archive`, not saved to the place file yet).
+- Tags, attributes and the RangeReturnPoint are listed under "What changed" above; code against tags, not paths.
+- Pads are flush with the hall floor (y −3); each `QueueZone` is a 5-tall non-colliding box over its pad (CanTouch + CanQuery).
+- Screens are SurfaceGuis on `ScreenSurface` parts (pad screens show "0 / N"); lane B can drive the counts from the `ScreenSurface` inside `PadScreen_<PadId>`.
