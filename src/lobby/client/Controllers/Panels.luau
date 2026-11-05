@@ -179,7 +179,7 @@ local function build(name: string, kicker: string, title: string): Panel
 	}, header)
 	Ui.text(header, kicker, "label", {
 		Position = UDim2.fromOffset(22, 4),
-		Size = UDim2.fromOffset(600, 18),
+		Size = UDim2.fromOffset(600, 24),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = C.gold,
 		TextSize = 15,

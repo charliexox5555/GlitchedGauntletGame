@@ -54,14 +54,14 @@ local L = if PHONE
 		close = Vector2.new(780, 2),
 		closeSize = 60, -- 44+ px drawn on a 667 x 375 phone
 		cardW = 240,
-		cardH = 216,
+		cardH = 208,
 		cardGap = 16,
-		cardY = 66,
+		cardY = 76, -- clear gap under the header
 		corner = 18,
 		modeTitle = 64,
 		titlePos = Vector2.new(16, 6),
 		titleH = 76,
-		teamsY = 88,
+		teamsY = 86,
 		teamsScale = 0.7,
 		divY = 150,
 		countY = 166,
@@ -410,7 +410,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	Ui.text(button, `FIRST TO 5  ·  {info.teamSize * 2} PLAYERS`, "label", {
 		Visible = L.details,
 		Position = UDim2.fromOffset(32, 326),
-		Size = UDim2.fromOffset(CARD_W - 64, 18),
+		Size = UDim2.fromOffset(CARD_W - 64, 26),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = C.textSecondary,
 		ZIndex = 4,
@@ -829,7 +829,7 @@ local function buildMenu()
 	}, header)
 	Ui.text(header, "PLAY  ·  CASUAL DUELS", "label", {
 		Position = UDim2.fromOffset(22, 4),
-		Size = UDim2.fromOffset(600, 18),
+		Size = UDim2.fromOffset(600, 24),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = C.gold,
 		TextSize = 15,
@@ -1158,6 +1158,9 @@ function QueueMenu.init()
 end
 
 function QueueMenu.start()
+	Router.setBlocked(function()
+		return foundOpen
+	end)
 	LobbyNet.event("QueueEvent").OnClientEvent:Connect(onQueueEvent)
 	QueueState.onChanged(function()
 		pendingUntil = 0

@@ -2,7 +2,7 @@
 
 Lane B of the [Overnight 2026-11-04](../05%20Production/Overnight%202026-11-04.md) plan: the Lobby place's HUD (top bar, bottom bar), the full-screen **Play** menu, a server-authoritative **solo queue** with **bot backfill**, the **teleport** to a reserved Match server, and hooks from lane A's tagged world parts. Code: `src/lobby/**` (Rojo project `lobby.project.json`, port 34873). Image prompts: [Lobby UI Image Prompts](Lobby%20UI%20Image%20Prompts.md).
 
-**Status (2026-11-04, overnight):** built and **tested in a Lobby Studio playtest** (bars, Play menu, queue, cancel, bot fill, MATCH FOUND, Studio TeleportData, world pad prompt, Locker panel). `rojo build lobby.project.json`, selene and StyLua pass; security review done and its findings fixed. ChatGPT icons and mode-card art are uploaded and wired. Not tested: a real teleport (needs a published game, see the checklist).
+**Status (2026-11-05):** built, playtested in Lobby Studio, then reworked in a **LihFolk review pass** (section 7): a compact arrangement for phones and small screens, safe-area split menus, gamepad selection, motion tokens, reduced motion, a 12+ px text floor, and teleport handling per LihFolk. Measured at 7 screen sizes; **quality score 9.2/10** (3 blind reviewers, median). `rojo build lobby.project.json`, selene and StyLua pass. Not tested: a real teleport (needs published places) and a physical gamepad.
 
 ## 1. Research (phase 1)
 A Sonnet research pass on RIVALS, Valorant, Overwatch and Fortnite. Web sources on RIVALS' exact HUD were thin (guide sites only), so items marked *unverified* should be checked in the live game.
@@ -43,7 +43,7 @@ Style: Theme tokens and the cut-corner 9-slice kit from the match HUD (`Config/T
 | `MODES` | 1v1, 2v2, 3v3 (`teamSize` 1/2/3, `enabled`) | Add 4v4 here later |
 | `botFillAfter` / `botFillAfterStudio` | 30 / 5 s | Oldest player's wait before bots fill |
 | `matchFoundDelay` | 3.5 s | The MATCH FOUND beat (no cancel) |
-| `reserveAttempts`, `teleportAttempts`, `retryBackoff` | 3, 3, {1, 2, 4} s | Retries |
+| `teleportAttempts`, `retryBackoff` | 4, {1, 2, 4, 8} s | Per-player attempts; backoff after a thrown TeleportAsync (Failure / Flooded results wait 2 / 10 s) |
 | `teleportTimeout` | 25 s | Still here after this → back to lobby + message |
 | `studioHold` | 6 s | Studio: how long the payload card stays |
 | `RATE.QueueRequest` | 2/s, burst 4 | Token bucket |
@@ -51,7 +51,7 @@ Style: Theme tokens and the cut-corner 9-slice kit from the match HUD (`Config/T
 **Flow**
 ```
 idle ──join(mode)──► searching ──(2×teamSize queued) or (oldest waited botFillAfter)──► found (3.5 s)
-  ▲   ◄──leave────────┘                                                                  │ reserve server (during the beat)
+  ▲   ◄──leave────────┘                                                                  │ one ReservedServerId (GUID) per match
   │                                                                                      ▼
   └──── failed (message) ◄── reserve fails / TeleportAsync fails ×3 / InitFailed ×3 / timeout ── teleporting ──► Match place
   └──── Studio: log + show TeleportData, back to idle after 6 s
@@ -59,8 +59,8 @@ idle ──join(mode)──► searching ──(2×teamSize queued) or (oldest w
 - One queue per mode, oldest first. A full match takes the first 2 × teamSize; bot fill takes **everyone waiting** in that mode.
 - **Teams:** humans alternate A, B, A, B so real players face each other first; bots fill what's left on each side.
 - Players who leave during the beat are dropped; the rest still go (with `bots = true` if the match is now short).
-- **TeleportData** (contract in the Overnight note), set with `TeleportOptions:SetTeleportData` on a `ReservedServerAccessCode` teleport: `{ v = 1, matchId, mode, teams = { {userIds}, {userIds} }, bots }`. `bots` is true when fewer than 2 × teamSize humans go. Note for lane C: in bot fill the second team can be an empty array.
-- **Failure handling:** `ReserveServerAsync` retried 3× with backoff; `TeleportAsync` retried 3× (only for players still pending); `TeleportInitFailed` retries that one player with the same options up to 3×; a watchdog returns anyone still here after 25 s. Every give-up sets the player back to `idle` and sends a "failed" toast.
+- **TeleportData** (contract in the Overnight note), set with `TeleportOptions:SetTeleportData` on a `TeleportOptions.ReservedServerId` teleport (one GUID per match, kept server-side; `ReserveServerAsync` is deprecated per LihFolk and the docs, so the contract note's "ReservedServerAccessCode" became this; lane C only reads TeleportData, so nothing changes for it): `{ v = 1, matchId, mode, teams = { {userIds}, {userIds} }, bots }`. `bots` is true when fewer than 2 × teamSize humans go. Note for lane C: in bot fill the second team can be an empty array.
+- **Failure handling** (LihFolk: Teleporting and Multi-Place Games; Error Handling and Retries): only `TeleportResult.Failure` (retry after 2 s) and `Flooded` (after 10 s) are retried, per player, with the options `TeleportInitFailed` hands back; `GameFull`, `GameEnded`, `GameNotFound` and `Unauthorized` end with a specific message; `IsTeleporting` is ignored. A thrown `TeleportAsync` retries each player with 1, 2, 4, 8 s backoff, up to 4 attempts. A per-attempt deadline (25 s) returns anyone still here; a launch error or a stuck "found" (20 s) returns everyone. Every give-up sets `idle` and sends a "failed" toast.
 - **Studio:** `RunService:IsStudio()` skips reserve/teleport, prints `[Queue] STUDIO: would teleport …` with the JSON to Output and shows it on the MATCH FOUND card.
 
 **Remotes and state** (`src/lobby/shared/LobbyNet.luau`, folder `ReplicatedStorage.LobbyRemotes`, separate from the match's `Remotes`)
@@ -96,6 +96,39 @@ Today the queue is per Lobby server, which is fine while one lobby holds everyon
 2. One elected **matchmaker** (a lease key in a MemoryStore hash map, renewed every few seconds; any lobby server can take over) reads the oldest N per mode, applies the same `Matchmaker.pick` rules, removes them atomically (`UpdateAsync`), reserves a Match server and publishes `{matchId, accessCode, teams}` via **MessagingService** (topic per server, or a hash-map entry each server polls).
 3. Each lobby server teleports **its own** players with that access code and the same TeleportData. `QueueService`'s state machine and the whole UI stay as they are: only the "queues" table becomes remote. Parties would join as one entry with a size.
 Budget: MemoryStore requests scale with players (1000 + 100 × CCU per minute), fine for heartbeats every few seconds.
+
+## 7. LihFolk review pass (2026-11-05)
+Read through the `roblox-ui-builder`, `lihfolk-figma` and `quality-score` skills and these vault notes (via `lihfolk-lookup`): **05 UI and UX**: HUD Design, UI Motion Language and Timing, Menu Archetypes, Responsive UI for Phone Tablet Console and PC, Safe Areas and Insets, Gamepad and Console UX, Settings Menu Design, Accessibility; **21 LihFolk UI Design System** (LihFolk UI Spec); **32 Case Studies / Case Study - Rivals**; **41 Multiplayer Services**: Teleporting and Multi-Place Games, Reserved and Private Servers in Practice, TeleportService - Engine Reference Card, Error Handling and Retries, Matchmaking Queues with MemoryStore, MemoryStore Service; **22 Anti-Exploit and Security**: Rate Limiting and Abuse Prevention, Remote Abuse Patterns and Rate Limiting in Practice, False Positives Lag and Fair Enforcement.
+
+| Found missing | Fixed |
+|---|---|
+| No scale floor: text drew about 5 px on a 667 x 375 phone (Responsive UI; LihFolk UI Spec) | `Util/Layout`: one clamped **Fit** UIScale per cluster (HUD floor 0.76, menus `min(w/1760, h/980)`), and a **text floor**: at least 15 design units and 14 px drawn, counting nested UIScales |
+| Bottom bar and Play cards didn't fit a phone | A **compact arrangement** (short side under 640 px: phones and 1024 x 600) on an 800 x 420 canvas: 96 px tiles with short labels ("PASS") clear of the thumbstick and jump zones, a slim profile, the pill under it, the HUD hidden behind menus, 240 x 208 cards with cropped art and no blurb, shorter status line, larger close/cancel/toggles. The family is decided once from the first real viewport (the camera reports a placeholder size at first) |
+| `IgnoreGuiInset` menus put buttons under the Roblox top bar (Safe Areas and Insets) | Every menu is two guis: an edge-to-edge dimmer (`ScreenInsets.None`, DisplayOrder 19) and content in `CoreUISafeInsets` (20), `SafeAreaCompatibility = None` |
+| No gamepad selection (Gamepad and Console UX) | Each menu content is a `SelectionGroup` with `Stop` on all sides; the Router selects the menu's focus button at the start of its entrance (FIND MATCH or the selected card; Settings' first toggle; else Close) and clears it on close; a shared 3 px gold `SelectionImageObject`; selection uses the hover look; B closes even while a button is selected |
+| Motion timings ad hoc and long (UI Motion Language and Timing) | `Fx.MOTION` tokens: press 0.05, hover 0.1, exit 0.12 (Quad In, no overshoot), dimmer 0.18 / 0.12, enter 0.22, reveal 0.4, stagger 0.04; hover 1.04 + 3 px lift, press 0.96, scaled from the centre. The card rise keeps the project's own 48 px / 0.32 s (project notes win) |
+| No reduced motion; idle loops always running | `Fx.reduced()` follows `GuiService.ReducedMotionEnabled` and a Settings toggle: movement snaps, fades and colour still ease, loops / sweeps / glitch / shake stop (shake becomes a red flash). Loops pause while their ScreenGui is disabled |
+| Small dim text (#69727F, about 3.6:1) | Secondary text uses `textSecondary` (#A7B0BC, about 8:1). Settings toggles show ON / OFF as a word too |
+| FIND MATCH could stack requests (Menu Archetypes) | Ignored for 1.5 s or until the server state changes; shows JOINING... |
+| ReserveServerAsync deprecated; every TeleportResult retried | See section 3: `ReservedServerId`, retry only Failure / Flooded, final messages, 1-2-4-8 s backoff |
+| Rejected remote calls invisible | Dropped and counted by reason (rate / badAction / badMode / unknownMode), a summary warned once per 60 s; never kicks |
+| Esc to close (Menu Archetypes) | Not possible: Roblox reserves Esc for its menu. Backspace and gamepad B close instead |
+
+**Measured** (a client script set each cluster to the scale Layout picks for that screen and read drawn text size, `TextFits`, glyph-box clashes between texts, the smallest button, the bar against the thumb zones, HUD cluster overlaps and the menu's footprint in the safe area under the 58 px top bar):
+| Screen | Family | Min text | Min tap | Overflow / clashes / overlaps |
+|---|---|---|---|---|
+| 1920 x 1080 | desktop | 14.2 px | 57 px | none |
+| 1600 x 900 | desktop | 13.3 px | 47 px | none |
+| 1366 x 768 | desktop | 13.0 px | 46 px | none |
+| 1024 x 600 | compact | 18.0 px | 72 px | none |
+| 932 x 430 | compact | 13.3 px | 53 px | none |
+| 844 x 390 | compact | 13.3 px | 47 px | none |
+| 667 x 375 | compact | 13.2 px | 45 px | none (bar 441 of 447 px) |
+(Taken with a 13 px floor.) **Round 2, final:** 14 px drawn floor, an 8 px gap under the compact header, no menu can open behind MATCH FOUND, and two label boxes made taller after the measure caught vertical overflow. Re-measured: desktop text min 14.8 / 14.6 / 14.5 px (1920 / 1600 / 1366), compact 18.0 / 14.2 / 14.2 / 14.3 px (1024 / 932 / 844 / 667); no overflow, clashes or overlaps; taps unchanged (45 px minimum).
+
+Bugs this pass caught in play: controllers read the layout family before the camera had its real size (mixed phone constants with desktop scale); phone card positions used the 1920 canvas; the MATCH FOUND band was a fixed 52% (now sized to its content); the larger desktop HUD's profile covered the menu header (now hides behind menus); "N SEARCHING" ran into "BOTS AFTER" (own row now); COMING SOON overlapped its line (auto-layout row).
+
+**Quality score** (`lihfolk:quality-score`, rubric `ui.md`, 3 blind Sonnet reviewers per round, median per criterion): first **8.3** (U3 style 1, U5 readability 1; all gates pass); after one fix round **9.2** (U1 2, U2 2, U3 2, U4 2, U5 1, U6 2; reviewers 8.3 / 9.2 / 9.2). Logged in `.lihfolk/ledger.jsonl`. The remaining U5 point was small secondary text in short windows; round 2 (above) raised the floor to 14 px and opened the compact header gap, measured but not re-scored.
 
 ## Image prompts and uploaded art
 [Lobby UI Image Prompts](Lobby%20UI%20Image%20Prompts.md). The core chat generated them in ChatGPT (sources in `assets/UI/lobby/`); uploaded to group 11116787 with `tools/opencloud/upload_asset.py --type Decal`. Open Cloud returns the **Decal** id; ImageLabels need the **Image** id inside it (resolved with `InsertService:LoadAsset(decalId)` → `Decal.Texture`). Image ids in use:
@@ -133,4 +166,6 @@ Clearing an id falls back to the vector icon / colour wash. The un-cut `mode_*.p
 4. Once lane A's pads are tagged, walk to a 1v1/2v2/3v3 pad and press E: the menu opens on that mode.
 5. **Real teleport** (only works in a published game): publish both places, join the Lobby from the Roblox app with a friend or alt, both queue 1v1 → you land in the same reserved Match server. Solo: wait 30 s → you land in a Match server with bots (needs lane C's TeleportData reader).
 6. Decide: casual queue name ("CASUAL DUELS"), the 30 s bot fill, and whether humans should be teammates or opponents when bots fill (now opponents).
-7. Phone: check the tiles and cards are readable and tappable (UI scales to the short side).
+7. **Phone / small screen:** Studio → Test → Device emulator: iPhone SE (667 x 375) and a notched phone in both landscapes. Expect the compact arrangement: five tiles clear of the stick and jump buttons, the pill under the profile, the HUD hidden behind menus, 240-wide cards. Or set `workspace` attribute `LobbyForceLayout` to `"phone"` / `"desktop"` in Studio (Studio only) to force an arrangement.
+8. **Gamepad:** plug one in; open PLAY: FIND MATCH is selected with a gold ring, the D-pad moves between the cards, A presses, B closes.
+9. **Reduced motion:** Settings → REDUCED MOTION on: menus fade without sliding, no sweeps or spins.

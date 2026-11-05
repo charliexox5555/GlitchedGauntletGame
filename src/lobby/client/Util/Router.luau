@@ -28,6 +28,7 @@ local SATURATION = -0.25
 local menus: { [string]: Menu } = {}
 local current: string? = nil
 local listeners: { (string?) -> () } = {}
+local blocked: (() -> boolean)? = nil
 
 local blur = Instance.new("BlurEffect")
 blur.Name = "LobbyMenuBlur"
@@ -102,9 +103,14 @@ function Router.current(): string?
 	return current
 end
 
+-- While `fn` returns true no menu opens (MATCH FOUND owns the screen).
+function Router.setBlocked(fn: () -> boolean)
+	blocked = fn
+end
+
 function Router.open(name: string, arg: any?)
 	local menu = menus[name]
-	if not menu then
+	if not menu or (blocked and blocked()) then
 		return
 	end
 	if current == name then
