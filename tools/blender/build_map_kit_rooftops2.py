@@ -268,7 +268,7 @@ def p_penthouse():
 			frames.append(RB(x + 1.5, x + 1.85, 3.4, 8.2, z0, z1, BT, ST))
 	obj(c, "Windows", merge(*win), "Window")
 	obj(c, "WinFrames", merge(*frames), "Trim")
-	obj(c, "Band", RB(-20.08, 20.08, 9.4, 10.0, -4.08, 4.08), "Accent")
+	obj(c, "Band", RB(-20.08, 20.08, 9.4, 10.0, -4.08, 4.08), "AccentSoft")  # round 6: softer than the tank
 	# Round 2: pilasters between the bays, a downpipe at each end and wall vents, so the long faces aren't bare.
 	det, pipes = [], []
 	for x in (-18.0, -11.5, -4.5, 4.5, 11.5, 18.0):
@@ -283,7 +283,20 @@ def p_penthouse():
 	obj(c, "Vents", merge(*vents), "Metal")
 	# Round 5: a cobalt awning over the door (+Z face) and a warm wall lamp each side, so the spawn view has a doorway.
 	aw = [(0.0, 8.0), (1.6, 7.5), (1.6, 7.75), (0.0, 8.4)]
-	obj(c, "Awning", RPX([(4.0 + z, y) for z, y in aw], -2.6, 2.6, BT, ST), "Accent")
+	obj(c, "Awning", RPX([(4.0 + z, y) for z, y in aw], -2.6, 2.6, BT, ST), "AccentSoft")
+	# Round 6: the end faces (x +-20) were bare: a window pair with frames and a vent on each.
+	endw, endf = [], []
+	for sx in (1, -1):
+		x0, x1 = sorted((sx * 19.96, sx * 20.06))
+		for zc in (-1.6, 1.6):
+			endw.append(RB(x0, x1, 4.0, 7.6, zc - 1.0, zc + 1.0))
+			fx0, fx1 = sorted((sx * 19.9, sx * 20.2))
+			endf.append(RB(fx0, fx1, 3.6, 4.0, zc - 1.35, zc + 1.35, BT, ST))
+			endf.append(RB(fx0, fx1, 7.6, 8.0, zc - 1.35, zc + 1.35, BT, ST))
+			endf.append(RB(fx0, fx1, 4.0, 7.6, zc - 1.35, zc - 1.0, BT, ST))
+			endf.append(RB(fx0, fx1, 4.0, 7.6, zc + 1.0, zc + 1.35, BT, ST))
+	obj(c, "EndWindows", merge(*endw), "Window")
+	obj(c, "EndFrames", merge(*endf), "Trim")
 	lamps, glow = [], []
 	for x in (-2.6, 2.6):
 		lamps.append(RB(x - 0.3, x + 0.3, 5.6, 6.6, 4.05, 4.45, BT, ST))
@@ -374,6 +387,16 @@ def p_lift_tower():
 	obj(c, "Plate", merge(*plates), "Charcoal")
 	obj(c, "PlateRim", merge(*rims), "Trim")
 	obj(c, "PlateWord", merge(*words), "White", smooth=0)
+	# Round 6: low vent pairs and a band under the plates, so the faces facing the stairs aren't one slab.
+	vents, band = [], []
+	for s in (1, -1):
+		vz0, vz1 = sorted((s * 3.96, s * 4.25))
+		for x in (-2.6, 2.6):
+			vents.append(RB(x - 1.0, x + 1.0, 2.2, 3.6, vz0, vz1, BT, ST))
+		bz0, bz1 = sorted((s * 3.98, s * 4.15))
+		band.append(RB(-4.3, 4.3, 6.2, 6.7, bz0, bz1))
+	obj(c, "Vents", merge(*vents), "Metal")
+	obj(c, "MidBand", merge(*band), "Trim")
 
 
 def p_cooling():
@@ -397,14 +420,14 @@ def p_billboard():
 	obj(c, "Frame", merge(*legs), "Charcoal")
 	ring = ring_prism(rrect(22.0, 10.0, 0.6, 2, 0.0, 14.0), rrect(21.0, 9.0, 0.35, 2, 0.0, 14.0), -0.5, 0.5, "Y")
 	obj(c, "Border", finish(ring, BT, ST), "Charcoal")
-	obj(c, "Panel", RB(-10.6, 10.6, 9.55, 18.45, -0.35, 0.35), "White")
-	obj(c, "Band", RB(-10.6, 10.6, 9.55, 12.0, 0.35, 0.42), "Accent")
+	obj(c, "Panel", RB(-10.6, 10.6, 9.55, 18.45, -0.35, 0.35), "Poster")  # round 6: calmer than the tank
+	obj(c, "Band", RB(-10.6, 10.6, 9.55, 12.0, 0.35, 0.42), "AccentSoft")
 	bm, w = text_mesh("SUNSET SODA", 2.0, depth=0.14)
 	xform(bm, T(0.0, -0.42, 13.7))
 	bm2, w2 = text_mesh("SUNSET SODA", 2.0, depth=0.14)
 	xform(bm2, T(0.0, 0.42, 13.7) @ RZ(180))  # the back reads too (seen from the far roof)
-	obj(c, "Ad", merge(bm, bm2), "SignPit", smooth=0)
-	obj(c, "BandBack", RB(-10.6, 10.6, 9.55, 12.0, -0.42, -0.35), "Accent")
+	obj(c, "Ad", merge(bm, bm2), "PosterInk", smooth=0)
+	obj(c, "BandBack", RB(-10.6, 10.6, 9.55, 12.0, -0.42, -0.35), "AccentSoft")
 	lamps, glow = [], []
 	for x in (-6.0, 0.0, 6.0):
 		lamps.append(RB(x - 0.08, x + 0.08, 18.9, 19.9, 0.3, 1.4))
@@ -459,7 +482,7 @@ def p_chevron():
 	c = piece("Chevron")
 	k = 1.6  # round 5: bigger (reviewers read the first ones as small and faint)
 	pts = [(-1.6 * k, 0.8 * k), (0.0, -0.8 * k), (1.6 * k, 0.8 * k), (0.75 * k, 0.8 * k), (0.0, 0.05 * k), (-0.75 * k, 0.8 * k)]
-	obj(c, "Paint", RPY(pts, -0.05, 0.07), "White")
+	obj(c, "Paint", RPY(pts, -0.05, 0.07), "SignPit")  # round 6: cobalt reads on terracotta (white was faint)
 
 
 def p_deck_word(word, role, text=None):

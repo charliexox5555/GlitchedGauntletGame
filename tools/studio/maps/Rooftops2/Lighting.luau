@@ -15,10 +15,10 @@
 local PROPS: { [string]: any } = {
 	ClockTime = 17.1,
 	GeographicLatitude = 23.5,
-	Brightness = 3,
+	Brightness = 3.2,
 	Ambient = Color3.fromRGB(96, 98, 122),
-	OutdoorAmbient = Color3.fromRGB(122, 128, 166),
-	ColorShift_Top = Color3.fromRGB(255, 186, 120),
+	OutdoorAmbient = Color3.fromRGB(116, 122, 162),
+	ColorShift_Top = Color3.fromRGB(255, 178, 110),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
 	EnvironmentDiffuseScale = 0.12,
 	EnvironmentSpecularScale = 0.15,

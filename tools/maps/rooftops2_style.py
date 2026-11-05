@@ -47,7 +47,10 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Door": ("6C5442", "SmoothPlastic", ""),  # doors (round 5: warm mid-tone, black read as a void)
     "Window": ("7FA6BF", "SmoothPlastic", ""),  # window glass (opaque, sky-tinted)
     "Glass": ("BFD8E8", "Glass", ""),  # skylights
-    "Accent": ("2F62C8", "SmoothPlastic", ""),  # cobalt: tank, awnings, sign plates (the 10% spike)
+    "Accent": ("2F62C8", "SmoothPlastic", ""),  # cobalt: the tank and the sign plates (the 10% spike)
+    "AccentSoft": ("5C79AE", "SmoothPlastic", ""),  # round 6: bands, awnings, billboard bands (softer than the tank)
+    "Poster": ("EADFCB", "SmoothPlastic", ""),  # billboard panels (cream, not white)
+    "PosterInk": ("5A79B2", "SmoothPlastic", ""),  # billboard words
     "White": ("F7F4EC", "SmoothPlastic", ""),  # sign faces, letters
     "Wood": ("A7865E", "SmoothPlastic", ""),  # planks, planter boxes, tank staves
     "Plant": ("6B9A55", "SmoothPlastic", ""),  # planter greenery
@@ -94,10 +97,10 @@ VARIANTS = {
 LIGHTING = {
     "ClockTime": 17.1,  # round 1: lower, warmer sun (reviewers read 16.3 as neutral midday)
     "GeographicLatitude": 23.5,
-    "Brightness": 3.0,
+    "Brightness": 3.2,
     "Ambient": (96, 98, 122),
-    "OutdoorAmbient": (122, 128, 166),  # round 3: deeper cool shade against the warm sun
-    "ColorShift_Top": (255, 186, 120),
+    "OutdoorAmbient": (116, 122, 162),  # round 6: deeper cool shade against the warm sun
+    "ColorShift_Top": (255, 178, 110),
     "ColorShift_Bottom": (0, 0, 0),
     "EnvironmentDiffuseScale": 0.12,
     "EnvironmentSpecularScale": 0.15,
