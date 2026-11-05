@@ -544,12 +544,12 @@ local function build(): ScreenGui
 				Position = pos,
 				Size = UDim2.fromOffset(size, size),
 				BackgroundColor3 = BACK,
-				BackgroundTransparency = 0.35,
+				BackgroundTransparency = 0.25,
 				Text = "",
 				AutoButtonColor = true,
 			}, layer)
 			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
-			make("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.6 }, b)
+			make("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.35 }, b)
 			make("ImageLabel", {
 				Name = "Icon",
 				AnchorPoint = Vector2.new(0.5, 0.5),

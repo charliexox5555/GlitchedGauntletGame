@@ -35,6 +35,7 @@ local BAR_TOP, BAR_GAP = 4, 6
 local BAR_SIZE = Device.BAR_SIZE -- MatchHudController's top bar
 local HEALTH_SIZE = Vector2.new(420, 120)
 local FEED_SCALE = 0.8 -- the kill feed, relative to the HUD scale
+local HEALTH_SCALE = 0.88 -- health ends 8+ px above the thumbstick quarter
 local FEED_ROWS, FEED_ROW = 3, 52 -- rows shown on a phone; Util/KillFeed row + gap
 -- HudController's touch layer: 480 x 480 design px scaled by height / 760
 -- (at least 0.62). Its free bottom strip runs 250-480 px from the right edge,
@@ -87,10 +88,10 @@ local function arrange()
 	local health = child(combat, "Health")
 	local healthBottom = below
 	if health then
-		Ui.override(health, k)
+		Ui.override(health, k * HEALTH_SCALE)
 		health.AnchorPoint = Vector2.new(0, 0)
 		health.Position = UDim2.fromOffset(MARGIN, below)
-		healthBottom = below + HEALTH_SIZE.Y * k
+		healthBottom = below + HEALTH_SIZE.Y * k * HEALTH_SCALE
 		local caption = health:FindFirstChild("Caption")
 		if caption and caption:IsA("GuiObject") then
 			caption.Visible = false
@@ -103,7 +104,7 @@ local function arrange()
 	if feed then
 		Ui.override(feed, k * FEED_SCALE)
 		feed.AnchorPoint = Vector2.new(0, 0)
-		feed.Position = UDim2.fromOffset(MARGIN + HEALTH_SIZE.X * k + GAP, below)
+		feed.Position = UDim2.fromOffset(MARGIN + HEALTH_SIZE.X * k * HEALTH_SCALE + GAP, below)
 		feed.Size = UDim2.fromOffset(feed.Size.X.Offset, FEED_ROWS * FEED_ROW)
 		feed.ClipsDescendants = true
 	end

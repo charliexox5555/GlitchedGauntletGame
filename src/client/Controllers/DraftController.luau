@@ -11,6 +11,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
 
 local MatchConfig = require(ReplicatedStorage.Shared.Config.Match)
@@ -111,6 +112,14 @@ local function setOpen(value: boolean)
 	openToken += 1
 	local token = openToken
 	CameraController.setCursorVisible(value)
+	-- Gamepad: selection starts on a card (LihFolk: Gamepad and Console UX);
+	-- the D-pad moves between cards and LOCK IN, A picks.
+	if UserInputService.GamepadEnabled then
+		task.defer(function()
+			local first = abilityCards[1] or gunCards[1]
+			GuiService.SelectedObject = if value and first then first.button else nil
+		end)
+	end
 	-- Roblox's chat steps aside while the draft fills the screen (it sits at
 	-- the left middle in a match, over the first column on smaller screens).
 	CoreUi.menuMode(value)
@@ -607,6 +616,9 @@ local function compactCard(panel: GuiObject, glow: GuiObject?)
 				c.Position = UDim2.new(c.Position.X.Scale, c.Position.X.Offset, 0, y - 112)
 				if c:IsA("TextLabel") and c.TextWrapped then
 					c.TextTruncate = Enum.TextTruncate.AtEnd
+					-- Two big lines beat three tiny ones; hold for the rest.
+					c:SetAttribute("BaseTextSize", 26)
+					c.TextSize = 26
 				end
 			else
 				c.Visible = false
@@ -1272,7 +1284,7 @@ local function show(o: MatchState.DraftOffer)
 
 	-- Bottom bar: the hint, LOCK IN, the enemy's kit.
 	lockHint = Ui.text(content, "", "bodyS", {
-		TextSize = if footer then 20 else nil,
+		TextSize = if footer then 22 else nil,
 		Position = UDim2.fromOffset(colX(1), 1012),
 		Size = UDim2.fromOffset(410, 40),
 		TextColor3 = C.textSecondary,

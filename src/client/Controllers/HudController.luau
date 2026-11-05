@@ -451,7 +451,7 @@ local function build(): Refs
 				Position = pos,
 				Size = UDim2.fromOffset(size, size),
 				BackgroundColor3 = BACK,
-				BackgroundTransparency = 0.45,
+				BackgroundTransparency = 0.25, -- readable over snow and bright walls
 				FontFace = BOLD,
 				TextSize = 22, -- 13.6 px drawn at the 0.62 floor
 				TextColor3 = WHITE,
@@ -459,7 +459,7 @@ local function build(): Refs
 				AutoButtonColor = true,
 			}, layer)
 			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
-			make("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.6 }, b)
+			make("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.35 }, b)
 		end
 		button("FireButton", "FIRE", UDim2.new(1, -110, 1, -210), 86)
 		button("AimButton", "AIM", UDim2.new(1, -210, 1, -260), 64)
