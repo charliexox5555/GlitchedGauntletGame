@@ -23,6 +23,7 @@ local CoreUi = require(ReplicatedStorage.Shared.CoreUi)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local CameraController = require(script.Parent.CameraController)
+local Device = require(script.Parent.Parent.Util.Device)
 local Ui = require(script.Parent.Parent.Util.Ui)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 
@@ -73,6 +74,16 @@ type Card = {
 local backdrop: TextButton? = nil
 local canvas: Frame? = nil
 local lockButton: ImageButton? = nil
+-- Phone (Util/Device): the cards scroll in one vertical ScrollingFrame under
+-- the score bar; LOCK IN, the hint and the enemy kit sit in a fixed footer
+-- (LihFolk: Case Study - Phone UI Overhaul: fixed footer, one scroller).
+local scroller: ScrollingFrame? = nil
+local footer: Frame? = nil
+local PHONE_CROP_TOP = 112 -- design px above the "SELECT A GUN" header
+local PHONE_CONTENT_BOTTOM = 996 -- under the ability cards
+local PHONE_CONTENT_W = 1240 -- the three columns plus a margin
+local FOOTER_H = 80 -- design px
+local FOOTER_SCALE = 0.75 -- LOCK IN (64 design px) draws 48 px
 local lockLabel: TextLabel? = nil
 local lockIcon: ImageLabel? = nil
 local lockHint: TextLabel? = nil
@@ -845,6 +856,7 @@ end
 -- The enemy's abilities (bottom right): icon tiles with level pips.
 local function enemyKit(parent: Instance, entries: { string })
 	local row = make("Frame", {
+		Name = "EnemyKit",
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.fromOffset(colX(3) + COL_W, 1004),
 		Size = UDim2.fromOffset(300, 56),
@@ -969,6 +981,43 @@ local function onKey(input: InputObject)
 	end
 end
 
+-- Phone: the bottom bar (hint, LOCK IN, enemy kit) moves from the scrolling
+-- cards into the fixed footer.
+local function phoneFooter(content: Instance)
+	local foot = footer
+	if not foot then
+		return
+	end
+	local old = foot:FindFirstChild("Row")
+	if old then
+		old:Destroy()
+	end
+	local row = make("Frame", {
+		Name = "Row",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+	}, foot)
+	local w = foot.Size.X.Offset
+	local hint = lockHint
+	if hint then
+		hint.Parent = row
+		hint.Position = UDim2.fromOffset(16, 10)
+		hint.Size = UDim2.fromOffset(math.max(160, w / 2 - 200), 60)
+	end
+	local button = lockButton
+	if button then
+		button.Parent = row
+		button.Position = UDim2.fromOffset(w / 2, FOOTER_H / 2)
+	end
+	local kit = content:FindFirstChild("EnemyKit", true)
+	if kit and kit:IsA("GuiObject") then
+		kit.Parent = row
+		kit.AnchorPoint = Vector2.new(1, 0.5)
+		kit.Position = UDim2.fromOffset(w - 16, FOOTER_H / 2)
+	end
+	Ui.refit(foot)
+end
+
 local function show(o: MatchState.DraftOffer)
 	local p = canvas
 	if not p then
@@ -1088,8 +1137,14 @@ local function show(o: MatchState.DraftOffer)
 	for _, c in abilityCards do
 		table.insert(order, c)
 	end
+	if footer then
+		phoneFooter(content)
+	end
 	if canvas then
 		Ui.refit(canvas) -- the new cards get the text floor and snapped strokes
+	end
+	if scroller then
+		scroller.CanvasPosition = Vector2.zero
 	end
 	reveal(order)
 end
@@ -1134,6 +1189,49 @@ local function build()
 	}, back)
 	Ui.fit(frame)
 	canvas = frame
+	if Device.compact() then
+		local scroll = make("ScrollingFrame", {
+			Name = "PhoneScroll",
+			BackgroundTransparency = 1,
+			BorderSizePixel = 0,
+			ScrollingDirection = Enum.ScrollingDirection.Y,
+			ScrollBarThickness = 4,
+			ScrollBarImageColor3 = C.white,
+			ScrollBarImageTransparency = 0.5,
+			CanvasSize = UDim2.new(),
+			ClipsDescendants = true,
+		}, back)
+		frame.AnchorPoint = Vector2.new(0.5, 0)
+		frame.Parent = scroll
+		local foot = make("Frame", {
+			Name = "PhoneFooter",
+			AnchorPoint = Vector2.new(0.5, 1),
+			BackgroundTransparency = 1,
+		}, back)
+		make("UIScale", { Name = "Fit", Scale = FOOTER_SCALE }, foot)
+		scroller = scroll
+		footer = foot
+		local function layout()
+			local view = Device.viewport()
+			local inset = 160 -- the backdrop starts 160 px above the safe area
+			local barH = 4 + Device.BAR_SIZE.Y * Device.phoneBarScale() + 6 -- as PhoneHudController
+			local footH = FOOTER_H * FOOTER_SCALE
+			local s = math.clamp((view.X - 24) / PHONE_CONTENT_W, 0.45, 0.75)
+			scroll.Position = UDim2.fromOffset(0, inset + barH)
+			scroll.Size = UDim2.new(1, 0, 1, -(inset + barH + footH + 8))
+			scroll.CanvasSize = UDim2.fromOffset(0, (PHONE_CONTENT_BOTTOM - PHONE_CROP_TOP) * s)
+			frame.Position = UDim2.new(0.5, 0, 0, -PHONE_CROP_TOP * s)
+			Ui.override(frame, s)
+			foot.Position = UDim2.new(0.5, 0, 1, -4)
+			foot.Size = UDim2.fromOffset(view.X / FOOTER_SCALE, FOOTER_H)
+			Ui.refit(foot)
+		end
+		layout()
+		local camera = workspace.CurrentCamera
+		if camera then
+			camera:GetPropertyChangedSignal("ViewportSize"):Connect(layout)
+		end
+	end
 end
 
 -- The screen closes once you've locked in, or when the draft ends.

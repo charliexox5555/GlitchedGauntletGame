@@ -48,6 +48,7 @@ local INDICATOR_TIME = 1.1 -- damage direction fade, seconds
 local TOUCH_LAYER = Vector2.new(480, 480)
 local TOUCH_DESIGN_HEIGHT = 760
 local TOUCH_SCALE_MIN = 0.62
+local TOUCH_MIN_BUTTON = 72 -- design px (Util/Device mirrors the layer numbers)
 
 local touchLayer: Frame? = nil
 
@@ -262,6 +263,7 @@ local function build(): Refs
 		Image = "",
 	}, ammoPanel)
 	local weaponName = Ui.text(ammoPanel, "", "label", {
+		Name = "WeaponName",
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.fromOffset(404, 178),
 		Size = UDim2.fromOffset(220, 16),
@@ -343,6 +345,7 @@ local function build(): Refs
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
 	Ui.text(healthPanel, "HEALTH", "label", {
+		Name = "Caption",
 		Position = UDim2.fromOffset(250, 34),
 		Size = UDim2.fromOffset(100, 16),
 		TextColor3 = T.textSecondary,
@@ -439,6 +442,9 @@ local function build(): Refs
 		end
 		touchLayer = layer
 		local function button(name: string, label: string, pos: UDim2, size: number)
+			-- 72 design px at least: 44+ px drawn at the layer's 0.62 floor
+			-- (LihFolk: Responsive UI, 44 px tap minimum).
+			size = math.max(size, TOUCH_MIN_BUTTON)
 			local b = make("TextButton", {
 				Name = name,
 				AnchorPoint = Vector2.new(0.5, 0.5),
@@ -447,7 +453,7 @@ local function build(): Refs
 				BackgroundColor3 = BACK,
 				BackgroundTransparency = 0.45,
 				FontFace = BOLD,
-				TextSize = 14,
+				TextSize = 22, -- 13.6 px drawn at the 0.62 floor
 				TextColor3 = WHITE,
 				Text = label,
 				AutoButtonColor = true,
@@ -459,7 +465,7 @@ local function build(): Refs
 		button("AimButton", "AIM", UDim2.new(1, -210, 1, -260), 64)
 		button("ReloadButton", "R", UDim2.new(1, -60, 1, -310), 52)
 		button("SlideButton", "SLIDE", UDim2.new(1, -200, 1, -150), 60)
-		button("SwapButton", "SWAP", UDim2.new(1, -60, 1, -380), 52)
+		button("SwapButton", "SWAP", UDim2.new(1, -60, 1, -392), 52) -- 8 px clear of R at 72 px
 		button("SprintButton", "RUN", UDim2.new(1, -290, 1, -200), 56)
 	end
 

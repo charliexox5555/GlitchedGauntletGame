@@ -202,7 +202,11 @@ end
 Ui.MIN_TEXT_PX = 13
 
 local function floorText(root: Instance, scale: number)
-	local floor = math.ceil(Ui.MIN_TEXT_PX / math.max(scale, 0.05))
+	-- Before the gui has a real size (first frames) the scale is meaningless.
+	if scale < 0.2 then
+		return
+	end
+	local floor = math.ceil(Ui.MIN_TEXT_PX / scale)
 	for _, d in root:GetDescendants() do
 		if d:IsA("TextLabel") or d:IsA("TextButton") then
 			local base = d:GetAttribute("BaseTextSize")
@@ -210,7 +214,26 @@ local function floorText(root: Instance, scale: number)
 				base = d.TextSize
 				d:SetAttribute("BaseTextSize", base)
 			end
-			d.TextSize = math.max(base :: number, floor)
+			local size = math.max(base :: number, floor)
+			d.TextSize = size
+			-- A raised size gets a box tall enough for it (top edge kept); the
+			-- authored height comes back when the size does.
+			local autoY = d.AutomaticSize == Enum.AutomaticSize.Y
+				or d.AutomaticSize == Enum.AutomaticSize.XY
+			if not autoY and d.Size.Y.Scale == 0 then
+				local baseH = d:GetAttribute("BaseHeight")
+				if typeof(baseH) ~= "number" then
+					baseH = d.Size.Y.Offset
+					d:SetAttribute("BaseHeight", baseH)
+				end
+				local want = math.max(
+					baseH :: number,
+					if size > (base :: number) then math.ceil(size * 1.2) else 0
+				)
+				if d.Size.Y.Offset ~= want then
+					d.Size = UDim2.new(d.Size.X.Scale, d.Size.X.Offset, 0, want)
+				end
+			end
 		end
 	end
 end
@@ -235,7 +258,10 @@ function Ui.fit(obj: GuiObject): UIScale
 	task.defer(Ui.refit, obj)
 	if gui then
 		local conn = gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-			scale.Scale = screenScale(gui)
+			-- A phone arrangement (Controllers/PhoneHudController) sets its own scale.
+			if scale:GetAttribute("Override") == nil then
+				scale.Scale = screenScale(gui)
+			end
 			Ui.refit(obj)
 		end)
 		scale.Destroying:Connect(function()
@@ -255,6 +281,22 @@ local function reducedMotion(): boolean
 		return (GuiService :: any).ReducedMotionEnabled
 	end)
 	return ok and on == true
+end
+
+-- Give a fitted cluster a fixed scale (phone arrangements), or nil to go back
+-- to following its ScreenGui.
+function Ui.override(obj: GuiObject, value: number?)
+	local scale = obj:FindFirstChild("Fit")
+	if not (scale and scale:IsA("UIScale")) then
+		return
+	end
+	scale:SetAttribute("Override", value)
+	if value then
+		scale.Scale = value
+	else
+		scale.Scale = screenScale(obj:FindFirstAncestorWhichIsA("LayerCollector"))
+	end
+	Ui.refit(obj)
 end
 
 -- Tween, replacing any tween still running on that object.

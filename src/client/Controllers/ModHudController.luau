@@ -537,6 +537,7 @@ local function build(): ScreenGui
 	local layer = HudController.touchLayer()
 	if layer then
 		local function touchButton(name: string, pos: UDim2, size: number): (TextButton, TextLabel)
+			size = math.max(size, 72) -- 44+ px drawn at the touch layer's 0.62 floor
 			local b = make("TextButton", {
 				Name = name,
 				AnchorPoint = Vector2.new(0.5, 0.5),
@@ -560,7 +561,7 @@ local function build(): ScreenGui
 			local label = text({
 				Size = UDim2.fromScale(1, 1),
 				FontFace = HEAVY,
-				TextSize = 18,
+				TextSize = 22,
 				Text = "",
 				ZIndex = 2,
 			}, b)
@@ -578,7 +579,7 @@ local function build(): ScreenGui
 			slots[i].buttonText = label
 		end
 		local alt, altLabel = touchButton("ModAltButton", UDim2.new(1, -140, 1, -300), 56)
-		altLabel.TextSize = 13
+		altLabel.TextSize = 22 -- 13.6 px drawn at the touch layer floor
 		altLabel.Text = "ALT"
 		alt.Visible = false
 		alt.Activated:Connect(function()

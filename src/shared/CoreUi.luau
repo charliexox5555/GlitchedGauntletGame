@@ -3,11 +3,12 @@
 -- draft (vault/01 Design/Lobby UI and Queue.md section 8, vault/01 Design/Match
 -- HUD.md; LihFolk: Safe Areas and Insets, ScreenGui Fundamentals). Client only.
 -- * `menuMode(on)`: while a full-screen menu is open, hide the chat window,
---   the chat bar and the player list so nothing in the menu sits under them;
+--   the chat bar, the player list and Roblox's touch controls so nothing in the menu sits under them;
 --   on close, restore exactly what was showing before (Style.FLAGS switch).
 -- * The HUD itself never needs this: its top row sits in Roblox's top-bar
 --   strip and everything else is on the bottom dock, clear of both.
 
+local GuiService = game:GetService("GuiService")
 local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
 
@@ -15,7 +16,7 @@ local Style = require(script.Parent.Config.UiStyle)
 
 local CoreUi = {}
 
-type Saved = { playerList: boolean?, chatWindow: boolean?, chatBar: boolean? }
+type Saved = { playerList: boolean?, chatWindow: boolean?, chatBar: boolean?, touch: boolean? }
 local saved: Saved? = nil
 
 local function config(className: string): Instance?
@@ -52,11 +53,21 @@ function CoreUi.menuMode(on: boolean)
 		end
 		local okList, list =
 			pcall(StarterGui.GetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.PlayerList)
+		local okTouch, touch = pcall(function()
+			return GuiService.TouchControlsEnabled
+		end)
 		saved = {
 			playerList = if okList then list else nil,
 			chatWindow = getEnabled(window),
 			chatBar = getEnabled(bar),
+			touch = if okTouch then touch else nil,
 		}
+		-- Roblox's thumbstick and jump button take touches in their zones first
+		-- (LihFolk: Debugging UI Layout and Input); a full-screen screen doesn't
+		-- need them.
+		pcall(function()
+			GuiService.TouchControlsEnabled = false
+		end)
 		pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.PlayerList, false)
 		setEnabled(window, false)
 		setEnabled(bar, false)
@@ -76,6 +87,11 @@ function CoreUi.menuMode(on: boolean)
 		end
 		setEnabled(window, s.chatWindow)
 		setEnabled(bar, s.chatBar)
+		if s.touch ~= nil then
+			pcall(function()
+				GuiService.TouchControlsEnabled = s.touch :: boolean
+			end)
+		end
 	end
 end
 
