@@ -2,6 +2,13 @@
 
 Roblox competitive shooter: RIVALS-style run-and-gun duels (1v1 → 4v4) where players **draft abilities ("Mods") every round** and every round opens a shared **weapon tier**. Built with Rojo + strict Luau. The solo developer works with Claude.
 
+## Work from the vault, not from memory (mandatory, every chat and every agent)
+The Obsidian vault (`vault/`) is how this game is made. It holds the design, the art standard, the plans, the playtests and **LihFolk**: about 1,300 expert Roblox notes plus 22 skills (building, worldbuilding, modelling, UI, VFX, animation, sounds, security, data, performance, worked builds, case studies of top Roblox games). Don't work "off the top of your head".
+1. **Before any task:** load the `gauntlet-vault` project skill (`.claude/skills/gauntlet-vault/SKILL.md`). It maps each kind of task to the project notes, LihFolk folders and skills to use.
+2. **Before any non-trivial Roblox work:** run the `lihfolk` router skill or the `lihfolk-lookup` agent, and load the matching LihFolk specialist skills (e.g. `lihfolk-worldbuilding` and `roblox-blender-modeling` for maps and lobbies; `roblox-ui-builder` and `lihfolk-figma` for UI; `lihfolk-vfx`, `lihfolk-sfx`; `roblox-secure-remotes`; `roblox-system-builder`). Cite the notes you used in your vault note.
+3. **Plans, specs and results go into the vault** before and after the work; point the user at the note.
+4. When you delegate to agents or sessions, put this rule in their brief.
+
 ## Read first
 - `vault/00 Home.md`: current status, map of all notes, locked decisions.
 - Then the note for the task at hand:
