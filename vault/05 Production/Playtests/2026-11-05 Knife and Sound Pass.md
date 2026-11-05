@@ -407,6 +407,99 @@ Links: `https://freesound.org/people/<author>/sounds/<id>/`.
 
 Alternates downloaded but not used: 396331 (1911 reload, the next pistol mag in), 177863 (prop revolver, the next cylinder), 402790 (cocking revolver, the next hammer). Rejected: 432139 (a compilation of other people's uploads, so the licence chain is unclear) and 233044 (resynthesized, not a recording).
 
+### Checked in play (2026-11-05, 13:45, Dockyard2 match, Stinger)
+Every `Sound.Played` was logged from the client while a reload and a draw ran by `DevAction`. The reload played `FoleySmgMagOut` at 0.43 s and `FoleySmgMagIn` at 1.33 s. The draw played `FoleyDrawRifle` at 0.00 s and `FoleySmgRack` at 0.40 s. Every slice played at volume 0.6, pitched between 1.01 and 1.06. The class mapping and the clip beats work. A partial reload has no rack; it only plays on an empty reload. Not checked by ear: the AI can't listen. The other classes use the same code path.
+
 ### Check tonight (reloads)
 - [ ] Reload each class in the test range (`Workspace.TestMode = true`): Vandal, Stinger, Classic, Sheriff, Judge, Shorty, Operator, Marshal, Ares. Each click should land on the hand's move. Say any that sounds early or late, or too quiet next to the shots.
 - [ ] The M16 and Uzi takes are airsoft replicas (lighter plastic). If the SMG or rifle mag sounds toy-like, say so; the AR-15 session (393732) has more mag sounds to swap in.
+
+## Phase 8: map life on Dockyard2 and Rooftops2 (core chat's third job, part 2)
+
+Client-only ambient motion: no remotes, and nothing the server sees.
+
+### How it's built
+- **Code.** `Controllers/MapLifeController.luau` holds the logic and `Config/MapLife.luau` the data. The pattern comes from the Lobby's `AmbienceClient_V2`: tag-driven, streaming-safe, and asleep beyond a distance.
+- **Per-map scripts.** `tools/studio/maps/Dockyard2/Life.luau` and `tools/studio/maps/Rooftops2/Life.luau` each build a `Life` folder in the map. Run them in edit mode in the match place, then save.
+- **Tags:**
+  - `LifeSpin`, `LifeSway`, `LifePulse`, `LifeFlicker`: turning, swaying, breathing and flickering parts.
+  - `LifeGull`: birds on circling loops.
+  - `LifePigeon`: perched birds that take off.
+  - `LifeDrift`: far ships.
+  - `LifeEmitter`: particle emitters that only run while awake.
+- **Lane G's art is never edited.** Their parts move through `LifeRule` objects in `Life/Rules`, which name their meshes. Examples: the crane spreader and rigging, the skyline ships, the fans, the neon and one billboard lamp. A `Rotor` rule puts client-side blade copies on the AC and condenser fan discs. A rebuild of the art keeps it all working. My first pass tagged their parts directly, and their rebuild dropped the tags, so I switched to rules.
+- **Out of the way of play:**
+  - Every moved part is CanCollide, CanQuery and CanTouch false; the controller refuses colliding parts.
+  - Birds stay 28 or more studs above the roofs or deck, perched ones sit on ledges and bollards, and steam starts 7 or more studs over a standing head.
+  - Glints and foam sit at the waterline, below deck level.
+  - Banners hang below the roof edge.
+  - The Dockyard2 flag and windsock are on the crane top, about 60 studs up and out of reach.
+- **Budget:**
+  - One Heartbeat stepper with BulkMoveTo.
+  - Everything sleeps beyond 170 studs from the camera; gulls wake within 450 plus their radius, the far ships within 2500.
+  - Emitters run only while awake, at half rate on low graphics.
+  - Still birds are posed once, not every frame.
+  - Particles: about 33 alive on Dockyard2 and about 75 on Rooftops2.
+- **Colours.** No team colours. Rooftops2 uses sage and the map's own tank cobalt (47,98,200). The Dockyard2 windsock is signal yellow, and the far-ship containers are blue, mustard and green.
+- **Lane G's z-fighting audit** (`Audit.luau`) found 22 pairs and then 24. Both are fixed, and their re-audit now shows **0 pairs on both maps, Life folders included**.
+- **LihFolk notes used:**
+  - "VFX Performance Budgets and Culling": sleep by distance, one stepper, emitters only switched on or off, decoration off the camera line.
+  - "Water Sky and Atmosphere Art": foam and glints at the water line.
+  - "World Composition and Set Dressing - Designed, Not Scattered": life in the backdrop, never in the lanes.
+  - The `lihfolk-vfx` skill's rules on value and clutter.
+
+### Dockyard2
+- **Circling gulls.** 6 gulls (1.5× scale) circle in pairs, 42–46 studs up: one pair around the crane and two over the water channels. Their loops are egg-shaped and breathe, and they flap in bursts, glide and bank.
+- **Perched gulls.** 4 gulls sit on quay bollards. When someone comes within 15 studs they take off over the water with a recorded gull call (`AmbGulls`). They fade out 130 studs away and fly back facing their perch, with a landing flare.
+- **Crane load.** The spreader and its cables sway together about the trolley (1.6°).
+- **Ships.** The two moored ships roll 1.1°.
+- **Flag and windsock** on the crane top.
+- **Water line.** Foam strips breathe at the foot of the quay walls, and sparkle glints play on the water channels and the open ends.
+- **Far ships.** Two container ships at double size cross beyond the far quays, 620 studs out, fading in and out at the ends of their path.
+
+### Rooftops2
+- **Fans.** Soft four-blade rotors spin over a blur disc on all 16 AC fan discs and both condenser fans. Speeds vary by ±15% per copy and drift like gusts. The cooling-tower fans turn too.
+- **Steam** rises from 4 roof flues and 2 lift-house vents.
+- **Perched pigeons.** Three flocks of 3 (1.8×, slate with a pale belly) sit on two tank-house cornices and a roof sign. They peck and turn. When someone comes within 15 studs they flush with a wing-flap sound, fly 110 studs out past the parapets, fade, and come home once nobody is within 32 studs.
+- **Sky flock.** 3 pigeons (2.3×) circle 30 studs above the block.
+- **Flicker.** The roof-sign neon and one billboard lamp flicker now and then.
+- **Banners.** Four blade banners on the outer street walls swing about their arms.
+
+### Scoring
+LihFolk VFX rubric adapted for ambient life. X5 became "reacts to play" and X6 "never in the way of play". Weights 3/3/2/2/1/2 out of 13, 3 blind reviewers per round, median per criterion.
+
+| Round | Dockyard2 | Rooftops2 | What changed |
+|---|---|---|---|
+| 0 | 7.3 | 6.5 | first build |
+| 1 | **8.85 (pass)** | 6.54 | bollard gulls react, egg-shaped loops, stronger sway, roll and glints, far ships 2× with fades, blade rotors, birds fade and fly home facing the perch, banners square to the wall |
+| 2 | — | 8.08 | steam higher and self-lit, pigeons 1.8× with a pale belly and flushed 110 studs, sky flock, blur discs, rotor jitter and gusts |
+| 3 | — | 8.08 | cool-grey steam, banners in the tank cobalt, softer rotors over a darker disc, sky flock 2.3× |
+
+- **Dockyard2 ships at 8.85.**
+- **Rooftops2 stopped at 8.08.** It had 3 fix rounds, the maximum, and round 3 gained 0. What holds it back:
+  - X1 (read at distance) and X3 (colour and value) stayed at 1 in every review.
+  - The steam is the main reason. White steam vanished into the pale sky; grey steam reads as smoke in the golden light.
+  - The banners only show from the roof edge.
+- Round 3 is what's built.
+
+### Not done, or left for the user
+- **Steam colour.** It needs a call by eye: near-white (round 2) against grey (round 3). A reviewer suggested (225,228,236) at 0.35–0.45 transparency through mid-life. This is one line in `tools/studio/maps/Rooftops2/Life.luau` → `steam()`.
+- **Flag and banners** are rigid plates that sway. Two-segment cloth would read better.
+- **The Sky Diner neon glows cyan-white,** close to team cyan. That's lane G's art colour; the flicker only toggles it.
+- **AC fan disc positions** are ±1.62 studs along the mesh's long axis, measured from screenshots. If lane G re-cuts the AC mesh, adjust `Offset1` and `Offset2` on the `Rotor_ACUnit_Fans` rule.
+
+### Check tonight (map life)
+- [ ] **Save the match place** (Ctrl+S). `Workspace.Dockyard2.Life` and `Workspace.Rooftops2.Life` live in the place, not in Rojo. `Workspace.ForceMap` is currently `"Rooftops2"`.
+- [ ] **Dockyard2:**
+  - Walk up to a quay bollard gull: it should take off calling and come back about 30 s later.
+  - Look up: gulls circle the crane.
+  - Look at the crane load: it sways slightly.
+  - Look over the quay edge: foam and glints at the water line.
+  - Look out past the ends of the far quays: far ships drift.
+- [ ] **Rooftops2:**
+  - Walk up to the tank-house pigeons: they flush with a flap sound.
+  - The AC fans spin.
+  - Steam rises from the flues. Say whether it reads as steam or smoke.
+  - The sky flock circles overhead.
+  - Look over the street-wall edges: the banners swing.
+- [ ] Peek over an AC unit as the enemy would. The spinning rotor must never draw the eye before the head does. If it does, raise the `Blur` part's transparency to 0.75 in the rotor template in `tools/studio/maps/Rooftops2/Life.luau`.
