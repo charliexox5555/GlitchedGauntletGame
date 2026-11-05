@@ -80,10 +80,11 @@ local lockButton: ImageButton? = nil
 local scroller: ScrollingFrame? = nil
 local footer: Frame? = nil
 local PHONE_CROP_TOP = 112 -- design px above the "SELECT A GUN" header
+local ABILITY_HEADER_Y = 338 -- design px just above "DRAFT AN ABILITY"
 local PHONE_CONTENT_BOTTOM = 996 -- under the ability cards
 local PHONE_CONTENT_W = 1240 -- the three columns plus a margin
 local FOOTER_H = 80 -- design px
-local FOOTER_SCALE = 0.75 -- LOCK IN (64 design px) draws 48 px
+local FOOTER_SCALE = 0.7 -- LOCK IN (64 design px) draws 45 px
 local lockLabel: TextLabel? = nil
 local lockIcon: ImageLabel? = nil
 local lockHint: TextLabel? = nil
@@ -243,8 +244,10 @@ local function hintText(): (string, Color3)
 	if locked then
 		return "Locked in. Waiting for the other players.", C.ready
 	end
+	local touch = footer ~= nil -- the compact (touch) arrangement
 	if canLock() then
-		return "Ready: press Enter or LOCK IN.", C.textSecondary
+		return if touch then "Ready: tap LOCK IN." else "Ready: press Enter or LOCK IN.",
+			C.textSecondary
 	end
 	local left = MatchState.timeLeft()
 	if left <= URGENT and left > 0 then
@@ -266,10 +269,16 @@ local function hintText(): (string, Color3)
 			C.gold
 	end
 	if not selectedGun then
-		return "Pick a gun (1, 2, 3) and one card (Q, E, T).", C.textSecondary
+		return if touch
+			then "Tap a gun, then one card."
+			else "Pick a gun (1, 2, 3) and one card (Q, E, T).",
+			C.textSecondary
 	end
 	if not nothingToPick(o) then
-		return "Now pick one card: a new ability or an upgrade (Q, E, T).", C.textSecondary
+		return if touch
+			then "Tap one card. Scroll up to change your gun."
+			else "Now pick one card: a new ability or an upgrade (Q, E, T).",
+			C.textSecondary
 	end
 	return "", C.textSecondary
 end
@@ -280,6 +289,10 @@ local function updateHint()
 		return
 	end
 	local text, color = hintText()
+	if footer and offer and not locked then
+		local left = math.max(0, math.ceil(MatchState.timeLeft()))
+		text = string.format("%d:%02d  ·  %s", left // 60, left % 60, text)
+	end
 	if text ~= shownHint then
 		shownHint = text
 		label.Text = text
@@ -1143,8 +1156,15 @@ local function show(o: MatchState.DraftOffer)
 	if canvas then
 		Ui.refit(canvas) -- the new cards get the text floor and snapped strokes
 	end
-	if scroller then
-		scroller.CanvasPosition = Vector2.zero
+	local scroll = scroller
+	if scroll then
+		-- The ability cards are the main choice and a gun comes preselected,
+		-- so a phone opens on the cards (scroll up for the guns).
+		local fit = canvas and canvas:FindFirstChild("Fit")
+		local s = if fit and fit:IsA("UIScale") then fit.Scale else 0.5
+		scroll.CanvasPosition = if selectedGun
+			then Vector2.new(0, (ABILITY_HEADER_Y - PHONE_CROP_TOP) * s)
+			else Vector2.zero
 	end
 	reveal(order)
 end
@@ -1214,7 +1234,7 @@ local function build()
 		local function layout()
 			local view = Device.viewport()
 			local inset = 160 -- the backdrop starts 160 px above the safe area
-			local barH = 4 + Device.BAR_SIZE.Y * Device.phoneBarScale() + 6 -- as PhoneHudController
+			local barH = 8 -- the score bar steps aside during the phone draft (PhoneHudController)
 			local footH = FOOTER_H * FOOTER_SCALE
 			local s = math.clamp((view.X - 24) / PHONE_CONTENT_W, 0.45, 0.75)
 			scroll.Position = UDim2.fromOffset(0, inset + barH)

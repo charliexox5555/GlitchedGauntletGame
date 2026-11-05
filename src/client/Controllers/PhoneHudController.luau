@@ -40,7 +40,9 @@ local FEED_ROWS, FEED_ROW = 3, 52 -- rows shown on a phone; Util/KillFeed row + 
 -- (at least 0.62). Its free bottom strip runs 250-480 px from the right edge,
 -- up to 110 px from the bottom (left of SLIDE, under RUN).
 local AMMO_RIGHT, AMMO_LEFT, AMMO_STRIP_H = 250, 480, 110
-local AMMO_PANEL = Vector2.new(420, 120) -- the visible panel inside the 420 x 200 cluster
+-- On a compact screen the ammo panel keeps only its right part (the count
+-- and the mag size), so it can be drawn bigger in the strip.
+local AMMO_PANEL = Vector2.new(220, 120)
 
 local function child(parent: Instance?, name: string): GuiObject?
 	local c = if parent then parent:FindFirstChild(name, true) else nil
@@ -64,6 +66,14 @@ local function arrange()
 	local bar = child(pg:FindFirstChild("MatchHud"), "TopBar")
 	local kBar = Device.phoneBarScale()
 	if bar then
+		-- During the draft the cards need the height: the bar steps aside and
+		-- the draft's footer shows the clock.
+		local drafting = pg:FindFirstChild("Draft")
+		local back = drafting and drafting:FindFirstChild("Backdrop")
+		local hud = bar:FindFirstAncestorWhichIsA("ScreenGui")
+		if hud then
+			hud.Enabled = not (back and back:IsA("GuiObject") and back.Visible)
+		end
 		local left, right = Device.phoneBarSpan()
 		Ui.override(bar, kBar)
 		bar.AnchorPoint = Vector2.new(0.5, 0)
@@ -121,6 +131,16 @@ local function arrange()
 			ammo.AnchorPoint = Vector2.new(1, 1)
 			ammo.Position = UDim2.new(1, -MARGIN, 1, -MARGIN)
 		end
+		local back = ammo:FindFirstChild("Back")
+		if back and back:IsA("GuiObject") then
+			back.Position = UDim2.fromOffset(420 - AMMO_PANEL.X, 80)
+			back.Size = UDim2.fromOffset(AMMO_PANEL.X, AMMO_PANEL.Y)
+			local shadow = ammo:FindFirstChild("BackShadow")
+			if shadow and shadow:IsA("GuiObject") then
+				shadow.Position = back.Position
+				shadow.Size = back.Size
+			end
+		end
 		-- Only the count and the mag size: the gun picture and name hide.
 		for _, name in { "Gun", "WeaponName" } do
 			local g = ammo:FindFirstChild(name)
@@ -160,6 +180,11 @@ function PhoneHudController.start()
 		camera:GetPropertyChangedSignal("ViewportSize"):Connect(arrange)
 	end
 	GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(arrange)
+	local draft = pg:FindFirstChild("Draft")
+	local back = draft and draft:FindFirstChild("Backdrop")
+	if back and back:IsA("GuiObject") then
+		back:GetPropertyChangedSignal("Visible"):Connect(arrange)
+	end
 end
 
 return PhoneHudController
