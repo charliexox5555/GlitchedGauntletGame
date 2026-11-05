@@ -15,6 +15,13 @@ export type Memory = {
 	heard: boolean, -- the position is a rough heard one
 	headVisible: boolean, -- its head showed on the last look
 	aimPart: string, -- "Head" or "UpperTorso": where this bot aims at it
+	-- Where it was over the last second (ring buffer at THINK_RATE), for
+	-- aiming behind it by the profile's trackLag.
+	trailPos: { Vector3 },
+	trailT: { number },
+	trailHead: number,
+	groundPos: Vector3, -- last position it stood on the ground (a path goal)
+	unreachableAt: number?, -- os.clock() a path to it failed
 }
 
 export type Nav = {
@@ -24,6 +31,10 @@ export type Nav = {
 	computedAt: number,
 	computedFor: Vector3?,
 	computing: boolean,
+	failedFor: Vector3?, -- the goal the last compute found no path to
+	bestDist: number, -- closest it got to the current waypoint (progress check)
+	bestAt: number,
+	progressIndex: number,
 	lastSamplePos: Vector3,
 	lastSampleAt: number,
 	stuck: number,
@@ -68,6 +79,7 @@ export type Bot = {
 	aimWobble: Vector2, -- degrees: the drifting point at the floor it settles toward
 	recoil: Vector2, -- degrees of kick not yet pulled back
 	triggerAt: number, -- os.clock() the trigger may first go
+	missLeft: number, -- fair misses left on the current target
 	burstLeft: number,
 	burstRestUntil: number,
 	-- Mods (Bots/BotMods).

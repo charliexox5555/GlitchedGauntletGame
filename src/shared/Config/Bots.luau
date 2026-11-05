@@ -9,6 +9,10 @@ export type Profile = {
 	errorStart: number, -- degrees of aim error on a fresh target
 	errorFloor: number, -- degrees it settles toward while tracking
 	errorSettle: number, -- seconds (time constant) for the error to settle
+	trackLag: number, -- seconds behind the target's real position it aims (strafing beats it)
+	firstMisses: number, -- shots at a fresh target that miss on purpose (a fair warning)
+	maxHitsPerSec: number, -- hits per second any one target can take from bots of this level
+	easeLowHealth: number, -- aim error multiplier on a target below LOW_HEALTH
 	headChance: number, -- chance per target pick to aim at the head
 	recoilControl: number, -- share of recoil kick it pulls back down (0..1)
 	aggression: number, -- 0..1: how readily it pushes instead of holding
@@ -18,14 +22,22 @@ export type Profile = {
 	fov: number, -- degrees: vision cone (full width)
 }
 
+-- Aim numbers (2026-11-05 LihFolk pass): start / floor / track lag / fair
+-- misses / hit budget follow "AI Difficulty Tuning - Reaction Time, Aim
+-- Error and Fair Misses" (Normal floor 2.5 there; ours 2.0 because our
+-- hitboxes are R15 parts and the spring already adds lag).
 local profiles: { [string]: Profile } = {
 	Easy = {
 		reaction = 0.55,
 		aimSmooth = 0.26,
-		errorStart = 7,
-		errorFloor = 1.6,
+		errorStart = 9,
+		errorFloor = 3.2,
 		errorSettle = 0.6,
-		headChance = 0.08,
+		trackLag = 0.35,
+		firstMisses = 2,
+		maxHitsPerSec = 1,
+		easeLowHealth = 1.6,
+		headChance = 0.06,
 		recoilControl = 0.4,
 		aggression = 0.35,
 		hearing = 35,
@@ -36,10 +48,14 @@ local profiles: { [string]: Profile } = {
 	Normal = {
 		reaction = 0.36,
 		aimSmooth = 0.16,
-		errorStart = 5.5,
-		errorFloor = 1.1, -- 2026-11-04 playtest: 0.9 hit 65-75% with SMGs, a bit sharp
+		errorStart = 7,
+		errorFloor = 2,
 		errorSettle = 0.42,
-		headChance = 0.2,
+		trackLag = 0.2,
+		firstMisses = 1,
+		maxHitsPerSec = 2,
+		easeLowHealth = 1.3,
+		headChance = 0.15,
 		recoilControl = 0.65,
 		aggression = 0.55,
 		hearing = 50,
@@ -50,10 +66,14 @@ local profiles: { [string]: Profile } = {
 	Hard = {
 		reaction = 0.24,
 		aimSmooth = 0.1,
-		errorStart = 3.5,
-		errorFloor = 0.45,
+		errorStart = 4.5,
+		errorFloor = 1.2,
 		errorSettle = 0.28,
-		headChance = 0.38,
+		trackLag = 0.12,
+		firstMisses = 0,
+		maxHitsPerSec = 3,
+		easeLowHealth = 1,
+		headChance = 0.3,
 		recoilControl = 0.85,
 		aggression = 0.75,
 		hearing = 65,
@@ -94,12 +114,18 @@ return table.freeze({
 
 	-- Timing. Thinks are staggered so bots don't all think on one frame.
 	THINK_RATE = 10, -- decisions per second
+	-- Server ms per Heartbeat for every bot together (think + act). Studio
+	-- warns past it (LihFolk Script Performance: server scripts under ~5 ms
+	-- per heartbeat in total; bots get a fifth of that).
+	BUDGET_MS = 1,
 	MAX_RAYS_PER_THINK = 3,
 
 	-- Perception.
 	EYE_HEIGHT = 1.5, -- studs above the root its eyes / muzzle sit (≈ head)
 	NEAR_SENSE = 8, -- studs: felt even outside the vision cone
 	REACQUIRE_WINDOW = 1, -- seconds: re-seeing someone this soon halves the reaction
+	REACTION_FLOOR = 0.15, -- seconds: no reaction is ever faster (LihFolk AI Difficulty Tuning)
+	TRAIL = 12, -- position samples kept per enemy (at THINK_RATE: 1.2 s, for trackLag)
 	HEAR_ERROR = 6, -- studs of noise on a heard position
 
 	-- Choosing goals (utility): a new goal must beat the current one by this,
@@ -108,6 +134,9 @@ return table.freeze({
 	COMMIT_TIME = 0.6,
 	RETREAT_HEALTH = 0.35, -- share of health+shield below which retreat scores high
 	TARGET_STICK = 1, -- seconds before switching to a better target
+	MAX_ON_TARGET = 2, -- bots that gang up on one enemy before a third looks elsewhere
+	LOW_HEALTH = 0.3, -- target health share below which aim eases (easeLowHealth)
+	FAIR_MISS_ANGLE = 1.5, -- degrees past the target's edge a fair miss goes
 
 	-- Range band by gun class (studs): where it likes to fight.
 	RANGE = {
@@ -133,7 +162,9 @@ return table.freeze({
 	-- Navigation (PathfindingService).
 	AGENT = { radius = 2, height = 5, canJump = true, spacing = 4 },
 	REPATH_EVERY = 0.8, -- seconds between path computes at most
-	REPATH_MOVE = 6, -- studs the goal must move to force a recompute
+	REPATH_MOVE = 3, -- studs the goal must move to force a recompute (at least)...
+	REPATH_SHARE = 0.2, -- ...or this share of the distance left (LihFolk Pathfinding)
+	PROGRESS_WINDOW = 1.5, -- seconds without getting 1 stud closer to the waypoint = stuck
 	WAYPOINT_REACHED = 2.5,
 	STUCK_CHECK = 0.5, -- seconds between stuck samples
 	STUCK_DISTANCE = 1, -- studs moved below which a sample counts as stuck

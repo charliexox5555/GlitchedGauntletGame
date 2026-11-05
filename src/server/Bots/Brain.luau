@@ -34,6 +34,25 @@ export type World = {
 
 local Brain = {}
 
+-- Hits each target took from bots in the current second (LihFolk AI
+-- Difficulty Tuning: a hit budget, so three bots can't shred one player).
+type HitWindow = { start: number, count: number }
+local hitWindows: { [Model]: HitWindow } = setmetatable({}, { __mode = "k" }) :: any
+
+local function overBudget(model: Model, max: number, now: number): boolean
+	local w = hitWindows[model]
+	return w ~= nil and now - w.start < 1 and w.count >= max
+end
+
+local function recordHit(model: Model, now: number)
+	local w = hitWindows[model]
+	if not w or now - w.start >= 1 then
+		hitWindows[model] = { start = now, count = 1 }
+	else
+		w.count += 1
+	end
+end
+
 local rng = Random.new()
 
 local function setInput(bot: Bot, name: string, value: any)
@@ -149,6 +168,7 @@ function Brain.think(bot: Bot, world: World, now: number)
 	bot.target = Perception.pickTarget(bot, now, world.focus)
 	if bot.target and bot.target ~= previous then
 		Aim.acquire(bot)
+		bot.missLeft = bot.profile.firstMisses
 	end
 	local target = bot.target
 	local hp = Brain.healthShare(bot)
@@ -243,7 +263,11 @@ function Brain.think(bot: Bot, world: World, now: number)
 		bot.wantSprint = true
 		bot.lookAt = target.lastPos
 	elseif best == "Hunt" and known then
-		local goal = known.lastPos
+		-- Where it last stood (a jumping target's air position has no path).
+		local goal = known.groundPos
+		if bot.nav.failedFor and (bot.nav.failedFor - goal).Magnitude < 1 then
+			known.unreachableAt = now -- no path: forget it and roam instead
+		end
 		local offset = (goal - pos) * Vector3.new(1, 0, 1)
 		if world.lane ~= 0 and offset.Magnitude > 25 then
 			local side = Vector3.new(-offset.Unit.Z, 0, offset.Unit.X)
@@ -303,7 +327,7 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 
 	local target = bot.target
 	local engage = target ~= nil and Perception.engageable(bot, target, now)
-	local point = if engage then Aim.targetPoint(bot) else nil
+	local point = if engage then Aim.targetPoint(bot, now) else nil
 	local lag = Aim.step(bot, point, dt)
 	if align then
 		align.CFrame = CFrame.Angles(0, bot.yaw, 0)
@@ -324,7 +348,17 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 	local escalate = Nav.checkStuck(bot, dir.Magnitude > 0.2)
 	if escalate == 1 then
 		humanoid.Jump = true
-	elseif escalate == 3 and bot.goal == "Roam" then
+	elseif
+		bot.goal == "Roam"
+		and (
+			escalate == 3
+			or (
+				bot.nav.failedFor ~= nil
+				and bot.roamGoal ~= nil
+				and (bot.nav.failedFor - bot.roamGoal).Magnitude < 1
+			)
+		)
+	then
 		bot.roamGoal = root.Position -- can't get there: the next think picks another point
 	elseif escalate == 2 then
 		bot.strafeDir = if rng:NextNumber() < 0.5 then -1 else 1
@@ -386,9 +420,25 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 				+ rng:NextNumber() * (BotsConfig.TRIGGER_DELAY[2] - BotsConfig.TRIGGER_DELAY[1])
 		elseif now >= bot.triggerAt and now >= bot.burstRestUntil and distance <= config.range then
 			triggerHeld = true
-			local ok, up, side, hit = BotGun.fire(bot.gun, model, Aim.direction(bot))
+			-- A fair miss: the first shots at a new target, or when the target
+			-- already took its budget of bot hits this second.
+			local fair = bot.missLeft > 0
+				or overBudget(target.model, bot.profile.maxHitsPerSec, now)
+			local missBy = if fair
+				then (Aim.targetSize(distance) * 1.3 + BotsConfig.FAIR_MISS_ANGLE) * (if rng:NextNumber()
+						< 0.5
+					then -1
+					else 1)
+				else nil
+			local ok, up, side, hit = BotGun.fire(bot.gun, model, Aim.direction(bot, missBy))
 			if ok then
 				fired = true
+				if fair and bot.missLeft > 0 then
+					bot.missLeft -= 1
+				end
+				if hit then
+					recordHit(target.model, now)
+				end
 				if STUDIO then
 					local o = bot.owner
 					o:SetAttribute("BotShots", ((o:GetAttribute("BotShots") :: number?) or 0) + 1)

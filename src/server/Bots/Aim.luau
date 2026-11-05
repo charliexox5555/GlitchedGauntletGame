@@ -12,7 +12,9 @@ type Bot = BotTypes.Bot
 
 local Aim = {}
 
-local LEAD = 0.06 -- seconds of target motion it leads (hitscan: a hand's anticipation)
+local Perception = require(script.Parent.Perception)
+local BotsConfig = require(game:GetService("ReplicatedStorage").Shared.Config.Bots)
+local Health = require(game:GetService("ReplicatedStorage").Shared.Health)
 local RECOIL_RECOVER = 0.18 -- seconds (time constant) the leftover kick settles
 local rng = Random.new()
 
@@ -67,8 +69,10 @@ function Aim.kick(bot: Bot, up: number, side: number)
 	bot.recoil += Vector2.new(side, up) * math.max(keep, 0)
 end
 
--- The point the bot wants its crosshair on (nil: just look ahead).
-function Aim.targetPoint(bot: Bot): Vector3?
+-- The point the bot wants its crosshair on (nil: just look ahead): where the
+-- target was `trackLag` ago, so strafing makes it miss (LihFolk AI
+-- Difficulty Tuning: aiming at the live position "feels like aimbot").
+function Aim.targetPoint(bot: Bot, now: number): Vector3?
 	local m = bot.target
 	if not m then
 		return nil
@@ -78,8 +82,11 @@ function Aim.targetPoint(bot: Bot): Vector3?
 	if not part or not part:IsA("BasePart") then
 		return m.lastPos
 	end
-	local velocity = part.AssemblyLinearVelocity * Vector3.new(1, 0.3, 1)
-	return part.Position + velocity * LEAD
+	local root = m.model:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then
+		return part.Position
+	end
+	return Perception.lagged(m, now, bot.profile.trackLag) + (part.Position - root.Position)
 end
 
 -- Per frame: moves the spring toward `point` (or the look-at direction),
@@ -108,6 +115,15 @@ function Aim.step(bot: Bot, point: Vector3?, dt: number): number
 		bot.aimWobble = randomError(bot.profile.errorFloor * (0.4 + rng:NextNumber() * 0.8))
 	end
 	local floor = bot.aimWobble
+	-- A nearly dead target: easier levels ease off (a fair finish).
+	local target = bot.target
+	local humanoid = target and target.model:FindFirstChildOfClass("Humanoid")
+	if
+		humanoid
+		and Health.get(humanoid) / math.max(Health.max(humanoid), 1) < BotsConfig.LOW_HEALTH
+	then
+		floor *= bot.profile.easeLowHealth
+	end
 	bot.aimError = floor + (bot.aimError - floor) * math.exp(-dt / bot.profile.errorSettle)
 	bot.recoil *= math.exp(-dt / RECOIL_RECOVER)
 
@@ -117,8 +133,10 @@ function Aim.step(bot: Bot, point: Vector3?, dt: number): number
 end
 
 -- Where the gun actually points: the spring plus error and recoil.
-function Aim.direction(bot: Bot): Vector3
-	local yaw = bot.yaw + math.rad(bot.aimError.X + bot.recoil.X)
+-- `missBy` (degrees, optional): pushed sideways off target on purpose (a
+-- fair miss: the first shots at a new target, or over the hit budget).
+function Aim.direction(bot: Bot, missBy: number?): Vector3
+	local yaw = bot.yaw + math.rad(bot.aimError.X + bot.recoil.X + (missBy or 0))
 	local pitch = math.clamp(bot.pitch + math.rad(bot.aimError.Y + bot.recoil.Y), -1.4, 1.4)
 	return direction(yaw, pitch)
 end

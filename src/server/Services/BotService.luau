@@ -165,6 +165,7 @@ local function newBot(team: number): Bot
 		aimWobble = Vector2.zero,
 		recoil = Vector2.zero,
 		triggerAt = 0,
+		missLeft = 0,
 		burstLeft = 4,
 		burstRestUntil = 0,
 		kit = { "", "", "" },
@@ -279,6 +280,19 @@ local function spawnBot(bot: Bot, at: CFrame)
 	humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
 	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 	humanoid.BreakJointsOnDeath = false
+	-- States a bot never needs (LihFolk Physics Performance: cheaper
+	-- humanoids, and no tripping into FallingDown mid-fight).
+	for _, state in
+		{
+			Enum.HumanoidStateType.Climbing,
+			Enum.HumanoidStateType.Seated,
+			Enum.HumanoidStateType.FallingDown,
+			Enum.HumanoidStateType.Ragdoll,
+			Enum.HumanoidStateType.Flying,
+		}
+	do
+		humanoid:SetStateEnabled(state, false)
+	end
 	model:PivotTo(at + Vector3.new(0, 3, 0))
 	local _, yaw = at:ToOrientation()
 	bot.yaw, bot.pitch, bot.yawVel, bot.pitchVel = yaw, 0, 0, 0
@@ -368,6 +382,10 @@ end
 
 -- The loop ----------------------------------------------------------------------
 
+-- Roam targets per team and the patrol points (BotService.setRoamPoints).
+local roamPoints: { [number]: Vector3 } = {}
+local patrol: { Vector3 } = {}
+
 local function worldFor(bot: Bot): Brain.World
 	table.clear(enemyScratch)
 	table.clear(allyScratch)
@@ -418,8 +436,6 @@ end
 
 -- Where a bot with no information heads: the enemy side (set by
 -- MatchService per map), else the middle of the map.
-local roamPoints: { [number]: Vector3 } = {}
-local patrol: { Vector3 } = {}
 function BotService.setRoamPoints(forTeam1: Vector3?, forTeam2: Vector3?)
 	table.clear(roamPoints)
 	table.clear(patrol)
@@ -460,8 +476,66 @@ local function hearShot(shooter: Model, at: Vector3)
 	end
 end
 
+-- Cost of the bots on the server (LihFolk: Script Performance, MicroProfiler
+-- Guide): MicroProfiler labels on think and act, and in Studio a rolling
+-- average / worst step in ms on ServerStorage.BotOwners (StepMsAvg,
+-- StepMsMax), with a warning when the average goes over BUDGET_MS.
+local STUDIO = RunService:IsStudio()
+local statFrames, statSum, statMax, budgetWarned = 0, 0, 0, false
+
+-- Studio only: with the Workspace attribute BotDebug on, a label over each
+-- bot shows its goal, target, health and hits/shots (LihFolk: Visual AI
+-- Debugging - State Labels, Path Lines and Perception Gizmos).
+local function debugLabel(bot: Bot)
+	local head = bot.head
+	if not head then
+		return
+	end
+	local gui = head:FindFirstChild("BotDebug")
+	if workspace:GetAttribute("BotDebug") ~= true then
+		if gui then
+			gui:Destroy()
+		end
+		return
+	end
+	local text: TextLabel
+	if gui and gui:IsA("BillboardGui") then
+		text = gui:FindFirstChildOfClass("TextLabel") :: TextLabel
+	else
+		local board = Instance.new("BillboardGui")
+		board.Name = "BotDebug"
+		board.Size = UDim2.fromOffset(220, 40)
+		board.StudsOffset = Vector3.new(0, 2.6, 0)
+		board.AlwaysOnTop = true
+		board.LightInfluence = 0
+		text = Instance.new("TextLabel")
+		text.Size = UDim2.fromScale(1, 1)
+		text.BackgroundTransparency = 1
+		text.TextColor3 = Color3.new(1, 1, 1)
+		text.TextStrokeTransparency = 0.3
+		text.Font = Enum.Font.Code
+		text.TextScaled = true
+		text.Parent = board
+		board.Parent = head
+	end
+	if not text then
+		return
+	end
+	local o = bot.owner
+	text.Text = string.format(
+		"%s %s>%s\nhp %d  %s/%s",
+		bot.name,
+		bot.goal,
+		if bot.target then bot.target.model.Name else "-",
+		math.floor(Brain.healthShare(bot) * 100),
+		tostring(o:GetAttribute("BotHits") or 0),
+		tostring(o:GetAttribute("BotShots") or 0)
+	)
+end
+
 local function step(dt: number)
-	local now = os.clock()
+	local started = os.clock()
+	local now = started
 	for _, bot in bots do
 		local model = bot.model
 		if not model or not model.Parent then
@@ -469,13 +543,46 @@ local function step(dt: number)
 		end
 		if now >= bot.nextThink then
 			bot.nextThink = now + 1 / BotsConfig.THINK_RATE
+			debug.profilebegin("BotThink")
 			Brain.think(bot, worldFor(bot), now)
+			debug.profileend()
+			if STUDIO then
+				debugLabel(bot)
+			end
 		end
-		if Brain.act(bot, dt, aligns[bot]) then
+		debug.profilebegin("BotAct")
+		local fired = Brain.act(bot, dt, aligns[bot])
+		debug.profileend()
+		if fired then
 			local head = bot.head
 			if head then
 				hearShot(model, head.Position)
 			end
+		end
+	end
+	if STUDIO and #bots > 0 then
+		local ms = (os.clock() - started) * 1000
+		statFrames += 1
+		statSum += ms
+		statMax = math.max(statMax, ms)
+		if statFrames >= 120 then
+			local avg = statSum / statFrames
+			local folder = ownerFolder()
+			folder:SetAttribute("StepMsAvg", math.round(avg * 1000) / 1000)
+			folder:SetAttribute("StepMsMax", math.round(statMax * 1000) / 1000)
+			folder:SetAttribute("BotCount", #bots)
+			if avg > BotsConfig.BUDGET_MS and not budgetWarned then
+				budgetWarned = true
+				warn(
+					string.format(
+						"[BotService] %d bots average %.2f ms per step (budget %.2f)",
+						#bots,
+						avg,
+						BotsConfig.BUDGET_MS
+					)
+				)
+			end
+			statFrames, statSum, statMax = 0, 0, 0
 		end
 	end
 end
@@ -621,6 +728,57 @@ function BotService.refillCharges()
 	for _, bot in bots do
 		BotMods.refill(bot)
 	end
+end
+
+-- Config/Bots is consistent (LihFolk system builder: assert config at
+-- startup). A bad edit fails loudly here, not as odd behaviour mid-match.
+local function checkConfig()
+	local fields = {
+		"reaction",
+		"aimSmooth",
+		"errorStart",
+		"errorFloor",
+		"errorSettle",
+		"trackLag",
+		"firstMisses",
+		"maxHitsPerSec",
+		"easeLowHealth",
+		"headChance",
+		"recoilControl",
+		"aggression",
+		"hearing",
+		"memory",
+		"abilityUse",
+		"fov",
+	}
+	assert(BotsConfig.PROFILES[BotsConfig.DIFFICULTY], "Config/Bots DIFFICULTY names no profile")
+	for name, p in BotsConfig.PROFILES do
+		for _, field in fields do
+			local v = (p :: any)[field]
+			assert(
+				typeof(v) == "number" and v == v and v >= 0,
+				`Config/Bots {name}.{field} must be a number >= 0`
+			)
+		end
+		assert(p.errorFloor <= p.errorStart, `Config/Bots {name}: errorFloor above errorStart`)
+		assert(
+			p.headChance <= 1 and p.recoilControl <= 1 and p.abilityUse <= 1,
+			`Config/Bots {name}: a chance above 1`
+		)
+	end
+	for _, class in { "Sidearm", "SMG", "Shotgun", "Rifle", "Sniper", "MachineGun", "Melee" } do
+		local band = BotsConfig.RANGE[class]
+		assert(band and band[1] <= band[2], `Config/Bots RANGE.{class} missing or reversed`)
+	end
+	assert(#BotsConfig.NAMES >= 6, "Config/Bots needs at least 6 NAMES (3v3)")
+	assert(
+		BotsConfig.THINK_RATE > 0 and BotsConfig.THINK_RATE <= 30,
+		"Config/Bots THINK_RATE out of range"
+	)
+end
+
+function BotService.init()
+	checkConfig()
 end
 
 function BotService.start()

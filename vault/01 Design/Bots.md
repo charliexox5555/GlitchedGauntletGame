@@ -72,11 +72,15 @@ Difficulty profiles (Easy / Normal / Hard), starting values from the research ta
 
 | Knob | Easy | Normal | Hard |
 |---|---|---|---|
-| reaction (s) | 0.55 | 0.36 | 0.24 |
+| reaction (s; never under 0.15) | 0.55 | 0.36 | 0.24 |
 | aimSmooth (s, spring) | 0.26 | 0.16 | 0.10 |
-| aim error start / floor (deg) | 7 / 1.6 | 5.5 / 1.1 | 3.5 / 0.45 |
+| aim error start / floor (deg) | 9 / 3.2 | 7 / 2.0 | 4.5 / 1.2 |
 | error settle (s) | 0.6 | 0.42 | 0.28 |
-| headChance | 0.08 | 0.2 | 0.38 |
+| trackLag (s behind the target) | 0.35 | 0.2 | 0.12 |
+| firstMisses (fair misses on a new target) | 2 | 1 | 0 |
+| maxHitsPerSec (one target, from bots) | 1 | 2 | 3 |
+| easeLowHealth (error × on a target under 30%) | 1.6 | 1.3 | 1 |
+| headChance | 0.06 | 0.15 | 0.3 |
 | recoil control | 0.4 | 0.65 | 0.85 |
 | aggression | 0.35 | 0.55 | 0.75 |
 | hearing (studs) | 35 | 50 | 65 |
@@ -86,14 +90,17 @@ Difficulty profiles (Easy / Normal / Hard), starting values from the research ta
 Other knobs in the same file: think rate (10 Hz), rays per think (3), range bands per gun class, strafe timing, slide range, team spacing, path recompute limits, burst sizes, trigger delay, names, team shirt colours, join grace. In Studio the Workspace attribute `BotDifficulty` (`Easy`, `Normal` or `Hard`) overrides the difficulty.
 
 ## Known gaps / next
+- **Cover and peeking** (LihFolk *Ranged Enemy Tactics - Cover Points, Line of Sight and Peeking*): bots still strafe in the open and Retreat runs 25 studs away. The note's model needs authored `Cover` points per map (a ~32-stud grid scored on protection, peek line, range band and travel cost; hide 1–3 s, peek, shoot, return, alternate sides). It's the biggest remaining gap and a map task: tag cover points when the maps are redone.
+- **Squad roles** (LihFolk *Squad AI - Attack Tokens, Flanking and Attacker Limits*): done so far are the cap of 2 bots on one target and the flank lane offset. Not done: pinner, flanker and waiter roles with flank points scored by angle and occupancy.
+- **Path.Blocked** isn't used: one Path object is shared by all bots (the waypoints are copied out right after each compute), so a Blocked signal can't be tied to one bot. The progress-based stuck ladder covers it (LihFolk *Pathfinding Edge Cases and Fallbacks* calls Blocked "a hint; the stuck detector is the real net").
+- **Debug gizmos:** there's a text label, but no path lines or perception cones (client HandleAdornments over an unreliable remote, Studio only), and no goal transition trace.
 - **Firewall and Recall** aren't cast by bots (ModWalls and ModRecall are Player-keyed). Bots avoid drafting them.
 - **No knife:** bots never swap to melee.
-- **No real peeking or cover choice yet:** in a fight bots strafe in the open, and Retreat runs 25 studs away from the enemy. Next: score nav points for cover (line of sight to the last-known position) and add jiggle peeks.
-- **No precomputed nav graph:** paths come from PathfindingService on the fly. That is fine on the current maps; a per-map waypoint graph with cover and peek tags is the upgrade path.
 - **Damage modifiers** (Ping Spike-style bonuses) skip bot attackers. Bots get no HitConfirm (they don't need one).
 - **Heal ribbon FX** from a bot healer is missing (the client draws it from a Player caster). The heal itself works.
 - **Players who leave mid-match** aren't replaced by bots yet.
 - **Mod use may be a little busy:** most bots throw 1–3 times a round. Lower `abilityUse` if it feels spammy.
+- **Tracking lag isn't proven against strafing yet:** see the 2026-11-05 test below. It needs a hand test.
 - The pinned StyLua 0.20 binary is blocked by Windows Application Control on this machine. Lane C formatted with StyLua 2.6.0 (same `stylua.toml`). Worth unblocking or re-pinning.
 
 ## Build log
@@ -107,6 +114,36 @@ Other knobs in the same file: think rate (10 Hz), rays per think (3), range band
 - Lint (`selene`), format (StyLua 2.6.0) and `rojo build` pass. No new remotes. TeleportData is the only client-sourced input; it is validated (types, mode, team sizes, integer userIds, no duplicates) and only accepted from a player it lists.
 - Studio: the Workspace attributes used for testing are back as they were (`TestMode` on, no `BotMatch`). Nothing else changed in the place, so there was nothing to save.
 
+- **LihFolk review-and-improve pass (2026-11-05):** read the notes listed under "LihFolk notes this leans on" and the skills `roblox-system-builder` and `roblox-performance-audit`, then fixed:
+  - **Aim:** aim at where the target was `trackLag` ago (a 1.2 s position trail per enemy) instead of leading it; fair first-shot misses on a new target; a per-target hit budget across all bots; aim eases on a target under 30%; error numbers raised toward the note's (Normal floor 1.1 → 2.0, start 5.5 → 7); head chance lowered; reaction never under 0.15 s (the halved re-acquire reaction on Hard was 0.12).
+  - **Targeting:** no more than 2 bots on one enemy; a third looks elsewhere.
+  - **Navigation:** a path goal is where the target last stood on the ground (paths to someone mid-jump fail); a failed path drops that goal (Hunt forgets the spot, Roam picks another point) instead of walking into a wall; recompute when the goal moved 3 studs or 20% of the distance left; stuck now means "no closer to the waypoint in 1.5 s" as well as "not moving", and the ladder is jump, skip the waypoint, sidestep, new path.
+  - **Humanoid:** Climbing, Seated, FallingDown, Ragdoll and Flying disabled on bots.
+  - **Budget and tooling:** MicroProfiler labels `BotThink` and `BotAct`; in Studio, `StepMsAvg` / `StepMsMax` / `BotCount` on `ServerStorage.BotOwners` every 120 frames and a warning past `Config/Bots BUDGET_MS` (1 ms for all bots together); `Config/Bots` is asserted at server start; Workspace attribute `BotDebug` puts a label over each bot (name, goal > target, health, hits/shots).
+  - **Bug found by the pass:** `BotService.worldFor` used the patrol list before it was declared, so patrol roaming had been reading nil (a bot reaching a patrol point would have errored). Fixed.
+  - **3v3 (5 bots + AFK player):** no errors. Bot cost **0.08–0.17 ms average per Heartbeat, worst 0.75 ms, one spike of 3.0 ms** (probably a Molly throw being aimed: 5 flight simulations). Hit rates came down to **32–41%** (from 36–75%). Team 2 won rounds 1 and 2.
+  - **1v1 strafe check:** the test player strafed ADAD from the client in round 3 and stood still in round 2, with the same gun (Akimbo): **9/18 hits strafing vs 9/27 standing**. One round each at different ranges isn't enough to show the tracking lag working; it needs a hand test with a ranged gun.
+  - Lint, format and `rojo build` pass. Studio attributes restored.
+
+### TeleportData: what stops each attack (LihFolk system builder: exploits table)
+| Attack | What stops it |
+|---|---|
+| A client edits its TeleportData (another mode, extra teams, bots on) | Only taken from a joining player the data lists; the first valid plan wins and later joiners can't change it; the match place is a reserved server, so only the teleported party can join |
+| Wrong types, NaN or huge userIds, duplicates, team bigger than the mode | `MatchPlan.validate`: `v == 1`, `matchId` string 1–64, `mode` in Config/Bots MODES, two teams of integer userIds in (0, 2^53], no duplicates, team size ≤ mode size, `bots` boolean; anything else is no plan |
+| A player listed but never arriving | Grace (8 s, 3 s in Studio), then bots fill when `bots = true` |
+| An unlisted player joining | Not in the plan: keeps the join-order team (the reserved server keeps strangers out) |
+Not stopped on its own: a listed player choosing which listed team they're on is up to the Lobby (it writes the teams).
+
+## LihFolk notes this leans on
+- `09 Gameplay Systems/AI Difficulty Tuning - Reaction Time, Aim Error and Fair Misses.md`: reaction floor, error numbers, track lag, fair misses, hit budget, low-health ease.
+- `09 Gameplay Systems/Behaviour Trees Utility AI and State Machines for NPCs.md` and `NPC AI and Behaviour.md`: utility goals with hysteresis and a commit time, staggered think.
+- `09 Gameplay Systems/Pathfinding.md` and `Pathfinding Edge Cases and Fallbacks.md`: grounded goals, failure fallbacks, relative repath, progress-based stuck ladder, shared Path copy rule.
+- `09 Gameplay Systems/Squad AI - Attack Tokens, Flanking and Attacker Limits.md`: two attackers per target.
+- `09 Gameplay Systems/Ranged Enemy Tactics - Cover Points, Line of Sight and Peeking.md`: the cover and peek plan (not built yet).
+- `09 Gameplay Systems/Visual AI Debugging - State Labels, Path Lines and Perception Gizmos.md`: the BotDebug label.
+- `12 Performance Testing and Debugging/Script Performance.md`, `Physics Performance.md`, `MicroProfiler Guide.md`: profiler labels, the per-step budget, disabled humanoid states.
+- `24 Worked Builds/Weekend Build - Arena Shooter with Server-Checked Hits.md` and `32 Case Studies of Top Roblox Games/Case Study - Rivals.md`: background (server re-raycasts hits, which BotGun does).
+
 ## What the user should test tomorrow
 1. **1v1 against a bot:** untick Workspace `TestMode`, add the Workspace string attribute `BotMatch` = `1v1`, and Play. Fight it for a few rounds on Normal. Does it feel fair, too sharp or too dumb? Try `BotDifficulty` = `Easy` and `Hard`.
 2. **2v2 and 3v3:** `BotMatch` = `2v2` or `3v3` gives you bot teammates. Watch them spread out, focus targets, throw Mollies at where you hid and heal.
@@ -114,5 +151,6 @@ Other knobs in the same file: think rate (10 Hz), rays per think (3), range band
 4. **Kill feed, top bar and round results** with bot names; a match to 5 and the next match starting.
 5. **Solo Studio with no `BotMatch`:** one bot still joins the other side after 3 s (the old test opponent's job).
 6. **Lobby → Match with bots,** once lane B's queue teleports: a party with `bots = true` should get bots in the empty slots after about 8 s.
-7. Tell me what feels off (aim, Mod spam, movement) and I'll tune `Config/Bots.luau`.
-8. After testing, turn `TestMode` back on and clear `BotMatch` if you want the test range again.
+7. **Strafe against a bot** with a rifle or pistol at 20–40 studs: strafing should make it miss more than standing still. Turn on the Workspace attribute `BotDebug` to see what each bot is doing and its hits/shots.
+8. Tell me what feels off (aim, Mod spam, movement) and I'll tune `Config/Bots.luau`.
+9. After testing, turn `TestMode` back on and clear `BotMatch` if you want the test range again.

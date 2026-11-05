@@ -54,6 +54,11 @@ local function memoryFor(bot: Bot, enemy: Model, pos: Vector3): Memory
 			heard = false,
 			headVisible = false,
 			aimPart = "UpperTorso",
+			trailPos = table.create(BotsConfig.TRAIL, pos),
+			trailT = table.create(BotsConfig.TRAIL, -math.huge),
+			trailHead = 1,
+			groundPos = pos,
+			unreachableAt = nil,
 		}
 		bot.memory[enemy] = m
 	end
@@ -134,16 +139,29 @@ function Perception.update(bot: Bot, enemies: { Model }, now: number)
 			if not m.visible then
 				-- Back in sight: someone seen just now is quicker to react to.
 				local recent = now - m.seenAt < BotsConfig.REACQUIRE_WINDOW
-				local reaction = bot.profile.reaction * (if recent then 0.5 else 1)
-				m.visibleSince = now
-					+ reaction * (0.8 + rng:NextNumber() * 0.4)
-					- bot.profile.reaction
+				local reaction = math.max(
+					bot.profile.reaction
+						* (if recent then 0.5 else 1)
+						* (0.8 + rng:NextNumber() * 0.4),
+					BotsConfig.REACTION_FLOOR
+				)
+				m.visibleSince = now + reaction - bot.profile.reaction
 			end
 			m.visible = true
 			m.heard = false
 			m.lastPos = enemyRoot.Position
 			m.seenAt = now
 			m.headVisible = aimPart == "Head"
+			m.unreachableAt = nil
+			-- The trail (aim lag) and where it last stood (path goals).
+			local slot = m.trailHead % BotsConfig.TRAIL + 1
+			m.trailHead = slot
+			m.trailPos[slot] = enemyRoot.Position
+			m.trailT[slot] = now
+			local humanoid = enemy:FindFirstChildOfClass("Humanoid")
+			if humanoid and humanoid.FloorMaterial ~= Enum.Material.Air then
+				m.groundPos = enemyRoot.Position
+			end
 		elseif m then
 			m.visible = false
 			m.visibleSince = nil
@@ -168,6 +186,7 @@ function Perception.hear(bot: Bot, source: Model, at: Vector3, now: number)
 	end
 	local noise = rng:NextUnitVector() * Vector3.new(1, 0, 1) * BotsConfig.HEAR_ERROR
 	m.lastPos = at + noise
+	m.groundPos = m.lastPos
 	m.seenAt = now
 	m.heard = true
 end
@@ -179,8 +198,31 @@ function Perception.reveal(bot: Bot, model: Model, at: Vector3, now: number)
 		return
 	end
 	m.lastPos = at
+	m.groundPos = at
 	m.seenAt = now
 	m.heard = false
+end
+
+-- Where `m` was `lag` seconds ago (from the trail; its last position when
+-- the trail is too short).
+function Perception.lagged(m: Memory, now: number, lag: number): Vector3
+	local at = now - lag
+	local n = BotsConfig.TRAIL
+	local newer: number? = nil
+	for k = 0, n - 1 do
+		local i = (m.trailHead - k - 1) % n + 1
+		local t = m.trailT[i]
+		if t <= at then
+			if not newer then
+				return m.trailPos[i]
+			end
+			local t2 = m.trailT[newer]
+			local a = if t2 > t then (at - t) / (t2 - t) else 1
+			return m.trailPos[i]:Lerp(m.trailPos[newer], a)
+		end
+		newer = i
+	end
+	return m.lastPos
 end
 
 -- Picks the target: engageable enemies scored by distance, a teammate's
@@ -209,7 +251,13 @@ function Perception.pickTarget(bot: Bot, now: number, focus: { [Model]: number }
 		local share = if humanoid
 			then Health.get(humanoid) / math.max(Health.max(humanoid), 1)
 			else 1
-		local score = 40 / math.max(distance, 4) + (1 - share) * 0.6 + (focus[model] or 0) * 0.3
+		local others = focus[model] or 0
+		local score = 40 / math.max(distance, 4) + (1 - share) * 0.6 + math.min(others, 1) * 0.3
+		-- Two on one is enough (LihFolk Squad AI: attacker limits): a third
+		-- bot looks for someone else.
+		if others >= BotsConfig.MAX_ON_TARGET and m ~= current then
+			score -= 1.5
+		end
 		if m == current then
 			score *= 1.3
 		end
@@ -234,7 +282,8 @@ end
 function Perception.lastKnown(bot: Bot, now: number): Memory?
 	local best: Memory? = nil
 	for _, m in bot.memory do
-		if not m.visible and now - m.seenAt <= bot.profile.memory then
+		local unreachable = m.unreachableAt ~= nil and m.seenAt <= m.unreachableAt
+		if not m.visible and not unreachable and now - m.seenAt <= bot.profile.memory then
 			if not best or m.seenAt > best.seenAt then
 				best = m
 			end

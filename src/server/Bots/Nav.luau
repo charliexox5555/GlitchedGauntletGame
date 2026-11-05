@@ -36,6 +36,10 @@ function Nav.new(): Nav
 		computedAt = -math.huge,
 		computedFor = nil,
 		computing = false,
+		failedFor = nil,
+		bestDist = math.huge,
+		bestAt = 0,
+		progressIndex = 0,
 		lastSamplePos = Vector3.zero,
 		lastSampleAt = 0,
 		stuck = 0,
@@ -72,7 +76,11 @@ local function compute(bot: Bot, nav: Nav, from: Vector3, goal: Vector3, life: n
 	end
 	nav.computedAt = os.clock()
 	nav.computedFor = goal
+	nav.failedFor = if waypoints then nil else goal
+	nav.bestDist = math.huge
 	table.clear(nav.waypoints)
+	-- The waypoints are copied before the shared Path is used again
+	-- (LihFolk Pathfinding Edge Cases: a shared Path must not be read later).
 	if waypoints then
 		for _, w in waypoints do
 			table.insert(nav.waypoints, w)
@@ -94,8 +102,11 @@ function Nav.setGoal(bot: Bot, goal: Vector3)
 	end
 	nav.goal = goal
 	local now = os.clock()
+	-- Recompute when the goal moved a share of the way left (LihFolk Pathfinding).
+	local left = (goal - root.Position).Magnitude
 	local moved = nav.computedFor == nil
-		or (nav.computedFor - goal).Magnitude > BotsConfig.REPATH_MOVE
+		or (nav.computedFor - goal).Magnitude
+			> math.max(BotsConfig.REPATH_MOVE, left * BotsConfig.REPATH_SHARE)
 	local due = now - nav.computedAt > BotsConfig.REPATH_EVERY
 	if not nav.computing and moved and due then
 		task.spawn(compute, bot, nav, root.Position, goal, bot.life)
@@ -155,11 +166,30 @@ function Nav.checkStuck(bot: Bot, wanted: boolean): number
 	local moved = (root.Position - nav.lastSamplePos).Magnitude
 	nav.lastSamplePos = root.Position
 	nav.lastSampleAt = now
-	if not wanted or moved >= BotsConfig.STUCK_DISTANCE then
+	-- Progress, not just speed: circling or sliding along a wall moves the
+	-- bot without getting it closer (LihFolk Pathfinding Edge Cases).
+	local w = nav.waypoints[nav.index]
+	local aim = if w then w.Position else nav.goal
+	local noProgress = false
+	if aim then
+		local d = ((aim - root.Position) * Vector3.new(1, 0, 1)).Magnitude
+		if nav.progressIndex ~= nav.index or d < nav.bestDist - 1 then
+			nav.progressIndex = nav.index
+			nav.bestDist = d
+			nav.bestAt = now
+		end
+		noProgress = now - nav.bestAt > BotsConfig.PROGRESS_WINDOW
+	end
+	if not wanted or (moved >= BotsConfig.STUCK_DISTANCE and not noProgress) then
 		nav.stuck = 0
 		return 0
 	end
 	nav.stuck += 1
+	if nav.stuck == 3 and nav.waypoints[nav.index + 1] then
+		nav.index += 1 -- skip the waypoint it can't reach
+		nav.bestAt = now
+		return 1
+	end
 	if nav.stuck >= 6 then
 		nav.stuck = 0
 		nav.computedAt = -math.huge
