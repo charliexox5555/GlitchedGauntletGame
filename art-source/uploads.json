@@ -60,40 +60,40 @@
   "uploaded": "2026-10-26 01:15:31"
  },
  "art-source/animations/GG_AdsDown.rbxm": {
-  "assetId": 97664620704166,
-  "name": "GG AdsDown",
+  "assetId": 107644808275862,
+  "name": "GG AdsDown p2",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:03:35"
+  "uploaded": "2026-11-05 01:00:04"
  },
  "art-source/animations/GG_AdsLevel.rbxm": {
-  "assetId": 95555774738385,
-  "name": "GG AdsLevel",
+  "assetId": 129152787542613,
+  "name": "GG AdsLevel p2",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:03:33"
+  "uploaded": "2026-11-05 01:00:01"
  },
  "art-source/animations/GG_AdsUp.rbxm": {
-  "assetId": 130705905330180,
-  "name": "GG AdsUp",
+  "assetId": 112152755318911,
+  "name": "GG AdsUp p2",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:03:30"
+  "uploaded": "2026-11-05 00:59:59"
  },
  "art-source/animations/GG_AimDown.rbxm": {
-  "assetId": 102741853097868,
-  "name": "GG Aim Down",
+  "assetId": 90624700567100,
+  "name": "GG AimDown p2",
   "type": "Animation",
-  "uploaded": "2026-10-25 13:53:21"
+  "uploaded": "2026-11-05 00:59:56"
  },
  "art-source/animations/GG_AimLevel.rbxm": {
-  "assetId": 107890457643267,
-  "name": "GG Aim Level",
+  "assetId": 70944741044936,
+  "name": "GG AimLevel p2",
   "type": "Animation",
-  "uploaded": "2026-10-25 13:53:10"
+  "uploaded": "2026-11-05 00:59:54"
  },
  "art-source/animations/GG_AimUp.rbxm": {
-  "assetId": 106670838845808,
-  "name": "GG Aim Up",
+  "assetId": 82760540465409,
+  "name": "GG AimUp p2",
   "type": "Animation",
-  "uploaded": "2026-10-25 13:53:18"
+  "uploaded": "2026-11-05 00:59:51"
  },
  "art-source/animations/GG_Crouch.rbxm": {
   "assetId": 99568083489164,
@@ -156,10 +156,10 @@
   "uploaded": "2026-11-04 02:10:17"
  },
  "art-source/animations/GG_Draw.rbxm": {
-  "assetId": 116384882246844,
-  "name": "GG Draw",
+  "assetId": 118928673381535,
+  "name": "GG Draw p2",
   "type": "Animation",
-  "uploaded": "2026-11-04 03:07:57"
+  "uploaded": "2026-11-05 01:00:17"
  },
  "art-source/animations/GG_Fall.rbxm": {
   "assetId": 125318466462876,
@@ -251,11 +251,47 @@
   "type": "Animation",
   "uploaded": "2026-11-04 01:49:32"
  },
- "art-source/animations/GG_Reload.rbxm": {
-  "assetId": 123720437640794,
-  "name": "GG Reload",
+ "art-source/animations/GG_PistolAdsDown.rbxm": {
+  "assetId": 136703616644049,
+  "name": "GG PistolAdsDown v2",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:03:38"
+  "uploaded": "2026-11-04 23:45:54"
+ },
+ "art-source/animations/GG_PistolAdsLevel.rbxm": {
+  "assetId": 135875126472492,
+  "name": "GG PistolAdsLevel v2",
+  "type": "Animation",
+  "uploaded": "2026-11-04 23:45:52"
+ },
+ "art-source/animations/GG_PistolAdsUp.rbxm": {
+  "assetId": 128330306630748,
+  "name": "GG PistolAdsUp v2",
+  "type": "Animation",
+  "uploaded": "2026-11-04 23:45:49"
+ },
+ "art-source/animations/GG_PistolAimDown.rbxm": {
+  "assetId": 133519096095205,
+  "name": "GG PistolAimDown v2",
+  "type": "Animation",
+  "uploaded": "2026-11-04 23:45:46"
+ },
+ "art-source/animations/GG_PistolAimLevel.rbxm": {
+  "assetId": 110910062022130,
+  "name": "GG PistolAimLevel v2",
+  "type": "Animation",
+  "uploaded": "2026-11-04 23:45:44"
+ },
+ "art-source/animations/GG_PistolAimUp.rbxm": {
+  "assetId": 140253199214811,
+  "name": "GG PistolAimUp v2",
+  "type": "Animation",
+  "uploaded": "2026-11-04 23:45:41"
+ },
+ "art-source/animations/GG_Reload.rbxm": {
+  "assetId": 121185044899036,
+  "name": "GG Reload p2",
+  "type": "Animation",
+  "uploaded": "2026-11-05 01:00:15"
  },
  "art-source/animations/GG_RunB.rbxm": {
   "assetId": 81677261253829,
@@ -282,28 +318,28 @@
   "uploaded": "2026-11-04 01:49:14"
  },
  "art-source/animations/GG_Slide.rbxm": {
-  "assetId": 93625856625211,
-  "name": "GG Slide",
+  "assetId": 116508545844545,
+  "name": "GG Slide p2",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:22:52"
+  "uploaded": "2026-11-05 01:00:09"
  },
  "art-source/animations/GG_SlideIn.rbxm": {
-  "assetId": 120864176700391,
-  "name": "GG SlideIn",
+  "assetId": 133767445230279,
+  "name": "GG SlideIn p2",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:22:49"
+  "uploaded": "2026-11-05 01:00:07"
  },
  "art-source/animations/GG_SlideOut.rbxm": {
-  "assetId": 131047407212338,
-  "name": "GG SlideOut",
+  "assetId": 100738659650643,
+  "name": "GG SlideOut p2",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:22:55"
+  "uploaded": "2026-11-05 01:00:12"
  },
  "art-source/animations/GG_Sprint.rbxm": {
-  "assetId": 97534488837117,
-  "name": "GG Sprint",
+  "assetId": 77315179450394,
+  "name": "GG Sprint v2",
   "type": "Animation",
-  "uploaded": "2026-10-25 13:53:24"
+  "uploaded": "2026-11-04 23:45:38"
  },
  "art-source/animations/GG_SprintRun.rbxm": {
   "assetId": 81006580789818,
@@ -340,6 +376,78 @@
   "name": "GG Gun Sound Atlas",
   "type": "Audio",
   "uploaded": "2026-10-25 12:37:39"
+ },
+ "art-source/lobby/textures/Bunker_Concrete_color.png": {
+  "assetId": 82210257771317,
+  "name": "GG Lobby Bunker_Concrete color v2",
+  "type": "Decal",
+  "uploaded": "2026-11-05 00:21:51"
+ },
+ "art-source/lobby/textures/Bunker_Concrete_normal.png": {
+  "assetId": 111085188381310,
+  "name": "GG Lobby Bunker_Concrete normal",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:06"
+ },
+ "art-source/lobby/textures/Bunker_Concrete_roughness.png": {
+  "assetId": 70542600988186,
+  "name": "GG Lobby Bunker_Concrete roughness",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:09"
+ },
+ "art-source/lobby/textures/Bunker_Floor_color.png": {
+  "assetId": 97868818104132,
+  "name": "GG Lobby Bunker_Floor color",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:11"
+ },
+ "art-source/lobby/textures/Bunker_Floor_normal.png": {
+  "assetId": 70870244435977,
+  "name": "GG Lobby Bunker_Floor normal",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:14"
+ },
+ "art-source/lobby/textures/Bunker_Floor_roughness.png": {
+  "assetId": 131247590604103,
+  "name": "GG Lobby Bunker_Floor roughness",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:20"
+ },
+ "art-source/lobby/textures/Bunker_Grate_color.png": {
+  "assetId": 111023796040870,
+  "name": "GG Lobby Bunker_Grate color",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:31"
+ },
+ "art-source/lobby/textures/Bunker_Grate_normal.png": {
+  "assetId": 86374850531575,
+  "name": "GG Lobby Bunker_Grate normal",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:33"
+ },
+ "art-source/lobby/textures/Bunker_Grate_roughness.png": {
+  "assetId": 86453561158406,
+  "name": "GG Lobby Bunker_Grate roughness",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:36"
+ },
+ "art-source/lobby/textures/Bunker_Metal_color.png": {
+  "assetId": 94385804430357,
+  "name": "GG Lobby Bunker_Metal color",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:23"
+ },
+ "art-source/lobby/textures/Bunker_Metal_normal.png": {
+  "assetId": 139025624633001,
+  "name": "GG Lobby Bunker_Metal normal",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:25"
+ },
+ "art-source/lobby/textures/Bunker_Metal_roughness.png": {
+  "assetId": 113046616464842,
+  "name": "GG Lobby Bunker_Metal roughness",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:59:28"
  },
  "art-source/lobby/textures/Lobby_ConcreteBoard_color.png": {
   "assetId": 133857331280168,
@@ -1762,5 +1870,77 @@
   "name": "GG Vandal Roughness",
   "type": "Decal",
   "uploaded": "2026-10-26 23:48:35"
+ },
+ "assets/UI/lobby/icon_battlepass.png": {
+  "assetId": 93165972248620,
+  "name": "GG Lobby icon_battlepass",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:44:52"
+ },
+ "assets/UI/lobby/icon_coin.png": {
+  "assetId": 103697186573042,
+  "name": "GG Lobby icon_coin",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:45:03"
+ },
+ "assets/UI/lobby/icon_locker.png": {
+  "assetId": 114771230573617,
+  "name": "GG Lobby icon_locker",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:44:49"
+ },
+ "assets/UI/lobby/icon_range.png": {
+  "assetId": 131920374272494,
+  "name": "GG Lobby icon_range",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:44:55"
+ },
+ "assets/UI/lobby/icon_settings.png": {
+  "assetId": 98527594418799,
+  "name": "GG Lobby icon_settings",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:44:58"
+ },
+ "assets/UI/lobby/icon_shop.png": {
+  "assetId": 82547966993868,
+  "name": "GG Lobby icon_shop",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:44:47"
+ },
+ "assets/UI/lobby/mode_1v1.png": {
+  "assetId": 103850486455095,
+  "name": "GG Lobby mode_1v1",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:45:09"
+ },
+ "assets/UI/lobby/mode_1v1_card.png": {
+  "assetId": 113115926168704,
+  "name": "GG Lobby mode_1v1_card",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:45:58"
+ },
+ "assets/UI/lobby/mode_2v2.png": {
+  "assetId": 85740050789097,
+  "name": "GG Lobby mode_2v2",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:45:16"
+ },
+ "assets/UI/lobby/mode_2v2_card.png": {
+  "assetId": 116558571881256,
+  "name": "GG Lobby mode_2v2_card",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:46:08"
+ },
+ "assets/UI/lobby/mode_3v3.png": {
+  "assetId": 105604126054827,
+  "name": "GG Lobby mode_3v3",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:45:22"
+ },
+ "assets/UI/lobby/mode_3v3_card.png": {
+  "assetId": 129557560133148,
+  "name": "GG Lobby mode_3v3_card",
+  "type": "Decal",
+  "uploaded": "2026-11-04 23:46:14"
  }
 }
