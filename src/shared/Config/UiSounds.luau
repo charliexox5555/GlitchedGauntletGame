@@ -17,9 +17,16 @@ local function cue(n: number, volume: number, pitch: number?, gap: number?): Cue
 	return { id = "rbxassetid://" .. tostring(n), volume = volume, pitch = pitch, gap = gap }
 end
 
+-- A slice of the game's sound atlas (Config/SoundAtlas).
+local function atlas(name: string, volume: number, pitch: number?, gap: number?): Cue
+	return { id = "atlas:" .. name, volume = volume, pitch = pitch, gap = gap }
+end
+
 return table.freeze({
-	Hover = cue(15675032796, 0.25, 1.15, 0.06), -- Roblox_UI_Small_Click, quiet and high
-	Select = cue(15675059323, 0.5), -- Roblox_UI_Bright_Click
+	-- Hover and select: a real recorded click (CC0, atlas UiClick; 2026-11-05).
+	-- Were Roblox_UI_Small_Click 15675032796 and Roblox_UI_Bright_Click 15675059323.
+	Hover = atlas("UiClick", 0.3, 1.2, 0.06),
+	Select = atlas("UiClick", 0.7),
 	LockIn = cue(15675043410, 0.6), -- Roblox_UI_Tonal_Stinger
 	Denied = cue(15675075163, 0.45, nil, 0.25), -- Roblox_UI_Delete
 	Open = cue(15675028888, 0.45), -- Roblox_UI_Whoosh_02: the draft slides in

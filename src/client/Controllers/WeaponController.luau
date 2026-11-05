@@ -259,9 +259,14 @@ local function playLocal(id: string?, group: AudioController.Group, volume: numb
 end
 
 -- A sound from the gun's Config/GunSounds entry, played on our side (2D).
-local function playGun(config: WeaponConfig, name: string, group: AudioController.Group?)
+local function playGun(
+	config: WeaponConfig,
+	name: string,
+	group: AudioController.Group?,
+	pitchScale: number?
+)
 	local set = GunSounds.get(config.id) :: any
-	AudioController.playSound(set[name], group or "Foley")
+	AudioController.playSound(set[name], group or "Foley", nil, nil, pitchScale)
 end
 
 -- Clip beats (ViewmodelController clipBeats) to GunSounds names.
@@ -409,6 +414,16 @@ local function inspect()
 	if alive and s and not reloading and os.clock() >= equipReadyAt and not gunBlocked() then
 		if ViewmodelController.inspect() then
 			playGun(s.config, "inspect")
+			-- The knife's flips click as it's caught (Config/Viewmodel InspectMelee).
+			if s.config.fireMode == "Melee" then
+				for _, at in Animations.KNIFE_FEEL.inspectFlips do
+					task.delay(at, function()
+						if ViewmodelController.isInspecting() then
+							playGun(s.config, "inspectFlip")
+						end
+					end)
+				end
+			end
 		end
 	end
 end
@@ -712,6 +727,16 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	end
 end
 
+-- Knife on a wall: the GunSounds entry per surface (EffectsController.surfaceOf),
+-- falling back to `hitWall`.
+local KNIFE_WALL_SOUND: { [string]: string } = {
+	Metal = "hitMetal",
+	Wood = "hitWood",
+	Soft = "hitSoft",
+	Glass = "hitMetal",
+	Hard = "hitWall",
+}
+
 -- The last light attack's place in the Slash1 -> 2 -> 3 chain.
 local comboStep = 0
 
@@ -751,9 +776,27 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	end
 	-- Impact effects and sounds wait for the blade to land in the clip (its Hit
 	-- marker); the hit itself is checked and sent now.
-	local hitDelay = ViewmodelController.swing(if heavy then "HeavyStab" else "Slash" .. comboStep)
-	playGun(config, if heavy then "heavy" else "fire", "Gun")
+	local attack = if heavy then "HeavyStab" else "Slash" .. comboStep
+	local hitDelay = ViewmodelController.swing(attack)
 	local step = comboStep
+	local feel = Animations.KNIFE_FEEL
+	-- The whoosh peaks on the strike (its file peaks `whooshPeak` in), and each
+	-- light slash in a chain climbs a semitone (LihFolk Combat Sound Design).
+	local peakAt = if heavy then feel.whooshPeak.heavy else feel.whooshPeak.light
+	task.delay(
+		math.max(hitDelay - peakAt - feel.whooshLead, 0),
+		playGun,
+		config,
+		if heavy then "heavy" else "fire",
+		"Gun",
+		if heavy then 1 else 1.059 ^ (step - 1)
+	)
+	local look = (feel :: any)[attack]
+	local path = Animations.KNIFE_MARK.paths[attack] or Vector2.new(-1, 0)
+	-- The view is punched along the swing's screen path (a hit: harder).
+	local function punch(size: number)
+		CameraController.kick(-path.Y * size * 0.5, -path.X * size, 1, feel.recover)
+	end
 
 	local origin = cam.CFrame.Position
 	local aim = cam.CFrame.LookVector
@@ -766,9 +809,22 @@ local function swing(s: LocalSlot, heavy: boolean?)
 			table.insert(hits, { part = result.Instance, position = result.Position, pellet = 1 })
 			local hit = result
 			task.delay(hitDelay, function()
-				EffectsController.impact(hit.Position, -aim, hit.Instance)
-				HudController.hitMarker(false)
+				-- Contact (predicted, cosmetic; the server decides the damage):
+				-- the impact sound at the start of the hit-stop, a small flash,
+				-- the punch, then a little shake once the stop lets go.
 				playGun(config, "hitBody")
+				EffectsController.impact(hit.Position, -aim, hit.Instance)
+				EffectsController.knifeContact(hit.Position + aim * -0.3)
+				HudController.hitMarker(false)
+				if look then
+					ViewmodelController.hitStop(look.stop)
+					punch(look.kick.Y)
+					CameraController.rollKick(path.X * look.roll, feel.recover * 1.4)
+					if look.fov then
+						CameraController.punchFov(look.fov, 0.2)
+					end
+					task.delay(look.stop, CameraController.shake, feel.hitShake)
+				end
 			end)
 			-- Lunge toward the target on hit.
 			local flat = (aim * Vector3.new(1, 0, 1))
@@ -786,15 +842,33 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	if #hits == 0 then
 		local wall = Workspace:Raycast(origin, aim * melee.range, params)
 		if wall and wall.Instance:IsA("BasePart") and not combatantOf(wall.Instance) then
-			local path = Animations.KNIFE_MARK.paths[if heavy then "HeavyStab" else "Slash" .. step]
-				or Vector2.new(-1, 0)
 			local along = cam.CFrame.RightVector * path.X + cam.CFrame.UpVector * path.Y
 			local at, n = wall.Position, wall.Normal
+			local surface = EffectsController.surfaceOf(wall.Instance, wall.Material)
+			local part, material = wall.Instance, wall.Material
 			task.delay(hitDelay, function()
+				playGun(config, KNIFE_WALL_SOUND[surface] or "hitWall")
 				EffectsController.slashMark(at, n, along, heavy)
-				playGun(config, "hitWall")
+				EffectsController.impact(at, n, part, material, nil, true)
+				ViewmodelController.hitStop(feel.wallStop)
+				if look then
+					punch(look.kick.Y * 0.5)
+				end
 			end)
 		end
+	end
+	-- A whiff (and every slash): the streak, and a tiny punch as the blade goes.
+	if #hits == 0 and look then
+		task.delay(hitDelay, punch, look.kick.X)
+	end
+	if look and look.swipe then
+		local lead = hitDelay - feel.swipeSweep * 0.45 -- the head crosses the crosshair at contact
+		EffectsController.knifeSwipe(
+			look.swipe,
+			math.max(lead, 0),
+			feel.swipeSweep,
+			if #hits > 0 then 1 else feel.swipeWhiff
+		)
 	end
 	shotIndex += 1
 	Net.event("Fire"):FireServer({

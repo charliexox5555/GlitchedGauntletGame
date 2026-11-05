@@ -1,0 +1,536 @@
+{
+ "KnifeDraw": [
+  {
+   "id": 30248,
+   "start": 0.065,
+   "length": 0.504,
+   "peak_ms": 60.0,
+   "lufs_m": -21.0,
+   "true_peak": -5.1
+  },
+  {
+   "id": 417035,
+   "start": 0.243,
+   "length": 0.427,
+   "peak_ms": 60.0,
+   "lufs_m": -21.0,
+   "true_peak": -2.1
+  }
+ ],
+ "KnifeSwing": [
+  {
+   "id": 60007,
+   "start": 0.02,
+   "length": 0.317,
+   "peak_ms": 60.0,
+   "lufs_m": -19.0,
+   "true_peak": -1.0
+  },
+  {
+   "id": 60013,
+   "start": 0.025,
+   "length": 0.36,
+   "peak_ms": 60.0,
+   "lufs_m": -18.0,
+   "true_peak": -1.8
+  },
+  {
+   "id": 60006,
+   "start": 0.033,
+   "length": 0.361,
+   "peak_ms": 60.0,
+   "lufs_m": -18.0,
+   "true_peak": -2.0
+  },
+  {
+   "id": 72190,
+   "start": 0.03,
+   "length": 0.332,
+   "peak_ms": 60.0,
+   "lufs_m": -18.6,
+   "true_peak": -0.9
+  }
+ ],
+ "KnifeSwingHeavy": [
+  {
+   "id": 352719,
+   "start": 0.079,
+   "length": 0.431,
+   "peak_ms": 90.0,
+   "lufs_m": -18.0,
+   "true_peak": -1.6
+  },
+  {
+   "id": 19312,
+   "start": 0.05,
+   "length": 0.476,
+   "peak_ms": 90.0,
+   "lufs_m": -18.0,
+   "true_peak": -1.3
+  },
+  {
+   "id": 127197,
+   "start": 0.035,
+   "length": 0.304,
+   "peak_ms": 90.0,
+   "lufs_m": -18.0,
+   "true_peak": -1.0
+  }
+ ],
+ "KnifeHitBody": [
+  {
+   "id": 395365,
+   "start": 0.118,
+   "length": 0.322,
+   "peak_ms": 12.0,
+   "lufs_m": -18.5,
+   "true_peak": 0.2
+  },
+  {
+   "id": 395373,
+   "start": 0.212,
+   "length": 0.34,
+   "peak_ms": 1.3,
+   "lufs_m": -18.0,
+   "true_peak": -1.3
+  },
+  {
+   "id": 179222,
+   "start": 0.195,
+   "length": 0.235,
+   "peak_ms": 12.0,
+   "lufs_m": -21.1,
+   "true_peak": 0.1
+  }
+ ],
+ "KnifeHitWood": [
+  {
+   "id": 531877,
+   "start": 0.111,
+   "length": 0.227,
+   "peak_ms": 7.1,
+   "lufs_m": -20.8,
+   "true_peak": -0.4
+  },
+  {
+   "id": 531877,
+   "start": 0.695,
+   "length": 0.225,
+   "peak_ms": 3.0,
+   "lufs_m": -24.2,
+   "true_peak": -0.5
+  },
+  {
+   "id": 531877,
+   "start": 1.873,
+   "length": 0.215,
+   "peak_ms": 9.4,
+   "lufs_m": -21.2,
+   "true_peak": -0.5
+  }
+ ],
+ "KnifeHitStone": [
+  {
+   "id": 321477,
+   "start": 0.016,
+   "length": 0.3,
+   "peak_ms": 2.3,
+   "lufs_m": -21.1,
+   "true_peak": -1.0
+  },
+  {
+   "id": 431019,
+   "start": 0.042,
+   "length": 0.206,
+   "peak_ms": 1.8,
+   "lufs_m": -23.1,
+   "true_peak": -1.0
+  },
+  {
+   "id": 145122,
+   "start": 3.331,
+   "length": 0.3,
+   "peak_ms": 7.7,
+   "lufs_m": -19.7,
+   "true_peak": -1.0
+  }
+ ],
+ "KnifeHitMetal": [
+  {
+   "id": 471095,
+   "start": 0.994,
+   "length": 0.45,
+   "peak_ms": 4.8,
+   "lufs_m": -18.0,
+   "true_peak": -9.7
+  },
+  {
+   "id": 336593,
+   "start": 0.184,
+   "length": 0.186,
+   "peak_ms": 12.0,
+   "lufs_m": -18.0,
+   "true_peak": -0.9
+  },
+  {
+   "id": 547041,
+   "start": 0.054,
+   "length": 0.396,
+   "peak_ms": 12.0,
+   "lufs_m": -18.0,
+   "true_peak": -2.5
+  }
+ ],
+ "KnifeInspect": [
+  {
+   "id": 360946,
+   "start": 0.135,
+   "length": 0.148,
+   "peak_ms": 60.0,
+   "lufs_m": -22.0,
+   "true_peak": -4.6
+  }
+ ],
+ "KnifeFlip": [
+  {
+   "id": 431533,
+   "start": 1.798,
+   "length": 0.25,
+   "peak_ms": 12.0,
+   "lufs_m": -21.0,
+   "true_peak": -0.8
+  },
+  {
+   "id": 431533,
+   "start": 4.136,
+   "length": 0.25,
+   "peak_ms": 12.0,
+   "lufs_m": -21.0,
+   "true_peak": -1.4
+  },
+  {
+   "id": 431533,
+   "start": 6.62,
+   "length": 0.25,
+   "peak_ms": 12.0,
+   "lufs_m": -21.0,
+   "true_peak": -3.1
+  }
+ ],
+ "HitConfirm": [
+  {
+   "id": 119839,
+   "start": 0.14,
+   "length": 0.11,
+   "peak_ms": 2.6,
+   "lufs_m": -20.5,
+   "true_peak": -1.0
+  },
+  {
+   "id": 119839,
+   "start": 1.62,
+   "length": 0.11,
+   "peak_ms": 2.7,
+   "lufs_m": -20.4,
+   "true_peak": -0.9
+  }
+ ],
+ "HeadConfirm": [
+  {
+   "id": 255156,
+   "start": 0.126,
+   "length": 0.38,
+   "peak_ms": 1.8,
+   "lufs_m": -19.3,
+   "true_peak": -0.9
+  },
+  {
+   "id": 515643,
+   "start": 0.033,
+   "length": 0.273,
+   "peak_ms": 1.2,
+   "lufs_m": -20.2,
+   "true_peak": -0.9
+  }
+ ],
+ "KillConfirm": [
+  {
+   "id": 221515,
+   "start": 0.28,
+   "length": 0.65,
+   "peak_ms": 2.2,
+   "lufs_m": -18.0,
+   "true_peak": -10.1
+  }
+ ],
+ "StepConcrete": [
+  {
+   "id": 208103,
+   "start": 1.223,
+   "length": 0.118,
+   "peak_ms": 5.1,
+   "lufs_m": -26.6,
+   "true_peak": -1.0
+  },
+  {
+   "id": 208103,
+   "start": 3.99,
+   "length": 0.106,
+   "peak_ms": 10.8,
+   "lufs_m": -26.3,
+   "true_peak": -0.9
+  },
+  {
+   "id": 208103,
+   "start": 5.096,
+   "length": 0.165,
+   "peak_ms": 2.0,
+   "lufs_m": -26.0,
+   "true_peak": -1.2
+  },
+  {
+   "id": 208103,
+   "start": 6.174,
+   "length": 0.136,
+   "peak_ms": 1.5,
+   "lufs_m": -26.0,
+   "true_peak": -2.5
+  }
+ ],
+ "StepMetal": [
+  {
+   "id": 208101,
+   "start": 12.524,
+   "length": 0.201,
+   "peak_ms": 12.0,
+   "lufs_m": -26.0,
+   "true_peak": -3.8
+  },
+  {
+   "id": 208101,
+   "start": 13.3,
+   "length": 0.204,
+   "peak_ms": 11.8,
+   "lufs_m": -26.0,
+   "true_peak": -4.1
+  },
+  {
+   "id": 208101,
+   "start": 14.116,
+   "length": 0.172,
+   "peak_ms": 12.0,
+   "lufs_m": -26.0,
+   "true_peak": -5.3
+  },
+  {
+   "id": 208101,
+   "start": 14.9,
+   "length": 0.172,
+   "peak_ms": 10.6,
+   "lufs_m": -26.0,
+   "true_peak": -2.4
+  },
+  {
+   "id": 208101,
+   "start": 15.681,
+   "length": 0.159,
+   "peak_ms": 12.0,
+   "lufs_m": -26.0,
+   "true_peak": -3.1
+  },
+  {
+   "id": 208101,
+   "start": 16.46,
+   "length": 0.183,
+   "peak_ms": 11.5,
+   "lufs_m": -26.0,
+   "true_peak": -3.6
+  }
+ ],
+ "StepWood": [
+  {
+   "id": 208104,
+   "start": 4.692,
+   "length": 0.153,
+   "peak_ms": 10.9,
+   "lufs_m": -26.0,
+   "true_peak": -4.6
+  },
+  {
+   "id": 208104,
+   "start": 6.75,
+   "length": 0.081,
+   "peak_ms": 10.4,
+   "lufs_m": -26.0,
+   "true_peak": -3.9
+  },
+  {
+   "id": 208104,
+   "start": 7.9,
+   "length": 0.116,
+   "peak_ms": 8.6,
+   "lufs_m": -26.0,
+   "true_peak": -4.3
+  },
+  {
+   "id": 208104,
+   "start": 9.39,
+   "length": 0.135,
+   "peak_ms": 4.9,
+   "lufs_m": -26.0,
+   "true_peak": -4.4
+  },
+  {
+   "id": 208104,
+   "start": 10.653,
+   "length": 0.139,
+   "peak_ms": 7.2,
+   "lufs_m": -26.0,
+   "true_peak": -4.8
+  },
+  {
+   "id": 208104,
+   "start": 12.9,
+   "length": 0.193,
+   "peak_ms": 7.9,
+   "lufs_m": -26.0,
+   "true_peak": -6.4
+  }
+ ],
+ "StepGrass": [
+  {
+   "id": 208102,
+   "start": 0.207,
+   "length": 0.104,
+   "peak_ms": 12.0,
+   "lufs_m": -27.0,
+   "true_peak": -2.2
+  },
+  {
+   "id": 208102,
+   "start": 1.252,
+   "length": 0.122,
+   "peak_ms": 12.0,
+   "lufs_m": -27.0,
+   "true_peak": -1.0
+  },
+  {
+   "id": 208102,
+   "start": 1.73,
+   "length": 0.076,
+   "peak_ms": 11.6,
+   "lufs_m": -27.3,
+   "true_peak": -1.0
+  },
+  {
+   "id": 208102,
+   "start": 2.222,
+   "length": 0.092,
+   "peak_ms": 12.0,
+   "lufs_m": -27.0,
+   "true_peak": -2.4
+  },
+  {
+   "id": 208102,
+   "start": 3.723,
+   "length": 0.098,
+   "peak_ms": 12.0,
+   "lufs_m": -27.0,
+   "true_peak": -4.3
+  }
+ ],
+ "StepSnow": [
+  {
+   "id": 613849,
+   "start": 0.123,
+   "length": 0.287,
+   "peak_ms": 12.0,
+   "lufs_m": -25.0,
+   "true_peak": -4.3
+  },
+  {
+   "id": 613849,
+   "start": 1.097,
+   "length": 0.294,
+   "peak_ms": 12.0,
+   "lufs_m": -25.0,
+   "true_peak": -7.4
+  },
+  {
+   "id": 613849,
+   "start": 1.965,
+   "length": 0.289,
+   "peak_ms": 12.0,
+   "lufs_m": -25.0,
+   "true_peak": -5.3
+  },
+  {
+   "id": 613849,
+   "start": 2.842,
+   "length": 0.279,
+   "peak_ms": 12.0,
+   "lufs_m": -25.0,
+   "true_peak": -6.0
+  },
+  {
+   "id": 613849,
+   "start": 3.68,
+   "length": 0.3,
+   "peak_ms": 9.7,
+   "lufs_m": -25.0,
+   "true_peak": -5.5
+  },
+  {
+   "id": 613849,
+   "start": 5.65,
+   "length": 0.211,
+   "peak_ms": 12.0,
+   "lufs_m": -25.0,
+   "true_peak": -3.9
+  }
+ ],
+ "SlideStart": [
+  {
+   "id": 641386,
+   "start": 1.93,
+   "length": 0.36,
+   "peak_ms": 60.0,
+   "lufs_m": -22.0,
+   "true_peak": -3.5
+  },
+  {
+   "id": 420392,
+   "start": 24.988,
+   "length": 0.294,
+   "peak_ms": 60.0,
+   "lufs_m": -22.5,
+   "true_peak": -1.0
+  },
+  {
+   "id": 420392,
+   "start": 2.152,
+   "length": 0.438,
+   "peak_ms": 60.0,
+   "lufs_m": -22.0,
+   "true_peak": -6.7
+  }
+ ],
+ "UiClick": [
+  {
+   "id": 478197,
+   "start": 0.002,
+   "length": 0.011,
+   "peak_ms": 1.8,
+   "lufs_m": -25.8,
+   "true_peak": -1.0
+  },
+  {
+   "id": 256116,
+   "start": 0.0,
+   "length": 0.032,
+   "peak_ms": 1.2,
+   "lufs_m": -27.4,
+   "true_peak": -0.9
+  }
+ ]
+}

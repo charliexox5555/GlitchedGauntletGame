@@ -43,7 +43,8 @@ return table.freeze({
 		dustRate = 60, -- particles/s while sliding fast
 		dustMinSpeed = 13, -- studs/s below which the dust stops
 		-- "Baseball Runner Slide On Dirt Into Home Plate 4": its first 0.8 s.
-		sound = { id = "rbxassetid://9125380604", volume = 0.5, cut = 0.8, range = 70 },
+		-- A real shoe skid (CC0, atlas; 2026-11-05). Was ProSoundEffects 9125380604 (cut 0.8).
+		sound = { id = "atlas:SlideStart", volume = 0.6, cut = 0.8, range = 70 },
 	}),
 
 	-- Jumping: a soft cloth sound as you leave the ground.

@@ -1,0 +1,750 @@
+{
+ "PPQ": [
+  {
+   "start": 0.25,
+   "length": 0.7
+  },
+  {
+   "start": 1.2,
+   "length": 0.7
+  },
+  {
+   "start": 2.15,
+   "length": 0.7
+  }
+ ],
+ "PPQ_Far": [
+  {
+   "start": 3.1,
+   "length": 1.28
+  }
+ ],
+ "Revolver": [
+  {
+   "start": 4.63,
+   "length": 0.95
+  },
+  {
+   "start": 5.83,
+   "length": 0.95
+  },
+  {
+   "start": 7.03,
+   "length": 0.95
+  }
+ ],
+ "Revolver_Far": [
+  {
+   "start": 8.23,
+   "length": 1.63
+  }
+ ],
+ "M1911": [
+  {
+   "start": 10.11,
+   "length": 0.7
+  },
+  {
+   "start": 11.06,
+   "length": 0.7
+  },
+  {
+   "start": 12.01,
+   "length": 0.7
+  }
+ ],
+ "M1911_Far": [
+  {
+   "start": 12.96,
+   "length": 1.28
+  }
+ ],
+ "Bersa": [
+  {
+   "start": 14.49,
+   "length": 0.5
+  },
+  {
+   "start": 15.24,
+   "length": 0.5
+  },
+  {
+   "start": 15.99,
+   "length": 0.5
+  }
+ ],
+ "Bersa_Far": [
+  {
+   "start": 16.74,
+   "length": 1.0
+  }
+ ],
+ "Ruger22": [
+  {
+   "start": 17.99,
+   "length": 0.5
+  },
+  {
+   "start": 18.74,
+   "length": 0.5
+  },
+  {
+   "start": 19.49,
+   "length": 0.5
+  }
+ ],
+ "Ruger22_Far": [
+  {
+   "start": 20.24,
+   "length": 1.0
+  }
+ ],
+ "Mossberg": [
+  {
+   "start": 21.49,
+   "length": 1.1
+  },
+  {
+   "start": 22.84,
+   "length": 1.1
+  },
+  {
+   "start": 24.19,
+   "length": 1.1
+  }
+ ],
+ "Mossberg_Far": [
+  {
+   "start": 25.54,
+   "length": 1.84
+  }
+ ],
+ "SwedishK": [
+  {
+   "start": 27.63,
+   "length": 0.55
+  },
+  {
+   "start": 28.43,
+   "length": 0.55
+  },
+  {
+   "start": 29.23,
+   "length": 0.55
+  }
+ ],
+ "SwedishK_Far": [
+  {
+   "start": 30.03,
+   "length": 1.07
+  }
+ ],
+ "PPSh": [
+  {
+   "start": 31.35,
+   "length": 0.55
+  },
+  {
+   "start": 32.15,
+   "length": 0.55
+  },
+  {
+   "start": 32.95,
+   "length": 0.55
+  }
+ ],
+ "PPSh_Far": [
+  {
+   "start": 33.75,
+   "length": 1.07
+  }
+ ],
+ "AR15": [
+  {
+   "start": 35.07,
+   "length": 0.8
+  },
+  {
+   "start": 36.12,
+   "length": 0.8
+  },
+  {
+   "start": 37.17,
+   "length": 0.8
+  }
+ ],
+ "AR15_Far": [
+  {
+   "start": 38.22,
+   "length": 1.42
+  }
+ ],
+ "AK47Suppressed": [
+  {
+   "start": 39.89,
+   "length": 0.55
+  },
+  {
+   "start": 40.69,
+   "length": 0.55
+  },
+  {
+   "start": 41.49,
+   "length": 0.55
+  }
+ ],
+ "AK47Suppressed_Far": [
+  {
+   "start": 42.29,
+   "length": 1.07
+  }
+ ],
+ "Marlin": [
+  {
+   "start": 43.61,
+   "length": 0.9
+  },
+  {
+   "start": 44.76,
+   "length": 0.9
+  },
+  {
+   "start": 45.91,
+   "length": 0.9
+  }
+ ],
+ "Marlin_Far": [
+  {
+   "start": 47.06,
+   "length": 1.56
+  }
+ ],
+ "SKS": [
+  {
+   "start": 48.87,
+   "length": 1.0
+  },
+  {
+   "start": 50.12,
+   "length": 1.0
+  },
+  {
+   "start": 51.37,
+   "length": 1.0
+  }
+ ],
+ "SKS_Far": [
+  {
+   "start": 52.62,
+   "length": 1.7
+  }
+ ],
+ "AKBurst": [
+  {
+   "start": 54.57,
+   "length": 0.6
+  },
+  {
+   "start": 55.42,
+   "length": 0.6
+  },
+  {
+   "start": 56.27,
+   "length": 0.6
+  }
+ ],
+ "AKBurst_Far": [
+  {
+   "start": 57.12,
+   "length": 1.14
+  }
+ ],
+ "PPShBurst": [
+  {
+   "start": 58.51,
+   "length": 0.65
+  },
+  {
+   "start": 59.41,
+   "length": 0.65
+  },
+  {
+   "start": 60.31,
+   "length": 0.65
+  }
+ ],
+ "PPShBurst_Far": [
+  {
+   "start": 61.21,
+   "length": 1.21
+  }
+ ],
+ "Springfield": [
+  {
+   "start": 62.67,
+   "length": 1.8
+  },
+  {
+   "start": 64.72,
+   "length": 1.8
+  },
+  {
+   "start": 66.77,
+   "length": 1.8
+  }
+ ],
+ "Springfield_Far": [
+  {
+   "start": 68.82,
+   "length": 1.9
+  }
+ ],
+ "Tikka": [
+  {
+   "start": 70.97,
+   "length": 1.8
+  },
+  {
+   "start": 73.02,
+   "length": 1.8
+  },
+  {
+   "start": 75.07,
+   "length": 1.8
+  }
+ ],
+ "Tikka_Far": [
+  {
+   "start": 77.12,
+   "length": 1.9
+  }
+ ],
+ "Mosin": [
+  {
+   "start": 79.27,
+   "length": 1.8
+  },
+  {
+   "start": 81.32,
+   "length": 1.8
+  },
+  {
+   "start": 83.37,
+   "length": 1.8
+  }
+ ],
+ "Mosin_Far": [
+  {
+   "start": 85.42,
+   "length": 1.9
+  }
+ ],
+ "Nova": [
+  {
+   "start": 87.57,
+   "length": 1.1
+  },
+  {
+   "start": 88.92,
+   "length": 1.1
+  },
+  {
+   "start": 90.27,
+   "length": 1.1
+  }
+ ],
+ "Nova_Far": [
+  {
+   "start": 91.62,
+   "length": 1.84
+  }
+ ],
+ "Model12": [
+  {
+   "start": 93.71,
+   "length": 1.1
+  },
+  {
+   "start": 95.06,
+   "length": 1.1
+  },
+  {
+   "start": 96.41,
+   "length": 1.1
+  }
+ ],
+ "Model12_Far": [
+  {
+   "start": 97.76,
+   "length": 1.84
+  }
+ ],
+ "LeverThump": [
+  {
+   "start": 99.85,
+   "length": 0.9
+  },
+  {
+   "start": 101.0,
+   "length": 0.9
+  },
+  {
+   "start": 102.15,
+   "length": 0.9
+  }
+ ],
+ "LeverThump_Far": [
+  {
+   "start": 103.3,
+   "length": 1.56
+  }
+ ],
+ "BeamHum": [
+  {
+   "start": 105.11,
+   "length": 1.0
+  }
+ ],
+ "DryFire": [
+  {
+   "start": 106.36,
+   "length": 0.14
+  }
+ ],
+ "LowAmmo": [
+  {
+   "start": 106.75,
+   "length": 0.16
+  }
+ ],
+ "HitTick": [
+  {
+   "start": 107.16,
+   "length": 0.07
+  },
+  {
+   "start": 107.48,
+   "length": 0.07
+  }
+ ],
+ "HeadDing": [
+  {
+   "start": 107.8,
+   "length": 0.42
+  }
+ ],
+ "Kill": [
+  {
+   "start": 108.47,
+   "length": 0.65
+  }
+ ],
+ "KillHead": [
+  {
+   "start": 109.37,
+   "length": 0.75
+  }
+ ],
+ "Damage": [
+  {
+   "start": 110.37,
+   "length": 0.22
+  },
+  {
+   "start": 110.84,
+   "length": 0.22
+  }
+ ],
+ "Impact": [
+  {
+   "start": 111.31,
+   "length": 0.18
+  }
+ ],
+ "KnifeDraw": [
+  {
+   "start": 111.99,
+   "length": 0.504
+  },
+  {
+   "start": 112.744,
+   "length": 0.427
+  }
+ ],
+ "KnifeSwing": [
+  {
+   "start": 113.421,
+   "length": 0.317
+  },
+  {
+   "start": 113.989,
+   "length": 0.36
+  },
+  {
+   "start": 114.599,
+   "length": 0.361
+  },
+  {
+   "start": 115.21,
+   "length": 0.332
+  }
+ ],
+ "KnifeSwingHeavy": [
+  {
+   "start": 115.792,
+   "length": 0.431
+  },
+  {
+   "start": 116.473,
+   "length": 0.476
+  },
+  {
+   "start": 117.199,
+   "length": 0.304
+  }
+ ],
+ "KnifeHitBody": [
+  {
+   "start": 117.754,
+   "length": 0.322
+  },
+  {
+   "start": 118.325,
+   "length": 0.34
+  },
+  {
+   "start": 118.915,
+   "length": 0.235
+  }
+ ],
+ "KnifeHitWood": [
+  {
+   "start": 119.4,
+   "length": 0.227
+  },
+  {
+   "start": 119.877,
+   "length": 0.225
+  },
+  {
+   "start": 120.352,
+   "length": 0.215
+  }
+ ],
+ "KnifeHitStone": [
+  {
+   "start": 120.817,
+   "length": 0.3
+  },
+  {
+   "start": 121.367,
+   "length": 0.206
+  },
+  {
+   "start": 121.822,
+   "length": 0.3
+  }
+ ],
+ "KnifeHitMetal": [
+  {
+   "start": 122.372,
+   "length": 0.45
+  },
+  {
+   "start": 123.072,
+   "length": 0.186
+  },
+  {
+   "start": 123.509,
+   "length": 0.396
+  }
+ ],
+ "KnifeInspect": [
+  {
+   "start": 124.154,
+   "length": 0.148
+  }
+ ],
+ "KnifeFlip": [
+  {
+   "start": 124.553,
+   "length": 0.25
+  },
+  {
+   "start": 125.053,
+   "length": 0.25
+  },
+  {
+   "start": 125.553,
+   "length": 0.25
+  }
+ ],
+ "HitConfirm": [
+  {
+   "start": 126.053,
+   "length": 0.11
+  },
+  {
+   "start": 126.413,
+   "length": 0.11
+  }
+ ],
+ "HeadConfirm": [
+  {
+   "start": 126.773,
+   "length": 0.38
+  },
+  {
+   "start": 127.403,
+   "length": 0.273
+  }
+ ],
+ "KillConfirm": [
+  {
+   "start": 127.926,
+   "length": 0.65
+  }
+ ],
+ "StepConcrete": [
+  {
+   "start": 128.826,
+   "length": 0.118
+  },
+  {
+   "start": 129.194,
+   "length": 0.106
+  },
+  {
+   "start": 129.55,
+   "length": 0.165
+  },
+  {
+   "start": 129.965,
+   "length": 0.136
+  }
+ ],
+ "StepMetal": [
+  {
+   "start": 130.352,
+   "length": 0.201
+  },
+  {
+   "start": 130.802,
+   "length": 0.204
+  },
+  {
+   "start": 131.256,
+   "length": 0.172
+  },
+  {
+   "start": 131.678,
+   "length": 0.172
+  },
+  {
+   "start": 132.1,
+   "length": 0.159
+  },
+  {
+   "start": 132.51,
+   "length": 0.183
+  }
+ ],
+ "StepWood": [
+  {
+   "start": 132.943,
+   "length": 0.153
+  },
+  {
+   "start": 133.346,
+   "length": 0.081
+  },
+  {
+   "start": 133.677,
+   "length": 0.116
+  },
+  {
+   "start": 134.043,
+   "length": 0.135
+  },
+  {
+   "start": 134.428,
+   "length": 0.139
+  },
+  {
+   "start": 134.817,
+   "length": 0.193
+  }
+ ],
+ "StepGrass": [
+  {
+   "start": 135.26,
+   "length": 0.104
+  },
+  {
+   "start": 135.614,
+   "length": 0.122
+  },
+  {
+   "start": 135.986,
+   "length": 0.076
+  },
+  {
+   "start": 136.312,
+   "length": 0.092
+  },
+  {
+   "start": 136.654,
+   "length": 0.098
+  }
+ ],
+ "StepSnow": [
+  {
+   "start": 137.002,
+   "length": 0.287
+  },
+  {
+   "start": 137.539,
+   "length": 0.294
+  },
+  {
+   "start": 138.083,
+   "length": 0.289
+  },
+  {
+   "start": 138.622,
+   "length": 0.279
+  },
+  {
+   "start": 139.151,
+   "length": 0.3
+  },
+  {
+   "start": 139.701,
+   "length": 0.211
+  }
+ ],
+ "SlideStart": [
+  {
+   "start": 140.162,
+   "length": 0.36
+  },
+  {
+   "start": 140.772,
+   "length": 0.294
+  },
+  {
+   "start": 141.316,
+   "length": 0.438
+  }
+ ],
+ "UiClick": [
+  {
+   "start": 142.004,
+   "length": 0.011
+  },
+  {
+   "start": 142.264,
+   "length": 0.032
+  }
+ ]
+}

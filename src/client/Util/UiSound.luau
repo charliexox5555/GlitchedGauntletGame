@@ -40,9 +40,11 @@ function UiSound.preload()
 	task.spawn(function()
 		local list: { Sound } = {}
 		for _, cue in UiSounds :: any do
-			local s = Instance.new("Sound")
-			s.SoundId = cue.id
-			table.insert(list, s)
+			if string.sub(cue.id, 1, 6) ~= "atlas:" then -- atlas slices load with the atlas
+				local s = Instance.new("Sound")
+				s.SoundId = cue.id
+				table.insert(list, s)
+			end
 		end
 		pcall(ContentProvider.PreloadAsync, ContentProvider, list)
 		for _, s in list do

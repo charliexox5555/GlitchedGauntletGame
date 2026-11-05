@@ -64,4 +64,23 @@ return table.freeze({
 
 	-- Damage-taken thud: at most one per this many seconds.
 	DAMAGE_MIN_GAP = 0.08,
+
+	-- Footsteps (Controllers/FootstepController, 2026-11-05): one step every
+	-- `stride` studs travelled on the ground (16 studs/s -> ~3.2 steps/s, the
+	-- run cycle's), real recordings per surface (Config/Sounds STEPS). Yours
+	-- play 2D, everyone else's 3D at their feet so you can hear them coming;
+	-- crouch-walking is much quieter (RIVALS-style sneaking), sprinting a bit
+	-- louder. Nothing below `minSpeed` (studs/s) or in a slide.
+	STEPS = table.freeze({
+		stride = 5,
+		sprintStride = 6.2,
+		crouchStride = 3.6,
+		minSpeed = 3,
+		ownVolume = 0.32,
+		otherVolume = 0.75,
+		crouchScale = 0.3,
+		sprintScale = 1.25,
+		range = 80, -- studs: others' steps fade out by here
+		hearRange = 90, -- studs: characters further away aren't tracked
+	}),
 })

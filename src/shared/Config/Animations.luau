@@ -70,8 +70,12 @@ return table.freeze({
 		-- equipTime; made DRAW_LENGTH long).
 		Draw = id(118928673381535),
 		KnifeReady = id(98422551486900),
-		KnifeSlash = id(103765524428295),
-		KnifeHeavy = id(87481489934854),
+		-- Knife swings (2026-11-05, tools/studio/make_knife_poses.py). The old
+		-- single slash was 103765524428295, the old heavy 87481489934854.
+		KnifeSlash = id(111569472494564), -- GG_KnifeSlash1: forehand (SwingStep 1)
+		KnifeSlash2 = id(116649742076335), -- GG_KnifeSlash2: backhand (SwingStep 2)
+		KnifeSlash3 = id(130361867720796), -- GG_KnifeSlash3: the overhead chop (SwingStep 3)
+		KnifeHeavy = id(71500112397600), -- GG_KnifeHeavy: pull back, coil, thrust
 	}),
 	-- The left hand on each gun's LeftGrip (GripController IK, every visible
 	-- character, 2026-11-04). Positions in studs, angles in degrees.
@@ -117,6 +121,66 @@ return table.freeze({
 		light = table.freeze({ size = 0.36, stretch = Vector2.new(3.2, 0.22) }),
 		heavy = table.freeze({ size = 0.5, stretch = Vector2.new(1.1, 0.5) }),
 		tint = Color3.fromHex("5A5550"),
+	}),
+
+	-- Knife feel (2026-11-05, lane F; LihFolk Hit-Stop and Screen Shake Tuning
+	-- by Numbers, Camera Shake and Camera FX, Slash VFX Recipes). Per attack:
+	-- `swipe` = the first-person streak's arc (camera space: start, bend, end;
+	-- nil = none, the stab), `kick` = degrees the view is punched along the
+	-- swing's screen path (KNIFE_MARK) on a whiff / on a hit, `roll` = degrees
+	-- of roll on a hit, `stop` = hit-stop seconds on a body hit (66 ms is the
+	-- shortest that reads on phones), `fov` = a heavy hit's FOV punch.
+	-- Walls get `wallStop` and half the hit kick. All runtime: a whiff never
+	-- freezes. Kicks return over `recover` seconds.
+	KNIFE_FEEL = table.freeze({
+		Slash1 = table.freeze({
+			swipe = {
+				Vector3.new(1.0, 0.5, -2.3),
+				Vector3.new(0.05, 0.18, -2.9),
+				Vector3.new(-1.05, -0.5, -2.3),
+			},
+			kick = Vector2.new(0.25, 0.7),
+			roll = 1.4,
+			stop = 0.066,
+		}),
+		Slash2 = table.freeze({
+			swipe = {
+				Vector3.new(-1.0, 0.45, -2.3),
+				Vector3.new(-0.05, 0.15, -2.9),
+				Vector3.new(1.05, -0.55, -2.3),
+			},
+			kick = Vector2.new(0.25, 0.7),
+			roll = 1.4,
+			stop = 0.066,
+		}),
+		Slash3 = table.freeze({
+			swipe = {
+				Vector3.new(0.3, 1.05, -2.3),
+				Vector3.new(0.12, 0.12, -2.9),
+				Vector3.new(-0.08, -1.05, -2.3),
+			},
+			kick = Vector2.new(0.3, 0.9),
+			roll = 0.6,
+			stop = 0.08,
+		}),
+		HeavyStab = table.freeze({
+			kick = Vector2.new(0.3, 1.1),
+			roll = 0.8,
+			stop = 0.1,
+			fov = -3,
+		}),
+		wallStop = 0.035,
+		recover = 0.14,
+		hitShake = 0.25, -- degrees, after the stop
+		swipeSweep = 0.11, -- seconds for the streak's head to cross (the strike + follow)
+		swipeWhiff = 0.55, -- streak strength on a whiff (a hit: 1)
+		-- Seconds into the whoosh files where they peak (tools/audio/build_sfx.py
+		-- cuts every take to this) and how long before contact the peak lands.
+		whooshPeak = table.freeze({ light = 0.06, heavy = 0.09 }),
+		whooshLead = 0.03,
+		-- Seconds into the knife inspect (Config/Viewmodel InspectMelee, 2.3 s)
+		-- where each flip is caught: a balisong click.
+		inspectFlips = { 1.04, 1.82 },
 	}),
 
 	ADS_SMOOTHING = 12, -- 1/s: how fast the hold moves between hip and sights

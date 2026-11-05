@@ -112,7 +112,9 @@ local USE_IDS: { [string]: string } = {
 	Reload = Animations.COMBAT.Reload, -- at the gun's reload time (ReloadAt / ReloadFor)
 	Flinch = Animations.COMBAT.Flinch, -- hit (HitAt), at FLINCH_WEIGHT
 	Draw = Animations.COMBAT.Draw, -- a weapon swap (at the gun's equipTime)
-	KnifeSlash = Animations.COMBAT.KnifeSlash, -- a knife swing (SwingAt)
+	KnifeSlash = Animations.COMBAT.KnifeSlash, -- a knife swing (SwingAt): SwingStep 1, forehand
+	KnifeSlash2 = Animations.COMBAT.KnifeSlash2, -- SwingStep 2: backhand
+	KnifeSlash3 = Animations.COMBAT.KnifeSlash3, -- SwingStep 3: the overhead chop
 	KnifeHeavy = Animations.COMBAT.KnifeHeavy, -- ...the heavy one (SwingHeavy)
 }
 if Animations.MODS.UpdraftSlamLand ~= "" then
@@ -438,9 +440,14 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	local knife = alive and config ~= nil and config.fireMode == "Melee" and not holding
 	setWeight(animator, "KnifeReady", if knife then 1 else 0)
 	if newMark(swingSeen, character, player:GetAttribute("SwingAt")) and alive then
+		local step = player:GetAttribute("SwingStep")
 		playOnce(
 			animator,
-			if player:GetAttribute("SwingHeavy") == true then "KnifeHeavy" else "KnifeSlash"
+			if player:GetAttribute("SwingHeavy") == true
+				then "KnifeHeavy"
+				elseif step == 2 then "KnifeSlash2"
+				elseif step == 3 then "KnifeSlash3"
+				else "KnifeSlash"
 		)
 	end
 	-- Movement (Action2 / Action3) layers over the aim and the walk cycle.

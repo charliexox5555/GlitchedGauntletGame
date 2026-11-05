@@ -106,6 +106,7 @@ type Playing = {
 	weight: number,
 	fading: boolean,
 	rotScale: number,
+	freeze: number, -- seconds left of a hit-stop: the track holds its frame
 }
 
 -- A foley cue inside a clip: `at` is 0..1 through it.
@@ -239,6 +240,7 @@ local function playTrack(slot: string, trackName: string, duration: number?, rot
 		weight = 1,
 		fading = false,
 		rotScale = rotScale or 1,
+		freeze = 0,
 	}
 end
 
@@ -251,6 +253,11 @@ end
 
 local function stepTracks(dt: number)
 	for slot, p in playing do
+		if p.freeze > 0 and not p.fading then
+			-- Hit-stop: hold this frame (the time it eats is not caught up).
+			p.freeze -= dt
+			continue
+		end
 		p.time += dt
 		if p.fading then
 			p.weight -= dt / VM.CANCEL_TIME
@@ -284,12 +291,57 @@ end
 -- Track slots akimbo guns take turns on (see playTurns).
 local TURN_SLOTS = { Equip = true, Reload = true, Inspect = true }
 
--- The combined track offset for one gun, around its pivots.
-local function trackOffset(gun: Gun, mirror: boolean): CFrame
+-- A `screen` track's offset at `t`: each key as a CFrame, eased between them
+-- with CFrame:Lerp, so the turn takes the shortest way (a slerp).
+local function sampleFrame(track: VM.Track, t: number): CFrame
+	local keys = track.keys
+	local prev = keys[1]
+	local function at(k: VM.Key): CFrame
+		return CFrame.new(k.pos) * angles(k.rot)
+	end
+	if t <= prev.t then
+		return at(prev)
+	end
+	for i = 2, #keys do
+		local k = keys[i]
+		if t <= k.t then
+			local span = k.t - prev.t
+			local a = if span > 0 then (t - prev.t) / span else 1
+			a = TweenService:GetValue(
+				a,
+				k.style or Enum.EasingStyle.Sine,
+				k.dir or Enum.EasingDirection.InOut
+			)
+			return at(prev):Lerp(at(k), a)
+		end
+		prev = k
+	end
+	return at(prev)
+end
+
+-- The combined track offset for one gun, around its pivots. `screen`: only
+-- the tracks keyed on screen (Config/Viewmodel `screen`, the knife's
+-- attacks), which holdPose applies in camera axes around the grip so they
+-- read the same whatever the gun's tilt; otherwise only the others, applied
+-- in the gun's own axes.
+local function trackOffset(gun: Gun, mirror: boolean, screen: boolean): CFrame
 	local cf = CFrame.identity
 	-- Akimbo guns take turns (playTurns): the right gun's half, then the left's.
 	local turn = if guns.Left then (if mirror then 1 else 0) else nil
 	for slot, p in playing do
+		if (p.track.screen == true) ~= screen then
+			continue
+		end
+		if screen then
+			local t = math.clamp(p.time / p.length, 0, 1)
+			local full = sampleFrame(p.track, t)
+			if mirror then
+				local pos, rx, ry, rz = full.Position, full:ToEulerAnglesXYZ()
+				full = CFrame.new(mirrorPos(pos)) * CFrame.Angles(rx, -ry, -rz)
+			end
+			cf *= if p.weight >= 1 then full else CFrame.new():Lerp(full, smoothstep(p.weight))
+			continue
+		end
 		local t = math.clamp(p.time / p.length, 0, 1)
 		if turn and TURN_SLOTS[slot] then
 			t = math.clamp(t * 2 - turn, 0, 1)
@@ -1354,8 +1406,16 @@ function ViewmodelController.swing(attack: string?): number
 	ViewmodelController.cancelInspect()
 	local right = guns.Right
 	local hitDelay = 0
-	local length = attack and VM.TRACKS[attack] and VM.TRACKS[attack].length or 0
-	if right then
+	local own = attack and VM.TRACKS[attack]
+	local length = own and own.length or 0
+	if right and own and own.own then
+		-- The keyed track is the whole attack (Config/Viewmodel, 2026-11-05).
+		if right.animator:isPlaying() then
+			right.animator:stop()
+		end
+		playTrack("Swing", attack :: string, own.length, 1)
+		hitDelay = (own.hit or 0) * own.length
+	elseif right then
 		local clips = right.animator.clips :: any
 		local data = attack and clips and clips[attack]
 		if data then
@@ -1397,12 +1457,14 @@ function ViewmodelController.inspect(): boolean
 	local track = if c.fireMode == "Melee" then "InspectMelee" else "Inspect"
 	-- Akimbo: each gun gets a whole inspect, one after the other.
 	local length = VM.TRACKS[track].length * (if guns.Left then 2 else 1)
-	-- A knife's own Inspect clip turns the blade; the track only lifts it into view.
-	local clipTurns = c.fireMode == "Melee" and guns.Right.animator:has("Inspect")
+	-- A track that owns the move turns the gun itself; otherwise a knife's own
+	-- Inspect clip turns the blade and the track only lifts it into view.
+	local ownTrack = VM.TRACKS[track].own == true
+	local clipTurns = not ownTrack and c.fireMode == "Melee" and guns.Right.animator:has("Inspect")
 	playTrack("Inspect", track, length, if clipTurns then 0 else 1)
 	-- The gun's own Inspect clip (a press check, the charm swinging) runs
 	-- alongside, over the same time.
-	if guns.Right.animator:has("Inspect") then
+	if not ownTrack and guns.Right.animator:has("Inspect") then
 		playTurns("Inspect", length)
 	end
 	return true
@@ -1417,6 +1479,15 @@ function ViewmodelController.cancelInspect()
 		if gun.animator:isPlaying("Inspect") then
 			gun.animator:stop()
 		end
+	end
+end
+
+-- Hit-stop (LihFolk Hit-Stop and Screen Shake Tuning by Numbers): the swing
+-- holds its frame for `seconds`, then carries on. Runtime only, on a hit.
+function ViewmodelController.hitStop(seconds: number)
+	local p = playing.Swing
+	if p and not p.fading and seconds == seconds then
+		p.freeze = math.clamp(seconds, 0, 0.15)
 	end
 end
 
@@ -1850,7 +1921,13 @@ local function holdPose(
 	local a = gun.adsRecoil:update(dt) * adsT
 	local kick = r + a
 	local recoilCf = CFrame.new(0, 0, kick.X) * CFrame.Angles(kick.Y, 0, kick.Z)
-	return base * poseOffset(mirror) * trackOffset(gun, mirror) * recoilCf
+	local held = base * poseOffset(mirror) * trackOffset(gun, mirror, false) * recoilCf
+	local screen = trackOffset(gun, mirror, true)
+	if screen == CFrame.identity then
+		return held
+	end
+	local pivot = CFrame.new(base.Position)
+	return pivot * screen * pivot:Inverse() * held
 end
 
 local function mirrorHand(hand: VM.Hand, mirror: boolean): (Vector3, Vector3)

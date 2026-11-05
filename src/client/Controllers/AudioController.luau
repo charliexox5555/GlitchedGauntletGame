@@ -296,15 +296,16 @@ function AudioController.playSound(
 	sound: GunSounds.GunSound?,
 	group: Group,
 	at: Vector3?,
-	volumeScale: number?
+	volumeScale: number?,
+	pitchScale: number?
 )
 	if not sound then
 		return
 	end
 	local range = sound.pitch
-	local pitch = if range and #range >= 2
-		then range[1] + math.random() * (range[2] - range[1])
-		else 1
+	local pitch = (
+		if range and #range >= 2 then range[1] + math.random() * (range[2] - range[1]) else 1
+	) * (pitchScale or 1)
 	AudioController.play(sound.id, {
 		group = group,
 		volume = sound.volume * (volumeScale or 1),

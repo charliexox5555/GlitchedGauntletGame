@@ -64,6 +64,7 @@ type SlotState = {
 	shellNeeded: number,
 	shellSlow: number, -- each shell phase takes this × its time (a status at the start)
 	readyAt: number,
+	meleeStep: number?, -- the knife's light-slash chain (1-3), for what others see
 }
 
 -- What the server's own simulation says a player was doing (sampled every
@@ -1356,6 +1357,21 @@ local function onFire(player: Player, payload: unknown)
 		slot.spinStart = now
 	end
 	slot.burstShots = FireRate.nextBurstCount(config, slot.burstShots, slot.lastFire, now)
+	-- The knife's 1-2-3 chain as the client counts it (WeaponController swing):
+	-- a light slash within comboWindow of the last one's cooldown is the next
+	-- step. Cosmetic: it only picks which slash clip others see.
+	local melee = config.melee
+	if melee then
+		local step = slot.meleeStep or 0
+		local readyAt = math.max(slot.lastFire + interval, slot.altReadyAt)
+		if altFire then
+			slot.meleeStep = 0
+		elseif step < 3 and now - readyAt <= (melee.comboWindow or 0) + Combat.FIRE_JITTER then
+			slot.meleeStep = step + 1
+		else
+			slot.meleeStep = 1
+		end
+	end
 	slot.lastFire = math.max(now, slot.lastFire + interval)
 	if config.magSize > 0 then
 		slot.ammo -= altRounds
@@ -1368,6 +1384,7 @@ local function onFire(player: Player, payload: unknown)
 	-- Others see the knife swing (Simulation/Poses: KnifeSlash / KnifeHeavy).
 	if config.melee then
 		player:SetAttribute("SwingHeavy", altFire ~= nil and config.melee.heavy ~= nil)
+		player:SetAttribute("SwingStep", slot.meleeStep or 1)
 		player:SetAttribute("SwingAt", now)
 	end
 

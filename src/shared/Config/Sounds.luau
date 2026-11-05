@@ -25,14 +25,30 @@ local function id(n: number): string
 end
 
 return table.freeze({
-	ATLAS = id(105241531021545), -- v2: polished real recordings; v1 was 95621839199583
+	-- v3 (2026-11-05, lane F): the v2 gun atlas unchanged plus the knife and
+	-- sound-pass slices appended (tools/audio/build_sfx.py -> GameAtlas.flac).
+	-- v2 (guns only) was 105241531021545, v1 95621839199583.
+	ATLAS = id(133446200676645),
 
 	LowAmmo = "atlas:LowAmmo", -- synthesized tick on each shot from a near-empty mag
 
-	-- Feedback (synthesized)
-	HitBody = "atlas:HitTick",
-	HitHead = "atlas:HeadDing",
-	Kill = "atlas:Kill",
-	KillHead = "atlas:KillHead",
+	-- Feedback (2026-11-05: real CC0 recordings; the synthesized v2 ones are
+	-- still in the atlas: HitTick, HeadDing, Kill, KillHead, to go back).
+	HitBody = "atlas:HitConfirm", -- a glass clink
+	HitHead = "atlas:HeadConfirm", -- a fork / spoon tapped on glass
+	Kill = "atlas:KillConfirm", -- a metal service bell
+	KillHead = "atlas:KillConfirm",
 	Damage = "atlas:Damage",
+
+	-- Footsteps by surface (Controllers/FootstepController), the slide's
+	-- skid, and the in-match UI click.
+	STEPS = table.freeze({
+		Concrete = "atlas:StepConcrete",
+		Metal = "atlas:StepMetal",
+		Wood = "atlas:StepWood",
+		Grass = "atlas:StepGrass",
+		Snow = "atlas:StepSnow",
+	} :: { [string]: string }),
+	SlideStart = "atlas:SlideStart",
+	UiClick = "atlas:UiClick",
 })

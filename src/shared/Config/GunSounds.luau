@@ -44,8 +44,12 @@ export type GunSoundSet = {
 	inspect: GunSound?, -- start of an inspect (Y)
 	-- Melee only: the heavy attack's whoosh, and the blade striking a wall or a body.
 	heavy: GunSound?,
-	hitWall: GunSound?,
+	hitWall: GunSound?, -- stone, concrete, brick, plastic (any surface without its own)
+	hitMetal: GunSound?,
+	hitWood: GunSound?,
+	hitSoft: GunSound?, -- grass, dirt, sand, snow, fabric
 	hitBody: GunSound?,
+	inspectFlip: GunSound?, -- each flip inside the inspect
 }
 
 local FOLEY = 0.6 -- normal handling loudness
@@ -233,19 +237,29 @@ local sets: { [string]: GunSoundSet } = {
 		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
 	},
 
-	-- Knife: `fire` is the swing (fireFar: what others hear).
+	-- Knife (2026-11-05, lane F): real CC0 recordings, polished, in the atlas
+	-- (tools/audio/build_sfx.py; sources, licences and 2 alternates per sound
+	-- in vault/05 Production/Playtests/2026-11-05 Knife and Sound Pass.md).
+	-- `fire` is a light slash's whoosh (WeaponController times it so its peak
+	-- lands on the strike; each step of a 1-2-3 chain climbs a semitone),
+	-- fireFar what others hear. Each name has 2-4 takes (round-robin) plus the
+	-- pitch range here.
 	Knife = {
-		fire = { id = id(9125620110), volume = 0.7, pitch = { 1.0, 1.12 } }, -- PLACEHOLDER: ProSoundEffects knife swoosh (each slash re-pitched)
-		heavy = { id = id(9125620110), volume = 0.85, pitch = { 0.72, 0.78 } }, -- PLACEHOLDER: the swoosh pitched down, heavier
-		hitWall = { id = "atlas:Impact", volume = 0.7, pitch = { 1.45, 1.6 } }, -- PLACEHOLDER: impact pitched up: a steel tick on the wall
-		hitBody = { id = "atlas:Impact", volume = 0.55, pitch = { 0.7, 0.8 } }, -- PLACEHOLDER: impact pitched down: a dull thud
-		fireFar = { id = id(9125620110), volume = 0.6, pitch = { 0.95, 1.05 } }, -- PLACEHOLDER
+		fire = { id = "atlas:KnifeSwing", volume = 0.55, pitch = { 0.97, 1.05 } }, -- bamboo-stick / whip swishes
+		heavy = { id = "atlas:KnifeSwingHeavy", volume = 0.65, pitch = { 0.94, 1.0 } }, -- a stick swung hard, low whooshes
+		hitBody = { id = "atlas:KnifeHitBody", volume = 0.75, pitch = { 0.95, 1.05 } }, -- stabbing a cabbage
+		hitWall = { id = "atlas:KnifeHitStone", volume = 0.6, pitch = { 0.95, 1.05 } }, -- axe / hatchet on concrete and rock
+		hitMetal = { id = "atlas:KnifeHitMetal", volume = 0.5, pitch = { 0.96, 1.04 } }, -- kitchen knives clashing
+		hitWood = { id = "atlas:KnifeHitWood", volume = 0.65, pitch = { 0.95, 1.05 } }, -- a knife into wood
+		hitSoft = { id = "atlas:KnifeHitBody", volume = 0.4, pitch = { 0.8, 0.86 } }, -- grass, dirt, snow: a duller stab
+		fireFar = { id = "atlas:KnifeSwing", volume = 0.4, pitch = { 0.95, 1.05 } },
 		tail = nil,
-		dryFire = { id = id(9125620110), volume = 0 }, -- unused (no ammo)
+		dryFire = { id = "atlas:KnifeSwing", volume = 0 }, -- unused (no ammo)
 		magOut = { id = MAG_OUT, volume = 0 }, -- unused
 		magIn = { id = MAG_IN, volume = 0 }, -- unused
-		draw = { id = DRAW, volume = FOLEY, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER: the twirl
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER
+		draw = { id = "atlas:KnifeDraw", volume = 0.55, pitch = { 0.98, 1.06 } }, -- a blade drawn along steel / from a sheath
+		inspect = { id = "atlas:KnifeInspect", volume = 0.4, pitch = { 1.0, 1.05 } }, -- a blade across a steel
+		inspectFlip = { id = "atlas:KnifeFlip", volume = 0.45, pitch = { 0.97, 1.03 } }, -- a real balisong clicking
 	},
 
 	-- Marshal: lever-action rifle.
