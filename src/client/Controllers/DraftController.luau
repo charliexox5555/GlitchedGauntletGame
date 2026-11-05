@@ -277,7 +277,7 @@ local function hintText(): (string, Color3)
 	if not nothingToPick(o) then
 		return if touch
 			then string.format(
-				"Gun: %s (scroll up to change). Tap one card.",
+				"Gun: %s (scroll up to change). Tap a card, hold it for details.",
 				string.upper(
 					(Weapons.get(selectedGun :: string) or {} :: any).displayName
 						or tostring(selectedGun)
@@ -517,6 +517,116 @@ local function colX(slot: number): number
 end
 
 -- A new ability for an empty slot: the full-height card.
+-- Phone (compact) cards. A full card is 540 design px: on a 375 px phone it
+-- can't fit the scroller, so its text was cut at the fold. The compact card
+-- keeps a 180 px art band with the name and role on it and the first lines of
+-- the description (ending in "..."); everything (also the hidden lines) is in
+-- the hold-for-details sheet (LihFolk: Case Study - Phone UI Overhaul, "hide,
+-- don't shrink"; Responsive UI).
+local PHONE_CARD_H = 306
+local ART_BAND = 180
+
+local detailSheet: Frame? = nil
+local detailTitle: TextLabel? = nil
+local detailBody: TextLabel? = nil
+
+local function showDetails(card: GuiObject)
+	local sheet, title, body = detailSheet, detailTitle, detailBody
+	if not (sheet and title and body) then
+		return
+	end
+	type Line = { y: number, text: string }
+	local lines: { Line } = {}
+	for _, d in card:GetDescendants() do
+		if d:IsA("TextLabel") and d.Text ~= "" then
+			-- Order by where its top-level piece sat on the full card.
+			local top: Instance = d
+			while top.Parent and top.Parent ~= card do
+				top = top.Parent
+			end
+			local y = top:GetAttribute("CardY")
+			if typeof(y) ~= "number" then
+				y = if top:IsA("GuiObject") then top.Position.Y.Offset else 0
+			end
+			table.insert(lines, { y = (y :: number) + (if d == top then 0 else 1), text = d.Text })
+		end
+	end
+	table.sort(lines, function(a, b)
+		return a.y < b.y
+	end)
+	title.Text = if #lines > 0 then lines[1].text else ""
+	local rest = {}
+	for i = 2, #lines do
+		table.insert(rest, lines[i].text)
+	end
+	body.Text = table.concat(rest, "\n")
+	sheet.Visible = true
+	UiSound.play("Open")
+end
+
+-- Squeeze a full-height card (or the MAXED panel) into the compact shape:
+-- the art band shrinks to ART_BAND, what sat on its lower half moves up 96 px,
+-- the text below the art moves up 112 px, and anything past the description
+-- hides (it stays in the card for the details sheet).
+local function compactCard(panel: GuiObject, glow: GuiObject?)
+	local oldH = panel.Size.Y.Offset
+	local top = panel.Position.Y.Offset - panel.AnchorPoint.Y * oldH
+	for _, c in panel:GetChildren() do
+		if c:IsA("GuiObject") and c.Name ~= "Shine" then
+			local y = c.Position.Y.Offset
+			c:SetAttribute("CardY", y)
+			if y <= 2 and c.Size.Y.Offset >= 290 then
+				c.Size = UDim2.new(c.Size.X.Scale, c.Size.X.Offset, 0, ART_BAND - 2) -- art / tint band
+			elseif y < 150 then
+				if c.Size.Y.Offset > 160 then -- the big faded icon
+					c.Size = UDim2.fromOffset(150, 150)
+				end
+			elseif y < 300 then
+				c.Position = UDim2.new(c.Position.X.Scale, c.Position.X.Offset, 0, y - 96)
+			elseif y < 420 then
+				c.Position = UDim2.new(c.Position.X.Scale, c.Position.X.Offset, 0, y - 112)
+				if c:IsA("TextLabel") and c.TextWrapped then
+					c.TextTruncate = Enum.TextTruncate.AtEnd
+				end
+			else
+				c.Visible = false
+			end
+		end
+	end
+	panel.Size = UDim2.new(panel.Size.X.Scale, panel.Size.X.Offset, 0, PHONE_CARD_H)
+	panel.Position = UDim2.new(
+		panel.Position.X.Scale,
+		panel.Position.X.Offset,
+		0,
+		top + panel.AnchorPoint.Y * PHONE_CARD_H
+	)
+	if glow then
+		glow.Size = UDim2.new(glow.Size.X.Scale, glow.Size.X.Offset, 0, PHONE_CARD_H + 16)
+		glow.Position =
+			UDim2.new(glow.Position.X.Scale, glow.Position.X.Offset, 0, top + PHONE_CARD_H / 2)
+	end
+	-- Hold (touch) or right-click: the full card in the details sheet.
+	local holding = 0
+	panel.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton2 then
+			showDetails(panel)
+		elseif input.UserInputType == Enum.UserInputType.Touch then
+			holding += 1
+			local token = holding
+			task.delay(0.45, function()
+				if holding == token then
+					showDetails(panel)
+				end
+			end)
+		end
+	end)
+	panel.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch then
+			holding += 1
+		end
+	end)
+end
+
 local function abilityCard(parent: Instance, id: string, slot: number): Card
 	local def = Mods.def(id)
 	local role = if def then Theme.ROLE[def.role] or C.ally else C.ally
@@ -651,6 +761,9 @@ local function abilityCard(parent: Instance, id: string, slot: number): Card
 		glowColor = C.white,
 		slot = slot,
 	}
+	if footer then
+		compactCard(button, glow)
+	end
 	hookCard(card, function()
 		selectedAbility = id
 		Net.event("DraftPick"):FireServer("Ability", id)
@@ -826,6 +939,9 @@ local function upgradeColumn(
 			Image = if def then def.icon else "",
 			ImageColor3 = C.textDim,
 		}, panel)
+		if footer then
+			task.defer(compactCard, panel, nil) -- after its last label is built
+		end
 		Ui.text(panel, "MAXED", "displayM", {
 			Position = UDim2.fromOffset(0, 250),
 			Size = UDim2.fromOffset(COL_W, 48),
@@ -845,7 +961,7 @@ local function upgradeColumn(
 		)
 		return
 	end
-	local compact = #cards > 2
+	local compact = #cards > 2 or footer ~= nil -- phones always use the short cards
 	local h = if compact then 160 else 256
 	local gap = if compact then 30 else 28
 	for i, c in cards do
@@ -998,6 +1114,22 @@ local function onKey(input: InputObject)
 	if nextCard.pick then
 		nextCard.pick()
 	end
+end
+
+-- Phone: the scroller is as tall as the cards really are.
+local function phoneCanvas(content: Instance)
+	local scroll = scroller
+	local fit = canvas and canvas:FindFirstChild("Fit")
+	if not (scroll and fit and fit:IsA("UIScale")) then
+		return
+	end
+	local bottom = TOP
+	for _, c in content:GetChildren() do
+		if c:IsA("GuiObject") and c.Visible and c.Size.Y.Scale == 0 then
+			bottom = math.max(bottom, c.Position.Y.Offset + (1 - c.AnchorPoint.Y) * c.Size.Y.Offset)
+		end
+	end
+	scroll.CanvasSize = UDim2.fromOffset(0, (bottom + 24 - PHONE_CROP_TOP) * fit.Scale)
 end
 
 -- Phone: the bottom bar (hint, LOCK IN, enemy kit) moves from the scrolling
@@ -1158,6 +1290,7 @@ local function show(o: MatchState.DraftOffer)
 	end
 	if footer then
 		phoneFooter(content)
+		task.defer(phoneCanvas, content) -- after the MAXED panels squeeze
 	end
 	if canvas then
 		Ui.refit(canvas) -- the new cards get the text floor and snapped strokes
@@ -1237,6 +1370,53 @@ local function build()
 		make("UIScale", { Name = "Fit", Scale = FOOTER_SCALE }, foot)
 		scroller = scroll
 		footer = foot
+		-- Hold-for-details sheet over the cards (tap anywhere to close).
+		local sheet = make("TextButton", {
+			Name = "DetailSheet",
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromScale(0.5, 0.55),
+			Size = UDim2.fromOffset(820, 420),
+			BackgroundTransparency = 1,
+			Text = "",
+			AutoButtonColor = false,
+			Visible = false,
+			ZIndex = 20,
+		}, back)
+		make("UIScale", { Name = "Fit", Scale = FOOTER_SCALE }, sheet)
+		Ui.cut(sheet, { Size = UDim2.fromScale(1, 1), ZIndex = 20 }, {
+			radius = 18,
+			color = C.panel,
+			transparency = 0.02,
+			line = C.white,
+			lineTransparency = 0.7,
+		})
+		detailTitle = Ui.text(sheet, "", "titleCard", {
+			Position = UDim2.fromOffset(32, 24),
+			Size = UDim2.fromOffset(756, 44),
+			TextXAlignment = Enum.TextXAlignment.Left,
+			ZIndex = 21,
+		})
+		detailBody = Ui.text(sheet, "", "bodyM", {
+			Position = UDim2.fromOffset(32, 80),
+			Size = UDim2.fromOffset(756, 280),
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextYAlignment = Enum.TextYAlignment.Top,
+			TextWrapped = true,
+			TextColor3 = C.textSecondary,
+			ZIndex = 21,
+		})
+		Ui.text(sheet, "TAP TO CLOSE", "label", {
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 1, -16),
+			Size = UDim2.fromOffset(400, 22),
+			TextColor3 = C.textDim,
+			ZIndex = 21,
+		})
+		sheet.Activated:Connect(function()
+			sheet.Visible = false
+		end)
+		detailSheet = sheet
+		Ui.refit(sheet)
 		local function layout()
 			local view = Device.viewport()
 			local inset = 160 -- the backdrop starts 160 px above the safe area
