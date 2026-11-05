@@ -48,9 +48,96 @@ local MAPS: { [string]: Map } = {
 		},
 		room = { id = "atlas:AmbRoom", volume = 0.55 }, -- inside the sheds
 	},
+	-- The older maps: beds only (a hook; no emitters or rooms placed yet). Boxes
+	-- are 300 x 220 x 360 around each map's world origin (maps sit 1500 apart).
+	Dockyard = {
+		center = Vector3.new(-1500, 210, 0),
+		size = Vector3.new(300, 220, 360),
+		beds = {
+			{ id = "atlas:AmbHarbour", volume = 0.45 },
+			{ id = "atlas:AmbWind", volume = 0.28 },
+		},
+	},
+	Rooftops = {
+		center = Vector3.new(1500, 200, 1500),
+		size = Vector3.new(300, 220, 360),
+		beds = { { id = "atlas:AmbCity", volume = 0.45 }, { id = "atlas:AmbWind", volume = 0.24 } },
+	},
+	OldTown = {
+		center = Vector3.new(0, 210, 1500),
+		size = Vector3.new(300, 220, 360),
+		beds = { { id = "atlas:AmbCity", volume = 0.3 }, { id = "atlas:AmbWind", volume = 0.2 } },
+	},
+	Snowpeak = {
+		center = Vector3.new(-1500, 210, -1500),
+		size = Vector3.new(300, 220, 360),
+		beds = { { id = "atlas:AmbWind", volume = 0.42 } },
+	},
+	Metro = { -- an underground station: the warehouse room tone as the bed
+		center = Vector3.new(1500, 200, 0),
+		size = Vector3.new(300, 220, 360),
+		beds = { { id = "atlas:AmbRoom", volume = 0.45 }, { id = "atlas:AmbHum", volume = 0.12 } },
+	},
+	Bunker = {
+		center = Vector3.new(-1500, 200, 1500),
+		size = Vector3.new(300, 220, 360),
+		beds = { { id = "atlas:AmbRoom", volume = 0.45 } },
+	},
+	Greenhouse = {
+		center = Vector3.new(1500, 210, -1500),
+		size = Vector3.new(300, 220, 360),
+		beds = { { id = "atlas:AmbWind", volume = 0.18 }, { id = "atlas:AmbRoom", volume = 0.2 } },
+	},
+	-- Rooftops2: a sunny city block, two team roofs over a sunken Pit. No
+	-- enterable rooms, so no room tone. Playable area about 97 x 161 at world
+	-- origin (3000, 200, 0); the box takes in the drop to the street.
+	Rooftops2 = {
+		center = Vector3.new(3000, 190, 0),
+		size = Vector3.new(300, 220, 360),
+		beds = {
+			{ id = "atlas:AmbCity", volume = 0.45 }, -- the city below: traffic, a train
+			{ id = "atlas:AmbWind", volume = 0.24 }, -- wind across the roofs
+		},
+	},
 }
 
 local SPOTS: { [string]: Spot } = {
+	-- Rooftops2 ------------------------------------------------------------
+	-- Rooftop air-conditioning units, a loop at each.
+	AC = { id = "atlas:AmbAC", volume = 0.55, range = 40, loop = true, pitch = { 1 } },
+	-- Pigeons cooing on the ledges and tank houses.
+	Pigeon = {
+		id = "atlas:AmbPigeon",
+		volume = 0.5,
+		range = 60,
+		pitch = { 0.94, 1.06 },
+		interval = { 12, 28 },
+	},
+	-- A pigeon taking off.
+	Flap = {
+		id = "atlas:AmbFlap",
+		volume = 0.45,
+		range = 70,
+		pitch = { 0.92, 1.08 },
+		interval = { 25, 55 },
+	},
+	-- Car horns in the street below.
+	CarHorn = {
+		id = "atlas:AmbCarHorn",
+		volume = 0.5,
+		range = 170,
+		pitch = { 0.95, 1.05 },
+		interval = { 15, 35 },
+	},
+	-- Sirens far off across the city.
+	Siren = {
+		id = "atlas:AmbSiren",
+		volume = 0.6,
+		range = 1200,
+		pitch = { 0.97, 1.03 },
+		interval = { 35, 75 },
+	},
+	-- Dockyard2 ------------------------------------------------------------
 	-- Water lapping against the pier: a loop at each quay edge emitter.
 	Water = { id = "atlas:AmbWater", volume = 0.7, range = 60, loop = true },
 	-- The crane's motor, a low hum (a real motor recording played slower).

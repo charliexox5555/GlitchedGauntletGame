@@ -235,6 +235,19 @@ local function tick(cam: Camera)
 	end
 end
 
+-- A loop that's silent (another map's bed, the room tone outdoors) pauses,
+-- so only what you can hear costs a voice.
+local function setLevel(l: Loop, volume: number)
+	l.sound.Volume = volume
+	if volume < 0.002 then
+		if l.sound.IsPlaying then
+			l.sound:Pause()
+		end
+	elseif not l.sound.IsPlaying then
+		l.sound:Resume()
+	end
+end
+
 local function step(dt: number)
 	local fade = math.min(dt / Ambience.FADE, 1)
 	indoor += math.clamp(
@@ -250,12 +263,12 @@ local function step(dt: number)
 	for _, list in beds do
 		for _, l in list do
 			l.current += (l.target - l.current) * fade
-			l.sound.Volume = l.current * outdoorScale
+			setLevel(l, l.current * outdoorScale)
 		end
 	end
 	for _, l in rooms do
 		l.current += (l.target - l.current) * fade
-		l.sound.Volume = l.current * indoor
+		setLevel(l, l.current * indoor)
 	end
 	for inst, l in spotLoops do
 		l.current += (l.target - l.current) * math.min(dt / 0.6, 1)

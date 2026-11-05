@@ -652,5 +652,97 @@
    "lufs_m": -27.8,
    "true_peak": -9.4
   }
+ ],
+ "AmbCity": [
+  {
+   "id": 369891,
+   "start": 649.0,
+   "length": 24.0,
+   "peak_ms": 0.0,
+   "lufs_m": -24.0,
+   "true_peak": -8.2
+  }
+ ],
+ "AmbAC": [
+  {
+   "id": 148906,
+   "start": 4.0,
+   "length": 10.0,
+   "peak_ms": 0.0,
+   "lufs_m": -22.0,
+   "true_peak": -12.4
+  }
+ ],
+ "AmbSiren": [
+  {
+   "id": 568814,
+   "start": 5.5,
+   "length": 7.0,
+   "peak_ms": 0.0,
+   "lufs_m": -29.4,
+   "true_peak": -11.5
+  },
+  {
+   "id": 568814,
+   "start": 30.5,
+   "length": 7.0,
+   "peak_ms": 0.0,
+   "lufs_m": -30.4,
+   "true_peak": -12.9
+  }
+ ],
+ "AmbCarHorn": [
+  {
+   "id": 182474,
+   "start": 1.2,
+   "length": 2.4,
+   "peak_ms": 0.0,
+   "lufs_m": -29.9,
+   "true_peak": -16.0
+  },
+  {
+   "id": 349922,
+   "start": 0.8,
+   "length": 2.2,
+   "peak_ms": 0.0,
+   "lufs_m": -32.5,
+   "true_peak": -15.6
+  }
+ ],
+ "AmbPigeon": [
+  {
+   "id": 701282,
+   "start": 28.0,
+   "length": 2.8,
+   "peak_ms": 0.0,
+   "lufs_m": -31.1,
+   "true_peak": -9.9
+  },
+  {
+   "id": 701282,
+   "start": 22.5,
+   "length": 2.8,
+   "peak_ms": 0.0,
+   "lufs_m": -31.1,
+   "true_peak": -9.1
+  },
+  {
+   "id": 701282,
+   "start": 34.0,
+   "length": 2.8,
+   "peak_ms": 0.0,
+   "lufs_m": -31.3,
+   "true_peak": -9.0
+  }
+ ],
+ "AmbFlap": [
+  {
+   "id": 689998,
+   "start": 0.4,
+   "length": 2.4,
+   "peak_ms": 0.0,
+   "lufs_m": -29.6,
+   "true_peak": -5.2
+  }
  ]
 }

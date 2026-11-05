@@ -170,6 +170,28 @@ TAKES = {
 		(119468, 0.1, 2.9, {"kind": "raw", "hp": 120, "lufs": -24}),
 		(556714, 0.25, 3.2, {"kind": "raw", "hp": 60, "lufs": -24}),
 	],
+	# Rooftops2 (city block). City bed: a Brooklyn rooftop over traffic and an
+	# elevated train, its steadiest stretch (SpliceSound).
+	"AmbCity": [(369891, 649.0, 24.0, {"kind": "loop", "stereo": True, "hp": 40, "lufs_i": -24})],
+	# A rooftop air-conditioning unit (timgormly), for the AC boxes.
+	"AmbAC": [(148906, 4.0, 10.0, {"kind": "loop", "hp": 60, "lufs_i": -22, "xfade": 1.0})],
+	# Distant sirens echoing off buildings (TRP, Toronto).
+	"AmbSiren": [
+		(568814, 5.5, 7.0, {"kind": "raw", "stereo": True, "hp": 120, "lufs": -26, "fade_out": 1.5}),
+		(568814, 30.5, 7.0, {"kind": "raw", "stereo": True, "hp": 120, "lufs": -26, "fade_out": 1.5}),
+	],
+	# Car horns in the street below (keweldog, DeVern).
+	"AmbCarHorn": [
+		(182474, 1.2, 2.4, {"kind": "raw", "hp": 150, "lufs": -26, "fade_out": 0.5}),
+		(349922, 0.8, 2.2, {"kind": "raw", "hp": 150, "lufs": -26, "fade_out": 0.5}),
+	],
+	# Pigeons: a male pigeon cooing (5ro4), and one flying off (Kinoton).
+	"AmbPigeon": [
+		(701282, 28.0, 2.8, {"kind": "raw", "hp": 200, "lufs": -24}),
+		(701282, 22.5, 2.8, {"kind": "raw", "hp": 200, "lufs": -24}),
+		(701282, 34.0, 2.8, {"kind": "raw", "hp": 200, "lufs": -24}),
+	],
+	"AmbFlap": [(689998, 0.4, 2.4, {"kind": "raw", "hp": 150, "lufs": -23, "fade_out": 0.6})],
 }
 
 

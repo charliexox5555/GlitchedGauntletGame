@@ -261,6 +261,22 @@ local atlas: { [string]: { Region } } = {
 		{ start = 273.774, length = 2.9 },
 		{ start = 276.924, length = 3.2 },
 	},
+	AmbCity = { { start = 280.374, length = 24.0 } },
+	AmbAC = { { start = 304.624, length = 10.0 } },
+	AmbSiren = {
+		{ start = 314.874, length = 7.0 },
+		{ start = 322.124, length = 7.0 },
+	},
+	AmbCarHorn = {
+		{ start = 329.374, length = 2.4 },
+		{ start = 332.024, length = 2.2 },
+	},
+	AmbPigeon = {
+		{ start = 334.474, length = 2.8 },
+		{ start = 337.524, length = 2.8 },
+		{ start = 340.574, length = 2.8 },
+	},
+	AmbFlap = { { start = 343.624, length = 2.4 } },
 }
 
 return table.freeze(atlas)

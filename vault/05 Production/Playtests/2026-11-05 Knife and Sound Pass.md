@@ -258,7 +258,7 @@ The client has no "current map" signal, so the map is chosen from the camera pos
 **Recordings** (all CC0, licence read on each page, real field recordings; `72091` rejected because it was generated in Audacity):
 - **Beds** are seamless loops: the tail is crossfaded into the head, and every slice starts on a whole millisecond so the loop region lands exactly (an earlier build clicked at the seams; measured seam jumps are now 1.2-3.4x a normal sample step).
 - **Loudness:** the stereo 2D beds are normalised to −24/−26 LUFS integrated, the mono positional loops to −22/−24, and the one-shots to about −24 LUFS momentary. Peaks are capped at −1 dBTP with a lookahead limiter.
-- **Atlas:** v4 is `113114942677956`, the second audio upload this month. The gun slices are byte-identical; the knife and sound-pass slices moved by under 1 ms.
+- **Atlas:** v4 was `113114942677956`, the second audio upload this month (now superseded by v5, below). The gun slices are byte-identical; the knife and sound-pass slices moved by under 1 ms.
 
 | Sound | Used (Freesound id, author: what it is) | Alternates |
 |---|---|---|
@@ -308,3 +308,56 @@ The client has no "current map" signal, so the map is chosen from the camera pos
 - [ ] Fire a gun: the ambience dips a little under your shots.
 - [ ] If anything is too loud, too busy or wrong, the volumes and intervals live in `Config/Ambience`; to swap a recording, see the alternates above.
 - [ ] **Save the match place** (Ctrl+S, Save to Roblox): the 19 emitters and 2 rooms live in `Workspace.Dockyard2.Ambience` (Studio-owned, like the map).
+
+### Rooftops2 ambience (same system)
+- **Beds:** the city below (`AmbCity`, 0.45) and wind across the roofs (0.24). There are no rooms: nothing on Rooftops2 is enterable.
+- **`tools/studio/maps/Rooftops2/Ambience.luau`** places 19 emitters:
+  - AC-unit hum loops on the 6 roof and 2 Pit AC units (the nearest 4 play);
+  - pigeons cooing on the penthouses, tank houses and lift tower, and wing flaps on the two water tanks;
+  - car horns in the street below;
+  - two far sirens across the city.
+- **Tested in play:** both beds play, the nearest AC loop plays (36 studs), and sirens, flaps, horns and pigeons all fired within 35 s.
+- **Atlas v5:** `98111406982561`, the third audio upload this month. Everything earlier is unchanged; 346 s, 17.7 MB, so about 2 MB of headroom is left under Roblox's 20 MB limit.
+- **The older maps** get beds only, through `MAPS` entries:
+  - Dockyard: harbour and wind;
+  - Rooftops: city and wind;
+  - Old Town: city and wind, quieter;
+  - Snowpeak: wind;
+  - Metro and Bunker: room tone (Metro also a faint hum);
+  - Greenhouse: wind and a little room tone.
+
+  They'd get emitters the same way, from a placement script per map. Silent loops (other maps' beds, the room tone outdoors) pause, so only audible loops cost a voice.
+
+| Sound | Used (Freesound id, author: what it is) | Alternates |
+|---|---|---|
+| `AmbCity` bed | 369891 SpliceSound: a Brooklyn rooftop over traffic and an elevated train (steadiest 24 s, ±0.2 dB) | 330427 janbezouska: downtown LA, semi-distant traffic from a 4th floor; 350267 simonjeffery13: a car park near a road on a sunny day |
+| `AmbAC` (AC units) | 148906 timgormly: an air-conditioning unit outside a window | 273620 myrinvp: an old AC unit in a garage; 259205 smart8951: a fan |
+| `AmbSiren` ×2 | 568814 TRP: distant sirens echoing off buildings (Toronto) | 469363 brunoboselli: a distant ambulance passing; 577312 TRP: sirens, Calgary |
+| `AmbCarHorn` ×2 | 182474 keweldog: a car horn in traffic; 349922 DeVern: a car horn honk | 423990 AmishRob: two short beeps |
+| `AmbPigeon` ×3 | 701282 5ro4: a male pigeon walking and cooing | 319512 squashy555: a wood pigeon; 154865 pawsound: pigeons cooing in a park |
+| `AmbFlap` | 689998 Kinoton: a pigeon flying off, close wing flaps | 616623 TRP: a pigeon flock flying off; 414671 zouzmusic: a short wing flap |
+
+### Rooftops2 licence ledger (CC0 1.0, read on each sound page)
+| Id | Title | Author | Source |
+|---|---|---|---|
+| 148906 | A/C Hum.aif | timgormly | [freesound.org](https://freesound.org/people/timgormly/sounds/148906/) |
+| 182474 | car horn.wav | keweldog | [freesound.org](https://freesound.org/people/keweldog/sounds/182474/) |
+| 259205 | Ventillation | smart8951 | [freesound.org](https://freesound.org/people/smart8951/sounds/259205/) |
+| 273620 | Old air conditioning unit | myrinvp | [freesound.org](https://freesound.org/people/myrinvp/sounds/273620/) |
+| 319512 | pigeon.wav | squashy555 | [freesound.org](https://freesound.org/people/squashy555/sounds/319512/) |
+| 330427 | Downtown LA, Little Tokyo, late night semi distant traffic.wav | janbezouska | [freesound.org](https://freesound.org/people/janbezouska/sounds/330427/) |
+| 349922 | Car Horn Honk.wav | DeVern | [freesound.org](https://freesound.org/people/DeVern/sounds/349922/) |
+| 350267 | Outside in the car park | simonjeffery13 | [freesound.org](https://freesound.org/people/simonjeffery13/sounds/350267/) |
+| 369891 | New York City night evening rooftop ambience traffic, Bushwick, Brooklyn, above-ground subway M train.wav | SpliceSound | [freesound.org](https://freesound.org/people/SpliceSound/sounds/369891/) |
+| 423990 | Car horn beep beep two beeps honk honk | AmishRob | [freesound.org](https://freesound.org/people/AmishRob/sounds/423990/) |
+| 469363 | Distant Ambulance Siren | brunoboselli | [freesound.org](https://freesound.org/people/brunoboselli/sounds/469363/) |
+| 568814 | 200829 Sirens, distant, ambulence, police, urban echoes roof, stops 9am.flac | TRP | [freesound.org](https://freesound.org/people/TRP/sounds/568814/) |
+| 577312 | Sirens, fire, police, close pass, distant, urban, CALGARY, 2011.wav | TRP | [freesound.org](https://freesound.org/people/TRP/sounds/577312/) |
+| 616623 | 121003 Pigeon flock fly away, wing flaps, Toronto.wav | TRP | [freesound.org](https://freesound.org/people/TRP/sounds/616623/) |
+| 689998 | Pigeon, Flies Away, Flapping Wings | Kinoton | [freesound.org](https://freesound.org/people/Kinoton/sounds/689998/) |
+| 701282 | pigeon walking and cooing.wav | 5ro4 | [freesound.org](https://freesound.org/people/5ro4/sounds/701282/) |
+
+### Check tonight (Rooftops2 ambience)
+- [ ] Set `Workspace.ForceMap = "Rooftops2"` and play. You should hear the city below with a train now and then, and wind. Near an AC unit, its hum. Pigeons on the high ledges every 12-30 s, now and then a pigeon flying off a water tank. Car horns from the street, and a far siren every minute or so.
+- [ ] Old maps (Dockyard, Rooftops, Old Town, Snowpeak, Metro, Bunker, Greenhouse) now have a bed. Say if any doesn't fit.
+- [ ] **Save the match place** (Ctrl+S): the emitters live in `Workspace.Rooftops2.Ambience` and `Workspace.Dockyard2.Ambience`.
