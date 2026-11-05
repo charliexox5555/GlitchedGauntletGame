@@ -1,6 +1,6 @@
 # Lobby Rebuild 2026-11-04 (lane A)
 
-**Status: plan, waiting for the user's approval. Nothing is built.** The Lobby place is back to the bunker exactly as it was before tonight (restored from the in-place archive, 10,020 instances, original lighting). Range brainstorm: [Range Brainstorm](../01%20Design/Range%20Brainstorm.md).
+**Status: plan approved by the user (2026-11-04, with the clarifications below); phase 3 blockout next.** The Lobby place is back to the bunker exactly as it was before tonight (restored from the in-place archive, 10,020 instances, original lighting). Range brainstorm: [Range Brainstorm](../01%20Design/Range%20Brainstorm.md).
 
 ## What happened tonight
 1. A first rebuild went in a **bright pastel, flat-colour, open-roof hall** direction (compact, open Duels arena, 3D letter signs). The user saw it and rejected it: **too bright, no textures, dull, and not the bunker.** It is scrapped. It lives only as an archive in the Lobby place (`ServerStorage.Archive.StylizedHub_Scrapped_20261104`) and as the kit script `tools/blender/build_lobby_kit_stylized.py` (its 3D-letter sign builder and coplanar fixes are reusable).
@@ -16,17 +16,23 @@ Sources: two research passes (web summaries, not every page opened; marked where
 - **Roblox:** MaterialVariant (colour + normal + roughness, StudsPerTile) for tiling surfaces; SurfaceAppearance follows mesh UVs and suits trim sheets and hero props; keep maps at 1024 or less (the docs disagree on the hard limit) ([texture specs](https://create.roblox.com/docs/art/modeling/texture-specifications.md), [DevForum](https://devforum.roblox.com/t/upload-custom-materials-in-the-new-material-service-beta/1583158/460)).
 - **Bunkers that don't feel dull:** dim cool base plus **warm light pools** at doors, desks and pads; emissive signage; hot/cool rim light; motion (fans, screens, lifts, steam, dust) ([80.lv light and dark](https://80.lv/articles/sci-fi-environment-building-light-and-dark/)).
 
+## User clarifications on approval (2026-11-04)
+- The aim was always a **simpler, lower-poly version of the same bunker layout, made more compact**: shorter wings, **fewer things** overall.
+- **Not cartoony.** A professional game look with a **tactical feel, but not fully tactical**: clean, grounded, well made.
+- **Smooth rounded corners, done properly.** Criticism of the scrapped kit: corners were "one rounded box with a slightly shorter rounded box stacked on it". Every piece needs a designed profile (see Modelling standard).
+- Fun, simple, made really well; good research on lobbies; looks better **and performs better**.
+
 ## The plan: "Sunwell Bunker, redone"
 Same concept: an underground bunker hub, a round **spawn rotunda under a skylight sunbeam**, an outer ring you can slide around, **four wings in the same directions** (Duels north, Market west, Weapons + Locker east, Range south). What changes is **size, look and the four wing interiors**, following the user's earlier notes (too big, separated queue bays, long Market, complicated Range entry, tactical stencil signs, few effects).
 
 ### Look (stylized, textured, grounded)
 | | Before (tactical) | Scrapped (pastel) | Plan |
 |---|---|---|---|
-| Shapes | realistic, sharp, detailed | blobby, toy | **lower poly with chunky bevels** (0.5–1 on architecture, 0.15–0.3 on props), rounded frames and portals, no greebles |
+| Shapes | realistic, sharp, detailed | blobby, toy, stacked rounded boxes | **lower poly, professional:** designed profiles with a bevel hierarchy, recessed seams and inset panels, rounded frames and portals, no greebles (see Modelling standard) |
 | Surfaces | realistic concrete/oak textures | flat colour | **stylized textures:** painted, low-frequency, light bevel edges, darker corners, soft vertical gradients |
 | Palette | grey / black, dark | white + candy | **mid-value and rich:** warm concrete, teal-slate steel, rust-ochre trims, one accent per wing |
 | Light | moody, dark wings | flat daylight | **cool base + warm light pools**, the sunbeam over spawn, coloured rim light per wing |
-| Signs | stencils on flat panels | candy 3D letters | **3D letters in chunky beveled sign boxes with neon-tube outlines** (an industrial neon sign: bunker and fun) |
+| Signs | stencils on flat panels | candy 3D letters | **3D letters in a bold condensed face** (not a cartoon font) in beveled sign boxes with a lit edge: an industrial sign, clean and confident |
 | Motion | little | spinning props | fans, screens, pad rings, light columns, steam, dust, rare glitch flickers |
 
 **Palette (starting values, tuned under Roblox lighting at the style board):**
@@ -82,7 +88,27 @@ Sunbeam (Beams + bright floor hot spot) with dust over spawn; ceiling fans in th
 4. **Kit + textures**, import, assemble area by area, screenshot and iterate.
 5. **Lighting and effects pass**, audits (zero overlaps), save the place, `.rbxm` backups, notes and the test checklist.
 
-## Questions for the user
+
+## RIVALS reference study (2026-11-04, after approval)
+Sources: the user's RIVALS lobby screenshots (`01 Design/RivalsMapConcepts/`) and frames from a RIVALS lobby walkthrough video (YouTube "All secret room in Roblox Rivals lobby").
+- **Duels is a long open hall, not bays:** a central walkway with white chevrons and yellow / purple edge lines, pads set flush into the floor on **both sides** (concentric-ring graphic, coloured outline), a big framed count screen ("0/1") on the wall behind each pad, slanted "1v1" tabs hanging overhead. Nothing separates the pads, so the whole hall reads as one space.
+- **Structure, not low poly:** chunky angled buttresses and frames, recessed panels, ribbed ceilings with light strips, framed doorways. Main surfaces carry a soft texture (stone, panel), many parts are just clean smooth plastic.
+- **Signs:** neon-outline graphics with an icon (WEAPONS with a rifle outline, SHOOTING RANGE with a target, DUELS between two curved arrows). Bold, readable, a little playful.
+- **Spawn:** a round grate platform with a glow, big leaderboards and a season banner around it, wings left and right.
+- **Range interior:** bright light-grey panelled room, red / white target graphic on the floor, cove-lit ceiling.
+- Light: dark-to-mid base with strong coloured accents (purple, yellow, cyan, orange) and warm practical lights.
+
+**Change to the plan from this (user, 2026-11-04):** Duels stays a **longer hallway, but open and connected** like RIVALS (not the square arena). Not too low poly: structure and texture where it helps, clean smooth plastic elsewhere; a little more rounded and fun, professional.
+
+## Blockout (phase 3) and critique
+Built beside the lobby at x + 700 (`Workspace.LobbyBlockoutV2`, `tools/studio/lobby/Blockout_V2.luau`): rotunda R30 with 8 piers, drum and stepped dome to a R11 skylight; ring R30–44 (ceiling 22) with portals N 40 wide, W / E / S 28 wide; **Duels hall 44 × 92 × 28** (walkway 10 wide with chevrons, pads both sides: 1V1 12 × 12 at z −54 and −68, 2V2 14 × 14 at −84, 3V3 16 × 16 at −102, count screens behind, buttress + truss every 19, a 4V4 / Gauntlet "soon" wall at the end); Market hall 40 × 44; Armoury R22; Range vestibule 28 × 16 with the door. Footprint about 180 × 200 (was about 550 × 600).
+
+Critique against the references:
+- **Works:** from spawn the DUELS sign sits dead centre in the north portal and the whole hall (pads, screens, end wall) reads through it, like the RIVALS spawn → Duels view. Every pad is visible from the hall entrance. Walk: spawn → nearest pad ≈ 54 (3.4 s), farthest ≈ 105 (6.5 s); Shop / Armoury / Range ≈ 45–70.
+- **Weak:** the piers (4 wide) look thin and the colonnade reads as a fence, so they need to be chunkier, with framed portals on the four axes. Market and Armoury are 90° to the side (as in the old design and in RIVALS), so floor guide lines from the dais to each portal, plus portal signs lit in the wing colour, must do the wayfinding. The ring is plain, so it needs rhythm (ribs, light slots, vents with fans). The hall needs the RIVALS details: pad screens, hanging tabs, edge lines, warm pendant lights.
+- **Decision:** keep this layout for the build, with chunkier piers (6 × 6), framed axis portals and guide lines.
+
+## Questions for the user (answered 2026-11-04: compact yes, Duels a long open hall, rest as recommended)
 1. **Size:** compact as above (recommended), or keep the original sizes?
 2. **Duels:** one open arena with all pads together (recommended, from your earlier feedback), or the original long hall of bays?
 3. **Weapons wing:** keep a small round armoury with the Locker (recommended), or fold the Locker into the Market and drop the armoury?
