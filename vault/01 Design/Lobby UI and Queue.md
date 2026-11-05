@@ -2,7 +2,7 @@
 
 Lane B of the [Overnight 2026-11-04](../05%20Production/Overnight%202026-11-04.md) plan: the Lobby place's HUD (top bar, bottom bar), the full-screen **Play** menu, a server-authoritative **solo queue** with **bot backfill**, the **teleport** to a reserved Match server, and hooks from lane A's tagged world parts. Code: `src/lobby/**` (Rojo project `lobby.project.json`, port 34873). Image prompts: [Lobby UI Image Prompts](Lobby%20UI%20Image%20Prompts.md).
 
-**Status (2026-11-05):** built, playtested in Lobby Studio, then reworked in a **LihFolk review pass** (section 7): a compact arrangement for phones and small screens, safe-area split menus, gamepad selection, motion tokens, reduced motion, a 12+ px text floor, and teleport handling per LihFolk. Measured at 7 screen sizes; **quality score 9.2/10** (3 blind reviewers, median). `rojo build lobby.project.json`, selene and StyLua pass. Not tested: a real teleport (needs published places) and a physical gamepad.
+**Status (2026-11-05, evening):** bug fixes and the v2 style pass are in [section 8](#8-bug-fixes-and-style-pass-v2-2026-11-05-lane-e-lobby-ui-2) (top row in Roblox's top bar, crisp borders, chat and player list kept clear, one theme module; 9.2/10). Earlier the same day: built, playtested in Lobby Studio, then reworked in a **LihFolk review pass** (section 7): a compact arrangement for phones and small screens, safe-area split menus, gamepad selection, motion tokens, reduced motion, a 12+ px text floor, and teleport handling per LihFolk. Measured at 7 screen sizes; **quality score 9.2/10** (3 blind reviewers, median). `rojo build lobby.project.json`, selene and StyLua pass. Not tested: a real teleport (needs published places) and a physical gamepad.
 
 ## 1. Research (phase 1)
 A Sonnet research pass on RIVALS, Valorant, Overwatch and Fortnite. Web sources on RIVALS' exact HUD were thin (guide sites only), so items marked *unverified* should be checked in the live game.
@@ -170,3 +170,129 @@ Clearing an id falls back to the vector icon / colour wash. The un-cut `mode_*.p
 7. **Phone / small screen:** Studio → Test → Device emulator: iPhone SE (667 x 375) and a notched phone in both landscapes. Expect the compact arrangement: five tiles clear of the stick and jump buttons, the pill under the profile, the HUD hidden behind menus, 240-wide cards. Or set `workspace` attribute `LobbyForceLayout` to `"phone"` / `"desktop"` in Studio (Studio only) to force an arrangement.
 8. **Gamepad:** plug one in; open PLAY: FIND MATCH is selected with a gold ring, the D-pad moves between the cards, A presses, B closes.
 9. **Reduced motion:** Settings → REDUCED MOTION on: menus fade without sliding, no sweeps or spins.
+
+## 8. Bug fixes and style pass v2 (2026-11-05, lane E `lobby-ui-2`)
+Status: **built, checked at 7 sizes, scored 9.2/10 (3 blind reviewers), committed** (`d2335db`, `c5dfdb1`). Not done: Device-emulator screenshots and saving the Lobby place. Both need computer use, which nobody could approve while you were out (see "What the user should check tonight").
+
+### Plan (phase 1)
+**The three bugs, found in play (Studio 1539 x 604, `GuiService.TopbarInset` = 208..1539 x 58):**
+1. *Top bar ignores the GUI inset:* the HUD's top clusters and its top shade lived in a `CoreUISafeInsets` gui, so the shade started 58 px down with a hard edge, and the profile and wallet floated in a second row under Roblox's bar instead of beside its buttons.
+2. *Borders don't line up:* every panel was a 9-slice (`Ui.cut`) whose outline image scaled with `SliceScale = corner / 32`, so outline width changed per element (corners 10-26 → about 1-2.5 px), then went soft under the fractional Fit `UIScale`; `UIStroke`s were 1.5 px; the PLAY / FIND MATCH glows were the same cut shape 16 px larger, so their corners weren't concentric. Tested: `UIScale` does scale `UIStroke` (a 40 px stroke under 0.25 drew 10 px), so strokes can be snapped.
+3. *Chat and player list cover items:* the profile (top left) sat under the TextChatService window and the wallet / gear (top right) under the player list; menu headers and close buttons sat in the same corners.
+
+**Fix plan (LihFolk: Safe Areas and Insets; Responsive UI for Phone Tablet Console and PC; ScreenGui Fundamentals; Layout - Scale Offset and Constraints):**
+- Top-bar items go **into Roblox's top-bar row**: a `TopbarSafeInsets` gui (the free strip right of Roblox's buttons, which flexes with them), 44 px chips matching Roblox's buttons; when that strip has no height (console), the row drops to the core-UI safe area top with a 12 px margin. Shades move to an edge-to-edge `None` gui.
+- Every shape becomes `UICorner` + `UIStroke` (2 px, `Border` mode) from one kit; nested radii follow LihFolk's rule (inner = outer − gap); strokes are snapped to whole drawn pixels per Fit scale (`Layout.snapStrokes`).
+- HUD clears chat and the player list by layout: top row in Roblox's bar, everything else on the bottom dock (searching pill above it on desktop, under the top bar on phones where chat and the player list start closed). Full-screen menus hide the chat window and the player list while open and restore them on close (flag `Style.FLAGS.hideCoreUiInMenus`).
+
+**Style pass (designed in Figma first: [Game UI file](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN), page Screens, row y 4700-6440: `Lobby v2 · Tokens`, `Lobby v2 · HUD 1920x1080`, `Lobby v2 · Play menu 1920x1080`, `Lobby v2 · HUD phone 667x375`).** One theme module `src/lobby/client/Util/Style.luau` (every colour, size, radius, stroke, font and flag) and one kit `Util/Kit.luau`. Rounded surfaces with a top-lit gradient and a stacked soft shadow; the gold PLAY / FIND MATCH get a 6 px lip that sinks on press (LihFolk UI Spec: depth is a lip); Montserrat Heavy for display (matches the Lobby's Montserrat Black signs), Builder Sans for labels and body (LihFolk: Gotham is retired and renders as Montserrat); mode colours from the Lobby world pads (1V1 `#FF7A2F`, 2V2 `#27B7FF`, 3V3 `#A15CFF`); full-bleed ChatGPT mode art (the un-cut `mode_*.png`) on the cards.
+
+RIVALS references: a research pass couldn't fetch any screenshot of RIVALS' lobby menus (wiki and guide sites blocked; only store key art, kept locally in `References/lobby-ui/third-party/`, not committed). What we know from text: a green PLAY on the HUD opening a mode list, an "improved top bar and queue UI" in Update 13. So the pass leans on the LihFolk UI Spec and on general RIVALS polish (clean rounded shapes, one loud action colour, bold sans type); **the user should compare it with the live game.**
+
+### What changed (phases 2-3)
+**Bug 1, top bar and the GUI inset.** The profile, wallet and settings now sit **in Roblox's top-bar row** beside its buttons. They live in a `LobbyTopBar` gui with `ScreenInsets = TopbarSafeInsets`. The chips are 44 px, like Roblox's own, and they move whenever `GuiService.TopbarInset` changes. With no top bar (console), the row moves to the top of the core-UI safe area with a 12 px margin. The shades moved to an edge-to-edge `LobbyHudShade` gui (`None`), so the hard line 58 px down is gone. Before and after: `before-hud-1539x604.jpg` → `after-hud-desktop-hover.jpg`.
+
+**Bug 2, borders.** The lobby UI no longer uses scaled 9-slices:
+- Every shape is a `UICorner` plus a 2 px `UIStroke` (Border mode), built by `Util/Kit`.
+- Radii come from tokens and follow the nested rule (inner = outer − gap). The art is inset 2 px and uses radius − 2; the focus ring uses + 4; each glow layer uses + its grow.
+- `Layout.snapStrokes` resets each stroke so it draws a **whole number of pixels** at the cluster's Fit scale. I tested that `UIScale` does scale `UIStroke`: a 40 px stroke under a scale of 0.25 drew 10 px.
+- The glows are concentric layers, not a larger copy of the shape.
+
+**Bug 3, chat and player list.** Nothing interactive sits below Roblox's top bar on the left or right any more.
+- The top row is inside the bar. The dock is at the bottom, and so is the searching pill on desktop.
+- Phones have no pill. A phone's chat opens over the top of the screen, so instead a red ✕ badge on PLAY cancels the search (45 px drawn).
+- Full-screen menus hide the chat window, chat bar and player list while they're open. On close they restore exactly what was showing before (`Util/CoreUi`, switch `Style.FLAGS.hideCoreUiInMenus`). I verified this in play by reading the `TextChatService` and `StarterGui` state before, during and after.
+- Toasts sit above the dock, or at the top while a menu is open.
+
+**Style pass.**
+- One theme module, **`src/lobby/client/Util/Style.luau`**, holds every colour, font, type size, radius, stroke, spacing, shadow, glow, dock size and menu size. It also holds three look flags: `hideCoreUiInMenus`, `shadows` and `shine`.
+- The builders are in `Util/Kit.luau`. The Play menu and all five panels share the menu chrome in `Util/Menu.luau`.
+- Surfaces are rounded, with a top-lit gradient, a light 2 px edge and a stacked soft shadow.
+- PLAY and FIND MATCH are gold, with a darker lip that the face sinks into on press and a breathing layered glow.
+- Type is Montserrat Heavy for display and Builder Sans for labels and body.
+- The mode cards use full-bleed ChatGPT art: the un-cut uploads (image ids 132175332386485, 88838344441665, 91043835690868), cropped to the fighters and faded into the card. Mode colours come from the Lobby's pads.
+- Smaller pieces: SELECTED and IN QUEUE pill tags, key-chip hints, and a round close button in the same place on every menu. The Locker marks its selected slot.
+- No new images were needed, so I didn't use ChatGPT this pass.
+- Motion keeps the existing tokens: press 0.05 s, hover 0.1, exit 0.12 In, enter 0.22, reveal 0.4. Reduced-motion fades and gamepad selection stay as they were. The focus ring now matches each button's corner.
+
+Files:
+- New: `Util/Style.luau`, `Util/Kit.luau`, `Util/Menu.luau`, `Util/CoreUi.luau`.
+- Rewritten: `Controllers/LobbyHud.luau`.
+- Restyled on the kit: `Controllers/QueueMenu.luau`, `Controllers/Panels.luau`.
+- Also changed: `Util/Fx.luau`, `Util/Layout.luau`, `Util/Router.luau`.
+
+Server code and remotes are untouched. The client still only sends `join(mode)` / `leave` through `QueueState`, so no new security review was needed.
+
+LihFolk notes used:
+- `05 UI and UX`: Safe Areas and Insets; Responsive UI for Phone Tablet Console and PC; ScreenGui Fundamentals; Layout - Scale Offset and Constraints; UI Motion Language and Timing; Menu Archetypes; Gamepad and Console UX; Accessibility; Figma Property Mapping for Roblox UI.
+- `21 LihFolk UI Design System` (LihFolk UI Spec): spacing, radii, nested radius, lip depth, text floor.
+- `32 Case Studies`: Case Study - Rivals. It has no UI visuals.
+- Skills: `roblox-ui-builder` (Gotham is retired; use Builder Sans), `lihfolk-figma` and `quality-score`.
+
+### Measured at 7 sizes
+Running the Device Emulator needs computer use, which nobody could approve while you were out. Instead I checked the sizes with a **size harness** in play mode:
+1. Clone the live HUD and Play menu into frames of exact device sizes.
+2. Draw Roblox's top-bar buttons, chat window and player list where they sit.
+3. Apply the Fit scale and text floor that each size would get.
+4. Measure by script, in drawn px.
+
+| Size | Family | Buttons | Under Roblox UI / off-screen | Min tap | Min text |
+|---|---|---|---|---|---|
+| iPhone SE 667 x 375, HUD while queued | phone | 8 | none | 44 px | 14.3 px |
+| iPhone SE 667 x 375, Play menu | phone | 6 | none | 45 px | 14.3 px |
+| 844 x 390 with chat **and** player list open | phone | 8 | none | 44 px | 14.2 px |
+| Tablet 1024 x 768 with chat and player list | desktop | 9 | none | 44 px | 14.3 px |
+| Desktop 1920 x 1080 with chat and player list | desktop | 9 | none | 44 px | 15.2 px |
+| Console 1920 x 1080, no top bar | desktop | 9 | none | 44 px | 15.2 px |
+| Studio window 1539 x 604 (live play, both families) | both | | none seen | | |
+
+The first harness run caught two real bugs, both fixed:
+- The phone pill's CANCEL drew 36 px.
+- At 844 x 390 with chat and the player list open, the phone pill sat under both.
+
+Screenshots are in `vault/02 Art/References/lobby-ui/20261105/`:
+- Before: `before-hud-1539x604.jpg`, `before-hud-2.jpg`.
+- Figma: `figma-hud-v2.png`, `figma-play-menu-v2.png`.
+- After: `after-hud-desktop-hover.jpg`, `after-hud-phone-family.jpg`, `after-play-desktop.jpg`, `after-play-searching.jpg`, `after-play-phone-family.jpg`, `after-pill.jpg`, `after-match-found-2v2.jpg`, `after-locker.jpg`, `round2-play-searching-phone-family.jpg`, `round2-match-found-3v3.jpg`.
+- Sizes: `sizes-iphone-se-and-844.jpg`, `sizes-desktop-tablet-console.jpg`.
+
+The `third-party/` folder next to it holds RIVALS store art for mood only. Don't commit it.
+
+### Style choices to discuss (all in `Util/Style.luau`)
+| # | Choice made | Alternatives (cheap to switch) |
+|---|---|---|
+| 1 | **Rounded shapes** (radius 14-22, pills for chips) with a 2 px white-14% edge | Keep the match HUD's **cut-corner** identity (the Kit shapes would go back to a cut 9-slice at a fixed scale), or sharper 6-8 px radii for a more tactical look |
+| 2 | **Gold** `#FFC83D` as the one action colour (PLAY, FIND MATCH, level, coin) | A RIVALS-style **green** PLAY (the `primary*` tokens to the `#3FD68A` family), or the glitch cyan for a sci-fi feel |
+| 3 | **Montserrat Heavy** display + **Builder Sans** labels | Oswald (the match HUD's condensed titles) for display, to match in-match UI; or Builder Sans Black everywhere for a Roblox-native feel |
+| 4 | **Dark navy glass** panels (`#1C2531` → `#121922`, 6% transparent) with stacked soft shadows | Lighter, more colourful panels (RIVALS' brighter feel), or flat panels with no shadows (`FLAGS.shadows = false`) |
+| 5 | Top row **inside Roblox's top bar**; menus **hide chat and the player list** | Keep chat visible in menus (`FLAGS.hideCoreUiInMenus = false`; the menu content would then need to shrink away from the top-left corner), or a separate bar under Roblox's |
+
+### Scores (`lihfolk:quality-score`, rubric `ui.md`)
+**Round 1** used three blind Sonnet reviewers, taking the median per criterion. Result: **9.2**.
+- Criteria: U1 2, U2 2, U3 2, U4 2, U5 1, U6 2.
+- Reviewers' raw scores: 9.2, 8.6 and 8.3.
+- Reviewer 3 failed a gate on a stale phone screenshot that still showed the old phone pill. The re-shot harness (current build) shows no pill and no overlap.
+- U5 (small grey secondary text) was the lowest criterion for all three reviewers.
+
+**Fix round 1** changes:
+- Secondary text is now `#C8D0DB` (about 11:1) and muted text `#A6B0BE` (about 7.5:1).
+- The card meta lines use the secondary colour.
+- The dock slides away during MATCH FOUND.
+- The Locker marks its selected slot.
+- The MATCH FOUND band is slightly translucent.
+
+**Round 2** used one blind reviewer. Result: **9.2**, with gates passing and U1 2, U2 2, U3 2, U4 2, U5 1, U6 2.
+- The remaining U5 point is phone small caps at 14 px drawn (dock labels, card meta lines). The reviewer wants about 16 px on phones.
+- Raising the phone floor to 16 px would overflow the phone card meta lines, so I stopped. Final score: **9.2**.
+- The next step, if you want it, is a phone-only 16 px floor with shorter phone strings ("FT5 · 6P", or dropping the meta line). Or honour Roblox's preferred text size (`GuiService.PreferredTextSize`).
+
+Logged in `.lihfolk/ledger.jsonl`.
+
+### What the user should check tonight
+1. **Save the Lobby place** (Ctrl+S, Save to Roblox, not Publish). The new client code is in Studio through Rojo 34873, but I couldn't press Ctrl+S without computer use.
+2. In Lobby Studio, press Play. The profile, wallet and gear should sit **in Roblox's top bar** next to its buttons. Open the chat and the player list and check that nothing of ours is under them.
+3. Hover and click each dock tile and PLAY. You should see the lift, the gold edge, and the gold face sinking into its lip. Open PLAY: the chat and the player list should disappear while the menu is open and come back when you close it.
+4. Queue, then close the menu: the pill shows above the dock. When MATCH FOUND appears, the dock slides away.
+5. In Test → Device emulator, try **iPhone SE**, an **iPad** and a **1080p TV**. The harness numbers above say everything fits, but please look. On phones there's no pill, just a red ✕ on PLAY while searching.
+6. Decide the 5 style choices above, or tell me your own. Each one is a token change.
+7. Figma: the v2 frames (Screens page, y 4700-6440) show the design before the build. Since then the phone pill became the ✕ badge and the close / cancel buttons got bigger. The build is now the reference.
