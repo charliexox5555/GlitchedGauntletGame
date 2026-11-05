@@ -410,10 +410,12 @@ The shape language is **the match HUD's v1 cut corner** (the look the user chose
   - the MATCH FOUND pulse is kept.
 
 **Figma frames** (file `UbCKQXuZijn0Gpryt0uUxN`, Screens page), with renders in `assets/UI/concepts/figma-v3-clipped-*.png`:
-- [Lobby 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=25-696): the top bar with text tabs, the searching bar (state), DAILY at the bottom left, PLAY at the bottom right.
-- [PLAY menu 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=26-706): a left-aligned title, sharp mode cards with the gold selected frame and ticks, FIND MATCH, key hints.
-- [Match HUD 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=27-716): the clipped score plates under Roblox's bar, the kill feed, the one-word round banner in the popup lane, health with segments, Q/E/T slots with a cooldown, ammo.
-- [Draft 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=28-726): gun row, Q/E/T ability cards with key tabs and role rules, timer, LOCK IN.
+- [Lobby 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=31-756): the top bar with text tabs, the searching bar (state), DAILY at the bottom left, PLAY at the bottom right.
+- [PLAY menu 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=32-756): a left-aligned title with the searching bar beside it, sharp mode cards with the gold selected frame and ticks, FIND MATCH, key hints.
+- [Match HUD 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=34-756): the clipped score plates under Roblox's bar, the kill feed with weapon icons, the one-word round banner in the popup lane, health with segments, Q/E/T slots with a cooldown, ammo with the gun icon and a divider.
+- [Draft 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=35-756): gun row, Q/E/T ability cards with key tabs and role rules, two-line descriptions, timer, LOCK IN.
+
+(These links are to the frames as updated after the review board below. The first versions were replaced in place.)
 - [Phone HUD 667x375](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=29-736) and [Phone Lobby 667x375](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=29-794):
   - Roblox's top bar, thumbstick and jump zones are drawn as `skip_` layers, and nothing interactive sits in them. Ammo and the Lobby's PLAY were moved out of them on the first check.
   - Touch buttons are 48-64 px clipped squares, not circles.
@@ -427,15 +429,62 @@ The shape language is **the match HUD's v1 cut corner** (the look the user chose
   - ally `2FD3E6`, enemy `FF5A4E`, success `3FD68A`;
   - line `3A4350`, line-strong `6B7482`.
 - **Shape:** cut-sm 8, cut-md 12, cut-lg 20; radius-none 0, radius-xs 2.
-- **Stroke:** hair 1, select 2, accent 3.
+- **Stroke:** hair 1, panel 1.5, select 3, accent 4.
 - **Space:** 4, 8, 12, 16, 24, 32, plus edge 48.
-- **Type:** display-xl 96, display-l 64, display-m 40, number-hud 56, title 24, label 15, body 17, small 13.
-- **Size:** tap-min 52, topbar 64.
-- **Alpha:** panel 0.9, scrim 0.6.
+- **Type:** display-xl 96, display-l 64, display-m 40, number-hud 64, card-name 48, title 26, tab 22, body 20, label 18, small 15.
+- **Size:** tap-min 52, topbar 64, ability-slot 84, feed-row 44.
+- **Alpha:** panel 0.94, scrim 0.6.
+
+(Values after the review board below; the table there shows what changed.)
 
 In Roblox this would replace `Config/UiStyle`'s RADIUS / SHADOW / GLOW groups with a `CUT` group. The cut shapes need a 9-slice set (the match already has `cutFill` / `cutLine` at 32 px cuts). That's a build decision for after the user picks.
 
-**ChatGPT concept images: blocked on sign-in.** chatgpt.com is open in lane E's built-in browser. Signed out, it accepted the first prompt (three directions side by side), then answered "Image creation is only available when you're logged in". Prompts 1-4 are ready in `assets/UI/concepts/prompts.md`, with a shared style block and the do-nots. Once the user signs in there (the pane opens with Ctrl+Shift+B in the `lobby-ui-2` session), lane E runs them: the options round first, then one image per screen. The best images get saved in `assets/UI/concepts/`.
+**ChatGPT concept images:** lane E's signed-out try was refused. Codex then made them from prompts 1-4 (`assets/UI/concepts/prompts.md`). They're committed in `assets/UI/concepts/chatgpt/`. The user's verdict: "look pretty good". They're references to raise quality, not to copy one-to-one.
+
+### Review board: ChatGPT images vs the Figma frames (2026-11-05, evening)
+| Image | Better than the first Figma frames | Where the Figma frames are better |
+|---|---|---|
+| ![](../../assets/UI/concepts/chatgpt/01-three-directions.png) `01-three-directions` | Shows A, B and C on one real scene. The differences are small: B slants everything and C only drops the DAILY panel. That's a sign that **the scale and spacing matter more than the corner treatment**. | — (an options board) |
+| ![](../../assets/UI/concepts/chatgpt/02-lobby.png) `02-lobby` | **Everything is about 1.3x bigger**: tabs about 22 px, the name about 22, the queue bar about 600 x 76 with a divider before CANCEL, PLAY about 540 x 168. The bright in-engine scene makes the dark UI pop. DAILY sits on the scene with no panel. The avatar sits left of centre, leaving room for PLAY. | Frame-accurate safe zones (Roblox's top-bar strip). Bound tokens. A real ENTER key hint. |
+| ![](../../assets/UI/concepts/chatgpt/03-play-queue.png) `03-play-queue` | The **searching bar moves beside the title** (top right) while the menu is open. **Shorter copy** ("Pure aim duel.") and no "BOTS FILL" line. Real face-off art fills each card's top half. Bigger key hints and a bigger close button. | The selected card's key number stays visible; exact spacing; it isn't art-dependent. |
+| ![](../../assets/UI/concepts/chatgpt/04-match-hud.png) `04-match-hud` | **Weapon silhouettes in the kill feed.** A gun icon plus a divider in the ammo plate. Thicker team edges (about 5 px), bigger pips. Solid ability icons in bigger slots. Health segments thicker. The banner is bigger, with ticks around it. | The Roblox top-bar strip and chat zone are reserved; it shows the cooldown sweep; the numbers are exact. |
+| ![](../../assets/UI/concepts/chatgpt/05-draft.png) `05-draft` | **Two-line descriptions** split by fact. Ability art shows the effect in our arena (the beacon, the fire patch, the purple wall). Bigger gun pictures. | **Keeps the key hints** (1 2 3 / Q E T / HOLD / ENTER) and the selected-gun summary under LOCK IN. The real descriptions stay intact; the image paraphrased STIM's. |
+
+**What the images get wrong (don't copy):**
+- A UI over a bright, sharp render is the best case. The real lobby and arena are busier, so keep the 0.94 panel alpha and the bottom scrim.
+- The copy was invented (STIM's text); the copy stays from `Config/Mods`.
+- 01's "RECOMMENDED" label is the prompt's own words, not a design element.
+
+### Recommendation: "Clipped steel" at the images' scale
+Keep A, the clipped-corner language that matches the v1 HUD the user kept. **Take the scale, weight and details from the images.** The Figma frames above are now updated to this, so the user compares finished frames.
+
+Token changes (Figma collection "UI v3 Clipped (concept)", already applied):
+
+| Token | Was | Now | Why |
+|---|---|---|---|
+| `type/tab` (new) | 16 | 22 | top-bar tabs read at 0.35x phone scale too |
+| `type/label` | 15 | 18 | labels, key hints, DAILY rows |
+| `type/body` | 17 | 20 | card copy (draft cards use 22) |
+| `type/small` | 13 | 15 | 12 px drawn floor at phone scale |
+| `type/title` | 24 | 26 | — |
+| `type/number-hud` | 56 | 64 | health 72 / ammo 80 in the frames |
+| `type/card-name` (new) | 40 | 48 | ability names |
+| `stroke/panel` (new) | 1 | 1.5 | panel outlines; hairline rules stay 1 |
+| `stroke/select` | 2 | 3 | selected card / gun frame |
+| `stroke/accent` | 3 | 4 | team edges on the score plates (5 in the frame) |
+| `alpha/panel` | 0.90 | 0.94 | plates over a busy world |
+| `size/ability-slot` (new) | 72 | 84 | Q/E/T slots |
+| `size/feed-row` (new) | 36 | 44 | kill-feed rows with a weapon icon |
+
+Layout rules added:
+- the queue bar sits beside the title while the PLAY menu is open;
+- mode and ability copy is **at most 2 short lines**, split by fact;
+- the kill feed and ammo use **weapon silhouettes**. That needs one white icon per gun, an asset task;
+- the mode-card and ability-card art should be **in-engine renders of our maps**, not illustrations. The images show the target framing.
+
+Phone frames: the labels that had slipped under the 12 px floor (10-11 px) are raised to 12.
+
+**Not changed by the images:** colours (they used our hex values), the cut sizes (8/12/20, with 24 on the biggest blocks) and the layout zones.
 
 ### For the user to decide
 1. **Is "Clipped steel" the direction**, the v1 cut corner across the whole game with v2's fonts? The other two from the prompt are B "Slant" (parallelograms, heavy italic) and C "Hairline pro" (almost no panels). The ChatGPT options image will show all three once signed in.
