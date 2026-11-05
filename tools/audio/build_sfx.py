@@ -140,6 +140,36 @@ TAKES = {
 		(478197, 0.0, 0.08, {**H, "hp": 500, "lufs": -22}),
 		(256116, 0.0, 0.08, {**H, "hp": 500, "lufs": -22}),
 	],
+	# Map ambience (2026-11-05, Dockyard2 first). Beds are seamless loops (the
+	# tail crossfaded into the head), stereo for the 2D beds, mono for the
+	# positional ones; one-shots are cut whole with short fades.
+	# Harbour bed: Baltimore harbour with distant industry (flood-mix).
+	"AmbHarbour": [(413334, 45.0, 24.0, {"kind": "loop", "stereo": True, "hp": 40, "lufs_i": -24})],
+	# Wind bed: wind through pines, its steadiest stretch (FunWithSound).
+	"AmbWind": [(390740, 56.0, 24.0, {"kind": "loop", "stereo": True, "hp": 60, "lufs_i": -26})],
+	# Water at the pier edges: boats at a dock, water lapping, flags (clif_creates).
+	"AmbWater": [(254130, 1.0, 22.0, {"kind": "loop", "hp": 60, "lufs_i": -22})],
+	# Indoors (the sheds): an abandoned warehouse's room tone (Kostrava).
+	"AmbRoom": [(240895, 20.0, 24.0, {"kind": "loop", "stereo": True, "hp": 40, "lufs_i": -26})],
+	# The crane's motor hum: a real motor recording (Nox_Sound), pitched down at runtime.
+	"AmbHum": [(556369, 1.0, 8.0, {"kind": "loop", "hp": 40, "lufs_i": -24, "xfade": 1.0})],
+	# Gulls: bursts from a flock (Soojay), and from short gull takes (Lydmakeren).
+	"AmbGulls": [
+		(462462, 7.5, 3.5, {"kind": "raw", "hp": 300, "lufs": -24}),
+		(462462, 50.5, 3.5, {"kind": "raw", "hp": 300, "lufs": -24}),
+		(510917, 4.5, 3.5, {"kind": "raw", "hp": 300, "lufs": -24}),
+	],
+	# Distant horns: a fog horn in San Francisco (tec_studio), a big boat horn (devy32).
+	"AmbHorn": [
+		(99630, 0.0, 7.8, {"kind": "raw", "hp": 50, "lufs": -22, "fade_out": 1.2}),
+		(441223, 1.9, 5.6, {"kind": "raw", "hp": 50, "lufs": -22, "fade_out": 1.0}),
+	],
+	# Metal creaks on the container stacks (LoafDV, ingudios, NachtmahrTV).
+	"AmbCreak": [
+		(238289, 0.5, 2.6, {"kind": "raw", "hp": 80, "lufs": -24}),
+		(119468, 0.1, 2.9, {"kind": "raw", "hp": 120, "lufs": -24}),
+		(556714, 0.25, 3.2, {"kind": "raw", "hp": 60, "lufs": -24}),
+	],
 }
 
 
@@ -178,7 +208,81 @@ def limit(x, ceiling_db=-1.0, release=0.04):
 	return x * g
 
 
+def load_any(fid, stereo):
+	path = os.path.join(DL, f"freesound-{fid}", f"{fid}.ogg")
+	x, sr = sf.read(path, always_2d=True)
+	if x.shape[1] == 1:
+		x = np.repeat(x, 2, axis=1)
+	if sr != RATE:
+		x = signal.resample_poly(x, RATE, sr, axis=0)
+	return x if stereo else x.mean(axis=1)
+
+
+def loudness_i(y):
+	"""Integrated loudness, ungated (BS.1770 K-weighting): fine for steady beds."""
+	from analyze_audio import k_weight
+
+	mono = y.mean(axis=1) if y.ndim == 2 else y
+	k = k_weight(mono)
+	return float(-0.691 + 10 * np.log10(np.mean(k * k) + 1e-12))
+
+
+def take_special(fid, start, length, o):
+	"""Seamless loops ("loop") and whole cuts ("raw")."""
+	stereo = o.get("stereo", False)
+	x = load_any(fid, stereo)
+	if o.get("hp"):
+		x = signal.sosfilt(signal.butter(2, o["hp"], "hp", fs=RATE, output="sos"), x, axis=0)
+	s0 = int(start * RATE)
+	n = int(length * RATE)
+	if o["kind"] == "loop":
+		xf = int(o.get("xfade", 2.0) * RATE)
+		body = x[s0 : s0 + n + xf]
+		y = body[xf : n + xf].copy()
+		t = np.linspace(0, 1, xf)
+		fin, fout = np.sqrt(t), np.sqrt(1 - t)
+		if y.ndim == 2:
+			fin, fout = fin[:, None], fout[:, None]
+		# The last xf samples blend into the head, so the end runs on into
+		# y[0] (= body[xf]) with no seam.
+		y[-xf:] = body[n : n + xf] * fout + body[:xf] * fin
+		y *= 10 ** ((o.get("lufs_i", -24) - loudness_i(y)) / 20)
+	else:
+		y = x[s0 : s0 + n].copy()
+		fin = int(0.03 * RATE)
+		fout = int(o.get("fade_out", 0.25) * RATE)
+		ramp_in, ramp_out = np.linspace(0, 1, fin), np.linspace(1, 0, fout) ** 2
+		if y.ndim == 2:
+			ramp_in, ramp_out = ramp_in[:, None], ramp_out[:, None]
+		y[:fin] *= ramp_in
+		y[-fout:] *= ramp_out
+		y *= 10 ** ((o.get("lufs", -22) - momentary_max(y if y.ndim == 1 else y.mean(axis=1))) / 20)
+	# Peaks over -1 dBTP go through the lookahead limiter (the same gain on
+	# both channels), not a whole-take gain cut: one gust mustn't turn the
+	# whole bed down.
+	def peak_db(v):
+		return max(true_peak_db(v[:, c]) for c in range(v.shape[1])) if v.ndim == 2 else true_peak_db(v)
+
+	if peak_db(y) > -1.0:
+		if y.ndim == 2:
+			lead = np.abs(y).max(axis=1)
+			g = limit(lead) / np.maximum(lead, 1e-9)
+			y = y * g[:, None]
+		else:
+			y = limit(y)
+	return y, {
+		"id": fid,
+		"start": round(start, 3),
+		"length": round(len(y) / RATE, 3),
+		"peak_ms": 0.0,
+		"lufs_m": round(loudness_i(y), 1),
+		"true_peak": round(peak_db(y), 1),
+	}
+
+
 def take(fid, start, length, o):
+	if o["kind"] in ("loop", "raw"):
+		return take_special(fid, start, length, o)
 	x = load(fid)
 	seg = x[int(start * RATE) : int((start + length + 0.05) * RATE)]
 	if o.get("hp"):
@@ -270,8 +374,14 @@ def main():
 	base, sr = sf.read(BASE_AUDIO, always_2d=True)
 	assert sr == RATE
 	regions = json.load(open(BASE_JSON))
-	parts = [base, np.zeros((int(RATE * GAP), 2))]
-	pos = len(base) / RATE + GAP
+	# Every slice starts on a whole millisecond (48 samples) and lasts a whole
+	# number of them: SoundAtlas stores times to 1 ms, so a loop region lands
+	# exactly on its audio (an off-by-24-samples region clicks at the seam).
+	MS = RATE // 1000
+	lead = int(RATE * GAP)
+	lead += (-(len(base) + lead)) % MS
+	parts = [base, np.zeros((lead, 2))]
+	pos = (len(base) + lead) / RATE
 	report = {}
 	clips = {}
 	for name, takes in TAKES.items():
@@ -280,10 +390,13 @@ def main():
 		report[name] = []
 		for fid, start, length, o in takes:
 			y, info = take(fid, start, length, o)
-			st = np.stack([y, y], axis=1)
-			regions[name].append({"start": round(pos, 3), "length": round(len(y) / RATE, 3)})
-			parts += [st, np.zeros((int(RATE * GAP), 2))]
-			pos += len(y) / RATE + GAP
+			st = y if y.ndim == 2 else np.stack([y, y], axis=1)
+			st = st[: len(st) - len(st) % MS]
+			regions[name].append({"start": round(pos, 3), "length": round(len(st) / RATE, 3)})
+			gap = int(RATE * GAP)
+			gap += (-(len(st) + gap)) % MS
+			parts += [st, np.zeros((gap, 2))]
+			pos += (len(st) + gap) / RATE
 			clips[name].append(y)
 			report[name].append(info)
 			print(
@@ -301,7 +414,7 @@ def main():
 		reel = []
 		for name, ys in clips.items():
 			for y in ys:
-				reel += [y, np.zeros(int(0.35 * RATE))]
+				reel += [y if y.ndim == 1 else y.mean(axis=1), np.zeros(int(0.35 * RATE))]
 			reel.append(np.zeros(int(0.6 * RATE)))
 		sf.write(OUT_PREVIEW, np.clip(np.concatenate(reel), -1, 1), RATE, subtype="PCM_16")
 		print("preview ->", OUT_PREVIEW)

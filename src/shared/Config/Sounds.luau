@@ -25,10 +25,12 @@ local function id(n: number): string
 end
 
 return table.freeze({
-	-- v3 (2026-11-05, lane F): the v2 gun atlas unchanged plus the knife and
-	-- sound-pass slices appended (tools/audio/build_sfx.py -> GameAtlas.flac).
-	-- v2 (guns only) was 105241531021545, v1 95621839199583.
-	ATLAS = id(133446200676645),
+	-- v4 (2026-11-05, lane F): the v2 gun atlas unchanged, plus the knife,
+	-- sound-pass and map-ambience slices appended, every slice on a whole
+	-- millisecond (tools/audio/build_sfx.py -> GameAtlas.flac). v3 (knife and
+	-- sound pass, unaligned) was 133446200676645; v2 (guns only)
+	-- 105241531021545; v1 95621839199583.
+	ATLAS = id(113114942677956),
 
 	LowAmmo = "atlas:LowAmmo", -- synthesized tick on each shot from a near-empty mag
 

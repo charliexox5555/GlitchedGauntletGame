@@ -3,7 +3,7 @@
 -- atlas (tools/audio/build_sound_atlas.py), so these are mix levels, not
 -- per-gun fixes. Volumes are Sound.Volume; gains in dB.
 
-export type Group = "Gun" | "Enemy" | "Feedback" | "Foley" | "Ui"
+export type Group = "Gun" | "Enemy" | "Feedback" | "Foley" | "Ui" | "Ambience" | "Room"
 
 return table.freeze({
 	-- SoundGroups under SoundService.Combat (the master bus).
@@ -14,6 +14,8 @@ return table.freeze({
 		Feedback = 1, -- hit ticks, headshot, kill, damage taken
 		Foley = 0.75, -- reload, equip, dry fire, low ammo, swing
 		Ui = 0.7, -- menus, draft, banners, countdown (Config/UiSounds)
+		Ambience = 0.8, -- map beds and emitters outdoors (Config/Ambience); muffled indoors
+		Room = 0.8, -- indoor room tone (Config/Ambience)
 	} :: { [string]: number }),
 
 	-- Your gun ducks a little under hit feedback so ticks always cut through.
@@ -22,6 +24,10 @@ return table.freeze({
 	GUN_GLUE = table.freeze({ threshold = -14, ratio = 3, attack = 0.004, release = 0.09 }),
 	-- Enemy shots: a touch duller than the baked far versions already are.
 	ENEMY_EQ = table.freeze({ low = 0, mid = -1, high = -3 }),
+	-- The outdoor ambience ducks a few dB under your own shots (sidechain),
+	-- so firefights read over the bed (LihFolk Combat Sound Design: duck
+	-- ambience 3-6 dB, 250-500 ms release).
+	AMBIENCE_DUCK = table.freeze({ threshold = -30, ratio = 3, attack = 0.01, release = 0.35 }),
 	-- Master safety limiter.
 	MASTER_LIMIT = table.freeze({ threshold = -4, ratio = 10, attack = 0.001, release = 0.1 }),
 
@@ -42,6 +48,8 @@ return table.freeze({
 		Feedback = 0.02,
 		Foley = 0.04,
 		Ui = 0.02,
+		Ambience = 0.03,
+		Room = 0,
 	} :: { [string]: number }),
 
 	-- Voices. A name plays at most this many times at once (the oldest is

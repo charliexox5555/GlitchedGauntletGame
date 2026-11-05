@@ -234,3 +234,77 @@ Listen with headphones. Every sound is a real CC0 recording; to swap one, see *T
 - [ ] **Slide:** a shoe skid at the start (yours and others').
 - [ ] **Menus in a match:** hover and click use the new real click. If it's too dry or too quiet, the old Roblox clicks are noted in `Config/UiSounds`.
 - [ ] **Guns:** nothing about the guns changed (same slices in the new atlas), but fire a few to confirm nothing went silent.
+
+## Phase 6: map ambience (Dockyard2 first; core chat's follow-up job)
+Ambience is a client controller driven by data:
+- **Beds:** each map gets a stereo 2D bed while the camera is inside its box.
+- **Emitters:** parts tagged in the map play positional loops (only the nearest 4) and random one-shots, culled by distance.
+- **Indoors:** inside a tagged room the outdoor bus is muffled (highs −16 dB, mids −6 dB) and turned down to 35%, and the room tone comes up.
+- **Ducking:** the outdoor bus also ducks a few dB under your own gunfire (sidechain).
+
+The client has no "current map" signal, so the map is chosen from the camera position and the map boxes in config. This needs no server change.
+- `src/shared/Config/Ambience.luau`: map boxes, beds, room tones, emitter sound kinds (volume, range, loop or interval, pitch), the indoor settings and the voice cap.
+- `src/client/Controllers/AmbienceController.luau`: the system; new `Ambience` and `Room` buses in `AudioController` / `Config/Audio`.
+- `tools/studio/maps/Dockyard2/Ambience.luau`: places Dockyard2's 19 emitters (10 water along the quay walls and pier ends, the crane hum, 3 gull spots over the water, a far horn, 4 creaks in the stacks) and the 2 Shed rooms in a `Workspace.Dockyard2.Ambience` folder. Lane G's scripts are untouched.
+- **Old maps:** a map gets ambience by adding an entry to `MAPS` (its box and beds) and running a placement script like Dockyard2's.
+
+**Tested in play** (Dockyard2 via `ForceMap`, restored afterwards):
+- **Outdoors:** the harbour bed (0.45) and wind bed (0.28) play, the room tone is silent, the nearest water loop plays, and all 19 emitters stream in.
+- **Inside a Shed:** the beds drop to 0.16 / 0.10, the room tone comes up to 0.55, the bus EQ goes to highs −16 / mids −6, and the water loops drop to 0.24.
+- **One-shots:** two gull variants, two creaks and the horn all fired within 40 s.
+- **Atlas:** v4 loads (280.4 s).
+- **Console:** no new errors.
+
+**Recordings** (all CC0, licence read on each page, real field recordings; `72091` rejected because it was generated in Audacity):
+- **Beds** are seamless loops: the tail is crossfaded into the head, and every slice starts on a whole millisecond so the loop region lands exactly (an earlier build clicked at the seams; measured seam jumps are now 1.2-3.4x a normal sample step).
+- **Loudness:** the stereo 2D beds are normalised to −24/−26 LUFS integrated, the mono positional loops to −22/−24, and the one-shots to about −24 LUFS momentary. Peaks are capped at −1 dBTP with a lookahead limiter.
+- **Atlas:** v4 is `113114942677956`, the second audio upload this month. The gun slices are byte-identical; the knife and sound-pass slices moved by under 1 ms.
+
+| Sound | Used (Freesound id, author: what it is) | Alternates |
+|---|---|---|
+| `AmbHarbour` bed | 413334 flood-mix: Baltimore harbour with distant industry (steadiest 24 s, ±0.4 dB) | 342878 Pfannkuchn: Hamburg harbour at night across the river; 570910 bruno.auzet: Loctudy small harbour |
+| `AmbWind` bed | 390740 FunWithSound: wind through pines (steadiest 24 s) | 181801 keweldog: breeze; 176252 strangy: wind in a small town (has hammering) |
+| `AmbWater` (pier edges) | 254130 clif_creates: harbour, boats at the dock, water lapping, flags (Sennheiser 416) | 384360 Ali_6868: waves on a breakwater; 528067 laughatlantic: lake water lapping |
+| `AmbRoom` (inside the Sheds) | 240895 Kostrava: abandoned warehouse room tone | 458871 qreiff: large interior with AC; 144046 gchase: control room low hum |
+| `AmbHum` (crane) | 556369 Nox_Sound: a fridge motor hum loop, played at 0.62 speed | 144046 gchase: room-tone hum; 154668 crcavol: large building AC |
+| `AmbGulls` ×3 | 462462 Soojay: clean seagull wildtrack (2 bursts); 510917 Lydmakeren: seagulls short | 537854 Ambientsoundapp: seagulls distant; 263786 steaq: single call |
+| `AmbHorn` ×2 | 99630 tec_studio: a fog horn in San Francisco; 441223 devy32: big boat horn | 37914 kathol: fog horn (dry); 352374 Kinoton: cruise ship horn ×3 |
+| `AmbCreak` ×3 | 238289 LoafDV: long metal creak; 119468 ingudios: metal creak; 556714 NachtmahrTV: bending metal | 339184 joedeshon: squeak; 262325 coltures: squeaky car door |
+
+### Ambience licence ledger (CC0 1.0, read on each sound page)
+| Id | Title | Author | Source |
+|---|---|---|---|
+| 119468 | Metal Creak 4.wav | ingudios | [freesound.org](https://freesound.org/people/ingudios/sounds/119468/) |
+| 144046 | Room_Tone_Ambience_Medium_Control_Low_Hum.wav | gchase | [freesound.org](https://freesound.org/people/gchase/sounds/144046/) |
+| 154668 | Roomtone_Large_Building_AC.aif | crcavol | [freesound.org](https://freesound.org/people/crcavol/sounds/154668/) |
+| 176252 | wind in the grass small town | strangy | [freesound.org](https://freesound.org/people/strangy/sounds/176252/) |
+| 181801 | breeze.wav | keweldog | [freesound.org](https://freesound.org/people/keweldog/sounds/181801/) |
+| 238289 | Long Metal Creak | LoafDV | [freesound.org](https://freesound.org/people/LoafDV/sounds/238289/) |
+| 240895 | abandoned warehouse | Kostrava | [freesound.org](https://freesound.org/people/Kostrava/sounds/240895/) |
+| 254130 | Harbor Ambience 2 | clif_creates | [freesound.org](https://freesound.org/people/clif_creates/sounds/254130/) |
+| 263786 | Seagull single call | steaq | [freesound.org](https://freesound.org/people/steaq/sounds/263786/) |
+| 342878 | Distant harbour noise in a windy night, Hamburg Landungsbrücken | Pfannkuchn | [freesound.org](https://freesound.org/people/Pfannkuchn/sounds/342878/) |
+| 352356 | Gentle small waves lapping on shore.wav | Alex_hears_things | [freesound.org](https://freesound.org/people/Alex_hears_things/sounds/352356/) |
+| 352374 | Cruise Ship Horn, 3x | Kinoton | [freesound.org](https://freesound.org/people/Kinoton/sounds/352374/) |
+| 37914 | fog horn sample(dry).wav | kathol | [freesound.org](https://freesound.org/people/kathol/sounds/37914/) |
+| 384360 | Waves Crashing Against Wall/Break Water 2 | Ali_6868 | [freesound.org](https://freesound.org/people/Ali_6868/sounds/384360/) |
+| 390740 | Wind 2.mp3 | FunWithSound | [freesound.org](https://freesound.org/people/FunWithSound/sounds/390740/) |
+| 413334 | Baltimore Harbor with Distant Industrial Ambience | flood-mix | [freesound.org](https://freesound.org/people/flood-mix/sounds/413334/) |
+| 441223 | Boat Horn.aif | devy32 | [freesound.org](https://freesound.org/people/devy32/sounds/441223/) |
+| 458871 | Room Tone - Large Interior with AC.wav | qreiff | [freesound.org](https://freesound.org/people/qreiff/sounds/458871/) |
+| 462462 | Seagulls / gaviotas clean wildtrack.WAV | Soojay | [freesound.org](https://freesound.org/people/Soojay/sounds/462462/) |
+| 510917 | Seagulls_short.wav | Lydmakeren | [freesound.org](https://freesound.org/people/Lydmakeren/sounds/510917/) |
+| 528067 | Water lapping on lake Pukaki,South Island,New Zealand.mp3 | laughatlantic | [freesound.org](https://freesound.org/people/laughatlantic/sounds/528067/) |
+| 537854 | Seagulls distant.wav | Ambientsoundapp | [freesound.org](https://freesound.org/people/Ambientsoundapp/sounds/537854/) |
+| 556369 | Foley_Object_Fridge_Motor_Humming_Loop_Mono_NTG4.wav | Nox_Sound | [freesound.org](https://freesound.org/people/Nox_Sound/sounds/556369/) |
+| 556714 | Bending Metal | NachtmahrTV | [freesound.org](https://freesound.org/people/NachtmahrTV/sounds/556714/) |
+| 570910 | Loctudy small harbour.wav | bruno.auzet | [freesound.org](https://freesound.org/people/bruno.auzet/sounds/570910/) |
+| 72091 | Low Frequency Humming Noise | JoeDinesSound | [freesound.org](https://freesound.org/people/JoeDinesSound/sounds/72091/) |
+| 99630 | foghorn.wav | tec_studio | [freesound.org](https://freesound.org/people/tec_studio/sounds/99630/) |
+
+### Check tonight (ambience)
+- [ ] Set `Workspace.ForceMap = "Dockyard2"` and play. You should hear a low harbour-and-industry bed with light wind. Walk to a quay edge: water lapping near the walls. Gulls over the water every 10-25 s, a distant ship horn now and then, metal creaks near the stacks, a low hum under the crane.
+- [ ] Walk into a Shed: the outside goes muffled and quieter, and a warehouse room tone comes up. Walk out: it fades back in about 0.6 s.
+- [ ] Fire a gun: the ambience dips a little under your shots.
+- [ ] If anything is too loud, too busy or wrong, the volumes and intervals live in `Config/Ambience`; to swap a recording, see the alternates above.
+- [ ] **Save the match place** (Ctrl+S, Save to Roblox): the 19 emitters and 2 rooms live in `Workspace.Dockyard2.Ambience` (Studio-owned, like the map).

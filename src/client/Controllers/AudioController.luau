@@ -76,7 +76,7 @@ local function buildGroups()
 	master.Volume = Audio.GROUP_VOLUME.Master or 1
 	compressor(master, Audio.MASTER_LIMIT, 0)
 	master.Parent = SoundService
-	for _, name in { "Gun", "Enemy", "Feedback", "Foley", "Ui" } do
+	for _, name in { "Gun", "Enemy", "Feedback", "Foley", "Ui", "Ambience", "Room" } do
 		local g = Instance.new("SoundGroup")
 		g.Name = name
 		g.Volume = Audio.GROUP_VOLUME[name] or 1
@@ -86,6 +86,7 @@ local function buildGroups()
 	compressor(groups.Gun, Audio.GUN_GLUE, 2)
 	compressor(groups.Gun, Audio.GUN_DUCK, 1).SideChain = groups.Feedback
 	compressor(groups.Enemy, Audio.GUN_GLUE, 2)
+	compressor(groups.Ambience, Audio.AMBIENCE_DUCK, 2).SideChain = groups.Gun
 	local eq = Instance.new("EqualizerSoundEffect")
 	eq.LowGain = Audio.ENEMY_EQ.low
 	eq.MidGain = Audio.ENEMY_EQ.mid
@@ -313,6 +314,12 @@ function AudioController.playSound(
 		at = at,
 		jitter = false,
 	})
+end
+
+-- The SoundGroup for `group` (Controllers/AmbienceController adds its own
+-- effects to the ambience buses).
+function AudioController.group(group: Group): SoundGroup?
+	return groups[group]
 end
 
 function AudioController.init()
