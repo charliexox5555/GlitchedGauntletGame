@@ -183,9 +183,15 @@ local function poseBird(b: Bird, cf: CFrame, flap: number, fold: number, nod: nu
 	end
 end
 
-local function showBird(b: Bird, visible: boolean)
+-- 0 = as built, 1 = gone. Writes only when the value changes.
+local function fadeBird(b: Bird, alpha: number)
+	if (b :: any).alpha == alpha then
+		return
+	end
+	(b :: any).alpha = alpha
 	for i, p in b.parts do
-		p.Transparency = if visible then b.transparency[i] else 1
+		local base = b.transparency[i]
+		p.Transparency = base + (1 - base) * alpha
 	end
 end
 
@@ -234,7 +240,18 @@ local function add(kind: string, inst: Instance, src: Instance?)
 		else
 			local from = vec(a, "From") or cf.Position
 			local to = vec(a, "To") or cf.Position
-			e.data = { from = from, to = to, speed = num(a, "Speed", 1), origin = cf.Position }
+			local bases = {}
+			for i, p in rig.parts do
+				bases[i] = p.Transparency
+			end
+			e.data = {
+				from = from,
+				to = to,
+				speed = num(a, "Speed", 1),
+				origin = cf.Position,
+				bases = bases,
+				alpha = -1,
+			}
 			e.wake = num(a, "Wake", 2500)
 		end
 	elseif kind == "Pulse" or kind == "Flicker" then
@@ -276,6 +293,12 @@ local function add(kind: string, inst: Instance, src: Instance?)
 				bird = bird,
 				flee = if flee.Magnitude > 0 then flee.Unit else Vector3.xAxis,
 				state = "perched",
+				flapHz = num(a, "FlapHz", MapLife.PIGEON.flapHz),
+				flapDeg = math.rad(num(a, "FlapDeg", MapLife.PIGEON.flapDeg)),
+				away = num(a, "Away", MapLife.PIGEON.away),
+				rise = num(a, "Rise", MapLife.PIGEON.rise),
+				sound = a:GetAttribute("Sound") or MapLife.PIGEON.sound,
+				volume = num(a, "Volume", MapLife.PIGEON.volume),
 				since = 0,
 				delay = math.random() * 0.35,
 				backAt = 0,
@@ -335,9 +358,9 @@ local function updatePigeon(e: Entry, now: number)
 			d.since = now + d.delay
 			if now - lastFlap > 1.2 then
 				lastFlap = now
-				AudioController.play(cfg.sound, {
+				AudioController.play(d.sound, {
 					group = "Ambience",
-					volume = cfg.volume,
+					volume = d.volume,
 					pitch = 0.95 + math.random() * 0.1,
 					at = rest.Position,
 					range = cfg.range,
@@ -368,32 +391,36 @@ local function updatePigeon(e: Entry, now: number)
 		if s >= 1 then
 			d.state = "away"
 			d.backAt = now + cfg.back[1] + math.random() * (cfg.back[2] - cfg.back[1])
-			showBird(b, false)
+			fadeBird(b, 1)
 			return
 		end
 	elseif d.state == "away" then
 		if now >= d.backAt and nearestCharacter(rest.Position) > cfg.calm then
 			d.state = "in"
 			d.since = now + d.delay
-			showBird(b, true)
 		end
 		return
 	else -- "in": the path backwards
 		s = 1 - (now - d.since) / fly
 		if s <= 0 then
 			d.state = "perched"
+			fadeBird(b, 0)
 			poseBird(b, rest, 0, 1, 0)
 			return
 		end
 	end
 	s = math.clamp(s, 0, 1)
 	local flee: Vector3 = d.flee
-	local pos = rest.Position
-		+ flee * cfg.away * s ^ 1.6
-		+ Vector3.yAxis * cfg.rise * (1 - (1 - s) ^ 2)
-	local ahead = pos + flee + Vector3.yAxis * (if d.state == "out" then 0.6 else -0.6)
+	local pos = rest.Position + flee * d.away * s ^ 1.6 + Vector3.yAxis * d.rise * (1 - (1 - s) ^ 2)
+	-- Out: along the flee line, climbing. In: facing home, gliding down, with a
+	-- nose-up flare over the last stretch before the perch.
+	local ahead = if d.state == "out"
+		then pos + flee + Vector3.yAxis * 0.6
+		else pos - flee + Vector3.yAxis * (-0.5 + 1.4 * (1 - smooth(s / 0.15)))
 	local cf = CFrame.lookAt(pos, ahead)
-	local flap = math.rad(cfg.flapDeg) * math.sin(now * cfg.flapHz * TAU + e.phase)
+	local flap = d.flapDeg * math.sin(now * d.flapHz * TAU + e.phase)
+	-- Fade over the far end of the path instead of popping.
+	fadeBird(b, smooth((s - 0.8) / 0.2))
 	poseBird(b, cf, flap, 1 - smooth(s * 8), 0)
 end
 
@@ -422,6 +449,15 @@ local function update(e: Entry, now: number)
 		if length > 0 then
 			local u = ((now * d.speed + e.phase / TAU * length) % length) / length
 			move(e.rig :: Rig, CFrame.new(from + (to - from) * u - d.origin))
+			-- Fade in and out over the first and last 6% so the loop never pops.
+			local alpha = math.floor(smooth(math.min(u, 1 - u) / 0.06) * 20 + 0.5) / 20
+			if alpha ~= d.alpha then
+				d.alpha = alpha
+				for i, p in (e.rig :: Rig).parts do
+					local base = d.bases[i]
+					p.Transparency = 1 - (1 - base) * alpha
+				end
+			end
 		end
 	elseif kind == "Pulse" then
 		local part = e.inst :: BasePart
@@ -439,17 +475,21 @@ local function update(e: Entry, now: number)
 		part.Transparency = if off then d.to else d.base
 	elseif kind == "Gull" then
 		local cfg = MapLife.GULL
-		local a = d.speed * now + e.phase
-		local dir = if d.speed >= 0 then 1 else -1
+		-- An egg-shaped loop that breathes, at a speed that wanders a little.
 		local centre: Vector3 = d.centre
-		local pos = centre
-			+ Vector3.new(
-				math.cos(a) * d.radius,
-				cfg.bob * math.sin(2 * a + e.phase),
-				math.sin(a) * d.radius
-			)
-		local tangent = Vector3.new(-math.sin(a), 0, math.cos(a)) * dir
-		local cf = CFrame.lookAt(pos, pos + tangent)
+		local function at(t: number): Vector3
+			local a = d.speed * t + e.phase + 0.35 * math.sin(t * 0.27 + e.phase)
+			local r = d.radius * (1 + 0.15 * math.sin(a + e.phase * 0.7))
+			return centre
+				+ Vector3.new(
+					math.cos(a) * r * 1.12,
+					cfg.bob * math.sin(2 * a + e.phase),
+					math.sin(a) * r * 0.9
+				)
+		end
+		local pos = at(now)
+		local tangent = at(now + 0.05) - pos
+		local cf = CFrame.lookAt(pos, pos + Vector3.new(tangent.X, 0, tangent.Z))
 		local inward = if cf.RightVector:Dot(centre - pos) > 0 then -1 else 1
 		cf *= CFrame.Angles(0, 0, inward * math.rad(cfg.bank))
 		-- Bursts of flapping between glides.
@@ -500,6 +540,38 @@ local function mapOf(inst: Instance): Instance?
 	return if node and node.Parent == Workspace then node else nil
 end
 
+-- Rotor rule: copies of the rule's Template (a model in the map's Life
+-- folder) sit on the target at Offset1..Offset4 (studs, in the target's own
+-- frame) and spin about the target's up axis: blades over a fan disc whose
+-- own mesh shows no turning. The copies are client-only and go with the target.
+local function addRotors(target: Instance, rule: Instance)
+	local name = rule:GetAttribute("Template")
+	local life = rule.Parent and rule.Parent.Parent
+	local template = if typeof(name) == "string" and life then life:FindFirstChild(name) else nil
+	local cf = frameOf(target)
+	if not (template and template:IsA("Model") and cf) then
+		return
+	end
+	local copies: { Instance } = {}
+	for k = 1, 4 do
+		local offset = vec(rule, "Offset" .. k)
+		if offset then
+			local copy = template:Clone()
+			copy:PivotTo(cf * CFrame.new(offset))
+			copy.Parent = rule
+			table.insert(copies, copy)
+			add("Spin", copy, rule)
+		end
+	end
+	target.AncestryChanged:Connect(function()
+		if not target:IsDescendantOf(Workspace) then
+			for _, c in copies do
+				c:Destroy()
+			end
+		end
+	end)
+end
+
 local function addRule(rule: Instance)
 	local kind = rule:GetAttribute("Kind")
 	local target = rule:GetAttribute("Target")
@@ -508,10 +580,24 @@ local function addRule(rule: Instance)
 		return
 	end
 	local only = num(rule, "Only", math.huge)
-	local count = 0
+	local matched: { Instance } = {}
 	local function try(d: Instance)
-		if d.Name == target and count < only and (d:IsA("BasePart") or d:IsA("Model")) then
-			count += 1
+		if d.Name ~= target or not (d:IsA("BasePart") or d:IsA("Model")) then
+			return
+		end
+		-- Only counts matches still in the map (a streamed-out one frees its slot).
+		for i = #matched, 1, -1 do
+			if not matched[i]:IsDescendantOf(map) then
+				table.remove(matched, i)
+			end
+		end
+		if #matched >= only then
+			return
+		end
+		table.insert(matched, d)
+		if kind == "Rotor" then
+			addRotors(d, rule)
+		else
 			add(kind, d, rule)
 		end
 	end

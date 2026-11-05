@@ -92,20 +92,20 @@ local function steam(name: string, at: Vector3, rate: number)
 	e.Acceleration = Vector3.new(1.3, 0.3, 0.3)
 	e.Drag = 0.6
 	e.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1.2),
-		NumberSequenceKeypoint.new(0.4, 3.2),
-		NumberSequenceKeypoint.new(1, 5.2),
+		NumberSequenceKeypoint.new(0, 0.8), -- narrow until it has risen
+		NumberSequenceKeypoint.new(0.35, 2.6),
+		NumberSequenceKeypoint.new(1, 5.6),
 	})
 	e.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.1, 0.45),
-		NumberSequenceKeypoint.new(0.55, 0.65),
+		NumberSequenceKeypoint.new(0.12, 0.3),
+		NumberSequenceKeypoint.new(0.55, 0.6),
 		NumberSequenceKeypoint.new(1, 1),
 	})
-	-- A little below white so it reads against the bright evening sky.
-	e.Color = ColorSequence.new(Color3.fromRGB(226, 222, 218))
-	e.LightEmission = 0.05
-	e.LightInfluence = 0.7
+	-- Grey-white: reads against the bright evening sky without going muddy.
+	e.Color = ColorSequence.new(Color3.fromRGB(214, 210, 206))
+	e.LightEmission = 0.1
+	e.LightInfluence = 0.4 -- less of the golden light, so it never goes brown
 	e.Rotation = NumberRange.new(0, 360)
 	e.RotSpeed = NumberRange.new(-20, 20)
 	e.Shape = Enum.ParticleEmitterShape.Box
@@ -114,13 +114,14 @@ local function steam(name: string, at: Vector3, rate: number)
 	tag(e, "LifeEmitter", { Range = 140 })
 end
 -- Flue tops at y 208.4, lift-house vent tops at y 211.2: the steam starts
--- above a standing player's head (about 205).
-steam("Steam_Flue1", Vector3.new(3024, 208.8, 21), 3.2)
-steam("Steam_Flue2", Vector3.new(2976, 208.8, 21), 3.2)
-steam("Steam_Flue3", Vector3.new(2976, 208.8, -21), 3.2)
-steam("Steam_Flue4", Vector3.new(3024, 208.8, -21), 3.2)
-steam("Steam_Lift1", Vector3.new(3030, 211.5, 50), 2.4)
-steam("Steam_Lift2", Vector3.new(2970, 211.5, -50), 2.4)
+-- 1.2 studs above them, 5+ studs over a standing head (about 205), and stays
+-- narrow (0.8 -> 2.6) for its first second.
+steam("Steam_Flue1", Vector3.new(3024, 210, 21), 3.2)
+steam("Steam_Flue2", Vector3.new(2976, 210, 21), 3.2)
+steam("Steam_Flue3", Vector3.new(2976, 210, -21), 3.2)
+steam("Steam_Flue4", Vector3.new(3024, 210, -21), 3.2)
+steam("Steam_Lift1", Vector3.new(3030, 212.7, 50), 2.4)
+steam("Steam_Lift2", Vector3.new(2970, 212.7, -50), 2.4)
 
 -- Pigeons ----------------------------------------------------------------------
 
@@ -149,7 +150,8 @@ local function pigeon(name: string, top: Vector3, facing: Vector3, flee: Vector3
 	for _, side in { -1, 1 } do
 		local n = if side < 0 then "WingL" else "WingR"
 		part(m, n, v(0.62, 0.05, 0.4), o(side * 0.46, 0.1, 0.02), WING)
-		part(m, n .. "Bar", v(0.5, 0.055, 0.08), o(side * 0.46, 0.1, 0.14), BAR)
+		-- The bar sits proud of the wing (no coplanar faces: z-fighting).
+		part(m, n .. "Bar", v(0.5, 0.05, 0.08), o(side * 0.46, 0.14, 0.14), BAR)
 	end
 	m.PrimaryPart = body
 	m:SetAttribute("HingeX", 0.15 * P)
@@ -189,33 +191,33 @@ end
 -- Sage and the map's one cobalt accent (team cyan and orange-red stay off the map).
 local CLOTHS = { Color3.fromRGB(122, 148, 112), Color3.fromRGB(52, 86, 168) }
 local ROD = Color3.fromRGB(58, 56, 54)
+-- Blade banners: an arm out from the wall with the cloth hanging under it,
+-- square to the wall, so it reads face-on from the roofs along the street.
 local function banner(name: string, x: number, z: number, out: number, colour: Color3)
 	local m = model(name)
-	local top = Vector3.new(x + out * 1.6, 196.5, z)
-	local static = part(
+	local top = Vector3.new(x + out * 1.6, 197, z)
+	part(
 		folder,
 		name .. "_Arm",
-		Vector3.new(1.6, 0.18, 0.18),
-		CFrame.new(Vector3.new(x + out * 0.8, 196.6, z)),
+		Vector3.new(3, 0.18, 0.18),
+		CFrame.new(Vector3.new(x + out * 1.5, 197.1, z)),
 		ROD
 	)
-	static.Name = name .. "_Arm"
-	part(m, "Rod", Vector3.new(0.14, 0.14, 2.8), CFrame.new(top), ROD)
-	part(m, "Cloth", Vector3.new(0.06, 6.5, 2.4), CFrame.new(top + Vector3.new(0, -3.3, 0)), colour)
+	part(m, "Cloth", Vector3.new(2.6, 6, 0.06), CFrame.new(top + Vector3.new(0, -3.1, 0)), colour)
 	part(
 		m,
 		"Stripe",
-		Vector3.new(0.08, 0.5, 2.4),
-		CFrame.new(top + Vector3.new(0, -5.6, 0)),
+		Vector3.new(2.64, 0.5, 0.18), -- 0.06 proud of the cloth on both faces
+		CFrame.new(top + Vector3.new(0, -5.3, 0)),
 		Color3.fromRGB(240, 226, 196)
 	)
 	tag(m, "LifeSway", {
 		Pivot = top,
-		SwayAxis = Vector3.zAxis,
-		SwayDeg = 3.5,
+		SwayAxis = Vector3.xAxis, -- swings along the wall, about the arm
+		SwayDeg = 4.5,
 		SwayHz = 0.24,
 		Sway2Axis = Vector3.yAxis,
-		Sway2Deg = 5,
+		Sway2Deg = 4,
 	})
 end
 banner("Banner_E1", 3048.4, -34, 1, CLOTHS[1])
@@ -239,7 +241,30 @@ local function rule(kind: string, target: string, attrs: { [string]: any })
 	r.Parent = rulesFolder
 end
 rule("Spin", "CoolingTower_Fan", { SpinSpeed = 140 })
-rule("Spin", "Condenser_Fan", { SpinSpeed = 320 })
+
+-- Fan blades over the AC and condenser discs (their own meshes are plain
+-- domes, so turning them shows nothing): a light four-blade cross, copied
+-- onto each disc by the controller (Rotor rule) and spun there.
+local BLADE = Color3.fromRGB(184, 188, 194)
+local rotor = Instance.new("Model")
+rotor.Name = "RotorTemplate"
+-- Parked far under the map; the controller only ever uses copies.
+local hub = CFrame.new(3000, -300, 0)
+rotor.PrimaryPart = part(rotor, "BladeA", Vector3.new(2.3, 0.06, 0.34), hub, BLADE)
+part(rotor, "BladeB", Vector3.new(0.34, 0.16, 2.3), hub, BLADE) -- 0.05 proud of A
+part(rotor, "Hub", Vector3.new(0.5, 0.3, 0.5), hub, Color3.fromRGB(70, 72, 78))
+rotor.Parent = folder
+rule("Rotor", "ACUnit_Fans", {
+	Template = "RotorTemplate",
+	Offset1 = Vector3.new(-1.62, 0.22, 0),
+	Offset2 = Vector3.new(1.62, 0.22, 0),
+	SpinSpeed = 300,
+})
+rule("Rotor", "Condenser_Fan", {
+	Template = "RotorTemplate",
+	Offset1 = Vector3.new(0, 0.22, 0),
+	SpinSpeed = 340,
+})
 rule("Flicker", "RoofSign_Neon_Glow", { FlickerTo = 0.85, FlickerGap = Vector2.new(5, 14) })
 rule(
 	"Flicker",

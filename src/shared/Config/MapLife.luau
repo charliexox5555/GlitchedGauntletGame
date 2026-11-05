@@ -25,10 +25,14 @@
 --
 -- Parts of a map's own art (lane G's meshes) are never tagged or edited.
 -- A RULE (a Configuration tagged LifeRule inside the map's Life folder)
--- moves them instead: Kind ("Spin", "Sway", "Flicker"), Target (the parts'
--- or models' Name), optional Only (the first N matches), plus that kind's
--- attributes; for Sway, PivotY (world Y) pivots each match about its own
--- centre at that height. The rules survive a rebuild of the art.
+-- moves them instead: Kind ("Spin", "Sway", "Flicker", "Rotor"), Target (the
+-- parts' or models' Name), optional Only (the first N matches), plus that
+-- kind's attributes; for Sway, PivotY (world Y) pivots each match about its
+-- own centre at that height. Rotor puts client copies of Template (a model in
+-- the Life folder) at Offset1..Offset4 on each match and spins them (Spin
+-- attributes). The rules survive a rebuild of the art.
+-- LifePigeon models may override FlapHz, FlapDeg, Away, Rise, Sound, Volume
+-- (perched gulls on Dockyard2 use the same take-off code as the pigeons).
 -- Wing parts are named WingL* / WingR* and hinge at the Model's HingeX
 -- (studs from the body's centre, along the body's right).
 

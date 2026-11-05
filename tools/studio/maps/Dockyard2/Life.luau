@@ -6,7 +6,8 @@
 --
 -- It builds (all anchored, CanCollide / CanQuery / CanTouch false, no shadow):
 --   * Gulls: 6 circling in pairs 42-46 studs above the deck (a pair round the
---     crane, two over the water channels), far above every sightline.
+--     crane, two over the water channels), far above every sightline, and 4
+--     perched on quay bollards that take off, calling, when someone nears.
 --   * Water: sparkle glints on the water outside the quay walls, and foam
 --     strips breathing at the foot of the quay walls (below deck level).
 --   * A flag on the crane house and a windsock on the crane girder, 56+
@@ -91,10 +92,10 @@ local BEAK = Color3.fromRGB(236, 184, 52)
 
 -- 1.5x a real gull (span about 7.5 studs), so it reads against the sky at
 -- the 60-120 studs players see it from.
-local K = 1.5
-local function gull(name: string, at: Vector3): Model
+local function gull(name: string, at: Vector3, scale: number?, facing: Vector3?): Model
+	local K = scale or 1.5
 	local m = model(name)
-	local cf = CFrame.new(at)
+	local cf = if facing then CFrame.lookAt(at, at + facing) else CFrame.new(at)
 	local function v(x: number, y: number, z: number): Vector3
 		return Vector3.new(x, y, z) * K
 	end
@@ -108,7 +109,7 @@ local function gull(name: string, at: Vector3): Model
 	for _, side in { -1, 1 } do
 		local n = if side < 0 then "WingL" else "WingR"
 		part(m, n, v(1.5, 0.08, 0.7), o(side * 0.95, 0.05, -0.05), WING)
-		part(m, n .. "Tip", v(0.95, 0.07, 0.48), o(side * 2.17, 0.05, 0.02), TIP)
+		part(m, n .. "Tip", v(0.95, 0.07, 0.48), o(side * 2.2, 0.05, 0.02), TIP) -- clear of the wing
 	end
 	m.PrimaryPart = body
 	m:SetAttribute("HingeX", 0.2 * K)
@@ -136,6 +137,31 @@ for gi, g in GULLS do
 	end
 end
 
+-- Gulls perched on the quay bollards (top local y 3.5), facing the deck. They
+-- take off over the water, calling, when someone comes within 15 studs, and
+-- fly back once nobody is near (the pigeon code with gull numbers). Real size:
+-- a bird on a 1-stud bollard at the quay edge hides nobody.
+local PERCHES = {
+	{ at = Vector3.new(67, 3.5, -44), flee = Vector3.new(1, 0.25, -0.35) },
+	{ at = Vector3.new(67, 3.5, 64), flee = Vector3.new(1, 0.25, 0.35) },
+	{ at = Vector3.new(-67, 3.5, 44), flee = Vector3.new(-1, 0.25, 0.35) },
+	{ at = Vector3.new(-67, 3.5, -64), flee = Vector3.new(-1, 0.25, -0.35) },
+}
+for i, perch in PERCHES do
+	local inward = Vector3.new(-perch.flee.X, 0, 0)
+	local m =
+		gull(string.format("Perched_%d", i), ORIGIN + perch.at + Vector3.new(0, 0.42, 0), 1, inward)
+	tag(m, "LifePigeon", {
+		FleeDir = perch.flee.Unit,
+		FlapHz = 3.2,
+		FlapDeg = 50,
+		Away = 70,
+		Rise = 22,
+		Sound = "atlas:AmbGulls",
+		Volume = 0.5,
+	})
+end
+
 -- Water: glints and foam ------------------------------------------------------
 
 local function glints(name: string, at: Vector3, size: Vector3, rate: number)
@@ -149,7 +175,7 @@ local function glints(name: string, at: Vector3, size: Vector3, rate: number)
 	e.Speed = NumberRange.new(0)
 	e.Size = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.3, 1.8, 0.5),
+		NumberSequenceKeypoint.new(0.3, 3, 0.8),
 		NumberSequenceKeypoint.new(1, 0),
 	})
 	e.Transparency = NumberSequence.new(0.15)
@@ -166,10 +192,10 @@ end
 -- The water top is local y -9.1; the channels between the quay walls (x +-68)
 -- and the Skyline ships (inner hull edge x +-92) are 24 studs wide; the ends
 -- are open water.
-glints("Glints_E", W(80, -8.95, 0), Vector3.new(20, 0.2, 230), 26)
-glints("Glints_W", W(-80, -8.95, 0), Vector3.new(20, 0.2, 230), 26)
-glints("Glints_N", W(0, -8.95, 142), Vector3.new(150, 0.2, 40), 30)
-glints("Glints_S", W(0, -8.95, -142), Vector3.new(150, 0.2, 40), 30)
+glints("Glints_E", W(80, -8.95, 0), Vector3.new(20, 0.2, 230), 14)
+glints("Glints_W", W(-80, -8.95, 0), Vector3.new(20, 0.2, 230), 14)
+glints("Glints_N", W(0, -8.95, 142), Vector3.new(150, 0.2, 40), 16)
+glints("Glints_S", W(0, -8.95, -142), Vector3.new(150, 0.2, 40), 16)
 
 local FOAM = Color3.fromRGB(236, 244, 246)
 local function foam(name: string, cf: CFrame, length: number, i: number)
@@ -178,7 +204,7 @@ local function foam(name: string, cf: CFrame, length: number, i: number)
 	tag(
 		p,
 		"LifePulse",
-		{ PulseMin = 0.3, PulseMax = 0.82, PulseHz = 0.16 + (i % 3) * 0.03, Phase = i * 67 }
+		{ PulseMin = 0.15, PulseMax = 0.7, PulseHz = 0.16 + (i % 3) * 0.03, Phase = i * 67 }
 	)
 end
 local n = 0
@@ -219,7 +245,7 @@ part(flag, "Cloth", Vector3.new(8, 5, 0.08), CFrame.new(poleTop + Vector3.new(4.
 part(
 	flag,
 	"Band",
-	Vector3.new(8, 1, 0.1),
+	Vector3.new(8.04, 1, 0.2), -- 0.06 proud of the cloth on both faces
 	CFrame.new(poleTop + Vector3.new(4.2, -2.5, 0)),
 	Color3.fromRGB(240, 196, 40)
 )
@@ -244,7 +270,7 @@ for k, r in radii do
 	part(
 		sock,
 		"Ring" .. k,
-		Vector3.new(1.6, r * 2, r * 2),
+		Vector3.new(1.75, r * 2, r * 2), -- rings overlap, so no end faces meet
 		droop * CFrame.new(0.8 + (k - 1) * 1.6, 0, 0),
 		if k % 2 == 1 then YELLOW else WHITE,
 		"cylinder"
@@ -279,7 +305,7 @@ local function farShip(name: string, z: number, from: number, to: number, speed:
 		m,
 		"Bridge",
 		Vector3.new(11, 9, 8),
-		CFrame.new(at + Vector3.new(0, 7.5, 30)),
+		CFrame.new(at + Vector3.new(0, 7.3, 30)), -- sunk 0.2 into the hull
 		Color3.fromRGB(236, 230, 214)
 	)
 	local colours =
@@ -294,7 +320,16 @@ local function farShip(name: string, z: number, from: number, to: number, speed:
 		)
 	end
 	m:PivotTo(CFrame.new(at) * CFrame.Angles(0, math.pi / 2, 0))
-	tag(m, "LifeDrift", { From = at, To = W(to, -6, z), Speed = speed, Wake = 2500 })
+	-- Twice the first build, so it reads as a ship (not a speck) at 620 studs.
+	m:ScaleTo(2)
+	m:PivotTo(m:GetPivot() - Vector3.new(0, 2, 0)) -- hull 12 tall, 7 above the water
+	local y = m:GetPivot().Y
+	tag(m, "LifeDrift", {
+		From = Vector3.new(at.X, y, at.Z),
+		To = Vector3.new(ORIGIN.X + to, y, at.Z),
+		Speed = speed,
+		Wake = 2500,
+	})
 end
 farShip("FarShip_N", 620, 460, -460, 1.6)
 farShip("FarShip_S", -640, -460, 460, 1.3)
@@ -318,10 +353,10 @@ local trolley = W(0, 57.3, 0)
 local craneSway = {
 	Pivot = trolley,
 	SwayAxis = Vector3.xAxis,
-	SwayDeg = 0.5,
+	SwayDeg = 1.6,
 	SwayHz = 0.11,
 	Sway2Axis = Vector3.zAxis,
-	Sway2Deg = 0.35,
+	Sway2Deg = 0.8,
 	Phase = 30, -- the same phase, so the spreader and its cables swing together
 }
 rule("Sway", "Crane_Spreader", craneSway)
@@ -329,10 +364,10 @@ rule("Sway", "Crane_Rigging", craneSway)
 rule("Sway", "Ship", {
 	PivotY = ORIGIN.Y - 9.1, -- each ship rolls about its own waterline
 	SwayAxis = Vector3.zAxis,
-	SwayDeg = 0.6,
+	SwayDeg = 1.1,
 	SwayHz = 0.07,
 	Sway2Axis = Vector3.xAxis,
-	Sway2Deg = 0.25,
+	Sway2Deg = 0.4,
 	Wake = 400,
 })
 
