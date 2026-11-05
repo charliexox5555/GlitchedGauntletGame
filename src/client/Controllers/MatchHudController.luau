@@ -86,7 +86,7 @@ local function plate(bar: Frame, name: string, x: number, w: number, h: number, 
 	}, {
 		radius = UiStyle.RADIUS.lg,
 		color = C.panel,
-		transparency = 0.08,
+		transparency = 0.02, -- opaque: bright world signs must not show through
 		line = edge or C.white,
 		lineTransparency = if edge then 0.5 else UiStyle.ALPHA.stroke,
 	})

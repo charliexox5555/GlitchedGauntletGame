@@ -1088,6 +1088,9 @@ local function show(o: MatchState.DraftOffer)
 	for _, c in abilityCards do
 		table.insert(order, c)
 	end
+	if canvas then
+		Ui.refit(canvas) -- the new cards get the text floor and snapped strokes
+	end
 	reveal(order)
 end
 

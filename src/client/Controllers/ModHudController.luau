@@ -209,7 +209,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		Name = "Face",
 		Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE),
 		BackgroundColor3 = BACK,
-		BackgroundTransparency = 0.28,
+		BackgroundTransparency = 0.1, -- solid enough that the viewmodel doesn't tint an empty slot
 		BorderSizePixel = 0,
 	}, body)
 	UiKit.corner(face, SLOT_RADIUS)

@@ -195,18 +195,47 @@ local function screenScale(gui: LayerCollector?): number
 	return math.min(size.X / Theme.DESIGN.X, size.Y / Theme.DESIGN.Y)
 end
 
+-- Drawn text floor for the match UI (LihFolk: Accessibility, 12 px minimum;
+-- 13 here for small labels over a busy 3D scene). The authored size is kept
+-- in a "BaseTextSize" attribute so a larger screen can lower it again.
+Ui.MIN_TEXT_PX = 13
+
+local function floorText(root: Instance, scale: number)
+	local floor = math.ceil(Ui.MIN_TEXT_PX / math.max(scale, 0.05))
+	for _, d in root:GetDescendants() do
+		if d:IsA("TextLabel") or d:IsA("TextButton") then
+			local base = d:GetAttribute("BaseTextSize")
+			if typeof(base) ~= "number" then
+				base = d.TextSize
+				d:SetAttribute("BaseTextSize", base)
+			end
+			d.TextSize = math.max(base :: number, floor)
+		end
+	end
+end
+
+-- Re-apply the text floor and stroke snap after building new content inside
+-- a fitted cluster (draft cards, kill-feed rows).
+function Ui.refit(obj: GuiObject)
+	local scale = obj:FindFirstChild("Fit")
+	if scale and scale:IsA("UIScale") then
+		floorText(obj, scale.Scale)
+		UiKit.snapStrokes(obj, scale.Scale)
+	end
+end
+
 -- Scale a design-size cluster with its ScreenGui (call it once the object is
--- parented under the ScreenGui).
+-- parented under the ScreenGui). Also keeps drawn text at Ui.MIN_TEXT_PX or
+-- more and strokes on whole drawn pixels.
 function Ui.fit(obj: GuiObject): UIScale
 	local gui = obj:FindFirstAncestorWhichIsA("LayerCollector")
-	local scale = Ui.make("UIScale", { Scale = screenScale(gui) }, obj)
-	-- Strokes snap to whole drawn pixels at the new scale (Shared/UiKit).
-	UiKit.snapStrokes(obj, scale.Scale)
-	task.defer(UiKit.snapStrokes, obj, scale.Scale)
+	local scale = Ui.make("UIScale", { Name = "Fit", Scale = screenScale(gui) }, obj)
+	Ui.refit(obj)
+	task.defer(Ui.refit, obj)
 	if gui then
 		local conn = gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 			scale.Scale = screenScale(gui)
-			UiKit.snapStrokes(obj, scale.Scale)
+			Ui.refit(obj)
 		end)
 		scale.Destroying:Connect(function()
 			conn:Disconnect()
