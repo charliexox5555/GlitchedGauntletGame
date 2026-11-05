@@ -7,9 +7,10 @@
 -- It builds (all anchored, CanCollide / CanQuery / CanTouch false, no shadow):
 --   * Steam: thin wisps from the four roof flues and the two lift-house vents,
 --     starting above head height and drifting downwind (+X).
---   * Pigeons: three flocks of three, on the tank-house cornices and the east
---     roof sign. They take off when a character comes within 15 studs, with a
---     wing-flap sound, and fly back in once nobody is near.
+--   * Pigeons (off: BIRDS = false below): three flocks of three, on the
+--     tank-house cornices and the east roof sign. They take off when a
+--     character comes within 15 studs, with a wing-flap sound, and fly back in
+--     once nobody is near.
 --   * Banners: two cloth banners on each outer street wall (east and west),
 --     below the roof edge, swaying in the wind.
 -- Lane G's Art is never edited: LifeRules in Life/Rules name the parts that
@@ -168,47 +169,54 @@ local function pigeon(name: string, top: Vector3, facing: Vector3, flee: Vector3
 	tag(m, "LifePigeon", { FleeDir = flee.Unit })
 end
 
--- East tank house: the cornice's west edge (top y 207.97), facing the roof.
-for k, z in { 70.6, 73.2, 76.1 } do
-	pigeon(
-		"Pigeon_E" .. k,
-		Vector3.new(3036.7, 207.97, z),
-		Vector3.new(-1, 0, (k - 2) * 0.4),
-		Vector3.new(1, 0.1, 0.5 + k * 0.15)
-	)
-end
--- West tank house: the cornice's east edge.
-for k, z in { -70.8, -73.4, -76.0 } do
-	pigeon(
-		"Pigeon_W" .. k,
-		Vector3.new(2963.3, 207.97, z),
-		Vector3.new(1, 0, (2 - k) * 0.4),
-		Vector3.new(-1, 0.1, -0.5 - k * 0.15)
-	)
-end
--- East roof sign: along its top (y 231.25).
-for k, z in { -4.2, -0.4, 3.6 } do
-	pigeon(
-		"Pigeon_S" .. k,
-		Vector3.new(3038, 231.25, z),
-		Vector3.new(if k == 2 then 1 else -1, 0, 0.2),
-		Vector3.new(1, 0.25, (k - 2) * 0.7)
-	)
-end
+-- Off since 2026-11-05: the user called these block birds "blocky and bad", so
+-- lane G moved them to ServerStorage.MapBackups.Rooftops2_Pigeons. Turn back on
+-- only with a modelled bird (spec: vault/01 Design/Maps/Dockyard2.md, Concept
+-- pass, Birds) in place of pigeonModel.
+local BIRDS = false
+if BIRDS then
+	-- East tank house: the cornice's west edge (top y 207.97), facing the roof.
+	for k, z in { 70.6, 73.2, 76.1 } do
+		pigeon(
+			"Pigeon_E" .. k,
+			Vector3.new(3036.7, 207.97, z),
+			Vector3.new(-1, 0, (k - 2) * 0.4),
+			Vector3.new(1, 0.1, 0.5 + k * 0.15)
+		)
+	end
+	-- West tank house: the cornice's east edge.
+	for k, z in { -70.8, -73.4, -76.0 } do
+		pigeon(
+			"Pigeon_W" .. k,
+			Vector3.new(2963.3, 207.97, z),
+			Vector3.new(1, 0, (2 - k) * 0.4),
+			Vector3.new(-1, 0.1, -0.5 - k * 0.15)
+		)
+	end
+	-- East roof sign: along its top (y 231.25).
+	for k, z in { -4.2, -0.4, 3.6 } do
+		pigeon(
+			"Pigeon_S" .. k,
+			Vector3.new(3038, 231.25, z),
+			Vector3.new(if k == 2 then 1 else -1, 0, 0.2),
+			Vector3.new(1, 0.25, (k - 2) * 0.7)
+		)
+	end
 
--- A small flock circling over the block, 28-32 studs above the roofs (far
--- over every sightline), so the sky moves too; flap-and-glide like the gulls.
-for k, phase in { 0, 22, 47 } do
-	local centre = Vector3.new(3000, 230 + k, 6)
-	local m = pigeonModel("SkyPigeon_" .. k, centre + Vector3.new(34, 0, 0), Vector3.zAxis, 2.3)
-	tag(m, "LifeGull", {
-		Center = centre,
-		Radius = 34 + k * 2,
-		Speed = 20,
-		Phase = phase,
-		FlapHz = 5,
-		FlapDeg = 50,
-	})
+	-- A small flock circling over the block, 28-32 studs above the roofs (far
+	-- over every sightline), so the sky moves too; flap-and-glide like the gulls.
+	for k, phase in { 0, 22, 47 } do
+		local centre = Vector3.new(3000, 230 + k, 6)
+		local m = pigeonModel("SkyPigeon_" .. k, centre + Vector3.new(34, 0, 0), Vector3.zAxis, 2.3)
+		tag(m, "LifeGull", {
+			Center = centre,
+			Radius = 34 + k * 2,
+			Speed = 20,
+			Phase = phase,
+			FlapHz = 5,
+			FlapDeg = 50,
+		})
+	end
 end
 
 -- Banners on the outer street walls ------------------------------------------------

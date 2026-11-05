@@ -460,8 +460,9 @@ Client-only ambient motion: no remotes, and nothing the server sees.
 ### Rooftops2
 - **Fans.** Soft four-blade rotors spin over a blur disc on all 16 AC fan discs and both condenser fans. Speeds vary by ±15% per copy and drift like gusts. The cooling-tower fans turn too.
 - **Steam** rises from 4 roof flues and 2 lift-house vents.
-- **Perched pigeons.** Three flocks of 3 (1.8×, slate with a pale belly) sit on two tank-house cornices and a roof sign. They peck and turn. When someone comes within 15 studs they flush with a wing-flap sound, fly 110 studs out past the parapets, fade, and come home once nobody is within 32 studs.
-- **Sky flock.** 3 pigeons (2.3×) circle 30 studs above the block.
+- **Perched pigeons (removed, see below).** Three flocks of 3 (1.8×, slate with a pale belly) sit on two tank-house cornices and a roof sign. They peck and turn. When someone comes within 15 studs they flush with a wing-flap sound, fly 110 studs out past the parapets, fade, and come home once nobody is within 32 studs.
+- **Sky flock (removed).** 3 pigeons (2.3×) circle 30 studs above the block.
+- **Pigeons removed (2026-11-05).** The user called these block birds "blocky and bad". Lane G moved all 12 (`Pigeon_*`, `SkyPigeon_*`) to `ServerStorage.MapBackups.Rooftops2_Pigeons`, and the script now builds them only with `BIRDS = true`. They come back only as a modelled bird: the spec is in [Dockyard2](../../01%20Design/Maps/Dockyard2.md), under Concept pass, Birds. The perch, flush and flight code stays as it is. Dockyard2's gulls are the same kind of block bird and are still in place for now.
 - **Flicker.** The roof-sign neon and one billboard lamp flicker now and then.
 - **Banners.** Four blade banners on the outer street walls swing about their arms.
 
@@ -484,12 +485,13 @@ LihFolk VFX rubric adapted for ambient life. X5 became "reacts to play" and X6 "
 
 ### Not done, or left for the user
 - **Steam colour.** It needs a call by eye: near-white (round 2) against grey (round 3). A reviewer suggested (225,228,236) at 0.35–0.45 transparency through mid-life. This is one line in `tools/studio/maps/Rooftops2/Life.luau` → `steam()`.
+- **A modelled bird** for the pigeons and the Dockyard2 gulls, to the Birds spec. Build `pigeonModel()` and `gull()` again with the same part names (Body, Head, WingL*, WingR*, and the `HingeX` attribute) so the controller needs no change.
 - **Flag and banners** are rigid plates that sway. Two-segment cloth would read better.
 - **The Sky Diner neon glows cyan-white,** close to team cyan. That's lane G's art colour; the flicker only toggles it.
 - **AC fan disc positions** are ±1.62 studs along the mesh's long axis, measured from screenshots. If lane G re-cuts the AC mesh, adjust `Offset1` and `Offset2` on the `Rotor_ACUnit_Fans` rule.
 
 ### Check tonight (map life)
-- [ ] **Save the match place** (Ctrl+S). `Workspace.Dockyard2.Life` and `Workspace.Rooftops2.Life` live in the place, not in Rojo. `Workspace.ForceMap` is currently `"Rooftops2"`.
+- [ ] **Save the match place** (Ctrl+S). `Workspace.Dockyard2.Life` and `Workspace.Rooftops2.Life` live in the place, not in Rojo; the pigeons are now in `ServerStorage.MapBackups`. `Workspace.ForceMap` is currently `"Rooftops2"`.
 - [ ] **Dockyard2:**
   - Walk up to a quay bollard gull: it should take off calling and come back about 30 s later.
   - Look up: gulls circle the crane.
@@ -497,9 +499,7 @@ LihFolk VFX rubric adapted for ambient life. X5 became "reacts to play" and X6 "
   - Look over the quay edge: foam and glints at the water line.
   - Look out past the ends of the far quays: far ships drift.
 - [ ] **Rooftops2:**
-  - Walk up to the tank-house pigeons: they flush with a flap sound.
   - The AC fans spin.
   - Steam rises from the flues. Say whether it reads as steam or smoke.
-  - The sky flock circles overhead.
   - Look over the street-wall edges: the banners swing.
 - [ ] Peek over an AC unit as the enemy would. The spinning rotor must never draw the eye before the head does. If it does, raise the `Blur` part's transparency to 0.75 in the rotor template in `tools/studio/maps/Rooftops2/Life.luau`.
