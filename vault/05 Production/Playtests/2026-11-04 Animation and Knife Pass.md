@@ -101,6 +101,23 @@ The rubric expects LihFolk's Blender QA pipeline (JSON QA, contact sheets). Our 
 - **Knife:** P2, P3 and P5 have no evidence; the slash, heavy and inspect are the existing Blender clips, unchanged. Scoring them needs contact sheets of those clips.
 - Logged in `.lihfolk/ledger.jsonl`.
 
+### Iteration rounds (2026-11-05, core chat: keep going to 8.5)
+- **Overlap measured on real meshes.** Box tests overstate overlap at the joints, so penetration is now measured on precise-collision copies of the R15 meshes (AssetService `CreateMeshPartAsync`, PreciseConvexDecomposition), by sampling points inside one part and testing whether they lie inside the other. (Shrinking a part until it stops touching gave impossible depths: the collision shape doesn't always rescale.) The review dummies use Roblox's **default blocky avatar, whose limbs are 1 stud thick** (the user's avatar: 0.63-0.76).
+- **Slide (round 2-3):** the hip crease came from curling the chest forward to keep the gun level (chest-to-thigh flexion ~100°; a plain 90° sit is 0.08, 70° is 0.00). Now the body leans back 50° with flexion under 60°. The clip carries its own arms: the right hand keeps the gun level and forward, and the **left hand trails on the floor** beside the hip; a reaching left arm lay across the leaned-back chest. GripController lets go while sliding. Real-mesh worst: **0.03 studs on a standard avatar**, 0.05-0.11 on the blocky dummy at the hip crease and crotch, where its 1-stud thighs already touch side by side when standing.
+- **Holds (round 2):** the first hold had the right forearm **0.59 studs inside the chest** on the blocky rig (the "arms bunched in front" note). A search over chest turn, grip placement and elbow directions on the real meshes gives: chest bladed 55°, both elbows out, grip just outside the right shoulder line, hands 1.1 studs apart, worst **~0.10** (forearm vs chest, head vs left upper arm). ADS 0.16. Sidearm: the forearms meet where the hands cup (0.41), so a two-handed pistol on 1-stud forearms can't get under 0.05.
+- **Re-score (3 blind reviewers, median):**
+
+| Item | Round 1 | Round 2 uncapped | Gate | Score |
+|---|---|---|---|---|
+| Holds + grip + kick | 6.7 (overlap not measured then) | 7.0 (7.5 / 8.2 / 6.5) | fail (0.10) | **5.0** |
+| Slide | 5.0 (8.7 uncapped) | 8.7 (7.7 / 8.2 / 7.9 → medians 2,2,2,1,2,1,2) | fail on the blocky rig (0.11) | **5.0** |
+| Knife | 7.0 | not re-scored (unchanged) | pass | **7.0** |
+
+- **Stopped (two rounds under +0.3, per the core chat).** What blocks 8.5:
+  - **Slide and holds:** the 0.05-stud overlap gate on Roblox's default blocky avatar. Its 1-stud limbs touch at the hip, crotch and forearms in any seated pose or close gun hold. Options: score against a standard-proportion avatar (the slide passes there), allow a documented blocky-limb exemption, or extend the arms further (closer to the old "zombie" hold).
+  - **Holds:** also P2/P3/P4. A static loop has no anticipation or weight shift; the next step is a breathing / weight-shift idle layer on the legs and a fire-kick anticipation frame.
+  - **Knife:** the slash / heavy / inspect are the existing Blender clips. Scoring them needs frame-accurate contact sheets, which the Studio MCP can't capture (no way to pause a playing viewmodel clip). The sounds need your OK to download CC0 recordings.
+
 ## Known gaps
 - **Knife sounds are still placeholders** (one Roblox-licensed swoosh, re-pitched). The Creator Store "knife" sounds are game rips from random uploaders, and no CC0 knife recordings are in `art-source/audio`. Proposal: download CC0 packs (Kenney "RPG Audio": draw knife / knife slice; Kenney "Impact Sounds": metal / plank hits), polish, render an audition WAV with `build_sound_atlas.py --preview`, then upload in the atlas (audio quota). **Needs your OK to download.**
 - Reload's middle keys are still the old arm poses (only start/end were moved onto the new hold); the Death clip starts from the old hold.
