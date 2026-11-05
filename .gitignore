@@ -44,6 +44,8 @@ src/server/AbilityBuild/
 # Downloaded sound libraries (large; only the picked/converted clips are kept)
 art-source/audio/_download/
 art-source/audio/library/
+# CC0 recordings fetched by tools/audio/fetch_audio.py (one folder each; ledger in the vault)
+art-source/audio/downloads/
 # Audition reel rendered by tools/audio/build_sound_atlas.py --preview
 art-source/audio/AtlasPreview.wav
 # Mod sound auditions rendered by tools/audio/mod_sfx.py
