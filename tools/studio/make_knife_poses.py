@@ -526,6 +526,9 @@ def clear(p, limit=0.01):
 					u[k] += dlt
 					if abs(u[k] - base[k]) > 60 or (j.endswith("LowerArm") and not 0 <= u[k] <= 135):
 						continue
+					# A real wrist: flexion within 60 deg, side to side within 40.
+					if j == "RightHand" and abs(u[k]) > (60 if i == 0 else 40):
+						continue
 					c = cost(u)
 					if c < best - 1e-9:
 						best, v, improved = c, u, True
