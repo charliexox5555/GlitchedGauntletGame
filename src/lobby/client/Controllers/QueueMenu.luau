@@ -26,6 +26,14 @@ local QueueMenu = {}
 local C = Theme.COLORS
 local player = Players.LocalPlayer
 
+-- Card art (assets/UI/lobby/mode_*_card.png: ChatGPT art with the card's cut
+-- corner baked in). Clear an id to fall back to the colour wash alone.
+local MODE_ART: { [string]: string } = {
+	["1v1"] = "rbxassetid://114141951060405",
+	["2v2"] = "rbxassetid://112915965638467",
+	["3v3"] = "rbxassetid://124665198768296",
+}
+
 local MODE_TINT: { [string]: Color3 } = {
 	["1v1"] = C.enemy,
 	["2v2"] = C.ally,
@@ -230,7 +238,33 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		corner = 26,
 	})
 	local tint = MODE_TINT[info.id] or C.gold
-	-- A wash of the mode's colour from the top (stand-in for card art).
+	local art = MODE_ART[info.id]
+	if art then
+		Ui.make("ImageLabel", {
+			Name = "Art",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			Image = art,
+			ImageTransparency = 0.08,
+			ZIndex = 2,
+		}, button)
+	end
+	if art then
+		-- A dark shade at the top so the big mode title reads over the art.
+		local shade = Ui.cut(button, { Name = "Shade", Size = UDim2.fromScale(1, 1), ZIndex = 2 }, {
+			color = C.scrim,
+			corner = 26,
+		})
+		Ui.make("UIGradient", {
+			Rotation = 90,
+			Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.4),
+				NumberSequenceKeypoint.new(0.32, 1),
+				NumberSequenceKeypoint.new(1, 1),
+			}),
+		}, shade)
+	end
+	-- A wash of the mode's colour from the top (over the art, or instead of it).
 	local wash = Ui.cut(button, { Size = UDim2.fromScale(1, 1), ZIndex = 2 }, {
 		color = tint,
 		transparency = 0.0,
@@ -239,13 +273,13 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	Ui.make("UIGradient", {
 		Rotation = 90,
 		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0.72),
-			NumberSequenceKeypoint.new(0.55, 0.97),
+			NumberSequenceKeypoint.new(0, if art then 0.86 else 0.72),
+			NumberSequenceKeypoint.new(0.55, if art then 1 else 0.97),
 			NumberSequenceKeypoint.new(1, 1),
 		}),
 	}, wash)
-	-- Diagonal hairlines: a quiet texture in the wash.
-	for i = 0, 5 do
+	-- Diagonal hairlines: a quiet texture in the wash (only without art).
+	for i = 0, if art then -1 else 5 do
 		Ui.make("Frame", {
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromOffset(300 + i * 26, 60),
@@ -276,9 +310,9 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	Ui.make("UIStroke", { Color = C.lineStrong, Thickness = 1.5 }, key)
 	Ui.text(key, tostring(index), "key", { Size = UDim2.fromScale(1, 1), ZIndex = 5 })
 
-	teamsRow(button, info.teamSize, 178)
+	teamsRow(button, info.teamSize, 222)
 	Ui.text(button, info.blurb, "bodyM", {
-		Position = UDim2.fromOffset(32, 248),
+		Position = UDim2.fromOffset(32, 284),
 		Size = UDim2.fromOffset(CARD_W - 64, 48),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Top,
@@ -287,7 +321,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		ZIndex = 4,
 	})
 	Ui.text(button, `FIRST TO 5  ·  {info.teamSize * 2} PLAYERS`, "label", {
-		Position = UDim2.fromOffset(32, 316),
+		Position = UDim2.fromOffset(32, 326),
 		Size = UDim2.fromOffset(CARD_W - 64, 18),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = C.textDim,
@@ -388,8 +422,9 @@ local function buildAction()
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.new(1, 14, 1, 14),
-	}, { color = C.gold, transparency = 0.8, corner = 22 })
-	Fx.loop(glow, 1.3, { ImageTransparency = 0.55, Size = UDim2.new(1, 22, 1, 22) })
+	}, { color = C.gold, transparency = 0.85, corner = 22 })
+	Fx.loop(glow, 1.3, { ImageTransparency = 0.68, Size = UDim2.new(1, 22, 1, 22) })
+	findHolder.Name = "Find"
 	findButton = Ui.cut(findHolder, { Size = UDim2.fromScale(1, 1), ZIndex = 2 }, {
 		className = "ImageButton",
 		color = C.gold,
@@ -414,6 +449,7 @@ local function buildAction()
 	})
 
 	status = Ui.cut(content, {
+		Name = "Status",
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(960, 784),
 		Size = UDim2.fromOffset(820, 108),
@@ -467,18 +503,23 @@ local function buildAction()
 		ZIndex = 5,
 	}, track)
 	local cancelHolder = Ui.make("Frame", {
+		Name = "CancelHolder",
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -24, 0.5, -4),
 		Size = UDim2.fromOffset(150, 58),
 		BackgroundTransparency = 1,
 		ZIndex = 4,
 	}, status)
-	statusCancel = Ui.cut(cancelHolder, { Size = UDim2.fromScale(1, 1), ZIndex = 4 }, {
-		className = "ImageButton",
-		color = C.raised,
-		line = C.lineStrong,
-		corner = 12,
-	})
+	statusCancel = Ui.cut(
+		cancelHolder,
+		{ Name = "Cancel", Size = UDim2.fromScale(1, 1), ZIndex = 4 },
+		{
+			className = "ImageButton",
+			color = C.raised,
+			line = C.lineStrong,
+			corner = 12,
+		}
+	)
 	Ui.text(statusCancel, "CANCEL", "titleS", { Size = UDim2.fromScale(1, 1), ZIndex = 5 })
 	Fx.button(statusCancel, function()
 		QueueState.leave()
@@ -909,7 +950,7 @@ local function showFound(payload: LobbyNet.QueueEventPayload)
 
 	foundGui.Enabled = true
 	foundBand.Size = UDim2.new(1, 0, 0, 0)
-	Fx.tween(foundBand, 0.26, { Size = UDim2.new(1, 0, 0, 540) })
+	Fx.tween(foundBand, 0.26, { Size = UDim2.new(1, 0, 0.52, 0) })
 	local s = Fx.scale(foundTitle)
 	s.Scale = 1.35
 	Fx.tween(s, 0.4, { Scale = 1 }, Enum.EasingStyle.Back)
@@ -922,7 +963,7 @@ local function showFound(payload: LobbyNet.QueueEventPayload)
 	-- Countdown to the teleport.
 	task.spawn(function()
 		local last = -1
-		while foundToken == token and foundOpen do
+		while foundToken == token and foundOpen and not foundStudio.Visible do
 			local st = QueueState.status()
 			if st == "teleporting" then
 				foundCountdown.Text = "TELEPORTING..."

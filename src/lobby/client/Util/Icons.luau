@@ -1,18 +1,19 @@
 --!strict
 -- Vector placeholder icons for the lobby bars, drawn from Frames, UIStroke and
 -- UICorner so nothing waits on image uploads. When a real icon is uploaded
--- (prompts in vault/01 Design/Lobby UI Image Prompts.md), put its asset id in
--- ASSETS and Icons.draw shows the image instead (white art, tinted).
+-- (prompts in vault/01 Design/Lobby UI Image Prompts.md, sources in
+-- assets/UI/lobby), its asset id goes in ASSETS and Icons.draw shows the image
+-- (white art, tinted); clear an id to fall back to the vector version.
 
 local Icons = {}
 
 Icons.ASSETS = {
-	Shop = "",
-	Locker = "",
-	BattlePass = "",
-	Range = "",
-	Settings = "",
-	Coin = "",
+	Shop = "rbxassetid://134974442051869",
+	Locker = "rbxassetid://73637059723267",
+	BattlePass = "rbxassetid://133121960419132",
+	Range = "rbxassetid://82357119585599",
+	Settings = "rbxassetid://85379480378289",
+	Coin = "rbxassetid://122645025340088",
 } :: { [string]: string }
 
 local function box(parent: Instance, props: { [string]: any }): Frame

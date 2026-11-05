@@ -303,6 +303,8 @@ local function sideTile(tile: Tile, order: number)
 			for _, d in icon:GetDescendants() do
 				if d:IsA("Frame") and d.BackgroundTransparency < 1 and d.Name ~= "Hole" then
 					Fx.tween(d, 0.15, { BackgroundColor3 = if on then C.text else C.textSecondary })
+				elseif d:IsA("ImageLabel") then
+					Fx.tween(d, 0.15, { ImageColor3 = if on then C.text else C.textSecondary })
 				elseif d:IsA("UIStroke") then
 					Fx.tween(d, 0.15, { Color = if on then C.text else C.textSecondary })
 				end
@@ -406,7 +408,7 @@ local function buildPill()
 		Visible = false,
 	}, gui)
 	Ui.fit(holder)
-	pill = Ui.cut(holder, { Size = UDim2.fromScale(1, 1) }, {
+	pill = Ui.cut(holder, { Name = "Pill", Size = UDim2.fromScale(1, 1) }, {
 		className = "ImageButton",
 		color = C.panel,
 		transparency = 0.06,
@@ -441,18 +443,23 @@ local function buildPill()
 		ZIndex = 4,
 	})
 	local cancelHolder = Ui.make("Frame", {
+		Name = "CancelHolder",
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -14, 0.5, 0),
 		Size = UDim2.fromOffset(108, 46),
 		BackgroundTransparency = 1,
 		ZIndex = 4,
 	}, pill)
-	pillCancel = Ui.cut(cancelHolder, { Size = UDim2.fromScale(1, 1), ZIndex = 4 }, {
-		className = "ImageButton",
-		color = C.raised,
-		line = C.lineStrong,
-		corner = 10,
-	})
+	pillCancel = Ui.cut(
+		cancelHolder,
+		{ Name = "Cancel", Size = UDim2.fromScale(1, 1), ZIndex = 4 },
+		{
+			className = "ImageButton",
+			color = C.raised,
+			line = C.lineStrong,
+			corner = 10,
+		}
+	)
 	Ui.text(
 		pillCancel,
 		"CANCEL",
@@ -554,7 +561,7 @@ local function updateTimers()
 		play.sub.Text = `{modeTitle(QueueState.mode())}  ·  {Fx.clock(elapsed)}`
 	elseif status == "found" then
 		local left = math.ceil(QueueState.startsIn())
-		pillTimer.Text = tostring(left)
+		pillTimer.Text = if left > 0 then tostring(left) else ""
 	end
 end
 
