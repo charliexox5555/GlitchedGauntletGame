@@ -183,7 +183,7 @@ CLIPS = [
 		"GG_KnifeSlash1",
 		[
 			(0.0, R, "Cubic/InOut"),
-			(0.09, S1_WIND, "Linear/In"),
+			(0.1, S1_WIND, "Linear/In"),
 			(0.15, S1_CUT, "Cubic/Out"),
 			(0.23, S1_FOLLOW, "Cubic/InOut"),
 			(0.4, S1_SETTLE, "Cubic/InOut"),
@@ -194,7 +194,7 @@ CLIPS = [
 		"GG_KnifeSlash2",
 		[
 			(0.0, R, "Cubic/InOut"),
-			(0.09, S2_WIND, "Linear/In"),
+			(0.1, S2_WIND, "Linear/In"),
 			(0.15, S2_CUT, "Cubic/Out"),
 			(0.23, S2_FOLLOW, "Cubic/InOut"),
 			(0.4, S2_SETTLE, "Cubic/InOut"),

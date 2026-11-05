@@ -74,8 +74,8 @@ return table.freeze({
 		-- frame keeps the limbs within 0.015 studs of the torso on the block
 		-- rig). The old single slash was 103765524428295, the old heavy
 		-- 87481489934854.
-		KnifeSlash = id(137479970010838), -- GG_KnifeSlash1: forehand (SwingStep 1)
-		KnifeSlash2 = id(120876214939356), -- GG_KnifeSlash2: backhand (SwingStep 2)
+		KnifeSlash = id(111335974834423), -- GG_KnifeSlash1: forehand (SwingStep 1)
+		KnifeSlash2 = id(97041066456294), -- GG_KnifeSlash2: backhand (SwingStep 2)
 		KnifeSlash3 = id(84608351340123), -- GG_KnifeSlash3: the overhead chop (SwingStep 3)
 		KnifeHeavy = id(102516360524277), -- GG_KnifeHeavy: pull back, coil, thrust
 	}),
