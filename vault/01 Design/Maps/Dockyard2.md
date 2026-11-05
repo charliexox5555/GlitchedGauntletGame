@@ -4,7 +4,15 @@ The 2026-11-05 redesign of [Dockyard](Dockyard.md) in the new environment style 
 
 **Map id** `Dockyard2`. **World origin (-3000, 200, 0).** These origins are already taken: Whitebox (0, 200, 0), Big Whitebox (0, 200, -1500), Dockyard (-1500, 200, 0), Metro (1500, 200, 0), Old Town (0, 200, 1500), Greenhouse (1500, 200, -1500), Rooftops (1500, 200, 1500), Bunker (-1500, 200, 1500) and Snowpeak (-1500, 200, -1500).
 
-**Status:** phase 1 (plan) and phase 2 (layout check) are done. Phases 3 to 8 follow below as they're done.
+**Status (2026-11-05, lane G):** all 8 phases done.
+- Built in the match place: greybox, kit (asset 127619569582290, 26 pieces), art and lighting.
+- **Audit 0** (0 z-fighting pairs over 1,940 visible parts).
+- **Blind score 8.75 / 10** (3 reviewers, medians; first draft 5.4, 3 fix rounds).
+- Playable with `Workspace.ForceMap = "Dockyard2"`, and not in the rotation (`Config/Match` has a one-line comment only).
+- ⚠ **The match place is not saved yet.** Computer use for Studio was denied, so whoever holds the match Studio must press **Ctrl+S (Save to Roblox)**. The `.rbxm` backups are also not made: MCP code can't reach localhost, so use Studio's Save to File.
+
+![Dockyard2 from the B spawn](../../02%20Art/References/maps/dockyard2/r3-b-spawn.jpg)
+![The middle from a container top](../../02%20Art/References/maps/dockyard2/r3-middle-high-lane.jpg)
 
 ---
 
@@ -70,6 +78,7 @@ The five changes:
 3. **The Shed roller door moves 4 west** (x 46–56), behind the screen. No line runs from the enemy apron into a Shed.
 4. **Quay crates → one Quay stack** (20 ft, 6 clear of the barrier) for full cover mid-quay, and **the Apron box moves into the middle band** (44, 6) to cut its lateral lines.
 5. Together these bring the **flank routes within 0.5 s of the middle**.
+6. **Stepped spawn baffle** (added in scoring round 2): a 1-high 40-footer with a 20-footer on its west half. Still 0% of enemy floor and tops see a spawn, and the spawn view opens over the low half to the crane.
 
 Callouts stay what the old map taught: **Red / Blue / Green** lanes, **Crane** (the stack), **High** (divider tops), **Red Shed / Green Shed**, **Apron**, **Quay**, **Tower**.
 
@@ -109,12 +118,12 @@ Everything lives in **`tools/maps/dockyard2_style.py`**:
 ## 6. Plan (phases)
 1. ✅ Plan with references (this note).
 2. ✅ Layout check script and SVG (`tools/maps/dockyard2_layout.py`).
-3. Greybox in Studio (`tools/studio/maps/Dockyard2/Greybox.luau`). Walk it in play mode with screenshots, then critique.
-4. Blender kit (`tools/blender/build_map_kit_dockyard2.py`, on the Lobby kit helpers) with a contact sheet. Coplanar audit at 0, then export, upload and install.
-5. Art pass (`Art.luau`), lighting (`Lighting.luau`) and set dressing.
-6. `tools/studio/maps/Audit.luau` reports 0.
-7. Screenshots from each spawn, the middle and an overview.
-8. Blind scoring (`lihfolk:quality-score`, world rubric, min 8.5), then fix rounds.
+3. ✅ Greybox in Studio (`tools/studio/maps/Dockyard2/Greybox.luau`). Walk it in play mode with screenshots, then critique.
+4. ✅ Blender kit (`tools/blender/build_map_kit_dockyard2.py`, on the Lobby kit helpers) with a contact sheet. Coplanar audit at 0, then export, upload and install.
+5. ✅ Art pass (`Art.luau`), lighting (`Lighting.luau`) and set dressing.
+6. ✅ `tools/studio/maps/Audit.luau` reports 0.
+7. ✅ Screenshots from each spawn, the middle and an overview.
+8. ✅ Blind scoring (`lihfolk:quality-score`, world rubric, min 8.5), then fix rounds: **8.75**.
 
 ## Kit (phase 4)
 `tools/blender/build_map_kit_dockyard2.py` builds the kit on the Lobby helpers (`lobbykit`, `build_lobby_kit_stylized`, `build_lobby_kit_bunker2`), into `art-source/maps/Dockyard2/Kit_Dockyard2.blend`. That's 19 pieces, 22.7k triangles for the whole kit. **Coplanar audit: 0** (`art-source/maps/Dockyard2/coplanar.json`, the Lobby audit run on the `Map_` collections). Uploaded as group `Kit`, **asset 127619569582290**.
@@ -178,6 +187,52 @@ Fix round 1 (all four at once, since each is independent and parameter-cheap):
 - **Clean SmoothPlastic paint** on the containers and cladding (the ribs, rails and doors carry the detail). The roof is calm concrete.
 - **End-wall backs** dressed with light containers. Far quays darker.
 - **Light:** a brighter neutral ambient (no crush), warmer ColorShift, haze 1.1 for depth, lower grade contrast, and Shed lamps at 2.4.
+
+Fix round 2 (+1.3, to 6.7):
+- **Stepped spawn baffle:** a 1-high 40-footer with a 20-footer on its west half. Spawn safety is unchanged (0% / 0%), and the spawn now looks over the low half to the crane. The sign was resized onto the high half (layout change 6).
+- **White reefers** for the Crane stack and its steps, a ground-level centre landmark.
+- **Lane words painted on the deck** where each lane leaves the spawn end.
+- A lighter Shed inside and surround. Ships get a lighter hull, the far quays get deck tiles, and the STS crane frames are grey.
+
+Fix round 3 (+2.05, to **8.75**):
+- A framed **"CRANE" plate** on each long side of the reefers.
+- The flank lane words again in the middle band. Bug fixed on the way: the A half's words had been mirrored into the wrong lanes. They now take their lane from where they land.
+- Warm light strips under the Shed tie beams, which show even where PointLights don't render.
+- A warmer sun against cooler shade, haze 1.6, sun rays 0.08, a less pastel backdrop, the reefers toned down from overexposed white.
+
+| Round | W1 (3) | W2 (3) | W3 (2) | W4 (2) | W5 (1) | W6 (1) | Score (median) | Reviewers |
+|---|---|---|---|---|---|---|---|---|
+| 0 | 1 | 1 | 1 | 1 | 1 | 2 | 5.4 | 5.0 / 5.4 / 5.4 |
+| 1 | 1 | 1 | 1 | 1 | 1 | 2 | 5.4 | 5.0 / 5.4 / 5.4 |
+| 2 | 2 | 1 | 1 | 1 | 1 | 2 | 6.7 | 6.7 / 7.5 / 6.7 |
+| **3** | **2** | **2** | **2** | **1** | **1** | **2** | **8.75** | 6.7 / 8.75 / 8.75 |
+
+**Lowest criteria:** W4 lighting (all three called it "tuned, not striking") and W5 density (big flat container faces, a bare Shed inside). One reviewer still read the lanes as "a maze of same-coloured walls" (W2 1). The scores are logged in `.lihfolk/ledger.jsonl`.
+
+Final screenshots (`References/maps/dockyard2/r3-*.jpg`). Captures are edit mode with the map's lighting applied; Shed PointLights don't render in them.
+
+| Spawn A | Spawn B | Middle (ground) |
+|---|---|---|
+| ![](../../02%20Art/References/maps/dockyard2/r3-a-spawn.jpg) | ![](../../02%20Art/References/maps/dockyard2/r3-b-spawn.jpg) | ![](../../02%20Art/References/maps/dockyard2/r3-middle-crane-court.jpg) |
+
+| Mid lane | Red lane (apron) | Overview |
+|---|---|---|
+| ![](../../02%20Art/References/maps/dockyard2/r3-mid-lane-word.jpg) | ![](../../02%20Art/References/maps/dockyard2/r3-apron.jpg) | ![](../../02%20Art/References/maps/dockyard2/r3-overview.jpg) |
+
+## What the user should check tonight
+1. **Save first.** In the match Studio (the one with `ServerScriptService.Server`), press **Ctrl+S** (Save to Roblox). Dockyard2 is built in it but unsaved.
+2. **Play it.** Set the Workspace attribute `ForceMap` to `Dockyard2`, press Play, and walk from your spawn. Is the "DOCK A/B" sign readable, and do RED / GREEN point the right way? Does the crane over the low half of the baffle pull you to the middle?
+3. **The look against the Lobby.** Bright harbour, clean painted boxes, signal-yellow crane. Too bright, too toy-like, or not enough? Every colour, the sun and the haze are one edit in `tools/maps/dockyard2_style.py` (§5) and need no Blender.
+4. **Lane colours.** Terracotta / harbour blue / sea green, plus the white reefers in the middle. Do they read at a glance in play? Is the blue too dark in shade?
+5. **The Shed inside** in play mode, where the lamps do render. Reviewers only saw it without lights and called it murky.
+6. **Feel.** Middle contact at ~4.3 s sprinting, the 1-high centre stack, the quay walk beside the new Quay stack. Does any spot feel like a camping perch?
+7. Decide whether Dockyard2 should replace Dockyard in the rotation (then add `{ id = "Dockyard2", minTeam = 1, maxTeam = 4 }` and drop `Dockyard`).
+
+## Known issues and follow-ups
+- **Other maps are visible on the horizon.** Snowpeak's mountains and the old Dockyard's cranes show from Dockyard2, because all maps sit in Workspace at 1,500-stud spacing. This is project-wide, not specific to Dockyard2. A fix belongs in MapService (park the inactive maps in ServerStorage) or in more spacing.
+- **Studio place IDs are swapped against our notes (2026-11-05).** The match content (maps, `Server`) is the instance with PlaceId **133387545285290**, and the Lobby content (`LobbyServer`) is **71551303511506**. `MapKit.luau` and `kit_bundle.py` assert 71551303511506, so lane G swapped that assert for a content check in its temporary bundles only. The core chat should verify which is right, then fix the memory note `place-ids` and those asserts.
+- **Background:** the end walls' water-side faces show a grey backfill strip. The STS cranes are simple silhouettes.
+- **Budget:** 1,815 MeshParts and ~300k triangles for the whole map, of which ~230k in the playable yard. That's over the old Dockyard's 192k; the light `Lo` containers carry the end walls.
 
 ## 7. Build and run order
 1. Layout (rerun after any change): `python tools/maps/dockyard2_layout.py --luau` prints the checks and writes the SVG, the greybox LAYOUT block and the ART block (from `tools/maps/dockyard2_art.py`).

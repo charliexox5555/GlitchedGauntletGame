@@ -207,8 +207,15 @@ def build() -> tuple[list[Put], list[Part]]:
         # On the high (west for B) half of the stepped baffle.
         puts.append(Put("SpawnSign" + ("B" if s > 0 else "A"), -8.0 * s, 0, 84.0 * s, 0 if s > 0 else 180, None, "Spawn", []))
         # Lane words painted on the deck where each lane leaves the spawn end (fix round 2), read walking out.
-        for word, x, z in (("RED", -56.0, 41.0), ("BLUE", 0.0, 38.0), ("GREEN", 56.0, 67.0)):
-            puts.append(Put("DeckWord" + word, x * s, 0, z * s, 0 if s > 0 else 180, None, "Spawn", []))
+        # The word follows the lane it lands in after the 180-degree turn (lanes are fixed by x: red west, green east).
+        # Round 3 adds the flank names again where they cross the middle band, so the band reads as a crossroads.
+        for x, z in ((-56.0, 41.0), (0.0, 38.0), (56.0, 67.0), (-56.0, 8.0), (50.0, 5.0)):
+            xf = x * s
+            word = "RED" if xf < -24 else ("GREEN" if xf > 24 else "BLUE")
+            puts.append(Put("DeckWord" + word, xf, 0, z * s, 0 if s > 0 else 180, None, "Spawn", []))
+        # Round 3: a "CRANE" plate on each long side of the reefer stack (the middle's callout, at eye level).
+        # On the half of the face the Stack step leaves free (x 0..16 for the +Z face), above the crane crate.
+        puts.append(Put("CraneSign", 6.0 * s, 0, 4.0 * s, 0 if s > 0 else 180, None, "Crane", []))
         for x in (-20.5, 20.5):
             for z in (89.0, 85.0):
                 puts.append(Put("Chevron", x * s, 0, z * s, 0 if s > 0 else 180, None, "Spawn", []))

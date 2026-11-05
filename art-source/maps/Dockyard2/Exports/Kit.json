@@ -79,6 +79,15 @@
     "Crane_Beacon_Glow"
    ]
   },
+  "CraneSign": {
+   "props": {},
+   "parts": [
+    "CraneSign_Frame",
+    "CraneSign_Plate",
+    "CraneSign_Brackets",
+    "CraneSign_Letters"
+   ]
+  },
   "Crate": {
    "props": {},
    "parts": [
@@ -183,6 +192,7 @@
     "Shed_Fascia",
     "Shed_Frames",
     "Shed_Lamps",
+    "Shed_BeamGlow_Glow",
     "Shed_LampGlow_Glow",
     "Shed_Floor"
    ]
@@ -924,6 +934,90 @@
     66.6,
     32.6,
     0.6
+   ]
+  },
+  {
+   "piece": "CraneSign",
+   "name": "CraneSign_Frame",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 320,
+   "center": [
+    0.0,
+    -0.2,
+    5.3
+   ],
+   "size": [
+    9.6,
+    0.32,
+    2.9
+   ]
+  },
+  {
+   "piece": "CraneSign",
+   "name": "CraneSign_Plate",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.15,
+    5.3
+   ],
+   "size": [
+    9.0,
+    0.18,
+    2.3
+   ]
+  },
+  {
+   "piece": "CraneSign",
+   "name": "CraneSign_Brackets",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.02,
+    5.3
+   ],
+   "size": [
+    6.5,
+    0.2,
+    1.4
+   ]
+  },
+  {
+   "piece": "CraneSign",
+   "name": "CraneSign_Letters",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 688,
+   "center": [
+    0.0,
+    -0.3,
+    5.305
+   ],
+   "size": [
+    6.33367,
+    0.12,
+    1.25
    ]
   },
   {
@@ -1699,7 +1793,7 @@
    "material": "D2_Roof",
    "look": {
     "material": "Concrete",
-    "color": "66717B",
+    "color": "7A848D",
     "variant": "Dock2_Concrete"
    },
    "glow": false,
@@ -1776,6 +1870,27 @@
     11.8,
     16.8,
     1.95
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_BeamGlow_Glow",
+   "material": "D2_GlowWarm",
+   "look": {
+    "material": "Neon",
+    "color": "FFE2B8"
+   },
+   "glow": true,
+   "tris": 132,
+   "center": [
+    0.0,
+    0.0,
+    14.44
+   ],
+   "size": [
+    22.0,
+    30.24,
+    0.12
    ]
   },
   {
@@ -2416,7 +2531,7 @@
    "material": "D2_Roof",
    "look": {
     "material": "Concrete",
-    "color": "66717B",
+    "color": "7A848D",
     "variant": "Dock2_Concrete"
    },
    "glow": false,
@@ -2433,5 +2548,5 @@
    ]
   }
  ],
- "tris": 30022
+ "tris": 31294
 }

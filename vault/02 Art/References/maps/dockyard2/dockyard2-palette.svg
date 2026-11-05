@@ -2,9 +2,9 @@
 <rect width="760" height="744" fill="#1B2233"/>
 <text x="24" y="40" font-size="24" font-weight="700" fill="#F4F1EA">Dockyard2 palette</text>
 <text x="24" y="64" font-size="13" fill="#B9BDCB">tools/maps/dockyard2_style.py (roles; Studio applies them, so a change needs no upload)</text>
-<rect x="24" y="86" width="44" height="26" rx="4" fill="#7E776D" stroke="#0E1320"/>
+<rect x="24" y="86" width="44" height="26" rx="4" fill="#8A867E" stroke="#0E1320"/>
 <text x="78" y="98" font-size="13" font-weight="700" fill="#F4F1EA">Deck</text>
-<text x="78" y="111" font-size="11" fill="#B9BDCB">#7E776D  Slate / Dock2_Deck</text>
+<text x="78" y="111" font-size="11" fill="#B9BDCB">#8A867E  Slate / Dock2_Deck</text>
 <rect x="394" y="86" width="44" height="26" rx="4" fill="#A59D90" stroke="#0E1320"/>
 <text x="448" y="98" font-size="13" font-weight="700" fill="#F4F1EA">Concrete</text>
 <text x="448" y="111" font-size="11" fill="#B9BDCB">#A59D90  Concrete / Dock2_Concrete</text>
@@ -14,9 +14,9 @@
 <rect x="394" y="120" width="44" height="26" rx="4" fill="#D3D5D0" stroke="#0E1320"/>
 <text x="448" y="132" font-size="13" font-weight="700" fill="#F4F1EA">Cladding</text>
 <text x="448" y="145" font-size="11" fill="#B9BDCB">#D3D5D0  SmoothPlastic</text>
-<rect x="24" y="154" width="44" height="26" rx="4" fill="#66717B" stroke="#0E1320"/>
+<rect x="24" y="154" width="44" height="26" rx="4" fill="#7A848D" stroke="#0E1320"/>
 <text x="78" y="166" font-size="13" font-weight="700" fill="#F4F1EA">Roof</text>
-<text x="78" y="179" font-size="11" fill="#B9BDCB">#66717B  Concrete / Dock2_Concrete</text>
+<text x="78" y="179" font-size="11" fill="#B9BDCB">#7A848D  Concrete / Dock2_Concrete</text>
 <rect x="394" y="154" width="44" height="26" rx="4" fill="#4A525A" stroke="#0E1320"/>
 <text x="448" y="166" font-size="13" font-weight="700" fill="#F4F1EA">Grate</text>
 <text x="448" y="179" font-size="11" fill="#B9BDCB">#4A525A  DiamondPlate / Dock2_Grate</text>
@@ -80,9 +80,9 @@
 <rect x="394" y="494" width="44" height="26" rx="4" fill="#438C6A" stroke="#0E1320"/>
 <text x="448" y="506" font-size="13" font-weight="700" fill="#F4F1EA">Lane east</text>
 <text x="448" y="519" font-size="11" fill="#B9BDCB">#438C6A  Metal / Dock2_Metal</text>
-<rect x="24" y="528" width="44" height="26" rx="4" fill="#E2DED3" stroke="#0E1320"/>
+<rect x="24" y="528" width="44" height="26" rx="4" fill="#D2CBBB" stroke="#0E1320"/>
 <text x="78" y="540" font-size="13" font-weight="700" fill="#F4F1EA">Lane crane</text>
-<text x="78" y="553" font-size="11" fill="#B9BDCB">#E2DED3  Metal / Dock2_Metal</text>
+<text x="78" y="553" font-size="11" fill="#B9BDCB">#D2CBBB  Metal / Dock2_Metal</text>
 <rect x="394" y="528" width="44" height="26" rx="4" fill="#7D3F30" stroke="#0E1320"/>
 <text x="448" y="540" font-size="13" font-weight="700" fill="#F4F1EA">Lane west frame</text>
 <text x="448" y="553" font-size="11" fill="#B9BDCB">#7D3F30  SmoothPlastic</text>
@@ -92,17 +92,17 @@
 <rect x="394" y="562" width="44" height="26" rx="4" fill="#30654C" stroke="#0E1320"/>
 <text x="448" y="574" font-size="13" font-weight="700" fill="#F4F1EA">Lane east frame</text>
 <text x="448" y="587" font-size="11" fill="#B9BDCB">#30654C  SmoothPlastic</text>
-<rect x="24" y="596" width="44" height="26" rx="4" fill="#A3A098" stroke="#0E1320"/>
+<rect x="24" y="596" width="44" height="26" rx="4" fill="#979287" stroke="#0E1320"/>
 <text x="78" y="608" font-size="13" font-weight="700" fill="#F4F1EA">Lane crane frame</text>
-<text x="78" y="621" font-size="11" fill="#B9BDCB">#A3A098  SmoothPlastic</text>
+<text x="78" y="621" font-size="11" fill="#B9BDCB">#979287  SmoothPlastic</text>
 <text x="24" y="646" font-size="13" font-weight="700" fill="#F4F1EA">Backdrop stacks (aerial perspective)</text>
-<rect x="24" y="656" width="46" height="26" rx="4" fill="#A9A296" stroke="#0E1320"/>
-<rect x="78" y="656" width="46" height="26" rx="4" fill="#C8C0B0" stroke="#0E1320"/>
-<rect x="132" y="656" width="46" height="26" rx="4" fill="#8F959B" stroke="#0E1320"/>
-<rect x="186" y="656" width="46" height="26" rx="4" fill="#B98F78" stroke="#0E1320"/>
-<rect x="240" y="656" width="46" height="26" rx="4" fill="#92A29A" stroke="#0E1320"/>
-<rect x="294" y="656" width="46" height="26" rx="4" fill="#C9B58F" stroke="#0E1320"/>
-<rect x="348" y="656" width="46" height="26" rx="4" fill="#7F8C99" stroke="#0E1320"/>
+<rect x="24" y="656" width="46" height="26" rx="4" fill="#9E988C" stroke="#0E1320"/>
+<rect x="78" y="656" width="46" height="26" rx="4" fill="#C0B49C" stroke="#0E1320"/>
+<rect x="132" y="656" width="46" height="26" rx="4" fill="#7F8C99" stroke="#0E1320"/>
+<rect x="186" y="656" width="46" height="26" rx="4" fill="#B07E68" stroke="#0E1320"/>
+<rect x="240" y="656" width="46" height="26" rx="4" fill="#7E9A8C" stroke="#0E1320"/>
+<rect x="294" y="656" width="46" height="26" rx="4" fill="#C2A878" stroke="#0E1320"/>
+<rect x="348" y="656" width="46" height="26" rx="4" fill="#6F7F92" stroke="#0E1320"/>
 <text x="24" y="708" font-size="12" fill="#B9BDCB">Bevels: primary 0.45, secondary 0.14, tertiary 0.05 studs. Sun ClockTime 15.0, latitude 23.5.</text>
 <text x="24" y="726" font-size="12" fill="#B9BDCB">Reserved, never on the map: team cyan #00E5FF, team orange-red #FF5A36.</text>
 </svg>

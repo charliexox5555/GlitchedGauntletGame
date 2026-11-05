@@ -383,6 +383,9 @@ def p_shed():
 			lamps.append(lathe_at(x, z, [(0.0, 13.25), (0.9, 12.75), (0.9, 12.55)]))
 			lens.append(RB(x - 0.6, x + 0.6, 12.42, 12.56, z - 0.6, z + 0.6, BT, ST))
 	obj(c, "Lamps", merge(*lamps), "Charcoal")
+	# Round 3: warm strips under the three tie beams, so the Shed reads lit even where PointLights don't render.
+	strips = [RB(-11.0, 11.0, 14.38, 14.5, z - 0.12, z + 0.12, BT, ST) for z in (-15.0, 0.0, 15.0)]
+	obj(c, "BeamGlow", merge(*strips), "GlowWarm")
 	obj(c, "LampGlow", merge(*lens), "GlowWarm")
 	obj(c, "Floor", RB(-SH_X + WALL_T, SH_X - WALL_T, -0.08, 0.06, -SH_Z + WALL_T, SH_Z - WALL_T), "Concrete")
 
@@ -437,6 +440,19 @@ def p_spawn_sign(team):
 	xform(bm, T(6.2 - 1.4 - w / 2, -0.3, 10.0))
 	bm2 = arrow(6.3, 10.43, 0.3, 0.42, 1, 0.95, 0.9)
 	obj(c, "Right", merge(bm, bm2), rrole, smooth=0)
+
+
+def p_crane_sign():
+	# Round 3: a framed charcoal plate with white "CRANE" letters on the long side of the reefer stack (origin: the
+	# stack's face at 4.0 from its centre, +Z outward; the ribs stand to 3.9, so brackets carry it 0.1 off them).
+	c = piece("CraneSign")
+	ring = ring_prism(rrect(9.6, 2.9, 0.6, 4, 0.0, 5.3), rrect(8.9, 2.2, 0.35, 4, 0.0, 5.3), -0.36, -0.04, "Y")
+	obj(c, "Frame", finish(ring, BT, ST), "White")
+	obj(c, "Plate", RB(-4.5, 4.5, 4.15, 6.45, 0.06, 0.24, BT, ST), "Charcoal")
+	obj(c, "Brackets", merge(*[RB(x - 0.25, x + 0.25, 4.6, 6.0, -0.12, 0.08, BT, ST) for x in (-3.0, 3.0)]), "Charcoal")
+	bm, w = text_mesh("CRANE", 1.25, depth=0.12)
+	xform(bm, T(0.0, -0.24, 4.68))
+	obj(c, "Letters", bm, "White", smooth=0)
 
 
 def p_deck_word(word, role):
@@ -590,6 +606,7 @@ def build():
 	p_spawn_sign("A")
 	p_spawn_sign("B")
 	p_chevron()
+	p_crane_sign()
 	p_deck_word("RED", "SignWest")
 	p_deck_word("BLUE", "SignMid")
 	p_deck_word("GREEN", "SignEast")

@@ -38,11 +38,11 @@ ROOT = Path(__file__).resolve().parents[2]
 # Roles: hex colour, Roblox material, MaterialVariant ("" = none). Kit materials are named D2_<Role>.
 PALETTE: dict[str, tuple[str, str, str]] = {
     # big calm textured surfaces
-    "Deck": ("7E776D", "Slate", "Dock2_Deck"),  # pier deck slabs (ground band, V ~49%)
+    "Deck": ("8A867E", "Slate", "Dock2_Deck"),  # pier deck slabs (ground band, V ~49%)
     "Concrete": ("A59D90", "Concrete", "Dock2_Concrete"),  # plinths, quay coping, shed base
     "ConcreteDark": ("6E675E", "Concrete", "Dock2_Concrete"),  # quay face, footings
     "Cladding": ("D3D5D0", "SmoothPlastic", ""),  # round 1: the brushed texture read as smears on big walls  # shed wall panels (structure band, one step over the deck)
-    "Roof": ("66717B", "Concrete", "Dock2_Concrete"),
+    "Roof": ("7A848D", "Concrete", "Dock2_Concrete"),
     "Grate": ("4A525A", "DiamondPlate", "Dock2_Grate"),  # stair treads, landings
     # lane colour (set per container in Studio from LANE / BACKDROP; these are the kit defaults)
     "Lane": ("52708E", "SmoothPlastic", ""),  # container body; round 1: clean paint, the ribs carry the detail
@@ -70,11 +70,12 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 # "red", "blue", "green"). The red is a terracotta, far from the enemy team colour #FF5A36.
 # Studio pass 1 (2026-11-05): on Roblox Metal the painted boxes mirrored the blue sky and read far too saturated, so
 # painted surfaces use Dock2_Paint (the same textures on a non-metal Plastic base) and the lanes sit a step calmer.
-LANE = {"west": "AD5843", "mid": "52708E", "east": "438C6A", "crane": "E2DED3"}  # crane: the white reefers under the crane (round 2)
+LANE = {"west": "AD5843", "mid": "52708E", "east": "438C6A", "crane": "D2CBBB"}  # crane: the white reefers under the crane (round 2)
 FRAME_SHADE = 0.72  # LaneFrame = lane colour x this
 # The end walls and far stacks: the same hues, lighter and greyer (aerial perspective), never saturated.
 # Warm-leaning on purpose: the first style frame read all blue with a cool backdrop behind the blue lane.
-BACKDROP = ["A9A296", "C8C0B0", "8F959B", "B98F78", "92A29A", "C9B58F", "7F8C99"]
+# Round 3: one step more saturated and darker (reviewers read the first set as washed-out pastel).
+BACKDROP = ["9E988C", "C0B49C", "7F8C99", "B07E68", "7E9A8C", "C2A878", "6F7F92"]
 
 # Reserved, never used on the map: team colours (cyan #00E5FF, orange-red #FF5A36) and glitch magenta
 # #FF3DCB (none on Dockyard2 so far).
@@ -109,9 +110,9 @@ LIGHTING = {
     "ClockTime": 15.0,
     "GeographicLatitude": 23.5,
     "Brightness": 2.6,
-    "Ambient": (116, 118, 126),  # pass 1: a bluer ambient pushed the blue lane to royal blue in shade
-    "OutdoorAmbient": (158, 160, 168),  # round 1: reviewers saw crushed shadows
-    "ColorShift_Top": (255, 226, 188),
+    "Ambient": (112, 118, 132),  # pass 1: a bluer ambient pushed the blue lane to royal blue in shade
+    "OutdoorAmbient": (152, 158, 174),  # round 3: cooler shade against a warmer sun (warm/cool contrast)
+    "ColorShift_Top": (255, 214, 168),
     "ColorShift_Bottom": (0, 0, 0),
     "EnvironmentDiffuseScale": 0.2,
     "EnvironmentSpecularScale": 0.15,
@@ -120,10 +121,10 @@ LIGHTING = {
     "ShadowSoftness": 0.2,
 }
 FX = {
-    "Atmosphere": {"Density": 0.3, "Offset": 0.2, "Color": (206, 222, 236), "Decay": (150, 176, 206), "Glare": 0.25, "Haze": 1.1},
-    "Bloom": {"Intensity": 0.5, "Size": 24, "Threshold": 1.3},
+    "Atmosphere": {"Density": 0.34, "Offset": 0.22, "Color": (226, 220, 210), "Decay": (140, 170, 205), "Glare": 0.3, "Haze": 1.6},
+    "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
     "Grade": {"Brightness": 0.03, "Contrast": 0.06, "Saturation": 0.06, "TintColor": (255, 248, 238)},
-    "SunRays": {"Intensity": 0.04, "Spread": 0.5},
+    "SunRays": {"Intensity": 0.08, "Spread": 0.5},
 }
 LAMP = {"color": (255, 222, 176), "brightness": 2.4, "range": 36}  # round 1: the Shed inside read murky  # mast floods and shed lamps (shadowless)
 

@@ -17,9 +17,9 @@ local PROPS: { [string]: any } = {
 	ClockTime = 15,
 	GeographicLatitude = 23.5,
 	Brightness = 2.6,
-	Ambient = Color3.fromRGB(116, 118, 126),
-	OutdoorAmbient = Color3.fromRGB(158, 160, 168),
-	ColorShift_Top = Color3.fromRGB(255, 226, 188),
+	Ambient = Color3.fromRGB(112, 118, 132),
+	OutdoorAmbient = Color3.fromRGB(152, 158, 174),
+	ColorShift_Top = Color3.fromRGB(255, 214, 168),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
 	EnvironmentDiffuseScale = 0.2,
 	EnvironmentSpecularScale = 0.15,
@@ -28,10 +28,10 @@ local PROPS: { [string]: any } = {
 	ShadowSoftness = 0.2,
 }
 local FX: { [string]: { [string]: any } } = {
-	Atmosphere = { Density = 0.3, Offset = 0.2, Color = Color3.fromRGB(206, 222, 236), Decay = Color3.fromRGB(150, 176, 206), Glare = 0.25, Haze = 1.1 },
-	Bloom = { Intensity = 0.5, Size = 24, Threshold = 1.3 },
+	Atmosphere = { Density = 0.34, Offset = 0.22, Color = Color3.fromRGB(226, 220, 210), Decay = Color3.fromRGB(140, 170, 205), Glare = 0.3, Haze = 1.6 },
+	Bloom = { Intensity = 0.6, Size = 24, Threshold = 1.25 },
 	Grade = { Brightness = 0.03, Contrast = 0.06, Saturation = 0.06, TintColor = Color3.fromRGB(255, 248, 238) },
-	SunRays = { Intensity = 0.04, Spread = 0.5 },
+	SunRays = { Intensity = 0.08, Spread = 0.5 },
 }
 local LAMP = { color = Color3.fromRGB(255, 222, 176), brightness = 2.4, range = 36 }
 -- stylua: ignore end
