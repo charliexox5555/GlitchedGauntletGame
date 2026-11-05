@@ -96,13 +96,13 @@ end
 local function side(bar: Frame, enemy: boolean): Side
 	local color = if enemy then C.enemy else C.ally
 	local name = Ui.text(bar, "", "label", {
-		Position = UDim2.fromOffset(if enemy then 824 else 56, 14),
+		Position = UDim2.fromOffset(if enemy then 824 else 56, 8),
 		Size = UDim2.fromOffset(BAR_W, 16),
 		TextColor3 = color,
 		TextXAlignment = if enemy then Enum.TextXAlignment.Right else Enum.TextXAlignment.Left,
 	})
 	local back = make("Frame", {
-		Position = UDim2.fromOffset(if enemy then 824 else 56, 40),
+		Position = UDim2.fromOffset(if enemy then 824 else 56, 46),
 		Size = UDim2.fromOffset(BAR_W, 8),
 		BorderSizePixel = 0,
 		BackgroundColor3 = C.lineSoft,

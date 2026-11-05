@@ -103,7 +103,7 @@ Rubric `ui.md` from `lihfolk:quality-score`.
 Logged in `.lihfolk/ledger.jsonl`.
 
 ## Not done / next
-- **A phone layout for the match HUD and draft is the blocker for the 8.5 bar.** It's still the 1080p layout scaled (about 0.29 on an iPhone SE). It needs its own compact arrangement, like the Lobby's phone family.
+- **Phone layout: built in the afternoon (see "Phone and touch tablets"); the remaining blocker is compact phone draft cards.** It's still the 1080p layout scaled (about 0.29 on an iPhone SE). It needs its own compact arrangement, like the Lobby's phone family.
 - Secondary labels at about 15 px; gamepad selection in the draft.
 - The gold LOCK IN is a plain gold button, not the Lobby's lipped primary button.
 - The enemy ability badges on the draft are still small square icons.
@@ -118,3 +118,78 @@ Logged in `.lihfolk/ledger.jsonl`.
 3. Get a kill: you should see the rounded ELIMINATED panel and the kill feed under the bar.
 4. Decide whether hiding the player list in matches is right. You'd lose Roblox's per-player list, so you might want a Tab scoreboard of our own. Flag: `matchHidePlayerList`.
 5. Save the match place if you're happy. Nothing was changed in Studio by hand; the code comes through Rojo.
+
+## Phone and touch tablets (2026-11-05, afternoon)
+Built on top of the existing mobile input, not a new scheme. `HudController` already had a bottom-right touch layer:
+- FIRE, AIM, R, SLIDE, SWAP and RUN;
+- `ModHudController`'s ability arc and an ALT button;
+- all laid out around Roblox's jump button, and scaled by height / 760 (at least 0.62).
+
+LihFolk used: Responsive UI for Phone Tablet Console and PC, Safe Areas and Insets, HUD Design, Case Study - Phone UI Overhaul (fixed footer, one scroller, "hide, don't shrink"), Debugging UI Layout and Input (Roblox's touch controls take touches in their zones).
+
+**Who gets it:** `Util/Device` decides.
+- Phones (short side under 640 px) get the compact arrangement.
+- **Touch-only tablets** get it too, because a 1024 x 768 iPad also has a thumbstick and the touch layer in its bottom corners.
+- Desktop and touch-plus-keyboard keep the 1080p layout.
+- Studio test hooks: `Workspace.ForceLayout = "phone"` and `ForceTouchUI`.
+
+**HUD** (`Controllers/PhoneHudController.luau`, which moves and scales what the other controllers built):
+- **Status along the top.** The score bar is centred in the space left of the ability arc (on short phones the arc reaches up beside it). Health sits at the top left, with its HEALTH caption hidden. The kill feed sits beside health and shows its newest 3 rows.
+- **Bottom-left quarter clear** for the thumbstick.
+- **Ammo** joins the combat cluster in the touch layer's free strip, left of SLIDE. It shows only the count and the mag size (34 px).
+- **Q/E/T faces hide** on touch: the touch ability buttons show the same icons and cooldowns. Their hint text stays.
+- **Touch buttons are at least 72 design px**, so they draw 45 px at the 0.62 floor. Their labels are 22 px, and SWAP moved up to keep 8 px gaps.
+
+**Draft** on compact screens:
+- One vertical scroller for the cards. LOCK IN (45 px), the hint and the enemy kit sit in a fixed footer.
+- It **opens on the ability cards**: a gun is preselected, and you scroll up to change it. The score bar steps aside and its clock goes into the footer hint.
+- Hints use touch wording, for example "Gun: GHOST (scroll up to change). Tap one card."
+- Roblox's touch controls and chat are off while the draft is open, then restored (`Shared/CoreUi`; the Lobby menus get the same).
+
+**Results banners:** full width already; their text gets the 13 px floor.
+
+**Text floor fix found on the way:** on the first frame a gui reports a near-zero size. The floor used to inflate label boxes then (312 px tall) and they never shrank back. It now waits for a real scale and restores the authored heights.
+
+**Measured** with the size harness (the live UI cloned into exact frames, with Roblox's top-bar buttons, the thumbstick quarter, the jump button and the touch layer drawn in). Screenshots:
+- `phone-hud-round2.jpg`, `phone-draft-round2.jpg`;
+- earlier `phone-hud-se-tall-tablet.jpg`, `phone-draft-se-tall-tablet.jpg`, `phone-hud-se-first-try.jpg`;
+- design `figma-phone-hud.png` (Figma Screens page, "Match v2 · Phone HUD / draft 667x375", y 7720).
+
+| Size | HUD | Draft |
+|---|---|---|
+| iPhone SE 667 x 375 | all panels clear of Roblox UI, jump, touch buttons and the thumbstick quarter; touch min 45 px; text 13+ px; ammo 34 px | taps 45+ px, text 13+ px, no overflow; opens on the ability cards |
+| Tall phone 844 x 390 | clear (same checks) | clear |
+| Tablet 1024 x 768, touch | clear; touch buttons 72 px | clear; the whole draft fits with a little scroll |
+
+The first harness run caught two real problems, both fixed:
+- Touch buttons drew 32-40 px.
+- The ability arc reached into the score bar.
+
+**Scores** (`lihfolk:quality-score`, rubric `ui.md`, three blind Sonnet reviewers each round):
+
+| Round | Reviewers | Median | What they flagged |
+|---|---|---|---|
+| Phone 1 | 6.25, 5.0 (capped), 5.8 | about 5.8 | ability cards below the fold, keyboard hints on touch, small ammo |
+| Phone 2, after the fixes | 6.7, 5.0 (capped; 5.8 raw), 6.7 | **6.7** (U1 1, U2 2, U3 2, U4 1, U5 1, U6 1) | card descriptions cut at the fold, "DRAFT AN ABILITY" half cut at 844 x 390, team names struck through by the health bar, unproven motion |
+
+The reviewers mostly fault the draft cards: on a 375 px-tall phone a 540-design-px card can't fit, so its description is cut at the fold.
+
+After round 2 I made three fixes, checked on desktop, **not re-scored**:
+- the scroll stop moved up (338 design px);
+- the plate names and bars moved apart (names at 8, bars at 46);
+- the gun cue went into the hint.
+
+That's the last of the three allowed fix rounds, so the score stops at **6.7, below the 8.5 bar**.
+
+**To pass:** a compact phone card, about 260 design px tall with a short art band and 2-3 description lines, so a whole ability row fits on a 375 px screen. Optionally a tab strip for guns. It needs a new card builder for the phone family; it's the next job.
+
+### Check tonight (phone)
+1. In Studio, set `Workspace.ForceLayout = "phone"` and `ForceTouchUI = true` (and `BotMatch = "1v1"`, TestMode off), or use the Device emulator (iPhone SE, a tall phone, an iPad).
+2. In the draft: it should open on the ability cards, the gun row should be above, and LOCK IN fixed at the bottom. The thumbstick and jump button should be gone until the draft closes.
+3. In a round, check:
+   - health and the kill feed at the top left;
+   - the score bar left of the ability buttons;
+   - ammo above SLIDE / RUN;
+   - nothing under the thumbstick or the jump button.
+4. Try the touch buttons for size (72 design px now). Say if the layer feels too big on an iPad (it's 1.0x there).
+5. **Real phone test** from the Roblox app, since none of this ran on a device.

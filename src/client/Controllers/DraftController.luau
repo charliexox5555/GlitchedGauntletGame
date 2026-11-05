@@ -276,7 +276,13 @@ local function hintText(): (string, Color3)
 	end
 	if not nothingToPick(o) then
 		return if touch
-			then "Tap one card. Scroll up to change your gun."
+			then string.format(
+				"Gun: %s (scroll up to change). Tap one card.",
+				string.upper(
+					(Weapons.get(selectedGun :: string) or {} :: any).displayName
+						or tostring(selectedGun)
+				)
+			)
 			else "Now pick one card: a new ability or an upgrade (Q, E, T).",
 			C.textSecondary
 	end
