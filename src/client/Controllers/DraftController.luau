@@ -19,6 +19,7 @@ local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local CoreUi = require(ReplicatedStorage.Shared.CoreUi)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local CameraController = require(script.Parent.CameraController)
@@ -58,7 +59,7 @@ local STATS: { { key: string, label: string, unit: string } } = {
 
 type Card = {
 	button: ImageButton,
-	line: ImageLabel,
+	line: UIStroke,
 	glow: ImageLabel,
 	id: string,
 	rest: Color3,
@@ -97,6 +98,9 @@ local function setOpen(value: boolean)
 	openToken += 1
 	local token = openToken
 	CameraController.setCursorVisible(value)
+	-- Roblox's chat steps aside while the draft fills the screen (it sits at
+	-- the left middle in a match, over the first column on smaller screens).
+	CoreUi.menuMode(value)
 	local back = backdrop
 	if not back then
 		return
@@ -300,13 +304,14 @@ local function refreshSelection()
 	for _, list in { gunCards, abilityCards } do
 		for _, c in list do
 			local on = c.id == selectedGun or c.id == selectedAbility
-			c.line.ImageColor3 = if on then C.white else c.restLine
+			c.line.Color = if on then C.white else c.restLine
+			c.line.Transparency = 0
 			c.glow.Visible = on and c.button.Visible
 		end
 	end
 	local ready = canLock() and not locked
 	if lockButton and lockLabel and lockIcon then
-		lockButton.ImageColor3 = if locked then C.ready elseif ready then C.gold else C.raised
+		lockButton.BackgroundColor3 = if locked then C.ready elseif ready then C.gold else C.raised
 		lockLabel.TextColor3 = if ready or locked then C.onAccent else C.textDim
 		lockLabel.Text = if locked then "LOCKED" else "LOCK IN"
 		lockIcon.ImageColor3 = lockLabel.TextColor3
@@ -334,14 +339,14 @@ local function shell(
 	corner: number,
 	lineColor: Color3,
 	glowColor: Color3?
-): (ImageButton, ImageLabel, ImageLabel)
+): (ImageButton, UIStroke, ImageLabel)
 	local glow = Ui.cut(parent, {
 		Name = name .. "Glow",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = pos + UDim2.fromOffset(size.X / 2, size.Y / 2),
 		Size = UDim2.fromOffset(size.X + 16, size.Y + 16),
 		Visible = false,
-	}, { corner = corner + 4, color = glowColor or C.white, transparency = 0.86 })
+	}, { radius = Ui.radius(corner) + 8, color = glowColor or C.white, transparency = 0.86 })
 	local button = Ui.cut(parent, {
 		Name = name,
 		-- Centre-anchored, so hover lifts and press pops grow from the middle.
@@ -357,7 +362,7 @@ local function shell(
 		className = "ImageButton",
 	})
 	local line = button:FindFirstChild("Line")
-	assert(line and line:IsA("ImageLabel"), "Ui.cut draws a Line when given a line colour")
+	assert(line and line:IsA("UIStroke"), "Ui.cut draws a Line when given a line colour")
 	return button, line, glow
 end
 
@@ -373,13 +378,13 @@ local function hookCard(card: Card, onPick: () -> ())
 		if not isOpen then
 			return
 		end
-		button.ImageColor3 = C.hover
+		button.BackgroundColor3 = C.hover
 		Ui.tween(button, Theme.MOTION.select, { Position = home + up })
 		Ui.tween(glow, Theme.MOTION.select, { Position = glowHome + up })
 		UiSound.play("Hover")
 	end)
 	button.MouseLeave:Connect(function()
-		button.ImageColor3 = card.rest
+		button.BackgroundColor3 = card.rest
 		Ui.tween(button, Theme.MOTION.select, { Position = home })
 		Ui.tween(glow, Theme.MOTION.select, { Position = glowHome })
 	end)
@@ -493,11 +498,16 @@ local function abilityCard(parent: Instance, id: string, slot: number): Card
 		20,
 		C.lineSoft
 	)
+	-- Inset by the 2 px outline and rounded to the card's radius − 2 (nested
+	-- rule), so the tint and art sit inside the card's edge.
+	local inner = Ui.radius(20) - 2
 	local tint = make("Frame", {
-		Size = UDim2.fromOffset(COL_W, 300),
+		Position = UDim2.fromOffset(2, 2),
+		Size = UDim2.fromOffset(COL_W - 4, 298),
 		BorderSizePixel = 0,
 		BackgroundColor3 = role,
 	}, button)
+	make("UICorner", { CornerRadius = UDim.new(0, inner) }, tint)
 	make("UIGradient", {
 		Rotation = 90,
 		Transparency = NumberSequence.new(1, 0.58),
@@ -505,13 +515,19 @@ local function abilityCard(parent: Instance, id: string, slot: number): Card
 	local icon = if def then def.icon else ""
 	local art = Theme.CARD_ART[id]
 	if art then
-		make("ImageLabel", {
+		local artLabel = make("ImageLabel", {
 			Name = "Art",
-			Size = UDim2.fromOffset(COL_W, 300),
+			Position = UDim2.fromOffset(2, 2),
+			Size = UDim2.fromOffset(COL_W - 4, 298),
 			BackgroundTransparency = 1,
 			Image = art,
+			-- The v1 art has the old cut corner baked in (40 px at 2x, top left):
+			-- crop past it; UICorner rounds the rest.
+			ImageRectOffset = Vector2.new(24, 24),
+			ImageRectSize = Vector2.new(736, 576),
 			ScaleType = Enum.ScaleType.Crop,
 		}, button)
+		make("UICorner", { CornerRadius = UDim.new(0, inner) }, artLabel)
 	else
 		make("ImageLabel", {
 			Position = UDim2.fromOffset(150, 10),
@@ -1076,15 +1092,19 @@ local function show(o: MatchState.DraftOffer)
 end
 
 local function build()
+	-- Core-UI safe area, like the top bar drawn above it (LihFolk: Safe Areas
+	-- and Insets); the backdrop reaches up under Roblox's top bar anyway.
 	local g = make("ScreenGui", {
 		Name = "Draft",
 		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
 		DisplayOrder = 8,
 	}, player:WaitForChild("PlayerGui"))
 	local back = make("TextButton", {
 		Name = "Backdrop",
-		Size = UDim2.fromScale(1, 1),
+		Position = UDim2.fromOffset(0, -160),
+		Size = UDim2.new(1, 0, 1, 160),
 		BackgroundColor3 = C.scrim,
 		BorderSizePixel = 0,
 		AutoButtonColor = false,
@@ -1103,7 +1123,9 @@ local function build()
 	local frame = make("Frame", {
 		Name = "Canvas",
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
+		-- Centred on the safe area, not on the backdrop (which reaches 160 px
+		-- higher, under Roblox's top bar).
+		Position = UDim2.new(0.5, 0, 0.5, 80),
 		Size = UDim2.fromOffset(Theme.DESIGN.X, Theme.DESIGN.Y),
 		BackgroundTransparency = 1,
 	}, back)

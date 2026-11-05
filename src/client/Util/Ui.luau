@@ -1,6 +1,8 @@
 --!strict
--- The UI v1 kit (vault/02 Art/UI Design.md): small builders shared by the draft,
--- match HUD and combat HUD, all reading Config/Theme. Layouts are Offset at the
+-- The match UI kit (vault/02 Art/UI Design.md; v2 look since 2026-11-05, see
+-- vault/01 Design/Match HUD.md): small builders shared by the draft, match HUD
+-- and combat HUD, reading Config/Theme (whose tokens resolve to Config/UiStyle)
+-- and drawing with Shared/UiKit, the same rounded shapes as the Lobby. Layouts are Offset at the
 -- 1920 x 1080 design size; `fit` gives a cluster one UIScale that follows its
 -- ScreenGui's size (min of width / 1920 and height / 1080), scaled around its
 -- AnchorPoint.
@@ -9,6 +11,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local UiKit = require(ReplicatedStorage.Shared.UiKit)
+local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 
 local Ui = {}
 
@@ -51,52 +55,49 @@ function Ui.text(
 end
 
 export type CutOptions = {
-	corner: number?, -- design px of each cut (default 20)
+	corner: number?, -- v1 cut size in design px (default 20); mapped to a radius
+	radius: number?, -- or the corner radius directly
 	color: Color3?,
 	transparency: number?,
-	line: Color3?, -- an outline, if given
+	line: Color3?, -- an outline (a UIStroke named "Line"), if given
 	lineTransparency: number?,
 	className: string?, -- "ImageLabel" (default) or "ImageButton"
 }
 
--- A card or button with cut top-left and bottom-right corners (9-slice), and
--- an optional outline drawn as a child named "Line".
+-- v1 cut sizes (12-26) to v2 corner radii.
+function Ui.radius(corner: number): number
+	return math.clamp(math.floor(corner * 0.8 + 0.5), 8, UiStyle.RADIUS.xl)
+end
+
+-- A card or button: a rounded v2 surface (UICorner, top-lit gradient) with an
+-- optional 2 px outline drawn as a UIStroke named "Line". Kept under its v1 name
+-- so every builder switched look at once. Colour it with BackgroundColor3.
 function Ui.cut(parent: Instance, props: { [string]: any }, opts: CutOptions?): any
 	local o: CutOptions = opts or {}
-	local sliceScale = (o.corner or 20) / 32
 	local fill = Ui.make(o.className or "ImageLabel", {
-		BackgroundTransparency = 1,
-		Image = Theme.IMAGE.cutFill,
-		ScaleType = Enum.ScaleType.Slice,
-		SliceCenter = Theme.IMAGE.cutSlice,
-		SliceScale = sliceScale,
-		ImageColor3 = o.color or C.card,
-		ImageTransparency = o.transparency or 0,
-	}, parent)
+		BackgroundColor3 = o.color or C.card,
+		BackgroundTransparency = o.transparency or 0,
+		BorderSizePixel = 0,
+		Image = "",
+	})
 	if o.className == "ImageButton" then
 		fill.AutoButtonColor = false
+	end
+	UiKit.corner(fill, o.radius or Ui.radius(o.corner or 20))
+	UiKit.shade(fill)
+	if o.line then
+		local stroke = UiKit.stroke(fill, o.line, o.lineTransparency or 0)
+		stroke.Name = "Line"
 	end
 	for k, v in props do
 		(fill :: any)[k] = v
 	end
-	if o.line then
-		Ui.make("ImageLabel", {
-			Name = "Line",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			Image = Theme.IMAGE.cutLine,
-			ScaleType = Enum.ScaleType.Slice,
-			SliceCenter = Theme.IMAGE.cutSlice,
-			SliceScale = sliceScale,
-			ImageColor3 = o.line,
-			ImageTransparency = o.lineTransparency or 0,
-			ZIndex = 3,
-		}, fill)
-	end
+	fill.Parent = parent
 	return fill
 end
 
--- A small caps tag (role, path, shield): tinted fill, outline, sized to its text.
+-- A small caps tag (role, path, shield): a pill, tinted fill and outline, sized
+-- to its text.
 function Ui.tag(
 	parent: Instance,
 	content: string,
@@ -109,8 +110,9 @@ function Ui.tag(
 		Size = UDim2.fromOffset(0, 0),
 		BackgroundColor3 = color,
 		BackgroundTransparency = if solid then 0 else 0.84,
+		BorderSizePixel = 0,
 	}, parent)
-	Ui.make("UICorner", { CornerRadius = UDim.new(0, 3) }, tag)
+	UiKit.corner(tag, UiStyle.RADIUS.pill)
 	Ui.make("UIPadding", {
 		PaddingLeft = UDim.new(0, 12),
 		PaddingRight = UDim.new(0, 12),
@@ -118,11 +120,7 @@ function Ui.tag(
 		PaddingBottom = UDim.new(0, 5),
 	}, tag)
 	if not solid then
-		Ui.make(
-			"UIStroke",
-			{ Color = color, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border },
-			tag
-		)
+		UiKit.stroke(tag, color, 0.2)
 	end
 	Ui.text(tag, string.upper(content), "label", {
 		Name = "Label",
@@ -139,38 +137,34 @@ function Ui.tag(
 end
 
 -- The key tab over a draft column: the key letter and 3 level pips (`level`
--- filled). 150 x 44, anchored at its top centre.
+-- filled). 150 x 44, anchored at its top centre; a rounded v2 tab.
 function Ui.keyTab(parent: Instance, key: string, level: number, position: UDim2): Frame
-	local tab = Ui.make("ImageLabel", {
+	local tab = Ui.make("Frame", {
 		Name = "KeyTab",
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = position,
 		Size = UDim2.fromOffset(150, 44),
-		BackgroundTransparency = 1,
-		Image = Theme.IMAGE.keyTabFill,
-		ImageColor3 = C.raised,
+		BackgroundColor3 = C.raised,
+		BorderSizePixel = 0,
 		ZIndex = 5,
 	}, parent)
-	Ui.make("ImageLabel", {
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Image = Theme.IMAGE.keyTabLine,
-		ImageColor3 = C.lineStrong,
-		ZIndex = 5,
-	}, tab)
+	UiKit.corner(tab, UiStyle.RADIUS.md)
+	UiKit.shade(tab)
+	UiKit.stroke(tab, C.white, UiStyle.ALPHA.stroke)
 	Ui.text(tab, key, "key", {
 		Size = UDim2.fromOffset(150, 24),
-		Position = UDim2.fromOffset(0, 4),
+		Position = UDim2.fromOffset(0, 3),
 		ZIndex = 6,
 	})
 	for i = 1, 3 do
-		Ui.make("Frame", {
-			Position = UDim2.fromOffset(27 + (i - 1) * 33, 30),
-			Size = UDim2.fromOffset(30, 5),
+		local pip = Ui.make("Frame", {
+			Position = UDim2.fromOffset(30 + (i - 1) * 32, 30),
+			Size = UDim2.fromOffset(26, 5),
 			BorderSizePixel = 0,
 			BackgroundColor3 = if i <= level then C.ally else C.lineStrong,
 			ZIndex = 6,
 		}, tab)
+		UiKit.corner(pip, 3)
 	end
 	return tab
 end
@@ -206,9 +200,13 @@ end
 function Ui.fit(obj: GuiObject): UIScale
 	local gui = obj:FindFirstAncestorWhichIsA("LayerCollector")
 	local scale = Ui.make("UIScale", { Scale = screenScale(gui) }, obj)
+	-- Strokes snap to whole drawn pixels at the new scale (Shared/UiKit).
+	UiKit.snapStrokes(obj, scale.Scale)
+	task.defer(UiKit.snapStrokes, obj, scale.Scale)
 	if gui then
 		local conn = gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 			scale.Scale = screenScale(gui)
+			UiKit.snapStrokes(obj, scale.Scale)
 		end)
 		scale.Destroying:Connect(function()
 			conn:Disconnect()

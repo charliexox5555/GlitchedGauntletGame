@@ -10,7 +10,10 @@
 -- UIScale, Fx "PopScale"), and a text floor keeps drawn text at 12 px or more.
 
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+
+local UiKit = require(ReplicatedStorage.Shared.UiKit)
 
 local Layout = {}
 
@@ -121,29 +124,9 @@ function Layout.floorText(root: Instance, scale: number)
 	end
 end
 
--- Keep every kit stroke a whole number of DRAWN pixels at `scale` (UIScale
--- scales UIStroke: a 2 px stroke at 0.83 would draw a soft 1.66 px). Strokes
--- made by Util/Kit carry their design width in a "BaseThickness" attribute.
+-- Strokes snap to whole drawn pixels (Shared/UiKit).
 function Layout.snapStrokes(root: Instance, scale: number)
-	for _, d in root:GetDescendants() do
-		if d:IsA("UIStroke") then
-			local base = d:GetAttribute("BaseThickness")
-			if typeof(base) == "number" then
-				local s = scale
-				local cur = d.Parent
-				while cur and cur ~= root do
-					for _, c in cur:GetChildren() do
-						if c:IsA("UIScale") and c.Name ~= "PopScale" then
-							s *= c.Scale
-						end
-					end
-					cur = cur.Parent
-				end
-				s = math.max(s, 0.05)
-				d.Thickness = math.max(1, math.floor(base * s + 0.5)) / s
-			end
-		end
-	end
+	UiKit.snapStrokes(root, scale)
 end
 
 -- One Fit UIScale on `obj` that follows its ScreenGui's safe-area size, plus

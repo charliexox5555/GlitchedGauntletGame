@@ -27,6 +27,11 @@ local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
 local ModController = require(script.Parent.ModController)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local UiKit = require(ReplicatedStorage.Shared.UiKit)
+local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
+
+-- v2 slot shape (Config/UiStyle): rounded corners, a 2 px whole-pixel edge.
+local SLOT_RADIUS = UiStyle.RADIUS.md
 local Ui = require(script.Parent.Parent.Util.Ui)
 
 local ModHudController = {}
@@ -207,6 +212,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		BackgroundTransparency = 0.28,
 		BorderSizePixel = 0,
 	}, body)
+	UiKit.corner(face, SLOT_RADIUS)
 	-- The shading is its own frame: a UIGradient on a CanvasGroup would tint
 	-- everything in it.
 	local shade = make("Frame", {
@@ -248,12 +254,14 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		BackgroundTransparency = 1,
 		ZIndex = 5,
 	}, body)
+	UiKit.corner(frame, SLOT_RADIUS)
 	local border = make("UIStroke", {
 		Color = Theme.COLORS.lineStrong,
-		Thickness = 1.5,
+		Thickness = UiStyle.STROKE.base,
 		Transparency = 0,
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 	}, frame)
+	border:SetAttribute("BaseThickness", UiStyle.STROKE.base)
 	-- Ready ring: grows out and fades when a charge comes back.
 	local ring = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -262,6 +270,7 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 		BackgroundTransparency = 1,
 		ZIndex = 5,
 	}, body)
+	UiKit.corner(ring, SLOT_RADIUS + 4)
 	local ringStroke = make("UIStroke", {
 		Color = CYAN,
 		Thickness = 2,
@@ -270,14 +279,15 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 	}, ring)
 	-- Ready bar right under the box, the key letter under that.
 	local readyBar = make("Frame", {
-		Position = UDim2.fromOffset(0, SLOT_SIZE),
-		Size = UDim2.fromOffset(SLOT_SIZE, 4),
+		Position = UDim2.fromOffset(SLOT_RADIUS, SLOT_SIZE + 4),
+		Size = UDim2.fromOffset(SLOT_SIZE - 2 * SLOT_RADIUS, 3),
 		BackgroundColor3 = CYAN,
 		BorderSizePixel = 0,
 		ZIndex = 5,
 	}, body)
+	UiKit.corner(readyBar, 2)
 	local key = Ui.text(body, "", "key", {
-		Position = UDim2.fromOffset(0, SLOT_SIZE + 8),
+		Position = UDim2.fromOffset(0, SLOT_SIZE + 10),
 		Size = UDim2.fromOffset(SLOT_SIZE, 18),
 		TextColor3 = Theme.COLORS.textSecondary,
 		ZIndex = 7,

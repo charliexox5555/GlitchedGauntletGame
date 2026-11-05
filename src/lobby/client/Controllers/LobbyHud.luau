@@ -476,7 +476,7 @@ local function playTile(order: number)
 		play.cancel = badge.Parent :: Frame
 	end
 	setPlayLook("idle")
-	p.glow.breathe()
+	p.glow.breathe(Fx.loop)
 	Fx.button(p.face, function()
 		Router.toggle("Queue")
 	end, {

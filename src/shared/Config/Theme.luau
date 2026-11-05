@@ -5,14 +5,20 @@
 -- ImageColor3; their sources are in art-source/ui (tools/ui_shapes.py,
 -- tools/blender/render_ui_gun.py).
 
-local Mods = require(script.Parent.Mods)
+local UiStyle = require(script.Parent.UiStyle)
+
+-- v2 (2026-11-05): the match UI shares the Lobby's look. These v1 token names
+-- now resolve to Config/UiStyle values, so change colours and fonts THERE.
+local S = UiStyle.COLOR
+local F = UiStyle.FONT
+
+-- A solid stand-in for "white at alpha over the surface" (dividers, lines).
+local function over(alpha: number): Color3
+	return S.surface:Lerp(S.white, alpha)
+end
 
 local function hex(h: string): Color3
 	return Color3.fromHex(h)
-end
-
-local function family(name: string, weight: Enum.FontWeight): Font
-	return Font.new("rbxasset://fonts/families/" .. name .. ".json", weight)
 end
 
 export type TextStyle = { font: Font, size: number }
@@ -21,23 +27,23 @@ return table.freeze({
 	DESIGN = Vector2.new(1920, 1080),
 
 	COLORS = table.freeze({
-		scrim = hex("07090D"),
-		panel = hex("11151C"),
-		card = hex("181D26"),
-		raised = hex("212833"),
-		hover = hex("2A3340"),
-		lineSoft = hex("2C3440"),
-		lineStrong = hex("4A5564"),
-		text = hex("F5F7FA"),
-		textSecondary = hex("A7B0BC"),
-		textDim = hex("69727F"),
-		onAccent = hex("11151C"),
-		ally = Mods.COLORS.ally,
-		enemy = Mods.COLORS.enemy,
-		gold = hex("FFD23F"),
-		glitch = Mods.COLORS.glitch,
-		ready = hex("3FD68A"),
-		white = Color3.new(1, 1, 1),
+		scrim = S.scrim,
+		panel = S.surface,
+		card = S.surface,
+		raised = S.surfaceSelected,
+		hover = S.surfaceHover,
+		lineSoft = over(0.14),
+		lineStrong = over(0.3),
+		text = S.text,
+		textSecondary = S.textSecondary,
+		textDim = S.textMuted,
+		onAccent = S.onPrimary,
+		ally = S.ally,
+		enemy = S.enemy,
+		gold = S.primary,
+		glitch = S.glitch,
+		ready = S.success,
+		white = S.white,
 	}),
 
 	-- Ability role (Config/Mods `role`) → its tag and card tint.
@@ -53,18 +59,20 @@ return table.freeze({
 
 	-- Two families (Oswald for titles and numbers, Montserrat for the rest),
 	-- both built into Roblox. Sizes are design pixels at 1080p.
+	-- v2 type: Montserrat Heavy for display and numbers (wider than v1's
+	-- Oswald, so sizes are about 0.8x), Builder Sans for labels and body.
 	TEXT = table.freeze({
-		displayXL = { font = family("Oswald", Enum.FontWeight.Bold), size = 132 },
-		displayL = { font = family("Oswald", Enum.FontWeight.Bold), size = 56 },
-		displayM = { font = family("Oswald", Enum.FontWeight.Bold), size = 40 },
-		titleCard = { font = family("Oswald", Enum.FontWeight.Bold), size = 44 },
-		titleS = { font = family("Oswald", Enum.FontWeight.SemiBold), size = 22 },
-		numberHud = { font = family("Oswald", Enum.FontWeight.Bold), size = 76 },
-		timer = { font = family("Oswald", Enum.FontWeight.Medium), size = 44 },
-		label = { font = family("Montserrat", Enum.FontWeight.Bold), size = 13 },
-		bodyM = { font = family("Montserrat", Enum.FontWeight.SemiBold), size = 17 },
-		bodyS = { font = family("Montserrat", Enum.FontWeight.Medium), size = 14 },
-		key = { font = family("Montserrat", Enum.FontWeight.ExtraBold), size = 16 },
+		displayXL = { font = F.display, size = 104 },
+		displayL = { font = F.display, size = 46 },
+		displayM = { font = F.display, size = 32 },
+		titleCard = { font = F.display, size = 32 },
+		titleS = { font = F.label, size = 20 },
+		numberHud = { font = F.display, size = 60 },
+		timer = { font = F.display, size = 36 },
+		label = { font = F.label, size = 15 },
+		bodyM = { font = F.body, size = 17 },
+		bodyS = { font = F.body, size = 15 },
+		key = { font = F.label, size = 16 },
 	} :: { [string]: TextStyle }),
 
 	-- 9-slice and plate images. CutFill/CutLine: 128 px with 32 px cuts.

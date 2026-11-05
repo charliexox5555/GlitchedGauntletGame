@@ -55,7 +55,9 @@ function KillFeed.build(gui: ScreenGui)
 	local list = make("Frame", {
 		Name = "KillFeed",
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -48, 0, 128),
+		-- Under the top bar, which now starts below Roblox's top bar (the
+		-- player list is hidden in matches, so the corner is ours).
+		Position = UDim2.new(1, -48, 0, 180),
 		Size = UDim2.fromOffset(ROW_W, (ROW_H + ROW_GAP) * ROWS),
 		BackgroundTransparency = 1,
 	}, gui)
@@ -70,7 +72,9 @@ function KillFeed.build(gui: ScreenGui)
 		Name = "KillBanner",
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromScale(0.5, 0.6),
-		Size = UDim2.fromOffset(520, 96),
+		-- Headroom around the 520 x 96 panel: the CanvasGroup clips, and the
+		-- punch-in pops the panel to 1.15x (its rounded corners must survive).
+		Size = UDim2.fromOffset(600, 120),
 		BackgroundTransparency = 1,
 		GroupTransparency = 1,
 		Visible = false,
@@ -80,25 +84,18 @@ function KillFeed.build(gui: ScreenGui)
 		Name = "Pop",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(1, 1),
+		Size = UDim2.fromOffset(520, 96),
 		BackgroundTransparency = 1,
 	}, group)
 	bannerScale = make("UIScale", {}, pop)
-	local slant = make("ImageLabel", {
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Image = Theme.IMAGE.slant,
-		ImageColor3 = C.panel,
-		ImageTransparency = 0.12,
-	}, pop)
-	make("UIGradient", {
-		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 1),
-			NumberSequenceKeypoint.new(0.2, 0),
-			NumberSequenceKeypoint.new(0.8, 0),
-			NumberSequenceKeypoint.new(1, 1),
-		}),
-	}, slant)
+	-- v2: a rounded dark panel with a light edge (was an angled image).
+	Ui.cut(pop, { Size = UDim2.fromScale(1, 1) }, {
+		radius = 18,
+		color = C.panel,
+		transparency = 0.1,
+		line = C.white,
+		lineTransparency = 0.86,
+	})
 	local diamond = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromOffset(114, 48),
@@ -147,9 +144,10 @@ local function row(killer: Instance?, victim: Instance?, sourceId: string, heads
 		Position = UDim2.fromOffset(60, 0),
 		Size = UDim2.fromOffset(ROW_W, ROW_H),
 		BackgroundColor3 = C.panel,
-		BackgroundTransparency = 0.22,
+		BackgroundTransparency = 0.18,
 		BorderSizePixel = 0,
 	}, holder)
+	make("UICorner", { CornerRadius = UDim.new(0, 10) }, frame)
 	Ui.tween(
 		frame,
 		Theme.MOTION.enter,
@@ -157,13 +155,20 @@ local function row(killer: Instance?, victim: Instance?, sourceId: string, heads
 		Enum.EasingStyle.Quint
 	)
 	if mine then
-		make("UIStroke", { Color = C.ally, Thickness = 1.5 }, frame)
+		local stroke = make("UIStroke", {
+			Color = C.ally,
+			Thickness = 2,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		}, frame)
+		stroke:SetAttribute("BaseThickness", 2)
 	end
-	make("Frame", {
-		Size = UDim2.fromOffset(4, ROW_H),
+	local accent = make("Frame", {
+		Position = UDim2.fromOffset(6, 8),
+		Size = UDim2.fromOffset(4, ROW_H - 16),
 		BorderSizePixel = 0,
 		BackgroundColor3 = teamColor(killer),
 	}, frame)
+	make("UICorner", { CornerRadius = UDim.new(0, 2) }, accent)
 	Ui.text(frame, nameOf(killer), "titleS", {
 		Position = UDim2.fromOffset(16, 8),
 		Size = UDim2.fromOffset(118, 28),

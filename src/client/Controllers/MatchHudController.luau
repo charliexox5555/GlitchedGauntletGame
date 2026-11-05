@@ -1,5 +1,6 @@
 --!strict
--- The match's on-screen state, UI v1 (vault/02 Art/UI Design.md): the top bar
+-- The match's on-screen state, v2 look (vault/01 Design/Match HUD.md; v1 layout
+-- in vault/02 Art/UI Design.md): the top bar
 -- (both team plates with names and health, the score, first-to-5 diamonds, the
 -- round and weapon phase, the clock) and the full-width banners (get ready,
 -- countdown, fight, round won / lost, match end). It only shows what
@@ -9,6 +10,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
+local TextChatService = game:GetService("TextChatService")
 
 local Health = require(ReplicatedStorage.Shared.Health)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
@@ -16,6 +18,8 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local UiKit = require(ReplicatedStorage.Shared.UiKit)
+local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 
 local Ui = require(script.Parent.Parent.Util.Ui)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
@@ -72,13 +76,21 @@ type Ui = {
 	shownTitle: string,
 }
 
-local function plate(bar: Frame, image: string, x: number, w: number, h: number)
-	make("ImageLabel", {
+-- A rounded v2 plate behind part of the top bar (team plates get their team
+-- colour as a soft outline).
+local function plate(bar: Frame, name: string, x: number, w: number, h: number, edge: Color3?)
+	local p = Ui.cut(bar, {
+		Name = name,
 		Position = UDim2.fromOffset(x, 0),
 		Size = UDim2.fromOffset(w, h),
-		BackgroundTransparency = 1,
-		Image = image,
-	}, bar)
+	}, {
+		radius = UiStyle.RADIUS.lg,
+		color = C.panel,
+		transparency = 0.08,
+		line = edge or C.white,
+		lineTransparency = if edge then 0.5 else UiStyle.ALPHA.stroke,
+	})
+	UiKit.shadow(p, UiStyle.RADIUS.lg, 0.7)
 end
 
 local function side(bar: Frame, enemy: boolean): Side
@@ -93,8 +105,10 @@ local function side(bar: Frame, enemy: boolean): Side
 		Position = UDim2.fromOffset(if enemy then 824 else 56, 40),
 		Size = UDim2.fromOffset(BAR_W, 8),
 		BorderSizePixel = 0,
-		BackgroundColor3 = C.raised,
+		BackgroundColor3 = C.lineSoft,
+		ClipsDescendants = true,
 	}, bar)
+	UiKit.corner(back, 4)
 	local fill = make("Frame", {
 		AnchorPoint = Vector2.new(if enemy then 1 else 0, 0),
 		Position = UDim2.fromScale(if enemy then 1 else 0, 0),
@@ -102,6 +116,7 @@ local function side(bar: Frame, enemy: boolean): Side
 		BorderSizePixel = 0,
 		BackgroundColor3 = color,
 	}, back)
+	UiKit.corner(fill, 4)
 	local score = Ui.text(bar, "0", "displayM", {
 		-- Centre-anchored: its pop (a UIScale) grows from the middle.
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -134,35 +149,40 @@ local function side(bar: Frame, enemy: boolean): Side
 end
 
 local function build(): Ui
+	-- Core-UI safe area: the bar starts under Roblox's top bar instead of
+	-- sitting in its strip (LihFolk: Safe Areas and Insets). The banner is
+	-- full-width art in the same gui (nothing to press).
 	local gui = make("ScreenGui", {
 		Name = "MatchHud",
 		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		DisplayOrder = 9, -- above the draft screen (8)
 	}, player:WaitForChild("PlayerGui"))
 
 	local bar = make("Frame", {
 		Name = "TopBar",
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 8),
 		Size = UDim2.fromOffset(1100, 110),
 		BackgroundTransparency = 1,
 		Visible = false,
 	}, gui)
-	Ui.fit(bar)
-	plate(bar, Theme.IMAGE.plateLeft, 0, 420, 70)
-	plate(bar, Theme.IMAGE.plateRight, 680, 420, 70)
-	plate(bar, Theme.IMAGE.plateTimer, 400, 300, 104)
+	-- Three separate plates, 8 px apart (v1 overlapped angled images).
+	plate(bar, "AllyPlate", 0, 404, 70, C.ally)
+	plate(bar, "EnemyPlate", 696, 404, 70, C.enemy)
+	plate(bar, "ClockPlate", 412, 276, 104)
 	local round = Ui.text(bar, "", "label", {
-		Position = UDim2.fromOffset(400, 12),
-		Size = UDim2.fromOffset(300, 16),
+		Position = UDim2.fromOffset(412, 12),
+		Size = UDim2.fromOffset(276, 18),
 		TextColor3 = C.textSecondary,
 	})
 	local clock = Ui.text(bar, "", "timer", {
 		-- Centre-anchored: its pop (a UIScale) grows from the middle.
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromOffset(550, 56),
-		Size = UDim2.fromOffset(300, 52),
+		Size = UDim2.fromOffset(276, 52),
 	})
 
 	-- Banner: a full-width band in the result's colour, its words in a
@@ -227,13 +247,15 @@ local function build(): Ui
 		RichText = true,
 	})
 
+	local ally, enemy = side(bar, false), side(bar, true)
+	Ui.fit(bar)
 	return {
 		bar = bar,
 		clock = clock,
 		clockPop = make("UIScale", {}, clock),
 		round = round,
-		ally = side(bar, false),
-		enemy = side(bar, true),
+		ally = ally,
+		enemy = enemy,
 		band = band,
 		bandGradient = bandGradient,
 		lines = lines,
@@ -498,8 +520,32 @@ local function disableReset()
 	end
 end
 
+-- Roblox's own UI in a match (Config/UiStyle FLAGS): the player list steps
+-- aside for the top bar and kill feed, and the chat window moves to the left
+-- middle, so nothing of ours sits under either (LihFolk: Safe Areas and Insets).
+local function arrangeCoreUi()
+	local flags = UiStyle.FLAGS
+	if flags.matchHidePlayerList then
+		for _ = 1, RESET_TRIES do
+			local ok =
+				pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.PlayerList, false)
+			if ok then
+				break
+			end
+			task.wait(1)
+		end
+	end
+	local window = TextChatService:FindFirstChildOfClass("ChatWindowConfiguration")
+	if window then
+		pcall(function()
+			(window :: any).VerticalAlignment = (Enum.VerticalAlignment :: any)[flags.matchChatVertical]
+		end)
+	end
+end
+
 function MatchHudController.start()
 	local ui = build()
+	task.spawn(arrangeCoreUi)
 	if not TestMode.isOn() then
 		task.spawn(disableReset)
 	end

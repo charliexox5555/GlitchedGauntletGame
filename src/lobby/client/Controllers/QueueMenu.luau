@@ -456,7 +456,7 @@ local function buildAction()
 	findButton = p.face
 	findLabel = p.label
 	findLabel.TextSize = L.findText
-	p.glow.breathe()
+	p.glow.breathe(Fx.loop)
 	Fx.button(findButton, findMatch, {
 		shine = if Style.FLAGS.shine then Fx.shine(findButton, C.white, 0.3) else nil,
 		silent = true,

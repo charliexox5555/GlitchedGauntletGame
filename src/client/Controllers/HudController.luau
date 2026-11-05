@@ -18,6 +18,8 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local UiKit = require(ReplicatedStorage.Shared.UiKit)
+local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 local KillFeed = require(script.Parent.Parent.Util.KillFeed)
@@ -238,13 +240,19 @@ local function build(): Refs
 		BackgroundTransparency = 1,
 	}, gui)
 	Ui.fit(ammoPanel)
-	local ammoBack = make("Frame", {
+	-- v2: a rounded panel with a light edge and a soft shadow (was a fade).
+	local ammoBack = Ui.cut(ammoPanel, {
+		Name = "Back",
 		Position = UDim2.fromOffset(0, 80),
 		Size = UDim2.fromOffset(420, 120),
-		BorderSizePixel = 0,
-		BackgroundColor3 = T.panel,
-	}, ammoPanel)
-	make("UIGradient", { Transparency = NumberSequence.new(1, 0.15) }, ammoBack)
+	}, {
+		radius = UiStyle.RADIUS.lg,
+		color = T.panel,
+		transparency = 0.1,
+		line = WHITE,
+		lineTransparency = UiStyle.ALPHA.stroke,
+	})
+	UiKit.shadow(ammoBack, UiStyle.RADIUS.lg, 0.7)
 	local gunPicture = make("ImageLabel", {
 		Name = "Gun",
 		Position = UDim2.fromOffset(190, 14),
@@ -276,10 +284,12 @@ local function build(): Refs
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.fromOffset(404, 170),
 		Size = UDim2.fromOffset(220, 4),
-		BackgroundColor3 = T.raised,
+		BackgroundColor3 = T.lineSoft,
 		BorderSizePixel = 0,
+		ClipsDescendants = true,
 		Visible = false,
 	}, ammoPanel)
+	UiKit.corner(reloadBar, 2)
 	local reloadFill = make("Frame", {
 		Size = UDim2.fromScale(0, 1),
 		BackgroundColor3 = WHITE,
@@ -296,12 +306,17 @@ local function build(): Refs
 		BackgroundTransparency = 1,
 	}, gui)
 	Ui.fit(healthPanel)
-	local healthBack = make("Frame", {
+	local healthBack = Ui.cut(healthPanel, {
+		Name = "Back",
 		Size = UDim2.fromScale(1, 1),
-		BorderSizePixel = 0,
-		BackgroundColor3 = T.panel,
-	}, healthPanel)
-	make("UIGradient", { Transparency = NumberSequence.new(0.15, 1) }, healthBack)
+	}, {
+		radius = UiStyle.RADIUS.lg,
+		color = T.panel,
+		transparency = 0.1,
+		line = WHITE,
+		lineTransparency = UiStyle.ALPHA.stroke,
+	})
+	UiKit.shadow(healthBack, UiStyle.RADIUS.lg, 0.7)
 	local badge = make("ImageLabel", {
 		Name = "ShieldBadge",
 		Position = UDim2.fromOffset(20, 18),
@@ -336,10 +351,12 @@ local function build(): Refs
 	local shieldBar = make("Frame", {
 		Position = UDim2.fromOffset(96, 84),
 		Size = UDim2.fromOffset(300, 6),
-		BackgroundColor3 = T.raised,
+		BackgroundColor3 = T.lineSoft,
 		BorderSizePixel = 0,
+		ClipsDescendants = true,
 		Visible = false,
 	}, healthPanel)
+	UiKit.corner(shieldBar, 3)
 	local shieldFill = make("Frame", {
 		Size = UDim2.fromScale(1, 1),
 		BackgroundColor3 = T.ally,
@@ -348,9 +365,11 @@ local function build(): Refs
 	local healthBar = make("Frame", {
 		Position = UDim2.fromOffset(96, 96),
 		Size = UDim2.fromOffset(300, 10),
-		BackgroundColor3 = T.raised,
+		BackgroundColor3 = T.lineSoft,
 		BorderSizePixel = 0,
+		ClipsDescendants = true,
 	}, healthPanel)
+	UiKit.corner(healthBar, 5)
 	local healthChip = make("Frame", {
 		Name = "Chip",
 		Size = UDim2.fromScale(1, 1),
