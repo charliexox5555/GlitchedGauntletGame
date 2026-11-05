@@ -875,27 +875,21 @@ return table.freeze({
 				key(0, ZERO, ZERO),
 				key(
 					0.2,
-					Vector3.new(0.242, 0.516, 0.121),
-					Vector3.new(-23.349, -72.181, -82.311),
+					Vector3.new(0.282, 0.416, 0.141),
+					Vector3.new(34.25, -18.528, -72.236),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
 				key(
-					0.233333,
-					Vector3.new(0.279, 0.62, -0.046),
-					Vector3.new(17.159, -56.871, -20.993),
-					Enum.EasingStyle.Linear
-				),
-				key(
-					0.266667,
-					Vector3.new(0.242, 0.673, -0.212),
-					Vector3.new(49.323, 7.6, 55.693),
+					0.25,
+					Vector3.new(0.084, 0.397, -0.009),
+					Vector3.new(16.465, -2.054, -50.882),
 					Enum.EasingStyle.Linear
 				),
 				key(
 					0.3,
-					Vector3.new(0.132, 0.676, -0.379),
-					Vector3.new(52.745, 39.539, 56.765),
+					Vector3.new(0.002, 0.216, -0.159),
+					Vector3.new(-5.43, 14.472, -30.683),
 					Enum.EasingStyle.Linear
 				),
 				key(
@@ -938,15 +932,9 @@ return table.freeze({
 					OUT
 				),
 				key(
-					0.233333,
-					Vector3.new(-0.696, 0.368, -0.062),
-					Vector3.new(46.885, 0.739, 39.042),
-					Enum.EasingStyle.Linear
-				),
-				key(
-					0.266667,
-					Vector3.new(-0.886, 0.351, -0.146),
-					Vector3.new(64.082, -10.799, 98.757),
+					0.25,
+					Vector3.new(-0.792, 0.371, -0.104),
+					Vector3.new(60.12, -5.87, 73.294),
 					Enum.EasingStyle.Linear
 				),
 				key(
@@ -995,15 +983,9 @@ return table.freeze({
 					OUT
 				),
 				key(
-					0.27,
-					Vector3.new(-0.188, 0.397, 0.021),
-					Vector3.new(63.508, -30.652, 30.895),
-					Enum.EasingStyle.Linear
-				),
-				key(
-					0.3,
-					Vector3.new(-0.221, 0.257, -0.079),
-					Vector3.new(46.882, -21.266, 28.721),
+					0.285,
+					Vector3.new(-0.215, 0.329, -0.029),
+					Vector3.new(55.558, -25.881, 30.298),
 					Enum.EasingStyle.Linear
 				),
 				key(
@@ -1060,15 +1042,9 @@ return table.freeze({
 				),
 				key(0.38, Vector3.new(0.202, 0.166, 0.501), Vector3.new(53.685, 52.314, 161.422)),
 				key(
-					0.4,
-					Vector3.new(0.075, 0.265, 0.124),
-					Vector3.new(46.688, 51.756, 169.344),
-					Enum.EasingStyle.Linear
-				),
-				key(
-					0.42,
-					Vector3.new(-0.058, 0.275, -0.252),
-					Vector3.new(39.7, 50.808, 177.214),
+					0.41,
+					Vector3.new(0.009, 0.281, -0.064),
+					Vector3.new(43.181, 51.332, 173.3),
 					Enum.EasingStyle.Linear
 				),
 				key(
