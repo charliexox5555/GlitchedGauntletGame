@@ -32,6 +32,12 @@ The user played the day's work ([Day Plan 2026-11-05](../Day%20Plan%202026-11-05
 - **LihFolk gap review:** the user likes the whole list, but it waits. The work goes in phases, and the current phase is only what the user picks: maps and UI concepts. The list is parked in [Bugs & Ideas](../Bugs%20%26%20Ideas.md).
 - **ChatGPT:** the user uses the ChatGPT/Codex desktop app, not chatgpt.com in a browser.
 
+- **Codex concepts (20 images):** the user says they "look pretty good".
+  - They are quality references, **not one-to-one blueprints**: take the quality, silhouettes, materials, height and identity from them, and keep our own layouts and measured numbers.
+  - The map rebuild starts, Rooftops first.
+  - The UI images go into the §10 board for the user's pick.
+- **Match avatar:** a standard avatar in matches only, like RIVALS and Hypershot (blocky, smoother, slimmer arms without a visible elbow/wrist split, built to fit the weapons). The Lobby keeps players' own avatars. Research, then a plan in `01 Design/Match Avatar.md`, then the build with per-weapon holds (session `anim-knife`).
+
 ## Actions
 - Lane E (`lobby-ui-2`): revert the match screens to the v1 look. Keep the inset, clearance and phone-layout fixes where they work under v1.
 - Lane E, after that: UI concept pass (reference board, ChatGPT screens, Figma). Results go in [Lobby UI and Queue](../../01%20Design/Lobby%20UI%20and%20Queue.md).
