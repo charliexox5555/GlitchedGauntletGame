@@ -206,7 +206,7 @@ def p_plank_ramp():
 
 def p_catwalk():
 	c = piece("Catwalk8")
-	obj(c, "Deck", RB(-3.6, 3.6, -0.32, -0.03, -3.98, 3.98, BT, ST), "Metal")
+	obj(c, "Deck", RB(-3.6, 3.6, -0.32, -0.03, -3.98, 3.98, BT, ST), "Wood")  # round 4: grey deck read unfinished
 	beams = [RB(s * 3.6, s * 4.0, -1.0, -0.03, -3.98, 3.98, BT, ST) for s in (1, -1)]
 	obj(c, "Beams", merge(*beams), "Charcoal")
 	rails = []
@@ -229,10 +229,10 @@ def hut(name, W, Dp, H, door="+X", role="Wall", vent=False):
 	# a door with a picture frame on the door face
 	dw = min(3.2, (Dp if door == "+X" else W) - 1.4)
 	if door == "+X":
-		obj(c, "Door", RB(hx - 0.05, hx + 0.08, 0.95, 7.0, -dw / 2, dw / 2, BT, ST), "Charcoal")
+		obj(c, "Door", RB(hx - 0.05, hx + 0.08, 0.95, 7.0, -dw / 2, dw / 2, BT, ST), "Door")
 		obj(c, "DoorFrame", RPZ([(hx, 0.9), (hx + 0.25, 0.9), (hx + 0.25, 7.6), (hx, 7.6)], -dw / 2 - 0.5, dw / 2 + 0.5, BT, ST) if False else frame_door_x(hx, dw), "Trim")
 	else:
-		obj(c, "Door", RB(-dw / 2, dw / 2, 0.95, 7.0, hz - 0.05, hz + 0.08, BT, ST), "Charcoal")
+		obj(c, "Door", RB(-dw / 2, dw / 2, 0.95, 7.0, hz - 0.05, hz + 0.08, BT, ST), "Door")
 		obj(c, "DoorFrame", frame_door_z(hz, dw), "Trim")
 	if vent:
 		obj(c, "Vent", RB(-hx * 0.5, hx * 0.5, H - 0.03, H + 1.2, -hz * 0.5, hz * 0.5, BS, SS), "Metal")
@@ -281,6 +281,15 @@ def p_penthouse():
 	obj(c, "Pipes", merge(*pipes), "Charcoal")
 	vents = [RB(x - 1.2, x + 1.2, 1.6, 2.6, -4.32, -4.05, BT, ST) for x in (-15.0, -8.0, 8.0, 15.0)]
 	obj(c, "Vents", merge(*vents), "Metal")
+	# Round 5: a cobalt awning over the door (+Z face) and a warm wall lamp each side, so the spawn view has a doorway.
+	aw = [(0.0, 8.0), (1.6, 7.5), (1.6, 7.75), (0.0, 8.4)]
+	obj(c, "Awning", RPX([(4.0 + z, y) for z, y in aw], -2.6, 2.6, BT, ST), "Accent")
+	lamps, glow = [], []
+	for x in (-2.6, 2.6):
+		lamps.append(RB(x - 0.3, x + 0.3, 5.6, 6.6, 4.05, 4.45, BT, ST))
+		glow.append(RB(x - 0.2, x + 0.2, 5.75, 6.45, 4.45, 4.55))
+	obj(c, "WallLamps", merge(*lamps), "Charcoal")
+	obj(c, "WallLampGlow", merge(*glow), "GlowWarm")
 
 
 def p_ac():
@@ -347,6 +356,24 @@ def p_water_tank(name="WaterTank"):
 def p_lift_tower():
 	c = hut("LiftTower", 10, 8, 16, door="+X")
 	obj(c, "Sign", RB(-5.08, -4.98, 10.0, 12.6, -3.0, 3.0), "Accent")
+	# Round 5: a "TANK" name plate on each long face (toward each team's Pit stair): the middle's ground-level callout.
+	plates, rims, words = [], [], []
+	for s in (1, -1):
+		z0, z1 = sorted((s * 4.0, s * 4.22))
+		plates.append(RB(-3.4, 3.4, 9.4, 11.6, z0, z1, BT, ST))
+		rz0, rz1 = sorted((s * 3.96, s * 4.34))
+		rims.append(RB(-3.7, 3.7, 9.1, 9.4, rz0, rz1, BT, ST))
+		rims.append(RB(-3.7, 3.7, 11.6, 11.9, rz0, rz1, BT, ST))
+		bm, w = text_mesh("TANK", 1.4, depth=0.1)
+		# text_mesh faces Roblox +Z with its back at z 0: put it on the +Z plate, or turn it for the -Z one.
+		if s > 0:
+			xform(bm, T(0.0, -4.22, 9.8))
+		else:
+			xform(bm, T(0.0, 4.22, 9.8) @ RZ(180))
+		words.append(bm)
+	obj(c, "Plate", merge(*plates), "Charcoal")
+	obj(c, "PlateRim", merge(*rims), "Trim")
+	obj(c, "PlateWord", merge(*words), "White", smooth=0)
 
 
 def p_cooling():
@@ -427,9 +454,17 @@ def p_spawn_sign(team):
 	obj(c, "Right", merge(bm, arrow(6.3, 5.35, 0.3, 0.42, 1, 0.9, 0.85)), rrole, smooth=0)
 
 
+def p_chevron():
+	# Round 4: a white chevron painted on the roof (top 0.07), pointing local -Z: the way out of the spawn court.
+	c = piece("Chevron")
+	k = 1.6  # round 5: bigger (reviewers read the first ones as small and faint)
+	pts = [(-1.6 * k, 0.8 * k), (0.0, -0.8 * k), (1.6 * k, 0.8 * k), (0.75 * k, 0.8 * k), (0.0, 0.05 * k), (-0.75 * k, 0.8 * k)]
+	obj(c, "Paint", RPY(pts, -0.05, 0.07), "White")
+
+
 def p_deck_word(word, role, text=None):
 	c = piece("DeckWord" + word)
-	bm, w = text_mesh(text or word, 2.0 if text else 2.6, depth=0.12)
+	bm, w = text_mesh(text or word, 1.6 if text else 2.6, depth=0.12)  # ROOF A/B: 1.6 fits between the lift tower and the parapet
 	xform(bm, T(0.0, -1.3, 0.01) @ Matrix.Rotation(math.radians(-90), 4, "X") @ T(0.0, 0.06, 0.0))
 	obj(c, "Paint", bm, role, smooth=0)
 
@@ -497,6 +532,7 @@ def build():
 	p_deck_word("PIT", "SignPit")
 	p_deck_word("WEST", "SignWest")
 	p_deck_word("EAST", "SignEast")
+	p_chevron()
 	p_deck_word("ROOFA", "SignPit", "ROOF A")
 	p_deck_word("ROOFB", "SignPit", "ROOF B")
 	p_street_lamp()

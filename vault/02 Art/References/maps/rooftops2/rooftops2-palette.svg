@@ -8,9 +8,9 @@
 <rect x="394" y="86" width="44" height="26" rx="4" fill="#A88C72" stroke="#0E1320"/>
 <text x="448" y="98" font-size="13" font-weight="700" fill="#F4F1EA">RoofPit</text>
 <text x="448" y="111" font-size="11" fill="#B9BDCB">#A88C72  Slate / Roof2_Tile</text>
-<rect x="24" y="120" width="44" height="26" rx="4" fill="#D9C9A8" stroke="#0E1320"/>
+<rect x="24" y="120" width="44" height="26" rx="4" fill="#D4B98F" stroke="#0E1320"/>
 <text x="78" y="132" font-size="13" font-weight="700" fill="#F4F1EA">Wall</text>
-<text x="78" y="145" font-size="11" fill="#B9BDCB">#D9C9A8  SmoothPlastic</text>
+<text x="78" y="145" font-size="11" fill="#B9BDCB">#D4B98F  SmoothPlastic</text>
 <rect x="394" y="120" width="44" height="26" rx="4" fill="#A8977F" stroke="#0E1320"/>
 <text x="448" y="132" font-size="13" font-weight="700" fill="#F4F1EA">Plinth</text>
 <text x="448" y="145" font-size="11" fill="#B9BDCB">#A8977F  SmoothPlastic</text>
@@ -23,84 +23,87 @@
 <rect x="24" y="188" width="44" height="26" rx="4" fill="#3A3F47" stroke="#0E1320"/>
 <text x="78" y="200" font-size="13" font-weight="700" fill="#F4F1EA">Charcoal</text>
 <text x="78" y="213" font-size="11" fill="#B9BDCB">#3A3F47  SmoothPlastic</text>
-<rect x="394" y="188" width="44" height="26" rx="4" fill="#8C949C" stroke="#0E1320"/>
+<rect x="394" y="188" width="44" height="26" rx="4" fill="#A9A59C" stroke="#0E1320"/>
 <text x="448" y="200" font-size="13" font-weight="700" fill="#F4F1EA">Metal</text>
-<text x="448" y="213" font-size="11" fill="#B9BDCB">#8C949C  SmoothPlastic</text>
-<rect x="24" y="222" width="44" height="26" rx="4" fill="#7FA6BF" stroke="#0E1320"/>
-<text x="78" y="234" font-size="13" font-weight="700" fill="#F4F1EA">Window</text>
-<text x="78" y="247" font-size="11" fill="#B9BDCB">#7FA6BF  SmoothPlastic</text>
-<rect x="394" y="222" width="44" height="26" rx="4" fill="#BFD8E8" stroke="#0E1320"/>
-<text x="448" y="234" font-size="13" font-weight="700" fill="#F4F1EA">Glass</text>
-<text x="448" y="247" font-size="11" fill="#B9BDCB">#BFD8E8  Glass</text>
-<rect x="24" y="256" width="44" height="26" rx="4" fill="#2F62C8" stroke="#0E1320"/>
-<text x="78" y="268" font-size="13" font-weight="700" fill="#F4F1EA">Accent</text>
-<text x="78" y="281" font-size="11" fill="#B9BDCB">#2F62C8  SmoothPlastic</text>
-<rect x="394" y="256" width="44" height="26" rx="4" fill="#F7F4EC" stroke="#0E1320"/>
-<text x="448" y="268" font-size="13" font-weight="700" fill="#F4F1EA">White</text>
-<text x="448" y="281" font-size="11" fill="#B9BDCB">#F7F4EC  SmoothPlastic</text>
-<rect x="24" y="290" width="44" height="26" rx="4" fill="#A7865E" stroke="#0E1320"/>
-<text x="78" y="302" font-size="13" font-weight="700" fill="#F4F1EA">Wood</text>
-<text x="78" y="315" font-size="11" fill="#B9BDCB">#A7865E  SmoothPlastic</text>
-<rect x="394" y="290" width="44" height="26" rx="4" fill="#6B9A55" stroke="#0E1320"/>
-<text x="448" y="302" font-size="13" font-weight="700" fill="#F4F1EA">Plant</text>
-<text x="448" y="315" font-size="11" fill="#B9BDCB">#6B9A55  SmoothPlastic</text>
-<rect x="24" y="324" width="44" height="26" rx="4" fill="#E8B53A" stroke="#0E1320"/>
-<text x="78" y="336" font-size="13" font-weight="700" fill="#F4F1EA">Hazard</text>
-<text x="78" y="349" font-size="11" fill="#B9BDCB">#E8B53A  SmoothPlastic</text>
-<rect x="394" y="324" width="44" height="26" rx="4" fill="#E89A3C" stroke="#0E1320"/>
-<text x="448" y="336" font-size="13" font-weight="700" fill="#F4F1EA">SignWest</text>
-<text x="448" y="349" font-size="11" fill="#B9BDCB">#E89A3C  SmoothPlastic</text>
-<rect x="24" y="358" width="44" height="26" rx="4" fill="#5AA8D8" stroke="#0E1320"/>
-<text x="78" y="370" font-size="13" font-weight="700" fill="#F4F1EA">SignEast</text>
-<text x="78" y="383" font-size="11" fill="#B9BDCB">#5AA8D8  SmoothPlastic</text>
-<rect x="394" y="358" width="44" height="26" rx="4" fill="#2F62C8" stroke="#0E1320"/>
-<text x="448" y="370" font-size="13" font-weight="700" fill="#F4F1EA">SignPit</text>
-<text x="448" y="383" font-size="11" fill="#B9BDCB">#2F62C8  SmoothPlastic</text>
-<rect x="24" y="392" width="44" height="26" rx="4" fill="#6E6862" stroke="#0E1320"/>
-<text x="78" y="404" font-size="13" font-weight="700" fill="#F4F1EA">Asphalt</text>
-<text x="78" y="417" font-size="11" fill="#B9BDCB">#6E6862  Asphalt</text>
-<rect x="394" y="392" width="44" height="26" rx="4" fill="#A39D92" stroke="#0E1320"/>
-<text x="448" y="404" font-size="13" font-weight="700" fill="#F4F1EA">Sidewalk</text>
-<text x="448" y="417" font-size="11" fill="#B9BDCB">#A39D92  Concrete</text>
-<rect x="24" y="426" width="44" height="26" rx="4" fill="#E8DFC2" stroke="#0E1320"/>
-<text x="78" y="438" font-size="13" font-weight="700" fill="#F4F1EA">RoadLine</text>
-<text x="78" y="451" font-size="11" fill="#B9BDCB">#E8DFC2  SmoothPlastic</text>
-<rect x="394" y="426" width="44" height="26" rx="4" fill="#B9A992" stroke="#0E1320"/>
-<text x="448" y="438" font-size="13" font-weight="700" fill="#F4F1EA">Backfill</text>
-<text x="448" y="451" font-size="11" fill="#B9BDCB">#B9A992  SmoothPlastic</text>
-<rect x="24" y="460" width="44" height="26" rx="4" fill="#FFE2B8" stroke="#0E1320"/>
-<text x="78" y="472" font-size="13" font-weight="700" fill="#F4F1EA">GlowWarm</text>
-<text x="78" y="485" font-size="11" fill="#B9BDCB">#FFE2B8  Neon</text>
-<rect x="394" y="460" width="44" height="26" rx="4" fill="#FFB14A" stroke="#0E1320"/>
-<text x="448" y="472" font-size="13" font-weight="700" fill="#F4F1EA">GlowWest</text>
-<text x="448" y="485" font-size="11" fill="#B9BDCB">#FFB14A  Neon</text>
-<rect x="24" y="494" width="44" height="26" rx="4" fill="#7CD0FF" stroke="#0E1320"/>
-<text x="78" y="506" font-size="13" font-weight="700" fill="#F4F1EA">GlowEast</text>
-<text x="78" y="519" font-size="11" fill="#B9BDCB">#7CD0FF  Neon</text>
-<rect x="394" y="494" width="44" height="26" rx="4" fill="#E3AA84" stroke="#0E1320"/>
-<text x="448" y="506" font-size="13" font-weight="700" fill="#F4F1EA">Plaster teamA</text>
-<text x="448" y="519" font-size="11" fill="#B9BDCB">#E3AA84  Concrete / Roof2_Plaster</text>
-<rect x="24" y="528" width="44" height="26" rx="4" fill="#A9C2B0" stroke="#0E1320"/>
-<text x="78" y="540" font-size="13" font-weight="700" fill="#F4F1EA">Plaster teamB</text>
-<text x="78" y="553" font-size="11" fill="#B9BDCB">#A9C2B0  Concrete / Roof2_Plaster</text>
-<rect x="394" y="528" width="44" height="26" rx="4" fill="#DBC6A0" stroke="#0E1320"/>
-<text x="448" y="540" font-size="13" font-weight="700" fill="#F4F1EA">Plaster tower</text>
-<text x="448" y="553" font-size="11" fill="#B9BDCB">#DBC6A0  Concrete / Roof2_Plaster</text>
-<rect x="24" y="562" width="44" height="26" rx="4" fill="#CDB48E" stroke="#0E1320"/>
-<text x="78" y="574" font-size="13" font-weight="700" fill="#F4F1EA">Plaster pit</text>
-<text x="78" y="587" font-size="11" fill="#B9BDCB">#CDB48E  Concrete / Roof2_Plaster</text>
-<rect x="394" y="562" width="44" height="26" rx="4" fill="#E8D3B4" stroke="#0E1320"/>
-<text x="448" y="574" font-size="13" font-weight="700" fill="#F4F1EA">Plaster city0</text>
-<text x="448" y="587" font-size="11" fill="#B9BDCB">#E8D3B4  Concrete / Roof2_Plaster</text>
-<rect x="24" y="596" width="44" height="26" rx="4" fill="#D9B49A" stroke="#0E1320"/>
-<text x="78" y="608" font-size="13" font-weight="700" fill="#F4F1EA">Plaster city1</text>
-<text x="78" y="621" font-size="11" fill="#B9BDCB">#D9B49A  Concrete / Roof2_Plaster</text>
-<rect x="394" y="596" width="44" height="26" rx="4" fill="#BFCBC2" stroke="#0E1320"/>
-<text x="448" y="608" font-size="13" font-weight="700" fill="#F4F1EA">Plaster city2</text>
-<text x="448" y="621" font-size="11" fill="#B9BDCB">#BFCBC2  Concrete / Roof2_Plaster</text>
-<rect x="24" y="630" width="44" height="26" rx="4" fill="#E2C79C" stroke="#0E1320"/>
-<text x="78" y="642" font-size="13" font-weight="700" fill="#F4F1EA">Plaster city3</text>
-<text x="78" y="655" font-size="11" fill="#B9BDCB">#E2C79C  Concrete / Roof2_Plaster</text>
+<text x="448" y="213" font-size="11" fill="#B9BDCB">#A9A59C  SmoothPlastic</text>
+<rect x="24" y="222" width="44" height="26" rx="4" fill="#6C5442" stroke="#0E1320"/>
+<text x="78" y="234" font-size="13" font-weight="700" fill="#F4F1EA">Door</text>
+<text x="78" y="247" font-size="11" fill="#B9BDCB">#6C5442  SmoothPlastic</text>
+<rect x="394" y="222" width="44" height="26" rx="4" fill="#7FA6BF" stroke="#0E1320"/>
+<text x="448" y="234" font-size="13" font-weight="700" fill="#F4F1EA">Window</text>
+<text x="448" y="247" font-size="11" fill="#B9BDCB">#7FA6BF  SmoothPlastic</text>
+<rect x="24" y="256" width="44" height="26" rx="4" fill="#BFD8E8" stroke="#0E1320"/>
+<text x="78" y="268" font-size="13" font-weight="700" fill="#F4F1EA">Glass</text>
+<text x="78" y="281" font-size="11" fill="#B9BDCB">#BFD8E8  Glass</text>
+<rect x="394" y="256" width="44" height="26" rx="4" fill="#2F62C8" stroke="#0E1320"/>
+<text x="448" y="268" font-size="13" font-weight="700" fill="#F4F1EA">Accent</text>
+<text x="448" y="281" font-size="11" fill="#B9BDCB">#2F62C8  SmoothPlastic</text>
+<rect x="24" y="290" width="44" height="26" rx="4" fill="#F7F4EC" stroke="#0E1320"/>
+<text x="78" y="302" font-size="13" font-weight="700" fill="#F4F1EA">White</text>
+<text x="78" y="315" font-size="11" fill="#B9BDCB">#F7F4EC  SmoothPlastic</text>
+<rect x="394" y="290" width="44" height="26" rx="4" fill="#A7865E" stroke="#0E1320"/>
+<text x="448" y="302" font-size="13" font-weight="700" fill="#F4F1EA">Wood</text>
+<text x="448" y="315" font-size="11" fill="#B9BDCB">#A7865E  SmoothPlastic</text>
+<rect x="24" y="324" width="44" height="26" rx="4" fill="#6B9A55" stroke="#0E1320"/>
+<text x="78" y="336" font-size="13" font-weight="700" fill="#F4F1EA">Plant</text>
+<text x="78" y="349" font-size="11" fill="#B9BDCB">#6B9A55  SmoothPlastic</text>
+<rect x="394" y="324" width="44" height="26" rx="4" fill="#E8B53A" stroke="#0E1320"/>
+<text x="448" y="336" font-size="13" font-weight="700" fill="#F4F1EA">Hazard</text>
+<text x="448" y="349" font-size="11" fill="#B9BDCB">#E8B53A  SmoothPlastic</text>
+<rect x="24" y="358" width="44" height="26" rx="4" fill="#E89A3C" stroke="#0E1320"/>
+<text x="78" y="370" font-size="13" font-weight="700" fill="#F4F1EA">SignWest</text>
+<text x="78" y="383" font-size="11" fill="#B9BDCB">#E89A3C  SmoothPlastic</text>
+<rect x="394" y="358" width="44" height="26" rx="4" fill="#5AA8D8" stroke="#0E1320"/>
+<text x="448" y="370" font-size="13" font-weight="700" fill="#F4F1EA">SignEast</text>
+<text x="448" y="383" font-size="11" fill="#B9BDCB">#5AA8D8  SmoothPlastic</text>
+<rect x="24" y="392" width="44" height="26" rx="4" fill="#2F62C8" stroke="#0E1320"/>
+<text x="78" y="404" font-size="13" font-weight="700" fill="#F4F1EA">SignPit</text>
+<text x="78" y="417" font-size="11" fill="#B9BDCB">#2F62C8  SmoothPlastic</text>
+<rect x="394" y="392" width="44" height="26" rx="4" fill="#5C636C" stroke="#0E1320"/>
+<text x="448" y="404" font-size="13" font-weight="700" fill="#F4F1EA">Asphalt</text>
+<text x="448" y="417" font-size="11" fill="#B9BDCB">#5C636C  Asphalt</text>
+<rect x="24" y="426" width="44" height="26" rx="4" fill="#A39D92" stroke="#0E1320"/>
+<text x="78" y="438" font-size="13" font-weight="700" fill="#F4F1EA">Sidewalk</text>
+<text x="78" y="451" font-size="11" fill="#B9BDCB">#A39D92  Concrete</text>
+<rect x="394" y="426" width="44" height="26" rx="4" fill="#E8DFC2" stroke="#0E1320"/>
+<text x="448" y="438" font-size="13" font-weight="700" fill="#F4F1EA">RoadLine</text>
+<text x="448" y="451" font-size="11" fill="#B9BDCB">#E8DFC2  SmoothPlastic</text>
+<rect x="24" y="460" width="44" height="26" rx="4" fill="#B9A992" stroke="#0E1320"/>
+<text x="78" y="472" font-size="13" font-weight="700" fill="#F4F1EA">Backfill</text>
+<text x="78" y="485" font-size="11" fill="#B9BDCB">#B9A992  SmoothPlastic</text>
+<rect x="394" y="460" width="44" height="26" rx="4" fill="#FFE2B8" stroke="#0E1320"/>
+<text x="448" y="472" font-size="13" font-weight="700" fill="#F4F1EA">GlowWarm</text>
+<text x="448" y="485" font-size="11" fill="#B9BDCB">#FFE2B8  Neon</text>
+<rect x="24" y="494" width="44" height="26" rx="4" fill="#FFB14A" stroke="#0E1320"/>
+<text x="78" y="506" font-size="13" font-weight="700" fill="#F4F1EA">GlowWest</text>
+<text x="78" y="519" font-size="11" fill="#B9BDCB">#FFB14A  Neon</text>
+<rect x="394" y="494" width="44" height="26" rx="4" fill="#7CD0FF" stroke="#0E1320"/>
+<text x="448" y="506" font-size="13" font-weight="700" fill="#F4F1EA">GlowEast</text>
+<text x="448" y="519" font-size="11" fill="#B9BDCB">#7CD0FF  Neon</text>
+<rect x="24" y="528" width="44" height="26" rx="4" fill="#E3AA84" stroke="#0E1320"/>
+<text x="78" y="540" font-size="13" font-weight="700" fill="#F4F1EA">Plaster teamA</text>
+<text x="78" y="553" font-size="11" fill="#B9BDCB">#E3AA84  Concrete / Roof2_Plaster</text>
+<rect x="394" y="528" width="44" height="26" rx="4" fill="#A9C2B0" stroke="#0E1320"/>
+<text x="448" y="540" font-size="13" font-weight="700" fill="#F4F1EA">Plaster teamB</text>
+<text x="448" y="553" font-size="11" fill="#B9BDCB">#A9C2B0  Concrete / Roof2_Plaster</text>
+<rect x="24" y="562" width="44" height="26" rx="4" fill="#D4B98F" stroke="#0E1320"/>
+<text x="78" y="574" font-size="13" font-weight="700" fill="#F4F1EA">Plaster tower</text>
+<text x="78" y="587" font-size="11" fill="#B9BDCB">#D4B98F  Concrete / Roof2_Plaster</text>
+<rect x="394" y="562" width="44" height="26" rx="4" fill="#C8A983" stroke="#0E1320"/>
+<text x="448" y="574" font-size="13" font-weight="700" fill="#F4F1EA">Plaster pit</text>
+<text x="448" y="587" font-size="11" fill="#B9BDCB">#C8A983  Concrete / Roof2_Plaster</text>
+<rect x="24" y="596" width="44" height="26" rx="4" fill="#E8D3B4" stroke="#0E1320"/>
+<text x="78" y="608" font-size="13" font-weight="700" fill="#F4F1EA">Plaster city0</text>
+<text x="78" y="621" font-size="11" fill="#B9BDCB">#E8D3B4  Concrete / Roof2_Plaster</text>
+<rect x="394" y="596" width="44" height="26" rx="4" fill="#D9B49A" stroke="#0E1320"/>
+<text x="448" y="608" font-size="13" font-weight="700" fill="#F4F1EA">Plaster city1</text>
+<text x="448" y="621" font-size="11" fill="#B9BDCB">#D9B49A  Concrete / Roof2_Plaster</text>
+<rect x="24" y="630" width="44" height="26" rx="4" fill="#BFCBC2" stroke="#0E1320"/>
+<text x="78" y="642" font-size="13" font-weight="700" fill="#F4F1EA">Plaster city2</text>
+<text x="78" y="655" font-size="11" fill="#B9BDCB">#BFCBC2  Concrete / Roof2_Plaster</text>
+<rect x="394" y="630" width="44" height="26" rx="4" fill="#E2C79C" stroke="#0E1320"/>
+<text x="448" y="642" font-size="13" font-weight="700" fill="#F4F1EA">Plaster city3</text>
+<text x="448" y="655" font-size="11" fill="#B9BDCB">#E2C79C  Concrete / Roof2_Plaster</text>
 <text x="24" y="680" font-size="13" font-weight="700" fill="#F4F1EA">Far city blocks</text>
 <rect x="24" y="690" width="46" height="26" rx="4" fill="#C9B79A" stroke="#0E1320"/>
 <rect x="78" y="690" width="46" height="26" rx="4" fill="#B9A07F" stroke="#0E1320"/>

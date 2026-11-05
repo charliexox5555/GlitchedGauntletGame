@@ -37,13 +37,14 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Roof": ("B5735A", "Slate", "Roof2_Tile"),  # team-roof tiles (the ground band)
     "RoofPit": ("A88C72", "Slate", "Roof2_Tile"),  # the Pit's roof, cooler
     # Round 1: SmoothPlastic, not the Lobby concrete variant (its dark colour map made the plaster read as brick).
-    "Wall": ("D9C9A8", "SmoothPlastic", ""),  # facades (tinted per building from TONE)
+    "Wall": ("D4B98F", "SmoothPlastic", ""),  # facades (tinted per building from TONE)
     "Plinth": ("A8977F", "SmoothPlastic", ""),  # street storey, hut plinths
     # clean SmoothPlastic trims
     "Trim": ("F2EEE4", "SmoothPlastic", ""),  # cornices, sills, frames, coping
     "Ledge": ("C9BFAE", "SmoothPlastic", ""),  # alley ledges and sills
     "Charcoal": ("3A3F47", "SmoothPlastic", ""),  # steel: stairs, stands, frames, hardware
-    "Metal": ("8C949C", "SmoothPlastic", ""),  # AC units, condensers, vents (painted, never Roblox Metal)
+    "Metal": ("A9A59C", "SmoothPlastic", ""),  # AC units, condensers, vents (round 5: warmer, read as heavy grey blocks)
+    "Door": ("6C5442", "SmoothPlastic", ""),  # doors (round 5: warm mid-tone, black read as a void)
     "Window": ("7FA6BF", "SmoothPlastic", ""),  # window glass (opaque, sky-tinted)
     "Glass": ("BFD8E8", "Glass", ""),  # skylights
     "Accent": ("2F62C8", "SmoothPlastic", ""),  # cobalt: tank, awnings, sign plates (the 10% spike)
@@ -54,7 +55,7 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "SignWest": ("E89A3C", "SmoothPlastic", ""),  # west-side words (amber)
     "SignEast": ("5AA8D8", "SmoothPlastic", ""),  # east-side words (sky)
     "SignPit": ("2F62C8", "SmoothPlastic", ""),  # the middle (cobalt)
-    "Asphalt": ("6E6862", "Asphalt", ""),  # the street far below (round 1: warmer, lighter)
+    "Asphalt": ("5C636C", "Asphalt", ""),  # the street far below (round 4: cool slate, it read muddy brown)
     "Sidewalk": ("A39D92", "Concrete", ""),
     "RoadLine": ("E8DFC2", "SmoothPlastic", ""),
     "Backfill": ("B9A992", "SmoothPlastic", ""),  # far city blocks
@@ -68,8 +69,8 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 TONE = {
     "teamA": "E3AA84",
     "teamB": "A9C2B0",
-    "tower": "DBC6A0",  # round 2: a step darker (cream washed out in sun)
-    "pit": "CDB48E",
+    "tower": "D4B98F",  # round 4: another step darker and warmer (cream washed out in sun)
+    "pit": "C8A983",
     # the city around the block (round 1: varied, so the skyline isn't one cloned slab)
     "city0": "E8D3B4",
     "city1": "D9B49A",
@@ -100,7 +101,7 @@ LIGHTING = {
     "ColorShift_Bottom": (0, 0, 0),
     "EnvironmentDiffuseScale": 0.12,
     "EnvironmentSpecularScale": 0.15,
-    "ExposureCompensation": 0.1,
+    "ExposureCompensation": -0.15,  # round 4: cream and peach were blowing out
     "GlobalShadows": True,
     "ShadowSoftness": 0.2,
 }

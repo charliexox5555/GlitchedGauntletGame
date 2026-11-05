@@ -22,7 +22,7 @@ local PROPS: { [string]: any } = {
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
 	EnvironmentDiffuseScale = 0.12,
 	EnvironmentSpecularScale = 0.15,
-	ExposureCompensation = 0.1,
+	ExposureCompensation = -0.15,
 	GlobalShadows = true,
 	ShadowSoftness = 0.2,
 }
@@ -60,6 +60,7 @@ local sky = Instance.new("Sky")
 sky.Name = "AfternoonSky"
 sky.CelestialBodiesShown = true
 sky.SunAngularSize = 14
+sky.MoonAngularSize = 0 -- round 4: the moon read as a green blob on the horizon
 sky.StarCount = 0
 sky.Parent = fx
 
