@@ -152,7 +152,8 @@ class Art:
 					self.put("Props", "LetterB" if s.cz > 0 else "LetterA", s.cx, s.y0, face, yaw)
 					# Rooftops2: the spawn sign on the face toward the spawn court (names the roof and the two sides).
 					back = s.z1 if s.cz > 0 else s.z0
-					self.put("Signs", "SpawnSignB" if s.cz > 0 else "SpawnSignA", s.cx, s.y0, back, yaw)
+					side = -11.0 if s.cz > 0 else 11.0  # beside the door (the spawn's left half), not over it
+					self.put("Signs", "SpawnSignB" if s.cz > 0 else "SpawnSignA", s.cx + side, s.y0, back, yaw)
 					continue
 				yaw = 0.0 if along_x else 90.0
 				if s.art in ("StairHut", "LiftHouse", "LiftTower", "TankHouse", "CoolingTower"):
@@ -198,14 +199,14 @@ class Art:
 				piece, scale = "CityB", 0.7 + 0.1 * h01("scale", k)
 			else:
 				piece, scale = "CityA", 0.75 + 0.45 * h01("scale", k)
-			self.put("Skyline", piece, x, STREET + 0.4, z, yaw, scale=round(scale, 2))
+			self.put("Skyline", piece, x, STREET + 0.4, z, yaw, tint="city%d" % (k % 4), scale=round(scale, 2))
 		# the far skyline: taller towers further out
 		for i in range(14):
 			a = i / 14 * 2 * math.pi + 0.2
 			r = 230 + 60 * h01("far", i)
 			x, z = r * math.cos(a), r * math.sin(a)
 			piece = ("CityB", "CityC")[i % 2]
-			self.put("Skyline", piece, x, STREET, z, (math.degrees(-a) + 180) % 360, scale=round(0.9 + 0.5 * h01("farscale", i), 2))
+			self.put("Skyline", piece, x, STREET, z, (math.degrees(-a) + 180) % 360, tint="city%d" % (i % 4), scale=round(0.9 + 0.5 * h01("farscale", i), 2))
 
 	def words(self):
 		# Rooftops2: lane names painted on each team roof where the routes leave it (read walking out), named by the
@@ -215,6 +216,8 @@ class Art:
 				xf = x * sgn
 				word = "PIT" if abs(xf) < 20 else ("WEST" if xf < 0 else "EAST")
 				self.put("Signs", "DeckWord" + word, xf, 0.0, z * sgn, 0.0 if sgn > 0 else 180.0)
+			# Round 1: in the Pit, at the foot of each stair, the roof it climbs to (read walking toward it).
+			self.put("Signs", "DeckWordROOFB" if sgn > 0 else "DeckWordROOFA", 9.0 * sgn, L.PIT, -3.0 * sgn, 180.0 if sgn > 0 else 0.0)
 
 	def build(self):
 		self.facades()
@@ -267,6 +270,13 @@ def plain_parts():
 		out.append(S("Far sidewalk", "walk", a, c, STREET, STREET + 0.4, -nz + w, nz - w, look="Sidewalk"))
 		a, c = sorted((sgn * (nz - w), sgn * nz))
 		out.append(S("Far sidewalk", "walk", -nx - 60, nx + 60, STREET, STREET + 0.4, a, c, look="Sidewalk"))
+	# Rooftops2 (scoring round 3): yellow lane edges down each roof's main lane, from the Pit footbridge back to the
+	# Penthouse (x 5..13 for B; rotated for A), 0.03-0.05 over the roof like Dockyard2's bay lines.
+	for sgn in (1, -1):
+		for x in (5.4, 12.6):
+			x0, x1 = sorted((sgn * (x - 0.2), sgn * (x + 0.2)))
+			z0, z1 = sorted((sgn * 24.6, sgn * 51.4))
+			out.append(S("Lane line", "line", x0, x1, 0.03, 0.05, z0, z1, look="Hazard"))
 	# road centre lines (0.05 proud) between the crossings (none inside a crossing, so no two lines overlap)
 	lx, lz = bx + w + ROAD_W / 2, bz + w + ROAD_W / 2
 	for sgn in (1, -1):

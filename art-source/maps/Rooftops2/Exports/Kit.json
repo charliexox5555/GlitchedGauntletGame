@@ -7,6 +7,7 @@
    "parts": [
     "ACUnit_Curb",
     "ACUnit_Body",
+    "ACUnit_Seam",
     "ACUnit_Louvres",
     "ACUnit_Fans"
    ]
@@ -19,6 +20,7 @@
     "Billboard22_Panel",
     "Billboard22_Band",
     "Billboard22_Ad",
+    "Billboard22_BandBack",
     "Billboard22_Lamps",
     "Billboard22_LampGlow_Glow"
    ]
@@ -87,6 +89,18 @@
    "props": {},
    "parts": [
     "DeckWordPIT_Paint"
+   ]
+  },
+  "DeckWordROOFA": {
+   "props": {},
+   "parts": [
+    "DeckWordROOFA_Paint"
+   ]
+  },
+  "DeckWordROOFB": {
+   "props": {},
+   "parts": [
+    "DeckWordROOFB_Paint"
    ]
   },
   "DeckWordWEST": {
@@ -186,7 +200,8 @@
     "LiftHouse_Cornice",
     "LiftHouse_Door",
     "LiftHouse_DoorFrame",
-    "LiftHouse_Vent"
+    "LiftHouse_Vent",
+    "LiftHouse_Pilasters"
    ]
   },
   "LiftTower": {
@@ -201,6 +216,7 @@
     "LiftTower_Cornice",
     "LiftTower_Door",
     "LiftTower_DoorFrame",
+    "LiftTower_Pilasters",
     "LiftTower_Sign"
    ]
   },
@@ -216,9 +232,13 @@
     "Penthouse_Cornice",
     "Penthouse_Door",
     "Penthouse_DoorFrame",
+    "Penthouse_Pilasters",
     "Penthouse_Windows",
     "Penthouse_WinFrames",
-    "Penthouse_Band"
+    "Penthouse_Band",
+    "Penthouse_Pilasters.001",
+    "Penthouse_Pipes",
+    "Penthouse_Vents"
    ]
   },
   "PlankRamp16": {
@@ -318,7 +338,8 @@
     "StairHut_Wall",
     "StairHut_Cornice",
     "StairHut_Door",
-    "StairHut_DoorFrame"
+    "StairHut_DoorFrame",
+    "StairHut_Pilasters"
    ]
   },
   "StreetLamp": {
@@ -341,7 +362,8 @@
     "TankHouse_Wall",
     "TankHouse_Cornice",
     "TankHouse_Door",
-    "TankHouse_DoorFrame"
+    "TankHouse_DoorFrame",
+    "TankHouse_Pilasters"
    ]
   },
   "WaterTank": {
@@ -401,6 +423,27 @@
   },
   {
    "piece": "ACUnit",
+   "name": "ACUnit_Seam",
+   "material": "R2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3F47"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    3.925
+   ],
+   "size": [
+    8.0,
+    4.0,
+    6.65
+   ]
+  },
+  {
+   "piece": "ACUnit",
    "name": "ACUnit_Louvres",
    "material": "R2_Trim",
    "look": {
@@ -408,7 +451,7 @@
     "color": "F2EEE4"
    },
    "glow": false,
-   "tris": 440,
+   "tris": 880,
    "center": [
     0.0,
     0.0,
@@ -417,7 +460,7 @@
    "size": [
     5.9,
     3.76,
-    5.0
+    5.4
    ]
   },
   {
@@ -534,16 +577,37 @@
     "color": "2F62C8"
    },
    "glow": false,
-   "tris": 2110,
+   "tris": 4220,
    "center": [
     0.0,
-    -0.49,
+    0.0,
     14.7
    ],
    "size": [
     20.96175,
-    0.14,
+    1.12,
     2.0
+   ]
+  },
+  {
+   "piece": "Billboard22",
+   "name": "Billboard22_BandBack",
+   "material": "R2_Accent",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F62C8"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.385,
+    10.775
+   ],
+   "size": [
+    21.2,
+    0.07,
+    2.45
    ]
   },
   {
@@ -591,10 +655,10 @@
   {
    "piece": "Catwalk8",
    "name": "Catwalk8_Deck",
-   "material": "R2_Charcoal",
+   "material": "R2_Metal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "8C949C"
    },
    "glow": false,
    "tris": 44,
@@ -633,10 +697,10 @@
   {
    "piece": "Catwalk8",
    "name": "Catwalk8_Rails",
-   "material": "R2_White",
+   "material": "R2_Hazard",
    "look": {
     "material": "SmoothPlastic",
-    "color": "F7F4EC"
+    "color": "E8B53A"
    },
    "glow": false,
    "tris": 440,
@@ -654,10 +718,10 @@
   {
    "piece": "CityA",
    "name": "CityA_Wall",
-   "material": "R2_Backfill",
+   "material": "R2_Wall",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B9A992"
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 12,
@@ -717,10 +781,10 @@
   {
    "piece": "CityB",
    "name": "CityB_Wall",
-   "material": "R2_Backfill",
+   "material": "R2_Wall",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B9A992"
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 12,
@@ -780,10 +844,10 @@
   {
    "piece": "CityC",
    "name": "CityC_Wall",
-   "material": "R2_Backfill",
+   "material": "R2_Wall",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B9A992"
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 12,
@@ -887,9 +951,8 @@
    "name": "CoolingTower_Plinth",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
    "tris": 108,
@@ -1010,6 +1073,48 @@
    ]
   },
   {
+   "piece": "DeckWordROOFA",
+   "name": "DeckWordROOFA_Paint",
+   "material": "R2_SignPit",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F62C8"
+   },
+   "glow": false,
+   "tris": 1100,
+   "center": [
+    0.0,
+    -0.3,
+    0.01
+   ],
+   "size": [
+    11.347,
+    2.0,
+    0.12
+   ]
+  },
+  {
+   "piece": "DeckWordROOFB",
+   "name": "DeckWordROOFB_Paint",
+   "material": "R2_SignPit",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F62C8"
+   },
+   "glow": false,
+   "tris": 1314,
+   "center": [
+    0.0,
+    -0.3,
+    0.01
+   ],
+   "size": [
+    11.13388,
+    2.0,
+    0.12
+   ]
+  },
+  {
    "piece": "DeckWordWEST",
    "name": "DeckWordWEST_Paint",
    "material": "R2_SignWest",
@@ -1035,21 +1140,20 @@
    "name": "Facade4_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 4,
    "center": [
     -0.3,
     0.0,
-    -36.5
+    -36.65
    ],
    "size": [
     0.6,
     4.0,
-    71.0
+    71.3
    ]
   },
   {
@@ -1061,7 +1165,7 @@
     "color": "F2EEE4"
    },
    "glow": false,
-   "tris": 156,
+   "tris": 114,
    "center": [
     0.25,
     0.0,
@@ -1069,7 +1173,7 @@
    ],
    "size": [
     0.6,
-    3.98,
+    4.0,
     68.35
    ]
   },
@@ -1120,21 +1224,20 @@
    "name": "Facade4_Base",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 6,
    "center": [
-    0.03,
+    0.1,
     0.0,
-    -70.575
+    -70.725
    ],
    "size": [
-    0.34,
-    3.98,
-    2.75
+    0.2,
+    4.0,
+    3.05
    ]
   },
   {
@@ -1142,21 +1245,20 @@
    "name": "Facade8A_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 4,
    "center": [
     -0.3,
     0.0,
-    -36.5
+    -36.65
    ],
    "size": [
     0.6,
     8.0,
-    71.0
+    71.3
    ]
   },
   {
@@ -1168,7 +1270,7 @@
     "color": "F2EEE4"
    },
    "glow": false,
-   "tris": 156,
+   "tris": 114,
    "center": [
     0.25,
     0.0,
@@ -1176,7 +1278,7 @@
    ],
    "size": [
     0.6,
-    7.98,
+    8.0,
     68.35
    ]
   },
@@ -1227,21 +1329,20 @@
    "name": "Facade8A_Base",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 6,
    "center": [
-    0.03,
+    0.1,
     0.0,
-    -70.575
+    -70.725
    ],
    "size": [
-    0.34,
-    7.98,
-    2.75
+    0.2,
+    8.0,
+    3.05
    ]
   },
   {
@@ -1249,21 +1350,20 @@
    "name": "Facade8B_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 4,
    "center": [
     -0.3,
     0.0,
-    -36.5
+    -36.65
    ],
    "size": [
     0.6,
     8.0,
-    71.0
+    71.3
    ]
   },
   {
@@ -1275,7 +1375,7 @@
     "color": "F2EEE4"
    },
    "glow": false,
-   "tris": 228,
+   "tris": 186,
    "center": [
     0.25,
     0.0,
@@ -1283,7 +1383,7 @@
    ],
    "size": [
     0.6,
-    7.98,
+    8.0,
     68.35
    ]
   },
@@ -1334,21 +1434,20 @@
    "name": "Facade8B_Base",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 6,
    "center": [
-    0.03,
+    0.1,
     0.0,
-    -70.575
+    -70.725
    ],
    "size": [
-    0.34,
-    7.98,
-    2.75
+    0.2,
+    8.0,
+    3.05
    ]
   },
   {
@@ -1356,21 +1455,20 @@
    "name": "Facade8C_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 4,
    "center": [
     -0.3,
     0.0,
-    -36.5
+    -36.65
    ],
    "size": [
     0.6,
     8.0,
-    71.0
+    71.3
    ]
   },
   {
@@ -1382,7 +1480,7 @@
     "color": "F2EEE4"
    },
    "glow": false,
-   "tris": 156,
+   "tris": 114,
    "center": [
     0.25,
     0.0,
@@ -1390,7 +1488,7 @@
    ],
    "size": [
     0.6,
-    7.98,
+    8.0,
     68.35
    ]
   },
@@ -1441,21 +1539,20 @@
    "name": "Facade8C_Base",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 6,
    "center": [
-    0.03,
+    0.1,
     0.0,
-    -70.575
+    -70.725
    ],
    "size": [
-    0.34,
-    7.98,
-    2.75
+    0.2,
+    8.0,
+    3.05
    ]
   },
   {
@@ -1484,9 +1581,8 @@
    "name": "Flue_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 12,
@@ -1567,10 +1663,10 @@
   {
    "piece": "Gangway16",
    "name": "Gangway16_Treads",
-   "material": "R2_Charcoal",
+   "material": "R2_Metal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "8C949C"
    },
    "glow": false,
    "tris": 396,
@@ -1695,9 +1791,8 @@
    "name": "LiftHouse_Plinth",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
    "tris": 108,
@@ -1717,9 +1812,8 @@
    "name": "LiftHouse_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 44,
@@ -1768,12 +1862,12 @@
    "center": [
     4.015,
     0.0,
-    3.95
+    3.975
    ],
    "size": [
     0.13,
     3.2,
-    6.1
+    6.05
    ]
   },
   {
@@ -1819,13 +1913,33 @@
    ]
   },
   {
+   "piece": "LiftHouse",
+   "name": "LiftHouse_Pilasters",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    8.24,
+    8.24,
+    8.1
+   ]
+  },
+  {
    "piece": "LiftTower",
    "name": "LiftTower_Plinth",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
    "tris": 108,
@@ -1845,9 +1959,8 @@
    "name": "LiftTower_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 44,
@@ -1896,12 +2009,12 @@
    "center": [
     5.015,
     0.0,
-    3.95
+    3.975
    ],
    "size": [
     0.13,
     3.2,
-    6.1
+    6.05
    ]
   },
   {
@@ -1923,6 +2036,27 @@
     0.22,
     4.1,
     6.65
+   ]
+  },
+  {
+   "piece": "LiftTower",
+   "name": "LiftTower_Pilasters",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    8.0
+   ],
+   "size": [
+    10.24,
+    8.24,
+    14.1
    ]
   },
   {
@@ -1951,9 +2085,8 @@
    "name": "Penthouse_Plinth",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
    "tris": 108,
@@ -1973,9 +2106,8 @@
    "name": "Penthouse_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 44,
@@ -2024,12 +2156,12 @@
    "center": [
     0.0,
     -4.015,
-    3.95
+    3.975
    ],
    "size": [
     3.2,
     0.13,
-    6.1
+    6.05
    ]
   },
   {
@@ -2051,6 +2183,27 @@
     4.1,
     0.22,
     6.65
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_Pilasters",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    5.5
+   ],
+   "size": [
+    40.24,
+    8.24,
+    9.1
    ]
   },
   {
@@ -2114,6 +2267,69 @@
     40.16,
     8.16,
     0.6
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_Pilasters.001",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    5.15
+   ],
+   "size": [
+    36.6,
+    8.6,
+    8.5
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_Pipes",
+   "material": "R2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3F47"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    5.4
+   ],
+   "size": [
+    38.76,
+    8.9,
+    9.0
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_Vents",
+   "material": "R2_Metal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8C949C"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    4.185,
+    2.1
+   ],
+   "size": [
+    32.4,
+    0.27,
+    1.0
    ]
   },
   {
@@ -2226,21 +2442,20 @@
    "name": "Plinth4_Slab",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 6,
    "center": [
-    -0.125,
+    0.175,
     0.0,
-    3.925
+    3.71
    ],
    "size": [
-    0.95,
+    0.35,
     4.0,
-    7.85
+    8.02
    ]
   },
   {
@@ -2252,16 +2467,16 @@
     "color": "F2EEE4"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 8,
    "center": [
-    0.25,
+    0.275,
     0.0,
-    7.65
+    7.495
    ],
    "size": [
-    0.5,
-    3.98,
-    0.5
+    0.45,
+    4.0,
+    0.39
    ]
   },
   {
@@ -2269,21 +2484,20 @@
    "name": "Plinth8_Slab",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 6,
    "center": [
-    -0.125,
+    0.175,
     0.0,
-    3.925
+    3.71
    ],
    "size": [
-    0.95,
+    0.35,
     8.0,
-    7.85
+    8.02
    ]
   },
   {
@@ -2295,16 +2509,16 @@
     "color": "F2EEE4"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 8,
    "center": [
-    0.25,
+    0.275,
     0.0,
-    7.65
+    7.495
    ],
    "size": [
-    0.5,
-    7.98,
-    0.5
+    0.45,
+    8.0,
+    0.39
    ]
   },
   {
@@ -2318,13 +2532,13 @@
    "glow": false,
    "tris": 12,
    "center": [
-    -0.1,
-    0.1,
+    -0.065,
+    0.065,
     -41.6
    ],
    "size": [
-    1.0,
-    1.0,
+    0.97,
+    0.97,
     76.8
    ]
   },
@@ -2339,14 +2553,14 @@
    "glow": false,
    "tris": 12,
    "center": [
-    0.025,
-    -0.025,
+    0.06,
+    -0.06,
     -2.175
    ],
    "size": [
-    1.15,
-    1.15,
-    2.25
+    1.12,
+    1.12,
+    2.15
    ]
   },
   {
@@ -2710,10 +2924,10 @@
   {
    "piece": "Stair16",
    "name": "Stair16_Treads",
-   "material": "R2_Charcoal",
+   "material": "R2_Metal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "8C949C"
    },
    "glow": false,
    "tris": 396,
@@ -2773,10 +2987,10 @@
   {
    "piece": "Stair16",
    "name": "Stair16_Rails",
-   "material": "R2_White",
+   "material": "R2_Hazard",
    "look": {
     "material": "SmoothPlastic",
-    "color": "F7F4EC"
+    "color": "E8B53A"
    },
    "glow": false,
    "tris": 352,
@@ -2796,9 +3010,8 @@
    "name": "StairHut_Plinth",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
    "tris": 108,
@@ -2818,9 +3031,8 @@
    "name": "StairHut_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 44,
@@ -2869,12 +3081,12 @@
    "center": [
     3.015,
     0.0,
-    3.95
+    3.975
    ],
    "size": [
     0.13,
     3.2,
-    6.1
+    6.05
    ]
   },
   {
@@ -2896,6 +3108,27 @@
     0.22,
     4.1,
     6.65
+   ]
+  },
+  {
+   "piece": "StairHut",
+   "name": "StairHut_Pilasters",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    4.5
+   ],
+   "size": [
+    6.24,
+    6.24,
+    7.1
    ]
   },
   {
@@ -2987,9 +3220,8 @@
    "name": "TankHouse_Plinth",
    "material": "R2_Plinth",
    "look": {
-    "material": "Concrete",
-    "color": "9F8E78",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "A8977F"
    },
    "glow": false,
    "tris": 108,
@@ -3009,9 +3241,8 @@
    "name": "TankHouse_Wall",
    "material": "R2_Wall",
    "look": {
-    "material": "Concrete",
-    "color": "D9C9A8",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "D9C9A8"
    },
    "glow": false,
    "tris": 44,
@@ -3060,12 +3291,12 @@
    "center": [
     5.015,
     0.0,
-    3.95
+    3.975
    ],
    "size": [
     0.13,
     3.2,
-    6.1
+    6.05
    ]
   },
   {
@@ -3087,6 +3318,27 @@
     0.22,
     4.1,
     6.65
+   ]
+  },
+  {
+   "piece": "TankHouse",
+   "name": "TankHouse_Pilasters",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    10.24,
+    10.24,
+    6.1
    ]
   },
   {
@@ -3123,12 +3375,12 @@
    "center": [
     0.0,
     0.0,
-    9.1
+    9.21
    ],
    "size": [
     8.8,
     8.8,
-    9.4
+    9.18
    ]
   },
   {
@@ -3144,12 +3396,12 @@
    "center": [
     0.0,
     0.0,
-    4.51
+    4.53
    ],
    "size": [
     9.0,
     9.0,
-    0.18
+    0.22
    ]
   },
   {
@@ -3216,5 +3468,5 @@
    ]
   }
  ],
- "tris": 30460
+ "tris": 36372
 }

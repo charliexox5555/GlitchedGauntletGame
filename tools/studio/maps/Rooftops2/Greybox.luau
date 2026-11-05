@@ -1447,6 +1447,8 @@ local LAYOUT: { Solid } = {
 		b = { -46.5, -36.5, 0, 8, 68.5, 78.5 },
 		art = "CoolingTower",
 	},
+	{ name = "Planter", kind = "ac", b = { -23, -17, 0, 7.5, 75.6, 78.6 }, art = "Planter" },
+	{ name = "Planter", kind = "ac", b = { 17, 23, 0, 7.5, 75.6, 78.6 }, art = "Planter" },
 	{
 		name = "B Block body'",
 		kind = "body",
@@ -2437,6 +2439,8 @@ local LAYOUT: { Solid } = {
 		b = { 36.5, 46.5, 0, 8, -78.5, -68.5 },
 		art = "CoolingTower",
 	},
+	{ name = "Planter'", kind = "ac", b = { 17, 23, 0, 7.5, -78.6, -75.6 }, art = "Planter" },
+	{ name = "Planter'", kind = "ac", b = { -23, -17, 0, 7.5, -78.6, -75.6 }, art = "Planter" },
 }
 local SPAWNS_A = { { 6, -68 }, { -6, -68 }, { 6, -73 }, { -6, -73 } }
 local SPAWNS_B = { { -6, 68 }, { 6, 68 }, { -6, 73 }, { 6, 73 } }

@@ -36,8 +36,9 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     # big calm surfaces
     "Roof": ("B5735A", "Slate", "Roof2_Tile"),  # team-roof tiles (the ground band)
     "RoofPit": ("A88C72", "Slate", "Roof2_Tile"),  # the Pit's roof, cooler
-    "Wall": ("D9C9A8", "Concrete", "Roof2_Plaster"),  # facades (tinted per building from TONE)
-    "Plinth": ("9F8E78", "Concrete", "Roof2_Plaster"),  # street storey, flue bases
+    # Round 1: SmoothPlastic, not the Lobby concrete variant (its dark colour map made the plaster read as brick).
+    "Wall": ("D9C9A8", "SmoothPlastic", ""),  # facades (tinted per building from TONE)
+    "Plinth": ("A8977F", "SmoothPlastic", ""),  # street storey, hut plinths
     # clean SmoothPlastic trims
     "Trim": ("F2EEE4", "SmoothPlastic", ""),  # cornices, sills, frames, coping
     "Ledge": ("C9BFAE", "SmoothPlastic", ""),  # alley ledges and sills
@@ -53,7 +54,7 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "SignWest": ("E89A3C", "SmoothPlastic", ""),  # west-side words (amber)
     "SignEast": ("5AA8D8", "SmoothPlastic", ""),  # east-side words (sky)
     "SignPit": ("2F62C8", "SmoothPlastic", ""),  # the middle (cobalt)
-    "Asphalt": ("4A4C52", "Asphalt", ""),  # the street far below
+    "Asphalt": ("6E6862", "Asphalt", ""),  # the street far below (round 1: warmer, lighter)
     "Sidewalk": ("A39D92", "Concrete", ""),
     "RoadLine": ("E8DFC2", "SmoothPlastic", ""),
     "Backfill": ("B9A992", "SmoothPlastic", ""),  # far city blocks
@@ -64,7 +65,17 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 }
 
 # Facade plaster per building ("Wall" parts take these by the placement's tone).
-TONE = {"teamA": "D9A07A", "teamB": "9DB5A5", "tower": "DCCCAB", "pit": "CDBB98"}
+TONE = {
+    "teamA": "E3AA84",
+    "teamB": "A9C2B0",
+    "tower": "DBC6A0",  # round 2: a step darker (cream washed out in sun)
+    "pit": "CDB48E",
+    # the city around the block (round 1: varied, so the skyline isn't one cloned slab)
+    "city0": "E8D3B4",
+    "city1": "D9B49A",
+    "city2": "BFCBC2",
+    "city3": "E2C79C",
+}
 FRAME_SHADE = 0.8
 BACKDROP = ["C9B79A", "B9A07F", "A9B5A2", "D2BFA0", "9FA9B3", "C4A48A"]
 
@@ -80,24 +91,24 @@ VARIANTS = {
 # Golden afternoon (LihFolk Stylized Lighting Recipes 3.1 base, warm sun against cool shade). The sun stands across
 # the map along X (GeographicLatitude chosen in Studio so GetSunDirection().Z ~ 0), lower than Dockyard2's.
 LIGHTING = {
-    "ClockTime": 16.3,
+    "ClockTime": 17.1,  # round 1: lower, warmer sun (reviewers read 16.3 as neutral midday)
     "GeographicLatitude": 23.5,
-    "Brightness": 2.5,
-    "Ambient": (114, 114, 126),
-    "OutdoorAmbient": (152, 156, 176),
-    "ColorShift_Top": (255, 204, 150),
+    "Brightness": 3.0,
+    "Ambient": (96, 98, 122),
+    "OutdoorAmbient": (122, 128, 166),  # round 3: deeper cool shade against the warm sun
+    "ColorShift_Top": (255, 186, 120),
     "ColorShift_Bottom": (0, 0, 0),
-    "EnvironmentDiffuseScale": 0.2,
+    "EnvironmentDiffuseScale": 0.12,
     "EnvironmentSpecularScale": 0.15,
     "ExposureCompensation": 0.1,
     "GlobalShadows": True,
     "ShadowSoftness": 0.2,
 }
 FX = {
-    "Atmosphere": {"Density": 0.32, "Offset": 0.22, "Color": (236, 210, 184), "Decay": (160, 150, 196), "Glare": 0.35, "Haze": 1.5},
+    "Atmosphere": {"Density": 0.3, "Offset": 0.25, "Color": (246, 204, 166), "Decay": (214, 160, 150), "Glare": 0.7, "Haze": 1.4},
     "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
-    "Grade": {"Brightness": 0.02, "Contrast": 0.08, "Saturation": 0.08, "TintColor": (255, 244, 232)},
-    "SunRays": {"Intensity": 0.1, "Spread": 0.5},
+    "Grade": {"Brightness": 0.02, "Contrast": 0.14, "Saturation": 0.12, "TintColor": (255, 238, 220)},
+    "SunRays": {"Intensity": 0.18, "Spread": 0.7},
 }
 LAMP = {"color": (255, 214, 170), "brightness": 1.6, "range": 30}
 

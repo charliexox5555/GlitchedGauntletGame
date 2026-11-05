@@ -87,21 +87,32 @@ def shift_z(bm, dz):
 	return xform(bm, T(0, -dz, 0))
 
 
+def open_box(bm, drop_z=True, drop_y=False, drop_back=False):
+	# Facade runs butt column to column (and meet the next face under a quoin), so their end caps (Roblox +-Z) never
+	# show; dropping them keeps corner columns from sharing planes. drop_y also drops the top and bottom.
+	kill = [f for f in bm.faces if (drop_z and abs(f.normal.y) > 0.99) or (drop_y and abs(f.normal.z) > 0.99) or (drop_back and f.normal.x < -0.99)]
+	bmesh.ops.delete(bm, geom=kill, context="FACES")
+	return bm
+
+
 # ---------------------------------------------------------------- facades
 
 def facade(name, W, variant):
 	c = piece(name, width=W)
 	h = W / 2
-	wall = [RB(-0.6, 0.0, -72.0, -1.0, -h, h)]
+	# Wall ends 0.01 in (corner facades meet without sharing planes) and 0.3 into the street (under the sidewalk).
+	wall = [open_box(RB(-0.6, 0.0, -72.3, -1.0, -h, h), drop_y=True)]
 	trim, glass, frames, accent, dark = [], [], [], [], []
 	# Overlays sink into the wall, each kind to its own depth, so no two back faces share a plane.
-	trim.append(RB(-0.05, 0.55, -2.6, -1.05, -h + 0.01, h - 0.01))  # cornice (ends 0.01 in: no shared end planes)
-	trim.append(RB(-0.05, 0.25, -3.2, -2.6, -h + 0.01, h - 0.01))  # cornice step
-	dark.append(RB(-0.14, 0.2, -71.95, -69.2, -h + 0.01, h - 0.01))  # base band
+	# Run-long overlays start on the wall face with no back face, so at a corner the two faces' cornices meet on a
+	# line instead of overlapping a sliver.
+	trim.append(open_box(RB(0.0, 0.55, -2.6, -1.05, -h, h), drop_back=True))  # cornice
+	trim.append(open_box(RB(0.0, 0.25, -3.2, -2.6, -h, h), drop_back=True))  # cornice step
+	dark.append(open_box(RB(0.0, 0.2, -72.25, -69.2, -h, h), drop_back=True))  # base band
 	for k in range(6):
 		y0 = -72.0 + 12.0 * k
 		if k > 0:
-			trim.append(RB(-0.05, 0.12, y0 - 0.25, y0 + 0.25, -h + 0.01, h - 0.01))  # storey band
+			trim.append(open_box(RB(0.0, 0.12, y0 - 0.25, y0 + 0.25, -h, h), drop_back=True))  # storey band
 		cy = y0 + 6.2
 		if W == 4 or variant == "B":
 			cols = [0.0] if W == 4 else [-1.7, 1.7]
@@ -128,14 +139,15 @@ def facade(name, W, variant):
 def p_plinth(name, W):
 	c = piece(name, width=W)
 	h = W / 2
-	obj(c, "Slab", RB(-0.6, 0.35, 0.0, 7.85, -h, h), "Plinth")
-	obj(c, "Cap", RB(0.0, 0.5, 7.4, 7.9, -h + 0.01, h - 0.01), "Trim")
+	# Up to 7.72: the tower facade above starts at 7.7 (its base band at 7.75), so they meet without shared planes.
+	obj(c, "Slab", open_box(RB(0.0, 0.35, -0.3, 7.72, -h, h), drop_back=True), "Plinth")
+	obj(c, "Cap", open_box(RB(0.05, 0.5, 7.3, 7.69, -h, h)), "Trim")
 
 
 def p_quoin():
 	c = piece("Quoin")
-	obj(c, "Pilaster", RB(-0.6, 0.4, -80.0, -3.2, -0.6, 0.4), "Trim")
-	obj(c, "Corner", RB(-0.55, 0.6, -3.3, -1.05, -0.55, 0.6), "Trim")
+	obj(c, "Pilaster", RB(-0.55, 0.42, -80.0, -3.2, -0.55, 0.42), "Trim")
+	obj(c, "Corner", RB(-0.5, 0.62, -3.25, -1.1, -0.5, 0.62), "Trim")
 
 
 def p_flue():
@@ -154,7 +166,7 @@ def slope(z):
 	return (z + 8.0) / 2.0
 
 
-def stairs(name, rails=True, rail_role="White", tread_role="Charcoal"):
+def stairs(name, rails=True, rail_role="White", tread_role="Metal"):
 	c = piece(name)
 	treads, noses = [], []
 	for k in range(1, 10):
@@ -163,7 +175,7 @@ def stairs(name, rails=True, rail_role="White", tread_role="Charcoal"):
 		top = 0.8 * k - 0.03
 		treads.append(RB(-3.3, 3.3, top - 0.28, top, z0, z1, BT, ST))
 		noses.append(RB(-3.2, 3.2, top - 0.2, top + 0.02, z0 + 0.04, z0 + 0.3, BT, ST))
-	obj(c, "Treads", merge(*treads), tread_role)
+	obj(c, "Treads", merge(*treads), tread_role)  # Metal role: lighter than the old charcoal, reads as a walkway
 	obj(c, "Nosing", merge(*noses), "Hazard")
 	cheek = [(-7.98, -0.1), (-5.4, -0.1), (7.97, 7.2), (7.97, 8.45), (-7.98, 0.5)]
 	obj(c, "Stringers", merge(*[RPX(cheek, s * 3.35, s * 3.85, BS, SS) for s in (1, -1)]), "Charcoal")
@@ -194,7 +206,7 @@ def p_plank_ramp():
 
 def p_catwalk():
 	c = piece("Catwalk8")
-	obj(c, "Deck", RB(-3.6, 3.6, -0.32, -0.03, -3.98, 3.98, BT, ST), "Charcoal")
+	obj(c, "Deck", RB(-3.6, 3.6, -0.32, -0.03, -3.98, 3.98, BT, ST), "Metal")
 	beams = [RB(s * 3.6, s * 4.0, -1.0, -0.03, -3.98, 3.98, BT, ST) for s in (1, -1)]
 	obj(c, "Beams", merge(*beams), "Charcoal")
 	rails = []
@@ -203,7 +215,7 @@ def p_catwalk():
 		rails.append(RB(s * 3.7, s * 3.95, 1.55, 1.75, -3.98, 3.98, BT, ST))
 		for z in (-3.6, 0.0, 3.6):
 			rails.append(RB(s * 3.72, s * 3.93, -0.03, 3.25, z - 0.12, z + 0.12, BT, ST))
-	obj(c, "Rails", merge(*rails), "White")
+	obj(c, "Rails", merge(*rails), "Hazard")
 
 
 # ---------------------------------------------------------------- roof furniture
@@ -217,13 +229,16 @@ def hut(name, W, Dp, H, door="+X", role="Wall", vent=False):
 	# a door with a picture frame on the door face
 	dw = min(3.2, (Dp if door == "+X" else W) - 1.4)
 	if door == "+X":
-		obj(c, "Door", RB(hx - 0.05, hx + 0.08, 0.9, 7.0, -dw / 2, dw / 2, BT, ST), "Charcoal")
+		obj(c, "Door", RB(hx - 0.05, hx + 0.08, 0.95, 7.0, -dw / 2, dw / 2, BT, ST), "Charcoal")
 		obj(c, "DoorFrame", RPZ([(hx, 0.9), (hx + 0.25, 0.9), (hx + 0.25, 7.6), (hx, 7.6)], -dw / 2 - 0.5, dw / 2 + 0.5, BT, ST) if False else frame_door_x(hx, dw), "Trim")
 	else:
-		obj(c, "Door", RB(-dw / 2, dw / 2, 0.9, 7.0, hz - 0.05, hz + 0.08, BT, ST), "Charcoal")
+		obj(c, "Door", RB(-dw / 2, dw / 2, 0.95, 7.0, hz - 0.05, hz + 0.08, BT, ST), "Charcoal")
 		obj(c, "DoorFrame", frame_door_z(hz, dw), "Trim")
 	if vent:
 		obj(c, "Vent", RB(-hx * 0.5, hx * 0.5, H - 0.03, H + 1.2, -hz * 0.5, hz * 0.5, BS, SS), "Metal")
+	# Round 2: corner pilasters and a mid band (Trim) so no hut face is one flat plane.
+	pil = [RB(sx * hx - 0.45 * (sx > 0) - 0.12 * (sx < 0), sx * hx + 0.12 * (sx > 0) + 0.45 * (sx < 0), 0.95, H - 0.95, sz * hz - 0.45 * (sz > 0) - 0.12 * (sz < 0), sz * hz + 0.12 * (sz > 0) + 0.45 * (sz < 0)) for sx in (1, -1) for sz in (1, -1)]  # square-edged: 45-deg chamfers of opposite corners shared a plane
+	obj(c, "Pilasters", merge(*pil), "Trim")
 	return c
 
 
@@ -254,13 +269,27 @@ def p_penthouse():
 	obj(c, "Windows", merge(*win), "Window")
 	obj(c, "WinFrames", merge(*frames), "Trim")
 	obj(c, "Band", RB(-20.08, 20.08, 9.4, 10.0, -4.08, 4.08), "Accent")
+	# Round 2: pilasters between the bays, a downpipe at each end and wall vents, so the long faces aren't bare.
+	det, pipes = [], []
+	for x in (-18.0, -11.5, -4.5, 4.5, 11.5, 18.0):
+		for s in (1, -1):
+			det.append(RB(x - 0.3, x + 0.3, 0.9, 9.4, s * 3.95, s * 4.3, BT, ST))
+	for x in (-19.2, 19.2):
+		for s in (1, -1):
+			pipes.append(RB(x - 0.18, x + 0.18, 0.9, 9.9, s * 4.05, s * 4.45, BT, ST))
+	obj(c, "Pilasters", merge(*det), "Trim")
+	obj(c, "Pipes", merge(*pipes), "Charcoal")
+	vents = [RB(x - 1.2, x + 1.2, 1.6, 2.6, -4.32, -4.05, BT, ST) for x in (-15.0, -8.0, 8.0, 15.0)]
+	obj(c, "Vents", merge(*vents), "Metal")
 
 
 def p_ac():
 	c = piece("ACUnit")
 	obj(c, "Curb", RB(-4.0, 4.0, -0.1, 0.6, -2.0, 2.0, BS, SS), "Charcoal")
 	obj(c, "Body", RB(-3.8, 3.8, 0.6, 7.2, -1.8, 1.8, 0.3, SS), "Metal")
-	ribs = [RB(x - 0.35, x + 0.35, 1.4, 6.4, s * 1.8 - 0.08, s * 1.8 + 0.08, BT, ST) for x in (-2.6, -1.3, 0.0, 1.3, 2.6) for s in (1, -1)]
+	# Round 2: a charcoal seam at mid height and corner posts, so the unit reads as two stacked machines, not a wall.
+	obj(c, "Seam", merge(RB(-3.86, 3.86, 3.7, 4.1, -1.86, 1.86), *[RB(sx * 3.8 - 0.2, sx * 3.8 + 0.2, 0.6, 7.25, sz * 1.8 - 0.2, sz * 1.8 + 0.2) for sx in (1, -1) for sz in (1, -1)]), "Charcoal")
+	ribs = [RB(x - 0.35, x + 0.35, y0, y1, s * 1.8 - 0.08, s * 1.8 + 0.08, BT, ST) for x in (-2.6, -1.3, 0.0, 1.3, 2.6) for s in (1, -1) for y0, y1 in ((1.2, 3.4), (4.4, 6.6))]
 	obj(c, "Louvres", merge(*ribs), "Trim")
 	fans = []
 	for x in (-1.9, 1.9):
@@ -303,9 +332,9 @@ def p_water_tank(name="WaterTank"):
 		legs.append(RB(-3.9, 3.9, 3.9, 4.45, s * 3.5 - 0.25, s * 3.5 + 0.25, BT, ST))
 		legs.append(RB(s * 3.5 - 0.25, s * 3.5 + 0.25, 3.95, 4.4, -3.9, 3.9, BT, ST))
 	obj(c, "Stand", merge(*legs), "Charcoal")
-	drum = [(4.4, 4.4), (4.4, 13.8)]
-	obj(c, "Drum", lathe(drum, steps=32), "Accent")
-	obj(c, "Base", lathe([(0.0, 4.42), (4.5, 4.42), (4.5, 4.6)], steps=32), "Accent")
+	# lathe() faces the left of the profile direction: walls run DOWN to face outward.
+	obj(c, "Drum", lathe([(4.4, 13.8), (4.4, 4.62)], steps=32), "Accent")
+	obj(c, "Base", lathe([(4.5, 4.64), (4.5, 4.42), (0.0, 4.42)], steps=32), "Accent")
 	hoops = [lathe([(4.52, y + 0.35), (4.52, y)], steps=32) for y in (6.0, 9.0, 12.0)]
 	obj(c, "Hoops", merge(*hoops), "White")
 	cap = [(4.7, 13.8), (4.7, 14.2), (0.6, 15.8), (0.0, 16.0)][::-1]
@@ -345,7 +374,10 @@ def p_billboard():
 	obj(c, "Band", RB(-10.6, 10.6, 9.55, 12.0, 0.35, 0.42), "Accent")
 	bm, w = text_mesh("SUNSET SODA", 2.0, depth=0.14)
 	xform(bm, T(0.0, -0.42, 13.7))
-	obj(c, "Ad", bm, "SignPit", smooth=0)
+	bm2, w2 = text_mesh("SUNSET SODA", 2.0, depth=0.14)
+	xform(bm2, T(0.0, 0.42, 13.7) @ RZ(180))  # the back reads too (seen from the far roof)
+	obj(c, "Ad", merge(bm, bm2), "SignPit", smooth=0)
+	obj(c, "BandBack", RB(-10.6, 10.6, 9.55, 12.0, -0.42, -0.35), "Accent")
 	lamps, glow = [], []
 	for x in (-6.0, 0.0, 6.0):
 		lamps.append(RB(x - 0.08, x + 0.08, 18.9, 19.9, 0.3, 1.4))
@@ -395,9 +427,9 @@ def p_spawn_sign(team):
 	obj(c, "Right", merge(bm, arrow(6.3, 5.35, 0.3, 0.42, 1, 0.9, 0.85)), rrole, smooth=0)
 
 
-def p_deck_word(word, role):
+def p_deck_word(word, role, text=None):
 	c = piece("DeckWord" + word)
-	bm, w = text_mesh(word, 2.6, depth=0.12)
+	bm, w = text_mesh(text or word, 2.0 if text else 2.6, depth=0.12)
 	xform(bm, T(0.0, -1.3, 0.01) @ Matrix.Rotation(math.radians(-90), 4, "X") @ T(0.0, 0.06, 0.0))
 	obj(c, "Paint", bm, role, smooth=0)
 
@@ -413,7 +445,7 @@ def p_street_lamp():
 def city(name, W, Dp, H):
 	c = piece(name, height=H)
 	hx, hz = W / 2, Dp / 2
-	obj(c, "Wall", RB(-hx, hx, 0.0, H, -hz, hz), "Backfill")
+	obj(c, "Wall", RB(-hx, hx, 0.0, H, -hz, hz), "Wall")
 	bands = []
 	for y in range(8, int(H) - 4, 10):
 		bands.append(RB(hx - 0.02, hx + 0.12, y, y + 4.0, -hz + 2.0, hz - 2.0))
@@ -441,8 +473,8 @@ def build():
 	p_plinth("Plinth4", 4)
 	p_quoin()
 	p_flue()
-	stairs("Stair16")
-	stairs("Gangway16", rail_role="Hazard", tread_role="Charcoal")
+	stairs("Stair16", rail_role="Hazard")  # round 1: every walkable route reads by its yellow rail
+	stairs("Gangway16", rail_role="Hazard")
 	p_plank_ramp()
 	p_catwalk()
 	p_ac()
@@ -465,6 +497,8 @@ def build():
 	p_deck_word("PIT", "SignPit")
 	p_deck_word("WEST", "SignWest")
 	p_deck_word("EAST", "SignEast")
+	p_deck_word("ROOFA", "SignPit", "ROOF A")
+	p_deck_word("ROOFB", "SignPit", "ROOF B")
 	p_street_lamp()
 	city("CityA", 28, 24, 64)
 	city("CityB", 24, 24, 90)

@@ -363,6 +363,10 @@ HALF = (
 		S("Tank house", "hut", 36.5, 46.5, 0, 8, 68.5, 78.5, art="TankHouse"),
 		*water_tank("Water tank", 41.5, 73.5, y=8, legs=4),
 		S("Cooling tower", "hut", -46.5, -36.5, 0, 8, 68.5, 78.5, art="CoolingTower"),
+		# Rooftops2 change 5 (scoring round 3): planters against the back parapet either side of the spawn court, so the
+		# spawn view isn't bare tile (they stand behind the spawns, out of every line).
+		S("Planter", "ac", -23, -17, 0, 7.5, 75.6, 78.6, art="Planter"),  # between the parapet piers at -24 and -16
+		S("Planter", "ac", 17, 23, 0, 7.5, 75.6, 78.6, art="Planter"),
 	]
 )
 

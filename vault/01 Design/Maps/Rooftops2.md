@@ -11,6 +11,16 @@ The 2026-11-05 redesign of [Rooftops](Rooftops.md) in the new environment style 
 
 ---
 
+## Lessons from Dockyard2 (applied from the start, so later maps start higher)
+Dockyard2's blind score went 5.4 → 5.4 → 6.7 → 8.75 ([Dockyard2](Dockyard2.md) → Scoring). What moved it, as rules for every redesigned map:
+1. **The spawn view must show the landmark and the way out.** A blank wall in front of the spawn cost composition and navigation the most. Make the spawn screen low enough on one side to see the landmark (check spawn safety in the layout script), and put a **framed sign** on it that names the base and the routes each way ("DOCK A ◄ GREEN  RED ►"; here "ROOF A/B ◄ EAST  WEST ►").
+2. **Paint the routes.** Lane or side words on the floor where routes leave the base and where they cross the middle, named by where they *land* after the 180° turn (Dockyard2's first try mirrored them into the wrong lanes). Chevrons from the spawn round the screen.
+3. **Give the middle a ground-level landmark** with a name plate (Dockyard2's white reefers with "CRANE"). Here it's the cobalt water tank on the lift tower, plus the billboards.
+4. **Never put painted surfaces on Roblox Metal.** It mirrors the sky, so blue paint goes royal blue. Use clean SmoothPlastic paint, with the geometry (ribs, rails, frames) carrying the detail. Keep the Lobby's textures for big calm surfaces only (plaster, roof tiles), and check in Studio, not just Blender.
+5. **Warm practical light that shows in captures:** Neon glow strips on lamps and interiors. PointLights don't render in edit-mode MCP captures, which the reviewers judge from.
+6. **Warm sun against neutral-cool shade, haze for depth, lower grade contrast.** A blue ambient crushes blue paint in shade, and "tuned, not striking" was the last thing holding the score down.
+7. **Dress every face the overview sees** (end-wall backs, far quays). Reviewers mark down raw slabs even outside the play space.
+
 ## 1. What's wrong with the old Rooftops
 From its note, its renders and a rerun of `tools/maps/rooftops_layout.py` (the SVG was restored afterwards, nothing in the repo changed).
 
@@ -76,6 +86,27 @@ The plan lives as data in `tools/maps/rooftops2_layout.py` (a copy of `rooftops_
 6. **Readable fall.** No gameplay change: bright coping on every drop edge and a shaded, hazy alley below (street Parts in a darker teal), so a missed jump reads as "down there".
 
 Callouts: **A roof / B roof**, **Pit**, **Tank** (lift tower), **West / East tower**, **Gangway**, **Plank**, **Penthouse**, **Alley**.
+
+### Measured result (layout v2, 2026-11-05)
+![Rooftops2 layout](../../02%20Art/References/maps/rooftops2/rooftops2-layout.svg)
+
+| Check | Rooftops | **Rooftops2** | Target |
+|---|---|---|---|
+| Z-fighting (box faces), clipping, slits | 0 / 0 / 0 | **0 / 0 / 0** | 0 |
+| Spawn sees spawn; floor / Updraft tops that see a spawn | never; 0% / 0% | **never; 0% / 0%** | same |
+| First sight, sprint / walk | 1.7 / 2.4 s | **1.9 / 2.6 s** | ≥ 3.0 / 4.0 (missed) |
+| Both teams sprinting meet | 3.6 s | **3.9 s** | ≥ 4.5 (missed) |
+| Over 70 / over 100 / longest | 8.5% / 0.9% / 128 | **8.6% / 0.8% / 132** | ≤ 6.4% / 0.5% / 100 (missed) |
+| Distance to full cover: average / furthest | 6.9 / 20.0 | **7.2 / 20.2** (on the gangway, a lane) | ≤ 15 (missed) |
+| Spawn to spawn: direct / via a tower / via the Pit | 160 / 162–164 / 173 | **173 / 175–177 / 183** | within 0.5 s (Pit +0.4 s, was +0.6) |
+
+What was built, and what each change measured:
+1. **Team roofs 96 × 56** (the middle and back rows move back 6–8; spawns at z ±68–73, barrier at ±64). Spawn to spawn is +13. The meet moves +0.3 s and first sight +0.2 s.
+2. **Billboards 22 wide** (were 18), reaching x +1, 4 short of the stair. They cut the diagonals that slipped past their inner end, including the old first-sight line.
+3. **Pit stairs 6 nearer the middle** (x 5–13, against the lift tower), and the Pit condenser removed because it left slits. The Pit route goes from +0.6 s to +0.4 s.
+4. **A planter screen** (6 × 3, full cover) against the west parapet of each roof's front row. It cuts the west-lane diagonal and brings the longest line from 136 back to 132.
+
+**Honest read:** the plan's sight targets aren't met. On a 1v1 map this small (teams meet at 3.9 s), the front edges see each other across the Pit by design, as with "Hold the edge". The remaining long lines are side-lane diagonals that each end in cover. Changes that kept the numbers flat or worse were dropped rather than kept for show. The next step, if the user wants it, is front-row screens on the Pit lips, which trade the Pit look-down for safety.
 
 ## 4. Look (style frame)
 **Identity: sunny terracotta rooftops at golden afternoon.** A warm city of cream plaster, terracotta tile and white trims with **one cobalt accent**: the water tank and the awnings. The Lobby is dark warm concrete with teal-slate structure and one accent per wing; Dockyard2 is a sunny harbour with a sand deck and a signal-yellow crane. Rooftops2 is warmer and rosier than both (coral, terracotta, sage) with a blue spike, so no two maps read alike. Team cyan, orange-red and glitch magenta stay off the map.
