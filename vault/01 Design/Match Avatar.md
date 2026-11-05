@@ -63,4 +63,18 @@ The first-person arms (0.5-wide block, skin colour plus a shirt layer) and the t
 - **Accessories:** keep **hair only** (recommended: identity without silhouette noise; bullets already ignore accessories), keep everything (hats can hide the head outline, which reads as unfair), or strip all. The code has a Config switch (`Config/Avatar ACCESSORIES`). Until decided, the default is **hair only**.
 
 ## Status
-- 2026-11-05: research and plan; slim-arm prototype in Studio. Build in progress.
+- 2026-11-05: built (commit f74140f).
+  - Code: `shared/MatchBody` (standard description + `slimArms`), `Config/Avatar`, `CharacterService.loadCharacter` / `applyStandard`; `MatchService` spawns with it; `BotService`, `TestRange/Dummies` and `DevModService` rigs use it.
+  - Holds, ADS, sprint, sidearm, slide arms, draw and reload re-solved on this body.
+- **Measured (playtest, BotMatch 1v1, TestMode off):**
+  - player and bot both 0.60-wide arms with flush hands; every body part identical in size (max difference **0.000 studs**: equal hitboxes, gap #11 closed);
+  - the off-hand IK lands **0.08 studs** from its target.
+- **Found on the way:**
+  - The Humanoid's automatic scaling rebuilds part sizes when a rig enters the Workspace (a slimmed arm went back to 1.0). `slimArms` turns it off; the standard scales are already baked into the parts.
+  - On this body the off-hand IK must be position-only. A full transform target asks for a palm angle the arm's joint cone limits refuse: the hand stopped 0.71 studs short (LihFolk *AnimationConstraint and Physically Simulated Characters*: cone limits also constrain IKControl).
+- **Score (3 blind reviewers, `quality-score` animation rubric, median):**
+  - **5.0**, capped by the 0.05-stud overlap gate: rifle hold forearm vs chest 0.055-0.10, two-handed pistol 0.23.
+  - Uncapped **6.0**; body standard **7 / 10**.
+  - All three: the body is clean and consistent, but in the bladed shouldered hold the arms clump in front of the chest from the front view, and static holds give no timing evidence.
+- **What blocks 8.5, and the next step:** the hold design, not the body. Even with slim arms, a shouldered hold keeps the forearm against the chest. **Recommended next:** a RIVALS-style extended hold for third person (gun held forward at chest height, arms reaching out with soft elbows, chest square). It reads from the front, clears the chest, and matches the first-person reference (guns straight ahead). After that: a breathing / weight-shift layer for P2-P4.
+- Evidence (not in the repo): the side-by-side shots are listed in the lane note.
