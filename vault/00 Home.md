@@ -9,7 +9,7 @@
 
 - **Evening review 2026-11-05 ([note](05%20Production/Playtests/2026-11-05%20Evening%20Review.md)):**
   - **Maps are too simple** ("smooth plastic blocks"). Next: reference boards and ChatGPT concept images for Rooftops and Dockyard, approved before any rebuild.
-  - **Match HUD reverted to v1.**
+  - **Match HUD reverted to v1.** Next: a UI concept pass (references, ChatGPT screens, Figma) for the Lobby UI and the HUD. Keep the v2 fonts and effects; lose the rounded "AI" look.
   - Sounds and the knife are good for now. The Lobby structure is good; comments later.
 - **Day 2026-11-05 (three lanes while the user was at school, [day plan](05%20Production/Day%20Plan%202026-11-05.md); tonight's review list is at the bottom):**
   - **Match maps redesigned in the new style, as new versions** (ForceMap only; the old maps are untouched):

@@ -12,7 +12,8 @@ The user played the day's work ([Day Plan 2026-11-05](../Day%20Plan%202026-11-05
 - **Sounds:** good for now. The user will customize them later if needed.
 - **Match HUD:** **revert to v1.** The v2 rounded corners "look too AI looking and not professional". v1 also needs improvement, but later.
 - **Knife:** good for now, much better. The third-person 5.7 doesn't need a hand-keyed pass now.
-- **Lobby:** the overall structure is good. The user has comments for later. The game and its maps come first.
+- **Lobby UI v2:** the fonts and some of the effects are good, but the rounded, circular look is "very AI looking". It should look like professional games. Next: reference board, then ChatGPT concept screens, then Figma frames, for the Lobby UI and the match HUD. The user approves them before any Roblox build.
+- **Lobby world:** the overall structure is good. The user has comments for later. The game and its maps come first.
 
 ## Decisions (answers to the core chat's questions)
 - **Concept first, then build.** No more building blind.
@@ -30,4 +31,5 @@ The user played the day's work ([Day Plan 2026-11-05](../Day%20Plan%202026-11-05
 
 ## Actions
 - Lane E (`lobby-ui-2`): revert the match screens to the v1 look. Keep the inset, clearance and phone-layout fixes where they work under v1.
+- Lane E, after that: UI concept pass (reference board, ChatGPT screens, Figma). Results go in [Lobby UI and Queue](../../01%20Design/Lobby%20UI%20and%20Queue.md).
 - Lane G (`map-redesign`): concept pass for Rooftops and Dockyard. Plan and results in the map notes, then the user reviews.
