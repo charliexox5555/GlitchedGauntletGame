@@ -60,40 +60,40 @@
   "uploaded": "2026-10-26 01:15:31"
  },
  "art-source/animations/GG_AdsDown.rbxm": {
-  "assetId": 107644808275862,
-  "name": "GG AdsDown p2",
+  "assetId": 79761173585801,
+  "name": "GG AdsDown mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 01:00:04"
+  "uploaded": "2026-11-05 16:50:33"
  },
  "art-source/animations/GG_AdsLevel.rbxm": {
-  "assetId": 129152787542613,
-  "name": "GG AdsLevel p2",
+  "assetId": 137279427153476,
+  "name": "GG AdsLevel mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 01:00:01"
+  "uploaded": "2026-11-05 16:50:30"
  },
  "art-source/animations/GG_AdsUp.rbxm": {
-  "assetId": 112152755318911,
-  "name": "GG AdsUp p2",
+  "assetId": 139613906260905,
+  "name": "GG AdsUp mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 00:59:59"
+  "uploaded": "2026-11-05 16:50:28"
  },
  "art-source/animations/GG_AimDown.rbxm": {
-  "assetId": 90624700567100,
-  "name": "GG AimDown p2",
+  "assetId": 136340891587951,
+  "name": "GG AimDown mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 00:59:56"
+  "uploaded": "2026-11-05 16:50:25"
  },
  "art-source/animations/GG_AimLevel.rbxm": {
-  "assetId": 70944741044936,
-  "name": "GG AimLevel p2",
+  "assetId": 128549425661166,
+  "name": "GG AimLevel mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 00:59:54"
+  "uploaded": "2026-11-05 16:50:22"
  },
  "art-source/animations/GG_AimUp.rbxm": {
-  "assetId": 82760540465409,
-  "name": "GG AimUp p2",
+  "assetId": 123446724391415,
+  "name": "GG AimUp mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 00:59:51"
+  "uploaded": "2026-11-05 16:50:20"
  },
  "art-source/animations/GG_Crouch.rbxm": {
   "assetId": 99568083489164,
@@ -156,10 +156,10 @@
   "uploaded": "2026-11-04 02:10:17"
  },
  "art-source/animations/GG_Draw.rbxm": {
-  "assetId": 118928673381535,
-  "name": "GG Draw p2",
+  "assetId": 126901374148632,
+  "name": "GG Draw mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 01:00:17"
+  "uploaded": "2026-11-05 16:51:05"
  },
  "art-source/animations/GG_Fall.rbxm": {
   "assetId": 125318466462876,
@@ -270,46 +270,46 @@
   "uploaded": "2026-11-04 01:49:32"
  },
  "art-source/animations/GG_PistolAdsDown.rbxm": {
-  "assetId": 136703616644049,
-  "name": "GG PistolAdsDown v2",
+  "assetId": 71881501397859,
+  "name": "GG PistolAdsDown mb",
   "type": "Animation",
-  "uploaded": "2026-11-04 23:45:54"
+  "uploaded": "2026-11-05 16:50:52"
  },
  "art-source/animations/GG_PistolAdsLevel.rbxm": {
-  "assetId": 135875126472492,
-  "name": "GG PistolAdsLevel v2",
+  "assetId": 124447634856449,
+  "name": "GG PistolAdsLevel mb",
   "type": "Animation",
-  "uploaded": "2026-11-04 23:45:52"
+  "uploaded": "2026-11-05 16:50:49"
  },
  "art-source/animations/GG_PistolAdsUp.rbxm": {
-  "assetId": 128330306630748,
-  "name": "GG PistolAdsUp v2",
+  "assetId": 74201207820342,
+  "name": "GG PistolAdsUp mb",
   "type": "Animation",
-  "uploaded": "2026-11-04 23:45:49"
+  "uploaded": "2026-11-05 16:50:46"
  },
  "art-source/animations/GG_PistolAimDown.rbxm": {
-  "assetId": 133519096095205,
-  "name": "GG PistolAimDown v2",
+  "assetId": 76559880424473,
+  "name": "GG PistolAimDown mb",
   "type": "Animation",
-  "uploaded": "2026-11-04 23:45:46"
+  "uploaded": "2026-11-05 16:50:44"
  },
  "art-source/animations/GG_PistolAimLevel.rbxm": {
-  "assetId": 110910062022130,
-  "name": "GG PistolAimLevel v2",
+  "assetId": 104048644111391,
+  "name": "GG PistolAimLevel mb",
   "type": "Animation",
-  "uploaded": "2026-11-04 23:45:44"
+  "uploaded": "2026-11-05 16:50:41"
  },
  "art-source/animations/GG_PistolAimUp.rbxm": {
-  "assetId": 140253199214811,
-  "name": "GG PistolAimUp v2",
+  "assetId": 134387505053454,
+  "name": "GG PistolAimUp mb",
   "type": "Animation",
-  "uploaded": "2026-11-04 23:45:41"
+  "uploaded": "2026-11-05 16:50:38"
  },
  "art-source/animations/GG_Reload.rbxm": {
-  "assetId": 121185044899036,
-  "name": "GG Reload p2",
+  "assetId": 139915270226655,
+  "name": "GG Reload mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 01:00:15"
+  "uploaded": "2026-11-05 16:51:03"
  },
  "art-source/animations/GG_RunB.rbxm": {
   "assetId": 81677261253829,
@@ -336,28 +336,28 @@
   "uploaded": "2026-11-04 01:49:14"
  },
  "art-source/animations/GG_Slide.rbxm": {
-  "assetId": 116508545844545,
-  "name": "GG Slide p2",
+  "assetId": 75102784945494,
+  "name": "GG Slide mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 01:00:09"
+  "uploaded": "2026-11-05 16:50:57"
  },
  "art-source/animations/GG_SlideIn.rbxm": {
-  "assetId": 133767445230279,
-  "name": "GG SlideIn p2",
+  "assetId": 80692529364914,
+  "name": "GG SlideIn mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 01:00:07"
+  "uploaded": "2026-11-05 16:50:55"
  },
  "art-source/animations/GG_SlideOut.rbxm": {
-  "assetId": 100738659650643,
-  "name": "GG SlideOut p2",
+  "assetId": 102780739852463,
+  "name": "GG SlideOut mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 01:00:12"
+  "uploaded": "2026-11-05 16:51:00"
  },
  "art-source/animations/GG_Sprint.rbxm": {
-  "assetId": 77315179450394,
-  "name": "GG Sprint v2",
+  "assetId": 71812210775526,
+  "name": "GG Sprint mb",
   "type": "Animation",
-  "uploaded": "2026-11-04 23:45:38"
+  "uploaded": "2026-11-05 16:50:36"
  },
  "art-source/animations/GG_SprintRun.rbxm": {
   "assetId": 81006580789818,
@@ -640,6 +640,78 @@
   "name": "GG Lobby VFX Wisp",
   "type": "Decal",
   "uploaded": "2026-10-29 22:40:09"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Brick_Color.png": {
+  "assetId": 95593588594173,
+  "name": "GG Map Roof2_Brick_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:43:51"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Brick_Normal.png": {
+  "assetId": 137071342492741,
+  "name": "GG Map Roof2_Brick_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:43:57"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Gravel_Color.png": {
+  "assetId": 97717957552109,
+  "name": "GG Map Roof2_Gravel_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:44:00"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Gravel_Normal.png": {
+  "assetId": 83785682664744,
+  "name": "GG Map Roof2_Gravel_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:44:06"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Plank_Color.png": {
+  "assetId": 110154997733919,
+  "name": "GG Map Roof2_Plank_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:44:09"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Plank_Normal.png": {
+  "assetId": 103446993286396,
+  "name": "GG Map Roof2_Plank_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:44:18"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Plaster_Color.png": {
+  "assetId": 118041967011970,
+  "name": "GG Map Roof2_Plaster_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:01:26"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Plaster_Normal.png": {
+  "assetId": 89461613104091,
+  "name": "GG Map Roof2_Plaster_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:01:29"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Slate_Color.png": {
+  "assetId": 131050679489974,
+  "name": "GG Map Roof2_Slate_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:44:29"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Slate_Normal.png": {
+  "assetId": 108807748492464,
+  "name": "GG Map Roof2_Slate_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:44:37"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Terracotta_Color.png": {
+  "assetId": 104500062556033,
+  "name": "GG Map Roof2_Terracotta_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:44:39"
+ },
+ "art-source/maps/Rooftops2/textures/Roof2_Terracotta_Normal.png": {
+  "assetId": 127117373437090,
+  "name": "GG Map Roof2_Terracotta_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 16:44:42"
  },
  "art-source/maps/whitebox/Whitebox_Panel.png": {
   "assetId": 115771155467964,
