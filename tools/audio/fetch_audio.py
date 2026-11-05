@@ -17,6 +17,7 @@ import os
 import re
 import sys
 import time
+import urllib.parse
 import urllib.request
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -26,6 +27,8 @@ CC0 = re.compile(r"creativecommons\.org/publicdomain/zero/1\.0|Creative Commons 
 
 
 def get(url):
+	# Usernames can be non-ASCII (e.g. "serøutōnin"): percent-encode the URL.
+	url = urllib.parse.quote(url, safe=":/?=&%#")
 	req = urllib.request.Request(url, headers=UA)
 	with urllib.request.urlopen(req, timeout=60) as r:
 		return r.read()

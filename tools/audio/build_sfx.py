@@ -192,6 +192,29 @@ TAKES = {
 		(701282, 34.0, 2.8, {"kind": "raw", "hp": 200, "lufs": -24}),
 	],
 	"AmbFlap": [(689998, 0.4, 2.4, {"kind": "raw", "hp": 150, "lufs": -23, "fade_out": 0.6})],
+	# Gun handling foley per class (2026-11-05). Real recordings of real guns
+	# (jackthemurray's AR-15 and Glock 19 sessions, a Cooey .22 bolt, a 1873
+	# Winchester, a revolver hammer, a holster draw); the AK / M16 / Uzi
+	# sequences (serøutōnin) are mixed or airsoft recordings, used where their
+	# known order labels the moment (mag out, mag in, bolt). Each take is cut so
+	# its transient lands within 12 ms of the clip beat it plays on.
+	"FoleyRifleMagOut": [(674742, 0.0, 0.42, {**H, "hp": 120, "lufs": -24}), (725397, 0.35, 0.45, {**H, "hp": 120, "lufs": -24})],
+	"FoleyRifleMagIn": [(674742, 0.84, 0.45, {**H, "hp": 120, "lufs": -24}), (725397, 2.85, 0.35, {**H, "hp": 120, "lufs": -24})],
+	"FoleyRifleRack": [(393732, 0.95, 0.6, {**H, "hp": 120, "lufs": -24}), (393732, 4.9, 0.7, {**H, "hp": 120, "lufs": -24}), (725397, 3.6, 0.35, {**H, "hp": 120, "lufs": -24})],
+	"FoleySmgMagOut": [(677160, 0.1, 0.45, {**H, "hp": 120, "lufs": -24})],
+	"FoleySmgMagIn": [(677160, 1.3, 0.4, {**H, "hp": 120, "lufs": -24})],
+	"FoleySmgRack": [(677160, 3.0, 0.65, {**H, "hp": 120, "lufs": -24})],
+	"FoleyPistolMagOut": [(393734, 0.25, 0.25, {**H, "hp": 120, "lufs": -24}), (393734, 10.85, 0.25, {**H, "hp": 120, "lufs": -24})],
+	"FoleyPistolMagIn": [(393734, 9.0, 0.35, {**H, "hp": 120, "lufs": -24}), (393734, 18.7, 0.35, {**H, "hp": 120, "lufs": -24})],
+	"FoleyPistolRack": [(393734, 7.1, 0.5, {**H, "hp": 120, "lufs": -24}), (393734, 20.7, 0.6, {**H, "hp": 120, "lufs": -24}), (393734, 3.6, 0.45, {**H, "hp": 120, "lufs": -24})],
+	"FoleyShotgunPump": [(145209, 0.1, 0.5, {**H, "hp": 120, "lufs": -24}), (145209, 6.6, 0.5, {**H, "hp": 120, "lufs": -24}), (145209, 10.5, 0.5, {**H, "hp": 120, "lufs": -24})],
+	"FoleyShellIn": [(218319, 0.6, 0.15, {**H, "hp": 120, "lufs": -24}), (218319, 4.87, 0.15, {**H, "hp": 120, "lufs": -24}), (218319, 8.57, 0.15, {**H, "hp": 120, "lufs": -24})],
+	"FoleyBolt": [(204204, 0.15, 0.4, {**H, "hp": 120, "lufs": -24}), (204204, 0.85, 0.35, {**H, "hp": 120, "lufs": -24})],
+	"FoleyLever": [(218319, 1.45, 0.6, {**H, "hp": 120, "lufs": -24}), (218319, 5.4, 0.6, {**H, "hp": 120, "lufs": -24})],
+	"FoleyRevolverRack": [(540065, 0.0, 0.35, {**H, "hp": 120, "lufs": -24}), (540065, 1.1, 0.35, {**H, "hp": 120, "lufs": -24}), (540065, 2.1, 0.35, {**H, "hp": 120, "lufs": -24})],
+	"FoleyRevolverOpen": [(693125, 0.0, 0.45, {**H, "hp": 120, "lufs": -24})],
+	"FoleyDrawPistol": [(388819, 0.0, 0.6, {**H, "hp": 120, "lufs": -24}), (393734, 2.2, 0.3, {**H, "hp": 120, "lufs": -24})],
+	"FoleyDrawRifle": [(393732, 12.45, 0.5, {**H, "hp": 120, "lufs": -24}), (393732, 10.7, 0.4, {**H, "hp": 120, "lufs": -24})],
 }
 
 

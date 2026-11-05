@@ -277,6 +277,67 @@ local atlas: { [string]: { Region } } = {
 		{ start = 340.574, length = 2.8 },
 	},
 	AmbFlap = { { start = 343.624, length = 2.4 } },
+	FoleyRifleMagOut = {
+		{ start = 346.274, length = 0.173 },
+		{ start = 346.697, length = 0.217 },
+	},
+	FoleyRifleMagIn = {
+		{ start = 347.164, length = 0.163 },
+		{ start = 347.577, length = 0.122 },
+	},
+	FoleyRifleRack = {
+		{ start = 347.949, length = 0.168 },
+		{ start = 348.367, length = 0.148 },
+		{ start = 348.765, length = 0.13 },
+	},
+	FoleySmgMagOut = { { start = 349.145, length = 0.121 } },
+	FoleySmgMagIn = { { start = 349.516, length = 0.159 } },
+	FoleySmgRack = { { start = 349.925, length = 0.194 } },
+	FoleyPistolMagOut = {
+		{ start = 350.369, length = 0.073 },
+		{ start = 350.692, length = 0.085 },
+	},
+	FoleyPistolMagIn = {
+		{ start = 351.027, length = 0.075 },
+		{ start = 351.352, length = 0.102 },
+	},
+	FoleyPistolRack = {
+		{ start = 351.704, length = 0.069 },
+		{ start = 352.023, length = 0.085 },
+		{ start = 352.358, length = 0.064 },
+	},
+	FoleyShotgunPump = {
+		{ start = 352.672, length = 0.241 },
+		{ start = 353.163, length = 0.274 },
+		{ start = 353.687, length = 0.302 },
+	},
+	FoleyShellIn = {
+		{ start = 354.239, length = 0.15 },
+		{ start = 354.639, length = 0.15 },
+		{ start = 355.039, length = 0.099 },
+	},
+	FoleyBolt = {
+		{ start = 355.388, length = 0.214 },
+		{ start = 355.852, length = 0.19 },
+	},
+	FoleyLever = {
+		{ start = 356.292, length = 0.169 },
+		{ start = 356.711, length = 0.163 },
+	},
+	FoleyRevolverRack = {
+		{ start = 357.124, length = 0.069 },
+		{ start = 357.443, length = 0.06 },
+		{ start = 357.753, length = 0.061 },
+	},
+	FoleyRevolverOpen = { { start = 358.064, length = 0.238 } },
+	FoleyDrawPistol = {
+		{ start = 358.552, length = 0.355 },
+		{ start = 359.157, length = 0.191 },
+	},
+	FoleyDrawRifle = {
+		{ start = 359.598, length = 0.266 },
+		{ start = 360.114, length = 0.063 },
+	},
 }
 
 return table.freeze(atlas)

@@ -744,5 +744,319 @@
    "lufs_m": -29.6,
    "true_peak": -5.2
   }
+ ],
+ "FoleyRifleMagOut": [
+  {
+   "id": 674742,
+   "start": 0.286,
+   "length": 0.174,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -1.6
+  },
+  {
+   "id": 725397,
+   "start": 0.567,
+   "length": 0.217,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -3.1
+  }
+ ],
+ "FoleyRifleMagIn": [
+  {
+   "id": 674742,
+   "start": 1.106,
+   "length": 0.163,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -5.3
+  },
+  {
+   "id": 725397,
+   "start": 3.127,
+   "length": 0.123,
+   "peak_ms": 5.0,
+   "lufs_m": -24.0,
+   "true_peak": -7.4
+  }
+ ],
+ "FoleyRifleRack": [
+  {
+   "id": 393732,
+   "start": 1.395,
+   "length": 0.168,
+   "peak_ms": 2.8,
+   "lufs_m": -24.0,
+   "true_peak": -2.9
+  },
+  {
+   "id": 393732,
+   "start": 4.996,
+   "length": 0.148,
+   "peak_ms": 2.6,
+   "lufs_m": -25.2,
+   "true_peak": -0.8
+  },
+  {
+   "id": 725397,
+   "start": 3.734,
+   "length": 0.13,
+   "peak_ms": 1.8,
+   "lufs_m": -25.7,
+   "true_peak": -0.6
+  }
+ ],
+ "FoleySmgMagOut": [
+  {
+   "id": 677160,
+   "start": 0.381,
+   "length": 0.122,
+   "peak_ms": 12.0,
+   "lufs_m": -25.1,
+   "true_peak": -1.0
+  }
+ ],
+ "FoleySmgMagIn": [
+  {
+   "id": 677160,
+   "start": 1.591,
+   "length": 0.159,
+   "peak_ms": 1.2,
+   "lufs_m": -24.2,
+   "true_peak": -0.6
+  }
+ ],
+ "FoleySmgRack": [
+  {
+   "id": 677160,
+   "start": 3.505,
+   "length": 0.194,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -9.5
+  }
+ ],
+ "FoleyPistolMagOut": [
+  {
+   "id": 393734,
+   "start": 0.326,
+   "length": 0.073,
+   "peak_ms": 4.8,
+   "lufs_m": -25.6,
+   "true_peak": -0.6
+  },
+  {
+   "id": 393734,
+   "start": 10.937,
+   "length": 0.086,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -2.9
+  }
+ ],
+ "FoleyPistolMagIn": [
+  {
+   "id": 393734,
+   "start": 9.19,
+   "length": 0.076,
+   "peak_ms": 1.1,
+   "lufs_m": -25.3,
+   "true_peak": -0.7
+  },
+  {
+   "id": 393734,
+   "start": 18.792,
+   "length": 0.103,
+   "peak_ms": 5.8,
+   "lufs_m": -25.9,
+   "true_peak": -1.0
+  }
+ ],
+ "FoleyPistolRack": [
+  {
+   "id": 393734,
+   "start": 7.382,
+   "length": 0.069,
+   "peak_ms": 7.6,
+   "lufs_m": -28.4,
+   "true_peak": -1.0
+  },
+  {
+   "id": 393734,
+   "start": 21.133,
+   "length": 0.085,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -1.3
+  },
+  {
+   "id": 393734,
+   "start": 3.876,
+   "length": 0.064,
+   "peak_ms": 5.4,
+   "lufs_m": -27.2,
+   "true_peak": -1.0
+  }
+ ],
+ "FoleyShotgunPump": [
+  {
+   "id": 145209,
+   "start": 0.409,
+   "length": 0.241,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -7.6
+  },
+  {
+   "id": 145209,
+   "start": 6.875,
+   "length": 0.275,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -8.1
+  },
+  {
+   "id": 145209,
+   "start": 10.748,
+   "length": 0.302,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -7.3
+  }
+ ],
+ "FoleyShellIn": [
+  {
+   "id": 218319,
+   "start": 0.642,
+   "length": 0.15,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -2.5
+  },
+  {
+   "id": 218319,
+   "start": 4.919,
+   "length": 0.15,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -3.3
+  },
+  {
+   "id": 218319,
+   "start": 8.614,
+   "length": 0.099,
+   "peak_ms": 10.1,
+   "lufs_m": -24.0,
+   "true_peak": -1.0
+  }
+ ],
+ "FoleyBolt": [
+  {
+   "id": 204204,
+   "start": 0.315,
+   "length": 0.214,
+   "peak_ms": 9.1,
+   "lufs_m": -24.0,
+   "true_peak": -2.3
+  },
+  {
+   "id": 204204,
+   "start": 1.06,
+   "length": 0.19,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -0.9
+  }
+ ],
+ "FoleyLever": [
+  {
+   "id": 218319,
+   "start": 1.931,
+   "length": 0.169,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -1.0
+  },
+  {
+   "id": 218319,
+   "start": 5.878,
+   "length": 0.164,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -1.4
+  }
+ ],
+ "FoleyRevolverRack": [
+  {
+   "id": 540065,
+   "start": 0.227,
+   "length": 0.07,
+   "peak_ms": 5.0,
+   "lufs_m": -26.5,
+   "true_peak": -0.9
+  },
+  {
+   "id": 540065,
+   "start": 1.313,
+   "length": 0.06,
+   "peak_ms": 1.2,
+   "lufs_m": -28.5,
+   "true_peak": -0.2
+  },
+  {
+   "id": 540065,
+   "start": 2.356,
+   "length": 0.062,
+   "peak_ms": 2.4,
+   "lufs_m": -29.8,
+   "true_peak": -0.8
+  }
+ ],
+ "FoleyRevolverOpen": [
+  {
+   "id": 693125,
+   "start": 0.203,
+   "length": 0.238,
+   "peak_ms": 12.0,
+   "lufs_m": -24.0,
+   "true_peak": -5.7
+  }
+ ],
+ "FoleyDrawPistol": [
+  {
+   "id": 388819,
+   "start": 0.294,
+   "length": 0.356,
+   "peak_ms": 12.0,
+   "lufs_m": -24.4,
+   "true_peak": -0.3
+  },
+  {
+   "id": 393734,
+   "start": 2.253,
+   "length": 0.192,
+   "peak_ms": 2.4,
+   "lufs_m": -25.7,
+   "true_peak": -1.0
+  }
+ ],
+ "FoleyDrawRifle": [
+  {
+   "id": 393732,
+   "start": 12.567,
+   "length": 0.267,
+   "peak_ms": 2.9,
+   "lufs_m": -24.2,
+   "true_peak": -0.5
+  },
+  {
+   "id": 393732,
+   "start": 11.086,
+   "length": 0.064,
+   "peak_ms": 3.1,
+   "lufs_m": -28.8,
+   "true_peak": -1.0
+  }
  ]
 }

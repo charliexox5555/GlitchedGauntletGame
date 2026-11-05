@@ -361,3 +361,52 @@ The client has no "current map" signal, so the map is chosen from the camera pos
 - [ ] Set `Workspace.ForceMap = "Rooftops2"` and play. You should hear the city below with a train now and then, and wind. Near an AC unit, its hum. Pigeons on the high ledges every 12-30 s, now and then a pigeon flying off a water tank. Car horns from the street, and a far siren every minute or so.
 - [ ] Old maps (Dockyard, Rooftops, Old Town, Snowpeak, Metro, Bunker, Greenhouse) now have a bed. Say if any doesn't fit.
 - [ ] **Save the match place** (Ctrl+S): the emitters live in `Workspace.Rooftops2.Ambience` and `Workspace.Dockyard2.Ambience`.
+
+## Phase 7: reload and equip sounds per gun class (core chat's third job, part 1)
+
+### What was off (found 2026-11-05)
+- **Every gun shared the same four handling sounds** (Audioscape foley 01-04: mag out, mag in, rack, draw). Each gun bent them with a pitch range, so a pump shotgun, a revolver and a bolt rifle all made the same click at different speeds. The inspect used the draw sound.
+- **No real pump, bolt, lever, revolver or shell sound.** The shotgun pump was the charging handle pitched down. The revolver cylinder was the mag sound pitched up. The lever was the charging handle pitched up.
+- **Timing was already right.** Sounds fire on the clip beats (`MagOut`, `MagIn`, `Rack`, `Open`, `ShellIn` markers, `WeaponController` BEAT_SOUNDS), so the sound needs its transient at its start. The new slices peak within 12 ms of their start (inside the 0-30 ms "fuses" window, LihFolk *Feedback Timing - Sound Visual and Haptic Sync*).
+
+### What changed
+- 17 new atlas slices, 37 takes (`Foley*`, `tools/audio/build_sfx.py`), appended to the atlas so every earlier slice stays byte-identical. **Atlas v6 = 136994389000525** (360 s, 17.9 MB), set in `Config/Sounds` ATLAS.
+- Polished like the knife set: high-pass 120 Hz, cut so the transient lands within 12 ms, a −24 LUFS momentary target (about 6 dB under the shots; very short clicks stay a few dB lower because the −1 dBTP limit holds them), mono, short fades.
+- `Config/GunSounds` adds **CLASS_FOLEY**: Rifle, SMG, Sidearm, Shotgun, Sniper, MachineGun. **GUN_FOLEY** overrides single guns: the Sheriff revolver, the Shorty and Outlaw break actions, the Marshal lever, the Operator bolt, the Odin feed cover and the Akimbo draw. Each gun keeps its own volume; the pitch range is the class one, near 1.
+- The Knife is untouched.
+
+| Class / gun | mag out | mag in | rack | other | draw |
+|---|---|---|---|---|---|
+| Rifle (Vandal, Phantom, Bulldog, Guardian) | AK / M16 mag out | AK / M16 mag seat | AR-15 charging handle ×2, M16 bolt release | — | AR-15 handled |
+| MachineGun (Ares, Odin) | rifle, pitched 0.9 | rifle, 0.9 | rifle, 0.94 | Odin: cover lifts (revolver open), latches (slide) | rifle, 0.94 |
+| SMG (Stinger, Spectre, Akimbo) | Uzi mag out | Uzi mag in | Uzi bolt | — | rifle draw 1.06 (Akimbo: holster) |
+| Sidearm (Classic, Ghost) | Glock mag release ×2 | Glock mag seat ×2 | Glock slide ×3 | — | holster draw, Glock grab |
+| Sheriff (revolver) | cases out (Glock click, pitched up) | — | hammer cocked ×3 | cylinder out (.22 revolver eject), speedloader (shell clicks) | holster |
+| Shorty, Outlaw (break action) | — | — | snapped shut (.22 bolt, low) | barrels drop (revolver open, low), shells in (Winchester gate) | class |
+| Shotgun (Judge, Bucky) | — | — | pump ×3 | shells into the tube ×3 | rifle draw |
+| Sniper (Operator) | rifle, 0.96 | rifle, 0.96 | .22 bolt ×2 | — | rifle draw |
+| Marshal (lever) | — | — | Winchester 1873 lever ×2 | a round through the gate | rifle draw |
+
+### Foley licence ledger (CC0 1.0, read on each sound page; files in `art-source/audio/downloads/freesound-<id>/`, gitignored)
+
+| Id | Title | Author | Used for | Kind |
+|---|---|---|---|---|
+| 393732 | AR15 M4 Gun Hardware Magazine Movement Sounds | jackthemurray | rifle rack, rifle draw | real gun |
+| 393734 | Glock 19 Handgun Pistol Slide Cocking Sounds | jackthemurray | pistol mag, slide, grab | real gun |
+| 674742 | AK-47 Assault Rifle being unloaded and reloaded | serøutōnin--deprivəd | rifle mag out / in | mixed real |
+| 725397 | An M16 Rifle being reloaded while empty; full sequence | serøutōnin--deprivəd | rifle mag out / in, bolt release | airsoft replica |
+| 677160 | Uzi submachine gun being reloaded while empty | serøutōnin--deprivəd | SMG mag and bolt | airsoft replica |
+| 693125 | 22lr Revolver ejecting bullets from cylinder | serøutōnin--deprivəd | revolver / break-action open | real gun |
+| 145209 | shotgun sounds | lensflare8642 | shotgun pump | real gun |
+| 204204 | 22 Bolt.wav | Danwardvs | sniper bolt, break-action shut | real gun |
+| 218319 | Winchester 1873, cock and dry fire.wav | SpliceSound | lever, shell clicks | real gun |
+| 540065 | Weapon_Revolver_Hammer_Mono.wav | Nox_Sound | revolver hammer | real gun |
+| 388819 | Holster Pistol | nioczkus | pistol draw | real |
+
+Links: `https://freesound.org/people/<author>/sounds/<id>/`.
+
+Alternates downloaded but not used: 396331 (1911 reload, the next pistol mag in), 177863 (prop revolver, the next cylinder), 402790 (cocking revolver, the next hammer). Rejected: 432139 (a compilation of other people's uploads, so the licence chain is unclear) and 233044 (resynthesized, not a recording).
+
+### Check tonight (reloads)
+- [ ] Reload each class in the test range (`Workspace.TestMode = true`): Vandal, Stinger, Classic, Sheriff, Judge, Shorty, Operator, Marshal, Ares. Each click should land on the hand's move. Say any that sounds early or late, or too quiet next to the shots.
+- [ ] The M16 and Uzi takes are airsoft replicas (lighter plastic). If the SMG or rifle mag sounds toy-like, say so; the AR-15 session (393732) has more mag sounds to swap in.

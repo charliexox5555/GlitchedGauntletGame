@@ -52,6 +52,8 @@ export type GunSoundSet = {
 	inspectFlip: GunSound?, -- each flip inside the inspect
 }
 
+local Weapons = require(script.Parent.Weapons)
+
 local FOLEY = 0.6 -- normal handling loudness
 local PITCH = { 0.97, 1.03 } -- a little variation so repeats never sound looped
 
@@ -59,7 +61,8 @@ local function id(n: number): string
 	return "rbxassetid://" .. tostring(n)
 end
 
--- Handling placeholders (Audioscape foley, Roblox-licensed), shared by every gun until replaced.
+-- Handling placeholders (Audioscape foley, Roblox-licensed), shared by every gun;
+-- CLASS_FOLEY below swaps them for real per-class recordings.
 local MAG_OUT = id(101803348893194) -- AS_gun_foley-01
 local MAG_IN = id(92321876028160) -- AS_gun_foley-02
 local RACK = id(135901981148051) -- AS_gun_foley-03
@@ -333,6 +336,112 @@ local sets: { [string]: GunSoundSet } = {
 		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
 	},
 }
+
+-- Handling foley per gun class (2026-11-05, lane F): real recordings of real
+-- guns in the atlas (Foley* slices; sources, licences and alternates in
+-- vault/05 Production/Playtests/2026-11-05 Knife and Sound Pass.md → Reload
+-- and equip). Every placeholder handling sound above (MAG_OUT / MAG_IN / RACK
+-- / DRAW) is swapped for its class's slice here, keeping the gun's volume; a
+-- gun's own pitch range is replaced by the class one (the old ranges bent one
+-- shared take into many guns; these takes are already the right size).
+-- `GUN_FOLEY` overrides single guns (break actions, the revolver, the lever).
+-- To try another take, edit the table; to go back to a placeholder, delete
+-- the gun's line in GUN_FOLEY or the class's field.
+type Foley = { id: string, pitch: { number } }
+local function f(slice: string, lo: number?, hi: number?): Foley
+	return { id = "atlas:Foley" .. slice, pitch = { lo or 0.97, hi or 1.03 } }
+end
+
+local CLASS_FOLEY: { [string]: { [string]: Foley } } = {
+	Rifle = { -- AR-15 / AK / M16 magazine changes and charging handle
+		magOut = f("RifleMagOut"),
+		magIn = f("RifleMagIn"),
+		rack = f("RifleRack"),
+		draw = f("DrawRifle"),
+		inspect = f("DrawRifle", 1.02, 1.06),
+	},
+	SMG = { -- an Uzi-style SMG's mag and bolt
+		magOut = f("SmgMagOut"),
+		magIn = f("SmgMagIn"),
+		rack = f("SmgRack"),
+		draw = f("DrawRifle", 1.04, 1.08),
+		inspect = f("DrawRifle", 1.06, 1.1),
+	},
+	Sidearm = { -- a Glock 19's mag and slide, a holster draw
+		magOut = f("PistolMagOut"),
+		magIn = f("PistolMagIn"),
+		rack = f("PistolRack"),
+		draw = f("DrawPistol"),
+		inspect = f("DrawPistol", 1.02, 1.06),
+	},
+	Shotgun = { -- pump, shells into the tube
+		rack = f("ShotgunPump"),
+		shellIn = f("ShellIn"),
+		draw = f("DrawRifle", 0.95, 1.0),
+		inspect = f("DrawRifle", 0.98, 1.02),
+	},
+	Sniper = { -- a bolt action, mag in the stock
+		magOut = f("RifleMagOut", 0.94, 0.98),
+		magIn = f("RifleMagIn", 0.94, 0.98),
+		rack = f("Bolt"),
+		draw = f("DrawRifle", 0.95, 1.0),
+		inspect = f("DrawRifle", 0.98, 1.02),
+	},
+	MachineGun = { -- rifle handling, pitched a little heavier
+		magOut = f("RifleMagOut", 0.9, 0.94),
+		magIn = f("RifleMagIn", 0.9, 0.94),
+		rack = f("RifleRack", 0.92, 0.96),
+		draw = f("DrawRifle", 0.92, 0.96),
+		inspect = f("DrawRifle", 0.96, 1.0),
+	},
+}
+
+local GUN_FOLEY: { [string]: { [string]: Foley } } = {
+	-- Revolver: the cylinder swings out, cases out, speedloader, flicked shut.
+	Sheriff = {
+		open = f("RevolverOpen"),
+		magOut = f("PistolMagOut", 1.08, 1.14),
+		shellIn = f("ShellIn", 1.05, 1.1),
+		rack = f("RevolverRack"),
+	},
+	-- Break-action shotgun: the barrels drop, shells in, snapped shut.
+	Shorty = {
+		open = f("RevolverOpen", 0.84, 0.88),
+		shellIn = f("ShellIn"),
+		rack = f("Bolt", 0.9, 0.95),
+	},
+	Outlaw = {
+		open = f("RevolverOpen", 0.84, 0.88),
+		shellIn = f("ShellIn", 0.95, 1.0),
+		rack = f("Bolt", 0.88, 0.93),
+	},
+	-- Lever action: the lever, a round through the gate.
+	Marshal = { rack = f("Lever"), shellIn = f("ShellIn") },
+	Operator = { rack = f("Bolt", 0.92, 0.96) },
+	-- Belt-fed: the feed cover lifts and latches.
+	Odin = { open = f("RevolverOpen", 0.95, 1.0), shellIn = f("PistolRack", 0.88, 0.92) },
+	-- Two compact pistols.
+	Akimbo = { draw = f("DrawPistol", 1.02, 1.06) },
+}
+
+do
+	local placeholder = { [MAG_OUT] = true, [MAG_IN] = true, [RACK] = true, [DRAW] = true }
+	local function swap(set: GunSoundSet, class: string?, gun: string?)
+		local byClass = if class then CLASS_FOLEY[class] else nil
+		local byGun = if gun then GUN_FOLEY[gun] else nil
+		for field, sound in set :: { [string]: GunSound } do
+			local foley = (byGun and byGun[field]) or (byClass and byClass[field])
+			if foley and placeholder[sound.id] then
+				(set :: any)[field] = { id = foley.id, volume = sound.volume, pitch = foley.pitch }
+			end
+		end
+	end
+	swap(DEFAULT, "Rifle")
+	for gun, set in sets do
+		local w = Weapons.get(gun)
+		swap(set, w and w.class, gun)
+	end
+end
 
 local GunSounds = {}
 
