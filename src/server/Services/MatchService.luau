@@ -22,6 +22,7 @@ local DraftService = require(script.Parent.DraftService)
 local MapService = require(script.Parent.MapService)
 local ModService = require(script.Parent.ModService)
 local BotService = require(script.Parent.BotService)
+local CharacterService = require(script.Parent.CharacterService)
 local MatchPlan = require(script.Parent.Parent.Bots.MatchPlan)
 local WeaponService = require(script.Parent.WeaponService)
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -140,9 +141,8 @@ end
 local function spawnPlayer(player: Player, spawn: SpawnLocation?)
 	player.RespawnLocation = spawn
 	for attempt = 1, SPAWN_TRIES do
-		local ok, err = pcall(function()
-			player:LoadCharacterAsync()
-		end)
+		-- Spawned already wearing the standard match body (Match Avatar.md).
+		local ok, err = pcall(CharacterService.loadCharacter, player)
 		if ok or player.Parent ~= Players then
 			return
 		end

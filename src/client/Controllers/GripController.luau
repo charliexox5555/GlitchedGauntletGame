@@ -103,7 +103,11 @@ local function newRig(character: Model): Rig?
 	pole.Parent = torso
 	local left = Instance.new("IKControl")
 	left.Name = "GGLeftGrip"
-	left.Type = Enum.IKControlType.Transform
+	-- Position only: on the standard match body a full transform target asks
+	-- for a palm angle the arm's joint cone limits refuse (measured: the hand
+	-- stopped 0.71 studs short; position-only lands it at 0.08). The hold
+	-- clips already set the hand's angle for this body.
+	left.Type = Enum.IKControlType.Position
 	left.ChainRoot = upperL
 	left.EndEffector = handL
 	left.Target = leftTarget

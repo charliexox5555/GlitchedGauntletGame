@@ -16,18 +16,18 @@ return table.freeze({
 		-- Holding the gun, blended by aim pitch (Action priority). Solved on a
 		-- rig with both hands on the gun (tools/studio/MakeHoldAnimations,
 		-- 2026-11-04): shouldered long-gun hold, sidearms two-handed.
-		AimUp = id(82760540465409), -- looking AIM_PITCH_RANGE degrees up
-		AimLevel = id(70944741044936),
-		AimDown = id(90624700567100), -- looking AIM_PITCH_RANGE degrees down
+		AimUp = id(123446724391415), -- looking AIM_PITCH_RANGE degrees up
+		AimLevel = id(128549425661166),
+		AimDown = id(136340891587951), -- looking AIM_PITCH_RANGE degrees down
 		-- Sidearms' two-handed hold, the same pitch blend (MakeHoldAnimations).
-		PistolAimUp = id(140253199214811),
-		PistolAimLevel = id(110910062022130),
-		PistolAimDown = id(133519096095205),
-		PistolAdsUp = id(128330306630748),
-		PistolAdsLevel = id(135875126472492),
-		PistolAdsDown = id(136703616644049),
+		PistolAimUp = id(134387505053454),
+		PistolAimLevel = id(104048644111391),
+		PistolAimDown = id(76559880424473),
+		PistolAdsUp = id(74201207820342),
+		PistolAdsLevel = id(124447634856449),
+		PistolAdsDown = id(71881501397859),
 		-- Movement (Action2; Slide is Action3 so it wins over everything).
-		Sprint = id(77315179450394), -- gun lowered across the body
+		Sprint = id(71812210775526), -- gun lowered across the body
 		Crouch = id(99568083489164),
 		CrouchWalk = id(120617369360340), -- one stride, looped
 		-- The other crouch-walk directions (same stride length), blended by
@@ -35,7 +35,7 @@ return table.freeze({
 		CrouchWalkB = id(139454894380024),
 		CrouchWalkL = id(104336317188168),
 		CrouchWalkR = id(96202691168303),
-		Slide = id(116508545844545), -- the full-body ground slide hold, with a scrape chatter (tools/studio/make_slide_poses.py)
+		Slide = id(75102784945494), -- the full-body ground slide hold, with a scrape chatter (tools/studio/make_slide_poses.py)
 	}),
 
 	-- Legs and hips by move direction (tools/studio/MakeLocomotionAnimations.luau,
@@ -49,8 +49,8 @@ return table.freeze({
 		SprintRun = id(81006580789818),
 		Land = id(88050773886302),
 		-- The slide's way in and out (one-shots, tools/studio/make_slide_poses.py).
-		SlideIn = id(133767445230279),
-		SlideOut = id(100738659650643),
+		SlideIn = id(80692529364914),
+		SlideOut = id(102780739852463),
 	}),
 	-- What others see you do with the gun (tools/studio/MakeCombatPoseAnimations.luau,
 	-- 2026-11-04): aiming down sights (three pitch poses blended like the hip
@@ -58,17 +58,17 @@ return table.freeze({
 	-- time (server player attributes ReloadAt / ReloadFor) and a flinch when
 	-- hit (HitAt).
 	COMBAT = table.freeze({
-		AdsUp = id(112152755318911),
-		AdsLevel = id(129152787542613),
-		AdsDown = id(107644808275862),
-		Reload = id(121185044899036),
+		AdsUp = id(139613906260905),
+		AdsLevel = id(137279427153476),
+		AdsDown = id(79761173585801),
+		Reload = id(139915270226655),
 		Flinch = id(114576995497102),
 		Death = id(81024323443020), -- going down (DeathFxController, on the falling copy)
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
 		-- on each swing (server player attributes SwingAt / SwingHeavy).
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
-		Draw = id(118928673381535),
+		Draw = id(126901374148632),
 		KnifeReady = id(116692680582291), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
 		-- Knife swings (2026-11-05, tools/studio/make_knife_poses.py; every
 		-- frame keeps the limbs within 0.015 studs of the torso on the block
@@ -86,7 +86,7 @@ return table.freeze({
 		maxSlide = 1.5, -- how far back along the barrel the hand may slide to reach
 		leftPole = Vector3.new(-1.2, -1.6, -0.3), -- the left elbow points here (UpperTorso space)
 		long = table.freeze({ under = 0.14, side = 0, palm = 90 }), -- palm up under the guard
-		sidearm = table.freeze({ under = 0.1, side = -0.16, palm = 0 }), -- cupping the grip hand
+		sidearm = table.freeze({ under = 0.05, side = -0.64, palm = 0 }), -- beside the grip hand (match body, slim arms)
 		fadeIn = 14, -- 1/s
 		fadeOut = 20,
 		regrip = 0.15, -- seconds after a reload ends before the hand goes back

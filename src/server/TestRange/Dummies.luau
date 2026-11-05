@@ -15,6 +15,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Status = require(ReplicatedStorage.Shared.Mods.Status)
@@ -104,7 +105,7 @@ makeDummy = function(index: number)
 		return
 	end
 
-	local desc = Instance.new("HumanoidDescription")
+	local desc = MatchBody.description(nil) -- the standard match body (Match Avatar.md)
 	desc.HeadColor = SKIN
 	desc.TorsoColor = CLOTH
 	desc.LeftArmColor = SKIN
@@ -113,6 +114,7 @@ makeDummy = function(index: number)
 	desc.RightLegColor = CLOTH
 	local model = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
 	model.Name = string.format("Dummy_%s_%d", spot.kind, spot.distance)
+	MatchBody.slimArms(model)
 	-- Stream the whole dummy at once, like player characters.
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	local animate = model:FindFirstChild("Animate")

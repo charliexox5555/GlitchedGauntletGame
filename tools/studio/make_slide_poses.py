@@ -70,17 +70,17 @@ def lowest(frame):
 
 
 # The arms and head while sliding, solved on a rig with the gun by
-# MakeHoldAnimations (GG_SlideArms, pass 4): the right hand keeps the gun level
+# MakeHoldAnimations (GG_SlideArms, on the standard match body): the right hand keeps the gun level
 # and forward, the left hand trails on the floor beside the hip. GripController
 # lets go of the gun while sliding.
 ARMS = {
 	"Head": (-34, -21, 6),
-	"RightUpperArm": (50.14, -155.84, -91.04),
-	"RightLowerArm": (-46.85, -43.62, 52.57),
-	"RightHand": (12.08, 81.60, 14.56),
-	"LeftUpperArm": (41.90, 87.58, 26.29),
-	"LeftLowerArm": (-18.30, 12.34, -34.87),
-	"LeftHand": (-23.98, -142.60, 25.29),
+	"RightUpperArm": (41.27, -139.59, -68.86),
+	"RightLowerArm": (-25.61, -11.38, 24.98),
+	"RightHand": (8.85, 78.27, -3.56),
+	"LeftUpperArm": (34.38, 88.38, 15.89),
+	"LeftLowerArm": (-3.81, 1.57, -22.42),
+	"LeftHand": (-15.44, -144.54, 31.41),
 }
 
 

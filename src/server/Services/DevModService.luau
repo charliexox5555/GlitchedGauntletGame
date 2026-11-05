@@ -40,6 +40,7 @@ local CharacterService = require(script.Parent.CharacterService)
 local ModService = require(script.Parent.ModService)
 local WeaponService = require(script.Parent.WeaponService)
 local Health = require(ReplicatedStorage.Shared.Health)
+local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 
 local DevModService = {}
 
@@ -115,7 +116,7 @@ end
 local spawnDummy: (team: number, label: string, at: CFrame, by: Player) -> ()
 
 spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
-	local desc = Instance.new("HumanoidDescription")
+	local desc = MatchBody.description(nil) -- the standard match body (Match Avatar.md)
 	desc.HeadColor = SKIN
 	desc.TorsoColor = CLOTH
 	desc.LeftArmColor = SKIN
@@ -134,6 +135,7 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 		return
 	end
 	model.Name = "DevDummy_" .. label
+	MatchBody.slimArms(model)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	local animate = model:FindFirstChild("Animate")
 	if animate then

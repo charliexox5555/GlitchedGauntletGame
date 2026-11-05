@@ -66,10 +66,13 @@ end
 
 -- Rig ---------------------------------------------------------------------------
 
-local rig = Players:CreateHumanoidModelFromDescription(
-	Instance.new("HumanoidDescription"),
-	Enum.HumanoidRigType.R15
-)
+-- The standard match body (shared/MatchBody, vault/01 Design/Match Avatar.md):
+-- every combatant in a match has exactly this rig, so the holds land exactly.
+local MatchBody =
+	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MatchBody") :: ModuleScript)
+local rig =
+	Players:CreateHumanoidModelFromDescription(MatchBody.description(nil), Enum.HumanoidRigType.R15)
+MatchBody.slimArms(rig)
 rig.Name = "GGHoldRig"
 for _, d in rig:GetDescendants() do
 	if d:IsA("BasePart") then
@@ -243,8 +246,8 @@ end
 -- forearm 0.5-0.6 studs inside it, the "arms bunched in front" look).
 local LONG_HIP: Hold = {
 	chest = { 2, -55, 0 },
-	head = { -4, 30, -6 },
-	hold = Vector3.new(0.45, -0.15, -1.6),
+	head = { -4, 24, -8 },
+	hold = Vector3.new(0.45, -0.15, -1.45),
 	poleR = Vector3.new(1, 0.2, 0),
 	poleL = Vector3.new(-1, -0.5, 0),
 	palm = 90,
@@ -255,8 +258,8 @@ local LONG_HIP: Hold = {
 -- Sights: the gun up to the cheek, more square, head down on the stock.
 local LONG_ADS: Hold = {
 	chest = { 4, -50, 0 },
-	head = { -14, 30, 10 },
-	hold = Vector3.new(0.25, 0.1, -1.55),
+	head = { -14, 26, 4 },
+	hold = Vector3.new(0.3, 0.05, -1.45),
 	poleR = Vector3.new(1, 0.2, 0),
 	poleL = Vector3.new(-1, -0.5, 0),
 	palm = 90,
@@ -264,29 +267,29 @@ local LONG_ADS: Hold = {
 	side = 0,
 	reach = 1.85,
 }
--- Sidearms: square two-handed hold, arms forward, the left hand cupping the
--- grip hand.
+-- Sidearms: square two-handed hold, arms extended, both hands side by side on
+-- the grip (a cupping left hand sat inside the right one).
 local PISTOL_HIP: Hold = {
 	chest = { 0, -6, 0 },
-	head = { -6, 6, 0 },
-	hold = Vector3.new(-0.85, -0.36, -1.55),
-	poleR = Vector3.new(0.8, -1, 0),
-	poleL = Vector3.new(-0.8, -1, 0),
+	head = { -6, 5, 0 },
+	hold = Vector3.new(-0.85, -0.3, -1.8),
+	poleR = Vector3.new(0.6, -1, 0),
+	poleL = Vector3.new(-0.6, -1, 0),
 	palm = 0,
-	under = 0.1,
-	side = -0.16,
-	reach = 1.8,
+	under = 0.05,
+	side = -0.64,
+	reach = 1.85,
 }
 local PISTOL_ADS: Hold = {
 	chest = { 2, -4, 0 },
 	head = { -10, 4, 4 },
-	hold = Vector3.new(-0.95, -0.02, -1.62),
-	poleR = Vector3.new(0.9, -1, 0),
-	poleL = Vector3.new(-0.9, -1, 0),
+	hold = Vector3.new(-0.9, -0.02, -1.8),
+	poleR = Vector3.new(0.6, -1, 0),
+	poleL = Vector3.new(-0.6, -1, 0),
 	palm = 0,
-	under = 0.1,
-	side = -0.16,
-	reach = 1.8,
+	under = 0.05,
+	side = -0.64,
+	reach = 1.85,
 }
 -- Sprint: low-ready carry, the muzzle down and across the body, chest leaning
 -- into the run (one pose, no pitch).

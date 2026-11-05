@@ -16,6 +16,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BotsConfig = require(Shared.Config.Bots)
 local Combat = require(Shared.Config.Combat)
 local Health = require(Shared.Health)
+local MatchBody = require(Shared.MatchBody)
 local InputConfig = require(Shared.Config.Input)
 local Pawns = require(Shared.Simulation.Pawns)
 local Teams = require(Shared.Mods.Teams)
@@ -188,7 +189,7 @@ local function template(team: number): Model?
 	if cached then
 		return cached
 	end
-	local desc = Instance.new("HumanoidDescription")
+	local desc = MatchBody.description(nil) -- the standard match body (Match Avatar.md)
 	local cloth = BotsConfig.TEAM_CLOTH[team] or BotsConfig.TEAM_CLOTH[1]
 	desc.HeadColor = BotsConfig.SKIN
 	desc.LeftArmColor = BotsConfig.SKIN
@@ -203,6 +204,7 @@ local function template(team: number): Model?
 		warn("[BotService] couldn't build a bot rig:", model)
 		return nil
 	end
+	MatchBody.slimArms(model)
 	templates[team] = model
 	return model
 end

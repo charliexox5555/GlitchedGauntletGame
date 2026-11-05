@@ -90,13 +90,13 @@ end
 local function hip(): Frame
 	return {
 		UpperTorso = { 2, -55, 0 },
-		Head = { -4, 30, -6 },
-		RightUpperArm = { 16.38, -85.21, -121.69 },
-		RightLowerArm = { -52.63, -57.87, 63.47 },
-		RightHand = { 15.34, 83.7, 19.65 },
-		LeftUpperArm = { -44.09, 97.58, 112.81 },
-		LeftLowerArm = { -3.28, 2.12, -32.93 },
-		LeftHand = { -32.71, -46.32, 2.93 },
+		Head = { -4, 24, -8 },
+		RightUpperArm = { 17.55, -88.11, -111.12 },
+		RightLowerArm = { -59.8, -45.03, 49.2 },
+		RightHand = { 16.12, 82.79, 14.54 },
+		LeftUpperArm = { -45.91, 96.05, 101.71 },
+		LeftLowerArm = { -3.81, 1.57, -22.42 },
+		LeftHand = { -30.49, -47.96, 2.8 },
 	}
 end
 
