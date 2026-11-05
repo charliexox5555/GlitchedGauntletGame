@@ -22,7 +22,7 @@ return table.freeze({
 
 	-- Accessories kept from the player's own avatar: "hair" (hair only),
 	-- "all" or "none". Bullets ignore accessories either way
-	-- (CharacterService). Pending the user's decision; hair only until then.
+	-- (CharacterService). Hair only: the user's decision, 2026-11-05.
 	ACCESSORIES = "hair" :: "hair" | "all" | "none",
 
 	-- What else is kept from the player's own avatar.

@@ -39,7 +39,7 @@ One standard body for every combatant in the **match place** (players, AI bots, 
    - body part packages (Rthro, etc.);
    - scales;
    - layered clothing (it wraps the body and won't fit the slim arms);
-   - accessories, which need **your decision** (below).
+   - accessories, except hair (decided 2026-11-05, below).
 5. **Spawn path:** the match loads characters straight from the standard description (`LoadCharacterWithHumanoidDescriptionAsync`, no flash). Any other spawn (test mode, the range, dev tools) gets the description applied on arrival, then the arms slimmed, *before* the character is set up for combat (hitbox history, health).
 6. **Bots and dummies:** they already use the default body; the same arm slimming runs on their rigs.
 
@@ -59,8 +59,8 @@ All holds are re-solved on the standard body (`tools/studio/MakeHoldAnimations.l
 | Knife | Ready / slash / heavy clips |
 The first-person arms (0.5-wide block, skin colour plus a shirt layer) and the third-person arms (0.6, the same shirt) now read as the same arm.
 
-## Decision needed
-- **Accessories:** keep **hair only** (recommended: identity without silhouette noise; bullets already ignore accessories), keep everything (hats can hide the head outline, which reads as unfair), or strip all. The code has a Config switch (`Config/Avatar ACCESSORIES`). Until decided, the default is **hair only**.
+## Decisions
+- **Accessories in matches: hair only, user 2026-11-05.** The Config switch stays (`Config/Avatar ACCESSORIES`: "hair" / "all" / "none").
 
 ## Status
 - 2026-11-05: built (commit f74140f).
