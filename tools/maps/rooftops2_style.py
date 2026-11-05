@@ -1,0 +1,222 @@
+#!/usr/bin/env python3
+"""Rooftops2 style: every colour, material, bevel and lighting value of the map in one place.
+
+Same scheme as tools/maps/dockyard2_style.py (vault/01 Design/Maps/Rooftops2.md -> Restyle parameters):
+  * colours, Roblox materials and MaterialVariants are applied in Studio by role (the STYLE block of
+    tools/studio/maps/Rooftops2/Art.luau), so a palette change is: edit PALETTE / TONE here, run
+        python tools/maps/rooftops2_style.py --luau
+    and rerun the Art + Lighting bundle in Studio. No Blender, no upload.
+  * LIGHTING / FX / LAMP go into the LIGHT block of tools/studio/maps/Rooftops2/Lighting.luau.
+  * BEVEL / SEGMENTS are geometry: rebuild the Blender kit (tools/blender/build_map_kit_rooftops2.py), export,
+    upload, reinstall.
+
+Run: python tools/maps/rooftops2_style.py [--luau] [--svg]
+"""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+MAP = "Rooftops2"
+
+# ---------------------------------------------------------------- identity
+# "Sunny terracotta rooftops at golden afternoon": a warm city of plaster blocks (apricot for team A, sage for team
+# B, cream for the towers and the Pit building), terracotta tile roofs, white trims and one cobalt accent (the water
+# tank, the awnings, the sign plates). Dockyard2 is a sand-and-yellow harbour, the Lobby a dark concrete bunker; this
+# is warmer and rosier than both with a blue spike. Team colours (cyan, orange-red) and glitch magenta stay off it.
+# Lessons from Dockyard2 built in from the start: no Roblox Metal on painted surfaces (it mirrors the sky), clean
+# SmoothPlastic paint with the geometry carrying the detail, signage plates and painted words for wayfinding, warm
+# practical glow strips, a neutral-cool shade against a warm sun.
+
+PALETTE: dict[str, tuple[str, str, str]] = {
+    # big calm surfaces
+    "Roof": ("B5735A", "Slate", "Roof2_Tile"),  # team-roof tiles (the ground band)
+    "RoofPit": ("A88C72", "Slate", "Roof2_Tile"),  # the Pit's roof, cooler
+    "Wall": ("D9C9A8", "Concrete", "Roof2_Plaster"),  # facades (tinted per building from TONE)
+    "Plinth": ("9F8E78", "Concrete", "Roof2_Plaster"),  # street storey, flue bases
+    # clean SmoothPlastic trims
+    "Trim": ("F2EEE4", "SmoothPlastic", ""),  # cornices, sills, frames, coping
+    "Ledge": ("C9BFAE", "SmoothPlastic", ""),  # alley ledges and sills
+    "Charcoal": ("3A3F47", "SmoothPlastic", ""),  # steel: stairs, stands, frames, hardware
+    "Metal": ("8C949C", "SmoothPlastic", ""),  # AC units, condensers, vents (painted, never Roblox Metal)
+    "Window": ("7FA6BF", "SmoothPlastic", ""),  # window glass (opaque, sky-tinted)
+    "Glass": ("BFD8E8", "Glass", ""),  # skylights
+    "Accent": ("2F62C8", "SmoothPlastic", ""),  # cobalt: tank, awnings, sign plates (the 10% spike)
+    "White": ("F7F4EC", "SmoothPlastic", ""),  # sign faces, letters
+    "Wood": ("A7865E", "SmoothPlastic", ""),  # planks, planter boxes, tank staves
+    "Plant": ("6B9A55", "SmoothPlastic", ""),  # planter greenery
+    "Hazard": ("E8B53A", "SmoothPlastic", ""),  # stair nosings, rail tops
+    "SignWest": ("E89A3C", "SmoothPlastic", ""),  # west-side words (amber)
+    "SignEast": ("5AA8D8", "SmoothPlastic", ""),  # east-side words (sky)
+    "SignPit": ("2F62C8", "SmoothPlastic", ""),  # the middle (cobalt)
+    "Asphalt": ("4A4C52", "Asphalt", ""),  # the street far below
+    "Sidewalk": ("A39D92", "Concrete", ""),
+    "RoadLine": ("E8DFC2", "SmoothPlastic", ""),
+    "Backfill": ("B9A992", "SmoothPlastic", ""),  # far city blocks
+    # Neon, thin only
+    "GlowWarm": ("FFE2B8", "Neon", ""),
+    "GlowWest": ("FFB14A", "Neon", ""),
+    "GlowEast": ("7CD0FF", "Neon", ""),
+}
+
+# Facade plaster per building ("Wall" parts take these by the placement's tone).
+TONE = {"teamA": "D9A07A", "teamB": "9DB5A5", "tower": "DCCCAB", "pit": "CDBB98"}
+FRAME_SHADE = 0.8
+BACKDROP = ["C9B79A", "B9A07F", "A9B5A2", "D2BFA0", "9FA9B3", "C4A48A"]
+
+BEVEL = {"primary": 0.45, "secondary": 0.14, "tertiary": 0.05}
+SEGMENTS = {"primary": 2, "secondary": 2, "tertiary": 1}
+
+# The Lobby's painted textures (near-neutral greys; BasePart.Color sets the hue), as Rooftops2 variants.
+VARIANTS = {
+    "Roof2_Plaster": ("Concrete", 16, "104737392584669", "93691597282176", "95184551126688"),
+    "Roof2_Tile": ("Slate", 12, "73383285439881", "99655568297239", "99239709018479"),
+}
+
+# Golden afternoon (LihFolk Stylized Lighting Recipes 3.1 base, warm sun against cool shade). The sun stands across
+# the map along X (GeographicLatitude chosen in Studio so GetSunDirection().Z ~ 0), lower than Dockyard2's.
+LIGHTING = {
+    "ClockTime": 16.3,
+    "GeographicLatitude": 23.5,
+    "Brightness": 2.5,
+    "Ambient": (114, 114, 126),
+    "OutdoorAmbient": (152, 156, 176),
+    "ColorShift_Top": (255, 204, 150),
+    "ColorShift_Bottom": (0, 0, 0),
+    "EnvironmentDiffuseScale": 0.2,
+    "EnvironmentSpecularScale": 0.15,
+    "ExposureCompensation": 0.1,
+    "GlobalShadows": True,
+    "ShadowSoftness": 0.2,
+}
+FX = {
+    "Atmosphere": {"Density": 0.32, "Offset": 0.22, "Color": (236, 210, 184), "Decay": (160, 150, 196), "Glare": 0.35, "Haze": 1.5},
+    "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
+    "Grade": {"Brightness": 0.02, "Contrast": 0.08, "Saturation": 0.08, "TintColor": (255, 244, 232)},
+    "SunRays": {"Intensity": 0.1, "Spread": 0.5},
+}
+LAMP = {"color": (255, 214, 170), "brightness": 1.6, "range": 30}
+
+
+def hex_rgb(h: str) -> tuple[int, int, int]:
+    return int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+
+
+def shade(h: str, k: float) -> str:
+    r, g, b = hex_rgb(h)
+    return "%02X%02X%02X" % tuple(max(0, min(255, round(c * k))) for c in (r, g, b))
+
+
+# ---------------------------------------------------------------- outputs
+
+def _lua(v) -> str:
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    if isinstance(v, (int, float)):
+        return f"{v:g}"
+    if isinstance(v, str):
+        return json.dumps(v)
+    if isinstance(v, tuple) and len(v) == 3:
+        return f"Color3.fromRGB({v[0]}, {v[1]}, {v[2]})"
+    raise TypeError(v)
+
+
+def style_block(parts: dict[str, str]) -> str:
+    lines = ["local ROLE: { [string]: RoleLook } = {"]
+    for role, (hx, mat, var) in PALETTE.items():
+        lines.append(f'\t{role} = {{ color = "{hx}", material = "{mat}", variant = "{var}" }},')
+    lines.append("}")
+    lines.append("local TONE: { [string]: string } = { " + ", ".join(f'{k} = "{v}"' for k, v in TONE.items()) + " }")
+    lines.append(f"local FRAME_SHADE = {FRAME_SHADE:g}")
+    lines.append("local BACKDROP: { string } = { " + ", ".join(f'"{c}"' for c in BACKDROP) + " }")
+    lines.append("local VARIANTS: { [string]: { any } } = {")
+    for name, (base, tile, cm, nm, rm) in VARIANTS.items():
+        lines.append(f'\t{name} = {{ "{base}", {tile}, "{cm}", "{nm}", "{rm}" }},')
+    lines.append("}")
+    lines.append("local PART_ROLE: { [string]: string } = {")
+    for name in sorted(parts):
+        lines.append(f'\t["{name}"] = "{parts[name]}",')
+    lines.append("}")
+    return "\n".join(lines)
+
+
+def light_block() -> str:
+    lines = ["local PROPS: { [string]: any } = {"]
+    for k, v in LIGHTING.items():
+        lines.append(f"\t{k} = {_lua(v)},")
+    lines.append("}")
+    lines.append("local FX: { [string]: { [string]: any } } = {")
+    for k, d in FX.items():
+        lines.append(f"\t{k} = {{ " + ", ".join(f"{p} = {_lua(v)}" for p, v in d.items()) + " },")
+    lines.append("}")
+    lines.append(
+        f"local LAMP = {{ color = {_lua(LAMP['color'])}, brightness = {LAMP['brightness']:g}, range = {LAMP['range']:g} }}"
+    )
+    return "\n".join(lines)
+
+
+def part_roles() -> dict[str, str]:
+    path = ROOT / f"art-source/maps/{MAP}/Exports/Kit.json"
+    if not path.exists():
+        print("no kit export yet: PART_ROLE left empty")
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    out = {}
+    for p in data["parts"]:
+        m = p.get("material") or ""
+        if m.startswith("R2_"):
+            out[p["name"]] = m[3:]
+    return out
+
+
+def write_block(rel: str, tag: str, body: str) -> None:
+    path = ROOT / rel
+    text = path.read_text(encoding="utf-8")
+    block = (
+        f"-- BEGIN {tag} (generated by tools/maps/rooftops2_style.py --luau; edit the values there)\n"
+        "-- stylua: ignore start\n" + body + "\n-- stylua: ignore end\n" + f"-- END {tag}"
+    )
+    new, n = re.subn(rf"-- BEGIN {tag}.*?-- END {tag}", lambda m: block, text, flags=re.S)
+    assert n == 1, f"no {tag} block in {rel}"
+    path.write_text(new, encoding="utf-8", newline="\n")
+    print(f"Wrote the {tag} block of {rel}")
+
+
+def palette_svg() -> str:
+    rows = [(k, v[0], f"{v[1]}{' / ' + v[2] if v[2] else ''}") for k, v in PALETTE.items()]
+    rows += [(f"Plaster {k}", v, "Concrete / Roof2_Plaster") for k, v in TONE.items()]
+    w, rh = 760, 34
+    h = 90 + rh * ((len(rows) + 1) // 2) + 110
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" font-family="Segoe UI, Arial, sans-serif">',
+         f'<rect width="{w}" height="{h}" fill="#1B2233"/>',
+         '<text x="24" y="40" font-size="24" font-weight="700" fill="#F4F1EA">Rooftops2 palette</text>',
+         '<text x="24" y="64" font-size="13" fill="#B9BDCB">tools/maps/rooftops2_style.py (roles; Studio applies them, so a change needs no upload)</text>']
+    for i, (name, hx, mat) in enumerate(rows):
+        x = 24 + (i % 2) * 370
+        y = 86 + (i // 2) * rh
+        o.append(f'<rect x="{x}" y="{y}" width="44" height="26" rx="4" fill="#{hx}" stroke="#0E1320"/>')
+        o.append(f'<text x="{x + 54}" y="{y + 12}" font-size="13" font-weight="700" fill="#F4F1EA">{name}</text>')
+        o.append(f'<text x="{x + 54}" y="{y + 25}" font-size="11" fill="#B9BDCB">#{hx}  {mat}</text>')
+    y = 86 + rh * ((len(rows) + 1) // 2) + 16
+    o.append(f'<text x="24" y="{y}" font-size="13" font-weight="700" fill="#F4F1EA">Far city blocks</text>')
+    for i, hx in enumerate(BACKDROP):
+        o.append(f'<rect x="{24 + i * 54}" y="{y + 10}" width="46" height="26" rx="4" fill="#{hx}" stroke="#0E1320"/>')
+    o.append(f'<text x="24" y="{y + 62}" font-size="12" fill="#B9BDCB">Bevels: primary {BEVEL["primary"]}, secondary {BEVEL["secondary"]}, tertiary {BEVEL["tertiary"]} studs. Sun ClockTime {LIGHTING["ClockTime"]}, latitude {LIGHTING["GeographicLatitude"]}.</text>')
+    o.append(f'<text x="24" y="{y + 80}" font-size="12" fill="#B9BDCB">Reserved, never on the map: team cyan #00E5FF, team orange-red #FF5A36.</text>')
+    o.append("</svg>")
+    return "\n".join(o)
+
+
+if __name__ == "__main__":
+    if "--svg" in sys.argv:
+        out = ROOT / "vault/02 Art/References/maps/rooftops2/rooftops2-palette.svg"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(palette_svg(), encoding="utf-8")
+        print(f"Wrote {out}")
+    if "--luau" in sys.argv:
+        write_block("tools/studio/maps/Rooftops2/Art.luau", "STYLE", style_block(part_roles()))
+        write_block("tools/studio/maps/Rooftops2/Lighting.luau", "LIGHT", light_block())
