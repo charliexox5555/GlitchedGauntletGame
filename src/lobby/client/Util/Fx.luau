@@ -1,9 +1,14 @@
 --!strict
--- Lobby UI motion kit (vault/02 Art/UI Design.md → Motion): hover lift, press
--- pop through UIScale (never Size), a light sweep, a breathing glow, a spinner
--- and a tiny chromatic "glitch" twitch for accents. Plain TweenService: a newer
--- tween on the same property replaces the older one, so calls can overlap.
+-- Lobby UI motion kit. Timings are named tokens (LihFolk: UI Motion Language
+-- and Timing; LihFolk UI Spec): feedback 0.05-0.1 s, exits 0.12 s with In
+-- easing and no overshoot, entrances about 0.22 s, big reveals 0.4 s. Pops and
+-- presses use a child "PopScale" UIScale (the cluster's "Fit" UIScale is
+-- Layout's). Reduced motion (GuiService.ReducedMotionEnabled or the Settings
+-- toggle) turns movement into fades: positions, sizes, rotations and pops jump
+-- to their end value, loops and sweeps stop, transparency and colour still ease.
+-- Idle loops pause while their ScreenGui is disabled.
 
+local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
@@ -14,13 +19,64 @@ local Fx = {}
 
 local C = Theme.COLORS
 
+Fx.MOTION = table.freeze({
+	press = 0.05,
+	hover = 0.1,
+	exit = 0.12,
+	dimIn = 0.18,
+	dimOut = 0.12,
+	enter = 0.22,
+	settle = 0.28, -- press release / pop settle (Back Out)
+	reveal = 0.4, -- MATCH FOUND, the bars' entrance
+	stagger = 0.04, -- per item; totals stay under 0.4 s
+})
+
+Fx.HOVER_SCALE = 1.04
+Fx.PRESS_SCALE = 0.96
+Fx.HOVER_LIFT = 3
+
+local reducedOverride: boolean? = nil
+
+function Fx.reduced(): boolean
+	if reducedOverride ~= nil then
+		return reducedOverride
+	end
+	local ok, v = pcall(function()
+		return (GuiService :: any).ReducedMotionEnabled
+	end)
+	return ok and v == true
+end
+
+-- The Settings toggle (nil = follow the Roblox setting).
+function Fx.setReduced(on: boolean?)
+	reducedOverride = on
+end
+
+local MOVEMENT = { Position = true, Size = true, Rotation = true, Scale = true, Offset = true }
+
 function Fx.tween(
 	obj: Instance,
 	time: number,
 	props: { [string]: any },
 	style: Enum.EasingStyle?,
 	direction: Enum.EasingDirection?
-): Tween
+): Tween?
+	if Fx.reduced() then
+		local rest: { [string]: any } = {}
+		local any = false
+		for k, v in props do
+			if MOVEMENT[k] then
+				(obj :: any)[k] = v
+			else
+				rest[k] = v
+				any = true
+			end
+		end
+		if not any then
+			return nil
+		end
+		props = rest
+	end
 	local tween = TweenService:Create(
 		obj,
 		TweenInfo.new(time, style or Enum.EasingStyle.Quint, direction or Enum.EasingDirection.Out),
@@ -30,15 +86,66 @@ function Fx.tween(
 	return tween
 end
 
--- A looping tween (Sine in/out, reversing) for glows and pulses. Returns it so
--- the caller can :Cancel() it.
-function Fx.loop(obj: Instance, time: number, props: { [string]: any }): Tween
+-- Exits: fast, In easing, no overshoot.
+function Fx.out(obj: Instance, props: { [string]: any }): Tween?
+	return Fx.tween(obj, Fx.MOTION.exit, props, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+end
+
+-- Idle loops, grouped per ScreenGui so they pause while it's hidden.
+local loopsByGui: { [Instance]: { Tween } } = setmetatable({}, { __mode = "k" }) :: any
+
+local function watch(gui: LayerCollector, tween: Tween)
+	local list = loopsByGui[gui]
+	if not list then
+		list = {}
+		loopsByGui[gui] = list
+		if gui:IsA("ScreenGui") then
+			gui:GetPropertyChangedSignal("Enabled"):Connect(function()
+				for _, t in loopsByGui[gui] or {} do
+					if gui.Enabled and not Fx.reduced() then
+						t:Play()
+					else
+						t:Pause()
+					end
+				end
+			end)
+		end
+	end
+	table.insert(list, tween)
+end
+
+-- A looping tween (Sine in/out, reversing by default) for glows, pulses and
+-- spinners. Skipped under reduced motion when it moves things.
+function Fx.loop(obj: Instance, time: number, props: { [string]: any }, reverses: boolean?): Tween?
+	local moves = false
+	for k in props do
+		if MOVEMENT[k] then
+			moves = true
+		end
+	end
+	if moves and Fx.reduced() then
+		return nil
+	end
 	local tween = TweenService:Create(
 		obj,
-		TweenInfo.new(time, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+		TweenInfo.new(
+			time,
+			Enum.EasingStyle.Sine,
+			Enum.EasingDirection.InOut,
+			-1,
+			if reverses == nil then true else reverses
+		),
 		props
 	)
-	tween:Play()
+	local gui = obj:FindFirstAncestorWhichIsA("LayerCollector")
+	if gui then
+		watch(gui, tween)
+		if not gui:IsA("ScreenGui") or gui.Enabled then
+			tween:Play()
+		end
+	else
+		tween:Play()
+	end
 	return tween
 end
 
@@ -55,9 +162,12 @@ end
 
 -- Pop: scale up a touch, then settle back with Back easing.
 function Fx.pop(obj: GuiObject, amount: number?)
+	if Fx.reduced() then
+		return
+	end
 	local s = Fx.scale(obj)
 	s.Scale = amount or 1.08
-	Fx.tween(s, 0.28, { Scale = 1 }, Enum.EasingStyle.Back)
+	Fx.tween(s, Fx.MOTION.settle, { Scale = 1 }, Enum.EasingStyle.Back)
 end
 
 -- A soft light band that sweeps across `parent` once each time the returned
@@ -74,7 +184,6 @@ function Fx.shine(parent: GuiObject, color: Color3?, strength: number?): () -> (
 	local band = Instance.new("Frame")
 	band.BorderSizePixel = 0
 	band.BackgroundColor3 = color or C.white
-	band.BackgroundTransparency = 0
 	band.Size = UDim2.fromScale(0.6, 1)
 	band.AnchorPoint = Vector2.new(0.5, 0)
 	band.Position = UDim2.fromScale(-0.4, 0)
@@ -91,39 +200,83 @@ function Fx.shine(parent: GuiObject, color: Color3?, strength: number?): () -> (
 	})
 	gradient.Parent = band
 	return function()
+		if Fx.reduced() then
+			return
+		end
 		band.Position = UDim2.fromScale(-0.4, 0)
-		Fx.tween(band, 0.55, { Position = UDim2.fromScale(1.4, 0) }, Enum.EasingStyle.Quad)
+		TweenService:Create(band, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+			Position = UDim2.fromScale(1.4, 0),
+		}):Play()
 	end
+end
+
+-- The gamepad focus ring (LihFolk: Gamepad and Console UX): a 3 px gold
+-- outline, shared by every lobby button through SelectionImageObject.
+local ring = Instance.new("Frame")
+ring.Name = "LobbySelectionRing"
+ring.BackgroundTransparency = 1
+ring.Size = UDim2.new(1, 8, 1, 8)
+ring.Position = UDim2.fromOffset(-4, -4)
+local ringStroke = Instance.new("UIStroke")
+ringStroke.Color = C.gold
+ringStroke.Thickness = 3
+ringStroke.Parent = ring
+
+-- Each button's resting position, so hover lifts and entrances share one base.
+local bases: { [GuiObject]: UDim2 } = setmetatable({}, { __mode = "k" }) :: any
+
+function Fx.base(obj: GuiObject): UDim2
+	return bases[obj] or obj.Position
 end
 
 export type ButtonOptions = {
 	lift: GuiObject?, -- object whose Position lifts on hover (default: none)
-	liftBy: number?, -- design px (default 6)
+	liftBy: number?, -- design px (default Fx.HOVER_LIFT)
 	onHover: ((boolean) -> ())?,
 	shine: (() -> ())?,
 	silent: boolean?,
 	enabled: (() -> boolean)?,
+	noScale: boolean?, -- skip the 1.04 hover scale (big cards)
 }
 
--- Hover / press / click feel for any GuiButton. `onClick` runs on Activated.
+-- Hover / press / click feel for any GuiButton. `onClick` runs on Activated
+-- (mouse, touch and gamepad). Full-size buttons are re-anchored at their centre
+-- so the hover and press scale from the middle without moving the layout.
 function Fx.button(button: GuiButton, onClick: () -> (), opts: ButtonOptions?)
 	local o: ButtonOptions = opts or {}
+	if
+		button.AnchorPoint == Vector2.zero
+		and button.Position == UDim2.new()
+		and button.Size == UDim2.fromScale(1, 1)
+	then
+		button.AnchorPoint = Vector2.new(0.5, 0.5)
+		button.Position = UDim2.fromScale(0.5, 0.5)
+	end
+	button.SelectionImageObject = ring
 	local scale = Fx.scale(button)
-	local liftBy = o.liftBy or 6
-	local basePos: UDim2? = if o.lift then o.lift.Position else nil
+	local liftBy = o.liftBy or Fx.HOVER_LIFT
+	if o.lift then
+		bases[o.lift] = o.lift.Position
+	end
 	local hovering = false
+	local rest = 1
 
 	local function setHover(on: boolean)
 		if hovering == on then
 			return
 		end
 		hovering = on
+		rest = if on and not o.noScale then Fx.HOVER_SCALE else 1
 		if on and not o.silent then
 			Sound.play("Hover")
 		end
-		if o.lift and basePos then
-			local target = if on then basePos + UDim2.fromOffset(0, -liftBy) else basePos
-			Fx.tween(o.lift, if on then 0.18 else 0.14, { Position = target })
+		Fx.tween(scale, Fx.MOTION.hover, { Scale = rest }, Enum.EasingStyle.Quad)
+		local lift = o.lift
+		if lift then
+			local base = Fx.base(lift)
+			Fx.tween(lift, Fx.MOTION.hover, {
+				Position = if on then base + UDim2.fromOffset(0, -liftBy) else base,
+			}, Enum.EasingStyle.Quad)
 		end
 		if on and o.shine then
 			o.shine()
@@ -138,7 +291,6 @@ function Fx.button(button: GuiButton, onClick: () -> (), opts: ButtonOptions?)
 	end)
 	button.MouseLeave:Connect(function()
 		setHover(false)
-		Fx.tween(scale, 0.14, { Scale = 1 })
 	end)
 	button.SelectionGained:Connect(function()
 		setHover(true)
@@ -146,27 +298,41 @@ function Fx.button(button: GuiButton, onClick: () -> (), opts: ButtonOptions?)
 	button.SelectionLost:Connect(function()
 		setHover(false)
 	end)
-	button.MouseButton1Down:Connect(function()
-		Fx.tween(scale, 0.07, { Scale = 0.95 }, Enum.EasingStyle.Quad)
+	button.InputBegan:Connect(function(input)
+		local t = input.UserInputType
+		if
+			t == Enum.UserInputType.MouseButton1
+			or t == Enum.UserInputType.Touch
+			or input.KeyCode == Enum.KeyCode.ButtonA
+		then
+			Fx.tween(scale, Fx.MOTION.press, { Scale = Fx.PRESS_SCALE }, Enum.EasingStyle.Quad)
+		end
 	end)
 	button.Activated:Connect(function()
 		if o.enabled and not o.enabled() then
 			Sound.play("Denied")
 			Fx.shake(button)
-			Fx.tween(scale, 0.2, { Scale = 1 }, Enum.EasingStyle.Back)
+			Fx.tween(scale, Fx.MOTION.settle, { Scale = rest }, Enum.EasingStyle.Back)
 			return
 		end
 		if not o.silent then
 			Sound.play("Select")
 		end
-		scale.Scale = 0.95
-		Fx.tween(scale, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+		Fx.tween(scale, Fx.MOTION.settle, { Scale = rest }, Enum.EasingStyle.Back)
 		onClick()
 	end)
 end
 
--- A short horizontal shake (denied / not allowed).
+-- A short horizontal shake (denied / not allowed). Reduced motion: a red flash.
 function Fx.shake(obj: GuiObject)
+	if Fx.reduced() then
+		if obj:IsA("ImageButton") or obj:IsA("ImageLabel") then
+			local before = obj.ImageColor3
+			obj.ImageColor3 = C.enemy
+			Fx.tween(obj, 0.3, { ImageColor3 = before })
+		end
+		return
+	end
 	local base = obj.Position
 	task.spawn(function()
 		for _, dx in { 8, -7, 5, -3, 0 } do
@@ -177,7 +343,7 @@ function Fx.shake(obj: GuiObject)
 	end)
 end
 
--- A small rotating diamond, used for "searching".
+-- A small rotating diamond, used for "searching". Reduced motion: it only pulses.
 function Fx.spinner(parent: Instance, size: number, color: Color3, props: { [string]: any }?): Frame
 	local holder = Instance.new("Frame")
 	holder.BackgroundTransparency = 1
@@ -204,22 +370,17 @@ function Fx.spinner(parent: Instance, size: number, color: Color3, props: { [str
 	inner.BackgroundColor3 = color
 	inner.Rotation = 45
 	inner.Parent = holder
-	TweenService:Create(
-		outer,
-		TweenInfo.new(1.1, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, -1),
-		{ Rotation = 45 + 180 }
-	):Play()
-	Fx.loop(inner, 0.55, { BackgroundTransparency = 0.6 })
 	holder.Parent = parent
+	Fx.loop(outer, 1.1, { Rotation = 45 + 180 }, false)
+	Fx.loop(inner, 0.55, { BackgroundTransparency = 0.6 })
 	return holder
 end
 
 -- The subtle glitch accent: a cyan and a magenta copy of a label flick out to
--- either side for a few frames. Use sparingly (hover on the hero button,
--- "MATCH FOUND").
+-- either side for a few frames. Used on the hero buttons and MATCH FOUND only.
 function Fx.glitch(label: TextLabel)
 	local parent = label.Parent
-	if not parent then
+	if not parent or Fx.reduced() then
 		return
 	end
 	for i, color in { C.ally, C.glitch } do
@@ -234,10 +395,10 @@ function Fx.glitch(label: TextLabel)
 		ghost.Parent = parent
 		local dx = if i == 1 then -3 else 3
 		ghost.Position = label.Position + UDim2.fromOffset(dx, 0)
-		Fx.tween(ghost, 0.16, {
+		TweenService:Create(ghost, TweenInfo.new(0.16, Enum.EasingStyle.Quad), {
 			Position = label.Position,
 			TextTransparency = 1,
-		}, Enum.EasingStyle.Quad)
+		}):Play()
 		task.delay(0.2, function()
 			ghost:Destroy()
 		end)

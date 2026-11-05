@@ -4,8 +4,10 @@
 -- world blurs and desaturates behind it and the character stops walking.
 -- Menus register { open(arg), close() }; the HUD listens to `onChanged`.
 
+local GuiService = game:GetService("GuiService")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local Fx = require(script.Parent.Fx)
@@ -14,6 +16,8 @@ local Sound = require(script.Parent.Sound)
 export type Menu = {
 	open: (arg: any?) -> (),
 	close: () -> (),
+	-- The button gamepad selection starts on (LihFolk: Gamepad and Console UX).
+	focus: (() -> GuiObject?)?,
 }
 
 local Router = {}
@@ -59,12 +63,13 @@ local function setWorldDimmed(on: boolean)
 	if on then
 		blur.Enabled = true
 		grade.Enabled = true
-		Fx.tween(blur, 0.3, { Size = BLUR_SIZE })
-		Fx.tween(grade, 0.3, { Saturation = SATURATION })
+		-- Blur Size isn't motion, so it eases under reduced motion too.
+		TweenService:Create(blur, TweenInfo.new(Fx.MOTION.dimIn), { Size = BLUR_SIZE }):Play()
+		Fx.tween(grade, Fx.MOTION.dimIn, { Saturation = SATURATION })
 	else
-		Fx.tween(blur, 0.2, { Size = 0 }, Enum.EasingStyle.Quad)
-		Fx.tween(grade, 0.2, { Saturation = 0 }, Enum.EasingStyle.Quad)
-		task.delay(0.22, function()
+		TweenService:Create(blur, TweenInfo.new(Fx.MOTION.dimOut), { Size = 0 }):Play()
+		Fx.tween(grade, Fx.MOTION.dimOut, { Saturation = 0 }, Enum.EasingStyle.Quad)
+		task.delay(Fx.MOTION.dimOut + 0.02, function()
 			if current == nil then
 				blur.Enabled = false
 				grade.Enabled = false
@@ -115,6 +120,13 @@ function Router.open(name: string, arg: any?)
 	end
 	current = name
 	menu.open(arg)
+	-- Gamepad selection lands inside the menu at the start of its entrance.
+	if menu.focus and UserInputService.GamepadEnabled then
+		local target = menu.focus()
+		if target then
+			GuiService.SelectedObject = target
+		end
+	end
 	notify()
 end
 
@@ -125,6 +137,7 @@ function Router.close()
 	end
 	current = nil
 	menus[name].close()
+	GuiService.SelectedObject = nil
 	Sound.play("Close")
 	setWorldDimmed(false)
 	notify()
@@ -142,12 +155,17 @@ function Router.onChanged(cb: (string?) -> ())
 	table.insert(listeners, cb)
 end
 
--- Gamepad B / keyboard Backspace back out of a menu (Esc belongs to Roblox).
+-- Gamepad B / keyboard Backspace back out of a menu. Esc can't be used: Roblox
+-- reserves it for its own menu, so it never reaches the game unprocessed.
 UserInputService.InputBegan:Connect(function(input, processed)
-	if processed or not current then
+	if not current then
 		return
 	end
-	if input.KeyCode == Enum.KeyCode.ButtonB or input.KeyCode == Enum.KeyCode.Backspace then
+	-- B is "processed" while a button is selected, so it doesn't check that flag.
+	if
+		input.KeyCode == Enum.KeyCode.ButtonB
+		or (input.KeyCode == Enum.KeyCode.Backspace and not processed)
+	then
 		Router.close()
 	end
 end)

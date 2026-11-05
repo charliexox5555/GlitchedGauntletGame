@@ -205,23 +205,39 @@ local function leave(player: Player)
 	updateCounts()
 end
 
+-- Rejected requests are dropped and counted, never kicked; a summary is
+-- logged once per interval (LihFolk: Rate Limiting and Abuse Prevention;
+-- False Positives Lag and Fair Enforcement).
+local rejects: { [string]: number } = {}
+
+local function reject(reason: string)
+	rejects[reason] = (rejects[reason] or 0) + 1
+end
+
 local function onRequest(player: Player, action: unknown, mode: unknown)
 	if not limiter:allow(player, "QueueRequest") then
+		reject("rate")
 		return
 	end
 	if typeof(action) ~= "string" then
+		reject("badAction")
 		return
 	end
 	if action == "join" then
 		if typeof(mode) ~= "string" or #mode > 8 then
+			reject("badMode")
 			return
 		end
 		local info = Config.MODE_BY_ID[mode :: string]
 		if info and info.enabled then
 			join(player, info)
+		else
+			reject("unknownMode")
 		end
 	elseif action == "leave" then
 		leave(player)
+	else
+		reject("badAction")
 	end
 end
 
@@ -248,6 +264,24 @@ function QueueService.start()
 		end
 		states[player] = nil
 		limiter:forget(player)
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(Config.rejectLogInterval)
+			if next(rejects) then
+				local parts = {}
+				for reason, n in rejects do
+					table.insert(parts, `{reason}={n}`)
+				end
+				warn(
+					`[Queue] rejected QueueRequest in the last {Config.rejectLogInterval} s: {table.concat(
+						parts,
+						", "
+					)}`
+				)
+				table.clear(rejects)
+			end
+		end
 	end)
 	while true do
 		task.wait(Config.tickInterval)

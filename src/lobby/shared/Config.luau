@@ -62,10 +62,11 @@ return table.freeze({
 	-- How often the server re-checks queues for bot fill.
 	tickInterval = 0.5,
 
-	-- Reserving a Match server and teleporting: attempts and backoff (seconds).
-	reserveAttempts = 3,
-	teleportAttempts = 3,
-	retryBackoff = { 1, 2, 4 },
+	-- Teleporting (LihFolk: Teleporting and Multi-Place Games; Error Handling and
+	-- Retries): attempts per player, and the backoff after a thrown TeleportAsync.
+	-- Failure / Flooded results wait 2 / 10 s instead (Matchmaking/Launcher).
+	teleportAttempts = 4,
+	retryBackoff = { 1, 2, 4, 8 },
 	-- A player still here this long after their teleport started is returned
 	-- to the lobby state with a message.
 	teleportTimeout = 25,
@@ -73,6 +74,9 @@ return table.freeze({
 	studioHold = 6,
 
 	-- Remote token buckets { perSecond, burst } (Shared/Util/RateLimit).
+	-- Remote token buckets about 2x the fastest honest use; rejects are dropped
+	-- and counted, never kicked (LihFolk: Rate Limiting and Abuse Prevention).
+	rejectLogInterval = 60,
 	RATE = {
 		QueueRequest = { 2, 4 },
 	},

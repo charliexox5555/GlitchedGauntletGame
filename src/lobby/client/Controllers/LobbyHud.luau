@@ -3,7 +3,12 @@
 -- level on the left; currency and settings on the right), a bottom bar of
 -- tiles (Locker, Shop, PLAY, Battle Pass, Range) that open menus through the
 -- Router, the "searching" pill while you're queued with the menu closed, and
--- toasts. Layout is in 1920 x 1080 design px, scaled per cluster by Ui.fit.
+-- toasts. Desktop layout is the Figma 1920 x 1080 frame; phones (short side
+-- under 520 px) get their own arrangement on an 800 x 420 canvas: compact
+-- tiles that clear the thumbstick and jump zones, a slimmer profile, the pill
+-- under the top bar, and the HUD hidden behind open menus (LihFolk: HUD Design,
+-- Responsive UI for Phone Tablet Console and PC). Each cluster has one Fit
+-- UIScale from Util/Layout, which also keeps drawn text at 12 px or more.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +18,7 @@ local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local Fx = require(script.Parent.Parent.Util.Fx)
 local Icons = require(script.Parent.Parent.Util.Icons)
+local Layout = require(script.Parent.Parent.Util.Layout)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
 local Sound = require(script.Parent.Parent.Util.Sound)
@@ -23,13 +29,19 @@ local LobbyHud = {}
 local C = Theme.COLORS
 local player = Players.LocalPlayer
 
-type Tile = { id: string, label: string, menu: string, icon: string? }
+type Tile = { id: string, label: string, short: string?, menu: string, icon: string? }
 
 local TILES: { Tile } = {
 	{ id = "Locker", label = "LOCKER", menu = "Locker", icon = "Locker" },
 	{ id = "Shop", label = "SHOP", menu = "Shop", icon = "Shop" },
 	{ id = "Play", label = "PLAY", menu = "Queue" },
-	{ id = "BattlePass", label = "BATTLE PASS", menu = "BattlePass", icon = "BattlePass" },
+	{
+		id = "BattlePass",
+		label = "BATTLE PASS",
+		short = "PASS",
+		menu = "BattlePass",
+		icon = "BattlePass",
+	},
 	{ id = "Range", label = "RANGE", menu = "Range", icon = "Range" },
 }
 
@@ -63,7 +75,14 @@ local toastToken = 0
 
 local BOTTOM_SHOWN = UDim2.new(0.5, 0, 1, -20)
 local BOTTOM_HIDDEN = UDim2.new(0.5, 0, 1, 220)
+local PHONE = Layout.isPhone()
+-- Phone: the pill sits under the profile and wallet instead of between them.
 local PILL_SHOWN = UDim2.new(0.5, 0, 0, 14)
+local TILE_W, TILE_H = Layout.pick(168, 96), Layout.pick(104, 84)
+local PLAY_W, PLAY_H = Layout.pick(320, 168), Layout.pick(124, 96)
+local TITLE_PLAY = Layout.pick(56, 40)
+local TITLE_SEARCH = Layout.pick(48, 26)
+local TITLE_FOUND = Layout.pick(40, 22)
 local PILL_HIDDEN = UDim2.new(0.5, 0, 0, -120)
 
 local function modeTitle(mode: string?): string
@@ -78,10 +97,10 @@ local function buildProfile()
 		Name = "Profile",
 		AnchorPoint = Vector2.new(0, 0),
 		Position = UDim2.fromOffset(20, 14),
-		Size = UDim2.fromOffset(420, 80),
+		Size = UDim2.fromOffset(Layout.pick(420, 240), 80),
 		BackgroundTransparency = 1,
 	}, gui)
-	Ui.fit(topLeft)
+	Layout.fit(topLeft, "hud")
 	local card = Ui.cut(topLeft, { Size = UDim2.fromScale(1, 1) }, {
 		color = C.panel,
 		transparency = 0.12,
@@ -115,7 +134,7 @@ local function buildProfile()
 	end)
 	Ui.text(card, player.DisplayName, "titleS", {
 		Position = UDim2.fromOffset(86, 10),
-		Size = UDim2.fromOffset(310, 28),
+		Size = UDim2.fromOffset(Layout.pick(310, 144), 28),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		ZIndex = 4,
@@ -136,6 +155,7 @@ local function buildProfile()
 	local bar = Ui.make("Frame", {
 		Position = UDim2.fromOffset(140, 53),
 		Size = UDim2.fromOffset(190, 6),
+		Visible = not PHONE,
 		BackgroundColor3 = C.raised,
 		BorderSizePixel = 0,
 		ZIndex = 4,
@@ -147,6 +167,7 @@ local function buildProfile()
 		ZIndex = 5,
 	}, bar)
 	Ui.text(card, "0 XP", "label", {
+		Visible = not PHONE,
 		Position = UDim2.fromOffset(340, 45),
 		Size = UDim2.fromOffset(70, 20),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -179,7 +200,7 @@ local function buildTopRight()
 		Size = UDim2.fromOffset(320, 80),
 		BackgroundTransparency = 1,
 	}, gui)
-	Ui.fit(topRight)
+	Layout.fit(topRight, "hud")
 	Ui.make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Right,
@@ -255,7 +276,7 @@ end
 local function sideTile(tile: Tile, order: number)
 	local holder = Ui.make("Frame", {
 		Name = tile.id,
-		Size = UDim2.fromOffset(168, 104),
+		Size = UDim2.fromOffset(TILE_W, TILE_H),
 		BackgroundTransparency = 1,
 		LayoutOrder = order,
 	}, bottom)
@@ -274,18 +295,19 @@ local function sideTile(tile: Tile, order: number)
 		BorderSizePixel = 0,
 		ZIndex = 6,
 	}, button)
-	local icon = Icons.draw(button, tile.icon or tile.id, 38, C.textSecondary, {
+	local icon = Icons.draw(button, tile.icon or tile.id, Layout.pick(38, 30), C.textSecondary, {
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(84, 16),
+		Position = UDim2.fromOffset(TILE_W / 2, Layout.pick(16, 12)),
 		ZIndex = 4,
 	})
-	local label = Ui.text(button, tile.label, "titleS", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(84, 64),
-		Size = UDim2.fromOffset(160, 26),
-		TextColor3 = C.textSecondary,
-		ZIndex = 4,
-	})
+	local label =
+		Ui.text(button, if PHONE then tile.short or tile.label else tile.label, "titleS", {
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.fromOffset(TILE_W / 2, TILE_H - 40),
+			Size = UDim2.fromOffset(TILE_W - 8, 26),
+			TextColor3 = C.textSecondary,
+			ZIndex = 4,
+		})
 	local shine = Fx.shine(button)
 	local iconBase = icon.Position
 	Fx.button(button, function()
@@ -316,7 +338,7 @@ end
 local function playTile(order: number)
 	local holder = Ui.make("Frame", {
 		Name = "Play",
-		Size = UDim2.fromOffset(320, 124),
+		Size = UDim2.fromOffset(PLAY_W, PLAY_H),
 		BackgroundTransparency = 1,
 		LayoutOrder = order,
 	}, bottom)
@@ -333,15 +355,16 @@ local function playTile(order: number)
 	})
 	local title = Ui.text(button, "PLAY", "displayL", {
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 14),
-		Size = UDim2.fromOffset(300, 64),
+		Position = UDim2.new(0.5, 0, 0, Layout.pick(14, 8)),
+		Size = UDim2.fromOffset(PLAY_W - 20, Layout.pick(64, 48)),
+		TextSize = TITLE_PLAY,
 		TextColor3 = C.onAccent,
 		ZIndex = 4,
 	})
 	local sub = Ui.text(button, "1V1  ·  2V2  ·  3V3", "label", {
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 84),
-		Size = UDim2.fromOffset(300, 20),
+		Position = UDim2.new(0.5, 0, 0, Layout.pick(84, 60)),
+		Size = UDim2.fromOffset(PLAY_W - 20, 20),
 		TextSize = 15,
 		TextColor3 = C.onAccent,
 		ZIndex = 4,
@@ -378,12 +401,12 @@ local function buildBottom()
 		Size = UDim2.fromOffset(1220, 140),
 		BackgroundTransparency = 1,
 	}, gui)
-	Ui.fit(bottom)
+	Layout.fit(bottom, "hud")
 	Ui.make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
 		VerticalAlignment = Enum.VerticalAlignment.Bottom,
-		Padding = UDim.new(0, 14),
+		Padding = UDim.new(0, Layout.pick(14, 8)),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	}, bottom)
 	for i, tile in TILES do
@@ -407,7 +430,7 @@ local function buildPill()
 		BackgroundTransparency = 1,
 		Visible = false,
 	}, gui)
-	Ui.fit(holder)
+	Layout.fit(holder, "hud")
 	pill = Ui.cut(holder, { Name = "Pill", Size = UDim2.fromScale(1, 1) }, {
 		className = "ImageButton",
 		color = C.panel,
@@ -436,7 +459,7 @@ local function buildPill()
 	})
 	pillTimer = Ui.text(pill, "0:00", "timer", {
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -136, 0.5, 0),
+		Position = UDim2.new(1, -140, 0.5, 0),
 		Size = UDim2.fromOffset(110, 50),
 		TextXAlignment = Enum.TextXAlignment.Right,
 		TextSize = 38,
@@ -446,7 +469,7 @@ local function buildPill()
 		Name = "CancelHolder",
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -14, 0.5, 0),
-		Size = UDim2.fromOffset(108, 46),
+		Size = UDim2.fromOffset(112, 60), -- 44+ px drawn at the 0.76 floor
 		BackgroundTransparency = 1,
 		ZIndex = 4,
 	}, pill)
@@ -486,7 +509,7 @@ local function buildToast()
 		Size = UDim2.fromOffset(620, 60),
 		BackgroundTransparency = 1,
 	}, gui)
-	Ui.fit(holder)
+	Layout.fit(holder, "hud")
 	toastFrame = Ui.cut(holder, { Size = UDim2.fromScale(1, 1), Visible = false }, {
 		color = C.panel,
 		transparency = 0.05,
@@ -575,8 +598,8 @@ local function refresh()
 	if status == "idle" then
 		play.title.Text = "PLAY"
 		play.title.TextColor3 = C.onAccent
-		play.title.Position = UDim2.new(0.5, 0, 0, 14)
-		play.sub.Text = "1V1  ·  2V2  ·  3V3"
+		play.title.Position = UDim2.new(0.5, 0, 0, Layout.pick(14, 8))
+		play.sub.Text = Layout.pick("1V1  ·  2V2  ·  3V3", "1V1 · 2V2 · 3V3")
 		play.sub.TextColor3 = C.onAccent
 		play.button.ImageColor3 = C.gold
 		play.spinner.Visible = false
@@ -585,8 +608,8 @@ local function refresh()
 		local found = status ~= "searching"
 		play.title.Text = if found then "MATCH FOUND" else "SEARCHING"
 		play.title.TextColor3 = if found then C.ready else C.gold
-		play.title.Position = UDim2.new(0.5, 18, 0, 14)
-		play.title.TextSize = if found then 40 else 48
+		play.title.Position = UDim2.new(0.5, Layout.pick(18, 14), 0, Layout.pick(14, 12))
+		play.title.TextSize = if found then TITLE_FOUND else TITLE_SEARCH
 		play.sub.TextColor3 = C.textSecondary
 		play.sub.Text = modeTitle(mode)
 		play.button.ImageColor3 = C.panel
@@ -594,7 +617,7 @@ local function refresh()
 		play.glow.ImageColor3 = if found then C.ready else C.gold
 	end
 	if status == "idle" then
-		play.title.TextSize = Theme.TEXT.displayL.size
+		play.title.TextSize = TITLE_PLAY
 	end
 
 	-- Pill.
@@ -603,16 +626,19 @@ local function refresh()
 	if showPill and not holder.Visible then
 		holder.Visible = true
 		holder.Position = PILL_HIDDEN
-		Fx.tween(holder, 0.35, { Position = PILL_SHOWN })
+		-- Phone: under the profile card (its drawn height), not between the clusters.
+		local shown = if PHONE
+			then UDim2.new(
+				0.5,
+				0,
+				0,
+				topLeft.AbsolutePosition.Y - gui.AbsolutePosition.Y + topLeft.AbsoluteSize.Y + 8
+			)
+			else PILL_SHOWN
+		Fx.tween(holder, Fx.MOTION.enter, { Position = shown })
 	elseif not showPill and holder.Visible then
-		Fx.tween(
-			holder,
-			0.18,
-			{ Position = PILL_HIDDEN },
-			Enum.EasingStyle.Quint,
-			Enum.EasingDirection.In
-		)
-		task.delay(0.2, function()
+		Fx.out(holder, { Position = PILL_HIDDEN })
+		task.delay(Fx.MOTION.exit + 0.02, function()
 			if Router.current() == "Queue" or QueueState.status() == "idle" then
 				holder.Visible = false
 			end
@@ -629,7 +655,7 @@ local function refresh()
 		pillSub.Text = "Get ready"
 	end
 	pillCancel.Parent.Visible = status == "searching"
-	pillTimer.Position = UDim2.new(1, if status == "searching" then -136 else -24, 0.5, 0)
+	pillTimer.Position = UDim2.new(1, if status == "searching" then -140 else -24, 0.5, 0)
 	local _ = pillSpinner
 
 	-- Live timer only while queued.
@@ -647,13 +673,16 @@ local function onMenuChanged(name: string?)
 	if bottomShade then
 		bottomShade.Visible = not open
 	end
-	Fx.tween(
-		bottom,
-		if open then 0.2 else 0.35,
-		{ Position = if open then BOTTOM_HIDDEN else BOTTOM_SHOWN },
-		Enum.EasingStyle.Quint,
-		if open then Enum.EasingDirection.In else Enum.EasingDirection.Out
-	)
+	if open then
+		Fx.out(bottom, { Position = BOTTOM_HIDDEN })
+	else
+		Fx.tween(bottom, Fx.MOTION.enter, { Position = BOTTOM_SHOWN })
+	end
+	-- Phones: the whole HUD steps aside for an open menu (LihFolk: HUD Design).
+	if PHONE then
+		topLeft.Visible = not open
+		topRight.Visible = not open
+	end
 	refresh()
 end
 
@@ -661,15 +690,16 @@ end
 local function intro()
 	topLeft.Position = UDim2.fromOffset(20, -110)
 	topRight.Position = UDim2.new(1, -20, 0, -110)
-	Fx.tween(topLeft, 0.5, { Position = UDim2.fromOffset(20, 14) })
-	Fx.tween(topRight, 0.5, { Position = UDim2.new(1, -20, 0, 14) })
+	Fx.tween(topLeft, Fx.MOTION.reveal, { Position = UDim2.fromOffset(20, 14) })
+	Fx.tween(topRight, Fx.MOTION.reveal, { Position = UDim2.new(1, -20, 0, 14) })
 	for i, tile in TILES do
 		local holder = bottom:FindFirstChild(tile.id)
 		local button = holder and holder:FindFirstChildWhichIsA("ImageButton")
 		if button then
-			button.Position = UDim2.fromOffset(0, 160)
-			task.delay(0.15 + i * 0.05, function()
-				Fx.tween(button, 0.45, { Position = UDim2.fromOffset(0, 0) }, Enum.EasingStyle.Back)
+			local base = Fx.base(button)
+			button.Position = base + UDim2.fromOffset(0, 160)
+			task.delay(0.1 + i * Fx.MOTION.stagger, function()
+				Fx.tween(button, Fx.MOTION.reveal, { Position = base }, Enum.EasingStyle.Back)
 			end)
 		end
 	end

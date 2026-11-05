@@ -1,10 +1,19 @@
 --!strict
--- Sends a formed match to a reserved Match server (TeleportAsync with a
--- ReservedServerAccessCode) carrying the Lobby -> Match TeleportData contract
--- (vault/05 Production/Overnight 2026-11-04.md). Retries reserving and
--- teleporting with backoff, retries single players on TeleportInitFailed, and
--- hands every failure back to the caller. In Studio (no teleports) it logs and
--- reports the payload it would send instead.
+-- Sends a formed match to its own reserved Match server and carries the
+-- Lobby -> Match TeleportData contract (vault/05 Production/Overnight
+-- 2026-11-04.md). In Studio (no teleports) it logs and reports the payload.
+--
+-- LihFolk (41 Multiplayer Services: Teleporting and Multi-Place Games;
+-- Reserved and Private Servers in Practice; TeleportService - Engine Reference
+-- Card; Error Handling and Retries):
+--  * ReserveServerAsync is deprecated: each match gets one
+--    TeleportOptions.ReservedServerId (a GUID kept server-side); the first
+--    teleport creates the server, so there is no reserve step to fail.
+--  * Only TeleportResult Failure (after ~2 s) and Flooded (after ~10 s) are
+--    retried, per player, with the options TeleportInitFailed hands back
+--    (same reserved server). GameFull / GameEnded / GameNotFound /
+--    Unauthorized end with a message. IsTeleporting means it's already going.
+--  * A thrown TeleportAsync (nothing in flight) retries with 1, 2, 4, 8 s backoff.
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -49,6 +58,20 @@ type Pending = {
 local IS_STUDIO = RunService:IsStudio()
 local FAIL_TEXT = "Couldn't reach the match server. You're back in the lobby; try again."
 
+-- Results worth retrying, and how long to wait first (seconds).
+local RETRY_AFTER: { [Enum.TeleportResult]: number } = {
+	[Enum.TeleportResult.Failure] = 2,
+	[Enum.TeleportResult.Flooded] = 10,
+}
+
+-- Results that end the attempt, with what the player is told.
+local FINAL_TEXT: { [Enum.TeleportResult]: string } = {
+	[Enum.TeleportResult.GameFull] = "That match filled up. You're back in the lobby; queue again.",
+	[Enum.TeleportResult.GameEnded] = "That match already ended. You're back in the lobby.",
+	[Enum.TeleportResult.GameNotFound] = "That match server is gone. You're back in the lobby.",
+	[Enum.TeleportResult.Unauthorized] = "You can't join that match. You're back in the lobby.",
+}
+
 local Launcher = {}
 
 local pending: { [Player]: Pending } = {}
@@ -56,23 +79,6 @@ local pending: { [Player]: Pending } = {}
 local function backoff(attempt: number): number
 	local list = Config.retryBackoff
 	return list[math.min(attempt, #list)]
-end
-
-local function reserve(): (string?, string?)
-	local lastErr = "unknown"
-	for attempt = 1, Config.reserveAttempts do
-		local ok, result =
-			pcall(TeleportService.ReserveServerAsync, TeleportService, Config.MATCH_PLACE_ID)
-		if ok and typeof(result) == "string" then
-			return result, nil
-		end
-		lastErr = tostring(result)
-		warn(`[Queue] ReserveServerAsync failed ({attempt}/{Config.reserveAttempts}): {lastErr}`)
-		if attempt < Config.reserveAttempts then
-			task.wait(backoff(attempt))
-		end
-	end
-	return nil, lastErr
 end
 
 -- The match's teams with anyone who left removed; bots fill what's missing.
@@ -108,16 +114,19 @@ local function fail(player: Player, text: string)
 	end
 end
 
--- The one retry path (a thrown TeleportAsync or a TeleportInitFailed): try this
--- player alone again after a backoff, until the attempts run out.
-local function retry(player: Player, entry: Pending)
+-- The one retry path: try this player alone again after `wait` seconds, with
+-- `options` (the same reserved server), until the attempts run out.
+local function retry(player: Player, entry: Pending, wait: number, options: TeleportOptions?)
 	if entry.attempts >= Config.teleportAttempts then
 		fail(player, FAIL_TEXT)
 		return
 	end
 	entry.attempts += 1
-	entry.deadline = os.clock() + backoff(entry.attempts - 1) + Config.teleportTimeout
-	task.delay(backoff(entry.attempts - 1), function()
+	if options then
+		entry.options = options
+	end
+	entry.deadline = os.clock() + wait + Config.teleportTimeout
+	task.delay(wait, function()
 		if pending[player] ~= entry or player.Parent ~= Players then
 			return
 		end
@@ -129,19 +138,14 @@ local function retry(player: Player, entry: Pending)
 			entry.options
 		)
 		if not ok then
-			warn(`[Queue] TeleportAsync retry {entry.attempts} for {player.Name} failed: {err}`)
-			retry(player, entry)
+			warn(`[Queue] TeleportAsync retry {entry.attempts} for {player.Name} threw: {err}`)
+			retry(player, entry, backoff(entry.attempts), nil)
 		end
 	end)
 end
 
 -- Runs the whole launch for one match; yields until the teleport is sent.
 function Launcher.launch(match: Match, hooks: Hooks)
-	local code: string? = nil
-	if not IS_STUDIO then
-		code = reserve()
-	end
-
 	local remaining = match.startsAt - os.clock()
 	if remaining > 0 then
 		task.wait(remaining)
@@ -170,15 +174,8 @@ function Launcher.launch(match: Match, hooks: Hooks)
 		return
 	end
 
-	if not code then
-		for _, p in present do
-			hooks.failed(p, "Couldn't start a match server. You're back in the lobby; try again.")
-		end
-		return
-	end
-
 	local options = Instance.new("TeleportOptions")
-	options.ReservedServerAccessCode = code
+	options.ReservedServerId = HttpService:GenerateGUID(false) -- one private server per match
 	options:SetTeleportData(data)
 
 	for _, p in present do
@@ -202,11 +199,11 @@ function Launcher.launch(match: Match, hooks: Hooks)
 	)
 	if not ok then
 		-- Nothing is in flight after a throw, so each player retries on their own.
-		warn(`[Queue] TeleportAsync for match {match.id} failed: {err}`)
+		warn(`[Queue] TeleportAsync for match {match.id} threw: {err}`)
 		for _, p in present do
 			local entry = pending[p]
 			if entry and entry.matchId == match.id then
-				retry(p, entry)
+				retry(p, entry, backoff(1), nil)
 			end
 		end
 	end
@@ -214,13 +211,24 @@ end
 
 function Launcher.init()
 	TeleportService.TeleportInitFailed:Connect(
-		function(player: Player, result: Enum.TeleportResult, message: string)
+		function(
+			player: Player,
+			result: Enum.TeleportResult,
+			message: string,
+			_placeId: number,
+			options: TeleportOptions?
+		)
 			local entry = pending[player]
 			if not entry or result == Enum.TeleportResult.IsTeleporting then
 				return
 			end
 			warn(`[Queue] TeleportInitFailed for {player.Name} ({result.Name}): {message}`)
-			retry(player, entry)
+			local wait = RETRY_AFTER[result]
+			if wait then
+				retry(player, entry, wait, options)
+			else
+				fail(player, FINAL_TEXT[result] or FAIL_TEXT)
+			end
 		end
 	)
 	Players.PlayerRemoving:Connect(function(player)

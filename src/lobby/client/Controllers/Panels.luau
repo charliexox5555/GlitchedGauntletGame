@@ -13,6 +13,7 @@ local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local Fx = require(script.Parent.Parent.Util.Fx)
 local Icons = require(script.Parent.Parent.Util.Icons)
+local Layout = require(script.Parent.Parent.Util.Layout)
 local Router = require(script.Parent.Parent.Util.Router)
 local Sound = require(script.Parent.Parent.Util.Sound)
 local Ui = require(script.Parent.Parent.SharedUi)
@@ -22,8 +23,22 @@ local Panels = {}
 local C = Theme.COLORS
 local player = Players.LocalPlayer
 
+-- Desktop: 1920 x 1080 canvas. Phone: 800 x 420 (LihFolk: Responsive UI for
+-- Phone Tablet Console and PC); placeholder panels collapse to one card there.
+local PHONE = Layout.isPhone()
+local CANVAS = Layout.pick(Vector2.new(1920, 1080), Vector2.new(800, 420))
+local HEADER = Layout.pick(Vector2.new(120, 120), Vector2.new(24, 4))
+local CLOSE = Layout.pick(Vector2.new(1800, 128), Vector2.new(780, 2))
+local CLOSE_SIZE = Layout.pick(64, 60) -- 44+ px drawn on a 667 x 375 phone
+local BODY = Layout.pick(Vector2.new(120, 260), Vector2.new(24, 70))
+local BODY_SIZE = Layout.pick(Vector2.new(1680, 700), Vector2.new(752, 340))
+-- Settings toggles: 44+ px drawn on a phone too.
+local TOGGLE = Layout.pick(Vector2.new(84, 44), Vector2.new(100, 60))
+
 type Panel = {
 	gui: ScreenGui,
+	backdrop: ScreenGui,
+	focus: GuiObject?,
 	scrim: Frame,
 	content: CanvasGroup,
 	header: Frame,
@@ -85,10 +100,23 @@ local function soon(parent: Instance, text: string, y: number)
 end
 
 local function build(name: string, kicker: string, title: string): Panel
+	-- Two layers (LihFolk: Safe Areas and Insets): the dimmer bleeds to every
+	-- edge, the panel content stays inside the core-UI safe area.
+	local backdrop = Ui.make("ScreenGui", {
+		Name = "Lobby" .. name .. "Backdrop",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None,
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 19,
+		Enabled = false,
+	}, player:WaitForChild("PlayerGui"))
 	local gui = Ui.make("ScreenGui", {
 		Name = "Lobby" .. name,
 		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		DisplayOrder = 20,
 		Enabled = false,
@@ -101,7 +129,7 @@ local function build(name: string, kicker: string, title: string): Panel
 		Text = "",
 		Modal = true,
 		Selectable = false,
-	}, gui)
+	}, backdrop)
 	for _, top in { true, false } do
 		local band = Ui.make("Frame", {
 			AnchorPoint = Vector2.new(0, if top then 0 else 1),
@@ -118,18 +146,23 @@ local function build(name: string, kicker: string, title: string): Panel
 	local content = Ui.make("CanvasGroup", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(1920, 1080),
+		Size = UDim2.fromOffset(CANVAS.X, CANVAS.Y),
 		BackgroundTransparency = 1,
+		SelectionGroup = true,
+		SelectionBehaviorUp = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorDown = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorLeft = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorRight = Enum.SelectionBehavior.Stop,
 	}, gui)
-	Ui.fit(content)
+	Layout.fit(content, "menu")
 	local header = Ui.make("Frame", {
-		Position = UDim2.fromOffset(120, 120),
+		Position = UDim2.fromOffset(HEADER.X, HEADER.Y),
 		Size = UDim2.fromOffset(900, 110),
 		BackgroundTransparency = 1,
 	}, content)
 	Ui.make("Frame", {
 		Position = UDim2.fromOffset(0, 6),
-		Size = UDim2.fromOffset(4, 92),
+		Size = UDim2.fromOffset(4, Layout.pick(92, 54)),
 		BackgroundColor3 = C.gold,
 		BorderSizePixel = 0,
 	}, header)
@@ -141,14 +174,16 @@ local function build(name: string, kicker: string, title: string): Panel
 		TextSize = 15,
 	})
 	Ui.text(header, title, "displayL", {
-		Position = UDim2.fromOffset(20, 26),
-		Size = UDim2.fromOffset(800, 64),
+		Position = UDim2.fromOffset(20, Layout.pick(26, 22)),
+		Size = UDim2.fromOffset(Layout.pick(800, 600), Layout.pick(64, 40)),
+		TextSize = Layout.pick(56, 32),
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
+	-- The same close button, same corner, same size on every menu (LihFolk: Menu Archetypes).
 	local closeHolder = Ui.make("Frame", {
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(1800, 128),
-		Size = UDim2.fromOffset(64, 64),
+		Position = UDim2.fromOffset(CLOSE.X, CLOSE.Y),
+		Size = UDim2.fromOffset(CLOSE_SIZE, CLOSE_SIZE),
 		BackgroundTransparency = 1,
 	}, content)
 	local close = Ui.cut(closeHolder, { Size = UDim2.fromScale(1, 1) }, {
@@ -174,17 +209,19 @@ local function build(name: string, kicker: string, title: string): Panel
 	end, {
 		silent = true,
 		onHover = function(on)
-			Fx.tween(close, 0.12, { ImageColor3 = if on then C.hover else C.panel })
+			Fx.tween(close, Fx.MOTION.hover, { ImageColor3 = if on then C.hover else C.panel })
 		end,
 	})
 	local body = Ui.make("Frame", {
-		Position = UDim2.fromOffset(120, 260),
-		Size = UDim2.fromOffset(1680, 700),
+		Position = UDim2.fromOffset(BODY.X, BODY.Y),
+		Size = UDim2.fromOffset(BODY_SIZE.X, BODY_SIZE.Y),
 		BackgroundTransparency = 1,
 	}, content)
 
 	local panel: Panel = {
 		gui = gui,
+		backdrop = backdrop,
+		focus = close,
 		scrim = scrim,
 		content = content,
 		header = header,
@@ -198,48 +235,84 @@ local function build(name: string, kicker: string, title: string): Panel
 			end
 			panel.isOpen = true
 			gui.Enabled = true
+			backdrop.Enabled = true
 			scrim.BackgroundTransparency = 1
-			Fx.tween(scrim, 0.25, { BackgroundTransparency = 0.38 })
+			Fx.tween(scrim, Fx.MOTION.dimIn, { BackgroundTransparency = 0.38 })
 			content.GroupTransparency = 1
-			Fx.tween(content, 0.25, { GroupTransparency = 0 })
-			header.Position = UDim2.fromOffset(84, 120)
-			Fx.tween(header, 0.4, { Position = UDim2.fromOffset(120, 120) })
-			body.Position = UDim2.fromOffset(120, 300)
-			Fx.tween(body, 0.4, { Position = UDim2.fromOffset(120, 260) })
+			Fx.tween(content, Fx.MOTION.enter, { GroupTransparency = 0 })
+			header.Position = UDim2.fromOffset(HEADER.X - 36, HEADER.Y)
+			Fx.tween(header, Fx.MOTION.enter, { Position = UDim2.fromOffset(HEADER.X, HEADER.Y) })
+			body.Position = UDim2.fromOffset(BODY.X, BODY.Y + 32)
+			Fx.tween(body, Fx.MOTION.enter, { Position = UDim2.fromOffset(BODY.X, BODY.Y) })
 		end,
 		close = function()
 			if not panel.isOpen then
 				return
 			end
 			panel.isOpen = false
-			Fx.tween(
-				content,
-				0.15,
-				{ GroupTransparency = 1 },
-				Enum.EasingStyle.Quint,
-				Enum.EasingDirection.In
-			)
+			Fx.out(content, { GroupTransparency = 1 })
 			Fx.tween(
 				scrim,
-				0.18,
+				Fx.MOTION.dimOut,
 				{ BackgroundTransparency = 1 },
-				Enum.EasingStyle.Quint,
+				Enum.EasingStyle.Quad,
 				Enum.EasingDirection.In
 			)
-			task.delay(0.2, function()
+			task.delay(Fx.MOTION.exit + 0.02, function()
 				if not panel.isOpen then
 					gui.Enabled = false
+					backdrop.Enabled = false
 				end
 			end)
+		end,
+		focus = function(): GuiObject?
+			return panel.focus
 		end,
 	})
 	return panel
 end
 
+-- Phone: a placeholder panel is one card (icon, what it will be, COMING SOON).
+local function compact(p: Panel, icon: string, headline: string, text: string)
+	local c = card(p.body, 0, 0, BODY_SIZE.X, 230, C.lineStrong)
+	Icons.draw(c, icon, 72, C.textSecondary, {
+		Position = UDim2.fromOffset(28, 28),
+		ZIndex = 4,
+	})
+	Ui.text(c, headline, "displayM", {
+		Position = UDim2.fromOffset(124, 30),
+		Size = UDim2.fromOffset(600, 44),
+		TextSize = 32,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		ZIndex = 4,
+	})
+	Ui.text(c, text, "bodyM", {
+		Position = UDim2.fromOffset(126, 82),
+		Size = UDim2.fromOffset(590, 80),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		TextWrapped = true,
+		TextColor3 = C.textSecondary,
+		ZIndex = 4,
+	})
+	Ui.tag(c, "COMING SOON", C.gold, {
+		Position = UDim2.fromOffset(126, 178),
+		ZIndex = 4,
+	}, true)
+end
 --------------------------------------------------------------------------------
 
 local function buildShop()
 	local p = build("Shop", "SHOP  ·  DAILY ITEMS", "SHOP")
+	if PHONE then
+		compact(
+			p,
+			"Shop",
+			"DAILY ITEMS",
+			"Skins, wraps, charms, emotes and bundles arrive with the economy."
+		)
+		return
+	end
 	local featured = card(p.body, 0, 0, 620, 560, C.gold)
 	Ui.tag(featured, "FEATURED", C.gold, { Position = UDim2.fromOffset(28, 28), ZIndex = 5 }, true)
 	skeleton(featured, { Position = UDim2.fromOffset(28, 400), Size = UDim2.fromOffset(340, 30) })
@@ -257,6 +330,15 @@ end
 
 local function buildBattlePass()
 	local p = build("BattlePass", "SEASON 1  ·  TIER 1", "BATTLE PASS")
+	if PHONE then
+		compact(
+			p,
+			"BattlePass",
+			"SEASON 1",
+			"Seasonal rewards for playing: skins, banners, emotes and currency."
+		)
+		return
+	end
 	Ui.text(p.body, "TIER 1", "titleCard", {
 		Size = UDim2.fromOffset(200, 48),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -324,6 +406,15 @@ local LOADOUT = {
 
 local function buildLocker()
 	local p = build("Locker", "LOADOUT  ·  SKINS", "LOCKER")
+	if PHONE then
+		compact(
+			p,
+			"Locker",
+			"YOUR LOADOUT",
+			"Choose skins, wraps and charms here. Match loadouts are still drafted every round."
+		)
+		return
+	end
 	local preview = card(p.body, 520, 0, 1160, 560)
 	local big = Ui.gun(preview, "Vandal", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -399,39 +490,67 @@ end
 
 local function buildSettings()
 	local p = build("Settings", "OPTIONS", "SETTINGS")
-	local rows = {
-		{ name = "UI SOUNDS", hint = "Clicks, whooshes and stingers in menus.", live = true },
-		{ name = "CAMERA SENSITIVITY", hint = "Saved with your profile.", live = false },
-		{ name = "FIELD OF VIEW", hint = "Match camera FOV.", live = false },
-		{ name = "COLOUR-BLIND TEAM COLOURS", hint = "Swap ally and enemy colours.", live = false },
+	local rowW, rowH, rowGap =
+		Layout.pick(1100, BODY_SIZE.X), Layout.pick(88, 70), Layout.pick(104, 78)
+	local function setSound(on: boolean)
+		local group = SoundService:FindFirstChild("Ui")
+		if group and group:IsA("SoundGroup") then
+			group.Volume = if on then 1 else 0
+		end
+	end
+	type Row = { name: string, hint: string, value: (() -> boolean)?, set: ((boolean) -> ())? }
+	local rows: { Row } = {
+		{
+			name = "UI SOUNDS",
+			hint = "Clicks, whooshes and stingers in menus.",
+			value = function()
+				return true
+			end,
+			set = setSound,
+		},
+		{
+			-- LihFolk: UI Motion Language and Timing (offer an in-game toggle;
+			-- starts from the Roblox setting).
+			name = "REDUCED MOTION",
+			hint = "Fades instead of slides, pops, sweeps and spins.",
+			value = Fx.reduced,
+			set = function(on: boolean)
+				Fx.setReduced(on)
+			end,
+		},
+		{ name = "CAMERA SENSITIVITY", hint = "Saved with your profile." },
+		{ name = "FIELD OF VIEW", hint = "Match camera FOV." },
 	}
 	for i, row in rows do
-		local c = card(p.body, 0, (i - 1) * 104, 1100, 88)
+		local live = row.set ~= nil
+		local c = card(p.body, 0, (i - 1) * rowGap, rowW, rowH)
 		Ui.text(c, row.name, "titleS", {
-			Position = UDim2.fromOffset(28, 14),
+			Position = UDim2.fromOffset(28, Layout.pick(14, 8)),
 			Size = UDim2.fromOffset(600, 26),
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = if row.live then C.text else C.textDim,
+			TextColor3 = if live then C.text else C.textDim,
 			ZIndex = 4,
 		})
 		Ui.text(c, row.hint, "bodyS", {
-			Position = UDim2.fromOffset(28, 46),
-			Size = UDim2.fromOffset(600, 20),
+			Position = UDim2.fromOffset(28, Layout.pick(46, 38)),
+			Size = UDim2.fromOffset(Layout.pick(600, 520), 20),
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextColor3 = C.textDim,
 			ZIndex = 4,
 		})
-		if row.live then
+		local value, set = row.value, row.set
+		if value and set then
 			local holder = Ui.make("Frame", {
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, -28, 0.5, 0),
-				Size = UDim2.fromOffset(84, 40),
+				Size = UDim2.fromOffset(TOGGLE.X, TOGGLE.Y),
 				BackgroundTransparency = 1,
 				ZIndex = 4,
 			}, c)
+			local on = value()
 			local toggle = Ui.make("TextButton", {
 				Size = UDim2.fromScale(1, 1),
-				BackgroundColor3 = C.ready,
+				BackgroundColor3 = if on then C.ready else C.lineStrong,
 				AutoButtonColor = false,
 				Text = "",
 				ZIndex = 4,
@@ -439,23 +558,40 @@ local function buildSettings()
 			Ui.make("UICorner", { CornerRadius = UDim.new(1, 0) }, toggle)
 			local knob = Ui.make("Frame", {
 				AnchorPoint = Vector2.new(0, 0.5),
-				Position = UDim2.new(1, -36, 0.5, 0),
-				Size = UDim2.fromOffset(32, 32),
+				Position = if on
+					then UDim2.new(1, -(TOGGLE.Y - 5), 0.5, 0)
+					else UDim2.new(0, 5, 0.5, 0),
+				Size = UDim2.fromOffset(TOGGLE.Y - 10, TOGGLE.Y - 10),
 				BackgroundColor3 = C.white,
 				BorderSizePixel = 0,
 				ZIndex = 5,
 			}, toggle)
 			Ui.make("UICorner", { CornerRadius = UDim.new(1, 0) }, knob)
-			local on = true
+			-- State is a word too, not only the colour (LihFolk: Accessibility).
+			local stateLabel = Ui.text(c, if on then "ON" else "OFF", "label", {
+				AnchorPoint = Vector2.new(1, 0.5),
+				Position = UDim2.new(1, -(TOGGLE.X + 40), 0.5, 0),
+				Size = UDim2.fromOffset(50, 20),
+				TextXAlignment = Enum.TextXAlignment.Right,
+				TextColor3 = C.textSecondary,
+				ZIndex = 4,
+			})
+			if i == 1 then
+				p.focus = toggle
+			end
 			Fx.button(toggle, function()
 				on = not on
-				local group = SoundService:FindFirstChild("Ui")
-				if group and group:IsA("SoundGroup") then
-					group.Volume = if on then 1 else 0
-				end
-				Fx.tween(toggle, 0.18, { BackgroundColor3 = if on then C.ready else C.lineStrong })
-				Fx.tween(knob, 0.22, {
-					Position = if on then UDim2.new(1, -36, 0.5, 0) else UDim2.new(0, 4, 0.5, 0),
+				set(on)
+				stateLabel.Text = if on then "ON" else "OFF"
+				Fx.tween(
+					toggle,
+					Fx.MOTION.enter,
+					{ BackgroundColor3 = if on then C.ready else C.lineStrong }
+				)
+				Fx.tween(knob, Fx.MOTION.enter, {
+					Position = if on
+						then UDim2.new(1, -(TOGGLE.Y - 5), 0.5, 0)
+						else UDim2.new(0, 5, 0.5, 0),
 				}, Enum.EasingStyle.Back)
 			end)
 		else
@@ -466,6 +602,9 @@ local function buildSettings()
 			})
 		end
 	end
+	if PHONE then
+		return
+	end
 	soon(
 		p.body,
 		"More options (keybinds, graphics, crosshair) come with saved player settings.",
@@ -475,6 +614,15 @@ end
 
 local function buildRange()
 	local p = build("Range", "PRACTICE", "SHOOTING RANGE")
+	if PHONE then
+		compact(
+			p,
+			"Range",
+			"EVERY GUN. EVERY MOD.",
+			"Lanes, dummies that shoot back, a movement course and an ability area. Opens in the next lobby phase."
+		)
+		return
+	end
 	local c = card(p.body, 0, 0, 1100, 420, C.lineStrong)
 	Icons.draw(c, "Range", 120, C.textSecondary, {
 		Position = UDim2.fromOffset(60, 60),

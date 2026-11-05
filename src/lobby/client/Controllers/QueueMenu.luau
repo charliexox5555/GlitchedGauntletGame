@@ -15,6 +15,7 @@ local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local Fx = require(script.Parent.Parent.Util.Fx)
+local Layout = require(script.Parent.Parent.Util.Layout)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
 local Sound = require(script.Parent.Parent.Util.Sound)
@@ -40,7 +41,75 @@ local MODE_TINT: { [string]: Color3 } = {
 	["3v3"] = Theme.ROLE.Control,
 }
 
-local CARD_W, CARD_H, CARD_GAP, CARD_Y = 420, 470, 36, 250
+-- Desktop: the Figma "Lobby · Play menu" frame (1920 x 1080). Phone: its own
+-- arrangement on an 800 x 420 canvas (LihFolk: Responsive UI for Phone Tablet
+-- Console and PC): smaller cards without the blurb, the key chips or the
+-- keyboard hints, and a shorter status line.
+local PHONE = Layout.isPhone()
+local L = if PHONE
+	then {
+		canvas = Vector2.new(800, 420),
+		header = Vector2.new(24, 4),
+		titleSize = 32,
+		close = Vector2.new(780, 2),
+		closeSize = 60, -- 44+ px drawn on a 667 x 375 phone
+		cardW = 240,
+		cardH = 216,
+		cardGap = 16,
+		cardY = 66,
+		corner = 18,
+		modeTitle = 64,
+		titlePos = Vector2.new(16, 6),
+		titleH = 76,
+		teamsY = 88,
+		teamsScale = 0.7,
+		divY = 150,
+		countY = 166,
+		details = false,
+		find = Vector2.new(400, 298),
+		findSize = Vector2.new(340, 72),
+		findText = 30,
+		status = Vector2.new(400, 294),
+		statusSize = Vector2.new(660, 84),
+		statusTitle = Vector2.new(66, 8),
+		statusTitleSize = 26,
+		statusSub = Vector2.new(68, 46),
+		timerX = -168,
+		timerSize = 40,
+		cancelSize = Vector2.new(132, 60),
+	}
+	else {
+		canvas = Vector2.new(1920, 1080),
+		header = Vector2.new(120, 120),
+		titleSize = 56,
+		close = Vector2.new(1800, 128),
+		closeSize = 64,
+		cardW = 420,
+		cardH = 470,
+		cardGap = 36,
+		cardY = 250,
+		corner = 26,
+		modeTitle = 132,
+		titlePos = Vector2.new(30, 22),
+		titleH = 140,
+		teamsY = 222,
+		teamsScale = 1,
+		divY = 362,
+		countY = 386,
+		details = true,
+		find = Vector2.new(960, 790),
+		findSize = Vector2.new(480, 96),
+		findText = 40,
+		status = Vector2.new(960, 784),
+		statusSize = Vector2.new(820, 108),
+		statusTitle = Vector2.new(88, 14),
+		statusTitleSize = 36,
+		statusSub = Vector2.new(90, 60),
+		timerX = -200,
+		timerSize = 60,
+		cancelSize = Vector2.new(150, 64),
+	}
+local CARD_W, CARD_H, CARD_GAP, CARD_Y = L.cardW, L.cardH, L.cardGap, L.cardY
 local MONO = Font.new("rbxasset://fonts/families/RobotoMono.json", Enum.FontWeight.Medium)
 
 type Card = {
@@ -56,8 +125,9 @@ type Card = {
 }
 
 local gui: ScreenGui
+local backdrop: ScreenGui -- edge-to-edge dimmer (ScreenInsets None)
 local scrim: TextButton
-local content: CanvasGroup
+local content: CanvasGroup -- interactive content, in a safe-area gui
 local header: Frame
 local cards: { Card } = {}
 local selected: string = "1v1"
@@ -79,6 +149,7 @@ local lastSecond = -1
 -- Match found overlay.
 local foundGui: ScreenGui
 local foundBand: Frame
+local foundInner: Frame
 local foundTitle: TextLabel
 local foundMode: TextLabel
 local foundTeams: Frame
@@ -139,13 +210,16 @@ local function teamsRow(parent: Instance, teamSize: number, y: number)
 	for i = 1, teamSize do
 		person(row, C.enemy, w + 52 + (i - 1) * 40)
 	end
+	if L.teamsScale ~= 1 then
+		Ui.make("UIScale", { Name = "TeamsScale", Scale = L.teamsScale }, row)
+	end
 end
 
 local function closeButton(parent: Instance): ImageButton
 	local holder = Ui.make("Frame", {
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(1800, 128),
-		Size = UDim2.fromOffset(64, 64),
+		Position = UDim2.fromOffset(L.close.X, L.close.Y),
+		Size = UDim2.fromOffset(L.closeSize, L.closeSize),
 		BackgroundTransparency = 1,
 	}, parent)
 	local button = Ui.cut(holder, { Size = UDim2.fromScale(1, 1) }, {
@@ -214,16 +288,25 @@ local function selectMode(id: string, quiet: boolean?)
 	refreshCards()
 end
 
+-- FIND MATCH is ignored while a request is in flight (until the server's
+-- state attribute changes, or 1.5 s), so taps can't stack requests.
+local pendingUntil = 0
+
 local function findMatch()
+	if os.clock() < pendingUntil then
+		return
+	end
 	local s = QueueState.status()
 	if s == "idle" or (s == "searching" and QueueState.mode() ~= selected) then
+		pendingUntil = os.clock() + 1.5
 		Sound.play("LockIn")
+		findLabel.Text = "JOINING..."
 		QueueState.join(selected)
 	end
 end
 
 local function buildCard(info: Config.ModeInfo, index: number)
-	local x = (1920 - (3 * CARD_W + 2 * CARD_GAP)) / 2 + (index - 1) * (CARD_W + CARD_GAP)
+	local x = (L.canvas.X - (3 * CARD_W + 2 * CARD_GAP)) / 2 + (index - 1) * (CARD_W + CARD_GAP)
 	local holder = Ui.make("Frame", {
 		Name = info.id,
 		Position = UDim2.fromOffset(x, CARD_Y),
@@ -235,7 +318,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		color = C.card,
 		transparency = 0.04,
 		line = C.lineSoft,
-		corner = 26,
+		corner = L.corner,
 	})
 	local tint = MODE_TINT[info.id] or C.gold
 	local art = MODE_ART[info.id]
@@ -246,6 +329,8 @@ local function buildCard(info: Config.ModeInfo, index: number)
 			BackgroundTransparency = 1,
 			Image = art,
 			ImageTransparency = 0.08,
+			-- Phone cards are landscape: crop the portrait art instead of squashing it.
+			ScaleType = if PHONE then Enum.ScaleType.Crop else Enum.ScaleType.Stretch,
 			ZIndex = 2,
 		}, button)
 	end
@@ -253,7 +338,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		-- A dark shade at the top so the big mode title reads over the art.
 		local shade = Ui.cut(button, { Name = "Shade", Size = UDim2.fromScale(1, 1), ZIndex = 2 }, {
 			color = C.scrim,
-			corner = 26,
+			corner = L.corner,
 		})
 		Ui.make("UIGradient", {
 			Rotation = 90,
@@ -268,7 +353,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	local wash = Ui.cut(button, { Size = UDim2.fromScale(1, 1), ZIndex = 2 }, {
 		color = tint,
 		transparency = 0.0,
-		corner = 26,
+		corner = L.corner,
 	})
 	Ui.make("UIGradient", {
 		Rotation = 90,
@@ -279,7 +364,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		}),
 	}, wash)
 	-- Diagonal hairlines: a quiet texture in the wash (only without art).
-	for i = 0, if art then -1 else 5 do
+	for i = 0, if art or PHONE then -1 else 5 do
 		Ui.make("Frame", {
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromOffset(300 + i * 26, 60),
@@ -293,12 +378,14 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	end
 
 	Ui.text(button, info.title, "displayXL", {
-		Position = UDim2.fromOffset(30, 22),
-		Size = UDim2.fromOffset(360, 140),
+		Position = UDim2.fromOffset(L.titlePos.X, L.titlePos.Y),
+		Size = UDim2.fromOffset(CARD_W - 60, L.titleH),
+		TextSize = L.modeTitle,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 4,
 	})
 	local key = Ui.make("Frame", {
+		Visible = L.details and UserInputService.KeyboardEnabled,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.fromOffset(CARD_W - 26, 30),
 		Size = UDim2.fromOffset(32, 32),
@@ -310,8 +397,9 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	Ui.make("UIStroke", { Color = C.lineStrong, Thickness = 1.5 }, key)
 	Ui.text(key, tostring(index), "key", { Size = UDim2.fromScale(1, 1), ZIndex = 5 })
 
-	teamsRow(button, info.teamSize, 222)
+	teamsRow(button, info.teamSize, L.teamsY)
 	Ui.text(button, info.blurb, "bodyM", {
+		Visible = L.details,
 		Position = UDim2.fromOffset(32, 284),
 		Size = UDim2.fromOffset(CARD_W - 64, 48),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -321,6 +409,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		ZIndex = 4,
 	})
 	Ui.text(button, `FIRST TO 5  ·  {info.teamSize * 2} PLAYERS`, "label", {
+		Visible = L.details,
 		Position = UDim2.fromOffset(32, 326),
 		Size = UDim2.fromOffset(CARD_W - 64, 18),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -328,14 +417,14 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		ZIndex = 4,
 	})
 	Ui.make("Frame", {
-		Position = UDim2.fromOffset(32, 362),
+		Position = UDim2.fromOffset(32, L.divY),
 		Size = UDim2.fromOffset(CARD_W - 64, 1),
 		BackgroundColor3 = C.lineSoft,
 		BorderSizePixel = 0,
 		ZIndex = 4,
 	}, button)
 	local dot = Ui.make("Frame", {
-		Position = UDim2.fromOffset(32, 392),
+		Position = UDim2.fromOffset(32, L.countY + 6),
 		Size = UDim2.fromOffset(10, 10),
 		BackgroundColor3 = C.textDim,
 		BorderSizePixel = 0,
@@ -344,13 +433,14 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	Ui.make("UICorner", { CornerRadius = UDim.new(1, 0) }, dot)
 	Fx.loop(dot, 0.9, { BackgroundTransparency = 0.6 })
 	local count = Ui.text(button, "0 SEARCHING", "label", {
-		Position = UDim2.fromOffset(52, 386),
+		Position = UDim2.fromOffset(52, L.countY),
 		Size = UDim2.fromOffset(180, 22),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextSize = 14,
 		ZIndex = 4,
 	})
 	Ui.text(button, `BOTS AFTER {Fx.clock(QueueState.botFillAfter())}`, "label", {
+		Visible = L.details,
 		AnchorPoint = Vector2.new(1, 0),
 		Position = UDim2.fromOffset(CARD_W - 32, 386),
 		Size = UDim2.fromOffset(180, 22),
@@ -360,7 +450,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 	})
 	local queuedTag = Ui.tag(button, "IN QUEUE", C.gold, {
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(CARD_W - 70, 32),
+		Position = UDim2.fromOffset(CARD_W - (if L.details then 70 else 18), L.titlePos.Y + 10),
 		Visible = false,
 		ZIndex = 5,
 	}, true)
@@ -393,7 +483,8 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		end
 	end, {
 		lift = button,
-		liftBy = 10,
+		liftBy = 8,
+		noScale = true, -- big cards lift instead of growing
 		shine = card.shine,
 		silent = false,
 		enabled = function()
@@ -402,7 +493,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 		end,
 		onHover = function(on)
 			if info.id ~= selected then
-				Fx.tween(button, 0.15, { ImageColor3 = if on then C.hover else C.card })
+				Fx.tween(button, Fx.MOTION.hover, { ImageColor3 = if on then C.hover else C.card })
 			end
 		end,
 	})
@@ -414,8 +505,8 @@ end
 local function buildAction()
 	findHolder = Ui.make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(960, 790),
-		Size = UDim2.fromOffset(480, 96),
+		Position = UDim2.fromOffset(L.find.X, L.find.Y),
+		Size = UDim2.fromOffset(L.findSize.X, L.findSize.Y),
 		BackgroundTransparency = 1,
 	}, content)
 	local glow = Ui.cut(findHolder, {
@@ -432,6 +523,7 @@ local function buildAction()
 	})
 	findLabel = Ui.text(findButton, "FIND MATCH", "displayM", {
 		Size = UDim2.fromScale(1, 1),
+		TextSize = L.findText,
 		TextColor3 = C.onAccent,
 		ZIndex = 4,
 	})
@@ -451,8 +543,8 @@ local function buildAction()
 	status = Ui.cut(content, {
 		Name = "Status",
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(960, 784),
-		Size = UDim2.fromOffset(820, 108),
+		Position = UDim2.fromOffset(L.status.X, L.status.Y),
+		Size = UDim2.fromOffset(L.statusSize.X, L.statusSize.Y),
 		Visible = false,
 	}, {
 		color = C.panel,
@@ -461,30 +553,30 @@ local function buildAction()
 		lineTransparency = 0.35,
 		corner = 20,
 	})
-	Fx.spinner(status, 40, C.gold, {
+	Fx.spinner(status, Layout.pick(40, 32), C.gold, {
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 28, 0.5, -4),
+		Position = UDim2.new(0, Layout.pick(28, 20), 0.5, -4),
 		ZIndex = 4,
 	})
 	statusTitle = Ui.text(status, "SEARCHING", "titleCard", {
-		Position = UDim2.fromOffset(88, 14),
+		Position = UDim2.fromOffset(L.statusTitle.X, L.statusTitle.Y),
 		Size = UDim2.fromOffset(380, 48),
-		TextSize = 36,
+		TextSize = L.statusTitleSize,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 4,
 	})
 	statusSub = Ui.text(status, "", "bodyS", {
-		Position = UDim2.fromOffset(90, 60),
-		Size = UDim2.fromOffset(380, 20),
+		Position = UDim2.fromOffset(L.statusSub.X, L.statusSub.Y),
+		Size = UDim2.fromOffset(Layout.pick(380, 300), 20),
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = C.textSecondary,
 		ZIndex = 4,
 	})
 	statusTimer = Ui.text(status, "0:00", "numberHud", {
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -200, 0.5, -4),
+		Position = UDim2.new(1, L.timerX, 0.5, -4),
 		Size = UDim2.fromOffset(170, 80),
-		TextSize = 60,
+		TextSize = L.timerSize,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		ZIndex = 4,
 	})
@@ -506,7 +598,7 @@ local function buildAction()
 		Name = "CancelHolder",
 		AnchorPoint = Vector2.new(1, 0.5),
 		Position = UDim2.new(1, -24, 0.5, -4),
-		Size = UDim2.fromOffset(150, 58),
+		Size = UDim2.fromOffset(L.cancelSize.X, L.cancelSize.Y),
 		BackgroundTransparency = 1,
 		ZIndex = 4,
 	}, status)
@@ -525,7 +617,11 @@ local function buildAction()
 		QueueState.leave()
 	end, {
 		onHover = function(on)
-			Fx.tween(statusCancel, 0.12, { ImageColor3 = if on then C.enemy else C.raised })
+			Fx.tween(
+				statusCancel,
+				Fx.MOTION.hover,
+				{ ImageColor3 = if on then C.enemy else C.raised }
+			)
 		end,
 	})
 end
@@ -545,9 +641,15 @@ local function updateTimer()
 	lastSecond = second
 	statusTimer.Text = Fx.clock(elapsed)
 	local left = fill - elapsed
-	statusSub.Text = if left > 0
-		then `Looking for players  ·  bots fill empty slots in {Fx.clock(left + 0.999)}`
-		else "Starting with bots..."
+	local short = `Bots fill in {Fx.clock(left + 0.999)}`
+	statusSub.Text = if left <= 0
+		then "Starting with bots..."
+		elseif PHONE then short
+		else `Looking for players  ·  bots fill empty slots in {Fx.clock(left + 0.999)}`
+	-- The text floor can make the long line too wide on small screens.
+	if not statusSub.TextFits then
+		statusSub.Text = if left <= 0 then "Starting with bots..." else short
+	end
 end
 
 local function refreshAction()
@@ -557,12 +659,15 @@ local function refreshAction()
 	local switching = s == "searching" and mode ~= selected
 	findHolder.Visible = idle or switching
 	status.Visible = not idle and not switching
-	findLabel.Text = if switching then `SWITCH TO {string.upper(selected)}` else "FIND MATCH"
+	findLabel.Text = if os.clock() < pendingUntil
+		then "JOINING..."
+		elseif switching then `SWITCH TO {string.upper(selected)}`
+		else "FIND MATCH"
 	if s == "searching" then
 		statusTitle.Text = `SEARCHING  ·  {string.upper(mode or "")}`
 		statusTitle.TextColor3 = C.text
 		statusCancel.Parent.Visible = true
-		statusTimer.Position = UDim2.new(1, -200, 0.5, -4)
+		statusTimer.Position = UDim2.new(1, L.timerX, 0.5, -4)
 	elseif s == "found" or s == "teleporting" then
 		statusTitle.Text = "MATCH FOUND"
 		statusTitle.TextColor3 = C.ready
@@ -571,9 +676,6 @@ local function refreshAction()
 		statusTimer.Position = UDim2.new(1, -30, 0.5, -4)
 		statusTimer.Text = ""
 		statusFill.Size = UDim2.fromScale(1, 1)
-	end
-	if switching then
-		findHolder.Position = UDim2.fromOffset(960, 790)
 	end
 	lastSecond = -1
 	updateTimer()
@@ -595,21 +697,34 @@ local function animateIn(arg: any?)
 	end
 	isOpen = true
 	gui.Enabled = true
+	backdrop.Enabled = true
 	scrim.BackgroundTransparency = 1
-	Fx.tween(scrim, 0.25, { BackgroundTransparency = 0.38 })
+	Fx.tween(scrim, Fx.MOTION.dimIn, { BackgroundTransparency = 0.38 })
 	content.GroupTransparency = 1
-	Fx.tween(content, 0.25, { GroupTransparency = 0 })
-	header.Position = UDim2.fromOffset(84, 120)
-	Fx.tween(header, 0.4, { Position = UDim2.fromOffset(120, 120) })
+	Fx.tween(content, Fx.MOTION.enter, { GroupTransparency = 0 })
+	header.Position = UDim2.fromOffset(L.header.X - 36, L.header.Y)
+	Fx.tween(header, Fx.MOTION.enter, { Position = UDim2.fromOffset(L.header.X, L.header.Y) })
+	-- Cards rise in one after another (vault UI Design -> Motion: 48 px, 0.32 s
+	-- Quint, staggered, total under 0.4 s). Input works from the first frame.
 	for i, card in cards do
-		card.button.Position = UDim2.fromOffset(0, 48)
-		task.delay((i - 1) * 0.05, function()
-			Fx.tween(card.button, 0.36, { Position = UDim2.fromOffset(0, 0) })
-			Sound.play("CardIn")
+		local base = Fx.base(card.button)
+		card.button.Position = base + UDim2.fromOffset(0, 48)
+		task.delay((i - 1) * Fx.MOTION.stagger, function()
+			if isOpen then
+				Fx.tween(card.button, 0.32, { Position = base })
+				Sound.play("CardIn")
+			end
 		end)
 	end
 	if not timerConn then
-		timerConn = RunService.Heartbeat:Connect(updateTimer)
+		timerConn = RunService.Heartbeat:Connect(function()
+			updateTimer()
+			-- A request the server ignored: give FIND MATCH back.
+			if pendingUntil > 0 and os.clock() >= pendingUntil then
+				pendingUntil = 0
+				refreshAction()
+			end
+		end)
 	end
 end
 
@@ -619,44 +734,46 @@ local function animateOut()
 	end
 	isOpen = false
 	for _, card in cards do
-		Fx.tween(
-			card.button,
-			0.15,
-			{ Position = UDim2.fromOffset(0, 24) },
-			Enum.EasingStyle.Quint,
-			Enum.EasingDirection.In
-		)
+		Fx.out(card.button, { Position = Fx.base(card.button) + UDim2.fromOffset(0, 24) })
 	end
-	Fx.tween(
-		content,
-		0.15,
-		{ GroupTransparency = 1 },
-		Enum.EasingStyle.Quint,
-		Enum.EasingDirection.In
-	)
+	Fx.out(content, { GroupTransparency = 1 })
 	Fx.tween(
 		scrim,
-		0.18,
+		Fx.MOTION.dimOut,
 		{ BackgroundTransparency = 1 },
-		Enum.EasingStyle.Quint,
+		Enum.EasingStyle.Quad,
 		Enum.EasingDirection.In
 	)
 	if timerConn then
 		timerConn:Disconnect()
 		timerConn = nil
 	end
-	task.delay(0.2, function()
+	task.delay(Fx.MOTION.exit + 0.02, function()
 		if not isOpen then
 			gui.Enabled = false
+			backdrop.Enabled = false
 		end
 	end)
 end
 
 local function buildMenu()
+	-- Two layers (LihFolk: Safe Areas and Insets): the dimmer bleeds to every
+	-- edge, the buttons stay inside the core-UI safe area.
+	backdrop = Ui.make("ScreenGui", {
+		Name = "LobbyQueueBackdrop",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None,
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 19,
+		Enabled = false,
+	}, player:WaitForChild("PlayerGui"))
 	gui = Ui.make("ScreenGui", {
 		Name = "LobbyQueue",
 		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		DisplayOrder = 20,
 		Enabled = false,
@@ -670,7 +787,7 @@ local function buildMenu()
 		Text = "",
 		Modal = true,
 		Selectable = false,
-	}, gui)
+	}, backdrop)
 	-- Vignette: dark bands fading in from the top and bottom edges.
 	for _, top in { true, false } do
 		local band = Ui.make("Frame", {
@@ -689,19 +806,25 @@ local function buildMenu()
 		Name = "Content",
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(1920, 1080),
+		Size = UDim2.fromOffset(L.canvas.X, L.canvas.Y),
 		BackgroundTransparency = 1,
+		-- Gamepad selection stays inside the menu (LihFolk: Gamepad and Console UX).
+		SelectionGroup = true,
+		SelectionBehaviorUp = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorDown = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorLeft = Enum.SelectionBehavior.Stop,
+		SelectionBehaviorRight = Enum.SelectionBehavior.Stop,
 	}, gui)
-	Ui.fit(content)
+	Layout.fit(content, "menu")
 
 	header = Ui.make("Frame", {
-		Position = UDim2.fromOffset(120, 120),
+		Position = UDim2.fromOffset(L.header.X, L.header.Y),
 		Size = UDim2.fromOffset(900, 110),
 		BackgroundTransparency = 1,
 	}, content)
 	Ui.make("Frame", {
 		Position = UDim2.fromOffset(0, 6),
-		Size = UDim2.fromOffset(4, 92),
+		Size = UDim2.fromOffset(4, Layout.pick(92, 54)),
 		BackgroundColor3 = C.gold,
 		BorderSizePixel = 0,
 	}, header)
@@ -713,8 +836,9 @@ local function buildMenu()
 		TextSize = 15,
 	})
 	Ui.text(header, "CHOOSE YOUR FIGHT", "displayL", {
-		Position = UDim2.fromOffset(20, 26),
-		Size = UDim2.fromOffset(800, 64),
+		Position = UDim2.fromOffset(20, Layout.pick(26, 22)),
+		Size = UDim2.fromOffset(Layout.pick(800, 600), L.titleSize + 8),
+		TextSize = L.titleSize,
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
 	closeButton(content)
@@ -733,6 +857,7 @@ local function buildMenu()
 			Position = UDim2.fromOffset(960, 924),
 			Size = UDim2.fromOffset(1400, 20),
 			TextColor3 = C.textDim,
+			Visible = not PHONE and UserInputService.KeyboardEnabled,
 		}
 	)
 end
@@ -800,6 +925,8 @@ local function buildFound()
 		Name = "LobbyMatchFound",
 		ResetOnSpawn = false,
 		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None, -- edge art only, nothing to press
+		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		DisplayOrder = 30,
 		Enabled = false,
@@ -830,7 +957,8 @@ local function buildFound()
 		Size = UDim2.fromOffset(1920, 520),
 		BackgroundTransparency = 1,
 	}, foundBand)
-	Ui.fit(inner)
+	foundInner = inner
+	Layout.fit(inner, "found")
 	foundTitle = Ui.text(inner, "MATCH FOUND", "displayXL", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.fromOffset(960, 18),
@@ -950,7 +1078,12 @@ local function showFound(payload: LobbyNet.QueueEventPayload)
 
 	foundGui.Enabled = true
 	foundBand.Size = UDim2.new(1, 0, 0, 0)
-	Fx.tween(foundBand, 0.26, { Size = UDim2.new(1, 0, 0.52, 0) })
+	-- The band opens to its content's drawn height (it scales per screen).
+	local bandHeight = foundInner.AbsoluteSize.Y + 24
+	if foundGui.AbsoluteSize.Y > 0 then
+		bandHeight = math.min(bandHeight, foundGui.AbsoluteSize.Y)
+	end
+	Fx.tween(foundBand, Fx.MOTION.enter, { Size = UDim2.new(1, 0, 0, bandHeight) })
 	local s = Fx.scale(foundTitle)
 	s.Scale = 1.35
 	Fx.tween(s, 0.4, { Scale = 1 }, Enum.EasingStyle.Back)
@@ -1009,12 +1142,27 @@ end
 function QueueMenu.init()
 	buildMenu()
 	buildFound()
-	Router.register("Queue", { open = animateIn, close = animateOut })
+	Router.register("Queue", {
+		open = animateIn,
+		close = animateOut,
+		focus = function(): GuiObject?
+			if findHolder.Visible then
+				return findButton
+			end
+			for _, card in cards do
+				if card.info.id == selected then
+					return card.button
+				end
+			end
+			return nil
+		end,
+	})
 end
 
 function QueueMenu.start()
 	LobbyNet.event("QueueEvent").OnClientEvent:Connect(onQueueEvent)
 	QueueState.onChanged(function()
+		pendingUntil = 0
 		if QueueState.status() == "idle" then
 			closeFound()
 		end
