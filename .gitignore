@@ -56,3 +56,6 @@ art-source/viewmodel/checks/
 __pycache__/
 vault/01 Design/ValorantUIExamples/
 vault/01 Design/RivalsMapConcepts/
+
+# Overnight lane locks
+.claude-locks/
