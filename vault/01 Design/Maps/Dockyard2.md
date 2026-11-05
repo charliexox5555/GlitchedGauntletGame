@@ -116,5 +116,33 @@ Everything lives in **`tools/maps/dockyard2_style.py`**:
 7. Screenshots from each spawn, the middle and an overview.
 8. Blind scoring (`lihfolk:quality-score`, world rubric, min 8.5), then fix rounds.
 
+## Kit (phase 4)
+`tools/blender/build_map_kit_dockyard2.py` builds the kit on the Lobby helpers (`lobbykit`, `build_lobby_kit_stylized`, `build_lobby_kit_bunker2`), into `art-source/maps/Dockyard2/Kit_Dockyard2.blend`. That's 19 pieces, 22.7k triangles for the whole kit. **Coplanar audit: 0** (`art-source/maps/Dockyard2/coplanar.json`, the Lobby audit run on the `Map_` collections). Uploaded as group `Kit`, **asset 127619569582290**.
+
+![Kit contact sheet A](../../02%20Art/References/maps/dockyard2/kit-contact-a.jpg)
+![Kit contact sheet B](../../02%20Art/References/maps/dockyard2/kit-contact-b.jpg)
+
+| Piece | Tris | Design |
+|---|---|---|
+| `C20` / `C40` | 1,504 / 1,624 | A body with broad chamfered ribs (5 per 16 studs), three shallow roof panels and rear-end ribs (Lane role). Corner posts and rails in a darker step of the lane colour (LaneFrame). Door leaves 0.13 proud with a rib each, and charcoal locking bars with handles. Everything sits ≥ 0.03 inside the 8 × 8 × L envelope. |
+| `C20Lo` / `C40Lo` | 668 / 740 | The background version: 3 ribs per 16, no roof panels, bars or bottom rails. Used for the end walls above eye level, the ships and the far stacks. |
+| `Crane` | 4,968 | Notched octagonal legs on stepped bogies with tyres, two charcoal bands per leg, chamfered box girders, portal beams, the trolley and a white machinery house, a white cab with glass and visor, a spreader over the Crane stack (26–29, clear of anyone on the stack), and four tiny signal beacons. |
+| `Shed` | 4,108 | A stepped concrete plinth, cladding walls with charcoal pilasters, a lane-coloured band, picture-frame door surrounds with rounded inner corners, cornices, gables, a roof whose top follows the greybox roof with a 1.1 eave, a white fascia, barge boards and ridge cap, inside portal frames clear of the doors, a roller drum, pendant lamps and a floor slab 0.06 proud. |
+| `ShedSign1/2` | ~1,450 | A framed white plate over the roller door with "SHED 01" / "SHED 02" in Montserrat Black. Numbers, not colour names, so a lane restyle never contradicts the sign. |
+| `Stair` | 1,384 | Grate treads 0.03 under the greybox slope with hazard nosings, charcoal stringers and white rails. |
+| `Rack`, `Office`, `Crate` | 1,588 / 1,096 / 240 | A pallet rack packed full (it's full cover) with hazard beams; a white site cabin with framed windows and a hazard door; a wooden crate on a pallet with charcoal bands. |
+| `QuayBarrier8` / `Short`, `QuayFace8`, `Bollard`, `LampMast` | 88 / 88 / 136 / 500 / 580 | A wall with a bullnose cap, a hazard band and a dark kick (cores stop 0.02 short, so neighbours show a hairline joint instead of a coplanar end). The deck edge with a chamfered coping 0.06 over the deck and a rubber fender. A lathed bollard. A mast with a stepped plinth, a tapered white pole and a twin head with warm lenses. |
+| `StsCrane`, `Ship` | 352 / 144 | Skyline silhouettes in white, charcoal and slate, kept off the yellow so the RTG stays the one landmark. |
+
+**Style frames** (Blender stand-in for the Roblox light; Roblox will be flatter and warmer):
+![From the B spawn](../../02%20Art/References/maps/dockyard2/style-frame-from-b-spawn.jpg)
+![Overview](../../02%20Art/References/maps/dockyard2/style-frame-overview.jpg)
+
+Critique of the first frame, now fixed: everything read blue (a cool backdrop behind the blue lane). The backdrop palette now leans warm (sand, cream, faded terracotta, sage, mustard, slate), and the blue lane is calmer (`3E6C9C`). The crane reads as the landmark from every frame. The Shed's white walls and lane band read at a glance.
+
 ## 7. Build and run order
-(Filled in as the build goes.)
+1. Layout (rerun after any change): `python tools/maps/dockyard2_layout.py --luau` prints the checks and writes the SVG, the greybox LAYOUT block and the ART block (from `tools/maps/dockyard2_art.py`).
+2. Style: `python tools/maps/dockyard2_style.py --luau --svg` writes the STYLE block of `Art.luau`, the LIGHT block of `Lighting.luau` and the palette board.
+3. Kit: `blender --background --factory-startup --python tools/blender/build_map_kit_dockyard2.py -- [--render] [--preview]` (prints `COPLANAR 0`). Export: `blender --background --factory-startup art-source/maps/Dockyard2/Kit_Dockyard2.blend --python tools/blender/export_lobby_kit.py -- --maps Dockyard2 Kit`. Upload: `python tools/opencloud/upload_models.py --maps Dockyard2 --group 11116787 Kit` (updates asset 127619569582290).
+4. In the match place, edit mode: `python tools/studio/maps/bundle.py Dockyard2 Greybox`, then `python tools/studio/maps/kit_bundle.py Dockyard2 Kit`, then `python tools/studio/maps/bundle.py Dockyard2 Art Lighting`; run each.
+5. Check: `tools/studio/maps/Audit.luau` with argument `"Dockyard2"` (target 0). Then screenshots, saving the place and the backups `art-source/maps/Dockyard2/Dockyard2.rbxm` / `MapKit_Dockyard2.rbxm`.

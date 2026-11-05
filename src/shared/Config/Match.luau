@@ -23,6 +23,7 @@ return table.freeze({
 		{ id = "BigWhitebox", minTeam = 3, maxTeam = 4 },
 		{ id = "Greenhouse", minTeam = 2, maxTeam = 4 },
 		{ id = "Snowpeak", minTeam = 1, maxTeam = 3 },
+		-- Dockyard2 (redesign, 2026-11-05) is installed but left out on purpose: ForceMap only until approved.
 	} :: { MapEntry },
 
 	ROUNDS_TO_WIN = 5,
