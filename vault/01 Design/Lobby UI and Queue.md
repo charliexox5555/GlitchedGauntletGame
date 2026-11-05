@@ -82,6 +82,7 @@ Lane A: world signs ("X queued" per bay) can read `ReplicatedStorage.LobbyRemote
 | `LobbyRangeEntrance` | Range panel (placeholder until the in-place Range teleport exists) | |
 | `LobbySpawn` | not hooked (spawning is server/world work) | |
 Tagged Models use their PrimaryPart (or first BasePart); big pads get a reach of half their footprint + 6 studs (10-24).
+**Checked with lane A's real tags (2026-11-05):** 8 `LobbyQueue` pads (four 1v1, two 2v2, two 3v3; tagged BaseParts such as `Lobby.Hub.Duels.Pad_2v2_AW.QueueZone`) and one part each for Shop, Battle Pass, Locker and Range all got their prompt after streaming in. On the 2v2 pad the prompt read "Queue 2V2 / Duels" (reach 12.5) and E opened the Play menu with 2V2 selected; E at `Market.ShopZone` opened the Shop panel.
 
 ## 5. Security notes
 - The client can only send `join(mode)` / `leave`. The handler rate-limits first, then checks `typeof(action) == "string"`, mode is a string ≤ 8 chars and in `Config.MODE_BY_ID` with `enabled`. State changes are only legal from the right state (join from idle/searching, leave only while searching), so spamming can't cancel a found match or double-queue.
