@@ -62,7 +62,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit S pier cap",
 		kind = "piercap",
 		b = { -20.3, -18.7, -4.7, -4.5, -16.3, -14.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit S pier",
@@ -75,7 +75,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit S pier cap",
 		kind = "piercap",
 		b = { -14.6, -13, -4.7, -4.5, -16.3, -14.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{ name = "Pit S sill", kind = "sill", b = { -13, -5, -9, -8, -16, -15 }, look = "Ledge" },
 	{
@@ -128,7 +128,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit S pier cap",
 		kind = "piercap",
 		b = { -5, -3.4, -4.7, -4.5, -16.3, -14.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit S pier",
@@ -141,7 +141,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit S pier cap",
 		kind = "piercap",
 		b = { 3.2, 4.8, -4.7, -4.5, -16.3, -14.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit S pier",
@@ -154,7 +154,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit S pier cap",
 		kind = "piercap",
 		b = { 11.2, 12.8, -4.7, -4.5, -16.3, -14.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit S pier",
@@ -167,7 +167,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit S pier cap",
 		kind = "piercap",
 		b = { 18.7, 20.3, -4.7, -4.5, -16.3, -14.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit N parapet",
@@ -219,7 +219,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit N pier cap",
 		kind = "piercap",
 		b = { -20.3, -18.7, -4.7, -4.5, 14.7, 16.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit N pier",
@@ -232,7 +232,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit N pier cap",
 		kind = "piercap",
 		b = { -12.8, -11.2, -4.7, -4.5, 14.7, 16.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit N pier",
@@ -245,7 +245,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit N pier cap",
 		kind = "piercap",
 		b = { -4.8, -3.2, -4.7, -4.5, 14.7, 16.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit N pier",
@@ -258,7 +258,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit N pier cap",
 		kind = "piercap",
 		b = { 3.4, 5, -4.7, -4.5, 14.7, 16.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{ name = "Pit N sill", kind = "sill", b = { 5, 13, -9, -8, 15, 16 }, look = "Ledge" },
 	{
@@ -285,7 +285,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit N pier cap",
 		kind = "piercap",
 		b = { 13, 14.6, -4.7, -4.5, 14.7, 16.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit N pier",
@@ -298,7 +298,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit N pier cap",
 		kind = "piercap",
 		b = { 18.7, 20.3, -4.7, -4.5, 14.7, 16.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit W parapet",
@@ -363,7 +363,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit W pier cap",
 		kind = "piercap",
 		b = { -20.3, -18.7, -4.7, -4.5, -8.8, -7.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit W pier",
@@ -376,7 +376,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit W pier cap",
 		kind = "piercap",
 		b = { -20.3, -18.7, -4.7, -4.5, -0.8, 0.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit W pier",
@@ -389,7 +389,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit W pier cap",
 		kind = "piercap",
 		b = { -20.3, -18.7, -4.7, -4.5, 7.2, 8.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit E parapet",
@@ -454,7 +454,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit E pier cap",
 		kind = "piercap",
 		b = { 18.7, 20.3, -4.7, -4.5, -8.8, -7.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit E pier",
@@ -467,7 +467,7 @@ local LAYOUT: { Solid } = {
 		name = "Pit E pier cap",
 		kind = "piercap",
 		b = { 18.7, 20.3, -4.7, -4.5, -0.8, 0.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "Pit E pier",
@@ -480,29 +480,34 @@ local LAYOUT: { Solid } = {
 		name = "Pit E pier cap",
 		kind = "piercap",
 		b = { 18.7, 20.3, -4.7, -4.5, 7.2, 8.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{ name = "Lift tower", kind = "hut", b = { -5, 5, -8, 8, -4, 4 }, art = "LiftTower" },
-	{ name = "Water tank", kind = "tank", b = { -4.5, 4.5, 12, 22, -4.5, 4.5 }, art = "WaterTank" },
+	{ name = "Water tank", kind = "tank", b = { -6, 6, 14.3, 26.6, -6, 6 }, art = "WaterTank" },
 	{
 		name = "Water tank leg",
 		kind = "leg",
-		b = { -3.9, -3.1, 8, 12, -3.9, -3.1 },
+		b = { -5.6, -4.8, 8, 14.3, -5.6, -4.8 },
 		art = "WaterTank",
 	},
 	{
 		name = "Water tank leg",
 		kind = "leg",
-		b = { -3.9, -3.1, 8, 12, 3.1, 3.9 },
+		b = { -5.6, -4.8, 8, 14.3, 4.8, 5.6 },
 		art = "WaterTank",
 	},
 	{
 		name = "Water tank leg",
 		kind = "leg",
-		b = { 3.1, 3.9, 8, 12, -3.9, -3.1 },
+		b = { 4.8, 5.6, 8, 14.3, -5.6, -4.8 },
 		art = "WaterTank",
 	},
-	{ name = "Water tank leg", kind = "leg", b = { 3.1, 3.9, 8, 12, 3.1, 3.9 }, art = "WaterTank" },
+	{
+		name = "Water tank leg",
+		kind = "leg",
+		b = { 4.8, 5.6, 8, 14.3, 4.8, 5.6 },
+		art = "WaterTank",
+	},
 	{
 		name = "B Block body",
 		kind = "body",
@@ -685,7 +690,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -698,7 +703,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { -40.8, -39.2, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -711,7 +716,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { -32.8, -31.2, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -724,7 +729,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { -24.8, -23.2, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -737,7 +742,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { -16.8, -15.2, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -750,7 +755,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { -8.8, -7.2, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -763,7 +768,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { -0.8, 0.8, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -776,7 +781,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { 7.2, 8.8, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -789,7 +794,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { 15.2, 16.8, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -802,7 +807,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { 23.2, 24.8, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -815,7 +820,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { 31.2, 32.8, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -828,7 +833,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { 39.2, 40.8, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier",
@@ -841,7 +846,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, 78.7, 80.3 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W parapet",
@@ -945,7 +950,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, 25, 26.6 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier",
@@ -958,7 +963,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, 31.2, 32.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier",
@@ -971,7 +976,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, 39.2, 40.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier",
@@ -984,7 +989,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, 47.2, 48.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier",
@@ -997,7 +1002,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, 55.2, 56.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier",
@@ -1010,7 +1015,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, 63.2, 64.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier",
@@ -1023,7 +1028,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, 71.2, 72.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E parapet",
@@ -1127,7 +1132,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, 25, 26.6 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier",
@@ -1140,7 +1145,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, 31.2, 32.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier",
@@ -1153,7 +1158,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, 39.2, 40.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier",
@@ -1166,7 +1171,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, 47.2, 48.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier",
@@ -1179,7 +1184,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, 55.2, 56.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier",
@@ -1192,7 +1197,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, 63.2, 64.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier",
@@ -1205,7 +1210,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, 71.2, 72.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "West Tower body",
@@ -1258,7 +1263,7 @@ local LAYOUT: { Solid } = {
 		name = "West Tower W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 11.3, 11.5, -7, -5.4 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "West Tower W pier",
@@ -1271,7 +1276,7 @@ local LAYOUT: { Solid } = {
 		name = "West Tower W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 11.3, 11.5, -0.8, 0.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "West Tower W pier",
@@ -1284,7 +1289,7 @@ local LAYOUT: { Solid } = {
 		name = "West Tower W pier cap",
 		kind = "piercap",
 		b = { -48.3, -46.7, 11.3, 11.5, 5.4, 7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{ name = "West Tower E ledge", kind = "ledge", b = { -29, -28, 7, 9, -7, 7 }, look = "Ledge" },
 	{
@@ -1413,34 +1418,18 @@ local LAYOUT: { Solid } = {
 	{ name = "Roof AC", kind = "ac", b = { -46.5, -38.5, 0, 7.5, 48, 52 }, art = "ACUnit" },
 	{ name = "Planter", kind = "ac", b = { -46.6, -40.6, 0, 7.5, 36, 39 }, art = "Planter" },
 	{ name = "Penthouse", kind = "hut", b = { -20, 20, 0, 11, 52, 60 }, art = "Penthouse" },
+	{
+		name = "Balcony stair",
+		kind = "stair",
+		b = { -20, -12, 0, 5, 49, 52 },
+		up = { 1, 0 },
+		art = "FireStair",
+	},
+	{ name = "Balcony", kind = "bridge", b = { -12, 20, 4.6, 5, 49, 52 }, art = "FireBalcony" },
+	{ name = "Balcony parapet", kind = "ac", b = { -12, 20, 5, 8, 48.4, 49 }, art = "FireBalcony" },
 	{ name = "Lift house", kind = "hut", b = { 26, 34, 0, 10, 46, 54 }, art = "LiftHouse" },
 	{ name = "Condenser", kind = "cond", b = { 42.5, 46.5, 0, 3, 52, 56 }, art = "Condenser" },
 	{ name = "Tank house", kind = "hut", b = { 36.5, 46.5, 0, 8, 68.5, 78.5 }, art = "TankHouse" },
-	{ name = "Water tank", kind = "tank", b = { 37, 46, 12, 22, 69, 78 }, art = "WaterTank" },
-	{
-		name = "Water tank leg",
-		kind = "leg",
-		b = { 37.6, 38.4, 8, 12, 69.6, 70.4 },
-		art = "WaterTank",
-	},
-	{
-		name = "Water tank leg",
-		kind = "leg",
-		b = { 37.6, 38.4, 8, 12, 76.6, 77.4 },
-		art = "WaterTank",
-	},
-	{
-		name = "Water tank leg",
-		kind = "leg",
-		b = { 44.6, 45.4, 8, 12, 69.6, 70.4 },
-		art = "WaterTank",
-	},
-	{
-		name = "Water tank leg",
-		kind = "leg",
-		b = { 44.6, 45.4, 8, 12, 76.6, 77.4 },
-		art = "WaterTank",
-	},
 	{
 		name = "Cooling tower",
 		kind = "hut",
@@ -1641,7 +1630,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1654,7 +1643,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { 39.2, 40.8, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1667,7 +1656,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { 31.2, 32.8, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1680,7 +1669,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { 23.2, 24.8, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1693,7 +1682,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { 15.2, 16.8, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1706,7 +1695,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { 7.2, 8.8, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1719,7 +1708,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { -0.8, 0.8, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1732,7 +1721,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { -8.8, -7.2, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1745,7 +1734,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { -16.8, -15.2, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1758,7 +1747,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { -24.8, -23.2, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1771,7 +1760,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { -32.8, -31.2, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1784,7 +1773,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { -40.8, -39.2, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block N pier'",
@@ -1797,7 +1786,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block N pier cap'",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, -80.3, -78.7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W parapet'",
@@ -1901,7 +1890,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, -26.6, -25 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier'",
@@ -1914,7 +1903,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, -32.8, -31.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier'",
@@ -1927,7 +1916,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, -40.8, -39.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier'",
@@ -1940,7 +1929,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, -48.8, -47.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier'",
@@ -1953,7 +1942,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, -56.8, -55.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier'",
@@ -1966,7 +1955,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, -64.8, -63.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block W pier'",
@@ -1979,7 +1968,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 3.3, 3.5, -72.8, -71.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E parapet'",
@@ -2083,7 +2072,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap'",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, -26.6, -25 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier'",
@@ -2096,7 +2085,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap'",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, -32.8, -31.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier'",
@@ -2109,7 +2098,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap'",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, -40.8, -39.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier'",
@@ -2122,7 +2111,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap'",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, -48.8, -47.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier'",
@@ -2135,7 +2124,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap'",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, -56.8, -55.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier'",
@@ -2148,7 +2137,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap'",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, -64.8, -63.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "B Block E pier'",
@@ -2161,7 +2150,7 @@ local LAYOUT: { Solid } = {
 		name = "B Block E pier cap'",
 		kind = "piercap",
 		b = { -48.3, -46.7, 3.3, 3.5, -72.8, -71.2 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "West Tower body'",
@@ -2214,7 +2203,7 @@ local LAYOUT: { Solid } = {
 		name = "West Tower W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 11.3, 11.5, 5.4, 7 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "West Tower W pier'",
@@ -2227,7 +2216,7 @@ local LAYOUT: { Solid } = {
 		name = "West Tower W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 11.3, 11.5, -0.8, 0.8 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{
 		name = "West Tower W pier'",
@@ -2240,7 +2229,7 @@ local LAYOUT: { Solid } = {
 		name = "West Tower W pier cap'",
 		kind = "piercap",
 		b = { 46.7, 48.3, 11.3, 11.5, -7, -5.4 },
-		look = "Coping",
+		look = "PierCap",
 	},
 	{ name = "West Tower E ledge'", kind = "ledge", b = { 28, 29, 7, 9, -7, 7 }, look = "Ledge" },
 	{
@@ -2400,6 +2389,20 @@ local LAYOUT: { Solid } = {
 	{ name = "Roof AC'", kind = "ac", b = { 38.5, 46.5, 0, 7.5, -52, -48 }, art = "ACUnit" },
 	{ name = "Planter'", kind = "ac", b = { 40.6, 46.6, 0, 7.5, -39, -36 }, art = "Planter" },
 	{ name = "Penthouse'", kind = "hut", b = { -20, 20, 0, 11, -60, -52 }, art = "Penthouse" },
+	{
+		name = "Balcony stair'",
+		kind = "stair",
+		b = { 12, 20, 0, 5, -52, -49 },
+		up = { -1, 0 },
+		art = "FireStair",
+	},
+	{ name = "Balcony'", kind = "bridge", b = { -20, 12, 4.6, 5, -52, -49 }, art = "FireBalcony" },
+	{
+		name = "Balcony parapet'",
+		kind = "ac",
+		b = { -20, 12, 5, 8, -49, -48.4 },
+		art = "FireBalcony",
+	},
 	{ name = "Lift house'", kind = "hut", b = { -34, -26, 0, 10, -54, -46 }, art = "LiftHouse" },
 	{ name = "Condenser'", kind = "cond", b = { -46.5, -42.5, 0, 3, -56, -52 }, art = "Condenser" },
 	{
@@ -2407,31 +2410,6 @@ local LAYOUT: { Solid } = {
 		kind = "hut",
 		b = { -46.5, -36.5, 0, 8, -78.5, -68.5 },
 		art = "TankHouse",
-	},
-	{ name = "Water tank'", kind = "tank", b = { -46, -37, 12, 22, -78, -69 }, art = "WaterTank" },
-	{
-		name = "Water tank leg'",
-		kind = "leg",
-		b = { -38.4, -37.6, 8, 12, -70.4, -69.6 },
-		art = "WaterTank",
-	},
-	{
-		name = "Water tank leg'",
-		kind = "leg",
-		b = { -38.4, -37.6, 8, 12, -77.4, -76.6 },
-		art = "WaterTank",
-	},
-	{
-		name = "Water tank leg'",
-		kind = "leg",
-		b = { -45.4, -44.6, 8, 12, -70.4, -69.6 },
-		art = "WaterTank",
-	},
-	{
-		name = "Water tank leg'",
-		kind = "leg",
-		b = { -45.4, -44.6, 8, 12, -77.4, -76.6 },
-		art = "WaterTank",
 	},
 	{
 		name = "Cooling tower'",

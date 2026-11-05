@@ -343,19 +343,25 @@
 <rect x="573.5" y="496.0" width="8.0" height="8.0" fill="#C9C1B0" stroke="none" stroke-width="1"/>
 <rect x="573.5" y="527.0" width="8.0" height="8.0" fill="#C9C1B0" stroke="none" stroke-width="1"/>
 <rect x="365.0" y="380.0" width="40.0" height="40.0" fill="#9AA3AE" stroke="#111" stroke-width="1"/>
+<rect x="280.0" y="240.0" width="160.0" height="15.0" fill="#9AA3AE" stroke="#111" stroke-width="1"/>
 <rect x="275.0" y="580.0" width="40.0" height="40.0" fill="#9AA3AE" stroke="#111" stroke-width="1"/>
+<rect x="240.0" y="745.0" width="160.0" height="15.0" fill="#9AA3AE" stroke="#111" stroke-width="1"/>
 <rect x="365.0" y="420.0" width="40.0" height="80.0" fill="#B8BCC6" stroke="#111" stroke-width="1"/>
 <line x1="385" y1="484" x2="385" y2="436" stroke="#222" stroke-width="2" marker-end="url(#arr)"/>
 <rect x="120.0" y="380.0" width="40.0" height="80.0" fill="#B8BCC6" stroke="#111" stroke-width="1"/>
 <line x1="140" y1="396" x2="140" y2="444" stroke="#222" stroke-width="2" marker-end="url(#arr)"/>
 <rect x="500.0" y="380.0" width="40.0" height="80.0" fill="#B8BCC6" stroke="#111" stroke-width="1"/>
 <line x1="520" y1="396" x2="520" y2="444" stroke="#222" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="240.0" y="240.0" width="40.0" height="15.0" fill="#B8BCC6" stroke="#111" stroke-width="1"/>
+<line x1="256" y1="248" x2="264" y2="248" stroke="#222" stroke-width="2" marker-end="url(#arr)"/>
 <rect x="275.0" y="500.0" width="40.0" height="80.0" fill="#B8BCC6" stroke="#111" stroke-width="1"/>
 <line x1="295" y1="516" x2="295" y2="564" stroke="#222" stroke-width="2" marker-end="url(#arr)"/>
 <rect x="520.0" y="540.0" width="40.0" height="80.0" fill="#B8BCC6" stroke="#111" stroke-width="1"/>
 <line x1="540" y1="604" x2="540" y2="556" stroke="#222" stroke-width="2" marker-end="url(#arr)"/>
 <rect x="140.0" y="540.0" width="40.0" height="80.0" fill="#B8BCC6" stroke="#111" stroke-width="1"/>
 <line x1="160" y1="604" x2="160" y2="556" stroke="#222" stroke-width="2" marker-end="url(#arr)"/>
+<rect x="400.0" y="745.0" width="40.0" height="15.0" fill="#B8BCC6" stroke="#111" stroke-width="1"/>
+<line x1="424" y1="752" x2="416" y2="752" stroke="#222" stroke-width="2" marker-end="url(#arr)"/>
 <rect x="250.0" y="330.0" width="40.0" height="20.0" fill="#8FC1D6" stroke="#111" stroke-width="1"/>
 <rect x="532.5" y="325.0" width="40.0" height="20.0" fill="#8FC1D6" stroke="#111" stroke-width="1"/>
 <rect x="390.0" y="650.0" width="40.0" height="20.0" fill="#8FC1D6" stroke="#111" stroke-width="1"/>
@@ -367,6 +373,7 @@
 <rect x="440.0" y="335.0" width="40.0" height="20.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="107.5" y="240.0" width="40.0" height="20.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="107.0" y="305.0" width="30.0" height="15.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
+<rect x="280.0" y="255.0" width="160.0" height="3.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="225.0" y="107.0" width="30.0" height="15.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="425.0" y="107.0" width="30.0" height="15.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="392.5" y="532.5" width="40.0" height="20.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
@@ -374,6 +381,7 @@
 <rect x="200.0" y="645.0" width="40.0" height="20.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="532.5" y="740.0" width="40.0" height="20.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="543.0" y="680.0" width="30.0" height="15.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
+<rect x="240.0" y="742.0" width="160.0" height="3.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="425.0" y="878.0" width="30.0" height="15.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="225.0" y="878.0" width="30.0" height="15.0" fill="#9EA6AE" stroke="#111" stroke-width="1"/>
 <rect x="315.0" y="480.0" width="50.0" height="40.0" fill="#6E5D52" stroke="#111" stroke-width="1"/>
@@ -390,8 +398,6 @@
 <rect x="107.5" y="842.5" width="50.0" height="50.0" fill="#6E5D52" stroke="#111" stroke-width="1"/>
 <rect x="522.5" y="842.5" width="50.0" height="50.0" fill="#6E5D52" stroke="#111" stroke-width="1"/>
 <circle cx="340.0" cy="500.0" r="22.5" fill="#8A6A4A" fill-opacity="0.55" stroke="#D9C2A0" stroke-width="2" stroke-dasharray="5 3"/>
-<circle cx="547.5" cy="132.5" r="22.5" fill="#8A6A4A" fill-opacity="0.55" stroke="#D9C2A0" stroke-width="2" stroke-dasharray="5 3"/>
-<circle cx="132.5" cy="867.5" r="22.5" fill="#8A6A4A" fill-opacity="0.55" stroke="#D9C2A0" stroke-width="2" stroke-dasharray="5 3"/>
 <rect x="235.0" y="427.0" width="110.0" height="5.0" fill="#E0569A" stroke="none" stroke-width="1"/>
 <rect x="147.0" y="465.0" width="6.0" height="70.0" fill="#E0569A" stroke="none" stroke-width="1"/>
 <rect x="335.0" y="568.0" width="110.0" height="5.0" fill="#F0A830" stroke="none" stroke-width="1"/>
@@ -399,9 +405,9 @@
 <line x1="105" y1="180" x2="575" y2="180" stroke="#3D8BFF" stroke-width="4" opacity="0.85"/>
 <line x1="105" y1="820" x2="575" y2="820" stroke="#3D8BFF" stroke-width="4" opacity="0.85"/>
 <line x1="118" y1="328" x2="552" y2="822" stroke="#FF6B6B" stroke-width="2.5" stroke-dasharray="8 5"/>
-<line x1="272" y1="708" x2="152" y2="268" stroke="#FFD166" stroke-width="2.5"/>
+<line x1="272" y1="708" x2="152" y2="278" stroke="#FFD166" stroke-width="2.5"/>
 <circle cx="272" cy="708" r="5" fill="#FFD166"/>
-<circle cx="152" cy="268" r="5" fill="#FFD166"/>
+<circle cx="152" cy="278" r="5" fill="#FFD166"/>
 <circle cx="370" cy="840" r="6" fill="#00B8D4" stroke="#111"/>
 <circle cx="310" cy="840" r="6" fill="#00B8D4" stroke="#111"/>
 <circle cx="370" cy="865" r="6" fill="#00B8D4" stroke="#111"/>
@@ -460,7 +466,7 @@
 <line x1="670.0" y1="424" x2="690.0" y2="424" stroke="#FF6B6B" stroke-width="2.5" stroke-dasharray="8 5"/>
 <text x="700.0" y="429" font-size="13" fill="#F4F1EA">Longest line, 132 studs</text>
 <line x1="670.0" y1="450" x2="690.0" y2="450" stroke="#FFD166" stroke-width="2.5"/>
-<text x="700.0" y="455" font-size="13" fill="#F4F1EA">First sight, 1.9 s sprinting</text>
+<text x="700.0" y="455" font-size="13" fill="#F4F1EA">First sight, 2.0 s sprinting</text>
 <rect x="670.0" y="468" width="20" height="16" fill="#D1495B" opacity="0.55"/>
 <text x="700.0" y="481" font-size="13" fill="#F4F1EA">Floor that sees an enemy spawn</text>
 <line x1="670.0" y1="502" x2="690.0" y2="502" stroke="#3D8BFF" stroke-width="4"/>

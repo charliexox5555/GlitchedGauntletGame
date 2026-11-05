@@ -43,7 +43,7 @@ EYE = 5.0
 BODY_H = 5.4
 WALK = 16.0
 SPRINT = 22.0
-JUMP = 7.2
+JUMP = 5.6  # Gunplay.md: 5.6 since 2026-11-04 (was 7.2)
 GRAVITY = 196.2
 UPDRAFT = (14.0, 28.0)
 DASH = (12.0, 24.0)
@@ -236,7 +236,7 @@ def side_solids(b: Building, side: str, corner_pier: dict) -> list[S]:
 				out.append(box(n + " coping", "coping", r0, r1, c0, c1, R + BRICK_TOP, R + 3.0, "Coping"))
 		for p in piers:
 			out.append(box(n + " pier", "pier", p - PIER / 2, p + PIER / 2, a0 - 0.2, a1 + 0.2, R - 0.9, R + PIER_TOP, "Brick"))
-			out.append(box(n + " pier cap", "piercap", p - PIER / 2 - CAP, p + PIER / 2 + CAP, a0 - 0.2 - CAP, a1 + 0.2 + CAP, R + PIER_TOP, R + CAP_TOP, "Coping"))
+			out.append(box(n + " pier cap", "piercap", p - PIER / 2 - CAP, p + PIER / 2 + CAP, a0 - 0.2 - CAP, a1 + 0.2 + CAP, R + PIER_TOP, R + CAP_TOP, "PierCap"))  # concept pass: cobalt caps
 	return out
 
 
@@ -253,11 +253,11 @@ def rails_along_z(name, x0, x1, z0, z1, deck, slope=None):
 	return out
 
 
-def water_tank(name, cx, cz, y=0.0, legs=7.0):
-	"""Wooden tank (box stand-in for the drum, 9 wide and 10 tall) on four steel legs."""
-	out = [S(name, "tank", cx - 4.5, cx + 4.5, y + legs, y + legs + 10, cz - 4.5, cz + 4.5, art="WaterTank")]
-	for dx in (-3.5, 3.5):
-		for dz in (-3.5, 3.5):
+def water_tank(name, cx, cz, y=0.0, legs=7.0, r=4.5, h=10.0, leg=3.5):
+	"""Wooden tank (box stand-in for the drum, 2r wide and h tall) on four steel legs."""
+	out = [S(name, "tank", cx - r, cx + r, y + legs, y + legs + h, cz - r, cz + r, art="WaterTank")]
+	for dx in (-leg, leg):
+		for dz in (-leg, leg):
 			out.append(S(name + " leg", "leg", cx + dx - 0.4, cx + dx + 0.4, y, y + legs, cz + dz - 0.4, cz + dz + 0.4, art="WaterTank"))
 	return out
 
@@ -308,7 +308,8 @@ TOWER_Y = TOWER.roof
 # The middle: the Pit building's lift tower (to +8) with the water tank on it, the landmark of the map.
 CENTER = building_solids(PIT_B) + [
 	S("Lift tower", "hut", -5, 5, PIT, 8, -4, 4, art="LiftTower"),
-	*water_tank("Water tank", 0, 0, y=8, legs=4),
+	# Concept pass 2026-11-05: the kit tank at 1.35x (drum 14.3-26.6, r 6), so it owns the skyline (>= 1.5x anything).
+	*water_tank("Water tank", 0, 0, y=8, legs=6.3, r=6.0, h=12.3, leg=5.2),
 ]
 
 HALF = (
@@ -355,13 +356,19 @@ HALF = (
 		# Rooftops2 change 4: a planter screen (full cover) against the west parapet in the front row: the deeper roof
 		# opened a diagonal from the west lane across the Pit to the far corner; this cuts it and covers the lane.
 		S("Planter", "ac", -46.6, -40.6, 0, 7.5, 36, 39, art="Planter"),
+		# Concept pass 2026-11-05 (height levels): a fire-escape balcony (+5) along the Penthouse's Pit-side face,
+		# reached by a stair rising east, with a low parapet (3) on its front. (A walkable Penthouse roof at +11
+		# was measured first and dropped: 144-stud lines into the enemy spawn court, first sight 1.9 -> 1.7 s.)
 		S("Penthouse", "hut", -20, 20, 0, 11, 52, 60, art="Penthouse"),
+		S("Balcony stair", "stair", -20, -12, 0, 5, 49, 52, up=(1, 0), art="FireStair"),
+		S("Balcony", "bridge", -12, 20, 4.6, 5, 49, 52, art="FireBalcony"),
+		S("Balcony parapet", "ac", -12, 20, 5, 8, 48.4, 49, art="FireBalcony"),
 		S("Lift house", "hut", 26, 34, 0, 10, 46, 54, art="LiftHouse"),
 		S("Condenser", "cond", 42.5, 46.5, 0, 3, 52, 56, art="Condenser"),
 		# Back corners: the B water tank on its brick tank house (east) and a cooling tower (west) close the
 		# spawn court on both sides, so the court has two exits past the Penthouse.
 		S("Tank house", "hut", 36.5, 46.5, 0, 8, 68.5, 78.5, art="TankHouse"),
-		*water_tank("Water tank", 41.5, 73.5, y=8, legs=4),
+		# (concept pass: the corner tank on the Tank house went: one landmark per map)
 		S("Cooling tower", "hut", -46.5, -36.5, 0, 8, 68.5, 78.5, art="CoolingTower"),
 		# Rooftops2 change 5 (scoring round 3): planters against the back parapet either side of the spawn court, so the
 		# spawn view isn't bare tile (they stand behind the spawns, out of every line).

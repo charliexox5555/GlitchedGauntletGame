@@ -40,7 +40,7 @@ from mathutils import Matrix, Vector  # noqa: E402
 import build_map_kit_dockyard2 as D  # noqa: E402
 from build_map_kit_dockyard2 import RB, RPX, RPY, RPZ, rcylX, octo, arrow  # noqa: E402
 from lobbykit import collection, _flat, _emissive, lathe, ROOT  # noqa: E402
-from build_lobby_kit_stylized import finish, merge, xform, T, RZ, rrect  # noqa: E402
+from build_lobby_kit_stylized import finish, merge, xform, T, RX, RZ, rrect  # noqa: E402
 from build_lobby_kit_bunker2 import text_mesh, chamfer_path, ring_prism  # noqa: E402
 import rooftops2_style as S  # noqa: E402
 
@@ -528,6 +528,583 @@ def city(name, W, Dp, H):
 	obj(c, "Cap", RB(-hx - 0.6, hx + 0.6, H, H + 1.2, -hz - 0.6, hz + 0.6), "Trim")
 
 
+# ---------------------------------------------------------------- concept pass v2 (2026-11-05)
+# Rebuilt from the approved concepts (art-source/maps/Rooftops2/concepts, vault/01 Design/Maps/Rooftops2.md ->
+# Concept board): arched windows in stone surrounds with keystones and louvred shutters, quoined corners, corbelled
+# cornices, a terracotta hip-roof Penthouse (A) and a slate mansard one (B), a timber water tank on a splayed, braced
+# steel stand with a railed platform and a sign arm, chunky fire-escape steel, stone Pit stairs with cheek walls, a
+# plank bridge on a steel truss, and props in story groups. LihFolk rules applied: steel bevels 0.12-0.2, stone and
+# plaster 0.3-0.45 (Hard-Surface Modeling); nothing thinner than 0.2, posts >= 0.35 (Proportion Exaggeration and
+# Gameplay Distance); primary / secondary / tertiary masses with one focal feature per piece (Shape Language and
+# Silhouette Testing); stacked props tilted a few degrees (Low-Poly and Stylized Modeling); undersides modelled
+# (first person sees them); detail concentrated at eye height (Spending Triangles Where the Camera Looks).
+
+BST = 0.16  # steel bevel
+BSN = 0.35  # stone / plaster bevel
+
+
+def rb(x, y, z):
+	# Roblox (x, y, z) -> Blender co
+	return (x, -z, y)
+
+
+def beam(p0, p1, w, h=None, up=(0.0, 1.0, 0.0), r=0.0):
+	"""Square-section bar from p0 to p1 (Roblox coords), w wide, h tall, rounded by r."""
+	h = h or w
+	a, b = Vector(p0), Vector(p1)
+	d = (b - a).normalized()
+	u = Vector(up)
+	if abs(d.dot(u)) > 0.95:
+		u = Vector((1.0, 0.0, 0.0))
+	s = d.cross(u).normalized()
+	u2 = s.cross(d).normalized()
+	bm = bmesh.new()
+	vs = []
+	for p in (a, b):
+		for i, j in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+			q = p + s * (i * w / 2) + u2 * (j * h / 2)
+			vs.append(bm.verts.new(rb(q.x, q.y, q.z)))
+	for ids in ((0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)):
+		bm.faces.new([vs[i] for i in ids])
+	bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+	return finish(bm, r, 1) if r > 0 else bm
+
+
+def frustum(x0, x1, z0, z1, y0, y1, ix, iz, r=0.0):
+	"""A box whose top is inset by ix (X) and iz (Z): hip roofs, caps, plinths."""
+	bm = bmesh.new()
+	bot = [(x0, z0), (x1, z0), (x1, z1), (x0, z1)]
+	top = [(x0 + ix, z0 + iz), (x1 - ix, z0 + iz), (x1 - ix, z1 - iz), (x0 + ix, z1 - iz)]
+	vs = [bm.verts.new(rb(x, y0, z)) for x, z in bot] + [bm.verts.new(rb(x, y1, z)) for x, z in top]
+	for ids in ((0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)):
+		bm.faces.new([vs[i] for i in ids])
+	bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+	return finish(bm, r, 1) if r > 0 else bm
+
+
+def arch_pts(w, h, v0, cu=0.0, n=7):
+	"""CCW outline in (u, v): flat sill at v0, straight jambs, a semicircular head; h tall overall."""
+	r = w / 2
+	vs = v0 + h - r
+	pts = [(cu - r, v0), (cu + r, v0)]
+	for k in range(n + 1):
+		a = math.pi * k / n
+		pts.append((cu + r * math.cos(a), vs + r * math.sin(a)))
+	return pts
+
+
+def arch_ring_x(w, h, t, v0, x0, x1, cz=0.0):
+	# Stone surround on a wall facing +X (plane Y-Z), extruded x0..x1.
+	o = arch_pts(w, h, v0, cz)
+	i = arch_pts(w - 2 * t, h - 2 * t, v0 + t, cz)
+	o = [(-u, v) for u, v in o][::-1]
+	i = [(-u, v) for u, v in i][::-1]
+	return finish(ring_prism(o, i, x0, x1, "X"), 0.0, 1)
+
+
+def arch_ring_z(w, h, t, v0, z0, z1, cx=0.0):
+	# Stone surround on a wall facing +-Z (plane X-Y), extruded over Roblox z0..z1.
+	o = arch_pts(w, h, v0, cx)
+	i = arch_pts(w - 2 * t, h - 2 * t, v0 + t, cx)
+	return finish(ring_prism(o, i, -max(z0, z1), -min(z0, z1), "Y"), 0.0, 1)
+
+
+def window_x(cz, v0, w, h, out, parts, shutters=True, sides=(-1, 1), edge=None):
+	"""An arched window on a +X facing wall at x 0: recessed glass, stone surround, keystone, sill on corbels,
+	louvred shutter leaves (open, flat to the wall). parts: dict role -> list of bmeshes."""
+	parts["Window"].append(RPX(arch_pts(w - 0.04, h - 0.47, v0 + 0.46, cz), 0.01, 0.05))  # fills the surround's opening, 0.23 behind its face
+	parts["Stone"].append(arch_ring_x(w + 0.9, h + 0.45, 0.45, v0 - 0.0, -0.04, 0.28, cz))
+	top = v0 + h + 0.45
+	parts["Stone"].append(RPX([(cz - 0.45, top - 0.75), (cz + 0.45, top - 0.75), (cz + 0.6, top + 0.15), (cz - 0.6, top + 0.15)], -0.07, 0.42, BT, ST))
+	parts["Stone"].append(RB(-0.09, 0.5, v0 - 0.5, v0 - 0.05, cz - w / 2 - 0.65, cz + w / 2 + 0.65, BT, ST))
+	for s in (-1, 1):
+		parts["Stone"].append(RB(0.0, 0.38, v0 - 1.05, v0 - 0.5, cz + s * (w / 2 + 0.15) - 0.25, cz + s * (w / 2 + 0.15) + 0.25, BT, ST))
+	if shutters and out:
+		sh = h - w / 2 + 0.2
+		lw = w / 2 + 0.15
+		for s in sides:
+			z0 = cz + s * (w / 2 + 0.5)
+			if edge is not None:  # keep the leaf inside the module (neighbouring modules have their own)
+				lw = min(lw, edge - 0.08 - abs(z0))
+				if lw < 0.5:
+					continue
+			z1 = z0 + s * lw
+			a, b = sorted((z0, z1))
+			parts["Shutter"].append(RB(0.0, 0.16, v0, v0 + sh, a, b, BT, ST))
+			for k in range(6):
+				y = v0 + 0.45 + k * (sh - 0.9) / 5
+				parts["Shutter"].append(RB(0.12, 0.26, y - 0.12, y + 0.12, a + 0.12, b - 0.12))
+
+
+def window_z(cx, v0, w, h, face, parts, shutters=True):
+	"""The same window on a wall facing +Z (face > 0) or -Z, wall plane at z = face."""
+	sg = 1 if face > 0 else -1
+	z = lambda d: tuple(sorted((face + sg * d[0], face + sg * d[1])))  # noqa: E731  (depth range out of the wall)
+	parts["Window"].append(RPZ(arch_pts(w - 0.04, h - 0.47, v0 + 0.46, cx), *z((0.01, 0.05))))
+	parts["Stone"].append(arch_ring_z(w + 0.9, h + 0.45, 0.45, v0, *z((-0.04, 0.28)), cx=cx))
+	top = v0 + h + 0.45
+	parts["Stone"].append(RPZ([(cx - 0.45, top - 0.75), (cx + 0.45, top - 0.75), (cx + 0.6, top + 0.15), (cx - 0.6, top + 0.15)], *z((-0.07, 0.42)), BT, ST))
+	parts["Stone"].append(RB(cx - w / 2 - 0.65, cx + w / 2 + 0.65, v0 - 0.5, v0 - 0.05, *z((-0.09, 0.5)), BT, ST))
+	if shutters:
+		sh = h - w / 2 + 0.2
+		lw = w / 2 + 0.15
+		for s in (-1, 1):
+			x0 = cx + s * (w / 2 + 0.5)
+			a, b = sorted((x0, x0 + s * lw))
+			parts["Shutter"].append(RB(a, b, v0, v0 + sh, *z((0.0, 0.16)), BT, ST))
+			for k in range(6):
+				y = v0 + 0.45 + k * (sh - 0.9) / 5
+				parts["Shutter"].append(RB(a + 0.12, b - 0.12, y - 0.12, y + 0.12, *z((0.12, 0.26))))
+
+
+def roles():
+	return {k: [] for k in ("Appliance", "Wall", "Stone", "Trim", "Window", "Shutter", "Charcoal", "Metal", "Accent", "AccentSoft", "Wood", "Brick", "RoofTile", "RoofSlate", "Pot", "Plant", "Door", "GlowWarm", "Plinth", "Glass", "Cloth")}
+
+
+def emit(c, parts, prefix=""):
+	for role, bms in parts.items():
+		if bms:
+			obj(c, prefix + role, merge(*bms), role, smooth=0 if role in ("Shutter", "Stone") else 35)
+
+
+def quoins_corner(px, pz, sx, sz, y0, y1, parts, long=1.6):
+	"""Alternating long / short stone blocks on a building corner at (px, pz), faces toward sx (X) and sz (Z)."""
+	y, k = y0, 0
+	while y + 0.85 <= y1:
+		lx, lz = (long, 0.9) if k % 2 == 0 else (0.9, long)
+		x0, x1 = sorted((px + sx * 0.12, px - sx * lx))
+		z0, z1 = sorted((pz + sz * 0.12, pz - sz * lz))
+		parts["Stone"].append(RB(x0, x1, y + 0.04, y + 0.84, z0, z1, BT, ST))
+		y += 0.9
+		k += 1
+
+
+# ---- facades (top storey detailed, lower storeys simpler: the roofs see the top one up close)
+
+def facade2(name, W, variant):
+	c = piece(name, width=W)
+	h = W / 2
+	P = roles()
+	P["Wall"].append(open_box(RB(-0.6, 0.0, -72.3, -1.0, -h, h), drop_y=True))
+	# cornice on corbels under the parapet line, a cobalt string course, storey bands
+	P["Stone"].append(open_box(RB(0.0, 0.7, -2.4, -1.05, -h, h), drop_back=True))
+	P["Stone"].append(open_box(RB(0.0, 0.32, -3.0, -2.4, -h, h), drop_back=True))
+	for zc in [(-h + 1.0) + 2.0 * k for k in range(int(W / 2))]:
+		P["Stone"].append(RB(0.0, 0.55, -3.55, -2.98, zc - 0.32, zc + 0.32, BT, ST))
+	P["AccentSoft"].append(open_box(RB(0.0, 0.18, -4.1, -3.6, -h, h), drop_back=True))
+	P["Plinth"].append(open_box(RB(0.0, 0.2, -72.25, -69.2, -h, h), drop_back=True))
+	for k in range(6):
+		y0 = -72.0 + 12.0 * k
+		if 0 < k < 5:
+			P["Stone"].append(open_box(RB(0.0, 0.14, y0 - 0.25, y0 + 0.25, -h, h), drop_back=True))
+		top = k == 5
+		cols = [0.0] if W == 4 else ([-1.6, 1.6] if variant == "B" else [0.0])
+		ww = 1.6 if (W == 4 or variant == "B") else 2.4
+		v0, hh = (y0 + 2.4, 4.6) if top else (y0 + 3.0, 5.6)  # the top storey stops under the string course
+		for zc in cols:
+			window_x(zc, v0, ww, hh, top, P, shutters=top and variant != "C", sides=((1 if zc > 0 else -1),) if len(cols) > 1 else (-1, 1), edge=h)
+	if variant == "B":  # a downpipe with a hopper head
+		P["Charcoal"].append(RPY(octo(0.35, h - 0.6, 0.2, 0.06), -72.0, -4.4, BT, ST))
+		P["Charcoal"].append(RB(0.1, 0.75, -4.6, -3.9, h - 0.95, h - 0.25, BT, ST))
+	emit(c, P)
+
+
+# ---- penthouses: A terracotta hip roof, B slate mansard. 40 x 8 x 11, door +Z (spawn court), balcony side -Z.
+
+def penthouse2(team):
+	c = piece("Penthouse" + team, width=40, depth=8, height=11)
+	P = roles()
+	hx, hz = 20.0, 4.0
+	P["Plinth"].append(RB(-hx - 0.25, hx + 0.25, -0.1, 0.9, -hz - 0.25, hz + 0.25, BSN, 1))
+	P["Wall"].append(RB(-hx, hx, 0.9, 8.0, -hz, hz, BT, ST))
+	for sx in (1, -1):
+		for sz in (1, -1):
+			quoins_corner(sx * hx, sz * hz, sx, sz, 0.9, 7.9, P)
+	# eaves: a stone cornice on corbels
+	P["Stone"].append(RB(-hx - 0.55, hx + 0.55, 7.85, 8.55, -hz - 0.55, hz + 0.55, BT, ST))
+	for x in [-19.0 + 2.0 * k for k in range(20)]:
+		for s in (1, -1):
+			a, b = sorted((s * hz, s * (hz + 0.45)))
+			P["Stone"].append(RB(x - 0.28, x + 0.28, 7.35, 7.86, a, b, BT, ST))
+	if team == "A":
+		P["RoofTile"].append(frustum(-hx - 0.7, hx + 0.7, -hz - 0.7, hz + 0.7, 8.55, 10.9, 2.6, 2.6, BT))
+		P["Stone"].append(RB(-hx + 1.95, hx - 1.95, 10.88, 11.0, -hz + 1.95, hz - 1.95))
+		P["Trim"].append(RB(-hx + 2.0, hx - 2.0, 10.95, 11.3, -0.25, 0.25, BT, ST))  # ridge
+	else:
+		P["RoofSlate"].append(frustum(-hx - 0.55, hx + 0.55, -hz - 0.55, hz + 0.55, 8.55, 10.3, 0.9, 0.9, BT))
+		P["RoofSlate"].append(frustum(-hx + 0.35, hx - 0.35, -hz + 0.35, hz - 0.35, 10.3, 10.9, 1.4, 1.4, BT))
+		P["Trim"].append(RB(-hx + 0.3, hx - 0.3, 10.22, 10.42, -hz + 0.3, hz - 0.3, BT, ST))  # mansard break
+		P["Stone"].append(RB(-hx + 1.7, hx - 1.7, 10.88, 11.0, -hz + 1.7, hz - 1.7))
+		# dormers on the mansard's long faces
+		for x in (-12.0, 12.0):
+			for s in (1, -1):
+				a, b = sorted((s * (hz + 0.15), s * (hz - 1.0)))
+				P["Wall"].append(RB(x - 1.1, x + 1.1, 8.6, 10.6, a, b, BT, ST))
+				P["RoofSlate"].append(frustum(x - 1.4, x + 1.4, min(a, b) - 0.1, max(a, b) + 0.1, 10.55, 11.05, 0.0, 0.0))
+				wa, wb = sorted((s * (hz + 0.16), s * (hz + 0.05)))
+				P["Window"].append(RB(x - 0.6, x + 0.6, 8.9, 10.2, wa, wb))
+	# chimneys: brick stacks with a stone cap and two pots
+	for x in (-13.5, 13.5):
+		P["Brick"].append(RB(x - 1.0, x + 1.0, 9.0, 13.2, 0.4, 2.2, BT, ST))
+		P["Stone"].append(RB(x - 1.2, x + 1.2, 13.2, 13.6, 0.2, 2.4, BT, ST))
+		for dx in (-0.45, 0.45):
+			P["Pot"].append(lathe_at(x + dx, 1.3, [(0.32, 14.5), (0.36, 14.3), (0.4, 13.6)], 10))
+	# +Z: arched door with surround, keystone, lamps; arched windows with shutters
+	P["Door"].append(RPZ(arch_pts(2.9, 5.6, 0.95), 3.82, 4.02))
+	P["Stone"].append(arch_ring_z(4.2, 6.2, 0.6, 0.92, 3.95, 4.35))
+	P["Stone"].append(RPZ([(-0.5, 6.4), (0.5, 6.4), (0.65, 7.35), (-0.65, 7.35)], 3.93, 4.5, BT, ST))
+	for x in (-2.9, 2.9):
+		P["Charcoal"].append(RB(x - 0.32, x + 0.32, 4.7, 5.9, 4.0, 4.6, BT, ST))
+		P["GlowWarm"].append(RB(x - 0.22, x + 0.22, 4.85, 5.75, 4.6, 4.68))
+	for x in (8.5, 15.0):  # the spawn sign hangs at local x -11 on this face (rooftops2_art.py)
+		window_z(x, 2.6, 2.0, 4.4, hz, P, shutters=True)
+	# -Z (Pit side, along the fire-escape balcony): low windows under the deck, short arched ones above it
+	for x in (-15.0, -8.0, -4.0, 4.0, 8.0, 12.0, 16.0):  # between the balcony's knee braces (x -10, -6, ... 18)
+		window_z(x, 1.6, 1.4, 2.4, -hz, P, shutters=False)
+		window_z(x, 5.6, 1.4, 1.9, -hz, P, shutters=False)
+	# ends: one window each, downpipes
+	for sx in (1, -1):
+		P["Window"].append(RPX(arch_pts(1.6, 3.6, 3.0), *sorted((sx * 19.85, sx * 20.03))))
+		for sz in (1, -1):
+			a, b = sorted((sx * (hx + 0.05), sx * (hx + 0.45)))
+			P["Charcoal"].append(RB(a, b, 0.9, 8.0, sz * (hz - 0.6) - 0.18, sz * (hz - 0.6) + 0.18, BT, ST))
+	emit(c, P)
+
+
+# ---- fire escape: stair (8 run along +Z, 3 wide, rising 5) and balcony (32 long along X, deck top at 0)
+
+def fire_stair(name="FireStair", run=8.0, rise=5.0, width=3.0):
+	c = piece(name)
+	P = roles()
+	hw = width / 2
+	n = max(2, math.ceil(rise / 0.85))
+	for k in range(n):
+		z0 = -run / 2 + run * k / n
+		top = rise * (k + 1) / n - 0.02
+		P["Metal"].append(RB(-hw + 0.3, hw - 0.3, top - 0.22, top, z0 + 0.05, z0 + run / n - 0.05, BT, ST))
+		P["Charcoal"].append(RB(-hw + 0.3, hw - 0.3, top - 0.38, top - 0.22, z0 + run / n - 0.25, z0 + run / n - 0.05))
+	strg = [(-run / 2, -0.15), (-run / 2 + 0.9, -0.15), (run / 2, rise - 0.6), (run / 2, rise + 0.15), (-run / 2, 0.55)]
+
+	def side(a, b, sg):
+		return tuple(sorted((sg * a, sg * b)))
+
+	for sg in (1, -1):
+		P["Charcoal"].append(RPX(strg, *side(hw - 0.32, hw + 0.05, sg), BST, 1))
+		# posts and a chunky handrail 3.3 over the nosings
+		for zp in (-run / 2 + 0.4, 0.0, run / 2 - 0.4):
+			yb = rise * (zp + run / 2) / run
+			P["Charcoal"].append(RB(*side(hw - 0.29, hw + 0.01, sg), yb, yb + 3.3, zp - 0.18, zp + 0.18, BT, ST))
+		P["Charcoal"].append(beam((sg * (hw - 0.14), 3.3, -run / 2), (sg * (hw - 0.14), rise + 3.3, run / 2), 0.26, 0.3))
+		P["Charcoal"].append(beam((sg * (hw - 0.14), 1.7, -run / 2), (sg * (hw - 0.14), rise + 1.7, run / 2), 0.2, 0.2))
+	emit(c, P)
+
+
+def fire_balcony():
+	c = piece("FireBalcony")
+	P = roles()
+	L, d = 16.0, 1.5
+	P["Metal"].append(RB(-L, L, -0.4, 0.0, -d, d, BT, ST))
+	# grating ribs on top (opaque), edge channels, joists underneath, knee braces to the wall
+	for x in [-L + 1.0 + 2.0 * k for k in range(16)]:
+		P["Charcoal"].append(RB(x - 0.12, x + 0.12, 0.0, 0.06, -d + 0.1, d - 0.1))
+	P["Charcoal"].append(RB(-L + 0.02, L - 0.02, -1.0, 0.05, -d - 0.6, -d + 0.05, BST, 1))
+	P["Charcoal"].append(RB(-L + 0.04, L - 0.04, -0.9, -0.4, d - 0.35, d, BT, ST))
+	for x in [-L + 2.0 + 4.0 * k for k in range(8)]:
+		P["Charcoal"].append(RB(x - 0.18, x + 0.18, -0.9, -0.4, -d - 0.55, d - 0.3))
+		P["Charcoal"].append(beam((x, -0.6, -d - 0.2), (x, -3.2, d - 0.05), 0.3, 0.3))
+		P["Charcoal"].append(RB(x - 0.4, x + 0.4, -3.6, -2.6, d - 0.15, d, BT, ST))
+	# the parapet: a steel panel wall (low cover, 3 tall) with posts and a cream top rail
+	z0, z1 = -d - 0.6, -d
+	P["Charcoal"].append(RB(-L + 0.06, L - 0.06, 0.03, 2.75, z0 + 0.1, z1 - 0.1, BT, ST))
+	for x in [-L + 0.2 + 2.0 * k for k in range(17)]:
+		x = min(x, L - 0.2)
+		P["Charcoal"].append(RB(x - 0.2, x + 0.2, 0.0, 2.8, z0, z1, BT, ST))
+	for x in [-L + 1.2 + 2.0 * k for k in range(16)]:
+		P["Metal"].append(RB(x - 0.6, x + 0.6, 0.6, 2.2, z0 + 0.02, z0 + 0.1, BT, ST))
+	P["Trim"].append(RB(-L - 0.1, L + 0.1, 2.75, 3.0, z0 - 0.08, z1 + 0.08, BT, ST))
+	emit(c, P)
+
+
+# ---- the landmark: timber water tank on a braced steel stand (base centre of the stand, 4 tall), drum 4.4-14
+
+def water_tank2():
+	c = piece("WaterTank")
+	P = roles()
+	# stand: four splayed legs, ring beams, X bracing on each face
+	for dx in (-1, 1):
+		for dz in (-1, 1):
+			P["Charcoal"].append(beam((dx * 4.3, 0.0, dz * 4.3), (dx * 3.4, 4.45, dz * 3.4), 0.7, 0.7, r=BT))
+			P["Charcoal"].append(RB(dx * 4.3 - 0.75, dx * 4.3 + 0.75, -0.05, 0.4, dz * 4.3 - 0.75, dz * 4.3 + 0.75, BT, ST))
+	for s in (1, -1):
+		P["Charcoal"].append(RB(-4.1, 4.1, 3.95, 4.45, s * 3.4 - 0.3, s * 3.4 + 0.3, BT, ST))
+		P["Charcoal"].append(RB(s * 3.4 - 0.28, s * 3.4 + 0.28, 3.98, 4.42, -4.1, 4.1, BT, ST))
+		P["Charcoal"].append(beam((-3.9, 0.5, s * 3.85), (3.6, 3.9, s * 3.5), 0.26, 0.26))
+		P["Charcoal"].append(beam((3.9, 0.5, s * 3.85), (-3.6, 3.9, s * 3.5), 0.26, 0.26))
+		P["Charcoal"].append(beam((s * 3.85, 0.5, -3.9), (s * 3.5, 3.9, 3.6), 0.26, 0.26))
+		P["Charcoal"].append(beam((s * 3.85, 0.5, 3.9), (s * 3.5, 3.9, -3.6), 0.26, 0.26))
+	# platform with a railing round the drum's foot
+	P["Charcoal"].append(lathe([(5.6, 4.62), (5.6, 4.42), (0.0, 4.42)], steps=24))  # steel underside
+	P["Metal"].append(lathe([(0.0, 4.64), (5.6, 4.64)], steps=24))
+	for k in range(12):
+		a = 2 * math.pi * k / 12
+		P["Charcoal"].append(RB(5.35 * math.cos(a) - 0.16, 5.35 * math.cos(a) + 0.16, 4.62, 7.6, 5.35 * math.sin(a) - 0.16, 5.35 * math.sin(a) + 0.16))
+	P["Charcoal"].append(lathe([(5.5, 7.85), (5.5, 7.55)], steps=24))
+	P["Charcoal"].append(lathe([(5.2, 7.55), (5.2, 7.85)], steps=24))
+	# drum: 24 timber staves round a dark core, two steel hoops
+	P["Charcoal"].append(lathe([(4.15, 13.7), (4.15, 4.65)], steps=24))
+	for k in range(23):  # an odd count: no two staves' chamfers share a plane (90-degree symmetry)
+		bm = RB(3.95, 4.45, 4.65, 13.75, -0.52, 0.52, BT, ST)
+		xform(bm, RZ(360.0 * k / 23))
+		P["Wood"].append(bm)
+	for y in (6.6, 11.4):
+		P["Charcoal"].append(lathe([(4.45, y + 0.4), (4.6, y + 0.4), (4.6, y), (4.45, y)], steps=24))
+	# conical cap with a lip and a finial
+	cap = [(4.85, 13.6), (4.85, 14.0), (0.5, 16.2), (0.0, 16.3)][::-1] + [(4.15, 13.6)]
+	P["Charcoal"].append(lathe(cap, steps=24))
+	P["Charcoal"].append(lathe([(0.0, 17.4), (0.22, 17.1), (0.3, 16.6), (0.18, 16.2)], steps=10))
+	# a maintenance ladder from the platform to the cap (not a route: the tank stays an Updraft seat)
+	for z in (-0.55, 0.55):
+		P["Charcoal"].append(RB(4.55, 4.85, 4.6, 14.6, z - 0.16, z + 0.16, BT, ST))
+	for y in [5.4 + 0.9 * k for k in range(10)]:
+		P["Charcoal"].append(RB(4.6, 4.8, y, y + 0.2, -0.55, 0.55))
+	# the sign arm: a frame on two brackets off the drum, its top edge a warm neon tube (blank; our lettering later)
+	ax = -4.6
+	for y in (8.0, 12.8):
+		P["Charcoal"].append(RB(ax - 1.4, ax + 0.4, y - 0.25, y + 0.25, -0.25, 0.25, BT, ST))
+	frame_o = rrect(8.0, 5.6, 0.9, 2, 0.0, 10.6)
+	frame_i = rrect(7.0, 4.6, 0.5, 2, 0.0, 10.6)
+	ring = finish(ring_prism(frame_o, frame_i, -0.25, 0.25, "Y"), BT, 1)
+	xform(ring, T(ax - 5.5, 0, 0))
+	P["Charcoal"].append(ring)
+	P["GlowWarm"].append(RB(ax - 9.0, ax - 2.0, 13.25, 13.55, -0.3, 0.3))
+	emit(c, P)
+
+
+# ---- stone Pit stair (8 wide, 16 run, rising 8 toward +Z) with cheek walls and cobalt caps
+
+def stone_stair(name="Stair16"):
+	c = piece(name)
+	P = roles()
+	for k in range(1, 10):
+		z0 = -8 + 1.6 * k
+		z1 = min(z0 + 1.6, 7.97)
+		top = 0.8 * k - 0.03
+		P["Stone"].append(RB(-3.3, 3.3, top - 0.8, top, z0, z1, 0.08, 1))
+	cheek = [(-7.98, -0.15), (-5.4, -0.15), (7.97, 7.2), (7.97, 10.3), (-7.98, 2.9)]
+	for s in (1, -1):
+		P["Wall"].append(RPX(cheek, s * 3.3, s * 4.0, BSN, 1))
+		cop = [(-7.98, 2.85), (7.97, 10.25), (7.97, 10.65), (-7.98, 3.25)]
+		P["Stone"].append(RPX(cop, s * 3.2, s * 4.12, BT, ST))
+		for zc, yc in ((-7.2, 3.3), (7.2, 10.6)):
+			a, b = sorted((s * 3.1, s * 4.2))
+			P["Stone"].append(RB(a, b, yc - 3.4, yc + 0.3, zc - 0.55, zc + 0.55, BT, ST))
+			P["Accent"].append(frustum(a - 0.12, b + 0.12, zc - 0.67, zc + 0.67, yc + 0.3, yc + 0.75, 0.12, 0.12, BT))
+	emit(c, P)
+
+
+# ---- plank bridge on steel trusses (8 wide, 16 run, rising 8 toward +Z) and the flat footbridge (8 x 8)
+
+def truss_side(P, x, z0, z1, y0f, y1f, h):
+	# a Warren truss along Z on side x: bottom chord on the deck line, top chord h above, diagonals
+	n = 4
+	P["Charcoal"].append(beam((x, y0f - 0.2, z0), (x, y1f - 0.2, z1), 0.4, 0.5))
+	P["Charcoal"].append(beam((x, y0f + h, z0), (x, y1f + h, z1), 0.4, 0.4))
+	for k in range(n + 1):
+		zz = z0 + (z1 - z0) * k / n
+		yy = y0f + (y1f - y0f) * k / n
+		P["Charcoal"].append(beam((x, yy - 0.2, zz), (x, yy + h, zz), 0.35, 0.35))
+		if k < n:
+			z2 = z0 + (z1 - z0) * (k + 1) / n
+			y2 = y0f + (y1f - y0f) * (k + 1) / n
+			a, b = ((yy - 0.1, zz), (y2 + h, z2)) if k % 2 == 0 else ((yy + h, zz), (y2 - 0.1, z2))
+			P["Charcoal"].append(beam((x, a[0], a[1]), (x, b[0], b[1]), 0.26 if k % 2 == 0 else 0.22, 0.26))
+
+
+def plank_bridge(name, rise):
+	c = piece(name)
+	P = roles()
+	run = 16.0 if rise else 8.0
+	z0, z1 = -run / 2 + 0.02, run / 2 - 0.03
+	n = int(run / 1.0)
+	for k in range(n):
+		za = z0 + (z1 - z0) * k / n + 0.04
+		zb = z0 + (z1 - z0) * (k + 1) / n - 0.04
+		ym = (rise * ((za + zb) / 2 - z0) / (z1 - z0)) if rise else 0.0
+		bm = RB(-3.55, 3.55, ym - 0.32, ym - 0.03, za, zb, BT, ST)
+		xform(bm, T(0, 0, 0) @ RZ(((k * 37) % 5 - 2) * 0.4))  # small yaw jitter, planks laid by hand
+		P["Wood"].append(bm)
+	for s in (1, -1):
+		truss_side(P, s * 3.85, z0, z1, 0.0, float(rise), 3.3)
+		P["Charcoal"].append(beam((s * 2.0, -0.55, z0), (s * 2.0, rise - 0.55, z1), 0.35, 0.5))
+	emit(c, P)
+
+
+def gangway2():
+	# the side-lane fire-escape stair: steel, 8 wide, 16 run, rising 8 toward +Z
+	c = piece("Gangway16")
+	P = roles()
+	for k in range(1, 10):
+		z0 = -8 + 1.6 * k
+		z1 = min(z0 + 1.6, 7.97)
+		top = 0.8 * k - 0.03
+		P["Metal"].append(RB(-3.3, 3.3, top - 0.22, top, z0, z1, BT, ST))
+		P["Charcoal"].append(RB(-3.3, 3.3, top - 0.6, top - 0.22, z0 + 1.2, z1))
+	strg = [(-7.98, -0.1), (-6.4, -0.1), (7.97, 7.0), (7.97, 8.3), (-7.98, 0.9)]
+	for s in (1, -1):
+		P["Charcoal"].append(RPX(strg, s * 3.3, s * 3.85, BST, 1))
+		for zp in (-7.4, -2.5, 2.5, 7.4):
+			yb = (zp + 8) / 2
+			P["Charcoal"].append(RB(s * 3.45 - 0.2, s * 3.45 + 0.2, yb, yb + 3.4, zp - 0.2, zp + 0.2, BT, ST))
+		P["Charcoal"].append(beam((s * 3.45, 3.4, -7.9), (s * 3.45, 11.35, 7.9), 0.32, 0.34))
+		P["Charcoal"].append(beam((s * 3.45, 1.7, -7.9), (s * 3.45, 9.65, 7.9), 0.24, 0.24))
+	emit(c, P)
+
+
+# ---- small buildings: huts with quoins, arched doors and a low hip roof inside their height
+
+def hut2(name, W, Dp, H, door="+X", vent=False, roof=True):
+	c = piece(name, width=W, depth=Dp, height=H)
+	P = roles()
+	hx, hz = W / 2, Dp / 2
+	wall_top = H - 1.7 if roof else H - 0.6
+	ql = 1.2 if min(W, Dp) <= 6 else 1.6  # quoin length: the door surround fits between the corners
+	P["Plinth"].append(RB(-hx - 0.25, hx + 0.25, -0.1, 0.9, -hz - 0.25, hz + 0.25, BSN, 1))
+	P["Wall"].append(RB(-hx, hx, 0.9, wall_top, -hz, hz, BT, ST))
+	for sx in (1, -1):
+		for sz in (1, -1):
+			quoins_corner(sx * hx, sz * hz, sx, sz, 0.9, wall_top - 0.1, P, ql)
+	P["Stone"].append(RB(-hx - 0.45, hx + 0.45, wall_top - 0.1, wall_top + 0.45, -hz - 0.45, hz + 0.45, BT, ST))
+	if roof:
+		P["RoofTile"].append(frustum(-hx - 0.5, hx + 0.5, -hz - 0.5, hz + 0.5, wall_top + 0.45, H - 0.03, min(hx, hz) * 0.55, min(hx, hz) * 0.55, BT))
+		P["Stone"].append(RB(-hx * 0.45, hx * 0.45, H - 0.1, H, -hz * 0.45, hz * 0.45))
+	else:  # flat top (the tank stand sits on it): a stone deck inside the cornice
+		P["Stone"].append(RB(-hx - 0.1, hx + 0.1, wall_top + 0.45, H, -hz - 0.1, hz + 0.1, BT, ST))
+	dw = min(2.8, (Dp if door == "+X" else W) - 2 * ql - 1.3)
+	dh = min(5.8, wall_top - 1.6)
+	if door == "+X":
+		P["Door"].append(RPX(arch_pts(dw - 0.1, dh, 0.95), hx - 0.18, hx + 0.02))
+		P["Stone"].append(arch_ring_x(dw + 1.1, dh + 0.55, 0.55, 0.92, hx - 0.05, hx + 0.3))
+	else:
+		P["Door"].append(RPZ(arch_pts(dw - 0.1, dh, 0.95), hz - 0.18, hz + 0.02))
+		P["Stone"].append(arch_ring_z(dw + 1.1, dh + 0.55, 0.55, 0.92, hz - 0.05, hz + 0.3))
+	if vent:
+		P["Metal"].append(RB(-0.9, 0.9, H - 0.05, H + 1.0, -0.9, 0.9, BT, ST))
+	emit(c, P)
+	return c
+
+
+def lift_tower2():
+	c = hut2("LiftTower", 10, 8, 16, door="+X", roof=False)
+	P = roles()
+	for s in (1, -1):
+		window_z(0.0, 8.4, 1.8, 3.6, s * 4.0, P, shutters=True)
+	emit(c, P, "Upper")
+
+
+# ---- props
+
+def ac2():
+	c = piece("ACUnit")
+	P = roles()
+	P["Charcoal"].append(RB(-4.0, 4.0, -0.1, 0.5, -2.0, 2.0, BT, ST))
+	for sx in (-3.4, 3.4):
+		P["Charcoal"].append(RB(sx - 0.25, sx + 0.25, 0.5, 1.0, -1.9, 1.9, BT, ST))
+	for y0, y1 in ((1.0, 3.95), (4.15, 7.2)):
+		P["Appliance"].append(RB(-3.8, 3.8, y0, y1, -1.8, 1.8, 0.22, 1))
+		for s in (1, -1):
+			fz = s * 1.8
+			disc = lathe([(0.0, 0.0), (1.05, 0.0)], steps=16)
+			xform(disc, T(-1.5, -(fz + s * 0.06), (y0 + y1) / 2) @ RX(90 * s))
+			P["Metal"].append(disc)
+			yc = (y0 + y1) / 2
+			a2, b2 = sorted((fz + s * 0.07, fz + s * 0.2))
+			P["Charcoal"].append(RB(-1.6 - 0.1, -1.6 + 0.1 + 0.2, yc - 1.0, yc + 1.0, a2, b2))  # grille bars
+			P["Charcoal"].append(RB(-2.5, -0.5, yc - 0.1, yc + 0.1, *sorted((fz + s * 0.08, fz + s * 0.18))))
+			hub = lathe([(0.0, 0.0), (0.3, 0.0)], steps=10)
+			xform(hub, T(-1.5, -(fz + s * 0.22), yc) @ RX(90 * s))
+			P["Charcoal"].append(hub)
+			ring = lathe([(1.25, 0.0), (1.05, 0.0)], steps=16)
+			xform(ring, T(-1.5, -(fz + s * 0.1), (y0 + y1) / 2) @ RX(90 * s))
+			P["Stone"].append(ring)
+			for k in range(5):
+				y = y0 + 0.5 + k * (y1 - y0 - 1.0) / 4
+				a, b = sorted((fz, fz + s * 0.12))
+				P["Charcoal"].append(RB(0.4, 3.3, y - 0.07, y + 0.07, a, b))
+	emit(c, P)
+
+
+def skylight2():
+	c = piece("Skylight")
+	P = roles()
+	P["Stone"].append(RB(-4.0, 4.0, -0.1, 1.1, -2.0, 2.0, BSN, 1))
+	P["Glass"].append(frustum(-3.6, 3.6, -1.6, 1.6, 1.1, 2.9, 2.2, 1.35))
+	for sx in (-1, 1):
+		for sz in (-1, 1):
+			P["Charcoal"].append(beam((sx * 3.6, 1.1, sz * 1.6), (sx * 1.4, 2.9, sz * 0.25), 0.18, 0.18))
+	P["Charcoal"].append(RB(-1.5, 1.5, 2.85, 3.0, -0.3, 0.3, BT, ST))
+	for x in (-1.2, 1.2):
+		for s in (1, -1):
+			P["Charcoal"].append(beam((x * 1.5, 1.1, s * 1.6), (x * 0.9, 2.9, s * 0.25), 0.12, 0.12))
+	emit(c, P)
+
+
+def planter2():
+	c = piece("Planter")
+	P = roles()
+	P["Pot"].append(frustum(-3.0, 3.0, -1.5, 1.5, -0.1, 2.5, -0.15, -0.1, BT))
+	P["Stone"].append(RB(-3.25, 3.25, 2.45, 2.75, -1.75, 1.75, BT, ST))
+	# a clipped hedge of three overlapping lumps (full cover to 7.5), not one box
+	for x, w, top in ((-1.6, 2.6, 7.0), (0.2, 2.9, 7.45), (1.9, 2.3, 6.6)):
+		P["Plant"].append(RB(x - w / 2, x + w / 2, 2.6, top, -1.25, 1.25, 0.7, 2))
+	emit(c, P)
+
+
+def crate(name="Crate", s=3.0):
+	c = piece(name)
+	P = roles()
+	h = s / 2
+	P["Wood"].append(RB(-h + 0.12, h - 0.12, 0.05, s - 0.05, -h + 0.12, h - 0.12, BT, ST))
+	for a in (-1, 1):
+		for b in (-1, 1):
+			P["Charcoal"].append(RB(min(a * h, a * (h - 0.32)), max(a * h, a * (h - 0.32)), 0.0, s, min(b * h, b * (h - 0.32)), max(b * h, b * (h - 0.32)), BT, ST))
+	for f in (-1, 1):  # diagonal braces on two faces
+		zf = f * (h - 0.06)
+		P["Wood"].append(beam((-h + 0.4, 0.4, zf), (h - 0.4, s - 0.4, zf), 0.35, 0.18))
+		xf = f * (h - 0.06)
+		P["Wood"].append(beam((xf, 0.4, h - 0.4), (xf, s - 0.4, -h + 0.4), 0.18, 0.35, up=(0.0, 0.0, 1.0)))
+	emit(c, P)
+
+
+def barrel():
+	c = piece("Barrel")
+	P = roles()
+	P["Wood"].append(lathe([(0.0, 2.6), (0.85, 2.6), (1.0, 1.9), (1.05, 1.3), (1.0, 0.7), (0.85, 0.0)][::-1][::-1], steps=14))
+	for y in (0.45, 2.15):
+		P["Charcoal"].append(lathe([(1.03 if y > 1 else 0.95, y + 0.2), (1.03 if y > 1 else 0.95, y)], steps=14))
+	emit(c, P)
+
+
+def party_corner():
+	# a rooftop party left half-set: an awning on posts, string lights, two folding chairs, a table, a cooler
+	c = piece("PartyCorner")
+	P = roles()
+	for x, z in ((-3.4, -2.2), (3.4, -2.2), (-3.4, 2.2), (3.4, 2.2)):
+		P["Wood"].append(RB(x - 0.2, x + 0.2, 0.0, 7.2 if z > 0 else 6.4, z - 0.2, z + 0.2, BT, ST))
+	P["Cloth"].append(RPX([(-2.5, 6.25), (2.5, 7.05), (2.5, 7.25), (-2.5, 6.45)], -3.75, 3.75, BT, ST))
+	for k in range(9):
+		x = -3.4 + 6.8 * k / 8
+		sag = 0.35 * math.sin(math.pi * k / 8)
+		P["GlowWarm"].append(RB(x - 0.12, x + 0.12, 6.0 - sag - 0.12, 6.0 - sag + 0.12, -2.25, -2.1))
+	P["Wood"].append(lathe([(0.0, 2.3), (1.1, 2.3), (1.1, 2.1), (0.15, 2.1), (0.15, 0.0)], steps=12))
+	for x, yaw in ((-1.9, 15), (1.9, -20)):
+		ch = merge(RB(-0.6, 0.6, 1.3, 1.45, -0.6, 0.6, BT, ST), RB(-0.6, 0.6, 1.45, 2.9, 0.5, 0.65, BT, ST), beam((-0.55, 0.0, -0.55), (-0.55, 1.35, 0.55), 0.14), beam((0.55, 0.0, -0.55), (0.55, 1.35, 0.55), 0.14), beam((-0.55, 0.0, 0.55), (-0.55, 1.35, -0.55), 0.14), beam((0.55, 0.0, 0.55), (0.55, 1.35, -0.55), 0.14))
+		xform(ch, T(x, 0, 0) @ RZ(yaw))
+		P["Cloth"].append(ch)
+	P["AccentSoft"].append(RB(1.0, 3.0, 0.0, 1.4, 0.9, 2.0, 0.15, 1))
+	P["Stone"].append(RB(1.05, 2.95, 1.4, 1.6, 0.95, 1.95, BT, ST))
+	emit(c, P)
+
+
 # ---------------------------------------------------------------- build
 
 def build():
@@ -538,33 +1115,34 @@ def build():
 	D.PIECES.clear()
 	materials()
 	D.KIT = collection("Kit_Rooftops2")
-	facade("Facade8A", 8, "A")
-	facade("Facade8B", 8, "B")
-	facade("Facade8C", 8, "C")
-	facade("Facade4", 4, "A")
+	facade2("Facade8A", 8, "A")
+	facade2("Facade8B", 8, "B")
+	facade2("Facade8C", 8, "C")
+	facade2("Facade4", 4, "A")
 	p_plinth("Plinth8", 8)
 	p_plinth("Plinth4", 4)
 	p_quoin()
 	p_flue()
-	stairs("Stair16", rail_role="Hazard")  # round 1: every walkable route reads by its yellow rail
-	stairs("Gangway16", rail_role="Hazard")
-	p_plank_ramp()
-	p_catwalk()
-	p_ac()
+	stone_stair("Stair16")
+	gangway2()
+	plank_bridge("PlankRamp16", 8)
+	plank_bridge("Catwalk8", 0)
+	fire_stair()
+	fire_balcony()
+	ac2()
 	p_condenser()
-	p_skylight()
-	p_planter()
-	p_penthouse()
-	hut("StairHut", 6, 6, 9)
-	hut("LiftHouse", 8, 8, 10, vent=True)
-	p_lift_tower()
-	hut("TankHouse", 10, 10, 8)
+	skylight2()
+	planter2()
+	penthouse2("A")
+	penthouse2("B")
+	hut2("StairHut", 6, 6, 9)
+	hut2("LiftHouse", 8, 8, 10, vent=True)
+	lift_tower2()
+	hut2("TankHouse", 10, 10, 8)
 	p_cooling()
-	p_water_tank()
+	water_tank2()
 	p_billboard()
 	p_roof_sign()
-	p_letter("A")
-	p_letter("B")
 	p_spawn_sign("A")
 	p_spawn_sign("B")
 	p_deck_word("PIT", "SignPit")
@@ -574,6 +1152,10 @@ def build():
 	p_deck_word("ROOFA", "SignPit", "ROOF A")
 	p_deck_word("ROOFB", "SignPit", "ROOF B")
 	p_street_lamp()
+	crate("Crate", 3.0)
+	crate("CrateSmall", 2.0)
+	barrel()
+	party_corner()
 	city("CityA", 28, 24, 64)
 	city("CityB", 24, 24, 90)
 	city("CityC", 30, 30, 120)
@@ -604,11 +1186,11 @@ if __name__ == "__main__":
 			if lc.name == "Kit_Rooftops2":
 				lc.exclude = True
 		os.makedirs(RENDER_DIR, exist_ok=True)
-		stage, w = D.contact_sheet(["Facade8A", "Facade8B", "Facade8C", "StairHut", "ACUnit", "Condenser", "Skylight", "Planter", "WaterTank", "CoolingTower"], "a")
+		stage, w = D.contact_sheet(["Facade8A", "Facade8B", "StairHut", "LiftHouse", "ACUnit", "Skylight", "Planter", "WaterTank", "Crate", "Barrel", "PartyCorner"], "a")
 		D.camera((w / 2, 6, 70), (w / 2, -6, 0), 26)
 		D.shot(os.path.join(RENDER_DIR, "kit-contact-a.jpg"))
 		bpy.data.collections.remove(stage)
-		stage, w = D.contact_sheet(["Penthouse", "SpawnSignB", "Billboard22", "RoofSign", "Stair16", "Gangway16", "PlankRamp16", "Catwalk8"], "b")
+		stage, w = D.contact_sheet(["PenthouseA", "PenthouseB", "FireBalcony", "FireStair", "Stair16", "Gangway16", "PlankRamp16", "LiftTower"], "b")
 		D.camera((w / 2, 22, 70), (w / 2, 6, 0), 26)
 		D.shot(os.path.join(RENDER_DIR, "kit-contact-b.jpg"))
 		bpy.data.collections.remove(stage)

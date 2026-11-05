@@ -144,12 +144,12 @@ class Art:
 				self.put("Structure", s.art, s.cx, s.y1, s.cz, 0.0 if s.cz > 0 else 180.0)
 			elif s.kind in ("hut", "ac", "cond", "sky"):
 				along_x = s.sx >= s.sz
+				if s.art == "FireBalcony":
+					continue  # the balcony parapet is part of the FireBalcony piece (both halves)
 				if s.art == "Penthouse":
 					yaw = 0.0 if s.cz > 0 else 180.0  # its door faces the spawn court
-					self.put("Props", "Penthouse", s.cx, s.y0, s.cz, yaw, tint=TONES[tone_of_roof(s)])
-					# the team letter on the face toward the middle
-					face = s.z0 if s.cz > 0 else s.z1
-					self.put("Props", "LetterB" if s.cz > 0 else "LetterA", s.cx, s.y0, face, yaw)
+					# concept pass 2026-11-05: A has a terracotta hip roof, B a slate mansard (the big letters went)
+					self.put("Props", "PenthouseB" if s.cz > 0 else "PenthouseA", s.cx, s.y0, s.cz, yaw, tint=TONES[tone_of_roof(s)])
 					# Rooftops2: the spawn sign on the face toward the spawn court (names the roof and the two sides).
 					back = s.z1 if s.cz > 0 else s.z0
 					side = -11.0 if s.cz > 0 else 11.0  # beside the door (the spawn's left half), not over it
@@ -161,7 +161,7 @@ class Art:
 					yaw = door_yaw(s)
 				self.put("Props", s.art, s.cx, s.y0, s.cz, yaw, tint=TONES.get(tone_of_roof(s), ""))
 			elif s.kind == "tank":
-				self.put("Props", "WaterTank", s.cx, s.y0 - 4, s.cz, 0.0 if s.cz >= 0 else 180.0)
+				self.put("Props", "WaterTank", s.cx, s.y0 - 6.3, s.cz, 0.0 if s.cz >= 0 else 180.0, scale=1.35)
 			elif s.kind == "bb" and s.art == "Billboard22":
 				# advert faces the team roof it overlooks: B's faces +Z; origin between the legs (x -3 and -17 for B)
 				self.put("Props", "Billboard22", s.cx, L.PIT, s.cz, 0.0 if s.cz > 0 else 180.0)
@@ -226,9 +226,25 @@ class Art:
 			# Round 1: in the Pit, at the foot of each stair, the roof it climbs to (read walking toward it).
 			self.put("Signs", "DeckWordROOFB" if sgn > 0 else "DeckWordROOFA", 10.5 * sgn, L.PIT, -3.0 * sgn, 180.0 if sgn > 0 else 0.0)
 
+	def story(self):
+		# Concept pass 2026-11-05: props in small story groups, tucked against walls off the routes (no collision, so
+		# never in a lane: LihFolk Combat Arena and Encounter Layout, World Composition and Set Dressing).
+		# B half (z > 0); A gets the 180-degree turn. (piece, x, y, z, yaw)
+		groups = [
+			("Crate", -21.6, 0.0, 58.4, 3.0),  # stock behind the Penthouse's west end
+			("CrateSmall", -21.4, 3.0, 58.6, -9.0),
+			("Barrel", -21.3, 0.0, 55.4, 0.0),
+			("PartyCorner", 43.0, 0.0, 60.2, 90.0),  # a rooftop party left half-set, by the east parapet
+			("Barrel", 45.9, 0.0, 66.6, 0.0),
+		]
+		for piece, x, y, z, yaw in groups:
+			for sg in (1, -1):
+				self.put("Props", piece, x * sg, y, z * sg, yaw if sg > 0 else yaw + 180.0)
+
 	def build(self):
 		self.facades()
 		self.pieces()
+		self.story()
 		self.words()
 		self.street()
 		self.skyline()

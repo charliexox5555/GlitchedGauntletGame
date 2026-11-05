@@ -35,17 +35,17 @@ MAP = "Rooftops2"
 PALETTE: dict[str, tuple[str, str, str]] = {
     # big calm surfaces
     "Roof": ("B5735A", "Slate", "Roof2_Tile"),  # team-roof tiles (the ground band)
-    "RoofPit": ("A88C72", "Slate", "Roof2_Tile"),  # the Pit's roof, cooler
+    "RoofPit": ("8F8478", "Slate", "Roof2_Gravel"),  # the Pit's floor: tar and gravel (concept pass 2026-11-05)
     # Round 1: SmoothPlastic, not the Lobby concrete variant (its dark colour map made the plaster read as brick).
-    "Wall": ("D4B98F", "SmoothPlastic", ""),  # facades (tinted per building from TONE)
-    "Plinth": ("A8977F", "SmoothPlastic", ""),  # street storey, hut plinths
+    "Wall": ("D4B98F", "Concrete", "Roof2_Plaster"),  # facades (tinted per building from TONE); our plaster row
+    "Plinth": ("A8977F", "Concrete", "Roof2_Plaster"),  # street storey, hut plinths
     # clean SmoothPlastic trims
     "Trim": ("F2EEE4", "SmoothPlastic", ""),  # cornices, sills, frames, coping
     "Ledge": ("C9BFAE", "SmoothPlastic", ""),  # alley ledges and sills
     "Charcoal": ("3A3F47", "SmoothPlastic", ""),  # steel: stairs, stands, frames, hardware
     "Metal": ("A9A59C", "SmoothPlastic", ""),  # AC units, condensers, vents (round 5: warmer, read as heavy grey blocks)
     "Door": ("6C5442", "SmoothPlastic", ""),  # doors (round 5: warm mid-tone, black read as a void)
-    "Window": ("7FA6BF", "SmoothPlastic", ""),  # window glass (opaque, sky-tinted)
+    "Window": ("4E5878", "SmoothPlastic", ""),  # concept pass: deep blue-violet glass in stone surrounds (was flat navy slabs)
     "Glass": ("BFD8E8", "Glass", ""),  # skylights
     "Accent": ("2F62C8", "SmoothPlastic", ""),  # cobalt: the tank and the sign plates (the 10% spike)
     "AccentSoft": ("5C79AE", "SmoothPlastic", ""),  # round 6: bands, awnings, billboard bands (softer than the tank)
@@ -53,9 +53,9 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Chevron": ("F3E6CC", "SmoothPlastic", ""),  # round 8: court chevrons, warm painted cream
     "PosterInk": ("5A79B2", "SmoothPlastic", ""),  # billboard words
     "White": ("F7F4EC", "SmoothPlastic", ""),  # sign faces, letters
-    "Wood": ("A7865E", "SmoothPlastic", ""),  # planks, planter boxes, tank staves
+    "Wood": ("A7744E", "WoodPlanks", "Roof2_Plank"),  # planks, crates, barrels, tank staves
     "Plant": ("6B9A55", "SmoothPlastic", ""),  # planter greenery
-    "Hazard": ("E8B53A", "SmoothPlastic", ""),  # stair nosings, rail tops
+    "Hazard": ("E9D3A6", "SmoothPlastic", ""),  # lane lines (concept pass: cream paint, no yellow on this map)
     "SignWest": ("E89A3C", "SmoothPlastic", ""),  # west-side words (amber)
     "SignEast": ("5AA8D8", "SmoothPlastic", ""),  # east-side words (sky)
     "SignPit": ("2F62C8", "SmoothPlastic", ""),  # the middle (cobalt)
@@ -63,6 +63,15 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Sidewalk": ("A39D92", "Concrete", ""),
     "RoadLine": ("E8DFC2", "SmoothPlastic", ""),
     "Backfill": ("B9A992", "SmoothPlastic", ""),  # far city blocks
+    # concept pass 2026-11-05 (vault/01 Design/Maps/Rooftops2.md -> Concept board)
+    "Stone": ("E9D7B2", "Concrete", "Roof2_Plaster"),  # cream stone: surrounds, quoins, cornices, cheek walls
+    "Shutter": ("4F7F5A", "SmoothPlastic", ""),  # louvred shutters (green; cobalt on the A roof by tone)
+    "RoofTile": ("B8673F", "Slate", "Roof2_Terracotta"),  # A penthouse and hut roofs
+    "RoofSlate": ("5F6B78", "Slate", "Roof2_Slate"),  # B penthouse mansard
+    "Brick": ("A8644A", "Brick", "Roof2_Brick"),  # chimney stacks
+    "Pot": ("B9653F", "SmoothPlastic", ""),  # terracotta pots and planters
+    "Cloth": ("EFE3C8", "Fabric", ""),  # awning, chairs
+    "Appliance": ("D9D1BF", "SmoothPlastic", ""),  # AC unit casings (cream enamel, as in the concept)
     # Neon, thin only
     "GlowWarm": ("FFE2B8", "Neon", ""),
     "GlowWest": ("FFB14A", "Neon", ""),
@@ -87,9 +96,16 @@ BACKDROP = ["C9B79A", "B9A07F", "A9B5A2", "D2BFA0", "9FA9B3", "C4A48A"]
 BEVEL = {"primary": 0.45, "secondary": 0.14, "tertiary": 0.05}
 SEGMENTS = {"primary": 2, "secondary": 2, "tertiary": 1}
 
-# The Lobby's painted textures (near-neutral greys; BasePart.Color sets the hue), as Rooftops2 variants.
+# Our own textures (concept pass 2026-11-05): rows cut from the approved trim sheet by
+# tools/textures/make_map_variants.py, 512 colour + normal, near-white (BasePart.Color tints them). The ids are
+# Image ids (the Decal uploads in art-source/uploads.json resolved in Studio). Roof2_Tile stays the Lobby's.
 VARIANTS = {
-    "Roof2_Plaster": ("Concrete", 16, "104737392584669", "93691597282176", "95184551126688"),
+    "Roof2_Plaster": ("Concrete", 12, "119615065244839", "100465385954786", ""),
+    "Roof2_Brick": ("Brick", 6, "107246436113114", "126410814785821", ""),
+    "Roof2_Terracotta": ("Slate", 9, "116071407612240", "86605748237639", ""),
+    "Roof2_Slate": ("Slate", 8, "132940063953152", "92046096581530", ""),
+    "Roof2_Gravel": ("Slate", 8, "76772826954213", "129961487573853", ""),
+    "Roof2_Plank": ("WoodPlanks", 8, "115116285565924", "112670800725308", ""),
     "Roof2_Tile": ("Slate", 12, "73383285439881", "99655568297239", "99239709018479"),
 }
 

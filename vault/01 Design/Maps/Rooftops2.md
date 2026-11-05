@@ -487,3 +487,55 @@ The current pigeons are boxy. **Recommendation: remove them until there's a mode
 - client-only, capped and culled.
 
 They perch on parapets and the pigeon loft away from routes, and take off only when a player comes near, never across a duel sightline. This is lane F's area; it's a recommendation only.
+
+## Rebuild v2 from the concepts (2026-11-05 evening), first pass
+**Status: built in Studio (ForceMap only). Not yet at the concepts' quality; the gaps are listed below.** The place needs saving (Ctrl+S).
+
+**Side by side (concept | build):**
+
+| Concept | Build v2 |
+|---|---|
+| ![](../../../art-source/maps/Rooftops2/concepts/01-overview.png) | ![](../../02%20Art/References/maps/rooftops2/v2-overview.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/04-hero-spawn-b.png) | ![](../../02%20Art/References/maps/rooftops2/v2-b-roof-to-tank.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/03-hero-spawn-a.png) | ![](../../02%20Art/References/maps/rooftops2/v2-a-roof-to-tank.jpg) |
+
+### What was built
+- **Kit** (`tools/blender/build_map_kit_rooftops2.py`, concept-pass functions): 44 pieces, about 68.8k triangles; the heaviest is PenthouseB at about 9k. Coplanar is 0 in Blender, and the Studio audit is **0 pairs over 1,505 visible parts**, Life included.
+  - **Facades:** arched windows in stone surrounds with keystones, sills on corbels, louvred shutters on the top storey, a corbelled cornice, a cobalt string course and downpipes.
+  - **Penthouses:** A has a terracotta hip roof, B a slate mansard with dormers. Both have quoins, chimney stacks with pots, an arched door with lamps, and shuttered windows.
+  - **Water tank:** 23 timber staves, steel hoops, a conical cap with a finial, a splayed X-braced stand, a railed platform, a maintenance ladder, and a sign frame with a warm neon top edge. Placed at 1.35×.
+  - **Huts:** quoins, arched doors and low hip roofs. The lift tower is stone with a flat top.
+  - **Routes:**
+    - stone Pit stairs with cheek walls and cobalt caps;
+    - a steel fire-escape gangway;
+    - plank bridges on Warren trusses;
+    - a new fire-escape stair and balcony with a steel panel parapet, knee braces and joists.
+  - **Props:** AC units (cream casings, fan grilles, feet), pyramid skylights, terracotta planters with lumpy hedges, crates, barrels and a party corner.
+- **Textures:** six MaterialVariants (plaster, brick, terracotta, slate, gravel, plank) at 512, colour plus normal, cut from the approved trim sheet by `tools/textures/make_map_variants.py`. The plaster was calmed after the first Studio look, which showed big creases. Roof2_Tile stays the Lobby's.
+- **Greybox looks:** parapets and piers are cream stone, pier caps cobalt (`PierCap` look).
+- **Height:**
+  - New: a fire-escape balcony at +5 along each Penthouse. The layout now has five levels: Pit −8, roofs 0, balcony +5, towers +8, tank seat +27 (Updraft).
+  - Tried and dropped: a walkable Penthouse roof at +11. It gave 144-stud lines into the enemy spawn court and dropped first sight from 1.9 to 1.7 s.
+- **One landmark:** the corner tanks on the Tank houses are gone. The central tank is at 1.35×: drum 14.3–26.6, collision r 6.
+- **Jump:** the layout script now uses 5.6 (Gunplay.md). Gaps measured: walking jump 7.6, sprinting jump 10.5. The 8-stud Pit–roof gap is sprint-only.
+- **Birds:** the 12 boxy pigeons are moved out of `Rooftops2.Life` into `ServerStorage.MapBackups.Rooftops2_Pigeons` until a modelled bird exists. Lane F's Life script would recreate them if re-run.
+- **Backup of v1:** `ServerStorage.MapBackups.Rooftops2_v1`, saved with the place. The v1 scripts are in git at 373de85. A file `.rbxm` could not be written from the Studio MCP (the localhost receiver is not on the Assistant HTTP allowlist). In Studio: right-click the backup → Save to File → `art-source/maps/Rooftops2/Rooftops2_v1.rbxm`.
+
+### Layout re-measured (layout v3)
+| Check | v2 | **v3** |
+|---|---|---|
+| Spawn sees spawn; floor / Updraft seeing a spawn | never; 0% / 0% | **never; 0% / 0%** |
+| First sight, sprint / walk | 1.9 / 2.6 s | **2.0 / 2.8 s** |
+| Over 70 / over 100 / longest | 8.6% / 0.8% / 132 | **9.0% / 0.9% / 132** (the higher tank seat) |
+| Teams meet sprinting | 3.9 s | **3.9 s** |
+| Unreachable cells; clipping; coplanar | 0; 0; 0 | **0; 0; 0** |
+
+### Honest read against the concepts (quality gate)
+Better: the place now reads as one old-town block with a clear landmark. Arched windows, quoins, hip and mansard roofs, fire escapes, trusses and real props replace "plaster cubes with caps". **It is not yet at the concepts' level:**
+1. **Far skyline.** Plain striped slabs, saturated and tall. The concept's are soft, hazed and simple.
+2. **The billboards.** "Sunset Soda" panels compete with the tank at eye height. The concept keeps them lower and blank.
+3. **Surfaces at eye height.** Hut walls and quoins read flatter and darker in shade than the concept's pastel, evenly lit planes. Plaster tone and texture scale need a pass.
+4. **Density of trims.** The concept has a cream parapet with cobalt caps everywhere you look. Ours has them only on the greybox parapets (boxes, no chamfer). A chamfered `PierCap` mesh would close that.
+5. **No blind score yet.** Run `lihfolk:quality-score` after the next fix round, together with this side by side.
+
+Suggested next round, in order: blank and lower the billboards (or replace them with the concept's trestle signs); haze and lower the far skyline; a chamfered pier-cap mesh; one lighting and palette check (greyscale and no-shadow).
