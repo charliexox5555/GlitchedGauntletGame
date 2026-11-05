@@ -35,7 +35,7 @@ return table.freeze({
 		CrouchWalkB = id(139454894380024),
 		CrouchWalkL = id(104336317188168),
 		CrouchWalkR = id(96202691168303),
-		Slide = id(96499572762397), -- the full-body ground slide hold, with a scrape chatter (tools/studio/make_slide_poses.py)
+		Slide = id(80937778699459), -- the full-body ground slide hold, with a scrape chatter (tools/studio/make_slide_poses.py)
 	}),
 
 	-- Legs and hips by move direction (tools/studio/MakeLocomotionAnimations.luau,
@@ -49,8 +49,8 @@ return table.freeze({
 		SprintRun = id(81006580789818),
 		Land = id(88050773886302),
 		-- The slide's way in and out (one-shots, tools/studio/make_slide_poses.py).
-		SlideIn = id(104032142094006),
-		SlideOut = id(133079582347537),
+		SlideIn = id(76647742031982),
+		SlideOut = id(102381659417068),
 	}),
 	-- What others see you do with the gun (tools/studio/MakeCombatPoseAnimations.luau,
 	-- 2026-11-04): aiming down sights (three pitch poses blended like the hip
@@ -89,10 +89,11 @@ return table.freeze({
 	}),
 	-- What others see when someone fires (GripController, on ShotFx): the right
 	-- forearm pulls back `back` studs along the barrel and the muzzle flips up
-	-- `rise` degrees, reaching it in FIRE_KICK_RISE, then easing home at
-	-- `recover` (1/s, exponential: 90% back in ln(10) / recover seconds). On top
+	-- `rise` degrees, reaching it in FIRE_KICK_RISE, then springing home with
+	-- decay rate `recover` (1/s) and a small overshoot (FIRE_KICK_DAMPING). On top
 	-- of the gun's own flip in the hand (Config/Juice WORLD_KICK).
 	FIRE_KICK_RISE = 0.05,
+	FIRE_KICK_DAMPING = 0.5, -- spring damping ratio of the return (0.5: ~16% overshoot)
 	FIRE_KICK = table.freeze({
 		Sidearm = table.freeze({ back = 0.16, rise = 9, recover = 20 }), -- ~0.12 s
 		SMG = table.freeze({ back = 0.1, rise = 5, recover = 30 }), -- ~0.08 s

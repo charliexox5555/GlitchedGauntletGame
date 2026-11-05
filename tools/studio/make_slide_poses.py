@@ -5,10 +5,12 @@ model of the R15 rig (2026-11-04, lane D):
     python tools/studio/make_slide_poses.py > slides.txt
     python tools/studio/pose_text_to_rbxm.py slides.txt
 
-A full-body slide down on the floor: hips ~0.17 studs off the ground, body
-leaned back ~35 deg (the chest curled forward so the gun still points ahead),
-the lead (right) leg out with the heel on the floor, the trailing leg folded
-under with the shin flat. In: a quick dip with the lead leg kicking out, an
+A full-body slide down on the floor: hips ~0.18 studs off the ground, body
+leaned back ~34 deg (the chest curled forward so the gun still points ahead),
+the lead (right) leg out with the knee soft and the heel on the floor, the
+trailing leg bent out to the side with the shin down. No limb passes through
+another except the chest box against the raised thighs at the hip crease
+(0.27-0.30 studs, as in any seated R15 pose). In: a quick dip with the lead leg kicking out, an
 overshoot below the hold, settle (0.24 s). Out: the lead foot plants under the
 hips and drives up into the run (0.3 s). Replaces the kneeling scoot from
 MakeSlideAnimations.luau, whose folded leg sank 0.8 studs into the floor with
@@ -68,16 +70,19 @@ def lowest(frame):
 
 
 def hold(chatter=0.0):
-	"""The slide hold; `chatter` (-1..1) is the scrape buzz in the hips and heel."""
+	"""The slide hold; `chatter` (-1..1) is the scrape buzz in the hips and heel.
+	Re-solved 2026-11-05 with a body-overlap check (LihFolk quality-score
+	animation gate): the trailing leg goes out to the side instead of folding
+	through the lead thigh (it overlapped it by 0.37 studs)."""
 	return {
-		"LowerTorso": (35.5, 0, 12 + chatter * 1.5, 0, -1.46 - abs(chatter) * 0.03, 0.35),
-		"UpperTorso": (-28, -8, -10 - chatter * 0.8),
-		"RightUpperLeg": (60 + chatter * 2, 0, -3),
-		"RightLowerLeg": (-8 - chatter * 3, 0, 0),
-		"RightFoot": (-41 + chatter * 4, 0, 0),
-		"LeftUpperLeg": (71.5, 11, 47),
-		"LeftLowerLeg": (-140, 0, 0),
-		"LeftFoot": (30, 0, 0),
+		"LowerTorso": (33.5, 0, 6 + chatter * 1.5, 0, -1.54 - abs(chatter) * 0.03, 0.35),
+		"UpperTorso": (-24, -8, -10 - chatter * 0.8),
+		"RightUpperLeg": (78 + chatter * 2, -21, -3),
+		"RightLowerLeg": (-40 - chatter * 3, 0, 0),
+		"RightFoot": (-29 + chatter * 4, 0, 0),
+		"LeftUpperLeg": (88, 25, 31),
+		"LeftLowerLeg": (-60, 0, 0),
+		"LeftFoot": (-10, 0, 0),
 	}
 
 
@@ -105,8 +110,8 @@ KICK = {
 }
 # Overshoot: lower and further back than the hold, then settle into it.
 DROP = dict(hold())
-DROP["LowerTorso"] = (39, 0, 13, 0, -1.52, 0.4)
-DROP["UpperTorso"] = (-31, -9, -11)
+DROP["LowerTorso"] = (37, 0, 7, 0, -1.6, 0.4)
+DROP["UpperTorso"] = (-27, -9, -11)
 # Out: the lead foot plants under the hips, then drives up, chest forward.
 PLANT = {
 	"LowerTorso": (4, 0, 6, 0, -0.98, 0.15),

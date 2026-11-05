@@ -91,22 +91,26 @@ local function newRig(character: Model): Rig?
 	then
 		return nil
 	end
-	local pole = Instance.new("Attachment")
-	pole.Name = "GGLeftPole"
-	pole.Position = GRIP.leftPole
-	pole.Parent = torso
 	-- IK targets are read against the animated (pre-IK) pose, so the left
 	-- hand's target lives on the chest and is placed where the gun will be
 	-- this frame, kick included (a target on the gun would miss the kick).
 	local leftTarget = Instance.new("Attachment")
 	leftTarget.Name = "GGLeftHold"
 	leftTarget.Parent = torso
+	local pole = Instance.new("Attachment")
+	pole.Name = "GGLeftPole"
+	pole.Position = GRIP.leftPole
+	pole.Parent = torso
 	local left = Instance.new("IKControl")
 	left.Name = "GGLeftGrip"
 	left.Type = Enum.IKControlType.Transform
 	left.ChainRoot = upperL
 	left.EndEffector = handL
 	left.Target = leftTarget
+	-- The Pole matters: without it the hand settles 0.31 studs off its target
+	-- (0.10 with it, measured 2026-11-05). With a Pole an IKControl bends the
+	-- arm even at Weight 0 (LihFolk "IKControl Reference"), hence the Enabled
+	-- toggle below.
 	left.Pole = pole
 	left.Weight = 0
 	left.Enabled = false -- (an enabled IKControl bends the arm even at Weight 0)
@@ -313,7 +317,18 @@ local function kickAmount(rig: Rig, now: number): number
 		local u = t / rise
 		return 1 - (1 - u) * (1 - u) -- fast out
 	end
-	return math.exp(-rig.kick.recover * (t - rise))
+	-- An underdamped spring home (LihFolk "Springs Damping and Smoothing":
+	-- zeta ~0.5, ~16% overshoot), so the gun settles with weight instead of
+	-- sliding back. Decay rate = `recover`.
+	local zeta = Animations.FIRE_KICK_DAMPING
+	local omega = rig.kick.recover / zeta
+	local wd = omega * math.sqrt(1 - zeta * zeta)
+	local s = t - rise
+	if s > 6 / rig.kick.recover then
+		return 0
+	end
+	return math.exp(-rig.kick.recover * s)
+		* (math.cos(wd * s) + zeta / math.sqrt(1 - zeta * zeta) * math.sin(wd * s))
 end
 
 local function stepRig(rig: Rig, dt: number, now: number, camPos: Vector3)
@@ -346,7 +361,7 @@ local function stepRig(rig: Rig, dt: number, now: number, camPos: Vector3)
 	end
 	local k = if far then 0 else kickAmount(rig, now)
 	local handNow = hand.CFrame
-	if k < 0.01 then
+	if math.abs(k) < 0.01 then
 		rig.right.Enabled = false
 		rig.rightRest = nil
 	else
