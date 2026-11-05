@@ -186,22 +186,40 @@
   "uploaded": "2026-11-04 01:49:24"
  },
  "art-source/animations/GG_KnifeHeavy.rbxm": {
-  "assetId": 87481489934854,
-  "name": "GG KnifeHeavy",
+  "assetId": 125552226626615,
+  "name": "GG_KnifeHeavy",
   "type": "Animation",
-  "uploaded": "2026-11-04 03:06:20"
+  "uploaded": "2026-11-05 10:07:20"
  },
  "art-source/animations/GG_KnifeReady.rbxm": {
-  "assetId": 98422551486900,
-  "name": "GG KnifeReady",
+  "assetId": 116692680582291,
+  "name": "GG_KnifeReady",
   "type": "Animation",
-  "uploaded": "2026-11-04 03:06:15"
+  "uploaded": "2026-11-05 10:07:23"
  },
  "art-source/animations/GG_KnifeSlash.rbxm": {
   "assetId": 103765524428295,
   "name": "GG KnifeSlash",
   "type": "Animation",
   "uploaded": "2026-11-04 03:06:17"
+ },
+ "art-source/animations/GG_KnifeSlash1.rbxm": {
+  "assetId": 93885278536146,
+  "name": "GG_KnifeSlash1",
+  "type": "Animation",
+  "uploaded": "2026-11-05 10:07:12"
+ },
+ "art-source/animations/GG_KnifeSlash2.rbxm": {
+  "assetId": 138622195195928,
+  "name": "GG_KnifeSlash2",
+  "type": "Animation",
+  "uploaded": "2026-11-05 10:07:15"
+ },
+ "art-source/animations/GG_KnifeSlash3.rbxm": {
+  "assetId": 83936340288160,
+  "name": "GG_KnifeSlash3",
+  "type": "Animation",
+  "uploaded": "2026-11-05 10:07:18"
  },
  "art-source/animations/GG_Land.rbxm": {
   "assetId": 88050773886302,
@@ -364,6 +382,12 @@
   "name": "GG Updraft Slam Land",
   "type": "Animation",
   "uploaded": "2026-11-03 13:34:16"
+ },
+ "art-source/audio/GameAtlas.flac": {
+  "assetId": 136994389000525,
+  "name": "GG Game Sound Atlas v6",
+  "type": "Audio",
+  "uploaded": "2026-11-05 11:09:03"
  },
  "art-source/audio/GunAtlas.flac": {
   "assetId": 105241531021545,
