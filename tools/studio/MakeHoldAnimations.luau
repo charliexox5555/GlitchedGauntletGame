@@ -72,6 +72,9 @@ local MatchBody =
 	require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("MatchBody") :: ModuleScript)
 local rig =
 	Players:CreateHumanoidModelFromDescription(MatchBody.description(nil), Enum.HumanoidRigType.R15)
+-- (Set here too: Studio caches required modules, and an older MatchBody
+-- without this line let the Humanoid re-widen the arms on parenting.)
+rig:FindFirstChildOfClass("Humanoid").AutomaticScalingEnabled = false
 MatchBody.slimArms(rig)
 rig.Name = "GGHoldRig"
 for _, d in rig:GetDescendants() do
@@ -80,6 +83,7 @@ for _, d in rig:GetDescendants() do
 	end
 end
 rig.Parent = workspace
+MatchBody.slimArms(rig)
 
 local joints: { [string]: AnimationConstraint } = {}
 for _, c in rig:GetDescendants() do
@@ -240,67 +244,72 @@ local function solve(p: Hold, pitch: number): Frame
 	return frame
 end
 
--- Long guns (pass 2, 2026-11-05): chest bladed 55 deg, both elbows out, the
--- grip just outside the right shoulder line. Searched on real R15 meshes so
--- the 1-stud blocky forearms clear the chest (the first hold had the right
--- forearm 0.5-0.6 studs inside it, the "arms bunched in front" look).
+-- Long guns (extended, RIVALS-style, 2026-11-05): chest nearly square, the gun
+-- held forward at chest height, arms reaching out, the left hand beside the
+-- magwell (the guard is out of reach with the gun forward). Searched on the
+-- match body's real meshes (shared/MatchBody); reads from the front, where
+-- the bladed shouldered hold clumped the arms in front of the chest.
 local LONG_HIP: Hold = {
-	chest = { 2, -55, 0 },
-	head = { -4, 24, -8 },
-	hold = Vector3.new(0.45, -0.15, -1.45),
-	poleR = Vector3.new(1, 0.2, 0),
-	poleL = Vector3.new(-1, -0.5, 0),
-	palm = 90,
-	under = 0.14,
-	side = 0,
+	chest = { 2, -10, 0 },
+	head = { -6, 8, 0 },
+	hold = Vector3.new(-0.15, -0.15, -1.8),
+	poleR = Vector3.new(1, -0.6, -0.6),
+	poleL = Vector3.new(-0.3, -1, -1),
+	palm = 60,
+	under = 0.1,
+	side = -0.85,
 	reach = 1.85,
+	chestShare = 0.55,
 }
 -- Sights: the gun up to the cheek, more square, head down on the stock.
 local LONG_ADS: Hold = {
-	chest = { 4, -50, 0 },
-	head = { -14, 26, 4 },
-	hold = Vector3.new(0.3, 0.05, -1.45),
-	poleR = Vector3.new(1, 0.2, 0),
-	poleL = Vector3.new(-1, -0.5, 0),
-	palm = 90,
-	under = 0.14,
-	side = 0,
+	chest = { 4, -8, 0 },
+	head = { -12, 6, 6 },
+	hold = Vector3.new(-0.3, 0.15, -1.7),
+	poleR = Vector3.new(1, -0.6, -0.6),
+	poleL = Vector3.new(-0.3, -1, -1),
+	palm = 60,
+	under = 0.1,
+	side = -0.85,
 	reach = 1.85,
+	chestShare = 0.55,
 }
 -- Sidearms: square two-handed hold, arms extended, both hands side by side on
 -- the grip (a cupping left hand sat inside the right one).
 local PISTOL_HIP: Hold = {
 	chest = { 0, -6, 0 },
 	head = { -6, 5, 0 },
-	hold = Vector3.new(-0.85, -0.3, -1.8),
-	poleR = Vector3.new(0.6, -1, 0),
-	poleL = Vector3.new(-0.6, -1, 0),
+	hold = Vector3.new(-0.85, -0.15, -1.8),
+	poleR = Vector3.new(0.3, -1, -1),
+	poleL = Vector3.new(-0.3, -1, -1),
 	palm = 0,
 	under = 0.05,
 	side = -0.64,
 	reach = 1.85,
+	chestShare = 0.55,
 }
 local PISTOL_ADS: Hold = {
 	chest = { 2, -4, 0 },
 	head = { -10, 4, 4 },
-	hold = Vector3.new(-0.9, -0.02, -1.8),
-	poleR = Vector3.new(0.6, -1, 0),
-	poleL = Vector3.new(-0.6, -1, 0),
+	hold = Vector3.new(-0.9, 0.1, -1.8),
+	poleR = Vector3.new(0.3, -1, -1),
+	poleL = Vector3.new(-0.3, -1, -1),
 	palm = 0,
 	under = 0.05,
 	side = -0.64,
 	reach = 1.85,
+	chestShare = 0.55,
 }
 -- Sprint: low-ready carry, the muzzle down and across the body, chest leaning
 -- into the run (one pose, no pitch).
 local SPRINT: Hold = {
 	chest = { -12, -18, 0 },
 	head = { 6, 16, 0 },
-	hold = Vector3.new(-0.55, -0.85, -0.8),
-	gunPitch = -38,
-	gunYaw = 28,
-	poleR = Vector3.new(0.6, -1, 0.6),
-	poleL = Vector3.new(-0.3, -1, 0),
+	hold = Vector3.new(-0.15, -0.8, -1.2),
+	gunPitch = -25,
+	gunYaw = 20,
+	poleR = Vector3.new(1, -0.6, -0.4),
+	poleL = Vector3.new(-0.6, -1, -0.6),
 	palm = 90,
 	under = 0.14,
 	side = 0,
@@ -369,15 +378,16 @@ end
 
 local ACTION = Enum.AnimationPriority.Action
 local ACTION2 = Enum.AnimationPriority.Action2
-local PITCH = 70 -- Config/Animations AIM_PITCH_RANGE
+local PITCH_UP = 45 -- Config/Animations AIM_PITCH_UP
+local PITCH_DOWN = 30 -- Config/Animations AIM_PITCH_DOWN
 
 local sequences: { KeyframeSequence } = {}
 setGun("Vandal")
 for _, set in { { "Aim", LONG_HIP }, { "Ads", LONG_ADS } } do
 	local prefix, hold = set[1] :: string, set[2] :: Hold
-	table.insert(sequences, held("GG_" .. prefix .. "Up", ACTION, solve(hold, PITCH)))
+	table.insert(sequences, held("GG_" .. prefix .. "Up", ACTION, solve(hold, PITCH_UP)))
 	table.insert(sequences, held("GG_" .. prefix .. "Level", ACTION, solve(hold, 0)))
-	table.insert(sequences, held("GG_" .. prefix .. "Down", ACTION, solve(hold, -PITCH)))
+	table.insert(sequences, held("GG_" .. prefix .. "Down", ACTION, solve(hold, -PITCH_DOWN)))
 end
 table.insert(sequences, held("GG_Sprint", ACTION2, solve(SPRINT, 0)))
 do
@@ -389,9 +399,9 @@ end
 setGun("Sheriff")
 for _, set in { { "PistolAim", PISTOL_HIP }, { "PistolAds", PISTOL_ADS } } do
 	local prefix, hold = set[1] :: string, set[2] :: Hold
-	table.insert(sequences, held("GG_" .. prefix .. "Up", ACTION, solve(hold, PITCH)))
+	table.insert(sequences, held("GG_" .. prefix .. "Up", ACTION, solve(hold, PITCH_UP)))
 	table.insert(sequences, held("GG_" .. prefix .. "Level", ACTION, solve(hold, 0)))
-	table.insert(sequences, held("GG_" .. prefix .. "Down", ACTION, solve(hold, -PITCH)))
+	table.insert(sequences, held("GG_" .. prefix .. "Down", ACTION, solve(hold, -PITCH_DOWN)))
 end
 rig:Destroy()
 

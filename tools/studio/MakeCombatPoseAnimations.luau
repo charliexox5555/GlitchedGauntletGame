@@ -89,14 +89,14 @@ end
 -- tools/studio/MakeHoldAnimations (GG_AimLevel, both hands on the gun).
 local function hip(): Frame
 	return {
-		UpperTorso = { 2, -55, 0 },
-		Head = { -4, 24, -8 },
-		RightUpperArm = { 17.55, -88.11, -111.12 },
-		RightLowerArm = { -59.8, -45.03, 49.2 },
-		RightHand = { 16.12, 82.79, 14.54 },
-		LeftUpperArm = { -45.91, 96.05, 101.71 },
+		UpperTorso = { 2, -10, 0 },
+		Head = { -6, 8, 0 },
+		RightUpperArm = { -26.33, -82.27, -100.45 },
+		RightLowerArm = { -5.45, -2.25, 22.49 },
+		RightHand = { 6.08, 117.06, 8.31 },
+		LeftUpperArm = { -53.44, 77.76, 105.54 },
 		LeftLowerArm = { -3.81, 1.57, -22.42 },
-		LeftHand = { -30.49, -47.96, 2.8 },
+		LeftHand = { -59.8, -51.09, -32.26 },
 	}
 end
 
@@ -194,13 +194,14 @@ local DEATH_DOWN: Frame = {
 -- Ready: knife low and forward, the free hand up as a guard, a slow breath.
 local function knifeReady(breath: number): Frame
 	return {
-		UpperTorso = { 2 + breath * 1.5, -6, 0 },
-		Head = { -breath, 6, 0 },
-		RightUpperArm = { 52 + breath * 2, 10, 0 },
-		RightLowerArm = { 46, 0, 0 },
-		RightHand = { -12, 0, 0 },
-		LeftUpperArm = { 62 + breath * 2, -26, 0 },
-		LeftLowerArm = { 72, 0, 0 },
+		-- (2026-11-05, match body: the guard arm lowered; it was raised to the face.)
+		UpperTorso = { 2 + breath * 1.5, -8, 0 },
+		Head = { -breath, 8, 0 },
+		RightUpperArm = { 45 + breath * 2, 8, 0 },
+		RightLowerArm = { 55, 0, 0 },
+		RightHand = { -10, 0, 0 },
+		LeftUpperArm = { 28 + breath * 2, -12, -6 },
+		LeftLowerArm = { 58, 0, 0 },
 		LeftHand = { 0, 0, 0 },
 	}
 end
@@ -269,7 +270,7 @@ local DRAW_LOW: Frame = {
 	LeftLowerArm = { 44, 0, 0 },
 }
 local DRAW_RISE: Frame = hip()
-DRAW_RISE.UpperTorso = { 6, -53, 0 } -- a touch past the hold, then settle
+DRAW_RISE.UpperTorso = { 6, -8, 0 } -- a touch past the hold, then settle
 
 local ACTION = Enum.AnimationPriority.Action
 local ACTION4 = Enum.AnimationPriority.Action4

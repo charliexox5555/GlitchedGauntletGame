@@ -262,7 +262,11 @@ local function aimPitch(player: Player): number
 	if action and action:IsA("InputAction") then
 		local v = action:GetState()
 		if typeof(v) == "number" and v == v then
-			return math.clamp(v * 90 / Animations.AIM_PITCH_RANGE, -1, 1)
+			-- Up and down poses are baked at different angles (Config/Animations
+			-- AIM_PITCH_UP / AIM_PITCH_DOWN); the pose holds past them.
+			local deg = v * 90
+			local range = if deg >= 0 then Animations.AIM_PITCH_UP else Animations.AIM_PITCH_DOWN
+			return math.clamp(deg / range, -1, 1)
 		end
 	end
 	return 0
@@ -407,7 +411,11 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	posedAds[character] = ads
 	local hip = armed * (1 - ads)
 	local sights = armed * ads
-	local pistol = PISTOL_SET and config ~= nil and config.class == "Sidearm"
+	-- Sidearms, and Akimbo (a gun in each hand): the two-handed set, whose
+	-- hands sit side by side and face forward, so both guns point ahead.
+	local pistol = PISTOL_SET
+		and config ~= nil
+		and (config.class == "Sidearm" or (config.models ~= nil and config.models.left ~= nil))
 	for setName, names in HOLD_SETS do
 		local on = if (setName == "pistol") == pistol then 1 else 0
 		setWeight(animator, names[1], on * hip * math.max(pitch, 0))

@@ -16,18 +16,18 @@ return table.freeze({
 		-- Holding the gun, blended by aim pitch (Action priority). Solved on a
 		-- rig with both hands on the gun (tools/studio/MakeHoldAnimations,
 		-- 2026-11-04): shouldered long-gun hold, sidearms two-handed.
-		AimUp = id(123446724391415), -- looking AIM_PITCH_RANGE degrees up
-		AimLevel = id(128549425661166),
-		AimDown = id(136340891587951), -- looking AIM_PITCH_RANGE degrees down
+		AimUp = id(129273156461804), -- looking AIM_PITCH_UP degrees up
+		AimLevel = id(83176652381307),
+		AimDown = id(78979562573102), -- looking AIM_PITCH_DOWN degrees down
 		-- Sidearms' two-handed hold, the same pitch blend (MakeHoldAnimations).
-		PistolAimUp = id(134387505053454),
-		PistolAimLevel = id(104048644111391),
-		PistolAimDown = id(76559880424473),
-		PistolAdsUp = id(74201207820342),
-		PistolAdsLevel = id(124447634856449),
-		PistolAdsDown = id(71881501397859),
+		PistolAimUp = id(125048577056615),
+		PistolAimLevel = id(129884050636579),
+		PistolAimDown = id(97244117982397),
+		PistolAdsUp = id(103143608523355),
+		PistolAdsLevel = id(72552798753494),
+		PistolAdsDown = id(126090135031854),
 		-- Movement (Action2; Slide is Action3 so it wins over everything).
-		Sprint = id(71812210775526), -- gun lowered across the body
+		Sprint = id(98701661117593), -- gun lowered across the body
 		Crouch = id(99568083489164),
 		CrouchWalk = id(120617369360340), -- one stride, looped
 		-- The other crouch-walk directions (same stride length), blended by
@@ -58,26 +58,26 @@ return table.freeze({
 	-- time (server player attributes ReloadAt / ReloadFor) and a flinch when
 	-- hit (HitAt).
 	COMBAT = table.freeze({
-		AdsUp = id(139613906260905),
-		AdsLevel = id(137279427153476),
-		AdsDown = id(79761173585801),
-		Reload = id(139915270226655),
+		AdsUp = id(116679062451031),
+		AdsLevel = id(132668202933655),
+		AdsDown = id(104787336098355),
+		Reload = id(130903306208412),
 		Flinch = id(114576995497102),
 		Death = id(81024323443020), -- going down (DeathFxController, on the falling copy)
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
 		-- on each swing (server player attributes SwingAt / SwingHeavy).
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
-		Draw = id(126901374148632),
-		KnifeReady = id(116692680582291), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
+		Draw = id(106927072941770),
+		KnifeReady = id(78670545007592), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
 		-- Knife swings (2026-11-05, tools/studio/make_knife_poses.py; every
 		-- frame keeps the limbs within 0.015 studs of the torso on the block
 		-- rig). The old single slash was 103765524428295, the old heavy
 		-- 87481489934854.
-		KnifeSlash = id(93885278536146), -- GG_KnifeSlash1: forehand (SwingStep 1)
+		KnifeSlash = id(136327489942967), -- GG_KnifeSlash1: forehand (SwingStep 1)
 		KnifeSlash2 = id(138622195195928), -- GG_KnifeSlash2: backhand (SwingStep 2)
 		KnifeSlash3 = id(83936340288160), -- GG_KnifeSlash3: the overhead chop (SwingStep 3)
-		KnifeHeavy = id(125552226626615), -- GG_KnifeHeavy: pull back, coil, thrust
+		KnifeHeavy = id(71735833836709), -- GG_KnifeHeavy: pull back, coil, thrust
 	}),
 	-- The left hand on each gun's LeftGrip (GripController IK, every visible
 	-- character, 2026-11-04). Positions in studs, angles in degrees.
@@ -85,7 +85,7 @@ return table.freeze({
 		reachFraction = 0.88, -- of the arm's length: how far the left hand may reach (elbow soft)
 		maxSlide = 1.5, -- how far back along the barrel the hand may slide to reach
 		leftPole = Vector3.new(-1.2, -1.6, -0.3), -- the left elbow points here (UpperTorso space)
-		long = table.freeze({ under = 0.14, side = 0, palm = 90 }), -- palm up under the guard
+		long = table.freeze({ under = 0.1, side = -0.85, palm = 60 }), -- beside the magwell (extended hold)
 		sidearm = table.freeze({ under = 0.05, side = -0.64, palm = 0 }), -- beside the grip hand (match body, slim arms)
 		fadeIn = 14, -- 1/s
 		fadeOut = 20,
@@ -240,7 +240,12 @@ return table.freeze({
 	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
 	SLAM_FADE = 0.08, -- seconds the Crash Down dive pose fades in / out
 
-	AIM_PITCH_RANGE = 70, -- degrees baked into AimUp / AimDown
+	-- Degrees baked into the Up / Down hold poses (tools/studio/MakeHoldAnimations).
+	-- The extended hold (2026-11-05) keeps the forearms off the chest only up to
+	-- these angles on the match body; past them the pose holds (aim beyond
+	-- ~45 deg up / 30 deg down is rare in a duel).
+	AIM_PITCH_UP = 45,
+	AIM_PITCH_DOWN = 30,
 	CROUCH_WALK_SPEED = 9, -- studs/s that CrouchWalk plays at 1x (Movement.CROUCH_SPEED)
 	MOVING_SPEED = 1.5, -- studs/s above which crouching counts as walking
 	SLIDE_CHATTER_SPEED = 30, -- studs/s the slide hold's chatter plays at 1x (it calms as the slide slows)
