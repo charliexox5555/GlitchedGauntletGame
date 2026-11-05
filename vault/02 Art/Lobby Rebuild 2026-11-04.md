@@ -138,10 +138,9 @@ Overall structure approved. Changes:
 ![Duels hall](References/lobby/rebuild-20261104/02-duels-hall.jpg)
 ![Market niches](References/lobby/rebuild-20261104/04-market-niches.jpg)
 ![Shop hall](References/lobby/rebuild-20261104/05-shop-hall.jpg)
-![Armoury](References/lobby/rebuild-20261104/06-armoury.jpg)
-![Locker](References/lobby/rebuild-20261104/07-locker.jpg)
+![Armoury and Locker](References/lobby/rebuild-20261104/06-armoury-locker.jpg)
 ![Range room](References/lobby/rebuild-20261104/08-range-room.jpg)
-More in `References/lobby/rebuild-20261104/` (spawn looking south, a leaderboard close-up).
+More in `References/lobby/rebuild-20261104/` (spawn looking west and south, the rotunda hologram, the Armoury exit).
 
 ### Layout as built (Roblox studs, hub centre 0,0,0, spawn faces north)
 | Area | Floor | Built |
@@ -182,6 +181,66 @@ Walk test (play mode, Humanoid:MoveTo): spawn → 1V1 pad 3.8 s, → 3V3 pad 4.2
 - StyLua and selene are blocked on this PC by Windows Application Control, so the Luau files are hand-formatted to the house style.
 - The light shafts were removed (they read as grey sheets); the sunbeam is the real sun through the oculus, plus dust.
 
+## Pass 2: mood, density and scoring (2026-11-05)
+Triggered by the core chat's side-by-side comparison with the user's RIVALS screenshots. Their verdict: the layout reads, and the gap is mood and density (flat even light, small dim signs, no spawn centrepiece, empty rooms, an unfinished Locker, unreadable screens). The work then followed the vault rule (`gauntlet-vault` skill): LihFolk lookups, the `lihfolk-worldbuilding`, `roblox-blender-modeling` and `roblox-asset-import` skills, and scoring with `lihfolk:quality-score`.
+
+**LihFolk notes used:**
+- *Case Study - Rivals*: the lobby is the matchmaker, pads instant and visible, spectating is free content.
+- *Lobby and Hub Design*: busy edges with clear paths, the spend station on the way out, pad space of about 4 studs per player.
+- *Level Design Principles - Flow Sightlines and Landmarks* and *Teaching Through Level Design*: light the objective, not the scenery; one landmark per district; one beam per objective.
+- *Colour Scripts and Value Structure for Untextured Art*: floors mid-dark, walls one band away, interactables lightest.
+- *Stylized Lighting Recipes*: bloom threshold 1.2-2.
+- *Light Sources and Shadows*: about 8-12 visible local lights on phones; tag and disable, don't delete.
+- *Bevels Chamfers and Edge Highlights Without Textures*, *Shape Language and Silhouette Testing*: the kit gate and render review.
+- *Juice on a Budget - Mobile and Low-End*: decor effects asleep when far.
+- Skills: the modelling gate (A1-A18) and the V1-V9 render review on representative kit pieces. The pier scored about 17/18. The portal was borderline at 14/18 and was made chunkier with buttress-style framing.
+
+**What changed:**
+- **Kit pass 2** (63 pieces, 81k triangles, still 0 coplanar findings): hard cases, wall vents, cable trays, weapon racks, lit glass cases, benches, hazard barriers and a curved **Locker alcove**. The sign letters were rebuilt without curve bevels (they self-intersected), and the n-gons were fixed.
+- **Light and value:**
+  - Darker base: Ambient 58,62,74, exposure −0.1, haze 2.0, bloom threshold 1.3. Concrete is one value band darker.
+  - Every wing's accent colour is now a light at its portal, and the pads light their bays.
+  - Key lights on the shop counter, the hero rifle, the range model and the locker avatar.
+  - The sun drops straight onto the spawn dais (latitude 24, noon).
+  - Lights are culled on the client beyond 120 studs.
+- **Signs:** the portal signs are 1.8× and hang into the doorway, with **glowing Neon letters** on every sign.
+- **Spawn centrepiece:** a hologram emblem plus a two-sided "SEASON 1 · LAUNCHING SOON" banner high over the dais (above the sightline to Duels), holo sparkles, and two board stands behind the dais.
+- **Set dressing:**
+  - Ring: benches, case stacks, vents and cable runs.
+  - Duels: cases, benches and a barrier at the sealed door, plus ceiling light strips.
+  - Market: case stacks framing the shop steps.
+  - Shop: four lit glass cases with game guns, racks and barriers in front of the decorative doors (now smaller and steel-painted), and a lighter floor.
+  - Armoury: racks, glass cases, an exit screen and a guide strip.
+  - Range: wall screens, racks and cases.
+- **Scale:** display rifles about 4 studs, pistols 2.2-2.4, hero rifle 6.5 (it had been 14 and covered the LOCKER sign).
+- **Screens:** bigger type, more glow and outlines. Each is readable from 15-20 studs.
+
+![Spawn hologram](References/lobby/rebuild-20261104/09-rotunda-hologram.jpg)
+![Armoury and Locker](References/lobby/rebuild-20261104/06-armoury-locker.jpg)
+
+**Before / after (same angles):**
+| Area | Before (pass 1) | After (pass 2 + 3 fix rounds) |
+|---|---|---|
+| Spawn | evenly lit grey-beige, cyan disc only, small plaques | dark-to-mid, hologram emblem + SEASON banner, big neon signs, boards on stands |
+| Duels | clean but bare walls and ceiling | ceiling strips, dressing at the end, (light pools not visible in captures) |
+| Market | sparse, one counter in an empty room | lit glass cases, racks, barriers, smaller steel doors, case stacks framing the steps |
+| Armoury | oversized guns, hero rifle over the sign, flat backdrop | believable display scale, curved lit Locker alcove, exit cue |
+| Range | cage only | wall screens, racks, calmer cage glow |
+
+**Quality score** (LihFolk world rubric W1-W6; 3 blind reviewers per round with different lenses; median per criterion):
+| Area | First | Final | Rounds | Result |
+|---|---|---|---|---|
+| Spawn rotunda | 8.75 | **9.17** | 2 | pass |
+| Duels hall | 8.75 | **8.75** | 2 | pass |
+| Armoury + Locker | 5.83 | **9.17** | 2 | pass |
+| Market | 8.75 | **8.33** | 3 | below bar: draft |
+| Range room | 8.33 | **8.33** | 3 | below bar: draft |
+Hard gates pass for every area. Overlap audit clean; every route walked in play mode (spawn → pads, Battle Pass niche, shop counter, Range gate, Locker); spawn safe; Output clean; decor non-colliding; budget: about 1,540 parts, 31 lights (none shadowed). Results are logged in `.lihfolk/ledger.jsonl`.
+
+**Blocking criterion for Market and Range:** W4 lighting (1 of 2: "tuned, not striking"; reviewers asked for warm and coloured light pools). Fix round 3 strengthened exactly those lights, but **local lights don't render in Studio MCP screen captures at all**: a brightness-10, range-40 red test light left no trace. So none of the pools were visible to the reviewers, and the same bias pulls Duels' W4 down. Needed: the user checks in play mode with `Lighting.Technology = Future` (set by hand; scripts can't) and a mid or high graphics quality. If the pools show, these two areas very likely clear the bar. If they don't, the next fix is emissive (Neon floor and edge glows), which does show in captures.
+
+**Reviewer spread:** Market's individual scores ran 6.3-8.75, so it was re-checked against the evidence. The low score came from "blank navy cabinets" (the decorative blast doors), which were then shrunk and repainted.
+
 ## What the user should test tomorrow
 - [ ] Spawn: the first view (DUELS through the north portal, leaderboards left and right, sun on the dais). Turn around: RANGE, then SHOP and ARMOURY at the sides.
 - [ ] Walk the ring once and slide; check nothing snags at the piers, portals or thresholds.
@@ -191,6 +250,9 @@ Walk test (play mode, Humanoid:MoveTo): spawn → 1V1 pad 3.8 s, → 3V3 pad 4.2
 - [ ] Range room: walk past the caged scale model into the RANGE gate (the teleport is lane B's code).
 - [ ] Look for any flicker (z-fighting), gaps showing the sky, or floating pieces; note where.
 - [ ] Phone / low graphics: frame rate in the Duels hall and at spawn.
+- [ ] **Lighting check (blocks two scores):** Lighting → Properties → set `Technology` to **Future**, then play at a mid or high graphics quality. Do you see coloured light pools at each portal, on the pads, the shop counter and the range model? (They don't show in Studio MCP screenshots.)
+- [ ] Spawn hologram and SEASON banner, the big neon portal signs, and the boards behind the dais.
+- [ ] Set dressing density: busy enough, or cluttered anywhere?
 - [ ] Approve the style (or not) before it's used for the match maps: [Lobby Style Guide](Lobby%20Style%20Guide.md).
 
 ## Notes for the other lanes

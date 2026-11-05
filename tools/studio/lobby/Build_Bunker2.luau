@@ -648,9 +648,9 @@ for _, s in { -1, 1 } do
 end
 arcCol(F.collision, 21.8, 24, 2, { { 270, 30 } }, AX, 0)
 put("HeroPlinth", at(AX - 2, 2, 0), arm)
-local hero = put("Hero_Vandal", at(AX - 2, 9.5, 0), arm)
+local hero = put("Hero_Vandal", at(AX - 2, 10.5, 0), arm) -- above the avatar, below the alcove hood and the sign
 local hs = hero:GetExtentsSize()
-hero:ScaleTo(9 / math.max(hs.X, hs.Z)) -- hero size, but believable next to a 5-stud avatar (blind review W6)
+hero:ScaleTo(6.5 / math.max(hs.X, hs.Z)) -- showpiece, but believable next to a 5-stud avatar (blind review W6)
 spin(hero, 14, 0.4, 0.6)
 col(F.collision, "HeroPlinth", Vector3.new(10, 2.4, 10), CFrame.new(AX - 2, 3.2, 0))
 lamp(F.lights, Vector3.new(AX - 2, 16, 0), Color3.fromHex("DFF4FF"), 26, 1.3)
@@ -1049,12 +1049,14 @@ end
 -- ---------------------------------------------------------------- fix round 1 (blind review on the LihFolk world rubric)
 -- Lowest criteria: Armoury W6 scale / W3 palette, Range W4-W6, Market value contrast, Duels ceiling, Spawn floor tone.
 each(market, "BlastDoor_Leaves", function(p)
-	p.Color = Color3.fromHex("56687A") -- no navy on navy in the shop
+	p.Color = Color3.fromHex("6E7C88") -- painted steel, no navy on navy in the shop
+	p.Material = Enum.Material.Metal
+	p.MaterialVariant = "Bunker_Metal"
 end)
 for _, nm in { "DoorNorth", "DoorSouth" } do
 	local d = market:FindFirstChild(nm)
 	if d and d:IsA("Model") then
-		d:ScaleTo(0.75) -- decorative doors stop dominating the shop
+		d:ScaleTo(0.62) -- decorative doors stop dominating the shop (blind review: "blank cabinets dwarf the avatar")
 	end
 end
 each(market, "ShopBackdrop_Back", function(p)
@@ -1102,6 +1104,56 @@ for _, s in { -1, 1 } do
 			local g = put(name, rcf * CFrame.new(0, (k - 1) * 2.6 + 1.9, 1.3), range)
 			local ss = g:GetExtentsSize()
 			g:ScaleTo(4.4 / math.max(ss.X, ss.Z))
+		end
+	end
+end
+
+-- ---------------------------------------------------------------- fix round 2 (blind review)
+local exitScr = put("PadScreen", at(57.9, 15.85, 0, 90), arm, 0.8) -- exit cue hanging in the Armoury throat
+screen(child(exitScr, "PadScreen_Face"), "HUB", C.armoury, { "DUELS · SHOP · RANGE" }, "<<  EXIT")
+local hk = part(F.lights, "HeroKey", Vector3.new(0.5, 0.5, 0.5), CFrame.new(AX - 2, 16, 0), C.armoury, { transparency = 1, collide = false })
+local hsp = Instance.new("SpotLight")
+hsp.Face = Enum.NormalId.Bottom
+hsp.Angle = 40
+hsp.Range = 14
+hsp.Brightness = 2.4
+hsp.Color = Color3.fromHex("FFE4C0")
+hsp.Shadows = false
+hsp.Parent = hk
+for _, d in range.HoloCage:GetDescendants() do -- calmer cage glow, in family with the other rooms
+	if d:IsA("BasePart") and d.Material == Enum.Material.Neon then
+		d.Transparency = 0.4
+	end
+end
+local sk2 = F.lights:FindFirstChild("ShopKey")
+local sl = sk2 and sk2:FindFirstChildOfClass("SpotLight")
+if sl then
+	sl.Brightness = 4 -- a real light pool on the shop counter
+	sl.Range = 24
+end
+lamp(F.lights, Vector3.new(-115, 6, 0), Color3.fromHex("FFD9A0"), 14, 1.6)
+
+-- ---------------------------------------------------------------- fix round 3 (blind review W4): stronger light pools
+-- Note: local lights did not render at all in Studio MCP captures (a brightness-10 test light left no trace), so these
+-- pools could not be judged from screenshots; check them in play on Future lighting.
+for _, l in F.lights:GetDescendants() do
+	if l:IsA("Light") then
+		local p = (l.Parent :: BasePart).Position
+		if p.X < -60 and p.X > -68 and math.abs(p.Z) > 10 then
+			l.Brightness, l.Range = 2.6, 18 -- Event / Battle Pass colour pools
+		end
+		if math.abs(p.X + 102) < 1 and math.abs(p.Z) < 1 then
+			l.Brightness = 2.0 -- shop centre
+		end
+		if math.abs(p.X) < 1 and math.abs(p.Z - 62) < 1 then
+			if l:IsA("SpotLight") then
+				l.Brightness, l.Angle, l.Range = 4.2, 80, 20 -- key light on the range model
+			else
+				l.Brightness, l.Range = 2.4, 26 -- holo light in the cage
+			end
+		end
+		if math.abs(p.X) < 1 and math.abs(p.Z - 78.4) < 1.5 then
+			l.Brightness, l.Range = 2.8, 26 -- red wash at the Range gate
 		end
 	end
 end
