@@ -557,3 +557,33 @@ The replacement:
 - Placement: over the water only, never across a duel sightline, because motion pulls the eye like an enemy (*Level Design Principles…*). Dropped first on low-end devices (*Juice on a Budget - Mobile and Low-End*).
 
 This is lane F's area; it's a recommendation only.
+
+## Rebuild v3 from the concepts (2026-11-05 evening), first pass and blind score
+Built on the same pipeline as Rooftops2. Committed in 2507958; the place needs saving (Ctrl+S).
+- **Textures:** six of our own MaterialVariants (corrugated, cladding, concrete, plate, plank, grate) at 512, colour plus normal, cut from the approved trim sheet. They replace the Lobby's twelve 1024 maps.
+- **Crane:** solid box-section legs with proud corner members and X bracing, knee braces under the girders, black-and-white striped footings, and riveted plate texture.
+- **Containers:** corner castings on every container. The containers grew to about 1,900 triangles each, still over the 800 target for repeated pieces.
+- **Paint and crates:** white paint and timber crates, so the crane is the only yellow.
+- **Audit:** 0 pairs over 2,347 visible parts.
+- **Bug found and fixed:** a patch replaced the same line in the crate builder, so every crate grew the crane's knee braces. These showed as floating yellow sticks and black bars on the ground.
+
+| Concept | Build v3 |
+|---|---|
+| ![](../../../art-source/maps/Dockyard2/concepts/02-hero-middle.png) | ![](../../02%20Art/References/maps/dockyard2/v3-middle-crane.jpg) |
+| ![](../../../art-source/maps/Dockyard2/concepts/01-overview-v2.png) | ![](../../02%20Art/References/maps/dockyard2/v3-overview.jpg) |
+| ![](../../../art-source/maps/Dockyard2/concepts/04-hero-spawn-b.png) | ![](../../02%20Art/References/maps/dockyard2/v3-quay-to-crane.jpg) |
+
+**Blind score (world rubric, 3 fresh reviewers): 6.67.** The reviewers gave 7.50, 6.67 and 6.67; the medians are W1 2, W2 1, W3 1, W4 1, W5 1, W6 2. That is below the bar and below the earlier 8.75.
+
+Part of the drop comes from the evidence, not the build:
+- The overview camera showed mostly container tops.
+- The quay shot was a tight wall.
+- The spawn and shed shots came from the earlier pass, so the reviewers saw two texture styles.
+
+The real gaps the reviewers named:
+1. **Lane colours don't read.** Red, blue and green lanes don't show at eye height or from above. The fix is lane floor stripes and lane-coloured end containers.
+2. **The deck and the stack tops are large flat fields.** They need stains, drains and cable runs.
+3. **The shed interior is still the old smooth style.**
+4. **The light is generic midday.** It needs haze and warm-cool contrast.
+
+**Against the concepts:** the crane now reads like the concept's (braced, plated, striped feet), and the containers carry real corrugation and castings. Still missing are the concept's chunky quay coping with stripes, the jetty with tyre fenders, and the cleaner, bolder lane colours. No fix round tonight, as asked.
