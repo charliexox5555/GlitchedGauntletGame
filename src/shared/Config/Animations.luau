@@ -16,9 +16,9 @@ return table.freeze({
 		-- Holding the gun, blended by aim pitch (Action priority). Solved on a
 		-- rig with both hands on the gun (tools/studio/MakeHoldAnimations,
 		-- 2026-11-04): shouldered long-gun hold, sidearms two-handed.
-		AimUp = id(78682673128245), -- looking AIM_PITCH_RANGE degrees up
-		AimLevel = id(76409026204499),
-		AimDown = id(106463785721042), -- looking AIM_PITCH_RANGE degrees down
+		AimUp = id(82760540465409), -- looking AIM_PITCH_RANGE degrees up
+		AimLevel = id(70944741044936),
+		AimDown = id(90624700567100), -- looking AIM_PITCH_RANGE degrees down
 		-- Sidearms' two-handed hold, the same pitch blend (MakeHoldAnimations).
 		PistolAimUp = id(140253199214811),
 		PistolAimLevel = id(110910062022130),
@@ -35,7 +35,7 @@ return table.freeze({
 		CrouchWalkB = id(139454894380024),
 		CrouchWalkL = id(104336317188168),
 		CrouchWalkR = id(96202691168303),
-		Slide = id(80937778699459), -- the full-body ground slide hold, with a scrape chatter (tools/studio/make_slide_poses.py)
+		Slide = id(116508545844545), -- the full-body ground slide hold, with a scrape chatter (tools/studio/make_slide_poses.py)
 	}),
 
 	-- Legs and hips by move direction (tools/studio/MakeLocomotionAnimations.luau,
@@ -49,8 +49,8 @@ return table.freeze({
 		SprintRun = id(81006580789818),
 		Land = id(88050773886302),
 		-- The slide's way in and out (one-shots, tools/studio/make_slide_poses.py).
-		SlideIn = id(76647742031982),
-		SlideOut = id(102381659417068),
+		SlideIn = id(133767445230279),
+		SlideOut = id(100738659650643),
 	}),
 	-- What others see you do with the gun (tools/studio/MakeCombatPoseAnimations.luau,
 	-- 2026-11-04): aiming down sights (three pitch poses blended like the hip
@@ -58,17 +58,17 @@ return table.freeze({
 	-- time (server player attributes ReloadAt / ReloadFor) and a flinch when
 	-- hit (HitAt).
 	COMBAT = table.freeze({
-		AdsUp = id(82864178351536),
-		AdsLevel = id(135344308216590),
-		AdsDown = id(70841541332145),
-		Reload = id(109761655273266),
+		AdsUp = id(112152755318911),
+		AdsLevel = id(129152787542613),
+		AdsDown = id(107644808275862),
+		Reload = id(121185044899036),
 		Flinch = id(114576995497102),
 		Death = id(81024323443020), -- going down (DeathFxController, on the falling copy)
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
 		-- on each swing (server player attributes SwingAt / SwingHeavy).
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
-		Draw = id(88153750230726),
+		Draw = id(118928673381535),
 		KnifeReady = id(98422551486900),
 		KnifeSlash = id(103765524428295),
 		KnifeHeavy = id(87481489934854),

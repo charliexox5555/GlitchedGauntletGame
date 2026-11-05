@@ -239,6 +239,10 @@ local function wantsGrip(rig: Rig): boolean
 	if not rig.grip or not Health.isAlive(rig.humanoid) then
 		return false
 	end
+	-- The slide clip puts the left hand on the floor (MakeHoldAnimations SLIDE).
+	if rig.character:GetAttribute("MoveState") == "Slide" then
+		return false
+	end
 	local src = attributeSource(rig.character)
 	local held = src:GetAttribute("ModHeld")
 	if typeof(held) == "number" and held ~= 0 then

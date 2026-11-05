@@ -69,20 +69,38 @@ def lowest(frame):
 	return out
 
 
+# The arms and head while sliding, solved on a rig with the gun by
+# MakeHoldAnimations (GG_SlideArms, pass 4): the right hand keeps the gun level
+# and forward, the left hand trails on the floor beside the hip. GripController
+# lets go of the gun while sliding.
+ARMS = {
+	"Head": (-34, -21, 6),
+	"RightUpperArm": (50.14, -155.84, -91.04),
+	"RightLowerArm": (-46.85, -43.62, 52.57),
+	"RightHand": (12.08, 81.60, 14.56),
+	"LeftUpperArm": (41.90, 87.58, 26.29),
+	"LeftLowerArm": (-18.30, 12.34, -34.87),
+	"LeftHand": (-23.98, -142.60, 25.29),
+}
+
+
 def hold(chatter=0.0):
 	"""The slide hold; `chatter` (-1..1) is the scrape buzz in the hips and heel.
-	Re-solved 2026-11-05 with a body-overlap check (LihFolk quality-score
-	animation gate): the trailing leg goes out to the side instead of folding
-	through the lead thigh (it overlapped it by 0.37 studs)."""
+	Pass 4 (2026-11-05), checked on real R15 mesh geometry: the body leans back
+	50 deg with chest-to-thigh flexion kept low, the left hand on the floor.
+	Worst overlap 0.03 studs on a standard avatar; 0.05-0.11 at the hip crease
+	and crotch on the default blocky rig, whose 1-stud thighs touch even
+	standing."""
 	return {
-		"LowerTorso": (33.5, 0, 6 + chatter * 1.5, 0, -1.54 - abs(chatter) * 0.03, 0.35),
-		"UpperTorso": (-24, -8, -10 - chatter * 0.8),
-		"RightUpperLeg": (78 + chatter * 2, -21, -3),
-		"RightLowerLeg": (-40 - chatter * 3, 0, 0),
-		"RightFoot": (-29 + chatter * 4, 0, 0),
-		"LeftUpperLeg": (88, 25, 31),
-		"LeftLowerLeg": (-60, 0, 0),
-		"LeftFoot": (-10, 0, 0),
+		"LowerTorso": (46, 0, chatter * 1.5, 0, -1.31 - abs(chatter) * 0.03, 0.35),
+		"UpperTorso": (4, 35, -10 - chatter * 0.8),
+		"RightUpperLeg": (40 + chatter * 2, -32, -12),
+		"RightLowerLeg": (-3 - chatter * 3, 0, 0),
+		"RightFoot": (7 + chatter * 4, 0, 0),
+		"LeftUpperLeg": (58, 64, 24),
+		"LeftLowerLeg": (-40.5, 0, 0),
+		"LeftFoot": (-57, 0, 0),
+		**ARMS,
 	}
 
 
@@ -110,8 +128,7 @@ KICK = {
 }
 # Overshoot: lower and further back than the hold, then settle into it.
 DROP = dict(hold())
-DROP["LowerTorso"] = (37, 0, 7, 0, -1.6, 0.4)
-DROP["UpperTorso"] = (-27, -9, -11)
+DROP["LowerTorso"] = (49, 0, 1, 0, -1.37, 0.4)
 # Out: the lead foot plants under the hips, then drives up, chest forward.
 PLANT = {
 	"LowerTorso": (4, 0, 6, 0, -0.98, 0.15),

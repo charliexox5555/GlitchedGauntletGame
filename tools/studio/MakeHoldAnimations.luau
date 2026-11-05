@@ -191,6 +191,8 @@ export type Hold = {
 	side: number, -- ...and to the gun's right (-: left, cupping a pistol grip)
 	reach: number, -- longest left shoulder-to-hand distance before sliding back
 	chestShare: number?, -- share of the aim pitch the chest takes (default 0.35)
+	lower: { number }?, -- LowerTorso { pitch, yaw, roll, x, y, z } (the slide leans the body back)
+	leftFloor: Vector3?, -- the slide: the left hand trails on the floor here (from the root, body space; y = the floor)
 }
 
 local function solve(p: Hold, pitch: number): Frame
@@ -199,6 +201,9 @@ local function solve(p: Hold, pitch: number): Frame
 		UpperTorso = { p.chest[1] + pitch * share, p.chest[2], p.chest[3] },
 		Head = { p.head[1] + pitch * (1 - share) * 0.5, p.head[2], p.head[3] },
 	}
+	if p.lower then
+		frame.LowerTorso = p.lower
+	end
 	apply(frame)
 	local rs = (joints.RightUpperArm.Attachment0 :: Attachment).WorldPosition
 	local aim = ROOT.Rotation * CFrame.Angles(math.rad(pitch), 0, 0)
@@ -207,6 +212,17 @@ local function solve(p: Hold, pitch: number): Frame
 		* aim
 		* CFrame.fromEulerAnglesYXZ(math.rad(p.gunPitch or 0), math.rad(p.gunYaw or 0), 0)
 	ik(frame, "Right", handle * GRIP_C0:Inverse(), ROOT:VectorToWorldSpace(p.poleR))
+	if p.leftFloor then
+		-- Fingers down on the floor beside the hip, palm toward the body's side.
+		local at = ROOT:PointToWorldSpace(p.leftFloor)
+		local hand = CFrame.fromMatrix(
+			at + Vector3.new(0, 0.2, 0),
+			ROOT.LookVector:Cross(Vector3.yAxis),
+			Vector3.yAxis
+		)
+		ik(frame, "Left", hand, ROOT:VectorToWorldSpace(p.poleL))
+		return frame
+	end
 	local h = ((gun :: Model).PrimaryPart :: BasePart).CFrame
 	local ls = (joints.LeftUpperArm.Attachment0 :: Attachment).WorldPosition
 	local base = grip("LeftGrip").WorldPosition - h.UpVector * p.under + h.RightVector * p.side
@@ -221,30 +237,32 @@ local function solve(p: Hold, pitch: number): Frame
 	return frame
 end
 
--- Long guns: shouldered, chest bladed ~26 deg (right shoulder back), head
--- counter-turned onto the stock line, right elbow down.
+-- Long guns (pass 2, 2026-11-05): chest bladed 55 deg, both elbows out, the
+-- grip just outside the right shoulder line. Searched on real R15 meshes so
+-- the 1-stud blocky forearms clear the chest (the first hold had the right
+-- forearm 0.5-0.6 studs inside it, the "arms bunched in front" look).
 local LONG_HIP: Hold = {
-	chest = { 2, -26, 0 },
-	head = { -10, 22, 8 },
-	hold = Vector3.new(-0.5, -0.38, -1.25),
-	poleR = Vector3.new(0.5, -1, 0.3),
-	poleL = Vector3.new(-0.2, -1, -0.2),
+	chest = { 2, -55, 0 },
+	head = { -4, 30, -6 },
+	hold = Vector3.new(0.45, -0.15, -1.6),
+	poleR = Vector3.new(1, 0.2, 0),
+	poleL = Vector3.new(-1, -0.5, 0),
 	palm = 90,
 	under = 0.14,
 	side = 0,
-	reach = 1.8,
+	reach = 1.85,
 }
 -- Sights: the gun up to the cheek, more square, head down on the stock.
 local LONG_ADS: Hold = {
-	chest = { 4, -20, 0 },
-	head = { -16, 14, 14 },
-	hold = Vector3.new(-0.62, -0.08, -1.15),
-	poleR = Vector3.new(0.6, -1, 0.3),
-	poleL = Vector3.new(-0.2, -1, -0.2),
+	chest = { 4, -50, 0 },
+	head = { -14, 30, 10 },
+	hold = Vector3.new(0.25, 0.1, -1.55),
+	poleR = Vector3.new(1, 0.2, 0),
+	poleL = Vector3.new(-1, -0.5, 0),
 	palm = 90,
 	under = 0.14,
 	side = 0,
-	reach = 1.8,
+	reach = 1.85,
 }
 -- Sidearms: square two-handed hold, arms forward, the left hand cupping the
 -- grip hand.
@@ -285,6 +303,27 @@ local SPRINT: Hold = {
 	side = 0,
 	reach = 1.8,
 	chestShare = 0,
+}
+
+-- Slide: the body leaned back 42 deg on the floor (tools/studio/make_slide_poses.py
+-- keys the torso and legs). The right hand keeps the gun level and forward,
+-- the left hand trails on the floor beside the hip (a reaching left arm lay
+-- across the leaned-back chest; searched on real R15 meshes, worst overlap
+-- 0.026 studs). Printed as GG_SlideArms and merged into the slide clips;
+-- GripController lets go of the gun while sliding.
+local SLIDE: Hold = {
+	chest = { 4, 35, -10 },
+	head = { -34, -21, 6 },
+	hold = Vector3.new(0.45, -0.1, -1.7),
+	poleR = Vector3.new(1, 0.2, 0),
+	poleL = Vector3.new(-1, -0.3, 0.8),
+	palm = 90,
+	under = 0.14,
+	side = 0,
+	reach = 1.85,
+	chestShare = 0,
+	lower = { 46, 0, 0, 0, -1.31, 0.35 },
+	leftFloor = Vector3.new(-1.4, -3.0, 1.7),
 }
 
 -- Clips -------------------------------------------------------------------------
@@ -338,6 +377,12 @@ for _, set in { { "Aim", LONG_HIP }, { "Ads", LONG_ADS } } do
 	table.insert(sequences, held("GG_" .. prefix .. "Down", ACTION, solve(hold, -PITCH)))
 end
 table.insert(sequences, held("GG_Sprint", ACTION2, solve(SPRINT, 0)))
+do
+	local arms = solve(SLIDE, 0)
+	arms.LowerTorso = nil
+	arms.UpperTorso = nil
+	table.insert(sequences, held("GG_SlideArms", Enum.AnimationPriority.Action3, arms))
+end
 setGun("Sheriff")
 for _, set in { { "PistolAim", PISTOL_HIP }, { "PistolAds", PISTOL_ADS } } do
 	local prefix, hold = set[1] :: string, set[2] :: Hold

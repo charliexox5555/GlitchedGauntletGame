@@ -89,14 +89,14 @@ end
 -- tools/studio/MakeHoldAnimations (GG_AimLevel, both hands on the gun).
 local function hip(): Frame
 	return {
-		UpperTorso = { 2, -26, 0 },
-		Head = { -10, 22, 8 },
-		RightUpperArm = { -22.77, -115.29, -46.57 },
-		RightLowerArm = { -56.78, -99.02, 97.57 },
-		RightHand = { -28.35, 163.68, 41 },
-		LeftUpperArm = { -63.04, 128.15, 68 },
-		LeftLowerArm = { -14.98, 9.96, -34.18 },
-		LeftHand = { -45.44, -76.84, 3.71 },
+		UpperTorso = { 2, -55, 0 },
+		Head = { -4, 30, -6 },
+		RightUpperArm = { 16.38, -85.21, -121.69 },
+		RightLowerArm = { -52.63, -57.87, 63.47 },
+		RightHand = { 15.34, 83.7, 19.65 },
+		LeftUpperArm = { -44.09, 97.58, 112.81 },
+		LeftLowerArm = { -3.28, 2.12, -32.93 },
+		LeftHand = { -32.71, -46.32, 2.93 },
 	}
 end
 
@@ -269,7 +269,7 @@ local DRAW_LOW: Frame = {
 	LeftLowerArm = { 44, 0, 0 },
 }
 local DRAW_RISE: Frame = hip()
-DRAW_RISE.UpperTorso = { 6, -24, 0 } -- a touch past the hold, then settle
+DRAW_RISE.UpperTorso = { 6, -53, 0 } -- a touch past the hold, then settle
 
 local ACTION = Enum.AnimationPriority.Action
 local ACTION4 = Enum.AnimationPriority.Action4
