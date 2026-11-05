@@ -54,6 +54,12 @@
     "C40Lo_Doors"
    ]
   },
+  "Chevron": {
+   "props": {},
+   "parts": [
+    "Chevron_Paint"
+   ]
+  },
   "Crane": {
    "props": {
     "span": 60
@@ -188,6 +194,28 @@
     "Ship_Windows"
    ]
   },
+  "SpawnSignA": {
+   "props": {},
+   "parts": [
+    "SpawnSignA_Frame",
+    "SpawnSignA_Plate",
+    "SpawnSignA_Brackets",
+    "SpawnSignA_Title",
+    "SpawnSignA_Left",
+    "SpawnSignA_Right"
+   ]
+  },
+  "SpawnSignB": {
+   "props": {},
+   "parts": [
+    "SpawnSignB_Frame",
+    "SpawnSignB_Plate",
+    "SpawnSignB_Brackets",
+    "SpawnSignB_Title",
+    "SpawnSignB_Left",
+    "SpawnSignB_Right"
+   ]
+  },
   "Stair": {
    "props": {},
    "parts": [
@@ -233,9 +261,8 @@
    "name": "C20_Body",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 108,
@@ -255,9 +282,8 @@
    "name": "C20_Ribs",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 340,
@@ -298,9 +324,8 @@
    "name": "C20_Doors",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 176,
@@ -341,9 +366,8 @@
    "name": "C20Lo_Body",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 44,
@@ -363,9 +387,8 @@
    "name": "C20Lo_Ribs",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 96,
@@ -406,9 +429,8 @@
    "name": "C20Lo_Doors",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 88,
@@ -428,9 +450,8 @@
    "name": "C40_Body",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 108,
@@ -450,9 +471,8 @@
    "name": "C40_Ribs",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 460,
@@ -493,9 +513,8 @@
    "name": "C40_Doors",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 176,
@@ -536,9 +555,8 @@
    "name": "C40Lo_Body",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 44,
@@ -558,9 +576,8 @@
    "name": "C40Lo_Ribs",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 168,
@@ -601,9 +618,8 @@
    "name": "C40Lo_Doors",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 88,
@@ -616,6 +632,27 @@
     6.5,
     0.22,
     6.3
+   ]
+  },
+  {
+   "piece": "Chevron",
+   "name": "Chevron_Paint",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    0.01
+   ],
+   "size": [
+    3.2,
+    1.6,
+    0.12
    ]
   },
   {
@@ -1453,9 +1490,8 @@
    "name": "Rack_LoadsB",
    "material": "D2_Cladding",
    "look": {
-    "material": "Metal",
-    "color": "B9C1C7",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "C3C8CB"
    },
    "glow": false,
    "tris": 432,
@@ -1475,9 +1511,8 @@
    "name": "Shed_Cladding",
    "material": "D2_Cladding",
    "look": {
-    "material": "Metal",
-    "color": "B9C1C7",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "C3C8CB"
    },
    "glow": false,
    "tris": 150,
@@ -1519,9 +1554,8 @@
    "name": "Shed_Band",
    "material": "D2_Lane",
    "look": {
-    "material": "Metal",
-    "color": "3D6FA8",
-    "variant": "Dock2_Metal"
+    "material": "SmoothPlastic",
+    "color": "52708E"
    },
    "glow": false,
    "tris": 220,
@@ -1583,9 +1617,9 @@
    "name": "Shed_Roof",
    "material": "D2_Roof",
    "look": {
-    "material": "Metal",
+    "material": "Concrete",
     "color": "56616B",
-    "variant": "Dock2_Metal"
+    "variant": "Dock2_Concrete"
    },
    "glow": false,
    "tris": 22,
@@ -1837,9 +1871,9 @@
    "name": "Ship_Hull",
    "material": "D2_Roof",
    "look": {
-    "material": "Metal",
+    "material": "Concrete",
     "color": "56616B",
-    "variant": "Dock2_Metal"
+    "variant": "Dock2_Concrete"
    },
    "glow": false,
    "tris": 64,
@@ -1915,6 +1949,258 @@
     25.0,
     0.2,
     1.6
+   ]
+  },
+  {
+   "piece": "SpawnSignA",
+   "name": "SpawnSignA_Frame",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 320,
+   "center": [
+    0.0,
+    -0.24,
+    12.0
+   ],
+   "size": [
+    24.4,
+    0.36,
+    6.6
+   ]
+  },
+  {
+   "piece": "SpawnSignA",
+   "name": "SpawnSignA_Plate",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.19,
+    12.0
+   ],
+   "size": [
+    23.5,
+    0.22,
+    5.5
+   ]
+  },
+  {
+   "piece": "SpawnSignA",
+   "name": "SpawnSignA_Brackets",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.065,
+    12.0
+   ],
+   "size": [
+    18.6,
+    0.37,
+    5.4
+   ]
+  },
+  {
+   "piece": "SpawnSignA",
+   "name": "SpawnSignA_Title",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 986,
+   "center": [
+    0.0,
+    -0.37,
+    13.15
+   ],
+   "size": [
+    11.61475,
+    0.14,
+    2.0
+   ]
+  },
+  {
+   "piece": "SpawnSignA",
+   "name": "SpawnSignA_Left",
+   "material": "D2_SignEast",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "438C6A"
+   },
+   "glow": false,
+   "tris": 726,
+   "center": [
+    -7.48045,
+    -0.36,
+    10.32034
+   ],
+   "size": [
+    6.84806,
+    0.12,
+    0.95931
+   ]
+  },
+  {
+   "piece": "SpawnSignA",
+   "name": "SpawnSignA_Right",
+   "material": "D2_SignWest",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "AD5843"
+   },
+   "glow": false,
+   "tris": 470,
+   "center": [
+    8.33788,
+    -0.36,
+    10.32034
+   ],
+   "size": [
+    5.1332,
+    0.12,
+    0.95931
+   ]
+  },
+  {
+   "piece": "SpawnSignB",
+   "name": "SpawnSignB_Frame",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 320,
+   "center": [
+    0.0,
+    -0.24,
+    12.0
+   ],
+   "size": [
+    24.4,
+    0.36,
+    6.6
+   ]
+  },
+  {
+   "piece": "SpawnSignB",
+   "name": "SpawnSignB_Plate",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.19,
+    12.0
+   ],
+   "size": [
+    23.5,
+    0.22,
+    5.5
+   ]
+  },
+  {
+   "piece": "SpawnSignB",
+   "name": "SpawnSignB_Brackets",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.065,
+    12.0
+   ],
+   "size": [
+    18.6,
+    0.37,
+    5.4
+   ]
+  },
+  {
+   "piece": "SpawnSignB",
+   "name": "SpawnSignB_Title",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 1200,
+   "center": [
+    0.0,
+    -0.37,
+    13.15
+   ],
+   "size": [
+    11.40164,
+    0.14,
+    2.0
+   ]
+  },
+  {
+   "piece": "SpawnSignB",
+   "name": "SpawnSignB_Left",
+   "material": "D2_SignWest",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "AD5843"
+   },
+   "glow": false,
+   "tris": 470,
+   "center": [
+    -8.33788,
+    -0.36,
+    10.32034
+   ],
+   "size": [
+    5.1332,
+    0.12,
+    0.95931
+   ]
+  },
+  {
+   "piece": "SpawnSignB",
+   "name": "SpawnSignB_Right",
+   "material": "D2_SignEast",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "438C6A"
+   },
+   "glow": false,
+   "tris": 726,
+   "center": [
+    7.48045,
+    -0.36,
+    10.32034
+   ],
+   "size": [
+    6.84806,
+    0.12,
+    0.95931
    ]
   },
   {
@@ -2049,9 +2335,9 @@
    "name": "StsCrane_House",
    "material": "D2_Roof",
    "look": {
-    "material": "Metal",
+    "material": "Concrete",
     "color": "56616B",
-    "variant": "Dock2_Metal"
+    "variant": "Dock2_Concrete"
    },
    "glow": false,
    "tris": 44,
@@ -2067,5 +2353,5 @@
    ]
   }
  ],
- "tris": 22740
+ "tris": 28418
 }

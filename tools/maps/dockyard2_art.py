@@ -187,11 +187,26 @@ def build() -> tuple[list[Put], list[Part]]:
                 # (background: silhouette and colour only, LihFolk Spending Triangles Where the Camera Looks).
                 name = piece if row < 2 else piece + "Lo"
                 puts.append(Put(name, x * s, STACK * row, z * s, yaw2, wall_tint(), "EndWalls", []))
+    # Round 1: the end walls' outer faces (seen over the water and from the far end) are dressed too, with the
+    # light containers, so no raw filler slab shows from anywhere.
+    for s in (1, -1):
+        for row in range(7):
+            # Over the two side blocks (x 18..68); the middle of the back is the alcove's own C40 (0, 114).
+            for x, piece in ((-52, "C40Lo"), (-28, "C20Lo"), (28, "C20Lo"), (52, "C40Lo")):
+                yaw2 = 90 + (180 if rnd.random() < 0.5 else 0)
+                puts.append(Put(piece, x * s, STACK * row, (L.DECK_END - 4.05) * s, yaw2, wall_tint(), "EndWalls", []))
     for p in puts[first:]:
         p.own = list(backdrop_ids)
+    # Spawn wayfinding (round 1): a framed sign on the baffle naming the dock and the lane each way round it,
+    # and white chevrons on the deck from the alcove round both sides of the baffle.
+    for s in (1, -1):
+        puts.append(Put("SpawnSign" + ("B" if s > 0 else "A"), 0, 0, 84.0 * s, 0 if s > 0 else 180, None, "Spawn", []))
+        for x in (-20.5, 20.5):
+            for z in (89.0, 85.0):
+                puts.append(Put("Chevron", x * s, 0, z * s, 0 if s > 0 else 180, None, "Spawn", []))
     for b in L.BOXES:
         if b.kind == "backdrop":
-            parts.append(Part("Filler", "EndWalls", (b.sx - 1, b.h - 1, b.sz - 1), (b.x, (b.h - 1) / 2 + 0.01, b.z), "Charcoal"))
+            parts.append(Part("Filler", "EndWalls", (b.sx - 1, b.h - 1, b.sz - 1), (b.x, (b.h - 1) / 2 + 0.01, b.z), "Roof"))
 
     # The deck edge all round: 29 faces down each long side (z -116..116) and 17 across each end.
     for s in (1, -1):
@@ -221,9 +236,10 @@ def build() -> tuple[list[Put], list[Part]]:
             parts.append(Part("BayLine", "Deck", (x1 - x0, LINE_Y1 - LINE_Y0, LINE_W), ((x0 + x1) / 2, (LINE_Y0 + LINE_Y1) / 2, z), "Hazard"))
 
     # Harbour water and the far quays.
-    parts.append(Part("Water", "Deck", (2040, 1, 2040), (0, -9.5, 0), "Water", 0.15))
+    # 1000 wide: ends 24 short of the old Dockyard's water (origin 1500 east), and 0.1 lower, so the two never overlap.
+    parts.append(Part("Water", "Deck", (1000, 1, 2040), (0, -9.6, 0), "Water", 0.15))
     for s in (1, -1):
-        parts.append(Part("FarQuay", "Skyline", (268, 4, 1000), (266 * s, -10, 0), "Concrete"))
+        parts.append(Part("FarQuay", "Skyline", (268, 4, 1000), (266 * s, -10, 0), "ConcreteDark"))
         for x, z, yaw in SKY_CRANES:
             puts.append(Put("StsCrane", x * s, -8, z * s, yaw + (180 if s < 0 else 0), None, "Skyline", []))
         puts.append(Put("Ship", SHIP[0] * s, -9, SHIP[1] * s, 0 if s > 0 else 180, None, "Skyline", []))

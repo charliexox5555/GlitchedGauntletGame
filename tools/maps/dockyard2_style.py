@@ -41,11 +41,11 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Deck": ("7E776D", "Slate", "Dock2_Deck"),  # pier deck slabs (ground band, V ~49%)
     "Concrete": ("A59D90", "Concrete", "Dock2_Concrete"),  # plinths, quay coping, shed base
     "ConcreteDark": ("6E675E", "Concrete", "Dock2_Concrete"),  # quay face, footings
-    "Cladding": ("B9C1C7", "Metal", "Dock2_Metal"),  # shed wall panels (structure band, one step over the deck)
-    "Roof": ("56616B", "Metal", "Dock2_Metal"),
+    "Cladding": ("C3C8CB", "SmoothPlastic", ""),  # round 1: the brushed texture read as smears on big walls  # shed wall panels (structure band, one step over the deck)
+    "Roof": ("56616B", "Concrete", "Dock2_Concrete"),
     "Grate": ("4A525A", "DiamondPlate", "Dock2_Grate"),  # stair treads, landings
     # lane colour (set per container in Studio from LANE / BACKDROP; these are the kit defaults)
-    "Lane": ("3D6FA8", "Metal", "Dock2_Metal"),  # container body
+    "Lane": ("52708E", "SmoothPlastic", ""),  # container body; round 1: clean paint, the ribs carry the detail
     "LaneFrame": ("2C5079", "SmoothPlastic", ""),  # container corner posts and rails (LANE x FRAME_SHADE)
     # clean SmoothPlastic trims
     "Crane": ("F2B632", "SmoothPlastic", ""),  # the landmark and the map's accent
@@ -55,15 +55,19 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Rubber": ("2A2D31", "SmoothPlastic", ""),  # fenders, tyres
     "Wood": ("A7865E", "SmoothPlastic", ""),  # pallets, crates
     "Glass": ("9FD3E0", "Glass", ""),
-    "Water": ("2F8C9C", "SmoothPlastic", ""),
+    "Water": ("2A6878", "SmoothPlastic", ""),  # pass 1: #2F8C9C read as a loud cyan
     # Neon accents (thin strips only)
+    "SignWest": ("AD5843", "SmoothPlastic", ""),  # spawn sign lane words (keep equal to LANE)
+    "SignEast": ("438C6A", "SmoothPlastic", ""),
     "GlowWarm": ("FFE2B8", "Neon", ""),  # lamp heads, cab light
     "GlowSignal": ("FF8A3D", "Neon", ""),  # crane beacons (tiny)
 }
 
 # Lane containers: one hue per lane, all in the same value band so no lane reads heavier (callouts:
 # "red", "blue", "green"). The red is a terracotta, far from the enemy team colour #FF5A36.
-LANE = {"west": "B5533C", "mid": "3E6C9C", "east": "3F8F6B"}
+# Studio pass 1 (2026-11-05): on Roblox Metal the painted boxes mirrored the blue sky and read far too saturated, so
+# painted surfaces use Dock2_Paint (the same textures on a non-metal Plastic base) and the lanes sit a step calmer.
+LANE = {"west": "AD5843", "mid": "52708E", "east": "438C6A"}
 FRAME_SHADE = 0.72  # LaneFrame = lane colour x this
 # The end walls and far stacks: the same hues, lighter and greyer (aerial perspective), never saturated.
 # Warm-leaning on purpose: the first style frame read all blue with a cool backdrop behind the blue lane.
@@ -88,34 +92,37 @@ VARIANTS = {
     "Dock2_Concrete": ("Concrete", 16, "104737392584669", "93691597282176", "95184551126688"),
     "Dock2_Deck": ("Slate", 16, "73383285439881", "99655568297239", "99239709018479"),
     "Dock2_Metal": ("Metal", 8, "108704579785681", "123918256871933", "132089430474107"),
+    # Painted steel: the metal textures on a non-metal base (no sky-tinted reflections on big painted faces).
+    "Dock2_Paint": ("Plastic", 8, "108704579785681", "123918256871933", "132089430474107"),
     "Dock2_Grate": ("DiamondPlate", 4, "119119110235077", "128288039114085", "132404926483451"),
 }
 
 # ---------------------------------------------------------------- lighting (Studio; Lighting.luau)
 # LihFolk Stylized Lighting Recipes §3.1 "Bright cartoon" as the base, with the arena tweaks of §3.2 where
-# readability needs them. Sun across the pier (GeographicLatitude 0 puts its path in the X/Y plane), ~45 deg up,
+# readability needs them. Sun across the pier, ~45 deg up: measured in Studio 2026-11-05, latitude 0 gives a sun
+# direction of (-0.65, 0.65, -0.40) at ClockTime 15 (Roblox tilts the sun's path), latitude 23.5 gives (-0.71, 0.71, 0.0),
 # so every container has a lit side, a shadow side and a lit top, and neither team looks into it.
 LIGHTING = {
     "ClockTime": 15.0,
-    "GeographicLatitude": 0,
+    "GeographicLatitude": 23.5,
     "Brightness": 2.6,
-    "Ambient": (104, 108, 122),
-    "OutdoorAmbient": (142, 148, 164),
-    "ColorShift_Top": (255, 236, 206),
+    "Ambient": (116, 118, 126),  # pass 1: a bluer ambient pushed the blue lane to royal blue in shade
+    "OutdoorAmbient": (158, 160, 168),  # round 1: reviewers saw crushed shadows
+    "ColorShift_Top": (255, 226, 188),
     "ColorShift_Bottom": (0, 0, 0),
-    "EnvironmentDiffuseScale": 0.35,
+    "EnvironmentDiffuseScale": 0.2,
     "EnvironmentSpecularScale": 0.15,
     "ExposureCompensation": 0.1,
     "GlobalShadows": True,
     "ShadowSoftness": 0.2,
 }
 FX = {
-    "Atmosphere": {"Density": 0.28, "Offset": 0.15, "Color": (199, 222, 240), "Decay": (124, 162, 200), "Glare": 0.1, "Haze": 0.6},
-    "Bloom": {"Intensity": 0.45, "Size": 24, "Threshold": 1.4},
-    "Grade": {"Brightness": 0.02, "Contrast": 0.1, "Saturation": 0.12, "TintColor": (255, 251, 244)},
+    "Atmosphere": {"Density": 0.3, "Offset": 0.2, "Color": (206, 222, 236), "Decay": (150, 176, 206), "Glare": 0.25, "Haze": 1.1},
+    "Bloom": {"Intensity": 0.5, "Size": 24, "Threshold": 1.3},
+    "Grade": {"Brightness": 0.03, "Contrast": 0.06, "Saturation": 0.06, "TintColor": (255, 248, 238)},
     "SunRays": {"Intensity": 0.04, "Spread": 0.5},
 }
-LAMP = {"color": (255, 226, 184), "brightness": 1.2, "range": 40}  # mast floods and shed lamps (shadowless)
+LAMP = {"color": (255, 222, 176), "brightness": 2.4, "range": 36}  # round 1: the Shed inside read murky  # mast floods and shed lamps (shadowless)
 
 
 def hex_rgb(h: str) -> tuple[int, int, int]:

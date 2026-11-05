@@ -405,6 +405,46 @@ def p_shed_sign(n):
 	obj(c, "Letters", bm, "Charcoal", smooth=0)
 
 
+# ---------------------------------------------------------------- spawn wayfinding (fix round 1)
+
+def arrow(cx, cy, z0, z1, point, w=1.1, h=1.0):
+	# A flat triangle in the sign plane pointing along local +X (point 1) or -X (point -1).
+	pts = [(cx - point * w / 2, cy - h / 2), (cx + point * w / 2, cy), (cx - point * w / 2, cy + h / 2)]
+	return RPZ(pts, z0, z1, BT, ST)
+
+
+def p_spawn_sign(team):
+	# On the spawn baffle's face toward the alcove (origin: floor centre of that face, +Z toward the spawn). Names the
+	# dock and the lane each way round the baffle, seen from the spawn: the viewer's right is local +X, which is east
+	# (green) for B and west (red) for A (the A piece is placed turned 180).
+	c = piece("SpawnSign" + team)
+	left, right = ("RED", "GREEN") if team == "B" else ("GREEN", "RED")
+	lrole, rrole = ("SignWest", "SignEast") if team == "B" else ("SignEast", "SignWest")
+	ring = ring_prism(rrect(24.4, 6.6, 0.8, 4, 0.0, 12.0), rrect(23.2, 5.4, 0.5, 4, 0.0, 12.0), -0.42, -0.06, "Y")
+	obj(c, "Frame", finish(ring, BT, ST), "Charcoal")
+	obj(c, "Plate", RB(-11.75, 11.75, 9.25, 14.75, 0.08, 0.3, BT, ST), "White")
+	brackets = [RB(x - 0.3, x + 0.3, y - 0.3, y + 0.3, -0.25, 0.12, BT, ST) for x in (-9.0, 9.0) for y in (9.6, 14.4)]
+	obj(c, "Brackets", merge(*brackets), "Charcoal")
+	bm, w = text_mesh("DOCK " + team, 2.0, depth=0.14)
+	xform(bm, T(0.0, -0.3, 12.15))
+	obj(c, "Title", bm, "Charcoal", smooth=0)
+	bm, w = text_mesh(left, 0.95, depth=0.12)
+	xform(bm, T(-10.3 + 1.6 + w / 2, -0.3, 9.85))
+	bm2 = arrow(-10.4, 10.32, 0.3, 0.42, -1)
+	obj(c, "Left", merge(bm, bm2), lrole, smooth=0)
+	bm, w = text_mesh(right, 0.95, depth=0.12)
+	xform(bm, T(10.3 - 1.6 - w / 2, -0.3, 9.85))
+	bm2 = arrow(10.4, 10.32, 0.3, 0.42, 1)
+	obj(c, "Right", merge(bm, bm2), rrole, smooth=0)
+
+
+def p_chevron():
+	# Deck paint: a white chevron pointing local -Z (out of the spawn), top 0.07 over the deck (bay lines are 0.05).
+	c = piece("Chevron")
+	pts = [(-1.6, 0.8), (0.0, -0.8), (1.6, 0.8), (0.75, 0.8), (0.0, 0.05), (-0.75, 0.8)]
+	obj(c, "Paint", RPY(pts, -0.05, 0.07), "White")
+
+
 # ---------------------------------------------------------------- yard props
 
 def p_rack():
@@ -536,6 +576,9 @@ def build():
 	p_lamp_mast()
 	p_sts_crane()
 	p_ship()
+	p_spawn_sign("A")
+	p_spawn_sign("B")
+	p_chevron()
 	tris = {}
 	for n, col in PIECES.items():
 		t = 0

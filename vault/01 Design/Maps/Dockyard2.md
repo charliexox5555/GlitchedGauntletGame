@@ -140,6 +140,45 @@ Everything lives in **`tools/maps/dockyard2_style.py`**:
 
 Critique of the first frame, now fixed: everything read blue (a cool backdrop behind the blue lane). The backdrop palette now leans warm (sand, cream, faded terracotta, sage, mustard, slate), and the blue lane is calmer (`3E6C9C`). The crane reads as the landmark from every frame. The Shed's white walls and lane band read at a glance.
 
+## Studio build (phases 3, 5, 6)
+**Greybox** built and walked in play mode with `ForceMap = "Dockyard2"` against a bot: deck plus 93 parts, 4 + 4 spawns, 2 barriers.
+
+![Greybox overview](../../02%20Art/References/maps/dockyard2/greybox-overview.jpg)
+![Greybox, play mode from the A spawn](../../02%20Art/References/maps/dockyard2/greybox-play-a-spawn.jpg)
+
+Greybox critique:
+- The lanes read by colour from every spot.
+- 8-high boxes are clearly full cover.
+- The crane is the landmark: its yellow legs show over every stack, and its top shows over the spawn baffle.
+- In play the bot found us across the middle first, as the layout script predicted.
+- The 2-high baffle fills the spawn view. Flagged, and the reviewers flagged it too (fixed in round 1).
+
+**Kit installed** (`ServerStorage.MapKit.Dockyard2`). The **art pass** made 402 kit placements and 124 art parts, hid 93 greybox parts and reported "all kit pieces found". **`Audit.luau`: 0 z-fighting pairs over 1,676 visible parts.**
+
+Studio passes, each measured in Studio:
+| Pass | Seen | Change (all in `dockyard2_style.py`) |
+|---|---|---|
+| Sun | `GetSunDirection` was (-0.65, 0.65, **-0.40**) at latitude 0, so team B half-faced the sun | Latitude **23.5** gives (-0.71, 0.71, 0.00): 45° up, across the pier |
+| Colour 1 | Containers came out royal blue and very saturated, though their colours were right | Roblox **Metal** mirrors the blue sky. Painted surfaces moved off Metal and the lanes went a step calmer |
+| Colour 2 | Shaded faces still went deep blue | A more neutral ambient: OutdoorAmbient (146,148,156), EnvironmentDiffuseScale 0.2 |
+| Water | A loud cyan | `#2A6878` |
+| Water overlap | The 2048-wide water would overlap the old Dockyard's water plane between the maps | 1000 wide, 0.1 lower |
+
+## Scoring (phase 8, `lihfolk:quality-score`, world rubric, 3 blind reviewers)
+**Round 0: 5.4 / 10** (medians: W1 1, W2 1, W3 1, W4 1, W5 1, W6 2). Hard gates pass: audit 0, decor non-colliding, spawns safe, 275k triangles for the whole map (211k without the skyline), 4 lights. Reviewer scores were 5.0, 5.4 and 5.4 (recomputed with the right weight total, 12).
+
+All three named the same problems:
+1. **The spawn view is a blank container wall** with no visible route and no team identity (W1, W2).
+2. **Smeared textures** on the containers and Shed walls (W3, W5).
+3. **Raw grey slabs** of the end walls from outside, and a flat tan "beach" (W3).
+4. **Plain lighting**, with crushed shadows and a murky Shed inside (W4).
+
+Fix round 1 (all four at once, since each is independent and parameter-cheap):
+- A framed **spawn sign** on the baffle ("DOCK A / DOCK B", with "◄ RED" and "GREEN ►" in the lane colours, showing which lane lies each way round it) and **white chevrons** on the deck leading out round both sides. These are new kit pieces `SpawnSignA/B` and `Chevron`.
+- **Clean SmoothPlastic paint** on the containers and cladding (the ribs, rails and doors carry the detail). The roof is calm concrete.
+- **End-wall backs** dressed with light containers. Far quays darker.
+- **Light:** a brighter neutral ambient (no crush), warmer ColorShift, haze 1.1 for depth, lower grade contrast, and Shed lamps at 2.4.
+
 ## 7. Build and run order
 1. Layout (rerun after any change): `python tools/maps/dockyard2_layout.py --luau` prints the checks and writes the SVG, the greybox LAYOUT block and the ART block (from `tools/maps/dockyard2_art.py`).
 2. Style: `python tools/maps/dockyard2_style.py --luau --svg` writes the STYLE block of `Art.luau`, the LIGHT block of `Lighting.luau` and the palette board.

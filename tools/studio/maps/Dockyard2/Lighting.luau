@@ -6,8 +6,8 @@
 --
 -- The LIGHT block is generated from tools/maps/dockyard2_style.py (LIGHTING, FX, LAMP); change the values
 -- there and run python tools/maps/dockyard2_style.py --luau. LihFolk Stylized Lighting Recipes §3.1
--- ("Bright cartoon") is the base. GeographicLatitude 0 puts the sun's path in the X/Y plane, so at
--- ClockTime 15 it stands ~45 deg up over +X: it rakes across the pier and neither team looks into it.
+-- ("Bright cartoon") is the base. GeographicLatitude 23.5 at ClockTime 15 puts the sun 45 deg up over -X
+-- (GetSunDirection (-0.71, 0.71, 0.0), measured): it rakes across the pier and neither team looks into it.
 -- Local lights: only inside the Sheds (shadowless), where the roof shades the close-range fights.
 -- To see it: playtest with Workspace ForceMap = "Dockyard2" (this never touches the Lighting service).
 
@@ -15,25 +15,25 @@
 -- stylua: ignore start
 local PROPS: { [string]: any } = {
 	ClockTime = 15,
-	GeographicLatitude = 0,
+	GeographicLatitude = 23.5,
 	Brightness = 2.6,
-	Ambient = Color3.fromRGB(104, 108, 122),
-	OutdoorAmbient = Color3.fromRGB(142, 148, 164),
-	ColorShift_Top = Color3.fromRGB(255, 236, 206),
+	Ambient = Color3.fromRGB(116, 118, 126),
+	OutdoorAmbient = Color3.fromRGB(158, 160, 168),
+	ColorShift_Top = Color3.fromRGB(255, 226, 188),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
-	EnvironmentDiffuseScale = 0.35,
+	EnvironmentDiffuseScale = 0.2,
 	EnvironmentSpecularScale = 0.15,
 	ExposureCompensation = 0.1,
 	GlobalShadows = true,
 	ShadowSoftness = 0.2,
 }
 local FX: { [string]: { [string]: any } } = {
-	Atmosphere = { Density = 0.28, Offset = 0.15, Color = Color3.fromRGB(199, 222, 240), Decay = Color3.fromRGB(124, 162, 200), Glare = 0.1, Haze = 0.6 },
-	Bloom = { Intensity = 0.45, Size = 24, Threshold = 1.4 },
-	Grade = { Brightness = 0.02, Contrast = 0.1, Saturation = 0.12, TintColor = Color3.fromRGB(255, 251, 244) },
+	Atmosphere = { Density = 0.3, Offset = 0.2, Color = Color3.fromRGB(206, 222, 236), Decay = Color3.fromRGB(150, 176, 206), Glare = 0.25, Haze = 1.1 },
+	Bloom = { Intensity = 0.5, Size = 24, Threshold = 1.3 },
+	Grade = { Brightness = 0.03, Contrast = 0.06, Saturation = 0.06, TintColor = Color3.fromRGB(255, 248, 238) },
 	SunRays = { Intensity = 0.04, Spread = 0.5 },
 }
-local LAMP = { color = Color3.fromRGB(255, 226, 184), brightness = 1.2, range = 40 }
+local LAMP = { color = Color3.fromRGB(255, 222, 176), brightness = 2.4, range = 36 }
 -- stylua: ignore end
 -- END LIGHT
 
