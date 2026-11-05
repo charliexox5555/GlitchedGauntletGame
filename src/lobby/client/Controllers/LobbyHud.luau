@@ -57,6 +57,7 @@ local pillCancel: ImageButton
 local pillSpinner: Frame
 
 local timerConn: RBXScriptConnection? = nil
+local bottomShade: Frame? = nil
 local lastSecond = -1
 local toastToken = 0
 
@@ -636,6 +637,9 @@ end
 
 local function onMenuChanged(name: string?)
 	local open = name ~= nil
+	if bottomShade then
+		bottomShade.Visible = not open
+	end
 	Fx.tween(
 		bottom,
 		if open then 0.2 else 0.35,
@@ -672,6 +676,25 @@ function LobbyHud.init()
 		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
 		DisplayOrder = 25, -- above menus (20) so the top bar stays; under Match Found (30)
 	}, player:WaitForChild("PlayerGui"))
+	-- Soft shade behind the bars so they read over a bright lobby.
+	for _, top in { true, false } do
+		local shade = Ui.make("Frame", {
+			Name = if top then "ShadeTop" else "ShadeBottom",
+			AnchorPoint = Vector2.new(0, if top then 0 else 1),
+			Position = UDim2.fromScale(0, if top then 0 else 1),
+			Size = UDim2.fromScale(1, if top then 0.14 else 0.24),
+			BackgroundColor3 = C.scrim,
+			BorderSizePixel = 0,
+			ZIndex = 0,
+		}, gui)
+		Ui.make("UIGradient", {
+			Rotation = if top then 90 else -90,
+			Transparency = NumberSequence.new(if top then 0.6 else 0.45, 1),
+		}, shade)
+		if not top then
+			bottomShade = shade
+		end
+	end
 	buildProfile()
 	buildTopRight()
 	buildBottom()
