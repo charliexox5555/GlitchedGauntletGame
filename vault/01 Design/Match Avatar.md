@@ -59,6 +59,37 @@ All holds are re-solved on the standard body (`tools/studio/MakeHoldAnimations.l
 | Knife | Ready / slash / heavy clips |
 The first-person arms (0.5-wide block, skin colour plus a shirt layer) and the third-person arms (0.6, the same shirt) now read as the same arm.
 
+## Extended hold pass (2026-11-05 evening, commit 008639e)
+- **Built:** RIVALS-style extended holds on the match body.
+  - Long guns: chest nearly square, gun forward at chest height, arms reaching out, left hand beside the magwell (the handguard is out of the arm's reach once the gun is forward).
+  - Pistols: extended, both hands side by side.
+  - Akimbo: uses the two-handed set, so both guns point forward. It was dangling the left gun in the long-gun hold.
+  - Sprint: a lower carry.
+  - Knife: the guard arm lowered from the face.
+  - Aim pitch poses are baked at **+45 / −30** (`AIM_PITCH_UP` / `AIM_PITCH_DOWN`): looking down steeply puts the forearms into the chest in any forward hold.
+  - Draw and reload start and end on the new hold.
+- **Correction to the measurements above:** Studio caches required modules, so the exploration rig had silently gone back to 1-stud arms. On a truly slim rig the earlier bladed hold measured **0.035** (hip, level) and **0.040** (ADS, level), but 0.28 / 0.50 at ±70 pitch, 0.175 pistol and 0.43 sprint. The hold tool now turns off automatic scaling itself.
+- **Measured (extended):**
+  - worst overlap over level, +45 and −30 is ~0.14 (long guns), 0.175 (pistol) and 0.30 (sprint);
+  - in-game off hand 0.25 studs from its target (slightly beyond comfortable reach).
+- **Re-score** (3 blind reviewers, same rubric; per-class front / three-quarter / back lineup plus the in-game rifle):
+
+| Score | Uncapped | Rifle | SMG | Shotgun | Sniper | MG | Pistol | Akimbo | Knife |
+|---|---|---|---|---|---|---|---|---|---|
+| **5.0** (overlap gate) | 5.0 | 7 | 6 | 6 | 8 | 6 | 4 | 4 | 6 |
+
+- **Reading:**
+  - Long guns read well from the front and side (best: sniper 8, rifle 7).
+  - Pistol and Akimbo are hidden behind the arms from the front, and the long-gun arms still cross the chest a little.
+  - Static holds give no timing evidence.
+  - The uncapped score did not beat the bladed hold's 6.0, though that round used different evidence.
+- **Stopped here** (core chat: one re-score, then report).
+- **Next options:**
+  - Keep the extended long-gun hold, which reads best side-on.
+  - Pistols: try one-handed-forward plus a support hand, or a wider isosceles stance, so the gun shows from the front.
+  - Akimbo: arms apart, a gun per hand, each in line with its shoulder.
+  - Add a breathing / weight-shift layer and fire-kick evidence (video) for P2-P4.
+
 ## Decisions
 - **Accessories in matches: hair only, user 2026-11-05.** The Config switch stays (`Config/Avatar ACCESSORIES`: "hair" / "all" / "none").
 
