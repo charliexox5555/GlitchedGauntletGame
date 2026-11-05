@@ -80,7 +80,8 @@ local lockButton: ImageButton? = nil
 local scroller: ScrollingFrame? = nil
 local footer: Frame? = nil
 local PHONE_CROP_TOP = 112 -- design px above the "SELECT A GUN" header
-local ABILITY_HEADER_Y = 338 -- design px just above "DRAFT AN ABILITY"
+local gunBarLabel: TextLabel? = nil
+local GUN_BAR_H = 64 -- design px at FOOTER_SCALE (45 px drawn): the pinned gun bar
 local PHONE_CONTENT_BOTTOM = 996 -- under the ability cards
 local PHONE_CONTENT_W = 1240 -- the three columns plus a margin
 local FOOTER_H = 80 -- design px
@@ -330,7 +331,26 @@ local function setLockReady(ready: boolean)
 	end
 end
 
+local function refreshGunBar()
+	local label = gunBarLabel
+	if not label then
+		return
+	end
+	local config = selectedGun and Weapons.get(selectedGun)
+	local name = if config then (config :: any).displayName else selectedGun
+	label.Text = if name
+		then string.format("GUN:  %s      CHANGE  \u{25B2}", string.upper(name))
+		else "PICK A GUN FIRST  \u{25B2}"
+	-- Gold (the action colour) until a gun is picked: it's the first step.
+	local fill = label.Parent and label.Parent:FindFirstChildWhichIsA("ImageLabel")
+	if fill then
+		fill.BackgroundColor3 = if name then C.raised else C.gold
+	end
+	label.TextColor3 = if name then C.text else C.onAccent
+end
+
 local function refreshSelection()
+	refreshGunBar()
 	for _, list in { gunCards, abilityCards } do
 		for _, c in list do
 			local on = c.id == selectedGun or c.id == selectedAbility
@@ -1133,11 +1153,11 @@ local function phoneCanvas(content: Instance)
 	scroll.CanvasSize = UDim2.fromOffset(0, (bottom + 24 - PHONE_CROP_TOP) * fit.Scale)
 	-- The ability cards are the main choice and a gun comes preselected, so a
 	-- phone opens on the cards (scroll up for the guns).
-	local target = (ABILITY_HEADER_Y - PHONE_CROP_TOP) * fit.Scale
-	-- ...far enough that the whole card row fits the view.
+	-- The pinned gun bar names the gun, so the view starts at the key tabs.
+	local target = (TOP - 34 - PHONE_CROP_TOP) * fit.Scale
 	local rowBottom = (TOP + PHONE_CARD_H + 8 - PHONE_CROP_TOP) * fit.Scale
 	target = math.max(target, rowBottom - scroll.AbsoluteSize.Y)
-	scroll.CanvasPosition = if selectedGun then Vector2.new(0, target) else Vector2.zero
+	scroll.CanvasPosition = Vector2.new(0, target) -- the gun bar says PICK A GUN when needed
 end
 
 -- Phone: the bottom bar (hint, LOCK IN, enemy kit) moves from the scrolling
@@ -1252,6 +1272,7 @@ local function show(o: MatchState.DraftOffer)
 
 	-- Bottom bar: the hint, LOCK IN, the enemy's kit.
 	lockHint = Ui.text(content, "", "bodyS", {
+		TextSize = if footer then 20 else nil,
 		Position = UDim2.fromOffset(colX(1), 1012),
 		Size = UDim2.fromOffset(410, 40),
 		TextColor3 = C.textSecondary,
@@ -1390,13 +1411,15 @@ local function build()
 		})
 		detailTitle = Ui.text(sheet, "", "titleCard", {
 			Position = UDim2.fromOffset(32, 24),
-			Size = UDim2.fromOffset(756, 44),
+			Size = UDim2.fromOffset(756, 48),
+			TextSize = 40,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 21,
 		})
 		detailBody = Ui.text(sheet, "", "bodyM", {
-			Position = UDim2.fromOffset(32, 80),
-			Size = UDim2.fromOffset(756, 280),
+			Position = UDim2.fromOffset(32, 84),
+			Size = UDim2.fromOffset(756, 276),
+			TextSize = 26, -- 18 px drawn
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextYAlignment = Enum.TextYAlignment.Top,
 			TextWrapped = true,
@@ -1415,14 +1438,47 @@ local function build()
 		end)
 		detailSheet = sheet
 		Ui.refit(sheet)
+		-- The pinned gun bar over the cards: the gun you'll take, tap to scroll
+		-- up to the guns (LihFolk: Case Study - Phone UI Overhaul, fixed rails).
+		local gunBar = make("TextButton", {
+			Name = "GunBar",
+			AnchorPoint = Vector2.new(0.5, 0),
+			BackgroundTransparency = 1,
+			Text = "",
+			AutoButtonColor = false,
+			ZIndex = 10,
+		}, back)
+		make("UIScale", { Name = "Fit", Scale = FOOTER_SCALE }, gunBar)
+		Ui.cut(gunBar, { Size = UDim2.fromScale(1, 1), ZIndex = 10 }, {
+			radius = 14,
+			color = C.raised,
+			transparency = 0.02,
+			line = C.white,
+			lineTransparency = 0.8,
+		})
+		gunBarLabel = Ui.text(gunBar, "", "label", {
+			Size = UDim2.fromScale(1, 1),
+			TextSize = 22,
+			ZIndex = 11,
+		})
+		gunBar.Activated:Connect(function()
+			scroll.CanvasPosition = Vector2.zero
+		end)
 		local function layout()
 			local view = Device.viewport()
 			local inset = 160 -- the backdrop starts 160 px above the safe area
 			local barH = 8 -- the score bar steps aside during the phone draft (PhoneHudController)
 			local footH = FOOTER_H * FOOTER_SCALE
-			local s = math.clamp((view.X - 24) / PHONE_CONTENT_W, 0.45, 0.75)
-			scroll.Position = UDim2.fromOffset(0, inset + barH)
-			scroll.Size = UDim2.new(1, 0, 1, -(inset + barH + footH + 8))
+			local gunH = GUN_BAR_H * FOOTER_SCALE
+			local viewH = view.Y - 58 - barH - gunH - 6 - footH - 8 -- 58: Roblox top bar
+			-- Wide enough for the three columns, small enough that a whole card
+			-- row (tabs to card bottom, 348 design px) fits under the gun bar.
+			local s = math.clamp(math.min((view.X - 24) / PHONE_CONTENT_W, viewH / 348), 0.45, 0.75)
+			gunBar.Position = UDim2.new(0.5, 0, 0, inset + barH)
+			gunBar.Size = UDim2.fromOffset(math.min(view.X - 24, 900) / FOOTER_SCALE, GUN_BAR_H)
+			Ui.refit(gunBar)
+			scroll.Position = UDim2.fromOffset(0, inset + barH + gunH + 6)
+			scroll.Size = UDim2.new(1, 0, 1, -(inset + barH + gunH + 6 + footH + 8))
 			scroll.CanvasSize = UDim2.fromOffset(0, (PHONE_CONTENT_BOTTOM - PHONE_CROP_TOP) * s)
 			frame.Position = UDim2.new(0.5, 0, 0, -PHONE_CROP_TOP * s)
 			Ui.override(frame, s)
