@@ -480,7 +480,7 @@ def p_spawn_sign(team):
 def p_chevron():
 	# Round 4: a white chevron painted on the roof (top 0.07), pointing local -Z: the way out of the spawn court.
 	c = piece("Chevron")
-	k = 1.6  # round 5: bigger (reviewers read the first ones as small and faint)
+	k = 2.2  # round 7: bigger again (every round-6 reviewer still called them small)
 	pts = [(-1.6 * k, 0.8 * k), (0.0, -0.8 * k), (1.6 * k, 0.8 * k), (0.75 * k, 0.8 * k), (0.0, 0.05 * k), (-0.75 * k, 0.8 * k)]
 	obj(c, "Paint", RPY(pts, -0.05, 0.07), "SignPit")  # round 6: cobalt reads on terracotta (white was faint)
 

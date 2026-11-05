@@ -217,9 +217,12 @@ class Art:
 				word = "PIT" if abs(xf) < 20 else ("WEST" if xf < 0 else "EAST")
 				self.put("Signs", "DeckWord" + word, xf, 0.0, z * sgn, 0.0 if sgn > 0 else 180.0)
 			# Round 4: chevrons from the spawn court round both ends of the Penthouse (x +-23, z 66..58 for B).
-			for x in (-23.5, 23.5):
-				for z in (66.0, 61.0, 56.0):
+			for x in (-24.5, 24.5):  # k 2.2 chevrons span +-3.5: clear of the Penthouse plinth (x 20.25)
+				for z in (70.0, 64.5, 59.0, 53.5):
 					self.put("Signs", "Chevron", x * sgn, 0.0, z * sgn, 0.0 if sgn > 0 else 180.0)
+				# Round 7: the side name at each court exit, past the Penthouse (named by where it lands: west = x < 0).
+				xf = (21.0 if x > 0 else -21.0) * sgn  # clear of the lift house (x 26..34)
+				self.put("Signs", "DeckWord" + ("WEST" if xf < 0 else "EAST"), xf, 0.0, 47.5 * sgn, 0.0 if sgn > 0 else 180.0)
 			# Round 1: in the Pit, at the foot of each stair, the roof it climbs to (read walking toward it).
 			self.put("Signs", "DeckWordROOFB" if sgn > 0 else "DeckWordROOFA", 10.5 * sgn, L.PIT, -3.0 * sgn, 180.0 if sgn > 0 else 0.0)
 
@@ -283,7 +286,7 @@ def plain_parts():
 			out.append(S("Lane line", "line", x0, x1, 0.03, 0.05, z0, z1, look="Hazard"))
 	# Round 5: yellow route lines from the spawn court round both ends of the Penthouse (framing the chevrons).
 	for sgn in (1, -1):
-		for x in (20.6, 26.4):  # clear of the chevrons (x 23.5 +- 2.56) and the Penthouse plinth (20.25)
+		for x in (20.6, 26.4):  # clear of the chevrons (x 23.5 +- 2.56 at k 1.6; 2.2 overlaps them, so they stop short)
 			for side in (1, -1):
 				xc = side * x * sgn
 				z0, z1 = sorted((sgn * 55.0, sgn * 70.0))
