@@ -63,10 +63,11 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 
 # Lane containers: one hue per lane, all in the same value band so no lane reads heavier (callouts:
 # "red", "blue", "green"). The red is a terracotta, far from the enemy team colour #FF5A36.
-LANE = {"west": "B5533C", "mid": "3D6FA8", "east": "3F8F6B"}
+LANE = {"west": "B5533C", "mid": "3E6C9C", "east": "3F8F6B"}
 FRAME_SHADE = 0.72  # LaneFrame = lane colour x this
 # The end walls and far stacks: the same hues, lighter and greyer (aerial perspective), never saturated.
-BACKDROP = ["8F959B", "C8C0B0", "6F8299", "A3776A", "7A9790", "B0A48C", "9AA5AE"]
+# Warm-leaning on purpose: the first style frame read all blue with a cool backdrop behind the blue lane.
+BACKDROP = ["A9A296", "C8C0B0", "8F959B", "B98F78", "92A29A", "C9B58F", "7F8C99"]
 
 # Reserved, never used on the map: team colours (cyan #00E5FF, orange-red #FF5A36) and glitch magenta
 # #FF3DCB (none on Dockyard2 so far).

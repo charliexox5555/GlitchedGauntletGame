@@ -1,0 +1,2071 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "Bollard": {
+   "props": {},
+   "parts": [
+    "Bollard_Body"
+   ]
+  },
+  "C20": {
+   "props": {
+    "length": 16
+   },
+   "parts": [
+    "C20_Body",
+    "C20_Ribs",
+    "C20_Frame",
+    "C20_Doors",
+    "C20_Hardware"
+   ]
+  },
+  "C20Lo": {
+   "props": {
+    "length": 16
+   },
+   "parts": [
+    "C20Lo_Body",
+    "C20Lo_Ribs",
+    "C20Lo_Frame",
+    "C20Lo_Doors"
+   ]
+  },
+  "C40": {
+   "props": {
+    "length": 32
+   },
+   "parts": [
+    "C40_Body",
+    "C40_Ribs",
+    "C40_Frame",
+    "C40_Doors",
+    "C40_Hardware"
+   ]
+  },
+  "C40Lo": {
+   "props": {
+    "length": 32
+   },
+   "parts": [
+    "C40Lo_Body",
+    "C40Lo_Ribs",
+    "C40Lo_Frame",
+    "C40Lo_Doors"
+   ]
+  },
+  "Crane": {
+   "props": {
+    "span": 60
+   },
+   "parts": [
+    "Crane_Legs",
+    "Crane_Bands",
+    "Crane_Bogies",
+    "Crane_Tyres",
+    "Crane_Girders",
+    "Crane_Trolley",
+    "Crane_House",
+    "Crane_Cab",
+    "Crane_CabGlass",
+    "Crane_Rigging",
+    "Crane_Spreader",
+    "Crane_Beacon_Glow"
+   ]
+  },
+  "Crate": {
+   "props": {},
+   "parts": [
+    "Crate_Pallet",
+    "Crate_Body",
+    "Crate_Bands"
+   ]
+  },
+  "LampMast": {
+   "props": {
+    "height": 27.6
+   },
+   "parts": [
+    "LampMast_Base",
+    "LampMast_Pole",
+    "LampMast_Head",
+    "LampMast_Lens_Glow"
+   ]
+  },
+  "Office": {
+   "props": {},
+   "parts": [
+    "Office_Body",
+    "Office_Base",
+    "Office_Cap",
+    "Office_Door",
+    "Office_Glass",
+    "Office_Frames"
+   ]
+  },
+  "QuayBarrier8": {
+   "props": {
+    "length": 8.0
+   },
+   "parts": [
+    "QuayBarrier8_Core",
+    "QuayBarrier8_Cap",
+    "QuayBarrier8_Band",
+    "QuayBarrier8_Kick"
+   ]
+  },
+  "QuayBarrierShort": {
+   "props": {
+    "length": 3.7
+   },
+   "parts": [
+    "QuayBarrierShort_Core",
+    "QuayBarrierShort_Cap",
+    "QuayBarrierShort_Band",
+    "QuayBarrierShort_Kick"
+   ]
+  },
+  "QuayFace8": {
+   "props": {
+    "length": 8
+   },
+   "parts": [
+    "QuayFace8_Face",
+    "QuayFace8_Coping",
+    "QuayFace8_Fender"
+   ]
+  },
+  "Rack": {
+   "props": {},
+   "parts": [
+    "Rack_Uprights",
+    "Rack_Beams",
+    "Rack_LoadsA",
+    "Rack_LoadsB"
+   ]
+  },
+  "Shed": {
+   "props": {
+    "width": 26,
+    "depth": 36
+   },
+   "parts": [
+    "Shed_Cladding",
+    "Shed_Plinth",
+    "Shed_Band",
+    "Shed_Cornice",
+    "Shed_Trim",
+    "Shed_Roof",
+    "Shed_Fascia",
+    "Shed_Frames",
+    "Shed_Lamps",
+    "Shed_LampGlow_Glow",
+    "Shed_Floor"
+   ]
+  },
+  "ShedSign1": {
+   "props": {},
+   "parts": [
+    "ShedSign1_Frame",
+    "ShedSign1_Plate",
+    "ShedSign1_Letters"
+   ]
+  },
+  "ShedSign2": {
+   "props": {},
+   "parts": [
+    "ShedSign2_Frame",
+    "ShedSign2_Plate",
+    "ShedSign2_Letters"
+   ]
+  },
+  "Ship": {
+   "props": {},
+   "parts": [
+    "Ship_Hull",
+    "Ship_Stripe",
+    "Ship_Bridge",
+    "Ship_Windows"
+   ]
+  },
+  "Stair": {
+   "props": {},
+   "parts": [
+    "Stair_Treads",
+    "Stair_Nosing",
+    "Stair_Stringers",
+    "Stair_Rails"
+   ]
+  },
+  "StsCrane": {
+   "props": {},
+   "parts": [
+    "StsCrane_Frame",
+    "StsCrane_Boom",
+    "StsCrane_House"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "Bollard",
+   "name": "Bollard_Body",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 500,
+   "center": [
+    0.0,
+    0.0,
+    0.575
+   ],
+   "size": [
+    1.24,
+    1.24,
+    1.35
+   ]
+  },
+  {
+   "piece": "C20",
+   "name": "C20_Body",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    7.44,
+    15.28,
+    7.36
+   ]
+  },
+  {
+   "piece": "C20",
+   "name": "C20_Ribs",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 340,
+   "center": [
+    0.0,
+    0.65667,
+    4.34
+   ],
+   "size": [
+    7.8,
+    14.24667,
+    6.88
+   ]
+  },
+  {
+   "piece": "C20",
+   "name": "C20_Frame",
+   "material": "D2_LaneFrame",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2C5079"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    7.94,
+    15.94,
+    7.94
+   ]
+  },
+  {
+   "piece": "C20",
+   "name": "C20_Doors",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    -7.71,
+    4.0
+   ],
+   "size": [
+    6.5,
+    0.3,
+    6.3
+   ]
+  },
+  {
+   "piece": "C20",
+   "name": "C20_Hardware",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    -0.02,
+    -7.845,
+    4.0
+   ],
+   "size": [
+    6.2,
+    0.21,
+    6.1
+   ]
+  },
+  {
+   "piece": "C20Lo",
+   "name": "C20Lo_Body",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    7.44,
+    15.28,
+    7.36
+   ]
+  },
+  {
+   "piece": "C20Lo",
+   "name": "C20Lo_Ribs",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    1.22333,
+    4.0
+   ],
+   "size": [
+    7.8,
+    13.11333,
+    6.2
+   ]
+  },
+  {
+   "piece": "C20Lo",
+   "name": "C20Lo_Frame",
+   "material": "D2_LaneFrame",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2C5079"
+   },
+   "glow": false,
+   "tris": 440,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    7.94,
+    15.94,
+    7.94
+   ]
+  },
+  {
+   "piece": "C20Lo",
+   "name": "C20Lo_Doors",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    -7.67,
+    4.0
+   ],
+   "size": [
+    6.5,
+    0.22,
+    6.3
+   ]
+  },
+  {
+   "piece": "C40",
+   "name": "C40_Body",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    7.44,
+    31.28,
+    7.36
+   ]
+  },
+  {
+   "piece": "C40",
+   "name": "C40_Ribs",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 460,
+   "center": [
+    0.0,
+    0.83,
+    4.34
+   ],
+   "size": [
+    7.8,
+    29.9,
+    6.88
+   ]
+  },
+  {
+   "piece": "C40",
+   "name": "C40_Frame",
+   "material": "D2_LaneFrame",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2C5079"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    7.94,
+    31.94,
+    7.94
+   ]
+  },
+  {
+   "piece": "C40",
+   "name": "C40_Doors",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    -15.71,
+    4.0
+   ],
+   "size": [
+    6.5,
+    0.3,
+    6.3
+   ]
+  },
+  {
+   "piece": "C40",
+   "name": "C40_Hardware",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    -0.02,
+    -15.845,
+    4.0
+   ],
+   "size": [
+    6.2,
+    0.21,
+    6.1
+   ]
+  },
+  {
+   "piece": "C40Lo",
+   "name": "C40Lo_Body",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    7.44,
+    31.28,
+    7.36
+   ]
+  },
+  {
+   "piece": "C40Lo",
+   "name": "C40Lo_Ribs",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.0,
+    1.32333,
+    4.0
+   ],
+   "size": [
+    7.8,
+    28.91333,
+    6.2
+   ]
+  },
+  {
+   "piece": "C40Lo",
+   "name": "C40Lo_Frame",
+   "material": "D2_LaneFrame",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2C5079"
+   },
+   "glow": false,
+   "tris": 440,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    7.94,
+    31.94,
+    7.94
+   ]
+  },
+  {
+   "piece": "C40Lo",
+   "name": "C40Lo_Doors",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    -15.67,
+    4.0
+   ],
+   "size": [
+    6.5,
+    0.22,
+    6.3
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Legs",
+   "material": "D2_Crane",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2B632"
+   },
+   "glow": false,
+   "tris": 880,
+   "center": [
+    0.0,
+    0.0,
+    27.4
+   ],
+   "size": [
+    63.6,
+    35.6,
+    48.8
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Bands",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 736,
+   "center": [
+    0.0,
+    0.0,
+    5.3
+   ],
+   "size": [
+    63.72,
+    35.72,
+    2.2
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Bogies",
+   "material": "D2_Crane",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2B632"
+   },
+   "glow": false,
+   "tris": 864,
+   "center": [
+    0.0,
+    0.0,
+    1.85
+   ],
+   "size": [
+    63.9,
+    37.0,
+    2.8
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Tyres",
+   "material": "D2_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2A2D31"
+   },
+   "glow": false,
+   "tris": 832,
+   "center": [
+    0.0,
+    0.0,
+    0.92
+   ],
+   "size": [
+    64.16,
+    36.55487,
+    1.8
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Girders",
+   "material": "D2_Crane",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2B632"
+   },
+   "glow": false,
+   "tris": 544,
+   "center": [
+    0.0,
+    0.0,
+    52.3
+   ],
+   "size": [
+    68.0,
+    35.2,
+    7.4
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Trolley",
+   "material": "D2_Crane",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2B632"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    57.325
+   ],
+   "size": [
+    10.0,
+    35.2,
+    2.55
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_House",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    59.975
+   ],
+   "size": [
+    7.2,
+    12.0,
+    2.85
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Cab",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    8.2,
+    -14.6,
+    48.3
+   ],
+   "size": [
+    4.4,
+    4.8,
+    4.2
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_CabGlass",
+   "material": "D2_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "9FD3E0",
+    "transparency": 0.5
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    10.4,
+    -14.6,
+    48.45
+   ],
+   "size": [
+    0.2,
+    3.4,
+    2.3
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Rigging",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 244,
+   "center": [
+    4.25,
+    -7.3,
+    41.825
+   ],
+   "size": [
+    13.5,
+    18.6,
+    28.55
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Spreader",
+   "material": "D2_Crane",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2B632"
+   },
+   "glow": false,
+   "tris": 324,
+   "center": [
+    0.0,
+    0.0,
+    26.825
+   ],
+   "size": [
+    32.4,
+    8.2,
+    2.05
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Beacon_Glow",
+   "material": "D2_GlowSignal",
+   "look": {
+    "material": "Neon",
+    "color": "FF8A3D"
+   },
+   "glow": true,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    56.25
+   ],
+   "size": [
+    66.6,
+    32.6,
+    0.6
+   ]
+  },
+  {
+   "piece": "Crate",
+   "name": "Crate_Pallet",
+   "material": "D2_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A7865E"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.235
+   ],
+   "size": [
+    3.9,
+    3.9,
+    0.43
+   ]
+  },
+  {
+   "piece": "Crate",
+   "name": "Crate_Body",
+   "material": "D2_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A7865E"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    1.935
+   ],
+   "size": [
+    3.56,
+    3.56,
+    2.97
+   ]
+  },
+  {
+   "piece": "Crate",
+   "name": "Crate_Bands",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    1.95
+   ],
+   "size": [
+    3.72,
+    3.72,
+    2.7
+   ]
+  },
+  {
+   "piece": "LampMast",
+   "name": "LampMast_Base",
+   "material": "D2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A59D90",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 216,
+   "center": [
+    0.0,
+    0.0,
+    0.675
+   ],
+   "size": [
+    1.8,
+    1.8,
+    1.55
+   ]
+  },
+  {
+   "piece": "LampMast",
+   "name": "LampMast_Pole",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    14.2
+   ],
+   "size": [
+    0.8,
+    0.8,
+    25.8
+   ]
+  },
+  {
+   "piece": "LampMast",
+   "name": "LampMast_Head",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 260,
+   "center": [
+    0.0,
+    0.0,
+    26.975
+   ],
+   "size": [
+    5.4,
+    1.4,
+    1.25
+   ]
+  },
+  {
+   "piece": "LampMast",
+   "name": "LampMast_Lens_Glow",
+   "material": "D2_GlowWarm",
+   "look": {
+    "material": "Neon",
+    "color": "FFE2B8"
+   },
+   "glow": true,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    26.3
+   ],
+   "size": [
+    5.2,
+    1.16,
+    0.16
+   ]
+  },
+  {
+   "piece": "Office",
+   "name": "Office_Body",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    4.5
+   ],
+   "size": [
+    6.6,
+    7.6,
+    7.9
+   ]
+  },
+  {
+   "piece": "Office",
+   "name": "Office_Base",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    0.25
+   ],
+   "size": [
+    7.0,
+    8.0,
+    0.7
+   ]
+  },
+  {
+   "piece": "Office",
+   "name": "Office_Cap",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    8.7
+   ],
+   "size": [
+    7.0,
+    8.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "Office",
+   "name": "Office_Door",
+   "material": "D2_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8B53A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -3.32,
+    0.0,
+    3.65
+   ],
+   "size": [
+    0.2,
+    2.1,
+    5.9
+   ]
+  },
+  {
+   "piece": "Office",
+   "name": "Office_Glass",
+   "material": "D2_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "9FD3E0",
+    "transparency": 0.5
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    5.6
+   ],
+   "size": [
+    4.2,
+    7.76,
+    2.6
+   ]
+  },
+  {
+   "piece": "Office",
+   "name": "Office_Frames",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 640,
+   "center": [
+    0.0,
+    0.0,
+    5.6
+   ],
+   "size": [
+    4.8,
+    7.9,
+    3.2
+   ]
+  },
+  {
+   "piece": "QuayBarrier8",
+   "name": "QuayBarrier8_Core",
+   "material": "D2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A59D90",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    1.25
+   ],
+   "size": [
+    1.84,
+    7.96,
+    2.7
+   ]
+  },
+  {
+   "piece": "QuayBarrier8",
+   "name": "QuayBarrier8_Cap",
+   "material": "D2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A59D90",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    -1.0,
+    0.0,
+    2.775
+   ],
+   "size": [
+    2.0,
+    8.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "QuayBarrier8",
+   "name": "QuayBarrier8_Band",
+   "material": "D2_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8B53A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.93,
+    0.0,
+    1.825
+   ],
+   "size": [
+    0.12,
+    7.88,
+    0.55
+   ]
+  },
+  {
+   "piece": "QuayBarrier8",
+   "name": "QuayBarrier8_Kick",
+   "material": "D2_ConcreteDark",
+   "look": {
+    "material": "Concrete",
+    "color": "6E675E",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.925,
+    0.0,
+    0.185
+   ],
+   "size": [
+    0.15,
+    8.0,
+    0.53
+   ]
+  },
+  {
+   "piece": "QuayBarrierShort",
+   "name": "QuayBarrierShort_Core",
+   "material": "D2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A59D90",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.0,
+    0.0,
+    1.25
+   ],
+   "size": [
+    1.84,
+    3.66,
+    2.7
+   ]
+  },
+  {
+   "piece": "QuayBarrierShort",
+   "name": "QuayBarrierShort_Cap",
+   "material": "D2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A59D90",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    -1.0,
+    0.0,
+    2.775
+   ],
+   "size": [
+    2.0,
+    3.7,
+    0.45
+   ]
+  },
+  {
+   "piece": "QuayBarrierShort",
+   "name": "QuayBarrierShort_Band",
+   "material": "D2_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8B53A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -1.93,
+    0.0,
+    1.825
+   ],
+   "size": [
+    0.12,
+    3.58,
+    0.55
+   ]
+  },
+  {
+   "piece": "QuayBarrierShort",
+   "name": "QuayBarrierShort_Kick",
+   "material": "D2_ConcreteDark",
+   "look": {
+    "material": "Concrete",
+    "color": "6E675E",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -1.925,
+    0.0,
+    0.185
+   ],
+   "size": [
+    0.15,
+    3.7,
+    0.53
+   ]
+  },
+  {
+   "piece": "QuayFace8",
+   "name": "QuayFace8_Face",
+   "material": "D2_ConcreteDark",
+   "look": {
+    "material": "Concrete",
+    "color": "6E675E",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -0.14,
+    0.0,
+    -6.025
+   ],
+   "size": [
+    0.52,
+    7.96,
+    11.95
+   ]
+  },
+  {
+   "piece": "QuayFace8",
+   "name": "QuayFace8_Coping",
+   "material": "D2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A59D90",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    -0.075,
+    0.0,
+    -0.27
+   ],
+   "size": [
+    0.85,
+    8.0,
+    0.66
+   ]
+  },
+  {
+   "piece": "QuayFace8",
+   "name": "QuayFace8_Fender",
+   "material": "D2_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2A2D31"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.39,
+    0.0,
+    -2.1
+   ],
+   "size": [
+    0.54,
+    1.9,
+    2.4
+   ]
+  },
+  {
+   "piece": "Rack",
+   "name": "Rack_Uprights",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    0.0,
+    3.975
+   ],
+   "size": [
+    2.3,
+    14.0,
+    7.95
+   ]
+  },
+  {
+   "piece": "Rack",
+   "name": "Rack_Beams",
+   "material": "D2_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8B53A"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    3.125
+   ],
+   "size": [
+    2.4,
+    13.9,
+    5.55
+   ]
+  },
+  {
+   "piece": "Rack",
+   "name": "Rack_LoadsA",
+   "material": "D2_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A7865E"
+   },
+   "glow": false,
+   "tris": 540,
+   "center": [
+    0.0,
+    0.0,
+    4.295
+   ],
+   "size": [
+    1.7,
+    13.05,
+    7.15
+   ]
+  },
+  {
+   "piece": "Rack",
+   "name": "Rack_LoadsB",
+   "material": "D2_Cladding",
+   "look": {
+    "material": "Metal",
+    "color": "B9C1C7",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 432,
+   "center": [
+    0.0,
+    0.0,
+    4.295
+   ],
+   "size": [
+    1.7,
+    13.05,
+    7.15
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Cladding",
+   "material": "D2_Cladding",
+   "look": {
+    "material": "Metal",
+    "color": "B9C1C7",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 150,
+   "center": [
+    0.0,
+    0.0,
+    11.55
+   ],
+   "size": [
+    26.0,
+    36.0,
+    20.2
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Plinth",
+   "material": "D2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A59D90",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 756,
+   "center": [
+    0.0,
+    0.0,
+    0.7
+   ],
+   "size": [
+    26.5,
+    36.5,
+    1.6
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Band",
+   "material": "D2_Lane",
+   "look": {
+    "material": "Metal",
+    "color": "3D6FA8",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 220,
+   "center": [
+    0.0,
+    0.0,
+    11.7
+   ],
+   "size": [
+    26.16,
+    36.16,
+    1.0
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Cornice",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 432,
+   "center": [
+    0.0,
+    0.0,
+    15.675
+   ],
+   "size": [
+    26.7,
+    36.7,
+    0.85
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Trim",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 1156,
+   "center": [
+    -0.015,
+    0.015,
+    7.625
+   ],
+   "size": [
+    26.27,
+    36.27,
+    15.25
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Roof",
+   "material": "D2_Roof",
+   "look": {
+    "material": "Metal",
+    "color": "56616B",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    18.53056
+   ],
+   "size": [
+    29.2,
+    38.8,
+    6.93889
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Fascia",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 184,
+   "center": [
+    0.0,
+    0.0,
+    18.55576
+   ],
+   "size": [
+    29.6,
+    39.04,
+    7.46708
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Frames",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 632,
+   "center": [
+    0.0,
+    0.925,
+    7.575
+   ],
+   "size": [
+    24.7,
+    32.55,
+    15.25
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Lamps",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 368,
+   "center": [
+    0.0,
+    0.0,
+    13.525
+   ],
+   "size": [
+    11.8,
+    16.8,
+    1.95
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_LampGlow_Glow",
+   "material": "D2_GlowWarm",
+   "look": {
+    "material": "Neon",
+    "color": "FFE2B8"
+   },
+   "glow": true,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    12.49
+   ],
+   "size": [
+    11.2,
+    16.2,
+    0.14
+   ]
+  },
+  {
+   "piece": "Shed",
+   "name": "Shed_Floor",
+   "material": "D2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A59D90",
+    "variant": "Dock2_Concrete"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    -0.01
+   ],
+   "size": [
+    24.8,
+    34.8,
+    0.14
+   ]
+  },
+  {
+   "piece": "ShedSign1",
+   "name": "ShedSign1_Frame",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 320,
+   "center": [
+    -4.0,
+    18.135,
+    14.3
+   ],
+   "size": [
+    8.9,
+    0.37,
+    2.15
+   ]
+  },
+  {
+   "piece": "ShedSign1",
+   "name": "ShedSign1_Plate",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -4.0,
+    18.05,
+    14.3
+   ],
+   "size": [
+    8.2,
+    0.3,
+    1.6
+   ]
+  },
+  {
+   "piece": "ShedSign1",
+   "name": "ShedSign1_Letters",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 1010,
+   "center": [
+    -4.0,
+    18.26,
+    14.275
+   ],
+   "size": [
+    6.75547,
+    0.12,
+    1.15
+   ]
+  },
+  {
+   "piece": "ShedSign2",
+   "name": "ShedSign2_Frame",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 320,
+   "center": [
+    -4.0,
+    18.135,
+    14.3
+   ],
+   "size": [
+    8.9,
+    0.37,
+    2.15
+   ]
+  },
+  {
+   "piece": "ShedSign2",
+   "name": "ShedSign2_Plate",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -4.0,
+    18.05,
+    14.3
+   ],
+   "size": [
+    8.2,
+    0.3,
+    1.6
+   ]
+  },
+  {
+   "piece": "ShedSign2",
+   "name": "ShedSign2_Letters",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 1194,
+   "center": [
+    -4.0,
+    18.26,
+    14.275
+   ],
+   "size": [
+    7.11366,
+    0.12,
+    1.15
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_Hull",
+   "material": "D2_Roof",
+   "look": {
+    "material": "Metal",
+    "color": "56616B",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 64,
+   "center": [
+    0.0,
+    6.11094,
+    9.2
+   ],
+   "size": [
+    32.0,
+    111.77812,
+    18.4
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_Stripe",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    6.024,
+    16.1
+   ],
+   "size": [
+    32.128,
+    112.448,
+    1.0
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_Bridge",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    56.5,
+    26.15
+   ],
+   "size": [
+    28.0,
+    9.0,
+    15.7
+   ]
+  },
+  {
+   "piece": "Ship",
+   "name": "Ship_Windows",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    52.0,
+    30.8
+   ],
+   "size": [
+    25.0,
+    0.2,
+    1.6
+   ]
+  },
+  {
+   "piece": "Stair",
+   "name": "Stair_Treads",
+   "material": "D2_Grate",
+   "look": {
+    "material": "DiamondPlate",
+    "color": "4A525A",
+    "variant": "Dock2_Grate"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    -0.785,
+    3.83
+   ],
+   "size": [
+    6.6,
+    14.37,
+    6.68
+   ]
+  },
+  {
+   "piece": "Stair",
+   "name": "Stair_Nosing",
+   "material": "D2_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8B53A"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    -0.17,
+    3.88
+   ],
+   "size": [
+    6.4,
+    13.06,
+    6.62
+   ]
+  },
+  {
+   "piece": "Stair",
+   "name": "Stair_Stringers",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.005,
+    4.14781
+   ],
+   "size": [
+    7.7,
+    15.95,
+    8.49562
+   ]
+  },
+  {
+   "piece": "Stair",
+   "name": "Stair_Rails",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    -0.25,
+    6.16382
+   ],
+   "size": [
+    7.44,
+    15.3,
+    10.52764
+   ]
+  },
+  {
+   "piece": "StsCrane",
+   "name": "StsCrane_Frame",
+   "material": "D2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "ECE8DF"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    23.5
+   ],
+   "size": [
+    14.0,
+    22.0,
+    47.0
+   ]
+  },
+  {
+   "piece": "StsCrane",
+   "name": "StsCrane_Boom",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    11.0,
+    0.0,
+    35.5
+   ],
+   "size": [
+    70.0,
+    5.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "StsCrane",
+   "name": "StsCrane_House",
+   "material": "D2_Roof",
+   "look": {
+    "material": "Metal",
+    "color": "56616B",
+    "variant": "Dock2_Metal"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -11.0,
+    0.0,
+    39.0
+   ],
+   "size": [
+    10.0,
+    7.0,
+    4.0
+   ]
+  }
+ ],
+ "tris": 22740
+}
