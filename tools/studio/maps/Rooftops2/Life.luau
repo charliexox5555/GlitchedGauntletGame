@@ -95,19 +95,20 @@ local function steam(name: string, at: Vector3, rate: number)
 	e.Drag = 0.6
 	e.Size = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 0.8), -- narrow until it has risen
-		NumberSequenceKeypoint.new(0.35, 2.8),
-		NumberSequenceKeypoint.new(1, 7),
+		NumberSequenceKeypoint.new(0.3, 3.6), -- fat mid-life, so it reads at 80 studs
+		NumberSequenceKeypoint.new(1, 7.5),
 	})
 	e.Transparency = NumberSequence.new({
 		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.12, 0.25),
-		NumberSequenceKeypoint.new(0.55, 0.55),
+		NumberSequenceKeypoint.new(0.12, 0.12),
+		NumberSequenceKeypoint.new(0.5, 0.42),
 		NumberSequenceKeypoint.new(1, 1),
 	})
-	-- Near-white and self-lit: reads as steam against the warm evening sky.
-	e.Color = ColorSequence.new(Color3.fromRGB(236, 236, 234))
-	e.LightEmission = 0.2
-	e.LightInfluence = 0.1 -- barely lit, so the golden light never turns it brown
+	-- A cool grey-lilac: reads against the warm, pale evening sky (white sank into
+	-- it) without the golden light turning it brown.
+	e.Color = ColorSequence.new(Color3.fromRGB(200, 204, 214))
+	e.LightEmission = 0
+	e.LightInfluence = 0.3
 	e.Rotation = NumberRange.new(0, 360)
 	e.RotSpeed = NumberRange.new(-20, 20)
 	e.Shape = Enum.ParticleEmitterShape.Box
@@ -137,7 +138,8 @@ local BELLY = Color3.fromRGB(198, 200, 208)
 -- 1.8x a real pigeon (about 1.5 studs long), so a flock reads at the 15-40
 -- studs players see it from; a pale belly lifts it off the shaded cornice.
 local P = 1.8
-local function pigeonModel(name: string, at: Vector3, facing: Vector3): Model
+local function pigeonModel(name: string, at: Vector3, facing: Vector3, scale: number?): Model
+	local P = scale or P
 	local m = model(name)
 	local cf = CFrame.lookAt(at, at + facing)
 	local function v(x: number, y: number, z: number): Vector3
@@ -198,7 +200,7 @@ end
 -- over every sightline), so the sky moves too; flap-and-glide like the gulls.
 for k, phase in { 0, 22, 47 } do
 	local centre = Vector3.new(3000, 230 + k, 6)
-	local m = pigeonModel("SkyPigeon_" .. k, centre + Vector3.new(34, 0, 0), Vector3.zAxis)
+	local m = pigeonModel("SkyPigeon_" .. k, centre + Vector3.new(34, 0, 0), Vector3.zAxis, 2.3)
 	tag(m, "LifeGull", {
 		Center = centre,
 		Radius = 34 + k * 2,
@@ -212,7 +214,7 @@ end
 -- Banners on the outer street walls ------------------------------------------------
 
 -- Sage and the map's one cobalt accent (team cyan and orange-red stay off the map).
-local CLOTHS = { Color3.fromRGB(122, 148, 112), Color3.fromRGB(52, 86, 168) }
+local CLOTHS = { Color3.fromRGB(150, 172, 136), Color3.fromRGB(47, 98, 200) } -- sage, the tank cobalt
 local ROD = Color3.fromRGB(58, 56, 54)
 -- Blade banners: an arm out from the wall with the cloth hanging under it,
 -- square to the wall, so it reads face-on from the roofs along the street.
@@ -268,7 +270,7 @@ rule("Spin", "CoolingTower_Fan", { SpinSpeed = 140 })
 -- Fan blades over the AC and condenser discs (their own meshes are plain
 -- domes, so turning them shows nothing): a light four-blade cross, copied
 -- onto each disc by the controller (Rotor rule) and spun there.
-local BLADE = Color3.fromRGB(184, 188, 194)
+local BLADE = Color3.fromRGB(150, 154, 160)
 local rotor = Instance.new("Model")
 rotor.Name = "RotorTemplate"
 -- Parked far under the map; the controller only ever uses copies.
@@ -284,10 +286,11 @@ local blur = part(
 	BLADE,
 	"cylinder"
 )
-blur.Transparency = 0.78
+blur.Color = Color3.fromRGB(96, 100, 108)
+blur.Transparency = 0.55
 for _, b in rotor:GetChildren() do
 	if b:IsA("BasePart") and string.sub(b.Name, 1, 5) == "Blade" then
-		b.Transparency = 0.2
+		b.Transparency = 0.45 -- soft, so a head peeking over the unit reads first
 	end
 end
 part(rotor, "Hub", Vector3.new(0.5, 0.3, 0.5), hub, Color3.fromRGB(70, 72, 78))
