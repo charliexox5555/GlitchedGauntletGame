@@ -1,6 +1,5 @@
 --!strict
--- The match's on-screen state, v2 look (vault/01 Design/Match HUD.md; v1 layout
--- in vault/02 Art/UI Design.md): the top bar
+-- The match's on-screen state, UI v1 (vault/02 Art/UI Design.md): the top bar
 -- (both team plates with names and health, the score, first-to-5 diamonds, the
 -- round and weapon phase, the clock) and the full-width banners (get ready,
 -- countdown, fight, round won / lost, match end). It only shows what
@@ -18,8 +17,7 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
-local UiKit = require(ReplicatedStorage.Shared.UiKit)
-local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
+local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle) -- FLAGS only (Roblox UI placement)
 
 local Ui = require(script.Parent.Parent.Util.Ui)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
@@ -76,21 +74,13 @@ type Ui = {
 	shownTitle: string,
 }
 
--- A rounded v2 plate behind part of the top bar (team plates get their team
--- colour as a soft outline).
-local function plate(bar: Frame, name: string, x: number, w: number, h: number, edge: Color3?)
-	local p = Ui.cut(bar, {
-		Name = name,
+local function plate(bar: Frame, image: string, x: number, w: number, h: number)
+	make("ImageLabel", {
 		Position = UDim2.fromOffset(x, 0),
 		Size = UDim2.fromOffset(w, h),
-	}, {
-		radius = UiStyle.RADIUS.lg,
-		color = C.panel,
-		transparency = 0.02, -- opaque: bright world signs must not show through
-		line = edge or C.white,
-		lineTransparency = if edge then 0.5 else UiStyle.ALPHA.stroke,
-	})
-	UiKit.shadow(p, UiStyle.RADIUS.lg, 0.7)
+		BackgroundTransparency = 1,
+		Image = image,
+	}, bar)
 end
 
 local function side(bar: Frame, enemy: boolean): Side
@@ -105,10 +95,8 @@ local function side(bar: Frame, enemy: boolean): Side
 		Position = UDim2.fromOffset(if enemy then 824 else 56, 46),
 		Size = UDim2.fromOffset(BAR_W, 8),
 		BorderSizePixel = 0,
-		BackgroundColor3 = C.lineSoft,
-		ClipsDescendants = true,
+		BackgroundColor3 = C.raised,
 	}, bar)
-	UiKit.corner(back, 4)
 	local fill = make("Frame", {
 		AnchorPoint = Vector2.new(if enemy then 1 else 0, 0),
 		Position = UDim2.fromScale(if enemy then 1 else 0, 0),
@@ -116,7 +104,6 @@ local function side(bar: Frame, enemy: boolean): Side
 		BorderSizePixel = 0,
 		BackgroundColor3 = color,
 	}, back)
-	UiKit.corner(fill, 4)
 	local score = Ui.text(bar, "0", "displayM", {
 		-- Centre-anchored: its pop (a UIScale) grows from the middle.
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -169,20 +156,19 @@ local function build(): Ui
 		BackgroundTransparency = 1,
 		Visible = false,
 	}, gui)
-	-- Three separate plates, 8 px apart (v1 overlapped angled images).
-	plate(bar, "AllyPlate", 0, 404, 70, C.ally)
-	plate(bar, "EnemyPlate", 696, 404, 70, C.enemy)
-	plate(bar, "ClockPlate", 412, 276, 104)
+	plate(bar, Theme.IMAGE.plateLeft, 0, 420, 70)
+	plate(bar, Theme.IMAGE.plateRight, 680, 420, 70)
+	plate(bar, Theme.IMAGE.plateTimer, 400, 300, 104)
 	local round = Ui.text(bar, "", "label", {
-		Position = UDim2.fromOffset(412, 12),
-		Size = UDim2.fromOffset(276, 18),
+		Position = UDim2.fromOffset(400, 12),
+		Size = UDim2.fromOffset(300, 16),
 		TextColor3 = C.textSecondary,
 	})
 	local clock = Ui.text(bar, "", "timer", {
 		-- Centre-anchored: its pop (a UIScale) grows from the middle.
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromOffset(550, 56),
-		Size = UDim2.fromOffset(276, 52),
+		Size = UDim2.fromOffset(300, 52),
 	})
 
 	-- Banner: a full-width band in the result's colour, its words in a
@@ -247,6 +233,7 @@ local function build(): Ui
 		RichText = true,
 	})
 
+	-- Fit after the team sides exist, so the text floor reaches their labels.
 	local ally, enemy = side(bar, false), side(bar, true)
 	Ui.fit(bar)
 	return {

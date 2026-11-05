@@ -1,4 +1,40 @@
-# Match HUD v2 (2026-11-05)
+# Match HUD
+
+## Decision 2026-11-05 (evening): v1 look kept, v2 reverted
+**The user's call:** "I liked the old look, these rounded corners just look too AI looking and not professional... revert to old UI." The match UI is back on the **v1 look** ([UI Design](../02%20Art/UI%20Design.md)), with cut corners (9-slice), Oswald plus Montserrat, the v1 colours and the 1.5 px strokes. Everything about v2 below is **history, not the current look**. The UI will get a proper concept pass later. Don't redesign it ad hoc.
+
+**Reverted** (styling from `ade0082` and `41927af`):
+- `Config/Theme`: the v1 tokens again, no longer resolving to `Config/UiStyle`.
+- `Util/Ui`: `cut`, `tag` and `keyTab` are the v1 shapes again.
+- The rest went back to v1 too:
+  - the angled score-bar plates;
+  - the health and ammo fades, and square bars;
+  - square ability slots;
+  - the slanted ELIMINATED panel and square kill-feed rows;
+  - the draft cards with their uncropped art.
+
+**Kept (they work under v1):**
+- The score bar in a `CoreUISafeInsets` gui, 8 px under Roblox's top bar. The draft gui is in the same safe area, its backdrop reaching up under Roblox's bar.
+- In a match the player list is hidden and chat sits at the left middle (`UiStyle.FLAGS`: `matchHidePlayerList`, `matchChatVertical`). The draft hides chat while it's open (`CoreUi.menuMode`).
+- The kill feed at y 180, under the score bar.
+- The 13 px drawn-text floor (`Ui.fit` / `Ui.refit`) and reduced motion in `Ui.tween`. Only the stroke snapping was dropped, because v1 has no whole-pixel strokes.
+- The whole phone and touch-tablet layout (`PhoneHudController`, `Util/Device`): compact draft cards, the details sheet, the pinned gun bar and touch buttons of 72 design px or more. The gun bar and the sheet now draw as v1 cut shapes.
+
+**Couldn't keep:** nothing functional was lost. Two v2-only tweaks went with the look:
+- the 0.1 empty-slot fill: slots are back to v1's 0.28;
+- the opaque rounded plates: the v1 plate images are used as they are.
+
+**Checked in play mode** (1v1 bot match, match place, 2026-11-05 ~15:45), on desktop 2179 x 964 and with `ForceLayout = "phone"` + `ForceTouchUI`:
+- desktop: score bar 8 px under Roblox's bar; player list off; chat centred on the left with nothing of ours under it; kill-feed rows under and right of the bar;
+- phone: the draft opens on the cards under the gold cut-corner gun bar, nothing clipped, smallest text 13.3 px drawn;
+- phone: the details sheet opens on hold / right-click;
+- phone HUD: score bar, health, kill feed and ammo are all on screen with no overlaps.
+
+Not tested on a real phone. Screenshots are in `vault/02 Art/References/match-ui/v1-revert-20261105/`.
+
+---
+
+## v2 history (2026-11-05, reverted the same evening)
 
 The in-match UI now uses the same v2 look as the Lobby ([Lobby UI and Queue](Lobby%20UI%20and%20Queue.md) section 8), so the whole game reads as one product. It covers the score bar, the draft (Mod pick), health and ammo, the ability slots, the kill feed with the ELIMINATED pop-up, and the round and match banners. The v1 layout and behaviour are unchanged ([UI Design](../02%20Art/UI%20Design.md)); only the look and the three bug classes changed.
 
