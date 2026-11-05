@@ -215,8 +215,47 @@ At all three sizes text is 13 px or more and there's no overflow. The detail she
 
 Screenshots: `phone-draft-compact-cards.jpg`, `phone-detail-sheet.jpg`, `phone-hud-live-forced.jpg`, `figma-phone-compact-card.png` (Figma, Screens page, y 7720).
 
-**Not done:** the re-score with three fresh blind reviewers. It was started but stopped when the usage limit was reached, so the last recorded score is still 6.7 (from before the compact cards). Re-run `lihfolk:quality-score` on the screenshots above.
+**Re-scored later the same afternoon:** see "Phone re-score and fix rounds" below.
 
 **Known gap:** a long-press opens the sheet, and releasing it also picks the card.
 
 **Check tonight:** on a phone (or with ForceLayout = "phone" and ForceTouchUI), the draft should open with the full ability row visible. Hold a card: the sheet should show its full text.
+
+### Phone re-score and fix rounds (2026-11-05, afternoon)
+Each round had three fresh blind Sonnet reviewers (`lihfolk:quality-score`, rubric `ui.md`), taking the median per criterion.
+
+| Round | What changed before it | Reviewers | Median | Gates |
+|---|---|---|---|---|
+| A | compact cards + details sheet (`c08bbea`, `79fe1ba`) | 6.7 / 5.0 cap / 7.1 | **7.1** (U1 1, U2 2, U3 2, U4 1, U5 1, U6 2) | 2 of 3 pass |
+| B | pinned gun bar (gold "PICK A GUN FIRST" until picked, tap = scroll to guns), always opens on the card row, bigger sheet and hint (`95acdba`) | 7.1 / 5.0 cap / 8.3 | **7.9** (U1 2, U2 2, U3 2, U4 1, U5 1, U6 1) | 2 of 3 pass |
+| C | bigger card descriptions (13.5 / 15.6 px), gamepad focus on the first draft card, stronger touch-button contrast, health 14 / 11 px clear of the thumbstick quarter; fresh phone-size captures (`11124bb`, `cf31cd8`) | 6.7 / 5.8 / 7.5 | **6.7** (U1 1, U2 2, U3 2, U4 1, U5 1, U6 1) | **3 of 3 pass** |
+
+That's the three fix rounds the stop rule allows, so this stops **below the 8.5 bar**.
+
+All gates now pass. The scores are held down by:
+- U4 motion and U6 performance, which no still image can show;
+- U5: the footer (clock, hint, enemy kit) and the plate labels on the 844 x 390 phone draw at about 13 px and read as small;
+- U1: on a phone the guns sit behind the gold bar (one tap away);
+- the details sheet lets the cards behind it ghost through;
+- LOCK IN looks disabled next to the loud gold bar.
+
+Round C fell from B partly because each round has new reviewers looking at new captures. The phone layout didn't get worse.
+
+Captures: `phone-final-draft-and-sheet.jpg`, `phone-final-hud.jpg`, `phone-draft-gun-bar*.jpg`.
+
+**Next, if you want to push it over 8.5:**
+1. Make the details sheet opaque.
+2. Give the footer one line and 15+ px text on 844-wide phones.
+3. Show the gun choice as a compact chip strip at the top instead of behind a tap.
+4. Record a short phone clip so reviewers can judge motion.
+5. Test on a real phone.
+
+### Check tonight (phone, updated)
+1. On a phone, or in Studio with `ForceLayout = "phone"`, `ForceTouchUI = true` and `BotMatch = "1v1"`:
+   - the draft opens on the ability cards under a gold "PICK A GUN FIRST" bar;
+   - tapping the bar scrolls up to the guns;
+   - once you pick, the bar reads "GUN: X  CHANGE".
+2. Hold a card for its details sheet; tap to close it. Releasing the hold also picks that card, so say if that feels wrong.
+3. With a gamepad, the draft should start with a card selected.
+4. In a round, check that touch buttons read clearly over bright maps, health sits clear of the thumbstick, and the ammo count is easy to read.
+5. A real phone test, since none of this ran on a device.
