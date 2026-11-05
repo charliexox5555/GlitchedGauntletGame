@@ -11,6 +11,7 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 ## 💡 Ideas
 | Idea | Why it might be good | Parked until |
 |---|---|---|
+| **LihFolk gap review (2026-11-05):** 15 items: 2-player and lag tests, aim assist, death recap and spectating, saved data and settings, teammate markers, rematch, analytics, first session, leavers, hitboxes, comfort, hold/toggle, ping and volume, remote abuse tests; plus quick wins. Full list: [LihFolk Gap Review 2026-11-05](LihFolk%20Gap%20Review%202026-11-05.md) | The user approved the list as good, to be taken in phases | After the current phase (maps and UI concepts) |
 | Loser picks one gun from the next tier up | Comeback lever (see Weapons) | Playtest #1 |
 | Ranked split pools by input | Mobile/PC fairness | Ranked phase |
 | **Decide (2026-11-03 upgrades):** rename one of the two "Crash" glitches (Updraft's *Crash Down*, Recall's *Crash Recovery*) | They read alike on draft cards | User's morning review |

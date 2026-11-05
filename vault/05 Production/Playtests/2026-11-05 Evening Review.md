@@ -29,6 +29,9 @@ The user played the day's work ([Day Plan 2026-11-05](../Day%20Plan%202026-11-05
   - ChatGPT image generation for map concepts, structures and texture swatches.
   - Claude Design is for page and UI layouts, not 3D environment concepts. Consider it for the UI pass later.
 
+- **LihFolk gap review:** the user likes the whole list, but it waits. The work goes in phases, and the current phase is only what the user picks: maps and UI concepts. The list is parked in [Bugs & Ideas](../Bugs%20%26%20Ideas.md).
+- **ChatGPT:** the user uses the ChatGPT/Codex desktop app, not chatgpt.com in a browser.
+
 ## Actions
 - Lane E (`lobby-ui-2`): revert the match screens to the v1 look. Keep the inset, clearance and phone-layout fixes where they work under v1.
 - Lane E, after that: UI concept pass (reference board, ChatGPT screens, Figma). Results go in [Lobby UI and Queue](../../01%20Design/Lobby%20UI%20and%20Queue.md).
