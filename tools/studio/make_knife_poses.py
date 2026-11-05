@@ -39,15 +39,17 @@ ACTION4 = "Action4"
 
 
 def ready(breath=0.0):
-	# Same as MakeCombatPoseAnimations knifeReady(0) (GG_KnifeReady).
+	# A compact forward guard (round 2, reviewers: the old ready read as
+	# splayed): knife hand forward at chest height, blade up and forward,
+	# free hand up in front as a guard, chest bladed a little.
 	return {
-		"UpperTorso": (2 + breath * 1.5, -6, 0),
-		"Head": (-breath, 6, 0),
-		"RightUpperArm": (52 + breath * 2, 10, 0),
-		"RightLowerArm": (46, 0, 0),
-		"RightHand": (-12, 0, 0),
-		"LeftUpperArm": (62 + breath * 2, -26, 0),
-		"LeftLowerArm": (72, 0, 0),
+		"UpperTorso": (4 + breath * 1.5, -12, 0),
+		"Head": (-breath, 12, 0),
+		"RightUpperArm": (62 + breath * 2, 14, 0),
+		"RightLowerArm": (72, 0, 0),
+		"RightHand": (-24, 0, 0),
+		"LeftUpperArm": (78 + breath * 2, -6, 0),
+		"LeftLowerArm": (60, 0, 0),
 		"LeftHand": (0, 0, 0),
 	}
 
@@ -89,15 +91,15 @@ S1_FOLLOW = pose(
 	LeftUpperArm=(40, -32, 0),
 	LeftLowerArm=(66, 0, 0),
 )
-S1_SETTLE = pose(UpperTorso=(1, -9, 0), RightUpperArm=(50, 6, 0))
+S1_SETTLE = pose(UpperTorso=(3, -16, 0), RightUpperArm=(60, 9, 0))
 
 # Slash2: backhand, from across the body out to the right.
 S2_WIND = pose(
-	UpperTorso=(4, 28, 0),
-	Head=(0, -20, 0),
-	RightUpperArm=(100, 40, 0),
-	RightLowerArm=(56, 0, 0),
-	RightHand=(0, 32, 0),
+	UpperTorso=(4, 32, 0),
+	Head=(0, -24, 0),
+	RightUpperArm=(104, 58, 0),
+	RightLowerArm=(84, 0, 0),
+	RightHand=(0, 34, 0),
 	LeftUpperArm=(46, -30, 0),
 	LeftLowerArm=(72, 0, 0),
 )
@@ -119,7 +121,7 @@ S2_FOLLOW = pose(
 	LeftUpperArm=(72, -4, 0),
 	LeftLowerArm=(70, 0, 0),
 )
-S2_SETTLE = pose(UpperTorso=(1, -3, 0), RightUpperArm=(53, 13, 0))
+S2_SETTLE = pose(UpperTorso=(5, -14, 0), RightUpperArm=(66, 10, 0))
 
 # Slash3: the finisher, an overhead chop down and forward.
 S3_WIND = pose(
@@ -149,7 +151,7 @@ S3_FOLLOW = pose(
 	LeftUpperArm=(34, -28, 0),
 	LeftLowerArm=(64, 0, 0),
 )
-S3_SETTLE = pose(UpperTorso=(-1, -6, 0), RightUpperArm=(49, 10, 0))
+S3_SETTLE = pose(UpperTorso=(2, -13, 0), RightUpperArm=(59, 12, 0))
 
 # Heavy: both hands, pull back, hold the coil, thrust.
 H_COIL = pose(
@@ -157,7 +159,7 @@ H_COIL = pose(
 	Head=(-2, 22, 0),
 	RightUpperArm=(36, -26, 0),
 	RightLowerArm=(100, 0, 0),
-	RightHand=(12, 0, 0),
+	RightHand=(-62, 0, 0),
 	LeftUpperArm=(52, 26, 0),
 	LeftLowerArm=(96, 0, 0),
 	LeftHand=(0, 0, 0),
@@ -168,13 +170,13 @@ H_THRUST = pose(
 	Head=(10, -8, 0),
 	RightUpperArm=(92, 8, 0),
 	RightLowerArm=(4, 0, 0),
-	RightHand=(-10, 0, 0),
+	RightHand=(-78, 0, 0),
 	LeftUpperArm=(84, 30, 0),
 	LeftLowerArm=(30, 0, 0),
 	LeftHand=(0, 0, 0),
 )
 H_OVER = pose(H_THRUST, UpperTorso=(-16, 12, 0), RightUpperArm=(95, 9, 0))
-H_SETTLE = pose(UpperTorso=(0, -8, 0), RightUpperArm=(50, 8, 0))
+H_SETTLE = pose(UpperTorso=(2, -15, 0), RightUpperArm=(60, 12, 0))
 
 # (name, [(time, pose, easing of the segment that starts here)]); every
 # key's arms are nudged clear of the torso afterwards (clear(), below).
@@ -471,6 +473,9 @@ def arm_depth(p, side):
 	return worst
 
 
+KEEP = {("UpperTorso", 1), ("RightUpperArm", 1)}
+
+
 def clear(p, limit=0.01):
 	"""Moves the joints the least it takes to keep the limbs out of the torso
 	and head while the blade tip and the guard hand stay where the key put
@@ -511,7 +516,9 @@ def clear(p, limit=0.01):
 		tip = (w["RightHand"] @ np.array([*KNIFE[1], 1]))[:3]
 		hand = w["LeftHand"][:3, 3]
 		move = np.sum((tip - tip0) ** 2) / 0.15**2 + np.sum((hand - hand0) ** 2) / 0.4**2
-		dev = sum(((x - b0) / 45) ** 2 for x, b0 in zip(v, base))
+		# The chest twist and the knife arm's swing (yaw) carry the read:
+		# moving them costs more than raising the arm or opening the elbow.
+		dev = sum(((x - b0) / (15 if (j, i) in KEEP else 45)) ** 2 for x, b0, (j, i) in zip(v, base, names))
 		return max(0.0, d - limit) * 900 + move + dev
 
 	v = list(base)
@@ -526,8 +533,8 @@ def clear(p, limit=0.01):
 					u[k] += dlt
 					if abs(u[k] - base[k]) > 60 or (j.endswith("LowerArm") and not 0 <= u[k] <= 135):
 						continue
-					# A real wrist: flexion within 60 deg, side to side within 40.
-					if j == "RightHand" and abs(u[k]) > (60 if i == 0 else 40):
+					# A real wrist: flexion within 80 deg, side to side within 40.
+					if j == "RightHand" and abs(u[k]) > (80 if i == 0 else 40):
 						continue
 					c = cost(u)
 					if c < best - 1e-9:

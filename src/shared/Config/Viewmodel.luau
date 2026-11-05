@@ -108,6 +108,9 @@ return table.freeze({
 	},
 	ARM_MESH_SIZE = Vector3.new(1, 5, 1),
 	ARM_WIDTH = 0.5,
+	-- `screen` tracks (the knife's attacks): the blade's turn trails the
+	-- hand's travel by this many seconds, so the wrist follows through.
+	SCREEN_LAG = 0.035,
 	SLEEVE_INFLATE = 1.015, -- shirt layer sits just outside the skin block
 	HAND_OVERSHOOT = 0.3, -- in arm widths: how far the block ends past the grip
 	-- A reaching arm whose block (ARM_REACH_LENGTH long from the hand) would
@@ -871,28 +874,28 @@ return table.freeze({
 				key(0, ZERO, ZERO),
 				key(
 					0.2,
-					Vector3.new(0.242, 0.336, 0.101),
-					Vector3.new(26.246, -23.526, -76.192),
+					Vector3.new(0.282, 0.416, 0.141),
+					Vector3.new(34.25, -18.528, -72.236),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
 				key(
 					0.3,
-					Vector3.new(-0.318, 0.316, -0.379),
-					Vector3.new(-17.315, 16.933, -33.856),
+					Vector3.new(-0.068, 0.076, -0.129),
+					Vector3.new(0.456, 9.673, -33.979),
 					Enum.EasingStyle.Linear
 				),
 				key(
 					0.42,
-					Vector3.new(-0.868, -0.154, -0.229),
-					Vector3.new(-24.959, 15.449, 18.383),
+					Vector3.new(-0.398, -0.184, -0.179),
+					Vector3.new(-6.474, 22.497, 15.295),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
 				key(
 					0.56,
-					Vector3.new(-0.978, -0.264, -0.119),
-					Vector3.new(-26.451, 19.521, 30.965),
+					Vector3.new(-0.498, -0.284, -0.099),
+					Vector3.new(-14.466, 24.776, 29.252),
 					Enum.EasingStyle.Sine,
 					OUT
 				),
@@ -916,28 +919,28 @@ return table.freeze({
 				key(0, ZERO, ZERO),
 				key(
 					0.2,
-					Vector3.new(-0.438, 0.356, 0.041),
-					Vector3.new(34.677, 13.753, 6.377),
+					Vector3.new(-0.498, 0.296, 0.021),
+					Vector3.new(27.328, 27.807, 6.662),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
 				key(
 					0.3,
-					Vector3.new(-0.668, 0.456, -0.329),
-					Vector3.new(90.025, -66.294, 142.04),
+					Vector3.new(-0.198, 0.036, -0.179),
+					Vector3.new(70.994, 32.236, 129.535),
 					Enum.EasingStyle.Linear
 				),
 				key(
 					0.42,
-					Vector3.new(0.082, -0.104, -0.179),
-					Vector3.new(-52.461, -87.428, 4.256),
+					Vector3.new(0.232, -0.124, -0.129),
+					Vector3.new(69.257, -67.144, 111.986),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
 				key(
 					0.56,
-					Vector3.new(0.232, -0.224, -0.079),
-					Vector3.new(-35.57, -82.344, 26.627),
+					Vector3.new(0.332, -0.224, -0.029),
+					Vector3.new(55.596, -82.049, 103.268),
 					Enum.EasingStyle.Sine,
 					OUT
 				),
@@ -968,8 +971,8 @@ return table.freeze({
 				),
 				key(
 					0.33,
-					Vector3.new(-0.218, 0.366, -0.429),
-					Vector3.new(12.357, -25.086, 28.405),
+					Vector3.new(-0.168, 0.096, -0.179),
+					Vector3.new(29.763, -13.445, 25.116),
 					Enum.EasingStyle.Linear
 				),
 				key(
@@ -1013,26 +1016,30 @@ return table.freeze({
 				),
 				key(
 					0.3,
-					Vector3.new(0.102, -0.024, 0.171),
-					Vector3.new(9.288, -19.274, 27.856),
+					Vector3.new(0.182, 0.176, 0.461),
+					Vector3.new(53.685, 52.314, 161.422),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
-				key(0.38, Vector3.new(0.122, -0.034, 0.201), Vector3.new(9.288, -19.274, 27.856)),
+				key(0.38, Vector3.new(0.202, 0.166, 0.501), Vector3.new(53.685, 52.314, 161.422)),
 				key(
 					0.44,
 					Vector3.new(-0.198, 0.196, -0.629),
-					Vector3.new(18.213, -16.274, 23.837),
+					Vector3.new(32.908, 49.464, -175.199),
 					Enum.EasingStyle.Linear
 				),
 				key(
 					0.5,
 					Vector3.new(-0.218, 0.216, -0.739),
-					Vector3.new(18.213, -16.274, 23.837),
+					Vector3.new(32.908, 49.464, -175.199),
 					Enum.EasingStyle.Quad,
 					OUT
 				),
-				key(0.62, Vector3.new(-0.208, 0.206, -0.699), Vector3.new(18.213, -16.274, 23.837)),
+				key(
+					0.62,
+					Vector3.new(-0.208, 0.206, -0.699),
+					Vector3.new(32.908, 49.464, -175.199)
+				),
 				key(
 					0.88,
 					Vector3.new(0.01, 0, 0.02),

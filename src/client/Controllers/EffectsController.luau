@@ -1144,8 +1144,8 @@ function EffectsController.knifeSwipe(
 	-- (LihFolk three tones: white rim, body, dark).
 	for k, look in
 		{
-			{ width = 0.06, color = WHITE, emission = 1 },
-			{ width = 0.2, color = Color3.fromHex("34404F"), emission = 0 }, -- dark steel: reads on bright floors
+			{ width = 0.09, color = WHITE, emission = 1 },
+			{ width = 0.3, color = Color3.fromHex("34404F"), emission = 0 }, -- dark steel: reads on bright floors
 		}
 	do
 		local b = Instance.new("Beam")

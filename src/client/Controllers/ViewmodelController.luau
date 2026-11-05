@@ -293,7 +293,7 @@ local TURN_SLOTS = { Equip = true, Reload = true, Inspect = true }
 
 -- A `screen` track's offset at `t`: each key as a CFrame, eased between them
 -- with CFrame:Lerp, so the turn takes the shortest way (a slerp).
-local function sampleFrame(track: VM.Track, t: number): CFrame
+local function sampleKeys(track: VM.Track, t: number): CFrame
 	local keys = track.keys
 	local prev = keys[1]
 	local function at(k: VM.Key): CFrame
@@ -334,7 +334,12 @@ local function trackOffset(gun: Gun, mirror: boolean, screen: boolean): CFrame
 		end
 		if screen then
 			local t = math.clamp(p.time / p.length, 0, 1)
-			local full = sampleFrame(p.track, t)
+			-- The blade's turn trails the hand's travel by SCREEN_LAG (the
+			-- wrist follows through: overlapping action, not one rigid piece).
+			local lag = VM.SCREEN_LAG / math.max(p.length, 1e-3)
+			local travel = sampleKeys(p.track, t)
+			local wrist = sampleKeys(p.track, math.max(t - lag, 0))
+			local full = CFrame.new(travel.Position) * wrist.Rotation
 			if mirror then
 				local pos, rx, ry, rz = full.Position, full:ToEulerAnglesXYZ()
 				full = CFrame.new(mirrorPos(pos)) * CFrame.Angles(rx, -ry, -rz)

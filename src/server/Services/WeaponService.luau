@@ -15,6 +15,7 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
+local Animations = require(Shared.Config.Animations)
 local Combat = require(Shared.Config.Combat)
 local DashMod = require(Shared.Mods.Dash)
 local MatchState = require(Shared.MatchState)
@@ -315,7 +316,8 @@ local function holdModel(
 	character: Model,
 	templateId: string,
 	handName: string,
-	name: string
+	name: string,
+	gripC0: CFrame?
 ): Model?
 	local template = weaponTemplate(templateId)
 	local hand = character:FindFirstChild(handName)
@@ -343,9 +345,10 @@ local function holdModel(
 	grip.Name = "WeaponGrip"
 	grip.Part0 = hand
 	grip.Part1 = handle
-	grip.C0 = GRIP_C0
+	local c0 = gripC0 or GRIP_C0
+	grip.C0 = c0
 	grip.Parent = handle
-	handle.CFrame = hand.CFrame * GRIP_C0
+	handle.CFrame = hand.CFrame * c0
 	model.Parent = character
 	return model
 end
@@ -364,7 +367,12 @@ function WeaponService.attachWorldModel(character: Model, id: string?): Model?
 	end
 	local config = Weapons.get(id)
 	local rightId = if config and config.models then config.models.right else id
-	local model = holdModel(character, rightId, "RightHand", "WorldWeapon")
+	-- Melee: the blade sticks forward out of the fist (Config/Animations
+	-- KNIFE_WORLD_GRIP), not along the forearm like a gun's grip.
+	local gripC0 = if config and config.fireMode == "Melee"
+		then Animations.KNIFE_WORLD_GRIP
+		else nil
+	local model = holdModel(character, rightId, "RightHand", "WorldWeapon", gripC0)
 	if model then
 		model:SetAttribute("WeaponId", id)
 	end

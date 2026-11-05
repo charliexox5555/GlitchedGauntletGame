@@ -69,15 +69,15 @@ return table.freeze({
 		-- A weapon swap: the new gun comes in low and rises (played at its
 		-- equipTime; made DRAW_LENGTH long).
 		Draw = id(118928673381535),
-		KnifeReady = id(114554609477227), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
+		KnifeReady = id(137684522801301), -- 2026-11-05: arms cleared of the torso (was 98422551486900)
 		-- Knife swings (2026-11-05, tools/studio/make_knife_poses.py; every
 		-- frame keeps the limbs within 0.015 studs of the torso on the block
 		-- rig). The old single slash was 103765524428295, the old heavy
 		-- 87481489934854.
-		KnifeSlash = id(96887443332398), -- GG_KnifeSlash1: forehand (SwingStep 1)
-		KnifeSlash2 = id(72973646989403), -- GG_KnifeSlash2: backhand (SwingStep 2)
-		KnifeSlash3 = id(80678668456867), -- GG_KnifeSlash3: the overhead chop (SwingStep 3)
-		KnifeHeavy = id(113665376419118), -- GG_KnifeHeavy: pull back, coil, thrust
+		KnifeSlash = id(120075368789466), -- GG_KnifeSlash1: forehand (SwingStep 1)
+		KnifeSlash2 = id(114967799820164), -- GG_KnifeSlash2: backhand (SwingStep 2)
+		KnifeSlash3 = id(137186406401882), -- GG_KnifeSlash3: the overhead chop (SwingStep 3)
+		KnifeHeavy = id(95581858309258), -- GG_KnifeHeavy: pull back, coil, thrust
 	}),
 	-- The left hand on each gun's LeftGrip (GripController IK, every visible
 	-- character, 2026-11-04). Positions in studs, angles in degrees.
@@ -124,6 +124,14 @@ return table.freeze({
 		heavy = table.freeze({ size = 0.5, stretch = Vector2.new(1.1, 0.5) }),
 		tint = Color3.fromHex("5A5550"),
 	}),
+
+	-- The knife in third person (WeaponService world model): its handle sits
+	-- in the fist with the blade pointing forward out of it (the hand's -Z),
+	-- a forward grip. Guns use a grip turned -90 deg about X, which ran the
+	-- knife's blade straight along the forearm, hidden in the body whenever
+	-- the arm crossed it. tools/studio/make_knife_poses.py keys the clips for
+	-- this grip.
+	KNIFE_WORLD_GRIP = CFrame.new(0, -0.15, -0.05),
 
 	-- Knife feel (2026-11-05, lane F; LihFolk Hit-Stop and Screen Shake Tuning
 	-- by Numbers, Camera Shake and Camera FX, Slash VFX Recipes). Per attack:
@@ -175,7 +183,7 @@ return table.freeze({
 		recover = 0.14,
 		hitShake = 0.25, -- degrees, after the stop
 		swipeSweep = 0.11, -- seconds for the streak's head to cross (the strike + follow)
-		swipeWhiff = 0.55, -- streak strength on a whiff (a hit: 1)
+		swipeWhiff = 0.8, -- streak strength on a whiff (a hit: 1)
 		-- Seconds into the whoosh files where they peak (tools/audio/build_sfx.py
 		-- cuts every take to this) and how long before contact the peak lands.
 		whooshPeak = table.freeze({ light = 0.06, heavy = 0.09 }),
