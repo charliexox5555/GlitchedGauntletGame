@@ -37,12 +37,12 @@ ROWS = {
 		"Roof2_Plank": (971, 1059),
 	},
 	"Dockyard2": {
-		"Dock2_Corrugated": (209, 357),
+		"Dock2_Corrugated": (209, 357, 1),  # stretched once: continuous vertical ribs, no seams
 		"Dock2_Cladding": (373, 508),
 		"Dock2_Grate": (524, 648),
 		"Dock2_Plank": (664, 798),
-		"Dock2_Concrete": (814, 904),
-		"Dock2_Plate": (1044, 1139),
+		"Dock2_Concrete": (814, 904, 2),  # slab joints every half tile
+		"Dock2_Plate": (1044, 1139, 2),
 	},
 }
 X_MARGIN = 10  # the sheet's outer border

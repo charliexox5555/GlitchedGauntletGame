@@ -1105,6 +1105,89 @@ def party_corner():
 	emit(c, P)
 
 
+
+
+# ---- fix round 1 (2026-11-05 evening): modelled pier caps, blank trestle billboards, city blocks with silhouettes
+
+def pier_cap():
+	# Origin: bottom centre of the greybox cap (1.6 square, 0.2 tall at pier top). A chunky cobalt cap: a chamfered
+	# slab and a hipped top, 0.75 tall (above the collision; visual only), as on the concept's parapets.
+	c = piece("PierCap")
+	P = roles()
+	P["Accent"].append(RB(-0.92, 0.92, -0.02, 0.34, -0.92, 0.92, 0.08, 1))
+	P["Accent"].append(frustum(-0.82, 0.82, -0.82, 0.82, 0.34, 0.76, 0.42, 0.42, 0.06))
+	emit(c, P)
+
+
+def billboard3():
+	# Billboard22 (floor centre between the legs, legs at x +-7, panel 22 x 10 at 9-19, face +Z): toned down after
+	# the v2 side by side so the tank stays the one landmark: a blank cream panel in a charcoal frame on two braced
+	# steel trestles with a service catwalk, cobalt caps on the trestle tops (the concept's language). No words.
+	c = piece("Billboard22")
+	P = roles()
+	for x in (-7.0, 7.0):
+		for dz in (-0.9, 0.9):
+			P["Charcoal"].append(beam((x - 0.9, 0.0, dz), (x - 0.7, 19.6, dz * 0.6), 0.36, 0.36))
+			P["Charcoal"].append(beam((x + 0.9, 0.0, dz), (x + 0.7, 19.6, dz * 0.6), 0.36, 0.36))
+		for y0, y1 in ((0.6, 4.6), (4.6, 8.6)):
+			P["Charcoal"].append(beam((x - 0.85, y0, 0.0), (x + 0.8, y1, 0.0), 0.2, 0.2))
+			P["Charcoal"].append(beam((x + 0.85, y0, 0.0), (x - 0.8, y1, 0.0), 0.18, 0.2))
+		P["Charcoal"].append(RB(x - 1.2, x + 1.2, -0.05, 0.35, -1.2, 1.2, BT, ST))
+		P["Accent"].append(frustum(x - 1.0, x + 1.0, -0.75, 0.75, 19.6, 20.25, 0.3, 0.2, 0.06))
+	# service catwalk along the front under the panel, with a rail
+	P["Metal"].append(RB(-10.8, 10.8, 8.3, 8.6, 0.4, 2.0, BT, ST))
+	for x in [-10.4 + 2.6 * k for k in range(9)]:
+		P["Charcoal"].append(RB(x - 0.16, x + 0.16, 8.6, 10.9, 1.7, 2.0))
+	P["Charcoal"].append(RB(-10.8, 10.8, 10.9, 11.15, 1.65, 2.05, BT, ST))
+	ring = ring_prism(rrect(22.0, 10.0, 0.4, 2, 0.0, 14.0), rrect(21.0, 9.0, 0.25, 2, 0.0, 14.0), -0.5, 0.5, "Y")
+	P["Charcoal"].append(finish(ring, BT, 1))
+	P["Cloth"].append(RB(-10.55, 10.55, 9.5, 18.5, -0.32, 0.32))
+	for x in (-6.0, 0.0, 6.0):
+		P["Charcoal"].append(RB(x - 0.1, x + 0.1, 18.9, 19.9, 0.3, 1.4))
+		P["Charcoal"].append(RB(x - 0.5, x + 0.5, 19.6, 20.0, 1.0, 1.8, BT, ST))
+		P["GlowWarm"].append(RB(x - 0.4, x + 0.4, 19.5, 19.62, 1.1, 1.7))
+	emit(c, P)
+
+
+def city2(name, W, Dp, H, seed):
+	# Backdrop block (base centre, front +X): a plinth, a main shaft with recessed window rows and pier strips, a
+	# cornice, a setback upper storey, and roof furniture (a small tank, a stair hut, an antenna), so the skyline
+	# reads as buildings, not striped slabs (LihFolk Spending Triangles Where the Camera Looks: simple, but real
+	# silhouettes). Colour by tone (Wall role) and the map's haze.
+	c = piece(name, height=H)
+	P = roles()
+	hx, hz = W / 2, Dp / 2
+	top = H * 0.82
+	P["Wall"].append(RB(-hx, hx, 0.0, top, -hz, hz))
+	P["Stone"].append(RB(-hx - 0.4, hx + 0.4, -0.05, 6.0, -hz - 0.4, hz + 0.4))
+	P["Stone"].append(RB(-hx - 0.9, hx + 0.9, top - 0.2, top + 1.4, -hz - 0.9, hz + 0.9))
+	for y in range(9, int(top) - 4, 8):
+		P["Window"].append(RB(hx - 0.05, hx + 0.02, y, y + 4.0, -hz + 1.5, hz - 1.5))
+		P["Window"].append(RB(-hx + 1.5, hx - 1.5, y, y + 4.0, hz - 0.02, hz + 0.05))
+		P["Window"].append(RB(-hx + 1.5, hx - 1.5, y, y + 4.0, -hz - 0.05, -hz + 0.02))
+		P["Window"].append(RB(-hx - 0.02, -hx + 0.05, y, y + 4.0, -hz + 1.5, hz - 1.5))
+	for t in [-hz + 1.5 + 3.0 * k for k in range(int((Dp - 3) / 3) + 1)]:
+		P["Wall"].append(RB(hx - 0.01, hx + 0.35, 6.0, top - 0.2, t - 0.45, t + 0.45))
+		P["Wall"].append(RB(-hx - 0.35, -hx + 0.01, 6.0, top - 0.2, t - 0.45, t + 0.45))
+	for t in [-hx + 1.5 + 3.0 * k for k in range(int((W - 3) / 3) + 1)]:
+		P["Wall"].append(RB(t - 0.45, t + 0.45, 6.0, top - 0.2, hz - 0.01, hz + 0.35))
+		P["Wall"].append(RB(t - 0.45, t + 0.45, 6.0, top - 0.2, -hz - 0.35, -hz + 0.01))
+	# setback storey and its cornice
+	sx, sz = hx * (0.55 + 0.15 * (seed % 2)), hz * 0.7
+	P["Wall"].append(RB(-sx, sx, top + 1.4, H - 0.8, -sz, sz))
+	P["Stone"].append(RB(-sx - 0.5, sx + 0.5, H - 0.8, H, -sz - 0.5, sz + 0.5))
+	# roof furniture
+	tx, tz = (hx * 0.6, -hz * 0.55) if seed % 2 else (-hx * 0.55, hz * 0.5)
+	for dx in (-1.2, 1.2):
+		for dz in (-1.2, 1.2):
+			P["Charcoal"].append(RB(tx + dx - 0.15, tx + dx + 0.15, top + 1.3, top + 4.0, tz + dz - 0.15, tz + dz + 0.15))
+	P["Wood"].append(lathe_at(tx, tz, [(0.0, top + 9.2), (1.9, top + 8.0), (1.9, top + 4.0)], 12))
+	if seed % 3 == 0:
+		P["Charcoal"].append(RB(-0.2, 0.2, H, H + 9.0, -0.2, 0.2))
+		P["Charcoal"].append(RB(-1.6, 1.6, H + 5.0, H + 5.2, -0.1, 0.1))
+	emit(c, P)
+
+
 # ---------------------------------------------------------------- build
 
 def build():
@@ -1141,7 +1224,8 @@ def build():
 	hut2("TankHouse", 10, 10, 8)
 	p_cooling()
 	water_tank2()
-	p_billboard()
+	billboard3()
+	pier_cap()
 	p_roof_sign()
 	p_spawn_sign("A")
 	p_spawn_sign("B")
@@ -1156,9 +1240,9 @@ def build():
 	crate("CrateSmall", 2.0)
 	barrel()
 	party_corner()
-	city("CityA", 28, 24, 64)
-	city("CityB", 24, 24, 90)
-	city("CityC", 30, 30, 120)
+	city2("CityA", 28, 24, 64, 1)
+	city2("CityB", 24, 24, 90, 2)
+	city2("CityC", 30, 30, 120, 3)
 	tris = {}
 	for n, col in D.PIECES.items():
 		t = 0

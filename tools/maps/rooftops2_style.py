@@ -89,6 +89,10 @@ TONE = {
     "city1": "D9B49A",
     "city2": "BFCBC2",
     "city3": "E2C79C",
+    # the far ring (fix round 1): pale, low-saturation, close to the haze (Atmosphere colour 246,204,166)
+    "far0": "E6CDBB",
+    "far1": "D9C6C0",
+    "far2": "EAD7C2",
 }
 FRAME_SHADE = 0.8
 BACKDROP = ["C9B79A", "B9A07F", "A9B5A2", "D2BFA0", "9FA9B3", "C4A48A"]
@@ -115,11 +119,11 @@ LIGHTING = {
     "ClockTime": 17.1,  # round 1: lower, warmer sun (reviewers read 16.3 as neutral midday)
     "GeographicLatitude": 23.5,
     "Brightness": 3.2,
-    "Ambient": (96, 98, 122),
-    "OutdoorAmbient": (108, 114, 158),  # round 8: deeper cool shade against the warm sun
+    "Ambient": (112, 108, 128),  # fix round 1: brighter, warmer shade (walls read flat and dark in v2)
+    "OutdoorAmbient": (150, 142, 172),  # round 8: deeper cool shade against the warm sun
     "ColorShift_Top": (255, 178, 110),
     "ColorShift_Bottom": (0, 0, 0),
-    "EnvironmentDiffuseScale": 0.12,
+    "EnvironmentDiffuseScale": 0.35,
     "EnvironmentSpecularScale": 0.15,
     "ExposureCompensation": -0.15,  # round 4: cream and peach were blowing out
     "GlobalShadows": True,
@@ -128,7 +132,7 @@ LIGHTING = {
 FX = {
     "Atmosphere": {"Density": 0.3, "Offset": 0.25, "Color": (246, 204, 166), "Decay": (214, 160, 150), "Glare": 0.7, "Haze": 1.4},
     "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
-    "Grade": {"Brightness": 0.02, "Contrast": 0.18, "Saturation": 0.14, "TintColor": (255, 236, 214)},
+    "Grade": {"Brightness": 0.02, "Contrast": 0.12, "Saturation": 0.08, "TintColor": (255, 236, 214)},
     "SunRays": {"Intensity": 0.18, "Spread": 0.7},
 }
 LAMP = {"color": (255, 214, 170), "brightness": 1.6, "range": 30}

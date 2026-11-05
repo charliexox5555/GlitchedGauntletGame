@@ -67,7 +67,7 @@ local ROLE: { [string]: RoleLook } = {
 	GlowWest = { color = "FFB14A", material = "Neon", variant = "" },
 	GlowEast = { color = "7CD0FF", material = "Neon", variant = "" },
 }
-local TONE: { [string]: string } = { teamA = "E3AA84", teamB = "A9C2B0", tower = "D4B98F", pit = "C8A983", city0 = "E8D3B4", city1 = "D9B49A", city2 = "BFCBC2", city3 = "E2C79C" }
+local TONE: { [string]: string } = { teamA = "E3AA84", teamB = "A9C2B0", tower = "D4B98F", pit = "C8A983", city0 = "E8D3B4", city1 = "D9B49A", city2 = "BFCBC2", city3 = "E2C79C", far0 = "E6CDBB", far1 = "D9C6C0", far2 = "EAD7C2" }
 local FRAME_SHADE = 0.8
 local BACKDROP: { string } = { "C9B79A", "B9A07F", "A9B5A2", "D2BFA0", "9FA9B3", "C4A48A" }
 local VARIANTS: { [string]: { any } } = {
@@ -86,26 +86,29 @@ local PART_ROLE: { [string]: string } = {
 	["ACUnit_Stone"] = "Stone",
 	["Barrel_Charcoal"] = "Charcoal",
 	["Barrel_Wood"] = "Wood",
-	["Billboard22_Ad"] = "PosterInk",
-	["Billboard22_Band"] = "AccentSoft",
-	["Billboard22_BandBack"] = "AccentSoft",
-	["Billboard22_Border"] = "Charcoal",
-	["Billboard22_Frame"] = "Charcoal",
-	["Billboard22_LampGlow_Glow"] = "GlowWarm",
-	["Billboard22_Lamps"] = "Charcoal",
-	["Billboard22_Panel"] = "Poster",
+	["Billboard22_Accent"] = "Accent",
+	["Billboard22_Charcoal"] = "Charcoal",
+	["Billboard22_Cloth"] = "Cloth",
+	["Billboard22_GlowWarm_Glow"] = "GlowWarm",
+	["Billboard22_Metal"] = "Metal",
 	["Catwalk8_Charcoal"] = "Charcoal",
 	["Catwalk8_Wood"] = "Wood",
 	["Chevron_Paint"] = "Chevron",
-	["CityA_Cap"] = "Trim",
+	["CityA_Charcoal"] = "Charcoal",
+	["CityA_Stone"] = "Stone",
 	["CityA_Wall"] = "Wall",
-	["CityA_Windows"] = "Window",
-	["CityB_Cap"] = "Trim",
+	["CityA_Window"] = "Window",
+	["CityA_Wood"] = "Wood",
+	["CityB_Charcoal"] = "Charcoal",
+	["CityB_Stone"] = "Stone",
 	["CityB_Wall"] = "Wall",
-	["CityB_Windows"] = "Window",
-	["CityC_Cap"] = "Trim",
+	["CityB_Window"] = "Window",
+	["CityB_Wood"] = "Wood",
+	["CityC_Charcoal"] = "Charcoal",
+	["CityC_Stone"] = "Stone",
 	["CityC_Wall"] = "Wall",
-	["CityC_Windows"] = "Window",
+	["CityC_Window"] = "Window",
+	["CityC_Wood"] = "Wood",
 	["Condenser_Body"] = "Metal",
 	["Condenser_Fan"] = "Charcoal",
 	["CoolingTower_Body"] = "Metal",
@@ -198,6 +201,7 @@ local PART_ROLE: { [string]: string } = {
 	["PenthouseB_Trim"] = "Trim",
 	["PenthouseB_Wall"] = "Wall",
 	["PenthouseB_Window"] = "Window",
+	["PierCap_Accent"] = "Accent",
 	["PlankRamp16_Charcoal"] = "Charcoal",
 	["PlankRamp16_Wood"] = "Wood",
 	["Planter_Plant"] = "Plant",
@@ -698,8 +702,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = 57.24,
 		yaw = 168.541,
-		tone = "city0",
-		scale = 0.91,
+		tone = "far0",
+		scale = 0.7,
 	},
 	{
 		sec = "Skyline",
@@ -708,8 +712,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = 139.257,
 		yaw = 142.827,
-		tone = "city1",
-		scale = 1.22,
+		tone = "far1",
+		scale = 0.89,
 	},
 	{
 		sec = "Skyline",
@@ -718,8 +722,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = 236.98,
 		yaw = 117.112,
-		tone = "city2",
-		scale = 1.28,
+		tone = "far2",
+		scale = 0.93,
 	},
 	{
 		sec = "Skyline",
@@ -728,8 +732,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = 288.032,
 		yaw = 91.398,
-		tone = "city3",
-		scale = 1.17,
+		tone = "far0",
+		scale = 0.86,
 	},
 	{
 		sec = "Skyline",
@@ -738,8 +742,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = 251.837,
 		yaw = 65.684,
-		tone = "city0",
-		scale = 0.93,
+		tone = "far1",
+		scale = 0.72,
 	},
 	{
 		sec = "Skyline",
@@ -748,7 +752,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = 171.477,
 		yaw = 39.969,
-		tone = "city1",
+		tone = "far2",
+		scale = 0.76,
 	},
 	{
 		sec = "Skyline",
@@ -757,8 +762,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = 62.139,
 		yaw = 14.255,
-		tone = "city2",
-		scale = 1.36,
+		tone = "far0",
+		scale = 0.98,
 	},
 	{
 		sec = "Skyline",
@@ -767,8 +772,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = -52.332,
 		yaw = 348.541,
-		tone = "city3",
-		scale = 1.03,
+		tone = "far1",
+		scale = 0.78,
 	},
 	{
 		sec = "Skyline",
@@ -777,8 +782,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = -143.096,
 		yaw = 322.827,
-		tone = "city0",
-		scale = 1.17,
+		tone = "far2",
+		scale = 0.86,
 	},
 	{
 		sec = "Skyline",
@@ -787,8 +792,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = -223.367,
 		yaw = 297.112,
-		tone = "city1",
-		scale = 1.33,
+		tone = "far0",
+		scale = 0.96,
 	},
 	{
 		sec = "Skyline",
@@ -797,8 +802,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = -247.103,
 		yaw = 271.398,
-		tone = "city2",
-		scale = 1.01,
+		tone = "far1",
+		scale = 0.77,
 	},
 	{
 		sec = "Skyline",
@@ -807,8 +812,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = -252.265,
 		yaw = 245.684,
-		tone = "city3",
-		scale = 1.21,
+		tone = "far2",
+		scale = 0.89,
 	},
 	{
 		sec = "Skyline",
@@ -817,8 +822,8 @@ local PLACE: { Place } = {
 		y = -72,
 		z = -175.407,
 		yaw = 219.969,
-		tone = "city0",
-		scale = 1.01,
+		tone = "far0",
+		scale = 0.77,
 	},
 	{
 		sec = "Skyline",
@@ -827,8 +832,7 @@ local PLACE: { Place } = {
 		y = -72,
 		z = -71.294,
 		yaw = 194.255,
-		tone = "city1",
-		scale = 1.39,
+		tone = "far1",
 	},
 }
 local PARTS: { { any } } = {
@@ -862,7 +866,8 @@ local PARTS: { { any } } = {
 
 local MaterialService = game:GetService("MaterialService")
 
-local map = newMap("Rooftops2", CFrame.new(3000, 200, 0))
+local MAP_ORIGIN = CFrame.new(3000, 200, 0)
+local map = newMap("Rooftops2", MAP_ORIGIN)
 local greybox = layer("Greybox")
 
 -- The Roof2_* MaterialVariants (our trim-sheet rows plus the Lobby's tile; BasePart.Color sets the hue).
@@ -995,6 +1000,15 @@ for _, d in greybox:GetDescendants() do
 		if art and kit(STAND_IN[art] or art) then
 			hide(d)
 			hidden += 1
+		elseif look == "PierCap" and kit("PierCap") then
+			-- fix round 1: a modelled cobalt cap on every pier (the greybox cap stays the collision)
+			hide(d)
+			hidden += 1
+			put(
+				sec("Structure"),
+				"PierCap",
+				MAP_ORIGIN:ToObjectSpace(d.CFrame) * CFrame.new(0, -d.Size.Y / 2, 0)
+			)
 		elseif look and LOOK_ROLE[look] then
 			local role = LOOK_ROLE[look]
 			local tone = d:GetAttribute("Tone") :: string?

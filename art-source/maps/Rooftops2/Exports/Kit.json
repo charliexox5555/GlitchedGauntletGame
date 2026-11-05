@@ -21,14 +21,11 @@
   "Billboard22": {
    "props": {},
    "parts": [
-    "Billboard22_Frame",
-    "Billboard22_Border",
-    "Billboard22_Panel",
-    "Billboard22_Band",
-    "Billboard22_Ad",
-    "Billboard22_BandBack",
-    "Billboard22_Lamps",
-    "Billboard22_LampGlow_Glow"
+    "Billboard22_Charcoal",
+    "Billboard22_Metal",
+    "Billboard22_Accent",
+    "Billboard22_GlowWarm_Glow",
+    "Billboard22_Cloth"
    ]
   },
   "Catwalk8": {
@@ -50,8 +47,10 @@
    },
    "parts": [
     "CityA_Wall",
-    "CityA_Windows",
-    "CityA_Cap"
+    "CityA_Stone",
+    "CityA_Window",
+    "CityA_Charcoal",
+    "CityA_Wood"
    ]
   },
   "CityB": {
@@ -60,8 +59,10 @@
    },
    "parts": [
     "CityB_Wall",
-    "CityB_Windows",
-    "CityB_Cap"
+    "CityB_Stone",
+    "CityB_Window",
+    "CityB_Charcoal",
+    "CityB_Wood"
    ]
   },
   "CityC": {
@@ -70,8 +71,10 @@
    },
    "parts": [
     "CityC_Wall",
-    "CityC_Windows",
-    "CityC_Cap"
+    "CityC_Stone",
+    "CityC_Window",
+    "CityC_Charcoal",
+    "CityC_Wood"
    ]
   },
   "Condenser": {
@@ -298,6 +301,12 @@
     "PenthouseB_Door",
     "PenthouseB_GlowWarm_Glow",
     "PenthouseB_Plinth"
+   ]
+  },
+  "PierCap": {
+   "props": {},
+   "parts": [
+    "PierCap_Accent"
    ]
   },
   "PlankRamp16": {
@@ -563,154 +572,70 @@
   },
   {
    "piece": "Billboard22",
-   "name": "Billboard22_Frame",
+   "name": "Billboard22_Charcoal",
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 228,
+   "tris": 824,
    "center": [
     0.0,
-    0.0,
-    4.6
-   ],
-   "size": [
-    22.4,
-    1.1,
-    9.2
-   ]
-  },
-  {
-   "piece": "Billboard22",
-   "name": "Billboard22_Border",
-   "material": "R2_Charcoal",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "3A3F47"
-   },
-   "glow": false,
-   "tris": 224,
-   "center": [
-    0.0,
-    0.0,
-    14.0
+    -0.425,
+    9.975
    ],
    "size": [
     22.0,
-    1.0,
-    10.0
+    3.25,
+    20.05
    ]
   },
   {
    "piece": "Billboard22",
-   "name": "Billboard22_Panel",
-   "material": "R2_Poster",
+   "name": "Billboard22_Metal",
+   "material": "R2_Metal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "EADFCB"
+    "color": "A9A59C"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 44,
+   "center": [
+    0.0,
+    -1.2,
+    8.45
+   ],
+   "size": [
+    21.6,
+    1.6,
+    0.3
+   ]
+  },
+  {
+   "piece": "Billboard22",
+   "name": "Billboard22_Accent",
+   "material": "R2_Accent",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F62C8"
+   },
+   "glow": false,
+   "tris": 88,
    "center": [
     0.0,
     0.0,
-    14.0
+    19.925
    ],
    "size": [
-    21.2,
-    0.7,
-    8.9
+    15.94971,
+    1.46471,
+    0.65
    ]
   },
   {
    "piece": "Billboard22",
-   "name": "Billboard22_Band",
-   "material": "R2_AccentSoft",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "5C79AE"
-   },
-   "glow": false,
-   "tris": 12,
-   "center": [
-    0.0,
-    -0.385,
-    10.775
-   ],
-   "size": [
-    21.2,
-    0.07,
-    2.45
-   ]
-  },
-  {
-   "piece": "Billboard22",
-   "name": "Billboard22_Ad",
-   "material": "R2_PosterInk",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "5A79B2"
-   },
-   "glow": false,
-   "tris": 4220,
-   "center": [
-    0.0,
-    0.0,
-    14.7
-   ],
-   "size": [
-    20.96175,
-    1.12,
-    2.0
-   ]
-  },
-  {
-   "piece": "Billboard22",
-   "name": "Billboard22_BandBack",
-   "material": "R2_AccentSoft",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "5C79AE"
-   },
-   "glow": false,
-   "tris": 12,
-   "center": [
-    0.0,
-    0.385,
-    10.775
-   ],
-   "size": [
-    21.2,
-    0.07,
-    2.45
-   ]
-  },
-  {
-   "piece": "Billboard22",
-   "name": "Billboard22_Lamps",
-   "material": "R2_Charcoal",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "3A3F47"
-   },
-   "glow": false,
-   "tris": 168,
-   "center": [
-    0.0,
-    -1.05,
-    19.45
-   ],
-   "size": [
-    13.0,
-    1.5,
-    1.1
-   ]
-  },
-  {
-   "piece": "Billboard22",
-   "name": "Billboard22_LampGlow_Glow",
+   "name": "Billboard22_GlowWarm_Glow",
    "material": "R2_GlowWarm",
    "look": {
     "material": "Neon",
@@ -727,6 +652,27 @@
     12.8,
     0.6,
     0.12
+   ]
+  },
+  {
+   "piece": "Billboard22",
+   "name": "Billboard22_Cloth",
+   "material": "R2_Cloth",
+   "look": {
+    "material": "Fabric",
+    "color": "EFE3C8"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    14.0
+   ],
+   "size": [
+    21.1,
+    0.64,
+    9.0
    ]
   },
   {
@@ -803,58 +749,102 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 432,
    "center": [
     0.0,
     0.0,
-    32.0
+    31.6
    ],
    "size": [
-    28.0,
-    24.0,
-    64.0
+    28.7,
+    24.7,
+    63.2
    ]
   },
   {
    "piece": "CityA",
-   "name": "CityA_Windows",
+   "name": "CityA_Stone",
+   "material": "R2_Stone",
+   "look": {
+    "material": "Concrete",
+    "color": "E9D7B2",
+    "variant": "Roof2_Plaster"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    31.975
+   ],
+   "size": [
+    29.8,
+    25.8,
+    64.05
+   ]
+  },
+  {
+   "piece": "CityA",
+   "name": "CityA_Window",
    "material": "R2_Window",
    "look": {
     "material": "SmoothPlastic",
     "color": "4E5878"
    },
    "glow": false,
-   "tris": 216,
+   "tris": 240,
    "center": [
-    1.06,
     0.0,
-    35.0
+    0.0,
+    27.0
    ],
    "size": [
-    26.12,
-    24.24,
-    54.0
+    28.04,
+    24.1,
+    36.0
    ]
   },
   {
    "piece": "CityA",
-   "name": "CityA_Cap",
-   "material": "R2_Trim",
+   "name": "CityA_Charcoal",
+   "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "F2EEE4"
+    "color": "3A3F47"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 48,
    "center": [
-    0.0,
-    0.0,
-    64.6
+    8.4,
+    6.6,
+    55.13
    ],
    "size": [
-    29.2,
-    25.2,
-    1.2
+    2.7,
+    2.7,
+    2.7
+   ]
+  },
+  {
+   "piece": "CityA",
+   "name": "CityA_Wood",
+   "material": "R2_Wood",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "A7744E",
+    "variant": "Roof2_Plank"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    8.4,
+    6.6,
+    59.08
+   ],
+   "size": [
+    3.8,
+    3.8,
+    5.2
    ]
   },
   {
@@ -867,58 +857,102 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 408,
    "center": [
     0.0,
     0.0,
-    45.0
+    44.6
    ],
    "size": [
-    24.0,
-    24.0,
-    90.0
+    24.7,
+    24.7,
+    89.2
    ]
   },
   {
    "piece": "CityB",
-   "name": "CityB_Windows",
+   "name": "CityB_Stone",
+   "material": "R2_Stone",
+   "look": {
+    "material": "Concrete",
+    "color": "E9D7B2",
+    "variant": "Roof2_Plaster"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    44.975
+   ],
+   "size": [
+    25.8,
+    25.8,
+    90.05
+   ]
+  },
+  {
+   "piece": "CityB",
+   "name": "CityB_Window",
    "material": "R2_Window",
    "look": {
     "material": "SmoothPlastic",
     "color": "4E5878"
    },
    "glow": false,
-   "tris": 288,
+   "tris": 384,
    "center": [
-    1.06,
     0.0,
-    45.0
+    0.0,
+    39.0
    ],
    "size": [
-    22.12,
-    24.24,
-    74.0
+    24.04,
+    24.1,
+    60.0
    ]
   },
   {
    "piece": "CityB",
-   "name": "CityB_Cap",
-   "material": "R2_Trim",
+   "name": "CityB_Charcoal",
+   "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "F2EEE4"
+    "color": "3A3F47"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 48,
    "center": [
-    0.0,
-    0.0,
-    90.6
+    -6.6,
+    -6.0,
+    76.45
    ],
    "size": [
-    25.2,
-    25.2,
-    1.2
+    2.7,
+    2.7,
+    2.7
+   ]
+  },
+  {
+   "piece": "CityB",
+   "name": "CityB_Wood",
+   "material": "R2_Wood",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "A7744E",
+    "variant": "Roof2_Plank"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    -6.6,
+    -6.0,
+    80.4
+   ],
+   "size": [
+    3.8,
+    3.8,
+    5.2
    ]
   },
   {
@@ -931,58 +965,102 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 504,
    "center": [
     0.0,
     0.0,
-    60.0
+    59.6
    ],
    "size": [
-    30.0,
-    30.0,
-    120.0
+    30.7,
+    30.7,
+    119.2
    ]
   },
   {
    "piece": "CityC",
-   "name": "CityC_Windows",
+   "name": "CityC_Stone",
+   "material": "R2_Stone",
+   "look": {
+    "material": "Concrete",
+    "color": "E9D7B2",
+    "variant": "Roof2_Plaster"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    59.975
+   ],
+   "size": [
+    31.8,
+    31.8,
+    120.05
+   ]
+  },
+  {
+   "piece": "CityC",
+   "name": "CityC_Window",
    "material": "R2_Window",
    "look": {
     "material": "SmoothPlastic",
     "color": "4E5878"
    },
    "glow": false,
-   "tris": 396,
+   "tris": 528,
    "center": [
-    1.06,
     0.0,
-    60.0
+    0.0,
+    51.0
    ],
    "size": [
-    28.12,
-    30.24,
-    104.0
+    30.04,
+    30.1,
+    84.0
    ]
   },
   {
    "piece": "CityC",
-   "name": "CityC_Cap",
-   "material": "R2_Trim",
+   "name": "CityC_Charcoal",
+   "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "F2EEE4"
+    "color": "3A3F47"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 72,
    "center": [
-    0.0,
-    0.0,
-    120.6
+    4.375,
+    4.7,
+    114.35
    ],
    "size": [
-    31.2,
-    31.2,
-    1.2
+    11.95,
+    9.8,
+    29.3
+   ]
+  },
+  {
+   "piece": "CityC",
+   "name": "CityC_Wood",
+   "material": "R2_Wood",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "A7744E",
+    "variant": "Roof2_Plank"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    9.0,
+    8.25,
+    105.0
+   ],
+   "size": [
+    3.8,
+    3.8,
+    5.2
    ]
   },
   {
@@ -2954,6 +3032,27 @@
    ]
   },
   {
+   "piece": "PierCap",
+   "name": "PierCap_Accent",
+   "material": "R2_Accent",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F62C8"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    0.37
+   ],
+   "size": [
+    1.84,
+    1.84,
+    0.78
+   ]
+  },
+  {
    "piece": "PlankRamp16",
    "name": "PlankRamp16_Charcoal",
    "material": "R2_Charcoal",
@@ -4000,5 +4099,5 @@
    ]
   }
  ],
- "tris": 67084
+ "tris": 65244
 }

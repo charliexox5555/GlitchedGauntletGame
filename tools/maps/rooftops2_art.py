@@ -206,7 +206,8 @@ class Art:
 			r = 230 + 60 * h01("far", i)
 			x, z = r * math.cos(a), r * math.sin(a)
 			piece = ("CityB", "CityC")[i % 2]
-			self.put("Skyline", piece, x, STREET, z, (math.degrees(-a) + 180) % 360, tint="city%d" % (i % 4), scale=round(0.9 + 0.5 * h01("farscale", i), 2))
+			# fix round 1: lower, and in hazed tones near the atmosphere, so the far ring is soft silhouettes
+			self.put("Skyline", piece, x, STREET, z, (math.degrees(-a) + 180) % 360, tint="far%d" % (i % 3), scale=round(0.7 + 0.3 * h01("farscale", i), 2))
 
 	def words(self):
 		# Rooftops2: lane names painted on each team roof where the routes leave it (read walking out), named by the
