@@ -110,13 +110,15 @@ local function launch(info: Config.ModeInfo, entries: { Matchmaker.Entry })
 		`[Queue] match {matchId} found: {info.id}, {#players} player(s), bots {#players < info.teamSize * 2}`
 	)
 
-	Launcher.launch({
+	local match: Launcher.Match = {
 		id = matchId,
 		mode = info.id,
 		teamSize = info.teamSize,
 		players = players,
+		teams = teams,
 		startsAt = os.clock() + Config.matchFoundDelay,
-	}, {
+	}
+	local hooks: Launcher.Hooks = {
 		stillIn = function(p: Player): boolean
 			local s = states[p]
 			return s ~= nil and s.matchId == matchId
@@ -134,7 +136,33 @@ local function launch(info: Config.ModeInfo, entries: { Matchmaker.Entry })
 			send(p, { kind = "studio", mode = info.id, payload = json })
 			task.delay(Config.studioHold, backToLobby, p, matchId, nil)
 		end,
-	})
+	}
+
+	-- A launch that errors or hangs (e.g. reserve retries) must never strand
+	-- players on "found": they go back to the lobby with a message.
+	task.delay(Config.matchFoundDelay + Config.foundTimeout, function()
+		for _, p in players do
+			local s = states[p]
+			if s and s.matchId == matchId and s.status == "found" then
+				backToLobby(
+					p,
+					matchId,
+					"Couldn't start the match. You're back in the lobby; try again."
+				)
+			end
+		end
+	end)
+	local ok, err = pcall(Launcher.launch, match, hooks)
+	if not ok then
+		warn(`[Queue] launch {matchId} errored: {err}`)
+		for _, p in players do
+			backToLobby(
+				p,
+				matchId,
+				"Couldn't start the match. You're back in the lobby; try again."
+			)
+		end
+	end
 end
 
 local function tick()

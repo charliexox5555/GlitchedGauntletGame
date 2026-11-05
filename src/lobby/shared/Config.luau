@@ -56,6 +56,9 @@ return table.freeze({
 
 	-- The "match found" beat before the teleport (no cancel once found).
 	matchFoundDelay = 3.5,
+	-- Still "found" this long after the beat (reserve retries hung, an error) →
+	-- back to the lobby with a message.
+	foundTimeout = 20,
 	-- How often the server re-checks queues for bot fill.
 	tickInterval = 0.5,
 

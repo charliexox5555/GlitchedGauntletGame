@@ -928,7 +928,7 @@ local function showFound(payload: LobbyNet.QueueEventPayload)
 				foundCountdown.Text = "TELEPORTING..."
 			elseif st == "found" then
 				local left = math.ceil(QueueState.startsIn())
-				foundCountdown.Text = `TELEPORTING IN {left}`
+				foundCountdown.Text = if left > 0 then `TELEPORTING IN {left}` else "CONNECTING..."
 				if left ~= last and left > 0 then
 					last = left
 					Sound.play(if left == 1 then "TickFinal" else "Tick")

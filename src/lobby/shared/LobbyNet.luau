@@ -29,18 +29,21 @@ local EVENTS = { "QueueRequest", "QueueEvent" }
 
 local folder: Instance
 if RunService:IsServer() then
-	local existing = ReplicatedStorage:FindFirstChild(FOLDER_NAME)
-	if existing then
-		existing:Destroy()
+	-- Reuse a folder that already exists (a second require must never swap the
+	-- live remotes out from under the running handlers).
+	local f = ReplicatedStorage:FindFirstChild(FOLDER_NAME)
+	if not f then
+		f = Instance.new("Folder")
+		f.Name = FOLDER_NAME
+		f.Parent = ReplicatedStorage
 	end
-	local f = Instance.new("Folder")
-	f.Name = FOLDER_NAME
 	for _, name in EVENTS do
-		local r = Instance.new("RemoteEvent")
-		r.Name = name
-		r.Parent = f
+		if not f:FindFirstChild(name) then
+			local r = Instance.new("RemoteEvent")
+			r.Name = name
+			r.Parent = f
+		end
 	end
-	f.Parent = ReplicatedStorage
 	folder = f
 else
 	folder = ReplicatedStorage:WaitForChild(FOLDER_NAME)

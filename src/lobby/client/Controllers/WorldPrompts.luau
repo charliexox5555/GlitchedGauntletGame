@@ -70,7 +70,29 @@ local function attach(tag: string, hook: Hook, inst: Instance)
 	prompt.Parent = anchor
 end
 
+-- Tagged Models under StreamingEnabled: their parts can stream in after the
+-- tag, or out and back in (taking the prompt with them), so retry whenever a
+-- part arrives. (Tagging the BasePart itself, or Atomic/Persistent model
+-- streaming, avoids this altogether.)
+local watchers: { [Instance]: RBXScriptConnection } = {}
+
+local function track(tag: string, hook: Hook, inst: Instance)
+	attach(tag, hook, inst)
+	if inst:IsA("Model") and not watchers[inst] then
+		watchers[inst] = inst.DescendantAdded:Connect(function(d)
+			if d:IsA("BasePart") then
+				attach(tag, hook, inst)
+			end
+		end)
+	end
+end
+
 local function detach(inst: Instance)
+	local watcher = watchers[inst]
+	if watcher then
+		watcher:Disconnect()
+		watchers[inst] = nil
+	end
 	local anchor = anchorOf(inst)
 	local prompt = anchor and anchor:FindFirstChild(PROMPT_NAME)
 	if prompt then
@@ -81,11 +103,11 @@ end
 function WorldPrompts.start()
 	for tag, hook in HOOKS do
 		CollectionService:GetInstanceAddedSignal(tag):Connect(function(inst)
-			attach(tag, hook, inst)
+			track(tag, hook, inst)
 		end)
 		CollectionService:GetInstanceRemovedSignal(tag):Connect(detach)
 		for _, inst in CollectionService:GetTagged(tag) do
-			attach(tag, hook, inst)
+			track(tag, hook, inst)
 		end
 	end
 end
