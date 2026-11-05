@@ -248,6 +248,9 @@
     "Penthouse_WinFrames",
     "Penthouse_Band",
     "Penthouse_Pilasters.001",
+    "Penthouse_Wainscot",
+    "Penthouse_WainscotCap",
+    "Penthouse_CoveGlow_Glow",
     "Penthouse_Pipes",
     "Penthouse_Vents",
     "Penthouse_Awning",
@@ -734,10 +737,10 @@
   {
    "piece": "Chevron",
    "name": "Chevron_Paint",
-   "material": "R2_SignPit",
+   "material": "R2_Chevron",
    "look": {
     "material": "SmoothPlastic",
-    "color": "2F62C8"
+    "color": "F3E6CC"
    },
    "glow": false,
    "tris": 20,
@@ -2434,6 +2437,69 @@
   },
   {
    "piece": "Penthouse",
+   "name": "Penthouse_Wainscot",
+   "material": "R2_Plinth",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8977F"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    0.0,
+    1.775
+   ],
+   "size": [
+    35.4,
+    8.28,
+    1.65
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_WainscotCap",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 484,
+   "center": [
+    0.0,
+    0.0,
+    2.725
+   ],
+   "size": [
+    35.4,
+    8.48,
+    0.25
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_CoveGlow_Glow",
+   "material": "R2_GlowWarm",
+   "look": {
+    "material": "Neon",
+    "color": "FFE2B8"
+   },
+   "glow": true,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    9.175
+   ],
+   "size": [
+    35.4,
+    8.4,
+    0.25
+   ]
+  },
+  {
+   "piece": "Penthouse",
    "name": "Penthouse_Pipes",
    "material": "R2_Charcoal",
    "look": {
@@ -2466,7 +2532,7 @@
    "center": [
     0.0,
     4.185,
-    2.1
+    3.6
    ],
    "size": [
     32.4,
@@ -3715,5 +3781,5 @@
    ]
   }
  ],
- "tris": 38216
+ "tris": 38856
 }

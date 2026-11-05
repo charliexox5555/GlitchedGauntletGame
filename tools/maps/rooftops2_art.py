@@ -222,7 +222,7 @@ class Art:
 					self.put("Signs", "Chevron", x * sgn, 0.0, z * sgn, 0.0 if sgn > 0 else 180.0)
 				# Round 7: the side name at each court exit, past the Penthouse (named by where it lands: west = x < 0).
 				xf = (21.0 if x > 0 else -21.0) * sgn  # clear of the lift house (x 26..34)
-				self.put("Signs", "DeckWord" + ("WEST" if xf < 0 else "EAST"), xf, 0.0, 47.5 * sgn, 0.0 if sgn > 0 else 180.0)
+				self.put("Signs", "DeckWord" + ("WEST" if xf < 0 else "EAST"), (23.0 if x > 0 else -23.0) * sgn, 0.0, 42.0 * sgn, 0.0 if sgn > 0 else 180.0)  # round 8: past the lift house, uncropped
 			# Round 1: in the Pit, at the foot of each stair, the roof it climbs to (read walking toward it).
 			self.put("Signs", "DeckWordROOFB" if sgn > 0 else "DeckWordROOFA", 10.5 * sgn, L.PIT, -3.0 * sgn, 180.0 if sgn > 0 else 0.0)
 

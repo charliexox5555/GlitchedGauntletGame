@@ -7,7 +7,7 @@ The 2026-11-05 redesign of [Rooftops](Rooftops.md) in the new environment style 
 **Status (2026-11-05, lane G):** built in the match place (greybox, kit asset **78737454855986**, art and lighting).
 - **Audit 0** (1,431 visible parts).
 - Playable with `Workspace.ForceMap = "Rooftops2"`, and **not in the rotation** (no Config change at all).
-- **Blind score: see §9**, which has the final number and every round.
+- **Blind score 8.33 / 10, below the 8.5 bar** (8 fix rounds; the stop rule was reached). §9 has every round.
 - The old Rooftops is untouched.
 - ⚠ The match place must be **saved (Ctrl+S)** to keep it (the core chat saves).
 
@@ -182,20 +182,24 @@ All in **`tools/maps/rooftops2_style.py`** (as `dockyard2_style.py`): `PALETTE` 
 | 3 | 2 | 2 | 1 | 1 | 1 | 1 | 7.5 | 0 | yellow lane lines down each main lane, spawn-court planters, deeper ambient |
 | 4 | 2 | 1 | 2 | 2 | 1 | 1 | 7.92 | +0.42 | exposure -0.15, darker cream, cool street, no moon, wood decks, spawn chevrons, clipped Pit word fixed |
 | 5 | 2 | 2 | 2 | 1 | 1 | 1 | 8.33 | +0.42 | route lines round the Penthouse, bigger chevrons, TANK plates, Penthouse awning and lamps, warm doors and AC paint |
+| 6 | 2 | 1 | 2 | 2 | 1 | 1 | 7.92 (8.33 / 7.92 / 7.08) | -0.42 | Penthouse end windows, lift-tower vents and band, softer bands, awning and billboards (`AccentSoft`, `Poster`), cobalt chevrons, more sun contrast |
+| 7 | 2 | 2 | 2 | 1 | 1 | 1 | 8.33 (8.33 / 7.08 / 8.33) | +0.42 | bigger chevrons, four per court exit, WEST/EAST words past the Penthouse |
+| **8** | **2** | **2** | **1** | **2** | **1** | **1** | **8.33** (8.33 / 7.92 / 8.33) | 0 | wainscot, cap and warm cove glow on the Penthouse long faces, cream chevrons, deeper shade and grade contrast, EAST/WEST words moved past the lift house |
+
+**Final: 8.33 / 10, below the 8.5 bar.** The stop rule was reached: rounds 6 (-0.42) and 8 (0) each gained less than 0.3. Rounds 5 to 8 sit at 7.9 to 8.3, and single reviewers swing a criterion by about ±1.
+
+What the reviewers still mark down, all three in round 8:
+- **W5:** big plain wall slabs at the spawn-court exit (the 6-wide gap between the Penthouse and the lift house).
+- **W6:** oversized-looking windows, AC units and the TANK plate, with no avatar in frame.
+- **W3:** flat navy window glass and dark door voids. These two are role colours in `rooftops2_style.py` (`Window`, `Door`), so they're a one-line restyle the user can judge in play.
+
+The next fix, if wanted, is to lighten `Window` and `Door` and dress the lift-house and Penthouse ends at the court exit.
+
 
 The reviewers repeat the same small set of issues: blank walls (Penthouse ends, lift-tower faces), chevron contrast, billboards competing with the tank, and eye-level light "tuned, not striking". Fix round 6 targets all four.
 
-**Where it stopped (usage limit, 2026-11-05 ~11:10).**
-- Fix round 6 is **installed in Studio (audit 0) but not scored**. It adds:
-  - Penthouse end windows and lift-tower vents and band
-  - cobalt chevrons
-  - a softer band, awning and billboards (`AccentSoft`, `Poster`)
-  - more sun contrast
-- **Last scored: 8.33, below the 8.5 bar.** The stop rule wasn't reached, because each round gained +0.42.
-- Next: screenshots and three blind reviewers for round 6.
-
 ## What the user should check tonight
-1. Save the match place (Ctrl+S) if the core chat hasn't. Then set `ForceMap = "Rooftops2"` and play.
+1. Save the match place (Ctrl+S): fix rounds 7 and 8 were installed after the 13:59 save. Then set `ForceMap = "Rooftops2"` and play.
 2. **The look:** golden-afternoon terracotta roofs, apricot/sage plaster, a cobalt tank. Too warm? Too busy? Every colour and the light are in `tools/maps/rooftops2_style.py`.
 3. **Routes:** spawn → chevrons round the Penthouse → yellow lane lines → the PIT footbridge. Do the stairs and gangways read?
 4. **Feel:** first sight is still early (1.9 s). Do the deeper roofs and the planters help, or do the front rows need screens?

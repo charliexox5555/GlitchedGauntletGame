@@ -278,8 +278,23 @@ def p_penthouse():
 		for s in (1, -1):
 			pipes.append(RB(x - 0.18, x + 0.18, 0.9, 9.9, s * 4.05, s * 4.45, BT, ST))
 	obj(c, "Pilasters", merge(*det), "Trim")
+	# Round 8: a darker wainscot band (0.9-2.6) with a trim cap and a warm glow strip under the cornice along both long
+	# faces, so the Penthouse reads in layers from the spawn court (all three round-7 reviewers: blank long faces).
+	wain, cap, glow = [], [], []
+	for s in (1, -1):
+		mids = ((-4.2, -2.4), (2.4, 4.2)) if s > 0 else ((-4.2, 4.2),)  # the +Z face has the door (x +-1.6, frame to 2.05)
+		for x0, x1 in ((-17.7, -11.8), (-11.2, -4.8)) + mids + ((4.8, 11.2), (11.8, 17.7)):
+			wz0, wz1 = sorted((s * 3.95, s * 4.14))
+			wain.append(RB(x0, x1, 0.95, 2.6, wz0, wz1))
+			cz0, cz1 = sorted((s * 3.95, s * 4.24))
+			cap.append(RB(x0, x1, 2.6, 2.85, cz0, cz1, BT, ST))
+		gz0, gz1 = sorted((s * 4.08, s * 4.2))
+		glow.append(RB(-17.7, 17.7, 9.05, 9.3, gz0, gz1))
+	obj(c, "Wainscot", merge(*wain), "Plinth")
+	obj(c, "WainscotCap", merge(*cap), "Trim")
+	obj(c, "CoveGlow", merge(*glow), "GlowWarm")
 	obj(c, "Pipes", merge(*pipes), "Charcoal")
-	vents = [RB(x - 1.2, x + 1.2, 1.6, 2.6, -4.32, -4.05, BT, ST) for x in (-15.0, -8.0, 8.0, 15.0)]
+	vents = [RB(x - 1.2, x + 1.2, 3.1, 4.1, -4.32, -4.05, BT, ST) for x in (-15.0, -8.0, 8.0, 15.0)]  # round 8: above the wainscot
 	obj(c, "Vents", merge(*vents), "Metal")
 	# Round 5: a cobalt awning over the door (+Z face) and a warm wall lamp each side, so the spawn view has a doorway.
 	aw = [(0.0, 8.0), (1.6, 7.5), (1.6, 7.75), (0.0, 8.4)]
@@ -482,7 +497,7 @@ def p_chevron():
 	c = piece("Chevron")
 	k = 2.2  # round 7: bigger again (every round-6 reviewer still called them small)
 	pts = [(-1.6 * k, 0.8 * k), (0.0, -0.8 * k), (1.6 * k, 0.8 * k), (0.75 * k, 0.8 * k), (0.0, 0.05 * k), (-0.75 * k, 0.8 * k)]
-	obj(c, "Paint", RPY(pts, -0.05, 0.07), "SignPit")  # round 6: cobalt reads on terracotta (white was faint)
+	obj(c, "Paint", RPY(pts, -0.05, 0.07), "Chevron")  # round 8: painted cream (pure cobalt read as pasted-on slabs)
 
 
 def p_deck_word(word, role, text=None):

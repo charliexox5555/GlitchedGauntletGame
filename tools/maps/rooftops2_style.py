@@ -50,6 +50,7 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Accent": ("2F62C8", "SmoothPlastic", ""),  # cobalt: the tank and the sign plates (the 10% spike)
     "AccentSoft": ("5C79AE", "SmoothPlastic", ""),  # round 6: bands, awnings, billboard bands (softer than the tank)
     "Poster": ("EADFCB", "SmoothPlastic", ""),  # billboard panels (cream, not white)
+    "Chevron": ("F3E6CC", "SmoothPlastic", ""),  # round 8: court chevrons, warm painted cream
     "PosterInk": ("5A79B2", "SmoothPlastic", ""),  # billboard words
     "White": ("F7F4EC", "SmoothPlastic", ""),  # sign faces, letters
     "Wood": ("A7865E", "SmoothPlastic", ""),  # planks, planter boxes, tank staves
@@ -99,7 +100,7 @@ LIGHTING = {
     "GeographicLatitude": 23.5,
     "Brightness": 3.2,
     "Ambient": (96, 98, 122),
-    "OutdoorAmbient": (116, 122, 162),  # round 6: deeper cool shade against the warm sun
+    "OutdoorAmbient": (108, 114, 158),  # round 8: deeper cool shade against the warm sun
     "ColorShift_Top": (255, 178, 110),
     "ColorShift_Bottom": (0, 0, 0),
     "EnvironmentDiffuseScale": 0.12,
@@ -111,7 +112,7 @@ LIGHTING = {
 FX = {
     "Atmosphere": {"Density": 0.3, "Offset": 0.25, "Color": (246, 204, 166), "Decay": (214, 160, 150), "Glare": 0.7, "Haze": 1.4},
     "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
-    "Grade": {"Brightness": 0.02, "Contrast": 0.14, "Saturation": 0.12, "TintColor": (255, 238, 220)},
+    "Grade": {"Brightness": 0.02, "Contrast": 0.18, "Saturation": 0.14, "TintColor": (255, 236, 214)},
     "SunRays": {"Intensity": 0.18, "Spread": 0.7},
 }
 LAMP = {"color": (255, 214, 170), "brightness": 1.6, "range": 30}
