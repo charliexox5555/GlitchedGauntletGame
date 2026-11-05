@@ -539,3 +539,38 @@ Better: the place now reads as one old-town block with a clear landmark. Arched 
 5. **No blind score yet.** Run `lihfolk:quality-score` after the next fix round, together with this side by side.
 
 Suggested next round, in order: blank and lower the billboards (or replace them with the concept's trestle signs); haze and lower the far skyline; a chamfered pier-cap mesh; one lighting and palette check (greyscale and no-shadow).
+
+### Fix round 1 (2026-11-05 evening) and blind score
+Fixed the four shortfalls from the v2 side by side:
+- **Pier caps:** 78 modelled cobalt caps (a chamfered slab and a hipped top) replace the box caps. The box caps stay as the collision.
+- **Billboards:** blank cream panels on braced steel trestles, with a service catwalk and cobalt caps. The "Sunset Soda" lettering is gone, so the tank is the one landmark at eye height.
+- **Skyline:** the city blocks have a stone base, pier strips, recessed window rows, a cornice, a set-back storey and a roof tank or antenna. The far ring is lower, in pale haze tones.
+- **Shade:** Ambient and OutdoorAmbient are brighter and warmer, EnvironmentDiffuse is 0.35, and the grade has lower contrast and saturation.
+
+The Studio audit is 0 pairs over 1,563 visible parts.
+
+| Concept | Build v3 |
+|---|---|
+| ![](../../../art-source/maps/Rooftops2/concepts/01-overview.png) | ![](../../02%20Art/References/maps/rooftops2/v3-overview.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/04-hero-spawn-b.png) | ![](../../02%20Art/References/maps/rooftops2/v3-b-roof-to-tank.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/03-hero-spawn-a.png) | ![](../../02%20Art/References/maps/rooftops2/v3-a-roof-to-tank.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/02-hero-pit.png) | ![](../../02%20Art/References/maps/rooftops2/v3-pit.jpg) |
+
+**Blind score (`lihfolk:quality-score`, world rubric, 3 fresh reviewers): 7.92.** The reviewers gave 7.92, 8.33 and 7.92. That is below the 8.5 bar, and it's one score with no further fix round, as asked.
+
+| W | Medians | What the reviewers said |
+|---|---|---|
+| W1 composition | 2 | The tank on its stone tower is the clear focus in every shot. |
+| W2 navigation | **1** | At eye height, stacked AC units and the hut and chimney blocks fill a third of the frame. In the Pit shot the route out isn't readable: dark undersides and trestle legs fill it. |
+| W3 cohesion | 2 | One terracotta, cream-stone and cobalt language throughout. |
+| W4 lighting | 2 | Golden hour reads. The Pit underside is crushed dark. |
+| W5 detail | 1 | The terracotta floor fields are large and flat; detail is uneven. |
+| W6 scale | 1 | The quoins and AC stacks read chunky against the player. |
+
+**Honest read against the concepts:** the overview and the B-roof view are now clearly the same place as the concepts: the landmark, the stone and cobalt parapets, the hip and mansard roofs, the fire escapes, the trestle signs, a softer skyline. Eye height in the Pit and the walls in shade still fall short.
+
+**The next fixes, when there's time:**
+1. Lower the AC stacks (or turn them sideways) where they hide a route.
+2. A lighter underside and fill light in the Pit, so its stairs read.
+3. Floor breakup on the team roofs: tar patches, drains, a second tile tone.
+4. Quoins one size smaller.

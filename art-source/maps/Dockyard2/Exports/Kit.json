@@ -16,6 +16,7 @@
     "C20_Body",
     "C20_Ribs",
     "C20_Frame",
+    "C20_Castings",
     "C20_Doors",
     "C20_Hardware"
    ]
@@ -28,6 +29,7 @@
     "C20Lo_Body",
     "C20Lo_Ribs",
     "C20Lo_Frame",
+    "C20Lo_Castings",
     "C20Lo_Doors"
    ]
   },
@@ -39,6 +41,7 @@
     "C40_Body",
     "C40_Ribs",
     "C40_Frame",
+    "C40_Castings",
     "C40_Doors",
     "C40_Hardware"
    ]
@@ -51,6 +54,7 @@
     "C40Lo_Body",
     "C40Lo_Ribs",
     "C40Lo_Frame",
+    "C40Lo_Castings",
     "C40Lo_Doors"
    ]
   },
@@ -67,6 +71,8 @@
    "parts": [
     "Crane_Legs",
     "Crane_Bands",
+    "Crane_Knees",
+    "Crane_Stripes",
     "Crane_Bogies",
     "Crane_Tyres",
     "Crane_Girders",
@@ -289,11 +295,12 @@
    "name": "C20_Body",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
-   "tris": 108,
+   "tris": 44,
    "center": [
     0.0,
     0.0,
@@ -310,8 +317,9 @@
    "name": "C20_Ribs",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 340,
@@ -349,11 +357,33 @@
   },
   {
    "piece": "C20",
+   "name": "C20_Castings",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    8.04,
+    16.04,
+    8.04
+   ]
+  },
+  {
+   "piece": "C20",
    "name": "C20_Doors",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 176,
@@ -394,8 +424,9 @@
    "name": "C20Lo_Body",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 44,
@@ -415,8 +446,9 @@
    "name": "C20Lo_Ribs",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 96,
@@ -454,11 +486,33 @@
   },
   {
    "piece": "C20Lo",
+   "name": "C20Lo_Castings",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    8.04,
+    16.04,
+    8.04
+   ]
+  },
+  {
+   "piece": "C20Lo",
    "name": "C20Lo_Doors",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 88,
@@ -478,11 +532,12 @@
    "name": "C40_Body",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
-   "tris": 108,
+   "tris": 44,
    "center": [
     0.0,
     0.0,
@@ -499,8 +554,9 @@
    "name": "C40_Ribs",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 460,
@@ -538,11 +594,33 @@
   },
   {
    "piece": "C40",
+   "name": "C40_Castings",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    8.04,
+    32.04,
+    8.04
+   ]
+  },
+  {
+   "piece": "C40",
    "name": "C40_Doors",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 176,
@@ -583,8 +661,9 @@
    "name": "C40Lo_Body",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 44,
@@ -604,8 +683,9 @@
    "name": "C40Lo_Ribs",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 168,
@@ -643,11 +723,33 @@
   },
   {
    "piece": "C40Lo",
+   "name": "C40Lo_Castings",
+   "material": "D2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "353A40"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    8.04,
+    32.04,
+    8.04
+   ]
+  },
+  {
+   "piece": "C40Lo",
    "name": "C40Lo_Doors",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 88,
@@ -688,53 +790,98 @@
    "name": "Crane_Legs",
    "material": "D2_Crane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "F2B632"
+    "material": "DiamondPlate",
+    "color": "F2B632",
+    "variant": "Dock2_Plate"
    },
    "glow": false,
    "tris": 880,
    "center": [
     0.0,
     0.0,
-    27.4
+    27.41
    ],
    "size": [
-    63.6,
-    35.6,
-    48.8
+    63.46,
+    35.46,
+    48.86
    ]
   },
   {
    "piece": "Crane",
    "name": "Crane_Bands",
+   "material": "D2_Crane",
+   "look": {
+    "material": "DiamondPlate",
+    "color": "F2B632",
+    "variant": "Dock2_Plate"
+   },
+   "glow": false,
+   "tris": 4304,
+   "center": [
+    0.0,
+    0.0,
+    27.4
+   ],
+   "size": [
+    63.54,
+    35.54,
+    47.50873
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Knees",
+   "material": "D2_Crane",
+   "look": {
+    "material": "DiamondPlate",
+    "color": "F2B632",
+    "variant": "Dock2_Plate"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    43.3
+   ],
+   "size": [
+    60.9,
+    29.47337,
+    11.19714
+   ]
+  },
+  {
+   "piece": "Crane",
+   "name": "Crane_Stripes",
    "material": "D2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
     "color": "353A40"
    },
    "glow": false,
-   "tris": 736,
+   "tris": 288,
    "center": [
     0.0,
-    0.0,
-    5.3
+    -0.35,
+    1.525
    ],
    "size": [
-    63.72,
-    35.72,
-    2.2
+    64.02,
+    36.2,
+    2.05
    ]
   },
   {
    "piece": "Crane",
    "name": "Crane_Bogies",
-   "material": "D2_Crane",
+   "material": "D2_White",
    "look": {
     "material": "SmoothPlastic",
-    "color": "F2B632"
+    "color": "ECE8DF"
    },
    "glow": false,
-   "tris": 864,
+   "tris": 608,
    "center": [
     0.0,
     0.0,
@@ -772,8 +919,9 @@
    "name": "Crane_Girders",
    "material": "D2_Crane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "F2B632"
+    "material": "DiamondPlate",
+    "color": "F2B632",
+    "variant": "Dock2_Plate"
    },
    "glow": false,
    "tris": 544,
@@ -793,8 +941,9 @@
    "name": "Crane_Trolley",
    "material": "D2_Crane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "F2B632"
+    "material": "DiamondPlate",
+    "color": "F2B632",
+    "variant": "Dock2_Plate"
    },
    "glow": false,
    "tris": 108,
@@ -899,8 +1048,9 @@
    "name": "Crane_Spreader",
    "material": "D2_Crane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "F2B632"
+    "material": "DiamondPlate",
+    "color": "F2B632",
+    "variant": "Dock2_Plate"
    },
    "glow": false,
    "tris": 324,
@@ -1025,8 +1175,9 @@
    "name": "Crate_Pallet",
    "material": "D2_Wood",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "A7865E"
+    "material": "WoodPlanks",
+    "color": "B39A74",
+    "variant": "Dock2_Plank"
    },
    "glow": false,
    "tris": 44,
@@ -1046,8 +1197,9 @@
    "name": "Crate_Body",
    "material": "D2_Wood",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "A7865E"
+    "material": "WoodPlanks",
+    "color": "B39A74",
+    "variant": "Dock2_Plank"
    },
    "glow": false,
    "tris": 108,
@@ -1300,7 +1452,7 @@
    "material": "D2_Hazard",
    "look": {
     "material": "SmoothPlastic",
-    "color": "E8B53A"
+    "color": "E9E4D8"
    },
    "glow": false,
    "tris": 44,
@@ -1408,7 +1560,7 @@
    "material": "D2_Hazard",
    "look": {
     "material": "SmoothPlastic",
-    "color": "E8B53A"
+    "color": "E9E4D8"
    },
    "glow": false,
    "tris": 44,
@@ -1495,7 +1647,7 @@
    "material": "D2_Hazard",
    "look": {
     "material": "SmoothPlastic",
-    "color": "E8B53A"
+    "color": "E9E4D8"
    },
    "glow": false,
    "tris": 44,
@@ -1624,7 +1776,7 @@
    "material": "D2_Hazard",
    "look": {
     "material": "SmoothPlastic",
-    "color": "E8B53A"
+    "color": "E9E4D8"
    },
    "glow": false,
    "tris": 264,
@@ -1644,8 +1796,9 @@
    "name": "Rack_LoadsA",
    "material": "D2_Wood",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "A7865E"
+    "material": "WoodPlanks",
+    "color": "B39A74",
+    "variant": "Dock2_Plank"
    },
    "glow": false,
    "tris": 540,
@@ -1665,8 +1818,9 @@
    "name": "Rack_LoadsB",
    "material": "D2_Cladding",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "D3D5D0"
+    "material": "Plastic",
+    "color": "D3D5D0",
+    "variant": "Dock2_Cladding"
    },
    "glow": false,
    "tris": 432,
@@ -1686,8 +1840,9 @@
    "name": "Shed_Cladding",
    "material": "D2_Cladding",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "D3D5D0"
+    "material": "Plastic",
+    "color": "D3D5D0",
+    "variant": "Dock2_Cladding"
    },
    "glow": false,
    "tris": 150,
@@ -1729,8 +1884,9 @@
    "name": "Shed_Band",
    "material": "D2_Lane",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "52708E"
+    "material": "CorrodedMetal",
+    "color": "52708E",
+    "variant": "Dock2_Corrugated"
    },
    "glow": false,
    "tris": 220,
@@ -1792,9 +1948,9 @@
    "name": "Shed_Roof",
    "material": "D2_Roof",
    "look": {
-    "material": "Concrete",
+    "material": "Plastic",
     "color": "7A848D",
-    "variant": "Dock2_Concrete"
+    "variant": "Dock2_Cladding"
    },
    "glow": false,
    "tris": 22,
@@ -2426,7 +2582,7 @@
    "material": "D2_Hazard",
    "look": {
     "material": "SmoothPlastic",
-    "color": "E8B53A"
+    "color": "E9E4D8"
    },
    "glow": false,
    "tris": 396,
@@ -2530,9 +2686,9 @@
    "name": "StsCrane_House",
    "material": "D2_Roof",
    "look": {
-    "material": "Concrete",
+    "material": "Plastic",
     "color": "7A848D",
-    "variant": "Dock2_Concrete"
+    "variant": "Dock2_Cladding"
    },
    "glow": false,
    "tris": 44,
@@ -2548,5 +2704,5 @@
    ]
   }
  ],
- "tris": 31294
+ "tris": 36222
 }

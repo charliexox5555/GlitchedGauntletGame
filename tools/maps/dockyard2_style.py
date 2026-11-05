@@ -38,22 +38,22 @@ ROOT = Path(__file__).resolve().parents[2]
 # Roles: hex colour, Roblox material, MaterialVariant ("" = none). Kit materials are named D2_<Role>.
 PALETTE: dict[str, tuple[str, str, str]] = {
     # big calm textured surfaces
-    "Deck": ("8A867E", "Slate", "Dock2_Deck"),  # pier deck slabs (ground band, V ~49%)
+    "Deck": ("8A867E", "Concrete", "Dock2_Concrete"),  # concept pass: our slab-joint concrete  # pier deck slabs (ground band, V ~49%)
     "Concrete": ("A59D90", "Concrete", "Dock2_Concrete"),  # plinths, quay coping, shed base
     "ConcreteDark": ("6E675E", "Concrete", "Dock2_Concrete"),  # quay face, footings
-    "Cladding": ("D3D5D0", "SmoothPlastic", ""),  # round 1: the brushed texture read as smears on big walls  # shed wall panels (structure band, one step over the deck)
-    "Roof": ("7A848D", "Concrete", "Dock2_Concrete"),
+    "Cladding": ("D3D5D0", "Plastic", "Dock2_Cladding"),  # concept pass: our ribbed cladding row  # round 1: the brushed texture read as smears on big walls  # shed wall panels (structure band, one step over the deck)
+    "Roof": ("7A848D", "Plastic", "Dock2_Cladding"),
     "Grate": ("4A525A", "DiamondPlate", "Dock2_Grate"),  # stair treads, landings
     # lane colour (set per container in Studio from LANE / BACKDROP; these are the kit defaults)
-    "Lane": ("52708E", "SmoothPlastic", ""),  # container body; round 1: clean paint, the ribs carry the detail
+    "Lane": ("52708E", "CorrodedMetal", "Dock2_Corrugated"),  # concept pass: corrugation and edge wear (no metalness map)  # container body; round 1: clean paint, the ribs carry the detail
     "LaneFrame": ("2C5079", "SmoothPlastic", ""),  # container corner posts and rails (LANE x FRAME_SHADE)
     # clean SmoothPlastic trims
-    "Crane": ("F2B632", "SmoothPlastic", ""),  # the landmark and the map's accent
+    "Crane": ("F2B632", "DiamondPlate", "Dock2_Plate"),  # riveted plate panels; DiamondPlate base keeps it apart from Grate  # the landmark and the map's accent
     "Charcoal": ("353A40", "SmoothPlastic", ""),  # structure trims, frames, hardware
     "White": ("ECE8DF", "SmoothPlastic", ""),  # cab, sign faces, bay numbers
-    "Hazard": ("E8B53A", "SmoothPlastic", ""),  # bay lines, kick bands, nosings
+    "Hazard": ("E9E4D8", "SmoothPlastic", ""),  # concept pass: white paint (the crane is the only yellow)  # bay lines, kick bands, nosings
     "Rubber": ("2A2D31", "SmoothPlastic", ""),  # fenders, tyres
-    "Wood": ("A7865E", "SmoothPlastic", ""),  # pallets, crates
+    "Wood": ("B39A74", "WoodPlanks", "Dock2_Plank"),  # natural timber, desaturated (no second yellow)  # pallets, crates
     "Glass": ("9FD3E0", "Glass", ""),
     "Backfill": ("8A9096", "SmoothPlastic", ""),  # end-wall filler between containers: reads as more stacks, not a slab
     "Water": ("2A6878", "SmoothPlastic", ""),  # pass 1: #2F8C9C read as a loud cyan
@@ -93,12 +93,14 @@ SEGMENTS = {"primary": 2, "secondary": 2, "tertiary": 1}
 # MaterialVariants (match place MaterialService). The Lobby's painted textures (tools/textures/
 # make_lobby_textures_v2.py): near-neutral greys, so BasePart.Color sets the hue. Ids are the Image assets.
 VARIANTS = {
-    "Dock2_Concrete": ("Concrete", 16, "104737392584669", "93691597282176", "95184551126688"),
-    "Dock2_Deck": ("Slate", 16, "73383285439881", "99655568297239", "99239709018479"),
-    "Dock2_Metal": ("Metal", 8, "108704579785681", "123918256871933", "132089430474107"),
-    # Painted steel: the metal textures on a non-metal base (no sky-tinted reflections on big painted faces).
-    "Dock2_Paint": ("Plastic", 8, "108704579785681", "123918256871933", "132089430474107"),
-    "Dock2_Grate": ("DiamondPlate", 4, "119119110235077", "128288039114085", "132404926483451"),
+    # concept pass 2026-11-05: our rows from the approved trim sheet (tools/textures/make_map_variants.py), 512,
+    # colour + normal, no roughness / metalness map (so no sky-mirroring). Image ids resolved from the Decal uploads.
+    "Dock2_Concrete": ("Concrete", 16, "138512001950745", "73132979624401", ""),
+    "Dock2_Corrugated": ("CorrodedMetal", 8, "108069495941112", "120881089785960", ""),
+    "Dock2_Cladding": ("Plastic", 8, "107512542593996", "111822254753465", ""),
+    "Dock2_Plate": ("DiamondPlate", 8, "111577542877717", "140402758328054", ""),
+    "Dock2_Plank": ("WoodPlanks", 8, "127950269589942", "78863884268912", ""),
+    "Dock2_Grate": ("DiamondPlate", 4, "86861542591828", "124599360671077", ""),
 }
 
 # ---------------------------------------------------------------- lighting (Studio; Lighting.luau)

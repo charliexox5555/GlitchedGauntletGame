@@ -131,12 +131,34 @@ def obj(col, part, bm, role, smooth=35):
 	return add_obj(name, bm, [M[role]], col, smooth_angle=smooth)
 
 
+def beam(p0, p1, w, h=None, up=(0.0, 1.0, 0.0)):
+	"""Square-section bar from p0 to p1 (Roblox coords), w wide, h tall."""
+	h = h or w
+	a, b = Vector(p0), Vector(p1)
+	d = (b - a).normalized()
+	u = Vector(up)
+	if abs(d.dot(u)) > 0.95:
+		u = Vector((1.0, 0.0, 0.0))
+	sv = d.cross(u).normalized()
+	u2 = sv.cross(d).normalized()
+	bm = bmesh.new()
+	vs = []
+	for p in (a, b):
+		for i, j in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+			q = p + sv * (i * w / 2) + u2 * (j * h / 2)
+			vs.append(bm.verts.new((q.x, -q.z, q.y)))
+	for ids in ((0, 1, 2, 3), (7, 6, 5, 4), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)):
+		bm.faces.new([vs[i] for i in ids])
+	bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+	return bm
+
+
 # ---------------------------------------------------------------- containers
 
 def p_container(name, L, lo=False):
 	c = piece(name, length=L)
 	h = L / 2
-	obj(c, "Body", RB(-3.72, 3.72, 0.32, 7.68, -h + 0.36, h - 0.36, 0.3, 1 if lo else 2), "Lane")
+	obj(c, "Body", RB(-3.72, 3.72, 0.32, 7.68, -h + 0.36, h - 0.36, 0.22, 1), "Lane")  # concept pass: 1 segment (budget)
 	# Broad proud ribs on both sides (five per 16 studs; three on the Lo version), chamfered trapezoids.
 	n = (3 if lo else 5) * int(L / 16)
 	pitch = (L - 2.4) / n
@@ -166,6 +188,13 @@ def p_container(name, L, lo=False):
 		for y0, y1 in ((0.1, 0.75), (7.25, 7.9)):
 			frame.append(RB(-3.35, 3.35, y0, y1, sz * (h - 0.6), sz * (h - 0.12), fr, 1))
 	obj(c, "Frame", merge(*frame), "LaneFrame")
+	# concept pass 2026-11-05: ISO corner castings (charcoal blocks) at all eight corners
+	cast = []
+	for sx in (1, -1):
+		for sz in (1, -1):
+			for y0, y1 in ((-0.02, 0.62), (7.38, 8.02)):
+				cast.append(RB(sx * 3.32, sx * 4.02, y0, y1, sz * (h - 0.72), sz * (h + 0.02), 0.05, 1))
+	obj(c, "Castings", merge(*cast), "Charcoal")
 	doors = []
 	for s in (1, -1):
 		doors.append(RB(s * 0.07, s * 3.25, 0.85, 7.15, h - 0.44, h - 0.22, BS, 1))
@@ -218,10 +247,24 @@ def p_crane():
 	for sx in (1, -1):
 		for sz in (1, -1):
 			cx, cz = 30 * sx, 16 * sz
-			legs.append(RPY(octo(cx, cz, 1.8, 0.55), 3.0, 51.8, BS, SS))
-			for y in (4.2, 5.6):
-				bands.append(RPY(octo(cx, cz, 1.86, 0.57), y, y + 0.8, BT, ST))
-			bogies.append(RB(cx - 1.95, cx + 1.95, 0.45, 2.6, cz - 2.5, cz + 2.5, 0.35, SP))
+			# concept pass: a solid box-section leg (the collision is solid) with proud corner chords and X bracing
+			legs.append(RB(cx - 1.55, cx + 1.55, 3.0, 51.8, cz - 1.55, cz + 1.55, BT, ST))
+			for ax in (1, -1):
+				for az in (1, -1):
+					legs.append(RB(cx + ax * 1.35 - 0.38, cx + ax * 1.35 + 0.38, 2.98, 51.84, cz + az * 1.35 - 0.38, cz + az * 1.35 + 0.38, BT, ST))
+			for k in range(8):
+				y0 = 3.4 + 6.0 * k
+				y1 = y0 + 6.0
+				for f in (1, -1):
+					fx = cx + f * 1.62
+					bands.append(beam((fx, y0 + 0.3, cz - 1.05), (fx, y1 - 0.3, cz + 1.05), 0.3, 0.3))
+					bands.append(beam((fx, y0 + 0.3, cz + 1.05), (fx, y1 - 0.3, cz - 1.05), 0.26, 0.3))
+					fz = cz + f * 1.62
+					bands.append(beam((cx - 1.05, y0 + 0.3, fz), (cx + 1.05, y1 - 0.3, fz), 0.3, 0.3))
+					bands.append(beam((cx + 1.05, y0 + 0.3, fz), (cx - 1.05, y1 - 0.3, fz), 0.26, 0.3))
+				if k < 7:
+					bands.append(RB(cx - 1.75, cx + 1.75, y1 - 0.25, y1 + 0.25, cz - 1.75, cz + 1.75, BT, ST))
+			bogies.append(RB(cx - 1.95, cx + 1.95, 0.45, 2.6, cz - 2.5, cz + 2.5, 0.12, 1))
 			bogies.append(RB(cx - 1.7, cx + 1.7, 2.6, 3.25, cz - 2.05, cz + 2.05, BS, SS))
 			for dz in (-1.4, 1.4):
 				for side in (1, -1):
@@ -229,8 +272,28 @@ def p_crane():
 					x1 = cx + side * 2.08
 					tyres.append(rcylX(0, 0.92, cz + dz, 0.9, min(x0, x1), max(x0, x1), 14, 0.0))
 	obj(c, "Legs", merge(*legs), "Crane")
-	obj(c, "Bands", merge(*bands), "Charcoal")
-	obj(c, "Bogies", merge(*bogies), "Crane")
+	obj(c, "Bands", merge(*bands), "Crane")
+	# A-frame knee braces under the girders (high, out of the stacks' play space)
+	knees = []
+	for sx in (1, -1):
+		for sz in (1, -1):
+			knees.append(beam((30 * sx, 38.0, 16 * sz - sz * 1.6), (30 * sx, 48.6, 5.0 * sz), 0.9, 0.9))
+	obj(c, "Knees", merge(*knees), "Crane")
+	# black-and-white striped footings round each bogie (the concept's hazard bands; no second yellow)
+	stripes = []
+	for sx in (1, -1):
+		for sz in (1, -1):
+			cx, cz = 30 * sx, 16 * sz
+			for k in range(-3, 4):
+				zc = cz + k * 1.4
+				pts = [(zc - 0.35, 0.5), (zc + 0.35, 0.5), (zc + 1.05, 2.55), (zc + 0.35, 2.55)]
+				pts = [(max(cz - 2.45, min(cz + 2.45, z)), y) for z, y in pts]
+				if pts[1][0] - pts[0][0] > 0.1 and pts[2][0] - pts[3][0] > 0.1:
+					for side in (1, -1):
+						x0 = cx + side * 1.95
+						stripes.append(RPX(pts, *sorted((x0, x0 + side * 0.06))))
+	obj(c, "Stripes", merge(*stripes), "Charcoal")
+	obj(c, "Bogies", merge(*bogies), "White")
 	obj(c, "Tyres", merge(*tyres), "Rubber")
 	girders = []
 	for sz in (1, -1):
