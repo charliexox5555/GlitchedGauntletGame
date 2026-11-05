@@ -475,6 +475,77 @@ Shared style block, appended to every prompt:
   - Measured in Studio's Stats and the MicroProfiler before the art pass is called done.
 - **Order:** layout re-check (perch share, jump 5.6), then greybox heights, kit, trim sheet, art, then the blind world-rubric score.
 
+### Concept board (approved 2026-11-05: "I think it looks pretty good")
+The images were made by Codex from the prompts above, in `art-source/maps/Dockyard2/concepts/`. The user's condition: "not follow the maps in exact one-to-one". The concepts set the quality bar, silhouettes, landmark, trims, materials, height and light. Our layout, sightlines, cover heights, spawn distances, 180° symmetry and the measured numbers above stay. Gameplay wins.
+
+**Overview pick: v2.** It shows the whole pier in 180° symmetry: a shed on each flank, a jetty at each end, and the crane in the middle with its catwalk. That matches our layout. v1 is a closer, one-sided view.
+
+| | |
+|---|---|
+| ![overview v2](../../../art-source/maps/Dockyard2/concepts/01-overview-v2.png) | ![middle](../../../art-source/maps/Dockyard2/concepts/02-hero-middle.png) |
+| ![spawn A](../../../art-source/maps/Dockyard2/concepts/03-hero-spawn-a.png) | ![spawn B](../../../art-source/maps/Dockyard2/concepts/04-hero-spawn-b.png) |
+| ![kit](../../../art-source/maps/Dockyard2/concepts/05-kit-sheet.png) | ![trim](../../../art-source/maps/Dockyard2/concepts/06-material-trim-sheet.png) |
+
+[Silhouette round](../../../art-source/maps/Dockyard2/concepts/00-silhouettes.png) and [overview v1](../../../art-source/maps/Dockyard2/concepts/01-overview.png). Pick: the A-frame gantry (row 2, first) with a machinery house on the back, a lattice boom and a spreader. The hero views use the same crane.
+
+**Adopted:**
+- **Landmark:** a chunky yellow A-frame gantry crane.
+  - Splayed legs with X-bracing, on black-and-white striped footings.
+  - A machinery house, a lattice boom, and a spreader holding a blue container over the middle.
+  - A concrete catwalk beam between the legs, with **caged ladders** on both legs.
+- **Containers:**
+  - corner castings, door bars and locking rods, deep ribs, a dark frame;
+  - a white reefer container with a cooling unit and a coiled cable;
+  - stacked 2-high, with crates as steps.
+- **Sheds:**
+  - a gable roof with roof vents;
+  - white ribbed cladding over a red base band, with black-and-white striped corner guards;
+  - a roller door with a lamp above it;
+  - an office window strip with warm light;
+  - an outside stair to the mezzanine.
+- **Quay:**
+  - a concrete deck with joints;
+  - a coping edge in alternating black and white bands;
+  - bollards with rope;
+  - jersey barriers with stripes;
+  - twin-head light masts.
+- **Jetty:** timber planks on pilings, a timber stair down from the quay, tyre fenders on brackets and a steel ladder.
+- **Backdrop:** hazy cranes and a container ship.
+- **Materials:** the trim-sheet rows (bevel strips, corrugation, ribbed cladding, grating, plank, concrete, fender, plates).
+
+**Dropped or changed (and why):**
+- **Grating bridges between many stacks.** Too many perches. We keep one per side, and only after the perch-share check (≤ 40%, *Combat Arena and Encounter Layout* §6).
+- **The concept's catwalk height and positions.** Our catwalk is at 14 studs so it can't be jumped onto from a stack at jump 5.6. The lanes keep our measured positions and widths.
+- **Yellow crates.** The crane is the only yellow, so crates are natural timber, a desaturated tan, with charcoal frames.
+- **Barriers and crates in the 4–6 stud band.** Barriers are low cover (3), and crate steps are ≤ 4 per hop.
+- **The exact pier outline and jetty sizes.** We keep our quay and jetty from the layout script.
+
+### Final kit list (Blender, real detail)
+| Group | Pieces |
+|---|---|
+| Containers | `C20`, `C40` (≤ 800 tris each: castings, door bars, ribs in the silhouette), `C20Reefer` (unit + cable), low variants |
+| Crane | `CraneLeg` (splayed, bracing, striped footing), `CraneBeam` (machinery house, boom lattice), `Spreader` + hanging container, `CraneCatwalk` (beam, parapet), `CagedLadder` |
+| Shed | `ShedWall8` (ribbed cladding, base band, guards), `ShedDoor` (roller, lamp), `ShedOffice8` (window strip), `ShedGable` (roof, vents), `ShedStair` |
+| Quay | `QuayCoping8` (striped), `Bollard` (rope), `Barrier` (jersey, stripes), `LightMast` (twin head) |
+| Jetty | `Jetty8` (planks, pilings, stringers), `JettyStair`, `Fender` (tyre, bracket), `Ladder` |
+| Props | `Crate`, `CrateStep`, `Pallet`, `PalletStack`, `LashingRack` |
+
+Budget: the map stays ≤ 450k visible tris (about 300k today). Container triangles come down to pay for the new levels. Bevels: steel 0.12–0.2, concrete 0.3–0.45.
+
+### Texture plan
+Six MaterialVariants at 512 (colour plus a derived normal map), cut from the approved trim sheet ([06](../../../art-source/maps/Dockyard2/concepts/06-material-trim-sheet.png)) and tinted by role:
+
+| Variant | Row |
+|---|---|
+| `Dock2_Corrugated` | containers |
+| `Dock2_Cladding` | sheds |
+| `Dock2_Concrete` | deck and quay |
+| `Dock2_Plank` | jetty and crates |
+| `Dock2_Grate` | catwalks (opaque) |
+| `Dock2_Plate` | crane and structural steel |
+
+These replace today's twelve 1024 maps.
+
 ### Birds (map life)
 The current gulls are boxy (the verdict: "blocky and bad"). **Recommendation: remove them until there's a modelled replacement.**
 

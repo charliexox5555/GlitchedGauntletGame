@@ -398,6 +398,87 @@ The shared style block is the same as Dockyard2's (chunky proportions, trims 2�
   - Measured in Studio before the art pass is called done.
 - **Order:** layout re-check (perch share, jump 5.6, spawn-court sightlines), greybox heights, kit, trim sheet, art, blind score.
 
+### Concept board (approved 2026-11-05: "I think it looks pretty good")
+The images were made by Codex from the prompts above, in `art-source/maps/Rooftops2/concepts/`. The user's condition: "not follow the maps in exact one-to-one". The concepts set the **quality bar, silhouettes, landmark, trims, materials, height and light**. Our layout, sightlines, cover heights, spawn distances, 180° symmetry and the measured numbers above stay. Where they conflict, gameplay wins.
+
+| | |
+|---|---|
+| ![overview](../../../art-source/maps/Rooftops2/concepts/01-overview.png) | ![pit](../../../art-source/maps/Rooftops2/concepts/02-hero-pit.png) |
+| ![spawn A](../../../art-source/maps/Rooftops2/concepts/03-hero-spawn-a.png) | ![spawn B](../../../art-source/maps/Rooftops2/concepts/04-hero-spawn-b.png) |
+| ![kit](../../../art-source/maps/Rooftops2/concepts/05-kit-sheet.png) | ![trim](../../../art-source/maps/Rooftops2/concepts/06-material-trim-sheet.png) |
+
+[Silhouette round](../../../art-source/maps/Rooftops2/concepts/00-silhouettes.png): the pick is the top-left family (conical cap with a finial, banded drum, splayed legs, sign arm), which is the one the overview and hero views use.
+
+**Adopted:**
+- **Landmark:**
+  - a timber water tank (orange-brown staves, two steel hoops, a charcoal conical cap with a finial);
+  - on a charcoal steel tower with splayed legs and X-bracing, standing on cream stone footings;
+  - a railed platform under the drum, with ladders on two sides;
+  - a sign-arm frame with a warm neon top edge (blank; our own lettering later).
+- **Parapet language,** which carries the place identity:
+  - cream stone parapets with coping;
+  - square piers every few studs with **cobalt caps**;
+  - quoined corner piers;
+  - cornices with corbels.
+- **Facades:**
+  - arched windows in stone surrounds with shutters (cobalt on A, green on the Pit and B), sills and drainpipes;
+  - a cobalt string course;
+  - the eye-height detail moves the blank slabs and flat navy windows out of view.
+- **Team identity:**
+  - A: apricot plaster with a terracotta hip-roof penthouse.
+  - B: sage plaster with a slate mansard penthouse and an arched door.
+  - Both with chimney stacks with pots.
+- **Height levels:**
+  - fire-escape stairs (charcoal steel, chunky) up to each penthouse roof;
+  - a plank bridge on a steel truss with a fire-escape landing and ladder below it;
+  - billboards on steel trestles with a catwalk;
+  - the tank platform.
+- **The Pit:** a sunken courtyard with a wide stone stair in the middle and side stairs, a gravel floor and an arched passage.
+- **Props:**
+  - crates, barrels and terracotta planters;
+  - pyramid skylights;
+  - AC units on brackets and a roof hatch;
+  - a party corner (awning, string lights, chairs, a cooler);
+  - a laundry line;
+  - wall lanterns.
+- **Light:** golden sun, peach haze, violet shade, a hazy skyline of simple slabs.
+- **Materials:** the trim-sheet rows: plaster, brick, terracotta tile, slate, tar and gravel, louvre, cornice, flashing, grating, plank, sign plate.
+
+**Dropped or changed (and why):**
+- **The concept's exact plan.** It shows four billboards around the Pit and long bridges on both sides of the tank. We keep our two billboards, our lift-tower position for the tank, and our gangway, plank and gap lengths (8 / 16, crossable as measured).
+- **Crates and barrels in lanes.** The concept scatters them at 3–5 studs. Cover is either 2.5–3.5 or 7+. Anything in the 4–6 band is non-colliding decor at walls and corners (*Combat Arena and Encounter Layout* §2).
+- **Straight spawn view down the middle.** In concept 03, spawn A looks straight at the Pit. Our spawn barrier and court screens stay, because no spawn sees another.
+- **Thin railings and laundry over lanes.** Posts are at least 0.4 studs thick, and laundry hangs only over decor corners, never across a sightline.
+- **Neon everywhere.** Neon is only on the sign frame. String lights are small warm dots, not Neon.
+- **Tall background slabs.** They stay low and hazed, at or below roof height plus 40, so the tank owns the skyline.
+
+### Final kit list (Blender, real detail; the scripted kit rebuilt)
+| Group | Pieces (detail that makes them read as made, not primitive) |
+|---|---|
+| Facade | `FacadeBay8` (arched window, stone surround, shutters, sill, drainpipe option), `FacadeBay4`, `CornerPier` (quoins), `Cornice8` (corbels), `StringCourse8`, `Plinth8` |
+| Parapet | `Parapet8` (coping, cobalt-capped pier at one end), `ParapetPier`, `ParapetLow4` |
+| Buildings | `PenthouseA` (hip roof, terracotta, chimneys), `PenthouseB` (slate mansard, arched door), `StairHut` (small hip roof), `LiftTower` (stone, string courses) |
+| Landmark | `WaterTank` (drum, hoops, cap, finial), `TankTower` (splayed legs, X-bracing, footings), `TankPlatform` (railing, ladders), `SignArm` (frame + neon edge) |
+| Routes | `FireStair` (stringers, treads, landing, rails), `FireLanding` + `Ladder`, `PlankBridge` (truss, planks, posts), `PitStairWide` (stone, cheeks), `Billboard` (trestle, catwalk, panel) |
+| Props | `Crate`, `Barrel`, `Planter`, `SkylightPyramid`, `ACUnit` (bracket), `Chimney`, `RoofHatch`, `PartyCorner` (awning, chairs, table, cooler, string lights), `LaundryLine`, `WallLantern` |
+| Backdrop | `CityBlockA/B` (hazed, windows as shallow insets) |
+
+Budget: repeated pieces ≤ 800 tris, medium ≤ 3k, tank and tower ≤ 12k, the map ≤ 450k visible. Bevels: steel 0.12–0.2, stone and plaster 0.3–0.45 with 1 segment on repeats. Scripted from derived dimensions with a seed per piece. Coplanar 0, floating shells 0.
+
+### Texture plan (phone budget)
+Our own textures come from the approved trim sheet ([06](../../../art-source/maps/Rooftops2/concepts/06-material-trim-sheet.png)). The rows are cut out, made tileable and turned into **6 MaterialVariants at 512** (colour plus a normal map derived from the row's shading), applied by role through the existing style pipeline. Kit MeshParts are split by role, so no UV work is needed and `Color` keeps tinting them.
+
+| Variant | Row | Used on |
+|---|---|---|
+| `Roof2_Plaster` | plaster panel | facades, parapets, penthouses (apricot, sage, cream by tint) |
+| `Roof2_Brick` | brick | exposed corners, chimneys, plinths |
+| `Roof2_Terracotta` | terracotta tile | A penthouse and hut roofs |
+| `Roof2_Slate` | slate tile | B penthouse and hut roofs |
+| `Roof2_Gravel` | tar and gravel | roof decks, the Pit floor |
+| `Roof2_Plank` | plank | bridges, catwalks, crates |
+
+Memory: 6 × 2 maps × 512² = 12 × 0.25 = 3 "1024-equivalents", against the Lobby's borrowed 1024 sets. The cornice, louvre, grating and sign rows are modelled as geometry first. A UV-mapped trim-sheet SurfaceAppearance follows only if the side-by-side shows the geometry falling short.
+
 ### Birds (map life)
 The current pigeons are boxy. **Recommendation: remove them until there's a modelled replacement.** Use the same rules as Dockyard2's gulls:
 - a rounded body, tapered wings, tail fan and neck collar;
