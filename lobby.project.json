@@ -22,7 +22,10 @@
     "StarterPlayer": {
       "StarterPlayerScripts": {
         "LobbyClient": {
-          "$path": "src/lobby/client"
+          "$path": "src/lobby/client",
+          "SharedUi": {
+            "$path": "src/client/Util/Ui.luau"
+          }
         }
       }
     }

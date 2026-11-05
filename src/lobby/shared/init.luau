@@ -1,4 +1,5 @@
 --!strict
--- Lobby-only shared modules (queue modes, lobby net). Match code lives in ReplicatedStorage.Shared.
+-- Lobby-only shared modules: Config (queue modes, bot fill, teleport numbers)
+-- and LobbyNet (lobby remotes). Match code lives in ReplicatedStorage.Shared.
 
 return {}
