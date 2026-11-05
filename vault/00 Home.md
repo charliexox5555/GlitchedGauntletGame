@@ -7,6 +7,18 @@
 
 ## 📍 Status
 
+- **Day 2026-11-05 (three lanes while the user was at school, [day plan](05%20Production/Day%20Plan%202026-11-05.md); tonight's review list is at the bottom):**
+  - **Match maps redesigned in the new style, as new versions** (ForceMap only; the old maps are untouched):
+    - [Dockyard2](01%20Design/Maps/Dockyard2.md) scored 8.75.
+    - [Rooftops2](01%20Design/Maps/Rooftops2.md) stopped at 8.33, just under the 8.5 bar.
+    - Both audit at 0 z-fighting, and colours and light are one style file per map.
+  - **Sound**, all real CC0 recordings with alternates listed: knife sounds, hit and kill confirms, footsteps by surface, slide, per-class reload and equip foley, and map ambience (`AmbienceController`).
+  - **Map life** (`MapLifeController`): gulls, crane sway, ships, steam, fans, pigeons and banners. Dockyard2 scored 8.85; Rooftops2 stopped at 8.08.
+  - **Knife:** first person 8.3. Third person stopped at 5.7; the user decides whether it needs a hand-keyed pass.
+  - **UI v2:**
+    - Lobby UI scored 9.2, with the top-bar inset, borders, and chat and player-list overlap fixed.
+    - The match HUD now uses the same look. **That replaces the approved v1 look, so the user decides.** The phone layout stopped at 6.7.
+  - Both places are saved to Roblox, not published.
 - **Overnight 2026-11-04 → 05 (four lanes, [plan](05%20Production/Overnight%202026-11-04.md)) → test with the [Morning Test Checklist](05%20Production/Playtests/2026-11-05%20Morning%20Test%20Checklist.md):** **Lobby rebuilt** as a compact "Sunwell Bunker, redone" (about ⅓ the size, levels, an open RIVALS-style Duels hall, Event and Battle Pass niches, a shop cross, a holo-caged Range model, neon 3D signs, a spawn hologram, set dressing), [note](02%20Art/Lobby%20Rebuild%202026-11-04.md), proposed [style guide](02%20Art/Lobby%20Style%20Guide.md) for the maps. **Lobby UI + queue** (separate Lobby Rojo `lobby.project.json` on 34873; bottom and top bars, PLAY menu 1v1/2v2/3v3, server queue, bot fill after 30 s, TeleportData to a reserved Match server), [note](01%20Design/Lobby%20UI%20and%20Queue.md). **AI bots** in the match (same server paths as players; draft, Mods, sprint/slide; `BotMatch` attribute in Studio), [note](01%20Design/Bots.md). **3P animations + knife** (two-hand grips, fire kick, full-body slide, knife hold/slashes/inspect, centred knife marks; below the 8.5 bar, see the note), [note](05%20Production/Playtests/2026-11-04%20Animation%20and%20Knife%20Pass.md). Rule added: **vault and LihFolk first** (CLAUDE.md, `.claude/skills/gauntlet-vault`). Both places saved to Roblox, not published. Next: the user's tests, then the match-map redesign in the approved style.
 - **Lobby art refinement (2026-11-04):** grounded tactical / Valorant / RIVALS balance built in the Lobby place: original Blender entrance/prop kit, designed signs, numbered duel bays and trophy. Coplanar repairs: 42 meshes / 193 placed instances. Four range folders and all collision unchanged; no gameplay added. Backups saved; Studio place not published. [Review](05%20Production/Playtests/2026-11-04%20Lobby%20Professional%20Pass.md).
 > Update this block at the end of every work session (Claude does it when asked).
