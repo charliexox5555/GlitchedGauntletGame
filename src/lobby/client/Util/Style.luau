@@ -47,8 +47,8 @@ Style.COLOR = table.freeze({
 	shadow = hex("000000"),
 
 	text = hex("FFFFFF"),
-	textSecondary = hex("B9C2CF"), -- about 9:1 on the surface
-	textMuted = hex("8E99A8"), -- about 5:1 on the surface
+	textSecondary = hex("C8D0DB"), -- about 11:1 on the surface
+	textMuted = hex("A6B0BE"), -- about 7.5:1 on the surface (never below 4.5:1)
 
 	-- The one "act now" colour: PLAY, FIND MATCH, the level, the coin.
 	primary = hex("FFC83D"),

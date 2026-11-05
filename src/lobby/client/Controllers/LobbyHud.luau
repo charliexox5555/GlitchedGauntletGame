@@ -86,6 +86,7 @@ local toastStrip: Frame
 
 local timerConn: RBXScriptConnection? = nil
 local lastSecond = -1
+local dockShown = true
 local toastToken = 0
 
 local DOCK_W = 4 * D.tileW + D.playW + 4 * D.gap
@@ -745,6 +746,17 @@ local function refresh()
 		play.sub.Text = modeTitle(mode)
 	end
 
+	-- The dock steps aside while MATCH FOUND owns the screen.
+	local dockAway = status == "found" or status == "teleporting" or Router.current() ~= nil
+	if dockAway and dockShown then
+		dockShown = false
+		Fx.out(dock, { Position = DOCK_HIDDEN })
+	elseif not dockAway and not dockShown then
+		dockShown = true
+		Fx.tween(dock, Fx.MOTION.enter, { Position = DOCK_SHOWN })
+	end
+	shadeBottom.Visible = not dockAway
+
 	-- Pill: searching only (MATCH FOUND has its own full-width band).
 	local showPill = status == "searching" and not queueOpen and not PHONE
 	local shown = if PHONE then PILL_SHOWN_PHONE else PILL_SHOWN_DESKTOP
@@ -775,14 +787,8 @@ local function refresh()
 end
 
 local function onMenuChanged(name: string?)
-	local open = name ~= nil
-	shadeBottom.Visible = not open
-	if open then
-		Fx.out(dock, { Position = DOCK_HIDDEN })
-	else
-		Fx.tween(dock, Fx.MOTION.enter, { Position = DOCK_SHOWN })
-	end
-	refresh()
+	local _ = name
+	refresh() -- places the dock (away while a menu or MATCH FOUND is up)
 end
 
 -- Entrance: the top row drops in, the tiles rise one after another.

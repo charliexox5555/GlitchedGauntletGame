@@ -318,6 +318,7 @@ local function buildLocker()
 		ZIndex = 4,
 	})
 	local bigName = Kit.text(preview, "VANDAL", "title", {
+		TextSize = 40,
 		Position = UDim2.fromOffset(32, 24),
 		Size = UDim2.fromOffset(400, 48),
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -330,6 +331,15 @@ local function buildLocker()
 		TextColor3 = C.textSecondary,
 		ZIndex = 4,
 	})
+	-- The slot shown in the preview carries the primary outline (a visible
+	-- selected state, not colour alone: the preview shows its name too).
+	local slotStrokes: { UIStroke } = {}
+	local function selectSlot(index: number)
+		for j, stroke in slotStrokes do
+			stroke.Color = if j == index then C.primary else C.stroke
+			stroke.Transparency = if j == index then 0 else Style.ALPHA.stroke
+		end
+	end
 	for i, entry in LOADOUT do
 		local holder = Kit.make("Frame", {
 			Position = UDim2.fromOffset(0, (i - 1) * 190),
@@ -342,6 +352,7 @@ local function buildLocker()
 			transparency = 0.02,
 		})
 		Kit.shadow(button, Style.RADIUS.lg, 0.8)
+		table.insert(slotStrokes, Kit.strokeOf(button))
 		Kit.text(button, entry.slot, "label", {
 			Position = UDim2.fromOffset(22, 18),
 			Size = UDim2.fromOffset(200, 18),
@@ -366,6 +377,7 @@ local function buildLocker()
 		Fx.button(button, function()
 			big.Image = Theme.GUN[entry.gun] or ""
 			bigName.Text = string.upper(entry.gun)
+			selectSlot(i)
 			Fx.pop(big, 1.04)
 		end, {
 			lift = button,
@@ -380,6 +392,7 @@ local function buildLocker()
 			end,
 		})
 	end
+	selectSlot(1)
 	soon(
 		p.body,
 		"Choose skins, wraps and charms here. Match loadouts are still drafted every round.",

@@ -354,7 +354,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 			Position = UDim2.fromOffset(pad, L.metaY),
 			Size = UDim2.fromOffset(CARD_W - 2 * pad, 20),
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.textMuted,
+			TextColor3 = C.textSecondary,
 			ZIndex = 4,
 		})
 	end
@@ -391,7 +391,7 @@ local function buildCard(info: Config.ModeInfo, index: number)
 			Position = UDim2.fromOffset(pad, L.botsY),
 			Size = UDim2.fromOffset(CARD_W - 2 * pad, 22),
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.textMuted,
+			TextColor3 = C.textSecondary,
 			ZIndex = 4,
 		}
 	)
@@ -794,8 +794,8 @@ local function buildFound()
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.new(1, 0, 0, 0),
-		BackgroundColor3 = C.scrim,
-		BackgroundTransparency = 0.04,
+		BackgroundColor3 = C.white, -- coloured by the gradient below
+		BackgroundTransparency = 0.08, -- a hint of the world through the band
 		BorderSizePixel = 0,
 		ClipsDescendants = true,
 	}, foundGui)
