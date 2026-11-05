@@ -76,6 +76,31 @@ Research by a sub-agent (sources: 80.lv Valorant animator breakdown, The Spike's
 
 **Measured in play (2026-11-04/05):** off hand to target 0.10 studs at rest; 0.18 mid-kick (rifle burst); gun pushed 0.26 studs and flipped 17° on a sniper shot, then recovers.
 
+## LihFolk cross-check (2026-11-05, after the core chat's "work from the vault" rule)
+Checked against `LihFolk/08 Animation`, `18 Rigs and Skeletons` and `47 Game Feel and Juice` (through the `lihfolk-lookup` agent), plus the `quality-score` animation rubric and recipes.
+- **Confirmed:** group-owned clips play in the same-owner experience, and runtime `Register*` ids load nothing live (*Publishing Animations*, *Animation Asset Permissions and Groups*; no `Register*` call in shipped code). Same-priority hold weights must sum to 1 (*Engine Gotchas* 4.2): each hold set does. 0.05 s one-shot fades match *Playback, Priorities and Blending*. Procedural layers must run on every client from replicated inputs (*Replication and Ownership*): GripController does, for every visible character.
+- **Fixed or tested from the notes:**
+  - *IKControl Reference*: an IKControl with a `Pole` still bends the arm at Weight 0, which is what I measured. I tried removing the Pole, but the hand then settled 0.31 studs off its target (0.10 with it), so the Pole stays and the IK is disabled whenever its weight is 0.
+  - *Springs Damping and Smoothing*: the kick's return is now an underdamped spring (ζ 0.5, ~16% overshoot) instead of a plain exponential, so the gun settles with weight.
+  - Quality-score animation gate (no body overlap > 0.05 studs): the slide's folded trailing leg passed **0.37 studs** through the lead thigh. Re-solved with an overlap check: the trailing leg now bends out to the side. What's left is the chest box against the raised thighs at the hip crease (0.27-0.30 studs), which any seated pose of the block R15 parts has.
+- **Noted, not done:**
+  - A landing dip scaled by fall speed (0.12-1.1 studs over 45-140 studs/s, ~13-frame recovery; *Camera Shake and Camera FX*, *Locomotion Clip Lessons - Jump, Sprint, Idle*).
+  - A low-weight chest/head loop at high priority for run sway (*Idle Breathing and Secondary Motion*).
+  - An upper-body copy clip at Action4 for a spine kick (*Playback, Priorities and Blending*).
+  - Anticipation on heavy actions (*Combat Animation Craft*).
+
+## Quality score (LihFolk `quality-score`, animation rubric, 3 blind reviewers, median per criterion)
+The rubric expects LihFolk's Blender QA pipeline (JSON QA, contact sheets). Our evidence was the screenshots above plus the measured numbers (FK floor and overlap checks, IK residuals, kick timings). The bar is 8.5; all three items are still **drafts**.
+| Item | Gates | P1 silh. (3) | P2 timing (3) | P3 antic. (2) | P4 weight (2) | P5 arcs (2) | P6 contact (2) | P7 gameplay (1) | Score |
+|---|---|---|---|---|---|---|---|---|---|
+| Third-person holds + grip + kick | pass | 1 | 2 | 1 | 1 | 1 | 2 | 1 | **6.7** (6.7 / 6.0 / 7.3) |
+| Ground slide | **fail**: chest box vs raised thighs 0.26-0.30 studs | 2 | 2 | 2 | 2 | 1 | 1 | 2 | **5.0** (8.7 uncapped) |
+| First-person knife hold + marks | pass | 2 | 1 | 1 | 1 | 1 | 2 | 2 | **7.0** |
+- **Slide, blocking:** the hip-crease overlap. A re-solve with a strong overlap penalty, keeping the chest within 12° of upright, still leaves 0.26-0.30 studs; clearing it means leaning the chest back more than 12°, which tilts the gun upward during slides. **Your call:** accept the crease (any seated block R15 pose has it) or lean back. Uncapped, the slide scores 8.7.
+- **Holds, blocking:** P1. All three reviewers said the arms bunch into one mass in front of the chest (the bladed, shouldered hold on block avatars) and the stance is static. Next round: a more open hip-fire hold (gun further out, elbows wider), a weight shift and a breathing loop on the legs, and fixing the sniper's 0.7-stud off-hand slip.
+- **Knife:** P2, P3 and P5 have no evidence; the slash, heavy and inspect are the existing Blender clips, unchanged. Scoring them needs contact sheets of those clips.
+- Logged in `.lihfolk/ledger.jsonl`.
+
 ## Known gaps
 - **Knife sounds are still placeholders** (one Roblox-licensed swoosh, re-pitched). The Creator Store "knife" sounds are game rips from random uploaders, and no CC0 knife recordings are in `art-source/audio`. Proposal: download CC0 packs (Kenney "RPG Audio": draw knife / knife slice; Kenney "Impact Sounds": metal / plank hits), polish, render an audition WAV with `build_sound_atlas.py --preview`, then upload in the atlas (audio quota). **Needs your OK to download.**
 - Reload's middle keys are still the old arm poses (only start/end were moved onto the new hold); the Death clip starts from the old hold.
