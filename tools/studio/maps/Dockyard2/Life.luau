@@ -127,7 +127,14 @@ local GULLS = {
 for gi, g in GULLS do
 	for pi, phase in g.phases do
 		local centre = ORIGIN + g.c
-		local m = gull(string.format("Gull_%d%d", gi, pi), centre + Vector3.new(g.r, 0, 0))
+		-- Built at its own phase on the loop, so no two gulls overlap in edit
+		-- mode (the controller takes over in play).
+		local r = g.r + (pi - 1) * 4
+		local a = math.rad(phase)
+		local m = gull(
+			string.format("Gull_%d%d", gi, pi),
+			centre + Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
+		)
 		tag(m, "LifeGull", {
 			Center = centre,
 			Radius = g.r + (pi - 1) * 4,
