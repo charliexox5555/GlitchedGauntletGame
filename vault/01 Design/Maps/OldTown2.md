@@ -5,7 +5,7 @@ Old Town rebuilt to the [Map Quality Standard](Map%20Quality%20Standard.md) by l
 - **Map id:** `OldTown2`.
 - **Origin:** (3000, 200, -1500). Checked free in the match place on 2026-11-06; Rooftops2 ends near z -420.
 - **How to view it:** ForceMap only (`workspace:SetAttribute("ForceMap", "OldTown2")`). There's no `Config/Match` change until the user approves.
-- **Status:** plan written.
+- **Status (05:30): stopped at 6.3 by the stop rule (rounds 6.3 → 6.3 → 6.3). It is a draft below the 8.5 bar.** Audits are 0/0. See "Stopped at 6.3" at the end.
 
 ## Calls made without the user (asleep; decided by the standard)
 | Call | Why |
@@ -127,3 +127,34 @@ Low points:
 ### Round 3 (staged 05:13)
 - Haze back down (Density 0.22, Haze 0.9), more contrast.
 - Fabric and foliage materials restored.
+- **Audits:** 0 / 0 (7,632 parts).
+- **Blind score: 6.3** (6.3, 6.7, 6.3). Medians: W1 2, W2 1, W3 1, W4 1, W5 1, W6 1.
+
+### OldTown2 stopped at 6.3 (the stop rule)
+| Round | 1 | 2 | 3 |
+|---|---|---|---|
+| Score | 6.3 | 6.3 | 6.3 |
+
+Rounds 2 and 3 each gained 0 on the best score, so the map stops. **It is a draft below 8.5, not ready for approval.** The audits stayed at 0 / 0 every round, and the user can see it with `ForceMap = "OldTown2"`.
+
+What holds it back (all reviewers, every round), and what would move it:
+1. **W1 and W3, the perimeter blocks.** They're very tall flat stucco slabs with a repeated window grid, which reads as procedural from the overview. They also rise nearly to the tower, so the tower isn't 1.5× taller.
+   - The fix: lower and vary the perimeter (heights, roof breaks, chimneys, balconies, setbacks).
+   - That means editing the Old Town layout's perimeter buildings: the art and not the collision, but a large rebuild.
+2. **W3, the props.**
+   - The finish is mixed: flat stall boxes, smooth fruit, black café chairs, and Roblox's photo-real foliage on the hedges.
+   - The fix: a stylised foliage card and modelled stall goods. Codex could make the props.
+3. **W4, lighting.** Flat midday. Reviewers want the concept's golden hour: a lower warm sun and warm practicals in the arcades.
+   - Round 2's lower sun with heavy haze read as a sepia wash; round 3 rolled the haze back.
+   - The next try: a low sun (ClockTime about 17.2) with light haze and PointLights at the lanterns, judged in play mode.
+4. **W1 and W2, the spawn view.** The cloister faces a solid wall; the layout puts the exits at the corners on purpose.
+   - Opening a gate arch in the front wall would change spawn sightlines, so it's a layout call for the user.
+5. **The forecourt "blank sign on an L-bracket"** is the well's windlass and bucket seen side-on. Reviewers read it as a primitive sign; a modelled well (roof, crank, rope) would fix it.
+
+**Best shots:**
+- [plaza](../../02%20Art/References/maps/oldtown2/v1-r3-plaza.jpg)
+- [tower](../../02%20Art/References/maps/oldtown2/v1-r3-tower.jpg)
+- [overview](../../02%20Art/References/maps/oldtown2/v1-r2-overview.jpg)
+- [side-by-side](../../02%20Art/References/maps/oldtown2/v1-r3-side-by-side.jpg)
+
+**Approval read: not ready.** It is clearly warmer and more finished than Old Town: textured stone and stucco, an octagonal fountain, a balustraded gate, lit lanterns, and 0 / 0 audits. The perimeter and prop finish keep it at 6.3.
