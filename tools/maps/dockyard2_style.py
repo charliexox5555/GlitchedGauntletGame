@@ -56,18 +56,22 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Wood": ("B39A74", "WoodPlanks", "Dock2_Plank"),  # natural timber, desaturated (no second yellow)  # pallets, crates
     "Glass": ("9FD3E0", "Glass", ""),
     # maps v4: the concept's honey crates (boards in a darker frame), shed cartons, deck stains
-    "CrateWood": ("D3A262", "WoodPlanks", "Dock2_Plank"),
+    "CrateWood": ("C99C64", "WoodPlanks", "Dock2_Plank"),  # maps v5: a step calmer (no second yellow)
     "CrateFrame": ("8E6440", "WoodPlanks", "Dock2_Plank"),
     "Carton": ("C9A87A", "SmoothPlastic", ""),
+    # maps v5: Codex's windsock and quay set
+    "Metal": ("9AA0A4", "SmoothPlastic", ""),  # galvanised mast
+    "SockOrange": ("E0703A", "SmoothPlastic", ""),  # windsock bands (signal orange, small)
+    "Rope": ("B9A27E", "Fabric", ""),  # mooring rope
     "Stain": ("7E786F", "Concrete", "Dock2_Concrete"),
-    "Backfill": ("8A9096", "SmoothPlastic", ""),  # end-wall filler between containers: reads as more stacks, not a slab
+    "Backfill": ("4E555C", "SmoothPlastic", ""),  # maps v5 r2: dark (the light filler read as blank white slabs)  # end-wall filler between containers: reads as more stacks, not a slab
     "Water": ("2A6878", "SmoothPlastic", ""),  # pass 1: #2F8C9C read as a loud cyan
     # Neon accents (thin strips only)
-    "SignWest": ("AD5843", "SmoothPlastic", ""),  # spawn sign lane words (keep equal to LANE)
-    "SignEast": ("438C6A", "SmoothPlastic", ""),
-    "SignMid": ("52708E", "SmoothPlastic", ""),
+    "SignWest": ("A6563F", "SmoothPlastic", ""),  # spawn sign lane words (keep equal to LANE)
+    "SignEast": ("5A8068", "SmoothPlastic", ""),
+    "SignMid": ("58728A", "SmoothPlastic", ""),
     "Hull": ("4C5D70", "SmoothPlastic", ""),  # ships (round 2: the dark hull read as an unfinished slab)
-    "GlowWarm": ("FFE2B8", "Neon", ""),  # lamp heads, cab light
+    "GlowWarm": ("FFC488", "Neon", ""),  # lamp heads, cab light (maps v5: amber, as Rooftops2; FFE2B8 bloomed white)
     "GlowSignal": ("FF8A3D", "Neon", ""),  # crane beacons (tiny)
 }
 
@@ -75,7 +79,8 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 # "red", "blue", "green"). The red is a terracotta, far from the enemy team colour #FF5A36.
 # Studio pass 1 (2026-11-05): on Roblox Metal the painted boxes mirrored the blue sky and read far too saturated, so
 # painted surfaces use Dock2_Paint (the same textures on a non-metal Plastic base) and the lanes sit a step calmer.
-LANE = {"west": "AD5843", "mid": "52708E", "east": "438C6A", "crane": "D2CBBB"}  # crane: the white reefers under the crane (round 2)
+# maps v5 palette: weathered harbour lanes (the reviewers read the blue and green as loud): rust, steel blue, sea green
+LANE = {"west": "A6563F", "mid": "58728A", "east": "5A8068", "crane": "D2CBBB"}  # crane: the white reefers under the crane (round 2)
 FRAME_SHADE = 0.72  # LaneFrame = lane colour x this
 # The end walls and far stacks: the same hues, lighter and greyer (aerial perspective), never saturated.
 # Warm-leaning on purpose: the first style frame read all blue with a cool backdrop behind the blue lane.
@@ -100,7 +105,7 @@ SEGMENTS = {"primary": 2, "secondary": 2, "tertiary": 1}
 VARIANTS = {
     # concept pass 2026-11-05: our rows from the approved trim sheet (tools/textures/make_map_variants.py), 512,
     # colour + normal, no roughness / metalness map (so no sky-mirroring). Image ids resolved from the Decal uploads.
-    "Dock2_Concrete": ("Concrete", 16, "138512001950745", "73132979624401", ""),
+    "Dock2_Concrete": ("Concrete", 10, "138512001950745", "73132979624401", ""),
     "Dock2_Corrugated": ("CorrodedMetal", 8, "108069495941112", "120881089785960", ""),
     "Dock2_Cladding": ("Plastic", 8, "107512542593996", "111822254753465", ""),
     "Dock2_Plate": ("DiamondPlate", 8, "111577542877717", "140402758328054", ""),
@@ -114,12 +119,12 @@ VARIANTS = {
 # direction of (-0.65, 0.65, -0.40) at ClockTime 15 (Roblox tilts the sun's path), latitude 23.5 gives (-0.71, 0.71, 0.0),
 # so every container has a lit side, a shadow side and a lit top, and neither team looks into it.
 LIGHTING = {
-    "ClockTime": 15.6,  # maps v4: a little lower, warmer sun with longer shadows
+    "ClockTime": 16.3,  # maps v5 r2: lower, warmer sun (reviewers: no mood)  # maps v4: a little lower, warmer sun with longer shadows
     "GeographicLatitude": 23.5,
     "Brightness": 3.0,  # maps v4: the user found v3 "a bit dark"
-    "Ambient": (130, 134, 146),  # maps v4: more fill  # pass 1: a bluer ambient pushed the blue lane to royal blue in shade
-    "OutdoorAmbient": (172, 176, 192),  # maps v4: more fill, still cool against the warm sun  # round 3: cooler shade against a warmer sun (warm/cool contrast)
-    "ColorShift_Top": (255, 222, 188),  # maps v4: (255, 204, 150) turned the grey deck brown in the sun
+    "Ambient": (140, 142, 152),  # maps v5 r2: container shade sides read near-black  # maps v4: more fill  # pass 1: a bluer ambient pushed the blue lane to royal blue in shade
+    "OutdoorAmbient": (178, 180, 194),  # maps v4: more fill, still cool against the warm sun  # round 3: cooler shade against a warmer sun (warm/cool contrast)
+    "ColorShift_Top": (255, 214, 172),  # maps v5 r2: warmer sun  # maps v4: (255, 204, 150) turned the grey deck brown in the sun
     "ColorShift_Bottom": (0, 0, 0),
     "EnvironmentDiffuseScale": 0.2,
     "EnvironmentSpecularScale": 0.15,
@@ -128,9 +133,9 @@ LIGHTING = {
     "ShadowSoftness": 0.2,
 }
 FX = {
-    "Atmosphere": {"Density": 0.36, "Offset": 0.2, "Color": (238, 224, 204), "Decay": (150, 180, 214), "Glare": 0.5, "Haze": 1.9},  # maps v4: warm haze, cool depth
+    "Atmosphere": {"Density": 0.3, "Offset": 0.18, "Color": (234, 220, 202), "Decay": (140, 176, 216), "Glare": 0.6, "Haze": 1.6},  # maps v5 r2: less milky  # maps v4: warm haze, cool depth
     "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
-    "Grade": {"Brightness": 0.04, "Contrast": 0.1, "Saturation": 0.1, "TintColor": (255, 246, 232)},  # maps v4: clearer, warmer
+    "Grade": {"Brightness": 0.03, "Contrast": 0.13, "Saturation": 0.12, "TintColor": (255, 244, 228)},  # maps v4: clearer, warmer
     "SunRays": {"Intensity": 0.08, "Spread": 0.5},
 }
 LAMP = {"color": (255, 222, 176), "brightness": 1.7, "range": 36}  # maps v4: 1.7 with the brighter exposure  # round 1: the Shed inside read murky  # mast floods and shed lamps (shadowless)

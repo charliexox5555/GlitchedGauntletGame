@@ -450,6 +450,10 @@ def p_shed():
 			lamps.append(RB(x - 0.07, x + 0.07, 13.0, 14.5, z - 0.07, z + 0.07))
 			lamps.append(lathe_at(x, z, [(0.0, 13.25), (0.9, 12.75), (0.9, 12.55)]))
 			lens.append(RB(x - 0.6, x + 0.6, 12.42, 12.56, z - 0.6, z + 0.6, BT, ST))
+	# maps v5 float audit: the pendants hung 4 below the roof from nothing; a purlin over each lamp line now
+	# runs between the portal tie beams and carries them
+	for x in (-5.0, 5.0):
+		lamps.append(RB(x - 0.12, x + 0.12, 14.48, 14.7, -15.3, 15.3, BT, ST))
 	obj(c, "Lamps", merge(*lamps), "Charcoal")
 	# Round 3: warm strips under the three tie beams, so the Shed reads lit even where PointLights don't render.
 	strips = [RB(-11.0, 11.0, 14.38, 14.5, z - 0.12, z + 0.12, BT, ST) for z in (-15.0, 0.0, 15.0)]
@@ -614,9 +618,10 @@ def p_rack():
 			beams.append(RB(x - 0.1, x + 0.1, y, y + 0.35, -6.95, 6.95, BT, ST))
 	for li, y in enumerate((0.7, 3.3, 5.9)):
 		for bi, zc in enumerate((-4.575, 0.0, 4.575)):
-			pal.append(RB(-0.9, 0.9, y + 0.16, y + 0.25, zc - 1.95, zc + 1.95))
+			# maps v5 float audit: the pallet spans the two beams (x +-1.1), resting on them
+			pal.append(RB(-1.16, 1.16, y + 0.16, y + 0.25, zc - 1.95, zc + 1.95))
 			for zz in (zc - 1.6, zc, zc + 1.6):
-				pal.append(RB(-0.86, 0.86, y + 0.01, y + 0.18, zz - 0.18, zz + 0.18))
+				pal.append(RB(-1.14, 1.14, y - 0.0, y + 0.17, zz - 0.18, zz + 0.18))
 			top = y + 0.24
 			seed = li * 3 + bi
 			for ci, (z0, z1, h) in enumerate(((zc - 1.85, zc - 0.05, 0.9 + 0.2 * (seed % 2)), (zc + 0.05, zc + 1.85, 1.1), (zc - 1.6, zc - 0.1, 0.7))):
@@ -692,6 +697,13 @@ def p_quay_barrier(L, name):
 	cap = [(-2.0, 2.55), (0.0, 2.55), (0.0, 2.78), (-0.22, 3.0), (-1.78, 3.0), (-2.0, 2.78)]
 	obj(c, "Cap", RPZ(cap, -h, h), "Concrete")
 	obj(c, "Band", RB(-1.99, -1.87, 1.55, 2.1, -h + 0.06, h - 0.06, BT, ST), "Hazard")
+	# maps v5 r2: the concept's black-and-white hazard stripes on the outer band, slanted, 0.5 pitch 1.0
+	st = []
+	z = -h + 0.3
+	while z + 0.9 < h - 0.1:
+		st.append(RPX([(z, 1.58), (z + 0.5, 1.58), (z + 0.85, 2.07), (z + 0.35, 2.07)], -2.03, -1.97))
+		z += 1.0
+	obj(c, "Stripes", merge(*st), "Charcoal")
 	obj(c, "Kick", RB(-2.0, -1.85, -0.08, 0.45, -h, h), "ConcreteDark")
 
 
@@ -700,7 +712,15 @@ def p_quay_face():
 	obj(c, "Face", RB(-0.4, 0.12, -12.0, -0.05, -3.98, 3.98), "ConcreteDark")
 	cop = [(-0.5, -0.6), (0.35, -0.6), (0.35, -0.12), (0.18, 0.06), (-0.5, 0.06)]
 	obj(c, "Coping", RPZ(cop, -4.0, 4.0), "Concrete")
-	obj(c, "Fender", RB(0.12, 0.66, -3.3, -0.9, -0.95, 0.95, 0.2, SP), "Rubber")
+	# maps v5: Codex's D1 tyre fender, turned to hang flat against the face, on its chain from an eye bracket
+	# under the coping (was a rubber box)
+	fp = codex_import("QuaySet.glb", "TyreFender")
+	for role, bms in fp.items():
+		for bm in bms:
+			bmesh.ops.rotate(bm, verts=bm.verts, cent=(0.0, 0.0, 0.0), matrix=Matrix.Rotation(math.radians(90.0), 3, "Z"))
+			bmesh.ops.translate(bm, verts=bm.verts, vec=(0.55, 0.0, -3.62))
+		obj(c, "Tyre" + role, merge(*bms), role)
+	obj(c, "FenderEye", RB(0.08, 0.66, -0.66, -0.5, -0.14, 0.14, 0.03, 1), "Charcoal")
 
 
 def p_bollard():
@@ -721,6 +741,48 @@ def p_lamp_mast():
 		lens.append(RB(s * 1.5, s * 2.6, 26.22, 26.38, -0.58, 0.58, BT, ST))
 	obj(c, "Head", merge(*head), "Charcoal")
 	obj(c, "Lens", merge(*lens), "GlowWarm")
+
+
+def codex_import(glb, group):
+	"""A Codex GLB group in Blender coords, kept at its local origin (the group's bottom centre). Roles from the
+	material names (mapped to this map's roles)."""
+	before = set(bpy.data.objects)
+	bpy.ops.import_scene.gltf(filepath=os.path.join(ART, "props", glb))
+	new = [o for o in bpy.data.objects if o not in before]
+	bpy.context.view_layer.update()
+	meshes = [o for o in new if o.type == "MESH" and (group is None or (o.parent is not None and o.parent.name == group))]
+	par = None if group is None else next(o for o in new if o.name == group)
+	inv = par.matrix_world.inverted() if par is not None else Matrix()
+	ROLE = {"Metal": "Metal", "Accent": "SockOrange", "White": "White", "Charcoal": "Charcoal", "Rubber": "Rubber", "Wood": "Rope"}
+	out = {}
+	for o in meshes:
+		bm = bmesh.new()
+		bm.from_mesh(o.data)
+		bm.transform(inv @ o.matrix_world)
+		role = ROLE[o.data.materials[0].name.split(".")[0]]
+		out.setdefault(role, []).append(bm)
+	for o in new:
+		bpy.data.objects.remove(o)
+	return out
+
+
+def p_windsock():
+	# Maps v5: Codex's windsock on a mast (base plate, bracket), on the crane girder (the old one was Parts in the
+	# air). Origin: the mast's base centre. The sock meshes keep their names for the Life sway rule.
+	c = piece("Windsock")
+	ws = codex_import("Windsock.glb", None)
+	for role, bms in ws.items():
+		for bm in bms:
+			bmesh.ops.translate(bm, verts=bm.verts, vec=(2.275, 0.0, 0.0))  # mast axis (Blender x -2.275) to 0
+		obj(c, ("Mast" if role == "Metal" else "Sock") + role, merge(*bms), role)
+
+
+def p_rope_coil():
+	c = piece("RopeCoil")
+	for role, bms in codex_import("QuaySet.glb", "RopeCoil").items():
+		for bm in bms:  # maps v5 r2: 0.75 (read oversized on the barrier top)
+			bmesh.ops.scale(bm, verts=bm.verts, vec=(0.75, 0.75, 0.75))
+		obj(c, "Coil" + role, merge(*bms), role)
 
 
 def p_sts_crane():
@@ -772,6 +834,8 @@ def build():
 	p_lamp_mast()
 	p_sts_crane()
 	p_ship()
+	p_windsock()  # maps v5: Codex D-job windsock, Codex D1 rope coil
+	p_rope_coil()
 	# maps v4: the spawn signs, chevrons, CRANE plate and deck words are cut (no part-built text)
 	p_deck_drain()
 	p_manhole()

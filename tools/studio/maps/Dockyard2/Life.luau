@@ -265,32 +265,8 @@ tag(flag, "LifeSway", {
 	Sway2Deg = 7,
 })
 
--- Windsock on the girder end (girder top about y 56).
-local sockPole = part(statics, "SockPole", Vector3.new(0.4, 6, 0.4), CFrame.new(W(31, 59, 0)), POLE)
-local sockTop = sockPole.Position + Vector3.new(0, 2.8, 0)
-local sock = model("Windsock")
--- Signal yellow like the crane (team orange-red stays off the map).
-local YELLOW = Color3.fromRGB(240, 196, 40)
-local droop = CFrame.new(sockTop) * CFrame.Angles(0, 0, math.rad(-14))
-local radii = { 1.35, 1.12, 0.9, 0.72 }
-for k, r in radii do
-	part(
-		sock,
-		"Ring" .. k,
-		Vector3.new(1.75, r * 2, r * 2), -- rings overlap, so no end faces meet
-		droop * CFrame.new(0.8 + (k - 1) * 1.6, 0, 0),
-		if k % 2 == 1 then YELLOW else WHITE,
-		"cylinder"
-	)
-end
-tag(sock, "LifeSway", {
-	Pivot = sockTop,
-	SwayAxis = Vector3.yAxis,
-	SwayDeg = 18,
-	SwayHz = 0.3,
-	Sway2Axis = Vector3.zAxis,
-	Sway2Deg = 5,
-})
+-- Windsock: lane G's Art (Codex's modelled windsock on a mast with a base plate, on the north girder top;
+-- the Parts windsock here floated between the girders). Its sock meshes sway by rule, below.
 
 -- Far ships ------------------------------------------------------------------------
 
@@ -368,6 +344,16 @@ local craneSway = {
 	Phase = 30, -- the same phase, so the spreader and its cables swing together
 }
 rule("Sway", "Crane_Spreader", craneSway)
+local sockSway = {
+	Pivot = W(30.5, 66.4, 16), -- the mast head
+	SwayAxis = Vector3.yAxis,
+	SwayDeg = 14,
+	SwayHz = 0.3,
+	Sway2Axis = Vector3.zAxis,
+	Sway2Deg = 4,
+}
+rule("Sway", "Windsock_SockSockOrange", sockSway)
+rule("Sway", "Windsock_SockWhite", sockSway)
 rule("Sway", "Crane_Rigging", craneSway)
 rule("Sway", "Ship", {
 	PivotY = ORIGIN.Y - 9.1, -- each ship rolls about its own waterline

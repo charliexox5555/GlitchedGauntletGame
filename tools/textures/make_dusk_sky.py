@@ -8,7 +8,8 @@ Rt = -X, Lf = +X, Up, Dn (checked in Studio: the
 other way round left a seam). Clouds stay below 32 degrees, so the Up and Dn faces are pure gradient and their
 rotation can't show a seam.
 
-Run: python tools/textures/make_dusk_sky.py   -> art-source/maps/Rooftops2/sky/Sky_<Face>.png (1024)
+Run: python tools/textures/make_dusk_sky.py [dock]  -> art-source/maps/<Map>/sky/Sky_<Face>.png (1024)
+The "dock" preset is Dockyard2's harbour day (maps v5 round 2): clear blue zenith, pale warm haze, white clouds.
 """
 
 from pathlib import Path
@@ -17,7 +18,10 @@ import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "art-source" / "maps" / "Rooftops2" / "sky"
+import sys
+
+PRESET = sys.argv[1] if len(sys.argv) > 1 else "dusk"
+OUT = ROOT / "art-source" / "maps" / ("Dockyard2" if PRESET == "dock" else "Rooftops2") / "sky"
 N = 1024
 
 # elevation (degrees) -> colour, from the concept
@@ -32,6 +36,17 @@ STOPS = [
 ]
 CLOUD_LIT = np.array((255, 222, 206), float)
 CLOUD_SHADE = np.array((206, 168, 196), float)
+if PRESET == "dock":  # sampled from art-source/maps/Dockyard2/concepts/01-overview.png
+	STOPS = [
+		(-90, (196, 206, 214)),
+		(0, (232, 228, 222)),  # warm pale haze at the horizon
+		(6, (214, 224, 238)),
+		(18, (170, 204, 242)),
+		(40, (120, 180, 240)),
+		(90, (88, 160, 236)),
+	]
+	CLOUD_LIT = np.array((255, 252, 246), float)
+	CLOUD_SHADE = np.array((200, 214, 232), float)
 
 
 def gradient(el):

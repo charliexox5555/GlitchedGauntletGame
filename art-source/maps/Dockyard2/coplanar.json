@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "piece": "Map_Windsock",
+    "a": "Windsock_MastMetal",
+    "b": "Windsock_MastMetal",
+    "plane": [
+      0.0,
+      0.0,
+      -1.0,
+      -0.2
+    ],
+    "area": 0.0763
+  }
+]

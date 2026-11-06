@@ -628,6 +628,16 @@ Shared crates/barrel remain in the [R4 Rooftops export](../../../art-source/maps
 
 Sources used: this prop list and its named concepts, [Art Direction](../../02%20Art/Art%20Direction.md), the LihFolk `roblox-blender-modeling` skill, [Bevels Chamfers and Edge Highlights Without Textures](../../LihFolk/55%20Modelling%20Nuance%20and%20Readability/Bevels%20Chamfers%20and%20Edge%20Highlights%20Without%20Textures.md), [Spending Triangles Where the Camera Looks](../../LihFolk/55%20Modelling%20Nuance%20and%20Readability/Spending%20Triangles%20Where%20the%20Camera%20Looks.md), and [Clean Stylised Shading](../../LihFolk/54%20Untextured%20Stylised%20Modelling/Clean%20Stylised%20Shading%20-%20Weighted%20and%20Custom%20Normals.md).
 
+#### Codex Job 2 results (2026-11-06)
+
+| Prop | Tris / budget | Measured W x D x H (studs) | File paths | Notes / off-spec |
+|---|---|---|---|---|
+| B Windsock | 1,136 / 1,500 | 6.5126 x 1.6 x 12 | [GLB](../../../art-source/maps/Dockyard2/props/Windsock.glb) / [blend](../../../art-source/maps/Dockyard2/props/Windsock.blend) / [preview](../../../art-source/maps/Dockyard2/props/Windsock_preview.png) | Mast, base plate, four anchors, cast socket/gussets, bolted bracket, swivel bearing, mouth ring, six red/white cloth bands and a raised seam. Tapered open sock has a gentle modeled droop. No text or logos. |
+
+Roles are exactly `Metal`, `Accent`, `White`: steel `#69747C`, faded red cloth `#B84F3F`, warm white `#ECE8DF`. The complete silhouette is bottom-centred at origin with rotation/scale applied; mast/base-plate centre is locally x -2.4563, y 0, z 0 (also stored as `MastBaseOffset` in the native scene). Preview includes a 5-stud grey scale block.
+
+LihFolk geometry gates pass on all three role meshes. All 23 shells connect to the anchored base in the contact graph (0 unseated, 0.002-stud tolerance). Saved GLB re-import preserves size and triangles and excludes preview helpers. Final 3/4-view review: 16/18. Primary chamfers are single-segment; tiny hardware and the raised cloth seam use the previously documented smaller edge treatment. Studio integration was not performed.
+
 ### v4 results (built 2026-11-05 late)
 Kit rebuilt headless (`tools/blender/build_map_kit_dockyard2.py`): 23 pieces, 29k triangles, coplanar 0, asset 127619569582290 updated. Installed in the match place: 510 placements, Studio audit 0 pairs over 2,469 visible parts. **The place needs saving (Ctrl+S).**
 
@@ -693,3 +703,37 @@ These are edit-mode captures with the map's own Lighting config and effects appl
 |---|---|---|
 | D1 | QuaySet (bollard, tyre fender, rope coil) | **Not used yet.** The bollard is plainer than our lathe bollard. The tyre fender and rope coil are good story props for the quay in the next pass, hung on the quay face and placed by the bollards. |
 | D2 | ShedRackSet (rack, pallet, cartons) | **Not used.** The rack is 8 x 3 x 9 and doesn't fit the Shed's 14-long rack footprint, and its yellow uprights would be a second yellow. Lane G's v4 rack (braced blue uprights, pallets, cartons) stays. The pallet and carton stack could dress the Shed floor later. |
+
+## Maps v5 (2026-11-06 overnight): nothing floats, one palette
+Source: the user's v4 playtest, [Maps v4 Review](../../05%20Production/Playtests/2026-11-05%20Maps%20v4%20Review.md). They reported a floating windsock and some unprofessional-looking things. The loop, the scripted float audit and the fixed cameras are the same as in [Rooftops2 → Maps v5](Rooftops2.md#maps-v5-2026-11-06-overnight-nothing-floats-no-blank-signs-one-palette). Cameras are in [evidence_cameras.json](../../../tools/maps/evidence_cameras.json): overview, mid-crane, red-lane, quay and shed-inside.
+
+### Float audit: 18 floating groups to 0
+| Floating part | Fix |
+|---|---|
+| **The windsock** (lane F's Life Parts) | It stood at x 31, z 0, between the two girders at z ±16 over nothing. Now Codex's modelled windsock (mast, base plate, bracket) is a kit piece on the north girder top (30.5, 56, 16). Its sock meshes sway by a LifeRule from the mast head (`Dockyard2/Life.luau`). |
+| **Shed pendant lamps**, 4 under the roof on nothing | A purlin over each lamp line between the portal tie beams carries them. |
+| **Rack pallets**, between the beams and touching neither | They now span both beams. |
+| **Skyline ships**, 0.1 over the water | They draw 2, and their deck containers move down with them. |
+| Crane spreader, STS crane booms and cabs, ship stripes | Audit false positives: crossing boxes with no vertex inside each other. The audit now also tests triangle centroids. |
+
+**After: 0 floating groups, 0 z-fighting pairs** (2,663 parts).
+
+### Codex imports
+- **D1 tyre fender:** on every quay face, hung on its chain from an eye bracket under the coping. It replaces the rubber box.
+- **D1 rope coil:** beside every other bollard on the barrier top.
+- **Windsock:** as above.
+- The D1 bollard isn't used; it's plainer than ours. The D2 rack set isn't used either (it doesn't fit the shed's racks).
+
+### Palette (single table)
+| Slot | Roles | Colour |
+|---|---|---|
+| Base: ground | Deck `97958E`; Concrete `A59D90`; ConcreteDark `6E675E` | cool concrete |
+| Base: structure | Cladding `D3D5D0`; Roof `7A848D`; Charcoal `353A40`; White `ECE8DF` | |
+| Lanes (route colour, not team) | West rust `A6563F`, middle steel blue `58728A`, east sea green `5A8068`. They were `AD5843`, `52708E` and `438C6A`; the blue and green read loud. | weathered |
+| Accent | Crane yellow `F2B632`. It's the only yellow; the crates are calmer at `C99C64`. | landmark |
+| Small accents | Windsock orange `E0703A`, Rubber `2A2D31`, Rope `B9A27E`, Metal `9AA0A4` | |
+| Glow | GlowWarm `FFC488` amber, as on Rooftops2 | |
+| Team colours | none on the map (UI only) | |
+
+### Round 1
+Shots: `vault/02 Art/References/maps/dockyard2/v5-r1-*.jpg`.

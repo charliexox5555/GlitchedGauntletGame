@@ -45,7 +45,7 @@ SHIP = (108, 20)
 SHIP_BAYS = (-50, -16, 18)
 SHIP_ROWS = (-12, -4, 4, 12)
 SHIP_HEIGHTS = ((2, 3, 3, 2), (3, 2, 3, 3), (2, 3, 2, 1))
-SHIP_DECK = 9.4  # hatch-cover top in map space (waterline -9 + 18.4)
+SHIP_DECK = 7.4  # hatch-cover top in map space (waterline -11 + 18.4; maps v5: the hull sits 2 lower, it floated over the water)
 FAR_STACKS = ((190, -120, 2), (190, -86, 3), (222, -120, 1), (222, 100, 2), (190, 120, 3), (254, 40, 2))
 
 # End walls (B end; the A end is it rotated): container faces toward the yard and the alcove, 7 high.
@@ -172,6 +172,8 @@ def build() -> tuple[list[Put], list[Part]]:
                 near_mast = any(abs(mx - b.x) < 2 and abs(mz - z) < 4 for mx, mz in MASTS)
                 if k % 2 == 0 and piece == "QuayBarrier8" and not near_mast:
                     puts.append(Put("Bollard", b.x, WALL_TOP - PROP_SINK, z, 0, None, "Quay", []))
+                    if k % 4 == 0:  # maps v5: Codex's rope coil beside every other bollard, on the barrier top
+                        puts.append(Put("RopeCoil", b.x, WALL_TOP - 0.03, z + 2.6 * step, 0, None, "Quay", []))
         elif b.kind == "backdrop":
             pass  # dressed below as whole end walls
 
@@ -179,6 +181,9 @@ def build() -> tuple[list[Put], list[Part]]:
         puts.append(Put("Shed", 55 * s, 0, 42 * s, 0 if s > 0 else 180, "east" if s > 0 else "west", "Sheds", shed_ids[s]))
         puts.append(Put("ShedSign%d" % (1 if s > 0 else 2), 55 * s, 0, 42 * s, 0 if s > 0 else 180, None, "Sheds", []))
     puts.append(Put("Crane", 0, 0, 0, 0, None, "Crane", crane_ids))
+    # maps v5: Codex's windsock stands on the north girder's top (y 56) near its east end (it was Life Parts in
+    # the air between the girders)
+    puts.append(Put("Windsock", 30.5, 55.98, 16, 0, None, "Crane", []))
 
     # End walls, 7 high, with a dark filler behind so the gaps between boxes read as depth.
     backdrop_ids = [i for i, b in enumerate(L.BOXES, start=1) if b.kind == "backdrop"]
@@ -273,7 +278,8 @@ def build() -> tuple[list[Put], list[Part]]:
         parts.append(Part("FarQuay", "Skyline", (268, 4, 1000), (266 * s, -10, 0), "Deck"))
         for x, z, yaw in SKY_CRANES:
             puts.append(Put("StsCrane", x * s, -8, z * s, yaw + (180 if s < 0 else 0), None, "Skyline", []))
-        puts.append(Put("Ship", SHIP[0] * s, -9, SHIP[1] * s, 0 if s > 0 else 180, None, "Skyline", []))
+        # maps v5 float audit: the hull sat 0.1 over the water; it now draws 2 (water top -9.1)
+        puts.append(Put("Ship", SHIP[0] * s, -11, SHIP[1] * s, 0 if s > 0 else 180, None, "Skyline", []))
         for bi, bz in enumerate(SHIP_BAYS):
             for ri, rx in enumerate(SHIP_ROWS):
                 for k in range(SHIP_HEIGHTS[bi][ri]):

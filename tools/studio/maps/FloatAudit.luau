@@ -11,7 +11,7 @@
 -- How: every visible part is a node. Two parts are joined when they touch or
 -- overlap, tested on real geometry: a Part is its box, a MeshPart its
 -- triangles (EditableMesh). A vertex of one part that lies on or inside the
--- other (within EPS) is contact. Inside / on a mesh is found by casting short
+-- other (within EPS) is contact; so is a triangle centroid (crossing boxes). Inside / on a mesh is found by casting short
 -- axis rays through a column grid of its triangles: a hit closer than EPS is
 -- on the surface; a nearest hit leaving the mesh (a back face) means inside.
 -- Parts at the bottom of the map (the street, the sea bed, the water) are the
@@ -174,6 +174,9 @@ local function meshShape(p: MeshPart): Shape?
 		end
 		local t = { a = a, b = b, c = c, n = n.Unit }
 		table.insert(tris, t)
+		-- the centroid is a test point too: two crossing boxes (a boom through a frame) overlap with no
+		-- vertex of either inside the other, but their face centroids are
+		table.insert(verts, (a + b + c) / 3)
 		local tlo, thi = a:Min(b):Min(c), a:Max(b):Max(c)
 		for i = 1, 3 do
 			if math.abs(comp(t.n, i)) < 1e-4 then
