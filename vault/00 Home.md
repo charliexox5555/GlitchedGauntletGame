@@ -7,6 +7,26 @@
 
 ## 📍 Status
 
+- **Overnight 2026-11-06, every map rebuilt as `<Map>2`** (ForceMap only; old maps and the pool untouched). The verdict is in [Overnight Maps Approval](05%20Production/Playtests/2026-11-06%20Overnight%20Maps%20Approval.md).
+  - The spec is the new [Map Quality Standard](01%20Design/Maps/Map%20Quality%20Standard.md).
+  - Best blind scores:
+    | Map | Score |
+    |---|---|
+    | Rooftops2 | **8.3** (ready for an eye-test) |
+    | Dockyard2 | 7.5 |
+    | Metro2 | 6.7 |
+    | OldTown2 | 6.3 |
+    | Bunker2 | 6.25 |
+    | Snowpeak2 | 5.0 |
+    | Greenhouse2 | 5.0 |
+  - All audits are 0.
+  - Codex made the concepts for all maps, the billboards and posters, and hero props (the Greenhouse iron kit, the Metro train, the Snowpeak snowcat and rocks).
+  - **Waiting on the user:**
+    - approval of Rooftops2;
+    - the layout asks (Bunker2, Snowpeak2, Metro2, OldTown2);
+    - the Greenhouse2 design pass;
+    - whether Codex should do the hero pieces of every map.
+  - Place saved 05:33.
 - **Evening review 2026-11-05 ([note](05%20Production/Playtests/2026-11-05%20Evening%20Review.md)):**
   - **Maps are too simple** ("smooth plastic blocks"). Next: reference boards and ChatGPT concept images for Rooftops and Dockyard, approved before any rebuild.
   - **Match HUD reverted to v1.** Next: a UI concept pass (references, ChatGPT screens, Figma) for the Lobby UI and the HUD. Keep the v2 fonts and effects; lose the rounded "AI" look.
