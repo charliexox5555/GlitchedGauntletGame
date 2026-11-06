@@ -929,3 +929,30 @@ Either one reaching 2 passes the map. Fix candidates:
 - W6: a shorter AC cabinet with a parapet screen filling the rest of the cover box.
 
 **Best shots:** [overview](../../02%20Art/References/maps/rooftops2/v5-r7-overview.jpg), [b-spawn](../../02%20Art/References/maps/rooftops2/v5-r7-b-spawn.jpg), [tower](../../02%20Art/References/maps/rooftops2/v5-r7-tower.jpg), [side-by-side](../../02%20Art/References/maps/rooftops2/v5-r7-side-by-side.jpg).
+
+### Round 8: exception round on W6 scale (the core chat's call), final for tonight
+**Change:** the AC cover volumes stay exactly 8 × 4 × 7.5 (gameplay) but now read as **rooftop plant enclosures**:
+- a stone parapet base;
+- a timber louvre screen on steel posts with a stone cap;
+- a human-size service door (2.4 × 5.6, handle at 3.5);
+- a normal-size unit inside (Codex's cabinet at 0.6).
+
+The quoins are also one step smaller (0.85 × 0.55 × 0.47 at a 0.52 pitch).
+
+**Audits:** 0 floating groups, 0 z-fighting pairs (1,826 parts). The shots were taken with the other 14 maps moved out of Workspace and put back afterwards.
+
+**Blind score: 8.3 by the rule** (medians W1 2, W2 1, W3 2, W4 2, **W5 1**, **W6 2**).
+- The reviewers' own totals were 9.2, 8.3 and 8.8 (median 8.8), so two of three passed it individually.
+- But the standard scores the median per criterion: W6 rose to 2 and W5 slipped back to 1, which is 20/24.
+- **Not 8.5. Stopped.**
+
+Reviewers' low points:
+- the flat grey ground and floating sky slabs in the overview (other maps' parts beyond the hidden set and the street plane);
+- the bare spawn strip;
+- louvre enclosures that repeat a lot.
+
+**Best shots:**
+- [overview](../../02%20Art/References/maps/rooftops2/v5-r8-overview.jpg)
+- [a-roof-tank](../../02%20Art/References/maps/rooftops2/v5-r8-a-roof-tank.jpg)
+- [b-roof-side](../../02%20Art/References/maps/rooftops2/v5-r8-b-roof-side.jpg)
+- [side-by-side](../../02%20Art/References/maps/rooftops2/v5-r8-side-by-side.jpg)
