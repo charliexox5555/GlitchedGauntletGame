@@ -175,3 +175,22 @@ What still holds it back:
 - **The statue pedestal** is limestone.
 - **End tones** follow the palette table (B slate-blue `4F7FA8`, A terracotta `B8603F`), not the old saturated blue and yellow.
 - **The Dome floor** gets the halls' paving.
+
+**Round 3 blind score: 5.0** (the median is 5.0 from the two reviewers in at the time; every criterion at 1).
+
+### Stopped at 5.0 (the stop rule)
+Scores by round: 5.0, 5.0, 5.0. Rounds 2 and 3 each gained 0, so the map stops. **This is a draft. Don't show it for approval.** The audits are clean: 0 floating groups and 0 z-fighting pairs.
+
+**Honest read:** the old Greenhouse kit is too far below the new concept for polish to close the gap. Every reviewer named the same core gaps:
+1. **The glass halls** are flat sheets of one tint with thin lines. The concept's halls are ornate cast iron: columns with leafy capitals, filigree spandrels, arcades, and glass you see sky and garden through.
+2. **The planting** is low-poly palms and faceted rock slabs. The concept has lush layered ferns, hydrangeas, potted citrus and tree ferns.
+3. **The light** isn't the concept's warm golden sun on the stone floor.
+4. **The spawn view** is a blank stucco wall with a Wardian case. The concept's spawn is a dressed Orangery.
+
+**What would move it:** the hero pieces need modelling from the concept's kit sheet, which Codex can do well (the fast props job on Rooftops2 shows it):
+- an iron column with a leafy capital and an arched spandrel, as one modular bay;
+- a filigree arcade wall bay;
+- a fern and hydrangea planting set;
+- a lantern.
+
+Then rebuild the wall kit around them and re-light the map with a lower, warmer sun and real fill. That's a v2 of the kit, not another polish round.
