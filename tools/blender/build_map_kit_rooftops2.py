@@ -667,16 +667,16 @@ def emit(c, parts, prefix=""):
 			obj(c, prefix + role, merge(*bms), role, smooth=0 if role in ("Shutter", "Stone") else 35)
 
 
-def quoins_corner(px, pz, sx, sz, y0, y1, parts, long=1.1):
+def quoins_corner(px, pz, sx, sz, y0, y1, parts, long=0.85):
 	"""Alternating long / short stone blocks on a building corner at (px, pz), faces toward sx (X) and sz (Z).
 	Maps v4: one size smaller (1.1 x 0.7 x 0.62, was 1.6 x 0.9 x 0.8), 0.1 proud."""
 	y, k = y0, 0
-	while y + 0.64 <= y1:
-		lx, lz = (long, 0.7) if k % 2 == 0 else (0.7, long)
+	while y + 0.5 <= y1:
+		lx, lz = (long, 0.55) if k % 2 == 0 else (0.55, long)  # maps v5 r8: a step smaller
 		x0, x1 = sorted((px + sx * 0.1, px - sx * lx))
 		z0, z1 = sorted((pz + sz * 0.1, pz - sz * lz))
-		parts["Stone"].append(RB(x0, x1, y + 0.03, y + 0.65, z0, z1, BT, ST))
-		y += 0.68
+		parts["Stone"].append(RB(x0, x1, y + 0.03, y + 0.5, z0, z1, BT, ST))
+		y += 0.52
 		k += 1
 
 
@@ -1636,6 +1636,65 @@ def codex_ac():
 	emit(c, P, "Pad")
 
 
+def ac_enclosure():
+	# Maps v5 r8 (W6 scale, "the AC units read oversized" in every review): the 8 x 4 x 7.5 cover box is gameplay and
+	# stays, but it now reads as what real roofs put there: a plant enclosure. A stone parapet base (1.2, the roofs'
+	# parapet language), a timber louvre screen on steel posts to 7.3 with a stone cap, and a service door at human
+	# size (2.4 x 5.6, handle at 3.5) on the +Z face. Inside, Codex's cabinet at a normal 0.6 (4.8 x 2.4 x 4.5) on the
+	# base, its top and fan seen from the high ground. The outer faces fill the cover box exactly.
+	c = piece("ACUnit")
+	cp = codex_meshes(os.path.join(PROPS, "ACCabinet.glb"))
+	cp["Appliance"] = cp.pop("Trim", []) + cp.get("Appliance", [])
+	for bms in cp.values():
+		for bm in bms:
+			bmesh.ops.scale(bm, verts=bm.verts, vec=(0.6, 0.6, 0.6))
+			bmesh.ops.translate(bm, verts=bm.verts, vec=(0.0, 0.0, 1.2))
+	emit_codex(c, cp)
+	P = roles()
+	hx, hz = 4.0, 2.0
+	# parapet base: a hollow stone kerb (the unit stands on its floor slab inside)
+	P["Stone"].append(RB(-hx, hx, 0.0, 1.2, hz - 0.45, hz, 0.06, 1))
+	P["Stone"].append(RB(-hx, hx, 0.0, 1.2, -hz, -hz + 0.45, 0.06, 1))
+	P["Stone"].append(RB(-hx, -hx + 0.45, 0.0, 1.2, -hz + 0.46, hz - 0.46, 0.06, 1))
+	P["Stone"].append(RB(hx - 0.45, hx, 0.0, 1.2, -hz + 0.46, hz - 0.46, 0.06, 1))
+	P["Stone"].append(RB(-hx + 0.46, hx - 0.46, 0.0, 1.19, -hz + 0.46, hz - 0.46))
+	# steel posts at the corners and mid-span
+	posts = [(-hx + 0.15, -hz + 0.15), (hx - 0.15, -hz + 0.15), (-hx + 0.15, hz - 0.15), (hx - 0.15, hz - 0.15), (0.0, -hz + 0.15), (0.0, hz - 0.15)]
+	for x, z in posts:
+		P["Charcoal"].append(RB(x - 0.13, x + 0.13, 1.2, 7.3, z - 0.13, z + 0.13, 0.03, 1))
+	# timber louvres, 0.22 tall at 0.42 pitch, on all four faces (gaps on the door)
+	door = (0.8, 3.2)  # x range of the door on the +Z face
+	for k in range(14):
+		y0 = 1.42 + k * 0.42
+		for sg in (1, -1):  # long faces
+			zf = sg * (hz - 0.06)  # 0.04 behind the door frame face
+			a, b = sorted((zf, zf - sg * 0.24))
+			if sg > 0:
+				for x0, x1 in ((-hx + 0.28, -0.13), (0.13, door[0] - 0.05), (door[1] + 0.05, hx - 0.28)):
+					if x1 - x0 > 0.2:
+						P["Wood"].append(RB(x0, x1, y0, y0 + 0.22, a, b))
+			else:
+				for x0, x1 in ((-hx + 0.28, -0.13), (0.13, hx - 0.28)):
+					P["Wood"].append(RB(x0, x1, y0, y0 + 0.22, a, b))
+			xf = sg * (hx - 0.02)
+			a, b = sorted((xf, xf - sg * 0.24))
+			P["Wood"].append(RB(a, b, y0, y0 + 0.22, -hz + 0.28, hz - 0.28))
+	# stone cap rail
+	P["Stone"].append(RB(-hx, hx, 7.3, 7.5, hz - 0.3, hz, 0.04, 1))
+	P["Stone"].append(RB(-hx, hx, 7.3, 7.5, -hz, -hz + 0.3, 0.04, 1))
+	P["Stone"].append(RB(-hx, -hx + 0.3, 7.3, 7.5, -hz + 0.31, hz - 0.31, 0.04, 1))
+	P["Stone"].append(RB(hx - 0.3, hx, 7.3, 7.5, -hz + 0.31, hz - 0.31, 0.04, 1))
+	# service door: a boarded leaf in a steel frame, strap hinges, a handle at 3.5
+	P["Charcoal"].append(RB(door[0] - 0.12, door[0] + 0.02, 1.2, 6.9, hz - 0.33, hz - 0.02))
+	P["Charcoal"].append(RB(door[1] - 0.02, door[1] + 0.12, 1.2, 6.9, hz - 0.33, hz - 0.02))
+	P["Charcoal"].append(RB(door[0] - 0.1, door[1] + 0.1, 6.8, 7.0, hz - 0.33, hz - 0.02))
+	P["Door"].append(RB(door[0] + 0.04, door[1] - 0.04, 1.25, 6.78, hz - 0.22, hz - 0.08))
+	for y in (2.0, 5.8):
+		P["Charcoal"].append(RB(door[0] + 0.06, door[0] + 1.2, y, y + 0.14, hz - 0.07, hz - 0.01))
+	P["Metal"].append(RB(door[1] - 0.45, door[1] - 0.25, 3.4, 3.6, hz - 0.08, hz - 0.0))
+	emit(c, P, "Screen")
+
+
 def codex_crates():
 	for name, group in (("Crate", "Crate3"), ("CrateSmall", "Crate2"), ("Barrel", "Barrel")):
 		emit_codex(piece(name), codex_meshes(os.path.join(PROPS, "CrateSet.glb"), group))
@@ -1744,7 +1803,7 @@ def build():
 	plank_bridge("Catwalk8", 0)
 	fire_stair()
 	fire_balcony()
-	codex_ac()  # maps v4: Codex R2 (lane G's ac3 stays as the fallback)
+	ac_enclosure()  # maps v5 r8 (W6 scale): a plant enclosure round a normal-size unit (codex_ac stays as the fallback)
 	p_condenser()
 	skylight3()  # maps v4
 	codex_planter()  # maps v4: Codex R1 agaves + lane G's screen (planter3 stays as the fallback)

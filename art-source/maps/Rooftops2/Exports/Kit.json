@@ -8,9 +8,11 @@
     "ACUnit_CodexCharcoal",
     "ACUnit_CodexMetal",
     "ACUnit_CodexAppliance",
-    "ACUnit_PadStone",
-    "ACUnit_PadCharcoal",
-    "ACUnit_PadMetal"
+    "ACUnit_ScreenStone",
+    "ACUnit_ScreenCharcoal",
+    "ACUnit_ScreenMetal",
+    "ACUnit_ScreenWood",
+    "ACUnit_ScreenDoor"
    ]
   },
   "AgavePot": {
@@ -470,19 +472,19 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 636,
    "center": [
     0.0,
     0.0,
-    4.66827
+    3.4245
    ],
    "size": [
-    8.0,
-    4.0,
-    5.53653
+    4.8,
+    2.4,
+    4.449
    ]
   },
   {
@@ -497,13 +499,13 @@
    "tris": 1044,
    "center": [
     0.0,
-    -0.0225,
-    4.90533
+    -0.0135,
+    3.615
    ],
    "size": [
-    7.89,
-    3.905,
-    5.18933
+    4.734,
+    2.343,
+    4.17
    ]
   },
   {
@@ -518,18 +520,18 @@
    "tris": 716,
    "center": [
     0.0,
-    -0.0225,
-    4.67013
+    -0.0135,
+    3.426
    ],
    "size": [
-    7.94,
-    3.905,
-    4.50987
+    4.764,
+    2.343,
+    3.624
    ]
   },
   {
    "piece": "ACUnit",
-   "name": "ACUnit_PadStone",
+   "name": "ACUnit_ScreenStone",
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
@@ -537,58 +539,101 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 44,
+   "tris": 364,
    "center": [
     0.0,
     0.0,
-    0.95
+    3.75
    ],
    "size": [
     8.0,
     4.0,
-    1.9
+    7.5
    ]
   },
   {
    "piece": "ACUnit",
-   "name": "ACUnit_PadCharcoal",
+   "name": "ACUnit_ScreenCharcoal",
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
-   "tris": 140,
+   "tris": 324,
    "center": [
     0.0,
-    0.015,
-    4.265
+    -0.005,
+    4.25
    ],
    "size": [
-    8.2,
-    4.23,
-    4.97
+    7.96,
+    3.97,
+    6.1
    ]
   },
   {
    "piece": "ACUnit",
-   "name": "ACUnit_PadMetal",
+   "name": "ACUnit_ScreenMetal",
    "material": "R2_Metal",
    "look": {
     "material": "SmoothPlastic",
     "color": "A9A59C"
    },
    "glow": false,
-   "tris": 240,
+   "tris": 12,
    "center": [
-    0.0,
-    2.04,
-    5.06
+    2.85,
+    -1.96,
+    3.5
    ],
    "size": [
-    6.78,
-    0.28,
-    4.02
+    0.2,
+    0.08,
+    0.2
+   ]
+  },
+  {
+   "piece": "ACUnit",
+   "name": "ACUnit_ScreenWood",
+   "material": "R2_Wood",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "A7744E",
+    "variant": "Roof2_Plank"
+   },
+   "glow": false,
+   "tris": 1176,
+   "center": [
+    0.0,
+    0.0,
+    4.26
+   ],
+   "size": [
+    7.96,
+    3.88,
+    5.68
+   ]
+  },
+  {
+   "piece": "ACUnit",
+   "name": "ACUnit_ScreenDoor",
+   "material": "R2_Door",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6C5442"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    2.0,
+    -1.85,
+    4.015
+   ],
+   "size": [
+    2.32,
+    0.14,
+    5.53
    ]
   },
   {
@@ -597,7 +642,7 @@
    "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3B5BC2"
+    "color": "56679E"
    },
    "glow": false,
    "tris": 96,
@@ -660,7 +705,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 160,
@@ -703,7 +748,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 824,
@@ -745,7 +790,7 @@
    "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3B5BC2"
+    "color": "56679E"
    },
    "glow": false,
    "tris": 88,
@@ -808,7 +853,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 288,
@@ -916,7 +961,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 48,
@@ -1024,7 +1069,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 48,
@@ -1132,7 +1177,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 72,
@@ -1196,7 +1241,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 144,
@@ -1243,7 +1288,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 1880,
+   "tris": 2408,
    "center": [
     0.0,
     0.0,
@@ -1368,7 +1413,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 80,
@@ -1411,7 +1456,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 32,
@@ -1476,7 +1521,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 10,
@@ -1862,7 +1907,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 120,
@@ -2055,7 +2100,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 1616,
@@ -2097,7 +2142,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 496,
@@ -2143,7 +2188,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 5712,
+   "tris": 7296,
    "center": [
     0.05,
     0.0,
@@ -2161,7 +2206,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 120,
@@ -2246,7 +2291,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 612,
@@ -2353,7 +2398,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 552,
@@ -2506,7 +2551,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 2408,
+   "tris": 2936,
    "center": [
     0.0,
     0.0,
@@ -2657,7 +2702,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 3864,
+   "tris": 4920,
    "center": [
     0.0,
     0.0,
@@ -2782,7 +2827,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 144,
@@ -2957,7 +3002,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 6812,
+   "tris": 7340,
    "center": [
     0.0,
     0.0,
@@ -3038,7 +3083,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 552,
@@ -3235,7 +3280,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 6812,
+   "tris": 7340,
    "center": [
     0.0,
     0.0,
@@ -3316,7 +3361,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 552,
@@ -3487,7 +3532,7 @@
    "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3B5BC2"
+    "color": "56679E"
    },
    "glow": false,
    "tris": 88,
@@ -3508,7 +3553,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 288,
@@ -3573,7 +3618,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 132,
@@ -3594,7 +3639,7 @@
    "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3B5BC2"
+    "color": "56679E"
    },
    "glow": false,
    "tris": 264,
@@ -3828,7 +3873,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 880,
@@ -3870,7 +3915,7 @@
    "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3B5BC2"
+    "color": "56679E"
    },
    "glow": false,
    "tris": 88,
@@ -3955,7 +4000,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 196,
@@ -3976,7 +4021,7 @@
    "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3B5BC2"
+    "color": "56679E"
    },
    "glow": false,
    "tris": 176,
@@ -4041,7 +4086,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 120,
@@ -4062,7 +4107,7 @@
    "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3B5BC2"
+    "color": "56679E"
    },
    "glow": false,
    "tris": 176,
@@ -4153,7 +4198,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 1720,
+   "tris": 2248,
    "center": [
     0.0,
     0.0,
@@ -4236,7 +4281,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 16,
@@ -4257,7 +4302,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 44,
@@ -4278,7 +4323,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 44,
@@ -4346,7 +4391,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 1880,
+   "tris": 2408,
    "center": [
     0.0,
     0.0,
@@ -4559,7 +4604,7 @@
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "4A4B52"
    },
    "glow": false,
    "tris": 2710,
@@ -4618,5 +4663,5 @@
    ]
   }
  ],
- "tris": 79514
+ "tris": 86786
 }
