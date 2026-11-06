@@ -69,6 +69,7 @@ Installed in the match place, ForceMap only. **The place needs saving (Ctrl+S); 
 |---|---|---|---|
 | r1 | First install: our textures, sign decals, icicles, amber windows (they read saturated yellow, then red). | 5.00 / 5.00 / 4.58 | **5.00** |
 | r2 | Closed a see-through notch in the ridge over each spawn alcove: the "sky rectangle" every reviewer named, also in the old map. Desaturated warm window Neon (`8C7660`). Half-bright interior lights (the lounge blew out orange). | 4.58 / 4.58 / 5.00 | **4.58** |
+| r3 | Stations: fieldstone base, timber posts, standing-seam roof, red bullwheel. Lodge window mullions. Packed-snow paths from each spawn round the patrol hut to the lodge porch and the flanks. A lower, warmer, hazier sun (ClockTime 8.2). | 4.58 / 4.58 / 4.58 | **4.58** |
 
 **Consistent asks:**
 - the gondola stations are plain grey boxes (the concept's are stone and steel with a bullwheel);
@@ -77,5 +78,21 @@ Installed in the match place, ForceMap only. **The place needs saving (Ctrl+S); 
 - the snowfield is empty, with no paths or cover rhythm;
 - flat noon light;
 - the B spawn looks straight at the patrol hut's wall.
+
+**Stopped by rule after r3.** r2 gained -0.42 and r3 gained 0.00: two rounds in a row under +0.3. Best: **5.00 (r1)**.
+
+**Ready for approval?** No. Every round sits at about 4.6-5.0, and the reviewers' asks are now structural, beyond tuning:
+1. **Remodel the primitive props** in Blender: the snowcat, cube boulders, wedge snow piles and benches.
+2. **Rebuild the backdrop in one style.** The faceted far peaks and the flat noise-textured cliff faces (with white ledge strips) don't match; the concept has sculpted rock with snow ledges and pine belts.
+3. **Give the B and A ends real spawn portals** (the concept's blue/gold framed arches) and open the spawn's view past the patrol hut. That moves a layout piece, so it's the user's call.
+4. **Golden low-sun lighting and visible lamp pools.** Edit captures understate local lights.
+
+Best shots:
+
+| Concept | Build |
+|---|---|
+| ![](../../../art-source/maps/Snowpeak2/concepts/02-hero.png) | ![](../../02%20Art/References/maps/snowpeak2/v1-r3-lodge.jpg) |
+| ![](../../../art-source/maps/Snowpeak2/concepts/01-overview.png) | ![](../../02%20Art/References/maps/snowpeak2/v1-r3-overview.jpg) |
+| ![](../../../art-source/maps/Snowpeak2/concepts/03-kit-sheet.png) | ![](../../02%20Art/References/maps/snowpeak2/v1-r3-station.jpg) |
 
 The thin cyan "spike" behind the lodge is a ridge crest of the backdrop seen edge-on. It isn't a stray part; there's no sliver in the mesh.
