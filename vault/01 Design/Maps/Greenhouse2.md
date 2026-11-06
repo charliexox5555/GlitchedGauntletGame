@@ -194,3 +194,58 @@ Scores by round: 5.0, 5.0, 5.0. Rounds 2 and 3 each gained 0, so the map stops. 
 - a lantern.
 
 Then rebuild the wall kit around them and re-light the map with a lower, warmer sun and real fill. That's a v2 of the kit, not another polish round.
+
+## Codex hero kit
+
+**Delivered 2026-11-06 — Job G-kit.** Original standalone assets modelled through the interactive Blender MCP against [03-kit-sheet](../../../art-source/maps/Greenhouse2/concepts/03-kit-sheet.png) and [02-hero](../../../art-source/maps/Greenhouse2/concepts/02-hero.png). This is the new hero-kit brief, separate from G1–G6 above. No full-bay dimensions were specified, so both architectural bays use the requested **12-wide × 18-high** fallback. Sizes below are exact exported bounding extents rounded to 0.001 stud, **X width × Y depth × Z height**.
+
+All six packages have 1 unit = 1 stud, Z up, shared bottom-centre origin (0,0,0), applied rotation/scale and role-named materials. Every preview is a three-quarter render beside a grey **5-stud** scale block. Preview ground, proxy, cameras and lights are excluded from GLBs.
+
+| Prop | Tris / ceiling (strictly under) | Size (studs) | Roles | Files | Result / limitations |
+|---|---:|---|---|---|---|
+| IronBay | 5,924 / 6,000 | 12 × 2.100 × 18 | Iron, Stone, Charcoal | [GLB](../../../art-source/maps/Greenhouse2/props/IronBay.glb) · [Blend](../../../art-source/maps/Greenhouse2/props/IronBay.blend) · [Preview](../../../art-source/maps/Greenhouse2/props/IronBay_preview.png) | Fluted column, overlapping leafy capital, moulded base, paired arched spandrels and connected cast scrolls. |
+| ArcadeWall | 4,964 / 5,000 | 12 × 1.320 × 18 | Iron, Stone, Brick, Glass | [GLB](../../../art-source/maps/Greenhouse2/props/ArcadeWall.glb) · [Blend](../../../art-source/maps/Greenhouse2/props/ArcadeWall.blend) · [Preview](../../../art-source/maps/Greenhouse2/props/ArcadeWall_preview.png) | Three lower arcades, radial lunette glazing bars, connected scroll frieze and supported coursed-brick plinth. |
+| FernClump | 1,292 / 1,500 | 5.373 × 5.225 × 2.784 | Fern, Deep | [GLB](../../../art-source/maps/Greenhouse2/props/FernClump.glb) · [Blend](../../../art-source/maps/Greenhouse2/props/FernClump.blend) · [Preview](../../../art-source/maps/Greenhouse2/props/FernClump_preview.png) | 17 arching fronds with fine pinnae; solid rooted rachises; packed cutout atlas. |
+| HydrangeaBush | 1,440 / 1,500 | 4.034 × 4.521 × 3.658 | Bloom, Fern, Deep | [GLB](../../../art-source/maps/Greenhouse2/props/HydrangeaBush.glb) · [Blend](../../../art-source/maps/Greenhouse2/props/HydrangeaBush.blend) · [Preview](../../../art-source/maps/Greenhouse2/props/HydrangeaBush_preview.png) | 8 varied mopheads, 96 modelled four-petal florets and 32 broad serrated leaf cards. Deliberately faceted close up. |
+| PalmInTub | 1,484 / 1,500 | 11.252 × 11.526 × 16.444 | Bark, Palm, Deep, Pot, Iron, Soil | [GLB](../../../art-source/maps/Greenhouse2/props/PalmInTub.glb) · [Blend](../../../art-source/maps/Greenhouse2/props/PalmInTub.blend) · [Preview](../../../art-source/maps/Greenhouse2/props/PalmInTub_preview.png) | 22 broad fronds in three tiers, curved trunk with 24 folded leaf bases, fluted terracotta tub and two iron bands. Crown stays above 8 studs. |
+| Lantern | 562 / 800 | 1.600 × 2.760 × 4.068 | Iron, Charcoal, GlowWarm | [GLB](../../../art-source/maps/Greenhouse2/props/Lantern.glb) · [Blend](../../../art-source/maps/Greenhouse2/props/Lantern.blend) · [Preview](../../../art-source/maps/Greenhouse2/props/Lantern_preview.png) | Curled cast bracket, bolted mount plate, tapered frame, hipped roof and warm lens. Mount against its +Y back face. |
+
+**Validation:** all role meshes pass the LihFolk mesh gate (intentional foliage/floret cards allowed): no loose or degenerate geometry, inconsistent normals, within-shell self-intersections or overlapping caps. A component-contact graph found **0 floating components** across 754 shells; intended joins overlap. All six GLBs were reimported into temporary Blender scenes: triangle counts, mesh counts and dimensions matched their sources within 0.001 stud. Vertex colours and packed textures survive; no external texture dependencies or preview helpers are exported.
+
+**Materials and placement:** use white mesh tint to retain vertex colours. Painted Iron is matte, not reflective Roblox Metal. Fern/Palm leaf cards use an original packed 1024 atlas, **binary alpha mask**, and double-sided rendering; hydrangea florets use opaque folded geometry. This follows the job's explicit permission for foliage cards. Solid roles are single-sided. Arcade glazing uses the palette roof-glass colour CFE6EA with transparency 0.55 in one layer; keep it shadowless on installation. Bark and Bloom retain the existing kit's role names. Filigree and foliage deliberately include fine details below the generic 0.2-stud thickness guideline. Keep these decorative meshes anchored, with decoration collision/touch/query disabled; use the map's separate gameplay collision.
+
+**Visual review:** Quick council, Art Director/Skeptic lens: IronBay 16/18, ArcadeWall 16/18, FernClump 15/18, HydrangeaBush 14/18, PalmInTub 15/18, Lantern 16/18; no zero after revisions. The strongest objection changed the planting: fractured flower cards became seated modelled florets, and the sparse palm became a broad three-tier crown. The hydrangea remains angular at close range. A four-angle IronBay review also found no visible reverse-face/construction blocker. Studio appearance and installed-map quality remain untested; this does not change the map's draft/5.0 status.
+
+**Notes used:** the map palette, “What would move it” and prop rules; Art Direction and Map Quality Standard; LihFolk *Hard-Surface Modeling*, *Shape Language and Silhouette Testing*, and *Critiquing a Model — Paintovers and Iteration*, via the worldbuilding/modeling skills. No scripts or Studio content were changed.
+
+## Kit v2 (2026-11-06 morning): Codex hero kit
+This is a fresh start under the stop rule (the core chat's call).
+
+**Codex review:** all six pieces matched the concept's kit sheet in ornament and scale.
+- The IronBay, ArcadeWall, FernClump, HydrangeaBush and Lantern are used.
+- **PalmInTub is not used:** its fronds are alpha-atlas cards, and our role-colour import renders them as solid quads. It needs its atlas as a SurfaceAppearance first.
+- Codex bakes shading into vertex colours, which Roblox multiplies into the part colour (the trunks came out black). The loader strips them.
+
+**Wired in** ([build_map_kit_greenhouse2.py](../../../tools/blender/build_map_kit_greenhouse2.py) `hero()`):
+- **Walls:** every 8-wide glass bay has the ArcadeWall as its lower 12 studs, decimated to 0.35 on the iron only.
+- **Gallery and bridge:** IronBay columns with leafy capitals and filigree spandrels, as their own mesh, 0.6 decimated.
+- **Planting:** fern clumps in the beds, ferneries and planters; hydrangeas in the flower tubs.
+- **Orangery:** lanterns on its windows; flower tubs at its doors (the spawn view).
+- **Light:** a low warm sun (16.7) with warm fill.
+- **Size:** about 600k kit triangles placed. That's over the standard's 450k phone budget: the next pass decimates the walls further.
+
+**Audits:** 0 floating groups, 0 z-fighting pairs (1,391 parts).
+
+### v2 round 1: **5.0** (5.0, 5.0, 5.0)
+Low points: the glass reads as opaque teal walls, the rockeries are grey slabs, the spawn table is saturated blue, and the overview is empty.
+
+### v2 round 2: **5.0** (5.0, 5.4, 5.0)
+Changes:
+- brighter aqua glass;
+- the rockeries, fernery and palm planters became brick planters (brick, stone bands, coping) with Codex ferns;
+- muted end tones.
+
+Low points: the glass still reads as a flat wash, and the overview is bare. The overview also shows other lanes' maps floating around it (the Snowpeak2 range, slabs): not ours, but in frame.
+
+### v2 round 3 (the last unless it gains ≥ 0.3)
+The wall glass reflects the sky: Reflectance 0.32 on the opaque frost (still no see-through walls), and EnvironmentSpecularScale 0.8.

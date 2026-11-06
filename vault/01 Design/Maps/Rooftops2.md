@@ -904,3 +904,13 @@ Low points: W5 detail (the bare tower top and spawn-deck flats) and W2 (busy ove
 - Potted agaves and a crate/barrel group along the bare north parapet.
 
 These are art-only placements (`rooftops2_art.py`).
+
+**Round 6 blind score: 7.9** (reviewers 7.9, 8.3, 7.9; medians W1 2, W2 1, W3 2, W4 2, W5 1, W6 1). That's −0.4 against the best of 8.3: W6 dropped back to 1 (oversized AC and caps) and W5 stayed at 1.
+
+### Round 7 (colour only: the last round unless it gains ≥ 0.3)
+All three r6 reviewers named the same three things, so each gets a change:
+- the saturated blue caps and pot bands are now a dusty blue-violet (`56679E`);
+- the grey void ground is now a warm dusk street (`8A7C78`, sidewalk `B8A898`);
+- the AC slats and steel are a step lighter (`4A4B52`).
+
+The geometry is unchanged, so the r6 audits (0/0) still hold.

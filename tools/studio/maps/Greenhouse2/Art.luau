@@ -393,6 +393,9 @@ for _, p in PLACE do
 			if d:IsA("BasePart") then
 				if string.sub(d.Name, -7) == "_Accent" then
 					d.Color = colour
+				elseif string.sub(d.Name, -6) == "_Frost" then
+					d.Reflectance = 0.32
+					d.CastShadow = false
 				elseif string.sub(d.Name, -6) == "_Glass" or string.sub(d.Name, -6) == "_Water" then
 					d.CastShadow = false
 				end

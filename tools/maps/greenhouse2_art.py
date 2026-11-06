@@ -72,6 +72,14 @@ DECOR_TUBS: list[tuple[float, float]] = [
 ]  # from a clearance search on the layout blocks (1.5 radius, 3.0 off the wall plane, no solid below 4)
 
 GA.Art.build = build
+# v2 r3: the wall glass reflects the sky (Reflectance on SmoothPlastic; it stays opaque, so no see-through walls):
+# every round's reviewers read the opaque frost as a flat painted wall
+GA.ART_TEMPLATE = GA.ART_TEMPLATE.replace(
+    '''				elseif string.sub(d.Name, -6) == "_Glass" or string.sub(d.Name, -6) == "_Water" then''',
+    '''				elseif string.sub(d.Name, -6) == "_Frost" then
+					d.Reflectance = 0.32
+					d.CastShadow = false
+				elseif string.sub(d.Name, -6) == "_Glass" or string.sub(d.Name, -6) == "_Water" then''')
 # r3: the end tones from the palette table (B slate-blue, A terracotta); Greenhouse's saturated blue / yellow read
 # as a stray bright table at the spawn
 GA.L.ACCENT = dict(GA.L.ACCENT, A="#A8735A", B="#6F8DA6")  # kit v2 r2: muted (the blue table read saturated)

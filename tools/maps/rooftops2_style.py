@@ -42,12 +42,12 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     # clean SmoothPlastic trims
     "Trim": ("ECE2CE", "SmoothPlastic", ""),  # cornices, sills, frames, coping (maps v5: cream, the near-white glared)
     "Ledge": ("C9BFAE", "SmoothPlastic", ""),  # alley ledges and sills
-    "Charcoal": ("3A3F47", "SmoothPlastic", ""),  # steel: stairs, stands, frames, hardware
+    "Charcoal": ("4A4B52", "SmoothPlastic", ""),  # r7: a step lighter (AC slats read near-black);  # steel: stairs, stands, frames, hardware
     "Metal": ("A9A59C", "SmoothPlastic", ""),  # AC units, condensers, vents (round 5: warmer, read as heavy grey blocks)
     "Door": ("6C5442", "SmoothPlastic", ""),  # doors (round 5: warm mid-tone, black read as a void)
     "Window": ("56607E", "SmoothPlastic", ""),  # maps v5: a touch lighter;  # concept pass: deep blue-violet glass in stone surrounds (was flat navy slabs)
     "Glass": ("BFD8E8", "Glass", ""),  # skylights
-    "Accent": ("3B5BC2", "SmoothPlastic", ""),  # maps v5: a step toward the concept's blue-violet caps;  # cobalt: the tank and the sign plates (the 10% spike)
+    "Accent": ("56679E", "SmoothPlastic", ""),  # r7: a dusty blue-violet (the saturated caps clashed: all three r6 reviewers);  # maps v5: a step toward the concept's blue-violet caps;  # cobalt: the tank and the sign plates (the 10% spike)
     "AccentSoft": ("5C79AE", "SmoothPlastic", ""),  # round 6: bands, awnings, billboard bands (softer than the tank)
     "Poster": ("EADFCB", "SmoothPlastic", ""),  # billboard panels (cream, not white)
     "Chevron": ("F3E6CC", "SmoothPlastic", ""),  # round 8: court chevrons, warm painted cream
@@ -59,8 +59,8 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "SignWest": ("E89A3C", "SmoothPlastic", ""),  # west-side words (amber)
     "SignEast": ("5AA8D8", "SmoothPlastic", ""),  # east-side words (sky)
     "SignPit": ("2F62C8", "SmoothPlastic", ""),  # the middle (cobalt)
-    "Asphalt": ("5C636C", "Asphalt", ""),  # the street far below (round 4: cool slate, it read muddy brown)
-    "Sidewalk": ("A39D92", "Concrete", ""),
+    "Asphalt": ("8A7C78", "Asphalt", ""),  # r7: warm dusk street (the grey void ground read unfinished);  # the street far below (round 4: cool slate, it read muddy brown)
+    "Sidewalk": ("B8A898", "Concrete", ""),
     "RoadLine": ("E8DFC2", "SmoothPlastic", ""),
     "Backfill": ("B9A992", "SmoothPlastic", ""),  # far city blocks
     # concept pass 2026-11-05 (vault/01 Design/Maps/Rooftops2.md -> Concept board)
