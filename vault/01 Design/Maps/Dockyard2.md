@@ -650,3 +650,22 @@ These are edit-mode captures with the map's own Lighting config and effects appl
   - The shed walls are plain cream panels.
   - The containers stay simpler than the concept's (bolder ribs, door hardware).
   - The crane is unchanged.
+
+**Blind score (`lihfolk:quality-score`, world rubric, 3 fresh reviewers): 6.7.** All three reviewers gave 6.7. The medians are W1 2, W2 1, W3 1, W4 1, W5 1, W6 2. That is level with v3 (6.67) and below the 8.5 bar, so it's still a draft. It's one score, as asked.
+
+| W | Median | What the reviewers said |
+|---|---|---|
+| W1 composition | 2 | The crane is a strong landmark in every shot. |
+| W2 navigation | 1 | The red lane reads clearly (one reviewer: "could earn a 2"). The blue stripe is thin beside dark navy faces, the green lane wasn't in the evidence, and the overview is a container wall. |
+| W3 cohesion | 1 | The crane, containers and crates are cohesive. The sheds (outside and inside) are plain beige next to the concept's grey and white sheds with windows, roller doors and lamps. The shed's facade plate is small. |
+| W4 lighting | 1 | Sunny and no longer dark. The overview haze reads cyan, and container faces in shade are underexposed. |
+| W5 detail | 1 | The crates, rivets and pallets work. The deck, the container sides and the shed walls are still flat. |
+| W6 scale | 2 | The containers, crates and doors read right against the 5-stud player. |
+
+**Next, in order of gain:**
+1. Lighter, more saturated lane containers in shade (raise LANE values, and give the blue more value).
+2. Bolder lane markers: wider stripes, or painted lane-colour bands on the quay and container ends.
+3. A green-lane evidence shot.
+4. A shed facade pass: windows with warm glow, a corrugated roller-door texture and a bigger plate.
+5. A cooler concrete texture row for the deck.
+6. Codex's D1 and D2 props (fenders, bollards, racks) once imported.
