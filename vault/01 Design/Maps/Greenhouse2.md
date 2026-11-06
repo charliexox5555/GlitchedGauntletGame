@@ -2,7 +2,7 @@
 
 The rebuild of [Greenhouse](Greenhouse.md) to the [Map Quality Standard](Map%20Quality%20Standard.md). It's a new map version: the old Greenhouse (its files, its Studio model, its Config rows) stays untouched (§7).
 
-**Map id** `Greenhouse2` · **World origin** (0, 200, 3000). That spot is free: on 2026-11-06 there were 0 parts in a 320 × 300 × 440 box round it in the match place, and the nearest map is OldTown, which ends at z ≈ 1650. · **Modes** 2v2–4v4, playable 1v1 · **Lane** G (map-redesign) · **Status:** planned, greybox installed. **Modelling is waiting for step 1:** Codex's concepts and the user's approval of the board.
+**Map id** `Greenhouse2` · **World origin** (0, 200, 3000). That spot is free: on 2026-11-06 there were 0 parts in a 320 × 300 × 440 box round it in the match place, and the nearest map is OldTown, which ends at z ≈ 1650. · **Modes** 2v2–4v4, playable 1v1 · **Lane** G (map-redesign) · **Status:** round 1 built overnight (2026-11-06). Following the overnight rule, the user approves the finished map instead of the concept board.
 
 **Mandatory for every lane and every agent brief:** load `.claude/skills/gauntlet-vault/SKILL.md`. Read [00 Home](../../00%20Home.md), the [Map Quality Standard](Map%20Quality%20Standard.md) and this note. Use the LihFolk notes linked below and the `lihfolk-worldbuilding` and `roblox-blender-modeling` skills.
 
@@ -96,7 +96,7 @@ These are picked on the greybox from clearance rays and stored in `evidence_came
 | dome-floor | (−30, 5, −20) | (0, 30, 0) |
 | gallery | (−36, 17, −20) | (0, 20, 10) |
 | west-wing | (−58, 5, −36) | (−58, 8, 36) |
-| sheds | (−62, 5, 60) | (−62, 6, 10) |
+| terrace | (−62, 5, 60) | (−62, 6, 10) |
 
 ![Greybox overview](../../02%20Art/References/maps/greenhouse2/v0-greybox-overview.jpg)
 
@@ -111,3 +111,31 @@ Every one of these is a Part the kit replaces and `Art.luau` hides (`look=None` 
 
 ## Results log
 Rounds go here (§6).
+
+### Round 1 (2026-11-06, about 01:55)
+**Kit:** [build_map_kit_greenhouse2.py](../../../tools/blender/build_map_kit_greenhouse2.py) is forked from Greenhouse's and brought to the standard: 38 pieces, 59.7k triangles.
+- **Material:** no Roblox Metal on the painted iron or gilt (SmoothPlastic), and the palette-table iron colour.
+- **Glass walls:**
+  - an arched head in every bay's top panel;
+  - roundel bosses in the spandrels;
+  - a turned finial on every rib along the cresting (the concept's kit sheet).
+- **Fountain:** the concept's third tier, with its bowl and a gilt finial.
+- **Palms:** a thick, knobbly 10-sided trunk with staggered leaf-base rings and an 18-frond, two-tier crown (concept 02-hero).
+- **Boiler:** a cast-iron sectional boiler with copper flow and return pipes, flanges, a pressure gauge and a valve wheel.
+- **Crates:** slatted, with planks, gaps and corner battens, each turned a few degrees.
+- **New FlowerTub:** a staved tub with two end-tone bands and a white hydrangea, 8 a side by the Dome and Fern House doors. Placed from a clearance search: decor only, out of the lanes.
+
+**Art and lighting:**
+- [greenhouse2_art.py](../../../tools/maps/greenhouse2_art.py) reuses Greenhouse's placements on the kept layout: 267 placements, 1,025 MeshParts.
+- `Greenhouse2/Lighting.luau` is lifted: Brightness 2.7, Ambient (132,138,136), OutdoorAmbient (166,174,170), exposure −0.2.
+
+**Uploads:** Structure `130593505718441`, Garden `93873736777844`.
+
+**Audits in Studio:**
+- Float audit: 18 groups at first, then 0. Hydrangea crowns hovered 0.26 over the tubs, and a valve ring touched nothing.
+- **0 floating groups, 0 z-fighting pairs** (1,112 parts).
+- Offline box check: 2 pairs with a Part. These are GlassWall4 iron against the ShedPerimeter collision box; Studio's ray test says 0.
+
+**Shots:** `vault/02 Art/References/maps/greenhouse2/v1-r1-*.jpg` and the side-by-side.
+
+**Studio note:** when I applied my preview lighting, Metro2's PreviewLighting state (the knife-sounds lane) was still applied with no lock held. I restored it first.

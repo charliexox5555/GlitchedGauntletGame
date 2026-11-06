@@ -37,6 +37,8 @@ What the standard must make impossible (the user's complaints):
 | 9 | **Blind `lihfolk:quality-score`** | World rubric, **3 fresh blind reviewers**, the median per criterion. Reviewers get the evidence and the rubric, never the maker's notes. | **Median ≥ 8.5.** |
 | 10 | **The user's approval** | The approval summary (§6). | The user says yes. Only then does the map go into `Config/Match` MAPS. |
 
+**Overnight runs (the user's instruction, 2026-11-06):** an overnight run skips the step 1 approval gate. The lane models from Codex's concepts as soon as they land, and the user approves the finished map in the morning, using the approval summary in §6. Everything else (audits, fixed cameras, blind score, stop rule) still applies.
+
 **Running FloatAudit** ([FloatAudit.luau](../../../tools/studio/maps/FloatAudit.luau)), in the match place, edit mode, on every install, next to [Audit.luau](../../../tools/studio/maps/Audit.luau):
 1. Take `.claude-locks/match-studio.lock`.
 2. Pass the file's source to the Studio MCP `execute_luau` (or the Command Bar) and call `loadstring(src)("<Map>2")`. The map id is the only argument.

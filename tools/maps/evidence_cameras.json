@@ -156,7 +156,7 @@
       200,
       3000
     ],
-    "_note": "provisional, picked on the greybox from clearance rays; re-check after the kit (no camera inside a prop)",
+    "_note": "fixed from round 1 (map v1); the 'terrace' camera was named 'sheds' on the greybox",
     "cams": {
       "overview": {
         "pos": [
@@ -230,7 +230,7 @@
           36
         ]
       },
-      "sheds": {
+      "terrace": {
         "pos": [
           -62,
           5,
@@ -243,6 +243,164 @@
         ]
       }
     }
+  },
+  "Metro2": {
+    "origin": [
+      3000,
+      200,
+      1500
+    ],
+    "cams": {
+      "overview": {
+        "pos": [
+          -4,
+          23,
+          46
+        ],
+        "look": [
+          3,
+          5,
+          -10
+        ]
+      },
+      "b-terrace": {
+        "pos": [
+          -28,
+          19,
+          54
+        ],
+        "look": [
+          6,
+          5,
+          -20
+        ]
+      },
+      "b-spawn": {
+        "pos": [
+          -2,
+          19,
+          121
+        ],
+        "look": [
+          9,
+          18,
+          104
+        ]
+      },
+      "east-platform": {
+        "pos": [
+          30,
+          5,
+          46
+        ],
+        "look": [
+          20,
+          7,
+          -10
+        ]
+      },
+      "west-platform": {
+        "pos": [
+          -27,
+          5,
+          -44
+        ],
+        "look": [
+          -18,
+          7,
+          10
+        ]
+      },
+      "trench": {
+        "pos": [
+          0,
+          1,
+          -32
+        ],
+        "look": [
+          0,
+          9,
+          10
+        ]
+      },
+      "gantry": {
+        "pos": [
+          24,
+          5,
+          -16
+        ],
+        "look": [
+          0,
+          12,
+          0
+        ]
+      },
+      "train": {
+        "pos": [
+          19,
+          5,
+          30
+        ],
+        "look": [
+          9,
+          4,
+          8
+        ]
+      },
+      "corridor": {
+        "pos": [
+          42,
+          5,
+          -32
+        ],
+        "look": [
+          42,
+          6,
+          10
+        ]
+      },
+      "ticket-hall": {
+        "pos": [
+          -20,
+          19,
+          76
+        ],
+        "look": [
+          10,
+          17,
+          100
+        ]
+      },
+      "gantry-south": {
+        "pos": [
+          0,
+          8,
+          -22
+        ],
+        "look": [
+          0,
+          12,
+          0
+        ]
+      }
+    },
+    "dummies": [
+      [
+        20,
+        0,
+        24
+      ],
+      [
+        0,
+        -4,
+        -12
+      ],
+      [
+        -26,
+        14,
+        56
+      ]
+    ]
   },
   "Bunker2": {
     "origin": [
@@ -358,6 +516,87 @@
           0,
           6,
           60
+        ]
+      }
+    }
+  },
+  "Snowpeak2": {
+    "origin": [
+      -3000,
+      200,
+      -1500
+    ],
+    "cams": {
+      "overview": {
+        "pos": [
+          95,
+          70,
+          120
+        ],
+        "look": [
+          0,
+          6,
+          0
+        ]
+      },
+      "b-spawn": {
+        "pos": [
+          0,
+          5,
+          90
+        ],
+        "look": [
+          0,
+          14,
+          0
+        ]
+      },
+      "lounge": {
+        "pos": [
+          10,
+          5,
+          14
+        ],
+        "look": [
+          0,
+          6,
+          0
+        ]
+      },
+      "station": {
+        "pos": [
+          -30,
+          5,
+          62
+        ],
+        "look": [
+          -52,
+          10,
+          42
+        ]
+      },
+      "pond": {
+        "pos": [
+          28,
+          5,
+          62
+        ],
+        "look": [
+          46,
+          2,
+          30
+        ]
+      },
+      "balcony": {
+        "pos": [
+          20.5,
+          15,
+          20
+        ],
+        "look": [
+          40,
+          6,
+          -30
         ]
       }
     }
