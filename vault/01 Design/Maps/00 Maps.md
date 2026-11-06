@@ -2,6 +2,8 @@
 
 The match maps: a mix of RIVALS (fast, simple, run-and-gun readable) and Valorant (disciplined layouts, callouts, clean value structure). The rules for building one are in the [Game Plan](../../05%20Production/Game%20Plan.md) §5.
 
+**Every map rebuild follows the [Map Quality Standard](Map%20Quality%20Standard.md)** (2026-11-06): pipeline, hard rules, audits, review loop and the `<Map>2` convention.
+
 **Status (2026-11-03):** the **release lineup is 8 maps** (decided by Claude overnight on the user's "use your judgement"; research below). **Built in Studio:** Whitebox, Big Whitebox, Dockyard, Metro, Old Town (all playable as matches; `Workspace.ForceMap` = map id in Studio to test one). **Concepts:** Rooftops, Bunker. Matches pick a map by team size from `Config/Match MAPS`.
 
 ## Release lineup (2026-11-03)

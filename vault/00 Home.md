@@ -126,6 +126,7 @@
 - [Abilities redesign](01%20Design/Abilities/00%20Abilities.md): base abilities reworked one by one, Valorant-style: **all 9 base specs locked**, ready to build with the build prompt in the overview; specs collected here, then built together
 - [Lobby](01%20Design/Lobby.md): the pre-game hub place (third person, queue pads, shop, locker, Range wing): **design locked**, ready to build
 - [Maps](01%20Design/Maps/00%20Maps.md): the match map roster and ideas; first map [Whitebox](01%20Design/Maps/Whitebox.md) (built, layout approved)
+- [Map Quality Standard](01%20Design/Maps/Map%20Quality%20Standard.md): the bar and checklist every map rebuild follows (pipeline, hard rules, audits, blind score ≥ 8.5, user approval)
 - [Match Flow](01%20Design/Match%20Flow.md): rounds and the draft, as built
 - [UI Design](02%20Art/UI%20Design.md): the UI look (Valorant + RIVALS), tokens, type and the Figma screens (v1)
 - [Gun Balance](01%20Design/Gun%20Balance.md): health, shields and every gun's damage
