@@ -47,7 +47,7 @@ COS = math.cos(math.radians(22.5))
 
 # ---------------------------------------------------------------- palette (Greenhouse.md -> Look)
 C_IRON = 0xEDEDE4
-C_FROST = 0xCDE2D8
+C_FROST = 0xDDE8E0  # Greenhouse2 r2: less teal (reviewers: a cyan wash)
 C_ROOFGLASS = 0xCFE6EA
 C_BRICK = 0x9C5B44
 C_STONE = 0xD9D0BE
@@ -70,6 +70,7 @@ C_FRUIT = 0xE88A2A
 C_BOILER = 0x5A5F64
 C_COPPER = 0xB07650
 C_BLOOM = 0xEEEDE6
+C_SLATE = 0x6F7A86
 C_CRATE = 0xA98557
 C_SACK = 0xC8B48A
 C_POOL = 0x2E5A5C
@@ -123,6 +124,7 @@ def make_materials():
 		_mat("Boiler", "SmoothPlastic", C_BOILER, 0.6, 0.05, 1.0, 0.05),
 		_mat("Copper", "SmoothPlastic", C_COPPER, 0.5, 0.06, 1.0, 0.0),
 		_mat("Bloom", "SmoothPlastic", C_BLOOM, 0.7, 0.06, 2.0, 0.0),
+		_mat("Slate", "Slate", C_SLATE, 0.85, 0.06, 1.0, 0.1),
 		_mat("Crate", "Wood", C_CRATE, 0.85, 0.08, 1.2, 0.1),
 		_mat("Sack", "Fabric", C_SACK, 0.95, 0.08, 1.5, 0.15),
 		_mat("Pool", "SmoothPlastic", C_POOL, 0.6, 0.05, 0.6, 0.0),
@@ -908,6 +910,67 @@ def flower_tub():
 	return acc
 
 
+def hip_roof(W, L, H, chimney=False, skylights=0):
+	# Greenhouse2 r2 (concept 01-overview: the brick potting sheds and the Lodge under slate): a hipped slate roof
+	# over a flat ceiling block W (x) by L (y), its eaves 0.8 out, rising H; stone ridge, fascia, a brick chimney
+	# and glass skylights on the long faces. Origin: the middle of the ceiling's top. Decor (the ceiling collides).
+	acc = Acc()
+	hw, hl, o = W / 2 + 0.8, L / 2 + 0.8, 0.0
+	ins = min(hw, hl) * 0.92
+	pts_lo = [(-hw, -hl), (hw, -hl), (hw, hl), (-hw, hl)]
+	bm = bmesh.new()
+	lo = [bm.verts.new((x, y, o)) for x, y in pts_lo]
+	tx, ty = max(hw - ins, 0.3), max(hl - ins, 0.3)
+	hi = [bm.verts.new((sx * tx, sy * ty, H)) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+	bm.faces.new(lo[::-1])
+	bm.faces.new(hi)
+	for i in range(4):
+		j = (i + 1) % 4
+		bm.faces.new((lo[i], lo[j], hi[j], hi[i]))
+	bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+	acc.add("Slate", bm)
+	acc.add("Stone", B(-tx - 0.2, tx + 0.2, -ty - 0.2, ty + 0.2, H - 0.05, H + 0.35))
+	acc.add("Timber", B(-hw - 0.05, hw + 0.05, -hl - 0.05, hl + 0.05, -0.45, 0.02))
+	if chimney:
+		cx, cy = hw * 0.45, hl * 0.3
+		acc.add("Brick", B(cx - 1.0, cx + 1.0, cy - 1.0, cy + 1.0, 0.0, H + 3.0))
+		acc.add("Stone", B(cx - 1.2, cx + 1.2, cy - 1.2, cy + 1.2, H + 3.0, H + 3.4))
+		for dx in (-0.45, 0.45):
+			acc.add("Pot", vcyl(cx + dx, cy, 0.3, H + 3.4, H + 4.2, 8))
+	for k in range(skylights):
+		xc = -hw * 0.55 + k * (hw * 1.1 / max(skylights - 1, 1))
+		for sy in (1, -1):
+			# a raised glazed light on the slope, framed in iron (on the slope between eave and ridge)
+			y0, y1 = sorted((sy * hl * 0.35, sy * hl * 0.7))
+			z0 = H * (1 - abs(y1 if sy > 0 else y0) / hl) if hl > 0 else 0
+			za = H * (1 - abs(y0 if sy > 0 else y1) / hl)
+			zb = H * (1 - abs(y1 if sy > 0 else y0) / hl)
+			a = Vector((xc - 1.6, y0, (za if sy > 0 else zb) + 0.12))
+			b2 = Vector((xc + 1.6, y0, (za if sy > 0 else zb) + 0.12))
+			c = Vector((xc + 1.6, y1, (zb if sy > 0 else za) + 0.12))
+			d = Vector((xc - 1.6, y1, (zb if sy > 0 else za) + 0.12))
+			acc.add("Iron", quad_slab(a, b2, c, d, 0.14) if sy < 0 else quad_slab(b2, a, d, c, 0.14))
+			lift = Vector((0, 0, 0.16))
+			acc.add("Glass", quad_slab(a + lift + Vector((0.2, 0.2 * sy * 0, 0)), b2 + lift - Vector((0.2, 0, 0)), c + lift - Vector((0.2, 0, 0)), d + lift + Vector((0.2, 0, 0)), 0.04) if sy < 0 else quad_slab(b2 + lift - Vector((0.2, 0, 0)), a + lift + Vector((0.2, 0, 0)), d + lift + Vector((0.2, 0, 0)), c + lift - Vector((0.2, 0, 0)), 0.04))
+	return acc
+
+
+def garden_tree(seed):
+	# Greenhouse2 r2: the parkland round the glasshouse (concept 01-overview): a broadleaf tree, trunk and three
+	# lumpy crown masses in two greens. Decor outside the walls; ~1.2k tris.
+	acc = Acc()
+	rnd = random.Random(seed)
+	h = rnd.uniform(16.0, 22.0)
+	acc.add("Trunk", lathe([(1.1, 0.0), (0.85, 1.2), (0.7, h * 0.55), (0.0, h * 0.62)], segs=10))
+	for k in range(3):
+		a = 2 * math.pi * k / 3 + rnd.uniform(-0.4, 0.4)
+		r = rnd.uniform(1.6, 3.0)
+		acc.add("Trunk", beam((0, 0, h * 0.45), (math.cos(a) * r, math.sin(a) * r, h * 0.7), 0.6, 0.6))
+		acc.add("Deep" if k == 0 else "Palm", canopy(math.cos(a) * r, math.sin(a) * r, h * 0.78, rnd.uniform(5.5, 7.5), rnd.uniform(5.5, 7.5), rnd.uniform(4.5, 6.0), seed * 10 + k, points=30))
+	acc.add("Palm", canopy(0, 0, h * 0.92, 6.5, 6.5, 5.0, seed * 10 + 7, points=30))
+	return acc
+
+
 def cold_frame():
 	acc = Acc()
 	acc.add("Brick", B(-4, 4, -1.5, 1.5, 0, 1.6))
@@ -1098,6 +1161,12 @@ def build_all():
 		("LilyPool", pool(14, 14, 61, urn_in=True)),
 		("Pond", pool(14, 12, 62, reeds=True)),
 		("FlowerTub", flower_tub()),
+		("RoofShed48x40", hip_roof(48, 40, 7.0, chimney=True, skylights=3)),
+		("RoofShed32x18", hip_roof(32, 18, 5.0, chimney=True)),
+		("RoofLodge52x16", hip_roof(52, 16, 5.0)),
+		("RoofOrangery80x16", hip_roof(80, 16, 5.0, skylights=4)),
+		("GardenTreeA", garden_tree(3)),
+		("GardenTreeB", garden_tree(8)),
 	]
 	for name, acc in s + g:
 		acc.d = {k: v for k, v in acc.d.items() if len(v.faces)}

@@ -24,12 +24,12 @@ local function rgb(r: number, g: number, b: number): Color3
 end
 
 local PROPS: { [string]: any } = {
-	ClockTime = 13.2,
+	ClockTime = 15.6, -- Greenhouse2 r2: a lower, warmer sun (reviewers: a cyan wash, no golden light)
 	GeographicLatitude = 38,
 	Brightness = 2.7, -- Greenhouse2: lifted (standard: shade never underexposed)
 	Ambient = rgb(132, 138, 136),
 	OutdoorAmbient = rgb(166, 174, 170),
-	ColorShift_Top = rgb(255, 244, 226),
+	ColorShift_Top = rgb(255, 216, 168),
 	ColorShift_Bottom = rgb(0, 0, 0),
 	EnvironmentDiffuseScale = 0.35,
 	EnvironmentSpecularScale = 0.35,
@@ -69,8 +69,8 @@ local atmosphere = Instance.new("Atmosphere")
 atmosphere.Name = "GreenhouseAtmosphere"
 atmosphere.Density = 0.16
 atmosphere.Offset = 0.1
-atmosphere.Color = rgb(222, 234, 226)
-atmosphere.Decay = rgb(162, 190, 172)
+atmosphere.Color = rgb(238, 228, 208)
+atmosphere.Decay = rgb(170, 186, 200)
 atmosphere.Glare = 0.2
 atmosphere.Haze = 0.4
 atmosphere.Parent = fx
@@ -86,13 +86,13 @@ local grade = Instance.new("ColorCorrectionEffect")
 grade.Name = "GreenhouseGrade"
 grade.Brightness = 0
 grade.Contrast = 0.18
-grade.Saturation = 0.22
-grade.TintColor = rgb(255, 248, 238) -- warm, against the glass's cyan cast
+grade.Saturation = 0.12
+grade.TintColor = rgb(255, 238, 214) -- r2: warmer, against the glass's cyan cast
 grade.Parent = fx
 
 local rays = Instance.new("SunRaysEffect")
 rays.Name = "GreenhouseSunRays"
-rays.Intensity = 0.05
+rays.Intensity = 0.1
 rays.Spread = 0.5
 rays.Parent = fx
 

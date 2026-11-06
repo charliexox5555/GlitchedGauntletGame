@@ -41,7 +41,23 @@ def build(self):
     # and bed ends, never in a lane (no collision). Team B's half; both() adds A's turned copy.
     for x, z in DECOR_TUBS:
         self.both("Garden", "FlowerTub", x, 0, z, 0)
+    # r2: slate roofs on the brick ranges (the ceilings' tops; the Sheds' blocks are (48 x 40 at 50, 62) and
+    # (32 x 18 at 58, 91) in B's half, the Lodge 52 x 16 at (0, 110), the Orangery 80 x 16 at (0, 92) top 21).
+    self.both("Roofs", "RoofShed48x40", 50, 15.0, 62, 0)
+    self.both("Roofs", "RoofShed32x18", 58, 15.0, 91, 0)
+    self.both("Roofs", "RoofLodge52x16", 0, 15.0, 110, 0)
+    self.both("Roofs", "RoofOrangery80x16", 0, 21.0, 92, 0)
+    # r2: the parkland round the walls (outside the 152 x 240 footprint): a ring of trees, B's half
+    for i, (x, z) in enumerate(TREES):
+        self.both("Park", "GardenTreeA" if i % 2 else "GardenTreeB", x, 0, z, (i * 90) % 360)  # right angles (the offline check boxes them)
+    for x0, x1, z0, z1 in LAWNS:
+        self.parts.append(("Park", "Lawn", x0, x1, -0.6, -0.05, z0, z1, "lawn"))
     return self
+
+
+TREES = [(-100, 20), (-104, 52), (-96, 86), (-100, 118), (-70, 140), (-36, 146), (6, 148), (44, 142), (82, 132), (104, 100), (100, 66), (106, 34), (96, 6)]
+# a lawn round the building, under its edges (top -0.05, below every floor); both() is not used for Parts, so both halves
+LAWNS = [(-200, 200, 120.5, 260), (-200, 200, -260, -120.5), (76.5, 200, -120.5, 120.5), (-200, -76.5, -120.5, 120.5)]
 
 
 # map space (x, z), B half; measured clear of the collision on the layout plan
@@ -53,6 +69,9 @@ DECOR_TUBS: list[tuple[float, float]] = [
 ]  # from a clearance search on the layout blocks (1.5 radius, 3.0 off the wall plane, no solid below 4)
 
 GA.Art.build = build
+# r2: the Sheds and Lodge ceilings are flat roofs too; under the new slate roofs their tops read as slate, and
+# inside a dark slate ceiling over the shaded lane (the Map Quality Standard's "Sheds: the one shaded lane").
+GA.LOOKS = dict(GA.LOOKS, lodge_ceiling=("Slate", "6F7A86"), shed_ceiling=("Slate", "6F7A86"))
 
 if __name__ == "__main__":
     GA.write()

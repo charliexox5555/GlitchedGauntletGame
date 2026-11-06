@@ -139,3 +139,20 @@ Rounds go here (§6).
 **Shots:** `vault/02 Art/References/maps/greenhouse2/v1-r1-*.jpg` and the side-by-side.
 
 **Studio note:** when I applied my preview lighting, Metro2's PreviewLighting state (the knife-sounds lane) was still applied with no lock held. I restored it first.
+
+**Round 1 blind score: 5.0** (reviewers 5.4, 5.0, 5.0; medians W1 1, W2 1, W3 1, W4 1, W5 1, W6 1).
+
+Low points:
+- No focal point at eye level. The dome-floor camera faced a rockery, and the fountain didn't read: a bad angle.
+- The b-spawn camera faced a Wardian case against a blank wall (also a bad angle).
+- A cyan wash instead of the concept's warm sun.
+- The overview was a white box on a void, with timber roofs over the brick ranges.
+- Flat low-poly palms against photo-textured rock.
+
+### Round 2 (planned and built)
+- **Cameras** re-picked under the standard's "no bad angles" rule (§2 step 8). This is a one-time change; from round 2 on, the same angles every round:
+  - **dome-floor:** from inside the Dome's north door toward the fountain, bridge and dome;
+  - **b-spawn:** out of the Lodge door toward the Fern House.
+- **Light:** sun 15.6 with a warm ColorShift (255,216,168), warm atmosphere, grade tint (255,238,214), saturation 0.12. Wall glass is less teal (`DDE8E0`).
+- **Roofs:** hipped slate roofs over the Sheds, Lodge and Orangery, with stone ridges, timber fascias, brick chimneys with pots, and glazed skylights. The Sheds and Lodge ceilings are now slate.
+- **Parkland:** a lawn round the building and a ring of 26 broadleaf trees outside the walls (overview only, no collision).
