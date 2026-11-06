@@ -32,10 +32,10 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     # big textured surfaces
     "Board": ("85817B", "Concrete", "Bunk2_Board"),  # board-formed concrete walls and piers
     "BoardLight": ("96928B", "Concrete", "Bunk2_Board"),  # sunwell, shaft, plinth, beams
-    "Ceiling": ("6E6B67", "Concrete", "Bunk2_Floor"),  # precast slabs (tie holes on a ceiling read odd)
+    "Ceiling": ("6E6B67", "Concrete", ""),  # r4: plain (the floor texture read as blotches overhead)  # precast slabs (tie holes on a ceiling read odd)
     "Olive": ("4C5244", "Plastic", "Bunk2_Paint"),  # lower wall paint
     "Band": ("6F6A62", "Plastic", "Bunk2_Paint"),  # the end band (recoloured per side in Studio from BAND)
-    "Floor": ("64615C", "Concrete", "Bunk2_Floor"),  # rooms and corridors
+    "Floor": ("57544F", "Concrete", "Bunk2_Floor"),  # r4: darker, so walls and lamps carry the contrast  # rooms and corridors
     "FloorSun": ("9A948B", "Concrete", "Bunk2_Floor"),  # sunwell
     "Deck": ("7A766F", "Concrete", "Bunk2_Floor"),  # ring and overlooks
     "Dais": ("A39D93", "Concrete", "Bunk2_Floor"),
@@ -53,10 +53,10 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Rack": ("4A5056", "Plastic", "Bunk2_Steel"),
     "Console": ("50564C", "Plastic", "Bunk2_Paint"),  # olive-grey desk
     # accents
-    "Brass": ("957A48", "SmoothPlastic", ""),  # r2: the brushed texture read as wood grain  # rails, trims, compass, case corners
-    "Gold": ("BE9A4C", "SmoothPlastic", ""),  # plinth cap (the landmark)
+    "Brass": ("8A6E40", "Metal", ""),  # r4: real brass sheen indoors (not painted; env specular 0.1)  # r2: the brushed texture read as wood grain  # rails, trims, compass, case corners
+    "Gold": ("B08A42", "Metal", ""),  # plinth cap (the landmark)
     "Hazard": ("E2B23E", "SmoothPlastic", ""),
-    "Line": ("B9963F", "SmoothPlastic", ""),  # painted floor guide lines (muted amber)
+    "Line": ("8E7A4A", "SmoothPlastic", ""),  # painted floor guide lines (muted amber)
     "Ink": ("2C2E31", "SmoothPlastic", ""),  # hazard stripes' dark, cable sheaths, rubber
     "Rubber": ("484B4F", "SmoothPlastic", ""),
     "Valve": ("B8473A", "SmoothPlastic", ""),  # valve wheels (tiny red, the pump room's story colour)
@@ -64,15 +64,29 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Glass": ("BFD9E3", "Glass", ""),
     "Screen": ("1E2A30", "SmoothPlastic", ""),  # screen surround (glass dark)
     # Neon (thin strips only)
-    "Cove": ("FFDDB0", "Neon", ""),  # warm cove strips (FFB45A renders saturated yellow in Roblox)
-    "Lamp": ("FFF1DC", "Neon", ""),  # v1 r1: FFD49A read as yellow blobs  # cage lamps, bulkheads
+    "Cove": ("A89A86", "SmoothPlastic", ""),  # r4: unlit light-strip trim (reviewers: flat orange neon); the cage lamps carry the light  # Neon brightens hugely: this renders as an amber cove  # r3: amber (the white strips blew out and read cold; FFB45A goes yellow)  # warm cove strips (FFB45A renders saturated yellow in Roblox)
+    "Lamp": ("FFD7A0", "Neon", ""),  # v1 r1: FFD49A read as yellow blobs  # cage lamps, bulkheads
     "ScreenGlow": ("3E5C5C", "Neon", ""),  # r2: 5F9FB0 rendered team-cyan  # A6DCEB blew out to white
     "Status": ("D9932F", "Neon", ""),  # tiny LEDs
 }
 
 # End bands: the route tone of each half (not a team colour). "N" = the shared middle (no colour, a warm grey).
-BAND = {"B": "3A4C78", "A": "A8823F", "N": "6F6A62"}  # v1 r1: textured Plastic renders ~1.4x brighter and warmer than its hex
+BAND = {"B": "34445F", "A": "8F703A", "N": "6F6A62"}  # r3: calmer worn paint  # v1 r1: textured Plastic renders ~1.4x brighter and warmer than its hex
 SIGN_INK = "E9E3D3"
+
+# Room identity (r4): the lower-wall paint per room type, so rooms stop looking alike. Keys are the layout's region names.
+ROOM_PAINT = {
+    "lockers": "4C5244",  # olive
+    "control": "485260",  # slate blue-grey
+    "pump": "5E4A42",  # oxide red
+    "corridor": "50564F",  # grey-green
+    "vestibule": "4F5145",
+    "spawn": "4C5244",
+    "gallery": "4C5244",
+    "sunwell": "5A564C",  # warm stone
+    "ring": "5A564C",
+    "overlook": "4C5244",
+}
 
 # Reserved, never used on the map: team cyan #00E5FF, team orange-red #FF5A36, glitch magenta #FF3DCB.
 
@@ -102,13 +116,13 @@ LIGHTING = {
     "ClockTime": 12,
     "GeographicLatitude": 23.5,
     "Brightness": 3.0,
-    "Ambient": (150, 148, 146),  # v1 r1: local lights render in captures; ambient alone reads near-black indoors  # warm shade fill: rooms read at a glance (the v3/v4 maps read dark)
-    "OutdoorAmbient": (140, 140, 146),
+    "Ambient": (100, 98, 96),  # r3: lower, so the lamp pools and the sunwell carry the light  # v1 r1: local lights render in captures; ambient alone reads near-black indoors  # warm shade fill: rooms read at a glance (the v3/v4 maps read dark)
+    "OutdoorAmbient": (120, 118, 116),
     "ColorShift_Top": (255, 240, 220),
     "ColorShift_Bottom": (0, 0, 0),
     "EnvironmentDiffuseScale": 0.15,  # the sky must not tint a sealed bunker
     "EnvironmentSpecularScale": 0.1,
-    "ExposureCompensation": 0.0,  # v1 r1: 0.2 with a warm ambient read peach and yellow in captures
+    "ExposureCompensation": 0.15,  # v1 r1: 0.2 with a warm ambient read peach and yellow in captures
     "GlobalShadows": True,
     "ShadowSoftness": 0.15,
 }
@@ -118,7 +132,7 @@ FX = {
     "Grade": {"Brightness": 0.0, "Contrast": 0.16, "Saturation": -0.08, "TintColor": (255, 250, 244)},
     "SunRays": {"Intensity": 0.07, "Spread": 0.5},
 }
-LAMP = {"color": (255, 238, 214), "brightness": 0.75, "range": 24}  # v1 r1: 1.6 warm washed every wall peach  # shadowless room lights (few)
+LAMP = {"color": (255, 218, 178), "brightness": 0.9, "range": 15}  # r3: a warm pool at every cage lamp  # v1 r1: 1.6 warm washed every wall peach  # shadowless room lights (few)
 
 
 def hex_rgb(h: str) -> tuple[int, int, int]:
@@ -154,6 +168,7 @@ def style_block(parts: dict[str, str]) -> str:
         lines.append(f'\t{role} = {{ color = "{hx}", material = "{mat}", variant = "{var}" }},')
     lines.append("}")
     lines.append("local BAND: { [string]: string } = { " + ", ".join(f'{k} = "{v}"' for k, v in BAND.items()) + " }")
+    lines.append("local ROOM_PAINT: { [string]: string } = { " + ", ".join(f'{k} = "{v}"' for k, v in ROOM_PAINT.items()) + " }")
     lines.append("local VARIANTS: { [string]: { any } } = {")
     for name, (base, tile, cm, nm, rm) in VARIANTS.items():
         lines.append(f'\t{name} = {{ "{base}", {tile}, "{cm}", "{nm}", "{rm}" }},')
@@ -208,7 +223,7 @@ def write_block(rel: str, tag: str, body: str) -> None:
 def check() -> list[str]:
     bad = []
     for role, (hx, mat, _v) in PALETTE.items():
-        if mat == "Metal":
+        if mat == "Metal" and role not in ("Brass", "Gold"):  # unpainted brass may be Metal indoors
             bad.append(f"{role}: Roblox Metal mirrors the sky")
         if mat != "Neon" and luminance(hx) < 0.06 and role not in ("Screen", "Ink"):
             bad.append(f"{role}: #{hx} is near-black (luminance {luminance(hx):.3f})")

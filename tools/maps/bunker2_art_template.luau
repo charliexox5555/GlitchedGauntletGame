@@ -118,12 +118,15 @@ local function stretch(m: Model, s: number)
 	end
 end
 
-local function restyle(m: Model, band: string)
+local function restyle(m: Model, band: string, room: string)
+	local paint = ROOM_PAINT[room]
 	for _, d in m:GetDescendants() do
 		if d:IsA("BasePart") then
 			local role = PART_ROLE[d.Name]
 			if role == "Band" then
 				apply(d, role, Color3.fromHex(BAND[band]))
+			elseif role == "Olive" and paint then
+				apply(d, role, Color3.fromHex(paint))
 			elseif role then
 				apply(d, role)
 			end
@@ -174,7 +177,7 @@ for i, s in PLACES do
 	end
 	placed += 1
 	stretch(m, s[7] :: number)
-	restyle(m, bandKey(s[8] :: string, z))
+	restyle(m, bandKey(s[8] :: string, z), (s[10] or "") :: string)
 	local piece = s[2] :: string
 	local text = s[9] :: string
 	local right = m:GetPivot().RightVector -- the piece's +X in the world

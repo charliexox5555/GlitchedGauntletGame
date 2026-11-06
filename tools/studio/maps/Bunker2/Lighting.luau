@@ -16,13 +16,13 @@ local PROPS: { [string]: any } = {
 	ClockTime = 12,
 	GeographicLatitude = 23.5,
 	Brightness = 3,
-	Ambient = Color3.fromRGB(150, 148, 146),
-	OutdoorAmbient = Color3.fromRGB(140, 140, 146),
+	Ambient = Color3.fromRGB(100, 98, 96),
+	OutdoorAmbient = Color3.fromRGB(120, 118, 116),
 	ColorShift_Top = Color3.fromRGB(255, 240, 220),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
 	EnvironmentDiffuseScale = 0.15,
 	EnvironmentSpecularScale = 0.1,
-	ExposureCompensation = 0,
+	ExposureCompensation = 0.15,
 	GlobalShadows = true,
 	ShadowSoftness = 0.15,
 }
@@ -32,7 +32,7 @@ local FX: { [string]: { [string]: any } } = {
 	Grade = { Brightness = 0, Contrast = 0.16, Saturation = -0.08, TintColor = Color3.fromRGB(255, 250, 244) },
 	SunRays = { Intensity = 0.07, Spread = 0.5 },
 }
-local LAMP = { color = Color3.fromRGB(255, 238, 214), brightness = 0.75, range = 24 }
+local LAMP = { color = Color3.fromRGB(255, 218, 178), brightness = 0.9, range = 15 }
 -- stylua: ignore end
 -- END LIGHT
 
@@ -101,6 +101,7 @@ local function anchor(name: string, x: number, y: number, z: number, size: Vecto
 		castShadow = false,
 	})
 	decor(a)
+	a.Locked = true -- no hover outline in Studio captures
 	a:SetAttribute("AllowFloat", true) -- an invisible light anchor, not geometry
 	return a
 end
@@ -127,8 +128,47 @@ local bottom = Instance.new("Attachment")
 bottom.Name = "Floor"
 bottom.Parent = beamPart
 bottom.WorldPosition = W(CFrame.new(0, 0.6, 0)).Position
--- v1 r2: no Beams (camera-facing ribbons read as an outlined flat sheet in captures, as in the Lobby).
-local _ = { top, bottom, IMG_SUNBEAM }
+for _, spec in
+	{
+		{ name = "Shaft", w = 22, t = { { 0, 1 }, { 0.1, 0.62 }, { 0.5, 0.72 }, { 0.85, 0.8 }, { 1, 0.94 } } },
+		{ name = "Core", w = 12, t = { { 0, 1 }, { 0.1, 0.5 }, { 0.5, 0.62 }, { 0.85, 0.72 }, { 1, 0.9 } } },
+	}
+do
+	local bm = Instance.new("Beam")
+	bm.Name = spec.name
+	bm.Attachment0 = top
+	bm.Attachment1 = bottom
+	bm.FaceCamera = true
+	bm.Texture = IMG_SUNBEAM
+	bm.TextureMode = Enum.TextureMode.Stretch
+	bm.TextureLength = 1
+	bm.TextureSpeed = 0
+	bm.Width0 = spec.w
+	bm.Width1 = spec.w
+	bm.Segments = 10
+	bm.LightEmission = 1
+	bm.LightInfluence = 0
+	bm.Brightness = 1.4
+	bm.Color = ColorSequence.new(SUN)
+	local keys = {}
+	for _, k in spec.t do
+		table.insert(keys, NumberSequenceKeypoint.new(k[1], k[2]))
+	end
+	bm.Transparency = NumberSequence.new(keys)
+	bm.Parent = beamPart
+end
+
+-- The plinth's own light: a warm spot from under the skylight onto the gold cap and the compass.
+local spotPart = anchor("PlinthSpot", 0, 60, 0)
+local spot = Instance.new("SpotLight")
+spot.Face = Enum.NormalId.Bottom
+spot.Angle = 28
+spot.Range = 60
+spot.Brightness = 4
+spot.Color = SUN
+spot.Shadows = false
+spot.Parent = spotPart
+count += 1
 
 local dustBox = anchor("SunDust", 0, 22, 0, Vector3.new(20, 40, 20))
 local dust = Instance.new("ParticleEmitter")
@@ -162,17 +202,24 @@ bounce.Shadows = false
 bounce.Parent = bouncePart
 count += 1
 
--- Room lights, all shadowless, warm (the coves' colour): team B's half and the east pump; team A's is the 180° turn.
+-- Lamp pools: a warm, shadowless PointLight in every cage lamp the art placed (wall piers, bulkheads, ceiling cages),
+-- so the light comes from fixtures you can see. Room accents: a cool wash over the server racks, a warm one on the pumps.
 local LAMP_C = LAMP.color :: Color3
+for _, d in layer("Art"):GetDescendants() do
+	if d:IsA("BasePart") and (d.Name == "Pier12_Lamp_Glow" or d.Name == "WallLamp_Lamp_Glow" or d.Name == "CageLamp_Bulb_Glow") then
+		local l = Instance.new("PointLight")
+		l.Color = LAMP_C
+		l.Range = LAMP.range
+		l.Brightness = LAMP.brightness
+		l.Shadows = false
+		l.Parent = d
+		count += 1
+	end
+end
 for _, s in { 1, -1 } do
-	point("CorridorEast", s * 36, 9, s * 34, LAMP_C, LAMP.range, LAMP.brightness)
-	point("CorridorWest", -s * 36, 9, s * 34, LAMP_C, LAMP.range, LAMP.brightness)
-	point("Lockers", s * 22, 9, s * 36, LAMP_C, LAMP.range, LAMP.brightness)
-	point("Control", -s * 22, 9, s * 36, LAMP_C, LAMP.range, LAMP.brightness)
-	point("Vestibule", 0, 9, s * 60, LAMP_C, 30, LAMP.brightness)
-	point("Spawn", 0, 9, s * 84, LAMP_C, 28, LAMP.brightness)
-	point("Gallery", 0, 20, s * 42, LAMP_C, 30, LAMP.brightness)
-	point("Pump", s * 28, 9, 0, LAMP_C, LAMP.range, LAMP.brightness)
+	point("ControlAccent", -s * 22, 8, s * 45, Color3.fromRGB(150, 190, 220), 16, 1.2)
+	point("PumpAccent", s * 34, 9, 0, Color3.fromRGB(255, 170, 110), 18, 0.5)
+	point("GalleryWarm", 0, 20, s * 44, LAMP_C, 28, 0.9)
 end
 
 report(

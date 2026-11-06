@@ -96,3 +96,51 @@ Made by script (`tools/textures/make_bunker2_textures.py`, numpy), from the conc
 
 ## Results
 Per version and round, below.
+
+## v1 results (2026-11-06 overnight)
+Installed in the match place at (-3000, 200, 1500), ForceMap only. It isn't in the pool. **The place needs saving (Ctrl+S); the core chat saves it.**
+
+**Kit and checks:**
+- 35 pieces, 42.8k unique triangles, in-piece coplanar 0.
+- Dressed map:
+  - 717 placements, about 2.6k MeshParts, about 382k triangles (budget 450k);
+  - dressed coplanar check 0 (43k face rectangles);
+  - Studio `Audit.luau` 0 pairs;
+  - `FloatAudit` 0 floating groups (2,682 parts).
+- Layout checks all pass (unchanged from Bunker).
+
+**Rounds and blind scores:**
+
+| Round | Changes | Reviewer scores | Median |
+|---|---|---|---|
+| r1/r2 | First install. Palette re-valued for Roblox (textured Plastic renders about 1.4× brighter and warmer than its hex). Room PointLights at 0.75. Valve wheels as rims and spokes. Brass railing redesign. Floor guide lines. Spawn dressing. | 4.17 / 3.75 / 5.00 | **4.17** |
+| r3 | Amber cove strips (Neon brightens hugely: `8A6446` renders amber). Lamp pools on every cage lamp (about 78 shadowless PointLights). Sunbeam plus a plinth spot. Hazard sills at every door. Calmer bands. Darker ambient. | 5.00 / 6.67 / 5.83 | **5.83** |
+| r4 (built, not yet scored) | One bevelled monolith plinth with a steel base and a band. Unlit cove trims instead of orange Neon. Metal brass rails. Plain ceiling. Darker floors. Per-room lower-wall paint (olive lockers, slate control, oxide-red pump rooms). Bigger cage lamps. | — | — |
+
+**What the reviewers agreed on:**
+- *Better:* the sunwell landmark, signs, floor lines, hazard thresholds, cohesion of concrete, olive and steel, and the lockers and pump room.
+- *Still short:*
+  - the plinth read as stacked boxes (fixed in r4);
+  - the generator blocks the hero sightline from the SW corner;
+  - no visible stair from the sunwell floor to the ring (that's the layout: the ring is reached from the overlooks);
+  - flat orange or white strips (fixed in r4);
+  - the spawn ceiling looks blotchy (r4 made it plain);
+  - corridors look alike (r4 room paint);
+  - pump motors are plain cylinders.
+
+**Studio contention:** the match Studio is shared. Twice during r4 another lane restored the place Lighting and deleted the capture camera while lane A held the lock. The r4 evidence below was taken before that. It hasn't been scored, and it's reported to the core chat.
+
+Best shots so far:
+
+| Concept | Build |
+|---|---|
+| ![](../../../art-source/maps/Bunker2/concepts/02-hero.png) | ![](../../02%20Art/References/maps/bunker2/v1-r4-hero.jpg) |
+| ![](../../../art-source/maps/Bunker2/concepts/01-overview.png) | ![](../../02%20Art/References/maps/bunker2/v1-r4-sunwell.jpg) |
+| ![](../../../art-source/maps/Bunker2/concepts/03-kit-sheet.png) | ![](../../02%20Art/References/maps/bunker2/v1-r3-pump.jpg) |
+
+Spawn A and its amber band: `v1-r4-spawn-a.jpg`. Corridor with pier lamps: `v1-r4-corridor.jpg`.
+
+**Ready for approval?** No. The best scored round is 5.83, under the 8.5 bar. r4 targets the named gaps but needs a clean Studio window to score. Biggest remaining gains:
+1. a visible stair or ladder cue toward the ring from the sunwell floor (a decor cue, since the layout stays as it is);
+2. motor and generator detail (fins, junction boxes, conduit);
+3. moving the sunwell generator's hero-view block with a smaller console (a layout change, so it needs the user).

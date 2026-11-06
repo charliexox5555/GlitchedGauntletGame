@@ -268,7 +268,7 @@ def cage_lamp_x(x0, y, z, scale=1.0):
 def p_pier():
 	# A wall pier (pilaster) every 12-16 studs on long ground-band walls: steel foot, olive and band wrap, a rounded
 	# concrete shaft, a steel capital under the header line, and a cage lamp on its face at 7.5.
-	plate, glow, cage = cage_lamp_x(0.95, 7.6, 0.0)
+	plate, glow, cage = cage_lamp_x(0.95, 7.6, 0.0, 1.45)
 	piece("Pier12", {
 		"Steel": ([RB(0, 1.05, 0, 0.85, -0.95, 0.95, 0.06, 1), RB(0, 1.15, 10.84, 11.98, -1.0, 1.0, 0.1)], "SteelDark"),
 		"Paint": (RB(0, 1.0, 0.85, 4.05, -0.9, 0.9, 0.08), "Olive"),
@@ -278,7 +278,7 @@ def p_pier():
 		"Lamp": (glow, "Lamp"),
 		"Cage": (cage, "Brass"),
 	})
-	plate, glow, cage = cage_lamp_x(0.12, 8.6, 0.0)
+	plate, glow, cage = cage_lamp_x(0.12, 8.6, 0.0, 1.45)
 	piece("WallLamp", {"LampPlate": (plate, "Steel"), "Lamp": (glow, "Lamp"), "Cage": (cage, "Brass")})
 
 
@@ -464,9 +464,10 @@ def p_sun():
 	piece("SunDais", {"Slab": (slab, "Dais"), "Compass": (ring + pts, "Brass"), "Diamonds": (dia, "Brass")})
 	# The plinth: three rounded board-formed courses over a darker core (the seams read), a brass collar and a gold
 	# pyramid cap (the brightest thing on the map, in the sun).
-	courses = [RB(-4, 4, a, b, -4, 4, 0.25) for a, b in ((0.5, 3.1), (3.18, 5.78), (5.86, 8.5))]
+	# r4: one bevelled monolith (the stacked courses read as boxes), a plinth base and a brass band near the top.
+	courses = [RB(-4, 4, 0.9, 8.5, -4, 4, 0.5)]
 	piece("SunPlinth", {
-		"Core": (RB(-3.85, 3.85, 0.55, 8.4, -3.85, 3.85, 0.0), "Ceiling"),
+		"Core": ([RB(-4.4, 4.4, 0.44, 0.9, -4.4, 4.4, 0.12), RB(-4.08, 4.08, 7.2, 7.5, -4.08, 4.08, 0.06)], "SteelDark"),
 		"Courses": (courses, "BoardLight"),
 		"Collar": (RB(-4.15, 4.15, 8.5, 8.78, -4.15, 4.15, 0.08), "Brass"),
 		"Cap": (pyramid(3.9, 8.78, 10.9), "Gold"),
@@ -759,7 +760,7 @@ def p_fixtures():
 	hz = []
 	for poly in stripes(-3.85, 3.85, -0.62, 0.62, pitch=0.9, width=0.45, slant=0.9):
 		hz.append(RPY(ccw([(v, u) for u, v in poly]), 0.05, 0.1, 0.0))
-	piece("FloorLine16", {"Line": (RB(1.0, 1.3, 0.0, 0.04, -8, 8, 0.0), "Line")})
+	piece("FloorLine16", {"Line": (RB(1.0, 1.3, 0.0, 0.02, -8, 8, 0.0), "Line")})  # under the sills' 0.05
 	piece("HazardSill", {"Base": (RB(-0.75, 0.75, 0, 0.05, -4, 4, 0.0), "Ink"), "Stripes": (hz, "Hazard")})
 
 

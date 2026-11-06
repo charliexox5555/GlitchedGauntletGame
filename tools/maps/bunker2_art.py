@@ -56,10 +56,11 @@ class Put:
     sz: float = 1.0
     tint: str = ""  # end colour for *_Band / *_Trim parts: "B", "A" or "N" (neutral); "" = by z
     name: str = ""
+    room: str = ""  # r4: region key for the lower-wall paint (ROOM_PAINT)
 
     def rotated(self) -> "Put":
         return Put(self.sec, self.piece, -self.x, self.y, -self.z, (self.yaw + 180) % 360, self.sz,
-                   {"B": "A", "A": "B"}.get(self.tint, self.tint), {"B": "A", "A": "B"}.get(self.name, self.name))
+                   {"B": "A", "A": "B"}.get(self.tint, self.tint), {"B": "A", "A": "B"}.get(self.name, self.name), self.room)
 
 
 PLACES: list = []
@@ -509,6 +510,28 @@ NAMES = {"sunwell": "SUNWELL", "ring": "RING", "gallery": "GALLERY", "lockers": 
          "pump": "PUMP", "corridor": "CORRIDOR", "vestibule": "VESTIBULE", "spawn": "SPAWN", "overlook": "OVERLOOK"}
 
 
+SILLS: list = []
+
+
+def door_sills():
+    """Hazard-striped sills on the floor either side of every door, 2.3 off the wall's centre (clear of the frame)."""
+    for p in list(PLACES):
+        if p.piece != "DoorLining" or p.y > 0.5:
+            continue
+        th = math.radians(p.yaw)
+        ax, az = math.cos(th), -math.sin(th)
+        for s in (1, -1):
+            x, z = p.x + ax * s * 2.3, p.z + az * s * 2.3
+            if in_block(x, 1.0, z, ("wall", "cover", "low")):
+                continue
+            hx, hz = (0.8, 3.9) if abs(ax) > 0.5 else (3.9, 0.8)  # footprint half-extents in the map
+            rect = (x - hx, x + hx, z - hz, z + hz)
+            if any(r[0] < rect[1] and rect[0] < r[1] and r[2] < rect[3] and rect[2] < r[3] for r in SILLS):
+                continue  # two doors at a corner: one sill is enough
+            SILLS.append(rect)
+            put("Doors", "HazardSill", x, 0.0, z, p.yaw, sz=7.6 / 8)
+
+
 def door_signs():
     """Each door's two lintel signs name the space beyond them (a sign under a deck is removed: "")."""
     for p in PLACES:
@@ -530,6 +553,18 @@ def door_signs():
         p.name = "|".join(texts)
 
 
+def rooms():
+    """The room each placement faces into (1.5 in front of it, at eye height), for the room paint."""
+    for p in PLACES:
+        th = math.radians(p.yaw)
+        ax, az = math.cos(th), -math.sin(th)
+        try:
+            reg = L.region(p.x + ax * 1.5, max(p.y, 0.0) + 1.0, p.z + az * 1.5)
+        except Exception:
+            reg = ""
+        p.room = reg.split()[-1] if reg else ""
+
+
 def build():
     PLACES.clear()
     DOOR_JAMBS.clear()
@@ -537,7 +572,10 @@ def build():
     stats.update(cladding())
     props()
     fixtures()
+    SILLS.clear()
+    door_sills()
     door_signs()
+    rooms()
     return stats
 
 
@@ -712,7 +750,7 @@ def write_luau():
     build()
     rows = []
     for p in PLACES:
-        rows.append(f'\t{{ "{p.sec}", "{p.piece}", {p.x:g}, {p.y:g}, {p.z:g}, {p.yaw:g}, {round(p.sz, 5):g}, "{p.tint}", "{p.name}" }},')
+        rows.append(f'\t{{ "{p.sec}", "{p.piece}", {p.x:g}, {p.y:g}, {p.z:g}, {p.yaw:g}, {round(p.sz, 5):g}, "{p.tint}", "{p.name}", "{p.room}" }},')
     import bunker2_style as S
     signs = json.loads(SIGNS.read_text(encoding="utf-8")) if SIGNS.exists() else {}
     body = ART_TEMPLATE_FILE.read_text(encoding="utf-8").replace("--@PLACEMENTS@", "\n".join(rows))

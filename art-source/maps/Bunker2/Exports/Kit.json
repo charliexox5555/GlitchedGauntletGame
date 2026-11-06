@@ -38,7 +38,7 @@
     "Clad10_Paint",
     "Clad10_Band",
     "Clad10_Field",
-    "Clad10_Cove_Glow"
+    "Clad10_Cove"
    ]
   },
   "Clad12": {
@@ -48,7 +48,7 @@
     "Clad12_Paint",
     "Clad12_Band",
     "Clad12_Field",
-    "Clad12_Cove_Glow"
+    "Clad12_Cove"
    ]
   },
   "Console8": {
@@ -117,7 +117,7 @@
    "parts": [
     "Field14_Course",
     "Field14_Field",
-    "Field14_Cove_Glow"
+    "Field14_Cove"
    ]
   },
   "FloorLine16": {
@@ -265,14 +265,14 @@
    "props": {},
    "parts": [
     "RingEdge8_Fascia",
-    "RingEdge8_Cove_Glow"
+    "RingEdge8_Cove"
    ]
   },
   "ShaftPanel8": {
    "props": {},
    "parts": [
     "ShaftPanel8_Rim",
-    "ShaftPanel8_Cove_Glow",
+    "ShaftPanel8_Cove",
     "ShaftPanel8_Field"
    ]
   },
@@ -586,8 +586,8 @@
    "name": "CageLamp_Cage",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 552,
@@ -608,7 +608,7 @@
    "material": "B2_Lamp",
    "look": {
     "material": "Neon",
-    "color": "FFF1DC"
+    "color": "FFD7A0"
    },
    "glow": true,
    "tris": 164,
@@ -713,13 +713,13 @@
   },
   {
    "piece": "Clad10",
-   "name": "Clad10_Cove_Glow",
+   "name": "Clad10_Cove",
    "material": "B2_Cove",
    "look": {
-    "material": "Neon",
-    "color": "FFDDB0"
+    "material": "SmoothPlastic",
+    "color": "A89A86"
    },
-   "glow": true,
+   "glow": false,
    "tris": 12,
    "center": [
     0.18,
@@ -822,13 +822,13 @@
   },
   {
    "piece": "Clad12",
-   "name": "Clad12_Cove_Glow",
+   "name": "Clad12_Cove",
    "material": "B2_Cove",
    "look": {
-    "material": "Neon",
-    "color": "FFDDB0"
+    "material": "SmoothPlastic",
+    "color": "A89A86"
    },
-   "glow": true,
+   "glow": false,
    "tris": 12,
    "center": [
     0.18,
@@ -1130,8 +1130,8 @@
    "name": "CrateRow_Corners",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 528,
@@ -1217,8 +1217,8 @@
    "name": "CrateStack_Corners",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 704,
@@ -1326,8 +1326,8 @@
    "name": "DoorLining_Glow",
    "material": "B2_Cove",
    "look": {
-    "material": "Neon",
-    "color": "FFDDB0"
+    "material": "SmoothPlastic",
+    "color": "A89A86"
    },
    "glow": true,
    "tris": 176,
@@ -1389,8 +1389,8 @@
    "name": "DoorLining_Bolts",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 992,
@@ -1451,13 +1451,13 @@
   },
   {
    "piece": "Field14",
-   "name": "Field14_Cove_Glow",
+   "name": "Field14_Cove",
    "material": "B2_Cove",
    "look": {
-    "material": "Neon",
-    "color": "FFDDB0"
+    "material": "SmoothPlastic",
+    "color": "A89A86"
    },
-   "glow": true,
+   "glow": false,
    "tris": 12,
    "center": [
     0.21,
@@ -1476,19 +1476,19 @@
    "material": "B2_Line",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B9963F"
+    "color": "8E7A4A"
    },
    "glow": false,
    "tris": 12,
    "center": [
     1.15,
     0.0,
-    0.02
+    0.01
    ],
    "size": [
     0.3,
     16.0,
-    0.04
+    0.02
    ]
   },
   {
@@ -1562,8 +1562,8 @@
    "name": "GalleryStair_Rail",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 648,
@@ -1713,8 +1713,8 @@
    "name": "Gen46_Rail",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 864,
@@ -1864,8 +1864,8 @@
    "name": "Gen66_Rail",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 864,
@@ -1950,7 +1950,7 @@
    "material": "B2_Lamp",
    "look": {
     "material": "Neon",
-    "color": "FFF1DC"
+    "color": "FFD7A0"
    },
    "glow": true,
    "tris": 44,
@@ -2058,8 +2058,8 @@
    "name": "LockerIsland_Handles",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 704,
@@ -2189,8 +2189,8 @@
    "name": "Lockers4_Handles",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 176,
@@ -2392,14 +2392,14 @@
    "glow": false,
    "tris": 108,
    "center": [
-    1.02,
+    1.0515,
     0.0,
     7.6
    ],
    "size": [
-    0.14,
-    0.84,
-    1.2
+    0.203,
+    1.218,
+    1.74
    ]
   },
   {
@@ -2408,19 +2408,19 @@
    "material": "B2_Lamp",
    "look": {
     "material": "Neon",
-    "color": "FFF1DC"
+    "color": "FFD7A0"
    },
    "glow": true,
    "tris": 164,
    "center": [
-    1.38,
+    1.5735,
     0.0,
     7.6
    ],
    "size": [
-    0.58,
-    0.52646,
-    0.54
+    0.841,
+    0.76337,
+    0.783
    ]
   },
   {
@@ -2428,20 +2428,20 @@
    "name": "Pier12_Cage",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 716,
    "center": [
-    1.45,
+    1.675,
     0.0,
     7.6
    ],
    "size": [
-    0.72,
-    0.86,
-    0.86
+    1.044,
+    1.247,
+    1.247
    ]
   },
   {
@@ -2885,8 +2885,8 @@
    "name": "Rail4_Rail",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 252,
@@ -2925,13 +2925,13 @@
   },
   {
    "piece": "RingEdge8",
-   "name": "RingEdge8_Cove_Glow",
+   "name": "RingEdge8_Cove",
    "material": "B2_Cove",
    "look": {
-    "material": "Neon",
-    "color": "FFDDB0"
+    "material": "SmoothPlastic",
+    "color": "A89A86"
    },
-   "glow": true,
+   "glow": false,
    "tris": 12,
    "center": [
     -0.3,
@@ -2968,13 +2968,13 @@
   },
   {
    "piece": "ShaftPanel8",
-   "name": "ShaftPanel8_Cove_Glow",
+   "name": "ShaftPanel8_Cove",
    "material": "B2_Cove",
    "look": {
-    "material": "Neon",
-    "color": "FFDDB0"
+    "material": "SmoothPlastic",
+    "color": "A89A86"
    },
-   "glow": true,
+   "glow": false,
    "tris": 12,
    "center": [
     0.22,
@@ -3058,8 +3058,8 @@
    "name": "ShaftTop_Hub",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 204,
@@ -3122,8 +3122,8 @@
    "name": "SpawnPanel_Frame",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 348,
@@ -3187,8 +3187,8 @@
    "name": "SunDais_Compass",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 1296,
@@ -3208,8 +3208,8 @@
    "name": "SunDais_Diamonds",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 48,
@@ -3227,23 +3227,23 @@
   {
    "piece": "SunPlinth",
    "name": "SunPlinth_Core",
-   "material": "B2_Ceiling",
+   "material": "B2_SteelDark",
    "look": {
-    "material": "Concrete",
-    "color": "6E6B67",
-    "variant": "Bunk2_Floor"
+    "material": "Plastic",
+    "color": "4A5056",
+    "variant": "Bunk2_Steel"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 216,
    "center": [
     0.0,
     0.0,
-    4.475
+    3.97
    ],
    "size": [
-    7.7,
-    7.7,
-    7.85
+    8.8,
+    8.8,
+    7.06
    ]
   },
   {
@@ -3256,16 +3256,16 @@
     "variant": "Bunk2_Board"
    },
    "glow": false,
-   "tris": 324,
+   "tris": 108,
    "center": [
     0.0,
     0.0,
-    4.5
+    4.7
    ],
    "size": [
     8.0,
     8.0,
-    8.0
+    7.6
    ]
   },
   {
@@ -3273,8 +3273,8 @@
    "name": "SunPlinth_Collar",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 108,
@@ -3294,8 +3294,8 @@
    "name": "SunPlinth_Cap",
    "material": "B2_Gold",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "BE9A4C"
+    "material": "Metal",
+    "color": "B08A42"
    },
    "glow": false,
    "tris": 6,
@@ -3322,14 +3322,14 @@
    "glow": false,
    "tris": 108,
    "center": [
-    0.19,
+    0.2215,
     0.0,
     8.6
    ],
    "size": [
-    0.14,
-    0.84,
-    1.2
+    0.203,
+    1.218,
+    1.74
    ]
   },
   {
@@ -3338,19 +3338,19 @@
    "material": "B2_Lamp",
    "look": {
     "material": "Neon",
-    "color": "FFF1DC"
+    "color": "FFD7A0"
    },
    "glow": true,
    "tris": 164,
    "center": [
-    0.55,
+    0.7435,
     0.0,
     8.6
    ],
    "size": [
-    0.58,
-    0.52646,
-    0.54
+    0.841,
+    0.76337,
+    0.783
    ]
   },
   {
@@ -3358,22 +3358,22 @@
    "name": "WallLamp_Cage",
    "material": "B2_Brass",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "957A48"
+    "material": "Metal",
+    "color": "8A6E40"
    },
    "glow": false,
    "tris": 716,
    "center": [
-    0.62,
+    0.845,
     0.0,
     8.6
    ],
    "size": [
-    0.72,
-    0.86,
-    0.86
+    1.044,
+    1.247,
+    1.247
    ]
   }
  ],
- "tris": 42770
+ "tris": 42758
 }
