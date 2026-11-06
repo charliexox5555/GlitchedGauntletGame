@@ -149,5 +149,99 @@
         ]
       }
     }
+  },
+  "Greenhouse2": {
+    "origin": [
+      0,
+      200,
+      3000
+    ],
+    "_note": "provisional, picked on the greybox from clearance rays; re-check after the kit (no camera inside a prop)",
+    "cams": {
+      "overview": {
+        "pos": [
+          110,
+          95,
+          150
+        ],
+        "look": [
+          0,
+          10,
+          0
+        ]
+      },
+      "b-spawn": {
+        "pos": [
+          -6,
+          5,
+          100
+        ],
+        "look": [
+          0,
+          8,
+          40
+        ]
+      },
+      "fern-house": {
+        "pos": [
+          -12,
+          5,
+          64
+        ],
+        "look": [
+          0,
+          20,
+          0
+        ]
+      },
+      "dome-floor": {
+        "pos": [
+          -30,
+          5,
+          -20
+        ],
+        "look": [
+          0,
+          30,
+          0
+        ]
+      },
+      "gallery": {
+        "pos": [
+          -36,
+          17,
+          -20
+        ],
+        "look": [
+          0,
+          20,
+          10
+        ]
+      },
+      "west-wing": {
+        "pos": [
+          -58,
+          5,
+          -36
+        ],
+        "look": [
+          -58,
+          8,
+          36
+        ]
+      },
+      "sheds": {
+        "pos": [
+          -62,
+          5,
+          60
+        ],
+        "look": [
+          -62,
+          6,
+          10
+        ]
+      }
+    }
   }
 }

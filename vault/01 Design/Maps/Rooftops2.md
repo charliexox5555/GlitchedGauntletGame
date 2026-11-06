@@ -875,3 +875,7 @@ What holds it back, and what would move it:
 4. **The posters are louder than the concept's panels.** Muted decals helped a little.
 
 Best shots: [overview](../../02%20Art/References/maps/rooftops2/v5-r4-overview.jpg), [tower](../../02%20Art/References/maps/rooftops2/v5-r4-tower.jpg), [b-roof-side](../../02%20Art/References/maps/rooftops2/v5-r4-b-roof-side.jpg) and [side-by-side](../../02%20Art/References/maps/rooftops2/v5-r4-side-by-side.jpg).
+
+### Codex job 2 review (2026-11-06)
+- **Billboard art (4 PNGs):** used, on every sign face (round 1).
+- **TankParts (C): not used.** It was built against the v4 stand, with feet at ±4.3. Its ValveRun and OverflowPipe stand on the ground 4.4–6.6 out from the drum axis. At the tank's 1.35 placement on the 10 × 8 lift tower that's past the tower's edge, so they'd float again, which was the user's v4 complaint. Its CagedLadder duplicates the R3 ladder that's already in (round 1). The files stay as Codex's.
