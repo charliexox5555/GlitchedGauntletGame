@@ -699,3 +699,21 @@ Why it went down while the pieces got better: every reviewer judged the eye-leve
 2. A Pit fill light and a lighter Penthouse B shade.
 3. Smaller cobalt pier caps.
 4. Story props in the courts (laundry line, crates), with Codex's R1-R4 props once imported.
+
+### Codex props: lane G review and import (2026-11-05 late)
+Each prop was checked against its concept and the brief (size, roles, budget). The kit now imports the GLBs (`codex_meshes()` in `tools/blender/build_map_kit_rooftops2.py`; lane G's own versions stay in the script as fallbacks).
+
+| # | Prop | Verdict | Used as |
+|---|---|---|---|
+| R1 | AgavePlanter (box 6 x 3, three agaves, 1,386 tris) | **Used.** The leaves are better than lane G's (folded, upright rosettes). The brief had no cover screen. | `Planter`: Codex's box and agaves (the row doubled and scaled 0.78 either side), plus lane G's slat screen, so it stays full cover to 7.5. |
+| R1 | AgavePot | Not placed yet (no 2 x 2 spot in the layout). | — |
+| R2 | ACCabinet (8 x 4 x 7.5, 2,396 tris) | **Used.** Cleaner louvres, a bolted door, and a fan grille. | `ACUnit` |
+| R3 | TankDetailKit | **Not used.** It's a whole new tank (plain drum, no staves) rather than parts that fit ours. The caged ladder and valve wheel are good, so a later pass could take just those. | — |
+| R4 | CrateSet (Crate3, Crate2, Barrel) | **Used.** | `Crate`, `CrateSmall`, `Barrel` |
+
+Installed in the match place: 300 of 300 placements, audit 0 pairs over 1,645 parts, coplanar 0, kit 71.1k tris. Not re-scored (one score per map tonight). **Save the place (Ctrl+S).**
+
+| Codex prop in place | |
+|---|---|
+| ![](../../02%20Art/References/maps/rooftops2/v4-codex-ac.jpg) | ![](../../02%20Art/References/maps/rooftops2/v4-codex-planter.jpg) |
+| ![](../../02%20Art/References/maps/rooftops2/v4-codex-crates.jpg) | |

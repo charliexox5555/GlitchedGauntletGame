@@ -669,3 +669,10 @@ These are edit-mode captures with the map's own Lighting config and effects appl
 4. A shed facade pass: windows with warm glow, a corrugated roller-door texture and a bigger plate.
 5. A cooler concrete texture row for the deck.
 6. Codex's D1 and D2 props (fenders, bollards, racks) once imported.
+
+### Codex props: lane G review (2026-11-05 late)
+
+| # | Prop | Verdict |
+|---|---|---|
+| D1 | QuaySet (bollard, tyre fender, rope coil) | **Not used yet.** The bollard is plainer than our lathe bollard. The tyre fender and rope coil are good story props for the quay in the next pass, hung on the quay face and placed by the bollards. |
+| D2 | ShedRackSet (rack, pallet, cartons) | **Not used.** The rack is 8 x 3 x 9 and doesn't fit the Shed's 14-long rack footprint, and its yellow uprights would be a second yellow. Lane G's v4 rack (braced blue uprights, pallets, cartons) stays. The pallet and carton stack could dress the Shed floor later. |

@@ -1451,6 +1451,78 @@ def flue2():
 		P["Pot"].append(lathe_at(-2.3, z, [(0.0, 2.1), (0.42, 2.1), (0.5, 1.95), (0.38, 1.85), (0.5, 0.7)], 10))
 	emit(c, P)
 
+
+# ---- Codex props (2026-11-05 late; vault/01 Design/Maps/Rooftops2.md -> Codex prop list): reviewed against the
+# concepts by lane G and used where they beat the interim pieces: R1 agaves (with lane G's slat screen, so the
+# planter stays full cover), R2 AC cabinet, R4 crates and barrel. R3 (a whole plain tank, not a detail kit for ours)
+# is not used. Each GLB is 1 unit = 1 stud, Z up, one object per role (material named by role).
+
+PROPS = os.path.join(ART, "props")
+
+
+def codex_meshes(glb, group=None):
+	"""Import a Codex GLB; return {role: [bmesh]} in Blender coords, the group's footprint centred, base at 0."""
+	before = set(bpy.data.objects)
+	bpy.ops.import_scene.gltf(filepath=glb)
+	new = [o for o in bpy.data.objects if o not in before]
+	meshes = [o for o in new if o.type == "MESH" and (group is None or (o.parent is not None and o.parent.name == group))]
+	bpy.context.view_layer.update()
+	pts = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
+	cx = (min(p.x for p in pts) + max(p.x for p in pts)) / 2
+	cy = (min(p.y for p in pts) + max(p.y for p in pts)) / 2
+	z0 = min(p.z for p in pts)
+	out = {}
+	for o in meshes:
+		bm = bmesh.new()
+		bm.from_mesh(o.data)
+		bm.transform(o.matrix_world)
+		bmesh.ops.translate(bm, verts=bm.verts, vec=(-cx, -cy, -z0))
+		role = o.data.materials[0].name.split(".")[0]
+		out.setdefault(role, []).append(bm)
+	for o in new:
+		bpy.data.objects.remove(o)
+	return out
+
+
+def emit_codex(c, parts):
+	for role, bms in parts.items():
+		obj(c, "Codex" + role, merge(*bms), role)
+
+
+def codex_ac():
+	emit_codex(piece("ACUnit"), codex_meshes(os.path.join(PROPS, "ACCabinet.glb")))
+
+
+def codex_crates():
+	for name, group in (("Crate", "Crate3"), ("CrateSmall", "Crate2"), ("Barrel", "Barrel")):
+		emit_codex(piece(name), codex_meshes(os.path.join(PROPS, "CrateSet.glb"), group))
+
+
+def codex_planter():
+	# Codex's planter box and agaves, the agave row doubled either side of lane G's slat screen (full cover to 7.5).
+	c = piece("Planter")
+	cp = codex_meshes(os.path.join(PROPS, "AgavePlanter.glb"))
+	P = roles()
+	for role in ("Pot", "Stone", "Accent"):
+		P[role] += cp.get(role, [])
+	for k, bm in enumerate(cp.get("Plant", [])):
+		for sz in (1, -1):
+			b2 = bm.copy()
+			# scale 0.78 about the row's base, then move it to one side of the screen (Roblox z = -Blender y)
+			bmesh.ops.scale(b2, verts=b2.verts, vec=(0.78, 0.78, 0.78), space=Matrix.Translation((0.0, 0.0, -2.2)))
+			bmesh.ops.translate(b2, verts=b2.verts, vec=(0.12 * sz, -sz * 0.74, 0.0))
+			P["Plant"].append(b2)
+	for x in (-2.55, 0.0, 2.55):
+		P["Charcoal"].append(RB(x - 0.17, x + 0.17, 2.3, 7.1, -0.17, 0.17, BT, ST))
+	for k in range(8):
+		y0 = 2.85 + k * 0.53
+		o = 0.025 * (k % 2)
+		P["Wood"].append(RB(-2.42, 2.42, y0, y0 + 0.46, -0.09 + o, 0.07 + o, BT, ST))
+	P["Wood"].append(RB(-2.3, 2.3, 7.05, 7.3, -0.2, 0.2, BT, ST))
+	for x in (-2.55, 2.55):
+		P["Accent"].append(frustum(x - 0.27, x + 0.27, -0.27, 0.27, 7.1, 7.5, 0.1, 0.1, 0.03))
+	emit(c, P, "Codex")
+
 # ---------------------------------------------------------------- build
 
 def build():
@@ -1475,10 +1547,10 @@ def build():
 	plank_bridge("Catwalk8", 0)
 	fire_stair()
 	fire_balcony()
-	ac3()  # maps v4
+	codex_ac()  # maps v4: Codex R2 (lane G's ac3 stays as the fallback)
 	p_condenser()
 	skylight3()  # maps v4
-	planter3()
+	codex_planter()  # maps v4: Codex R1 agaves + lane G's screen (planter3 stays as the fallback)
 	penthouse2("A")
 	penthouse2("B")
 	hut2("StairHut", 6, 6, 9)
@@ -1495,9 +1567,7 @@ def build():
 	tar_patch("TarPatchA", 1.0)
 	tar_patch("TarPatchB", 2.6)
 	p_street_lamp()
-	crate("Crate", 3.0)
-	crate("CrateSmall", 2.0)
-	barrel()
+	codex_crates()  # maps v4: Codex R4
 	party_corner()
 	city2("CityA", 28, 24, 64, 1)
 	city2("CityB", 24, 24, 90, 2)

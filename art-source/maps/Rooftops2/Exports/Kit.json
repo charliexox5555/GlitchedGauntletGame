@@ -5,17 +5,16 @@
   "ACUnit": {
    "props": {},
    "parts": [
-    "ACUnit_Appliance",
-    "ACUnit_Trim",
-    "ACUnit_Charcoal",
-    "ACUnit_Metal"
+    "ACUnit_CodexCharcoal",
+    "ACUnit_CodexMetal",
+    "ACUnit_CodexTrim"
    ]
   },
   "Barrel": {
    "props": {},
    "parts": [
-    "Barrel_Charcoal",
-    "Barrel_Wood"
+    "Barrel_CodexCharcoal",
+    "Barrel_CodexWood"
    ]
   },
   "Billboard22": {
@@ -97,15 +96,15 @@
   "Crate": {
    "props": {},
    "parts": [
-    "Crate_Charcoal",
-    "Crate_Wood"
+    "Crate_CodexCharcoal",
+    "Crate_CodexWood"
    ]
   },
   "CrateSmall": {
    "props": {},
    "parts": [
-    "CrateSmall_Charcoal",
-    "CrateSmall_Wood"
+    "CrateSmall_CodexCharcoal",
+    "CrateSmall_CodexWood"
    ]
   },
   "Drain": {
@@ -307,13 +306,12 @@
   "Planter": {
    "props": {},
    "parts": [
-    "Planter_Stone",
-    "Planter_Charcoal",
-    "Planter_Accent",
-    "Planter_Wood",
-    "Planter_Pot",
-    "Planter_Plant",
-    "Planter_Door"
+    "Planter_CodexStone",
+    "Planter_CodexCharcoal",
+    "Planter_CodexAccent",
+    "Planter_CodexWood",
+    "Planter_CodexPot",
+    "Planter_CodexPlant"
    ]
   },
   "Plinth4": {
@@ -433,112 +431,91 @@
  "parts": [
   {
    "piece": "ACUnit",
-   "name": "ACUnit_Appliance",
-   "material": "R2_Appliance",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "D9D1BF"
-   },
-   "glow": false,
-   "tris": 44,
-   "center": [
-    0.0,
-    0.0,
-    3.575
-   ],
-   "size": [
-    7.6,
-    3.64,
-    5.95
-   ]
-  },
-  {
-   "piece": "ACUnit",
-   "name": "ACUnit_Trim",
-   "material": "R2_Trim",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "F2EEE4"
-   },
-   "glow": false,
-   "tris": 176,
-   "center": [
-    0.0,
-    0.0,
-    3.65
-   ],
-   "size": [
-    7.74,
-    3.78,
-    4.9
-   ]
-  },
-  {
-   "piece": "ACUnit",
-   "name": "ACUnit_Charcoal",
+   "name": "ACUnit_CodexCharcoal",
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 962,
+   "tris": 636,
    "center": [
-    -0.095,
     0.0,
-    3.675
+    0.0,
+    3.7075
    ],
    "size": [
-    8.09,
-    4.04,
-    7.55
+    8.0,
+    4.0,
+    7.415
    ]
   },
   {
    "piece": "ACUnit",
-   "name": "ACUnit_Metal",
+   "name": "ACUnit_CodexMetal",
    "material": "R2_Metal",
    "look": {
     "material": "SmoothPlastic",
     "color": "A9A59C"
    },
    "glow": false,
-   "tris": 510,
+   "tris": 1044,
    "center": [
     0.0,
-    0.0,
-    3.925
+    -0.0225,
+    4.025
    ],
    "size": [
-    7.8,
-    3.9,
-    6.75
+    7.89,
+    3.905,
+    6.95
+   ]
+  },
+  {
+   "piece": "ACUnit",
+   "name": "ACUnit_CodexTrim",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 716,
+   "center": [
+    0.0,
+    -0.0225,
+    3.71
+   ],
+   "size": [
+    7.94,
+    3.905,
+    6.04
    ]
   },
   {
    "piece": "Barrel",
-   "name": "Barrel_Charcoal",
+   "name": "Barrel_CodexCharcoal",
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 56,
+   "tris": 160,
    "center": [
     0.0,
     0.0,
-    1.4
+    1.3
    ],
    "size": [
-    2.00835,
-    2.06,
-    1.9
+    2.1,
+    2.1,
+    1.65
    ]
   },
   {
    "piece": "Barrel",
-   "name": "Barrel_Wood",
+   "name": "Barrel_CodexWood",
    "material": "R2_Wood",
    "look": {
     "material": "WoodPlanks",
@@ -546,15 +523,15 @@
     "variant": "Roof2_Plank"
    },
    "glow": false,
-   "tris": 126,
+   "tris": 340,
    "center": [
     0.0,
     0.0,
     1.3
    ],
    "size": [
-    2.04735,
-    2.1,
+    2.0044,
+    2.01222,
     2.6
    ]
   },
@@ -1225,28 +1202,28 @@
   },
   {
    "piece": "Crate",
-   "name": "Crate_Charcoal",
+   "name": "Crate_CodexCharcoal",
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 176,
+   "tris": 80,
    "center": [
     0.0,
-    0.0,
+    -1.46819,
     1.5
    ],
    "size": [
-    3.0,
-    3.0,
-    3.0
+    2.93,
+    0.06362,
+    2.93
    ]
   },
   {
    "piece": "Crate",
-   "name": "Crate_Wood",
+   "name": "Crate_CodexWood",
    "material": "R2_Wood",
    "look": {
     "material": "WoodPlanks",
@@ -1254,42 +1231,42 @@
     "variant": "Roof2_Plank"
    },
    "glow": false,
-   "tris": 92,
+   "tris": 516,
    "center": [
     0.0,
-    0.0,
+    0.03181,
     1.5
    ],
    "size": [
-    3.06,
-    3.23,
-    2.9
+    3.0,
+    2.93638,
+    3.0
    ]
   },
   {
    "piece": "CrateSmall",
-   "name": "CrateSmall_Charcoal",
+   "name": "CrateSmall_CodexCharcoal",
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 176,
+   "tris": 32,
    "center": [
     0.0,
-    0.0,
+    -0.9828,
     1.0
    ],
    "size": [
-    2.0,
-    2.0,
-    2.0
+    1.93,
+    0.0344,
+    1.93
    ]
   },
   {
    "piece": "CrateSmall",
-   "name": "CrateSmall_Wood",
+   "name": "CrateSmall_CodexWood",
    "material": "R2_Wood",
    "look": {
     "material": "WoodPlanks",
@@ -1297,16 +1274,16 @@
     "variant": "Roof2_Plank"
    },
    "glow": false,
-   "tris": 92,
+   "tris": 356,
    "center": [
     0.0,
-    0.0,
+    0.0172,
     1.0
    ],
    "size": [
-    2.06,
-    2.23,
-    1.9
+    2.0,
+    1.9656,
+    2.0
    ]
   },
   {
@@ -2086,7 +2063,7 @@
    "material": "R2_Pot",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B9653F"
+    "color": "A8664A"
    },
    "glow": false,
    "tris": 260,
@@ -2774,7 +2751,7 @@
    "material": "R2_Pot",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B9653F"
+    "color": "A8664A"
    },
    "glow": false,
    "tris": 240,
@@ -3031,7 +3008,7 @@
    "material": "R2_Pot",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B9653F"
+    "color": "A8664A"
    },
    "glow": false,
    "tris": 240,
@@ -3176,7 +3153,7 @@
   },
   {
    "piece": "Planter",
-   "name": "Planter_Stone",
+   "name": "Planter_CodexStone",
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
@@ -3184,21 +3161,21 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 264,
+   "tris": 96,
    "center": [
     0.0,
     0.0,
-    1.275
+    2.295
    ],
    "size": [
-    6.24,
-    3.24,
-    2.65
+    6.0,
+    3.0,
+    0.21
    ]
   },
   {
    "piece": "Planter",
-   "name": "Planter_Charcoal",
+   "name": "Planter_CodexCharcoal",
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
@@ -3209,17 +3186,17 @@
    "center": [
     0.0,
     0.0,
-    4.86
+    4.7
    ],
    "size": [
     5.44,
     0.34,
-    4.48
+    4.8
    ]
   },
   {
    "piece": "Planter",
-   "name": "Planter_Accent",
+   "name": "Planter_CodexAccent",
    "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
@@ -3230,17 +3207,17 @@
    "center": [
     0.0,
     0.0,
-    5.05
+    4.83
    ],
    "size": [
-    6.39357,
-    3.39357,
-    4.9
+    5.92,
+    2.92,
+    5.34
    ]
   },
   {
    "piece": "Planter",
-   "name": "Planter_Wood",
+   "name": "Planter_CodexWood",
    "material": "R2_Wood",
    "look": {
     "material": "WoodPlanks",
@@ -3262,65 +3239,44 @@
   },
   {
    "piece": "Planter",
-   "name": "Planter_Pot",
+   "name": "Planter_CodexPot",
    "material": "R2_Pot",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B9653F"
+    "color": "A8664A"
    },
    "glow": false,
-   "tris": 44,
+   "tris": 388,
    "center": [
     0.0,
     0.0,
-    1.31
+    1.12
    ],
    "size": [
-    5.76,
-    2.76,
-    2.02
+    5.82,
+    2.87,
+    2.24
    ]
   },
   {
    "piece": "Planter",
-   "name": "Planter_Plant",
+   "name": "Planter_CodexPlant",
    "material": "R2_Plant",
    "look": {
     "material": "SmoothPlastic",
     "color": "6B9A55"
    },
    "glow": false,
-   "tris": 1560,
+   "tris": 1452,
    "center": [
-    -0.13608,
-    0.02454,
-    3.38073
+    0.01156,
+    0.0,
+    3.47873
    ],
    "size": [
-    6.69127,
-    5.48411,
-    1.74647
-   ]
-  },
-  {
-   "piece": "Planter",
-   "name": "Planter_Door",
-   "material": "R2_Door",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "6C5442"
-   },
-   "glow": false,
-   "tris": 10,
-   "center": [
-    0.0,
-    0.0,
-    2.65
-   ],
-   "size": [
-    5.4,
-    2.4,
-    0.1
+    4.49067,
+    3.02998,
+    2.59054
    ]
   },
   {
@@ -4202,5 +4158,5 @@
    ]
   }
  ],
- "tris": 69586
+ "tris": 71114
 }
