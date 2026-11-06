@@ -737,3 +737,41 @@ Source: the user's v4 playtest, [Maps v4 Review](../../05%20Production/Playtests
 
 ### Round 1
 Shots: `vault/02 Art/References/maps/dockyard2/v5-r1-*.jpg`.
+**Round 1 blind score: 7.5**, up from 6.7 in v4 (reviewers 6.7, 7.5, 7.5; medians W1 2, W2 1, W3 2, W4 1, W5 1, W6 2).
+
+Low points:
+- Lighting mood.
+- Lanes read as alike.
+- Flat container sides and deck.
+- The end walls' light filler read as blank white slabs.
+
+### Round 2
+- Our harbour-day skybox (`make_dusk_sky.py dock`).
+- A lower, warmer sun.
+- The concept's black-and-white hazard stripes on the quay barriers.
+- A denser deck texture (10 studs per tile).
+- Dark filler.
+- A 0.75 rope coil.
+- Weathered lane colours.
+
+**Blind score: 6.3** (reviewers 6.3, 6.7, 6.3), down 1.2. One reviewer named the cause: the desaturated lanes read muddy against the concept's saturated containers.
+
+### Round 3
+- The concept's lane colours, sampled from 01-overview: west `B0503A`, middle `4A73A6`, east `3F8C66`.
+- Fine corrugation on the eye-level containers: 11 narrow ribs per 16, where the broad ribs read flat.
+- Shed lamps at 2.3.
+
+Audits: 0 floating groups and 0 z-fighting pairs (2,703 parts).
+
+**Round 3 blind score: 6.7** (all three reviewers 6.7; medians W1 2, W2 1, W3 1, W4 1, W5 1, W6 2).
+
+### Stopped (the stop rule): best 7.5 in round 1, final state 6.7
+Rounds 2 and 3 both gained under 0.3 on the best score (7.5), so this map stops. The installed state is round 3. It's closer to the concept than round 1 (saturated lanes, corrugation, hazard stripes, dark filler). On this 0/1/2 rubric the spread between rounds (6.3–7.5) is about the size of the reviewer noise. W3 and W4 flip between 1 and 2 on the same evidence.
+
+What holds it back, and what would move it:
+1. **Flat surfaces.** Container sides have no wear, plates or number panels, and the deck asphalt has no seams. Next: blank ID plates and door hardware decals on the containers (no lettering), plus deck slab joints.
+2. **The surroundings.** The far quays and ship hull are grey slabs, and the overview haze is milky. Next: modelled far quay edges and a real ship deck.
+3. **The Shed interior** is a dim grey room. Next: warm window light and more stock.
+4. **Navigation** is 1 in all reviews: the lanes are corridors between container walls. Next: a landmark per lane (a reach stacker, a reefer bank, a gangway).
+
+Best shots: [mid-crane](../../02%20Art/References/maps/dockyard2/v5-r3-mid-crane.jpg), [quay](../../02%20Art/References/maps/dockyard2/v5-r3-quay.jpg), [red-lane](../../02%20Art/References/maps/dockyard2/v5-r3-red-lane.jpg) and [side-by-side](../../02%20Art/References/maps/dockyard2/v5-r3-side-by-side.jpg).

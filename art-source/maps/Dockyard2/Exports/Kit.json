@@ -324,15 +324,15 @@
     "variant": "Dock2_Corrugated"
    },
    "glow": false,
-   "tris": 340,
+   "tris": 484,
    "center": [
     0.0,
-    0.65667,
+    0.59909,
     4.34
    ],
    "size": [
-    7.8,
-    14.24667,
+    7.72,
+    14.36182,
     6.88
    ]
   },
@@ -460,7 +460,7 @@
     4.0
    ],
    "size": [
-    7.8,
+    7.72,
     13.11333,
     6.2
    ]
@@ -561,15 +561,15 @@
     "variant": "Dock2_Corrugated"
    },
    "glow": false,
-   "tris": 460,
+   "tris": 748,
    "center": [
     0.0,
-    0.83,
+    0.62636,
     4.34
    ],
    "size": [
-    7.8,
-    29.9,
+    7.72,
+    30.30727,
     6.88
    ]
   },
@@ -697,7 +697,7 @@
     4.0
    ],
    "size": [
-    7.8,
+    7.72,
     28.91333,
     6.2
    ]
@@ -1868,7 +1868,7 @@
    "material": "D2_SignMid",
    "look": {
     "material": "SmoothPlastic",
-    "color": "58728A"
+    "color": "4A73A6"
    },
    "glow": false,
    "tris": 352,
@@ -2378,7 +2378,7 @@
    "material": "D2_SignEast",
    "look": {
     "material": "SmoothPlastic",
-    "color": "5A8068"
+    "color": "3F8C66"
    },
    "glow": false,
    "tris": 44,
@@ -2483,7 +2483,7 @@
    "material": "D2_SignWest",
    "look": {
     "material": "SmoothPlastic",
-    "color": "A6563F"
+    "color": "B0503A"
    },
    "glow": false,
    "tris": 44,
@@ -2858,5 +2858,5 @@
    ]
   }
  ],
- "tris": 31176
+ "tris": 31608
 }

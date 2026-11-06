@@ -33,7 +33,7 @@ local FX: { [string]: { [string]: any } } = {
 	Grade = { Brightness = 0.03, Contrast = 0.13, Saturation = 0.12, TintColor = Color3.fromRGB(255, 244, 228) },
 	SunRays = { Intensity = 0.08, Spread = 0.5 },
 }
-local LAMP = { color = Color3.fromRGB(255, 222, 176), brightness = 1.7, range = 36 }
+local LAMP = { color = Color3.fromRGB(255, 222, 176), brightness = 2.3, range = 40 }
 -- stylua: ignore end
 -- END LIGHT
 

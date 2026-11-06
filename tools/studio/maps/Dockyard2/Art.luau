@@ -59,14 +59,14 @@ local ROLE: { [string]: RoleLook } = {
 	Stain = { color = "7E786F", material = "Concrete", variant = "Dock2_Concrete" },
 	Backfill = { color = "4E555C", material = "SmoothPlastic", variant = "" },
 	Water = { color = "2A6878", material = "SmoothPlastic", variant = "" },
-	SignWest = { color = "A6563F", material = "SmoothPlastic", variant = "" },
-	SignEast = { color = "5A8068", material = "SmoothPlastic", variant = "" },
-	SignMid = { color = "58728A", material = "SmoothPlastic", variant = "" },
+	SignWest = { color = "B0503A", material = "SmoothPlastic", variant = "" },
+	SignEast = { color = "3F8C66", material = "SmoothPlastic", variant = "" },
+	SignMid = { color = "4A73A6", material = "SmoothPlastic", variant = "" },
 	Hull = { color = "4C5D70", material = "SmoothPlastic", variant = "" },
 	GlowWarm = { color = "FFC488", material = "Neon", variant = "" },
 	GlowSignal = { color = "FF8A3D", material = "Neon", variant = "" },
 }
-local LANE: { [string]: string } = { west = "A6563F", mid = "58728A", east = "5A8068", crane = "D2CBBB" }
+local LANE: { [string]: string } = { west = "B0503A", mid = "4A73A6", east = "3F8C66", crane = "D2CBBB" }
 local FRAME_SHADE = 0.72
 local BACKDROP: { string } = { "9E988C", "C0B49C", "7F8C99", "B07E68", "7E9A8C", "C2A878", "6F7F92" }
 local VARIANTS: { [string]: { any } } = {

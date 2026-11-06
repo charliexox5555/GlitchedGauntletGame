@@ -67,9 +67,9 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Backfill": ("4E555C", "SmoothPlastic", ""),  # maps v5 r2: dark (the light filler read as blank white slabs)  # end-wall filler between containers: reads as more stacks, not a slab
     "Water": ("2A6878", "SmoothPlastic", ""),  # pass 1: #2F8C9C read as a loud cyan
     # Neon accents (thin strips only)
-    "SignWest": ("A6563F", "SmoothPlastic", ""),  # spawn sign lane words (keep equal to LANE)
-    "SignEast": ("5A8068", "SmoothPlastic", ""),
-    "SignMid": ("58728A", "SmoothPlastic", ""),
+    "SignWest": ("B0503A", "SmoothPlastic", ""),  # spawn sign lane words (keep equal to LANE)
+    "SignEast": ("3F8C66", "SmoothPlastic", ""),
+    "SignMid": ("4A73A6", "SmoothPlastic", ""),
     "Hull": ("4C5D70", "SmoothPlastic", ""),  # ships (round 2: the dark hull read as an unfinished slab)
     "GlowWarm": ("FFC488", "Neon", ""),  # lamp heads, cab light (maps v5: amber, as Rooftops2; FFE2B8 bloomed white)
     "GlowSignal": ("FF8A3D", "Neon", ""),  # crane beacons (tiny)
@@ -80,7 +80,8 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 # Studio pass 1 (2026-11-05): on Roblox Metal the painted boxes mirrored the blue sky and read far too saturated, so
 # painted surfaces use Dock2_Paint (the same textures on a non-metal Plastic base) and the lanes sit a step calmer.
 # maps v5 palette: weathered harbour lanes (the reviewers read the blue and green as loud): rust, steel blue, sea green
-LANE = {"west": "A6563F", "mid": "58728A", "east": "5A8068", "crane": "D2CBBB"}  # crane: the white reefers under the crane (round 2)
+# maps v5 r3: back to the concept's saturated lane colours (sampled from 01-overview; r2's weathered set read muddy)
+LANE = {"west": "B0503A", "mid": "4A73A6", "east": "3F8C66", "crane": "D2CBBB"}  # crane: the white reefers under the crane (round 2)
 FRAME_SHADE = 0.72  # LaneFrame = lane colour x this
 # The end walls and far stacks: the same hues, lighter and greyer (aerial perspective), never saturated.
 # Warm-leaning on purpose: the first style frame read all blue with a cool backdrop behind the blue lane.
@@ -138,7 +139,7 @@ FX = {
     "Grade": {"Brightness": 0.03, "Contrast": 0.13, "Saturation": 0.12, "TintColor": (255, 244, 228)},  # maps v4: clearer, warmer
     "SunRays": {"Intensity": 0.08, "Spread": 0.5},
 }
-LAMP = {"color": (255, 222, 176), "brightness": 1.7, "range": 36}  # maps v4: 1.7 with the brighter exposure  # round 1: the Shed inside read murky  # mast floods and shed lamps (shadowless)
+LAMP = {"color": (255, 222, 176), "brightness": 2.3, "range": 40}  # maps v5 r3: the Shed read gloomy  # maps v4: 1.7 with the brighter exposure  # round 1: the Shed inside read murky  # mast floods and shed lamps (shadowless)
 
 
 def hex_rgb(h: str) -> tuple[int, int, int]:

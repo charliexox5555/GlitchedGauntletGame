@@ -160,13 +160,16 @@ def p_container(name, L, lo=False):
 	h = L / 2
 	obj(c, "Body", RB(-3.72, 3.72, 0.32, 7.68, -h + 0.36, h - 0.36, 0.22, 1), "Lane")  # concept pass: 1 segment (budget)
 	# Broad proud ribs on both sides (five per 16 studs; three on the Lo version), chamfered trapezoids.
-	n = (3 if lo else 5) * int(L / 16)
+	# maps v5 r3: the eye-level boxes get the concept's fine corrugation (11 narrow ribs per 16; reviewers read
+	# the broad ribs as flat walls); the Lo backdrop keeps three
+	n = (3 if lo else 11) * int(L / 16)
 	pitch = (L - 2.4) / n
+	rw = 0.8 if lo else 0.4
 	ribs = []
 	for k in range(n):
 		zc = -h + 1.2 + pitch * (k + 0.5)
 		for s in (1, -1):
-			pts = [(s * 3.6, zc - 0.8), (s * 3.9, zc - 0.55), (s * 3.9, zc + 0.55), (s * 3.6, zc + 0.8)]
+			pts = [(s * 3.6, zc - rw), (s * 3.86, zc - rw * 0.62), (s * 3.86, zc + rw * 0.62), (s * 3.6, zc + rw)]
 			ribs.append(RPY(pts, 0.9, 7.1))
 	# Two ribs across the rear end and the roof's three shallow panels.
 	for y in (2.7, 5.3):
