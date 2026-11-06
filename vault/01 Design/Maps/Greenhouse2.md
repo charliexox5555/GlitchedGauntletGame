@@ -249,3 +249,22 @@ Low points: the glass still reads as a flat wash, and the overview is bare. The 
 
 ### v2 round 3 (the last unless it gains ≥ 0.3)
 The wall glass reflects the sky: Reflectance 0.32 on the opaque frost (still no see-through walls), and EnvironmentSpecularScale 0.8.
+
+**v2 round 3: 5.0** (5.0, 5.0, 5.0). The reflective glass reads as glazing now. Reviewers moved on to the surroundings and the washed-out whites.
+
+### Kit v2 stopped at 5.0 (the stop rule)
+Kit v2 scored 5.0, 5.0 and 5.0. Every review across 6 rounds and 18 reviewers gave each criterion 1. Fixing what one round named moved the complaint to the next item; the median never moved.
+
+**What every v2 reviewer named:**
+1. **The surroundings:** a flat green plate with lollipop trees. The concept's walled gardens, ponds, hedges and outbuildings are missing.
+2. **Washed-out whites:** white iron, balustrades and glass blend into one bright mass.
+3. **The spawn view:** a blank stucco wall with a Wardian case.
+
+(Other lanes' maps float on the horizon. Snowpeak2, a slab and others are in frame from (0, 200, 3000); that's not ours, but it costs W3.)
+
+**Honest read:** the arena is a set of enclosed glass halls, and the reviewers judge it against a concept that is mostly a garden around a glasshouse. To move it:
+- model a walled garden ring (hedges, paths, ponds, outbuildings);
+- tone the iron down to cream (`D8D2C2`) with darker hardware;
+- dress the spawn wall as a real Orangery (citrus tubs, benches, a tiled floor).
+
+That's a design pass, ideally with Codex concepts for the garden, not another polish round. **Not for approval.**

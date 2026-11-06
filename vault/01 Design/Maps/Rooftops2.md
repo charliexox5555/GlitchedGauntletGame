@@ -914,3 +914,18 @@ All three r6 reviewers named the same three things, so each gets a change:
 - the AC slats and steel are a step lighter (`4A4B52`).
 
 The geometry is unchanged, so the r6 audits (0/0) still hold.
+
+**Round 7 blind score: 8.3** (reviewers 8.3, 7.9, 8.3; medians W1 2, W2 1, W3 2, W4 2, W5 2, W6 1). The pier caps now take the palette colour; before, they kept the kit's saturated blue. A restyle on install fixed it.
+
+### Stopped at 8.3, one point short (the stop rule)
+Scores by round: r1 5.8, r2 7.1, r3 6.7, r4 7.1, r5 8.3, r6 7.9, r7 8.3. Rounds 6 and 7 each gained under 0.3 on the best (8.3), so the map stops. **8.3 is 20 of 24. The bar of 8.5 needs 21, so one more criterion at 2.**
+
+The two still at 1:
+- **W2 navigation:** routes at eye level (Pit and tower) stack stairs, bridges and billboard frames.
+- **W6 scale:** the AC units read oversized. Their 8 × 4 × 7.5 cover box is gameplay, so a smaller unit means a layout change.
+
+Either one reaching 2 passes the map. Fix candidates:
+- W2: a lit route through the Pit (lamp posts at the stair feet and tops).
+- W6: a shorter AC cabinet with a parapet screen filling the rest of the cover box.
+
+**Best shots:** [overview](../../02%20Art/References/maps/rooftops2/v5-r7-overview.jpg), [b-spawn](../../02%20Art/References/maps/rooftops2/v5-r7-b-spawn.jpg), [tower](../../02%20Art/References/maps/rooftops2/v5-r7-tower.jpg), [side-by-side](../../02%20Art/References/maps/rooftops2/v5-r7-side-by-side.jpg).
