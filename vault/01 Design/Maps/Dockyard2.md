@@ -611,6 +611,23 @@ The same rules as the [Rooftops2 Codex prop list](Rooftops2.md#codex-prop-list-r
 | D1 | **Bollard and fender set**: a mooring bollard (a cast body with a cap lip and bolts on a base plate), a tyre fender hung on a short chain, and a coiled rope | `art-source/maps/Dockyard2/concepts/05-kit-sheet.png` quay props; `02-hero-middle.png` | bollard 1.6 x 1.6 x 2.2; tyre 2.4 diameter x 0.8; coil 2 x 2 x 0.6 | 400 / 400 / 500 | Charcoal (cast iron), Rubber, Wood (rope, tinted) | `art-source/maps/Dockyard2/props/QuaySet.glb` (objects `Bollard`, `TyreFender`, `RopeCoil`) |
 | D2 | **Shed rack and pallet set**: a pallet-rack bay (2 uprights with holes and bracing, 3 beam levels), a pallet, and stacked cartons on a pallet | `05-kit-sheet.png` shed interior; `03-hero-spawn-a.png` | rack 8 x 3 x 9; pallet 3 x 3 x 0.5; carton stack 3 x 3 x 2.5 | 1,800 / 300 / 600 | Crane (yellow uprights, small), Charcoal (beams), Wood, White (cartons, tinted) | `art-source/maps/Dockyard2/props/ShedRackSet.glb` (objects `Rack`, `Pallet`, `CartonStack`) |
 
+#### Codex modeling results (2026-11-05)
+
+Built D1 then D2 after the Rooftops sets through interactive Blender MCP. Every preview is a 3/4 render with a 5-stud grey scale block. Component parents have bottom-centre local origins and presentation offsets; place the named parent, with its role meshes, as one component.
+
+| Prop | Exported tris / budget | Measured size (studs) | File paths | Off-spec / interpretation |
+|---|---|---|---|---|
+| D1 QuaySet | Bollard 296 / 400; TyreFender 388 / 400; RopeCoil 464 / 500 (set 1,148) | bollard 1.6 x 1.6 x 2.2; tyre body diameter 2.4 x 0.8 deep; with chain 3.0449 high; coil 2 x 2 x 0.6 | [GLB](../../../art-source/maps/Dockyard2/props/QuaySet.glb) / [blend](../../../art-source/maps/Dockyard2/props/QuaySet.blend) / [preview](../../../art-source/maps/Dockyard2/props/QuaySet_preview.png) | Parents `Bollard`, `TyreFender`, `RopeCoil`. Chain is included in the tyre budget; extends above the stated tyre-body diameter. Modelled tread channel, cast cap wear and twisted rope. Edge-treatment exception below. |
+| D2 ShedRackSet | Rack 1,640 / 1,800; Pallet 268 / 300; CartonStack 580 / 600 (set 2,488) | rack 8 x 3 x 9; pallet 3 x 3 x 0.5; carton stack including pallet 3 x 3 x 2.5 | [GLB](../../../art-source/maps/Dockyard2/props/ShedRackSet.glb) / [blend](../../../art-source/maps/Dockyard2/props/ShedRackSet.blend) / [preview](../../../art-source/maps/Dockyard2/props/ShedRackSet_preview.png) | Parents `Rack`, `Pallet`, `CartonStack`. Two upright frames (four legs), actual open slots, three beam levels and bracing. Chipped pallet end and pressed carton corner. Edge-treatment exception below. |
+
+All exported meshes pass the LihFolk geometry gate: no n-gons, loose/degenerate geometry, open/non-manifold edges, inconsistent normals, self-intersections or overlapping caps; rotation/scale applied and one material per role mesh. Re-importing each saved GLB preserved dimensions and triangle counts, with no preview helpers exported. Native files contain one asset scene plus its render setup. The independent 3/4-view visual review scored each set 16/18; this does not replace Studio integration testing.
+
+**Edge-treatment exception:** primary forms use single-segment chamfers; thin hardware and strips use smaller widths than 0.06 studs, and some inset/hidden faces remain sharp to meet the tight budgets. Separate shells overlap intentionally at assembled joints. No text, logos or downloaded models.
+
+Shared crates/barrel remain in the [R4 Rooftops export](../../../art-source/maps/Rooftops2/props/CrateSet.glb).
+
+Sources used: this prop list and its named concepts, [Art Direction](../../02%20Art/Art%20Direction.md), the LihFolk `roblox-blender-modeling` skill, [Bevels Chamfers and Edge Highlights Without Textures](../../LihFolk/55%20Modelling%20Nuance%20and%20Readability/Bevels%20Chamfers%20and%20Edge%20Highlights%20Without%20Textures.md), [Spending Triangles Where the Camera Looks](../../LihFolk/55%20Modelling%20Nuance%20and%20Readability/Spending%20Triangles%20Where%20the%20Camera%20Looks.md), and [Clean Stylised Shading](../../LihFolk/54%20Untextured%20Stylised%20Modelling/Clean%20Stylised%20Shading%20-%20Weighted%20and%20Custom%20Normals.md).
+
 ### v4 results (built 2026-11-05 late)
 Kit rebuilt headless (`tools/blender/build_map_kit_dockyard2.py`): 23 pieces, 29k triangles, coplanar 0, asset 127619569582290 updated. Installed in the match place: 510 placements, Studio audit 0 pairs over 2,469 visible parts. **The place needs saving (Ctrl+S).**
 
