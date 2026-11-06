@@ -521,7 +521,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 12,
@@ -605,7 +605,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 232,
@@ -710,7 +710,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 12,
@@ -794,7 +794,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 12,
@@ -857,7 +857,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 116,
@@ -1132,7 +1132,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 40,
@@ -1279,7 +1279,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 160,
@@ -1426,7 +1426,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 80,

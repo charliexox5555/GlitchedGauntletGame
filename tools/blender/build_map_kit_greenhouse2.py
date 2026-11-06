@@ -47,7 +47,7 @@ COS = math.cos(math.radians(22.5))
 
 # ---------------------------------------------------------------- palette (Greenhouse.md -> Look)
 C_IRON = 0xEDEDE4
-C_FROST = 0x9DBDB2  # Greenhouse2 r3: a deeper sea-green, the white iron reads against it (r2: flat pale walls)
+C_FROST = 0xC4DDD8  # kit v2 r2: bright pale aqua glass (deep teal read as painted walls, DDE8E0 as washed out)
 C_ROOFGLASS = 0xCFE6EA
 C_BRICK = 0x9C5B44
 C_STONE = 0xD9D0BE
@@ -904,47 +904,52 @@ def bed(W, L):
 
 def palm_planter():
 	acc = Acc()
-	acc.add("Rock", rock_block(-3, 3, -4.5, 4.5, 0, 9, 11))
-	acc.add("Soil", B(-2.0, 2.0, -3.4, 3.4, 8.2, 8.45))
-	border(acc, -2.2, 2.2, -3.6, 3.6, 8.45, 5, density=0.8)
+	acc.add("Brick", B(-2.96, 2.96, -4.46, 4.46, 0, 8.6))  # kit v2 r2: brick planter (was faceted rock)
+	for zb in (0.0, 4.3):
+		acc.add("Stone", B(-3.0, 3.0, -4.5, 4.5, zb, zb + 0.35))
+	acc.add("Stone", B(-3.1, 3.1, -4.6, 4.6, 8.6, 9.0))
+	acc.add("Soil", B(-2.5, 2.5, -4.0, 4.0, 9.0, 9.08))
+	add_hero(acc, hero("FernClump", scale=(0.6, 0.6, 0.6), at=(0.0, 2.2, 9.0)))
 	# kit v2 tried Codex's PalmInTub here: its fronds are alpha-atlas cards, which our role-colour pipeline renders as
 	# solid quads, so the planters keep lane G's palm (Codex's palm needs its atlas as a SurfaceAppearance first)
-	palm(acc, 0.0, -0.5, 8.4, 30.0, 21)
+	palm(acc, 0.0, -0.5, 9.0, 30.0, 21)
 	return acc
 
 
 def fernery():
+	# kit v2 r2: a raised brick fernery like the rockeries (brick body, stone bands and coping, Codex ferns on top), with
+	# the two tree ferns; 8 x 16 x 9 (its collision block)
 	acc = Acc()
-	acc.add("Brick", B(-3.98, 3.98, -7.98, 7.98, 0, 2.7))
-	acc.add("Stone", B(-4, 4, -8, 8, 2.7, 3.05))
-	acc.add("Rock", rock_block(-3.4, 3.4, -7.4, 7.4, 3.05, 9, 31, cell=1.6, inset=0.5))
-	acc.add("Soil", B(-3.0, 3.0, -7.0, 7.0, 8.1, 8.4))
-	border(acc, -3.2, 3.2, -7.2, 7.2, 8.4, 7, density=0.7)
-	# Ferns tumbling down the rock faces.
-	rnd = random.Random(9)
-	for i in range(14):
-		side = rnd.choice((-1, 1))
-		yy = rnd.uniform(-7, 7)
-		zz = rnd.uniform(3.0, 7.5)
-		acc.add(rnd.choice(("Fern", "Deep")), fern_clump(side * 3.2, yy, max(zz, 3.6), 5, 1.4, 0.35, rnd.randrange(10**6), elev=10, droop=0.7))
+	acc.add("Brick", B(-3.96, 3.96, -7.96, 7.96, 0, 8.6))
+	for zb in (0.0, 4.3):
+		acc.add("Stone", B(-4, 4, -8, 8, zb, zb + 0.35))
+	acc.add("Stone", B(-4.1, 4.1, -8.1, 8.1, 8.6, 9.0))
+	acc.add("Soil", B(-3.5, 3.5, -7.5, 7.5, 9.0, 9.08))
+	for k, yy in enumerate((-5.5, -1.8, 1.8, 5.5)):
+		add_hero(acc, hero("FernClump", scale=(0.7, 0.7, 0.7), rot=71.0 * k, at=(0.0, yy, 9.0)))
 	for yy in (4.0, -4.0):  # map z 58 / 66 around the centre 62
-		tree_fern(acc, 0.0, yy, 8.3, 16.0, int(yy * 10 + 50))
+		tree_fern(acc, 0.0, yy, 8.95, 16.0, int(yy * 10 + 50))
 	return acc
 
 
 def rockery(W, L, H, seed):
 	acc = Acc()
 	# Greenhouse2 r3: a brick plinth to 3 with a stone coping (the concept's brick planters), the rock above it
-	acc.add("Brick", B(-W / 2 + 0.02, W / 2 - 0.02, -L / 2 + 0.02, L / 2 - 0.02, 0, 2.7))
-	acc.add("Stone", B(-W / 2, W / 2, -L / 2, L / 2, 2.7, 3.05))
-	acc.add("Rock", rock_block(-W / 2 + 0.6, W / 2 - 0.6, -L / 2 + 0.6, L / 2 - 0.6, 3.05, H, seed, cell=1.6, inset=0.5))
-	acc.add("Soil", B(-W / 2 + 1.0, W / 2 - 1.0, -L / 2 + 1.0, L / 2 - 1.0, H - 0.9, H - 0.6))
-	border(acc, -W / 2 + 1.2, W / 2 - 1.2, -L / 2 + 1.2, L / 2 - 1.2, H - 0.6, seed, density=0.8)
+	# kit v2 r2: a raised brick fernery (the concept's brick planters) filling the collision block: brick body with
+	# stone bands and coping, a planted top and Codex fern clumps spilling over (the faceted rock read as greybox)
+	acc.add("Brick", B(-W / 2 + 0.04, W / 2 - 0.04, -L / 2 + 0.04, L / 2 - 0.04, 0, H - 0.4))
+	for zb in (0.0, H * 0.5):
+		acc.add("Stone", B(-W / 2, W / 2, -L / 2, L / 2, zb, zb + 0.35))
+	acc.add("Stone", B(-W / 2 - 0.1, W / 2 + 0.1, -L / 2 - 0.1, L / 2 + 0.1, H - 0.4, H))
+	acc.add("Soil", B(-W / 2 + 0.5, W / 2 - 0.5, -L / 2 + 0.5, L / 2 - 0.5, H, H + 0.08))
+	nfx = max(1, int(W // 4))
+	for k in range(nfx):
+		xx = -W / 2 + (k + 0.5) * W / nfx
+		add_hero(acc, hero("FernClump", scale=(0.7, 0.7, 0.7), rot=53.0 * k + seed, at=(xx, 0.0, H)))
+
 	rnd = random.Random(seed)
-	for i in range(14):
-		xx = rnd.uniform(-W / 2 + 0.8, W / 2 - 0.8)
-		side = rnd.choice((-1, 1))
-		acc.add(rnd.choice(("Fern", "Deep", "Lime")), fern_clump(xx, side * (L / 2 - 0.75), rnd.uniform(3.4, H - 1.5), 6, 1.5, 0.4, rnd.randrange(10**6), elev=10, droop=0.7))
+	for i in range(0):
+		pass
 	return acc
 
 

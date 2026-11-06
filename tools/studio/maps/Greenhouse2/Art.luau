@@ -13,8 +13,8 @@
 
 newMap("Greenhouse2", CFrame.new(0, 200, 3000))
 
-local ACCENT_A = Color3.fromHex("B8603F")
-local ACCENT_B = Color3.fromHex("4F7FA8")
+local ACCENT_A = Color3.fromHex("A8735A")
+local ACCENT_B = Color3.fromHex("6F8DA6")
 
 -- { section, piece, x, y, z, yaw } in map space, both halves written out.
 local PLACE: { { any } } = {

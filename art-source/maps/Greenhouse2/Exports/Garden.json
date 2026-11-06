@@ -108,11 +108,9 @@
    "parts": [
     "Fernery_Brick",
     "Fernery_Stone",
-    "Fernery_Rock",
     "Fernery_Soil",
-    "Fernery_Fern",
     "Fernery_Deep",
-    "Fernery_Lime",
+    "Fernery_Fern",
     "Fernery_Trunk"
    ]
   },
@@ -165,12 +163,14 @@
   "PalmPlanter": {
    "props": {},
    "parts": [
-    "PalmPlanter_Rock",
+    "PalmPlanter_Brick",
+    "PalmPlanter_Stone",
     "PalmPlanter_Soil",
     "PalmPlanter_Deep",
-    "PalmPlanter_Lime",
+    "PalmPlanter_Fern",
     "PalmPlanter_Trunk",
     "PalmPlanter_Palm",
+    "PalmPlanter_Lime",
     "PalmPlanter_Fruit"
    ]
   },
@@ -206,11 +206,9 @@
    "parts": [
     "Rockery12x6_Brick",
     "Rockery12x6_Stone",
-    "Rockery12x6_Rock",
     "Rockery12x6_Soil",
-    "Rockery12x6_Fern",
-    "Rockery12x6_Lime",
-    "Rockery12x6_Deep"
+    "Rockery12x6_Deep",
+    "Rockery12x6_Fern"
    ]
   },
   "RoofLodge52x16": {
@@ -1358,7 +1356,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 12,
@@ -1470,12 +1468,12 @@
    "center": [
     0.0,
     0.0,
-    1.35
+    4.3
    ],
    "size": [
-    7.96,
-    15.96,
-    2.7
+    7.92,
+    15.92,
+    8.6
    ]
   },
   {
@@ -1487,37 +1485,16 @@
     "color": "D9D0BE"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 36,
    "center": [
     0.0,
     0.0,
-    2.875
+    4.5
    ],
    "size": [
-    8.0,
-    16.0,
-    0.35
-   ]
-  },
-  {
-   "piece": "Fernery",
-   "name": "Fernery_Rock",
-   "material": "Rock",
-   "look": {
-    "material": "Slate",
-    "color": "A39A88"
-   },
-   "glow": false,
-   "tris": 972,
-   "center": [
-    -0.00284,
-    0.00043,
-    6.00942
-   ],
-   "size": [
-    6.63957,
-    14.64043,
-    5.91883
+    8.2,
+    16.2,
+    9.0
    ]
   },
   {
@@ -1533,33 +1510,12 @@
    "center": [
     0.0,
     0.0,
-    8.25
+    9.04
    ],
    "size": [
-    6.0,
-    14.0,
-    0.3
-   ]
-  },
-  {
-   "piece": "Fernery",
-   "name": "Fernery_Fern",
-   "material": "Fern",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "4C8A3E"
-   },
-   "glow": false,
-   "tris": 4160,
-   "center": [
-    -0.277,
-    0.07745,
-    9.56412
-   ],
-   "size": [
-    9.89269,
-    17.73886,
-    13.98946
+    7.0,
+    15.0,
+    0.08
    ]
   },
   {
@@ -1571,37 +1527,37 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 2240,
+   "tris": 4256,
    "center": [
-    0.08694,
+    0.39828,
     0.03567,
-    9.59754
+    12.77492
    ],
    "size": [
-    9.2885,
+    8.66583,
     16.90651,
-    13.9046
+    7.54984
    ]
   },
   {
    "piece": "Fernery",
-   "name": "Fernery_Lime",
-   "material": "Lime",
+   "name": "Fernery_Fern",
+   "material": "Fern",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9BC24E"
+    "color": "4C8A3E"
    },
    "glow": false,
-   "tris": 480,
+   "tris": 2352,
    "center": [
-    0.03856,
-    3.75863,
-    8.36553
+    -0.61531,
+    0.07745,
+    12.78729
    ],
    "size": [
-    5.22294,
-    2.39355,
-    1.31308
+    9.21606,
+    17.73886,
+    7.54312
    ]
   },
   {
@@ -1617,12 +1573,12 @@
    "center": [
     0.0,
     0.0,
-    12.19
+    12.515
    ],
    "size": [
     1.38582,
     9.38582,
-    7.78
+    7.13
    ]
   },
   {
@@ -2069,23 +2025,44 @@
   },
   {
    "piece": "PalmPlanter",
-   "name": "PalmPlanter_Rock",
-   "material": "Rock",
+   "name": "PalmPlanter_Brick",
+   "material": "Brick",
    "look": {
-    "material": "Slate",
-    "color": "A39A88"
+    "material": "Brick",
+    "color": "9C5B44"
    },
    "glow": false,
-   "tris": 432,
+   "tris": 12,
    "center": [
-    -0.00049,
-    -0.00108,
-    4.49661
+    0.0,
+    0.0,
+    4.3
    ],
    "size": [
-    5.85135,
-    8.84542,
-    8.99322
+    5.92,
+    8.92,
+    8.6
+   ]
+  },
+  {
+   "piece": "PalmPlanter",
+   "name": "PalmPlanter_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    4.5
+   ],
+   "size": [
+    6.2,
+    9.2,
+    9.0
    ]
   },
   {
@@ -2101,12 +2078,12 @@
    "center": [
     0.0,
     0.0,
-    8.325
+    9.04
    ],
    "size": [
-    4.0,
-    6.8,
-    0.25
+    5.0,
+    8.0,
+    0.08
    ]
   },
   {
@@ -2118,37 +2095,37 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 1152,
+   "tris": 1316,
    "center": [
     0.27337,
     -1.50195,
-    20.17217
+    20.78327
    ],
    "size": [
     16.24949,
     17.46043,
-    24.78876
+    23.56655
    ]
   },
   {
    "piece": "PalmPlanter",
-   "name": "PalmPlanter_Lime",
-   "material": "Lime",
+   "name": "PalmPlanter_Fern",
+   "material": "Fern",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9BC24E"
+    "color": "4C8A3E"
    },
    "glow": false,
-   "tris": 528,
+   "tris": 408,
    "center": [
     0.0,
-    -0.30084,
-    20.84438
+    2.2,
+    9.83288
    ],
    "size": [
-    7.29461,
-    7.69294,
-    26.16256
+    3.22356,
+    3.13515,
+    1.63878
    ]
   },
   {
@@ -2164,12 +2141,12 @@
    "center": [
     0.0,
     -0.5,
-    19.55
+    19.85
    ],
    "size": [
-    1.98485,
-    1.9557,
-    22.3
+    1.98402,
+    1.95403,
+    21.7
    ]
   },
   {
@@ -2191,6 +2168,27 @@
     19.65104,
     16.81472,
     7.93281
+   ]
+  },
+  {
+   "piece": "PalmPlanter",
+   "name": "PalmPlanter_Lime",
+   "material": "Lime",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9BC24E"
+   },
+   "glow": false,
+   "tris": 288,
+   "center": [
+    0.0,
+    -0.5,
+    31.86783
+   ],
+   "size": [
+    7.29461,
+    7.29461,
+    4.11566
    ]
   },
   {
@@ -2480,12 +2478,12 @@
    "center": [
     0.0,
     0.0,
-    1.35
+    4.8
    ],
    "size": [
-    11.96,
-    5.96,
-    2.7
+    11.92,
+    5.92,
+    9.6
    ]
   },
   {
@@ -2497,37 +2495,16 @@
     "color": "D9D0BE"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 36,
    "center": [
     0.0,
     0.0,
-    2.875
+    5.0
    ],
    "size": [
-    12.0,
-    6.0,
-    0.35
-   ]
-  },
-  {
-   "piece": "Rockery12x6",
-   "name": "Rockery12x6_Rock",
-   "material": "Rock",
-   "look": {
-    "material": "Slate",
-    "color": "A39A88"
-   },
-   "glow": false,
-   "tris": 432,
-   "center": [
-    -0.002,
-    0.00114,
-    6.52223
-   ],
-   "size": [
-    10.64443,
-    4.63852,
-    6.94447
+    12.2,
+    6.2,
+    10.0
    ]
   },
   {
@@ -2543,54 +2520,12 @@
    "center": [
     0.0,
     0.0,
-    9.25
+    10.04
    ],
    "size": [
-    10.0,
-    4.0,
-    0.3
-   ]
-  },
-  {
-   "piece": "Rockery12x6",
-   "name": "Rockery12x6_Fern",
-   "material": "Fern",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "4C8A3E"
-   },
-   "glow": false,
-   "tris": 1920,
-   "center": [
-    0.22095,
-    -0.00332,
-    7.20078
-   ],
-   "size": [
-    10.91831,
-    7.37083,
-    5.51626
-   ]
-  },
-  {
-   "piece": "Rockery12x6",
-   "name": "Rockery12x6_Lime",
-   "material": "Lime",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "9BC24E"
-   },
-   "glow": false,
-   "tris": 1440,
-   "center": [
-    0.36453,
-    -0.0618,
-    6.94377
-   ],
-   "size": [
-    12.82984,
-    7.25868,
-    6.0829
+    11.0,
+    5.0,
+    0.08
    ]
   },
   {
@@ -2602,16 +2537,37 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 960,
+   "tris": 2652,
    "center": [
-    2.4649,
-    -0.0592,
-    7.30528
+    -0.04882,
+    -0.01267,
+    10.97451
    ],
    "size": [
-    5.03609,
-    7.40196,
-    5.11285
+    11.6037,
+    3.57506,
+    1.94903
+   ]
+  },
+  {
+   "piece": "Rockery12x6",
+   "name": "Rockery12x6_Fern",
+   "material": "Fern",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4C8A3E"
+   },
+   "glow": false,
+   "tris": 1224,
+   "center": [
+    -0.06744,
+    -0.04941,
+    10.97169
+   ],
+   "size": [
+    11.78113,
+    3.7281,
+    1.91191
    ]
   },
   {
@@ -3210,7 +3166,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "9DBDB2"
+    "color": "C4DDD8"
    },
    "glow": false,
    "tris": 18,
@@ -3268,5 +3224,5 @@
    ]
   }
  ],
- "tris": 60520
+ "tris": 58396
 }
