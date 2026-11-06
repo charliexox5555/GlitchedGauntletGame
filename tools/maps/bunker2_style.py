@@ -32,7 +32,7 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     # big textured surfaces
     "Board": ("85817B", "Concrete", "Bunk2_Board"),  # board-formed concrete walls and piers
     "BoardLight": ("96928B", "Concrete", "Bunk2_Board"),  # sunwell, shaft, plinth, beams
-    "Ceiling": ("6E6B67", "Concrete", ""),  # r4: plain (the floor texture read as blotches overhead)  # precast slabs (tie holes on a ceiling read odd)
+    "Ceiling": ("5E5C59", "SmoothPlastic", ""),  # r5: Roblox Concrete read as brown smudges overhead  # r4: plain (the floor texture read as blotches overhead)  # precast slabs (tie holes on a ceiling read odd)
     "Olive": ("4C5244", "Plastic", "Bunk2_Paint"),  # lower wall paint
     "Band": ("6F6A62", "Plastic", "Bunk2_Paint"),  # the end band (recoloured per side in Studio from BAND)
     "Floor": ("57544F", "Concrete", "Bunk2_Floor"),  # r4: darker, so walls and lamps carry the contrast  # rooms and corridors
@@ -47,11 +47,11 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Pipe": ("6E757A", "Plastic", "Bunk2_Brushed"),
     "Fins": ("4E5458", "SmoothPlastic", ""),  # radiator fins (a value step under the housing)
     # painted props
-    "Locker": ("4A5143", "Plastic", "Bunk2_Paint"),
-    "LockerDoor": ("535B4B", "Plastic", "Bunk2_Paint"),  # doors a step lighter than the body
-    "Case": ("4D5043", "Plastic", "Bunk2_Paint"),  # hard cases
+    "Locker": ("4A5143", "SmoothPlastic", ""),  # r5: clean enamel (the paint texture read lumpy on props)
+    "LockerDoor": ("535B4B", "SmoothPlastic", ""),  # doors a step lighter than the body
+    "Case": ("4D5043", "SmoothPlastic", ""),  # hard cases
     "Rack": ("4A5056", "Plastic", "Bunk2_Steel"),
-    "Console": ("50564C", "Plastic", "Bunk2_Paint"),  # olive-grey desk
+    "Console": ("50564C", "SmoothPlastic", ""),  # olive-grey desk
     # accents
     "Brass": ("8A6E40", "Metal", ""),  # r4: real brass sheen indoors (not painted; env specular 0.1)  # r2: the brushed texture read as wood grain  # rails, trims, compass, case corners
     "Gold": ("B08A42", "Metal", ""),  # plinth cap (the landmark)
@@ -66,7 +66,7 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     # Neon (thin strips only)
     "Cove": ("A89A86", "SmoothPlastic", ""),  # r4: unlit light-strip trim (reviewers: flat orange neon); the cage lamps carry the light  # Neon brightens hugely: this renders as an amber cove  # r3: amber (the white strips blew out and read cold; FFB45A goes yellow)  # warm cove strips (FFB45A renders saturated yellow in Roblox)
     "Lamp": ("FFD7A0", "Neon", ""),  # v1 r1: FFD49A read as yellow blobs  # cage lamps, bulkheads
-    "ScreenGlow": ("3E5C5C", "Neon", ""),  # r2: 5F9FB0 rendered team-cyan  # A6DCEB blew out to white
+    "ScreenGlow": ("2E4A4E", "Neon", ""),  # r2: 5F9FB0 rendered team-cyan  # A6DCEB blew out to white
     "Status": ("D9932F", "Neon", ""),  # tiny LEDs
 }
 
@@ -116,7 +116,7 @@ LIGHTING = {
     "ClockTime": 12,
     "GeographicLatitude": 23.5,
     "Brightness": 3.0,
-    "Ambient": (100, 98, 96),  # r3: lower, so the lamp pools and the sunwell carry the light  # v1 r1: local lights render in captures; ambient alone reads near-black indoors  # warm shade fill: rooms read at a glance (the v3/v4 maps read dark)
+    "Ambient": (84, 82, 80),  # r5: more contrast; the lamp pools carry the rooms  # r3: lower, so the lamp pools and the sunwell carry the light  # v1 r1: local lights render in captures; ambient alone reads near-black indoors  # warm shade fill: rooms read at a glance (the v3/v4 maps read dark)
     "OutdoorAmbient": (120, 118, 116),
     "ColorShift_Top": (255, 240, 220),
     "ColorShift_Bottom": (0, 0, 0),
@@ -132,7 +132,7 @@ FX = {
     "Grade": {"Brightness": 0.0, "Contrast": 0.16, "Saturation": -0.08, "TintColor": (255, 250, 244)},
     "SunRays": {"Intensity": 0.07, "Spread": 0.5},
 }
-LAMP = {"color": (255, 218, 178), "brightness": 0.9, "range": 15}  # r3: a warm pool at every cage lamp  # v1 r1: 1.6 warm washed every wall peach  # shadowless room lights (few)
+LAMP = {"color": (255, 214, 168), "brightness": 0.8, "range": 14}  # r5: 1.6 blew the sunwell out  # r3: a warm pool at every cage lamp  # v1 r1: 1.6 warm washed every wall peach  # shadowless room lights (few)
 
 
 def hex_rgb(h: str) -> tuple[int, int, int]:

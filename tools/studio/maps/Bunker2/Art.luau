@@ -18,7 +18,7 @@ type RoleLook = { color: string, material: string, variant: string }
 local ROLE: { [string]: RoleLook } = {
 	Board = { color = "85817B", material = "Concrete", variant = "Bunk2_Board" },
 	BoardLight = { color = "96928B", material = "Concrete", variant = "Bunk2_Board" },
-	Ceiling = { color = "6E6B67", material = "Concrete", variant = "" },
+	Ceiling = { color = "5E5C59", material = "SmoothPlastic", variant = "" },
 	Olive = { color = "4C5244", material = "Plastic", variant = "Bunk2_Paint" },
 	Band = { color = "6F6A62", material = "Plastic", variant = "Bunk2_Paint" },
 	Floor = { color = "57544F", material = "Concrete", variant = "Bunk2_Floor" },
@@ -31,11 +31,11 @@ local ROLE: { [string]: RoleLook } = {
 	Machine = { color = "62686C", material = "Plastic", variant = "Bunk2_Steel" },
 	Pipe = { color = "6E757A", material = "Plastic", variant = "Bunk2_Brushed" },
 	Fins = { color = "4E5458", material = "SmoothPlastic", variant = "" },
-	Locker = { color = "4A5143", material = "Plastic", variant = "Bunk2_Paint" },
-	LockerDoor = { color = "535B4B", material = "Plastic", variant = "Bunk2_Paint" },
-	Case = { color = "4D5043", material = "Plastic", variant = "Bunk2_Paint" },
+	Locker = { color = "4A5143", material = "SmoothPlastic", variant = "" },
+	LockerDoor = { color = "535B4B", material = "SmoothPlastic", variant = "" },
+	Case = { color = "4D5043", material = "SmoothPlastic", variant = "" },
 	Rack = { color = "4A5056", material = "Plastic", variant = "Bunk2_Steel" },
-	Console = { color = "50564C", material = "Plastic", variant = "Bunk2_Paint" },
+	Console = { color = "50564C", material = "SmoothPlastic", variant = "" },
 	Brass = { color = "8A6E40", material = "Metal", variant = "" },
 	Gold = { color = "B08A42", material = "Metal", variant = "" },
 	Hazard = { color = "E2B23E", material = "SmoothPlastic", variant = "" },
@@ -48,7 +48,7 @@ local ROLE: { [string]: RoleLook } = {
 	Screen = { color = "1E2A30", material = "SmoothPlastic", variant = "" },
 	Cove = { color = "A89A86", material = "SmoothPlastic", variant = "" },
 	Lamp = { color = "FFD7A0", material = "Neon", variant = "" },
-	ScreenGlow = { color = "3E5C5C", material = "Neon", variant = "" },
+	ScreenGlow = { color = "2E4A4E", material = "Neon", variant = "" },
 	Status = { color = "D9932F", material = "Neon", variant = "" },
 }
 local BAND: { [string]: string } = { B = "34445F", A = "8F703A", N = "6F6A62" }

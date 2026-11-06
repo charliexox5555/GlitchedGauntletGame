@@ -16,7 +16,7 @@ local PROPS: { [string]: any } = {
 	ClockTime = 12,
 	GeographicLatitude = 23.5,
 	Brightness = 3,
-	Ambient = Color3.fromRGB(100, 98, 96),
+	Ambient = Color3.fromRGB(84, 82, 80),
 	OutdoorAmbient = Color3.fromRGB(120, 118, 116),
 	ColorShift_Top = Color3.fromRGB(255, 240, 220),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
@@ -32,7 +32,7 @@ local FX: { [string]: { [string]: any } } = {
 	Grade = { Brightness = 0, Contrast = 0.16, Saturation = -0.08, TintColor = Color3.fromRGB(255, 250, 244) },
 	SunRays = { Intensity = 0.07, Spread = 0.5 },
 }
-local LAMP = { color = Color3.fromRGB(255, 218, 178), brightness = 0.9, range = 15 }
+local LAMP = { color = Color3.fromRGB(255, 214, 168), brightness = 0.8, range = 14 }
 -- stylua: ignore end
 -- END LIGHT
 
