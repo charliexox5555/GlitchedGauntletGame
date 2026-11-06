@@ -35,7 +35,7 @@ MAP = "Rooftops2"
 PALETTE: dict[str, tuple[str, str, str]] = {
     # big calm surfaces
     "Roof": ("B5735A", "Slate", "Roof2_Tile"),  # team-roof tiles (the ground band)
-    "RoofPit": ("8F8478", "Slate", "Roof2_Gravel"),  # the Pit's floor: tar and gravel (concept pass 2026-11-05)
+    "RoofPit": ("B3A48C", "Slate", "Roof2_Gravel"),  # maps v4: lighter (the Pit read crushed dark under the trestles)  # the Pit's floor: tar and gravel (concept pass 2026-11-05)
     # Round 1: SmoothPlastic, not the Lobby concrete variant (its dark colour map made the plaster read as brick).
     "Wall": ("D4B98F", "Concrete", "Roof2_Plaster"),  # facades (tinted per building from TONE); our plaster row
     "Plinth": ("A8977F", "Concrete", "Roof2_Plaster"),  # street storey, hut plinths
@@ -72,6 +72,9 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Pot": ("B9653F", "SmoothPlastic", ""),  # terracotta pots and planters
     "Cloth": ("EFE3C8", "Fabric", ""),  # awning, chairs
     "Appliance": ("D9D1BF", "SmoothPlastic", ""),  # AC unit casings (cream enamel, as in the concept)
+    # maps v4: floor breakup and the blank sign panels
+    "Paver": ("D9BBA3", "Slate", "Roof2_Tile"),  # kerbed paving inlays on the team roofs (a lighter field)
+    "Tar": ("6F6258", "Slate", "Roof2_Gravel"),  # tar-sealed repairs
     # Neon, thin only
     "GlowWarm": ("FFE2B8", "Neon", ""),
     "GlowWest": ("FFB14A", "Neon", ""),
@@ -119,7 +122,7 @@ LIGHTING = {
     "ClockTime": 17.1,  # round 1: lower, warmer sun (reviewers read 16.3 as neutral midday)
     "GeographicLatitude": 23.5,
     "Brightness": 3.2,
-    "Ambient": (112, 108, 128),  # fix round 1: brighter, warmer shade (walls read flat and dark in v2)
+    "Ambient": (124, 118, 136),  # maps v4: one more step (the Pit under the trestles read crushed dark)
     "OutdoorAmbient": (150, 142, 172),  # round 8: deeper cool shade against the warm sun
     "ColorShift_Top": (255, 178, 110),
     "ColorShift_Bottom": (0, 0, 0),

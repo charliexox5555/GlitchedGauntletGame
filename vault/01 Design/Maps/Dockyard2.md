@@ -587,3 +587,26 @@ The real gaps the reviewers named:
 4. **The light is generic midday.** It needs haze and warm-cool contrast.
 
 **Against the concepts:** the crane now reads like the concept's (braced, plated, striped feet), and the containers carry real corrugation and castings. Still missing are the concept's chunky quay coping with stripes, the jetty with tyre fenders, and the cleaner, bolder lane colours. No fix round tonight, as asked.
+
+## Maps v4 (2026-11-05 late): plan
+Source: the user's v3 review ([2026-11-05 Maps v3 Review](../../05%20Production/Playtests/2026-11-05%20Maps%20v3%20Review.md)): "looks much better", but it's a bit dark, the crate textures could be better, the "SHED 02" text is blocky and too simple, and "you're using too simple of shapes". It is built on the same pipeline as Rooftops2 v4.
+
+| Item | v4 treatment |
+|---|---|
+| Brightness | Higher Exposure and Brightness, more OutdoorAmbient fill, Atmosphere haze for depth, and a warm sun against cool shade (the v3 reviewers' "generic midday"). LihFolk Stylized Lighting Recipes, "Bright cartoon" row as the start: Ambient at or below OutdoorAmbient per channel. |
+| Crates | Rebuilt mesh with separate boards (frame, infill planks with gaps, X brace, corner irons, nail heads), plus a new plank texture with board seams and wood grain. |
+| "SHED 02" | **Letters cut.** A modelled shed number plate with a stencilled number as a texture decal (a real font, rendered), or no number. |
+| Shed interior | Modelled racks (uprights, beams, pallets with boxes), a workbench and hanging lamps instead of smooth boxes. |
+| Lane colours | Lane floor stripes plus lane-coloured end containers (red, blue, green), readable at eye height and from above. |
+| Deck breakup | Drains, cable runs, oil stains, tyre fenders and bollards on the quay coping. Flush art, no collision. |
+| Simple shapes | Any remaining smooth primitive gets the Rooftops step 1 treatment: model it or cut it. |
+
+The collision doesn't move. Results and side-by-sides follow below.
+
+### Codex prop list (Dockyard2)
+The same rules as the [Rooftops2 Codex prop list](Rooftops2.md#codex-prop-list-rooftops2-dockyard2s-list-is-in-its-note), including the mandatory vault and LihFolk rule. Material names are role names from `tools/maps/dockyard2_style.py` (`Wood`, `Charcoal`, `Rubber`, `Concrete`, `Hazard`, `Crane`, `White`, `Grate`). Crates come from the shared set R4 in the Rooftops2 note.
+
+| # | Prop | Concept reference | Size (studs) | Tri budget | Palette / roles | Export path |
+|---|---|---|---|---|---|---|
+| D1 | **Bollard and fender set**: a mooring bollard (a cast body with a cap lip and bolts on a base plate), a tyre fender hung on a short chain, and a coiled rope | `art-source/maps/Dockyard2/concepts/05-kit-sheet.png` quay props; `02-hero-middle.png` | bollard 1.6 x 1.6 x 2.2; tyre 2.4 diameter x 0.8; coil 2 x 2 x 0.6 | 400 / 400 / 500 | Charcoal (cast iron), Rubber, Wood (rope, tinted) | `art-source/maps/Dockyard2/props/QuaySet.glb` (objects `Bollard`, `TyreFender`, `RopeCoil`) |
+| D2 | **Shed rack and pallet set**: a pallet-rack bay (2 uprights with holes and bracing, 3 beam levels), a pallet, and stacked cartons on a pallet | `05-kit-sheet.png` shed interior; `03-hero-spawn-a.png` | rack 8 x 3 x 9; pallet 3 x 3 x 0.5; carton stack 3 x 3 x 2.5 | 1,800 / 300 / 600 | Crane (yellow uprights, small), Charcoal (beams), Wood, White (cartons, tinted) | `art-source/maps/Dockyard2/props/ShedRackSet.glb` (objects `Rack`, `Pallet`, `CartonStack`) |

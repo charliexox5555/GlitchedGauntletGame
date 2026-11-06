@@ -574,3 +574,107 @@ The Studio audit is 0 pairs over 1,563 visible parts.
 2. A lighter underside and fill light in the Pit, so its stairs read.
 3. Floor breakup on the team roofs: tar patches, drains, a second tile tone.
 4. Quoins one size smaller.
+
+## Maps v4 (2026-11-05 late): rebuild the weak pieces as real models
+Source: the user's v3 review ([2026-11-05 Maps v3 Review](../../05%20Production/Playtests/2026-11-05%20Maps%20v3%20Review.md)): "some things are built not well"; the text, the wheelbarrow in the middle, the cacti; the AC stacks, the dark Pit, the flat roof floors and the oversized quoins; "things are not to scale with the player"; "arrows that are not aligned"; "the whole thing doesn't feel like it fits the same vibe and at the same level of doneness and skill".
+
+**What the v3 shots show** (v3-overview, v3-b-roof-to-tank, v3-a-roof-to-tank, v3-pit):
+- **The cacti** are the Planter's three green bevelled lumps. **The wheelbarrow** is the Skylight: a sloped glass frame on four splayed legs over a slab, in the front row of each team roof.
+- **Text:** the "SKY DINER" roof signs (letters as parts), the painted deck words (PIT, WEST, EAST, ROOF A/B) and the spawn signs.
+- **Arrows:** the chevrons run straight along z, but the route turns round the Penthouse ends, so they point at walls.
+- **AC stacks:** two 7.6 x 3.6 boxes stacked 7.5 tall, with 2.1-stud fans. That's 1.5x the player, and they read as toy speakers.
+- **Floors:** one terracotta tile field from parapet to parapet. **The Pit floor** is dark tar under the trestles.
+- **Quoins:** 1.6 long by 1.2 tall blocks on 6-wide huts.
+
+### Treatment per piece (modelled or cut)
+| Piece | v4 treatment | Concept reference |
+|---|---|---|
+| Planter (the cacti) | **Rebuilt** as a planter screen: a plaster planter box with a stone cap and cobalt corner caps, agave-style leaf clusters (tapered blades, not lumps), and a timber slat screen behind it to 7.5 so the cover stays full. | kit sheet bottom-right planters; 03-hero-spawn-a |
+| Skylight (the wheelbarrow) | **Rebuilt** as the concept's hipped skylight: a stone curb, a mullioned glass hip in a charcoal frame, and cobalt corner caps. No legs. | kit sheet bottom-middle; 03-hero-spawn-a |
+| ACUnit stacks | **Rebuilt** as one rooftop air-handler cabinet on a steel curb: louvred side panels, bolted access doors with handles, one top fan shroud, and a pipe run down to the roof. The collision stays 8 x 4 x 7.5 (gameplay cover), but it reads as one machine, not stacked toys. | kit sheet bottom-left (louvred units) |
+| Roof signs "SKY DINER" | **Text cut.** A modelled blank sign frame with a cobalt-trimmed cream panel and lamp hoods, the same language as the trestle billboards. | kit sheet billboard |
+| Deck words (PIT / WEST / EAST / ROOF A / ROOF B) | **Cut.** Wayfinding comes from the landmark (the tank), the lane lines and the light. LihFolk *World Composition*: "landmarks, light and openings guide before text does". | — |
+| Chevrons | **Cut.** The court exits are framed by the lane lines and the Penthouse ends. | — |
+| Spawn signs A / B | **Cut** (the team colour is the roof tone and the Penthouse roof). | — |
+| Floors | **Breakup:** stone-kerbed paving inlays along the lanes (a lighter tile inside a cream kerb), roof drains, a hatch, and tar patches. Flush (0.04 proud), no collision. | 03-hero-spawn-a (paved terraces with kerbs) |
+| Pit | A lighter floor (warm pavers), a warm fill light under the trestles, and lighter trestle undersides. | 02-hero-pit |
+| Quoins | One size smaller: blocks 1.1 by 0.9 (from 1.6 by 1.2), with a 0.12 bevel. | kit sheet column |
+| Party corner, crates, barrels | Kept. The crate gets the concept's frame-and-X planks; scale checked. | kit sheet crates |
+| City backdrop | Kept (round 1). Only re-shot. | — |
+
+### Scale audit against the R15 player (5 studs tall)
+Numbers come from LihFolk *World Composition and Set Dressing* (doors 3.6-4 x 7.5-8, steps 1 high and at least 2 deep, railings 3) and our own measurements. Each piece is checked in Studio next to a dummy at 5.
+- Doors 3.2 x 6.1 → 3.6 x 7.5 where the hut has room.
+- Railings 3.3 (fine).
+- Crates 3 and 2 (fine: waist and knee height).
+- AC 7.5 → one cabinet with 0.9 louvre spacing and handles at 3.5.
+- Quoins smaller.
+- Sign panels at 9-19 (fine).
+Results go in the table below once measured.
+
+### Gameplay
+The collision boxes don't move: the layout v3 checks stand (first sight, longest line, spawn safety). Only the art changes and the floor art lies flush. The AC cover stays full height, because the layout depends on it.
+
+### Codex props (dedicated modeller): see "Codex prop list" below.
+
+### LihFolk notes used
+`lihfolk-worldbuilding` (§3 macro to micro, §6 "signs are 3-8 words built into the art; landmarks, light and openings guide before text does"); `roblox-blender-modeling` (1-segment soft bevel, budgets small 600/1,500, medium 2,000/4,000; symmetry; bottom-centre origins); `roblox-asset-import` (collision off for decoration, clone, don't re-import); 55 *Modelling Nuance and Readability*; 54 *Untextured Stylised Modelling*; 06 *World Composition and Set Dressing*.
+
+### Codex prop list (Rooftops2; Dockyard2's list is in its note)
+These are props a dedicated modeller would lift most. Codex builds them in Blender through its MCP while lane G is out of Blender (take `.claude-locks/blender.lock`). Lane G imports them afterwards. Lane G's interim versions (planter screen, AC cabinet) stand until Codex's are reviewed.
+
+**Rules for every prop:**
+- Read this note, [Art Direction](../../02%20Art/Art%20Direction.md) (model standard) and the LihFolk `roblox-blender-modeling` skill first. This vault-and-LihFolk rule is mandatory.
+- 1 Blender unit = 1 stud, Z up, front −Y, origin bottom centre, transforms applied.
+- 1-segment bevels (0.06-0.12) and weighted normals; no n-gons left after the bevel.
+- Original designs only. **No text or logos.**
+- One object per colour role. Name objects `<Prop>_<Part>` and name each material exactly as its role (`Wood`, `Charcoal`, `Stone`, `Plant`, `Pot`, `Accent`, `Metal`, `Trim`, `Glass`, `Rubber`, `White`). Lane G recolours by role in Studio, so plain flat colours are fine.
+- Export `<Prop>.glb` (apply modifiers) and save `<Prop>.blend` beside it. No git.
+
+| # | Prop | Concept reference | Size (studs, W x D x H) | Tri budget | Palette / roles | Export path |
+|---|---|---|---|---|---|---|
+| R1 | **Agave planter set**: a 6 x 3 plaster planter box with a stone cap, cobalt corner caps and 3 agave clusters (tapered, folded blades), plus a 2 x 2 pot variant | `art-source/maps/Rooftops2/concepts/05-kit-sheet.png`, bottom-right (planters); `03-hero-spawn-a.png` foreground | box 6 x 3 x 2.5 (leaves to about 5.5); pot 2 x 2 x 1.8 | 1,500 box, 600 pot | Pot (terracotta plaster), Stone (cream), Accent (cobalt), Plant (two greens) | `art-source/maps/Rooftops2/props/AgavePlanter.glb`, `AgavePot.glb` |
+| R2 | **Rooftop AC cabinet**: one air-handler, louvred sides, a bolted access door with handles, a top fan shroud with a grille, a steel curb, and a pipe and conduit run | kit sheet, bottom-left (louvred units) | 8 x 4 x 7.5 (it fills a cover box exactly; nothing outside it) | 2,500 | Metal (warm grey), Charcoal (steel), Trim (cream panels) | `art-source/maps/Rooftops2/props/ACCabinet.glb` |
+| R3 | **Water-tank detail kit** (fits our tank): a caged ladder, a platform railing, a valve wheel with an overflow pipe, a hipped cap with a finial, and 3 steel hoops | `05-kit-sheet.png` water tanks; `01-overview.png` | at kit scale: drum radius 4.4, drum y 4.4-13.4, platform y 4.0, cap to y 16. The tank is placed at 1.35x. | 3,000 for the whole kit | Charcoal, Wood (staves stay ours), Accent (cap) | `art-source/maps/Rooftops2/props/TankDetailKit.glb` |
+| R4 | **Crate and barrel set** (shared with Dockyard2): a 3-stud crate (frame boards, infill planks with gaps, X brace, corner irons), a 2-stud crate, and a barrel (staves and 2 hoops) | kit sheet crates; `03-hero-spawn-a.png` (bottom-left crate and barrel) | crate 3 x 3 x 3; small 2 x 2 x 2; barrel 2.1 diameter x 2.6 | 600 / 400 / 500 | Wood, Charcoal | `art-source/maps/Rooftops2/props/CrateSet.glb` (objects `Crate3`, `Crate2`, `Barrel`) |
+
+### v4 results (built 2026-11-05 late)
+Kit rebuilt headless (`tools/blender/build_map_kit_rooftops2.py`):
+- 41 pieces, 69.6k triangles, coplanar 0.
+- Asset 78737454855986 updated.
+- Installed in the match place: 300 of 300 placements, Studio audit 0 pairs over 1,659 visible parts. **The place needs saving (Ctrl+S).**
+
+| Piece | What was built |
+|---|---|
+| Planter (the cacti) | A plaster box with recessed stone panels, a stone cap, cobalt corner caps, and four agave rosettes (13 tapered, keeled blades each), either side of a timber slat screen on charcoal posts with cobalt caps. About 2,700 tris. |
+| Skylight (the wheelbarrow) | A stone curb with a cream lip, a glass hip in a charcoal frame (hips, ridge, 3 mullions a side), and cobalt corner caps. No legs. |
+| ACUnit | One air-handler cabinet on a steel curb: a louvre panel (9 blades), an access door with hinges and handles, end service panels, a fan shroud with a grille and hub, a filter hatch, and a pipe run. 1,700 tris. |
+| Flue (the plain green boxes beside the Pit) | A brick chimney stack: brick shaft, stone quoins and bands, a blind arched niche with louvres, a stone cornice with a cobalt band, and two terracotta pots at the back edge. |
+| Huts | Doors 3.2 x 6.6 (were 2.3 x 5.7). Smaller quoins. Arched windows on the side faces of the lift house, tank house and the old cooling tower, which is now a slate-roofed house. |
+| Quoins | 1.1 x 0.7 x 0.62 blocks, 0.1 proud (were 1.6 x 0.9 x 0.8, 0.12 proud), on every hut, the Penthouses and the flues. |
+| Text | **All part-built text is gone:** SKY DINER (the roof signs are blank cream panels with lamp hoods), the PIT / WEST / EAST / ROOF A / ROOF B deck words, and the spawn signs. |
+| Arrows | **Cut:** the chevrons and the lane and court route lines. |
+| Floors | 28 kerbed paving inlays (the main lanes, the spawn courts and the side-lane landings), 10 drains and 10 tar repairs. All flush, with no collision. |
+| Pit | A lighter floor (RoofPit B3A48C) and Ambient one step up (124, 118, 136). |
+
+Collision didn't move, so the layout v3 checks stand.
+
+| Concept | Build v4 |
+|---|---|
+| ![](../../../art-source/maps/Rooftops2/concepts/01-overview.png) | ![](../../02%20Art/References/maps/rooftops2/v4-overview.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/04-hero-spawn-b.png) | ![](../../02%20Art/References/maps/rooftops2/v4-b-roof-to-tank.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/03-hero-spawn-a.png) | ![](../../02%20Art/References/maps/rooftops2/v4-a-roof-to-tank.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/03-hero-spawn-a.png) | ![](../../02%20Art/References/maps/rooftops2/v4-b-spawn-court.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/05-kit-sheet.png) | ![](../../02%20Art/References/maps/rooftops2/v4-planter.jpg) |
+| ![](../../../art-source/maps/Rooftops2/concepts/02-hero-pit.png) | ![](../../02%20Art/References/maps/rooftops2/v4-pit.jpg) |
+
+The shots are edit-mode captures with the map's own Lighting config and effects applied. They match play mode, minus the character.
+
+**Honest read against the concepts:**
+- **Better:** the planters, skylights, AC cabinets and flues now look like modelled objects in the concept's language. There's no text or arrows. The lanes and courts read as kerbed paving.
+- **Still short of the concepts:**
+  - The AC cabinets are bright cream-white and read a little loud against the terracotta.
+  - The Penthouse B face is dark in shade.
+  - The back-court planters' terracotta is saturated orange in the low sun.
+  - The water tank and the skyline towers are unchanged.
+  - The trestle billboards are blank panels; a painted texture would read richer.

@@ -6,7 +6,7 @@
    "props": {},
    "parts": [
     "ACUnit_Appliance",
-    "ACUnit_Stone",
+    "ACUnit_Trim",
     "ACUnit_Charcoal",
     "ACUnit_Metal"
    ]
@@ -33,12 +33,6 @@
    "parts": [
     "Catwalk8_Charcoal",
     "Catwalk8_Wood"
-   ]
-  },
-  "Chevron": {
-   "props": {},
-   "parts": [
-    "Chevron_Paint"
    ]
   },
   "CityA": {
@@ -85,12 +79,19 @@
    ]
   },
   "CoolingTower": {
-   "props": {},
+   "props": {
+    "width": 10,
+    "depth": 10,
+    "height": 8
+   },
    "parts": [
-    "CoolingTower_Plinth",
-    "CoolingTower_Body",
-    "CoolingTower_Louvres",
-    "CoolingTower_Fan"
+    "CoolingTower_Wall",
+    "CoolingTower_Stone",
+    "CoolingTower_Window",
+    "CoolingTower_Shutter",
+    "CoolingTower_RoofSlate",
+    "CoolingTower_Door",
+    "CoolingTower_Plinth"
    ]
   },
   "Crate": {
@@ -107,34 +108,12 @@
     "CrateSmall_Wood"
    ]
   },
-  "DeckWordEAST": {
+  "Drain": {
    "props": {},
    "parts": [
-    "DeckWordEAST_Paint"
-   ]
-  },
-  "DeckWordPIT": {
-   "props": {},
-   "parts": [
-    "DeckWordPIT_Paint"
-   ]
-  },
-  "DeckWordROOFA": {
-   "props": {},
-   "parts": [
-    "DeckWordROOFA_Paint"
-   ]
-  },
-  "DeckWordROOFB": {
-   "props": {},
-   "parts": [
-    "DeckWordROOFB_Paint"
-   ]
-  },
-  "DeckWordWEST": {
-   "props": {},
-   "parts": [
-    "DeckWordWEST_Paint"
+    "Drain_Stone",
+    "Drain_Charcoal",
+    "Drain_Metal"
    ]
   },
   "Facade4": {
@@ -207,10 +186,11 @@
   "Flue": {
    "props": {},
    "parts": [
-    "Flue_Wall",
-    "Flue_Cap",
-    "Flue_Vents",
-    "Flue_Band"
+    "Flue_Stone",
+    "Flue_Charcoal",
+    "Flue_AccentSoft",
+    "Flue_Brick",
+    "Flue_Pot"
    ]
   },
   "Gangway16": {
@@ -218,6 +198,13 @@
    "parts": [
     "Gangway16_Charcoal",
     "Gangway16_Metal"
+   ]
+  },
+  "Inlay8": {
+   "props": {},
+   "parts": [
+    "Inlay8_Paver",
+    "Inlay8_Stone"
    ]
   },
   "LiftHouse": {
@@ -229,6 +216,7 @@
    "parts": [
     "LiftHouse_Wall",
     "LiftHouse_Stone",
+    "LiftHouse_Window",
     "LiftHouse_Metal",
     "LiftHouse_RoofTile",
     "LiftHouse_Door",
@@ -320,8 +308,12 @@
    "props": {},
    "parts": [
     "Planter_Stone",
+    "Planter_Charcoal",
+    "Planter_Accent",
+    "Planter_Wood",
     "Planter_Pot",
-    "Planter_Plant"
+    "Planter_Plant",
+    "Planter_Door"
    ]
   },
   "Plinth4": {
@@ -352,38 +344,21 @@
   "RoofSign": {
    "props": {},
    "parts": [
-    "RoofSign_Legs",
-    "RoofSign_Panel",
-    "RoofSign_Neon_Glow",
-    "RoofSign_Trim"
+    "RoofSign_Poster",
+    "RoofSign_Charcoal",
+    "RoofSign_Accent",
+    "RoofSign_AccentSoft",
+    "RoofSign_GlowWarm_Glow"
    ]
   },
   "Skylight": {
    "props": {},
    "parts": [
     "Skylight_Stone",
+    "Skylight_Trim",
     "Skylight_Charcoal",
+    "Skylight_Accent",
     "Skylight_Glass"
-   ]
-  },
-  "SpawnSignA": {
-   "props": {},
-   "parts": [
-    "SpawnSignA_Frame",
-    "SpawnSignA_Plate",
-    "SpawnSignA_Title",
-    "SpawnSignA_Left",
-    "SpawnSignA_Right"
-   ]
-  },
-  "SpawnSignB": {
-   "props": {},
-   "parts": [
-    "SpawnSignB_Frame",
-    "SpawnSignB_Plate",
-    "SpawnSignB_Title",
-    "SpawnSignB_Left",
-    "SpawnSignB_Right"
    ]
   },
   "Stair16": {
@@ -426,9 +401,23 @@
    "parts": [
     "TankHouse_Wall",
     "TankHouse_Stone",
+    "TankHouse_Window",
+    "TankHouse_Shutter",
     "TankHouse_RoofTile",
     "TankHouse_Door",
     "TankHouse_Plinth"
+   ]
+  },
+  "TarPatchA": {
+   "props": {},
+   "parts": [
+    "TarPatchA_Tar"
+   ]
+  },
+  "TarPatchB": {
+   "props": {},
+   "parts": [
+    "TarPatchB_Tar"
    ]
   },
   "WaterTank": {
@@ -451,38 +440,37 @@
     "color": "D9D1BF"
    },
    "glow": false,
-   "tris": 88,
+   "tris": 44,
    "center": [
     0.0,
     0.0,
-    4.1
+    3.575
    ],
    "size": [
     7.6,
-    3.6,
-    6.2
+    3.64,
+    5.95
    ]
   },
   {
    "piece": "ACUnit",
-   "name": "ACUnit_Stone",
-   "material": "R2_Stone",
+   "name": "ACUnit_Trim",
+   "material": "R2_Trim",
    "look": {
-    "material": "Concrete",
-    "color": "E9D7B2",
-    "variant": "Roof2_Plaster"
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
    },
    "glow": false,
-   "tris": 128,
+   "tris": 176,
    "center": [
-    -1.5,
-    -0.0,
-    4.075
+    0.0,
+    0.0,
+    3.65
    ],
    "size": [
-    2.5,
-    3.8,
-    5.7
+    7.74,
+    3.78,
+    4.9
    ]
   },
   {
@@ -494,16 +482,16 @@
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 508,
+   "tris": 962,
    "center": [
+    -0.095,
     0.0,
-    0.0,
-    3.335
+    3.675
    ],
    "size": [
-    8.0,
+    8.09,
     4.04,
-    6.87
+    7.55
    ]
   },
   {
@@ -515,16 +503,16 @@
     "color": "A9A59C"
    },
    "glow": false,
-   "tris": 64,
+   "tris": 510,
    "center": [
-    -1.5,
-    -0.0,
-    4.075
+    0.0,
+    0.0,
+    3.925
    ],
    "size": [
-    2.1,
-    3.72,
-    5.3
+    7.8,
+    3.9,
+    6.75
    ]
   },
   {
@@ -716,27 +704,6 @@
     7.18018,
     7.96697,
     0.29
-   ]
-  },
-  {
-   "piece": "Chevron",
-   "name": "Chevron_Paint",
-   "material": "R2_Chevron",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "F3E6CC"
-   },
-   "glow": false,
-   "tris": 20,
-   "center": [
-    0.0,
-    0.0,
-    0.01
-   ],
-   "size": [
-    7.04,
-    3.52,
-    0.12
    ]
   },
   {
@@ -1107,6 +1074,135 @@
   },
   {
    "piece": "CoolingTower",
+   "name": "CoolingTower_Wall",
+   "material": "R2_Wall",
+   "look": {
+    "material": "Concrete",
+    "color": "D4B98F",
+    "variant": "Roof2_Plaster"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    3.8
+   ],
+   "size": [
+    10.0,
+    10.0,
+    5.8
+   ]
+  },
+  {
+   "piece": "CoolingTower",
+   "name": "CoolingTower_Stone",
+   "material": "R2_Stone",
+   "look": {
+    "material": "Concrete",
+    "color": "E9D7B2",
+    "variant": "Roof2_Plaster"
+   },
+   "glow": false,
+   "tris": 1880,
+   "center": [
+    0.0,
+    0.0,
+    4.46
+   ],
+   "size": [
+    10.9,
+    11.0,
+    7.08
+   ]
+  },
+  {
+   "piece": "CoolingTower",
+   "name": "CoolingTower_Window",
+   "material": "R2_Window",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E5878"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    4.31522
+   ],
+   "size": [
+    1.56,
+    10.1,
+    2.91044
+   ]
+  },
+  {
+   "piece": "CoolingTower",
+   "name": "CoolingTower_Shutter",
+   "material": "R2_Shutter",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4F7F5A"
+   },
+   "glow": false,
+   "tris": 464,
+   "center": [
+    0.0,
+    0.0,
+    3.8
+   ],
+   "size": [
+    4.5,
+    10.52,
+    2.8
+   ]
+  },
+  {
+   "piece": "CoolingTower",
+   "name": "CoolingTower_RoofSlate",
+   "material": "R2_RoofSlate",
+   "look": {
+    "material": "Slate",
+    "color": "5F6B78",
+    "variant": "Roof2_Slate"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    7.56
+   ],
+   "size": [
+    10.90417,
+    10.90417,
+    0.82
+   ]
+  },
+  {
+   "piece": "CoolingTower",
+   "name": "CoolingTower_Door",
+   "material": "R2_Door",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6C5442"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    4.92,
+    0.0,
+    3.65557
+   ],
+   "size": [
+    0.2,
+    3.1,
+    5.41114
+   ]
+  },
+  {
+   "piece": "CoolingTower",
    "name": "CoolingTower_Plinth",
    "material": "R2_Plinth",
    "look": {
@@ -1115,7 +1211,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 108,
+   "tris": 44,
    "center": [
     0.0,
     0.0,
@@ -1125,69 +1221,6 @@
     10.5,
     10.5,
     1.0
-   ]
-  },
-  {
-   "piece": "CoolingTower",
-   "name": "CoolingTower_Body",
-   "material": "R2_Metal",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "A9A59C"
-   },
-   "glow": false,
-   "tris": 108,
-   "center": [
-    0.0,
-    0.0,
-    4.1
-   ],
-   "size": [
-    10.0,
-    10.0,
-    6.4
-   ]
-  },
-  {
-   "piece": "CoolingTower",
-   "name": "CoolingTower_Louvres",
-   "material": "R2_Trim",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "F2EEE4"
-   },
-   "glow": false,
-   "tris": 792,
-   "center": [
-    0.0,
-    0.0,
-    4.2
-   ],
-   "size": [
-    10.2,
-    10.24,
-    4.8
-   ]
-  },
-  {
-   "piece": "CoolingTower",
-   "name": "CoolingTower_Fan",
-   "material": "R2_Charcoal",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "3A3F47"
-   },
-   "glow": false,
-   "tris": 216,
-   "center": [
-    0.0,
-    0.0,
-    7.7
-   ],
-   "size": [
-    7.8,
-    7.8,
-    0.6
    ]
   },
   {
@@ -1277,108 +1310,67 @@
    ]
   },
   {
-   "piece": "DeckWordEAST",
-   "name": "DeckWordEAST_Paint",
-   "material": "R2_SignEast",
+   "piece": "Drain",
+   "name": "Drain_Stone",
+   "material": "R2_Stone",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "5AA8D8"
+    "material": "Concrete",
+    "color": "E9D7B2",
+    "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 562,
+   "tris": 10,
    "center": [
     0.0,
     0.0,
-    0.01
+    0.03
    ],
    "size": [
-    9.69317,
-    2.6,
-    0.12
+    1.5,
+    1.5,
+    0.06
    ]
   },
   {
-   "piece": "DeckWordPIT",
-   "name": "DeckWordPIT_Paint",
-   "material": "R2_SignPit",
+   "piece": "Drain",
+   "name": "Drain_Charcoal",
+   "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "2F62C8"
+    "color": "3A3F47"
    },
    "glow": false,
-   "tris": 226,
+   "tris": 10,
    "center": [
     0.0,
     0.0,
-    0.01
+    0.075
    ],
    "size": [
-    6.26229,
-    2.6,
-    0.12
+    1.0,
+    1.0,
+    0.03
    ]
   },
   {
-   "piece": "DeckWordROOFA",
-   "name": "DeckWordROOFA_Paint",
-   "material": "R2_SignPit",
+   "piece": "Drain",
+   "name": "Drain_Metal",
+   "material": "R2_Metal",
    "look": {
     "material": "SmoothPlastic",
-    "color": "2F62C8"
+    "color": "A9A59C"
    },
    "glow": false,
-   "tris": 1100,
-   "center": [
-    0.0,
-    -0.5,
-    0.01
-   ],
-   "size": [
-    9.07759,
-    1.6,
-    0.12
-   ]
-  },
-  {
-   "piece": "DeckWordROOFB",
-   "name": "DeckWordROOFB_Paint",
-   "material": "R2_SignPit",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "2F62C8"
-   },
-   "glow": false,
-   "tris": 1314,
-   "center": [
-    0.0,
-    -0.5,
-    0.01
-   ],
-   "size": [
-    8.9071,
-    1.6,
-    0.12
-   ]
-  },
-  {
-   "piece": "DeckWordWEST",
-   "name": "DeckWordWEST_Paint",
-   "material": "R2_SignWest",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "E89A3C"
-   },
-   "glow": false,
-   "tris": 570,
+   "tris": 50,
    "center": [
     0.0,
     0.0,
-    0.01
+    0.1
    ],
    "size": [
-    11.28088,
-    2.6,
-    0.12
+    0.9,
+    0.9,
+    0.02
    ]
   },
   {
@@ -2004,87 +1996,109 @@
   },
   {
    "piece": "Flue",
-   "name": "Flue_Wall",
-   "material": "R2_Wall",
+   "name": "Flue_Stone",
+   "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "D4B98F",
+    "color": "E9D7B2",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 5712,
    "center": [
+    0.05,
     0.0,
-    0.0,
-    -41.4
+    -11.3
    ],
    "size": [
-    6.0,
-    8.0,
-    81.2
+    6.9,
+    8.8,
+    22.6
    ]
   },
   {
    "piece": "Flue",
-   "name": "Flue_Cap",
-   "material": "R2_Trim",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "F2EEE4"
-   },
-   "glow": false,
-   "tris": 152,
-   "center": [
-    0.0,
-    0.0,
-    -0.425
-   ],
-   "size": [
-    6.6,
-    8.6,
-    0.85
-   ]
-  },
-  {
-   "piece": "Flue",
-   "name": "Flue_Vents",
+   "name": "Flue_Charcoal",
    "material": "R2_Charcoal",
    "look": {
     "material": "SmoothPlastic",
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 88,
+   "tris": 120,
    "center": [
+    3.04,
     0.0,
-    0.0,
-    -2.1
+    -7.38979
    ],
    "size": [
-    6.16,
-    5.8,
-    1.0
+    0.12,
+    2.36,
+    5.50042
    ]
   },
   {
    "piece": "Flue",
-   "name": "Flue_Band",
-   "material": "R2_Trim",
+   "name": "Flue_AccentSoft",
+   "material": "R2_AccentSoft",
    "look": {
     "material": "SmoothPlastic",
-    "color": "F2EEE4"
+    "color": "5C79AE"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 44,
    "center": [
     0.0,
     0.0,
-    -5.75
+    -1.45
    ],
    "size": [
-    6.24,
-    8.24,
-    0.5
+    6.56,
+    8.56,
+    0.4
+   ]
+  },
+  {
+   "piece": "Flue",
+   "name": "Flue_Brick",
+   "material": "R2_Brick",
+   "look": {
+    "material": "Brick",
+    "color": "A8644A",
+    "variant": "Roof2_Brick"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    -40.65
+   ],
+   "size": [
+    6.0,
+    8.0,
+    82.7
+   ]
+  },
+  {
+   "piece": "Flue",
+   "name": "Flue_Pot",
+   "material": "R2_Pot",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B9653F"
+   },
+   "glow": false,
+   "tris": 260,
+   "center": [
+    -2.3,
+    0.0,
+    1.4
+   ],
+   "size": [
+    0.95106,
+    6.2,
+    1.4
    ]
   },
   {
@@ -2130,6 +2144,50 @@
    ]
   },
   {
+   "piece": "Inlay8",
+   "name": "Inlay8_Paver",
+   "material": "R2_Paver",
+   "look": {
+    "material": "Slate",
+    "color": "D9BBA3",
+    "variant": "Roof2_Tile"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.0,
+    0.0,
+    0.02
+   ],
+   "size": [
+    7.18,
+    7.18,
+    0.04
+   ]
+  },
+  {
+   "piece": "Inlay8",
+   "name": "Inlay8_Stone",
+   "material": "R2_Stone",
+   "look": {
+    "material": "Concrete",
+    "color": "E9D7B2",
+    "variant": "Roof2_Plaster"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.035
+   ],
+   "size": [
+    7.96,
+    7.96,
+    0.07
+   ]
+  },
+  {
    "piece": "LiftHouse",
    "name": "LiftHouse_Wall",
    "material": "R2_Wall",
@@ -2143,12 +2201,12 @@
    "center": [
     0.0,
     0.0,
-    4.6
+    4.8
    ],
    "size": [
     8.0,
     8.0,
-    7.4
+    7.8
    ]
   },
   {
@@ -2161,7 +2219,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 1544,
+   "tris": 2408,
    "center": [
     0.0,
     0.0,
@@ -2169,8 +2227,29 @@
    ],
    "size": [
     8.9,
-    8.9,
+    9.0,
     9.08
+   ]
+  },
+  {
+   "piece": "LiftHouse",
+   "name": "LiftHouse_Window",
+   "material": "R2_Window",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E5878"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    4.31522
+   ],
+   "size": [
+    1.56,
+    8.1,
+    2.91044
    ]
   },
   {
@@ -2204,16 +2283,16 @@
     "variant": "Roof2_Terracotta"
    },
    "glow": false,
-   "tris": 36,
+   "tris": 20,
    "center": [
     0.0,
     0.0,
-    9.36
+    9.56
    ],
    "size": [
-    8.91255,
-    8.91255,
-    1.22
+    8.9063,
+    8.9063,
+    0.82
    ]
   },
   {
@@ -2229,12 +2308,12 @@
    "center": [
     3.92,
     0.0,
-    3.83308
+    4.23057
    ],
    "size": [
     0.2,
-    2.7,
-    5.76615
+    3.1,
+    6.56114
    ]
   },
   {
@@ -2291,7 +2370,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 2984,
+   "tris": 3864,
    "center": [
     0.0,
     0.0,
@@ -2316,12 +2395,12 @@
    "center": [
     4.92,
     0.0,
-    3.83308
+    4.23057
    ],
    "size": [
     0.2,
-    2.7,
-    5.76615
+    3.1,
+    6.56114
    ]
   },
   {
@@ -2549,7 +2628,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 5948,
+   "tris": 6476,
    "center": [
     0.0,
     0.0,
@@ -2806,7 +2885,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 5948,
+   "tris": 6476,
    "center": [
     0.0,
     0.0,
@@ -3105,16 +3184,80 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 44,
+   "tris": 264,
    "center": [
     0.0,
     0.0,
-    2.6
+    1.275
    ],
    "size": [
-    6.5,
-    3.5,
-    0.3
+    6.24,
+    3.24,
+    2.65
+   ]
+  },
+  {
+   "piece": "Planter",
+   "name": "Planter_Charcoal",
+   "material": "R2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3F47"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    0.0,
+    4.86
+   ],
+   "size": [
+    5.44,
+    0.34,
+    4.48
+   ]
+  },
+  {
+   "piece": "Planter",
+   "name": "Planter_Accent",
+   "material": "R2_Accent",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F62C8"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    5.05
+   ],
+   "size": [
+    6.39357,
+    3.39357,
+    4.9
+   ]
+  },
+  {
+   "piece": "Planter",
+   "name": "Planter_Wood",
+   "material": "R2_Wood",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "A7744E",
+    "variant": "Roof2_Plank"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    0.0,
+    5.075
+   ],
+   "size": [
+    4.84,
+    0.4,
+    4.45
    ]
   },
   {
@@ -3130,12 +3273,12 @@
    "center": [
     0.0,
     0.0,
-    1.2
+    1.31
    ],
    "size": [
-    6.29424,
-    3.19616,
-    2.6
+    5.76,
+    2.76,
+    2.02
    ]
   },
   {
@@ -3147,16 +3290,37 @@
     "color": "6B9A55"
    },
    "glow": false,
-   "tris": 324,
+   "tris": 1560,
    "center": [
-    0.075,
-    0.0,
-    5.025
+    -0.13608,
+    0.02454,
+    3.38073
    ],
    "size": [
-    5.95,
-    2.5,
-    4.85
+    6.69127,
+    5.48411,
+    1.74647
+   ]
+  },
+  {
+   "piece": "Planter",
+   "name": "Planter_Door",
+   "material": "R2_Door",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6C5442"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.0,
+    0.0,
+    2.65
+   ],
+   "size": [
+    5.4,
+    2.4,
+    0.1
    ]
   },
   {
@@ -3289,86 +3453,107 @@
   },
   {
    "piece": "RoofSign",
-   "name": "RoofSign_Legs",
-   "material": "R2_Charcoal",
+   "name": "RoofSign_Poster",
+   "material": "R2_Poster",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A3F47"
+    "color": "EADFCB"
    },
    "glow": false,
-   "tris": 88,
-   "center": [
-    0.0,
-    0.0,
-    1.95
-   ],
-   "size": [
-    0.3,
-    4.7,
-    4.0
-   ]
-  },
-  {
-   "piece": "RoofSign",
-   "name": "RoofSign_Panel",
-   "material": "R2_Accent",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "2F62C8"
-   },
-   "glow": false,
-   "tris": 108,
+   "tris": 12,
    "center": [
     0.0,
     0.0,
     9.0
    ],
    "size": [
-    0.9,
-    14.0,
-    10.0
+    0.56,
+    13.2,
+    9.2
    ]
   },
   {
    "piece": "RoofSign",
-   "name": "RoofSign_Neon_Glow",
-   "material": "R2_GlowWest",
+   "name": "RoofSign_Charcoal",
+   "material": "R2_Charcoal",
    "look": {
-    "material": "Neon",
-    "color": "FFB14A"
+    "material": "SmoothPlastic",
+    "color": "3A3F47"
    },
-   "glow": true,
-   "tris": 2104,
+   "glow": false,
+   "tris": 376,
    "center": [
     0.0,
     0.0,
-    8.35
+    7.135
    ],
    "size": [
-    1.14,
-    11.88525,
-    1.5
+    3.7,
+    14.0,
+    14.37
    ]
   },
   {
    "piece": "RoofSign",
-   "name": "RoofSign_Trim",
-   "material": "R2_White",
+   "name": "RoofSign_Accent",
+   "material": "R2_Accent",
    "look": {
     "material": "SmoothPlastic",
-    "color": "F7F4EC"
+    "color": "2F62C8"
    },
    "glow": false,
    "tris": 88,
    "center": [
     0.0,
     0.0,
-    9.025
+    14.275
    ],
    "size": [
-    1.1,
-    14.4,
-    10.45
+    1.0795,
+    15.0795,
+    0.55
+   ]
+  },
+  {
+   "piece": "RoofSign",
+   "name": "RoofSign_AccentSoft",
+   "material": "R2_AccentSoft",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5C79AE"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    4.98
+   ],
+   "size": [
+    0.68,
+    13.1,
+    1.04
+   ]
+  },
+  {
+   "piece": "RoofSign",
+   "name": "RoofSign_GlowWarm_Glow",
+   "material": "R2_GlowWarm",
+   "look": {
+    "material": "Neon",
+    "color": "FFE2B8"
+   },
+   "glow": true,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    13.82
+   ],
+   "size": [
+    3.54,
+    8.7,
+    0.08
    ]
   },
   {
@@ -3385,12 +3570,33 @@
    "center": [
     0.0,
     0.0,
-    0.5
+    0.45
+   ],
+   "size": [
+    7.8,
+    3.8,
+    1.1
+   ]
+  },
+  {
+   "piece": "Skylight",
+   "name": "Skylight_Trim",
+   "material": "R2_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2EEE4"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.1
    ],
    "size": [
     8.0,
     4.0,
-    1.2
+    0.2
    ]
   },
   {
@@ -3402,16 +3608,37 @@
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 140,
+   "tris": 196,
    "center": [
     0.0,
     0.0,
-    2.01309
+    1.95
    ],
    "size": [
-    7.3819,
-    3.40727,
-    1.97382
+    7.3,
+    3.3,
+    1.54
+   ]
+  },
+  {
+   "piece": "Skylight",
+   "name": "Skylight_Accent",
+   "material": "R2_Accent",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F62C8"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    1.41
+   ],
+   "size": [
+    8.12352,
+    4.12352,
+    0.42
    ]
   },
   {
@@ -3428,222 +3655,12 @@
    "center": [
     0.0,
     0.0,
-    2.0
+    1.925
    ],
    "size": [
-    7.2,
-    3.2,
-    1.8
-   ]
-  },
-  {
-   "piece": "SpawnSignA",
-   "name": "SpawnSignA_Frame",
-   "material": "R2_Charcoal",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "3A3F47"
-   },
-   "glow": false,
-   "tris": 320,
-   "center": [
-    0.0,
-    -0.24,
-    6.6
-   ],
-   "size": [
-    15.0,
-    0.36,
-    5.6
-   ]
-  },
-  {
-   "piece": "SpawnSignA",
-   "name": "SpawnSignA_Plate",
-   "material": "R2_White",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "F7F4EC"
-   },
-   "glow": false,
-   "tris": 44,
-   "center": [
-    0.0,
-    -0.15,
-    6.6
-   ],
-   "size": [
-    14.1,
-    0.3,
-    4.7
-   ]
-  },
-  {
-   "piece": "SpawnSignA",
-   "name": "SpawnSignA_Title",
-   "material": "R2_Charcoal",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "3A3F47"
-   },
-   "glow": false,
-   "tris": 1100,
-   "center": [
-    0.0,
-    -0.37,
-    7.8
-   ],
-   "size": [
-    9.64495,
-    0.14,
-    1.7
-   ]
-  },
-  {
-   "piece": "SpawnSignA",
-   "name": "SpawnSignA_Left",
-   "material": "R2_SignEast",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "5AA8D8"
-   },
-   "glow": false,
-   "tris": 594,
-   "center": [
-    -4.26114,
-    -0.36,
-    5.35
-   ],
-   "size": [
-    4.8873,
-    0.12,
-    0.8073
-   ]
-  },
-  {
-   "piece": "SpawnSignA",
-   "name": "SpawnSignA_Right",
-   "material": "R2_SignWest",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "E89A3C"
-   },
-   "glow": false,
-   "tris": 602,
-   "center": [
-    4.01687,
-    -0.36,
-    5.35
-   ],
-   "size": [
-    5.37583,
-    0.12,
-    0.8073
-   ]
-  },
-  {
-   "piece": "SpawnSignB",
-   "name": "SpawnSignB_Frame",
-   "material": "R2_Charcoal",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "3A3F47"
-   },
-   "glow": false,
-   "tris": 320,
-   "center": [
-    0.0,
-    -0.24,
-    6.6
-   ],
-   "size": [
-    15.0,
-    0.36,
-    5.6
-   ]
-  },
-  {
-   "piece": "SpawnSignB",
-   "name": "SpawnSignB_Plate",
-   "material": "R2_White",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "F7F4EC"
-   },
-   "glow": false,
-   "tris": 44,
-   "center": [
-    0.0,
-    -0.15,
-    6.6
-   ],
-   "size": [
-    14.1,
-    0.3,
-    4.7
-   ]
-  },
-  {
-   "piece": "SpawnSignB",
-   "name": "SpawnSignB_Title",
-   "material": "R2_Charcoal",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "3A3F47"
-   },
-   "glow": false,
-   "tris": 1314,
-   "center": [
-    0.0,
-    -0.37,
-    7.8
-   ],
-   "size": [
-    9.4638,
-    0.14,
-    1.7
-   ]
-  },
-  {
-   "piece": "SpawnSignB",
-   "name": "SpawnSignB_Left",
-   "material": "R2_SignWest",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "E89A3C"
-   },
-   "glow": false,
-   "tris": 602,
-   "center": [
-    -4.01687,
-    -0.36,
-    5.35
-   ],
-   "size": [
-    5.37583,
-    0.12,
-    0.8073
-   ]
-  },
-  {
-   "piece": "SpawnSignB",
-   "name": "SpawnSignB_Right",
-   "material": "R2_SignEast",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "5AA8D8"
-   },
-   "glow": false,
-   "tris": 594,
-   "center": [
-    4.26114,
-    -0.36,
-    5.35
-   ],
-   "size": [
-    4.8873,
-    0.12,
-    0.8073
+    7.1,
+    3.1,
+    1.35
    ]
   },
   {
@@ -3725,12 +3742,12 @@
    "center": [
     0.0,
     0.0,
-    4.1
+    4.3
    ],
    "size": [
     6.0,
     6.0,
-    6.4
+    6.8
    ]
   },
   {
@@ -3743,7 +3760,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 1368,
+   "tris": 1720,
    "center": [
     0.0,
     0.0,
@@ -3765,16 +3782,16 @@
     "variant": "Roof2_Terracotta"
    },
    "glow": false,
-   "tris": 44,
+   "tris": 36,
    "center": [
     0.0,
     0.0,
-    8.36
+    8.56
    ],
    "size": [
-    6.91959,
-    6.91959,
-    1.22
+    6.91045,
+    6.91045,
+    0.82
    ]
   },
   {
@@ -3790,12 +3807,12 @@
    "center": [
     2.92,
     0.0,
-    3.78621
+    4.15682
    ],
    "size": [
     0.2,
-    2.2,
-    5.67242
+    2.9,
+    6.41365
    ]
   },
   {
@@ -3918,12 +3935,12 @@
    "center": [
     0.0,
     0.0,
-    3.6
+    3.8
    ],
    "size": [
     10.0,
     10.0,
-    5.4
+    5.8
    ]
   },
   {
@@ -3936,7 +3953,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 1016,
+   "tris": 1880,
    "center": [
     0.0,
     0.0,
@@ -3944,8 +3961,50 @@
    ],
    "size": [
     10.9,
-    10.9,
+    11.0,
     7.08
+   ]
+  },
+  {
+   "piece": "TankHouse",
+   "name": "TankHouse_Window",
+   "material": "R2_Window",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E5878"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    4.31522
+   ],
+   "size": [
+    1.56,
+    10.1,
+    2.91044
+   ]
+  },
+  {
+   "piece": "TankHouse",
+   "name": "TankHouse_Shutter",
+   "material": "R2_Shutter",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4F7F5A"
+   },
+   "glow": false,
+   "tris": 464,
+   "center": [
+    0.0,
+    0.0,
+    3.8
+   ],
+   "size": [
+    4.5,
+    10.52,
+    2.8
    ]
   },
   {
@@ -3958,16 +4017,16 @@
     "variant": "Roof2_Terracotta"
    },
    "glow": false,
-   "tris": 36,
+   "tris": 20,
    "center": [
     0.0,
     0.0,
-    7.36
+    7.56
    ],
    "size": [
-    10.90859,
-    10.90859,
-    1.22
+    10.90417,
+    10.90417,
+    0.82
    ]
   },
   {
@@ -3983,12 +4042,12 @@
    "center": [
     4.92,
     0.0,
-    3.28308
+    3.65557
    ],
    "size": [
     0.2,
-    2.7,
-    4.66615
+    3.1,
+    5.41114
    ]
   },
   {
@@ -4011,6 +4070,50 @@
     10.5,
     10.5,
     1.0
+   ]
+  },
+  {
+   "piece": "TarPatchA",
+   "name": "TarPatchA_Tar",
+   "material": "R2_Tar",
+   "look": {
+    "material": "Slate",
+    "color": "6F6258",
+    "variant": "Roof2_Gravel"
+   },
+   "glow": false,
+   "tris": 25,
+   "center": [
+    0.1041,
+    -0.35583,
+    0.0125
+   ],
+   "size": [
+    5.12146,
+    3.36296,
+    0.025
+   ]
+  },
+  {
+   "piece": "TarPatchB",
+   "name": "TarPatchB_Tar",
+   "material": "R2_Tar",
+   "look": {
+    "material": "Slate",
+    "color": "6F6258",
+    "variant": "Roof2_Gravel"
+   },
+   "glow": false,
+   "tris": 25,
+   "center": [
+    0.07083,
+    0.15671,
+    0.0125
+   ],
+   "size": [
+    5.46452,
+    3.08623,
+    0.025
    ]
   },
   {
@@ -4099,5 +4202,5 @@
    ]
   }
  ],
- "tris": 65244
+ "tris": 69586
 }

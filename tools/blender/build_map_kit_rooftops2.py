@@ -658,7 +658,7 @@ def window_z(cx, v0, w, h, face, parts, shutters=True):
 
 
 def roles():
-	return {k: [] for k in ("Appliance", "Wall", "Stone", "Trim", "Window", "Shutter", "Charcoal", "Metal", "Accent", "AccentSoft", "Wood", "Brick", "RoofTile", "RoofSlate", "Pot", "Plant", "Door", "GlowWarm", "Plinth", "Glass", "Cloth")}
+	return {k: [] for k in ("Paver", "Tar", "Poster", "Appliance", "Wall", "Stone", "Trim", "Window", "Shutter", "Charcoal", "Metal", "Accent", "AccentSoft", "Wood", "Brick", "RoofTile", "RoofSlate", "Pot", "Plant", "Door", "GlowWarm", "Plinth", "Glass", "Cloth")}
 
 
 def emit(c, parts, prefix=""):
@@ -667,15 +667,16 @@ def emit(c, parts, prefix=""):
 			obj(c, prefix + role, merge(*bms), role, smooth=0 if role in ("Shutter", "Stone") else 35)
 
 
-def quoins_corner(px, pz, sx, sz, y0, y1, parts, long=1.6):
-	"""Alternating long / short stone blocks on a building corner at (px, pz), faces toward sx (X) and sz (Z)."""
+def quoins_corner(px, pz, sx, sz, y0, y1, parts, long=1.1):
+	"""Alternating long / short stone blocks on a building corner at (px, pz), faces toward sx (X) and sz (Z).
+	Maps v4: one size smaller (1.1 x 0.7 x 0.62, was 1.6 x 0.9 x 0.8), 0.1 proud."""
 	y, k = y0, 0
-	while y + 0.85 <= y1:
-		lx, lz = (long, 0.9) if k % 2 == 0 else (0.9, long)
-		x0, x1 = sorted((px + sx * 0.12, px - sx * lx))
-		z0, z1 = sorted((pz + sz * 0.12, pz - sz * lz))
-		parts["Stone"].append(RB(x0, x1, y + 0.04, y + 0.84, z0, z1, BT, ST))
-		y += 0.9
+	while y + 0.64 <= y1:
+		lx, lz = (long, 0.7) if k % 2 == 0 else (0.7, long)
+		x0, x1 = sorted((px + sx * 0.1, px - sx * lx))
+		z0, z1 = sorted((pz + sz * 0.1, pz - sz * lz))
+		parts["Stone"].append(RB(x0, x1, y + 0.03, y + 0.65, z0, z1, BT, ST))
+		y += 0.68
 		k += 1
 
 
@@ -962,12 +963,12 @@ def gangway2():
 
 # ---- small buildings: huts with quoins, arched doors and a low hip roof inside their height
 
-def hut2(name, W, Dp, H, door="+X", vent=False, roof=True):
+def hut2(name, W, Dp, H, door="+X", vent=False, roof=True, roof_role="RoofTile", windows=False):
 	c = piece(name, width=W, depth=Dp, height=H)
 	P = roles()
 	hx, hz = W / 2, Dp / 2
-	wall_top = H - 1.7 if roof else H - 0.6
-	ql = 1.2 if min(W, Dp) <= 6 else 1.6  # quoin length: the door surround fits between the corners
+	wall_top = H - 1.3 if roof else H - 0.6
+	ql = 0.9 if min(W, Dp) <= 6 else 1.1  # quoin length: the door surround fits between the corners
 	P["Plinth"].append(RB(-hx - 0.25, hx + 0.25, -0.1, 0.9, -hz - 0.25, hz + 0.25, BSN, 1))
 	P["Wall"].append(RB(-hx, hx, 0.9, wall_top, -hz, hz, BT, ST))
 	for sx in (1, -1):
@@ -975,12 +976,16 @@ def hut2(name, W, Dp, H, door="+X", vent=False, roof=True):
 			quoins_corner(sx * hx, sz * hz, sx, sz, 0.9, wall_top - 0.1, P, ql)
 	P["Stone"].append(RB(-hx - 0.45, hx + 0.45, wall_top - 0.1, wall_top + 0.45, -hz - 0.45, hz + 0.45, BT, ST))
 	if roof:
-		P["RoofTile"].append(frustum(-hx - 0.5, hx + 0.5, -hz - 0.5, hz + 0.5, wall_top + 0.45, H - 0.03, min(hx, hz) * 0.55, min(hx, hz) * 0.55, BT))
+		P[roof_role].append(frustum(-hx - 0.5, hx + 0.5, -hz - 0.5, hz + 0.5, wall_top + 0.45, H - 0.03, min(hx, hz) * 0.55, min(hx, hz) * 0.55, BT))
 		P["Stone"].append(RB(-hx * 0.45, hx * 0.45, H - 0.1, H, -hz * 0.45, hz * 0.45))
 	else:  # flat top (the tank stand sits on it): a stone deck inside the cornice
 		P["Stone"].append(RB(-hx - 0.1, hx + 0.1, wall_top + 0.45, H, -hz - 0.1, hz + 0.1, BT, ST))
-	dw = min(2.8, (Dp if door == "+X" else W) - 2 * ql - 1.3)
-	dh = min(5.8, wall_top - 1.6)
+	# Maps v4 scale audit: doors 3.2 x 6.6 where the hut has room (was 2.3 x 5.7 on the 6-wide huts; R15 is 5)
+	dw = min(3.2, (Dp if door == "+X" else W) - 2 * ql - 1.2)
+	dh = min(6.6, wall_top - 1.25)
+	if windows:  # arched windows on the two faces beside the door face (door +X)
+		for sg in (1, -1):
+			window_z(0.0, 2.4, 1.6, 3.4, sg * hz, P, shutters=min(W, Dp) >= 10)
 	if door == "+X":
 		P["Door"].append(RPX(arch_pts(dw - 0.1, dh, 0.95), hx - 0.18, hx + 0.02))
 		P["Stone"].append(arch_ring_x(dw + 1.1, dh + 0.55, 0.55, 0.92, hx - 0.05, hx + 0.3))
@@ -1188,6 +1193,264 @@ def city2(name, W, Dp, H, seed):
 	emit(c, P)
 
 
+
+
+# ---- maps v4 (2026-11-05 late): the weak pieces rebuilt as real models (vault/01 Design/Maps/Rooftops2.md ->
+# Maps v4). The user's review: the cacti (Planter lumps), the wheelbarrow (Skylight on splayed legs), toy AC stacks,
+# part-built text, oversized quoins, flat roof floors. LihFolk roblox-blender-modeling: 1-segment soft bevels,
+# confident tapered silhouettes, budgets small 600/1,500 and medium 2,000/4,000; LihFolk World Composition: signs
+# built into the art or cut, landmarks guide before text.
+
+def drop_down(bm):
+	# Flat floor art lies on the roof (y 0): drop the bottom faces so nothing shares the roof's top plane.
+	bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.normal.z < -0.99], context="FACES")
+	return bm
+
+
+def blade(bx, by, bz, yaw, tilt, length, width, droop):
+	"""An agave leaf: a tapered blade with a channelled top and a keeled underside, rising at tilt (deg) toward
+	yaw (deg, 0 = +X) and drooping toward the tip. Roblox coordinates; ~38 triangles."""
+	bm = bmesh.new()
+	ca, sa = math.cos(math.radians(yaw)), math.sin(math.radians(yaw))
+	sx, sz = -sa, ca
+	n = 4
+	rings = []
+	for i in range(n):
+		t = i / n
+		d = length * t * math.cos(math.radians(tilt))
+		y = by + length * t * math.sin(math.radians(tilt)) - droop * length * t * t
+		px, pz = bx + ca * d, bz + sa * d
+		w = width / 2 * (1 - t) * (1 + 0.6 * t)
+		f = max(0.03, w * 0.5)
+		sec = [(w, f * 0.35), (0.0, -f * 0.15), (-w, f * 0.35), (0.0, -f)]
+		rings.append([bm.verts.new(rb(px + sx * u, y + v, pz + sz * u)) for u, v in sec])
+	d = length * math.cos(math.radians(tilt))
+	tip = bm.verts.new(rb(bx + ca * d, by + length * math.sin(math.radians(tilt)) - droop * length, bz + sa * d))
+	for a, b in zip(rings, rings[1:]):
+		for k in range(4):
+			j = (k + 1) % 4
+			bm.faces.new((a[k], a[j], b[j], b[k]))
+	for k in range(4):
+		bm.faces.new((rings[-1][k], rings[-1][(k + 1) % 4], tip))
+	bm.faces.new(list(reversed(rings[0])))
+	bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+	return bm
+
+
+def agave(cx, y, cz, s, seed, parts, role="Plant"):
+	# A rosette: 4 upright inner blades, 5 spreading, 4 low drooping ones, on a golden-angle spiral.
+	g = 137.5
+	k = seed * 31.0
+	for i in range(4):
+		parts[role].append(blade(cx, y, cz, k + g * i, 72, 1.45 * s, 0.42 * s, 0.05))
+	for i in range(5):
+		parts[role].append(blade(cx, y, cz, k + 60 + g * i, 46, 1.85 * s, 0.5 * s, 0.22))
+	for i in range(4):
+		parts[role].append(blade(cx, y, cz, k + 20 + g * i, 18, 1.8 * s, 0.48 * s, 0.32))
+
+
+def planter3():
+	# Planter 6 x 3 x 7.5 (full cover): a plaster planter box with a stone cap and cobalt corner caps, agave
+	# rosettes either side of a timber slat screen on charcoal posts (so the cover box is a designed thing, and
+	# the plants read as plants, not green lumps). Concept: kit sheet planters, 03-hero-spawn-a foreground.
+	c = piece("Planter")
+	P = roles()
+	P["Stone"].append(RB(-3.0, 3.0, -0.05, 0.35, -1.5, 1.5, BT, ST))
+	P["Pot"].append(RB(-2.88, 2.88, 0.3, 2.32, -1.38, 1.38, BT, ST))
+	for x in (-1.45, 1.45):  # two recessed panels per long face, as on the concept's planters
+		for s in (1, -1):
+			a, b = sorted((s * 1.38, s * 1.44))
+			P["Stone"].append(RB(x - 1.15, x + 1.15, 0.75, 1.95, a, b, BT, ST))
+	P["Stone"].append(RB(-3.12, 3.12, 2.3, 2.6, -1.62, 1.62, BT, ST))
+	P["Door"].append(drop_down(RB(-2.7, 2.7, 2.6, 2.7, -1.2, 1.2)))  # soil
+	for sx in (-1, 1):
+		for sz in (-1, 1):
+			P["Accent"].append(frustum(sx * 2.85 - 0.36, sx * 2.85 + 0.36, sz * 1.35 - 0.36, sz * 1.35 + 0.36, 2.6, 3.0, 0.14, 0.14, 0.04))
+	# the screen: posts, slats (alternating depth so no two share a plane), a cap rail with cobalt post caps
+	for x in (-2.55, 0.0, 2.55):
+		P["Charcoal"].append(RB(x - 0.17, x + 0.17, 2.62, 7.1, -0.17, 0.17, BT, ST))
+	for k in range(8):
+		y0 = 2.85 + k * 0.53
+		o = 0.025 * (k % 2)
+		P["Wood"].append(RB(-2.42, 2.42, y0, y0 + 0.46, -0.09 + o, 0.07 + o, BT, ST))
+	P["Wood"].append(RB(-2.3, 2.3, 7.05, 7.3, -0.2, 0.2, BT, ST))
+	for x in (-2.55, 2.55):
+		P["Accent"].append(frustum(x - 0.27, x + 0.27, -0.27, 0.27, 7.1, 7.5, 0.1, 0.1, 0.03))
+	for i, (x, z, s) in enumerate(((-1.45, 0.72, 1.2), (1.5, 0.75, 1.0), (-1.3, -0.74, 1.05), (1.45, -0.72, 1.22))):
+		agave(x, 2.66, z, s, i + 1, P)
+	emit(c, P)
+
+
+def skylight3():
+	# Skylight 8 x 4 x 3: the concept's hipped skylight on a stone curb: a mullioned glass hip in a charcoal frame,
+	# a cream lip and cobalt corner caps. No legs (the v3 one read as a wheelbarrow).
+	c = piece("Skylight")
+	P = roles()
+	P["Stone"].append(RB(-3.9, 3.9, -0.1, 1.0, -1.9, 1.9, BT, ST))
+	P["Trim"].append(RB(-4.0, 4.0, 1.0, 1.2, -2.0, 2.0, BT, ST))
+	P["Glass"].append(frustum(-3.55, 3.55, -1.55, 1.55, 1.25, 2.6, 1.7, 1.4))
+	P["Charcoal"].append(ring_prism(rrect(7.3, 3.3, 0.05, 1, 0.0, 0.0), rrect(6.9, 2.9, 0.03, 1, 0.0, 0.0), 1.18, 1.36, "Z"))
+	for sx in (-1, 1):
+		for sz in (-1, 1):
+			P["Charcoal"].append(beam((sx * 3.55, 1.3, sz * 1.55), (sx * 1.85, 2.6, sz * 0.15), 0.16, 0.16))
+	P["Charcoal"].append(beam((-1.95, 2.62, 0.0), (1.95, 2.62, 0.0), 0.2, 0.2))
+	for x in (-1.15, 0.0, 1.15):
+		for s in (1, -1):
+			P["Charcoal"].append(beam((x, 1.3, s * 1.55), (x, 2.6, s * 0.15), 0.1, 0.1))
+	for sx in (-1, 1):
+		for sz in (-1, 1):
+			P["Accent"].append(frustum(sx * 3.75 - 0.32, sx * 3.75 + 0.32, sz * 1.75 - 0.32, sz * 1.75 + 0.32, 1.2, 1.62, 0.12, 0.12, 0.03))
+	emit(c, P)
+
+
+def louvre_x(x0, x1, y0, y1, face, P, n):
+	# A louvre panel on a wall facing +-Z (plane z = face): a charcoal frame ring and n slanted blades.
+	sg = 1 if face > 0 else -1
+	a, b = sorted((face, face + sg * 0.1))
+	P["Charcoal"].append(RB(x0, x1, y0, y0 + 0.16, a, b))
+	P["Charcoal"].append(RB(x0, x1, y1 - 0.16, y1, a, b))
+	P["Charcoal"].append(RB(x0, x0 + 0.16, y0 + 0.16, y1 - 0.16, a, b))
+	P["Charcoal"].append(RB(x1 - 0.16, x1, y0 + 0.16, y1 - 0.16, a, b))
+	step = (y1 - y0 - 0.32) / n
+	for k in range(n):
+		y = y0 + 0.16 + step * (k + 0.5)
+		pts = [(face, y - step * 0.42), (face + sg * 0.13, y - step * 0.42), (face + sg * 0.03, y + step * 0.42), (face - sg * 0.02, y + step * 0.42)]
+		P["Metal"].append(RPX(pts if sg > 0 else [(z, yy) for z, yy in reversed(pts)], x0 + 0.17, x1 - 0.17))
+
+
+def ac3():
+	# ACUnit 8 x 4 x 7.5 (full cover, long along X): one rooftop air-handler cabinet on a steel curb, not stacked
+	# toy units. Louvred intake panels, bolted access doors with handles, a top fan shroud with a grille, a pipe run.
+	c = piece("ACUnit")
+	P = roles()
+	P["Charcoal"].append(RB(-3.95, 3.95, -0.1, 0.55, -1.95, 1.95, BT, ST))
+	for x in (-3.3, 0.0, 3.3):
+		P["Charcoal"].append(RB(x - 0.3, x + 0.3, -0.08, 0.62, -1.98, 1.98, BT, ST))
+	P["Appliance"].append(RB(-3.8, 3.8, 0.6, 6.55, -1.82, 1.82, 0.14, 1))
+	P["Metal"].append(RB(-3.9, 3.9, 6.5, 6.75, -1.92, 1.92, BT, ST))  # top rim
+	P["Metal"].append(RB(-3.9, 3.9, 0.55, 0.8, -1.92, 1.92, BT, ST))  # base rail
+	for s in (1, -1):
+		face = s * 1.82
+		louvre_x(-3.5, -0.35, 1.2, 6.1, face, P, 9)
+		# access door: a raised panel, hinges and two handles
+		a, b = sorted((face, face + s * 0.07))
+		P["Trim"].append(RB(0.05, 3.45, 1.2, 6.1, a, b, BT, ST))
+		a2, b2 = sorted((face + s * 0.07, face + s * 0.2))
+		for y in (3.0, 4.3):
+			P["Charcoal"].append(RB(2.95, 3.1, y - 0.35, y + 0.35, a2, b2, BT, ST))
+		for y in (1.7, 5.6):
+			P["Charcoal"].append(RB(0.12, 0.42, y - 0.3, y + 0.3, a2, b2, BT, ST))
+	for s in (1, -1):  # end faces: a service panel with a seam
+		a, b = sorted((s * 3.8, s * 3.87))
+		P["Trim"].append(RB(a, b, 1.2, 6.1, -1.45, 1.45, BT, ST))
+	# fan shroud and grille on top (to 7.5)
+	P["Metal"].append(lathe_at(1.7, 0.0, [(0.0, 7.3), (1.45, 7.3), (1.55, 7.2), (1.55, 6.75)], 18))
+	gr = []
+	for k in range(4):
+		a = math.radians(45 * k)
+		gr.append(beam((1.7 - 1.35 * math.cos(a), 7.34 + 0.013 * k, -1.35 * math.sin(a)), (1.7 + 1.35 * math.cos(a), 7.34 + 0.013 * k, 1.35 * math.sin(a)), 0.1, 0.1))
+	P["Charcoal"].append(merge(*gr))
+	P["Charcoal"].append(lathe_at(1.7, 0.0, [(0.0, 7.45), (0.32, 7.45), (0.32, 7.3)], 10))
+	P["Metal"].append(RB(-3.4, -0.6, 6.75, 7.05, -1.4, 1.4, BT, ST))  # a filter hatch
+	# pipe run down the -X end to the curb
+	for z in (-0.7, 0.5):
+		P["Charcoal"].append(RPY(octo(-3.98, z, 0.16, 0.05), 0.55, 5.4, BT, ST))
+		P["Charcoal"].append(RB(-4.05, -3.84, 5.2, 5.55, z - 0.24, z + 0.24, BT, ST))
+	emit(c, P)
+
+
+def roof_sign2():
+	# RoofSign: hut roof centre, legs at z +-2.2, panel 14 (Z) x 10 at 4-14. No lettering (the user's review: no
+	# part-built text): a cream panel in a charcoal frame, a soft cobalt band, lamp hoods on both faces.
+	c = piece("RoofSign")
+	P = roles()
+	for z in (-2.2, 2.2):
+		P["Charcoal"].append(RB(-0.17, 0.17, -0.05, 4.2, z - 0.17, z + 0.17, BT, ST))
+		P["Charcoal"].append(beam((0.0, 0.2, z - 1.5), (0.0, 3.9, z - 0.15), 0.14, 0.14))
+		P["Charcoal"].append(beam((0.0, 0.2, z + 1.5), (0.0, 3.9, z + 0.15), 0.14, 0.14))
+	P["Charcoal"].append(frame_ring(14.0, 10.0, 0.45, 9.0, -0.4, 0.4))
+	P["Poster"].append(RB(-0.28, 0.28, 4.4, 13.6, -6.6, 6.6))
+	P["AccentSoft"].append(RB(-0.34, 0.34, 4.46, 5.5, -6.55, 6.55))
+	for z in (-7.0, 7.0):
+		P["Accent"].append(frustum(-0.55, 0.55, z - 0.55, z + 0.55, 14.0, 14.55, 0.2, 0.2, 0.03))
+	for s in (1, -1):
+		for z in (-4.0, 0.0, 4.0):
+			a, b = sorted((s * 0.4, s * 1.5))
+			P["Charcoal"].append(RB(a, b, 14.15, 14.32, z - 0.08, z + 0.08))
+			a, b = sorted((s * 1.15, s * 1.85))
+			P["Charcoal"].append(frustum(a, b, z - 0.45, z + 0.45, 13.85, 14.3, 0.12, 0.12))
+			P["GlowWarm"].append(RB(a + 0.08, b - 0.08, 13.78, 13.86, z - 0.35, z + 0.35))
+	emit(c, P)
+
+
+def inlay(name, W, Dp):
+	# Floor breakup: a paved field in a cream stone kerb, flush on the roof (0.04-0.07 proud, no collision), the
+	# concept's kerbed terraces. Origin: floor centre.
+	c = piece(name)
+	P = roles()
+	hx, hz, k = W / 2 - 0.02, Dp / 2 - 0.02, 0.38
+	P["Stone"].append(drop_down(RB(-hx, hx, 0.0, 0.07, hz - k, hz)))
+	P["Stone"].append(drop_down(RB(-hx, hx, 0.0, 0.07, -hz, -hz + k)))
+	P["Stone"].append(drop_down(RB(hx - k, hx, 0.0, 0.07, -hz + k + 0.01, hz - k - 0.01)))
+	P["Stone"].append(drop_down(RB(-hx, -hx + k, 0.0, 0.07, -hz + k + 0.01, hz - k - 0.01)))
+	P["Paver"].append(drop_down(RB(-hx + k + 0.01, hx - k - 0.01, 0.0, 0.04, -hz + k + 0.01, hz - k - 0.01)))
+	emit(c, P)
+
+
+def drain():
+	c = piece("Drain")
+	P = roles()
+	P["Stone"].append(drop_down(RB(-0.75, 0.75, 0.0, 0.06, -0.75, 0.75)))
+	P["Charcoal"].append(drop_down(RB(-0.5, 0.5, 0.06, 0.09, -0.5, 0.5)))
+	for k in range(5):
+		x = -0.4 + 0.2 * k
+		P["Metal"].append(drop_down(RB(x - 0.05, x + 0.05, 0.09, 0.11, -0.45, 0.45)))
+	emit(c, P)
+
+
+def tar_patch(name, seed):
+	# a tar-sealed repair: an irregular low polygon (0.025 proud)
+	c = piece(name)
+	P = roles()
+	pts = []
+	for i in range(9):
+		a = 2 * math.pi * i / 9
+		r = 1.0 + 0.35 * math.sin(3.1 * i + seed) + 0.2 * math.cos(5.3 * i + 2 * seed)
+		pts.append((2.2 * r * math.cos(a), 1.4 * r * math.sin(a)))
+	P["Tar"].append(drop_down(RPY(pts, 0.0, 0.025)))
+	emit(c, P)
+
+
+
+def flue2():
+	# Flue (top centre, 8 Z x 6 X, 82 tall; walkable top): maps v4, a brick chimney stack, not a tinted box: brick
+	# shaft, stone quoins and bands over the visible top 22, a blind arched niche with a louvre on the open face
+	# (+X), a stone cornice with a cobalt band, two terracotta pots at the back edge (off the standing area).
+	c = piece("Flue")
+	P = roles()
+	P["Brick"].append(open_box(RB(-3.0, 3.0, -82.0, -1.2, -4.0, 4.0), drop_z=False, drop_y=True))
+	for sx in (1, -1):
+		for sz in (1, -1):
+			quoins_corner(sx * 3.0, sz * 4.0, sx, sz, -22.0, -1.6, P)
+	for y in (-22.6, -12.4):
+		P["Stone"].append(RB(-3.14, 3.14, y, y + 0.55, -4.14, 4.14, BT, ST))
+	W = roles()
+	window_x(0.0, -10.6, 2.4, 6.0, False, W, shutters=False)
+	for k in range(7):
+		y = -10.0 + k * 0.62
+		W["Charcoal"].append(RB(-0.02, 0.1, y, y + 0.32, -1.05, 1.05))
+	for role, bms in W.items():
+		for bm in bms:
+			xform(bm, T(3.0, 0.0, 0.0))
+			P["Stone" if role == "Window" else role].append(bm) if role != "Window" else P["Charcoal"].append(bm)
+	P["Stone"].append(RB(-3.4, 3.4, -1.25, -0.55, -4.4, 4.4, BT, ST))
+	P["AccentSoft"].append(RB(-3.28, 3.28, -1.65, -1.25, -4.28, 4.28, BT, ST))
+	P["Stone"].append(RB(-3.15, 3.15, -0.55, 0.0, -4.15, 4.15, BT, ST))
+	for z in (-2.6, 2.6):
+		P["Brick"].append(RB(-3.0, -1.6, 0.0, 0.7, z - 0.9, z + 0.9, BT, ST))
+		P["Pot"].append(lathe_at(-2.3, z, [(0.0, 2.1), (0.42, 2.1), (0.5, 1.95), (0.38, 1.85), (0.5, 0.7)], 10))
+	emit(c, P)
+
 # ---------------------------------------------------------------- build
 
 def build():
@@ -1205,36 +1468,32 @@ def build():
 	p_plinth("Plinth8", 8)
 	p_plinth("Plinth4", 4)
 	p_quoin()
-	p_flue()
+	flue2()  # maps v4
 	stone_stair("Stair16")
 	gangway2()
 	plank_bridge("PlankRamp16", 8)
 	plank_bridge("Catwalk8", 0)
 	fire_stair()
 	fire_balcony()
-	ac2()
+	ac3()  # maps v4
 	p_condenser()
-	skylight2()
-	planter2()
+	skylight3()  # maps v4
+	planter3()
 	penthouse2("A")
 	penthouse2("B")
 	hut2("StairHut", 6, 6, 9)
-	hut2("LiftHouse", 8, 8, 10, vent=True)
+	hut2("LiftHouse", 8, 8, 10, vent=True, windows=True)
 	lift_tower2()
-	hut2("TankHouse", 10, 10, 8)
-	p_cooling()
+	hut2("TankHouse", 10, 10, 8, windows=True)
+	hut2("CoolingTower", 10, 10, 8, roof_role="RoofSlate", windows=True)  # maps v4: a slate-roofed house (kit sheet row 2)
 	water_tank2()
 	billboard3()
 	pier_cap()
-	p_roof_sign()
-	p_spawn_sign("A")
-	p_spawn_sign("B")
-	p_deck_word("PIT", "SignPit")
-	p_deck_word("WEST", "SignWest")
-	p_deck_word("EAST", "SignEast")
-	p_chevron()
-	p_deck_word("ROOFA", "SignPit", "ROOF A")
-	p_deck_word("ROOFB", "SignPit", "ROOF B")
+	roof_sign2()  # maps v4: no part-built text; the deck words, chevrons and spawn signs are cut
+	inlay("Inlay8", 8, 8)
+	drain()
+	tar_patch("TarPatchA", 1.0)
+	tar_patch("TarPatchB", 2.6)
 	p_street_lamp()
 	crate("Crate", 3.0)
 	crate("CrateSmall", 2.0)
@@ -1270,7 +1529,7 @@ if __name__ == "__main__":
 			if lc.name == "Kit_Rooftops2":
 				lc.exclude = True
 		os.makedirs(RENDER_DIR, exist_ok=True)
-		stage, w = D.contact_sheet(["Facade8A", "Facade8B", "StairHut", "LiftHouse", "ACUnit", "Skylight", "Planter", "WaterTank", "Crate", "Barrel", "PartyCorner"], "a")
+		stage, w = D.contact_sheet(["Facade8A", "StairHut", "LiftHouse", "CoolingTower", "ACUnit", "Skylight", "Planter", "RoofSign", "Inlay8", "Crate", "Barrel"], "a")
 		D.camera((w / 2, 6, 70), (w / 2, -6, 0), 26)
 		D.shot(os.path.join(RENDER_DIR, "kit-contact-a.jpg"))
 		bpy.data.collections.remove(stage)
@@ -1278,3 +1537,17 @@ if __name__ == "__main__":
 		D.camera((w / 2, 22, 70), (w / 2, 6, 0), 26)
 		D.shot(os.path.join(RENDER_DIR, "kit-contact-b.jpg"))
 		bpy.data.collections.remove(stage)
+	if "--closeups" in ARGS:  # maps v4: close 3/4 renders of the rebuilt pieces (scratch, not the vault)
+		if "--render" not in ARGS:
+			M["Deck"] = M["Roof"]
+			D.render_settings()
+			D.world(sun_el=32.0)
+			for lc in bpy.context.view_layer.layer_collection.children:
+				if lc.name == "Kit_Rooftops2":
+					lc.exclude = True
+		out = os.environ.get("CLOSEUP_DIR", RENDER_DIR)
+		for tag, names in (("v4-a", ["ACUnit", "Planter", "Skylight"]), ("v4-b", ["RoofSign", "StairHut", "CoolingTower"]), ("v4-c", ["Inlay8", "Drain", "TarPatchA", "Crate"])):
+			stage, w = D.contact_sheet(names, tag)
+			D.camera((w * 0.5 + 4, 10, 26), (w * 0.5, 3, 0), 30)
+			D.shot(os.path.join(out, "closeup-%s.jpg" % tag))
+			bpy.data.collections.remove(stage)

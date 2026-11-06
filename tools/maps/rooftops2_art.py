@@ -150,10 +150,7 @@ class Art:
 					yaw = 0.0 if s.cz > 0 else 180.0  # its door faces the spawn court
 					# concept pass 2026-11-05: A has a terracotta hip roof, B a slate mansard (the big letters went)
 					self.put("Props", "PenthouseB" if s.cz > 0 else "PenthouseA", s.cx, s.y0, s.cz, yaw, tint=TONES[tone_of_roof(s)])
-					# Rooftops2: the spawn sign on the face toward the spawn court (names the roof and the two sides).
-					back = s.z1 if s.cz > 0 else s.z0
-					side = -11.0 if s.cz > 0 else 11.0  # beside the door (the spawn's left half), not over it
-					self.put("Signs", "SpawnSignB" if s.cz > 0 else "SpawnSignA", s.cx + side, s.y0, back, yaw)
+					# maps v4: the spawn signs went (no part-built text; the roof tone and the Penthouse roof say whose roof it is)
 					continue
 				yaw = 0.0 if along_x else 90.0
 				if s.art in ("StairHut", "LiftHouse", "LiftTower", "TankHouse", "CoolingTower"):
@@ -166,7 +163,7 @@ class Art:
 				# advert faces the team roof it overlooks: B's faces +Z; origin between the legs (x -3 and -17 for B)
 				self.put("Props", "Billboard22", s.cx, L.PIT, s.cz, 0.0 if s.cz > 0 else 180.0)
 			elif s.kind == "bb" and s.art == "RoofSign":
-				self.put("Props", "RoofSign", s.cx, s.y0 - 4, s.cz, 0.0 if s.cx < 0 else 180.0, glow=SIDE_GLOW[side])
+				self.put("Props", "RoofSign", s.cx, s.y0 - 4, s.cz, 0.0 if s.cx < 0 else 180.0)  # maps v4: blank, warm lamps
 
 	# ------------------------------------------------------------ street and skyline
 
@@ -242,11 +239,27 @@ class Art:
 			for sg in (1, -1):
 				self.put("Props", piece, x * sg, y, z * sg, yaw if sg > 0 else yaw + 180.0)
 
+	def floor(self):
+		# Maps v4: the deck words and chevrons are cut (LihFolk World Composition: landmarks, light and openings guide
+		# before text). The flat roof fields get breakup instead, all flush art without collision: kerbed paving
+		# inlays down the main lane, in the spawn court and at the side-lane landings, drains and tar repairs.
+		# B half (z > 0); A gets the 180-degree turn. (piece, x, y, z, yaw)
+		items = [("Inlay8", 9.0, 0.0, z, 0.0) for z in (28.0, 36.0, 44.0)]
+		items += [("Inlay8", x, 0.0, z, 0.0) for x in (-12.0, -4.0, 4.0, 12.0) for z in (67.5, 75.5)]
+		items += [("Inlay8", -40.0, 0.0, 28.0, 0.0), ("Inlay8", 36.0, 0.0, 28.0, 0.0), ("Inlay8", 36.0, 0.0, 40.0, 0.0)]
+		items += [("Drain", x, 0.0, z, 0.0) for x, z in ((-24.0, 44.0), (18.0, 40.0), (-30.0, 62.0), (32.0, 62.0))]
+		items += [("Drain", -12.0, L.PIT, 2.0, 0.0)]
+		items += [("TarPatchA", -16.0, 0.0, 44.0, 20.0), ("TarPatchB", 22.0, 0.0, 38.0, -15.0), ("TarPatchB", -34.0, 0.0, 74.0, 70.0), ("TarPatchA", 30.0, 0.0, 70.0, 110.0)]
+		items += [("TarPatchA", 8.0, L.PIT, -6.0, 35.0)]
+		for piece, x, y, z, yaw in items:
+			for sg in (1, -1):
+				self.put("Floor", piece, x * sg, y, z * sg, yaw if sg > 0 else yaw + 180.0)
+
 	def build(self):
 		self.facades()
 		self.pieces()
 		self.story()
-		self.words()
+		self.floor()
 		self.street()
 		self.skyline()
 		return self
@@ -294,20 +307,7 @@ def plain_parts():
 		out.append(S("Far sidewalk", "walk", a, c, STREET, STREET + 0.4, -nz + w, nz - w, look="Sidewalk"))
 		a, c = sorted((sgn * (nz - w), sgn * nz))
 		out.append(S("Far sidewalk", "walk", -nx - 60, nx + 60, STREET, STREET + 0.4, a, c, look="Sidewalk"))
-	# Rooftops2 (scoring round 3): yellow lane edges down each roof's main lane, from the Pit footbridge back to the
-	# Penthouse (x 5..13 for B; rotated for A), 0.03-0.05 over the roof like Dockyard2's bay lines.
-	for sgn in (1, -1):
-		for x in (5.4, 12.6):
-			x0, x1 = sorted((sgn * (x - 0.2), sgn * (x + 0.2)))
-			z0, z1 = sorted((sgn * 24.6, sgn * 51.4))
-			out.append(S("Lane line", "line", x0, x1, 0.03, 0.05, z0, z1, look="Hazard"))
-	# Round 5: yellow route lines from the spawn court round both ends of the Penthouse (framing the chevrons).
-	for sgn in (1, -1):
-		for x in (20.6, 26.4):  # clear of the chevrons (x 23.5 +- 2.56 at k 1.6; 2.2 overlaps them, so they stop short)
-			for side in (1, -1):
-				xc = side * x * sgn
-				z0, z1 = sorted((sgn * 55.0, sgn * 70.0))
-				out.append(S("Lane line", "line", xc - 0.2, xc + 0.2, 0.03, 0.05, z0, z1, look="Hazard"))
+	# maps v4: the lane edge lines and court route lines are cut (kerbed paving inlays mark the lane now).
 	# road centre lines (0.05 proud) between the crossings (none inside a crossing, so no two lines overlap)
 	lx, lz = bx + w + ROAD_W / 2, bz + w + ROAD_W / 2
 	for sgn in (1, -1):
