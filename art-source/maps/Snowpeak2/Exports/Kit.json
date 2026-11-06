@@ -1,0 +1,4551 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "Boulder6": {
+   "props": {},
+   "parts": [
+    "Boulder6_Rock",
+    "Boulder6_Snow"
+   ]
+  },
+  "Boulder8": {
+   "props": {},
+   "parts": [
+    "Boulder8_Rock",
+    "Boulder8_Snow"
+   ]
+  },
+  "Cabin": {
+   "props": {},
+   "parts": [
+    "Cabin_CabinBody",
+    "Cabin_CabinRoof",
+    "Cabin_CabinGlass",
+    "Cabin_CabinStripe",
+    "Cabin_CabinArm"
+   ]
+  },
+  "Cliffs": {
+   "props": {},
+   "parts": [
+    "Cliffs_Rock",
+    "Cliffs_Snow"
+   ]
+  },
+  "DeckStair": {
+   "props": {},
+   "parts": [
+    "DeckStair_Stringers",
+    "DeckStair_Treads",
+    "DeckStair_Nosing",
+    "DeckStair_Rails"
+   ]
+  },
+  "FirePit": {
+   "props": {},
+   "parts": [
+    "FirePit_Stone",
+    "FirePit_Rim",
+    "FirePit_Ash",
+    "FirePit_Logs",
+    "FirePit_Embers_Glow"
+   ]
+  },
+  "Fireplace": {
+   "props": {},
+   "parts": [
+    "Fireplace_Stone",
+    "Fireplace_Chimney",
+    "Fireplace_Cap",
+    "Fireplace_Mantel",
+    "Fireplace_Firebox",
+    "Fireplace_Logs",
+    "Fireplace_Fire_Glow"
+   ]
+  },
+  "Firewood": {
+   "props": {},
+   "parts": [
+    "Firewood_Core",
+    "Firewood_Logs",
+    "Firewood_Posts",
+    "Firewood_Roof",
+    "Firewood_RoofSnow"
+   ]
+  },
+  "Island": {
+   "props": {},
+   "parts": [
+    "Island_Rock",
+    "Island_Snow"
+   ]
+  },
+  "Kiosk": {
+   "props": {},
+   "parts": [
+    "Kiosk_Walls",
+    "Kiosk_Plinth",
+    "Kiosk_Corners",
+    "Kiosk_Gables",
+    "Kiosk_Roof",
+    "Kiosk_RoofSnow",
+    "Kiosk_Door",
+    "Kiosk_Hatch",
+    "Kiosk_HatchLedge",
+    "Kiosk_Paint"
+   ]
+  },
+  "LampPost": {
+   "props": {},
+   "parts": [
+    "LampPost_Post",
+    "LampPost_Head",
+    "LampPost_Lamp_Glow",
+    "LampPost_Snow"
+   ]
+  },
+  "Line": {
+   "props": {},
+   "parts": [
+    "Line_Cable",
+    "Line_CabinBody",
+    "Line_CabinRoof",
+    "Line_CabinGlass",
+    "Line_CabinStripe",
+    "Line_CabinArm",
+    "Line_Pylon",
+    "Line_Sheaves",
+    "Line_PylonPaint",
+    "Line_Summit",
+    "Line_SummitRoof",
+    "Line_Summit_Glow"
+   ]
+  },
+  "Lodge": {
+   "props": {},
+   "parts": [
+    "Lodge_Walls",
+    "Lodge_Plinth",
+    "Lodge_Band",
+    "Lodge_CornerPosts",
+    "Lodge_Frames",
+    "Lodge_Glass",
+    "Lodge_Shutters",
+    "Lodge_Porch",
+    "Lodge_Deck",
+    "Lodge_Fascia",
+    "Lodge_Joists",
+    "Lodge_Brackets",
+    "Lodge_Rail",
+    "Lodge_RailPost",
+    "Lodge_RailCap",
+    "Lodge_Soffit",
+    "Lodge_Ceiling",
+    "Lodge_CeilingBeams",
+    "Lodge_Gable",
+    "Lodge_Barge",
+    "Lodge_Finial",
+    "Lodge_Roof",
+    "Lodge_RoofSnow",
+    "Lodge_Sign",
+    "Lodge_Lantern",
+    "Lodge_Lantern_Glow",
+    "Lodge_Icicles"
+   ]
+  },
+  "LodgeInside": {
+   "props": {},
+   "parts": [
+    "LodgeInside_LoftFloor",
+    "LodgeInside_LoftBeams",
+    "LodgeInside_Rail",
+    "LodgeInside_RailPost",
+    "LodgeInside_RailCap",
+    "LodgeInside_BackBar",
+    "LodgeInside_Shelves",
+    "LodgeInside_Bottles",
+    "LodgeInside_Mirror",
+    "LodgeInside_BootWall",
+    "LodgeInside_Lockers",
+    "LodgeInside_Counter",
+    "LodgeInside_CounterTop",
+    "LodgeInside_FootRail",
+    "LodgeInside_Stools",
+    "LodgeInside_StoolSeats",
+    "LodgeInside_Sofa",
+    "LodgeInside_SofaFeet",
+    "LodgeInside_Rug",
+    "LodgeInside_Chandelier",
+    "LodgeInside_Candles_Glow"
+   ]
+  },
+  "LodgeStair": {
+   "props": {},
+   "parts": [
+    "LodgeStair_Stringers",
+    "LodgeStair_Treads",
+    "LodgeStair_Rails"
+   ]
+  },
+  "Parapet8": {
+   "props": {},
+   "parts": [
+    "Parapet8_Wall",
+    "Parapet8_Cap",
+    "Parapet8_Snow"
+   ]
+  },
+  "PatrolHut": {
+   "props": {},
+   "parts": [
+    "PatrolHut_Walls",
+    "PatrolHut_Plinth",
+    "PatrolHut_Corners",
+    "PatrolHut_Gables",
+    "PatrolHut_Roof",
+    "PatrolHut_RoofSnow",
+    "PatrolHut_Door",
+    "PatrolHut_WinFrames",
+    "PatrolHut_Win_Glow",
+    "PatrolHut_Shutters",
+    "PatrolHut_Paint"
+   ]
+  },
+  "PineGrove": {
+   "props": {},
+   "parts": [
+    "PineGrove_Trunk",
+    "PineGrove_Needles",
+    "PineGrove_Snow"
+   ]
+  },
+  "PondRim": {
+   "props": {},
+   "parts": [
+    "PondRim_Rim",
+    "PondRim_Rocks"
+   ]
+  },
+  "Range": {
+   "props": {},
+   "parts": [
+    "Range_Rock0",
+    "Range_Snow0",
+    "Range_Rock1",
+    "Range_Snow1"
+   ]
+  },
+  "SkateHut": {
+   "props": {},
+   "parts": [
+    "SkateHut_Walls",
+    "SkateHut_Plinth",
+    "SkateHut_Corners",
+    "SkateHut_Gables",
+    "SkateHut_Roof",
+    "SkateHut_RoofSnow",
+    "SkateHut_Door",
+    "SkateHut_WinFrames",
+    "SkateHut_Win_Glow",
+    "SkateHut_Shutters",
+    "SkateHut_Paint"
+   ]
+  },
+  "SkiRack": {
+   "props": {},
+   "parts": [
+    "SkiRack_Frame",
+    "SkiRack_Rails",
+    "SkiRack_Skis"
+   ]
+  },
+  "Snowcat": {
+   "props": {},
+   "parts": [
+    "Snowcat_Tracks",
+    "Snowcat_Wheels",
+    "Snowcat_Body",
+    "Snowcat_Cab",
+    "Snowcat_CabGlass",
+    "Snowcat_Roof",
+    "Snowcat_Beacon_Glow",
+    "Snowcat_Blade",
+    "Snowcat_Tiller"
+   ]
+  },
+  "SnowPile18": {
+   "props": {},
+   "parts": [
+    "SnowPile18_Snow"
+   ]
+  },
+  "SnowPile8": {
+   "props": {},
+   "parts": [
+    "SnowPile8_Snow"
+   ]
+  },
+  "Station": {
+   "props": {},
+   "parts": [
+    "Station_Base",
+    "Station_Housing",
+    "Station_Louvres",
+    "Station_Rails",
+    "Station_RailMesh",
+    "Station_Columns",
+    "Station_Roof",
+    "Station_RoofSnow",
+    "Station_Paint",
+    "Station_GarageFrame",
+    "Station_GarageRail",
+    "Station_Bullwheel",
+    "Station_OverheadRail",
+    "Station_Sign",
+    "Station_Lamps_Glow"
+   ]
+  },
+  "StationStair": {
+   "props": {},
+   "parts": [
+    "StationStair_Stringers",
+    "StationStair_Treads",
+    "StationStair_Nosing",
+    "StationStair_Rails"
+   ]
+  },
+  "TrailMap": {
+   "props": {},
+   "parts": [
+    "TrailMap_Board",
+    "TrailMap_Map",
+    "TrailMap_Posts",
+    "TrailMap_Roof",
+    "TrailMap_RoofSnow"
+   ]
+  },
+  "Woodpile": {
+   "props": {},
+   "parts": [
+    "Woodpile_Core",
+    "Woodpile_Logs",
+    "Woodpile_Posts",
+    "Woodpile_Roof",
+    "Woodpile_RoofSnow"
+   ]
+  },
+  "Woodshed": {
+   "props": {},
+   "parts": [
+    "Woodshed_Walls",
+    "Woodshed_Back",
+    "Woodshed_Logs",
+    "Woodshed_Gables",
+    "Woodshed_Roof",
+    "Woodshed_RoofSnow"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "Boulder6",
+   "name": "Boulder6_Rock",
+   "material": "S2_Rock",
+   "look": {
+    "material": "Rock",
+    "color": "7C838C",
+    "variant": "Snow2_Rock"
+   },
+   "glow": false,
+   "tris": 46,
+   "center": [
+    0.04648,
+    -0.07359,
+    4.18676
+   ],
+   "size": [
+    5.8415,
+    5.81324,
+    8.37353
+   ]
+  },
+  {
+   "piece": "Boulder6",
+   "name": "Boulder6_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 6,
+   "center": [
+    -0.09426,
+    -0.04164,
+    7.5674
+   ],
+   "size": [
+    5.31355,
+    5.25098,
+    2.05226
+   ]
+  },
+  {
+   "piece": "Boulder8",
+   "name": "Boulder8_Rock",
+   "material": "S2_Rock",
+   "look": {
+    "material": "Rock",
+    "color": "7C838C",
+    "variant": "Snow2_Rock"
+   },
+   "glow": false,
+   "tris": 46,
+   "center": [
+    0.03225,
+    -0.12356,
+    3.99057
+   ],
+   "size": [
+    7.87604,
+    7.71841,
+    7.98115
+   ]
+  },
+  {
+   "piece": "Boulder8",
+   "name": "Boulder8_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 8,
+   "center": [
+    0.01935,
+    -0.23645,
+    7.28928
+   ],
+   "size": [
+    7.06932,
+    6.60503,
+    1.82374
+   ]
+  },
+  {
+   "piece": "Cabin",
+   "name": "Cabin_CabinBody",
+   "material": "S2_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    3.55
+   ],
+   "size": [
+    5.8,
+    5.8,
+    6.5
+   ]
+  },
+  {
+   "piece": "Cabin",
+   "name": "Cabin_CabinRoof",
+   "material": "S2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9DCDF"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    7.2
+   ],
+   "size": [
+    5.2,
+    5.2,
+    0.8
+   ]
+  },
+  {
+   "piece": "Cabin",
+   "name": "Cabin_CabinGlass",
+   "material": "S2_CabGlass",
+   "look": {
+    "material": "Glass",
+    "color": "2A3440",
+    "transparency": 0.7
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    4.9
+   ],
+   "size": [
+    5.92,
+    5.92,
+    2.6
+   ]
+  },
+  {
+   "piece": "Cabin",
+   "name": "Cabin_CabinStripe",
+   "material": "S2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9DCDF"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    4.4,
+    5.9,
+    0.4
+   ]
+  },
+  {
+   "piece": "Cabin",
+   "name": "Cabin_CabinArm",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    8.7
+   ],
+   "size": [
+    1.6,
+    1.0,
+    2.2
+   ]
+  },
+  {
+   "piece": "Cliffs",
+   "name": "Cliffs_Rock",
+   "material": "S2_Rock",
+   "look": {
+    "material": "Rock",
+    "color": "7C838C",
+    "variant": "Snow2_Rock"
+   },
+   "glow": false,
+   "tris": 8548,
+   "center": [
+    0.0,
+    0.0,
+    37.5
+   ],
+   "size": [
+    132.00001,
+    205.7224,
+    75.0
+   ]
+  },
+  {
+   "piece": "Cliffs",
+   "name": "Cliffs_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    0.0,
+    0.0,
+    61.25
+   ],
+   "size": [
+    101.99999,
+    205.7224,
+    22.5
+   ]
+  },
+  {
+   "piece": "DeckStair",
+   "name": "DeckStair_Stringers",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    6.0,
+    16.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "DeckStair",
+   "name": "DeckStair_Treads",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    5.5,
+    16.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "DeckStair",
+   "name": "DeckStair_Nosing",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.49538,
+    5.35462
+   ],
+   "size": [
+    5.4,
+    15.12923,
+    9.41077
+   ]
+  },
+  {
+   "piece": "DeckStair",
+   "name": "DeckStair_Rails",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 200,
+   "center": [
+    0.0,
+    -0.1,
+    7.25
+   ],
+   "size": [
+    5.93321,
+    15.10781,
+    12.5
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_Stone",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    1.05
+   ],
+   "size": [
+    5.88471,
+    5.88471,
+    2.1
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_Rim",
+   "material": "S2_StoneDark",
+   "look": {
+    "material": "Cobblestone",
+    "color": "6E6962",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    2.3
+   ],
+   "size": [
+    5.88471,
+    5.88471,
+    0.4
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_Ash",
+   "material": "S2_StoneDark",
+   "look": {
+    "material": "Cobblestone",
+    "color": "6E6962",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.53
+   ],
+   "size": [
+    4.25007,
+    4.25007,
+    0.06
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_Logs",
+   "material": "S2_Bark",
+   "look": {
+    "material": "Wood",
+    "color": "5A4030"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    -0.0,
+    -0.05,
+    2.75
+   ],
+   "size": [
+    2.74164,
+    2.37245,
+    0.5
+   ]
+  },
+  {
+   "piece": "FirePit",
+   "name": "FirePit_Embers_Glow",
+   "material": "S2_Glow_Fire",
+   "look": {
+    "material": "Neon",
+    "color": "C0602C"
+   },
+   "glow": true,
+   "tris": 8,
+   "center": [
+    0.0,
+    0.0,
+    3.35
+   ],
+   "size": [
+    1.8,
+    0.24,
+    1.6
+   ]
+  },
+  {
+   "piece": "Fireplace",
+   "name": "Fireplace_Stone",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    10.0,
+    6.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "Fireplace",
+   "name": "Fireplace_Chimney",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    23.0
+   ],
+   "size": [
+    6.0,
+    6.0,
+    22.0
+   ]
+  },
+  {
+   "piece": "Fireplace",
+   "name": "Fireplace_Cap",
+   "material": "S2_StoneDark",
+   "look": {
+    "material": "Cobblestone",
+    "color": "6E6962",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    34.8
+   ],
+   "size": [
+    7.0,
+    7.0,
+    1.6
+   ]
+  },
+  {
+   "piece": "Fireplace",
+   "name": "Fireplace_Mantel",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    6.25
+   ],
+   "size": [
+    8.8,
+    7.4,
+    0.7
+   ]
+  },
+  {
+   "piece": "Fireplace",
+   "name": "Fireplace_Firebox",
+   "material": "S2_StoneDark",
+   "look": {
+    "material": "Cobblestone",
+    "color": "6E6962",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    1.04
+   ],
+   "size": [
+    5.0,
+    6.0,
+    0.08
+   ]
+  },
+  {
+   "piece": "Fireplace",
+   "name": "Fireplace_Logs",
+   "material": "S2_Bark",
+   "look": {
+    "material": "Wood",
+    "color": "5A4030"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    1.62977
+   ],
+   "size": [
+    3.2,
+    5.68176,
+    1.09955
+   ]
+  },
+  {
+   "piece": "Fireplace",
+   "name": "Fireplace_Fire_Glow",
+   "material": "S2_Glow_Fire",
+   "look": {
+    "material": "Neon",
+    "color": "C0602C"
+   },
+   "glow": true,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    2.44
+   ],
+   "size": [
+    3.6,
+    5.8,
+    2.72
+   ]
+  },
+  {
+   "piece": "Firewood",
+   "name": "Firewood_Core",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    -0.25,
+    3.0
+   ],
+   "size": [
+    5.4,
+    4.9,
+    6.0
+   ]
+  },
+  {
+   "piece": "Firewood",
+   "name": "Firewood_Logs",
+   "material": "S2_Bark",
+   "look": {
+    "material": "Wood",
+    "color": "5A4030"
+   },
+   "glow": false,
+   "tris": 1920,
+   "center": [
+    -0.05089,
+    -0.25,
+    2.94349
+   ],
+   "size": [
+    5.19822,
+    5.5,
+    5.7798
+   ]
+  },
+  {
+   "piece": "Firewood",
+   "name": "Firewood_Posts",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    -0.25,
+    3.2
+   ],
+   "size": [
+    6.0,
+    5.5,
+    6.4
+   ]
+  },
+  {
+   "piece": "Firewood",
+   "name": "Firewood_Roof",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    -0.25,
+    6.55
+   ],
+   "size": [
+    6.0,
+    5.5,
+    0.3
+   ]
+  },
+  {
+   "piece": "Firewood",
+   "name": "Firewood_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -0.25,
+    6.85
+   ],
+   "size": [
+    5.8,
+    5.3,
+    0.3
+   ]
+  },
+  {
+   "piece": "Island",
+   "name": "Island_Rock",
+   "material": "S2_Rock",
+   "look": {
+    "material": "Rock",
+    "color": "7C838C",
+    "variant": "Snow2_Rock"
+   },
+   "glow": false,
+   "tris": 46,
+   "center": [
+    -0.02707,
+    0.05455,
+    3.66283
+   ],
+   "size": [
+    7.9321,
+    7.87966,
+    7.32566
+   ]
+  },
+  {
+   "piece": "Island",
+   "name": "Island_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.16489,
+    0.0518,
+    6.41047
+   ],
+   "size": [
+    7.34049,
+    7.37208,
+    2.27038
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_Walls",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    3.0
+   ],
+   "size": [
+    8.0,
+    6.0,
+    6.0
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_Plinth",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    0.7
+   ],
+   "size": [
+    8.4,
+    6.4,
+    1.4
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_Corners",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    3.7
+   ],
+   "size": [
+    8.5,
+    6.5,
+    4.6
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_Gables",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    6.75
+   ],
+   "size": [
+    8.0,
+    6.0,
+    1.5
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_Roof",
+   "material": "S2_RoofSlate",
+   "look": {
+    "material": "Plastic",
+    "color": "4A535E",
+    "variant": "Snow2_Roof"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    6.8
+   ],
+   "size": [
+    9.2,
+    7.2,
+    2.2
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    7.3
+   ],
+   "size": [
+    8.7,
+    6.9,
+    2.4
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_Door",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    -3.06,
+    2.7
+   ],
+   "size": [
+    3.2,
+    0.12,
+    5.4
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_Hatch",
+   "material": "S2_Shutter",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "4A6650",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    3.07,
+    4.3
+   ],
+   "size": [
+    5.2,
+    0.14,
+    2.2
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_HatchLedge",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    3.35,
+    3.1
+   ],
+   "size": [
+    5.6,
+    0.7,
+    0.2
+   ]
+  },
+  {
+   "piece": "Kiosk",
+   "name": "Kiosk_Paint",
+   "material": "S2_EndPaint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D63A8"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    3.5,
+    5.75
+   ],
+   "size": [
+    6.0,
+    1.0,
+    0.3
+   ]
+  },
+  {
+   "piece": "LampPost",
+   "name": "LampPost_Post",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    4.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    8.0
+   ]
+  },
+  {
+   "piece": "LampPost",
+   "name": "LampPost_Head",
+   "material": "S2_Iron",
+   "look": {
+    "material": "Plastic",
+    "color": "3A3937"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    8.8
+   ],
+   "size": [
+    1.3,
+    1.3,
+    1.6
+   ]
+  },
+  {
+   "piece": "LampPost",
+   "name": "LampPost_Lamp_Glow",
+   "material": "S2_Glow_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "B07A48"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    8.75
+   ],
+   "size": [
+    0.84,
+    0.84,
+    1.2
+   ]
+  },
+  {
+   "piece": "LampPost",
+   "name": "LampPost_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    9.7
+   ],
+   "size": [
+    1.2,
+    1.2,
+    0.2
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_Cable",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 892,
+   "center": [
+    -165.05426,
+    -156.56572,
+    206.12037
+   ],
+   "size": [
+    317.70739,
+    317.69339,
+    375.14489
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_CabinBody",
+   "material": "S2_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    -156.22466,
+    -147.72467,
+    222.69703
+   ],
+   "size": [
+    209.72787,
+    222.45581,
+    316.304
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_CabinRoof",
+   "material": "S2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9DCDF"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    -156.22464,
+    -147.72466,
+    226.34704
+   ],
+   "size": [
+    209.16216,
+    221.89011,
+    310.60402
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_CabinGlass",
+   "material": "S2_CabGlass",
+   "look": {
+    "material": "Glass",
+    "color": "2A3440",
+    "transparency": 0.7
+   },
+   "glow": false,
+   "tris": 384,
+   "center": [
+    -156.22466,
+    -147.72467,
+    224.04704
+   ],
+   "size": [
+    209.52988,
+    222.25782,
+    312.40403
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_CabinStripe",
+   "material": "S2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9DCDF"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    -156.22465,
+    -147.72466,
+    220.64704
+   ],
+   "size": [
+    209.51573,
+    222.24367,
+    310.20403
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_CabinArm",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    -156.22466,
+    -147.72467,
+    227.84703
+   ],
+   "size": [
+    204.07101,
+    216.79896,
+    312.00401
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_Pylon",
+   "material": "S2_Steel",
+   "look": {
+    "material": "Plastic",
+    "color": "5E656D"
+   },
+   "glow": false,
+   "tris": 272,
+   "center": [
+    -154.45689,
+    -145.95689,
+    219.12644
+   ],
+   "size": [
+    199.68695,
+    199.68695,
+    345.29784
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_Sheaves",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    -154.45689,
+    -145.95689,
+    238.42643
+   ],
+   "size": [
+    201.17188,
+    201.17188,
+    310.09782
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_PylonPaint",
+   "material": "S2_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 112,
+   "center": [
+    -154.45689,
+    -145.95689,
+    233.72643
+   ],
+   "size": [
+    194.27882,
+    194.27882,
+    310.49782
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_Summit",
+   "material": "S2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A7A6A2"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -320.62698,
+    -312.12698,
+    326.93329
+   ],
+   "size": [
+    28.28424,
+    28.28424,
+    20.0
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_SummitRoof",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    -320.62698,
+    -312.12698,
+    337.93329
+   ],
+   "size": [
+    30.40558,
+    30.40558,
+    2.0
+   ]
+  },
+  {
+   "piece": "Line",
+   "name": "Line_Summit_Glow",
+   "material": "S2_Glow_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "B07A48"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    -314.22766,
+    -305.72766,
+    332.93329
+   ],
+   "size": [
+    12.79865,
+    12.79865,
+    2.0
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Walls",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 456,
+   "center": [
+    0.0,
+    0.0,
+    10.0
+   ],
+   "size": [
+    36.0,
+    44.0,
+    20.0
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Plinth",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 120,
+   "center": [
+    0.0,
+    0.0,
+    1.3
+   ],
+   "size": [
+    36.6,
+    44.6,
+    2.6
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Band",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    9.2
+   ],
+   "size": [
+    36.44,
+    44.44,
+    1.0
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_CornerPosts",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    5.65
+   ],
+   "size": [
+    36.52,
+    44.52,
+    6.1
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Frames",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 840,
+   "center": [
+    0.0,
+    0.0,
+    9.2
+   ],
+   "size": [
+    36.8,
+    44.8,
+    18.4
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Glass",
+   "material": "S2_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "B5C8D4",
+    "transparency": 0.7
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    15.5
+   ],
+   "size": [
+    35.06,
+    43.06,
+    5.0
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Shutters",
+   "material": "S2_Shutter",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "4A6650",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    10.5
+   ],
+   "size": [
+    36.28,
+    44.28,
+    15.0
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Porch",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    4.5
+   ],
+   "size": [
+    12.0,
+    56.0,
+    9.0
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Deck",
+   "material": "S2_Oak",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "9A7450",
+    "variant": "Snow2_Plank"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    9.675
+   ],
+   "size": [
+    48.0,
+    56.0,
+    0.65
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Fascia",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    9.475
+   ],
+   "size": [
+    48.4,
+    56.4,
+    1.15
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Joists",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 624,
+   "center": [
+    0.0,
+    0.0,
+    9.05
+   ],
+   "size": [
+    48.0,
+    56.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Brackets",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    7.175
+   ],
+   "size": [
+    45.45463,
+    53.45463,
+    3.52103
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Rail",
+   "material": "S2_TimberLight",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "A8805A",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    11.31
+   ],
+   "size": [
+    47.7,
+    55.9,
+    2.32
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_RailPost",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 624,
+   "center": [
+    0.0,
+    0.0,
+    11.275
+   ],
+   "size": [
+    47.96,
+    56.0,
+    2.55
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_RailCap",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    12.775
+   ],
+   "size": [
+    48.0,
+    56.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Soffit",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    19.85
+   ],
+   "size": [
+    48.0,
+    56.0,
+    0.3
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Ceiling",
+   "material": "S2_TimberLight",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "A8805A",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    19.9
+   ],
+   "size": [
+    34.0,
+    42.0,
+    0.2
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_CeilingBeams",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    19.4
+   ],
+   "size": [
+    34.0,
+    36.8,
+    0.8
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Gable",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    25.0
+   ],
+   "size": [
+    48.0,
+    56.24,
+    10.0
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Barge",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    24.91095
+   ],
+   "size": [
+    49.47478,
+    56.96,
+    11.02191
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Finial",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    30.25
+   ],
+   "size": [
+    0.8,
+    57.12,
+    1.9
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Roof",
+   "material": "S2_RoofSlate",
+   "look": {
+    "material": "Plastic",
+    "color": "4A535E",
+    "variant": "Snow2_Roof"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    25.185
+   ],
+   "size": [
+    49.2,
+    57.2,
+    10.87
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 30,
+   "center": [
+    0.0,
+    0.0,
+    25.95
+   ],
+   "size": [
+    49.5,
+    56.6,
+    10.9
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Sign",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    23.7
+   ],
+   "size": [
+    14.0,
+    56.64,
+    2.6
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Lantern",
+   "material": "S2_Iron",
+   "look": {
+    "material": "Plastic",
+    "color": "3A3937"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    7.5
+   ],
+   "size": [
+    15.2,
+    56.0,
+    0.2
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Lantern_Glow",
+   "material": "S2_Glow_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "B07A48"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    6.95
+   ],
+   "size": [
+    13.8,
+    55.6,
+    0.9
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Icicles",
+   "material": "S2_Ice",
+   "look": {
+    "material": "Ice",
+    "color": "C9DDEA"
+   },
+   "glow": false,
+   "tris": 642,
+   "center": [
+    0.0,
+    0.08573,
+    18.75
+   ],
+   "size": [
+    49.44,
+    55.52853,
+    2.2
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_LoftFloor",
+   "material": "S2_Oak",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "9A7450",
+    "variant": "Snow2_Plank"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    -17.0,
+    9.7
+   ],
+   "size": [
+    34.0,
+    8.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_LoftBeams",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    -16.975,
+    8.9
+   ],
+   "size": [
+    34.0,
+    8.05,
+    1.0
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Rail",
+   "material": "S2_Oak",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "9A7450",
+    "variant": "Snow2_Plank"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    -13.3,
+    11.31
+   ],
+   "size": [
+    33.9,
+    0.3,
+    2.32
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_RailPost",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 132,
+   "center": [
+    0.0,
+    -13.3,
+    11.275
+   ],
+   "size": [
+    34.0,
+    0.56,
+    2.55
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_RailCap",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    -13.3,
+    12.775
+   ],
+   "size": [
+    34.0,
+    0.6,
+    0.45
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_BackBar",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -6.0,
+    -17.0,
+    4.5
+   ],
+   "size": [
+    2.0,
+    8.0,
+    9.0
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Shelves",
+   "material": "S2_Oak",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "9A7450",
+    "variant": "Snow2_Plank"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    -7.225,
+    -17.1,
+    4.94
+   ],
+   "size": [
+    0.45,
+    7.0,
+    3.32
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Bottles",
+   "material": "S2_Bottle",
+   "look": {
+    "material": "Glass",
+    "color": "5C7A3A",
+    "transparency": 0.7
+   },
+   "glow": false,
+   "tris": 940,
+   "center": [
+    -7.25,
+    -16.98201,
+    5.52101
+   ],
+   "size": [
+    0.22517,
+    6.42402,
+    4.24201
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Mirror",
+   "material": "S2_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "B5C8D4",
+    "transparency": 0.7
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -7.04,
+    -17.0,
+    7.85
+   ],
+   "size": [
+    0.04,
+    6.0,
+    1.3
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_BootWall",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    6.0,
+    -17.0,
+    4.5
+   ],
+   "size": [
+    2.0,
+    8.0,
+    9.0
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Lockers",
+   "material": "S2_Steel",
+   "look": {
+    "material": "Plastic",
+    "color": "5E656D"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    7.15,
+    -17.5,
+    3.25
+   ],
+   "size": [
+    0.3,
+    7.0,
+    5.9
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Counter",
+   "material": "S2_Oak",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "9A7450",
+    "variant": "Snow2_Plank"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -10.25,
+    -18.5,
+    1.6
+   ],
+   "size": [
+    1.5,
+    5.0,
+    3.2
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_CounterTop",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -10.4,
+    -18.415,
+    3.35
+   ],
+   "size": [
+    1.9,
+    5.13,
+    0.3
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_FootRail",
+   "material": "S2_Brass",
+   "look": {
+    "material": "Metal",
+    "color": "A8864A"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    -11.3,
+    -18.5,
+    0.6
+   ],
+   "size": [
+    0.13856,
+    4.6,
+    0.16
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Stools",
+   "material": "S2_Iron",
+   "look": {
+    "material": "Plastic",
+    "color": "3A3937"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    -12.3,
+    -18.6,
+    1.15
+   ],
+   "size": [
+    0.13856,
+    3.36,
+    2.3
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_StoolSeats",
+   "material": "S2_Leather",
+   "look": {
+    "material": "Leather",
+    "color": "5C3A28"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    -12.3,
+    -18.6,
+    2.45
+   ],
+   "size": [
+    0.95106,
+    4.2,
+    0.3
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Sofa",
+   "material": "S2_Fabric",
+   "look": {
+    "material": "Fabric",
+    "color": "7A3B2E"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    -9.5,
+    1.625
+   ],
+   "size": [
+    8.0,
+    2.0,
+    2.75
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_SofaFeet",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    -9.5,
+    0.125
+   ],
+   "size": [
+    7.7,
+    1.7,
+    0.25
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Rug",
+   "material": "S2_Rug",
+   "look": {
+    "material": "Fabric",
+    "color": "8C4A32"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    -5.8,
+    0.025
+   ],
+   "size": [
+    13.0,
+    4.8,
+    0.05
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Chandelier",
+   "material": "S2_Iron",
+   "look": {
+    "material": "Plastic",
+    "color": "3A3937"
+   },
+   "glow": false,
+   "tris": 116,
+   "center": [
+    9.0,
+    -6.0,
+    16.705
+   ],
+   "size": [
+    4.56432,
+    4.56432,
+    4.59
+   ]
+  },
+  {
+   "piece": "LodgeInside",
+   "name": "LodgeInside_Candles_Glow",
+   "material": "S2_Glow_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "B07A48"
+   },
+   "glow": true,
+   "tris": 96,
+   "center": [
+    9.0,
+    -6.0,
+    14.85
+   ],
+   "size": [
+    4.26507,
+    4.26507,
+    0.5
+   ]
+  },
+  {
+   "piece": "LodgeStair",
+   "name": "LodgeStair_Stringers",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    6.0,
+    16.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "LodgeStair",
+   "name": "LodgeStair_Treads",
+   "material": "S2_Oak",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "9A7450",
+    "variant": "Snow2_Plank"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    5.5,
+    16.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "LodgeStair",
+   "name": "LodgeStair_Rails",
+   "material": "S2_Iron",
+   "look": {
+    "material": "Plastic",
+    "color": "3A3937"
+   },
+   "glow": false,
+   "tris": 200,
+   "center": [
+    0.0,
+    -0.1,
+    7.25
+   ],
+   "size": [
+    5.93321,
+    15.10781,
+    12.5
+   ]
+  },
+  {
+   "piece": "Parapet8",
+   "name": "Parapet8_Wall",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    1.1
+   ],
+   "size": [
+    2.0,
+    8.0,
+    2.2
+   ]
+  },
+  {
+   "piece": "Parapet8",
+   "name": "Parapet8_Cap",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    2.475
+   ],
+   "size": [
+    2.0,
+    8.0,
+    0.55
+   ]
+  },
+  {
+   "piece": "Parapet8",
+   "name": "Parapet8_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.875
+   ],
+   "size": [
+    1.7,
+    7.96,
+    0.25
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Walls",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    3.5
+   ],
+   "size": [
+    40.0,
+    6.0,
+    7.0
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Plinth",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    0.7
+   ],
+   "size": [
+    40.4,
+    6.4,
+    1.4
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Corners",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    40.5,
+    6.5,
+    5.6
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Gables",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    8.25
+   ],
+   "size": [
+    40.0,
+    6.0,
+    2.5
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Roof",
+   "material": "S2_RoofSlate",
+   "look": {
+    "material": "Plastic",
+    "color": "4A535E",
+    "variant": "Snow2_Roof"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    8.2
+   ],
+   "size": [
+    41.2,
+    7.2,
+    3.4
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    8.7
+   ],
+   "size": [
+    40.7,
+    6.9,
+    3.6
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Door",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    -3.06,
+    3.1
+   ],
+   "size": [
+    3.2,
+    0.12,
+    6.2
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_WinFrames",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    33.0,
+    6.28,
+    2.8
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Win_Glow",
+   "material": "S2_Glow_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "B07A48"
+   },
+   "glow": true,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    32.4,
+    6.36,
+    2.2
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Shutters",
+   "material": "S2_Shutter",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "4A6650",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    35.8,
+    6.2,
+    2.8
+   ]
+  },
+  {
+   "piece": "PatrolHut",
+   "name": "PatrolHut_Paint",
+   "material": "S2_EndPaint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D63A8"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    3.12,
+    6.475
+   ],
+   "size": [
+    9.0,
+    0.18,
+    0.75
+   ]
+  },
+  {
+   "piece": "PineGrove",
+   "name": "PineGrove_Trunk",
+   "material": "S2_Bark",
+   "look": {
+    "material": "Wood",
+    "color": "5A4030"
+   },
+   "glow": false,
+   "tris": 140,
+   "center": [
+    -0.06455,
+    1.10033,
+    1.44872
+   ],
+   "size": [
+    20.80756,
+    12.96856,
+    4.89745
+   ]
+  },
+  {
+   "piece": "PineGrove",
+   "name": "PineGrove_Needles",
+   "material": "S2_Needles",
+   "look": {
+    "material": "Grass",
+    "color": "2E4A3A"
+   },
+   "glow": false,
+   "tris": 392,
+   "center": [
+    -0.55574,
+    1.80842,
+    12.37105
+   ],
+   "size": [
+    26.61044,
+    19.18855,
+    20.98794
+   ]
+  },
+  {
+   "piece": "PineGrove",
+   "name": "PineGrove_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 392,
+   "center": [
+    -0.3574,
+    1.41944,
+    13.51776
+   ],
+   "size": [
+    24.30674,
+    16.42378,
+    19.05452
+   ]
+  },
+  {
+   "piece": "PondRim",
+   "name": "PondRim_Rim",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 1120,
+   "center": [
+    0.0,
+    0.0,
+    -0.115
+   ],
+   "size": [
+    31.2,
+    43.2,
+    0.87
+   ]
+  },
+  {
+   "piece": "PondRim",
+   "name": "PondRim_Rocks",
+   "material": "S2_RockDark",
+   "look": {
+    "material": "Rock",
+    "color": "5E656E",
+    "variant": "Snow2_Rock"
+   },
+   "glow": false,
+   "tris": 340,
+   "center": [
+    -0.16839,
+    0.0884,
+    0.56132
+   ],
+   "size": [
+    31.52807,
+    43.64092,
+    1.12263
+   ]
+  },
+  {
+   "piece": "Range",
+   "name": "Range_Rock0",
+   "material": "S2_Rock",
+   "look": {
+    "material": "Rock",
+    "color": "7C838C",
+    "variant": "Snow2_Rock"
+   },
+   "glow": false,
+   "tris": 1829,
+   "center": [
+    500.0,
+    0.0,
+    138.66936
+   ],
+   "size": [
+    1000.0,
+    2000.0,
+    839.54129
+   ]
+  },
+  {
+   "piece": "Range",
+   "name": "Range_Snow0",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 1563,
+   "center": [
+    500.0,
+    0.0,
+    138.66936
+   ],
+   "size": [
+    1000.0,
+    2000.0,
+    839.54129
+   ]
+  },
+  {
+   "piece": "Range",
+   "name": "Range_Rock1",
+   "material": "S2_Rock",
+   "look": {
+    "material": "Rock",
+    "color": "7C838C",
+    "variant": "Snow2_Rock"
+   },
+   "glow": false,
+   "tris": 1829,
+   "center": [
+    -500.0,
+    0.0,
+    138.66936
+   ],
+   "size": [
+    1000.0,
+    2000.0,
+    839.54129
+   ]
+  },
+  {
+   "piece": "Range",
+   "name": "Range_Snow1",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 1563,
+   "center": [
+    -500.0,
+    0.0,
+    138.66936
+   ],
+   "size": [
+    1000.0,
+    2000.0,
+    839.54129
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Walls",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    3.25
+   ],
+   "size": [
+    12.0,
+    8.0,
+    6.5
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Plinth",
+   "material": "S2_Stone",
+   "look": {
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    0.7
+   ],
+   "size": [
+    12.4,
+    8.4,
+    1.4
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Corners",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    3.95
+   ],
+   "size": [
+    12.5,
+    8.5,
+    5.1
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Gables",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    7.5
+   ],
+   "size": [
+    12.0,
+    8.0,
+    2.0
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Roof",
+   "material": "S2_RoofSlate",
+   "look": {
+    "material": "Plastic",
+    "color": "4A535E",
+    "variant": "Snow2_Roof"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    7.55
+   ],
+   "size": [
+    13.2,
+    9.2,
+    2.7
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    8.05
+   ],
+   "size": [
+    12.7,
+    8.9,
+    2.9
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Door",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    -4.06,
+    2.95
+   ],
+   "size": [
+    3.2,
+    0.12,
+    5.9
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_WinFrames",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    4.045,
+    4.2
+   ],
+   "size": [
+    10.0,
+    0.19,
+    2.8
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Win_Glow",
+   "material": "S2_Glow_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "B07A48"
+   },
+   "glow": true,
+   "tris": 24,
+   "center": [
+    0.0,
+    4.04,
+    4.2
+   ],
+   "size": [
+    9.4,
+    0.28,
+    2.2
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Shutters",
+   "material": "S2_Shutter",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "4A6650",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    4.06,
+    4.2
+   ],
+   "size": [
+    12.8,
+    0.08,
+    2.8
+   ]
+  },
+  {
+   "piece": "SkateHut",
+   "name": "SkateHut_Paint",
+   "material": "S2_EndPaint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D63A8"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    4.12,
+    5.975
+   ],
+   "size": [
+    9.0,
+    0.18,
+    0.75
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Frame",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    8.0,
+    1.5,
+    3.0
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Rails",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    1.15
+   ],
+   "size": [
+    7.9,
+    1.2,
+    0.3
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_Skis",
+   "material": "S2_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    -0.2,
+    0.0,
+    1.36
+   ],
+   "size": [
+    6.36,
+    1.48,
+    0.12
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Tracks",
+   "material": "S2_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "38393C"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    8.0,
+    12.4,
+    3.0
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Wheels",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 288,
+   "center": [
+    0.0,
+    0.25,
+    1.5
+   ],
+   "size": [
+    8.24,
+    9.3,
+    1.7119
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Body",
+   "material": "S2_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    -0.1,
+    2.7
+   ],
+   "size": [
+    7.8,
+    12.2,
+    3.4
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Cab",
+   "material": "S2_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9DCDF"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.1,
+    6.0
+   ],
+   "size": [
+    5.2,
+    5.0,
+    3.2
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_CabGlass",
+   "material": "S2_CabGlass",
+   "look": {
+    "material": "Glass",
+    "color": "2A3440",
+    "transparency": 0.7
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.33,
+    6.2
+   ],
+   "size": [
+    5.32,
+    4.66,
+    2.0
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Roof",
+   "material": "S2_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.1,
+    7.725
+   ],
+   "size": [
+    5.4,
+    5.2,
+    0.25
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Beacon_Glow",
+   "material": "S2_Glow_Amber",
+   "look": {
+    "material": "Neon",
+    "color": "B8862E"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    7.925
+   ],
+   "size": [
+    0.7,
+    0.7,
+    0.15
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Blade",
+   "material": "S2_Steel",
+   "look": {
+    "material": "Plastic",
+    "color": "5E656D"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    6.5,
+    1.95
+   ],
+   "size": [
+    7.9,
+    1.0,
+    3.3
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Tiller",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -6.6,
+    1.45
+   ],
+   "size": [
+    7.2,
+    0.8,
+    1.9
+   ]
+  },
+  {
+   "piece": "SnowPile18",
+   "name": "SnowPile18_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 630,
+   "center": [
+    0.0,
+    0.0,
+    4.09964
+   ],
+   "size": [
+    18.0,
+    8.0,
+    8.19929
+   ]
+  },
+  {
+   "piece": "SnowPile8",
+   "name": "SnowPile8_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 318,
+   "center": [
+    0.0,
+    0.0,
+    4.00116
+   ],
+   "size": [
+    8.0,
+    8.0,
+    8.00232
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Base",
+   "material": "S2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A7A6A2"
+   },
+   "glow": false,
+   "tris": 70,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    24.0,
+    24.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Housing",
+   "material": "S2_Steel",
+   "look": {
+    "material": "Plastic",
+    "color": "5E656D"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -9.5,
+    0.0,
+    14.0
+   ],
+   "size": [
+    5.0,
+    24.0,
+    8.0
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Louvres",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    -6.94,
+    0.0,
+    14.35
+   ],
+   "size": [
+    0.12,
+    21.0,
+    4.7
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Rails",
+   "material": "S2_Steel",
+   "look": {
+    "material": "Plastic",
+    "color": "5E656D"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    2.5,
+    0.0,
+    12.775
+   ],
+   "size": [
+    19.0,
+    24.0,
+    0.45
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_RailMesh",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    2.5,
+    0.0,
+    11.275
+   ],
+   "size": [
+    19.0,
+    23.64,
+    2.55
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Columns",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    8.2,
+    0.0,
+    15.0
+   ],
+   "size": [
+    6.4,
+    22.8,
+    10.0
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Roof",
+   "material": "S2_Steel",
+   "look": {
+    "material": "Plastic",
+    "color": "5E656D"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    20.75
+   ],
+   "size": [
+    26.0,
+    26.0,
+    1.5
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    21.9
+   ],
+   "size": [
+    25.2,
+    25.2,
+    0.8
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Paint",
+   "material": "S2_EndPaint",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D63A8"
+   },
+   "glow": false,
+   "tris": 108,
+   "center": [
+    0.0,
+    0.0,
+    13.875
+   ],
+   "size": [
+    26.2,
+    26.2,
+    14.55
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_GarageFrame",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    2.95,
+    2.95,
+    4.2
+   ],
+   "size": [
+    18.7,
+    18.7,
+    8.4
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_GarageRail",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    4.85,
+    3.0,
+    7.7
+   ],
+   "size": [
+    14.3,
+    18.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Bullwheel",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 136,
+   "center": [
+    -9.5,
+    -1.0,
+    18.975
+   ],
+   "size": [
+    9.0,
+    9.0,
+    1.25
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_OverheadRail",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.25,
+    2.0,
+    19.5
+   ],
+   "size": [
+    18.5,
+    0.5,
+    1.0
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Sign",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    22.75
+   ],
+   "size": [
+    16.0,
+    26.5,
+    2.5
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_Lamps_Glow",
+   "material": "S2_Glow_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "B07A48"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    2.5,
+    0.0,
+    19.775
+   ],
+   "size": [
+    10.2,
+    17.2,
+    0.15
+   ]
+  },
+  {
+   "piece": "StationStair",
+   "name": "StationStair_Stringers",
+   "material": "S2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A7A6A2"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    6.0,
+    16.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "StationStair",
+   "name": "StationStair_Treads",
+   "material": "S2_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "A7A6A2"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    5.5,
+    16.0,
+    10.0
+   ]
+  },
+  {
+   "piece": "StationStair",
+   "name": "StationStair_Nosing",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.49538,
+    5.35462
+   ],
+   "size": [
+    5.4,
+    15.12923,
+    9.41077
+   ]
+  },
+  {
+   "piece": "StationStair",
+   "name": "StationStair_Rails",
+   "material": "S2_Steel",
+   "look": {
+    "material": "Plastic",
+    "color": "5E656D"
+   },
+   "glow": false,
+   "tris": 200,
+   "center": [
+    0.0,
+    -0.1,
+    7.25
+   ],
+   "size": [
+    5.93321,
+    15.10781,
+    12.5
+   ]
+  },
+  {
+   "piece": "TrailMap",
+   "name": "TrailMap_Board",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    4.1
+   ],
+   "size": [
+    8.0,
+    0.9,
+    7.0
+   ]
+  },
+  {
+   "piece": "TrailMap",
+   "name": "TrailMap_Map",
+   "material": "S2_MapBoard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E6E1D3"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    7.0,
+    1.1,
+    5.6
+   ]
+  },
+  {
+   "piece": "TrailMap",
+   "name": "TrailMap_Posts",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    0.3
+   ],
+   "size": [
+    8.0,
+    0.8,
+    0.6
+   ]
+  },
+  {
+   "piece": "TrailMap",
+   "name": "TrailMap_Roof",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    7.7
+   ],
+   "size": [
+    8.4,
+    1.5,
+    0.2
+   ]
+  },
+  {
+   "piece": "TrailMap",
+   "name": "TrailMap_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    7.925
+   ],
+   "size": [
+    8.2,
+    1.3,
+    0.25
+   ]
+  },
+  {
+   "piece": "Woodpile",
+   "name": "Woodpile_Core",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    3.0
+   ],
+   "size": [
+    7.4,
+    2.4,
+    6.0
+   ]
+  },
+  {
+   "piece": "Woodpile",
+   "name": "Woodpile_Logs",
+   "material": "S2_Bark",
+   "look": {
+    "material": "Wood",
+    "color": "5A4030"
+   },
+   "glow": false,
+   "tris": 2720,
+   "center": [
+    -0.05,
+    0.0,
+    2.94349
+   ],
+   "size": [
+    7.2,
+    3.0,
+    5.7798
+   ]
+  },
+  {
+   "piece": "Woodpile",
+   "name": "Woodpile_Posts",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    3.2
+   ],
+   "size": [
+    8.0,
+    3.0,
+    6.4
+   ]
+  },
+  {
+   "piece": "Woodpile",
+   "name": "Woodpile_Roof",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    6.55
+   ],
+   "size": [
+    8.0,
+    3.0,
+    0.3
+   ]
+  },
+  {
+   "piece": "Woodpile",
+   "name": "Woodpile_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    6.85
+   ],
+   "size": [
+    7.8,
+    2.8,
+    0.3
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_Walls",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    3.0
+   ],
+   "size": [
+    12.0,
+    8.0,
+    6.0
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_Back",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    -0.3,
+    3.0
+   ],
+   "size": [
+    10.8,
+    6.2,
+    6.0
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_Logs",
+   "material": "S2_Bark",
+   "look": {
+    "material": "Wood",
+    "color": "5A4030"
+   },
+   "glow": false,
+   "tris": 1680,
+   "center": [
+    -0.15227,
+    3.41,
+    2.66024
+   ],
+   "size": [
+    10.49546,
+    1.22,
+    5.20795
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_Gables",
+   "material": "S2_Timber",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "8A5E3C",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    6.75
+   ],
+   "size": [
+    12.0,
+    8.0,
+    1.5
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_Roof",
+   "material": "S2_RoofSlate",
+   "look": {
+    "material": "Plastic",
+    "color": "4A535E",
+    "variant": "Snow2_Roof"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    6.8375
+   ],
+   "size": [
+    13.2,
+    9.2,
+    2.125
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_RoofSnow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    7.3375
+   ],
+   "size": [
+    12.7,
+    8.9,
+    2.325
+   ]
+  }
+ ],
+ "tris": 39814
+}
