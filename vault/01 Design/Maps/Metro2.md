@@ -4,7 +4,7 @@ Metro rebuilt to the [Map Quality Standard](Map%20Quality%20Standard.md). Lane F
 
 - **Map id** `Metro2`, **origin (3000, 200, 1500)**. That spot was checked free in the match place on 2026-11-06: Rooftops2 ends near z 450.
 - **ForceMap only:** `workspace:SetAttribute("ForceMap", "Metro2")`. No `Config/Match` change until the user approves.
-- **Status (02:00):** kit, textures, signs and art built; installed in the match place.
+- **Status (03:00): stopped at 6.7 by the stop rule (rounds 5.4 → 6.7 → 6.7 → 6.7). It is a draft below the 8.5 bar.** Audits are 0/0. See "Stopped at 6.7" at the end.
   - Studio z-fighting audit: **0 pairs** (1,937 visible parts).
   - FloatAudit: 42 groups fixed down to 2; the last fix is pending a re-audit.
   - Round 1 scoring is next.
@@ -274,3 +274,46 @@ Low points:
 - **Wayfinding:** the platform roundels are neutral cream, so colour only means the end. Each spawn's sign names its doors: B reads "PLATFORM 2 ← → PLATFORM 1", A the mirror.
 - **Palette:** calmer ends (`4A6494` / `6A8E7A`), and dull walnut WoodPlanks for the kiosk.
 - **Offline z-fighting:** 0 / 0.
+
+**Round 3:** audits 0 z-fighting pairs and 0 floating groups (3,150 parts). **Blind score 6.7** (6.7, 6.7, 6.7). Medians: W1 2, W2 1, W3 1, W4 1, W5 1, W6 2.
+
+### Round 4 (02:43)
+- **Trains:** a dark window band along the upper body and a roof gutter.
+- **Gate line:** modelled, with sloped stainless cabinets, dark reader faces, green lamps and charcoal paddles on plinths.
+- **Ticket halls:** benches, bins, help points and CCTV.
+- **Pump rooms:** tiled.
+- **Light:** a warmer ambient balance and more bloom.
+- **Tried and dropped:** a near-invisible hall ceiling to keep the sun out (no effect), and a no-sun look (it went flat and muddy).
+- **Audits:** 0 / 0 (3,208 parts).
+- **Blind score: 6.7** (6.7, 6.3, 6.7). Medians: W1 2, W2 1, W3 1, W4 1, W5 1, W6 2.
+
+### Stopped at 6.7 (the stop rule)
+| Round | 1 | 2 | 3 | 4 |
+|---|---|---|---|---|
+| Score | 5.4 | 6.7 | 6.7 | 6.7 |
+
+Rounds 3 and 4 each gained under 0.3 on the best score, so the map stops by the rule. **It does not reach the 8.5 bar; it is a draft.**
+
+What holds it back (all reviewers, every round), and what would move it:
+1. **The trains (W3, W5).** They are the biggest object in most shots, and they still read as flat boxes beside the textured tile: square-bar poles, slab seats, flat shells.
+   - The fix: model a real hero train in Blender with a bevelled shell, rounded cab nose, inset door seals, round poles, padded seats, bogies and a lit interior.
+   - That's a dedicated modelling job; a candidate for Codex with a prop brief.
+2. **The landmark (W1, W2).** Reviewers want the concept's grounded portal: the gantry standing on two riveted columns on the platforms.
+   - The layout keeps the platforms clear at the gantry line (z ±1.5), so columns there would be new collision.
+   - That's a layout change for the user to approve.
+3. **Lighting mood (W4).** Even and neutral; the hard sun shadows still show indoors.
+   - The fix: an indoor lighting rig with shadowless warm PointLights at the sconces and kiosks, tested in play mode, not in edit captures.
+4. **Off-platform (W5).** The ticket hall and corridor are still sparse.
+   - The fix: a kiosk or ticket-machine bank and one story group each.
+5. **Sides read by band colour only.** The fix: a shape difference per half (one end a name mosaic, the other a mural), plus flush floor route marks.
+
+**Best shots:**
+- [overview](../../02%20Art/References/maps/metro2/v1-r4-overview.jpg)
+- [trench](../../02%20Art/References/maps/metro2/v1-r4-trench.jpg)
+- [gantry](../../02%20Art/References/maps/metro2/v1-r4-gantry.jpg)
+- [spawn](../../02%20Art/References/maps/metro2/v1-r4-b-spawn.jpg)
+- [side-by-side](../../02%20Art/References/maps/metro2/v1-r4-side-by-side.jpg)
+
+**Ready for the user's approval? No.** The standard needs 8.5.
+- What's good: Metro2 is a big step up from Metro, with a bright, finished hall, real signage and 0/0 audits, and the user can judge it with `ForceMap = "Metro2"`.
+- What's left: the trains and the grounded gantry, which need the user's call on modelling time and a layout change.
