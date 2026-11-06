@@ -1127,26 +1127,26 @@ def split_by_up(bm, acc, rock_part, snow_part, thresh=0.5):
 def p_cliffs(mats, kit):
 	acc = Acc()
 	TOP = 76.0
-	cell = 2.5
+	cell = 6.0  # r4: the far range's faceted style (big planes), not fine noise; one backdrop language
 
 	def face_depth(seed, width):
 		def fn(u, v, i, j):
-			edge = smooth(0, 4.0, min(u, width - u))
-			strata = 0.55 + 0.45 * math.sin(v * 0.7 + vnoise(u * 0.1, v * 0.05, seed) * 3)
-			n = vnoise(u * 0.18, v * 0.14, seed) * 0.7 + vnoise(u * 0.5, v * 0.45, seed + 7) * 0.3
-			ledge = 0.9 if (int(v / 9.0) % 2 == 0 and (v % 9.0) < 1.2) else 0.0
-			return (0.15 + 2.3 * n * strata + ledge) * edge * smooth(0, 3.0, v)
+			# r4: big faceted buttresses and gullies (the far range's language); no thin ledge strips (they read as
+			# floating white dashes). Depth only pushes away from the field (the collision face stays in front).
+			edge = smooth(0, 8.0, min(u, width - u))
+			n = vnoise(u * 0.07, v * 0.05, seed) * 0.75 + vnoise(u * 0.19, v * 0.16, seed + 7) * 0.25
+			return (0.3 + 7.5 * n) * edge * smooth(0, 6.0, v)
 		return fn
 
 	for s in (1, -1):
 		faces = []
 		# Field faces at z = 80 (x 16..66 and -66..-16), facing the field: recessed toward +z.
 		for x0 in (16.0, -66.0):
-			faces.append(displaced((x0, 0.0, 80.0), (1, 0, 0), (0, 1, 0), (0, 0, 1), 20, int(TOP / cell), 2.5, cell, face_depth(11 + int(x0), 50.0)))
+			faces.append(displaced((x0, 0.0, 80.0), (1, 0, 0), (0, 1, 0), (0, 0, 1), 8, int(TOP / cell), 50.0 / 8, TOP / int(TOP / cell), face_depth(11 + int(x0), 50.0)))
 		# Alcove sides (x = +-16, z 80..100) and back (z = 100).
-		faces.append(displaced((16.0, 0.0, 80.0), (0, 0, 1), (0, 1, 0), (1, 0, 0), 8, int(TOP / cell), 2.5, cell, face_depth(31, 20.0)))
-		faces.append(displaced((-16.0, 0.0, 100.0), (0, 0, -1), (0, 1, 0), (-1, 0, 0), 8, int(TOP / cell), 2.5, cell, face_depth(37, 20.0)))
-		faces.append(displaced((-16.0, 0.0, 100.0), (1, 0, 0), (0, 1, 0), (0, 0, 1), 16, int(TOP / cell), 2.0, cell, face_depth(41, 32.0)))
+		faces.append(displaced((16.0, 0.0, 80.0), (0, 0, 1), (0, 1, 0), (1, 0, 0), 4, int(TOP / cell), 5.0, TOP / int(TOP / cell), face_depth(31, 20.0)))
+		faces.append(displaced((-16.0, 0.0, 100.0), (0, 0, -1), (0, 1, 0), (-1, 0, 0), 4, int(TOP / cell), 5.0, TOP / int(TOP / cell), face_depth(37, 20.0)))
+		faces.append(displaced((-16.0, 0.0, 100.0), (1, 0, 0), (0, 1, 0), (0, 0, 1), 6, int(TOP / cell), 32.0 / 6, TOP / int(TOP / cell), face_depth(41, 32.0)))
 		for f in faces:
 			if s < 0:
 				ry(f, 180)
