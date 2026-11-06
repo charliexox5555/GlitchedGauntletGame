@@ -69,9 +69,9 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "RoofTile": ("B8673F", "Slate", "Roof2_Terracotta"),  # A penthouse and hut roofs
     "RoofSlate": ("5F6B78", "Slate", "Roof2_Slate"),  # B penthouse mansard
     "Brick": ("A8644A", "Brick", "Roof2_Brick"),  # chimney stacks
-    "Pot": ("B9653F", "SmoothPlastic", ""),  # terracotta pots and planters
+    "Pot": ("A8664A", "SmoothPlastic", ""),  # terracotta pots and planters (maps v4: calmer, read loud orange in the low sun)
     "Cloth": ("EFE3C8", "Fabric", ""),  # awning, chairs
-    "Appliance": ("D9D1BF", "SmoothPlastic", ""),  # AC unit casings (cream enamel, as in the concept)
+    "Appliance": ("C7B9A2", "SmoothPlastic", ""),  # AC cabinet casings (maps v4: warm stone, the cream read bright white)
     # maps v4: floor breakup and the blank sign panels
     "Paver": ("D9BBA3", "Slate", "Roof2_Tile"),  # kerbed paving inlays on the team roofs (a lighter field)
     "Tar": ("6F6258", "Slate", "Roof2_Gravel"),  # tar-sealed repairs

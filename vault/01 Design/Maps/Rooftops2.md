@@ -678,3 +678,24 @@ The shots are edit-mode captures with the map's own Lighting config and effects 
   - The back-court planters' terracotta is saturated orange in the low sun.
   - The water tank and the skyline towers are unchanged.
   - The trestle billboards are blank panels; a painted texture would read richer.
+
+**Blind score (`lihfolk:quality-score`, world rubric, 3 fresh reviewers): 6.3.** The reviewers gave 6.3, 7.5 and 6.3. That is below the 8.5 bar and below v3's 7.92, so v4 is still a draft. It's one score, as asked.
+
+| W | Median | What the reviewers said |
+|---|---|---|
+| W1 composition | 2 | The tank is centred and framed in every roof shot, with the paved walkway leading to it. |
+| W2 navigation | **1** | The roof routes read. The Pit shot is a dark wall and stair. That evidence shot was a poor angle (my error), but the Pit is still dark. The spawn court is a wide flat with no cue. |
+| W3 cohesion | 1 | The brick, cobalt and terracotta kit holds together. The white AC cabinets, the saturated orange back-court planter and the dark shaded Penthouse B clash. |
+| W4 lighting | 1 | The overview haze works. At eye height the sky reads teal, not the concept's pink dusk, and the shade is heavy. |
+| W5 detail | 1 | The floors are better (the inlays) but still large terracotta runs; the concept has laundry lines, steps and prop clusters. |
+| W6 scale | 1 | Doors and railings read right. The quoins, cobalt caps and AC cabinets still read chunky. |
+
+Why it went down while the pieces got better: every reviewer judged the eye-level palette and sky against the concept's lilac dusk, and the v4 evidence included a bad Pit angle. The modelled pieces themselves were rated better: the planter, skylight, flues and inlays.
+
+**Tiny fix applied after the score (not re-scored):** AC casing C7B9A2 (was the bright cream D9D1BF) and planter terracotta A8664A (was the saturated B9653F).
+
+**Next, in order of gain:**
+1. **Sky and grade toward the concept's pink-lilac dusk:** sky colour, Atmosphere Color/Decay, and the grade tint.
+2. A Pit fill light and a lighter Penthouse B shade.
+3. Smaller cobalt pier caps.
+4. Story props in the courts (laundry line, crates), with Codex's R1-R4 props once imported.
