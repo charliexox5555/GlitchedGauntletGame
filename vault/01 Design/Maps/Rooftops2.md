@@ -879,3 +879,17 @@ Best shots: [overview](../../02%20Art/References/maps/rooftops2/v5-r4-overview.j
 ### Codex job 2 review (2026-11-06)
 - **Billboard art (4 PNGs):** used, on every sign face (round 1).
 - **TankParts (C): not used.** It was built against the v4 stand, with feet at ±4.3. Its ValveRun and OverflowPipe stand on the ground 4.4–6.6 out from the drum axis. At the tank's 1.35 placement on the 10 × 8 lift tower that's past the tower's edge, so they'd float again, which was the user's v4 complaint. Its CagedLadder duplicates the R3 ladder that's already in (round 1). The files stay as Codex's.
+
+### Round 5: a fresh angle on W2 navigation (2026-11-06, about 02:50)
+**Change:** the Pit stairs now read by contrast. Before, they were cream stone on cream plaster. Now they have:
+- terracotta treads;
+- stone nosings;
+- brick cheek walls;
+- dark steel handrails on wall brackets.
+
+**Status:**
+- Installed: 0 floating groups, 0 z-fighting pairs (1,768 parts).
+- Shots: `v5-r5-*.jpg` and the side-by-side.
+- **Not scored yet.** The blind reviewers were stopped when the usage limit was reached.
+
+**Next:** run the 3 blind reviewers on `v5-r5-*.jpg`.
