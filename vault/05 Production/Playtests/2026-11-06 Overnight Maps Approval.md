@@ -7,13 +7,13 @@ The user asked for every map to be rebuilt overnight to a AAA, front-page bar, a
 ## Status (draft; updated as the lanes report)
 | Map (id) | Origin | Best blind score (bar 8.5) | Rounds | Ready for approval? | Main gap the reviewers named |
 |---|---|---|---|---|---|
-| Rooftops2 | (3000, 200, 0) | 7.1 | v3 7.92 → v4 6.3 → v5 5.8, 7.1, 6.7, 7.1 → r5 (Pit stairs) scoring | Not yet | Navigation in the Pit, eye-level palette |
+| Rooftops2 | (3000, 200, 0) | **8.3** (20/24; 8.5 needs 21) | v3 7.92 → v4 6.3 → v5 5.8, 7.1, 6.7, 7.1 → r5 8.3, r6 7.9, r7 8.3 → one exception round on scale | Close: worth the user's eye | Navigation at eye level in the Pit and tower; the AC units read oversized |
 | Dockyard2 | (-3000, 200, 0) | 7.5 | v5 7.5, 6.3, 6.7 | Not yet | Flat deck fields, lane read |
 | Bunker2 | (-3000, 200, 1500) | 6.25 | 4.17, 5.83, 5.00, 6.25 | Not yet | Primitive props; a visible stair from sunwell to ring (**layout change, the user decides**) |
 | Snowpeak2 | (-3000, 200, -1500) | 5.00 | 5.00, 4.58, 4.58 → Codex props pass next | Not yet | Primitive props (snowcat, rocks, piles), backdrop style; spawn portals (**layout, the user decides**) |
 | Metro2 | (3000, 200, 1500) | 6.7 | 5.4, 6.7, 6.7, 6.7 → Codex train pass next | Not yet | Trains read as boxes; gantry columns on the platforms (**layout, the user decides**) |
 | OldTown2 | (3000, 200, -1500) | — | style fixes, then round 1 | — | — |
-| Greenhouse2 | (0, 200, 3000) | 5.0 | 5.0, 5.0, 5.0 → kit v2 from Codex hero kit next | Not yet | Old kit far below the concept (iron ornament, planting, light) |
+| Greenhouse2 | (0, 200, 3000) | 5.0 | 5.0, 5.0, 5.0 → kit v2 (Codex iron bays, arcade walls, planting, lanterns, reflective glass, warm sun) 5.0 | Not yet; **parked for the user** | Reviewers judge glass halls against a garden-heavy concept. The next step is a design pass (outside garden ring, cream iron, Orangery spawn): the user decides |
 
 Whitebox and Big Whitebox are abstract by design and were left as they are.
 
