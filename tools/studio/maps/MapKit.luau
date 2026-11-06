@@ -20,7 +20,7 @@
 local CollectionService = game:GetService("CollectionService")
 local ServerStorage = game:GetService("ServerStorage")
 
-local MATCH_PLACE_ID = 71551303511506
+local MATCH_PLACE_ID = 133387545285290 -- the match place (71551303511506 is the Lobby); fixed 2026-11-06
 assert(game.PlaceId == MATCH_PLACE_ID, "Map kit: this is not the match place")
 
 -- One line per published section (the bundle returns it).
