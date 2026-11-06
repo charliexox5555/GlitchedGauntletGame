@@ -16,6 +16,22 @@
     - The Lobby teleport PlaceId is fixed. The match place is saved.
     - The UI direction ("Clipped steel", larger) waits for the user's pick.
   - Sounds and the knife are good for now. The Lobby structure is good; comments later.
+  - **Maps v4 (late; [review](05%20Production/Playtests/2026-11-05%20Maps%20v3%20Review.md)):**
+    - Changes on both maps:
+      - The weak pieces are rebuilt as modelled meshes.
+      - All part-built text, chevrons and arrows are cut.
+      - The scale is fixed.
+    - Rooftops2 also has:
+      - a lighter Pit
+      - paving inlays
+    - Dockyard2 also has:
+      - brighter light
+      - concept crates
+      - a rebuilt shed interior
+      - lane stripes
+    - Codex modelled 6 props in Blender. 3 are used in Rooftops2: the agaves, the AC cabinet and the crates. The tank kit, quay set and rack set wait for a later pass.
+    - Blind scores: Rooftops2 **6.3**, down from 7.92. The reviewers marked its palette and sky down against the concept's lilac dusk. Dockyard2 scored **6.7**.
+    - The place is saved. The user tests next.
 - **Day 2026-11-05 (three lanes while the user was at school, [day plan](05%20Production/Day%20Plan%202026-11-05.md); tonight's review list is at the bottom):**
   - **Match maps redesigned in the new style, as new versions** (ForceMap only; the old maps are untouched):
     - [Dockyard2](01%20Design/Maps/Dockyard2.md) scored 8.75.

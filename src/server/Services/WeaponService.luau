@@ -1221,7 +1221,7 @@ end
 -- "FireReject"), so tuning tolerances doesn't need print debugging.
 local function reject(player: Player, reason: string)
 	if RunService:IsStudio() then
-		player:SetAttribute("FireReject", reason)
+		player:SetAttribute("FireReject", string.sub(reason, 1, 50)) -- attribute strings cap at 50 chars
 	end
 end
 
