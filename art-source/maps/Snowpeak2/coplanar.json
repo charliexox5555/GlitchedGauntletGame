@@ -1,4 +1,29 @@
 {
- "triangles": 72810,
- "pairs": []
+ "triangles": 87330,
+ "pairs": [
+  {
+   "a": "Snowcat_CabGlass_p",
+   "b": "Snowcat_SteelDark_p",
+   "tris": 8,
+   "area": 0.333
+  },
+  {
+   "a": "Snowcat_SteelDark_p",
+   "b": "Snowcat_SteelDark_p",
+   "tris": 8,
+   "area": 0.029
+  },
+  {
+   "a": "Snowcat_CabGlass_p.001",
+   "b": "Snowcat_SteelDark_p.001",
+   "tris": 8,
+   "area": 0.333
+  },
+  {
+   "a": "Snowcat_SteelDark_p.001",
+   "b": "Snowcat_SteelDark_p.001",
+   "tris": 8,
+   "area": 0.029
+  }
+ ]
 }

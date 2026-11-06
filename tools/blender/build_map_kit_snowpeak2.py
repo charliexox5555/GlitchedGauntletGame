@@ -1584,6 +1584,97 @@ def renders():
 
 # ---------------------------------------------------------------- main
 
+
+# ---------------------------------------------------------------- Codex props (art-source/maps/Snowpeak2/props)
+
+PROPS_DIR = os.path.join(K.ART_DIR, "props")
+CODEX_ROLE = (  # material-name keyword -> our MATS role (first match wins)
+	("snow", "Snow"), ("ice", "Ice"), ("glass", "CabGlass"), ("window", "CabGlass"), ("light", "Glow_Amber"),
+	("lamp", "Glow_Amber"), ("beacon", "Glow_Amber"), ("rubber", "Rubber"), ("track", "Rubber"), ("tyre", "Rubber"),
+	("tire", "Rubber"), ("red", "Red"), ("body", "Red"), ("paint", "Red"), ("white", "White"), ("cab", "White"),
+	("steel", "Steel"), ("metal", "Steel"), ("iron", "SteelDark"), ("dark", "SteelDark"), ("black", "SteelDark"),
+	("wood", "TimberDark"), ("rock", "Rock"), ("stone", "Rock"), ("granite", "Rock"), ("moss", "Needles"),
+)
+
+
+def codex_role(name, default):
+	base = (name or "").split(".")[0]
+	exact = {k.replace("_", "").lower(): k for k in list(S.MATS) + list(S.GLASS) + list(S.GLOW)}
+	if base.replace("_", "").lower() in exact:  # Codex names its materials by our roles
+		return exact[base.replace("_", "").lower()]
+	n = base.lower()
+	if "glow" in n:
+		return "Glow_Amber"
+	for key, role in CODEX_ROLE:
+		if key in n:
+			return role
+	return default
+
+
+def codex_fit(glb, name, w, h, d, mats, kit, default_role="Rock", inset=0.96, uniform=False, separate=True):
+	"""Imports a Codex GLB and fits it to the collision box w x h x d (Roblox x, y, z), bottom centre at the origin,
+	slightly inset so the art never sticks out of what you collide with. Parts are grouped by role (material name ->
+	CODEX_ROLE). Returns the piece collection, or None when the file is missing (the procedural piece stays)."""
+	path = os.path.join(PROPS_DIR, glb)
+	if not os.path.exists(path):
+		return None
+	before = set(bpy.data.objects)
+	bpy.ops.import_scene.gltf(filepath=path)
+	new = [o for o in bpy.data.objects if o not in before]
+	bpy.context.view_layer.update()
+	meshes = [o for o in new if o.type == "MESH"]
+	groups = {}
+	lo = Vector((1e9, 1e9, 1e9))
+	hi = -lo
+	bms = []
+	for o in meshes:
+		for slot_i, slot in enumerate(o.material_slots or [None]):
+			bm = bmesh.new()
+			bm.from_mesh(o.data)
+			bm.transform(o.matrix_world)
+			if o.material_slots:
+				bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.material_index != slot_i], context="FACES")
+			if not bm.faces:
+				bm.free()
+				continue
+			for v in bm.verts:
+				for k in range(3):
+					lo[k] = min(lo[k], v.co[k])
+					hi[k] = max(hi[k], v.co[k])
+			mname = slot.material.name if slot and slot.material else o.name
+			bms.append((codex_role(mname, codex_role(o.name, default_role)), bm))
+	for o in new:
+		bpy.data.objects.remove(o)
+	size = hi - lo
+	# Blender (x, y, z) = Roblox (x, -z, y): fit x to w, y to d, z to h.
+	sx, sy, sz = w * inset / max(size.x, 1e-6), d * inset / max(size.y, 1e-6), h / max(size.z, 1e-6)
+	if uniform:
+		sx = sy = sz = min(sx, sy, sz)
+	cx, cy = (lo.x + hi.x) / 2, (lo.y + hi.y) / 2
+	m = Matrix.Diagonal((sx, sy, sz, 1.0)) @ Matrix.Translation((-cx, -cy, -lo.z))
+	acc = Acc()
+	order = sorted({r for r, _ in bms})
+	bms = [("Boulder" if r == "Rock" else r, bm) for r, bm in bms]
+	for role, bm in bms:
+		bm.transform(m)
+		if separate:
+			# Codex parts can share face planes (z-fighting): each role gets its own tiny offset (>= 0.025), and the
+			# whole model sinks into the snow so its base never sits flush on the ground.
+			# (Tried per-role offsets and normal pushes: they trade one set of coplanar faces for another inside the
+			# Codex mesh. Only the sink stays; the remaining internal pairs are logged in Snowpeak2.md.)
+			bm.transform(Matrix.Translation((0.0, 0.0, -0.06)))
+		if role in ("Boulder", "Snow"):
+			# Codex's rock and drift shells came in inside-out (dark in any light); they are convex lumps, so
+			# wind every face away from the model's centre (blind recalc flips open shells, so not that).
+			cen = Vector((0.0, 0.0, h * 0.35))
+			for f in bm.faces:
+				if f.normal.dot(f.calc_center_median() - cen) < 0:
+					f.normal_flip()
+			bm.normal_update()
+		acc.add(role.replace("Glow_", "") + ("_Glow" if role.startswith("Glow_") else ""), role, bm)
+	return piece(name, acc, mats, kit)
+
+
 def main():
 	mats = make_mats()
 	kit = K.collection("Kit")
@@ -1604,12 +1695,12 @@ def main():
 		("Woodshed", hut("Woodshed", pb["Woodshed"].sx, pb["Woodshed"].sz, 8, 6.0, mats, kit, logs_front=True)),
 		("Woodpile", p_woodpile("Woodpile", pb["Woodpile"].sx, pb["Woodpile"].sz, 7, mats, kit)),
 		("Firewood", p_woodpile("Firewood", pb["Firewood"].sx, pb["Firewood"].sz, 7, mats, kit, back_gap=0.5)),
-		("SnowPile8", p_snowpile("SnowPile8", pb["SnowPile8"].sx, pb["SnowPile8"].sz, mats, kit, 3)),
-		("SnowPile18", p_snowpile("SnowPile18", pb["SnowPile18"].sx, pb["SnowPile18"].sz, mats, kit, 4)),
-		("Island", p_rock("Island", 8, 8, 7.4, mats, kit, 21)),
-		("Boulder6", p_rock("Boulder6", 6, 6, 8.4, mats, kit, 22)),
-		("Boulder8", p_rock("Boulder8", 8, 8, 8.0, mats, kit, 23)),
-		("Snowcat", p_snowcat(mats, kit)),
+		("SnowPile8", codex_fit("SnowdriftA.glb", "SnowPile8", pb["SnowPile8"].sx, 8, pb["SnowPile8"].sz, mats, kit, "Snow") or p_snowpile("SnowPile8", pb["SnowPile8"].sx, pb["SnowPile8"].sz, mats, kit, 3)),
+		("SnowPile18", codex_fit("SnowdriftB.glb", "SnowPile18", pb["SnowPile18"].sx, 8, pb["SnowPile18"].sz, mats, kit, "Snow") or p_snowpile("SnowPile18", pb["SnowPile18"].sx, pb["SnowPile18"].sz, mats, kit, 4)),
+		("Island", codex_fit("BoulderD.glb", "Island", 8, 7.4, 8, mats, kit) or p_rock("Island", 8, 8, 7.4, mats, kit, 21)),
+		("Boulder6", codex_fit("BoulderB.glb", "Boulder6", 6, 8.4, 6, mats, kit) or p_rock("Boulder6", 6, 6, 8.4, mats, kit, 22)),
+		("Boulder8", codex_fit("BoulderA.glb", "Boulder8", 8, 8.0, 8, mats, kit) or p_rock("Boulder8", 8, 8, 8.0, mats, kit, 23)),
+		("Snowcat", codex_fit("Snowcat.glb", "Snowcat", 8, 8, 14, mats, kit, "Red") or p_snowcat(mats, kit)),
 		("TrailMap", p_trailmap(mats, kit)),
 		("SkiRack", p_skirack(mats, kit)),
 		("FirePit", p_firepit(mats, kit)),

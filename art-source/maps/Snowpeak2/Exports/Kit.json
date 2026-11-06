@@ -5,14 +5,14 @@
   "Boulder6": {
    "props": {},
    "parts": [
-    "Boulder6_Rock",
+    "Boulder6_Boulder",
     "Boulder6_Snow"
    ]
   },
   "Boulder8": {
    "props": {},
    "parts": [
-    "Boulder8_Rock",
+    "Boulder8_Boulder",
     "Boulder8_Snow"
    ]
   },
@@ -77,7 +77,7 @@
   "Island": {
    "props": {},
    "parts": [
-    "Island_Rock",
+    "Island_Boulder",
     "Island_Snow"
    ]
   },
@@ -264,15 +264,13 @@
   "Snowcat": {
    "props": {},
    "parts": [
-    "Snowcat_Tracks",
-    "Snowcat_Wheels",
-    "Snowcat_Body",
-    "Snowcat_Cab",
     "Snowcat_CabGlass",
-    "Snowcat_Roof",
-    "Snowcat_Beacon_Glow",
-    "Snowcat_Blade",
-    "Snowcat_Tiller"
+    "Snowcat_Amber_Glow",
+    "Snowcat_Red",
+    "Snowcat_Rubber",
+    "Snowcat_Snow",
+    "Snowcat_Steel",
+    "Snowcat_SteelDark"
    ]
   },
   "SnowPile18": {
@@ -353,24 +351,23 @@
  "parts": [
   {
    "piece": "Boulder6",
-   "name": "Boulder6_Rock",
-   "material": "S2_Rock",
+   "name": "Boulder6_Boulder",
+   "material": "S2_Boulder",
    "look": {
-    "material": "Rock",
-    "color": "7C838C",
-    "variant": "Snow2_Rock"
+    "material": "Slate",
+    "color": "B4B8BE"
    },
    "glow": false,
-   "tris": 46,
+   "tris": 86,
    "center": [
-    0.04648,
-    -0.07359,
-    4.18676
+    0.0,
+    0.0,
+    3.53443
    ],
    "size": [
-    5.8415,
-    5.81324,
-    8.37353
+    5.76,
+    5.76,
+    7.18886
    ]
   },
   {
@@ -383,38 +380,37 @@
     "variant": "Snow2_Snow"
    },
    "glow": false,
-   "tris": 6,
+   "tris": 690,
    "center": [
-    -0.09426,
-    -0.04164,
-    7.5674
+    0.34345,
+    0.16757,
+    6.28191
    ],
    "size": [
-    5.31355,
-    5.25098,
-    2.05226
+    4.1469,
+    3.98788,
+    4.11619
    ]
   },
   {
    "piece": "Boulder8",
-   "name": "Boulder8_Rock",
-   "material": "S2_Rock",
+   "name": "Boulder8_Boulder",
+   "material": "S2_Boulder",
    "look": {
-    "material": "Rock",
-    "color": "7C838C",
-    "variant": "Snow2_Rock"
+    "material": "Slate",
+    "color": "B4B8BE"
    },
    "glow": false,
-   "tris": 46,
+   "tris": 86,
    "center": [
-    0.03225,
-    -0.12356,
-    3.99057
+    0.0,
+    0.0,
+    3.36292
    ],
    "size": [
-    7.87604,
-    7.71841,
-    7.98115
+    7.68,
+    7.68,
+    6.84583
    ]
   },
   {
@@ -427,16 +423,16 @@
     "variant": "Snow2_Snow"
    },
    "glow": false,
-   "tris": 8,
+   "tris": 690,
    "center": [
-    0.01935,
-    -0.23645,
-    7.28928
+    0.14697,
+    -0.04724,
+    5.87026
    ],
    "size": [
-    7.06932,
-    6.60503,
-    1.82374
+    5.21715,
+    6.09319,
+    4.13948
    ]
   },
   {
@@ -551,7 +547,7 @@
    "material": "S2_Rock",
    "look": {
     "material": "Rock",
-    "color": "7C838C",
+    "color": "A0A5AC",
     "variant": "Snow2_Rock"
    },
    "glow": false,
@@ -1048,24 +1044,23 @@
   },
   {
    "piece": "Island",
-   "name": "Island_Rock",
-   "material": "S2_Rock",
+   "name": "Island_Boulder",
+   "material": "S2_Boulder",
    "look": {
-    "material": "Rock",
-    "color": "7C838C",
-    "variant": "Snow2_Rock"
+    "material": "Slate",
+    "color": "B4B8BE"
    },
    "glow": false,
-   "tris": 46,
+   "tris": 86,
    "center": [
-    -0.02707,
-    0.05455,
-    3.66283
+    0.0,
+    0.0,
+    3.10235
    ],
    "size": [
-    7.9321,
-    7.87966,
-    7.32566
+    7.68,
+    7.68,
+    6.3247
    ]
   },
   {
@@ -1078,16 +1073,16 @@
     "variant": "Snow2_Snow"
    },
    "glow": false,
-   "tris": 10,
+   "tris": 690,
    "center": [
-    0.16489,
-    0.0518,
-    6.41047
+    0.20265,
+    0.13482,
+    5.72507
    ],
    "size": [
-    7.34049,
-    7.37208,
-    2.27038
+    6.17425,
+    5.50227,
+    3.22985
    ]
   },
   {
@@ -3201,7 +3196,7 @@
    "material": "S2_Rock",
    "look": {
     "material": "Rock",
-    "color": "7C838C",
+    "color": "A0A5AC",
     "variant": "Snow2_Rock"
    },
    "glow": false,
@@ -3245,7 +3240,7 @@
    "material": "S2_Rock",
    "look": {
     "material": "Rock",
-    "color": "7C838C",
+    "color": "A0A5AC",
     "variant": "Snow2_Rock"
    },
    "glow": false,
@@ -3590,90 +3585,6 @@
   },
   {
    "piece": "Snowcat",
-   "name": "Snowcat_Tracks",
-   "material": "S2_Rubber",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "38393C"
-   },
-   "glow": false,
-   "tris": 56,
-   "center": [
-    0.0,
-    0.0,
-    1.5
-   ],
-   "size": [
-    8.0,
-    12.4,
-    3.0
-   ]
-  },
-  {
-   "piece": "Snowcat",
-   "name": "Snowcat_Wheels",
-   "material": "S2_SteelDark",
-   "look": {
-    "material": "Plastic",
-    "color": "3E444B"
-   },
-   "glow": false,
-   "tris": 288,
-   "center": [
-    0.0,
-    0.25,
-    1.5
-   ],
-   "size": [
-    8.24,
-    9.3,
-    1.7119
-   ]
-  },
-  {
-   "piece": "Snowcat",
-   "name": "Snowcat_Body",
-   "material": "S2_Red",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "A8262E"
-   },
-   "glow": false,
-   "tris": 56,
-   "center": [
-    0.0,
-    -0.1,
-    2.7
-   ],
-   "size": [
-    7.8,
-    12.2,
-    3.4
-   ]
-  },
-  {
-   "piece": "Snowcat",
-   "name": "Snowcat_Cab",
-   "material": "S2_White",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "D9DCDF"
-   },
-   "glow": false,
-   "tris": 44,
-   "center": [
-    0.0,
-    0.1,
-    6.0
-   ],
-   "size": [
-    5.2,
-    5.0,
-    3.2
-   ]
-  },
-  {
-   "piece": "Snowcat",
    "name": "Snowcat_CabGlass",
    "material": "S2_CabGlass",
    "look": {
@@ -3682,100 +3593,143 @@
     "transparency": 0.7
    },
    "glow": false,
-   "tris": 36,
+   "tris": 112,
    "center": [
     0.0,
-    0.33,
-    6.2
+    -1.36631,
+    5.75032
    ],
    "size": [
-    5.32,
-    4.66,
-    2.0
+    5.1391,
+    5.08378,
+    2.6077
    ]
   },
   {
    "piece": "Snowcat",
-   "name": "Snowcat_Roof",
-   "material": "S2_Red",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "A8262E"
-   },
-   "glow": false,
-   "tris": 12,
-   "center": [
-    0.0,
-    0.1,
-    7.725
-   ],
-   "size": [
-    5.4,
-    5.2,
-    0.25
-   ]
-  },
-  {
-   "piece": "Snowcat",
-   "name": "Snowcat_Beacon_Glow",
+   "name": "Snowcat_Amber_Glow",
    "material": "S2_Glow_Amber",
    "look": {
     "material": "Neon",
     "color": "9C7A40"
    },
    "glow": true,
-   "tris": 12,
+   "tris": 60,
    "center": [
     0.0,
-    0.0,
-    7.925
+    -1.07722,
+    7.71108
    ],
    "size": [
-    0.7,
-    0.7,
-    0.15
+    0.4394,
+    0.36467,
+    0.45784
    ]
   },
   {
    "piece": "Snowcat",
-   "name": "Snowcat_Blade",
+   "name": "Snowcat_Red",
+   "material": "S2_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 312,
+   "center": [
+    0.0,
+    0.2663,
+    5.08845
+   ],
+   "size": [
+    7.12597,
+    10.46026,
+    4.62818
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Rubber",
+   "material": "S2_Rubber",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "38393C"
+   },
+   "glow": false,
+   "tris": 526,
+   "center": [
+    0.0,
+    0.02639,
+    3.02567
+   ],
+   "size": [
+    7.27881,
+    10.94009,
+    6.03654
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Snow",
+   "material": "S2_Snow",
+   "look": {
+    "material": "Snow",
+    "color": "EEF2F8",
+    "variant": "Snow2_Snow"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    -3.42838,
+    7.42244
+   ],
+   "size": [
+    4.48955,
+    0.09597,
+    0.24883
+   ]
+  },
+  {
+   "piece": "Snowcat",
+   "name": "Snowcat_Steel",
    "material": "S2_Steel",
    "look": {
     "material": "Plastic",
     "color": "5E656D"
    },
    "glow": false,
-   "tris": 20,
+   "tris": 1672,
    "center": [
     0.0,
-    6.5,
-    1.95
+    0.01439,
+    3.28196
    ],
    "size": [
-    7.9,
-    1.0,
-    3.3
+    7.62269,
+    13.41121,
+    6.62874
    ]
   },
   {
    "piece": "Snowcat",
-   "name": "Snowcat_Tiller",
+   "name": "Snowcat_SteelDark",
    "material": "S2_SteelDark",
    "look": {
     "material": "Plastic",
     "color": "3E444B"
    },
    "glow": false,
-   "tris": 44,
+   "tris": 3076,
    "center": [
     0.0,
-    -6.6,
-    1.45
+    -0.02159,
+    3.76333
    ],
    "size": [
-    7.2,
-    0.8,
-    1.9
+    7.68,
+    13.39682,
+    7.64667
    ]
   },
   {
@@ -3788,16 +3742,16 @@
     "variant": "Snow2_Snow"
    },
    "glow": false,
-   "tris": 630,
+   "tris": 382,
    "center": [
     0.0,
     0.0,
-    4.09964
+    3.94
    ],
    "size": [
-    18.0,
-    8.0,
-    8.19929
+    17.28,
+    7.68,
+    8.0
    ]
   },
   {
@@ -3810,16 +3764,16 @@
     "variant": "Snow2_Snow"
    },
    "glow": false,
-   "tris": 318,
+   "tris": 382,
    "center": [
     0.0,
     0.0,
-    4.00116
+    3.94
    ],
    "size": [
-    8.0,
-    8.0,
-    8.00232
+    7.68,
+    7.68,
+    8.0
    ]
   },
   {
@@ -4617,5 +4571,5 @@
    ]
   }
  ],
- "tris": 32918
+ "tris": 40178
 }

@@ -42,8 +42,9 @@ MATS: dict[str, tuple[str, str, str]] = {
     "Red": ("A8262E", "SmoothPlastic", ""),  # gondola red, the hero accent (far from team orange-red FF5A36)
     "White": ("D9DCDF", "SmoothPlastic", ""),
     "Rubber": ("38393C", "SmoothPlastic", ""),
-    "Rock": ("7C838C", "Rock", "Snow2_Rock"),
+    "Rock": ("A0A5AC", "Rock", "Snow2_Rock"),  # r4: lighter (blue shade read near-black)
     "RockDark": ("5E656E", "Rock", "Snow2_Rock"),
+    "Boulder": ("B4B8BE", "Slate", ""),  # r4: Codex boulders (their small UVs made the rock variant read near-black)
     "Needles": ("2E4A3A", "Grass", ""),
     "Bark": ("5A4030", "Wood", ""),
     "Fabric": ("7A3B2E", "Fabric", ""),
@@ -85,7 +86,7 @@ LIGHTING = {
     "GeographicLatitude": 0,
     "Brightness": 2.8,
     "Ambient": (128, 138, 160),
-    "OutdoorAmbient": (160, 174, 200),
+    "OutdoorAmbient": (182, 190, 210),  # r4: brighter shade fill
     "ColorShift_Top": (255, 206, 160),
     "ColorShift_Bottom": (140, 164, 210),
     "EnvironmentDiffuseScale": 0.5,
