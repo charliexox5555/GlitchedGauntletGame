@@ -1,0 +1,72 @@
+{
+ "CONTROL": {
+  "file": "art-source/maps/Bunker2/signs/door_CONTROL.png",
+  "decal": "129933360801785",
+  "image": "116385967777612"
+ },
+ "CORRIDOR": {
+  "file": "art-source/maps/Bunker2/signs/door_CORRIDOR.png",
+  "decal": "97447876994536",
+  "image": "133504464595752"
+ },
+ "GALLERY": {
+  "file": "art-source/maps/Bunker2/signs/door_GALLERY.png",
+  "decal": "115654901686008",
+  "image": "93998678418549"
+ },
+ "LOCKERS": {
+  "file": "art-source/maps/Bunker2/signs/door_LOCKERS.png",
+  "decal": "118026001885003",
+  "image": "130685860984215"
+ },
+ "OVERLOOK": {
+  "file": "art-source/maps/Bunker2/signs/door_OVERLOOK.png",
+  "decal": "81864226584919",
+  "image": "77131758600320"
+ },
+ "RING": {
+  "file": "art-source/maps/Bunker2/signs/door_RING.png",
+  "decal": "110188041319693",
+  "image": "123100294172173"
+ },
+ "SPAWN": {
+  "file": "art-source/maps/Bunker2/signs/door_SPAWN.png",
+  "decal": "112141599726323",
+  "image": "128705221256157"
+ },
+ "SUNWELL": {
+  "file": "art-source/maps/Bunker2/signs/door_SUNWELL.png",
+  "decal": "84061913748579",
+  "image": "91761310247802"
+ },
+ "VESTIBULE": {
+  "file": "art-source/maps/Bunker2/signs/door_VESTIBULE.png",
+  "decal": "94912489695009",
+  "image": "71552361584351"
+ },
+ "PUMP": {
+  "file": "art-source/maps/Bunker2/signs/door_PUMP.png",
+  "decal": "106611485209498",
+  "image": "84218703432268"
+ },
+ "GALLERY A": {
+  "file": "art-source/maps/Bunker2/signs/blast_A.png",
+  "decal": "120853801800119",
+  "image": "105272373448481"
+ },
+ "SPAWN A": {
+  "file": "art-source/maps/Bunker2/signs/spawn_A.png",
+  "decal": "103206643629417",
+  "image": "131412616602653"
+ },
+ "GALLERY B": {
+  "file": "art-source/maps/Bunker2/signs/blast_B.png",
+  "decal": "95578433560763",
+  "image": "88771373246600"
+ },
+ "SPAWN B": {
+  "file": "art-source/maps/Bunker2/signs/spawn_B.png",
+  "decal": "140606494657295",
+  "image": "94685030253377"
+ }
+}
