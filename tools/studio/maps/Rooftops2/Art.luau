@@ -1136,11 +1136,14 @@ for _, d in greybox:GetDescendants() do
 			-- fix round 1: a modelled cobalt cap on every pier (the greybox cap stays the collision)
 			hide(d)
 			hidden += 1
-			put(
+			local cap = put(
 				sec("Structure"),
 				"PierCap",
 				MAP_ORIGIN:ToObjectSpace(d.CFrame) * CFrame.new(0, -d.Size.Y / 2, 0)
 			)
+			if cap then
+				restyle(cap, nil, nil) -- maps v5 r7: the caps take the STYLE colours (they kept the kit's)
+			end
 		elseif look and LOOK_ROLE[look] then
 			local role = LOOK_ROLE[look]
 			local tone = d:GetAttribute("Tone") :: string?
