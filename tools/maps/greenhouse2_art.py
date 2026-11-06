@@ -66,6 +66,9 @@ DECOR_TUBS: list[tuple[float, float]] = [
     (38.0, 30.2), (38.0, 17.8),  # inside the Dome's east door
     (-22.0, 76.2), (-22.0, 63.8),  # Fern House, at its west door
     (22.0, 60.2), (22.0, 47.8),  # Fern House, at its east door
+    # kit v2: the Orangery dressed as the concept's spawn hall: tubs either side of its doors (the spawn view)
+    (-1.8, 86.0), (-14.2, 86.0), (-25.8, 86.0), (-38.2, 86.0),
+    (-15.8, 98.0), (-28.2, 98.0), (15.8, 98.0), (28.2, 98.0),
 ]  # from a clearance search on the layout blocks (1.5 radius, 3.0 off the wall plane, no solid below 4)
 
 GA.Art.build = build

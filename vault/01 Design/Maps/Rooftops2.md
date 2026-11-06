@@ -893,3 +893,14 @@ Best shots: [overview](../../02%20Art/References/maps/rooftops2/v5-r4-overview.j
 - **Not scored yet.** The blind reviewers were stopped when the usage limit was reached.
 
 **Next:** run the 3 blind reviewers on `v5-r5-*.jpg`.
+
+**Round 5 blind score: 8.3** on the medians per criterion (W1 2, W2 1, W3 2, W4 2, W5 1, W6 2). The reviewers' own totals were 7.1, 8.3 and 7.9 (median 7.9). Against the best of 7.1 that's +0.8 (+1.2 on the criterion medians), so the loop continues.
+
+Low points: W5 detail (the bare tower top and spawn-deck flats) and W2 (busy overview routes). 8.5 needs 21/24, so one more criterion at 2 passes.
+
+### Round 6 (W5, built, installs next)
+- A paved walk and repairs on the tower tops.
+- Drains and tar patches on the spawn court's open east end.
+- Potted agaves and a crate/barrel group along the bare north parapet.
+
+These are art-only placements (`rooftops2_art.py`).

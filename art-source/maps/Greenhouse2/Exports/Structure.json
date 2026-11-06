@@ -6,7 +6,10 @@
    "props": {},
    "parts": [
     "Bridge_Timber",
-    "Bridge_Iron"
+    "Bridge_Iron",
+    "Bridge_Boiler",
+    "Bridge_IronB",
+    "Bridge_Stone"
    ]
   },
   "Dome": {
@@ -30,7 +33,10 @@
    "props": {},
    "parts": [
     "Gallery_Timber",
-    "Gallery_Iron"
+    "Gallery_Iron",
+    "Gallery_Boiler",
+    "Gallery_IronB",
+    "Gallery_Stone"
    ]
   },
   "GlassDoor8": {
@@ -45,9 +51,9 @@
    "props": {},
    "parts": [
     "GlassWall16_Brick",
-    "GlassWall16_Stone",
     "GlassWall16_Frost",
-    "GlassWall16_Iron"
+    "GlassWall16_Iron",
+    "GlassWall16_Stone"
    ]
   },
   "GlassWall2": {
@@ -72,9 +78,9 @@
    "props": {},
    "parts": [
     "GlassWall8_Brick",
-    "GlassWall8_Stone",
     "GlassWall8_Frost",
-    "GlassWall8_Iron"
+    "GlassWall8_Iron",
+    "GlassWall8_Stone"
    ]
   },
   "IronStair": {
@@ -118,9 +124,11 @@
    "props": {},
    "parts": [
     "StuccoWall16_Stone",
+    "StuccoWall16_Boiler",
+    "StuccoWall16_Glow",
+    "StuccoWall16_Iron",
     "StuccoWall16_Stucco",
-    "StuccoWall16_Frost",
-    "StuccoWall16_Iron"
+    "StuccoWall16_Frost"
    ]
   },
   "StuccoWall2": {
@@ -178,16 +186,79 @@
     "color": "EDEDE4"
    },
    "glow": false,
-   "tris": 1712,
+   "tris": 1104,
    "center": [
     0.0,
     0.0,
-    7.75
+    12.475
    ],
    "size": [
     56.02329,
     8.0,
-    15.5
+    6.04999
+   ]
+  },
+  {
+   "piece": "Bridge",
+   "name": "Bridge_Boiler",
+   "material": "Boiler",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A5F64"
+   },
+   "glow": false,
+   "tris": 160,
+   "center": [
+    0.0,
+    0.0,
+    0.40944
+   ],
+   "size": [
+    40.90029,
+    0.91667,
+    0.08556
+   ]
+  },
+  {
+   "piece": "Bridge",
+   "name": "Bridge_IronB",
+   "material": "IronB",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDEDE4"
+   },
+   "glow": false,
+   "tris": 6906,
+   "center": [
+    0.0,
+    0.0,
+    5.66806
+   ],
+   "size": [
+    47.33333,
+    1.1,
+    10.66389
+   ]
+  },
+  {
+   "piece": "Bridge",
+   "name": "Bridge_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    0.17722
+   ],
+   "size": [
+    41.28333,
+    1.28333,
+    0.35444
    ]
   },
   {
@@ -369,16 +440,79 @@
     "color": "EDEDE4"
    },
    "glow": false,
-   "tris": 4696,
+   "tris": 3384,
    "center": [
-    -0.165,
+    -0.075,
     -0.03,
-    7.5
+    13.0
    ],
    "size": [
-    12.27,
+    12.09,
     80.06,
-    15.0
+    4.0
+   ]
+  },
+  {
+   "piece": "Gallery",
+   "name": "Gallery_Boiler",
+   "material": "Boiler",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A5F64"
+   },
+   "glow": false,
+   "tris": 320,
+   "center": [
+    -5.0,
+    0.0,
+    0.40944
+   ],
+   "size": [
+    0.91667,
+    48.90029,
+    0.08556
+   ]
+  },
+  {
+   "piece": "Gallery",
+   "name": "Gallery_IronB",
+   "material": "IronB",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDEDE4"
+   },
+   "glow": false,
+   "tris": 13812,
+   "center": [
+    -5.0,
+    0.0,
+    5.66806
+   ],
+   "size": [
+    1.1,
+    55.33333,
+    10.66389
+   ]
+  },
+  {
+   "piece": "Gallery",
+   "name": "Gallery_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 352,
+   "center": [
+    -5.0,
+    0.0,
+    0.17722
+   ],
+   "size": [
+    1.28333,
+    49.28333,
+    0.35444
    ]
   },
   {
@@ -453,37 +587,16 @@
     "color": "9C5B44"
    },
    "glow": false,
-   "tris": 22,
+   "tris": 1280,
    "center": [
     0.0,
     0.0,
-    1.5
+    0.85333
    ],
    "size": [
-    1.84,
-    16.0,
-    3.0
-   ]
-  },
-  {
-   "piece": "GlassWall16",
-   "name": "GlassWall16_Stone",
-   "material": "Stone",
-   "look": {
-    "material": "Limestone",
-    "color": "D9D0BE"
-   },
-   "glow": false,
-   "tris": 22,
-   "center": [
-    0.0,
-    0.0,
-    3.175
-   ],
-   "size": [
-    1.96,
-    16.0,
-    0.35
+    1.03636,
+    15.13333,
+    1.40667
    ]
   },
   {
@@ -495,16 +608,16 @@
     "color": "9DBDB2"
    },
    "glow": false,
-   "tris": 24,
+   "tris": 232,
    "center": [
     0.0,
     0.0,
-    21.475
+    20.72
    ],
    "size": [
     1.72,
     15.4,
-    36.25
+    37.76
    ]
   },
   {
@@ -516,16 +629,37 @@
     "color": "EDEDE4"
    },
    "glow": false,
-   "tris": 1764,
+   "tris": 3844,
    "center": [
     0.0,
     -0.16,
-    22.775
+    21.93333
    ],
    "size": [
     2.0,
     16.32,
-    38.85
+    40.53333
+   ]
+  },
+  {
+   "piece": "GlassWall16",
+   "name": "GlassWall16_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 528,
+   "center": [
+    0.0,
+    0.0,
+    0.91667
+   ],
+   "size": [
+    1.9,
+    15.98669,
+    1.83333
    ]
   },
   {
@@ -705,37 +839,16 @@
     "color": "9C5B44"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 640,
    "center": [
     0.0,
     0.0,
-    1.5
+    0.85333
    ],
    "size": [
-    1.84,
-    8.0,
-    3.0
-   ]
-  },
-  {
-   "piece": "GlassWall8",
-   "name": "GlassWall8_Stone",
-   "material": "Stone",
-   "look": {
-    "material": "Limestone",
-    "color": "D9D0BE"
-   },
-   "glow": false,
-   "tris": 12,
-   "center": [
-    0.0,
-    0.0,
-    3.175
-   ],
-   "size": [
-    1.96,
-    8.0,
-    0.35
+    1.03636,
+    7.13333,
+    1.40667
    ]
   },
   {
@@ -747,16 +860,16 @@
     "color": "9DBDB2"
    },
    "glow": false,
-   "tris": 12,
+   "tris": 116,
    "center": [
     0.0,
     0.0,
-    21.475
+    20.72
    ],
    "size": [
     1.72,
     7.4,
-    36.25
+    37.76
    ]
   },
   {
@@ -768,16 +881,37 @@
     "color": "EDEDE4"
    },
    "glow": false,
-   "tris": 900,
+   "tris": 1940,
    "center": [
     0.0,
     -0.16,
-    22.775
+    21.93333
    ],
    "size": [
     2.0,
     8.32,
-    38.85
+    40.53333
+   ]
+  },
+  {
+   "piece": "GlassWall8",
+   "name": "GlassWall8_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    0.91667
+   ],
+   "size": [
+    1.9,
+    7.98669,
+    1.83333
    ]
   },
   {
@@ -1057,6 +1191,69 @@
   },
   {
    "piece": "StuccoWall16",
+   "name": "StuccoWall16_Boiler",
+   "material": "Boiler",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A5F64"
+   },
+   "glow": false,
+   "tris": 976,
+   "center": [
+    0.0,
+    0.0,
+    8.2975
+   ],
+   "size": [
+    7.5,
+    3.2,
+    3.395
+   ]
+  },
+  {
+   "piece": "StuccoWall16",
+   "name": "StuccoWall16_Glow",
+   "material": "Glow",
+   "look": {
+    "material": "Neon",
+    "color": "FFC488"
+   },
+   "glow": true,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    7.67
+   ],
+   "size": [
+    7.14,
+    2.84,
+    1.64
+   ]
+  },
+  {
+   "piece": "StuccoWall16",
+   "name": "StuccoWall16_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDEDE4"
+   },
+   "glow": false,
+   "tris": 1608,
+   "center": [
+    0.0,
+    0.0,
+    18.75
+   ],
+   "size": [
+    6.17854,
+    12.0,
+    30.5
+   ]
+  },
+  {
+   "piece": "StuccoWall16",
    "name": "StuccoWall16_Stucco",
    "material": "Stucco",
    "look": {
@@ -1093,27 +1290,6 @@
    ],
    "size": [
     0.9,
-    12.0,
-    30.5
-   ]
-  },
-  {
-   "piece": "StuccoWall16",
-   "name": "StuccoWall16_Iron",
-   "material": "Iron",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "EDEDE4"
-   },
-   "glow": false,
-   "tris": 384,
-   "center": [
-    0.0,
-    0.0,
-    18.75
-   ],
-   "size": [
-    1.12,
     12.0,
     30.5
    ]
@@ -1287,5 +1463,5 @@
    ]
   }
  ],
- "tris": 20856
+ "tris": 48986
 }

@@ -24,16 +24,16 @@ local function rgb(r: number, g: number, b: number): Color3
 end
 
 local PROPS: { [string]: any } = {
-	ClockTime = 15.6, -- Greenhouse2 r2: a lower, warmer sun (reviewers: a cyan wash, no golden light)
+	ClockTime = 16.7, -- kit v2: low golden sun (reviewers r1-r3: no golden light)
 	GeographicLatitude = 38,
-	Brightness = 2.7, -- Greenhouse2: lifted (standard: shade never underexposed)
-	Ambient = rgb(132, 138, 136),
-	OutdoorAmbient = rgb(166, 174, 170),
-	ColorShift_Top = rgb(255, 216, 168),
+	Brightness = 3.1, -- kit v2: lifted again for the lower sun
+	Ambient = rgb(146, 138, 126), -- kit v2: warm fill (a real fill: shade reads lit, not grey)
+	OutdoorAmbient = rgb(180, 172, 160),
+	ColorShift_Top = rgb(255, 204, 146),
 	ColorShift_Bottom = rgb(0, 0, 0),
 	EnvironmentDiffuseScale = 0.35,
 	EnvironmentSpecularScale = 0.35,
-	ExposureCompensation = -0.2, -- Greenhouse was -0.3 (0 washed the white floor and glass out)
+	ExposureCompensation = -0.1, -- Greenhouse was -0.3; kit v2 warmer and lower sun needs more
 	ShadowSoftness = 0.2,
 	GlobalShadows = true,
 }
@@ -92,7 +92,7 @@ grade.Parent = fx
 
 local rays = Instance.new("SunRaysEffect")
 rays.Name = "GreenhouseSunRays"
-rays.Intensity = 0.1
+rays.Intensity = 0.14
 rays.Spread = 0.5
 rays.Parent = fx
 

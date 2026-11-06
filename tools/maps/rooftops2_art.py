@@ -247,6 +247,11 @@ class Art:
 			("AgavePot", -5.0, 0.0, 61.4, -20.0),
 			("AgavePot", 5.0, 0.0, 61.4, 40.0),
 			("AgavePot", 18.6, 0.0, 61.4, 0.0),
+			# r6: potted agaves and a crate stack along the bare north parapet behind the spawn court
+			("AgavePot", 2.0, 0.0, 77.8, 10.0),
+			("AgavePot", 12.0, 0.0, 77.8, -30.0),
+			("Barrel", 38.6, 0.0, 66.0, 0.0),
+			("CrateSmall", 40.8, 0.0, 66.4, 8.0),
 			("AgavePot", 46.0, 0.0, 57.4, 30.0),
 		]
 		for piece, x, y, z, yaw in groups:
@@ -268,6 +273,10 @@ class Art:
 		items += [("Drain", -12.0, L.PIT, 2.0, 0.0)]
 		items += [("TarPatchA", -16.0, 0.0, 44.0, 20.0), ("TarPatchB", 22.0, 0.0, 38.0, -15.0), ("TarPatchB", -34.0, 0.0, 74.0, 70.0), ("TarPatchA", 30.0, 0.0, 70.0, 110.0)]
 		items += [("TarPatchA", 8.0, L.PIT, -6.0, 35.0)]
+		# maps v5 r6 (W5 detail, 1 in every review: "flat tower top", "bare spawn deck"): a paved walk and repairs on
+		# the tower tops (+8), and more breakup on the spawn court's open east end
+		items += [("Walk4", -31.0, 8.0, 0.0, 0.0), ("TarPatchB", -45.0, 8.0, 5.0, 25.0), ("Drain", -45.5, 8.0, -5.5, 0.0)]
+		items += [("TarPatchA", 36.0, 0.0, 66.0, 60.0), ("Drain", 12.0, 0.0, 64.0, 0.0), ("TarPatchB", -6.0, 0.0, 70.0, 140.0)]
 		for piece, x, y, z, yaw in items:
 			for sg in (1, -1):
 				self.put("Floor", piece, x * sg, y, z * sg, yaw if sg > 0 else yaw + 180.0)

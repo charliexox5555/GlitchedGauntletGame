@@ -10,9 +10,9 @@
     "Bed6x12_Soil",
     "Bed6x12_Deep",
     "Bed6x12_Fern",
-    "Bed6x12_Lime",
     "Bed6x12_Trunk",
-    "Bed6x12_Palm"
+    "Bed6x12_Palm",
+    "Bed6x12_Lime"
    ]
   },
   "Bed6x14": {
@@ -22,10 +22,10 @@
     "Bed6x14_Stone",
     "Bed6x14_Soil",
     "Bed6x14_Deep",
-    "Bed6x14_Lime",
     "Bed6x14_Fern",
     "Bed6x14_Trunk",
-    "Bed6x14_Palm"
+    "Bed6x14_Palm",
+    "Bed6x14_Lime"
    ]
   },
   "Bed6x18": {
@@ -34,11 +34,11 @@
     "Bed6x18_Brick",
     "Bed6x18_Stone",
     "Bed6x18_Soil",
-    "Bed6x18_Lime",
     "Bed6x18_Deep",
     "Bed6x18_Fern",
     "Bed6x18_Trunk",
-    "Bed6x18_Palm"
+    "Bed6x18_Palm",
+    "Bed6x18_Lime"
    ]
   },
   "Bed6x20": {
@@ -49,9 +49,9 @@
     "Bed6x20_Soil",
     "Bed6x20_Deep",
     "Bed6x20_Fern",
-    "Bed6x20_Lime",
     "Bed6x20_Trunk",
-    "Bed6x20_Palm"
+    "Bed6x20_Palm",
+    "Bed6x20_Lime"
    ]
   },
   "Bed6x6": {
@@ -60,8 +60,8 @@
     "Bed6x6_Brick",
     "Bed6x6_Stone",
     "Bed6x6_Soil",
-    "Bed6x6_Fern",
-    "Bed6x6_Deep"
+    "Bed6x6_Deep",
+    "Bed6x6_Fern"
    ]
   },
   "Boiler": {
@@ -122,8 +122,9 @@
     "FlowerTub_Timber",
     "FlowerTub_Accent",
     "FlowerTub_Soil",
+    "FlowerTub_Bloom",
     "FlowerTub_Deep",
-    "FlowerTub_Bloom"
+    "FlowerTub_Fern"
    ]
   },
   "GardenTreeA": {
@@ -352,16 +353,16 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 240,
+   "tris": 2652,
    "center": [
-    -1.0072,
-    -1.21382,
-    2.53736
+    -0.05726,
+    -0.08536,
+    3.19608
    ],
    "size": [
-    2.14331,
-    2.14509,
-    1.17346
+    2.5657,
+    9.55495,
+    1.39216
    ]
   },
   {
@@ -373,37 +374,16 @@
     "color": "4C8A3E"
    },
    "glow": false,
-   "tris": 240,
+   "tris": 1224,
    "center": [
-    1.10426,
-    1.52494,
-    2.49395
+    0.0,
+    -0.00356,
+    3.19407
    ],
    "size": [
-    2.18855,
-    2.32001,
-    1.16875
-   ]
-  },
-  {
-   "piece": "Bed6x12",
-   "name": "Bed6x12_Lime",
-   "material": "Lime",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "9BC24E"
-   },
-   "glow": false,
-   "tris": 336,
-   "center": [
-    -0.89621,
-    1.69024,
-    5.94202
-   ],
-   "size": [
-    6.65713,
-    6.94834,
-    8.14012
+    2.6863,
+    9.80549,
+    1.36565
    ]
   },
   {
@@ -445,6 +425,27 @@
    "size": [
     6.89332,
     6.76569,
+    3.11208
+   ]
+  },
+  {
+   "piece": "Bed6x12",
+   "name": "Bed6x12_Lime",
+   "material": "Lime",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9BC24E"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    -1.62356,
+    1.19906,
+    8.45604
+   ],
+   "size": [
+    5.20243,
+    5.96599,
     3.11208
    ]
   },
@@ -520,37 +521,16 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 720,
+   "tris": 3536,
    "center": [
-    -1.26794,
-    -1.40338,
-    2.4759
+    -0.04275,
+    -0.00019,
+    3.19608
    ],
    "size": [
-    3.01407,
-    9.99634,
-    1.23653
-   ]
-  },
-  {
-   "piece": "Bed6x14",
-   "name": "Bed6x14_Lime",
-   "material": "Lime",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "9BC24E"
-   },
-   "glow": false,
-   "tris": 816,
-   "center": [
-    -0.8332,
-    -0.04128,
-    5.93505
-   ],
-   "size": [
-    6.69489,
-    12.48784,
-    8.15406
+    2.59472,
+    12.1253,
+    1.39216
    ]
   },
   {
@@ -562,16 +542,16 @@
     "color": "4C8A3E"
    },
    "glow": false,
-   "tris": 480,
+   "tris": 1632,
    "center": [
-    1.23024,
-    3.86491,
-    2.51392
+    0.0,
+    -0.02685,
+    3.19407
    ],
    "size": [
-    2.50607,
-    4.99905,
-    1.25986
+    2.6863,
+    12.15892,
+    1.36565
    ]
   },
   {
@@ -613,6 +593,27 @@
    "size": [
     7.3997,
     6.75701,
+    3.11208
+   ]
+  },
+  {
+   "piece": "Bed6x14",
+   "name": "Bed6x14_Lime",
+   "material": "Lime",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9BC24E"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    -1.55903,
+    1.15614,
+    8.45604
+   ],
+   "size": [
+    5.24325,
+    6.01025,
     3.11208
    ]
   },
@@ -681,27 +682,6 @@
   },
   {
    "piece": "Bed6x18",
-   "name": "Bed6x18_Lime",
-   "material": "Lime",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "9BC24E"
-   },
-   "glow": false,
-   "tris": 432,
-   "center": [
-    -0.84167,
-    0.48991,
-    5.938
-   ],
-   "size": [
-    5.41012,
-    18.17039,
-    8.14817
-   ]
-  },
-  {
-   "piece": "Bed6x18",
    "name": "Bed6x18_Deep",
    "material": "Deep",
    "look": {
@@ -709,16 +689,16 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 1200,
+   "tris": 4420,
    "center": [
-    -0.17323,
-    0.87711,
-    2.48078
+    -0.04275,
+    0.00739,
+    3.19608
    ],
    "size": [
-    4.99191,
-    14.20764,
-    1.2356
+    2.59472,
+    15.98046,
+    1.39216
    ]
   },
   {
@@ -730,16 +710,16 @@
     "color": "4C8A3E"
    },
    "glow": false,
-   "tris": 1200,
+   "tris": 2040,
    "center": [
-    0.151,
-    -1.1778,
-    2.51429
+    0.0,
+    -0.01173,
+    3.19407
    ],
    "size": [
-    5.30765,
-    14.18133,
-    1.30348
+    2.6863,
+    16.02916,
+    1.36565
    ]
   },
   {
@@ -781,6 +761,27 @@
    "size": [
     8.03856,
     17.38898,
+    3.11208
+   ]
+  },
+  {
+   "piece": "Bed6x18",
+   "name": "Bed6x18_Lime",
+   "material": "Lime",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9BC24E"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    -0.84167,
+    0.67017,
+    8.45604
+   ],
+   "size": [
+    5.41012,
+    17.80988,
     3.11208
    ]
   },
@@ -856,16 +857,16 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 240,
+   "tris": 5304,
    "center": [
-    -1.33416,
-    -8.09941,
-    2.48429
+    -0.03377,
+    0.0068,
+    3.19608
    ],
    "size": [
-    2.53774,
-    2.45163,
-    1.23981
+    2.61269,
+    18.20594,
+    1.39216
    ]
   },
   {
@@ -877,37 +878,16 @@
     "color": "4C8A3E"
    },
    "glow": false,
-   "tris": 480,
+   "tris": 2448,
    "center": [
-    0.12354,
-    -0.07384,
-    2.52487
+    0.00503,
+    -0.00785,
+    3.19407
    ],
    "size": [
-    4.35393,
-    5.21388,
-    1.2901
-   ]
-  },
-  {
-   "piece": "Bed6x20",
-   "name": "Bed6x20_Lime",
-   "material": "Lime",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "9BC24E"
-   },
-   "glow": false,
-   "tris": 1152,
-   "center": [
-    -0.50948,
-    0.514,
-    5.93868
-   ],
-   "size": [
-    6.31791,
-    19.10952,
-    8.1468
+    2.69635,
+    18.26359,
+    1.36565
    ]
   },
   {
@@ -949,6 +929,27 @@
    "size": [
     7.93547,
     19.21666,
+    3.11208
+   ]
+  },
+  {
+   "piece": "Bed6x20",
+   "name": "Bed6x20_Lime",
+   "material": "Lime",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9BC24E"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    -0.55998,
+    0.514,
+    8.45604
+   ],
+   "size": [
+    6.2169,
+    19.10952,
     3.11208
    ]
   },
@@ -1017,27 +1018,6 @@
   },
   {
    "piece": "Bed6x6",
-   "name": "Bed6x6_Fern",
-   "material": "Fern",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "4C8A3E"
-   },
-   "glow": false,
-   "tris": 480,
-   "center": [
-    0.00292,
-    1.2081,
-    2.49137
-   ],
-   "size": [
-    4.87928,
-    2.61731,
-    1.2687
-   ]
-  },
-  {
-   "piece": "Bed6x6",
    "name": "Bed6x6_Deep",
    "material": "Deep",
    "look": {
@@ -1045,16 +1025,37 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 240,
+   "tris": 884,
    "center": [
-    1.05821,
-    -1.04128,
-    2.51941
+    -0.03109,
+    -0.00117,
+    3.19608
    ],
    "size": [
-    2.48493,
-    2.47304,
-    1.32286
+    2.51336,
+    2.52335,
+    1.39216
+   ]
+  },
+  {
+   "piece": "Bed6x6",
+   "name": "Bed6x6_Fern",
+   "material": "Fern",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4C8A3E"
+   },
+   "glow": false,
+   "tris": 408,
+   "center": [
+    0.0,
+    0.0,
+    3.19407
+   ],
+   "size": [
+    2.6863,
+    2.61262,
+    1.36565
    ]
   },
   {
@@ -1689,27 +1690,6 @@
   },
   {
    "piece": "FlowerTub",
-   "name": "FlowerTub_Deep",
-   "material": "Deep",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "2F6B35"
-   },
-   "glow": false,
-   "tris": 32,
-   "center": [
-    0.0532,
-    -0.02606,
-    2.86375
-   ],
-   "size": [
-    1.62314,
-    1.5801,
-    1.18403
-   ]
-  },
-  {
-   "piece": "FlowerTub",
    "name": "FlowerTub_Bloom",
    "material": "Bloom",
    "look": {
@@ -1717,16 +1697,58 @@
     "color": "EEEDE6"
    },
    "glow": false,
-   "tris": 180,
+   "tris": 960,
    "center": [
-    -0.0192,
-    0.03551,
-    3.4763
+    0.03546,
+    -0.03633,
+    3.79506
    ],
    "size": [
-    1.70238,
-    2.07853,
-    0.83288
+    1.90474,
+    2.09581,
+    1.1458
+   ]
+  },
+  {
+   "piece": "FlowerTub",
+   "name": "FlowerTub_Deep",
+   "material": "Deep",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F6B35"
+   },
+   "glow": false,
+   "tris": 224,
+   "center": [
+    0.04548,
+    -0.06924,
+    3.15693
+   ],
+   "size": [
+    1.32046,
+    1.49825,
+    2.11385
+   ]
+  },
+  {
+   "piece": "FlowerTub",
+   "name": "FlowerTub_Fern",
+   "material": "Fern",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4C8A3E"
+   },
+   "glow": false,
+   "tris": 256,
+   "center": [
+    0.0,
+    0.0,
+    3.18653
+   ],
+   "size": [
+    2.50075,
+    2.80271,
+    1.48613
    ]
   },
   {
@@ -3246,5 +3268,5 @@
    ]
   }
  ],
- "tris": 42424
+ "tris": 60520
 }

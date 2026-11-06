@@ -2172,6 +2172,134 @@
 "yaw": 180.0
 },
 {
+"section": "Garden",
+"piece": "FlowerTub",
+"x": -1.8,
+"y": 0.0,
+"z": 86.0,
+"yaw": 0.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": 1.8,
+"y": 0.0,
+"z": -86.0,
+"yaw": 180.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": -14.2,
+"y": 0.0,
+"z": 86.0,
+"yaw": 0.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": 14.2,
+"y": 0.0,
+"z": -86.0,
+"yaw": 180.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": -25.8,
+"y": 0.0,
+"z": 86.0,
+"yaw": 0.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": 25.8,
+"y": 0.0,
+"z": -86.0,
+"yaw": 180.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": -38.2,
+"y": 0.0,
+"z": 86.0,
+"yaw": 0.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": 38.2,
+"y": 0.0,
+"z": -86.0,
+"yaw": 180.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": -15.8,
+"y": 0.0,
+"z": 98.0,
+"yaw": 0.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": 15.8,
+"y": 0.0,
+"z": -98.0,
+"yaw": 180.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": -28.2,
+"y": 0.0,
+"z": 98.0,
+"yaw": 0.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": 28.2,
+"y": 0.0,
+"z": -98.0,
+"yaw": 180.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": 15.8,
+"y": 0.0,
+"z": 98.0,
+"yaw": 0.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": -15.8,
+"y": 0.0,
+"z": -98.0,
+"yaw": 180.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": 28.2,
+"y": 0.0,
+"z": 98.0,
+"yaw": 0.0
+},
+{
+"section": "Garden",
+"piece": "FlowerTub",
+"x": -28.2,
+"y": 0.0,
+"z": -98.0,
+"yaw": 180.0
+},
+{
 "section": "Roofs",
 "piece": "RoofShed48x40",
 "x": 50.0,

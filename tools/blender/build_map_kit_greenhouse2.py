@@ -125,6 +125,8 @@ def make_materials():
 		_mat("Copper", "SmoothPlastic", C_COPPER, 0.5, 0.06, 1.0, 0.0),
 		_mat("Bloom", "SmoothPlastic", C_BLOOM, 0.7, 0.06, 2.0, 0.0),
 		_mat("Slate", "Slate", C_SLATE, 0.85, 0.06, 1.0, 0.1),
+		_mat("IronB", "SmoothPlastic", C_IRON, 0.45, 0.02, 1.0, 0.02),  # kit v2: the IronBays' own mesh (20k cap per mesh)
+		K._emissive("Glow", 0xFFC488, 2.0, rbx="Neon"),
 		_mat("Crate", "Wood", C_CRATE, 0.85, 0.08, 1.2, 0.1),
 		_mat("Sack", "Fabric", C_SACK, 0.95, 0.08, 1.5, 0.15),
 		_mat("Pool", "SmoothPlastic", C_POOL, 0.6, 0.05, 0.6, 0.0),
@@ -285,6 +287,87 @@ def canopy(x, y, z, sx, sy, sz, seed, points=24):
 	return K.rock_chunk(seed, size=(sx, sy, sz), center=(x, y, z), points=points, jag=0.18)
 
 
+HERO = os.path.join(ROOT, "art-source", "maps", "Greenhouse2", "props")
+_HERO_CACHE = {}
+# Codex role -> our material (Bark is the trunk; Glass in the arcade is our opaque frost: no see-through walls)
+HERO_ROLE = {"Iron": "Iron", "Stone": "Stone", "Charcoal": "Boiler", "Brick": "Brick", "Glass": "Frost", "Fern": "Fern",
+	"Deep": "Deep", "Bloom": "Bloom", "Palm": "Palm", "Bark": "Trunk", "Pot": "Pot", "Soil": "Soil", "GlowWarm": "Glow"}
+
+
+def _decimate(bm, ratio):
+	me = bpy.data.meshes.new("dec")
+	bm.to_mesh(me)
+	ob = bpy.data.objects.new("dec", me)
+	bpy.context.scene.collection.objects.link(ob)
+	mod = ob.modifiers.new("d", "DECIMATE")
+	mod.ratio = ratio
+	mod.use_collapse_triangulate = True
+	dg = bpy.context.evaluated_depsgraph_get()
+	out = bmesh.new()
+	out.from_mesh(ob.evaluated_get(dg).to_mesh())
+	bpy.data.objects.remove(ob)
+	bpy.data.meshes.remove(me)
+	return out
+
+
+def hero(name, keep=None, scale=(1.0, 1.0, 1.0), rot=0.0, at=(0.0, 0.0, 0.0), remap=None, ratio=1.0):
+	"""Kit v2: a Codex hero-kit GLB (art-source/maps/Greenhouse2/props/<name>.glb; 1 unit = 1 stud, Z up, bottom
+	centre origin, width X, depth Y) as {our material: bmesh}, scaled per axis, turned about Z by rot degrees, moved to
+	at. keep = the Codex roles to keep (None = all)."""
+	key = (name, ratio)
+	if key not in _HERO_CACHE and ratio < 1.0:
+		base = hero.__wrapped_cache__(name)
+		_HERO_CACHE[key] = {r: (_decimate(b, ratio) if r == "Iron" else b.copy()) for r, b in base.items()}  # only the ironwork (brick coursing broke)
+	if name not in _HERO_CACHE:
+		before = set(bpy.data.objects)
+		bpy.ops.import_scene.gltf(filepath=os.path.join(HERO, name + ".glb"))
+		new = [o for o in bpy.data.objects if o not in before]
+		bpy.context.view_layer.update()
+		parts = {}
+		for o in new:
+			if o.type == "MESH":
+				bm = bmesh.new()
+				bm.from_mesh(o.data)
+				bm.transform(o.matrix_world)
+				# Codex bakes shading into vertex colours; Roblox multiplies them into the part colour (the trunks
+				# read black). Our role colours rule, so drop them.
+				for coll in (bm.loops.layers.color, bm.loops.layers.float_color, bm.verts.layers.color, bm.verts.layers.float_color):
+					while len(coll):
+						coll.remove(coll[coll.keys()[0]])
+				parts[o.data.materials[0].name.split(".")[0]] = bm
+		for o in new:
+			bpy.data.objects.remove(o)
+		_HERO_CACHE[name] = parts
+	out = {}
+	m = Matrix.Translation(at) @ Matrix.Rotation(math.radians(rot), 4, "Z") @ Matrix.Diagonal((*scale, 1.0))
+	for role, src in _HERO_CACHE[key if ratio < 1.0 else name].items():
+		if keep is not None and role not in keep:
+			continue
+		bm = src.copy()
+		bm.transform(m)
+		if (scale[0] * scale[1] * scale[2]) < 0:
+			bmesh.ops.reverse_faces(bm, faces=bm.faces[:])
+		mat = (remap or {}).get(role, HERO_ROLE[role])
+		if mat in out:
+			merge(out[mat], bm)
+		else:
+			out[mat] = bm
+	return out
+
+
+def _hero_base(name):
+	hero(name)  # fills _HERO_CACHE[name]
+	return _HERO_CACHE[name]
+
+
+hero.__wrapped_cache__ = _hero_base
+
+
+def add_hero(acc, parts):
+	for mat, bm in parts.items():
+		acc.add(mat, bm)
+
+
 class Acc:
 	def __init__(self):
 		self.d = {}
@@ -324,9 +407,16 @@ def glass_bays(acc, W, door=False):
 	bw = W / n
 	y0 = -W / 2
 	g0 = DOOR_H + 0.6 if door else 3.35
+	arcade = (not door) and abs(bw - 8.0) < 1e-6
 	for i in range(n):
 		a, b = y0 + i * bw, y0 + (i + 1) * bw
 		ga, gb = (a + 0.3 if not door else a), (b - 0.3 if not door else b)
+		if arcade:
+			# kit v2: Codex's ArcadeWall (12 x 18) at 8 x 12 in the bay's lower part, depth to 1.9 (inside x +-1),
+			# its glazing as our opaque frost; our frosted glazing from 12 up
+			add_hero(acc, hero("ArcadeWall", scale=(8.0 / 12.0, 1.9 / 1.32, 12.0 / 18.0), rot=90.0, at=(0.0, (a + b) / 2, 0.0), ratio=0.35))
+			acc.add("Frost", B(-0.86, 0.86, ga, gb, 12.0, 39.6))
+			continue
 		if not door:
 			acc.add("Brick", B(-0.92, 0.92, a, b, 0, 3.0))
 			acc.add("Stone", B(-0.98, 0.98, a, b, 3.0, 3.35))
@@ -337,9 +427,9 @@ def glass_bays(acc, W, door=False):
 			yy = a + 2 * k
 			if ga + 0.1 < yy < gb - 0.1:
 				for sx in (1, -1):
-					acc.add("Iron", B(sx * 0.86, sx * 0.94, yy - 0.1, yy + 0.1, g0, 39.6))
+					acc.add("Iron", B(sx * 0.86, sx * 0.94, yy - 0.1, yy + 0.1, 12.0 if arcade else g0, 39.6))
 			k += 1
-		for zt in (10.0, 20.0, 30.0):
+		for zt in ((20.0, 30.0) if arcade else (10.0, 20.0, 30.0)):
 			if zt > g0 + 0.5:
 				for sx in (1, -1):
 					acc.add("Iron", B(sx * 0.86, sx * 0.97, ga, gb, zt - 0.17, zt + 0.17))
@@ -355,8 +445,8 @@ def glass_bays(acc, W, door=False):
 			if door:
 				continue
 			hi = yy
-		acc.add("Iron", B(-1.0, 1.0, lo, hi, 3.35 if not door else g0, 39.6))
-	if not door:
+		acc.add("Iron", B(-1.0, 1.0, lo, hi, 12.0 if arcade else (3.35 if not door else g0), 39.6))
+	if not door and not arcade:
 		for i in range(n):
 			a, b = y0 + i * bw + 0.3, y0 + (i + 1) * bw - 0.3
 			yc, r = (a + b) / 2, (b - a) / 2
@@ -442,6 +532,11 @@ def stucco_bay(acc, a, b, door=False, windows=True):
 	# Parapet: stone with recessed panels between dies.
 	acc.add("Stone", B(-0.7, 0.7, a + 0.5, b - 0.5, 38.4, 40.6))
 	acc.add("Stone", B(-1.0, 1.0, a, a + 0.5, 38.4, 40.6), B(-1.0, 1.0, b - 0.5, b, 38.4, 40.6))
+	if windows and w >= 8 and not door:
+		for sx in (1, -1):
+			for dy in (((-3.2 if yc > 0 else 3.2),) if abs(yc) > 1e-6 else ()):  # one a window a face, on the side toward the piece centre (clear of walls meeting the ends)
+				# kit v2: Codex's Lantern, its +Y mount plate against the wall face
+				add_hero(acc, hero("Lantern", rot=(90.0 if sx > 0 else -90.0), at=(sx * 2.37, yc + dy, 6.6)))  # plate (y 1.38) on the face
 	wins = []
 	if windows and w >= 8:
 		wins = [(2.0, 3.5, 13.0), (2.0, 24.0, 32.0)] if not door else [(2.0, 24.0, 32.0)]
@@ -660,10 +755,9 @@ def gallery():
 	for y0, y1 in ((4.0, 32.0), (-40.0, -4.0)):
 		balustrade(acc, -6.0, -5.5, y0, y1, GAL)
 	for mz in (-24, -12, 12, 24):
-		column(acc, -5.0, -mz, GAL - 1.0)
-		# Curved bracket from column to fascia.
-		acc.add("Iron", beam((-5.0, -mz, GAL - 3.0), (-5.0, -mz + 2.5, GAL - 1.05), 0.2, 0.2, up=(1, 0, 0)))
-		acc.add("Iron", beam((-5.0, -mz, GAL - 3.0), (-5.0, -mz - 2.5, GAL - 1.05), 0.2, 0.2, up=(1, 0, 0)))
+		# kit v2: Codex's IronBay at 11 (0.611): the spandrel runs along the gallery front under the fascia
+		k = (GAL - 1.0) / 18.0
+		add_hero(acc, hero("IronBay", scale=(k, k, k), rot=90.0, at=(-5.0, -mz, 0.0), remap={"Iron": "IronB"}, ratio=0.6))
 	return acc
 
 
@@ -691,7 +785,8 @@ def bridge():
 		for p0, p1 in zip(pts, pts[1:]):
 			acc.add("Iron", beam(p0, p1, 0.3, 0.3, up=(0, 1, 0)))
 	for x in (-20.0, 20.0):
-		column(acc, x, 0.0, GAL - 1.0, r=0.55, base=0.7, cap=0.7)
+		k = (GAL - 1.0) / 18.0
+		add_hero(acc, hero("IronBay", scale=(k, k, k), rot=0.0, at=(x, 0.0, 0.0), remap={"Iron": "IronB"}, ratio=0.6))  # kit v2: spandrel along the bridge
 	return acc
 
 
@@ -796,7 +891,11 @@ def bed(W, L):
 	acc.add("Stone", B(-hw, hw, -hl, -hl + t + 0.05, 2.7, 3.0), B(-hw, hw, hl - t - 0.05, hl, 2.7, 3.0))
 	acc.add("Stone", B(-hw, -hw + t + 0.05, -hl + t + 0.05, hl - t - 0.05, 2.7, 3.0), B(hw - t - 0.05, hw, -hl + t + 0.05, hl - t - 0.05, 2.7, 3.0))
 	acc.add("Soil", B(-hw + t, hw - t, -hl + t, hl - t, 2.0, 2.55))
-	border(acc, -hw + t, hw - t, -hl + t, hl - t, 2.55, W * 100 + L)
+	# kit v2: Codex fern clumps at half size along the bed (tops under 4.1: no head-height cover)
+	nf = max(1, int((L - 2 * t) // 3.0))
+	for k in range(nf):
+		yy = -hl + t + (k + 0.5) * (L - 2 * t) / nf
+		add_hero(acc, hero("FernClump", scale=(0.5, 0.5, 0.5), rot=37.0 * k, at=(0.0, yy, 2.5)))
 	if L >= 12:
 		for k, yy in enumerate((-hl + 3.5, hl - 3.5) if L >= 18 else (0.0,)):
 			banana(acc, 0.3 * (1 if k % 2 else -1), yy, 2.55, int(L * 7 + k), h=6.5)
@@ -808,7 +907,9 @@ def palm_planter():
 	acc.add("Rock", rock_block(-3, 3, -4.5, 4.5, 0, 9, 11))
 	acc.add("Soil", B(-2.0, 2.0, -3.4, 3.4, 8.2, 8.45))
 	border(acc, -2.2, 2.2, -3.6, 3.6, 8.45, 5, density=0.8)
-	palm(acc, 0.0, -0.5, 8.4, 30.0, 21)  # map z 20 -> Blender y = -(20 - 19.5) = -0.5 (planter centre 19.5)
+	# kit v2 tried Codex's PalmInTub here: its fronds are alpha-atlas cards, which our role-colour pipeline renders as
+	# solid quads, so the planters keep lane G's palm (Codex's palm needs its atlas as a SurfaceAppearance first)
+	palm(acc, 0.0, -0.5, 8.4, 30.0, 21)
 	return acc
 
 
@@ -917,12 +1018,7 @@ def flower_tub():
 	for z in (0.4, 1.7):
 		acc.add("Accent", K.arc(1.16 + z * 0.09, 1.3 + z * 0.09, 0, 360, z, z + 0.2, steps=16))
 	acc.add("Soil", vcyl(0, 0, 1.22, 2.18, 2.26, 14))
-	acc.add("Deep", canopy(0, 0, 2.9, 1.9, 1.9, 1.4, 71, points=18))  # sits into the soil (float audit)
-	rnd = random.Random(31)
-	for i in range(9):
-		a = rnd.uniform(0, 2 * math.pi)
-		rr = rnd.uniform(0.3, 1.0)
-		acc.add("Bloom", K.rock_chunk(200 + i, size=(0.62, 0.62, 0.5), center=(math.cos(a) * rr, math.sin(a) * rr, 3.25 + rnd.uniform(0, 0.45)), points=12, jag=0.08))
+	add_hero(acc, hero("HydrangeaBush", scale=(0.62, 0.62, 0.62), at=(0.0, 0.0, 2.1), ratio=0.6))  # kit v2: Codex's hydrangea
 	return acc
 
 
