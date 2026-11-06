@@ -38,7 +38,7 @@ ROOT = Path(__file__).resolve().parents[2]
 # Roles: hex colour, Roblox material, MaterialVariant ("" = none). Kit materials are named D2_<Role>.
 PALETTE: dict[str, tuple[str, str, str]] = {
     # big calm textured surfaces
-    "Deck": ("8A867E", "Concrete", "Dock2_Concrete"),  # concept pass: our slab-joint concrete  # pier deck slabs (ground band, V ~49%)
+    "Deck": ("97958E", "Concrete", "Dock2_Concrete"),  # maps v4: a lighter, cooler grey (read brown under the warm sun)  # concept pass: our slab-joint concrete  # pier deck slabs (ground band, V ~49%)
     "Concrete": ("A59D90", "Concrete", "Dock2_Concrete"),  # plinths, quay coping, shed base
     "ConcreteDark": ("6E675E", "Concrete", "Dock2_Concrete"),  # quay face, footings
     "Cladding": ("D3D5D0", "Plastic", "Dock2_Cladding"),  # concept pass: our ribbed cladding row  # round 1: the brushed texture read as smears on big walls  # shed wall panels (structure band, one step over the deck)
@@ -55,6 +55,11 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Rubber": ("2A2D31", "SmoothPlastic", ""),  # fenders, tyres
     "Wood": ("B39A74", "WoodPlanks", "Dock2_Plank"),  # natural timber, desaturated (no second yellow)  # pallets, crates
     "Glass": ("9FD3E0", "Glass", ""),
+    # maps v4: the concept's honey crates (boards in a darker frame), shed cartons, deck stains
+    "CrateWood": ("D3A262", "WoodPlanks", "Dock2_Plank"),
+    "CrateFrame": ("8E6440", "WoodPlanks", "Dock2_Plank"),
+    "Carton": ("C9A87A", "SmoothPlastic", ""),
+    "Stain": ("7E786F", "Concrete", "Dock2_Concrete"),
     "Backfill": ("8A9096", "SmoothPlastic", ""),  # end-wall filler between containers: reads as more stacks, not a slab
     "Water": ("2A6878", "SmoothPlastic", ""),  # pass 1: #2F8C9C read as a loud cyan
     # Neon accents (thin strips only)
@@ -109,26 +114,26 @@ VARIANTS = {
 # direction of (-0.65, 0.65, -0.40) at ClockTime 15 (Roblox tilts the sun's path), latitude 23.5 gives (-0.71, 0.71, 0.0),
 # so every container has a lit side, a shadow side and a lit top, and neither team looks into it.
 LIGHTING = {
-    "ClockTime": 15.0,
+    "ClockTime": 15.6,  # maps v4: a little lower, warmer sun with longer shadows
     "GeographicLatitude": 23.5,
-    "Brightness": 2.6,
-    "Ambient": (112, 118, 132),  # pass 1: a bluer ambient pushed the blue lane to royal blue in shade
-    "OutdoorAmbient": (152, 158, 174),  # round 3: cooler shade against a warmer sun (warm/cool contrast)
-    "ColorShift_Top": (255, 214, 168),
+    "Brightness": 3.0,  # maps v4: the user found v3 "a bit dark"
+    "Ambient": (130, 134, 146),  # maps v4: more fill  # pass 1: a bluer ambient pushed the blue lane to royal blue in shade
+    "OutdoorAmbient": (172, 176, 192),  # maps v4: more fill, still cool against the warm sun  # round 3: cooler shade against a warmer sun (warm/cool contrast)
+    "ColorShift_Top": (255, 222, 188),  # maps v4: (255, 204, 150) turned the grey deck brown in the sun
     "ColorShift_Bottom": (0, 0, 0),
     "EnvironmentDiffuseScale": 0.2,
     "EnvironmentSpecularScale": 0.15,
-    "ExposureCompensation": 0.1,
+    "ExposureCompensation": 0.2,  # maps v4: brighter (0.3 blew out the Shed inside)
     "GlobalShadows": True,
     "ShadowSoftness": 0.2,
 }
 FX = {
-    "Atmosphere": {"Density": 0.34, "Offset": 0.22, "Color": (226, 220, 210), "Decay": (140, 170, 205), "Glare": 0.3, "Haze": 1.6},
+    "Atmosphere": {"Density": 0.36, "Offset": 0.2, "Color": (238, 224, 204), "Decay": (150, 180, 214), "Glare": 0.5, "Haze": 1.9},  # maps v4: warm haze, cool depth
     "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
-    "Grade": {"Brightness": 0.03, "Contrast": 0.06, "Saturation": 0.06, "TintColor": (255, 248, 238)},
+    "Grade": {"Brightness": 0.04, "Contrast": 0.1, "Saturation": 0.1, "TintColor": (255, 246, 232)},  # maps v4: clearer, warmer
     "SunRays": {"Intensity": 0.08, "Spread": 0.5},
 }
-LAMP = {"color": (255, 222, 176), "brightness": 2.4, "range": 36}  # round 1: the Shed inside read murky  # mast floods and shed lamps (shadowless)
+LAMP = {"color": (255, 222, 176), "brightness": 1.7, "range": 36}  # maps v4: 1.7 with the brighter exposure  # round 1: the Shed inside read murky  # mast floods and shed lamps (shadowless)
 
 
 def hex_rgb(h: str) -> tuple[int, int, int]:

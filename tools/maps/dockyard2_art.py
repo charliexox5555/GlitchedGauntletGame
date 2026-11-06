@@ -190,7 +190,12 @@ def build() -> tuple[list[Put], list[Part]]:
                 # The two rows at eye level get the full container; above them the light Lo version
                 # (background: silhouette and colour only, LihFolk Spending Triangles Where the Camera Looks).
                 name = piece if row < 2 else piece + "Lo"
-                puts.append(Put(name, x * s, STACK * row, z * s, yaw2, wall_tint(), "EndWalls", []))
+                # Maps v4: the two eye-level rows take the colour of the lane they close (red west, blue middle,
+                # green east), so each lane reads to its end; above them the greyed backdrop tones.
+                xw = x * s
+                wt = wall_tint()  # drawn for every row, so the rows above keep their v3 tones
+                tint = ("west" if xw < -24 else ("east" if xw > 24 else "mid")) if row < 2 else wt
+                puts.append(Put(name, x * s, STACK * row, z * s, yaw2, tint, "EndWalls", []))
     # Round 1: the end walls' outer faces (seen over the water and from the far end) are dressed too, with the
     # light containers, so no raw filler slab shows from anywhere.
     for s in (1, -1):
@@ -201,24 +206,9 @@ def build() -> tuple[list[Put], list[Part]]:
                 puts.append(Put(piece, x * s, STACK * row, (L.DECK_END - 4.05) * s, yaw2, wall_tint(), "EndWalls", []))
     for p in puts[first:]:
         p.own = list(backdrop_ids)
-    # Spawn wayfinding (round 1): a framed sign on the baffle naming the dock and the lane each way round it,
-    # and white chevrons on the deck from the alcove round both sides of the baffle.
-    for s in (1, -1):
-        # On the high (west for B) half of the stepped baffle.
-        puts.append(Put("SpawnSign" + ("B" if s > 0 else "A"), -8.0 * s, 0, 84.0 * s, 0 if s > 0 else 180, None, "Spawn", []))
-        # Lane words painted on the deck where each lane leaves the spawn end (fix round 2), read walking out.
-        # The word follows the lane it lands in after the 180-degree turn (lanes are fixed by x: red west, green east).
-        # Round 3 adds the flank names again where they cross the middle band, so the band reads as a crossroads.
-        for x, z in ((-56.0, 41.0), (0.0, 38.0), (56.0, 67.0), (-56.0, 8.0), (50.0, 5.0)):
-            xf = x * s
-            word = "RED" if xf < -24 else ("GREEN" if xf > 24 else "BLUE")
-            puts.append(Put("DeckWord" + word, xf, 0, z * s, 0 if s > 0 else 180, None, "Spawn", []))
-        # Round 3: a "CRANE" plate on each long side of the reefer stack (the middle's callout, at eye level).
-        # On the half of the face the Stack step leaves free (x 0..16 for the +Z face), above the crane crate.
-        puts.append(Put("CraneSign", 6.0 * s, 0, 4.0 * s, 0 if s > 0 else 180, None, "Crane", []))
-        for x in (-20.5, 20.5):
-            for z in (89.0, 85.0):
-                puts.append(Put("Chevron", x * s, 0, z * s, 0 if s > 0 else 180, None, "Spawn", []))
+    # Maps v4: the spawn signs (DOCK B / RED / GREEN and arrows), deck words, CRANE plate and chevrons are cut: no
+    # part-built text (the user's review). The lanes speak by colour instead: lane stripes on the deck and
+    # lane-coloured end containers at eye level (below), and the Sheds' lane-colour plates.
     for b in L.BOXES:
         if b.kind == "backdrop":
             parts.append(Part("Filler", "EndWalls", (b.sx - 1, b.h - 1, b.sz - 1), (b.x, (b.h - 1) / 2 + 0.01, b.z), "Backfill"))
@@ -249,6 +239,32 @@ def build() -> tuple[list[Put], list[Part]]:
                 holes.append((SHED_FOOT[0] - 0.5, SHED_FOOT[1]) if s > 0 else (-SHED_FOOT[1], -SHED_FOOT[0] + 0.5))
         for x0, x1 in cut(-65.8, 65.8, holes):
             parts.append(Part("BayLine", "Deck", (x1 - x0, LINE_Y1 - LINE_Y0, LINE_W), ((x0 + x1) / 2, (LINE_Y0 + LINE_Y1) / 2, z), "Hazard"))
+
+    # Maps v4: lane stripes, a 1.2-wide band of each lane's colour down its middle (red x -40, blue x +-8, green
+    # x 40), cut where they would cross a bay line (no overlap in one plane) and round the Sheds.
+    zlines = [(z - LINE_W / 2 - 0.02, z + LINE_W / 2 + 0.02) for z in range(-80, 81, 16)]
+    for x, look in ((-40.0, "SignWest"), (-8.0, "SignMid"), (8.0, "SignMid"), (40.0, "SignEast")):
+        holes = list(zlines)
+        for s in (1, -1):
+            if SHED_FOOT[0] - 3 <= abs(x) <= SHED_FOOT[1] and x * s > 0:
+                holes.append((SHED_FOOT[2] - 1.0, SHED_FOOT[3] + 1.0) if s > 0 else (-SHED_FOOT[3] - 1.0, -SHED_FOOT[2] + 1.0))
+        holes.sort()
+        for z0, z1 in cut(-L.YARD_Z + 4, L.YARD_Z - 4, holes):
+            if z1 - z0 > 1.0:
+                parts.append(Part("LaneStripe", "Deck", (1.2, LINE_Y1 - LINE_Y0, z1 - z0), (x, (LINE_Y0 + LINE_Y1) / 2, (z0 + z1) / 2), look))
+    # Maps v4 deck breakup: drains, manholes and oil stains (flush, no collision), off the bay lines.
+    brk = random.Random(SEED + 4)
+    for s in (1, -1):
+        placed: list[tuple[float, float]] = []  # 8 apart, so no two flat pieces overlap
+        for k in range(26):
+            for _ in range(20):
+                x = brk.uniform(-62.0, 62.0)
+                z = brk.uniform(4.0, 88.0)
+                if min(abs(x - g) for g in zline_x) > 2.5 and min(abs(z - g) for g in range(-80, 81, 16)) > 2.0 and not (SHED_FOOT[0] - 3 <= abs(x) <= SHED_FOOT[1] + 3 and SHED_FOOT[2] - 3 <= abs(z) <= SHED_FOOT[3] + 3) and abs(abs(x) - 40) > 2.5 and abs(abs(x) - 8) > 2.5 and all((x - px) ** 2 + (z - pz) ** 2 > 64 for px, pz in placed):
+                    break
+            placed.append((x, z))
+            piece = ("OilStainA", "OilStainB", "DeckDrain", "OilStainA", "Manhole")[k % 5]
+            puts.append(Put(piece, x * s, 0.00037 * (k * 2 + (s > 0)), z * s, brk.uniform(0, 360), None, "Deck", []))  # staggered so two stains never share a plane
 
     # Harbour water and the far quays.
     # 1000 wide: ends 24 short of the old Dockyard's water (origin 1500 east), and 0.1 lower, so the two never overlap.

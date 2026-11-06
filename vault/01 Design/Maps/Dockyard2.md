@@ -610,3 +610,43 @@ The same rules as the [Rooftops2 Codex prop list](Rooftops2.md#codex-prop-list-r
 |---|---|---|---|---|---|---|
 | D1 | **Bollard and fender set**: a mooring bollard (a cast body with a cap lip and bolts on a base plate), a tyre fender hung on a short chain, and a coiled rope | `art-source/maps/Dockyard2/concepts/05-kit-sheet.png` quay props; `02-hero-middle.png` | bollard 1.6 x 1.6 x 2.2; tyre 2.4 diameter x 0.8; coil 2 x 2 x 0.6 | 400 / 400 / 500 | Charcoal (cast iron), Rubber, Wood (rope, tinted) | `art-source/maps/Dockyard2/props/QuaySet.glb` (objects `Bollard`, `TyreFender`, `RopeCoil`) |
 | D2 | **Shed rack and pallet set**: a pallet-rack bay (2 uprights with holes and bracing, 3 beam levels), a pallet, and stacked cartons on a pallet | `05-kit-sheet.png` shed interior; `03-hero-spawn-a.png` | rack 8 x 3 x 9; pallet 3 x 3 x 0.5; carton stack 3 x 3 x 2.5 | 1,800 / 300 / 600 | Crane (yellow uprights, small), Charcoal (beams), Wood, White (cartons, tinted) | `art-source/maps/Dockyard2/props/ShedRackSet.glb` (objects `Rack`, `Pallet`, `CartonStack`) |
+
+### v4 results (built 2026-11-05 late)
+Kit rebuilt headless (`tools/blender/build_map_kit_dockyard2.py`): 23 pieces, 29k triangles, coplanar 0, asset 127619569582290 updated. Installed in the match place: 510 placements, Studio audit 0 pairs over 2,469 visible parts. **The place needs saving (Ctrl+S).**
+
+| Item | What was built |
+|---|---|
+| Text | **All part-built text is cut:**<br>- SHED 01/02<br>- the DOCK A/B spawn signs, with their RED/GREEN words and arrows<br>- the CRANE plate<br>- the RED/BLUE/GREEN deck words<br>- the chevrons |
+| Shed sign | A framed plate in the Shed's lane colour (green on the east Shed, red on the west), with a white band and two lamp hoods. |
+| Crates | The concept's crate: honey boards (CrateWood D3A262) in a darker frame (CrateFrame 8E6440), separate infill boards with gaps, an X brace on every face, a slatted lid, corner irons and a slatted pallet. About 900 tris. |
+| Shed interior | - I-section portal frames (flanges and webs)<br>- a pipe run along the water-side wall<br>- junction boxes on the columns<br>- a striped loading zone inside the roller door<br>- walkway lines<br>- the rack rebuilt: blue braced uprights, beams, slatted pallets and taped carton stacks |
+| Lane colours | Lane stripes down each lane (red x −40, blue x ±8, green x +40), 1.2 wide and cut at the bay lines. The two eye-level rows of the end walls now take their lane's colour. |
+| Deck breakup | 52 flush pieces (oil stains, drains, manholes), 8 apart and off the lines. |
+| Light | Brightness 3.0, ExposureCompensation 0.2, Ambient (130, 134, 146), OutdoorAmbient (172, 176, 192), warm haze, a cool Atmosphere decay, and a clearer grade. The deck is a cooler, lighter grey. The shed lamps are down to 1.7 so the inside doesn't blow out. |
+
+Collision didn't move, so the layout checks stand.
+
+| Concept | Build v4 |
+|---|---|
+| ![](../../../art-source/maps/Dockyard2/concepts/01-overview-v2.png) | ![](../../02%20Art/References/maps/dockyard2/v4-overview.jpg) |
+| ![](../../../art-source/maps/Dockyard2/concepts/02-hero-middle.png) | ![](../../02%20Art/References/maps/dockyard2/v4-middle-crane.jpg) |
+| ![](../../../art-source/maps/Dockyard2/concepts/04-hero-spawn-b.png) | ![](../../02%20Art/References/maps/dockyard2/v4-red-lane.jpg) |
+| ![](../../../art-source/maps/Dockyard2/concepts/02-hero-middle.png) | ![](../../02%20Art/References/maps/dockyard2/v4-crate.jpg) |
+| ![](../../../art-source/maps/Dockyard2/concepts/05-kit-sheet.png) | ![](../../02%20Art/References/maps/dockyard2/v4-shed-inside.jpg) |
+| ![](../../../art-source/maps/Dockyard2/concepts/03-hero-spawn-a.png) | ![](../../02%20Art/References/maps/dockyard2/v4-shed-sign.jpg) |
+
+These are edit-mode captures with the map's own Lighting config and effects applied.
+
+**Honest read against the concepts:**
+- **Better:**
+  - The crates now match the concept's.
+  - The red lane reads at once.
+  - The shed inside is lit and furnished.
+  - The overview's end walls carry the lane colours.
+  - There is no text.
+- **Still short:**
+  - The deck still reads warm brown in direct sun. The concrete texture is warm, so it needs a cooler texture row.
+  - The blue lane containers go very dark navy in shade.
+  - The shed walls are plain cream panels.
+  - The containers stay simpler than the concept's (bolder ribs, door hardware).
+  - The crane is unchanged.

@@ -433,10 +433,15 @@ def p_shed():
 	obj(c, "Fascia", merge(*fascia), "White")
 	# Inside: portal frames clear of the doors, the roller drum, pendant lamps, the floor slab.
 	inner = []
+	# Maps v4: I-section portal frames (flanges and a web), not smooth boxes
 	for z in (-15.0, 0.0, 15.0):
 		for s in (1, -1):
-			inner.append(RB(s * 11.75, s * 12.35, -0.05, 14.9, z - 0.35, z + 0.35, BT, ST))
-		inner.append(RB(-12.25, 12.25, 14.5, 15.2, z - 0.3, z + 0.3, BT, ST))
+			for fz in (z - 0.35, z + 0.25):
+				inner.append(RB(s * 11.75, s * 12.35, -0.05, 14.9, fz, fz + 0.1, BT, ST))
+			inner.append(RB(s * 11.99, s * 12.11, -0.05, 14.9, z - 0.26, z + 0.26))
+		for fy in (14.5, 15.1):
+			inner.append(RB(-12.25, 12.25, fy, fy + 0.1, z - 0.3, z + 0.3, BT, ST))
+		inner.append(RB(-12.25, 12.25, 14.59, 15.11, z - 0.06, z + 0.06))
 	inner.append(rcylX(0, 14.4, -SH_Z + WALL_T + 0.9, 0.7, -9.3, 1.3, 20, 0.08))
 	obj(c, "Frames", merge(*inner), "Charcoal")
 	lamps, lens = [], []
@@ -451,6 +456,25 @@ def p_shed():
 	obj(c, "BeamGlow", merge(*strips), "GlowWarm")
 	obj(c, "LampGlow", merge(*lens), "GlowWarm")
 	obj(c, "Floor", RB(-SH_X + WALL_T, SH_X - WALL_T, -0.08, 0.06, -SH_Z + WALL_T, SH_Z - WALL_T), "Concrete")
+	# Maps v4 shed interior kit (above head height or flat, so nothing reads as cover that isn't)
+	pipes, boxes, paint, dark = [], [], [], []
+	for y, r in ((11.2, 0.2), (11.8, 0.13)):
+		pipes.append(RB(12.0, 12.3, y - r, y + r, -SH_Z + WALL_T + 0.05, SH_Z - WALL_T - 0.05, 0.08, 1))
+	for z in (-15.0, 0.0, 15.0):
+		for s in (1, -1):
+			if not (s > 0 and z < 0):  # the site office stands against that column
+				boxes.append(RB(s * 11.1, s * 11.8, 4.23, 5.31, z - 0.37, z + 0.37, BT, ST))
+	obj(c, "Pipes", merge(*pipes), "Charcoal")
+	obj(c, "JunctionBoxes", merge(*boxes), "White")
+	# loading zone inside the roller door: a white field with charcoal stripes; walkway lines down the Shed
+	paint.append(drop_down(RB(-9.0, 1.0, 0.06, 0.075, -SH_Z + WALL_T + 0.05, -14.2)))
+	for k in range(12):
+		x = -8.6 + k * 0.82
+		dark.append(drop_down(RB(x, x + 0.4, 0.075, 0.085, -SH_Z + WALL_T + 0.2, -14.35)))
+	for x in (-4.6, 2.4):
+		paint.append(drop_down(RB(x - 0.12, x + 0.12, 0.06, 0.075, -13.6, SH_Z - WALL_T - 0.6)))
+	obj(c, "FloorPaint", merge(*paint), "Hazard")
+	obj(c, "FloorStripes", merge(*dark), "Charcoal")
 
 
 def lathe_at(x, z, prof):
@@ -459,16 +483,22 @@ def lathe_at(x, z, prof):
 
 
 def p_shed_sign(n):
+	# Maps v4 (the user's review: "SHED 02" blocky and too simple; no part-built text): a framed plate above the
+	# roller door in the Shed's lane colour (1 = B half, east, green; 2 = A half, west, red) with a white band and
+	# two lamp hoods: the Shed is called by its colour, and the plate is built into the facade.
 	c = piece("ShedSign%d" % n)
-	# A framed plate on the -Z facade above the roller door (door top 13, cornice 15.25), letters on it.
 	cx, z = -4.0, -SH_Z
 	ring = ring_prism(rrect(8.9, 2.15, 0.5, 4, cx, 14.3), rrect(8.1, 1.55, 0.25, 4, cx, 14.3), -z - 0.05, -z + 0.32, "Y")
 	obj(c, "Frame", finish(ring, BT, ST), "Charcoal")
-	obj(c, "Plate", RB(cx - 4.1, cx + 4.1, 13.5, 15.1, z - 0.2, z + 0.1, BT, ST), "White")
-	bm, w = text_mesh("SHED 0%d" % n, 1.15, depth=0.12)
-	# text_mesh faces Blender -Y = Roblox +Z; turn it to face -Z (outward here) and set it on the plate.
-	xform(bm, T(cx, -(z - 0.2) + 0.0, 13.7) @ RZ(180))
-	obj(c, "Letters", bm, "Charcoal", smooth=0)
+	obj(c, "Plate", RB(cx - 4.1, cx + 4.1, 13.5, 15.1, z - 0.2, z + 0.1, BT, ST), "SignEast" if n == 1 else "SignWest")
+	obj(c, "Band", RB(cx - 4.1, cx + 4.1, 14.05, 14.55, z - 0.26, z - 0.18), "White")
+	hoods, lens = [], []
+	for x in (cx - 2.8, cx + 2.8):
+		hoods.append(RB(x - 0.08, x + 0.08, 15.35, 15.5, z - 1.2, z - 0.25))
+		hoods.append(RB(x - 0.45, x + 0.45, 15.25, 15.6, z - 1.5, z - 0.9, BT, ST))
+		lens.append(RB(x - 0.35, x + 0.35, 15.17, 15.26, z - 1.42, z - 0.98))
+	obj(c, "Hoods", merge(*hoods), "Charcoal")
+	obj(c, "HoodGlow", merge(*lens), "GlowWarm")
 
 
 # ---------------------------------------------------------------- spawn wayfinding (fix round 1)
@@ -537,23 +567,70 @@ def p_chevron():
 
 # ---------------------------------------------------------------- yard props
 
+def drop_down(bm):
+	# Flat art on a floor: no bottom faces (nothing shares the floor's top plane).
+	bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.normal.z < -0.99], context="FACES")
+	return bm
+
+
+def p_deck_drain():
+	c = piece("DeckDrain")
+	obj(c, "Frame", drop_down(RB(-0.9, 0.9, 0.0, 0.04, -0.6, 0.6)), "ConcreteDark")
+	obj(c, "Grate", drop_down(merge(*[RB(x - 0.06, x + 0.06, 0.04, 0.06, -0.45, 0.45) for x in (-0.6, -0.36, -0.12, 0.12, 0.36, 0.6)])), "Charcoal")
+
+
+def p_manhole():
+	c = piece("Manhole")
+	obj(c, "Cover", drop_down(lathe([(0.0, 0.045), (1.05, 0.045), (1.05, 0.0)], steps=20)), "Charcoal")
+	obj(c, "Rim", drop_down(lathe([(1.05, 0.0), (1.05, 0.03), (1.2, 0.03), (1.2, 0.0)], steps=20)), "ConcreteDark")
+	obj(c, "Ribs", drop_down(merge(*[RB(-0.85, 0.85, 0.045, 0.06, z - 0.05, z + 0.05) for z in (-0.5, -0.17, 0.17, 0.5)])), "Rubber")
+
+
+def p_oil_stain(name, seed):
+	c = piece(name)
+	pts = []
+	for i in range(10):
+		a = 2 * math.pi * i / 10
+		r = 1.0 + 0.4 * math.sin(2.7 * i + seed) + 0.2 * math.cos(4.9 * i + 2 * seed)
+		pts.append((2.4 * r * math.cos(a), 1.5 * r * math.sin(a)))
+	obj(c, "Stain", drop_down(RPY(pts, 0.0, 0.02)), "Stain")
+
+
+
 def p_rack():
+	# Maps v4: a pallet-rack run: uprights with horizontal and diagonal bracing between each pair, beams, and on
+	# every level a slatted pallet with a carton stack (two sizes, taped), not one smooth box.
 	c = piece("Rack")
-	up, beams, loads = [], [], []
+	up, brace, beams, pal, cart, tape = [], [], [], [], [], []
 	for z in (-6.85, -2.3, 2.3, 6.85):
 		for x in (-1.0, 1.0):
 			up.append(RB(x - 0.15, x + 0.15, 0.0, 7.95, z - 0.15, z + 0.15, BT, ST))
+		for k in range(4):
+			y0, y1 = 0.6 + k * 1.8, 0.6 + (k + 1) * 1.8
+			brace.append(beam((-0.85, y0, z + 0.02 * (k % 2)), (0.85, y1, z + 0.02 * (k % 2)), 0.08, 0.08))
+			brace.append(RB(-0.85, 0.85, y0 - 0.05, y0 + 0.05, z - 0.05, z + 0.05))
 	for y in (0.35, 2.95, 5.55):
 		for x in (-1.1, 1.1):
 			beams.append(RB(x - 0.1, x + 0.1, y, y + 0.35, -6.95, 6.95, BT, ST))
-	for li, y in enumerate((0.72, 3.32, 5.92)):
+	for li, y in enumerate((0.7, 3.3, 5.9)):
 		for bi, zc in enumerate((-4.575, 0.0, 4.575)):
-			role = "Wood" if (li + bi) % 2 == 0 else "Cladding"
-			loads.append((role, RB(-0.85, 0.85, y, y + 1.95, zc - 1.95, zc + 1.95, BS, SS)))
-	obj(c, "Uprights", merge(*up), "Charcoal")
-	obj(c, "Beams", merge(*beams), "Hazard")
-	obj(c, "LoadsA", merge(*[b for r, b in loads if r == "Wood"]), "Wood")
-	obj(c, "LoadsB", merge(*[b for r, b in loads if r == "Cladding"]), "Cladding")
+			pal.append(RB(-0.9, 0.9, y + 0.16, y + 0.25, zc - 1.95, zc + 1.95))
+			for zz in (zc - 1.6, zc, zc + 1.6):
+				pal.append(RB(-0.86, 0.86, y + 0.01, y + 0.18, zz - 0.18, zz + 0.18))
+			top = y + 0.24
+			seed = li * 3 + bi
+			for ci, (z0, z1, h) in enumerate(((zc - 1.85, zc - 0.05, 0.9 + 0.2 * (seed % 2)), (zc + 0.05, zc + 1.85, 1.1), (zc - 1.6, zc - 0.1, 0.7))):
+				yb = top if ci < 2 else top + 0.9 + 0.2 * (seed % 2) + 0.02
+				if ci == 2 and seed % 3 == 0:
+					continue
+				cart.append(RB(-0.82, 0.82, yb, yb + h, z0, z1, BT, ST))
+				tape.append(RB(-0.86, 0.86, yb + h - 0.02, yb + h + 0.01, (z0 + z1) / 2 - 0.15, (z0 + z1) / 2 + 0.15))
+	obj(c, "Uprights", merge(*up), "SignMid")
+	obj(c, "Bracing", merge(*brace), "Charcoal")
+	obj(c, "Beams", merge(*beams), "Charcoal")
+	obj(c, "Pallets", merge(*pal), "Wood")
+	obj(c, "Cartons", merge(*cart), "Carton")
+	obj(c, "Tape", merge(*tape), "White")
 
 
 def p_office():
@@ -572,11 +649,40 @@ def p_office():
 
 
 def p_crate():
+	# Maps v4: the concept's crate (02-hero-middle): honey timber boards in a darker frame with an X brace, on a
+	# slatted pallet, corner irons on top. Boards are geometry (gaps, depth), so the plank texture only adds grain.
 	c = piece("Crate")
-	obj(c, "Pallet", RB(-1.95, 1.95, 0.02, 0.45, -1.95, 1.95, BT, ST), "Wood")
-	obj(c, "Body", RB(-1.78, 1.78, 0.45, 3.42, -1.78, 1.78, BS, SS), "Wood")
-	bands = [RB(-1.86, 1.86, y0, y1, -1.86, 1.86, BT, ST) for y0, y1 in ((0.6, 0.95), (2.95, 3.3))]
-	obj(c, "Bands", merge(*bands), "Charcoal")
+	pal = [RB(-1.95, 1.95, 0.02, 0.3, z - 0.24, z + 0.24, BT, ST) for z in (-1.62, 0.0, 1.62)]
+	pal += [RB(x - 0.25, x + 0.25, 0.28, 0.46, -1.95, 1.95) for x in (-1.65, -1.1, -0.55, 0.0, 0.55, 1.1, 1.65)]
+	obj(c, "Pallet", merge(*pal), "Wood")
+	obj(c, "Core", RB(-1.62, 1.62, 0.5, 3.3, -1.62, 1.62), "CrateFrame")
+	posts, rails, boards, braces, lid, irons = [], [], [], [], [], []
+	for sx in (1, -1):
+		for sz in (1, -1):
+			x0, x1 = sorted((sx * 1.36, sx * 1.78))
+			z0, z1 = sorted((sz * 1.36, sz * 1.78))
+			posts.append(RB(x0, x1, 0.47, 3.42, z0, z1, BT, ST))
+			irons.append(RB(min(sx * 1.2, sx * 1.81), max(sx * 1.2, sx * 1.81), 3.0, 3.46, min(sz * 1.2, sz * 1.81), max(sz * 1.2, sz * 1.81)))
+	for k in range(4):  # the +X face built once, turned for the other three
+		face_r, face_b, face_x = [], [], []
+		face_r.append(RB(1.58, 1.74, 0.47, 0.68, -1.4, 1.4))
+		face_r.append(RB(1.58, 1.74, 3.18, 3.42, -1.4, 1.4))
+		for b in range(4):
+			y0 = 0.7 + b * 0.62
+			face_b.append(RB(1.6, 1.69, y0, y0 + 0.56, -1.4, 1.4))
+		face_x.append(beam((1.71, 0.78, -1.22), (1.71, 3.08, 1.22), 0.1, 0.32))
+		face_x.append(beam((1.735, 0.78, 1.22), (1.735, 3.08, -1.22), 0.1, 0.32))
+		for bm in face_r + face_b + face_x:
+			xform(bm, RZ(90 * k))
+		rails += face_r
+		boards += face_b
+		braces += face_x
+	for b in range(5):
+		x0 = -1.36 + b * 0.55
+		lid.append(RB(x0 + 0.02, x0 + 0.5, 3.26, 3.36, -1.36, 1.36))
+	obj(c, "Posts", merge(*posts, *rails, *braces), "CrateFrame")
+	obj(c, "Boards", merge(*boards, *lid), "CrateWood")
+	obj(c, "Irons", merge(*irons), "Charcoal")
 
 
 def p_quay_barrier(L, name):
@@ -666,13 +772,11 @@ def build():
 	p_lamp_mast()
 	p_sts_crane()
 	p_ship()
-	p_spawn_sign("A")
-	p_spawn_sign("B")
-	p_chevron()
-	p_crane_sign()
-	p_deck_word("RED", "SignWest")
-	p_deck_word("BLUE", "SignMid")
-	p_deck_word("GREEN", "SignEast")
+	# maps v4: the spawn signs, chevrons, CRANE plate and deck words are cut (no part-built text)
+	p_deck_drain()
+	p_manhole()
+	p_oil_stain("OilStainA", 1.0)
+	p_oil_stain("OilStainB", 2.7)
 	tris = {}
 	for n, col in PIECES.items():
 		t = 0
@@ -852,6 +956,24 @@ if __name__ == "__main__":
 		stage, w = contact_sheet(["Shed", "ShedSign1", "Crane"], "b")
 		camera((w / 2, 52, 120), (w / 2, 14, 0), 22)
 		shot(os.path.join(RENDER_DIR, "kit-contact-b.jpg"))
+		bpy.data.collections.remove(stage)
+	if "--closeups" in ARGS:  # maps v4: close 3/4 renders of the rebuilt pieces (scratch)
+		if "--render" not in ARGS and "--preview" not in ARGS:
+			render_settings()
+			world()
+			for lc in bpy.context.view_layer.layer_collection.children:
+				if lc.name == "Kit_Dockyard2":
+					lc.exclude = True
+		out = os.environ.get("CLOSEUP_DIR", RENDER_DIR)
+		stage, w = contact_sheet(["Crate", "Rack", "DeckDrain", "Manhole", "OilStainA"], "v4a")
+		camera((w * 0.5 + 3, 9, 20), (w * 0.5, 2.5, 0), 30)
+		shot(os.path.join(out, "closeup-d2-v4a.jpg"))
+		camera((-2, 9.0, -14), (-3, 4, 8), 30)
+		shot(os.path.join(out, "closeup-d2-v4b.jpg"))
+		bpy.data.collections.remove(stage)
+		stage, w = contact_sheet(["Shed", "ShedSign1"], "v4c")
+		camera((-4, 6, -40), (-4, 9, 0), 30)
+		shot(os.path.join(out, "closeup-d2-v4c.jpg"))
 		bpy.data.collections.remove(stage)
 	if "--preview" in ARGS:
 		yard_preview()
