@@ -29,17 +29,17 @@ type Place = {
 -- stylua: ignore start
 local ROLE: { [string]: RoleLook } = {
 	Roof = { color = "B5735A", material = "Slate", variant = "Roof2_Tile" },
-	RoofPit = { color = "B3A48C", material = "Slate", variant = "Roof2_Gravel" },
+	RoofPit = { color = "ADA391", material = "Concrete", variant = "" },
 	Wall = { color = "D4B98F", material = "Concrete", variant = "Roof2_Plaster" },
 	Plinth = { color = "A8977F", material = "Concrete", variant = "Roof2_Plaster" },
-	Trim = { color = "F2EEE4", material = "SmoothPlastic", variant = "" },
+	Trim = { color = "ECE2CE", material = "SmoothPlastic", variant = "" },
 	Ledge = { color = "C9BFAE", material = "SmoothPlastic", variant = "" },
 	Charcoal = { color = "3A3F47", material = "SmoothPlastic", variant = "" },
 	Metal = { color = "A9A59C", material = "SmoothPlastic", variant = "" },
 	Door = { color = "6C5442", material = "SmoothPlastic", variant = "" },
-	Window = { color = "4E5878", material = "SmoothPlastic", variant = "" },
+	Window = { color = "56607E", material = "SmoothPlastic", variant = "" },
 	Glass = { color = "BFD8E8", material = "Glass", variant = "" },
-	Accent = { color = "2F62C8", material = "SmoothPlastic", variant = "" },
+	Accent = { color = "3B5BC2", material = "SmoothPlastic", variant = "" },
 	AccentSoft = { color = "5C79AE", material = "SmoothPlastic", variant = "" },
 	Poster = { color = "EADFCB", material = "SmoothPlastic", variant = "" },
 	Chevron = { color = "F3E6CC", material = "SmoothPlastic", variant = "" },
@@ -58,18 +58,18 @@ local ROLE: { [string]: RoleLook } = {
 	Stone = { color = "E9D7B2", material = "Concrete", variant = "Roof2_Plaster" },
 	Shutter = { color = "4F7F5A", material = "SmoothPlastic", variant = "" },
 	RoofTile = { color = "B8673F", material = "Slate", variant = "Roof2_Terracotta" },
-	RoofSlate = { color = "5F6B78", material = "Slate", variant = "Roof2_Slate" },
-	Brick = { color = "A8644A", material = "Brick", variant = "Roof2_Brick" },
-	Pot = { color = "A8664A", material = "SmoothPlastic", variant = "" },
+	RoofSlate = { color = "7D8898", material = "Slate", variant = "Roof2_Slate" },
+	Brick = { color = "B27560", material = "Brick", variant = "Roof2_Brick" },
+	Pot = { color = "A27560", material = "SmoothPlastic", variant = "" },
 	Cloth = { color = "EFE3C8", material = "Fabric", variant = "" },
-	Appliance = { color = "C7B9A2", material = "SmoothPlastic", variant = "" },
+	Appliance = { color = "B3AC9F", material = "SmoothPlastic", variant = "" },
 	Paver = { color = "D9BBA3", material = "Slate", variant = "Roof2_Tile" },
 	Tar = { color = "6F6258", material = "Slate", variant = "Roof2_Gravel" },
-	GlowWarm = { color = "FFE2B8", material = "Neon", variant = "" },
+	GlowWarm = { color = "FFC488", material = "Neon", variant = "" },
 	GlowWest = { color = "FFB14A", material = "Neon", variant = "" },
 	GlowEast = { color = "7CD0FF", material = "Neon", variant = "" },
 }
-local TONE: { [string]: string } = { teamA = "E3AA84", teamB = "A9C2B0", tower = "D4B98F", pit = "C8A983", city0 = "E8D3B4", city1 = "D9B49A", city2 = "BFCBC2", city3 = "E2C79C", far0 = "E6CDBB", far1 = "D9C6C0", far2 = "EAD7C2" }
+local TONE: { [string]: string } = { teamA = "E3AA84", teamB = "B9C49E", tower = "D4B98F", pit = "C8A983", city0 = "E8D3B4", city1 = "D9B49A", city2 = "BFCBC2", city3 = "E2C79C", far0 = "E6CDBB", far1 = "D9C6C0", far2 = "EAD7C2" }
 local FRAME_SHADE = 0.8
 local BACKDROP: { string } = { "C9B79A", "B9A07F", "A9B5A2", "D2BFA0", "9FA9B3", "C4A48A" }
 local VARIANTS: { [string]: { any } } = {
@@ -82,9 +82,14 @@ local VARIANTS: { [string]: { any } } = {
 	Roof2_Tile = { "Slate", 12, "73383285439881", "99655568297239", "99239709018479" },
 }
 local PART_ROLE: { [string]: string } = {
+	["ACUnit_CodexAppliance"] = "Appliance",
 	["ACUnit_CodexCharcoal"] = "Charcoal",
 	["ACUnit_CodexMetal"] = "Metal",
-	["ACUnit_CodexTrim"] = "Trim",
+	["ACUnit_PadCharcoal"] = "Charcoal",
+	["ACUnit_PadStone"] = "Stone",
+	["AgavePot_CodexAccent"] = "Accent",
+	["AgavePot_CodexPlant"] = "Plant",
+	["AgavePot_CodexPot"] = "Pot",
 	["Barrel_CodexCharcoal"] = "Charcoal",
 	["Barrel_CodexWood"] = "Wood",
 	["Billboard22_Accent"] = "Accent",
@@ -163,6 +168,13 @@ local PART_ROLE: { [string]: string } = {
 	["Gangway16_Metal"] = "Metal",
 	["Inlay8_Paver"] = "Paver",
 	["Inlay8_Stone"] = "Stone",
+	["Laundry_AccentSoft"] = "AccentSoft",
+	["Laundry_Charcoal"] = "Charcoal",
+	["Laundry_Cloth"] = "Cloth",
+	["Laundry_Metal"] = "Metal",
+	["Laundry_Pot"] = "Pot",
+	["Laundry_Shutter"] = "Shutter",
+	["Laundry_Wood"] = "Wood",
 	["LiftHouse_Door"] = "Door",
 	["LiftHouse_Metal"] = "Metal",
 	["LiftHouse_Plinth"] = "Plinth",
@@ -173,6 +185,8 @@ local PART_ROLE: { [string]: string } = {
 	["LiftTower_Door"] = "Door",
 	["LiftTower_Plinth"] = "Plinth",
 	["LiftTower_Stone"] = "Stone",
+	["LiftTower_UpperCharcoal"] = "Charcoal",
+	["LiftTower_UpperMetal"] = "Metal",
 	["LiftTower_UpperShutter"] = "Shutter",
 	["LiftTower_UpperStone"] = "Stone",
 	["LiftTower_UpperWindow"] = "Window",
@@ -222,9 +236,9 @@ local PART_ROLE: { [string]: string } = {
 	["Quoin_Corner"] = "Trim",
 	["Quoin_Pilaster"] = "Trim",
 	["RoofSign_Accent"] = "Accent",
-	["RoofSign_AccentSoft"] = "AccentSoft",
 	["RoofSign_Charcoal"] = "Charcoal",
 	["RoofSign_GlowWarm_Glow"] = "GlowWarm",
+	["RoofSign_Metal"] = "Metal",
 	["RoofSign_Poster"] = "Poster",
 	["Skylight_Accent"] = "Accent",
 	["Skylight_Charcoal"] = "Charcoal",
@@ -253,7 +267,6 @@ local PART_ROLE: { [string]: string } = {
 	["TarPatchA_Tar"] = "Tar",
 	["TarPatchB_Tar"] = "Tar",
 	["WaterTank_Charcoal"] = "Charcoal",
-	["WaterTank_GlowWarm_Glow"] = "GlowWarm",
 	["WaterTank_Metal"] = "Metal",
 	["WaterTank_Wood"] = "Wood",
 }
@@ -470,6 +483,20 @@ local PLACE: { Place } = {
 	{ sec = "Props", piece = "PartyCorner", x = -43, y = 0, z = -60.2, yaw = 270 },
 	{ sec = "Props", piece = "Barrel", x = 45.9, y = 0, z = 66.6, yaw = 0 },
 	{ sec = "Props", piece = "Barrel", x = -45.9, y = 0, z = -66.6, yaw = 180 },
+	{ sec = "Props", piece = "Laundry", x = 30.6, y = 0, z = 76.6, yaw = 0 },
+	{ sec = "Props", piece = "Laundry", x = -30.6, y = 0, z = -76.6, yaw = 180 },
+	{ sec = "Props", piece = "Crate", x = -34.6, y = 0, z = 65.6, yaw = 12 },
+	{ sec = "Props", piece = "Crate", x = 34.6, y = 0, z = -65.6, yaw = 192 },
+	{ sec = "Props", piece = "CrateSmall", x = -34.5, y = 3, z = 65.7, yaw = 3 },
+	{ sec = "Props", piece = "CrateSmall", x = 34.5, y = 3, z = -65.7, yaw = 183 },
+	{ sec = "Props", piece = "Barrel", x = -32.2, y = 0, z = 66.2, yaw = 0 },
+	{ sec = "Props", piece = "Barrel", x = 32.2, y = 0, z = -66.2, yaw = 180 },
+	{ sec = "Props", piece = "CrateSmall", x = -32, y = 0, z = 64, yaw = 340 },
+	{ sec = "Props", piece = "CrateSmall", x = 32, y = 0, z = -64, yaw = 160 },
+	{ sec = "Props", piece = "AgavePot", x = -37.6, y = 0, z = 65.4, yaw = 0 },
+	{ sec = "Props", piece = "AgavePot", x = 37.6, y = 0, z = -65.4, yaw = 180 },
+	{ sec = "Props", piece = "AgavePot", x = 46, y = 0, z = 57.4, yaw = 30 },
+	{ sec = "Props", piece = "AgavePot", x = -46, y = 0, z = -57.4, yaw = 210 },
 	{ sec = "Floor", piece = "Inlay8", x = 9, y = 0, z = 28, yaw = 0 },
 	{ sec = "Floor", piece = "Inlay8", x = -9, y = 0, z = -28, yaw = 180 },
 	{ sec = "Floor", piece = "Inlay8", x = 9, y = 0, z = 36, yaw = 0 },
@@ -542,7 +569,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = -60,
-		y = -71.6,
+		y = -72.05,
 		z = 122,
 		yaw = 270,
 		tone = "city1",
@@ -552,7 +579,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = -60,
-		y = -71.6,
+		y = -72.05,
 		z = -122,
 		yaw = 90,
 		tone = "city0",
@@ -562,7 +589,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityB",
 		x = -20,
-		y = -71.6,
+		y = -72.05,
 		z = 122,
 		yaw = 270,
 		tone = "city3",
@@ -572,7 +599,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = -20,
-		y = -71.6,
+		y = -72.05,
 		z = -122,
 		yaw = 90,
 		tone = "city2",
@@ -582,7 +609,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityB",
 		x = 20,
-		y = -71.6,
+		y = -72.05,
 		z = 122,
 		yaw = 270,
 		tone = "city1",
@@ -592,7 +619,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = 20,
-		y = -71.6,
+		y = -72.05,
 		z = -122,
 		yaw = 90,
 		tone = "city0",
@@ -602,7 +629,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityB",
 		x = 60,
-		y = -71.6,
+		y = -72.05,
 		z = 122,
 		yaw = 270,
 		tone = "city3",
@@ -612,7 +639,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = 60,
-		y = -71.6,
+		y = -72.05,
 		z = -122,
 		yaw = 90,
 		tone = "city2",
@@ -622,7 +649,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = 98,
-		y = -71.6,
+		y = -72.05,
 		z = -80,
 		yaw = 180,
 		tone = "city1",
@@ -632,7 +659,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = -98,
-		y = -71.6,
+		y = -72.05,
 		z = -80,
 		yaw = 0,
 		tone = "city0",
@@ -642,7 +669,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = 98,
-		y = -71.6,
+		y = -72.05,
 		z = -40,
 		yaw = 180,
 		tone = "city3",
@@ -652,7 +679,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = -98,
-		y = -71.6,
+		y = -72.05,
 		z = -40,
 		yaw = 0,
 		tone = "city2",
@@ -662,7 +689,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = 98,
-		y = -71.6,
+		y = -72.05,
 		z = 0,
 		yaw = 180,
 		tone = "city1",
@@ -672,7 +699,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = -98,
-		y = -71.6,
+		y = -72.05,
 		z = 0,
 		yaw = 0,
 		tone = "city0",
@@ -682,7 +709,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = 98,
-		y = -71.6,
+		y = -72.05,
 		z = 40,
 		yaw = 180,
 		tone = "city3",
@@ -692,7 +719,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = -98,
-		y = -71.6,
+		y = -72.05,
 		z = 40,
 		yaw = 0,
 		tone = "city2",
@@ -702,7 +729,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = 98,
-		y = -71.6,
+		y = -72.05,
 		z = 80,
 		yaw = 180,
 		tone = "city1",
@@ -712,7 +739,7 @@ local PLACE: { Place } = {
 		sec = "Skyline",
 		piece = "CityA",
 		x = -98,
-		y = -71.6,
+		y = -72.05,
 		z = 80,
 		yaw = 0,
 		tone = "city0",
@@ -974,6 +1001,53 @@ for i, p in PLACE do
 	end
 	if i % 150 == 0 then
 		task.wait()
+	end
+end
+
+-- Maps v5: Codex's original billboard artwork (fictional brands, no lettering;
+-- art-source/maps/Rooftops2/textures/billboards, cropped to each panel) as
+-- decals on the panel faces, so no sign stands blank. Image ids are the Decal
+-- uploads resolved in Studio.
+local ADVERT = {
+	cinema = "rbxassetid://106896850537878",
+	scooter = "rbxassetid://96395685091459",
+	soda = "rbxassetid://126862573725688",
+	cafe = "rbxassetid://104568756088714",
+}
+local function advert(panel: BasePart?, dirWorld: Vector3, image: string)
+	if not panel then
+		return
+	end
+	local best, bestDot = Enum.NormalId.Front, -2
+	for _, face in Enum.NormalId:GetEnumItems() do
+		local n = panel.CFrame:VectorToWorldSpace(Vector3.FromNormalId(face))
+		if n:Dot(dirWorld) > bestDot then
+			best, bestDot = face, n:Dot(dirWorld)
+		end
+	end
+	local d = Instance.new("Decal")
+	d.Name = "Advert"
+	d.Face = best
+	d.Texture = image
+	d.Color3 = Color3.fromRGB(232, 220, 208) -- maps v5 round 2: a touch muted, so the art sits in the palette
+	d.Parent = panel
+end
+for _, m in sec("Props"):GetChildren() do
+	if m:IsA("Model") and m.Name == "RoofSign" then
+		local pv = m:GetPivot()
+		local west = pv.X < MAP_ORIGIN.X
+		-- lihfolk-ignore: findfirstchild-chain (nil-checked in advert)
+		local panel = m:FindFirstChild("RoofSign_Poster") :: BasePart?
+		advert(panel, pv.XVector, if west then ADVERT.cinema else ADVERT.scooter)
+		advert(panel, -pv.XVector, if west then ADVERT.scooter else ADVERT.cinema)
+	elseif m:IsA("Model") and m.Name == "Billboard22" then
+		local pv = m:GetPivot()
+		local north = pv.Z > MAP_ORIGIN.Z
+		-- lihfolk-ignore: findfirstchild-chain (nil-checked in advert)
+		local cloth = m:FindFirstChild("Billboard22_Cloth") :: BasePart?
+		-- both faces carry art (the back read as a blank board across the Pit)
+		advert(cloth, pv.ZVector, if north then ADVERT.soda else ADVERT.cafe)
+		advert(cloth, -pv.ZVector, if north then ADVERT.cafe else ADVERT.soda)
 	end
 end
 

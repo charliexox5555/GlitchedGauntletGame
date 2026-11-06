@@ -656,6 +656,32 @@ All exported meshes pass the LihFolk geometry gate: no n-gons, loose/degenerate 
 
 Sources used: this prop list and its named concepts, [Art Direction](../../02%20Art/Art%20Direction.md), the LihFolk `roblox-blender-modeling` skill, [Bevels Chamfers and Edge Highlights Without Textures](../../LihFolk/55%20Modelling%20Nuance%20and%20Readability/Bevels%20Chamfers%20and%20Edge%20Highlights%20Without%20Textures.md), [Spending Triangles Where the Camera Looks](../../LihFolk/55%20Modelling%20Nuance%20and%20Readability/Spending%20Triangles%20Where%20the%20Camera%20Looks.md), and [Clean Stylised Shading](../../LihFolk/54%20Untextured%20Stylised%20Modelling/Clean%20Stylised%20Shading%20-%20Weighted%20and%20Custom%20Normals.md).
 
+#### Codex Job 2 results (2026-11-06)
+
+| Deliverable | Tris / resolution | Size / fit | File paths | Notes / off-spec |
+|---|---|---|---|---|
+| A1 Citrus soda artwork | 2048 x 1024 PNG | 2:1 power-of-two canvas | [PNG](../../../art-source/maps/Rooftops2/textures/billboards/01_CitrusSoda.png) | Original unnamed fictional soda: bottle, orange and fizz shapes; no text or logos. |
+| A2 Harbor scooter artwork | 2048 x 1024 PNG | 2:1 power-of-two canvas | [PNG](../../../art-source/maps/Rooftops2/textures/billboards/02_HarborScooter.png) | Original unnamed fictional scooter advert; no text or logos. |
+| A3 Moonroof cinema artwork | 2048 x 1024 PNG | 2:1 power-of-two canvas | [PNG](../../../art-source/maps/Rooftops2/textures/billboards/03_MoonroofCinema.png) | Invented rooftop-adventure film image; no text, credits or logos. |
+| A4 Terrace cafe artwork | 2048 x 1024 PNG | 2:1 power-of-two canvas | [PNG](../../../art-source/maps/Rooftops2/textures/billboards/04_TerraceCafe.png) | Invented neighborhood cafe: cup, steam and moka pot; no text or logos. |
+| C TankParts | 2,256 total (kept below the previous 3,000-tri detail-kit budget) | Combined 12.8307 x 7.6 x 14.6 at native kit scale | [GLB](../../../art-source/maps/Rooftops2/props/TankParts.glb) / [blend](../../../art-source/maps/Rooftops2/props/TankParts.blend) / [preview](../../../art-source/maps/Rooftops2/props/TankParts_preview.png) | ONLY three separate component parents and seven role meshes. No drum, cap, hoops, stand, platform, railing or retained-tank geometry in GLB or blend. |
+
+| TankParts component parent | Tris | Native W x D x H / placement |
+|---|---|---|
+| `CagedLadder` | 1,112 | 2.8048 x 2 x 10; feet z 4.60 (embedded into platform top 4.64), handrails to 14.60; on the original +X ladder side |
+| `ValveRun` | 576 | 1.37 x 2.23 x 5.82; seated drum outlet, valve wheel and pipe down to roof z 0 |
+| `OverflowPipe` | 568 | 2.2398 x 1.4979 x 13.12; upper drum outlet, supported downpipe, hollow drain end and roof bracket |
+
+**Billboard aspect:** the current `billboard3()` has a 22 x 10 outer frame and a 21 x 9 clear opening (backing is 21.1 x 9), in [the read-only source script](../../../tools/blender/build_map_kit_rooftops2.py). A 2:1 power-of-two texture approximates that opening rather than matching its ratio exactly. Fit the whole artwork; full-face fitting widens it slightly. Aspect-preserving fitting with cream side gutters is also possible. Do not center-crop away the bottle cap, scooter lamp or steam. Distance readability was visually reviewed around 180-200 px board width, not tested in Studio.
+
+**Art process / prompt set:** built-in `image_gen`, one original image per subject, followed only by PNG dimension normalization. Shared prompt: painted sign-painter/gouache advertising for a warm Mediterranean rooftop city at dusk, bold distant silhouettes, terracotta/cream/cobalt with muted ochre and charcoal, restrained sun-faded edge wear, full-bleed horizontal art, no lettering, numbers, logos, real brands or watermark. Subjects: citrus soda bottle/orange/fizz; original scooter on a ribbon road; caped rooftop courier against a moon; terrace espresso cup/moka pot/steam. Exact submitted prompts are embedded in each PNG's `GenerationPrompt` metadata.
+
+**Fit and installation:** fitted to the actual retained 23-stave drum from `Kit_Rooftops2.blend`, using surface raycasts for mount plates. The latest concurrent kit rebuild's stave vertex positions were checked and matched. Actual source dimensions win over the older R3 brief: staves z 4.65-13.75, platform z 4.64, cap lip radius 4.85. Keep the tank's base-axis origin and apply the same **1.35x** placement scale. Native Blender coordinates are (Roblox X, -Roblox Z, Roblox Y). The shared fit-axis origin is intentional; do not recenter each part by its individual bounds.
+
+**Replace attachments; do not stack them:** `CagedLadder` replaces the legacy/interim maintenance ladder on +X. `ValveRun` and `OverflowPipe` replace any interim pipe/valve additions, including any extracted from `TankDetailKit`. Retain the existing staves, core, hoops, cap, platform, guardrails and stand. The preview uses the actual retained tank in neutral grey with the old ladder omitted to show the replacement; that context exists only in the PNG. This job did not edit the kit or build script.
+
+**Validation / palette:** all exported meshes pass LihFolk geometry gates; saved GLB re-import preserves dimensions and triangle counts, with no reference/helper leaks. Contact graph: all 77 exported shells connect through hardware to the retained tank/platform or roof (0 unseated, 0.002-stud contact tolerance). Final 3/4-view review: 16/18. Role colors match the current style file exactly: Charcoal `#3A3F47`, Metal `#A9A59C`, Accent `#3B5BC2`. Thin hardware retains the previously documented micro-chamfer exception. Studio integration was not performed.
+
 ### v4 results (built 2026-11-05 late)
 Kit rebuilt headless (`tools/blender/build_map_kit_rooftops2.py`):
 - 41 pieces, 69.6k triangles, coplanar 0.
@@ -735,3 +761,87 @@ Installed in the match place: 300 of 300 placements, audit 0 pairs over 1,645 pa
 |---|---|
 | ![](../../02%20Art/References/maps/rooftops2/v4-codex-ac.jpg) | ![](../../02%20Art/References/maps/rooftops2/v4-codex-planter.jpg) |
 | ![](../../02%20Art/References/maps/rooftops2/v4-codex-crates.jpg) | |
+
+## Maps v5 (2026-11-06 overnight): nothing floats, no blank signs, one palette
+Source: the user's v4 playtest, [Maps v4 Review](../../05%20Production/Playtests/2026-11-05%20Maps%20v4%20Review.md). They reported:
+- a floating thing next to the water tank;
+- blank signs on the roofs;
+- the mid-left and mid-right roof signs floating;
+- other floating parts;
+- inconsistent colours.
+
+The bar is a map that looks human-built.
+
+### Plan (loop until 8.5 or two rounds gaining under 0.3)
+1. **Scripted floating-part audit**, [FloatAudit.luau](../../../tools/studio/maps/FloatAudit.luau), run on every install next to the z-fight [Audit.luau](../../../tools/studio/maps/Audit.luau).
+   - Every visible part is a node, joined to every part it touches or overlaps. The test uses real triangles (EditableMesh, a column grid of axis rays), so a vertex on or inside another part counts as contact.
+   - The map bottom (street, sea bed) is the ground. Any group that can't reach the ground floats.
+   - Flying life (gulls, pigeons, drifting ships) and templates are skipped.
+2. **Fix every unsupported part** with a real mount, or move or cut it.
+3. **Signs:** Codex's original billboard art (fictional brands, no lettering) goes on as decals. Any sign it doesn't cover gets a real face or goes.
+4. **One palette**, in the table below. Everything off-table is recoloured.
+5. **The next list:** a dusk sky toward the concept, Pit light, smaller pier caps, and story props (laundry, clusters).
+6. **Codex imports:** the R3 ladder and valve.
+7. **Every round:** fixed evidence cameras ([evidence_cameras.json](../../../tools/maps/evidence_cameras.json), lighting by [PreviewLighting.luau](../../../tools/studio/maps/PreviewLighting.luau)), a side-by-side with the concepts, three blind scorers, then a commit.
+
+LihFolk notes used:
+- [World Composition and Set Dressing - Designed, Not Scattered](../../LihFolk/06%20World%20Building%20and%20Art/World%20Composition%20and%20Set%20Dressing%20-%20Designed%2C%20Not%20Scattered.md): nothing floats; story groups.
+- Stylized Lighting Recipes, Golden hour row (`07 Lighting VFX and Audio`).
+- Textures Decals and Texture Memory: 1024 decals.
+- The quality-score world rubric.
+
+### Palette (single table)
+| Slot | Roles | Colour |
+|---|---|---|
+| Base: walls | A roof apricot `E3AA84`; B roof warm sage `B9C49E` (was a cool `A9C2B0` that read grey-blue); towers cream `D4B98F`; Pit `C8A983` | plaster |
+| Base: stone and trim | Stone `E9D7B2`; Trim `ECE2CE` (was near-white `F2EEE4`) | cream family |
+| Base: floors | Roof tile `B5735A`; Pit `ADA391` fine concrete (the gravel texture read as footprints); Paver `D9BBA3` | |
+| Roofs | Terracotta `B8673F`; Slate `7D8898` (was `5F6B78`, read as a dark hole) | |
+| Steel | Charcoal `3A3F47`; Metal `A9A59C` | |
+| Machines | Appliance `B3AC9F` (Codex AC casing was on Trim, near-white) | warm mid-grey |
+| Accents | Cobalt `3B5BC2` caps and frames (10%); AccentSoft `5C79AE`; green shutters `4F7F5A`; Pot `A27560` (less saturated); Brick `B27560` | |
+| Glow | GlowWarm `FFC488` amber (`FFE2B8` bloomed white) | |
+| Team colours | none on the map: team cyan and orange-red stay in the UI. Sides read by roof tone (A apricot, B sage). | |
+| Billboard art | Codex artwork, decal tinted `E8DCD0` so it sits in the palette | |
+
+### Round 1 (built 2026-11-06 ~00:10)
+**Float audit, first run: 23 floating groups.**
+
+| Floating part | Fix |
+|---|---|
+| **The water tank, the user's "floating thing"** | The stand's feet were at ±4.3 at 1.35 scale, so they stood in the air past the 10 × 8 lift tower. A sign loop also hung off the drum. Now the feet are at ±2.4 on bolted plates, with ring beams, X bracing and outriggers under the platform rim. The loop is cut. Codex's caged ladder (platform to cap) and valve wheel on its overflow pipe are in. |
+| **Both roof signs**, 1.2 above the hut's hip roof | Two braced steel posts on the tower roof either side of the hut, with base plates, kickers and a service walkway. Codex art goes on both faces. |
+| **14 skyline blocks**, 0.35 over the street | Sunk onto the street. |
+| **Lane F's 4 facade banners**: the arm 0.1 off the wall, the cloth 0.1 under the arm | The arm runs into the wall on a plate, and the cloth hangs from the arm (`Rooftops2/Life.luau`). |
+
+**After the fixes: 0 floating groups, 0 z-fighting pairs** (1,688 parts).
+
+The other round 1 changes:
+- **Billboards:** Codex's 4 artworks (`art-source/maps/Rooftops2/textures/billboards/`) are on both Pit billboards and both roof signs, front and back.
+- **Palette:** as in the table above.
+- **Sky:** our dusk skybox ([make_dusk_sky.py](../../../tools/textures/make_dusk_sky.py)) with pink haze. The point fills in the Pit made hot spots, so a higher Ambient replaces them.
+- **Pier caps** one size smaller.
+- **Story props:** a laundry line by the tank house, a stock corner at the cooling tower, and Codex agave pots.
+
+**Blind score: 5.8** (reviewers 5.8, 6.7, 8.1; medians W1 1, W2 1, W3 1, W4 2, W5 1, W6 1). Lighting rated 2 by all three.
+- Low: cohesion (the grey-blue sage hut, high-contrast brick, the bold posters).
+- The blank cream lift tower seen from the Pit.
+- The oversized AC.
+- Flat floors.
+- A sky seam: Roblox's Lf and Rt are the other way round. It's fixed, and the clouds stay below 32° so the Up face can't seam.
+
+Shots: `vault/02 Art/References/maps/rooftops2/v5-r1-*.jpg`.
+
+### Round 2
+- **Lift tower:** windows on every face, two string courses and a downpipe.
+- **AC:** a 5.6-tall cabinet on a 1.9 concrete pad. The 8 × 4 × 7.5 cover box is the same.
+- **Palette:** warmer sage, softer brick, fine concrete in the Pit, amber lamps, muted decals.
+
+Shots: `v5-r2-*.jpg`.
+
+**Round 2 blind score: 7.1** (reviewers 7.1, 6.7, 7.1; medians W1 2, W2 1, W3 1, W4 2, W5 1, W6 1), +1.3.
+
+Low points:
+- **Navigation** (all three gave 1): the layers of stairs, catwalks and frames around the tank are hard to parse, and the spawn lane is bare.
+- **Cohesion:** the AC's plain grey back face close to the a-roof-tank camera reads unfinished. The posters are louder than the concept's panels.
+- Big flat terracotta fields.

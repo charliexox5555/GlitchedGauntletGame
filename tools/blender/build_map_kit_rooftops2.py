@@ -831,18 +831,24 @@ def fire_balcony():
 def water_tank2():
 	c = piece("WaterTank")
 	P = roles()
-	# stand: four splayed legs, ring beams, X bracing on each face
+	# stand (maps v5 float audit: the old feet at +-4.3 stood in the air past the tower's edge). Four legs from feet at
+	# +-2.4 (inside the 10 x 8 tower top at the 1.35x placement) up to +-2.8, bolted foot plates, ring beams, X
+	# bracing on each face, and raking outriggers under the platform's overhang.
 	for dx in (-1, 1):
 		for dz in (-1, 1):
-			P["Charcoal"].append(beam((dx * 4.3, 0.0, dz * 4.3), (dx * 3.4, 4.45, dz * 3.4), 0.7, 0.7, r=BT))
-			P["Charcoal"].append(RB(dx * 4.3 - 0.75, dx * 4.3 + 0.75, -0.05, 0.4, dz * 4.3 - 0.75, dz * 4.3 + 0.75, BT, ST))
+			P["Charcoal"].append(beam((dx * 2.4, 0.0, dz * 2.4), (dx * 2.8, 4.45, dz * 2.8), 0.62, 0.62, r=BT))
+			P["Charcoal"].append(RB(dx * 2.4 - 0.5, dx * 2.4 + 0.5, -0.05, 0.3, dz * 2.4 - 0.5, dz * 2.4 + 0.5, BT, ST))
+			for ox, oz in ((0.33, 0.33), (-0.33, -0.33), (0.33, -0.33), (-0.33, 0.33)):
+				P["Metal"].append(RB(dx * 2.4 + ox - 0.07, dx * 2.4 + ox + 0.07, 0.29, 0.4, dz * 2.4 + oz - 0.07, dz * 2.4 + oz + 0.07))
+			ow = 0.24 if dx > 0 else 0.22  # opposite outriggers share a diagonal plane: unequal widths
+			P["Charcoal"].append(beam((dx * 2.7, 3.1, dz * 2.7), (dx * 3.85, 4.4, dz * 3.85), ow, ow))
 	for s in (1, -1):
-		P["Charcoal"].append(RB(-4.1, 4.1, 3.95, 4.45, s * 3.4 - 0.3, s * 3.4 + 0.3, BT, ST))
-		P["Charcoal"].append(RB(s * 3.4 - 0.28, s * 3.4 + 0.28, 3.98, 4.42, -4.1, 4.1, BT, ST))
-		P["Charcoal"].append(beam((-3.9, 0.5, s * 3.85), (3.6, 3.9, s * 3.5), 0.26, 0.26))
-		P["Charcoal"].append(beam((3.9, 0.5, s * 3.85), (-3.6, 3.9, s * 3.5), 0.26, 0.26))
-		P["Charcoal"].append(beam((s * 3.85, 0.5, -3.9), (s * 3.5, 3.9, 3.6), 0.26, 0.26))
-		P["Charcoal"].append(beam((s * 3.85, 0.5, 3.9), (s * 3.5, 3.9, -3.6), 0.26, 0.26))
+		P["Charcoal"].append(RB(-3.15, 3.15, 3.95, 4.42, s * 2.8 - 0.26, s * 2.8 + 0.26, BT, ST))
+		P["Charcoal"].append(RB(s * 2.8 - 0.24, s * 2.8 + 0.24, 3.97, 4.4, -2.54, 2.54, BT, ST))
+		P["Charcoal"].append(beam((-2.3, 0.45, s * 2.42), (2.55, 3.9, s * 2.74), 0.22, 0.22))
+		P["Charcoal"].append(beam((2.3, 0.45, s * 2.46), (-2.55, 3.9, s * 2.78), 0.22, 0.22))
+		P["Charcoal"].append(beam((s * 2.42, 0.45, -2.3), (s * 2.74, 3.9, 2.55), 0.22, 0.22))
+		P["Charcoal"].append(beam((s * 2.46, 0.45, 2.3), (s * 2.78, 3.9, -2.55), 0.22, 0.22))
 	# platform with a railing round the drum's foot
 	P["Charcoal"].append(lathe([(5.6, 4.62), (5.6, 4.42), (0.0, 4.42)], steps=24))  # steel underside
 	P["Metal"].append(lathe([(0.0, 4.64), (5.6, 4.64)], steps=24))
@@ -863,22 +869,59 @@ def water_tank2():
 	cap = [(4.85, 13.6), (4.85, 14.0), (0.5, 16.2), (0.0, 16.3)][::-1] + [(4.15, 13.6)]
 	P["Charcoal"].append(lathe(cap, steps=24))
 	P["Charcoal"].append(lathe([(0.0, 17.4), (0.22, 17.1), (0.3, 16.6), (0.18, 16.2)], steps=10))
-	# a maintenance ladder from the platform to the cap (not a route: the tank stays an Updraft seat)
-	for z in (-0.55, 0.55):
-		P["Charcoal"].append(RB(4.55, 4.85, 4.6, 14.6, z - 0.16, z + 0.16, BT, ST))
-	for y in [5.4 + 0.9 * k for k in range(10)]:
-		P["Charcoal"].append(RB(4.6, 4.8, y, y + 0.2, -0.55, 0.55))
-	# the sign arm: a frame on two brackets off the drum, its top edge a warm neon tube (blank; our lettering later)
-	ax = -4.6
-	for y in (8.0, 12.8):
-		P["Charcoal"].append(RB(ax - 1.4, ax + 0.4, y - 0.25, y + 0.25, -0.25, 0.25, BT, ST))
-	frame_o = rrect(8.0, 5.6, 0.9, 2, 0.0, 10.6)
-	frame_i = rrect(7.0, 4.6, 0.5, 2, 0.0, 10.6)
-	ring = finish(ring_prism(frame_o, frame_i, -0.25, 0.25, "Y"), BT, 1)
-	xform(ring, T(ax - 5.5, 0, 0))
-	P["Charcoal"].append(ring)
-	P["GlowWarm"].append(RB(ax - 9.0, ax - 2.0, 13.25, 13.55, -0.3, 0.3))
+	# maps v5: Codex's caged ladder (platform to cap) and the valve wheel on its overflow pipe (R3, kit scale, drum
+	# bottom axis origin; +0.3 up to our drum). The floating sign loop off the drum is cut (the user's v4 review).
+	P["Charcoal"] += codex_tank_parts()
 	emit(c, P)
+
+
+def codex_tank_parts():
+	"""R3 TankDetailKit: keep the caged ladder above the platform and the valve, pipe and its brackets; drop Codex's
+	railing, hoops and cap (ours stay). Returns bmeshes in Blender coords (Roblox x, -z, y)."""
+	before = set(bpy.data.objects)
+	bpy.ops.import_scene.gltf(filepath=os.path.join(PROPS, "TankDetailKit.glb"))
+	new = [o for o in bpy.data.objects if o not in before]
+	bpy.context.view_layer.update()
+	src = [o for o in new if o.type == "MESH" and o.name.endswith("Charcoal")][0]
+	bm = bmesh.new()
+	bm.from_mesh(src.data)
+	bm.transform(src.matrix_world)
+	for o in new:
+		bpy.data.objects.remove(o)
+	# islands on a welded copy (Codex splits every face for flat shading); the faces keep their order
+	wb = bm.copy()
+	bmesh.ops.remove_doubles(wb, verts=wb.verts, dist=0.0005)
+	wb.faces.ensure_lookup_table()
+	bm.faces.ensure_lookup_table()
+	keep = set()
+	seen = set()
+	for f0 in wb.faces:
+		if f0.index in seen:
+			continue
+		stack, isl = [f0], []
+		seen.add(f0.index)
+		while stack:
+			f = stack.pop()
+			isl.append(f.index)
+			for e in f.edges:
+				for g in e.link_faces:
+					if g.index not in seen:
+						seen.add(g.index)
+						stack.append(g)
+		vs = [v.co for i in isl for v in wb.faces[i].verts]
+		x0, x1 = min(v.x for v in vs), max(v.x for v in vs)
+		y0, y1 = min(v.y for v in vs), max(v.y for v in vs)
+		ladder = x0 > -0.95 and x1 < 0.95 and y1 < -4.3
+		valve = x0 >= 4.38 and y0 >= -0.45 and y1 <= 0.65
+		if ladder or valve:
+			keep.update(isl)
+	wb.free()
+	bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.index not in keep], context="FACES")
+	bmesh.ops.translate(bm, verts=bm.verts, vec=(0.0, 0.0, 0.3))
+	# the ladder starts on the platform: cut the stiles inside the platform slab (4.42-4.64)
+	bmesh.ops.bisect_plane(bm, geom=bm.verts[:] + bm.edges[:] + bm.faces[:], plane_co=(0.0, 0.0, 4.55), plane_no=(0.0, 0.0, 1.0), clear_inner=True)
+	bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+	return [bm]
 
 
 # ---- stone Pit stair (8 wide, 16 run, rising 8 toward +Z) with cheek walls and cobalt caps
@@ -1003,7 +1046,48 @@ def lift_tower2():
 	P = roles()
 	for s in (1, -1):
 		window_z(0.0, 8.4, 1.8, 3.6, s * 4.0, P, shutters=True)
+	# maps v5 round 2: windows on the X faces too (upper over the door; both rows on the blank -X face), string
+	# courses under each row, and a downpipe off the cornice
+	X = roles()
+	window_x(0.0, 8.4, 1.8, 3.6, True, X, shutters=True)
+	for role, bms in X.items():
+		for bm in bms:
+			b2 = bm.copy()
+			xform(bm, T(5.0, 0.0, 0.0))
+			xform(b2, T(-5.0, 0.0, 0.0) @ RZ(180.0))
+			P[role] += [bm, b2]
+	Y = roles()
+	window_x(0.0, 2.2, 1.8, 3.4, True, Y, shutters=True)
+	for role, bms in Y.items():
+		for bm in bms:
+			xform(bm, T(-5.0, 0.0, 0.0) @ RZ(180.0))
+			P[role].append(bm)
+	for y in (6.97, 13.12):
+		P["Stone"].append(RB(-5.16, 5.16, y, y + 0.36, -4.16, 4.16, 0.05, 1))
+	downpipe(P, -3.4, -4.0, 0.9, 15.2, (0, -1))
 	emit(c, P, "Upper")
+
+
+def downpipe(P, x, z, y0, y1, corner):
+	"""A cast downpipe down a wall (Roblox coords): hopper head under the cornice, pipe, wall brackets, a kicked
+	shoe at the foot. corner = (sx, sz) the wall's outward normal (one of them 0); the pipe sits 0.3 off it."""
+	sx, sz = corner
+	px, pz = x + sx * 0.3, z + sz * 0.3
+	P["Charcoal"].append(RB(px - 0.42, px + 0.42, y1 - 0.9, y1 - 0.2, pz - 0.42, pz + 0.42, 0.06, 1))
+	P["Charcoal"].append(RB(px - 0.3, px + 0.3, y1 - 1.25, y1 - 0.9, pz - 0.3, pz + 0.3, 0.05, 1))
+	P["Charcoal"].append(RB(px - 0.17, px + 0.17, y0 + 0.5, y1 - 1.25, pz - 0.17, pz + 0.17, 0.05, 1))
+	P["Charcoal"].append(beam((px, y0 + 0.62, pz), (px + sx * 0.55, y0 + 0.1, pz + sz * 0.55), 0.34, 0.34))
+	k = 0
+	y = y0 + 2.0
+	while y < y1 - 2.0:
+		w = 0.24 if k % 2 == 0 else 0.22
+		P["Metal"].append(RB(px - w, px + w, y, y + 0.16, pz - w, pz + w))
+		for d in ((-sx, 0), (0, -sz)):
+			a, b = sorted((px, px + d[0] * 0.42)) if d[0] else (px - 0.05, px + 0.05)
+			c0, c1 = sorted((pz, pz + d[1] * 0.42)) if d[1] else (pz - 0.05, pz + 0.05)
+			P["Metal"].append(RB(a, b, y + 0.02, y + 0.14, c0, c1))
+		y += 3.2
+		k += 1
 
 
 # ---- props
@@ -1119,8 +1203,9 @@ def pier_cap():
 	# slab and a hipped top, 0.75 tall (above the collision; visual only), as on the concept's parapets.
 	c = piece("PierCap")
 	P = roles()
-	P["Accent"].append(RB(-0.92, 0.92, -0.02, 0.34, -0.92, 0.92, 0.08, 1))
-	P["Accent"].append(frustum(-0.82, 0.82, -0.82, 0.82, 0.34, 0.76, 0.42, 0.42, 0.06))
+	# maps v5: a size smaller (was 1.84 square, 0.76 tall; read heavy along the parapets)
+	P["Accent"].append(RB(-0.87, 0.87, -0.02, 0.22, -0.87, 0.87, 0.06, 1))
+	P["Accent"].append(frustum(-0.78, 0.78, -0.78, 0.78, 0.22, 0.46, 0.34, 0.34, 0.04))
 	emit(c, P)
 
 
@@ -1364,13 +1449,32 @@ def roof_sign2():
 	# part-built text): a cream panel in a charcoal frame, a soft cobalt band, lamp hoods on both faces.
 	c = piece("RoofSign")
 	P = roles()
-	for z in (-2.2, 2.2):
-		P["Charcoal"].append(RB(-0.17, 0.17, -0.05, 4.2, z - 0.17, z + 0.17, BT, ST))
-		P["Charcoal"].append(beam((0.0, 0.2, z - 1.5), (0.0, 3.9, z - 0.15), 0.14, 0.14))
-		P["Charcoal"].append(beam((0.0, 0.2, z + 1.5), (0.0, 3.9, z + 0.15), 0.14, 0.14))
+	# maps v5 float audit: the legs stood on the stair hut's hip roof and touched nothing. Now two braced steel
+	# posts stand on the tower roof either side of the hut (origin y 0 = hut top, the roof 9 below; hut z +-3), on
+	# bolted base plates with raking kickers, and a service walkway on brackets under the panel.
+	R0 = -9.0
+	for z in (-5.2, 5.2):
+		for dx in (-0.55, 0.55):
+			P["Charcoal"].append(RB(dx - 0.16, dx + 0.16, R0 + 0.3, 4.45, z - 0.16, z + 0.16, BT, ST))
+		P["Charcoal"].append(RB(-1.0, 1.0, R0 - 0.02, R0 + 0.3, z - 0.75, z + 0.75, BT, ST))
+		for dx in (-0.75, 0.75):
+			for dz in (-0.5, 0.5):
+				P["Metal"].append(RB(dx - 0.08, dx + 0.08, R0 + 0.29, R0 + 0.42, z + dz - 0.08, z + dz + 0.08))
+		for k in range(4):  # lattice between the two flanges
+			y0 = R0 + 0.6 + k * 3.2
+			P["Charcoal"].append(beam((-0.42, y0, z), (0.42, y0 + 3.0, z), 0.12, 0.12))
+			P["Charcoal"].append(RB(-0.42, 0.42, y0 + 3.0, y0 + 3.16, z - 0.09, z + 0.09))
+		P["Charcoal"].append(beam((-0.4, 2.6, z), (-3.4, R0 + 0.28, z), 0.2, 0.2))
+		P["Charcoal"].append(RB(-3.9, -2.9, R0 - 0.02, R0 + 0.27, z - 0.5, z + 0.5, BT, ST))
+	for s in (1, -1):
+		a, b = sorted((s * 0.42, s * 1.6))
+		P["Metal"].append(RB(a, b, 3.75, 3.9, -6.6, 6.6))
+		for z in (-5.2, 5.2):
+			P["Charcoal"].append(RB(a, b, 3.5, 3.76, z - 0.12, z + 0.12))
+		P["Charcoal"].append(RB(s * 1.5 - 0.05, s * 1.5 + 0.05, 3.9, 4.35, -6.6, 6.6))
 	P["Charcoal"].append(frame_ring(14.0, 10.0, 0.45, 9.0, -0.4, 0.4))
 	P["Poster"].append(RB(-0.28, 0.28, 4.4, 13.6, -6.6, 6.6))
-	P["AccentSoft"].append(RB(-0.34, 0.34, 4.46, 5.5, -6.55, 6.55))
+	# maps v5: the cobalt band went; Codex's artwork covers the whole panel (decals in Art.luau)
 	for z in (-7.0, 7.0):
 		P["Accent"].append(frustum(-0.55, 0.55, z - 0.55, z + 0.55, 14.0, 14.55, 0.2, 0.2, 0.03))
 	for s in (1, -1):
@@ -1490,12 +1594,80 @@ def emit_codex(c, parts):
 
 
 def codex_ac():
-	emit_codex(piece("ACUnit"), codex_meshes(os.path.join(PROPS, "ACCabinet.glb")))
+	# maps v5 palette: Codex's casing came in on Trim (near-white); it takes the Appliance stone-grey
+	cp = codex_meshes(os.path.join(PROPS, "ACCabinet.glb"))
+	cp["Appliance"] = cp.pop("Trim", []) + cp.get("Appliance", [])
+	# maps v5 round 2 (scale): the cabinet is 5.6 tall on a 1.9 concrete pad (real rooftop units sit on pads), so
+	# it reads machine-sized next to a player; together they still fill the 8 x 4 x 7.5 cover box.
+	for bms in cp.values():
+		for bm in bms:
+			bmesh.ops.scale(bm, verts=bm.verts, vec=(1.0, 1.0, 5.6 / 7.5))
+			bmesh.ops.translate(bm, verts=bm.verts, vec=(0.0, 0.0, 1.9))
+	c = piece("ACUnit")
+	emit_codex(c, cp)
+	P = roles()
+	P["Stone"].append(RB(-4.0, 4.0, 0.0, 1.9, -2.0, 2.0, 0.1, 1))
+	P["Charcoal"].append(RB(-4.1, 4.1, 1.78, 1.92, -2.1, 2.1, 0.03, 1))
+	emit(c, P, "Pad")
 
 
 def codex_crates():
 	for name, group in (("Crate", "Crate3"), ("CrateSmall", "Crate2"), ("Barrel", "Barrel")):
 		emit_codex(piece(name), codex_meshes(os.path.join(PROPS, "CrateSet.glb"), group))
+
+
+def laundry():
+	# Maps v5 story prop (the concept's lived-in roofs): a washing line on two steel T-posts, 11 long along X, with
+	# bolted base plates, two sagging lines and towels, shirts and a sheet pegged on, in the palette's cloth tones.
+	# Origin: floor centre; the line runs x -5.5..5.5, the cloth hangs in the plane z ~0.35. No collision.
+	c = piece("Laundry")
+	P = roles()
+	L, top, sag = 5.5, 6.2, 0.35
+	for x in (-L, L):
+		P["Charcoal"].append(RB(x - 0.12, x + 0.12, 0.16, top + 0.21, -0.12, 0.12, 0.03, 1))
+		P["Charcoal"].append(RB(x - 0.1, x + 0.1, top + 0.05, top + 0.25, -0.6, 0.6, 0.03, 1))
+		P["Charcoal"].append(RB(x - 0.45, x + 0.45, -0.02, 0.16, -0.45, 0.45, 0.04, 1))
+		for ox in (-0.3, 0.3):
+			for oz in (-0.3, 0.3):
+				P["Metal"].append(RB(x + ox - 0.06, x + ox + 0.06, 0.15, 0.24, oz - 0.06, oz + 0.06))
+		P["Charcoal"].append(beam((x, 0.16, -0.12), (x, 1.4, -0.7), 0.08, 0.08))
+		P["Charcoal"].append(beam((x, 0.16, 0.12), (x, 1.4, 0.7), 0.08, 0.08))
+
+	def line_y(x):
+		return top - sag * (1.0 - (x / L) ** 2)
+
+	n = 10
+	for z in (-0.45, 0.45):
+		for k in range(n):
+			x0, x1 = -L + 2 * L * k / n, -L + 2 * L * (k + 1) / n
+			P["Charcoal"].append(beam((x0, line_y(x0) + 0.1, z), (x1, line_y(x1) + 0.1, z), 0.05, 0.05))
+	# (x centre, width, height, role, kind): towels, shirts, a sheet
+	items = [
+		(-4.2, 1.3, 2.0, "Cloth", "towel"),
+		(-2.55, 1.5, 1.7, "AccentSoft", "shirt"),
+		(-0.6, 2.3, 2.7, "Cloth", "sheet"),
+		(1.45, 1.4, 1.6, "Shutter", "shirt"),
+		(3.0, 1.1, 1.9, "Pot", "towel"),
+		(4.45, 0.9, 1.3, "Cloth", "towel"),
+	]
+	for k, (xc, w, h, role, kind) in enumerate(items):
+		z = 0.45 + (0.03 if k % 2 else -0.03)
+		yt = line_y(xc) + 0.06
+		if kind == "shirt":
+			P[role].append(RB(xc - w * 0.36, xc + w * 0.36, yt - h, yt, z - 0.04, z + 0.04, 0.02, 1))
+			for sx in (1, -1):
+				a, b = sorted((xc + sx * w * 0.36, xc + sx * w * 0.62))
+				P[role].append(RB(a, b, yt - 0.62, yt - 0.02, z - 0.035, z + 0.035, 0.02, 1))
+		else:
+			P[role].append(RB(xc - w / 2, xc + w / 2, yt - h, yt, z - 0.035, z + 0.035, 0.02, 1))
+		for px in (xc - w * 0.3, xc + w * 0.3):
+			P["Wood"].append(RB(px - 0.05, px + 0.05, yt - 0.12, yt + 0.12, z - 0.07, z + 0.07))
+	emit(c, P)
+
+
+def codex_pot():
+	# Codex's R1 agave pot (2 x 2, foliage to 3.15): story groups by the huts and the party corner (maps v5)
+	emit_codex(piece("AgavePot"), codex_meshes(os.path.join(PROPS, "AgavePot.glb")))
 
 
 def codex_planter():
@@ -1568,6 +1740,8 @@ def build():
 	tar_patch("TarPatchB", 2.6)
 	p_street_lamp()
 	codex_crates()  # maps v4: Codex R4
+	laundry()  # maps v5 story props
+	codex_pot()
 	party_corner()
 	city2("CityA", 28, 24, 64, 1)
 	city2("CityB", 24, 24, 90, 2)

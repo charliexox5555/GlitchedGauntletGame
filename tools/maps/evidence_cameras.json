@@ -1,0 +1,92 @@
+{
+  "_doc": "Maps v5 fixed evidence cameras: the same angles every round (eye height = floor + 5, plus an overview). Positions are map-local (add the map origin: Rooftops2 3000,200,0; Dockyard2 -3000,200,0). Shots go to vault/02 Art/References/maps/<map>/v5-r<round>-<name>.jpg. Lighting: tools/studio/maps/PreviewLighting.luau.",
+  "Rooftops2": {
+    "origin": [
+      3000,
+      200,
+      0
+    ],
+    "cams": {
+      "overview": {
+        "pos": [
+          62,
+          58,
+          92
+        ],
+        "look": [
+          0,
+          4,
+          4
+        ]
+      },
+      "b-spawn": {
+        "pos": [
+          -10,
+          5,
+          70
+        ],
+        "look": [
+          40,
+          5,
+          68
+        ]
+      },
+      "a-roof-tank": {
+        "pos": [
+          -22,
+          5,
+          -40
+        ],
+        "look": [
+          0,
+          14,
+          0
+        ]
+      },
+      "pit": {
+        "pos": [
+          -17,
+          -3,
+          0
+        ],
+        "look": [
+          8,
+          6,
+          -2
+        ]
+      },
+      "tower": {
+        "pos": [
+          -35,
+          13,
+          -6
+        ],
+        "look": [
+          0,
+          6,
+          32
+        ]
+      },
+      "b-roof-side": {
+        "pos": [
+          40,
+          5,
+          38
+        ],
+        "look": [
+          -12,
+          6,
+          30
+        ]
+      }
+    }
+  },
+  "Dockyard2": {
+    "origin": [
+      -3000,
+      200,
+      0
+    ],
+    "cams": {}
+  }
+}

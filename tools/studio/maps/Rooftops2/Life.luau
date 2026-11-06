@@ -229,19 +229,28 @@ local ROD = Color3.fromRGB(58, 56, 54)
 local function banner(name: string, x: number, z: number, out: number, colour: Color3)
 	local m = model(name)
 	local top = Vector3.new(x + out * 1.6, 197, z)
+	-- Maps v5 float audit (lane G): the arm runs 0.5 into the wall on a wall plate, and the cloth hangs from
+	-- the arm (it stopped 0.1 short of both).
 	part(
 		folder,
 		name .. "_Arm",
-		Vector3.new(3, 0.18, 0.18),
-		CFrame.new(Vector3.new(x + out * 1.5, 197.1, z)),
+		Vector3.new(3.6, 0.18, 0.18),
+		CFrame.new(Vector3.new(x + out * 1.3, 197.1, z)),
 		ROD
 	)
-	part(m, "Cloth", Vector3.new(2.6, 6, 0.06), CFrame.new(top + Vector3.new(0, -3.1, 0)), colour)
+	part(
+		folder,
+		name .. "_Plate",
+		Vector3.new(0.5, 0.7, 0.7),
+		CFrame.new(Vector3.new(x - out * 0.1, 197.1, z)),
+		ROD
+	)
+	part(m, "Cloth", Vector3.new(2.6, 6, 0.06), CFrame.new(top + Vector3.new(0, -2.95, 0)), colour)
 	part(
 		m,
 		"Stripe",
 		Vector3.new(2.64, 0.5, 0.18), -- 0.06 proud of the cloth on both faces
-		CFrame.new(top + Vector3.new(0, -5.3, 0)),
+		CFrame.new(top + Vector3.new(0, -5.15, 0)),
 		Color3.fromRGB(240, 226, 196)
 	)
 	tag(m, "LifeSway", {

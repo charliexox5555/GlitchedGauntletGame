@@ -35,19 +35,19 @@ MAP = "Rooftops2"
 PALETTE: dict[str, tuple[str, str, str]] = {
     # big calm surfaces
     "Roof": ("B5735A", "Slate", "Roof2_Tile"),  # team-roof tiles (the ground band)
-    "RoofPit": ("B3A48C", "Slate", "Roof2_Gravel"),  # maps v4: lighter (the Pit read crushed dark under the trestles)  # the Pit's floor: tar and gravel (concept pass 2026-11-05)
+    "RoofPit": ("ADA391", "Concrete", ""),  # maps v5 round 2: fine stock concrete (the gravel read as footprints)  # maps v4: lighter (the Pit read crushed dark under the trestles)  # the Pit's floor: tar and gravel (concept pass 2026-11-05)
     # Round 1: SmoothPlastic, not the Lobby concrete variant (its dark colour map made the plaster read as brick).
     "Wall": ("D4B98F", "Concrete", "Roof2_Plaster"),  # facades (tinted per building from TONE); our plaster row
     "Plinth": ("A8977F", "Concrete", "Roof2_Plaster"),  # street storey, hut plinths
     # clean SmoothPlastic trims
-    "Trim": ("F2EEE4", "SmoothPlastic", ""),  # cornices, sills, frames, coping
+    "Trim": ("ECE2CE", "SmoothPlastic", ""),  # cornices, sills, frames, coping (maps v5: cream, the near-white glared)
     "Ledge": ("C9BFAE", "SmoothPlastic", ""),  # alley ledges and sills
     "Charcoal": ("3A3F47", "SmoothPlastic", ""),  # steel: stairs, stands, frames, hardware
     "Metal": ("A9A59C", "SmoothPlastic", ""),  # AC units, condensers, vents (round 5: warmer, read as heavy grey blocks)
     "Door": ("6C5442", "SmoothPlastic", ""),  # doors (round 5: warm mid-tone, black read as a void)
-    "Window": ("4E5878", "SmoothPlastic", ""),  # concept pass: deep blue-violet glass in stone surrounds (was flat navy slabs)
+    "Window": ("56607E", "SmoothPlastic", ""),  # maps v5: a touch lighter;  # concept pass: deep blue-violet glass in stone surrounds (was flat navy slabs)
     "Glass": ("BFD8E8", "Glass", ""),  # skylights
-    "Accent": ("2F62C8", "SmoothPlastic", ""),  # cobalt: the tank and the sign plates (the 10% spike)
+    "Accent": ("3B5BC2", "SmoothPlastic", ""),  # maps v5: a step toward the concept's blue-violet caps;  # cobalt: the tank and the sign plates (the 10% spike)
     "AccentSoft": ("5C79AE", "SmoothPlastic", ""),  # round 6: bands, awnings, billboard bands (softer than the tank)
     "Poster": ("EADFCB", "SmoothPlastic", ""),  # billboard panels (cream, not white)
     "Chevron": ("F3E6CC", "SmoothPlastic", ""),  # round 8: court chevrons, warm painted cream
@@ -67,16 +67,16 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "Stone": ("E9D7B2", "Concrete", "Roof2_Plaster"),  # cream stone: surrounds, quoins, cornices, cheek walls
     "Shutter": ("4F7F5A", "SmoothPlastic", ""),  # louvred shutters (green; cobalt on the A roof by tone)
     "RoofTile": ("B8673F", "Slate", "Roof2_Terracotta"),  # A penthouse and hut roofs
-    "RoofSlate": ("5F6B78", "Slate", "Roof2_Slate"),  # B penthouse mansard
-    "Brick": ("A8644A", "Brick", "Roof2_Brick"),  # chimney stacks
-    "Pot": ("A8664A", "SmoothPlastic", ""),  # terracotta pots and planters (maps v4: calmer, read loud orange in the low sun)
+    "RoofSlate": ("7D8898", "Slate", "Roof2_Slate"),  # B penthouse mansard (maps v5: lighter, read as a dark hole)
+    "Brick": ("B27560", "Brick", "Roof2_Brick"),  # maps v5 round 2: softer (read high-contrast);  # chimney stacks
+    "Pot": ("A27560", "SmoothPlastic", ""),  # maps v5: less saturated again;  # terracotta pots and planters (maps v4: calmer, read loud orange in the low sun)
     "Cloth": ("EFE3C8", "Fabric", ""),  # awning, chairs
-    "Appliance": ("C7B9A2", "SmoothPlastic", ""),  # AC cabinet casings (maps v4: warm stone, the cream read bright white)
+    "Appliance": ("B3AC9F", "SmoothPlastic", ""),  # maps v5: warm mid-grey (Codex casing);  # AC cabinet casings (maps v4: warm stone, the cream read bright white)
     # maps v4: floor breakup and the blank sign panels
     "Paver": ("D9BBA3", "Slate", "Roof2_Tile"),  # kerbed paving inlays on the team roofs (a lighter field)
     "Tar": ("6F6258", "Slate", "Roof2_Gravel"),  # tar-sealed repairs
     # Neon, thin only
-    "GlowWarm": ("FFE2B8", "Neon", ""),
+    "GlowWarm": ("FFC488", "Neon", ""),  # maps v5 round 2: deeper amber (Neon blooms; FFE2B8 read white)
     "GlowWest": ("FFB14A", "Neon", ""),
     "GlowEast": ("7CD0FF", "Neon", ""),
 }
@@ -84,7 +84,7 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 # Facade plaster per building ("Wall" parts take these by the placement's tone).
 TONE = {
     "teamA": "E3AA84",
-    "teamB": "A9C2B0",
+    "teamB": "B9C49E",  # maps v5 round 2: warmer sage (the cool sage read grey-blue under the dusk light)
     "tower": "D4B98F",  # round 4: another step darker and warmer (cream washed out in sun)
     "pit": "C8A983",
     # the city around the block (round 1: varied, so the skyline isn't one cloned slab)
@@ -122,7 +122,7 @@ LIGHTING = {
     "ClockTime": 17.1,  # round 1: lower, warmer sun (reviewers read 16.3 as neutral midday)
     "GeographicLatitude": 23.5,
     "Brightness": 3.2,
-    "Ambient": (124, 118, 136),  # maps v4: one more step (the Pit under the trestles read crushed dark)
+    "Ambient": (134, 126, 144),  # maps v5: lifts the Pit (point fills made hot spots)  # maps v4: one more step (the Pit under the trestles read crushed dark)
     "OutdoorAmbient": (150, 142, 172),  # round 8: deeper cool shade against the warm sun
     "ColorShift_Top": (255, 178, 110),
     "ColorShift_Bottom": (0, 0, 0),
@@ -133,9 +133,10 @@ LIGHTING = {
     "ShadowSoftness": 0.2,
 }
 FX = {
-    "Atmosphere": {"Density": 0.3, "Offset": 0.25, "Color": (246, 204, 166), "Decay": (214, 160, 150), "Glare": 0.7, "Haze": 1.4},
+    # maps v5: toward the concept's pink-lilac dusk (our skybox carries the sky; the haze turns pink, decays lilac)
+    "Atmosphere": {"Density": 0.3, "Offset": 0.22, "Color": (244, 196, 184), "Decay": (190, 160, 206), "Glare": 0.6, "Haze": 1.5},
     "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
-    "Grade": {"Brightness": 0.02, "Contrast": 0.12, "Saturation": 0.08, "TintColor": (255, 236, 214)},
+    "Grade": {"Brightness": 0.02, "Contrast": 0.12, "Saturation": 0.06, "TintColor": (255, 234, 226)},
     "SunRays": {"Intensity": 0.18, "Spread": 0.7},
 }
 LAMP = {"color": (255, 214, 170), "brightness": 1.6, "range": 30}

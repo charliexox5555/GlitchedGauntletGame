@@ -16,7 +16,7 @@ local PROPS: { [string]: any } = {
 	ClockTime = 17.1,
 	GeographicLatitude = 23.5,
 	Brightness = 3.2,
-	Ambient = Color3.fromRGB(124, 118, 136),
+	Ambient = Color3.fromRGB(134, 126, 144),
 	OutdoorAmbient = Color3.fromRGB(150, 142, 172),
 	ColorShift_Top = Color3.fromRGB(255, 178, 110),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
@@ -27,9 +27,9 @@ local PROPS: { [string]: any } = {
 	ShadowSoftness = 0.2,
 }
 local FX: { [string]: { [string]: any } } = {
-	Atmosphere = { Density = 0.3, Offset = 0.25, Color = Color3.fromRGB(246, 204, 166), Decay = Color3.fromRGB(214, 160, 150), Glare = 0.7, Haze = 1.4 },
+	Atmosphere = { Density = 0.3, Offset = 0.22, Color = Color3.fromRGB(244, 196, 184), Decay = Color3.fromRGB(190, 160, 206), Glare = 0.6, Haze = 1.5 },
 	Bloom = { Intensity = 0.6, Size = 24, Threshold = 1.25 },
-	Grade = { Brightness = 0.02, Contrast = 0.12, Saturation = 0.08, TintColor = Color3.fromRGB(255, 236, 214) },
+	Grade = { Brightness = 0.02, Contrast = 0.12, Saturation = 0.06, TintColor = Color3.fromRGB(255, 234, 226) },
 	SunRays = { Intensity = 0.18, Spread = 0.7 },
 }
 local LAMP = { color = Color3.fromRGB(255, 214, 170), brightness = 1.6, range = 30 }
@@ -56,8 +56,24 @@ end
 local fx = Instance.new("Folder")
 fx.Name = "LightingFx"
 
+-- Maps v5: our dusk skybox (tools/textures/make_dusk_sky.py; lilac zenith over a peach horizon, soft pink cloud
+-- bands, from the concept board). Image ids: the Decal uploads resolved in Studio.
+local SKY = {
+	Bk = "rbxassetid://97605421505972",
+	Ft = "rbxassetid://99550702792737",
+	Lf = "rbxassetid://108417960907432",
+	Rt = "rbxassetid://82847845272575",
+	Up = "rbxassetid://72697514413508",
+	Dn = "rbxassetid://89246847420820",
+}
 local sky = Instance.new("Sky")
-sky.Name = "AfternoonSky"
+sky.Name = "DuskSky"
+sky.SkyboxBk = SKY.Bk
+sky.SkyboxFt = SKY.Ft
+sky.SkyboxLf = SKY.Lf
+sky.SkyboxRt = SKY.Rt
+sky.SkyboxUp = SKY.Up
+sky.SkyboxDn = SKY.Dn
 sky.CelestialBodiesShown = true
 sky.SunAngularSize = 14
 sky.MoonAngularSize = 0 -- round 4: the moon read as a green blob on the horizon
@@ -84,7 +100,8 @@ set(rays, FX.SunRays)
 rays.Parent = fx
 fx.Parent = map
 
--- Floods on the billboards and spills under the roof signs: warm, shadowless.
+-- Floods on the billboards and spills under the roof signs: warm, shadowless. (Maps v5 tried two point fills
+-- in the Pit: they made hot spots on the stair cheeks; a higher Ambient lifts the Pit instead.)
 local lights = section("Art", "Lights")
 local count = 0
 for _, s in { 1, -1 } do

@@ -196,7 +196,7 @@ class Art:
 				piece, scale = "CityB", 0.7 + 0.1 * h01("scale", k)
 			else:
 				piece, scale = "CityA", 0.75 + 0.45 * h01("scale", k)
-			self.put("Skyline", piece, x, STREET + 0.4, z, yaw, tint="city%d" % (k % 4), scale=round(scale, 2))
+			self.put("Skyline", piece, x, STREET - 0.05, z, yaw, tint="city%d" % (k % 4), scale=round(scale, 2))  # maps v5 float audit: on the street (was 0.35 over it)
 		# the far skyline: taller towers further out
 		for i in range(14):
 			a = i / 14 * 2 * math.pi + 0.2
@@ -234,6 +234,15 @@ class Art:
 			("Barrel", -21.3, 0.0, 55.4, 0.0),
 			("PartyCorner", 43.0, 0.0, 60.2, 90.0),  # a rooftop party left half-set, by the east parapet
 			("Barrel", 45.9, 0.0, 66.6, 0.0),
+			# maps v5 story props: washing strung along the back parapet beside the tank house (the spawn court's
+			# back wall), a stock corner south of the cooling tower, potted agaves at the party and the stock.
+			("Laundry", 30.6, 0.0, 76.6, 0.0),
+			("Crate", -34.6, 0.0, 65.6, 12.0),
+			("CrateSmall", -34.5, 3.0, 65.7, 3.0),
+			("Barrel", -32.2, 0.0, 66.2, 0.0),
+			("CrateSmall", -32.0, 0.0, 64.0, -20.0),
+			("AgavePot", -37.6, 0.0, 65.4, 0.0),
+			("AgavePot", 46.0, 0.0, 57.4, 30.0),
 		]
 		for piece, x, y, z, yaw in groups:
 			for sg in (1, -1):
