@@ -345,8 +345,9 @@ def pilaster(p, zc=0.0):
 	p["PilasterBase"] = (rb(0.3, 1.0, 0.6, 3.75, zc - 0.85, zc + 0.85, ch=0.08), "M_TileDark")
 	p["PilasterCap"] = (rb(0.42, 1.1, 3.75, 3.95, zc - 0.92, zc + 0.92, ch=0.05), "M_Stainless")
 	p["Pilaster"] = (rb(0.25, 0.92, 3.95, 18.55, zc - 0.78, zc + 0.78, ch=0.1), "M_Tile")
-	p["SconceBody"] = (G(rb(0.92, 1.25, 6.7, 8.3, zc - 0.32, zc + 0.32, ch=0.06), rb(0.92, 1.12, 6.45, 6.7, zc - 0.12, zc + 0.12)), "M_Charcoal")
-	p["Sconce_Glow"] = (rb(1.25, 1.3, 6.9, 8.1, zc - 0.22, zc + 0.22), "G_Warm")
+	p["SconceBody"] = (G(rb(0.92, 1.12, 6.6, 8.4, zc - 0.2, zc + 0.2, ch=0.05), rb(1.12, 1.62, 6.6, 6.75, zc - 0.22, zc + 0.22, ch=0.04),
+						   rb(1.12, 1.62, 8.25, 8.4, zc - 0.22, zc + 0.22, ch=0.04)), "M_Charcoal")
+	p["Sconce_Glow"] = (vcyl(1.37, zc, 0.13, 6.75, 8.25, segs=10), "G_Warm")
 
 
 def lightbox(p, key, za, zb, y0, y1):
@@ -487,8 +488,9 @@ def p_column(mats, kit):
 		"Band": (rb(-2.2, 2.2, 9.5, 12.3, -2.2, 2.2, ch=0.3), "M_Band"),
 		"Necking": (rb(-2.1, 2.1, 22.0, 22.4, -2.1, 2.1, ch=0.08), "M_Concrete"),
 		"Capital": (G(_flare(2.0, 2.8, 22.4, 26.6), rb(-2.95, 2.95, 26.6, CEIL - 0.62, -2.95, 2.95, ch=0.12)), "M_Concrete"),
-		"SconceBody": (G(*[rb(-0.32, 0.32, 6.6, 8.3, sz * 1.96, sz * 2.28, ch=0.06) for sz in (-1, 1)]), "M_Charcoal"),
-		"Sconce_Glow": (G(*[rb(-0.22, 0.22, 6.8, 8.1, sz * 2.28, sz * 2.33) for sz in (-1, 1)]), "G_Warm"),
+		"SconceBody": (G(*[G(rb(-0.2, 0.2, 6.6, 8.4, *sorted((sz * 1.96, sz * 2.16)), ch=0.05), rb(-0.22, 0.22, 6.6, 6.75, *sorted((sz * 2.16, sz * 2.66)), ch=0.04),
+							   rb(-0.22, 0.22, 8.25, 8.4, *sorted((sz * 2.16, sz * 2.66)), ch=0.04)) for sz in (-1, 1)]), "M_Charcoal"),
+		"Sconce_Glow": (G(*[vcyl(0, sz * 2.41, 0.13, 6.75, 8.25, segs=10) for sz in (-1, 1)]), "G_Warm"),
 	}
 	piece("Column", p, mats, kit)
 
@@ -797,6 +799,91 @@ def train():
 
 def p_trains(mats, kit):
 	piece("Train", train(), mats, kit)
+	p_train_codex(mats, kit)
+
+
+CODEX_ROLE = {"Glass": "M_Glass", "GlowWarm": "G_Warm", "Granite": "M_Granite", "Seat": "M_Seat", "Stainless": "M_Stainless",
+			  "Stripe": "M_Stripe", "TrainBody": "M_TrainBody", "TrainDark": "M_TrainDark"}
+
+
+def p_train_codex(mats, kit):
+	# Round 5: the hero train modelled by Codex (art-source/maps/Metro2/props/MetroCab.glb: one cab section, ribbed
+	# stainless, window band, doors, bogies, roof gear; vault Metro2.md -> Codex jobs), fitted to Metro's train
+	# collision (one 52-long unit, cabs at both ends, platform side +X with doors at section-local +-(3.5..9.5), track
+	# side with one door on the gangway half). The section's glTF has the cab at Blender -y and, on +X, the door at
+	# local -9.4..-3.6 closed: those door leaves are cut so every visual doorway is a collision gap. Section B (centre
+	# Roblox z +13 = Blender y -13) is the section as modelled; section A (Roblox z -13) is its mirror along y, which
+	# puts its cab at the far end and its track door on the gangway half. Floor 3.1 above the wheels -> placed 3.1 down
+	# so the floor meets the platform. Materials are re-mapped to the kit's roles.
+	path = os.path.join(ART_DIR, "props", "MetroCab.glb")
+	if not os.path.exists(path):
+		print("METRO2 no Codex train at", path)
+		return
+	before = set(bpy.data.objects)
+	bpy.ops.import_scene.gltf(filepath=path)
+	new = [o for o in bpy.data.objects if o not in before]
+	src = {}
+	for o in new:
+		if o.type != "MESH":
+			continue
+		role = o.data.materials[0].name.split(".")[0] if o.data.materials else "TrainBody"
+		bm = bmesh.new()
+		bm.from_mesh(o.data)
+		bmesh.ops.transform(bm, matrix=o.matrix_world, verts=bm.verts[:])
+		src[role] = bm
+	for o in new:
+		bpy.data.objects.remove(o, do_unlink=True)
+	# Clear glass only where the collision has a window opening (platform side, section centre |y| < 3.2); every other
+	# pane (track side, ends, cab) becomes the kit's dark glass, so nothing looks shootable that is solid.
+	if "Glass" in src:
+		g = src["Glass"]
+		dark = g.copy()
+		clear_faces = [f for f in g.faces if (lambda c: c.x > 4.0 and abs(c.y) < 3.2)(f.calc_center_median())]
+		dark_faces = [f for f in dark.faces if not (lambda c: c.x > 4.0 and abs(c.y) < 3.2)(f.calc_center_median())]
+		bmesh.ops.delete(g, geom=[f for f in g.faces if f not in set(clear_faces)], context="FACES")
+		bmesh.ops.delete(dark, geom=[f for f in dark.faces if f not in set(dark_faces)], context="FACES")
+		src["DarkGlass"] = dark
+	CODEX_ROLE["DarkGlass"] = "M_DarkGlass"
+	parts = {}
+	for role, bm in src.items():
+		if len(bm.faces) == 0:
+			continue
+		# Codex's role meshes share some outer planes (body / dark trim / stripe / glass): a tiny scale per role about
+		# the section's centre (2-15 thousandths of a stud at the skin) takes them off each other's planes.
+		f = {"TrainDark": 1.006, "Stripe": 0.9965, "TrainBody": 0.994, "Glass": 0.996, "DarkGlass": 0.996, "GlowWarm": 0.988}.get(role, 1.0)
+		if f != 1.0:
+			bmesh.ops.scale(bm, vec=(f, f, f), space=Matrix.Translation((0, 0, -6.6)), verts=bm.verts[:])
+		for sec, mirror in (("B", False), ("A", True)):
+			b2 = bm.copy()
+			m = Matrix.Translation((8.5 - 8.5, 0, -3.1))  # piece origin = unit centre on the platform floor
+			if mirror:
+				bmesh.ops.scale(b2, vec=(1, -1, 1), verts=b2.verts[:])
+				bmesh.ops.reverse_faces(b2, faces=b2.faces[:])
+				m = m @ Matrix.Translation((0, 13.0, 0))
+			else:
+				m = m @ Matrix.Translation((0, -13.0, 0))
+			bmesh.ops.transform(b2, matrix=m, verts=b2.verts[:])
+			K.mat_all(b2, 0)
+			key = ("%s%s_Glow" % (role, sec)) if role == "GlowWarm" else (("%s_Stripe" % sec) if role == "Stripe" else ("%s%s" % (role, sec)))
+			parts[key] = (b2, CODEX_ROLE.get(role, "M_TrainBody"))
+		bm.free()
+	# the open gangway between the sections (Metro's bellows, round the 0.16 gap)
+	hw = TRAIN_W / 2
+	bellows = bmesh.new()
+	for s in (1, -1):
+		x0, x1 = (hw + 0.02, hw + 0.16) if s > 0 else (-hw - 0.16, -hw - 0.02)
+		merge(bellows, rb(x0, x1, -0.1, 9.6, -0.9, 0.9))
+	parts["Bellows"] = (bellows, "M_Rubber")
+	col = K.collection("Map_TrainCodex", kit)
+	for part, (bm, mname) in parts.items():
+		oname = "TrainCodex_%s" % part
+		if part.endswith("_Glow"):
+			K.add_glow(oname, bm, mats[mname], col)
+		else:
+			ob = K.add_obj(oname, bm, [mats[mname]], col, uvs="keep")
+			if mname in ("M_Glass", "M_DarkGlass"):
+				ob.visible_shadow = False
+	PIECES.append(("TrainCodex", col))
 
 
 # ---------------------------------------------------------------- stairs

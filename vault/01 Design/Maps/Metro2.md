@@ -5,9 +5,6 @@ Metro rebuilt to the [Map Quality Standard](Map%20Quality%20Standard.md). Lane F
 - **Map id** `Metro2`, **origin (3000, 200, 1500)**. That spot was checked free in the match place on 2026-11-06: Rooftops2 ends near z 450.
 - **ForceMap only:** `workspace:SetAttribute("ForceMap", "Metro2")`. No `Config/Match` change until the user approves.
 - **Status (03:00): stopped at 6.7 by the stop rule (rounds 5.4 → 6.7 → 6.7 → 6.7). It is a draft below the 8.5 bar.** Audits are 0/0. See "Stopped at 6.7" at the end.
-  - Studio z-fighting audit: **0 pairs** (1,937 visible parts).
-  - FloatAudit: 42 groups fixed down to 2; the last fix is pending a re-audit.
-  - Round 1 scoring is next.
 
 ## Calls made without the user (they're asleep; decided by the standard)
 | Call | Why |
@@ -317,3 +314,55 @@ What holds it back (all reviewers, every round), and what would move it:
 **Ready for the user's approval? No.** The standard needs 8.5.
 - What's good: Metro2 is a big step up from Metro, with a bright, finished hall, real signage and 0/0 audits, and the user can judge it with `ForceMap = "Metro2"`.
 - What's left: the trains and the grounded gantry, which need the user's call on modelling time and a layout change.
+
+### Job H — hero train (delivered 2026-11-06)
+
+Built in interactive Blender MCP against concept 03/02, this note and Metro's measured train layout. These are **26-stud pitch half-car modules** for the existing **52 × 10** two-section unit, not two independent 52-stud trains. Actual visible bounding extents are below; pitch includes the coupling clearance. Both are 1 unit = 1 stud, Z up, cab/front −Y, platform side +X, common bottom-centre origin (0,0,0), applied transforms.
+
+| Prop | Tris / strict ceiling | Size X × Y × Z (studs) | Files | Result / limits |
+|---|---:|---|---|---|
+| MetroCar | 7,408 / 8,000 | 10 × 25.840 × 13.335 | [GLB](../../../art-source/maps/Metro2/props/MetroCar.glb) · [Blend](../../../art-source/maps/Metro2/props/MetroCar.blend) · [Preview](../../../art-source/maps/Metro2/props/MetroCar_preview.png) | Rounded roof/shoulders, raised lower ribbing, framed full window band, open doors with pocketed leaves and seals, padded seats, round poles, ceiling light strips, two sprung bogies, underfloor cabinets, roof HVAC/louvres, open ribbed end gangways. |
+| MetroCab | 7,892 / 8,000 | 10 × 25.920 × 13.335 | [GLB](../../../art-source/maps/Metro2/props/MetroCab.glb) · [Blend](../../../art-source/maps/Metro2/props/MetroCab.blend) · [Preview](../../../art-source/maps/Metro2/props/MetroCab_preview.png) | Matching passenger module plus raked wraparound windscreen, wipers, shaped nose/crown, headlights, bumper/coupler and supported cab console/seat. No destination plate or blank sign. |
+
+**Roles:** TrainBody D4D7DB, TrainDark/Rubber 4A4F57, Stainless B7BBC1, Glass 9FB4C2 (T0.55), Stripe/Seat cobalt 2F5FBF, Granite 8C8780 and GlowWarm FFD9A8. One material per role mesh; vertex colour retained, use white import tint. Stripe and Seat can be recoloured to the table's A sage. All designs original; no text/logos or external textures. Every final three-quarter preview includes a grey 5-stud block.
+
+**Placement:** passenger floor at +3.000 relative to the asset origin, roof crest +13.000; set origin at map/platform −3.000 to align the floor to platform zero (equipment reaches +10.335 above it). Platform door centres at local longitudinal ±6.5, approximately 6 wide; +X both open, track side only the inner (+Y) door open. Rotate the opposing half 180° to pair the inner track doors. Keep the existing gameplay collision separate. The art modules have two bogies each, rather than reusing the old unit's shared centre bogie; installation must check the centre overlap/spacing. No layout or Studio changes in this job.
+
+**Checks:** all role meshes pass the LihFolk gate; 0 degenerate/loose geometry, inconsistent normals, within-shell self-intersections or overlapping caps. Contact audit: **0 floating components** (202 Car / 215 Cab shells). Both GLBs reimported with matching mesh counts, triangles and dimensions within 0.001; role materials and COLOR_0 retained. GLBs exclude preview ground/proxy/lights/cameras; native files contain only their own asset scene and preview stage. No texture dependencies. Static decor: anchor, use separate gameplay collision, disable decoration touch/query; solid geometry single-sided.
+
+**Quick Art Director/Skeptic review:** 16/18 each, no zero; representative Cab checked from four angles. The strongest remaining concern is small bogie/handrail detail at thumbnail scale; it did not block acceptance or require another geometry change. Studio appearance and installed-map score remain untested. Sources: this note, Metro's layout, Map Quality Standard, Art Direction; LihFolk [Hard-Surface Modeling](../../LihFolk/14%203D%20Modeling/Hard-Surface%20Modeling.md) (workflow A), [Shape Language](../../LihFolk/55%20Modelling%20Nuance%20and%20Readability/Shape%20Language%20and%20Silhouette%20Testing.md), and [Exporting and Validating Models](../../LihFolk/14%203D%20Modeling/Exporting%20and%20Validating%20Models%20for%20Roblox.md).
+
+## Metro2 v2: the Codex hero train (2026-11-06 morning)
+Codex modelled `MetroCab` and `MetroCar` (`art-source/maps/Metro2/props/`).
+
+**How it's fitted to the collision.** Piece `TrainCodex` in `build_map_kit_metro2.py` → `p_train_codex`:
+- **Sections:** two cab sections. Section A is the modelled one mirrored along its length, so each cab sits at an outer end.
+- **Height:** dropped 3.1, so the car floor meets the platform.
+- **Doors, checked by ray test:** every visual doorway is a collision gap. Platform side: four doors at ±(3.6..9.4) and ±(16.6..22.4). Track side: two doors at ±(3.6..9.4).
+- **Glass:** only the platform-side centre windows (real openings) stay clear; every other pane is dark glass.
+- **Materials:** remapped to the kit's roles. Tiny per-role scale offsets take Codex's shared outer planes apart.
+- **Audits:** Studio 0 z-fighting pairs and 0 floating groups (3,178 parts). The offline polygon pass still lists about 28 sub-0.25 stud² pairs inside the Codex mesh; Studio's triangle audit doesn't see them.
+
+A new hero model counts as a fresh start under the stop rule.
+
+### v2 round 1 (05:00)
+**Blind score: 6.7** (6.7, 6.3, 6.7). Medians: W1 2, W2 1, W3 1, W4 1, W5 1, W6 2.
+
+The train reads much better in the shots, but reviewers still want more from it. Their other low points:
+- **Off-platform rooms:** the ticket hall and corridor are still sparse.
+- **Sun stripes indoors:** the hidden greybox ceiling casts no shadow.
+- **Pillar sconces** read as "blank white frames".
+- **The ballast** reads as brown carpet.
+- **A near-black tile block** stands mid-corridor.
+- **The spawn roundel** echoed a real transit logo. That's an IP risk, so it's redrawn.
+- **Colour coding:** end colour and platform number compete.
+
+### v2 round 2 (built 05:04)
+- **Sun:** an opaque slab over the vault, above the coffers (never seen from inside), blocks the sun.
+- **Sconces:** slim lamps in charcoal cages instead of lit rectangles.
+- **Ballast:** greyer and finer.
+- **Pump rooms:** light tile.
+- **Station mark:** an original M-in-a-rounded-square.
+- **Train stripes:** the Codex train's stripe takes each end's colour.
+
+**For the user (not built, a layout change):** reviewers keep asking for the concept's grounded gantry, standing on columns on the platforms. That adds collision at the gantry line (z ±1.5, on both platforms), so it needs the user's approval.

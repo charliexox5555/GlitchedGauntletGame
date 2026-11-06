@@ -28,7 +28,7 @@ local function rgb(r: number, g: number, b: number): Color3
 end
 
 local PROPS: { [string]: any } = {
-	ClockTime = 15.6,
+	ClockTime = 16.6, -- r2: lower, warmer sun (golden hour)
 	GeographicLatitude = 23.5,
 	Brightness = 3.0,
 	Ambient = rgb(140, 132, 126),
@@ -78,12 +78,12 @@ sky.Parent = fx
 -- A light warm haze: depth on the tower and the far roofs, the plaza stays crisp.
 local atmosphere = Instance.new("Atmosphere")
 atmosphere.Name = "OldTownAtmosphere"
-atmosphere.Density = 0.3
+atmosphere.Density = 0.36
 atmosphere.Offset = 0.18
 atmosphere.Color = rgb(222, 198, 168)
 atmosphere.Decay = rgb(178, 142, 112)
 atmosphere.Glare = 0.25
-atmosphere.Haze = 1.6
+atmosphere.Haze = 2.2
 atmosphere.Parent = fx
 
 -- High threshold: the cream walls must not blow out.
@@ -91,7 +91,7 @@ local bloom = Instance.new("BloomEffect")
 bloom.Name = "OldTownBloom"
 bloom.Intensity = 0.45
 bloom.Size = 22
-bloom.Threshold = 1.25
+bloom.Threshold = 1.05
 bloom.Parent = fx
 
 local grade = Instance.new("ColorCorrectionEffect")
@@ -99,7 +99,7 @@ grade.Name = "OldTownGrade"
 grade.Brightness = 0.02
 grade.Contrast = 0.1
 grade.Saturation = 0.1
-grade.TintColor = rgb(255, 247, 236)
+grade.TintColor = rgb(255, 238, 214)
 grade.Parent = fx
 
 local rays = Instance.new("SunRaysEffect")

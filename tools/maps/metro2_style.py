@@ -24,7 +24,7 @@ ROLE = {
 	"ConcreteDark": ("8E887E", "Concrete", "Metro2_Concrete"),  # trench walls, corridor floors
 	"Granite": ("8C8780", "Granite", "Metro2_Granite"),  # skirts, copings, stair treads, plinths
 	"Floor": ("B8B3AA", "Marble", "Metro2_Floor"),  # r3: a step darker than the tile walls  # platforms, terraces, ticket hall
-	"Ballast": ("7A746C", "Slate", "Metro2_Ballast"),
+	"Ballast": ("6A6866", "Slate", "Metro2_Ballast"),  # v2: greyer (read as brown carpet)
 	"Sleeper": ("958B7E", "Concrete", "Metro2_Concrete"),
 	"Tactile": ("B89A5E", "SmoothPlastic", ""),  # muted ochre: tactile strips, nosings, cones (not the landmark amber)
 	"Charcoal": ("444952", "SmoothPlastic", ""),  # gantry truss, frames, rails, stringers: the route language
@@ -53,7 +53,7 @@ VARIANTS = {
 	"Metro2_Floor": ("Marble", 4, "77487068329569", "119829779417876"),
 	"Metro2_Concrete": ("Concrete", 8, "115978300579621", "75212974169178"),
 	"Metro2_Steel": ("Plastic", 4, "124797132056781", "125393763177388"),
-	"Metro2_Ballast": ("Slate", 3, "73814377438287", "104767378605191"),
+	"Metro2_Ballast": ("Slate", 2, "73814377438287", "104767378605191"),
 	"Metro2_Granite": ("Granite", 4, "119897414412475", "85736567577363"),
 }
 

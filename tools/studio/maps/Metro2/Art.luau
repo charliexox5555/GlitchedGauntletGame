@@ -18,7 +18,7 @@ local ROLE: { [string]: { color: string, material: string, variant: string } } =
 	ConcreteDark = { color = "8E887E", material = "Concrete", variant = "Metro2_Concrete" },
 	Granite = { color = "8C8780", material = "Granite", variant = "Metro2_Granite" },
 	Floor = { color = "B8B3AA", material = "Marble", variant = "Metro2_Floor" },
-	Ballast = { color = "7A746C", material = "Slate", variant = "Metro2_Ballast" },
+	Ballast = { color = "6A6866", material = "Slate", variant = "Metro2_Ballast" },
 	Sleeper = { color = "958B7E", material = "Concrete", variant = "Metro2_Concrete" },
 	Tactile = { color = "B89A5E", material = "SmoothPlastic", variant = "" },
 	Charcoal = { color = "444952", material = "SmoothPlastic", variant = "" },
@@ -44,7 +44,7 @@ local VARIANTS: { [string]: { any } } = {
 	Metro2_Floor = { "Marble", 4, "77487068329569", "119829779417876" },
 	Metro2_Concrete = { "Concrete", 8, "115978300579621", "75212974169178" },
 	Metro2_Steel = { "Plastic", 4, "124797132056781", "125393763177388" },
-	Metro2_Ballast = { "Slate", 3, "73814377438287", "104767378605191" },
+	Metro2_Ballast = { "Slate", 2, "73814377438287", "104767378605191" },
 	Metro2_Granite = { "Granite", 4, "119897414412475", "85736567577363" },
 }
 -- stylua: ignore end
@@ -259,7 +259,7 @@ for zc = -48, 48, 8 do
 	both("Track", "TrackBay8", 8.5, -4, zc, 0)
 end
 both("Track", "TrackBox", -14, -4, 32, 0)
-both("Trains", "Train", 8.5, 0, 20, 0)
+both("Trains", "TrainCodex", 8.5, 0, 20, 0) -- round 5: Codex hero train fitted to the collision (kit TrainCodex)
 
 -- Concourse.
 both("Concourse", "Portal10", -9, 14, 67, 0)
@@ -336,6 +336,16 @@ both("Concourse", "HelpPoint", -48, 14, 84, 0)
 both("Concourse", "CCTV", 48, 14, 74, 180)
 both("Concourse", "CCTV", -48, 14, 102, 0)
 
+-- v2: an opaque slab over the vault, above the coffers (never seen from inside), so the sun can't rake through the
+-- hall (the hidden greybox ceiling is transparent and casts no shadow); the hall is lit by its ambient and Neon.
+do
+	local p = box(section("Art", "SunBlock"), "SunBlock", Vector3.new(100, 1, 104), at(0, 32.2, 0), Color3.fromHex("ADA9A2"), {
+		material = Enum.Material.Concrete,
+		castShadow = true,
+	})
+	decor(p)
+end
+
 -- Corridor dados (both corridor walls, clear of the doors through the hall wall and the pump room).
 for zc = -44, 44, 8 do
 	if zc ~= -40 and zc ~= 0 then
@@ -404,7 +414,7 @@ local FINISH: { [string]: string } = {
 	OuterWallEast = "Concrete",
 	CorridorCeiling = "Concrete",
 	CorridorHead = "Concrete",
-	PumpRoom = "TileDark", -- r4: tiled, not raw concrete (it stood in the corridor view)
+	PumpRoom = "Tile", -- v2: light tile (dark tile read as a hole mid-corridor)
 	WellDivider = "Tile",
 	WingWall = "Tile",
 	ConcourseWall = "Tile",

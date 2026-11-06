@@ -113,6 +113,7 @@ def make_materials():
 		_mat("WoodLight", "WoodPlanks", C_WOODLIGHT, 0.75, 0.08, 1.2, 0.1, stripes=1.0),
 		_mat("Iron", "Metal", C_IRON, 0.45, 0.04, 1.0, 0.05, metallic=0.7),
 		_mat("Glass", "SmoothPlastic", C_GLASS, 0.18, 0.02, 1.0, 0.0),
+		_mat("Lamp", "Neon", 0xFFC27A, 0.5, 0.0, 1.0, 0.0),
 		_mat("AccentWood", "Wood", C_ACCENT, 0.6, 0.05, 1.2, 0.08, stripes=0.5),
 		_mat("AccentCloth", "Fabric", C_ACCENT, 0.9, 0.04, 2.0, 0.05),
 		_mat("Cloth", "Fabric", C_CLOTH, 0.9, 0.03, 2.0, 0.05),
@@ -1021,7 +1022,9 @@ def market_stall():
 		merge(crates, B(0.2, 1.9, yv - 0.85, yv + 0.85, 3.6, 4.4))
 		for i in range(3):
 			for j in range(2):
-				merge(fruit, vcyl(0.55 + i * 0.5, yv - 0.4 + j * 0.8, 0.24, 4.4, 4.75, 6))
+				ball = bmesh.new()
+				bmesh.ops.create_uvsphere(ball, u_segments=8, v_segments=5, radius=0.24 + 0.02 * ((i + j + k) % 3))
+				merge(fruit, mv(ball, 0.55 + i * 0.5, yv - 0.4 + j * 0.8, 4.62))
 	a.add("Wood", crates)
 	a.add("Fruit", fruit)
 	sacks = bmesh.new()
@@ -1073,7 +1076,13 @@ def cart():
 	a.add("Wood", B(-3.2, -2.9, -0.15, 0.15, 0.0, 1.6 + SINK))  # prop leg
 	wheels = bmesh.new()
 	for sy in (-1, 1):
-		merge(wheels, prism(ring_pts(0.6, 1.5, 1.5, 12, 0), "Y", *sorted((sy * 1.78, sy * 2.08))))
+		y0, y1 = sorted((sy * 1.78, sy * 2.08))
+		rim = K.arc(1.2, 1.5, 0, 360, y0, y1, steps=24)
+		merge(wheels, tf(rim, Matrix.Translation((0.6, 0, 1.5)) @ Matrix.Rotation(math.radians(-90), 4, "X")))
+		merge(wheels, prism(ring_pts(0.6, 1.5, 0.32, 10, 0), "Y", y0 - 0.11, y1 + 0.11))
+		for k in range(6):
+			sp = B(-0.08, 0.08, y0 + 0.08, y1 - 0.08, 0.3, 1.25)
+			merge(wheels, tf(sp, Matrix.Translation((0.6, 0, 1.5)) @ Matrix.Rotation(math.radians(k * 60), 4, "Y")))
 	a.add("Wood", wheels)
 	a.add("Iron", ycyl(0.6, 1.5, 0.15, -2.14, 2.14, 6))
 	crates = bmesh.new()
@@ -1218,7 +1227,7 @@ def wall_lantern():
 	a = Acc(ground=False)
 	a.add("Iron", B(0.1, 1.1, -0.06, 0.06, 0.95, 1.07), B(0.0, 0.1, -0.2, 0.2, 0.5, 1.3))
 	a.add("Iron", frustum(1.0, 0, 0.3, 0.42, 0.0, 0.15, 6), frustum(1.0, 0, 0.42, 0.0, 0.9, 1.25, 6))
-	a.add("Glass", frustum(1.0, 0, 0.3, 0.38, 0.15, 0.9, 6))
+	a.add("Lamp", frustum(1.0, 0, 0.3, 0.38, 0.15, 0.9, 6))  # r2: lit (warm practicals under the arcades)
 	return a
 
 

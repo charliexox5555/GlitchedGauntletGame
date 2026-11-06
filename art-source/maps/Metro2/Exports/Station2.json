@@ -492,6 +492,30 @@
     "Train_Dest2_Face"
    ]
   },
+  "TrainCodex": {
+   "props": {},
+   "parts": [
+    "TrainCodex_GlassB",
+    "TrainCodex_GlassA",
+    "TrainCodex_GlowWarmB_Glow",
+    "TrainCodex_GlowWarmA_Glow",
+    "TrainCodex_GraniteB",
+    "TrainCodex_GraniteA",
+    "TrainCodex_SeatB",
+    "TrainCodex_SeatA",
+    "TrainCodex_StainlessB",
+    "TrainCodex_StainlessA",
+    "TrainCodex_B_Stripe",
+    "TrainCodex_A_Stripe",
+    "TrainCodex_TrainBodyB",
+    "TrainCodex_TrainBodyA",
+    "TrainCodex_TrainDarkB",
+    "TrainCodex_TrainDarkA",
+    "TrainCodex_DarkGlassB",
+    "TrainCodex_DarkGlassA",
+    "TrainCodex_Bellows"
+   ]
+  },
   "Vending": {
    "props": {},
    "parts": [
@@ -1185,16 +1209,16 @@
     "color": "444952"
    },
    "glow": false,
-   "tris": 88,
+   "tris": 264,
    "center": [
     0.0,
     0.0,
-    7.45
+    7.5
    ],
    "size": [
-    0.64,
-    4.56,
-    1.7
+    0.44,
+    5.32,
+    1.8
    ]
   },
   {
@@ -1206,16 +1230,16 @@
     "color": "FFC27A"
    },
    "glow": true,
-   "tris": 24,
+   "tris": 72,
    "center": [
     0.0,
     0.0,
-    7.45
+    7.5
    ],
    "size": [
-    0.44,
-    4.66,
-    1.3
+    0.24727,
+    5.08,
+    1.5
    ]
   },
   {
@@ -6938,6 +6962,415 @@
    ]
   },
   {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_GlassB",
+   "material": "M_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "9FB4C2",
+    "transparency": 0.55
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    4.78159,
+    -13.0,
+    5.13344
+   ],
+   "size": [
+    0.05456,
+    6.28476,
+    3.29676
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_GlassA",
+   "material": "M_Glass",
+   "look": {
+    "material": "Glass",
+    "color": "9FB4C2",
+    "transparency": 0.55
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    4.78159,
+    13.0,
+    5.13344
+   ],
+   "size": [
+    0.05456,
+    6.28476,
+    3.29676
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_GlowWarmB_Glow",
+   "material": "G_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "FFC27A"
+   },
+   "glow": true,
+   "tris": 160,
+   "center": [
+    0.0,
+    -13.9633,
+    5.4266
+   ],
+   "size": [
+    9.88,
+    23.6626,
+    8.27944
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_GlowWarmA_Glow",
+   "material": "G_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "FFC27A"
+   },
+   "glow": true,
+   "tris": 160,
+   "center": [
+    0.0,
+    13.9633,
+    5.4266
+   ],
+   "size": [
+    9.88,
+    23.6626,
+    8.27944
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_GraniteB",
+   "material": "M_Granite",
+   "look": {
+    "material": "Granite",
+    "color": "8C8780",
+    "variant": "Metro2_Granite"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    -13.0,
+    -0.15
+   ],
+   "size": [
+    9.46215,
+    24.8,
+    0.3
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_GraniteA",
+   "material": "M_Granite",
+   "look": {
+    "material": "Granite",
+    "color": "8C8780",
+    "variant": "Metro2_Granite"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    13.0,
+    -0.15
+   ],
+   "size": [
+    9.46215,
+    24.8,
+    0.3
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_SeatB",
+   "material": "M_Seat",
+   "look": {
+    "material": "Fabric",
+    "color": "3F5A78"
+   },
+   "glow": false,
+   "tris": 572,
+   "center": [
+    0.0,
+    -16.805,
+    1.9125
+   ],
+   "size": [
+    9.14343,
+    13.29,
+    2.225
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_SeatA",
+   "material": "M_Seat",
+   "look": {
+    "material": "Fabric",
+    "color": "3F5A78"
+   },
+   "glow": false,
+   "tris": 572,
+   "center": [
+    0.0,
+    16.805,
+    1.9125
+   ],
+   "size": [
+    9.14343,
+    13.29,
+    2.225
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_StainlessB",
+   "material": "M_Stainless",
+   "look": {
+    "material": "Plastic",
+    "color": "B9BDC3",
+    "variant": "Metro2_Steel"
+   },
+   "glow": false,
+   "tris": 2624,
+   "center": [
+    0.0,
+    -13.075,
+    3.535
+   ],
+   "size": [
+    9.99004,
+    25.85,
+    13.27
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_StainlessA",
+   "material": "M_Stainless",
+   "look": {
+    "material": "Plastic",
+    "color": "B9BDC3",
+    "variant": "Metro2_Steel"
+   },
+   "glow": false,
+   "tris": 2624,
+   "center": [
+    0.0,
+    13.075,
+    3.535
+   ],
+   "size": [
+    9.99004,
+    25.85,
+    13.27
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_B_Stripe",
+   "material": "M_Stripe",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A6494"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    -13.284,
+    2.84978
+   ],
+   "size": [
+    9.92034,
+    24.98226,
+    0.7125
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_A_Stripe",
+   "material": "M_Stripe",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A6494"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    13.284,
+    2.84978
+   ],
+   "size": [
+    9.92034,
+    24.98226,
+    0.7125
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_TrainBodyB",
+   "material": "M_TrainBody",
+   "look": {
+    "material": "Plastic",
+    "color": "C9CDD1",
+    "variant": "Metro2_Steel"
+   },
+   "glow": false,
+   "tris": 1504,
+   "center": [
+    0.0,
+    -13.17892,
+    4.86675
+   ],
+   "size": [
+    9.8014,
+    25.32712,
+    9.9897
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_TrainBodyA",
+   "material": "M_TrainBody",
+   "look": {
+    "material": "Plastic",
+    "color": "C9CDD1",
+    "variant": "Metro2_Steel"
+   },
+   "glow": false,
+   "tris": 1504,
+   "center": [
+    0.0,
+    13.17892,
+    4.86675
+   ],
+   "size": [
+    9.8014,
+    25.32712,
+    9.9897
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_TrainDarkB",
+   "material": "M_TrainDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 2492,
+   "center": [
+    0.0,
+    -12.98994,
+    3.91497
+   ],
+   "size": [
+    10.06,
+    25.97492,
+    12.72087
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_TrainDarkA",
+   "material": "M_TrainDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 2492,
+   "center": [
+    0.0,
+    12.98994,
+    3.91497
+   ],
+   "size": [
+    10.06,
+    25.97492,
+    12.72087
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_DarkGlassB",
+   "material": "M_DarkGlass",
+   "look": {
+    "material": "Glass",
+    "color": "4A5562",
+    "transparency": 0.35
+   },
+   "glow": false,
+   "tris": 368,
+   "center": [
+    -0.05456,
+    -13.26924,
+    5.48686
+   ],
+   "size": [
+    9.72687,
+    24.25323,
+    4.00361
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_DarkGlassA",
+   "material": "M_DarkGlass",
+   "look": {
+    "material": "Glass",
+    "color": "4A5562",
+    "transparency": 0.35
+   },
+   "glow": false,
+   "tris": 368,
+   "center": [
+    -0.05456,
+    13.26924,
+    5.48686
+   ],
+   "size": [
+    9.72687,
+    24.25323,
+    4.00361
+   ]
+  },
+  {
+   "piece": "TrainCodex",
+   "name": "TrainCodex_Bellows",
+   "material": "M_Rubber",
+   "look": {
+    "material": "Rubber",
+    "color": "3A3D43"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    4.75
+   ],
+   "size": [
+    10.32,
+    1.8,
+    9.7
+   ]
+  },
+  {
    "piece": "Vending",
    "name": "Vending_Body",
    "material": "M_Vending",
@@ -7464,16 +7897,16 @@
     "color": "444952"
    },
    "glow": false,
-   "tris": 56,
+   "tris": 132,
    "center": [
-    1.085,
+    1.27,
     0.0,
-    7.375
+    7.5
    ],
    "size": [
-    0.33,
-    0.64,
-    1.85
+    0.7,
+    0.44,
+    1.8
    ]
   },
   {
@@ -7485,16 +7918,16 @@
     "color": "FFC27A"
    },
    "glow": true,
-   "tris": 12,
+   "tris": 36,
    "center": [
-    1.275,
+    1.37,
     0.0,
     7.5
    ],
    "size": [
-    0.05,
-    0.44,
-    1.2
+    0.24727,
+    0.26,
+    1.5
    ]
   },
   {
@@ -8551,16 +8984,16 @@
     "color": "444952"
    },
    "glow": false,
-   "tris": 56,
+   "tris": 132,
    "center": [
-    1.085,
+    1.27,
     0.0,
-    7.375
+    7.5
    ],
    "size": [
-    0.33,
-    0.64,
-    1.85
+    0.7,
+    0.44,
+    1.8
    ]
   },
   {
@@ -8572,16 +9005,16 @@
     "color": "FFC27A"
    },
    "glow": true,
-   "tris": 12,
+   "tris": 36,
    "center": [
-    1.275,
+    1.37,
     0.0,
     7.5
    ],
    "size": [
-    0.05,
-    0.44,
-    1.2
+    0.24727,
+    0.26,
+    1.5
    ]
   },
   {
@@ -9319,5 +9752,5 @@
    ]
   }
  ],
- "tris": 43540
+ "tris": 59772
 }

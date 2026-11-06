@@ -365,9 +365,9 @@ def sign_spawn_way(name="SpawnWay", left="", right=""):
 	w, h = 1024, 512
 	im = Image.new("RGB", (w, h), INK)
 	d = ImageDraw.Draw(im)
-	d.ellipse((392, 40, 632, 280), outline=CREAM, width=28)
-	d.rectangle((352, 136, 672, 184), fill=CREAM)
-	text_c(d, (512, 160), "MERIDIAN", font(34, "Bold"), INK)
+	d.rounded_rectangle((432, 46, 592, 206), 34, fill=CREAM)
+	text_c(d, (512, 130), "M", font(120, "Bold"), INK)
+	text_c(d, (512, 244), "MERIDIAN", font(34, "Bold"), CREAM)
 	text_c(d, (512, 360), "PLATFORMS", font(96, "Bold"), CREAM)
 	for sx in (-1, 1):
 		x0 = 512 + sx * 380

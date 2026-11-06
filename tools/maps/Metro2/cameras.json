@@ -1,0 +1,159 @@
+{
+ "origin": [
+  3000,
+  200,
+  1500
+ ],
+ "cams": {
+  "overview": {
+   "pos": [
+    -4,
+    23,
+    46
+   ],
+   "look": [
+    3,
+    5,
+    -10
+   ]
+  },
+  "b-terrace": {
+   "pos": [
+    -28,
+    19,
+    54
+   ],
+   "look": [
+    6,
+    5,
+    -20
+   ]
+  },
+  "b-spawn": {
+   "pos": [
+    -2,
+    19,
+    121
+   ],
+   "look": [
+    9,
+    18,
+    104
+   ]
+  },
+  "east-platform": {
+   "pos": [
+    30,
+    5,
+    46
+   ],
+   "look": [
+    20,
+    7,
+    -10
+   ]
+  },
+  "west-platform": {
+   "pos": [
+    -27,
+    5,
+    -44
+   ],
+   "look": [
+    -18,
+    7,
+    10
+   ]
+  },
+  "trench": {
+   "pos": [
+    0,
+    1,
+    -32
+   ],
+   "look": [
+    0,
+    9,
+    10
+   ]
+  },
+  "gantry": {
+   "pos": [
+    24,
+    5,
+    -16
+   ],
+   "look": [
+    0,
+    12,
+    0
+   ]
+  },
+  "train": {
+   "pos": [
+    19,
+    5,
+    30
+   ],
+   "look": [
+    9,
+    4,
+    8
+   ]
+  },
+  "corridor": {
+   "pos": [
+    42,
+    5,
+    -32
+   ],
+   "look": [
+    42,
+    6,
+    10
+   ]
+  },
+  "ticket-hall": {
+   "pos": [
+    -20,
+    19,
+    76
+   ],
+   "look": [
+    10,
+    17,
+    100
+   ]
+  },
+  "gantry-south": {
+   "pos": [
+    0,
+    8,
+    -22
+   ],
+   "look": [
+    0,
+    12,
+    0
+   ]
+  }
+ },
+ "dummies": [
+  [
+   20,
+   0,
+   24
+  ],
+  [
+   0,
+   -4,
+   -12
+  ],
+  [
+   -26,
+   14,
+   56
+  ]
+ ],
+ "_doc": "Fixed evidence cameras for Metro2 (Map Quality Standard step 8): map-local positions (add origin), eye height = floor + 5; dummies = 5-stud R15 scale blocks. Kept per map so lanes don't share one file."
+}
