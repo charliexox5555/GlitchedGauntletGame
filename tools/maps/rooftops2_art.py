@@ -242,6 +242,11 @@ class Art:
 			("Barrel", -32.2, 0.0, 66.2, 0.0),
 			("CrateSmall", -32.0, 0.0, 64.0, -20.0),
 			("AgavePot", -37.6, 0.0, 65.4, 0.0),
+			# maps v5 round 3: potted agaves along the Penthouse's court face (the spawn lane read bare)
+			("AgavePot", -18.6, 0.0, 61.4, 15.0),
+			("AgavePot", -5.0, 0.0, 61.4, -20.0),
+			("AgavePot", 5.0, 0.0, 61.4, 40.0),
+			("AgavePot", 18.6, 0.0, 61.4, 0.0),
 			("AgavePot", 46.0, 0.0, 57.4, 30.0),
 		]
 		for piece, x, y, z, yaw in groups:
@@ -256,6 +261,9 @@ class Art:
 		items = [("Inlay8", 9.0, 0.0, z, 0.0) for z in (28.0, 36.0, 44.0)]
 		items += [("Inlay8", x, 0.0, z, 0.0) for x in (-12.0, -4.0, 4.0, 12.0) for z in (67.5, 75.5)]
 		items += [("Inlay8", -40.0, 0.0, 28.0, 0.0), ("Inlay8", 36.0, 0.0, 28.0, 0.0), ("Inlay8", 36.0, 0.0, 40.0, 0.0)]
+		# maps v5 round 3 (navigation): paved strips lead out of the spawn court round both Penthouse ends to the
+		# side lanes, so the routes read on the floor
+		items += [("Walk4", x, 0.0, z, 0.0) for x in (-24.0, 23.0) for z in (48.0, 56.0, 64.0)]
 		items += [("Drain", x, 0.0, z, 0.0) for x, z in ((-24.0, 44.0), (18.0, 40.0), (-30.0, 62.0), (32.0, 62.0))]
 		items += [("Drain", -12.0, L.PIT, 2.0, 0.0)]
 		items += [("TarPatchA", -16.0, 0.0, 44.0, 20.0), ("TarPatchB", 22.0, 0.0, 38.0, -15.0), ("TarPatchB", -34.0, 0.0, 74.0, 70.0), ("TarPatchA", 30.0, 0.0, 70.0, 110.0)]

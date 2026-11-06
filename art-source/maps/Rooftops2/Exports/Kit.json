@@ -9,7 +9,8 @@
     "ACUnit_CodexMetal",
     "ACUnit_CodexAppliance",
     "ACUnit_PadStone",
-    "ACUnit_PadCharcoal"
+    "ACUnit_PadCharcoal",
+    "ACUnit_PadMetal"
    ]
   },
   "AgavePot": {
@@ -285,6 +286,7 @@
     "PenthouseA_Window",
     "PenthouseA_Shutter",
     "PenthouseA_Charcoal",
+    "PenthouseA_Metal",
     "PenthouseA_Brick",
     "PenthouseA_RoofTile",
     "PenthouseA_Pot",
@@ -306,6 +308,7 @@
     "PenthouseB_Window",
     "PenthouseB_Shutter",
     "PenthouseB_Charcoal",
+    "PenthouseB_Metal",
     "PenthouseB_Brick",
     "PenthouseB_RoofSlate",
     "PenthouseB_Pot",
@@ -442,6 +445,13 @@
     "TarPatchB_Tar"
    ]
   },
+  "Walk4": {
+   "props": {},
+   "parts": [
+    "Walk4_Paver",
+    "Walk4_Stone"
+   ]
+  },
   "WaterTank": {
    "props": {},
    "parts": [
@@ -546,16 +556,37 @@
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 44,
+   "tris": 140,
    "center": [
     0.0,
-    0.0,
-    1.85
+    0.015,
+    4.265
    ],
    "size": [
     8.2,
-    4.2,
-    0.14
+    4.23,
+    4.97
+   ]
+  },
+  {
+   "piece": "ACUnit",
+   "name": "ACUnit_PadMetal",
+   "material": "R2_Metal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A9A59C"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    2.04,
+    5.06
+   ],
+   "size": [
+    6.78,
+    0.28,
+    4.02
    ]
   },
   {
@@ -2924,7 +2955,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 6476,
+   "tris": 6812,
    "center": [
     0.0,
     0.0,
@@ -2966,7 +2997,7 @@
     "color": "56607E"
    },
    "glow": false,
-   "tris": 648,
+   "tris": 720,
    "center": [
     0.0,
     0.0,
@@ -2987,14 +3018,14 @@
     "color": "4F7F5A"
    },
    "glow": false,
-   "tris": 464,
+   "tris": 928,
    "center": [
-    11.75,
+    0.0,
     -4.13,
     4.4
    ],
    "size": [
-    11.8,
+    35.3,
     0.26,
     3.6
    ]
@@ -3008,16 +3039,37 @@
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 264,
+   "tris": 552,
    "center": [
     0.0,
-    -0.51,
-    4.45
+    -0.6934,
+    4.43824
    ],
    "size": [
     40.9,
-    8.18,
-    7.1
+    8.54679,
+    7.12353
+   ]
+  },
+  {
+   "piece": "PenthouseA",
+   "name": "PenthouseA_Metal",
+   "material": "R2_Metal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A9A59C"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    -4.21,
+    2.98
+   ],
+   "size": [
+    24.08,
+    0.66,
+    0.16
    ]
   },
   {
@@ -3181,7 +3233,7 @@
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 6476,
+   "tris": 6812,
    "center": [
     0.0,
     0.0,
@@ -3223,7 +3275,7 @@
     "color": "56607E"
    },
    "glow": false,
-   "tris": 696,
+   "tris": 768,
    "center": [
     0.0,
     0.0,
@@ -3244,14 +3296,14 @@
     "color": "4F7F5A"
    },
    "glow": false,
-   "tris": 464,
+   "tris": 928,
    "center": [
-    11.75,
+    0.0,
     -4.13,
     4.4
    ],
    "size": [
-    11.8,
+    35.3,
     0.26,
     3.6
    ]
@@ -3265,16 +3317,37 @@
     "color": "3A3F47"
    },
    "glow": false,
-   "tris": 264,
+   "tris": 552,
    "center": [
     0.0,
-    -0.51,
-    4.45
+    -0.6934,
+    4.43824
    ],
    "size": [
     40.9,
-    8.18,
-    7.1
+    8.54679,
+    7.12353
+   ]
+  },
+  {
+   "piece": "PenthouseB",
+   "name": "PenthouseB_Metal",
+   "material": "R2_Metal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A9A59C"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    -4.21,
+    2.98
+   ],
+   "size": [
+    24.08,
+    0.66,
+    0.16
    ]
   },
   {
@@ -4392,6 +4465,50 @@
    ]
   },
   {
+   "piece": "Walk4",
+   "name": "Walk4_Paver",
+   "material": "R2_Paver",
+   "look": {
+    "material": "Slate",
+    "color": "D9BBA3",
+    "variant": "Roof2_Tile"
+   },
+   "glow": false,
+   "tris": 10,
+   "center": [
+    0.0,
+    0.0,
+    0.02
+   ],
+   "size": [
+    3.18,
+    7.18,
+    0.04
+   ]
+  },
+  {
+   "piece": "Walk4",
+   "name": "Walk4_Stone",
+   "material": "R2_Stone",
+   "look": {
+    "material": "Concrete",
+    "color": "E9D7B2",
+    "variant": "Roof2_Plaster"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.035
+   ],
+   "size": [
+    3.96,
+    7.96,
+    0.07
+   ]
+  },
+  {
    "piece": "WaterTank",
    "name": "WaterTank_Charcoal",
    "material": "R2_Charcoal",
@@ -4456,5 +4573,5 @@
    ]
   }
  ],
- "tris": 76436
+ "tris": 79286
 }

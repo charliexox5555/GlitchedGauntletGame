@@ -845,3 +845,33 @@ Low points:
 - **Navigation** (all three gave 1): the layers of stairs, catwalks and frames around the tank are hard to parse, and the spawn lane is bare.
 - **Cohesion:** the AC's plain grey back face close to the a-roof-tank camera reads unfinished. The posters are louder than the concept's panels.
 - Big flat terracotta fields.
+
+### Round 3
+- **AC back face:** louvre grilles and handles on the back (Codex left a plain plate).
+- **Penthouse court face:** windows on the west half (blank since the spawn sign went), plus two downpipes.
+- **Spawn lane:** potted agaves along it.
+- **Floor:** paved strips round the Penthouse ends to the side lanes.
+
+**Blind score: 6.7** (reviewers 6.7, 6.7, 7.1; medians W1 1, W2 1, W3 2, W4 2, W5 1, W6 1). W1 and W3 swap between 1 and 2 across reviewers.
+
+### Round 4
+- **Lighting:** exposure −0.25, Ambient back to (128,120,140), contrast 0.15. The cream tower and Pit read washed out.
+- **Colour:** a deeper tower tone and Stone, and a warmer AC casing.
+- **Z-fighting:** the paver connectors that z-fought (4 pairs) are cut.
+
+**Audits: 0 floating groups and 0 z-fighting pairs** (1,764 parts).
+
+**Blind score: 7.1** (reviewers 5.8, 7.1, 7.1).
+
+### Stopped at 7.1 (the stop rule)
+The scores per round were 5.8, 7.1, 6.7 and 7.1. Rounds 3 and 4 both gained under 0.3 on the best score so far (7.1), so this map stops by the rule. It doesn't reach the 8.5 bar.
+
+What holds it back, and what would move it:
+1. **Navigation, W2: 1/2 in all 12 reviews of rounds 1–4.** The Pit and tower views stack stairs, catwalks and billboard frames, and the cream walls hide the route.
+   - Fix: a clear contrast language for routes, such as darker steel stair stringers against a cream wall and a lit route.
+   - Fix: a camera pass by a person on what a player actually sees.
+2. **The surrounding city:** flat skyline blocks on a flat slate street. Fix: a real street layer and modelled neighbour roofs.
+3. **The AC cabinets** still read dark and large. The cover box (8 × 4 × 7.5) is gameplay, so a lower, wider unit would need a layout change.
+4. **The posters are louder than the concept's panels.** Muted decals helped a little.
+
+Best shots: [overview](../../02%20Art/References/maps/rooftops2/v5-r4-overview.jpg), [tower](../../02%20Art/References/maps/rooftops2/v5-r4-tower.jpg), [b-roof-side](../../02%20Art/References/maps/rooftops2/v5-r4-b-roof-side.jpg) and [side-by-side](../../02%20Art/References/maps/rooftops2/v5-r4-side-by-side.jpg).

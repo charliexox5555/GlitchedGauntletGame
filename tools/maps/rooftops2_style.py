@@ -64,14 +64,14 @@ PALETTE: dict[str, tuple[str, str, str]] = {
     "RoadLine": ("E8DFC2", "SmoothPlastic", ""),
     "Backfill": ("B9A992", "SmoothPlastic", ""),  # far city blocks
     # concept pass 2026-11-05 (vault/01 Design/Maps/Rooftops2.md -> Concept board)
-    "Stone": ("E9D7B2", "Concrete", "Roof2_Plaster"),  # cream stone: surrounds, quoins, cornices, cheek walls
+    "Stone": ("E0CDA8", "Concrete", "Roof2_Plaster"),  # maps v5 r4: a step down (glared at eye level);  # cream stone: surrounds, quoins, cornices, cheek walls
     "Shutter": ("4F7F5A", "SmoothPlastic", ""),  # louvred shutters (green; cobalt on the A roof by tone)
     "RoofTile": ("B8673F", "Slate", "Roof2_Terracotta"),  # A penthouse and hut roofs
     "RoofSlate": ("7D8898", "Slate", "Roof2_Slate"),  # B penthouse mansard (maps v5: lighter, read as a dark hole)
     "Brick": ("B27560", "Brick", "Roof2_Brick"),  # maps v5 round 2: softer (read high-contrast);  # chimney stacks
     "Pot": ("A27560", "SmoothPlastic", ""),  # maps v5: less saturated again;  # terracotta pots and planters (maps v4: calmer, read loud orange in the low sun)
     "Cloth": ("EFE3C8", "Fabric", ""),  # awning, chairs
-    "Appliance": ("B3AC9F", "SmoothPlastic", ""),  # maps v5: warm mid-grey (Codex casing);  # AC cabinet casings (maps v4: warm stone, the cream read bright white)
+    "Appliance": ("C2B49C", "SmoothPlastic", ""),  # maps v5 r4: warmer (read cold grey-black);  # maps v5: warm mid-grey (Codex casing);  # AC cabinet casings (maps v4: warm stone, the cream read bright white)
     # maps v4: floor breakup and the blank sign panels
     "Paver": ("D9BBA3", "Slate", "Roof2_Tile"),  # kerbed paving inlays on the team roofs (a lighter field)
     "Tar": ("6F6258", "Slate", "Roof2_Gravel"),  # tar-sealed repairs
@@ -85,7 +85,7 @@ PALETTE: dict[str, tuple[str, str, str]] = {
 TONE = {
     "teamA": "E3AA84",
     "teamB": "B9C49E",  # maps v5 round 2: warmer sage (the cool sage read grey-blue under the dusk light)
-    "tower": "D4B98F",  # round 4: another step darker and warmer (cream washed out in sun)
+    "tower": "CDB088",  # maps v5 r4: deeper (cream-on-cream read flat)  # round 4: another step darker and warmer (cream washed out in sun)
     "pit": "C8A983",
     # the city around the block (round 1: varied, so the skyline isn't one cloned slab)
     "city0": "E8D3B4",
@@ -122,13 +122,13 @@ LIGHTING = {
     "ClockTime": 17.1,  # round 1: lower, warmer sun (reviewers read 16.3 as neutral midday)
     "GeographicLatitude": 23.5,
     "Brightness": 3.2,
-    "Ambient": (134, 126, 144),  # maps v5: lifts the Pit (point fills made hot spots)  # maps v4: one more step (the Pit under the trestles read crushed dark)
+    "Ambient": (128, 120, 140),  # maps v5 r4: between v4 and r2 (134 washed the cream faces out)  # maps v4: one more step (the Pit under the trestles read crushed dark)
     "OutdoorAmbient": (150, 142, 172),  # round 8: deeper cool shade against the warm sun
     "ColorShift_Top": (255, 178, 110),
     "ColorShift_Bottom": (0, 0, 0),
     "EnvironmentDiffuseScale": 0.35,
     "EnvironmentSpecularScale": 0.15,
-    "ExposureCompensation": -0.15,  # round 4: cream and peach were blowing out
+    "ExposureCompensation": -0.25,  # maps v5 r4: the cream tower and Pit read overexposed  # round 4: cream and peach were blowing out
     "GlobalShadows": True,
     "ShadowSoftness": 0.2,
 }
@@ -136,7 +136,7 @@ FX = {
     # maps v5: toward the concept's pink-lilac dusk (our skybox carries the sky; the haze turns pink, decays lilac)
     "Atmosphere": {"Density": 0.3, "Offset": 0.22, "Color": (244, 196, 184), "Decay": (190, 160, 206), "Glare": 0.6, "Haze": 1.5},
     "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.25},
-    "Grade": {"Brightness": 0.02, "Contrast": 0.12, "Saturation": 0.06, "TintColor": (255, 234, 226)},
+    "Grade": {"Brightness": 0.0, "Contrast": 0.15, "Saturation": 0.06, "TintColor": (255, 234, 226)},
     "SunRays": {"Intensity": 0.18, "Spread": 0.7},
 }
 LAMP = {"color": (255, 214, 170), "brightness": 1.6, "range": 30}

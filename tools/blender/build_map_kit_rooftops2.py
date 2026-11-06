@@ -757,8 +757,12 @@ def penthouse2(team):
 	for x in (-2.9, 2.9):
 		P["Charcoal"].append(RB(x - 0.32, x + 0.32, 4.7, 5.9, 4.0, 4.6, BT, ST))
 		P["GlowWarm"].append(RB(x - 0.22, x + 0.22, 4.85, 5.75, 4.6, 4.68))
-	for x in (8.5, 15.0):  # the spawn sign hangs at local x -11 on this face (rooftops2_art.py)
+	# maps v5 round 3: the spawn sign went in v4, so the west half of the court face gets its windows too, and
+	# two downpipes off the cornice
+	for x in (-15.0, -8.5, 8.5, 15.0):
 		window_z(x, 2.6, 2.0, 4.4, hz, P, shutters=True)
+	for x in (-11.8, 11.8):
+		downpipe(P, x, hz, 0.9, 7.9, (0, 1))
 	# -Z (Pit side, along the fire-escape balcony): low windows under the deck, short arched ones above it
 	for x in (-15.0, -8.0, -4.0, 4.0, 8.0, 12.0, 16.0):  # between the balcony's knee braces (x -10, -6, ... 18)
 		window_z(x, 1.6, 1.4, 2.4, -hz, P, shutters=False)
@@ -1608,6 +1612,18 @@ def codex_ac():
 	P = roles()
 	P["Stone"].append(RB(-4.0, 4.0, 0.0, 1.9, -2.0, 2.0, 0.1, 1))
 	P["Charcoal"].append(RB(-4.1, 4.1, 1.78, 1.92, -2.1, 2.1, 0.03, 1))
+	# maps v5 round 3: Codex left the back (Roblox local -Z) a plain plate, read as an unfinished slab from the
+	# A roof. Two framed louvre grilles and a service panel with handles, like the front.
+	for x0, x1 in ((-3.55, -0.35), (0.35, 3.55)):
+		for a, b in ((x0, x0 + 0.14), (x1 - 0.14, x1)):
+			P["Charcoal"].append(RB(a, b, 2.77, 6.73, -2.13, -1.88))
+		for y0 in (2.75, 6.61):
+			P["Charcoal"].append(RB(x0 + 0.02, x1 - 0.02, y0, y0 + 0.14, -2.12, -1.89))
+		for k in range(9):
+			y = 3.05 + k * 0.4
+			P["Metal"].append(RB(x0 + 0.16, x1 - 0.16, y, y + 0.16, -2.08 - 0.01 * (k % 2), -1.9))
+	for x in (-2.0, 2.0):
+		P["Metal"].append(RB(x - 0.35, x + 0.35, 6.95, 7.07, -2.18, -1.9))
 	emit(c, P, "Pad")
 
 
@@ -1735,6 +1751,7 @@ def build():
 	pier_cap()
 	roof_sign2()  # maps v4: no part-built text; the deck words, chevrons and spawn signs are cut
 	inlay("Inlay8", 8, 8)
+	inlay("Walk4", 4, 8)  # maps v5 round 3: route strips round the Penthouse ends
 	drain()
 	tar_patch("TarPatchA", 1.0)
 	tar_patch("TarPatchB", 2.6)

@@ -16,20 +16,20 @@ local PROPS: { [string]: any } = {
 	ClockTime = 17.1,
 	GeographicLatitude = 23.5,
 	Brightness = 3.2,
-	Ambient = Color3.fromRGB(134, 126, 144),
+	Ambient = Color3.fromRGB(128, 120, 140),
 	OutdoorAmbient = Color3.fromRGB(150, 142, 172),
 	ColorShift_Top = Color3.fromRGB(255, 178, 110),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
 	EnvironmentDiffuseScale = 0.35,
 	EnvironmentSpecularScale = 0.15,
-	ExposureCompensation = -0.15,
+	ExposureCompensation = -0.25,
 	GlobalShadows = true,
 	ShadowSoftness = 0.2,
 }
 local FX: { [string]: { [string]: any } } = {
 	Atmosphere = { Density = 0.3, Offset = 0.22, Color = Color3.fromRGB(244, 196, 184), Decay = Color3.fromRGB(190, 160, 206), Glare = 0.6, Haze = 1.5 },
 	Bloom = { Intensity = 0.6, Size = 24, Threshold = 1.25 },
-	Grade = { Brightness = 0.02, Contrast = 0.12, Saturation = 0.06, TintColor = Color3.fromRGB(255, 234, 226) },
+	Grade = { Brightness = 0, Contrast = 0.15, Saturation = 0.06, TintColor = Color3.fromRGB(255, 234, 226) },
 	SunRays = { Intensity = 0.18, Spread = 0.7 },
 }
 local LAMP = { color = Color3.fromRGB(255, 214, 170), brightness = 1.6, range = 30 }
