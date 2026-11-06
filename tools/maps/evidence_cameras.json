@@ -156,7 +156,7 @@
       200,
       3000
     ],
-    "_note": "fixed from round 1 (map v1); the 'terrace' camera was named 'sheds' on the greybox",
+    "_note": "fixed from round 2 (dome-floor and b-spawn re-picked once: round 1's faced props)",
     "cams": {
       "overview": {
         "pos": [
@@ -172,14 +172,14 @@
       },
       "b-spawn": {
         "pos": [
-          -6,
+          -8,
           5,
-          100
+          98
         ],
         "look": [
-          0,
-          8,
-          40
+          4,
+          10,
+          50
         ]
       },
       "fern-house": {
@@ -196,13 +196,13 @@
       },
       "dome-floor": {
         "pos": [
-          -30,
+          6,
           5,
-          -20
+          36
         ],
         "look": [
           0,
-          30,
+          9,
           0
         ]
       },
@@ -529,13 +529,13 @@
     "cams": {
       "overview": {
         "pos": [
+          95,
           70,
-          45,
-          75
+          120
         ],
         "look": [
           0,
-          10,
+          6,
           0
         ]
       },
@@ -553,38 +553,38 @@
       },
       "lounge": {
         "pos": [
-          13,
+          10,
           5,
-          -2
+          14
         ],
         "look": [
-          -4,
+          0,
           6,
-          6
+          0
         ]
       },
       "station": {
         "pos": [
           -30,
-          6,
-          -4
+          5,
+          62
         ],
         "look": [
           -52,
-          12,
-          40
+          10,
+          42
         ]
       },
       "pond": {
         "pos": [
-          24,
+          28,
           5,
-          66
+          62
         ],
         "look": [
           46,
           2,
-          26
+          30
         ]
       },
       "balcony": {
@@ -597,18 +597,6 @@
           40,
           6,
           -30
-        ]
-      },
-      "lodge": {
-        "pos": [
-          -14,
-          5,
-          80
-        ],
-        "look": [
-          0,
-          12,
-          10
         ]
       }
     }

@@ -124,6 +124,22 @@
     "FlowerTub_Bloom"
    ]
   },
+  "GardenTreeA": {
+   "props": {},
+   "parts": [
+    "GardenTreeA_Trunk",
+    "GardenTreeA_Deep",
+    "GardenTreeA_Palm"
+   ]
+  },
+  "GardenTreeB": {
+   "props": {},
+   "parts": [
+    "GardenTreeB_Trunk",
+    "GardenTreeB_Deep",
+    "GardenTreeB_Palm"
+   ]
+  },
   "HedgeBox8x4": {
    "props": {},
    "parts": [
@@ -190,6 +206,46 @@
     "Rockery12x6_Fern",
     "Rockery12x6_Lime",
     "Rockery12x6_Deep"
+   ]
+  },
+  "RoofLodge52x16": {
+   "props": {},
+   "parts": [
+    "RoofLodge52x16_Slate",
+    "RoofLodge52x16_Stone",
+    "RoofLodge52x16_Timber"
+   ]
+  },
+  "RoofOrangery80x16": {
+   "props": {},
+   "parts": [
+    "RoofOrangery80x16_Slate",
+    "RoofOrangery80x16_Stone",
+    "RoofOrangery80x16_Timber",
+    "RoofOrangery80x16_Iron",
+    "RoofOrangery80x16_Glass"
+   ]
+  },
+  "RoofShed32x18": {
+   "props": {},
+   "parts": [
+    "RoofShed32x18_Slate",
+    "RoofShed32x18_Stone",
+    "RoofShed32x18_Timber",
+    "RoofShed32x18_Brick",
+    "RoofShed32x18_Pot"
+   ]
+  },
+  "RoofShed48x40": {
+   "props": {},
+   "parts": [
+    "RoofShed48x40_Slate",
+    "RoofShed48x40_Stone",
+    "RoofShed48x40_Timber",
+    "RoofShed48x40_Brick",
+    "RoofShed48x40_Pot",
+    "RoofShed48x40_Iron",
+    "RoofShed48x40_Glass"
    ]
   },
   "ShelfRack": {
@@ -1297,7 +1353,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "CDE2D8"
+    "color": "DDE8E0"
    },
    "glow": false,
    "tris": 12,
@@ -1625,6 +1681,132 @@
     1.70238,
     2.07853,
     0.83288
+   ]
+  },
+  {
+   "piece": "GardenTreeA",
+   "name": "GardenTreeA_Trunk",
+   "material": "Trunk",
+   "look": {
+    "material": "Wood",
+    "color": "7A6450"
+   },
+   "glow": false,
+   "tris": 86,
+   "center": [
+    0.28337,
+    0.15003,
+    6.18025
+   ],
+   "size": [
+    4.227,
+    5.77695,
+    12.36051
+   ]
+  },
+  {
+   "piece": "GardenTreeA",
+   "name": "GardenTreeA_Deep",
+   "material": "Deep",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F6B35"
+   },
+   "glow": false,
+   "tris": 52,
+   "center": [
+    2.07883,
+    0.09671,
+    13.65848
+   ],
+   "size": [
+    5.8993,
+    5.89723,
+    4.17743
+   ]
+  },
+  {
+   "piece": "GardenTreeA",
+   "name": "GardenTreeA_Palm",
+   "material": "Palm",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E8F3A"
+   },
+   "glow": false,
+   "tris": 154,
+   "center": [
+    -0.75857,
+    -0.2779,
+    14.57212
+   ],
+   "size": [
+    6.82329,
+    10.75688,
+    7.4659
+   ]
+  },
+  {
+   "piece": "GardenTreeB",
+   "name": "GardenTreeB_Trunk",
+   "material": "Trunk",
+   "look": {
+    "material": "Wood",
+    "color": "7A6450"
+   },
+   "glow": false,
+   "tris": 86,
+   "center": [
+    0.0571,
+    -0.22818,
+    6.13606
+   ],
+   "size": [
+    3.93385,
+    3.55175,
+    12.27211
+   ]
+  },
+  {
+   "piece": "GardenTreeB",
+   "name": "GardenTreeB_Deep",
+   "material": "Deep",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F6B35"
+   },
+   "glow": false,
+   "tris": 50,
+   "center": [
+    1.6491,
+    0.71109,
+    13.60164
+   ],
+   "size": [
+    6.55305,
+    4.91591,
+    4.30648
+   ]
+  },
+  {
+   "piece": "GardenTreeB",
+   "name": "GardenTreeB_Palm",
+   "material": "Palm",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E8F3A"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    -0.6417,
+    -0.19784,
+    14.75459
+   ],
+   "size": [
+    7.63536,
+    8.35634,
+    7.13817
    ]
   },
   {
@@ -2323,6 +2505,428 @@
    ]
   },
   {
+   "piece": "RoofLodge52x16",
+   "name": "RoofLodge52x16_Slate",
+   "material": "Slate",
+   "look": {
+    "material": "Slate",
+    "color": "6F7A86"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    2.5
+   ],
+   "size": [
+    53.6,
+    17.6,
+    5.0
+   ]
+  },
+  {
+   "piece": "RoofLodge52x16",
+   "name": "RoofLodge52x16_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    5.15
+   ],
+   "size": [
+    37.808,
+    1.808,
+    0.4
+   ]
+  },
+  {
+   "piece": "RoofLodge52x16",
+   "name": "RoofLodge52x16_Timber",
+   "material": "Timber",
+   "look": {
+    "material": "Wood",
+    "color": "8C6A48"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    -0.215
+   ],
+   "size": [
+    53.7,
+    17.7,
+    0.47
+   ]
+  },
+  {
+   "piece": "RoofOrangery80x16",
+   "name": "RoofOrangery80x16_Slate",
+   "material": "Slate",
+   "look": {
+    "material": "Slate",
+    "color": "6F7A86"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    2.5
+   ],
+   "size": [
+    81.6,
+    17.6,
+    5.0
+   ]
+  },
+  {
+   "piece": "RoofOrangery80x16",
+   "name": "RoofOrangery80x16_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    5.15
+   ],
+   "size": [
+    65.808,
+    1.808,
+    0.4
+   ]
+  },
+  {
+   "piece": "RoofOrangery80x16",
+   "name": "RoofOrangery80x16_Timber",
+   "material": "Timber",
+   "look": {
+    "material": "Wood",
+    "color": "8C6A48"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    -0.215
+   ],
+   "size": [
+    81.7,
+    17.7,
+    0.47
+   ]
+  },
+  {
+   "piece": "RoofOrangery80x16",
+   "name": "RoofOrangery80x16_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDEDE4"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    -0.03458,
+    2.495
+   ],
+   "size": [
+    48.08,
+    12.38916,
+    1.99345
+   ]
+  },
+  {
+   "piece": "RoofOrangery80x16",
+   "name": "RoofOrangery80x16_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "CFE6EA",
+    "transparency": 0.55
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    -0.00988,
+    2.655
+   ],
+   "size": [
+    47.68,
+    12.33976,
+    1.81956
+   ]
+  },
+  {
+   "piece": "RoofShed32x18",
+   "name": "RoofShed32x18_Slate",
+   "material": "Slate",
+   "look": {
+    "material": "Slate",
+    "color": "6F7A86"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    2.5
+   ],
+   "size": [
+    33.6,
+    19.6,
+    5.0
+   ]
+  },
+  {
+   "piece": "RoofShed32x18",
+   "name": "RoofShed32x18_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.388,
+    1.578,
+    6.675
+   ],
+   "size": [
+    16.744,
+    5.124,
+    3.45
+   ]
+  },
+  {
+   "piece": "RoofShed32x18",
+   "name": "RoofShed32x18_Timber",
+   "material": "Timber",
+   "look": {
+    "material": "Wood",
+    "color": "8C6A48"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    -0.215
+   ],
+   "size": [
+    33.7,
+    19.7,
+    0.47
+   ]
+  },
+  {
+   "piece": "RoofShed32x18",
+   "name": "RoofShed32x18_Brick",
+   "material": "Brick",
+   "look": {
+    "material": "Brick",
+    "color": "9C5B44"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    7.56,
+    2.94,
+    4.15
+   ],
+   "size": [
+    2.0,
+    2.0,
+    7.7
+   ]
+  },
+  {
+   "piece": "RoofShed32x18",
+   "name": "RoofShed32x18_Pot",
+   "material": "Pot",
+   "look": {
+    "material": "Plastic",
+    "color": "C0673F"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    7.56,
+    2.94,
+    8.8
+   ],
+   "size": [
+    1.45433,
+    0.55433,
+    0.8
+   ]
+  },
+  {
+   "piece": "RoofShed48x40",
+   "name": "RoofShed48x40_Slate",
+   "material": "Slate",
+   "look": {
+    "material": "Slate",
+    "color": "6F7A86"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    3.5
+   ],
+   "size": [
+    49.6,
+    41.6,
+    7.0
+   ]
+  },
+  {
+   "piece": "RoofShed48x40",
+   "name": "RoofShed48x40_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    3.248,
+    2.788,
+    8.675
+   ],
+   "size": [
+    18.224,
+    9.304,
+    3.45
+   ]
+  },
+  {
+   "piece": "RoofShed48x40",
+   "name": "RoofShed48x40_Timber",
+   "material": "Timber",
+   "look": {
+    "material": "Wood",
+    "color": "8C6A48"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    -0.215
+   ],
+   "size": [
+    49.7,
+    41.7,
+    0.47
+   ]
+  },
+  {
+   "piece": "RoofShed48x40",
+   "name": "RoofShed48x40_Brick",
+   "material": "Brick",
+   "look": {
+    "material": "Brick",
+    "color": "9C5B44"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    11.16,
+    6.24,
+    5.15
+   ],
+   "size": [
+    2.0,
+    2.0,
+    9.7
+   ]
+  },
+  {
+   "piece": "RoofShed48x40",
+   "name": "RoofShed48x40_Pot",
+   "material": "Pot",
+   "look": {
+    "material": "Plastic",
+    "color": "C0673F"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    11.16,
+    6.24,
+    10.8
+   ],
+   "size": [
+    1.45433,
+    0.55433,
+    0.8
+   ]
+  },
+  {
+   "piece": "RoofShed48x40",
+   "name": "RoofShed48x40_Iron",
+   "material": "Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDEDE4"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    -0.02233,
+    3.445
+   ],
+   "size": [
+    30.48,
+    29.16466,
+    2.71538
+   ]
+  },
+  {
+   "piece": "RoofShed48x40",
+   "name": "RoofShed48x40_Glass",
+   "material": "Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "CFE6EA",
+    "transparency": 0.55
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    -0.00638,
+    3.605
+   ],
+   "size": [
+    30.08,
+    29.13276,
+    2.52582
+   ]
+  },
+  {
    "piece": "ShelfRack",
    "name": "ShelfRack_Timber",
    "material": "Timber",
@@ -2496,7 +3100,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "CDE2D8"
+    "color": "DDE8E0"
    },
    "glow": false,
    "tris": 18,
@@ -2554,5 +3158,5 @@
    ]
   }
  ],
- "tris": 39608
+ "tris": 40832
 }

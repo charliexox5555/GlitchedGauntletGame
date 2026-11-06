@@ -933,7 +933,7 @@ def hip_roof(W, L, H, chimney=False, skylights=0):
 	acc.add("Timber", B(-hw - 0.05, hw + 0.05, -hl - 0.05, hl + 0.05, -0.45, 0.02))
 	if chimney:
 		cx, cy = hw * 0.45, hl * 0.3
-		acc.add("Brick", B(cx - 1.0, cx + 1.0, cy - 1.0, cy + 1.0, 0.0, H + 3.0))
+		acc.add("Brick", B(cx - 1.0, cx + 1.0, cy - 1.0, cy + 1.0, 0.3, H + 3.0))  # starts above the slab's base plane (z-fight)
 		acc.add("Stone", B(cx - 1.2, cx + 1.2, cy - 1.2, cy + 1.2, H + 3.0, H + 3.4))
 		for dx in (-0.45, 0.45):
 			acc.add("Pot", vcyl(cx + dx, cy, 0.3, H + 3.4, H + 4.2, 8))

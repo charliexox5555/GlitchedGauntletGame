@@ -44,7 +44,7 @@ def build(self):
     # r2: slate roofs on the brick ranges (the ceilings' tops; the Sheds' blocks are (48 x 40 at 50, 62) and
     # (32 x 18 at 58, 91) in B's half, the Lodge 52 x 16 at (0, 110), the Orangery 80 x 16 at (0, 92) top 21).
     self.both("Roofs", "RoofShed48x40", 50, 15.0, 62, 0)
-    self.both("Roofs", "RoofShed32x18", 58, 15.0, 91, 0)
+    self.both("Roofs", "RoofShed32x18", 58, 15.15, 91, 0)  # 0.15 over the 48x40 roof where their eaves overlap (z-fight)
     self.both("Roofs", "RoofLodge52x16", 0, 15.0, 110, 0)
     self.both("Roofs", "RoofOrangery80x16", 0, 21.0, 92, 0)
     # r2: the parkland round the walls (outside the 152 x 240 footprint): a ring of trees, B's half
