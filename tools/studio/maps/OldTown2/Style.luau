@@ -10,7 +10,7 @@ local MaterialService = game:GetService("MaterialService")
 -- name: BaseMaterial, StudsPerTile, ColorMap, NormalMap
 -- stylua: ignore start
 local VARIANTS: { [string]: { any } } = {
-	OT2_Stucco = { "Plaster", 12, "87704691379304", "103870185971010" },
+	OT2_Stucco = { "Plaster", 12, "73274454631456", "83978894951341" }, -- r1: plain render (no worn patches)
 	OT2_Ashlar = { "Limestone", 8, "91135123666290", "114086842361323" },
 	OT2_Paving = { "Limestone", 8, "130608433991662", "79330650895421" },
 	OT2_Terracotta = { "ClayRoofTiles", 4, "72153638601772", "83433689734180" },
@@ -90,6 +90,10 @@ for _, d in map:GetDescendants() do
 	elseif m == Enum.Material.Cobblestone then
 		d.MaterialVariant = "OT2_Cobble"
 	elseif m == Enum.Material.WoodPlanks then
+		d.MaterialVariant = "OT2_Plank"
+	elseif m == Enum.Material.Wood then
+		-- r2: Roblox's Wood grain read loud (stalls, carts, shutters); our calm plank variant instead
+		d.Material = Enum.Material.WoodPlanks
 		d.MaterialVariant = "OT2_Plank"
 	else
 		continue

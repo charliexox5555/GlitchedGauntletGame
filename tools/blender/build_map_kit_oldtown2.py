@@ -1149,6 +1149,8 @@ def well():
 	merge(it, ycyl(0, 6.5, 0.2, -1.0, 1.0, 6))
 	a.add("Iron", it)
 	a.add("Wood", vcyl(0, 0, 0.5, 4.2, 5.2, 8))
+	# r1: the rope from the windlass drum down to the bucket (it hung in the air: FloatAudit)
+	a.add("Burlap", vcyl(0, 0, 0.07, 5.15, 6.35, 6))
 	return a
 
 
