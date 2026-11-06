@@ -107,7 +107,7 @@ fx.Parent = map
 
 -- Warm focal lights (shadowless) on invisible holders in Art.Lights.
 local lights = section("Art", "Lights")
-local WARM = Color3.fromRGB(255, 184, 120)
+local WARM = Color3.fromRGB(255, 214, 170) -- r1: the warm interior lights read orange
 local FIRE = Color3.fromRGB(255, 140, 70)
 local count = 0
 
@@ -131,7 +131,7 @@ local function pointlight(
 	decor(p)
 	local l = Instance.new("PointLight")
 	l.Range = range
-	l.Brightness = brightness
+	l.Brightness = brightness * 0.5 -- r1: the lounge blew out orange
 	l.Color = color
 	l.Shadows = false
 	l.Parent = p

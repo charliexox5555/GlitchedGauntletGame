@@ -303,7 +303,8 @@
     "Station_Bullwheel",
     "Station_OverheadRail",
     "Station_Sign",
-    "Station_Lamps_Glow"
+    "Station_Lamps_Glow",
+    "Station_LampHangers"
    ]
   },
   "StationStair": {
@@ -666,12 +667,12 @@
    "center": [
     0.0,
     -0.1,
-    7.25
+    6.7
    ],
    "size": [
     5.93321,
     15.10781,
-    12.5
+    13.6
    ]
   },
   {
@@ -767,7 +768,7 @@
    "material": "S2_Glow_Fire",
    "look": {
     "material": "Neon",
-    "color": "C0602C"
+    "color": "A0502A"
    },
    "glow": true,
    "tris": 8,
@@ -919,7 +920,7 @@
    "material": "S2_Glow_Fire",
    "look": {
     "material": "Neon",
-    "color": "C0602C"
+    "color": "A0502A"
    },
    "glow": true,
    "tris": 40,
@@ -1355,7 +1356,7 @@
    "material": "S2_Glow_Warm",
    "look": {
     "material": "Neon",
-    "color": "B07A48"
+    "color": "8C7660"
    },
    "glow": true,
    "tris": 12,
@@ -1631,7 +1632,7 @@
    "material": "S2_Glow_Warm",
    "look": {
     "material": "Neon",
-    "color": "B07A48"
+    "color": "8C7660"
    },
    "glow": true,
    "tris": 12,
@@ -2191,7 +2192,7 @@
    ],
    "size": [
     15.2,
-    56.0,
+    55.9,
     0.2
    ]
   },
@@ -2201,7 +2202,7 @@
    "material": "S2_Glow_Warm",
    "look": {
     "material": "Neon",
-    "color": "B07A48"
+    "color": "8C7660"
    },
    "glow": true,
    "tris": 48,
@@ -2531,16 +2532,16 @@
     "color": "A8864A"
    },
    "glow": false,
-   "tris": 20,
+   "tris": 60,
    "center": [
     -11.3,
     -18.5,
-    0.6
+    0.315
    ],
    "size": [
     0.13856,
     4.6,
-    0.16
+    0.73
    ]
   },
   {
@@ -2676,7 +2677,7 @@
    "material": "S2_Glow_Warm",
    "look": {
     "material": "Neon",
-    "color": "B07A48"
+    "color": "8C7660"
    },
    "glow": true,
    "tris": 96,
@@ -2748,12 +2749,12 @@
    "center": [
     0.0,
     -0.1,
-    7.25
+    6.7
    ],
    "size": [
     5.93321,
     15.10781,
-    12.5
+    13.6
    ]
   },
   {
@@ -3004,7 +3005,7 @@
    "material": "S2_Glow_Warm",
    "look": {
     "material": "Neon",
-    "color": "B07A48"
+    "color": "8C7660"
    },
    "glow": true,
    "tris": 96,
@@ -3180,7 +3181,7 @@
     "variant": "Snow2_Rock"
    },
    "glow": false,
-   "tris": 1829,
+   "tris": 1807,
    "center": [
     500.0,
     0.0,
@@ -3202,7 +3203,7 @@
     "variant": "Snow2_Snow"
    },
    "glow": false,
-   "tris": 1563,
+   "tris": 1585,
    "center": [
     500.0,
     0.0,
@@ -3224,7 +3225,7 @@
     "variant": "Snow2_Rock"
    },
    "glow": false,
-   "tris": 1829,
+   "tris": 1807,
    "center": [
     -500.0,
     0.0,
@@ -3246,7 +3247,7 @@
     "variant": "Snow2_Snow"
    },
    "glow": false,
-   "tris": 1563,
+   "tris": 1585,
    "center": [
     -500.0,
     0.0,
@@ -3440,7 +3441,7 @@
    "material": "S2_Glow_Warm",
    "look": {
     "material": "Neon",
-    "color": "B07A48"
+    "color": "8C7660"
    },
    "glow": true,
    "tris": 24,
@@ -3696,7 +3697,7 @@
    "material": "S2_Glow_Amber",
    "look": {
     "material": "Neon",
-    "color": "B8862E"
+    "color": "9C7A40"
    },
    "glow": true,
    "tris": 12,
@@ -4098,7 +4099,7 @@
    "material": "S2_Glow_Warm",
    "look": {
     "material": "Neon",
-    "color": "B07A48"
+    "color": "8C7660"
    },
    "glow": true,
    "tris": 48,
@@ -4111,6 +4112,27 @@
     10.2,
     17.2,
     0.15
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_LampHangers",
+   "material": "S2_SteelDark",
+   "look": {
+    "material": "Plastic",
+    "color": "3E444B"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    2.5,
+    0.0,
+    19.95
+   ],
+   "size": [
+    10.4,
+    17.4,
+    0.2
    ]
   },
   {
@@ -4189,12 +4211,12 @@
    "center": [
     0.0,
     -0.1,
-    7.25
+    6.7
    ],
    "size": [
     5.93321,
     15.10781,
-    12.5
+    13.6
    ]
   },
   {
@@ -4547,5 +4569,5 @@
    ]
   }
  ],
- "tris": 39814
+ "tris": 39902
 }

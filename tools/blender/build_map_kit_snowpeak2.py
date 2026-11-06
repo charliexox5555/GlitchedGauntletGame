@@ -259,6 +259,8 @@ def range_h(x, z):
 		h = min(h, -0.6 - (abs(x) - 66) * 4.0 * (1 - smooth(56, 80, abs(z))))
 	if abs(z) >= 80 and abs(x) < 120:
 		h = max(h, (74.0 + 0.2 * (abs(z) - 80)) * (1 - smooth(66, 120, abs(x))))
+	if abs(x) <= 28 and 80 <= abs(z) <= 106:
+		h = min(h, 76.5)  # Snowpeak2 r2: a col over each spawn alcove (the ridge stood 114 over 76-tall alcove walls: a see-through notch)
 	return h
 
 
@@ -460,7 +462,7 @@ def p_lodge(mats, kit):
 		acc.add("Sign", "TimberDark", RB(-7, 7, 22.4, 25.0, min(sz * 28.12, sz * 28.32), max(sz * 28.12, sz * 28.32)))
 		for xx in (-7.2, 7.2):
 			zz = sz * (Z + 6.0)
-			acc.add("Lantern", "Iron", RB(xx - 0.4, xx + 0.4, 7.4, 7.6, min(zz - sz * 0.9, zz + sz * 0.0), max(zz - sz * 0.9, zz)))
+			acc.add("Lantern", "Iron", RB(min(xx - 0.4, 5.98 if xx > 0 else -7.6), max(xx + 0.4, 7.6 if xx > 0 else -5.98), 7.4, 7.6, min(zz - sz * 0.9, zz - sz * 0.05), max(zz - sz * 0.9, zz - sz * 0.05)))  # v2: bracket reaches the porch wall (0.05 off its end face)
 	for sz in (-1, 1):
 		for xx in (-6.6, 6.6):
 			z0 = sz * (Z + 5.2)
@@ -544,7 +546,7 @@ def p_lodge_inside(mats, kit):
 	bc = [b for b in L.HALF if b.name == "Bar counter"][0]
 	acc.add("Counter", "Oak", bx(bc, y1=3.2))
 	acc.add("CounterTop", "TimberDark", RB(bc.x0 - 0.35, bc.x1 + 0.05, 3.2, 3.5, bc.z0 - 0.15, bc.z1 - 0.02))
-	acc.add("FootRail", "Brass", rod((bc.x0 - 0.3, 0.6, bc.z0 + 0.2), (bc.x0 - 0.3, 0.6, bc.z1 - 0.2), 0.08))
+	acc.add("FootRail", "Brass", rod((bc.x0 - 0.3, 0.6, bc.z0 + 0.2), (bc.x0 - 0.3, 0.6, bc.z1 - 0.2), 0.08), *[rod((bc.x0 - 0.3, -0.05, zz), (bc.x0 - 0.3, 0.62, zz), 0.06) for zz in (bc.z0 + 0.5, bc.z1 - 0.5)])
 	for zz in (bc.z0 + 1.0, bc.z0 + 2.6, bc.z0 + 4.2):
 		acc.add("Stools", "Iron", vcyl(bc.x0 - 1.3, zz, 0.08, 0, 2.3, segs=6))
 		acc.add("StoolSeats", "Leather", vcyl(bc.x0 - 1.3, zz, 0.5, 2.3, 2.6, segs=10))
@@ -586,7 +588,7 @@ def stair(name, tread, side, mats, kit, rail=None, n=13, nosing=None):
 			x = sx * 2.88
 			for t in (0.04, 0.35, 0.66, 0.97):
 				z, y = -8 + 16 * t, 10 * t + 0.6
-				r.append(rod((x, y, z), (x, y + 3.2, z), 0.08))
+				r.append(rod((x, y - 1.1, z), (x, y + 3.2, z), 0.08))  # v2: posts reach the stringer (they floated 1 stud)
 			r.append(rod((x, 3.8, -7.4), (x, 13.4, 7.6), 0.1))
 		acc.add("Rails", rail, *r)
 	return piece(name, acc, mats, kit)
@@ -639,6 +641,7 @@ def p_station(mats, kit):
 	# Station sign board on the roof edge (text is a SurfaceGui in Art.luau).
 	acc.add("Sign", "SteelDark", RB(-8, 8, 21.5, 24.0, -13.25, -12.95), RB(-8, 8, 21.5, 24.0, 12.95, 13.25))
 	acc.add("Lamps_Glow", "Glow_Warm", *[RB(x - 0.6, x + 0.6, 19.7, 19.85, z - 0.6, z + 0.6) for x in (-2.0, 7.0) for z in (-8.0, 8.0)])
+	acc.add("LampHangers", "SteelDark", *[RB(x - 0.7, x + 0.7, 19.85, 20.05, z - 0.7, z + 0.7) for x in (-2.0, 7.0) for z in (-8.0, 8.0)])  # v2: lamp shades set into the roof slab (the lamps floated under it)
 	return piece("Station", acc, mats, kit)
 
 

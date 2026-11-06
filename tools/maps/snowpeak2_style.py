@@ -56,7 +56,7 @@ MATS: dict[str, tuple[str, str, str]] = {
 }
 GLASS = {"Glass": "B5C8D4", "CabGlass": "2A3440", "Bottle": "5C7A3A"}
 # Neon: Roblox brightens Neon hugely; these dark values render as warm amber / fire (calibrated on Bunker2).
-GLOW = {"Glow_Warm": "B07A48", "Glow_Fire": "C0602C", "Glow_Amber": "B8862E"}
+GLOW = {"Glow_Warm": "8C7660", "Glow_Fire": "A0502A", "Glow_Amber": "9C7A40"}  # r1: B07A48 rendered saturated yellow outdoors; desaturated warm reads as lamplight
 END = {"B": "3D63A8", "A": "C9962E"}  # end paint (patrol huts, station bands)
 
 # Greybox finishes in Studio (the parts that stay visible).
@@ -68,12 +68,12 @@ GREYBOX = {
 }
 
 VARIANTS = {
-    "Snow2_Timber": ("WoodPlanks", 8, "", "", ""),
-    "Snow2_Stone": ("Cobblestone", 8, "", "", ""),
-    "Snow2_Snow": ("Snow", 16, "", "", ""),
-    "Snow2_Roof": ("Plastic", 8, "", "", ""),
-    "Snow2_Rock": ("Rock", 16, "", "", ""),
-    "Snow2_Plank": ("WoodPlanks", 8, "", "", ""),
+    "Snow2_Timber": ("WoodPlanks", 8, "132419806158171", "127590838417035", ""),
+    "Snow2_Stone": ("Cobblestone", 8, "117006718223711", "123215852189966", ""),
+    "Snow2_Snow": ("Snow", 16, "114271398131937", "111098192335248", ""),
+    "Snow2_Roof": ("Plastic", 8, "80711795927408", "74968368388868", ""),
+    "Snow2_Rock": ("Rock", 16, "72465231073227", "133592237709177", ""),
+    "Snow2_Plank": ("WoodPlanks", 8, "72356380118675", "113823686655015", ""),
 }
 
 # ---------------------------------------------------------------- lighting (Lighting.luau LIGHT block)
