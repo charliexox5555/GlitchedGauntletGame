@@ -389,9 +389,11 @@
   "Stair16": {
    "props": {},
    "parts": [
-    "Stair16_Wall",
     "Stair16_Stone",
-    "Stair16_Accent"
+    "Stair16_Charcoal",
+    "Stair16_Accent",
+    "Stair16_Brick",
+    "Stair16_RoofTile"
    ]
   },
   "StairHut": {
@@ -510,7 +512,7 @@
    "material": "R2_Appliance",
    "look": {
     "material": "SmoothPlastic",
-    "color": "B3AC9F"
+    "color": "C2B49C"
    },
    "glow": false,
    "tris": 716,
@@ -531,7 +533,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -871,7 +873,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -979,7 +981,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -1087,7 +1089,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -1237,7 +1239,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -1452,7 +1454,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -1538,7 +1540,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -1667,7 +1669,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -1796,7 +1798,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -1946,7 +1948,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -2137,7 +2139,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -2308,7 +2310,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -2500,7 +2502,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -2651,7 +2653,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -2716,7 +2718,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -2822,7 +2824,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -2951,7 +2953,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -3229,7 +3231,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -3549,7 +3551,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -3910,7 +3912,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -4013,37 +4015,15 @@
   },
   {
    "piece": "Stair16",
-   "name": "Stair16_Wall",
-   "material": "R2_Wall",
-   "look": {
-    "material": "Concrete",
-    "color": "D4B98F",
-    "variant": "Roof2_Plaster"
-   },
-   "glow": false,
-   "tris": 68,
-   "center": [
-    0.0,
-    0.005,
-    5.00135
-   ],
-   "size": [
-    8.0,
-    15.95,
-    10.3027
-   ]
-  },
-  {
-   "piece": "Stair16",
    "name": "Stair16_Stone",
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
-   "tris": 660,
+   "tris": 372,
    "center": [
     0.0,
     0.005,
@@ -4053,6 +4033,27 @@
     8.4,
     15.95,
     11.0
+   ]
+  },
+  {
+   "piece": "Stair16",
+   "name": "Stair16_Charcoal",
+   "material": "R2_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3F47"
+   },
+   "glow": false,
+   "tris": 120,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    6.68,
+    14.87155,
+    7.54311
    ]
   },
   {
@@ -4074,6 +4075,50 @@
     8.61423,
     15.71423,
     7.75
+   ]
+  },
+  {
+   "piece": "Stair16",
+   "name": "Stair16_Brick",
+   "material": "R2_Brick",
+   "look": {
+    "material": "Brick",
+    "color": "B27560",
+    "variant": "Roof2_Brick"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    0.0,
+    0.005,
+    5.00135
+   ],
+   "size": [
+    8.0,
+    15.95,
+    10.3027
+   ]
+  },
+  {
+   "piece": "Stair16",
+   "name": "Stair16_RoofTile",
+   "material": "R2_RoofTile",
+   "look": {
+    "material": "Slate",
+    "color": "B8673F",
+    "variant": "Roof2_Terracotta"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    -0.785,
+    3.57
+   ],
+   "size": [
+    6.6,
+    14.37,
+    7.2
    ]
   },
   {
@@ -4104,7 +4149,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -4297,7 +4342,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -4492,7 +4537,7 @@
    "material": "R2_Stone",
    "look": {
     "material": "Concrete",
-    "color": "E9D7B2",
+    "color": "E0CDA8",
     "variant": "Roof2_Plaster"
    },
    "glow": false,
@@ -4573,5 +4618,5 @@
    ]
   }
  ],
- "tris": 79286
+ "tris": 79514
 }

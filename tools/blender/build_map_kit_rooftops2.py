@@ -937,10 +937,19 @@ def stone_stair(name="Stair16"):
 		z0 = -8 + 1.6 * k
 		z1 = min(z0 + 1.6, 7.97)
 		top = 0.8 * k - 0.03
-		P["Stone"].append(RB(-3.3, 3.3, top - 0.8, top, z0, z1, 0.08, 1))
+		# maps v5 r5 (navigation, the one criterion at 1 in every review): the route reads by contrast. Terracotta
+		# treads with a cream stone nosing in brick cheek walls (it was cream stone on cream plaster), and a dark
+		# steel handrail on wall brackets up both sides, pointing the way up.
+		P["RoofTile"].append(RB(-3.3, 3.3, top - 0.8, top, z0, z1, 0.08, 1))
+		P["Stone"].append(RB(-3.25, 3.25, top - 0.12, top + 0.05, z0 - 0.05, z0 + 0.32))  # 0.05 proud of the riser
 	cheek = [(-7.98, -0.15), (-5.4, -0.15), (7.97, 7.2), (7.97, 10.3), (-7.98, 2.9)]
 	for s in (1, -1):
-		P["Wall"].append(RPX(cheek, s * 3.3, s * 4.0, BSN, 1))
+		P["Brick"].append(RPX(cheek, s * 3.3, s * 4.0, BSN, 1))
+		rail = lambda z: (z + 8.0) / 2.0 + 2.5  # noqa: E731  (tread line + 2.5)
+		P["Charcoal"].append(beam((s * 3.02, rail(-7.4), -7.4), (s * 3.02, rail(7.4), 7.4), 0.16, 0.16))
+		for zb in (-6.0, -2.0, 2.0, 6.0):
+			a2, b2 = sorted((s * 2.98, s * 3.34))
+			P["Charcoal"].append(RB(a2, b2, rail(zb) - 0.36, rail(zb) - 0.06, zb - 0.07, zb + 0.07))
 		cop = [(-7.98, 2.85), (7.97, 10.25), (7.97, 10.65), (-7.98, 3.25)]
 		P["Stone"].append(RPX(cop, s * 3.2, s * 4.12, BT, ST))
 		for zc, yc in ((-7.2, 3.3), (7.2, 10.6)):
