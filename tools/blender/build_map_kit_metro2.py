@@ -53,21 +53,21 @@ P = 0.06  # proud
 ROLE = {
 	"Tile": (0xE3D8C3, "CeramicTiles", "Metro2_Tile"),
 	"TileDark": (0x5D6068, "CeramicTiles", "Metro2_Tile"),
-	"Band": (0x3A5A9C, "CeramicTiles", "Metro2_Tile"),  # end colour, re-tinted per half
-	"Concrete": (0xBDB6A9, "Concrete", "Metro2_Concrete"),
+	"Band": (0x4A6494, "CeramicTiles", "Metro2_Tile"),  # end colour, re-tinted per half
+	"Concrete": (0xADA9A2, "Concrete", "Metro2_Concrete"),
 	"ConcreteDark": (0x8E887E, "Concrete", "Metro2_Concrete"),
 	"Granite": (0x8C8780, "Granite", "Metro2_Granite"),
-	"Floor": (0xCFC7B8, "Marble", "Metro2_Floor"),
+	"Floor": (0xB8B3AA, "Marble", "Metro2_Floor"),
 	"Ballast": (0x7A746C, "Slate", "Metro2_Ballast"),
 	"Sleeper": (0x958B7E, "Concrete", "Metro2_Concrete"),
 	"Tactile": (0xB89A5E, "SmoothPlastic", ""),
 	"Charcoal": (0x444952, "SmoothPlastic", ""),
 	"Stainless": (0xB9BDC3, "Plastic", "Metro2_Steel"),
 	"Rail": (0xA9ACB0, "SmoothPlastic", ""),
-	"TrainBody": (0xD9DCDF, "SmoothPlastic", ""),
+	"TrainBody": (0xC9CDD1, "Plastic", "Metro2_Steel"),
 	"TrainDark": (0x4A4F57, "SmoothPlastic", ""),
 	"Rubber": (0x3A3D43, "Rubber", ""),
-	"Oak": (0xA77C55, "Wood", ""),
+	"Oak": (0x8A7058, "WoodPlanks", ""),
 	"Seat": (0x3F5A78, "Fabric", ""),
 	"Vending": (0xA8443A, "SmoothPlastic", ""),
 	"White": (0xEEEAE2, "SmoothPlastic", ""),
@@ -75,10 +75,10 @@ ROLE = {
 	"Glass": (0x9FB4C2, "Glass", ""),
 	"DarkGlass": (0x4A5562, "Glass", ""),
 	"Red": (0xB5473A, "SmoothPlastic", ""),
-	"Stripe": (0x3A5A9C, "SmoothPlastic", ""),  # end colour on smooth parts
+	"Stripe": (0x4A6494, "SmoothPlastic", ""),  # end colour on smooth parts
 }
 GLOW = {
-	"G_Coffer": (0xF4ECDF, 2.4),
+	"G_Coffer": (0xE6EEF6, 2.4),  # r3: cool white coffers against the warm sconces
 	"G_Cool": (0xDDE8F2, 2.6),
 	"G_Warm": (0xFFC27A, 2.4),
 	"G_Amber": (0xFFB547, 2.4),
@@ -452,6 +452,17 @@ def p_pendant(mats, kit):
 		piece(name, p, mats, kit)
 
 
+def p_ceiling_grid(mats, kit):
+	# An 8 x 8 cell under a flat ceiling at 28: a concrete beam on its -X and -Z edges (the neighbour supplies the
+	# others; the beams stop short of the far edges so neighbours' bounds never share a plane) and a lit panel in a
+	# charcoal frame flush under the slab. Origin on the floor below at the cell centre (put at y = 0 of the room).
+	beam_x = rb(-4.0, -3.4, 27.1, 27.98, -3.97, 3.97)
+	beam_z = rb(-3.4, 3.97, 27.12, 27.97, -4.0, -3.4)
+	frame = G(rb(-2.2, 2.2, 27.86, 27.98, -2.2, -1.95), rb(-2.2, 2.2, 27.86, 27.98, 1.95, 2.2), rb(-2.2, -1.95, 27.86, 27.98, -1.95, 1.95), rb(1.95, 2.2, 27.86, 27.98, -1.95, 1.95))
+	glow = rb(-1.95, 1.95, 27.9, 27.96, -1.95, 1.95)
+	piece("CeilingGrid8", {"BeamX": (beam_x, "M_Concrete"), "BeamZ": (beam_z, "M_Concrete"), "Frame": (frame, "M_Charcoal"), "Panel_Glow": (glow, "G_Coffer")}, mats, kit)
+
+
 def p_platform_sign(mats, kit):
 	# Hanging platform sign over a platform (13..14.6), two faces (art in Studio), rods to the vault.
 	p = {
@@ -504,6 +515,7 @@ def edge_parts(tactile=True):
 		"Refuge": (rb(0.0, 0.12, TRENCH, TRENCH + 0.45, -L, L), "M_TileDark"),
 		"Trough": (rb(0.07, 0.6, -2.3, -1.65, -L, L, ch=0.04), "M_Stainless"),
 		"Brackets": (G(*[rb(0.07, 0.66, -2.42, -2.3, z - 0.1, z + 0.1) for z in (-2.5, 0.0, 2.5)]), "M_Charcoal"),
+		"EdgeLight_Glow": (rb(0.14, 0.19, -0.42, -0.34, -L + 0.8, L - 0.8), "G_Warm"),
 	}
 	if tactile:
 		dots = bmesh.new()
@@ -599,20 +611,34 @@ def train():
 	for za, zb in gaps(pdoors + windows, zs, ze):
 		merge(skin, rb(hw - 0.5, hw, -0.1, 7.0, za, zb))
 		if zb - za > 1.0:
-			for y in (0.6, 1.2, 1.8):
-				merge(flutes, rb(hw, hw + 0.07, y, y + 0.22, za + 0.25, zb - 0.25, ch=0.03))
+			nrib = int((zb - za - 0.4) / 0.42)
+			for k in range(nrib):
+				zz = za + 0.2 + (k + 0.5) * (zb - za - 0.4) / nrib
+				merge(flutes, rb(hw, hw + 0.08, 0.15, 2.5, zz - 0.09, zz + 0.09, ch=0.03))
 	for za, zb in windows:
 		merge(skin, rb(hw - 0.5, hw, -0.1, 3.5, za, zb))
 		merge(glass, rb(hw - 0.3, hw - 0.24, 3.5, 7.0, za, zb))
 		merge(frames, G(rb(hw, hw + 0.09, 3.35, 7.15, za - 0.16, za), rb(hw, hw + 0.09, 3.35, 7.15, zb, zb + 0.16),
 						rb(hw, hw + 0.09, 3.35, 3.5, za, zb), rb(hw, hw + 0.09, 7.0, 7.15, za, zb)))
-		for y in (0.6, 1.2, 1.8):
-			merge(flutes, rb(hw, hw + 0.07, y, y + 0.22, za + 0.25, zb - 0.25, ch=0.03))
+		nrib = int((zb - za - 0.4) / 0.42)
+		for k in range(nrib):
+			zz = za + 0.2 + (k + 0.5) * (zb - za - 0.4) / nrib
+			merge(flutes, rb(hw, hw + 0.08, 0.15, 2.5, zz - 0.09, zz + 0.09, ch=0.03))
 	for da, db in pdoors:
 		merge(frames, G(rb(hw, hw + 0.09, -0.1, 7.15, da - 0.16, da), rb(hw, hw + 0.09, -0.1, 7.15, db, db + 0.16),
 						rb(hw, hw + 0.09, 7.0, 7.15, da, db)))
 		merge(glows, rb(hw, hw + P, 7.4, 7.6, (da + db) / 2 - 0.25, (da + db) / 2 + 0.25))
 	merge(skin, rb(hw - 0.5, hw, 7.0, 9.0, zs, ze))
+	# r4: a glossy dark band over the window line between the doors on both sides (it frames the windows and breaks
+	# the big white panels), and a roof gutter rail in charcoal.
+	band = bmesh.new()
+	for side, doors in ((1, pdoors), (-1, tdoors)):
+		x0, x1 = sorted((side * (hw + 0.1), side * (hw + 0.16)))
+		for za, zb in gaps([(a - 0.16, b + 0.16) for a, b in doors] + [(joint[0] - 0.05, joint[1] + 0.05)], zs, ze):
+			merge(band, rb(x0, x1, 7.3, 7.9, za + 0.05, zb - 0.05))
+		g0, g1 = sorted((side * (hw - 0.02), side * (hw + 0.14)))
+		for za, zb in gaps([joint], -hz + 0.5, hz - 0.5):
+			merge(band, rb(g0, g1, 9.07, 9.22, za + 0.03, zb - 0.03))
 	seams = bmesh.new()
 	for z in (-24.0, -2.6, 2.6, 24.0):  # on the solid platform-side panels only
 		merge(seams, rb(hw, hw + 0.06, 3.3, 6.9, z - 0.05, z + 0.05))
@@ -622,8 +648,10 @@ def train():
 		for wa, wb in gaps([joint], za + 0.8, zb - 0.8):
 			if wb - wa > 2.0:
 				merge(dark, rb(-hw - P, -hw, 3.6, 6.9, wa + 0.3, wb - 0.3))
-				for y in (0.6, 1.2, 1.8):
-					merge(flutes, rb(-hw - 0.07, -hw, y, y + 0.22, wa + 0.3, wb - 0.3, ch=0.03))
+				nrib = int((wb - wa - 0.6) / 0.42)
+				for k in range(nrib):
+					zz = wa + 0.3 + (k + 0.5) * (wb - wa - 0.6) / nrib
+					merge(flutes, rb(-hw - 0.08, -hw, 0.15, 2.5, zz - 0.09, zz + 0.09, ch=0.03))
 	for da, db in tdoors:
 		merge(frames, G(rb(-hw - 0.09, -hw, -0.1, 7.15, da - 0.16, da), rb(-hw - 0.09, -hw, -0.1, 7.15, db, db + 0.16),
 						rb(-hw - 0.09, -hw, 7.0, 7.15, da, db)))
@@ -664,7 +692,7 @@ def train():
 			zz = z - 1.6 + i * 0.8
 			merge(grilles, rb(-1.4, 1.4, 10.22, 10.27, zz - 0.15, zz + 0.15))
 	ends = G(rb(-hw, hw, -0.1, 9.0, -hz, -hz + 0.5), rb(-hw, hw, -0.1, 9.0, hz - 0.5, hz))
-	head, tail, bumper, cabwin, coupler = (bmesh.new() for _ in range(5))
+	head, tail, bumper, cabwin, coupler, cabframe = (bmesh.new() for _ in range(6))
 	dest = {}
 	for s in (1, -1):
 		f = s * hz
@@ -672,6 +700,9 @@ def train():
 		merge(skin, rx([(f, -1.2), (f + 0.55 * s, -1.0), (f + 0.65 * s, 2.0), (f + 0.55 * s, 8.3), (f + 0.25 * s, 9.3), (f, 9.45)], -hw + 0.35, hw - 0.35))
 		fz0, fz1 = sorted((f + 0.67 * s, f + 0.73 * s))
 		merge(cabwin, rx([(f + 0.62 * s, 4.0), (f + 0.62 * s + P * s, 4.0), (f + 0.5 * s + P * s, 7.9), (f + 0.5 * s, 7.9)], -hw + 1.0, hw - 1.0))
+		# windscreen surround (rubber) and a centre pillar, proud of the glass
+		fr = [(f + 0.62 * s + P * s, 3.75), (f + 0.62 * s + 2 * P * s + 0.08 * s, 3.75), (f + 0.5 * s + 2 * P * s + 0.08 * s, 8.15), (f + 0.5 * s + P * s, 8.15)]
+		merge(cabframe, G(rx(fr, -hw + 0.75, -hw + 1.0), rx(fr, hw - 1.0, hw - 0.75), rx(fr, -0.12, 0.12)))
 		merge(stripe, rb(-hw + 0.5, hw - 0.5, 2.6, 3.2, fz0, fz1))
 		hz0, hz1 = sorted((f + 0.62 * s, f + 0.72 * s))
 		for x in (-3.3, 3.3):
@@ -730,6 +761,7 @@ def train():
 		"Body": (G(skin, ends), "M_TrainBody"),
 		"Flutes": (flutes, "M_TrainBody"),
 		"Seams": (seams, "M_TrainDark"),
+		"WindowBand": (band, "M_TrainDark"),
 		"Thresholds": (thresholds, "M_Tactile"),
 		"Leaves": (leaves, "M_TrainBody"),
 		"Stripe": (stripe, "M_Stripe"),
@@ -747,6 +779,7 @@ def train():
 		"Springs": (springs, "M_Charcoal"),
 		"Bumper": (bumper, "M_Charcoal"),
 		"Coupler": (coupler, "M_Charcoal"),
+		"CabFrame": (cabframe, "M_Rubber"),
 		"Wheels": (wheels, "M_Rail"),
 		"Floor": (floor, "M_Granite"),
 		"Ceiling": (ceiling, "M_White"),
@@ -873,6 +906,23 @@ def p_gantry(mats, kit):
 			for y in (17.6, 26.7):
 				g0, g1 = sorted((s * 1.5, s * 1.56))
 				merge(gussets, rb(x - 0.7, x + 0.7, y - 0.55, y + 0.55, g0, g1))
+	# Knee braces from the bottom chord down into each hall wall (they read as the truss bearing on the walls), and
+	# warm uplights on top of the bottom chord washing the truss.
+	braces, braces_e, uplights = bmesh.new(), bmesh.new(), bmesh.new()
+	for sx in (-1, 1):
+		tgt = braces_e if sx > 0 else braces
+		for s in (-1, 1):
+			zc = s * 1.25
+			a = (sx * 31.0, 16.6, zc)
+			b = (sx * 34.55, 13.0, zc)
+			if sx < 0:
+				a, b = b, a
+			merge(tgt, bar_between(a, b, 0.45, 0.4))
+			merge(tgt, rb(*sorted((sx * 33.9, sx * 34.55)), 12.2, 13.6, zc - 0.35, zc + 0.35, ch=0.04))
+	for x in (-17.56, -5.85, 5.85, 17.56):  # between the truss members
+		for s in (-1, 1):
+			z0, z1 = sorted((s * 1.0, s * 1.45))
+			merge(uplights, rb(x - 1.0, x + 1.0, 17.6, 17.66, z0, z1))
 	# Board housing (11..16.4) and the platform-sign housings.
 	housing = rb(-12.6, 12.6, 11.0, 16.45, -1.5, 1.5, ch=0.14)
 	sign_housing = G(rb(-31.6, -16.4, 12.4, 16.45, -1.42, 1.42, ch=0.1), rb(16.4, 31.6, 12.4, 16.45, -1.42, 1.42, ch=0.1))
@@ -909,6 +959,9 @@ def p_gantry(mats, kit):
 		"Chords": (chords, "M_Charcoal"),
 		"Members": (members, "M_Charcoal"),
 		"Gussets": (gussets, "M_Charcoal"),
+		"BracesW": (braces, "M_Charcoal"),
+		"BracesE": (braces_e, "M_Charcoal"),
+		"Uplight_Glow": (uplights, "G_Warm"),
 		"Housing": (housing, "M_Charcoal"),
 		"SignHousing": (sign_housing, "M_Charcoal"),
 		"Hangers": (hangers, "M_Charcoal"),
@@ -1123,19 +1176,26 @@ def p_bench(mats, kit):
 
 def p_fare_gates(mats, kit):
 	# 20 long x 1.5 deep x 3.5 tall: 7 stainless cabinets, glass paddles closed between (solid: it's cover).
-	cab, pad, top, glow, reader = (bmesh.new() for _ in range(5))
+	cab, pad, top, glow, reader, plinth = (bmesh.new() for _ in range(6))
 	n = 7
 	for i in range(n):
 		x = -10.0 + 0.4 + i * (19.2 / (n - 1))
-		merge(cab, rb(x - 0.4, x + 0.4, 0.0, 3.25, -0.75, 0.75, ch=0.12))
-		merge(top, rb(x - 0.44, x + 0.44, 3.25, 3.5, -0.8, 0.8, ch=0.08))
-		merge(glow, rb(x - 0.18, x + 0.18, 3.5, 3.54, 0.25, 0.55))
-		merge(glow, rb(x - 0.18, x + 0.18, 3.5, 3.54, -0.55, -0.25))
-		merge(reader, rb(x - 0.3, x + 0.3, 3.0, 3.25, -0.9, -0.75, ch=0.04))
-		merge(reader, rb(x - 0.3, x + 0.3, 3.0, 3.25, 0.75, 0.9, ch=0.04))
+		merge(plinth, rb(x - 0.42, x + 0.42, 0.0, 0.3, -0.78, 0.78, ch=0.05))
+		# cabinet profile in (z, y): a sloped top falling toward both faces
+		merge(cab, rx([(-0.72, 0.3), (0.72, 0.3), (0.72, 2.85), (0.45, 3.3), (-0.45, 3.3), (-0.72, 2.85)], x - 0.38, x + 0.38))
+		merge(top, rb(x - 0.4, x + 0.4, 3.3, 3.5, -0.48, 0.48, ch=0.06))
+		for s in (-1, 1):
+			# reader face on each slope, a lit arrow below it, a light strip down each cabinet face
+			ra, rb_ = sorted((s * 0.5, s * 0.74))
+			merge(reader, rx([(s * 0.47, 3.04), (s * 0.73, 2.66), (s * 0.79, 2.7), (s * 0.53, 3.08)] if s > 0 else [(s * 0.73, 2.66), (s * 0.47, 3.04), (s * 0.53, 3.08), (s * 0.79, 2.7)], x - 0.26, x + 0.26))
+			g0, g1 = sorted((s * 0.72, s * 0.77))
+			merge(glow, rb(x - 0.12, x + 0.12, 1.9, 2.3, g0, g1))
 		if i < n - 1:
-			merge(pad, rb(x + 0.4, x + 0.4 + 19.2 / (n - 1) - 0.8, 0.8, 3.0, -0.12, 0.12, ch=0.04))
-	p = {"Cabinets": (cab, "M_Stainless"), "Paddles": (pad, "M_Stainless"), "Tops": (top, "M_Charcoal"), "Readers": (reader, "M_Charcoal"), "Lamp_Glow": (glow, "G_Warm")}
+			xa, xb = x + 0.38, x + 0.4 + 19.2 / (n - 1) - 0.78
+			merge(pad, rb(xa, xb - 0.1, 0.9, 3.0, -0.1, 0.1, ch=0.04))
+			merge(pad, rb(xb - 0.1, xb, 0.9, 3.0, -0.13, 0.13))
+	p = {"Cabinets": (cab, "M_Stainless"), "Plinths": (plinth, "M_Charcoal"), "Paddles": (pad, "M_Charcoal"), "Tops": (top, "M_Charcoal"),
+		 "Readers": (reader, "M_Screen"), "Lamp_Glow": (glow, "G_Green")}
 	piece("FareGateRow", p, mats, kit)
 
 
@@ -1346,6 +1406,7 @@ def main():
 	p_coffers(mats, kit)
 	p_pendant(mats, kit)
 	p_platform_sign(mats, kit)
+	p_ceiling_grid(mats, kit)
 	p_column(mats, kit)
 	p_platform_edge(mats, kit)
 	p_track(mats, kit)

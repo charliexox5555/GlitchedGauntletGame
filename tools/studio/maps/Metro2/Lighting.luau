@@ -13,20 +13,20 @@ local PROPS: { [string]: any } = {
 	ClockTime = 13.2,
 	GeographicLatitude = 30,
 	Brightness = 1.2,
-	Ambient = Color3.fromRGB(170, 156, 140),
-	OutdoorAmbient = Color3.fromRGB(172, 162, 150),
+	Ambient = Color3.fromRGB(156, 152, 150),
+	OutdoorAmbient = Color3.fromRGB(160, 160, 164),
 	ColorShift_Top = Color3.fromRGB(255, 226, 190),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
 	EnvironmentDiffuseScale = 0.0,
 	EnvironmentSpecularScale = 0.05,
-	ExposureCompensation = 0.35,
+	ExposureCompensation = 0.45,
 	GlobalShadows = true,
 	ShadowSoftness = 0.25,
 }
 local FX: { [string]: { [string]: any } } = {
-	Atmosphere = { Density = 0.28, Offset = 0.05, Color = Color3.fromRGB(232, 214, 190), Decay = Color3.fromRGB(196, 176, 150), Glare = 0.0, Haze = 1.2 },
-	Bloom = { Intensity = 0.75, Size = 26, Threshold = 0.95 },
-	Grade = { Brightness = 0.02, Contrast = 0.14, Saturation = 0.0, TintColor = Color3.fromRGB(255, 240, 222) },
+	Atmosphere = { Density = 0.22, Offset = 0.05, Color = Color3.fromRGB(214, 216, 222), Decay = Color3.fromRGB(186, 190, 200), Glare = 0.0, Haze = 0.8 },
+	Bloom = { Intensity = 0.85, Size = 28, Threshold = 0.92 },
+	Grade = { Brightness = 0.02, Contrast = 0.16, Saturation = 0.0, TintColor = Color3.fromRGB(255, 246, 236) },
 	SunRays = { Intensity = 0.05, Spread = 0.4 },
 }
 -- stylua: ignore end

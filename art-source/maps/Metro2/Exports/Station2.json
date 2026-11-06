@@ -25,6 +25,15 @@
     "CCTV_Camera"
    ]
   },
+  "CeilingGrid8": {
+   "props": {},
+   "parts": [
+    "CeilingGrid8_BeamX",
+    "CeilingGrid8_BeamZ",
+    "CeilingGrid8_Frame",
+    "CeilingGrid8_Panel_Glow"
+   ]
+  },
   "Coffer10": {
    "props": {},
    "parts": [
@@ -162,6 +171,7 @@
    "props": {},
    "parts": [
     "FareGateRow_Cabinets",
+    "FareGateRow_Plinths",
     "FareGateRow_Paddles",
     "FareGateRow_Tops",
     "FareGateRow_Readers",
@@ -175,6 +185,9 @@
     "Gantry_Chords",
     "Gantry_Members",
     "Gantry_Gussets",
+    "Gantry_BracesW",
+    "Gantry_BracesE",
+    "Gantry_Uplight_Glow",
     "Gantry_Housing",
     "Gantry_SignHousing",
     "Gantry_Hangers",
@@ -340,6 +353,7 @@
     "PlatformEdge8_Refuge",
     "PlatformEdge8_Trough",
     "PlatformEdge8_Brackets",
+    "PlatformEdge8_EdgeLight_Glow",
     "PlatformEdge8_Tactile",
     "PlatformEdge8_TactileDots"
    ]
@@ -352,7 +366,8 @@
     "PlatformEdge8Plain_Cladding",
     "PlatformEdge8Plain_Refuge",
     "PlatformEdge8Plain_Trough",
-    "PlatformEdge8Plain_Brackets"
+    "PlatformEdge8Plain_Brackets",
+    "PlatformEdge8Plain_EdgeLight_Glow"
    ]
   },
   "PlatformSign": {
@@ -444,6 +459,7 @@
     "Train_Body",
     "Train_Flutes",
     "Train_Seams",
+    "Train_WindowBand",
     "Train_Thresholds",
     "Train_Leaves",
     "Train_Stripe",
@@ -461,6 +477,7 @@
     "Train_Springs",
     "Train_Bumper",
     "Train_Coupler",
+    "Train_CabFrame",
     "Train_Wheels",
     "Train_Floor",
     "Train_Ceiling",
@@ -627,8 +644,8 @@
    "name": "Bench_Slats",
    "material": "M_Oak",
    "look": {
-    "material": "Wood",
-    "color": "A77C55"
+    "material": "WoodPlanks",
+    "color": "8A7058"
    },
    "glow": false,
    "tris": 308,
@@ -713,7 +730,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 64,
@@ -792,12 +809,98 @@
    ]
   },
   {
+   "piece": "CeilingGrid8",
+   "name": "CeilingGrid8_BeamX",
+   "material": "M_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "ADA9A2",
+    "variant": "Metro2_Concrete"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    -3.7,
+    0.0,
+    27.54
+   ],
+   "size": [
+    0.6,
+    7.94,
+    0.88
+   ]
+  },
+  {
+   "piece": "CeilingGrid8",
+   "name": "CeilingGrid8_BeamZ",
+   "material": "M_Concrete",
+   "look": {
+    "material": "Concrete",
+    "color": "ADA9A2",
+    "variant": "Metro2_Concrete"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.285,
+    3.7,
+    27.545
+   ],
+   "size": [
+    7.37,
+    0.6,
+    0.85
+   ]
+  },
+  {
+   "piece": "CeilingGrid8",
+   "name": "CeilingGrid8_Frame",
+   "material": "M_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "444952"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    27.92
+   ],
+   "size": [
+    4.4,
+    4.4,
+    0.12
+   ]
+  },
+  {
+   "piece": "CeilingGrid8",
+   "name": "CeilingGrid8_Panel_Glow",
+   "material": "G_Coffer",
+   "look": {
+    "material": "Neon",
+    "color": "E6EEF6"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    27.93
+   ],
+   "size": [
+    3.9,
+    3.9,
+    0.06
+   ]
+  },
+  {
    "piece": "Coffer10",
    "name": "Coffer10_Shell",
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -840,7 +943,7 @@
    "material": "G_Coffer",
    "look": {
     "material": "Neon",
-    "color": "F4ECDF"
+    "color": "E6EEF6"
    },
    "glow": true,
    "tris": 12,
@@ -861,7 +964,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -904,7 +1007,7 @@
    "material": "G_Coffer",
    "look": {
     "material": "Neon",
-    "color": "F4ECDF"
+    "color": "E6EEF6"
    },
    "glow": true,
    "tris": 12,
@@ -1013,7 +1116,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -1035,7 +1138,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -1057,7 +1160,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -1250,7 +1353,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 12,
@@ -1355,7 +1458,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -1439,8 +1542,8 @@
    "name": "Delivery_Boxes",
    "material": "M_Oak",
    "look": {
-    "material": "Wood",
-    "color": "A77C55"
+    "material": "WoodPlanks",
+    "color": "8A7058"
    },
    "glow": false,
    "tris": 132,
@@ -1461,7 +1564,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 60,
@@ -1525,7 +1628,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 132,
@@ -1655,7 +1758,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -1720,7 +1823,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -1742,7 +1845,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 36,
@@ -1785,7 +1888,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -1870,7 +1973,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -1892,7 +1995,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -2082,7 +2185,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -2104,7 +2207,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 48,
@@ -2474,38 +2577,58 @@
     "variant": "Metro2_Steel"
    },
    "glow": false,
+   "tris": 140,
+   "center": [
+    0.0,
+    0.0,
+    1.8
+   ],
+   "size": [
+    19.96,
+    1.44,
+    3.0
+   ]
+  },
+  {
+   "piece": "FareGateRow",
+   "name": "FareGateRow_Plinths",
+   "material": "M_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "444952"
+   },
+   "glow": false,
    "tris": 308,
    "center": [
     0.0,
     0.0,
-    1.625
+    0.15
    ],
    "size": [
-    20.0,
-    1.5,
-    3.25
+    20.04,
+    1.56,
+    0.3
    ]
   },
   {
    "piece": "FareGateRow",
    "name": "FareGateRow_Paddles",
-   "material": "M_Stainless",
+   "material": "M_Charcoal",
    "look": {
-    "material": "Plastic",
-    "color": "B9BDC3",
-    "variant": "Metro2_Steel"
+    "material": "SmoothPlastic",
+    "color": "444952"
    },
    "glow": false,
-   "tris": 264,
+   "tris": 336,
    "center": [
     0.0,
     0.0,
-    1.9
+    1.95
    ],
    "size": [
-    18.4,
-    0.24,
-    2.2
+    18.44,
+    0.26,
+    2.1
    ]
   },
   {
@@ -2521,54 +2644,54 @@
    "center": [
     0.0,
     0.0,
-    3.375
+    3.4
    ],
    "size": [
-    20.08,
-    1.6,
-    0.25
+    20.0,
+    0.96,
+    0.2
    ]
   },
   {
    "piece": "FareGateRow",
    "name": "FareGateRow_Readers",
-   "material": "M_Charcoal",
+   "material": "M_Screen",
    "look": {
     "material": "SmoothPlastic",
-    "color": "444952"
+    "color": "1E2024"
    },
    "glow": false,
-   "tris": 616,
+   "tris": 168,
    "center": [
     0.0,
     0.0,
-    3.125
+    2.87
    ],
    "size": [
-    19.8,
-    1.8,
-    0.25
+    19.72,
+    1.58,
+    0.42
    ]
   },
   {
    "piece": "FareGateRow",
    "name": "FareGateRow_Lamp_Glow",
-   "material": "G_Warm",
+   "material": "G_Green",
    "look": {
     "material": "Neon",
-    "color": "FFC27A"
+    "color": "5BC85A"
    },
    "glow": true,
    "tris": 168,
    "center": [
     0.0,
     0.0,
-    3.52
+    2.1
    ],
    "size": [
-    19.56,
-    1.1,
-    0.04
+    19.44,
+    1.54,
+    0.4
    ]
   },
   {
@@ -2577,7 +2700,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -2654,6 +2777,69 @@
     65.8,
     3.12,
     10.2
+   ]
+  },
+  {
+   "piece": "Gantry",
+   "name": "Gantry_BracesW",
+   "material": "M_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "444952"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    -32.775,
+    0.0,
+    14.46495
+   ],
+   "size": [
+    3.81424,
+    3.2,
+    4.5299
+   ]
+  },
+  {
+   "piece": "Gantry",
+   "name": "Gantry_BracesE",
+   "material": "M_Charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "444952"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    32.775,
+    0.0,
+    14.46495
+   ],
+   "size": [
+    3.81424,
+    3.2,
+    4.5299
+   ]
+  },
+  {
+   "piece": "Gantry",
+   "name": "Gantry_Uplight_Glow",
+   "material": "G_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "FFC27A"
+   },
+   "glow": true,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    17.63
+   ],
+   "size": [
+    37.12,
+    2.9,
+    0.06
    ]
   },
   {
@@ -3237,7 +3423,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 44,
@@ -3321,8 +3507,8 @@
    "name": "Kiosk_Base",
    "material": "M_Oak",
    "look": {
-    "material": "Wood",
-    "color": "A77C55"
+    "material": "WoodPlanks",
+    "color": "8A7058"
    },
    "glow": false,
    "tris": 12,
@@ -3342,8 +3528,8 @@
    "name": "Kiosk_Slats",
    "material": "M_Oak",
    "look": {
-    "material": "Wood",
-    "color": "A77C55"
+    "material": "WoodPlanks",
+    "color": "8A7058"
    },
    "glow": false,
    "tris": 432,
@@ -3406,8 +3592,8 @@
    "name": "Kiosk_Inner",
    "material": "M_Oak",
    "look": {
-    "material": "Wood",
-    "color": "A77C55"
+    "material": "WoodPlanks",
+    "color": "8A7058"
    },
    "glow": false,
    "tris": 12,
@@ -3512,8 +3698,8 @@
    "name": "Kiosk_Fascia",
    "material": "M_Oak",
    "look": {
-    "material": "Wood",
-    "color": "A77C55"
+    "material": "WoodPlanks",
+    "color": "8A7058"
    },
    "glow": false,
    "tris": 44,
@@ -3598,7 +3784,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 12,
@@ -3854,7 +4040,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -3919,7 +4105,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -4050,7 +4236,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -4115,7 +4301,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -4265,7 +4451,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 44,
@@ -4328,7 +4514,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -4899,6 +5085,27 @@
   },
   {
    "piece": "PlatformEdge8",
+   "name": "PlatformEdge8_EdgeLight_Glow",
+   "material": "G_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "FFC27A"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.165,
+    0.0,
+    -0.38
+   ],
+   "size": [
+    0.05,
+    6.3,
+    0.08
+   ]
+  },
+  {
+   "piece": "PlatformEdge8",
    "name": "PlatformEdge8_Tactile",
    "material": "M_Tactile",
    "look": {
@@ -5070,6 +5277,27 @@
    ]
   },
   {
+   "piece": "PlatformEdge8Plain",
+   "name": "PlatformEdge8Plain_EdgeLight_Glow",
+   "material": "G_Warm",
+   "look": {
+    "material": "Neon",
+    "color": "FFC27A"
+   },
+   "glow": true,
+   "tris": 12,
+   "center": [
+    0.165,
+    0.0,
+    -0.38
+   ],
+   "size": [
+    0.05,
+    6.3,
+    0.08
+   ]
+  },
+  {
    "piece": "PlatformSign",
    "name": "PlatformSign_Rods",
    "material": "M_Charcoal",
@@ -5202,7 +5430,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 264,
@@ -5393,7 +5621,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -5415,7 +5643,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -5479,8 +5707,8 @@
    "name": "Stool_Seat",
    "material": "M_Oak",
    "look": {
-    "material": "Wood",
-    "color": "A77C55"
+    "material": "WoodPlanks",
+    "color": "8A7058"
    },
    "glow": false,
    "tris": 84,
@@ -5716,7 +5944,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 12,
@@ -5992,8 +6220,9 @@
    "name": "Train_Body",
    "material": "M_TrainBody",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "D9DCDF"
+    "material": "Plastic",
+    "color": "C9CDD1",
+    "variant": "Metro2_Steel"
    },
    "glow": false,
    "tris": 232,
@@ -6013,20 +6242,21 @@
    "name": "Train_Flutes",
    "material": "M_TrainBody",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "D9DCDF"
+    "material": "Plastic",
+    "color": "C9CDD1",
+    "variant": "Metro2_Steel"
    },
    "glow": false,
-   "tris": 924,
+   "tris": 4884,
    "center": [
     0.0,
     0.0,
-    1.31
+    1.325
    ],
    "size": [
-    10.14,
-    50.5,
-    1.42
+    10.16,
+    50.34667,
+    2.35
    ]
   },
   {
@@ -6048,6 +6278,27 @@
     0.06,
     48.1,
     3.6
+   ]
+  },
+  {
+   "piece": "Train",
+   "name": "Train_WindowBand",
+   "material": "M_TrainDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4A4F57"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.0,
+    0.0,
+    8.26
+   ],
+   "size": [
+    10.32,
+    50.94,
+    1.92
    ]
   },
   {
@@ -6076,8 +6327,9 @@
    "name": "Train_Leaves",
    "material": "M_TrainBody",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "D9DCDF"
+    "material": "Plastic",
+    "color": "C9CDD1",
+    "variant": "Metro2_Steel"
    },
    "glow": false,
    "tris": 96,
@@ -6098,7 +6350,7 @@
    "material": "M_Stripe",
    "look": {
     "material": "SmoothPlastic",
-    "color": "3A5A9C"
+    "color": "4A6494"
    },
    "glow": false,
    "tris": 144,
@@ -6225,8 +6477,9 @@
    "name": "Train_Roof",
    "material": "M_TrainBody",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "D9DCDF"
+    "material": "Plastic",
+    "color": "C9CDD1",
+    "variant": "Metro2_Steel"
    },
    "glow": false,
    "tris": 72,
@@ -6408,6 +6661,27 @@
     0.7,
     54.8,
     0.6
+   ]
+  },
+  {
+   "piece": "Train",
+   "name": "Train_CabFrame",
+   "material": "M_Rubber",
+   "look": {
+    "material": "Rubber",
+    "color": "3A3D43"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    5.95
+   ],
+   "size": [
+    8.5,
+    53.64,
+    4.4
    ]
   },
   {
@@ -6859,7 +7133,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -6881,7 +7155,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -6903,7 +7177,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -6946,7 +7220,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -6968,7 +7242,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7099,7 +7373,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7272,7 +7546,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -7294,7 +7568,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7316,7 +7590,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7359,7 +7633,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7381,7 +7655,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7512,7 +7786,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7641,7 +7915,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -7663,7 +7937,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7685,7 +7959,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7728,7 +8002,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7750,7 +8024,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7881,7 +8155,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7946,7 +8220,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -7968,7 +8242,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -7990,7 +8264,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8033,7 +8307,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8055,7 +8329,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8186,7 +8460,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8487,7 +8761,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -8509,7 +8783,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8531,7 +8805,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8574,7 +8848,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8596,7 +8870,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8639,7 +8913,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8810,7 +9084,7 @@
    "material": "M_Band",
    "look": {
     "material": "CeramicTiles",
-    "color": "3A5A9C",
+    "color": "4A6494",
     "variant": "Metro2_Tile"
    },
    "glow": false,
@@ -8832,7 +9106,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8854,7 +9128,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8897,7 +9171,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -8919,7 +9193,7 @@
    "material": "M_Concrete",
    "look": {
     "material": "Concrete",
-    "color": "BDB6A9",
+    "color": "ADA9A2",
     "variant": "Metro2_Concrete"
    },
    "glow": false,
@@ -9045,5 +9319,5 @@
    ]
   }
  ],
- "tris": 39020
+ "tris": 43540
 }

@@ -13,21 +13,21 @@
 local ROLE: { [string]: { color: string, material: string, variant: string } } = {
 	Tile = { color = "E3D8C3", material = "CeramicTiles", variant = "Metro2_Tile" },
 	TileDark = { color = "5D6068", material = "CeramicTiles", variant = "Metro2_Tile" },
-	Band = { color = "3A5A9C", material = "CeramicTiles", variant = "Metro2_Tile" },
-	Concrete = { color = "BDB6A9", material = "Concrete", variant = "Metro2_Concrete" },
+	Band = { color = "4A6494", material = "CeramicTiles", variant = "Metro2_Tile" },
+	Concrete = { color = "ADA9A2", material = "Concrete", variant = "Metro2_Concrete" },
 	ConcreteDark = { color = "8E887E", material = "Concrete", variant = "Metro2_Concrete" },
 	Granite = { color = "8C8780", material = "Granite", variant = "Metro2_Granite" },
-	Floor = { color = "CFC7B8", material = "Marble", variant = "Metro2_Floor" },
+	Floor = { color = "B8B3AA", material = "Marble", variant = "Metro2_Floor" },
 	Ballast = { color = "7A746C", material = "Slate", variant = "Metro2_Ballast" },
 	Sleeper = { color = "958B7E", material = "Concrete", variant = "Metro2_Concrete" },
 	Tactile = { color = "B89A5E", material = "SmoothPlastic", variant = "" },
 	Charcoal = { color = "444952", material = "SmoothPlastic", variant = "" },
 	Stainless = { color = "B9BDC3", material = "Plastic", variant = "Metro2_Steel" },
 	Rail = { color = "A9ACB0", material = "SmoothPlastic", variant = "" },
-	TrainBody = { color = "D9DCDF", material = "SmoothPlastic", variant = "" },
+	TrainBody = { color = "C9CDD1", material = "Plastic", variant = "Metro2_Steel" },
 	TrainDark = { color = "4A4F57", material = "SmoothPlastic", variant = "" },
 	Rubber = { color = "3A3D43", material = "Rubber", variant = "" },
-	Oak = { color = "A77C55", material = "Wood", variant = "" },
+	Oak = { color = "8A7058", material = "WoodPlanks", variant = "" },
 	Seat = { color = "3F5A78", material = "Fabric", variant = "" },
 	Vending = { color = "A8443A", material = "SmoothPlastic", variant = "" },
 	White = { color = "EEEAE2", material = "SmoothPlastic", variant = "" },
@@ -35,9 +35,9 @@ local ROLE: { [string]: { color: string, material: string, variant: string } } =
 	Glass = { color = "9FB4C2", material = "Glass", variant = "" },
 	DarkGlass = { color = "4A5562", material = "Glass", variant = "" },
 	Red = { color = "B5473A", material = "SmoothPlastic", variant = "" },
-	Stripe = { color = "3A5A9C", material = "SmoothPlastic", variant = "" },
+	Stripe = { color = "4A6494", material = "SmoothPlastic", variant = "" },
 }
-local END_COLOUR = { B = "3A5A9C", A = "5E8F74", Mid = "5B6270" }
+local END_COLOUR = { B = "4A6494", A = "6A8E7A", Mid = "5B6270" }
 local GLOW = { Coffer = "E8EEF4", Cool = "DDE8F2", Warm = "FFD9A8", Amber = "FFB547" }
 local VARIANTS: { [string]: { any } } = {
 	Metro2_Tile = { "CeramicTiles", 4, "87197132557377", "117332324030889" },
@@ -61,8 +61,8 @@ local IMAGES: { [string]: string } = {
 	Exit = "126436460812634",
 	MindGap = "139815162077167",
 	Name = "80245321498560",
-	Platform1 = "114721847225415",
-	Platform2 = "135928291032773",
+	Platform1 = "116871085206566",
+	Platform2 = "125817246261075",
 	Platforms = "91275778699836",
 	Poster1 = "140113467785574",
 	Poster2 = "83398433994292",
@@ -72,6 +72,8 @@ local IMAGES: { [string]: string } = {
 	SpawnA = "109353252868632",
 	SpawnB = "109611028917485",
 	SpawnWay = "104682539223711",
+	SpawnWayA = "137922014511396",
+	SpawnWayB = "111097363205799",
 	Staff = "138638620258648",
 	Tickets = "96137525472089",
 	Vending = "75968268768450",
@@ -308,6 +310,32 @@ for _, b in LOW do
 	both("Concourse", b[1] :: string, b[2] :: number, 14, b[3] :: number, b[4] :: number)
 end
 
+-- Round 3: a beamed ceiling with lit panels under the flat concourse slab (terraces, ticket halls, spawn rooms).
+-- Cells of 8 on x -44..44 and z 52..124 (team B's half; both() adds A's); the pendants hang between them.
+for x = -36, 36, 8 do
+	for z = 52, 116, 8 do
+		local inSpawn = z > 107 and math.abs(x) <= 4
+		local inTicket = z > 68 and z < 106
+		local onTerrace = z < 66 and x > -36 and x < 25
+		if inSpawn or inTicket or onTerrace then
+			both("Ceiling", "CeilingGrid8", x, 0, z, 0)
+		end
+	end
+end
+
+-- Round 4: the ticket halls get furniture at the walls (benches, bins, help points, CCTV), the corridors a lit
+-- route map on the end wall of each run. Team B's half; both() adds A's.
+for _, b in { { 46.9, 80 }, { 46.9, 96 }, { -46.9, 80 } } do
+	both("Concourse", "Bench", b[1], 14, b[2], if b[1] > 0 then 180 else 0)
+end
+for _, b in { { 46.8, 88.6 }, { -46.8, 76.6 } } do
+	both("Concourse", "Bin", b[1], 14, b[2], 0)
+end
+both("Concourse", "HelpPoint", 48, 14, 92, 180)
+both("Concourse", "HelpPoint", -48, 14, 84, 0)
+both("Concourse", "CCTV", 48, 14, 74, 180)
+both("Concourse", "CCTV", -48, 14, 102, 0)
+
 -- Corridor dados (both corridor walls, clear of the doors through the hall wall and the pump room).
 for zc = -44, 44, 8 do
 	if zc ~= -40 and zc ~= 0 then
@@ -376,7 +404,7 @@ local FINISH: { [string]: string } = {
 	OuterWallEast = "Concrete",
 	CorridorCeiling = "Concrete",
 	CorridorHead = "Concrete",
-	PumpRoom = "ConcreteDark",
+	PumpRoom = "TileDark", -- r4: tiled, not raw concrete (it stood in the corridor view)
 	WellDivider = "Tile",
 	WingWall = "Tile",
 	ConcourseWall = "Tile",
@@ -397,6 +425,9 @@ for _, d in greybox:GetDescendants() do
 	end
 	if (d.Parent and d.Parent.Name == "Train") or HIDE[d.Name] then
 		hide(d)
+		if d.Name == "HallCeiling" then
+			d.CastShadow = true -- r4: invisible but keeps the sun out of the hall (it read as daylight)
+		end
 		hidden += 1
 		continue
 	end
@@ -476,6 +507,8 @@ local LIT: { [string]: boolean } = {
 	RouteMap = true,
 	Clock = true,
 	SpawnWay = true,
+	SpawnWayA = true,
+	SpawnWayB = true,
 }
 
 local mapCentre = W(CFrame.identity).Position
@@ -614,7 +647,7 @@ for _, d in greybox:GetDescendants() do
 			"SpawnWay",
 			Vector3.new(11.2, 5.6, 0.05),
 			at(l.X, 20.5, l.Z, if s > 0 then 0 else 180),
-			"SpawnWay",
+			if s > 0 then "SpawnWayB" else "SpawnWayA",
 			Enum.NormalId.Back
 		)
 	end

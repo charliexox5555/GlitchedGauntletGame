@@ -249,3 +249,28 @@ All three reviewers named the same low points:
 ## Codex jobs
 
 - **M1 (2026-11-06):** Saved four original 1024 x 1536 portrait posters: [coffee](../../../art-source/maps/Metro2/textures/posters/01_Coffee.png), [museum show](../../../art-source/maps/Metro2/textures/posters/02_MuseumShow.png), [rail pass](../../../art-source/maps/Metro2/textures/posters/03_RailPass.png), [phone network](../../../art-source/maps/Metro2/textures/posters/04_PhoneNetwork.png); Meridian palette, two-word headlines, no real logos, visually checked; built-in image_gen prompts embedded in PNG metadata (in-game distance test pending).
+
+**Round 2 audits:** 0 z-fighting pairs, 0 floating groups (2,657 visible parts). Shots: `v1-r2-*.jpg` and the [side-by-side](../../02%20Art/References/maps/metro2/v1-r2-side-by-side.jpg).
+
+**Blind score: 6.7** (5.4, 6.7, 6.3), up 1.3 on round 1. Medians:
+
+| W1 | W2 | W3 | W4 | W5 | W6 |
+|---|---|---|---|---|---|
+| 2 | 1 | 1 | 1 | 1 | 2 |
+
+Low points:
+- **The trains** (all three reviewers): flat white slabs, the biggest object in every shot.
+- **"Blank frames":** the platform signs, posters and route maps had not loaded at capture. Studio loads SurfaceGui images lazily. From round 3, every capture is taken twice, after a preload and a wait.
+- **Off-platform:** the ticket hall and corridor are still flat and tan.
+- **Spawn:** two identical doorways, and the landmark isn't in view. The landmark is a layout limit, because the spawn sits behind a baffle.
+- **Colour:** the per-end colours clash with the blue and green platform roundels.
+- **Kiosk:** the orange wood.
+
+### Round 3 (built 02:31)
+- **Trains:** ribbed stainless lower body (vertical corrugation on every panel), the steel texture again (calm now), and a rubber windscreen surround with a centre pillar.
+- **Light and value:** neutral-cool ambient (146,150,160) against warm Neon practicals; cool-white coffer panels; a darker floor (`B8B3AA`) and cooler concrete (`ADA9A2`) under the light tile; warm uplights washing the gantry truss; a warm strip under every platform coping (the concept's track-edge light).
+- **Gantry:** knee braces bear into both hall walls.
+- **Concourse, terraces and spawn rooms:** a beamed ceiling with lit panels (`CeilingGrid8`) under the flat slab.
+- **Wayfinding:** the platform roundels are neutral cream, so colour only means the end. Each spawn's sign names its doors: B reads "PLATFORM 2 ← → PLATFORM 1", A the mirror.
+- **Palette:** calmer ends (`4A6494` / `6A8E7A`), and dull walnut WoodPlanks for the kiosk.
+- **Offline z-fighting:** 0 / 0.

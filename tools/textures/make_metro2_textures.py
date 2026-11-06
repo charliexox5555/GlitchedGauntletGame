@@ -245,8 +245,9 @@ def sign_platform(n: int, dest: str, colour):
 	w, h = 1024, 256
 	im = Image.new("RGB", (w, h), INK)
 	d = ImageDraw.Draw(im)
-	d.ellipse((40, 38, 220, 218), fill=colour)
-	text_c(d, (130, 132), str(n), font(130, "Bold"), (255, 255, 255))
+	# r3: a neutral cream roundel; the end colours mean "which end you face", never the platform number
+	d.ellipse((40, 38, 220, 218), fill=CREAM)
+	text_c(d, (130, 132), str(n), font(130, "Bold"), INK)
 	d.text((260, 70), "PLATFORM %d" % n, font=font(56, "SemiBold"), fill=(200, 204, 212))
 	d.text((260, 130), dest, font=font(84, "Bold"), fill=(255, 255, 255))
 	im.save(os.path.join(SIGN, "Platform%d.png" % n))
@@ -359,8 +360,8 @@ def sign_dest(name: str, n: int):
 	Image.fromarray(a.astype(np.uint8)).save(os.path.join(SIGN, "Dest%d.png" % n))
 
 
-def sign_spawn_way():
-	# On the spawn baffle, facing the spawn: the station roundel and the way out both sides.
+def sign_spawn_way(name="SpawnWay", left="", right=""):
+	# On the spawn baffle, facing the spawn: the station roundel and the way out both sides, each door named.
 	w, h = 1024, 512
 	im = Image.new("RGB", (w, h), INK)
 	d = ImageDraw.Draw(im)
@@ -372,8 +373,12 @@ def sign_spawn_way():
 		x0 = 512 + sx * 380
 		pts = [(x0 + sx * 70, 360), (x0, 300), (x0, 336), (x0 - sx * 60, 336), (x0 - sx * 60, 384), (x0, 384), (x0, 420)]
 		d.polygon(pts, fill=AMBER)
-	d.text((w / 2, 470), "Trains every 4 minutes", font=font(34, "SemiBold"), fill=(200, 204, 212), anchor="mm")
-	im.save(os.path.join(SIGN, "SpawnWay.png"))
+	if left:
+		d.text((70, 470), left, font=font(40, "Bold"), fill=AMBER, anchor="lm")
+		d.text((w - 70, 470), right, font=font(40, "Bold"), fill=AMBER, anchor="rm")
+	else:
+		d.text((w / 2, 470), "Trains every 4 minutes", font=font(34, "SemiBold"), fill=(200, 204, 212), anchor="mm")
+	im.save(os.path.join(SIGN, name + ".png"))
 
 
 def sign_mind_gap():
@@ -475,6 +480,9 @@ def main():
 	sign_plate("Platforms", "PLATFORMS", INK, CREAM, size=70)
 	sign_mind_gap()
 	sign_spawn_way()
+	# B's spawn faces -Z: the viewer's right is +X, the east platform (1). A's is turned 180 degrees.
+	sign_spawn_way("SpawnWayB", "PLATFORM 2", "PLATFORM 1")
+	sign_spawn_way("SpawnWayA", "PLATFORM 1", "PLATFORM 2")
 	sign_dest("NORTHGATE", 1)
 	sign_dest("RIVERSIDE", 2)
 	sign_spawn("A", SAGE)

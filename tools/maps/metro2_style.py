@@ -19,21 +19,21 @@ LIGHT_FILE = ROOT / "tools" / "studio" / "maps" / "Metro2" / "Lighting.luau"
 ROLE = {
 	"Tile": ("E3D8C3", "CeramicTiles", "Metro2_Tile"),  # wall field: the concepts' warm cream square tile
 	"TileDark": ("5D6068", "CeramicTiles", "Metro2_Tile"),  # dado, column bases (luminance about 0.11)
-	"Band": ("3A5A9C", "CeramicTiles", "Metro2_Tile"),  # r2: slate cobalt (B); A is sage below  # end colour, re-tinted per half
-	"Concrete": ("BDB6A9", "Concrete", "Metro2_Concrete"),  # vault, coffers, cornices, beams
+	"Band": ("4A6494", "CeramicTiles", "Metro2_Tile"),  # r2: slate cobalt (B); A is sage below  # end colour, re-tinted per half
+	"Concrete": ("ADA9A2", "Concrete", "Metro2_Concrete"),  # r3: cooler, a step under the tile  # vault, coffers, cornices, beams
 	"ConcreteDark": ("8E887E", "Concrete", "Metro2_Concrete"),  # trench walls, corridor floors
 	"Granite": ("8C8780", "Granite", "Metro2_Granite"),  # skirts, copings, stair treads, plinths
-	"Floor": ("CFC7B8", "Marble", "Metro2_Floor"),  # platforms, terraces, ticket hall
+	"Floor": ("B8B3AA", "Marble", "Metro2_Floor"),  # r3: a step darker than the tile walls  # platforms, terraces, ticket hall
 	"Ballast": ("7A746C", "Slate", "Metro2_Ballast"),
 	"Sleeper": ("958B7E", "Concrete", "Metro2_Concrete"),
 	"Tactile": ("B89A5E", "SmoothPlastic", ""),  # muted ochre: tactile strips, nosings, cones (not the landmark amber)
 	"Charcoal": ("444952", "SmoothPlastic", ""),  # gantry truss, frames, rails, stringers: the route language
 	"Stainless": ("B9BDC3", "Plastic", "Metro2_Steel"),
 	"Rail": ("A9ACB0", "SmoothPlastic", ""),
-	"TrainBody": ("D9DCDF", "SmoothPlastic", ""),  # r2: plain panels with modelled seams (the brushed texture streaked)
+	"TrainBody": ("C9CDD1", "Plastic", "Metro2_Steel"),  # r3: ribbed stainless (calm steel texture)  # r2: plain panels with modelled seams (the brushed texture streaked)
 	"TrainDark": ("4A4F57", "SmoothPlastic", ""),
 	"Rubber": ("3A3D43", "Rubber", ""),
-	"Oak": ("A77C55", "Wood", ""),
+	"Oak": ("8A7058", "WoodPlanks", ""),  # r3: dull walnut (the Wood grain read orange)
 	"Seat": ("3F5A78", "Fabric", ""),
 	"Vending": ("A8443A", "SmoothPlastic", ""),
 	"White": ("EEEAE2", "SmoothPlastic", ""),
@@ -41,9 +41,9 @@ ROLE = {
 	"Glass": ("9FB4C2", "Glass", ""),
 	"DarkGlass": ("4A5562", "Glass", ""),  # r2: lifted, 0.35 transparent (Art.luau)
 	"Red": ("B5473A", "SmoothPlastic", ""),
-	"Stripe": ("3A5A9C", "SmoothPlastic", ""),
+	"Stripe": ("4A6494", "SmoothPlastic", ""),
 }
-END = {"B": "3A5A9C", "A": "5E8F74", "Mid": "5B6270"}  # cobalt, sage, the middle bays
+END = {"B": "4A6494", "A": "6A8E7A", "Mid": "5B6270"}  # r3: calmer still  # cobalt, sage, the middle bays
 GLOW = {"Coffer": "E8EEF4", "Cool": "DDE8F2", "Warm": "FFD9A8", "Amber": "FFB547"}
 
 # name: (BaseMaterial, StudsPerTile, ColorMap image id, NormalMap image id). Ids: the Decal uploads of
@@ -63,20 +63,20 @@ LIGHTING = {
 	"ClockTime": 13.2,  # r2: the vault is closed (no skylights), so the sun never reaches the hall
 	"GeographicLatitude": 30,
 	"Brightness": 1.2,
-	"Ambient": (170, 156, 140),  # r2: warm practical-light key indoors
-	"OutdoorAmbient": (172, 162, 150),
+	"Ambient": (156, 152, 150),  # r4: between r2 (brown) and r3 (flat grey)
+	"OutdoorAmbient": (160, 160, 164),
 	"ColorShift_Top": (255, 226, 190),
 	"ColorShift_Bottom": (0, 0, 0),
 	"EnvironmentDiffuseScale": 0.0,
 	"EnvironmentSpecularScale": 0.05,
-	"ExposureCompensation": 0.35,
+	"ExposureCompensation": 0.45,
 	"GlobalShadows": True,
 	"ShadowSoftness": 0.25,
 }
 FX = {
-	"Atmosphere": {"Density": 0.28, "Offset": 0.05, "Color": (232, 214, 190), "Decay": (196, 176, 150), "Glare": 0.0, "Haze": 1.2},
-	"Bloom": {"Intensity": 0.75, "Size": 26, "Threshold": 0.95},
-	"Grade": {"Brightness": 0.02, "Contrast": 0.14, "Saturation": 0.0, "TintColor": (255, 240, 222)},
+	"Atmosphere": {"Density": 0.22, "Offset": 0.05, "Color": (214, 216, 222), "Decay": (186, 190, 200), "Glare": 0.0, "Haze": 0.8},
+	"Bloom": {"Intensity": 0.85, "Size": 28, "Threshold": 0.92},
+	"Grade": {"Brightness": 0.02, "Contrast": 0.16, "Saturation": 0.0, "TintColor": (255, 246, 236)},
 	"SunRays": {"Intensity": 0.05, "Spread": 0.4},
 }
 

@@ -1,0 +1,96 @@
+# OldTown2 (new version of Old Town)
+
+Old Town rebuilt to the [Map Quality Standard](Map%20Quality%20Standard.md) by lane F on the night of 2026-11-06. It keeps [Old Town](Old%20Town.md)'s layout, lanes and measured numbers. The old map stays untouched: its files, its Studio model `Workspace.OldTown`, and its Config rows.
+
+- **Map id:** `OldTown2`.
+- **Origin:** (3000, 200, -1500). Checked free in the match place on 2026-11-06; Rooftops2 ends near z -420.
+- **How to view it:** ForceMap only (`workspace:SetAttribute("ForceMap", "OldTown2")`). There's no `Config/Match` change until the user approves.
+- **Status:** plan written.
+
+## Calls made without the user (asleep; decided by the standard)
+| Call | Why |
+|---|---|
+| Model before the board is approved | Core chat's instruction. The concepts and the board stay here for the morning. |
+| Keep Blue (B) / Green (A) as the side accents, on shutters, awnings, banners and doors | The concept uses them, and they're far from team cyan / orange-red. The landmark is the brick clock tower: terracotta and brick, no blue or green. |
+| Procedural textures (`tools/textures/make_oldtown2_textures.py`) | No Codex trim sheet tonight. They follow the concept's swatches, are near-white and tintable, and fit the 6-variant budget. |
+| Fork the Old Town kit (61 pieces), then raise it | The layout and every opening match already, and the old map passed 0 z-fighting. The gap to the bar is surface quality, colour, light and the heroes, so that's where the work goes. |
+
+## Identity brief
+- **Sentence:** *A warm late afternoon on the Piazza of Sant'Orsola: cream, ochre and rose stucco over stone arcades, terracotta roofs, the fountain splashing in the middle and the brick clock tower over the east roofs.*
+- **Story groups:**
+  1. **Market packing up:** a striped stall, half-loaded crates on a hand cart, a fallen crate by the stall.
+  2. **The cafe terrace:** bistro tables, umbrellas and potted lavender above the east arcade.
+  3. **Laundry day in the alleys:** washing lines between the houses, a basket under them.
+- **Not this:**
+  - sepia medieval grime;
+  - clutter that hides players;
+  - smooth plastic boxes;
+  - part-built letters;
+  - cartoon wonky houses;
+  - team colours;
+  - real brands.
+
+## References (third-party, never committed)
+Sources, linked as in [Old Town §2](Old%20Town.md#2-references):
+- Valorant: Ascent;
+- CS2: Inferno;
+- the Plaza Mayor in Salamanca;
+- Piazza del Campo and the Torre del Mangia in Siena;
+- Venice's sotoporteghi.
+
+The concepts are in `art-source/maps/OldTown2/concepts/` (01-overview, 02-hero, 03-kit-sheet).
+
+LihFolk notes:
+- [Level Design Principles](../../LihFolk/33%20Level%20Design/Level%20Design%20Principles%20-%20Flow%20Sightlines%20and%20Landmarks.md)
+- [World Composition and Set Dressing](../../LihFolk/06%20World%20Building%20and%20Art/World%20Composition%20and%20Set%20Dressing%20-%20Designed%2C%20Not%20Scattered.md)
+- [Zone and Biome Art Direction](../../LihFolk/06%20World%20Building%20and%20Art/Zone%20and%20Biome%20Art%20Direction.md)
+- [Colour Scripts and Value Structure](../../LihFolk/54%20Untextured%20Stylised%20Modelling/Colour%20Scripts%20and%20Value%20Structure%20for%20Untextured%20Art.md)
+- [Stylized Lighting Recipes](../../LihFolk/07%20Lighting%20VFX%20and%20Audio/Stylized%20Lighting%20Recipes.md) (golden hour §3.3)
+- [Textures Decals and Texture Memory](../../LihFolk/06%20World%20Building%20and%20Art/Textures%20Decals%20and%20Texture%20Memory.md)
+
+## Layout (kept)
+`tools/maps/oldtown2_layout.py --write` re-runs every Old Town check on the same numbers and writes `tools/studio/maps/OldTown2/Greybox.luau` and `Art.luau` at the new origin.
+
+**Heights:** ground 0, terraces 12, roofs 24–31 (not a lane), perimeter 52. The checks are unchanged:
+- spawns never see each other;
+- first sight comes at 4.5 s sprinting, 6.1 s walking;
+- one 130-stud line per side.
+
+## Palette (single table; `tools/maps/oldtown2_style.py`)
+| Slot | Role | Colour | Surface |
+|---|---|---|---|
+| Walls | Stucco tones: cream / ochre / rose | `E8D6B0` / `DDB57C` / `D9A08A` | `OT2_Stucco` |
+| Stone and trim | Stone (arches, cornices, quoins) | `D8C6A0` | `OT2_Ashlar` |
+| Stone and trim | Plinth (bases, steps) | `BFA884` | `OT2_Ashlar` |
+| Roofs | Terracotta | `B5603A` | `OT2_Terracotta` |
+| Roofs | Brick (the tower) | `A65A3E` | Brick |
+| Floors | Plaza and forecourt paving | `D9C7A4` | `OT2_Paving` |
+| Floors | Streets and alleys | `9C8E7C` | `OT2_Cobble` |
+| Timber | Wood dark / light | `6B4A2E` / `9A7550` | Wood / `OT2_Plank` |
+| Iron | Ironwork | `3A3633` | SmoothPlastic, not Metal |
+| Greenery | Cypress / foliage / lavender | `4E6B35` / `6B8A3F` / `8C7BB8` | |
+| Water | Water | `5FA8B8` at 0.35 | Glass |
+| Accents | B side blue | `2F6BB3` | shutters, awnings, banners |
+| Accents | A side green | `4E8A3E` | shutters, awnings, banners |
+| Glow | Lanterns | `FFD39A` | Neon |
+
+## Lighting
+The golden-hour recipe, lifted:
+- sun low in the west at about 35°, so shadows run across the map toward the tower;
+- Brightness 3;
+- Ambient ≤ OutdoorAmbient, warm key, neutral-cool shade;
+- light warm haze;
+- bloom threshold 1.2 so the cream walls don't blow out.
+
+Check with the greyscale and no-shadow tests.
+
+## Kit
+`tools/blender/build_map_kit_oldtown2.py`, forked from the Old Town kit: 61 pieces in two groups, `Structure` and `Props`.
+- **Materials:** carry MaterialVariants by role (`VARIANT_OF`).
+- **Hero upgrades:** done in rounds, worst first, from the reviews.
+
+## Build and run order
+Filled in as built.
+
+## Rounds
+Filled in per round.

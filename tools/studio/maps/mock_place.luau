@@ -58,7 +58,7 @@ local CollectionService = {
 		return table.find(tags[inst] or {}, tag) ~= nil
 	end,
 }
-local gameProxy = setmetatable({ PlaceId = 71551303511506 }, {
+local gameProxy = setmetatable({ PlaceId = 133387545285290 }, {
 	__index = function(_, k)
 		if k == "GetService" then
 			return function(_, name)
