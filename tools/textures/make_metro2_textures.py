@@ -176,10 +176,11 @@ def steel():
 		lines = RNG.random((N, 1))
 		col = np.repeat(lines, N, axis=1)
 		s += amp * blur_wrap(col, 0.6)
-	s = s / s.max()
+	s = blur_wrap(s / s.max(), 1.5)
 	streak = wrap_noise(N, 3, 3, 6)
-	c = 0.84 + 0.1 * (s - 0.5) + 0.06 * (streak - 0.5)
-	save_variant("Metro2_Steel", c, s * 0.5, 1.2)
+	# round 2: a calm satin finish (the strong brushing read as stacked slabs and streaks in Studio)
+	c = 0.86 + 0.025 * (s - 0.5) + 0.04 * (streak - 0.5)
+	save_variant("Metro2_Steel", c, s * 0.2, 0.6)
 
 
 def ballast():
@@ -221,8 +222,8 @@ def granite():
 
 INK = (43, 46, 53)  # charcoal
 CREAM = (239, 232, 218)
-COBALT = (47, 95, 191)
-SAGE = (60, 140, 108)
+COBALT = (58, 90, 156)
+SAGE = (94, 143, 116)
 AMBER = (255, 181, 71)
 
 
@@ -358,6 +359,23 @@ def sign_dest(name: str, n: int):
 	Image.fromarray(a.astype(np.uint8)).save(os.path.join(SIGN, "Dest%d.png" % n))
 
 
+def sign_spawn_way():
+	# On the spawn baffle, facing the spawn: the station roundel and the way out both sides.
+	w, h = 1024, 512
+	im = Image.new("RGB", (w, h), INK)
+	d = ImageDraw.Draw(im)
+	d.ellipse((392, 40, 632, 280), outline=CREAM, width=28)
+	d.rectangle((352, 136, 672, 184), fill=CREAM)
+	text_c(d, (512, 160), "MERIDIAN", font(34, "Bold"), INK)
+	text_c(d, (512, 360), "PLATFORMS", font(96, "Bold"), CREAM)
+	for sx in (-1, 1):
+		x0 = 512 + sx * 380
+		pts = [(x0 + sx * 70, 360), (x0, 300), (x0, 336), (x0 - sx * 60, 336), (x0 - sx * 60, 384), (x0, 384), (x0, 420)]
+		d.polygon(pts, fill=AMBER)
+	d.text((w / 2, 470), "Trains every 4 minutes", font=font(34, "SemiBold"), fill=(200, 204, 212), anchor="mm")
+	im.save(os.path.join(SIGN, "SpawnWay.png"))
+
+
 def sign_mind_gap():
 	# Floor marking beside the platform edge (decal, flush): ochre on transparent.
 	w, h = 1024, 128
@@ -456,6 +474,7 @@ def main():
 	sign_plate("Staff", "STAFF ONLY", CREAM, INK, size=66)
 	sign_plate("Platforms", "PLATFORMS", INK, CREAM, size=70)
 	sign_mind_gap()
+	sign_spawn_way()
 	sign_dest("NORTHGATE", 1)
 	sign_dest("RIVERSIDE", 2)
 	sign_spawn("A", SAGE)

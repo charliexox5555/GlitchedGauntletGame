@@ -12,21 +12,21 @@
 local PROPS: { [string]: any } = {
 	ClockTime = 13.2,
 	GeographicLatitude = 30,
-	Brightness = 2.6,
-	Ambient = Color3.fromRGB(152, 150, 156),
-	OutdoorAmbient = Color3.fromRGB(166, 168, 178),
+	Brightness = 1.2,
+	Ambient = Color3.fromRGB(170, 156, 140),
+	OutdoorAmbient = Color3.fromRGB(172, 162, 150),
 	ColorShift_Top = Color3.fromRGB(255, 226, 190),
 	ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
-	EnvironmentDiffuseScale = 0.25,
-	EnvironmentSpecularScale = 0.1,
-	ExposureCompensation = 0.25,
+	EnvironmentDiffuseScale = 0.0,
+	EnvironmentSpecularScale = 0.05,
+	ExposureCompensation = 0.35,
 	GlobalShadows = true,
 	ShadowSoftness = 0.25,
 }
 local FX: { [string]: { [string]: any } } = {
-	Atmosphere = { Density = 0.18, Offset = 0.1, Color = Color3.fromRGB(236, 226, 210), Decay = Color3.fromRGB(190, 196, 210), Glare = 0.2, Haze = 0.6 },
-	Bloom = { Intensity = 0.5, Size = 22, Threshold = 1.1 },
-	Grade = { Brightness = 0.03, Contrast = 0.1, Saturation = 0.06, TintColor = Color3.fromRGB(255, 246, 236) },
+	Atmosphere = { Density = 0.28, Offset = 0.05, Color = Color3.fromRGB(232, 214, 190), Decay = Color3.fromRGB(196, 176, 150), Glare = 0.0, Haze = 1.2 },
+	Bloom = { Intensity = 0.75, Size = 26, Threshold = 0.95 },
+	Grade = { Brightness = 0.02, Contrast = 0.14, Saturation = 0.0, TintColor = Color3.fromRGB(255, 240, 222) },
 	SunRays = { Intensity = 0.05, Spread = 0.4 },
 }
 -- stylua: ignore end

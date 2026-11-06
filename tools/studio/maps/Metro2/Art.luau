@@ -13,7 +13,7 @@
 local ROLE: { [string]: { color: string, material: string, variant: string } } = {
 	Tile = { color = "E3D8C3", material = "CeramicTiles", variant = "Metro2_Tile" },
 	TileDark = { color = "5D6068", material = "CeramicTiles", variant = "Metro2_Tile" },
-	Band = { color = "2F5FBF", material = "CeramicTiles", variant = "Metro2_Tile" },
+	Band = { color = "3A5A9C", material = "CeramicTiles", variant = "Metro2_Tile" },
 	Concrete = { color = "BDB6A9", material = "Concrete", variant = "Metro2_Concrete" },
 	ConcreteDark = { color = "8E887E", material = "Concrete", variant = "Metro2_Concrete" },
 	Granite = { color = "8C8780", material = "Granite", variant = "Metro2_Granite" },
@@ -24,7 +24,7 @@ local ROLE: { [string]: { color: string, material: string, variant: string } } =
 	Charcoal = { color = "444952", material = "SmoothPlastic", variant = "" },
 	Stainless = { color = "B9BDC3", material = "Plastic", variant = "Metro2_Steel" },
 	Rail = { color = "A9ACB0", material = "SmoothPlastic", variant = "" },
-	TrainBody = { color = "D2D5D9", material = "Plastic", variant = "Metro2_Steel" },
+	TrainBody = { color = "D9DCDF", material = "SmoothPlastic", variant = "" },
 	TrainDark = { color = "4A4F57", material = "SmoothPlastic", variant = "" },
 	Rubber = { color = "3A3D43", material = "Rubber", variant = "" },
 	Oak = { color = "A77C55", material = "Wood", variant = "" },
@@ -33,18 +33,18 @@ local ROLE: { [string]: { color: string, material: string, variant: string } } =
 	White = { color = "EEEAE2", material = "SmoothPlastic", variant = "" },
 	Screen = { color = "1E2024", material = "SmoothPlastic", variant = "" },
 	Glass = { color = "9FB4C2", material = "Glass", variant = "" },
-	DarkGlass = { color = "56606C", material = "Glass", variant = "" },
+	DarkGlass = { color = "4A5562", material = "Glass", variant = "" },
 	Red = { color = "B5473A", material = "SmoothPlastic", variant = "" },
-	Stripe = { color = "2F5FBF", material = "SmoothPlastic", variant = "" },
+	Stripe = { color = "3A5A9C", material = "SmoothPlastic", variant = "" },
 }
-local END_COLOUR = { B = "2F5FBF", A = "3C8C6C", Mid = "5B6270" }
+local END_COLOUR = { B = "3A5A9C", A = "5E8F74", Mid = "5B6270" }
 local GLOW = { Coffer = "E8EEF4", Cool = "DDE8F2", Warm = "FFD9A8", Amber = "FFB547" }
 local VARIANTS: { [string]: { any } } = {
 	Metro2_Tile = { "CeramicTiles", 4, "87197132557377", "117332324030889" },
 	Metro2_Floor = { "Marble", 4, "77487068329569", "119829779417876" },
 	Metro2_Concrete = { "Concrete", 8, "115978300579621", "75212974169178" },
-	Metro2_Steel = { "Plastic", 4, "140318316888778", "83142327550007" },
-	Metro2_Ballast = { "Slate", 6, "73814377438287", "104767378605191" },
+	Metro2_Steel = { "Plastic", 4, "124797132056781", "125393763177388" },
+	Metro2_Ballast = { "Slate", 3, "73814377438287", "104767378605191" },
 	Metro2_Granite = { "Granite", 4, "119897414412475", "85736567577363" },
 }
 -- stylua: ignore end
@@ -61,16 +61,17 @@ local IMAGES: { [string]: string } = {
 	Exit = "126436460812634",
 	MindGap = "139815162077167",
 	Name = "80245321498560",
-	Platform1 = "94195234448834",
-	Platform2 = "103166600584707",
+	Platform1 = "114721847225415",
+	Platform2 = "135928291032773",
 	Platforms = "91275778699836",
 	Poster1 = "140113467785574",
 	Poster2 = "83398433994292",
 	Poster3 = "94450207587021",
 	Poster4 = "99361581467657",
-	RouteMap = "139285009279732",
-	SpawnA = "110616587915908",
-	SpawnB = "89515598632820",
+	RouteMap = "101749570841890",
+	SpawnA = "109353252868632",
+	SpawnB = "109611028917485",
+	SpawnWay = "104682539223711",
 	Staff = "138638620258648",
 	Tickets = "96137525472089",
 	Vending = "75968268768450",
@@ -189,8 +190,8 @@ end
 local COFFER_X = {
 	{ -29, "Coffer10" },
 	{ -19, "Coffer10" },
-	{ -7, "Skylight14" },
-	{ 7, "Skylight14" },
+	{ -7, "Coffer14" }, -- r2: the vault is closed and lit (reviewers: daylight read wrong underground)
+	{ 7, "Coffer14" },
 	{ 19, "Coffer10" },
 	{ 29, "Coffer10" },
 }
@@ -244,8 +245,8 @@ for _, x in { 18, 30, -18, -30 } do
 		both("Hall", "PendantLight", x, 0, z, 0)
 	end
 end
-both("Hall", "PlatformSign", 24, 0, 31.5, 0)
-both("Hall", "PlatformSign", -24, 0, 31.5, 0)
+both("Hall", "PlatformSign", 24, 0, 31.5, 90) -- r2: faces along the platform (was edge-on)
+both("Hall", "PlatformSign", -24, 0, 31.5, 90)
 place("Hall", "Gantry", 0, 0, 0, 0)
 both("Hall", "EndWall", 0, 0, 48, 0)
 both("Hall", "EscalatorBank", 29.5, 0, 48, 0)
@@ -269,6 +270,51 @@ both("Concourse", "DoorFrame8", 10, 14, 106.5, 0)
 for _, x in { -26, -8, 8, 26 } do
 	for _, z in { 76, 92 } do
 		both("Concourse", "PendantLightLow", x, 0, z, 0)
+	end
+end
+
+-- Round 2: the ticket halls and spawn rooms get the hall's wall language (14-tall bays: dado, field, end-colour
+-- band, cornice, poster lightboxes), so they stop reading as bare tile boxes. Each list is team B's half.
+local LOW: { { any } } = {
+	-- ticket hall, north wall (face z = 106, facing -Z), beside the spawn opening
+	{ "LowBayPoster8", -28.5, 106, 90 },
+	{ "LowBay8", -20.5, 106, 90 },
+	{ "LowBay8", 18.5, 106, 90 },
+	{ "LowBayPoster8", 26.5, 106, 90 },
+	{ "LowBay8", 34.5, 106, 90 },
+	{ "LowBayPoster8", 42.5, 106, 90 },
+	-- ticket hall, south wall (face z = 68, facing +Z), clear of the portal trims
+	{ "LowBay8", -44, 68, -90 },
+	{ "LowBayPoster8", -36, 68, -90 },
+	{ "LowBay8", -28, 68, -90 },
+	{ "LowBay8", -20, 68, -90 },
+	{ "LowBay8", 19, 68, -90 },
+	-- ticket hall, east wall (face x = 48, facing -X) and west wall (face x = -48, facing +X) up to the ticket office
+	{ "LowBay8", 48, 76, 180 },
+	{ "LowBayPoster8", 48, 84, 180 },
+	{ "LowBay8", 48, 92, 180 },
+	{ "LowBayPoster8", 48, 100, 180 },
+	{ "LowBayPoster8", -48, 76, 0 },
+	{ "LowBay8", -48, 84, 0 },
+	-- spawn room: side walls (x = +-14, facing in) and the back wall either side of the end letter
+	{ "LowBay8", 14, 111, 180 },
+	{ "LowBayPoster8", 14, 119, 180 },
+	{ "LowBayPoster8", -14, 111, 0 },
+	{ "LowBay8", -14, 119, 0 },
+	{ "LowBay8", -10, 126, 90 },
+	{ "LowBay8", 10, 126, 90 },
+}
+for _, b in LOW do
+	both("Concourse", b[1] :: string, b[2] :: number, 14, b[3] :: number, b[4] :: number)
+end
+
+-- Corridor dados (both corridor walls, clear of the doors through the hall wall and the pump room).
+for zc = -44, 44, 8 do
+	if zc ~= -40 and zc ~= 0 then
+		both("Corridor", "CorridorDado8", 36, 0, zc, 0)
+	end
+	if math.abs(zc - 19) > 8 then
+		both("Corridor", "CorridorDado8", 48, 0, zc, 180)
 	end
 end
 
@@ -382,6 +428,8 @@ local _ = ROLE_OF_MATERIAL
 -- Local outward direction of each face plate in its piece (kit space: +X into the room for wall pieces).
 local FACE: { [string]: Vector3 } = {
 	WallBayPoster8_PosterL_Face = Vector3.xAxis,
+	LowBayPoster8_PosterL_Face = Vector3.xAxis,
+	LowBayPoster8_PosterR_Face = Vector3.xAxis,
 	WallBayPoster8_PosterR_Face = Vector3.xAxis,
 	WallBayMap8_Map_Face = Vector3.xAxis,
 	WallDoor8_Sign_Face = Vector3.xAxis,
@@ -426,6 +474,8 @@ local LIT: { [string]: boolean } = {
 	Poster3 = true,
 	Poster4 = true,
 	RouteMap = true,
+	Clock = true,
+	SpawnWay = true,
 }
 
 local mapCentre = W(CFrame.identity).Position
@@ -433,7 +483,7 @@ local posterN = 0
 local function imageFor(part: BasePart): string?
 	local n = part.Name
 	local east = (part.CFrame.Position - mapCentre).X > 0
-	if n == "WallBayPoster8_PosterL_Face" or n == "WallBayPoster8_PosterR_Face" then
+	if string.find(n, "Poster8_Poster") then
 		posterN += 1
 		return "Poster" .. tostring((posterN - 1) % 4 + 1)
 	elseif n == "WallBayMap8_Map_Face" then
@@ -553,6 +603,21 @@ for _, z in { 36, 12, -12, -36 } do
 		"MindGap",
 		Enum.NormalId.Left
 	)
+end
+for _, d in greybox:GetDescendants() do
+	if d:IsA("BasePart") and d.Name == "SpawnBaffle" then
+		local zrel = (d.CFrame.Position - mapCentre).Z
+		local s = if zrel > 0 then 1 else -1
+		local face = d.CFrame.Position.Z + s * (d.Size.Z / 2 + 0.03)
+		local l = W(CFrame.identity):PointToObjectSpace(Vector3.new(d.CFrame.Position.X, 0, face))
+		paint(
+			"SpawnWay",
+			Vector3.new(11.2, 5.6, 0.05),
+			at(l.X, 20.5, l.Z, if s > 0 then 0 else 180),
+			"SpawnWay",
+			Enum.NormalId.Back
+		)
+	end
 end
 for _, d in greybox:GetDescendants() do
 	if d:IsA("BasePart") and d.Name == "SpawnWall" and d.Size.X > 20 then

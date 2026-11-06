@@ -205,7 +205,46 @@ Lane F models the whole kit itself. Codex is asked only for sign art: no props, 
 - **Concourse coffers tried and dropped:** the visible greybox ceiling at 28 would cover their recesses.
 
 ## Rounds
-Filled in per round: what changed, audits, shots, scores and the next list.
+
+### Round 1 (02:05)
+- **Audits:** 0 z-fighting pairs, 0 floating groups (1,937 visible parts).
+- **Shots:** `v1-r1-*.jpg` in [references/metro2](../../02%20Art/References/maps/metro2/), including the [side-by-side](../../02%20Art/References/maps/metro2/v1-r1-side-by-side.jpg) with the concepts.
+
+**Blind score: 5.4.** The three reviewers gave 5.0, 5.4 and 5.4. Medians:
+
+| W1 | W2 | W3 | W4 | W5 | W6 |
+|---|---|---|---|---|---|
+| 1 | 1 | 1 | 1 | 1 | 2 |
+
+All three reviewers named the same low points:
+- **Lighting:** daylight through the skylights reads wrong underground. Hard sun shadows, no warm practical light, a clinical feel.
+- **Landmark:** the gantry isn't a landmark or a hot spot. It's a dark truss pressed against the ceiling, with no lit board.
+- **Trains:** they read as smooth boxes, the brushed texture streaks, and the windscreens are flat grey.
+- **Unfinished areas:**
+  - The spawn faces a blank tile box: no landmark, no sign.
+  - The ticket hall and the corridor are bare.
+  - The gates read as stacked slabs, with see-through paddles.
+- **Smaller points:**
+  - The pillar sconces read as "blank white plaques".
+  - The side colours are loud (royal blue, emerald).
+  - The ballast reads as cobblestones.
+  - The platform signs hang edge-on to the approach.
+  - Thin white outline rectangles show in several shots. They sit at the same screen spot in each, so they're a Studio viewport overlay, not geometry.
+
+### Round 2 (built 02:15)
+- **Lighting:** the vault is closed, with lit coffers instead of skylights. The light is underground: Brightness 1.2, a warm Ambient (170,156,140), more bloom (threshold 0.95), warm haze, and a warm grade. The sconces and guide lights glow warm amber.
+- **Landmark:** an amber Neon frame runs round both faces of the departure board, and the clock face is self-lit. Together they make the hall's single hot spot.
+- **Trains:**
+  - plain light panels with modelled seams (no more brushed texture);
+  - more see-through cab and track-side glass;
+  - the steel texture recalmed everywhere (no more streaks or "stacked slabs").
+- **Spawn and concourse:**
+  - The spawn baffle gets a wayfinding sign: the roundel and PLATFORMS with arrows to both exits.
+  - The ticket halls and spawn rooms get 14-tall wall bays (`LowBay8`, `LowBayPoster8`) with dado, band, cornice and posters.
+  - The corridors get dados, an end-colour stripe and a warm guide light (`CorridorDado8`).
+  - The gate paddles are opaque stainless, since the gates are cover.
+- **Colours:** slate cobalt `3A5A9C` and sage `5E8F74`. The ballast is at half scale.
+- **Platform signs:** turned to face along the platforms.
 
 ## Codex jobs
 

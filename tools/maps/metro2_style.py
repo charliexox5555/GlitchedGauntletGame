@@ -19,7 +19,7 @@ LIGHT_FILE = ROOT / "tools" / "studio" / "maps" / "Metro2" / "Lighting.luau"
 ROLE = {
 	"Tile": ("E3D8C3", "CeramicTiles", "Metro2_Tile"),  # wall field: the concepts' warm cream square tile
 	"TileDark": ("5D6068", "CeramicTiles", "Metro2_Tile"),  # dado, column bases (luminance about 0.11)
-	"Band": ("2F5FBF", "CeramicTiles", "Metro2_Tile"),  # end colour, re-tinted per half
+	"Band": ("3A5A9C", "CeramicTiles", "Metro2_Tile"),  # r2: slate cobalt (B); A is sage below  # end colour, re-tinted per half
 	"Concrete": ("BDB6A9", "Concrete", "Metro2_Concrete"),  # vault, coffers, cornices, beams
 	"ConcreteDark": ("8E887E", "Concrete", "Metro2_Concrete"),  # trench walls, corridor floors
 	"Granite": ("8C8780", "Granite", "Metro2_Granite"),  # skirts, copings, stair treads, plinths
@@ -30,7 +30,7 @@ ROLE = {
 	"Charcoal": ("444952", "SmoothPlastic", ""),  # gantry truss, frames, rails, stringers: the route language
 	"Stainless": ("B9BDC3", "Plastic", "Metro2_Steel"),
 	"Rail": ("A9ACB0", "SmoothPlastic", ""),
-	"TrainBody": ("D2D5D9", "Plastic", "Metro2_Steel"),
+	"TrainBody": ("D9DCDF", "SmoothPlastic", ""),  # r2: plain panels with modelled seams (the brushed texture streaked)
 	"TrainDark": ("4A4F57", "SmoothPlastic", ""),
 	"Rubber": ("3A3D43", "Rubber", ""),
 	"Oak": ("A77C55", "Wood", ""),
@@ -39,11 +39,11 @@ ROLE = {
 	"White": ("EEEAE2", "SmoothPlastic", ""),
 	"Screen": ("1E2024", "SmoothPlastic", ""),
 	"Glass": ("9FB4C2", "Glass", ""),
-	"DarkGlass": ("56606C", "Glass", ""),  # r1: lifted (the cab glass read as a black hole)
+	"DarkGlass": ("4A5562", "Glass", ""),  # r2: lifted, 0.35 transparent (Art.luau)
 	"Red": ("B5473A", "SmoothPlastic", ""),
-	"Stripe": ("2F5FBF", "SmoothPlastic", ""),
+	"Stripe": ("3A5A9C", "SmoothPlastic", ""),
 }
-END = {"B": "2F5FBF", "A": "3C8C6C", "Mid": "5B6270"}  # cobalt, sage, the middle bays
+END = {"B": "3A5A9C", "A": "5E8F74", "Mid": "5B6270"}  # cobalt, sage, the middle bays
 GLOW = {"Coffer": "E8EEF4", "Cool": "DDE8F2", "Warm": "FFD9A8", "Amber": "FFB547"}
 
 # name: (BaseMaterial, StudsPerTile, ColorMap image id, NormalMap image id). Ids: the Decal uploads of
@@ -52,31 +52,31 @@ VARIANTS = {
 	"Metro2_Tile": ("CeramicTiles", 4, "87197132557377", "117332324030889"),
 	"Metro2_Floor": ("Marble", 4, "77487068329569", "119829779417876"),
 	"Metro2_Concrete": ("Concrete", 8, "115978300579621", "75212974169178"),
-	"Metro2_Steel": ("Plastic", 4, "140318316888778", "83142327550007"),
-	"Metro2_Ballast": ("Slate", 6, "73814377438287", "104767378605191"),
+	"Metro2_Steel": ("Plastic", 4, "124797132056781", "125393763177388"),
+	"Metro2_Ballast": ("Slate", 3, "73814377438287", "104767378605191"),
 	"Metro2_Granite": ("Granite", 4, "119897414412475", "85736567577363"),
 }
 
 # Light: the golden-hour recipe (LihFolk Stylized Lighting Recipes 3.3) lifted for a bright station; the sun stands
 # high so it falls through the skylight slot onto the tracks; Ambient carries the hall (indoor shade).
 LIGHTING = {
-	"ClockTime": 13.2,
+	"ClockTime": 13.2,  # r2: the vault is closed (no skylights), so the sun never reaches the hall
 	"GeographicLatitude": 30,
-	"Brightness": 2.6,
-	"Ambient": (152, 150, 156),
-	"OutdoorAmbient": (166, 168, 178),
+	"Brightness": 1.2,
+	"Ambient": (170, 156, 140),  # r2: warm practical-light key indoors
+	"OutdoorAmbient": (172, 162, 150),
 	"ColorShift_Top": (255, 226, 190),
 	"ColorShift_Bottom": (0, 0, 0),
-	"EnvironmentDiffuseScale": 0.25,
-	"EnvironmentSpecularScale": 0.1,
-	"ExposureCompensation": 0.25,
+	"EnvironmentDiffuseScale": 0.0,
+	"EnvironmentSpecularScale": 0.05,
+	"ExposureCompensation": 0.35,
 	"GlobalShadows": True,
 	"ShadowSoftness": 0.25,
 }
 FX = {
-	"Atmosphere": {"Density": 0.18, "Offset": 0.1, "Color": (236, 226, 210), "Decay": (190, 196, 210), "Glare": 0.2, "Haze": 0.6},
-	"Bloom": {"Intensity": 0.5, "Size": 22, "Threshold": 1.1},
-	"Grade": {"Brightness": 0.03, "Contrast": 0.1, "Saturation": 0.06, "TintColor": (255, 246, 236)},
+	"Atmosphere": {"Density": 0.28, "Offset": 0.05, "Color": (232, 214, 190), "Decay": (196, 176, 150), "Glare": 0.0, "Haze": 1.2},
+	"Bloom": {"Intensity": 0.75, "Size": 26, "Threshold": 0.95},
+	"Grade": {"Brightness": 0.02, "Contrast": 0.14, "Saturation": 0.0, "TintColor": (255, 240, 222)},
 	"SunRays": {"Intensity": 0.05, "Spread": 0.4},
 }
 

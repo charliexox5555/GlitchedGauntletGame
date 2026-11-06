@@ -53,7 +53,7 @@ P = 0.06  # proud
 ROLE = {
 	"Tile": (0xE3D8C3, "CeramicTiles", "Metro2_Tile"),
 	"TileDark": (0x5D6068, "CeramicTiles", "Metro2_Tile"),
-	"Band": (0x2F5FBF, "CeramicTiles", "Metro2_Tile"),  # end colour, re-tinted per half
+	"Band": (0x3A5A9C, "CeramicTiles", "Metro2_Tile"),  # end colour, re-tinted per half
 	"Concrete": (0xBDB6A9, "Concrete", "Metro2_Concrete"),
 	"ConcreteDark": (0x8E887E, "Concrete", "Metro2_Concrete"),
 	"Granite": (0x8C8780, "Granite", "Metro2_Granite"),
@@ -64,7 +64,7 @@ ROLE = {
 	"Charcoal": (0x444952, "SmoothPlastic", ""),
 	"Stainless": (0xB9BDC3, "Plastic", "Metro2_Steel"),
 	"Rail": (0xA9ACB0, "SmoothPlastic", ""),
-	"TrainBody": (0xD2D5D9, "Plastic", "Metro2_Steel"),
+	"TrainBody": (0xD9DCDF, "SmoothPlastic", ""),
 	"TrainDark": (0x4A4F57, "SmoothPlastic", ""),
 	"Rubber": (0x3A3D43, "Rubber", ""),
 	"Oak": (0xA77C55, "Wood", ""),
@@ -73,14 +73,14 @@ ROLE = {
 	"White": (0xEEEAE2, "SmoothPlastic", ""),
 	"Screen": (0x1E2024, "SmoothPlastic", ""),
 	"Glass": (0x9FB4C2, "Glass", ""),
-	"DarkGlass": (0x56606C, "Glass", ""),
+	"DarkGlass": (0x4A5562, "Glass", ""),
 	"Red": (0xB5473A, "SmoothPlastic", ""),
-	"Stripe": (0x2F5FBF, "SmoothPlastic", ""),  # end colour on smooth parts
+	"Stripe": (0x3A5A9C, "SmoothPlastic", ""),  # end colour on smooth parts
 }
 GLOW = {
-	"G_Coffer": (0xE8EEF4, 2.4),
+	"G_Coffer": (0xF4ECDF, 2.4),
 	"G_Cool": (0xDDE8F2, 2.6),
-	"G_Warm": (0xFFD9A8, 2.2),
+	"G_Warm": (0xFFC27A, 2.4),
 	"G_Amber": (0xFFB547, 2.4),
 	"G_Head": (0xFFF4E0, 3.5),
 	"G_Red": (0xE03A3A, 2.5),
@@ -93,7 +93,7 @@ def make_materials():
 	for role, (c, rbx, var) in ROLE.items():
 		if rbx == "Glass":
 			m = K._glass("M_" + role, c)
-			m["rbx_transparency"] = 0.55 if role == "Glass" else 0.15
+			m["rbx_transparency"] = 0.55 if role == "Glass" else 0.35
 		else:
 			rough = 0.35 if rbx in ("SmoothPlastic", "Plastic") else 0.7
 			m = K._flat("M_" + role, c, rough, rbx=rbx)
@@ -324,6 +324,22 @@ def wall_layers(z0, z1, door=False, rib=True):
 	return p
 
 
+def low_layers(z0, z1):
+	# The concourse and spawn rooms are 14 tall (floor 14, ceiling 28): the same skirt, dado, field and end-colour
+	# band as the hall walls, topped by a slim cornice just under the ceiling. Wall face x = 0, facing +X.
+	return {
+		"Skirt": (rb(0, 0.45, 0, 0.6, z0, z1, ch=0.06), "M_Granite"),
+		"Dado": (rb(0, 0.3, 0.6, 3.4, z0, z1), "M_TileDark"),
+		"DadoCap": (rb(0, 0.42, 3.4, 3.6, z0, z1, ch=0.05), "M_Stainless"),
+		"Field": (rb(0, 0.25, 3.6, 9.3, z0, z1), "M_Tile"),
+		"BeadLow": (rb(0, 0.38, 9.3, 9.5, z0, z1, ch=0.04), "M_Charcoal"),
+		"Band": (rb(0, 0.3, 9.5, 12.3, z0, z1), "M_Band"),
+		"BeadHigh": (rb(0, 0.38, 12.3, 12.5, z0, z1, ch=0.04), "M_Charcoal"),
+		"FieldTop": (rb(0, 0.25, 12.5, 13.3, z0, z1), "M_Tile"),
+		"Cornice": (rz([(0, 13.3), (0.7, 13.3), (0.9, 13.5), (0.9, 13.92), (0, 13.92)], z0, z1), "M_Concrete"),
+	}
+
+
 def pilaster(p, zc=0.0):
 	# Tile pilaster on a dark base with a warm sconce: the concepts' wall rhythm. Stands proud of the field.
 	p["PilasterBase"] = (rb(0.3, 1.0, 0.6, 3.75, zc - 0.85, zc + 0.85, ch=0.08), "M_TileDark")
@@ -356,6 +372,19 @@ def p_walls(mats, kit):
 	lightbox(p, "Map", -2.7, 2.7, 4.6, 7.3)
 	piece("WallBayMap8", p, mats, kit)
 	piece("WallBayPlain8", wall_layers(-4, 4), mats, kit)
+	# Concourse / spawn room bays (14 tall), plain and with two poster lightboxes.
+	piece("LowBay8", low_layers(-3.97, 3.97), mats, kit)
+	piece("CorridorDado8", {
+		"Skirt": (rb(0, 0.45, 0, 0.6, -3.95, 3.95, ch=0.06), "M_Granite"),
+		"Dado": (rb(0, 0.3, 0.6, 3.4, -3.95, 3.95), "M_TileDark"),
+		"DadoCap": (rb(0, 0.42, 3.4, 3.6, -3.95, 3.95, ch=0.05), "M_Stainless"),
+		"Stripe": (rb(0, 0.12, 5.2, 5.8, -3.95, 3.95), "M_Stripe"),
+		"Guide_Glow": (rb(0.42, 0.47, 3.45, 3.55, -3.8, 3.8), "G_Warm"),
+	}, mats, kit)
+	p = low_layers(-3.97, 3.97)
+	lightbox(p, "PosterL", -3.55, -1.15, 4.4, 8.0)
+	lightbox(p, "PosterR", 1.15, 3.55, 4.4, 8.0)
+	piece("LowBayPoster8", p, mats, kit)
 	piece("WallEnd4", wall_layers(-1.97, 1.97, rib=False), mats, kit)
 	# Service door bay: an 8 x 10 opening through the 2-thick hall wall (the bay's whole width).
 	p = wall_layers(-4, 4, door=True)
@@ -584,6 +613,9 @@ def train():
 						rb(hw, hw + 0.09, 7.0, 7.15, da, db)))
 		merge(glows, rb(hw, hw + P, 7.4, 7.6, (da + db) / 2 - 0.25, (da + db) / 2 + 0.25))
 	merge(skin, rb(hw - 0.5, hw, 7.0, 9.0, zs, ze))
+	seams = bmesh.new()
+	for z in (-24.0, -2.6, 2.6, 24.0):  # on the solid platform-side panels only
+		merge(seams, rb(hw, hw + 0.06, 3.3, 6.9, z - 0.05, z + 0.05))
 	# Track side (-X)
 	for za, zb in gaps(tdoors, zs, ze):
 		merge(skin, rb(-hw, -hw + 0.5, -0.1, 7.0, za, zb))
@@ -697,6 +729,7 @@ def train():
 	return {
 		"Body": (G(skin, ends), "M_TrainBody"),
 		"Flutes": (flutes, "M_TrainBody"),
+		"Seams": (seams, "M_TrainDark"),
 		"Thresholds": (thresholds, "M_Tactile"),
 		"Leaves": (leaves, "M_TrainBody"),
 		"Stripe": (stripe, "M_Stripe"),
@@ -844,12 +877,11 @@ def p_gantry(mats, kit):
 	housing = rb(-12.6, 12.6, 11.0, 16.45, -1.5, 1.5, ch=0.14)
 	sign_housing = G(rb(-31.6, -16.4, 12.4, 16.45, -1.42, 1.42, ch=0.1), rb(16.4, 31.6, 12.4, 16.45, -1.42, 1.42, ch=0.1))
 	hangers = G(*[rb(x - 0.2, x + 0.2, 16.4, 16.7, -0.6, 0.6) for x in (-10.0, 10.0, -24.0, 24.0)])
-	rivets = bmesh.new()
+	frame = bmesh.new()
 	for s in (-1, 1):
-		r0, r1 = sorted((s * 1.5, s * 1.6))
-		for x in [-12.0 + i * 2.0 for i in range(13)]:
-			for y in (11.3, 16.15):
-				merge(rivets, rb(x - 0.08, x + 0.08, y - 0.08, y + 0.08, r0, r1))
+		z0, z1 = sorted((s * 1.52, s * 1.62))
+		merge(frame, G(rb(-12.3, 12.3, 15.98, 16.28, z0, z1), rb(-12.3, 12.3, 11.12, 11.42, z0, z1),
+					   rb(-12.3, -12.03, 11.42, 15.98, z0, z1), rb(12.03, 12.3, 11.42, 15.98, z0, z1)))
 	board, signs = bmesh.new(), {}
 	bz = {}
 	for s, key in ((-1, "S"), (1, "N")):
@@ -880,11 +912,11 @@ def p_gantry(mats, kit):
 		"Housing": (housing, "M_Charcoal"),
 		"SignHousing": (sign_housing, "M_Charcoal"),
 		"Hangers": (hangers, "M_Charcoal"),
-		"Rivets": (rivets, "M_Stainless"),
 		"Skirt": (skirt, "M_Charcoal"),
 		"BoardS_Face": (bz["S"], "M_Screen"),
 		"BoardN_Face": (bz["N"], "M_Screen"),
 		"Edge_Glow": (amber, "G_Amber"),
+		"BoardFrame_Glow": (frame, "G_Amber"),
 		"ClockStem": (stem, "M_Charcoal"),
 		"ClockDrum": (drum, "M_Charcoal"),
 		"ClockRim": (rim, "M_Stainless"),
@@ -1102,8 +1134,8 @@ def p_fare_gates(mats, kit):
 		merge(reader, rb(x - 0.3, x + 0.3, 3.0, 3.25, -0.9, -0.75, ch=0.04))
 		merge(reader, rb(x - 0.3, x + 0.3, 3.0, 3.25, 0.75, 0.9, ch=0.04))
 		if i < n - 1:
-			merge(pad, rb(x + 0.4, x + 0.4 + 19.2 / (n - 1) - 0.8, 0.8, 3.0, -0.06, 0.06))
-	p = {"Cabinets": (cab, "M_Stainless"), "Paddles": (pad, "M_Glass"), "Tops": (top, "M_Charcoal"), "Readers": (reader, "M_Charcoal"), "Lamp_Glow": (glow, "G_Warm")}
+			merge(pad, rb(x + 0.4, x + 0.4 + 19.2 / (n - 1) - 0.8, 0.8, 3.0, -0.12, 0.12, ch=0.04))
+	p = {"Cabinets": (cab, "M_Stainless"), "Paddles": (pad, "M_Stainless"), "Tops": (top, "M_Charcoal"), "Readers": (reader, "M_Charcoal"), "Lamp_Glow": (glow, "G_Warm")}
 	piece("FareGateRow", p, mats, kit)
 
 
