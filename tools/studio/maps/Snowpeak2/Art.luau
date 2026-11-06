@@ -320,6 +320,36 @@ if found.PatrolHut then
 	end
 end
 
+-- r3: packed-snow paths from each spawn round the patrol hut to the lodge porch and the flanks (flush 0.04, butted
+-- segments, no overlaps; B half listed, A is its 180-degree turn). They break up the empty field and lead the eye.
+local PATHS: { { number } } = {
+	{ 22, 26, 46, 78 },
+	{ 4, 26, 42, 46 },
+	{ 0.5, 4, 30.2, 53 },
+	{ -26, 0.5, 50, 53 },
+	{ -26, -22, 53, 78 },
+}
+local pathSec = sec("Paths")
+for _, s in { 1, -1 } do
+	for i, r in PATHS do
+		local x0, x1, z0, z1 = r[1], r[2], r[3], r[4]
+		if s < 0 then
+			x0, x1, z0, z1 = -x1, -x0, -z1, -z0
+		end
+		local p = box(
+			pathSec,
+			"Path" .. i,
+			Vector3.new(x1 - x0, 0.04, z1 - z0),
+			at((x0 + x1) / 2, 0.02, (z0 + z1) / 2),
+			Color3.fromHex("C3CCD8"),
+			{ castShadow = false }
+		)
+		p.Material = Enum.Material.Snow
+		p.MaterialVariant = "Snow2_Snow"
+		decor(p)
+	end
+end
+
 -- Nothing in the art layer collides, is hit by bullets or touches (put and decor do this).
 local meshes = 0
 for _, d in layer("Art"):GetDescendants() do

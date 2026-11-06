@@ -131,6 +131,7 @@
     "Lodge_CornerPosts",
     "Lodge_Frames",
     "Lodge_Glass",
+    "Lodge_Mullions",
     "Lodge_Shutters",
     "Lodge_Porch",
     "Lodge_Deck",
@@ -301,6 +302,7 @@
     "Station_GarageFrame",
     "Station_GarageRail",
     "Station_Bullwheel",
+    "Station_BullwheelHub",
     "Station_OverheadRail",
     "Station_Sign",
     "Station_Lamps_Glow",
@@ -1776,6 +1778,28 @@
    "size": [
     35.06,
     43.06,
+    5.0
+   ]
+  },
+  {
+   "piece": "Lodge",
+   "name": "Lodge_Mullions",
+   "material": "S2_TimberDark",
+   "look": {
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
+   },
+   "glow": false,
+   "tris": 216,
+   "center": [
+    0.0,
+    0.0,
+    15.5
+   ],
+   "size": [
+    35.84,
+    43.84,
     5.0
    ]
   },
@@ -3801,10 +3825,11 @@
   {
    "piece": "Station",
    "name": "Station_Base",
-   "material": "S2_Concrete",
+   "material": "S2_Stone",
    "look": {
-    "material": "Concrete",
-    "color": "A7A6A2"
+    "material": "Cobblestone",
+    "color": "9A9388",
+    "variant": "Snow2_Stone"
    },
    "glow": false,
    "tris": 70,
@@ -3906,10 +3931,11 @@
   {
    "piece": "Station",
    "name": "Station_Columns",
-   "material": "S2_SteelDark",
+   "material": "S2_TimberDark",
    "look": {
-    "material": "Plastic",
-    "color": "3E444B"
+    "material": "WoodPlanks",
+    "color": "5A3C28",
+    "variant": "Snow2_Timber"
    },
    "glow": false,
    "tris": 24,
@@ -3927,10 +3953,11 @@
   {
    "piece": "Station",
    "name": "Station_Roof",
-   "material": "S2_Steel",
+   "material": "S2_RoofSlate",
    "look": {
     "material": "Plastic",
-    "color": "5E656D"
+    "color": "4A535E",
+    "variant": "Snow2_Roof"
    },
    "glow": false,
    "tris": 12,
@@ -4033,22 +4060,43 @@
   {
    "piece": "Station",
    "name": "Station_Bullwheel",
+   "material": "S2_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8262E"
+   },
+   "glow": false,
+   "tris": 92,
+   "center": [
+    -9.5,
+    -1.0,
+    18.65
+   ],
+   "size": [
+    9.0,
+    9.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "Station",
+   "name": "Station_BullwheelHub",
    "material": "S2_SteelDark",
    "look": {
     "material": "Plastic",
     "color": "3E444B"
    },
    "glow": false,
-   "tris": 136,
+   "tris": 44,
    "center": [
     -9.5,
     -1.0,
-    18.975
+    19.275
    ],
    "size": [
-    9.0,
-    9.0,
-    1.25
+    2.31822,
+    2.31822,
+    0.65
    ]
   },
   {
@@ -4569,5 +4617,5 @@
    ]
   }
  ],
- "tris": 39902
+ "tris": 40118
 }

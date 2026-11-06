@@ -52,4 +52,30 @@ A new version of [Snowpeak Lodge](Snowpeak%20Lodge.md) built to the [Map Quality
 - **Lighting:** a brighter, warmer morning than the old map; the v4 complaint was "too dark".
 
 ## Results
-Below, per round.
+Installed in the match place, ForceMap only. **The place needs saving (Ctrl+S); the core chat saves it.**
+
+**Kit and checks:**
+- 30 pieces, 550 MeshParts, about 80k triangles for the whole map.
+- Kit coplanar 0 (80k triangles); Studio `Audit.luau` 0 pairs; `FloatAudit` 0 floating groups (569 parts).
+- Install fixes for 7 groups the old kit left floating:
+  - stair rail posts now reach the stringers;
+  - the porch lanterns have brackets to the porch walls;
+  - the station lamps are set into the roof slab;
+  - the bar foot rail stands on posts.
+
+**Rounds and blind scores** (3 fresh reviewers each; median):
+
+| Round | Changes | Scores | Median |
+|---|---|---|---|
+| r1 | First install: our textures, sign decals, icicles, amber windows (they read saturated yellow, then red). | 5.00 / 5.00 / 4.58 | **5.00** |
+| r2 | Closed a see-through notch in the ridge over each spawn alcove: the "sky rectangle" every reviewer named, also in the old map. Desaturated warm window Neon (`8C7660`). Half-bright interior lights (the lounge blew out orange). | 4.58 / 4.58 / 5.00 | **4.58** |
+
+**Consistent asks:**
+- the gondola stations are plain grey boxes (the concept's are stone and steel with a bullwheel);
+- the backdrop styles clash (faceted peaks next to noise-textured flat cliff faces);
+- the snowcat, rocks and snow piles read as cubes;
+- the snowfield is empty, with no paths or cover rhythm;
+- flat noon light;
+- the B spawn looks straight at the patrol hut's wall.
+
+The thin cyan "spike" behind the lodge is a ridge crest of the backdrop seen edge-on. It isn't a stray part; there's no sliver in the mesh.

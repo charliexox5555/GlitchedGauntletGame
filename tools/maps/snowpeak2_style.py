@@ -80,12 +80,12 @@ VARIANTS = {
 # A clear morning: sun ~37 deg up raking along X (neither team looks into it), cool blue shade, warm light only from
 # the lodge, lamps and stations. v4 lesson: bright, not dark; snow keeps detail (exposure a touch under 0).
 LIGHTING = {
-    "ClockTime": 8.9,
+    "ClockTime": 8.2,  # r3: a lower, warmer morning sun (reviewers: flat noon light)
     "GeographicLatitude": 0,
     "Brightness": 2.8,
     "Ambient": (128, 138, 160),
     "OutdoorAmbient": (160, 174, 200),
-    "ColorShift_Top": (255, 226, 190),
+    "ColorShift_Top": (255, 206, 160),
     "ColorShift_Bottom": (140, 164, 210),
     "EnvironmentDiffuseScale": 0.5,
     "EnvironmentSpecularScale": 0.3,
@@ -94,8 +94,8 @@ LIGHTING = {
     "ShadowSoftness": 0.2,
 }
 FX = {
-    "Atmosphere": {"Density": 0.28, "Offset": 0.15, "Color": (214, 226, 245), "Decay": (150, 172, 212), "Glare": 0.3, "Haze": 1.1},
-    "Bloom": {"Intensity": 0.5, "Size": 24, "Threshold": 1.2},
+    "Atmosphere": {"Density": 0.34, "Offset": 0.12, "Color": (230, 222, 214), "Decay": (140, 160, 200), "Glare": 0.5, "Haze": 1.8},
+    "Bloom": {"Intensity": 0.6, "Size": 24, "Threshold": 1.0},
     "Grade": {"Brightness": 0.02, "Contrast": 0.12, "Saturation": 0.04, "TintColor": (250, 250, 255)},
     "SunRays": {"Intensity": 0.05, "Spread": 0.5},
 }

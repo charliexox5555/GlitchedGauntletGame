@@ -396,6 +396,9 @@ def p_lodge(mats, kit):
 		acc.add("Frames", "TimberDark", *fr)
 		if not door:
 			acc.add("Glass", "Glass", wall_box(w, a0, a1, y0, y1, -0.53, -0.47))
+			# r3: mullions (a cross in every window), between the glass and the frame face
+			cm, ym = (a0 + a1) / 2, (y0 + y1) / 2
+			acc.add("Mullions", "TimberDark", wall_box(w, cm - 0.12, cm + 0.12, y0, y1, -0.46, -0.08), wall_box(w, a0, cm - 0.12, ym - 0.1, ym + 0.1, -0.44, -0.1), wall_box(w, cm + 0.12, a1, ym - 0.1, ym + 0.1, -0.44, -0.1))
 			sw = (a1 - a0) / 2
 			acc.add("Shutters", "Shutter", wall_box(w, a0 - 0.4 - sw, a0 - 0.45, y0, y1, 0.02, 0.14), wall_box(w, a1 + 0.45, a1 + 0.4 + sw, y0, y1, 0.02, 0.14))
 	# Closed shutters on the blank ground-floor bays of the end walls (the window rhythm continues).
@@ -613,7 +616,7 @@ def p_station(mats, kit):
 	for b in B:
 		x0, x1, y0, y1, z0, z1 = st_local(b)
 		if b.kind in ("base", "slab"):
-			acc.add("Base", "Concrete", RB(x0, x1, y0, y1, z0, z1))
+			acc.add("Base", "Stone", RB(x0, x1, y0, y1, z0, z1))  # r3: fieldstone base, as the concept (was plain concrete)
 		elif b.name == "Bullwheel housing":
 			acc.add("Housing", "Steel", RB(x0, x1, y0, y1, z0, z1))
 			for y in (12.0, 14.0, 16.0):
@@ -624,9 +627,9 @@ def p_station(mats, kit):
 			m = 0.18
 			acc.add("RailMesh", "SteelDark", RB(x0, x1, y0, y0 + 2.55, z0 + m, z1 - m) if along_x else RB(x0 + m, x1 - m, y0, y0 + 2.55, z0, z1))
 		elif b.kind == "post":
-			acc.add("Columns", "SteelDark", RB(x0, x1, y0, y1, z0, z1))
+			acc.add("Columns", "TimberDark", RB(x0, x1, y0, y1, z0, z1))  # r3: timber posts (the lodge family)
 		elif b.kind == "roofflat":
-			acc.add("Roof", "Steel", RB(x0, x1, y0, y1, z0, z1))
+			acc.add("Roof", "RoofSlate", RB(x0, x1, y0, y1, z0, z1))  # r3: standing-seam roof
 			acc.add("RoofSnow", "Snow", RB(x0 + 0.4, x1 - 0.4, y1, y1 + 0.8, z0 + 0.4, z1 - 0.4, ch=0.3))
 			acc.add("Paint", "Paint", RB(x0 - 0.1, x1 + 0.1, y0 + 0.35, y0 + 1.15, z0 - 0.1, z0), RB(x0 - 0.1, x1 + 0.1, y0 + 0.35, y0 + 1.15, z1, z1 + 0.1), RB(x1, x1 + 0.1, y0 + 0.35, y0 + 1.15, z0, z1), RB(x0 - 0.1, x0, y0 + 0.35, y0 + 1.15, z0, z1))
 	# Paint band round the concrete base (proud 0.1) and steel frames round the garage mouths.
@@ -634,8 +637,8 @@ def p_station(mats, kit):
 	acc.add("GarageFrame", "SteelDark", RB(-6.4, -5.95, 0, 7.95, -12.3, -12), RB(1.95, 2.4, 0, 7.95, -12.3, -12), RB(-6.4, 2.4, 7.95, 8.4, -12.3, -12), RB(12, 12.3, 0, 7.95, -0.4, 0.05), RB(12, 12.3, 0, 7.95, 5.95, 6.4), RB(12, 12.3, 7.95, 8.4, -0.4, 6.4))
 	acc.add("GarageRail", "SteelDark", RB(-2.3, -1.7, 7.4, 8.0, -12, 6), RB(-1.7, 12, 7.4, 8.0, 2.7, 3.3))
 	# Bullwheel (horizontal, over the housing) and the overhead rail the parked cabin hangs from.
-	acc.add("Bullwheel", "SteelDark", K.place(prism(ring_pts(0, 0, 4.5, 24, 0), "Z", 18.35, 18.95), Matrix.Translation(rb((-9.5, 0, 1)))))
-	acc.add("Bullwheel", "Red", vcyl(-9.5, 1, 1.2, 18.95, 19.6, segs=12))
+	acc.add("Bullwheel", "Red", K.place(prism(ring_pts(0, 0, 4.5, 24, 0), "Z", 18.35, 18.95), Matrix.Translation(rb((-9.5, 0, 1)))))  # r3: the concept's red bullwheel
+	acc.add("BullwheelHub", "SteelDark", vcyl(-9.5, 1, 1.2, 18.95, 19.6, segs=12))
 	acc.add("OverheadRail", "SteelDark", RB(-9.0, 9.5, 19.0, 19.5, -2.25, -1.75))
 	acc.add("OverheadRail", "SteelDark", *[RB(x - 0.15, x + 0.15, 19.5, 20.0, -2.15, -1.85) for x in (-6.0, 0.0, 6.0)])
 	# Station sign board on the roof edge (text is a SurfaceGui in Art.luau).
