@@ -11,8 +11,8 @@ The user asked for every map to be rebuilt overnight to a AAA, front-page bar, a
 | Dockyard2 | (-3000, 200, 0) | 7.5 | v5 7.5, 6.3, 6.7 | Not yet | Flat deck fields, lane read |
 | Bunker2 | (-3000, 200, 1500) | 6.25 | 4.17, 5.83, 5.00, 6.25 | Not yet | Primitive props; a visible stair from sunwell to ring (**layout change, the user decides**) |
 | Snowpeak2 | (-3000, 200, -1500) | 5.00 | 5.00, 4.58, 4.58 → Codex props pass next | Not yet | Primitive props (snowcat, rocks, piles), backdrop style; spawn portals (**layout, the user decides**) |
-| Metro2 | (3000, 200, 1500) | 6.7 | 5.4, 6.7, 6.7, 6.7 → Codex train pass next | Not yet | Trains read as boxes; gantry columns on the platforms (**layout, the user decides**) |
-| OldTown2 | (3000, 200, -1500) | — | style fixes, then round 1 | — | — |
+| Metro2 | (3000, 200, 1500) | 6.7 | v1 5.4, 6.7, 6.7, 6.7 → v2 with Codex train 6.7, 6.7 (stopped) | Not yet | The train needs its own trim sheet and bellows instead of the black gangway; flat light; sparse ticket hall. Gantry on platform columns (**layout, the user decides**) |
+| OldTown2 | (3000, 200, -1500) | 6.3 | 6.3, 6.3, 6.3 (stopped) | Not yet | Perimeter blocks are tall flat slabs with a repeated window grid (need lower, varied facades); mixed prop finish; flat midday light. The spawn faces a solid wall: a gate arch (**layout, the user decides**) |
 | Greenhouse2 | (0, 200, 3000) | 5.0 | 5.0, 5.0, 5.0 → kit v2 (Codex iron bays, arcade walls, planting, lanterns, reflective glass, warm sun) 5.0 | Not yet; **parked for the user** | Reviewers judge glass halls against a garden-heavy concept. The next step is a design pass (outside garden ring, cream iron, Orangery spawn): the user decides |
 
 Whitebox and Big Whitebox are abstract by design and were left as they are.
