@@ -387,7 +387,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 12,
@@ -492,7 +492,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 24,
@@ -516,7 +516,7 @@
     "color": "EDEDE4"
    },
    "glow": false,
-   "tris": 1364,
+   "tris": 1764,
    "center": [
     0.0,
     -0.16,
@@ -576,7 +576,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 12,
@@ -660,7 +660,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 12,
@@ -684,7 +684,7 @@
     "color": "EDEDE4"
    },
    "glow": false,
-   "tris": 620,
+   "tris": 820,
    "center": [
     0.0,
     -0.16,
@@ -744,7 +744,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 12,
@@ -768,7 +768,7 @@
     "color": "EDEDE4"
    },
    "glow": false,
-   "tris": 700,
+   "tris": 900,
    "center": [
     0.0,
     -0.16,
@@ -998,7 +998,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 40,
@@ -1082,7 +1082,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 160,
@@ -1250,7 +1250,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 80,
@@ -1287,5 +1287,5 @@
    ]
   }
  ],
- "tris": 20056
+ "tris": 20856
 }

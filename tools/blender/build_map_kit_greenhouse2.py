@@ -47,7 +47,7 @@ COS = math.cos(math.radians(22.5))
 
 # ---------------------------------------------------------------- palette (Greenhouse.md -> Look)
 C_IRON = 0xEDEDE4
-C_FROST = 0xDDE8E0  # Greenhouse2 r2: less teal (reviewers: a cyan wash)
+C_FROST = 0x9DBDB2  # Greenhouse2 r3: a deeper sea-green, the white iron reads against it (r2: flat pale walls)
 C_ROOFGLASS = 0xCFE6EA
 C_BRICK = 0x9C5B44
 C_STONE = 0xD9D0BE
@@ -337,12 +337,12 @@ def glass_bays(acc, W, door=False):
 			yy = a + 2 * k
 			if ga + 0.1 < yy < gb - 0.1:
 				for sx in (1, -1):
-					acc.add("Iron", B(sx * 0.86, sx * 0.94, yy - 0.07, yy + 0.07, g0, 39.6))
+					acc.add("Iron", B(sx * 0.86, sx * 0.94, yy - 0.1, yy + 0.1, g0, 39.6))
 			k += 1
 		for zt in (10.0, 20.0, 30.0):
 			if zt > g0 + 0.5:
 				for sx in (1, -1):
-					acc.add("Iron", B(sx * 0.86, sx * 0.97, ga, gb, zt - 0.12, zt + 0.12))
+					acc.add("Iron", B(sx * 0.86, sx * 0.97, ga, gb, zt - 0.17, zt + 0.17))
 	# Ribs: half at the edges (unless a door), full inside.
 	for i in range(n + 1):
 		yy = y0 + i * bw
@@ -356,6 +356,17 @@ def glass_bays(acc, W, door=False):
 				continue
 			hi = yy
 		acc.add("Iron", B(-1.0, 1.0, lo, hi, 3.35 if not door else g0, 39.6))
+	if not door:
+		for i in range(n):
+			a, b = y0 + i * bw + 0.3, y0 + (i + 1) * bw - 0.3
+			yc, r = (a + b) / 2, (b - a) / 2
+			if r < 1.2:
+				continue
+			outer = [(yc + r * math.cos(math.pi * t / 12), 10.17 + r * 0.7 * math.sin(math.pi * t / 12)) for t in range(13)]
+			inner = [(yc + (r - 0.3) * math.cos(math.pi * t / 12), 10.17 + (r - 0.3) * 0.7 * math.sin(math.pi * t / 12)) for t in range(12, -1, -1)]
+			for sx in (1, -1):
+				x0, x1 = sorted((sx * 0.87, sx * 0.985))
+				acc.add("Iron", xprism(outer + inner, x0, x1))
 	# Greenhouse2: an arched head in the top panel of every bay (springing at the 30 transom), roundel bosses in its
 	# spandrels, on both faces, all inside x +-1 (the wall contract).
 	if not door:
@@ -803,7 +814,9 @@ def palm_planter():
 
 def fernery():
 	acc = Acc()
-	acc.add("Rock", rock_block(-4, 4, -8, 8, 0, 9, 31, cell=1.6, inset=0.5))
+	acc.add("Brick", B(-3.98, 3.98, -7.98, 7.98, 0, 2.7))
+	acc.add("Stone", B(-4, 4, -8, 8, 2.7, 3.05))
+	acc.add("Rock", rock_block(-3.4, 3.4, -7.4, 7.4, 3.05, 9, 31, cell=1.6, inset=0.5))
 	acc.add("Soil", B(-3.0, 3.0, -7.0, 7.0, 8.1, 8.4))
 	border(acc, -3.2, 3.2, -7.2, 7.2, 8.4, 7, density=0.7)
 	# Ferns tumbling down the rock faces.
@@ -812,7 +825,7 @@ def fernery():
 		side = rnd.choice((-1, 1))
 		yy = rnd.uniform(-7, 7)
 		zz = rnd.uniform(3.0, 7.5)
-		acc.add(rnd.choice(("Fern", "Deep")), fern_clump(side * 3.7, yy, zz, 5, 1.4, 0.35, rnd.randrange(10**6), elev=10, droop=0.7))
+		acc.add(rnd.choice(("Fern", "Deep")), fern_clump(side * 3.2, yy, max(zz, 3.6), 5, 1.4, 0.35, rnd.randrange(10**6), elev=10, droop=0.7))
 	for yy in (4.0, -4.0):  # map z 58 / 66 around the centre 62
 		tree_fern(acc, 0.0, yy, 8.3, 16.0, int(yy * 10 + 50))
 	return acc
@@ -820,24 +833,27 @@ def fernery():
 
 def rockery(W, L, H, seed):
 	acc = Acc()
-	acc.add("Rock", rock_block(-W / 2, W / 2, -L / 2, L / 2, 0, H, seed, cell=1.6, inset=0.5))
+	# Greenhouse2 r3: a brick plinth to 3 with a stone coping (the concept's brick planters), the rock above it
+	acc.add("Brick", B(-W / 2 + 0.02, W / 2 - 0.02, -L / 2 + 0.02, L / 2 - 0.02, 0, 2.7))
+	acc.add("Stone", B(-W / 2, W / 2, -L / 2, L / 2, 2.7, 3.05))
+	acc.add("Rock", rock_block(-W / 2 + 0.6, W / 2 - 0.6, -L / 2 + 0.6, L / 2 - 0.6, 3.05, H, seed, cell=1.6, inset=0.5))
 	acc.add("Soil", B(-W / 2 + 1.0, W / 2 - 1.0, -L / 2 + 1.0, L / 2 - 1.0, H - 0.9, H - 0.6))
 	border(acc, -W / 2 + 1.2, W / 2 - 1.2, -L / 2 + 1.2, L / 2 - 1.2, H - 0.6, seed, density=0.8)
 	rnd = random.Random(seed)
-	for i in range(8):
-		xx = rnd.uniform(-W / 2 + 0.4, W / 2 - 0.4)
+	for i in range(14):
+		xx = rnd.uniform(-W / 2 + 0.8, W / 2 - 0.8)
 		side = rnd.choice((-1, 1))
-		acc.add(rnd.choice(("Fern", "Deep", "Lime")), fern_clump(xx, side * (L / 2 - 0.2), rnd.uniform(3, H - 2), 5, 1.3, 0.35, rnd.randrange(10**6), elev=10, droop=0.7))
+		acc.add(rnd.choice(("Fern", "Deep", "Lime")), fern_clump(xx, side * (L / 2 - 0.75), rnd.uniform(3.4, H - 1.5), 6, 1.5, 0.4, rnd.randrange(10**6), elev=10, droop=0.7))
 	return acc
 
 
 def pedestal():
 	acc = Acc()
-	acc.add("Marble", B(-2, 2, -2, 2, 0, 1.0), B(-1.8, 1.8, -1.8, 1.8, 1.0, 7.4), B(-2, 2, -2, 2, 7.4, 8.2))
+	acc.add("Stone", B(-2, 2, -2, 2, 0, 1.0), B(-1.8, 1.8, -1.8, 1.8, 1.0, 7.4), B(-2, 2, -2, 2, 7.4, 8.2))
 	for k in range(4):
 		a = 90 * k
-		acc.add("Marble", rz(B(1.8, 1.86, -1.2, 1.2, 2.0, 6.4), a))
-	acc.add("Marble", lathe([(0.0, 8.2), (1.4, 8.2), (1.9, 8.6), (1.9, 9.0), (1.6, 9.0), (1.5, 8.8), (0.0, 8.8)], segs=16))
+		acc.add("Stone", rz(B(1.8, 1.86, -1.2, 1.2, 2.0, 6.4), a))
+	acc.add("Stone", lathe([(0.0, 8.2), (1.4, 8.2), (1.9, 8.6), (1.9, 9.0), (1.6, 9.0), (1.5, 8.8), (0.0, 8.8)], segs=16))
 	acc.add("Fern", fern_clump(0, 0, 8.8, 9, 2.0, 0.4, 77, elev=25, droop=0.8))
 	return acc
 
@@ -1108,7 +1124,7 @@ def pool(W, L, seed, urn_in=False, reeds=False):
 		for cx, cy in ((-hw + 1.8, -hl + 1.8), (hw - 1.8, hl - 1.8), (-hw + 1.8, hl - 1.8)):
 			for k in range(7):
 				a = rnd.uniform(0, 360)
-				acc.add("Lime", frond((cx + rnd.uniform(-0.5, 0.5), cy + rnd.uniform(-0.5, 0.5), 0.8), a, 2.4, 0.2, elev=84, droop=0.04, serrate=False, stations=3))
+				acc.add("Lime", frond((cx + rnd.uniform(-0.5, 0.5), cy + rnd.uniform(-0.5, 0.5), 0.8), a, 1.5, 0.28, elev=62, droop=0.25, serrate=False, stations=4))
 	return acc
 
 

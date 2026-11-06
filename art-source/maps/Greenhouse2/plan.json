@@ -2656,8 +2656,8 @@
 "axes": null,
 "up": "",
 "look": [
-"Limestone",
-"D9D2C2"
+"Pavement",
+"CDC4B2"
 ]
 },
 {
@@ -10164,7 +10164,7 @@
 }
 ],
 "accent": {
-"A": "#E0A82E",
-"B": "#3A6FC4"
+"A": "#B8603F",
+"B": "#4F7FA8"
 }
 }

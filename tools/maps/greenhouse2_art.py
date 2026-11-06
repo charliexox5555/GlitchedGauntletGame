@@ -69,9 +69,12 @@ DECOR_TUBS: list[tuple[float, float]] = [
 ]  # from a clearance search on the layout blocks (1.5 radius, 3.0 off the wall plane, no solid below 4)
 
 GA.Art.build = build
+# r3: the end tones from the palette table (B slate-blue, A terracotta); Greenhouse's saturated blue / yellow read
+# as a stray bright table at the spawn
+GA.L.ACCENT = dict(GA.L.ACCENT, A="#B8603F", B="#4F7FA8")
 # r2: the Sheds and Lodge ceilings are flat roofs too; under the new slate roofs their tops read as slate, and
 # inside a dark slate ceiling over the shaded lane (the Map Quality Standard's "Sheds: the one shaded lane").
-GA.LOOKS = dict(GA.LOOKS, lodge_ceiling=("Slate", "6F7A86"), shed_ceiling=("Slate", "6F7A86"))
+GA.LOOKS = dict(GA.LOOKS, lodge_ceiling=("Slate", "6F7A86"), shed_ceiling=("Slate", "6F7A86"), dome_floor=("Pavement", "CDC4B2"))  # r3: the Dome floor in the halls' paving (limestone read as bare sand)
 
 if __name__ == "__main__":
     GA.write()

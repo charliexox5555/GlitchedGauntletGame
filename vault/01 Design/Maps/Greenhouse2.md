@@ -156,3 +156,22 @@ Low points:
 - **Light:** sun 15.6 with a warm ColorShift (255,216,168), warm atmosphere, grade tint (255,238,214), saturation 0.12. Wall glass is less teal (`DDE8E0`).
 - **Roofs:** hipped slate roofs over the Sheds, Lodge and Orangery, with stone ridges, timber fascias, brick chimneys with pots, and glazed skylights. The Sheds and Lodge ceilings are now slate.
 - **Parkland:** a lawn round the building and a ring of 26 broadleaf trees outside the walls (overview only, no collision).
+
+**Round 2 blind score: 5.0** (all three reviewers 5.0; every criterion at 1). That's no gain on round 1.
+
+What was confirmed:
+- The dome floor now has a focal point (the fountain between palms, the bridge and gallery).
+
+What still holds it back:
+- **Walls:** the glass and iron read as flat pale sheets with no contrast.
+- **Odd materials:** a marble-veined pedestal, a saturated blue Wardian table at the spawn, bare "sand" on the Dome floor.
+- **Plants:** giant reed spikes; rock slabs instead of planters.
+- **Light:** pale, not golden.
+
+### Round 3 (the last unless it gains ≥ 0.3)
+- **Wall glass** is a deeper sea-green (`9DBDB2`), so the white iron reads against it. Mullions and transoms are bolder, and every bay gets an eye-level iron arcade (the concept's arched lower lights).
+- **Rockeries and the fernery** stand on brick plinths with stone copings (the concept's planters), with rocks and ferns above.
+- **Pond reeds** are low iris clumps.
+- **The statue pedestal** is limestone.
+- **End tones** follow the palette table (B slate-blue `4F7FA8`, A terracotta `B8603F`), not the old saturated blue and yellow.
+- **The Dome floor** gets the halls' paving.

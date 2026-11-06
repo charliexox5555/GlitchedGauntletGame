@@ -13,8 +13,8 @@
 
 newMap("Greenhouse2", CFrame.new(0, 200, 3000))
 
-local ACCENT_A = Color3.fromHex("E0A82E")
-local ACCENT_B = Color3.fromHex("3A6FC4")
+local ACCENT_A = Color3.fromHex("B8603F")
+local ACCENT_B = Color3.fromHex("4F7FA8")
 
 -- { section, piece, x, y, z, yaw } in map space, both halves written out.
 local PLACE: { { any } } = {
@@ -339,7 +339,7 @@ local PARTS: { { any } } = {
 
 -- Finishes: look -> { material, colour }.
 local LOOKS: { [string]: { string } } = {
-	dome_floor = { "Limestone", "D9D2C2" },
+	dome_floor = { "Pavement", "CDC4B2" },
 	paving = { "Pavement", "C9C1AF" },
 	flags = { "Limestone", "E3D9C5" },
 	boards = { "WoodPlanks", "9C7A55" },

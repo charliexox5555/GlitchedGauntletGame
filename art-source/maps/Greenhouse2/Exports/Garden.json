@@ -106,6 +106,8 @@
   "Fernery": {
    "props": {},
    "parts": [
+    "Fernery_Brick",
+    "Fernery_Stone",
     "Fernery_Rock",
     "Fernery_Soil",
     "Fernery_Fern",
@@ -174,7 +176,7 @@
   "Pedestal4": {
    "props": {},
    "parts": [
-    "Pedestal4_Marble",
+    "Pedestal4_Stone",
     "Pedestal4_Fern"
    ]
   },
@@ -201,6 +203,8 @@
   "Rockery12x6": {
    "props": {},
    "parts": [
+    "Rockery12x6_Brick",
+    "Rockery12x6_Stone",
     "Rockery12x6_Rock",
     "Rockery12x6_Soil",
     "Rockery12x6_Fern",
@@ -1353,7 +1357,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 12,
@@ -1454,6 +1458,48 @@
   },
   {
    "piece": "Fernery",
+   "name": "Fernery_Brick",
+   "material": "Brick",
+   "look": {
+    "material": "Brick",
+    "color": "9C5B44"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    1.35
+   ],
+   "size": [
+    7.96,
+    15.96,
+    2.7
+   ]
+  },
+  {
+   "piece": "Fernery",
+   "name": "Fernery_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    2.875
+   ],
+   "size": [
+    8.0,
+    16.0,
+    0.35
+   ]
+  },
+  {
+   "piece": "Fernery",
    "name": "Fernery_Rock",
    "material": "Rock",
    "look": {
@@ -1461,16 +1507,16 @@
     "color": "A39A88"
    },
    "glow": false,
-   "tris": 1200,
+   "tris": 972,
    "center": [
-    -0.00233,
-    0.00178,
-    4.49994
+    -0.00284,
+    0.00043,
+    6.00942
    ],
    "size": [
-    7.84061,
-    15.84566,
-    8.99988
+    6.63957,
+    14.64043,
+    5.91883
    ]
   },
   {
@@ -1505,14 +1551,14 @@
    "glow": false,
    "tris": 4160,
    "center": [
-    -0.027,
+    -0.277,
     0.07745,
-    9.56378
+    9.56412
    ],
    "size": [
-    10.39269,
+    9.89269,
     17.73886,
-    13.99013
+    13.98946
    ]
   },
   {
@@ -1526,12 +1572,12 @@
    "glow": false,
    "tris": 2240,
    "center": [
-    -0.04628,
+    0.08694,
     0.03567,
     9.59754
    ],
    "size": [
-    10.02205,
+    9.2885,
     16.90651,
     13.9046
    ]
@@ -2148,11 +2194,11 @@
   },
   {
    "piece": "Pedestal4",
-   "name": "Pedestal4_Marble",
-   "material": "Marble",
+   "name": "Pedestal4_Stone",
+   "material": "Stone",
    "look": {
-    "material": "Marble",
-    "color": "E9E6DE"
+    "material": "Limestone",
+    "color": "D9D0BE"
    },
    "glow": false,
    "tris": 244,
@@ -2282,16 +2328,16 @@
     "color": "9BC24E"
    },
    "glow": false,
-   "tris": 504,
+   "tris": 672,
    "center": [
-    -0.10466,
-    -0.04453,
-    3.28266
+    -0.04514,
+    -0.06353,
+    0.92758
    ],
    "size": [
-    15.46895,
-    12.72175,
-    5.25731
+    13.80666,
+    11.04072,
+    1.10516
    ]
   },
   {
@@ -2401,6 +2447,48 @@
   },
   {
    "piece": "Rockery12x6",
+   "name": "Rockery12x6_Brick",
+   "material": "Brick",
+   "look": {
+    "material": "Brick",
+    "color": "9C5B44"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    1.35
+   ],
+   "size": [
+    11.96,
+    5.96,
+    2.7
+   ]
+  },
+  {
+   "piece": "Rockery12x6",
+   "name": "Rockery12x6_Stone",
+   "material": "Stone",
+   "look": {
+    "material": "Limestone",
+    "color": "D9D0BE"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    2.875
+   ],
+   "size": [
+    12.0,
+    6.0,
+    0.35
+   ]
+  },
+  {
+   "piece": "Rockery12x6",
    "name": "Rockery12x6_Rock",
    "material": "Rock",
    "look": {
@@ -2408,16 +2496,16 @@
     "color": "A39A88"
    },
    "glow": false,
-   "tris": 588,
+   "tris": 432,
    "center": [
-    -0.00137,
-    0.00062,
-    4.98897
+    -0.002,
+    0.00114,
+    6.52223
    ],
    "size": [
-    11.84569,
-    5.83776,
-    9.97794
+    10.64443,
+    4.63852,
+    6.94447
    ]
   },
   {
@@ -2450,16 +2538,16 @@
     "color": "4C8A3E"
    },
    "glow": false,
-   "tris": 1280,
+   "tris": 1920,
    "center": [
-    -0.24048,
-    0.07879,
-    7.055
+    0.22095,
+    -0.00332,
+    7.20078
    ],
    "size": [
-    10.21208,
-    7.926,
-    5.80781
+    10.91831,
+    7.37083,
+    5.51626
    ]
   },
   {
@@ -2471,16 +2559,16 @@
     "color": "9BC24E"
    },
    "glow": false,
-   "tris": 840,
+   "tris": 1440,
    "center": [
-    2.38146,
-    1.34268,
-    6.79386
+    0.36453,
+    -0.0618,
+    6.94377
    ],
    "size": [
-    9.16146,
-    5.39587,
-    6.38272
+    12.82984,
+    7.25868,
+    6.0829
    ]
   },
   {
@@ -2492,16 +2580,16 @@
     "color": "2F6B35"
    },
    "glow": false,
-   "tris": 440,
+   "tris": 960,
    "center": [
-    2.49645,
-    1.37939,
-    7.31319
+    2.4649,
+    -0.0592,
+    7.30528
    ],
    "size": [
-    5.09921,
-    5.24776,
-    5.09704
+    5.03609,
+    7.40196,
+    5.11285
    ]
   },
   {
@@ -3100,7 +3188,7 @@
    "material": "Frost",
    "look": {
     "material": "SmoothPlastic",
-    "color": "DDE8E0"
+    "color": "9DBDB2"
    },
    "glow": false,
    "tris": 18,
@@ -3158,5 +3246,5 @@
    ]
   }
  ],
- "tris": 40832
+ "tris": 42424
 }
