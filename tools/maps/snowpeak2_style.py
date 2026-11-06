@@ -44,7 +44,9 @@ MATS: dict[str, tuple[str, str, str]] = {
     "Rubber": ("38393C", "SmoothPlastic", ""),
     "Rock": ("A0A5AC", "Rock", "Snow2_Rock"),  # r4: lighter (blue shade read near-black)
     "RockDark": ("5E656E", "Rock", "Snow2_Rock"),
-    "Boulder": ("B4B8BE", "Slate", ""),  # r4: Codex boulders (their small UVs made the rock variant read near-black)
+    "Boulder": ("B4B8BE", "Slate", ""),
+    "RockFar": ("8E96A2", "Slate", ""),  # r5: backdrop rock in the boulders' calm slate (reviewers: noisy cliff texture)
+    "SnowFar": ("EEF2F8", "SmoothPlastic", ""),  # r5: clean snow on the backdrop (the snow variant read as grain at 100+ studs)  # r4: Codex boulders (their small UVs made the rock variant read near-black)
     "Needles": ("2E4A3A", "Grass", ""),
     "Bark": ("5A4030", "Wood", ""),
     "Fabric": ("7A3B2E", "Fabric", ""),
@@ -82,12 +84,12 @@ VARIANTS = {
 # A clear morning: sun ~37 deg up raking along X (neither team looks into it), cool blue shade, warm light only from
 # the lodge, lamps and stations. v4 lesson: bright, not dark; snow keeps detail (exposure a touch under 0).
 LIGHTING = {
-    "ClockTime": 8.2,  # r3: a lower, warmer morning sun (reviewers: flat noon light)
+    "ClockTime": 7.4,  # r5: golden low sun (reviewers: flat midday light)  # r3: a lower, warmer morning sun (reviewers: flat noon light)
     "GeographicLatitude": 0,
     "Brightness": 2.8,
     "Ambient": (128, 138, 160),
     "OutdoorAmbient": (182, 190, 210),  # r4: brighter shade fill
-    "ColorShift_Top": (255, 206, 160),
+    "ColorShift_Top": (255, 190, 130),
     "ColorShift_Bottom": (140, 164, 210),
     "EnvironmentDiffuseScale": 0.5,
     "EnvironmentSpecularScale": 0.3,

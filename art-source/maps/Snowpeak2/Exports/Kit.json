@@ -544,11 +544,10 @@
   {
    "piece": "Cliffs",
    "name": "Cliffs_Rock",
-   "material": "S2_Rock",
+   "material": "S2_RockFar",
    "look": {
-    "material": "Rock",
-    "color": "A0A5AC",
-    "variant": "Snow2_Rock"
+    "material": "Slate",
+    "color": "8E96A2"
    },
    "glow": false,
    "tris": 1384,
@@ -566,11 +565,10 @@
   {
    "piece": "Cliffs",
    "name": "Cliffs_Snow",
-   "material": "S2_Snow",
+   "material": "S2_SnowFar",
    "look": {
-    "material": "Snow",
-    "color": "EEF2F8",
-    "variant": "Snow2_Snow"
+    "material": "SmoothPlastic",
+    "color": "EEF2F8"
    },
    "glow": false,
    "tris": 56,
@@ -3193,11 +3191,10 @@
   {
    "piece": "Range",
    "name": "Range_Rock0",
-   "material": "S2_Rock",
+   "material": "S2_RockFar",
    "look": {
-    "material": "Rock",
-    "color": "A0A5AC",
-    "variant": "Snow2_Rock"
+    "material": "Slate",
+    "color": "8E96A2"
    },
    "glow": false,
    "tris": 1807,
@@ -3215,11 +3212,10 @@
   {
    "piece": "Range",
    "name": "Range_Snow0",
-   "material": "S2_Snow",
+   "material": "S2_SnowFar",
    "look": {
-    "material": "Snow",
-    "color": "EEF2F8",
-    "variant": "Snow2_Snow"
+    "material": "SmoothPlastic",
+    "color": "EEF2F8"
    },
    "glow": false,
    "tris": 1585,
@@ -3237,11 +3233,10 @@
   {
    "piece": "Range",
    "name": "Range_Rock1",
-   "material": "S2_Rock",
+   "material": "S2_RockFar",
    "look": {
-    "material": "Rock",
-    "color": "A0A5AC",
-    "variant": "Snow2_Rock"
+    "material": "Slate",
+    "color": "8E96A2"
    },
    "glow": false,
    "tris": 1807,
@@ -3259,11 +3254,10 @@
   {
    "piece": "Range",
    "name": "Range_Snow1",
-   "material": "S2_Snow",
+   "material": "S2_SnowFar",
    "look": {
-    "material": "Snow",
-    "color": "EEF2F8",
-    "variant": "Snow2_Snow"
+    "material": "SmoothPlastic",
+    "color": "EEF2F8"
    },
    "glow": false,
    "tris": 1585,

@@ -150,3 +150,7 @@ Spawn A and its amber band: `v1-r4-spawn-a.jpg`. Corridor with pier lamps: `v1-r
 1. a visible stair or ladder cue toward the ring from the sunwell floor (a decor cue, since the layout stays as it is);
 2. motor and generator detail (fins, junction boxes, conduit);
 3. moving the sunwell generator's hero-view block with a smaller console (a layout change, so it needs the user).
+
+### For the user (layout; not built)
+- **A visible stair from the sunwell floor to the ring.** Every reviewer asked for it. Today the ring is reached only from the gallery overlooks. Adding one changes sightlines and the ring's strength, so it needs `bunker2_layout.py` and its checks.
+- **The sunwell generator** blocks the hero view of the plinth from one corner. Swapping it for lower cover is a layout change.

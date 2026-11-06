@@ -1112,7 +1112,7 @@ def displaced(p0, ua, va, nrm, nu, nv, du, dv, depth_fn):
 	return bm
 
 
-def split_by_up(bm, acc, rock_part, snow_part, thresh=0.5):
+def split_by_up(bm, acc, rock_part, snow_part, thresh=0.5, rock="Rock", snow_mat="Snow"):
 	# Faces whose normal points up get snow, the rest rock (two parts of one surface, no overlap).
 	bm.normal_update()
 	snow = [f for f in bm.faces if f.normal.z > thresh]
@@ -1120,8 +1120,8 @@ def split_by_up(bm, acc, rock_part, snow_part, thresh=0.5):
 	bmesh.ops.delete(bm, geom=snow, context="FACES")
 	sb.normal_update()
 	bmesh.ops.delete(sb, geom=[f for f in sb.faces if f.normal.z <= thresh], context="FACES")
-	acc.add(rock_part, "Rock", bm)
-	acc.add(snow_part, "Snow", sb)
+	acc.add(rock_part, rock, bm)
+	acc.add(snow_part, snow_mat, sb)
 
 
 def p_cliffs(mats, kit):
@@ -1150,7 +1150,7 @@ def p_cliffs(mats, kit):
 		for f in faces:
 			if s < 0:
 				ry(f, 180)
-			split_by_up(f, acc, "Rock", "Snow", 0.45)
+			split_by_up(f, acc, "Rock", "Snow", 0.45, rock="RockFar", snow_mat="SnowFar")
 	return piece("Cliffs", acc, mats, kit)
 
 
@@ -1193,7 +1193,7 @@ def p_range(mats, kit):
 		for f in bm.faces:
 			if f.normal.z < 0:
 				f.normal_flip()
-		split_by_up(bm, acc, "Rock%d" % half, "Snow%d" % half, 0.62)
+		split_by_up(bm, acc, "Rock%d" % half, "Snow%d" % half, 0.62, rock="RockFar", snow_mat="SnowFar")
 	return piece("Range", acc, mats, kit)
 
 
