@@ -27,7 +27,21 @@ local ROWS: { Row } = {
 	{ "Roofs", "CornerE_RoofN", "roof", "wedge", 50, 56.619, -112, 60, 9.238, 16, 180, "A", false },
 	{ "Buildings", "CornerW_1", "perim", "box", -50, 26, -120, 60, 52, 32, 0, "A", true },
 	{ "Roofs", "CornerW_RoofS", "roof", "wedge", -50, 56.619, -128, 60, 9.238, 16, 0, "A", false },
-	{ "Roofs", "CornerW_RoofN", "roof", "wedge", -50, 56.619, -112, 60, 9.238, 16, 180, "A", false },
+	{
+		"Roofs",
+		"CornerW_RoofN",
+		"roof",
+		"wedge",
+		-50,
+		56.619,
+		-112,
+		60,
+		9.238,
+		16,
+		180,
+		"A",
+		false,
+	},
 	{ "Spawn", "CloisterFront_1", "bldg", "box", 0, 6, -106, 24, 12, 4, 0, "A", true },
 	{ "Buildings", "EFrontS_1", "bldg", "box", 40, 12, -80, 56, 24, 24, 0, "A", true },
 	{ "Roofs", "EFrontS_RoofS", "roof", "wedge", 40, 27.464, -86, 56, 6.928, 12, 0, "A", false },
@@ -82,7 +96,21 @@ local ROWS: { Row } = {
 	{ "Buildings", "Bookshop_8", "bldg", "box", -56, 12, -5, 20, 24, 2, 0, "A", true },
 	{ "Buildings", "Bookshop_9", "bldg", "box", -56, 17.5, -10, 20, 13, 8, 0, "A", false },
 	{ "Roofs", "Bookshop_RoofW", "roof", "wedge", -62, 27.464, -10, 12, 6.928, 12, 90, "A", false },
-	{ "Roofs", "Bookshop_RoofE", "roof", "wedge", -50, 27.464, -10, 12, 6.928, 12, 270, "A", false },
+	{
+		"Roofs",
+		"Bookshop_RoofE",
+		"roof",
+		"wedge",
+		-50,
+		27.464,
+		-10,
+		12,
+		6.928,
+		12,
+		270,
+		"A",
+		false,
+	},
 	{ "Buildings", "CourtSW_1", "bldg", "box", -56, 12, -84, 24, 24, 16, 0, "A", true },
 	{ "Buildings", "CourtSE_1", "bldg", "box", -24, 12, -84, 24, 24, 16, 0, "A", true },
 	{ "Buildings", "CourtW_1", "bldg", "box", -60, 12, -68, 16, 24, 16, 0, "A", true },
@@ -115,7 +143,21 @@ local ROWS: { Row } = {
 	{ "Roofs", "PerimW'_Roof", "roof", "wedge", 86, 55.464, 74, 148, 6.928, 12, 90, "B", false },
 	{ "Buildings", "CornerE'_1", "perim", "box", -50, 26, 120, 60, 52, 32, 0, "B", true },
 	{ "Roofs", "CornerE'_RoofS", "roof", "wedge", -50, 56.619, 112, 60, 9.238, 16, 0, "B", false },
-	{ "Roofs", "CornerE'_RoofN", "roof", "wedge", -50, 56.619, 128, 60, 9.238, 16, 180, "B", false },
+	{
+		"Roofs",
+		"CornerE'_RoofN",
+		"roof",
+		"wedge",
+		-50,
+		56.619,
+		128,
+		60,
+		9.238,
+		16,
+		180,
+		"B",
+		false,
+	},
 	{ "Buildings", "CornerW'_1", "perim", "box", 50, 26, 120, 60, 52, 32, 0, "B", true },
 	{ "Roofs", "CornerW'_RoofS", "roof", "wedge", 50, 56.619, 112, 60, 9.238, 16, 0, "B", false },
 	{ "Roofs", "CornerW'_RoofN", "roof", "wedge", 50, 56.619, 128, 60, 9.238, 16, 180, "B", false },
@@ -352,10 +394,17 @@ box(ground, "Ground", Vector3.new(2 * 96, 2, 2 * 152), at(0, -1, 0), hex("#9C8D7
 })
 for _, f in FLOORS do
 	local x0, x1, z0, z1 = f[2] :: number, f[3] :: number, f[4] :: number, f[5] :: number
-	box(ground, f[1] :: string, Vector3.new(x1 - x0, 0.2, z1 - z0), at((x0 + x1) / 2, -0.06, (z0 + z1) / 2), hex("#D8C9AA"), {
-		material = Enum.Material.Limestone,
-		castShadow = false,
-	})
+	box(
+		ground,
+		f[1] :: string,
+		Vector3.new(x1 - x0, 0.2, z1 - z0),
+		at((x0 + x1) / 2, -0.06, (z0 + z1) / 2),
+		hex("#D8C9AA"),
+		{
+			material = Enum.Material.Limestone,
+			castShadow = false,
+		}
+	)
 end
 
 local n = 0
@@ -386,7 +435,19 @@ for _, s in SPAWNS do
 	spawnPad(s[1] :: string, s[2] :: number, at(s[3] :: number, 0, s[4] :: number, s[5] :: number))
 end
 for _, b in BARRIERS do
-	barrier(b[1] :: string, Vector3.new(b[4] :: number, 10, b[5] :: number), at(b[2] :: number, 5, b[3] :: number))
+	barrier(
+		b[1] :: string,
+		Vector3.new(b[4] :: number, 10, b[5] :: number),
+		at(b[2] :: number, 5, b[3] :: number)
+	)
 end
 
-report(string.format("OldTown2 greybox: %d parts, %d floors, %d spawns, %d barriers", n, #FLOORS, #SPAWNS, #BARRIERS))
+report(
+	string.format(
+		"OldTown2 greybox: %d parts, %d floors, %d spawns, %d barriers",
+		n,
+		#FLOORS,
+		#SPAWNS,
+		#BARRIERS
+	)
+)

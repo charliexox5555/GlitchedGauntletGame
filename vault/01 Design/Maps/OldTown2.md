@@ -94,3 +94,36 @@ Filled in as built.
 
 ## Rounds
 Filled in per round.
+
+### Round 1 (04:43)
+- **Installed:** the forked kit, procedural variants, the style pass (palette remap, no Metal), lifted lighting, plain stucco, muted roofs at a smaller tile, calmer side accents.
+- **Audits:** 0 z-fighting pairs (7,610 parts). Two floating groups, the well buckets; a rope now links each bucket to the windlass.
+- **Blind score: 6.3** (6.3, 6.3, 6.3). Medians: W1 2, W2 1, W3 1, W4 1, W5 1, W6 1.
+
+Low points:
+- The spawn faces a blank cloister wall.
+- The perimeter blocks read procedural: repeated window grids, uniform height.
+- Stall boards and hedges use mixed realistic textures; the fruit reads as blocks; the cart wheel is a flat disc.
+- Flat midday light with no warm practicals.
+
+### Round 2 (05:05)
+- **Props:** round fruit, spoked cart wheels.
+- **Wall lanterns:** lit (warm Neon).
+- **Spawn wall:** two lanterns and two banners on each cloister front wall.
+- **Light:** lower sun (16.6), more haze and a warmer grade.
+- **Materials:** Roblox Wood swapped for the plank variant; fabric and grass made SmoothPlastic.
+- **Audits:** 0 / 0 (7,632 parts).
+- **Blind score: 6.3** (6.3, 6.3, 6.3). Same medians as round 1, gain 0.
+
+Low points:
+- The heavier haze read as a sepia wash.
+- The SmoothPlastic cloth and foliage read as flat slabs.
+- Otherwise the same structural asks:
+  - break up the perimeter blocks (heights, roof breaks, balconies, vines);
+  - open the spawn view;
+  - modelled cloth;
+  - show the +12 terraces.
+
+### Round 3 (staged 05:13)
+- Haze back down (Density 0.22, Haze 0.9), more contrast.
+- Fabric and foliage materials restored.

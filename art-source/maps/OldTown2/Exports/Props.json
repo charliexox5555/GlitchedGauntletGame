@@ -135,7 +135,7 @@
    "props": {},
    "parts": [
     "WallLantern_Iron",
-    "WallLantern_Glass"
+    "WallLantern_Lamp"
    ]
   },
   "Well": {
@@ -144,7 +144,8 @@
     "Well_Stone",
     "Well_Water",
     "Well_Iron",
-    "Well_Wood"
+    "Well_Wood",
+    "Well_Burlap"
    ]
   }
  },
@@ -371,7 +372,7 @@
     "color": "6B4A2E"
    },
    "glow": false,
-   "tris": 194,
+   "tris": 706,
    "center": [
     1.38,
     0.0,
@@ -379,7 +380,7 @@
    ],
    "size": [
     9.24,
-    4.16,
+    4.38,
     7.35
    ]
   },
@@ -816,16 +817,16 @@
     "color": "E08A2E"
    },
    "glow": false,
-   "tris": 480,
+   "tris": 1536,
    "center": [
     1.05,
     0.05,
-    4.575
+    4.62
    ],
    "size": [
-    1.41569,
-    6.98,
-    0.35
+    1.53259,
+    7.03259,
+    0.56
    ]
   },
   {
@@ -1217,11 +1218,11 @@
   },
   {
    "piece": "WallLantern",
-   "name": "WallLantern_Glass",
-   "material": "Glass",
+   "name": "WallLantern_Lamp",
+   "material": "Lamp",
    "look": {
-    "material": "SmoothPlastic",
-    "color": "3B4652"
+    "material": "Neon",
+    "color": "FFC27A"
    },
    "glow": false,
    "tris": 20,
@@ -1321,7 +1322,28 @@
     0.92388,
     1.0
    ]
+  },
+  {
+   "piece": "Well",
+   "name": "Well_Burlap",
+   "material": "Burlap",
+   "look": {
+    "material": "Fabric",
+    "color": "B89F72"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    5.75
+   ],
+   "size": [
+    0.12124,
+    0.14,
+    1.2
+   ]
   }
  ],
- "tris": 5452
+ "tris": 7040
 }

@@ -75,11 +75,6 @@ for _, d in map:GetDescendants() do
 		recoloured += 1
 	end
 	local m = d.Material
-	if m == Enum.Material.Fabric or m == Enum.Material.Grass or m == Enum.Material.LeafyGrass then
-		-- r2: Roblox's fabric and grass textures read fuzzy / photo-real next to the modelled stone
-		d.Material = Enum.Material.SmoothPlastic
-		continue
-	end
 	if m == Enum.Material.Metal then
 		d.Material = Enum.Material.SmoothPlastic
 		metal += 1
@@ -109,6 +104,8 @@ end
 -- r2: the cloister front wall each spawn faces gets two lit wall lanterns and two side banners (it read as a
 -- blank wall), facing the spawn.
 local dressed = 0
+local dressFolder = section("Art", "SpawnDress")
+dressFolder:ClearAllChildren()
 local function faceYaw(n: Vector3): number
 	return math.deg(math.atan2(-n.Z, n.X))
 end
@@ -117,33 +114,21 @@ for _, part in map:GetDescendants() do
 	if
 		part:IsA("BasePart")
 		and string.sub(part.Name, 1, 13) == "CloisterFront"
-		and part.Size.X > 12
+		and part.Size.Y > 6
 	then
 		local rel = origin:PointToObjectSpace(part.Position)
 		local sz = if rel.Z < 0 then -1 else 1
 		local n = Vector3.new(0, 0, sz)
-		local faceZ = rel.Z + sz * (part.Size.Z / 2 + 0.04)
+		local faceZ = rel.Z + sz * (part.Size.Z / 2 - 0.4) -- backs buried in the wall (FloatAudit)
 		local yaw = faceYaw(n)
 		local floorY = rel.Y - part.Size.Y / 2
 		for _, dx in { -2.75, 2.75 } do -- between the three windows
-			if
-				put(
-					section("Art", "SpawnDress"),
-					"WallLantern",
-					at(rel.X + dx, floorY + 7.0, faceZ, yaw)
-				)
-			then
+			if put(dressFolder, "WallLantern", at(rel.X + dx, floorY + 7.0, faceZ, yaw)) then
 				dressed += 1
 			end
 		end
 		for _, dx in { -10.2, 10.2 } do
-			if
-				put(
-					section("Art", "SpawnDress"),
-					"Banner",
-					at(rel.X + dx, floorY + 10.9, faceZ, yaw)
-				)
-			then
+			if put(dressFolder, "Banner", at(rel.X + dx, floorY + 10.9, faceZ, yaw)) then
 				dressed += 1
 			end
 		end

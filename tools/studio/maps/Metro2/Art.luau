@@ -71,9 +71,9 @@ local IMAGES: { [string]: string } = {
 	RouteMap = "101749570841890",
 	SpawnA = "109353252868632",
 	SpawnB = "109611028917485",
-	SpawnWay = "104682539223711",
-	SpawnWayA = "137922014511396",
-	SpawnWayB = "111097363205799",
+	SpawnWay = "78196805765571",
+	SpawnWayA = "92246842102435",
+	SpawnWayB = "90524749894173",
 	Staff = "138638620258648",
 	Tickets = "96137525472089",
 	Vending = "75968268768450",
@@ -339,7 +339,7 @@ both("Concourse", "CCTV", -48, 14, 102, 0)
 -- v2: an opaque slab over the vault, above the coffers (never seen from inside), so the sun can't rake through the
 -- hall (the hidden greybox ceiling is transparent and casts no shadow); the hall is lit by its ambient and Neon.
 do
-	local p = box(section("Art", "SunBlock"), "SunBlock", Vector3.new(100, 1, 104), at(0, 32.2, 0), Color3.fromHex("ADA9A2"), {
+	local p = box(section("Art", "SunBlock"), "SunBlock", Vector3.new(100, 1, 104), at(0, 31.13, 0), Color3.fromHex("ADA9A2"), {
 		material = Enum.Material.Concrete,
 		castShadow = true,
 	})

@@ -366,3 +366,34 @@ The train reads much better in the shots, but reviewers still want more from it.
 - **Train stripes:** the Codex train's stripe takes each end's colour.
 
 **For the user (not built, a layout change):** reviewers keep asking for the concept's grounded gantry, standing on columns on the platforms. That adds collision at the gantry line (z ±1.5, on both platforms), so it needs the user's approval.
+
+**v2 round 2 audits:** 0 z-fighting pairs over 3,179 parts. One floating group, the new sun-block slab, which sat 2.7 above the coffers; it's now set onto the coffer tops in `Art.luau` and goes in with the next install.
+
+**v2 round 2 blind score: 6.7** (6.7, 6.7, 6.7). Medians: W1 2, W2 1, W3 1, W4 1, W5 1, W6 2.
+
+### Metro2 stopped at 6.7 (the stop rule, after the Codex train)
+| Round | v1 r1 | v1 r2 | v1 r3 | v1 r4 | v2 r1 | v2 r2 |
+|---|---|---|---|---|---|---|
+| Score | 5.4 | 6.7 | 6.7 | 6.7 | 6.7 | 6.7 |
+
+The fresh v2 start (the Codex train) and the round after it each gained 0 on the best score of 6.7, so the map stops. **It is a draft below 8.5, not ready for approval.**
+
+Every reviewer, every round, held W3 (cohesion), W4 (light) and W5 (detail) at 1. What would move them:
+1. **W3, the train.** Even Codex's model reads as "flat white and grey" next to the textured station, and the black gangway slab between the cars stands out.
+   - The fix: the train's own trim sheet (panel-line normal map, brushed-steel colour map) and a modelled gangway bellows.
+   - The tile kit carries texture; the train is smooth, so the finish doesn't match.
+2. **W4, lighting.**
+   - Real warm light pools: shadowless PointLights at every sconce and pendant (play mode shows them; edit captures don't).
+   - Ceiling panels below the bloom threshold.
+3. **W5, the ticket hall and corridor.** A ticket-office window, vending, a service story group, and route signs at the corridor turns.
+4. **W1, the landmark.** The user's call: the grounded gantry on platform columns. That's a layout change and is not built.
+5. **End colour against platform number.**
+   - Each end currently mixes both platforms; reviewers read the colours as platform codes.
+   - Either recolour by platform, which is a design call, or add floor route marks.
+
+**Best shots:**
+- [v2-r1 gantry](../../02%20Art/References/maps/metro2/v2-r1-gantry.jpg)
+- [v2-r1 trench](../../02%20Art/References/maps/metro2/v2-r1-trench.jpg)
+- [v2-r2 overview](../../02%20Art/References/maps/metro2/v2-r2-overview.jpg)
+- [v2-r2 spawn](../../02%20Art/References/maps/metro2/v2-r2-b-spawn.jpg)
+- [side-by-side](../../02%20Art/References/maps/metro2/v2-r1-side-by-side.jpg)
