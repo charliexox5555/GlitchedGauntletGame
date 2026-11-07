@@ -123,10 +123,14 @@ local function buildInputs(owner: Instance): { [string]: InputAction }
 	return inputs
 end
 
+local nextBotId = 0
+
 local function newBot(team: number): Bot
 	local name = pickName()
 	local owner = Instance.new("Configuration")
 	owner.Name = name
+	nextBotId += 1
+	owner:SetAttribute("BotId", nextBotId) -- stats key (names are reused)
 	owner:SetAttribute(Teams.ATTRIBUTE, team)
 	owner:SetAttribute("ModHeld", 0)
 	owner:SetAttribute("IsBot", true)
@@ -268,6 +272,7 @@ local function spawnBot(bot: Bot, at: CFrame)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	model:SetAttribute(Teams.ATTRIBUTE, bot.team)
 	model:SetAttribute("IsBot", true)
+	model:SetAttribute("BotId", bot.owner:GetAttribute("BotId"))
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	local root = model:FindFirstChild("HumanoidRootPart")
 	local head = model:FindFirstChild("Head")

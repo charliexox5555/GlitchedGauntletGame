@@ -135,6 +135,15 @@ export type DamageEvent = {
 }
 local shotListeners: { (player: Player, weaponId: string, hit: boolean) -> () } = {}
 local damageListeners: { (event: DamageEvent) -> () } = {}
+-- Every hit from players and bots alike (StatsService): attacker is a Player
+-- or a bot's model.
+type HitListener = (attacker: Instance, victim: Model, dealt: number, killed: boolean) -> ()
+local hitListeners: { HitListener } = {}
+local function tellHit(attacker: Instance, victim: Model, dealt: number, killed: boolean)
+	for _, fn in hitListeners do
+		task.spawn(fn, attacker, victim, dealt, killed)
+	end
+end
 -- Damage rules from Mods (ModService's ServerApi): modifiers change
 -- player-on-player damage, guards see every hit and may block it.
 type DamageGuard = (victim: Model, humanoid: Humanoid, amount: number, attacker: Player?) -> number
@@ -622,6 +631,7 @@ local function applyDamage(
 	if victim and attackerRoot and attackerRoot:IsA("BasePart") then
 		Net.event("Damaged"):FireClient(victim, attackerRoot.Position, math.round(dealt))
 	end
+	tellHit(attacker, victimModel, dealt, killed)
 	if killed then
 		Net.event("Killed"):FireAllClients(victimModel, attacker, sourceId, zone == "Head")
 	end
@@ -728,6 +738,7 @@ function WeaponService.damageBy(
 			Net.event("Damaged"):FireClient(victim, root.Position, math.round(dealt))
 		end
 	end
+	tellHit(attacker, victimModel, dealt, killed)
 	if killed then
 		Net.event("Killed"):FireAllClients(victimModel, attacker, sourceId, zone == "Head")
 	end
@@ -846,6 +857,11 @@ end
 
 function WeaponService.onShot(fn: (player: Player, weaponId: string, hit: boolean) -> ())
 	table.insert(shotListeners, fn)
+end
+
+-- Every hit by a player or a bot (match stats).
+function WeaponService.onHit(fn: HitListener)
+	table.insert(hitListeners, fn)
 end
 
 function WeaponService.onDamage(fn: (event: DamageEvent) -> ())

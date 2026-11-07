@@ -73,7 +73,8 @@ local lastReloadAt = 0
 local wasLowered = false
 local targetDownAt: number? = nil
 local hiddenConns: { RBXScriptConnection } = {}
-local hiddenParts: { Instance } = {} -- the watched body's parts, kept hidden every frame
+local hiddenParts: { Instance } = {}
+local lastFightAt = -math.huge -- when the phase was last Live / SuddenDeath -- the watched body's parts, kept hidden every frame
 local sendAt: number? = nil -- the Spectate request goes once the choice settles
 local sentTarget: Instance? = nil
 local SEND_SETTLE = 0.25
@@ -600,10 +601,15 @@ local function tick()
 		return
 	end
 	local body = myBody
-	local over = phase == "Replay" or phase == "MatchEnd" or phase == "Waiting"
+	-- Only in the fight (not on a body left over from the last match), or
+	-- just after it: the round-ending kill switches the phase within 0.1 s.
+	if phase == "Live" or phase == "SuddenDeath" then
+		lastFightAt = os.clock()
+	end
+	local fighting = os.clock() - lastFightAt < 1.2
 	if
 		mode == "Off"
-		and not over
+		and fighting
 		and body
 		and body == player.Character
 		and Health.isDowned(body)

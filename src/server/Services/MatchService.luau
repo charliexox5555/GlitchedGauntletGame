@@ -29,6 +29,8 @@ local WeaponService = require(script.Parent.WeaponService)
 local HealthService = require(script.Parent.HealthService)
 local Net = require(ReplicatedStorage.Shared.Net)
 local ZoneService = require(script.Parent.ZoneService)
+local StatsService = require(script.Parent.StatsService)
+local MatchEndService = require(script.Parent.MatchEndService)
 local Health = require(ReplicatedStorage.Shared.Health)
 
 local MatchService = {}
@@ -561,9 +563,35 @@ local function playReplay(winner: number, eliminated: boolean)
 	task.wait(length)
 end
 
-local function runMatch()
+-- The mode for Play Again ("1v1", "2v2", "3v3"): the Lobby plan's, else the
+-- bigger side's size.
+local function matchMode(): string
+	local plan = MatchPlan.current()
+	if plan then
+		return plan.mode
+	end
+	local size = math.max(sideCount(1), sideCount(2), 1)
+	return `{size}v{size}`
+end
+
+-- Everyone in the match gets a stats line, even with nothing on it.
+local function noteFighters()
+	for _, player in Players:GetPlayers() do
+		StatsService.note(player)
+	end
+	for _, key in BotService.keys() do
+		local model = BotService.modelOf(key)
+		if model then
+			StatsService.note(model)
+		end
+	end
+end
+
+-- Runs one match. Returns true when the players voted a rematch.
+local function runMatch(): boolean
 	balanceTeams()
 	inMatch = true
+	StatsService.reset()
 	humanSides = { false, false }
 	noteHumans()
 	setAllLocked(true)
@@ -592,6 +620,7 @@ local function runMatch()
 		applyTakeovers()
 		spawnEveryone()
 		runDraft(round)
+		noteFighters()
 
 		spawnMissing()
 		if not forfeited() then
@@ -668,7 +697,7 @@ local function runMatch()
 		runClock(Config.ROUND_END_TIME, forfeited)
 
 		if #Players:GetPlayers() == 0 then
-			return -- only bots are left
+			return false -- only bots are left
 		end
 		forfeitBy = forfeitWinner()
 		if forfeitBy then
@@ -678,23 +707,25 @@ local function runMatch()
 			-- Nobody at all on one side (no bots either): whoever stayed wins.
 			forfeitBy = sideLeftStanding()
 			if not forfeitBy then
-				return -- nobody is left at all
+				return false -- nobody is left at all
 			end
 			break
 		end
 	end
 
 	if forfeitBy == 0 then
-		return -- everyone left
+		return false -- everyone left
 	end
 	setAllLocked(true)
-	MatchState.set("MatchWinner", forfeitBy or (if scores[1] > scores[2] then 1 else 2))
-	setPhase("MatchEnd", Config.MATCH_END_TIME)
-	task.wait(Config.MATCH_END_TIME)
+	ZoneService.stop()
+	BotService.setFighting(false)
+	local matchWinner = forfeitBy or (if scores[1] > scores[2] then 1 else 2)
+	MatchState.set("MatchWinner", matchWinner)
+	return MatchEndService.run(matchWinner, matchMode())
 end
 
 local function waitForPlayers()
-	if bothSidesFilled() and matchesPlayed > 0 then
+	if bothSidesFilled() and matchesPlayed > 0 and #Players:GetPlayers() > 0 then
 		return -- straight into the next match
 	end
 	setPhase("Waiting", 0)
@@ -773,7 +804,8 @@ local function loop()
 			lastMap = nextMap
 		end
 		matchesPlayed += 1
-		local ok, err = pcall(runMatch)
+		local ok, result = pcall(runMatch)
+		local err = if ok then nil else result
 		inMatch = false
 		ZoneService.stop()
 		BotService.setFighting(false)
@@ -791,6 +823,24 @@ local function loop()
 			setAllLocked(true)
 			MapService.setBarriers(true)
 			task.wait(RETRY_AFTER_ERROR)
+		elseif result ~= true and not RunService:IsStudio() then
+			-- No rematch: the players are on their way to the Lobby. A new match
+			-- starts only if some are still here after the wait (a failed teleport).
+			setPhase("Waiting", 0)
+			local until_ = os.clock() + Config.MATCH_END.emptyWait
+			local nextResend = os.clock() + 5
+			while #Players:GetPlayers() > 0 and os.clock() < until_ do
+				task.wait(1)
+				if os.clock() >= nextResend then
+					nextResend = os.clock() + 5
+					MatchEndService.resendStranded() -- a teleport that failed tries again
+				end
+			end
+			if #Players:GetPlayers() == 0 then
+				BotService.clear()
+				table.clear(standIns)
+				table.clear(pendingTakeovers)
+			end
 		end
 	end
 end

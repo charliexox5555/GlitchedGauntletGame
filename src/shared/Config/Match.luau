@@ -38,7 +38,15 @@ return table.freeze({
 	COUNTDOWN_TIME = 3,
 	ROUND_TIME = 50, -- then sudden death
 	ROUND_END_TIME = 5,
-	MATCH_END_TIME = 8,
+	-- The match-end screen (Services/MatchEndService): `time` seconds to pick
+	-- Rematch / Play Again / Leave, then everyone left goes to the Lobby.
+	MATCH_END = {
+		time = 20,
+		lobbyPlaceId = 71551303511506, -- the Lobby place (this match place is 133387545285290)
+		teleportAttempts = 3,
+		retryBackoff = { 1, 2, 4 },
+		emptyWait = 30, -- seconds the server waits for its players to leave before starting over
+	},
 
 	-- Sudden death: when the round clock runs out, a circle closes on the
 	-- map's middle (a `ZoneCentre`-tagged part in the map, else halfway between
@@ -100,5 +108,6 @@ return table.freeze({
 	RATE = {
 		DraftPick = { 8, 12 },
 		Spectate = { 4, 6 },
+		MatchChoice = { 4, 6 },
 	},
 })

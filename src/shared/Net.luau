@@ -10,6 +10,7 @@
 -- Match (DraftService): DraftPick (client -> server), DraftOffer (server -> one client)
 -- Spectating (SpectateService): Spectate (client -> server)
 -- Final-kill replay (MatchService): Replay (server -> all clients)
+-- Match end (MatchEndService): MatchSummary (server -> all clients), MatchChoice (client -> server)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -34,6 +35,8 @@ local RELIABLE = {
 	"DraftOffer",
 	"Spectate",
 	"Replay",
+	"MatchSummary",
+	"MatchChoice",
 }
 local UNRELIABLE = { "Aim", "ShotFx" }
 

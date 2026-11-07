@@ -13,7 +13,8 @@
   - sudden death: a closing glitch-storm circle that takes health directly (new `ZoneService`, `ZoneController`, Blender texture).
   - **Not tested yet:** late joining and leaving (needs two real clients).
   - **Phase B built (first person, [playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20B.md)):** death camera; then you see through a living teammate's eyes with their gun and arms (killer at round end with no teammate alive); fixed the gun staying up after death.
-  - **Phase C built ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20C.md)):** the match-winning kill replays for everyone (copies of the fighters, over the killer's shoulder, slow motion into the hit, FINAL KILL caption). **Next:** phase D (victory scene, stats, Rematch / Play Again / Leave).
+  - **Phase C built ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20C.md)):** the match-winning kill replays for everyone (copies of the fighters, over the killer's shoulder, slow motion into the hit, FINAL KILL caption). 
+  - **Phase D built ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20D.md)):** match stats (eliminations, deaths, assists, damage), a victory scene on the map, the post-match screen with Rematch (vote) / Play Again (Lobby, straight back in the queue) / Leave, 20 s then everyone to the Lobby; the match server no longer starts a new match by itself. **Real teleports need a published test.** The whole match-structure revamp (A–D) is built.
 - **Overnight 2026-11-06, every map rebuilt as `<Map>2`** (ForceMap only; old maps and the pool untouched). The verdict is in [Overnight Maps Approval](05%20Production/Playtests/2026-11-06%20Overnight%20Maps%20Approval.md).
   - The spec is the new [Map Quality Standard](01%20Design/Maps/Map%20Quality%20Standard.md).
   - Best blind scores:

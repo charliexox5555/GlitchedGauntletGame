@@ -241,8 +241,37 @@ local function onRequest(player: Player, action: unknown, mode: unknown)
 	end
 end
 
+-- Play Again from the match-end screen (Services/MatchEndService in the match
+-- place): TeleportData `{ v = 1, from = "match", requeue = mode }` puts the
+-- player straight back in that mode's queue. TeleportData travels through
+-- the client, so it's only a request to do what the PLAY button does anyway.
+local function requeueFromMatch(player: Player)
+	local ok, joinData = pcall(function()
+		return player:GetJoinData()
+	end)
+	if not ok or typeof(joinData) ~= "table" then
+		return
+	end
+	if (joinData :: any).SourcePlaceId ~= Config.MATCH_PLACE_ID then
+		return
+	end
+	local data = (joinData :: any).TeleportData
+	if typeof(data) ~= "table" or data.from ~= "match" then
+		return
+	end
+	local mode = data.requeue
+	if typeof(mode) ~= "string" or #mode > 8 then
+		return
+	end
+	local info = Config.MODE_BY_ID[mode]
+	if info and info.enabled then
+		join(player, info)
+	end
+end
+
 local function onPlayerAdded(player: Player)
 	setState(player, "idle")
+	task.defer(requeueFromMatch, player)
 end
 
 function QueueService.init()

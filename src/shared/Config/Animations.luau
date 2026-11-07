@@ -64,6 +64,7 @@ return table.freeze({
 		Reload = id(130903306208412),
 		Flinch = id(114576995497102),
 		Death = id(81024323443020), -- going down (DeathFxController, on the falling copy)
+		Victory = id(507770677), -- the match-end winners (MatchEndController): Roblox's R15 Cheer emote, a placeholder
 		-- The knife: a ready hold while it's out, a slash and the heavy (alt)
 		-- on each swing (server player attributes SwingAt / SwingHeavy).
 		-- A weapon swap: the new gun comes in low and rises (played at its

@@ -397,6 +397,18 @@ local function recordedAt(elapsed: number, start: number, kill: number): number
 	return start + normal + (elapsed - normal) * R.slowSpeed
 end
 
+-- The fighter body a part belongs to (a held gun is a Model inside it).
+local function fighterOf(d: Instance): Model?
+	local node = d.Parent
+	while node and node ~= Workspace do
+		if node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") then
+			return node
+		end
+		node = node.Parent
+	end
+	return nil
+end
+
 -- Everything the replay changed, undone in one place (also after an error).
 type Session = {
 	folder: Folder?,
@@ -412,7 +424,7 @@ local function cleanup(session: Session)
 		folder:Destroy()
 	end
 	for _, d in session.hidden do
-		local body = d:FindFirstAncestorOfClass("Model")
+		local body = fighterOf(d)
 		if d.Parent and body and Health.isAlive(body) then
 			(d :: any).LocalTransparencyModifier = 0
 		end
