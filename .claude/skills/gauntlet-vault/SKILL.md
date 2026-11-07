@@ -7,8 +7,17 @@ description: Load FIRST for any work on this Roblox game (GlitchedGauntletGame):
 
 The user's standing rule: **this game is built from the Obsidian vault (`vault/`)**. It holds our design, art standard, plans, playtests, and LihFolk, a large expert Roblox knowledge base with skills, build recipes, worked builds and case studies. Use it on every task, cite what you used, and write your plan and results back into it. Don't go off the top of your head.
 
+## Read lean (the rule that keeps usage low)
+The vault is big. **Query it, don't load it.**
+- **Facts and decisions:** ask the `vault-lookup` agent (project notes + code, Haiku) with the question; it returns facts with note paths. For general Roblox facts use `lihfolk-lookup`. Do not read the notes yourself to get a number or a status.
+- **Find:** `vault/INDEX.md` (one line per project note, with sizes) and `vault/04 Tech/Code Map.md` (each Service/Controller, its remotes and attributes). `Grep -n` the keyword, then `Read` with `offset`/`limit`. Never read a note over ~15 KB whole.
+- **Whole notes only when you are about to edit them** (a plan, spec or playtest you will update), and then just the section you change.
+- **Code:** grep the symbol, read a line range; the Code Map says which file owns what.
+- `vault/00 Home.md` is short: top ~40 lines = current status and what waits on the user; the Locked decisions table is greppable. History: `vault/05 Production/Status History.md` (grep only).
+- Briefs for agents and sessions: the question, paths, "done" criteria, and the rows of the task map that apply. Not "read the vault".
+
 ## Every task
-1. Read `vault/00 Home.md` (Status and Locked decisions), then the project note for the task (table below).
+1. Get the current state and the locked decisions that touch the task: `vault-lookup`, or the top of `vault/00 Home.md` and a grep of its Locked decisions table. Then the project note for the task (table below), by section.
 2. Look things up in LihFolk before non-trivial Roblox work. Use the `lihfolk-lookup` agent for quick facts, or the `lihfolk` router skill. LihFolk's own entry points: `vault/LihFolk/ROUTER.md`, `INDEX_SLIM.md`, `SYMPTOMS.md` (bug → note), `AI Skills Start Here.md`. The plugin keeps its original copy under `~/.claude/plugins/cache/lihfolk/`.
 3. Load the matching specialist skills (table below) and follow them.
 4. Plan in phases: write the plan with references in the vault; build a quick blockout or prototype and critique it with screenshots or tests; then do the full build. Results, playtests and a "what to test" checklist go in the vault (`vault/05 Production/Playtests/`, `Bugs & Ideas.md`).
