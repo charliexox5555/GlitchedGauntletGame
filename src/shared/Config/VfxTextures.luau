@@ -90,4 +90,8 @@ return table.freeze({
 	RECALL_RING = "rbxassetid://90555324299037", -- top-view ring, centre clear (anchor halo, arrival)
 	RECALL_MOTE = "rbxassetid://92235284417353", -- a soft glowing mote
 	RECALL_WARP = "rbxassetid://96699089140331", -- full-screen streaks pulling inward (centre clear)
+
+	-- Sudden-death zone (tools/vfx/make_zone_vfx.py → art-source/vfx/zone/): white, tiles left-right.
+	ZONE_WALL = "rbxassetid://108018292345432", -- glitch-storm curtain, top fades out (decal 116087755457548)
+	ZONE_GLITCH = "rbxassetid://128662496057045", -- sparse pixel blocks and streaks (decal 110875138601582)
 })

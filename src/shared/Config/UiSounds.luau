@@ -39,5 +39,6 @@ return table.freeze({
 	RoundWon = cue(15675043410, 0.6, 1.1), -- the stinger, brighter
 	RoundLost = cue(15675062723, 0.5), -- Roblox_UI_Whistle_Low
 	Victory = cue(1837945707, 0.5), -- APM "Strategic Victory Stinger"
+	ZoneWarn = cue(15675085146, 0.5, 0.72, 0.3), -- Roblox_UI_Indicator, low: outside the sudden-death circle
 	Score = cue(15675055424, 0.4, 0.9), -- Roblox_UI_Cute_Pop, lower: a score diamond fills
 })

@@ -20,6 +20,7 @@ local MatchBody = require(Shared.MatchBody)
 local InputConfig = require(Shared.Config.Input)
 local Pawns = require(Shared.Simulation.Pawns)
 local Teams = require(Shared.Mods.Teams)
+local Zone = require(Shared.Zone)
 
 local Bots = script.Parent.Parent.Bots
 local Aim = require(Bots.Aim)
@@ -389,6 +390,7 @@ local roamPoints: { [number]: Vector3 } = {}
 local patrol: { Vector3 } = {}
 
 local function worldFor(bot: Bot): Brain.World
+	local zone = Zone.read()
 	table.clear(enemyScratch)
 	table.clear(allyScratch)
 	table.clear(focusScratch)
@@ -433,6 +435,8 @@ local function worldFor(bot: Bot): Brain.World
 		roam = BotService.roamPoint(bot.team),
 		patrol = patrol,
 		lane = lane,
+		zone = zone and zone.centre,
+		zoneRadius = if zone then Zone.radiusAt(zone, workspace:GetServerTimeNow()) else 0,
 	}
 end
 
@@ -601,6 +605,22 @@ function BotService.add(team: number, count: number): { any }
 		table.insert(keys, bot.key)
 	end
 	return keys
+end
+
+-- Spawns one bot at `at` (a bot that took a leaver's seat mid-select).
+function BotService.spawnOne(key: any, at: CFrame)
+	local bot = byKey[key]
+	if bot then
+		task.spawn(spawnBot, bot, at)
+	end
+end
+
+-- Takes one bot out (a late player took its seat).
+function BotService.remove(key: any)
+	local bot = byKey[key]
+	if bot then
+		removeBot(bot)
+	end
 end
 
 function BotService.clear()

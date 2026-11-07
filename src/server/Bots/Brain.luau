@@ -30,7 +30,12 @@ export type World = {
 	roam: Vector3?, -- where to go first with no information (the enemy side)
 	patrol: { Vector3 }, -- then from point to point over the map (spawns, middle, flanks)
 	lane: number, -- -1, 0, 1: this bot's flank offset (team play)
+	zone: Vector3?, -- sudden death: the circle's centre (nil: no circle)
+	zoneRadius: number, -- its radius now
 }
+
+-- Sudden death: a bot this close to the circle's edge (or past it) heads in.
+local ZONE_MARGIN = 6
 
 local Brain = {}
 
@@ -301,6 +306,14 @@ function Brain.think(bot: Bot, world: World, now: number)
 			bot.wantSprint = true
 			bot.lookAt = goal
 		end
+	end
+	-- Sudden death: get inside the circle first, still shooting on the way.
+	local zone = world.zone
+	local zoneEdge = math.max(world.zoneRadius - ZONE_MARGIN, world.zoneRadius * 0.5)
+	if zone and ((pos - zone) * Vector3.new(1, 0, 1)).Magnitude > zoneEdge then
+		Nav.setGoal(bot, zone)
+		bot.wantSprint = target == nil
+		bot.lookAt = if target then bot.lookAt else zone
 	end
 	bot.moveDir += spacing(bot, world.allies)
 

@@ -28,14 +28,35 @@ return table.freeze({
 
 	ROUNDS_TO_WIN = 5,
 
-	-- Seconds.
-	READY_TIME = 5, -- "get ready" before the first draft
-	OPENING_DRAFT_TIME = 25,
-	DRAFT_TIME = 15,
-	COUNTDOWN_TIME = 3, -- guns in hand, barrier still up
-	ROUND_TIME = 50,
-	ROUND_END_TIME = 4,
+	-- Seconds (vault/05 Production/Match Structure Revamp.md). The select
+	-- screen opens as soon as the first player is in. Its time includes the
+	-- 3-2-1 at the end (guns in hand, barrier up). Round 1 always runs its full
+	-- time so everyone can arrive; later selects skip to the 3-2-1 once
+	-- everyone has locked in.
+	FIRST_SELECT_TIME = 30,
+	SELECT_TIME = 15,
+	COUNTDOWN_TIME = 3,
+	ROUND_TIME = 50, -- then sudden death
+	ROUND_END_TIME = 5,
 	MATCH_END_TIME = 8,
+
+	-- Sudden death: when the round clock runs out, a circle closes on the
+	-- map's middle (a `ZoneCentre`-tagged part in the map, else halfway between
+	-- the team spawns). It starts past the furthest spawn (×startScale, or the
+	-- centre part's `ZoneRadius` attribute), shrinks over `shrinkTime` to
+	-- `endRadius` and stays. Outside it you lose health straight away (the
+	-- shield doesn't absorb it): `damage` per second, +`damageStep` every
+	-- `stepEvery` seconds. Past `maxTime` the old health compare ends the round.
+	SUDDEN_DEATH = {
+		shrinkTime = 20,
+		endRadius = 4,
+		startScale = 1.6,
+		damage = 10,
+		damageStep = 5,
+		stepEvery = 5,
+		tick = 0.25,
+		maxTime = 60,
+	},
 
 	-- Gun offers by round. Each phase offers GUN_OFFERS guns of its tier, filled
 	-- up from the tiers below when the tier is short.

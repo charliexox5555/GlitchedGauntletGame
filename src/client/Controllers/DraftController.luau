@@ -1209,8 +1209,9 @@ local function show(o: MatchState.DraftOffer)
 	table.clear(gunCards)
 	table.clear(abilityCards)
 	offer = o
-	selectedGun = o.gun
-	selectedAbility = nil
+	-- Something is always selected, so doing nothing is a fine choice.
+	selectedGun = o.gun or o.guns[1]
+	selectedAbility = o.ability or o.abilities[1] or (o.upgrades[1] and o.upgrades[1].key)
 	locked = false
 	shownHint = ""
 	if lockPulse then

@@ -31,6 +31,7 @@ local make = Ui.make
 local TICK = 0.1 -- seconds between refreshes
 local HEALTH_TICK = 0.25 -- seconds between team health scans
 local FIGHT_MESSAGE_TIME = 1 -- seconds "FIGHT" stays up
+local SUDDEN_DEATH_MESSAGE_TIME = 2.5 -- seconds "SUDDEN DEATH" stays up
 local RESET_TRIES = 10
 local BAR_W = 220
 local BAND_SIZE = UDim2.fromScale(1, 260 / 1080)
@@ -39,7 +40,7 @@ local URGENT_LIVE = 10 -- the round clock turns red this many seconds from the e
 
 -- The sound a banner makes as it comes in (by its title).
 local BANNER_SOUND: { [string]: string } = {
-	["GET READY"] = "Banner",
+	["SUDDEN DEATH"] = "Banner",
 	FIGHT = "Fight",
 	["ROUND WON"] = "RoundWon",
 	["ROUND LOST"] = "RoundLost",
@@ -304,6 +305,7 @@ local function teamState(team: number): (number, { string })
 end
 
 local liveSince = -math.huge
+local suddenSince = -math.huge
 local lastHealth = -math.huge
 local lastTick = -1
 local bandToken = 0
@@ -397,11 +399,15 @@ local function refresh(ui: Ui)
 	end
 	local urgent = (phase == "Draft" and second <= TICK_FROM.Draft)
 		or phase == "Countdown"
+		or phase == "SuddenDeath"
 		or (phase == "Live" and second <= URGENT_LIVE)
-	ui.clock.TextColor3 = if urgent and second > 0 then C.enemy else C.text
+	ui.clock.TextColor3 = if urgent and (second > 0 or phase == "SuddenDeath")
+		then C.enemy
+		else C.text
 	local round = MatchState.get("Round") or 0
-	ui.round.Text = if round > 0
-		then string.format("ROUND %d  //  %s", round, phaseName(round))
+	ui.round.Text = if phase == "SuddenDeath"
+		then string.format("ROUND %d  //  SUDDEN DEATH", round)
+		elseif round > 0 then string.format("ROUND %d  //  %s", round, phaseName(round))
 		else string.format("FIRST TO %d", Config.ROUNDS_TO_WIN)
 
 	local kicker, title, sub, color = "", "", "", C.white
@@ -416,11 +422,6 @@ local function refresh(ui: Ui)
 	)
 	if phase == "Waiting" then
 		title = "WAITING FOR OPPONENT"
-	elseif phase == "Ready" then
-		kicker, title, sub =
-			string.format("FIRST TO %d", Config.ROUNDS_TO_WIN),
-			"GET READY",
-			tostring(math.ceil(left))
 	elseif phase == "Draft" then
 		-- The draft screen covers the middle until you've locked in.
 		if player:GetAttribute("DraftLocked") == true then
@@ -433,6 +434,11 @@ local function refresh(ui: Ui)
 	elseif phase == "Live" then
 		if now - liveSince < FIGHT_MESSAGE_TIME then
 			kicker, title = string.format("ROUND %d", round), "FIGHT"
+		end
+	elseif phase == "SuddenDeath" then
+		if now - suddenSince < SUDDEN_DEATH_MESSAGE_TIME then
+			kicker, title, sub, color =
+				string.format("ROUND %d", round), "SUDDEN DEATH", "Get inside the circle", C.enemy
 		end
 	elseif phase == "RoundEnd" then
 		local winner = MatchState.get("RoundWinner") or 0
@@ -537,8 +543,11 @@ function MatchHudController.start()
 		task.spawn(disableReset)
 	end
 	MatchState.changed("Phase"):Connect(function()
-		if MatchState.phase() == "Live" then
+		local phase = MatchState.phase()
+		if phase == "Live" then
 			liveSince = os.clock()
+		elseif phase == "SuddenDeath" then
+			suddenSince = os.clock()
 		end
 	end)
 	while true do

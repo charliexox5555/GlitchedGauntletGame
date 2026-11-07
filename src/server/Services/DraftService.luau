@@ -47,6 +47,7 @@ export type Seat = {
 	ability: string?, -- a new ability's id, or an upgrade card's key
 	glitchBonus: number, -- the glitch chance's rise since the last glitch card
 	locked: boolean,
+	dealtRound: number, -- the round this seat was last dealt cards for (0: never)
 	offer: MatchState.DraftOffer?,
 }
 
@@ -175,8 +176,11 @@ end
 
 -- "id:level" for each ability a seat has (the enemy's kit on the draft screen).
 function DraftService.kitOf(key: any): { string }
-	local s = DraftService.seat(key)
 	local out: { string } = {}
+	local s = seats[key] -- a read never makes a seat (join deals by dealtRound)
+	if not s then
+		return out
+	end
 	for slot = 1, ModsConfig.SLOTS do
 		if s.kit[slot] ~= "" then
 			table.insert(out, s.kit[slot] .. ":" .. s.levels[slot])
@@ -206,6 +210,7 @@ function DraftService.seat(key: any): Seat
 			upgrades = {},
 			locked = false,
 			glitchBonus = 0,
+			dealtRound = 0,
 		}
 		seats[key] = s
 	end
@@ -214,6 +219,73 @@ end
 
 function DraftService.forget(key: any)
 	seats[key] = nil
+end
+
+-- The draft that's open now (for seats dealt in late).
+local dealt = {
+	round = 0,
+	endsAt = 0,
+	enemyKitOf = function(_key: any): { string }
+		return {}
+	end,
+}
+
+local function isPlayer(key: any): boolean
+	return typeof(key) == "Instance" and key:IsA("Player")
+end
+
+-- Sends a player their seat's cards (and what's already selected for them).
+local function sendOffer(player: Player, s: Seat)
+	player:SetAttribute("DraftLocked", s.locked)
+	local offer: MatchState.DraftOffer = {
+		round = dealt.round,
+		phase = DraftService.phaseFor(dealt.round).name,
+		endsAt = dealt.endsAt,
+		guns = s.guns,
+		abilities = s.abilities,
+		upgrades = s.upgrades,
+		kit = s.kit,
+		levels = s.levels,
+		enemyKit = dealt.enemyKitOf(player),
+		gun = s.gun,
+		ability = s.ability,
+	}
+	s.offer = offer
+	Net.event("DraftOffer"):FireClient(player, offer)
+end
+
+-- Deals one seat this draft's cards. Something is selected from the start
+-- (vault/05 Production/Match Structure Revamp.md): your gun while it's still
+-- on offer, else the first gun; the first ability card. Bots pick over it.
+local function deal(key: any)
+	local s = DraftService.seat(key)
+	local phase = DraftService.phaseFor(dealt.round)
+	s.guns = gunOffer
+	s.abilities = {}
+	s.upgrades = {}
+	s.locked = false
+	local current = if phase.tier == 1 then s.sidearm else s.primary
+	s.gun = if current and table.find(gunOffer, current) then current else gunOffer[1]
+	-- One new ability for each empty slot (the first of the shared order
+	-- that fits it), and the upgrades of every filled slot.
+	for slot = 1, ModsConfig.SLOTS do
+		if s.kit[slot] ~= "" then
+			continue
+		end
+		for _, id in abilityOrder do
+			local def = Mods.def(id)
+			if def and def.slot == slot then
+				table.insert(s.abilities, id)
+				break
+			end
+		end
+	end
+	s.upgrades = rollUpgrades(s)
+	s.ability = s.abilities[1] or (s.upgrades[1] and s.upgrades[1].key)
+	s.dealtRound = dealt.round
+	if isPlayer(key) then
+		sendOffer(key, s)
+	end
 end
 
 -- Deals every seat its cards and tells the players. The gun offer lasts as long
@@ -231,53 +303,42 @@ function DraftService.open(
 		gunOffer = rollGuns(phase)
 	end
 	abilityOrder = shuffled(builtAbilities())
+	dealt.round, dealt.endsAt, dealt.enemyKitOf = round, endsAt, enemyKitOf
 	for _, key in keys do
-		local s = DraftService.seat(key)
-		s.guns = gunOffer
-		s.abilities = {}
-		s.upgrades = {}
-		s.gun = nil
-		s.ability = nil
-		s.locked = false
-		-- Your gun from last round stays selected while it's still on offer.
-		local current = if phase.tier == 1 then s.sidearm else s.primary
-		if current and table.find(gunOffer, current) then
-			s.gun = current
-		end
-		-- One new ability for each empty slot (the first of the shared order
-		-- that fits it), and the upgrades of every filled slot.
-		for slot = 1, ModsConfig.SLOTS do
-			if s.kit[slot] ~= "" then
-				continue
-			end
-			for _, id in abilityOrder do
-				local def = Mods.def(id)
-				if def and def.slot == slot then
-					table.insert(s.abilities, id)
-					break
-				end
-			end
-		end
-		s.upgrades = rollUpgrades(s)
-		if typeof(key) == "Instance" and key:IsA("Player") then
-			key:SetAttribute("DraftLocked", false)
-			local offer: MatchState.DraftOffer = {
-				round = round,
-				phase = phase.name,
-				endsAt = endsAt,
-				guns = s.guns,
-				abilities = s.abilities,
-				upgrades = s.upgrades,
-				kit = s.kit,
-				levels = s.levels,
-				enemyKit = enemyKitOf(key),
-				gun = s.gun,
-			}
-			s.offer = offer
-			Net.event("DraftOffer"):FireClient(key, offer)
-		end
+		deal(key)
 	end
 	open = true
+end
+
+function DraftService.isOpen(): boolean
+	return open
+end
+
+-- Someone joined while the draft is open: deal them in (unless this draft
+-- already dealt their seat).
+function DraftService.join(key: any)
+	local s = seats[key]
+	if open and (not s or s.dealtRound ~= dealt.round) then
+		deal(key)
+	end
+end
+
+-- A seat changes hands (a player takes their bot stand-in's place, or a bot
+-- takes a leaver's): kit, levels, guns and this draft's cards go with it. A
+-- player who takes a seat mid-draft gets the cards unlocked, the bot's picks
+-- selected.
+function DraftService.transfer(from: any, to: any)
+	local s = seats[from]
+	if not s then
+		return
+	end
+	seats[from] = nil
+	s.key = to
+	seats[to] = s
+	if isPlayer(to) and open then
+		s.locked = false
+		sendOffer(to, s)
+	end
 end
 
 -- Picks for a seat with nobody clicking (the test opponent).
@@ -346,6 +407,9 @@ local function onPick(player: Player, actionArg: unknown, idArg: unknown)
 	if not open or not s then
 		return
 	end
+	if action ~= "Sync" and workspace:GetServerTimeNow() > dealt.endsAt then
+		return -- past the deadline (the loop closes the draft on its next poll)
+	end
 	if action == "Sync" then
 		-- A client that started up after the deal asks for its cards.
 		if s.offer then
@@ -380,9 +444,9 @@ function DraftService.init()
 end
 
 function DraftService.start()
+	-- The seat itself stays: MatchService hands it to a bot or forgets it.
 	Players.PlayerRemoving:Connect(function(player)
 		limiter:forget(player)
-		DraftService.forget(player)
 	end)
 end
 

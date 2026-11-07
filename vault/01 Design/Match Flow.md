@@ -1,25 +1,24 @@
 # Match Flow
 
-How a match runs in the match place, from the map loading to someone winning. The user set this flow on 2026-11-02, based on Valorant's Gauntlet: Glitched. **Status: first version built, rough UI, PC only.** Tech: [Architecture](../04%20Tech/Architecture.md) → Match system.
+How a match runs in the match place, from the map loading to someone winning. The user set this flow on 2026-11-02, based on Valorant's Gauntlet: Glitched, and **revamped it on 2026-11-07** ([Match Structure Revamp](../05%20Production/Match%20Structure%20Revamp.md): select from the moment you join, sudden death, death camera and spectating, final-kill replay, a match-end screen). **Status: phase A built (select flow, seats, sudden death); B–D next.** Tech: [Architecture](../04%20Tech/Architecture.md) → Match system.
 
 ## The flow
-1. **Waiting:** the map loads and players get in. A match needs both teams. In a Studio playtest with one player, an **AI bot** fills the other side ([Bots](Bots.md)); a Lobby party can ask for bots in its empty slots.
-2. **Get ready:** a short countdown before the first draft.
-3. **Round loop:**
-   - **Draft:** every player picks **1 of 3 guns** (top row) and **1 of 3 abilities** (below), behind their spawn barrier. It ends early when everyone has locked in.
-   - **Countdown:** 3 seconds, guns in hand, barrier still up.
-   - **Fight:** the barrier drops. One life each. The round ends when a team is dead or the timer runs out, then more health plus shield wins. Equal totals score nobody.
-   - **Round end:** who won, the score.
+1. **Joining (2026-11-07):** a Lobby match starts the moment its first player is in: the round 1 select screen is the wait. Every listed player who isn't here yet gets a **bot stand-in**, and empty slots fill with bots. A late player takes their stand-in's seat (kit, guns, levels) at once during a select, else at the next round. **A leaver in team modes is replaced by a bot; a side that has had real players and has none left loses the match** (so a 1v1 leaver forfeits). In a Studio playtest with one player, an **AI bot** fills the other side ([Bots](Bots.md)), or `BotMatch` sets the mode.
+2. **Round loop:**
+   - **Select:** **30 s in round 1, 15 s after**, ending in the **3-2-1** (guns in hand, barrier up). Every player picks **1 of 3 guns** (top row) and **1 of 3 abilities** (below), behind their spawn barrier. **A gun and an ability are selected from the start** (your last gun while it's still offered, else the first gun; the first ability card), so doing nothing is fine. Round 1 runs its full time; later rounds skip to the 3-2-1 once everyone has locked in.
+   - **Fight:** the barrier drops. One life each, 50 s.
+   - **Sudden death:** when the clock runs out, a **circle closes on the map's middle** (a `ZoneCentre`-tagged part, else halfway between the spawns) over 20 s to an 8-stud circle and stays. Outside it you lose **health directly (the shield doesn't absorb it)**: 10/s, +5 every 5 s. It looks like a glitch-storm wall (Blender texture), with a screen tint and a warning tick outside. Bots head inside. If a round somehow lasts 60 s into sudden death, more health plus shield wins.
+   - **Round end:** 5 s, who won, the score. Both last fighters dying at once scores nobody.
 4. **Match end:** first to 5 rounds. In testing a new match then starts by itself; later this goes back to the Lobby.
 
 | Number | Value | Where |
 |---|---|---|
 | Health | **100**, plus a shield of 0–50 from your gun or the phase ([Gun Balance](Gun%20Balance.md)) | `Config/Combat`, `Config/Weapons` |
-| Get ready | 5 s | `Config/Match` |
-| First draft / later drafts | 25 s / 15 s | `Config/Match` |
+| First select / later selects | 30 s / 15 s, each including the 3-2-1 | `Config/Match` |
 | Countdown | 3 s | `Config/Match` |
-| Round | 50 s | `Config/Match` |
-| Round end | 4 s | `Config/Match` |
+| Round | 50 s, then sudden death | `Config/Match` |
+| Sudden death | 20 s shrink to 4-stud radius; 10 HP/s +5 every 5 s; 60 s cap | `Config/Match SUDDEN_DEATH` |
+| Round end | 5 s | `Config/Match` |
 | Win | First to 5 | `Config/Match` |
 
 ## The draft

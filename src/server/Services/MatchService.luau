@@ -1,6 +1,7 @@
 --!strict
--- The match (vault/01 Design/Match Flow.md): map, get ready, then rounds of
--- draft → countdown → fight → round end, first to 5. Runs on every server
+-- The match (vault/01 Design/Match Flow.md, vault/05 Production/Match
+-- Structure Revamp.md): rounds of select (draft, ending in a 3-2-1) → fight
+-- → sudden death → round end, first to 5. Runs on every server
 -- that isn't in test mode. One loop in one thread, wrapped in a pcall so an
 -- error can't leave the game stuck. Clients read the state from MatchState
 -- attributes; they can't change anything here (picks go through DraftService).
@@ -25,6 +26,7 @@ local BotService = require(script.Parent.BotService)
 local CharacterService = require(script.Parent.CharacterService)
 local MatchPlan = require(script.Parent.Parent.Bots.MatchPlan)
 local WeaponService = require(script.Parent.WeaponService)
+local ZoneService = require(script.Parent.ZoneService)
 local Health = require(ReplicatedStorage.Shared.Health)
 
 local MatchService = {}
@@ -34,9 +36,20 @@ local RETRY_AFTER_ERROR = 3
 local MAP_RETRY = 5
 local SPAWN_TRIES = 2
 local LATE_SPAWN_WAIT = 3 -- seconds a slow spawn gets past the countdown
+local MAX_EMPTY_ROUNDS = 3 -- rounds in a row with a side nobody could spawn on: the match ends
 
 local enabled = false
 local matchesPlayed = 0
+
+-- Seats (Match Structure Revamp → A2). A listed player who isn't here yet
+-- has a bot stand-in that plays their seat until they arrive; a late player
+-- takes it over at once during a select, else at the next round.
+local standIns: { [number]: any } = {} -- userId → bot key
+local pendingTakeovers: { [Player]: any } = {} -- player → the bot they replace
+local inMatch = false
+-- Sides that have had a real player this match: if one of them has none
+-- left, the other side wins (a 1v1 leaver, or a whole team gone).
+local humanSides = { false, false }
 
 local function setLocked(player: Player, locked: boolean)
 	player:SetAttribute(MatchState.COMBAT_LOCKED, locked)
@@ -267,8 +280,8 @@ local function applyDraft(keys: { any })
 		if BotService.isBot(key) then
 			local seat = DraftService.seat(key)
 			BotService.applyDraft(key, matchLoadout(seat), seat.kit, seat.levels)
-		else
-			local player = key :: Player
+		elseif typeof(key) == "Instance" and key:IsA("Player") and key.Parent == Players then
+			local player = key
 			local seat = DraftService.seat(player)
 			WeaponService.setMatchLoadout(player, matchLoadout(seat))
 			if isAlive(player) then
@@ -295,7 +308,10 @@ local function giveShields()
 			BotService.giveShield(key, DraftService.seat(key).shield)
 			continue
 		end
-		local character = (key :: Player).Character
+		if not (typeof(key) == "Instance" and key:IsA("Player")) then
+			continue
+		end
+		local character = key.Character
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		if humanoid then
 			humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, DraftService.seat(key).shield)
@@ -303,11 +319,45 @@ local function giveShields()
 	end
 end
 
+-- A side that has had real players this match and has none left: the other
+-- side wins. 0 when both are gone, nil while the match goes on.
+local function forfeitWinner(): number?
+	if not inMatch then
+		return nil
+	end
+	local goneOne = humanSides[1] and #playersOn(1) == 0
+	local goneTwo = humanSides[2] and #playersOn(2) == 0
+	if goneOne and goneTwo then
+		return 0
+	elseif goneOne then
+		return 2
+	elseif goneTwo then
+		return 1
+	end
+	return nil
+end
+
+local function forfeited(): boolean
+	return forfeitWinner() ~= nil
+end
+
+local function noteHumans()
+	for team = 1, 2 do
+		if #playersOn(team) > 0 then
+			humanSides[team] = true
+		end
+	end
+end
+
+-- The select screen: SELECT time in all, the last COUNTDOWN of it the 3-2-1.
+-- The top-bar clock counts to the fight. Round 1 runs its full time (people
+-- are still arriving); later rounds skip to the 3-2-1 once all have locked in.
 local function runDraft(round: number)
-	local seconds = if round == 1 then Config.OPENING_DRAFT_TIME else Config.DRAFT_TIME
+	local total = if round == 1 then Config.FIRST_SELECT_TIME else Config.SELECT_TIME
+	local picking = math.max(total - Config.COUNTDOWN_TIME, 1)
 	local keys = seatKeys()
-	local endsAt = workspace:GetServerTimeNow() + seconds
-	DraftService.open(keys, round, endsAt, enemyKit)
+	local now = workspace:GetServerTimeNow()
+	DraftService.open(keys, round, now + picking, enemyKit)
 	-- Bots pick from the same offers (Bots/BotDraft).
 	for _, key in keys do
 		if BotService.isBot(key) then
@@ -315,13 +365,140 @@ local function runDraft(round: number)
 		end
 	end
 	MatchState.set("WeaponPhase", DraftService.phaseFor(round).name)
-	setPhase("Draft", seconds)
-	runClock(seconds, function()
-		return DraftService.allLocked(seatKeys())
+	MatchState.set("EndsAt", now + total)
+	MatchState.set("Phase", "Draft")
+	runClock(picking, function()
+		return forfeited() or (round > 1 and DraftService.allLocked(seatKeys()))
 	end)
-	DraftService.close(seatKeys()) -- anyone who left in the meantime is out
+	DraftService.close(seatKeys())
 	applyDraft(seatKeys())
 	giveShields()
+end
+
+-- Joining and leaving -----------------------------------------------------------
+
+-- A player takes the seat their bot stand-in kept for them.
+local function takeOver(player: Player, bot: any)
+	local team = MatchPlan.teamFor(player) or BotService.teamOf(bot)
+	if team then
+		player:SetAttribute(Teams.ATTRIBUTE, team)
+	end
+	standIns[player.UserId] = nil
+	pendingTakeovers[player] = nil
+	DraftService.transfer(bot, player)
+	BotService.remove(bot)
+	noteHumans()
+	applyDraft({ player })
+end
+
+-- Lobby matches: every listed player who isn't here gets a bot stand-in, and
+-- the rest of each side fills with bots.
+local function fillSlots()
+	local plan = MatchPlan.current()
+	if not plan then
+		return
+	end
+	for team = 1, 2 do
+		for _, userId in plan.teams[team] do
+			local kept = standIns[userId]
+			if not Players:GetPlayerByUserId(userId) and not (kept and BotService.isBot(kept)) then
+				standIns[userId] = BotService.add(team, 1)[1]
+			end
+		end
+		local missing = plan.size - sideCount(team)
+		if missing > 0 then
+			BotService.add(team, missing)
+		end
+	end
+end
+
+-- Late players whose stand-in kept their seat during the last fight.
+local function applyTakeovers()
+	for player, bot in pendingTakeovers do
+		if player.Parent == Players and BotService.isBot(bot) then
+			takeOver(player, bot)
+		end
+	end
+	table.clear(pendingTakeovers)
+end
+
+local function spawnOne(player: Player)
+	spawnPlayers(function(p: Player): boolean
+		return p == player
+	end)
+end
+
+local function onJoin(player: Player)
+	if player.Parent ~= Players then
+		return
+	end
+	local bot = standIns[player.UserId]
+	local phase = MatchState.phase()
+	local selecting = inMatch and (phase == "Draft" or phase == "Countdown")
+	if bot and BotService.isBot(bot) then
+		-- Their side from the start, even while the bot still plays the seat.
+		local team = MatchPlan.teamFor(player) or BotService.teamOf(bot)
+		if team then
+			player:SetAttribute(Teams.ATTRIBUTE, team)
+		end
+		if selecting then
+			takeOver(player, bot)
+			spawnOne(player)
+		else
+			-- Mid-fight: the bot plays on; the seat is theirs from the next round.
+			pendingTakeovers[player] = bot
+		end
+		return
+	end
+	local listedTeam = MatchPlan.teamFor(player)
+	if listedTeam then
+		player:SetAttribute(Teams.ATTRIBUTE, listedTeam)
+	end
+	if selecting then
+		-- No seat kept: dealt in (a Studio test client, or a free join).
+		DraftService.join(player)
+		noteHumans()
+		spawnOne(player)
+	end
+end
+
+-- Team modes: a bot takes a leaver's seat (and plays from now in a select,
+-- else from the next round). A 1v1 leaver forfeits (forfeitWinner).
+local function onLeave(player: Player)
+	local wasPending = pendingTakeovers[player] ~= nil
+	pendingTakeovers[player] = nil
+	local team = Teams.of(player)
+	local plan = MatchPlan.current()
+	local size = if plan then plan.size elseif team then sideCount(team) else 1
+	local kept = standIns[player.UserId]
+	local standInPlays = kept ~= nil and BotService.isBot(kept)
+	-- Nothing to replace: no match, a 1v1 (forfeit), their stand-in still has
+	-- the seat (they never took it over), or the side is already full.
+	if
+		not inMatch
+		or not team
+		or size <= 1
+		or wasPending
+		or standInPlays
+		or sideCount(team) - 1 >= size
+	then
+		DraftService.forget(player)
+		return
+	end
+	local bot = BotService.add(team, 1)[1]
+	standIns[player.UserId] = bot -- if they come back, they take the seat back
+	DraftService.transfer(player, bot)
+	local seat = DraftService.seat(bot)
+	BotService.applyDraft(bot, matchLoadout(seat), seat.kit, seat.levels)
+	if DraftService.isOpen() then
+		BotService.draft(bot, seat :: any)
+	end
+	local phase = MatchState.phase()
+	local spawns = MapService.spawns(team)
+	if (phase == "Draft" or phase == "Countdown") and #spawns > 0 then
+		local spot = spawns[(sideCount(team) - 2) % #spawns + 1] -- the leaver still counts here
+		BotService.spawnOne(bot, spot.CFrame)
+	end
 end
 
 -- One match --------------------------------------------------------------------
@@ -357,6 +534,9 @@ end
 
 local function runMatch()
 	balanceTeams()
+	inMatch = true
+	humanSides = { false, false }
+	noteHumans()
 	setAllLocked(true)
 	MatchState.set("Round", 0)
 	MatchState.set("Score1", 0)
@@ -365,36 +545,54 @@ local function runMatch()
 	MatchState.set("MatchWinner", nil)
 	MapService.setBarriers(true)
 	resetKits()
-	spawnEveryone()
-	setPhase("Ready", Config.READY_TIME)
-	task.wait(Config.READY_TIME)
 
 	local scores = { 0, 0 }
 	local round = 0
-	local forfeitWinner: number? = nil
+	local emptyRounds = 0
+	local forfeitBy: number? = nil
+	local function over(): boolean
+		return someoneOut() or forfeited()
+	end
 	while scores[1] < Config.ROUNDS_TO_WIN and scores[2] < Config.ROUNDS_TO_WIN do
 		round += 1
 		MatchState.set("Round", round)
 		MatchState.set("RoundWinner", nil)
 		setAllLocked(true)
 		MapService.setBarriers(true)
-		if round > 1 then
-			spawnEveryone()
-		end
+		applyTakeovers()
+		spawnEveryone()
 		runDraft(round)
 
 		spawnMissing()
-		setPhase("Countdown", Config.COUNTDOWN_TIME)
-		task.wait(Config.COUNTDOWN_TIME)
-		if someoneOut() then
+		if not forfeited() then
+			setPhase("Countdown", Config.COUNTDOWN_TIME)
+			runClock(Config.COUNTDOWN_TIME, forfeited)
+		end
+		if someoneOut() and not forfeited() then
 			runClock(LATE_SPAWN_WAIT, function()
-				return not someoneOut()
+				return not someoneOut() or forfeited()
 			end)
 		end
 
 		-- A side with nobody alive at the start isn't a fight: no point, go again.
+		-- Rounds in a row like that (a side that can't spawn) end the match.
 		local winner = 0
-		if not someoneOut() then
+		if someoneOut() and not forfeited() then
+			emptyRounds += 1
+			if emptyRounds >= MAX_EMPTY_ROUNDS then
+				local one, two = teamState(1), teamState(2)
+				forfeitBy = if one > 0 and two == 0 then 1 elseif two > 0 and one == 0 then 2 else 0
+				warn(
+					"[MatchService] a side couldn't spawn for",
+					emptyRounds,
+					"rounds: the match ends"
+				)
+				break
+			end
+		else
+			emptyRounds = 0
+		end
+		if not over() then
 			giveShields() -- anyone spawned late has one too
 			-- Fight. Charges come back here, so nothing spent behind the barrier counts.
 			for _, player in Players:GetPlayers() do
@@ -405,7 +603,13 @@ local function runMatch()
 			setAllLocked(false)
 			BotService.setFighting(true)
 			setPhase("Live", Config.ROUND_TIME)
-			runClock(Config.ROUND_TIME, someoneOut)
+			runClock(Config.ROUND_TIME, over)
+			-- Sudden death: the circle closes until a side is out.
+			if not over() and ZoneService.begin() then
+				setPhase("SuddenDeath", Config.SUDDEN_DEATH.shrinkTime)
+				runClock(Config.SUDDEN_DEATH.maxTime, over)
+			end
+			ZoneService.stop()
 
 			BotService.setFighting(false)
 			setAllLocked(true)
@@ -414,6 +618,10 @@ local function runMatch()
 		for _, player in Players:GetPlayers() do
 			ModService.clearRound(player)
 		end
+		forfeitBy = forfeitWinner()
+		if forfeitBy then
+			break
+		end
 		if winner ~= 0 then
 			scores[winner] += 1
 		end
@@ -421,22 +629,30 @@ local function runMatch()
 		MatchState.set("Score2", scores[2])
 		MatchState.set("RoundWinner", winner)
 		setPhase("RoundEnd", Config.ROUND_END_TIME)
-		task.wait(Config.ROUND_END_TIME)
+		runClock(Config.ROUND_END_TIME, forfeited)
 
 		if #Players:GetPlayers() == 0 then
 			return -- only bots are left
 		end
+		forfeitBy = forfeitWinner()
+		if forfeitBy then
+			break
+		end
 		if not bothSidesFilled() then
-			-- Everyone on one side left: whoever stayed wins the match.
-			forfeitWinner = sideLeftStanding()
-			if not forfeitWinner then
+			-- Nobody at all on one side (no bots either): whoever stayed wins.
+			forfeitBy = sideLeftStanding()
+			if not forfeitBy then
 				return -- nobody is left at all
 			end
 			break
 		end
 	end
 
-	MatchState.set("MatchWinner", forfeitWinner or (if scores[1] > scores[2] then 1 else 2))
+	if forfeitBy == 0 then
+		return -- everyone left
+	end
+	setAllLocked(true)
+	MatchState.set("MatchWinner", forfeitBy or (if scores[1] > scores[2] then 1 else 2))
 	setPhase("MatchEnd", Config.MATCH_END_TIME)
 	task.wait(Config.MATCH_END_TIME)
 end
@@ -449,21 +665,16 @@ local function waitForPlayers()
 	local lonelySince: number? = nil
 	while true do
 		balanceTeams()
-		if bothSidesFilled() and #Players:GetPlayers() > 0 then
-			return
-		end
 		local plan = MatchPlan.current()
-		if plan then
-			-- A Lobby match: once the listed players are in (or the grace is
-			-- over), bots fill the empty slots when the party asked for them.
-			if plan.bots and MatchPlan.ready() then
-				for team = 1, 2 do
-					local missing = plan.size - sideCount(team)
-					if missing > 0 then
-						BotService.add(team, missing)
-					end
-				end
+		if plan and #Players:GetPlayers() > 0 then
+			-- A Lobby (or Studio BotMatch) match starts with the first player:
+			-- bots keep everyone else's seat, and the round 1 select is the wait.
+			fillSlots()
+			if bothSidesFilled() then
+				return
 			end
+		elseif bothSidesFilled() and #Players:GetPlayers() > 0 then
+			return
 		elseif
 			RunService:IsStudio()
 			and BotsConfig.STUDIO_SOLO_BOT
@@ -527,13 +738,20 @@ local function loop()
 		end
 		matchesPlayed += 1
 		local ok, err = pcall(runMatch)
+		inMatch = false
+		ZoneService.stop()
 		BotService.setFighting(false)
 		if #Players:GetPlayers() == 0 then
 			BotService.clear()
+			table.clear(standIns)
+			table.clear(pendingTakeovers)
 		end
 		if not ok then
 			warn("[MatchService] the match stopped on an error:", err)
 			-- Back behind the barrier, whatever phase it stopped in.
+			DraftService.reset()
+			table.clear(pendingTakeovers)
+			setPhase("Waiting", 0)
 			setAllLocked(true)
 			MapService.setBarriers(true)
 			task.wait(RETRY_AFTER_ERROR)
@@ -556,12 +774,11 @@ function MatchService.start()
 	setAllLocked(true)
 	MatchPlan.start()
 	Players.PlayerAdded:Connect(function(player)
-		-- Fighting needs a spawn at the next round; until then, no shots.
+		-- Fighting needs a spawn; until then, no shots.
 		setLocked(player, true)
+		task.defer(onJoin, player) -- after MatchPlan and ModService have seen them
 	end)
-	Players.PlayerRemoving:Connect(function(player)
-		DraftService.forget(player)
-	end)
+	Players.PlayerRemoving:Connect(onLeave)
 	task.spawn(loop)
 end
 

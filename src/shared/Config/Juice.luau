@@ -68,6 +68,28 @@ return table.freeze({
 	-- The death look (DeathFxController): the body is hidden and a still copy
 	-- of it falls over, rests, then fades with a dust puff. The downed player's
 	-- own screen drains of colour.
+	-- The sudden-death wall (Controllers/ZoneController, vault/05 Production/
+	-- Match Structure Revamp.md): a ring of Beams with the glitch-storm
+	-- texture, one texture repeat per segment (`tile` studs wide each), and a
+	-- faster glitch layer on top. Outside the circle the screen tints and a
+	-- warning ticks.
+	ZONE = table.freeze({
+		color = Color3.fromHex("CD3CFF"),
+		glitchColor = Color3.fromHex("FF5AF0"),
+		below = 30, -- studs the wall reaches under the circle's centre
+		height = 110, -- studs, top to bottom
+		tile = 70, -- studs of wall per texture repeat (sets the segment count)
+		minSegments = 10,
+		maxSegments = 64,
+		speed = 0.12, -- texture scroll, repeats per second
+		glitchSpeed = -0.7,
+		transparency = 0.02,
+		glitchFlicker = 0.08, -- seconds between glitch-layer flickers
+		tint = Color3.fromHex("F2DDFF"), -- the screen while you're outside
+		tintTime = 0.25,
+		warnEvery = 0.55, -- seconds between warning ticks outside
+	}),
+
 	DEATH = table.freeze({
 		buckle = 0.28, -- seconds the knees buckle (the Death clip) before it tips
 		fall = 0.45, -- seconds to hit the floor
