@@ -18,6 +18,8 @@ local VfxTextures = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local DeathFxController = {}
 
+DeathFxController.COPY_TAG = "DeathFxCopy"
+
 local player = Players.LocalPlayer
 local D = Juice.DEATH
 local TICK = 0.1
@@ -113,7 +115,7 @@ local function puff(at: Vector3)
 end
 
 -- The body falls over (around its feet), rests, then fades.
-local function fall(body: Model)
+local function fall(body: Model, parent: Instance?)
 	local root = body:FindFirstChild("HumanoidRootPart")
 	if not root or not root:IsA("BasePart") then
 		hide(body)
@@ -124,7 +126,8 @@ local function fall(body: Model)
 	if not copy then
 		return
 	end
-	copy.Parent = Workspace
+	copy:AddTag(DeathFxController.COPY_TAG) -- the final-kill replay hides these
+	copy.Parent = parent or Workspace
 	-- The knees buckle and the head drops first (the Death clip).
 	local humanoid = copy:FindFirstChildOfClass("Humanoid")
 	local animator: Animator? = humanoid and humanoid:FindFirstChildOfClass("Animator")
@@ -242,6 +245,12 @@ local function step(body: Model)
 			hide(body) -- went down before we saw it (a late join): no replayed fall
 		end
 	end
+end
+
+-- The fall for any body (the final-kill replay's copy of the victim); its
+-- falling copy goes in `parent` (the replay's folder, so it goes with it).
+function DeathFxController.playFall(body: Model, parent: Instance?)
+	task.spawn(fall, body, parent)
 end
 
 -- The grey goes when you start watching someone else (SpectateController).

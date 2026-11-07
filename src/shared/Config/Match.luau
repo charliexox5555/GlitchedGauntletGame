@@ -58,6 +58,26 @@ return table.freeze({
 		maxTime = 60,
 	},
 
+	-- The final-kill replay (Controllers/ReplayController): when a round's
+	-- elimination wins the match, every client replays the last moments from
+	-- `before` seconds before the kill to `after` after, at normal speed until
+	-- `slowFrom` before the kill, then at `slowSpeed`. It starts `delay` after
+	-- the server says so (all clients together) and holds `hold` at the end.
+	-- `beat`: seconds after the kill before the replay phase. `buffer`: seconds
+	-- each client keeps recorded, `rate`: frames per second.
+	REPLAY = {
+		before = 2.9,
+		after = 0.3,
+		slowFrom = 0.4,
+		slowSpeed = 0.3,
+		delay = 0.3,
+		hold = 0.6,
+		beat = 0.8,
+		buffer = 6,
+		rate = 30,
+		recentKill = 1, -- seconds: the losing side's last down must be this recent (elimination ends the round within 0.1 s)
+	},
+
 	-- Gun offers by round. Each phase offers GUN_OFFERS guns of its tier, filled
 	-- up from the tiers below when the tier is short.
 	PHASES = {

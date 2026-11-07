@@ -26,6 +26,8 @@ local BotService = require(script.Parent.BotService)
 local CharacterService = require(script.Parent.CharacterService)
 local MatchPlan = require(script.Parent.Parent.Bots.MatchPlan)
 local WeaponService = require(script.Parent.WeaponService)
+local HealthService = require(script.Parent.HealthService)
+local Net = require(ReplicatedStorage.Shared.Net)
 local ZoneService = require(script.Parent.ZoneService)
 local Health = require(ReplicatedStorage.Shared.Health)
 
@@ -50,6 +52,11 @@ local inMatch = false
 -- Sides that have had a real player this match: if one of them has none
 -- left, the other side wins (a 1v1 leaver, or a whole team gone).
 local humanSides = { false, false }
+
+-- The last fighter to go down on each side, and when (server time): the
+-- final-kill replay.
+type Down = { body: Model, at: number }
+local lastDown: { [number]: Down } = {}
 
 local function setLocked(player: Player, locked: boolean)
 	player:SetAttribute(MatchState.COMBAT_LOCKED, locked)
@@ -532,6 +539,28 @@ local function sideLeftStanding(): number?
 	return nil
 end
 
+-- Plays the final kill on every client (Controllers/ReplayController): the
+-- losing side's last fighter, if the round ended because that side was
+-- eliminated just now (no replay for a timeout or a health compare).
+local function playReplay(winner: number, eliminated: boolean)
+	local R = Config.REPLAY
+	local loser = if winner == 1 then 2 else 1
+	local down = lastDown[loser]
+	local now = workspace:GetServerTimeNow()
+	if not eliminated or not down or now - down.at > R.recentKill then
+		return
+	end
+	task.wait(R.beat)
+	if not down.body.Parent then
+		return -- they left during the beat
+	end
+	local startAt = workspace:GetServerTimeNow() + R.delay
+	local length = MatchState.replayLength()
+	Net.event("Replay"):FireAllClients(down.body, down.at, startAt)
+	setPhase("Replay", length)
+	task.wait(length)
+end
+
 local function runMatch()
 	balanceTeams()
 	inMatch = true
@@ -545,6 +574,7 @@ local function runMatch()
 	MatchState.set("MatchWinner", nil)
 	MapService.setBarriers(true)
 	resetKits()
+	table.clear(lastDown)
 
 	local scores = { 0, 0 }
 	local round = 0
@@ -577,6 +607,7 @@ local function runMatch()
 		-- A side with nobody alive at the start isn't a fight: no point, go again.
 		-- Rounds in a row like that (a side that can't spawn) end the match.
 		local winner = 0
+		local eliminated = false
 		if someoneOut() and not forfeited() then
 			emptyRounds += 1
 			if emptyRounds >= MAX_EMPTY_ROUNDS then
@@ -613,6 +644,7 @@ local function runMatch()
 
 			BotService.setFighting(false)
 			setAllLocked(true)
+			eliminated = someoneOut()
 			winner = roundWinner()
 		end
 		for _, player in Players:GetPlayers() do
@@ -628,6 +660,10 @@ local function runMatch()
 		MatchState.set("Score1", scores[1])
 		MatchState.set("Score2", scores[2])
 		MatchState.set("RoundWinner", winner)
+		if winner ~= 0 and scores[winner] >= Config.ROUNDS_TO_WIN then
+			playReplay(winner, eliminated) -- the match-winning kill
+			break
+		end
 		setPhase("RoundEnd", Config.ROUND_END_TIME)
 		runClock(Config.ROUND_END_TIME, forfeited)
 
@@ -773,6 +809,13 @@ function MatchService.start()
 	end
 	setAllLocked(true)
 	MatchPlan.start()
+	HealthService.onDowned(function(humanoid: Humanoid)
+		local body = humanoid.Parent
+		local team = body and body:IsA("Model") and Teams.of(body)
+		if body and body:IsA("Model") and team then
+			lastDown[team] = { body = body, at = workspace:GetServerTimeNow() }
+		end
+	end)
 	Players.PlayerAdded:Connect(function(player)
 		-- Fighting needs a spawn; until then, no shots.
 		setLocked(player, true)

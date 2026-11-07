@@ -1592,6 +1592,17 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	end
 end
 
+-- A recorded shot played again (Controllers/ReplayController): `shooter` is
+-- the replay's copy of the body, drawn like anyone else's shot.
+function EffectsController.playShot(
+	shooter: Model,
+	weaponId: string,
+	origin: Vector3,
+	ends: { Vector3 }
+)
+	onShotFx(shooter, weaponId, origin, ends)
+end
+
 function EffectsController.start()
 	effectsFolder()
 	-- Load the atlas and textures up front so the first shot isn't missing them.

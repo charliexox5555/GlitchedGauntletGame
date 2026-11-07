@@ -511,6 +511,11 @@ local function startDeathCam(body: Model)
 	end
 	mode = "DeathCam"
 	WeaponController.setSpectating(true) -- no crosshair, no Aim sends from the dead body
+	-- Your gun and arms go (WeaponController stands down before its own
+	-- end-of-life clean-up can run).
+	ViewmodelController.unequip()
+	CameraController.setZoom(nil, 0)
+	HudController.setScope(false)
 	deathAt = os.clock()
 	deathFrom = cam.CFrame
 	local flat = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
@@ -571,6 +576,11 @@ local function stop()
 	end
 end
 
+-- The final-kill replay takes the camera (ReplayController).
+function SpectateController.stop()
+	stop()
+end
+
 -- Every few frames: move on when there's someone (better) to watch.
 local function tick()
 	-- The Spectate request, once the choice has settled.
@@ -585,12 +595,19 @@ local function tick()
 	end
 	-- The match is over (or restarting): nobody respawns to end this.
 	local phase = MatchState.phase()
-	if mode ~= "Off" and (phase == "MatchEnd" or phase == "Waiting") then
+	if mode ~= "Off" and (phase == "MatchEnd" or phase == "Waiting" or phase == "Replay") then
 		stop()
 		return
 	end
 	local body = myBody
-	if mode == "Off" and body and body == player.Character and Health.isDowned(body) then
+	local over = phase == "Replay" or phase == "MatchEnd" or phase == "Waiting"
+	if
+		mode == "Off"
+		and not over
+		and body
+		and body == player.Character
+		and Health.isDowned(body)
+	then
 		startDeathCam(body)
 		return
 	end

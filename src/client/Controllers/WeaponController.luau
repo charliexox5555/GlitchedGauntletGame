@@ -39,6 +39,7 @@ local InputController = require(script.Parent.InputController)
 local MovementController = require(script.Parent.MovementController)
 local PickerController = require(script.Parent.PickerController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
+local ShotLog = require(script.Parent.Parent.Util.ShotLog)
 
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 
@@ -675,6 +676,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 		hits = hits,
 		ends = ends,
 	})
+	ShotLog.own(config.id, origin, ends)
 
 	-- Feel.
 	if not scoped then -- no flash or casing in the scope picture
@@ -880,6 +882,7 @@ local function swing(s: LocalSlot, heavy: boolean?)
 		ends = {},
 		alt = heavy == true,
 	})
+	ShotLog.own(s.config.id, origin, {})
 end
 
 -- Behind the barrier and between rounds (the server refuses shots too).

@@ -9,6 +9,7 @@
 -- Dev test panel (DevModService; Studio, test mode or the owner): DevMod (client -> server)
 -- Match (DraftService): DraftPick (client -> server), DraftOffer (server -> one client)
 -- Spectating (SpectateService): Spectate (client -> server)
+-- Final-kill replay (MatchService): Replay (server -> all clients)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -32,6 +33,7 @@ local RELIABLE = {
 	"DraftPick",
 	"DraftOffer",
 	"Spectate",
+	"Replay",
 }
 local UNRELIABLE = { "Aim", "ShotFx" }
 

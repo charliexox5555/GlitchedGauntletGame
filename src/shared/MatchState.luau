@@ -15,6 +15,7 @@ export type Phase =
 	| "Live"
 	| "SuddenDeath"
 	| "RoundEnd"
+	| "Replay"
 	| "MatchEnd"
 
 -- One upgrade card: ability `id` in `slot` to `level` (path A, B or G).
@@ -70,6 +71,19 @@ function MatchState.shieldFor(phaseName: string, gunId: string?): number
 	end
 	local gun = gunId and Weapons.get(gunId)
 	return gun and gun.shield or 0
+end
+
+-- How long the final-kill replay plays (Config/Match REPLAY), start delay
+-- and end hold included: the server's Replay phase and every client's
+-- playback use this one sum.
+function MatchState.replayPlayback(): number
+	local R = Config.REPLAY
+	return (R.before - R.slowFrom) + (R.slowFrom + R.after) / R.slowSpeed
+end
+
+function MatchState.replayLength(): number
+	local R = Config.REPLAY
+	return R.delay + MatchState.replayPlayback() + R.hold
 end
 
 -- Seconds left on the current phase's clock.
