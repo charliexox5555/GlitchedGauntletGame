@@ -48,6 +48,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 ## Production (05 Production)
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
 - `05 Production/Match Structure Revamp.md` (21): Release 1 match flow plan, phases A–D, as built
+- `05 Production/Codex Gun Remaster Brief 2026-11-07.md` (10): Codex job: remaster every gun and the knife in Blender (style, rig contract, sights, rounds, anims, renders); Akimbo dropped
 - `05 Production/Cleanup 2026-11-08.md` (4): the repo / code / place cleanup: what was tidied, what was left on purpose, how things are organized
 - `05 Production/Archive/`: finished one-off plans and briefs: `Handoff 2026-11-06 Release 1.md` (7), `Overnight 2026-11-04.md` (7), `Day Plan 2026-11-05.md` (9), `Codex Concept Brief 2026-11-05.md` (2)
 - `05 Production/Bugs & Ideas.md` (4): bug and idea capture, parked ideas
