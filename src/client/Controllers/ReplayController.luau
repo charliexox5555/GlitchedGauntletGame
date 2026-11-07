@@ -51,6 +51,11 @@ type Track = {
 	stamps: { number }, -- per ring slot, the time it was written (valid when it matches `times`)
 	downAt: number?, -- server time it went down (as this client saw it)
 	lastSeen: number,
+	-- What they saw, per ring slot (the final kill plays from the killer's eyes):
+	yaw: { number }, -- radians, where they faced
+	pitch: { number }, -- radians, up / down
+	aiming: { boolean }, -- down the sights
+	weapon: { string }, -- the gun in hand ("" = none)
 }
 
 type Shot = { t: number, body: Model, weaponId: string, origin: Vector3, ends: { Vector3 } }
@@ -97,7 +102,40 @@ local function newTrack(body: Model): Track
 		stamps = table.create(FRAMES, -math.huge),
 		downAt = nil,
 		lastSeen = 0,
+		yaw = table.create(FRAMES, 0),
+		pitch = table.create(FRAMES, 0),
+		aiming = table.create(FRAMES, false),
+		weapon = table.create(FRAMES, ""),
 	}
+end
+
+-- Where a fighter is looking now. Yours comes straight from your camera;
+-- anyone else's from their body's facing and the AimPitch / Aiming
+-- attributes (players: WeaponService's Aim remote; bots: Bots/Brain).
+local function viewOf(body: Model): (number, number, boolean, string)
+	local owner = Players:GetPlayerFromCharacter(body)
+	local holder: Instance = owner or body
+	local yaw, pitch = 0, 0
+	local cam = Workspace.CurrentCamera
+	if owner == player and cam then
+		local look = cam.CFrame.LookVector
+		yaw = math.atan2(-look.X, -look.Z)
+		pitch = math.asin(math.clamp(look.Y, -1, 1))
+	else
+		local root = body:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") then
+			local look = root.CFrame.LookVector
+			yaw = math.atan2(-look.X, -look.Z)
+		end
+		local p = holder:GetAttribute("AimPitch")
+		pitch = if typeof(p) == "number" and p == p then math.clamp(p, -1.45, 1.45) else 0
+	end
+	local world = body:FindFirstChild("WorldWeapon")
+	local id = world and world:GetAttribute("WeaponId")
+	return yaw,
+		pitch,
+		holder:GetAttribute("Aiming") == true,
+		if typeof(id) == "string" then id else ""
 end
 
 local function record()
@@ -128,6 +166,7 @@ local function record()
 			frame[i] = part.CFrame
 		end
 		track.stamps[head] = t
+		track.yaw[head], track.pitch[head], track.aiming[head], track.weapon[head] = viewOf(body)
 		if track.downAt == nil and Health.isDowned(body) then
 			track.downAt = t
 		elseif track.downAt ~= nil and not Health.isDowned(body) then
@@ -280,8 +319,9 @@ local function slotsBetween(from: number, to: number): { number }
 end
 
 -- Places an actor's parts at time `t` (lerped between the frames around it).
-local function pose(actor: Actor, slots: { number }, t: number)
-	local track = actor.track
+-- The recorded frames either side of time `t` on a track, and how far
+-- between them `t` is (nil: nothing recorded for it).
+local function bracket(track: Track, slots: { number }, t: number): (number?, number, number)
 	local before: number? = nil
 	local after: number? = nil
 	for _, slot in slots do
@@ -296,12 +336,20 @@ local function pose(actor: Actor, slots: { number }, t: number)
 	end
 	local a = before or after
 	if not a then
-		return
+		return nil, 0, 0
 	end
 	local b = after or a
-	local fa, fb = track.frames[a], track.frames[b]
 	local span = times[b] - times[a]
-	local alpha = if span > 1e-4 then math.clamp((t - times[a]) / span, 0, 1) else 0
+	return a, b, if span > 1e-4 then math.clamp((t - times[a]) / span, 0, 1) else 0
+end
+
+local function pose(actor: Actor, slots: { number }, t: number)
+	local track = actor.track
+	local a, b, alpha = bracket(track, slots, t)
+	if not a then
+		return
+	end
+	local fa, fb = track.frames[a], track.frames[b]
 	for i, part in actor.parts do
 		local cf = fa[i]
 		if part and cf then
@@ -439,6 +487,10 @@ local function cleanup(session: Session)
 		gui.Enabled = false
 	end
 	if session.tookCamera then
+		ViewmodelController.setSubject(nil)
+		ViewmodelController.setHidden(false)
+		EffectsController.setSpectated(nil, nil)
+		CameraController.setZoom(nil, 0)
 		WeaponController.setSpectating(false)
 		local cam = Workspace.CurrentCamera
 		if cam then
@@ -604,6 +656,92 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	local warned = false
 	local up = Vector3.yAxis
 
+	-- The killer's first-person view, rebuilt from their recorded view like
+	-- spectating (SpectateController): their head, yaw and pitch (smoothed:
+	-- others' pitch arrives 10 times a second), their gun, aim-down-sights
+	-- and zoom; their own body is hidden (the camera is inside it).
+	local viewPos: Vector3? = nil
+	local viewYaw, viewPitch = 0, 0
+	local vmWeapon = ""
+	local vmConfig: any = nil
+	local ads = 0
+	local killerParts: { Instance } = {}
+	if killerActor then
+		for _, d in killerActor.copy:GetDescendants() do
+			if d:IsA("BasePart") or d:IsA("Decal") then
+				table.insert(killerParts, d)
+			end
+		end
+		ViewmodelController.setSubject(killerActor.copy)
+		EffectsController.setSpectated(killerActor.copy, function(config: any, left: boolean)
+			if config.fireMode == "Melee" then
+				ViewmodelController.swing()
+			elseif left then
+				ViewmodelController.fire(1 - 0.5 * ads, "Left", false)
+			else
+				ViewmodelController.fire(1 - 0.5 * ads, nil, false)
+			end
+		end)
+	end
+
+	local function killerView(c: Camera, dt: number, t: number)
+		local actor = killerActor :: Actor
+		for _, d in killerParts do
+			(d :: any).LocalTransparencyModifier = 1
+		end
+		local track = actor.track
+		local a, b, alpha = bracket(track, slots, t)
+		local headPart = actor.copy:FindFirstChild("Head")
+		if not a or not headPart or not headPart:IsA("BasePart") then
+			return
+		end
+		local ya, yb = track.yaw[a], track.yaw[b]
+		local yaw = ya + ((yb - ya + math.pi) % (2 * math.pi) - math.pi) * alpha
+		local pitch = track.pitch[a] + (track.pitch[b] - track.pitch[a]) * alpha
+		local pos = viewPos
+		if pos == nil then
+			viewPos = headPart.Position
+			viewYaw, viewPitch = yaw, pitch
+		else
+			viewPos = pos:Lerp(headPart.Position, 1 - math.exp(-25 * dt))
+			local dy = (yaw - viewYaw + math.pi) % (2 * math.pi) - math.pi
+			viewYaw += dy * (1 - math.exp(-20 * dt))
+			viewPitch += (pitch - viewPitch) * (1 - math.exp(-16 * dt))
+		end
+		c.CFrame = CFrame.new(viewPos :: Vector3) * CFrame.fromEulerAnglesYXZ(viewPitch, viewYaw, 0)
+
+		-- Their gun (no draw: it's already in their hands).
+		local weapon = track.weapon[a]
+		if weapon ~= vmWeapon then
+			vmWeapon = weapon
+			vmConfig = if weapon ~= "" then Weapons.get(weapon) else nil
+			if vmConfig then
+				ViewmodelController.equip(vmConfig, 0.05)
+			else
+				ViewmodelController.unequip()
+			end
+		end
+		local config = vmConfig
+		local aiming = track.aiming[a]
+			and config ~= nil
+			and config.fireMode ~= "Melee"
+			and not config.noAds
+		local rate = 1 / math.max(if config then config.adsTime else 0.2, 0.05)
+		ads = math.clamp(ads + (if aiming then rate else -rate) * dt, 0, 1)
+		ViewmodelController.setAds(ads)
+		local scope = config and config.scope
+		local zoomFov: number? = nil
+		if scope then
+			local base = CameraController.getBaseFov()
+			zoomFov = 2
+				* math.deg(math.atan(math.tan(math.rad(base / 2)) / math.max(scope.zoom, 1)))
+		elseif config then
+			zoomFov = config.adsFov
+		end
+		CameraController.setZoom(zoomFov, ease(ads))
+		ViewmodelController.setHidden(scope ~= nil and ads > 0.85)
+	end
+
 	local function step(c: Camera, dt: number)
 		local elapsed = math.min(os.clock() - began, length)
 		local t = recordedAt(elapsed, from, kill)
@@ -632,43 +770,22 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 				EffectsController.playShot(shooter.copy, s.weaponId, s.origin, s.ends)
 			end
 		end
-		-- Camera: over the killer's shoulder (else high behind them in an
-		-- alley) at the victim; in the slow motion, in beside the victim along
-		-- the shot's line. With no killer (the zone), a slow orbit.
+		-- Camera: through the killer's eyes, as they saw it (their gun and
+		-- arms in the viewmodel). With no killer (the zone), a slow orbit.
+		if killerActor then
+			killerView(c, dt, t)
+			return
+		end
 		local victimRoot = victimActor.copy:FindFirstChild("HumanoidRootPart")
 		if not victimRoot or not victimRoot:IsA("BasePart") then
 			return
 		end
 		local target = victimRoot.Position + up
-		local killerRoot = killerActor and killerActor.copy:FindFirstChild("HumanoidRootPart")
-		local slow = math.clamp((t - (kill - R.slowFrom)) / (R.slowFrom + R.after), 0, 1)
-		local wantPos: Vector3
-		if killerRoot and killerRoot:IsA("BasePart") then
-			local toVictim = target - killerRoot.Position
-			local flat = Vector3.new(toVictim.X, 0, toVictim.Z)
-			flat = if flat.Magnitude > 1e-3 then flat.Unit else killerRoot.CFrame.LookVector
-			local right = flat:Cross(up)
-			local shoulder = clearSpot(killerRoot.Position + up * 1.5, {
-				-flat * 4 + right * 3 + up * 0.5,
-				-flat * 4 - right * 3 + up * 0.5,
-				-flat * 5 + up * 5,
-				-flat * 3 + up * 8,
-			})
-			local close = clearSpot(target, {
-				-flat * 6 + right * 3,
-				-flat * 6 - right * 3,
-				-flat * 6 + right * 1.2 + up * 1,
-				-flat * 6 + up * 1.5,
-				-flat * 4 + up * 6,
-			})
-			wantPos = shoulder:Lerp(close, ease(slow))
-		else
-			local angle = elapsed * 0.35
-			wantPos = clearSpot(target, {
-				Vector3.new(math.cos(angle) * 9, 4, math.sin(angle) * 9),
-				Vector3.new(0, 9, 0),
-			})
-		end
+		local angle = elapsed * 0.35
+		local wantPos = clearSpot(target, {
+			Vector3.new(math.cos(angle) * 9, 4, math.sin(angle) * 9),
+			Vector3.new(0, 9, 0),
+		})
 		local k = 1 - math.exp(-6 * dt)
 		local pos = if camPos then camPos:Lerp(wantPos, k) else wantPos
 		local look = if camLook then camLook:Lerp(target, k) else target

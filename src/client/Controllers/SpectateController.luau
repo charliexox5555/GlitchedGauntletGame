@@ -606,7 +606,9 @@ local function tick()
 	if phase == "Live" or phase == "SuddenDeath" then
 		lastFightAt = os.clock()
 	end
-	local fighting = os.clock() - lastFightAt < 1.2
+	local fighting = phase == "Live"
+		or phase == "SuddenDeath"
+		or (phase == "RoundEnd" and os.clock() - lastFightAt < 1.2) -- never in Replay / MatchEnd
 	if
 		mode == "Off"
 		and fighting
