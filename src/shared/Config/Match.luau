@@ -79,5 +79,6 @@ return table.freeze({
 	-- Remote budget per player: rate per second, burst.
 	RATE = {
 		DraftPick = { 8, 12 },
+		Spectate = { 4, 6 },
 	},
 })

@@ -934,7 +934,17 @@ end
 
 -- Per frame --------------------------------------------------------------------
 
+-- While you spectate, the viewmodel and the zoom show someone else's gun
+-- (SpectateController), so this stands down.
+local spectating = false
+function WeaponController.setSpectating(on: boolean)
+	spectating = on
+end
+
 local function update(dt: number)
+	if spectating then
+		return
+	end
 	local s = current()
 	local now = os.clock()
 	local cam = Workspace.CurrentCamera
@@ -1238,6 +1248,9 @@ local function endLife()
 	cancelReload()
 	equipped = nil
 	table.clear(slots)
+	if spectating then
+		return -- the viewmodel, zoom and scope show who you're watching
+	end
 	ViewmodelController.unequip()
 	CameraController.setZoom(nil, 0)
 	setScoped(false)
@@ -1250,6 +1263,15 @@ local function onCharacter(character: Model)
 	end
 	alive = true
 	Health.onDowned(humanoid, endLife)
+end
+
+-- Going down is also polled: in Studio tests (2026-11-07) the Downed
+-- attribute's change signal didn't fire on our own simulated character, so
+-- the gun stayed up after death.
+local function pollDowned()
+	if alive and Health.isDowned(player.Character) then
+		endLife()
+	end
 end
 
 function WeaponController.start()
@@ -1311,6 +1333,7 @@ function WeaponController.start()
 		task.spawn(onCharacter, player.Character)
 	end
 	RunService:BindToRenderStep("GGWeapons", Enum.RenderPriority.Input.Value + 1, update)
+	RunService.Heartbeat:Connect(pollDowned)
 	-- Studio only: the Workspace attribute DevAction ("inspect", "reload",
 	-- "draw" = draw again, "fire" = one shot, or a slot name to switch to)
 	-- runs that action, and DevAim (true) holds aim down sights, so scripts can review

@@ -1463,6 +1463,20 @@ end
 
 -- `shooter` is another player, or a test range dummy model (its harmless
 -- tracers use the same effects).
+-- Spectating in first person (SpectateController): that fighter's shots are
+-- drawn like your own, from the view gun, and `onSpectatedShot` plays the
+-- view gun's fire clip.
+local spectated: Instance? = nil
+local onSpectatedShot: ((config: WeaponConfig, left: boolean) -> ())? = nil
+
+function EffectsController.setSpectated(
+	shooter: Instance?,
+	onShot: ((config: WeaponConfig, left: boolean) -> ())?
+)
+	spectated = shooter
+	onSpectatedShot = onShot
+end
+
 local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, ends: { Vector3 })
 	if
 		typeof(weaponId) ~= "string"
@@ -1488,6 +1502,40 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	if models and models.left then
 		left = nextLeft[shooter] == true
 		nextLeft[shooter] = not left
+	end
+	if spectated ~= nil and shooter == spectated then
+		local hook = onSpectatedShot
+		if hook then
+			hook(config, left)
+		end
+		local sounds = GunSounds.get(weaponId)
+		AudioController.playSound(sounds.fire, "Gun")
+		if config.melee then
+			return
+		end
+		local muzzleName = "Muzzle"
+		local muzzles = config.muzzles
+		if muzzles and #muzzles > 1 then
+			local n = (nextMuzzle[shooter] or 0) % #muzzles + 1
+			nextMuzzle[shooter] = n
+			muzzleName = muzzles[n]
+		end
+		local side = if left then "Left" else nil
+		EffectsController.localShot(config, side, muzzleName)
+		local muzzle = viewmodelPoint(side, muzzleName) or viewmodelPoint(side, "Muzzle")
+		local from = if muzzle then muzzle.WorldPosition else origin
+		local maxPellets =
+			math.max(config.pellets, if config.altFire then config.altFire.pellets else 0)
+		for i, e in ends do
+			if typeof(e) ~= "Vector3" or i > maxPellets then
+				continue
+			end
+			if not config.suppressed then
+				EffectsController.tracer(from, e, config, true)
+			end
+			remoteImpact(character, origin, e, config)
+		end
+		return
 	end
 	if left and models and models.left then
 		animateWorldWeapon(character, "WorldWeaponLeft", models.left)

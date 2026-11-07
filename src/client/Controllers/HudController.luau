@@ -661,6 +661,21 @@ local function update(dt: number)
 end
 
 -- Built in init so other controllers can update it from their start().
+-- Spectating: your own health and ammo panels hide (the spectate bar shows
+-- who you're watching instead).
+function HudController.setSpectating(on: boolean)
+	local r = refs
+	if not r then
+		return
+	end
+	for _, name in { "Health", "Ammo" } do
+		local panel = r.gui:FindFirstChild(name)
+		if panel and panel:IsA("GuiObject") then
+			panel.Visible = not on
+		end
+	end
+end
+
 function HudController.init()
 	refs = build()
 	HitFeedback.build((refs :: Refs).gui)

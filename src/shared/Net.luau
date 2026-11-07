@@ -8,6 +8,7 @@
 -- ModReveal (server -> the caster's team only)
 -- Dev test panel (DevModService; Studio, test mode or the owner): DevMod (client -> server)
 -- Match (DraftService): DraftPick (client -> server), DraftOffer (server -> one client)
+-- Spectating (SpectateService): Spectate (client -> server)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -30,6 +31,7 @@ local RELIABLE = {
 	"DevMod",
 	"DraftPick",
 	"DraftOffer",
+	"Spectate",
 }
 local UNRELIABLE = { "Aim", "ShotFx" }
 

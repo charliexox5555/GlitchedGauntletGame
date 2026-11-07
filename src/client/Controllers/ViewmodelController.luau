@@ -372,15 +372,24 @@ local function trackOffset(gun: Gun, mirror: boolean, screen: boolean): CFrame
 	return cf
 end
 
+-- Whose view this is: nil = yours; a fighter's body while you spectate them
+-- in first person (SpectateController): their arms' look, their speed and
+-- move state drive the rig.
+local subject: Model? = nil
+
+local function subjectBody(): Model?
+	return subject or player.Character
+end
+
 -- Arms -------------------------------------------------------------------------
 
 local function rebuildArms(cam: Camera?)
 	if arms then
 		arms.model:Destroy()
 	end
-	local built = ViewmodelArms.build(player.Character)
+	local built = ViewmodelArms.build(subjectBody())
 	arms = built
-	armsLook = ViewmodelArms.signature(player.Character)
+	armsLook = ViewmodelArms.signature(subjectBody())
 	if cam and guns.Right then
 		built.model.Parent = cam
 	end
@@ -1285,7 +1294,7 @@ function ViewmodelController.equip(weapon: WeaponConfig, duration: number?): { B
 
 	config = weapon
 	hidden = false
-	if not arms or armsLook ~= ViewmodelArms.signature(player.Character) then
+	if not arms or armsLook ~= ViewmodelArms.signature(subjectBody()) then
 		rebuildArms(cam)
 	end
 	local a = arms :: ViewmodelArms.Arms
@@ -2040,14 +2049,17 @@ local function update(dt: number)
 	-- Rebuild the arms if the avatar's look changed (appearance loads late).
 	if now >= nextLookCheck then
 		nextLookCheck = now + 1
-		if ViewmodelArms.signature(player.Character) ~= armsLook then
+		if ViewmodelArms.signature(subjectBody()) ~= armsLook then
 			rebuildArms(cam)
 		end
 	end
 
 	-- 1. Root: the camera plus the rig's motion (bob, breathing, sway, tilt).
-	local state = MovementController.getState()
-	local character = player.Character
+	local moveAttr = subject and subject:GetAttribute("MoveState")
+	local state = if subject
+		then (if typeof(moveAttr) == "string" then moveAttr else "Idle")
+		else MovementController.getState()
+	local character = subjectBody()
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 	local adsT = adsEase(adsAlpha)
 	motionInput.camera = camCf
@@ -2309,27 +2321,45 @@ local function update(dt: number)
 	end
 end
 
+-- A fresh rig: no gun, no item, no arms, motion from rest (a life ends, or
+-- the view moves to someone else).
+local function resetView()
+	ViewmodelController.unequip()
+	ViewmodelController.holdItem(nil)
+	lowered = false
+	lowerX, lowerV = 0, 0
+	gestureKind = nil
+	dipKind = nil
+	gestureAt = -math.huge
+	dropGestureProp()
+	ViewmodelController.setFreeHand(nil)
+	if arms then
+		arms.model:Destroy()
+		arms = nil
+		armsLook = ""
+	end
+	-- Movement feel starts fresh next life (no landing dip from dying mid-air).
+	ViewmodelMotion.reset(motion)
+	table.clear(poseWeights)
+	table.clear(weights)
+end
+
+-- Spectating: show `body`'s view (nil: back to yours). Starts empty; the
+-- spectate controller equips their gun.
+function ViewmodelController.setSubject(body: Model?)
+	if body == subject then
+		return
+	end
+	resetView()
+	subject = body
+end
+
 function ViewmodelController.start()
 	RunService:BindToRenderStep("GGViewmodel", Enum.RenderPriority.Camera.Value + 2, update)
 	player.CharacterRemoving:Connect(function()
-		ViewmodelController.unequip()
-		ViewmodelController.holdItem(nil)
-		lowered = false
-		lowerX, lowerV = 0, 0
-		gestureKind = nil
-		dipKind = nil
-		gestureAt = -math.huge
-		dropGestureProp()
-		ViewmodelController.setFreeHand(nil)
-		if arms then
-			arms.model:Destroy()
-			arms = nil
-			armsLook = ""
+		if not subject then
+			resetView()
 		end
-		-- Movement feel starts fresh next life (no landing dip from dying mid-air).
-		ViewmodelMotion.reset(motion)
-		table.clear(poseWeights)
-		table.clear(weights)
 	end)
 end
 

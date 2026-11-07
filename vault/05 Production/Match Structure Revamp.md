@@ -24,7 +24,7 @@ The first Release 1 job, picked by the user on 2026-11-07: a new match flow from
 | 8 | Zone look | Like Valorant's storm with a glitched vibe; texture made in Blender; tint + warning sound while outside; SUDDEN DEATH on the timer |
 | 9 | Death camera | Yes. Recap card parked |
 | 10 | Spectate | Living teammates only; round-end seconds with no teammate alive / 1v1: the killer |
-| 11 | Spectate camera | **Open:** the answer can read either way (first person rebuilding the other player's view, or third person). Ask before phase B |
+| 11 | Spectate camera | **First person (confirmed 2026-11-07):** you see through the teammate's eyes with their gun and arms, rebuilt from what already replicates |
 | 12 | Final-kill replay | Every client records the last ~6 s; everyone sees the same ~4 s replay over the killer's shoulder, slow motion in the last 0.5 s. Research existing systems first |
 | 13 | Victory scene | **On the map**, like RIVALS (reference: `02 Art/References/match-ui/third-party/rivals-post-match-1v1.webp`, git-ignored): winner posed, VICTORY banner, name plate with level, Eliminations / Deaths / Assists, Damage Dealt / Taken. In our v1 UI style, not a copy |
 | 14 | Buttons | **Rematch** (vote; every real player within 15 s → same server, same teams; shows Unavailable when it can't happen), **Play Again** (Lobby + straight back into that mode's queue), **Leave** (Lobby). Nobody chooses in 20 s → Lobby |
@@ -37,8 +37,18 @@ Each phase is tested in Studio against bots (2v2 for spectating) before the next
 - **A2 Seats:** a fighter slot (team + index) owns its draft seat, so a seat can pass between a bot and a player (`DraftService` transfer of kit, levels, guns). Missing listed players get a bot when the select opens; a late player takes the bot's seat at once during a select, or at the next round during a fight (spectating until then). Team-mode leaver → a bot takes the seat (from the next round if mid-fight). 1v1 leaver, or a side with no real players left that started with some → the other side wins.
 - **A3 Zone:** new `ZoneService` (server) publishes centre, start/end radius and start/end times as `Match*` attributes (commit last); the damage tick runs on the server (4/s, point-in-circle on the root, straight to `HealthService.damage`). Centre: a `ZoneCentre` tag on the map, else halfway between the team spawns; the start radius is 1.6 × the furthest spawn (or the centre part's `ZoneRadius` attribute), not the map's bounding box, since maps carry far backdrops. Bots head for the zone centre during sudden death. Safety cap: if a round somehow lasts 60 s into sudden death, the old health compare decides it. Client `ZoneController`: a ring of Beams with a scrolling Blender-rendered glitch-storm texture (cheap, scales smoothly with the radius), red tint and warning sound outside, SUDDEN DEATH on the top-bar timer.
 
-### B. Death camera and spectating
-Death camera pull-out over the existing death look (`DeathFxController`); spectate living teammates (click / LB-RB / on-screen arrows), the killer in the round-end seconds; `ReplicationFocus` on the target while spectating. Camera style waits on decision 11.
+### B. Death camera and spectating (first person)
+- **Death camera:** when you go down, your own body gets the falling copy too (`DeathFxController`), and the camera pulls up and back out of your head to watch it fall (about 1.2 s, held 0.7 s, screen greyed).
+- **Spectate:** then you see through a living teammate's eyes. Click / right-click (the gamepad triggers, or the on-screen arrows) cycles teammates. In the round-end seconds, with no teammate alive (or in 1v1), you watch the enemy who killed you. A bar at the bottom names who you're watching, with their health; your own health and ammo panels hide.
+- **Rebuilding their view** from what already replicates, no new per-frame traffic:
+  - camera: their head position, yaw from their body, pitch from the `AimPitch` attribute (sent 10 times a second, smoothed);
+  - gun: `WorldWeapon`'s `WeaponId` → the viewmodel equips it with its draw;
+  - aiming down sights: the `Aiming` attribute → the viewmodel's ADS and the zoom (scope overlay on scoped guns);
+  - shots: their `ShotFx` → the viewmodel's fire clip, muzzle flash and tracer from the view gun;
+  - reloads: `ReloadAt` / `ReloadFor`; a held Mod (`ModHeld`) lowers the gun; their move state (`MoveState`) drives the bob;
+  - arms: their own shirt and skin colours.
+  - Bots get `AimPitch` / `Aiming` attributes too (throttled like a player's).
+- **Code:** a `CameraController` override hook, `WeaponController` stands down while spectating, `ViewmodelController.setSubject`, `EffectsController` treats the target's shots like your own, new `SpectateController` (client) and `SpectateService` (server: a validated, rate-limited `Spectate` remote that sets your `ReplicationFocus` to the target so their surroundings stream in; only a downed or unspawned player, only a teammate, or any fighter during the round end).
 
 ### C. Final-kill replay
 Client ring buffer of every fighter (+ shots), synced playback on the match-winning kill.
@@ -71,3 +81,10 @@ Built and playtested in the match Studio (solo against bots, then `BotMatch` 2v2
 - **Review (roblox-reviewer) and fixes:** a late player leaving before their takeover no longer adds a second bot; a bot that takes a leaver's seat becomes their stand-in, so a rejoin takes the seat back; team-mode sides never grow past the mode's size; late listed players are put on their plan team at once; stale stand-ins are cleared with the bots; a read no longer creates an undealt seat (`dealtRound`); takeovers also work during the 3-2-1; a leaver's replacement bot spawns alone (the others aren't respawned); picks past the deadline are refused; 3 rounds in a row with a side that can't spawn end the match; the error path resets the draft. Bot stand-ins fill seats even when the plan says `bots = false` (decision 1).
 - **Bug found and fixed in the recheck:** the zone's server times were stored in a Vector2 attribute, which is 32-bit and rounded ~1.8e9 to the same value, so clients and bots saw the circle already closed. Now two number attributes (`MatchZoneStart` / `MatchZoneEnd`). Rechecked: the radius shrinks smoothly on the client (166.7 → 96.9 in 9 s) and the ring drops segments as it goes.
 - **Open:** late joining and leaving need a two-client test; the wall look and the warning sound need the user's eye and ear.
+
+### Phase B (2026-11-07)
+Built and tested in the match Studio: the death camera, a bot teammate's first-person view in 2v2, the killer's view at round end in 1v1. Details: [playtest](Playtests/2026-11-07%20Match%20Revamp%20Phase%20B.md).
+- **Code:** new `SpectateController` (client) and `SpectateService` (server, `Spectate` remote → `ReplicationFocus`); `CameraController.setOverride`; `WeaponController.setSpectating`; `ViewmodelController.setSubject`; `EffectsController.setSpectated`; `HudController.setSpectating`; `DeathFxController` (own body falls too, `clearGrade`); bots publish `AimPitch` / `Aiming`; `Config/Juice SPECTATE`.
+- **Found:** your own `Downed` change signal didn't fire on the client in the test, so the gun stayed up after death; going down is now polled (spectate, weapons, Mods).
+- **Review (roblox-reviewer):** the `Spectate` remote passed (no way to see enemies mid-round). Fixed: the watched body stays hidden even under a dash ghost; Mod keys do nothing while you're down (your Mod no longer shows in their hands); no crosshair on the death camera; spectating ends at match end, on `Waiting`, or when the target leaves with nobody else to watch; bots stop "aiming" when they stop fighting; the `Spectate` request goes once cycling settles; the server drops focus on an enemy after the round end and on someone who left; a respawn no longer strips the watched gun; your own move FOV and roll don't ride on the watched view; the tick loop survives an error.
+- **Open:** cycling with 3+ teammates, a real player's view, reload / ADS / Mod / shot details in the watched view, the user's look.

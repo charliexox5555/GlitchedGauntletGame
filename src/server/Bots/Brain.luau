@@ -60,6 +60,32 @@ end
 
 local rng = Random.new()
 
+-- What each bot last told spectators about its aim (like a player's Aim
+-- remote: at most 10 times a second, only on a real change).
+type AimSent = { at: number, pitch: number, aiming: boolean }
+local aimSent: { [Bot]: AimSent } = setmetatable({}, { __mode = "k" }) :: any
+local AIM_SEND_EVERY = 0.1
+local AIM_SEND_DELTA = 0.03 -- radians
+
+-- `AimPitch` (radians) and `Aiming` on the bot's owner (mirrored onto its
+-- model), read by a teammate spectating it in first person.
+local function publishAim(bot: Bot, aiming: boolean, now: number)
+	local sent = aimSent[bot]
+	if not sent then
+		sent = { at = -math.huge, pitch = math.huge, aiming = false }
+		aimSent[bot] = sent
+	end
+	if now - sent.at < AIM_SEND_EVERY then
+		return
+	end
+	if math.abs(bot.pitch - sent.pitch) <= AIM_SEND_DELTA and aiming == sent.aiming then
+		return
+	end
+	sent.at, sent.pitch, sent.aiming = now, bot.pitch, aiming
+	bot.owner:SetAttribute("AimPitch", bot.pitch)
+	bot.owner:SetAttribute("Aiming", aiming)
+end
+
 local function setInput(bot: Bot, name: string, value: any)
 	local action = bot.inputs[name]
 	if action and action:GetState() ~= value then
@@ -335,6 +361,7 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 		setInput(bot, "Crouch", false)
 		setInput(bot, "Fire", false)
 		setInput(bot, "Aim", false)
+		publishAim(bot, false, now)
 		return false
 	end
 
@@ -418,6 +445,7 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 		and distance > 14
 	bot.gun.aimHeld = wantAds
 	setInput(bot, "Aim", wantAds)
+	publishAim(bot, wantAds, now)
 
 	-- The trigger: on target (as far as it knows), the gun ready, burst
 	-- discipline at range, a human's trigger delay.

@@ -78,6 +78,15 @@ local function lerp(a: number, b: number, t: number): number
 end
 
 -- Sets the player's preferred FOV (from settings), clamped to the allowed range.
+-- Someone else places the camera (death camera, spectating): `fn` runs each
+-- frame instead of the follow, the turn cap and the lunge; FOV, recoil and
+-- shake still apply on top. nil hands the camera back.
+local override: ((cam: Camera, dt: number) -> ())? = nil
+function CameraController.setOverride(fn: ((cam: Camera, dt: number) -> ())?)
+	override = fn
+	lastLook = nil
+end
+
 function CameraController.setBaseFov(fov: number)
 	if fov ~= fov or fov == math.huge or fov == -math.huge then
 		return
@@ -250,11 +259,16 @@ local function step(dt: number)
 	if not cam then
 		return
 	end
-	smoothFollow(cam, dt)
+	local placed = override
+	if placed then
+		placed(cam, dt)
+	else
+		smoothFollow(cam, dt)
+	end
 	-- The camera module turned the view from last frame's look by this
 	-- frame's input: keep only what the cap allows (it builds on this next).
 	local cap, last = turnCap, lastLook
-	if cap and last then
+	if cap and last and not placed then
 		local cf = cam.CFrame
 		local look = cf.LookVector
 		local angle = math.acos(math.clamp(last:Dot(look), -1, 1))
@@ -265,7 +279,7 @@ local function step(dt: number)
 			cam.CFrame = CFrame.lookAt(cf.Position, cf.Position + capped)
 		end
 	end
-	local lead = lungeNow()
+	local lead = if placed then Vector3.zero else lungeNow()
 	if lead ~= Vector3.zero then
 		cam.CFrame += lead -- a position offset: rebuilt next frame, never builds up
 	end
@@ -273,7 +287,7 @@ local function step(dt: number)
 	-- FOV
 	moveFov = lerp(moveFov, targetMoveFov, 1 - math.exp(-MOVE_FOV_RATE * dt))
 	local zoomed = if zoomFov then lerp(baseFov, zoomFov, zoomAlpha) else baseFov
-	local fov = zoomed + (moveFov + punchNow()) * (1 - zoomAlpha)
+	local fov = if placed then zoomed else zoomed + (moveFov + punchNow()) * (1 - zoomAlpha)
 	cam.FieldOfView = fov
 	-- First person: the game draws its own crosshair, so hide the OS cursor.
 	UserInputService.MouseIconEnabled = cursorVisible
@@ -309,7 +323,7 @@ local function step(dt: number)
 
 	roll = lerp(roll, targetRoll, 1 - math.exp(-ROLL_RATE * dt))
 
-	local totalRoll = roll + shakeRoll + rollKickNow()
+	local totalRoll = if placed then 0 else roll + shakeRoll + rollKickNow()
 	if math.abs(pitch) > 1e-6 or math.abs(yaw) > 1e-6 or math.abs(totalRoll) > 1e-5 then
 		local cf = cam.CFrame
 		local rotation = CFrame.Angles(0, -yaw, 0) * (cf - cf.Position) * CFrame.Angles(pitch, 0, 0)

@@ -11,7 +11,8 @@
   - select from the moment you join, 30 s / 15 s with the 3-2-1 inside, gun and ability preselected, early end from round 2;
   - bot stand-ins for late players, bots replace team-mode leavers, a side with no real players left loses;
   - sudden death: a closing glitch-storm circle that takes health directly (new `ZoneService`, `ZoneController`, Blender texture).
-  - **Not tested yet:** late joining and leaving (needs two real clients). **Next:** phase B (death camera and spectating), one open question on the spectate camera.
+  - **Not tested yet:** late joining and leaving (needs two real clients).
+  - **Phase B built (first person, [playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20B.md)):** death camera; then you see through a living teammate's eyes with their gun and arms (killer at round end with no teammate alive); fixed the gun staying up after death. **Next:** phase C (final-kill replay).
 - **Overnight 2026-11-06, every map rebuilt as `<Map>2`** (ForceMap only; old maps and the pool untouched). The verdict is in [Overnight Maps Approval](05%20Production/Playtests/2026-11-06%20Overnight%20Maps%20Approval.md).
   - The spec is the new [Map Quality Standard](01%20Design/Maps/Map%20Quality%20Standard.md).
   - Best blind scores:

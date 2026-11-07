@@ -51,6 +51,8 @@ local MIRRORED: { [string]: boolean } = {
 	ReloadFor = true,
 	ModHeld = true,
 	ModUseAt = true,
+	AimPitch = true, -- first-person spectating (SpectateController)
+	Aiming = true,
 }
 
 -- Per-think scratch, reused (no allocations per frame).

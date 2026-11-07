@@ -585,6 +585,9 @@ local function use(mode: ModTypes.UseMode)
 	if phase ~= "Equipping" and phase ~= "Held" then
 		return
 	end
+	if not Health.isAlive(player.Character) then
+		return
+	end
 	local view = ModController.slot(current)
 	local def, stats = view.def, view.stats
 	if not def or not stats then
@@ -841,7 +844,11 @@ stepRecallHold = function(now: number)
 end
 
 local function onModPressed(slot: number)
-	if not player.Character or player:GetAttribute("CombatLocked") == true then
+	if
+		not player.Character
+		or not Health.isAlive(player.Character)
+		or player:GetAttribute("CombatLocked") == true
+	then
 		return
 	end
 	if phase ~= "Idle" and current == slot then
@@ -1213,14 +1220,26 @@ function ModController.start()
 		lastRecallAt = 0
 		recallHold = nil
 	end)
+	-- Going down ends a held Mod (polled too: see WeaponController.pollDowned).
+	local downedBody: Model? = nil
 	local function watchDeath(character: Model)
 		local humanoid = character:WaitForChild("Humanoid", 10)
 		if humanoid and humanoid:IsA("Humanoid") then
 			Health.onDowned(humanoid, function()
-				endHold(false)
+				if downedBody ~= character then
+					downedBody = character
+					endHold(false)
+				end
 			end)
 		end
 	end
+	RunService.Heartbeat:Connect(function()
+		local body = player.Character
+		if body and body ~= downedBody and Health.isDowned(body) then
+			downedBody = body
+			endHold(false)
+		end
+	end)
 	player.CharacterAdded:Connect(watchDeath)
 	if player.Character then
 		task.spawn(watchDeath, player.Character)

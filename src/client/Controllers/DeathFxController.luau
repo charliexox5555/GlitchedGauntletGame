@@ -232,14 +232,21 @@ local function step(body: Model)
 			end
 		end)
 		if body == player.Character then
-			-- Your own: the screen drains (your body is out of view in first person).
+			-- Your own: the screen drains, and the death camera
+			-- (SpectateController) pulls out to watch the body fall.
 			setGrade(true)
-		elseif seen == false then
+		end
+		if seen == false then
 			task.spawn(fall, body) -- it waits (the buckle) before the tip
 		else
 			hide(body) -- went down before we saw it (a late join): no replayed fall
 		end
 	end
+end
+
+-- The grey goes when you start watching someone else (SpectateController).
+function DeathFxController.clearGrade()
+	setGrade(false)
 end
 
 function DeathFxController.start()

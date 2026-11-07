@@ -90,6 +90,20 @@ return table.freeze({
 		warnEvery = 0.55, -- seconds between warning ticks outside
 	}),
 
+	-- Death camera and first-person spectating (Controllers/SpectateController,
+	-- vault/05 Production/Match Structure Revamp.md phase B).
+	SPECTATE = table.freeze({
+		pullTime = 1.2, -- seconds the camera takes to leave your head
+		holdTime = 0.7, -- then it watches the body before switching to a teammate
+		pullBack = 7, -- studs behind where you fell
+		pullUp = 5, -- studs above
+		headRate = 22, -- 1/s: the view follows their head this fast (smooths replication steps)
+		yawRate = 22,
+		pitchRate = 14, -- their pitch arrives 10 times a second
+		switchDelay = 1, -- seconds on a fighter who went down before moving on
+		fadeTime = 0.12, -- black blink when the view jumps to someone else
+	}),
+
 	DEATH = table.freeze({
 		buckle = 0.28, -- seconds the knees buckle (the Death clip) before it tips
 		fall = 0.45, -- seconds to hit the floor
