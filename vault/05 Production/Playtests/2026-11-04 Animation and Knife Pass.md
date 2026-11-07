@@ -1,6 +1,6 @@
 # 2026-11-04 Animation and Knife Pass (lane D, `anim-knife`)
 
-Overnight lane D from [Overnight 2026-11-04](../Overnight%202026-11-04.md). Goal: third-person animation that looks professional (two-handed grip on every gun, a fire reaction, full-body locomotion and slide) and a clean default knife (hold, light / heavy slash, inspect, sounds, centred wall marks), working on bots too.
+Overnight lane D from [Overnight 2026-11-04](../Archive/Overnight%202026-11-04.md). Goal: third-person animation that looks professional (two-handed grip on every gun, a fire reaction, full-body locomotion and slide) and a clean default knife (hold, light / heavy slash, inspect, sounds, centred wall marks), working on bots too.
 
 ## Phase 1: findings and plan
 

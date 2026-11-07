@@ -238,3 +238,8 @@ The offline check now matches `tools/studio/maps/Audit.luau`: it includes the ba
 | Windows and doors not natural | A regular rhythm per face: openings stack storey over storey; plaza faces alternate shop / window, streets window / shop, alleys window / plain, a closed door in the middle of odd runs; balconies on the first floor on alternate bays (every third on the four-storey houses); no windows cut by arches, porches or neighbouring houses |
 | Doorways vs their greybox openings | Door modules match the 6 × 9 voids (jambs at ±3, crown at 9); inner doors get plaster linings and soffits; the terrace door's threshold steps 0.14 over the terrace floor |
 
+
+## Concepts (Codex)
+- [01-overview.png](../../../art-source/maps/OldTown2/concepts/01-overview.png) - Whole-arena aerial with plaza, arcades, alleys and tower.
+- [02-hero.png](../../../art-source/maps/OldTown2/concepts/02-hero.png) - Blue gate approach toward the fountain and cafe terrace.
+- [03-kit-sheet.png](../../../art-source/maps/OldTown2/concepts/03-kit-sheet.png) - Structure pieces, landmarks, props and material swatches.

@@ -192,3 +192,9 @@ The Studio audit (`tools/studio/maps/Audit.luau`) found overlapping same-plane s
 | Train windows | Platform side see- and shoot-through; track side dark (solid) | All open: the trains stop being cover |
 | Terrace drop into the trench | Blocked by the name panel | Open: faster middle, first sight at 3 s |
 | Name | Meridian | Anything you like |
+
+## Concepts (Codex)
+- [01-overview.png](../../../art-source/maps/Metro2/concepts/01-overview.png) - Initial whole-arena aerial cutaway.
+- [01-overview-v2.png](../../../art-source/maps/Metro2/concepts/01-overview-v2.png) - Preferred aerial: two straight tracks and staggered trains.
+- [02-hero.png](../../../art-source/maps/Metro2/concepts/02-hero.png) - Blue concourse terrace toward the gantry and trains.
+- [03-kit-sheet.png](../../../art-source/maps/Metro2/concepts/03-kit-sheet.png) - Structure pieces, train, props and material swatches.

@@ -1,4 +1,28 @@
 {
+ "../../../AppData/Local/Temp/claude/6f8bed3fe7c45255/cc9d72de-7c80-4217-bb12-7919aa0284b7/scratchpad/b2_bundles.rbxm": {
+  "assetId": 94622459432092,
+  "name": "GG tool bundle B2",
+  "type": "Model",
+  "uploaded": "2026-11-06 01:15:21"
+ },
+ "../../../AppData/Local/Temp/claude/6f8bed3fe7c45255/cc9d72de-7c80-4217-bb12-7919aa0284b7/scratchpad/maptools.rbxm": {
+  "assetId": 85776839619797,
+  "name": "GG tool bundle maptools",
+  "type": "Model",
+  "uploaded": "2026-11-06 01:15:45"
+ },
+ "../../../AppData/Local/Temp/claude/6f8bed3fe7c45255/cc9d72de-7c80-4217-bb12-7919aa0284b7/scratchpad/push_Bunker2.rbxm": {
+  "assetId": 107471877045098,
+  "name": "GG tool bundle Bunker2",
+  "type": "Model",
+  "uploaded": "2026-11-06 01:48:56"
+ },
+ "../../../AppData/Local/Temp/claude/6f8bed3fe7c45255/cc9d72de-7c80-4217-bb12-7919aa0284b7/scratchpad/push_Snowpeak2.rbxm": {
+  "assetId": 79601660573305,
+  "name": "GG tool bundle Snowpeak2",
+  "type": "Model",
+  "uploaded": "2026-11-06 05:24:33"
+ },
  "art-source/abilities/Icons/Blink.png": {
   "assetId": 94881457772704,
   "name": "GG Mod Icon Blink",
@@ -60,40 +84,40 @@
   "uploaded": "2026-10-26 01:15:31"
  },
  "art-source/animations/GG_AdsDown.rbxm": {
-  "assetId": 79761173585801,
-  "name": "GG AdsDown mb",
+  "assetId": 104787336098355,
+  "name": "GG AdsDown ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:33"
+  "uploaded": "2026-11-05 17:32:09"
  },
  "art-source/animations/GG_AdsLevel.rbxm": {
-  "assetId": 137279427153476,
-  "name": "GG AdsLevel mb",
+  "assetId": 132668202933655,
+  "name": "GG AdsLevel ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:30"
+  "uploaded": "2026-11-05 17:32:06"
  },
  "art-source/animations/GG_AdsUp.rbxm": {
-  "assetId": 139613906260905,
-  "name": "GG AdsUp mb",
+  "assetId": 116679062451031,
+  "name": "GG AdsUp ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:28"
+  "uploaded": "2026-11-05 17:32:04"
  },
  "art-source/animations/GG_AimDown.rbxm": {
-  "assetId": 136340891587951,
-  "name": "GG AimDown mb",
+  "assetId": 78979562573102,
+  "name": "GG AimDown ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:25"
+  "uploaded": "2026-11-05 17:32:01"
  },
  "art-source/animations/GG_AimLevel.rbxm": {
-  "assetId": 128549425661166,
-  "name": "GG AimLevel mb",
+  "assetId": 83176652381307,
+  "name": "GG AimLevel ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:22"
+  "uploaded": "2026-11-05 17:31:59"
  },
  "art-source/animations/GG_AimUp.rbxm": {
-  "assetId": 123446724391415,
-  "name": "GG AimUp mb",
+  "assetId": 129273156461804,
+  "name": "GG AimUp ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:20"
+  "uploaded": "2026-11-05 17:31:56"
  },
  "art-source/animations/GG_Crouch.rbxm": {
   "assetId": 99568083489164,
@@ -156,10 +180,10 @@
   "uploaded": "2026-11-04 02:10:17"
  },
  "art-source/animations/GG_Draw.rbxm": {
-  "assetId": 126901374148632,
-  "name": "GG Draw mb",
+  "assetId": 106927072941770,
+  "name": "GG Draw ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:51:05"
+  "uploaded": "2026-11-05 17:32:33"
  },
  "art-source/animations/GG_Fall.rbxm": {
   "assetId": 125318466462876,
@@ -186,22 +210,22 @@
   "uploaded": "2026-11-04 01:49:24"
  },
  "art-source/animations/GG_KnifeHeavy.rbxm": {
-  "assetId": 125552226626615,
-  "name": "GG_KnifeHeavy",
+  "assetId": 71735833836709,
+  "name": "GG KnifeHeavy mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 10:07:20"
+  "uploaded": "2026-11-05 17:35:36"
  },
  "art-source/animations/GG_KnifeReady.rbxm": {
-  "assetId": 116692680582291,
-  "name": "GG_KnifeReady",
+  "assetId": 78670545007592,
+  "name": "GG KnifeReady mb",
   "type": "Animation",
-  "uploaded": "2026-11-05 10:07:23"
+  "uploaded": "2026-11-05 17:35:31"
  },
  "art-source/animations/GG_KnifeSlash.rbxm": {
-  "assetId": 103765524428295,
-  "name": "GG KnifeSlash",
+  "assetId": 136327489942967,
+  "name": "GG KnifeSlash mb",
   "type": "Animation",
-  "uploaded": "2026-11-04 03:06:17"
+  "uploaded": "2026-11-05 17:35:34"
  },
  "art-source/animations/GG_KnifeSlash1.rbxm": {
   "assetId": 93885278536146,
@@ -270,46 +294,46 @@
   "uploaded": "2026-11-04 01:49:32"
  },
  "art-source/animations/GG_PistolAdsDown.rbxm": {
-  "assetId": 71881501397859,
-  "name": "GG PistolAdsDown mb",
+  "assetId": 126090135031854,
+  "name": "GG PistolAdsDown ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:52"
+  "uploaded": "2026-11-05 17:32:28"
  },
  "art-source/animations/GG_PistolAdsLevel.rbxm": {
-  "assetId": 124447634856449,
-  "name": "GG PistolAdsLevel mb",
+  "assetId": 72552798753494,
+  "name": "GG PistolAdsLevel ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:49"
+  "uploaded": "2026-11-05 17:32:25"
  },
  "art-source/animations/GG_PistolAdsUp.rbxm": {
-  "assetId": 74201207820342,
-  "name": "GG PistolAdsUp mb",
+  "assetId": 103143608523355,
+  "name": "GG PistolAdsUp ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:46"
+  "uploaded": "2026-11-05 17:32:23"
  },
  "art-source/animations/GG_PistolAimDown.rbxm": {
-  "assetId": 76559880424473,
-  "name": "GG PistolAimDown mb",
+  "assetId": 97244117982397,
+  "name": "GG PistolAimDown ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:44"
+  "uploaded": "2026-11-05 17:32:20"
  },
  "art-source/animations/GG_PistolAimLevel.rbxm": {
-  "assetId": 104048644111391,
-  "name": "GG PistolAimLevel mb",
+  "assetId": 129884050636579,
+  "name": "GG PistolAimLevel ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:41"
+  "uploaded": "2026-11-05 17:32:17"
  },
  "art-source/animations/GG_PistolAimUp.rbxm": {
-  "assetId": 134387505053454,
-  "name": "GG PistolAimUp mb",
+  "assetId": 125048577056615,
+  "name": "GG PistolAimUp ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:38"
+  "uploaded": "2026-11-05 17:32:14"
  },
  "art-source/animations/GG_Reload.rbxm": {
-  "assetId": 139915270226655,
-  "name": "GG Reload mb",
+  "assetId": 130903306208412,
+  "name": "GG Reload ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:51:03"
+  "uploaded": "2026-11-05 17:32:31"
  },
  "art-source/animations/GG_RunB.rbxm": {
   "assetId": 81677261253829,
@@ -354,10 +378,10 @@
   "uploaded": "2026-11-05 16:51:00"
  },
  "art-source/animations/GG_Sprint.rbxm": {
-  "assetId": 71812210775526,
-  "name": "GG Sprint mb",
+  "assetId": 98701661117593,
+  "name": "GG Sprint ext",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:36"
+  "uploaded": "2026-11-05 17:32:12"
  },
  "art-source/animations/GG_SprintRun.rbxm": {
   "assetId": 81006580789818,
@@ -641,6 +665,618 @@
   "type": "Decal",
   "uploaded": "2026-10-29 22:40:09"
  },
+ "art-source/maps/Bunker2/signs/blast_A.png": {
+  "assetId": 120853801800119,
+  "name": "GG Bunk2 Sign GALLERY A",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:35"
+ },
+ "art-source/maps/Bunker2/signs/blast_B.png": {
+  "assetId": 95578433560763,
+  "name": "GG Bunk2 Sign GALLERY B",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:40"
+ },
+ "art-source/maps/Bunker2/signs/door_CONTROL.png": {
+  "assetId": 129933360801785,
+  "name": "GG Bunk2 Sign CONTROL",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:09"
+ },
+ "art-source/maps/Bunker2/signs/door_CORRIDOR.png": {
+  "assetId": 97447876994536,
+  "name": "GG Bunk2 Sign CORRIDOR",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:11"
+ },
+ "art-source/maps/Bunker2/signs/door_GALLERY.png": {
+  "assetId": 115654901686008,
+  "name": "GG Bunk2 Sign GALLERY",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:14"
+ },
+ "art-source/maps/Bunker2/signs/door_LOCKERS.png": {
+  "assetId": 118026001885003,
+  "name": "GG Bunk2 Sign LOCKERS",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:17"
+ },
+ "art-source/maps/Bunker2/signs/door_OVERLOOK.png": {
+  "assetId": 81864226584919,
+  "name": "GG Bunk2 Sign OVERLOOK",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:19"
+ },
+ "art-source/maps/Bunker2/signs/door_PUMP.png": {
+  "assetId": 106611485209498,
+  "name": "GG Bunk2 Sign PUMP",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:32"
+ },
+ "art-source/maps/Bunker2/signs/door_RING.png": {
+  "assetId": 110188041319693,
+  "name": "GG Bunk2 Sign RING",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:22"
+ },
+ "art-source/maps/Bunker2/signs/door_SPAWN.png": {
+  "assetId": 112141599726323,
+  "name": "GG Bunk2 Sign SPAWN",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:24"
+ },
+ "art-source/maps/Bunker2/signs/door_SUNWELL.png": {
+  "assetId": 84061913748579,
+  "name": "GG Bunk2 Sign SUNWELL",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:27"
+ },
+ "art-source/maps/Bunker2/signs/door_VESTIBULE.png": {
+  "assetId": 94912489695009,
+  "name": "GG Bunk2 Sign VESTIBULE",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:30"
+ },
+ "art-source/maps/Bunker2/signs/spawn_A.png": {
+  "assetId": 103206643629417,
+  "name": "GG Bunk2 Sign SPAWN A",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:37"
+ },
+ "art-source/maps/Bunker2/signs/spawn_B.png": {
+  "assetId": 140606494657295,
+  "name": "GG Bunk2 Sign SPAWN B",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:13:43"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Board_color.png": {
+  "assetId": 98838891350417,
+  "name": "GG Bunk2 Board color v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:21:27"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Board_normal.png": {
+  "assetId": 77663954755018,
+  "name": "GG Bunk2 Board normal v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:21:33"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Brass_color.png": {
+  "assetId": 75283709746318,
+  "name": "GG Bunk2 Brass color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:57:18"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Brass_normal.png": {
+  "assetId": 130803198147401,
+  "name": "GG Bunk2 Brass normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:57:24"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Brushed_color.png": {
+  "assetId": 83874005006201,
+  "name": "GG Bunk2 Brushed color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:57:10"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Brushed_normal.png": {
+  "assetId": 83716151137799,
+  "name": "GG Bunk2 Brushed normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:57:16"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Floor_color.png": {
+  "assetId": 86473242676353,
+  "name": "GG Bunk2 Floor color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:56:58"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Floor_normal.png": {
+  "assetId": 116025681253577,
+  "name": "GG Bunk2 Floor normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:57:01"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Paint_color.png": {
+  "assetId": 71867090278423,
+  "name": "GG Bunk2 Paint color v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:21:36"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Paint_normal.png": {
+  "assetId": 75506297108578,
+  "name": "GG Bunk2 Paint normal v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:21:39"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Steel_color.png": {
+  "assetId": 121863447818855,
+  "name": "GG Bunk2 Steel color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:57:04"
+ },
+ "art-source/maps/Bunker2/textures/Bunk2_Steel_normal.png": {
+  "assetId": 73879185525639,
+  "name": "GG Bunk2 Steel normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:57:07"
+ },
+ "art-source/maps/Dockyard2/sky/Sky_Bk.png": {
+  "assetId": 117482084601639,
+  "name": "GG Dockyard2 Sky Bk",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:45:44"
+ },
+ "art-source/maps/Dockyard2/sky/Sky_Dn.png": {
+  "assetId": 80427816805427,
+  "name": "GG Dockyard2 Sky Dn",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:45:58"
+ },
+ "art-source/maps/Dockyard2/sky/Sky_Ft.png": {
+  "assetId": 114118505128577,
+  "name": "GG Dockyard2 Sky Ft",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:45:47"
+ },
+ "art-source/maps/Dockyard2/sky/Sky_Lf.png": {
+  "assetId": 90242201813898,
+  "name": "GG Dockyard2 Sky Lf",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:45:50"
+ },
+ "art-source/maps/Dockyard2/sky/Sky_Rt.png": {
+  "assetId": 130464232645180,
+  "name": "GG Dockyard2 Sky Rt",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:45:53"
+ },
+ "art-source/maps/Dockyard2/sky/Sky_Up.png": {
+  "assetId": 87787330568205,
+  "name": "GG Dockyard2 Sky Up",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:45:55"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Cladding_Color.png": {
+  "assetId": 130974332091024,
+  "name": "GG Map Dock2_Cladding_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:29:53"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Cladding_Normal.png": {
+  "assetId": 116017476788668,
+  "name": "GG Map Dock2_Cladding_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:29:59"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Concrete_Color.png": {
+  "assetId": 94455766895566,
+  "name": "GG Map Dock2_Concrete_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:02"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Concrete_Normal.png": {
+  "assetId": 76335606247192,
+  "name": "GG Map Dock2_Concrete_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:08"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Corrugated_Color.png": {
+  "assetId": 118518943912142,
+  "name": "GG Map Dock2_Corrugated_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:11"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Corrugated_Normal.png": {
+  "assetId": 114046352229507,
+  "name": "GG Map Dock2_Corrugated_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:17"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Grate_Color.png": {
+  "assetId": 84022568257375,
+  "name": "GG Map Dock2_Grate_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:20"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Grate_Normal.png": {
+  "assetId": 94970410970155,
+  "name": "GG Map Dock2_Grate_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:23"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Plank_Color.png": {
+  "assetId": 139923559335151,
+  "name": "GG Map Dock2_Plank_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:27"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Plank_Normal.png": {
+  "assetId": 88278075869084,
+  "name": "GG Map Dock2_Plank_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:33"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Plate_Color.png": {
+  "assetId": 130478763198116,
+  "name": "GG Map Dock2_Plate_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:35"
+ },
+ "art-source/maps/Dockyard2/textures/Dock2_Plate_Normal.png": {
+  "assetId": 99336817548014,
+  "name": "GG Map Dock2_Plate_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-05 17:30:41"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Ballast_Color.png": {
+  "assetId": 109417735456288,
+  "name": "GG Map Metro2 Metro2_Ballast_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:14:54"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Ballast_Normal.png": {
+  "assetId": 109190536241341,
+  "name": "GG Map Metro2 Metro2_Ballast_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:11"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Concrete_Color.png": {
+  "assetId": 124132512641162,
+  "name": "GG Map Metro2 Metro2_Concrete_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:14:57"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Concrete_Normal.png": {
+  "assetId": 107650990254145,
+  "name": "GG Map Metro2 Metro2_Concrete_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:17"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Floor_Color.png": {
+  "assetId": 113749065097213,
+  "name": "GG Map Metro2 Metro2_Floor_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:00"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Floor_Normal.png": {
+  "assetId": 139643329929662,
+  "name": "GG Map Metro2 Metro2_Floor_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:19"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Granite_Color.png": {
+  "assetId": 99406869309366,
+  "name": "GG Map Metro2 Metro2_Granite_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:02"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Granite_Normal.png": {
+  "assetId": 72182735674011,
+  "name": "GG Map Metro2 Metro2_Granite_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:22"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Steel_Color.png": {
+  "assetId": 103643517577789,
+  "name": "GG Map Metro2 Metro2_Steel_Color r2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:14:58"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Steel_Normal.png": {
+  "assetId": 82855169560148,
+  "name": "GG Map Metro2 Metro2_Steel_Normal r2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:15:01"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Tile_Color.png": {
+  "assetId": 96449688808124,
+  "name": "GG Map Metro2 Metro2_Tile_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:08"
+ },
+ "art-source/maps/Metro2/textures/Metro2_Tile_Normal.png": {
+  "assetId": 113801937445440,
+  "name": "GG Map Metro2 Metro2_Tile_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:28"
+ },
+ "art-source/maps/Metro2/textures/posters/01_Coffee.png": {
+  "assetId": 104485348979159,
+  "name": "GG Map Metro2 01_Coffee",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:31"
+ },
+ "art-source/maps/Metro2/textures/posters/02_MuseumShow.png": {
+  "assetId": 74210577989688,
+  "name": "GG Map Metro2 02_MuseumShow",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:37"
+ },
+ "art-source/maps/Metro2/textures/posters/03_RailPass.png": {
+  "assetId": 123756958458579,
+  "name": "GG Map Metro2 03_RailPass",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:43"
+ },
+ "art-source/maps/Metro2/textures/posters/04_PhoneNetwork.png": {
+  "assetId": 116861258232149,
+  "name": "GG Map Metro2 04_PhoneNetwork",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:49"
+ },
+ "art-source/maps/Metro2/textures/sign/Clock.png": {
+  "assetId": 85810110223688,
+  "name": "GG Map Metro2 Clock",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:45:18"
+ },
+ "art-source/maps/Metro2/textures/sign/Coffee.png": {
+  "assetId": 95540545294195,
+  "name": "GG Map Metro2 Coffee",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:33"
+ },
+ "art-source/maps/Metro2/textures/sign/Departures.png": {
+  "assetId": 112935182146208,
+  "name": "GG Map Metro2 Departures",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:36"
+ },
+ "art-source/maps/Metro2/textures/sign/Dest1.png": {
+  "assetId": 82261366748720,
+  "name": "GG Map Metro2 Dest1",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:38"
+ },
+ "art-source/maps/Metro2/textures/sign/Dest2.png": {
+  "assetId": 94676227626321,
+  "name": "GG Map Metro2 Dest2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:41"
+ },
+ "art-source/maps/Metro2/textures/sign/Exit.png": {
+  "assetId": 81520532862561,
+  "name": "GG Map Metro2 Exit",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:44"
+ },
+ "art-source/maps/Metro2/textures/sign/MindGap.png": {
+  "assetId": 113783070174686,
+  "name": "GG Map Metro2 MindGap",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:47"
+ },
+ "art-source/maps/Metro2/textures/sign/Name.png": {
+  "assetId": 75649118713337,
+  "name": "GG Map Metro2 Name",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:49"
+ },
+ "art-source/maps/Metro2/textures/sign/Platform1.png": {
+  "assetId": 100678152931650,
+  "name": "GG Map Metro2 Platform1 r3b",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:31:30"
+ },
+ "art-source/maps/Metro2/textures/sign/Platform2.png": {
+  "assetId": 118814182698302,
+  "name": "GG Map Metro2 Platform2 r3b",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:31:33"
+ },
+ "art-source/maps/Metro2/textures/sign/Platforms.png": {
+  "assetId": 92769903255800,
+  "name": "GG Map Metro2 Platforms",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:15:57"
+ },
+ "art-source/maps/Metro2/textures/sign/PosterCoffee.png": {
+  "assetId": 128999185268992,
+  "name": "GG Map Metro2 PosterCoffee",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:00"
+ },
+ "art-source/maps/Metro2/textures/sign/PosterMuseum.png": {
+  "assetId": 97544202549733,
+  "name": "GG Map Metro2 PosterMuseum",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:03"
+ },
+ "art-source/maps/Metro2/textures/sign/PosterPhone.png": {
+  "assetId": 81016055974458,
+  "name": "GG Map Metro2 PosterPhone",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:05"
+ },
+ "art-source/maps/Metro2/textures/sign/PosterRail.png": {
+  "assetId": 93882014620946,
+  "name": "GG Map Metro2 PosterRail",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:08"
+ },
+ "art-source/maps/Metro2/textures/sign/RouteMap.png": {
+  "assetId": 126759288767583,
+  "name": "GG Map Metro2 RouteMap r2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:15:13"
+ },
+ "art-source/maps/Metro2/textures/sign/SpawnA.png": {
+  "assetId": 101862711152924,
+  "name": "GG Map Metro2 SpawnA r2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:15:15"
+ },
+ "art-source/maps/Metro2/textures/sign/SpawnB.png": {
+  "assetId": 86850582832495,
+  "name": "GG Map Metro2 SpawnB r2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:15:18"
+ },
+ "art-source/maps/Metro2/textures/sign/SpawnWay.png": {
+  "assetId": 129756462719252,
+  "name": "GG Map Metro2 SpawnWay v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 05:04:53"
+ },
+ "art-source/maps/Metro2/textures/sign/SpawnWayA.png": {
+  "assetId": 123216823764325,
+  "name": "GG Map Metro2 SpawnWayA v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 05:04:57"
+ },
+ "art-source/maps/Metro2/textures/sign/SpawnWayB.png": {
+  "assetId": 76628423131173,
+  "name": "GG Map Metro2 SpawnWayB v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 05:04:59"
+ },
+ "art-source/maps/Metro2/textures/sign/Staff.png": {
+  "assetId": 139011399027255,
+  "name": "GG Map Metro2 Staff",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:19"
+ },
+ "art-source/maps/Metro2/textures/sign/Tickets.png": {
+  "assetId": 117113893493475,
+  "name": "GG Map Metro2 Tickets",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:22"
+ },
+ "art-source/maps/Metro2/textures/sign/Vending.png": {
+  "assetId": 102495425655821,
+  "name": "GG Map Metro2 Vending",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:16:24"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Ashlar_Color.png": {
+  "assetId": 103678755410421,
+  "name": "GG Map OldTown2 OT2_Ashlar_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:22:38"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Ashlar_Normal.png": {
+  "assetId": 97958409145639,
+  "name": "GG Map OldTown2 OT2_Ashlar_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:22:58"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Cobble_Color.png": {
+  "assetId": 75192358605444,
+  "name": "GG Map OldTown2 OT2_Cobble_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:22:41"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Cobble_Normal.png": {
+  "assetId": 71596753745288,
+  "name": "GG Map OldTown2 OT2_Cobble_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:23:01"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Paving_Color.png": {
+  "assetId": 108087284441797,
+  "name": "GG Map OldTown2 OT2_Paving_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:22:44"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Paving_Normal.png": {
+  "assetId": 77518714717918,
+  "name": "GG Map OldTown2 OT2_Paving_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:23:04"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Plank_Color.png": {
+  "assetId": 133726860833355,
+  "name": "GG Map OldTown2 OT2_Plank_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:22:47"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Plank_Normal.png": {
+  "assetId": 92024086678208,
+  "name": "GG Map OldTown2 OT2_Plank_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:23:07"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Stucco_Color.png": {
+  "assetId": 111727845972336,
+  "name": "GG Map OldTown2 OT2_Stucco_Color r1",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:49:40"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Stucco_Normal.png": {
+  "assetId": 135190418045998,
+  "name": "GG Map OldTown2 OT2_Stucco_Normal r1",
+  "type": "Decal",
+  "uploaded": "2026-11-06 02:49:43"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Terracotta_Color.png": {
+  "assetId": 87983673884992,
+  "name": "GG Map OldTown2 OT2_Terracotta_Color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:22:52"
+ },
+ "art-source/maps/OldTown2/textures/OT2_Terracotta_Normal.png": {
+  "assetId": 136663838884876,
+  "name": "GG Map OldTown2 OT2_Terracotta_Normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:23:12"
+ },
+ "art-source/maps/Rooftops2/sky/Sky_Bk.png": {
+  "assetId": 134987703195267,
+  "name": "GG Rooftops2 Sky Bk v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:22:16"
+ },
+ "art-source/maps/Rooftops2/sky/Sky_Dn.png": {
+  "assetId": 118935486820311,
+  "name": "GG Rooftops2 Sky Dn",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:05:09"
+ },
+ "art-source/maps/Rooftops2/sky/Sky_Ft.png": {
+  "assetId": 79979560884498,
+  "name": "GG Rooftops2 Sky Ft v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:22:19"
+ },
+ "art-source/maps/Rooftops2/sky/Sky_Lf.png": {
+  "assetId": 84201215624725,
+  "name": "GG Rooftops2 Sky Lf v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:22:22"
+ },
+ "art-source/maps/Rooftops2/sky/Sky_Rt.png": {
+  "assetId": 98536274284926,
+  "name": "GG Rooftops2 Sky Rt v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:22:24"
+ },
+ "art-source/maps/Rooftops2/sky/Sky_Up.png": {
+  "assetId": 140283890936062,
+  "name": "GG Rooftops2 Sky Up v2",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:22:27"
+ },
  "art-source/maps/Rooftops2/textures/Roof2_Brick_Color.png": {
   "assetId": 95593588594173,
   "name": "GG Map Roof2_Brick_Color",
@@ -712,6 +1348,126 @@
   "name": "GG Map Roof2_Terracotta_Normal",
   "type": "Decal",
   "uploaded": "2026-11-05 16:44:42"
+ },
+ "art-source/maps/Rooftops2/textures/billboards/crops/Billboard_Cafe.png": {
+  "assetId": 122300025432400,
+  "name": "GG Rooftops2 Billboard_Cafe",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:02:04"
+ },
+ "art-source/maps/Rooftops2/textures/billboards/crops/Billboard_Soda.png": {
+  "assetId": 89055281199475,
+  "name": "GG Rooftops2 Billboard_Soda",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:02:01"
+ },
+ "art-source/maps/Rooftops2/textures/billboards/crops/Sign_Cinema.png": {
+  "assetId": 88263738514071,
+  "name": "GG Rooftops2 Sign_Cinema",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:01:54"
+ },
+ "art-source/maps/Rooftops2/textures/billboards/crops/Sign_Scooter.png": {
+  "assetId": 72861928372873,
+  "name": "GG Rooftops2 Sign_Scooter",
+  "type": "Decal",
+  "uploaded": "2026-11-06 00:01:57"
+ },
+ "art-source/maps/Snowpeak2/signs/GONDOLA_NORTH_PEAK.png": {
+  "assetId": 116223721883060,
+  "name": "GG Snow2 Sign GONDOLA_NORTH_PEAK",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:53:48"
+ },
+ "art-source/maps/Snowpeak2/signs/GONDOLA_SOUTH_PEAK.png": {
+  "assetId": 129191827959308,
+  "name": "GG Snow2 Sign GONDOLA_SOUTH_PEAK",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:53:51"
+ },
+ "art-source/maps/Snowpeak2/signs/SKI_PATROL.png": {
+  "assetId": 97706803001245,
+  "name": "GG Snow2 Sign SKI_PATROL",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:53:54"
+ },
+ "art-source/maps/Snowpeak2/signs/SNOWPEAK_LODGE.png": {
+  "assetId": 85716379032210,
+  "name": "GG Snow2 Sign SNOWPEAK_LODGE",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:53:45"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Plank_color.png": {
+  "assetId": 83498547356830,
+  "name": "GG Snow2 Plank color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:54"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Plank_normal.png": {
+  "assetId": 95103150907543,
+  "name": "GG Snow2 Plank normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:57"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Rock_color.png": {
+  "assetId": 125644533897123,
+  "name": "GG Snow2 Rock color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:48"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Rock_normal.png": {
+  "assetId": 73910183007417,
+  "name": "GG Snow2 Rock normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:51"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Roof_color.png": {
+  "assetId": 93000502840491,
+  "name": "GG Snow2 Roof color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:42"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Roof_normal.png": {
+  "assetId": 116157704027701,
+  "name": "GG Snow2 Roof normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:45"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Snow_color.png": {
+  "assetId": 93910976552979,
+  "name": "GG Snow2 Snow color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:33"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Snow_normal.png": {
+  "assetId": 84394729304515,
+  "name": "GG Snow2 Snow normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:39"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Stone_color.png": {
+  "assetId": 75071842014710,
+  "name": "GG Snow2 Stone color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:27"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Stone_normal.png": {
+  "assetId": 130844000619112,
+  "name": "GG Snow2 Stone normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:30"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Timber_color.png": {
+  "assetId": 84711156400993,
+  "name": "GG Snow2 Timber color",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:20"
+ },
+ "art-source/maps/Snowpeak2/textures/Snow2_Timber_normal.png": {
+  "assetId": 79868945010500,
+  "name": "GG Snow2 Timber normal",
+  "type": "Decal",
+  "uploaded": "2026-11-06 01:51:23"
  },
  "art-source/maps/whitebox/Whitebox_Panel.png": {
   "assetId": 115771155467964,
@@ -1504,6 +2260,18 @@
   "name": "GG VFX vignette",
   "type": "Decal",
   "uploaded": "2026-10-25 13:52:35"
+ },
+ "art-source/vfx/zone/zone_glitch.png": {
+  "assetId": 110875138601582,
+  "name": "GG Zone Glitch",
+  "type": "Decal",
+  "uploaded": "2026-11-07 00:48:02"
+ },
+ "art-source/vfx/zone/zone_wall.png": {
+  "assetId": 116087755457548,
+  "name": "GG Zone Wall",
+  "type": "Decal",
+  "uploaded": "2026-11-07 00:48:00"
  },
  "art-source/viewmodel/Arms.fbx": {
   "assetId": 112778616991962,

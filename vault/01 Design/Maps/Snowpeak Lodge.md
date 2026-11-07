@@ -168,3 +168,8 @@ Built 2026-11-03 by a parallel map session (no Studio, no Blender MCP): the hub 
 - **Signs:** the Lodge, station and patrol names face outward (SurfaceGui Front).
 - **The cable lines** leave the bullwheel over the parapet and climb the ridge; no cabin clips the summit station.
 - **Budget:** MeshParts (the report prints it), 10 lights.
+
+## Concepts (Codex)
+- [01-overview.png](../../../art-source/maps/Snowpeak2/concepts/01-overview.png) - Whole-arena aerial with lodge, stations and ponds.
+- [02-hero.png](../../../art-source/maps/Snowpeak2/concepts/02-hero.png) - Blue spawn view toward the lodge and chimney.
+- [03-kit-sheet.png](../../../art-source/maps/Snowpeak2/concepts/03-kit-sheet.png) - Structure pieces, props and material swatches.

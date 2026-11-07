@@ -1,604 +1,738 @@
 {
-  "_doc": "Maps v5 fixed evidence cameras: the same angles every round (eye height = floor + 5, plus an overview). Positions are map-local (add the map origin: Rooftops2 3000,200,0; Dockyard2 -3000,200,0). Shots go to vault/02 Art/References/maps/<map>/v5-r<round>-<name>.jpg. Lighting: tools/studio/maps/PreviewLighting.luau.",
-  "Rooftops2": {
-    "origin": [
-      3000,
-      200,
-      0
+ "_doc": "Maps v5 fixed evidence cameras: the same angles every round (eye height = floor + 5, plus an overview). Positions are map-local (add the map origin: Rooftops2 3000,200,0; Dockyard2 -3000,200,0). Shots go to vault/02 Art/References/maps/<map>/v5-r<round>-<name>.jpg. Lighting: tools/studio/maps/PreviewLighting.luau.",
+ "Rooftops2": {
+  "origin": [
+   3000,
+   200,
+   0
+  ],
+  "cams": {
+   "overview": {
+    "pos": [
+     62,
+     58,
+     92
     ],
-    "cams": {
-      "overview": {
-        "pos": [
-          62,
-          58,
-          92
-        ],
-        "look": [
-          0,
-          4,
-          4
-        ]
-      },
-      "b-spawn": {
-        "pos": [
-          -10,
-          5,
-          70
-        ],
-        "look": [
-          40,
-          5,
-          68
-        ]
-      },
-      "a-roof-tank": {
-        "pos": [
-          -22,
-          5,
-          -40
-        ],
-        "look": [
-          0,
-          14,
-          0
-        ]
-      },
-      "pit": {
-        "pos": [
-          -17,
-          -3,
-          0
-        ],
-        "look": [
-          8,
-          6,
-          -2
-        ]
-      },
-      "tower": {
-        "pos": [
-          -35,
-          13,
-          -6
-        ],
-        "look": [
-          0,
-          6,
-          32
-        ]
-      },
-      "b-roof-side": {
-        "pos": [
-          40,
-          5,
-          38
-        ],
-        "look": [
-          -12,
-          6,
-          30
-        ]
-      }
-    }
-  },
-  "Dockyard2": {
-    "origin": [
-      -3000,
-      200,
-      0
-    ],
-    "cams": {
-      "overview": {
-        "pos": [
-          95,
-          75,
-          125
-        ],
-        "look": [
-          0,
-          4,
-          0
-        ]
-      },
-      "mid-crane": {
-        "pos": [
-          0,
-          5,
-          -70
-        ],
-        "look": [
-          0,
-          22,
-          0
-        ]
-      },
-      "red-lane": {
-        "pos": [
-          -40,
-          5,
-          -90
-        ],
-        "look": [
-          -30,
-          8,
-          0
-        ]
-      },
-      "quay": {
-        "pos": [
-          60,
-          5,
-          -20
-        ],
-        "look": [
-          66,
-          3,
-          40
-        ]
-      },
-      "shed-inside": {
-        "pos": [
-          50,
-          5,
-          30
-        ],
-        "look": [
-          58,
-          7,
-          52
-        ]
-      }
-    }
-  },
-  "Greenhouse2": {
-    "origin": [
-      0,
-      200,
-      3000
-    ],
-    "_note": "fixed from round 2 (dome-floor and b-spawn re-picked once: round 1's faced props)",
-    "cams": {
-      "overview": {
-        "pos": [
-          110,
-          95,
-          150
-        ],
-        "look": [
-          0,
-          10,
-          0
-        ]
-      },
-      "b-spawn": {
-        "pos": [
-          -8,
-          5,
-          98
-        ],
-        "look": [
-          4,
-          10,
-          50
-        ]
-      },
-      "fern-house": {
-        "pos": [
-          -12,
-          5,
-          64
-        ],
-        "look": [
-          0,
-          20,
-          0
-        ]
-      },
-      "dome-floor": {
-        "pos": [
-          6,
-          5,
-          36
-        ],
-        "look": [
-          0,
-          9,
-          0
-        ]
-      },
-      "gallery": {
-        "pos": [
-          -36,
-          17,
-          -20
-        ],
-        "look": [
-          0,
-          20,
-          10
-        ]
-      },
-      "west-wing": {
-        "pos": [
-          -58,
-          5,
-          -36
-        ],
-        "look": [
-          -58,
-          8,
-          36
-        ]
-      },
-      "terrace": {
-        "pos": [
-          -62,
-          5,
-          60
-        ],
-        "look": [
-          -62,
-          6,
-          10
-        ]
-      }
-    }
-  },
-  "Metro2": {
-    "origin": [
-      3000,
-      200,
-      1500
-    ],
-    "cams": {
-      "overview": {
-        "pos": [
-          -4,
-          23,
-          46
-        ],
-        "look": [
-          3,
-          5,
-          -10
-        ]
-      },
-      "b-terrace": {
-        "pos": [
-          -28,
-          19,
-          54
-        ],
-        "look": [
-          6,
-          5,
-          -20
-        ]
-      },
-      "b-spawn": {
-        "pos": [
-          -2,
-          19,
-          121
-        ],
-        "look": [
-          9,
-          18,
-          104
-        ]
-      },
-      "east-platform": {
-        "pos": [
-          30,
-          5,
-          46
-        ],
-        "look": [
-          20,
-          7,
-          -10
-        ]
-      },
-      "west-platform": {
-        "pos": [
-          -27,
-          5,
-          -44
-        ],
-        "look": [
-          -18,
-          7,
-          10
-        ]
-      },
-      "trench": {
-        "pos": [
-          0,
-          1,
-          -32
-        ],
-        "look": [
-          0,
-          9,
-          10
-        ]
-      },
-      "gantry": {
-        "pos": [
-          24,
-          5,
-          -16
-        ],
-        "look": [
-          0,
-          12,
-          0
-        ]
-      },
-      "train": {
-        "pos": [
-          19,
-          5,
-          30
-        ],
-        "look": [
-          9,
-          4,
-          8
-        ]
-      },
-      "corridor": {
-        "pos": [
-          42,
-          5,
-          -32
-        ],
-        "look": [
-          42,
-          6,
-          10
-        ]
-      },
-      "ticket-hall": {
-        "pos": [
-          -20,
-          19,
-          76
-        ],
-        "look": [
-          10,
-          17,
-          100
-        ]
-      },
-      "gantry-south": {
-        "pos": [
-          0,
-          8,
-          -22
-        ],
-        "look": [
-          0,
-          12,
-          0
-        ]
-      }
-    },
-    "dummies": [
-      [
-        20,
-        0,
-        24
-      ],
-      [
-        0,
-        -4,
-        -12
-      ],
-      [
-        -26,
-        14,
-        56
-      ]
+    "look": [
+     0,
+     4,
+     4
     ]
-  },
-  "Bunker2": {
-    "origin": [
-      -3000,
-      200,
-      1500
+   },
+   "b-spawn": {
+    "pos": [
+     -10,
+     5,
+     70
     ],
-    "_note": "indoor map: no roof-off overview; the ring shot is the overview",
-    "cams": {
-      "gallery-hero": {
-        "pos": [
-          2,
-          5,
-          50
-        ],
-        "look": [
-          0,
-          7,
-          0
-        ]
-      },
-      "sunwell": {
-        "pos": [
-          -14,
-          5,
-          -14
-        ],
-        "look": [
-          2,
-          6,
-          4
-        ]
-      },
-      "ring": {
-        "pos": [
-          -17,
-          17,
-          17
-        ],
-        "look": [
-          4,
-          4,
-          -4
-        ]
-      },
-      "shaft": {
-        "pos": [
-          3,
-          5,
-          4
-        ],
-        "look": [
-          0,
-          60,
-          0
-        ]
-      },
-      "corridor": {
-        "pos": [
-          36,
-          5,
-          50
-        ],
-        "look": [
-          36,
-          6,
-          10
-        ]
-      },
-      "lockers": {
-        "pos": [
-          17,
-          5,
-          28
-        ],
-        "look": [
-          24,
-          4,
-          46
-        ]
-      },
-      "control": {
-        "pos": [
-          -17,
-          5,
-          28
-        ],
-        "look": [
-          -24,
-          4,
-          46
-        ]
-      },
-      "pump": {
-        "pos": [
-          24,
-          5,
-          -12
-        ],
-        "look": [
-          34,
-          4,
-          2
-        ]
-      },
-      "spawn-b": {
-        "pos": [
-          0,
-          5,
-          96
-        ],
-        "look": [
-          0,
-          6,
-          60
-        ]
-      }
-    }
-  },
-  "Snowpeak2": {
-    "origin": [
-      -3000,
-      200,
-      -1500
+    "look": [
+     40,
+     5,
+     68
+    ]
+   },
+   "a-roof-tank": {
+    "pos": [
+     -22,
+     5,
+     -40
     ],
-    "cams": {
-      "overview": {
-        "pos": [
-          95,
-          70,
-          120
-        ],
-        "look": [
-          0,
-          6,
-          0
-        ]
-      },
-      "b-spawn": {
-        "pos": [
-          0,
-          5,
-          90
-        ],
-        "look": [
-          0,
-          14,
-          0
-        ]
-      },
-      "lounge": {
-        "pos": [
-          10,
-          5,
-          14
-        ],
-        "look": [
-          0,
-          6,
-          0
-        ]
-      },
-      "station": {
-        "pos": [
-          -30,
-          5,
-          62
-        ],
-        "look": [
-          -52,
-          10,
-          42
-        ]
-      },
-      "pond": {
-        "pos": [
-          28,
-          5,
-          62
-        ],
-        "look": [
-          46,
-          2,
-          30
-        ]
-      },
-      "balcony": {
-        "pos": [
-          20.5,
-          15,
-          20
-        ],
-        "look": [
-          40,
-          6,
-          -30
-        ]
-      }
-    }
+    "look": [
+     0,
+     14,
+     0
+    ]
+   },
+   "pit": {
+    "pos": [
+     -17,
+     -3,
+     0
+    ],
+    "look": [
+     8,
+     6,
+     -2
+    ]
+   },
+   "tower": {
+    "pos": [
+     -35,
+     13,
+     -6
+    ],
+    "look": [
+     0,
+     6,
+     32
+    ]
+   },
+   "b-roof-side": {
+    "pos": [
+     40,
+     5,
+     38
+    ],
+    "look": [
+     -12,
+     6,
+     30
+    ]
+   }
   }
+ },
+ "Dockyard2": {
+  "origin": [
+   -3000,
+   200,
+   0
+  ],
+  "cams": {
+   "overview": {
+    "pos": [
+     95,
+     75,
+     125
+    ],
+    "look": [
+     0,
+     4,
+     0
+    ]
+   },
+   "mid-crane": {
+    "pos": [
+     0,
+     5,
+     -70
+    ],
+    "look": [
+     0,
+     22,
+     0
+    ]
+   },
+   "red-lane": {
+    "pos": [
+     -40,
+     5,
+     -90
+    ],
+    "look": [
+     -30,
+     8,
+     0
+    ]
+   },
+   "quay": {
+    "pos": [
+     60,
+     5,
+     -20
+    ],
+    "look": [
+     66,
+     3,
+     40
+    ]
+   },
+   "shed-inside": {
+    "pos": [
+     50,
+     5,
+     30
+    ],
+    "look": [
+     58,
+     7,
+     52
+    ]
+   }
+  }
+ },
+ "Greenhouse2": {
+  "origin": [
+   0,
+   200,
+   3000
+  ],
+  "_note": "fixed from round 2 (dome-floor and b-spawn re-picked once: round 1's faced props)",
+  "cams": {
+   "overview": {
+    "pos": [
+     110,
+     95,
+     150
+    ],
+    "look": [
+     0,
+     10,
+     0
+    ]
+   },
+   "b-spawn": {
+    "pos": [
+     -8,
+     5,
+     98
+    ],
+    "look": [
+     4,
+     10,
+     50
+    ]
+   },
+   "fern-house": {
+    "pos": [
+     -12,
+     5,
+     64
+    ],
+    "look": [
+     0,
+     20,
+     0
+    ]
+   },
+   "dome-floor": {
+    "pos": [
+     6,
+     5,
+     36
+    ],
+    "look": [
+     0,
+     9,
+     0
+    ]
+   },
+   "gallery": {
+    "pos": [
+     -36,
+     17,
+     -20
+    ],
+    "look": [
+     0,
+     20,
+     10
+    ]
+   },
+   "west-wing": {
+    "pos": [
+     -58,
+     5,
+     -36
+    ],
+    "look": [
+     -58,
+     8,
+     36
+    ]
+   },
+   "terrace": {
+    "pos": [
+     -62,
+     5,
+     60
+    ],
+    "look": [
+     -62,
+     6,
+     10
+    ]
+   }
+  }
+ },
+ "Metro2": {
+  "origin": [
+   3000,
+   200,
+   1500
+  ],
+  "cams": {
+   "overview": {
+    "pos": [
+     -4,
+     23,
+     46
+    ],
+    "look": [
+     3,
+     5,
+     -10
+    ]
+   },
+   "b-terrace": {
+    "pos": [
+     -28,
+     19,
+     54
+    ],
+    "look": [
+     6,
+     5,
+     -20
+    ]
+   },
+   "b-spawn": {
+    "pos": [
+     -2,
+     19,
+     121
+    ],
+    "look": [
+     9,
+     18,
+     104
+    ]
+   },
+   "east-platform": {
+    "pos": [
+     30,
+     5,
+     46
+    ],
+    "look": [
+     20,
+     7,
+     -10
+    ]
+   },
+   "west-platform": {
+    "pos": [
+     -27,
+     5,
+     -44
+    ],
+    "look": [
+     -18,
+     7,
+     10
+    ]
+   },
+   "trench": {
+    "pos": [
+     0,
+     1,
+     -32
+    ],
+    "look": [
+     0,
+     9,
+     10
+    ]
+   },
+   "gantry": {
+    "pos": [
+     24,
+     5,
+     -16
+    ],
+    "look": [
+     0,
+     12,
+     0
+    ]
+   },
+   "train": {
+    "pos": [
+     19,
+     5,
+     30
+    ],
+    "look": [
+     9,
+     4,
+     8
+    ]
+   },
+   "corridor": {
+    "pos": [
+     42,
+     5,
+     -32
+    ],
+    "look": [
+     42,
+     6,
+     10
+    ]
+   },
+   "ticket-hall": {
+    "pos": [
+     -20,
+     19,
+     76
+    ],
+    "look": [
+     10,
+     17,
+     100
+    ]
+   },
+   "gantry-south": {
+    "pos": [
+     0,
+     8,
+     -22
+    ],
+    "look": [
+     0,
+     12,
+     0
+    ]
+   }
+  },
+  "dummies": [
+   [
+    20,
+    0,
+    24
+   ],
+   [
+    0,
+    -4,
+    -12
+   ],
+   [
+    -26,
+    14,
+    56
+   ]
+  ]
+ },
+ "Bunker2": {
+  "origin": [
+   -3000,
+   200,
+   1500
+  ],
+  "_note": "indoor map: no roof-off overview; the ring shot is the overview",
+  "cams": {
+   "gallery-hero": {
+    "pos": [
+     2,
+     5,
+     50
+    ],
+    "look": [
+     0,
+     7,
+     0
+    ]
+   },
+   "sunwell": {
+    "pos": [
+     -14,
+     5,
+     -14
+    ],
+    "look": [
+     2,
+     6,
+     4
+    ]
+   },
+   "ring": {
+    "pos": [
+     -17,
+     17,
+     17
+    ],
+    "look": [
+     4,
+     4,
+     -4
+    ]
+   },
+   "shaft": {
+    "pos": [
+     3,
+     5,
+     4
+    ],
+    "look": [
+     0,
+     60,
+     0
+    ]
+   },
+   "corridor": {
+    "pos": [
+     36,
+     5,
+     50
+    ],
+    "look": [
+     36,
+     6,
+     10
+    ]
+   },
+   "lockers": {
+    "pos": [
+     17,
+     5,
+     28
+    ],
+    "look": [
+     24,
+     4,
+     46
+    ]
+   },
+   "control": {
+    "pos": [
+     -17,
+     5,
+     28
+    ],
+    "look": [
+     -24,
+     4,
+     46
+    ]
+   },
+   "pump": {
+    "pos": [
+     24,
+     5,
+     -12
+    ],
+    "look": [
+     34,
+     4,
+     2
+    ]
+   },
+   "spawn-b": {
+    "pos": [
+     0,
+     5,
+     96
+    ],
+    "look": [
+     0,
+     6,
+     60
+    ]
+   }
+  }
+ },
+ "Snowpeak2": {
+  "origin": [
+   -3000,
+   200,
+   -1500
+  ],
+  "cams": {
+   "overview": {
+    "pos": [
+     95,
+     70,
+     120
+    ],
+    "look": [
+     0,
+     6,
+     0
+    ]
+   },
+   "b-spawn": {
+    "pos": [
+     0,
+     5,
+     90
+    ],
+    "look": [
+     0,
+     14,
+     0
+    ]
+   },
+   "lounge": {
+    "pos": [
+     10,
+     5,
+     14
+    ],
+    "look": [
+     0,
+     6,
+     0
+    ]
+   },
+   "station": {
+    "pos": [
+     -30,
+     5,
+     62
+    ],
+    "look": [
+     -52,
+     10,
+     42
+    ]
+   },
+   "pond": {
+    "pos": [
+     28,
+     5,
+     62
+    ],
+    "look": [
+     46,
+     2,
+     30
+    ]
+   },
+   "balcony": {
+    "pos": [
+     20.5,
+     15,
+     20
+    ],
+    "look": [
+     40,
+     6,
+     -30
+    ]
+   }
+  }
+ },
+ "OldTown2": {
+  "origin": [
+   3000,
+   200,
+   -1500
+  ],
+  "cams": {
+   "overview": {
+    "pos": [
+     -60,
+     40,
+     70
+    ],
+    "look": [
+     0,
+     5,
+     0
+    ]
+   },
+   "b-spawn": {
+    "pos": [
+     0,
+     5,
+     128
+    ],
+    "look": [
+     0,
+     6,
+     100
+    ]
+   },
+   "forecourt": {
+    "pos": [
+     -4,
+     5,
+     86
+    ],
+    "look": [
+     -6,
+     8,
+     40
+    ]
+   },
+   "plaza-gate": {
+    "pos": [
+     -5,
+     5,
+     42
+    ],
+    "look": [
+     2,
+     8,
+     0
+    ]
+   },
+   "fountain": {
+    "pos": [
+     22,
+     5,
+     18
+    ],
+    "look": [
+     0,
+     8,
+     0
+    ]
+   },
+   "arcade": {
+    "pos": [
+     31,
+     5,
+     30
+    ],
+    "look": [
+     31,
+     6,
+     4
+    ]
+   },
+   "terrace": {
+    "pos": [
+     46,
+     17,
+     20
+    ],
+    "look": [
+     0,
+     6,
+     -10
+    ]
+   },
+   "alley": {
+    "pos": [
+     -74,
+     5,
+     40
+    ],
+    "look": [
+     -74,
+     8,
+     0
+    ]
+   },
+   "tower": {
+    "pos": [
+     20,
+     5,
+     -20
+    ],
+    "look": [
+     60,
+     40,
+     0
+    ]
+   }
+  },
+  "dummies": [
+   [
+    6,
+    0,
+    20
+   ],
+   [
+    -4,
+    0,
+    60
+   ],
+   [
+    40,
+    12,
+    10
+   ]
+  ]
+ }
 }

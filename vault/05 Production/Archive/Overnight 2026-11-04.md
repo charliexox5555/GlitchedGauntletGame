@@ -1,6 +1,6 @@
 # Overnight 2026-11-04: lanes, contracts and rules
 
-The user's brief for the night (summarised): make the game feel **fun, clean and professional**. Four lanes run as separate Claude sessions in the **same checkout**, coordinated from the core chat. Each lane writes its own result note; the core chat updates [Home](../00%20Home.md) and the [Asset Tracker](../06%20Assets/Asset%20Tracker.md) at the end.
+The user's brief for the night (summarised): make the game feel **fun, clean and professional**. Four lanes run as separate Claude sessions in the **same checkout**, coordinated from the core chat. Each lane writes its own result note; the core chat updates [Home](../../00%20Home.md) and the [Asset Tracker](../../06%20Assets/Asset%20Tracker.md) at the end.
 
 ## Art direction change (user, 2026-11-04)
 - **Stylized and grounded, lower poly.** Rounded corners and bevels, simple readable shapes, smooth materials, a brighter and more saturated palette. Less tactical / realistic than now; not as toy-smooth as RIVALS. Valorant is a fair "detail level" reference (Valorant is lower-poly than the game is now).
@@ -48,7 +48,7 @@ The match reads it from the first joining player (`Player:GetJoinData().Teleport
 - Use sub-agents for research (a lighter model is fine) and keep context lean.
 
 ## Lane notes
-- A: [Lobby Rebuild 2026-11-04](../02%20Art/Lobby%20Rebuild%202026-11-04.md)
-- B: [Lobby UI and Queue](../01%20Design/Lobby%20UI%20and%20Queue.md)
-- C: [Bots](../01%20Design/Bots.md)
-- D: [Third-person Animation and Knife Pass](Playtests/2026-11-04%20Animation%20and%20Knife%20Pass.md)
+- A: [Lobby Rebuild 2026-11-04](../../02%20Art/Lobby%20Rebuild%202026-11-04.md)
+- B: [Lobby UI and Queue](../../01%20Design/Lobby%20UI%20and%20Queue.md)
+- C: [Bots](../../01%20Design/Bots.md)
+- D: [Third-person Animation and Knife Pass](../Playtests/2026-11-04%20Animation%20and%20Knife%20Pass.md)

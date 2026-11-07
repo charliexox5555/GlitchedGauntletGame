@@ -1,6 +1,6 @@
 # Bots
 
-AI players for matches: they fill empty team slots (1v1 to 3v3), draft, fight, use Mods and count for every result. Lane C of [Overnight 2026-11-04](../05%20Production/Overnight%202026-11-04.md). **Status (2026-11-04 night): built and playtested in Studio (1v1, 2v2, 3v3, a full match to 5). See "Build log".**
+AI players for matches: they fill empty team slots (1v1 to 3v3), draft, fight, use Mods and count for every result. Lane C of [Overnight 2026-11-04](../05%20Production/Archive/Overnight%202026-11-04.md). **Status (2026-11-04 night): built and playtested in Studio (1v1, 2v2, 3v3, a full match to 5). See "Build log".**
 
 ## Goals
 - Fight like a **decent human**, not an aimbot: a reaction delay, aim that settles onto you, misses, recoil they only partly control, strafing, peeking, sprinting between fights, sliding in.

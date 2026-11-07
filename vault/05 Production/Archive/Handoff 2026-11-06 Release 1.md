@@ -12,15 +12,15 @@ This is for a new Claude chat starting the **Release 1 functionality** phase. Re
   |---|---|
   | Lobby | 71551303511506 |
   | Match | 133387545285290 |
-- The design is locked in [Game Plan](Game%20Plan.md) §1. The match rules are in [Match Flow](../01%20Design/Match%20Flow.md), [Gunplay](../01%20Design/Gunplay.md) and [Weapons](../01%20Design/Weapons.md).
+- The design is locked in [Game Plan](../Game%20Plan.md) §1. The match rules are in [Match Flow](../../01%20Design/Match%20Flow.md), [Gunplay](../../01%20Design/Gunplay.md) and [Weapons](../../01%20Design/Weapons.md).
 
 ## 2. The goal of this phase
 **Get a complete, working game that's good enough for release 1. Professional polish comes after.**
 
-Map art, UI looks, avatar holds and extra polish are **parked**. The user works in phases: only what the user picks gets done now, and other ideas go into [Bugs & Ideas](Bugs%20%26%20Ideas.md).
+Map art, UI looks, avatar holds and extra polish are **parked**. The user works in phases: only what the user picks gets done now, and other ideas go into [Bugs & Ideas](../Bugs%20%26%20Ideas.md).
 
 ## 3. How to work (mandatory, every task and every agent brief)
-1. **Read [CLAUDE.md](../../CLAUDE.md)** for the code rules:
+1. **Read [CLAUDE.md](../../../CLAUDE.md)** for the code rules:
    - strict Luau, server-authoritative;
    - validated, rate-limited remotes;
    - numbers live in `src/shared/Config`;
@@ -32,11 +32,11 @@ Map art, UI looks, avatar holds and extra polish are **parked**. The user works 
    - the notes are in `vault/LihFolk/`.
 
    Project notes and measured numbers win over general advice. Cite the notes you used.
-4. **Plans, specs and results go into the vault**, before and after the work. Afterwards, update [Home](../00%20Home.md) → Status.
+4. **Plans, specs and results go into the vault**, before and after the work. Afterwards, update [Home](../../00%20Home.md) → Status.
 5. **Run a security review** on anything that touches remotes, using `roblox-secure-remotes` or the `roblox-dev:roblox-reviewer` agent.
 6. **Put these rules in any agent or session brief you write.**
 
-## 4. Where things stand (read [Home](../00%20Home.md) → Status for detail)
+## 4. Where things stand (read [Home](../../00%20Home.md) → Status for detail)
 **Working:**
 - Gunplay: client-detected and server-validated hitscan, with lag compensation, recoil patterns, and a crosshair that shows the real spread.
 - Weapons and tiers, the knife, the Mods and draft system, and the round loop.
@@ -46,9 +46,9 @@ Map art, UI looks, avatar holds and extra polish are **parked**. The user works 
 
 **Maps:**
 - All 7 maps were rebuilt overnight as `<Map>2` versions. They're ForceMap only: set the Workspace attribute `ForceMap` to the id. The old maps and the pool are untouched.
-- The spec is [Map Quality Standard](../01%20Design/Maps/Map%20Quality%20Standard.md). Scores are in [Overnight Maps Approval](Playtests/2026-11-06%20Overnight%20Maps%20Approval.md); Rooftops2 is best at 8.3. **The maps are parked**, and the release map pool is the user's call.
+- The spec is [Map Quality Standard](../../01%20Design/Maps/Map%20Quality%20Standard.md). Scores are in [Overnight Maps Approval](../Playtests/2026-11-06%20Overnight%20Maps%20Approval.md); Rooftops2 is best at 8.3. **The maps are parked**, and the release map pool is the user's call.
 
-**Missing for release 1** (from [Game Plan](Game%20Plan.md) §8 "Public beta" and [LihFolk Gap Review 2026-11-05](LihFolk%20Gap%20Review%202026-11-05.md)):
+**Missing for release 1** (from [Game Plan](../Game%20Plan.md) §8 "Public beta" and [LihFolk Gap Review 2026-11-05](../LihFolk%20Gap%20Review%202026-11-05.md)):
 
 | Item | What's missing |
 |---|---|
@@ -95,10 +95,10 @@ The **user decides the order** and how each one works. This list is context, not
 
 **Codex:**
 - The user's ChatGPT/Codex desktop app is a collaborator for images and Blender models. It isn't needed for functionality work.
-- Rules are in [Codex Collaboration](../04%20Tech/Codex%20Collaboration.md).
+- Rules are in [Codex Collaboration](../../04%20Tech/Codex%20Collaboration.md).
 
 ## 6. First move in the new chat
 1. Load `gauntlet-vault`.
-2. Skim Home → Status, [Architecture](../04%20Tech/Architecture.md), [Match Flow](../01%20Design/Match%20Flow.md) and this note.
+2. Skim Home → Status, [Architecture](../../04%20Tech/Architecture.md), [Match Flow](../../01%20Design/Match%20Flow.md) and this note.
 3. Tell the user in a few lines that you're up to speed.
 4. **Wait for their instructions.**

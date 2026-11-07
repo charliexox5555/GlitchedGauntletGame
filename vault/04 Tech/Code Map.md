@@ -49,7 +49,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `Mods/<Ability>.luau` | one per ability: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall |
 | `Mods/Blocks/*` | reusable parts: Projectile (deterministic arc), Placeable, Target, Zone, Reveal, Rewind, SelfBuff, Dash |
 | `Mods/Charges`, `Mods/Status`, `Mods/Teams`, `Mods/Types` | per-round charges, status reads, ally checks (`Teams.isAlly`), types |
-| `Util/` | `Spread`, `Accuracy` (Gunplay v2 spread), `Damage` (falloff), `FireRate`, `Spring`, `Validate`, `RateLimit` |
+| `Util/` | `Spread`, `Accuracy` (Gunplay v2 spread), `Damage` (falloff), `FireRate`, `Spring`, `Validate`, `RateLimit`, `Ease` (smooth/out/lerp/approach: use it, don't redefine easing), `Fighters` (players' bodies + bots: `bodies()`, `all()`, `bodyOfPart()`) |
 | `WeaponAnimations/<Gun>.luau` | generated clip ids per gun |
 | `UiKit.luau`, `CoreUi.luau` | shared UI builders |
 
@@ -57,10 +57,11 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | Module | Owns · remotes · attributes |
 |---|---|
 | `init.server.luau` | two-phase bootstrap: `init()` all, then `start()` all |
-| `Services/MatchService` (878 l) | the match loop: Waiting → Ready → Draft/select → Countdown → Live → SuddenDeath → RoundEnd → MatchEnd; spawns with `LoadCharacterAsync`; scores; writes `Match*`; sends `Replay`; seats and teams |
+| `Services/MatchService` (~880 l) | the match loop: Waiting → Draft (the select, with the 3-2-1 inside) → Countdown → Live → SuddenDeath → RoundEnd, then Replay → MatchEnd; spawns with `LoadCharacterAsync`; scores; writes `Match*`; sends `Replay`; seats and teams |
 | `Services/MatchEndService` | stats broadcast (`MatchSummary`), Rematch / Play Again / Leave votes (`MatchChoice`), teleports out |
 | `Services/DraftService` | rolls and stores each offer, checks `DraftPick`, sends `DraftOffer`; attr `DraftLocked` |
-| `Services/WeaponService` (1769 l) | loadouts, ammo, reload, fire timing, the shot validation ladder, rewound hit checks, melee, damage (`onHit`) |
+| `Services/WeaponService` (905 l) | loadouts, ammo, reload, fire timing, the remote handlers and the shot-accept ladder in `onFire`; re-exports the helpers below |
+| `Services/Weapon/` (no init/start, required by WeaponService) | `Hits` (per-hit validation with rewind, damage tally), `Motion` (motion samples, `spreadBand`, the Dash gate), `Damage` (guards, modifiers, `hurt`, `applyDamage`, `damage`, `damageBy`, `onHit`), `Targets` (live humanoids, hitbox owners, wall exclusions), `WorldModel` (the third-person gun) |
 | `Services/HitboxHistory` | last second of each root position, for lag compensation |
 | `Services/HealthService` | the game's own HP / downed state |
 | `Services/StatusService` | status effects (Hindered, Stunned…), the only writer of expiry attributes |
@@ -70,7 +71,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `Services/ModWalls` | Firewall walls: growth, HP, burning |
 | `Services/ModRecall` | Recall anchor, wind-up, teleport; attrs `Recall*` |
 | `Services/DevModService` | backend of the F8 Mod test panel (`DevMod`) |
-| `Services/MapService` | clones the map from `ServerStorage.Maps` into `workspace.ActiveMap`; tags `ArenaSpawn_A/B`, `ArenaBarrier` |
+| `Services/MapService` | at start moves every map model left in Workspace to `ServerStorage.Maps`; clones the picked one into `workspace.ActiveMap`; tags `ArenaSpawn_A/B`, `ArenaBarrier`; `spawnCentre(team)` |
 | `Services/ZoneService` | sudden-death circle, damage outside it |
 | `Services/SpectateService` | streams the target's surroundings to a spectator (`Spectate`) |
 | `Services/CharacterService` | prepares every combatant: match body, full HP, no regen, hitbox history; our `Animate` ids |
@@ -84,9 +85,9 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | Controller | Owns |
 |---|---|
 | `WeaponController` | fire input, spread, recoil, predicted hit marker, sends `Fire`/`Reload`/`Equip`/`Aim` |
-| `ViewmodelController` (2366 l) | first-person gun and arms rig; uses `Util/Viewmodel*`, `GunAnimator`, `MagDrop` |
+| `ViewmodelController` (1817 l) | first-person gun and arms rig (also shows a spectated or replayed fighter's view via `setSubject`); uses `Util/ViewmodelTracks` (keyframed tracks), `Util/ViewmodelHeldMods` (held Mods, gestures, free hand), `Util/ViewmodelArms/Rig/Motion`, `GunAnimator`, `MagDrop` |
 | `GripController` | left hand IK on every visible character's gun |
-| `EffectsController` (1656 l) | shot effects (flash, smoke, tracers, impacts, shells) from `ShotFx` |
+| `EffectsController` (585 l) | your own shot from the viewmodel, other players' `ShotFx`, spectated / replayed shots (`setSpectated`, `playShot`), hit flash; forwards to `Util/MuzzleFx`, `ShellFx`, `TracerFx`, `ImpactFx` (surfaces, bullet holes, knife marks), `KnifeSwipeFx`, all built on `Util/ShotFxKit` |
 | `HudController` | crosshair, hit markers, ammo, health/shield, low-HP vignette, damage direction |
 | `MatchHudController`, `PhoneHudController` | top bar, score, clock, banners; phone layout |
 | `DraftController` (1536 l) | the select/draft screen: gun cards + one column per Mod key |
@@ -102,7 +103,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `MatchEndController` | victory scene and post-match screen (Rematch / Play Again / Leave) |
 | `ZoneController` | sudden-death wall, screen tint, warning tick |
 | `DevModController`, `PickerController`, `RangeController` | test-mode tools: Mod panel (F8), gun picker (P), dummy health bars |
-| `Util/` | `HitFeedback`, `KillFeed`, `Ui`, `UiSound`, `TeamColor` (cyan allies, orange-red enemies), `Device`, `VfxPool`, `Frozen`, VFX kits (`FireKit`, `IceKit`, `GlitchVfx`, `WallFx`, `WindFx`) |
+| `Util/` | `BodyClone` (client-only copies of bodies for death falls, the replay, the victory scene), `ShotLog` (your own shots, for the replay), `HitFeedback`, `KillFeed`, `Ui`, `UiSound`, `TeamColor` (cyan allies, orange-red enemies), `Device`, `VfxPool`, `Frozen`, VFX kits (`FireKit`, `IceKit`, `GlitchVfx`, `WallFx`, `WindFx`) |
 
 ## src/lobby (Lobby place)
 | Module | Owns |

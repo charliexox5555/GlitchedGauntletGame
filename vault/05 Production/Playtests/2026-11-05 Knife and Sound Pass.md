@@ -1,6 +1,6 @@
 # 2026-11-05 Knife and Sound Pass (lane F, `knife-sounds`)
 
-Lane F from the [Day Plan 2026-11-05](../Day%20Plan%202026-11-05.md); rules in [Overnight 2026-11-04](../Overnight%202026-11-04.md) → "Rules for every lane". Follows lane D's [Animation and Knife Pass](2026-11-04%20Animation%20and%20Knife%20Pass.md), where the knife scored **7.0** (P2 timing, P3 anticipation and P5 arcs had no evidence; the slashes were the old Blender wrist clips).
+Lane F from the [Day Plan 2026-11-05](../Archive/Day%20Plan%202026-11-05.md); rules in [Overnight 2026-11-04](../Archive/Overnight%202026-11-04.md) → "Rules for every lane". Follows lane D's [Animation and Knife Pass](2026-11-04%20Animation%20and%20Knife%20Pass.md), where the knife scored **7.0** (P2 timing, P3 anticipation and P5 arcs had no evidence; the slashes were the old Blender wrist clips).
 
 Goals: the knife scores **8.5+** on the LihFolk animation rubric (blind reviewers), in first and third person; the knife gets real recorded sounds (uploaded, wired, with alternates listed); then a sound pass on the rest of the game.
 

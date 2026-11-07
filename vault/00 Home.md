@@ -7,6 +7,7 @@
 
 ## 📍 Status
 
+- **Cleanup 2026-11-08 ([note](05%20Production/Cleanup%202026-11-08.md)):** repo, code and place tidied for new work: shared helpers (`Ease`, `Fighters`, `BodyClone`), the three biggest scripts split (WeaponService 1,769 → 905, ViewmodelController 2,366 → 1,817, EffectsController 1,656 → 585), dead code and stale comments out, numbers into Config, a running server keeps only the loaded map, 19 old worktrees (5.3 GB) removed, old one-off notes archived, README map of the repo. **Save the match place** (two leftovers removed). Playtested: a full 1v1 to the end screen, clean output.
 - **Release 1, match structure revamp (2026-11-07, [plan](05%20Production/Match%20Structure%20Revamp.md)):** phase A built and playtested in Studio ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20A.md)):
   - select from the moment you join, 30 s / 15 s with the 3-2-1 inside, gun and ability preselected, early end from round 2;
   - bot stand-ins for late players, bots replace team-mode leavers, a side with no real players left loses;
@@ -62,7 +63,7 @@
 - [Art Direction](02%20Art/Art%20Direction.md): Style B rules, palette, model standard, import pipeline
 - [Mod Props](02%20Art/Mod%20Props.md): the Mod models (stylized, energy parts tinted per team), renders in `References/mods/`
 - [Lobby Art Plan](02%20Art/Lobby%20Art%20Plan.md): Lobby mood board, palette, materials and the dimensioned "Sunwell Bunker" circular layout
-- [Gun Batch Prompt](02%20Art/Gun%20Batch%20Prompt.md) · [AI 3D Prompts](02%20Art/AI%203D%20Prompts.md)
+- [Gun Batch Prompt](02%20Art/Archive/Gun%20Batch%20Prompt.md) · [AI 3D Prompts](02%20Art/Archive/AI%203D%20Prompts.md)
 - References: `02 Art/References/` (Bitrate master, style tests)
 
 ### 03 Research: *why* we decided things

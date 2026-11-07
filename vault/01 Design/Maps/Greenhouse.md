@@ -187,3 +187,8 @@ Self-score from the offline evidence: **8.8 / 10**, gates pass (0 z-fights, ever
 - First sight at any range is 4.0 s sprint: a 117-stud glimpse between the Fern Houses through both Dome doors (one end on a bed). Walk it first; a taller fountain top would close it.
 - The Wing pools leave a 4-wide wading ring round the central urn (not a route).
 - The images listed in §2 haven't been downloaded (no approval to download yet); the links are the references.
+
+## Concepts (Codex)
+- [01-overview.png](../../../art-source/maps/Greenhouse2/concepts/01-overview.png) - Whole-arena aerial cutaway with dome, galleries and flanks.
+- [02-hero.png](../../../art-source/maps/Greenhouse2/concepts/02-hero.png) - Blue spawn approach toward the fountain, bridge and dome.
+- [03-kit-sheet.png](../../../art-source/maps/Greenhouse2/concepts/03-kit-sheet.png) - Structure pieces, planting props and material swatches.

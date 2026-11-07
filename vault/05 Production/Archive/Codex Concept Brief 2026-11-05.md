@@ -14,9 +14,9 @@ You're making concept images for my Roblox shooter. Read the prompts from the va
    - Save to art-source/maps/Rooftops2/concepts/ and art-source/maps/Dockyard2/concepts/, named like 01-overview.png, 02-hero-pit.png, matching the prompt numbers. If an image needs a second try, save the better one as -v2.
 
 2. UI (after the maps)
-   - Prompts: vault/01 Design/Lobby UI and Queue.md, section "10. UI concept pass", plus the Figma renders in assets/UI/concepts/figma-v3-clipped-*.png as the layout reference.
+   - Prompts: vault/01 Design/Lobby UI and Queue.md, section "10. UI concept pass", plus the Figma renders in art-source/ui/concepts/figma-v3-clipped-*.png as the layout reference.
    - Make the "three directions" options image first, then lobby and match HUD screens in the direction it recommends.
-   - Save to assets/UI/concepts/chatgpt/.
+   - Save to art-source/ui/concepts/chatgpt/.
 
 RULES
 - Every design is original. The third-party images are for mood and quality level only. Never copy a real game's map layout, landmark, UI, logo or text.

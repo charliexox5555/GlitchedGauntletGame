@@ -12,7 +12,7 @@ AI 3D tools do much better from a **clean picture** than from text alone. Their 
 2. **Image → 3D.** Upload that side view to the 3D tool's **image-to-3D**. If it supports multi-view, also generate a top view and a 3/4 view with the same prompt.
 3. **Or text → 3D** if you just want a quick look: use the *Short text-to-3D prompt* (section 4).
 4. **Clean up in Blender:** delete floating bits, cut the triangle count to the budget (section 7), split the neon into its own material, set the size, and export FBX.
-5. **Import into Roblox** with the 3D Importer and add the attachments (Muzzle, grips, AimPoint, Eject) per [Art Direction](Art%20Direction.md).
+5. **Import into Roblox** with the 3D Importer and add the attachments (Muzzle, grips, AimPoint, Eject) per [Art Direction](../Art%20Direction.md).
 
 **Licence check before shipping anything:** Meshy's free-tier outputs are public under CC BY 4.0, and Tripo's free tier is non-commercial ([Krea comparison](https://www.krea.ai/blog/best-ai-3d-model-generators-2026), [Cinevva guide](https://app.cinevva.com/guides/ai-3d-model-generators)). Use a paid plan for anything that goes into the real game.
 

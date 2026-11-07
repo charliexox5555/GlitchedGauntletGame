@@ -23,9 +23,13 @@ vault/.trash/
 # LihFolk notes: a local copy of the plugin's vault, 53 MB (see vault/04 Tech/LihFolk.md)
 vault/LihFolk/
 
-# Other games' screenshots used as map references: local only, the notes link their sources
-vault/02 Art/References/maps/**/third-party/
-vault/02 Art/References/match-ui/third-party/
+# Other games' screenshots used as references: local only (the repo is public),
+# the notes link their sources. Put them in any folder named third-party/.
+**/third-party/
+vault/02 Art/References/ui/
+vault/02 Art/References/lobby/professional-*/
+vault/01 Design/ValorantUIExamples/
+vault/01 Design/RivalsMapConcepts/
 
 # Blender backups
 *.blend1
@@ -46,18 +50,23 @@ art-source/audio/_download/
 art-source/audio/library/
 # CC0 recordings fetched by tools/audio/fetch_audio.py (one folder each; ledger in the vault)
 art-source/audio/downloads/
-# Audition reel rendered by tools/audio/build_sound_atlas.py --preview
-art-source/audio/AtlasPreview.wav
+# Audition reels (tools/audio/build_sound_atlas.py --preview and the like)
+art-source/audio/*Preview.wav
 # Mod sound auditions rendered by tools/audio/mod_sfx.py
 art-source/audio/ModSfx/
 
 # Viewmodel hand-clipping samples (tools/studio/SampleHands.luau), regenerated on demand
 art-source/viewmodel/checks/
 
+# Intermediates the texture scripts write next to their outputs (tools/vfx/*)
+art-source/vfx/**/_*.png
+# Preview renders of map props
+art-source/maps/**/*_preview.png
+
 # Python bytecode
 __pycache__/
-vault/01 Design/ValorantUIExamples/
-vault/01 Design/RivalsMapConcepts/
 
-# Overnight lane locks
+# Claude Code: per-session worktrees and the Studio lane locks
+.claude/worktrees/
+.claude/settings.local.json
 .claude-locks/

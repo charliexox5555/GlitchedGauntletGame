@@ -6,7 +6,7 @@
 
 **Status:** design locked 2026-10-29 · **phase 1 (build and art) built 2026-10-30, waiting for the user's approval** · phase 2 (game code) after that. What was built: [Lobby Kit](../02%20Art/Lobby%20Kit.md) → Built lobby; final screenshots in `02 Art/References/lobby/final/`.
 
-> **Locked 2026-10-29:** the Lobby is a **new place named "Lobby" in the same experience**, and Claude works in both places. **Phase 1 is building and art only:** geometry, Blender kit, lighting and decorative scripts. **No game-structure code until the user approves the build** (phase 2). Prompt: [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md). Art plan and dimensioned layout: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md) (approved 2026-10-29; greybox next).
+> **Locked 2026-10-29:** the Lobby is a **new place named "Lobby" in the same experience**, and Claude works in both places. **Phase 1 is building and art only:** geometry, Blender kit, lighting and decorative scripts. **No game-structure code until the user approves the build** (phase 2). Prompt: [Lobby Build Prompt](../04%20Tech/Prompts/Archive/Lobby%20Build%20Prompt.md). Art plan and dimensioned layout: [Lobby Art Plan](../02%20Art/Lobby%20Art%20Plan.md) (approved 2026-10-29; greybox next).
 **What it is:** the pre-game hub. Players spawn here in **third person**, hang out, slide around, queue (alone or with a party), shop, set their loadout, and practise in a separate **Range wing**. Matches happen in a different place.
 
 ---
@@ -100,7 +100,7 @@ Sizes since the 2026-11-05 rebuild: rotunda R30 (60 across), ring R30–44, whol
 - 30 players: keep the hub performant (StreamingEnabled, instanced props, few dynamic lights).
 
 ## Build plan
-**Phase 1: build and art only (no game code):** create the "Lobby" place, then steps 2 and 5 below, plus lighting and decorative ambience. See the [Lobby Build Prompt](../04%20Tech/Prompts/Lobby%20Build%20Prompt.md).
+**Phase 1: build and art only (no game code):** create the "Lobby" place, then steps 2 and 5 below, plus lighting and decorative ambience. See the [Lobby Build Prompt](../04%20Tech/Prompts/Archive/Lobby%20Build%20Prompt.md).
 **Phase 2: code (after the build is approved):** steps 1, 3, 4 and 6.
 
 1. **Places + Rojo:** swap the start place (see above) and split Rojo into lobby and match projects.

@@ -1,6 +1,6 @@
 # Evening review (2026-11-05)
 
-The user played the day's work ([Day Plan 2026-11-05](../Day%20Plan%202026-11-05.md)) after school. Their verdicts and the decisions that came out of them.
+The user played the day's work ([Day Plan 2026-11-05](../Archive/Day%20Plan%202026-11-05.md)) after school. Their verdicts and the decisions that came out of them.
 
 ## Verdicts
 - **Maps, the main verdict: too simple.**

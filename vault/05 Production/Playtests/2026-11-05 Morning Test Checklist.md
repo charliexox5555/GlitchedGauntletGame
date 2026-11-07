@@ -1,6 +1,6 @@
 # Morning test checklist (2026-11-05)
 
-What the four overnight lanes built, and what to test, in a sensible order (about 45 minutes). Plan and rules: [Overnight 2026-11-04](../Overnight%202026-11-04.md). Each section links the lane note with the full detail.
+What the four overnight lanes built, and what to test, in a sensible order (about 45 minutes). Plan and rules: [Overnight 2026-11-04](../Archive/Overnight%202026-11-04.md). Each section links the lane note with the full detail.
 
 **Before you start:** both Studios are open. Rojo is serving on **34872** (game) and **34873** (Lobby): if a terminal was closed, run `rojo serve default.project.json --port 34872` and `rojo serve lobby.project.json --port 34873`, then Connect in each Studio. Both places were saved to Roblox at about 01:08; nothing was published.
 

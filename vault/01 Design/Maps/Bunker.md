@@ -206,3 +206,8 @@ The previews are Blender EEVEE stand-ins for the Roblox look (sun at the zenith 
 | Shaft | Square, 24 wide, skylight at 64, sun at the zenith | Round like the Lobby oculus: closer match, but curved collision |
 | Levels | Two (ground, ring at +12) | A sunken pit under the shaft: a third level, but the ring would own it |
 | Name | Bunker | "Sunwell", "Undercroft" |
+
+## Concepts (Codex)
+- [01-overview.png](../../../art-source/maps/Bunker2/concepts/01-overview.png) - Whole-arena aerial cutaway.
+- [02-hero.png](../../../art-source/maps/Bunker2/concepts/02-hero.png) - Spawn approach toward the sunwell and ring.
+- [03-kit-sheet.png](../../../art-source/maps/Bunker2/concepts/03-kit-sheet.png) - Structure pieces, props and material swatches.

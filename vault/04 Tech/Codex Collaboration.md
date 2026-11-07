@@ -17,7 +17,7 @@ Its job is to add capacity and a second eye, not to replace the Claude lanes.
 - If Codex says the limit is reached, stop and note where the job got to. Don't buy credits; that's the user's call.
 
 ## How the core chat drives it
-1. Write the job as a short brief in the vault (like [Codex Concept Brief 2026-11-05](../05%20Production/Codex%20Concept%20Brief%202026-11-05.md)):
+1. Write the job as a short brief in the vault (like [Codex Concept Brief 2026-11-05](../05%20Production/Archive/Codex%20Concept%20Brief%202026-11-05.md)):
    - what to read,
    - what to make,
    - where to save it,

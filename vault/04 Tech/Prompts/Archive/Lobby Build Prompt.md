@@ -1,6 +1,6 @@
 # Prompt: Lobby, phase 1 (build and art only, NO game code)
 
-> **Note (2026-10-29):** after step 1 the user changed the layout to a **circular underground bunker hub** (rotunda + skylight, outer ring, Duels / Market / Weapons + Locker / Range wings, no courtyard). Where this prompt says hall, courtyard or late afternoon, follow [Lobby](../../01%20Design/Lobby.md) and the [Lobby Art Plan](../../02%20Art/Lobby%20Art%20Plan.md) instead.
+> **Note (2026-10-29):** after step 1 the user changed the layout to a **circular underground bunker hub** (rotunda + skylight, outer ring, Duels / Market / Weapons + Locker / Range wings, no courtyard). Where this prompt says hall, courtyard or late afternoon, follow [Lobby](../../../01%20Design/Lobby.md) and the [Lobby Art Plan](../../../02%20Art/Lobby%20Art%20Plan.md) instead.
 
 **Locked 2026-10-29:** the Lobby is a **new place called "Lobby" in the same experience** as the game. Claude works in **both places** (the game place and the Lobby place). In this phase we **only build the hub and make it look good**:
 - **Allowed:** building, Blender models, materials, lighting, and **decorative scripts** (ambient VFX, animated signs and screens, light flicker, moving dust and props).
