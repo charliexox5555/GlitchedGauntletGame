@@ -42,6 +42,8 @@ local WeaponService = require(script.Parent.WeaponService)
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 
+local DevConfig = require(game:GetService("ReplicatedStorage").Shared.Config.Dev)
+
 local DevModService = {}
 
 local ACTIONS: { [string]: boolean } = {
@@ -61,7 +63,6 @@ end
 
 local SKIN = Color3.fromHex("A3A5A8")
 local CLOTH = Color3.fromHex("4A4D52")
-local RESPAWN = 3
 local DUMMY_TAG = "RangeDummy" -- RangeController draws the health bar
 
 local limiter = RateLimit.new(Config.RATE)
@@ -168,7 +169,7 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 	spawnedBy[model] = by
 
 	Health.onDowned(humanoid, function()
-		task.delay(RESPAWN, function()
+		task.delay(DevConfig.DUMMY_RESPAWN, function()
 			local index = table.find(dummies, model)
 			if index then
 				table.remove(dummies, index)

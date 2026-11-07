@@ -62,6 +62,16 @@ return table.freeze({
 	-- client's (its input buffer). Shots this early against the server's own
 	-- end of the fire delay are still accepted (and may still be Dash Focus).
 	DASH_FIRE_SLACK = 0.15,
+	-- Mod objects (Firewall, Launch Pad) don't move: a hit on one may claim a
+	-- point at most this many studs outside its box (bodies get the latency
+	-- allowance above instead).
+	OBJECT_HIT_TOLERANCE = 0.5,
+	-- A Mod's fire-rate boost (WeaponService.setFireRate): the multiplier is
+	-- clamped to [FIRE_BOOST_MIN, FIRE_BOOST_MAX], and shots up to
+	-- FIRE_BOOST_GRACE seconds after it ends still get it (latency).
+	FIRE_BOOST_MIN = 1,
+	FIRE_BOOST_MAX = 3,
+	FIRE_BOOST_GRACE = 0.3,
 
 	-- Only these parts of a character count as hitboxes (R15, plus R6 names).
 	BODY_PARTS = {

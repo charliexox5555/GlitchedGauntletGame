@@ -276,7 +276,7 @@ local function phaseName(round: number): string
 end
 
 -- Every fighter on a team: players' characters, plus dummies with a TeamId
--- (the test opponent, in Workspace.Dummies). Health share 0..1, and the names.
+-- (bots, in Workspace.Dummies). Health share 0..1, and the names.
 local function teamState(team: number): (number, { string })
 	local health, max = 0, 0
 	local names: { string } = {}

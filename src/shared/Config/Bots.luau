@@ -121,7 +121,6 @@ return table.freeze({
 	MAX_RAYS_PER_THINK = 3,
 
 	-- Perception.
-	EYE_HEIGHT = 1.5, -- studs above the root its eyes / muzzle sit (≈ head)
 	NEAR_SENSE = 8, -- studs: felt even outside the vision cone
 	REACQUIRE_WINDOW = 1, -- seconds: re-seeing someone this soon halves the reaction
 	REACTION_FLOOR = 0.15, -- seconds: no reaction is ever faster (LihFolk AI Difficulty Tuning)

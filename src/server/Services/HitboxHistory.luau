@@ -3,10 +3,7 @@
 -- server can accept a client's hit on a target that has since moved (lag),
 -- without accepting hits on spots the target never was.
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-
-local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 
 -- Fixed-size ring buffer of root CFrames per combatant (no per-frame allocation).
 local CAPACITY = 90 -- > 1 s at 60 Hz
@@ -105,16 +102,6 @@ function HitboxHistory.start()
 			record.count = math.min(record.count + 1, CAPACITY)
 		end
 	end)
-end
-
--- Kept for tooling: true if `position` is on `part` now or within the last second.
-function HitboxHistory.plausible(
-	model: Model,
-	part: BasePart,
-	position: Vector3,
-	tolerance: number
-): boolean
-	return HitboxHistory.rewind(model, part, position, tolerance, Combat.HISTORY_SECONDS) ~= nil
 end
 
 return HitboxHistory

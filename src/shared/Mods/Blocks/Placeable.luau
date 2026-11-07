@@ -1,5 +1,5 @@
 --!strict
--- Placeable building block (Launch Pad, Firewall). "Placed things go where
+-- Placeable building block (placed Mod objects). "Placed things go where
 -- you're looking" (Mods.md rule 1): a spot on walkable ground within `range`
 -- along the aim, facing the aim's yaw, with room for the object and a clear
 -- line from the head. The client runs it every frame for the hologram (green /

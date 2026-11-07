@@ -1,5 +1,5 @@
 --!strict
--- Zone building block (Lag Field; later heal pads, burn zones, Zero-G). A
+-- Zone building block (Stim, Frost; later heal pads, burn zones, Zero-G). A
 -- vertical cylinder on the ground: `radius` across, `height` up from its
 -- centre point and a little below it.
 

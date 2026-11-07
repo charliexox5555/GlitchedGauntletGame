@@ -379,13 +379,6 @@ function ModService.slotOf(player: Player, id: string): (number?, string?)
 	return nil, nil
 end
 
--- Round start: everyone's charges back.
-function ModService.refillAllCharges()
-	for _, player in Players:GetPlayers() do
-		ModService.refillCharges(player)
-	end
-end
-
 -- The round is over: everything the player's Mods left running stops, fires and
 -- walls and timers alike, so nothing reaches into the next round. (Inside a
 -- round they outlive the caster's death.)

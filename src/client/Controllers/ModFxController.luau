@@ -331,7 +331,7 @@ local function onMollyBurst(data: { [string]: any })
 	end
 end
 
--- Patch Up --------------------------------------------------------------------------
+-- Heal Orb (was Patch Up) --------------------------------------------------------------------------
 
 local function floater(target: Model, text: string, color: Color3)
 	local head = target:FindFirstChild("Head")
@@ -626,7 +626,7 @@ end
 
 -- Placed objects ---------------------------------------------------------------------
 
--- Mod objects are dressed per viewer: a Launch Pad is a charcoal plate with
+-- Mod objects are dressed per viewer: a placed pad is a charcoal plate with
 -- team-coloured chevrons scrolling toward the launch, a Firewall a team-
 -- coloured shimmer with hex panels on both faces. They flash white when hit.
 local objectFlash: { [BasePart]: number } = {}
@@ -971,7 +971,7 @@ local function update(dt: number)
 			end
 		end
 	end
-	-- Launch Pad arrows chase toward the launch, back to front.
+	-- Pad arrows chase toward the launch, back to front.
 	for _, d in dressed do
 		local n = #d.arrows
 		for i, arrow in d.arrows do

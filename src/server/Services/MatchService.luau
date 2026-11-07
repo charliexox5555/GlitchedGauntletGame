@@ -39,8 +39,6 @@ local POLL = 0.1 -- seconds between checks on a running clock
 local RETRY_AFTER_ERROR = 3
 local MAP_RETRY = 5
 local SPAWN_TRIES = 2
-local LATE_SPAWN_WAIT = 3 -- seconds a slow spawn gets past the countdown
-local MAX_EMPTY_ROUNDS = 3 -- rounds in a row with a side nobody could spawn on: the match ends
 
 local enabled = false
 local matchesPlayed = 0
@@ -185,25 +183,13 @@ local function spawnPlayers(which: (player: Player) -> boolean)
 end
 
 -- The middle of a team's spawns.
-local function spawnCentre(team: number): Vector3?
-	local spawns = MapService.spawns(team)
-	if #spawns == 0 then
-		return nil
-	end
-	local sum = Vector3.zero
-	for _, s in spawns do
-		sum += s.Position
-	end
-	return sum / #spawns
-end
-
 -- Everyone back at their end with full health. Bots take the spawns after
 -- their team's players, and head for the other end when they know nothing.
 local function spawnEveryone()
 	spawnPlayers(function()
 		return true
 	end)
-	BotService.setRoamPoints(spawnCentre(2), spawnCentre(1))
+	BotService.setRoamPoints(MapService.spawnCentre(2), MapService.spawnCentre(1))
 	for team = 1, 2 do
 		BotService.spawnTeam(team, MapService.spawns(team), #playersOn(team) + 1)
 	end
@@ -628,7 +614,7 @@ local function runMatch(): boolean
 			runClock(Config.COUNTDOWN_TIME, forfeited)
 		end
 		if someoneOut() and not forfeited() then
-			runClock(LATE_SPAWN_WAIT, function()
+			runClock(Config.LATE_SPAWN_WAIT, function()
 				return not someoneOut() or forfeited()
 			end)
 		end
@@ -639,7 +625,7 @@ local function runMatch(): boolean
 		local eliminated = false
 		if someoneOut() and not forfeited() then
 			emptyRounds += 1
-			if emptyRounds >= MAX_EMPTY_ROUNDS then
+			if emptyRounds >= Config.MAX_EMPTY_ROUNDS then
 				local one, two = teamState(1), teamState(2)
 				forfeitBy = if one > 0 and two == 0 then 1 elseif two > 0 and one == 0 then 2 else 0
 				warn(

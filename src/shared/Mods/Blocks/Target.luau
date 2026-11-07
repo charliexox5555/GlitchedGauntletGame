@@ -1,5 +1,5 @@
 --!strict
--- Target building block (Patch Up; later reveals and marks). Finds live
+-- Target building block (Heal Orb; later reveals and marks). Finds live
 -- combatants (player characters and anything in workspace.Dummies), checks
 -- line of sight against world geometry, and picks the ally nearest the
 -- crosshair. The client uses it to highlight; the server re-runs the same

@@ -28,5 +28,4 @@ return table.freeze({
 	SLIDE_FOV_KICK = 8, -- ...and while sliding
 
 	-- Server sanity check on replicated movement (anti speed-hack telemetry).
-	MAX_LEGIT_SPEED = 45,
 })

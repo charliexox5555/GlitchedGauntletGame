@@ -77,7 +77,7 @@ export type Request = {
 	mode: UseMode,
 	origin: Vector3, -- the client's camera position
 	direction: Vector3, -- unit camera look
-	target: Model?, -- Patch Up: the ally the client aimed at
+	target: Model?, -- Heal Orb: the ally the client aimed at
 	placement: CFrame?, -- placed Mods: the spot `validate` found (server's own check)
 	charge: number?, -- HeldCharge: 0..1 (validate clamps it to how long it was held)
 	bounces: number?, -- Recon: 0..2 wall bounces
@@ -158,7 +158,7 @@ export type ServerApi = {
 	fx: (caster: Player, id: string, kind: string, data: { [string]: any }) -> (),
 	-- Every hit on a combatant passes through each guard first (WeaponService.hurt):
 	-- return the amount to deal (0 blocks it). `attacker` is nil for damage
-	-- with no player behind it (the test opponent).
+	-- with no player behind it (a bot).
 	guard: (
 		fn: (victim: Model, humanoid: Humanoid, amount: number, attacker: Player?) -> number
 	) -> (),

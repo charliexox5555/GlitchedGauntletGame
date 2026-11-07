@@ -9,14 +9,13 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local MatchConfig = require(ReplicatedStorage.Shared.Config.Match)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local HealthService = require(script.Parent.HealthService)
 local WeaponService = require(script.Parent.WeaponService)
 
 local StatsService = {}
-
-local ASSIST_WINDOW = 10 -- seconds
 
 export type Line = {
 	id: string, -- "p<userId>" or "b<bot name>"
@@ -111,7 +110,7 @@ local function onHit(attacker: Instance, victim: Model, dealt: number, killed: b
 		a.eliminations += 1
 		for id, at in v.hurtBy do
 			local helper = entries[id]
-			if helper and id ~= a.id and now - at <= ASSIST_WINDOW then
+			if helper and id ~= a.id and now - at <= MatchConfig.ASSIST_WINDOW then
 				helper.assists += 1
 			end
 		end

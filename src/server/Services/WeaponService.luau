@@ -7,22 +7,26 @@
 -- head -> per hit: real character, alive, not self, within range, inside the
 -- gun's possible spread, on the target's recent hitbox, no wall in between.
 -- Damage always comes from Config/Weapons on the server, never the client.
+--
+-- This module owns the weapon state and the remotes; the pieces live in the
+-- plain modules under Services/Weapon (no init/start; the server only boots
+-- the ModuleScripts directly in Services):
+--   Weapon/Hits        per-hit validation, lag compensation, shot damage
+--   Weapon/Motion      motion history: the server's spread band, Dash gate
+--   Weapon/Damage      the damage path (guards, shield, health, feedback)
+--   Weapon/Targets     live combatants, hitboxes, the wall check
+--   Weapon/WorldModel  the third-person gun
 
-local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
-local Animations = require(Shared.Config.Animations)
 local Combat = require(Shared.Config.Combat)
-local DashMod = require(Shared.Mods.Dash)
 local MatchState = require(Shared.MatchState)
 local Status = require(Shared.Mods.Status)
-local Teams = require(Shared.Mods.Teams)
 local StatusEffects = require(Shared.Config.StatusEffects)
-local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
 local RateLimit = require(Shared.Util.RateLimit)
@@ -33,14 +37,17 @@ local Validate = require(Shared.Util.Validate)
 local Weapons = require(Shared.Config.Weapons)
 
 local StatusService = require(script.Parent.StatusService)
-local HitboxHistory = require(script.Parent.HitboxHistory)
-local ModEntities = require(script.Parent.ModEntities)
 local Health = require(ReplicatedStorage.Shared.Health)
-local HealthService = require(script.Parent.HealthService)
+
+local Weapon = script.Parent.Weapon
+local WeaponDamage = require(Weapon.Damage)
+local Hits = require(Weapon.Hits)
+local Motion = require(Weapon.Motion)
+local Targets = require(Weapon.Targets)
+local WorldModel = require(Weapon.WorldModel)
 
 type Slot = Types.Slot
 type WeaponConfig = Types.WeaponConfig
-type HitZone = Types.HitZone
 
 type SlotState = {
 	id: string,
@@ -68,28 +75,6 @@ type SlotState = {
 	meleeStep: number?, -- the knife's light-slash chain (1-3), for what others see
 }
 
--- What the server's own simulation says a player was doing (sampled every
--- Heartbeat), for recomputing spread: Gunplay v2 movement penalty and ADS.
--- `aim` is the ADS blend the client also runs (0..1 over the gun's adsTime).
-type MotionSample = {
-	t: number,
-	state: string,
-	speed: number,
-	aim: number,
-	sinceLanding: number,
-}
-
-type MotionTrack = {
-	samples: { MotionSample },
-	aim: number,
-	lastState: string,
-	landedAt: number,
-	-- Dash (Mods/Dash.stepGate), on the server's own clock from its own
-	-- simulation's dash attributes: no shots before dash.readyAt; the first
-	-- shot until dash.focusUntil has no movement spread (Dash Focus).
-	dash: DashMod.GunGate,
-}
-
 type PlayerState = {
 	slots: { [Slot]: SlotState },
 	equipped: Slot?,
@@ -110,46 +95,13 @@ local loadouts: { [Player]: { [Slot]: string } } = {}
 local limiter = RateLimit.new(Combat.RATE)
 local holsteredPlayers: { [Player]: boolean } = {}
 local busyUntil: { [Player]: number } = {} -- os.clock(): no shots before this (a Mod use)
--- Overclock: fire interval divided by `mult` until `untilT` (os.clock()).
+-- A Mod's fire-rate boost (setFireRate): fire interval divided by `mult`
+-- until `untilT` (os.clock()).
 local fireBoost: { [Player]: { mult: number, untilT: number, token: number } } = {}
-local BOOST_GRACE = 0.3 -- shots this late still get the boost (latency)
--- Ammo over the last few seconds, for Rollback (rewindAmmo).
-type AmmoSnapshot = { t: number, ammo: { [Slot]: { id: string, ammo: number } } }
-local ammoHistory: { [Player]: { AmmoSnapshot } } = {}
-local AMMO_HISTORY = 4.5 -- seconds
-local OBJECT_HIT_TOLERANCE = 0.5 -- studs outside a Mod object's box a hit may claim
-local motion: { [Player]: MotionTrack } = {}
 
-local WeaponsFolder: Instance? = nil
-
--- Listeners for accepted shots and applied damage (stats, later rounds).
--- They only observe: nothing they do feeds back into validation.
-export type DamageEvent = {
-	attacker: Player,
-	victim: Model,
-	damage: number,
-	zone: HitZone,
-	killed: boolean,
-	weaponId: string,
-	position: Vector3,
-}
+-- Listeners for accepted shots (stats). They only observe: nothing they do
+-- feeds back into validation.
 local shotListeners: { (player: Player, weaponId: string, hit: boolean) -> () } = {}
-local damageListeners: { (event: DamageEvent) -> () } = {}
--- Every hit from players and bots alike (StatsService): attacker is a Player
--- or a bot's model.
-type HitListener = (attacker: Instance, victim: Model, dealt: number, killed: boolean) -> ()
-local hitListeners: { HitListener } = {}
-local function tellHit(attacker: Instance, victim: Model, dealt: number, killed: boolean)
-	for _, fn in hitListeners do
-		task.spawn(fn, attacker, victim, dealt, killed)
-	end
-end
--- Damage rules from Mods (ModService's ServerApi): modifiers change
--- player-on-player damage, guards see every hit and may block it.
-type DamageGuard = (victim: Model, humanoid: Humanoid, amount: number, attacker: Player?) -> number
-type DamageModifier = (attacker: Player, victim: Model, amount: number, sourceId: string) -> number
-local damageGuards: { DamageGuard } = {}
-local damageModifiers: { DamageModifier } = {}
 
 -- Helpers ------------------------------------------------------------------
 
@@ -201,41 +153,8 @@ local function isSlot(v: unknown): boolean
 	return v == "Primary" or v == "Secondary" or v == "Melee"
 end
 
-local function liveHumanoid(model: Model?): Humanoid?
-	if not model then
-		return nil
-	end
-	local h = model:FindFirstChildOfClass("Humanoid")
-	if h and Health.isAlive(h) then
-		return h
-	end
-	return nil
-end
-
--- The combatant a part is a hitbox of: only real body parts that are direct
--- children of a character (never hats, held guns or other accessories).
-local function hitboxOwner(part: Instance): Model?
-	if not Combat.BODY_PARTS[part.Name] then
-		return nil
-	end
-	local model = part.Parent
-	if model and model:IsA("Model") and model:FindFirstChildOfClass("Humanoid") then
-		return model
-	end
-	return nil
-end
-
--- Any combatant model a part belongs to (used to let bodies not count as walls).
-local function combatantOf(part: Instance): Model?
-	local node: Instance? = part.Parent
-	while node and node ~= workspace do
-		if node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") then
-			return node
-		end
-		node = node.Parent
-	end
-	return nil
-end
+local liveHumanoid = Targets.liveHumanoid
+local reject = Hits.reject
 
 local function snapshot(state: PlayerState): Types.WeaponState
 	local slots = {}
@@ -251,33 +170,9 @@ local function snapshot(state: PlayerState): Types.WeaponState
 	}
 end
 
--- Remembers the ammo in every slot now (Rollback gives it back later).
-local function recordAmmo(player: Player)
-	local state = states[player]
-	if not state then
-		return
-	end
-	local ammo = {}
-	for slot, s in state.slots do
-		ammo[slot] = { id = s.id, ammo = s.ammo }
-	end
-	local list = ammoHistory[player]
-	if not list then
-		list = {}
-		ammoHistory[player] = list
-	end
-	local now = os.clock()
-	table.insert(list, { t = now, ammo = ammo })
-	-- Keep one snapshot older than the window: the state at its start.
-	while #list >= 2 and now - list[2].t > AMMO_HISTORY do
-		table.remove(list, 1)
-	end
-end
-
 local function sendState(player: Player)
 	local state = states[player]
 	if state then
-		recordAmmo(player)
 		Net.event("WeaponState"):FireClient(player, snapshot(state))
 		state.resync = nil -- once only: later states must not move a counter in use
 	end
@@ -305,131 +200,15 @@ local function newSlot(id: string): SlotState?
 	}
 end
 
--- World model (what other players see) ---------------------------------------
-
-local GRIP_C0 = CFrame.new(0, -0.15, -0.05) * CFrame.Angles(-math.pi / 2, 0, 0)
-
-local function weaponTemplate(id: string): Model?
-	if not WeaponsFolder then
-		WeaponsFolder = ReplicatedStorage:FindFirstChild("Weapons")
-	end
-	local folder = WeaponsFolder
-	local m = folder and folder:FindFirstChild(id)
-	if m and m:IsA("Model") then
-		return m
-	end
-	return nil
-end
-
-local function holdModel(
-	character: Model,
-	templateId: string,
-	handName: string,
-	name: string,
-	gripC0: CFrame?
-): Model?
-	local template = weaponTemplate(templateId)
-	local hand = character:FindFirstChild(handName)
-		or character:FindFirstChild(if handName == "RightHand" then "Right Arm" else "Left Arm")
-	if not template or not hand or not hand:IsA("BasePart") then
-		return nil
-	end
-	local model = template:Clone()
-	model.Name = name
-	local handle = model.PrimaryPart
-	if not handle then
-		model:Destroy()
-		return nil
-	end
-	for _, d in model:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = false
-			d.CanCollide = false
-			d.CanQuery = false
-			d.CanTouch = false
-			d.Massless = true
-		end
-	end
-	local grip = Instance.new("Motor6D")
-	grip.Name = "WeaponGrip"
-	grip.Part0 = hand
-	grip.Part1 = handle
-	local c0 = gripC0 or GRIP_C0
-	grip.C0 = c0
-	grip.Parent = handle
-	handle.CFrame = hand.CFrame * c0
-	model.Parent = character
-	return model
-end
+-- World model (what other players see; Weapon/WorldModel) --------------------
 
 -- Puts weapon `id` in the character's hand(s) (or removes it with nil).
 -- Akimbo guns hold a second model in the left hand ("WorldWeaponLeft").
-function WeaponService.attachWorldModel(character: Model, id: string?): Model?
-	for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
-		local old = character:FindFirstChild(name)
-		if old then
-			old:Destroy()
-		end
-	end
-	if not id then
-		return nil
-	end
-	local config = Weapons.get(id)
-	local rightId = if config and config.models then config.models.right else id
-	-- Melee: the blade sticks forward out of the fist (Config/Animations
-	-- KNIFE_WORLD_GRIP), not along the forearm like a gun's grip.
-	local gripC0 = if config and config.fireMode == "Melee"
-		then Animations.KNIFE_WORLD_GRIP
-		else nil
-	local model = holdModel(character, rightId, "RightHand", "WorldWeapon", gripC0)
-	if model then
-		model:SetAttribute("WeaponId", id)
-	end
-	if config and config.models and config.models.left then
-		holdModel(character, config.models.left, "LeftHand", "WorldWeaponLeft")
-	end
-	-- Cosmetic state lives on the Player (not the predicted character) so it
-	-- never triggers Server Authority rollbacks. Dummies keep it on the model.
-	local owner = Players:GetPlayerFromCharacter(character)
-	if owner then
-		owner:SetAttribute("WeaponId", id)
-	else
-		character:SetAttribute("WeaponId", id)
-	end
-	return model
-end
+WeaponService.attachWorldModel = WorldModel.attach
 
 -- Hides the third-person gun while a Mod is in the hand (ModService), and
 -- keeps it hidden across a re-equip until shown again.
-local worldHidden: { [Player]: boolean } = {}
-
-local function applyWorldHidden(player: Player)
-	local character = player.Character
-	if not character then
-		return
-	end
-	local hide = worldHidden[player] == true
-	for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
-		local model = character:FindFirstChild(name)
-		if model then
-			for _, d in model:GetDescendants() do
-				if d:IsA("BasePart") then
-					local base = d:GetAttribute("BaseTransparency")
-					if base == nil then
-						base = d.Transparency
-						d:SetAttribute("BaseTransparency", base)
-					end
-					d.Transparency = if hide then 1 else base :: number
-				end
-			end
-		end
-	end
-end
-
-function WeaponService.setWorldWeaponHidden(player: Player, hidden: boolean)
-	worldHidden[player] = if hidden then true else nil
-	applyWorldHidden(player)
-end
+WeaponService.setWorldWeaponHidden = WorldModel.setHidden
 
 local function refreshWorldModel(player: Player)
 	local state = states[player]
@@ -438,10 +217,8 @@ local function refreshWorldModel(player: Player)
 		return
 	end
 	local slot = state.equipped and state.slots[state.equipped]
-	state.worldModel = WeaponService.attachWorldModel(character, slot and slot.id or nil)
-	if worldHidden[player] then
-		applyWorldHidden(player)
-	end
+	state.worldModel = WorldModel.attach(character, slot and slot.id or nil)
+	WorldModel.reapplyHidden(player)
 	-- Read by the movement simulation (shared/Simulation/Movement).
 	player:SetAttribute("MoveMult", if slot then slot.config.moveMultiplier else 1)
 	player:SetAttribute("AdsMult", if slot then slot.config.adsMoveMultiplier else 1)
@@ -460,9 +237,7 @@ end
 
 -- Gives the player a fresh set of weapons (full ammo) and equips the primary.
 function WeaponService.giveLoadout(player: Player)
-	-- A new life: Rollback can't reach back into the last one's ammo, and
-	-- Overclock doesn't carry over.
-	ammoHistory[player] = nil
+	-- A new life: a fire-rate boost doesn't carry over.
 	fireBoost[player] = nil
 	player:SetAttribute("FireRateMult", nil)
 	local loadout = WeaponService.getLoadout(player)
@@ -527,244 +302,36 @@ function WeaponService.setWeapon(player: Player, slot: Slot, id: string)
 	sendState(player)
 end
 
--- Damage ---------------------------------------------------------------------
+-- Damage (Weapon/Damage) ---------------------------------------------------
 
 -- A Mod's damage guard: sees every hit on a combatant and returns the amount
 -- to deal (0 blocks it: a Barrier, a Ghost dash, Crash Recovery).
-function WeaponService.addDamageGuard(fn: DamageGuard)
-	table.insert(damageGuards, fn)
-end
+WeaponService.addDamageGuard = WeaponDamage.addDamageGuard
 
 -- A Mod's damage modifier: player-on-player damage (guns and Mods) before
 -- the guards (Ping Spike's bonus on revealed enemies).
-function WeaponService.addDamageModifier(fn: DamageModifier)
-	table.insert(damageModifiers, fn)
-end
+WeaponService.addDamageModifier = WeaponDamage.addDamageModifier
 
--- `sourceId`: the gun's id, or a Mod's id for Mod damage (WeaponService.damage).
 -- All damage goes through here: the guards, then shield first, then health.
 -- Returns what it took (0 when a guard blocked it). `attacker`: the player
 -- behind it, if any.
-function WeaponService.hurt(humanoid: Humanoid, amount: number, attacker: Player?): number
-	if amount ~= amount or amount <= 0 or amount == math.huge then
-		return 0
-	end
-	local victim = humanoid.Parent
-	if victim and victim:IsA("Model") then
-		for _, guard in damageGuards do
-			local ok, result = pcall(guard, victim, humanoid, amount, attacker)
-			if not ok then
-				warn("[WeaponService] damage guard failed:", result)
-			elseif typeof(result) == "number" and result == result then
-				amount = math.max(result, 0)
-			end
-			if amount <= 0 then
-				return 0
-			end
-		end
-	end
-	local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
-	local fromShield = if typeof(shield) == "number" then math.min(shield, amount) else 0
-	if fromShield > 0 then
-		humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, (shield :: number) - fromShield)
-	end
-	local taken = if amount > fromShield
-		then HealthService.damage(humanoid, amount - fromShield)
-		else 0
-	return fromShield + taken
-end
-
-local function applyDamage(
-	attacker: Player,
-	victimModel: Model,
-	amount: number,
-	zone: HitZone,
-	sourceId: string,
-	at: Vector3
-)
-	local humanoid = liveHumanoid(victimModel)
-	if not humanoid then
-		return
-	end
-	for _, modify in damageModifiers do
-		local ok, result = pcall(modify, attacker, victimModel, amount, sourceId)
-		if not ok then
-			warn("[WeaponService] damage modifier failed:", result)
-		elseif typeof(result) == "number" and result == result then
-			amount = math.max(result, 0)
-		end
-	end
-	local dealt = WeaponService.hurt(humanoid, amount, attacker)
-	local killed = Health.isDowned(humanoid)
-	local blocked = dealt <= 0 and amount > 0
-	humanoid:SetAttribute("LastAttacker", attacker.UserId)
-	local victimPlayer = Players:GetPlayerFromCharacter(victimModel)
-	if victimPlayer and dealt > 0 then
-		victimPlayer:SetAttribute("HitAt", workspace:GetServerTimeNow()) -- the flinch others see
-	end
-	if #damageListeners > 0 then
-		local event: DamageEvent = {
-			attacker = attacker,
-			victim = victimModel,
-			damage = dealt,
-			zone = zone,
-			killed = killed,
-			weaponId = sourceId,
-			position = at,
-		}
-		for _, fn in damageListeners do
-			task.spawn(fn, event)
-		end
-	end
-
-	Net.event("HitConfirm"):FireClient(attacker, {
-		damage = math.round(dealt),
-		zone = zone,
-		killed = killed,
-		position = at,
-		blocked = blocked or nil, -- a guard took it (Barrier, Ghost dash)
-	})
-
-	local victim = Players:GetPlayerFromCharacter(victimModel)
-	local attackerRoot = attacker.Character
-		and attacker.Character:FindFirstChild("HumanoidRootPart")
-	if victim and attackerRoot and attackerRoot:IsA("BasePart") then
-		Net.event("Damaged"):FireClient(victim, attackerRoot.Position, math.round(dealt))
-	end
-	tellHit(attacker, victimModel, dealt, killed)
-	if killed then
-		Net.event("Killed"):FireAllClients(victimModel, attacker, sourceId, zone == "Head")
-	end
-end
-
--- Things a wall check should ignore: the shooter and every combatant (bodies
--- don't count as walls; they're validated as hitboxes separately).
-local function wallExclusions(shooter: Model): { Instance }
-	local exclude: { Instance } = { shooter }
-	for _, p in Players:GetPlayers() do
-		if p.Character then
-			table.insert(exclude, p.Character)
-		end
-	end
-	local dummies = workspace:FindFirstChild("Dummies")
-	if dummies then
-		table.insert(exclude, dummies)
-	end
-	return exclude
-end
-
--- Is there solid world geometry between `from` and `to` that this gun can't go through?
-local function blocked(
-	exclude: { Instance },
-	from: Vector3,
-	to: Vector3,
-	penetration: Types.Penetration
-): boolean
-	if penetration == "All" then
-		return false
-	end
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = exclude
-	local dir = to - from
-	local dist = dir.Magnitude
-	if dist < 0.5 then
-		return false
-	end
-	local origin = from
-	for _ = 1, 4 do
-		local result = workspace:Raycast(
-			origin,
-			(to - origin).Unit * math.max((to - origin).Magnitude - 0.5, 0),
-			params
-		)
-		if not result then
-			return false
-		end
-		local part = result.Instance
-		if combatantOf(part) then
-			return false -- hit the dummy/character body itself
-		end
-		if penetration == "ThinWall" and CollectionService:HasTag(part, Combat.THIN_WALL_TAG) then
-			params:AddToFilter(part)
-			origin = result.Position
-		else
-			return true
-		end
-	end
-	return true
-end
+WeaponService.hurt = WeaponDamage.hurt
 
 -- Damage from a Mod (ModService), through the same path as gun damage: kill
 -- feed, hit confirm, damage direction, LastAttacker, listeners. The amount is
 -- computed by the server's Mod code, never by a client.
-function WeaponService.damage(
-	attacker: Player,
-	victim: Model,
-	amount: number,
-	sourceId: string,
-	at: Vector3
-)
-	if amount ~= amount or amount <= 0 then
-		return
-	end
-	applyDamage(attacker, victim, amount, "Body", sourceId, at)
-end
+WeaponService.damage = WeaponDamage.damage
 
--- AI bots (vault/01 Design/Bots.md, Services/BotService): damage from a
--- bot's gun or Mod. The same path as a player's (guards, shield, health,
--- the victim's damage direction, kill feed) minus what needs a Player
--- attacker (damage modifiers, hit confirm). The server computed `amount`.
--- Returns what it took.
-function WeaponService.damageBy(
-	attacker: Model,
-	victimModel: Model,
-	amount: number,
-	zone: HitZone,
-	sourceId: string,
-	_at: Vector3
-): number
-	local humanoid = liveHumanoid(victimModel)
-	if not humanoid or amount ~= amount or amount <= 0 or amount == math.huge then
-		return 0
-	end
-	local dealt = WeaponService.hurt(humanoid, amount, nil)
-	local killed = Health.isDowned(humanoid)
-	local victim = Players:GetPlayerFromCharacter(victimModel)
-	if victim and dealt > 0 then
-		victim:SetAttribute("HitAt", workspace:GetServerTimeNow())
-		local root = attacker:FindFirstChild("HumanoidRootPart")
-		if root and root:IsA("BasePart") then
-			Net.event("Damaged"):FireClient(victim, root.Position, math.round(dealt))
-		end
-	end
-	tellHit(attacker, victimModel, dealt, killed)
-	if killed then
-		Net.event("Killed"):FireAllClients(victimModel, attacker, sourceId, zone == "Head")
-	end
-	return dealt
-end
-
--- AI bots: is there a wall between `from` and `to` that a gun with this
--- penetration can't go through? The same check player shots get.
-function WeaponService.wallBlocked(
-	shooter: Model,
-	from: Vector3,
-	to: Vector3,
-	penetration: Types.Penetration
-): boolean
-	return blocked(wallExclusions(shooter), from, to, penetration)
-end
+-- AI bots (Services/BotService): damage from a bot's gun or Mod, the same
+-- path minus what needs a Player attacker. Returns what it took.
+WeaponService.damageBy = WeaponDamage.damageBy
 
 -- Heals a combatant (no natural regen: heals only come from Mods). Returns
 -- the health actually added.
-function WeaponService.heal(target: Model, amount: number): number
-	local humanoid = liveHumanoid(target)
-	if not humanoid or amount ~= amount or amount <= 0 then
-		return 0
-	end
-	return HealthService.heal(humanoid, amount)
-end
+WeaponService.heal = WeaponDamage.heal
+
+-- Every hit by a player or a bot (match stats).
+WeaponService.onHit = WeaponDamage.onHit
 
 -- While a held Mod is up the gun is lowered: no shots are accepted
 -- (ModService). Lowering it ends with `busyFor` more seconds without shots
@@ -780,13 +347,14 @@ function WeaponService.setHolstered(player: Player, holstered: boolean, busyFor:
 	end
 end
 
--- Overclock: the player's guns fire `mult` times as fast for `duration`
--- seconds. Clients read the FireRateMult player attribute (Util/FireRate).
+-- A Mod's fire-rate boost (the Mod API's `fireRate`): the player's guns fire
+-- `mult` times as fast for `duration` seconds. Clients read the FireRateMult
+-- player attribute (Util/FireRate).
 function WeaponService.setFireRate(player: Player, mult: number, duration: number)
 	if mult ~= mult or duration ~= duration then
 		return
 	end
-	mult = math.clamp(mult, 1, 3)
+	mult = math.clamp(mult, Combat.FIRE_BOOST_MIN, Combat.FIRE_BOOST_MAX)
 	local old = fireBoost[player]
 	local token = (if old then old.token else 0) + 1
 	fireBoost[player] = { mult = mult, untilT = os.clock() + duration, token = token }
@@ -801,44 +369,10 @@ end
 
 local function rateMult(player: Player): number
 	local b = fireBoost[player]
-	if b and os.clock() < b.untilT + BOOST_GRACE then
+	if b and os.clock() < b.untilT + Combat.FIRE_BOOST_GRACE then
 		return b.mult
 	end
 	return 1
-end
-
--- Rollback: every slot gets back the ammo it had `age` seconds ago (a reload
--- in progress is cancelled). Slots whose gun changed since keep theirs.
-function WeaponService.rewindAmmo(player: Player, age: number)
-	local state = states[player]
-	local list = ammoHistory[player]
-	if not state or not list or #list == 0 or age ~= age then
-		return
-	end
-	local target = os.clock() - age
-	local pick = list[1]
-	for i = #list, 1, -1 do
-		if list[i].t <= target then
-			pick = list[i]
-			break
-		end
-	end
-	for slot, s in state.slots do
-		local old = pick.ammo[slot]
-		if old and old.id == s.id then
-			s.ammo = math.clamp(old.ammo, 0, s.config.magSize)
-			s.reloadToken += 1
-			s.reloadEnd = nil
-			s.shellFrom = nil
-		end
-	end
-	sendState(player)
-end
-
--- Dash: the gun is down while dashing and for the dash's fire delay after.
-local function dashBlocked(player: Player): boolean
-	local track = motion[player]
-	return track ~= nil and os.clock() < track.dash.readyAt - Combat.DASH_FIRE_SLACK
 end
 
 local function holstered(player: Player): boolean
@@ -857,15 +391,6 @@ end
 
 function WeaponService.onShot(fn: (player: Player, weaponId: string, hit: boolean) -> ())
 	table.insert(shotListeners, fn)
-end
-
--- Every hit by a player or a bot (match stats).
-function WeaponService.onHit(fn: HitListener)
-	table.insert(hitListeners, fn)
-end
-
-function WeaponService.onDamage(fn: (event: DamageEvent) -> ())
-	table.insert(damageListeners, fn)
 end
 
 -- Shells a shell-by-shell reload has loaded by `now` (credited RELOAD_LEAD
@@ -930,6 +455,7 @@ end
 
 -- Remote handlers --------------------------------------------------------------
 
+-- lihfolk-ignore: remote-unvalidated-args (slot is checked with isSlot below)
 local function onEquip(player: Player, slot: unknown)
 	if not allow(player, "Equip") then
 		return
@@ -942,6 +468,7 @@ end
 
 -- `action`: nil starts a reload; "stop" ends a shell-by-shell one early
 -- (the player fired), keeping the shells loaded so far.
+-- lihfolk-ignore: remote-unvalidated-args (action must be nil or "stop", below)
 local function onReload(player: Player, action: unknown)
 	if not allow(player, "Reload") then
 		return
@@ -1021,7 +548,7 @@ local function onPickWeapon(player: Player, id: unknown)
 		return
 	end
 	local config = Weapons.get(id :: string)
-	if not config or not weaponTemplate(config.id) then
+	if not config or not WorldModel.template(config.id) then
 		return
 	end
 	if not liveHumanoid(player.Character) then
@@ -1048,198 +575,14 @@ local function onAim(player: Player, pitch: unknown, aiming: unknown)
 	player:SetAttribute("Aiming", aiming)
 end
 
-type ValidHit = { model: Model, part: BasePart, rewound: Vector3, pellet: number }
-
--- Reads an array argument safely (ignores non-integer keys, caps length).
-local function readArray(value: unknown, max: number): { unknown }
-	local out = {}
-	if typeof(value) ~= "table" then
-		return out
-	end
-	for _, v in ipairs(value :: { unknown }) do
-		if #out >= max then
-			break
-		end
-		table.insert(out, v)
-	end
-	return out
-end
-
--- Motion history --------------------------------------------------------------
-
-local function aimHeld(player: Player): boolean
-	local context = player:FindFirstChild("PlayContext")
-	local action = context and context:FindFirstChild("Aim")
-	return action ~= nil and action:IsA("InputAction") and action:GetState() == true
-end
-
+-- The equipped gun's config (Weapon/Motion's ADS blend).
 local function equippedConfig(player: Player): WeaponConfig?
 	local state = states[player]
 	local slot = state and state.equipped and state.slots[state.equipped]
 	return slot and slot.config
 end
 
-local function sampleMotion(dt: number)
-	local now = os.clock()
-	for _, player in Players:GetPlayers() do
-		local character = player.Character
-		local root = character and character:FindFirstChild("HumanoidRootPart")
-		if not character or not root or not root:IsA("BasePart") then
-			continue
-		end
-		local track = motion[player]
-		if not track then
-			track = {
-				samples = {},
-				aim = 0,
-				lastState = "Idle",
-				landedAt = -math.huge,
-				dash = DashMod.newGate(),
-			}
-			motion[player] = track
-		end
-		local state = (character:GetAttribute("MoveState") :: string?) or "Idle"
-		-- Dash: the gun gate, from this server's own simulation.
-		DashMod.stepGate(track.dash, character, now, time())
-		-- Landings, on the server's own clock (the client spots its own).
-		if track.lastState == "Air" and state ~= "Air" then
-			track.landedAt = now
-		end
-		track.lastState = state
-		-- The same ADS blend the client runs (WeaponController): toward 1 while
-		-- the Aim input is held, at 1 / adsTime per second.
-		local config = equippedConfig(player)
-		local canAim = config ~= nil and config.fireMode ~= "Melee" and not config.noAds
-		local rate = 1 / math.max(if config then config.adsTime else 0.2, 0.05)
-		local held = canAim and aimHeld(player) and state ~= "Sprint"
-		track.aim = math.clamp(track.aim + (if held then rate else -rate) * dt, 0, 1)
-		local list = track.samples
-		table.insert(list, {
-			t = now,
-			state = state,
-			speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude,
-			aim = track.aim,
-			sinceLanding = now - track.landedAt,
-		})
-		while #list > 0 and now - list[1].t > Combat.MOTION_HISTORY do
-			table.remove(list, 1)
-		end
-	end
-end
-
--- The spread a shot is allowed to have, from the server's own state: the
--- gun's spray heat band (from accepted shot times, plus SPREAD_HEAT_SLACK
--- shots) and what the player was doing around when they fired: samples from
--- `ping` + FIRE_TIME_SLACK ago up to now. The high edge also allows a jump the
--- server hasn't simulated yet (high edges only ever cost the shooter).
--- Returns the lowest and highest cone, and whether a centre-biased shot is
--- allowed (only when the server saw the shooter standing at fire time).
--- `focus` (Dash Focus): the shot may have no movement spread at all, and be
--- centre-biased like a standing shot.
-local function spreadBand(
-	player: Player,
-	config: WeaponConfig,
-	heatLow: number,
-	heatHigh: number,
-	ping: number,
-	focus: boolean
-): (number, number, boolean)
-	local now = os.clock()
-	local track = motion[player]
-	local samples = if track then track.samples else {}
-	local fireTime = now - ping
-	local recent: { MotionSample } = {}
-	local closest: MotionSample? = nil
-	for _, s in samples do
-		if s.t >= fireTime - Combat.FIRE_TIME_SLACK then
-			table.insert(recent, s)
-		end
-		if not closest or math.abs(s.t - fireTime) < math.abs(closest.t - fireTime) then
-			closest = s
-		end
-	end
-	local latest = samples[#samples]
-	if #recent == 0 and latest then
-		table.insert(recent, latest)
-	end
-	if #recent == 0 then
-		-- No samples yet (just spawned): anything from standing aimed to airborne.
-		table.insert(
-			recent,
-			{ t = now, state = "Idle", speed = 0, aim = 1, sinceLanding = math.huge }
-		)
-		table.insert(recent, { t = now, state = "Air", speed = 0, aim = 0, sinceLanding = 0 })
-	end
-	local aimLow, aimHigh = 0, 1
-	local anyCrouch, allCrouch = false, true
-	for _, s in recent do
-		aimLow = math.max(aimLow, s.aim)
-		aimHigh = math.min(aimHigh, s.aim)
-		anyCrouch = anyCrouch or s.state == "Crouch"
-		allCrouch = allCrouch and s.state == "Crouch"
-	end
-	local moveLow, moveHigh = math.huge, 0
-	for _, s in recent do
-		local m: Accuracy.Motion =
-			{ state = s.state, speed = s.speed, aim = aimLow, sinceLanding = s.sinceLanding }
-		moveLow = math.min(moveLow, Accuracy.movement(config, m))
-		m.aim = aimHigh
-		moveHigh = math.max(moveHigh, Accuracy.movement(config, m))
-	end
-	if latest and latest.state ~= "Air" then
-		local jump: Accuracy.Motion =
-			{ state = "Air", speed = latest.speed, aim = aimHigh, sinceLanding = math.huge }
-		moveHigh = math.max(moveHigh, Accuracy.movement(config, jump))
-	end
-	if focus then
-		moveLow = 0
-	end
-	-- The gun's spread is monotonic in heat but may fall as it heats (Ares),
-	-- so take both heat edges each way.
-	local slack = Combat.SPREAD_HEAT_SLACK
-	local coolHeat, hotHeat = heatLow - slack, heatHigh + slack
-	local low = math.min(
-		Accuracy.gun(config, coolHeat, aimLow, anyCrouch),
-		Accuracy.gun(config, hotHeat, aimLow, anyCrouch)
-	) + moveLow
-	local high = math.max(
-		Accuracy.gun(config, coolHeat, aimHigh, allCrouch),
-		Accuracy.gun(config, hotHeat, aimHigh, allCrouch)
-	) + moveHigh
-	local standing = focus
-		or moveLow <= 0
-			and closest ~= nil
-			and Accuracy.movement(config, {
-				state = closest.state,
-				speed = closest.speed,
-				aim = closest.aim,
-				sinceLanding = closest.sinceLanding,
-			}) <= 0
-	return low, high, standing
-end
-
-local function networkPing(player: Player): number
-	local ok, ping = pcall(function()
-		return player:GetNetworkPing()
-	end)
-	return if ok and typeof(ping) == "number" and ping == ping then math.clamp(ping, 0, 1) else 0.1
-end
-
-local function rewindWindow(player: Player): number
-	local ok, ping = pcall(function()
-		return player:GetNetworkPing()
-	end)
-	local p = if ok and typeof(ping) == "number" then ping else 0.1
-	return math.min(p * 2 + Combat.REWIND_EXTRA, Combat.REWIND_MAX)
-end
-
--- Studio-only: record why the last shot or hit was rejected (player attribute
--- "FireReject"), so tuning tolerances doesn't need print debugging.
-local function reject(player: Player, reason: string)
-	if RunService:IsStudio() then
-		player:SetAttribute("FireReject", string.sub(reason, 1, 50)) -- attribute strings cap at 50 chars
-	end
-end
+-- Shots -------------------------------------------------------------------------
 
 local function onFire(player: Player, payload: unknown)
 	if not allow(player, "Fire") then
@@ -1288,7 +631,7 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "holding a Mod")
 		return
 	end
-	if dashBlocked(player) then
+	if Motion.dashBlocked(player) then
 		reject(player, "dashing")
 		return
 	end
@@ -1351,8 +694,8 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "(origin - head.Position).Magnitude > Combat.ORIGIN_TOLERANCE")
 		return
 	end
-	local exclude = wallExclusions(character)
-	if blocked(exclude, head.Position, origin, "None") then
+	local exclude = Targets.wallExclusions(character)
+	if Targets.blocked(exclude, head.Position, origin, "None") then
 		reject(player, "blocked(exclude, head.Position, origin, 'None')")
 		return
 	end
@@ -1362,17 +705,9 @@ local function onFire(player: Player, payload: unknown)
 	local heatLow = Accuracy.cool(config, slot.heatLow, gap + Combat.FIRE_JITTER)
 	local heatHigh = Accuracy.cool(config, slot.heatHigh, math.max(gap - Combat.FIRE_JITTER, 0))
 
-	-- Dash Focus: the first shot after a dash, inside its window (the server
-	-- saw the dash itself; the client never claims it).
-	local track = motion[player]
-	local focus = track ~= nil
-		and track.dash.focusOpen
-		and now <= track.dash.focusUntil + Combat.DASH_FIRE_SLACK + networkPing(player)
-
-	-- Accept the shot.
-	if track then
-		track.dash.focusOpen = false
-	end
+	-- Accept the shot. Dash Focus: the first shot after a dash, inside its
+	-- window (the server saw the dash itself; the client never claims it).
+	local focus = Motion.takeFocus(player, now, Hits.networkPing(player))
 	state.shotIndex = shot
 	slot.heatLow = heatLow + altRounds
 	slot.heatHigh = heatHigh + altRounds
@@ -1404,7 +739,6 @@ local function onFire(player: Player, payload: unknown)
 		slot.altReadyAt = now
 			+ altFire.fireInterval / (rateMult(player) * statusMult(player, "fireRate"))
 	end
-	recordAmmo(player)
 	-- Others see the knife swing (Simulation/Poses: KnifeSlash / KnifeHeavy).
 	if config.melee then
 		player:SetAttribute("SwingHeavy", altFire ~= nil and config.melee.heavy ~= nil)
@@ -1414,7 +748,7 @@ local function onFire(player: Player, payload: unknown)
 
 	-- Replicate the visuals to everyone else (cosmetic: clamp, don't trust).
 	local ends: { Vector3 } = {}
-	for _, e in readArray(p.ends, pellets) do
+	for _, e in Hits.readArray(p.ends, pellets) do
 		local v = finiteVector(e)
 		if v then
 			local offset = v - origin
@@ -1432,11 +766,11 @@ local function onFire(player: Player, payload: unknown)
 
 	-- Recompute exactly where each pellet was allowed to go. The seed comes
 	-- from the server's sequence, and the cone from the server's own state
-	-- (spreadBand): a claimed cone outside that band is clamped into it, so
+	-- (Motion.spreadBand): a claimed cone outside that band is clamped into it, so
 	-- a client that lies about its spread gets rays its hits won't match.
-	local rewindAge = rewindWindow(player)
+	local rewindAge = Hits.rewindWindow(player)
 	local low, high, mayCentre =
-		spreadBand(player, config, heatLow, heatHigh, networkPing(player), focus)
+		Motion.spreadBand(player, config, heatLow, heatHigh, Hits.networkPing(player), focus)
 	local spread = math.clamp(spreadClaim, low, high)
 	if RunService:IsStudio() then
 		-- Tuning aid: what the client claimed and the band the server allowed.
@@ -1457,218 +791,22 @@ local function onFire(player: Player, payload: unknown)
 		centred
 	)
 
+	-- Each claimed hit, then the damage (Weapon/Hits).
 	local root = character:FindFirstChild("HumanoidRootPart")
-	local maxHits =
-		math.min(Combat.MAX_HITS_PER_SHOT, pellets * (if config.pierceCharacters then 4 else 1))
-	local valid: { ValidHit } = {}
-	local objectHits: { { part: BasePart, position: Vector3 } } = {}
-	local seen: { [Model]: { [number]: boolean } } = {}
-	local pelletUsed: { [number]: boolean } = {}
-	for _, raw in readArray(p.hits, maxHits) do
-		if typeof(raw) ~= "table" then
-			reject(player, "typeof(raw) ~= 'table'")
-			continue
-		end
-		local h = raw :: { [string]: unknown }
-		local part = h.part
-		local position = finiteVector(h.position)
-		local pellet = h.pellet
-		if typeof(part) ~= "Instance" or not (part :: Instance):IsA("BasePart") or not position then
-			reject(
-				player,
-				"typeof(part) ~= 'Instance' or not (part :: Instance):IsA('BasePart') or not position"
-			)
-			continue
-		end
-		if
-			typeof(pellet) ~= "number"
-			or pellet ~= math.floor(pellet)
-			or pellet < 1
-			or pellet > pellets
-		then
-			reject(player, "bad pellet index")
-			continue
-		end
-		local hitPart = part :: BasePart
-		-- A Mod object (Firewall, Launch Pad): the pellet stops on it and
-		-- takes its HP. Same ray, range and wall checks as a body hit.
-		if ModEntities.isObject(hitPart) then
-			local offset = position - origin
-			local rel = hitPart.CFrame:PointToObjectSpace(position)
-			-- Objects don't move: a tight box (not the bodies' latency allowance).
-			local half = hitPart.Size / 2 + Vector3.one * OBJECT_HIT_TOLERANCE
-			if
-				config.melee
-				or pelletUsed[pellet]
-				or offset.Magnitude > config.range + 5
-				or (offset.Magnitude > 1 and Spread.angle(offset, dirs[pellet]) > Combat.DIRECTION_TOLERANCE)
-				or math.abs(rel.X) > half.X
-				or math.abs(rel.Y) > half.Y
-				or math.abs(rel.Z) > half.Z
-				or blocked(exclude, origin, position, config.penetration)
-			then
-				reject(player, "bad Mod object hit")
-			else
-				pelletUsed[pellet] = true
-				table.insert(objectHits, { part = hitPart, position = position })
-			end
-			continue
-		end
-		local model = hitboxOwner(hitPart)
-		if
-			not model
-			or model == character
-			or not liveHumanoid(model)
-			or not HitboxHistory.isTracked(model)
-		then
-			reject(player, "not a live tracked hitbox: " .. hitPart.Name)
-			continue
-		end
-		-- No friendly fire from guns. Dummies with no team are nobody's ally.
-		if Teams.isAlly(player, model) then
-			reject(player, "ally")
-			continue
-		end
-
-		-- One target per pellet (piercing guns: each target once per pellet).
-		local seenForModel = seen[model]
-		if
-			(seenForModel and seenForModel[pellet])
-			or (pelletUsed[pellet] and not config.pierceCharacters)
-		then
-			reject(player, "duplicate hit for this pellet")
-			continue
-		end
-
-		if config.melee then
-			-- In reach and roughly in front of the attacker.
-			if not root or not root:IsA("BasePart") then
-				reject(player, "not root or not root:IsA('BasePart')")
-				continue
-			end
-			local toTarget = hitPart.Position - root.Position
-			local reach = config.melee.range + Combat.MELEE_TOLERANCE + hitPart.Size.Magnitude / 2
-			if toTarget.Magnitude > reach then
-				reject(player, "toTarget.Magnitude > reach")
-				continue
-			end
-			local flat = toTarget * Vector3.new(1, 0, 1)
-			local facing = root.CFrame.LookVector * Vector3.new(1, 0, 1)
-			if flat.Magnitude > 0.5 and facing.Unit:Dot(flat.Unit) < Combat.MELEE_FACING_DOT then
-				reject(
-					player,
-					"flat.Magnitude > 0.5 and facing.Unit:Dot(flat.Unit) < Combat.MELEE_FACING_DOT"
-				)
-				continue
-			end
-		else
-			local offset = position - origin
-			if offset.Magnitude > config.range + 5 then
-				reject(player, "offset.Magnitude > config.range + 5")
-				continue
-			end
-			-- The hit must lie on this pellet's server-computed ray.
-			if
-				offset.Magnitude > 1
-				and Spread.angle(offset, dirs[pellet]) > Combat.DIRECTION_TOLERANCE
-			then
-				reject(
-					player,
-					string.format("off pellet ray by %.2f deg", Spread.angle(offset, dirs[pellet]))
-				)
-				continue
-			end
-		end
-
-		-- The target really was there recently (rewound to the shooter's ping)...
-		local isArm = string.find(hitPart.Name, "Arm") ~= nil
-			or string.find(hitPart.Name, "Hand") ~= nil
-		local tolerance = Combat.HIT_POSITION_TOLERANCE
-			+ (if isArm then Combat.ARM_HIT_EXTRA_TOLERANCE else 0)
-		local rewound = HitboxHistory.rewind(model, hitPart, position, tolerance, rewindAge)
-		if not rewound then
-			reject(player, "not rewound")
-			continue
-		end
-		-- ...and nothing solid sits between the shooter and the hit point, or
-		-- between the hit point and the actual body part.
-		if blocked(exclude, origin, position, config.penetration) then
-			reject(player, "blocked(exclude, origin, position, config.penetration)")
-			continue
-		end
-		if blocked(exclude, position, rewound, config.penetration) then
-			reject(player, "blocked(exclude, position, rewound, config.penetration)")
-			continue
-		end
-		if not seenForModel then
-			seenForModel = {}
-			seen[model] = seenForModel
-		end
-		seenForModel[pellet] = true
-		pelletUsed[pellet] = true
-		table.insert(valid, { model = model, part = hitPart, rewound = rewound, pellet = pellet })
-	end
-
-	-- Sum damage per target (pellets), then apply once. Distance for falloff is
-	-- measured by the server: head to the rewound body part.
-	type Tally = { amount: number, zone: HitZone, position: Vector3 }
-	local tally: { [Model]: Tally } = {}
-	for _, hit in valid do
-		local zone = Damage.zoneOf(hit.part.Name)
-		local amount: number
-		if config.melee then
-			local heavy = if altFire then config.melee.heavy else nil
-			amount = if heavy then heavy.damage else config.damage.body
-			local victimRoot = hit.model:FindFirstChild("HumanoidRootPart")
-			if victimRoot and victimRoot:IsA("BasePart") and root and root:IsA("BasePart") then
-				local toVictim = (victimRoot.Position - root.Position) * Vector3.new(1, 0, 1)
-				if toVictim.Magnitude > 0.01 then
-					local facing = victimRoot.CFrame.LookVector * Vector3.new(1, 0, 1)
-					if facing.Unit:Dot(toVictim.Unit) > Combat.BACKSTAB_DOT then
-						amount = if heavy then heavy.backDamage else config.melee.backDamage
-					end
-				end
-			end
-			zone = "Body"
-		else
-			amount = Damage.compute(config, zone, (hit.rewound - head.Position).Magnitude)
-		end
-		local t = tally[hit.model]
-		if t then
-			t.amount += amount
-			if zone == "Head" then
-				t.zone = "Head"
-			end
-		else
-			tally[hit.model] = { amount = amount, zone = zone, position = hit.rewound }
-		end
-	end
-	for model, t in tally do
-		applyDamage(player, model, t.amount, t.zone, config.id, t.position)
-	end
-	-- Mod objects: pellets summed per object, falloff by the server's distance.
-	local objectTally: { [BasePart]: { amount: number, position: Vector3 } } = {}
-	for _, hit in objectHits do
-		local amount = Damage.compute(config, "Body", (hit.position - head.Position).Magnitude)
-		local t = objectTally[hit.part]
-		if t then
-			t.amount += amount
-		else
-			objectTally[hit.part] = { amount = amount, position = hit.position }
-		end
-	end
-	for part, t in objectTally do
-		local dealt = ModEntities.damage(part, t.amount, player)
-		if dealt > 0 then
-			Net.event("HitConfirm"):FireClient(player, {
-				damage = math.round(dealt),
-				zone = "Body",
-				killed = false,
-				position = t.position,
-			})
-		end
-	end
-	notifyShot(player, config, next(tally) ~= nil)
+	local valid, objectHits = Hits.validate(
+		player,
+		character,
+		root,
+		config,
+		origin,
+		dirs,
+		pellets,
+		exclude,
+		rewindAge,
+		p.hits
+	)
+	local hitCharacter = Hits.apply(player, config, altFire, head, root, valid, objectHits)
+	notifyShot(player, config, hitCharacter)
 end
 
 -- Lifecycle --------------------------------------------------------------------
@@ -1683,10 +821,7 @@ local function onCharacter(player: Player, character: Model)
 		end
 		WeaponService.giveLoadout(player)
 		-- A new life: no dash left over from the last one.
-		local track = motion[player]
-		if track then
-			DashMod.resetGate(track.dash)
-		end
+		Motion.resetDash(player)
 		Health.onDowned(humanoid, function()
 			fireBoost[player] = nil
 			player:SetAttribute("FireRateMult", nil)
@@ -1732,7 +867,9 @@ function WeaponService.start()
 	for _, player in Players:GetPlayers() do
 		onPlayer(player)
 	end
-	RunService.Heartbeat:Connect(sampleMotion)
+	RunService.Heartbeat:Connect(function(dt: number)
+		Motion.sample(dt, equippedConfig)
+	end)
 	-- A stun (Frozen) drops a reload in progress (a shell-by-shell one keeps
 	-- the shells it loaded), like the client does when it sees the freeze.
 	StatusService.onApply(function(model: Model, name: string)
@@ -1754,15 +891,14 @@ function WeaponService.start()
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)
-		motion[player] = nil
+		Motion.forget(player)
 		states[player] = nil
 		loadouts[player] = nil
 		limiter:forget(player)
 		holsteredPlayers[player] = nil
 		busyUntil[player] = nil
 		fireBoost[player] = nil
-		ammoHistory[player] = nil
-		worldHidden[player] = nil
+		WorldModel.forget(player)
 	end)
 end
 

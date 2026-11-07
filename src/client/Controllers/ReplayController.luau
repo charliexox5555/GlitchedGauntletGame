@@ -17,6 +17,8 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
+local Ease = require(ReplicatedStorage.Shared.Util.Ease)
+local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -32,6 +34,7 @@ local SpectateController = require(script.Parent.SpectateController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
 local ShotLog = require(script.Parent.Parent.Util.ShotLog)
+local BodyClone = require(script.Parent.Parent.Util.BodyClone)
 local Ui = require(script.Parent.Parent.Util.Ui)
 
 local ReplayController = {}
@@ -68,25 +71,6 @@ local killers: { [Model]: Instance } = setmetatable({}, { __mode = "k" }) :: any
 local nextSample = 0
 local playing = false
 local recording = false
-
-local function fighterBodies(): { Model }
-	local list: { Model } = {}
-	for _, p in Players:GetPlayers() do
-		local body = p.Character
-		if body then
-			table.insert(list, body)
-		end
-	end
-	local dummies = Workspace:FindFirstChild("Dummies")
-	if dummies then
-		for _, m in dummies:GetChildren() do
-			if m:IsA("Model") and m:GetAttribute("IsBot") == true then
-				table.insert(list, m)
-			end
-		end
-	end
-	return list
-end
 
 local function newTrack(body: Model): Track
 	local parts: { BasePart } = {}
@@ -150,7 +134,7 @@ local function record()
 	local t = Workspace:GetServerTimeNow()
 	head = head % FRAMES + 1
 	times[head] = t
-	for _, body in fighterBodies() do
+	for _, body in Fighters.bodies() do
 		local track = tracks[body]
 		if not track then
 			track = newTrack(body)
@@ -232,78 +216,6 @@ type Actor = {
 	joints: { Instance }, -- the body's joints, off while it's posed from the recording
 	gone: boolean,
 }
-
-local STRIP = {
-	Script = true,
-	LocalScript = true,
-	ModuleScript = true,
-	Sound = true,
-	ParticleEmitter = true,
-	Highlight = true,
-	BillboardGui = true,
-	ForceField = true,
-}
-
--- An anchored copy of a body: its own joints are switched off (each part is
--- placed from the recording), accessories and the held gun stay welded to
--- their part. Highlights, labels and attributes don't come along.
-local function copyOf(body: Model): (Model?, { Instance })
-	local joints: { Instance } = {}
-	local was = body.Archivable
-	body.Archivable = true
-	local ok, copy = pcall(function()
-		return body:Clone()
-	end)
-	body.Archivable = was
-	if not ok or not copy then
-		return nil, joints
-	end
-	local own: { [Instance]: boolean } = {}
-	for _, child in copy:GetChildren() do
-		if child:IsA("BasePart") then
-			own[child] = true
-		end
-	end
-	for _, d in copy:GetDescendants() do
-		if STRIP[d.ClassName] then
-			d:Destroy()
-		elseif d:IsA("JointInstance") then
-			if d.Part0 and d.Part1 and own[d.Part0] and own[d.Part1] then
-				d.Enabled = false
-				table.insert(joints, d)
-			end
-		elseif d:IsA("AnimationConstraint") then
-			local a0, a1 = d.Attachment0, d.Attachment1
-			if a0 and a1 and a0.Parent and a1.Parent and own[a0.Parent] and own[a1.Parent] then
-				d.Enabled = false
-				table.insert(joints, d)
-			end
-		end
-	end
-	for _, d in copy:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = own[d] == true
-			d.CanCollide = false
-			d.CanQuery = false
-			d.CanTouch = false
-			d.LocalTransparencyModifier = 0
-		elseif d:IsA("Decal") then
-			d.LocalTransparencyModifier = 0
-		end
-	end
-	for name in copy:GetAttributes() do
-		copy:SetAttribute(name, nil)
-	end
-	local humanoid = copy:FindFirstChildOfClass("Humanoid")
-	if humanoid then
-		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-		for name in humanoid:GetAttributes() do
-			humanoid:SetAttribute(name, nil)
-		end
-	end
-	copy.Name = body.Name .. "_Replay"
-	return copy, joints
-end
 
 -- The ring slots inside [from, to], oldest first.
 local function slotsBetween(from: number, to: number): { number }
@@ -430,11 +342,6 @@ local function teamColour(x: Instance?): Color3
 	return if x and mine ~= nil and Teams.of(x) == mine then C.ally else C.enemy
 end
 
-local function ease(t: number): number
-	t = math.clamp(t, 0, 1)
-	return t * t * (3 - 2 * t)
-end
-
 -- Recorded seconds → playback seconds: normal until `slowFrom` before the
 -- kill, then `slowSpeed`.
 local function recordedAt(elapsed: number, start: number, kill: number): number
@@ -443,18 +350,6 @@ local function recordedAt(elapsed: number, start: number, kill: number): number
 		return start + elapsed
 	end
 	return start + normal + (elapsed - normal) * R.slowSpeed
-end
-
--- The fighter body a part belongs to (a held gun is a Model inside it).
-local function fighterOf(d: Instance): Model?
-	local node = d.Parent
-	while node and node ~= Workspace do
-		if node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") then
-			return node
-		end
-		node = node.Parent
-	end
-	return nil
 end
 
 -- Everything the replay changed, undone in one place (also after an error).
@@ -472,7 +367,7 @@ local function cleanup(session: Session)
 		folder:Destroy()
 	end
 	for _, d in session.hidden do
-		local body = fighterOf(d)
+		local body = Fighters.bodyOfPart(d)
 		if d.Parent and body and Health.isAlive(body) then
 			(d :: any).LocalTransparencyModifier = 0
 		end
@@ -533,7 +428,7 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 		if not body.Parent or (track.downAt ~= nil and track.downAt < from) then
 			continue
 		end
-		local copy, joints = copyOf(body)
+		local copy, joints = BodyClone.copy(body, "own", body.Name .. "_Replay")
 		if copy then
 			local parts: { [number]: BasePart? } = {}
 			for i, part in track.parts do
@@ -574,7 +469,7 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	ViewmodelController.unequip() -- the match is over: no gun in the shot
 	CameraController.setZoom(nil, 0)
 	folder.Parent = Workspace
-	for _, body in fighterBodies() do
+	for _, body in Fighters.bodies() do
 		for _, d in body:GetDescendants() do
 			if d:IsA("BasePart") or d:IsA("Decal") then
 				d.LocalTransparencyModifier = 1
@@ -623,7 +518,7 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	local rayParams = RaycastParams.new()
 	rayParams.FilterType = Enum.RaycastFilterType.Exclude
 	local skip: { Instance } = { folder }
-	for _, body in fighterBodies() do
+	for _, body in Fighters.bodies() do
 		table.insert(skip, body)
 	end
 	for _, copy in CollectionService:GetTagged(DeathFxController.COPY_TAG) do
@@ -738,7 +633,7 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 		elseif config then
 			zoomFov = config.adsFov
 		end
-		CameraController.setZoom(zoomFov, ease(ads))
+		CameraController.setZoom(zoomFov, Ease.smooth(ads))
 		ViewmodelController.setHidden(scope ~= nil and ads > 0.85)
 	end
 

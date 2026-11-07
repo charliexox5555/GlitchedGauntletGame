@@ -606,7 +606,7 @@ local function step(dt: number)
 	end
 end
 
--- The same legs for a character no player drives (the test opponent): call
+-- The same legs for a character no player drives (a bot): call
 -- it from its own loop on the server; it moves on foot whenever it has speed.
 function PoseSim.legs(character: Model)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")

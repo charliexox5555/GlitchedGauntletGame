@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -27,6 +28,7 @@ local SpectateController = require(script.Parent.SpectateController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
 local Ui = require(script.Parent.Parent.Util.Ui)
+local BodyClone = require(script.Parent.Parent.Util.BodyClone)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 
 local MatchEndController = {}
@@ -62,78 +64,6 @@ local buttons: { [string]: GuiObject } = {}
 
 -- Helpers ---------------------------------------------------------------------------
 
-local function fighters(): { Model }
-	local list: { Model } = {}
-	for _, p in Players:GetPlayers() do
-		if p.Character then
-			table.insert(list, p.Character)
-		end
-	end
-	local dummies = Workspace:FindFirstChild("Dummies")
-	if dummies then
-		for _, m in dummies:GetChildren() do
-			if m:IsA("Model") and m:GetAttribute("IsBot") == true then
-				table.insert(list, m)
-			end
-		end
-	end
-	return list
-end
-
-local STRIP = {
-	Script = true,
-	LocalScript = true,
-	ModuleScript = true,
-	Sound = true,
-	ParticleEmitter = true,
-	Highlight = true,
-	BillboardGui = true,
-	ForceField = true,
-}
-
--- A standing copy of a body that can play an animation on this client: the
--- joints stay, only the root is anchored.
-local function standingCopy(body: Model): Model?
-	local was = body.Archivable
-	body.Archivable = true
-	local ok, copy = pcall(function()
-		return body:Clone()
-	end)
-	body.Archivable = was
-	if not ok or not copy then
-		return nil
-	end
-	for _, d in copy:GetDescendants() do
-		if STRIP[d.ClassName] then
-			d:Destroy()
-		end
-	end
-	for _, d in copy:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = d.Name == "HumanoidRootPart"
-			d.CanCollide = false
-			d.CanQuery = false
-			d.CanTouch = false
-			d.LocalTransparencyModifier = 0
-		elseif d:IsA("Decal") then
-			d.LocalTransparencyModifier = 0
-		elseif d:IsA("Motor6D") then
-			d.Transform = CFrame.identity
-		end
-	end
-	for name in copy:GetAttributes() do
-		copy:SetAttribute(name, nil)
-	end
-	local humanoid = copy:FindFirstChildOfClass("Humanoid")
-	if humanoid then
-		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-		for name in humanoid:GetAttributes() do
-			humanoid:SetAttribute(name, nil)
-		end
-	end
-	return copy
-end
-
 local function cheer(copy: Model)
 	local humanoid = copy:FindFirstChildOfClass("Humanoid")
 	if not humanoid then
@@ -162,7 +92,7 @@ local function cheer(copy: Model)
 end
 
 local function hideLive()
-	for _, body in fighters() do
+	for _, body in Fighters.bodies() do
 		for _, d in body:GetDescendants() do
 			if d:IsA("BasePart") or d:IsA("Decal") then
 				d.LocalTransparencyModifier = 1
@@ -186,7 +116,7 @@ end
 -- positions and the point it looks at.
 local function buildScene(winner: number): (Vector3?, Vector3?, Vector3?)
 	local winners: { Model } = {}
-	for _, body in fighters() do
+	for _, body in Fighters.bodies() do
 		if Teams.of(body) == winner then
 			table.insert(winners, body)
 		end
@@ -203,7 +133,7 @@ local function buildScene(winner: number): (Vector3?, Vector3?, Vector3?)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	local skip: { Instance } = {}
-	for _, body in fighters() do
+	for _, body in Fighters.bodies() do
 		table.insert(skip, body)
 	end
 	params.FilterDescendantsInstances = skip
@@ -230,7 +160,7 @@ local function buildScene(winner: number): (Vector3?, Vector3?, Vector3?)
 	folder.Name = "VictoryScene"
 	local spacing = 3.6
 	for i, body in winners do
-		local copy = standingCopy(body)
+		local copy = BodyClone.copy(body, "root")
 		if copy then
 			local offset = (i - 1 - (#winners - 1) / 2) * spacing
 			local root = copy:FindFirstChild("HumanoidRootPart")
@@ -535,18 +465,6 @@ end
 
 -- Start and end -------------------------------------------------------------------
 
--- The fighter body a part belongs to (a held gun is a Model inside it).
-local function fighterOf(d: Instance): Model?
-	local node = d.Parent
-	while node and node ~= Workspace do
-		if node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") then
-			return node
-		end
-		node = node.Parent
-	end
-	return nil
-end
-
 local function stop()
 	if not active then
 		return
@@ -562,7 +480,7 @@ local function stop()
 		scene = nil
 	end
 	for _, d in hidden do
-		local body = fighterOf(d)
+		local body = Fighters.bodyOfPart(d)
 		if d.Parent and body and Health.isAlive(body) then
 			(d :: any).LocalTransparencyModifier = 0
 		end

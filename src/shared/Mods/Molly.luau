@@ -37,7 +37,7 @@ local SPLIT_LIFT = 0.4 -- studs above the resting canister the bomblets start
 
 local rng = Random.new()
 
--- Where the throw starts and its velocity (shared with Lag Field).
+-- Where the throw starts and its velocity (shared with Frost).
 Molly.throw = Projectile.throw
 
 function Molly.options(stats: Types.Stats): Projectile.Options

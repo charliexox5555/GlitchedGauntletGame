@@ -1,6 +1,6 @@
 --!strict
--- SelfBuff building block: an effect spread over time (Patch Up's heal, later
--- Overclock and the glitch drains). take() returns what is due since the last
+-- SelfBuff building block: an effect spread over time (the Heal Orb's heal and the
+-- glitch drains). take() returns what is due since the last
 -- call, so the total is exact however unevenly the server ticks.
 
 export type Timed = {

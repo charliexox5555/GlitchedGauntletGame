@@ -1,5 +1,5 @@
 --!strict
--- Projectile building block (Molly, Lag Field). A thrown object's whole path
+-- Projectile building block (Molly, Frost). A thrown object's whole path
 -- is computed once, deterministically, with fixed steps and raycasts: the
 -- server does it from its own head position, and sends the result (a few
 -- ballistic segments) to clients, which replay positionAt() exactly. The
@@ -151,7 +151,7 @@ end
 local HAND_FORWARD = 1.5 -- studs in front of the head a throw starts
 local HAND_DROP = 0.35
 
--- A held throw (Molly, Lag Field): where it leaves the hand and its
+-- A held throw (Molly, Frost): where it leaves the hand and its
 -- velocity, from the head and the aim. LMB ("Primary") throws with
 -- `throwSpeed` / `throwLift`, RMB ("Alt") lobs with `lobSpeed` / `lobLift`.
 -- `params` (world only) keeps the start out of a wall you're facing.

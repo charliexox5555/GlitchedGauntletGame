@@ -32,14 +32,4 @@ function Pawns.list(): { Pawn }
 	return list
 end
 
--- The owner of a pawn character, if it is one.
-function Pawns.ownerOf(character: Model): Instance?
-	for _, pawn in list do
-		if pawn.character == character then
-			return pawn.owner
-		end
-	end
-	return nil
-end
-
 return Pawns

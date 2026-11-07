@@ -32,9 +32,6 @@ return table.freeze({
 	MASTER_LIMIT = table.freeze({ threshold = -4, ratio = 10, attack = 0.001, release = 0.1 }),
 
 	-- Default volumes per kind of sound (before the group volume).
-	SHOT_VOLUME = 0.75,
-	ENEMY_SHOT_VOLUME = 0.9,
-	FOLEY_VOLUME = 0.6,
 	HIT_VOLUME = 0.6,
 	HEAD_VOLUME = 0.65,
 	KILL_VOLUME = 0.7,

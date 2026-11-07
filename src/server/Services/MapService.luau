@@ -22,6 +22,7 @@ local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 
 local Health = require(game:GetService("ReplicatedStorage").Shared.Health)
+local MatchConfig = require(game:GetService("ReplicatedStorage").Shared.Config.Match)
 
 local HealthService = require(script.Parent.HealthService)
 
@@ -32,7 +33,6 @@ local SPAWN_TAGS = { "ArenaSpawn_A", "ArenaSpawn_B" }
 
 local active: Model? = nil
 
-local KILL_DEPTH = 40 -- studs below the map's pivot
 local KILL_CHECK = 0.2 -- seconds between checks
 
 -- The place's own lighting, captured before the first map changes it.
@@ -269,7 +269,7 @@ local function checkFalls(dt: number)
 	end
 	local depth = map:GetAttribute("KillDepth")
 	local killY = map:GetPivot().Position.Y
-		- (if typeof(depth) == "number" then depth else KILL_DEPTH)
+		- (if typeof(depth) == "number" then depth else MatchConfig.KILL_DEPTH)
 	for _, player in Players:GetPlayers() do
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart")
@@ -286,7 +286,44 @@ local function checkFalls(dt: number)
 	end
 end
 
+-- The middle of a team's spawns on the loaded map.
+function MapService.spawnCentre(team: number): Vector3?
+	local spawns = MapService.spawns(team)
+	if #spawns == 0 then
+		return nil
+	end
+	local sum = Vector3.zero
+	for _, s in spawns do
+		sum += s.Position
+	end
+	return sum / #spawns
+end
+
+-- Maps are edited in Workspace (one Model per map, at its own spot). A
+-- running server keeps only the loaded one in the world: the rest go to
+-- ServerStorage.Maps at start (Config/Match MAPS ids and any model with
+-- tagged team spawns), so a live server doesn't carry every map.
+local function stashMaps()
+	local folder = mapsFolder()
+	for _, child in workspace:GetChildren() do
+		if not child:IsA("Model") or child.Name == "ActiveMap" then
+			continue
+		end
+		local isMap = false
+		for _, d in child:GetDescendants() do
+			if d:IsA("SpawnLocation") and (d:HasTag(SPAWN_TAGS[1]) or d:HasTag(SPAWN_TAGS[2])) then
+				isMap = true
+				break
+			end
+		end
+		if isMap and not folder:FindFirstChild(child.Name) then
+			child.Parent = folder
+		end
+	end
+end
+
 function MapService.start()
+	stashMaps()
 	RunService.Heartbeat:Connect(checkFalls)
 end
 

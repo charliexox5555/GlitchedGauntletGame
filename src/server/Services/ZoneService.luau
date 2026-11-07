@@ -26,18 +26,6 @@ local nextId = 0
 local running: Zone.State? = nil
 local sinceTick = 0
 
-local function spawnCentre(team: number): Vector3?
-	local spawns = MapService.spawns(team)
-	if #spawns == 0 then
-		return nil
-	end
-	local sum = Vector3.zero
-	for _, s in spawns do
-		sum += s.Position
-	end
-	return sum / #spawns
-end
-
 -- The map's `ZoneCentre` part (a tagged BasePart inside the active map), if any.
 local function centrePart(): BasePart?
 	local map = MapService.map()
@@ -55,7 +43,7 @@ end
 -- Where the circle closes, and how big it starts.
 local function shape(): (Vector3?, number)
 	local part = centrePart()
-	local one, two = spawnCentre(1), spawnCentre(2)
+	local one, two = MapService.spawnCentre(1), MapService.spawnCentre(2)
 	local centre: Vector3? = if part
 		then part.Position
 		elseif one and two then (one + two) / 2

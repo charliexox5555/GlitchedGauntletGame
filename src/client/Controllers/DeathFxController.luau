@@ -16,6 +16,8 @@ local Health = require(ReplicatedStorage.Shared.Health)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local VfxTextures = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
+local BodyClone = require(script.Parent.Parent.Util.BodyClone)
+
 local DeathFxController = {}
 
 DeathFxController.COPY_TAG = "DeathFxCopy"
@@ -34,54 +36,6 @@ local function hide(body: Model)
 			d.LocalTransparencyModifier = 1
 		end
 	end
-end
-
--- A copy of the body that can't move or be hit: its root is anchored, the
--- other parts hang off it by their joints, so the Death clip can fold it.
-local function copyOf(body: Model): Model?
-	local was = body.Archivable
-	body.Archivable = true
-	local ok, copy = pcall(function()
-		return body:Clone()
-	end)
-	body.Archivable = was
-	if not ok or not copy then
-		return nil
-	end
-	for _, d in copy:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = d.Name == "HumanoidRootPart"
-			d.CanCollide = false
-			d.CanQuery = false
-			d.CanTouch = false
-			d.LocalTransparencyModifier = 0
-		elseif
-			d:IsA("Script")
-			or d:IsA("LocalScript")
-			or d:IsA("ModuleScript")
-			or d:IsA("Sound")
-			or d:IsA("ParticleEmitter")
-			or d:IsA("Highlight")
-			or d:IsA("BillboardGui")
-		then
-			d:Destroy()
-		elseif d:IsA("Decal") then
-			d.LocalTransparencyModifier = 0
-		end
-	end
-	copy.Name = body.Name .. "Down"
-	-- No team, health or state: nothing should treat the copy as a fighter
-	-- (the enemy outline reads TeamId).
-	for name in copy:GetAttributes() do
-		copy:SetAttribute(name, nil)
-	end
-	local humanoid = copy:FindFirstChildOfClass("Humanoid")
-	if humanoid then
-		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-		humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
-		humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-	end
-	return copy
 end
 
 local function puff(at: Vector3)
@@ -121,7 +75,7 @@ local function fall(body: Model, parent: Instance?)
 		hide(body)
 		return
 	end
-	local copy = copyOf(body)
+	local copy = BodyClone.copy(body, "root", body.Name .. "Down")
 	hide(body)
 	if not copy then
 		return

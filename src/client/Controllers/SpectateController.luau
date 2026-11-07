@@ -20,6 +20,8 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
+local Ease = require(ReplicatedStorage.Shared.Util.Ease)
+local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -49,7 +51,7 @@ type Mode = "Off" | "DeathCam" | "Watch"
 
 -- A fighter: `holder` carries the attributes (a Player, or a bot's model);
 -- `body` is the character model.
-type Fighter = { holder: Instance, body: Model }
+type Fighter = Fighters.Fighter
 
 local mode: Mode = "Off"
 local target: Fighter? = nil
@@ -102,31 +104,11 @@ local function nameOf(holder: Instance): string
 	return holder.Name
 end
 
--- Every fighter but you: players with a body, and the match's bots.
-local function fighters(): { Fighter }
-	local list: { Fighter } = {}
-	for _, p in Players:GetPlayers() do
-		local body = p.Character
-		if p ~= player and body then
-			table.insert(list, { holder = p, body = body })
-		end
-	end
-	local dummies = Workspace:FindFirstChild("Dummies")
-	if dummies then
-		for _, m in dummies:GetChildren() do
-			if m:IsA("Model") and m:GetAttribute("IsBot") == true then
-				table.insert(list, { holder = m, body = m })
-			end
-		end
-	end
-	return list
-end
-
 -- Living teammates, in a stable order (so cycling goes round).
 local function teammates(): { Fighter }
 	local mine = Teams.of(player)
 	local list: { Fighter } = {}
-	for _, f in fighters() do
+	for _, f in Fighters.all(player) do
 		if mine ~= nil and Teams.of(f.holder) == mine and alive(f.body) then
 			table.insert(list, f)
 		end
@@ -159,31 +141,6 @@ local function pickTarget(): Fighter?
 		return killerFighter()
 	end
 	return nil
-end
-
-local function ease(t: number): number
-	t = math.clamp(t, 0, 1)
-	return t * t * (3 - 2 * t)
-end
-
-local function easeOut(t: number): number
-	t = math.clamp(t, 0, 1)
-	return 1 - (1 - t) ^ 3
-end
-
-local function approach(current: number, goal: number, rate: number, dt: number): number
-	return current + (goal - current) * (1 - math.exp(-rate * dt))
-end
-
-local function approachAngle(current: number, goal: number, rate: number, dt: number): number
-	local delta = (goal - current + math.pi) % (2 * math.pi) - math.pi
-	return current + delta * (1 - math.exp(-rate * dt))
-end
-
--- A scope's FOV, as WeaponController works it out.
-local function scopeFov(zoom: number): number
-	local base = CameraController.getBaseFov()
-	return 2 * math.deg(math.atan(math.tan(math.rad(base / 2)) / math.max(zoom, 1)))
 end
 
 local function numberAttr(holder: Instance, name: string): number
@@ -355,8 +312,8 @@ local function watchStep(cam: Camera, dt: number)
 			viewYaw, viewPitch = yaw, pitch
 		else
 			viewPos = pos:Lerp(head.Position, 1 - math.exp(-S.headRate * dt))
-			viewYaw = approachAngle(viewYaw, yaw, S.yawRate, dt)
-			viewPitch = approach(viewPitch, pitch, S.pitchRate, dt)
+			viewYaw = Ease.approachAngle(viewYaw, yaw, S.yawRate, dt)
+			viewPitch = Ease.approach(viewPitch, pitch, S.pitchRate, dt)
 		end
 		cam.CFrame = CFrame.new(viewPos :: Vector3)
 			* CFrame.fromEulerAnglesYXZ(viewPitch, viewYaw, 0)
@@ -393,8 +350,8 @@ local function watchStep(cam: Camera, dt: number)
 	ViewmodelController.setAds(adsAlpha)
 	local scope = config and config.scope
 	CameraController.setZoom(
-		if scope then scopeFov(scope.zoom) elseif config then config.adsFov else nil,
-		ease(adsAlpha)
+		if scope then CameraController.scopeFov(scope.zoom) elseif config then config.adsFov else nil,
+		Ease.smooth(adsAlpha)
 	)
 	local scoped = scope ~= nil and adsAlpha > 0.85
 	HudController.setScope(scoped)
@@ -497,7 +454,7 @@ end
 
 local function deathStep(cam: Camera, _dt: number)
 	local t = (os.clock() - deathAt) / S.pullTime
-	local e = easeOut(t)
+	local e = Ease.out(t)
 	local pos = deathFrom.Position:Lerp(deathGoal, e)
 	local from = deathFrom.Rotation
 	local to = CFrame.lookAt(deathGoal, deathLook).Rotation

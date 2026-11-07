@@ -3,7 +3,7 @@
 -- tracked by owner so they go away when the owner dies or leaves:
 --   timers   a Molly's landing and fire ticks, a Frost's burst (schedule;
 --            they outlive the owner's death, not their leaving)
---   objects  placed parts in workspace.ModObjects (Launch Pad, Firewall) with
+--   objects  placed parts in workspace.ModObjects (placed Mod objects) with
 --            HP and a lifetime; shots and blasts damage them (damage)
 -- A Molly has no server part at all: its path is maths (Mods/Blocks/
 -- Projectile) and clients draw it from the ModFx event.

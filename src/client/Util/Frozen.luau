@@ -129,11 +129,6 @@ local function setMine(on: boolean, now: number)
 	CameraController.setTurnCap(if on then turnCap(player.Character, now) else nil)
 end
 
--- Whether we're frozen right now (as of the last step).
-function Frozen.isMine(): boolean
-	return mine
-end
-
 -- Per frame (UpgradeFx/Frost.step).
 function Frozen.step()
 	local now = Workspace:GetServerTimeNow()

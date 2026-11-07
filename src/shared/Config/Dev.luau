@@ -14,4 +14,6 @@ return table.freeze({
 	-- Studio matches: every level-1 ability's upgrade cards include its glitch
 	-- path (to see and test glitches without waiting on the ~8% roll).
 	ALWAYS_GLITCH_CARDS = false,
+	-- Seconds before a test-panel dummy (F8) stands up again after going down.
+	DUMMY_RESPAWN = 3,
 })

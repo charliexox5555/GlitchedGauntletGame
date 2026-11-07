@@ -27,6 +27,10 @@ return table.freeze({
 	} :: { MapEntry },
 
 	ROUNDS_TO_WIN = 5,
+	LATE_SPAWN_WAIT = 3, -- seconds a slow spawn gets past the countdown
+	MAX_EMPTY_ROUNDS = 3, -- rounds in a row with a side nobody could spawn on: the match ends
+	KILL_DEPTH = 40, -- studs below a map's pivot that count as falling off (a map can set KillDepth)
+	ASSIST_WINDOW = 10, -- seconds before a kill that damage still earns an assist (StatsService)
 
 	-- Seconds (vault/05 Production/Match Structure Revamp.md). The select
 	-- screen opens as soon as the first player is in. Its time includes the

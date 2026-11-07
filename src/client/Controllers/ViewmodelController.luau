@@ -22,23 +22,27 @@
 -- their sight (pistols and melee: their grip) at the gun's `viewmodelOffset`;
 -- perspective does the rest.
 -- Guns with two models (akimbo) hold one in each hand, the left mirrored.
+--
+-- Split out: the keyframed tracks (Util/ViewmodelTracks) and the held Mods:
+-- lowered gun, item, gestures, free-hand poses (Util/ViewmodelHeldMods).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local Ease = require(ReplicatedStorage.Shared.Util.Ease)
 local Spring = require(ReplicatedStorage.Shared.Util.Spring)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
-local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local MagDrop = require(script.Parent.Parent.Util.MagDrop)
 local ViewmodelArms = require(script.Parent.Parent.Util.ViewmodelArms)
+local ViewmodelHeldMods = require(script.Parent.Parent.Util.ViewmodelHeldMods)
 local ViewmodelMotion = require(script.Parent.Parent.Util.ViewmodelMotion)
 local ViewmodelRig = require(script.Parent.Parent.Util.ViewmodelRig)
+local ViewmodelTracks = require(script.Parent.Parent.Util.ViewmodelTracks)
 local MovementController = require(script.Parent.MovementController)
 
 type WeaponConfig = Types.WeaponConfig
@@ -97,18 +101,6 @@ type Mag = {
 	gone: boolean,
 }
 
--- `rotScale`: how much of the track's rotation applies (0 = position only, when a
--- gun clip of the same move already turns the gun).
-type Playing = {
-	track: VM.Track,
-	time: number,
-	length: number,
-	weight: number,
-	fading: boolean,
-	rotScale: number,
-	freeze: number, -- seconds left of a hit-stop: the track holds its frame
-}
-
 -- A foley cue inside a clip: `at` is 0..1 through it.
 export type Beat = { at: number, sound: "MagOut" | "MagIn" | "Rack" | "Open" | "ShellIn" }
 
@@ -122,7 +114,7 @@ local arms: ViewmodelArms.Arms? = nil
 local armsLook = "" -- what the arms were built from
 local nextLookCheck = 0
 
-local playing: { [string]: Playing } = {}
+local playing: ViewmodelTracks.Set = {} -- keyframed tracks by slot (Util/ViewmodelTracks)
 local poseWeights: { [string]: PoseWeight } = {}
 local weights: { [string]: number } = {}
 
@@ -139,46 +131,13 @@ local motionInput: ViewmodelMotion.Input = {
 	ads = 0,
 }
 
-local DEG = math.pi / 180
 local studio = RunService:IsStudio()
 
--- Held Mods: the gun lowered (spring 0..1) and the Mod's item in the right
--- hand (its own WorldModel under the camera, like the guns).
-local lowered = false
-local lowerX, lowerV = 0, 0
-local item: WorldModel? = nil
-local raiseX, raiseV = 0, 0 -- the item's own (underdamped) raise
-local actionKind: string? = nil
-local actionAt = -math.huge
-local itemHidden = false
--- A Mod gesture (Dash, Updraft): the gun's dip and the free hand's gesture
--- (Config/Viewmodel MOD_GESTURES, DASH_DIP / UPDRAFT_DIP).
-local gestureKind: string? = nil
-local dipKind: string? = nil
-local gestureAt = -math.huge
--- A prop in the gesturing fist (the Stim beacon) until the gesture's release.
-local gestureProp: WorldModel? = nil
-
-local function dropGestureProp()
-	if gestureProp then
-		gestureProp:Destroy()
-		gestureProp = nil
-	end
-end
--- A held free-hand pose (Config/Viewmodel FREE_POSES), eased toward; and the
--- flame that burns in it (a part under the camera, moved with the fist).
-local freePose: string? = nil
-local freePos: Vector3 = VM.FREE_POSE_FROM
-local freeDir: Vector3 = Vector3.new(-0.3, -0.8, 0.5)
-local handFlame: Part? = nil
-local handFlameEmitter: ParticleEmitter? = nil
+-- Held Mods: the gun lowered, the Mod's item in the right hand, gestures and
+-- free-hand poses (Util/ViewmodelHeldMods).
+local heldMods = ViewmodelHeldMods.new()
 
 -- Small helpers ----------------------------------------------------------------
-
-local function smoothstep(t: number): number
-	t = math.clamp(t, 0, 1)
-	return t * t * (3 - 2 * t)
-end
 
 -- ADS blend: smootherstep, so it starts and lands without a jolt.
 local function adsEase(t: number): number
@@ -186,190 +145,16 @@ local function adsEase(t: number): number
 	return t * t * t * (t * (t * 6 - 15) + 10)
 end
 
-local function angles(rot: Vector3): CFrame
-	return CFrame.Angles(rot.X * DEG, rot.Y * DEG, rot.Z * DEG)
-end
+local angles = ViewmodelTracks.angles
+local mirrorPos = ViewmodelTracks.mirrorPos
+local mirrorRot = ViewmodelTracks.mirrorRot
 
--- Reflects a camera-space offset across the screen's vertical axis (left gun).
-local function mirrorPos(v: Vector3): Vector3
-	return Vector3.new(-v.X, v.Y, v.Z)
-end
+-- Keyframed tracks (Util/ViewmodelTracks) -------------------------------------
 
-local function mirrorRot(v: Vector3): Vector3
-	return Vector3.new(v.X, -v.Y, -v.Z)
-end
-
-local function aroundPivot(pivot: Vector3, cf: CFrame): CFrame
-	return CFrame.new(pivot) * cf * CFrame.new(-pivot)
-end
-
--- Keyframed tracks -----------------------------------------------------------
-
-local function sample(track: VM.Track, t: number): (Vector3, Vector3)
-	local keys = track.keys
-	local prev = keys[1]
-	if t <= prev.t then
-		return prev.pos, prev.rot
-	end
-	for i = 2, #keys do
-		local k = keys[i]
-		if t <= k.t then
-			local span = k.t - prev.t
-			local a = if span > 0 then (t - prev.t) / span else 1
-			a = TweenService:GetValue(
-				a,
-				k.style or Enum.EasingStyle.Sine,
-				k.dir or Enum.EasingDirection.InOut
-			)
-			return prev.pos:Lerp(k.pos, a), prev.rot:Lerp(k.rot, a)
-		end
-		prev = k
-	end
-	return prev.pos, prev.rot
-end
-
-local function playTrack(slot: string, trackName: string, duration: number?, rotScale: number?)
-	local track = VM.TRACKS[trackName]
-	if not track then
-		return
-	end
-	playing[slot] = {
-		track = track,
-		time = 0,
-		length = if duration and duration > 0 then duration else track.length,
-		weight = 1,
-		fading = false,
-		rotScale = rotScale or 1,
-		freeze = 0,
-	}
-end
-
-local function fadeTrack(slot: string)
-	local p = playing[slot]
-	if p then
-		p.fading = true
-	end
-end
-
-local function stepTracks(dt: number)
-	for slot, p in playing do
-		if p.freeze > 0 and not p.fading then
-			-- Hit-stop: hold this frame (the time it eats is not caught up).
-			p.freeze -= dt
-			continue
-		end
-		p.time += dt
-		if p.fading then
-			p.weight -= dt / VM.CANCEL_TIME
-			if p.weight <= 0 then
-				playing[slot] = nil
-			end
-		elseif p.time >= p.length then
-			playing[slot] = nil
-		end
-	end
-end
-
--- A gun's extra lift for one track slot (config.trackLift, e.g. a bullpup
--- raised so its reload shows), eased in and out over the track's ends.
-local LIFT_EASE = 0.15
-local function liftFor(slot: string, t: number): (Vector3, Vector3)
-	local lifts = config and config.trackLift
-	local lift = lifts and lifts[slot]
-	-- Studio only: Workspace VmLift<slot> (Vector3) tunes it live.
-	local live = if studio then Workspace:GetAttribute("VmLift" .. slot) else nil
-	if typeof(live) == "Vector3" then
-		lift = { pos = live, rot = if lift then lift.rot else nil }
-	end
-	if not lift then
-		return Vector3.zero, Vector3.zero
-	end
-	local e = smoothstep(math.clamp(math.min(t, 1 - t) / LIFT_EASE, 0, 1))
-	return lift.pos * e, (lift.rot or Vector3.zero) * e
-end
-
--- Track slots akimbo guns take turns on (see playTurns).
-local TURN_SLOTS = { Equip = true, Reload = true, Inspect = true }
-
--- A `screen` track's offset at `t`: each key as a CFrame, eased between them
--- with CFrame:Lerp, so the turn takes the shortest way (a slerp).
-local function sampleKeys(track: VM.Track, t: number): CFrame
-	local keys = track.keys
-	local prev = keys[1]
-	local function at(k: VM.Key): CFrame
-		return CFrame.new(k.pos) * angles(k.rot)
-	end
-	if t <= prev.t then
-		return at(prev)
-	end
-	for i = 2, #keys do
-		local k = keys[i]
-		if t <= k.t then
-			local span = k.t - prev.t
-			local a = if span > 0 then (t - prev.t) / span else 1
-			a = TweenService:GetValue(
-				a,
-				k.style or Enum.EasingStyle.Sine,
-				k.dir or Enum.EasingDirection.InOut
-			)
-			return at(prev):Lerp(at(k), a)
-		end
-		prev = k
-	end
-	return at(prev)
-end
-
--- The combined track offset for one gun, around its pivots. `screen`: only
--- the tracks keyed on screen (Config/Viewmodel `screen`, the knife's
--- attacks), which holdPose applies in camera axes around the grip so they
--- read the same whatever the gun's tilt; otherwise only the others, applied
--- in the gun's own axes.
+-- The combined track offset for one gun (ViewmodelTracks.offset). `screen`:
+-- only the tracks keyed on screen, which holdPose applies in camera axes.
 local function trackOffset(gun: Gun, mirror: boolean, screen: boolean): CFrame
-	local cf = CFrame.identity
-	-- Akimbo guns take turns (playTurns): the right gun's half, then the left's.
-	local turn = if guns.Left then (if mirror then 1 else 0) else nil
-	for slot, p in playing do
-		if (p.track.screen == true) ~= screen then
-			continue
-		end
-		if screen then
-			local t = math.clamp(p.time / p.length, 0, 1)
-			-- The blade's turn trails the hand's travel by SCREEN_LAG (the
-			-- wrist follows through: overlapping action, not one rigid piece).
-			-- It builds up after contact, so the blade is exactly on the
-			-- impact point at `hit`.
-			local hit = p.track.hit
-			local ramp = if hit then math.clamp((t - hit) * p.length / 0.08, 0, 1) else 1
-			local lag = VM.SCREEN_LAG * ramp / math.max(p.length, 1e-3)
-			local travel = sampleKeys(p.track, t)
-			local wrist = sampleKeys(p.track, math.max(t - lag, 0))
-			local full = CFrame.new(travel.Position) * wrist.Rotation
-			if mirror then
-				local pos, rx, ry, rz = full.Position, full:ToEulerAnglesXYZ()
-				full = CFrame.new(mirrorPos(pos)) * CFrame.Angles(rx, -ry, -rz)
-			end
-			cf *= if p.weight >= 1 then full else CFrame.new():Lerp(full, smoothstep(p.weight))
-			continue
-		end
-		local t = math.clamp(p.time / p.length, 0, 1)
-		if turn and TURN_SLOTS[slot] then
-			t = math.clamp(t * 2 - turn, 0, 1)
-		end
-		local pos, rot = sample(p.track, t)
-		local liftPos, liftRot = liftFor(slot, t)
-		rot *= p.rotScale
-		pos += liftPos
-		rot += liftRot
-		if mirror then
-			pos, rot = mirrorPos(pos), mirrorRot(rot)
-		end
-		local pivot = if p.track.pivot == "Center" then gun.centerRel else Vector3.zero
-		local full = aroundPivot(pivot, CFrame.new(pos) * angles(rot))
-		-- A fading (cancelled) track blends out along the shortest rotation, so
-		-- a knife mid-flip doesn't spin back a full turn.
-		cf *= if p.weight >= 1 then full else CFrame.new():Lerp(full, smoothstep(p.weight))
-	end
-	return cf
+	return ViewmodelTracks.offset(playing, config, gun.centerRel, guns.Left ~= nil, mirror, screen)
 end
 
 -- Whose view this is: nil = yours; a fighter's body while you spectate them
@@ -726,7 +511,7 @@ local function followWeight(rule: FollowRule, t: number): number
 	local inLength = math.max(rule.from - inStart, lead * 0.5)
 	local outEnd = math.min(1, rule.to + lead)
 	local outLength = math.max(outEnd - rule.to, lead * 0.5)
-	return smoothstep((t - inStart) / inLength) * smoothstep((outEnd - t) / outLength)
+	return Ease.smooth((t - inStart) / inLength) * Ease.smooth((outEnd - t) / outLength)
 end
 
 -- Where an anchor is this frame: from the rig's freshly solved joint CFrames
@@ -1156,7 +941,7 @@ end
 
 function ViewmodelController.unequip()
 	turnToken += 1
-	dropGestureProp()
+	ViewmodelHeldMods.dropGestureProp(heldMods)
 	for _, gun in guns do
 		gun.model:Destroy()
 	end
@@ -1303,10 +1088,10 @@ function ViewmodelController.equip(weapon: WeaponConfig, duration: number?): { B
 	local time = duration or weapon.equipTime
 	if right.animator:has("Draw") then
 		playTurns("Draw", time)
-		playTrack("Equip", "Draw", time)
+		ViewmodelTracks.play(playing, "Equip", "Draw", time)
 		return turnBeats(clipBeats(right, "Draw"))
 	end
-	playTrack("Equip", "Equip", math.max(time * 1.4, VM.TRACKS.Equip.length))
+	ViewmodelTracks.play(playing, "Equip", "Equip", math.max(time * 1.4, VM.TRACKS.Equip.length))
 	return {}
 end
 
@@ -1375,7 +1160,12 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 			mag.timing = if data then MagDrop.timing(data, mag.bone) else nil
 		end
 	end)
-	playTrack("Reload", if clip == "ReloadEmpty" then "ReloadEmpty" else "Reload", duration)
+	ViewmodelTracks.play(
+		playing,
+		"Reload",
+		if clip == "ReloadEmpty" then "ReloadEmpty" else "Reload",
+		duration
+	)
 	return turnBeats(clipBeats(right, clip))
 end
 
@@ -1395,7 +1185,7 @@ function ViewmodelController.cancelReload()
 			end
 		end
 	end
-	fadeTrack("Reload")
+	ViewmodelTracks.fade(playing, "Reload")
 end
 
 -- Plays one of the gun's clips over `duration` (the parts of a shell-by-shell
@@ -1431,7 +1221,7 @@ function ViewmodelController.swing(attack: string?): number
 		if right.animator:isPlaying() then
 			right.animator:stop()
 		end
-		playTrack("Swing", attack :: string, own.length, 1)
+		ViewmodelTracks.play(playing, "Swing", attack :: string, own.length, 1)
 		hitDelay = (own.hit or 0) * own.length
 	elseif right then
 		local clips = right.animator.clips :: any
@@ -1444,12 +1234,12 @@ function ViewmodelController.swing(attack: string?): number
 			local hit = data.markers and data.markers.Hit
 			hitDelay = if typeof(hit) == "number" then hit * length else 0
 			if VM.TRACKS[attack :: string] then
-				playTrack("Swing", attack :: string, length, 0)
+				ViewmodelTracks.play(playing, "Swing", attack :: string, length, 0)
 			end
 		else
 			right.animator:play("Fire")
 			if attack and VM.TRACKS[attack] then
-				playTrack("Swing", attack)
+				ViewmodelTracks.play(playing, "Swing", attack)
 			end
 		end
 	end
@@ -1479,7 +1269,7 @@ function ViewmodelController.inspect(): boolean
 	-- Inspect clip turns the blade and the track only lifts it into view.
 	local ownTrack = VM.TRACKS[track].own == true
 	local clipTurns = not ownTrack and c.fireMode == "Melee" and guns.Right.animator:has("Inspect")
-	playTrack("Inspect", track, length, if clipTurns then 0 else 1)
+	ViewmodelTracks.play(playing, "Inspect", track, length, if clipTurns then 0 else 1)
 	-- The gun's own Inspect clip (a press check, the charm swinging) runs
 	-- alongside, over the same time.
 	if not ownTrack and guns.Right.animator:has("Inspect") then
@@ -1492,7 +1282,7 @@ function ViewmodelController.cancelInspect()
 	if playing.Inspect then
 		turnToken += 1
 	end
-	fadeTrack("Inspect")
+	ViewmodelTracks.fade(playing, "Inspect")
 	for _, gun in guns do
 		if gun.animator:isPlaying("Inspect") then
 			gun.animator:stop()
@@ -1531,267 +1321,46 @@ function ViewmodelController.setHidden(value: boolean)
 	end
 end
 
--- Held Mods ---------------------------------------------------------------------
+-- Held Mods (Util/ViewmodelHeldMods, which documents each) -----------------------
 
 -- Drops the gun (and the arms on it) out of view, or brings it back.
 function ViewmodelController.setLowered(value: boolean)
-	lowered = value
+	ViewmodelHeldMods.setLowered(heldMods, value)
 end
 
 -- Puts a Mod's item (a Model; cloned) in the right hand, raised as the gun
 -- lowers. Its pivot is the grip. nil takes it away.
 function ViewmodelController.holdItem(template: Model?)
-	if item then
-		item:Destroy()
-		item = nil
-	end
-	local cam = Workspace.CurrentCamera
-	actionKind = nil
-	itemHidden = false
-	raiseX, raiseV = 0, 0
-	if not template or not cam then
-		return
-	end
-	local world = Instance.new("WorldModel")
-	world.Name = "ViewmodelItem"
-	local copy = template:Clone()
-	for _, d in copy:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = true
-			d.CanCollide = false
-			d.CanQuery = false
-			d.CanTouch = false
-			d.CastShadow = false
-		end
-	end
-	copy.Parent = world
-	world.Parent = cam
-	item = world
+	ViewmodelHeldMods.holdItem(heldMods, template)
 end
 
-local DIPS: { [string]: VM.ItemAction } = {
-	Dash = VM.DASH_DIP,
-	Updraft = VM.UPDRAFT_DIP,
-	Stim = VM.STIM_DIP,
-	Recall = VM.RECALL_DIP,
-}
-
--- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",
--- "DashBack", "DashLeft", "DashRight" camera-relative, "UpdraftDown",
--- "MollyPinPull", "StimToss") while the gun moves by `dip` ("Dash": out of
--- view; "Updraft": down while rising; "Stim": a short dip; nil: the gun stays as
--- it is). `prop`: a model carried in the fist until the gesture's release
--- (the Stim beacon), at its propScale.
+-- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] while the gun
+-- moves by `dip` ("Dash", "Updraft", "Stim", "Recall"; nil: it stays).
+-- `prop`: a model carried in the fist until the gesture's release.
 function ViewmodelController.gesture(gesture: string, dip: string?, prop: Model?)
-	local g = VM.MOD_GESTURES[gesture]
-	if not g or (dip ~= nil and not DIPS[dip]) then
-		return
-	end
-	gestureKind = gesture
-	dipKind = dip
-	gestureAt = os.clock()
-	dropGestureProp()
-	local cam = Workspace.CurrentCamera
-	if prop and cam and g.release then
-		local world = Instance.new("WorldModel")
-		world.Name = "ViewmodelGestureProp"
-		local copy = prop:Clone()
-		for _, d in copy:GetDescendants() do
-			if d:IsA("BasePart") then
-				d.Anchored = true
-				d.CanCollide = false
-				d.CanQuery = false
-				d.CanTouch = false
-				d.CastShadow = false
-			end
-		end
-		if g.propScale then
-			copy:ScaleTo(copy:GetScale() * g.propScale)
-		end
-		copy.Parent = world
-		world.Parent = cam
-		gestureProp = world
-	end
+	ViewmodelHeldMods.gesture(heldMods, gesture, dip, prop)
 end
 
 -- Holds the free hand in a FREE_POSES pose until nil (the Firewall's
--- burning hand: "FirewallReady", "FirewallGuide"). A Firewall pose lights
--- the flame in it.
+-- burning hand, with its flame).
 function ViewmodelController.setFreeHand(pose: string?)
-	if pose and not VM.FREE_POSES[pose] then
-		return
-	end
-	if pose and not freePose then
-		freePos = VM.FREE_POSE_FROM
-	end
-	freePose = pose
-	-- Put the flame out at once (update may not run: no gun, dead).
-	local flame = handFlameEmitter
-	if not pose and flame then
-		flame.Rate = 0
-	end
+	ViewmodelHeldMods.setFreeHand(heldMods, pose)
 end
 
-local function flameEmitter(): (Part, ParticleEmitter)
-	local p = handFlame
-	local e = handFlameEmitter
-	if p and e and p.Parent then
-		return p, e
-	end
-	local part = Instance.new("Part")
-	part.Name = "HandFlame"
-	part.Anchored = true
-	part.CanCollide = false
-	part.CanQuery = false
-	part.CanTouch = false
-	part.CastShadow = false
-	part.Transparency = 1
-	part.Size = Vector3.new(0.25, 0.25, 0.25)
-	local size = VM.HAND_FLAME_SIZE
-	local made = Instance.new("ParticleEmitter")
-	made.Texture = VFX.MOLLY_FLAME_4x4
-	made.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid4x4
-	made.FlipbookMode = Enum.ParticleFlipbookMode.Loop
-	made.FlipbookFramerate = NumberRange.new(20, 24)
-	made.FlipbookStartRandom = true
-	made.LockedToPart = true
-	made.Lifetime = NumberRange.new(0.35, 0.55)
-	made.Speed = NumberRange.new(0.3, 0.8)
-	made.EmissionDirection = Enum.NormalId.Top
-	made.SpreadAngle = Vector2.new(15, 15)
-	made.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, size * 0.7),
-		NumberSequenceKeypoint.new(0.4, size),
-		NumberSequenceKeypoint.new(1, size * 0.5),
-	})
-	made.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.5),
-		NumberSequenceKeypoint.new(0.2, 0.05),
-		NumberSequenceKeypoint.new(1, 1),
-	})
-	made.LightEmission = 0.7
-	made.LightInfluence = 0
-	made.Rate = 0
-	made.Parent = part
-	local light = Instance.new("PointLight")
-	light.Color = Color3.fromRGB(255, 150, 70)
-	light.Range = 6
-	light.Brightness = 1.5
-	light.Parent = part
-	part.Parent = Workspace.CurrentCamera
-	handFlame = part
-	handFlameEmitter = made
-	return part, made
-end
-
--- Sets the transparency of the held item's part named `name`, or its
--- pieces `name`_<Material> (the export splits multi-material parts): Recon's
--- launcher lights, its loaded dart. The item comes back as built the next
--- time it's held.
+-- Sets the transparency of the held item's part `name` (or its
+-- `name`_<Material> pieces) until the item is next held.
 function ViewmodelController.setItemPart(name: string, transparency: number)
-	local held = item
-	if not held then
-		return
-	end
-	local prefix = name .. "_"
-	for _, d in held:GetDescendants() do
-		if d:IsA("BasePart") and (d.Name == name or string.sub(d.Name, 1, #prefix) == prefix) then
-			d.Transparency = transparency
-		end
-	end
+	ViewmodelHeldMods.setItemPart(heldMods, name, transparency)
 end
 
--- Hides the held item's part named `name` after `delay` seconds (the
--- Molly's pin, pulled). The item comes back whole the next time it's held.
+-- Hides the held item's part `name` after `delay` seconds (the Molly's pin).
 function ViewmodelController.hideItemPart(name: string, delay: number)
-	local held = item
-	task.delay(delay, function()
-		if item ~= held or not held then
-			return
-		end
-		for _, d in held:GetDescendants() do
-			if d.Name == name and d:IsA("BasePart") then
-				d.Transparency = 1
-			end
-		end
-	end)
+	ViewmodelHeldMods.hideItemPart(heldMods, name, delay)
 end
 
--- A use, keyframed on the held item (Config/Viewmodel ITEM_ACTIONS): "Throw"
--- (the item leaves the hand at the release), "Place" or "Heal".
+-- A use, keyframed on the held item (ITEM_ACTIONS): "Throw", "Place" or "Heal".
 function ViewmodelController.itemAction(kind: string)
-	if VM.ITEM_ACTIONS[kind] then
-		actionKind = kind
-		actionAt = os.clock()
-	end
-end
-
-local function smooth(t: number): number
-	t = math.clamp(t, 0, 1)
-	return t * t * (3 - 2 * t)
-end
-
--- Keyed offsets (ITEM_ACTIONS, the dips) at `t` 0..1, smoothstep between keys.
-local function keyedOffset(keys: { VM.ItemKey }, t: number): CFrame
-	if t < 0 or t >= 1 then
-		return CFrame.identity
-	end
-	for i = 2, #keys do
-		local b = keys[i]
-		if t <= b.t then
-			local a = keys[i - 1]
-			local k = smooth((t - a.t) / math.max(b.t - a.t, 1e-3))
-			return CFrame.new(a.pos:Lerp(b.pos, k)) * angles(a.rot:Lerp(b.rot, k))
-		end
-	end
-	return CFrame.identity
-end
-
--- The action's offset at `now` (identity when none is playing), and whether
--- the item has left the hand.
-local function actionOffset(now: number): (CFrame, boolean)
-	local action = if actionKind then VM.ITEM_ACTIONS[actionKind] else nil
-	if not action then
-		return CFrame.identity, false
-	end
-	local t = (now - actionAt) / action.length
-	local gone = action.hideAt ~= nil and t >= action.hideAt
-	return keyedOffset(action.keys, t), gone
-end
-
--- A gesture's free hand at `t` 0..1: fist position and arm direction (root
--- space).
-local function gestureHand(keys: { VM.HandKey }, t: number): (Vector3, Vector3)
-	for i = 2, #keys do
-		local b = keys[i]
-		if t <= b.t then
-			local a = keys[i - 1]
-			local k = smooth((t - a.t) / math.max(b.t - a.t, 1e-3))
-			return a.pos:Lerp(b.pos, k), a.dir:Lerp(b.dir, k)
-		end
-	end
-	local last = keys[#keys]
-	return last.pos, last.dir
-end
-
--- One step of a damped spring with ratio `zeta` (below 1 overshoots).
-local function springStep(
-	x: number,
-	v: number,
-	goal: number,
-	w: number,
-	zeta: number,
-	dt: number
-): (number, number)
-	-- Sub-steps keep it stable at low frame rates.
-	local steps = math.max(1, math.ceil(dt / (1 / 240)))
-	local h = dt / steps
-	for _ = 1, steps do
-		local a = w * w * (goal - x) - 2 * zeta * w * v
-		v += a * h
-		x += v * h
-	end
-	return x, v
+	ViewmodelHeldMods.itemAction(heldMods, kind)
 end
 
 -- `name`: a muzzle other than "Muzzle" (a double barrel's "MuzzleLower").
@@ -2040,7 +1609,7 @@ local function update(dt: number)
 	MagDrop.step(dt) -- dropped mags keep falling after a swap
 	if not cam or not right or not c then
 		motion.lastCamera = cam and cam.CFrame
-		dropGestureProp() -- nothing to hold it
+		ViewmodelHeldMods.dropGestureProp(heldMods) -- nothing to hold it
 		return
 	end
 	local camCf = cam.CFrame
@@ -2084,26 +1653,13 @@ local function update(dt: number)
 	motionInput.ads = adsT
 	local root = camCf * ViewmodelMotion.step(motion, motionInput, dt)
 
-	-- Held Mod: the gun drops away, the item comes up.
-	lowerX, lowerV =
-		ViewmodelMotion.spring(lowerX, lowerV, if lowered then 1 else 0, VM.LOWER_FREQUENCY, dt)
-	local lowerT = math.clamp(lowerX, 0, 1)
-	local lowerCf = if lowerT > 1e-3
-		then CFrame.new(VM.LOWER.pos * lowerT) * angles(VM.LOWER.rot * lowerT)
-		else CFrame.identity
-	-- A Mod gesture's dip rides on top of the lower.
-	local dip = if dipKind then DIPS[dipKind] else nil
-	if dip then
-		local dipT = (now - gestureAt) / dip.length
-		if dipT < 1 then
-			lowerCf *= keyedOffset(dip.keys, dipT)
-		end
-	end
+	-- Held Mod: the gun drops away (plus a Mod gesture's dip), the item comes up.
+	local lowerCf, lowerT = ViewmodelHeldMods.lower(heldMods, now, dt)
 
 	-- 2. Guns: root * hold pose, then every joint of the gun from its clip.
 	updatePoseWeights(dt, state)
-	stepTracks(dt)
-	local fade = smoothstep((adsAlpha - 0.35) / 0.45)
+	ViewmodelTracks.step(playing, dt)
+	local fade = Ease.smooth((adsAlpha - 0.35) / 0.45)
 	for _, side in SIDES do
 		local gun = guns[side]
 		local rig = gun and gun.rig
@@ -2202,111 +1758,12 @@ local function update(dt: number)
 			local toward = point + root:VectorToWorldSpace(VM.FREE_HAND.direction)
 			ViewmodelArms.place(a, "Left", point, toward, root.RightVector)
 		end
-		-- A Mod gesture: the free hand leaves the gun and gestures.
-		local gesture = if gestureKind then VM.MOD_GESTURES[gestureKind] else nil
-		local gestureT = if gesture then (now - gestureAt) / gesture.length else 1
-		if gesture and gestureT < 1 and not hidden then
-			local pos, dir = gestureHand(gesture.keys, gestureT)
-			local point = root:PointToWorldSpace(pos)
-			ViewmodelArms.place(
-				a,
-				"Left",
-				point,
-				point + root:VectorToWorldSpace(dir),
-				root.RightVector
-			)
-			-- The prop sits upright on the fist, tipping forward into the toss.
-			local propWorld = gestureProp
-			local prop = propWorld and propWorld:FindFirstChildOfClass("Model")
-			if prop and gesture.release and gestureT < gesture.release then
-				local tilt = (gesture.propTilt or 0) * smooth(gestureT / gesture.release)
-				prop:PivotTo(
-					CFrame.new(point + root.UpVector * 0.08)
-						* root.Rotation
-						* CFrame.Angles(math.rad(tilt), 0, 0)
-				)
-			elseif propWorld then
-				dropGestureProp()
-			end
-		elseif gestureProp then
-			dropGestureProp()
-		end
-		-- A held free-hand pose (the Firewall's burning hand), and its flame.
-		local pose = if freePose then VM.FREE_POSES[freePose] else nil
-		local flamePart: Part?, flame: ParticleEmitter? = nil, nil
-		if pose or handFlameEmitter then
-			flamePart, flame = flameEmitter()
-		end
-		if pose and not hidden then
-			local k = 1 - math.exp(-VM.FREE_POSE_RATE * dt)
-			freePos = freePos:Lerp(pose.offset, k)
-			freeDir = freeDir:Lerp(pose.direction, k)
-			local point = root:PointToWorldSpace(freePos)
-			ViewmodelArms.place(
-				a,
-				"Left",
-				point,
-				point + root:VectorToWorldSpace(freeDir),
-				root.RightVector
-			)
-			if flamePart then
-				flamePart.CFrame = CFrame.new(point + root.UpVector * 0.12)
-			end
-		end
-		if flame then
-			flame.Rate = if pose and not hidden then 40 else 0
-		end
+		-- A Mod gesture or a held free-hand pose takes the free hand off the gun.
+		ViewmodelHeldMods.stepFreeHand(heldMods, a, root, now, dt, hidden)
 	end
 
 	-- 3b. A held Mod's item, in the right hand.
-	local held = item
-	if held then
-		local model = held:FindFirstChildOfClass("Model")
-		if model then
-			-- Raise (overshoots a little), breathing idle, then the use.
-			raiseX, raiseV = springStep(
-				raiseX,
-				raiseV,
-				if lowered then 1 else 0,
-				VM.ITEM_RAISE_FREQUENCY,
-				VM.ITEM_RAISE_DAMPING,
-				dt
-			)
-			local idle = VM.ITEM_IDLE
-			local phase = now * idle.rate * math.pi * 2
-			local idleCf = CFrame.new(
-				idle.pos * Vector3.new(math.sin(phase * 0.5), math.sin(phase), 0)
-			) * angles(
-				idle.rot
-					* Vector3.new(math.sin(phase), math.sin(phase * 0.5), math.cos(phase * 0.5))
-			)
-			local useCf, gone = actionOffset(now)
-			if gone ~= itemHidden then
-				itemHidden = gone
-				for _, d in model:GetDescendants() do
-					if d:IsA("BasePart") then
-						d.LocalTransparencyModifier = if gone then 1 else 0
-					end
-				end
-			end
-			local pos = VM.ITEM_OFFSET + VM.ITEM_FROM * (1 - raiseX)
-			local itemCf = root * CFrame.new(pos) * useCf * idleCf * angles(VM.ITEM_ROTATION)
-			local offset = model:GetAttribute("HoldOffset")
-			model:PivotTo(
-				if typeof(offset) == "Vector3" then itemCf * CFrame.new(offset) else itemCf
-			)
-			if a and lowerT > 0.05 then
-				local hand = itemCf.Position
-				ViewmodelArms.place(
-					a,
-					"Right",
-					hand,
-					hand + root:VectorToWorldSpace(VM.ITEM_ARM),
-					root.RightVector
-				)
-			end
-		end
-	end
+	ViewmodelHeldMods.stepItem(heldMods, a, root, now, dt, lowerT)
 
 	-- 4. Move everything, all from this one solve.
 	for _, side in SIDES do
@@ -2326,13 +1783,7 @@ end
 local function resetView()
 	ViewmodelController.unequip()
 	ViewmodelController.holdItem(nil)
-	lowered = false
-	lowerX, lowerV = 0, 0
-	gestureKind = nil
-	dipKind = nil
-	gestureAt = -math.huge
-	dropGestureProp()
-	ViewmodelController.setFreeHand(nil)
+	ViewmodelHeldMods.reset(heldMods) -- the gun up, no gesture or prop, free hand back
 	if arms then
 		arms.model:Destroy()
 		arms = nil

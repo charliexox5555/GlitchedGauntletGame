@@ -119,7 +119,7 @@ local function statusMults(): Status.Mults
 	return Status.mults(player.Character, Workspace:GetServerTimeNow())
 end
 
--- Overclock's boost and our statuses: shots per second, relative.
+-- Stim's boost and our statuses: shots per second, relative.
 local function fireRateMult(): number
 	return FireRate.boost(player) * statusMults().fireRate
 end
@@ -519,7 +519,7 @@ local function cast(
 					and CollectionService:HasTag(part, Combat.THIN_WALL_TAG)
 				)
 			if not passThrough then
-				-- A Mod object (Firewall, Launch Pad) takes the hit: report it.
+				-- A Mod object (a placed Mod object) takes the hit: report it.
 				if part:GetAttribute("MaxHp") ~= nil and part:IsA("BasePart") then
 					table.insert(out.hits, { part = part, position = result.Position })
 				end
@@ -556,12 +556,6 @@ local function dryFire()
 		playGun(s.config, "dryFire")
 		ViewmodelController.dryFire()
 	end
-end
-
--- A scope's FOV: `zoom`x magnification of the player's own FOV.
-local function scopeFov(zoom: number): number
-	local base = CameraController.getBaseFov()
-	return 2 * math.deg(math.atan(math.tan(math.rad(base / 2)) / math.max(zoom, 1)))
 end
 
 -- Scoped in, the gun and arms hide behind the HUD scope overlay (set every
@@ -1004,7 +998,7 @@ local function update(dt: number)
 	ViewmodelController.setAds(adsAlpha)
 	local scope = s and s.config.scope
 	CameraController.setZoom(
-		if scope then scopeFov(scope.zoom) elseif s then s.config.adsFov else nil,
+		if scope then CameraController.scopeFov(scope.zoom) elseif s then s.config.adsFov else nil,
 		ease(adsAlpha)
 	)
 	setScoped(scope ~= nil and adsAlpha >= VM.SCOPE_AT)
@@ -1142,7 +1136,7 @@ function WeaponController.isHolstered(): boolean
 	return isHolstered()
 end
 
--- Rollback rewound the ammo on the server: drop a reload in progress so the
+-- The server rewound the ammo (the old Rollback; nothing sends this now): drop a reload in progress so the
 -- server's count (WeaponState) is the one that counts.
 function WeaponController.cancelReload()
 	cancelReload()

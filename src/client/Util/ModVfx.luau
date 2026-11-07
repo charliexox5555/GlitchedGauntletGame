@@ -389,11 +389,6 @@ function ModVfx.step()
 	end
 end
 
--- Lying flat on the ground at `at` (quads face +Y already).
-function ModVfx.flat(at: Vector3): CFrame
-	return CFrame.new(at)
-end
-
 ModVfx.FADE_TAIL = FADE_TAIL
 
 return ModVfx

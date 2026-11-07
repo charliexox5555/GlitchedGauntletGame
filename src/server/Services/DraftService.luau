@@ -341,18 +341,6 @@ function DraftService.transfer(from: any, to: any)
 	end
 end
 
--- Picks for a seat with nobody clicking (the test opponent).
-function DraftService.autoPick(key: any)
-	local s = DraftService.seat(key)
-	s.gun = s.gun or s.guns[rng:NextInteger(1, math.max(#s.guns, 1))]
-	if #s.abilities > 0 then
-		s.ability = s.abilities[rng:NextInteger(1, #s.abilities)]
-	elseif #s.upgrades > 0 then
-		s.ability = s.upgrades[rng:NextInteger(1, #s.upgrades)].key
-	end
-	s.locked = true
-end
-
 function DraftService.allLocked(keys: { any }): boolean
 	for _, key in keys do
 		local s = seats[key]

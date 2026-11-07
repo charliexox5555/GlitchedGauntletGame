@@ -98,6 +98,11 @@ function CameraController.getBaseFov(): number
 	return baseFov
 end
 
+-- A scope's FOV: `zoom`x magnification of the player's own FOV.
+function CameraController.scopeFov(zoom: number): number
+	return 2 * math.deg(math.atan(math.tan(math.rad(baseFov / 2)) / math.max(zoom, 1)))
+end
+
 -- ADS zoom: `alpha` 0..1 blends from the base FOV to `fov`.
 function CameraController.setZoom(fov: number?, alpha: number)
 	zoomFov = fov

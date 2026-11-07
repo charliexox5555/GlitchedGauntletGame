@@ -198,7 +198,7 @@ function ModProps.get(id: string, glow: Color3): Model?
 end
 
 -- A client-side copy of the finished model standing on a placed server part
--- (Launch Pad, Firewall): pivot at the part's floor centre, facing its
+-- (placed Mod objects): pivot at the part's floor centre, facing its
 -- LookVector. nil when there's no finished model (the part stays as it is).
 function ModProps.dress(object: BasePart, glow: Color3): Model?
 	local kind = object:GetAttribute("Kind")

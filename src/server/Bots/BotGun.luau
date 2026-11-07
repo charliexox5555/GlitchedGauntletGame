@@ -239,7 +239,7 @@ function BotGun.ready(gun: GunState, character: Model): boolean
 		return false
 	end
 	local m = mults(character)
-	local boost = FireRate.boost(character :: any) -- FireRateMult (Overclock); bots: none yet
+	local boost = FireRate.boost(character :: any) -- FireRateMult (Stim); bots: none yet
 	local interval = FireRate.interval(s.config, s.spinStart, s.lastFire, now, s.burstShots)
 		/ (boost * m.fireRate)
 	return now >= s.lastFire + interval and now >= s.altReadyAt
