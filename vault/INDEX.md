@@ -32,6 +32,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Art Direction.md` (16): style rules, palette, model standard, Blender → Open Cloud → WeaponBuilder import pipeline
 - `02 Art/UI Design.md` (13): UI look, tokens, type, Figma screens (v1 approved)
 - `02 Art/UI Art Brief (ChatGPT).md` (3): UI art made with ChatGPT images
+- `02 Art/UI Theme v4 Soft Edge.md` (9): **current UI theme draft** (2026-11-12): cut-corner plates + circles, tokens, motion, screen layouts, mobile rules, Figma links, owner questions
 - `02 Art/Lobby Style Guide.md` (8): the stylized grounded look, written for rebuilding maps in it
 - `02 Art/Lobby V3 Rebuild.md` (11): the current Lobby rebuild (2026-11): owner's notes, rules, layout, audit, self-review, steps
 - `02 Art/Sunwell Works Build.md` (9): the Sunwell Works build in Studio: hall, Locker, Shop, Duels staging, checks, pipeline, rollback (the style rules from it are the project skill `.claude/skills/gauntlet-build-style`)
@@ -47,6 +48,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `04 Tech/Setup Guide.md` (9): install, Rojo, Obsidian, Claude, prompts
 - `04 Tech/Codex Collaboration.md` (3): how the core chat uses the user's Codex app
 - `04 Tech/LihFolk.md` (2): the Roblox knowledge plugin and where its notes live
+- `04 Tech/Video Analyzer.md` (4): YouTube study tool (transcripts + frames), install, CLI command, gotchas
 - `04 Tech/Prompts/Archive/Ability System Prompt.md` (8), `Lobby Build Prompt.md` (6): old build prompts (archived)
 
 ## Production (05 Production)
@@ -66,6 +68,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `03 Research/Design Research Report.md` (62): shooters, draft design, matchmaking, tech, money, risks
 - `03 Research/Gun Sound Packs (Valorant-style).md` (8): what makes Valorant's guns sound good, free pro gun libraries (Sonniss GDC bundles) with licences, hit / kill sound sources, the redo plan
 - `03 Research/Valorant Gun Mechanics.md` (10): Valorant spread/recoil numbers behind Gunplay v2
+- `03 Research/UI References/00 UI References.md` (4): hub of the 2026-11-12 video study + 12 findings; `Rivals PC UI.md` (19), `Rivals Mobile UI.md` (22), `Valorant UI.md` (27): HUD maps, touch layouts, menus, timestamped
 - `03 Research/Notes/` : raw research: `ability_draft_design.md` (39), `gun_system_tech.md` (50), `matchmaking_queues.md` (50), `monetization_retention.md` (32), `top_roblox_shooters.md` (30)
 
 ## Assets (06 Assets)

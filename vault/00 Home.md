@@ -7,6 +7,7 @@
 
 ## 📍 Status
 
+- **UI theme v4 "Soft Edge" drafted (2026-11-12, [spec](02%20Art/UI%20Theme%20v4%20Soft%20Edge.md)):** a YouTube study tool is set up ([Video Analyzer](04%20Tech/Video%20Analyzer.md)), and 12+ RIVALS (PC, phone) and Valorant (PC, Mobile) videos were studied into [UI References](03%20Research/UI%20References/00%20UI%20References.md) with timestamped notes. v4 = cut-corner plates (6 px radius, one 45° cut) **plus** true circles for anything that turns, fills or is touched; no pills, no hard boxes. Figma (page "Foundations · v4 Soft Edge (draft)"): style tile, Lobby, Match HUD, Draft, Phone HUD, Phone Lobby, plus a 48-variable token set. New project skill `gauntlet-ui-style`. Not built in Studio. **Waiting on the owner:** look at the six frames and answer the spec's §8 (direction, cut size, round Mod slots, top tabs). Committed.
 - **Weapon final pass (2026-11-11, [note](05%20Production/Weapon%20Final%20Pass%202026-11-11.md)):** the last gun pass before skins. Every iron-sight gun has a new rear sight (a big thin-walled window, one family, each gun its own shape) with a lit front dot; the Stinger no longer loses parts while aiming (sight neon moved into the sight part); a new see-through test found and closed the Phantom suppressor's back and holes on 16 guns; nothing floats; the charm tab is a small plate and ring; the blue controls are bright nickel; the Operator magazine is closed. All 18 are `v05` files, exported, uploaded and rebuilt in Studio (old set in `ServerStorage.WeaponsBackup_PreFinalPass_2026-11-11`). A model sheet per weapon for ChatGPT is in `art-source/weapons/ModelSheets/`. **Waiting on the owner:** the F6 aim check, and **save the match place**. Nothing committed.
 - **Gunplay feel pass 2 (2026-11-10, [note](05%20Production/Playtests/2026-11-10%20Gunplay%20Feel%20Pass%202.md)):** pistols held closer and bigger; sprint swings the gun with the stride; aiming and strafing leans the gun into the strafe; arms follow on a spring (wrists give on recoil); a tap on C commits the full slide (0.85 s, jump cancels); new tracers with a lingering wake; new stylised muzzle flash and impact sheets (Codex). Built and checked by script in Studio. **Waiting on the owner:** play the "what to test" list in the note. Nothing committed. **2026-11-11 follow-up (same note):** the owner turned Server Authority off; the server now leaves players' movement to their clients and the stance / camera checks are off (the Operator's "hit marker, no damage" and refused ability throws); the slide runs out into your next speed with no dip. Owner confirmed Operator hits land. **Still to check:** an ability throw; a second player's view. **Follow-up 2 (same day):** slide holds its direction (small steering), no sprint key (walk, then run after 0.4 s), jump 5.6 → 4.4 studs with a faster fall, guns held lower and further left, wider run sway, a pistol's free hand swings when running, bouncy handling kicks on reload / draw / landing, about 1.5x shot recoil movement. **Owner to play it and say what's too much or too little.**
 - **Sunwell Works build in Studio (2026-11-12, [note](02%20Art/Sunwell%20Works%20Build.md)):** the new hall plus Locker, Shop and Duels interiors are staged in the Lobby place beside V3 (`Workspace.SunwellStaging`); Range on hold. Four passes on the owner's notes: faceted shape language (no rounded bevel boxes, battered walls, flared piers, one-piece frames), a proper fixture kit, SurfaceGui boards, equal duel pads in mode order, our own faint textures. Walked in play mode. Play spawns in the new hall; `Build.use("V3")` rolls back. Nothing saved or committed. **Waiting on the owner:** notes on the look, and save the place.
@@ -22,26 +23,6 @@
   - **Phase B built (first person, [playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20B.md)):** death camera; then you see through a living teammate's eyes with their gun and arms (killer at round end with no teammate alive); fixed the gun staying up after death.
   - **Phase C built ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20C.md)):** the match-winning kill replays for everyone (through the killer's eyes since 2026-11-08, slow motion into the hit, FINAL KILL caption). 
   - **Phase D built ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20D.md)):** match stats (eliminations, deaths, assists, damage), a victory scene on the map, the post-match screen with Rematch (vote) / Play Again (Lobby, straight back in the queue) / Leave, 20 s then everyone to the Lobby; the match server no longer starts a new match by itself. **Real teleports need a published test.** The whole match-structure revamp (A–D) is built.
-- **Overnight 2026-11-06, every map rebuilt as `<Map>2`** (ForceMap only; old maps and the pool untouched). The verdict is in [Overnight Maps Approval](05%20Production/Playtests/2026-11-06%20Overnight%20Maps%20Approval.md).
-  - The spec is the new [Map Quality Standard](01%20Design/Maps/Map%20Quality%20Standard.md).
-  - Best blind scores:
-    | Map | Score |
-    |---|---|
-    | Rooftops2 | **8.3** (ready for an eye-test) |
-    | Dockyard2 | 7.5 |
-    | Metro2 | 6.7 |
-    | OldTown2 | 6.3 |
-    | Bunker2 | 6.25 |
-    | Snowpeak2 | 5.0 |
-    | Greenhouse2 | 5.0 |
-  - All audits are 0.
-  - Codex made the concepts for all maps, the billboards and posters, and hero props (the Greenhouse iron kit, the Metro train, the Snowpeak snowcat and rocks).
-  - **Waiting on the user:**
-    - approval of Rooftops2;
-    - the layout asks (Bunker2, Snowpeak2, Metro2, OldTown2);
-    - the Greenhouse2 design pass;
-    - whether Codex should do the hero pieces of every map.
-  - Place saved 05:33.
 - **Usage optimisation (2026-11-07):** Home slimmed from 54 KB to about 13 KB (history moved to Status History), new `vault-lookup` agent, `INDEX.md`, `Code Map.md`, "Read lean" rules in CLAUDE.md and the `gauntlet-vault` skill. A running session needs a restart to see the new agent.
 - **Earlier status** (Evening review 2026-11-05 back to the Week 1 prototype, every "Done" entry): [Status History](05%20Production/Status%20History.md). Grep it, don't read it whole.
 - **Blockers:** none known.

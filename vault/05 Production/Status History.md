@@ -1,5 +1,27 @@
 # Status History
 
+<!-- moved from Home 2026-11-12 -->
+- **Overnight 2026-11-06, every map rebuilt as `<Map>2`** (ForceMap only; old maps and the pool untouched). The verdict is in [Overnight Maps Approval](05%20Production/Playtests/2026-11-06%20Overnight%20Maps%20Approval.md).
+  - The spec is the new [Map Quality Standard](01%20Design/Maps/Map%20Quality%20Standard.md).
+  - Best blind scores:
+    | Map | Score |
+    |---|---|
+    | Rooftops2 | **8.3** (ready for an eye-test) |
+    | Dockyard2 | 7.5 |
+    | Metro2 | 6.7 |
+    | OldTown2 | 6.3 |
+    | Bunker2 | 6.25 |
+    | Snowpeak2 | 5.0 |
+    | Greenhouse2 | 5.0 |
+  - All audits are 0.
+  - Codex made the concepts for all maps, the billboards and posters, and hero props (the Greenhouse iron kit, the Metro train, the Snowpeak snowcat and rocks).
+  - **Waiting on the user:**
+    - approval of Rooftops2;
+    - the layout asks (Bunker2, Snowpeak2, Metro2, OldTown2);
+    - the Greenhouse2 design pass;
+    - whether Codex should do the hero pieces of every map.
+  - Place saved 05:33.
+
 Dated status log moved out of [Home](../00%20Home.md) on 2026-11-07 to keep Home small (every chat reads Home). Newest first, then the older Week 1 entries. Nothing here is current: for the present state read Home → Status. Search this file with grep when you need the history of a feature.
 
 ---

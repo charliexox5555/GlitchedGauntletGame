@@ -486,6 +486,8 @@ Phone frames: the labels that had slipped under the 12 px floor (10-11 px) are r
 
 **Not changed by the images:** colours (they used our hex values), the cut sizes (8/12/20, with 24 on the biggest blocks) and the layout zones.
 
+> **2026-11-12:** the owner found Clipped steel too blocky and v2 too pilly. The new draft direction is [UI Theme v4 Soft Edge](../02%20Art/UI%20Theme%20v4%20Soft%20Edge.md) (cut plates + circles); its §8 replaces the questions below.
+
 ### For the user to decide
 1. **Is "Clipped steel" the direction**, the v1 cut corner across the whole game with v2's fonts? The other two from the prompt are B "Slant" (parallelograms, heavy italic) and C "Hairline pro" (almost no panels). The ChatGPT options image will show all three once signed in.
 2. **Bottom dock vs top tabs** in the Lobby. Top text tabs are what every reference does; the bottom icon dock is the RIVALS-on-Roblox pattern.
