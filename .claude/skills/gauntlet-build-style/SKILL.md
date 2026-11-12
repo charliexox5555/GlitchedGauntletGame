@@ -1,17 +1,35 @@
 ---
 name: gauntlet-build-style
-description: The owner's build style for GlitchedGauntletGame, learned on the Sunwell Works lobby. Load before modelling or building anything players see (maps, lobby rooms, walls, props, fixtures, signs, pads, displays) in Blender or Studio, and before reviewing such work. Covers the shape language (faceted, tapered, never rounded-bevel boxes), how parts must join, texture and lighting levels, colour rules, overlap checks, and the list of things the owner has rejected as "AI-made".
+description: The owner's build and modelling style for GlitchedGauntletGame. Load before modelling or building anything players see (maps, lobby rooms, walls, props, fixtures, signs, pads, displays, weapons, characters, ability props) in Blender or Studio, and before reviewing such work. Covers the hard rules (no round curves or spheres: curves are built from angled plates; no harsh corners or blunt cutoffs: carved and angled ends), the reference-screenshot interview that turns the owner's references into a design method, the shape language, how parts must join, texture and lighting levels, colour rules, overlap checks, and the list of things the owner has rejected as "AI-made".
 ---
 
 # Gauntlet build style
 
 How things must look in this game. The owner's words for the failure case: **"it looks AI"**, "simple rounded parts", "the joints aren't fluid", "no character", "not human made". Reference target: the RIVALS lobby and Valorant environments (chunky, faceted, readable), tactical rather than cute. Our own design, not a copy.
 
+**The owner's brief (2026-11-12):** models are built from **many faces of non-curved shapes**. That balances the look of a realistic model and avoids the pixelated, cubic look of plain blocks. Blocky in spirit, never boxy in execution.
+
+## 0. Hard rules (every model, every time, unless the owner says otherwise for that piece)
+1. **No round curves in Blender. No UV spheres, no cylinders with smooth shading, no subdivision surface, no smooth bevels.** A curve is **replicated with angled plates**: a "round" form gets 6 to 12 flat facets (fewer for small parts, more for hero parts), each facet a visible plane with flat shading. A dome is a stepped, faceted cap. A tube is a 6- or 8-sided prism. A rounded corner is 2 or 3 chamfer facets.
+2. **No harsh corners and no blunt cutoffs.** A part never just stops with a square end. End it with an **angled or carved shape**: a chamfer, a taper, a bevelled step, a wedge, a notch, a cut-back face. Corners get one to three flat chamfers, never a radius.
+3. **Keep it blocky.** The chamfers and facets are big enough to read at game distance (about 3 to 12% of the part's small dimension). This is not a smooth model with tiny bevels; the facets *are* the style.
+4. Facet count follows importance: big silhouette facets first, then secondary cuts, and small detail last (see §1.4). Don't facet everything to the same density.
+5. Shading: flat or weighted normals so every plane reads as a plane. Auto-smooth only inside a single facet group, never across a chamfer.
+6. Check before export: no object with a Subdivision modifier, no mesh whose name or data says sphere / cylinder with smooth shading, no face with more than about 30° normal change smoothed over. Log the check in the vault note.
+
+## 0.5 Reference interview (turn the owner's screenshots into a design method)
+When the owner sends reference screenshots for a new style, kind of model or area (the first set is 6 screenshots of models they like):
+1. Look at each image and write one line on what you see: silhouette, facet size, edge treatment, proportion, colour/value, detail density, materials.
+2. **Interview the owner thoroughly before modelling.** Ask in rounds of 3 or 4 questions with `AskUserQuestion`, **always with suggested options** (your best guess first, marked Recommended) so they never have to invent answers. The question bank is in `vault/02 Art/Model Style Interview.md`. Ask about: what they like in each image, the purpose (hero prop, background, weapon, map kit), facet density, edge treatment, proportions (chunky vs slim), colour and material, detail level, what to avoid, and how close the player sees it.
+3. End with the owner's short style brief in their own words (like the brief above), confirmed.
+4. Write the **design method** into `vault/02 Art/Model Style Interview.md` → "Design methods": the rules for that style (facet counts, chamfer sizes, typical shapes, a build order, do/don't, which reference shows what). Add the Blender helpers it needs.
+5. Build one small test piece, capture it beside the references, and get a yes before the full build.
+
 History, captures and the code that implements this: `vault/02 Art/Sunwell Works Build.md`. Builder helpers: `tools/blender/sunwell_p1/sw_core.py` (`wall_seg`, `cham_rect`, `cut_rect`, `taper_y`, `ring_prism`, `u_frame`, `add_text`), fixtures in `sw_doors.py` (`sconce`, `display`). Reuse them; do not start from plain boxes.
 
 ## 1. Shape language
 1. **Facets, not rounded boxes.** A box softened by a bevel modifier is the number one tell. Silhouettes come from planar cuts, tapers and leans.
-2. **Edges:** one-segment bevels only, 0.035 to 0.12 studs (about 2 to 4% of the part's small dimension), with weighted normals so flat faces stay flat. Round forms only where the object is really round (a lathe: rings, pipes, a collar).
+2. **Edges:** flat chamfers only (one to three segments, never a smooth radius), with weighted normals so flat faces stay flat. Size them to read: 0.035 to 0.12 studs on small trim, up to about 10% of the small dimension on hero parts. Things that are really round (rings, pipes, collars, barrels) are faceted prisms (6 to 12 sides), not smooth cylinders (§0).
 3. **Nothing is a plain upright box.**
    - Walls: a battered wainscot (0.45 to 0.6 proud at the foot, leaning back to the wall face), a sloped belt ledge, a facet crown.
    - Piers and pilasters: flared foot, straight shaft, flared head, a steel shoe.
@@ -32,7 +50,7 @@ History, captures and the code that implements this: `vault/02 Art/Sunwell Works
 - **No plain boxes** for lamps, boards, vents, cabinets, consoles. Each needs a designed silhouette and visible construction.
 - Gameplay objects must look **human made and carry meaning**: team letter, one pip per player, footlights that match the pad colour, a status lamp.
 - **Queue pads: all the same size, in mode order** along the wall (1v1, 1v1, 2v2, 3v3, 4v4), clear of floor lines.
-- **Screens are SurfaceGui** (like RIVALS), never mesh "holograms". Square corners in the UI, no rounded "AI" panels.
+- **Screens are SurfaceGui** (like RIVALS), never mesh "holograms". Their UI follows the `gauntlet-ui-style` skill (plates with a cut corner, no pills).
 - Frames around screens stay quiet: one even case, a bezel, small chamfers. No extra rails, gussets or big decorative cuts.
 - Signs: real depth, a backing plate and a mount; letters sunk 0.05 into the plate; nothing floating.
 
@@ -56,4 +74,4 @@ History, captures and the code that implements this: `vault/02 Art/Sunwell Works
 4. Write the result and the captures into the vault note for the area.
 
 ## 7. Rejected so far (do not repeat)
-Rounded-bevel boxes · box lamps and flat black boards · concrete or PBR realism on walls · bare block walls · blue-teal structure · mixed accent colours in one room · mesh holograms · pads of mixed sizes or shuffled modes · a rail and gussets round a screen · trim stubs between a pier and a recess · anything half hidden, retracted or poking out of a wall · thin neon tube letters and sign pictograms.
+Spheres and smooth cylinders · subdivision-smoothed parts · square blunt ends on bars, rails and barrels · Rounded-bevel boxes · box lamps and flat black boards · concrete or PBR realism on walls · bare block walls · blue-teal structure · mixed accent colours in one room · mesh holograms · pads of mixed sizes or shuffled modes · a rail and gussets round a screen · trim stubs between a pier and a recess · anything half hidden, retracted or poking out of a wall · thin neon tube letters and sign pictograms.

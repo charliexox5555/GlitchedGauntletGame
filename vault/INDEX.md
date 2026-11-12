@@ -32,7 +32,9 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Art Direction.md` (16): style rules, palette, model standard, Blender → Open Cloud → WeaponBuilder import pipeline
 - `02 Art/UI Design.md` (13): UI look, tokens, type, Figma screens (v1 approved)
 - `02 Art/UI Art Brief (ChatGPT).md` (3): UI art made with ChatGPT images
-- `02 Art/UI Theme v4 Soft Edge.md` (9): **current UI theme draft** (2026-11-12): cut-corner plates + circles, tokens, motion, screen layouts, mobile rules, Figma links, owner questions
+- `02 Art/Style Bible.md` (8): **the whole look and feel on one page** (pillars, models, guns, feedback/VFX, sound, UI); start here for anything players see or hear
+- `02 Art/UI Theme v4 Soft Edge.md` (9): **UI theme direction v4.1** (2026-11-12): plates with one cut, HUD on fades, circles, Sarpanch + Titillium Web, motion, layouts, mobile, Figma boards, owner questions
+- `02 Art/Model Style Interview.md` (4): the owner's modelling rules (no curves/spheres, carved ends), the reference-screenshot interview question bank, design methods
 - `02 Art/Lobby Style Guide.md` (8): the stylized grounded look, written for rebuilding maps in it
 - `02 Art/Lobby V3 Rebuild.md` (11): the current Lobby rebuild (2026-11): owner's notes, rules, layout, audit, self-review, steps
 - `02 Art/Sunwell Works Build.md` (9): the Sunwell Works build in Studio: hall, Locker, Shop, Duels staging, checks, pipeline, rollback (the style rules from it are the project skill `.claude/skills/gauntlet-build-style`)

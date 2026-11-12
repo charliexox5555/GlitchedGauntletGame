@@ -6,7 +6,10 @@ Roblox competitive shooter: RIVALS-style run-and-gun duels (1v1 → 4v4) where p
 The Obsidian vault (`vault/`) is how this game is made. It holds the design, the art standard, the plans, the playtests and **LihFolk**: about 1,300 expert Roblox notes plus 22 skills (building, worldbuilding, modelling, UI, VFX, animation, sounds, security, data, performance, worked builds, case studies of top Roblox games). Don't work "off the top of your head".
 1. **Before any task:** load the `gauntlet-vault` project skill (`.claude/skills/gauntlet-vault/SKILL.md`). It maps each kind of task to the project notes, LihFolk folders and skills to use.
 2. **Before any non-trivial Roblox work:** run the `lihfolk` router skill or the `lihfolk-lookup` agent, and load the matching LihFolk specialist skills (e.g. `lihfolk-worldbuilding` and `roblox-blender-modeling` for maps and lobbies; `roblox-ui-builder` and `lihfolk-figma` for UI; `lihfolk-vfx`, `lihfolk-sfx`; `roblox-secure-remotes`; `roblox-system-builder`). Cite the notes you used in your vault note.
-   For anything players see that is modelled or built (maps, lobby rooms, props, fixtures, signs), also load the project skill `gauntlet-build-style` (`.claude/skills/gauntlet-build-style/SKILL.md`): the owner's shape language, joint rules and rejected looks.
+   **Anything players see, hear or touch starts from the [Style Bible](vault/02%20Art/Style%20Bible.md)** (`vault/02 Art/Style Bible.md`, one page: pillars, models, guns, feedback/VFX, sound, UI). Then load the style skill for the job:
+   - **Modelled or built things** (maps, lobby rooms, props, fixtures, signs, weapons, ability props, any Blender work): the project skill `gauntlet-build-style` (`.claude/skills/gauntlet-build-style/SKILL.md`). Hard rules: **no round curves or spheres** (curves are angled plates), **no harsh corners or blunt cutoffs** (angled or carved ends), blocky in spirit. A new style starts with the owner's reference-screenshot interview (questions with suggested answers): `vault/02 Art/Model Style Interview.md`.
+   - **UI, HUD, menus, SurfaceGui boards, Figma frames:** the project skill `gauntlet-ui-style` (`.claude/skills/gauntlet-ui-style/SKILL.md`), theme "Soft Edge": soft plates with one cut corner, HUD on fades, circles with rings, Sarpanch + Titillium Web, no pills, no generic fonts. It's a direction; the owner designs the final screens.
+   - **Studying videos** (gameplay, UI, tutorials): `vault/04 Tech/Video Analyzer.md`.
 3. **Plans, specs and results go into the vault** before and after the work; point the user at the note.
 4. When you delegate to agents or sessions, put this rule in their brief.
 
@@ -25,7 +28,9 @@ Working from the vault means *using* it, not reading all of it. Whole-note reads
   - **Gunplay:** `vault/01 Design/Gunplay.md`
   - **Guns:** `vault/01 Design/Weapons.md`
   - **Code layout and rules:** `vault/04 Tech/Architecture.md`
+  - **Whole look and feel:** `vault/02 Art/Style Bible.md`
   - **Art and model standard:** `vault/02 Art/Art Direction.md`
+  - **UI theme:** `vault/02 Art/UI Theme v4 Soft Edge.md`
   - **Maps:** `vault/01 Design/Maps/00 Maps.md`
   - **Rounds and draft:** `vault/01 Design/Match Flow.md`
   - **Schedule:** `vault/05 Production/Game Plan.md`

@@ -1,85 +1,93 @@
-# UI Theme v4 "Soft Edge" (draft, 2026-11-12)
+# UI Theme "Soft Edge" (v4.1 direction, 2026-11-12)
 
-**Status: draft for the owner to review. Nothing is built in Roblox.** Figma frames only; the owner said not to import into Studio yet.
+**What this is:** the **theme and the idea** behind how the game's UI looks: shapes, type, colour, motion, where things go. **It is not the final UI.** The owner redesigns the real screens later, starting from this. The Figma boards are direction boards that show the idea working, not finished screens. Nothing is built in Roblox.
 
-**Why a v4:** the owner doesn't like the current UI. The live Lobby (v2, `Config/UiStyle`) is "a bit better" but too pilly. The v3 "Clipped steel" concept ([Lobby UI and Queue](../01%20Design/Lobby%20UI%20and%20Queue.md) → Proposed direction) is too blocky. The ask: stylish corners **and** smooth circles, good animations, "looking good". References: RIVALS and Valorant ([UI References](../03%20Research/UI%20References/00%20UI%20References.md)). The rules for working in this style are in the `gauntlet-ui-style` skill (`.claude/skills/gauntlet-ui-style/SKILL.md`).
+Part of the [Style Bible](Style%20Bible.md). The working rules are in the `gauntlet-ui-style` skill (`.claude/skills/gauntlet-ui-style/SKILL.md`). The evidence is in [UI References](../03%20Research/UI%20References/00%20UI%20References.md) (RIVALS PC + phone, Valorant PC + Mobile, from videos).
 
-## Figma (file `UbCKQXuZijn0Gpryt0uUxN`, page "Foundations · v4 Soft Edge (draft)")
-- [Style tile](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=41-756): colour, type, plates, buttons, rounds, health, rules
-- [Lobby 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=42-756)
-- [Match HUD 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=43-766)
-- [Draft 1920x1080](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=44-783)
-- [Phone HUD 667x375](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=45-800)
-- [Phone Lobby 667x375](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=45-883)
-- Tokens: variable collection **"UI v4 Soft Edge (draft)"**, 48 variables. The frames use plain hex for now (see the binding quirk in memory `figma-ui-file`).
-- The starter plan allows 3 pages, so v4 lives on the old empty Foundations page.
-
-## 1. Shape language: two families
-| Family | Used for | Spec |
+## History of the owner's verdicts
+| Version | Look | Verdict |
 |---|---|---|
-| **Plates** | Panels, buttons, score plates, kill-feed rows, cards, chips | Rectangle, **6 px radius** (4 on small chips), with **one 45° cut** on the outer top corner: 8 small, 12 medium, 16-20 large. HUD on the left half cuts top-left; the right half and the centre cut top-right. |
-| **Rounds** | Ability (Mod) slots, avatars, timer, touch buttons, rewards, party slots, tier pips, notification dots, toggle knob, slider thumb | True circles. Rings carry state: cooldown sweep, XP, timer, team colour, active (gold). |
+| v1 (2026-11-03) | Valorant layout, cut corners, Oswald + Montserrat | Approved then, still in the match HUD |
+| v2 (2026-11-05) | Rounded, pills, glow, Montserrat Heavy + Builder Sans (the live Lobby) | "Too AI looking" for the HUD; the Lobby is "a bit better" but too pilly |
+| v3 concept | "Clipped steel", hard square plates | Too blocky |
+| v4.0 (2026-11-12) | Cut plates + circles, Montserrat + Inter + Oswald | Layout liked, "getting there". Still a bit blocky, **the font looks AI / vibe-coded, no oomph** |
+| **v4.1 (2026-11-12)** | Sarpanch + Titillium Web, floating HUD on fades, softer plates, slash + chevron accents | Current direction, waiting on the owner |
 
-Never: capsule pills, radius above 10 on a rectangle, plain 0-radius boxes everywhere, two cuts on one plate, glow halos, glossy gradients, 3D icons.
+The **PC layout** is the vibe the owner wants right now.
 
-**Lines:** 1.5 px hairline at 14% white on every plate (1 px on phone). Selected = 2 px gold edge + a short gold tick (18x3, radius 1.5) above the top-left and below the bottom-right corner. Team plates get a 3 px team-colour edge strip.
+## Figma direction boards (file `UbCKQXuZijn0Gpryt0uUxN`, page "Foundations · v4 Soft Edge (draft)")
+v4.1 (row 2 onwards, under the gold label):
+- [Style tile](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=48-820)
+- [Lobby](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=50-837)
+- [Match HUD](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=49-820)
+- [Draft](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=51-847)
+- [Phone HUD](https://www.figma.com/design/UbCKQXuZijn0Gpryt0uUxN?node-id=52-864)
 
-## 2. Colour (same hex as v3; the change is how they're used)
-- Surfaces: `surface 10141B` at 88% (92% on busy HUD), `raised 171D26`, `select 1F2733`, `scrim 06080C` at 55-72%.
-- Text: `F4F6F9`, muted `A9B2BF`, dim `6E7785` (captions only, never over the world).
-- **Gold `FFC83D` = the one act-now thing on screen** (PLAY, FIND MATCH, LOCK IN, selection, active Mod, XP). Text on gold is `15110A`.
-- Teams: ally `2FD3E6`, enemy `FF5A4E`, always paired with a position or a word. Damage `FF4D5E`, success `3FD68A`, warning `FF9F43`.
-- Mod roles (tags and medallion rings only): mobility `5BC8FF`, damage `FF6B4A`, control `B07CFF`, sustain `5EE09A`.
+v4.0 is kept on the top row for comparison (marked superseded). Tokens: variable collection "UI v4 Soft Edge (draft)" (48 variables; the type tokens there predate v4.1).
 
-## 3. Type
-| Role | Font (Roblox) | Figma stand-in | Use |
-|---|---|---|---|
-| Display | Montserrat ExtraBold, caps, -1% tracking | same | Titles, card names, PLAY. **Italic only for hero words** (PLAY, LOCK IN, VICTORY, banners) |
-| HUD numbers | Oswald SemiBold | same | Health, ammo, score, timers, cooldown seconds |
-| Labels | Builder Sans Bold caps, +6-16% tracking | Inter Bold | Tabs, chips, captions |
-| Body | Builder Sans SemiBold/Medium | Inter Semi Bold/Medium | Descriptions (2 short lines max) |
+## 1. The idea in one paragraph
+Tactical clarity from Valorant, chunky readable energy from RIVALS, our own shape language. **Things float on soft dark fades instead of sitting in boxes.** Interactive panels are soft plates with one cut corner. Everything that turns, fills or is touched is a circle with a ring. A slanted **slash** and the **» chevron** are the brand marks for hero moments. Gold is the one "do this now" colour. The type is angular and game-like, never the generic app look.
 
-Sizes at 1920x1080: display 52-88, card name 36, HUD numbers 40-44 (timer 34), tabs 20, labels 13-18, body 16-20. Phone floor: 12 px drawn for labels, 10 only for kill-feed names.
+## 2. Shapes
+| Element | Spec |
+|---|---|
+| **Plate** (menus, buttons, cards, chips) | radius **8** (4 on small chips), **one 45° cut 10** on the outer top corner (14-22 on big buttons), a **lit top edge** (1.5 px, 22% white), fill 28% darker at the foot, hairline 1.5 px at 12% white. Left-half HUD cuts top-left; right half and centre cut top-right. |
+| **Fade** (HUD backings: health, ammo, scorebug, kill feed, banners, key hints) | Dark `06080C` band at 70-88% that fades to nothing toward the screen centre; a 3 px solid edge strip on the screen-edge side. No box outline. |
+| **Round** | True circle; a ring carries state (cooldown sweep, timer, XP, team, gold = active). |
+| **Slash** | A parallelogram slanted about 20°: beside titles, under the active tab, as tier pips, health segments, the selection tab, role tags. |
+| **Chevron »** | Two stacked arrow marks (back one at 50%): on PLAY, LOCK IN, FIND MATCH. When the action becomes ready they step forward once. |
 
-## 4. Motion (from LihFolk *UI Motion Language and Timing*, adapted)
+Never: capsule pills, radius above 10, plain hard boxes behind every HUD number, two cuts on one plate, glow halos, glossy gradients, 3D icons, neon/glitch decoration.
+
+## 3. Type (all checked as built-in Roblox font families, 2026-11-12)
+| Role | Font | Notes |
+|---|---|---|
+| Display, titles, hero words, HUD numbers | **Sarpanch** (Bold / ExtraBold / Black) | Angular letterforms echo the cut corners; numbers are square and readable. No italic in Roblox, so energy comes from the slash and the weight. Black only for hero words (VICTORY, PLAY, banners); ExtraBold for numbers and names. |
+| Labels, tabs, body copy | **Titillium Web** (Bold caps +10-20% tracking for labels; SemiBold/Regular body) | Tactical, slightly squared; has italics. |
+
+Retired for this theme: Montserrat, Inter, Oswald, Builder Sans (the generic "AI app" look the owner flagged). Tested in Studio: Barlow, Teko, Chakra Petch, Saira, Bebas, Anton, Orbitron, Rajdhani, Kanit and Russo One are **not** built in. Sarpanch, Zekton, Michroma, Denk One, Roboto Condensed, Titillium Web and Builder Extended are. (Creator Store uploaded fonts via `Font.fromId` weren't checked.)
+
+Sizes at 1920x1080: hero 72-110, titles 44-72, HUD numbers 54-66 (timer 36), names 20-24, tabs 22, labels 13-17, body 18-21. Phone floor: 12 px drawn.
+
+## 4. Colour
+- Surfaces: `10141B` (plates), `1F2733` (selected), fades `06080C`.
+- Text `F4F6F9`, muted `A9B2BF`, dim `6E7785` (captions on panels only).
+- **Gold `FFC83D`** = the single act-now thing per screen (PLAY, LOCK IN, selection, active Mod, XP, own kills in the feed). Text on gold `15110A`.
+- Teams: ally `2FD3E6`, enemy `FF5A4E`, always with a position or word. Damage `FF4D5E`, success `3FD68A`, warning `FF9F43`.
+- Mod roles (tags, medallion rings, a soft wash at the top of draft cards): mobility `5BC8FF`, damage `FF6B4A`, control `B07CFF`, sustain `5EE09A`.
+
+## 5. Motion
 | Token | Time | Easing | Use |
 |---|---|---|---|
-| tap | 0.08 s | Quad Out | press scale to 0.97 (`UIScale`, not Size) |
-| hover | 0.12 s | Quad Out | lift 2 px, hairline to 40% |
-| enter | 0.24 s | Quint Out | menus/cards slide 12 px + fade; stagger 0.04 s, total ≤ 0.3 s |
-| exit | 0.14 s | Quad In | always faster than enter, no overshoot |
-| emphasis | 0.36 s | Back Out | banners (1.06 → 1), LOCK IN confirm, round result |
-| ring fill | linear | — | cooldown and timer sweeps; the ring "snaps" white with a 0.1 s flash when ready |
-| shine | 0.6 s once | Sine InOut | only on PLAY / FIND MATCH / LOCK IN when they become ready |
+| tap | 0.08 s | Quad Out | scale 0.97 (`UIScale`) |
+| hover | 0.12 s | Quad Out | lift 2 px, edge to 40% |
+| enter | 0.24 s | Quint Out | slide 12 px + fade, stagger 0.04, total ≤ 0.3 s |
+| exit | 0.14 s | Quad In | faster than enter, no overshoot |
+| emphasis | 0.36 s | Back Out | banners (1.06 → 1), LOCK IN, round result; the banner's slash wipes in first (0.12 s) |
+| ring fill | linear | — | cooldown, timer, XP; ready = one 0.1 s white flash |
+| chevron step | 0.18 s | Back Out | » moves 6 px forward when an action becomes ready |
+| shine | 0.6 s once | Sine InOut | only on a ready primary |
 
-Reduced motion (`GuiService.ReducedMotionEnabled` + in-game toggle): keep fades and ring fills, drop slides, scale pops and shine.
+Reduced motion keeps fades and rings and drops slides, pops, chevron steps and shine.
 
-## 5. Screen layouts (what the frames show)
-**Lobby:** Roblox top bar reserved top-left. Profile chip next to it (avatar circle, gold XP ring, level chip). Text tabs top-centre (PLAY · LOCKER · SHOP · PASS · RANGE) with a gold underline and a round notification dot. Currency plates and a round settings button top-right. The searching bar drops under the tabs (spinner ring, mode + time, CANCEL in enemy red). Round party slots bottom-centre with "+" invites. DAILY plate bottom-left (progress lines, round reward coins). Mode selector + big gold PLAY bottom-right. Key hints on a small plate.
-**Match HUD:** top-centre scorebug (ally and enemy plates with round avatars and team rings, dead = dim + ✕; a **circular timer with a ring** and ROUND n). Tier ladder chip under it (round pips, "II"). Banner slot for TIER II OPEN / round results. Kill feed top-right (mirrored plates, own kills edged gold, gun silhouettes). Health bottom-left (number + 10 segments, round shield badge). **Mods bottom-centre as three 84 px circles** with cooldown rings and key chips (Q/E/T). Ammo bottom-right (gun silhouette, divider, mag / reserve). Crosshair: dot + 4 lines with a gap; damage direction = red arc segment around it; small optional damage number.
-**Draft:** dark scrim over the world. Title top-left ("ROUND 3 · DRAFT" + one line). Timer ring top-right. Team roster on the left (round avatars, "Picking… / Locked in" with gold ring). Three Mod cards (medallion circle with a role-coloured ring, name, role tag, two lines of copy, key number). Gun row with tier pips; locked guns dimmed with "TIER III". Gold LOCK IN bottom-right. Key hints bottom.
-**Phone HUD (667x375):** compact scorebug with a timer ring. Kill feed left-centre (Valorant Mobile). MAP/TAB rounds under the top-right. Floating joystick ghost (left thumb zone kept empty). Right cluster of circles: FIRE 64 (gold-tinted), JUMP 64, ADS 56, SLIDE 52, R 44, Mods Q/E/T 48 in an arc above. Optional left FIRE 48. Health bottom-left, ammo bottom-right.
-**Phone Lobby:** profile on a plate, currency + settings top-right. Tabs become a **right-edge rail** of plates. DAILY compact bottom-left, round party slots, mode chip + PLAY bottom-right.
+## 6. Layout (fixed slots, never moved per mode)
+- **Match (PC):** scorebug top-centre (ally fade + round avatars + score, circular timer with ROUND n, enemy mirrored); tier ladder (slash pips) under it; **one banner slot** (x 42-58%, y 12-26%) for every phase message; kill feed top-right on fades (own kills gold edge); centre clear except crosshair, damage arc and an optional small damage number; health bottom-left floating (Sarpanch number, slash segments, round shield badge); **Mods bottom-centre as 3 circles** with key chips; ammo bottom-right floating (gun silhouette, mag / reserve).
+- **Lobby (PC):** Roblox top bar reserved top-left; profile next to it (avatar, gold XP ring, level chip); text tabs top-centre with a slash underline; currency plates + round settings button top-right; queue band under the tabs; a season headline on the left (slash + SEASON n + big title); DAILY bottom-left; round party slots bottom-centre; mode chip + big gold PLAY with » bottom-right; key hints on a fade.
+- **Draft:** title top-left (ROUND n + DRAFT), timer ring top-right, team roster left ("Picking… / Locked in"), three Mod cards (role wash, medallion circle, name, role tag, two lines), gun row with tier pips (locked tier dimmed), LOCK IN » bottom-right.
+- **Phone:** compact scorebug, kill feed left-centre on fades, MAP/TAB rounds top-right, floating joystick (left zone empty), right cluster of circles (FIRE gold-tinted 66, JUMP 66, ADS 56, SLIDE 52, R 44) with Mods Q/E/T 48 in an arc above, optional left FIRE, floating health and ammo at the bottom corners.
 
-## 6. Mobile rules (from [Rivals Mobile UI](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md) + LihFolk *Responsive UI*, *Safe Areas*)
-- Touch buttons are **circles**, dark translucent (55%) with a hairline. Pressed = solid accent fill + 0.94 scale, no glow. Hit box about 20% bigger than the visible circle.
-- Primary (fire, jump, ADS) ≥ 13% of screen height (≥ 48 px at 375); secondary ≥ 10% and never under 44 px; gaps ≥ 8 px.
-- Zones: left thumb (x 0-35%, y 55-100%) only the joystick; centre clear; right cluster at most 4 big buttons + reload; nothing interactive under the Roblox top bar or in the safe-area insets.
-- Day-one layout editor: per-button position, size (85-130%) and opacity, presets (Default, Minimal, Claw), left-handed mirror, reset.
-- Phone hides key hints and the ammo reserve; the kill feed moves left-centre and shows 2 rows.
+## 7. Mobile rules
+Touch buttons are circles (dark 55% + hairline; pressed = solid accent + 0.94, no glow; hit box +20%). Primary ≥ 13% of screen height (≥ 48 px at 375), secondary ≥ 44 px, gaps ≥ 8 px. Nothing in the Roblox top bar or safe insets. A layout editor from day one: position, size 85-130%, opacity, presets, left-handed mirror ([Rivals Mobile UI](../03%20Research/UI%20References/Rivals%20Mobile%20UI.md)).
 
-## 7. How it would be built in Roblox (when the owner approves)
-- `Config/UiStyle` changes: `RADIUS` becomes `{ chip = 4, plate = 6, max = 10 }` (no `pill`); `SHADOW`, `GLOW` and `LIP` are removed; add `CUT = { sm = 8, md = 12, lg = 16, xl = 20 }`, `RING`, `MOTION` tokens; colours as above.
-- Plates: 9-slice `ImageLabel`s (one white plate image per cut size, both orientations, `SliceCenter` inside the 6 px corners), tinted with `ImageColor3` and `ImageTransparency`. Hairline = a second 9-slice outline image (`UIStroke` can't follow a chamfer).
-- Rounds: `Frame` + `UICorner(0.5, 0)` + `UIStroke`. Radial rings: two half-circle images with `UIGradient` transparency or a rotating mask. One shared `RadialRing` util for cooldown, timer and XP.
-- Motion through one `UiMotion` helper reading the tokens; pops via `UIScale`.
-- Fonts: Montserrat, Oswald and BuilderSans are all Roblox font families.
+## 8. How it would be built in Roblox (when the owner's redesign is approved)
+- `Config/UiStyle`: `RADIUS = { chip = 4, plate = 8, max = 10 }` (no pill); drop `SHADOW`, `GLOW`, `LIP`; add `CUT`, `FADE`, `RING`, `MOTION`; `FONT.display = Sarpanch`, `FONT.label/body = TitilliumWeb`.
+- Plates: 9-slice `ImageLabel`s with the cut baked in (fill + outline images per cut size and side). Fades: `Frame` + `UIGradient` transparency. Rounds: `UICorner(0.5,0)` + `UIStroke`; one shared radial-ring util. Slashes and chevrons: small white images tinted with `ImageColor3`.
+- One `UiMotion` helper reads the motion tokens; pops through `UIScale`.
 
-## 8. For the owner to decide
-1. Is **Soft Edge** the direction (cut plates + circles)? If yes it replaces "Clipped steel" and the v2 rounded/pill look in Lobby and HUD.
-2. The cut size: 12 px medium feels right in the frames. More cut = more tactical; less = softer.
-3. Mods as **round** slots bottom-centre (v4) vs the square Q/E/T slots of v1.
-4. Lobby tabs at the top (v4, like every reference on PC) with a right rail on phone.
-5. Next: real art in the frames (in-engine lobby and arena captures, gun silhouettes for the feed and ammo, our own avatars), then one more pass, then build.
+## 9. Open for the owner
+1. Is v4.1 the direction to redesign from (Sarpanch + Titillium, floating HUD, slash + chevron)?
+2. Sarpanch vs a quieter display face (Titillium Web Black for everything, or Zekton) if Sarpanch feels too "racing".
+3. The cut size (10) and how often the slash/chevron appear.
+4. Mods as round slots bottom-centre vs v1's square slots.
 
-Placeholders in the frames: the Mod copy (take the real text from `Config/Mods`), the gun icons (white bars), the avatars (grey circles), and the background (the old SceneBG stand-in).
+Placeholders on the boards: background (the old SceneBG), avatars, gun icons (white bars), Mod copy (take it from `Config/Mods`).
