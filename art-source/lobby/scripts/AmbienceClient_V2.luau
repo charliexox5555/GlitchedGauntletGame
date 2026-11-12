@@ -3,7 +3,7 @@
 -- Installed as a Script (RunContext Client) at Workspace.Lobby.Ambience.AmbienceClient by Build_Bunker2. Client-only,
 -- purely cosmetic (no gameplay, no remotes). Tag-driven and streaming-safe: instances are picked up when they stream
 -- in and dropped when they leave; anything farther than WAKE studs from the camera sleeps.
---   LobbySpin   Model/BasePart: SpinSpeed (deg/s about world Y), optional BobAmp / BobSpeed (studs, Hz)
+--   LobbySpin   Model/BasePart: SpinSpeed (deg/s about world Y, or about the optional SpinAxis Vector3), optional BobAmp / BobSpeed (studs, Hz)
 --   LobbyBob    Model/BasePart: BobAmp / BobSpeed only
 --   LobbyPulse  Neon BasePart: soft breathing (Transparency 0..0.35)
 --   LobbyGlitch BasePart: rare flicker. Magenta sign ghosts flash in with a small jitter; holo lines blink out.
@@ -16,7 +16,7 @@ local RunService = game:GetService("RunService")
 local WAKE = 160
 local LIGHT_RANGE = 120
 
-type Mover = { inst: Instance, base: CFrame, spin: number, amp: number, freq: number, phase: number }
+type Mover = { inst: Instance, base: CFrame, spin: number, axis: Vector3, amp: number, freq: number, phase: number }
 local movers: { [Instance]: Mover } = {}
 local pulses: { [BasePart]: number } = {}
 local glitches: { [BasePart]: { base: CFrame, base_t: number, next: number, until_: number, ghost: boolean } } = {}
@@ -44,6 +44,9 @@ local function addMover(i: Instance, spinning: boolean)
 		inst = i,
 		base = cf,
 		spin = math.rad(if typeof(speed) == "number" then speed else 0),
+		axis = if typeof(i:GetAttribute("SpinAxis")) == "Vector3" and (i:GetAttribute("SpinAxis") :: Vector3).Magnitude > 0.01
+			then (i:GetAttribute("SpinAxis") :: Vector3).Unit
+			else Vector3.yAxis,
 		amp = if typeof(amp) == "number" then amp else 0,
 		freq = if typeof(freq) == "number" then freq else 1,
 		phase = math.random() * math.pi * 2,
@@ -136,7 +139,7 @@ RunService.RenderStepped:Connect(function()
 			movers[i] = nil
 		elseif near(m.base.Position, cam) then
 			local cf = CFrame.new(0, math.sin(t * m.freq * math.pi * 2 + m.phase) * m.amp, 0) + m.base.Position
-			cf = cf * CFrame.Angles(0, t * m.spin, 0) * m.base.Rotation
+			cf = cf * CFrame.fromAxisAngle(m.axis, t * m.spin) * m.base.Rotation
 			if i:IsA("Model") then
 				i:PivotTo(cf)
 			elseif i:IsA("BasePart") then

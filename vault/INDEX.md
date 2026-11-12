@@ -33,10 +33,14 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/UI Design.md` (13): UI look, tokens, type, Figma screens (v1 approved)
 - `02 Art/UI Art Brief (ChatGPT).md` (3): UI art made with ChatGPT images
 - `02 Art/Lobby Style Guide.md` (8): the stylized grounded look, written for rebuilding maps in it
+- `02 Art/Lobby V3 Rebuild.md` (11): the current Lobby rebuild (2026-11): owner's notes, rules, layout, audit, self-review, steps
+- `02 Art/Sunwell Works Build.md` (9): the Sunwell Works build in Studio: hall, Locker, Shop, Duels staging, checks, pipeline, rollback (the style rules from it are the project skill `.claude/skills/gauntlet-build-style`)
+- `02 Art/Sunwell Lobby Reference Pack.md` and `Sunwell Lobby Fable Prompt.md`: new lobby layout, image gallery, Roblox research, Studio captures and phase-one build brief
 - `02 Art/Lobby Art Plan.md` (29), `Lobby Kit.md` (15), `Lobby Rebuild 2026-11-04.md` (33), `Lobby Professional Pass.md` (3): Lobby art plan, Blender kit, rebuild log, review pass
 - `02 Art/Mod Props.md` (8), `02 Art/Mod Audio.md` (18): Mod models; Mod sound shortlist (unauditioned)
 - `02 Art/Archive/Gun Batch Prompt.md` (11), `02 Art/Archive/AI 3D Prompts.md` (13): old prompts for batch gun modelling and AI 3D tools (archived)
 - `02 Art/References/` : reference images (some third-party, not committed); `.../SOURCES.md` lists them
+- `02 Art/Skins/README.md` (4): how a skin line goes from idea to ChatGPT concept sheets: folder per line (`concept.md`, `prompt.md`, `refs/`, `out/`), the rules a skin must follow; `_Template/` to copy
 
 ## Tech (04 Tech)
 - `04 Tech/Mod System.md` (36): how Mods are built: data, server, predicted simulation, stages, Mod HUD/VFX/audio
@@ -48,18 +52,19 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 ## Production (05 Production)
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
 - `05 Production/Match Structure Revamp.md` (21): Release 1 match flow plan, phases A–D, as built
+- `05 Production/Weapon RemasterV2.md` (6): Opus weapon rebuild via live Blender MCP; all 18 v03 guns imported into Studio 2026-11-08, first-person pass, F6 gun review mode
+- `05 Production/Weapon Final Pass 2026-11-11.md` (7): final gun pass before skins: new sight family, see-through and floating test, charm ring, nickel accent, v05 files, model sheets for ChatGPT
 - `05 Production/Codex Gun Remaster Brief 2026-11-07.md` (10): Codex job: remaster every gun and the knife in Blender (style, rig contract, sights, rounds, anims, renders); Akimbo dropped
 - `05 Production/Cleanup 2026-11-08.md` (4): the repo / code / place cleanup: what was tidied, what was left on purpose, how things are organized
 - `05 Production/Archive/`: finished one-off plans and briefs: `Handoff 2026-11-06 Release 1.md` (7), `Overnight 2026-11-04.md` (7), `Day Plan 2026-11-05.md` (9), `Codex Concept Brief 2026-11-05.md` (2)
 - `05 Production/Bugs & Ideas.md` (4): bug and idea capture, parked ideas
 - `05 Production/LihFolk Gap Review 2026-11-05.md` (20): LihFolk advice the game isn't using yet, ranked
-- `05 Production/Weapon RemasterV2.md` (6): Opus weapon rebuild via live Blender MCP; all 18 v03 guns imported into Studio 2026-11-08, first-person pass, F6 gun review mode
-- `05 Production/Weapon Final Pass 2026-11-11.md` (7): final gun pass before skins: new sight family, see-through and floating test, charm ring, nickel accent, v05 files, model sheets for ChatGPT
 - `05 Production/Daily Log/YYYY-MM-DD.md`: one note per work day (only 2026-10-26 so far)
-- `05 Production/Playtests/`: one note per playtest/review; newest are `2026-11-07 Match Revamp Phase A..D.md` (2 each: what was tested, results), `2026-11-06 Overnight Maps Approval.md` (5: per-map scores and asks), `2026-11-05 Evening Review.md` (4: user verdict: maps too simple, HUD v1), `2026-11-05 Maps v3/v4 Review.md` (2 each), `2026-11-05 Morning Test Checklist.md` (4), `2026-11-05 Knife and Sound Pass.md` (65), `2026-11-04 Animation and Knife Pass.md` (21), `2026-11-04 Gunplay Feel Pass 1.md` (4), `2026-11-04 Lobby Professional Pass.md` (4), `2026-11-03 Ability Upgrades Overnight.md` (5), `2026-11-03 Draft Columns.md` (2), `2026-11-02 Match Flow First Run.md` (4), `2026-11-02 Whitebox First Walk.md` (2), `Mods Overnight Checklist.md` (16), `2026-10-26/27 Gun Feedback Round 2/3.md` (12 / 5)
+- `05 Production/Playtests/`: one note per playtest/review; newest are `2026-11-10 Gunplay Feel Pass 2.md` (7: pistol hold, sprint swing, aimed strafe lean, arm follow-through, tap slide, new tracers and stylised flash; results table and test list), `2026-11-09 Hit and Shot Feel.md` (10: hit / headshot / kill sounds and ladder, shot punch, the designed-gun prototype from GDC 2016, next steps), `2026-11-08 Gun Sound Overhaul.md` (11: gun SFX library catalogue and licence, per-gun sound themes, every action's sound, levels, what to test), `2026-11-07 Match Revamp Phase A..D.md` (2 each: what was tested, results), `2026-11-06 Overnight Maps Approval.md` (5: per-map scores and asks), `2026-11-05 Evening Review.md` (4: user verdict: maps too simple, HUD v1), `2026-11-05 Maps v3/v4 Review.md` (2 each), `2026-11-05 Morning Test Checklist.md` (4), `2026-11-05 Knife and Sound Pass.md` (65), `2026-11-04 Animation and Knife Pass.md` (21), `2026-11-04 Gunplay Feel Pass 1.md` (4), `2026-11-04 Lobby Professional Pass.md` (4), `2026-11-03 Ability Upgrades Overnight.md` (5), `2026-11-03 Draft Columns.md` (2), `2026-11-02 Match Flow First Run.md` (4), `2026-11-02 Whitebox First Walk.md` (2), `Mods Overnight Checklist.md` (16), `2026-10-26/27 Gun Feedback Round 2/3.md` (12 / 5)
 
 ## Research (03 Research): only when a decision needs the "why"
 - `03 Research/Design Research Report.md` (62): shooters, draft design, matchmaking, tech, money, risks
+- `03 Research/Gun Sound Packs (Valorant-style).md` (8): what makes Valorant's guns sound good, free pro gun libraries (Sonniss GDC bundles) with licences, hit / kill sound sources, the redo plan
 - `03 Research/Valorant Gun Mechanics.md` (10): Valorant spread/recoil numbers behind Gunplay v2
 - `03 Research/Notes/` : raw research: `ability_draft_design.md` (39), `gun_system_tech.md` (50), `matchmaking_queues.md` (50), `monetization_retention.md` (32), `top_roblox_shooters.md` (30)
 

@@ -6,6 +6,7 @@ Roblox competitive shooter: RIVALS-style run-and-gun duels (1v1 → 4v4) where p
 The Obsidian vault (`vault/`) is how this game is made. It holds the design, the art standard, the plans, the playtests and **LihFolk**: about 1,300 expert Roblox notes plus 22 skills (building, worldbuilding, modelling, UI, VFX, animation, sounds, security, data, performance, worked builds, case studies of top Roblox games). Don't work "off the top of your head".
 1. **Before any task:** load the `gauntlet-vault` project skill (`.claude/skills/gauntlet-vault/SKILL.md`). It maps each kind of task to the project notes, LihFolk folders and skills to use.
 2. **Before any non-trivial Roblox work:** run the `lihfolk` router skill or the `lihfolk-lookup` agent, and load the matching LihFolk specialist skills (e.g. `lihfolk-worldbuilding` and `roblox-blender-modeling` for maps and lobbies; `roblox-ui-builder` and `lihfolk-figma` for UI; `lihfolk-vfx`, `lihfolk-sfx`; `roblox-secure-remotes`; `roblox-system-builder`). Cite the notes you used in your vault note.
+   For anything players see that is modelled or built (maps, lobby rooms, props, fixtures, signs), also load the project skill `gauntlet-build-style` (`.claude/skills/gauntlet-build-style/SKILL.md`): the owner's shape language, joint rules and rejected looks.
 3. **Plans, specs and results go into the vault** before and after the work; point the user at the note.
 4. When you delegate to agents or sessions, put this rule in their brief.
 
@@ -40,7 +41,7 @@ Working from the vault means *using* it, not reading all of it. Whole-note reads
 
 ## Code rules (non-negotiable)
 1. `--!strict` in every Luau file. Match the existing style (tabs, StyLua config).
-2. **Server-authoritative:** the server decides damage, hits, cooldowns, draft picks and round results. Clients send requests and show results.
+2. **Server-authoritative:** the server decides damage, hits, cooldowns, draft picks and round results. Clients send requests and show results. **Owner's exception (2026-11-11):** Roblox Server Authority is off (`Workspace.AuthorityMode = Automatic`), so clients own their movement and the stance / camera / spread checks are off on purpose (`shared/Authority`, `vault/04 Tech/Architecture.md` → Authority mode). Don't switch them back on unasked; a new anti-cheat is parked in Bugs & Ideas.
 3. Every RemoteEvent handler validates types, rejects non-finite numbers, rate-limits, and never trusts client-sent values.
 4. Gameplay numbers live in `src/shared/Config/*.luau` as data, never hard-coded in systems.
 5. No `_G`, no `wait()`, no deprecated APIs, no free-model scripts. Clean up connections.

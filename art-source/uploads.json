@@ -425,6 +425,12 @@
   "type": "Audio",
   "uploaded": "2026-10-25 12:37:39"
  },
+ "art-source/audio/GunSfx.flac": {
+  "assetId": 78823707282052,
+  "name": "GG Gun Atlas v2",
+  "type": "Audio",
+  "uploaded": "2026-11-09 01:13:13"
+ },
  "art-source/lobby/textures/Bunker_Concrete_color.png": {
   "assetId": 82210257771317,
   "name": "GG Lobby Bunker_Concrete color v2",
@@ -652,6 +658,60 @@
   "name": "GG Lobby Lobby_Terrazzo roughness",
   "type": "Decal",
   "uploaded": "2026-10-29 19:08:46"
+ },
+ "art-source/lobby/textures/SW_Floor_color.png": {
+  "assetId": 72377954610701,
+  "name": "GG Sunwell Floor color",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:15"
+ },
+ "art-source/lobby/textures/SW_Floor_normal.png": {
+  "assetId": 113218422613479,
+  "name": "GG Sunwell Floor normal",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:18"
+ },
+ "art-source/lobby/textures/SW_Floor_roughness.png": {
+  "assetId": 120803316517641,
+  "name": "GG Sunwell Floor roughness",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:21"
+ },
+ "art-source/lobby/textures/SW_Plaster_color.png": {
+  "assetId": 75005959345597,
+  "name": "GG Sunwell Plaster color",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:01"
+ },
+ "art-source/lobby/textures/SW_Plaster_normal.png": {
+  "assetId": 88368420528127,
+  "name": "GG Sunwell Plaster normal",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:07"
+ },
+ "art-source/lobby/textures/SW_Plaster_roughness.png": {
+  "assetId": 98196203164051,
+  "name": "GG Sunwell Plaster roughness",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:10"
+ },
+ "art-source/lobby/textures/SW_Steel_color.png": {
+  "assetId": 93967562596959,
+  "name": "GG Sunwell Steel color",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:27"
+ },
+ "art-source/lobby/textures/SW_Steel_normal.png": {
+  "assetId": 130047826305741,
+  "name": "GG Sunwell Steel normal",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:31"
+ },
+ "art-source/lobby/textures/SW_Steel_roughness.png": {
+  "assetId": 128055930364208,
+  "name": "GG Sunwell Steel roughness",
+  "type": "Decal",
+  "uploaded": "2026-11-11 20:45:34"
  },
  "art-source/lobby/vfx/lobby_dust.png": {
   "assetId": 134469003945987,
@@ -2236,6 +2296,36 @@
   "name": "GG VFX ring",
   "type": "Decal",
   "uploaded": "2026-10-25 13:52:23"
+ },
+ "art-source/vfx/shot/flash_front_2x2.png": {
+  "assetId": 112446539936688,
+  "name": "GG VFX Flash Front v3",
+  "type": "Decal",
+  "uploaded": "2026-11-11 00:19:12"
+ },
+ "art-source/vfx/shot/flash_side_2x2.png": {
+  "assetId": 75612947595703,
+  "name": "GG VFX Flash Side v3",
+  "type": "Decal",
+  "uploaded": "2026-11-11 00:19:18"
+ },
+ "art-source/vfx/shot/impact_2x2.png": {
+  "assetId": 71020490376955,
+  "name": "GG VFX Impact Burst",
+  "type": "Decal",
+  "uploaded": "2026-11-11 00:19:21"
+ },
+ "art-source/vfx/shot/tracer.png": {
+  "assetId": 109910087825138,
+  "name": "GG VFX Tracer v2",
+  "type": "Decal",
+  "uploaded": "2026-11-11 00:14:37"
+ },
+ "art-source/vfx/shot/tracer_wake.png": {
+  "assetId": 105744912501241,
+  "name": "GG VFX Tracer Wake",
+  "type": "Decal",
+  "uploaded": "2026-11-11 00:14:40"
  },
  "art-source/vfx/smoke.png": {
   "assetId": 108953176541510,
