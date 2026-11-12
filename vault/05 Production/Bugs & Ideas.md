@@ -11,6 +11,10 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 | 5 | 2026-11-07 | After going down, the gun stayed in your hands and the death camera didn't start: the `Downed` attribute's change signal didn't fire on your own (simulated) character in a Studio test | Studio match, go down | High | ✅ Fixed 2026-11-07: polled in `WeaponController`, `ModController`, `SpectateController` (DeathFx already polled). Other `Health.onDowned` users on your own character may have the same gap |
 | 4 | 2026-11-06 | The match place's `Lighting` had 65,536 empty StringValues named `LightingPreset` (they'd replicate to every client on join) | Found by lane F overnight; no repo code creates an empty one, so most likely ad-hoc MCP code from a map lane | Medium | ✅ Cleaned 2026-11-06 02:0x (Lighting back to 5 children). Watch: if the count grows again, find the creator |
 
+- **Guns over the triangle budget (2026-11-11):** Vandal 5,171 (5K), Outlaw 5,069 (5K), Sheriff 3,066 (3K), Bucky 3,030 (3K) after the final pass's sealed faces and charm ring. Trim when one of them is next opened ([note](Weapon%20Final%20Pass%202026-11-11.md)).
+- **Gun `.rbxm` backups are stale (2026-11-11):** `art-source/weapons/Studio/<Id>.rbxm` still holds the pre-RemasterV2 guns: `WeaponBuilder.publish` can't reach `receive_server.py` (HttpService blocks 127.0.0.1:34999). The place and `ServerStorage.WeaponsBackup_*` are the only copies of the built guns.
+- **`WeaponBuilder` sets `CollisionFidelity = Box` in a `pcall` that never takes effect** (a loaded MeshPart's fidelity can't be changed from a script), so guns keep `Default` colliders. Harmless today; the aim sight-line check relies on those colliders.
+
 ## 💡 Ideas
 | Idea | Why it might be good | Parked until |
 |---|---|---|
@@ -24,3 +28,5 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 | **Decide:** Ghost's 0.35 s dodge window starts when the *server* runs the dash (a few frames after your press, by ping) | Server-authoritative; a hit right on the press can still land | Two-player test |
 | **Watch (2026-11-03 review):** the Barrier's `BarrierHits` is a server-written attribute on the (predicted) character, which the WeaponService notes say can cause Server Authority corrections; `HinderedUntil` etc. already do the same | Look for rubber-banding on the shielded player when a hit is blocked; if so, move it to the Player | Two-player test |
 | Q and T have only 2 abilities each, so the round 3 draft can show just 2 cards | Add Q/T abilities in the next set | Next ability set |
+
+- **Aiming hides whole merged parts (2026-11-11):** `ViewmodelController.findOccluders` hides every non-`Sight` part on the eye-to-`AimPoint` line, and parts are merged per material, so one stray piece can blank a whole mesh (the Stinger's neon). The models are clean now and `tools/studio/AdsSightLine.luau` checks it; a sturdier rule (only hide parts tagged for it) is worth doing before skins add geometry.

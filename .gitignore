@@ -70,3 +70,6 @@ __pycache__/
 .claude/worktrees/
 .claude/settings.local.json
 .claude-locks/
+
+# Single renders behind the weapon model sheets (the sheets themselves are kept)
+art-source/weapons/ModelSheets/panels/

@@ -53,6 +53,8 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Archive/`: finished one-off plans and briefs: `Handoff 2026-11-06 Release 1.md` (7), `Overnight 2026-11-04.md` (7), `Day Plan 2026-11-05.md` (9), `Codex Concept Brief 2026-11-05.md` (2)
 - `05 Production/Bugs & Ideas.md` (4): bug and idea capture, parked ideas
 - `05 Production/LihFolk Gap Review 2026-11-05.md` (20): LihFolk advice the game isn't using yet, ranked
+- `05 Production/Weapon RemasterV2.md` (6): Opus weapon rebuild via live Blender MCP; all 18 v03 guns imported into Studio 2026-11-08, first-person pass, F6 gun review mode
+- `05 Production/Weapon Final Pass 2026-11-11.md` (7): final gun pass before skins: new sight family, see-through and floating test, charm ring, nickel accent, v05 files, model sheets for ChatGPT
 - `05 Production/Daily Log/YYYY-MM-DD.md`: one note per work day (only 2026-10-26 so far)
 - `05 Production/Playtests/`: one note per playtest/review; newest are `2026-11-07 Match Revamp Phase A..D.md` (2 each: what was tested, results), `2026-11-06 Overnight Maps Approval.md` (5: per-map scores and asks), `2026-11-05 Evening Review.md` (4: user verdict: maps too simple, HUD v1), `2026-11-05 Maps v3/v4 Review.md` (2 each), `2026-11-05 Morning Test Checklist.md` (4), `2026-11-05 Knife and Sound Pass.md` (65), `2026-11-04 Animation and Knife Pass.md` (21), `2026-11-04 Gunplay Feel Pass 1.md` (4), `2026-11-04 Lobby Professional Pass.md` (4), `2026-11-03 Ability Upgrades Overnight.md` (5), `2026-11-03 Draft Columns.md` (2), `2026-11-02 Match Flow First Run.md` (4), `2026-11-02 Whitebox First Walk.md` (2), `Mods Overnight Checklist.md` (16), `2026-10-26/27 Gun Feedback Round 2/3.md` (12 / 5)
 

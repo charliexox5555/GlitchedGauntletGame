@@ -22,6 +22,8 @@
 - **No blood.** Hits spark and deaths dissolve into pixels (keeps the "Mild" content label).
 
 ## Palette
+> **Guns since RemasterV2 (current, 2026-11-11):** nine material roles, defined in `art-source/weapons/RemasterV2/_Library/v2kit.py` (`ROLE_SPEC`): Body `383D48`, Panel `555C69`, Dark `1C1E23`, Grip `25272D`, Metal `62676F`, Accent `AEB4BC` (bright nickel controls; the steel-blue is gone), Neon `2A6BFF`, Brass `A8844E`, Glass `16202C` (scope lenses). The table below is the first roster's palette and still applies to the old Akimbo.
+
 | Name | Hex | Use |
 |---|---|---|
 | Body Panel | `#56607C` | Upper panels (with circuit trace) |
@@ -43,6 +45,9 @@ Every weapon is a `Model` named **exactly** like its config ID (e.g. `Bitrate`, 
 - Barrel along the Handle's **−Z** axis (Roblox forward), up = +Y.
 - Size: Bitrate = **3.8–3.9 studs** (1 Blender unit = 1 stud).
 - Triangles: sidearms ≤ 3K, primaries ≤ 5K, machine guns/wildcards ≤ 6K.
+- **Sights (2026-11-11):** the rear sight is a thin plate with a window about a fifth of the screen height at the gun's aiming eye; the front post carries a lit dot; every sight piece stands in a base that runs into the gun. Anything on the line from the eye to `AimPoint` must be in a part named `Sight…` (the game hides every other part on that line while aiming). Check with `tools/studio/AdsSightLine.luau`.
+- **No open borders in view** (faces are one-sided): run `final_geo.backfaces` before exporting ([Weapon Final Pass](../05%20Production/Weapon%20Final%20Pass%202026-11-11.md)).
+- **Charm mount:** a small plate and ring on the left side; `CharmPoint` is the ring's inner bottom.
 
 Check any time with `tools/studio/ValidateWeapons.luau` (paste into the Command Bar, or ask Claude to run it).
 
@@ -50,6 +55,7 @@ Check any time with `tools/studio/ValidateWeapons.luau` (paste into the Command 
 Rojo **can't** live-sync MeshParts (it leaves `MeshId` empty), so finished guns live in the Studio-owned `ReplicatedStorage.Weapons` folder and are saved with the place. Each gun also has a versioned backup in the repo.
 
 1. **Source:** `art-source/weapons/GunTest.blend` (all guns, one collection each).
+2. **Export (RemasterV2 guns, current):** `blender --background art-source/weapons/RemasterV2/<Gun>/<Gun>_RemasterV2_v05.blend --python tools/blender/export_remaster.py` (same exporter, one file per gun). The line below is the first roster's.
 2. **Export:** `blender --background art-source/weapons/GunTest.blend --python tools/blender/export_weapons.py -- [Gun ...]` writes `art-source/weapons/Exports/<Id>.fbx` + `<Id>.json` (bones, locators, part centres, Fire/Reload keyframes). It runs on a background copy, so the .blend is never changed.
 3. **Upload:** `python tools/opencloud/upload_models.py --group 11116787 [Id ...]` (key in the `ROBLOX_ASSETS_KEY` environment variable). Asset IDs go in `Exports/assets.json`; re-uploads add a new version to the same asset.
 4. **Build:** `python tools/studio/make_build_data.py`, copy `tools/studio/rojo/` to `src/server/WeaponBuild/` (temporary, gitignored), run `tools/studio/receive_server.py`, then in Studio `require(WeaponBuilder).publish("<Id>")`. It inserts the upload into `ServerStorage.ImportStaging`, builds the gun to the standard, installs it in `ReplicatedStorage.Weapons` and saves `art-source/weapons/Studio/<Id>.rbxm`.

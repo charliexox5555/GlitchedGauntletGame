@@ -8,6 +8,8 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
 ## Weapons
 
+**Final pass (2026-11-11):** all 17 guns and the Knife are at `<Id>_RemasterV2_v05.blend`, exported, uploaded and rebuilt in `ReplicatedStorage.Weapons` (new sights, sealed and seated geometry, charm ring, nickel accent). A model sheet per weapon is in `art-source/weapons/ModelSheets/` ([note](../05%20Production/Weapon%20Final%20Pass%202026-11-11.md)). Waiting on the owner's F6 pass and a place save.
+
 **Retired 2026-10-25 (new direction):** Byte, Root, Splinter, Flicker, Mute, Bandwidth, Burst Buffer, Hard Reset, Crash, Pulse, Checksum, Bitrate, Overwrite, Long Poll, Handshake, Kernel, Flood, Ray Trace, Loopback, Dual Boot, Null, Overflow and Cutter. Removed from Studio, config and code; their `.rbxm` backups stay in `art-source/weapons/Studio/` and git history keeps the code. (Overwrite's Open Cloud asset 73731263927417 got one extra version holding the Vandal mesh by mistake; harmless.)
 
 | Gun | Class | Tier | Wave | Modeled (Blender) | Imported (Studio) | Standard (attachments, names) | `.rbxm` in repo | Config + working in game | Notes |
