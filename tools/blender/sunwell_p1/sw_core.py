@@ -114,7 +114,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"WallShade": _L("SmoothPlastic", "#8F887C", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
 	"Belt": _L("SmoothPlastic", "#5E5952", v="SW_Plaster"),
 	"WallBase": _L("SmoothPlastic", "#45423F", v="SW_Plaster"),
-	"Ceil": _L("SmoothPlastic", "#716C62", v="SW_Plaster"),  # hub upgrade: the upper zone a value band darker
+	"Ceil": _L("SmoothPlastic", "#7C7E80", v="SW_Plaster"),  # cool grey: a warm/cool split with the walls (brown read dead)
 	"Floor": _L("SmoothPlastic", "#6C665F", v="SW_Floor"),  # side fields darker than the walk: a lit lane
 	"Walk": _L("SmoothPlastic", "#978F82", v="SW_Floor"),  # pass E: a step deeper so the sun patches carry the light
 	"Walk2": _L("SmoothPlastic", "#8E877A", v="SW_Floor"),
@@ -130,7 +130,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"BlastDoor": _L("SmoothPlastic", "#33373C", r=0.03),
 	"Dark": _L("SmoothPlastic", "#15171A"),
 	"Cream": _L("SmoothPlastic", "#EDE2CA"),
-	"Olive": _L("Fabric", "#747C50"),
+	"Olive": _L("SmoothPlastic", "#6F7650"),  # flat colour (Fabric read realistic)
 	"Bronze": _L("Metal", "#B07E3A", r=0.08),
 	"ShopSlat": _L("SmoothPlastic", "#7B6349"),
 	"LockerSlat": _L("SmoothPlastic", "#5F6C77", r=0.05),
@@ -139,7 +139,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"LockerFloor": _L("SmoothPlastic", "#82868A", v="SW_Floor"),
 	"BayBack": _L("SmoothPlastic", "#B3AFA6"),
 	"ShopFloor": _L("SmoothPlastic", "#A2957F", v="SW_Floor"),
-	"Timber": _L("Wood", "#6B4B32"),
+	"Timber": _L("SmoothPlastic", "#6B4B32"),  # flat colour (Wood grain read realistic)
 	"CaseShell": _L("SmoothPlastic", "#34383C"),
 	"DuelFloor": _L("SmoothPlastic", "#6E6C69", v="SW_Floor"),
 	"PadDark": _L("SmoothPlastic", "#1B1D20"),
@@ -165,7 +165,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"E_Sun": _L("Neon", "#9C8666", glow=True),  # warm sun glow (the Well, the sun ring), the same as the turbine intake
 	"E_Intake": _L("Neon", "#B09270", glow=True),  # the turbine intake: warm and dim so the vanes read against it
 	"PipeOchre": _L("SmoothPlastic", "#8A6A32", v="SW_Steel"),
-	"SeatPad": _L("Fabric", "#4A3E33"),  # dark warm leather (benches)
+	"SeatPad": _L("SmoothPlastic", "#4A3E33"),  # dark warm leather (benches); Fabric read busy and realistic
 }
 
 LIGHTS = {}  # area -> [["P"|"S", x, y, z, colour, brightness, range, (angle)]] in Blender coordinates

@@ -208,7 +208,7 @@ def range_(K):
 		F["Charcoal"].box(-9.4, 9.4, 12.55, 16.5, 0.0, 1.9)  # the shutter head
 		F["Graphite"].box(-9.4, 9.4, 16.5, 16.85, 0.0, 2.1)
 		F["Graphite"].box(-9.4, 9.4, 12.2, 12.55, 0.7, 2.1)
-		S.add_text(F["Cream"], "RANGE", 2.1, 0.4, y0=13.3, z0=1.85, s=0.215, c=0.1, track=0.14, stencil=True)
+		S.add_text(F["Cream"], "RANGE", 2.1, 0.4, y0=13.3, z0=1.85, s=0.215, c=0.1, track=0.14)  # solid (the stencil bridges read as a glitch)
 		for s in (-1, 1):
 			for k in range(3):
 				x = s * (6.15 + k * 0.72) - (0.0 if s > 0 else 0.62)
@@ -264,7 +264,8 @@ def shop(K):
 			F["Bronze"].box(-7.95, 7.95, 0.0, 0.47, -8.6, ZB + 0.12)
 			F["Graphite"].box(-1.2, 1.2, 0.6, 0.95, ZB, ZB + 0.3)  # pull handle
 		task_light(F, "E_Opal", "#FFD9A0", hw=2.2, brightness=1.5)
-		threshold_wash(M, "#FFD49A")
+		threshold_wash(M, "#FFB04A")
+		S.light(M, 0, 6.0, -6.0, "#FFC070", 1.4, 12)  # deeper in the reveal: the Shop mouth never reads as a hole
 		# short dark entry mat
 		F["PetrolDark"].box(-HW, HW, -0.2, 0.05, -0.3, 0.4)
 		F["Rubber"].box(-7.0, 7.0, -0.15, 0.07, 0.7, 5.5)

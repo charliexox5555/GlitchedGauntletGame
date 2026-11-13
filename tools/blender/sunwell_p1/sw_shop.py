@@ -231,7 +231,7 @@ def build():
 			S.collider(AREA, PM @ Matrix.Rotation(rot, 4, "Z"), -1.95, 1.95, -1.95, 1.95, 0.0, 3.2, kind="Y")
 		C2 = __import__("lv3_core")
 		C2.collider_cyl(AREA, 56.0, 82.0, 1.8, 3.2, 7.6, kind="X")  # keeps players off the turning item
-		S.gun_row(["Vandal", 2.4, 56.0, 82.0, 5.0, 0.0, 1.0, 1, 18])
+		S.gun_row(["Vandal", 1.25, 56.0, 82.0, 4.0, 0.0, 1.0, 1, 18])  # about 4.9 long over a 3-stud plinth
 		S.light(PM, 0, 0, 11.5, "#FFE6C4", 1.6, 16, angle=50)  # a tight spot on the item
 		S.light(PM, 0, 0, 3.6, "#FFB866", 0.6, 7)  # warm uplight from the ring
 	with S.grp("ShopFloorEmblem", Matrix.Translation((56.0, 82.0, 0))):
