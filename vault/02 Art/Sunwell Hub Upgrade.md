@@ -267,6 +267,47 @@ Score history (blind median): 6.3 → 6.7 → 6.7 → 6.7 → 7.5 → 7.9 → 6.
 
 **Blender:** the MCP bridge did not come back after the restart (the add-on listens on 9876, but tool calls fail). Every build ran in a background Blender on a copy. **The owner's open `SunwellWorks.blend` is behind the code; run `sw_run.build_all()` in it to catch up.**
 
+## Rounds 11-12 (2026-11-13, 1-2 a.m.)
+Done:
+- **Lighting:**
+  - a second, cool shade-fill layer in the hall (`ShadeFill`, 0.3 / range 18);
+  - a warm floor bounce at the turbine;
+  - clearer air: Atmosphere haze 0.15, density 0.22, offset 0.1; Bloom 0.6 / 18 / 1.6 (set in `use("Sunwell")`, restored by `use("V3")`);
+  - louvred ceiling panels;
+  - **cool grey ceilings** (`Ceil` `#7C7E80`): a warm/cool split, where brown read dead.
+- **Wing heroes:**
+  - the Shop's **featured plinth**: a battered foot, tapered column, amber light ring, and a Vandal turning on a spot;
+  - a louvred octagon light over the Locker projector.
+- **Flat-colour materials:** SeatPad, Timber and Olive are SmoothPlastic now. Fabric and Wood read realistic.
+- **Fixes:** the Range sign is solid (the stencil bridges read as a glitch); a deeper Shop doorway wash; the hero guns resized (Shop 1.25, Locker 2.2).
+- Coloured R15 stand-ins replace the black ones in the evidence.
+
+Blind medians:
+- **Round 11: 8.3** (W1 2, W2 2, W3 2, W4 1, W5 1, W6 1).
+- **Round 12: 6.7** (W1 1, W2 2, W3 1, W4 1, W5 1, W6 2).
+- The reviewers swing by about 1.5 points between batches on near-identical images.
+- The best three rounds are all 8.3-8.75. W4 (lighting) and W5 (detail) have been 1 in every round.
+
+### Handoff (if a new session picks this up)
+How to build:
+- Blender MCP is down. Build in a background Blender on a copy. The scripts are in the session scratchpad; recreate them from this list:
+  - copy `art-source/lobby/SunwellWorks.blend` to a temp `SW_cli.blend`;
+  - run `"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" --background SW_cli.blend --python cli_build.py`;
+  - `cli_build.py` puts `tools/blender/sunwell_p1` and `tools/blender/lobby_v3` on the path, then runs `sw_run.build_all(cams=False)`, `sw_run.audit()` and `sw_export.run()`.
+- Upload all areas: `python tools/opencloud/upload_models.py --lobby --group 11116787 SW1_Hall SW1_Doors SW1_Props SW1_Locker SW1_Shop SW1_Duels SW1_Hub`, then `python tools/studio/sunwell_p1/upload_data.py --group 11116787`.
+- Studio (the Lobby place `71551303511506`, Edit mode):
+  - load asset `137338720894061`;
+  - replace `ServerStorage.SW1Data`;
+  - `require(SW1Data.Build:Clone())`, then `.rebuild()` and `.use("Sunwell")`.
+- Captures: move `workspace.CurrentCamera` there first and wait 2 s, or the boards render black.
+- Remove `workspace.ScaleDummies` after captures.
+
+**Next, to reach 9:** the reviewers' shared notes:
+1. The hall is one warm-beige value band: separate floor and walls (a darker side-field floor or lower wall), and make the turbine clearly the brightest thing.
+2. The Shop and Locker floors read empty and murky: warm pools at the fixtures, an inlay, props around the plinth.
+3. The spawn foreground is empty and the alcove side slabs are plain.
+4. Doorway interiors read dark from far away.
+
 ## LihFolk and project notes used
 *Lobby and Hub Design* (§1 hub jobs, §8 social nodes, §10 mistakes); *What Craft Looks Like on Roblox* §5 (light as wayfinding, detail where the camera looks); *Case Study - Rivals* (duel-first lobby); the `lihfolk-worldbuilding` skill (one hero, primary forms framing it, leading lines, three reads); [Map Quality Standard](../01%20Design/Maps/Map%20Quality%20Standard.md) (§3 hard rules, §6 review loop and stop rule); [Style Bible](Style%20Bible.md); the `gauntlet-build-style` skill (§0 no round curves, no blunt ends); `gauntlet-ui-style` (board fonts and the slash mark); the RIVALS lobby video frames in `References/ui/video-frames/rivals-pc/`.
 
