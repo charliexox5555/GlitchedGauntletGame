@@ -145,6 +145,8 @@ def build():
 	centre(K, KC)
 	floor_marks(K)
 	S.soffit(KC, AREA, PTS, H, depth=0.6, width=3.0, lights=6, name="LockerSoffit")
+	for y in (CY - 12.0, CY + 12.0):
+		S.ceiling_beam(KC, X0 + 3.0, y, 82.4, y, H, name="LockerBeam")
 	for e in (0, 4):  # between the two bays on each long wall
 		S.pilaster(edges[e][0], 0.0, H - 0.6, hw=1.1, d=0.7, name="LockerPilaster")
 	S.anchor("LockerZone", "LobbyLocker", CX - 9.5, CY, 4.0, 7.0, 12.0, 7.0)

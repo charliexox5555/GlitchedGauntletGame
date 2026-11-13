@@ -216,6 +216,13 @@ def build():
 		for y in (71.0, 93.0):
 			S.opal_panel(KC, x, y, H, 4.6, 4.6, color="#F4EEE6", brightness=0.32, rng=20)  # lighting pass: the bays and lamps carry the light
 	S.soffit(KC, AREA, PTS, H, depth=0.6, width=3.0, lights=6, name="ShopSoffit")
+	S.ceiling_beam(KC, X0 + 3.0, 82.0, X1 - 3.0, 82.0, H, name="ShopBeam")
+	with S.grp("ShopFloorEmblem", Matrix.Translation((56.0, 82.0, 0))):
+		E = S.FK(K, Matrix.Translation((56.0, 82.0, 0)))
+		import sw_hub as _H
+		S.ring_prism(E["Graphite"], _H.oct_pts(4.2), _H.oct_pts(3.8), 0.0, 0.03)
+		E["Stripe"].prism(_H.star_pts(2.2, 1.0, 8, 3.14159 / 8), 0.0, 0.03)
+		E["Graphite"].prism(_H.oct_pts(0.6), 0.0, 0.035)
 	S.pilaster(FN, 0.4, H - 0.6, name="ShopPilaster")  # between the Battle Pass and Event boards
 	S.pilaster(FN, -18.2, H - 0.6, name="ShopPilaster")
 	S.pilaster(FN, 16.8, H - 0.6, name="ShopPilaster")

@@ -161,6 +161,10 @@ def alcove(K, KC):
 			K["WallLow"].box(xa, xb, -18, -14, 4.5, 11)
 			K["WallShade"].box(xa, xb, -18, -14, 11, 19.5)
 		KC["Ceil"].box(-14, 14, -14, -4, 17.5, 19.5)
+		for sx in (-1, 1):  # a crown facet on the side walls (a belt would cut through the lamps and panels)
+			x = sx * 14
+			K["Belt"].ext_y([(x, 16.8), (x - sx * 0.6, 17.5), (x, 17.5)] if sx < 0 else [(x, 17.5), (x - sx * 0.6, 17.5), (x, 16.8)], -13.6, -4.4)
+		K["Belt"].ext_x([(-14.0, 16.8), (-14.0, 17.5), (-13.4, 17.5)], -13.6, 13.6)  # crown on the back wall
 	# the arrival gate (staging art: where players came in)
 	with S.grp("ArrivalGate", S.face((0, -14, S.LAND), (-1, 0, 0), (0, 1, 0))):
 		A = S.FK(K, S.face((0, -14, S.LAND), (-1, 0, 0), (0, 1, 0)))

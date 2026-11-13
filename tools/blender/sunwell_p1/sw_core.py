@@ -665,6 +665,22 @@ def pilaster(F, u, top, hw=1.2, d=0.8, name="Pilaster"):
 		collider(AREA, P.M, -hw, hw, 0.0, top, 0.05, d - 0.1)
 
 
+def ceiling_beam(KC, x0, y0, x1, y1, H, name="CeilingBeam"):
+	"""A crossbeam under a wing ceiling, the hall's language: flanges with cut ends, a web, and a corbel bracket into the
+	soffit at each end. Runs from (x0, y0) to (x1, y1) in plan, its top at the ceiling H."""
+	d = Vector((x1 - x0, y1 - y0, 0))
+	L = d.length
+	ang = atan2(d.y, d.x)
+	M = Matrix.Translation(((x0 + x1) / 2, (y0 + y1) / 2, 0)) @ Matrix.Rotation(ang, 4, "Z")
+	with grp(name, M, inst=True):
+		B = FK(KC, M)
+		B["PetrolDark"].prism(cham_rect(-L / 2, L / 2, -0.75, 0.75, 0.35), H - 1.3, H - 1.05)  # bottom flange
+		B["PetrolDark"].box(-L / 2, L / 2, -0.22, 0.22, H - 1.05, H)  # web
+		B["PetrolDark"].prism(cham_rect(-L / 2, L / 2, -0.75, 0.75, 0.35), H - 0.25, H)  # top flange
+		for s in (-1, 1):
+			B["Steel"].box(s * (L / 2 - 1.2) - 0.08, s * (L / 2 - 1.2) + 0.08, -0.7, 0.7, H - 1.32, H - 1.3)  # fixing plate
+
+
 def soffit(KC, area, pts, H, depth=0.7, width=3.0, lights=6, name="Soffit"):
 	"""A dropped soffit round a room's ceiling: a ring `width` wide and `depth` deep against the walls, a lip on its
 	inner edge and a warm light cove behind the lip (a lit strip and a few real lights), so the ceiling reads as a
