@@ -269,7 +269,7 @@ def build():
 	loc = lambda wall, x: (x - mid) if wall == "N" else -(x - mid)
 	for wall, x, mode, letter, live in STATIONS:
 		station(fn if wall == "N" else fs, loc(wall, x), mode, letter, live)
-		S.opal_panel(KC, x, 49.0 if wall == "N" else 19.0, ZL + H, 6.0, 2.2, color="#EEF2FF", brightness=0.6, rng=26)
+		S.opal_panel(KC, x, 49.0 if wall == "N" else 19.0, ZL + H, 6.0, 2.2, color="#EEF2FF", brightness=0.85, rng=26)
 	for x in BEAMS:
 		pier(fn, loc("N", x))
 		if x < -60:

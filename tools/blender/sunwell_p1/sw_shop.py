@@ -1,7 +1,7 @@
 """Sunwell Works: the Shop (station supply desk). A wide opening shows an inset counter and a featured hard case;
 SKINS, CASES and SIDEARMS in lit wall bays on the far wall; Battle Pass and Event boards on the quieter return wall.
 Entered from the hall's east wall at y = 72 under the ribbed valance."""
-from math import radians, pi
+from math import radians, pi, cos, sin
 from mathutils import Matrix, Vector
 
 import sw_core as S
@@ -217,6 +217,23 @@ def build():
 			S.opal_panel(KC, x, y, H, 4.6, 4.6, color="#F4EEE6", brightness=0.32, rng=20)  # lighting pass: the bays and lamps carry the light
 	S.soffit(KC, AREA, PTS, H, depth=0.6, width=3.0, lights=6, name="ShopSoffit")
 	S.ceiling_beam(KC, X0 + 3.0, 82.0, X1 - 3.0, 82.0, H, name="ShopBeam")
+	with S.grp("FeaturedPlinth", Matrix.Translation((56.0, 82.0, 0))):  # the room's hero: a featured item turning over a lit plinth
+		import sw_hub as _H2
+		PM = Matrix.Translation((56.0, 82.0, 0))
+		Pf = S.FK(K, PM)
+		o = _H2.oct_pts
+		Pf["WallBase"].solid([(x, y, 0.0) for x, y in o(2.05)], [(x, y, 0.4) for x, y in o(1.9)])  # battered foot
+		Pf["Petrol"].solid([(x, y, 0.4) for x, y in o(1.3)], [(x, y, 2.9) for x, y in o(1.0)])  # tapered column
+		Pf["PetrolDark"].prism(o(1.55), 2.9, 3.15)  # top plate
+		S.ring_prism(Pf["E_Amber"], o(1.5), o(1.28), 3.15, 3.2)  # light ring
+		Pf["Charcoal"].prism(o(1.28), 3.15, 3.22)
+		for rot in (0.0, pi / 4):
+			S.collider(AREA, PM @ Matrix.Rotation(rot, 4, "Z"), -1.95, 1.95, -1.95, 1.95, 0.0, 3.2, kind="Y")
+		C2 = __import__("lv3_core")
+		C2.collider_cyl(AREA, 56.0, 82.0, 1.8, 3.2, 7.6, kind="X")  # keeps players off the turning item
+		S.gun_row(["Vandal", 2.4, 56.0, 82.0, 5.0, 0.0, 1.0, 1, 18])
+		S.light(PM, 0, 0, 11.5, "#FFE6C4", 1.6, 16, angle=50)  # a tight spot on the item
+		S.light(PM, 0, 0, 3.6, "#FFB866", 0.6, 7)  # warm uplight from the ring
 	with S.grp("ShopFloorEmblem", Matrix.Translation((56.0, 82.0, 0))):
 		E = S.FK(K, Matrix.Translation((56.0, 82.0, 0)))
 		import sw_hub as _H

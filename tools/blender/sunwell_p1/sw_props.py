@@ -52,6 +52,7 @@ def turbine(K):
 		S.light(S.F_END, 0, TC + 6, 9.0, "#FFE9CC", 1.3, 30, angle=100)
 		S.light(S.F_END, 0, 4.0, 6.0, "#FFE9CC", 0.7, 16)
 		S.light(S.F_END, 0, TC, 4.5, "#FFD49A", 0.9, 16)  # a warm glow on the rotor face
+		S.light(S.F_END, 0, 2.0, 8.0, "#FFC88C", 0.9, 16)  # warm bounce on the floor in front of the turbine
 		S.light(S.F_END, 0, 21.0, 15.0, "#FFD9A8", 2.6, 30, angle=70)  # a warm pool on the floor in front of the rail
 		# low rail on the hall floor in front
 		zf, zs, xr = 9.0, 3.4, 13.0

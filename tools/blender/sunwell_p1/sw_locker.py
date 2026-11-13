@@ -103,6 +103,11 @@ def centre(K, KC):
 		rr = lambda hx, hy, r: S.fillet([(CX - hx, CY - hy, r), (CX + hx, CY - hy, r), (CX + hx, CY + hy, r), (CX - hx, CY + hy, r)], "cham")
 		S.ring_prism(KC["Petrol"], rr(6.2, 9.2, 4.6), rr(5.2, 8.2, 3.9), H - 0.7, H)
 		KC["E_Opal"].prism(rr(5.2, 8.2, 3.9), H - 0.45, H - 0.3)
+		for dx in (-4.0, -2.0, 0.0, 2.0, 4.0):  # louvre fins along the long axis, clipped to the octagon
+			ext = 8.2 - max(0.0, abs(dx) - 1.3)
+			KC["Graphite"].box(CX + dx - 0.07, CX + dx + 0.07, CY - ext + 0.05, CY + ext - 0.05, H - 0.85, H - 0.45)
+		KC["Graphite"].box(CX - 5.15, CX + 5.15, CY - 0.07, CY + 0.07, H - 0.85, H - 0.45)
+		S.ring_prism(KC["Petrol"], rr(5.25, 8.25, 3.9), rr(5.1, 8.1, 3.85), H - 0.95, H - 0.7)  # lip round the louvres
 		for dy in (-5, 5):
 			S.light(S.I4, CX, CY + dy, H - 1.0, "#FFEED6", 1.3, 22, angle=90)  # pools round the platform
 

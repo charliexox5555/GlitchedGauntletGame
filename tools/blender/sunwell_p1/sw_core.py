@@ -720,4 +720,8 @@ def opal_panel(KC, x, y, z, w, d, color="#FFF1DE", brightness=0.6, rng=30, glow=
 		P = FK(KC, Matrix.Translation((x, y, z)))
 		P["Charcoal"].prism(cham_rect(-w / 2 - 0.3, w / 2 + 0.3, -d / 2 - 0.3, d / 2 + 0.3, 0.25), -0.32, 0.0)
 		P[glow].box(-w / 2, w / 2, -d / 2, d / 2, -0.4, -0.32)
+		for u in (-w / 6, w / 6):  # louvre fins: the lens reads as a fitting with falloff, not a flat white sheet
+			P["Graphite"].box(u - 0.06, u + 0.06, -d / 2, d / 2, -0.62, -0.4)
+		P["Graphite"].box(-w / 2, w / 2, -0.06, 0.06, -0.62, -0.4)
+		ring_prism(P["Charcoal"], cham_rect(-w / 2 - 0.3, w / 2 + 0.3, -d / 2 - 0.3, d / 2 + 0.3, 0.25), cham_rect(-w / 2 - 0.03, w / 2 + 0.03, -d / 2 - 0.03, d / 2 + 0.03, 0.02), -0.62, -0.32)  # a deeper bezel round the lens
 		light(I4, x, y, z - 0.6, color, round(brightness * 3.4, 2), round(rng * 0.9, 1), angle=80)  # a spot: a pool on the floor, not a flat wash

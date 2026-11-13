@@ -806,6 +806,23 @@ function M.use(which: string): string
 			n.Parent = Lighting
 			cc = n
 		end
+		-- clearer air indoors (the default haze read as a muddy vignette in the wings); bloom only on real highlights
+		local atm = Lighting:FindFirstChildOfClass("Atmosphere")
+		if atm then
+			if r:GetAttribute("V3_AtmHaze") == nil then
+				r:SetAttribute("V3_AtmHaze", atm.Haze)
+				r:SetAttribute("V3_AtmDensity", atm.Density)
+				r:SetAttribute("V3_AtmOffset", atm.Offset)
+			end
+			atm.Haze, atm.Density, atm.Offset = 0.15, 0.22, 0.1
+		end
+		local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
+		if bloom then
+			if r:GetAttribute("V3_Bloom") == nil then
+				r:SetAttribute("V3_Bloom", Vector3.new(bloom.Intensity, bloom.Size, bloom.Threshold))
+			end
+			bloom.Intensity, bloom.Size, bloom.Threshold = 0.6, 18, 1.6
+		end
 		local grade = cc :: ColorCorrectionEffect
 		grade.Contrast, grade.Saturation, grade.TintColor = 0.14, 0.02, Color3.fromRGB(255, 255, 255)
 		grade.Enabled = true
@@ -821,6 +838,15 @@ function M.use(which: string): string
 	local grade = Lighting:FindFirstChild("HubGrade") :: ColorCorrectionEffect?
 	if grade and which ~= "Sunwell" then
 		grade.Enabled = false
+	end
+	local atm = Lighting:FindFirstChildOfClass("Atmosphere")
+	if atm and which ~= "Sunwell" and r:GetAttribute("V3_AtmHaze") ~= nil then
+		atm.Haze, atm.Density, atm.Offset = r:GetAttribute("V3_AtmHaze"), r:GetAttribute("V3_AtmDensity"), r:GetAttribute("V3_AtmOffset")
+	end
+	local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
+	local bv = r:GetAttribute("V3_Bloom")
+	if bloom and which ~= "Sunwell" and typeof(bv) == "Vector3" then
+		bloom.Intensity, bloom.Size, bloom.Threshold = bv.X, bv.Y, bv.Z
 	end
 	if r:GetAttribute("V3LightingSaved") then
 		for _, p in LIGHTING_PROPS do
