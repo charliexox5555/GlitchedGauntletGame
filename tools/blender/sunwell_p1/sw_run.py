@@ -18,6 +18,7 @@ import sw_props as P
 import sw_locker as LK
 import sw_shop as SH
 import sw_duels as DU
+import sw_hub as HB
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 OUT = os.path.join(REPO, "vault", "02 Art", "References", "lobby", "sunwell-works", "build")
@@ -45,7 +46,7 @@ PROBES = {"alcove": (0, -9, 8), "landing": (0, 2, 8), "entry_bay": (22, 7, 5), "
 	"locker": (55, 34, 6), "locker_far": (82, 34, 9), "shop": (55, 76, 6), "shop_far": (78, 98, 8),
 	"duels_deck": (-50, 34, 5), "duels_floor": (-120, 34, 2), "duels_far": (-190, 30, 2)}
 WINGS = {"Locker": LK, "Shop": SH, "Duels": DU}  # built wings: their doorways lose the temporary closure
-MODULES = [S, H, DR, P] + list(WINGS.values())
+MODULES = [S, H, DR, P, HB] + list(WINGS.values())
 
 
 def reload():

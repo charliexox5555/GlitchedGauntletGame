@@ -16,26 +16,29 @@ def turbine(K):
 	Kf.nocol = True
 	FF = S.FK(Kf, S.F_END)
 	R = 10.6
-	arc = [(R * cos(a), TC + R * sin(a)) for a in [pi / 2 - pi * k / 28 for k in range(1, 28)]]
+	arc = [(R * cos(a), TC + R * sin(a)) for a in [pi / 2 - pi * k / 6 for k in range(1, 6)]]  # 12-gon: facets that read from the spawn
 	right = [(0, TC - R), (0, 0), (13.5, 0), (13.5, 21), (9.5, 25), (0, 25), (0, TC + R)] + arc
 	F["Cast"].prism(right, 0.0, 1.3)
 	F["Cast"].prism([(-x, y) for x, y in right], 0.0, 1.3)
 	F["WallBase"].box(-15, 15, 0, 1.15, 0, 3.4)  # plinth
-	F["Dark"].disc(R, 0.02, 0.2, n=64, cy=TC)
-	F["Petrol"].lathe([(9.3, 0.2), (10.95, 0.2), (10.95, 1.9), (10.55, 2.3), (9.7, 2.3), (9.3, 1.9)], n=72, cy=TC)
-	F["PetrolDark"].ring(8.85, 9.3, 0.2, 1.55, n=72, cy=TC)
-	S.bolts(F["Steel"], [(10.13 * cos(2 * pi * k / 16 + pi / 16), TC + 10.13 * sin(2 * pi * k / 16 + pi / 16)) for k in range(16)], r=0.27, z0=2.3, h=0.2)
+	F["Dark"].disc(R, 0.02, 0.2, n=12, cy=TC)
+	F["E_Intake"].disc(7.9, 0.2, 0.26, n=12, cy=TC)  # warm light from the intake behind the rotor (dimmed: white read as a hole)
+	F["PetrolDark"].ring(7.9, 8.85, 0.2, 0.28, n=12, cy=TC)  # shadow band inside the ring
+	F["Petrol"].lathe([(9.3, 0.2), (10.95, 0.2), (10.95, 1.9), (10.55, 2.3), (9.7, 2.3), (9.3, 1.9)], n=12, cy=TC)
+	F["PetrolDark"].ring(8.85, 9.3, 0.2, 1.55, n=12, cy=TC)
+	S.bolts(F["Steel"], [(10.13 * cos(2 * pi * k / 12), TC + 10.13 * sin(2 * pi * k / 12)) for k in range(12)], r=0.3, z0=2.3, h=0.2)  # one on each corner
 	for k in range(7):
 		a = 2 * pi * k / 7 + radians(12)
 		Bm = FF.at(Matrix.Translation((0, TC, 1.0)) @ Matrix.Rotation(a, 4, "Z") @ Matrix.Rotation(radians(13), 4, "X"))
-		Bm["Blade"].prism([(2.0, -0.85), (8.7, -1.55), (8.7, 2.5), (2.0, 0.95)], -0.24, 0.24)
-	FF["Charcoal"].disc(2.75, 0.2, 2.25, n=40, cy=TC)
-	FF["Petrol"].ring(2.75, 3.15, 0.2, 1.7, n=40, cy=TC)
+		Bm["Blade"].prism([(2.0, -0.85), (8.7, -1.55), (8.7, 2.5), (2.0, 0.95)], -0.32, 0.32)  # thicker vanes
+		Bm["PetrolDark"].prism([(2.6, -0.05), (8.4, 0.1), (8.4, 0.75), (2.6, 0.45)], 0.32, 0.46)  # a dark spine down each vane
+	FF["Charcoal"].disc(2.75, 0.2, 2.25, n=8, cy=TC)
+	FF["Petrol"].ring(2.75, 3.15, 0.2, 1.7, n=8, cy=TC)
 	Kf.done()
 	piv = S.F_END @ Vector((0, TC, 1.0))
 	S.ANIM["AnimFan"] = {"pivot": [round(piv.x, 3), round(piv.y, 3), round(piv.z, 3)], "spin": 26, "axis": [0, 1, 0]}
 	S.SOUNDS.append(["TurbineWhoosh", round(piv.x, 2), round(piv.y - 1.5, 2), round(piv.z, 2), 9125742262, 0.1, 0.72, 16, 95])
-	F["Graphite"].disc(2.2, 2.25, 2.45, n=40, cy=TC)
+	F["Graphite"].disc(2.2, 2.25, 2.45, n=8, cy=TC)
 	# bronze Gauntlet crest: a raised fist on its cuff
 	c = lambda x0, x1, y0, y1, z0=2.45, z1=2.8: F["Bronze"].box(x0, x1, TC + y0, TC + y1, z0, z1)
 	c(-0.95, 0.95, -0.7, 0.3)  # palm
@@ -46,6 +49,7 @@ def turbine(K):
 	c(-0.98, 0.98, -1.62, -1.29)  # cuff band
 	S.light(S.F_END, 0, TC + 6, 9.0, "#FFE9CC", 1.3, 30, angle=100)
 	S.light(S.F_END, 0, 4.0, 6.0, "#FFE9CC", 0.7, 16)
+	S.light(S.F_END, 0, 21.0, 15.0, "#FFD9A8", 2.6, 30, angle=70)  # a warm pool on the floor in front of the rail
 	# low rail on the hall floor in front
 	zf, zs, xr = 9.0, 3.4, 13.0
 	for x in (-13, -6.5, 0, 6.5, 13):
@@ -101,8 +105,8 @@ def bench(K, M, name):
 	mid = ((e[0] + top[0]) / 2, (e[1] + top[1]) / 2)
 	Bk = F.at(Matrix.Translation((0, mid[0], mid[1])) @ Matrix.Rotation(-th, 4, "X"))
 	Bk["Olive"].box(-3.0, 3.0, -0.36, -0.1, -0.56, 0.6)  # back pad
-	out = S.fillet([(-1.0, 0.14, 0.24), (0.9, 0.14, 0.24), (0.56, 1.3, 0.24), (-0.66, 1.3, 0.24)], "round", 3)
-	inn = S.fillet([(-0.66, 0.38, 0.1), (0.6, 0.38, 0.1), (0.37, 1.06, 0.1), (-0.45, 1.06, 0.1)], "round", 3)
+	out = S.fillet([(-1.0, 0.14, 0.24), (0.9, 0.14, 0.24), (0.56, 1.3, 0.24), (-0.66, 1.3, 0.24)], "cham", 2)
+	inn = S.fillet([(-0.66, 0.38, 0.1), (0.6, 0.38, 0.1), (0.37, 1.06, 0.1), (-0.45, 1.06, 0.1)], "cham", 2)
 	for s in (-1, 1):
 		S.ring_prism(F["Petrol"], out, inn, s * 2.3 - 0.21, s * 2.3 + 0.21, plane="yz")
 		for y in (-0.72, 0.62):

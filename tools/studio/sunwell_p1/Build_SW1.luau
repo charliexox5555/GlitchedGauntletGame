@@ -399,6 +399,8 @@ local MUTED = Color3.fromHex("#8A97A6")
 local AMBER = Color3.fromHex("#F0A030")
 local TEAM_A = Color3.fromHex("#FF7A3D")
 local TEAM_B = Color3.fromHex("#3A94FF")
+local GOLD = Color3.fromHex("#FFC83D") -- the one act-now colour (UI theme)
+local TEXT = Color3.fromHex("#F4F6F9")
 local PX = 40
 
 local function frame(parent: Instance, x: number, y: number, w: number, h: number, color: Color3, alpha: number?): Frame
@@ -420,11 +422,21 @@ local function label(parent: Instance, text: string, x: number, y: number, w: nu
 	t.Text = text
 	t.TextSize = size
 	t.TextColor3 = color
-	t.Font = if bold then Enum.Font.GothamBlack else Enum.Font.GothamMedium
+	-- UI theme "Soft Edge": Sarpanch for display and numbers, Titillium Web for labels (gauntlet-ui-style)
+	t.FontFace = if bold
+		then Font.new("rbxasset://fonts/families/Sarpanch.json", Enum.FontWeight.Bold)
+		else Font.new("rbxasset://fonts/families/TitilliumWeb.json", Enum.FontWeight.SemiBold)
 	t.TextXAlignment = align or Enum.TextXAlignment.Left
 	t.TextYAlignment = Enum.TextYAlignment.Center
 	t.Parent = parent
 	return t
+end
+
+-- a slanted slash (the theme's brand mark) at x, y
+local function slashMark(parent: Instance, x: number, y: number, h: number, color: Color3): Frame
+	local f = frame(parent, x, y, math.max(4, math.floor(h * 0.2)), h, color)
+	f.Rotation = 18
+	return f
 end
 
 local function outline(f: GuiObject, color: Color3, thickness: number)
@@ -506,6 +518,39 @@ function M.screens(): string
 			label(bg, sub, 20, 78, W - 40, 60, 46, AMBER, true)
 			label(bg, "16 PLAYERS  ·  ONE GAUNTLET", 20, 142, W - 40, 26, 18, MUTED, true)
 			label(bg, "COMING SOON", 20, H - 46, W - 40, 30, 22, CREAM, true)
+		elseif kind == "leader" then -- weekly leaderboard in the hall (static layout until the lobby UI code feeds it)
+			slashMark(bg, 20, 12, 36, GOLD)
+			label(bg, title, 38, 6, W - 150, 46, 36, TEXT, true)
+			label(bg, sub, W - 140, 12, 122, 34, 17, MUTED, false, Enum.TextXAlignment.Right)
+			frame(bg, 18, 54, W - 36, 2, Color3.fromHex("#2A3642"))
+			local rows = 5
+			local rh = (H - 66) / rows
+			for i = 1, rows do
+				local y = 58 + (i - 1) * rh
+				local row = frame(bg, 18, y, W - 36, rh - 4, PANEL)
+				local c = if i == 1 then GOLD else MUTED
+				label(row, tostring(i), 8, 0, 24, rh - 4, 22, c, true)
+				local av = frame(row, 34, (rh - 4 - (rh - 12)) / 2, rh - 12, rh - 12, INK) -- avatar circle
+				local corner = Instance.new("UICorner")
+				corner.CornerRadius = UDim.new(1, 0)
+				corner.Parent = av
+				outline(av, c, 1.5)
+				label(row, "—", 40 + rh, 0, 140, rh - 4, 18, MUTED, false)
+				label(row, "0 WINS", W - 150, 0, 106, rh - 4, 17, TEXT, true, Enum.TextXAlignment.Right)
+			end
+		elseif kind == "season" then -- season board in the hall
+			slashMark(bg, 22, 16, 56, GOLD)
+			label(bg, title, 48, 6, W - 64, 72, 62, TEXT, true)
+			frame(bg, 22, 84, W - 44, 2, Color3.fromHex("#2A3642"))
+			label(bg, sub, 22, 94, W - 44, 34, 25, CREAM, false)
+			label(bg, "GAUNTLET EVENTS  ·  16 PLAYERS", 22, 128, W - 44, 26, 17, MUTED, false)
+			local n = 6
+			local sw = (W - 44 - (n - 1) * 8) / n
+			for i = 1, n do
+				local seg = frame(bg, 22 + (i - 1) * (sw + 8), H - 44, sw, 8, if i == 1 then GOLD else PANEL)
+				outline(seg, if i == 1 then GOLD else Color3.fromHex("#2A3642"), 1)
+			end
+			label(bg, "COMING SOON", 22, H - 34, W - 44, 28, 20, TEXT, true)
 		else -- streak
 			label(bg, title, 22, 10, W - 44, 44, 34, CREAM, true)
 			frame(bg, 22, 58, W - 44, 2, AMBER)
@@ -587,15 +632,15 @@ local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime",
 
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
-	Ambient = Color3.fromRGB(80, 78, 76), -- a little lower so the lamps make warm pools (RIVALS reference)
-	OutdoorAmbient = Color3.fromRGB(104, 104, 108),
-	Brightness = 2.2,
+	Ambient = Color3.fromRGB(64, 64, 66), -- hub upgrade 2026-11-12: lower fill so the wall lamps and the Sun Well make pools
+	OutdoorAmbient = Color3.fromRGB(90, 95, 108), -- a neutral-cool shade against the warm lamps (pass D)
+	Brightness = 2.6,
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
-	ExposureCompensation = -0.6,
+	ExposureCompensation = -0.5,
 	EnvironmentDiffuseScale = 0.35,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
-	ColorShift_Top = Color3.fromRGB(255, 244, 226),
+	ColorShift_Top = Color3.fromRGB(255, 248, 238),
 	ShadowSoftness = 0.4,
 }
 
@@ -623,6 +668,18 @@ function M.use(which: string): string
 		for p, v in M.SUNWELL_LIGHTING do
 			(Lighting :: any)[p] = v
 		end
+		-- a neutral grade with a little more contrast (hub upgrade); switched off again by use("V3")
+		local cc = Lighting:FindFirstChild("HubGrade") :: ColorCorrectionEffect?
+		if not cc then
+			local n = Instance.new("ColorCorrectionEffect")
+			n.Name = "HubGrade"
+			n.Contrast = 0.12
+			n.Saturation = -0.04
+			n.TintColor = Color3.fromRGB(252, 252, 255)
+			n.Parent = Lighting
+			cc = n
+		end
+		(cc :: ColorCorrectionEffect).Enabled = true
 		if v3 then
 			v3.Enabled = false
 		end
@@ -631,6 +688,10 @@ function M.use(which: string): string
 		end
 		r:SetAttribute("Active", "Sunwell")
 		return "Sunwell staging active: staging spawn on, V3 spawn off, hall lighting applied"
+	end
+	local grade = Lighting:FindFirstChild("HubGrade") :: ColorCorrectionEffect?
+	if grade and which ~= "Sunwell" then
+		grade.Enabled = false
 	end
 	if r:GetAttribute("V3LightingSaved") then
 		for _, p in LIGHTING_PROPS do

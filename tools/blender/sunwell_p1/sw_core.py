@@ -43,6 +43,7 @@ PAL = {
 	"Ceil": ("#ADA597", 0.9, 0.0, 0.09),
 	"Floor": ("#857E74", 0.6, 0.0, 0.03),
 	"Walk": ("#ACA496", 0.55, 0.0, 0.03),
+	"Walk2": ("#A39B8D", 0.55, 0.0, 0.03),  # every other slab of the walk, a shade darker
 	"Stripe": ("#B48A3C", 0.5, 0.0, 0.03),
 	"Rubber": ("#26282B", 0.75, 0.0, 0.04),
 	"Petrol": ("#3E4347", 0.45, 0.2, 0.06),
@@ -77,6 +78,7 @@ PAL = {
 	"P_Orange": ("#F08A24", 0.5, 0.0, 0.04),
 	"P_Mint": ("#7FD8A8", 0.5, 0.0, 0.03),
 	"P_Cream": ("#E6DCC6", 0.6, 0.0, 0.03),
+	"PipeOchre": ("#8E6E35", 0.55, 0.1, 0.05),
 }
 GLOW = {  # name: (hex, strength in Blender)
 	"E_Amber": ("#FFB54A", 9.0),
@@ -88,6 +90,8 @@ GLOW = {  # name: (hex, strength in Blender)
 	"E_Holo": ("#7FD4FF", 6.0),
 	"E_TeamA": ("#FF6A3D", 7.0),
 	"E_TeamB": ("#2A86FF", 7.0),
+	"E_Sun": ("#FFE6C4", 7.0),
+	"E_Intake": ("#E8A860", 5.0),
 }
 
 # Roblox looks (Material, variant, colour, extras) read by sw_export
@@ -103,13 +107,14 @@ MATERIALS = {"SW_Plaster": 16, "SW_Floor": 20, "SW_Steel": 10}  # MaterialVarian
 LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture, no blue-teal steel)
 	"Cast": _L("SmoothPlastic", "#BDB5A5", v="SW_Plaster"),
 	"CastTrim": _L("SmoothPlastic", "#BDB5A5", v="SW_Plaster"),
-	"Wall": _L("SmoothPlastic", "#B3AB9C", v="SW_Plaster"),
-	"WallLow": _L("SmoothPlastic", "#978F82", v="SW_Plaster"),
+	"Wall": _L("SmoothPlastic", "#A39B8C", v="SW_Plaster"),  # hub upgrade pass D: infill a step under the cast pilasters
+	"WallLow": _L("SmoothPlastic", "#7E776C", v="SW_Plaster"),
 	"Belt": _L("SmoothPlastic", "#5E5952", v="SW_Plaster"),
 	"WallBase": _L("SmoothPlastic", "#45423F", v="SW_Plaster"),
-	"Ceil": _L("SmoothPlastic", "#9F988A", v="SW_Plaster"),
-	"Floor": _L("SmoothPlastic", "#7D766E", v="SW_Floor"),
-	"Walk": _L("SmoothPlastic", "#A49C8E", v="SW_Floor"),
+	"Ceil": _L("SmoothPlastic", "#716C62", v="SW_Plaster"),  # hub upgrade: the upper zone a value band darker
+	"Floor": _L("SmoothPlastic", "#6C665F", v="SW_Floor"),  # side fields darker than the walk: a lit lane
+	"Walk": _L("SmoothPlastic", "#978F82", v="SW_Floor"),  # pass E: a step deeper so the sun patches carry the light
+	"Walk2": _L("SmoothPlastic", "#8E877A", v="SW_Floor"),
 	"Stripe": _L("SmoothPlastic", "#A8802F"),
 	"Rubber": _L("SmoothPlastic", "#26282B"),
 	"Petrol": _L("SmoothPlastic", "#434A4F", v="SW_Steel"),
@@ -118,7 +123,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"Graphite": _L("SmoothPlastic", "#383B3F"),
 	"Steel": _L("SmoothPlastic", "#868C92", r=0.06),
 	"SteelDark": _L("SmoothPlastic", "#5E666D", r=0.04),
-	"Blade": _L("SmoothPlastic", "#74797E", r=0.05),
+	"Blade": _L("SmoothPlastic", "#4F555B", r=0.05),  # dark vanes against the warm intake (hub upgrade)
 	"BlastDoor": _L("SmoothPlastic", "#33373C", r=0.03),
 	"Dark": _L("SmoothPlastic", "#15171A"),
 	"Cream": _L("SmoothPlastic", "#EDE2CA"),
@@ -154,6 +159,9 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"E_Holo": _L("Neon", "#7FD4FF", glow=True),
 	"E_TeamA": _L("Neon", "#FF6A3D", glow=True),
 	"E_TeamB": _L("Neon", "#2A86FF", glow=True),
+	"E_Sun": _L("Neon", "#9C8666", glow=True),  # warm sun glow (the Well, the sun ring), the same as the turbine intake
+	"E_Intake": _L("Neon", "#9C8666", glow=True),  # the turbine intake: warm and dim so the vanes read against it
+	"PipeOchre": _L("SmoothPlastic", "#8A6A32", v="SW_Steel"),
 }
 
 LIGHTS = {}  # area -> [["P"|"S", x, y, z, colour, brightness, range, (angle)]] in Blender coordinates

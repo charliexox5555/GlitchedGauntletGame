@@ -58,7 +58,7 @@ def sconce(F, x, y, light=True):
 	L["PetrolDark"].prism(cr(-0.4, 0.4, 4.45, 5.15, 0.1), 0.0, 0.46)  # junction box
 	L["Graphite"].prism(cr(-0.3, 0.3, 4.55, 5.05, 0.06), 0.46, 0.5)
 	if light:
-		S.light(L.M, 0, 0, 1.7, AMBER, 1.25, 16)
+		S.light(L.M, 0, 0, 1.7, AMBER, 2.4, 13)  # hub upgrade: brighter, tighter warm pools on the walls
 
 
 def display(F, u, yc, w, h, kind, title, sub=""):
@@ -147,12 +147,12 @@ def locker(K):
 	stub(F, "Charcoal", opened=opened)
 	stub_colliders(M, opened)
 	R = 3.2
-	S.u_frame(F["SteelDark"], HW, H, 7.8, 10.8, ZB, 0.0, ri=R - 0.2, n=8)  # sleeve (fills the square corners)
+	S.u_frame(F["SteelDark"], HW, H, 7.8, 10.8, ZB, 0.0, ri=R - 0.2, n=2)  # sleeve (fills the square corners)
 	for k in range(5):  # fitted ribs
 		z1 = -0.35 - k * 1.42
-		S.u_frame(F["Steel"], 7.8, 10.8, 7.42, 10.42, z1 - 0.95, z1, ro=R - 0.2, ri=R - 0.58, n=8)
-	S.u_frame(F["Petrol"], 10.6, 13.4, 7.8, 10.8, 0.0, 0.9, ro=R + 2.6, ri=R - 0.2, n=8)
-	S.u_frame(F["PetrolDark"], 9.2, 12.1, 7.8, 10.8, 0.9, 1.3, ro=R + 1.25, ri=R - 0.2, n=8)
+		S.u_frame(F["Steel"], 7.8, 10.8, 7.42, 10.42, z1 - 0.95, z1, ro=R - 0.2, ri=R - 0.58, n=2)
+	S.u_frame(F["Petrol"], 10.6, 13.4, 7.8, 10.8, 0.0, 0.9, ro=R + 2.6, ri=R - 0.2, n=2)
+	S.u_frame(F["PetrolDark"], 9.2, 12.1, 7.8, 10.8, 0.9, 1.3, ro=R + 1.25, ri=R - 0.2, n=2)
 	if not opened:
 		slats(F, "LockerSlat", 6)
 		F["Steel"].box(-7.95, 7.95, 0.0, 0.47, -8.6, ZB + 0.12)
@@ -165,7 +165,7 @@ def locker(K):
 	y0, hw, rise, he = 13.6, 7.6, 1.35, 2.5
 	Rr = (hw * hw + rise * rise) / (2 * rise)
 	cy = y0 + he + rise - Rr
-	arc = [(hw - 2 * hw * k / 20, cy + sqrt(Rr * Rr - (hw - 2 * hw * k / 20) ** 2)) for k in range(21)]
+	arc = [(hw - 2 * hw * k / 4, cy + sqrt(Rr * Rr - (hw - 2 * hw * k / 4) ** 2)) for k in range(5)]  # arched plate as four flat plates
 	F["Charcoal"].prism([(-hw, y0), (hw, y0)] + arc, 0.3, 0.95)
 	F["E_Blue"].prism(arc + [(x, y - 0.17) for x, y in arc[::-1]], 0.9, 1.02)
 	S.add_text(F["Cream"], "LOCKER", 2.0, 0.42, y0=y0 + 0.35, z0=0.9, s=0.2, c=0.05, ci=0.02, ws=1.06, track=0.2)

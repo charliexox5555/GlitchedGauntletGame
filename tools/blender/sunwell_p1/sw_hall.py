@@ -31,10 +31,10 @@ def floor(K):
 		x0, x1 = sorted((sx * 34, sx * 36))
 		K["Floor"].box(x0, x1, 48, 58, T, 0)  # bench recess
 	n = 7
-	for k in range(n):
+	for k in range(n):  # laid slabs: a checker of two close shades (hub upgrade: the walk read as one plain sheet)
 		y0, y1 = 20 + 81 * k / n, 20 + 81 * (k + 1) / n
-		K["Walk"].box(-11, 0, y0, y1, T, 0)
-		K["Walk"].box(0, 11, y0, y1, T, 0)
+		K["Walk" if k % 2 == 0 else "Walk2"].box(-11, 0, y0, y1, T, 0)
+		K["Walk2" if k % 2 == 0 else "Walk"].box(0, 11, y0, y1, T, 0)
 	K["Stripe"].box(-12, 12, 101, 102, T, 0)
 	K["Floor"].box(-12, 0, 102, 112, T, 0)
 	K["Floor"].box(0, 12, 102, 112, T, 0)
@@ -211,7 +211,7 @@ def ceiling_lights(KC):
 			x = sx * 20.0
 			KC["Charcoal"].box(x - 3.2, x + 3.2, y - 0.95, y + 0.95, ZC - 0.32, ZC)
 			KC["E_Opal"].box(x - 2.9, x + 2.9, y - 0.62, y + 0.62, ZC - 0.4, ZC - 0.32)
-			S.light(S.I4, x, y, ZC - 2.0, "#FFF1DE", 0.42, 36)
+			S.light(S.I4, x, y, ZC - 2.0, "#FFF1DE", 0.3, 36)  # hub upgrade: less flat fill
 
 
 def structure(K):
@@ -219,9 +219,15 @@ def structure(K):
 	for yb in S.BEAMS:
 		K["CastTrim"].ext_y([(34, 17.9), (34, 22.4), (29.8, 22.4), (29.8, 20.9)], yb - 1.6, yb + 1.6)
 		K["CastTrim"].ext_y([(-34, 17.9), (-29.8, 20.9), (-29.8, 22.4), (-34, 22.4)], yb - 1.6, yb + 1.6)
-		K["Petrol"].box(-30.2, 30.2, yb - 1.1, yb + 1.1, 22.4, 22.8)
+		K["Petrol"].prism(S.cham_rect(-30.2, 30.2, yb - 1.1, yb + 1.1, 0.45), 22.4, 22.8)  # flanges with cut ends (no blunt cutoffs)
 		K["Petrol"].box(-30.2, 30.2, yb - 0.3, yb + 0.3, 22.8, 24.6)
-		K["Petrol"].box(-30.2, 30.2, yb - 1.1, yb + 1.1, 24.6, 25.0)
+		K["Petrol"].prism(S.cham_rect(-30.2, 30.2, yb - 1.1, yb + 1.1, 0.45), 24.6, 25.0)
+		for sx in (-1, 1):  # knee braces: a gusset plate from the corbel's face up under the beam, with a flange on its edge
+			xa, xb = sx * 29.8, sx * 26.4
+			K["PetrolDark"].ext_y([(xa, 20.9), (xa, 22.4), (xb, 22.4)] if sx > 0 else [(xb, 22.4), (xa, 22.4), (xa, 20.9)], yb - 0.15, yb + 0.15)
+			d = 0.32  # flange along the brace's sloped edge
+			K["Petrol"].ext_y([(xa, 20.9), (xb, 22.4), (xb + sx * d * 0.4, 22.4 - d), (xa, 20.9 - d)] if sx > 0 else
+				[(xa, 20.9 - d), (xb + sx * d * 0.4, 22.4 - d), (xb, 22.4), (xa, 20.9)], yb - 0.45, yb + 0.45)
 		for x in (-12, 0, 12):
 			K["PetrolDark"].box(x - 0.13, x + 0.13, yb - 1.0, yb + 1.0, 22.8, 24.6)
 		for sx in (-1, 1):

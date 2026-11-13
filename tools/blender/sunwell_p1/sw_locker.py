@@ -85,19 +85,19 @@ def centre(K, KC):
 	"""Stepped platform, the projector with a glowing lens, the hero gun turning in a cyan orbit, a big opal light above."""
 	K["WallBase"].disc(9.0, 0.0, 0.5, n=8, cx=CX, cy=CY)
 	K["Graphite"].disc(7.0, 0.5, 1.0, n=8, cx=CX, cy=CY)
-	K["P_Blue"].ring(10.3, 10.65, -0.15, 0.05, n=64, cx=CX, cy=CY)  # floor line round the platform
-	K["E_Blue"].ring(6.1, 6.3, 0.9, 1.05, n=48, cx=CX, cy=CY)
-	K["Charcoal"].disc(2.9, 1.0, 2.3, n=32, cx=CX, cy=CY, r1=2.35)
-	K["Petrol"].ring(2.0, 2.35, 2.3, 2.5, n=32, cx=CX, cy=CY)
-	K["E_Blue"].disc(1.9, 2.3, 2.4, n=32, cx=CX, cy=CY)
-	K["E_Blue"].framem(Matrix.Translation((CX, CY, 6.3)) @ Matrix.Rotation(radians(12), 4, "X")).ring(4.0, 4.14, -0.045, 0.045, n=48)
+	K["P_Blue"].ring(10.3, 10.65, -0.15, 0.05, n=8, cx=CX, cy=CY)  # floor line round the platform
+	K["E_Blue"].ring(6.1, 6.3, 0.9, 1.05, n=8, cx=CX, cy=CY)
+	K["Charcoal"].disc(2.9, 1.0, 2.3, n=8, cx=CX, cy=CY, r1=2.35)
+	K["Petrol"].ring(2.0, 2.35, 2.3, 2.5, n=8, cx=CX, cy=CY)
+	K["E_Blue"].disc(1.9, 2.3, 2.4, n=8, cx=CX, cy=CY)
+	K["E_Blue"].framem(Matrix.Translation((CX, CY, 6.3)) @ Matrix.Rotation(radians(12), 4, "X")).ring(4.0, 4.14, -0.045, 0.045, n=8)
 	C.collider_cyl(AREA, CX, CY, 8.15, 0.05, 0.45)
 	C.collider_cyl(AREA, CX, CY, 6.3, 0.4, 0.95)
 	C.collider_cyl(AREA, CX, CY, 3.2, 1.0, 10.0, kind="X")  # keeps players out of the hologram
 	S.GUNS.append(["Vandal", 2.7, CX, CY, 6.3, 0.0, 1.0, 1, 16])  # side-on to the doorway
 	S.light(S.I4, CX, CY, 3.2, "#6FC4FF", 0.9, 12)
 	S.light(S.I4, CX, CY, 12.0, "#EAF6FF", 2.2, 14, angle=70)
-	rr = lambda hx, hy, r: S.fillet([(CX - hx, CY - hy, r), (CX + hx, CY - hy, r), (CX + hx, CY + hy, r), (CX - hx, CY + hy, r)], "round", 5)
+	rr = lambda hx, hy, r: S.fillet([(CX - hx, CY - hy, r), (CX + hx, CY - hy, r), (CX + hx, CY + hy, r), (CX - hx, CY + hy, r)], "cham")
 	S.ring_prism(KC["Petrol"], rr(6.2, 9.2, 4.6), rr(5.2, 8.2, 3.9), H - 0.7, H)
 	KC["E_Opal"].prism(rr(5.2, 8.2, 3.9), H - 0.45, H - 0.3)
 	for dy in (-5, 5):
@@ -120,7 +120,7 @@ def build():
 		for u, w, label, guns in per.get(i, []):
 			bay(F, u, w, label, guns)
 	F, L, _ = edges[5]
-	S.u_frame(F["Petrol"], 10.6, 13.4, 7.8, 10.8, 0.0, 0.5, ro=5.8, ri=3.0, n=8)  # casing on the gallery side, same collar shape
+	S.u_frame(F["Petrol"], 10.6, 13.4, 7.8, 10.8, 0.0, 0.5, ro=5.8, ri=3.0, n=2)  # casing on the gallery side, same collar shape
 	for s in (-1, 1):
 		DR.sconce(F, s * 14.5, 10.0)
 	centre(K, KC)
