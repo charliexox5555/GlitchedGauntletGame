@@ -345,6 +345,44 @@ The one weighted criterion still at 1 is **lighting (W4)**. Every panel gives th
 
 Detail (W5, weight 1) is the other 1. The Shop and Locker want more props, which the owner plans to add later.
 
+### Owner round 3 (2026-11-13, afternoon): glitches, pipe ends, away from steampunk
+Owner notes:
+1. Glitched walls, especially the Shop pilasters.
+2. Wall pipes stop short of the wall ends, and they can't be stretched without breaking the mesh.
+3. Friends said the lobby looks dull and too steampunk.
+4. Check the Blender MCP.
+
+**Blender MCP:** works again. The scene was empty, so `SunwellWorks.blend` was opened and rebuilt there. The open file is now current, and builds no longer need the background copy.
+
+**Fixes:**
+- **Shop pilasters.**
+  - Their colliders sat flush with the shaft and showed through as thin dark strips up the edges; colliders are now inset 0.18.
+  - One pilaster (north wall, x 16.8) was jammed against the corner pier and is removed.
+- **Duels wall pipes.**
+  - Both runs now go wall to wall and enter each end wall through a flange plate.
+  - Each pipe passes the piers through a collar on both faces.
+  - Pipes are 8-sided (faceted rule).
+  - The extra deck lamp that doubled the pier lamp is removed.
+
+**Away from steampunk** (my call from the friends' notes; recorded in the Style Bible §7, the build skill and Home → Locked decisions):
+- **Palette:** light grey walls `#B9BAB7`, light cast `#D3D3CF`, slate wainscot `#50565B`, charcoal base and trim, neutral gunmetal, neutral grey ceiling `#8E9297`.
+- **Gold:** a crisp gold `#D8A530` for the walk lines and accents.
+- **Signs and materials:** white sign letters, flat gold in place of the bronze crest, composite in place of the wood tops, light grey service pipes in place of ochre.
+- **Light:** white lamp lenses (`E_Lamp`); every amber light colour maps to a neutral white (`S.NEUTRAL`).
+- **Removed:** the valve hand wheels (now meter heads with a status window) and the wheel on the floor by the cart.
+- **Lighting:** neutral sun, grade contrast 0.16 with saturation +0.02, exposure -0.3, a softer turbine core, a clean amber Shop doorway wash.
+
+**Blind reviews:**
+- **Round 20:** 8.33 / 8.33.
+- **Round 21:** 7.08 / 7.08. This was a lower-key test (darker ceiling `#6E7277`, exposure -0.5, ambient 48,52,60, contrast 0.22). It read as dead flat ceilings and was rolled back to round 20, keeping the turbine core and Shop wash.
+- **Steampunk:** none of the 12 reviewers saw any.
+
+Current: round 20 settings, **8.33**. Their shared notes:
+1. Lighting has no hierarchy (W4): it needs pooled key light on the turbine and doorways, not a global darkening.
+2. The far wing signs read small from the spawn.
+3. The wing ceilings are bare, and repeated pilasters and lamps.
+4. The figures look small against the generous doors.
+
 ### Handoff (if a new session picks this up)
 How to build:
 - Blender MCP is down. Build in a background Blender on a copy. The scripts are in the session scratchpad; recreate them from this list:

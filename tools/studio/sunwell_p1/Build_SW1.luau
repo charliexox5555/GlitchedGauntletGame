@@ -759,12 +759,12 @@ local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime",
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
 	-- lighting pass 2026-11-13: the sun through the skylights is the key, the lamps make warm pools, the shade is cool
-	Ambient = Color3.fromRGB(48, 52, 60),
-	OutdoorAmbient = Color3.fromRGB(86, 92, 106), -- cool shade against warm light (the scene read one sepia cast)
+	Ambient = Color3.fromRGB(62, 67, 78),
+	OutdoorAmbient = Color3.fromRGB(108, 116, 134), -- cool shade against warm light (the scene read one sepia cast)
 	Brightness = 2.15, -- softer sun: the patches and beam stripes on the lane read hot and hard
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
-	ExposureCompensation = -0.5, -- light grey walls read high-key and flat above -0.5
+	ExposureCompensation = -0.3, -- -0.5 (round 21) scored worse: ceilings went dead
 	EnvironmentDiffuseScale = 0.25,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
 	ColorShift_Top = Color3.fromRGB(255, 252, 246), -- neutral sun
@@ -824,7 +824,7 @@ function M.use(which: string): string
 			bloom.Intensity, bloom.Size, bloom.Threshold = 0.6, 18, 1.6
 		end
 		local grade = cc :: ColorCorrectionEffect
-		grade.Contrast, grade.Saturation, grade.TintColor = 0.22, 0.02, Color3.fromRGB(248, 250, 255) -- neutral, a touch crisp
+		grade.Contrast, grade.Saturation, grade.TintColor = 0.16, 0.02, Color3.fromRGB(248, 250, 255) -- neutral, a touch crisp
 		grade.Enabled = true
 		if v3 then
 			v3.Enabled = false
