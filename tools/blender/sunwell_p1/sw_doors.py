@@ -144,7 +144,7 @@ def duels(K):
 				F["P_Orange"].ext_x([(13.95, 0), (13.95, zw(13.95)), (17.95, zw(17.95)), (17.95, 0)], *sorted((s * 7.8, s * 8.7)))
 				for yb in (14.7, 17.2):
 					S.bolts(F["Steel"], [(s * 8.25, yb)], r=0.17, z0=zw(yb) - 0.06, h=0.2)
-			S.light(M, 0, 15.9, 4.0, "#FFE9CC", 0.7, 12)
+			S.light(M, 0, 15.9, 4.0, "#FFE9CC", 1.6, 11)
 		for s in (-1, 1):
 			sconce(F.at(Matrix.Translation((0, 0, 0.8))), s * 12.6, 8.4)
 
@@ -186,7 +186,7 @@ def locker(K):
 			for s in (-1, 1):
 				F["Petrol"].box(*sorted((s * 7.6, s * 9.0)), 13.45, 16.3, 0.0, 1.2)
 				S.bolts(F["Steel"], [(s * 8.3, 14.2), (s * 8.3, 15.55)], r=0.22, z0=1.2, h=0.15)
-			S.light(M, 0, 15.2, 4.0, "#E6F2FF", 0.7, 12)
+			S.light(M, 0, 15.2, 4.0, "#E6F2FF", 1.6, 11)
 		for s in (-1, 1):
 			sconce(F.at(Matrix.Translation((0, 0, 0.8))), s * 12.6, 8.4)
 
@@ -229,7 +229,7 @@ def range_(K):
 		for k in range(-3, 4):
 			ln = 1.7 if k % 2 == 0 else 0.95
 			F["P_Mint"].box(k * 2.0 - 0.17, k * 2.0 + 0.17, -0.15, 0.05, 0.75, 0.75 + ln)
-		S.light(M, 0, 14.4, 4.5, "#E6F2FF", 0.7, 12)
+		S.light(M, 0, 14.4, 4.5, "#E6F2FF", 1.6, 11)
 		for s in (-1, 1):
 			sconce(F.at(Matrix.Translation((0, 0, 0.8))), s * 12.6, 8.4)
 
@@ -254,7 +254,7 @@ def shop(K):
 		for s in (-1, 1):
 			F["Charcoal"].prism(S.fillet([(s * 10.6, 12.25, 0.2), (s * 11.2, 12.25, 0.2), (s * 11.2, 16.35, 0.2), (s * 10.6, 16.35, 0.2)]), 0.0, 2.35)
 			F["E_Amber"].box(*sorted((s * 10.74, s * 11.06)), 12.85, 15.75, 2.35, 2.43)
-			S.light(M, s * 10.9, 14.3, 3.4, AMBER, 0.7, 9)
+			S.light(M, s * 10.9, 14.3, 3.4, AMBER, 1.6, 11)
 		F["E_Amber"].box(-9.7, 9.7, 12.42, 12.6, 1.25, 1.75)
 		S.add_text(F["Cream"], "SHOP", 2.25, 0.45, y0=13.15, z0=2.15, s=0.24, c=0.2, ci=0.07, ws=1.22, track=0.15, style="round")
 		S.light(M, 0, 11.6, 3.2, "#FFC777", 0.9, 14)

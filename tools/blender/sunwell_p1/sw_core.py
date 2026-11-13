@@ -110,12 +110,12 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"Cast": _L("SmoothPlastic", "#BDB5A5", v="SW_Plaster"),
 	"CastTrim": _L("SmoothPlastic", "#BDB5A5", v="SW_Plaster"),
 	"Wall": _L("SmoothPlastic", "#A39B8C", v="SW_Plaster"),  # hub upgrade pass D: infill a step under the cast pilasters
-	"WallLow": _L("SmoothPlastic", "#7E776C", v="SW_Plaster"),
+	"WallLow": _L("SmoothPlastic", "#6E675D", v="SW_Plaster"),
 	"WallShade": _L("SmoothPlastic", "#8F887C", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
 	"Belt": _L("SmoothPlastic", "#5E5952", v="SW_Plaster"),
 	"WallBase": _L("SmoothPlastic", "#45423F", v="SW_Plaster"),
-	"Ceil": _L("SmoothPlastic", "#7C7E80", v="SW_Plaster"),  # cool grey: a warm/cool split with the walls (brown read dead)
-	"Floor": _L("SmoothPlastic", "#6C665F", v="SW_Floor"),  # side fields darker than the walk: a lit lane
+	"Ceil": _L("SmoothPlastic", "#7D7B77", v="SW_Plaster"),  # neutral grey: not brown (dead), not cool (the Locker read off-family)
+	"Floor": _L("SmoothPlastic", "#5C5751", v="SW_Floor"),  # side fields darker than the walk: a lit lane
 	"Walk": _L("SmoothPlastic", "#978F82", v="SW_Floor"),  # pass E: a step deeper so the sun patches carry the light
 	"Walk2": _L("SmoothPlastic", "#8E877A", v="SW_Floor"),
 	"Stripe": _L("SmoothPlastic", "#A8802F"),
@@ -136,7 +136,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"LockerSlat": _L("SmoothPlastic", "#5F6C77", r=0.05),
 	"RangePanel": _L("SmoothPlastic", "#7F8775"),
 	"RangeLining": _L("SmoothPlastic", "#4C504D"),
-	"LockerFloor": _L("SmoothPlastic", "#82868A", v="SW_Floor"),
+	"LockerFloor": _L("SmoothPlastic", "#8A847B", v="SW_Floor"),  # warm neutral, the hall family
 	"BayBack": _L("SmoothPlastic", "#B3AFA6"),
 	"ShopFloor": _L("SmoothPlastic", "#A2957F", v="SW_Floor"),
 	"Timber": _L("SmoothPlastic", "#6B4B32"),  # flat colour (Wood grain read realistic)
@@ -163,7 +163,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"E_TeamA": _L("Neon", "#FF6A3D", glow=True),
 	"E_TeamB": _L("Neon", "#2A86FF", glow=True),
 	"E_Sun": _L("Neon", "#9C8666", glow=True),  # warm sun glow (the Well, the sun ring), the same as the turbine intake
-	"E_Intake": _L("Neon", "#B09270", glow=True),  # the turbine intake: warm and dim so the vanes read against it
+	"E_Intake": _L("Neon", "#C9A97A", glow=True),  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
 	"PipeOchre": _L("SmoothPlastic", "#8A6A32", v="SW_Steel"),
 	"SeatPad": _L("SmoothPlastic", "#4A3E33"),  # dark warm leather (benches); Fabric read busy and realistic
 }

@@ -759,15 +759,15 @@ local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime",
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
 	-- lighting pass 2026-11-13: the sun through the skylights is the key, the lamps make warm pools, the shade is cool
-	Ambient = Color3.fromRGB(46, 52, 64),
-	OutdoorAmbient = Color3.fromRGB(84, 94, 116),
+	Ambient = Color3.fromRGB(50, 53, 58),
+	OutdoorAmbient = Color3.fromRGB(88, 93, 104), -- neutral shade (the bluer shade read brown-orange next to the warm lamps)
 	Brightness = 3.1, -- the skylight sun patches read hot at 3.4
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
 	ExposureCompensation = -0.1,
 	EnvironmentDiffuseScale = 0.25,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
-	ColorShift_Top = Color3.fromRGB(255, 232, 200), -- warm sunlit tops
+	ColorShift_Top = Color3.fromRGB(255, 240, 222), -- warm sunlit tops, less orange
 	ShadowSoftness = 0.4,
 }
 

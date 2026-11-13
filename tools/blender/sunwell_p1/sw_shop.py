@@ -234,6 +234,23 @@ def build():
 		S.gun_row(["Vandal", 1.25, 56.0, 82.0, 4.0, 0.0, 1.0, 1, 18])  # about 4.9 long over a 3-stud plinth
 		S.light(PM, 0, 0, 11.5, "#FFE6C4", 1.6, 16, angle=50)  # a tight spot on the item
 		S.light(PM, 0, 0, 3.6, "#FFB866", 0.6, 7)  # warm uplight from the ring
+	with S.grp("Stanchions", Matrix.Translation((56.0, 82.0, 0))):  # a low barrier round the featured plinth, open toward the door
+		import sw_hub as _H3
+		PM = Matrix.Translation((56.0, 82.0, 0))
+		posts = [(3.9 * cos(a), 3.9 * sin(a)) for a in [radians(292.5 + 45 * k) for k in range(6)]]  # six posts; the gap faces the doorway
+		for x, y in posts:
+			P = S.FK(K, PM @ Matrix.Translation((x, y, 0)))
+			P["PetrolDark"].prism(_H3.oct_pts(0.42), 0.0, 0.12)  # base
+			P["Petrol"].solid([(px, py, 0.12) for px, py in _H3.oct_pts(0.14)], [(px, py, 2.6) for px, py in _H3.oct_pts(0.12)])
+			P["Stripe"].prism(_H3.oct_pts(0.2), 2.6, 2.78)  # cap
+		for (x0, y0), (x1, y1) in zip(posts, posts[1:]):
+			import math as _m
+			a = _m.atan2(y1 - y0, x1 - x0)
+			L = _m.hypot(x1 - x0, y1 - y0)
+			B = S.FK(K, PM @ Matrix.Translation(((x0 + x1) / 2, (y0 + y1) / 2, 0)) @ Matrix.Rotation(a, 4, "Z"))
+			B["Charcoal"].box(-L / 2 + 0.15, L / 2 - 0.15, -0.05, 0.05, 2.22, 2.42)  # belt between posts
+		for x, y in posts:
+			S.collider(AREA, PM @ Matrix.Translation((x, y, 0)), -0.2, 0.2, -0.2, 0.2, 0.0, 2.8, kind="Y")
 	with S.grp("ShopFloorEmblem", Matrix.Translation((56.0, 82.0, 0))):
 		E = S.FK(K, Matrix.Translation((56.0, 82.0, 0)))
 		import sw_hub as _H

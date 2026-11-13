@@ -92,11 +92,11 @@ def centre(K, KC):
 		K["Charcoal"].disc(2.9, 1.0, 2.3, n=8, cx=CX, cy=CY, r1=2.35)
 		K["Petrol"].ring(2.0, 2.35, 2.3, 2.5, n=8, cx=CX, cy=CY)
 		K["E_Blue"].disc(1.9, 2.3, 2.4, n=8, cx=CX, cy=CY)
-		K["E_Blue"].framem(Matrix.Translation((CX, CY, 6.3)) @ Matrix.Rotation(radians(12), 4, "X")).ring(4.0, 4.14, -0.045, 0.045, n=8)
+		K["E_Blue"].framem(Matrix.Translation((CX, CY, 4.0)) @ Matrix.Rotation(radians(12), 4, "X")).ring(4.0, 4.14, -0.045, 0.045, n=8)
 		C.collider_cyl(AREA, CX, CY, 8.15, 0.05, 0.45)
 		C.collider_cyl(AREA, CX, CY, 6.3, 0.4, 0.95)
 		C.collider_cyl(AREA, CX, CY, 3.2, 1.0, 10.0, kind="X")  # keeps players out of the hologram
-		S.gun_row(["Vandal", 2.2, CX, CY, 5.6, 0.0, 1.0, 1, 16])  # side-on to the doorway
+		S.gun_row(["Vandal", 2.2, CX, CY, 4.0, 0.0, 1.0, 1, 16])  # side-on to the doorway
 		S.light(S.I4, CX, CY, 3.2, "#DCE8FF", 0.6, 10)
 		S.light(S.I4, CX, CY, 12.0, "#EAF6FF", 2.2, 14, angle=70)
 	with S.grp("ProjectorLight", Matrix.Translation((CX, CY, H))):
@@ -152,6 +152,10 @@ def build():
 	S.soffit(KC, AREA, PTS, H, depth=0.6, width=3.0, lights=6, name="LockerSoffit")
 	for y in (CY - 12.0, CY + 12.0):
 		S.ceiling_beam(KC, X0 + 3.0, y, 82.4, y, H, name="LockerBeam")
+	import sw_props as _P
+	for y, nm in ((24.5, "L"), (43.5, "R")):  # benches facing the platform, by the doorway
+		M = Matrix.Translation((50.5, y, 0)) @ Matrix.Rotation(pi / 2, 4, "Z")
+		_P.bench(K, M, "Locker" + nm)
 	for e in (0, 4):  # between the two bays on each long wall
 		S.pilaster(edges[e][0], 0.0, H - 0.6, hw=1.1, d=0.7, name="LockerPilaster")
 	S.anchor("LockerZone", "LobbyLocker", CX - 9.5, CY, 4.0, 7.0, 12.0, 7.0)

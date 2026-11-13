@@ -161,6 +161,13 @@ def alcove(K, KC):
 			K["WallLow"].box(xa, xb, -18, -14, 4.5, 11)
 			K["WallShade"].box(xa, xb, -18, -14, 11, 19.5)
 		KC["Ceil"].box(-14, 14, -14, -4, 17.5, 19.5)
+	with S.grp("ArrivalMat"):  # a ribbed rubber mat with an ochre border on the alcove floor: the spawn foreground reads as a place
+		S.ring_prism(K["Stripe"], S.cham_rect(-9.0, 9.0, -12.6, -4.6, 0.6), S.cham_rect(-8.7, 8.7, -12.3, -4.9, 0.5), S.LAND, S.LAND + 0.04)
+		K["Rubber"].prism(S.cham_rect(-8.7, 8.7, -12.3, -4.9, 0.5), S.LAND, S.LAND + 0.03)
+		y = -11.9
+		while y < -5.2:
+			K["Graphite"].box(-8.2, 8.2, y, y + 0.14, S.LAND + 0.03, S.LAND + 0.05)
+			y += 0.55
 		for sx in (-1, 1):  # a crown facet on the side walls (a belt would cut through the lamps and panels)
 			x = sx * 14
 			K["Belt"].ext_y([(x, 16.8), (x - sx * 0.6, 17.5), (x, 17.5)] if sx < 0 else [(x, 17.5), (x - sx * 0.6, 17.5), (x, 16.8)], -13.6, -4.4)
