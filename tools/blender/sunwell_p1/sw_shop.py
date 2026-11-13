@@ -198,7 +198,10 @@ def build():
 			Hs["E_Amber"].box(sx * 5.75 - 0.12, sx * 5.75 + 0.12, 11.5, 13.1, 0.38, 0.44)
 	# rubber mat where customers stand, and ribs on the counter front
 	with S.grp("Counter", reuse=True):
-		K["Rubber"].box(cx0 - 6.2, cx0 - 1.0, cy0 + 1.0, cy1 - 1.0, -0.2, 0.07)
+		K["Graphite"].box(cx0 - 6.2, cx0 - 1.0, cy0 + 1.0, cy1 - 1.0, -0.2, 0.07)  # mat (charcoal-brown, not black)
+		K["E_Sun"].box(cx0 - 0.83, cx0 - 0.74, cy0 + 0.6, cy1 - 0.6, 0.06, 0.14)  # warm toe light along the counter foot
+		for y in (68.0, 75.0, 82.0):
+			S.light(S.I4, cx0 - 3.0, y, 9.5, "#FFE4C0", 1.2, 13, angle=70)  # pools on the customer side
 		for k in range(11):
 			yy = cy0 + 1.6 + k * 2.08
 			a0, a1 = cx0 - 0.424, cx0 - 0.047  # fins follow the leaning front
@@ -213,6 +216,17 @@ def build():
 		for y in (71.0, 93.0):
 			S.opal_panel(KC, x, y, H, 4.6, 4.6, color="#F4EEE6", brightness=0.32, rng=20)  # lighting pass: the bays and lamps carry the light
 	S.soffit(KC, AREA, PTS, H, depth=0.6, width=3.0, lights=6, name="ShopSoffit")
+	S.pilaster(FN, 0.4, H - 0.6, name="ShopPilaster")  # between the Battle Pass and Event boards
+	S.pilaster(FN, -18.2, H - 0.6, name="ShopPilaster")
+	S.pilaster(FN, 16.8, H - 0.6, name="ShopPilaster")
+	S.pilaster(FS, 9.2, H - 0.6, name="ShopPilaster")  # either side of the supply cabinets
+	S.pilaster(FS, -9.4, H - 0.6, name="ShopPilaster")
+	with S.grp("ShopFloorMarks"):
+		from mathutils import Vector as _V
+		import lv3_core as _C
+		outer = _C._inset_poly([_V(p) for p in PTS], 2.4)
+		inner = _C._inset_poly([_V(p) for p in PTS], 2.8)
+		S.ring_prism(K["Graphite"], [(p.x, p.y) for p in outer], [(p.x, p.y) for p in inner], 0.0, 0.03)
 	S.anchor("ShopZone", "LobbyShop", 65.5, 75.0, 3.5, 6.0, 16.0, 6.0)
 	S.anchor("BattlePassZone", "LobbyBattlePass", 55.0, 100.5, 3.5, 14.0, 6.0, 6.0)
 	K.done()

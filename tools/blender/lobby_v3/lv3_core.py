@@ -723,6 +723,7 @@ class Kit:
 	(piece, material)."""
 
 	SEQ = 0
+	SEQS = {}
 
 	def __init__(self, col, rot=0.0, prefix=None):
 		self.col, self.rot = col, rot
@@ -734,8 +735,9 @@ class Kit:
 		key = (g, m) if g else m
 		if key not in self.b:
 			if g:
-				Kit.SEQ += 1
-				name = f"{self.prefix}_{Kit.SEQ:04d}_{m}"  # unique and short; the piece's path is a custom property
+				area = self.col.name.replace("_Ceil", "")
+				Kit.SEQS[area] = Kit.SEQS.get(area, 0) + 1  # per area: a change in one area never renames another's meshes
+				name = f"{self.prefix}_{Kit.SEQS[area]:04d}_{m}"  # unique and short; the piece's path is a custom property
 			else:
 				name = f"{self.prefix}_{m}"
 			self.b[key] = B(name, self.col, mat(m), self.rot)

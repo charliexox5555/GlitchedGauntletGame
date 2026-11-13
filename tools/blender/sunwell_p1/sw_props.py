@@ -128,10 +128,12 @@ def bench_bay(K, side):
 	M = Matrix.Translation((side * 34.72, 53, 0)) @ Matrix.Rotation(rot, 4, "Z")
 	bench(K, M, "L" if side < 0 else "R")
 	W = S.FK(K, S.face((side * 36, 53, 0), (0, -side, 0), (-side, 0, 0)))  # back of the recess
+	with S.grp("BenchRecess", W.M):  # a one-piece dark lining (sides and head), so the recess reads as a fitted niche
+		S.u_frame(W["Charcoal"], 5.0, 7.25, 4.8, 7.05, 0.0, 2.0)
 	with S.grp("BenchLight", W.M):
 		W["Graphite"].box(-3.4, 3.4, 5.55, 6.35, 0.0, 0.45)
 		W["E_Opal"].box(-3.1, 3.1, 5.72, 6.18, 0.45, 0.53)
-		W["Graphite"].box(-5.0, 5.0, 0.0, 0.5, 0.0, 0.18)
+		W["Graphite"].box(-4.8, 4.8, 0.0, 0.5, 0.0, 0.18)
 		S.light(W.M, 0, 5.4, 1.4, "#FFE9CC", 0.9, 13)
 
 

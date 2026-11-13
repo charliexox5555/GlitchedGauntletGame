@@ -36,7 +36,7 @@ def stub_colliders(M, opened=False):
 	c(-8.15, 8.15, -1.5, -0.055, -9.4 if opened else -8.6, 0)  # reveal floor
 
 
-def sconce(F, x, y, light=True):
+def sconce(F, x, y, light=True, power=2.4, reach=13):
 	"""Bulkhead wall light, modelled as a real fitting (reference: the station-kit lamp, industrial bulkhead lights):
 	a mount plate with four fixings, a housing, a bezel with the opal lens set back inside it behind three louvre fins,
 	a visor and a drip edge, and a conduit that enters through a gland and runs up to a junction box under a saddle clamp."""
@@ -59,7 +59,7 @@ def sconce(F, x, y, light=True):
 		L["PetrolDark"].prism(cr(-0.4, 0.4, 4.45, 5.15, 0.1), 0.0, 0.46)  # junction box
 		L["Graphite"].prism(cr(-0.3, 0.3, 4.55, 5.05, 0.06), 0.46, 0.5)
 		if light:
-			S.light(L.M, 0, 0, 1.7, AMBER, 2.4, 13)  # hub upgrade: brighter, tighter warm pools on the walls
+			S.light(L.M, 0, 0, 1.7, AMBER, power, reach)  # hub upgrade: brighter, tighter warm pools on the walls
 
 
 def display(F, u, yc, w, h, kind, title, sub=""):
@@ -75,6 +75,12 @@ def display(F, u, yc, w, h, kind, title, sub=""):
 		S.bolts(D["Steel"], [(-w / 2 - 0.42, 0.0), (w / 2 + 0.42, 0.0), (0.0, h / 2 + 0.42), (-2.0, -h / 2 - 0.42), (2.0, -h / 2 - 0.42)], r=0.1, z0=0.4, h=0.07)
 		S.screen(kind, title, sub, D.M, 0.0, 0.0, 0.47, w - 0.06, h - 0.06)
 		S.light(D.M, 0, 0, 2.4, "#FFE2B8", 0.5, 9)
+
+
+def threshold_wash(M, color):
+	"""Soft wing-coloured light inside a doorway's reveal and a pool on the hall floor in front of it."""
+	S.light(M, 0, 6.0, -3.6, color, 1.1, 13)
+	S.light(M, 0, 5.0, 3.2, color, 0.55, 9)
 
 
 def task_light(F, glow, color, y=H, z=-2.8, hw=1.5, brightness=1.6):
@@ -117,6 +123,7 @@ def duels(K):
 			F["PetrolDark"].box(-1.15, 1.15, 4.85, 6.15, ZB, ZB + 0.34)  # lock block across the seam
 			F["P_Orange"].box(-0.75, 0.75, 5.3, 5.7, ZB + 0.34, ZB + 0.4)
 		task_light(F, "E_Orange", "#FF7A3A", brightness=0.9)
+		threshold_wash(M, "#FFB27A")
 		# two orange guide inlays, perpendicular to the sill, running into the opening
 		for s in (-1, 1):
 			F["P_Orange"].box(s * 3.6 - 0.28, s * 3.6 + 0.28, -0.15, 0.05, -3.4, 3.4)
@@ -166,6 +173,7 @@ def locker(K):
 		F["SteelDark"].box(-HW, HW, -0.2, 0.05, -0.2, 0.5)
 		task_light(F, "E_Cool", "#CFE6FF", y=10.42, hw=1.4, brightness=0.5)
 		S.light(M, 0, 0.6, -1.0, "#6FC4FF", 0.6, 9)
+		threshold_wash(M, "#CFE2FF")
 		with S.grp("Sign", M):
 			# sign: upright squared letters on a gently arched plate held by two petrol blocks
 			y0, hw, rise, he = 13.6, 7.6, 1.35, 2.5
@@ -215,6 +223,7 @@ def range_(K):
 		F["Steel"].box(-1.2, 1.2, 0.62, 0.92, ZB, ZB + 0.3)  # pull
 		F["E_Mint"].box(-0.5, 0.5, 9.6, 9.85, ZB + 0.02, ZB + 0.08)  # status lamp
 		task_light(F, "E_Mint", "#CFF5E0", hw=2.2, brightness=1.5)
+		threshold_wash(M, "#C8F2DA")
 		# mint calibration ticks in the sill
 		F["Graphite"].box(-HW, HW, -0.2, 0.05, -0.3, 0.4)
 		for k in range(-3, 4):
@@ -255,6 +264,7 @@ def shop(K):
 			F["Bronze"].box(-7.95, 7.95, 0.0, 0.47, -8.6, ZB + 0.12)
 			F["Graphite"].box(-1.2, 1.2, 0.6, 0.95, ZB, ZB + 0.3)  # pull handle
 		task_light(F, "E_Opal", "#FFD9A0", hw=2.2, brightness=1.5)
+		threshold_wash(M, "#FFD49A")
 		# short dark entry mat
 		F["PetrolDark"].box(-HW, HW, -0.2, 0.05, -0.3, 0.4)
 		F["Rubber"].box(-7.0, 7.0, -0.15, 0.07, 0.7, 5.5)

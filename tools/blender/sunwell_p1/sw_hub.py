@@ -91,6 +91,7 @@ def sun_well(K):
 		S.light(Matrix.Translation((0, WY, 0)), 0, 0, 0.7, "#FFB866", 0.8, 9)
 		# a flush inlay ring on the floor round the well (dark, 0.04 proud)
 		S.ring_prism(W["Graphite"], o(7.75), o(7.45), 0.0, 0.04)
+		S.ring_prism(W["Floor"], o(7.45), o(6.56), 0.0, 0.025)  # dark apron round the foot: the Well sits on its own ground
 
 
 def sun_ring(K):
@@ -336,6 +337,30 @@ def pipe_stock(K, M):
 		_col(M, 2.95, 4.35, -1.65, -0.7, 0.0, 0.65)
 
 
+def hatch(K, x, y, yaw=0.0, w=2.6):
+	"""A flush steel floor hatch (service access): chamfered frame, a recessed plate with two lift slots and four bolts."""
+	M = Matrix.Translation((x, y, 0)) @ Matrix.Rotation(radians(yaw), 4, "Z")
+	with S.grp("FloorHatch", M, inst=True):
+		F = S.FK(K, M)
+		h = w / 2
+		S.ring_prism(F["PetrolDark"], S.cham_rect(-h, h, -h, h, 0.35), S.cham_rect(-h + 0.22, h - 0.22, -h + 0.22, h - 0.22, 0.25), 0.0, 0.05)
+		F["Petrol"].prism(S.cham_rect(-h + 0.24, h - 0.24, -h + 0.24, h - 0.24, 0.24), 0.0, 0.035)
+		for u in (-0.45, 0.45):
+			F["Dark"].box(u - 0.28, u + 0.28, -0.07, 0.07, 0.035, 0.045)
+		S.bolts(F["Steel"], [(sx * (h - 0.11), sy * (h - 0.11)) for sx in (-1, 1) for sy in (-1, 1)], r=0.07, z0=0.05, h=0.03)
+
+
+def drain(K, side, y0, y1):
+	"""A slotted drain channel along the foot of a side wall, in front of the battered base."""
+	x = side * 32.6
+	with S.grp("Drain", Matrix.Translation((x, (y0 + y1) / 2, 0)), inst=True):
+		K["PetrolDark"].box(x - 0.35, x + 0.35, y0, y1, 0.0, 0.04)
+		n = int((y1 - y0) / 0.7)
+		for k in range(n):
+			yy = y0 + 0.25 + k * 0.7
+			K["Dark"].box(x - 0.2, x + 0.2, yy, yy + 0.3, 0.04, 0.05)
+
+
 def floor_joints(K):
 	"""The walk as laid slabs: joints across where its slabs meet and one down the middle (dark, 0.03 proud), clear of
 	the Well's inlay; a steel threshold plate with tread ribs and a hazard edge where the ramp lands."""
@@ -396,7 +421,7 @@ def walk_motif(K):
 				K["Graphite"].box(x0, x1, ya, yb, 0.0, 0.03)
 		for y in (28.0, 33.5, 39.0, 67.0, 72.5, 78.0):  # chevrons pointing down the hall (+y)
 			pts = [(-3.2, y), (0.0, y + 1.9), (3.2, y), (3.2, y + 0.9), (0.0, y + 2.8), (-3.2, y + 0.9)]
-			K["Graphite"].prism(pts, 0.0, 0.035)
+			K["Floor"].prism(pts, 0.0, 0.035)  # quiet: one value under the walk, not black
 
 
 def wall_conduit(K):
@@ -429,6 +454,9 @@ def turbine_frame(K):
 		outer = [(R2 * cos(2 * pi * k / n), TC + R2 * sin(2 * pi * k / n)) for k in range(n)]
 		inner = [(R1 * cos(2 * pi * k / n), TC + R1 * sin(2 * pi * k / n)) for k in range(n)]
 		S.ring_prism(F["PetrolDark"], outer, inner, 1.3, 1.55)
+		rim = [(12.0 * cos(2 * pi * k / n), TC + 12.0 * sin(2 * pi * k / n)) for k in range(n)]
+		rin = [(11.75 * cos(2 * pi * k / n), TC + 11.75 * sin(2 * pi * k / n)) for k in range(n)]
+		S.ring_prism(F["E_Intake"], rim, rin, 1.55, 1.6)  # a warm rim on the frame: the landmark's outline glows
 		# (four diagonal gussets were tried here and read as loose dashes on the surround: removed)
 
 
@@ -446,5 +474,10 @@ def build():
 	route_cues(K)
 	turbine_frame(K)
 	walk_motif(K)
+	for sx in (-1, 1):  # service hatches in the end fields, drains along the end-bay walls
+		hatch(K, sx * 18.0, 10.0, 0.0)
+		hatch(K, sx * 18.0, 92.0, 0.0)
+		drain(K, sx, 2.0, 18.8)
+		drain(K, sx, 87.2, 110.0)
 	wall_conduit(K)
 	K.done()

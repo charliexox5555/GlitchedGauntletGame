@@ -89,7 +89,7 @@ def walls(K):
 
 			def shoe(bay, a, sx=sx):
 				y0, y1 = bay
-				y0, y1 = (y0, y1 + 0.06) if y1 < 53 else (y0 - 0.06, y1)
+				y0, y1 = y0 + 0.06, y1 - 0.06  # inset inside the pier foot: no sliver, no shared plane
 				return (*sorted((sx * (HX - a), sx * HX)), y0, y1)
 
 			def r(a, grow, bay=bay, yb=yb):
@@ -154,12 +154,12 @@ def alcove(K, KC):
 		for sx in (-1, 1):
 			K["WallBase"].box(*sorted((sx * 13.65, sx * 18)), -14, -4, T, 4.5)
 			for ya, yb in ((-14, -9), (-9, -4)):
-				K["Wall"].box(*sorted((sx * 14, sx * 18)), ya, yb, 4.5, 11)
-				K["Wall"].box(*sorted((sx * 14, sx * 18)), ya, yb, 11, 19.5)
+				K["WallLow"].box(*sorted((sx * 14, sx * 18)), ya, yb, 4.5, 11)
+				K["WallShade"].box(*sorted((sx * 14, sx * 18)), ya, yb, 11, 19.5)
 		K["WallBase"].box(-17.95, 17.95, -17.95, -13.65, T + 0.04, 4.5)
 		for xa, xb in _pairs([-18, -9, 0, 9, 18]):
-			K["Wall"].box(xa, xb, -18, -14, 4.5, 11)
-			K["Wall"].box(xa, xb, -18, -14, 11, 19.5)
+			K["WallLow"].box(xa, xb, -18, -14, 4.5, 11)
+			K["WallShade"].box(xa, xb, -18, -14, 11, 19.5)
 		KC["Ceil"].box(-14, 14, -14, -4, 17.5, 19.5)
 	# the arrival gate (staging art: where players came in)
 	with S.grp("ArrivalGate", S.face((0, -14, S.LAND), (-1, 0, 0), (0, 1, 0))):
@@ -169,8 +169,14 @@ def alcove(K, KC):
 		S.corner_fill(A["Charcoal"], 8, 10, 0.25, 0.45, cham=1.2)
 		for s in (-1, 1):
 			A["BlastDoor"].box(*sorted((s * 0.08, s * 7.6)), 0.25, 9.6, 0.25, 0.5)
-			A["Graphite"].box(*sorted((s * 1.0, s * 6.6)), 4.3, 5.3, 0.5, 0.62)
+			cx = s * 3.85
+			A["Petrol"].prism(S.cham_rect(cx - 3.0, cx + 3.0, 1.0, 8.9, 0.5), 0.5, 0.6)  # raised panel with cut corners
+			A["Graphite"].prism(S.cham_rect(cx - 2.4, cx + 2.4, 6.0, 8.3, 0.35), 0.6, 0.66)  # vision plate
+			A["Graphite"].box(*sorted((s * 1.0, s * 6.6)), 4.3, 5.3, 0.6, 0.72)
 		A["E_Opal"].box(-3.0, 3.0, 10.35, 10.75, 0.7, 0.78)
+		for s in (-1, 1):  # lit jamb strips set in the frame
+			A["E_Sun"].box(*sorted((s * 8.45, s * 8.75)), 0.6, 9.4, 0.7, 0.76)
+		S.light(A.M, 0, 11.8, 3.0, "#FFE2B8", 0.8, 18, angle=100)
 	for sx in (-1, 1):  # side walls beside the spawn: a recessed service panel and a wall lamp each side
 		Fw = S.face((sx * 14, -9, S.LAND), (0, -sx, 0), (-sx, 0, 0))
 		with S.grp(f"AlcovePanel_{SD(sx)}", Fw, inst=True):
@@ -184,12 +190,12 @@ def alcove(K, KC):
 			P["Steel"].box(-1.7, -1.1, 3.6, 3.9, 0.46, 0.56)  # hatch pull
 			P["E_Sun"].box(-0.75, -0.25, 5.3, 5.5, 0.34, 0.4)  # status lamp
 			S.bolts(P["Steel"], [(-3.15, 2.1), (0.35, 2.1), (-3.15, 9.7), (0.35, 9.7)], r=0.1, z0=0.16, h=0.06)
-		DR.sconce(S.FK(K, Fw), 2.6, 9.4)
+		DR.sconce(S.FK(K, Fw), 2.6, 9.4, power=0.9, reach=9)  # dim: the alcove frames the bright hall
 	for s in (-1, 1):  # opal ceiling panels
 		with S.grp("AlcoveLight", Matrix.Translation((s * 7, -9, 17.5)), inst=True):
 			KC["Charcoal"].box(s * 7 - 2.2, s * 7 + 2.2, -10.4, -7.6, 17.3, 17.5)
 			KC["E_Opal"].box(s * 7 - 1.9, s * 7 + 1.9, -10.1, -7.9, 17.22, 17.3)
-			S.light(S.I4, s * 7, -9, 16.6, "#FFF0DC", 0.9, 22)
+			S.light(S.I4, s * 7, -9, 16.6, "#FFF0DC", 0.55, 18)
 
 
 def entry(K, KR):

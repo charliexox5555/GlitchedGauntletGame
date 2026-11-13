@@ -293,6 +293,7 @@ def build():
 			K["Stripe"].box(XW + 10.0, XD - 24.0, 34 + sy * 6.0 - 0.3, 34 + sy * 6.0 + 0.3, ZL - 0.2, ZL + 0.05)
 	S.opal_panel(KC, -50.4, 20.0, ZL + H, 4.0, 4.0, brightness=0.7, rng=28)
 	S.opal_panel(KC, -50.4, 48.0, ZL + H, 4.0, 4.0, brightness=0.7, rng=28)
+	S.soffit(KC, AREA, PTS, ZL + H, depth=0.6, width=3.0, lights=12, name="DuelsSoffit")
 	K.done()
 	KC.done()
 	KR.done()

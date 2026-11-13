@@ -61,6 +61,19 @@ History, captures and the code that implements this: `vault/02 Art/Sunwell Works
 - **Lighting:** low specular (about 0.08), soft shadows, real fixtures that make warm pools, a real light beside every glowing lens. If things look too real, check the lighting before the models.
 - 3 to 5 value bands per room; interactables are the brightest or most saturated thing in view.
 
+### Lighting in Roblox, learned the hard way (Sunwell hub, 2026-11-13)
+- **Local lights usually decide an interior, not the Lighting service.** If changing Ambient or Brightness barely moves a capture, turn every light off and look. Wide point lights (range 30+) flood every surface with the same warm wash, so the room reads as one value band.
+- **Pools, not washes:** ceiling fixtures are SpotLights pointing down (angle 70-90, range 18-22), wall lamps are short warm points (range 12-14). Fills are cool and tight. The sun through openings is the key light.
+- **Neon clips.** A Neon lens lighter than about `#8C877F` renders pure white; lenses sit around `#7E7870`, and warm glows around `#9C8666`-`#B09270`. Glowing colours look more saturated than their hex: test in Studio, not in a colour picker.
+- Cool shade (Ambient about 46,52,64, OutdoorAmbient about 84,94,116) against warm lamps gives depth; a warm ColorShift_Top lights the sunlit tops.
+- Rooms with flat slab ceilings read unfinished: a **dropped soffit with a lit cove** (`S.soffit`) or beams fixes it cheaply.
+- Lighter Shop/Locker-style wings need the same value steps as the hall: dark base, mid wainscot, lighter wall, darker ceiling.
+
+### Review method that works
+- Shoot evidence from the **player's real camera** (inside the spawn alcove, eye height), plus close-ups of every joint, plus **R15 stand-ins (5.5 studs)** for scale; remove the stand-ins afterwards.
+- Grade with **three blind reviewers** (different lenses) and use the median; my own grade ran 2-3 points high. Give reviewers the owner's decisions, or they mark them down (wing accents, placeholders).
+- Fix the shared notes first; change one thing at a time when the cause is unclear.
+
 ## 5. Overlap and alignment (the owner spots these fast)
 - No interpenetrating parts without a deliberate seat; no coplanar faces; nothing floating. Run the geometry audit (`sw_run.audit()`): 0 leaks, 0 floating, and read the coplanar list.
 - **Check sightlines, not only geometry**: a beam right above a sign, a hanging sign crossing labels behind it from the doorway, a pad lying over a floor line all count as overlap.
@@ -74,4 +87,4 @@ History, captures and the code that implements this: `vault/02 Art/Sunwell Works
 4. Write the result and the captures into the vault note for the area.
 
 ## 7. Rejected so far (do not repeat)
-Spheres and smooth cylinders · subdivision-smoothed parts · square blunt ends on bars, rails and barrels · Rounded-bevel boxes · box lamps and flat black boards · concrete or PBR realism on walls · bare block walls · blue-teal structure · mixed accent colours in one room · mesh holograms · pads of mixed sizes or shuffled modes · a rail and gussets round a screen · trim stubs between a pier and a recess · anything half hidden, retracted or poking out of a wall · thin neon tube letters and sign pictograms.
+Spheres and smooth cylinders · subdivision-smoothed parts · square blunt ends on bars, rails and barrels · Rounded-bevel boxes · box lamps and flat black boards · concrete or PBR realism on walls · bare block walls · blue-teal structure · mixed accent colours in one room · mesh holograms · pads of mixed sizes or shuffled modes · a rail and gussets round a screen · trim stubs between a pier and a recess · anything half hidden, retracted or poking out of a wall · thin neon tube letters and sign pictograms. · merged meshes across unrelated objects (every object is its own piece) · flat white Neon panels · trim surfaces that share a plane with the next part (seams; step them 0.06+ or inset them) · bare recesses (line them as one piece)

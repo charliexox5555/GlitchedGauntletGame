@@ -37,7 +37,8 @@ PAL = {
 	"Cast": ("#C9C0B0", 0.85, 0.0, 0.12),  # hero concrete: frames, corbels, cheeks
 	"CastTrim": ("#C9C0B0", 0.85, 0.0, 0.12),  # smaller cast pieces: corbels, cheeks, newels
 	"Wall": ("#BFB6A6", 0.88, 0.0, 0.09),  # wall blocks (the bevel makes the joints)
-	"WallLow": ("#A49C8E", 0.88, 0.0, 0.09),  # wainscot: the lower wall, one value darker
+	"WallLow": ("#A49C8E", 0.88, 0.0, 0.09),
+	"WallShade": ("#ADA597", 0.88, 0.0, 0.09),  # wainscot: the lower wall, one value darker
 	"Belt": ("#5A554E", 0.7, 0.0, 0.05),  # belt rail and crown
 	"WallBase": ("#4A4744", 0.8, 0.0, 0.09),
 	"Ceil": ("#ADA597", 0.9, 0.0, 0.09),
@@ -110,6 +111,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"CastTrim": _L("SmoothPlastic", "#BDB5A5", v="SW_Plaster"),
 	"Wall": _L("SmoothPlastic", "#A39B8C", v="SW_Plaster"),  # hub upgrade pass D: infill a step under the cast pilasters
 	"WallLow": _L("SmoothPlastic", "#7E776C", v="SW_Plaster"),
+	"WallShade": _L("SmoothPlastic", "#8F887C", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
 	"Belt": _L("SmoothPlastic", "#5E5952", v="SW_Plaster"),
 	"WallBase": _L("SmoothPlastic", "#45423F", v="SW_Plaster"),
 	"Ceil": _L("SmoothPlastic", "#716C62", v="SW_Plaster"),  # hub upgrade: the upper zone a value band darker
@@ -118,10 +120,10 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"Walk2": _L("SmoothPlastic", "#8E877A", v="SW_Floor"),
 	"Stripe": _L("SmoothPlastic", "#A8802F"),
 	"Rubber": _L("SmoothPlastic", "#26282B"),
-	"Petrol": _L("SmoothPlastic", "#434A4F", v="SW_Steel"),
-	"PetrolDark": _L("SmoothPlastic", "#2F3438", v="SW_Steel"),
-	"Charcoal": _L("SmoothPlastic", "#232528"),
-	"Graphite": _L("SmoothPlastic", "#383B3F"),
+	"Petrol": _L("SmoothPlastic", "#4A4C4D", v="SW_Steel"),  # neutral gunmetal (read navy at #434A4F)
+	"PetrolDark": _L("SmoothPlastic", "#363737", v="SW_Steel"),
+	"Charcoal": _L("SmoothPlastic", "#2E2D2B"),  # warm charcoal (near-black masses read as holes)
+	"Graphite": _L("SmoothPlastic", "#42403D"),
 	"Steel": _L("SmoothPlastic", "#868C92", r=0.06),
 	"SteelDark": _L("SmoothPlastic", "#5E666D", r=0.04),
 	"Blade": _L("SmoothPlastic", "#4F555B", r=0.05),  # dark vanes against the warm intake (hub upgrade)
@@ -157,7 +159,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"E_Blue": _L("Neon", "#6FC4FF", glow=True),
 	"E_Mint": _L("Neon", "#7FE8B0", glow=True),
 	"E_Orange": _L("Neon", "#FF5A1F", glow=True),
-	"E_Holo": _L("Neon", "#7FD4FF", glow=True),
+	"E_Holo": _L("Neon", "#4E6C78", glow=True),  # terminal faces: lit, not a cyan-white blowout
 	"E_TeamA": _L("Neon", "#FF6A3D", glow=True),
 	"E_TeamB": _L("Neon", "#2A86FF", glow=True),
 	"E_Sun": _L("Neon", "#9C8666", glow=True),  # warm sun glow (the Well, the sun ring), the same as the turbine intake
@@ -647,6 +649,20 @@ def poly_room(area, pts, zf, H, floor_mat="Walk", ceil_mat="Ceil", t=4.0, ceilin
 		M, L = edge_frame(pts[i], pts[(i + 1) % n], zf)
 		edges.append((FK(K, M), L, (0.0, turn[(i + 1) % n])))  # no two walls share a corner block (that z-fought on the outside)
 	return K, KC, edges
+
+
+def pilaster(F, u, top, hw=1.2, d=0.8, name="Pilaster"):
+	"""A cast pilaster on a wall face frame F at u (x along the wall), from the floor to `top`: a dark flared foot, a
+	steel shoe inset in it, a tapered cast base, a straight shaft and a flared head. A piece of its own with its collider."""
+	with grp(name, F.M @ Matrix.Translation((u, 0, 0)), inst=True):
+		P = F.at(Matrix.Translation((u, 0, 0)))
+		r = lambda w, dd: (-w, w, 0.0, dd)  # (x0, x1, z0, z1) in the face frame: x along the wall, z out of it
+		taper_y(P["WallBase"], r(hw + 0.35, d + 0.45), 0.0, r(hw + 0.2, d + 0.3), 1.5)
+		taper_y(P["CastTrim"], r(hw + 0.1, d + 0.2), 1.5, r(hw, d), 3.2)
+		P["CastTrim"].box(-hw, hw, 3.2, top - 1.4, 0.0, d)
+		taper_y(P["CastTrim"], r(hw, d), top - 1.4, r(hw + 0.3, d + 0.3), top)
+		taper_y(P["PetrolDark"], r(hw + 0.26, d + 0.36), 1.5, r(hw + 0.2, d + 0.3), 2.2)  # shoe
+		collider(AREA, P.M, -hw, hw, 0.0, top, 0.05, d - 0.1)
 
 
 def soffit(KC, area, pts, H, depth=0.7, width=3.0, lights=6, name="Soffit"):
