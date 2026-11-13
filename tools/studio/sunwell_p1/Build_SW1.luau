@@ -391,7 +391,7 @@ function M.lights(area: string, mult: number?): string
 			light = pl
 		end
 		light.Color = Color3.fromHex(l[5])
-		light.Brightness = l[6] * (mult or 1)
+		light.Brightness = l[6] * (if l[1] == "P" then (mult or M.POINT_MULT[area] or 1) else 1) -- point fills scaled per area; spots (pools) stay at full
 		light.Shadows = false
 		light.Parent = a
 		CollectionService:AddTag(light, "LobbyLight")
@@ -759,13 +759,13 @@ local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime",
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
 	-- lighting pass 2026-11-13: the sun through the skylights is the key, the lamps make warm pools, the shade is cool
-	Ambient = Color3.fromRGB(62, 67, 78),
-	OutdoorAmbient = Color3.fromRGB(108, 116, 134), -- cool shade against warm light (the scene read one sepia cast)
-	Brightness = 2.15, -- softer sun: the patches and beam stripes on the lane read hot and hard
+	Ambient = Color3.fromRGB(52, 56, 64),
+	OutdoorAmbient = Color3.fromRGB(90, 96, 110), -- cool shade against warm light (the scene read one sepia cast)
+	Brightness = 2.3,
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
-	ExposureCompensation = -0.3, -- -0.5 (round 21) scored worse: ceilings went dead
-	EnvironmentDiffuseScale = 0.25,
+	ExposureCompensation = -0.75, -- with the point fills scaled down: the walls were clipping to white, so no colour change showed
+	EnvironmentDiffuseScale = 0.2,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
 	ColorShift_Top = Color3.fromRGB(255, 252, 246), -- neutral sun
 	ShadowSoftness = 1, -- soft skylight shadow grid (hard edges read blotchy)
@@ -866,6 +866,8 @@ end
 -- Everything, in the order pieces need: all meshes first (lights and colliders may belong to a piece in another
 -- area's data, e.g. the doorway lamps' lights are recorded with the hall), then colliders, lights, screens, guns.
 M.AREAS = { "Hall", "Doors", "Props", "Hub", "Locker", "Shop", "Duels" }
+-- point-light scale per area (2026-11-13: the point fills pushed the light walls past white; spots make the pools)
+M.POINT_MULT = { Hall = 0.55, Doors = 0.55, Props = 0.55, Hub = 0.55, Shop = 0.75, Locker = 0.8, Duels = 0.9 }
 function M.rebuild(): string
 	local out = {}
 	for _, a in M.AREAS do

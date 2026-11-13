@@ -248,7 +248,7 @@ def build():
 			a = _m.atan2(y1 - y0, x1 - x0)
 			L = _m.hypot(x1 - x0, y1 - y0)
 			B = S.FK(K, PM @ Matrix.Translation(((x0 + x1) / 2, (y0 + y1) / 2, 0)) @ Matrix.Rotation(a, 4, "Z"))
-			B["Charcoal"].box(-L / 2 + 0.15, L / 2 - 0.15, -0.05, 0.05, 2.22, 2.42)  # belt between posts
+			B["Stripe"].box(-L / 2 + 0.15, L / 2 - 0.15, -0.07, 0.07, 2.12, 2.42)  # gold belt between posts (round 23: the charcoal one did not read)
 		for x, y in posts:
 			S.collider(AREA, PM @ Matrix.Translation((x, y, 0)), -0.2, 0.2, -0.2, 0.2, 0.0, 2.8, kind="Y")
 	with S.grp("ShopFloorGrid"):  # laid floor plates: joints every 6 studs inside the border (clear of the emblem and counter mat)

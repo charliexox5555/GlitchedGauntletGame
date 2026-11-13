@@ -1,5 +1,63 @@
 # Status History
 
+<!-- moved from Home 2026-11-13 (hub rounds 22-24) -->
+- **Hub, 4-5 a.m. (2026-11-13, [note](02%20Art/Sunwell%20Hub%20Upgrade.md) → Rounds 15-19):** what changed:
+  - a neutral palette and cool shade;
+  - softer sun;
+  - lamp floor pools;
+  - lined portal jambs in the spawn view;
+  - the Shop sign reads SHOP;
+  - floor grids and bollards.
+
+  **The blind median holds at 8.75 / 10 for four rounds** (it passes 8.5; the stop rule ended the loop). The last weighted 1 is lighting, with "warm sepia" blamed on the cream walls. Those walls are the owner's locked palette. **Owner call:** keep the warm palette, or trial neutral grey-white walls. **Save the Lobby place.** Committed.
+- **Hub overnight (2026-11-13, [note](02%20Art/Sunwell%20Hub%20Upgrade.md) → Overnight):**
+  - **Bench glitch fixed:** a lined niche and inset pier shoes.
+  - Pilasters, beams and soffits in the wings.
+  - Neutral darks (no navy).
+  - Wing-coloured doorway washes and a dim spawn alcove that frames the hall.
+  - Carved arrival gate, turbine rim, Shop counter lighting and a floor emblem, hall hatches and drains.
+  - Mesh names now count per area (fixes a partial-upload break).
+  - Lighting and review lessons added to the build skill.
+  - **Blind median 8.75 / 10** (passes 8.5; not yet 9). Hall 8.5, Duels 8, Shop 7.5, Locker 7.
+  - 341 standalone pieces. Walked in play mode.
+  - **Waiting on the owner:** look, and **save the Lobby place**. Blender MCP still down: the open .blend needs `sw_run.build_all()`.
+- **Hub round 2 (2026-11-13, [note](02%20Art/Sunwell%20Hub%20Upgrade.md)):** what changed:
+  - **Every object is now its own piece**: 314 standalone Models (lamps, boards, wall bays, pilasters, beams, pads, cases, props), each holding its own meshes, colliders and lights. Moving one moves nothing else. 102 identical pieces share one mesh.
+  - A lighting pass: sun as the key, cool shade, warm lamp pools, no blown-out lenses.
+  - Glitch audit with two z-fights fixed.
+  - Polish: leather bench pads, a Range shutter, spawn alcove panels, Locker floor marks, lit soffits in the Shop and Locker, the Duels ramp wall, a warmer turbine.
+  - **Blind median 7.9 / 10** (from 6.3). Hall 8, Duels 7, Locker 6, Shop 5.5; next list in the note.
+  - Walked in play mode.
+  - Blender MCP stopped answering; builds ran in a background Blender.
+  - **Waiting on the owner:** look, and **save the Lobby place**. Committed.
+- **Hub upgrade, Sunwell Works hall (2026-11-12, [note](02%20Art/Sunwell%20Hub%20Upgrade.md)):** sixth pass on the hub, from the vault's hub research and the RIVALS lobby frames.
+  - The hall's middle: a **Sun Well** (an octagonal stand-on grate with a warm glow) under an octagonal **sun ring** lamp, and two hall boards (TOP DUELISTS, SEASON 1) in the UI theme's fonts.
+  - Pipe racks along both haunches.
+  - A reworked **turbine**: 12-sided and framed, with dark vanes against a warm intake.
+  - Four story-prop groups: the maintenance cart, crates, a cable drum, pipe stock.
+  - Floor route chevrons in each wing's colour, a framed walk with chevrons to the Well, and a threshold plate.
+  - Braced crossbeams, darker wall, ceiling and floor values, and the Locker doorway made faceted.
+  - The skylight glitch was the "Texture Pack" model floating overhead; it was moved, not deleted.
+  - **Blind median 6.7 / 10** (from 6.3; the reviewers' mean went 6.4 → 7.4). That is a draft, and the stop rule ended the loop. What holds it back: lighting is one warm value band (an owner decision), a busy spawn frame, plain benches.
+  - Walked in play mode. **Waiting on the owner:** look at it, pick a lighting direction, and **save the Lobby place**. Nothing committed.
+<!-- moved from Home 2026-11-13 (lane A movement pass) -->
+- **Gunplay feel pass 2 (2026-11-10, [note](05%20Production/Playtests/2026-11-10%20Gunplay%20Feel%20Pass%202.md)):** pistols held closer and bigger; sprint swings the gun with the stride; aiming and strafing leans the gun into the strafe; arms follow on a spring (wrists give on recoil); a tap on C commits the full slide (0.85 s, jump cancels); new tracers with a lingering wake; new stylised muzzle flash and impact sheets (Codex). Built and checked by script in Studio. **Waiting on the owner:** play the "what to test" list in the note. Nothing committed. **2026-11-11 follow-up (same note):** the owner turned Server Authority off; the server now leaves players' movement to their clients and the stance / camera checks are off (the Operator's "hit marker, no damage" and refused ability throws); the slide runs out into your next speed with no dip. Owner confirmed Operator hits land. **Still to check:** an ability throw; a second player's view. **Follow-up 2 (same day):** slide holds its direction (small steering), no sprint key (walk, then run after 0.4 s), jump 5.6 → 4.4 studs with a faster fall, guns held lower and further left, wider run sway, a pistol's free hand swings when running, bouncy handling kicks on reload / draw / landing, about 1.5x shot recoil movement. **Owner to play it and say what's too much or too little.** *(moved from Home 2026-11-13)*
+<!-- moved from Home 2026-11-12 night (skinned body) -->
+- **Release 1, match structure revamp (2026-11-07, [plan](05%20Production/Match%20Structure%20Revamp.md)):** phase A built and playtested in Studio ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20A.md)): *(moved from Home 2026-11-13)*
+  - select from the moment you join, 30 s / 15 s with the 3-2-1 inside, gun and ability preselected, early end from round 2;
+  - bot stand-ins for late players, bots replace team-mode leavers, a side with no real players left loses;
+  - sudden death: a closing glitch-storm circle that takes health directly (new `ZoneService`, `ZoneController`, Blender texture).
+  - **Not tested yet:** late joining and leaving (needs two real clients).
+  - **Phase B built (first person, [playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20B.md)):** death camera; then you see through a living teammate's eyes with their gun and arms (killer at round end with no teammate alive); fixed the gun staying up after death.
+  - **Phase C built ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20C.md)):** the match-winning kill replays for everyone (through the killer's eyes since 2026-11-08, slow motion into the hit, FINAL KILL caption). 
+  - **Phase D built ([playtest](05%20Production/Playtests/2026-11-07%20Match%20Revamp%20Phase%20D.md)):** match stats (eliminations, deaths, assists, damage), a victory scene on the map, the post-match screen with Rematch (vote) / Play Again (Lobby, straight back in the queue) / Leave, 20 s then everyone to the Lobby; the match server no longer starts a new match by itself. **Real teleports need a published test.** The whole match-structure revamp (A–D) is built.
+- **Sunwell Works lobby concept (2026-11-11):** linear hydro-station hub, custom doorway signs and prop sheets. The [art pack](02%20Art/Sunwell%20Lobby%20Reference%20Pack.md) includes the Studio baseline and picture review. [Phase 1 handoff](02%20Art/Sunwell%20Lobby%20Fable%20Prompt.md) covers the hall and four thresholds for owner review. *(moved from Home 2026-11-12)*
+- **Third person overhaul (2026-11-12, [note](01%20Design/Third%20Person%20Overhaul.md)):** found why "seeing what other players do" was broken: with Server Authority off **no real player was posed at all**; fixed. New **block body** (regular 1-stud arms, forearm + hand and shin + foot as one block each, clean mitred joints, shirt and pants still drawn). **Accessories are back** under a rule. **40 third-person clips re-authored** with a gun-driven rig tool (`tools/anim`). **Second pass after the owner's review** ("still unnatural... too jittery"; research in the note §7): a real rifle stance (chest turned, stock at the shoulder, support fist under the handguard), the gun now sits on top of the fists instead of inside them, and firing is one spring (measured: the gun jumped 0.69 studs a frame, now 0.13; both hands hold still). **Waiting on the owner:** click **Disconnect then Connect in the Rojo plugin** (it stopped syncing; I copied the changed scripts in by hand), then look at the range dummies and say what still reads wrong. Open: Mod / flinch / dash / death clips are the old ones; no second-client check. Nothing committed.
+
+<!-- moved from Home 2026-11-12 (third person overhaul) -->
+- **Usage optimisation (2026-11-07):** Home slimmed from 54 KB to about 13 KB (history moved to Status History), new `vault-lookup` agent, `INDEX.md`, `Code Map.md`, "Read lean" rules in CLAUDE.md and the `gauntlet-vault` skill. A running session needs a restart to see the new agent.
+- **Cleanup 2026-11-08 ([note](05%20Production/Cleanup%202026-11-08.md)):** repo, code and place tidied for new work: shared helpers (`Ease`, `Fighters`, `BodyClone`), the three biggest scripts split (WeaponService 1,769 → 905, ViewmodelController 2,366 → 1,817, EffectsController 1,656 → 585), dead code and stale comments out, numbers into Config, a running server keeps only the loaded map, 19 old worktrees (5.3 GB) removed, old one-off notes archived, README map of the repo. **Save the match place** (two leftovers removed). Playtested: a full 1v1 to the end screen, clean output.
+
 <!-- moved from Home 2026-11-12 -->
 - **Overnight 2026-11-06, every map rebuilt as `<Map>2`** (ForceMap only; old maps and the pool untouched). The verdict is in [Overnight Maps Approval](05%20Production/Playtests/2026-11-06%20Overnight%20Maps%20Approval.md).
   - The spec is the new [Map Quality Standard](01%20Design/Maps/Map%20Quality%20Standard.md).

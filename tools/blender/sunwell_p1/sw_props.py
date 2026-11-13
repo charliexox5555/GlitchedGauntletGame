@@ -54,19 +54,18 @@ def turbine(K):
 		S.light(S.F_END, 0, TC, 4.5, "#FFD49A", 0.9, 16)  # a warm glow on the rotor face
 		S.light(S.F_END, 0, 2.0, 8.0, "#FFC88C", 0.9, 16)  # warm bounce on the floor in front of the turbine
 		S.light(S.F_END, 0, 21.0, 15.0, "#FFD9A8", 2.6, 30, angle=70)  # a warm pool on the floor in front of the rail
-		# low rail on the hall floor in front
-		zf, zs, xr = 9.0, 3.4, 13.0
-		for x in (-13, -6.5, 0, 6.5, 13):
-			F["Petrol"].box(x - 0.25, x + 0.25, 0.1, 3.0, zf - 0.25, zf + 0.25)
-			F["PetrolDark"].box(x - 0.5, x + 0.5, 0.0, 0.14, zf - 0.5, zf + 0.5)
-		for y in (1.55, 2.8):
-			F["Petrol"].box(-xr - 0.2, xr + 0.2, y, y + 0.42, zf - 0.2, zf + 0.2)
-			for s in (-1, 1):
-				F["Petrol"].box(s * xr - 0.2, s * xr + 0.2, y + 0.01, y + 0.41, zs, zf - 0.2)
+		# round 23: a stepped dais in front of the turbine instead of the low rail (the rail cut across the ring's foot)
+		ch = lambda hw, d, c: [(-hw, 0.0), (hw, 0.0), (hw, d - c), (hw - c, d), (-hw + c, d), (-hw, d - c)]  # front corners cut
+		F["Graphite"].ext_y(ch(14.6, 9.2, 2.2), 0.0, 0.4)
+		F["Petrol"].ext_y(ch(13.4, 7.6, 1.6), 0.4, 0.8)
+		F["Stripe"].box(-11.8, 11.8, 0.8, 0.83, 7.3, 7.58)  # gold edge on the top step
+		F["E_Lamp"].box(-11.9, 11.9, 0.12, 0.27, 9.2, 9.24)  # a lit strip in the riser
 		for s in (-1, 1):
-			F["Petrol"].box(s * xr - 0.25, s * xr + 0.25, 1.15, 3.0, zs + 0.3, zs + 0.8)
-			S.collider("Props", S.F_END, s * xr - 0.3, s * xr + 0.3, 0, 3.3, zs, zf + 0.3, kind="Y")
-		S.collider("Props", S.F_END, -xr - 0.3, xr + 0.3, 0, 3.3, zf - 0.3, zf + 0.3, kind="Y")
+			S.light(S.F_END, s * 8.0, 1.4, 4.5, "#FFF4E6", 0.8, 14)  # low light up the bay
+		for x0, x1, d in ((-12.4, 12.4, 9.2), (-14.6, 14.6, 7.0)):
+			S.collider("Props", S.F_END, x0, x1, 0.0, 0.4, 0.0, d)
+		for x0, x1, d in ((-11.8, 11.8, 7.6), (-13.4, 13.4, 6.0)):
+			S.collider("Props", S.F_END, x0, x1, 0.4, 0.8, 0.0, d)
 		S.collider("Props", S.F_END, -14.8, 14.8, 0.1, 1.0, 0.1, 3.25)  # plinth
 		S.collider("Props", S.F_END, -13.5, 13.5, 1.0, 25.0, 0.0, 2.4, kind="Y")  # keeps players out of the turbine (invisible: an opaque box would show between the blades)
 		for s in (-1, 1):

@@ -4,7 +4,7 @@ the two hall boards over the bench bays, and the pipe racks that run along both 
 Faceted to the owner's hard rules (gauntlet-build-style §0): octagons instead of circles, 8-sided pipes with a flat on top,
 chamfered ends, a transition at every joint.
 """
-from math import cos, sin, pi, radians
+from math import cos, sin, pi, radians, atan2, sqrt
 from mathutils import Matrix, Vector
 
 import lv3_core as C
@@ -451,8 +451,22 @@ def turbine_frame(K):
 		S.ring_prism(F["PetrolDark"], outer, inner, 1.3, 1.55)
 		rim = [(12.0 * cos(2 * pi * k / n), TC + 12.0 * sin(2 * pi * k / n)) for k in range(n)]
 		rin = [(11.75 * cos(2 * pi * k / n), TC + 11.75 * sin(2 * pi * k / n)) for k in range(n)]
-		S.ring_prism(F["E_Intake"], rim, rin, 1.55, 1.6)  # a warm rim on the frame: the landmark's outline glows
-		# (four diagonal gussets were tried here and read as loose dashes on the surround: removed)
+		S.ring_prism(F["Bronze"], rim, rin, 1.55, 1.68)  # a gold rim on the frame: the landmark's outline (round 23)
+		# round 23: the surround read as a flat white square. A stepped dark frame stands proud round its outline, and
+		# angled corner plates fill the spandrels between the square and the ring, so the ring sits in a carved bay.
+		w = 1.3
+		t = w * 0.4142  # 45-degree corner offset
+		for sx in (-1, 1):
+			band = [(14.8, 0.0), (14.8, 21.0 + t), (9.5 + t, 26.3), (0.0, 26.3), (0.0, 25.0), (9.5, 25.0), (13.5, 21.0), (13.5, 0.0)]
+			F["Charcoal"].prism([(sx * x, y) for x, y in band], 0.0, 1.9)
+			lip = [(14.25, 0.0), (14.25, 21.0 + t * 0.55), (9.5 + t * 0.55, 25.75), (0.0, 25.75), (0.0, 25.35), (9.5 + t * 0.2, 25.35), (13.85, 21.0 + t * 0.2), (13.85, 0.0)]
+			F["Graphite"].prism([(sx * x, y) for x, y in lip], 1.9, 2.05)  # a bevel step on the frame's face
+			plate = [(12.9, 0.75), (12.9, 20.75), (9.25, 24.4), (6.125, 24.4), (6.125, 23.11), (10.61, 18.625), (12.25, 12.5),
+				(10.61, 6.375), (6.125, 1.89), (6.125, 0.75)]  # follows the frame's 12-gon corners: faceted, no arcs
+			pts = [(sx * x, y) for x, y in plate]
+			F["PetrolDark"].prism(pts, 1.3, 1.5)  # the carved bay: a dark plate each side
+		for sx in (-1, 1):  # bolts on the corner plates
+			S.bolts(F["Steel"], [(sx * 12.3, 20.2), (sx * 8.9, 23.8), (sx * 12.3, TC + 2.6), (sx * 12.3, TC - 2.6), (sx * 12.3, 1.35)], r=0.22, z0=1.5, h=0.14)
 
 
 def bollards(K):

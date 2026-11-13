@@ -377,15 +377,53 @@ Owner notes:
 - **Round 21:** 7.08 / 7.08. This was a lower-key test (darker ceiling `#6E7277`, exposure -0.5, ambient 48,52,60, contrast 0.22). It read as dead flat ceilings and was rolled back to round 20, keeping the turbine core and Shop wash.
 - **Steampunk:** none of the 12 reviewers saw any.
 
-Current: round 20 settings, **8.33**. Their shared notes:
+Round 20 settings scored **8.33** (superseded by rounds 22-24 below). Their shared notes:
 1. Lighting has no hierarchy (W4): it needs pooled key light on the turbine and doorways, not a global darkening.
 2. The far wing signs read small from the spawn.
 3. The wing ceilings are bare, and repeated pilasters and lamps.
 4. The figures look small against the generous doors.
 
+### Rounds 22-24 (2026-11-13, evening): value structure, the turbine as the hero, glitch-looking details
+**Round 22, lighting.** The walls clipped to white, which is why earlier colour and light changes never showed.
+- Exposure -0.75, ambient 52,56,64, outdoor 90,96,110, brightness 2.3, environment diffuse 0.2.
+- Point lights are scaled per area by `Build.POINT_MULT`: hall 0.55, Shop 0.75, Locker 0.8, Duels 0.9. Spots are not scaled.
+- Walls are mid-grey `#929597`, with cast `#BDBFBF`.
+- Each doorway gets a spot pool on the hall floor in front of it (`threshold_wash`).
+- Blind: **8.0 / 8.0**. Beside round 20 the frames have clearly less blown-out white, and both panels still call parts overbright, so it was kept (the 0.33 dip is within panel noise).
+
+**Round 23, geometry both panels named:**
+- **Turbine bay** (both panels: "a flat white square backing plate", "the rail cuts the ring"):
+  - a stepped Charcoal frame stands 1.9 proud round the surround, with a Graphite bevel step;
+  - dark angled plates follow the frame's 12-gon corners each side, so the ring sits in a carved bay;
+  - the rim is gold (`Bronze`);
+  - a two-step faceted dais with a gold edge and a lit riser strip replaces the low rail;
+  - two low lights run up the bay. (`sw_hub.turbine_frame`, `sw_props.turbine`)
+- **Duels:**
+  - coffer panels (`BayBack` plate in a `Petrol` reveal) on both side strips of every bay;
+  - pier collars at flange size, so they read from both sides.
+- **Wall lamps:** small cut corners (the long octagon read as a capsule).
+- **Doorway pools:** richer wing colours: Duels `#FF9F66`, Locker `#A8CCFF`, Range `#A6EDC6`.
+- Blind: **8.0 / 7.83**.
+
+**Round 24, glitch-looking details both panels named:**
+- Duels pipe clips are now saddle clamps: a wall plate with two bolts, a stand-off, and a band round each pipe. The box clips read as floating "E" shapes.
+- SHOP doorway letters 2.25 → 2.65.
+- The stanchion belts are gold (the charcoal ones did not read).
+- Checked at eye level: `References/.../r24-06-duels-eye.jpg`, `r24-07-shop.jpg`.
+
+**Stop rule.** The blind median has held at about 8.0 for three rounds. W4 lighting and W5 dressing sit at 7; every other criterion is 8-9. Each round the panels ask for new dressing rather than flagging a defect. The rest needs owner calls:
+1. **What the turbine bay is for.** The hall's chevrons lead to it, and one panel calls it a dead end. Options: a featured event or season podium, a party-up pad, or stop the chevrons at the Sun Well.
+2. **Locker shutter.** The pale fluted shutter reads as a curtain. Option: a segmented metal shutter with a blue edge light.
+3. **The Range's green** (inside the door and on the shutter) reads off-palette next to the other wing colours.
+4. **More dressing in the Shop front half and the bay corners.** The owner plans props and cases later.
+
+Panel notes not acted on:
+- the hall skylight casts hard sun stripes across the walk (that's the sun through the skylights, by design);
+- the Shop's SKINS, CASES and SIDEARMS boards and the screens (placeholders).
+
 ### Handoff (if a new session picks this up)
 How to build:
-- Blender MCP is down. Build in a background Blender on a copy. The scripts are in the session scratchpad; recreate them from this list:
+- Blender MCP (port 9876) works and `art-source/lobby/SunwellWorks.blend` is current: run `sw_run.build_all(cams=False)`, `sw_run.audit()`, `sw_export.run()` (retry the export if Windows locks an FBX), `sw_run.save()`. If the MCP is down, build in a background Blender on a copy. The scripts are in the session scratchpad; recreate them from this list:
   - copy `art-source/lobby/SunwellWorks.blend` to a temp `SW_cli.blend`;
   - run `"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" --background SW_cli.blend --python cli_build.py`;
   - `cli_build.py` puts `tools/blender/sunwell_p1` and `tools/blender/lobby_v3` on the path, then runs `sw_run.build_all(cams=False)`, `sw_run.audit()` and `sw_export.run()`.

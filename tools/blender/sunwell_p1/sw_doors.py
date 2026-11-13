@@ -43,11 +43,11 @@ def sconce(F, x, y, light=True, power=2.4, reach=13):
 	L = F.at(Matrix.Translation((x, y, 0)))
 	with S.grp("Lamp", L.M, inst=True):
 		cr = S.cham_rect
-		L["PetrolDark"].prism(cr(-0.86, 0.86, -1.95, 1.95, 0.5), 0.0, 0.1)  # mount plate: an elongated octagon
+		L["PetrolDark"].prism(cr(-0.86, 0.86, -1.95, 1.95, 0.22), 0.0, 0.1)  # mount plate (round 23: small cut corners: the long octagon read as a capsule)
 		S.bolts(L["Steel"], [(sx * 0.72, sy * 1.2) for sx in (-1, 1) for sy in (-1, 1)], r=0.075, z0=0.1, h=0.05)
-		L["Charcoal"].prism(cr(-0.64, 0.64, -1.52, 1.52, 0.38), 0.1, 0.5)  # housing
-		S.ring_prism(L["Graphite"], cr(-0.56, 0.56, -1.4, 1.4, 0.34), cr(-0.4, 0.4, -1.22, 1.22, 0.26), 0.5, 0.66)  # bezel
-		L["E_Lamp"].prism(cr(-0.4, 0.4, -1.22, 1.22, 0.26), 0.5, 0.56)  # lens, set back in the bezel
+		L["Charcoal"].prism(cr(-0.64, 0.64, -1.52, 1.52, 0.16), 0.1, 0.5)  # housing
+		S.ring_prism(L["Graphite"], cr(-0.56, 0.56, -1.4, 1.4, 0.14), cr(-0.4, 0.4, -1.22, 1.22, 0.1), 0.5, 0.66)  # bezel
+		L["E_Lamp"].prism(cr(-0.4, 0.4, -1.22, 1.22, 0.1), 0.5, 0.56)  # lens, set back in the bezel
 		for yy in (-0.5, 0.0, 0.5):
 			L["Graphite"].box(-0.4, 0.4, yy - 0.04, yy + 0.04, 0.56, 0.66)  # louvre fins, flush with the bezel
 		L["Graphite"].ext_x([(1.2, 0.1), (1.66, 0.1), (1.66, 0.5), (1.38, 0.95), (1.2, 0.95)], -0.3, 0.3)  # visor block over the top facet
@@ -83,6 +83,7 @@ def threshold_wash(M, color):
 	"""Soft wing-coloured light inside a doorway's reveal and a pool on the hall floor in front of it."""
 	S.light(M, 0, 6.0, -3.6, color, 1.8, 14)
 	S.light(M, 0, 5.0, 3.2, color, 0.55, 9)
+	S.light(M, 0, 18.0, 4.0, color, 4.2, 22, angle=55)  # a pool on the hall floor in front of the doorway: the destinations lead the light
 
 
 def task_light(F, glow, color, y=H, z=-2.8, hw=1.5, brightness=1.6):
@@ -125,7 +126,7 @@ def duels(K):
 			F["PetrolDark"].box(-1.15, 1.15, 4.85, 6.15, ZB, ZB + 0.34)  # lock block across the seam
 			F["P_Orange"].box(-0.75, 0.75, 5.3, 5.7, ZB + 0.34, ZB + 0.4)
 		task_light(F, "E_Orange", "#FF7A3A", brightness=0.9)
-		threshold_wash(M, "#FFB27A")
+		threshold_wash(M, "#FF9F66")  # round 23: richer wing colours (the pools read white)
 		# two orange guide inlays, perpendicular to the sill, running into the opening
 		for s in (-1, 1):
 			F["P_Orange"].box(s * 3.6 - 0.28, s * 3.6 + 0.28, -0.15, 0.05, -3.4, 3.4)
@@ -175,7 +176,7 @@ def locker(K):
 		F["SteelDark"].box(-HW, HW, -0.2, 0.05, -0.2, 0.5)
 		task_light(F, "E_Cool", "#CFE6FF", y=10.42, hw=1.4, brightness=0.5)
 		S.light(M, 0, 0.6, -1.0, "#6FC4FF", 0.6, 9)
-		threshold_wash(M, "#CFE2FF")
+		threshold_wash(M, "#A8CCFF")
 		with S.grp("Sign", M):
 			# sign: upright squared letters on a gently arched plate held by two petrol blocks
 			y0, hw, rise, he = 13.6, 7.6, 1.35, 2.5
@@ -225,7 +226,7 @@ def range_(K):
 		F["Steel"].box(-1.2, 1.2, 0.62, 0.92, ZB, ZB + 0.3)  # pull
 		F["E_Mint"].box(-0.5, 0.5, 9.6, 9.85, ZB + 0.02, ZB + 0.08)  # status lamp
 		task_light(F, "E_Mint", "#CFF5E0", hw=2.2, brightness=1.5)
-		threshold_wash(M, "#C8F2DA")
+		threshold_wash(M, "#A6EDC6")
 		# mint calibration ticks in the sill
 		F["Graphite"].box(-HW, HW, -0.2, 0.05, -0.3, 0.4)
 		for k in range(-3, 4):
@@ -258,7 +259,7 @@ def shop(K):
 			F["E_Amber"].box(*sorted((s * 10.74, s * 11.06)), 12.85, 15.75, 2.35, 2.43)
 			S.light(M, s * 10.9, 14.3, 3.4, AMBER, 1.6, 11)
 		F["E_Amber"].box(-9.7, 9.7, 12.42, 12.6, 1.25, 1.75)
-		S.add_text(F["Cream"], "SHOP", 2.25, 0.45, y0=13.15, z0=2.15, s=0.24, c=0.2, ci=0.07, ws=1.22, track=0.15, style="round")
+		S.add_text(F["Cream"], "SHOP", 2.65, 0.45, y0=12.95, z0=2.15, s=0.24, c=0.2, ci=0.07, ws=1.22, track=0.15, style="round")
 		S.light(M, 0, 11.6, 3.2, "#FFC777", 0.9, 14)
 		# warm horizontal shutter (temporary closure)
 		if not opened:

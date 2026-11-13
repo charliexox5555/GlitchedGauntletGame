@@ -143,11 +143,14 @@ def pipes(F, u0, u1, clamps, piers=(), pier_hw=1.5):
 			for u in (lo + 0.09, hi - 0.09):  # flange plates where the pipe enters the end walls
 				F["PetrolDark"].pipe((u - 0.09, y, z), (u + 0.09, y, z), r + 0.2, 8)
 			for pu in piers:
-				for u in (pu - pier_hw - 0.1, pu + pier_hw + 0.1):  # collars at both pier faces
-					F["PetrolDark"].pipe((u - 0.1, y, z), (u + 0.1, y, z), r + 0.09, 8)
-		for u in clamps:
-			F["PetrolDark"].box(u - 0.28, u + 0.28, 16.1, 17.85, 0.0, 1.2)
-			F["Steel"].box(u - 0.4, u + 0.4, 16.2, 17.0, 0.35, 1.18)
+				for u in (pu - pier_hw - 0.14, pu + pier_hw + 0.14):  # collars at both pier faces (round 23: flange size, they read from both sides)
+					F["PetrolDark"].pipe((u - 0.14, y, z), (u + 0.14, y, z), r + 0.2, 8)
+		for u in clamps:  # round 23: saddle clamps that wrap each pipe on a stand-off (the box clips read detached)
+			F["Graphite"].prism(S.cham_rect(u - 0.38, u + 0.38, 15.95, 18.0, 0.14), 0.0, 0.1)  # wall plate
+			S.bolts(F["Steel"], [(u, 16.12), (u, 17.83)], r=0.07, z0=0.1, h=0.05)
+			for (y, z, r) in ((16.6, 0.75, 0.34), (17.5, 0.6, 0.22)):
+				F["PetrolDark"].box(u - 0.11, u + 0.11, y - 0.11, y + 0.11, 0.1, z - r + 0.02)  # stand-off
+				F["PetrolDark"].pipe((u - 0.16, y, z), (u + 0.16, y, z), r + 0.08, 8)  # saddle band
 
 
 def gauntlet_gate(F):
@@ -255,6 +258,13 @@ def roof(KC):
 				KC["PetrolDark"].box(xx - 0.18, xx + 0.18, 26.55, 41.45, zc + 0.56, zc + 0.94)
 			KC["Glass"].box(xa + 0.1, xc - 0.1, 26.1, 41.9, zc + 1.0, zc + 1.15)
 			S.collider(AREA, S.I4, xa, xc, 26.0, 42.0, zc + 1.0, zc + 1.2, kind="Y")
+	# round 23: coffer panels on the side strips of every bay (the long ceiling read bare), in the bay rhythm
+	bays = [(BEAMS[0], XE - 3.0)] + [(BEAMS[i + 1], BEAMS[i]) for i in range(len(BEAMS) - 1)]
+	for xa, xb in bays:
+		for ya, yb in ((Y0 + 3.6, 25.4), (42.6, Y1 - 3.6)):
+			with S.grp("DuelsCoffer", Matrix.Translation(((xa + xb) / 2, (ya + yb) / 2, zc))):
+				KC["BayBack"].prism(S.cham_rect(xa + 1.6, xb - 1.6, ya + 0.9, yb - 0.9, 0.6), zc - 0.16, zc)
+				S.ring_prism(KC["Petrol"], S.cham_rect(xa + 1.6, xb - 1.6, ya + 0.9, yb - 0.9, 0.6), S.cham_rect(xa + 1.9, xb - 1.9, ya + 1.2, yb - 1.2, 0.45), zc - 0.3, zc - 0.16)
 	for xb in BEAMS[1:]:
 		with S.grp("DuelsBeam", Matrix.Translation((xb, 34, zc)), inst=True):
 			KC["Petrol"].box(xb - 0.9, xb + 0.9, Y0 + 2.6, Y1 - 2.6, zc - 1.7, zc - 1.3)

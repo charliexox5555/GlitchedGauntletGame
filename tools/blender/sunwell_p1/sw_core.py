@@ -108,11 +108,11 @@ def _L(material, color, **kw):
 # tried on 2026-11-12 and read too realistic.
 MATERIALS = {"SW_Plaster": 16, "SW_Floor": 20, "SW_Steel": 10}  # MaterialVariant -> studs per tile
 LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture, no blue-teal steel)
-	"Cast": _L("SmoothPlastic", "#D3D3CF", v="SW_Plaster"),  # de-steampunk 2026-11-13: clean light grey
-	"CastTrim": _L("SmoothPlastic", "#D3D3CF", v="SW_Plaster"),
-	"Wall": _L("SmoothPlastic", "#B9BAB7", v="SW_Plaster"),  # hub upgrade pass D: infill a step under the cast pilasters
+	"Cast": _L("SmoothPlastic", "#BDBFBF", v="SW_Plaster"),  # de-steampunk 2026-11-13: clean light grey
+	"CastTrim": _L("SmoothPlastic", "#BDBFBF", v="SW_Plaster"),
+	"Wall": _L("SmoothPlastic", "#929597", v="SW_Plaster"),  # mid grey: reads light at exposure -0.75 and keeps its gradients  # hub upgrade pass D: infill a step under the cast pilasters
 	"WallLow": _L("SmoothPlastic", "#50565B", v="SW_Plaster"),  # slate wainscot (the brown read steampunk)
-	"WallShade": _L("SmoothPlastic", "#9EA09F", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
+	"WallShade": _L("SmoothPlastic", "#86898B", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
 	"Belt": _L("SmoothPlastic", "#34383C", v="SW_Plaster"),
 	"WallBase": _L("SmoothPlastic", "#2B2E32", v="SW_Plaster"),
 	"Ceil": _L("SmoothPlastic", "#8E9297", v="SW_Plaster"),  # #6E7277 was tried (round 21) and read as dead flat voids  # neutral grey: not brown (dead), not cool (the Locker read off-family)
