@@ -759,15 +759,15 @@ local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime",
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
 	-- lighting pass 2026-11-13: the sun through the skylights is the key, the lamps make warm pools, the shade is cool
-	Ambient = Color3.fromRGB(58, 64, 78),
-	OutdoorAmbient = Color3.fromRGB(100, 110, 130), -- cool shade against warm light (the scene read one sepia cast)
-	Brightness = 2.45, -- the sun patches on the lane read hot above 2.5
+	Ambient = Color3.fromRGB(62, 67, 78),
+	OutdoorAmbient = Color3.fromRGB(108, 116, 134), -- cool shade against warm light (the scene read one sepia cast)
+	Brightness = 2.15, -- softer sun: the patches and beam stripes on the lane read hot and hard
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
 	ExposureCompensation = -0.1,
 	EnvironmentDiffuseScale = 0.25,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
-	ColorShift_Top = Color3.fromRGB(255, 246, 234), -- sunlit tops barely warm (the scene read one amber cast)
+	ColorShift_Top = Color3.fromRGB(255, 248, 238), -- sunlit tops barely warm (the scene read one amber cast)
 	ShadowSoftness = 1, -- soft skylight shadow grid (hard edges read blotchy)
 }
 
@@ -824,7 +824,7 @@ function M.use(which: string): string
 			bloom.Intensity, bloom.Size, bloom.Threshold = 0.6, 18, 1.6
 		end
 		local grade = cc :: ColorCorrectionEffect
-		grade.Contrast, grade.Saturation, grade.TintColor = 0.16, -0.06, Color3.fromRGB(244, 248, 255) -- a touch cool: breaks the sepia
+		grade.Contrast, grade.Saturation, grade.TintColor = 0.18, -0.13, Color3.fromRGB(240, 246, 255) -- cooler, less saturated: breaks the sepia
 		grade.Enabled = true
 		if v3 then
 			v3.Enabled = false

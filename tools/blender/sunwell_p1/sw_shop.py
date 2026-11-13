@@ -13,7 +13,7 @@ H = 14.0
 X0, X1, Y0, Y1 = 43.4, 83.4, 60.0, 104.0
 PTS = [(X0, Y0), (X1, Y0), (X1, Y1), (X0, Y1)]
 TOP = 12.0  # top of the bay openings
-AMBER = "#FFC777"
+AMBER = "#FFECD6"  # neutral warm white: the room read yellow-orange; amber stays in the sign, sill and strips
 
 
 def hard_case(F, L=3.0, D=1.9, h=1.5, band="P_Orange", handle=True):
@@ -201,7 +201,7 @@ def build():
 		K["Graphite"].box(cx0 - 6.2, cx0 - 1.0, cy0 + 1.0, cy1 - 1.0, -0.2, 0.07)  # mat (charcoal-brown, not black)
 		K["E_Sun"].box(cx0 - 0.83, cx0 - 0.74, cy0 + 0.6, cy1 - 0.6, 0.06, 0.14)  # warm toe light along the counter foot
 		for y in (68.0, 75.0, 82.0):
-			S.light(S.I4, cx0 - 3.0, y, 9.5, "#FFE4C0", 1.2, 13, angle=70)  # pools on the customer side
+			S.light(S.I4, cx0 - 3.0, y, 9.5, "#FFECD6", 1.2, 13, angle=70)  # pools on the customer side
 		for k in range(11):
 			yy = cy0 + 1.6 + k * 2.08
 			a0, a1 = cx0 - 0.424, cx0 - 0.047  # fins follow the leaning front

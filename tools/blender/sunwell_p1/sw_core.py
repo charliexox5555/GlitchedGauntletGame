@@ -138,7 +138,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"RangeLining": _L("SmoothPlastic", "#4C504D"),
 	"LockerFloor": _L("SmoothPlastic", "#8A847B", v="SW_Floor"),  # warm neutral, the hall family
 	"BayBack": _L("SmoothPlastic", "#6C6862"),  # mid grey: the bays read as lit cases, not empty white windows
-	"ShopFloor": _L("SmoothPlastic", "#A2957F", v="SW_Floor"),
+	"ShopFloor": _L("SmoothPlastic", "#9C9890", v="SW_Floor"),
 	"Timber": _L("SmoothPlastic", "#6B4B32"),  # flat colour (Wood grain read realistic)
 	"CaseShell": _L("SmoothPlastic", "#34383C"),
 	"DuelFloor": _L("SmoothPlastic", "#6E6C69", v="SW_Floor"),
@@ -163,7 +163,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"E_TeamA": _L("Neon", "#FF6A3D", glow=True),
 	"E_TeamB": _L("Neon", "#2A86FF", glow=True),
 	"E_Sun": _L("Neon", "#9C8666", glow=True),  # warm sun glow (the Well, the sun ring), the same as the turbine intake
-	"E_Intake": _L("Neon", "#B59873", glow=True),  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
+	"E_Intake": _L("Neon", "#9E8768", glow=True),  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
 	"PipeOchre": _L("SmoothPlastic", "#8A6A32", v="SW_Steel"),
 	"SeatPad": _L("SmoothPlastic", "#4A3E33"),  # dark warm leather (benches); Fabric read busy and realistic
 }
