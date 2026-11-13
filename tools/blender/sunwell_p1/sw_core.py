@@ -79,6 +79,7 @@ PAL = {
 	"P_Mint": ("#7FD8A8", 0.5, 0.0, 0.03),
 	"P_Cream": ("#E6DCC6", 0.6, 0.0, 0.03),
 	"PipeOchre": ("#8E6E35", 0.55, 0.1, 0.05),
+	"SeatPad": ("#4F4237", 0.8, 0.0, 0.05),
 }
 GLOW = {  # name: (hex, strength in Blender)
 	"E_Amber": ("#FFB54A", 9.0),
@@ -132,7 +133,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"ShopSlat": _L("SmoothPlastic", "#7B6349"),
 	"LockerSlat": _L("SmoothPlastic", "#5F6C77", r=0.05),
 	"RangePanel": _L("SmoothPlastic", "#7F8775"),
-	"RangeLining": _L("SmoothPlastic", "#55604F"),
+	"RangeLining": _L("SmoothPlastic", "#4C504D"),
 	"LockerFloor": _L("SmoothPlastic", "#82868A", v="SW_Floor"),
 	"BayBack": _L("SmoothPlastic", "#B3AFA6"),
 	"ShopFloor": _L("SmoothPlastic", "#A2957F", v="SW_Floor"),
@@ -149,9 +150,9 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"P_Orange": _L("SmoothPlastic", "#E0701A"),
 	"P_Mint": _L("SmoothPlastic", "#7FD8A8"),
 	"P_Cream": _L("SmoothPlastic", "#E6DCC6"),
-	"Glass": _L("Glass", "#CFE6F2", t=0.72, r=0.05),
+	"Glass": _L("Glass", "#E2E4E2", t=0.74, r=0.04),  # neutral (the blue tint cast the Locker bays cyan)
 	"E_Amber": _L("Neon", "#EA7A0A", glow=True),
-	"E_Opal": _L("Neon", "#FFE8C4", glow=True),
+	"E_Opal": _L("Neon", "#8C877F", glow=True),  # lighting pass: Roblox Neon clips anything lighter to white
 	"E_Cool": _L("Neon", "#DDEBFF", glow=True),
 	"E_Blue": _L("Neon", "#6FC4FF", glow=True),
 	"E_Mint": _L("Neon", "#7FE8B0", glow=True),
@@ -160,8 +161,9 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"E_TeamA": _L("Neon", "#FF6A3D", glow=True),
 	"E_TeamB": _L("Neon", "#2A86FF", glow=True),
 	"E_Sun": _L("Neon", "#9C8666", glow=True),  # warm sun glow (the Well, the sun ring), the same as the turbine intake
-	"E_Intake": _L("Neon", "#9C8666", glow=True),  # the turbine intake: warm and dim so the vanes read against it
+	"E_Intake": _L("Neon", "#B09270", glow=True),  # the turbine intake: warm and dim so the vanes read against it
 	"PipeOchre": _L("SmoothPlastic", "#8A6A32", v="SW_Steel"),
+	"SeatPad": _L("Fabric", "#4A3E33"),  # dark warm leather (benches)
 }
 
 LIGHTS = {}  # area -> [["P"|"S", x, y, z, colour, brightness, range, (angle)]] in Blender coordinates
@@ -645,6 +647,39 @@ def poly_room(area, pts, zf, H, floor_mat="Walk", ceil_mat="Ceil", t=4.0, ceilin
 		M, L = edge_frame(pts[i], pts[(i + 1) % n], zf)
 		edges.append((FK(K, M), L, (0.0, turn[(i + 1) % n])))  # no two walls share a corner block (that z-fought on the outside)
 	return K, KC, edges
+
+
+def soffit(KC, area, pts, H, depth=0.7, width=3.0, lights=6, name="Soffit"):
+	"""A dropped soffit round a room's ceiling: a ring `width` wide and `depth` deep against the walls, a lip on its
+	inner edge and a warm light cove behind the lip (a lit strip and a few real lights), so the ceiling reads as a
+	coffer instead of one flat slab. Faceted: it follows the room outline, chamfered corners included."""
+	with grp(name):
+		out = C._inset_poly([Vector(p) for p in pts], -0.1)  # tucked 0.1 into the walls (no seam at the wall face)
+		mid = C._inset_poly([Vector(p) for p in pts], width - 0.35)
+		inn = C._inset_poly([Vector(p) for p in pts], width)
+		xy = lambda P: [(p.x, p.y) for p in P]
+		ring_prism(KC["Ceil"], xy(out), xy(inn), H - depth, H)
+		ring_prism(KC["Belt"], xy(mid), xy(inn), H - depth - 0.22, H - depth)  # lip
+		cove = C._inset_poly([Vector(p) for p in pts], width + 0.08)
+		cin = C._inset_poly([Vector(p) for p in pts], width + 0.32)
+		ring_prism(KC["E_Sun"], xy(cove), xy(cin), H - 0.06, H - 0.01)  # the lit cove on the ceiling, inside the lip
+		n = len(pts)
+		P = [Vector(p) for p in inn]
+		per = sum((P[(i + 1) % n] - P[i]).length for i in range(n))
+		step, t, k = per / lights, step_start(per, lights), 0
+		for i in range(n):
+			a, b = P[i], P[(i + 1) % n]
+			L = (b - a).length
+			while t < L and k < lights:
+				q = a + (b - a) * (t / L)
+				light(I4, q.x, q.y, H - depth - 0.6, "#FFE2B8", 0.55, 14)
+				t += step
+				k += 1
+			t -= L
+
+
+def step_start(per, n):
+	return per / n / 2
 
 
 def opal_panel(KC, x, y, z, w, d, color="#FFF1DE", brightness=0.6, rng=30, glow="E_Opal"):

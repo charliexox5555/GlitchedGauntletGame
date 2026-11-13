@@ -51,6 +51,7 @@ def turbine(K):
 		c(-0.98, 0.98, -1.62, -1.29)  # cuff band
 		S.light(S.F_END, 0, TC + 6, 9.0, "#FFE9CC", 1.3, 30, angle=100)
 		S.light(S.F_END, 0, 4.0, 6.0, "#FFE9CC", 0.7, 16)
+		S.light(S.F_END, 0, TC, 4.5, "#FFD49A", 0.9, 16)  # a warm glow on the rotor face
 		S.light(S.F_END, 0, 21.0, 15.0, "#FFD9A8", 2.6, 30, angle=70)  # a warm pool on the floor in front of the rail
 		# low rail on the hall floor in front
 		zf, zs, xr = 9.0, 3.4, 13.0
@@ -104,11 +105,12 @@ def bench(K, M, name):
 			up.append((p[0] + nrm.x * t, p[1] + nrm.y * t))
 			dn.append((p[0] - nrm.x * t, p[1] - nrm.y * t))
 		F["Graphite"].ext_x(up + dn[::-1], -3.25, 3.25)
-		F["Olive"].box(-3.0, 3.0, -0.78, 0.2, 1.5, 1.72)  # seat pad
+		F["SeatPad"].prism(S.cham_rect(-3.0, 3.0, -0.78, 0.2, 0.12), 1.5, 1.72)  # seat pad
+		F["Charcoal"].box(-0.04, 0.04, -0.78, 0.2, 1.72, 1.735)  # seam between the two cushions
 		top = line[-1]
 		mid = ((e[0] + top[0]) / 2, (e[1] + top[1]) / 2)
 		Bk = F.at(Matrix.Translation((0, mid[0], mid[1])) @ Matrix.Rotation(-th, 4, "X"))
-		Bk["Olive"].box(-3.0, 3.0, -0.36, -0.1, -0.56, 0.6)  # back pad
+		Bk["SeatPad"].box(-3.0, 3.0, -0.36, -0.1, -0.56, 0.6)  # back pad
 		out = S.fillet([(-1.0, 0.14, 0.24), (0.9, 0.14, 0.24), (0.56, 1.3, 0.24), (-0.66, 1.3, 0.24)], "cham", 2)
 		inn = S.fillet([(-0.66, 0.38, 0.1), (0.6, 0.38, 0.1), (0.37, 1.06, 0.1), (-0.45, 1.06, 0.1)], "cham", 2)
 		for s in (-1, 1):

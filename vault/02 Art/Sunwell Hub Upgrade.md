@@ -140,6 +140,39 @@ A last lighting test (ambient down to 44,45,50, brightness 3.0) made no visible 
 
 **Not done:** phone aspect and low-graphics checks. The place is not saved and nothing is published.
 
+## Round 2 (2026-11-13): standalone pieces, lighting, glitch audit, section polish
+Owner's notes:
+1. Meshes were combined, so moving a case, a wall part, a prop or a light moved other things too. They must be standalone.
+2. Pick the lighting direction (my call).
+3. Keep raising the quality of every section, with a full glitch audit.
+4. Leave the screen and billboard UIs and the placeholder cases for later.
+
+**Standalone pieces** (details: [Sunwell Works Build](Sunwell%20Works%20Build.md) → Standalone pieces):
+- 309 pieces. Each is a clickable Model holding its meshes, invisible colliders and lights. A piece with sub-pieces is a Folder.
+- 102 identical pieces share one uploaded mesh.
+- Checked: moving one doorway lamp moved its 6 meshes and its light, nothing else. 0 loose meshes; all 101 lights and 344 colliders sit inside their pieces.
+
+**Glitch audit** (Blender geometry audit, 74 coplanar pairs read one by one):
+- Two real z-fights fixed:
+  - pad bolts sat half inside the glowing light channel (moved onto the tray margin);
+  - the bench-bay piers' steel shoes shared a face with the cast pier (shoe now 0.06 proud).
+- The rest are hidden contact faces, faces inside walls or under floors, or same-colour pairs.
+- Still: 0 leaks; 1 floating part (the Locker hologram ring, on purpose).
+
+**Lighting (my call: a cooler, darker shade).** A test with every Lighting value at zero, then lamps only, found the cause of the "one warm beige band": the 101 local lights lit the hall almost fully. The twelve range-36 ceiling fills flooded every surface with the same warm light. Now:
+- the sun through the skylights is the key;
+- ceiling fills are cool and tight (0.22, range 22);
+- wall lamps make warm pools;
+- the shade is cool: Ambient 46,52,64, OutdoorAmbient 84,94,116, EnvironmentDiffuse 0.25, Brightness 3.4, Exposure -0.1, warm ColorShift_Top 255,232,200; grade contrast 0.14.
+- Opal lenses are a lit grey (#D8D0C4), not a white blowout.
+- Wing fills are halved: Shop 0.32 r20, Locker 0.42 r26, Duels 0.6 r26.
+
+**Section polish:**
+- Benches: dark leather pads (`SeatPad`) with a cushion seam; the olive pads read off-palette.
+- Range closure: a ribbed shutter in two bolted guides, with a bottom bar, a pull and a mint status lamp (was a flat green panel).
+- Spawn alcove: a recessed service panel (vents, access hatch, status lamp) and a wall lamp on each side wall.
+- Locker floor: an inlaid border band and slab joints from the platform to the far corners.
+
 ## LihFolk and project notes used
 *Lobby and Hub Design* (§1 hub jobs, §8 social nodes, §10 mistakes); *What Craft Looks Like on Roblox* §5 (light as wayfinding, detail where the camera looks); *Case Study - Rivals* (duel-first lobby); the `lihfolk-worldbuilding` skill (one hero, primary forms framing it, leading lines, three reads); [Map Quality Standard](../01%20Design/Maps/Map%20Quality%20Standard.md) (§3 hard rules, §6 review loop and stop rule); [Style Bible](Style%20Bible.md); the `gauntlet-build-style` skill (§0 no round curves, no blunt ends); `gauntlet-ui-style` (board fonts and the slash mark); the RIVALS lobby video frames in `References/ui/video-frames/rivals-pc/`.
 

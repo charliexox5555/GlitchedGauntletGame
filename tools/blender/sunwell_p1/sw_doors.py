@@ -205,13 +205,16 @@ def range_(K):
 			for k in range(3):
 				x = s * (6.15 + k * 0.72) - (0.0 if s > 0 else 0.62)
 				S.slash(F["P_Mint"], x, 13.5, 1.7, 0.3, 0.32, 1.85, 2.05)
-		# square vented panel (temporary closure)
-		F["RangePanel"].box(-7.95, 7.95, 0.0, H - 0.1, -8.6, ZB)
-		S.ring_prism(F["Graphite"], S.rect_loop(-3.4, 3.4, 2.1, 8.9), S.rect_loop(-2.95, 2.95, 2.55, 8.45), ZB, ZB + 0.18)
-		for x in (-1.6, 0.0, 1.6):
-			F["Dark"].box(x - 0.3, x + 0.3, 3.4, 7.6, ZB, ZB + 0.06)
-		S.bolts(F["Steel"], [(u, v) for u in (-6.9, 6.9) for v in (1.0, 9.9)], r=0.2, z0=ZB)
-		task_light(F, "E_Cool", "#E6F2FF", hw=2.2, brightness=1.5)
+		# closed shutter (temporary closure): ribbed slats running in two guides, a bottom bar with a pull, a mint status lamp
+		F["Dark"].box(-7.95, 7.95, 0.0, H - 0.1, -8.6, -8.4)  # backing behind the slats
+		slats(F, "RangePanel", 8, hw=7.3)
+		for s in (-1, 1):
+			F["Graphite"].box(*sorted((s * 7.3, s * 7.95)), 0.0, H - 0.1, -8.6, ZB + 0.16)  # guide channels
+			S.bolts(F["Steel"], [(s * 7.62, v) for v in (2.0, 5.5, 9.0)], r=0.12, z0=ZB + 0.16, h=0.07)
+		F["Graphite"].box(-7.3, 7.3, 0.0, 0.5, -8.6, ZB + 0.12)  # bottom bar
+		F["Steel"].box(-1.2, 1.2, 0.62, 0.92, ZB, ZB + 0.3)  # pull
+		F["E_Mint"].box(-0.5, 0.5, 9.6, 9.85, ZB + 0.02, ZB + 0.08)  # status lamp
+		task_light(F, "E_Mint", "#CFF5E0", hw=2.2, brightness=1.5)
 		# mint calibration ticks in the sill
 		F["Graphite"].box(-HW, HW, -0.2, 0.05, -0.3, 0.4)
 		for k in range(-3, 4):

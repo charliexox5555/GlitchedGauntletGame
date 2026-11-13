@@ -5,6 +5,7 @@ from mathutils import Matrix, Vector
 
 import lv3_core as C
 import sw_core as S
+import sw_doors as DR
 
 T = -1.5  # underside of floors and wall bases
 HX, LEN, ZW, ZC = S.HX, S.LEN, S.ZW, S.ZC
@@ -86,6 +87,11 @@ def walls(K):
 		for yb in S.BEAMS:  # pilasters frame each doorway and the bench bay: flared foot, straight shaft, flared head
 			bay = {46.6: (44.9, 48.0), 59.4: (58.0, 61.1)}.get(yb)  # these two fill the strip between a door casing and the bench recess
 
+			def shoe(bay, a, sx=sx):
+				y0, y1 = bay
+				y0, y1 = (y0, y1 + 0.06) if y1 < 53 else (y0 - 0.06, y1)
+				return (*sorted((sx * (HX - a), sx * HX)), y0, y1)
+
 			def r(a, grow, bay=bay, yb=yb):
 				y0, y1 = bay if bay else (yb - 1.2 - grow, yb + 1.2 + grow)
 				return (*sorted((sx * (HX - a), sx * HX)), y0, y1)
@@ -95,7 +101,10 @@ def walls(K):
 				K["CastTrim"].taper(r(1.15, 0.35), z[0], r(0.8, 0.0), 4.6)
 				K["CastTrim"].box(*r(0.8, 0.0), 4.6, 16.2)
 				K["CastTrim"].taper(r(0.8, 0.0), 16.2, r(1.25, 0.45), 17.9)
-				K["PetrolDark"].taper(r(1.22, 0.42), z[0], r(1.14, 0.34), z[0] + 0.9)  # steel shoe
+				if bay:  # a bay pier's shoe stands 0.06 proud on the recess side (no plane shared with the cast foot)
+					K["PetrolDark"].taper(shoe(bay, 1.22), z[0], shoe(bay, 1.14), z[0] + 0.9)
+				else:  # steel shoe
+					K["PetrolDark"].taper(r(1.22, 0.42), z[0], r(1.14, 0.34), z[0] + 0.9)
 				S.collider("Hall", S.I4, *sorted((sx * (HX + 0.3), sx * (HX - 0.6))), yb - 1.0, yb + 1.0, 0, 17.7)
 	# turbine wall
 	# end-wall prisms stop 0.1 short of the outer faces and 0.04 above the underside: nothing coplanar with the side walls outside
@@ -162,6 +171,20 @@ def alcove(K, KC):
 			A["BlastDoor"].box(*sorted((s * 0.08, s * 7.6)), 0.25, 9.6, 0.25, 0.5)
 			A["Graphite"].box(*sorted((s * 1.0, s * 6.6)), 4.3, 5.3, 0.5, 0.62)
 		A["E_Opal"].box(-3.0, 3.0, 10.35, 10.75, 0.7, 0.78)
+	for sx in (-1, 1):  # side walls beside the spawn: a recessed service panel and a wall lamp each side
+		Fw = S.face((sx * 14, -9, S.LAND), (0, -sx, 0), (-sx, 0, 0))
+		with S.grp(f"AlcovePanel_{SD(sx)}", Fw, inst=True):
+			P = S.FK(K, Fw)
+			P["PetrolDark"].prism(S.cut_rect(-3.4, 0.6, 1.6, 10.2, 0.7, 0.2), 0.0, 0.16)  # mount plate
+			P["Petrol"].prism(S.cut_rect(-3.1, 0.3, 1.9, 9.9, 0.55, 0.15), 0.16, 0.34)  # panel
+			for k in range(5):  # vent slots in the upper half
+				y = 6.4 + k * 0.62
+				P["Dark"].box(-2.5, -0.3, y, y + 0.26, 0.34, 0.37)
+			P["Graphite"].box(-2.6, -0.2, 2.7, 4.9, 0.34, 0.46)  # access hatch
+			P["Steel"].box(-1.7, -1.1, 3.6, 3.9, 0.46, 0.56)  # hatch pull
+			P["E_Sun"].box(-0.75, -0.25, 5.3, 5.5, 0.34, 0.4)  # status lamp
+			S.bolts(P["Steel"], [(-3.15, 2.1), (0.35, 2.1), (-3.15, 9.7), (0.35, 9.7)], r=0.1, z0=0.16, h=0.06)
+		DR.sconce(S.FK(K, Fw), 2.6, 9.4)
 	for s in (-1, 1):  # opal ceiling panels
 		with S.grp("AlcoveLight", Matrix.Translation((s * 7, -9, 17.5)), inst=True):
 			KC["Charcoal"].box(s * 7 - 2.2, s * 7 + 2.2, -10.4, -7.6, 17.3, 17.5)
@@ -253,7 +276,7 @@ def ceiling_lights(KC):
 			with S.grp("CeilingLight", Matrix.Translation((x, y, ZC)), inst=True):
 				KC["Charcoal"].box(x - 3.2, x + 3.2, y - 0.95, y + 0.95, ZC - 0.32, ZC)
 				KC["E_Opal"].box(x - 2.9, x + 2.9, y - 0.62, y + 0.62, ZC - 0.4, ZC - 0.32)
-				S.light(S.I4, x, y, ZC - 2.0, "#FFF1DE", 0.3, 36)  # hub upgrade: less flat fill
+				S.light(S.I4, x, y, ZC - 2.0, "#EBF0FF", 0.22, 22)  # lighting pass: a cool, tight fill (the old range-36 fill flooded the hall flat)
 
 
 def structure(K):

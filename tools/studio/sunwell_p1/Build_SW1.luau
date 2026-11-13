@@ -758,15 +758,16 @@ local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime",
 
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
-	Ambient = Color3.fromRGB(64, 64, 66), -- hub upgrade 2026-11-12: lower fill so the wall lamps and the Sun Well make pools
-	OutdoorAmbient = Color3.fromRGB(90, 95, 108), -- a neutral-cool shade against the warm lamps (pass D)
-	Brightness = 2.6,
+	-- lighting pass 2026-11-13: the sun through the skylights is the key, the lamps make warm pools, the shade is cool
+	Ambient = Color3.fromRGB(46, 52, 64),
+	OutdoorAmbient = Color3.fromRGB(84, 94, 116),
+	Brightness = 3.1, -- the skylight sun patches read hot at 3.4
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
-	ExposureCompensation = -0.5,
-	EnvironmentDiffuseScale = 0.35,
+	ExposureCompensation = -0.1,
+	EnvironmentDiffuseScale = 0.25,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
-	ColorShift_Top = Color3.fromRGB(255, 248, 238),
+	ColorShift_Top = Color3.fromRGB(255, 232, 200), -- warm sunlit tops
 	ShadowSoftness = 0.4,
 }
 
@@ -799,13 +800,15 @@ function M.use(which: string): string
 		if not cc then
 			local n = Instance.new("ColorCorrectionEffect")
 			n.Name = "HubGrade"
-			n.Contrast = 0.12
-			n.Saturation = -0.04
-			n.TintColor = Color3.fromRGB(252, 252, 255)
+			n.Contrast = 0.14
+			n.Saturation = 0.02
+			n.TintColor = Color3.fromRGB(255, 255, 255)
 			n.Parent = Lighting
 			cc = n
 		end
-		(cc :: ColorCorrectionEffect).Enabled = true
+		local grade = cc :: ColorCorrectionEffect
+		grade.Contrast, grade.Saturation, grade.TintColor = 0.14, 0.02, Color3.fromRGB(255, 255, 255)
+		grade.Enabled = true
 		if v3 then
 			v3.Enabled = false
 		end

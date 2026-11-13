@@ -104,7 +104,22 @@ def centre(K, KC):
 		S.ring_prism(KC["Petrol"], rr(6.2, 9.2, 4.6), rr(5.2, 8.2, 3.9), H - 0.7, H)
 		KC["E_Opal"].prism(rr(5.2, 8.2, 3.9), H - 0.45, H - 0.3)
 		for dy in (-5, 5):
-			S.light(S.I4, CX, CY + dy, H - 2.5, "#FFF3E4", 0.75, 34)
+			S.light(S.I4, CX, CY + dy, H - 2.5, "#FFF0DE", 0.4, 24)
+
+
+def floor_marks(K):
+	"""An inlaid dark border band 1.6 to 2.0 inside the room outline, and slab joints from the platform line out to
+	each corner of the room, so the floor reads as laid slabs instead of one plain sheet."""
+	with S.grp("LockerFloorMarks"):
+		outer = C._inset_poly([Vector(p) for p in PTS], 1.6)
+		inner = C._inset_poly([Vector(p) for p in PTS], 2.0)
+		S.ring_prism(K["Graphite"], [(p.x, p.y) for p in outer], [(p.x, p.y) for p in inner], 0.0, 0.03)
+		for p in PTS[1:5]:  # the four far corners (the doorway wall stays clear)
+			d = (Vector(p) - Vector((CX, CY))).normalized()
+			n = Vector((-d.y, d.x)) * 0.06
+			a = Vector((CX, CY)) + d * 10.9
+			b = Vector(p) - d * 2.3
+			K["Graphite"].prism([(a - n).to_tuple(), (b - n).to_tuple(), (b + n).to_tuple(), (a + n).to_tuple()], 0.0, 0.03)
 
 
 def build():
@@ -128,6 +143,8 @@ def build():
 	for s in (-1, 1):
 		DR.sconce(F, s * 14.5, 10.0)
 	centre(K, KC)
+	floor_marks(K)
+	S.soffit(KC, AREA, PTS, H, depth=0.6, width=3.0, lights=6, name="LockerSoffit")
 	S.anchor("LockerZone", "LobbyLocker", CX - 9.5, CY, 4.0, 7.0, 12.0, 7.0)
 	K.done()
 	KC.done()

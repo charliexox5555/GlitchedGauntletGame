@@ -56,7 +56,7 @@ def pad(P, cx, team, live, pad_id, mode):
 		cr = cham_rect
 		P["PetrolDark"].prism(cr(x0 - 0.22, x1 + 0.22, y0 - 0.22, y1 + 0.22, 1.1), 0.0, 0.1)  # floor flange
 		P["Petrol"].prism(cr(x0, x1, y0, y1, 1.0), 0.1, 0.32)  # tray
-		S.bolts(P["Steel"], [(cx + sx * (PW / 2 - 0.45), cy + sy * (PD / 2 - 1.5)) for sx in (-1, 1) for sy in (-1, 1)], r=0.11, z0=0.32, h=0.06)
+		S.bolts(P["Steel"], [(cx + sx * (PW / 2 - 0.25), cy + sy * (PD / 2 - 1.5)) for sx in (-1, 1) for sy in (-1, 1)], r=0.1, z0=0.32, h=0.06)  # on the tray margin, clear of the light channel
 		S.ring_prism(P[glow], cr(x0 + 0.5, x1 - 0.5, y0 + 0.5, y1 - 0.5, 0.8), cr(x0 + 0.72, x1 - 0.72, y0 + 0.72, y1 - 0.72, 0.7), 0.32, 0.4)
 		P["PadDark"].prism(cr(x0 + 0.72, x1 - 0.72, y0 + 0.72, y1 - 0.72, 0.7), 0.32, 0.38)  # rubber deck
 		for mx, my, hx, hy in ((cx, y0 + 0.61, 0.7, 0.24), (cx, y1 - 0.61, 0.7, 0.24), (x0 + 0.61, cy, 0.24, 0.7), (x1 - 0.61, cy, 0.24, 0.7)):
@@ -269,13 +269,16 @@ def build():
 	loc = lambda wall, x: (x - mid) if wall == "N" else -(x - mid)
 	for wall, x, mode, letter, live in STATIONS:
 		station(fn if wall == "N" else fs, loc(wall, x), mode, letter, live)
-		S.opal_panel(KC, x, 49.0 if wall == "N" else 19.0, ZL + H, 6.0, 2.2, color="#F1F4FF", brightness=0.95, rng=32)
+		S.opal_panel(KC, x, 49.0 if wall == "N" else 19.0, ZL + H, 6.0, 2.2, color="#EEF2FF", brightness=0.6, rng=26)
 	for x in BEAMS:
 		pier(fn, loc("N", x))
 		if x < -60:
 			pier(fs, loc("S", x))
 	pipes(fn, loc("N", -60.9), loc("N", -201.0), [loc("N", x + d) for _w, x, *_r in STATIONS if _w == "N" for d in (-7.0, 7.0)])
-	pipes(fs, loc("S", -85.9), loc("S", -201.0), [loc("S", x + d) for _w, x, *_r in STATIONS if _w == "S" for d in (-7.0, 7.0)])
+	pipes(fs, loc("S", -44.4), loc("S", -201.0), [loc("S", x + d) for _w, x, *_r in STATIONS if _w == "S" for d in (-7.0, 7.0)]
+		+ [loc("S", x) for x in (-48.4, -59.4, -79.4, -86.0)])  # over the deck and the ramp too
+	with S.grp("DeckLamp"):
+		DR.sconce(fs, loc("S", -50.4), 13.2)
 	gauntlet_gate(fw)
 	with S.grp("DuelsDoorCasing", fe.M):
 		S.u_frame(fe.at(T((0, 4.0, 0)))["Petrol"], 10.7, 13.7, 8.0, 11.0, 0.0, 0.5, co=3.2, ci=2.4)  # deck-side casing of the doorway

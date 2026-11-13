@@ -211,7 +211,8 @@ def build():
 	DR.sconce(FW, 14.0, 9.6)
 	for x in (53.0, 64.0, 77.0):
 		for y in (71.0, 93.0):
-			S.opal_panel(KC, x, y, H, 4.6, 4.6, color="#FFE7C2", brightness=0.6, rng=26)
+			S.opal_panel(KC, x, y, H, 4.6, 4.6, color="#F4EEE6", brightness=0.32, rng=20)  # lighting pass: the bays and lamps carry the light
+	S.soffit(KC, AREA, PTS, H, depth=0.6, width=3.0, lights=6, name="ShopSoffit")
 	S.anchor("ShopZone", "LobbyShop", 65.5, 75.0, 3.5, 6.0, 16.0, 6.0)
 	S.anchor("BattlePassZone", "LobbyBattlePass", 55.0, 100.5, 3.5, 14.0, 6.0, 6.0)
 	K.done()
