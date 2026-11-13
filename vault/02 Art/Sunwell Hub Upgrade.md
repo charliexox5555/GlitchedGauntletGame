@@ -309,6 +309,42 @@ Blind medians:
 - the Shop sign and room are brown-on-brown, and the door says SHOP while the room says SUPPLY;
 - the Locker needs a pool on its plinth.
 
+### Rounds 15-19 (2026-11-13, 4-5 a.m.)
+**Changes:**
+- **Neutral palette.** Walls `#A5A29B`, cast `#C2BEB5`, walk `#97938B` / `#8F8B84`, Shop floor `#9C9890`, bay backs `#6C6862`.
+- **Cool shade.** Ambient 62,67,78; OutdoorAmbient 108,116,134; Brightness 2.15; ShadowSoftness 1; ColorShift_Top 255,248,238.
+- **Cooler, less saturated grade.** Contrast 0.18, saturation -0.13, tint 240,246,255.
+- **Fills and pools.** A cool shade fill at 0.5. Floor pools under the wall lamps. Neutral fills in the Locker and down the Duels corridor. Stronger doorway washes. Shop lights neutral warm-white (`#FFECD6`). Warm terminal faces. A dimmer turbine intake.
+- **Spawn view.** The portal's inside faces (the "blank cream slabs" every reviewer named) are lined with a dark panel, a lit strip and a kick band. Cast pilasters at the alcove mouth.
+- **Signs.** The Shop's hanging sign now reads SHOP (it said SUPPLY, against the door).
+- **Detail.** A finer slab grid on the walk, a laid floor grid in the Shop, and low bollards at the end-field corners.
+
+**Blind reviews (two panels of three each, median per criterion):**
+
+| Round | Panel A | Panel B |
+|---|---|---|
+| 16 | 8.75 | 8.75 |
+| 17 | 8.75 | 8.75 |
+| 18 | 8.75 | 8.3 |
+| 19 | 8.75 | 8.75 |
+
+- The median holds at **W1 2, W2 2, W3 2, W4 1, W5 1, W6 2 = 8.75**.
+- Room medians in round 19: hall 8-8.5, Duels 8.5, Shop 7-7.5, Locker 7-7.5. One reviewer gave 9.17.
+
+## Where it stands (stop rule, 2026-11-13)
+**8.75 / 10, held for four rounds** across eight panels. That passes the 8.5 bar but is not 9. The loop stops here under the Map Quality Standard's stop rule (two rounds in a row gaining under 0.3).
+
+The one weighted criterion still at 1 is **lighting (W4)**. Every panel gives the same reason: a "warm sepia cast".
+- The grade, the shade, the lamps and the Shop lights were cooled in steps across rounds 13 to 19.
+- The note did not move, so what reads sepia is now the **warm cream walls**.
+- Warm light walls are the owner's locked Style Bible decision ("warm light walls, darker wainscot"), and the owner approved the textures and overall look on 2026-11-12. So this is **an owner call, not a fix to make alone**.
+
+**Options for the owner:**
+1. **Keep the warm palette** and accept 8.75. The reviewers mark the warmth down, but it is the game's look.
+2. **Trial a neutral grey-white wall palette** in one Studio test (walls about `#B5B3AE`, cast `#CFCDC8`). That is likely worth about +1.5 on W4.
+
+Detail (W5, weight 1) is the other 1. The Shop and Locker want more props, which the owner plans to add later.
+
 ### Handoff (if a new session picks this up)
 How to build:
 - Blender MCP is down. Build in a background Blender on a copy. The scripts are in the session scratchpad; recreate them from this list:
