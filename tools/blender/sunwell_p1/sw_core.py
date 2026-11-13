@@ -137,7 +137,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"RangePanel": _L("SmoothPlastic", "#7F8775"),
 	"RangeLining": _L("SmoothPlastic", "#4C504D"),
 	"LockerFloor": _L("SmoothPlastic", "#8A847B", v="SW_Floor"),  # warm neutral, the hall family
-	"BayBack": _L("SmoothPlastic", "#8E8A83"),  # mid grey: the bays read as lit cases, not empty white windows
+	"BayBack": _L("SmoothPlastic", "#6C6862"),  # mid grey: the bays read as lit cases, not empty white windows
 	"ShopFloor": _L("SmoothPlastic", "#A2957F", v="SW_Floor"),
 	"Timber": _L("SmoothPlastic", "#6B4B32"),  # flat colour (Wood grain read realistic)
 	"CaseShell": _L("SmoothPlastic", "#34383C"),

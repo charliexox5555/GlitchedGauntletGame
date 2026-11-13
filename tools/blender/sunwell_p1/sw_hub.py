@@ -419,6 +419,14 @@ def walk_motif(K):
 			for ya, yb in ((23.4, WY - 9.4), (WY + 9.4, 101.0)):
 				x0, x1 = sorted((sx * 9.6, sx * 10.2))
 				K["Graphite"].box(x0, x1, ya, yb, 0.0, 0.03)
+		for ya, yb in ((23.4, WY - 10.5), (WY + 10.5, 101.0)):  # a finer slab grid: joints down each half of the walk
+			for x in (-5.5, 5.5):
+				K["Graphite"].box(x - 0.05, x + 0.05, ya, yb, 0.0, 0.025)
+		for k in range(7):  # half-slab cross joints
+			y = 20 + 81 * (k + 0.5) / 7
+			if abs(y - WY) < 10.5:
+				continue
+			K["Graphite"].box(-10.9, 10.9, y - 0.04, y + 0.04, 0.0, 0.02)
 		for y in (28.0, 33.5, 39.0, 67.0, 72.5, 78.0):  # chevrons pointing down the hall (+y)
 			pts = [(-3.2, y), (0.0, y + 1.9), (3.2, y), (3.2, y + 0.9), (0.0, y + 2.8), (-3.2, y + 0.9)]
 			K["Floor"].prism(pts, 0.0, 0.035)  # quiet: one value under the walk, not black
@@ -460,6 +468,20 @@ def turbine_frame(K):
 		# (four diagonal gussets were tried here and read as loose dashes on the surround: removed)
 
 
+def bollards(K):
+	"""Low steel service bollards with an ochre band at the end-field corners, off the lanes."""
+	for sx in (-1, 1):
+		for y in (21.0, 82.8):
+			M = Matrix.Translation((sx * 31.2, y, 0))
+			with S.grp("Bollard", M, inst=True):
+				F = S.FK(K, M)
+				F["PetrolDark"].prism(oct_pts(0.55), 0.0, 0.12)
+				F["Petrol"].solid([(x, y2, 0.12) for x, y2 in oct_pts(0.36)], [(x, y2, 2.6) for x, y2 in oct_pts(0.32)])
+				F["Stripe"].prism(oct_pts(0.345), 1.8, 2.15)
+				F["PetrolDark"].prism(oct_pts(0.4), 2.6, 2.8)
+				S.collider(AREA, M, -0.4, 0.4, -0.4, 0.4, 0.0, 2.8, kind="Y")
+
+
 def build():
 	K = S.kit(AREA)
 	sun_well(K)
@@ -474,6 +496,7 @@ def build():
 	route_cues(K)
 	turbine_frame(K)
 	walk_motif(K)
+	bollards(K)
 	with S.grp("ShadeFill"):  # a second, cool light layer in the shade either side of the walk (warm sun, cool shade)
 		for y in (34.0, 53.0, 72.0, 91.0):
 			for sx in (-1, 1):

@@ -67,7 +67,7 @@ def bay(F, u, w, label, guns):
 		S.collider(AREA, B.M, -hw + 0.1, hw - 0.1, -1.5, 2.8, -2.5, 0.38)
 		S.collider(AREA, B.M, -hw, hw, -1.5, TOP, -3.85, -2.75)
 		S.collider(AREA, B.M, -hw, hw, 2.86, TOP, -0.3, 0.45, kind="Y")  # casing and glass
-		S.light(B.M, 0, 10.0, -0.9, "#FFF1DE", 0.9, 9)
+		S.light(B.M, 0, 10.0, -0.9, "#FFF1DE", 0.6, 9)
 		rows = sorted({g[2] for g in guns})
 		cols = max(sum(1 for g in guns if g[2] == r) for r in rows)
 		cw = (w - 1.6) / cols
@@ -158,6 +158,9 @@ def build():
 		_P.bench(K, M, "Locker" + nm)
 	for e in (0, 4):  # between the two bays on each long wall
 		S.pilaster(edges[e][0], 0.0, H - 0.6, hw=1.1, d=0.7, name="LockerPilaster")
+	with S.grp("LockerFill"):  # neutral fill: the room read murky between the warm pools
+		for x, y in ((CX, CY - 8.0), (CX, CY + 8.0), (CX - 14.0, CY)):
+			S.light(S.I4, x, y, 10.0, "#EBEEF5", 0.5, 20)
 	S.anchor("LockerZone", "LobbyLocker", CX - 9.5, CY, 4.0, 7.0, 12.0, 7.0)
 	K.done()
 	KC.done()

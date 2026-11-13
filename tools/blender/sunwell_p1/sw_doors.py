@@ -59,7 +59,9 @@ def sconce(F, x, y, light=True, power=2.4, reach=13):
 		L["PetrolDark"].prism(cr(-0.4, 0.4, 4.45, 5.15, 0.1), 0.0, 0.46)  # junction box
 		L["Graphite"].prism(cr(-0.3, 0.3, 4.55, 5.05, 0.06), 0.46, 0.5)
 		if light:
-			S.light(L.M, 0, 0, 1.7, AMBER, power, reach)  # hub upgrade: brighter, tighter warm pools on the walls
+			S.light(L.M, 0, 0, 1.7, AMBER, power, reach)
+		if power >= 2.0:  # a soft pool on the floor under the lamp
+			S.light(L.M, 0, -1.2, 1.7, "#FFD6A0", 1.4, 14, angle=70)  # hub upgrade: brighter, tighter warm pools on the walls
 
 
 def display(F, u, yc, w, h, kind, title, sub=""):

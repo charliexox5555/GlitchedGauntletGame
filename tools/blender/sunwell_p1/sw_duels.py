@@ -294,6 +294,9 @@ def build():
 	S.opal_panel(KC, -50.4, 20.0, ZL + H, 4.0, 4.0, brightness=0.7, rng=28)
 	S.opal_panel(KC, -50.4, 48.0, ZL + H, 4.0, 4.0, brightness=0.7, rng=28)
 	S.soffit(KC, AREA, PTS, ZL + H, depth=0.6, width=3.0, lights=12, name="DuelsSoffit")
+	with S.grp("DuelsFill"):  # neutral fill down the corridor (it read dark between the stations)
+		for x in (-80.0, -115.0, -150.0, -185.0):
+			S.light(S.I4, x, 34.0, ZL + 9.0, "#EBEEF5", 0.5, 22)
 	K.done()
 	KC.done()
 	KR.done()
