@@ -47,61 +47,64 @@ def bay(F, u, w, label, guns):
 	"""A display bay set into the wall. The cabinet and the casing stand 0.5 proud on one front plane, split by a shadow
 	gap; the casing (sill, cheeks and header) is one continuous piece, with the glass set back inside it."""
 	B = F.at(Matrix.Translation((u, 0, 0)))
-	hw = w / 2
-	B["Charcoal"].box(-hw, hw, -1.5, TOP, -4.0, -2.6)  # seals the wall opening
-	B["Graphite"].box(-hw, hw, -1.5, 2.86, -2.6, 0.5)  # cabinet
-	for s in (-1, 1):  # cabinet doors with pulls
-		B["Charcoal"].box(*sorted((s * 0.12, s * (hw - 0.4))), 0.55, 2.5, 0.5, 0.54)
-		B["Steel"].box(s * 0.5 - 0.06, s * 0.5 + 0.06, 1.2, 1.9, 0.54, 0.64)
-	B["PetrolDark"].box(-hw, hw, 0.0, 0.32, 0.5, 0.56)  # kick strip
-	B["Dark"].box(-hw + 0.05, hw - 0.05, 2.86, 3.0, -2.6, 0.4)  # shadow gap
-	S.ring_prism(B["Charcoal"], S.rect_loop(-hw, hw, 3.0, TOP), S.rect_loop(-hw + 0.6, hw - 0.6, SILL, WIN), -2.6, 0.5)
-	B["BayBack"].box(-hw + 0.6, hw - 0.6, SILL, WIN, -2.6, -2.4)
-	B["E_Opal"].box(-hw + 1.4, hw - 1.4, WIN - 0.12, WIN, -1.7, -0.9)
-	B["E_Blue"].box(-hw + 0.9, hw - 0.9, SILL, SILL + 0.06, -0.3, -0.12)
-	B["Glass"].box(-hw + 0.6, hw - 0.6, SILL, WIN, 0.06, 0.18)
-	for s in (-1, 1):
-		B["E_Amber"].box(s * (hw - 1.3) - 0.09, s * (hw - 1.3) + 0.09, WIN + 0.45, TOP - 0.45, 0.5, 0.55)
-	S.add_text(B["Cream"], label, 1.0, 0.2, y0=WIN + 0.35, z0=0.45, s=0.2, c=0.06, ci=0.02, track=0.17)
-	S.collider(AREA, B.M, -hw + 0.1, hw - 0.1, -1.5, 2.8, -2.5, 0.38)
-	S.collider(AREA, B.M, -hw, hw, -1.5, TOP, -3.85, -2.75)
-	S.collider(AREA, B.M, -hw, hw, 2.86, TOP, -0.3, 0.45, kind="Y")  # casing and glass
-	S.light(B.M, 0, 10.0, -0.9, "#FFF1DE", 0.9, 9)
-	rows = sorted({g[2] for g in guns})
-	cols = max(sum(1 for g in guns if g[2] == r) for r in rows)
-	cw = (w - 1.6) / cols
-	ch = (WIN - SILL) / len(rows)
-	R = B.M.to_3x3()
-	t = R @ Vector((1, 0, 0))
-	for gid, du, rest in guns:
-		ln, ht = gun_box(gid)
-		sc = round(min(cw * 0.86 / ln, ch * 0.6 / ht, 3.6), 2)
-		B["Steel"].box(du - ln * sc * 0.36, du + ln * sc * 0.36, rest - 0.14, rest, -2.4, -0.95)  # rail the gun rests on
-		p = B.M @ Vector((du, rest, -1.5))
-		S.GUNS.append([gid, sc, round(p.x, 3), round(p.y, 3), round(p.z, 3), round(t.x, 4), round(t.y, 4), 0, 0])
+	with S.grp(f"Bay_{label.title()}", B.M):
+		hw = w / 2
+		B["Charcoal"].box(-hw, hw, -1.5, TOP, -4.0, -2.6)  # seals the wall opening
+		B["Graphite"].box(-hw, hw, -1.5, 2.86, -2.6, 0.5)  # cabinet
+		for s in (-1, 1):  # cabinet doors with pulls
+			B["Charcoal"].box(*sorted((s * 0.12, s * (hw - 0.4))), 0.55, 2.5, 0.5, 0.54)
+			B["Steel"].box(s * 0.5 - 0.06, s * 0.5 + 0.06, 1.2, 1.9, 0.54, 0.64)
+		B["PetrolDark"].box(-hw, hw, 0.0, 0.32, 0.5, 0.56)  # kick strip
+		B["Dark"].box(-hw + 0.05, hw - 0.05, 2.86, 3.0, -2.6, 0.4)  # shadow gap
+		S.ring_prism(B["Charcoal"], S.rect_loop(-hw, hw, 3.0, TOP), S.rect_loop(-hw + 0.6, hw - 0.6, SILL, WIN), -2.6, 0.5)
+		B["BayBack"].box(-hw + 0.6, hw - 0.6, SILL, WIN, -2.6, -2.4)
+		B["E_Opal"].box(-hw + 1.4, hw - 1.4, WIN - 0.12, WIN, -1.7, -0.9)
+		B["E_Blue"].box(-hw + 0.9, hw - 0.9, SILL, SILL + 0.06, -0.3, -0.12)
+		B["Glass"].box(-hw + 0.6, hw - 0.6, SILL, WIN, 0.06, 0.18)
+		for s in (-1, 1):
+			B["E_Amber"].box(s * (hw - 1.3) - 0.09, s * (hw - 1.3) + 0.09, WIN + 0.45, TOP - 0.45, 0.5, 0.55)
+		S.add_text(B["Cream"], label, 1.0, 0.2, y0=WIN + 0.35, z0=0.45, s=0.2, c=0.06, ci=0.02, track=0.17)
+		S.collider(AREA, B.M, -hw + 0.1, hw - 0.1, -1.5, 2.8, -2.5, 0.38)
+		S.collider(AREA, B.M, -hw, hw, -1.5, TOP, -3.85, -2.75)
+		S.collider(AREA, B.M, -hw, hw, 2.86, TOP, -0.3, 0.45, kind="Y")  # casing and glass
+		S.light(B.M, 0, 10.0, -0.9, "#FFF1DE", 0.9, 9)
+		rows = sorted({g[2] for g in guns})
+		cols = max(sum(1 for g in guns if g[2] == r) for r in rows)
+		cw = (w - 1.6) / cols
+		ch = (WIN - SILL) / len(rows)
+		R = B.M.to_3x3()
+		t = R @ Vector((1, 0, 0))
+		for gid, du, rest in guns:
+			ln, ht = gun_box(gid)
+			sc = round(min(cw * 0.86 / ln, ch * 0.6 / ht, 3.6), 2)
+			B["Steel"].box(du - ln * sc * 0.36, du + ln * sc * 0.36, rest - 0.14, rest, -2.4, -0.95)  # rail the gun rests on
+			p = B.M @ Vector((du, rest, -1.5))
+			S.gun_row([gid, sc, round(p.x, 3), round(p.y, 3), round(p.z, 3), round(t.x, 4), round(t.y, 4), 0, 0])
 
 
 def centre(K, KC):
 	"""Stepped platform, the projector with a glowing lens, the hero gun turning in a cyan orbit, a big opal light above."""
-	K["WallBase"].disc(9.0, 0.0, 0.5, n=8, cx=CX, cy=CY)
-	K["Graphite"].disc(7.0, 0.5, 1.0, n=8, cx=CX, cy=CY)
-	K["P_Blue"].ring(10.3, 10.65, -0.15, 0.05, n=8, cx=CX, cy=CY)  # floor line round the platform
-	K["E_Blue"].ring(6.1, 6.3, 0.9, 1.05, n=8, cx=CX, cy=CY)
-	K["Charcoal"].disc(2.9, 1.0, 2.3, n=8, cx=CX, cy=CY, r1=2.35)
-	K["Petrol"].ring(2.0, 2.35, 2.3, 2.5, n=8, cx=CX, cy=CY)
-	K["E_Blue"].disc(1.9, 2.3, 2.4, n=8, cx=CX, cy=CY)
-	K["E_Blue"].framem(Matrix.Translation((CX, CY, 6.3)) @ Matrix.Rotation(radians(12), 4, "X")).ring(4.0, 4.14, -0.045, 0.045, n=8)
-	C.collider_cyl(AREA, CX, CY, 8.15, 0.05, 0.45)
-	C.collider_cyl(AREA, CX, CY, 6.3, 0.4, 0.95)
-	C.collider_cyl(AREA, CX, CY, 3.2, 1.0, 10.0, kind="X")  # keeps players out of the hologram
-	S.GUNS.append(["Vandal", 2.7, CX, CY, 6.3, 0.0, 1.0, 1, 16])  # side-on to the doorway
-	S.light(S.I4, CX, CY, 3.2, "#6FC4FF", 0.9, 12)
-	S.light(S.I4, CX, CY, 12.0, "#EAF6FF", 2.2, 14, angle=70)
-	rr = lambda hx, hy, r: S.fillet([(CX - hx, CY - hy, r), (CX + hx, CY - hy, r), (CX + hx, CY + hy, r), (CX - hx, CY + hy, r)], "cham")
-	S.ring_prism(KC["Petrol"], rr(6.2, 9.2, 4.6), rr(5.2, 8.2, 3.9), H - 0.7, H)
-	KC["E_Opal"].prism(rr(5.2, 8.2, 3.9), H - 0.45, H - 0.3)
-	for dy in (-5, 5):
-		S.light(S.I4, CX, CY + dy, H - 2.5, "#FFF3E4", 0.75, 34)
+	with S.grp("Projector", Matrix.Translation((CX, CY, 0))):
+		K["WallBase"].disc(9.0, 0.0, 0.5, n=8, cx=CX, cy=CY)
+		K["Graphite"].disc(7.0, 0.5, 1.0, n=8, cx=CX, cy=CY)
+		K["P_Blue"].ring(10.3, 10.65, -0.15, 0.05, n=8, cx=CX, cy=CY)  # floor line round the platform
+		K["E_Blue"].ring(6.1, 6.3, 0.9, 1.05, n=8, cx=CX, cy=CY)
+		K["Charcoal"].disc(2.9, 1.0, 2.3, n=8, cx=CX, cy=CY, r1=2.35)
+		K["Petrol"].ring(2.0, 2.35, 2.3, 2.5, n=8, cx=CX, cy=CY)
+		K["E_Blue"].disc(1.9, 2.3, 2.4, n=8, cx=CX, cy=CY)
+		K["E_Blue"].framem(Matrix.Translation((CX, CY, 6.3)) @ Matrix.Rotation(radians(12), 4, "X")).ring(4.0, 4.14, -0.045, 0.045, n=8)
+		C.collider_cyl(AREA, CX, CY, 8.15, 0.05, 0.45)
+		C.collider_cyl(AREA, CX, CY, 6.3, 0.4, 0.95)
+		C.collider_cyl(AREA, CX, CY, 3.2, 1.0, 10.0, kind="X")  # keeps players out of the hologram
+		S.gun_row(["Vandal", 2.7, CX, CY, 6.3, 0.0, 1.0, 1, 16])  # side-on to the doorway
+		S.light(S.I4, CX, CY, 3.2, "#6FC4FF", 0.9, 12)
+		S.light(S.I4, CX, CY, 12.0, "#EAF6FF", 2.2, 14, angle=70)
+	with S.grp("ProjectorLight", Matrix.Translation((CX, CY, H))):
+		rr = lambda hx, hy, r: S.fillet([(CX - hx, CY - hy, r), (CX + hx, CY - hy, r), (CX + hx, CY + hy, r), (CX - hx, CY + hy, r)], "cham")
+		S.ring_prism(KC["Petrol"], rr(6.2, 9.2, 4.6), rr(5.2, 8.2, 3.9), H - 0.7, H)
+		KC["E_Opal"].prism(rr(5.2, 8.2, 3.9), H - 0.45, H - 0.3)
+		for dy in (-5, 5):
+			S.light(S.I4, CX, CY + dy, H - 2.5, "#FFF3E4", 0.75, 34)
 
 
 def build():
@@ -116,11 +119,12 @@ def build():
 		ops = [(u - w / 2, u + w / 2, TOP) for u, w, _l, _g in per.get(i, [])]
 		if i == 5:
 			ops = [(-10.0, 10.0, TOP)]  # the doorway (the hall's reveal lining passes through it)
-		S.wall_seg(F, AREA, L, H, ops, ext=ext, courses=[1.5, 7.25, TOP], top_trim=0.02 + 0.03 * (i % 2))
+		S.wall_seg(F, AREA, L, H, ops, ext=ext, courses=[1.5, 7.25, TOP], top_trim=0.02 + 0.03 * (i % 2), name=f"LockerWall{i + 1}")
 		for u, w, label, guns in per.get(i, []):
 			bay(F, u, w, label, guns)
 	F, L, _ = edges[5]
-	S.u_frame(F["Petrol"], 10.6, 13.4, 7.8, 10.8, 0.0, 0.5, ro=5.8, ri=3.0, n=2)  # casing on the gallery side, same collar shape
+	with S.grp("LockerDoorCasing", F.M):
+		S.u_frame(F["Petrol"], 10.6, 13.4, 7.8, 10.8, 0.0, 0.5, ro=5.8, ri=3.0, n=2)  # casing on the gallery side, same collar shape
 	for s in (-1, 1):
 		DR.sconce(F, s * 14.5, 10.0)
 	centre(K, KC)

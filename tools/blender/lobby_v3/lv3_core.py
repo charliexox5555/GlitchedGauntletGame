@@ -336,6 +336,47 @@ BEVEL = {
 # while nothing of them can be seen. Stored in Roblox coordinates (X, Y, Z) = (Bx, Bz, -By):
 # [kind, sx, sy, sz, px, py, pz, xx, xy, xz, yx, yy, yz]; kind B box, W wedge, C cylinder (axis = local X).
 COLLISION = {}
+
+# ---------------------------------------------------------------- piece groups (Sunwell hub, 2026-11-13)
+# Geometry built inside `with grp("Lamp", M):` becomes its own objects (one per material), so in Studio every piece is a
+# standalone Model with its own meshes, colliders and lights. Without an active group nothing changes (the V3 builder).
+GROUP = []  # stack of active group paths
+GROUPS = {}  # path -> {"M": frame or None, "inst": bool, "parent": path or None, "order": n}
+
+
+class grp:
+	"""Context: everything built inside belongs to one piece. Nested groups nest (Doorway_Duels/Lamp).
+	M is the piece's frame (its pivot in Studio); inst=True lets identical pieces share one mesh (needs a rigid M)."""
+
+	def __init__(self, name, M=None, inst=False, reuse=False):
+		self.name, self.M, self.inst, self.reuse = name, M, inst, reuse
+
+	def __enter__(self):
+		parent = GROUP[-1] if GROUP else None
+		base = f"{parent}/{self.name}" if parent else self.name
+		path = base
+		if not self.reuse:
+			k = 2
+			while path in GROUPS:
+				path = f"{base}_{k}"
+				k += 1
+		if path not in GROUPS:
+			GROUPS[path] = {"M": self.M.copy() if self.M is not None else None, "inst": self.inst, "parent": parent, "order": len(GROUPS)}
+		GROUP.append(path)
+		self.path = path
+		return self
+
+	def __exit__(self, *a):
+		GROUP.pop()
+
+
+def cur_group():
+	return GROUP[-1] if GROUP else None
+
+
+def reset_groups():
+	GROUP.clear()
+	GROUPS.clear()
 INSET = 0.04
 MIN_DIM = 0.22
 SEG = radians(7.5)
@@ -350,6 +391,8 @@ def _emit(area, kind, size, pos, vx, vy):
 	if min(size) < 0.05:
 		return
 	row = [kind] + [round(float(x), 3) for x in (*size, *_rb(pos), *_rb(vx), *_rb(vy))]
+	if GROUP:
+		row.append(GROUP[-1])
 	COLLISION.setdefault(area, []).append(row)
 
 
@@ -660,6 +703,8 @@ class B:
 		bm.free()
 		ob = bpy.data.objects.new(name, me)
 		self.col.objects.link(ob)
+		if getattr(self, "group", None):
+			ob["g"] = self.group
 		me.materials.append(self.material)
 		me.polygons.foreach_set("use_smooth", [True] * len(me.polygons))
 		me.set_sharp_from_angle(angle=radians(40))
@@ -674,7 +719,10 @@ class B:
 
 
 class Kit:
-	"""One builder per material inside a collection: K['Concrete'].box(...)."""
+	"""One builder per material inside a collection: K['Concrete'].box(...). Inside a grp() context, one builder per
+	(piece, material)."""
+
+	SEQ = 0
 
 	def __init__(self, col, rot=0.0, prefix=None):
 		self.col, self.rot = col, rot
@@ -682,11 +730,19 @@ class Kit:
 		self.b = {}
 
 	def __getitem__(self, m):
-		if m not in self.b:
-			self.b[m] = B(f"{self.prefix}_{m}", self.col, mat(m), self.rot)
+		g = GROUP[-1] if GROUP else None
+		key = (g, m) if g else m
+		if key not in self.b:
+			if g:
+				Kit.SEQ += 1
+				name = f"{self.prefix}_{Kit.SEQ:04d}_{m}"  # unique and short; the piece's path is a custom property
+			else:
+				name = f"{self.prefix}_{m}"
+			self.b[key] = B(name, self.col, mat(m), self.rot)
+			self.b[key].group = g
 			if getattr(self, "nocol", False):
-				self.b[m].collide = False
-		return self.b[m].reset()
+				self.b[key].collide = False
+		return self.b[key].reset()
 
 	def done(self):
 		return [b.done() for b in self.b.values()]

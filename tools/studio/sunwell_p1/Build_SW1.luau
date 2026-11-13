@@ -88,6 +88,67 @@ function M.applyLook(part: MeshPart, p: any, override: any?)
 	part:SetAttribute("SWMat", p.mat)
 end
 
+local piece: (idx: { [string]: Model }, path: string, home: Instance, parentPath: string?) -> Model
+
+-- Pieces (2026-11-13): every lamp, board, wall bay, pilaster, beam, pad and prop is a Model of its own (attribute
+-- PiecePath) holding its meshes, its invisible colliders and its lights, so it can be moved alone in Studio.
+-- Identical pieces share one uploaded mesh: the export lists them with a `proto`, and their meshes are cloned here.
+local function pieceIndex(): { [string]: Model }
+	local idx: { [string]: Model } = {}
+	for _, x in root():GetDescendants() do
+		if x:IsA("Model") then
+			local p = x:GetAttribute("PiecePath")
+			if type(p) == "string" then
+				idx[p] = x
+			end
+		end
+	end
+	return idx
+end
+
+local function frameCF(f: { number }): CFrame
+	return CFrame.new(ORIGIN.X + f[1], ORIGIN.Y + f[2], ORIGIN.Z + f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], f[11], f[12])
+end
+
+-- Layout: every piece is a Model you can click and move on its own (Studio selects the outermost Model, so pieces
+-- never sit inside another piece's Model). A piece with sub-pieces (a doorway with its lamps and sign) becomes a
+-- Folder holding its own Model and the sub-pieces' Models.
+local function container(idx: { [string]: Model }, path: string, home: Instance): Instance
+	local m = piece(idx, path, home, nil)
+	local parent = m.Parent :: Instance
+	if parent:IsA("Folder") and parent:GetAttribute("PieceFolder") == path then
+		return parent
+	end
+	local f = Instance.new("Folder")
+	f.Name = m.Name
+	f:SetAttribute("PieceFolder", path)
+	f.Parent = parent
+	m.Parent = f
+	return f
+end
+
+function piece(idx: { [string]: Model }, path: string, home: Instance, parentPath: string?): Model
+	local m = idx[path]
+	if m then
+		return m
+	end
+	local pp = parentPath or string.match(path, "^(.*)/[^/]+$")
+	local parent: Instance = if pp then container(idx, pp, home) else home
+	local made = Instance.new("Model")
+	made.Name = string.match(path, "([^/]+)$") or path
+	made:SetAttribute("PiecePath", path)
+	made.Parent = parent
+	idx[path] = made
+	return made
+end
+
+local function depth(p: string): number
+	local _, n = string.gsub(p, "/", "")
+	return n
+end
+
+-- Rebuilds one area's pieces from scratch (meshes only). Run collision(area) and lights() for every area afterwards,
+-- or use M.rebuild(), which does all of it in the right order.
 function M.visual(area: string): string
 	local d = data(area)
 	local assets = data("Assets")
@@ -100,9 +161,23 @@ function M.visual(area: string): string
 			meshes[x.Name] = x
 		end
 	end
-	local folder = fresh(areaFolder(area), "Visual")
-	local n, missing, worst = 0, {}, 0
-	local models: { [string]: Model } = {}
+	local home = fresh(root(), area)
+	local idx = pieceIndex()
+	local info = d.pieces or {}
+	local paths = {}
+	for path in info do
+		table.insert(paths, path)
+	end
+	table.sort(paths, function(a, b)
+		if depth(a) == depth(b) then
+			return a < b
+		end
+		return depth(a) < depth(b)
+	end)
+	for _, path in paths do
+		piece(idx, path, home, info[path].parent)
+	end
+	local n, missing, worst, cloned = 0, {}, 0, 0
 	for _, p in d.parts do
 		local src = meshes[p.n]
 		if not src then
@@ -117,35 +192,54 @@ function M.visual(area: string): string
 		part.PivotOffset = CFrame.new()
 		part.CFrame = CFrame.new(G(p.c)) * ROT
 		M.applyLook(part, p)
-		if p.grp then -- a moving group: one Model, turned by the lobby ambience script (tag LobbySpin)
-			local m = models[p.grp]
-			if not m then
-				m = Instance.new("Model")
-				m.Name = p.grp
-				m.Parent = folder
-				models[p.grp] = m
-			end
-			part.CastShadow = false
-			part.Parent = m
-		else
-			part.Parent = folder
-		end
+		part.Name = p.mat
+		part:SetAttribute("SWName", p.n)
+		part:SetAttribute("Ceil", p.ceil == 1)
+		part.Parent = if p.g then piece(idx, p.g, home, nil) else home
 		n += 1
-		if n % 20 == 0 then
+		if n % 25 == 0 then
 			task.wait()
 		end
 	end
-	for name, g in d.groups or {} do -- pivot, speed and axis (Blender coordinates) for each moving group
-		local m = models[name]
-		if m then
-			m.WorldPivot = CFrame.new(G(g.pivot))
-			m:SetAttribute("SpinSpeed", g.spin)
-			m:SetAttribute("SpinAxis", Vector3.new(g.axis[1], g.axis[3], -g.axis[2]))
+	for _, path in paths do -- identical pieces: clone the prototype's own meshes into place
+		local row = info[path]
+		local pr = row.proto and info[row.proto]
+		local proto = row.proto and idx[row.proto]
+		if pr and proto and row.f and pr.f then
+			local rel = frameCF(row.f) * frameCF(pr.f):Inverse()
+			for _, src in proto:GetChildren() do
+				if src:IsA("BasePart") and src:GetAttribute("SWMat") then
+					local c = src:Clone()
+					c.CFrame = rel * src.CFrame
+					c.Parent = idx[path]
+					cloned += 1
+				end
+			end
+			idx[path]:SetAttribute("SharedWith", row.proto)
+		end
+	end
+	for _, path in paths do -- pivots: the piece's own frame, else the middle of its footprint
+		local m, row = idx[path], info[path]
+		if row.anim then
+			m.WorldPivot = CFrame.new(G(row.anim.pivot))
+			m:SetAttribute("SpinSpeed", row.anim.spin)
+			m:SetAttribute("SpinAxis", Vector3.new(row.anim.axis[1], row.anim.axis[3], -row.anim.axis[2]))
 			CollectionService:AddTag(m, "LobbySpin")
+			for _, x in m:GetChildren() do
+				if x:IsA("BasePart") then
+					x.CastShadow = false
+				end
+			end
+		elseif row.f then
+			m.WorldPivot = frameCF(row.f)
+		elseif #m:GetDescendants() > 0 then
+			local cf, size = m:GetBoundingBox() -- own parts only: sub-pieces are siblings, not children
+			m.WorldPivot = CFrame.new(cf.Position - Vector3.new(0, size.Y / 2, 0))
 		end
 	end
 	raw:Destroy()
-	return string.format("%s visual: %d parts, %d missing [%s], worst size delta %.3f", area, n, #missing, table.concat(missing, ","), worst)
+	return string.format("%s: %d pieces, %d meshes + %d shared copies, %d missing [%s], worst size delta %.3f", area, #paths, n, cloned,
+		#missing, table.concat(missing, ","), worst)
 end
 
 -- Our own subtle MaterialVariants (tools/textures/make_sunwell_textures.py). Rows: { name, studs per tile, colour, normal,
@@ -192,15 +286,11 @@ function M.relook(looks: any, areas: { string }?): string
 		if areas and not table.find(areas, f.Name) then
 			continue
 		end
-		local d = data(f.Name)
-		local vis = f:FindFirstChild("Visual")
-		if not (d and vis) then
-			continue
-		end
-		for _, p in d.parts do
-			local part = vis:FindFirstChild(p.n)
-			if part and looks[p.mat] then
-				M.applyLook(part :: MeshPart, p, looks)
+		for _, part in f:GetDescendants() do
+			local mat = part:GetAttribute("SWMat")
+			if part:IsA("MeshPart") and mat and looks[mat] then
+				local sz = part.Size
+				M.applyLook(part, { mat = mat, s = { sz.X, sz.Z, sz.Y }, ceil = if part:GetAttribute("Ceil") then 1 else 0, look = looks[mat] }, looks)
 				n += 1
 			end
 		end
@@ -209,7 +299,16 @@ function M.relook(looks: any, areas: { string }?): string
 end
 
 function M.collision(area: string): string
-	local folder = fresh(areaFolder(area), "Collision")
+	for _, x in root():GetDescendants() do -- this area's previous colliders, wherever their piece is
+		if x:GetAttribute("ColArea") == area then
+			x:Destroy()
+		end
+	end
+	local home = areaFolder(area)
+	local idx = pieceIndex()
+	local folder = home:FindFirstChild("Shell") or Instance.new("Folder") -- colliders that belong to no piece
+	folder.Name = "Shell"
+	folder.Parent = home
 	local k, total = 1, 0
 	local grey = Color3.fromRGB(70, 70, 74)
 	while true do
@@ -238,7 +337,9 @@ function M.collision(area: string): string
 				part.Transparency = 1
 				part.CanQuery = false
 			end
-			part.Parent = chunk
+			part:SetAttribute("ColArea", area)
+			local g = r[14]
+			part.Parent = if type(g) == "string" and g ~= "" then piece(idx, g, home, nil) else chunk
 			if i % 350 == 0 then
 				chunk.Parent = folder
 				task.wait()
@@ -256,7 +357,16 @@ end
 
 function M.lights(area: string, mult: number?): string
 	local d = data(area)
-	local folder = fresh(areaFolder(area), "Lights")
+	for _, x in root():GetDescendants() do
+		if x:GetAttribute("LightArea") == area then
+			x:Destroy()
+		end
+	end
+	local home = areaFolder(area)
+	local idx = pieceIndex()
+	local folder = home:FindFirstChild("Lights") or Instance.new("Folder") -- lights that belong to no piece
+	folder.Name = "Lights"
+	folder.Parent = home
 	for _, l in d.lights do
 		local a = Instance.new("Part")
 		a.Name = "Light"
@@ -285,7 +395,9 @@ function M.lights(area: string, mult: number?): string
 		light.Shadows = false
 		light.Parent = a
 		CollectionService:AddTag(light, "LobbyLight")
-		a.Parent = folder
+		a:SetAttribute("LightArea", area)
+		local g = l[9]
+		a.Parent = if type(g) == "string" and g ~= "" then piece(idx, g, home, nil) else folder
 	end
 	return area .. " lights: " .. #d.lights
 end
@@ -296,7 +408,13 @@ local GUN_ROT = CFrame.new(0, 0, 0, 0, -1, 0, 0, 0, -1, 1, 0, 0)
 
 function M.guns(): string
 	local d = data("Guns")
+	for _, x in root():GetDescendants() do
+		if x:GetAttribute("SWGun") then
+			x:Destroy()
+		end
+	end
 	local folder = fresh(root(), "Guns")
+	local idx = pieceIndex()
 	local raws: { [string]: { [string]: MeshPart } } = {}
 	local placed, missing = 0, 0
 	for _, pl in d.place do
@@ -347,7 +465,8 @@ function M.guns(): string
 			model:SetAttribute("BobSpeed", 0.22)
 			CollectionService:AddTag(model, "LobbySpin")
 		end
-		model.Parent = folder
+		model:SetAttribute("SWGun", true)
+		model.Parent = if type(pl[10]) == "string" and pl[10] ~= "" and idx[pl[10]] then idx[pl[10]] else folder
 		placed += 1
 		if placed % 4 == 0 then
 			task.wait()
@@ -463,7 +582,13 @@ local function teamPanel(bg: Frame, x: number, w: number, h: number, name: strin
 end
 
 function M.screens(): string
+	for _, x in root():GetDescendants() do
+		if x:GetAttribute("SWScreen") then
+			x:Destroy()
+		end
+	end
 	local folder = fresh(root(), "Screens")
+	local idx = pieceIndex()
 	local rows = data("Screens") or {}
 	for _, r in rows do
 		local kind, title, sub = r[1], r[2], r[3]
@@ -563,7 +688,8 @@ function M.screens(): string
 			end
 		end
 		outline(bg, Color3.fromHex("#2A3642"), 3)
-		part.Parent = folder
+		part:SetAttribute("SWScreen", true)
+		part.Parent = if type(r[11]) == "string" and r[11] ~= "" and idx[r[11]] then idx[r[11]] else folder
 	end
 	return "screens: " .. #rows
 end
@@ -706,6 +832,31 @@ function M.use(which: string): string
 	end
 	r:SetAttribute("Active", "V3")
 	return "V3 active: V3 spawn on, staging spawn off, V3 lighting restored"
+end
+
+-- Everything, in the order pieces need: all meshes first (lights and colliders may belong to a piece in another
+-- area's data, e.g. the doorway lamps' lights are recorded with the hall), then colliders, lights, screens, guns.
+M.AREAS = { "Hall", "Doors", "Props", "Hub", "Locker", "Shop", "Duels" }
+function M.rebuild(): string
+	local out = {}
+	for _, a in M.AREAS do
+		table.insert(out, M.visual(a))
+		task.wait()
+	end
+	for _, a in M.AREAS do
+		table.insert(out, M.collision(a))
+	end
+	for _, a in M.AREAS do
+		local d = data(a)
+		if d and d.lights and #d.lights > 0 then
+			table.insert(out, M.lights(a))
+		end
+	end
+	table.insert(out, M.screens())
+	table.insert(out, M.guns())
+	table.insert(out, M.anchors())
+	table.insert(out, M.sounds())
+	return table.concat(out, "\n")
 end
 
 function M.cleanup(): string

@@ -137,6 +137,12 @@ First pass captures (hall before the wall pass):
 
 Self-rating of the hall after the fixes: **8 / 10**. Strong first view, clear doorway reads, real signs, one landmark. Held back by plain upper walls and an empty middle (the owner plans more for the centre later).
 
+## Standalone pieces (2026-11-13)
+Owner's note: meshes were merged (one mesh per material per area), so moving a case or a lamp moved everything of that material. Now **every object is a piece**: in Blender, geometry is built inside `with S.grp("Lamp", M, inst=True):` (`lv3_core.grp`), which gives it its own objects. In Studio each piece is a **Model you can click and move on its own**, holding its meshes, its invisible colliders and its lights; a piece with sub-pieces (a doorway with its lamps and sign) is a Folder holding its Model and the sub-pieces' Models. 309 pieces, 0 loose meshes.
+- **Identical pieces share one mesh** (`inst=True` and the same shape in the piece's own frame): 102 of them (lamps, ceiling lights, pads, piers, beams, vents, cabinets, cases) are clones of a prototype's meshes, so the upload stays at 7 FBX files and Roblox can batch them. Attribute `SharedWith` names the prototype.
+- Studio: `require(Build).rebuild()` builds all areas in order (meshes, then colliders, lights, screens, guns, anchors, sounds). Piece attributes: `PiecePath` on Models, `PieceFolder` on Folders.
+- Rule for new work: never build visible geometry outside a `S.grp(...)`; the export reports loose objects.
+
 ## Pipeline (reuses the V3 method)
 1. Build: `tools/blender/sunwell_p1/` → `sw_core.py` (palette, frames, lettering), `sw_hall.py`, `sw_doors.py`, `sw_props.py`, `sw_run.py` (`build_all()`, `audit()`, `shots()`, `save()`), `sw_export.py`. It imports the V3 solid builder (`tools/blender/lobby_v3/lv3_core.py`). Blend: `art-source/lobby/SunwellWorks.blend`.
 2. Export: `sw_export.run()` writes `art-source/lobby/Exports/SW1_<Area>.fbx` and `SW1Data/*.json`.

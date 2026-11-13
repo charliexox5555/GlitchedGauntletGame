@@ -25,7 +25,7 @@ When the owner sends reference screenshots for a new style, kind of model or are
 4. Write the **design method** into `vault/02 Art/Model Style Interview.md` → "Design methods": the rules for that style (facet counts, chamfer sizes, typical shapes, a build order, do/don't, which reference shows what). Add the Blender helpers it needs.
 5. Build one small test piece, capture it beside the references, and get a yes before the full build.
 
-History, captures and the code that implements this: `vault/02 Art/Sunwell Works Build.md`. Builder helpers: `tools/blender/sunwell_p1/sw_core.py` (`wall_seg`, `cham_rect`, `cut_rect`, `taper_y`, `ring_prism`, `u_frame`, `add_text`), fixtures in `sw_doors.py` (`sconce`, `display`). Reuse them; do not start from plain boxes.
+History, captures and the code that implements this: `vault/02 Art/Sunwell Works Build.md`. Builder helpers: `tools/blender/sunwell_p1/sw_core.py` (`wall_seg`, `cham_rect`, `cut_rect`, `taper_y`, `ring_prism`, `u_frame`, `add_text`), fixtures in `sw_doors.py` (`sconce`, `display`). Reuse them; do not start from plain boxes. **Every object is its own piece:** build it inside `with S.grp("Name", frame, inst=True):` so it becomes a standalone Model in Studio (its meshes, colliders and lights together), and identical pieces share one mesh. Never merge unrelated objects into one mesh.
 
 ## 1. Shape language
 1. **Facets, not rounded boxes.** A box softened by a bevel modifier is the number one tell. Silhouettes come from planar cuts, tapers and leans.

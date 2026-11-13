@@ -82,6 +82,8 @@ def build_all(cams=True):
 	reload()
 	C.ROOT = S.ROOT
 	C.COLLISION.clear()
+	C.reset_groups()  # pieces (standalone Models in Studio)
+	C.Kit.SEQ = 0
 	S.LIGHTS.clear()
 	S.GUNS.clear()
 	S.ANCHORS.clear()

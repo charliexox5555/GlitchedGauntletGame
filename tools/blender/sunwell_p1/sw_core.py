@@ -236,10 +236,16 @@ def collider(area, M, x0, x1, y0, y1, z0, z1, kind="B"):
 
 def light(M, x, y, z, color, brightness, rng, angle=None):
 	w = M @ Vector((x, y, z))
-	row = ["S" if angle else "P", round(w.x, 2), round(w.y, 2), round(w.z, 2), color, brightness, rng]
-	if angle:
-		row.append(angle)
+	row = ["S" if angle else "P", round(w.x, 2), round(w.y, 2), round(w.z, 2), color, brightness, rng, angle or 0, C.cur_group() or ""]
 	LIGHTS.setdefault(AREA, []).append(row)
+
+
+grp = C.grp  # pieces: `with S.grp("Lamp", M, inst=True):` (see lv3_core.grp)
+
+
+def gun_row(row):
+	"""A real gun on display, recorded with the piece it belongs to (it moves with that piece in Studio)."""
+	GUNS.append(row + [C.cur_group() or ""])
 
 
 # ---------------------------------------------------------------- outline helpers
@@ -524,7 +530,7 @@ def screen(kind, title, sub, M, x, y, z, w, h):
 	"""A live-looking display: recorded here, built in Studio as a SurfaceGui on a thin part at (x, y, z) of frame M."""
 	c = M @ Vector((x, y, z))
 	n = M.to_3x3() @ Vector((0, 0, 1))
-	SCREENS.append([kind, title, sub, round(c.x, 3), round(c.y, 3), round(c.z, 3), w, h, round(n.x, 4), round(n.y, 4)])
+	SCREENS.append([kind, title, sub, round(c.x, 3), round(c.y, 3), round(c.z, 3), w, h, round(n.x, 4), round(n.y, 4), C.cur_group() or ""])
 
 
 def taper_y(b, r0, y0, r1, y1):
@@ -555,7 +561,16 @@ def edge_frame(p, q, zf=0.0):
 
 
 def wall_seg(F, area, L, H, openings=(), t=4.0, joint=11.0, ext=(0.0, 0.0), courses=None, mat="Wall", base="WallBase", base_h=1.5,
-		low=1, belt=True, crown=True, batter=0.45, top_trim=0.0):
+		low=1, belt=True, crown=True, batter=0.45, top_trim=0.0, name=None):
+	"""See _wall_seg. With a name, every stretch between openings is its own piece (name_1, name_2, ...) with its
+	colliders, and the crown is a piece of its own."""
+	if not name:
+		return _wall_seg(F, area, L, H, openings, t, joint, ext, courses, mat, base, base_h, low, belt, crown, batter, top_trim)
+	return _wall_seg(F, area, L, H, openings, t, joint, ext, courses, mat, base, base_h, low, belt, crown, batter, top_trim, name)
+
+
+def _wall_seg(F, area, L, H, openings=(), t=4.0, joint=11.0, ext=(0.0, 0.0), courses=None, mat="Wall", base="WallBase", base_h=1.5,
+		low=1, belt=True, crown=True, batter=0.45, top_trim=0.0, name=None):
 	"""Coursed block wall in a face frame: x -L/2..L/2 (extended by ext at each end to close the corners), y 0..H, z -t..0.
 	openings = [(u0, u1, top)] are left open from the floor to top. Adds the hidden collider core.
 	Trim hierarchy: dark base course, the lowest `low` courses as a darker wainscot, a belt rail on top of it, a crown under the ceiling.
@@ -565,10 +580,18 @@ def wall_seg(F, area, L, H, openings=(), t=4.0, joint=11.0, ext=(0.0, 0.0), cour
 	zs = sorted(set([base_h] + list(courses or []) + [H] + [o[2] for o in openings if o[2] < H]))
 	zs = [z for z in zs if base_h <= z <= H]
 	cuts = sorted(set([a0, a1] + [u for o in openings for u in o[:2]]))
+	from contextlib import nullcontext
 	if crown:
-		F["Belt"].ext_x([(H - 0.8, 0.0), (H, 0.7), (H, 0.0)], -L / 2, L / 2)
+		with (grp(f"{name}_Crown", F.M) if name else nullcontext()):
+			F["Belt"].ext_x([(H - 0.8, 0.0), (H, 0.7), (H, 0.0)], -L / 2, L / 2)
 	for i in range(len(cuts) - 1):
 		u0, u1 = cuts[i], cuts[i + 1]
+		with (grp(f"{name}_{i + 1}", F.M @ Matrix.Translation(((u0 + u1) / 2, 0, 0))) if name else nullcontext()):
+			_wall_piece(F, area, L, H, openings, t, joint, zs, u0, u1, mat, base, base_h, low, belt, batter, top_trim)
+
+
+def _wall_piece(F, area, L, H, openings, t, joint, zs, u0, u1, mat, base, base_h, low, belt, batter, top_trim):
+	if True:
 		top = max([o[2] for o in openings if o[0] <= (u0 + u1) / 2 <= o[1]] or [0.0])
 		n = max(1, round((u1 - u0) / joint))
 		if top <= 0 and batter > 0:
@@ -599,14 +622,17 @@ def poly_room(area, pts, zf, H, floor_mat="Walk", ceil_mat="Ceil", t=4.0, ceilin
 	Returns (K, KC, [(FK frame, length, (ext at +x end, ext at -x end))]) with one entry per edge."""
 	from math import acos
 	K, KC = kit(area), kit(area + "_Ceil")
-	K[floor_mat].prism(list(pts), zf - 1.5, zf)
 	xs, ys = [p[0] for p in pts], [p[1] for p in pts]
 	bb = (min(xs) - t, max(xs) + t, min(ys) - t, max(ys) + t)
-	for r in (slabs or [bb]):  # slabs: rectangles that stay inside the outer wall faces of a room that is not a rectangle
-		collider(area, I4, r[0], r[1], r[2], r[3], zf - 1.5, zf - 0.045)
-		if ceiling:  # a wing with skylights builds its own roof
-			KC[ceil_mat].box(r[0], r[1], r[2], r[3], zf + H, zf + H + 2)
-			collider(area, I4, r[0], r[1], r[2], r[3], zf + H + 0.2, zf + H + 1.8)
+	with grp(f"{area}_Floor"):
+		K[floor_mat].prism(list(pts), zf - 1.5, zf)
+		for r in (slabs or [bb]):  # slabs: rectangles that stay inside the outer wall faces of a room that is not a rectangle
+			collider(area, I4, r[0], r[1], r[2], r[3], zf - 1.5, zf - 0.045)
+	if ceiling:  # a wing with skylights builds its own roof
+		with grp(f"{area}_Ceiling"):
+			for r in (slabs or [bb]):
+				KC[ceil_mat].box(r[0], r[1], r[2], r[3], zf + H, zf + H + 2)
+				collider(area, I4, r[0], r[1], r[2], r[3], zf + H + 0.2, zf + H + 1.8)
 	n = len(pts)
 	turn = []
 	for i in range(n):
@@ -622,7 +648,9 @@ def poly_room(area, pts, zf, H, floor_mat="Walk", ceil_mat="Ceil", t=4.0, ceilin
 
 
 def opal_panel(KC, x, y, z, w, d, color="#FFF1DE", brightness=0.6, rng=30, glow="E_Opal"):
-	"""Mounted ceiling panel: charcoal housing, opal lens, a real light under it."""
-	KC["Charcoal"].box(x - w / 2 - 0.3, x + w / 2 + 0.3, y - d / 2 - 0.3, y + d / 2 + 0.3, z - 0.32, z)
-	KC[glow].box(x - w / 2, x + w / 2, y - d / 2, y + d / 2, z - 0.4, z - 0.32)
-	light(I4, x, y, z - 2.0, color, brightness, rng)
+	"""Mounted ceiling panel: charcoal housing, opal lens, a real light under it. A piece of its own."""
+	with grp("CeilingLight", Matrix.Translation((x, y, z)), inst=True):
+		P = FK(KC, Matrix.Translation((x, y, z)))
+		P["Charcoal"].prism(cham_rect(-w / 2 - 0.3, w / 2 + 0.3, -d / 2 - 0.3, d / 2 + 0.3, 0.25), -0.32, 0.0)
+		P[glow].box(-w / 2, w / 2, -d / 2, d / 2, -0.4, -0.32)
+		light(I4, x, y, z - 2.0, color, brightness, rng)
