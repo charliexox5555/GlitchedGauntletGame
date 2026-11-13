@@ -152,7 +152,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"P_Cream": _L("SmoothPlastic", "#E6DCC6"),
 	"Glass": _L("Glass", "#E2E4E2", t=0.74, r=0.04),  # neutral (the blue tint cast the Locker bays cyan)
 	"E_Amber": _L("Neon", "#EA7A0A", glow=True),
-	"E_Opal": _L("Neon", "#8C877F", glow=True),  # lighting pass: Roblox Neon clips anything lighter to white
+	"E_Opal": _L("Neon", "#7E7870", glow=True),  # lighting pass: Roblox Neon clips anything lighter to white
 	"E_Cool": _L("Neon", "#DDEBFF", glow=True),
 	"E_Blue": _L("Neon", "#6FC4FF", glow=True),
 	"E_Mint": _L("Neon", "#7FE8B0", glow=True),
@@ -688,4 +688,4 @@ def opal_panel(KC, x, y, z, w, d, color="#FFF1DE", brightness=0.6, rng=30, glow=
 		P = FK(KC, Matrix.Translation((x, y, z)))
 		P["Charcoal"].prism(cham_rect(-w / 2 - 0.3, w / 2 + 0.3, -d / 2 - 0.3, d / 2 + 0.3, 0.25), -0.32, 0.0)
 		P[glow].box(-w / 2, w / 2, -d / 2, d / 2, -0.4, -0.32)
-		light(I4, x, y, z - 2.0, color, brightness, rng)
+		light(I4, x, y, z - 0.6, color, round(brightness * 3.4, 2), round(rng * 0.9, 1), angle=80)  # a spot: a pool on the floor, not a flat wash

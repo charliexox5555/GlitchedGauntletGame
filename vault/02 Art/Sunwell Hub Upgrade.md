@@ -173,6 +173,38 @@ Owner's notes:
 - Spawn alcove: a recessed service panel (vents, access hatch, status lamp) and a wall lamp on each side wall.
 - Locker floor: an inlaid border band and slab joints from the platform to the far corners.
 
+**Blind review round 5** (`r5-*`): 6.3, 8.3, 6.3. **Median W1 2, W2 2, W3 1, W4 1, W5 1, W6 1 = 18 / 24 = 7.5** (from 6.7). Rooms (median): hall 8, Duels 6.5, Shop 5.5, Locker 5.5. Their shared notes:
+- the wings had flat slab ceilings, blown-out ceiling panels and no light pools;
+- the Locker read navy and cyan;
+- the Duels wall above the ramp was blank;
+- there was no avatar in the shots for scale.
+
+### Pass G (round-5 notes)
+- **Soffits with a lit cove** in the Locker and Shop (`S.soffit`): a dropped ring 3 wide round the ceiling, a lip, a warm strip behind it and six warm lights. The ceilings read as coffers.
+- **Pools, not washes:** ceiling panels are spotlights (angle 80) instead of range-20 point lights, and the Locker centre fills are spots onto the platform. Lens Neon `#7E7870`: Roblox Neon clips lighter colours to white.
+- **Locker palette:** warm fills, neutral glass (the blue glass tinted the bays cyan), warm bay sill strips. The cool blue stays on the floor ring and projector only.
+- **Duels:** the service pipes run the whole ramp wall, and there is a lamp on the deck wall.
+- **Turbine:** warmer, brighter intake and a warm glow on the rotor face. **Range doorway:** neutral lining and a mint task light.
+- Sun Brightness 3.1 (3.4 read hot on the floor).
+- Evidence now includes R15 stand-ins (5.5 studs), placed for the captures and removed afterwards.
+
+**Blind review round 6** (`r6-*`, part of pass G): 6.3, 7.9, 6.7. **Median W1 2, W2 2, W3 1, W4 1, W5 1, W6 2 = 19 / 24 = 7.9.** Rooms (median): hall 8, Duels 7, Locker 6, Shop 5.5. The rest of pass G (spot pools, darker lenses, warm sills) came after this round and has not been reviewed yet.
+
+**Score history (blind median / 10):** 6.3 baseline → 6.7 → 6.7 → 6.7 → 7.5 → 7.9.
+
+**Next list** (from round 6, all three reviewers):
+1. **Shop** (weakest, 5.5):
+   - the walls are plain boxes: pilasters or panel breaks on the north and south walls;
+   - the counter front could carry more depth;
+   - a warmer floor value round the counter.
+2. **Locker** (6): wall panels between the bays need trim and chamfers. A hero object with contrast on the platform: the Vandal hologram is there but reads small.
+3. **Duels ceiling:** flat planes between the skylights; a soffit or coffers like the wings.
+4. **Hall reverse view:** the entry end is a small sign over a grey door. Give the arrival gate more presence (a lit frame, a sign of its own).
+5. Range and Shop doorways read close to each other in silhouette from the far end.
+6. Later (owner): screens and boards, cases, final props.
+
+**Blender:** the Blender MCP bridge stopped answering mid-session (the add-on still listens on 9876). Builds and exports since then ran in a **background Blender on a copy** of the .blend. The owner's open `SunwellWorks.blend` is behind the code until `sw_run.build_all()` is run in it again; the builders rebuild everything from code.
+
 ## LihFolk and project notes used
 *Lobby and Hub Design* (§1 hub jobs, §8 social nodes, §10 mistakes); *What Craft Looks Like on Roblox* §5 (light as wayfinding, detail where the camera looks); *Case Study - Rivals* (duel-first lobby); the `lihfolk-worldbuilding` skill (one hero, primary forms framing it, leading lines, three reads); [Map Quality Standard](../01%20Design/Maps/Map%20Quality%20Standard.md) (§3 hard rules, §6 review loop and stop rule); [Style Bible](Style%20Bible.md); the `gauntlet-build-style` skill (§0 no round curves, no blunt ends); `gauntlet-ui-style` (board fonts and the slash mark); the RIVALS lobby video frames in `References/ui/video-frames/rivals-pc/`.
 

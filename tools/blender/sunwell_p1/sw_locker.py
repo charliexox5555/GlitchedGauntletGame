@@ -59,7 +59,7 @@ def bay(F, u, w, label, guns):
 		S.ring_prism(B["Charcoal"], S.rect_loop(-hw, hw, 3.0, TOP), S.rect_loop(-hw + 0.6, hw - 0.6, SILL, WIN), -2.6, 0.5)
 		B["BayBack"].box(-hw + 0.6, hw - 0.6, SILL, WIN, -2.6, -2.4)
 		B["E_Opal"].box(-hw + 1.4, hw - 1.4, WIN - 0.12, WIN, -1.7, -0.9)
-		B["E_Blue"].box(-hw + 0.9, hw - 0.9, SILL, SILL + 0.06, -0.3, -0.12)
+		B["E_Sun"].box(-hw + 0.9, hw - 0.9, SILL, SILL + 0.06, -0.3, -0.12)  # warm sill light (the cyan strips read off-palette; blue stays on the floor ring and projector)
 		B["Glass"].box(-hw + 0.6, hw - 0.6, SILL, WIN, 0.06, 0.18)
 		for s in (-1, 1):
 			B["E_Amber"].box(s * (hw - 1.3) - 0.09, s * (hw - 1.3) + 0.09, WIN + 0.45, TOP - 0.45, 0.5, 0.55)
@@ -104,7 +104,7 @@ def centre(K, KC):
 		S.ring_prism(KC["Petrol"], rr(6.2, 9.2, 4.6), rr(5.2, 8.2, 3.9), H - 0.7, H)
 		KC["E_Opal"].prism(rr(5.2, 8.2, 3.9), H - 0.45, H - 0.3)
 		for dy in (-5, 5):
-			S.light(S.I4, CX, CY + dy, H - 2.5, "#FFF0DE", 0.4, 24)
+			S.light(S.I4, CX, CY + dy, H - 1.0, "#FFEED6", 1.3, 22, angle=90)  # pools round the platform
 
 
 def floor_marks(K):
