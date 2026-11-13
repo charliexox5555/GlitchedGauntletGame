@@ -202,6 +202,8 @@ def alcove(K, KC):
 			P["E_Sun"].box(-0.75, -0.25, 5.3, 5.5, 0.34, 0.4)  # status lamp
 			S.bolts(P["Steel"], [(-3.15, 2.1), (0.35, 2.1), (-3.15, 9.7), (0.35, 9.7)], r=0.1, z0=0.16, h=0.06)
 		DR.sconce(S.FK(K, Fw), 2.6, 9.4, power=0.9, reach=9)  # dim: the alcove frames the bright hall
+	for sx in (-1, 1):  # cast pilasters at the alcove mouth: the side walls read as framed bays, not blank slabs
+		S.pilaster(S.FK(K, S.face((sx * 14, -9, S.LAND), (0, -sx, 0), (-sx, 0, 0))), 4.6 if sx < 0 else -4.6, 14.5, hw=0.9, d=0.7, name="AlcovePilaster")  # clear of the sconce (u 1.74..3.46)
 	for s in (-1, 1):  # opal ceiling panels
 		with S.grp("AlcoveLight", Matrix.Translation((s * 7, -9, 17.5)), inst=True):
 			KC["Charcoal"].box(s * 7 - 2.2, s * 7 + 2.2, -10.4, -7.6, 17.3, 17.5)
@@ -249,6 +251,17 @@ def entry(K, KR):
 		S.u_frame(E["CastTrim"], 12.0, 17.5, 11.2, 16.7, -4.6, 0.0, ci=1.3, y0=S.LAND)  # concrete liner, with a lip on the alcove side
 		S.bolts(E["PetrolDark"], [(sx * 12.3, yy) for sx in (-1, 1) for yy in (5.0, 10.0, 15.0)], r=0.22, z0=0.8)
 		S.add_text(E["Cream"], "ENTRY", 1.35, 0.3, y0=17.2, z0=0.75, s=0.2, c=0.1, track=0.2)
+	for sx in (-1, 1):  # the portal's jambs fill the spawn view: lined with a dark panel, a lit strip and a kick band
+		with S.grp(f"PortalJamb_{SD(sx)}"):
+			xa, xb = sorted((sx * 11.02, sx * 11.22))
+			K["PetrolDark"].ext_x([(p[0], p[1]) for p in S.cham_rect(-4.3, -0.3, S.LAND + 1.6, 15.2, 0.45)], xa, xb)
+			xc, xd = sorted((sx * 10.96, sx * 11.02))
+			K["Petrol"].ext_x([(p[0], p[1]) for p in S.cham_rect(-3.9, -0.7, S.LAND + 2.0, 14.8, 0.35)], xc, xd)
+			xe, xf = sorted((sx * 10.92, sx * 10.96))
+			K["E_Sun"].box(xe, xf, -2.45, -2.15, S.LAND + 3.0, 13.8)  # lit strip
+			xg, xh = sorted((sx * 11.0, sx * 11.22))
+			K["Graphite"].box(xg, xh, -4.6, 0.0, S.LAND, S.LAND + 1.2)  # kick band
+			S.light(S.I4, sx * 9.8, -2.3, 9.0, "#FFDDB0", 0.5, 7)
 
 
 def proscenium(K):

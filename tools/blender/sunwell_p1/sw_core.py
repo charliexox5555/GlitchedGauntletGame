@@ -107,17 +107,17 @@ def _L(material, color, **kw):
 # tried on 2026-11-12 and read too realistic.
 MATERIALS = {"SW_Plaster": 16, "SW_Floor": 20, "SW_Steel": 10}  # MaterialVariant -> studs per tile
 LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture, no blue-teal steel)
-	"Cast": _L("SmoothPlastic", "#BDB5A5", v="SW_Plaster"),
-	"CastTrim": _L("SmoothPlastic", "#BDB5A5", v="SW_Plaster"),
-	"Wall": _L("SmoothPlastic", "#A39B8C", v="SW_Plaster"),  # hub upgrade pass D: infill a step under the cast pilasters
+	"Cast": _L("SmoothPlastic", "#C2BEB5", v="SW_Plaster"),
+	"CastTrim": _L("SmoothPlastic", "#C2BEB5", v="SW_Plaster"),
+	"Wall": _L("SmoothPlastic", "#A5A29B", v="SW_Plaster"),  # hub upgrade pass D: infill a step under the cast pilasters
 	"WallLow": _L("SmoothPlastic", "#6E675D", v="SW_Plaster"),
-	"WallShade": _L("SmoothPlastic", "#8F887C", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
+	"WallShade": _L("SmoothPlastic", "#8E8B85", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
 	"Belt": _L("SmoothPlastic", "#5E5952", v="SW_Plaster"),
 	"WallBase": _L("SmoothPlastic", "#45423F", v="SW_Plaster"),
 	"Ceil": _L("SmoothPlastic", "#7D7B77", v="SW_Plaster"),  # neutral grey: not brown (dead), not cool (the Locker read off-family)
 	"Floor": _L("SmoothPlastic", "#5C5751", v="SW_Floor"),  # side fields darker than the walk: a lit lane
-	"Walk": _L("SmoothPlastic", "#978F82", v="SW_Floor"),  # pass E: a step deeper so the sun patches carry the light
-	"Walk2": _L("SmoothPlastic", "#8E877A", v="SW_Floor"),
+	"Walk": _L("SmoothPlastic", "#97938B", v="SW_Floor"),  # pass E: a step deeper so the sun patches carry the light
+	"Walk2": _L("SmoothPlastic", "#8F8B84", v="SW_Floor"),
 	"Stripe": _L("SmoothPlastic", "#A8802F"),
 	"Rubber": _L("SmoothPlastic", "#26282B"),
 	"Petrol": _L("SmoothPlastic", "#4A4C4D", v="SW_Steel"),  # neutral gunmetal (read navy at #434A4F)
@@ -137,7 +137,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"RangePanel": _L("SmoothPlastic", "#7F8775"),
 	"RangeLining": _L("SmoothPlastic", "#4C504D"),
 	"LockerFloor": _L("SmoothPlastic", "#8A847B", v="SW_Floor"),  # warm neutral, the hall family
-	"BayBack": _L("SmoothPlastic", "#B3AFA6"),
+	"BayBack": _L("SmoothPlastic", "#8E8A83"),  # mid grey: the bays read as lit cases, not empty white windows
 	"ShopFloor": _L("SmoothPlastic", "#A2957F", v="SW_Floor"),
 	"Timber": _L("SmoothPlastic", "#6B4B32"),  # flat colour (Wood grain read realistic)
 	"CaseShell": _L("SmoothPlastic", "#34383C"),

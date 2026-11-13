@@ -192,7 +192,7 @@ def build():
 	with S.grp("SupplySign", Hs.M):
 		Hs["Charcoal"].prism(S.cham_rect(-6.4, 6.4, 11.0, 13.6, 0.5), -0.3, 0.3)
 		Hs["Graphite"].prism(S.cham_rect(-6.0, 6.0, 11.3, 13.3, 0.35), 0.3, 0.38)
-		S.add_text(Hs["Cream"], "SUPPLY", 1.45, 0.3, y0=11.58, z0=0.33, s=0.225, c=0.1, track=0.2)
+		S.add_text(Hs["Cream"], "SHOP", 1.45, 0.3, y0=11.58, z0=0.33, s=0.225, c=0.1, track=0.3)  # matches the doorway
 		for sx in (-1, 1):
 			Hs["PetrolDark"].box(sx * 4.6 - 0.45, sx * 4.6 + 0.45, 13.6, H, -0.35, 0.35)
 			Hs["E_Amber"].box(sx * 5.75 - 0.12, sx * 5.75 + 0.12, 11.5, 13.1, 0.38, 0.44)

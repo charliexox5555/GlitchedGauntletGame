@@ -301,7 +301,13 @@ Blind medians:
 
 **Round 13** (two panels of three): medians 7.9 and 7.1. Shared notes: the Locker read cool against the hall (fixed in round 14), a brown-orange shade (fixed), bare walls (Duels upper walls, Locker).
 
-**Round 14:** captures `r14-*`; the review was still running when the usage limit hit. Score it first on resume.
+**Round 14** (`r14-*`, two panels): medians 7.5 and 6.7, about 7.1 together. Hall 7.5-8, Duels 7.5-8.5, Shop 6-7, Locker 6-6.5. Their shared notes:
+- the whole scene sits in one amber cast, with brown shadows instead of cool ones;
+- the skylights and ceiling panels clip to white;
+- the blank cream slabs in the spawn view;
+- the plain hall floor plane;
+- the Shop sign and room are brown-on-brown, and the door says SHOP while the room says SUPPLY;
+- the Locker needs a pool on its plinth.
 
 ### Handoff (if a new session picks this up)
 How to build:

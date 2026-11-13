@@ -759,16 +759,16 @@ local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime",
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
 	-- lighting pass 2026-11-13: the sun through the skylights is the key, the lamps make warm pools, the shade is cool
-	Ambient = Color3.fromRGB(50, 53, 58),
-	OutdoorAmbient = Color3.fromRGB(88, 93, 104), -- neutral shade (the bluer shade read brown-orange next to the warm lamps)
-	Brightness = 3.1, -- the skylight sun patches read hot at 3.4
+	Ambient = Color3.fromRGB(52, 57, 66),
+	OutdoorAmbient = Color3.fromRGB(92, 100, 116), -- cool neutral shade; warmth only in the light pools
+	Brightness = 2.9, -- the skylight sun patches read hot above 3
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
 	ExposureCompensation = -0.1,
 	EnvironmentDiffuseScale = 0.25,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
-	ColorShift_Top = Color3.fromRGB(255, 240, 222), -- warm sunlit tops, less orange
-	ShadowSoftness = 0.4,
+	ColorShift_Top = Color3.fromRGB(255, 246, 234), -- sunlit tops barely warm (the scene read one amber cast)
+	ShadowSoftness = 0.65, -- softer skylight shadow grid (read harsh and blotchy)
 }
 
 -- which = "Sunwell": players spawn on the staging landing and the hall lighting is on.

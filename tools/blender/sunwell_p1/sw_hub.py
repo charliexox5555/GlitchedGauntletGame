@@ -477,7 +477,7 @@ def build():
 	with S.grp("ShadeFill"):  # a second, cool light layer in the shade either side of the walk (warm sun, cool shade)
 		for y in (34.0, 53.0, 72.0, 91.0):
 			for sx in (-1, 1):
-				S.light(S.I4, sx * 22.0, y, 4.0, "#CDDAFF", 0.3, 18)
+				S.light(S.I4, sx * 22.0, y, 4.0, "#CDDAFF", 0.5, 20)
 	for sx in (-1, 1):  # service hatches in the end fields, drains along the end-bay walls
 		hatch(K, sx * 18.0, 10.0, 0.0)
 		hatch(K, sx * 18.0, 92.0, 0.0)
