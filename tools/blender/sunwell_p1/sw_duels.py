@@ -132,11 +132,19 @@ def pier(F, u):
 		DR.sconce(P.at(T((0, 0, 1.4))), 0.0, 9.6)
 
 
-def pipes(F, u0, u1, clamps):
-	"""Two service pipes high on the wall, held by clamps at the piers."""
+def pipes(F, u0, u1, clamps, piers=(), pier_hw=1.5):
+	"""Two service pipes high on the wall, wall to wall: each end runs into the end wall through a flange plate, and
+	where a pipe passes a pier it goes through a collar on both faces (no loose ends, no bare penetration).
+	8-sided (faceted rule)."""
 	with S.grp("WallPipes", F.M):
-		F["Steel"].pipe((u0, 16.6, 0.75), (u1, 16.6, 0.75), 0.34, 12)
-		F["SteelDark"].pipe((u0, 17.5, 0.6), (u1, 17.5, 0.6), 0.22, 10)
+		lo, hi = sorted((u0, u1))
+		for (y, z, r, mat) in ((16.6, 0.75, 0.34, "Steel"), (17.5, 0.6, 0.22, "SteelDark")):
+			F[mat].pipe((lo - 0.3, y, z), (hi + 0.3, y, z), r, 8)
+			for u in (lo + 0.09, hi - 0.09):  # flange plates where the pipe enters the end walls
+				F["PetrolDark"].pipe((u - 0.09, y, z), (u + 0.09, y, z), r + 0.2, 8)
+			for pu in piers:
+				for u in (pu - pier_hw - 0.1, pu + pier_hw + 0.1):  # collars at both pier faces
+					F["PetrolDark"].pipe((u - 0.1, y, z), (u + 0.1, y, z), r + 0.09, 8)
 		for u in clamps:
 			F["PetrolDark"].box(u - 0.28, u + 0.28, 16.1, 17.85, 0.0, 1.2)
 			F["Steel"].box(u - 0.4, u + 0.4, 16.2, 17.0, 0.35, 1.18)
@@ -274,11 +282,10 @@ def build():
 		pier(fn, loc("N", x))
 		if x < -60:
 			pier(fs, loc("S", x))
-	pipes(fn, loc("N", -60.9), loc("N", -201.0), [loc("N", x + d) for _w, x, *_r in STATIONS if _w == "N" for d in (-7.0, 7.0)])
-	pipes(fs, loc("S", -44.4), loc("S", -201.0), [loc("S", x + d) for _w, x, *_r in STATIONS if _w == "S" for d in (-7.0, 7.0)]
-		+ [loc("S", x) for x in (-48.4, -59.4, -79.4, -86.0)])  # over the deck and the ramp too
-	with S.grp("DeckLamp"):
-		DR.sconce(fs, loc("S", -50.4), 13.2)
+	pipes(fn, loc("N", XE), loc("N", XW), [loc("N", x + d) for _w, x, *_r in STATIONS if _w == "N" for d in (-7.0, 7.0)] + [loc("N", -50.4)],
+		piers=[loc("N", x) for x in BEAMS])
+	pipes(fs, loc("S", XE), loc("S", XW), [loc("S", x + d) for _w, x, *_r in STATIONS if _w == "S" for d in (-7.0, 7.0)]
+		+ [loc("S", x) for x in (-48.4, -79.4)], piers=[loc("S", x) for x in BEAMS if x < -60])
 	gauntlet_gate(fw)
 	with S.grp("DuelsDoorCasing", fe.M):
 		S.u_frame(fe.at(T((0, 4.0, 0)))["Petrol"], 10.7, 13.7, 8.0, 11.0, 0.0, 0.5, co=3.2, ci=2.4)  # deck-side casing of the doorway

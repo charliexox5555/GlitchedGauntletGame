@@ -47,7 +47,7 @@ def sconce(F, x, y, light=True, power=2.4, reach=13):
 		S.bolts(L["Steel"], [(sx * 0.72, sy * 1.2) for sx in (-1, 1) for sy in (-1, 1)], r=0.075, z0=0.1, h=0.05)
 		L["Charcoal"].prism(cr(-0.64, 0.64, -1.52, 1.52, 0.38), 0.1, 0.5)  # housing
 		S.ring_prism(L["Graphite"], cr(-0.56, 0.56, -1.4, 1.4, 0.34), cr(-0.4, 0.4, -1.22, 1.22, 0.26), 0.5, 0.66)  # bezel
-		L["E_Amber"].prism(cr(-0.4, 0.4, -1.22, 1.22, 0.26), 0.5, 0.56)  # lens, set back in the bezel
+		L["E_Lamp"].prism(cr(-0.4, 0.4, -1.22, 1.22, 0.26), 0.5, 0.56)  # lens, set back in the bezel
 		for yy in (-0.5, 0.0, 0.5):
 			L["Graphite"].box(-0.4, 0.4, yy - 0.04, yy + 0.04, 0.56, 0.66)  # louvre fins, flush with the bezel
 		L["Graphite"].ext_x([(1.2, 0.1), (1.66, 0.1), (1.66, 0.5), (1.38, 0.95), (1.2, 0.95)], -0.3, 0.3)  # visor block over the top facet

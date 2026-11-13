@@ -265,7 +265,6 @@ def build():
 		E["Graphite"].prism(_H.oct_pts(0.6), 0.0, 0.035)
 	S.pilaster(FN, 0.4, H - 0.6, name="ShopPilaster")  # between the Battle Pass and Event boards
 	S.pilaster(FN, -18.2, H - 0.6, name="ShopPilaster")
-	S.pilaster(FN, 16.8, H - 0.6, name="ShopPilaster")
 	S.pilaster(FS, 9.2, H - 0.6, name="ShopPilaster")  # either side of the supply cabinets
 	S.pilaster(FS, -9.4, H - 0.6, name="ShopPilaster")
 	with S.grp("ShopFloorMarks"):

@@ -185,14 +185,8 @@ def pipes(K):
 			xs, z = sx * x, DATUM + 0.15 + r
 			y = 106.5
 			pipe8(K["PetrolDark"], (xs, y - 0.65, z), (xs, y + 0.65, z), 0.98)  # valve body: an 8-sided collar round the pipe
-			K["SteelDark"].box(xs - 0.14, xs + 0.14, y - 0.14, y + 0.14, z - 1.75, z - 0.95)  # stem
-			if sx < 0:  # this one's wheel is off for servicing: it lies by the maintenance cart below
-				K["SteelDark"].prism([(xs - 0.22, y - 0.22), (xs + 0.22, y - 0.22), (xs + 0.22, y + 0.22), (xs - 0.22, y + 0.22)], z - 1.9, z - 1.75)
-				continue
-			V = S.FK(K, Matrix.Translation((xs, y, z - 1.75)))
-			S.ring_prism(V["PipeOchre"], oct_pts(0.95), oct_pts(0.72), -0.14, 0.0)  # hand wheel (octagon)
-			for k in range(4):
-				V.at(Matrix.Rotation(k * pi / 4, 4, "Z"))["PipeOchre"].box(-0.75, 0.75, -0.07, 0.07, -0.12, -0.02)
+			K["Graphite"].box(xs - 0.35, xs + 0.35, y - 0.4, y + 0.4, z - 1.3, z - 0.9)  # meter head under the collar
+			K["E_Lamp"].box(xs - 0.2, xs + 0.2, y - 0.25, y + 0.25, z - 1.34, z - 1.3)  # status window
 
 
 # ---------------------------------------------------------------- story groups (odd counts, at the walls, never in the walk)
@@ -244,15 +238,8 @@ def maintenance(K, M):
 		_cbox(F["CaseShell"], -1.25, -0.05, -0.55, 0.45, 0.9, 1.45, 0.1)
 		F["Steel"].box(-0.85, -0.45, -0.6, -0.55, 1.15, 1.32)  # latch
 		F["Charcoal"].box(-0.95, -0.35, -0.08, 0.08, 1.45, 1.62)  # handle
-		# the valve's hand wheel leaning on the cart's side
-		W = F.at(Matrix.Translation((0.5, -2.05, 0.0)) @ Matrix.Rotation(radians(17), 4, "Z"))  # lying on the floor by the cart
-		S.ring_prism(W["PipeOchre"], oct_pts(0.95), oct_pts(0.72), 0.0, 0.14)
-		for k in range(4):
-			W.at(Matrix.Rotation(k * pi / 4, 4, "Z"))["PipeOchre"].box(-0.75, 0.75, -0.07, 0.07, 0.02, 0.12)
-		W["SteelDark"].prism(oct_pts(0.2), 0.0, 0.2)
 		_col(M, -1.9, 1.95, -1.0, 1.0, 0.0, 3.6)
-		_col(M, -0.55, 1.55, -3.1, -1.0, 0.0, 0.25)
-
+	
 
 def crate(F, x0, x1, y0, y1, z0, z1, mat="Olive"):
 	"""An olive supply crate: chamfered body, upright battens near each corner, foot and lid bands, a stencil block on the front."""

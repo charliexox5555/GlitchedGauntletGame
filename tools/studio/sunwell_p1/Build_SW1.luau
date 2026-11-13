@@ -764,10 +764,10 @@ M.SUNWELL_LIGHTING = {
 	Brightness = 2.15, -- softer sun: the patches and beam stripes on the lane read hot and hard
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
-	ExposureCompensation = -0.1,
+	ExposureCompensation = -0.3, -- light grey walls (de-steampunk) read blown at -0.1
 	EnvironmentDiffuseScale = 0.25,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
-	ColorShift_Top = Color3.fromRGB(255, 248, 238), -- sunlit tops barely warm (the scene read one amber cast)
+	ColorShift_Top = Color3.fromRGB(255, 252, 246), -- neutral sun
 	ShadowSoftness = 1, -- soft skylight shadow grid (hard edges read blotchy)
 }
 
@@ -824,7 +824,7 @@ function M.use(which: string): string
 			bloom.Intensity, bloom.Size, bloom.Threshold = 0.6, 18, 1.6
 		end
 		local grade = cc :: ColorCorrectionEffect
-		grade.Contrast, grade.Saturation, grade.TintColor = 0.18, -0.13, Color3.fromRGB(240, 246, 255) -- cooler, less saturated: breaks the sepia
+		grade.Contrast, grade.Saturation, grade.TintColor = 0.16, 0.02, Color3.fromRGB(248, 250, 255) -- neutral, a touch crisp
 		grade.Enabled = true
 		if v3 then
 			v3.Enabled = false

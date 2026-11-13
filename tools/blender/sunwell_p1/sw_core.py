@@ -93,6 +93,7 @@ GLOW = {  # name: (hex, strength in Blender)
 	"E_TeamA": ("#FF6A3D", 7.0),
 	"E_TeamB": ("#2A86FF", 7.0),
 	"E_Sun": ("#FFE6C4", 7.0),
+	"E_Lamp": ("#F4F1EA", 7.0),
 	"E_Intake": ("#E8A860", 5.0),
 }
 
@@ -107,41 +108,41 @@ def _L(material, color, **kw):
 # tried on 2026-11-12 and read too realistic.
 MATERIALS = {"SW_Plaster": 16, "SW_Floor": 20, "SW_Steel": 10}  # MaterialVariant -> studs per tile
 LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture, no blue-teal steel)
-	"Cast": _L("SmoothPlastic", "#C2BEB5", v="SW_Plaster"),
-	"CastTrim": _L("SmoothPlastic", "#C2BEB5", v="SW_Plaster"),
-	"Wall": _L("SmoothPlastic", "#A5A29B", v="SW_Plaster"),  # hub upgrade pass D: infill a step under the cast pilasters
-	"WallLow": _L("SmoothPlastic", "#6E675D", v="SW_Plaster"),
-	"WallShade": _L("SmoothPlastic", "#8E8B85", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
-	"Belt": _L("SmoothPlastic", "#5E5952", v="SW_Plaster"),
-	"WallBase": _L("SmoothPlastic", "#45423F", v="SW_Plaster"),
-	"Ceil": _L("SmoothPlastic", "#7D7B77", v="SW_Plaster"),  # neutral grey: not brown (dead), not cool (the Locker read off-family)
-	"Floor": _L("SmoothPlastic", "#5C5751", v="SW_Floor"),  # side fields darker than the walk: a lit lane
-	"Walk": _L("SmoothPlastic", "#97938B", v="SW_Floor"),  # pass E: a step deeper so the sun patches carry the light
-	"Walk2": _L("SmoothPlastic", "#8F8B84", v="SW_Floor"),
-	"Stripe": _L("SmoothPlastic", "#A8802F"),
+	"Cast": _L("SmoothPlastic", "#D3D3CF", v="SW_Plaster"),  # de-steampunk 2026-11-13: clean light grey
+	"CastTrim": _L("SmoothPlastic", "#D3D3CF", v="SW_Plaster"),
+	"Wall": _L("SmoothPlastic", "#B9BAB7", v="SW_Plaster"),  # hub upgrade pass D: infill a step under the cast pilasters
+	"WallLow": _L("SmoothPlastic", "#50565B", v="SW_Plaster"),  # slate wainscot (the brown read steampunk)
+	"WallShade": _L("SmoothPlastic", "#9EA09F", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
+	"Belt": _L("SmoothPlastic", "#34383C", v="SW_Plaster"),
+	"WallBase": _L("SmoothPlastic", "#2B2E32", v="SW_Plaster"),
+	"Ceil": _L("SmoothPlastic", "#8E9297", v="SW_Plaster"),  # neutral grey: not brown (dead), not cool (the Locker read off-family)
+	"Floor": _L("SmoothPlastic", "#6B6F74", v="SW_Floor"),  # side fields darker than the walk: a lit lane
+	"Walk": _L("SmoothPlastic", "#B0B2B3", v="SW_Floor"),  # pass E: a step deeper so the sun patches carry the light
+	"Walk2": _L("SmoothPlastic", "#A6A8AA", v="SW_Floor"),
+	"Stripe": _L("SmoothPlastic", "#D8A530"),  # gold accent, crisp (not ochre)
 	"Rubber": _L("SmoothPlastic", "#26282B"),
-	"Petrol": _L("SmoothPlastic", "#4A4C4D", v="SW_Steel"),  # neutral gunmetal (read navy at #434A4F)
-	"PetrolDark": _L("SmoothPlastic", "#363737", v="SW_Steel"),
-	"Charcoal": _L("SmoothPlastic", "#2E2D2B"),  # warm charcoal (near-black masses read as holes)
-	"Graphite": _L("SmoothPlastic", "#42403D"),
+	"Petrol": _L("SmoothPlastic", "#41454A", v="SW_Steel"),  # neutral gunmetal (read navy at #434A4F)
+	"PetrolDark": _L("SmoothPlastic", "#2F3236", v="SW_Steel"),
+	"Charcoal": _L("SmoothPlastic", "#26292C"),  # warm charcoal (near-black masses read as holes)
+	"Graphite": _L("SmoothPlastic", "#3A3E42"),
 	"Steel": _L("SmoothPlastic", "#868C92", r=0.06),
 	"SteelDark": _L("SmoothPlastic", "#5E666D", r=0.04),
 	"Blade": _L("SmoothPlastic", "#4F555B", r=0.05),  # dark vanes against the warm intake (hub upgrade)
 	"BlastDoor": _L("SmoothPlastic", "#33373C", r=0.03),
 	"Dark": _L("SmoothPlastic", "#15171A"),
-	"Cream": _L("SmoothPlastic", "#EDE2CA"),
+	"Cream": _L("SmoothPlastic", "#F2F2EE"),  # sign letters: clean white
 	"Olive": _L("SmoothPlastic", "#6F7650"),  # flat colour (Fabric read realistic)
-	"Bronze": _L("Metal", "#B07E3A", r=0.08),
-	"ShopSlat": _L("SmoothPlastic", "#7B6349"),
+	"Bronze": _L("SmoothPlastic", "#D8A530"),  # flat gold, not brass (brass read steampunk)
+	"ShopSlat": _L("SmoothPlastic", "#41454A"),
 	"LockerSlat": _L("SmoothPlastic", "#5F6C77", r=0.05),
 	"RangePanel": _L("SmoothPlastic", "#7F8775"),
 	"RangeLining": _L("SmoothPlastic", "#4C504D"),
-	"LockerFloor": _L("SmoothPlastic", "#8A847B", v="SW_Floor"),  # warm neutral, the hall family
-	"BayBack": _L("SmoothPlastic", "#6C6862"),  # mid grey: the bays read as lit cases, not empty white windows
-	"ShopFloor": _L("SmoothPlastic", "#9C9890", v="SW_Floor"),
-	"Timber": _L("SmoothPlastic", "#6B4B32"),  # flat colour (Wood grain read realistic)
+	"LockerFloor": _L("SmoothPlastic", "#A3A6A9", v="SW_Floor"),  # warm neutral, the hall family
+	"BayBack": _L("SmoothPlastic", "#585C60"),  # mid grey: the bays read as lit cases, not empty white windows
+	"ShopFloor": _L("SmoothPlastic", "#ADB0B2", v="SW_Floor"),
+	"Timber": _L("SmoothPlastic", "#3A3E42"),  # composite, not wood (wood read steampunk)  # flat colour (Wood grain read realistic)
 	"CaseShell": _L("SmoothPlastic", "#34383C"),
-	"DuelFloor": _L("SmoothPlastic", "#6E6C69", v="SW_Floor"),
+	"DuelFloor": _L("SmoothPlastic", "#5D6165", v="SW_Floor"),
 	"PadDark": _L("SmoothPlastic", "#1B1D20"),
 	"PadOff": _L("SmoothPlastic", "#4A4E53"),
 	"HoloPane": _L("Neon", "#1F6FA8", t=0.8, glow=True),
@@ -154,18 +155,19 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"P_Cream": _L("SmoothPlastic", "#E6DCC6"),
 	"Glass": _L("Glass", "#E2E4E2", t=0.74, r=0.04),  # neutral (the blue tint cast the Locker bays cyan)
 	"E_Amber": _L("Neon", "#EA7A0A", glow=True),
-	"E_Opal": _L("Neon", "#7E7870", glow=True),  # lighting pass: Roblox Neon clips anything lighter to white
+	"E_Opal": _L("Neon", "#808284", glow=True),  # lighting pass: Roblox Neon clips anything lighter to white
 	"E_Cool": _L("Neon", "#DDEBFF", glow=True),
 	"E_Blue": _L("Neon", "#6FC4FF", glow=True),
 	"E_Mint": _L("Neon", "#7FE8B0", glow=True),
 	"E_Orange": _L("Neon", "#FF5A1F", glow=True),
-	"E_Holo": _L("Neon", "#6A5E4E", glow=True),  # terminal faces: lit, not a cyan-white blowout
+	"E_Holo": _L("Neon", "#4A5866", glow=True),  # terminal faces: a dim screen, not a blowout  # terminal faces: lit, not a cyan-white blowout
 	"E_TeamA": _L("Neon", "#FF6A3D", glow=True),
 	"E_TeamB": _L("Neon", "#2A86FF", glow=True),
-	"E_Sun": _L("Neon", "#9C8666", glow=True),  # warm sun glow (the Well, the sun ring), the same as the turbine intake
-	"E_Intake": _L("Neon", "#9E8768", glow=True),  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
-	"PipeOchre": _L("SmoothPlastic", "#8A6A32", v="SW_Steel"),
-	"SeatPad": _L("SmoothPlastic", "#4A3E33"),  # dark warm leather (benches); Fabric read busy and realistic
+	"E_Sun": _L("Neon", "#98989A", glow=True),
+	"E_Lamp": _L("Neon", "#8F8E8A", glow=True),  # wall lamp lenses: white light (amber read steampunk)  # warm sun glow (the Well, the sun ring), the same as the turbine intake
+	"E_Intake": _L("Neon", "#A9AAA8", glow=True),  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
+	"PipeOchre": _L("SmoothPlastic", "#C3C6C9", v="SW_Steel"),  # clean light service pipe (ochre read steampunk)
+	"SeatPad": _L("SmoothPlastic", "#34383D"),  # dark warm leather (benches); Fabric read busy and realistic
 }
 
 LIGHTS = {}  # area -> [["P"|"S", x, y, z, colour, brightness, range, (angle)]] in Blender coordinates
@@ -238,7 +240,12 @@ def collider(area, M, x0, x1, y0, y1, z0, z1, kind="B"):
 	C.collider_box(area, M, min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1), min(z0, z1), max(z0, z1), kind)
 
 
+NEUTRAL = {c: "#FFF4E6" for c in ("#FFB347", "#FFD6A0", "#FFE9CC", "#FFE2B8", "#FFC98A", "#FFB866", "#FFD9A8", "#FFC88C",
+	"#FFD49A", "#FFDDB0", "#FFF0DC", "#FFF1DE", "#FFE7C2", "#FFEED6", "#FFC777", "#FFE6C4", "#FFF3E4")}  # de-steampunk: white, not amber
+
+
 def light(M, x, y, z, color, brightness, rng, angle=None):
+	color = NEUTRAL.get(color.upper(), color)
 	w = M @ Vector((x, y, z))
 	row = ["S" if angle else "P", round(w.x, 2), round(w.y, 2), round(w.z, 2), color, brightness, rng, angle or 0, C.cur_group() or ""]
 	LIGHTS.setdefault(AREA, []).append(row)
@@ -662,7 +669,7 @@ def pilaster(F, u, top, hw=1.2, d=0.8, name="Pilaster"):
 		P["CastTrim"].box(-hw, hw, 3.2, top - 1.4, 0.0, d)
 		taper_y(P["CastTrim"], r(hw, d), top - 1.4, r(hw + 0.3, d + 0.3), top)
 		taper_y(P["PetrolDark"], r(hw + 0.26, d + 0.36), 1.5, r(hw + 0.2, d + 0.3), 2.2)  # shoe
-		collider(AREA, P.M, -hw, hw, 0.0, top, 0.05, d - 0.1)
+		collider(AREA, P.M, -hw + 0.18, hw - 0.18, 0.0, top - 0.2, 0.05, d - 0.2)  # inset: a collider flush with the shaft showed through as dark strips
 
 
 def ceiling_beam(KC, x0, y0, x1, y1, H, name="CeilingBeam"):
