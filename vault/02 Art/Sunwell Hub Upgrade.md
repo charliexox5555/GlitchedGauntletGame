@@ -205,6 +205,68 @@ Owner's notes:
 
 **Blender:** the Blender MCP bridge stopped answering mid-session (the add-on still listens on 9876). Builds and exports since then ran in a **background Blender on a copy** of the .blend. The owner's open `SunwellWorks.blend` is behind the code until `sw_run.build_all()` is run in it again; the builders rebuild everything from code.
 
+## Overnight (2026-11-13): bench glitch, wing shells, lighting, review rounds 7-10
+Owner's request before bed: keep improving the look and the lighting, fix the glitches by the bench, keep the game's vibe, and learn better ways to build. Screens, boards and cases stay placeholders.
+
+**Bench glitch, fixed:** a sliver of wall showed between the pier foot and the dark recess back, and the pier shoes shared faces with the cast foot. Now:
+- the recess has a one-piece dark lining (sides and head), so it reads as a fitted niche;
+- the shoes are inset 0.06 inside the foot.
+
+**What changed:**
+- **Pilasters** (`S.pilaster`): five in the Shop, two in the Locker, giving the plain wing walls the hall's rhythm.
+- **Wing ceilings:**
+  - a **soffit with a lit cove** in the Duels (as in the Shop and Locker);
+  - **ceiling beams** (`S.ceiling_beam`): one across the Shop, two framing the Locker light.
+- **Lighting:**
+  - the neutral darks no longer read navy (Petrol `#4A4C4D`, PetrolDark `#363737`, Charcoal `#2E2D2B`, Graphite `#42403D`);
+  - a **soft wing-coloured wash** in each doorway reveal and on the floor in front (no black mouths);
+  - the Locker platform light is warm white;
+  - a **dimmer spawn alcove** (`WallShade` upper walls, sconces at 0.9) frames the bright hall: compression, then release;
+  - the terminal faces are no longer cyan-white.
+- **Turbine:** a warm rim on its frame plate.
+- **Arrival gate:** carved leaves (a raised panel with cut corners and a vision plate), lit jambs.
+- **Shop:**
+  - a warm toe light along the counter foot, three pools on the customer side, a charcoal mat;
+  - a floor emblem (an octagon and the Sunwell star) in the open middle;
+  - an inlaid floor border.
+- **Hall:**
+  - quiet walk chevrons (no longer black);
+  - floor hatches in the end fields;
+  - slotted drains along the end-bay walls;
+  - crowns on the alcove walls.
+- **Pipeline fix:** mesh names now count **per area**. Before, a new piece in one area renamed every later area's meshes, and a partial upload left the Locker and Duels empty in Studio, which I caught and fixed the same night. Upload all areas after a build, or rely on the per-area counter.
+- The build skill now has a **lighting and review method** section (`gauntlet-build-style`):
+  - local lights decide interiors;
+  - spots for pools;
+  - Neon clips at about `#8C877F`;
+  - soffits for flat ceilings;
+  - three blind reviewers, using the median.
+
+**Blind reviews** (three lenses, median per criterion):
+
+| Round | W1 | W2 | W3 | W4 | W5 | W6 | Score | Hall | Duels | Shop | Locker |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 7 | 2 | 1 | 1 | 1 | 1 | 1 | 6.7 | 8 | 7 | 5.5 | 5.5 |
+| 8 | 2 | 2 | 2 | 1 | 1 | 2 | **8.75** | 9 | 8 | 6 | 7 |
+| 9 | 2 | 2 | 1 | 1 | 1 | 1 | 7.5 | 8.5 | 7.5 | 6 | 7 |
+| 10 | 2 | 2 | 2 | 1 | 1 | 2 | **8.75** | 8.5 | 8 | 7.5 | 7 |
+
+Score history (blind median): 6.3 → 6.7 → 6.7 → 6.7 → 7.5 → 7.9 → 6.7 → 8.75 → 7.5 → **8.75**. Reviewers swing about a point between batches; rounds 8 and 10 used the same method and agree. It **passes the 8.5 bar but is not yet 9**. The last 1s are lighting (W4) and detail (W5), both mostly in the wings.
+
+**Walked in play mode** (final state): spawn to the Well, the hatches and drains, the bench niche, the Shop counter and emblem, the Locker under the beams, the Duels deck to the ramp, the hall end to end. All pass; the only stop is the SUNWELL frame's leg, which is meant to block.
+
+**Next list** (to reach 9):
+1. **Lighting (W4):**
+   - a second, cooler light layer in the hall shadows;
+   - a bounce pool under the turbine;
+   - less haze in the Locker;
+   - falloff on the Shop ceiling panels (they read as flat white from below);
+   - a brighter Duels corridor.
+2. **Wing heroes (W1 and W5):** one strong silhouette per wing, for example a hanging rack or a lit alcove in the Shop, and a bigger projector in the Locker. The Locker bay guns only exist in Studio, so offline renders show the bays empty.
+3. Later, owner: screens and boards, cases, final props.
+
+**Blender:** the MCP bridge did not come back after the restart (the add-on listens on 9876, but tool calls fail). Every build ran in a background Blender on a copy. **The owner's open `SunwellWorks.blend` is behind the code; run `sw_run.build_all()` in it to catch up.**
+
 ## LihFolk and project notes used
 *Lobby and Hub Design* (§1 hub jobs, §8 social nodes, §10 mistakes); *What Craft Looks Like on Roblox* §5 (light as wayfinding, detail where the camera looks); *Case Study - Rivals* (duel-first lobby); the `lihfolk-worldbuilding` skill (one hero, primary forms framing it, leading lines, three reads); [Map Quality Standard](../01%20Design/Maps/Map%20Quality%20Standard.md) (§3 hard rules, §6 review loop and stop rule); [Style Bible](Style%20Bible.md); the `gauntlet-build-style` skill (§0 no round curves, no blunt ends); `gauntlet-ui-style` (board fonts and the slash mark); the RIVALS lobby video frames in `References/ui/video-frames/rivals-pc/`.
 
