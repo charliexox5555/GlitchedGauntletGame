@@ -159,11 +159,11 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"E_Blue": _L("Neon", "#6FC4FF", glow=True),
 	"E_Mint": _L("Neon", "#7FE8B0", glow=True),
 	"E_Orange": _L("Neon", "#FF5A1F", glow=True),
-	"E_Holo": _L("Neon", "#4E6C78", glow=True),  # terminal faces: lit, not a cyan-white blowout
+	"E_Holo": _L("Neon", "#6A5E4E", glow=True),  # terminal faces: lit, not a cyan-white blowout
 	"E_TeamA": _L("Neon", "#FF6A3D", glow=True),
 	"E_TeamB": _L("Neon", "#2A86FF", glow=True),
 	"E_Sun": _L("Neon", "#9C8666", glow=True),  # warm sun glow (the Well, the sun ring), the same as the turbine intake
-	"E_Intake": _L("Neon", "#C9A97A", glow=True),  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
+	"E_Intake": _L("Neon", "#B59873", glow=True),  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
 	"PipeOchre": _L("SmoothPlastic", "#8A6A32", v="SW_Steel"),
 	"SeatPad": _L("SmoothPlastic", "#4A3E33"),  # dark warm leather (benches); Fabric read busy and realistic
 }

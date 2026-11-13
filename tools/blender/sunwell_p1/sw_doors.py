@@ -81,7 +81,7 @@ def display(F, u, yc, w, h, kind, title, sub=""):
 
 def threshold_wash(M, color):
 	"""Soft wing-coloured light inside a doorway's reveal and a pool on the hall floor in front of it."""
-	S.light(M, 0, 6.0, -3.6, color, 1.1, 13)
+	S.light(M, 0, 6.0, -3.6, color, 1.8, 14)
 	S.light(M, 0, 5.0, 3.2, color, 0.55, 9)
 
 

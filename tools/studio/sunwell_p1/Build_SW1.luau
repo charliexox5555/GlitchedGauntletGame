@@ -759,16 +759,16 @@ local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime",
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
 	-- lighting pass 2026-11-13: the sun through the skylights is the key, the lamps make warm pools, the shade is cool
-	Ambient = Color3.fromRGB(60, 63, 70),
-	OutdoorAmbient = Color3.fromRGB(98, 103, 116), -- neutral shade; warmth only in the light pools
-	Brightness = 2.7, -- the skylight sun patches read hot above 3
+	Ambient = Color3.fromRGB(58, 64, 78),
+	OutdoorAmbient = Color3.fromRGB(100, 110, 130), -- cool shade against warm light (the scene read one sepia cast)
+	Brightness = 2.45, -- the sun patches on the lane read hot above 2.5
 	ClockTime = 12.4,
 	GeographicLatitude = 8,
 	ExposureCompensation = -0.1,
 	EnvironmentDiffuseScale = 0.25,
 	EnvironmentSpecularScale = 0.08, -- painted, not glossy (owner 2026-11-12: surfaces read too realistic)
 	ColorShift_Top = Color3.fromRGB(255, 246, 234), -- sunlit tops barely warm (the scene read one amber cast)
-	ShadowSoftness = 0.9, -- soft skylight shadow grid (hard edges read blotchy)
+	ShadowSoftness = 1, -- soft skylight shadow grid (hard edges read blotchy)
 }
 
 -- which = "Sunwell": players spawn on the staging landing and the hall lighting is on.
@@ -824,7 +824,7 @@ function M.use(which: string): string
 			bloom.Intensity, bloom.Size, bloom.Threshold = 0.6, 18, 1.6
 		end
 		local grade = cc :: ColorCorrectionEffect
-		grade.Contrast, grade.Saturation, grade.TintColor = 0.14, 0.02, Color3.fromRGB(255, 255, 255)
+		grade.Contrast, grade.Saturation, grade.TintColor = 0.16, -0.06, Color3.fromRGB(244, 248, 255) -- a touch cool: breaks the sepia
 		grade.Enabled = true
 		if v3 then
 			v3.Enabled = false

@@ -251,6 +251,12 @@ def build():
 			B["Charcoal"].box(-L / 2 + 0.15, L / 2 - 0.15, -0.05, 0.05, 2.22, 2.42)  # belt between posts
 		for x, y in posts:
 			S.collider(AREA, PM @ Matrix.Translation((x, y, 0)), -0.2, 0.2, -0.2, 0.2, 0.0, 2.8, kind="Y")
+	with S.grp("ShopFloorGrid"):  # laid floor plates: joints every 6 studs inside the border (clear of the emblem and counter mat)
+		for x in (49.0, 55.0, 61.0):
+			for ya, yb in ((62.9, 76.6), (87.4, 101.1)):
+				K["Graphite"].box(x - 0.05, x + 0.05, ya, yb, 0.0, 0.025)
+		for y in (68.0, 74.0, 90.0, 96.0):
+			K["Graphite"].box(45.9, 62.0, y - 0.05, y + 0.05, 0.0, 0.025)
 	with S.grp("ShopFloorEmblem", Matrix.Translation((56.0, 82.0, 0))):
 		E = S.FK(K, Matrix.Translation((56.0, 82.0, 0)))
 		import sw_hub as _H
