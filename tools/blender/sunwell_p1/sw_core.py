@@ -115,7 +115,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"WallShade": _L("SmoothPlastic", "#9EA09F", v="SW_Plaster"),  # the spawn alcove: one step under the hall walls
 	"Belt": _L("SmoothPlastic", "#34383C", v="SW_Plaster"),
 	"WallBase": _L("SmoothPlastic", "#2B2E32", v="SW_Plaster"),
-	"Ceil": _L("SmoothPlastic", "#8E9297", v="SW_Plaster"),  # neutral grey: not brown (dead), not cool (the Locker read off-family)
+	"Ceil": _L("SmoothPlastic", "#6E7277", v="SW_Plaster"),  # a value under the walls: the hall read high-key and flat  # neutral grey: not brown (dead), not cool (the Locker read off-family)
 	"Floor": _L("SmoothPlastic", "#6B6F74", v="SW_Floor"),  # side fields darker than the walk: a lit lane
 	"Walk": _L("SmoothPlastic", "#B0B2B3", v="SW_Floor"),  # pass E: a step deeper so the sun patches carry the light
 	"Walk2": _L("SmoothPlastic", "#A6A8AA", v="SW_Floor"),
@@ -165,7 +165,7 @@ LOOKS = {  # clean stylized colour blocks (owner 2026-11-11: no concrete texture
 	"E_TeamB": _L("Neon", "#2A86FF", glow=True),
 	"E_Sun": _L("Neon", "#98989A", glow=True),
 	"E_Lamp": _L("Neon", "#8F8E8A", glow=True),  # wall lamp lenses: white light (amber read steampunk)  # warm sun glow (the Well, the sun ring), the same as the turbine intake
-	"E_Intake": _L("Neon", "#A9AAA8", glow=True),  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
+	"E_Intake": _L("Neon", "#8C8D8A", glow=True),  # soft, not blown: the vanes read against it  # the turbine is the brightest thing in the hall  # the turbine intake: warm and dim so the vanes read against it
 	"PipeOchre": _L("SmoothPlastic", "#C3C6C9", v="SW_Steel"),  # clean light service pipe (ochre read steampunk)
 	"SeatPad": _L("SmoothPlastic", "#34383D"),  # dark warm leather (benches); Fabric read busy and realistic
 }

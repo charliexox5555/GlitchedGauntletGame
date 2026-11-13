@@ -266,8 +266,8 @@ def shop(K):
 			F["Bronze"].box(-7.95, 7.95, 0.0, 0.47, -8.6, ZB + 0.12)
 			F["Graphite"].box(-1.2, 1.2, 0.6, 0.95, ZB, ZB + 0.3)  # pull handle
 		task_light(F, "E_Opal", "#FFD9A0", hw=2.2, brightness=1.5)
-		threshold_wash(M, "#FFB04A")
-		S.light(M, 0, 6.0, -6.0, "#FFC070", 1.4, 12)  # deeper in the reveal: the Shop mouth never reads as a hole
+		threshold_wash(M, "#FFC46E")  # clean amber (the deeper orange read muddy brown on the charcoal lining)
+		S.light(M, 0, 6.0, -6.0, "#FFC46E", 1.2, 12)  # deeper in the reveal: the Shop mouth never reads as a hole
 		# short dark entry mat
 		F["PetrolDark"].box(-HW, HW, -0.2, 0.05, -0.3, 0.4)
 		F["Rubber"].box(-7.0, 7.0, -0.15, 0.07, 0.7, 5.5)

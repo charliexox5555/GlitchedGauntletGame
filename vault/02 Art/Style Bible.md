@@ -30,7 +30,7 @@ Last updated 2026-11-12. Skills that enforce it:
 - Feel: Valorant-tight first shot plus RIVALS movement (slide is the core move). Recoil is camera-only. Feedback may roll the camera a little but never turns it. Body time-to-kill 0.5-0.75 s at 150 HP, headshot about ×1.6.
 
 ## 4. Hit feedback, VFX and death
-- Hit marker white, headshot amber, kill red X. Damage numbers stack and arc off (amber on headshot). Body hit flash and flinch, **no hit-stop**.
+- Hit marker: white X; headshot red X with a white core; kill bigger red/white X with a ring. Damage numbers (Sarpanch) stack and arc off (red on headshot). The body you hit flashes white then red with a slash; a headshot flashes fire orange and pops a quick muzzle-flash-style burst from the head (2026-11-13, `Config/HitFx`). Flinch, **no hit-stop**.
 - Muzzle flash, tracers (core + glow + 0.28 s wake) and impacts are **stylised like Valorant**: never photoreal, never full cartoon. Surface-aware impacts: sparks on metal, dust on concrete, splinters on wood.
 - Ability VFX: shapes over particles, opaque mesh-first walls, team colours (ally cyan, enemy orange-red), magenta only for glitches. Sprites stay under the Bloom threshold.
 - Death: a still copy crumples, tips over and fades with dust.
@@ -53,7 +53,11 @@ Last updated 2026-11-12. Skills that enforce it:
 - No pills, no hard boxes everywhere, no glow halos, no glossy gradients.
 
 ## 7. Lobby and menus in the world
-- Lobby: a stylised hub in third person (Sunwell Works): faceted architecture, real fixtures that make warm light pools, SurfaceGui boards in the UI theme, equal duel pads in mode order, one accent per room.
+- Lobby: a stylised hub in third person (Sunwell Works). It has faceted architecture, real fixtures that make light pools, SurfaceGui boards in the UI theme, and equal duel pads in mode order. One accent per room.
+- **Changed 2026-11-13 (owner, with friends' notes):** a **clean modern tactical facility, not steampunk, not dull**.
+  - Structure: light grey walls, a slate wainscot and charcoal trim.
+  - Colour: gold only as an accent. White lamp light.
+  - Avoid: brass and ochre pipes, valve hand wheels, wood tops, and brown or sepia palettes.
 
 ## 8. Before calling anything done
 1. Load the skill for the job and check this page's pillars.
