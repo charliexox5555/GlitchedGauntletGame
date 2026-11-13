@@ -288,6 +288,21 @@ Blind medians:
 - The reviewers swing by about 1.5 points between batches on near-identical images.
 - The best three rounds are all 8.3-8.75. W4 (lighting) and W5 (detail) have been 1 in every round.
 
+### Rounds 13-14 (2026-11-13, 2-3 a.m.)
+**Changes:**
+- Darker side fields (`Floor` `#5C5751`) and wainscot (`#6E675D`) frame a lit walk.
+- A brighter turbine intake (`#C9A97A`).
+- A ribbed arrival mat in the alcove.
+- Shop stanchions round the plinth, with the gap facing the door.
+- Locker benches facing the platform; a warm Locker floor (`#8A847B`).
+- Neutral ceilings (`#7D7B77`) and a neutral shade (Ambient 50,53,58; ColorShift_Top 255,240,222).
+- The Locker hero gun and its hologram ring lowered to 4.0, clear of the cases.
+- Sign lights at 1.6.
+
+**Round 13** (two panels of three): medians 7.9 and 7.1. Shared notes: the Locker read cool against the hall (fixed in round 14), a brown-orange shade (fixed), bare walls (Duels upper walls, Locker).
+
+**Round 14:** captures `r14-*`; the review was still running when the usage limit hit. Score it first on resume.
+
 ### Handoff (if a new session picks this up)
 How to build:
 - Blender MCP is down. Build in a background Blender on a copy. The scripts are in the session scratchpad; recreate them from this list:
