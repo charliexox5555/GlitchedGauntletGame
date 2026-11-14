@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 
+local BottomHud = require(script.Parent.Parent.Util.BottomHud)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local StimFx = require(script.Parent.Parent.Util.StimFx)
 
@@ -684,6 +685,26 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 		ui.face.Position = UDim2.fromOffset(0, 0)
 	end
 
+	-- The Studio-built bottom HUD (desktop) shows the slot instead.
+	if BottomHud.active() then
+		ui.root.Visible = false
+		BottomHud.setMod(slot, {
+			id = id,
+			icon = if view.def then view.def.icon or "" else "",
+			role = if view.def then view.def.role else nil,
+			level = view.level,
+			key = key,
+			cooling = cooling,
+			share = share,
+			seconds = secs,
+			charges = view.charges,
+			max = view.max,
+			held = view.held,
+			denied = sinceDeny,
+			active = if activeLeft > 0 then activeLeft / ui.activeTotal else 0,
+		})
+	end
+
 	-- Touch button: written only when something it shows changed.
 	local button, label = ui.button, ui.buttonText
 	local touchKey =
@@ -753,6 +774,7 @@ local function update(dt: number)
 		writeSlot(ui, view, slot, now)
 	end
 	bar.Visible = any
+	BottomHud.setModsVisible(any)
 	local status = slowedLabel
 	if status then
 		local hindered = FrostFx.hinderedLeft()

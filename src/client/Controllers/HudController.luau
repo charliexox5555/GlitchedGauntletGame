@@ -20,6 +20,7 @@ local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
+local BottomHud = require(script.Parent.Parent.Util.BottomHud)
 local KillFeed = require(script.Parent.Parent.Util.KillFeed)
 local Ui = require(script.Parent.Parent.Util.Ui)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
@@ -484,6 +485,7 @@ function HudController.touchLayer(): Frame?
 end
 
 function HudController.setWeapon(displayName: string, ammo: number, magSize: number, id: string?)
+	BottomHud.setWeapon(displayName, id)
 	local r = refs
 	if not r then
 		return
@@ -494,6 +496,7 @@ function HudController.setWeapon(displayName: string, ammo: number, magSize: num
 end
 
 function HudController.setAmmo(ammo: number, magSize: number)
+	BottomHud.setAmmo(ammo, magSize)
 	local r = refs
 	if not r then
 		return
@@ -510,6 +513,7 @@ end
 
 -- `progress` 0..1 while reloading, nil when not.
 function HudController.setReload(progress: number?)
+	BottomHud.setReload(progress)
 	local r = refs
 	if not r then
 		return
@@ -654,6 +658,12 @@ local function update(dt: number)
 			r.shieldFill.Size =
 				UDim2.fromScale(math.clamp((shield :: number) / Combat.MAX_SHIELD, 0, 1), 1)
 		end
+		BottomHud.setHealth(
+			Health.get(humanoid),
+			Health.max(humanoid),
+			if hasShield then shield :: number else 0,
+			dt
+		)
 		local hurt = if frac > 0 then math.clamp((0.45 - frac) / 0.35, 0, 1) else 0
 		hitPulse = math.max(hitPulse - dt / Juice.FLINCH.pulseTime, 0)
 		r.vignette.GroupTransparency = 1 - math.max(hurt, hitPulse)
@@ -664,6 +674,7 @@ end
 -- Spectating: your own health and ammo panels hide (the spectate bar shows
 -- who you're watching instead).
 function HudController.setSpectating(on: boolean)
+	BottomHud.setSpectating(on)
 	local r = refs
 	if not r then
 		return
@@ -671,7 +682,7 @@ function HudController.setSpectating(on: boolean)
 	for _, name in { "Health", "Ammo" } do
 		local panel = r.gui:FindFirstChild(name)
 		if panel and panel:IsA("GuiObject") then
-			panel.Visible = not on
+			panel.Visible = not on and not BottomHud.active()
 		end
 	end
 end
@@ -680,6 +691,20 @@ function HudController.init()
 	refs = build()
 	HitFeedback.build((refs :: Refs).gui)
 	KillFeed.build((refs :: Refs).gui)
+	-- The Studio-built bottom HUD (desktop) replaces the old health and ammo panels.
+	BottomHud.start()
+	BottomHud.onActive(function()
+		local r = refs
+		if not r then
+			return
+		end
+		for _, name in { "Health", "Ammo" } do
+			local panel = r.gui:FindFirstChild(name)
+			if panel and panel:IsA("GuiObject") then
+				panel.Visible = false
+			end
+		end
+	end)
 end
 
 function HudController.start()
