@@ -31,4 +31,4 @@ The anti-AI rules are in memory `ui-anti-ai-tells`, from the owner's screenshots
 
 ![de-AI](References/ui-overhaul/2026-11-14-hud-de-ai-pass.png)
 
-**Backups:** `BuildTopBar.luau` and `BuildBottomHud.luau` predate the de-AI and pivot edits made in Studio, so the **saved place is the source of truth** until they are regenerated.
+**Backups (regenerated 2026-11-14):** `tools/studio/BuildTopBar.luau`, `BuildBottomHud.luau` and `BuildNotify.luau` now rebuild the current Studio UI. Checked by building into a temporary copy and comparing every node: the top bar and its template match exactly. The bottom HUD differs only in preview-only values the game overwrites. 16 dead leftovers (switched-off gradients, the hidden role wash, the old ready line) were deleted from the live UI so the hierarchy stays flat.
