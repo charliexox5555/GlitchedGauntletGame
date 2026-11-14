@@ -1,6 +1,14 @@
 # Draft screen redesign (mockup, 2026-11-14)
 
-## v2 (current mockup)
+## v3 (current mockup)
+Owner on v2: "pretty good", but the Updraft upgrade "doesn't sit well with the cards", the blue bar under the picked card "looks AI", and the upgrade round "looks a bit off". Look at the Valorant examples (`vault/01 Design/ValorantUIExamples/`, Spike Rush draft).
+- **Lesson from Valorant:** an upgrade column **splits into smaller copies of the same card** (art, name band, one stat line), with a small OR between them, so it sits with the new-ability cards.
+- **Upgrade column:** 2 or 3 half-cards, one per path. Each has the ability art, the slanted band with the **path name** big and `UPDRAFT LV 2` small, and one stat line in the role colour ("PEAK 14 → 21 STUDS"). **Glitched:** a magenta band, a split cyan/magenta title, and `UPDRAFT · GLITCHED`.
+- **Picked state, no bars:** the picked card or half lifts and stays bright, the others darken, and **its keycap turns gold** (guns and abilities alike). The cyan selection bars are gone.
+- Round 3: ![v3 round 3](References/ui-overhaul/2026-11-14-draft-v3-round3.jpg)
+- Round 1: ![v3 round 1](References/ui-overhaul/2026-11-14-draft-v3-round1.jpg)
+
+## v2
 Owner on v1: "still that AI feel", "too simple, too vibe coded", drop the "1 PICK A GUN / 2 PICK…" labels; A/B/G letters "don't really make sense".
 - No section labels; the layout itself says what to do. Guns are a slim row; abilities are three tall cards; LOCK IN is below.
 - **Ability cards:** the art fills the card. A **slanted role-colour band** cuts across it (the top bar's slanted-edge idea) with the name in large type and the role. A dark panel holds one description line, the charge line and NEW in gold.
