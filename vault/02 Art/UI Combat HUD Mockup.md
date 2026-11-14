@@ -5,7 +5,7 @@
 **Status (2026-11-14): approved and built in Studio** ("I really like the plus part of the health bar"). Owner's open questions answered by default: segments, round ticks, role glow, no Mod names.
 - Layout: `StarterGui.BottomHud` (Studio-owned; backup `tools/studio/BuildBottomHud.luau`). Behaviour: `src/client/Util/BottomHud.luau`, fed by `HudController` (health, shield, weapon, ammo, reload, spectating) and `ModHudController` (each slot), so every caller and all the logic stay where they were. On desktop the old health/ammo panels and Mod slots hide; **phones keep the old HUD** until the mobile pass. The Mod hint/status lines still come from the old ModHud.
 - Checked in a live 1v1: shield chip per gun (Ghost/Stinger +25), mag ticks per gun (13, 20), drafted Mods fill in with their role colour, empty slots dim, low health red at 22, damage chip; it sits behind the draft screen. Not checked live: firing/reload ticks, Mod cooldown, held/denied, spectating.
-- Next (owner, same day): a **weapon hotbar** showing the other loadout slots, after a RIVALS sample (not to copy).
+- **Weapon hotbar (owner, same day, after a RIVALS sample; not a copy):** above the ammo panel, one cell per loadout slot (`Loadout` → `Primary` / `Secondary` / `Melee`) with its key cap (1 / 2 / 3), the gun or knife icon and spare ammo; the held slot is lit with a white edge and underline and pops on swap; empty slots hide (round 1 shows only the sidearm and the knife). Fed by `WeaponController.updateHudWeapon` → `BottomHud.setLoadout`. **Key hints** (`Hints`: QUICK MELEE V, INSPECT Y, RELOAD R) sit **under the ammo panel** (owner: "below the selected weapon"). Checked live in a 2v2; a swap to the knife was not exercised.
 
 The mockup notes below describe the design.
 

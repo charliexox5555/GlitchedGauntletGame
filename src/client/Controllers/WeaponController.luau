@@ -32,6 +32,7 @@ local VM = require(Shared.Config.Viewmodel)
 local Weapons = require(Shared.Config.Weapons)
 
 local AudioController = require(script.Parent.AudioController)
+local BottomHud = require(script.Parent.Parent.Util.BottomHud)
 local CameraController = require(script.Parent.CameraController)
 local EffectsController = require(script.Parent.EffectsController)
 local HudController = require(script.Parent.HudController)
@@ -284,6 +285,20 @@ local function updateHudWeapon()
 			s.config.id
 		)
 	end
+	-- The bottom HUD's hotbar shows every slot, the held one lit.
+	local entries: { BottomHud.LoadoutEntry } = {}
+	for _, slot in CYCLE do
+		local ls = slots[slot]
+		if ls then
+			table.insert(entries, {
+				slot = slot,
+				id = ls.config.id,
+				ammo = math.floor(ls.ammo),
+				mag = ls.config.magSize,
+			})
+		end
+	end
+	BottomHud.setLoadout(entries, equipped)
 end
 
 -- Reload ---------------------------------------------------------------------

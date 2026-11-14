@@ -1,7 +1,8 @@
 --!strict
 -- The bottom combat HUD (vault/02 Art/UI Combat HUD Mockup.md): health +
 -- shield (bottom-left), ammo (bottom-right) and the three Mod slots
--- (bottom-centre). The layout is built in Studio (StarterGui.BottomHud, backup
+-- (bottom-centre), plus the weapon hotbar (every loadout slot, the held one
+-- lit) and key hints above the ammo. The layout is built in Studio (StarterGui.BottomHud, backup
 -- tools/studio/BuildBottomHud.luau); this module only fills it in. It is fed by
 -- the controllers that already own the data: HudController (health, shield,
 -- weapon, ammo, reload, spectating) and ModHudController (each Mod slot).
@@ -16,6 +17,13 @@ local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Device)
 
 local BottomHud = {}
+
+export type LoadoutEntry = {
+	slot: string, -- "Primary" | "Secondary" | "Melee"
+	id: string?,
+	ammo: number,
+	mag: number,
+}
 
 export type ModInfo = {
 	id: string?,
@@ -74,6 +82,16 @@ type Ui = {
 	reloadFill: Frame,
 	mods: Frame,
 	slots: { Slot },
+	loadout: { [string]: LoadoutCell },
+}
+type LoadoutCell = {
+	holder: Frame,
+	pop: UIScale,
+	cell: CanvasGroup,
+	icon: ImageLabel,
+	ammo: TextLabel,
+	equipped: Frame,
+	edge: UIStroke,
 }
 type Slot = {
 	root: Frame,
@@ -108,6 +126,9 @@ local chipFrac = 1
 local chipHoldUntil = 0
 local hitAt = -math.huge
 local tickCount = -1
+local loadoutNow: { LoadoutEntry } = {}
+local equippedNow: string? = nil
+local shownEquipped: string? = nil
 
 local function tween(
 	inst: Instance,
@@ -263,6 +284,13 @@ function BottomHud.setSpectating(on: boolean)
 	if r then
 		r.health.Visible = not on
 		r.ammo.Visible = not on
+		local row = r.gui:FindFirstChild("Root")
+		for _, name in { "Loadout", "Hints" } do
+			local part = row and row:FindFirstChild(name)
+			if part and part:IsA("GuiObject") then
+				part.Visible = not on
+			end
+		end
 	end
 end
 
@@ -336,6 +364,46 @@ function BottomHud.setHealth(health: number, max: number, shield: number, dt: nu
 		seg.BackgroundColor3 = SHIELD
 		seg.BackgroundTransparency = if fill > 0 then EMPTY_SEG * (1 - fill) else 0.92
 	end
+end
+
+-- Every loadout slot (from WeaponController): the held one is lit and
+-- underlined, the others dim with their ammo; a swap pops the new one.
+local function drawLoadout()
+	local r = ui
+	if not r then
+		return
+	end
+	local present: { [string]: LoadoutEntry } = {}
+	for _, e in loadoutNow do
+		present[e.slot] = e
+	end
+	for name, c in r.loadout do
+		local e = present[name]
+		c.holder.Visible = e ~= nil
+		if e then
+			c.icon.Image = if e.id then Theme.GUN[e.id] or "" else ""
+			c.ammo.Text = if e.mag > 0 then tostring(e.ammo) else ""
+			c.ammo.TextColor3 = if e.mag > 0 and e.ammo == 0 then RED else WHITE
+			local held = name == equippedNow
+			c.cell.GroupTransparency = if held then 0 else 0.3
+			c.equipped.Visible = held
+			c.edge.Transparency = if held then 0.35 else 1
+		end
+	end
+	if equippedNow ~= shownEquipped then
+		shownEquipped = equippedNow
+		local c = if equippedNow then r.loadout[equippedNow] else nil
+		if c then
+			c.pop.Scale = 1.12
+			tween(c.pop, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+		end
+	end
+end
+
+function BottomHud.setLoadout(entries: { LoadoutEntry }, equipped: string?)
+	loadoutNow = entries
+	equippedNow = equipped
+	drawLoadout()
 end
 
 function BottomHud.setModsVisible(any: boolean)
@@ -427,6 +495,22 @@ local function bind(gui: ScreenGui)
 	local rounds = amBody:WaitForChild("Rounds") :: Frame
 	local reloadBar = amBody:WaitForChild("ReloadBar") :: Frame
 	local mods = root:WaitForChild("Mods") :: Frame
+	local loadoutRow = root:WaitForChild("Loadout") :: Frame
+	local hints = root:WaitForChild("Hints") :: Frame
+	local loadout: { [string]: LoadoutCell } = {}
+	for _, name in { "Primary", "Secondary", "Melee" } do
+		local holder = loadoutRow:WaitForChild(name) :: Frame
+		local cell = holder:WaitForChild("Cell") :: CanvasGroup
+		loadout[name] = {
+			holder = holder,
+			pop = holder:WaitForChild("Pop") :: UIScale,
+			cell = cell,
+			icon = cell:WaitForChild("Icon") :: ImageLabel,
+			ammo = cell:WaitForChild("Ammo") :: TextLabel,
+			equipped = cell:WaitForChild("Equipped") :: Frame,
+			edge = cell:WaitForChild("Edge") :: UIStroke,
+		}
+	end
 	local slots: { Slot } = {}
 	for i = 1, 3 do
 		local slot = mods:WaitForChild("Slot" .. i) :: Frame
@@ -478,10 +562,17 @@ local function bind(gui: ScreenGui)
 		reloadFill = reloadBar:WaitForChild("Fill") :: Frame,
 		mods = mods,
 		slots = slots,
+		loadout = loadout,
 	}
 
 	-- One UIScale per cluster keeps the 1920 x 1080 layout proportional.
-	local fits = { health:WaitForChild("Fit"), ammo:WaitForChild("Fit"), mods:WaitForChild("Fit") }
+	local fits = {
+		health:WaitForChild("Fit"),
+		ammo:WaitForChild("Fit"),
+		mods:WaitForChild("Fit"),
+		loadoutRow:WaitForChild("Fit"),
+		hints:WaitForChild("Fit"),
+	}
 	local function refit()
 		local size = gui.AbsoluteSize
 		if size.X > 0 and size.Y > 0 then
@@ -497,6 +588,7 @@ local function bind(gui: ScreenGui)
 	ui = r
 	tickCount = -1
 	drawAmmo()
+	drawLoadout()
 	BottomHud.setSpectating(spectating)
 	for _, fn in onActive do
 		task.spawn(fn)

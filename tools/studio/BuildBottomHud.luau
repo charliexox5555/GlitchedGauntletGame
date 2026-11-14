@@ -1,7 +1,7 @@
 --!strict
 -- Rebuilds the match's bottom combat HUD (health + shield, ammo, Mod slots) in
 -- the match place (vault/02 Art/UI Combat HUD Mockup.md). Studio owns
--- StarterGui.BottomHud; this is its backup in git. Paste into the Studio
+-- StarterGui.BottomHud (incl. the weapon hotbar + key hints); this is its backup in git. Paste into the Studio
 -- command bar (Edit mode). It refuses to run if StarterGui.BottomHud exists.
 -- Behaviour: src/client/Util/BottomHud.luau (fed by HudController and
 -- ModHudController). Desktop only for now; phones keep the old HUD.
@@ -322,16 +322,12 @@ make("UIListLayout", {
 	VerticalAlignment = Enum.VerticalAlignment.Top,
 }, mods)
 for i, m in PREVIEW_MODS do
-	local slot = make(
-		"Frame",
-		{
-			Name = "Slot" .. i,
-			LayoutOrder = i,
-			Size = UDim2.fromOffset(80, 104),
-			BackgroundTransparency = 1,
-		},
-		mods
-	)
+	local slot = make("Frame", {
+		Name = "Slot" .. i,
+		LayoutOrder = i,
+		Size = UDim2.fromOffset(80, 104),
+		BackgroundTransparency = 1,
+	}, mods)
 	softShadow(slot, 80, 80, 46)
 	local face = make(
 		"Frame",
@@ -348,16 +344,12 @@ for i, m in PREVIEW_MODS do
 	}, face)
 	make("UICorner", { CornerRadius = UDim.new(0, 6) }, cell)
 	make("UIGradient", { Name = "Shade", Rotation = 90, Color = DARK_SHADE }, cell)
-	local wash = make(
-		"Frame",
-		{
-			Name = "RoleWash",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundColor3 = m.role,
-			BorderSizePixel = 0,
-		},
-		cell
-	)
+	local wash = make("Frame", {
+		Name = "RoleWash",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = m.role,
+		BorderSizePixel = 0,
+	}, cell)
 	make("UIGradient", {
 		Rotation = 90,
 		Transparency = NumberSequence.new({
@@ -411,15 +403,11 @@ for i, m in PREVIEW_MODS do
 		AutomaticSize = Enum.AutomaticSize.X,
 		BackgroundTransparency = 1,
 	}, cell)
-	make(
-		"UIListLayout",
-		{
-			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, 3),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		},
-		pips
-	)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		Padding = UDim.new(0, 3),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, pips)
 	for c = 1, 3 do
 		make("Frame", {
 			Name = "Pip" .. c,
@@ -469,6 +457,174 @@ for i, m in PREVIEW_MODS do
 		TextColor3 = WHITE,
 		ZIndex = 3,
 	}, key)
+end
+
+-- WEAPON HOTBAR (above the ammo) + KEY HINTS (under it), right-aligned --------
+local function keyCap(
+	parent: Instance,
+	name: string,
+	text: string,
+	props: { [string]: any }?
+): Frame
+	local k = make("Frame", {
+		Name = name,
+		Size = UDim2.fromOffset(0, 18),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = hex("2A313D"),
+		BorderSizePixel = 0,
+		ZIndex = 3,
+	}, parent)
+	for p, v in props or {} do
+		(k :: any)[p] = v
+	end
+	make("UICorner", { CornerRadius = UDim.new(0, 4) }, k)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, k)
+	make("TextLabel", {
+		Name = "Label",
+		Size = UDim2.fromScale(0, 1),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		Text = text,
+		FontFace = Font.new(BX, Enum.FontWeight.ExtraBold),
+		TextSize = 11,
+		TextColor3 = WHITE,
+		ZIndex = 4,
+	}, k)
+	return k
+end
+local loadout = make("Frame", {
+	Name = "Loadout",
+	AnchorPoint = Vector2.new(1, 1),
+	Position = UDim2.new(0.976, -8, 0.965, -106),
+	Size = UDim2.fromOffset(0, 52),
+	AutomaticSize = Enum.AutomaticSize.X,
+	BackgroundTransparency = 1,
+}, root)
+make("UIScale", { Name = "Fit" }, loadout)
+make("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+	HorizontalAlignment = Enum.HorizontalAlignment.Right,
+	Padding = UDim.new(0, 6),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+}, loadout)
+local PREVIEW_LOADOUT = {
+	{ "Primary", "1", "rbxassetid://108427985127422", "18" },
+	{ "Secondary", "2", "rbxassetid://91264904103058", "13" },
+	{ "Melee", "3", "rbxassetid://113310955014391", "" },
+}
+for i, p in PREVIEW_LOADOUT do
+	local holder = make("Frame", {
+		Name = p[1],
+		LayoutOrder = i,
+		Size = UDim2.fromOffset(104, 52),
+		BackgroundTransparency = 1,
+	}, loadout)
+	make("UIScale", { Name = "Pop" }, holder)
+	softShadow(holder, 104 - 16, 52 - 14, 30).ImageTransparency = 0.6
+	local cell = make("CanvasGroup", {
+		Name = "Cell",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = PLATE,
+		BorderSizePixel = 0,
+		GroupTransparency = if i == 1 then 0 else 0.3,
+		ZIndex = 1,
+	}, holder)
+	make("UICorner", { CornerRadius = UDim.new(0, 5) }, cell)
+	make("UIGradient", { Name = "Shade", Rotation = 90, Color = DARK_SHADE }, cell)
+	make("ImageLabel", {
+		Name = "Icon",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 4, 0.5, -2),
+		Size = UDim2.fromOffset(72, 30),
+		BackgroundTransparency = 1,
+		Image = p[3],
+		ScaleType = Enum.ScaleType.Fit,
+	}, cell)
+	make("TextLabel", {
+		Name = "Ammo",
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, -6, 1, -4),
+		Size = UDim2.fromOffset(40, 14),
+		BackgroundTransparency = 1,
+		Text = p[4],
+		FontFace = Font.new(BX, Enum.FontWeight.ExtraBold),
+		TextSize = 12,
+		TextColor3 = WHITE,
+		TextXAlignment = Enum.TextXAlignment.Right,
+	}, cell)
+	make("Frame", {
+		Name = "Equipped",
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.fromScale(0, 1),
+		Size = UDim2.new(1, 0, 0, 3),
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		Visible = i == 1,
+	}, cell)
+	make("UIStroke", {
+		Name = "Edge",
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		Color = WHITE,
+		Thickness = 1.5,
+		Transparency = if i == 1 then 0.35 else 1,
+	}, cell)
+	keyCap(holder, "Key", p[2], { Position = UDim2.fromOffset(5, 5) })
+end
+local hints = make("Frame", {
+	Name = "Hints",
+	AnchorPoint = Vector2.new(1, 1),
+	Position = UDim2.new(0.976, -8, 0.992, 0), -- under the ammo panel (owner)
+	Size = UDim2.fromOffset(0, 20),
+	AutomaticSize = Enum.AutomaticSize.X,
+	BackgroundTransparency = 1,
+}, root)
+make("UIScale", { Name = "Fit" }, hints)
+make("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+	HorizontalAlignment = Enum.HorizontalAlignment.Right,
+	VerticalAlignment = Enum.VerticalAlignment.Center,
+	Padding = UDim.new(0, 14),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+}, hints)
+for i, h in
+	{
+		{ "QuickMelee", "V", "QUICK MELEE" },
+		{ "Inspect", "Y", "INSPECT" },
+		{ "Reload", "R", "RELOAD" },
+	}
+do
+	local pair = make("Frame", {
+		Name = h[1],
+		LayoutOrder = i,
+		Size = UDim2.fromOffset(0, 20),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+	}, hints)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, pair)
+	local label = make("TextLabel", {
+		Name = "Label",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(0, 20),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		Text = h[3],
+		FontFace = Font.new(BX, Enum.FontWeight.Bold),
+		TextSize = 13,
+		TextColor3 = hex("C9D1DC"),
+	}, pair)
+	make("UIStroke", {
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual,
+		Color = hex("06080C"),
+		Transparency = 0.5,
+		Thickness = 1.5,
+	}, label)
+	local cap = keyCap(pair, "Key", h[2], { LayoutOrder = 2, Size = UDim2.fromOffset(0, 20) });
+	(cap:FindFirstChild("Label") :: TextLabel).TextSize = 12
 end
 
 gui.Parent = StarterGui
