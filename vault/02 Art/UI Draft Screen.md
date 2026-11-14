@@ -1,6 +1,17 @@
 # Draft screen redesign (mockup, 2026-11-14)
 
-## v3 (current mockup)
+## v4 (current mockup)
+Owner on v3: "still looks a bit off", one more pass. My read of what was off, fixed here:
+- **One grid:** three 400 px columns, 28 apart, hold the guns, the cards and LOCK IN. The guns were narrower than the cards and LOCK IN lined up with nothing.
+- **Key tabs:** a centred tab (Q / E / T) on the top edge of each column replaces the corner stickers. Gun keys sit inside their cards.
+- **Cleaner type:** no drop shadow on band names (it read muddy); the unpicked dim is lighter (`150,155,166`) so the screen isn't dull.
+- **Depth:** soft shadows under every card and under LOCK IN.
+- LOCK IN is the width of the middle column and carries the picks. The enemy kit is right-aligned to the grid.
+- Rebuilt from a script: `tools/studio/BuildDraftMockup.luau` (also the backup).
+- Round 3: ![v4 round 3](References/ui-overhaul/2026-11-14-draft-v4-round3.jpg)
+- Round 1: ![v4 round 1](References/ui-overhaul/2026-11-14-draft-v4-round1.jpg)
+
+## v3
 Owner on v2: "pretty good", but the Updraft upgrade "doesn't sit well with the cards", the blue bar under the picked card "looks AI", and the upgrade round "looks a bit off". Look at the Valorant examples (`vault/01 Design/ValorantUIExamples/`, Spike Rush draft).
 - **Lesson from Valorant:** an upgrade column **splits into smaller copies of the same card** (art, name band, one stat line), with a small OR between them, so it sits with the new-ability cards.
 - **Upgrade column:** 2 or 3 half-cards, one per path. Each has the ability art, the slanted band with the **path name** big and `UPDRAFT LV 2` small, and one stat line in the role colour ("PEAK 14 → 21 STUDS"). **Glitched:** a magenta band, a split cyan/magenta title, and `UPDRAFT · GLITCHED`.
