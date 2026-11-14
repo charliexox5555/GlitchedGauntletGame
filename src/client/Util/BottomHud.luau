@@ -68,6 +68,7 @@ type Ui = {
 	health: Frame,
 	hpNumber: Frame,
 	hpIcon: ImageLabel,
+	hpGlow: Frame?,
 	shieldChip: Frame,
 	shieldNumber: Frame,
 	hpSegs: { Frame },
@@ -327,6 +328,12 @@ function BottomHud.setHealth(health: number, max: number, shield: number, dt: nu
 		value.TextColor3 = base:Lerp(RED, flash)
 	end
 	r.hpIcon.ImageColor3 = if low then RED else WHITE
+	-- low health: the panel's edge glow turns red and pulses
+	local glow = r.hpGlow
+	if glow then
+		glow.BackgroundColor3 = if low then RED else SHIELD
+		glow.BackgroundTransparency = if low then 0.35 * (1 - (math.sin(now * 6) + 1) / 2) else 0
+	end
 	local shake = if sinceHit < HIT_SHAKE
 		then math.sin(sinceHit * 70) * 5 * (1 - sinceHit / HIT_SHAKE)
 		else 0
@@ -556,6 +563,7 @@ local function bind(gui: ScreenGui)
 		health = health,
 		hpNumber = hpBody:WaitForChild("HP") :: Frame,
 		hpIcon = hpBody:WaitForChild("Icon") :: ImageLabel,
+		hpGlow = hpBody:FindFirstChild("Glow") :: Frame?,
 		shieldChip = chip,
 		shieldNumber = chip:WaitForChild("Value") :: Frame,
 		hpSegs = numbered(segs, "Hp", 10),
