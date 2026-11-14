@@ -1,5 +1,20 @@
 # Draft screen redesign (mockup, 2026-11-14)
 
+## v2 (current mockup)
+Owner on v1: "still that AI feel", "too simple, too vibe coded", drop the "1 PICK A GUN / 2 PICK…" labels; A/B/G letters "don't really make sense".
+- No section labels; the layout itself says what to do. Guns are a slim row; abilities are three tall cards; LOCK IN is below.
+- **Ability cards:** the art fills the card. A **slanted role-colour band** cuts across it (the top bar's slanted-edge idea) with the name in large type and the role. A dark panel holds one description line, the charge line and NEW in gold.
+- **Key stickers:** light keycaps (Q / E / T, 1 / 2 / 3) sit on each card's top-left corner.
+- **Upgrade card:** the same card, with the art as a short banner and the band carrying `UPDRAFT · UPGRADE LV 1 → 2`. Below it is one row per path: the path name, PATH A / PATH B tag, one line and the stat change. The chosen row fills with the role colour. The **glitched path** is a magenta row with a split cyan/magenta title (the one "glitch" touch, the game's name) and a GLITCHED tag. No letters, no OR.
+- **Selection:** the picked card lifts 12 px and stays bright, with a cyan bar along its bottom. The others darken.
+- **LOCK IN:** a gold block with slanted ends (the top bar caps) that shows your pick ("SPECTRE + HIGH RISE") and an ENTER keycap.
+- **Enemy:** small role-colour blocks with their level, or ENEMY HAS NO ABILITIES YET.
+- Round 3: ![v2 round 3](References/ui-overhaul/2026-11-14-draft-v2-round3.jpg)
+- Round 1: ![v2 round 1](References/ui-overhaul/2026-11-14-draft-v2-round1.jpg)
+- (Captured in Edit mode on a grey void; the small "Right" cube on a card is Studio's 3D view gizmo, not UI.)
+
+## v1 (superseded)
+
 **Owner's brief:** keep the look and the card art, but restructure so it's cleaner. The upgrade choices were "too much going on": purple and glitch overlapping things, too much info, not clear what to do.
 
 **Status:** mockup in Studio, waiting on the owner's review. The live draft is still the old code-built one (`DraftController`). Figma's Starter-plan limit blocked again, so the mockup was built in Studio with the real fonts and art.
