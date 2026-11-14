@@ -51,8 +51,8 @@ local RED = Color3.fromHex("FF4D5E")
 local AMBER = Color3.fromHex("FFB547")
 local CHIP = Color3.fromHex("FF9AA5") -- health just lost, before it drains
 local SHIELD = Color3.fromHex("3FE0F2")
-local SPENT = Color3.fromHex("3A414C")
 local CYAN = Color3.fromHex("2FD3E6")
+local EMPTY_CELL = Color3.fromHex("1F2B44") -- an undrafted Mod slot (navy plate)
 
 local EMPTY_SEG = 0.86 -- transparency of an empty segment or spent round
 local LOW_HEALTH = 0.35 -- share of max health that turns the panel red
@@ -97,11 +97,11 @@ type Slot = {
 	root: Frame,
 	pop: UIScale,
 	cell: CanvasGroup,
-	wash: Frame,
 	icon: ImageLabel,
+	iconShadow: ImageLabel,
+	glint: Frame,
 	cooldown: Frame,
 	seconds: Frame,
-	ready: Frame,
 	activeBar: Frame,
 	pips: { Frame },
 	level: TextLabel,
@@ -413,6 +413,12 @@ function BottomHud.setModsVisible(any: boolean)
 	end
 end
 
+-- A shine sweeps across a Mod cell (ready again, or newly drafted).
+local function glint(s: Slot)
+	s.glint.Position = UDim2.fromScale(-0.6, 0.5)
+	tween(s.glint, 0.55, { Position = UDim2.fromScale(1.6, 0.5) }, Enum.EasingStyle.Quad)
+end
+
 -- Called every frame per slot by ModHudController.
 function BottomHud.setMod(index: number, info: ModInfo)
 	local r = ui
@@ -427,33 +433,35 @@ function BottomHud.setMod(index: number, info: ModInfo)
 		s.shown = shown
 		s.icon.Image = info.icon
 		s.icon.Visible = info.id ~= nil
-		s.wash.Visible = info.id ~= nil
-		s.wash.BackgroundColor3 = color
-		s.level.TextColor3 = color
+		s.iconShadow.Image = info.icon
+		s.iconShadow.Visible = info.id ~= nil
+		-- a drafted Mod is a bright block in its role colour; an empty slot a dim plate
+		s.cell.BackgroundColor3 = if info.id then color else EMPTY_CELL
 		s.level.Text = if info.level == "L1" or info.id == nil then "" else info.level
 		s.cell.GroupTransparency = if info.id then 0 else 0.55
 		if info.id then
-			-- a new Mod pops in
+			-- a new Mod pops in with a shine
 			s.pop.Scale = 0.7
 			tween(s.pop, 0.36, { Scale = 1 }, Enum.EasingStyle.Back)
+			glint(s)
 		end
 	end
 	s.key.Text = info.key
 	s.keyPlate.BackgroundTransparency = if info.id then 0 else 0.5
 
-	s.ready.BackgroundColor3 = if info.cooling or info.id == nil then SPENT else color
-	s.icon.ImageTransparency = if info.cooling then 0.65 else 0
+	-- cooling: a dark curtain over the colour lifts as it recharges
+	s.icon.ImageTransparency = if info.cooling then 0.35 else 0
+	s.iconShadow.ImageTransparency = if info.cooling then 0.85 else 0.65
 	s.cooldown.Size = UDim2.fromScale(
 		1,
 		if info.cooling then math.clamp(if info.share > 0 then info.share else 1, 0, 1) else 0
 	)
 	setNumber(s.seconds, info.seconds)
 	if s.wasCooling and not info.cooling and info.id ~= nil then
-		-- ready again: a pop and a white flash on the ready line
+		-- ready again: a pop and a shine
 		s.pop.Scale = 1.14
 		tween(s.pop, 0.36, { Scale = 1 }, Enum.EasingStyle.Back)
-		s.ready.BackgroundColor3 = WHITE
-		tween(s.ready, 0.4, { BackgroundColor3 = color })
+		glint(s)
 	end
 	s.wasCooling = info.cooling
 
@@ -462,7 +470,7 @@ function BottomHud.setMod(index: number, info: ModInfo)
 		pip.BackgroundTransparency = if i <= info.charges then 0 else 0.75
 	end
 	s.activeBar.Size = UDim2.new(math.clamp(info.active, 0, 1), 0, 0, 3)
-	s.activeBar.BackgroundColor3 = color
+	s.activeBar.BackgroundColor3 = WHITE
 
 	-- held: a white edge and a lift; denied: a red edge and a shake
 	if info.held ~= s.held then
@@ -521,12 +529,12 @@ local function bind(gui: ScreenGui)
 			root = slot,
 			pop = face:WaitForChild("Pop") :: UIScale,
 			cell = cell,
-			wash = cell:WaitForChild("RoleWash") :: Frame,
 			icon = cell:WaitForChild("Icon") :: ImageLabel,
+			iconShadow = cell:WaitForChild("IconShadow") :: ImageLabel,
+			glint = cell:WaitForChild("Glint") :: Frame,
 			cooldown = cell:WaitForChild("Cooldown") :: Frame,
 			seconds = cell:WaitForChild("Seconds") :: Frame,
-			ready = cell:WaitForChild("ReadyLine") :: Frame,
-			activeBar = cell:WaitForChild("Active") :: Frame,
+			activeBar = cell:WaitForChild("ActiveBar") :: Frame,
 			pips = numbered(cell:WaitForChild("Charges"), "Pip", 3),
 			level = cell:WaitForChild("Level") :: TextLabel,
 			edge = cell:WaitForChild("Edge") :: UIStroke,

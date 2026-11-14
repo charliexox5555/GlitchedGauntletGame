@@ -390,7 +390,7 @@ for i, m in PREVIEW_MODS do
 	}, cell)
 	-- active effect (Mod<n>ActiveUntil): a bar along the top that runs down
 	make("Frame", {
-		Name = "Active",
+		Name = "ActiveBar", -- not "Active": that is a GuiObject property
 		Size = UDim2.new(0, 0, 0, 3),
 		BackgroundColor3 = WHITE,
 		BorderSizePixel = 0,
@@ -625,6 +625,127 @@ do
 	}, label)
 	local cap = keyCap(pair, "Key", h[2], { LayoutOrder = 2, Size = UDim2.fromOffset(0, 20) });
 	(cap:FindFirstChild("Label") :: TextLabel).TextSize = 12
+end
+
+-- COLOUR PASS (owner 2026-11-14: "a little dull", "the abilities bar is boring") --
+-- Panels and hotbar cells: navy plates; health and ammo get a cyan glow from
+-- the outer edge. Mod cells: bright role-colour blocks (the script sets the
+-- colour) with a gloss, an icon shadow, a glint that sweeps on ready, and
+-- light key caps.
+-- Children made earlier in this script (asserts with the name if one is missing).
+local function child(parent: Instance, name: string): any
+	local c = parent:FindFirstChild(name)
+	assert(c, name .. " is missing")
+	return c
+end
+local NAVY = hex("1F2B44")
+local NAVY_SHADE = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(150, 150, 160))
+for _, spec in { { "Health", 0 }, { "Ammo", 180 } } do
+	local holder = child(root, spec[1])
+	local body = child(holder, "Body")
+	local slant = child(holder, "Slant")
+	body.BackgroundColor3 = NAVY
+	slant.ImageColor3 = NAVY
+	for _, part in { body, slant } do
+		child(part, "Shade").Color = NAVY_SHADE
+	end
+	local glow = make("Frame", {
+		Name = "Glow",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = ALLY_TOP,
+		BorderSizePixel = 0,
+		ZIndex = 1,
+	}, body)
+	make("UICorner", { CornerRadius = UDim.new(0, 6) }, glow)
+	make("UIGradient", {
+		Rotation = spec[2],
+		Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.55),
+			NumberSequenceKeypoint.new(0.035, 0.55),
+			NumberSequenceKeypoint.new(0.04, 0.8),
+			NumberSequenceKeypoint.new(0.45, 1),
+			NumberSequenceKeypoint.new(1, 1),
+		}),
+	}, glow)
+end
+for _, h in loadout:GetChildren() do
+	if h:IsA("Frame") then
+		local c = child(h, "Cell")
+		c.BackgroundColor3 = NAVY
+		child(c, "Shade").Color = NAVY_SHADE
+		child(c, "Equipped").BackgroundColor3 = ALLY_TOP
+	end
+end
+for i = 1, 3 do
+	local slot = child(mods, "Slot" .. i)
+	local cell = child(child(slot, "Face"), "Cell")
+	local wash = child(cell, "RoleWash")
+	cell.BackgroundColor3 = wash.BackgroundColor3
+	child(cell, "Shade").Color =
+		ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(150, 150, 150))
+	wash.Visible = false
+	child(cell, "ReadyLine").Visible = false
+	local gloss = make("Frame", {
+		Name = "Gloss",
+		Size = UDim2.fromScale(1, 0.5),
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		ZIndex = 1,
+	}, cell)
+	make("UIGradient", {
+		Rotation = 90,
+		Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0.72),
+			NumberSequenceKeypoint.new(1, 1),
+		}),
+	}, gloss)
+	local icon = child(cell, "Icon")
+	icon.ZIndex = 3
+	local shadow = icon:Clone()
+	shadow.Name = "IconShadow"
+	shadow.ImageColor3 = Color3.new(0, 0, 0)
+	shadow.ImageTransparency = 0.65
+	shadow.Position = UDim2.new(0.5, 0, 0.5, 3)
+	shadow.ZIndex = 2
+	shadow.Parent = cell
+	child(cell, "Cooldown").ZIndex = 4
+	child(cell, "Seconds").ZIndex = 5
+	for _, d in child(cell, "Seconds"):GetChildren() do
+		if d:IsA("TextLabel") then
+			d.ZIndex = if d.Name == "Shadow" then 5 else 6
+		end
+	end
+	local glint = make("Frame", {
+		Name = "Glint",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(-0.6, 0.5),
+		Size = UDim2.fromScale(0.32, 1.8),
+		Rotation = 22,
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		ZIndex = 7,
+	}, cell)
+	make("UIGradient", {
+		Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.5, 0.35),
+			NumberSequenceKeypoint.new(1, 1),
+		}),
+	}, glint)
+	local level = child(cell, "Level")
+	level.TextColor3 = WHITE
+	level.ZIndex = 6
+	local charges = child(cell, "Charges")
+	charges.ZIndex = 6
+	for _, p in charges:GetChildren() do
+		if p:IsA("Frame") then
+			p.ZIndex = 6
+		end
+	end
+	child(cell, "ActiveBar").ZIndex = 6
+	local key = child(slot, "Key")
+	key.BackgroundColor3 = hex("F4F6F9")
+	child(key, "Label").TextColor3 = hex("141A26")
 end
 
 gui.Parent = StarterGui
