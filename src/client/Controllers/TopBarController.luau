@@ -45,7 +45,9 @@ local CELL_DEAD = Color3.fromHex("3A3F48")
 local CELL_FADE = 0.1
 
 type Fighter = { key: Instance, userId: number?, humanoid: Humanoid? }
-type Slot = { cell: CanvasGroup, head: ImageLabel, pop: UIScale, alive: boolean? }
+-- holder: a fixed-size item in the row; cell: centred inside it, so its pop
+-- scales from the middle without moving the neighbours.
+type Slot = { holder: Frame, cell: CanvasGroup, head: ImageLabel, pop: UIScale, alive: boolean? }
 type Side = {
 	block: Frame,
 	blockPop: UIScale,
@@ -158,12 +160,14 @@ function TopBarController.start()
 	local timerPop = timer:WaitForChild("Pop") :: UIScale
 	local template = ReplicatedStorage:WaitForChild("UiTemplates")
 		:WaitForChild("TopBar")
-		:WaitForChild("Player") :: CanvasGroup
+		:WaitForChild("Player") :: Frame
 
 	local function side(name: string): Side
 		local block = bar:WaitForChild(name) :: Frame
 		local body = block:WaitForChild("Body") :: Frame
-		local score = body:WaitForChild("Score") :: Frame
+		-- The number and its shadow sit in a centred Inner frame (its pop scales
+		-- from the middle; the Score item keeps its size in the row).
+		local score = (body:WaitForChild("Score") :: Frame):WaitForChild("Inner") :: Frame
 		local players = body:WaitForChild("Players") :: Frame
 		-- The Studio preview cells only show the layout in Edit mode.
 		for _, child in players:GetChildren() do
@@ -209,17 +213,16 @@ function TopBarController.start()
 	local slots: { [string]: { [Instance]: Slot } } = { ally = {}, enemy = {} }
 
 	local function newSlot(key: string, f: Fighter): Slot
-		local cell = template:Clone()
+		local holder = template:Clone()
+		local cell = holder:WaitForChild("Cell") :: CanvasGroup
 		cell.BackgroundColor3 = sides[key].cellColor
 		local head = cell:WaitForChild("Headshot") :: ImageLabel
 		head.Image = headshot(f.userId)
-		local pop = Instance.new("UIScale")
-		pop.Name = "Pop"
+		local pop = cell:WaitForChild("Pop") :: UIScale
 		pop.Scale = 0.5
-		pop.Parent = cell
-		cell.Parent = sides[key].players
+		holder.Parent = sides[key].players
 		tween(pop, 0.36, { Scale = 1 }, Enum.EasingStyle.Back)
-		return { cell = cell, head = head, pop = pop, alive = nil }
+		return { holder = holder, cell = cell, head = head, pop = pop, alive = nil }
 	end
 
 	local function setAlive(key: string, slot: Slot, alive: boolean)
@@ -255,13 +258,13 @@ function TopBarController.start()
 				slots[key][f.key] = slot
 			end
 			-- Player 1 sits next to the score, closest to the timer.
-			slot.cell.LayoutOrder = if key == "ally" then -i else i
+			slot.holder.LayoutOrder = if key == "ally" then -i else i
 			local h = f.humanoid
 			setAlive(key, slot, h ~= nil and h.Parent ~= nil and Health.isAlive(h))
 		end
 		for k, slot in slots[key] do
 			if not seen[k] then
-				slot.cell:Destroy()
+				slot.holder:Destroy()
 				slots[key][k] = nil
 			end
 		end
@@ -276,8 +279,6 @@ function TopBarController.start()
 			UiSound.play("Score")
 			s.pop.Scale = 1.35
 			tween(s.pop, 0.42, { Scale = 1 }, Enum.EasingStyle.Back)
-			s.blockPop.Scale = 1.06
-			tween(s.blockPop, 0.36, { Scale = 1 }, Enum.EasingStyle.Back)
 			local flash = s.color:Lerp(WHITE, 0.55)
 			s.body.BackgroundColor3 = flash
 			s.slant.ImageColor3 = flash

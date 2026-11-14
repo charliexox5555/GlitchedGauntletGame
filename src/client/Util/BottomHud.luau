@@ -15,6 +15,7 @@ local TweenService = game:GetService("TweenService")
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Device)
+local Bindings = require(ReplicatedStorage.Shared.Config.Input)
 
 local BottomHud = {}
 
@@ -52,7 +53,11 @@ local AMBER = Color3.fromHex("FFB547")
 local CHIP = Color3.fromHex("FF9AA5") -- health just lost, before it drains
 local SHIELD = Color3.fromHex("3FE0F2")
 local CYAN = Color3.fromHex("2FD3E6")
-local EMPTY_CELL = Color3.fromHex("1F2B44") -- an undrafted Mod slot (navy plate)
+local EMPTY_CELL = Color3.fromHex("1C2740") -- an undrafted Mod slot (navy plate)
+local NAVY = Color3.fromHex("1C2740") -- the flat panel face
+local HELD_CELL = Color3.fromHex("2D3D5E") -- the held hotbar slot: a brighter face, no outline
+local LOW_FACE = Color3.fromHex("5A1622") -- the health panel pulses toward this when low
+local FACE_Y = 40 -- a Mod cell's centre in its slot (the Face is anchored 0.5, 0.5)
 
 local EMPTY_SEG = 0.86 -- transparency of an empty segment or spent round
 local LOW_HEALTH = 0.35 -- share of max health that turns the panel red
@@ -68,7 +73,7 @@ type Ui = {
 	health: Frame,
 	hpNumber: Frame,
 	hpIcon: ImageLabel,
-	hpGlow: Frame?,
+	hpFace: { GuiObject },
 	shieldChip: Frame,
 	shieldNumber: Frame,
 	hpSegs: { Frame },
@@ -328,11 +333,14 @@ function BottomHud.setHealth(health: number, max: number, shield: number, dt: nu
 		value.TextColor3 = base:Lerp(RED, flash)
 	end
 	r.hpIcon.ImageColor3 = if low then RED else WHITE
-	-- low health: the panel's edge glow turns red and pulses
-	local glow = r.hpGlow
-	if glow then
-		glow.BackgroundColor3 = if low then RED else SHIELD
-		glow.BackgroundTransparency = if low then 0.35 * (1 - (math.sin(now * 6) + 1) / 2) else 0
+	-- low health: the panel's face pulses toward a dark red
+	local face = if low then NAVY:Lerp(LOW_FACE, 0.5 + 0.5 * math.sin(now * 6)) else NAVY
+	for _, part in r.hpFace do
+		if part:IsA("ImageLabel") then
+			part.ImageColor3 = face
+		elseif part:IsA("Frame") then
+			part.BackgroundColor3 = face
+		end
 	end
 	local shake = if sinceHit < HIT_SHAKE
 		then math.sin(sinceHit * 70) * 5 * (1 - sinceHit / HIT_SHAKE)
@@ -393,8 +401,8 @@ local function drawLoadout()
 			c.ammo.TextColor3 = if e.mag > 0 and e.ammo == 0 then RED else WHITE
 			local held = name == equippedNow
 			c.cell.GroupTransparency = if held then 0 else 0.3
+			c.cell.BackgroundColor3 = if held then HELD_CELL else NAVY
 			c.equipped.Visible = held
-			c.edge.Transparency = if held then 0.35 else 1
 		end
 	end
 	if equippedNow ~= shownEquipped then
@@ -435,6 +443,8 @@ function BottomHud.setMod(index: number, info: ModInfo)
 	end
 	local role = if info.role then Theme.ROLE[info.role] else nil
 	local color = role or CYAN
+	-- only drafted Mods show; the row centres itself on them (like Valorant)
+	s.root.Visible = info.id ~= nil
 	local shown = if info.id then info.id .. ":" .. info.level else nil
 	if shown ~= s.shown then
 		s.shown = shown
@@ -454,7 +464,6 @@ function BottomHud.setMod(index: number, info: ModInfo)
 		end
 	end
 	s.key.Text = info.key
-	s.keyPlate.BackgroundTransparency = if info.id then 0 else 0.5
 
 	-- cooling: a dark curtain over the colour lifts as it recharges
 	s.icon.ImageTransparency = if info.cooling then 0.35 else 0
@@ -486,16 +495,19 @@ function BottomHud.setMod(index: number, info: ModInfo)
 			tween(s.pop, 0.12, { Scale = if info.held then 1.06 else 1 })
 		end
 	end
+	-- the Face is centred in its slot (it pops from the middle); the shake
+	-- offsets it from that home
 	local face = s.cell.Parent :: Frame
+	local shake = if info.denied < 0.35
+		then math.sin(info.denied * 60) * 4 * (1 - info.denied / 0.35)
+		else 0
+	face.Position = UDim2.new(0.5, shake, 0, FACE_Y)
 	if info.denied < 0.35 then
 		s.edge.Color = RED
 		s.edge.Transparency = 0
-		face.Position =
-			UDim2.fromOffset(math.sin(info.denied * 60) * 4 * (1 - info.denied / 0.35), 0)
 	else
 		s.edge.Color = WHITE
 		s.edge.Transparency = if info.held then 0.1 else 1
-		face.Position = UDim2.fromOffset(0, 0)
 	end
 end
 
@@ -512,13 +524,23 @@ local function bind(gui: ScreenGui)
 	local mods = root:WaitForChild("Mods") :: Frame
 	local loadoutRow = root:WaitForChild("Loadout") :: Frame
 	local hints = root:WaitForChild("Hints") :: Frame
+	-- The hint keycaps show the real bindings (Config/Input), not typed letters.
+	for _, pair in hints:GetChildren() do
+		local action = (Bindings :: any)[pair.Name]
+		local key = pair:FindFirstChild("Key")
+		local face = key and key:FindFirstChild("Face")
+		local label = face and face:FindFirstChild("Label")
+		if action and action.keys and action.keys[1] and label and label:IsA("TextLabel") then
+			label.Text = (action.keys[1] :: Enum.KeyCode).Name
+		end
+	end
 	local loadout: { [string]: LoadoutCell } = {}
 	for _, name in { "Primary", "Secondary", "Melee" } do
 		local holder = loadoutRow:WaitForChild(name) :: Frame
 		local cell = holder:WaitForChild("Cell") :: CanvasGroup
 		loadout[name] = {
 			holder = holder,
-			pop = holder:WaitForChild("Pop") :: UIScale,
+			pop = cell:WaitForChild("Pop") :: UIScale,
 			cell = cell,
 			icon = cell:WaitForChild("Icon") :: ImageLabel,
 			ammo = cell:WaitForChild("Ammo") :: TextLabel,
@@ -545,12 +567,16 @@ local function bind(gui: ScreenGui)
 			pips = numbered(cell:WaitForChild("Charges"), "Pip", 3),
 			level = cell:WaitForChild("Level") :: TextLabel,
 			edge = cell:WaitForChild("Edge") :: UIStroke,
-			key = key:WaitForChild("Label") :: TextLabel,
+			key = (key:WaitForChild("Face") :: Frame):WaitForChild("Label") :: TextLabel,
 			keyPlate = key,
 			shown = "?",
 			wasCooling = false,
 			held = false,
 		}
+	end
+	-- the Studio preview may leave a shine mid-sweep: park every glint
+	for _, slot in slots do
+		slot.glint.Position = UDim2.fromScale(-0.6, 0.5)
 	end
 	-- the Studio preview rounds only show the layout in Edit mode
 	for _, child in rounds:GetChildren() do
@@ -563,7 +589,7 @@ local function bind(gui: ScreenGui)
 		health = health,
 		hpNumber = hpBody:WaitForChild("HP") :: Frame,
 		hpIcon = hpBody:WaitForChild("Icon") :: ImageLabel,
-		hpGlow = hpBody:FindFirstChild("Glow") :: Frame?,
+		hpFace = { hpBody, health:WaitForChild("Slant") :: GuiObject },
 		shieldChip = chip,
 		shieldNumber = chip:WaitForChild("Value") :: Frame,
 		hpSegs = numbered(segs, "Hp", 10),

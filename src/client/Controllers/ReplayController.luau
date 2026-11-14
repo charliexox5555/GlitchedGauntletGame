@@ -489,7 +489,9 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	local playerGui = player:FindFirstChildOfClass("PlayerGui")
 	if playerGui then
 		for _, g in playerGui:GetChildren() do
-			if g:IsA("ScreenGui") and g ~= overlay and g.Name ~= "MatchHud" and g.Enabled then
+			-- the score and the notifications stay up during a replay
+			local keep = g.Name == "MatchHud" or g.Name == "TopBar" or g.Name == "Notify"
+			if g:IsA("ScreenGui") and g ~= overlay and not keep and g.Enabled then
 				g.Enabled = false
 				table.insert(session.guis, g)
 			end

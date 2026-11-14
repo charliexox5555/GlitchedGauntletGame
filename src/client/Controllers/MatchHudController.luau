@@ -1,38 +1,51 @@
 --!strict
--- The match's full-width banners (get ready, countdown, fight, round won /
--- lost, match end), UI v1 (vault/02 Art/UI Design.md). The top bar moved to the
--- Studio-built StarterGui.TopBar and TopBarController (2026-11-14). It only
--- shows what MatchState says; the server decides all of it.
+-- Match notifications (vault/02 Art/UI Notifications.md): one small toast
+-- under the top bar instead of the old full-width banner. Round start (GET
+-- READY with the round and gun tier, no big 3-2-1: the top bar's clock counts
+-- it), FIGHT, MATCH POINT, SUDDEN DEATH, ROUND WON / LOST / DRAW, VICTORY /
+-- DEFEAT, waiting and locked-in. The toast is built in Studio
+-- (StarterGui.Notify, backup tools/studio/BuildNotify.luau); this only decides
+-- what it says. A long band that fades out at both ends (no box, strip,
+-- glow or pills; owner 2026-11-14). It shows what MatchState says; the server decides all of it.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
+local TweenService = game:GetService("TweenService")
 
+local Config = require(ReplicatedStorage.Shared.Config.Match)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
-local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle) -- FLAGS only (Roblox UI placement)
 
-local Ui = require(script.Parent.Parent.Util.Ui)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 
 local MatchHudController = {}
 
 local player = Players.LocalPlayer
-local C = Theme.COLORS
-local make = Ui.make
 
 local TICK = 0.1 -- seconds between refreshes
-local FIGHT_MESSAGE_TIME = 1 -- seconds "FIGHT" stays up
+local FIGHT_MESSAGE_TIME = 1.2 -- seconds "FIGHT" stays up
 local SUDDEN_DEATH_MESSAGE_TIME = 2.5 -- seconds "SUDDEN DEATH" stays up
 local RESET_TRIES = 10
-local BAND_SIZE = UDim2.fromScale(1, 260 / 1080)
+local DESIGN = Vector2.new(1920, 1080)
 
--- The sound a banner makes as it comes in (by its title).
-local BANNER_SOUND: { [string]: string } = {
+export type Tone = "neutral" | "ally" | "enemy" | "gold" | "danger"
+local TONE: { [Tone]: Color3 } = {
+	neutral = Color3.fromHex("F4F6F9"),
+	ally = Color3.fromHex("3FE0F2"),
+	enemy = Color3.fromHex("FF5A4E"),
+	gold = Color3.fromHex("FFC83D"),
+	danger = Color3.fromHex("FF4D5E"),
+}
+local WHITE = Color3.new(1, 1, 1)
+
+-- The sound a notification makes as it comes in (by its title).
+local SOUND: { [string]: string } = {
 	["SUDDEN DEATH"] = "Banner",
+	["MATCH POINT"] = "Banner",
 	FIGHT = "Fight",
 	["ROUND WON"] = "RoundWon",
 	["ROUND LOST"] = "RoundLost",
@@ -42,169 +55,182 @@ local BANNER_SOUND: { [string]: string } = {
 }
 
 type Ui = {
-	band: Frame,
-	bandGradient: UIGradient,
-	lines: { Frame },
-	content: Frame,
-	pop: UIScale,
-	kicker: TextLabel,
+	gui: ScreenGui,
+	fit: UIScale,
+	band: CanvasGroup,
 	title: TextLabel,
+	titleShadow: TextLabel,
 	sub: TextLabel,
-	shownTitle: string,
+	width: number,
+	shown: string,
+	token: number,
 }
 
-local function build(): Ui
-	-- The banner is full-width art (nothing to press).
-	local gui = make("ScreenGui", {
-		Name = "MatchHud",
-		ResetOnSpawn = false,
-		ScreenInsets = Enum.ScreenInsets.CoreUISafeInsets,
-		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 9, -- above the draft screen (8)
-	}, player:WaitForChild("PlayerGui"))
-
-	-- Banner: a full-width band in the result's colour, its words in a
-	-- design-size frame in the middle.
-	local band = make("Frame", {
-		Name = "Banner",
-		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.fromScale(0, 0.45),
-		Size = BAND_SIZE,
-		ClipsDescendants = true,
-		BorderSizePixel = 0,
-		BackgroundColor3 = C.white,
-		Visible = false,
-	}, gui)
-	local bandGradient = make("UIGradient", {}, band)
-	local lines = {}
-	for i, y in { 0, 1 } do
-		local line = make("Frame", {
-			AnchorPoint = Vector2.new(0, y),
-			Position = UDim2.fromScale(0, y),
-			Size = UDim2.new(1, 0, 0, 3),
-			BorderSizePixel = 0,
-			BackgroundColor3 = C.white,
-		}, band)
-		make("UIGradient", {
-			Transparency = NumberSequence.new({
-				NumberSequenceKeypoint.new(0, 1),
-				NumberSequenceKeypoint.new(0.5, 0),
-				NumberSequenceKeypoint.new(1, 1),
-			}),
-		}, line)
-		lines[i] = line
-	end
-	local content = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(1920, 260),
-		BackgroundTransparency = 1,
-	}, band)
-	Ui.fit(content)
-	local inner = make("Frame", {
-		Name = "Pop",
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-	}, content)
-	local pop = make("UIScale", {}, inner)
-	local kicker = Ui.text(inner, "", "label", {
-		Position = UDim2.fromOffset(0, 26),
-		Size = UDim2.fromOffset(1920, 16),
-		TextColor3 = C.textSecondary,
-	})
-	local title = Ui.text(inner, "", "displayXL", {
-		Position = UDim2.fromOffset(0, 46),
-		Size = UDim2.fromOffset(1920, 150),
-	})
-	local sub = Ui.text(inner, "", "displayM", {
-		Position = UDim2.fromOffset(0, 196),
-		Size = UDim2.fromOffset(1920, 44),
-		TextSize = 34,
-		RichText = true,
-	})
-
-	return {
-		band = band,
-		bandGradient = bandGradient,
-		lines = lines,
-		content = content,
-		pop = pop,
-		kicker = kicker,
-		title = title,
-		sub = sub,
-		shownTitle = "",
-	}
+local function tween(
+	inst: Instance,
+	time: number,
+	goal: { [string]: any },
+	style: Enum.EasingStyle?,
+	dir: Enum.EasingDirection?
+)
+	TweenService:Create(
+		inst,
+		TweenInfo.new(time, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out),
+		goal
+	):Play()
 end
 
 local function myTeam(): number
 	return Teams.of(player) or 1
 end
 
+local function tierFor(round: number): Config.Phase
+	local found = Config.PHASES[1]
+	for _, p in Config.PHASES do
+		if round >= p.fromRound then
+			found = p
+		end
+	end
+	return found
+end
+
+local function bind(): Ui
+	local gui = player:WaitForChild("PlayerGui"):WaitForChild("Notify") :: ScreenGui
+	local root = gui:WaitForChild("Root") :: Frame
+	local band = root:WaitForChild("Band") :: CanvasGroup
+	local ui: Ui = {
+		gui = gui,
+		fit = root:WaitForChild("Fit") :: UIScale,
+		band = band,
+		title = band:WaitForChild("Title") :: TextLabel,
+		titleShadow = band:WaitForChild("Shadow") :: TextLabel,
+		sub = band:WaitForChild("Sub") :: TextLabel,
+		width = band.Size.X.Offset,
+		shown = "",
+		token = 0,
+	}
+	band.Visible = false
+	band.GroupTransparency = 1
+
+	-- One UIScale keeps the 1920 x 1080 layout proportional on other screens.
+	local function refit()
+		local size = gui.AbsoluteSize
+		if size.X > 0 and size.Y > 0 then
+			ui.fit.Scale = math.clamp(math.min(size.X / DESIGN.X, size.Y / DESIGN.Y), 0.6, 1.5)
+		end
+	end
+	refit()
+	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
+	return ui
+end
+
+-- Show (or update) the band; an empty title hides it.
+local function show(ui: Ui, kicker: string, title: string, sub: string, tone: Tone)
+	ui.sub.Text = if kicker ~= "" and sub ~= ""
+		then kicker .. "  ·  " .. sub
+		elseif kicker ~= "" then kicker
+		else sub
+	if title == ui.shown then
+		return
+	end
+	local was = ui.shown
+	ui.shown = title
+	ui.token += 1
+	local token = ui.token
+	local height = ui.band.Size.Y.Offset
+	if title == "" then
+		-- Out: the band closes toward its middle and fades.
+		tween(
+			ui.band,
+			0.22,
+			{ Size = UDim2.fromOffset(ui.width * 0.6, height), GroupTransparency = 1 },
+			Enum.EasingStyle.Quad,
+			Enum.EasingDirection.In
+		)
+		task.delay(0.24, function()
+			if token == ui.token then
+				ui.band.Visible = false
+			end
+		end)
+		return
+	end
+	ui.title.Text = title
+	ui.titleShadow.Text = title
+	ui.title.TextColor3 = if tone == "neutral" then WHITE else TONE[tone]
+	if was == "" then
+		-- In: the band opens from its middle and fades in.
+		ui.band.Visible = true
+		ui.band.Size = UDim2.fromOffset(ui.width * 0.4, height)
+		ui.band.GroupTransparency = 1
+		tween(ui.band, 0.32, { Size = UDim2.fromOffset(ui.width, height), GroupTransparency = 0 })
+	else
+		-- A new message in the open band: the words dip and come back.
+		ui.band.GroupTransparency = 0.5
+		tween(ui.band, 0.2, { GroupTransparency = 0 })
+	end
+	local sound = SOUND[title]
+	if sound then
+		UiSound.play(sound)
+	end
+end
+
 local liveSince = -math.huge
 local suddenSince = -math.huge
-local bandToken = 0
-
--- The band's look: a colour that fades out to both sides.
-local function tintBand(ui: Ui, color: Color3)
-	-- Neutral banners (countdown, GET READY, FIGHT) are just a dark band.
-	local edge = if color == C.white then C.scrim else color
-	ui.bandGradient.Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, edge),
-		ColorSequenceKeypoint.new(0.5, C.scrim),
-		ColorSequenceKeypoint.new(1, edge),
-	})
-	ui.bandGradient.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.5, 0.12),
-		NumberSequenceKeypoint.new(1, 1),
-	})
-	for _, line in ui.lines do
-		line.BackgroundColor3 = if color == C.white then C.lineStrong else color
-	end
-	ui.title.TextColor3 = if color == C.white then C.text else color
-end
 
 local function refresh(ui: Ui)
 	local phase = MatchState.phase()
 	local mine = myTeam()
 	local scoreOne = MatchState.get("Score1") or 0
 	local scoreTwo = MatchState.get("Score2") or 0
-	local left = MatchState.timeLeft()
 	local round = MatchState.get("Round") or 0
 	local now = os.clock()
-
-	local kicker, title, sub, color = "", "", "", C.white
 	local myScore = if mine == 1 then scoreOne else scoreTwo
 	local theirScore = if mine == 1 then scoreTwo else scoreOne
 	local scoreLine = string.format(
-		'<font color="#%s">%d</font>   —   <font color="#%s">%d</font>',
-		C.ally:ToHex(),
+		'<font color="#%s">%d</font>  —  <font color="#%s">%d</font>',
+		TONE.ally:ToHex(),
 		myScore,
-		C.enemy:ToHex(),
+		TONE.enemy:ToHex(),
 		theirScore
 	)
+	local tier = tierFor(round)
+	local roundTag = string.format("ROUND %d · %s", round, string.upper(tier.name))
+	local need = Config.ROUNDS_TO_WIN - 1
+	local matchPoint = myScore == need or theirScore == need
+
+	local kicker, title, sub, tone = "", "", "", "neutral" :: Tone
 	if phase == "Waiting" then
-		title = "WAITING FOR OPPONENT"
+		title, sub = "WAITING FOR OPPONENT", string.format("First to %d", Config.ROUNDS_TO_WIN)
 	elseif phase == "Draft" then
 		-- The draft screen covers the middle until you've locked in.
 		if player:GetAttribute("DraftLocked") == true then
-			kicker, title, sub =
-				string.format("ROUND %d", round), "LOCKED IN", "Waiting for the other players"
-			color = C.ready
+			kicker, title, sub, tone = roundTag, "LOCKED IN", "Waiting for the others", "ally"
 		end
 	elseif phase == "Countdown" then
-		kicker, title = string.format("ROUND %d", round), tostring(math.max(math.ceil(left), 1))
+		kicker = string.format("ROUND %d", round)
+		if matchPoint then
+			title, tone = "MATCH POINT", "gold"
+			sub = if myScore == need and theirScore == need
+				then "Next round wins it"
+				elseif myScore == need then "You need one more round"
+				else "They need one more round"
+		else
+			title = "GET READY"
+			sub = if round > 1 and tier.fromRound == round
+				then string.format(
+					'<font color="#%s">NEW</font>  %s guns',
+					TONE.gold:ToHex(),
+					tier.name
+				)
+				else string.format("%s guns", tier.name)
+		end
 	elseif phase == "Live" then
 		if now - liveSince < FIGHT_MESSAGE_TIME then
-			kicker, title = string.format("ROUND %d", round), "FIGHT"
+			kicker, title = roundTag, "FIGHT"
 		end
 	elseif phase == "SuddenDeath" then
 		if now - suddenSince < SUDDEN_DEATH_MESSAGE_TIME then
-			kicker, title, sub, color =
-				string.format("ROUND %d", round), "SUDDEN DEATH", "Get inside the circle", C.enemy
+			kicker, title, sub, tone = roundTag, "SUDDEN DEATH", "Get inside the circle", "danger"
 		end
 	elseif phase == "RoundEnd" then
 		local winner = MatchState.get("RoundWinner") or 0
@@ -212,57 +238,16 @@ local function refresh(ui: Ui)
 		if winner == 0 then
 			title, sub = "DRAW", "No point for either side"
 		elseif winner == mine then
-			title, sub, color = "ROUND WON", scoreLine, C.ally
+			title, sub, tone = "ROUND WON", scoreLine, "ally"
 		else
-			title, sub, color = "ROUND LOST", scoreLine, C.enemy
+			title, sub, tone = "ROUND LOST", scoreLine, "enemy"
 		end
 	elseif phase == "MatchEnd" then
 		local won = MatchState.get("MatchWinner") == mine
-		kicker, title, sub, color =
-			"MATCH OVER",
-			if won then "VICTORY" else "DEFEAT",
-			scoreLine,
-			if won then C.ally else C.enemy
+		kicker, title, sub = "MATCH OVER", if won then "VICTORY" else "DEFEAT", scoreLine
+		tone = if won then "gold" else "enemy"
 	end
-
-	ui.kicker.Text = kicker
-	ui.sub.Text = sub
-	if title ~= ui.shownTitle then
-		local was = ui.shownTitle
-		ui.shownTitle = title
-		bandToken += 1
-		local token = bandToken
-		if title == "" then
-			-- Out: the band folds shut, then hides.
-			Ui.tween(
-				ui.band,
-				Theme.MOTION.exit,
-				{ Size = UDim2.fromScale(1, 0) },
-				Enum.EasingStyle.Quint,
-				Enum.EasingDirection.In
-			)
-			task.delay(Theme.MOTION.exit, function()
-				if token == bandToken then
-					ui.band.Visible = false
-				end
-			end)
-			return
-		end
-		ui.title.Text = title
-		tintBand(ui, color)
-		if was == "" then
-			-- In: the band opens from its middle line.
-			ui.band.Size = UDim2.fromScale(1, 0)
-			ui.band.Visible = true
-			Ui.tween(ui.band, 0.22, { Size = BAND_SIZE }, Enum.EasingStyle.Quint)
-		end
-		ui.pop.Scale = 1.15
-		Ui.tween(ui.pop, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
-		local sound = BANNER_SOUND[title]
-		if sound then
-			UiSound.play(sound)
-		end
-	end
+	show(ui, kicker, title, sub, tone)
 end
 
 -- One life per round, so no Reset Character in a match. SetCore isn't ready
@@ -303,7 +288,6 @@ local function arrangeCoreUi()
 end
 
 function MatchHudController.start()
-	local ui = build()
 	task.spawn(arrangeCoreUi)
 	if not TestMode.isOn() then
 		task.spawn(disableReset)
@@ -316,6 +300,7 @@ function MatchHudController.start()
 			suddenSince = os.clock()
 		end
 	end)
+	local ui = bind()
 	while true do
 		refresh(ui)
 		task.wait(TICK)
