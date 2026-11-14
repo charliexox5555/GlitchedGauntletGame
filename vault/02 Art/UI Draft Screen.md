@@ -1,6 +1,18 @@
-# Draft screen redesign (mockup, 2026-11-14)
+# Draft screen redesign (2026-11-14)
 
-## v4 (current mockup)
+## Built (live on desktop)
+Owner on v4: "Build it". The v4 mockup is now the real draft screen on desktop; phones keep the old code-built layout until the mobile pass.
+- **Studio-owned `StarterGui.DraftScreen`** (backup `tools/studio/BuildDraftScreen.luau`, checked: a rebuild matches Studio with 0 differences). Every slot is fixed: `Gun1-3`, `Col1-3` (each has `New`, `Path1-3`, `Or1-2`, `Maxed` and its `Key` tab), `LockIn` (gold body + slant caps, `Title`, `Picks`, ENTER keycap), `Hint`, `Enemy` (`Label`, `E1-3`). Each pickable is a transparent TextButton (hit area) holding a centred CanvasGroup `Card` with a `Pop` UIScale, so lifts and pops grow from the middle.
+- **`src/client/Util/DraftScreen.luau`** fills and animates it: `show(view, handlers)`, `refresh(gun, card, ready, locked, picks)`, `press(ok)`, `setOpen`, `button(id)`, `hint()`. Picked = lifted 10 px, bright, gold keycap; unpicked = dimmed (`150,155,166`); hover lifts 4 px. Open: backdrop fade, cards pop in from their centres one after another. LOCK IN breathes while ready, pops on lock, shakes when not ready, turns green "LOCKED IN".
+- **`DraftController` keeps all the logic** (offer, 1/2/3 and Q/E/T keys, Enter, `DraftPick` remote calls, the timeout hint, gamepad start). It turns each offer into a view (`screenView`): gun shields (hidden in flat-shield phases), new cards (art, role band, note, charges), upgrade half-cards (path name, `FIREWALL · LV 2`, first changed stat, glitched path in magenta with the split title), MAXED, enemy kit tiles.
+- Which layout an offer uses is decided per offer, and a draft already open on the old layout moves over when the screen binds (the first offer can land before StarterGui reaches PlayerGui).
+- **Checked live** (2v2 bot match): round 1 new cards, a 2-path upgrade column, a 3-path column with the glitched path, a single-path column, gun and card keys, LOCK IN by click (locks, closes).
+- Round 1: ![live round 1](References/ui-overhaul/2026-11-14-draft-live-round1.jpg)
+- Upgrade round: ![live upgrade](References/ui-overhaul/2026-11-14-draft-live-upgrade.jpg)
+- Glitched path: ![live glitch](References/ui-overhaul/2026-11-14-draft-live-glitch.jpg)
+- **Open:** long stat lines that fall back to the path note are cut with "…" (e.g. Crash Recovery, Strong Stim); a shorter line per path in `Config/Mods` would read better. The bottom HUD shows faintly under the dim (same as the old draft). Phone layout, new card art.
+
+## v4 (approved mockup)
 Owner on v3: "still looks a bit off", one more pass. My read of what was off, fixed here:
 - **One grid:** three 400 px columns, 28 apart, hold the guns, the cards and LOCK IN. The guns were narrower than the cards and LOCK IN lined up with nothing.
 - **Key tabs:** a centred tab (Q / E / T) on the top edge of each column replaces the corner stickers. Gun keys sit inside their cards.

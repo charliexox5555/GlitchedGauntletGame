@@ -25,6 +25,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local CameraController = require(script.Parent.CameraController)
 local Device = require(script.Parent.Parent.Util.Device)
+local DraftScreen = require(script.Parent.Parent.Util.DraftScreen)
 local Ui = require(script.Parent.Parent.Util.Ui)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 
@@ -101,6 +102,9 @@ local locked = false
 local revealToken = 0
 local openToken = 0
 local shownHint = ""
+-- This offer is on the Studio-built desktop screen (Util/DraftScreen). Set per
+-- offer, so a screen that binds mid-draft never strands the open one.
+local useScreen = false
 
 -- Opens with a quick fade of the backdrop; closes by fading it and sinking
 -- the cards, then hides (the cards come in on their own, see `reveal`).
@@ -123,6 +127,12 @@ local function setOpen(value: boolean)
 	-- Roblox's chat steps aside while the draft fills the screen (it sits at
 	-- the left middle in a match, over the first column on smaller screens).
 	CoreUi.menuMode(value)
+	if useScreen then
+		-- Desktop: the Studio-built screen (Util/DraftScreen).
+		UiSound.play(if value then "Open" else "Close")
+		DraftScreen.setOpen(value)
+		return
+	end
 	local back = backdrop
 	if not back then
 		return
@@ -358,7 +368,36 @@ local function refreshGunBar()
 	label.TextColor3 = if name then C.text else C.onAccent
 end
 
+-- LOCK IN's summary: "SHERIFF  +  HIGH RISE".
+local function picksText(): string
+	local parts: { string } = {}
+	local gun = selectedGun
+	if gun then
+		local config = Weapons.get(gun)
+		table.insert(parts, string.upper(if config then config.displayName else gun))
+	end
+	local key = selectedAbility
+	if key then
+		local id, level = string.match(key, "^(%w+):(%w+)$")
+		local def = Mods.def(id or key)
+		local pathName = if def and level then (def.paths :: any)[string.sub(level, 1, 1)] else nil
+		table.insert(parts, string.upper(pathName or (if def then def.name else key)))
+	end
+	return table.concat(parts, "  +  ")
+end
+
 local function refreshSelection()
+	if useScreen then
+		DraftScreen.refresh(
+			selectedGun,
+			selectedAbility,
+			canLock() and not locked,
+			locked,
+			picksText()
+		)
+		updateHint()
+		return
+	end
 	refreshGunBar()
 	for _, list in { gunCards, abilityCards } do
 		for _, c in list do
@@ -1069,6 +1108,7 @@ local function lock()
 		Net.event("DraftPick"):FireServer("Lock")
 		UiSound.play("LockIn")
 		refreshSelection()
+		DraftScreen.press(true)
 		local pulse = button and button:FindFirstChild("Pulse") :: UIScale?
 		if pulse then
 			popScale(pulse, 1.08)
@@ -1077,7 +1117,9 @@ local function lock()
 	end
 	-- Not ready: a "no" shake and the hint flashes.
 	UiSound.play("Denied")
-	if button then
+	if useScreen then
+		DraftScreen.press(false)
+	elseif button then
 		local home = UDim2.fromOffset(960, 1032)
 		for i, dx in { -10, 8, -5, 0 } do
 			task.delay((i - 1) * 0.04, function()
@@ -1197,7 +1239,194 @@ local function phoneFooter(content: Instance)
 	Ui.refit(foot)
 end
 
+-- The gun's shield line, or 0 when the phase gives everyone the same shield.
+local function gunShield(phaseName: string, id: string): number
+	for _, phase in MatchConfig.PHASES do
+		if phase.name == phaseName and phase.flatShield then
+			return 0
+		end
+	end
+	return MatchState.shieldFor(phaseName, id)
+end
+
+-- What the desktop screen shows for an offer (Util/DraftScreen fills it in).
+local function screenView(o: MatchState.DraftOffer): DraftScreen.View
+	local guns: { DraftScreen.GunView } = {}
+	for _, id in o.guns do
+		local config = Weapons.get(id)
+		table.insert(guns, {
+			id = id,
+			name = if config then config.displayName else id,
+			image = Theme.GUN[id] or "",
+			shield = gunShield(o.phase, id),
+		})
+	end
+	local columns: { DraftScreen.ColumnView } = {}
+	for slot = 1, ModsConfig.SLOTS do
+		local owned = o.kit[slot] or ""
+		local level = (o.levels or {})[slot] or ""
+		local col: DraftScreen.ColumnView = {}
+		if owned == "" then
+			for _, id in o.abilities do
+				local def = Mods.def(id)
+				if def and def.slot == slot and not col.new then
+					col.new = {
+						key = id,
+						name = def.name,
+						role = def.role,
+						color = Theme.ROLE[def.role] or C.ally,
+						art = Theme.CARD_ART[id] or "",
+						note = cardNote(id, "L1") .. ".",
+						charges = chargesText(id),
+					}
+				end
+			end
+		else
+			local def = Mods.def(owned)
+			local name = string.upper(if def then def.name else owned)
+			local color = if def then Theme.ROLE[def.role] or C.ally else C.ally
+			local paths: { DraftScreen.PathView } = {}
+			for _, c in o.upgrades or {} do
+				if c.slot == slot then
+					local path = string.sub(c.level, 1, 1)
+					local glitch = path == "G"
+					local stat = statChange(c.id, level, c.level)
+					if stat == "" then
+						stat = string.upper(cardNote(c.id, c.level))
+					end
+					table.insert(paths, {
+						key = c.key,
+						name = if def then (def.paths :: any)[path] or c.level else c.level,
+						tag = if glitch
+							then name .. "  ·  GLITCHED"
+							else string.format("%s  ·  LV %d", name, levelNumber(c.level)),
+						stat = stat,
+						color = color,
+						art = Theme.CARD_ART[c.id] or "",
+						glitch = glitch,
+					})
+				end
+			end
+			if #paths > 0 then
+				col.paths = paths
+			else
+				local pathName = if def then (def.paths :: any)[string.sub(level, 1, 1)] else nil
+				col.maxed = {
+					icon = if def then def.icon else "",
+					sub = string.format(
+						"%s  ·  %s LV %d",
+						name,
+						string.upper(pathName or ""),
+						levelNumber(level)
+					),
+				}
+			end
+		end
+		columns[slot] = col
+	end
+	local enemy: { DraftScreen.EnemyView } = {}
+	for _, entry in o.enemyKit do
+		local id, level = string.match(entry, "^(%w+):(%w+)$")
+		local def = id and Mods.def(id)
+		if def and level then
+			table.insert(enemy, {
+				icon = def.icon,
+				color = Theme.ROLE[def.role] or C.enemy,
+				level = levelNumber(level),
+			})
+		end
+	end
+	return { guns = guns, columns = columns, enemy = enemy }
+end
+
+-- Desktop: fill the Studio-built screen. The card records keep the key and
+-- gamepad logic above working (they carry the id, slot, hit area and pick).
+local function showScreen(o: MatchState.DraftOffer)
+	local function record(id: string, slot: number, onPick: () -> ()): Card
+		local rec: any = { id = id, slot = slot }
+		rec.pick = function()
+			if locked then
+				return
+			end
+			onPick()
+			refreshSelection()
+			UiSound.play("Select")
+		end
+		return rec :: Card
+	end
+	DraftScreen.show(screenView(o), {
+		gun = function(i: number)
+			local c = gunCards[i]
+			if c and c.pick then
+				c.pick()
+			end
+		end,
+		card = function(key: string)
+			for _, c in abilityCards do
+				if c.id == key and c.pick then
+					c.pick()
+					return
+				end
+			end
+		end,
+		lock = lock,
+		canHover = function(): boolean
+			return not locked
+		end,
+	})
+	for _, id in o.guns do
+		local rec = record(id, 0, function()
+			selectedGun = id
+			Net.event("DraftPick"):FireServer("Gun", id)
+		end)
+		rec.button = DraftScreen.button(id) :: any
+		table.insert(gunCards, rec)
+	end
+	for slot = 1, ModsConfig.SLOTS do
+		if (o.kit[slot] or "") == "" then
+			for _, id in o.abilities do
+				local def = Mods.def(id)
+				if def and def.slot == slot then
+					local rec = record(id, slot, function()
+						selectedAbility = id
+						Net.event("DraftPick"):FireServer("Ability", id)
+					end)
+					rec.button = DraftScreen.button(id) :: any
+					table.insert(abilityCards, rec)
+				end
+			end
+		end
+	end
+	for _, c in o.upgrades or {} do
+		local rec = record(c.key, c.slot, function()
+			selectedAbility = c.key
+			Net.event("DraftPick"):FireServer("Ability", c.key)
+		end)
+		rec.button = DraftScreen.button(c.key) :: any
+		table.insert(abilityCards, rec)
+	end
+	lockHint = DraftScreen.hint()
+	refreshSelection()
+	setOpen(true)
+end
+
 local function show(o: MatchState.DraftOffer)
+	local wantScreen = DraftScreen.active()
+	if wantScreen ~= useScreen and isOpen then
+		setOpen(false) -- close the other layout first
+	end
+	useScreen = wantScreen
+	if useScreen then
+		table.clear(gunCards)
+		table.clear(abilityCards)
+		offer = o
+		selectedGun = o.gun or o.guns[1]
+		selectedAbility = o.ability or o.abilities[1] or (o.upgrades[1] and o.upgrades[1].key)
+		locked = false
+		shownHint = ""
+		showScreen(o)
+		return
+	end
 	local p = canvas
 	if not p then
 		return
@@ -1507,6 +1736,15 @@ function DraftController.isOpen(): boolean
 end
 
 function DraftController.start()
+	-- A draft already open on the old layout moves over once the screen binds
+	-- (the first offer can land before StarterGui reaches PlayerGui).
+	DraftScreen.start(Device.compact(), function()
+		local o = offer
+		if o and isOpen and not locked then
+			o.gun, o.ability = selectedGun, selectedAbility
+			show(o)
+		end
+	end)
 	build()
 	Net.event("DraftOffer").OnClientEvent:Connect(function(o: MatchState.DraftOffer)
 		-- Queued while this client was starting up: that draft is already over.
