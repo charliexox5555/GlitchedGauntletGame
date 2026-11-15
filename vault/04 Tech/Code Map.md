@@ -32,7 +32,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 - Hiding viewmodel parts: `client/Util/LocalHide.set(part, value)` sets `LocalTransparencyModifier` on the part **and its Textures/Decals** (skin patterns); used by `ViewmodelController` (scope hide, mags, carried rounds, props, ADS fade), `ViewmodelHeldMods`, `WeaponController` (own third-person gun). `MagDrop` fades a dropped mag's Textures with it.
 - Skin export checks: `tools/blender/export_roblox_flat.py` keeps `*Sight*` objects as `SK_<Bone>_Sight_NN` parts (the ADS occluder fade skips names with "Sight") and lifts flush coplanar faces (`resolve_coplanar`, 0.004 studs) and splits self-crossing faces (`fix_crossed_faces`). `tools/blender/check_flat_export.py` re-imports exported FBXs and renders them one-sided on magenta (what Studio draws). Shell-kit outlines use `model_vandal_shell_base.convex_hull_xz` (never Blender's `convex_hull_2d`). Pitfalls and checks: `vault/02 Art/Skins/Skin Build Pitfalls.md`.
 - Knife-slot skin motion: `client/Util/FanMotion` (Giltfold Fan ribs: Rib_NN Motor6D Transforms, stepped by `ViewmodelController` after the gun's GunAnimator) with numbers in `shared/Config/MeleeSkins` (`FAN`, `VIEWMODEL_SCALE` by `SkinItem`); Studio scrub `Workspace.DevFanScrub`.
-- **Match state** (`shared/MatchState`): ReplicatedStorage attributes `Match*`: `Phase` (Waiting / Draft / Countdown / Live / SuddenDeath / RoundEnd / Replay / MatchEnd), `EndsAt`, `Round`, `Score1`, `Score2`, `RoundWinner`, `MatchWinner`, `WeaponPhase`, `RematchOpen`, `RematchVotes`, `RematchNeeded`. Written only by `MatchService` / `MatchEndService`. Player attribute `CombatLocked` (server-set).
+- **Match state** (`shared/MatchState`): ReplicatedStorage attributes `Match*`: `Phase` (Waiting / Draft / Countdown / Live / SuddenDeath / RoundEnd / Replay / MatchEnd), `EndsAt`, `Round`, `Score1`, `Score2`, `RoundWinner`, `MatchWinner`, `WeaponPhase`, `RoundHistory` ("winner:WeaponPhase" per round), `RematchOpen`, `RematchVotes`, `RematchNeeded`. Written only by `MatchService` / `MatchEndService`. Player attribute `CombatLocked` (server-set).
 - **Zone** (`shared/Zone`): `ZoneService` writes the circle as ReplicatedStorage attributes, `MatchZoneId` last (0 = none).
 - **Health** (`shared/Health`): Humanoid attributes `HP`, `MaxHP`, `Downed`; written only by `HealthService`.
 - **Status effects** (`shared/Mods/Status`, `Config/StatusEffects`): expiry attributes (`HinderedUntil`, …, `StatusStunned`) written only by `StatusService`.
@@ -73,7 +73,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `Services/HitboxHistory` | last second of each root position, for lag compensation |
 | `Services/HealthService` | the game's own HP / downed state |
 | `Services/StatusService` | status effects (Hindered, Stunned…), the only writer of expiry attributes |
-| `Services/StatsService` | per-fighter eliminations, deaths, assists, damage |
+| `Services/StatsService` | per-fighter eliminations, deaths, assists, damage; answers `Scoreboard` (live lines + kits); sends the victim `CombatReport` (damage vs their killer this life) |
 | `Services/ModService` (1050 l) | each player's 3 Mod slots, charges, cooldowns, checks for `ModHold/Use/Steer/Recall`, sends `ModFx`; clears at round end (`clearRound`) |
 | `Services/ModEntities` | server things that outlive a request: timers, Molly fire, Frost bursts, Stim beacons; attrs `OwnerId`, `TeamId`, `Hp`, `ExpiresAt` |
 | `Services/ModWalls` | Firewall walls: growth, HP, burning |
@@ -112,6 +112,9 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `AudioController` | whole-asset voice pools (`gun:` weapon/feedback, `sfx:` shared cues), preloads recordings and plays 2D/3D audio; `FootstepController`, `AmbienceController`, `Util/ModAudio` |
 | `CharacterFxController`, `DeathFxController`, `MapLifeController` | slide dust, the fake-death body copy, ambient map life |
 | `SpectateController` | death camera and first-person spectating; desktop shows the killed-by card and spectate bar through `Util/DeathScreen` (Studio-built `StarterGui.DeathScreen`); `ReplayController`: final-kill replay (`Replay`) |
+| `MatchEndController` → `Util/MatchEndScreen` (2026-11-14) | desktop match end screen: fills the Studio-built `StarterGui.MatchEndScreen` (templates `UiTemplates.MatchEnd`; result, round history from `MatchRoundHistory`, scoreboard, your build, PLAY AGAIN / REMATCH / LEAVE, name plates over the winners); backup `tools/studio/BuildMatchEndScreen.luau` |
+| `Util/StatusTray` (2026-11-14) | the status tray: your effects as icons with draining 24-segment rings + the Mod hint, in the Studio-built `StarterGui.StatusTray`; fed by ModHudController (hint), ModFeelController (Revealed), UpgradeFx/Recall (Crash Recovery); reads the `*Until` attributes and `BarrierHits` |
+| `ScoreboardController` (2026-11-14) | hold Tab: live stats + builds in the Studio-built `StarterGui.Scoreboard`; asks `Scoreboard` (StatsService answers that client, rate-limited) |
 | `KillFeedController` (2026-11-14) | the kill feed and the kill pop (glitch shard, 5-kill ring) in the Studio-built `StarterGui.KillFeed` (row template `UiTemplates.KillFeed.Row`), from `Killed`; desktop only; `Util/KillFeed` keeps the kill sounds; backup `tools/studio/BuildFeedScreens.luau` |
 | `MatchEndController` | victory scene and post-match screen (Rematch / Play Again / Leave) |
 | `ZoneController` | sudden-death wall, screen tint, warning tick |
@@ -124,7 +127,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `server/Services/QueueService` | solo queue per mode, bot fill after `Config.botFillAfter`; attrs `QueueStatus`, `QueueMode`, `QueueSince`, `QueueStartsAt` |
 | `server/Matchmaking/Launcher`, `Matchmaker` | forms a match and teleports to a reserved Match server; the Lobby → Match TeleportData contract |
 | `client/Controllers/QueueMenu` | full-screen PLAY menu (1v1 / 2v2 / 3v3, FIND MATCH) |
-| `client/Controllers/LobbyHud`, `Panels`, `WorldPrompts` | top row HUD, placeholder menus (Shop, Battle Pass, Locker, Settings, Range), ProximityPrompts on tagged world parts |
+| `client/Controllers/LobbyHud`, `Panels`, `WorldPrompts` | the lobby HUD (desktop: the Studio-built StarterGui ScreenGuis `LobbyProfile`, `LobbyPlayerList`, `LobbyBar`, `LobbyToast` and `LobbyTasks` (off) through `client/Util/LobbyHudView`: profile, player list with level and win streak, bottom bar, PLAY, party, toasts; phones keep the old v2 dock; backup `tools/studio/BuildLobbyHud.luau`), placeholder menus (Shop, Battle Pass, Locker, Settings, Range), ProximityPrompts on tagged world parts |
 | `client/Util/*`, `shared/Config`, `shared/LobbyNet` | menu kit, layout, router, icons; config; the lobby remotes |
 
 ## Tools (not synced; `tools/`)

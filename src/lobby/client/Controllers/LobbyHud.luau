@@ -14,7 +14,8 @@
 -- Every colour and size comes from Util/Style; shapes from Util/Kit.
 --
 -- Desktop (v5, vault/02 Art/UI Lobby HUD.md): the Studio-built
--- StarterGui.LobbyHudScreen through Util/LobbyHudView (profile, player list,
+-- ScreenGuis (LobbyProfile, LobbyPlayerList, LobbyBar, LobbyToast, LobbyTasks)
+-- through Util/LobbyHudView (profile, player list,
 -- bottom bar, PLAY, party, toasts); everything below builds the old v2 dock,
 -- which phones keep until the mobile pass.
 
@@ -866,12 +867,15 @@ function LobbyHud.init()
 		shadeBottom
 	)
 
-	-- Desktop: the Studio-built HUD replaces the dock, top row, pill and toast.
-	if not PHONE then
-		local screen = playerGui:WaitForChild("LobbyHudScreen", 10)
-		if screen and screen:IsA("ScreenGui") then
-			useView = LobbyHudView.bind(screen)
+	-- Desktop: the Studio-built HUD (its own ScreenGuis) replaces the dock,
+	-- top row, pill and toast. Phones switch those ScreenGuis off for now.
+	local guis = LobbyHudView.guis(playerGui, 10)
+	if guis and PHONE then
+		for _, g in guis do
+			g.Enabled = false
 		end
+	elseif guis then
+		useView = LobbyHudView.bind(guis)
 	end
 	if useView then
 		return

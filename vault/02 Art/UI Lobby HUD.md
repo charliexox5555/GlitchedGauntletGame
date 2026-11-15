@@ -91,7 +91,7 @@ The owner picked all four groups as pill-like: player list badges and rows, the 
 ![v5](References/ui-overhaul/2026-11-14-lobby-hud-v5.jpg)
 
 ## Built (desktop; owner: "Build it")
-- **Studio-owned `StarterGui.LobbyHudScreen`** in the Lobby place, with the row template `ReplicatedStorage.UiTemplates.Lobby.PlayerRow`. Backup `tools/studio/BuildLobbyHud.luau`; Studio was rebuilt from it, so they match exactly.
+- **Studio-owned ScreenGuis, one per part (like the match HUD):** `StarterGui.LobbyProfile` (top left), `LobbyPlayerList` (top right), `LobbyBar` (PLAY, party and the bottom bar), `LobbyToast` and `LobbyTasks` (off until daily tasks exist). Each has its own `Fit` UIScale group anchored to its edge, is enabled in StarterGui so you can see and edit it in the editor, and is switched off on phones (they keep the old dock). They live in the Lobby place, with the row template `ReplicatedStorage.UiTemplates.Lobby.PlayerRow`. Backup `tools/studio/BuildLobbyHud.luau`; Studio was rebuilt from it, so they match exactly.
 - **Four groups**, each anchored to its screen edge with its own Fit scale: **TopLeft** (profile; the daily tasks panel, hidden), **TopRight** (the player list), **Bottom** (bar, PLAY, party, callout), **Toast** (top centre).
 - **`src/lobby/client/Util/LobbyHudView.luau`** fills and animates it; `Controllers/LobbyHud` uses it on desktop. Phones keep the old v2 dock, and `LobbyHud.toast` goes to the new toast.
   - **Bar:** Locker, Shop, Pass, Range, Settings open their menus through `Router.toggle`. On hover the icon grows and lifts and the name turns gold.

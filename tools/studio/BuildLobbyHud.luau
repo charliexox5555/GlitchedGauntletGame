@@ -1,12 +1,13 @@
 --!strict
 -- Builds the lobby main HUD (vault/02 Art/UI Lobby HUD.md, mockup v5) in the
 -- LOBBY place:
---   StarterGui.LobbyHudScreen              <- src/lobby/client/Util/LobbyHudView
+--   StarterGui.LobbyProfile, LobbyTasks, LobbyPlayerList, LobbyBar, LobbyToast
+--                                          <- src/lobby/client/Util/LobbyHudView
 --   ReplicatedStorage.UiTemplates.Lobby.PlayerRow
 -- Studio owns them; this is their backup. Paste into the command bar (Edit
 -- mode); refuses to run if they exist. Desktop only for now.
 --
--- Four groups, each anchored to its screen edge with its own "Fit" UIScale
+-- Five ScreenGuis, each holding one group anchored to its screen edge with its own "Fit" UIScale
 -- (the script sets it), so they hold the corners on any screen:
 --   TopLeft   profile; daily tasks (hidden until a tasks system feeds it)
 --   TopRight  the player list
@@ -50,7 +51,9 @@ local ICON = {
 }
 local CENTRE = Vector2.new(0.5, 0.5)
 
-assert(not SG:FindFirstChild("LobbyHudScreen"), "StarterGui.LobbyHudScreen already exists")
+for _, n in { "LobbyProfile", "LobbyTasks", "LobbyPlayerList", "LobbyBar", "LobbyToast" } do
+	assert(not SG:FindFirstChild(n), "StarterGui." .. n .. " already exists")
+end
 
 local function text(
 	p: Instance,
@@ -191,37 +194,47 @@ do -- PlayerRow: portrait, name, where they are, win streak and level tags
 	text(lv, "Value", "1", 14, INK, { AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5) })
 	-- win streak: the same tag in orange, left of the level
 	local ORANGE = hex("FF7A3D")
-	local st = make(
-		"Frame",
-		{
-			Name = "Streak",
-			AnchorPoint = Vector2.new(1, 0.5),
-			Position = UDim2.new(1, -72, 0.5, 0),
-			Size = UDim2.fromOffset(36, 28),
-			BackgroundColor3 = ORANGE,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		row
-	)
+	local st = make("Frame", {
+		Name = "Streak",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -72, 0.5, 0),
+		Size = UDim2.fromOffset(36, 28),
+		BackgroundColor3 = ORANGE,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, row)
 	corner(st)
 	slant(st, ORANGE, 28, 10, true)
 	text(st, "Value", "0", 14, INK, { AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5) })
 end
 
--- StarterGui.LobbyHudScreen ---------------------------------------------------
-local gui = make("ScreenGui", {
-	Name = "LobbyHudScreen",
-	ResetOnSpawn = false,
-	IgnoreGuiInset = true,
-	ScreenInsets = Enum.ScreenInsets.None,
-	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-	DisplayOrder = 25,
-	Enabled = false, -- the script turns it on (desktop)
-})
+-- One ScreenGui per part (like the match's TopBar / BottomHud / Notify), all
+-- in StarterGui so they can be edited in Explorer. Enabled = shown in Studio;
+-- the script turns them off on phones (and the tasks / toast until needed).
+local made: { ScreenGui } = {}
+local function screen(name: string, enabled: boolean): ScreenGui
+	local g = make("ScreenGui", {
+		Name = name,
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		ScreenInsets = Enum.ScreenInsets.None,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		DisplayOrder = 25,
+		Enabled = enabled,
+	})
+	table.insert(made, g)
+	return g
+end
 
 do -- TopLeft: profile, daily tasks
-	local g = group(gui, "TopLeft", Vector2.new(0, 0), UDim2.fromScale(0, 0), 460, 620)
+	local g = group(
+		screen("LobbyProfile", true),
+		"TopLeft",
+		Vector2.new(0, 0),
+		UDim2.fromScale(0, 0),
+		460,
+		620
+	)
 	local x, y, w, h = 40, 68, 300, 56
 	shadow(g, x, y, w, h, "ProfileShadow")
 	local p = make("Frame", {
@@ -308,15 +321,26 @@ do -- TopLeft: profile, daily tasks
 	)
 
 	-- Daily tasks: rows are filled by the script once a tasks system exists.
-	local t = make("Frame", {
-		Name = "Tasks",
-		Position = UDim2.fromOffset(40, 380),
-		Size = UDim2.fromOffset(400, 0),
-		AutomaticSize = Enum.AutomaticSize.Y,
-		BackgroundColor3 = NAVY,
-		BorderSizePixel = 0,
-		Visible = false,
-	}, g)
+	local t = make(
+		"Frame",
+		{
+			Name = "Tasks",
+			Position = UDim2.fromOffset(40, 380),
+			Size = UDim2.fromOffset(400, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundColor3 = NAVY,
+			BorderSizePixel = 0,
+			Visible = false,
+		},
+		group(
+			screen("LobbyTasks", false),
+			"TopLeft",
+			Vector2.new(0, 0),
+			UDim2.fromScale(0, 0),
+			460,
+			620
+		)
+	)
 	corner(t)
 	make("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, t)
 	make("UIPadding", { PaddingBottom = UDim.new(0, 12) }, t)
@@ -362,7 +386,14 @@ do -- TopLeft: profile, daily tasks
 end
 
 do -- TopRight: the player list
-	local g = group(gui, "TopRight", Vector2.new(1, 0), UDim2.fromScale(1, 0), 380, 620)
+	local g = group(
+		screen("LobbyPlayerList", true),
+		"TopRight",
+		Vector2.new(1, 0),
+		UDim2.fromScale(1, 0),
+		380,
+		620
+	)
 	local w = 340
 	local list = make("Frame", {
 		Name = "PlayerList",
@@ -441,7 +472,14 @@ end
 
 do -- Bottom: bar, PLAY, party, callout
 	local W, H = 1000, 270
-	local g = group(gui, "Bottom", Vector2.new(0.5, 1), UDim2.fromScale(0.5, 1), W, H)
+	local g = group(
+		screen("LobbyBar", true),
+		"Bottom",
+		Vector2.new(0.5, 1),
+		UDim2.fromScale(0.5, 1),
+		W,
+		H
+	)
 	local barTop, barH = H - 96, 80
 	local itemW = 140
 	local items = {
@@ -638,7 +676,14 @@ do -- Bottom: bar, PLAY, party, callout
 end
 
 do -- Toast: top centre, a navy plate led by a slanted colour block
-	local g = group(gui, "Toast", Vector2.new(0.5, 0), UDim2.fromScale(0.5, 0), 700, 200)
+	local g = group(
+		screen("LobbyToast", true),
+		"Toast",
+		Vector2.new(0.5, 0),
+		UDim2.fromScale(0.5, 0),
+		700,
+		200
+	)
 	local plate = make("Frame", {
 		Name = "Plate",
 		AnchorPoint = Vector2.new(0.5, 0),
@@ -682,5 +727,7 @@ do -- Toast: top centre, a navy plate led by a slanted colour block
 	text(plate, "Label", "MESSAGE", 15, WHITE, { LayoutOrder = 3 })
 end
 
-gui.Parent = SG
-print("LobbyHudScreen built")
+for _, g in made do
+	g.Parent = SG
+end
+print("Lobby HUD ScreenGuis built")

@@ -2,7 +2,9 @@
 -- The lobby main HUD, v5 (vault/02 Art/UI Lobby HUD.md): the profile (top
 -- left), the player list with level and win streak (top right), the bottom
 -- bar (Locker, Shop, Pass, Range, Settings) with PLAY and your party slots,
--- and toasts. The layout is built in Studio (StarterGui.LobbyHudScreen,
+-- and toasts. The layout is built in Studio, one ScreenGui per part like the
+-- match (StarterGui.LobbyProfile, LobbyTasks, LobbyPlayerList, LobbyBar,
+-- LobbyToast,
 -- row template UiTemplates.Lobby.PlayerRow, backup
 -- tools/studio/BuildLobbyHud.luau); this fills and animates it. LobbyHud
 -- uses it on desktop; phones keep the old dock until the mobile pass.
@@ -308,13 +310,28 @@ end
 
 -- API -------------------------------------------------------------------------------
 
--- Binds the Studio-built gui; returns false if it isn't there (phones, or a
--- place without it), and LobbyHud keeps its old dock.
-function LobbyHudView.bind(gui: ScreenGui): boolean
-	local topLeft = child(gui, "TopLeft") :: Frame
-	local topRight = child(gui, "TopRight") :: Frame
+-- The Studio-built ScreenGuis (one per part), or nil if they aren't there.
+local PARTS = { "LobbyProfile", "LobbyTasks", "LobbyPlayerList", "LobbyBar", "LobbyToast" }
+function LobbyHudView.guis(playerGui: Instance, wait: number): { [string]: ScreenGui }?
+	local found: { [string]: ScreenGui } = {}
+	for _, name in PARTS do
+		local g = playerGui:WaitForChild(name, wait)
+		if not g or not g:IsA("ScreenGui") then
+			return nil
+		end
+		found[name] = g
+	end
+	return found
+end
+
+-- Binds the lobby HUD's ScreenGuis (from `guis`).
+function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
+	local gui = guis.LobbyBar
+	local topLeft = child(guis.LobbyProfile, "TopLeft") :: Frame
+	local topRight = child(guis.LobbyPlayerList, "TopRight") :: Frame
 	local bottom = child(gui, "Bottom") :: Frame
-	local toast = child(gui, "Toast") :: Frame
+	local toast = child(guis.LobbyToast, "Toast") :: Frame
+	local tasksGroup = child(guis.LobbyTasks, "TopLeft") :: Frame
 	local list = child(topRight, "PlayerList") :: Frame
 	local head = child(list, "Head") :: Frame
 	local play = child(bottom, "Play") :: TextButton
@@ -327,6 +344,7 @@ function LobbyHudView.bind(gui: ScreenGui): boolean
 			child(topRight, "Fit"),
 			child(bottom, "Fit"),
 			child(toast, "Fit"),
+			child(tasksGroup, "Fit"),
 		},
 		topLeft = topLeft,
 		topRight = topRight,
@@ -403,7 +421,9 @@ function LobbyHudView.bind(gui: ScreenGui): boolean
 		task.defer(renderList)
 	end)
 	renderList()
-	gui.Enabled = true
+	for name, g in guis do
+		g.Enabled = name ~= "LobbyTasks" -- tasks wait for a tasks system
+	end
 	return true
 end
 
