@@ -46,7 +46,7 @@ Last updated 2026-11-12. Skills that enforce it:
 - **The HUD floats on dark fades, not boxes.**
 - **Circles with rings** for anything that turns, fills or is touched.
 - A **slash** and the **» chevron** as brand marks.
-- Fonts: **Sarpanch** for display and numbers, **Titillium Web** for labels and body. Never Montserrat / Inter / Oswald, the generic look.
+- Fonts: **Fredoka One** for the UI (owner's pick from the font board, 2026-11-16, [UI Shop](UI%20Shop.md) → pass 4; in the lobby now, the match UI follows). Sarpanch / Titillium Web were the earlier draft. Never Montserrat / Inter / Oswald, and not Roblox's default Builder Sans: the generic look.
 - Gold `FFC83D` is the one act-now colour; ally `2FD3E6` / enemy `FF5A4E`.
 - Motion: snappy taps, smooth 0.24 s entrances, faster exits, banners with a slash wipe and a small overshoot.
 - **Fixed slots:** scorebug + timer top-centre, one banner slot, kill feed top-right, health bottom-left, Mods bottom-centre (circles), ammo bottom-right. Phone: circles, a right-thumb cluster, a layout editor.

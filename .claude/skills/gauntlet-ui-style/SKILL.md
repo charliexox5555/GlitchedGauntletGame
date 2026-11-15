@@ -26,8 +26,9 @@ Full spec: `vault/02 Art/UI Theme v4 Soft Edge.md`. Whole-game look: `vault/02 A
 **Never:** capsule pills, radius > 10, hard boxes everywhere, two cuts on one plate, glow halos, glossy gradients, 3D icons, neon/glitch decoration, invented UI copy.
 
 ## 2. Type and colour
-- **Sarpanch** (Bold / ExtraBold / Black) for display, names and HUD numbers. Black only for hero words. It has no italic in Roblox.
-- **Titillium Web** for labels (Bold caps, +10-20% tracking) and body (SemiBold / Regular).
+- **Fredoka One** for the UI: the owner's pick from a font board (2026-11-16, `vault/02 Art/UI Shop.md` → pass 4). It is in the lobby now, and the match UI follows. It has one weight, so other weights render as it.
+- Earlier draft: **Sarpanch** for display, **Titillium Web** for labels. Not Roblox's default Builder Sans (it reads generic).
+- **Chunky look (lobby, 2026-11-16):** slanted plates and cells are one-piece sliced art (`client/Util/Plates`, `Util/Cards`, `art-source/ui/plates/`): bright top, deeper base, a dark lip, a thin top bevel line, and white words outlined in a dark shade of the plate colour. Never build plates from separately scaled pieces; they come apart on hover.
 - Both are built-in Roblox families (checked in Studio). Barlow, Teko, Chakra Petch, Bebas and Orbitron are not.
 - Plates `10141B`, fades `06080C`, text `F4F6F9` / `A9B2BF`.
 - **Gold `FFC83D` = the one act-now thing per screen.** Ally `2FD3E6` / enemy `FF5A4E`, always with a position or a word. Damage `FF4D5E`.

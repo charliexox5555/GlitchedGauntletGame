@@ -27,7 +27,7 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/BuilderExtended.json"
+local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
 local XB, BOLD = Enum.FontWeight.ExtraBold, Enum.FontWeight.Bold
 local CARD = hex("0B1236")
 local CARD_T = 0.15 -- over a blurred world the plates need more body than the Locker's

@@ -36,7 +36,7 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/BuilderExtended.json"
+local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
 local XB = Enum.FontWeight.ExtraBold
 local NAVY, NAVY_HI = hex("1C2740"), hex("2B3A5A")
 local ALLY, ALLY_CELL = hex("3FE0F2"), hex("0D5C7A")
