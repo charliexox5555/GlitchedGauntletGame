@@ -39,6 +39,9 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/UI Top Bar Draft.md` (12): **match top bar** (2026-11-14): v2 built in Studio (team blocks, headshots, scores, stopwatch timer, motion), the owner calls that led there, where it lives; Figma draft 1 below
 - `02 Art/UI Draft Screen.md` (3): **draft screen redesign** mockup (2026-11-14): two numbered steps, one selection rule, upgrade paths as equal tiles, glitch as a magenta tile
 - `02 Art/UI Feed and Spectate.md` (2): **kill feed, ELIMINATED, killed-by and spectate** redesign in the match UI style: mockup v1 in Studio (2026-11-14)
+- `02 Art/UI Match Extras.md` (2): **status tray** (draining rings), **hold-Tab scoreboard**, combat report, final-kill card, prompts, zone alert: built 2026-11-14
+- `02 Art/UI Lobby HUD.md` (5): **lobby main HUD**, built: RIVALS-style bar (coloured tags, hover plates, ChatGPT icons v2), PLAY + party slots, player list (Tab / topbar), Roblox + in-game parties with invites, topbar buttons (2026-11-14)
+- `02 Art/UI Locker.md` (4): **Locker** plan: weapons synced into the Lobby (`tools/studio/SyncWeapons.luau`), 3D gun on a hidden stage, per-gun skins, Abilities = your Mod collection (buyable Mods, changed Money decision) (2026-11-15)
 - `02 Art/UI Notifications.md` (4): **match notifications** (long band under the top bar, match point, no 3-2-1) and the de-AI pass on the HUD (2026-11-14)
 - `02 Art/UI Combat HUD Mockup.md` (5): **health, ammo and Mod slots mockup** (2026-11-14) in the top bar style; states board, design, open questions
 - `02 Art/UI Theme v4 Soft Edge.md` (9): **UI theme direction v4.1** (2026-11-12): plates with one cut, HUD on fades, circles, Sarpanch + Titillium Web, motion, layouts, mobile, Figma boards, owner questions
