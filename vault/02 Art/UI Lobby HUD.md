@@ -65,3 +65,17 @@ Our version (same `StarterGui.LobbyHudMockup`, `tools/studio/BuildLobbyHudMockup
 
 Idle: ![v3 idle](References/ui-overhaul/2026-11-14-lobby-hud-v3-idle.jpg)
 Searching: ![v3 searching](References/ui-overhaul/2026-11-14-lobby-hud-v3-searching.jpg)
+
+## Mockup v4 (owner on v3: "I like it", clean it up)
+- **No hotkeys** on the bar ("we don't need keys to open things"), and no ENTER / ESC keys on PLAY.
+- **Settings stays** in the bottom bar.
+- **No coins** on the HUD.
+- **Icons:** today's art "looks bad". New icons to be generated later; parked in Bugs & Ideas.
+- **Cleaner:** bigger icons (74, hovered 84) with more room (140 apart), the name centred under each; PLAY's text centred; searching reads "2V2 · 0:23 · CLICK TO CANCEL".
+- **New: a custom player list** (owner: "a custom player list, like the leaderboard... players, their level... we can add more to it later"). It's top right where the coins were:
+  - a cyan PLAYERS header with the online count;
+  - one row per player: portrait, name, where they are (IN LOBBY cyan, IN MATCH grey, QUEUED · 2V2 gold), and the level on a gold block;
+  - your row is the brighter navy with your name in cyan;
+  - built to take more columns later. It replaces Roblox's own player list in the lobby, which gets hidden.
+
+![v4](References/ui-overhaul/2026-11-14-lobby-hud-v4.jpg)
