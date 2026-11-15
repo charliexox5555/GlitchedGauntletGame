@@ -1,5 +1,5 @@
 --!strict
--- Mockup v4 (v3 cleaned up: no hotkeys, no coins; owner): the lobby main HUD (vault/02 Art/UI Lobby HUD.md). The owner
+-- Mockup v5 (v4 with sharp slanted shapes instead of rounded "pills"; owner): the lobby main HUD (vault/02 Art/UI Lobby HUD.md). The owner
 -- wants it "more like Rivals... bottom bar looking things" (not a copy): a
 -- bottom bar of big coloured icons breaking out of its top edge, with names,
 -- hotkeys and red badges; PLAY on top of the bar with your party slots; a
@@ -85,7 +85,34 @@ local function shadow(p: Instance, x: number, y: number, w: number, h: number)
 end
 
 local function corner(p: Instance, r: number?)
-	make("UICorner", { CornerRadius = UDim.new(0, r or 6) }, p)
+	make("UICorner", { CornerRadius = UDim.new(0, r or 2) }, p)
+end
+
+-- Angled ends on a plate: a slant cap outside each side, in its colour, so the
+-- plate reads as a sharp parallelogram (the top bar's slanted cut) not a pill.
+local function slant(body: GuiObject, color: Color3, h: number, capW: number, parallel: boolean?)
+	-- parallel: both ends lean the same way (a parallelogram tag); otherwise
+	-- they mirror (a centred slab, like LOCK IN / PLAY).
+	make("ImageLabel", {
+		Name = "CapL",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(0, 1, 0, 0),
+		Size = UDim2.fromOffset(capW, h),
+		BackgroundTransparency = 1,
+		Image = if parallel then CAP_R else CAP_L,
+		Rotation = if parallel then 180 else 0,
+		ImageColor3 = color,
+		ZIndex = body.ZIndex,
+	}, body)
+	make("ImageLabel", {
+		Name = "CapR",
+		Position = UDim2.new(1, -1, 0, 0),
+		Size = UDim2.fromOffset(capW, h),
+		BackgroundTransparency = 1,
+		Image = CAP_R,
+		ImageColor3 = color,
+		ZIndex = body.ZIndex,
+	}, body)
 end
 
 local function canvas(gui: Instance, name: string): Frame
@@ -201,52 +228,36 @@ local function playerList(c: Instance)
 	local rowH, gap, headH = 44, 4, 40
 	local h = headH + 6 + #players * (rowH + gap) - gap
 	shadow(c, x, y, w, h)
-	local list = make(
-		"Frame",
-		{
-			Name = "PlayerList",
-			Position = UDim2.fromOffset(x, y),
-			Size = UDim2.fromOffset(w, h),
-			BackgroundTransparency = 1,
-		},
-		c
-	)
-	local head = make(
-		"Frame",
-		{
-			Name = "Head",
-			Size = UDim2.fromOffset(w, headH),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		list
-	)
+	local list = make("Frame", {
+		Name = "PlayerList",
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundTransparency = 1,
+	}, c)
+	local head = make("Frame", {
+		Name = "Head",
+		Size = UDim2.fromOffset(w, headH),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, list)
 	corner(head)
-	local block = make(
-		"Frame",
-		{
-			Name = "Team",
-			Size = UDim2.fromOffset(130, headH),
-			BackgroundColor3 = ALLY,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		head
-	)
+	local block = make("Frame", {
+		Name = "Team",
+		Size = UDim2.fromOffset(130, headH),
+		BackgroundColor3 = ALLY,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, head)
 	corner(block)
-	make(
-		"ImageLabel",
-		{
-			Name = "Cap",
-			Position = UDim2.fromOffset(126, 0),
-			Size = UDim2.fromOffset(18, headH),
-			BackgroundTransparency = 1,
-			Image = CAP_R,
-			ImageColor3 = ALLY,
-			ZIndex = 2,
-		},
-		head
-	)
+	make("ImageLabel", {
+		Name = "Cap",
+		Position = UDim2.fromOffset(126, 0),
+		Size = UDim2.fromOffset(18, headH),
+		BackgroundTransparency = 1,
+		Image = CAP_R,
+		ImageColor3 = ALLY,
+		ZIndex = 2,
+	}, head)
 	text(
 		block,
 		"Label",
@@ -266,41 +277,29 @@ local function playerList(c: Instance)
 	for i, pl in players do
 		local ry = headH + 6 + (i - 1) * (rowH + gap)
 		local mine = pl[4]
-		local row = make(
-			"Frame",
-			{
-				Name = "Row" .. i,
-				Position = UDim2.fromOffset(0, ry),
-				Size = UDim2.fromOffset(w, rowH),
-				BackgroundColor3 = if mine then NAVY_HI else NAVY,
-				BorderSizePixel = 0,
-			},
-			list
-		)
+		local row = make("Frame", {
+			Name = "Row" .. i,
+			Position = UDim2.fromOffset(0, ry),
+			Size = UDim2.fromOffset(w, rowH),
+			BackgroundColor3 = if mine then NAVY_HI else NAVY,
+			BorderSizePixel = 0,
+		}, list)
 		corner(row)
-		local cell = make(
-			"Frame",
-			{
-				Name = "Cell",
-				Size = UDim2.fromOffset(rowH, rowH),
-				BackgroundColor3 = ALLY_CELL,
-				BorderSizePixel = 0,
-				ZIndex = 2,
-			},
-			row
-		)
+		local cell = make("Frame", {
+			Name = "Cell",
+			Size = UDim2.fromOffset(rowH, rowH),
+			BackgroundColor3 = ALLY_CELL,
+			BorderSizePixel = 0,
+			ZIndex = 2,
+		}, row)
 		corner(cell)
-		make(
-			"ImageLabel",
-			{
-				Name = "Headshot",
-				Size = UDim2.fromScale(1, 1),
-				BackgroundTransparency = 1,
-				Image = "rbxthumb://type=AvatarHeadShot&id=1&w=150&h=150",
-				ZIndex = 3,
-			},
-			cell
-		)
+		make("ImageLabel", {
+			Name = "Headshot",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			Image = "rbxthumb://type=AvatarHeadShot&id=1&w=150&h=150",
+			ZIndex = 3,
+		}, cell)
 		text(
 			row,
 			"PlayerName",
@@ -321,20 +320,16 @@ local function playerList(c: Instance)
 				else ALLY,
 			{ Position = UDim2.fromOffset(rowH + 12, 25) }
 		)
-		local lv = make(
-			"Frame",
-			{
-				Name = "Level",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -8, 0.5, 0),
-				Size = UDim2.fromOffset(46, 30),
-				BackgroundColor3 = GOLD,
-				BorderSizePixel = 0,
-				ZIndex = 2,
-			},
-			row
-		)
-		corner(lv, 5)
+		local lv = make("Frame", {
+			Name = "Level",
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, -18, 0.5, 0),
+			Size = UDim2.fromOffset(36, 28),
+			BackgroundColor3 = GOLD,
+			BorderSizePixel = 0,
+			ZIndex = 2,
+		}, row)
+		slant(lv, GOLD, 28, 10, true)
 		text(
 			lv,
 			"Value",
@@ -395,7 +390,7 @@ local function bottomBar(c: Instance, hovered: number?)
 		BackgroundColor3 = NAVY,
 		BorderSizePixel = 0,
 	}, c)
-	corner(bar, 8)
+	slant(bar, NAVY, h, 34)
 	for i, it in ITEMS do
 		local on = i == hovered
 		local cx = itemX(i)
@@ -553,7 +548,7 @@ local function callout(c: Instance)
 		BorderSizePixel = 0,
 		ZIndex = 6,
 	}, c)
-	corner(p)
+	slant(p, RED, h, 14, true)
 	text(
 		p,
 		"Label",
@@ -593,7 +588,7 @@ local function tasks(c: Instance)
 		BackgroundColor3 = NAVY,
 		BorderSizePixel = 0,
 	}, c)
-	corner(p, 8)
+	corner(p)
 	local head = make("Frame", {
 		Name = "Head",
 		Size = UDim2.fromOffset(190, 40),
@@ -711,4 +706,4 @@ bottomBar(searching, nil)
 playCluster(searching, true)
 
 gui.Parent = SG
-print("LobbyHudMockup v4 built")
+print("LobbyHudMockup v5 built")

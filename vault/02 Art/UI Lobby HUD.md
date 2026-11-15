@@ -79,3 +79,13 @@ Searching: ![v3 searching](References/ui-overhaul/2026-11-14-lobby-hud-v3-search
   - built to take more columns later. It replaces Roblox's own player list in the lobby, which gets hidden.
 
 ![v4](References/ui-overhaul/2026-11-14-lobby-hud-v4.jpg)
+
+## Mockup v5 (owner: "I don't really like the way the pills look... a little off")
+The owner picked all four groups as pill-like: player list badges and rows, the red callout, the bottom bar and PLAY, and the profile / tasks panels. The cause was soft rounded corners on short plates. Switched to the match top bar's sharp, slanted-cut language:
+- **Corners** are near-square (2 px) everywhere.
+- **Level tags** in the player list are slanted gold **parallelograms**, and so is the red **callout**, with a sharp diamond pointer.
+- **Bottom bar** is a slab with mirrored angled ends (like PLAY / LOCK IN).
+- Party portraits stay **circles** (circles with rings are part of the theme).
+- Helper `slant(body, colour, h, capW, parallel)` in the builder: caps outside each end; parallel = both lean the same way, otherwise mirrored.
+
+![v5](References/ui-overhaul/2026-11-14-lobby-hud-v5.jpg)
