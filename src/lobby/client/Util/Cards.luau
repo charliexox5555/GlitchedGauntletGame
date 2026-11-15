@@ -8,8 +8,8 @@
 --     bright top → a little deeper → a darker 5 px lip, tinted with the
 --     cell's colour, under everything in the cell;
 --   * `Bevel` (card_over.png): a bright top edge line, a soft top sheen and a
---     dark lip, over the cell's art (under its hover brackets), so even cells
---     covered by art read as chunky blocks.
+--     dark lip, on the skin and under everything in the cell (icons and art
+--     sit on top: the owner didn't like the bevel over them).
 -- 9-sliced with the cell's own corner radius, so the edges keep their pixel
 -- size on any cell. The cell's own fill is hidden (a transparent
 -- UIGradient); its BackgroundColor3 / BackgroundTransparency still drive the
@@ -51,6 +51,10 @@ function Cards.finish(cell: GuiObject)
 	if cell:GetAttribute("Carded") == true or cell:GetAttribute("NoCard") == true then
 		return
 	end
+	-- slanted plates are Util/Plates' (some share a cell's name, e.g. Plate)
+	if cell:FindFirstChild("CapL") or cell:GetAttribute("Plated") == true then
+		return
+	end
 	local corner = cell:FindFirstChildOfClass("UICorner")
 	local r = if corner then corner.CornerRadius.Offset else 8
 	if corner and corner.CornerRadius.Scale > 0 then
@@ -68,45 +72,17 @@ function Cards.finish(cell: GuiObject)
 	end
 	cell:SetAttribute("Carded", true)
 
-	-- layers: the skin under everything; the bevel just above the layers
-	-- that cover the cell (art, shade, dim); the words, tags, ticks and the
-	-- hover brackets above the bevel (owner: the bevel washed out CLAIM)
-	local function covers(c: GuiObject): boolean
-		if c.Name == "Select" then
-			return false
-		end
-		local cw, ch = cell.AbsoluteSize.X, cell.AbsoluteSize.Y
-		if cw > 1 and ch > 1 then
-			return c.AbsoluteSize.X / cw >= 0.8 and c.AbsoluteSize.Y / ch >= 0.8
-		end
-		local s, cs = c.Size, cell.Size
-		local w = s.X.Scale + (if cs.X.Offset > 0 then s.X.Offset / cs.X.Offset else 0)
-		local h = s.Y.Scale + (if cs.Y.Offset > 0 then s.Y.Offset / cs.Y.Offset else 0)
-		return w >= 0.8 and h >= 0.8
-	end
-	local lo, coverHi = math.huge, -math.huge
-	local others: { GuiObject } = {}
-	local othersLo = math.huge
+	-- layers: the skin, then the bevel, both under everything in the cell
+	-- (owner, 2026-11-16: the bevel over icons and art "makes it look weird";
+	-- before that it washed out the CLAIM tag)
+	local lo = math.huge
 	for _, c in cell:GetChildren() do
 		if c:IsA("GuiObject") then
 			lo = math.min(lo, c.ZIndex)
-			if covers(c) then
-				coverHi = math.max(coverHi, c.ZIndex)
-			else
-				table.insert(others, c)
-				othersLo = math.min(othersLo, c.ZIndex)
-			end
 		end
 	end
 	if lo == math.huge then
 		lo = cell.ZIndex
-	end
-	local hi = if coverHi > -math.huge then coverHi else lo
-	if #others > 0 and othersLo <= hi + 1 then
-		local shift = hi + 2 - othersLo
-		for _, c in others do
-			c.ZIndex += shift
-		end
 	end
 
 	for _, g in cell:GetChildren() do
@@ -122,8 +98,8 @@ function Cards.finish(cell: GuiObject)
 	end
 
 	local scale = math.max(r, 2) / IMG_R
-	local skin = layer(cell, "Skin", BASE, scale, lo - 1)
-	local bevel = layer(cell, "Bevel", OVER, scale, hi + 1)
+	local skin = layer(cell, "Skin", BASE, scale, lo - 2)
+	local bevel = layer(cell, "Bevel", OVER, scale, lo - 1)
 
 	local function paint()
 		skin.ImageColor3 = cell.BackgroundColor3:Lerp(WHITE, LIFT)

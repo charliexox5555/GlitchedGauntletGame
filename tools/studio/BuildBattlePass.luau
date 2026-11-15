@@ -29,7 +29,7 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 end
 
 local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
-local XB, BOLD = Enum.FontWeight.ExtraBold, Enum.FontWeight.Bold
+local XB, BOLD = Enum.FontWeight.Regular, Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
 local CARD = hex("0B1236")
 local CARD_T = 0.2
 local GOLD, GREEN = hex("FFC83D"), hex("3FD45C")

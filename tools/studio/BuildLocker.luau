@@ -37,7 +37,7 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 end
 
 local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
-local XB = Enum.FontWeight.ExtraBold
+local XB = Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
 local CARD = hex("0B1236") -- dark see-through plate over the blue
 
 local ALLY = hex("3FE0F2")
@@ -129,7 +129,7 @@ local function slant(body: GuiObject, color: Color3, h: number, capW: number)
 	}, body)
 end
 
-local BOLD = Enum.FontWeight.Bold
+local BOLD = Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
 local SIDE = hex("0A1030") -- the left panel
 
 -- behind the gun: the stage colour, a soft shade top and bottom, and a floor

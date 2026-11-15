@@ -255,3 +255,12 @@ Owner: "the cells and a lot of the UI still just looks bland, not fun. the butto
 
 Checked in Studio play: [look4_season_pass.jpg](Shop/look4_season_pass.jpg), [look4_locker.jpg](Shop/look4_locker.jpg), [look4_play.jpg](Shop/look4_play.jpg). No new errors.
 - **Owner picked C · Fredoka One** (2026-11-16). Swapped in place on the lobby's Studio ScreenGuis and `UiTemplates.Lobby` (327 labels, weights kept; Fredoka has one weight), so no rebuild wiped hand edits; the builders' font constant (`BX`) changed in BuildShop / BuildBattlePass / BuildLocker / BuildLobbyMenus / BuildLobbyHud / BuildMatchFound so a rebuild matches. Style Bible, Home's locked UI row and the `gauntlet-ui-style` skill updated. Match builders still use Builder Extended (the match pass is next). Checked: [look5_fredoka_pass.jpg](Shop/look5_fredoka_pass.jpg), [look5_fredoka_shop.jpg](Shop/look5_fredoka_shop.jpg); 447 visible texts, nothing clipped. **Save the Lobby place** to keep the swap.
+
+### Plate look, pass 6: final tweaks (2026-11-16)
+Owner: "it looks better. but honestly i dont like the bevels on the icons and things. it just makes it look weird ... just some final tweaks".
+- **The cell bevel is under everything in the cell now** (on the skin, under icons, art, words and tags). Cells covered by art simply show their art.
+- **Fredoka One at its one real weight.** The labels still asked for Bold / ExtraBold, so Roblox faked the weight and small words smeared ("NEWITEMS"). All 327 lobby labels and the builders' weight constants are Regular now.
+- **Shop tabs** (HOME / BUNDLES / DAILY / COINS) get the cell depth; icons sit on top. Slanted plates that share a cell's name are skipped by `Util/Cards`.
+- **Text that sizes itself re-measures whenever its font lands** (`Util/TextFit.watch`), not once at start: hidden screens only load their font when opened, which brought back the clipped Season Pass title and tags. Checked: 391 self-sizing texts, 0 short.
+
+Checked in Studio play: [look6_daily.jpg](Shop/look6_daily.jpg), [look6_season_pass.jpg](Shop/look6_season_pass.jpg). No new errors. **Save the Lobby place** (font weights changed on the Studio screens).

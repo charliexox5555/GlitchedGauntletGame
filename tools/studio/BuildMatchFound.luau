@@ -93,7 +93,7 @@ make("TextLabel", {
 	Size = UDim2.fromOffset(600, 22),
 	BackgroundTransparency = 1,
 	Text = "STUDIO  ·  TELEPORT SKIPPED",
-	FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Bold),
+	FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json"),
 	TextSize = 15,
 	TextColor3 = Color3.new(1, 1, 1),
 	TextTransparency = 0.5,

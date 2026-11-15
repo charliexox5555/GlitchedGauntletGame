@@ -31,7 +31,7 @@ end
 
 -- ScreenGui → the named cells in it
 local CELLS: { [string]: { string } } = {
-	Shop = join({ "Card", "CasePanel", "OddsPanel", "ItemCard" }, range("Day", 7)),
+	Shop = join({ "Card", "CasePanel", "OddsPanel", "ItemCard", "Plate" }, range("Day", 7)), -- Plate: the tabs
 	BattlePass = join(
 		{ "FreeBadge", "PremiumBadge", "Box", "Prev", "Next", "OddsPanel", "Card" },
 		range("Free", 7),
@@ -68,7 +68,7 @@ function LobbyLook.apply(playerGui: Instance)
 		take(g)
 	end
 	playerGui.ChildAdded:Connect(take) -- screens copied in after this runs
-	TextFit.settle(playerGui)
+	TextFit.watch(playerGui)
 end
 
 return LobbyLook
