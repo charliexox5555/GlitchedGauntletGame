@@ -43,12 +43,13 @@ local RED, PURPLE, TEAL = hex("FF4D5E"), hex("B58CFF"), hex("2BD9A8")
 local SHADOW = "rbxassetid://121253415859134"
 local CAP_R, CAP_L = "rbxassetid://130377997107460", "rbxassetid://75584308608588"
 local ICON = {
-	-- full-colour faceted icons (ChatGPT, art-source/ui/lobby-icons/, cropped 400 px)
-	Shop = "rbxassetid://105282475222207",
-	Locker = "rbxassetid://132989779567545",
-	BattlePass = "rbxassetid://89820225124220",
-	Range = "rbxassetid://115113209840744",
-	Settings = "rbxassetid://140552828867154",
+	-- full-colour flat-faceted icons v2 (ChatGPT, art-source/ui/lobby-icons/*_v2.png,
+	-- cropped to one 400 px square)
+	Shop = "rbxassetid://75746609493674",
+	Locker = "rbxassetid://94062620763078",
+	BattlePass = "rbxassetid://124123984170556",
+	Range = "rbxassetid://79251886607751",
+	Settings = "rbxassetid://139738672487062",
 	Coin = "rbxassetid://122645025340088",
 }
 local CENTRE = Vector2.new(0.5, 0.5)
@@ -222,6 +223,46 @@ local function partySlot(
 		)
 	end
 	return holder
+end
+
+-- Bar item look (owner picked concept A + C's hover, bar_concepts_v2.png):
+-- the name sits on a slanted tag in the item's colour, always on; on hover
+-- the script shows a big colour plate behind the icon with a » (it pops from
+-- its bottom-centre via its "Pop" UIScale).
+local function decorateItem(b: GuiObject, color: Color3, w: number)
+	local label = b:FindFirstChild("Label") :: TextLabel
+	local tag = make("Frame", {
+		Name = "Tag",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 84),
+		Size = UDim2.fromOffset(w - 44, 28),
+		BackgroundColor3 = color,
+		BorderSizePixel = 0,
+		ZIndex = 6,
+	}, b)
+	slant(tag, color, 28, 10, true)
+	label.Parent = tag
+	label.AnchorPoint = CENTRE
+	label.Position = UDim2.fromScale(0.5, 0.5)
+	label.TextColor3 = INK
+	label.ZIndex = 7
+	local plate = make("Frame", {
+		Name = "Plate",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, 0),
+		Size = UDim2.fromOffset(w - 36, 118),
+		BackgroundColor3 = color,
+		BorderSizePixel = 0,
+		ZIndex = 3,
+		Visible = false,
+	}, b)
+	slant(plate, color, 118, 18, true)
+	make("UIScale", { Name = "Pop" }, plate)
+	text(plate, "Chevrons", "»", 30, WHITE, {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, 6, 0, 0),
+		ZIndex = 4,
+	})
 end
 
 -- Templates -------------------------------------------------------------------
@@ -584,7 +625,7 @@ do -- Bottom: bar, PLAY, party, callout
 		BorderSizePixel = 0,
 	}, g)
 	corner(bar)
-	slant(bar, NAVY, barH, 34)
+	slant(bar, NAVY, barH, 34, true)
 	for i, it in items do
 		local cx = W / 2 + (i - (#items + 1) / 2) * itemW
 		-- the hit area covers the icon and its name; the icon lifts on hover
@@ -617,6 +658,7 @@ do -- Bottom: bar, PLAY, party, callout
 			WHITE,
 			{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 88), ZIndex = 6 }
 		)
+		decorateItem(b, it[3], itemW)
 		local badge = make("Frame", {
 			Name = "Badge",
 			AnchorPoint = CENTRE,

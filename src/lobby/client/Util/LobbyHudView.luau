@@ -297,9 +297,27 @@ end
 -- Bottom bar ------------------------------------------------------------------------
 local function hookItem(s: State, b: TextButton)
 	local icon = child(b, "Icon") :: ImageLabel
-	local label = child(b, "Label") :: TextLabel
 	local homeY = icon.Position.Y.Offset
+	-- concept C's hover: the item's colour plate (with ») pops up behind the
+	-- icon from its base; the name stays on its coloured tag (concept A)
+	local plate = b:FindFirstChild("Plate")
+	local platePop = plate and plate:FindFirstChild("Pop")
+	local hovered = false
+	-- the tag's slanted ends have a dark edge fringe that shows on the same-
+	-- colour plate, so they hide while it's up (the tag body merges into it)
+	local tag = b:FindFirstChild("Tag")
+	local function tagEnds(show: boolean)
+		for _, c in if tag then tag:GetChildren() else {} do
+			if c:IsA("ImageLabel") then
+				c.ImageTransparency = if show then 0 else 1
+			end
+		end
+	end
 	local function hover(on: boolean)
+		hovered = on
+		if on then
+			tagEnds(false)
+		end
 		tween(icon, if on then 0.22 else 0.18, {
 			Size = UDim2.fromOffset(
 				if on then ICON_HOVER else ICON_SIZE,
@@ -307,7 +325,21 @@ local function hookItem(s: State, b: TextButton)
 			),
 			Position = UDim2.new(0.5, 0, 0, homeY - (if on then LIFT else 0)),
 		}, if on then BACK else QUINT, OUT)
-		tween(label, 0.12, { TextColor3 = if on then GOLD else WHITE })
+		if plate and plate:IsA("GuiObject") and platePop and platePop:IsA("UIScale") then
+			if on then
+				plate.Visible = true
+				platePop.Scale = 0.7
+				tween(platePop, 0.26, { Scale = 1 }, BACK, OUT)
+			else
+				local t = tween(platePop, 0.12, { Scale = 0.7 }, QUINT, IN)
+				t.Completed:Once(function()
+					if not hovered then
+						plate.Visible = false
+						tagEnds(true)
+					end
+				end)
+			end
+		end
 	end
 	local pop = icon:FindFirstChild("Pop")
 	b.MouseEnter:Connect(function()
