@@ -128,3 +128,15 @@ Owner on the first icon set: "they just don't fit... the bottom bar and all look
 - **A:** each name sits on a slanted tag in the item's colour (dark ink text; Settings white), always on; the bar is now a parallelogram (both ends lean the same way, like the tags).
 - **C's hover:** the item's colour plate with a » pops up behind the icon from its base while the icon lifts; it shrinks away on leave. The tag's slanted ends hide while the plate is up (the cap image's dark edge fringe showed on the same-colour plate).
 - Studio patched in place (`Tag`, `Plate` per item, icon images, bar `CapL`); builder `decorateItem` matches. Checked in play (hover on Pass and Shop).
+
+## Party invites, profile out, motion polish (owner, 2026-11-14)
+Owner: "remove the player level top left... improve animations a bit for the last time... I think you are able to invite people to party through game... have that work."
+- **Profile removed:** `StarterGui.LobbyProfile` deleted; the player list keeps level and streak.
+- **Invites (research):** the official API list (creator-docs `SocialService.yaml`, `Player.yaml`) has **no member that invites into a Roblox party**: party members are read-only (`PartyId`, `GetPartyAsync`, `GetPlayersByPartyId`); the rest is Roblox-internal. So the lobby has its **own invites** (`server/Services/PartyService`), like other Roblox shooters:
+  - invite from the **party card** (+ → PLAYERS HERE, each with INVITE) or by **hovering a row** in the player list (INVITE over the tags); the button reads SENT for the 30 s the invite is open;
+  - the invited player gets a pop-up (portrait, name, seconds left, ACCEPT / DECLINE);
+  - accepting groups them with you exactly like a Roblox party (same queue rules: leader starts, one team), and if you're in a Roblox party they join that group; max `Config.PARTY.max` = 3; LEAVE PARTY in the card; can't change parties while joining a match;
+  - INVITE FRIENDS TO THE GAME stays (Roblox's game invite) for friends who aren't here.
+  - Checked in Studio (one client): the card, the pop-up (fired from the server), junk requests dropped without errors. **Two-player flow not tested yet** (needs a Studio multi-client test or the live game).
+- **Motion:** the hover plate's » slides in, PLAY breathes every few seconds while idle (not while hovered or with the card open), player rows tint on hover, party circles lift on hover, the invite pop-up springs in and shrinks away.
+- Party card rebuilt as a list (`Head`, `Body` with Status, Help (fixed 3 lines: auto-height wrapped text in an auto list measures one line), PLAYERS HERE, `Here` rows from `UiTemplates.Lobby.PartyInviteRow`, InviteFriends, Leave); invite pop-up `LobbyToast.Toast.Invite`; `PlayerRow.Invite`. Studio patched in place; builder matches.

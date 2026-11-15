@@ -4,6 +4,9 @@
 --
 -- QueueRequest (client -> server): ("join", mode) | ("leave")
 -- QueueEvent (server -> one client): a one-shot moment (QueueEventPayload below)
+-- PartyRequest (client -> server): ("invite", userId) | ("accept", userId) |
+--   ("decline", userId) | ("leave")
+-- PartyEvent (server -> one client): PartyEventPayload below
 --
 -- Live state is on attributes the server owns:
 --   Player:  QueueStatus ("idle" | "searching" | "found" | "teleporting"),
@@ -24,8 +27,15 @@ export type QueueEventPayload = {
 	payload: string?, -- "studio": the TeleportData JSON it would send
 }
 
+export type PartyEventPayload = {
+	kind: "invite" | "info",
+	from: number?, -- "invite": the inviter's userId
+	expiresIn: number?, -- "invite": seconds it stays open
+	text: string?, -- "info": a short message
+}
+
 local FOLDER_NAME = "LobbyRemotes"
-local EVENTS = { "QueueRequest", "QueueEvent" }
+local EVENTS = { "QueueRequest", "QueueEvent", "PartyRequest", "PartyEvent" }
 
 local folder: Instance
 if RunService:IsServer() then

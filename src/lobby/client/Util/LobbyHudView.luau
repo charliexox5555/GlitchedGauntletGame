@@ -1,18 +1,20 @@
 --!strict
--- The lobby main HUD, v5 (vault/02 Art/UI Lobby HUD.md): the profile (top
--- left), the player list with level and win streak (top right), the bottom
--- bar (Locker, Shop, Pass, Range, Settings) with PLAY and your party slots,
--- and toasts. The layout is built in Studio, one ScreenGui per part like the
--- match (StarterGui.LobbyProfile, LobbyTasks, LobbyPlayerList, LobbyBar,
--- LobbyToast,
--- row template UiTemplates.Lobby.PlayerRow, backup
+-- The lobby main HUD, v6 (vault/02 Art/UI Lobby HUD.md): the player list
+-- with level and win streak (top right), the bottom bar (Locker, Shop, Pass,
+-- Range, Settings) with PLAY and your party slots, toasts and party invites.
+-- The layout is built in Studio, one ScreenGui per part like the match
+-- (StarterGui.LobbyTasks, LobbyPlayerList, LobbyBar, LobbyToast,
+-- templates UiTemplates.Lobby.PlayerRow / PartySlot / PartyInviteRow, backup
 -- tools/studio/BuildLobbyHud.luau); this fills and animates it. LobbyHud
 -- uses it on desktop; phones keep the old dock until the mobile pass.
 --
 -- Tab shows / hides the player list (like Roblox's). The party row shows you
 -- and the friends in your Roblox party who are here (server attributes
--- PartyKey / PartyLeader from Matchmaking/Parties); the + opens a card that
--- explains Roblox parties and invites friends to the game. Motion: things pop
+-- PartyKey / PartyLeader from Matchmaking/Parties); the + opens a card to
+-- invite players here (Services/PartyService: in-game invites, since Roblox
+-- has no API to invite into a Roblox party) or friends to the game, or leave.
+-- Hovering someone's row in the player list shows INVITE too; an invite you
+-- get pops up with ACCEPT / DECLINE. Motion: things pop
 -- from their centre with a short overshoot and settle (coil, snap, settle).
 --
 -- Data that doesn't exist yet stays hidden or a placeholder: level and XP (no
@@ -28,6 +30,8 @@ local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
+local Config = require(ReplicatedStorage.Lobby.Config)
+local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local QueueState = require(script.Parent.QueueState)
 local Router = require(script.Parent.Router)
 local Sound = require(script.Parent.Sound)
@@ -59,7 +63,6 @@ local MENUS: { [string]: string } = {
 type State = {
 	gui: ScreenGui,
 	fits: { UIScale },
-	topLeft: Frame,
 	topRight: Frame,
 	bottom: Frame,
 	list: Frame,
@@ -88,6 +91,12 @@ type State = {
 	card: Frame,
 	cardPop: UIScale,
 	cardOpen: boolean,
+	inviteRowTemplate: Frame,
+	invite: Frame,
+	invitePop: UIScale,
+	inviteFrom: Player?,
+	inviteUntil: number,
+	playHover: boolean,
 	lastStatus: string,
 	timerConn: RBXScriptConnection?,
 	toastToken: number,
@@ -148,7 +157,7 @@ local function numberAttr(p: Player, name: string, default: number): number
 end
 
 -- A body with slant caps (CapL / CapR children): recolour them together.
-local function setFill(body: Frame, color: Color3)
+local function setFill(body: GuiObject, color: Color3)
 	body.BackgroundColor3 = color
 	for _, c in body:GetChildren() do
 		if c:IsA("ImageLabel") and (c.Name == "CapL" or c.Name == "CapR") then
@@ -157,25 +166,49 @@ local function setFill(body: Frame, color: Color3)
 	end
 end
 
--- Profile ---------------------------------------------------------------------------
-local function fillProfile(s: State)
-	local profile = child(s.topLeft, "Profile") :: Frame
-	local cell = child(profile, "Cell") :: Frame
-	local shot = child(cell, "Headshot") :: ImageLabel
-	shot.Image = headshot(player.UserId)
-	local name = child(profile, "PlayerName") :: TextLabel
-	name.Text = string.upper(player.DisplayName)
-	local level = child(child(profile, "Level"), "Value") :: TextLabel
-	level.Text = tostring(numberAttr(player, "Level", 1))
-	local share = math.clamp(numberAttr(player, "XpShare", 0), 0, 1)
-	local xp = child(profile, "Xp") :: Frame
-	for i = 1, 10 do
-		local seg = xp:FindFirstChild("Seg" .. i)
-		if seg and seg:IsA("Frame") then
-			seg.BackgroundTransparency = if i <= math.floor(share * 10 + 0.5) then 0 else 0.82
+-- Party invites (Services/PartyService) -------------------------------------------
+local function partyRequest(action: string, userId: number?)
+	LobbyNet.event("PartyRequest"):FireServer(action, userId)
+end
+
+local sentAt: { [number]: number } = {} -- userId → when you invited them
+
+-- Anyone here who isn't you or already in your party.
+local function canInvite(p: Player): boolean
+	if p == player then
+		return false
+	end
+	local key = player:GetAttribute("PartyKey")
+	return not (typeof(key) == "string" and p:GetAttribute("PartyKey") == key)
+end
+
+-- An INVITE button for `p`: reads SENT (navy) while that invite is open.
+local function hookInvite(b: TextButton, p: Player)
+	local label = b:FindFirstChild("Label")
+	local function look()
+		local at = sentAt[p.UserId]
+		local sent = at ~= nil and os.clock() - at < Config.PARTY.inviteTtl
+		setFill(b, if sent then NAVY_HI else GOLD)
+		if label and label:IsA("TextLabel") then
+			label.Text = if sent then "SENT" else "INVITE"
+			label.TextColor3 = if sent then WHITE else INK
 		end
 	end
+	look()
+	b.Activated:Connect(function()
+		local at = sentAt[p.UserId]
+		if at and os.clock() - at < Config.PARTY.inviteTtl then
+			return
+		end
+		sentAt[p.UserId] = os.clock()
+		Sound.play("Select")
+		partyRequest("invite", p.UserId)
+		look()
+	end)
 end
+
+-- The party card refills when the list changes (set once the card exists).
+local refreshCard: () -> () = function() end
 
 -- Player list (level and win streak) -------------------------------------------------
 local function whereOf(p: Player): (string, Color3)
@@ -257,6 +290,22 @@ local function renderList()
 				c.ImageTransparency = dim
 			end
 		end
+		-- hovering someone you can invite shows INVITE over their tags
+		local inviteB = row:FindFirstChild("Invite")
+		if inviteB and inviteB:IsA("TextButton") then
+			inviteB.Visible = false
+			if canInvite(p) then
+				hookInvite(inviteB, p)
+				row.MouseEnter:Connect(function()
+					inviteB.Visible = true
+					tween(row, 0.12, { BackgroundColor3 = NAVY_HI })
+				end)
+				row.MouseLeave:Connect(function()
+					inviteB.Visible = false
+					tween(row, 0.18, { BackgroundColor3 = NAVY })
+				end)
+			end
+		end
 		row.Parent = s.list
 		seen[p.UserId] = true
 		if not shownRows[p.UserId] and listIntro then
@@ -264,6 +313,7 @@ local function renderList()
 		end
 	end
 	shownRows = seen
+	refreshCard()
 	s.more.Visible = #all > MAX_ROWS
 	s.more.Text = string.format("+%d MORE", #all - MAX_ROWS)
 end
@@ -284,12 +334,7 @@ local function watch(p: Player)
 		end
 		if name == "PartyKey" or name == "PartyLeader" then
 			LobbyHudView.renderParty()
-		end
-		if p == player and (name == "Level" or name == "XpShare") then
-			local s = state
-			if s then
-				fillProfile(s)
-			end
+			renderList()
 		end
 	end)
 end
@@ -302,6 +347,10 @@ local function hookItem(s: State, b: TextButton)
 	-- icon from its base; the name stays on its coloured tag (concept A)
 	local plate = b:FindFirstChild("Plate")
 	local platePop = plate and plate:FindFirstChild("Pop")
+	local chevrons = plate and plate:FindFirstChild("Chevrons")
+	local chevHome = if chevrons and chevrons:IsA("GuiObject")
+		then chevrons.Position
+		else UDim2.new()
 	local hovered = false
 	-- the tag's slanted ends have a dark edge fringe that shows on the same-
 	-- colour plate, so they hide while it's up (the tag body merges into it)
@@ -330,6 +379,11 @@ local function hookItem(s: State, b: TextButton)
 				plate.Visible = true
 				platePop.Scale = 0.7
 				tween(platePop, 0.26, { Scale = 1 }, BACK, OUT)
+				local chev = plate:FindFirstChild("Chevrons")
+				if chev and chev:IsA("GuiObject") then
+					chev.Position = chevHome - UDim2.fromOffset(18, 0)
+					tween(chev, 0.34, { Position = chevHome }, BACK, OUT)
+				end
 			else
 				local t = tween(platePop, 0.12, { Scale = 0.7 }, QUINT, IN)
 				t.Completed:Once(function()
@@ -374,6 +428,19 @@ local function inviteFriends()
 	end)
 end
 
+-- A hover lift for party circles (their ring's "Pop").
+local function hoverLift(slot: GuiObject, pop: UIScale?)
+	if not pop then
+		return
+	end
+	slot.MouseEnter:Connect(function()
+		tween(pop, 0.2, { Scale = 1.1 }, BACK, OUT)
+	end)
+	slot.MouseLeave:Connect(function()
+		tween(pop, 0.18, { Scale = 1 }, QUINT, OUT)
+	end)
+end
+
 -- Party ----------------------------------------------------------------------------
 local function partyMates(): { Player }
 	local key = player:GetAttribute("PartyKey")
@@ -411,16 +478,18 @@ end
 
 local function fillCard(s: State)
 	local mates = partyMates()
-	local status = child(s.card, "Status") :: TextLabel
-	local help = child(s.card, "Help") :: TextLabel
+	local body = child(s.card, "Body") :: Frame
+	local status = child(body, "Status") :: TextLabel
+	local help = child(body, "Help") :: TextLabel
 	local count = child(child(s.card, "Head"), "Count") :: TextLabel
+	local full = #mates + 1 >= Config.PARTY.max
 	if #mates == 0 then
 		count.Text = "SOLO"
 		status.Text = "NOT IN A PARTY"
-		help.Text = "Make a party in Roblox (the Party button in the Roblox menu). Everyone in it "
-			.. "who is here queues with you, on your team."
+		help.Text = "Invite players here, or friends to the game. A Roblox party joins you on its own. "
+			.. "Your party queues together, on one team."
 	else
-		count.Text = string.format("%d HERE", #mates + 1)
+		count.Text = string.format("%d / %d", #mates + 1, Config.PARTY.max)
 		local leader = player
 		for _, m in mates do
 			if m:GetAttribute("PartyLeader") == true then
@@ -433,6 +502,44 @@ local function fillCard(s: State)
 			else string.upper(leader.DisplayName)
 				.. " leads: they pick the mode and start the search. Anyone can cancel."
 	end
+	child(body, "Leave").Visible = #mates > 0
+	-- the players here you can invite (up to 5)
+	local here = child(body, "Here") :: Frame
+	for _, c in here:GetChildren() do
+		if c:IsA("Frame") then
+			c:Destroy()
+		end
+	end
+	local list: { Player } = {}
+	if not full then
+		for _, p in Players:GetPlayers() do
+			if canInvite(p) then
+				table.insert(list, p)
+			end
+		end
+		table.sort(list, function(a, b)
+			return a.DisplayName < b.DisplayName
+		end)
+	end
+	for i, p in list do
+		if i > 5 then
+			break
+		end
+		local row = s.inviteRowTemplate:Clone()
+		row.Name = "Row"
+		row.LayoutOrder = i
+		local shot = child(child(row, "Cell"), "Headshot") :: ImageLabel
+		shot.Image = headshot(p.UserId)
+		local name = child(row, "PlayerName") :: TextLabel
+		name.Text = string.upper(p.DisplayName)
+		local where = child(row, "Where") :: TextLabel
+		where.Text = (whereOf(p))
+		hookInvite(child(row, "Invite") :: TextButton, p)
+		row.Parent = here
+	end
+	local empty = child(body, "Empty") :: TextLabel
+	empty.Visible = #list == 0
+	empty.Text = if full then "YOUR PARTY IS FULL" else "NO ONE ELSE IS HERE YET"
 end
 
 local function showCard(s: State, open: boolean)
@@ -481,6 +588,7 @@ function LobbyHudView.renderParty()
 			if pop then
 				popIn(pop, 0.05 * (i - 1))
 			end
+			hoverLift(made, pop)
 			Sound.play("CardIn")
 		end
 		local sl = slot :: GuiObject
@@ -503,6 +611,61 @@ function LobbyHudView.renderParty()
 	end
 	if s.cardOpen then
 		fillCard(s)
+	end
+end
+
+-- Invites you get ------------------------------------------------------------------
+local function hideInvite(s: State)
+	s.inviteFrom = nil
+	local t = tween(s.invitePop, 0.16, { Scale = 0.7 }, QUINT, IN)
+	t.Completed:Once(function()
+		if not s.inviteFrom then
+			s.invite.Visible = false
+		end
+	end)
+end
+
+local function showInvite(s: State, from: Player, ttl: number)
+	s.inviteFrom = from
+	s.inviteUntil = os.clock() + ttl
+	local shot = child(child(child(s.invite, "Cell"), "Disc"), "Headshot") :: ImageLabel
+	shot.Image = headshot(from.UserId)
+	local name = child(s.invite, "PlayerName") :: TextLabel
+	name.Text = string.upper(from.DisplayName)
+	local timer = child(s.invite, "Timer") :: TextLabel
+	s.invite.Visible = true
+	s.invitePop.Scale = 0.6
+	tween(s.invitePop, 0.42, { Scale = 1 }, BACK, OUT)
+	Sound.play("Banner")
+	task.spawn(function()
+		while s.inviteFrom == from do
+			local left = s.inviteUntil - os.clock()
+			if left <= 0 or from.Parent ~= Players then
+				hideInvite(s)
+				break
+			end
+			timer.Text = tostring(math.ceil(left))
+			task.wait(0.2)
+		end
+	end)
+end
+
+local function onPartyEvent(payload: unknown)
+	local s = state
+	if not s or typeof(payload) ~= "table" then
+		return
+	end
+	local data = payload :: { [string]: unknown }
+	if data.kind == "invite" and typeof(data.from) == "number" then
+		local from = Players:GetPlayerByUserId(data.from :: number)
+		local ttl = if typeof(data.expiresIn) == "number"
+			then data.expiresIn :: number
+			else Config.PARTY.inviteTtl
+		if from then
+			showInvite(s, from, math.clamp(ttl, 1, 60))
+		end
+	elseif data.kind == "info" and typeof(data.text) == "string" then
+		LobbyHudView.toast(data.text :: string, "info")
 	end
 end
 
@@ -539,7 +702,7 @@ end
 -- API -------------------------------------------------------------------------------
 
 -- The Studio-built ScreenGuis (one per part), or nil if they aren't there.
-local PARTS = { "LobbyProfile", "LobbyTasks", "LobbyPlayerList", "LobbyBar", "LobbyToast" }
+local PARTS = { "LobbyTasks", "LobbyPlayerList", "LobbyBar", "LobbyToast" }
 function LobbyHudView.guis(playerGui: Instance, wait: number): { [string]: ScreenGui }?
 	local found: { [string]: ScreenGui } = {}
 	for _, name in PARTS do
@@ -555,7 +718,6 @@ end
 -- Binds the lobby HUD's ScreenGuis (from `guis`).
 function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	local gui = guis.LobbyBar
-	local topLeft = child(guis.LobbyProfile, "TopLeft") :: Frame
 	local topRight = child(guis.LobbyPlayerList, "TopRight") :: Frame
 	local bottom = child(gui, "Bottom") :: Frame
 	local toast = child(guis.LobbyToast, "Toast") :: Frame
@@ -568,13 +730,11 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	local s: State = {
 		gui = gui,
 		fits = {
-			child(topLeft, "Fit"),
 			child(topRight, "Fit"),
 			child(bottom, "Fit"),
 			child(toast, "Fit"),
 			child(tasksGroup, "Fit"),
 		},
-		topLeft = topLeft,
 		topRight = topRight,
 		bottom = bottom,
 		list = list,
@@ -596,7 +756,7 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		toastLabel = child(plate, "Label"),
 		bottomHome = bottom.Position,
 		bottomShown = true,
-		topHomes = { [topLeft] = topLeft.Position, [topRight] = topRight.Position },
+		topHomes = { [topRight] = topRight.Position },
 		topShown = true,
 		listShown = true,
 		party = child(bottom, "Party"),
@@ -607,6 +767,14 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		card = child(bottom, "PartyCard"),
 		cardPop = child(child(bottom, "PartyCard"), "Pop"),
 		cardOpen = false,
+		inviteRowTemplate = ReplicatedStorage:WaitForChild("UiTemplates")
+			:WaitForChild("Lobby")
+			:WaitForChild("PartyInviteRow") :: Frame,
+		invite = child(toast, "Invite"),
+		invitePop = child(child(toast, "Invite"), "Pop"),
+		inviteFrom = nil,
+		inviteUntil = 0,
+		playHover = false,
 		lastStatus = "idle",
 		timerConn = nil,
 		toastToken = 0,
@@ -621,11 +789,33 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		hookItem(s, child(bottom, name))
 	end
 	play.MouseEnter:Connect(function()
+		s.playHover = true
 		tween(s.playPop, 0.2, { Scale = 1.05 }, BACK, OUT)
 		Sound.play("Hover")
 	end)
 	play.MouseLeave:Connect(function()
+		s.playHover = false
 		tween(s.playPop, 0.18, { Scale = 1 }, QUINT, OUT)
+	end)
+	-- PLAY breathes now and then while idle, so the eye finds it
+	task.spawn(function()
+		while state == s do
+			task.wait(3.2)
+			local idle = QueueState.status() == "idle" and s.bottomShown and not s.cardOpen
+			if idle and not s.playHover and s.playPop.Scale == 1 then
+				local t = tween(s.playPop, 0.3, { Scale = 1.035 }, Enum.EasingStyle.Sine, OUT)
+				t.Completed:Wait()
+				if not s.playHover then
+					tween(
+						s.playPop,
+						0.55,
+						{ Scale = 1 },
+						Enum.EasingStyle.Sine,
+						Enum.EasingDirection.InOut
+					)
+				end
+			end
+		end
 	end)
 	play.Activated:Connect(function()
 		press(s.playPop, 0.92)
@@ -658,13 +848,46 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		Sound.play("Select")
 		showCard(s, not s.cardOpen)
 	end)
-	local friendsButton = child(s.card, "InviteFriends") :: TextButton
+	local cardBody = child(s.card, "Body")
+	local friendsButton = child(cardBody, "InviteFriends") :: TextButton
 	friendsButton.Activated:Connect(function()
 		showCard(s, false)
 		inviteFriends()
 	end)
-	local you = child(child(child(child(party, "You"), "Ring"), "Disc"), "Headshot") :: ImageLabel
+	local leaveButton = child(cardBody, "Leave") :: TextButton
+	leaveButton.Activated:Connect(function()
+		Sound.play("Close")
+		showCard(s, false)
+		partyRequest("leave")
+	end)
+	refreshCard = function()
+		if s.cardOpen then
+			fillCard(s)
+		end
+	end
+	local youSlot = child(party, "You") :: GuiObject
+	hoverLift(youSlot, slotPop(youSlot))
+	local you = child(child(child(youSlot, "Ring"), "Disc"), "Headshot") :: ImageLabel
 	you.Image = headshot(player.UserId)
+	-- invites you get
+	local inviteBox = s.invite;
+	(child(inviteBox, "Accept") :: TextButton).Activated:Connect(function()
+		local from = s.inviteFrom
+		if from then
+			Sound.play("LockIn")
+			partyRequest("accept", from.UserId)
+			hideInvite(s)
+		end
+	end);
+	(child(inviteBox, "Decline") :: TextButton).Activated:Connect(function()
+		local from = s.inviteFrom
+		if from then
+			Sound.play("Close")
+			partyRequest("decline", from.UserId)
+			hideInvite(s)
+		end
+	end)
+	LobbyNet.event("PartyEvent").OnClientEvent:Connect(onPartyEvent)
 	-- Tab shows / hides the player list, like Roblox's own
 	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 		if not processed and input.KeyCode == Enum.KeyCode.Tab then
@@ -672,7 +895,6 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 			LobbyHudView.placeCorners(true)
 		end
 	end)
-	fillProfile(s)
 	-- Roblox's player list steps aside for ours.
 	pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.PlayerList, false)
 	for _, p in Players:GetPlayers() do
@@ -804,7 +1026,7 @@ function LobbyHudView.intro()
 	if not s then
 		return
 	end
-	for i, g in { s.topLeft, s.topRight } do
+	for i, g in { s.topRight } do
 		local home = s.topHomes[g]
 		g.Position = home + UDim2.fromOffset(0, -140)
 		task.delay((i - 1) * 0.06, function()

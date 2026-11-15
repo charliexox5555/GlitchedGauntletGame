@@ -13,6 +13,12 @@
 --
 -- Studio playtests have no PartyId (use Studio's Party Simulator, or set a
 -- `TestPartyId` string attribute on players from the server in Studio).
+--
+-- In-game parties (Services/PartyService invites): Roblox gives games no way
+-- to invite into a Roblox party, so an accepted invite sets a local override
+-- that puts the player in the inviter's group (their Roblox party's id, or a
+-- new "G" id). Leaving sets an empty override (solo); changing Roblox party
+-- clears the override.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -21,7 +27,9 @@ local SocialService = game:GetService("SocialService")
 local Parties = {}
 
 local partyOf: { [Player]: string } = {}
-local joinedAt: { [Player]: number } = {}
+local joinedAt: { [Player]: number } = {} -- when they joined their current group
+local custom: { [Player]: string } = {} -- in-game override ("" = solo)
+local nextGameParty = 0
 local acceptOrder: { [string]: { [number]: number } } = {} -- partyId → userId → order
 local keys: { [string]: string } = {}
 local nextKey = 0
@@ -29,6 +37,10 @@ local listeners: { ({ Player }) -> () } = {}
 local conns: { [Player]: { RBXScriptConnection } } = {}
 
 local function readId(p: Player): string
+	local override = custom[p]
+	if override then
+		return override
+	end
 	if RunService:IsStudio() then
 		local t = p:GetAttribute("TestPartyId")
 		if typeof(t) == "string" and t ~= "" then
@@ -132,6 +144,7 @@ local function update(p: Player)
 		end
 	end
 	partyOf[p] = now
+	joinedAt[p] = os.clock() -- the newest in a group never takes the lead
 	if now == "" then
 		p:SetAttribute("PartyKey", nil)
 		p:SetAttribute("PartyLeader", nil)
@@ -158,6 +171,7 @@ local function onAdded(p: Player)
 		table.insert(
 			list,
 			signal:Connect(function()
+				custom[p] = nil -- a new Roblox party wins over an in-game one
 				update(p)
 			end)
 		)
@@ -182,6 +196,7 @@ local function onRemoving(p: Player)
 	conns[p] = nil
 	partyOf[p] = nil
 	joinedAt[p] = nil
+	custom[p] = nil
 	if before ~= "" then
 		local rest = membersOf(before)
 		publish(before)
@@ -212,6 +227,26 @@ end
 
 function Parties.leader(p: Player): Player
 	return Parties.members(p)[1]
+end
+
+-- An accepted in-game invite: `p` joins `host`'s group (a new one if solo).
+function Parties.join(p: Player, host: Player)
+	local target = partyOf[host] or ""
+	if target == "" or #membersOf(target) == 0 then
+		nextGameParty += 1
+		target = "G" .. nextGameParty
+		custom[host] = target
+		update(host)
+	end
+	custom[p] = target
+	update(p)
+end
+
+-- Leaves the current group (solo until they accept another invite or
+-- change Roblox party).
+function Parties.leave(p: Player)
+	custom[p] = ""
+	update(p)
 end
 
 -- Called (in its own thread) with the players whose party changed.

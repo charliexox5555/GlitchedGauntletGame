@@ -79,5 +79,13 @@ return table.freeze({
 	rejectLogInterval = 60,
 	RATE = {
 		QueueRequest = { 2, 4 },
+		PartyRequest = { 2, 6 },
+	},
+
+	-- In-game party invites (Services/PartyService): biggest party (the
+	-- biggest team), and how long an invite stays open.
+	PARTY = {
+		max = 3,
+		inviteTtl = 30,
 	},
 })

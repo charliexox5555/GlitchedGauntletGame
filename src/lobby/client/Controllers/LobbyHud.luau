@@ -14,7 +14,7 @@
 -- Every colour and size comes from Util/Style; shapes from Util/Kit.
 --
 -- Desktop (v5, vault/02 Art/UI Lobby HUD.md): the Studio-built
--- ScreenGuis (LobbyProfile, LobbyPlayerList, LobbyBar, LobbyToast, LobbyTasks)
+-- ScreenGuis (LobbyPlayerList, LobbyBar, LobbyToast, LobbyTasks)
 -- through Util/LobbyHudView (profile, player list,
 -- bottom bar, PLAY, party, toasts); everything below builds the old v2 dock,
 -- which phones keep until the mobile pass.
