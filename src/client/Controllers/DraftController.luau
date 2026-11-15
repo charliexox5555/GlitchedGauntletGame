@@ -1427,6 +1427,15 @@ local function show(o: MatchState.DraftOffer)
 	end
 	useScreen = wantScreen
 	if useScreen then
+		-- The old layout hides at once: its delayed hide (setOpen) is cancelled
+		-- when the new screen opens straight after, which left it covering the
+		-- screen when the first offer landed before the new screen bound.
+		local back = backdrop
+		if back then
+			back.Visible = false
+			back.Modal = false
+		end
+		revealToken += 1 -- its card reveal stops too
 		table.clear(gunCards)
 		table.clear(abilityCards)
 		offer = o

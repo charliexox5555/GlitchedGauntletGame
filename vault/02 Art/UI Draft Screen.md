@@ -11,6 +11,7 @@ Owner on v4: "Build it". The v4 mockup is now the real draft screen on desktop; 
 - Upgrade round: ![live upgrade](References/ui-overhaul/2026-11-14-draft-live-upgrade.jpg)
 - Glitched path: ![live glitch](References/ui-overhaul/2026-11-14-draft-live-glitch.jpg)
 - **Short card lines (owner: "Yes, shorten them"):** 14 upgrade levels change behaviour, not a number, so their line fell back to the long note and was cut with "…". Each now has a `card` line in `Config/Mods` (e.g. Crash Recovery "CHEAT DEATH ONCE · BACK AT 1 HP", Strong Stim "BOOST 15 → 25%", Fork Fire G3 "FIREBOMBS 3 → 5"), used by `DraftController.statLine` on desktop and phone. Measured in the card font: widest 251 of 352 px. Found with a Lune audit of every Mod level.
+- **Fix (owner testing: "the old select UI still shows up and covers the screen"):** when the first offer landed before the new screen bound, the hand-over closed the old layout with a delayed hide that the new screen's open cancelled, so the old one stayed on top. It now hides at once. Checked by forcing the race (screen renamed until the old draft was open): old hidden, mouse freed, new screen up with the picks kept.
 - **Open:** the bottom HUD shows faintly under the dim (same as the old draft). Phone layout, new card art.
 
 ## v4 (approved mockup)
