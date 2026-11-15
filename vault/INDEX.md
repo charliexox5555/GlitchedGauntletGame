@@ -42,6 +42,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/UI Match Extras.md` (2): **status tray** (draining rings), **hold-Tab scoreboard**, combat report, final-kill card, prompts, zone alert: built 2026-11-14
 - `02 Art/UI Lobby HUD.md` (5): **lobby main HUD**, built: RIVALS-style bar (coloured tags, hover plates, ChatGPT icons v2), PLAY + party slots, player list (Tab / topbar), Roblox + in-game parties with invites, topbar buttons (2026-11-14)
 - `02 Art/UI Play and Party Menus.md` (4): **Play menu** (mode tiles, BEGINNER 2V2 left, 4V4 / 5V5 soon), **searching bar** (PLAY scales out while queued), **Party menu** (your party + search, ALL / FRIENDS / LOBBY, invites), the shared close button, no lobby UI sounds (2026-11-15)
+- `02 Art/UI Shop.md` (6): **Shop** plan: HOME (paid cases with odds + region lock, season pass, offers, cosmetics), BUNDLES (some with exclusive Mods), DAILY (8 items + login rewards), COINS; one currency (Coins); motion; ChatGPT art prompts (2026-11-16)
 - `02 Art/UI Locker.md` (4): **Locker** plan: weapons synced into the Lobby (`tools/studio/SyncWeapons.luau`), 3D gun on a hidden stage, per-gun skins, Abilities = your Mod collection (buyable Mods, changed Money decision) (2026-11-15)
 - `02 Art/UI Notifications.md` (4): **match notifications** (long band under the top bar, match point, no 3-2-1) and the de-AI pass on the HUD (2026-11-14)
 - `02 Art/UI Combat HUD Mockup.md` (5): **health, ammo and Mod slots mockup** (2026-11-14) in the top bar style; states board, design, open questions

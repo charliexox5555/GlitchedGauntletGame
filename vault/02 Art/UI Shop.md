@@ -1,0 +1,110 @@
+# Shop (2026-11-16, plan)
+
+Owner's brief (RIVALS screenshots: Home, Bundles, Daily, Keys, bundle hover, item card, skin-bundle preview, case popup, odds list):
+- A shop with sections, RIVALS-like. It **blurs the world with a coloured accent** (not a plain blur). The shop sits in the middle **without a structured back panel**, like the Play menu.
+- **Home:** cases, special offers, the season battle pass, and a small cosmetics section (charms, emotes, more later; not skins).
+- **Bundles:** Robux bundles.
+- **Daily:** a rotating daily shop (fewer items than RIVALS: skins, charms, emotes). Underneath it, **login / daily rewards** (placeholder for now).
+- **Coins:** coin packs (prices later).
+- **Coins on the main HUD:** a coin counter at the **top middle** of the screen, like RIVALS' keys.
+- **Motion:**
+  - Everything scrolls in one frame, the tab row included.
+  - The coin counter is not part of the scroll; it **tweens up and out** once you scroll far down.
+  - Big cards (bundles, large items, not the small cells): on hover, **a frame closes in around the card** to select it.
+  - Hovering a bundle shows its contents laid out.
+  - Clicking an item in a bundle shows an item card ("Apex Rifle Skin · given to Energy Rifle").
+  - Clicking a skin bundle opens a 3D preview: the skin big, Back / Buy item / Buy bundle, and a strip of the bundle's items.
+  - A case opens a popup (case art, prices, Contents → an odds list).
+- No loading screen yet (no game name or logo); the shop comes first.
+
+## What we already decided (vault)
+- **Money** (Home → Locked decisions; [Game Plan](../05%20Production/Game%20Plan.md) §Money):
+  - cosmetics are sold directly, and extra Mods can be bought;
+  - base Mods and every gun stay free;
+  - **no Robux loot boxes** (restricted in the UK, Australia and Brazil).
+- Planned (Game Plan):
+  - a direct-buy shop and a rotating daily shop;
+  - a cosmetic "Supporter Pack";
+  - codes that give cosmetic currency;
+  - an earned-only ranked currency for prestige cosmetics;
+  - a season pass with free and premium tracks.
+- Nothing is built: no currency, no `MarketplaceService` / `ProcessReceipt`. The Lobby's Shop is a placeholder panel.
+
+## Roblox rules that shape it (LihFolk `11 Monetization Publishing and Live Ops`: Regional Compliance - Paid Random Items and Country Rules; Limited-Time Offers - Design and Ethics; Developer Products and ProcessReceipt; Battle Pass and Season Design; Ethical Design and Player Trust; Daily Rewards System End to End)
+- **Cases are "paid random items"** if they can be bought with Robux **or with any currency Robux can buy** (keys, tickets, coins).
+  - Every outcome must be shown with its odds (summing to 100%) behind a labelled Contents / Details button.
+  - The case must be hidden or locked for players where `PolicyService:GetPolicyInfoForPlayerAsync().ArePaidRandomItemsRestricted` is true (checked per player; if the check fails, treat the player as restricted).
+  - A currency that can **only be earned** (never sold) is not covered.
+- **Daily shop:** the same rotation for everyone, fixed in advance; the timer comes from a server end time.
+  - Call it "today's items", not "limited".
+  - No fake stock.
+  - A strikethrough "was" price must be a price really charged before; no invented "x12 VALUE" claims.
+- **Robux purchases:** developer products (repeatable, e.g. coin packs, bundles) through one `ProcessReceipt` handler.
+  - It grants and saves first, then returns `PurchaseGranted`.
+  - It is idempotent per `PurchaseId`.
+  - Never grant from the client's "purchase finished" event.
+  - One-time things can be game passes.
+- **Season pass:** everyone is on the free track. About a month per season. Missions reset daily and never need Robux. A late premium buyer gets the tiers already reached. Unclaimed rewards are granted at season end.
+- **Login rewards:** UTC day index, grace days on streaks, no paid streak restore, claim rate-limited server-side.
+
+## Proposed shop (★ = my suggestion; open points in **Questions**)
+**Currency: Coins** (one currency; earned by playing and sold in packs). The top-middle counter on the HUD and in the shop shows Coins with a + that opens the Coins tab.
+
+**Tabs:** HOME · BUNDLES · DAILY · COINS (+ the close button). The tab row scrolls with the page.
+
+**Home** (two columns, like RIVALS):
+- **Cases:** a row of case cards. *How they're bought is the big open question.*
+- **Season Pass:** a big card (art, current tier, VIEW).
+- **Special offers:** a wide card that cycles through offers with dots (Starter Bundle first). Value claims only if they're real.
+- **Cosmetics:** a grid of small cells (charms, emotes; more types later), each with its price.
+- (★ **Mods:** a row for the buyable Mods, since they're the one non-cosmetic thing we sell, or keep them in the Locker's Abilities tab only.)
+
+**Bundles:** big cards in two rows (3 then 2), each with art, a name and a Robux price.
+- Hover: the frame closes in, and a layout of the contents appears (skins, charms, coins x N).
+- Clicking an item: an item card.
+- Clicking a skin bundle: the 3D preview (our Locker stage, reused) with BACK · BUY ITEM · BUY BUNDLE and the strip of items.
+
+**Daily:**
+- A header with "New items in 3h 12m" (server time).
+- ★ 6 items in a row (2 skins, 2 charms, 2 emotes), the same for everyone, refreshed daily at 00:00 UTC.
+- Underneath, **Login rewards**: 7 days (placeholders), today's claimable card lit, a grand prize on day 7.
+
+**Coins:** five or six coin packs as big cards (prices later).
+
+**Look:** our Locker / Play-menu language (Builder Extended ExtraBold, dark navy see-through plates, cyan selection with slant ends, the drawn-X close button). Prices sit in a solid plate:
+- Robux = a green plate with the Robux mark;
+- Coins = a gold plate with our coin icon.
+
+The selection frame is four corner brackets that close in from outside the card to its edges (0.18 s Quint). No pills, outlines, glows or edge strips. The backdrop is a blur 18 plus a coloured wash (a deep violet-to-navy gradient scrim, like RIVALS' tinted blur).
+
+## Build order
+1. **Mockup** in Studio (StarterGui.Shop, Studio-built): the backdrop, the coin counter, the tabs, and Home + Bundles + Daily + Coins with placeholder art. Owner review.
+2. **Wire the UI:** tabs, scroll, the counter tweening out, hover frames, bundle hover contents, item card, skin-bundle preview, case popup + Contents.
+3. **Economy** (its own task, security review): Coins in the player data, `ProcessReceipt` (dev products), the daily rotation, login rewards, case rolls + odds + PolicyService gate if cases stay paid, the season pass.
+
+## Owner's answers (2026-11-16)
+- **Cases: paid, done right.** Cases can be bought with Robux or Coins, like RIVALS. This changed the locked "no Robux loot boxes" decision (Home, Game Plan). The rules that apply:
+  - every case has **CONTENTS**: an odds list with every outcome and its % (summing to 100%), plus the disclaimer;
+  - cases are hidden or locked for players where `ArePaidRandomItemsRestricted` (checked per player; if the check fails, treat them as restricted);
+  - no duplicate cosmetics (a cosmetic you own is re-rolled or skipped, and the shown odds come from the same table as the roll);
+  - the popup: case art x1, BUY (Coins), BUY (Robux), BUY x3 (Robux), CONTENTS.
+- **Currency: one, Coins.** Earned by playing and sold in packs (COINS tab). The top-middle counter shows it with a +.
+- **Mods:** sold in the Locker's Abilities tab. **Some Robux bundles include exclusive Mods** (owner: "somewhat pay to win but nothing too crazy"). Bundle contents show Mods with their own tag.
+- **Daily shop: 8 items, refreshed daily** (00:00 UTC, the same for everyone). The owner adds more cosmetics before release.
+
+## Art (ChatGPT): prompts to paste
+One style for all of it: our lobby bar icons v2 (`art-source/ui/lobby-icons/`), **chunky, faceted, stylised 3D** with clean flat shading. **No round curves or spheres** (curves are angled facets) and **no blunt ends** (chamfered). No text unless asked. Transparent PNGs unless it says banner. Give each set a contact sheet on dark grey, and save into `art-source/ui/shop/`.
+
+1. **Coin (the currency):**
+   > Make a game currency icon for a stylised Roblox shooter, in the same chunky faceted 3D style as our lobby icons: a thick gold coin built from angled facets (an octagon or decagon, not a circle) with a raised chamfered rim and a bold embossed mark in the middle (a sharp angled "G" or a faceted star). Warm gold with a cooler shadow, clean flat lighting, no outline, no glow, no text. 3/4 view, slightly tilted. Output: `coin.png` 512x512 transparent, plus `coin_flat.png`, a single flat white silhouette of it (for small UI, tinted in-game), plus `coin_stack.png`, three coins stacked and offset.
+2. **Cases (3 tiers):**
+   > Make 3 weapon case icons in the same chunky faceted 3D style: hard-shell gun cases, long and low, with chamfered corners, ribbed lids, latches and a handle, built from angled plates (no round curves). Tier 1 "Standard Case": slate grey with cyan trim. Tier 2 "Elite Case": deep violet with gold trim. Tier 3 "Apex Case": black with hot red-orange trim and a faceted gem latch. Same 3/4 front view and size for all three, clean flat lighting, no text, no glow. Output: `case_standard.png`, `case_elite.png`, `case_apex.png`, each 768x512 transparent, plus a contact sheet.
+3. **Shop tab icons (they poke above the tab buttons, like the lobby bar):**
+   > Make 4 icons in the exact style of our lobby bar icons (chunky faceted 3D, bright colour, clean flat lighting, no outline, no text): HOME (a faceted shop storefront with an angled awning), BUNDLES (a stack of three chunky gift boxes with angled bows), DAILY (a faceted tear-off calendar page with a bold sun mark), COINS (a small pile of our faceted gold coins). Each 512x512 transparent, centred, the same scale.
+4. **Coin packs (6 sizes, for the COINS tab cards):**
+   > Make 6 coin pack images in the same style, growing in size: a few faceted gold coins, a small stack, a big stack, a pouch with coins spilling out (angled cloth folds), an open faceted chest of coins, and a huge vault crate overflowing with coins. Same 3/4 view and lighting, no text. Each 768x512 transparent.
+5. **Banners (wide card art, no text, the subject on the right so our title fits on the left):**
+   > Make 3 wide banner illustrations, 1600x700, in a stylised faceted low-poly look matching our game (angular shapes, no round curves, clean flat lighting, rich colour, a soft vignette): (a) SEASON PASS: a heroic faceted winged shield emblem in silver and gold on a deep blue-violet backdrop with angular light shards; (b) STARTER BUNDLE: a pile of rewards (a weapon case, a coin stack, a charm) on a bright green-teal backdrop; (c) a generic BUNDLE backdrop template: an angled-plate tech pattern in deep red that can be re-coloured. Leave the left 40% calm and darker for a title.
+6. Later, once the bundles, charms, emotes and login rewards exist: bundle art per bundle, item icons per cosmetic, login reward icons.
+
+Upload: like the emblems (local server + Studio MCP `upload_image`); the ids go in a shop config.
