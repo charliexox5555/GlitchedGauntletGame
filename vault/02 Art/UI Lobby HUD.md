@@ -47,3 +47,21 @@ Built (same `StarterGui.LobbyHudMockup`, rebuilt by `tools/studio/BuildLobbyHudM
 
 Idle: ![v2 idle](References/ui-overhaul/2026-11-14-lobby-hud-v2-idle.jpg)
 Searching: ![v2 searching](References/ui-overhaul/2026-11-14-lobby-hud-v2-searching.jpg)
+
+## Mockup v3 (owner: "more like Rivals... bottom bar looking things", not a copy)
+Reference (the owner's RIVALS hub screenshot): ![rivals](References/ui-overhaul/2026-11-14-rivals-lobby-reference.webp)
+What makes it fun: big colourful icons sitting on and breaking out of a bottom bar with names under them and red badges; PLAY on top of the bar with your party slots beside it; a callout pointing at something new; daily tasks on the left.
+
+Our version (same `StarterGui.LobbyHudMockup`, `tools/studio/BuildLobbyHudMockup.luau`), in the match UI style:
+- **Bottom bar:**
+  - a navy plate with five big coloured icons breaking out of its top edge: LOCKER cyan, SHOP gold, PASS purple, RANGE teal, SETTINGS white;
+  - each has "[key] NAME" under it (L, B, P, R, O);
+  - red circle badges for new things; the hovered one lifts, grows and its name turns gold.
+- **PLAY** on top of the bar: the gold block with slanted ends (PLAY, 1V1 · 2V2 · 3V3, ENTER); **searching** turns it navy (SEARCHING · 2V2 · 0:23, ESC). Beside it, **party slots:** your portrait in a cyan ring and an invite + circle.
+- **Callout:** a red plate with a pointer ("NEW SKIN UNLOCKED") over the item it's about.
+- **Daily tasks** (left, a proposal: no tasks system yet): a gold DAILY TASKS block, three tasks with segmented progress, counts and coin rewards, and the reset time.
+- **Profile** top left and **coins** top right stay compact; settings moved into the bar.
+- **Open:** the icons are today's flat white art tinted. Proper illustrated icons (faceted, our art style) would make it pop like RIVALS' 3D icons.
+
+Idle: ![v3 idle](References/ui-overhaul/2026-11-14-lobby-hud-v3-idle.jpg)
+Searching: ![v3 searching](References/ui-overhaul/2026-11-14-lobby-hud-v3-searching.jpg)

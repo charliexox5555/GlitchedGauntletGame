@@ -1,10 +1,10 @@
 --!strict
--- Mockup v2: the lobby main HUD (vault/02 Art/UI Lobby HUD.md). The lobby is
--- a hub you walk around, so this is a light in-game HUD, not a menu screen
--- (owner): a compact profile and wallet, a slim rail of icon buttons on the
--- left edge (hotkey keycaps; the label slides out on hover), a small PLAY
--- shortcut in the corner (the Duels pads still queue you), and while
--- searching a small queue strip at the top.
+-- Mockup v3: the lobby main HUD (vault/02 Art/UI Lobby HUD.md). The owner
+-- wants it "more like Rivals... bottom bar looking things" (not a copy): a
+-- bottom bar of big coloured icons breaking out of its top edge, with names,
+-- hotkeys and red badges; PLAY on top of the bar with your party slots; a
+-- callout pointing at something new; daily tasks on the left (a proposal:
+-- there's no tasks system yet); a compact profile and coins at the top.
 -- Same language as the match UI: navy plates, slanted gold blocks, Builder
 -- Extended, keycaps, soft shadows; no pills, glows or gradients.
 -- Paste into the Studio command bar of the LOBBY place (Edit mode). Builds
@@ -31,6 +31,7 @@ local XB = Enum.FontWeight.ExtraBold
 local NAVY, NAVY_HI = hex("1C2740"), hex("2B3A5A")
 local ALLY, ALLY_CELL = hex("3FE0F2"), hex("0D5C7A")
 local GOLD, MUTED, INK, WHITE = hex("FFC83D"), hex("8E98A8"), hex("141A26"), Color3.new(1, 1, 1)
+local RED, PURPLE, TEAL = hex("FF4D5E"), hex("B58CFF"), hex("2BD9A8")
 local SHADOW = "rbxassetid://121253415859134"
 local CAP_R, CAP_L = "rbxassetid://130377997107460", "rbxassetid://75584308608588"
 local ICON = {
@@ -135,114 +136,75 @@ end
 local function profile(c: Instance)
 	local x, y, w, h = 40, 68, 300, 56
 	shadow(c, x, y, w, h)
-	local p = make(
-		"Frame",
-		{
-			Name = "Profile",
-			Position = UDim2.fromOffset(x, y),
-			Size = UDim2.fromOffset(w, h),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		c
-	)
+	local p = make("Frame", {
+		Name = "Profile",
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, c)
 	corner(p)
-	local cell = make(
-		"Frame",
-		{
-			Name = "Cell",
-			Size = UDim2.fromOffset(h, h),
-			BackgroundColor3 = ALLY_CELL,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		p
-	)
+	local cell = make("Frame", {
+		Name = "Cell",
+		Size = UDim2.fromOffset(h, h),
+		BackgroundColor3 = ALLY_CELL,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, p)
 	corner(cell)
-	make(
-		"ImageLabel",
-		{
-			Name = "Headshot",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			Image = "rbxthumb://type=AvatarHeadShot&id=1&w=150&h=150",
-			ZIndex = 3,
-		},
-		cell
-	)
+	make("ImageLabel", {
+		Name = "Headshot",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Image = "rbxthumb://type=AvatarHeadShot&id=1&w=150&h=150",
+		ZIndex = 3,
+	}, cell)
 	text(p, "PlayerName", "CHARLIE", 16, WHITE, { Position = UDim2.fromOffset(h + 12, 11) })
-	local bar = make(
-		"Frame",
-		{
-			Name = "Bar",
-			Position = UDim2.fromOffset(h + 12, 36),
-			Size = UDim2.fromOffset(150, 5),
-			BackgroundTransparency = 1,
-		},
-		p
-	)
-	make(
-		"UIListLayout",
-		{
-			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, 2),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		},
-		bar
-	)
+	local bar = make("Frame", {
+		Name = "Bar",
+		Position = UDim2.fromOffset(h + 12, 36),
+		Size = UDim2.fromOffset(150, 5),
+		BackgroundTransparency = 1,
+	}, p)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		Padding = UDim.new(0, 2),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, bar)
 	for i = 1, 10 do
-		make(
-			"Frame",
-			{
-				Name = "Seg" .. i,
-				LayoutOrder = i,
-				Size = UDim2.fromOffset(13.2, 5),
-				BackgroundColor3 = ALLY,
-				BackgroundTransparency = if i <= 6 then 0 else 0.82,
-				BorderSizePixel = 0,
-			},
-			bar
-		)
+		make("Frame", {
+			Name = "Seg" .. i,
+			LayoutOrder = i,
+			Size = UDim2.fromOffset(13.2, 5),
+			BackgroundColor3 = ALLY,
+			BackgroundTransparency = if i <= 6 then 0 else 0.82,
+			BorderSizePixel = 0,
+		}, bar)
 	end
 	local lvW = 56
-	make(
-		"ImageLabel",
-		{
-			Name = "CapL",
-			Position = UDim2.fromOffset(w - lvW - 22, 0),
-			Size = UDim2.fromOffset(24, h),
-			BackgroundTransparency = 1,
-			Image = CAP_L,
-			ImageColor3 = GOLD,
-			ZIndex = 2,
-		},
-		p
-	)
-	local lv = make(
-		"Frame",
-		{
-			Name = "Level",
-			Position = UDim2.fromOffset(w - lvW, 0),
-			Size = UDim2.fromOffset(lvW, h),
-			BackgroundColor3 = GOLD,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		p
-	)
+	make("ImageLabel", {
+		Name = "CapL",
+		Position = UDim2.fromOffset(w - lvW - 22, 0),
+		Size = UDim2.fromOffset(24, h),
+		BackgroundTransparency = 1,
+		Image = CAP_L,
+		ImageColor3 = GOLD,
+		ZIndex = 2,
+	}, p)
+	local lv = make("Frame", {
+		Name = "Level",
+		Position = UDim2.fromOffset(w - lvW, 0),
+		Size = UDim2.fromOffset(lvW, h),
+		BackgroundColor3 = GOLD,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, p)
 	corner(lv)
-	text(
-		lv,
-		"Kicker",
-		"LV",
-		10,
-		INK,
-		{
-			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.fromOffset(lvW / 2 - 2, 8),
-			TextTransparency = 0.3,
-		}
-	)
+	text(lv, "Kicker", "LV", 10, INK, {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromOffset(lvW / 2 - 2, 8),
+		TextTransparency = 0.3,
+	})
 	text(
 		lv,
 		"Value",
@@ -253,63 +215,28 @@ local function profile(c: Instance)
 	)
 end
 
--- Coins and settings (top right), the same height as the profile.
+-- Coins (top right).
 local function wallet(c: Instance)
-	local right, y, h = 1880, 68, 56
-	shadow(c, right - h, y, h, h)
-	local settings = make(
-		"Frame",
-		{
-			Name = "Settings",
-			Position = UDim2.fromOffset(right - h, y),
-			Size = UDim2.fromOffset(h, h),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		c
-	)
-	corner(settings)
-	make(
-		"ImageLabel",
-		{
-			Name = "Icon",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(28, 28),
-			BackgroundTransparency = 1,
-			Image = ICON.Settings,
-			ZIndex = 3,
-		},
-		settings
-	)
-	local w = 190
-	local x = right - h - 8 - w
+	local right, y, h, w = 1880, 68, 56, 190
+	local x = right - w
 	shadow(c, x, y, w, h)
-	local coins = make(
-		"Frame",
-		{
-			Name = "Coins",
-			Position = UDim2.fromOffset(x, y),
-			Size = UDim2.fromOffset(w, h),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		c
-	)
+	local coins = make("Frame", {
+		Name = "Coins",
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, c)
 	corner(coins)
-	make(
-		"ImageLabel",
-		{
-			Name = "Icon",
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 12, 0.5, 0),
-			Size = UDim2.fromOffset(28, 28),
-			BackgroundTransparency = 1,
-			Image = ICON.Coin,
-			ZIndex = 3,
-		},
-		coins
-	)
+	make("ImageLabel", {
+		Name = "Icon",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 12, 0.5, 0),
+		Size = UDim2.fromOffset(28, 28),
+		BackgroundTransparency = 1,
+		Image = ICON.Coin,
+		ZIndex = 3,
+	}, coins)
 	text(
 		coins,
 		"Amount",
@@ -327,223 +254,347 @@ local function wallet(c: Instance)
 	)
 end
 
--- The rail (left edge, vertically centred): square icon buttons with a
--- hotkey keycap in the corner. Hovering one slides its name out beside it.
-local function rail(c: Instance, hovered: number?)
-	local items = {
-		{ "L", "Locker", "LOCKER" },
-		{ "B", "Shop", "SHOP" },
-		{ "P", "BattlePass", "BATTLE PASS" },
-		{ "R", "Range", "RANGE" },
-	}
-	local x, size, g = 40, 72, 10
-	local y0 = 540 - (#items * size + (#items - 1) * g) / 2
-	for i, it in items do
+-- A red count badge (circles are part of the theme).
+local function badge(p: Instance, n: number, x: number, y: number)
+	local b = make("Frame", {
+		Name = "Badge",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(28, 28),
+		BackgroundColor3 = RED,
+		BorderSizePixel = 0,
+		ZIndex = 7,
+	}, p)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, b)
+	text(
+		b,
+		"N",
+		tostring(n),
+		14,
+		WHITE,
+		{ AutomaticSize = Enum.AutomaticSize.None, Size = UDim2.fromScale(1, 1), ZIndex = 8 }
+	)
+end
+
+-- The bottom bar: a navy plate with big coloured icons sitting on its top
+-- edge (they break out of it), the name under each, a hotkey keycap, and red
+-- badges for what's new. The hovered one lifts and its name turns gold.
+local BAR_TOP = 984
+local ITEM_W = 132
+local ITEMS = {
+	{ "L", "Locker", "LOCKER", ALLY, 2 },
+	{ "B", "Shop", "SHOP", GOLD, 0 },
+	{ "P", "BattlePass", "PASS", PURPLE, 1 },
+	{ "R", "Range", "RANGE", TEAL, 0 },
+	{ "O", "Settings", "SETTINGS", WHITE, 0 },
+}
+local function itemX(i: number): number
+	return 960 + (i - (#ITEMS + 1) / 2) * ITEM_W
+end
+local function bottomBar(c: Instance, hovered: number?)
+	local w = #ITEMS * ITEM_W + 40
+	local x = 960 - w / 2
+	local h = 80
+	shadow(c, x, BAR_TOP, w, h)
+	local bar = make("Frame", {
+		Name = "Bar",
+		Position = UDim2.fromOffset(x, BAR_TOP),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, c)
+	corner(bar, 8)
+	for i, it in ITEMS do
 		local on = i == hovered
-		local y = y0 + (i - 1) * (size + g)
-		if on then
-			-- the label slides out: a navy plate joined to the button
-			local lw = 170
-			shadow(c, x + size - 6, y + 14, lw, size - 28)
-			local tag = make(
-				"Frame",
-				{
-					Name = it[2] .. "Label",
-					Position = UDim2.fromOffset(x + size - 6, y + 14),
-					Size = UDim2.fromOffset(lw, size - 28),
-					BackgroundColor3 = NAVY_HI,
-					BorderSizePixel = 0,
-				},
-				c
-			)
-			corner(tag)
-			text(
-				tag,
-				"Label",
-				it[3],
-				16,
-				GOLD,
-				{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 20, 0.5, 0) }
-			)
+		local cx = itemX(i)
+		local lift = if on then 8 else 0
+		local size = if on then 76 else 68
+		make("ImageLabel", {
+			Name = it[2],
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.fromOffset(cx, BAR_TOP + 40 - lift),
+			Size = UDim2.fromOffset(size, size),
+			BackgroundTransparency = 1,
+			Image = ICON[it[2]],
+			ImageColor3 = it[4],
+			ZIndex = 5,
+		}, c)
+		-- the hotkey sits beside the name, under the icon: "[L] LOCKER"
+		local row = make("Frame", {
+			Name = it[2] .. "Label",
+			AnchorPoint = Vector2.new(0.5, 0),
+			Position = UDim2.fromOffset(cx, BAR_TOP + 44),
+			AutomaticSize = Enum.AutomaticSize.X,
+			Size = UDim2.fromOffset(0, 24),
+			BackgroundTransparency = 1,
+			ZIndex = 5,
+		}, c)
+		make("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}, row)
+		keycap(row, it[1], 20, 22, { LayoutOrder = 1, ZIndex = 9 })
+		text(row, "Label", it[3], 13, if on then GOLD else WHITE, { LayoutOrder = 2, ZIndex = 5 })
+		if it[5] > 0 then
+			badge(c, it[5], cx + 30, BAR_TOP - 22 - lift)
 		end
-		shadow(c, x, y, size, size)
-		local b = make(
-			"Frame",
-			{
-				Name = it[2],
-				Position = UDim2.fromOffset(x, y),
-				Size = UDim2.fromOffset(size, size),
-				BackgroundColor3 = if on then NAVY_HI else NAVY,
-				BorderSizePixel = 0,
-				ZIndex = 2,
-			},
-			c
-		)
-		corner(b)
-		make(
-			"ImageLabel",
-			{
-				Name = "Icon",
-				AnchorPoint = CENTRE,
-				Position = UDim2.new(0.5, 4, 0.5, 4),
-				Size = UDim2.fromOffset(34, 34),
-				BackgroundTransparency = 1,
-				Image = ICON[it[2]],
-				ImageColor3 = if on then GOLD else WHITE,
-				ZIndex = 3,
-			},
-			b
-		)
-		keycap(b, it[1], 22, 24, { Position = UDim2.fromOffset(6, 6) })
 	end
 end
 
--- The PLAY shortcut (bottom right): a small gold block; the Duels pads in the
--- hub do the same. Hidden while searching (the queue strip takes over).
-local function play(c: Instance)
-	local right, bottom, w, h = 1880, 1040, 280, 76
-	local x, y = right - w, bottom - h
+-- PLAY sits on top of the bar, your party slots beside it (you + invite).
+local function playCluster(c: Instance, searching: boolean)
+	local w, h = 320, 84
+	local x, y = 960 - w / 2, BAR_TOP - 44 - h
 	shadow(c, x + 20, y, w - 40, h)
-	local b = make(
-		"Frame",
-		{
-			Name = "Play",
-			Position = UDim2.fromOffset(x, y),
-			Size = UDim2.fromOffset(w, h),
-			BackgroundTransparency = 1,
-		},
-		c
-	)
-	make(
-		"Frame",
-		{
-			Name = "Body",
-			Position = UDim2.fromOffset(24, 0),
-			Size = UDim2.new(1, -48, 1, 0),
-			BackgroundColor3 = GOLD,
+	local b = make("Frame", {
+		Name = "Play",
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundTransparency = 1,
+	}, c)
+	local fill = if searching then NAVY_HI else GOLD
+	make("Frame", {
+		Name = "Body",
+		Position = UDim2.fromOffset(26, 0),
+		Size = UDim2.new(1, -52, 1, 0),
+		BackgroundColor3 = fill,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, b)
+	make("ImageLabel", {
+		Name = "CapL",
+		Size = UDim2.fromOffset(28, h),
+		BackgroundTransparency = 1,
+		Image = CAP_L,
+		ImageColor3 = fill,
+		ZIndex = 2,
+	}, b)
+	make("ImageLabel", {
+		Name = "CapR",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.fromScale(1, 0),
+		Size = UDim2.fromOffset(28, h),
+		BackgroundTransparency = 1,
+		Image = CAP_R,
+		ImageColor3 = fill,
+		ZIndex = 2,
+	}, b)
+	if searching then
+		text(b, "Label", "SEARCHING", 22, WHITE, { Position = UDim2.fromOffset(44, 14) })
+		text(b, "Sub", "2V2  ·  0:23", 14, ALLY, { Position = UDim2.fromOffset(46, 46) })
+		keycap(
+			b,
+			"ESC",
+			46,
+			30,
+			{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -40, 0.5, 0) }
+		)
+	else
+		text(b, "Label", "PLAY", 40, INK, { Position = UDim2.fromOffset(44, 8) })
+		text(
+			b,
+			"Sub",
+			"1V1  ·  2V2  ·  3V3",
+			11,
+			INK,
+			{ Position = UDim2.fromOffset(46, 56), TextTransparency = 0.3 }
+		)
+		keycap(
+			b,
+			"ENTER",
+			62,
+			28,
+			{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -40, 0.5, 0) }
+		)
+	end
+	-- party: your portrait and an invite slot, circles with rings
+	local px = x + w + 16
+	for i = 1, 2 do
+		local cx = px + (i - 1) * 66 + 30
+		local cy = y + h / 2
+		local ring = make("Frame", {
+			Name = "PartyRing" .. i,
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromOffset(cx, cy),
+			Size = UDim2.fromOffset(60, 60),
+			BackgroundColor3 = if i == 1 then ALLY else NAVY_HI,
 			BorderSizePixel = 0,
 			ZIndex = 2,
-		},
-		b
-	)
-	make(
-		"ImageLabel",
-		{
-			Name = "CapL",
-			Size = UDim2.fromOffset(26, h),
-			BackgroundTransparency = 1,
-			Image = CAP_L,
-			ImageColor3 = GOLD,
-			ZIndex = 2,
-		},
-		b
-	)
-	make(
-		"ImageLabel",
-		{
-			Name = "CapR",
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.fromScale(1, 0),
-			Size = UDim2.fromOffset(26, h),
-			BackgroundTransparency = 1,
-			Image = CAP_R,
-			ImageColor3 = GOLD,
-			ZIndex = 2,
-		},
-		b
-	)
-	text(b, "Label", "PLAY", 34, INK, { Position = UDim2.fromOffset(40, 10) })
-	text(
-		b,
-		"Sub",
-		"1V1  ·  2V2  ·  3V3",
-		11,
-		INK,
-		{ Position = UDim2.fromOffset(42, 48), TextTransparency = 0.3 }
-	)
-	keycap(
-		b,
-		"ENTER",
-		62,
-		28,
-		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -40, 0.5, 0) }
-	)
-end
-
--- While searching: a small queue strip, top centre.
-local function queueStrip(c: Instance)
-	local w, h = 420, 56
-	local x, y = 960 - w / 2, 68
-	shadow(c, x, y, w, h)
-	local s = make(
-		"Frame",
-		{
-			Name = "Queue",
-			Position = UDim2.fromOffset(x, y),
-			Size = UDim2.fromOffset(w, h),
+		}, c)
+		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, ring)
+		local disc = make("Frame", {
+			Name = "Disc",
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(52, 52),
 			BackgroundColor3 = NAVY,
 			BorderSizePixel = 0,
-		},
-		c
-	)
-	corner(s)
-	local block = make(
-		"Frame",
-		{
-			Name = "Team",
-			Size = UDim2.fromOffset(150, h),
-			BackgroundColor3 = ALLY,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		s
-	)
-	corner(block)
-	make(
-		"ImageLabel",
-		{
-			Name = "Cap",
-			Position = UDim2.fromOffset(146, 0),
-			Size = UDim2.fromOffset(24, h),
-			BackgroundTransparency = 1,
-			Image = CAP_R,
-			ImageColor3 = ALLY,
-			ZIndex = 2,
-		},
-		s
-	)
+			ZIndex = 3,
+		}, ring)
+		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, disc)
+		if i == 1 then
+			local img = make("ImageLabel", {
+				Name = "Headshot",
+				Size = UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1,
+				Image = "rbxthumb://type=AvatarHeadShot&id=1&w=150&h=150",
+				ZIndex = 4,
+			}, disc)
+			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, img)
+		else
+			text(
+				disc,
+				"Plus",
+				"+",
+				26,
+				WHITE,
+				{ AutomaticSize = Enum.AutomaticSize.None, Size = UDim2.fromScale(1, 1) }
+			)
+		end
+	end
+end
+
+-- A callout pointing at something new (here: the Locker).
+local function callout(c: Instance)
+	local tx = itemX(1)
+	local w, h = 250, 40
+	local x, y = tx - w + 60, BAR_TOP - 108
+	shadow(c, x, y, w, h)
+	local p = make("Frame", {
+		Name = "Callout",
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundColor3 = RED,
+		BorderSizePixel = 0,
+		ZIndex = 6,
+	}, c)
+	corner(p)
 	text(
-		block,
-		"Kicker",
-		"SEARCHING",
-		10,
-		INK,
-		{ Position = UDim2.fromOffset(16, 9), TextTransparency = 0.25 }
-	)
-	text(block, "Mode", "2V2", 22, INK, { Position = UDim2.fromOffset(16, 22) })
-	text(
-		s,
-		"Time",
-		"0:23",
-		24,
+		p,
+		"Label",
+		"NEW SKIN UNLOCKED",
+		14,
 		WHITE,
-		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 190, 0.5, 0) }
+		{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 7 }
+	)
+	-- the pointer: a small square turned 45 degrees, half under the plate
+	make("Frame", {
+		Name = "Pointer",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(tx, y + h),
+		Size = UDim2.fromOffset(16, 16),
+		Rotation = 45,
+		BackgroundColor3 = RED,
+		BorderSizePixel = 0,
+		ZIndex = 5,
+	}, c)
+end
+
+-- Daily tasks (left): a header, three tasks with segmented progress and the
+-- coin reward. (Needs a tasks system; shown here as a proposal.)
+local function tasks(c: Instance)
+	local x, y, w = 40, 380, 400
+	local rows = {
+		{ "PLAY 5 DUELS", 1, 5, 50 },
+		{ "GET 15 ELIMINATIONS", 5, 15, 75 },
+		{ "WIN 2 DUELS", 1, 2, 100 },
+	}
+	local h = 46 + #rows * 62
+	shadow(c, x, y, w, h)
+	local p = make("Frame", {
+		Name = "Tasks",
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, c)
+	corner(p, 8)
+	local head = make("Frame", {
+		Name = "Head",
+		Size = UDim2.fromOffset(190, 40),
+		BackgroundColor3 = GOLD,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, p)
+	corner(head)
+	make("ImageLabel", {
+		Name = "Cap",
+		Position = UDim2.fromOffset(186, 0),
+		Size = UDim2.fromOffset(18, 40),
+		BackgroundTransparency = 1,
+		Image = CAP_R,
+		ImageColor3 = GOLD,
+		ZIndex = 2,
+	}, p)
+	text(
+		head,
+		"Label",
+		"DAILY TASKS",
+		16,
+		INK,
+		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 14, 0.5, 0) }
 	)
 	text(
-		s,
-		"Cancel",
-		"CANCEL",
-		12,
+		p,
+		"Reset",
+		"RESETS IN 6H",
+		11,
 		MUTED,
-		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -66, 0.5, 0) }
+		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -14, 0, 20) }
 	)
-	keycap(
-		s,
-		"ESC",
-		44,
-		30,
-		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0) }
-	)
+	for i, r in rows do
+		local ry = 52 + (i - 1) * 62
+		text(p, "Task" .. i, r[1], 15, WHITE, { Position = UDim2.fromOffset(16, ry) })
+		text(
+			p,
+			"Count" .. i,
+			string.format("%d / %d", r[2], r[3]),
+			13,
+			ALLY,
+			{ AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromOffset(w - 96, ry + 2) }
+		)
+		local bar = make("Frame", {
+			Name = "Bar" .. i,
+			Position = UDim2.fromOffset(16, ry + 28),
+			Size = UDim2.fromOffset(w - 112, 6),
+			BackgroundTransparency = 1,
+		}, p)
+		make("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 2),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}, bar)
+		local segs = math.min(r[3], 15)
+		local segW = (w - 112 - (segs - 1) * 2) / segs
+		for s = 1, segs do
+			make("Frame", {
+				Name = "S" .. s,
+				LayoutOrder = s,
+				Size = UDim2.fromOffset(segW, 6),
+				BackgroundColor3 = ALLY,
+				BackgroundTransparency = if s <= r[2] * segs / r[3] then 0 else 0.82,
+				BorderSizePixel = 0,
+			}, bar)
+		end
+		make("ImageLabel", {
+			Name = "Coin" .. i,
+			Position = UDim2.fromOffset(w - 80, ry + 6),
+			Size = UDim2.fromOffset(24, 24),
+			BackgroundTransparency = 1,
+			Image = ICON.Coin,
+			ZIndex = 3,
+		}, p)
+		text(
+			p,
+			"Reward" .. i,
+			tostring(r[4]),
+			14,
+			GOLD,
+			{ Position = UDim2.fromOffset(w - 52, ry + 8) }
+		)
+	end
 end
 
 -- gui -----------------------------------------------------------------------------
@@ -551,30 +602,30 @@ local old = SG:FindFirstChild("LobbyHudMockup")
 if old then
 	old:Destroy()
 end
-local gui = make(
-	"ScreenGui",
-	{
-		Name = "LobbyHudMockup",
-		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 25,
-		Enabled = false,
-	}
-)
+local gui = make("ScreenGui", {
+	Name = "LobbyHudMockup",
+	ResetOnSpawn = false,
+	IgnoreGuiInset = true,
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+	DisplayOrder = 25,
+	Enabled = false,
+})
 
 local idle = canvas(gui, "CanvasIdle")
 profile(idle)
 wallet(idle)
-rail(idle, 2)
-play(idle)
+tasks(idle)
+bottomBar(idle, 2)
+playCluster(idle, false)
+callout(idle)
 
 local searching = canvas(gui, "CanvasSearching")
 searching.Visible = false
 profile(searching)
 wallet(searching)
-rail(searching, nil)
-queueStrip(searching)
+tasks(searching)
+bottomBar(searching, nil)
+playCluster(searching, true)
 
 gui.Parent = SG
-print("LobbyHudMockup v2 built")
+print("LobbyHudMockup v3 built")
