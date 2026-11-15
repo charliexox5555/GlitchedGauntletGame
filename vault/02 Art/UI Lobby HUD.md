@@ -140,3 +140,9 @@ Owner: "remove the player level top left... improve animations a bit for the las
   - Checked in Studio (one client): the card, the pop-up (fired from the server), junk requests dropped without errors. **Two-player flow not tested yet** (needs a Studio multi-client test or the live game).
 - **Motion:** the hover plate's » slides in, PLAY breathes every few seconds while idle (not while hovered or with the card open), player rows tint on hover, party circles lift on hover, the invite pop-up springs in and shrinks away.
 - Party card rebuilt as a list (`Head`, `Body` with Status, Help (fixed 3 lines: auto-height wrapped text in an auto list measures one line), PLAYERS HERE, `Here` rows from `UiTemplates.Lobby.PartyInviteRow`, InviteFriends, Leave); invite pop-up `LobbyToast.Toast.Invite`; `PlayerRow.Invite`. Studio patched in place; builder matches.
+
+## Topbar buttons (owner, 2026-11-14)
+Owner: "a top bar button above the leaderboard for both settings and opening/closing leaderboard... something like TopbarPlus."
+- Built our own instead of adding the TopbarPlus package (two buttons don't need a dependency): `StarterGui.LobbyTopbar` with `ScreenInsets = TopbarSafeInsets` (the free part of Roblox's top bar row, measured 208-1919 x 58 px at 1920 wide; it follows Roblox's own controls), a right-aligned row 40 px in so it lines up with the player list.
+- Two Roblox-style 44 px dark circles (black, 0.3 see-through, lighter on hover, a press bounce): **Settings** (white gear → the Settings menu) and **Leaderboard** (a drawn three-row list icon → shows / hides the player list, same as Tab; the icon dims while the list is hidden).
+- They step up out of the way with the corners while a menu is open (the menu's close button lives there) and drop in with the intro. Checked in play: toggle, Settings, menu step-aside.

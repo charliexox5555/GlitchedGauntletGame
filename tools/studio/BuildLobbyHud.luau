@@ -1,7 +1,7 @@
 --!strict
 -- Builds the lobby main HUD (vault/02 Art/UI Lobby HUD.md, mockup v5) in the
 -- LOBBY place:
---   StarterGui.LobbyTasks, LobbyPlayerList, LobbyBar, LobbyToast (the profile card
+--   StarterGui.LobbyTasks, LobbyPlayerList, LobbyBar, LobbyToast, LobbyTopbar (the profile card
 --   top left was removed, owner 2026-11-14)
 --                                          <- src/lobby/client/Util/LobbyHudView
 --   ReplicatedStorage.UiTemplates.Lobby.PlayerRow, PartySlot, PartyInviteRow
@@ -55,7 +55,7 @@ local ICON = {
 }
 local CENTRE = Vector2.new(0.5, 0.5)
 
-for _, n in { "LobbyTasks", "LobbyPlayerList", "LobbyBar", "LobbyToast" } do
+for _, n in { "LobbyTasks", "LobbyPlayerList", "LobbyBar", "LobbyToast", "LobbyTopbar" } do
 	assert(not SG:FindFirstChild(n), "StarterGui." .. n .. " already exists")
 end
 
@@ -573,6 +573,90 @@ local function invitePopup(g: Instance)
 	)
 end
 
+-- Topbar buttons (owner: "a top bar button above the leaderboard for both
+-- settings and opening/closing leaderboard", like TopbarPlus): our own two
+-- buttons in Roblox's top bar row, sized and coloured like Roblox's own
+-- (44 px dark circles in the 58 px row), right-aligned above the player list.
+-- ScreenInsets = TopbarSafeInsets gives exactly the free part of that row, so
+-- no script places them. The leaderboard icon is drawn (three list rows).
+local SETTINGS_GEAR = "rbxassetid://85379480378289" -- flat white gear
+local function topbarButton(parent: Instance, name: string, order: number): TextButton
+	local b = make("TextButton", {
+		Name = name,
+		LayoutOrder = order,
+		Size = UDim2.fromOffset(44, 44),
+		BackgroundTransparency = 1,
+		Text = "",
+		AutoButtonColor = false,
+	}, parent)
+	local face = make("Frame", {
+		Name = "Face",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.3,
+		BorderSizePixel = 0,
+	}, b)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, face)
+	make("UIScale", { Name = "Pop" }, face)
+	return b
+end
+
+local function topbar(gui: ScreenGui)
+	gui.ScreenInsets = Enum.ScreenInsets.TopbarSafeInsets
+	local bar = make("Frame", {
+		Name = "Bar",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -40, 0.5, 0), -- lines up with the player list
+		Size = UDim2.fromOffset(0, 44),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+	}, gui)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Right,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 12),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, bar)
+	local settings = topbarButton(bar, "Settings", 1)
+	make("ImageLabel", {
+		Name = "Icon",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(26, 26),
+		BackgroundTransparency = 1,
+		Image = SETTINGS_GEAR,
+		ImageColor3 = WHITE,
+		ScaleType = Enum.ScaleType.Fit,
+	}, settings:FindFirstChild("Face"))
+	local board = topbarButton(bar, "Leaderboard", 2)
+	local icon = make("Frame", {
+		Name = "Icon",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(22, 18),
+		BackgroundTransparency = 1,
+	}, board:FindFirstChild("Face"))
+	for i = 0, 2 do
+		make("Frame", {
+			Name = "Dot" .. i,
+			Position = UDim2.fromOffset(0, i * 7),
+			Size = UDim2.fromOffset(4, 4),
+			BackgroundColor3 = WHITE,
+			BorderSizePixel = 0,
+		}, icon)
+		make("Frame", {
+			Name = "Line" .. i,
+			Position = UDim2.fromOffset(7, i * 7),
+			Size = UDim2.fromOffset(15, 4),
+			BackgroundColor3 = WHITE,
+			BorderSizePixel = 0,
+		}, icon)
+	end
+end
+
 -- Templates -------------------------------------------------------------------
 local templates = RS:FindFirstChild("UiTemplates") or make("Folder", { Name = "UiTemplates" }, RS)
 local oldT = templates:FindFirstChild("Lobby")
@@ -1049,6 +1133,8 @@ do -- Toast: top centre, a navy plate led by a slanted colour block
 	text(plate, "Label", "MESSAGE", 15, WHITE, { LayoutOrder = 3 })
 	invitePopup(g)
 end
+
+topbar(screen("LobbyTopbar", true))
 
 for _, g in made do
 	g.Parent = SG

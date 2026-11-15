@@ -85,6 +85,7 @@ type State = {
 	topHomes: { [Frame]: UDim2 },
 	topShown: boolean,
 	listShown: boolean,
+	topbar: Frame,
 	party: Frame,
 	slotTemplate: Frame,
 	slots: { [Player]: GuiObject },
@@ -702,7 +703,7 @@ end
 -- API -------------------------------------------------------------------------------
 
 -- The Studio-built ScreenGuis (one per part), or nil if they aren't there.
-local PARTS = { "LobbyTasks", "LobbyPlayerList", "LobbyBar", "LobbyToast" }
+local PARTS = { "LobbyTasks", "LobbyPlayerList", "LobbyBar", "LobbyToast", "LobbyTopbar" }
 function LobbyHudView.guis(playerGui: Instance, wait: number): { [string]: ScreenGui }?
 	local found: { [string]: ScreenGui } = {}
 	for _, name in PARTS do
@@ -756,7 +757,11 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		toastLabel = child(plate, "Label"),
 		bottomHome = bottom.Position,
 		bottomShown = true,
-		topHomes = { [topRight] = topRight.Position },
+		topHomes = {
+			[topRight] = topRight.Position,
+			[child(guis.LobbyTopbar, "Bar") :: Frame] = (child(guis.LobbyTopbar, "Bar") :: Frame).Position,
+		},
+		topbar = child(guis.LobbyTopbar, "Bar"),
 		topShown = true,
 		listShown = true,
 		party = child(bottom, "Party"),
@@ -889,12 +894,48 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	end)
 	LobbyNet.event("PartyEvent").OnClientEvent:Connect(onPartyEvent)
 	-- Tab shows / hides the player list, like Roblox's own
+	-- Tab, or the topbar's leaderboard button, shows / hides the list
+	local boardButton = child(s.topbar, "Leaderboard") :: TextButton
+	local boardIcon = child(child(boardButton, "Face"), "Icon") :: Frame
+	local function boardLook()
+		for _, bar in boardIcon:GetChildren() do
+			if bar:IsA("Frame") then
+				tween(bar, 0.15, { BackgroundTransparency = if s.listShown then 0 else 0.55 })
+			end
+		end
+	end
+	local function toggleList()
+		s.listShown = not s.listShown
+		LobbyHudView.placeCorners(true)
+		boardLook()
+	end
 	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
 		if not processed and input.KeyCode == Enum.KeyCode.Tab then
-			s.listShown = not s.listShown
-			LobbyHudView.placeCorners(true)
+			toggleList()
 		end
 	end)
+	-- topbar buttons: Roblox-style dark circles that lighten on hover
+	local function hookTopbar(b: TextButton, onClick: () -> ())
+		local disc = child(b, "Face") :: Frame
+		local pop = child(disc, "Pop") :: UIScale
+		b.MouseEnter:Connect(function()
+			tween(disc, 0.12, { BackgroundTransparency = 0.12 })
+			Sound.play("Hover")
+		end)
+		b.MouseLeave:Connect(function()
+			tween(disc, 0.18, { BackgroundTransparency = 0.3 })
+		end)
+		b.Activated:Connect(function()
+			press(pop, 0.86)
+			onClick()
+		end)
+	end
+	hookTopbar(boardButton, toggleList)
+	hookTopbar(child(s.topbar, "Settings") :: TextButton, function()
+		Sound.play("Select")
+		Router.toggle("Settings")
+	end)
+	boardLook()
 	-- Roblox's player list steps aside for ours.
 	pcall(StarterGui.SetCoreGuiEnabled, StarterGui, Enum.CoreGuiType.PlayerList, false)
 	for _, p in Players:GetPlayers() do
@@ -1026,7 +1067,7 @@ function LobbyHudView.intro()
 	if not s then
 		return
 	end
-	for i, g in { s.topRight } do
+	for i, g in { s.topbar, s.topRight } do
 		local home = s.topHomes[g]
 		g.Position = home + UDim2.fromOffset(0, -140)
 		task.delay((i - 1) * 0.06, function()
