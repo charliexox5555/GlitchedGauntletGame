@@ -97,7 +97,11 @@ Owner's notes: Moltframe Spectre and Ares stock gaps, Moltframe Dagger gap and "
 - Uploaded as `flat r4` and **installed** (`flat-e`, 30 jobs, 0 failures; ids in `art-source/weapons/Skins/flat_install_ids.json`).
 - **Checked in Studio:** the ADS sight-line simulation on all 53 skinned guns finds no non-sight part on the sight line; magenta-backdrop captures of the Moltframe Spectre and Ares stocks (struts into the receiver), the Moltframe Dagger guard, the Inkshift Odin and Payload Bulldog grips (solid), the Sheriff grip and the Inkshift Blade tip (sharp). In play: the Payload Operator scoped hides all 12 skin Textures with the gun (clean scope); a Payload Vandal reload hides the mag's Textures with it (0 left showing) and the dropped mag's Textures fade with its parts; the Moltframe Dagger and Inkshift Blade in first person. Output: no skin errors. A `Source` provenance attribute on `WeaponSkins._Casing` was rejected by Roblox at play start and removed (provenance stays in this note).
 
-**Owner (2026-11-14):** saved the match place; "looks good".
+**Owner (2026-11-14):** saved the match place; "looks good". Committed `1d4f3803`.
+
+### Skin selector outside Studio (2026-11-14)
+
+Owner: "make it so you can check out skins right now out of Studio with the same select". The same panel and keys (F7 / `\` cycle, `;` list) now run in live servers of the match place (`Config/SkinPreview.LIVE = true`; `USER_IDS` can limit it to listed players). Each player's pick is their own: a server-set Player attribute (it used to be one Workspace attribute for the whole server). Their camera gun follows it (a spectator sees the spectated player's pick; bots and replays stay stock) and the world gun they hold follows it for everyone. The remote checks type and length, `canUse`, an allowlisted line name and a 1/s (burst 3) token bucket; a pick only rescans that player's character. A security review found no critical issues; its connection-leak, rate and spectating notes were fixed. Checked in Studio play: Payload, Sealwork and Moltframe picks swap both the camera and world Vandal; junk values and a burst of 8 requests are dropped; the panel and `\` work. **To try it live:** publish the match place (the skins live in the Studio-owned `WeaponSkins` folder).
 
 ## Open: the Studio pass (owner's call, later)
 
