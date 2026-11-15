@@ -1,13 +1,15 @@
 --!strict
--- Locker mockup v2 (vault/02 Art/UI Locker.md; v1 was "too AI, pilly and boring") in the LOBBY place, Edit mode:
---   Workspace.LockerStage     the hidden studio stage: a faceted backdrop, an
---                             octagonal plinth, three lights, the gun (Prism Vandal)
---   StarterGui.LockerMockup   the screen: tabs, the weapon list (left), the gun's
---                             skins + EQUIP (right), SKIN / CHARM / WRAP / FINISHER
---                             tabs and the drag hint (bottom)
--- Static placeholder data; the owner edits it in Studio, then it gets wired.
--- Re-running replaces both. Same look as the lobby HUD v6: navy plates, sharp
--- slanted tags (no pills), Builder Extended, gold only on EQUIP.
+-- Builds the Locker (vault/02 Art/UI Locker.md) in the LOBBY place, Edit mode.
+-- Approved as mockup v2 (owner: "Looks good, wire it"), then made live:
+--   StarterGui.Locker              the screen (off; LockerController opens it)
+--   ReplicatedStorage.LockerStage  the hidden 3D stage (no gun: the client
+--                                  clones the stage and puts the gun on it)
+--   UiTemplates.Lobby.GunCard / SkinCard / GunGroup
+-- It first builds the full v2 mockup (placeholder cards with real thumbnails),
+-- then strips it to the live structure at the end. Re-running replaces it all.
+-- v1 was "too AI, pilly and boring": no panels-in-panels, picture cards, the
+-- skin's colour as its block, sharp slants only on the active thing, gold
+-- only on EQUIP.
 
 local SG = game:GetService("StarterGui")
 local RS = game:GetService("ReplicatedStorage")
@@ -62,9 +64,11 @@ local EQUIPPED: { [string]: number } =
 
 -- 3D stage ------------------------------------------------------------------------
 local STAGE = CFrame.new(0, 600, -3000) -- far from the map; the client will clone it
-local old = workspace:FindFirstChild("LockerStage")
-if old then
-	old:Destroy()
+for _, where in { workspace, RS } do
+	local old = where:FindFirstChild("LockerStage")
+	if old then
+		old:Destroy()
+	end
 end
 local stage = make("Model", { Name = "LockerStage" }, workspace)
 
@@ -189,6 +193,12 @@ make("CFrameValue", {
 -- model); colour means something (a skin's colour is its block, like the bar's
 -- name tags); big chunky type; sharp slanted plates only where they mark the
 -- active thing; gold only on EQUIP; no pills, outlines, glows or edge strips.
+for _, n in { "Locker" } do
+	local g = SG:FindFirstChild(n)
+	if g then
+		g:Destroy()
+	end
+end
 local oldGui = SG:FindFirstChild("LockerMockup")
 if oldGui then
 	oldGui:Destroy()
@@ -674,5 +684,67 @@ for i, k in { "SKIN", "CHARM", "WRAP", "FINISHER" } do
 	end
 end
 
+-- live ------------------------------------------------------------------------------
+-- Strip the mockup to the live structure: templates out, lists empty, the
+-- screen off, the stage into ReplicatedStorage without its gun.
+gui.Name = "Locker"
+gui.Enabled = false
+local folder = RS:WaitForChild("UiTemplates"):WaitForChild("Lobby")
+for _, n in { "GunCard", "SkinCard", "GunGroup" } do
+	local t = folder:FindFirstChild(n)
+	if t then
+		t:Destroy()
+	end
+end
+local function noThumb(card: Instance)
+	local t = card:FindFirstChild("Thumb")
+	if t then
+		t:Destroy()
+	end
+end
+local guns = canvas:FindFirstChild("Guns") :: ScrollingFrame
+local sidearms = guns:FindFirstChild("SIDEARMS") :: Frame
+local gunCard = (sidearms:FindFirstChild("Grid") :: Frame)
+		:FindFirstChild("SHERIFF")
+		:Clone() :: TextButton
+noThumb(gunCard)
+gunCard.Name = "GunCard"
+gunCard.BackgroundColor3 = NAVY
+gunCard.BackgroundTransparency = 0.08
+gunCard.Parent = folder
+local skinCard = (canvas:FindFirstChild("Skins") :: ScrollingFrame)
+		:FindFirstChild("PRISM")
+		:Clone() :: TextButton
+noThumb(skinCard)
+skinCard.Name = "SkinCard"
+skinCard.Parent = folder
+local group = sidearms:Clone()
+group.Name = "GunGroup"
+for _, c in (group:FindFirstChild("Grid") :: Frame):GetChildren() do
+	if not c:IsA("UIGridLayout") then
+		c:Destroy()
+	end
+end
+group.Parent = folder
+for _, scroller in { guns, canvas:FindFirstChild("Skins") :: ScrollingFrame } do
+	for _, c in scroller:GetChildren() do
+		if not c:IsA("UIGridLayout") and not c:IsA("UIListLayout") then
+			c:Destroy()
+		end
+	end
+end
+-- other tabs (Abilities = the Mod collection, Emotes) until they're built
+text(canvas, "Soon", "SOON", 40, WHITE, {
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.fromOffset(960, 540),
+	Visible = false,
+	ZIndex = 6,
+})
+local gunNow = stage:FindFirstChild("Gun")
+if gunNow then
+	gunNow:Destroy()
+end
+make("CFrameValue", { Name = "GunSpot", Value = GUN_SPOT }, stage)
+stage.Parent = RS
 gui.Parent = SG
-print("Locker mockup v2 built (Workspace.LockerStage, StarterGui.LockerMockup)")
+print("Locker built (StarterGui.Locker off, ReplicatedStorage.LockerStage, templates)")

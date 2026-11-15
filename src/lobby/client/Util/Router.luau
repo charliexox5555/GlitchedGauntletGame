@@ -19,6 +19,8 @@ export type Menu = {
 	close: () -> (),
 	-- The button gamepad selection starts on (LihFolk: Gamepad and Console UX).
 	focus: (() -> GuiObject?)?,
+	-- No blur / grade behind it (the Locker shows its own 3D stage).
+	clear: boolean?,
 }
 
 local Router = {}
@@ -61,10 +63,13 @@ local function getControls(): any
 	return controls
 end
 
-local function setWorldDimmed(on: boolean)
+local function setWorldDimmed(on: boolean, clear: boolean?)
 	-- Chat and the player list step aside while a full-screen menu is open.
 	CoreUi.menuMode(on)
-	if on then
+	if on and clear then
+		blur.Enabled = false
+		grade.Enabled = false
+	elseif on then
 		blur.Enabled = true
 		grade.Enabled = true
 		-- Blur Size isn't motion, so it eases under reduced motion too.
@@ -123,8 +128,13 @@ function Router.open(name: string, arg: any?)
 	local previous = current
 	if previous then
 		menus[previous].close()
+		if menu.clear then
+			setWorldDimmed(true, true)
+		elseif menus[previous].clear then
+			setWorldDimmed(true)
+		end
 	else
-		setWorldDimmed(true)
+		setWorldDimmed(true, menu.clear)
 		Sound.play("Open")
 	end
 	current = name

@@ -7,6 +7,7 @@
 -- PartyRequest (client -> server): ("invite", userId) | ("accept", userId) |
 --   ("decline", userId) | ("leave")
 -- PartyEvent (server -> one client): PartyEventPayload below
+-- LockerRequest (client -> server): ("equip", gunId, line) (Services/LockerService)
 --
 -- Live state is on attributes the server owns:
 --   Player:  QueueStatus ("idle" | "searching" | "found" | "teleporting"),
@@ -35,7 +36,7 @@ export type PartyEventPayload = {
 }
 
 local FOLDER_NAME = "LobbyRemotes"
-local EVENTS = { "QueueRequest", "QueueEvent", "PartyRequest", "PartyEvent" }
+local EVENTS = { "QueueRequest", "QueueEvent", "PartyRequest", "PartyEvent", "LockerRequest" }
 
 local folder: Instance
 if RunService:IsServer() then

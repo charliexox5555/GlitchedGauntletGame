@@ -80,6 +80,7 @@ return table.freeze({
 	RATE = {
 		QueueRequest = { 2, 4 },
 		PartyRequest = { 2, 6 },
+		LockerRequest = { 4, 10 }, -- equips (quick clicking through skins)
 	},
 
 	-- In-game party invites (Services/PartyService): biggest party (the

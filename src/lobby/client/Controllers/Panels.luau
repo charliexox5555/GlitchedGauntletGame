@@ -1,14 +1,11 @@
 --!strict
--- The other lobby menus (Shop, Battle Pass, Locker, Settings, Range) as framed
+-- The other lobby menus (Shop, Battle Pass, Settings, Range) as framed
 -- placeholders: the same chrome as the Play menu (blur, scrim, header, close)
 -- with a believable skeleton of what will live there and a clear "coming soon"
--- line. Locker uses the real gun renders; Settings has one working toggle.
+-- line. Settings has one working toggle. (The Locker is Controllers/LockerController.)
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
-
-local Theme = require(ReplicatedStorage.Shared.Config.Theme) -- gun renders (Theme.GUN)
 
 local Fx = require(script.Parent.Parent.Util.Fx)
 local Icons = require(script.Parent.Parent.Util.Icons)
@@ -18,7 +15,6 @@ local Menu = require(script.Parent.Parent.Util.Menu)
 local Router = require(script.Parent.Parent.Util.Router)
 local Sound = require(script.Parent.Parent.Util.Sound)
 local Style = require(script.Parent.Parent.Util.Style)
-local Ui = require(script.Parent.Parent.SharedUi)
 
 local Panels = {}
 
@@ -293,112 +289,7 @@ local function buildBattlePass()
 	soon(p.body, "Seasonal rewards for playing: skins, banners, emotes and currency.", 600)
 end
 
-local LOADOUT = {
-	{ slot = "PRIMARY", gun = "Vandal" },
-	{ slot = "SECONDARY", gun = "Classic" },
-	{ slot = "MELEE", gun = "Knife" },
-}
-
-local function buildLocker()
-	local p = build("Locker", "LOADOUT  ·  SKINS", "LOCKER")
-	if PHONE then
-		compact(
-			p,
-			"Locker",
-			"YOUR LOADOUT",
-			"Choose skins, wraps and charms here. Match loadouts are still drafted every round."
-		)
-		return
-	end
-	local preview = card(p.body, 520, 0, 1160, 560)
-	local big = Ui.gun(preview, "Vandal", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.48),
-		Size = UDim2.fromOffset(820, 360),
-		ZIndex = 4,
-	})
-	local bigName = Kit.text(preview, "VANDAL", "title", {
-		TextSize = 40,
-		Position = UDim2.fromOffset(32, 24),
-		Size = UDim2.fromOffset(400, 48),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 4,
-	})
-	Kit.text(preview, "DEFAULT SKIN", "label", {
-		Position = UDim2.fromOffset(34, 72),
-		Size = UDim2.fromOffset(400, 18),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = C.textSecondary,
-		ZIndex = 4,
-	})
-	-- The slot shown in the preview carries the primary outline (a visible
-	-- selected state, not colour alone: the preview shows its name too).
-	local slotStrokes: { UIStroke } = {}
-	local function selectSlot(index: number)
-		for j, stroke in slotStrokes do
-			stroke.Color = if j == index then C.primary else C.stroke
-			stroke.Transparency = if j == index then 0 else Style.ALPHA.stroke
-		end
-	end
-	for i, entry in LOADOUT do
-		local holder = Kit.make("Frame", {
-			Position = UDim2.fromOffset(0, (i - 1) * 190),
-			Size = UDim2.fromOffset(490, 170),
-			BackgroundTransparency = 1,
-		}, p.body)
-		local button = Kit.surface(holder, { Size = UDim2.fromScale(1, 1), ZIndex = 2 }, {
-			className = "TextButton",
-			radius = Style.RADIUS.lg,
-			transparency = 0.02,
-		})
-		Kit.shadow(button, Style.RADIUS.lg, 0.8)
-		table.insert(slotStrokes, Kit.strokeOf(button))
-		Kit.text(button, entry.slot, "label", {
-			Position = UDim2.fromOffset(22, 18),
-			Size = UDim2.fromOffset(200, 18),
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.textSecondary,
-			ZIndex = 4,
-		})
-		Kit.text(button, string.upper(entry.gun), "heading", {
-			Position = UDim2.fromOffset(22, 44),
-			Size = UDim2.fromOffset(220, 36),
-			TextSize = 32, -- the gun name outranks the slot label
-			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = 4,
-		})
-		Ui.gun(button, entry.gun, {
-			AnchorPoint = Vector2.new(1, 0.5),
-			Position = UDim2.new(1, -20, 0.5, 10),
-			Size = UDim2.fromOffset(280, 120),
-			ZIndex = 4,
-		})
-		local shine = if Style.FLAGS.shine then Fx.shine(button, C.white, 0.08) else nil
-		Fx.button(button, function()
-			big.Image = Theme.GUN[entry.gun] or ""
-			bigName.Text = string.upper(entry.gun)
-			selectSlot(i)
-			Fx.pop(big, 1.04)
-		end, {
-			lift = button,
-			liftBy = 4,
-			shine = shine,
-			onHover = function(on)
-				Fx.tween(
-					button,
-					Fx.MOTION.hover,
-					{ BackgroundColor3 = if on then C.surfaceHover else C.surface }
-				)
-			end,
-		})
-	end
-	selectSlot(1)
-	soon(
-		p.body,
-		"Choose skins, wraps and charms here. Match loadouts are still drafted every round.",
-		600
-	)
-end
+-- The Locker is its own controller now (Controllers/LockerController, a 3D stage).
 
 local function buildSettings()
 	local p = build("Settings", "OPTIONS", "SETTINGS")
@@ -570,7 +461,6 @@ end
 function Panels.init()
 	buildShop()
 	buildBattlePass()
-	buildLocker()
 	buildSettings()
 	buildRange()
 	local _ = Sound

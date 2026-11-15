@@ -35,11 +35,26 @@ function SkinPreview.valid(value: any): boolean
 	return typeof(value) == "string" and table.find(Config.LINES, value) ~= nil
 end
 
--- The line `player` picked; on the client, nil means the local player.
-function SkinPreview.line(player: Player?): string
+-- The line `player`'s gun `id` wears; on the client, nil means the local
+-- player. A line picked with the in-match preview (F7) wins while it isn't
+-- Stock; otherwise the skin equipped for that gun in the Lobby's Locker
+-- (the server-set attribute Skin_<id>, Shared/Locker).
+function SkinPreview.line(player: Player?, id: string?): string
 	local who = player or (if RunService:IsClient() then Players.LocalPlayer else nil)
-	local value = if who then who:GetAttribute(Config.ATTRIBUTE) else nil
-	return if SkinPreview.allowed() and SkinPreview.valid(value) then value :: string else "Stock"
+	if not who or not SkinPreview.allowed() then
+		return "Stock"
+	end
+	local value = who:GetAttribute(Config.ATTRIBUTE)
+	if SkinPreview.valid(value) and value ~= "Stock" then
+		return value :: string
+	end
+	if id then
+		local saved = who:GetAttribute("Skin_" .. id)
+		if SkinPreview.valid(saved) then
+			return saved :: string
+		end
+	end
+	return "Stock"
 end
 
 -- Whose line a gun model shows: a camera gun's SkinOwnerId (else the local
@@ -93,7 +108,7 @@ function SkinPreview.resolve(id: string, line: string): (Model?, string)
 end
 
 function SkinPreview.geometry(templateId: string, player: Player?): Model?
-	local variant = SkinPreview.resolve(templateId, SkinPreview.line(player))
+	local variant = SkinPreview.resolve(templateId, SkinPreview.line(player, templateId))
 	if
 		variant
 		and (variant:GetAttribute("PreviewGeometry") or variant:GetAttribute("PreviewMeleeModel"))
@@ -123,7 +138,7 @@ function SkinPreview.apply(model: Model)
 	if not owner then
 		return
 	end
-	local template, resolved = SkinPreview.resolve(id, SkinPreview.line(owner))
+	local template, resolved = SkinPreview.resolve(id, SkinPreview.line(owner, id))
 	if not template then
 		return
 	end
