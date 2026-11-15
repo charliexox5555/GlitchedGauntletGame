@@ -882,6 +882,255 @@ do
 		price(b, "robux", c[2], UDim2.new(1, -20, 1, -20), Vector2.new(1, 1), 54)
 	end
 
+	---------------------------------------------------------------- PREVIEW
+	-- A skin bundle opened (RIVALS-style): the item big in 3D (the controller
+	-- puts an ItemStage in Stage), its name, « BACK, BUY ITEM, BUY BUNDLE and
+	-- the bundle's items in a strip. Hidden until a bundle is clicked; the
+	-- tabs and page step aside for it.
+	local preview = frame(canvas, "Preview", {
+		Size = UDim2.fromScale(1, 1),
+		Visible = false,
+		ZIndex = 10,
+	})
+	local head = frame(preview, "Head", {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromOffset(960, 44),
+		Size = UDim2.fromOffset(0, 64),
+		AutomaticSize = Enum.AutomaticSize.X,
+		ZIndex = 11,
+	})
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 16),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, head)
+	make("ImageLabel", {
+		Name = "Emblem",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(54, 54),
+		BackgroundTransparency = 1,
+		Image = "",
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 12,
+	}, head)
+	text(
+		head,
+		"Title",
+		"NITROUS VANDAL",
+		52,
+		WHITE,
+		{ LayoutOrder = 2, Size = UDim2.fromOffset(0, 64), ZIndex = 12 }
+	)
+	text(
+		head,
+		"Kind",
+		"·  SKIN",
+		30,
+		MUTED,
+		{ LayoutOrder = 3, Size = UDim2.fromOffset(0, 64), ZIndex = 12 }
+	)
+	local forChip = make("Frame", {
+		Name = "For",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromOffset(960, 122),
+		Size = UDim2.fromOffset(0, 34),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = hex("3FE0F2"),
+		BorderSizePixel = 0,
+		ZIndex = 11,
+	}, preview)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, forChip)
+	slant(forChip, hex("3FE0F2"), 34, 12)
+	text(
+		forChip,
+		"Label",
+		"FOR THE VANDAL",
+		16,
+		INK,
+		{ Size = UDim2.fromOffset(0, 34), ZIndex = 12 }
+	)
+
+	-- the stage: the 3D item (or, for a charm / Mod / coins, a big card)
+	local stageBox = frame(preview, "StageBox", {
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(960, 452),
+		Size = UDim2.fromOffset(1300, 520),
+		ZIndex = 11,
+	})
+	local stage = frame(stageBox, "Stage", { Size = UDim2.fromScale(1, 1), ZIndex = 11 })
+	local _ = stage
+	local bigCard = make("Frame", {
+		Name = "Card",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(300, 300),
+		BackgroundColor3 = hex("B58CFF"),
+		BorderSizePixel = 0,
+		Visible = false,
+		ZIndex = 12,
+	}, stageBox)
+	corner(bigCard, 10)
+	make("UIScale", { Name = "Pop" }, bigCard)
+	text(bigCard, "Kind", "CHARM", 22, INK, { Position = UDim2.fromOffset(24, 20), ZIndex = 13 })
+	text(bigCard, "Name", "NEON FANG", 30, INK, {
+		AutomaticSize = Enum.AutomaticSize.None,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -22),
+		Size = UDim2.new(1, -40, 0, 70),
+		TextWrapped = true,
+		TextYAlignment = Enum.TextYAlignment.Bottom,
+		ZIndex = 13,
+	})
+	make("TextButton", {
+		Name = "DragArea",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Text = "",
+		AutoButtonColor = false,
+		ZIndex = 14,
+	}, stageBox)
+	text(preview, "Hint", "DRAG TO TURN", 14, WHITE, {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromOffset(960, 716),
+		TextTransparency = 0.5,
+		FontFace = Font.new(BX, BOLD),
+		ZIndex = 11,
+	})
+
+	-- « BACK · BUY ITEM · BUY BUNDLE · the items-separately total (struck)
+	local actions = frame(preview, "Actions", {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromOffset(960, 752),
+		Size = UDim2.fromOffset(0, 96),
+		AutomaticSize = Enum.AutomaticSize.X,
+		ZIndex = 11,
+	})
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Bottom,
+		Padding = UDim.new(0, 30),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, actions)
+	local back = make("TextButton", {
+		Name = "Back",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(190, 62),
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false,
+		ZIndex = 12,
+	}, actions)
+	slant(back, WHITE, 62, 20)
+	make("UIScale", { Name = "Pop" }, back)
+	text(
+		back,
+		"Label",
+		"«  BACK",
+		24,
+		INK,
+		{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 13 }
+	)
+	local function previewBuy(name: string, kicker: string, order: number)
+		local b = make("TextButton", {
+			Name = name,
+			LayoutOrder = order,
+			Size = UDim2.fromOffset(240, 96),
+			BackgroundTransparency = 1,
+			Text = "",
+			AutoButtonColor = false,
+			ZIndex = 12,
+		}, actions)
+		make("UIScale", { Name = "Pop" }, b)
+		local plate = price(b, "robux", "479", UDim2.new(0.5, 0, 1, 0), Vector2.new(0.5, 1), 64)
+		plate.ZIndex = 13
+		for _, d in plate:GetDescendants() do
+			if d:IsA("GuiObject") then
+				d.ZIndex = 14
+			end
+		end
+		text(b, "Kicker", kicker, 16, WHITE, {
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 1, -70),
+			FontFace = Font.new(BX, BOLD),
+			ZIndex = 14,
+		})
+	end
+	previewBuy("BuyItem", "BUY ITEM", 2)
+	previewBuy("BuyBundle", "BUY BUNDLE", 3)
+	-- the bundle's items bought one by one, struck through (a real sum of the
+	-- items' own prices, never an invented "value")
+	local was = frame(actions, "Separately", {
+		LayoutOrder = 4,
+		Size = UDim2.fromOffset(0, 96),
+		AutomaticSize = Enum.AutomaticSize.X,
+		ZIndex = 12,
+	})
+	text(was, "Kicker", "SEPARATELY", 16, MUTED, {
+		Position = UDim2.fromOffset(4, 6),
+		FontFace = Font.new(BX, BOLD),
+		ZIndex = 13,
+	})
+	local wasPlate = make("Frame", {
+		Name = "Plate",
+		Position = UDim2.fromOffset(0, 32),
+		Size = UDim2.fromOffset(0, 64),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = hex("E2444B"),
+		BorderSizePixel = 0,
+		ZIndex = 12,
+	}, was)
+	slant(wasPlate, hex("E2444B"), 64, 21)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 8) }, wasPlate)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 8),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, wasPlate)
+	make("ImageLabel", {
+		Name = "Robux",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(26, 26),
+		BackgroundTransparency = 1,
+		Image = ROBUX,
+		ImageColor3 = WHITE,
+		ZIndex = 13,
+	}, wasPlate)
+	text(
+		wasPlate,
+		"Amount",
+		"1,676",
+		28,
+		WHITE,
+		{ LayoutOrder = 2, Size = UDim2.fromOffset(0, 64), ZIndex = 13 }
+	)
+	make("Frame", {
+		Name = "Strike",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, -6, 0.5, 0),
+		Size = UDim2.new(1, 12, 0, 3),
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		ZIndex = 14,
+	}, wasPlate:WaitForChild("Amount"))
+
+	-- the bundle's items: the controller fills this with cells
+	local strip = frame(preview, "Strip", {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromOffset(960, 884),
+		Size = UDim2.fromOffset(0, 132),
+		AutomaticSize = Enum.AutomaticSize.X,
+		ZIndex = 11,
+	})
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 14),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, strip)
+
 	---------------------------------------------------------------- POPUPS
 	-- A dim over everything, then the popup panels on their own fitted canvas
 	-- (over the dim): the case popup and its CONTENTS odds list.

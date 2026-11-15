@@ -13,6 +13,11 @@
 --   from outside the card. Small cells just lift.
 -- * A bundle shows its contents on hover (cells from the catalog); clicking a
 --   cell shows the item card ("NITROUS VANDAL · SKIN · GIVEN TO VANDAL").
+-- * Clicking a skin bundle opens its preview (RIVALS-style): the item big in
+--   3D (Util/ItemStage: drag to turn, idle wobble), its name and emblem, «
+--   BACK, BUY ITEM, BUY BUNDLE, the items-separately total struck through,
+--   and the bundle's items in a strip that switches the preview (charms, Mods
+--   and coins show as a big card).
 -- * A case opens the case popup (case x1; buy with Coins, Robux, x3 Robux) and
 --   CONTENTS lists every outcome with its odds (adding up to 100%) and the
 --   note. Where PolicyService says paid random items are restricted (or the
@@ -26,6 +31,9 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
+local Locker = require(ReplicatedStorage.Shared.Locker)
+local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+local ItemStage = require(script.Parent.Parent.Util.ItemStage)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Layout = require(script.Parent.Parent.Util.Layout)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -69,6 +77,11 @@ local coinsFit: UIScale
 local coinsAmount: TextLabel
 local templates: Folder
 local dailyNote: TextLabel?
+local preview: Frame
+local stage: ItemStage.Stage
+local previewBundle: ShopCatalog.Bundle? = nil
+local previewCells: { GuiButton } = {}
+local openPreview: (bundle: ShopCatalog.Bundle, index: number) -> ()
 
 local isOpen = false
 local tab = "HOME"
@@ -388,7 +401,14 @@ local function buildBundle(card: GuiButton, bundle: ShopCatalog.Bundle)
 		end)
 	end)
 	card.Activated:Connect(function()
-		soon("Buying " .. string.lower(bundle.name))
+		local first = 1
+		for i, item in bundle.items do
+			if item.kind == "Skin" then
+				first = i
+				break
+			end
+		end
+		openPreview(bundle, first)
 	end)
 end
 
@@ -488,6 +508,205 @@ local function buyCase()
 		return
 	end
 	soon("Buying cases")
+end
+
+--------------------------------------------------------------------------------
+-- The skin-bundle preview
+
+local function plateAmount(button: Instance, amount: string)
+	local plate = button:FindFirstChild("Price")
+	local row = plate and plate:FindFirstChild("Row")
+	local label = row and row:FindFirstChild("Amount")
+	if label and label:IsA("TextLabel") then
+		label.Text = amount
+	end
+end
+
+local function kindWord(item: ShopCatalog.Item): string
+	return if item.kind == "Coins" then "COINS" else string.upper(item.kind)
+end
+
+local function forWords(item: ShopCatalog.Item): string
+	if item.kind == "Skin" then
+		local cfg = item.gun and Weapons.get(item.gun)
+		return "FOR THE " .. string.upper(if cfg then cfg.displayName else (item.gun or ""))
+	elseif item.kind == "Mod" then
+		return "EXCLUSIVE MOD  ·  JOINS YOUR DRAFT POOL"
+	elseif item.kind == "Coins" then
+		return string.format("+%s COINS", commas(item.amount or 0))
+	end
+	return kindWord(item)
+end
+
+local function selectPreview(index: number)
+	local bundle = previewBundle
+	if not bundle then
+		return
+	end
+	local item = bundle.items[index]
+	if not item then
+		return
+	end
+	local head = child(preview, "Head") :: Frame
+	local emblem = child(head, "Emblem") :: ImageLabel
+	local line = item.line
+	local emblemId = if line then Locker.EMBLEMS[line] else nil
+	emblem.Visible = emblemId ~= nil and emblemId ~= ""
+	emblem.Image = emblemId or ""
+	emblem.ImageColor3 = if line then (Locker.COLORS[line] or WHITE) else WHITE;
+	(child(head, "Title") :: TextLabel).Text = if item.kind == "Coins"
+		then string.format("%s COINS", commas(item.amount or 0))
+		else item.name;
+	(child(head, "Kind") :: TextLabel).Text = "·  " .. kindWord(item)
+	local forChip = child(preview, "For") :: Frame;
+	(child(forChip, "Label") :: TextLabel).Text = forWords(item)
+
+	-- a skin turns in 3D; anything else is a big card
+	local stageBox = child(preview, "StageBox") :: Frame
+	local bigCard = child(stageBox, "Card") :: Frame
+	local hint = child(preview, "Hint") :: GuiObject
+	local model: Model? = nil
+	if item.kind == "Skin" and item.gun then
+		model = (if line then Locker.skinModel(item.gun, line) else nil)
+			or Locker.gunModel(item.gun)
+	end
+	if model then
+		local cfg = item.gun and Weapons.get(item.gun)
+		stage:show(model, cfg ~= nil and cfg.class == "Melee")
+		bigCard.Visible = false
+		hint.Visible = true
+	else
+		stage:show(nil)
+		bigCard.BackgroundColor3 = itemColor(item);
+		(child(bigCard, "Kind") :: TextLabel).Text = kindWord(item);
+		(child(bigCard, "Name") :: TextLabel).Text = if item.kind == "Coins"
+			then "x" .. commas(item.amount or 0)
+			else item.name
+		bigCard.Visible = true
+		local sc = pop(bigCard)
+		if sc then
+			sc.Scale = 0.85
+			tween(sc, 0.3, { Scale = 1 })
+		end
+		hint.Visible = false
+	end
+
+	-- prices: the item alone (if it's sold alone), the bundle, the items one by one
+	local actions = child(preview, "Actions") :: Frame
+	local buyItem = child(actions, "BuyItem") :: GuiButton
+	local itemPrice = ShopCatalog.itemRobux(item)
+	buyItem.Visible = itemPrice ~= nil
+	if itemPrice then
+		plateAmount(buyItem, commas(itemPrice))
+	end
+	-- the strip: the open item is up and bright, the rest a touch back
+	for i, c in previewCells do
+		local on = i == index
+		rest(pop(c), if on then 1.1 else 1)
+		tween(c, 0.15, { BackgroundTransparency = if on then 0 else 0.35 })
+	end
+end
+
+openPreview = function(bundle: ShopCatalog.Bundle, index: number)
+	previewBundle = bundle
+	hideItemCard()
+	showPanel(nil)
+	-- the strip: one cell per item
+	local strip = child(preview, "Strip") :: Frame
+	for _, c in previewCells do
+		c:Destroy()
+	end
+	table.clear(previewCells)
+	for i, item in bundle.items do
+		local c = (templates:WaitForChild("ShopContentCell") :: GuiButton):Clone()
+		c.Name = "Item" .. i
+		c.LayoutOrder = i
+		c.Size = UDim2.fromOffset(120, 120)
+		c.BackgroundColor3 = itemColor(item)
+		c.ZIndex = 12
+		for _, d in c:GetDescendants() do
+			if d:IsA("GuiObject") then
+				d.ZIndex = 13
+			end
+		end
+		(child(c, "Kind") :: TextLabel).Text = kindWord(item);
+		(child(c, "Name") :: TextLabel).Text = if item.kind == "Coins"
+			then "x" .. commas(item.amount or 0)
+			else item.name
+		c.Parent = strip
+		table.insert(previewCells, c)
+		c.MouseEnter:Connect(function()
+			local sc = pop(c)
+			if sc and (sc:GetAttribute("Rest") or 1) < 1.1 then
+				tween(sc, 0.15, { Scale = 1.05 })
+			end
+		end)
+		c.MouseLeave:Connect(function()
+			local sc = pop(c)
+			if sc then
+				local r = sc:GetAttribute("Rest")
+				tween(sc, 0.15, { Scale = if typeof(r) == "number" then r else 1 })
+			end
+		end)
+		c.Activated:Connect(function()
+			press(pop(c))
+			selectPreview(i)
+		end)
+	end
+	-- prices that don't change per item
+	local actions = child(preview, "Actions") :: Frame
+	plateAmount(child(actions, "BuyBundle"), commas(bundle.robux))
+	local separately = ShopCatalog.separately(bundle)
+	local was = child(actions, "Separately") :: Frame
+	was.Visible = separately > bundle.robux
+	local wasLabel = child(child(was, "Plate"), "Amount") :: TextLabel
+	wasLabel.Text = commas(separately)
+
+	-- the page steps aside; the preview comes in
+	scroll.Visible = false
+	showCounter(false)
+	preview.Visible = true
+	stage:run(true)
+	for _, name in { "Head", "For" } do
+		local o = child(preview, name) :: GuiObject
+		local h = o:GetAttribute("Home")
+		local home = if typeof(h) == "UDim2" then h else o.Position
+		o:SetAttribute("Home", home)
+		o.Position = home - UDim2.fromOffset(0, 30)
+		tween(o, 0.4, { Position = home })
+	end
+	for _, name in { "Actions", "Strip" } do
+		local o = child(preview, name) :: GuiObject
+		local h = o:GetAttribute("Home")
+		local home = if typeof(h) == "UDim2" then h else o.Position
+		o:SetAttribute("Home", home)
+		o.Position = home + UDim2.fromOffset(0, 40)
+		tween(o, 0.42, { Position = home })
+	end
+	for i, c in previewCells do
+		local sc = pop(c)
+		if sc then
+			sc.Scale = 0
+			task.delay(0.08 + i * 0.04, function()
+				if previewBundle == bundle then
+					rest(sc, if i == index then 1.1 else 1)
+				end
+			end)
+		end
+	end
+	selectPreview(index)
+end
+
+local function closePreview()
+	if not previewBundle then
+		return
+	end
+	previewBundle = nil
+	stage:run(false)
+	stage:show(nil)
+	preview.Visible = false
+	scroll.Visible = true
+	showCounter(scroll.CanvasPosition.Y < COUNTER_HIDE_AT)
 end
 
 --------------------------------------------------------------------------------
@@ -623,6 +842,7 @@ local function close()
 	isOpen = false
 	openToken += 1
 	local my = openToken
+	closePreview()
 	showPanel(nil)
 	hideItemCard()
 	showCounter(false)
@@ -824,6 +1044,40 @@ function ShopController.init()
 			Router.close()
 		end
 	end)
+	-- the skin-bundle preview
+	preview = child(canvas, "Preview")
+	local stageBox = child(preview, "StageBox") :: Frame
+	stage = ItemStage.new(
+		child(stageBox, "Stage") :: Frame,
+		{ length = 9, height = 3.1, distance = 11 }
+	)
+	stage:bindDrag(child(stageBox, "DragArea") :: GuiButton)
+	local actions = child(preview, "Actions") :: Frame
+	local backB = child(actions, "Back") :: GuiButton
+	backB.MouseEnter:Connect(function()
+		rest(pop(backB), 1.04)
+	end)
+	backB.MouseLeave:Connect(function()
+		rest(pop(backB), 1)
+	end)
+	backB.Activated:Connect(function()
+		press(pop(backB))
+		closePreview()
+	end)
+	for _, n in { "BuyItem", "BuyBundle" } do
+		local b = child(actions, n) :: GuiButton
+		b.MouseEnter:Connect(function()
+			rest(pop(b), 1.05)
+		end)
+		b.MouseLeave:Connect(function()
+			rest(pop(b), 1)
+		end)
+		b.Activated:Connect(function()
+			press(pop(b))
+			soon(if n == "BuyItem" then "Buying items" else "Buying bundles")
+		end)
+	end
+
 	Router.register("Shop", { open = open, close = close })
 end
 

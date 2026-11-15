@@ -190,3 +190,28 @@ ChatGPT's set (reviewed and committed by the owner's ChatGPT pass, `00ca7484`, i
 Checked in Studio play: Home, Bundles, Coins and the Apex case popup with its art; no errors. The vault crate overlapped "+24,000", so the pack art sits lower and smaller now.
 Still placeholder: the charm and emote cells, the daily items and the login reward icons (need the real cosmetics), and per-bundle art if wanted.
 
+## Skin-bundle 3D preview (2026-11-16, owner: "work on 3D preview... no bundle yet, just something that'll look like it"; no economy yet, UI first)
+![Skin](Shop/preview_skin.jpg)
+![Mod](Shop/preview_mod.jpg)
+
+Clicking a bundle card opens its preview on its first skin (RIVALS-style; the tabs and page step aside):
+- **Top:** the skin line's **emblem** (tinted), the item's name and "· SKIN", and a cyan chip:
+  - "FOR THE VANDAL" for a skin;
+  - "EXCLUSIVE MOD · JOINS YOUR DRAFT POOL" for a Mod;
+  - "+1,500 COINS" for coins.
+- **The stage:** a skin is shown **in 3D**, its real skin model from `WeaponSkins` (the stock gun if a line doesn't have that gun yet). It's posed side-on with a tilt; **drag to turn** (eases home), idle wobble, swing-in on change. A charm, Mod or coins shows as a big coloured card instead.
+- **Actions:**
+  - **« BACK**;
+  - **BUY ITEM** (the item's own price; hidden for coins);
+  - **BUY BUNDLE**;
+  - **SEPARATELY**, struck through: the real sum of the items' own prices (`ShopCatalog.separately`), shown only when it's more than the bundle.
+- **The strip:** a cell per item. The open one is raised and bright, the rest a touch back; clicking one switches the preview.
+- Closing the shop also closes the preview. Buying shows "opens with the shop economy".
+
+Code:
+- `client/Util/ItemStage` (new, shared): presentable model, fit to a box, pose, drag, wobble, swap. The Locker keeps its own copy for now; fold it onto this one day.
+- `ShopController`: openPreview / selectPreview / closePreview.
+- Builder: the `Preview` frame in `BuildShop.luau`.
+- Catalog: `ITEM_ROBUX` (placeholder prices by kind and rarity), `itemRobux`, `separately`.
+
+Checked in Studio play: Neon (Nitrous Vandal in 3D, 479 / 975 / separately 1,426), the Overdrive Mod card (449), BACK. No errors. Then aligned the separately plate with the others and made the gun a little bigger.

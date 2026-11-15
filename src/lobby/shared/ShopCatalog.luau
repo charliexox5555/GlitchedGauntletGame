@@ -20,6 +20,7 @@ export type Item = {
 	amount: number?, -- Coins, or a count
 	rarity: Rarity?,
 	weight: number?, -- cases only
+	robux: number?, -- its own price when sold alone (else ITEM_ROBUX by kind and rarity)
 }
 
 export type Case = {
@@ -328,6 +329,34 @@ ShopCatalog.BUNDLES = {
 		},
 	},
 } :: { Bundle }
+
+-- What an item costs on its own, in Robux, when it has no price of its own
+-- (PLACEHOLDER prices). A bundle's "separately" total is the sum of these:
+-- a real price you'd pay item by item, never an invented "value".
+ShopCatalog.ITEM_ROBUX = table.freeze({
+	Skin = { Common = 249, Rare = 349, Epic = 479, Legendary = 599 },
+	Charm = { Common = 99, Rare = 149, Epic = 199, Legendary = 249 },
+	Emote = { Common = 149, Rare = 199, Epic = 249, Legendary = 299 },
+	Mod = { Common = 299, Rare = 349, Epic = 399, Legendary = 449 },
+}) :: { [string]: { [string]: number } }
+
+function ShopCatalog.itemRobux(item: Item): number?
+	if item.robux then
+		return item.robux
+	end
+	local byRarity = ShopCatalog.ITEM_ROBUX[item.kind]
+	return if byRarity then byRarity[item.rarity or "Common"] else nil
+end
+
+-- The bundle's items bought one by one (coins aren't sold alone here, so
+-- they don't count).
+function ShopCatalog.separately(bundle: Bundle): number
+	local total = 0
+	for _, item in bundle.items do
+		total += ShopCatalog.itemRobux(item) or 0
+	end
+	return total
+end
 
 -- Odds for each item of a case, in %, from its weights (they add up to 100).
 function ShopCatalog.odds(case: Case): { number }
