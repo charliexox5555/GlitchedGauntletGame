@@ -227,6 +227,19 @@ local function statChange(id: string, from: string, to: string): string
 	return ""
 end
 
+-- An upgrade card's one line: the first number that changes, or the level's
+-- own short `card` line from Config/Mods when only the behaviour changes.
+local function statLine(id: string, from: string, to: string): string
+	local line = statChange(id, from, to)
+	if line ~= "" then
+		return line
+	end
+	local def = Mods.def(id)
+	local values = if def then (def.levels :: any)[to] else nil
+	local card = if values then values.card else nil
+	return if typeof(card) == "string" then card else string.upper(cardNote(id, to))
+end
+
 local function chargesText(id: string): string
 	local stats = Mods.stats(id, "L1")
 	if not stats then
@@ -893,7 +906,7 @@ local function upgradeCard(
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextYAlignment = Enum.TextYAlignment.Top,
 		})
-		Ui.text(button, statChange(c.id, from, c.level), "titleS", {
+		Ui.text(button, statLine(c.id, from, c.level), "titleS", {
 			Position = UDim2.fromOffset(22, h - 40),
 			Size = UDim2.fromOffset(COL_W - 44, 24),
 			TextSize = 19,
@@ -951,7 +964,7 @@ local function upgradeCard(
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextYAlignment = Enum.TextYAlignment.Top,
 		})
-		Ui.text(button, statChange(c.id, from, c.level), "titleS", {
+		Ui.text(button, statLine(c.id, from, c.level), "titleS", {
 			Position = UDim2.fromOffset(24, h - 46),
 			Size = UDim2.fromOffset(COL_W - 48, 26),
 			TextColor3 = accent,
@@ -1290,10 +1303,7 @@ local function screenView(o: MatchState.DraftOffer): DraftScreen.View
 				if c.slot == slot then
 					local path = string.sub(c.level, 1, 1)
 					local glitch = path == "G"
-					local stat = statChange(c.id, level, c.level)
-					if stat == "" then
-						stat = string.upper(cardNote(c.id, c.level))
-					end
+					local stat = statLine(c.id, level, c.level)
 					table.insert(paths, {
 						key = c.key,
 						name = if def then (def.paths :: any)[path] or c.level else c.level,

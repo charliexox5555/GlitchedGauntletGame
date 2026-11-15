@@ -52,6 +52,7 @@ local defs: { [string]: ModDef } = {
 			A3 = { note = "Dash 24 studs, just as fast, and 2 charges", distance = 24, charges = 2 },
 			B2 = {
 				note = "Bullets pass through you for 0.35 s from the press",
+				card = "BULLETPROOF FOR 0.35 S",
 				dodgeWindow = 0.35, -- seconds from the press: every hit on you is blocked
 				ghostAlpha = 0.55, -- how see-through everyone sees you meanwhile (0..1)
 			},
@@ -66,6 +67,7 @@ local defs: { [string]: ModDef } = {
 			},
 			G2 = {
 				note = "Leave a decoy that keeps running for 1.5 s; no shots for 0.3 s",
+				card = "A DECOY RUNS ON FOR 1.5 S",
 				behaviour = "Desync",
 				decoyTime = 1.5, -- seconds the decoy runs before it glitches out
 				decoyMinSpeed = 16, -- its run speed: yours before the dash, kept in this range
@@ -74,6 +76,7 @@ local defs: { [string]: ModDef } = {
 			},
 			G3 = {
 				note = "The decoy fires fake shots, and you vanish while it runs",
+				card = "DECOY SHOOTS  ·  YOU VANISH",
 				decoyFires = true,
 				decoyShotRange = 150, -- it shoots at the nearest enemy this close, in sight
 				decoyShotDelay = 0.2, -- seconds after the dash before the first fake shot
@@ -115,6 +118,7 @@ local defs: { [string]: ModDef } = {
 			B3 = { note = "Second Wind: 3 Updrafts every round", charges = 3 },
 			G2 = {
 				note = "Crash Down: crouch mid-air to slam, 30 damage within 8 studs",
+				card = "SLAM  ·  30 DAMAGE IN 8 STUDS",
 				behaviour = "Slam",
 				slamDamage = 30, -- enemies in sight of the landing (no self or team damage)
 				slamRadius = 8, -- studs from your root where you land
@@ -179,6 +183,7 @@ local defs: { [string]: ModDef } = {
 			-- hop off the floor and burst into small fires (same dps / duration).
 			G2 = {
 				note = "Fork Fire: splits into 3 bouncing firebombs; their fire burns you too",
+				card = "SPLITS INTO 3 FIREBOMBS",
 				behaviour = "Fork",
 				forks = 3,
 				forkRadius = 5,
@@ -196,6 +201,7 @@ local defs: { [string]: ModDef } = {
 			-- splits (the "bounces once more"); `bounces` 5 is one more wall bounce.
 			G3 = {
 				note = "Fork Fire: 5 firebombs, and it bounces once more before splitting",
+				card = "FIREBOMBS  3 → 5",
 				forks = 5,
 				bounces = 5,
 				hops = 1,
@@ -286,6 +292,7 @@ local defs: { [string]: ModDef } = {
 			B3 = { note = "Big Burst: 17-stud burst, triple the area", radius = 17 },
 			G2 = {
 				note = "Freeze Frame: frozen solid 1.5 s, can't move or shoot. Hits you too",
+				card = "FROZEN SOLID 1.5 S  ·  HITS YOU TOO",
 				behaviour = "Freeze", -- Frozen (Config/StatusEffects) instead of Hinder
 				freeze = 1.5, -- seconds frozen
 			},
@@ -346,6 +353,7 @@ local defs: { [string]: ModDef } = {
 			-- the reveal lasts.
 			G3 = {
 				note = "Ping Spike: you deal +20% damage to enemies it revealed (4 s)",
+				card = "+20% DAMAGE TO REVEALED ENEMIES",
 				bonusDamage = 0.2,
 			},
 		},
@@ -392,10 +400,15 @@ local defs: { [string]: ModDef } = {
 				-- No heal: a hex bubble on the target that takes whole enemy hits
 				-- (Mods/HealOrb). Lasts until used up, death or the next round.
 				note = "Barrier: no heal; a hex bubble blocks the target's next enemy hit",
+				card = "BLOCKS THE NEXT HIT  ·  NO HEAL",
 				behaviour = "Barrier",
 				barrierHits = 1,
 			},
-			G3 = { note = "Barrier: the bubble blocks the next 2 enemy hits", barrierHits = 2 },
+			G3 = {
+				note = "Barrier: the bubble blocks the next 2 enemy hits",
+				card = "HITS BLOCKED  1 → 2",
+				barrierHits = 2,
+			},
 		},
 	},
 	Stim = {
@@ -438,6 +451,7 @@ local defs: { [string]: ModDef } = {
 			A3 = { note = "Quick Stims: 4 charges of the 4 s zone", charges = 4 },
 			B2 = {
 				note = "Strong Stim: +25% speed and fire rate, much faster reloads and swaps",
+				card = "BOOST  15 → 25%",
 				status = "StimStrong",
 			},
 			B3 = {
@@ -446,6 +460,7 @@ local defs: { [string]: ModDef } = {
 			},
 			G2 = {
 				note = "Heal Zone: no stim; you and your team inside heal 60 HP over 8 s",
+				card = "TEAM HEALS 60 HP  ·  NO STIM",
 				behaviour = "Heal", -- Mods/Stim: heals friendlies inside instead of a stim
 				healPerSecond = 7.5, -- via ctx.restore each tick (a Heal Orb's heal keeps running)
 			},
@@ -492,12 +507,14 @@ local defs: { [string]: ModDef } = {
 			-- `rescueHealth`; the anchor breaks (no charge lost, plant again).
 			G2 = {
 				note = "Crash Recovery: once a round, die near your anchor: back on it at 1 HP",
+				card = "CHEAT DEATH ONCE  ·  BACK AT 1 HP",
 				behaviour = "Crash",
 				rescueHealth = 1,
 				rescueGrace = 0.25, -- seconds nothing lands after a rescue (the trip; shots already fired)
 			},
 			G3 = {
 				note = "Crash Recovery: you come back with 40 HP instead of 1",
+				card = "COMEBACK HP  1 → 40",
 				rescueHealth = 40,
 			},
 		},

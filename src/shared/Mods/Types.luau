@@ -23,7 +23,8 @@ export type Authority = "Simulation" | "Server"
 export type LevelId = "L1" | "A2" | "A3" | "B2" | "B3" | "G2" | "G3"
 
 -- One level's numbers. A level only lists what changes from the level before
--- it on its path; `note` describes the level for the dev panel.
+-- it on its path; `note` describes the level for the dev panel; `card` is a
+-- short line for the draft's upgrade card when no number changes.
 export type Level = { [string]: any }
 
 -- Resolved stats for one (id, level): every key from L1 up to that level.
