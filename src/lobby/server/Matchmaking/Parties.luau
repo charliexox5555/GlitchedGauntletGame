@@ -30,6 +30,7 @@ local partyOf: { [Player]: string } = {}
 local joinedAt: { [Player]: number } = {} -- when they joined their current group
 local custom: { [Player]: string } = {} -- in-game override ("" = solo)
 local nextGameParty = 0
+local localIds: { [string]: boolean } = {} -- the "G" ids made here
 local acceptOrder: { [string]: { [number]: number } } = {} -- partyId → userId → order
 local keys: { [string]: string } = {}
 local nextKey = 0
@@ -106,7 +107,8 @@ end
 -- Who joined the Roblox party first decides the leader (index 1 of
 -- GetPartyAsync). Yields; failures keep the join-order fallback.
 local function fetchOrder(partyId: string)
-	if partyId == "" or RunService:IsStudio() then
+	-- local in-game ids ("G…") aren't Roblox parties: don't spend the budget
+	if partyId == "" or RunService:IsStudio() or localIds[partyId] then
 		return
 	end
 	local ok, data = pcall(function(): any
@@ -158,6 +160,12 @@ local function update(p: Player)
 		task.spawn(fetchOrder, now)
 	end
 	publish(before)
+	-- an emptied group forgets its key and order (in-game groups churn)
+	if before ~= "" and #membersOf(before) == 0 then
+		keys[before] = nil
+		acceptOrder[before] = nil
+		localIds[before] = nil
+	end
 	fire(affected)
 end
 
@@ -235,6 +243,7 @@ function Parties.join(p: Player, host: Player)
 	if target == "" or #membersOf(target) == 0 then
 		nextGameParty += 1
 		target = "G" .. nextGameParty
+		localIds[target] = true
 		custom[host] = target
 		update(host)
 	end
