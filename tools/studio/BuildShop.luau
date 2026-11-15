@@ -6,6 +6,10 @@
 -- (art-source/ui/shop/); every picture is an ImageLabel named "Art" whose
 -- Image gets the uploaded id later.
 --
+-- v1.1 (owner, 2026-11-16): a flat, bright, no-gradient v2 was tried and
+-- rejected ("the bright colours are a bit too much... let's go back... maybe
+-- it was just missing the icons"), so this is v1's dark look plus RIVALS-style
+-- icon tabs and slanted price plates (no pills).
 -- Layout (1920 x 1080 canvas, fitted): no back panel. The world blurs (Router)
 -- under a violet-to-navy wash. One ScrollingFrame holds the tab row and the
 -- page, so the tabs scroll away with it; the close button and the coin
@@ -161,17 +165,26 @@ local function price(
 		BorderSizePixel = 0,
 		ZIndex = 6,
 	}, p)
-	corner(plate, 6)
-	make("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 14) }, plate)
+	slant(plate, fill, ph, math.floor(ph * 0.34))
+	-- the mark and number sit in their own row so the layout never pulls the
+	-- slanted ends (CapL / CapR) in
+	local row = make("Frame", {
+		Name = "Row",
+		Size = UDim2.fromOffset(0, ph),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		ZIndex = 6,
+	}, plate)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 6) }, row)
 	make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		VerticalAlignment = Enum.VerticalAlignment.Center,
 		Padding = UDim.new(0, 8),
 		SortOrder = Enum.SortOrder.LayoutOrder,
-	}, plate)
+	}, row)
 	local iconD = math.floor(ph * 0.58)
 	if kind == "coins" then
-		local c = coinMark(plate, iconD, UDim2.new(), Vector2.zero)
+		local c = coinMark(row, iconD, UDim2.new(), Vector2.zero)
 		c.LayoutOrder = 1
 		local o = c:WaitForChild("Outer") :: Frame
 		o.BackgroundColor3 = INK
@@ -186,10 +199,10 @@ local function price(
 			Image = ROBUX,
 			ImageColor3 = INK,
 			ZIndex = 7,
-		}, plate)
+		}, row)
 	end
 	text(
-		plate,
+		row,
 		"Amount",
 		amount,
 		math.floor(ph * 0.5),
@@ -462,36 +475,46 @@ do
 		scroll
 	)
 
-	-- tabs: dark plates; the open one is white with ink text (an Icon slot
-	-- pokes above each, for the ChatGPT tab icons)
-	local tabs = row(scroll, "Tabs", 70, 14, 1)
+	-- tabs (RIVALS-style): a plate per tab with a big icon popping out over
+	-- its top and the name across the bottom; the open tab is white. Until
+	-- the ChatGPT tab icons land, the lobby bar's icons stand in.
+	local TAB_ICON = {
+		HOME = "rbxassetid://75746609493674", -- (Shop bag) -> shop/tab_home.png
+		BUNDLES = "rbxassetid://94062620763078", -- (Locker) -> shop/tab_bundles.png
+		DAILY = "rbxassetid://124123984170556", -- (Pass) -> shop/tab_daily.png
+		COINS = "rbxassetid://79251886607751", -- (Range) -> shop/tab_coins.png
+	}
+	local tabs = row(scroll, "Tabs", 100, 16, 1)
 	for i, t in { "HOME", "BUNDLES", "DAILY", "COINS" } do
 		local on = i == 1
+		local holder = frame(tabs, t, { LayoutOrder = i, Size = UDim2.fromOffset(196, 100) })
 		local b = make("TextButton", {
-			Name = t,
-			LayoutOrder = i,
-			Size = UDim2.fromOffset(200, 64),
+			Name = "Plate",
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.fromScale(0.5, 1),
+			Size = UDim2.fromOffset(196, 58),
 			BackgroundColor3 = if on then WHITE else CARD,
 			BackgroundTransparency = if on then 0 else CARD_T,
 			BorderSizePixel = 0,
 			Text = "",
 			AutoButtonColor = false,
 			ZIndex = 3,
-		}, tabs)
+		}, holder)
 		corner(b)
 		make("UIScale", { Name = "Pop" }, b)
 		make("ImageLabel", {
 			Name = "Icon",
 			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 0, 22),
-			Size = UDim2.fromOffset(64, 64),
+			Position = UDim2.new(0.5, 0, 0, 28),
+			Size = UDim2.fromOffset(78, 78),
 			BackgroundTransparency = 1,
-			Image = "",
-			ZIndex = 4,
+			Image = TAB_ICON[t],
+			ZIndex = 6,
 		}, b)
 		text(b, "Label", t, 22, if on then INK else WHITE, {
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0.5, 0, 1, -7),
+			ZIndex = 7,
 		})
 	end
 

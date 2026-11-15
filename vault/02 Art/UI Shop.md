@@ -132,3 +132,14 @@ Built in Studio by `tools/studio/BuildShop.luau`: `StarterGui.Shop` (off) and `S
 - **Price plates:** Coins = gold with the coin mark; Robux = green with the Robux mark (`rbxasset://textures/ui/common/robux.png`).
 - **Selection frame:** four thick white corner brackets around a big card. Shown on the Season Pass and Neon cards in the mockup; the controller will tween them in from outside on hover.
 - Not wired yet: tabs, scroll, the counter tweening out, hover frames, bundle hover, item card, skin-bundle preview, case popup + odds. The Lobby still opens the old placeholder shop.
+
+## Mockup v1.1 (2026-11-16)
+![Home v1.1](Shop/mockup_v1_1_home.jpg)
+
+- **Tried and rejected, the same day:** after the owner said v1's "pills" and "gradients look too AI" and "the dark colours are a bit sad", a v2 was built: flat, bright, saturated cards, zero gradients across the shop and the whole lobby (Play tiles, Locker, HUD shades, menus). The owner rejected it: "the bright colours are a bit too much... let's go back to what it was before... maybe it was just missing the icons... I like the icons on the top". It was never committed, and the lobby is back as it was.
+- **v1.1 = v1's dark look, plus:**
+  - **RIVALS-style icon tabs:** each tab is a plate with a big icon popping out over its top and its name across the bottom; the open tab is white. The lobby bar icons stand in until the ChatGPT tab icons arrive.
+  - **Slanted price plates** (no pills): Coins gold, Robux green, with the mark and number in their own row inside the slanted ends.
+- Lesson (saved in memory): when a screen "looks AI", the missing piece is usually real art and icons, not a palette swap. Change one thing at a time.
+- Next: drop in the ChatGPT art (coin, cases, tab icons, coin packs, banners) when it lands, then wire the shop.
+
