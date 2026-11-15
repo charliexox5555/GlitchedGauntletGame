@@ -1,20 +1,23 @@
 --!strict
--- Builds the Locker v3 (vault/02 Art/UI Locker.md) in the LOBBY place, Edit mode:
+-- Builds the Locker v4 (vault/02 Art/UI Locker.md) in the LOBBY place, Edit mode:
 --   StarterGui.Locker              the screen (off; Controllers/LockerController opens it)
---   ReplicatedStorage.LockerStage  the stage values: GunSpot, CameraCFrame (the
---                                  controller draws the gun in a full-screen
+--   ReplicatedStorage.LockerStage  stage values: GunSpot, CameraCFrame, Background
+--                                  (the controller draws the gun in a full-screen
 --                                  ViewportFrame on flat RIVALS-style blue)
---   UiTemplates.Lobby.GunCard / SkinCard / GunGroup
+--   UiTemplates.Lobby.GunCard / GunGroup / SkinTile
 -- Re-running replaces it all.
 --
--- v3 (owner on the wired v2: "it should all be larger and look nicer like
--- Rivals... the selection should just be a coloured background... the guns
--- like in the game, the grey / white version... no wraps"): flat saturated
--- blue, no floor or plinth, a big gun on a diagonal; bigger cards on dark
--- see-through plates; the gun cards use the in-game gun icons (Theme.GUN); a
--- selected card is a solid colour (cyan for a gun, the skin's own colour for a
--- skin); SKIN / CHARM / FINISHER (no wraps). Still: no pills, outlines, glows
--- or edge strips; sharp slants only on the active thing; gold only on EQUIP.
+-- v4 (owner on v3: "too much UI... when you click skin it opens a separate
+-- menu... your call"): two views.
+--   Main: the gun list (left), the big gun centred, its name on top, and three
+--         tiles at the bottom: SKIN (filled with the equipped skin's colour),
+--         CHARM, FINISHER (soon). No skins column, no EQUIP button.
+--   Skins (SKIN tile): the list and tiles slide away, the gun lifts, a tray
+--         slides up from the bottom: « BACK and a strip of big skin tiles, each
+--         filled with its skin's colour with a live picture; clicking one equips
+--         it (a check on the equipped one), like RIVALS.
+-- Still: no pills, outlines, glows or edge strips; sharp slants only on the
+-- active thing; Builder Extended.
 
 local SG = game:GetService("StarterGui")
 local RS = game:GetService("ReplicatedStorage")
@@ -37,14 +40,14 @@ end
 
 local BX = "rbxasset://fonts/families/BuilderExtended.json"
 local XB = Enum.FontWeight.ExtraBold
-local CARD = hex("0B1236") -- dark see-through card plate over the blue
+local CARD = hex("0B1236") -- dark see-through plate over the blue
 local CARD_T = 0.35
-local ALLY, GOLD = hex("3FE0F2"), hex("FFC83D")
+local ALLY, GREEN = hex("3FE0F2"), hex("3FD68A")
 local MUTED, INK, WHITE = hex("AEB8D6"), hex("141A26"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local CENTRE = Vector2.new(0.5, 0.5)
 
--- stage: just where the gun sits and where the camera looks from ---------------------
+-- stage values ------------------------------------------------------------------------
 for _, where in { workspace, RS } do
 	local old = where:FindFirstChild("LockerStage")
 	if old then
@@ -53,12 +56,12 @@ for _, where in { workspace, RS } do
 end
 local stage = make("Model", { Name = "LockerStage" })
 make("CFrameValue", { Name = "GunSpot", Value = CFrame.new() }, stage)
+-- the camera looks straight at the gun's centre, so it turns about the middle
 make("CFrameValue", {
 	Name = "CameraCFrame",
-	-- looking a little above the gun, so it sits below the name
-	Value = CFrame.lookAt(Vector3.new(0, 0.95, 11.5), Vector3.new(0, 0.45, 0)),
+	Value = CFrame.lookAt(Vector3.new(0, 0.5, 12), Vector3.new(0, 0, 0)),
 }, stage)
-stage:SetAttribute("Background", hex("2340D8")) -- the flat blue behind the gun
+stage:SetAttribute("Background", hex("2340D8"))
 stage.Parent = RS
 
 -- screen ------------------------------------------------------------------------------
@@ -105,7 +108,6 @@ end
 local function corner(p: Instance, r: number?)
 	make("UICorner", { CornerRadius = UDim.new(0, r or 4) }, p)
 end
--- both ends lean the same way (the bar's parallelogram)
 local function slant(body: GuiObject, color: Color3, h: number, capW: number)
 	make("ImageLabel", {
 		Name = "CapL",
@@ -129,7 +131,6 @@ local function slant(body: GuiObject, color: Color3, h: number, capW: number)
 	}, body)
 end
 
--- one design-size canvas (1920x1080), scaled to fit and centred
 local canvas = make("Frame", {
 	Name = "Canvas",
 	AnchorPoint = CENTRE,
@@ -140,18 +141,18 @@ local canvas = make("Frame", {
 }, gui)
 make("UIScale", { Name = "Fit" }, canvas)
 
--- the stage area: drag here to turn the gun (a button so it takes the click)
+-- the stage area: drag here to turn the gun
 make("TextButton", {
 	Name = "DragArea",
-	Position = UDim2.fromOffset(560, 300),
-	Size = UDim2.fromOffset(800, 600),
+	Position = UDim2.fromOffset(600, 240),
+	Size = UDim2.fromOffset(1280, 620),
 	BackgroundTransparency = 1,
 	Text = "",
 	AutoButtonColor = false,
 	ZIndex = 1,
 }, canvas)
 
--- top left: LOCKER and the tabs (the active one on a cyan slab)
+-- top left: LOCKER and the tabs
 text(canvas, "Title", "LOCKER", 68, WHITE, { Position = UDim2.fromOffset(56, 34) })
 local tabs = make("Frame", {
 	Name = "Tabs",
@@ -196,7 +197,6 @@ for i, t in { "WEAPONS", "ABILITIES", "EMOTES" } do
 		{ Size = UDim2.fromOffset(0, 56), ZIndex = 5 }
 	)
 end
--- top right: a round close
 local close = make("TextButton", {
 	Name = "Close",
 	AnchorPoint = Vector2.new(1, 0),
@@ -219,7 +219,7 @@ text(
 	{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 5 }
 )
 
--- left: the guns, by class (cards are built from the templates by the controller)
+-- left: the guns by class
 local GW, GH, GAP = 236, 128, 12
 local guns = make("ScrollingFrame", {
 	Name = "Guns",
@@ -236,149 +236,139 @@ local guns = make("ScrollingFrame", {
 }, canvas)
 make("UIListLayout", { Padding = UDim.new(0, 12), SortOrder = Enum.SortOrder.LayoutOrder }, guns)
 
--- centre: the gun's name, the skin on it, the drag hint
-text(canvas, "GunName", "VANDAL", 104, WHITE, {
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromOffset(960, 150),
-	TextStrokeTransparency = 0.85,
-})
+-- top centre (over the stage): the gun's name and the skin on it
+local nameX = 1240 -- the middle of the stage area (right of the list)
+text(
+	canvas,
+	"GunName",
+	"VANDAL",
+	84,
+	WHITE,
+	{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(nameX, 52) }
+)
 local skinTag = make("Frame", {
 	Name = "SkinTag",
 	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromOffset(960, 270),
-	Size = UDim2.fromOffset(0, 42),
+	Position = UDim2.fromOffset(nameX, 150),
+	Size = UDim2.fromOffset(0, 40),
 	AutomaticSize = Enum.AutomaticSize.X,
 	BackgroundColor3 = WHITE,
 	BorderSizePixel = 0,
 	ZIndex = 3,
 }, canvas)
 make("UIPadding", { PaddingLeft = UDim.new(0, 16), PaddingRight = UDim.new(0, 16) }, skinTag)
-slant(skinTag, WHITE, 42, 14)
+slant(skinTag, WHITE, 40, 14)
 text(
 	skinTag,
 	"Label",
 	"DEFAULT  ·  RIFLE",
-	19,
+	18,
 	INK,
-	{ Size = UDim2.fromOffset(0, 42), ZIndex = 5 }
-)
-text(canvas, "Hint", "DRAG TO TURN  ·  SCROLL TO ZOOM", 14, MUTED, {
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromOffset(960, 924),
-})
-
--- right: the skins of the selected gun
-local SW, SH = 236, 184
-text(canvas, "SkinsHead", "SKINS", 22, WHITE, { Position = UDim2.fromOffset(1356, 152) })
-text(canvas, "SkinsCount", "10 OWNED", 15, MUTED, {
-	AnchorPoint = Vector2.new(1, 0),
-	Position = UDim2.fromOffset(1864, 158),
-})
-local skins = make("ScrollingFrame", {
-	Name = "Skins",
-	Position = UDim2.fromOffset(1356, 196),
-	Size = UDim2.fromOffset(2 * SW + GAP + 16, 662),
-	BackgroundTransparency = 1,
-	BorderSizePixel = 0,
-	ScrollBarThickness = 5,
-	ScrollBarImageColor3 = WHITE,
-	ScrollBarImageTransparency = 0.5,
-	AutomaticCanvasSize = Enum.AutomaticSize.Y,
-	CanvasSize = UDim2.new(),
-	ZIndex = 2,
-}, canvas)
-make("UIGridLayout", {
-	CellSize = UDim2.fromOffset(SW, SH),
-	CellPadding = UDim2.fromOffset(GAP, GAP),
-	SortOrder = Enum.SortOrder.LayoutOrder,
-}, skins)
-
--- EQUIP: the one gold thing, big, with the » that says "go"
-local equip = make("TextButton", {
-	Name = "Equip",
-	Position = UDim2.fromOffset(1384, 880),
-	Size = UDim2.fromOffset(2 * SW + GAP - 44, 100),
-	BackgroundColor3 = GOLD,
-	BorderSizePixel = 0,
-	Text = "",
-	AutoButtonColor = false,
-	ZIndex = 3,
-}, canvas)
-slant(equip, GOLD, 100, 28)
-text(
-	equip,
-	"Label",
-	"EQUIP",
-	42,
-	INK,
-	{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 20, 0.5, -10), ZIndex = 5 }
-)
-text(
-	equip,
-	"Sub",
-	"PRISM VANDAL",
-	14,
-	INK,
-	{ Position = UDim2.new(0, 22, 0.5, 16), TextTransparency = 0.3, ZIndex = 5 }
-)
-text(
-	equip,
-	"Go",
-	"»",
-	66,
-	INK,
-	{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -14, 0.5, -6), ZIndex = 5 }
+	{ Size = UDim2.fromOffset(0, 40), ZIndex = 5 }
 )
 
--- bottom centre: what you're changing (no wraps), the active one on a white slab
+-- bottom centre of the stage: SKIN / CHARM / FINISHER tiles
 local kinds = make("Frame", {
 	Name = "Kinds",
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromOffset(960, 964),
-	Size = UDim2.fromOffset(0, 58),
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.fromOffset(nameX, 1040),
+	Size = UDim2.fromOffset(0, 130),
 	AutomaticSize = Enum.AutomaticSize.X,
 	BackgroundTransparency = 1,
 }, canvas)
 make("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
-	VerticalAlignment = Enum.VerticalAlignment.Center,
-	Padding = UDim.new(0, 40),
+	VerticalAlignment = Enum.VerticalAlignment.Bottom,
+	Padding = UDim.new(0, 18),
 	SortOrder = Enum.SortOrder.LayoutOrder,
 }, kinds)
 for i, k in { "SKIN", "CHARM", "FINISHER" } do
 	local on = i == 1
-	local b = make("TextButton", {
+	local tile = make("TextButton", {
 		Name = k,
 		LayoutOrder = i,
-		Size = UDim2.fromOffset(0, 58),
-		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundColor3 = WHITE,
-		BackgroundTransparency = if on then 0 else 1,
+		Size = UDim2.fromOffset(200, 130),
+		BackgroundColor3 = if on then WHITE else CARD,
+		BackgroundTransparency = if on then 0 else CARD_T,
 		BorderSizePixel = 0,
 		Text = "",
 		AutoButtonColor = false,
 		ZIndex = 3,
 	}, kinds)
-	make("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }, b)
-	if on then
-		slant(b, WHITE, 58, 18)
-	end
-	text(b, "Label", k, 24, if on then INK else WHITE, {
-		Size = UDim2.fromOffset(0, 58),
+	corner(tile)
+	text(tile, "Label", k, 24, if on then INK else WHITE, {
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 16, 1, -12),
 		TextTransparency = if on then 0 else 0.4,
 		ZIndex = 5,
 	})
-	if not on then
-		text(
-			b,
-			"Soon",
-			"SOON",
-			11,
-			ALLY,
-			{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, -8), ZIndex = 5 }
-		)
-	end
+	text(tile, "Value", if on then "DEFAULT" else "SOON", 13, if on then INK else ALLY, {
+		Position = UDim2.fromOffset(16, 14),
+		TextTransparency = if on then 0.25 else 0,
+		ZIndex = 5,
+	})
 end
+text(canvas, "Hint", "DRAG TO TURN  ·  SCROLL TO ZOOM", 14, MUTED, {
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.fromOffset(nameX, 892),
+})
+
+-- the skins tray (hidden until SKIN): « BACK and a strip of skin tiles
+local TW, TH = 168, 188
+local tray = make("Frame", {
+	Name = "Tray",
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.fromOffset(960, 1052),
+	Size = UDim2.fromOffset(1760, 300),
+	BackgroundTransparency = 1,
+	Visible = false,
+	ZIndex = 2,
+}, canvas)
+local back = make("TextButton", {
+	Name = "Back",
+	Position = UDim2.fromOffset(16, 0),
+	Size = UDim2.fromOffset(190, 64),
+	BackgroundColor3 = WHITE,
+	BorderSizePixel = 0,
+	Text = "",
+	AutoButtonColor = false,
+	ZIndex = 3,
+}, tray)
+slant(back, WHITE, 64, 20)
+text(
+	back,
+	"Label",
+	"«  BACK",
+	24,
+	INK,
+	{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 5 }
+)
+text(tray, "Head", "SKINS", 24, WHITE, { Position = UDim2.fromOffset(250, 18), ZIndex = 4 })
+text(tray, "Count", "10 OWNED", 15, MUTED, { Position = UDim2.fromOffset(372, 24), ZIndex = 4 })
+local strip = make("ScrollingFrame", {
+	Name = "Strip",
+	Position = UDim2.fromOffset(0, 84),
+	Size = UDim2.fromOffset(1760, TH + 22),
+	BackgroundColor3 = CARD,
+	BackgroundTransparency = CARD_T,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 5,
+	ScrollBarImageColor3 = WHITE,
+	ScrollBarImageTransparency = 0.5,
+	ScrollingDirection = Enum.ScrollingDirection.X,
+	AutomaticCanvasSize = Enum.AutomaticSize.X,
+	CanvasSize = UDim2.new(),
+	ZIndex = 2,
+}, tray)
+corner(strip)
+make("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+	VerticalAlignment = Enum.VerticalAlignment.Center,
+	Padding = UDim.new(0, 12),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+}, strip)
+make("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }, strip)
+
 -- the other tabs until they're built
 text(
 	canvas,
@@ -391,13 +381,12 @@ text(
 
 -- templates -----------------------------------------------------------------------------
 local folder = RS:WaitForChild("UiTemplates"):WaitForChild("Lobby")
-for _, n in { "GunCard", "SkinCard", "GunGroup" } do
+for _, n in { "GunCard", "SkinCard", "GunGroup", "SkinTile" } do
 	local t = folder:FindFirstChild(n)
 	if t then
 		t:Destroy()
 	end
 end
--- GunGroup: a class header and a 2-wide grid
 local group = make("Frame", {
 	Name = "GunGroup",
 	Size = UDim2.fromOffset(2 * GW + GAP, 0),
@@ -418,8 +407,6 @@ make("UIGridLayout", {
 	CellPadding = UDim2.fromOffset(GAP, GAP),
 	SortOrder = Enum.SortOrder.LayoutOrder,
 }, grid)
--- GunCard: the in-game gun icon (grey / white render), the name, and a small
--- block in the equipped skin's colour; selected = a solid cyan card
 local gunCard = make("TextButton", {
 	Name = "GunCard",
 	BackgroundColor3 = CARD,
@@ -451,41 +438,65 @@ local chip = make("Frame", {
 	ZIndex = 5,
 }, gunCard)
 slant(chip, WHITE, 20, 7)
--- SkinCard: a live picture of the skin (the controller adds it), the name with
--- a small block in the skin's colour; selected = the whole card in its colour
-local skinCard = make("TextButton", {
-	Name = "SkinCard",
-	BackgroundColor3 = CARD,
-	BackgroundTransparency = CARD_T,
+-- SkinTile: filled with the skin's colour (the controller sets it), a live
+-- picture, the name; a round check on the equipped one
+local tile = make("TextButton", {
+	Name = "SkinTile",
+	Size = UDim2.fromOffset(TW, TH),
+	BackgroundColor3 = WHITE,
 	BorderSizePixel = 0,
 	Text = "",
 	AutoButtonColor = false,
 	ZIndex = 3,
 }, folder)
-corner(skinCard)
-local swatch = make("Frame", {
-	Name = "Swatch",
-	Position = UDim2.fromOffset(18, SH - 38),
-	Size = UDim2.fromOffset(26, 22),
-	BackgroundColor3 = WHITE,
+corner(tile)
+make("Frame", {
+	Name = "Shade", -- darkens the lower part so the name reads on any colour
+	AnchorPoint = Vector2.new(0, 1),
+	Position = UDim2.fromScale(0, 1),
+	Size = UDim2.new(1, 0, 0, 46),
+	BackgroundColor3 = Color3.new(0, 0, 0),
+	BackgroundTransparency = 0.55,
 	BorderSizePixel = 0,
-	ZIndex = 5,
-}, skinCard)
-slant(swatch, WHITE, 22, 7)
-text(skinCard, "Name", "PRISM", 17, WHITE, { Position = UDim2.fromOffset(56, SH - 40), ZIndex = 5 })
-local eq = make("Frame", {
-	Name = "Equipped",
-	Position = UDim2.fromOffset(16, 12),
-	Size = UDim2.fromOffset(0, 24),
-	AutomaticSize = Enum.AutomaticSize.X,
-	BackgroundColor3 = WHITE,
+	ZIndex = 4,
+}, tile)
+text(tile, "Name", "PRISM", 15, WHITE, {
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.new(0.5, 0, 1, -13),
+	ZIndex = 6,
+})
+local check = make("Frame", {
+	Name = "Check",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, -8, 0, 8),
+	Size = UDim2.fromOffset(34, 34),
+	BackgroundColor3 = GREEN,
 	BorderSizePixel = 0,
 	Visible = false,
 	ZIndex = 7,
-}, skinCard)
-make("UIPadding", { PaddingLeft = UDim.new(0, 5), PaddingRight = UDim.new(0, 5) }, eq)
-slant(eq, WHITE, 24, 7)
-text(eq, "Label", "EQUIPPED", 12, INK, { Size = UDim2.fromOffset(0, 24), ZIndex = 8 })
+}, tile)
+make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, check)
+-- a drawn tick (two bars), so it doesn't depend on a font glyph
+make("Frame", {
+	Name = "Short",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromOffset(12, 19),
+	Size = UDim2.fromOffset(10, 4),
+	Rotation = 45,
+	BackgroundColor3 = WHITE,
+	BorderSizePixel = 0,
+	ZIndex = 8,
+}, check)
+make("Frame", {
+	Name = "Long",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromOffset(20, 16),
+	Size = UDim2.fromOffset(18, 4),
+	Rotation = -50,
+	BackgroundColor3 = WHITE,
+	BorderSizePixel = 0,
+	ZIndex = 8,
+}, check)
 
 gui.Parent = SG
-print("Locker v3 built (StarterGui.Locker off, ReplicatedStorage.LockerStage, templates)")
+print("Locker v4 built (StarterGui.Locker off, ReplicatedStorage.LockerStage, templates)")
