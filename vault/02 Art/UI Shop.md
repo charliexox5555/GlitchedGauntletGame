@@ -167,3 +167,26 @@ Code: `client/Controllers/ShopController` (desktop; phones keep the old placehol
 - **Buying anything** (cases, bundles, packs, daily items, cosmetics, the pass, the offer, login CLAIM) shows "... opens with the shop economy" for now.
 - Checked in Studio play: open from the bar, the selection frame on the Season Pass, the BUNDLES tab, Neon hover contents + the Mod item card, the Elite case popup, CONTENTS (35 / 30 / 20 / 12 / 3 %), back and close, Daily scrolled with the counter gone. No errors. Fixed after the test: bundle cells overflowed a 5-item card (they size to fit now); the popup panels were see-through (solid now); the counter waited too long to leave (50 px now).
 - **Next:** the skin-bundle 3D preview (Locker stage: BACK · BUY ITEM · BUY BUNDLE + a strip of items), then the economy (Coins in data, `ProcessReceipt`, the daily rotation, login rewards, case rolls + the server region gate; security review), and the ChatGPT art when it lands.
+
+## Art in (2026-11-16)
+ChatGPT's set (reviewed and committed by the owner's ChatGPT pass, `00ca7484`, in `art-source/ui/shop/` with contact sheets) is uploaded and wired: the ids are in `ART` at the top of `tools/studio/BuildShop.luau`; the cases' are also in `ShopCatalog.CASES[].art`.
+
+![Home](Shop/art_home.jpg)
+![Bundles](Shop/art_bundles.jpg)
+![Coins](Shop/art_coins.jpg)
+![Case popup](Shop/art_case.jpg)
+
+| Art | Where |
+|---|---|
+| `coin.png` | the coin everywhere: the counter, price plates (full colour reads on the gold plate; the flat ink silhouette was a blob), login days |
+| `coin_stack.png` | the Day 7 grand prize |
+| `coin_flat.png` | uploaded, unused for now |
+| `case_standard/elite/apex.png` | the case cards and the case popup |
+| `tab_home/bundles/daily/coins.png` | the RIVALS-style tab icons (96 px, lifting to 106 on hover) |
+| `pack_01`…`pack_06` | the six coin pack cards, on the right of the amount |
+| `banner_season_pass.png`, `banner_starter_bundle.png` | the Season Pass and Starter Bundle cards |
+| `banner_bundle_grey.png` (made here: a lifted greyscale copy of `banner_bundle_template.png`) | every bundle card, **tinted with the bundle's colour** (one asset, any colour) |
+
+Checked in Studio play: Home, Bundles, Coins and the Apex case popup with its art; no errors. The vault crate overlapped "+24,000", so the pack art sits lower and smaller now.
+Still placeholder: the charm and emote cells, the daily items and the login reward icons (need the real cosmetics), and per-bundle art if wanted.
+

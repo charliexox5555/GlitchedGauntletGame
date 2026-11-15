@@ -45,6 +45,35 @@ local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the l
 local ROBUX = "rbxasset://textures/ui/common/robux.png"
 local CENTRE = Vector2.new(0.5, 0.5)
 local W = 1280 -- content width
+-- The ChatGPT shop art (art-source/ui/shop/, uploaded 2026-11-16). The bundle
+-- backdrop is a greyscale copy of banner_bundle_template.png, tinted per bundle.
+local ART = {
+	coin = "rbxassetid://126250416946442",
+	coinFlat = "rbxassetid://100589000171881", -- white silhouette, tinted
+	coinStack = "rbxassetid://77893326046955",
+	case = {
+		Standard = "rbxassetid://115497833864984",
+		Elite = "rbxassetid://116277478544265",
+		Apex = "rbxassetid://80186113910491",
+	},
+	tab = {
+		HOME = "rbxassetid://86144101123567",
+		BUNDLES = "rbxassetid://124256920123710",
+		DAILY = "rbxassetid://89897434824611",
+		COINS = "rbxassetid://107070748067766",
+	},
+	pack = {
+		"rbxassetid://98496507790913",
+		"rbxassetid://90471290727419",
+		"rbxassetid://83129030592353",
+		"rbxassetid://78643887596730",
+		"rbxassetid://125632617282834",
+		"rbxassetid://129995014792812",
+	},
+	seasonPass = "rbxassetid://129516715347397",
+	starter = "rbxassetid://136743118554254",
+	bundleGrey = "rbxassetid://94167360563298",
+}
 
 local function text(
 	p: Instance,
@@ -115,12 +144,13 @@ local function coinMark(p: Instance, d: number, pos: UDim2, anchor: Vector2?): F
 		Name = "Art",
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
-		Image = "",
-		Visible = false,
+		Image = ART.coin,
+		Visible = true,
 		ZIndex = 8,
 	}, holder)
 	local outer = make("Frame", {
 		Name = "Outer",
+		Visible = false,
 		AnchorPoint = CENTRE,
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromScale(0.72, 0.72),
@@ -132,6 +162,7 @@ local function coinMark(p: Instance, d: number, pos: UDim2, anchor: Vector2?): F
 	make("UICorner", { CornerRadius = UDim.new(0.18, 0) }, outer)
 	local inner = make("Frame", {
 		Name = "Inner",
+		Visible = false,
 		AnchorPoint = CENTRE,
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromScale(0.42, 0.42),
@@ -182,7 +213,7 @@ local function price(
 		Padding = UDim.new(0, 8),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	}, row)
-	local iconD = math.floor(ph * 0.58)
+	local iconD = math.floor(ph * (if kind == "coins" then 0.78 else 0.58))
 	if kind == "coins" then
 		local c = coinMark(row, iconD, UDim2.new(), Vector2.zero)
 		c.LayoutOrder = 1
@@ -190,6 +221,7 @@ local function price(
 		o.BackgroundColor3 = INK
 		local i = c:WaitForChild("Inner") :: Frame
 		i.BackgroundColor3 = GOLD
+		-- the full-colour coin reads on the gold plate (the flat silhouette in ink was a blob)
 	else
 		make("ImageLabel", {
 			Name = "Robux",
@@ -476,13 +508,12 @@ do
 	)
 
 	-- tabs (RIVALS-style): a plate per tab with a big icon popping out over
-	-- its top and the name across the bottom; the open tab is white. Until
-	-- the ChatGPT tab icons land, the lobby bar's icons stand in.
+	-- its top and the name across the bottom; the open tab is white.
 	local TAB_ICON = {
-		HOME = "rbxassetid://75746609493674", -- (Shop bag) -> shop/tab_home.png
-		BUNDLES = "rbxassetid://94062620763078", -- (Locker) -> shop/tab_bundles.png
-		DAILY = "rbxassetid://124123984170556", -- (Pass) -> shop/tab_daily.png
-		COINS = "rbxassetid://79251886607751", -- (Range) -> shop/tab_coins.png
+		HOME = ART.tab.HOME,
+		BUNDLES = ART.tab.BUNDLES,
+		DAILY = ART.tab.DAILY,
+		COINS = ART.tab.COINS,
 	}
 	local tabs = row(scroll, "Tabs", 100, 16, 1)
 	for i, t in { "HOME", "BUNDLES", "DAILY", "COINS" } do
@@ -505,8 +536,8 @@ do
 		make("ImageLabel", {
 			Name = "Icon",
 			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 0, 28),
-			Size = UDim2.fromOffset(78, 78),
+			Position = UDim2.new(0.5, 0, 0, 30),
+			Size = UDim2.fromOffset(96, 96),
 			BackgroundTransparency = 1,
 			Image = TAB_ICON[t],
 			ZIndex = 6,
@@ -556,6 +587,20 @@ do
 			BorderSizePixel = 0,
 			ZIndex = 5,
 		}, slab)
+		local caseArt = ART.case[c[1]]
+		if caseArt then
+			slab.Visible = false
+			make("ImageLabel", {
+				Name = "CaseArt",
+				AnchorPoint = CENTRE,
+				Position = UDim2.new(0.5, 0, 0, 122),
+				Size = UDim2.fromOffset(156, 104),
+				BackgroundTransparency = 1,
+				Image = caseArt,
+				ScaleType = Enum.ScaleType.Fit,
+				ZIndex = 5,
+			}, b)
+		end
 		text(
 			b,
 			"Name",
@@ -580,7 +625,8 @@ do
 		44,
 		true,
 		2
-	)
+	);
+	(pass:WaitForChild("Art") :: ImageLabel).Image = ART.seasonPass
 	text(
 		pass,
 		"Sub",
@@ -612,7 +658,8 @@ do
 	header(home, "SPECIAL OFFERS", nil, 3)
 	local mid = row(home, "Mid", 330, 24, 4)
 	local offer =
-		card(mid, "Offer", Vector2.new(760, 330), hex("1F9A6A"), "STARTER BUNDLE", 40, true, 1)
+		card(mid, "Offer", Vector2.new(760, 330), hex("1F9A6A"), "STARTER BUNDLE", 40, true, 1);
+	(offer:WaitForChild("Art") :: ImageLabel).Image = ART.starter
 	text(offer, "Sub", "A CASE, 500 COINS AND A CHARM", 16, WHITE, {
 		Position = UDim2.fromOffset(24, 70),
 		TextTransparency = 0.2,
@@ -678,6 +725,9 @@ do
 		}
 	do
 		local b = card(b1, "Bundle_" .. c[1], Vector2.new(bw3, 280), c[3], c[2], 30, true, i)
+		local bart = b:WaitForChild("Art") :: ImageLabel
+		bart.Image = ART.bundleGrey
+		bart.ImageColor3 = c[3]
 		price(b, "robux", c[4], UDim2.new(1, -20, 1, -20), Vector2.new(1, 1), 54)
 		if c[5] then
 			tag(b, "EXCLUSIVE MOD", GOLD, UDim2.fromOffset(22, 66))
@@ -692,6 +742,9 @@ do
 		}
 	do
 		local b = card(b2, "Bundle_" .. c[1], Vector2.new(bw2, 280), c[3], c[2], 30, true, i)
+		local bart = b:WaitForChild("Art") :: ImageLabel
+		bart.Image = ART.bundleGrey
+		bart.ImageColor3 = c[3]
 		price(b, "robux", c[4], UDim2.new(1, -20, 1, -20), Vector2.new(1, 1), 54)
 	end
 	---------------------------------------------------------------- DAILY
@@ -775,7 +828,8 @@ do
 		WHITE,
 		{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 26) }
 	)
-	coinMark(grand, 140, UDim2.fromScale(0.5, 0.52), CENTRE)
+	local big = coinMark(grand, 150, UDim2.fromScale(0.5, 0.52), CENTRE);
+	(big:WaitForChild("Art") :: ImageLabel).Image = ART.coinStack
 	text(
 		grand,
 		"Prize",
@@ -806,22 +860,24 @@ do
 		}
 	do
 		local b = card(cgrid, "Pack" .. i, Vector2.new(bw3, 280), hex("B8860B"), nil, nil, true, i)
-		coinMark(b, 30 + i * 12, UDim2.new(0, 22, 0, 60), Vector2.new(0, 0.5))
-		text(
-			b,
-			"Amount",
-			"+" .. c[1],
-			44,
-			WHITE,
-			{ Position = UDim2.fromOffset(40 + 30 + i * 12, 34) }
-		)
+		make("ImageLabel", {
+			Name = "PackArt",
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.new(1, -12, 0, 40),
+			Size = UDim2.fromOffset(234, 156),
+			BackgroundTransparency = 1,
+			Image = ART.pack[i],
+			ScaleType = Enum.ScaleType.Fit,
+			ZIndex = 4,
+		}, b)
+		text(b, "Amount", "+" .. c[1], 44, WHITE, { Position = UDim2.fromOffset(24, 30) })
 		text(
 			b,
 			"Kind",
 			"COINS",
 			16,
 			GOLD,
-			{ Position = UDim2.fromOffset(42 + 30 + i * 12, 86), FontFace = Font.new(BX, BOLD) }
+			{ Position = UDim2.fromOffset(26, 82), FontFace = Font.new(BX, BOLD) }
 		)
 		price(b, "robux", c[2], UDim2.new(1, -20, 1, -20), Vector2.new(1, 1), 54)
 	end

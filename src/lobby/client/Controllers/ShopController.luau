@@ -470,8 +470,12 @@ end
 
 local function openCasePopup(case: ShopCatalog.Case)
 	openCase = case;
-	(child(casePanel, "Title") :: TextLabel).Text = case.name;
-	(child(casePanel, "Placeholder") :: Frame).BackgroundColor3 = case.color
+	(child(casePanel, "Title") :: TextLabel).Text = case.name
+	local placeholder = child(casePanel, "Placeholder") :: Frame
+	placeholder.BackgroundColor3 = case.color
+	placeholder.Visible = case.art == nil
+	local art = child(casePanel, "Art") :: ImageLabel
+	art.Image = case.art or ""
 	setPlate(child(casePanel, "BuyCoins"), commas(case.coins))
 	setPlate(child(casePanel, "BuyRobux"), commas(case.robux))
 	setPlate(child(casePanel, "BuyRobux3"), commas(case.robux3))
@@ -547,13 +551,13 @@ local function hookTab(name: string, plate: GuiButton)
 			tween(
 				icon,
 				0.18,
-				{ Position = home - UDim2.fromOffset(0, 8), Size = UDim2.fromOffset(86, 86) }
+				{ Position = home - UDim2.fromOffset(0, 8), Size = UDim2.fromOffset(106, 106) }
 			)
 		end
 	end)
 	plate.MouseLeave:Connect(function()
 		if icon and icon:IsA("GuiObject") then
-			tween(icon, 0.18, { Position = home, Size = UDim2.fromOffset(78, 78) })
+			tween(icon, 0.18, { Position = home, Size = UDim2.fromOffset(96, 96) })
 		end
 	end)
 	plate.Activated:Connect(function()

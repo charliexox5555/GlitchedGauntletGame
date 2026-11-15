@@ -29,6 +29,7 @@ export type Case = {
 	robux: number,
 	robux3: number, -- three at once
 	color: Color3,
+	art: string?, -- the case picture (art-source/ui/shop/case_*.png)
 	contents: { Item },
 }
 
@@ -58,6 +59,7 @@ ShopCatalog.CASES = {
 	{
 		id = "Standard",
 		name = "STANDARD CASE",
+		art = "rbxassetid://115497833864984",
 		coins = 400,
 		robux = 99,
 		robux3 = 249,
@@ -116,6 +118,7 @@ ShopCatalog.CASES = {
 	{
 		id = "Elite",
 		name = "ELITE CASE",
+		art = "rbxassetid://116277478544265",
 		coins = 900,
 		robux = 199,
 		robux3 = 499,
@@ -166,6 +169,7 @@ ShopCatalog.CASES = {
 	{
 		id = "Apex",
 		name = "APEX CASE",
+		art = "rbxassetid://80186113910491",
 		coins = 2000,
 		robux = 399,
 		robux3 = 999,
