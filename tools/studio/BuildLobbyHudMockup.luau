@@ -1,8 +1,10 @@
 --!strict
--- Mockup: the lobby main HUD redesign (vault/02 Art/UI Lobby HUD.md), layout B
--- (owner's pick): PLAY in the bottom-right corner with the mode card above
--- it, the menus as a list on the left, the profile top-left, coins and
--- settings top-right; the middle stays clear for your character and the hub.
+-- Mockup v2: the lobby main HUD (vault/02 Art/UI Lobby HUD.md). The lobby is
+-- a hub you walk around, so this is a light in-game HUD, not a menu screen
+-- (owner): a compact profile and wallet, a slim rail of icon buttons on the
+-- left edge (hotkey keycaps; the label slides out on hover), a small PLAY
+-- shortcut in the corner (the Duels pads still queue you), and while
+-- searching a small queue strip at the top.
 -- Same language as the match UI: navy plates, slanted gold blocks, Builder
 -- Extended, keycaps, soft shadows; no pills, glows or gradients.
 -- Paste into the Studio command bar of the LOBBY place (Edit mode). Builds
@@ -25,7 +27,7 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 end
 
 local BX = "rbxasset://fonts/families/BuilderExtended.json"
-local XB, SB = Enum.FontWeight.ExtraBold, Enum.FontWeight.SemiBold
+local XB = Enum.FontWeight.ExtraBold
 local NAVY, NAVY_HI = hex("1C2740"), hex("2B3A5A")
 local ALLY, ALLY_CELL = hex("3FE0F2"), hex("0D5C7A")
 local GOLD, MUTED, INK, WHITE = hex("FFC83D"), hex("8E98A8"), hex("141A26"), Color3.new(1, 1, 1)
@@ -86,32 +88,24 @@ local function corner(p: Instance, r: number?)
 end
 
 local function keycap(p: Instance, s: string, w: number, h: number, props: { [string]: any }): Frame
-	local k = make(
-		"Frame",
-		{
-			Name = "Key",
-			Size = UDim2.fromOffset(w, h),
-			BackgroundColor3 = hex("0B0F17"),
-			BorderSizePixel = 0,
-			ZIndex = 8,
-		},
-		p
-	)
+	local k = make("Frame", {
+		Name = "Key",
+		Size = UDim2.fromOffset(w, h),
+		BackgroundColor3 = hex("0B0F17"),
+		BorderSizePixel = 0,
+		ZIndex = 8,
+	}, p)
 	for kk, v in props do
 		(k :: any)[kk] = v
 	end
 	corner(k, 5)
-	local f = make(
-		"Frame",
-		{
-			Name = "Face",
-			Size = UDim2.new(1, 0, 1, -4),
-			BackgroundColor3 = hex("E9EDF3"),
-			BorderSizePixel = 0,
-			ZIndex = 9,
-		},
-		k
-	)
+	local f = make("Frame", {
+		Name = "Face",
+		Size = UDim2.new(1, 0, 1, -4),
+		BackgroundColor3 = hex("E9EDF3"),
+		BorderSizePixel = 0,
+		ZIndex = 9,
+	}, k)
 	corner(f, 5)
 	text(
 		f,
@@ -125,25 +119,21 @@ local function keycap(p: Instance, s: string, w: number, h: number, props: { [st
 end
 
 local function canvas(gui: Instance, name: string): Frame
-	local c = make(
-		"Frame",
-		{
-			Name = name,
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(1920, 1080),
-			BackgroundTransparency = 1,
-		},
-		gui
-	)
+	local c = make("Frame", {
+		Name = name,
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(1920, 1080),
+		BackgroundTransparency = 1,
+	}, gui)
 	make("UIScale", { Name = "Fit" }, c)
 	return c
 end
 
--- Profile (top-left, under Roblox's buttons): portrait cell, name, segmented
--- XP bar, and the level on a gold block.
+-- Profile (top left, under Roblox's buttons): small portrait, name, a thin
+-- segmented XP bar, the level on a gold block.
 local function profile(c: Instance)
-	local x, y, w, h = 60, 76, 420, 72
+	local x, y, w, h = 40, 68, 300, 56
 	shadow(c, x, y, w, h)
 	local p = make(
 		"Frame",
@@ -180,14 +170,13 @@ local function profile(c: Instance)
 		},
 		cell
 	)
-	text(p, "PlayerName", "CHARLIE", 20, WHITE, { Position = UDim2.fromOffset(h + 16, 12) })
-	text(p, "Xp", "1,240 / 2,000 XP", 11, MUTED, { Position = UDim2.fromOffset(h + 16, 50) })
+	text(p, "PlayerName", "CHARLIE", 16, WHITE, { Position = UDim2.fromOffset(h + 12, 11) })
 	local bar = make(
 		"Frame",
 		{
 			Name = "Bar",
-			Position = UDim2.fromOffset(h + 16, 40),
-			Size = UDim2.fromOffset(220, 6),
+			Position = UDim2.fromOffset(h + 12, 36),
+			Size = UDim2.fromOffset(150, 5),
 			BackgroundTransparency = 1,
 		},
 		p
@@ -207,7 +196,7 @@ local function profile(c: Instance)
 			{
 				Name = "Seg" .. i,
 				LayoutOrder = i,
-				Size = UDim2.fromOffset(20.2, 6),
+				Size = UDim2.fromOffset(13.2, 5),
 				BackgroundColor3 = ALLY,
 				BackgroundTransparency = if i <= 6 then 0 else 0.82,
 				BorderSizePixel = 0,
@@ -215,14 +204,13 @@ local function profile(c: Instance)
 			bar
 		)
 	end
-	-- the level: a gold block with a slanted start
-	local lvW = 76
+	local lvW = 56
 	make(
 		"ImageLabel",
 		{
 			Name = "CapL",
-			Position = UDim2.fromOffset(w - lvW - 26, 0),
-			Size = UDim2.fromOffset(30, h),
+			Position = UDim2.fromOffset(w - lvW - 22, 0),
+			Size = UDim2.fromOffset(24, h),
 			BackgroundTransparency = 1,
 			Image = CAP_L,
 			ImageColor3 = GOLD,
@@ -247,11 +235,11 @@ local function profile(c: Instance)
 		lv,
 		"Kicker",
 		"LV",
-		11,
+		10,
 		INK,
 		{
 			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.fromOffset(lvW / 2 - 4, 12),
+			Position = UDim2.fromOffset(lvW / 2 - 2, 8),
 			TextTransparency = 0.3,
 		}
 	)
@@ -259,23 +247,22 @@ local function profile(c: Instance)
 		lv,
 		"Value",
 		"4",
-		30,
+		24,
 		INK,
-		{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(lvW / 2 - 4, 26) }
+		{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(lvW / 2 - 2, 20) }
 	)
 end
 
--- Coins and settings (top-right)
+-- Coins and settings (top right), the same height as the profile.
 local function wallet(c: Instance)
-	local right, y = 1860, 76
-	local sW = 64
-	shadow(c, right - sW, y, sW, 64)
+	local right, y, h = 1880, 68, 56
+	shadow(c, right - h, y, h, h)
 	local settings = make(
 		"Frame",
 		{
 			Name = "Settings",
-			Position = UDim2.fromOffset(right - sW, y),
-			Size = UDim2.fromOffset(sW, 64),
+			Position = UDim2.fromOffset(right - h, y),
+			Size = UDim2.fromOffset(h, h),
 			BackgroundColor3 = NAVY,
 			BorderSizePixel = 0,
 		},
@@ -288,22 +275,22 @@ local function wallet(c: Instance)
 			Name = "Icon",
 			AnchorPoint = CENTRE,
 			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(32, 32),
+			Size = UDim2.fromOffset(28, 28),
 			BackgroundTransparency = 1,
 			Image = ICON.Settings,
 			ZIndex = 3,
 		},
 		settings
 	)
-	local w = 230
-	local x = right - sW - 10 - w
-	shadow(c, x, y, w, 64)
+	local w = 190
+	local x = right - h - 8 - w
+	shadow(c, x, y, w, h)
 	local coins = make(
 		"Frame",
 		{
 			Name = "Coins",
 			Position = UDim2.fromOffset(x, y),
-			Size = UDim2.fromOffset(w, 64),
+			Size = UDim2.fromOffset(w, h),
 			BackgroundColor3 = NAVY,
 			BorderSizePixel = 0,
 		},
@@ -315,8 +302,8 @@ local function wallet(c: Instance)
 		{
 			Name = "Icon",
 			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 14, 0.5, 0),
-			Size = UDim2.fromOffset(34, 34),
+			Position = UDim2.new(0, 12, 0.5, 0),
+			Size = UDim2.fromOffset(28, 28),
 			BackgroundTransparency = 1,
 			Image = ICON.Coin,
 			ZIndex = 3,
@@ -327,59 +314,78 @@ local function wallet(c: Instance)
 		coins,
 		"Amount",
 		"1,200",
-		26,
+		20,
 		WHITE,
-		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 58, 0.5, 0) }
+		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 48, 0.5, 0) }
 	)
 	keycap(
 		coins,
 		"+",
-		38,
-		40,
-		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0) }
+		30,
+		32,
+		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0) }
 	)
 end
 
--- The menus, a list down the left: keycap, icon, label. The hovered one is
--- the brighter navy and slides out a little.
-local function menu(c: Instance, hovered: number?)
+-- The rail (left edge, vertically centred): square icon buttons with a
+-- hotkey keycap in the corner. Hovering one slides its name out beside it.
+local function rail(c: Instance, hovered: number?)
 	local items = {
-		{ "L", "Locker", "LOCKER", "Skins, sprays, banners" },
-		{ "B", "Shop", "SHOP", "Today's deals" },
-		{ "P", "BattlePass", "BATTLE PASS", "Tier 12 of 50" },
-		{ "R", "Range", "RANGE", "Warm up on the dummies" },
+		{ "L", "Locker", "LOCKER" },
+		{ "B", "Shop", "SHOP" },
+		{ "P", "BattlePass", "BATTLE PASS" },
+		{ "R", "Range", "RANGE" },
 	}
-	local x, y0, w, h, g = 60, 360, 400, 72, 10
+	local x, size, g = 40, 72, 10
+	local y0 = 540 - (#items * size + (#items - 1) * g) / 2
 	for i, it in items do
 		local on = i == hovered
-		local y = y0 + (i - 1) * (h + g)
-		local dx = if on then 14 else 0
-		shadow(c, x + dx, y, w, h)
+		local y = y0 + (i - 1) * (size + g)
+		if on then
+			-- the label slides out: a navy plate joined to the button
+			local lw = 170
+			shadow(c, x + size - 6, y + 14, lw, size - 28)
+			local tag = make(
+				"Frame",
+				{
+					Name = it[2] .. "Label",
+					Position = UDim2.fromOffset(x + size - 6, y + 14),
+					Size = UDim2.fromOffset(lw, size - 28),
+					BackgroundColor3 = NAVY_HI,
+					BorderSizePixel = 0,
+				},
+				c
+			)
+			corner(tag)
+			text(
+				tag,
+				"Label",
+				it[3],
+				16,
+				GOLD,
+				{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 20, 0.5, 0) }
+			)
+		end
+		shadow(c, x, y, size, size)
 		local b = make(
 			"Frame",
 			{
 				Name = it[2],
-				Position = UDim2.fromOffset(x + dx, y),
-				Size = UDim2.fromOffset(w, h),
+				Position = UDim2.fromOffset(x, y),
+				Size = UDim2.fromOffset(size, size),
 				BackgroundColor3 = if on then NAVY_HI else NAVY,
 				BorderSizePixel = 0,
+				ZIndex = 2,
 			},
 			c
 		)
 		corner(b)
-		keycap(
-			b,
-			it[1],
-			34,
-			36,
-			{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 16, 0.5, 0) }
-		)
 		make(
 			"ImageLabel",
 			{
 				Name = "Icon",
-				AnchorPoint = Vector2.new(0, 0.5),
-				Position = UDim2.new(0, 66, 0.5, 0),
+				AnchorPoint = CENTRE,
+				Position = UDim2.new(0.5, 4, 0.5, 4),
 				Size = UDim2.fromOffset(34, 34),
 				BackgroundTransparency = 1,
 				Image = ICON[it[2]],
@@ -388,108 +394,33 @@ local function menu(c: Instance, hovered: number?)
 			},
 			b
 		)
-		text(
-			b,
-			"Label",
-			it[3],
-			22,
-			if on then GOLD else WHITE,
-			{ Position = UDim2.fromOffset(116, 14) }
-		)
-		text(
-			b,
-			"Sub",
-			it[4],
-			12,
-			MUTED,
-			{ Position = UDim2.fromOffset(116, 44), FontFace = Font.new(BX, SB) }
-		)
+		keycap(b, it[1], 22, 24, { Position = UDim2.fromOffset(6, 6) })
 	end
 end
 
--- PLAY (bottom-right) with the mode card above it.
-local function play(c: Instance, searching: boolean)
-	local right, w = 1860, 440
-	local x = right - w
-	-- mode card
-	local my, mh = 760, 80
-	shadow(c, x, my, w, mh)
-	local mode = make(
-		"Frame",
-		{
-			Name = "Mode",
-			Position = UDim2.fromOffset(x, my),
-			Size = UDim2.fromOffset(w, mh),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		c
-	)
-	corner(mode)
-	if searching then
-		text(mode, "Title", "SEARCHING", 26, WHITE, { Position = UDim2.fromOffset(24, 12) })
-		text(mode, "Sub", "2V2  ·  TEAM DUEL", 12, MUTED, { Position = UDim2.fromOffset(24, 48) })
-		text(
-			mode,
-			"Time",
-			"0:23",
-			34,
-			ALLY,
-			{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -24, 0.5, 0) }
-		)
-	else
-		keycap(
-			mode,
-			"<",
-			36,
-			38,
-			{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 16, 0.5, 0) }
-		)
-		keycap(
-			mode,
-			">",
-			36,
-			38,
-			{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -16, 0.5, 0) }
-		)
-		text(
-			mode,
-			"Title",
-			"2V2",
-			30,
-			WHITE,
-			{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(w / 2, 10) }
-		)
-		text(
-			mode,
-			"Sub",
-			"TEAM DUEL  ·  FIRST TO 5",
-			12,
-			MUTED,
-			{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(w / 2, 50) }
-		)
-	end
-	-- PLAY / CANCEL
-	local py, ph = my + mh + 12, 108
-	shadow(c, x + 20, py, w - 40, ph)
+-- The PLAY shortcut (bottom right): a small gold block; the Duels pads in the
+-- hub do the same. Hidden while searching (the queue strip takes over).
+local function play(c: Instance)
+	local right, bottom, w, h = 1880, 1040, 280, 76
+	local x, y = right - w, bottom - h
+	shadow(c, x + 20, y, w - 40, h)
 	local b = make(
 		"Frame",
 		{
 			Name = "Play",
-			Position = UDim2.fromOffset(x, py),
-			Size = UDim2.fromOffset(w, ph),
+			Position = UDim2.fromOffset(x, y),
+			Size = UDim2.fromOffset(w, h),
 			BackgroundTransparency = 1,
 		},
 		c
 	)
-	local fill = if searching then NAVY_HI else GOLD
 	make(
 		"Frame",
 		{
 			Name = "Body",
-			Position = UDim2.fromOffset(28, 0),
-			Size = UDim2.new(1, -56, 1, 0),
-			BackgroundColor3 = fill,
+			Position = UDim2.fromOffset(24, 0),
+			Size = UDim2.new(1, -48, 1, 0),
+			BackgroundColor3 = GOLD,
 			BorderSizePixel = 0,
 			ZIndex = 2,
 		},
@@ -499,10 +430,10 @@ local function play(c: Instance, searching: boolean)
 		"ImageLabel",
 		{
 			Name = "CapL",
-			Size = UDim2.fromOffset(30, ph),
+			Size = UDim2.fromOffset(26, h),
 			BackgroundTransparency = 1,
 			Image = CAP_L,
-			ImageColor3 = fill,
+			ImageColor3 = GOLD,
 			ZIndex = 2,
 		},
 		b
@@ -513,28 +444,105 @@ local function play(c: Instance, searching: boolean)
 			Name = "CapR",
 			AnchorPoint = Vector2.new(1, 0),
 			Position = UDim2.fromScale(1, 0),
-			Size = UDim2.fromOffset(30, ph),
+			Size = UDim2.fromOffset(26, h),
 			BackgroundTransparency = 1,
 			Image = CAP_R,
-			ImageColor3 = fill,
+			ImageColor3 = GOLD,
 			ZIndex = 2,
 		},
 		b
 	)
+	text(b, "Label", "PLAY", 34, INK, { Position = UDim2.fromOffset(40, 10) })
 	text(
 		b,
-		"Label",
-		if searching then "CANCEL" else "PLAY",
-		if searching then 36 else 56,
-		if searching then WHITE else INK,
-		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 56, 0.5, 0) }
+		"Sub",
+		"1V1  ·  2V2  ·  3V3",
+		11,
+		INK,
+		{ Position = UDim2.fromOffset(42, 48), TextTransparency = 0.3 }
 	)
 	keycap(
 		b,
-		if searching then "ESC" else "ENTER",
-		if searching then 52 else 70,
-		32,
-		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -52, 0.5, 0) }
+		"ENTER",
+		62,
+		28,
+		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -40, 0.5, 0) }
+	)
+end
+
+-- While searching: a small queue strip, top centre.
+local function queueStrip(c: Instance)
+	local w, h = 420, 56
+	local x, y = 960 - w / 2, 68
+	shadow(c, x, y, w, h)
+	local s = make(
+		"Frame",
+		{
+			Name = "Queue",
+			Position = UDim2.fromOffset(x, y),
+			Size = UDim2.fromOffset(w, h),
+			BackgroundColor3 = NAVY,
+			BorderSizePixel = 0,
+		},
+		c
+	)
+	corner(s)
+	local block = make(
+		"Frame",
+		{
+			Name = "Team",
+			Size = UDim2.fromOffset(150, h),
+			BackgroundColor3 = ALLY,
+			BorderSizePixel = 0,
+			ZIndex = 2,
+		},
+		s
+	)
+	corner(block)
+	make(
+		"ImageLabel",
+		{
+			Name = "Cap",
+			Position = UDim2.fromOffset(146, 0),
+			Size = UDim2.fromOffset(24, h),
+			BackgroundTransparency = 1,
+			Image = CAP_R,
+			ImageColor3 = ALLY,
+			ZIndex = 2,
+		},
+		s
+	)
+	text(
+		block,
+		"Kicker",
+		"SEARCHING",
+		10,
+		INK,
+		{ Position = UDim2.fromOffset(16, 9), TextTransparency = 0.25 }
+	)
+	text(block, "Mode", "2V2", 22, INK, { Position = UDim2.fromOffset(16, 22) })
+	text(
+		s,
+		"Time",
+		"0:23",
+		24,
+		WHITE,
+		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 190, 0.5, 0) }
+	)
+	text(
+		s,
+		"Cancel",
+		"CANCEL",
+		12,
+		MUTED,
+		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -66, 0.5, 0) }
+	)
+	keycap(
+		s,
+		"ESC",
+		44,
+		30,
+		{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0) }
 	)
 end
 
@@ -558,15 +566,15 @@ local gui = make(
 local idle = canvas(gui, "CanvasIdle")
 profile(idle)
 wallet(idle)
-menu(idle, 2)
-play(idle, false)
+rail(idle, 2)
+play(idle)
 
 local searching = canvas(gui, "CanvasSearching")
 searching.Visible = false
 profile(searching)
 wallet(searching)
-menu(searching, nil)
-play(searching, true)
+rail(searching, nil)
+queueStrip(searching)
 
 gui.Parent = SG
-print("LobbyHudMockup built")
+print("LobbyHudMockup v2 built")

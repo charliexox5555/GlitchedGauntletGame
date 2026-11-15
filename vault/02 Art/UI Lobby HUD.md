@@ -31,3 +31,19 @@ Built in the Lobby place as `StarterGui.LobbyHudMockup` (Enabled off; `tools/stu
 
 Idle: ![idle](References/ui-overhaul/2026-11-14-lobby-hud-mockup-idle.jpg)
 Searching: ![searching](References/ui-overhaul/2026-11-14-lobby-hud-mockup-searching.jpg)
+
+## Mockup v2 (owner on v1)
+Owner: "I don't really like that... it is not like Valorant or Fortnite because the player is in an actual game, not just a lobby." The hub is walked around, so the HUD must be a light in-game HUD, not a menu screen. Owner's picks:
+- Play: **both**, the Duels pads in the hub plus a small PLAY shortcut on the HUD.
+- Menus: a **small icon rail on the left edge**.
+- No extras for now.
+
+Built (same `StarterGui.LobbyHudMockup`, rebuilt by `tools/studio/BuildLobbyHudMockup.luau`):
+- **Profile** (top left): a compact 300 x 56 plate with portrait, name, a thin segmented XP bar and the level on a gold block.
+- **Coins and settings** (top right): the same height; coin and amount with a + keycap, and the gear.
+- **Rail** (left edge, centred): four 72 px square buttons (Locker, Shop, Battle Pass, Range) with the icon and a small hotkey keycap (L, B, P, R) in the corner. On hover the icon turns gold and the name slides out on a plate beside it.
+- **PLAY** (bottom right): a compact gold block with slanted ends, "1V1 · 2V2 · 3V3" and ENTER. It opens the Play menu, like the pads do.
+- **Searching:** PLAY hides; a small strip at the top centre reads SEARCHING 2V2 (cyan block) with the time and CANCEL / ESC.
+
+Idle: ![v2 idle](References/ui-overhaul/2026-11-14-lobby-hud-v2-idle.jpg)
+Searching: ![v2 searching](References/ui-overhaul/2026-11-14-lobby-hud-v2-searching.jpg)
