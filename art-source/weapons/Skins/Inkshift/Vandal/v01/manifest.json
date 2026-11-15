@@ -1,0 +1,96 @@
+{
+ "variant": "Inkshift Vandal v01",
+ "date": "2026-11-14",
+ "source": "Vandal_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_inkshift_kit.py",
+  "tools/blender/model_inkshift_guns.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 2.7, -0.46, 0.66))",
+ "chamber_material": "IK1 Cyan Accent",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Vandal_Barrel",
+  "Vandal_Bolt",
+  "Vandal_ChargingHandle",
+  "Vandal_CharmLoop",
+  "Vandal_FireSelector",
+  "Vandal_FrontSight",
+  "Vandal_Grip",
+  "Vandal_Handguard",
+  "Vandal_Mag",
+  "Vandal_Neon",
+  "Vandal_Pins",
+  "Vandal_Rail",
+  "Vandal_RearSight",
+  "Vandal_Receiver",
+  "Vandal_Stock",
+  "Vandal_Trigger"
+ ],
+ "roblox_fbx": "Vandal_Inkshift_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 580,
+   "vertices": 350,
+   "size": [
+    1.857,
+    0.2288,
+    0.278
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7565,
+    0.0,
+    0.289
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 120,
+   "vertices": 108,
+   "size": [
+    0.308,
+    0.1989,
+    0.018
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.51,
+    0.0,
+    0.215
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 100,
+   "vertices": 54,
+   "size": [
+    0.395,
+    0.145,
+    0.41
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7025,
+    0.0,
+    -0.145
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 30,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Vandal_Atlas_Color.png",
+  "Vandal_Atlas_Rough.png",
+  "Vandal_Atlas_Metal.png",
+  "Vandal_Chamber_Color.png"
+ ]
+}

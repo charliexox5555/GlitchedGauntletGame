@@ -1,0 +1,74 @@
+{
+ "variant": "Payload Classic v01",
+ "date": "2026-11-14",
+ "source": "Classic_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_payload_kit.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.35, 1.05, -0.45, 0.6))",
+ "chamber_material": "PL1 Thermal Foil",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Classic_Barrel",
+  "Classic_CharmLoop",
+  "Classic_Frame",
+  "Classic_Grip",
+  "Classic_Magazine",
+  "Classic_MagNeon",
+  "Classic_MagRelease",
+  "Classic_Pins",
+  "Classic_Slide",
+  "Classic_SlideCatch",
+  "Classic_SlideNeon",
+  "Classic_Trigger"
+ ],
+ "roblox_fbx": "Classic_Payload_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Slide_Body": {
+   "bone": "Slide",
+   "triangles": 268,
+   "vertices": 160,
+   "size": [
+    1.243,
+    0.1671,
+    0.162
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3635,
+    0.0,
+    0.381
+   ]
+  },
+  "MF_Slide_Chamber": {
+   "bone": "Slide",
+   "triangles": 48,
+   "vertices": 42,
+   "size": [
+    0.092,
+    0.163,
+    0.037
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.67,
+    0.0,
+    0.3725
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 24,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Classic_Atlas_Color.png",
+  "Classic_Atlas_Rough.png",
+  "Classic_Atlas_Metal.png",
+  "Classic_Chamber_Color.png"
+ ]
+}

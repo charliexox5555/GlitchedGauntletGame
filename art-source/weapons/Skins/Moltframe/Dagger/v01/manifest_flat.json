@@ -1,0 +1,142 @@
+{
+ "variant": "Moltframe Dagger v01 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Knife",
+ "source_blend": "Dagger_Moltframe_v01.blend",
+ "fbx": "Dagger_Moltframe_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [
+  {
+   "lift": "MFD_GripShell|MF4 Violet Chamber",
+   "over": "MFD_GripCore|MF4 Core Graphite",
+   "faces": 2
+  }
+ ],
+ "crossed_faces_fixed": {
+  "MFD_Blade": 4
+ },
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Root_01": {
+   "color": "171A22",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Core Graphite",
+   "triangles": 403,
+   "size": [
+    0.6804,
+    0.1,
+    0.2028
+   ],
+   "center": [
+    -0.003,
+    0.0,
+    -0.0026
+   ]
+  },
+  "SK_Root_02": {
+   "color": "100A16",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Gasket",
+   "triangles": 28,
+   "size": [
+    0.36,
+    0.127,
+    0.038
+   ],
+   "center": [
+    0.0,
+    0.0,
+    0.045
+   ]
+  },
+  "SK_Root_03": {
+   "color": "5A6170",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Graphite Armour",
+   "triangles": 362,
+   "size": [
+    1.774,
+    0.144,
+    0.308
+   ],
+   "center": [
+    0.375,
+    0.0,
+    0.014
+   ]
+  },
+  "SK_Root_04": {
+   "color": "23252F",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Grip",
+   "triangles": 227,
+   "size": [
+    0.5868,
+    0.1,
+    0.1239
+   ],
+   "center": [
+    0.0195,
+    0.0,
+    -0.0013
+   ]
+  },
+  "SK_Root_05": {
+   "color": "C3CAD6",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "MF4 Polished Fold",
+   "triangles": 398,
+   "size": [
+    1.774,
+    0.144,
+    0.308
+   ],
+   "center": [
+    0.375,
+    0.0,
+    0.014
+   ]
+  },
+  "SK_Root_06": {
+   "color": "3A1458",
+   "material": "SmoothPlastic",
+   "reflectance": 0.12,
+   "pattern": "Moltframe_Flow",
+   "bone": "Root",
+   "blender_material": "MF4 Violet Chamber",
+   "triangles": 8,
+   "size": [
+    0.36,
+    0.109,
+    0.038
+   ],
+   "center": [
+    0.0,
+    0.0,
+    0.045
+   ]
+  }
+ }
+}

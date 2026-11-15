@@ -1,0 +1,71 @@
+{
+ "variant": "Sealwork Sheriff v02",
+ "date": "2026-11-14",
+ "source": "Sheriff_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_vandal_shell_base.py",
+  "tools/blender/model_sealwork_guns2.py (round two full sculpt)"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.3, 1.55, -0.45, 0.45))",
+ "chamber_material": "SW1 Vermilion Seal",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Sheriff_Frame",
+  "Sheriff_Cylinder",
+  "Sheriff_Hammer",
+  "Sheriff_Trigger",
+  "Sheriff_Crane",
+  "Sheriff_CylinderRelease",
+  "Sheriff_EjectorRod",
+  "Sheriff_CharmLoop",
+  "Sheriff_Sights"
+ ],
+ "roblox_fbx": "Sheriff_Sealwork_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 1670,
+   "vertices": 913,
+   "size": [
+    1.7626,
+    0.1749,
+    0.807
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6167,
+    0.0,
+    -0.0217
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 112,
+   "vertices": 98,
+   "size": [
+    1.361,
+    0.1749,
+    0.5526
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.5195,
+    0.0,
+    0.0753
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 1,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Sheriff_Atlas_Color.png",
+  "Sheriff_Atlas_Rough.png",
+  "Sheriff_Atlas_Metal.png",
+  "Sheriff_Chamber_Color.png"
+ ]
+}

@@ -1,0 +1,77 @@
+{
+ "variant": "Sealwork Dagger v01",
+ "date": "2026-11-14",
+ "source": "Knife_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_sealwork_kit.py (palette, seal)",
+  "tools/blender/model_sealwork_dagger.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.55, 1.3, -0.2, 0.2))",
+ "chamber_material": "SW1 Vermilion Seal",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "retained_stock": [],
+ "roblox_fbx": "Dagger_Sealwork_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 1196,
+   "vertices": 636,
+   "size": [
+    1.668,
+    0.161,
+    0.2268
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.366,
+    0.0,
+    -0.0146
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 54,
+   "vertices": 46,
+   "size": [
+    0.0588,
+    0.161,
+    0.0588
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    -0.4,
+    0.0,
+    -0.005
+   ]
+  }
+ },
+ "review": {
+  "poses": [
+   [
+    "Inspect",
+    34
+   ],
+   [
+    "Slash1",
+    7
+   ],
+   [
+    "HeavyStab",
+    12
+   ]
+  ]
+ },
+ "textures": [
+  "Dagger_Atlas_Color.png",
+  "Dagger_Atlas_Rough.png",
+  "Dagger_Atlas_Metal.png",
+  "Dagger_Chamber_Color.png"
+ ]
+}

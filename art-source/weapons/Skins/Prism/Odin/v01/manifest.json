@@ -1,0 +1,106 @@
+{
+  "line": "Prism",
+  "item": "Odin",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Odin/Odin_RemasterV2_v05.blend",
+  "source_file_sha256": "26ae474ba886cb32e0fffd6bf9a0a6a02c32cdab74ac9142ce4332771d16fe8f",
+  "concept": "vault/02 Art/Skins/Prism/out/Odin_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Odin/v01/Odin_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 118703,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "3c8e7f82cfde5acde46adde901f175fc9d0df88a305c5f1965f3bb006fb51c3c",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "actions": [
+    "Odin_Draw",
+    "Odin_Fire",
+    "Odin_Inspect",
+    "Odin_Reload",
+    "Odin_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Odin_CharmLoop",
+    "Odin_FeedBelt",
+    "Odin_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Odin/v01/textures/Odin_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Odin/v01/textures/Odin_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Odin/v01/textures/Odin_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Odin/v01/textures/Odin_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "b5da1454004bdcdfeb78599a615b32ec3bd13b5b54c497dca1ada5cfd7945284",
+    "Normal": "b29c810c8b6887d19001cd243df875b8fe5ddb2664b87add5924c439de5779da",
+    "Roughness": "61cd1922dc3d628cc9ec24a6f6bfd99d38c1c18346e7fbca8b99743db1f49c6f",
+    "Metalness": "558d8e1999e89663bc70d5f82a61d14384196ccb3213865347257019101c5948"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Prism",
+    "item": "Sheriff"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Odin/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

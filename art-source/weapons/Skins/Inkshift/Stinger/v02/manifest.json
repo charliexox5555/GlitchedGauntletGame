@@ -1,0 +1,89 @@
+{
+ "variant": "Inkshift Stinger v02",
+ "date": "2026-11-14",
+ "source": "Stinger_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_vandal_shell_base.py",
+  "tools/blender/model_inkshift_guns2.py (round two anime pop-art sculpt)"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.6, 1.2, -0.65, 0.55))",
+ "chamber_material": "IK1 Cyan Accent",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Stinger_Receiver",
+  "Stinger_Grip",
+  "Stinger_Mag",
+  "Stinger_Sights",
+  "Stinger_Barrel",
+  "Stinger_Bolt",
+  "Stinger_ChargingHandle",
+  "Stinger_FireSelector",
+  "Stinger_Trigger",
+  "Stinger_CharmLoop"
+ ],
+ "roblox_fbx": "Stinger_Inkshift_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 1084,
+   "vertices": 632,
+   "size": [
+    2.698,
+    0.228,
+    0.5611
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    -0.189,
+    0.0,
+    0.1106
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 896,
+   "vertices": 480,
+   "size": [
+    0.5,
+    0.1889,
+    0.2245
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.53,
+    0.0,
+    0.2687
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 40,
+   "vertices": 24,
+   "size": [
+    0.22,
+    0.116,
+    0.24
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    -0.066,
+    0.0,
+    -0.36
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Stinger_Atlas_Color.png",
+  "Stinger_Atlas_Rough.png",
+  "Stinger_Atlas_Metal.png",
+  "Stinger_Chamber_Color.png"
+ ]
+}

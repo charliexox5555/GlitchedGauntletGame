@@ -1,0 +1,94 @@
+{
+ "variant": "Inkshift Odin v01",
+ "date": "2026-11-14",
+ "source": "Odin_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_inkshift_kit.py",
+  "tools/blender/model_inkshift_guns.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 3.4, -0.4, 0.75))",
+ "chamber_material": "IK1 Cyan Accent",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Odin_AmmoBox",
+  "Odin_Barrel",
+  "Odin_Bolt",
+  "Odin_ChargingHandle",
+  "Odin_CharmLoop",
+  "Odin_FeedBelt",
+  "Odin_FeedCover",
+  "Odin_Grip",
+  "Odin_Neon",
+  "Odin_Pins",
+  "Odin_Receiver",
+  "Odin_Sights",
+  "Odin_Stock",
+  "Odin_Trigger"
+ ],
+ "roblox_fbx": "Odin_Inkshift_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 752,
+   "vertices": 448,
+   "size": [
+    3.22,
+    0.2596,
+    0.765
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.64,
+    0.0,
+    0.1825
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 120,
+   "vertices": 108,
+   "size": [
+    0.348,
+    0.2236,
+    0.018
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.33,
+    0.0,
+    0.49
+   ]
+  },
+  "MF_AmmoBox_Body": {
+   "bone": "AmmoBox",
+   "triangles": 100,
+   "vertices": 54,
+   "size": [
+    0.77,
+    0.344,
+    0.435
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.995,
+    0.0,
+    -0.1275
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 1,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Odin_Atlas_Color.png",
+  "Odin_Atlas_Rough.png",
+  "Odin_Atlas_Metal.png",
+  "Odin_Chamber_Color.png"
+ ]
+}

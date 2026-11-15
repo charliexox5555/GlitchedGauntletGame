@@ -1,0 +1,108 @@
+{
+  "line": "Nitrous",
+  "item": "Sheriff",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Sheriff/Sheriff_RemasterV2_v05.blend",
+  "source_file_sha256": "bf79df28719fa3cf51d862c255156769816f208b1ead54537be91b2e20b67d59",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Sheriff_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Sheriff/v01/Sheriff_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 130449,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "actions": [
+    "Sheriff_Draw",
+    "Sheriff_Fire",
+    "Sheriff_Inspect",
+    "Sheriff_Reload",
+    "Sheriff_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Sheriff_CharmLoop",
+    "Sheriff_Cylinder",
+    "Sheriff_Rounds",
+    "Sheriff_Sights",
+    "Sheriff_Speedloader"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Sheriff/v01/textures/Sheriff_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Sheriff/v01/textures/Sheriff_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Sheriff/v01/textures/Sheriff_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Sheriff/v01/textures/Sheriff_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "751677948633cf765bccd4d90d2cc681fd593e8b568e5126a7e8088ccdb75218",
+    "Normal": "1ec4189438d9d01b1784a6995719beaa8856fa6679f97d08e16b3c7bb27d1760",
+    "Roughness": "f5848bfdb645d555df4d2898d83bef850317ea170453983c5675752abbf0675e",
+    "Metalness": "6853e83e5f0d50fcd9729f5eb0d692e5994470e0483ae7659c38457a7b8582d2"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Classic"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Sheriff/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

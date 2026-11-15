@@ -1,0 +1,105 @@
+{
+  "line": "Redline",
+  "item": "Ares",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Ares/Ares_RemasterV2_v05.blend",
+  "source_file_sha256": "dd1e0002e8fb66be4f9d459e99a13b0bc707e973b4397903a4675535b689efe1",
+  "concept": "vault/02 Art/Skins/Redline/out/Ares_v01.png",
+  "blend": "art-source/weapons/Skins/Redline/Ares/v01/Ares_Redline_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "741B2A",
+      0.68,
+      0
+    ],
+    "Panel": [
+      "33191F",
+      0.73,
+      0
+    ],
+    "Dark": [
+      "141316",
+      0.82,
+      0
+    ],
+    "Grip": [
+      "1D1B1E",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "333138",
+      0.48,
+      0.86
+    ],
+    "Accent": [
+      "4B4248",
+      0.58,
+      0.68
+    ],
+    "Neon": [
+      "A93D49",
+      0.65,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 97157,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "4a407fd63239662048f84f45b7ccfad7633d35d085454008c9bdad47033a21c2",
+    "geometry_and_material_slots": "dd722a4e002dbf757966c59bacf7393771743ed2737342ac1a07f9f6419b3a9c",
+    "uv": "7646b5e9d0238e92b8409ea6ce9606ebf8679b02f6562309c0afcf245163e0db",
+    "rig_and_nla": "106dad8edb4db2f3b9572b0bbb78cabe20ee912562c10b0aba41c5460b4893fd",
+    "actions": "d6e41fef2a14ea792a91b14d097fe9ad5e75081867439c31d5aaafe098235687"
+  },
+  "actions": [
+    "Ares_Draw",
+    "Ares_Fire",
+    "Ares_Inspect",
+    "Ares_Reload",
+    "Ares_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Ares_CharmLoop",
+    "Ares_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Redline/Ares/v01/textures/Ares_Color.png",
+    "Normal": "art-source/weapons/Skins/Redline/Ares/v01/textures/Ares_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Redline/Ares/v01/textures/Ares_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Redline/Ares/v01/textures/Ares_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "e6efd0e554cd164ea74f7e8e0d5964257e8e7f904ec7ae4e93494633ece7a9d0",
+    "Normal": "418d59dead1f7ad84c3e976d43cc34ac7f847eda953481b3594189e9db562bbf",
+    "Roughness": "f4099154854d95e4b007c1925cb68bf4022efae8ec4f2a5d4a162aeffd1b8c2b",
+    "Metalness": "1134679ec16c48898f202327ecb9ab99c4ae75e4f9b2134f75b3562d81fc6d89"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Redline",
+    "item": "Odin"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Redline/Ares/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

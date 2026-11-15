@@ -1,0 +1,107 @@
+{
+  "line": "Redline",
+  "item": "Judge",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Judge/Judge_RemasterV2_v05.blend",
+  "source_file_sha256": "9fda37905acd200af472e5581d55d69e9886189ac1cddb2fc71accf2593f135d",
+  "concept": "vault/02 Art/Skins/Redline/out/Judge_v01.png",
+  "blend": "art-source/weapons/Skins/Redline/Judge/v01/Judge_Redline_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "741B2A",
+      0.68,
+      0
+    ],
+    "Panel": [
+      "33191F",
+      0.73,
+      0
+    ],
+    "Dark": [
+      "141316",
+      0.82,
+      0
+    ],
+    "Grip": [
+      "1D1B1E",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "333138",
+      0.48,
+      0.86
+    ],
+    "Accent": [
+      "4B4248",
+      0.58,
+      0.68
+    ],
+    "Neon": [
+      "A93D49",
+      0.65,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 117359,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 1,
+    "different_role_overlap_pixels": 1,
+    "conflicting_parts": [
+      "Judge_Receiver"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "33350f32b6b548d2ce781909c981d74ff53b9857342df8d233b7f0360d8d60ee",
+    "geometry_and_material_slots": "635fdfc3e18922d6d888770216ccd55810581459d730b882b2c9e8fef71d44d0",
+    "uv": "5e30e601eee71883f506c8178a99787e87b2a36c4057466c1679f310a52fe425",
+    "rig_and_nla": "59db06d98c504df62ca0dda14c9aecb2c74f7ce71545caefa6b864f1f6debebe",
+    "actions": "113b50da9c38ac7651adae8477d8ba97ec051aab7f7ca1799dde0b278bec06de"
+  },
+  "actions": [
+    "Judge_Draw",
+    "Judge_Fire",
+    "Judge_Inspect",
+    "Judge_Reload",
+    "Judge_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Judge_CharmLoop",
+    "Judge_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Redline/Judge/v01/textures/Judge_Color.png",
+    "Normal": "art-source/weapons/Skins/Redline/Judge/v01/textures/Judge_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Redline/Judge/v01/textures/Judge_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Redline/Judge/v01/textures/Judge_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "db0c6ac6a5cb76a351b1ae5009f9bfa7ac1d818440e59d94ed56a1363ced392d",
+    "Normal": "d698462e1a245222237eadfcfda198111cdf3921412b0fd8987abaf56f57852d",
+    "Roughness": "ceb4fbb41f6811aa7ac886b6e2e45f5a8aed9839c7381dd08e10570bf55a7f08",
+    "Metalness": "ca5934d0c18c0f9bca3a071de28fa8c5432c55ca5e09265f111fba372f37a9ce"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Redline",
+    "item": "Marshal"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Redline/Judge/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

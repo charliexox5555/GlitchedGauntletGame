@@ -1,0 +1,106 @@
+{
+  "line": "Nitrous",
+  "item": "Vandal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
+  "source_file_sha256": "c306f1916fe6270ec6fb80b325881f6c5d3cf176bf06759017e0e7e09c8f298e",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Vandal_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Vandal/v01/Vandal_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 116211,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "a32703dc13dd95f383906fe6788cd99527db8ccf70ad960c177365fe7b985f3a",
+    "geometry_and_material_slots": "1893300ed9735bf663de79e01648076ab4d8d3c0772f4b1cb51bbdb02e8f2437",
+    "uv": "581b8bb66143ff83b94d123f8709ab6df50631de6cb1646ff8dd03eff4cff0c7",
+    "rig_and_nla": "aea3f9403e8f4dfbb4a31cde56b45690b93612c3e0259ed3be6189cfa0564f35",
+    "actions": "74d1161ed601abcd4537bf391613aa3690712d0b786338bfc25dae833229281a"
+  },
+  "actions": [
+    "Vandal_Draw",
+    "Vandal_Fire",
+    "Vandal_Inspect",
+    "Vandal_Reload",
+    "Vandal_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Vandal_CharmLoop",
+    "Vandal_FrontSight",
+    "Vandal_RearSight"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Vandal/v01/textures/Vandal_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Vandal/v01/textures/Vandal_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Vandal/v01/textures/Vandal_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Vandal/v01/textures/Vandal_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "e474af3edc1a711c3819cb27a2e37d2ed8cb1a31a9de75a9d1d364046aecb070",
+    "Normal": "f188859be0b9084aff20fea0cdabacce5f3940609ec49dcfd85a7c865b1b0757",
+    "Roughness": "ad2eba72551d9752dfff03dadb7b8ce4ce0e50315466f860310f2c9ec6131545",
+    "Metalness": "b1f11176a834bba611f1f90962fcff9c2b3a6616909950ad1ca202ea8194f372"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Phantom"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Vandal/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

@@ -25,6 +25,13 @@ Lobby remotes (`src/lobby/shared/LobbyNet.luau`, folder `LobbyRemotes`): `QueueR
 Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` (token buckets from `Config/Combat RATE`, `Config/Mods RATE`).
 
 ## Shared state (attributes)
+- **Studio skin preview** (`shared/Config/SkinPreview`, `shared/SkinPreview`, `SkinPreviewService`, `SkinPreviewController`): server-owned `Workspace.PreviewSkinLine`, five values, resets to Stock. `PreviewSkinLine` remote exists only in Studio gameplay place 133387545285290; validates an allowlisted string and limits requests to one per 0.15 s. Server updates world-model surfaces; client updates camera guns. F7/Shift+F7. Immutable `Weapons` stock templates and `WeaponSkins/<Line>/<Id>` variants; missing variants fall back to stock. No persistent data or equip changes. `client/Util/ChamberFlow` (started by `SkinPreviewController`): on camera guns only, drifts the two flow `Texture` layers tagged `MoltframeFlowLayer` on structural-skin chamber parts and pulses the chamber `SurfaceAppearance.Color` (`Config/SkinPreview.CHAMBER_FLOW`); world models keep the static map. Installer for geometry skins: `tools/studio/InstallMoltframeSkin.luau` (Decal -> Image id resolve).
+- `tools/studio/InstallFlatSkin.luau`: Studio-edit installer for flat-material geometry skins (one MeshPart per material from `tools/blender/export_roblox_flat.py`, tiled pattern Textures, kept stock parts in the line finish) into `WeaponSkins/<Line>/<Gun>`; `InstallMoltframeSkin.luau` now takes `line` too.
+- Whole skin lines: `tools/blender/export_skin_items_flat.py` (per item: flat FBX + `manifest_flat.json` with replaced stock prefixes, extra rig joints, the line Vandal's palette) → `tools/studio/make_flat_install_jobs.py` stages `InstallFlatSkin` + jobs in a temporary Rojo folder `src/shared/_SkinInstall` (remove with `--clean`). Knife-slot skins install as `WeaponSkins/<Line>/Knife` with attribute `SkinItem` (Fan / Blade / Dagger).
+- Skin casings: `client/Util/ShellFx` throws `WeaponSkins._Casing` (CasingBody + CasingBand, Studio-owned) coloured by `shared/Config/SkinCasings` when the gun model's `SkinLine` has an entry; else the stock brass shell.
+- Hiding viewmodel parts: `client/Util/LocalHide.set(part, value)` sets `LocalTransparencyModifier` on the part **and its Textures/Decals** (skin patterns); used by `ViewmodelController` (scope hide, mags, carried rounds, props, ADS fade), `ViewmodelHeldMods`, `WeaponController` (own third-person gun). `MagDrop` fades a dropped mag's Textures with it.
+- Skin export checks: `tools/blender/export_roblox_flat.py` keeps `*Sight*` objects as `SK_<Bone>_Sight_NN` parts (the ADS occluder fade skips names with "Sight") and lifts flush coplanar faces (`resolve_coplanar`, 0.004 studs) and splits self-crossing faces (`fix_crossed_faces`). `tools/blender/check_flat_export.py` re-imports exported FBXs and renders them one-sided on magenta (what Studio draws). Shell-kit outlines use `model_vandal_shell_base.convex_hull_xz` (never Blender's `convex_hull_2d`). Pitfalls and checks: `vault/02 Art/Skins/Skin Build Pitfalls.md`.
+- Knife-slot skin motion: `client/Util/FanMotion` (Giltfold Fan ribs: Rib_NN Motor6D Transforms, stepped by `ViewmodelController` after the gun's GunAnimator) with numbers in `shared/Config/MeleeSkins` (`FAN`, `VIEWMODEL_SCALE` by `SkinItem`); Studio scrub `Workspace.DevFanScrub`.
 - **Match state** (`shared/MatchState`): ReplicatedStorage attributes `Match*`: `Phase` (Waiting / Draft / Countdown / Live / SuddenDeath / RoundEnd / Replay / MatchEnd), `EndsAt`, `Round`, `Score1`, `Score2`, `RoundWinner`, `MatchWinner`, `WeaponPhase`, `RematchOpen`, `RematchVotes`, `RematchNeeded`. Written only by `MatchService` / `MatchEndService`. Player attribute `CombatLocked` (server-set).
 - **Zone** (`shared/Zone`): `ZoneService` writes the circle as ReplicatedStorage attributes, `MatchZoneId` last (0 = none).
 - **Health** (`shared/Health`): Humanoid attributes `HP`, `MaxHP`, `Downed`; written only by `HealthService`.
@@ -36,14 +43,15 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 ## src/shared (pure data and logic used by both sides)
 | Module | Owns |
 |---|---|
-| `Config/*.luau` | All tuning data. Weapons (1073 l), Viewmodel (1145), Mods (625), Match, Combat, Bots, Movement, Input, Camera, Animations, Audio / GunSounds / ModSounds / SoundAtlas / Sounds / UiSounds, Ambience, MapLife, Theme / UiStyle, StatusEffects, TestRange, Avatar, Juice, VfxTextures, Dev, Game |
+| `Config/*.luau` | All tuning data. Weapons (1073 l), Viewmodel (1145), Mods (625), Match, Combat, Bots, Movement, Input, Camera, Animations, Audio / GunSounds / GunSoundAssets and SharedSoundAssets (generated standalone asset IDs) / ModSounds / Sounds / UiSounds, Ambience, MapLife, Theme / UiStyle, StatusEffects, TestRange, Avatar, Juice, VfxTextures, Dev, Game |
 | `Net.luau` | the remote list above |
 | `Types.luau` | weapon config and remote payload types |
 | `MatchState.luau`, `Zone.luau`, `Health.luau`, `TestMode.luau` | the attribute readers/writers above |
-| `MatchBody.luau` | the standard match avatar (see [Match Avatar](../01%20Design/Match%20Avatar.md)) |
-| `Simulation/Movement.luau` | sprint, crouch, slide, slide-jump; bound with `BindToSimulation` (Server Authority) |
+| `MatchBody.luau` | the standard match avatar: `description`, `dress` (welds the block body over the R15 rig and draws shirt / pants on it, `Config/Avatar BLOCKS`), `preload`, `filterAccessory` (the accessory rule); see [Third Person Overhaul](../01%20Design/Third%20Person%20Overhaul.md) |
+| `Authority.luau` | `server()`: is Roblox Server Authority on (`Workspace.AuthorityMode`)? Off since 2026-11-11: the simulations skip real players on the server and the input-based checks in `WeaponService` / `ModService` are off |
+| `Simulation/Movement.luau` | sprint, crouch, slide, slide-jump; bound with `BindToSimulation`. Server: every player under Server Authority, bots only without it; client: its own character (`ownState`) |
 | `Simulation/Abilities.luau` | predicted half of Mods (Dash, Updraft…) inside the movement step; no remotes |
-| `Simulation/Poses.luau` | third-person pose and leg tracks, stepped in the simulation (651 l) |
+| `Simulation/Poses.luau` | third-person pose and leg tracks (holds by pitch, run set, sprint upper body by weapon kind in step with the legs, crouch, slide, one-shots); a client poses its own character, the server its bots (about 700 l). Clips: `Config/Animations`, keyed in `tools/anim/tp_clips.py` |
 | `Simulation/Pawns.luau` | gives bots a stand-in owner so the simulations drive them |
 | `Mods/init.luau` | Mod registry: `def(id)`, `stats(id, level)`, `module(id)` |
 | `Mods/<Ability>.luau` | one per ability: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall |
@@ -86,24 +94,29 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 |---|---|
 | `WeaponController` | fire input, spread, recoil, predicted hit marker, sends `Fire`/`Reload`/`Equip`/`Aim` |
 | `ViewmodelController` (1817 l) | first-person gun and arms rig (also shows a spectated or replayed fighter's view via `setSubject`); uses `Util/ViewmodelTracks` (keyframed tracks), `Util/ViewmodelHeldMods` (held Mods, gestures, free hand), `Util/ViewmodelArms/Rig/Motion`, `GunAnimator`, `MagDrop` |
-| `GripController` | left hand IK on every visible character's gun |
-| `EffectsController` (585 l) | your own shot from the viewmodel, other players' `ShotFx`, spectated / replayed shots (`setSpectated`, `playShot`), hit flash; forwards to `Util/MuzzleFx`, `ShellFx`, `TracerFx`, `ImpactFx` (surfaces, bullet holes, knife marks), `KnifeSwipeFx`, all built on `Util/ShotFxKit` |
+| `BodySkinController` | bends every third-person body's skinned arms, legs and torso each frame from its R15 parts (meshes tagged `GGSkinLimb` in `Workspace.GGBodyLimbs`, made by `shared/MatchBody`), and copies each part's LocalTransparencyModifier to its mesh. No remotes |
+| `GripController` | the support hand's IK on every visible character's gun (target on the right hand, so it holds still through the kick); Studio attr `DevThirdPerson` rigs your own character too. The fire kick itself is the gun-in-hand spring in `EffectsController` (`Config/Juice WORLD_KICK`) |
+| `EffectsController` (585 l) | your own shot from the viewmodel, other players' `ShotFx`, spectated / replayed shots (`setSpectated`, `playShot`), hit flash (forwards to `Util/HitFx`: whole-body flash incl. limb meshes, slash, headshot flash pop; numbers `Config/HitFx`); forwards to `Util/MuzzleFx`, `ShellFx`, `TracerFx`, `ImpactFx` (surfaces, bullet holes, knife marks), `KnifeSwipeFx`, all built on `Util/ShotFxKit` |
 | `HudController` | crosshair, hit markers, ammo, health/shield, low-HP vignette, damage direction |
-| `MatchHudController`, `PhoneHudController` | top bar, score, clock, banners; phone layout |
-| `DraftController` (1536 l) | the select/draft screen: gun cards + one column per Mod key |
+| `TopBarController` | the match top bar (2026-11-14): fills the Studio-built `StarterGui.TopBar` (team blocks, headshots greyed when dead, score, clock, info line) from `MatchState`; template `ReplicatedStorage.UiTemplates.TopBar.Player`; backup `tools/studio/BuildTopBar.luau` |
+| `Util/BottomHud` (2026-11-14) | the bottom combat HUD: fills the Studio-built `StarterGui.BottomHud` (health + shield, ammo, Mod cells, weapon hotbar, key hints); fed by `HudController`, `ModHudController`, `WeaponController.updateHudWeapon`; desktop only; backup `tools/studio/BuildBottomHud.luau` |
+| `MatchHudController`, `PhoneHudController` | banners (get ready, countdown, round won / lost, match end); its old top bar is hidden (kept for its sounds until removed); phone layout |
+| `Util/DraftScreen` (2026-11-14) | the desktop draft screen: fills and animates the Studio-built `StarterGui.DraftScreen` (guns, Q/E/T columns of new cards / upgrade half-cards / MAXED, LOCK IN, hint, enemy kit); fed by `DraftController`; backup `tools/studio/BuildDraftScreen.luau` |
+| `DraftController` (1774 l) | the select/draft logic (offer, keys, `DraftPick` calls, hint); desktop draws through `Util/DraftScreen`, phones keep its own code-built cards |
 | `ModController` (1250 l) | Mod input, held state machine, previews, sends `ModHold/Use/Steer/Recall` |
 | `ModHudController` | 3 slots with cooldown sweep and charges |
 | `ModFxController`, `ModFeelController` | world effects and sounds of Mods (`Util/*Fx`, `Util/UpgradeFx/<Ability>`) |
 | `MovementController`, `PoseController` | start the client's predicted movement / pose simulation |
 | `CameraController` | FOV, ADS zoom, recoil, shake, slide tilt, smoothing |
 | `InputController` | reads the Input Action System context |
-| `AudioController` | atlas sound pool, plays every game sound; `FootstepController`, `AmbienceController`, `Util/ModAudio` |
+| `AudioController` | whole-asset voice pools (`gun:` weapon/feedback, `sfx:` shared cues), preloads recordings and plays 2D/3D audio; `FootstepController`, `AmbienceController`, `Util/ModAudio` |
 | `CharacterFxController`, `DeathFxController`, `MapLifeController` | slide dust, the fake-death body copy, ambient map life |
-| `SpectateController` | death camera and first-person spectating; `ReplayController`: final-kill replay (`Replay`) |
+| `SpectateController` | death camera and first-person spectating; desktop shows the killed-by card and spectate bar through `Util/DeathScreen` (Studio-built `StarterGui.DeathScreen`); `ReplayController`: final-kill replay (`Replay`) |
+| `KillFeedController` (2026-11-14) | the kill feed and the kill pop (glitch shard, 5-kill ring) in the Studio-built `StarterGui.KillFeed` (row template `UiTemplates.KillFeed.Row`), from `Killed`; desktop only; `Util/KillFeed` keeps the kill sounds; backup `tools/studio/BuildFeedScreens.luau` |
 | `MatchEndController` | victory scene and post-match screen (Rematch / Play Again / Leave) |
 | `ZoneController` | sudden-death wall, screen tint, warning tick |
-| `DevModController`, `PickerController`, `RangeController` | test-mode tools: Mod panel (F8), gun picker (P), dummy health bars |
-| `Util/` | `BodyClone` (client-only copies of bodies for death falls, the replay, the victory scene), `ShotLog` (your own shots, for the replay), `HitFeedback`, `KillFeed`, `Ui`, `UiSound`, `TeamColor` (cyan allies, orange-red enemies), `Device`, `VfxPool`, `Frozen`, VFX kits (`FireKit`, `IceKit`, `GlitchVfx`, `WallFx`, `WindFx`) |
+| `DevModController`, `PickerController`, `RangeController`, `GunReviewController` | test-mode tools: Mod panel (F8), gun picker (P), dummy health bars, gun review panel (F6, `Config/GunReview`) |
+| `Util/` | `BodyClone` (client-only copies of bodies for death falls, the replay, the victory scene), `ShotLog` (your own shots, for the replay), `Crosshair` (the crosshair, `Config/Crosshair`), `HitFeedback` (crosshair markers + damage numbers, `Config/HitFx`), `HitFx`, `KillFeed`, `Ui`, `UiSound`, `TeamColor` (cyan allies, orange-red enemies), `Device`, `VfxPool`, `Frozen`, VFX kits (`FireKit`, `IceKit`, `GlitchVfx`, `WallFx`, `WindFx`) |
 
 ## src/lobby (Lobby place)
 | Module | Owns |
@@ -115,7 +128,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `client/Util/*`, `shared/Config`, `shared/LobbyNet` | menu kit, layout, router, icons; config; the lobby remotes |
 
 ## Tools (not synced; `tools/`)
-`blender/` (model scripts), `opencloud/` (uploads), `studio/` (Studio-side builders and validators, e.g. `ValidateWeapons.luau`, `MakePoseAnimations.luau`, `receive_server.py`, `maps/<Map>/`), `maps/`, `vfx/`, `audio/`, `textures/`, `icons/`, `balance/`.
+`anim/` (`tp_rig.py`, `tp_clips.py`: the third-person clips, keyed on a rig of the match body and exported to `art-source/animations/`), `blender/` (model scripts; `make_body_mesh.py` = the block body), `opencloud/` (uploads), `studio/` (Studio-side builders and validators, e.g. `ValidateWeapons.luau`, `ThirdPersonReviewRig.luau`, `TpPreviewSheet.luau`, `MakePoseAnimations.luau` (old generators, now only the Mod / dash / flinch clips), `receive_server.py`, `maps/<Map>/`), `maps/`, `vfx/`, `audio/`, `textures/`, `icons/`, `balance/`.
 
 ## How to use this map
 1. Name the area (e.g. "the Frost burst hurts allies") → find the rows → `Grep -n "symbol" src/...` → `Read` with `offset`/`limit`.

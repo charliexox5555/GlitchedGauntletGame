@@ -1,0 +1,108 @@
+{
+  "line": "Nitrous",
+  "item": "Shorty",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Shorty/Shorty_RemasterV2_v05.blend",
+  "source_file_sha256": "dd258687aa58116b7ac05ed15b30993bca225a91e52c5181948e4c16308c4bc2",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Shorty_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Shorty/v01/Shorty_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 122324,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 3,
+    "different_role_overlap_pixels": 3,
+    "conflicting_parts": [
+      "Shorty_Frame"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "7c8547e73ec62b92c2195e1c7a211a89dab71cce2a980d1ca037816ec6c0f2c4",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "actions": [
+    "Shorty_Draw",
+    "Shorty_Fire",
+    "Shorty_Inspect",
+    "Shorty_Reload",
+    "Shorty_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Shorty_CharmLoop",
+    "Shorty_ShellLower",
+    "Shorty_ShellUpper"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Shorty/v01/textures/Shorty_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Shorty/v01/textures/Shorty_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Shorty/v01/textures/Shorty_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Shorty/v01/textures/Shorty_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "77a30d6dc5c1cc0167419e4a1d91b2dcee67afcd0189f371ab6f220706e51be6",
+    "Normal": "c17921d7c01cb41c501f13f7a2ece152f47a8f70cb44b66bfaedfd89db0a41d7",
+    "Roughness": "607f62ef20c08c08b3cbec7ca4dda909040e61d6c97fb0be87601bf37b80e862",
+    "Metalness": "3f6fbee494422fcba85c9638aa718224e1aa295c1ac53496b08eeb46c9e8e51c"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Bucky"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Shorty/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

@@ -1,0 +1,394 @@
+{
+ "variant": "Payload Ares v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Ares",
+ "source_blend": "Ares_Payload_v02.blend",
+ "fbx": "Ares_Payload_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "Bolt",
+  "ChargingHandle",
+  "CharmLoop",
+  "Drum",
+  "FireSelector",
+  "Grip",
+  "Handguard",
+  "Neon",
+  "Pins",
+  "Receiver",
+  "Sights",
+  "Stock",
+  "Trigger"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {
+  "PLA_CrownTeeth": 3
+ },
+ "coplanar_lifted": [],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Bolt_01": {
+   "color": "6C7784",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Bolt",
+   "blender_material": "PL1 Smoked Steel",
+   "triangles": 44,
+   "size": [
+    0.294,
+    0.022,
+    0.065
+   ],
+   "center": [
+    0.563,
+    -0.079,
+    0.3725
+   ]
+  },
+  "SK_ChargingHandle_01": {
+   "color": "2E67B2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "ChargingHandle",
+   "blender_material": "PL1 Mission Blue",
+   "triangles": 116,
+   "size": [
+    0.105,
+    0.028,
+    0.07
+   ],
+   "center": [
+    0.8225,
+    0.136,
+    0.28
+   ]
+  },
+  "SK_ChargingHandle_02": {
+   "color": "6C7784",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "ChargingHandle",
+   "blender_material": "PL1 Smoked Steel",
+   "triangles": 56,
+   "size": [
+    0.12,
+    0.048,
+    0.042
+   ],
+   "center": [
+    0.82,
+    0.102,
+    0.279
+   ]
+  },
+  "SK_FireSelector_01": {
+   "color": "2E67B2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "FireSelector",
+   "blender_material": "PL1 Mission Blue",
+   "triangles": 90,
+   "size": [
+    0.077,
+    0.014,
+    0.0333
+   ],
+   "center": [
+    0.0645,
+    0.1,
+    0.256
+   ]
+  },
+  "SK_Mag_01": {
+   "color": "E2E7ED",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "PL1 Flight White",
+   "triangles": 227,
+   "size": [
+    0.487,
+    0.556,
+    0.578
+   ],
+   "center": [
+    0.8065,
+    0.0,
+    -0.069
+   ]
+  },
+  "SK_Mag_02": {
+   "color": "6C7784",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "PL1 Smoked Steel",
+   "triangles": 743,
+   "size": [
+    0.47,
+    0.576,
+    0.576
+   ],
+   "center": [
+    0.835,
+    0.0,
+    -0.08
+   ]
+  },
+  "SK_Root_01": {
+   "color": "A8B4C2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Bevel Grey",
+   "triangles": 1084,
+   "size": [
+    3.5179,
+    0.209,
+    0.8121
+   ],
+   "center": [
+    0.5221,
+    0.0,
+    0.0781
+   ]
+  },
+  "SK_Root_02": {
+   "color": "A8B4C2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Cool Grey Housing",
+   "triangles": 54,
+   "size": [
+    0.08,
+    0.17,
+    0.29
+   ],
+   "center": [
+    -0.146,
+    0.0,
+    0.345
+   ]
+  },
+  "SK_Root_03": {
+   "color": "E2E7ED",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Flight White",
+   "triangles": 380,
+   "size": [
+    2.4244,
+    0.208,
+    0.6715
+   ],
+   "center": [
+    -0.0222,
+    -0.004,
+    0.1822
+   ]
+  },
+  "SK_Root_04": {
+   "color": "20262E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Graphite",
+   "triangles": 2236,
+   "size": [
+    4.3121,
+    0.1925,
+    0.7891
+   ],
+   "center": [
+    0.9192,
+    0.0003,
+    0.1254
+   ]
+  },
+  "SK_Root_Sight_05": {
+   "color": "20262E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Graphite",
+   "triangles": 352,
+   "size": [
+    2.1412,
+    0.158,
+    0.2222
+   ],
+   "center": [
+    1.0844,
+    0.0,
+    0.5871
+   ]
+  },
+  "SK_Root_Sight_06": {
+   "color": "8FC4FF",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Indicator",
+   "triangles": 28,
+   "size": [
+    0.004,
+    0.0067,
+    0.0067
+   ],
+   "center": [
+    2.0975,
+    0.0,
+    0.6232
+   ]
+  },
+  "SK_Root_07": {
+   "color": "2E67B2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Mission Blue",
+   "triangles": 48,
+   "size": [
+    0.023,
+    0.197,
+    0.03
+   ],
+   "center": [
+    0.8115,
+    0.0,
+    0.355
+   ]
+  },
+  "SK_Root_08": {
+   "color": "14181E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Recess",
+   "triangles": 32,
+   "size": [
+    0.6914,
+    0.164,
+    0.5362
+   ],
+   "center": [
+    -0.7287,
+    0.0,
+    0.166
+   ]
+  },
+  "SK_Root_09": {
+   "color": "6C7784",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Smoked Steel",
+   "triangles": 186,
+   "size": [
+    2.8841,
+    0.1682,
+    0.7551
+   ],
+   "center": [
+    1.2779,
+    0.0141,
+    0.0496
+   ]
+  },
+  "SK_Root_10": {
+   "color": "C89B49",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": "Payload_Foil",
+   "bone": "Root",
+   "blender_material": "PL1 Thermal Foil",
+   "triangles": 900,
+   "size": [
+    4.1994,
+    0.2139,
+    0.6479
+   ],
+   "center": [
+    0.9803,
+    0.0,
+    0.1644
+   ]
+  },
+  "SK_Root_11": {
+   "color": "3E8BFF",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL2 Blue Tube",
+   "triangles": 1200,
+   "size": [
+    0.9,
+    0.2081,
+    0.01
+   ],
+   "center": [
+    0.65,
+    0.0,
+    0.47
+   ]
+  },
+  "SK_Root_12": {
+   "color": "22272E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": "Payload_Carbon",
+   "bone": "Root",
+   "blender_material": "PL2 Carbon Twill",
+   "triangles": 78,
+   "size": [
+    1.2456,
+    0.148,
+    0.7591
+   ],
+   "center": [
+    -0.4516,
+    0.0,
+    0.0546
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "2E67B2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "PL1 Mission Blue",
+   "triangles": 108,
+   "size": [
+    0.0388,
+    0.022,
+    0.0718
+   ],
+   "center": [
+    0.2876,
+    0.0,
+    0.1091
+   ]
+  }
+ }
+}

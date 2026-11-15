@@ -1,0 +1,93 @@
+{
+ "variant": "Payload Odin v01",
+ "date": "2026-11-14",
+ "source": "Odin_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_payload_kit.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 3.4, -0.4, 0.75))",
+ "chamber_material": "PL1 Thermal Foil",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Odin_AmmoBox",
+  "Odin_Barrel",
+  "Odin_Bolt",
+  "Odin_ChargingHandle",
+  "Odin_CharmLoop",
+  "Odin_FeedBelt",
+  "Odin_FeedCover",
+  "Odin_Grip",
+  "Odin_Neon",
+  "Odin_Pins",
+  "Odin_Receiver",
+  "Odin_Sights",
+  "Odin_Stock",
+  "Odin_Trigger"
+ ],
+ "roblox_fbx": "Odin_Payload_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 344,
+   "vertices": 202,
+   "size": [
+    0.955,
+    0.2315,
+    0.4
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3225,
+    0.0,
+    0.365
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 48,
+   "vertices": 42,
+   "size": [
+    0.172,
+    0.2266,
+    0.062
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.57,
+    0.0,
+    0.475
+   ]
+  },
+  "MF_AmmoBox_Body": {
+   "bone": "AmmoBox",
+   "triangles": 100,
+   "vertices": 54,
+   "size": [
+    0.77,
+    0.344,
+    0.435
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.995,
+    0.0,
+    -0.1275
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 1,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Odin_Atlas_Color.png",
+  "Odin_Atlas_Rough.png",
+  "Odin_Atlas_Metal.png",
+  "Odin_Chamber_Color.png"
+ ]
+}

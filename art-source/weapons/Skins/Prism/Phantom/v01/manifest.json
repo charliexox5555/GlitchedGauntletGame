@@ -1,0 +1,105 @@
+{
+  "line": "Prism",
+  "item": "Phantom",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Phantom/Phantom_RemasterV2_v05.blend",
+  "source_file_sha256": "99afea9d16d8d316893868ce36579fd0b141dcb7ccf59c7b390f033c2ffc1f98",
+  "concept": "vault/02 Art/Skins/Prism/out/Phantom_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Phantom/v01/Phantom_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 120415,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 1,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "71358908ad9e82468c5683b4c42e752a283ea2308ad79fb1ded26067ce332542",
+    "geometry_and_material_slots": "ea4ad6af765cd466ae786458ebb7edb9939a1e3ee94c7d72b5df605f681ea4b8",
+    "uv": "cf60e93479883a23583a361b2dce7bfaaf937a847f10a78bbb71ad8b130bdc2e",
+    "rig_and_nla": "1265baf69019fd86afa5e89cee1dbafc2eec2c9b68109a03b3f7ac22a5adb660",
+    "actions": "8196b4c05744ffb0226e1ca06a0649d1877b3df1d460e78870805ab39078c459"
+  },
+  "actions": [
+    "Phantom_Draw",
+    "Phantom_Fire",
+    "Phantom_Inspect",
+    "Phantom_Reload",
+    "Phantom_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Phantom_CharmLoop",
+    "Phantom_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Phantom/v01/textures/Phantom_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Phantom/v01/textures/Phantom_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Phantom/v01/textures/Phantom_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Phantom/v01/textures/Phantom_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "36fa5e7a5a6d1b6150c80f145d63968919b2cc69087844ee7d827337723c1ce4",
+    "Normal": "391ada87a99c1ad37dc6c09253aa9a244aeb8ef6c39b19e597d6521c2d3507a6",
+    "Roughness": "17160c6dcb3bb948488022aeaa8a43286f5de24a881302e1111aa7b94d598e38",
+    "Metalness": "4807c5901d2351181692fa96641694cbe92c9e0141866231344b63a4e2b2da9f"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Prism",
+    "item": "Bulldog"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Phantom/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

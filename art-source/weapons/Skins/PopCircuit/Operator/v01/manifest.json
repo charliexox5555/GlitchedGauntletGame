@@ -1,0 +1,106 @@
+{
+  "line": "PopCircuit",
+  "item": "Operator",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Operator/Operator_RemasterV2_v05.blend",
+  "source_file_sha256": "c7a8419c9552a21ea4377458023ad572ee098af66c40b1ecdd6dd54703a0de73",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Operator_v02.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Operator/v01/Operator_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 107135,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "actions": [
+    "Operator_Draw",
+    "Operator_Fire",
+    "Operator_Inspect",
+    "Operator_Reload",
+    "Operator_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Operator_CharmLoop",
+    "Operator_Scope",
+    "Operator_ScopeLens"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Operator/v01/textures/Operator_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Operator/v01/textures/Operator_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Operator/v01/textures/Operator_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Operator/v01/textures/Operator_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "07e444e037cefcfea9544166ea6e2720b392cc033f7813da1eef9a954521d167",
+    "Normal": "95b02bf1c5c0a542c681d7a895069739c1876e1347f34421741cb7631d79876a",
+    "Roughness": "f5af26a6cbf2a5cc00855474f00f7bf3bd90058d5f481afb1060bf96120d927e",
+    "Metalness": "e13dfa1765c95f3ace417d2f8c59164856ea31247b3ce151f98f23bc7d9c36b3"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Bat"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Operator/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

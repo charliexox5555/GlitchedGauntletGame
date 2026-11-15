@@ -1,0 +1,109 @@
+{
+ "variant": "Slipframe Operator v01",
+ "date": "2026-11-14",
+ "source": "Operator_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_slipframe_kit.py",
+  "tools/blender/model_slipframe_operator.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.35, 3.55, -0.3, 0.8))",
+ "chamber_material": "SF1 Silver-Blue Inlay",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [
+  "Handguard",
+  "Stock",
+  "Neon"
+ ],
+ "retained_stock": [
+  "Operator_Receiver",
+  "Operator_Barrel",
+  "Operator_Grip",
+  "Operator_Scope",
+  "Operator_ScopeLens",
+  "Operator_CharmLoop",
+  "Operator_Magazine",
+  "Operator_Bolt",
+  "Operator_Trigger"
+ ],
+ "roblox_fbx": "Operator_Slipframe_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 1280,
+   "vertices": 684,
+   "size": [
+    3.59,
+    0.2853,
+    0.969
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.475,
+    0.0,
+    0.2675
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 16,
+   "vertices": 24,
+   "size": [
+    1.625,
+    0.181,
+    0.041
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    1.3325,
+    0.0,
+    0.1475
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 92,
+   "vertices": 52,
+   "size": [
+    0.362,
+    0.141,
+    0.151
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.631,
+    0.0,
+    0.0095
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 4,
+   "vertices": 8,
+   "size": [
+    0.026,
+    0.127,
+    0.12
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.75,
+    0.0,
+    0.01
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Operator_Atlas_Color.png",
+  "Operator_Atlas_Rough.png",
+  "Operator_Atlas_Metal.png",
+  "Operator_Chamber_Color.png"
+ ]
+}

@@ -1,0 +1,798 @@
+{
+  "stock_bounds": [
+    [
+      -1.252,
+      -0.104,
+      -0.404057
+    ],
+    [
+      2.647,
+      0.128,
+      0.634864
+    ]
+  ],
+  "skin_bounds": [
+    [
+      -1.252,
+      -0.118,
+      -0.404057
+    ],
+    [
+      2.647,
+      0.128,
+      0.634864
+    ]
+  ],
+  "replacement_shell_bounds": [
+    [
+      -1.252,
+      -0.118,
+      -0.404057
+    ],
+    [
+      2.647,
+      0.118,
+      0.437
+    ]
+  ],
+  "replaces": [
+    "Barrel",
+    "Grip",
+    "Handguard",
+    "Mag",
+    "Neon",
+    "Pins",
+    "Rail",
+    "Receiver",
+    "Stock"
+  ],
+  "actions": [
+    "Vandal_Draw.001",
+    "Vandal_Fire.001",
+    "Vandal_Inspect.001",
+    "Vandal_Reload.001",
+    "Vandal_ReloadEmpty.001"
+  ],
+  "output": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\Skins\\Moltframe\\Vandal\\v03",
+  "clearance": {
+    "Fire": {
+      "frames": 12,
+      "intersections": {}
+    },
+    "Inspect": {
+      "frames": 67,
+      "intersections": {}
+    },
+    "Reload": {
+      "frames": 97,
+      "intersections": {}
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "intersections": {}
+    }
+  },
+  "shell_parts": {
+    "Moltframe_ReceiverHardware_00": {
+      "center": [
+        0.523187,
+        -0.012999999999999998,
+        0.215
+      ],
+      "size": [
+        0.446374,
+        0.182,
+        0.26199999999999996
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Body",
+      "mapped": false,
+      "metal": true,
+      "color": "292D39",
+      "triangles": 194
+    },
+    "Moltframe_ReceiverHardware_01": {
+      "center": [
+        0.25,
+        0.0,
+        0.158
+      ],
+      "size": [
+        0.264,
+        0.136,
+        0.016000000000000014
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Panel",
+      "mapped": false,
+      "metal": true,
+      "color": "3C4252",
+      "triangles": 48
+    },
+    "Moltframe_ReceiverHardware_02": {
+      "center": [
+        0.456705,
+        0.0,
+        0.1224295
+      ],
+      "size": [
+        0.54941,
+        0.125,
+        0.08714100000000001
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Dark",
+      "mapped": false,
+      "metal": false,
+      "color": "191B24",
+      "triangles": 126
+    },
+    "Moltframe_HandguardHardware_02": {
+      "center": [
+        1.5005415,
+        0.0,
+        0.1515
+      ],
+      "size": [
+        0.08648500000000015,
+        0.1,
+        0.046999999999999986
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Dark",
+      "mapped": false,
+      "metal": false,
+      "color": "191B24",
+      "triangles": 56
+    },
+    "Moltframe_StockHardware_02": {
+      "center": [
+        -1.1760000000000002,
+        0.0,
+        0.119
+      ],
+      "size": [
+        0.1519999999999999,
+        0.156,
+        0.592
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Dark",
+      "mapped": false,
+      "metal": false,
+      "color": "191B24",
+      "triangles": 124
+    },
+    "Moltframe_StockHardware_04": {
+      "center": [
+        -1.248,
+        0.0,
+        0.117
+      ],
+      "size": [
+        0.008000000000000007,
+        0.12,
+        0.43400000000000005
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Grip",
+      "mapped": false,
+      "metal": false,
+      "color": "22232D",
+      "triangles": 80
+    },
+    "Moltframe_PinsHardware_03": {
+      "center": [
+        2.05,
+        0.0,
+        0.3
+      ],
+      "size": [
+        0.019051999999999847,
+        0.126,
+        0.02200000000000002
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Metal",
+      "mapped": false,
+      "metal": true,
+      "color": "555D70",
+      "triangles": 32
+    },
+    "Moltframe_MagHardware_01": {
+      "center": [
+        0.8524795,
+        0.0,
+        -0.367664
+      ],
+      "size": [
+        0.30164499999999994,
+        0.128,
+        0.07278600000000002
+      ],
+      "bone": "Mag",
+      "finish": "Moltframe Panel",
+      "mapped": false,
+      "metal": true,
+      "color": "3C4252",
+      "triangles": 88
+    },
+    "Moltframe_MagHardware_02": {
+      "center": [
+        0.47050000000000003,
+        0.0,
+        0.09325
+      ],
+      "size": [
+        0.01899999999999996,
+        0.04,
+        0.012500000000000011
+      ],
+      "bone": "Mag",
+      "finish": "Moltframe Dark",
+      "mapped": false,
+      "metal": false,
+      "color": "191B24",
+      "triangles": 44
+    },
+    "Moltframe_MagHardware_03": {
+      "center": [
+        0.6571499999999999,
+        0.0,
+        0.21400000000000002
+      ],
+      "size": [
+        0.06969999999999998,
+        0.017666,
+        0.0204
+      ],
+      "bone": "Mag",
+      "finish": "Moltframe Metal",
+      "mapped": false,
+      "metal": true,
+      "color": "555D70",
+      "triangles": 30
+    },
+    "Moltframe_MagHardware_07": {
+      "center": [
+        0.55515,
+        0.0,
+        0.214
+      ],
+      "size": [
+        0.13429999999999997,
+        0.030918,
+        0.03570000000000001
+      ],
+      "bone": "Mag",
+      "finish": "Moltframe Brass",
+      "mapped": false,
+      "metal": true,
+      "color": "686579",
+      "triangles": 52
+    },
+    "Moltframe_GripHardware_02": {
+      "center": [
+        0.113385,
+        0.0,
+        -0.05385050000000001
+      ],
+      "size": [
+        0.593382,
+        0.128,
+        0.439701
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Dark",
+      "mapped": false,
+      "metal": false,
+      "color": "191B24",
+      "triangles": 192
+    },
+    "Moltframe_GripHardware_04": {
+      "center": [
+        -0.04779799999999999,
+        0.0,
+        -0.1226155
+      ],
+      "size": [
+        0.19597,
+        0.128,
+        0.239945
+      ],
+      "bone": "Root",
+      "finish": "Moltframe Grip",
+      "mapped": false,
+      "metal": false,
+      "color": "22232D",
+      "triangles": 27
+    },
+    "Moltframe_GripHardware_08": {
+      "center": [
+        -0.065479,
+        0.0,
+        -0.1381685
+      ],
+      "size": [
+        0.235654,
+        0.128,
+        0.336339
+      ],
+      "bone": "Root",
+      "finish": "Moltframe grip heel",
+      "mapped": false,
+      "metal": false,
+      "color": "353744",
+      "triangles": 69
+    },
+    "Moltframe_Receiver_00": {
+      "center": [
+        0.4365,
+        0.0,
+        0.2986955
+      ],
+      "size": [
+        1.227,
+        0.236,
+        0.268609
+      ],
+      "bone": "Root",
+      "finish": "Moltframe folded graphite",
+      "mapped": true,
+      "metal": true,
+      "color": "44495E",
+      "triangles": 1117
+    },
+    "Moltframe_Receiver_01": {
+      "center": [
+        0.57,
+        0.0,
+        0.245385
+      ],
+      "size": [
+        0.9019999999999999,
+        0.182682,
+        0.07747799999999999
+      ],
+      "bone": "Root",
+      "finish": "Moltframe violet chamber",
+      "mapped": true,
+      "metal": false,
+      "color": "63258C",
+      "triangles": 278
+    },
+    "Moltframe_Receiver_02": {
+      "center": [
+        0.4365,
+        0.0,
+        0.2936955
+      ],
+      "size": [
+        1.227,
+        0.194,
+        0.286609
+      ],
+      "bone": "Root",
+      "finish": "Moltframe dry graphite",
+      "mapped": false,
+      "metal": true,
+      "color": "2A2F40",
+      "triangles": 262
+    },
+    "Moltframe_Receiver_03": {
+      "center": [
+        0.459222,
+        0.0011914999999999981,
+        0.2665
+      ],
+      "size": [
+        1.181556,
+        0.231963,
+        0.205
+      ],
+      "bone": "Root",
+      "finish": "Moltframe mechanism well",
+      "mapped": false,
+      "metal": false,
+      "color": "181922",
+      "triangles": 1254
+    },
+    "Moltframe_Receiver_04": {
+      "center": [
+        0.4365,
+        0.0,
+        0.2936955
+      ],
+      "size": [
+        1.227,
+        0.18746,
+        0.286609
+      ],
+      "bone": "Root",
+      "finish": "Moltframe turned edge",
+      "mapped": false,
+      "metal": true,
+      "color": "838DA4",
+      "triangles": 367
+    },
+    "Moltframe_Forend_00": {
+      "center": [
+        1.351,
+        0.0,
+        0.3037285
+      ],
+      "size": [
+        0.5920000000000001,
+        0.233084,
+        0.24054299999999998
+      ],
+      "bone": "Root",
+      "finish": "Moltframe folded graphite",
+      "mapped": true,
+      "metal": true,
+      "color": "44495E",
+      "triangles": 1202
+    },
+    "Moltframe_Forend_01": {
+      "center": [
+        1.3094999999999999,
+        0.0,
+        0.2581645
+      ],
+      "size": [
+        0.4770000000000001,
+        0.16067,
+        0.064329
+      ],
+      "bone": "Root",
+      "finish": "Moltframe violet chamber",
+      "mapped": true,
+      "metal": false,
+      "color": "63258C",
+      "triangles": 288
+    },
+    "Moltframe_Forend_02": {
+      "center": [
+        1.351,
+        0.0,
+        0.2987285
+      ],
+      "size": [
+        0.5920000000000001,
+        0.194,
+        0.25854299999999997
+      ],
+      "bone": "Root",
+      "finish": "Moltframe dry graphite",
+      "mapped": false,
+      "metal": true,
+      "color": "2A2F40",
+      "triangles": 252
+    },
+    "Moltframe_Forend_03": {
+      "center": [
+        1.3290739999999999,
+        -0.0002324999999999966,
+        0.3120685
+      ],
+      "size": [
+        0.5481480000000001,
+        0.225071,
+        0.19213700000000003
+      ],
+      "bone": "Root",
+      "finish": "Moltframe mechanism well",
+      "mapped": false,
+      "metal": false,
+      "color": "181922",
+      "triangles": 1352
+    },
+    "Moltframe_Forend_04": {
+      "center": [
+        1.351,
+        0.0,
+        0.2987285
+      ],
+      "size": [
+        0.5920000000000001,
+        0.174838,
+        0.25854299999999997
+      ],
+      "bone": "Root",
+      "finish": "Moltframe turned edge",
+      "mapped": false,
+      "metal": true,
+      "color": "838DA4",
+      "triangles": 312
+    },
+    "Moltframe_StockSpine_00": {
+      "center": [
+        -0.643,
+        0.0,
+        0.298833
+      ],
+      "size": [
+        0.9380000000000002,
+        0.17004,
+        0.243666
+      ],
+      "bone": "Root",
+      "finish": "Moltframe folded graphite",
+      "mapped": true,
+      "metal": true,
+      "color": "44495E",
+      "triangles": 840
+    },
+    "Moltframe_StockSpine_01": {
+      "center": [
+        -0.9259999999999999,
+        0.0,
+        0.285372
+      ],
+      "size": [
+        0.2499999999999999,
+        0.111442,
+        0.06851200000000002
+      ],
+      "bone": "Root",
+      "finish": "Moltframe violet chamber",
+      "mapped": true,
+      "metal": false,
+      "color": "63258C",
+      "triangles": 120
+    },
+    "Moltframe_StockSpine_02": {
+      "center": [
+        -0.643,
+        0.0,
+        0.293833
+      ],
+      "size": [
+        0.9380000000000002,
+        0.136,
+        0.26166599999999995
+      ],
+      "bone": "Root",
+      "finish": "Moltframe dry graphite",
+      "mapped": false,
+      "metal": true,
+      "color": "2A2F40",
+      "triangles": 496
+    },
+    "Moltframe_StockSpine_03": {
+      "center": [
+        -0.834074,
+        0.0,
+        0.283481
+      ],
+      "size": [
+        0.48636999999999997,
+        0.137286,
+        0.09229399999999999
+      ],
+      "bone": "Root",
+      "finish": "Moltframe mechanism well",
+      "mapped": false,
+      "metal": false,
+      "color": "181922",
+      "triangles": 280
+    },
+    "Moltframe_StockSpine_04": {
+      "center": [
+        -0.643,
+        0.0,
+        0.293833
+      ],
+      "size": [
+        0.9380000000000002,
+        0.132906,
+        0.26166599999999995
+      ],
+      "bone": "Root",
+      "finish": "Moltframe turned edge",
+      "mapped": false,
+      "metal": true,
+      "color": "838DA4",
+      "triangles": 280
+    },
+    "Moltframe_StockBrace_00": {
+      "center": [
+        -0.8600000000000001,
+        0.0,
+        0.07785149999999999
+      ],
+      "size": [
+        0.5040000000000001,
+        0.128,
+        0.440297
+      ],
+      "bone": "Root",
+      "finish": "Moltframe folded graphite",
+      "mapped": true,
+      "metal": true,
+      "color": "44495E",
+      "triangles": 528
+    },
+    "Moltframe_StockBrace_02": {
+      "center": [
+        -0.8600000000000001,
+        0.0,
+        0.0728515
+      ],
+      "size": [
+        0.5040000000000001,
+        0.122,
+        0.45829699999999995
+      ],
+      "bone": "Root",
+      "finish": "Moltframe dry graphite",
+      "mapped": false,
+      "metal": true,
+      "color": "2A2F40",
+      "triangles": 584
+    },
+    "Moltframe_StockBrace_04": {
+      "center": [
+        -0.8600000000000001,
+        0.0,
+        0.0728515
+      ],
+      "size": [
+        0.5040000000000001,
+        0.104772,
+        0.45829699999999995
+      ],
+      "bone": "Root",
+      "finish": "Moltframe turned edge",
+      "mapped": false,
+      "metal": true,
+      "color": "838DA4",
+      "triangles": 176
+    },
+    "Moltframe_Barrel_00": {
+      "center": [
+        2.1285,
+        0.0,
+        0.285
+      ],
+      "size": [
+        0.9670000000000001,
+        0.106,
+        0.09937599999999999
+      ],
+      "bone": "Root",
+      "finish": "Moltframe folded graphite",
+      "mapped": true,
+      "metal": true,
+      "color": "44495E",
+      "triangles": 168
+    },
+    "Moltframe_Barrel_02": {
+      "center": [
+        1.9300000000000002,
+        0.0,
+        0.285
+      ],
+      "size": [
+        0.752,
+        0.09,
+        0.083844
+      ],
+      "bone": "Root",
+      "finish": "Moltframe dry graphite",
+      "mapped": false,
+      "metal": true,
+      "color": "2A2F40",
+      "triangles": 84
+    },
+    "Moltframe_Barrel_03": {
+      "center": [
+        2.5534999999999997,
+        0.0,
+        0.285
+      ],
+      "size": [
+        0.18699999999999983,
+        0.106,
+        0.10299
+      ],
+      "bone": "Root",
+      "finish": "Moltframe mechanism well",
+      "mapped": false,
+      "metal": false,
+      "color": "181922",
+      "triangles": 112
+    },
+    "Moltframe_Barrel_04": {
+      "center": [
+        2.543,
+        0.0,
+        0.285
+      ],
+      "size": [
+        0.20799999999999974,
+        0.106,
+        0.10299
+      ],
+      "bone": "Root",
+      "finish": "Moltframe turned edge",
+      "mapped": false,
+      "metal": true,
+      "color": "838DA4",
+      "triangles": 112
+    },
+    "Moltframe_Magazine_00": {
+      "center": [
+        0.719541,
+        0.0,
+        -0.07999999999999999
+      ],
+      "size": [
+        0.49548600000000004,
+        0.11,
+        0.554
+      ],
+      "bone": "Mag",
+      "finish": "Moltframe folded graphite",
+      "mapped": true,
+      "metal": true,
+      "color": "44495E",
+      "triangles": 712
+    },
+    "Moltframe_Magazine_01": {
+      "center": [
+        0.6971315,
+        0.0,
+        -0.09065399999999998
+      ],
+      "size": [
+        0.30322899999999997,
+        0.100102,
+        0.404846
+      ],
+      "bone": "Mag",
+      "finish": "Moltframe violet chamber",
+      "mapped": true,
+      "metal": false,
+      "color": "63258C",
+      "triangles": 120
+    },
+    "Moltframe_Magazine_02": {
+      "center": [
+        0.719,
+        0.0,
+        -0.07999999999999999
+      ],
+      "size": [
+        0.506,
+        0.11,
+        0.554
+      ],
+      "bone": "Mag",
+      "finish": "Moltframe dry graphite",
+      "mapped": false,
+      "metal": true,
+      "color": "2A2F40",
+      "triangles": 360
+    },
+    "Moltframe_Magazine_03": {
+      "center": [
+        0.7094149999999999,
+        0.0,
+        -0.07999999999999999
+      ],
+      "size": [
+        0.35749,
+        0.11,
+        0.554
+      ],
+      "bone": "Mag",
+      "finish": "Moltframe mechanism well",
+      "mapped": false,
+      "metal": false,
+      "color": "181922",
+      "triangles": 208
+    }
+  },
+  "shell_triangles": 13026
+}

@@ -1,0 +1,108 @@
+{
+  "line": "Redline",
+  "item": "Shorty",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Shorty/Shorty_RemasterV2_v05.blend",
+  "source_file_sha256": "dd258687aa58116b7ac05ed15b30993bca225a91e52c5181948e4c16308c4bc2",
+  "concept": "vault/02 Art/Skins/Redline/out/Shorty_v01.png",
+  "blend": "art-source/weapons/Skins/Redline/Shorty/v01/Shorty_Redline_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "741B2A",
+      0.68,
+      0
+    ],
+    "Panel": [
+      "33191F",
+      0.73,
+      0
+    ],
+    "Dark": [
+      "141316",
+      0.82,
+      0
+    ],
+    "Grip": [
+      "1D1B1E",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "333138",
+      0.48,
+      0.86
+    ],
+    "Accent": [
+      "4B4248",
+      0.58,
+      0.68
+    ],
+    "Neon": [
+      "A93D49",
+      0.65,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 122324,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 3,
+    "different_role_overlap_pixels": 3,
+    "conflicting_parts": [
+      "Shorty_Frame"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "7c8547e73ec62b92c2195e1c7a211a89dab71cce2a980d1ca037816ec6c0f2c4",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "actions": [
+    "Shorty_Draw",
+    "Shorty_Fire",
+    "Shorty_Inspect",
+    "Shorty_Reload",
+    "Shorty_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Shorty_CharmLoop",
+    "Shorty_ShellLower",
+    "Shorty_ShellUpper"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Redline/Shorty/v01/textures/Shorty_Color.png",
+    "Normal": "art-source/weapons/Skins/Redline/Shorty/v01/textures/Shorty_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Redline/Shorty/v01/textures/Shorty_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Redline/Shorty/v01/textures/Shorty_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "10e389055ea0f11c794e5446000f167d854f4c83588b88fdbe9442d8af77b654",
+    "Normal": "4c2e075265390497a7cca5ee488ad0257c8aad086bf7ffc399e19aa8bdbdaa0c",
+    "Roughness": "b393f0d9408454bb8b7667864587c11395d8b625152ddf0650e7f410826b65a4",
+    "Metalness": "ffb8a6f040126f56bcd018aaac9844d5dfaa7751afddbb2cd1b475c5acf41b66"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Redline",
+    "item": "Bucky"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Redline/Shorty/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

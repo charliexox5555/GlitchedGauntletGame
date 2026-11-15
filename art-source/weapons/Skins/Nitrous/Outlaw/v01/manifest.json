@@ -1,0 +1,108 @@
+{
+  "line": "Nitrous",
+  "item": "Outlaw",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Outlaw/Outlaw_RemasterV2_v05.blend",
+  "source_file_sha256": "a8b3e9fb72b144eeb33cc8d1364d30f3a2d1bacc82e8ed7669202b3e5be5268f",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Outlaw_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Outlaw/v01/Outlaw_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 122430,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "b13058c7350ebb9e9767d4acecbc62d135d0de73f7cda09ac3a64b786091fb50",
+    "geometry_and_material_slots": "03fcefd8263345fd2218c657c10121cf1266441826a90f4a71cc90128062a9e9",
+    "uv": "f175df06ea04ff057608f8fd73731be6e6075440702a406b017b3f711c7084cf",
+    "rig_and_nla": "73ec5079fa8419b7bff312a8749efe8c8052c89bf450f7964b69d476508d0dd3",
+    "actions": "065db07ff4270087352130e905b90961d1e935e8dfc6a68f8725723bd372bcb6"
+  },
+  "actions": [
+    "Outlaw_Draw",
+    "Outlaw_Fire",
+    "Outlaw_Inspect",
+    "Outlaw_Reload",
+    "Outlaw_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Outlaw_CharmLoop",
+    "Outlaw_RoundLower",
+    "Outlaw_RoundUpper",
+    "Outlaw_Scope",
+    "Outlaw_ScopeLens"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Outlaw/v01/textures/Outlaw_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Outlaw/v01/textures/Outlaw_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Outlaw/v01/textures/Outlaw_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Outlaw/v01/textures/Outlaw_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "91075d2c987fd9a4bf20b60c9beff2d2080fc9f91b88ad0f140688c674d97217",
+    "Normal": "78c89e534f6ec219bf12c32b6d0e6459dba3772ee07852545cdef20a66383304",
+    "Roughness": "e1b44283182d6da718dcdb6a74dcdb7577008bb2c633deff62ff643ca2849de9",
+    "Metalness": "5902090c7dd3fa8f7977ef9a644c8dc73da4e5d845ed37db9f37218983b4484a"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Operator"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Outlaw/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

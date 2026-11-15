@@ -1,0 +1,135 @@
+{
+  "line": "PopCircuit",
+  "item": "Bat",
+  "version": "v01",
+  "build_status": "baked and pose checked",
+  "studio_status": "pending Blender approval and runtime integration",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Bat_v01.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Bat/v01/Bat_PopCircuit_v01.blend",
+  "saved_file_verified": true,
+  "source": "Original model",
+  "review_arm_source": "art-source/viewmodel/Arms.fbx",
+  "review_arm_source_sha256": "28669534d4d27ff228af089c2055fbcb2185182adbcabd27329002963371823a",
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 104324,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "067a3b6abb4526ba55128798957a282c6184d6839fa7e617fe5f915619987611",
+    "geometry_and_material_slots": "55db46487b2585a6fe0e6eab53faf12865b3c12fddaae0191607ff0f61432d39",
+    "uv": "1ba7b3ee4b2339b3e1be2429bab1f8a29da75712e0d929899e2062af14989494",
+    "rig_and_nla": "f0c7b1f45925e1c9ba4fcc8193073ec8478b1d3b3baa948da430aa843cd9267d",
+    "actions": "0d50427c69805cc568aef21acb9e24952761067bb0d0f59a40bdfb026d3f5475"
+  },
+  "pose_checks": {
+    "Idle": {
+      "frames": 32,
+      "max_primary_drift": 0.0,
+      "max_locked_support_drift": 0,
+      "min_hand_center_separation": 1.4132324851589322,
+      "mesh_intersections": {},
+      "frames_checked": 32
+    },
+    "SlashLeft": {
+      "frames": 18,
+      "max_primary_drift": 0.0,
+      "max_locked_support_drift": 0,
+      "min_hand_center_separation": 0.7884169997575198,
+      "mesh_intersections": {},
+      "frames_checked": 18
+    },
+    "SlashRight": {
+      "frames": 18,
+      "max_primary_drift": 0.0,
+      "max_locked_support_drift": 0,
+      "min_hand_center_separation": 0.7451835367802366,
+      "mesh_intersections": {},
+      "frames_checked": 18
+    },
+    "Smash": {
+      "frames": 31,
+      "max_primary_drift": 0.0,
+      "max_locked_support_drift": 0.0,
+      "min_hand_center_separation": 0.6504145065138766,
+      "mesh_intersections": {},
+      "frames_checked": 31
+    },
+    "Inspect": {
+      "frames": 43,
+      "max_primary_drift": 0.0,
+      "max_locked_support_drift": 0,
+      "min_hand_center_separation": 1.4132324851589322,
+      "mesh_intersections": {},
+      "frames_checked": 43
+    }
+  },
+  "actions": [
+    "Bat_Idle",
+    "Bat_Inspect",
+    "Bat_SlashLeft",
+    "Bat_SlashRight",
+    "Bat_Smash"
+  ],
+  "locators": [
+    "RightGrip",
+    "LeftSupport",
+    "TrailInner",
+    "TrailOuter"
+  ],
+  "grip_anchor_local": [
+    0,
+    -0.094,
+    -0.016
+  ],
+  "support_anchor_local": [
+    0.65,
+    0.144,
+    -0.053
+  ],
+  "trail_frames": {
+    "SlashLeft": [
+      6,
+      12
+    ],
+    "SlashRight": [
+      6,
+      12
+    ]
+  },
+  "contact_frames": {
+    "SlashLeft": 9,
+    "SlashRight": 9,
+    "Smash": 16
+  },
+  "fps": 24,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Bat/v01/textures/Bat_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Bat/v01/textures/Bat_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Bat/v01/textures/Bat_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Bat/v01/textures/Bat_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "850046bc7d1ed7684c86eea6f00f9d652806ca3ee5f27330cc1b44c2fc586e90",
+    "Normal": "047e8cf39aad828623e2f80db88421ddfd4d73109ba371b13dabe135a47daa7a",
+    "Roughness": "188b8ec9027d1143894755890c64c7713fb35e7c653c6d52a184a23eba584f6c",
+    "Metalness": "b28732fc0a338504426a20cab0eec7a839301c9622e73bb3eaa71d53d1fb83b4"
+  },
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Bat/v01",
+  "next_queue_item": null,
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

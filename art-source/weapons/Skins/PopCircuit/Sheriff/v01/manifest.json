@@ -1,0 +1,108 @@
+{
+  "line": "PopCircuit",
+  "item": "Sheriff",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Sheriff/Sheriff_RemasterV2_v05.blend",
+  "source_file_sha256": "bf79df28719fa3cf51d862c255156769816f208b1ead54537be91b2e20b67d59",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Sheriff_v01.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Sheriff/v01/Sheriff_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 130449,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "actions": [
+    "Sheriff_Draw",
+    "Sheriff_Fire",
+    "Sheriff_Inspect",
+    "Sheriff_Reload",
+    "Sheriff_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Sheriff_CharmLoop",
+    "Sheriff_Cylinder",
+    "Sheriff_Rounds",
+    "Sheriff_Sights",
+    "Sheriff_Speedloader"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Sheriff/v01/textures/Sheriff_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Sheriff/v01/textures/Sheriff_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Sheriff/v01/textures/Sheriff_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Sheriff/v01/textures/Sheriff_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "ba0fa45c7e6920b0b4d7d5cc54d2bad428e18a386cf4bf59cc8e2bb5725a211f",
+    "Normal": "eb9748ace3029558058bc54b2489389eb23701a75e7c1dac906aee4d94c9db69",
+    "Roughness": "5601af1a8b14178ad5309dc8ca50b344dae8f521f46556493d34f7696178675c",
+    "Metalness": "cddbef311ff231d11ccc1e7d979e182d257916476c5d4e33bf0d5e1fbf28a152"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Classic"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Sheriff/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

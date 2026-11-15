@@ -73,3 +73,20 @@ __pycache__/
 
 # Single renders behind the weapon model sheets (the sheets themselves are kept)
 art-source/weapons/ModelSheets/panels/
+
+# Skin concept reference pictures (third-party images; never commit them)
+vault/02 Art/Skins/**/refs/
+
+# Skin lines: the ChatGPT concept boards made from those references stay local
+# too; Blender review renders and frames are regenerable (review_*.py,
+# check_flat_export.py) and run to 1.5 GB.
+vault/02 Art/Skins/**/out/
+art-source/weapons/Skins/**/review/
+
+# Licensed third-party sound libraries (paid / itch.io packs; never commit them) and their processed copies
+vault/06 Assets/NewGunSounds/
+vault/06 Assets/GunSoundEffectLibrary/
+art-source/audio/ProPack/
+
+# Owner's reference clips of other games (gun / knife feel; third-party, never commit)
+art-source/reference/feel-videos/

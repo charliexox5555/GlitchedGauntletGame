@@ -1,0 +1,90 @@
+{
+  "line": "PopCircuit",
+  "item": "Guardian",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Guardian/Guardian_RemasterV2_v05.blend",
+  "source_file_sha256": "ee55e6fa7f27728bb30e51fa2e5f3ae96122aa5cc052c58841c10b19c75b649d",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Guardian_v02.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Guardian/v01/Guardian_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 111262,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 58,
+    "different_role_overlap_pixels": 58,
+    "conflicting_parts": [
+      "Guardian_Barrel"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "f633a65fd3afe73469c925775294b9a5c58264b4a30a0258d8f52bca07172d39",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "actions": [
+    "Guardian_Draw",
+    "Guardian_Fire",
+    "Guardian_Inspect",
+    "Guardian_Reload",
+    "Guardian_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Guardian_CharmLoop",
+    "Guardian_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Guardian/v01/textures/Guardian_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Guardian/v01/textures/Guardian_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Guardian/v01/textures/Guardian_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Guardian/v01/textures/Guardian_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "33d83a82e53956d19d6e59b427c13be486f317ede6fa9a8cfdbd873226e4dd97",
+    "Normal": "257542000afe612d397b1544c107642c2153104f101e95619cdafb2abb9a4f11",
+    "Roughness": "1478ddbdbb2e1b0ef645de12115502302308f46a0f330867a75316b2aea4a780",
+    "Metalness": "d6dbe69f505b5032f279e4bd66fb7887affeb25d055ef443a81f63bc4738d9bf"
+  },
+  "saved_file_verified": true
+}

@@ -1,0 +1,434 @@
+{
+ "variant": "Giltfold Classic v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Classic",
+ "source_blend": "Classic_Giltfold_v02.blend",
+ "fbx": "Classic_Giltfold_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "CharmLoop",
+  "Frame",
+  "Grip",
+  "MagNeon",
+  "MagRelease",
+  "Magazine",
+  "Pins",
+  "Slide",
+  "SlideCatch",
+  "SlideNeon",
+  "Trigger"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [
+  {
+   "lift": "GFC_MagBoat|GF1 Paper Ivory",
+   "over": "Classic_Magazine|GF1 Ink Lacquer",
+   "faces": 4
+  }
+ ],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Barrel_01": {
+   "color": "26252D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Barrel",
+   "blender_material": "GF1 Ink Lacquer",
+   "triangles": 22,
+   "size": [
+    0.017,
+    0.0259,
+    0.0259
+   ],
+   "center": [
+    0.9885,
+    0.0,
+    0.3654
+   ]
+  },
+  "SK_Barrel_02": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Barrel",
+   "blender_material": "GF1 Pewter",
+   "triangles": 112,
+   "size": [
+    0.627,
+    0.062,
+    0.107
+   ],
+   "center": [
+    0.6835,
+    0.0,
+    0.3865
+   ]
+  },
+  "SK_Mag_01": {
+   "color": "C2B49A",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Fold Slate",
+   "triangles": 52,
+   "size": [
+    0.4576,
+    0.172,
+    0.0959
+   ],
+   "center": [
+    -0.0464,
+    0.0,
+    -0.3419
+   ]
+  },
+  "SK_Mag_02": {
+   "color": "BFD8FF",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Indicator",
+   "triangles": 24,
+   "size": [
+    0.056,
+    0.136,
+    0.009
+   ],
+   "center": [
+    -0.207,
+    0.0,
+    -0.3495
+   ]
+  },
+  "SK_Mag_03": {
+   "color": "26252D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Ink Lacquer",
+   "triangles": 188,
+   "size": [
+    0.4443,
+    0.14,
+    0.0858
+   ],
+   "center": [
+    -0.0461,
+    0.0,
+    -0.3409
+   ]
+  },
+  "SK_Mag_04": {
+   "color": "E8DAC0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Paper Ivory",
+   "triangles": 68,
+   "size": [
+    0.4576,
+    0.172,
+    0.0959
+   ],
+   "center": [
+    -0.0464,
+    0.0,
+    -0.3419
+   ]
+  },
+  "SK_Mag_05": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Pewter",
+   "triangles": 66,
+   "size": [
+    0.3817,
+    0.1,
+    0.4904
+   ],
+   "center": [
+    -0.0311,
+    0.0,
+    -0.0508
+   ]
+  },
+  "SK_Mag_06": {
+   "color": "6E737D",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Smoked Pewter Casing",
+   "triangles": 40,
+   "size": [
+    0.0868,
+    0.0412,
+    0.0476
+   ],
+   "center": [
+    -0.0316,
+    0.0,
+    0.172
+   ]
+  },
+  "SK_MagRelease_01": {
+   "color": "C9AA68",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "MagRelease",
+   "blender_material": "GF1 Champagne Foil",
+   "triangles": 80,
+   "size": [
+    0.0546,
+    0.017,
+    0.058
+   ],
+   "center": [
+    0.1961,
+    0.0685,
+    0.069
+   ]
+  },
+  "SK_Root_01": {
+   "color": "C2B49A",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Fold Slate",
+   "triangles": 98,
+   "size": [
+    1.2168,
+    0.18,
+    0.5493
+   ],
+   "center": [
+    0.3576,
+    0.0,
+    0.0046
+   ]
+  },
+  "SK_Root_02": {
+   "color": "34323B",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Grip Graphite",
+   "triangles": 48,
+   "size": [
+    0.3929,
+    0.132,
+    0.32
+   ],
+   "center": [
+    -0.0076,
+    0.0,
+    -0.085
+   ]
+  },
+  "SK_Root_03": {
+   "color": "26252D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Ink Lacquer",
+   "triangles": 750,
+   "size": [
+    1.256,
+    0.1883,
+    0.583
+   ],
+   "center": [
+    0.343,
+    0.0222,
+    -0.0045
+   ]
+  },
+  "SK_Root_04": {
+   "color": "E8DAC0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Paper Ivory",
+   "triangles": 166,
+   "size": [
+    1.238,
+    0.18,
+    0.552
+   ],
+   "center": [
+    0.347,
+    0.0,
+    0.006
+   ]
+  },
+  "SK_Root_05": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Pewter",
+   "triangles": 26,
+   "size": [
+    0.4844,
+    0.0344,
+    0.024
+   ],
+   "center": [
+    0.0218,
+    0.0847,
+    0.226
+   ]
+  },
+  "SK_Slide_01": {
+   "color": "C9AA68",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "GF1 Champagne Foil",
+   "triangles": 80,
+   "size": [
+    0.08,
+    0.1879,
+    0.028
+   ],
+   "center": [
+    0.636,
+    0.0,
+    0.416
+   ]
+  },
+  "SK_Slide_02": {
+   "color": "C2B49A",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "GF1 Fold Slate",
+   "triangles": 116,
+   "size": [
+    1.2426,
+    0.1879,
+    0.186
+   ],
+   "center": [
+    0.3747,
+    0.0,
+    0.385
+   ]
+  },
+  "SK_Slide_03": {
+   "color": "26252D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "GF1 Ink Lacquer",
+   "triangles": 391,
+   "size": [
+    1.267,
+    0.14,
+    0.2299
+   ],
+   "center": [
+    0.3665,
+    0.0,
+    0.4071
+   ]
+  },
+  "SK_Slide_04": {
+   "color": "E8DAC0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "GF1 Paper Ivory",
+   "triangles": 357,
+   "size": [
+    1.357,
+    0.18,
+    0.197
+   ],
+   "center": [
+    0.4115,
+    0.0,
+    0.3825
+   ]
+  },
+  "SK_SlideCatch_01": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "SlideCatch",
+   "blender_material": "GF1 Pewter",
+   "triangles": 104,
+   "size": [
+    0.1443,
+    0.0135,
+    0.026
+   ],
+   "center": [
+    0.3598,
+    0.0767,
+    0.249
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "C9AA68",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "GF1 Champagne Foil",
+   "triangles": 12,
+   "size": [
+    0.02,
+    0.007,
+    0.04
+   ],
+   "center": [
+    0.385,
+    0.0,
+    0.108
+   ]
+  },
+  "SK_Trigger_02": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "GF1 Pewter",
+   "triangles": 108,
+   "size": [
+    0.0431,
+    0.022,
+    0.1088
+   ],
+   "center": [
+    0.3704,
+    0.0,
+    0.1156
+   ]
+  }
+ }
+}

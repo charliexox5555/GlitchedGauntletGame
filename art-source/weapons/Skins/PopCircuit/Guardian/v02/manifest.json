@@ -1,0 +1,107 @@
+{
+  "line": "PopCircuit",
+  "item": "Guardian",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Guardian/Guardian_RemasterV2_v05.blend",
+  "source_file_sha256": "ee55e6fa7f27728bb30e51fa2e5f3ae96122aa5cc052c58841c10b19c75b649d",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Guardian_v02.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Guardian/v02/Guardian_PopCircuit_v02.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 111262,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 58,
+    "different_role_overlap_pixels": 58,
+    "conflicting_parts": [
+      "Guardian_Barrel"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "f633a65fd3afe73469c925775294b9a5c58264b4a30a0258d8f52bca07172d39",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "actions": [
+    "Guardian_Draw",
+    "Guardian_Fire",
+    "Guardian_Inspect",
+    "Guardian_Reload",
+    "Guardian_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Guardian_CharmLoop",
+    "Guardian_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Guardian/v02/textures/Guardian_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Guardian/v02/textures/Guardian_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Guardian/v02/textures/Guardian_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Guardian/v02/textures/Guardian_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "2d20c8fe3f7cbea6c164bec30059e4b66f9738656eacabe6bf53dee16c331529",
+    "Normal": "257542000afe612d397b1544c107642c2153104f101e95619cdafb2abb9a4f11",
+    "Roughness": "00e9d0c7b2aff0488de4da7ee36a932d741be6ea1f93df9d475c65043e09c184",
+    "Metalness": "ff10747234c04be4da1c3ecfb40f97309ef5517d8d96f82dad4dca5caa929a92"
+  },
+  "saved_file_verified": true,
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  },
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Vandal"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Guardian/v02"
+}

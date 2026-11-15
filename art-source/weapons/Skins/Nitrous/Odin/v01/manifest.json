@@ -1,0 +1,106 @@
+{
+  "line": "Nitrous",
+  "item": "Odin",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Odin/Odin_RemasterV2_v05.blend",
+  "source_file_sha256": "26ae474ba886cb32e0fffd6bf9a0a6a02c32cdab74ac9142ce4332771d16fe8f",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Odin_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Odin/v01/Odin_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 118703,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "3c8e7f82cfde5acde46adde901f175fc9d0df88a305c5f1965f3bb006fb51c3c",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "actions": [
+    "Odin_Draw",
+    "Odin_Fire",
+    "Odin_Inspect",
+    "Odin_Reload",
+    "Odin_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Odin_CharmLoop",
+    "Odin_FeedBelt",
+    "Odin_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Odin/v01/textures/Odin_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Odin/v01/textures/Odin_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Odin/v01/textures/Odin_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Odin/v01/textures/Odin_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "6e381b9b46d5e6aed06b03b2bcb11c0d80413a426650ee25e81dd02872a7e085",
+    "Normal": "6a2657d15a728213a11af15369f15665ea64e86deb1807ed5e5b8e78511b166b",
+    "Roughness": "c3ef3feeff5607e43e818944e8c4990ff77732bc396782f12b0111f33b2ead69",
+    "Metalness": "ca4cf9deeb49f8480ac7db7d10f9d31e5cc4741462b568a479744c7ac55d59bd"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Sheriff"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Odin/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

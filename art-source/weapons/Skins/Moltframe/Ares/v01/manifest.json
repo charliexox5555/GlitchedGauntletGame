@@ -1,0 +1,114 @@
+{
+ "variant": "Moltframe Ares v01",
+ "date": "2026-11-14",
+ "source": "Ares_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_moltframe_vandal_v04.py (shared)",
+  "tools/blender/model_moltframe_vandal_v04_parts.py (helpers)",
+  "tools/blender/model_moltframe_spectre_parts.py (retain/zcut helpers)",
+  "tools/blender/model_moltframe_ares_parts.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS -1.30..3.10 x, -0.40..0.72 z)",
+ "installer": "tools/studio/InstallMoltframeSkin.luau",
+ "replaced_stock_prefixes": [
+  "Receiver",
+  "Handguard",
+  "Barrel",
+  "Grip",
+  "Stock",
+  "Pins",
+  "Drum",
+  "Neon"
+ ],
+ "retained_stock": [
+  "Ares_Sights",
+  "Ares_ChargingHandle",
+  "Ares_Bolt",
+  "Ares_Trigger",
+  "Ares_FireSelector",
+  "Ares_CharmLoop"
+ ],
+ "roblox_fbx": "Ares_Moltframe_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 3964,
+   "vertices": 2134,
+   "size": [
+    4.307,
+    0.204,
+    0.837
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.9215,
+    0.0,
+    0.0965
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 104,
+   "vertices": 134,
+   "size": [
+    3.228,
+    0.138,
+    0.61
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.426,
+    0.0,
+    0.195
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 968,
+   "vertices": 510,
+   "size": [
+    0.503,
+    0.5492,
+    0.5766
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.8165,
+    0.0,
+    -0.0663
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 24,
+   "vertices": 36,
+   "size": [
+    0.305,
+    0.5,
+    0.144
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7925,
+    0.0,
+    -0.08
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": {
+  "atlas": [
+   "Ares_Atlas_Color.png",
+   "Ares_Atlas_Rough.png",
+   "Ares_Atlas_Metal.png"
+  ],
+  "chamber": "Ares_Chamber_Color.png"
+ }
+}

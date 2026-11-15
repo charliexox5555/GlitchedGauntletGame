@@ -1,0 +1,106 @@
+{
+  "line": "Prism",
+  "item": "Operator",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Operator/Operator_RemasterV2_v05.blend",
+  "source_file_sha256": "c7a8419c9552a21ea4377458023ad572ee098af66c40b1ecdd6dd54703a0de73",
+  "concept": "vault/02 Art/Skins/Prism/out/Operator_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Operator/v01/Operator_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 107135,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "actions": [
+    "Operator_Draw",
+    "Operator_Fire",
+    "Operator_Inspect",
+    "Operator_Reload",
+    "Operator_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Operator_CharmLoop",
+    "Operator_Scope",
+    "Operator_ScopeLens"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Operator/v01/textures/Operator_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Operator/v01/textures/Operator_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Operator/v01/textures/Operator_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Operator/v01/textures/Operator_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "6e7aaf481795b3d951c59ca2ada0477d8e40cd0cf9bbbedd782d0034266d5dfd",
+    "Normal": "79020b6081ce8410f19138b077faf37d09a8baef6ef45044824d9654174d24f4",
+    "Roughness": "180ebf96e6054b3ea0d7fc12cad2cc6e91e0c57cdecb0514ee7f696f82403f5e",
+    "Metalness": "c9f361da11ddca4ee009b2b259e7b3b18742861065779b37a59a331d9544d5a2"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Prism",
+    "item": "Knife"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Operator/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

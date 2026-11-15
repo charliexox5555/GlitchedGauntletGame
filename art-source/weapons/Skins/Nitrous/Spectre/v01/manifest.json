@@ -1,0 +1,105 @@
+{
+  "line": "Nitrous",
+  "item": "Spectre",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Spectre/Spectre_RemasterV2_v05.blend",
+  "source_file_sha256": "d55a469ad935fc74f60d58eabc378927a75c9214ac100f935437863da18474b0",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Spectre_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Spectre/v01/Spectre_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 129234,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "9bf01c6287693511fa8e7059414db4a1f0e5495e19b70d604f655985fda6be43",
+    "geometry_and_material_slots": "396890996eede2f6f9e53e13e9d44005086434cf0cf5ff09c31c4fc4166b506f",
+    "uv": "88ada9b89459108c515869c83a6d71bc485f6e8d40b7b060a8740fc2600f6574",
+    "rig_and_nla": "5976af4f194d09f3b081d31423cd10904254248faa47ba1d06cfc3e20179751a",
+    "actions": "00adf6fa18f32a04bd4f5c066ad494d14df6b9e6673e7955fc7fc03e49972838"
+  },
+  "actions": [
+    "Spectre_Draw",
+    "Spectre_Fire",
+    "Spectre_Inspect",
+    "Spectre_Reload",
+    "Spectre_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Spectre_CharmLoop",
+    "Spectre_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Spectre/v01/textures/Spectre_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Spectre/v01/textures/Spectre_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Spectre/v01/textures/Spectre_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Spectre/v01/textures/Spectre_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "646fe98c129f33470afb1eeafcf025d70a4c2160dc7f74ccf9187c84c2c4c135",
+    "Normal": "49a2177b65edcd6df7b1d1c60e429cdab4746b88c310ca8e54d2677f292cebb5",
+    "Roughness": "57d147ae553484ce5fb5551f0f5d60c937612e247eb1cf7020dd938a720cc5fa",
+    "Metalness": "5edebe1f53146bdd2ca0007a7912db80a8c2c8e842ce24160a2d187a7eecc4a1"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Stinger"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Spectre/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

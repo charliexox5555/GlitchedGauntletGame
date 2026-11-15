@@ -1,0 +1,105 @@
+{
+  "line": "Nitrous",
+  "item": "Ares",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Ares/Ares_RemasterV2_v05.blend",
+  "source_file_sha256": "dd1e0002e8fb66be4f9d459e99a13b0bc707e973b4397903a4675535b689efe1",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Ares_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Ares/v01/Ares_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 97157,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "4a407fd63239662048f84f45b7ccfad7633d35d085454008c9bdad47033a21c2",
+    "geometry_and_material_slots": "dd722a4e002dbf757966c59bacf7393771743ed2737342ac1a07f9f6419b3a9c",
+    "uv": "7646b5e9d0238e92b8409ea6ce9606ebf8679b02f6562309c0afcf245163e0db",
+    "rig_and_nla": "106dad8edb4db2f3b9572b0bbb78cabe20ee912562c10b0aba41c5460b4893fd",
+    "actions": "d6e41fef2a14ea792a91b14d097fe9ad5e75081867439c31d5aaafe098235687"
+  },
+  "actions": [
+    "Ares_Draw",
+    "Ares_Fire",
+    "Ares_Inspect",
+    "Ares_Reload",
+    "Ares_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Ares_CharmLoop",
+    "Ares_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Ares/v01/textures/Ares_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Ares/v01/textures/Ares_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Ares/v01/textures/Ares_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Ares/v01/textures/Ares_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "4d4587f43c959b5b090a7211d82d0e669787dccd61f65e6e7c38276f5ea5881a",
+    "Normal": "0eace5f7039aa891ee0d1c9b99ffa69fd0570d5313b7cc8ed2dbc5e2f264c44b",
+    "Roughness": "87c649fb96190b54b47b5bffadbba61e50c46d1c165aa7b4df84815170d2a526",
+    "Metalness": "ce8b9abc12f3f734f9e5f18ab4c3883d8d87de9c4ec3d4e0603e44a53cf7dfdc"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Odin"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Ares/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

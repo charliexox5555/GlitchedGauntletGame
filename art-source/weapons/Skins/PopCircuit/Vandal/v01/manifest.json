@@ -1,0 +1,106 @@
+{
+  "line": "PopCircuit",
+  "item": "Vandal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
+  "source_file_sha256": "c306f1916fe6270ec6fb80b325881f6c5d3cf176bf06759017e0e7e09c8f298e",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Vandal_v02.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Vandal/v01/Vandal_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 116211,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "a32703dc13dd95f383906fe6788cd99527db8ccf70ad960c177365fe7b985f3a",
+    "geometry_and_material_slots": "1893300ed9735bf663de79e01648076ab4d8d3c0772f4b1cb51bbdb02e8f2437",
+    "uv": "581b8bb66143ff83b94d123f8709ab6df50631de6cb1646ff8dd03eff4cff0c7",
+    "rig_and_nla": "aea3f9403e8f4dfbb4a31cde56b45690b93612c3e0259ed3be6189cfa0564f35",
+    "actions": "74d1161ed601abcd4537bf391613aa3690712d0b786338bfc25dae833229281a"
+  },
+  "actions": [
+    "Vandal_Draw",
+    "Vandal_Fire",
+    "Vandal_Inspect",
+    "Vandal_Reload",
+    "Vandal_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Vandal_CharmLoop",
+    "Vandal_FrontSight",
+    "Vandal_RearSight"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Vandal/v01/textures/Vandal_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Vandal/v01/textures/Vandal_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Vandal/v01/textures/Vandal_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Vandal/v01/textures/Vandal_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "34c321a3ada3c6ed248b59e6613ec7b2da1e72058dbc976ee5d6c346f1307581",
+    "Normal": "794abe346eaf1f2e04ab385541a008a0bf45525ad57fb41cb8fe0ed0db89bad3",
+    "Roughness": "be08deea226d9fa72ae4c2b5d58ba4afcfba0dc7f675347a8396e0e8607a608e",
+    "Metalness": "393ea7dafd71c905fa798537808ac30b3ef3a0aab0e6c698bee29bc6b52679cc"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Phantom"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Vandal/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

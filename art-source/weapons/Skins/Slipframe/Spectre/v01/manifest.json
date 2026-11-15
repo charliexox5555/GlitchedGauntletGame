@@ -1,0 +1,110 @@
+{
+ "variant": "Slipframe Spectre v01",
+ "date": "2026-11-14",
+ "source": "Spectre_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_slipframe_kit.py",
+  "tools/blender/model_slipframe_spectre.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.1, 1.95, -0.62, 0.62))",
+ "chamber_material": "SF1 Silver-Blue Inlay",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Spectre_Receiver",
+  "Spectre_Handguard",
+  "Spectre_Suppressor",
+  "Spectre_Sights",
+  "Spectre_Grip",
+  "Spectre_Stock",
+  "Spectre_Pins",
+  "Spectre_CharmLoop",
+  "Spectre_Mag",
+  "Spectre_ChargingHandle",
+  "Spectre_Bolt",
+  "Spectre_Trigger",
+  "Spectre_FireSelector",
+  "Spectre_Neon"
+ ],
+ "roblox_fbx": "Spectre_Slipframe_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 636,
+   "vertices": 346,
+   "size": [
+    2.2,
+    0.204,
+    0.562
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.042,
+    0.0,
+    0.181
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 8,
+   "vertices": 12,
+   "size": [
+    0.35,
+    0.179,
+    0.012
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.925,
+    0.0,
+    0.263
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 96,
+   "vertices": 54,
+   "size": [
+    0.3,
+    0.141,
+    0.48
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.63,
+    0.0,
+    -0.22
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 4,
+   "vertices": 8,
+   "size": [
+    0.135,
+    0.129,
+    0.38
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6325,
+    0.0,
+    -0.2
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Spectre_Atlas_Color.png",
+  "Spectre_Atlas_Rough.png",
+  "Spectre_Atlas_Metal.png",
+  "Spectre_Chamber_Color.png"
+ ]
+}

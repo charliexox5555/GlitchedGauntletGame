@@ -1,0 +1,106 @@
+{
+  "line": "Nitrous",
+  "item": "Operator",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Operator/Operator_RemasterV2_v05.blend",
+  "source_file_sha256": "c7a8419c9552a21ea4377458023ad572ee098af66c40b1ecdd6dd54703a0de73",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Operator_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Operator/v01/Operator_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 107135,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "actions": [
+    "Operator_Draw",
+    "Operator_Fire",
+    "Operator_Inspect",
+    "Operator_Reload",
+    "Operator_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Operator_CharmLoop",
+    "Operator_Scope",
+    "Operator_ScopeLens"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Operator/v01/textures/Operator_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Operator/v01/textures/Operator_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Operator/v01/textures/Operator_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Operator/v01/textures/Operator_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "33033a49e4a5101c9d1e2c57e670a60b992d972c430ff53cda9aab26589abbd0",
+    "Normal": "1229c57bc3a4d1d712fd5785c09aa641bf747837c097a0b5dd1fbc2e4bf2d053",
+    "Roughness": "1ccb77da420264f52b3240b346a9b7e1b87a9184447649a2be6e9dfe94e3268d",
+    "Metalness": "e7a5300bccb06df25fa51423b698d48020d20112071ecd96a31b34cb1b99e1a9"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Guardian"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Operator/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

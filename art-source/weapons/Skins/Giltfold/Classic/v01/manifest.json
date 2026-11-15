@@ -1,0 +1,56 @@
+{
+ "variant": "Giltfold Classic v01",
+ "date": "2026-11-14",
+ "source": "Classic_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py",
+  "tools/blender/model_giltfold_guns.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.35, 1.05, -0.45, 0.6))",
+ "chamber_material": "GF1 Lacquer Pattern",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Classic_Slide",
+  "Classic_SlideNeon",
+  "Classic_Barrel",
+  "Classic_Frame",
+  "Classic_Grip",
+  "Classic_Pins",
+  "Classic_CharmLoop",
+  "Classic_Magazine",
+  "Classic_MagNeon",
+  "Classic_Trigger",
+  "Classic_SlideCatch",
+  "Classic_MagRelease"
+ ],
+ "roblox_fbx": "Classic_Giltfold_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Slide_Body": {
+   "bone": "Slide",
+   "triangles": 228,
+   "vertices": 126,
+   "size": [
+    1.243,
+    0.164,
+    0.162
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3635,
+    0.0,
+    0.381
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 24,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Classic_Atlas_Color.png",
+  "Classic_Atlas_Rough.png",
+  "Classic_Atlas_Metal.png"
+ ]
+}

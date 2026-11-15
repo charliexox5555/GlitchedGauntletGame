@@ -1,0 +1,90 @@
+{
+ "variant": "Inkshift Shorty v01",
+ "date": "2026-11-14",
+ "source": "Shorty_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_inkshift_kit.py",
+  "tools/blender/model_inkshift_guns.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.3, 1.5, -0.4, 0.45))",
+ "chamber_material": "IK1 Cyan Accent",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Shorty_BarrelNeon",
+  "Shorty_Barrels",
+  "Shorty_BreechLatch",
+  "Shorty_CharmLoop",
+  "Shorty_Frame",
+  "Shorty_Grip",
+  "Shorty_Neon",
+  "Shorty_ShellLower",
+  "Shorty_ShellUpper",
+  "Shorty_Trigger"
+ ],
+ "roblox_fbx": "Shorty_Inkshift_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 252,
+   "vertices": 166,
+   "size": [
+    0.605,
+    0.204,
+    0.16
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.2175,
+    0.0,
+    0.25
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 120,
+   "vertices": 108,
+   "size": [
+    0.128,
+    0.1953,
+    0.018
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.12,
+    0.0,
+    0.3
+   ]
+  },
+  "MF_Barrels_Body": {
+   "bone": "Barrels",
+   "triangles": 140,
+   "vertices": 78,
+   "size": [
+    0.78,
+    0.2284,
+    0.315
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    1.01,
+    0.0,
+    0.1775
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 1,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Shorty_Atlas_Color.png",
+  "Shorty_Atlas_Rough.png",
+  "Shorty_Atlas_Metal.png",
+  "Shorty_Chamber_Color.png"
+ ]
+}

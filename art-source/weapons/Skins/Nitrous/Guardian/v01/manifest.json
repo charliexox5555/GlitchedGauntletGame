@@ -1,0 +1,107 @@
+{
+  "line": "Nitrous",
+  "item": "Guardian",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Guardian/Guardian_RemasterV2_v05.blend",
+  "source_file_sha256": "ee55e6fa7f27728bb30e51fa2e5f3ae96122aa5cc052c58841c10b19c75b649d",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Guardian_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Guardian/v01/Guardian_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 111262,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 58,
+    "different_role_overlap_pixels": 58,
+    "conflicting_parts": [
+      "Guardian_Barrel"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "f633a65fd3afe73469c925775294b9a5c58264b4a30a0258d8f52bca07172d39",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "actions": [
+    "Guardian_Draw",
+    "Guardian_Fire",
+    "Guardian_Inspect",
+    "Guardian_Reload",
+    "Guardian_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Guardian_CharmLoop",
+    "Guardian_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Guardian/v01/textures/Guardian_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Guardian/v01/textures/Guardian_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Guardian/v01/textures/Guardian_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Guardian/v01/textures/Guardian_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "121067f19c76aaa6654fd2a65c826996212fb6c4646f74882d6f5c3390089230",
+    "Normal": "8b7184533d81f0c8a7309578ed2cb49a3d13a0e7b61639b61a23df2d508b4429",
+    "Roughness": "654c0efd1e79167462efd169514055ccc058d9a28296b5add16a0f46f449276b",
+    "Metalness": "8ae2d0a95ea7dac766c22c48e431259dd45f2c9b3aa34b2c82a18d7e01e401f8"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Spectre"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Guardian/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

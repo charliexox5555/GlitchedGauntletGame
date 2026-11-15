@@ -1,0 +1,66 @@
+{
+  "source": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\RemasterV2\\Vandal\\Vandal_RemasterV2_v05.blend",
+  "variant": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\Skins\\Prism\\Vandal\\v01\\Vandal_Prism_v01.blend",
+  "structure_sha256": "f0ab32978d7721d264b5371eb02b4cb65dd781146d977cbfc540560af3ab664c",
+  "geometry_uv_rig_attachments_preserved": true,
+  "palette": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "actions": [
+    "Vandal_Draw",
+    "Vandal_Fire",
+    "Vandal_Inspect",
+    "Vandal_Reload",
+    "Vandal_ReloadEmpty"
+  ],
+  "textures": {
+    "Color": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\Skins\\Prism\\Vandal\\v01\\textures\\Vandal_Color.png",
+    "Normal": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\Skins\\Prism\\Vandal\\v01\\textures\\Vandal_Normal.png",
+    "Roughness": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\Skins\\Prism\\Vandal\\v01\\textures\\Vandal_Roughness.png",
+    "Metalness": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\Skins\\Prism\\Vandal\\v01\\textures\\Vandal_Metalness.png"
+  },
+  "studio": {
+    "template": "ReplicatedStorage.WeaponSkins.Prism.Vandal",
+    "installed": true,
+    "owner_visual_feedback": "Looks good; further testing deferred 2026-11-12",
+    "place_save_confirmed": false,
+    "serialized_backup_confirmed": false,
+    "pbr_parts": 32,
+    "neon_parts": 3,
+    "asset_ids_file": "textures/assets.json"
+  }
+}

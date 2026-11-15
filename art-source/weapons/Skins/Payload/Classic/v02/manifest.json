@@ -1,0 +1,89 @@
+{
+ "variant": "Payload Classic v02",
+ "date": "2026-11-14",
+ "source": "Classic_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_vandal_shell_base.py",
+  "tools/blender/model_payload_guns2.py (round two flight-hardware sculpt)"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.35, 1.05, -0.45, 0.6))",
+ "chamber_material": "PL1 Thermal Foil",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Classic_Slide",
+  "Classic_Frame",
+  "Classic_Grip",
+  "Classic_Magazine",
+  "Classic_Barrel",
+  "Classic_Trigger",
+  "Classic_SlideCatch",
+  "Classic_MagRelease",
+  "Classic_CharmLoop",
+  "Classic_MagNeon"
+ ],
+ "roblox_fbx": "Classic_Payload_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Slide_Body": {
+   "bone": "Slide",
+   "triangles": 1552,
+   "vertices": 800,
+   "size": [
+    1.1013,
+    0.1481,
+    0.0875
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3494,
+    0.0,
+    0.3988
+   ]
+  },
+  "MF_Slide_Chamber": {
+   "bone": "Slide",
+   "triangles": 1056,
+   "vertices": 536,
+   "size": [
+    0.8013,
+    0.1468,
+    0.005
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.1994,
+    0.0,
+    0.44
+   ]
+  },
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 3640,
+   "vertices": 2184,
+   "size": [
+    0.3712,
+    0.141,
+    0.3733
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    -0.0483,
+    0.0,
+    -0.0801
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 24,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Classic_Atlas_Color.png",
+  "Classic_Atlas_Rough.png",
+  "Classic_Atlas_Metal.png",
+  "Classic_Chamber_Color.png"
+ ]
+}

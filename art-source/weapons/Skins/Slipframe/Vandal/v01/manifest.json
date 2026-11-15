@@ -1,0 +1,112 @@
+{
+ "variant": "Slipframe Vandal v01",
+ "date": "2026-11-14",
+ "source": "Vandal_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_slipframe_kit.py",
+  "tools/blender/model_slipframe_vandal.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 2.7, -0.46, 0.66))",
+ "chamber_material": "SF1 Silver-Blue Inlay",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Vandal_Neon",
+  "Vandal_Receiver",
+  "Vandal_Handguard",
+  "Vandal_Rail",
+  "Vandal_RearSight",
+  "Vandal_FrontSight",
+  "Vandal_Barrel",
+  "Vandal_Grip",
+  "Vandal_Stock",
+  "Vandal_Pins",
+  "Vandal_CharmLoop",
+  "Vandal_Mag",
+  "Vandal_ChargingHandle",
+  "Vandal_Bolt",
+  "Vandal_Trigger",
+  "Vandal_FireSelector"
+ ],
+ "roblox_fbx": "Vandal_Slipframe_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 588,
+   "vertices": 318,
+   "size": [
+    2.92,
+    0.22,
+    0.575
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.22,
+    0.0,
+    0.1375
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 8,
+   "vertices": 12,
+   "size": [
+    0.662,
+    0.189,
+    0.012
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.681,
+    0.0,
+    0.185
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 104,
+   "vertices": 58,
+   "size": [
+    0.395,
+    0.137,
+    0.41
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7025,
+    0.0,
+    -0.145
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 4,
+   "vertices": 8,
+   "size": [
+    0.19,
+    0.123,
+    0.33
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.755,
+    0.0,
+    -0.135
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 30,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Vandal_Atlas_Color.png",
+  "Vandal_Atlas_Rough.png",
+  "Vandal_Atlas_Metal.png",
+  "Vandal_Chamber_Color.png"
+ ]
+}

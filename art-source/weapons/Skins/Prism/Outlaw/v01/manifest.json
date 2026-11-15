@@ -1,0 +1,108 @@
+{
+  "line": "Prism",
+  "item": "Outlaw",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Outlaw/Outlaw_RemasterV2_v05.blend",
+  "source_file_sha256": "a8b3e9fb72b144eeb33cc8d1364d30f3a2d1bacc82e8ed7669202b3e5be5268f",
+  "concept": "vault/02 Art/Skins/Prism/out/Outlaw_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Outlaw/v01/Outlaw_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 122430,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "b13058c7350ebb9e9767d4acecbc62d135d0de73f7cda09ac3a64b786091fb50",
+    "geometry_and_material_slots": "03fcefd8263345fd2218c657c10121cf1266441826a90f4a71cc90128062a9e9",
+    "uv": "f175df06ea04ff057608f8fd73731be6e6075440702a406b017b3f711c7084cf",
+    "rig_and_nla": "73ec5079fa8419b7bff312a8749efe8c8052c89bf450f7964b69d476508d0dd3",
+    "actions": "065db07ff4270087352130e905b90961d1e935e8dfc6a68f8725723bd372bcb6"
+  },
+  "actions": [
+    "Outlaw_Draw",
+    "Outlaw_Fire",
+    "Outlaw_Inspect",
+    "Outlaw_Reload",
+    "Outlaw_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Outlaw_CharmLoop",
+    "Outlaw_RoundLower",
+    "Outlaw_RoundUpper",
+    "Outlaw_Scope",
+    "Outlaw_ScopeLens"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Outlaw/v01/textures/Outlaw_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Outlaw/v01/textures/Outlaw_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Outlaw/v01/textures/Outlaw_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Outlaw/v01/textures/Outlaw_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "536f711fa2b2aed46d7a67dc5afe9d0d0666b95659543dd4bdefc30a7dcf4161",
+    "Normal": "a3bbb5980546cd4f6c011ed54613a493cf87d56492393027db98d8611e8fb629",
+    "Roughness": "45a9475eb79a8220a1fb318a4959ea68f8d35676d8b9ead1db720e27be37f55b",
+    "Metalness": "8bdb13ac1ef185617b28ec98b42bb2c9f16602c2a24224d843d8f784473ed006"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Prism",
+    "item": "Operator"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Outlaw/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

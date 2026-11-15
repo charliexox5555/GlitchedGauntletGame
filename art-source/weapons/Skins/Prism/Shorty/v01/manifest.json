@@ -1,0 +1,108 @@
+{
+  "line": "Prism",
+  "item": "Shorty",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Shorty/Shorty_RemasterV2_v05.blend",
+  "source_file_sha256": "dd258687aa58116b7ac05ed15b30993bca225a91e52c5181948e4c16308c4bc2",
+  "concept": "vault/02 Art/Skins/Prism/out/Shorty_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Shorty/v01/Shorty_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 122324,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 3,
+    "different_role_overlap_pixels": 3,
+    "conflicting_parts": [
+      "Shorty_Frame"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "7c8547e73ec62b92c2195e1c7a211a89dab71cce2a980d1ca037816ec6c0f2c4",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "actions": [
+    "Shorty_Draw",
+    "Shorty_Fire",
+    "Shorty_Inspect",
+    "Shorty_Reload",
+    "Shorty_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Shorty_CharmLoop",
+    "Shorty_ShellLower",
+    "Shorty_ShellUpper"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Shorty/v01/textures/Shorty_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Shorty/v01/textures/Shorty_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Shorty/v01/textures/Shorty_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Shorty/v01/textures/Shorty_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "1bb572636ae693841b094d5376bff50215fdf1e5c4710b685d738cb0df472ce9",
+    "Normal": "9a49da2ee256f2286b953716cb2ce80a4284af67ddfe1f859581bbe3f80351b4",
+    "Roughness": "564304368ad1db1e46d16068e591317fd2a7555c417550d58bd08ab0bc3704c0",
+    "Metalness": "eb4653f9a80616c01dcc4e92fe44c4ddc6cc6979982192ea9b166ac7b0eff637"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Prism",
+    "item": "Bucky"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Shorty/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

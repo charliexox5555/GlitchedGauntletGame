@@ -1,0 +1,76 @@
+{
+ "variant": "Payload Bulldog v01",
+ "date": "2026-11-14",
+ "source": "Bulldog_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_payload_kit.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.5, 1.5, -0.85, 0.7))",
+ "chamber_material": "PL1 Thermal Foil",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Bulldog_Barrel",
+  "Bulldog_Bolt",
+  "Bulldog_ChargingHandle",
+  "Bulldog_CharmLoop",
+  "Bulldog_FireSelector",
+  "Bulldog_Grip",
+  "Bulldog_Handguard",
+  "Bulldog_Mag",
+  "Bulldog_Neon",
+  "Bulldog_Pins",
+  "Bulldog_Receiver",
+  "Bulldog_Sights",
+  "Bulldog_Stock",
+  "Bulldog_Trigger"
+ ],
+ "roblox_fbx": "Bulldog_Payload_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 368,
+   "vertices": 214,
+   "size": [
+    2.249,
+    0.2134,
+    0.26
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    -0.0805,
+    0.0,
+    0.37
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 48,
+   "vertices": 42,
+   "size": [
+    0.152,
+    0.2088,
+    0.062
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.78,
+    0.0,
+    0.395
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Bulldog_Atlas_Color.png",
+  "Bulldog_Atlas_Rough.png",
+  "Bulldog_Atlas_Metal.png",
+  "Bulldog_Chamber_Color.png"
+ ]
+}

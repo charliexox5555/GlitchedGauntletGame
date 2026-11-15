@@ -1,0 +1,106 @@
+{
+  "line": "Redline",
+  "item": "Operator",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Operator/Operator_RemasterV2_v05.blend",
+  "source_file_sha256": "c7a8419c9552a21ea4377458023ad572ee098af66c40b1ecdd6dd54703a0de73",
+  "concept": "vault/02 Art/Skins/Redline/out/Operator_v01.png",
+  "blend": "art-source/weapons/Skins/Redline/Operator/v01/Operator_Redline_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "741B2A",
+      0.68,
+      0
+    ],
+    "Panel": [
+      "33191F",
+      0.73,
+      0
+    ],
+    "Dark": [
+      "141316",
+      0.82,
+      0
+    ],
+    "Grip": [
+      "1D1B1E",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "333138",
+      0.48,
+      0.86
+    ],
+    "Accent": [
+      "4B4248",
+      0.58,
+      0.68
+    ],
+    "Neon": [
+      "A93D49",
+      0.65,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 107135,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "actions": [
+    "Operator_Draw",
+    "Operator_Fire",
+    "Operator_Inspect",
+    "Operator_Reload",
+    "Operator_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Operator_CharmLoop",
+    "Operator_Scope",
+    "Operator_ScopeLens"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Redline/Operator/v01/textures/Operator_Color.png",
+    "Normal": "art-source/weapons/Skins/Redline/Operator/v01/textures/Operator_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Redline/Operator/v01/textures/Operator_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Redline/Operator/v01/textures/Operator_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "7a39dd0c0e9d30ec989955eb98e676da6a896254f5bc87368c7c76774cca7cbd",
+    "Normal": "db348b56e0a8cc65bdaa639d6af1e8555d3e8c92c8b566b2b51bc1da59fbf8e4",
+    "Roughness": "c59eca1a0e6de9b654b6e9c5d53dc760a091e406097045309595a50693ee9566",
+    "Metalness": "b9bd77a1d1db6e1350cd31f8337cd4720ee45dee16255935b52d423ae6dbd14e"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Redline",
+    "item": "Knife"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Redline/Operator/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

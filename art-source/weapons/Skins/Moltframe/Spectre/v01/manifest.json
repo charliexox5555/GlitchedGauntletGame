@@ -1,0 +1,113 @@
+{
+ "variant": "Moltframe Spectre v01",
+ "date": "2026-11-14",
+ "source": "Spectre_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_moltframe_vandal_v04.py (shared)",
+  "tools/blender/model_moltframe_vandal_v04_parts.py (helpers)",
+  "tools/blender/model_moltframe_spectre_parts.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS -1.10..1.95 x, -0.62..0.62 z)",
+ "installer": "tools/studio/InstallMoltframeSkin.luau",
+ "replaced_stock_prefixes": [
+  "Receiver",
+  "Handguard",
+  "Grip",
+  "Stock",
+  "Mag",
+  "Neon"
+ ],
+ "retained_stock": [
+  "Spectre_Sights",
+  "Spectre_Suppressor",
+  "Spectre_Pins",
+  "Spectre_ChargingHandle",
+  "Spectre_Bolt",
+  "Spectre_Trigger",
+  "Spectre_FireSelector",
+  "Spectre_CharmLoop"
+ ],
+ "roblox_fbx": "Spectre_Moltframe_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 3786,
+   "vertices": 2023,
+   "size": [
+    2.287,
+    0.198,
+    0.7491
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.0765,
+    0.0,
+    0.0954
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 82,
+   "vertices": 120,
+   "size": [
+    2.192,
+    0.165,
+    0.548
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.064,
+    0.0,
+    0.182
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 568,
+   "vertices": 308,
+   "size": [
+    0.426,
+    0.118,
+    0.722
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.655,
+    0.0,
+    -0.221
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 28,
+   "vertices": 32,
+   "size": [
+    0.2372,
+    0.084,
+    0.4935
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6433,
+    0.0,
+    -0.2203
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": {
+  "atlas": [
+   "Spectre_Atlas_Color.png",
+   "Spectre_Atlas_Rough.png",
+   "Spectre_Atlas_Metal.png"
+  ],
+  "chamber": "Spectre_Chamber_Color.png"
+ }
+}

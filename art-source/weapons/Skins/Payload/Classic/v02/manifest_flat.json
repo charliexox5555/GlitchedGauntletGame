@@ -1,0 +1,390 @@
+{
+ "variant": "Payload Classic v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Classic",
+ "source_blend": "Classic_Payload_v02.blend",
+ "fbx": "Classic_Payload_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "CharmLoop",
+  "Frame",
+  "Grip",
+  "MagNeon",
+  "MagRelease",
+  "Magazine",
+  "Pins",
+  "Slide",
+  "SlideCatch",
+  "SlideNeon",
+  "Trigger"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Barrel_01": {
+   "color": "20262E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Barrel",
+   "blender_material": "PL1 Graphite",
+   "triangles": 22,
+   "size": [
+    0.017,
+    0.0259,
+    0.0259
+   ],
+   "center": [
+    0.9885,
+    0.0,
+    0.3654
+   ]
+  },
+  "SK_Barrel_02": {
+   "color": "6C7784",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Barrel",
+   "blender_material": "PL1 Smoked Steel",
+   "triangles": 112,
+   "size": [
+    0.627,
+    0.062,
+    0.107
+   ],
+   "center": [
+    0.6835,
+    0.0,
+    0.3865
+   ]
+  },
+  "SK_Mag_01": {
+   "color": "9C8A5E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "PL1 Casing",
+   "triangles": 40,
+   "size": [
+    0.0868,
+    0.0412,
+    0.0476
+   ],
+   "center": [
+    -0.0316,
+    0.0,
+    0.172
+   ]
+  },
+  "SK_Mag_02": {
+   "color": "20262E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "PL1 Graphite",
+   "triangles": 188,
+   "size": [
+    0.4443,
+    0.14,
+    0.0858
+   ],
+   "center": [
+    -0.0461,
+    0.0,
+    -0.3409
+   ]
+  },
+  "SK_Mag_03": {
+   "color": "8FC4FF",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "PL1 Indicator",
+   "triangles": 24,
+   "size": [
+    0.056,
+    0.136,
+    0.009
+   ],
+   "center": [
+    -0.207,
+    0.0,
+    -0.3495
+   ]
+  },
+  "SK_Mag_04": {
+   "color": "6C7784",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "PL1 Smoked Steel",
+   "triangles": 66,
+   "size": [
+    0.3817,
+    0.1,
+    0.4904
+   ],
+   "center": [
+    -0.0311,
+    0.0,
+    -0.0508
+   ]
+  },
+  "SK_MagRelease_01": {
+   "color": "2E67B2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "MagRelease",
+   "blender_material": "PL1 Mission Blue",
+   "triangles": 80,
+   "size": [
+    0.0546,
+    0.017,
+    0.058
+   ],
+   "center": [
+    0.1961,
+    0.0685,
+    0.069
+   ]
+  },
+  "SK_Root_01": {
+   "color": "A8B4C2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Bevel Grey",
+   "triangles": 1456,
+   "size": [
+    0.3712,
+    0.141,
+    0.3733
+   ],
+   "center": [
+    -0.0483,
+    0.0,
+    -0.0801
+   ]
+  },
+  "SK_Root_02": {
+   "color": "20262E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Graphite",
+   "triangles": 2934,
+   "size": [
+    1.256,
+    0.1883,
+    0.583
+   ],
+   "center": [
+    0.343,
+    0.0222,
+    -0.0045
+   ]
+  },
+  "SK_Root_03": {
+   "color": "6C7784",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "PL1 Smoked Steel",
+   "triangles": 26,
+   "size": [
+    0.4844,
+    0.0344,
+    0.024
+   ],
+   "center": [
+    0.0218,
+    0.0847,
+    0.226
+   ]
+  },
+  "SK_Root_04": {
+   "color": "22272E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": "Payload_Carbon",
+   "bone": "Root",
+   "blender_material": "PL2 Carbon Twill",
+   "triangles": 48,
+   "size": [
+    0.3929,
+    0.132,
+    0.32
+   ],
+   "center": [
+    -0.0076,
+    0.0,
+    -0.085
+   ]
+  },
+  "SK_Slide_01": {
+   "color": "A8B4C2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "PL1 Bevel Grey",
+   "triangles": 48,
+   "size": [
+    1.1013,
+    0.1481,
+    0.0875
+   ],
+   "center": [
+    0.3494,
+    0.0,
+    0.3988
+   ]
+  },
+  "SK_Slide_02": {
+   "color": "E2E7ED",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "PL1 Flight White",
+   "triangles": 239,
+   "size": [
+    1.267,
+    0.14,
+    0.197
+   ],
+   "center": [
+    0.3665,
+    0.0,
+    0.3825
+   ]
+  },
+  "SK_Slide_03": {
+   "color": "20262E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "PL1 Graphite",
+   "triangles": 391,
+   "size": [
+    1.267,
+    0.14,
+    0.2299
+   ],
+   "center": [
+    0.3665,
+    0.0,
+    0.4071
+   ]
+  },
+  "SK_Slide_04": {
+   "color": "2E67B2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "PL1 Mission Blue",
+   "triangles": 48,
+   "size": [
+    0.023,
+    0.145,
+    0.03
+   ],
+   "center": [
+    0.7115,
+    0.0,
+    0.415
+   ]
+  },
+  "SK_Slide_05": {
+   "color": "C89B49",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": "Payload_Foil",
+   "bone": "Slide",
+   "blender_material": "PL1 Thermal Foil",
+   "triangles": 1056,
+   "size": [
+    0.8013,
+    0.1468,
+    0.005
+   ],
+   "center": [
+    0.1994,
+    0.0,
+    0.44
+   ]
+  },
+  "SK_Slide_06": {
+   "color": "3E8BFF",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Slide",
+   "blender_material": "PL2 Blue Tube",
+   "triangles": 1456,
+   "size": [
+    1.1,
+    0.1481,
+    0.01
+   ],
+   "center": [
+    0.35,
+    0.0,
+    0.36
+   ]
+  },
+  "SK_SlideCatch_01": {
+   "color": "6C7784",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "SlideCatch",
+   "blender_material": "PL1 Smoked Steel",
+   "triangles": 104,
+   "size": [
+    0.1443,
+    0.0135,
+    0.026
+   ],
+   "center": [
+    0.3598,
+    0.0767,
+    0.249
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "2E67B2",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "PL1 Mission Blue",
+   "triangles": 120,
+   "size": [
+    0.0461,
+    0.022,
+    0.1088
+   ],
+   "center": [
+    0.3719,
+    0.0,
+    0.1156
+   ]
+  }
+ }
+}

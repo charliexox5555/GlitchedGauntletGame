@@ -1,0 +1,176 @@
+{
+  "stock_bounds": [
+    [
+      -1.252,
+      -0.104,
+      -0.404057
+    ],
+    [
+      2.647,
+      0.128,
+      0.634864
+    ]
+  ],
+  "skin_bounds": [
+    [
+      -1.252,
+      -0.104,
+      -0.404057
+    ],
+    [
+      2.647,
+      0.128513,
+      0.634864
+    ]
+  ],
+  "shell_bounds": [
+    [
+      0.022,
+      0.06,
+      0.183991
+    ],
+    [
+      1.662,
+      0.128513,
+      0.421886
+    ]
+  ],
+  "shell_meshes": [
+    [
+      "Moltframe_Aft",
+      270
+    ],
+    [
+      "Moltframe_Mid",
+      270
+    ],
+    [
+      "Moltframe_Fore",
+      270
+    ],
+    [
+      "Moltframe_Seat",
+      240
+    ],
+    [
+      "Moltframe_Inset",
+      288
+    ],
+    [
+      "Moltframe_Lip",
+      432
+    ]
+  ],
+  "actions": [
+    "Vandal_Draw.001",
+    "Vandal_Fire.001",
+    "Vandal_Inspect.001",
+    "Vandal_Reload.001",
+    "Vandal_ReloadEmpty.001"
+  ],
+  "output": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\Skins\\Moltframe\\Vandal\\v01",
+  "clearance": {
+    "Fire": {
+      "frames": 12,
+      "intersections": {}
+    },
+    "Inspect": {
+      "frames": 67,
+      "intersections": {}
+    },
+    "Reload": {
+      "frames": 97,
+      "intersections": {}
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "intersections": {}
+    }
+  },
+  "shell_parts": {
+    "Moltframe_Aft": {
+      "center": [
+        0.436,
+        0.10470600000000001,
+        0.3839355
+      ],
+      "size": [
+        0.828,
+        0.04366600000000001,
+        0.075901
+      ],
+      "finish": "Moltframe folded graphite",
+      "triangles": 540
+    },
+    "Moltframe_Mid": {
+      "center": [
+        1.036,
+        0.10722799999999999,
+        0.371018
+      ],
+      "size": [
+        0.746,
+        0.04256999999999998,
+        0.08736
+      ],
+      "finish": "Moltframe folded graphite",
+      "triangles": 540
+    },
+    "Moltframe_Fore": {
+      "center": [
+        1.385,
+        0.093653,
+        0.347419
+      ],
+      "size": [
+        0.5539999999999998,
+        0.067306,
+        0.112838
+      ],
+      "finish": "Moltframe folded graphite",
+      "triangles": 540
+    },
+    "Moltframe_Seat": {
+      "center": [
+        0.862,
+        0.10109499999999999,
+        0.2569065
+      ],
+      "size": [
+        1.43,
+        0.026190000000000005,
+        0.11783099999999999
+      ],
+      "finish": "Moltframe recessed gasket",
+      "triangles": 480
+    },
+    "Moltframe_Inset": {
+      "center": [
+        0.862,
+        0.10988,
+        0.256907
+      ],
+      "size": [
+        1.43,
+        0.02461999999999999,
+        0.10582999999999998
+      ],
+      "finish": "Moltframe violet chamber",
+      "triangles": 576
+    },
+    "Moltframe_Lip": {
+      "center": [
+        0.862,
+        0.105095,
+        0.2224955
+      ],
+      "size": [
+        1.43,
+        0.03419,
+        0.07700900000000002
+      ],
+      "finish": "Moltframe folded graphite",
+      "triangles": 864
+    }
+  }
+}

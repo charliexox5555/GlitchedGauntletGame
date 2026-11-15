@@ -19,12 +19,14 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Abilities/Upgrade Paths.md` (11): L2/L3 paths A/B/Glitch for all 9 abilities
 - `01 Design/Bots.md` (23): AI bots: seats, brain, perception, aim, Mods, tuning
 - `01 Design/Match Avatar.md` (11): the standard body for players, bots and dummies
+- `01 Design/Third Person Overhaul.md` (19): 2026-11-12, built: why players weren't posed (Server Authority off), the block body and how its clothing is drawn, the accessory rule, the 40 re-authored clips and the `tools/anim` rig, per-gun findings; §7 second pass: research links, Toolbox findings, the jitter measurement, rifle stance, spring recoil, self-grade, what is not verified
 - `01 Design/Match HUD.md` (22): match HUD layout, v1 revert, phone arrangement
 - `01 Design/Lobby.md` (14): Lobby place design (Sunwell Bunker, compact, wings, queue)
 - `01 Design/Lobby UI and Queue.md` (59): Lobby HUD, Play menu, queue rules, Figma frames; grep sections
 - `01 Design/Lobby UI Image Prompts.md` (4), `01 Design/Range Brainstorm.md` (4): image prompts; range ideas (not built)
 - `01 Design/Archive/Gauntlet_Weapon_Modeling_Briefs.md` (105): sixteen gun-companion modelling briefs (archived); never read whole
 - `01 Design/Maps/00 Maps.md` (9): map roster, rules, symmetry, lineup of 8
+- `01 Design/Maps/Jump Audit 2026-11-13.md` (8): every map checked against the 4.4 jump (measured reach: ledge 7.5, gap 9 at sprint); owner chose keep the jump, fix the maps: Dockyard got 4 step crates, nothing else was a designed loss
 - `01 Design/Maps/Map Quality Standard.md` (22): the bar for every map rebuild: pipeline, hard rules, audits, blind score ≥ 8.5
 - `01 Design/Maps/<Name>.md` and `<Name>2.md`: layout, callouts, props and build log per map. Original: Whitebox (15), Big Whitebox (2), Rooftops (19), Dockyard (21), Metro (24), Old Town (26), Bunker (24), Greenhouse (19), Snowpeak Lodge (20). Rebuilds to the standard: Rooftops2 (94), Dockyard2 (75), Metro2 (33), OldTown2 (10), Bunker2 (14), Greenhouse2 (25), Snowpeak2 (15)
 
@@ -33,17 +35,38 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/UI Design.md` (13): UI look, tokens, type, Figma screens (v1 approved)
 - `02 Art/UI Art Brief (ChatGPT).md` (3): UI art made with ChatGPT images
 - `02 Art/Style Bible.md` (8): **the whole look and feel on one page** (pillars, models, guns, feedback/VFX, sound, UI); start here for anything players see or hear
+- `02 Art/UI Overhaul Research.md` (27): **UI overhaul phase 1** (2026-11-14): current Lobby and match UI review (captures, measured), 5 references, Studio-built ScreenGui hierarchy, Scale vs Offset, text sizing (measured TextScaled tests), what to build first
+- `02 Art/UI Top Bar Draft.md` (12): **match top bar** (2026-11-14): v2 built in Studio (team blocks, headshots, scores, stopwatch timer, motion), the owner calls that led there, where it lives; Figma draft 1 below
+- `02 Art/UI Draft Screen.md` (3): **draft screen redesign** mockup (2026-11-14): two numbered steps, one selection rule, upgrade paths as equal tiles, glitch as a magenta tile
+- `02 Art/UI Feed and Spectate.md` (2): **kill feed, ELIMINATED, killed-by and spectate** redesign in the match UI style: mockup v1 in Studio (2026-11-14)
+- `02 Art/UI Notifications.md` (4): **match notifications** (long band under the top bar, match point, no 3-2-1) and the de-AI pass on the HUD (2026-11-14)
+- `02 Art/UI Combat HUD Mockup.md` (5): **health, ammo and Mod slots mockup** (2026-11-14) in the top bar style; states board, design, open questions
 - `02 Art/UI Theme v4 Soft Edge.md` (9): **UI theme direction v4.1** (2026-11-12): plates with one cut, HUD on fades, circles, Sarpanch + Titillium Web, motion, layouts, mobile, Figma boards, owner questions
 - `02 Art/Model Style Interview.md` (4): the owner's modelling rules (no curves/spheres, carved ends), the reference-screenshot interview question bank, design methods
 - `02 Art/Lobby Style Guide.md` (8): the stylized grounded look, written for rebuilding maps in it
 - `02 Art/Lobby V3 Rebuild.md` (11): the current Lobby rebuild (2026-11): owner's notes, rules, layout, audit, self-review, steps
 - `02 Art/Sunwell Works Build.md` (9): the Sunwell Works build in Studio: hall, Locker, Shop, Duels staging, checks, pipeline, rollback (the style rules from it are the project skill `.claude/skills/gauntlet-build-style`)
+- `02 Art/Sunwell Hub Upgrade.md` (15): the hub hall's sixth pass (2026-11-12): Sun Well, sun ring, boards, pipe racks, turbine, story props, floor route cues, four blind review rounds (median 6.7, stop rule), next list
 - `02 Art/Sunwell Lobby Reference Pack.md` and `Sunwell Lobby Fable Prompt.md`: new lobby layout, image gallery, Roblox research, Studio captures and phase-one build brief
 - `02 Art/Lobby Art Plan.md` (29), `Lobby Kit.md` (15), `Lobby Rebuild 2026-11-04.md` (33), `Lobby Professional Pass.md` (3): Lobby art plan, Blender kit, rebuild log, review pass
 - `02 Art/Mod Props.md` (8), `02 Art/Mod Audio.md` (18): Mod models; Mod sound shortlist (unauditioned)
+- `02 Art/Sound Library Pick.md` (23): the bought pro gun sound pack (418 files) measured; picks per gun (shots, auto sets, reload parts), knife / hit / Mod candidates, processing and code plan, audition reel `art-source/audio/ProPack/PickReel.wav`
+- `05 Production/Handoff - Gun and Knife Feel from Videos.md` (6): brief for the session that studies the owner's gun / knife clips (video-analyzer): what to measure, where it lives in code, lanes, rules, done-when
+- `05 Production/Handoff - Feel Polish (Fable).md` (20): the next session's brief after the feel-videos passes: owner's taste and verdicts, the clips and their numbers, what exists (knife solver + pipeline, rigid fist + wrist, PCHIP tracks, toss, gun snap, Sheriff cylinder roll), how to test, the queue (knife polish, guns, Sheriff, Bat, headshot / crosshair / head flare)
+- `05 Production/Handoff - Gun Sounds Full Length (Codex).md` (7): brief for Codex: semi-auto shots are capped short in the atlas build (pistol 1.5 to 1.0 s, rifle 2.19 to 1.6, shotgun 2.66 to 1.6), so they sound dull; restore full length, audit every gun sound, listening tools, upload quota
+- `03 Research/Animation Flow and Feel Research (2026-11-14).md` (29): why our knife reads blocky and staged (PCHIP stops at pose keys, dead holds) and how to fix it; RIVALS' inspect frame by frame; LihFolk + published sources (Overwatch GDC 2017, Holden springs and inertialization, Gears of War 4, Rosen, Riot clarity and hit registration); looks good / bad; a checklist for every animation change
 - `02 Art/Archive/Gun Batch Prompt.md` (11), `02 Art/Archive/AI 3D Prompts.md` (13): old prompts for batch gun modelling and AI 3D tools (archived)
 - `02 Art/References/` : reference images (some third-party, not committed); `.../SOURCES.md` lists them
 - `02 Art/Skins/README.md` (4): how a skin line goes from idea to ChatGPT concept sheets: folder per line (`concept.md`, `prompt.md`, `refs/`, `out/`), the rules a skin must follow; `_Template/` to copy
+
+- `02 Art/Skins/Sol Roster Handoff.md`: execute remaining 70 skin assets in Blender while owner is away; Studio deferred while Claude uses it
+- `02 Art/Skins/Prism/Build Ledger.md`: saved Prism Vandal v01, approved texture IDs, selector, completed checks and Studio save/testing gaps
+- `02 Art/Skins/Blender Review.md`: roster completion table, Blender contact sheets, Bat pose review, checks, and Studio handoff
+- `02 Art/Skins/First-Person Melee Animation.md`: Bat grip, swings, two-handed smash and toss inspect, plus the stock Knife grip correction
+- `02 Art/Skins/{Redline,Nitrous,PopCircuit}/Build Ledger.md`: per-line Blender files, texture sets, manifests and next steps
+- `02 Art/Skins/Skin Build Pitfalls.md` (6): every skin problem the owner found (gaps, z-fighting, sights fading on ADS, textures showing through hidden parts, blunt outlines), cause, fix, and the check that catches it
+- `02 Art/Skins/Structural Skin Round One Results.md`: all 36 structural skins (6 lines) built in Blender 2026-11-14, grades, checks, Studio pass to do
+- `02 Art/Skins/{Moltframe,Slipframe,Giltfold,Inkshift,Sealwork,Payload}/Build Ledger.md`: per-item files, build, measured checks, grade and open checks for each structural line
 
 ## Tech (04 Tech)
 - `04 Tech/Mod System.md` (36): how Mods are built: data, server, predicted simulation, stages, Mod HUD/VFX/audio
@@ -55,6 +78,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 
 ## Production (05 Production)
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
+- `05 Production/Handoff - Grades to 9-10.md` (5): the lanes left to bring every animation and gunplay grade to 9-10 (2026-11-13), shared rules for parallel sessions
 - `05 Production/Match Structure Revamp.md` (21): Release 1 match flow plan, phases A–D, as built
 - `05 Production/Weapon RemasterV2.md` (6): Opus weapon rebuild via live Blender MCP; all 18 v03 guns imported into Studio 2026-11-08, first-person pass, F6 gun review mode
 - `05 Production/Weapon Final Pass 2026-11-11.md` (7): final gun pass before skins: new sight family, see-through and floating test, charm ring, nickel accent, v05 files, model sheets for ChatGPT
@@ -64,7 +88,8 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Bugs & Ideas.md` (4): bug and idea capture, parked ideas
 - `05 Production/LihFolk Gap Review 2026-11-05.md` (20): LihFolk advice the game isn't using yet, ranked
 - `05 Production/Daily Log/YYYY-MM-DD.md`: one note per work day (only 2026-10-26 so far)
-- `05 Production/Playtests/`: one note per playtest/review; newest are `2026-11-10 Gunplay Feel Pass 2.md` (7: pistol hold, sprint swing, aimed strafe lean, arm follow-through, tap slide, new tracers and stylised flash; results table and test list), `2026-11-09 Hit and Shot Feel.md` (10: hit / headshot / kill sounds and ladder, shot punch, the designed-gun prototype from GDC 2016, next steps), `2026-11-08 Gun Sound Overhaul.md` (11: gun SFX library catalogue and licence, per-gun sound themes, every action's sound, levels, what to test), `2026-11-07 Match Revamp Phase A..D.md` (2 each: what was tested, results), `2026-11-06 Overnight Maps Approval.md` (5: per-map scores and asks), `2026-11-05 Evening Review.md` (4: user verdict: maps too simple, HUD v1), `2026-11-05 Maps v3/v4 Review.md` (2 each), `2026-11-05 Morning Test Checklist.md` (4), `2026-11-05 Knife and Sound Pass.md` (65), `2026-11-04 Animation and Knife Pass.md` (21), `2026-11-04 Gunplay Feel Pass 1.md` (4), `2026-11-04 Lobby Professional Pass.md` (4), `2026-11-03 Ability Upgrades Overnight.md` (5), `2026-11-03 Draft Columns.md` (2), `2026-11-02 Match Flow First Run.md` (4), `2026-11-02 Whitebox First Walk.md` (2), `Mods Overnight Checklist.md` (16), `2026-10-26/27 Gun Feedback Round 2/3.md` (12 / 5)
+- `05 Production/Playtests/2026-11-14 Full-Length Gun Audio.md`: match-range roster checks, full Vandal tail and 70-shot positional overlap, hit and metallic headshot playback.
+- `05 Production/Playtests/`: one note per playtest/review; newest are `2026-11-14 Gun and Knife Feel from Videos.md` (14: the owner's clips measured at 60 fps; knife rebuilt RIVALS-style with a rigid fist, spline motion, toss pull-out; gun snap kick, calmer camera, Sheriff cylinder roll; hit notes for lane F; captures in `2026-11-14 feel captures/`; grades, test list), `2026-11-13 Shot Feel Pass 5.md` (7: lane B, shot satisfaction per class: camera kick timing, look-only view punch, aimed kick, burst release, Sheriff and shell-loop reloads; before / after tables, grades), `2026-11-13 First-Person Feel Pass 4.md` (7: lane B, reload / draw / inspect re-keyed with anticipation and overshoot, beats aligned to each gun's clip, MagIn timing bug, run limp fixed (bob pivot), spray texture; before / after numbers, grades, test list), `2026-11-13 Hit Feedback Pass.md` (8: lane F, hit markers, white→red whole-body flash (limb-mesh bug fixed), slash, headshot flash pop and orange highlight (revised after the owner's first look), kill flash on the death copy; timings, cost, grades, test list), `2026-11-12 Gunplay Feel Pass 3.md` (5: spray kick follows the recoil, jump / fall / crouch motion, run step shape, knife hold, stab and inspect; what is not done; test list), `2026-11-10 Gunplay Feel Pass 2.md` (7: pistol hold, sprint swing, aimed strafe lean, arm follow-through, tap slide, new tracers and stylised flash; results table and test list), `2026-11-09 Hit and Shot Feel.md` (10: hit / headshot / kill sounds and ladder, shot punch, the designed-gun prototype from GDC 2016, next steps), `2026-11-08 Gun Sound Overhaul.md` (11: gun SFX library catalogue and licence, per-gun sound themes, every action's sound, levels, what to test), `2026-11-07 Match Revamp Phase A..D.md` (2 each: what was tested, results), `2026-11-06 Overnight Maps Approval.md` (5: per-map scores and asks), `2026-11-05 Evening Review.md` (4: user verdict: maps too simple, HUD v1), `2026-11-05 Maps v3/v4 Review.md` (2 each), `2026-11-05 Morning Test Checklist.md` (4), `2026-11-05 Knife and Sound Pass.md` (65), `2026-11-04 Animation and Knife Pass.md` (21), `2026-11-04 Gunplay Feel Pass 1.md` (4), `2026-11-04 Lobby Professional Pass.md` (4), `2026-11-03 Ability Upgrades Overnight.md` (5), `2026-11-03 Draft Columns.md` (2), `2026-11-02 Match Flow First Run.md` (4), `2026-11-02 Whitebox First Walk.md` (2), `Mods Overnight Checklist.md` (16), `2026-10-26/27 Gun Feedback Round 2/3.md` (12 / 5)
 
 ## Research (03 Research): only when a decision needs the "why"
 - `03 Research/Design Research Report.md` (62): shooters, draft design, matchmaking, tech, money, risks

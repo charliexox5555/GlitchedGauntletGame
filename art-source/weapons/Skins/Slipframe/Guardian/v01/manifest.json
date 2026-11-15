@@ -1,0 +1,112 @@
+{
+ "variant": "Slipframe Guardian v01",
+ "date": "2026-11-14",
+ "source": "Guardian_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_slipframe_kit.py",
+  "tools/blender/model_slipframe_guardian.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 3.05, -0.35, 0.6))",
+ "chamber_material": "SF1 Silver-Blue Inlay",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [
+  "Receiver",
+  "Handguard",
+  "Stock",
+  "Pins",
+  "Neon"
+ ],
+ "retained_stock": [
+  "Guardian_Sights",
+  "Guardian_Barrel",
+  "Guardian_Grip",
+  "Guardian_BoltCatch",
+  "Guardian_CharmLoop",
+  "Guardian_Mag",
+  "Guardian_ChargingHandle",
+  "Guardian_Bolt",
+  "Guardian_Trigger",
+  "Guardian_FireSelector"
+ ],
+ "roblox_fbx": "Guardian_Slipframe_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 1936,
+   "vertices": 1068,
+   "size": [
+    3.6,
+    0.204,
+    0.614
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.555,
+    0.0,
+    0.141
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 8,
+   "vertices": 12,
+   "size": [
+    1.29,
+    0.175,
+    0.019
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    1.583,
+    0.0,
+    0.2155
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 92,
+   "vertices": 52,
+   "size": [
+    0.274,
+    0.141,
+    0.235
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.645,
+    0.0,
+    -0.0475
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 4,
+   "vertices": 8,
+   "size": [
+    0.026,
+    0.127,
+    0.18
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.725,
+    0.0,
+    -0.045
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Guardian_Atlas_Color.png",
+  "Guardian_Atlas_Rough.png",
+  "Guardian_Atlas_Metal.png",
+  "Guardian_Chamber_Color.png"
+ ]
+}

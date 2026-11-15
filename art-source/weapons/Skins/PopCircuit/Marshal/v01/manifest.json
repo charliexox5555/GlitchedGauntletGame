@@ -1,0 +1,110 @@
+{
+  "line": "PopCircuit",
+  "item": "Marshal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Marshal/Marshal_RemasterV2_v05.blend",
+  "source_file_sha256": "979997d2b7cc6060f8893788f324b79e9a5bfa5e3fbe0b1f0adf39e3ed8572c3",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Marshal_v03.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Marshal/v01/Marshal_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 120724,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 5,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "347c0a151c70cac110aaa82bda86685e16051e2cf6f2ec429020bd52b550add9",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "actions": [
+    "Marshal_Draw",
+    "Marshal_Fire",
+    "Marshal_Inspect",
+    "Marshal_Reload",
+    "Marshal_ReloadEmpty",
+    "Marshal_ReloadEnd",
+    "Marshal_ReloadInsert",
+    "Marshal_ReloadStart"
+  ],
+  "protected_objects": [
+    "Marshal_CharmLoop",
+    "Marshal_Scope",
+    "Marshal_ScopeLens",
+    "Marshal_Shell"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Marshal/v01/textures/Marshal_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Marshal/v01/textures/Marshal_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Marshal/v01/textures/Marshal_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Marshal/v01/textures/Marshal_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "607753e9ce448762a34e837eb2ca38ff0820a9a1e18bfff10031f6a1d170dd84",
+    "Normal": "7b9acce54f25ba5848d1d0afbd09d9595befe1a9a85cdb5df3e2d23a47de162d",
+    "Roughness": "1e460fae341e04c39b6b9a7869ca620cae1e5aea2fc00183ec69d179f7f282ff",
+    "Metalness": "d8314b5d28268b208dfffe0b9159e8304522b1035565df76291e6f43739b19fd"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Outlaw"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Marshal/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

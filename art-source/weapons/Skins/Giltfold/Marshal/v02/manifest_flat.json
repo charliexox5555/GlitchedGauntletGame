@@ -1,0 +1,271 @@
+{
+ "variant": "Giltfold Marshal v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Marshal",
+ "source_blend": "Marshal_Giltfold_v02.blend",
+ "fbx": "Marshal_Giltfold_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "Bolt",
+  "CharmLoop",
+  "ForeEnd",
+  "Hammer",
+  "Lever",
+  "Neon",
+  "Pins",
+  "Receiver",
+  "Scope",
+  "Stock",
+  "Trigger"
+ ],
+ "untouched_stock": [
+  "ScopeLens",
+  "Shell"
+ ],
+ "flipped_islands": {},
+ "coplanar_lifted": [
+  {
+   "lift": "Marshal_Stock|GF1 Ink Lacquer",
+   "over": "Marshal_Stock|GF1 Fold Slate",
+   "faces": 2
+  },
+  {
+   "lift": "GFM_Stock|GF1 Paper Ivory",
+   "over": "Marshal_Stock|GF1 Ink Lacquer",
+   "faces": 4
+  }
+ ],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Bolt_01": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Bolt",
+   "blender_material": "GF1 Pewter",
+   "triangles": 44,
+   "size": [
+    0.29,
+    0.08,
+    0.036
+   ],
+   "center": [
+    0.317,
+    0.0,
+    0.218
+   ]
+  },
+  "SK_Hammer_01": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Hammer",
+   "blender_material": "GF1 Pewter",
+   "triangles": 220,
+   "size": [
+    0.1322,
+    0.028,
+    0.103
+   ],
+   "center": [
+    0.1071,
+    0.0,
+    0.1765
+   ]
+  },
+  "SK_Lever_01": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Lever",
+   "blender_material": "GF1 Pewter",
+   "triangles": 502,
+   "size": [
+    0.704,
+    0.04,
+    0.3267
+   ],
+   "center": [
+    0.2317,
+    0.0,
+    -0.1679
+   ]
+  },
+  "SK_Root_01": {
+   "color": "C9AA68",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Champagne Foil",
+   "triangles": 953,
+   "size": [
+    1.4373,
+    0.1877,
+    0.3557
+   ],
+   "center": [
+    0.4163,
+    -0.0061,
+    0.2621
+   ]
+  },
+  "SK_Root_02": {
+   "color": "C2B49A",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Fold Slate",
+   "triangles": 1017,
+   "size": [
+    4.287,
+    0.176,
+    0.7103
+   ],
+   "center": [
+    0.8815,
+    0.0,
+    0.0551
+   ]
+  },
+  "SK_Root_03": {
+   "color": "34323B",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Grip Graphite",
+   "triangles": 210,
+   "size": [
+    1.3064,
+    0.14,
+    0.3579
+   ],
+   "center": [
+    -0.5928,
+    0.0,
+    -0.0611
+   ]
+  },
+  "SK_Root_04": {
+   "color": "26252D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Ink Lacquer",
+   "triangles": 991,
+   "size": [
+    4.4437,
+    0.1405,
+    0.6
+   ],
+   "center": [
+    0.9758,
+    0.0003,
+    0.0
+   ]
+  },
+  "SK_Root_05": {
+   "color": "1E1C26",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": "Giltfold_Wave",
+   "bone": "Root",
+   "blender_material": "GF1 Lacquer Pattern",
+   "triangles": 26,
+   "size": [
+    2.9175,
+    0.136,
+    0.4332
+   ],
+   "center": [
+    0.2813,
+    0.0,
+    -0.0486
+   ]
+  },
+  "SK_Root_06": {
+   "color": "E8DAC0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Paper Ivory",
+   "triangles": 338,
+   "size": [
+    3.382,
+    0.176,
+    0.5461
+   ],
+   "center": [
+    0.429,
+    0.0,
+    -0.028
+   ]
+  },
+  "SK_Root_07": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Pewter",
+   "triangles": 308,
+   "size": [
+    2.3902,
+    0.119,
+    0.317
+   ],
+   "center": [
+    2.0026,
+    0.0127,
+    0.0941
+   ]
+  },
+  "SK_Root_08": {
+   "color": "17161C",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Recess Wall",
+   "triangles": 76,
+   "size": [
+    2.9175,
+    0.161,
+    0.4332
+   ],
+   "center": [
+    0.2813,
+    0.0,
+    -0.0486
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "GF1 Pewter",
+   "triangles": 108,
+   "size": [
+    0.0388,
+    0.022,
+    0.0747
+   ],
+   "center": [
+    0.3356,
+    0.0,
+    -0.0574
+   ]
+  }
+ }
+}

@@ -1,0 +1,105 @@
+{
+  "line": "PopCircuit",
+  "item": "Stinger",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Stinger/Stinger_RemasterV2_v05.blend",
+  "source_file_sha256": "4cee39f2096a6fae19164f55243e9d95d32deab4161ed7547b5ac8b1a2c4d589",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Stinger_v01.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Stinger/v01/Stinger_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 125925,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "105311e350fbc29eee4682c489ab29f303f732741691a658413990eaba100937",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "actions": [
+    "Stinger_Draw",
+    "Stinger_Fire",
+    "Stinger_Inspect",
+    "Stinger_Reload",
+    "Stinger_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Stinger_CharmLoop",
+    "Stinger_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Stinger/v01/textures/Stinger_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Stinger/v01/textures/Stinger_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Stinger/v01/textures/Stinger_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Stinger/v01/textures/Stinger_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "3fdb1bfe1abe4b8f664c40c81bae14bb53825d8f0721bc47561be87563805e7c",
+    "Normal": "9ad04d30fb9a4160abc69323196780e79a467f78347ea1d4a786c91c9f84a000",
+    "Roughness": "b38023f58456ac57d13fb341856a86ffc902e09c5ddd956333b872330c261be0",
+    "Metalness": "b0a4a793bccb2efa1315a9b3d4de6fa377a017892f9b279371376efe942f117e"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Ares"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Stinger/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

@@ -1,0 +1,78 @@
+{
+ "variant": "Inkshift Phantom v01",
+ "date": "2026-11-14",
+ "source": "Phantom_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_inkshift_kit.py",
+  "tools/blender/model_inkshift_guns.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.15, 2.55, -0.35, 0.7))",
+ "chamber_material": "IK1 Cyan Accent",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Phantom_Bolt",
+  "Phantom_ChargingHandle",
+  "Phantom_CharmLoop",
+  "Phantom_FireSelector",
+  "Phantom_Grip",
+  "Phantom_Handguard",
+  "Phantom_Mag",
+  "Phantom_Neon",
+  "Phantom_Pins",
+  "Phantom_Rail",
+  "Phantom_Receiver",
+  "Phantom_Sights",
+  "Phantom_Stock",
+  "Phantom_Suppressor",
+  "Phantom_Trigger"
+ ],
+ "roblox_fbx": "Phantom_Inkshift_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 560,
+   "vertices": 338,
+   "size": [
+    3.475,
+    0.212,
+    0.295
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6775,
+    0.0,
+    0.2875
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 120,
+   "vertices": 108,
+   "size": [
+    0.308,
+    0.1967,
+    0.018
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.67,
+    0.0,
+    0.3
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 16,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Phantom_Atlas_Color.png",
+  "Phantom_Atlas_Rough.png",
+  "Phantom_Atlas_Metal.png",
+  "Phantom_Chamber_Color.png"
+ ]
+}

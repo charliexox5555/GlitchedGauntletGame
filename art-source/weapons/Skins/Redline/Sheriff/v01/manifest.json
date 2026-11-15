@@ -1,0 +1,108 @@
+{
+  "line": "Redline",
+  "item": "Sheriff",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Sheriff/Sheriff_RemasterV2_v05.blend",
+  "source_file_sha256": "bf79df28719fa3cf51d862c255156769816f208b1ead54537be91b2e20b67d59",
+  "concept": "vault/02 Art/Skins/Redline/out/Sheriff_v01.png",
+  "blend": "art-source/weapons/Skins/Redline/Sheriff/v01/Sheriff_Redline_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "741B2A",
+      0.68,
+      0
+    ],
+    "Panel": [
+      "33191F",
+      0.73,
+      0
+    ],
+    "Dark": [
+      "141316",
+      0.82,
+      0
+    ],
+    "Grip": [
+      "1D1B1E",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "333138",
+      0.48,
+      0.86
+    ],
+    "Accent": [
+      "4B4248",
+      0.58,
+      0.68
+    ],
+    "Neon": [
+      "A93D49",
+      0.65,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 130449,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "actions": [
+    "Sheriff_Draw",
+    "Sheriff_Fire",
+    "Sheriff_Inspect",
+    "Sheriff_Reload",
+    "Sheriff_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Sheriff_CharmLoop",
+    "Sheriff_Cylinder",
+    "Sheriff_Rounds",
+    "Sheriff_Sights",
+    "Sheriff_Speedloader"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Redline/Sheriff/v01/textures/Sheriff_Color.png",
+    "Normal": "art-source/weapons/Skins/Redline/Sheriff/v01/textures/Sheriff_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Redline/Sheriff/v01/textures/Sheriff_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Redline/Sheriff/v01/textures/Sheriff_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "bf7dae8b30aeb22954860102addfdf587a6d5ec9c099ee8ba339071c5d2ec6ba",
+    "Normal": "761ed2049b5c134b7cac8be59d4f6413671a0af4a2ea739d3a5e464565ac8864",
+    "Roughness": "536212915b122890da6e1dd8e895c619f46420fbb503f991df77f48cc22491d5",
+    "Metalness": "4ed2d77090580dd5a65ccaa56c383dde3db6c5b374837631ee73531513677992"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Redline",
+    "item": "Classic"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Redline/Sheriff/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

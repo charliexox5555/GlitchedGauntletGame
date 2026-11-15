@@ -1,0 +1,104 @@
+{
+  "line": "Prism",
+  "item": "Ghost",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Ghost/Ghost_RemasterV2_v05.blend",
+  "source_file_sha256": "56b6fc58cb0669dc4d86942484be74c6fd8e078321b41270bca9f81d6e8db402",
+  "concept": "vault/02 Art/Skins/Prism/out/Ghost_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Ghost/v01/Ghost_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 132556,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "ee6a3afdc0c8672f7ff764288fdd6d21c8a0dd2a2d2e685c5bc5e4cf19cc30da",
+    "geometry_and_material_slots": "11364f1775b0a4963b637eee09bf5cb888ea0942786c7b9dc769bb749eae5003",
+    "uv": "f0d77bb620eeceaa5bd761308b4d353a0d0810e9a65c8ed40fe21107c56e8e0c",
+    "rig_and_nla": "4355bc913738ef8f19ecfd229baa2eb770769834ad57188a0715da5b314d9bea",
+    "actions": "4f1481fce7a15edae85d0a6e19cf41e81e15a8cd74687560b4cb7089d4e3a50b"
+  },
+  "actions": [
+    "Ghost_Draw",
+    "Ghost_Fire",
+    "Ghost_Inspect",
+    "Ghost_Reload",
+    "Ghost_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Ghost_CharmLoop"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Ghost/v01/textures/Ghost_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Ghost/v01/textures/Ghost_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Ghost/v01/textures/Ghost_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Ghost/v01/textures/Ghost_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "56b700c72982d4dc7504ed3b69684c28d6b2c241212e2a51d5923bf39d005e52",
+    "Normal": "ec8b641b1b096b10b8549a4a5f6e5182e5ce7c33271a34971542a3f036073c5a",
+    "Roughness": "e489eb1d0a91bae1ce4a151d1981b07f8262fdfbfe6429cbaf89808d75188fa4",
+    "Metalness": "981889d41dd7a2b755e3a6d421f2074bb2568d7d53bf4a5c5a987ff86d0f220f"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Prism",
+    "item": "Shorty"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Ghost/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

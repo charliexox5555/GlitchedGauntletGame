@@ -1,0 +1,78 @@
+{
+ "variant": "Inkshift Blade v01",
+ "date": "2026-11-14",
+ "source": "Knife_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_inkshift_kit.py",
+  "tools/blender/model_inkshift_blade.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.55, 1.9, -0.25, 0.2))",
+ "chamber_material": "IK1 Cyan Accent",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "retained_stock": [],
+ "roblox_fbx": "Blade_Inkshift_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 1286,
+   "vertices": 694,
+   "size": [
+    2.33,
+    0.132,
+    0.2768
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.695,
+    0.0,
+    -0.0396
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 120,
+   "vertices": 108,
+   "size": [
+    0.468,
+    0.029,
+    0.018
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.81,
+    0.0,
+    -0.025
+   ]
+  }
+ },
+ "review": {
+  "poses": [
+   [
+    "Inspect",
+    34
+   ],
+   [
+    "Slash1",
+    7
+   ],
+   [
+    "HeavyStab",
+    12
+   ]
+  ]
+ },
+ "textures": [
+  "Blade_Atlas_Color.png",
+  "Blade_Atlas_Rough.png",
+  "Blade_Atlas_Metal.png",
+  "Blade_Chamber_Color.png"
+ ]
+}

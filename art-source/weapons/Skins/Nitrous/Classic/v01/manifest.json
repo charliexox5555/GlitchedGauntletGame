@@ -1,0 +1,105 @@
+{
+  "line": "Nitrous",
+  "item": "Classic",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Classic/Classic_RemasterV2_v05.blend",
+  "source_file_sha256": "b12060fc63678311deeaf18d4dd6744442df8d009ad06418f2711bd83eb707eb",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Classic_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Classic/v01/Classic_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 143419,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 1525,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "09e2880bb8fd834eb3dc2a92822194f8fd68edf46c54b7d1edba24d83b524e2b",
+    "geometry_and_material_slots": "9c8c7c6759952f7945fdd08bc02b857bad7f02e5643291c084ae83506ff8a0f4",
+    "uv": "67775c21b543a40256252aa931e4c27c3bb13d372de11169a1048281d6de061b",
+    "rig_and_nla": "cbeaf76313dd2c6a51274fb9c13742af2fc4fc6b4ab0cf053c12ab821d3da215",
+    "actions": "d26ef58a16046960ad9e186b10eeb5cf82b04e458d7058e51e4ce769a80d01af"
+  },
+  "actions": [
+    "Classic_Draw",
+    "Classic_DryFire",
+    "Classic_Fire",
+    "Classic_Inspect",
+    "Classic_Reload",
+    "Classic_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Classic_CharmLoop"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Classic/v01/textures/Classic_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Classic/v01/textures/Classic_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Classic/v01/textures/Classic_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Classic/v01/textures/Classic_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "3189f5f1aea52ab221e158a64585cb469094c723ea02d9627a8c76fec5ebe21d",
+    "Normal": "41f386c429e3fe5a183db4b5f5ba6292b01130ca71b0eafc4c2238bce6c93c01",
+    "Roughness": "fb6d8d3ab48ea3cb38f3e7fd702ee292dd8509a9d17519f8cc95051def201686",
+    "Metalness": "2c3fb154ac2fb9f2452116ce17e8c4de955a00d84765963b15f56e84b1ad8d55"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Ghost"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Classic/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

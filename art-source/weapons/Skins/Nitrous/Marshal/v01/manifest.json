@@ -1,0 +1,110 @@
+{
+  "line": "Nitrous",
+  "item": "Marshal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Marshal/Marshal_RemasterV2_v05.blend",
+  "source_file_sha256": "979997d2b7cc6060f8893788f324b79e9a5bfa5e3fbe0b1f0adf39e3ed8572c3",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Marshal_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Marshal/v01/Marshal_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 120724,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 5,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "347c0a151c70cac110aaa82bda86685e16051e2cf6f2ec429020bd52b550add9",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "actions": [
+    "Marshal_Draw",
+    "Marshal_Fire",
+    "Marshal_Inspect",
+    "Marshal_Reload",
+    "Marshal_ReloadEmpty",
+    "Marshal_ReloadEnd",
+    "Marshal_ReloadInsert",
+    "Marshal_ReloadStart"
+  ],
+  "protected_objects": [
+    "Marshal_CharmLoop",
+    "Marshal_Scope",
+    "Marshal_ScopeLens",
+    "Marshal_Shell"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Marshal/v01/textures/Marshal_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Marshal/v01/textures/Marshal_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Marshal/v01/textures/Marshal_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Marshal/v01/textures/Marshal_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "4428743e628fc05a08501b73c0e0acdf98b829c10957e74bf604d9c27af8352c",
+    "Normal": "2e914f9676d33955a057c45d1f9891c11bda29b9d8667af6957f51157e9bd4c2",
+    "Roughness": "09efcd2494d72294c325a4a6b05f2ee5d26f94ea52645e034b1818e6331ba0fa",
+    "Metalness": "022a0aa53b0bf55d969badf2d92a77c5c9595ea22181b6f6830135a61f7000ea"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Outlaw"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Marshal/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

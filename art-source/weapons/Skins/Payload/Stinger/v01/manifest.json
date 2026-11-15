@@ -1,0 +1,76 @@
+{
+ "variant": "Payload Stinger v01",
+ "date": "2026-11-14",
+ "source": "Stinger_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_payload_kit.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.6, 1.2, -0.65, 0.55))",
+ "chamber_material": "PL1 Thermal Foil",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Stinger_Barrel",
+  "Stinger_Bolt",
+  "Stinger_ChargingHandle",
+  "Stinger_CharmLoop",
+  "Stinger_FireSelector",
+  "Stinger_Grip",
+  "Stinger_Handguard",
+  "Stinger_Mag",
+  "Stinger_Neon",
+  "Stinger_Pins",
+  "Stinger_Receiver",
+  "Stinger_Sights",
+  "Stinger_Stock",
+  "Stinger_Trigger"
+ ],
+ "roblox_fbx": "Stinger_Payload_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 260,
+   "vertices": 156,
+   "size": [
+    0.355,
+    0.1956,
+    0.152
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6475,
+    0.0,
+    0.186
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 48,
+   "vertices": 42,
+   "size": [
+    0.122,
+    0.1898,
+    0.042
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.565,
+    0.0,
+    0.215
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Stinger_Atlas_Color.png",
+  "Stinger_Atlas_Rough.png",
+  "Stinger_Atlas_Metal.png",
+  "Stinger_Chamber_Color.png"
+ ]
+}

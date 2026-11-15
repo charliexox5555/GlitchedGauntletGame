@@ -1,0 +1,77 @@
+{
+ "variant": "Inkshift Stinger v01",
+ "date": "2026-11-14",
+ "source": "Stinger_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_inkshift_kit.py",
+  "tools/blender/model_inkshift_guns.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.6, 1.2, -0.65, 0.55))",
+ "chamber_material": "IK1 Cyan Accent",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Stinger_Barrel",
+  "Stinger_Bolt",
+  "Stinger_ChargingHandle",
+  "Stinger_CharmLoop",
+  "Stinger_FireSelector",
+  "Stinger_Grip",
+  "Stinger_Handguard",
+  "Stinger_Mag",
+  "Stinger_Neon",
+  "Stinger_Pins",
+  "Stinger_Receiver",
+  "Stinger_Sights",
+  "Stinger_Stock",
+  "Stinger_Trigger"
+ ],
+ "roblox_fbx": "Stinger_Inkshift_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 352,
+   "vertices": 224,
+   "size": [
+    1.305,
+    0.194,
+    0.238
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.1475,
+    0.0,
+    0.269
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 120,
+   "vertices": 108,
+   "size": [
+    0.188,
+    0.1817,
+    0.018
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.45,
+    0.0,
+    0.3
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Stinger_Atlas_Color.png",
+  "Stinger_Atlas_Rough.png",
+  "Stinger_Atlas_Metal.png",
+  "Stinger_Chamber_Color.png"
+ ]
+}

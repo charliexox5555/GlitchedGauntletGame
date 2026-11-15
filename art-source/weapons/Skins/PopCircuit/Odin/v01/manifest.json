@@ -1,0 +1,106 @@
+{
+  "line": "PopCircuit",
+  "item": "Odin",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Odin/Odin_RemasterV2_v05.blend",
+  "source_file_sha256": "26ae474ba886cb32e0fffd6bf9a0a6a02c32cdab74ac9142ce4332771d16fe8f",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Odin_v02.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Odin/v01/Odin_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 118703,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "3c8e7f82cfde5acde46adde901f175fc9d0df88a305c5f1965f3bb006fb51c3c",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "actions": [
+    "Odin_Draw",
+    "Odin_Fire",
+    "Odin_Inspect",
+    "Odin_Reload",
+    "Odin_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Odin_CharmLoop",
+    "Odin_FeedBelt",
+    "Odin_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Odin/v01/textures/Odin_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Odin/v01/textures/Odin_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Odin/v01/textures/Odin_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Odin/v01/textures/Odin_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "a0619cca256c312220445b3cd46124f7084a5f669c3624037e16ab09fe0faf8a",
+    "Normal": "3a34e7b058a106e7b35455e11586b19abb14e7683827bcab4dbff0981768ade0",
+    "Roughness": "712ef9b1e868a8db7d740b68ebe15ea6afb5c9a84cefd06dfefd6ad71c866f39",
+    "Metalness": "bc688a01671ef8138c37c0e68a5aea862bd470960910d74a8385e0abc9316225"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Sheriff"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Odin/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

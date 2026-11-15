@@ -1,0 +1,109 @@
+{
+  "line": "PopCircuit",
+  "item": "Bucky",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Bucky/Bucky_RemasterV2_v05.blend",
+  "source_file_sha256": "bf698c43e0777f411ebf736c39cc7fc1838aaac7c49b1bc781107ed83d580878",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Bucky_v01.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Bucky/v01/Bucky_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 138603,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "6026984325b23cff9c94a1d8aa40bbb946677fecb25f34ed5ef8f15166b5eb70",
+    "geometry_and_material_slots": "c1df4398a3e12f0fca9e655bc119111a87c21e20d32315e5baed08a5d4e6b620",
+    "uv": "815b211a3a1554a22ccfd652850cb81b60305b4eabe6addf153f59b70666b1c9",
+    "rig_and_nla": "4614367657dbb6719c358cf098589c2146a642a7b01a8ec6b660f7fbae3e9701",
+    "actions": "f81544c5397c6324f7d2393975f18000e79af27afa5d935e51ffd933a151047c"
+  },
+  "actions": [
+    "Bucky_Draw",
+    "Bucky_Fire",
+    "Bucky_Inspect",
+    "Bucky_Reload",
+    "Bucky_ReloadEmpty",
+    "Bucky_ReloadEnd",
+    "Bucky_ReloadInsert",
+    "Bucky_ReloadStart"
+  ],
+  "protected_objects": [
+    "Bucky_CharmLoop",
+    "Bucky_Shell",
+    "Bucky_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Bucky/v01/textures/Bucky_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Bucky/v01/textures/Bucky_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Bucky/v01/textures/Bucky_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Bucky/v01/textures/Bucky_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "0d94fb7e5c98da1b6ab5ec6144061d7f149798f3834d7b35f3097435d3178ebd",
+    "Normal": "28e6aec8c2b0385e18625e62943ab2cc3b91e25babaa70ed8551ed04a55e0f1e",
+    "Roughness": "8e7b5ebf51faaad2a7080a7396404f38fca7824114fa646a1ab4330fb7ba2f39",
+    "Metalness": "ffca2e194f4735f8196ed9f790b7cdaa487e522d455f7c26cf6b05f737233d55"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Judge"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Bucky/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

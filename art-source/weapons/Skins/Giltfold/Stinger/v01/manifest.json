@@ -1,0 +1,76 @@
+{
+ "variant": "Giltfold Stinger v01",
+ "date": "2026-11-14",
+ "source": "Stinger_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py",
+  "tools/blender/model_giltfold_guns.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.6, 1.2, -0.65, 0.55))",
+ "chamber_material": "GF1 Lacquer Pattern",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Stinger_Neon",
+  "Stinger_Receiver",
+  "Stinger_Handguard",
+  "Stinger_Barrel",
+  "Stinger_Sights",
+  "Stinger_Grip",
+  "Stinger_Stock",
+  "Stinger_Pins",
+  "Stinger_CharmLoop",
+  "Stinger_Mag",
+  "Stinger_ChargingHandle",
+  "Stinger_Bolt",
+  "Stinger_Trigger",
+  "Stinger_FireSelector"
+ ],
+ "roblox_fbx": "Stinger_Giltfold_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 560,
+   "vertices": 310,
+   "size": [
+    1.33,
+    0.1951,
+    0.278
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.16,
+    0.0,
+    0.249
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 4,
+   "vertices": 8,
+   "size": [
+    0.24,
+    0.173,
+    0.035
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.65,
+    0.0,
+    0.1525
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Stinger_Atlas_Color.png",
+  "Stinger_Atlas_Rough.png",
+  "Stinger_Atlas_Metal.png",
+  "Stinger_Chamber_Color.png"
+ ]
+}

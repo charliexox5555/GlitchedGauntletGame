@@ -1,0 +1,117 @@
+{
+ "variant": "Sealwork Dagger v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Knife",
+ "source_blend": "Dagger_Sealwork_v02.blend",
+ "fbx": "Dagger_Sealwork_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [],
+ "crossed_faces_fixed": {
+  "SWD_Blade": 2
+ },
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Root_01": {
+   "color": "202825",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Black Jade",
+   "triangles": 604,
+   "size": [
+    1.7348,
+    0.106,
+    0.5501
+   ],
+   "center": [
+    0.3476,
+    0.0,
+    0.0098
+   ]
+  },
+  "SK_Root_02": {
+   "color": "D2A04A",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Gold Fitting",
+   "triangles": 528,
+   "size": [
+    1.0642,
+    0.12,
+    0.2727
+   ],
+   "center": [
+    0.0999,
+    0.0,
+    -0.0216
+   ]
+  },
+  "SK_Root_03": {
+   "color": "D2A04A",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Gold Line",
+   "triangles": 510,
+   "size": [
+    1.7419,
+    0.12,
+    0.551
+   ],
+   "center": [
+    0.344,
+    0.0,
+    0.0094
+   ]
+  },
+  "SK_Root_04": {
+   "color": "141816",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Near Black",
+   "triangles": 442,
+   "size": [
+    1.46,
+    0.1,
+    0.2718
+   ],
+   "center": [
+    0.27,
+    0.0,
+    0.0064
+   ]
+  },
+  "SK_Root_05": {
+   "color": "8F222D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": "Sealwork_Ruby",
+   "bone": "Root",
+   "blender_material": "SW1 Vermilion Seal",
+   "triangles": 88,
+   "size": [
+    0.0517,
+    0.141,
+    0.0517
+   ],
+   "center": [
+    -0.393,
+    0.0,
+    -0.01
+   ]
+  }
+ }
+}

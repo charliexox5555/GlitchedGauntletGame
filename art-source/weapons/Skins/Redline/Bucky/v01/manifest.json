@@ -1,0 +1,109 @@
+{
+  "line": "Redline",
+  "item": "Bucky",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Bucky/Bucky_RemasterV2_v05.blend",
+  "source_file_sha256": "bf698c43e0777f411ebf736c39cc7fc1838aaac7c49b1bc781107ed83d580878",
+  "concept": "vault/02 Art/Skins/Redline/out/Bucky_v01.png",
+  "blend": "art-source/weapons/Skins/Redline/Bucky/v01/Bucky_Redline_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "741B2A",
+      0.68,
+      0
+    ],
+    "Panel": [
+      "33191F",
+      0.73,
+      0
+    ],
+    "Dark": [
+      "141316",
+      0.82,
+      0
+    ],
+    "Grip": [
+      "1D1B1E",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "333138",
+      0.48,
+      0.86
+    ],
+    "Accent": [
+      "4B4248",
+      0.58,
+      0.68
+    ],
+    "Neon": [
+      "A93D49",
+      0.65,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 138603,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "6026984325b23cff9c94a1d8aa40bbb946677fecb25f34ed5ef8f15166b5eb70",
+    "geometry_and_material_slots": "c1df4398a3e12f0fca9e655bc119111a87c21e20d32315e5baed08a5d4e6b620",
+    "uv": "815b211a3a1554a22ccfd652850cb81b60305b4eabe6addf153f59b70666b1c9",
+    "rig_and_nla": "4614367657dbb6719c358cf098589c2146a642a7b01a8ec6b660f7fbae3e9701",
+    "actions": "f81544c5397c6324f7d2393975f18000e79af27afa5d935e51ffd933a151047c"
+  },
+  "actions": [
+    "Bucky_Draw",
+    "Bucky_Fire",
+    "Bucky_Inspect",
+    "Bucky_Reload",
+    "Bucky_ReloadEmpty",
+    "Bucky_ReloadEnd",
+    "Bucky_ReloadInsert",
+    "Bucky_ReloadStart"
+  ],
+  "protected_objects": [
+    "Bucky_CharmLoop",
+    "Bucky_Shell",
+    "Bucky_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Redline/Bucky/v01/textures/Bucky_Color.png",
+    "Normal": "art-source/weapons/Skins/Redline/Bucky/v01/textures/Bucky_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Redline/Bucky/v01/textures/Bucky_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Redline/Bucky/v01/textures/Bucky_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "3289da648badc72fe7f6c2f5545984e4aa1c0c5ea805fb26f3383861432d0ee8",
+    "Normal": "de216dc9d644125ec2c2f0eb1dbc0c66d67d8089ab0513bf2de063cc8988a05f",
+    "Roughness": "0a51e0e8e363c3f4d1eb0827b785adc6a529b276b3aca81edfa6e99e728994af",
+    "Metalness": "3d96bf802da33551730b849498ab8f62decfc91cc308c1f9202935c30761e555"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Redline",
+    "item": "Judge"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Redline/Bucky/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

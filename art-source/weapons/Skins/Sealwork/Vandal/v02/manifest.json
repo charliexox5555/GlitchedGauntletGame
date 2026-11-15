@@ -1,0 +1,115 @@
+{
+ "variant": "Sealwork Vandal v02",
+ "date": "2026-11-14",
+ "source": "Vandal_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py",
+  "tools/blender/model_sealwork_kit.py (palette, seal)",
+  "tools/blender/model_vandal_shell_base.py",
+  "tools/blender/model_sealwork_vandal.py (v02 full sculpted shell)"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 2.7, -0.46, 0.66))",
+ "chamber_material": "SW1 Vermilion Seal",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [
+  "Receiver",
+  "Handguard",
+  "Rail",
+  "Stock",
+  "Grip",
+  "Mag",
+  "Pins",
+  "Neon",
+  "Barrel"
+ ],
+ "retained_stock": [
+  "Vandal_RearSight",
+  "Vandal_FrontSight",
+  "Vandal_ChargingHandle",
+  "Vandal_Bolt",
+  "Vandal_Trigger",
+  "Vandal_FireSelector",
+  "Vandal_CharmLoop"
+ ],
+ "roblox_fbx": "Vandal_Sealwork_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 9366,
+   "vertices": 4849,
+   "size": [
+    3.899,
+    0.2242,
+    0.8074
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6975,
+    0.0,
+    0.0924
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 168,
+   "vertices": 144,
+   "size": [
+    2.892,
+    0.2053,
+    0.478
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.234,
+    0.0,
+    0.109
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 1106,
+   "vertices": 615,
+   "size": [
+    0.569,
+    0.1345,
+    0.6619
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7455,
+    0.0,
+    -0.0991
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 146,
+   "vertices": 125,
+   "size": [
+    0.533,
+    0.124,
+    0.599
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7285,
+    0.0,
+    -0.1005
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 30,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Vandal_Atlas_Color.png",
+  "Vandal_Atlas_Rough.png",
+  "Vandal_Atlas_Metal.png",
+  "Vandal_Chamber_Color.png"
+ ]
+}

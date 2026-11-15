@@ -1,0 +1,107 @@
+{
+  "line": "Prism",
+  "item": "Judge",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Judge/Judge_RemasterV2_v05.blend",
+  "source_file_sha256": "9fda37905acd200af472e5581d55d69e9886189ac1cddb2fc71accf2593f135d",
+  "concept": "vault/02 Art/Skins/Prism/out/Judge_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Judge/v01/Judge_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 117359,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 1,
+    "different_role_overlap_pixels": 1,
+    "conflicting_parts": [
+      "Judge_Receiver"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "33350f32b6b548d2ce781909c981d74ff53b9857342df8d233b7f0360d8d60ee",
+    "geometry_and_material_slots": "635fdfc3e18922d6d888770216ccd55810581459d730b882b2c9e8fef71d44d0",
+    "uv": "5e30e601eee71883f506c8178a99787e87b2a36c4057466c1679f310a52fe425",
+    "rig_and_nla": "59db06d98c504df62ca0dda14c9aecb2c74f7ce71545caefa6b864f1f6debebe",
+    "actions": "113b50da9c38ac7651adae8477d8ba97ec051aab7f7ca1799dde0b278bec06de"
+  },
+  "actions": [
+    "Judge_Draw",
+    "Judge_Fire",
+    "Judge_Inspect",
+    "Judge_Reload",
+    "Judge_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Judge_CharmLoop",
+    "Judge_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Judge/v01/textures/Judge_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Judge/v01/textures/Judge_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Judge/v01/textures/Judge_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Judge/v01/textures/Judge_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "1e4e546493547b03c2752a0586e38bddcd4a21f38adeb639efd72f7273077c20",
+    "Normal": "071c3d27e9ba400c58926ef32e70078228d5a753851233148719a978d5750915",
+    "Roughness": "185889f41b862445271d5220b8fb692e66c35ed9f7fbdbc220e684a708878733",
+    "Metalness": "cdb52a45fe51a53e258d829f0f16c6c9f94124f2d4ec5945cb2d88a24c816048"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Prism",
+    "item": "Marshal"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Judge/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

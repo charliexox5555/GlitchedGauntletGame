@@ -1,0 +1,95 @@
+{
+ "variant": "Giltfold Vandal v01",
+ "date": "2026-11-14",
+ "source": "Vandal_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py",
+  "tools/blender/model_giltfold_vandal.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 2.7, -0.46, 0.66))",
+ "chamber_material": "GF1 Lacquer Pattern",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Vandal_Neon",
+  "Vandal_Receiver",
+  "Vandal_Handguard",
+  "Vandal_Rail",
+  "Vandal_RearSight",
+  "Vandal_FrontSight",
+  "Vandal_Barrel",
+  "Vandal_Grip",
+  "Vandal_Stock",
+  "Vandal_Pins",
+  "Vandal_CharmLoop",
+  "Vandal_Mag",
+  "Vandal_ChargingHandle",
+  "Vandal_Bolt",
+  "Vandal_Trigger",
+  "Vandal_FireSelector"
+ ],
+ "roblox_fbx": "Vandal_Giltfold_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 960,
+   "vertices": 526,
+   "size": [
+    2.77,
+    0.2276,
+    0.278
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3,
+    0.0,
+    0.289
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 12,
+   "vertices": 24,
+   "size": [
+    2.5,
+    0.195,
+    0.178
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.33,
+    0.0,
+    0.261
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 220,
+   "vertices": 122,
+   "size": [
+    0.395,
+    0.1484,
+    0.41
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7025,
+    0.0,
+    -0.145
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 30,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Vandal_Atlas_Color.png",
+  "Vandal_Atlas_Rough.png",
+  "Vandal_Atlas_Metal.png",
+  "Vandal_Chamber_Color.png"
+ ]
+}

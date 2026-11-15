@@ -1,0 +1,498 @@
+{
+ "variant": "Inkshift Stinger v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Stinger",
+ "source_blend": "Stinger_Inkshift_v02.blend",
+ "fbx": "Stinger_Inkshift_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "Bolt",
+  "ChargingHandle",
+  "CharmLoop",
+  "FireSelector",
+  "Grip",
+  "Handguard",
+  "Mag",
+  "Neon",
+  "Pins",
+  "Receiver",
+  "Sights",
+  "Stock",
+  "Trigger"
+ ],
+ "untouched_stock": [],
+ "flipped_islands": {},
+ "coplanar_lifted": [
+  {
+   "lift": "IKS_Stripe|IK1 Vermilion",
+   "over": "IKS_RearArmour|IK2 Painted Armour Blue",
+   "faces": 4
+  },
+  {
+   "lift": "IKS_Flash1|IK1 Flat Highlight",
+   "over": "Stinger_Receiver|IK1 Ink Charcoal",
+   "faces": 2
+  }
+ ],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Bolt_01": {
+   "color": "8796A8",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Bolt",
+   "blender_material": "IK1 Cool Slate",
+   "triangles": 44,
+   "size": [
+    0.234,
+    0.02,
+    0.032
+   ],
+   "center": [
+    0.033,
+    -0.066,
+    0.29
+   ]
+  },
+  "SK_ChargingHandle_01": {
+   "color": "E46C40",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "ChargingHandle",
+   "blender_material": "IK1 Vermilion",
+   "triangles": 120,
+   "size": [
+    0.105,
+    0.042,
+    0.052
+   ],
+   "center": [
+    0.2025,
+    0.089,
+    0.336
+   ]
+  },
+  "SK_FireSelector_01": {
+   "color": "8796A8",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "FireSelector",
+   "blender_material": "IK1 Cool Slate",
+   "triangles": 92,
+   "size": [
+    0.124,
+    0.011,
+    0.0376
+   ],
+   "center": [
+    0.004,
+    0.0835,
+    0.1988
+   ]
+  },
+  "SK_FireSelector_02": {
+   "color": "E46C40",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "FireSelector",
+   "blender_material": "IK1 Vermilion",
+   "triangles": 12,
+   "size": [
+    0.02,
+    0.005,
+    0.026
+   ],
+   "center": [
+    0.05,
+    0.0895,
+    0.197
+   ]
+  },
+  "SK_Mag_01": {
+   "color": "6F7F98",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "IK1 Blue-Grey Casing",
+   "triangles": 40,
+   "size": [
+    0.0806,
+    0.0383,
+    0.0442
+   ],
+   "center": [
+    -0.0647,
+    0.006,
+    0.003
+   ]
+  },
+  "SK_Mag_02": {
+   "color": "8796A8",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "IK1 Cool Slate",
+   "triangles": 90,
+   "size": [
+    0.145,
+    0.0388,
+    0.0416
+   ],
+   "center": [
+    -0.0275,
+    0.0046,
+    0.003
+   ]
+  },
+  "SK_Mag_03": {
+   "color": "1D2431",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "IK1 Ink Charcoal",
+   "triangles": 108,
+   "size": [
+    0.2308,
+    0.1,
+    0.524
+   ],
+   "center": [
+    -0.0617,
+    0.0,
+    -0.272
+   ]
+  },
+  "SK_Mag_04": {
+   "color": "1D2431",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "IK1 Ink Line",
+   "triangles": 16,
+   "size": [
+    0.22,
+    0.116,
+    0.24
+   ],
+   "center": [
+    -0.066,
+    0.0,
+    -0.36
+   ]
+  },
+  "SK_Mag_05": {
+   "color": "2C3270",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "IK2 Painted Indigo",
+   "triangles": 92,
+   "size": [
+    0.2345,
+    0.112,
+    0.053
+   ],
+   "center": [
+    -0.0721,
+    0.0,
+    -0.5585
+   ]
+  },
+  "SK_Mag_06": {
+   "color": "DFE4E9",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "IK2 Painted White",
+   "triangles": 24,
+   "size": [
+    0.22,
+    0.116,
+    0.24
+   ],
+   "center": [
+    -0.066,
+    0.0,
+    -0.36
+   ]
+  },
+  "SK_Root_01": {
+   "color": "8796A8",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Cool Slate",
+   "triangles": 428,
+   "size": [
+    0.7435,
+    0.1364,
+    0.2036
+   ],
+   "center": [
+    0.7683,
+    0.018,
+    0.2424
+   ]
+  },
+  "SK_Root_02": {
+   "color": "37E9FF",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Cyan Accent",
+   "triangles": 896,
+   "size": [
+    0.5,
+    0.1889,
+    0.2245
+   ],
+   "center": [
+    0.53,
+    0.0,
+    0.2687
+   ]
+  },
+  "SK_Root_Sight_03": {
+   "color": "37E9FF",
+   "material": "Neon",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Cyan Accent",
+   "triangles": 28,
+   "size": [
+    0.012,
+    0.0148,
+    0.0148
+   ],
+   "center": [
+    0.8355,
+    0.0,
+    0.4698
+   ]
+  },
+  "SK_Root_04": {
+   "color": "F7FAFC",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Flat Highlight",
+   "triangles": 48,
+   "size": [
+    1.522,
+    0.1724,
+    0.044
+   ],
+   "center": [
+    -0.339,
+    0.0,
+    0.318
+   ]
+  },
+  "SK_Root_05": {
+   "color": "323743",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Graphite",
+   "triangles": 48,
+   "size": [
+    0.2174,
+    0.124,
+    0.29
+   ],
+   "center": [
+    -0.0124,
+    0.0,
+    -0.025
+   ]
+  },
+  "SK_Root_06": {
+   "color": "1D2431",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Ink Charcoal",
+   "triangles": 675,
+   "size": [
+    2.6187,
+    0.1685,
+    0.6327
+   ],
+   "center": [
+    -0.1694,
+    0.0003,
+    0.1126
+   ]
+  },
+  "SK_Root_Sight_07": {
+   "color": "1D2431",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Ink Charcoal",
+   "triangles": 178,
+   "size": [
+    1.2973,
+    0.1324,
+    0.1128
+   ],
+   "center": [
+    0.2307,
+    0.0,
+    0.4274
+   ]
+  },
+  "SK_Root_08": {
+   "color": "1D2431",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Ink Line",
+   "triangles": 302,
+   "size": [
+    2.6929,
+    0.191,
+    0.5556
+   ],
+   "center": [
+    -0.1865,
+    0.0,
+    0.1078
+   ]
+  },
+  "SK_Root_09": {
+   "color": "E46C40",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK1 Vermilion",
+   "triangles": 48,
+   "size": [
+    1.32,
+    0.228,
+    0.2096
+   ],
+   "center": [
+    0.5,
+    0.0,
+    0.2648
+   ]
+  },
+  "SK_Root_10": {
+   "color": "0B0E14",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK2 Ink Outline",
+   "triangles": 332,
+   "size": [
+    2.6924,
+    0.1942,
+    0.4943
+   ],
+   "center": [
+    -0.1918,
+    0.0,
+    0.144
+   ]
+  },
+  "SK_Root_11": {
+   "color": "3B57B0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK2 Painted Armour Blue",
+   "triangles": 160,
+   "size": [
+    2.6605,
+    0.184,
+    0.4799
+   ],
+   "center": [
+    -0.1803,
+    0.0,
+    0.1422
+   ]
+  },
+  "SK_Root_12": {
+   "color": "2C3270",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK2 Painted Indigo",
+   "triangles": 38,
+   "size": [
+    2.3563,
+    0.184,
+    0.3985
+   ],
+   "center": [
+    -0.3548,
+    0.0,
+    0.1015
+   ]
+  },
+  "SK_Root_13": {
+   "color": "DFE4E9",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "IK2 Painted White",
+   "triangles": 405,
+   "size": [
+    2.6629,
+    0.191,
+    0.575
+   ],
+   "center": [
+    -0.1814,
+    0.0,
+    0.1175
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "8796A8",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "IK1 Cool Slate",
+   "triangles": 108,
+   "size": [
+    0.0379,
+    0.022,
+    0.0887
+   ],
+   "center": [
+    0.2011,
+    0.0,
+    0.1257
+   ]
+  }
+ }
+}

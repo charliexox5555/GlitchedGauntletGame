@@ -1,0 +1,246 @@
+{
+ "variant": "Giltfold Fan v01",
+ "date": "2026-11-14",
+ "source": "Knife_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py",
+  "tools/blender/model_giltfold_fan.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.55, 1.3, -0.8, 0.8))",
+ "chamber_material": "GF1 Lacquer Pattern",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "retained_stock": [],
+ "roblox_fbx": "Fan_Giltfold_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Rib_00_Body": {
+   "bone": "Rib_00",
+   "triangles": 108,
+   "vertices": 60,
+   "size": [
+    0.9001,
+    0.0094,
+    1.1426
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.1919,
+    -0.0372,
+    -0.5519
+   ]
+  },
+  "MF_Rib_01_Body": {
+   "bone": "Rib_01",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.0544,
+    0.0069,
+    0.9361
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.2698,
+    -0.0288,
+    -0.4549
+   ]
+  },
+  "MF_Rib_02_Body": {
+   "bone": "Rib_02",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.2061,
+    0.0069,
+    0.7329
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3403,
+    -0.0216,
+    -0.3581
+   ]
+  },
+  "MF_Rib_03_Body": {
+   "bone": "Rib_03",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.3181,
+    0.0069,
+    0.5076
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3923,
+    -0.0144,
+    -0.2491
+   ]
+  },
+  "MF_Rib_04_Body": {
+   "bone": "Rib_04",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.3868,
+    0.0069,
+    0.2657
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.4242,
+    -0.0072,
+    -0.1327
+   ]
+  },
+  "MF_Rib_05_Body": {
+   "bone": "Rib_05",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.41,
+    0.0069,
+    0.03
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.435,
+    0.0,
+    -0.02
+   ]
+  },
+  "MF_Rib_06_Body": {
+   "bone": "Rib_06",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.3868,
+    0.0069,
+    0.2657
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.4242,
+    0.0072,
+    0.0927
+   ]
+  },
+  "MF_Rib_07_Body": {
+   "bone": "Rib_07",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.3181,
+    0.0069,
+    0.5076
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3923,
+    0.0144,
+    0.2091
+   ]
+  },
+  "MF_Rib_08_Body": {
+   "bone": "Rib_08",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.2061,
+    0.0069,
+    0.7329
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.3403,
+    0.0216,
+    0.3181
+   ]
+  },
+  "MF_Rib_09_Body": {
+   "bone": "Rib_09",
+   "triangles": 56,
+   "vertices": 30,
+   "size": [
+    1.0544,
+    0.0069,
+    0.9361
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.2698,
+    0.0288,
+    0.4149
+   ]
+  },
+  "MF_Rib_10_Body": {
+   "bone": "Rib_10",
+   "triangles": 108,
+   "vertices": 60,
+   "size": [
+    0.9001,
+    0.0094,
+    1.1426
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.1919,
+    0.0372,
+    0.5119
+   ]
+  },
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 100,
+   "vertices": 75,
+   "size": [
+    1.3625,
+    0.0912,
+    2.1119
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.4387,
+    0.0,
+    -0.02
+   ]
+  }
+ },
+ "review": {
+  "poses": [
+   [
+    "Inspect",
+    34
+   ],
+   [
+    "Slash1",
+    7
+   ],
+   [
+    "HeavyStab",
+    12
+   ]
+  ]
+ },
+ "textures": [
+  "Fan_Atlas_Color.png",
+  "Fan_Atlas_Rough.png",
+  "Fan_Atlas_Metal.png"
+ ]
+}

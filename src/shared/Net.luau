@@ -40,6 +40,16 @@ local RELIABLE = {
 }
 local UNRELIABLE = { "Aim", "ShotFx" }
 
+-- Skin preview remote: the match place, in Studio or with Config/SkinPreview LIVE
+-- (keep in step with shared/SkinPreview.allowed).
+local SkinPreviewConfig = require(script.Parent.Config.SkinPreview)
+if
+	game.PlaceId == SkinPreviewConfig.PLACE_ID
+	and (RunService:IsStudio() or SkinPreviewConfig.LIVE)
+then
+	table.insert(RELIABLE, SkinPreviewConfig.REMOTE)
+end
+
 local FOLDER_NAME = "Remotes"
 
 local folder: Instance

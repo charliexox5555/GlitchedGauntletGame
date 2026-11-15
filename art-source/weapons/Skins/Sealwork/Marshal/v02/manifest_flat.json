@@ -1,0 +1,271 @@
+{
+ "variant": "Sealwork Marshal v02 (flat-material export)",
+ "joints": [],
+ "date": "2026-11-14",
+ "gun": "Marshal",
+ "source_blend": "Marshal_Sealwork_v02.blend",
+ "fbx": "Marshal_Sealwork_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Barrel",
+  "Bolt",
+  "CharmLoop",
+  "ForeEnd",
+  "Hammer",
+  "Lever",
+  "Neon",
+  "Pins",
+  "Receiver",
+  "Scope",
+  "Stock",
+  "Trigger"
+ ],
+ "untouched_stock": [
+  "ScopeLens",
+  "Shell"
+ ],
+ "flipped_islands": {},
+ "coplanar_lifted": [
+  {
+   "lift": "Marshal_Stock|SW1 Near Black",
+   "over": "Marshal_Stock|SW1 Charcoal Green",
+   "faces": 2
+  },
+  {
+   "lift": "SWM_Stock|SW1 Black Jade",
+   "over": "Marshal_Stock|SW1 Near Black",
+   "faces": 2
+  }
+ ],
+ "crossed_faces_fixed": {},
+ "crossed_faces_left": {},
+ "parts": {
+  "SK_Bolt_01": {
+   "color": "D2A04A",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Bolt",
+   "blender_material": "SW1 Gold Fitting",
+   "triangles": 44,
+   "size": [
+    0.29,
+    0.08,
+    0.036
+   ],
+   "center": [
+    0.317,
+    0.0,
+    0.218
+   ]
+  },
+  "SK_Hammer_01": {
+   "color": "D2A04A",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Hammer",
+   "blender_material": "SW1 Gold Fitting",
+   "triangles": 220,
+   "size": [
+    0.1322,
+    0.028,
+    0.103
+   ],
+   "center": [
+    0.1071,
+    0.0,
+    0.1765
+   ]
+  },
+  "SK_Lever_01": {
+   "color": "D2A04A",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Lever",
+   "blender_material": "SW1 Gold Fitting",
+   "triangles": 502,
+   "size": [
+    0.704,
+    0.04,
+    0.3267
+   ],
+   "center": [
+    0.2317,
+    0.0,
+    -0.1679
+   ]
+  },
+  "SK_Root_01": {
+   "color": "202825",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Black Jade",
+   "triangles": 622,
+   "size": [
+    3.1559,
+    0.169,
+    0.7114
+   ],
+   "center": [
+    0.329,
+    0.0005,
+    0.0546
+   ]
+  },
+  "SK_Root_02": {
+   "color": "333D38",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Charcoal Green",
+   "triangles": 149,
+   "size": [
+    2.102,
+    0.136,
+    0.528
+   ],
+   "center": [
+    -0.163,
+    0.0,
+    -0.036
+   ]
+  },
+  "SK_Root_03": {
+   "color": "1E211E",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Charcoal Grip",
+   "triangles": 210,
+   "size": [
+    1.3064,
+    0.14,
+    0.3579
+   ],
+   "center": [
+    -0.5928,
+    0.0,
+    -0.0611
+   ]
+  },
+  "SK_Root_04": {
+   "color": "D2A04A",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Gold Fitting",
+   "triangles": 3893,
+   "size": [
+    4.0395,
+    0.1915,
+    0.7101
+   ],
+   "center": [
+    1.1779,
+    -0.0043,
+    0.085
+   ]
+  },
+  "SK_Root_05": {
+   "color": "D2A04A",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Gold Line",
+   "triangles": 608,
+   "size": [
+    3.1559,
+    0.1889,
+    0.5512
+   ],
+   "center": [
+    0.329,
+    0.0,
+    -0.0255
+   ]
+  },
+  "SK_Root_06": {
+   "color": "0C0E0D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Groove",
+   "triangles": 26,
+   "size": [
+    0.0347,
+    0.1889,
+    0.0074
+   ],
+   "center": [
+    0.2988,
+    0.0,
+    0.1824
+   ]
+  },
+  "SK_Root_07": {
+   "color": "141816",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "SW1 Near Black",
+   "triangles": 1089,
+   "size": [
+    4.4437,
+    0.151,
+    0.6
+   ],
+   "center": [
+    0.9758,
+    0.0015,
+    0.0
+   ]
+  },
+  "SK_Root_08": {
+   "color": "8F222D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": "Sealwork_Ruby",
+   "bone": "Root",
+   "blender_material": "SW1 Vermilion Seal",
+   "triangles": 182,
+   "size": [
+    2.5813,
+    0.1889,
+    0.2945
+   ],
+   "center": [
+    0.5093,
+    0.0,
+    0.0538
+   ]
+  },
+  "SK_Trigger_01": {
+   "color": "D2A04A",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Trigger",
+   "blender_material": "SW1 Gold Fitting",
+   "triangles": 108,
+   "size": [
+    0.0388,
+    0.022,
+    0.0747
+   ],
+   "center": [
+    0.3356,
+    0.0,
+    -0.0574
+   ]
+  }
+ }
+}

@@ -18,6 +18,7 @@ local Ease = require(ReplicatedStorage.Shared.Util.Ease)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 
+local LocalHide = require(script.Parent.LocalHide)
 local ViewmodelArms = require(script.Parent.ViewmodelArms)
 local ViewmodelMotion = require(script.Parent.ViewmodelMotion)
 local ViewmodelTracks = require(script.Parent.ViewmodelTracks)
@@ -481,7 +482,7 @@ function ViewmodelHeldMods.stepItem(
 		h.itemHidden = gone
 		for _, d in model:GetDescendants() do
 			if d:IsA("BasePart") then
-				d.LocalTransparencyModifier = if gone then 1 else 0
+				LocalHide.set(d, if gone then 1 else 0)
 			end
 		end
 	end

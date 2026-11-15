@@ -1,0 +1,108 @@
+{
+ "variant": "Moltframe Vandal v05",
+ "date": "2026-11-14",
+ "builder": [
+  "tools/blender/model_moltframe_vandal_v04.py",
+  "tools/blender/model_moltframe_vandal_v04_parts.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS -1.30..2.70 x, -0.46..0.66 z)",
+ "installer": "tools/studio/InstallMoltframeSkin.luau",
+ "replaced_stock_prefixes": [
+  "Receiver",
+  "Handguard",
+  "Stock",
+  "Pins",
+  "Neon",
+  "Rail",
+  "Mag",
+  "Grip",
+  "Barrel"
+ ],
+ "roblox_fbx": "Vandal_Moltframe_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 6280,
+   "vertices": 3333,
+   "size": [
+    3.899,
+    0.208,
+    0.7683
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6975,
+    0.0,
+    0.0778
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 114,
+   "vertices": 146,
+   "size": [
+    3.277,
+    0.14,
+    0.576
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.4335,
+    0.0,
+    0.158
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 616,
+   "vertices": 332,
+   "size": [
+    0.564,
+    0.114,
+    0.6599
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.744,
+    0.0,
+    -0.0981
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 24,
+   "vertices": 28,
+   "size": [
+    0.2976,
+    0.08,
+    0.3857
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7159,
+    0.0,
+    -0.1474
+   ]
+  }
+ },
+ "textures": {
+  "atlas": [
+   "textures/Vandal_Atlas_Color.png",
+   "textures/Vandal_Atlas_Rough.png",
+   "textures/Vandal_Atlas_Metal.png"
+  ],
+  "chamber": "textures/Vandal_Chamber_Color.png",
+  "shared": [
+   "../../_shared/Moltframe_Flow.png",
+   "../../_shared/Moltframe_Chamber_Rough.png",
+   "../../_shared/Moltframe_Chamber_Metal.png",
+   "../../_shared/Moltframe_Solid_Color.png",
+   "../../_shared/Moltframe_Solid_Rough.png",
+   "../../_shared/Moltframe_Solid_Metal.png"
+  ]
+ }
+}

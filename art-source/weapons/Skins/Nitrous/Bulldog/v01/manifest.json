@@ -1,0 +1,108 @@
+{
+  "line": "Nitrous",
+  "item": "Bulldog",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Bulldog/Bulldog_RemasterV2_v05.blend",
+  "source_file_sha256": "4e6ae2478cc1ea7b670f79c802b2b8c6db52516fc4fca750285e2182d15930ac",
+  "concept": "vault/02 Art/Skins/Nitrous/out/Bulldog_v01.png",
+  "blend": "art-source/weapons/Skins/Nitrous/Bulldog/v01/Bulldog_Nitrous_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "15171D",
+      0.35,
+      0
+    ],
+    "Panel": [
+      "BEC8D4",
+      0.4,
+      0.94
+    ],
+    "Dark": [
+      "111216",
+      0.77,
+      0
+    ],
+    "Grip": [
+      "22252B",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "596370",
+      0.37,
+      0.88
+    ],
+    "Accent": [
+      "D1D9E2",
+      0.28,
+      1
+    ],
+    "Neon": [
+      "3D9DFF",
+      0.29,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 135827,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 292,
+    "different_role_overlap_pixels": 292,
+    "conflicting_parts": [
+      "Bulldog_Barrel",
+      "Bulldog_Stock"
+    ]
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "2a0b1dd9845fd818cb98d454ccb96d125d0f6fbef5cc026611e954cdc0b5666a",
+    "geometry_and_material_slots": "2ec96f43d06704f2985acc73a837c04e8febfda28b7ad2670537f79f59d3d6b6",
+    "uv": "c2ec2fc28aae69d5ff5492cd85d9280805909d5315c4fd0e487ae48f56760445",
+    "rig_and_nla": "5828309d84d82ca6095c7bb1a6341a3aeada3afb5665fa7bbf5b23c230dd9564",
+    "actions": "96ff4d7faa0fb03874117164659a41013a13ea0077519f459af90b5f014ef92d"
+  },
+  "actions": [
+    "Bulldog_Draw",
+    "Bulldog_Fire",
+    "Bulldog_Inspect",
+    "Bulldog_Reload",
+    "Bulldog_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Bulldog_CharmLoop",
+    "Bulldog_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Nitrous/Bulldog/v01/textures/Bulldog_Color.png",
+    "Normal": "art-source/weapons/Skins/Nitrous/Bulldog/v01/textures/Bulldog_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Nitrous/Bulldog/v01/textures/Bulldog_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Nitrous/Bulldog/v01/textures/Bulldog_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "04613faa9da5e5e462757ef80b75a9b03d4b7f4d94685bb6277b4a8627fcb896",
+    "Normal": "cfe8dfd9ee492a5023d8ad420ac65c14bb9c58f6147bb40940a38bfa5311c0d5",
+    "Roughness": "b76df42b06cfcd25a28806a5f33ab8f637862124d0623073123354d0a958e01b",
+    "Metalness": "0fbabc04fe3b0ba62efe53b99162328eb29c2f1b0e4a967c8133e8fe97a1217e"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Nitrous",
+    "item": "Guardian"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Nitrous/Bulldog/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

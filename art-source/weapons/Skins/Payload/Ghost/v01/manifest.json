@@ -1,0 +1,90 @@
+{
+ "variant": "Payload Ghost v01",
+ "date": "2026-11-14",
+ "source": "Ghost_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_payload_kit.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-0.3, 2.1, -0.5, 0.5))",
+ "chamber_material": "PL1 Thermal Foil",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Ghost_CharmLoop",
+  "Ghost_Frame",
+  "Ghost_Grip",
+  "Ghost_Mag",
+  "Ghost_MagRelease",
+  "Ghost_Pins",
+  "Ghost_Slide",
+  "Ghost_SlideCatch",
+  "Ghost_SlideNeon",
+  "Ghost_Suppressor",
+  "Ghost_Trigger"
+ ],
+ "roblox_fbx": "Ghost_Payload_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Slide_Body": {
+   "bone": "Slide",
+   "triangles": 272,
+   "vertices": 162,
+   "size": [
+    1.325,
+    0.153,
+    0.149
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.4575,
+    0.0,
+    0.3105
+   ]
+  },
+  "MF_Slide_Chamber": {
+   "bone": "Slide",
+   "triangles": 48,
+   "vertices": 42,
+   "size": [
+    0.102,
+    0.1476,
+    0.037
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    1.015,
+    0.0,
+    0.3225
+   ]
+  },
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 44,
+   "vertices": 24,
+   "size": [
+    0.035,
+    0.2031,
+    0.2031
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    1.1525,
+    0.0,
+    0.296
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 24,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Ghost_Atlas_Color.png",
+  "Ghost_Atlas_Rough.png",
+  "Ghost_Atlas_Metal.png",
+  "Ghost_Chamber_Color.png"
+ ]
+}

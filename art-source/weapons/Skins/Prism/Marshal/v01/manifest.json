@@ -1,0 +1,110 @@
+{
+  "line": "Prism",
+  "item": "Marshal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Marshal/Marshal_RemasterV2_v05.blend",
+  "source_file_sha256": "979997d2b7cc6060f8893788f324b79e9a5bfa5e3fbe0b1f0adf39e3ed8572c3",
+  "concept": "vault/02 Art/Skins/Prism/out/Marshal_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Marshal/v01/Marshal_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 120724,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 5,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "347c0a151c70cac110aaa82bda86685e16051e2cf6f2ec429020bd52b550add9",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "actions": [
+    "Marshal_Draw",
+    "Marshal_Fire",
+    "Marshal_Inspect",
+    "Marshal_Reload",
+    "Marshal_ReloadEmpty",
+    "Marshal_ReloadEnd",
+    "Marshal_ReloadInsert",
+    "Marshal_ReloadStart"
+  ],
+  "protected_objects": [
+    "Marshal_CharmLoop",
+    "Marshal_Scope",
+    "Marshal_ScopeLens",
+    "Marshal_Shell"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Marshal/v01/textures/Marshal_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Marshal/v01/textures/Marshal_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Marshal/v01/textures/Marshal_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Marshal/v01/textures/Marshal_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "ff892eb3027dab448eb004464b6cd41a72530925dac4db2ec25da3de6002d82b",
+    "Normal": "27a69cb999f8576bd3a62c5b69a1cc8001fd2e57820c8682199552b35d1607d9",
+    "Roughness": "d1a058f8608f722340ebf0b625db8398afffb9c0866839298b4ed774f21f76d9",
+    "Metalness": "f4db741e123f37073f3184ef3ba142941552bb85f38daa32e6472b64737bf0a3"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Prism",
+    "item": "Outlaw"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Marshal/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

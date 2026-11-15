@@ -1,0 +1,81 @@
+{
+ "variant": "Moltframe Dagger v01",
+ "date": "2026-11-14",
+ "source": "Knife_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_moltframe_vandal_v04.py (shared)",
+  "tools/blender/model_moltframe_vandal_v04_parts.py (helpers)",
+  "tools/blender/model_moltframe_spectre_parts.py (helpers)",
+  "tools/blender/model_moltframe_dagger_parts.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS -0.55..1.30 x, -0.20..0.20 z)",
+ "installer": "tools/studio/InstallMoltframeSkin.luau",
+ "replaced_stock_prefixes": [
+  "Blade",
+  "Hilt",
+  "Neon"
+ ],
+ "hold": "stock Knife RightGrip transform (grip core unchanged)",
+ "retained_stock": [],
+ "roblox_fbx": "Dagger_Moltframe_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 1418,
+   "vertices": 738,
+   "size": [
+    1.774,
+    0.144,
+    0.308
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.375,
+    0.0,
+    0.014
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 8,
+   "vertices": 12,
+   "size": [
+    0.36,
+    0.101,
+    0.038
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.0,
+    0.0,
+    0.045
+   ]
+  }
+ },
+ "review": {
+  "poses": [
+   [
+    "Inspect",
+    34
+   ],
+   [
+    "Slash1",
+    7
+   ],
+   [
+    "HeavyStab",
+    12
+   ]
+  ]
+ },
+ "textures": {
+  "atlas": [
+   "Dagger_Atlas_Color.png",
+   "Dagger_Atlas_Rough.png",
+   "Dagger_Atlas_Metal.png"
+  ],
+  "chamber": "Dagger_Chamber_Color.png"
+ }
+}

@@ -1,0 +1,105 @@
+{
+  "line": "PopCircuit",
+  "item": "Classic",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Classic/Classic_RemasterV2_v05.blend",
+  "source_file_sha256": "b12060fc63678311deeaf18d4dd6744442df8d009ad06418f2711bd83eb707eb",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Classic_v01.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Classic/v01/Classic_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 143419,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 1525,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "09e2880bb8fd834eb3dc2a92822194f8fd68edf46c54b7d1edba24d83b524e2b",
+    "geometry_and_material_slots": "9c8c7c6759952f7945fdd08bc02b857bad7f02e5643291c084ae83506ff8a0f4",
+    "uv": "67775c21b543a40256252aa931e4c27c3bb13d372de11169a1048281d6de061b",
+    "rig_and_nla": "cbeaf76313dd2c6a51274fb9c13742af2fc4fc6b4ab0cf053c12ab821d3da215",
+    "actions": "d26ef58a16046960ad9e186b10eeb5cf82b04e458d7058e51e4ce769a80d01af"
+  },
+  "actions": [
+    "Classic_Draw",
+    "Classic_DryFire",
+    "Classic_Fire",
+    "Classic_Inspect",
+    "Classic_Reload",
+    "Classic_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Classic_CharmLoop"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Classic/v01/textures/Classic_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Classic/v01/textures/Classic_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Classic/v01/textures/Classic_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Classic/v01/textures/Classic_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "9e8acd072d17e0488383a04dfd0e301fa95d1cbbee3c2c319141448eaac66ef2",
+    "Normal": "25b0645a3785e6dbcf89e7eb940c3821acd92caa7d3e623163d9d3412fe3ebed",
+    "Roughness": "e86a63aee40c48be1c2758f65bebac5bbdc920b8d0f9f7ccb951e9bad803e4fc",
+    "Metalness": "f735f59f9be93a88d3186a0341d4c00233498a12ec769c5576b9fb98644dc1c7"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Ghost"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Classic/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

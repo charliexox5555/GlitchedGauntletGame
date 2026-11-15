@@ -1,0 +1,104 @@
+{
+ "variant": "Inkshift Phantom v02",
+ "date": "2026-11-14",
+ "source": "Phantom_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_vandal_shell_base.py",
+  "tools/blender/model_inkshift_guns2.py (round two anime pop-art sculpt)"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.15, 2.55, -0.35, 0.7))",
+ "chamber_material": "IK1 Cyan Accent",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Phantom_Receiver",
+  "Phantom_Rail",
+  "Phantom_Sights",
+  "Phantom_Bolt",
+  "Phantom_ChargingHandle",
+  "Phantom_FireSelector",
+  "Phantom_Trigger",
+  "Phantom_CharmLoop"
+ ],
+ "roblox_fbx": "Phantom_Inkshift_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 1710,
+   "vertices": 966,
+   "size": [
+    3.6193,
+    0.2022,
+    0.8018
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.7042,
+    0.0,
+    0.0791
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 1856,
+   "vertices": 968,
+   "size": [
+    1.9,
+    0.1978,
+    0.074
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    1.45,
+    0.0,
+    0.318
+   ]
+  },
+  "MF_Mag_Body": {
+   "bone": "Mag",
+   "triangles": 550,
+   "vertices": 289,
+   "size": [
+    0.2872,
+    0.1431,
+    0.5374
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6861,
+    0.0,
+    -0.0368
+   ]
+  },
+  "MF_Mag_Chamber": {
+   "bone": "Mag",
+   "triangles": 40,
+   "vertices": 24,
+   "size": [
+    0.2212,
+    0.1386,
+    0.008
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.6861,
+    0.0,
+    -0.212
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 16,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Phantom_Atlas_Color.png",
+  "Phantom_Atlas_Rough.png",
+  "Phantom_Atlas_Metal.png",
+  "Phantom_Chamber_Color.png"
+ ]
+}

@@ -1,0 +1,105 @@
+{
+  "line": "Redline",
+  "item": "Phantom",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Phantom/Phantom_RemasterV2_v05.blend",
+  "source_file_sha256": "99afea9d16d8d316893868ce36579fd0b141dcb7ccf59c7b390f033c2ffc1f98",
+  "concept": "vault/02 Art/Skins/Redline/out/Phantom_v01.png",
+  "blend": "art-source/weapons/Skins/Redline/Phantom/v01/Phantom_Redline_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "741B2A",
+      0.68,
+      0
+    ],
+    "Panel": [
+      "33191F",
+      0.73,
+      0
+    ],
+    "Dark": [
+      "141316",
+      0.82,
+      0
+    ],
+    "Grip": [
+      "1D1B1E",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "333138",
+      0.48,
+      0.86
+    ],
+    "Accent": [
+      "4B4248",
+      0.58,
+      0.68
+    ],
+    "Neon": [
+      "A93D49",
+      0.65,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 120415,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 1,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "71358908ad9e82468c5683b4c42e752a283ea2308ad79fb1ded26067ce332542",
+    "geometry_and_material_slots": "ea4ad6af765cd466ae786458ebb7edb9939a1e3ee94c7d72b5df605f681ea4b8",
+    "uv": "cf60e93479883a23583a361b2dce7bfaaf937a847f10a78bbb71ad8b130bdc2e",
+    "rig_and_nla": "1265baf69019fd86afa5e89cee1dbafc2eec2c9b68109a03b3f7ac22a5adb660",
+    "actions": "8196b4c05744ffb0226e1ca06a0649d1877b3df1d460e78870805ab39078c459"
+  },
+  "actions": [
+    "Phantom_Draw",
+    "Phantom_Fire",
+    "Phantom_Inspect",
+    "Phantom_Reload",
+    "Phantom_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Phantom_CharmLoop",
+    "Phantom_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Redline/Phantom/v01/textures/Phantom_Color.png",
+    "Normal": "art-source/weapons/Skins/Redline/Phantom/v01/textures/Phantom_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Redline/Phantom/v01/textures/Phantom_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Redline/Phantom/v01/textures/Phantom_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "9440f18dc8307936aba651ea8eb4ac104db54684801373ad500b302fd9251460",
+    "Normal": "1ce7ff8a10f306784bf8e5e4b9f8b129ddb1d21e9c6d26253f7e97033b78b10c",
+    "Roughness": "b7348b8189d9af3f316823c4f78499eb06c9c0564df6474081363828c8ce59a2",
+    "Metalness": "3d9bcfe16f0497be1182bccd01b0e7282d29556dbf2d3ff6abbbcf9a9ccd7e1b"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Redline",
+    "item": "Vandal"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Redline/Phantom/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

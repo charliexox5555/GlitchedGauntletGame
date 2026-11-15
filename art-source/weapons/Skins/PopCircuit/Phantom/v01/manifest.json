@@ -1,0 +1,105 @@
+{
+  "line": "PopCircuit",
+  "item": "Phantom",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Phantom/Phantom_RemasterV2_v05.blend",
+  "source_file_sha256": "99afea9d16d8d316893868ce36579fd0b141dcb7ccf59c7b390f033c2ffc1f98",
+  "concept": "vault/02 Art/Skins/PopCircuit/out/Phantom_v02.png",
+  "blend": "art-source/weapons/Skins/PopCircuit/Phantom/v01/Phantom_PopCircuit_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "539BFF",
+      0.38,
+      0.26
+    ],
+    "Panel": [
+      "FF9DD8",
+      0.34,
+      0.23
+    ],
+    "Dark": [
+      "231B45",
+      0.75,
+      0
+    ],
+    "Grip": [
+      "29203C",
+      0.86,
+      0
+    ],
+    "Metal": [
+      "6554C9",
+      0.36,
+      0.7
+    ],
+    "Accent": [
+      "FF6ECA",
+      0.27,
+      0.68
+    ],
+    "Neon": [
+      "61F2FF",
+      0.24,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 120415,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 1,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "71358908ad9e82468c5683b4c42e752a283ea2308ad79fb1ded26067ce332542",
+    "geometry_and_material_slots": "ea4ad6af765cd466ae786458ebb7edb9939a1e3ee94c7d72b5df605f681ea4b8",
+    "uv": "cf60e93479883a23583a361b2dce7bfaaf937a847f10a78bbb71ad8b130bdc2e",
+    "rig_and_nla": "1265baf69019fd86afa5e89cee1dbafc2eec2c9b68109a03b3f7ac22a5adb660",
+    "actions": "8196b4c05744ffb0226e1ca06a0649d1877b3df1d460e78870805ab39078c459"
+  },
+  "actions": [
+    "Phantom_Draw",
+    "Phantom_Fire",
+    "Phantom_Inspect",
+    "Phantom_Reload",
+    "Phantom_ReloadEmpty"
+  ],
+  "protected_objects": [
+    "Phantom_CharmLoop",
+    "Phantom_Sights"
+  ],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/PopCircuit/Phantom/v01/textures/Phantom_Color.png",
+    "Normal": "art-source/weapons/Skins/PopCircuit/Phantom/v01/textures/Phantom_Normal.png",
+    "Roughness": "art-source/weapons/Skins/PopCircuit/Phantom/v01/textures/Phantom_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/PopCircuit/Phantom/v01/textures/Phantom_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "78ee65eb3e38ac5ca5790b8784b3895e6429abfb3013b66f3ee254c88119958f",
+    "Normal": "7e56e2621872f9edb8237661d36bf767d9c559bf3ae7e29bc74b749d80ce774d",
+    "Roughness": "0100dc7cbd71df44917840a8bec176d34dd52c9f5159c8782b8c1a5fed2e4409",
+    "Metalness": "48fd399e96d8304306c0a49adbbfebc82c14f876edb26072a94263cd08853afa"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "PopCircuit",
+    "item": "Bulldog"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/PopCircuit/Phantom/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

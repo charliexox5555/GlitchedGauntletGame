@@ -1,0 +1,71 @@
+{
+ "variant": "Payload Ares v02",
+ "date": "2026-11-14",
+ "source": "Ares_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_vandal_shell_base.py",
+  "tools/blender/model_payload_guns2.py (round two flight-hardware sculpt)"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 3.1, -0.4, 0.72))",
+ "chamber_material": "PL1 Thermal Foil",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Ares_Receiver",
+  "Ares_Drum",
+  "Ares_Sights",
+  "Ares_Barrel",
+  "Ares_Bolt",
+  "Ares_ChargingHandle",
+  "Ares_CharmLoop",
+  "Ares_Trigger",
+  "Ares_FireSelector"
+ ],
+ "roblox_fbx": "Ares_Payload_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 3846,
+   "vertices": 2173,
+   "size": [
+    4.2969,
+    0.209,
+    0.8121
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.9116,
+    0.0,
+    0.0781
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 900,
+   "vertices": 510,
+   "size": [
+    4.1994,
+    0.2139,
+    0.6479
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.9803,
+    0.0,
+    0.1644
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Ares_Atlas_Color.png",
+  "Ares_Atlas_Rough.png",
+  "Ares_Atlas_Metal.png",
+  "Ares_Chamber_Color.png"
+ ]
+}

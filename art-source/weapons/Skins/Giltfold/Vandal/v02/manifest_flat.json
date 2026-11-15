@@ -1,0 +1,322 @@
+{
+ "variant": "Giltfold Vandal v02 (flat-material export)",
+ "date": "2026-11-14",
+ "fbx": "Vandal_Giltfold_RobloxFlat.fbx",
+ "replaced_stock_prefixes": [
+  "Receiver",
+  "Handguard",
+  "Rail",
+  "Stock",
+  "Grip",
+  "Mag",
+  "Pins",
+  "Neon",
+  "Barrel"
+ ],
+ "parts": {
+  "SK_Mag_01": {
+   "color": "C9AA68",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Champagne Foil",
+   "triangles": 108,
+   "size": [
+    0.0478,
+    0.1292,
+    0.3124
+   ],
+   "center": [
+    0.6039,
+    0.0,
+    0.076
+   ]
+  },
+  "SK_Mag_02": {
+   "color": "C2B49A",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Fold Slate",
+   "triangles": 200,
+   "size": [
+    0.608,
+    0.148,
+    0.629
+   ],
+   "center": [
+    0.766,
+    0.0,
+    -0.1155
+   ]
+  },
+  "SK_Mag_03": {
+   "color": "26252D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Ink Lacquer",
+   "triangles": 44,
+   "size": [
+    0.019,
+    0.04,
+    0.0125
+   ],
+   "center": [
+    0.4705,
+    0.0,
+    0.0932
+   ]
+  },
+  "SK_Mag_04": {
+   "color": "1E1C26",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": "Giltfold_Wave",
+   "bone": "Mag",
+   "blender_material": "GF1 Lacquer Pattern",
+   "triangles": 40,
+   "size": [
+    0.2222,
+    0.14,
+    0.262
+   ],
+   "center": [
+    0.8509,
+    0.0,
+    -0.151
+   ]
+  },
+  "SK_Mag_05": {
+   "color": "E8DAC0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Paper Ivory",
+   "triangles": 214,
+   "size": [
+    0.608,
+    0.148,
+    0.6622
+   ],
+   "center": [
+    0.766,
+    0.0,
+    -0.0989
+   ]
+  },
+  "SK_Mag_06": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Pewter",
+   "triangles": 30,
+   "size": [
+    0.0697,
+    0.0177,
+    0.0204
+   ],
+   "center": [
+    0.6572,
+    0.0,
+    0.214
+   ]
+  },
+  "SK_Mag_07": {
+   "color": "6E737D",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Mag",
+   "blender_material": "GF1 Smoked Pewter Casing",
+   "triangles": 52,
+   "size": [
+    0.1343,
+    0.0309,
+    0.0357
+   ],
+   "center": [
+    0.5552,
+    0.0,
+    0.214
+   ]
+  },
+  "SK_Root_01": {
+   "color": "C9AA68",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Champagne Foil",
+   "triangles": 316,
+   "size": [
+    2.0141,
+    0.1974,
+    0.201
+   ],
+   "center": [
+    0.743,
+    0.0,
+    0.3145
+   ]
+  },
+  "SK_Root_02": {
+   "color": "C2B49A",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Fold Slate",
+   "triangles": 812,
+   "size": [
+    3.909,
+    0.208,
+    0.764
+   ],
+   "center": [
+    0.6925,
+    0.0,
+    0.064
+   ]
+  },
+  "SK_Root_Sight_03": {
+   "color": "C2B49A",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Fold Slate",
+   "triangles": 36,
+   "size": [
+    0.172,
+    0.148,
+    0.15
+   ],
+   "center": [
+    2.026,
+    0.0,
+    0.299
+   ]
+  },
+  "SK_Root_04": {
+   "color": "26252D",
+   "material": "SmoothPlastic",
+   "reflectance": 0.05,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Ink Lacquer",
+   "triangles": 318,
+   "size": [
+    2.825,
+    0.172,
+    0.4441
+   ],
+   "center": [
+    1.2345,
+    0.0,
+    0.236
+   ]
+  },
+  "SK_Root_05": {
+   "color": "1E1C26",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": "Giltfold_Wave",
+   "bone": "Root",
+   "blender_material": "GF1 Lacquer Pattern",
+   "triangles": 414,
+   "size": [
+    2.74,
+    0.156,
+    0.7133
+   ],
+   "center": [
+    0.31,
+    0.0,
+    0.0483
+   ]
+  },
+  "SK_Root_06": {
+   "color": "E8DAC0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Paper Ivory",
+   "triangles": 478,
+   "size": [
+    3.909,
+    0.208,
+    0.776
+   ],
+   "center": [
+    0.6925,
+    0.0,
+    0.07
+   ]
+  },
+  "SK_Root_Sight_07": {
+   "color": "E8DAC0",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Paper Ivory",
+   "triangles": 64,
+   "size": [
+    0.172,
+    0.148,
+    0.15
+   ],
+   "center": [
+    2.026,
+    0.0,
+    0.299
+   ]
+  },
+  "SK_Root_08": {
+   "color": "A89A7E",
+   "material": "Metal",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Pewter",
+   "triangles": 122,
+   "size": [
+    2.3774,
+    0.177,
+    0.1762
+   ],
+   "center": [
+    1.2013,
+    0.0,
+    0.2869
+   ]
+  },
+  "SK_Root_09": {
+   "color": "17161C",
+   "material": "SmoothPlastic",
+   "reflectance": 0.0,
+   "pattern": null,
+   "bone": "Root",
+   "blender_material": "GF1 Recess Wall",
+   "triangles": 48,
+   "size": [
+    2.66,
+    0.1672,
+    0.367
+   ],
+   "center": [
+    0.27,
+    0.0,
+    0.1935
+   ]
+  }
+ }
+}

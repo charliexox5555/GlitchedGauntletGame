@@ -1,0 +1,71 @@
+{
+ "variant": "Giltfold Marshal v02",
+ "date": "2026-11-14",
+ "source": "Marshal_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_vandal_shell_base.py",
+  "tools/blender/model_giltfold_guns2.py (round two origami sculpt)"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.3, 3.25, -0.4, 0.5))",
+ "chamber_material": "GF1 Lacquer Pattern",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Marshal_Stock",
+  "Marshal_Receiver",
+  "Marshal_Scope",
+  "Marshal_Barrel",
+  "Marshal_Lever",
+  "Marshal_Hammer",
+  "Marshal_Trigger",
+  "Marshal_CharmLoop",
+  "Marshal_Bolt"
+ ],
+ "roblox_fbx": "Marshal_Giltfold_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 942,
+   "vertices": 518,
+   "size": [
+    3.382,
+    0.176,
+    0.7134
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.429,
+    0.0,
+    0.0556
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 26,
+   "vertices": 34,
+   "size": [
+    2.9175,
+    0.136,
+    0.4332
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    0.2813,
+    0.0,
+    -0.0486
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 3,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Marshal_Atlas_Color.png",
+  "Marshal_Atlas_Rough.png",
+  "Marshal_Atlas_Metal.png",
+  "Marshal_Chamber_Color.png"
+ ]
+}

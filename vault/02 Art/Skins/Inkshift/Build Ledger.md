@@ -1,0 +1,46 @@
+# Inkshift build ledger
+
+**Status** · Line complete in Blender (Claude, 2026-11-14 overnight; Blender only, Studio later). Brief: [concept.md](concept.md). Order: Odin (hero), Phantom, Vandal, Stinger, Shorty, Inkshift Blade.
+
+## Round two (2026-11-14, owner: plates read as a reskin; Inkshift should be intricate anime pop art; the Blade should be sword-length)
+
+**Vandal v02** (`tools/blender/model_inkshift_vandal.py` on `model_vandal_shell_base.py`), quality bar of the Orion reference with original panels: a stepped white upper with an inked step ledge and a blue band, the broken cyan accent in a dark channel, deep royal-blue lower plates over indigo shadow planes, layered white armour plates with angled cut ends, vermilion stripes, swept vermilion fins (outside the sight line), cyan glow lines on the handguard and butt, ink panel lines, comic highlight streaks, an angular open-frame stock (white top beam, blue frame, indigo butt, vermilion heel tab), an armour magazine with a white front plate and a cyan base strip, an indigo grip with a white plate, a stepped muzzle with ink rings and a vermilion tab. Painted finish: soft brush streaks in the white, blue and indigo. **Ink outlines** are inverted hulls on the outward faces only (inner faces skipped so they never bulge into the channel or magazine well), thickness `INK_T` = 0.0055 studs (0.003 on the magazine), tunable when the owner checks it in Studio. Checks: 0 hits on the moving parts over all four clips, only the stock-position magazine-catch contact, nothing floating.
+
+### Round two: rest of the line (2026-11-14, built while the owner was away)
+
+Builder: `tools/blender/model_inkshift_guns2.py` (Blade: `model_inkshift_blade.py`) on the shared helpers in `model_vandal_shell_base.py`. Every gun passed the clearance check (all moving parts and the magazine over every clip) and the floating-part check; parts that ride moving bones (slides, barrels, ammo boxes) were checked against every static part too. Grades: round-one rubric, full / Blender-scope; honest reading: a few points under the Vandals because receivers and slides with moving-part channels stay stock-shaped.
+
+| Item | v02 build | Grade | Holds the grade back |
+| --- | --- | ---: | --- |
+| Odin | open-frame armour stock, armour grip with a white plate, blue / indigo armour layers on the receiver, vermilion stripes and swept fins, broken cyan accent, ink panel lines, white plate and cyan strip on the ammo box, comic highlights, ink outlines on the new bodies | 85 / 90 | receiver stock-shaped |
+| Phantom | armour handguard with vents, a white layer and a cyan glow line (upper-back corner bevelled clear of the charging handle); white / blue armour suppressor with a cyan line and vermilion tab; open-frame stock; armour grip; armour magazine with a white plate, cyan strip and indigo base; receiver armour, cyan accent, fins | 85 / 90 | — |
+| Stinger | open-frame armour stock, armour handguard with a white layer and glow line, receiver armour plates, cyan accent and a stripe, white grip and magazine plates, stepped muzzle with a vermilion tab, fins | 84 / 89 | grip stock-shaped (magazine runs through it) |
+| Shorty | armour barrel shroud riding the Barrels bone with a white layer, cyan glow line, vermilion tab and fins; frame armour plate with the cyan accent and a stripe; white grip plate | 84 / 89 | frame stock-shaped |
+| Blade (Knife slot) | v02 sword length (reach x 2.20, about twice the stock blade): tanto blade with glowing cyan edges, white armour layers, dark fuller with a cyan core, vermilion stripes, forward-swept vermilion guard wings clear of the hand, blue armoured grip with white plates and a cyan ring, indigo pommel with a glowing cap; ink outlines | 86 / 91 | first-person viewmodel pass for the longer blade (Studio) |
+
+## Line language (as built)
+
+Comic-panel mecha armour: warm-white plates (`#DFE4E9`) whose second plane is indigo shadow (`#323F73`) or armour blue (`#4867AD`) at one crease, ink-charcoal rims as the major panel lines (`#1D2431`), flat colour changes on the smaller surfaces, a few flat reflection shapes (`#F7FAFC`), the broken cyan accent (one long segment + two short offset marks, `#37E9FF`, steady low glow) inside a dark recess cut into a plate, sparse vermilion tabs (`#E46C40`). Low-specular "flat" materials so it reads under normal Studio lighting. The cyan is static (the brief's travelling glint during inspect stays an optional Studio prototype on the same Texture path). Kit: `tools/blender/model_inkshift_kit.py` (with `fold_plate` from the Giltfold kit).
+
+| Item | Version | Files | Grade (full rubric) | Blender-scope |
+| --- | --- | --- | ---: | ---: |
+| Odin (hero) | v01 | [blend](../../../../art-source/weapons/Skins/Inkshift/Odin/v01/Odin_Inkshift_v01.blend) · [sheet](../../../../art-source/weapons/Skins/Inkshift/Odin/v01/review/matched_v01.jpg) · [manifest](../../../../art-source/weapons/Skins/Inkshift/Odin/v01/manifest.json) | 87 | 93 |
+| Phantom | v01 | [blend](../../../../art-source/weapons/Skins/Inkshift/Phantom/v01/Phantom_Inkshift_v01.blend) · [sheet](../../../../art-source/weapons/Skins/Inkshift/Phantom/v01/review/matched_v01.jpg) | 87 | 93 |
+| Vandal | **v02** (full comic-mecha shell) | [blend](../../../../art-source/weapons/Skins/Inkshift/Vandal/v02/Vandal_Inkshift_v02.blend) · [sheet](../../../../art-source/weapons/Skins/Inkshift/Vandal/v02/review/matched_v02.jpg) · [manifest](../../../../art-source/weapons/Skins/Inkshift/Vandal/v02/manifest.json) | 87 | 92 |
+| Vandal | v01 | [blend](../../../../art-source/weapons/Skins/Inkshift/Vandal/v01/Vandal_Inkshift_v01.blend) · [sheet](../../../../art-source/weapons/Skins/Inkshift/Vandal/v01/review/matched_v01.jpg) | 87 | 93 |
+| Stinger | v01 | [blend](../../../../art-source/weapons/Skins/Inkshift/Stinger/v01/Stinger_Inkshift_v01.blend) · [sheet](../../../../art-source/weapons/Skins/Inkshift/Stinger/v01/review/matched_v01.jpg) | 86 | 91 |
+| Shorty | v01 | [blend](../../../../art-source/weapons/Skins/Inkshift/Shorty/v01/Shorty_Inkshift_v01.blend) · [sheet](../../../../art-source/weapons/Skins/Inkshift/Shorty/v01/review/matched_v01.jpg) | 87 | 93 |
+| Inkshift Blade (Knife slot) | v01 | [blend](../../../../art-source/weapons/Skins/Inkshift/Blade/v01/Blade_Inkshift_v01.blend) · [sheet](../../../../art-source/weapons/Skins/Inkshift/Blade/v01/review/matched_v01.jpg) | 85 | 90 |
+
+## Per item
+
+| Item | Build | Checks (Blender) | Holds the grade back |
+| --- | --- | --- | --- |
+| Odin | Two broad faces wrap the body: an upper shoulder above the channel carrying the segmented cyan accent (both sides) and a lower face; a feed-tray face and a long handguard face (white over indigo), kept under the feed cover's swing; an inked fold plate on the ammo box (AmmoBox bone, box profile and feed area kept clear); stock fold; vermilion tabs on the handguard and stock; two flat highlights | 0 intersections over Fire / Inspect / Reload / ReloadEmpty with the charging handle, bolt, trigger, feed cover, feed belt and ammo box (the shoulder's first pass touched the feed cover; its front edge now stops at x .765) | big gun, so the plates read smaller at range |
+| Phantom | Long white side plate over a blue lower plane on the receiver (clear of the selector and the channel) and handguard, cyan accent on the body, stock fold, quiet blue suppressor can with one highlight ring, vermilion tab | 0 intersections; widths at stock | upper receiver (channel band) stays stock |
+| Vandal | Upper white plate above the channel, a stepped second plate over the front receiver with a short vermilion tab, indigo underside below the channel with the cyan accent, inked handguard fold, the curved magazine's bold blue shadow face (Mag bone) | 0 intersections; widths at stock | — |
+| Stinger | Two compact plates (front block ahead of the charging handle's travel, rear block behind the bolt's travel), a short cyan accent, a vermilion tab; charcoal lower body keeps the slim magazine and stock silhouette | 0 intersections; widths at stock | plates are small on a small gun |
+| Shorty | White frame plate (above the breech latch) breaking into an indigo face, tiny cyan accent; the barrels (Barrels bone, tips with them) carry the two ink-blue faces and a restrained vermilion tab; double-barrel silhouette unchanged | 0 intersections incl. the break-open barrels, latch and both ejecting shells over every clip | — |
+| Inkshift Blade | New long blade (tip at x 1.86 vs the stock 1.27): broad angular face (white over an indigo grind, inked rims), a two-step narrow blue spine, compact offset guard (longer below), the broken cyan inset along the blade (both faces), vermilion tab on the guard, blue pommel; stock grip core as the hand surface | Inspect / Slash1 / HeavyStab poses rendered | the brief's adapted first-person poses for the longer blade (screen coverage, crosshair room) are the viewmodel pass, with the arms |
+
+Grades: round-one rubric (look 30, fit 25, ADS/animation 20, craft 15, evidence 10). Blender-scope leaves out the 6 Studio-only points. **Open (Studio pass):** live ADS (the cyan accents sit below the sight line by construction), hands, texture load, optional inspect glint, Blade viewmodel poses.

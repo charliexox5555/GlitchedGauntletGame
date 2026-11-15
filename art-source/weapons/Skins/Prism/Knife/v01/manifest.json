@@ -1,0 +1,104 @@
+{
+  "line": "Prism",
+  "item": "Knife",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Knife/Knife_RemasterV2_v05.blend",
+  "source_file_sha256": "cfdaabce69b1e534a8faed9b0c3c21db40e985dba692bb4069665e4a0e0c1dc9",
+  "concept": "vault/02 Art/Skins/Prism/out/Knife_v01.png",
+  "blend": "art-source/weapons/Skins/Prism/Knife/v01/Knife_Prism_v01.blend",
+  "build_status": "baked",
+  "studio_status": "pending Blender approval",
+  "palette_color_roughness_metalness": {
+    "Body": [
+      "C62878",
+      0.16,
+      0
+    ],
+    "Panel": [
+      "541438",
+      0.2,
+      0
+    ],
+    "Dark": [
+      "15141A",
+      0.78,
+      0
+    ],
+    "Grip": [
+      "211E27",
+      0.88,
+      0
+    ],
+    "Metal": [
+      "3F3945",
+      0.34,
+      1
+    ],
+    "Accent": [
+      "A6718C",
+      0.22,
+      1
+    ],
+    "Neon": [
+      "FF79B8",
+      0.2,
+      0
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 150230,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "6846ef655f128a358ac05f4e52505ec192dae274bd804d12c93b84f67c0ca6b4",
+    "geometry_and_material_slots": "99393686d5e0c05b25280be85b5d05d9a67bfcf5e631c80b66ae2abc68c80caa",
+    "uv": "926ba232dc76274403c5793a7e70ca34fcf0c51b2e037943d077e0e848114bf1",
+    "rig_and_nla": "d7b0acc748759cf2539fef235ecad2d7927f946b56b4e8d1c9e1fb93192820f0",
+    "actions": "7c2ea6193d59a4aeff015840fe160a083a7c80621e5f4ce6935d136b3616699b"
+  },
+  "actions": [
+    "Knife_Draw",
+    "Knife_Fire",
+    "Knife_HeavyStab",
+    "Knife_Inspect",
+    "Knife_Slash1",
+    "Knife_Slash2",
+    "Knife_Slash3"
+  ],
+  "protected_objects": [],
+  "stock_uv_preserved": true,
+  "textures": {
+    "Color": "art-source/weapons/Skins/Prism/Knife/v01/textures/Knife_Color.png",
+    "Normal": "art-source/weapons/Skins/Prism/Knife/v01/textures/Knife_Normal.png",
+    "Roughness": "art-source/weapons/Skins/Prism/Knife/v01/textures/Knife_Roughness.png",
+    "Metalness": "art-source/weapons/Skins/Prism/Knife/v01/textures/Knife_Metalness.png"
+  },
+  "texture_sha256": {
+    "Color": "3cf738df8f0a1a3dd4d5fe7cee9665087787aab3cb07795bd9b907d66d395431",
+    "Normal": "d3261e8908c1d7479be1c83e9c2305b632162f728dc44fc54b6be6a64c38a3d1",
+    "Roughness": "d826083a1285bf34e61ed78b02a49eda67b5f79c4a8d6c6aac33ad2c9dd3b710",
+    "Metalness": "2b58a59d3e95110273d55ae17fc07f6234e52eb945592ac60b96ae60dbca8308"
+  },
+  "saved_file_verified": true,
+  "next_queue_item": {
+    "line": "Redline",
+    "item": "Phantom"
+  },
+  "next_phase": "Owner Blender review, then coordinated gameplay-place Studio check",
+  "review_renders": "art-source/weapons/Skins/Review/renders/Prism/Knife/v01",
+  "texture_settings": {
+    "dimensions": [
+      1024,
+      1024
+    ],
+    "padding_pixels": 6,
+    "Color": "sRGB",
+    "Normal": "OpenGL tangent space (+Y)",
+    "Roughness": "Non-Color",
+    "Metalness": "Non-Color"
+  }
+}

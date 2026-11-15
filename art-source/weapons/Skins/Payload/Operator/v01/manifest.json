@@ -1,0 +1,73 @@
+{
+ "variant": "Payload Operator v01",
+ "date": "2026-11-14",
+ "source": "Operator_RemasterV2_v05.blend",
+ "builder": [
+  "tools/blender/model_giltfold_kit.py (fold_plate)",
+  "tools/blender/model_payload_kit.py"
+ ],
+ "bake": "tools/blender/bake_moltframe_line.py (CHAMBER_BOUNDS (-1.35, 3.55, -0.3, 0.8))",
+ "chamber_material": "PL1 Thermal Foil",
+ "installer": "tools/studio/InstallMoltframeSkin.luau (generic geometry-skin installer)",
+ "replaced_stock_prefixes": [],
+ "retained_stock": [
+  "Operator_Barrel",
+  "Operator_Bolt",
+  "Operator_CharmLoop",
+  "Operator_Grip",
+  "Operator_Handguard",
+  "Operator_Magazine",
+  "Operator_Neon",
+  "Operator_Receiver",
+  "Operator_Scope",
+  "Operator_Stock",
+  "Operator_Trigger"
+ ],
+ "roblox_fbx": "Operator_Payload_Roblox.fbx",
+ "roblox_parts": {
+  "MF_Root_Body": {
+   "bone": "Root",
+   "triangles": 336,
+   "vertices": 198,
+   "size": [
+    1.83,
+    0.206,
+    0.301
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    1.335,
+    0.0,
+    0.2955
+   ]
+  },
+  "MF_Root_Chamber": {
+   "bone": "Root",
+   "triangles": 48,
+   "vertices": 42,
+   "size": [
+    0.352,
+    0.1989,
+    0.042
+   ],
+   "degenerate_tris": 0,
+   "uv_out_of_range": 0,
+   "center": [
+    1.63,
+    0.0,
+    0.205
+   ]
+  }
+ },
+ "review": {
+  "reload_frame": 15,
+  "inspect_frame": 34
+ },
+ "textures": [
+  "Operator_Atlas_Color.png",
+  "Operator_Atlas_Rough.png",
+  "Operator_Atlas_Metal.png",
+  "Operator_Chamber_Color.png"
+ ]
+}
