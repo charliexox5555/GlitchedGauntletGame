@@ -40,7 +40,7 @@ local BX = "rbxasset://fonts/families/BuilderExtended.json"
 local XB = Enum.FontWeight.ExtraBold
 local CARD = hex("0B1236") -- dark see-through plate over the blue
 
-local ALLY, GREEN = hex("3FE0F2"), hex("3FD68A")
+local ALLY = hex("3FE0F2")
 local MUTED, INK, WHITE = hex("AEB8D6"), hex("141A26"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local CENTRE = Vector2.new(0.5, 0.5)
@@ -138,10 +138,19 @@ local SIDE = hex("0A1030") -- the left panel
 local backdrop = make("Frame", {
 	Name = "Backdrop",
 	Size = UDim2.fromScale(1, 1),
-	BackgroundColor3 = hex("2340D8"),
+	BackgroundColor3 = WHITE,
+	BackgroundTransparency = 0.3, -- the blurred lobby shows through (owner: "less flat blue")
 	BorderSizePixel = 0,
 	ZIndex = 0,
 }, gui)
+make("UIGradient", {
+	Rotation = 35,
+	Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, hex("3B1D63")),
+		ColorSequenceKeypoint.new(0.55, hex("161A44")),
+		ColorSequenceKeypoint.new(1, hex("0A1230")),
+	}),
+}, backdrop)
 local shade = make("Frame", {
 	Name = "Shade",
 	Size = UDim2.fromScale(1, 1),
@@ -187,6 +196,49 @@ make("UIGradient", {
 		NumberSequenceKeypoint.new(1, 1),
 	}),
 }, floor)
+
+-- the chunky tick (owner, style board): two thick bright-green bars over a
+-- dark shadow copy, no circle
+local function chunkyTick(p: Instance, d: number, z: number, anchor: Vector2, pos: UDim2): Frame
+	local c = make("Frame", {
+		Name = "Check",
+		AnchorPoint = anchor,
+		Position = pos,
+		Size = UDim2.fromOffset(d, d),
+		BackgroundTransparency = 1,
+		Visible = false,
+		ZIndex = z,
+	}, p)
+	for i, layer in
+		{
+			{ "Shadow", Color3.fromHex("0B0E1F"), 0.45, math.max(3, d // 22) },
+			{ "Face", Color3.fromHex("5BE36C"), 0, 0 },
+		}
+	do
+		local f = make("Frame", {
+			Name = layer[1] :: string,
+			Position = UDim2.fromOffset(0, layer[4] :: number),
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			ZIndex = z + i,
+		}, c)
+		for _, bar in { { "Short", 0.3, 0.62, 0.42, 45 }, { "Long", 0.6, 0.48, 0.78, -50 } } do
+			local b = make("Frame", {
+				Name = bar[1] :: string,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(bar[2] :: number, bar[3] :: number),
+				Size = UDim2.new(bar[4] :: number, 0, 0.17, 0),
+				Rotation = bar[5] :: number,
+				BackgroundColor3 = layer[2] :: Color3,
+				BackgroundTransparency = layer[3] :: number,
+				BorderSizePixel = 0,
+				ZIndex = z + i,
+			}, f)
+			make("UICorner", { CornerRadius = UDim.new(0, math.max(3, d // 24)) }, b)
+		end
+	end
+	return c
+end
 
 local canvas = make("Frame", {
 	Name = "Canvas",
@@ -650,38 +702,7 @@ text(tile, "Name", "PRISM", 20, WHITE, {
 	Position = UDim2.new(0, 18, 1, -18),
 	ZIndex = 6,
 })
-local check = make("Frame", {
-	Name = "Check",
-	AnchorPoint = Vector2.new(1, 0),
-	Position = UDim2.new(1, -12, 0, 12),
-	Size = UDim2.fromOffset(34, 34),
-	BackgroundColor3 = GREEN,
-	BorderSizePixel = 0,
-	Visible = false,
-	ZIndex = 7,
-}, tile)
-make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, check)
--- a drawn tick (two bars), so it doesn't depend on a font glyph
-make("Frame", {
-	Name = "Short",
-	AnchorPoint = CENTRE,
-	Position = UDim2.fromOffset(12, 19),
-	Size = UDim2.fromOffset(10, 4),
-	Rotation = 45,
-	BackgroundColor3 = WHITE,
-	BorderSizePixel = 0,
-	ZIndex = 8,
-}, check)
-make("Frame", {
-	Name = "Long",
-	AnchorPoint = CENTRE,
-	Position = UDim2.fromOffset(20, 16),
-	Size = UDim2.fromOffset(18, 4),
-	Rotation = -50,
-	BackgroundColor3 = WHITE,
-	BorderSizePixel = 0,
-	ZIndex = 8,
-}, check)
+chunkyTick(tile, 52, 7, Vector2.new(1, 0), UDim2.new(1, -8, 0, 6))
 
 gui.Parent = SG
 print("Locker v5 built (StarterGui.Locker off, ReplicatedStorage.LockerStage, templates)")

@@ -18,6 +18,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Layout = require(script.Parent.Parent.Util.Layout)
+local Plates = require(script.Parent.Parent.Util.Plates)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
@@ -362,6 +363,7 @@ function PlayMenuController.init()
 	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
 		Router.close()
 	end)
+	Plates.deepen(gui)
 	Router.register("Queue", { open = open, close = close })
 
 	searchGui = sg

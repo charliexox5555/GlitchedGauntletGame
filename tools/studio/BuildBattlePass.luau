@@ -32,7 +32,7 @@ local BX = "rbxasset://fonts/families/BuilderExtended.json"
 local XB, BOLD = Enum.FontWeight.ExtraBold, Enum.FontWeight.Bold
 local CARD = hex("0B1236")
 local CARD_T = 0.2
-local GOLD, GREEN = hex("FFC83D"), hex("3FD68A")
+local GOLD, GREEN = hex("FFC83D"), hex("3FD45C")
 local ALLY = hex("3FE0F2")
 local MUTED, INK, WHITE = hex("AEB8D6"), hex("141A26"), Color3.new(1, 1, 1)
 local PREMIUM_CELL = hex("3A3016") -- a dark gold plate for the premium track
@@ -97,41 +97,49 @@ local function slant(body: GuiObject, color: Color3, h: number, capW: number)
 		ZIndex = body.ZIndex,
 	}, body)
 end
--- a drawn tick (two bars)
-local function tick(p: Instance, d: number, z: number): Frame
+-- the chunky tick (owner, style board): two thick bright-green bars over a
+-- dark shadow copy, no circle
+local function chunkyTick(p: Instance, d: number, z: number, anchor: Vector2, pos: UDim2): Frame
 	local c = make("Frame", {
 		Name = "Check",
-		AnchorPoint = CENTRE,
-		Position = UDim2.fromScale(0.5, 0.45),
+		AnchorPoint = anchor,
+		Position = pos,
 		Size = UDim2.fromOffset(d, d),
-		BackgroundColor3 = GREEN,
-		BorderSizePixel = 0,
+		BackgroundTransparency = 1,
 		Visible = false,
 		ZIndex = z,
 	}, p)
-	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, c)
-	make("Frame", {
-		Name = "Short",
-		AnchorPoint = CENTRE,
-		Position = UDim2.fromScale(0.36, 0.56),
-		Size = UDim2.new(0.3, 0, 0, math.max(4, d // 9)),
-		Rotation = 45,
-		BackgroundColor3 = WHITE,
-		BorderSizePixel = 0,
-		ZIndex = z + 1,
-	}, c)
-	make("Frame", {
-		Name = "Long",
-		AnchorPoint = CENTRE,
-		Position = UDim2.fromScale(0.58, 0.47),
-		Size = UDim2.new(0.52, 0, 0, math.max(4, d // 9)),
-		Rotation = -50,
-		BackgroundColor3 = WHITE,
-		BorderSizePixel = 0,
-		ZIndex = z + 1,
-	}, c)
+	for i, layer in
+		{
+			{ "Shadow", Color3.fromHex("0B0E1F"), 0.45, math.max(3, d // 22) },
+			{ "Face", Color3.fromHex("5BE36C"), 0, 0 },
+		}
+	do
+		local f = make("Frame", {
+			Name = layer[1] :: string,
+			Position = UDim2.fromOffset(0, layer[4] :: number),
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			ZIndex = z + i,
+		}, c)
+		for _, bar in { { "Short", 0.3, 0.62, 0.42, 45 }, { "Long", 0.6, 0.48, 0.78, -50 } } do
+			local b = make("Frame", {
+				Name = bar[1] :: string,
+				AnchorPoint = Vector2.new(0.5, 0.5),
+				Position = UDim2.fromScale(bar[2] :: number, bar[3] :: number),
+				Size = UDim2.new(bar[4] :: number, 0, 0.17, 0),
+				Rotation = bar[5] :: number,
+				BackgroundColor3 = layer[2] :: Color3,
+				BackgroundTransparency = layer[3] :: number,
+				BorderSizePixel = 0,
+				ZIndex = z + i,
+			}, f)
+			make("UICorner", { CornerRadius = UDim.new(0, math.max(3, d // 24)) }, b)
+		end
+	end
 	return c
 end
+
 -- a button holding a slanted price plate (Robux), a kicker over it
 local function priceButton(
 	p: Instance,
@@ -179,7 +187,7 @@ local function priceButton(
 		Size = UDim2.fromOffset(36, 36),
 		BackgroundTransparency = 1,
 		Image = ROBUX,
-		ImageColor3 = INK,
+		ImageColor3 = WHITE,
 		ZIndex = 8,
 	}, row)
 	text(
@@ -187,7 +195,7 @@ local function priceButton(
 		"Amount",
 		amount,
 		30,
-		INK,
+		WHITE,
 		{ LayoutOrder = 2, Size = UDim2.fromOffset(0, 62), ZIndex = 8 }
 	)
 	text(b, "Kicker", kicker, 15, WHITE, {
@@ -642,7 +650,7 @@ for col = 1, 7 do
 		}, cell)
 		local dimCorner = make("UICorner", { CornerRadius = UDim.new(0, 8) })
 		dimCorner.Parent = cell:FindFirstChild("Dim")
-		tick(cell, 70, 7)
+		chunkyTick(cell, 118, 7, CENTRE, UDim2.fromScale(0.5, 0.46))
 		-- the selection frame (four corner brackets), shown on the picked cell
 		local sel =
 			frame(cell, "Select", { Size = UDim2.fromScale(1, 1), Visible = false, ZIndex = 9 })

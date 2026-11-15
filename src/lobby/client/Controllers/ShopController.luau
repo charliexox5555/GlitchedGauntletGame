@@ -35,6 +35,8 @@ local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
+local Pivot = require(script.Parent.Parent.Util.Pivot)
+local Plates = require(script.Parent.Parent.Util.Plates)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Layout = require(script.Parent.Parent.Util.Layout)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -309,7 +311,8 @@ local function showItemCard(item: ShopCatalog.Item, at: GuiObject)
 	local s = math.max(fit.Scale, 0.01)
 	local rel = (at.AbsolutePosition - canvas.AbsolutePosition) / s
 	local w = at.AbsoluteSize.X / s
-	itemCard.Position = UDim2.fromOffset(rel.X + w / 2, rel.Y - 12)
+	itemCard.AnchorPoint = Vector2.new(0.5, 0.5)
+	itemCard.Position = UDim2.fromOffset(rel.X + w / 2, rel.Y - 12 - itemCard.Size.Y.Offset / 2)
 	itemCard.Visible = true
 	local sc = pop(itemCard)
 	if sc then
@@ -352,6 +355,7 @@ local function buildBundle(card: GuiButton, bundle: ShopCatalog.Bundle)
 			then "x" .. commas(item.amount or 0)
 			else item.name
 		c.Parent = contents
+		Pivot.wrap(c)
 		table.insert(cells, c)
 		local sc = pop(c)
 		c.MouseEnter:Connect(function()
@@ -491,7 +495,7 @@ end
 -- The skin-bundle preview
 
 local function plateAmount(button: Instance, amount: string)
-	local plate = button:FindFirstChild("Price")
+	local plate = button:FindFirstChild("Price", true)
 	local row = plate and plate:FindFirstChild("Row")
 	local label = row and row:FindFirstChild("Amount")
 	if label and label:IsA("TextLabel") then
@@ -591,7 +595,12 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	-- the strip: one cell per item
 	local strip = child(preview, "Strip") :: Frame
 	for _, c in previewCells do
-		c:Destroy()
+		local holder = c.Parent
+		if holder and holder:GetAttribute("PivotHolder") == true then
+			holder:Destroy()
+		else
+			c:Destroy()
+		end
 	end
 	table.clear(previewCells)
 	for i, item in bundle.items do
@@ -611,6 +620,7 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 			then "x" .. commas(item.amount or 0)
 			else item.name
 		c.Parent = strip
+		Pivot.wrap(c)
 		table.insert(previewCells, c)
 		c.MouseEnter:Connect(function()
 			local sc = pop(c)
@@ -1061,6 +1071,10 @@ function ShopController.init()
 		end)
 	end
 
+	-- everything that pops grows from its own centre (owner rule)
+	Plates.deepen(gui)
+	Pivot.fix(gui)
+	Pivot.fix(coinsGui)
 	Router.register("Shop", { open = open, close = close })
 end
 

@@ -25,6 +25,7 @@ local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Layout = require(script.Parent.Parent.Util.Layout)
+local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
 
@@ -580,6 +581,7 @@ function PartyMenuController.init()
 		end
 		render()
 	end)
+	Plates.deepen(gui)
 	Router.register("Party", { open = open, close = close })
 end
 

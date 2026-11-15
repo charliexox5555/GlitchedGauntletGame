@@ -39,7 +39,7 @@ local BX = "rbxasset://fonts/families/BuilderExtended.json"
 local XB, BOLD = Enum.FontWeight.ExtraBold, Enum.FontWeight.Bold
 local CARD = hex("0B1236")
 local CARD_T = 0.2
-local ALLY, GOLD, GREEN = hex("3FE0F2"), hex("FFC83D"), hex("3FD68A")
+local ALLY, GOLD, GREEN = hex("3FE0F2"), hex("FFC83D"), hex("3FD45C")
 local MUTED, INK, WHITE = hex("AEB8D6"), hex("141A26"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local ROBUX = "rbxasset://textures/ui/common/robux.png"
@@ -229,7 +229,7 @@ local function price(
 			Size = UDim2.fromOffset(iconD, iconD),
 			BackgroundTransparency = 1,
 			Image = ROBUX,
-			ImageColor3 = INK,
+			ImageColor3 = WHITE,
 			ZIndex = 7,
 		}, row)
 	end
@@ -238,7 +238,7 @@ local function price(
 		"Amount",
 		amount,
 		math.floor(ph * 0.5),
-		INK,
+		if kind == "robux" then WHITE else INK,
 		{ LayoutOrder = 2, Size = UDim2.fromOffset(0, ph), ZIndex = 7 }
 	)
 	return plate

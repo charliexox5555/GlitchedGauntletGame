@@ -30,6 +30,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local Pivot = require(script.Parent.Pivot)
 local QueueState = require(script.Parent.QueueState)
 local Router = require(script.Parent.Router)
 
@@ -646,6 +647,7 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		toastToken = 0,
 	}
 	state = s
+	Pivot.centre(s.invite) -- the invite popup pops from its centre
 	refit(s)
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 		refit(s)
@@ -939,7 +941,9 @@ function LobbyHudView.toast(text: string, kind: string?)
 	end
 	s.toastLabel.Text = string.upper(text)
 	s.toastPlate.Visible = true
-	local home = UDim2.fromOffset(350, 140)
+	-- centre-anchored so its pop grows from the middle (owner rule)
+	s.toastPlate.AnchorPoint = Vector2.new(0.5, 0.5)
+	local home = UDim2.fromOffset(350, 140 + 26) -- the plate is 52 tall (auto width)
 	s.toastPlate.Position = home + UDim2.fromOffset(0, -24)
 	s.toastPop.Scale = 0.9
 	tween(s.toastPlate, 0.4, { Position = home }, QUINT, OUT)

@@ -28,6 +28,8 @@ local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
 local Layout = require(script.Parent.Parent.Util.Layout)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
+local Pivot = require(script.Parent.Parent.Util.Pivot)
+local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
 
@@ -611,6 +613,9 @@ function BattlePassController.init()
 			Router.close()
 		end
 	end)
+	-- everything that pops grows from its own centre (owner rule)
+	Plates.deepen(gui)
+	Pivot.fix(gui)
 	Router.register("BattlePass", { open = open, close = close })
 end
 

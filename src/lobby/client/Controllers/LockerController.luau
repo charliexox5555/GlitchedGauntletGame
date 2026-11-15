@@ -26,6 +26,8 @@ local Locker = require(ReplicatedStorage.Shared.Locker)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
+local Pivot = require(script.Parent.Parent.Util.Pivot)
+local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
 
 local LockerController = {}
@@ -367,16 +369,13 @@ local function enterStage()
 	cameraHome = if camValue and camValue:IsA("CFrameValue")
 		then camValue.Value
 		else CFrame.lookAt(standPos + Vector3.new(0, 0.5, 12), standPos)
-	local bg = values:GetAttribute("Background")
+
 	local vf = Instance.new("ViewportFrame")
 	vf.Name = "Stage"
 	vf.Size = UDim2.fromScale(1, 1)
 	-- see-through, over Backdrop (the stage colour, shade and floor shadow)
 	-- and under the Canvas
-	local backdrop = gui:FindFirstChild("Backdrop")
-	if backdrop and backdrop:IsA("Frame") and typeof(bg) == "Color3" then
-		backdrop.BackgroundColor3 = bg
-	end
+	-- see-through over Backdrop (the violet wash over the blurred lobby)
 	vf.BackgroundTransparency = 1
 	vf.BorderSizePixel = 0
 	vf.Ambient = Color3.fromRGB(150, 158, 196)
@@ -478,7 +477,10 @@ local function refreshGunCards()
 	end
 end
 
+-- Call after the card is parented: a layout item is wrapped so it grows from
+-- its centre, anything else is re-anchored to its centre.
 local function hoverable(card: GuiButton, lift: number?)
+	Pivot.prepare(card)
 	local pop = Instance.new("UIScale")
 	pop.Name = "Pop"
 	pop.Parent = card
@@ -490,8 +492,12 @@ local function hoverable(card: GuiButton, lift: number?)
 		tween(pop, 0.14, { Scale = 1 })
 	end)
 	card.Activated:Connect(function()
-		pop.Scale = 0.95
-		tween(pop, 0.24, { Scale = up })
+		local dip = tween(pop, 0.07, { Scale = up * 0.95 })
+		dip.Completed:Once(function(state: Enum.PlaybackState)
+			if state == Enum.PlaybackState.Completed then
+				tween(pop, 0.24, { Scale = up })
+			end
+		end)
 	end)
 end
 
@@ -556,13 +562,13 @@ local function buildGuns()
 			local name = child(card, "Name") :: TextLabel
 			local cfg = Weapons.get(id)
 			name.Text = string.upper(if cfg then cfg.displayName else id)
-			hoverable(card)
 			card.Activated:Connect(function()
 				if selectedGun ~= id then
 					selectGun(id)
 				end
 			end)
 			card.Parent = grid
+			hoverable(card)
 			gunCards[id] = card
 		end
 		group.Parent = gunsList
@@ -575,7 +581,8 @@ end
 -- the rest are dark plates. A check marks the equipped one.
 local function refreshTiles()
 	local equipped = equippedLine(selectedGun)
-	for _, t in strip:GetChildren() do
+	for _, holder in strip:GetChildren() do
+		local t = Pivot.item(holder)
 		if t:IsA("GuiButton") then
 			local on = t.Name == previewLine
 			local color = Locker.COLORS[t.Name] or WHITE
@@ -622,7 +629,7 @@ end
 
 local function buildTiles()
 	for _, c in strip:GetChildren() do
-		if c:IsA("GuiButton") then
+		if c:IsA("GuiButton") or c:GetAttribute("PivotHolder") == true then
 			c:Destroy()
 		end
 	end
@@ -640,7 +647,6 @@ local function buildTiles()
 		e.Position = UDim2.fromOffset(16, 14)
 		local name = child(t, "Name") :: TextLabel
 		name.Text = lineTitle(line)
-		hoverable(t, 1.04)
 		t.Activated:Connect(function()
 			LockerController.preview(line)
 			if equippedLine(selectedGun) ~= line then
@@ -649,6 +655,7 @@ local function buildTiles()
 			refreshTiles()
 		end)
 		t.Parent = strip
+		hoverable(t, 1.04)
 	end
 	refreshTiles()
 end
@@ -794,13 +801,72 @@ local function open()
 	end
 	selectGun(if Locker.gunModel(selectedGun) then selectedGun else "Vandal")
 	moveName(MAIN_SPOT.X)
-	slideIn(gunsList, -160, 0, 0.02)
-	slideIn(child(canvas, "Title"), -100, 0, 0)
-	slideIn(child(canvas, "GunClass"), 0, -40, 0.04)
-	slideIn(child(canvas, "Tabs"), -100, 0, 0.04)
-	slideIn(kinds, 0, 200, 0.08)
 	resetClose()
-	slideIn(child(canvas, "Close"), 100, 0, 0)
+	-- the open, in a beat: the wash fades in, the panel and its list slide in,
+	-- the cards cascade, the gun swings in big, the header drops in piece by
+	-- piece, the tiles rise one after another, the close pops last
+	local backdrop = gui:FindFirstChild("Backdrop")
+	if backdrop and backdrop:IsA("Frame") then
+		backdrop.BackgroundTransparency = 1
+		tween(backdrop, 0.3, { BackgroundTransparency = 0.3 })
+		local shade = backdrop:FindFirstChild("Shade")
+		if shade and shade:IsA("Frame") then
+			shade.BackgroundTransparency = 1
+			tween(shade, 0.4, { BackgroundTransparency = 0 })
+		end
+	end
+	local side = canvas:FindFirstChild("Side")
+	if side and side:IsA("GuiObject") then
+		slideIn(side, -180, 0, 0)
+	end
+	slideIn(child(canvas, "Title"), -80, 0, 0.04)
+	slideIn(child(canvas, "Tabs"), -80, 0, 0.07)
+	slideIn(gunsList, -120, 0, 0.06)
+	local n = 0
+	for _, card in gunCards do
+		local sc = card:FindFirstChild("Pop")
+		if sc and sc:IsA("UIScale") and n < 18 then
+			n += 1
+			sc.Scale = 0.82
+			task.delay(0.1 + n * 0.018, function()
+				if isOpen then
+					tween(sc, 0.3, { Scale = 1 })
+				end
+			end)
+		end
+	end
+	-- the gun swings in from a big angle (overrides the swap's small entrance)
+	swapRot.Value = CFrame.new(0, -1.4, 0)
+		* CFrame.Angles(math.rad(-28), math.rad(-75), math.rad(-14))
+	tween(swapRot, 0.9, { Value = CFrame.new() })
+	slideIn(child(canvas, "GunClass"), 0, -50, 0.12)
+	slideIn(child(canvas, "GunName"), 0, -50, 0.16)
+	slideIn(child(canvas, "SkinTag"), 0, -50, 0.2)
+	slideIn(kinds, 0, 160, 0.14)
+	local t = 0
+	for _, holder in kinds:GetChildren() do
+		local tile = Pivot.item(holder)
+		local sc = tile:FindFirstChild("Pop")
+		if sc and sc:IsA("UIScale") then
+			t += 1
+			sc.Scale = 0.8
+			task.delay(0.22 + t * 0.06, function()
+				if isOpen then
+					tween(sc, 0.32, { Scale = 1 })
+				end
+			end)
+		end
+	end
+	local closeB = child(canvas, "Close") :: GuiObject
+	local cs = closeB:FindFirstChild("Pop")
+	if cs and cs:IsA("UIScale") then
+		cs.Scale = 0
+		task.delay(0.3, function()
+			if isOpen then
+				tween(cs, 0.3, { Scale = 1 })
+			end
+		end)
+	end
 end
 
 local function close()
@@ -863,7 +929,8 @@ function LockerController.init()
 	end
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
-	Router.register("Locker", { open = open, close = close, clear = true })
+	Plates.deepen(gui)
+	Router.register("Locker", { open = open, close = close })
 	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
 		Router.close()
 	end)

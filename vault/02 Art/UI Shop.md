@@ -215,3 +215,17 @@ Code:
 - Catalog: `ITEM_ROBUX` (placeholder prices by kind and rarity), `itemRobux`, `separately`.
 
 Checked in Studio play: Neon (Nitrous Vandal in 3D, 479 / 975 / separately 1,426), the Overdrive Mod card (449), BACK. No errors. Then aligned the separately plate with the others and made the gun a little bigger.
+
+## Plate look (2026-11-16, first pass)
+Owner, on the style board ([style_board.jpg](Shop/style_board.jpg): A chunky block, B slanted + depth, C clean block): picked **B**, then "I like the slanted look because that is the style we are going for. But I want to add the shine and just the good nice look of the chunky block. so mix them and then get this look to all of the UI in the lobby". Also: the chunky tick, bigger; the Locker over the blurred lobby + wash; anchors at 0.5,0.5 so pops grow from the centre.
+
+What changed:
+- `client/Util/Plates` (new): `finish(plate)` gives every slanted plate (a body with CapL / CapR) a **shine** (top 46%, its colour 24% toward white, flat) and a **lip** (bottom 5 px, 45% toward ink), both with slanted ends clipped from the caps. Layers: caps, then shine / lip, then the words; they follow the plate's colour and fade. White words get a soft ink stroke. `deepen(gui)` runs once per screen (Shop, Season Pass, Play, Party, Locker); `NoLip = true` opts a plate out.
+- `client/Util/Pivot` (new): `fix(gui)` centre-anchors every free GuiObject that pops (position kept) and wraps layout items in a same-size holder so their UIScale grows from the centre (owner rule; memory "UI scale pivot").
+- Robux plates: brighter green `3FD45C`, white words and icon.
+- **Chunky tick** (Season Pass claimed rewards, Locker equipped skin): a big green tick with a dark under-layer, replacing the thin one.
+- **Locker:** the flat blue backdrop is now the violet wash over the blurred lobby; a staged open (wash, side panel, list, card cascade, the gun swinging in from a big angle, header pieces, tiles, close last); card presses dip and return instead of snapping.
+
+Checked in Studio play: Shop Home ([look_shop_home.jpg](Shop/look_shop_home.jpg)), the case popup ([look_case_popup.jpg](Shop/look_case_popup.jpg)), the Season Pass ([look_season_pass.jpg](Shop/look_season_pass.jpg)) and the Locker ([look_locker.jpg](Shop/look_locker.jpg)). No new errors (the `203785492` warning is old Studio content). Fixed on the way: the shine drew over the price words (sibling ZIndex), now caps < bands < words.
+
+**Next, after the owner's OK:** the rest of the lobby's square buttons (VIEW, INVITE FRIENDS, LEAVE, the party card, tab plates, Play menu chips) get slanted plates with the shine; then the match UI.
