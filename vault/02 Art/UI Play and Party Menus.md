@@ -71,7 +71,7 @@ Like RIVALS: when the server finds your match, the screen dims and blurs, and **
   - It closes when you're idle again.
   - It turns "failed" / "info" into toasts and blocks menus while it's up.
 - The player list and topbar leave the screen while it's up (`LobbyHudView.placeCorners`), as they do for a menu.
-- Motion: the dots pop in from their centres (staggered 0.06 s, Quint), then each grows to 1.45x in 0.26 s and eases back (Sine in-out), 0.22 s apart. Background blur 20, scrim `08060E` at 0.2.
+- Motion (owner: "much smoother"): the dots pop in from their centres (staggered 0.06 s, Quint), then ride **one continuous wave drawn every frame**, with no chained tweens. Each swells to 1.42x and back on a smooth peaked curve over 1.2 s, a third of a cycle after the one before, and the wave fades in over 0.45 s. Sampled in play: the largest change was 0.035 a frame, with no steps. Background blur 20, scrim `08060E` at 0.2.
 - Studio only: a small "STUDIO · TELEPORT SKIPPED" under the dots.
 - The old MATCH FOUND band (teams, avatars, countdown) is gone from `Controllers/QueueMenu`, which is now only the phone queue menu.
 - Checked in Studio play: 1v1 → searching → MATCH FOUND dots (clean screen) → the Studio skip → back to the lobby, with no errors.

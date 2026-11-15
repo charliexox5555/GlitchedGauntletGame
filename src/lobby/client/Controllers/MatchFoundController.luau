@@ -12,6 +12,7 @@
 
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
 local LobbyNet = require(game:GetService("ReplicatedStorage").Lobby.LobbyNet)
@@ -22,12 +23,16 @@ local LobbyHud = require(script.Parent.LobbyHud)
 local MatchFoundController = {}
 
 local player = Players.LocalPlayer
-local QUINT, SINE = Enum.EasingStyle.Quint, Enum.EasingStyle.Sine
-local IN, OUT, INOUT = Enum.EasingDirection.In, Enum.EasingDirection.Out, Enum.EasingDirection.InOut
+local QUINT = Enum.EasingStyle.Quint
+local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
 local SCRIM_T = 0.2 -- the scrim's see-through when shown
 local BLUR = 20
-local PULSE = 1.45 -- the pulsing dot's scale
-local BEAT = 0.22 -- seconds between one dot's pulse and the next
+-- The dots ride one continuous wave, drawn every frame (no chained tweens,
+-- so nothing steps): each swells to 1 + SWELL and back over PERIOD seconds,
+-- a third of a cycle after the one before it.
+local SWELL = 0.42
+local PERIOD = 1.2
+local EASE_IN = 0.45 -- the wave fades in over this after the dots pop in
 
 local gui: ScreenGui
 local scrim: Frame
@@ -61,26 +66,41 @@ local function refit()
 	end
 end
 
--- The dots pulse one after another: each grows quickly and eases back.
-local function pulse(my: number)
-	task.spawn(function()
-		task.wait(0.3) -- after they've popped in
-		while token == my do
-			for _, pop in pops do
-				if token ~= my then
-					return
-				end
-				local up = tween(pop, 0.26, { Scale = PULSE })
-				up.Completed:Once(function(state: Enum.PlaybackState)
-					if state == Enum.PlaybackState.Completed and token == my then
-						tween(pop, 0.38, { Scale = 1 }, SINE, INOUT)
-					end
-				end)
-				task.wait(BEAT)
-			end
-			task.wait(0.36)
+local waveConn: RBXScriptConnection? = nil
+
+-- A smooth, peaked bump in [0, 1] for a phase in [0, 1): rest, swell, rest.
+local function bump(phase: number): number
+	local c = 0.5 - 0.5 * math.cos(phase * 2 * math.pi)
+	return c * c
+end
+
+local function startWave(my: number)
+	local started = os.clock() + 0.46 -- once the last dot has popped in (0.12 + 0.32)
+	if waveConn then
+		waveConn:Disconnect()
+	end
+	waveConn = RunService.RenderStepped:Connect(function()
+		if token ~= my then
+			return
+		end
+		local t = os.clock() - started
+		if t < 0 then
+			return
+		end
+		local amount = math.clamp(t / EASE_IN, 0, 1)
+		amount = amount * amount * (3 - 2 * amount) -- smoothstep
+		for i, pop in pops do
+			local phase = (t / PERIOD - (i - 1) / 3) % 1
+			pop.Scale = 1 + SWELL * amount * bump(phase)
 		end
 	end)
+end
+
+local function stopWave()
+	if waveConn then
+		waveConn:Disconnect()
+		waveConn = nil
+	end
 end
 
 local function open()
@@ -106,7 +126,7 @@ local function open()
 			end
 		end)
 	end
-	pulse(my)
+	startWave(my)
 end
 
 local function close()
@@ -116,6 +136,7 @@ local function close()
 	isOpen = false
 	token += 1
 	local my = token
+	stopWave()
 	tween(scrim, 0.25, { BackgroundTransparency = 1 }, QUINT, IN)
 	tween(blur, 0.25, { Size = 0 }, QUINT, IN)
 	for _, pop in pops do
