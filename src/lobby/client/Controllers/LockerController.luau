@@ -48,12 +48,19 @@ local CLASSES = {
 	{ "MachineGun", "HEAVY" },
 	{ "Melee", "MELEE" },
 }
-local GUN_LENGTH = 5 -- studs: every item is scaled to about this (melee a bit less)
+-- every item is scaled to fit a box: at most this long and this tall (a
+-- pistol stops at the height, a rifle at the length; melee a bit smaller)
+local GUN_LENGTH = 5
+local GUN_HEIGHT = 2
 local FOV = 30
 local POSE_YAW = math.rad(-90 + 26) -- the side toward the camera, turned a little
 local POSE_TILT = math.rad(22) -- muzzle raised, in screen space
-local DRAG_SPEED = math.rad(0.38) -- per pixel
-local DRAG_FOLLOW = 14 -- how fast the gun catches up with the drag (per second)
+local DRAG_SPEED = math.rad(0.24) -- per pixel
+local DRAG_FOLLOW = 6 -- how fast the drawn turn catches up with the drag (per second)
+local RETURN_TIME = 1.2 -- letting go: the ease back to the pose
+-- idle wobble: a slow bob and sway on mismatched periods so it never loops visibly
+local WOBBLE_BOB = 0.05 -- studs
+local WOBBLE_YAW, WOBBLE_PITCH, WOBBLE_ROLL = math.rad(3.2), math.rad(1.6), math.rad(1.2)
 local ZOOM_MIN, ZOOM_MAX = 0.75, 1.3
 -- where the gun sits on screen in each view (canvas x, y): the middle of the
 -- free area; the camera slides so the gun's centre lands there
@@ -88,6 +95,7 @@ local cameraHome = CFrame.new()
 local renderConn: RBXScriptConnection? = nil
 local dragTarget = Instance.new("CFrameValue") -- where the drag wants the gun
 local dragShown = CFrame.new() -- what's drawn (eases toward the target)
+local wobbleAmount = 1 -- 0 while dragging, eases back to 1 when left alone
 local swapRot = Instance.new("CFrameValue") -- the entrance on a swap
 local zoomValue = Instance.new("NumberValue")
 zoomValue.Value = 1
@@ -141,6 +149,12 @@ end
 -- open face), with its pivot at its centre so it turns about its middle.
 local function presentable(source: Model): Model
 	local m = source:Clone()
+	-- lay it out by its own pivot first (that carries "upright" for guns),
+	-- then drop the PrimaryPart: with one set, the pivot comes from that part
+	-- and WorldPivot is ignored, and the display copy must turn about its centre
+	m:PivotTo(CFrame.new())
+	m.PrimaryPart = nil
+	m.WorldPivot = CFrame.new()
 	for _, d in m:GetDescendants() do
 		if d:IsA("BasePart") then
 			d.Anchored = true
@@ -203,7 +217,15 @@ local function poseCFrame(): CFrame
 	local camRot = cameraHome.Rotation
 	-- the drag, the swap entrance and the tilt turn it about the screen's axes,
 	-- through its own centre; the yaw that shows its side is in model space
-	local screen = dragShown * swapRot.Value * CFrame.Angles(0, 0, POSE_TILT)
+	local t = os.clock()
+	local wobble = CFrame.new(0, math.sin(t * 1.05) * WOBBLE_BOB, 0)
+		* CFrame.Angles(
+			math.sin(t * 0.73 + 1.3) * WOBBLE_PITCH,
+			math.sin(t * 0.52) * WOBBLE_YAW,
+			math.sin(t * 0.61 + 2.1) * WOBBLE_ROLL
+		)
+	wobble = CFrame.new():Lerp(wobble, wobbleAmount)
+	local screen = dragShown * wobble * swapRot.Value * CFrame.Angles(0, 0, POSE_TILT)
 	return CFrame.new(standPos) * camRot * screen * camRot:Inverse() * CFrame.Angles(0, POSE_YAW, 0)
 end
 
@@ -236,8 +258,15 @@ local function placeGun(gunId: string, line: string, animate: boolean)
 	m.Name = "Gun"
 	local _, size = m:GetBoundingBox()
 	local cfg = Weapons.get(gunId)
-	local length = if cfg and cfg.class == "Melee" then GUN_LENGTH * 0.78 else GUN_LENGTH
-	m:ScaleTo(math.clamp(length / math.max(size.Z, 0.5), 0.5, 4))
+	local k = if cfg and cfg.class == "Melee" then 0.8 else 1
+	local scale =
+		math.min(GUN_LENGTH * k / math.max(size.Z, 0.3), GUN_HEIGHT * k / math.max(size.Y, 0.3))
+	m:ScaleTo(math.clamp(scale, 0.4, 4))
+	-- ScaleTo keeps the model's original scaling origin, which moves it off the
+	-- centre set in presentable(): centre the pivot again after scaling, or it
+	-- turns about a point 1-2 studs away and sits off its screen spot
+	local box = m:GetBoundingBox()
+	m.WorldPivot = CFrame.new(box.Position)
 	m.Parent = view
 	gunOnStand = m
 	if animate then
@@ -249,8 +278,14 @@ local function placeGun(gunId: string, line: string, animate: boolean)
 end
 
 local function onRender(dt: number)
-	-- the drawn turn eases toward the drag (smooth, no jumps)
+	-- the drawn turn eases toward the drag (smooth, no jumps); the wobble
+	-- fades out while dragging and back in once the gun is home
 	dragShown = dragShown:Lerp(dragTarget.Value, 1 - math.exp(-dt * DRAG_FOLLOW))
+	local resting = not dragging and dragTween == nil
+	wobbleAmount += ((if resting then 1 else 0) - wobbleAmount) * math.min(
+		1,
+		dt * (if resting then 1.2 else 6)
+	)
 	local m = gunOnStand
 	if m then
 		m:PivotTo(poseCFrame())
@@ -669,7 +704,19 @@ local function release()
 	end
 	dragging = false
 	lastPos = nil
-	dragTween = tween(dragTarget, 0.8, { Value = CFrame.new() }, QUINT)
+	local tw = tween(
+		dragTarget,
+		RETURN_TIME,
+		{ Value = CFrame.new() },
+		Enum.EasingStyle.Sine,
+		Enum.EasingDirection.InOut
+	)
+	dragTween = tw
+	tw.Completed:Once(function()
+		if dragTween == tw then
+			dragTween = nil
+		end
+	end)
 end
 
 function LockerController.init()

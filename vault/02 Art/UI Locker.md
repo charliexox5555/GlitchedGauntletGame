@@ -84,3 +84,10 @@ Owner: "drag and everything should be smoother... too much UI... the gun is not 
 - **Centred:** every item's pivot is its bounding-box centre and the camera looks straight at it; the camera then slides sideways / up (`cameraFor`) so the gun's centre lands in the middle of the free area in each view (main: canvas 1240,520; tray: 960,400), so it always turns about its own middle.
 - Studio: `tools/studio/BuildLocker.luau` v4 (template `SkinTile` replaces `SkinCard`; `Tray` with `Back`, `Strip`). Checked in play: open, the tray, one-click equip (Redline on the Vandal, ticks moved), BACK.
 
+## v4.1 (2026-11-15, owner: "some guns are not centred... moving should be slower and smoother... a slight natural wobble when not moved")
+- **Off-centre, found and fixed:** the gun models have a **PrimaryPart**, and with one set Roblox takes the pivot from that part and ignores `WorldPivot`, so the display copy turned about its handle, 1-2 studs from its middle (measured: pivot (0,0,0) vs box centre (1.39,0.49,-0.64)), and longer items drifted further off their spot. Now the copy is laid out by its own pivot (keeps it upright), then its PrimaryPart is cleared and its pivot set to the centre, again after `ScaleTo` (which keeps its old origin). Measured after: pivot = box centre to 1e-6.
+- **Sizes:** items fit a box (at most 5 long and 2 tall; melee x0.8) instead of one length, so pistols no longer blow up over the title.
+- **Slower, smoother turning:** 0.24°/px, the drawn turn follows at 6/s, letting go eases home over 1.2 s (Sine in-out).
+- **Idle wobble:** while untouched, a slow bob (±0.05) and sway (yaw ±3.2°, pitch ±1.6°, roll ±1.2°) on mismatched periods (0.52-1.05 rad/s) so it never visibly loops; it fades out while dragging and back in once the gun is home.
+- Checked in play: Vandal, Classic, Operator, the PopCircuit bat (tray view) all centred on their spots; fan thumbnail upright and open.
+
