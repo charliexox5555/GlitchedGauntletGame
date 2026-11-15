@@ -145,3 +145,21 @@ Owner: "drag and everything should be smoother... too much UI... the gun is not 
 > Output each as its own 512x512 PNG with a transparent background, white only, named `emblem_<name>.png`, plus one contact sheet of all 10 on dark grey.
 
 Then upload the PNGs (Open Cloud, like the bar icons) and put the ids in `Shared/Locker.EMBLEMS`.
+
+### Emblems in (2026-11-15)
+ChatGPT made the set from the prompt above (sources and a contact sheet in `art-source/ui/collection-emblems/`, 512 px, white on transparent). They are uploaded, and the ids are in `Shared/Locker.EMBLEMS`:
+
+| Line | Emblem | Asset id |
+|---|---|---|
+| Default | chamfered hexagon plate with a notch | 89295875546813 |
+| Prism | faceted gem with a split facet | 122467699745583 |
+| Redline | set square and a sharp line | 71004506302641 |
+| Nitrous | angular shard burst | 113536349803482 |
+| PopCircuit | sparkle star with a bubble | 129293303801424 |
+| Moltframe | carapace with a slit | 130609703264142 |
+| Giltfold | folded fan | 137880589089631 |
+| Sealwork | stepped square seal | 90587660646204 |
+| Payload | angular capsule with fins | 74808720750414 |
+| Inkshift | mecha visor with an ink stroke | 92911837408821 |
+
+Checked in Studio play: every emblem loads, tinted in its line colour, on the gun cards (14 px), the header (30), the SKIN tile (64) and the skin tiles (32). On the previewed tile it turns ink.

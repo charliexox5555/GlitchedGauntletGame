@@ -43,19 +43,20 @@ Locker.COLORS = table.freeze({
 
 -- Each line's emblem (owner 2026-11-15: skins need an identity besides
 -- colour): a single-colour image asset, tinted with the line's colour in the
--- UI. Empty = not made yet; the Locker draws a lettered diamond instead.
--- Prompt for the set: vault/02 Art/UI Locker.md -> v5.
+-- UI. Empty = no art; the Locker draws a lettered diamond instead.
+-- ChatGPT set from the prompt in vault/02 Art/UI Locker.md -> v5; sources in
+-- art-source/ui/collection-emblems/ (uploaded 2026-11-15).
 Locker.EMBLEMS = table.freeze({
-	Stock = "",
-	Prism = "",
-	Redline = "",
-	Nitrous = "",
-	PopCircuit = "",
-	Moltframe = "",
-	Giltfold = "",
-	Sealwork = "",
-	Payload = "",
-	Inkshift = "",
+	Stock = "rbxassetid://89295875546813",
+	Prism = "rbxassetid://122467699745583",
+	Redline = "rbxassetid://71004506302641",
+	Nitrous = "rbxassetid://113536349803482",
+	PopCircuit = "rbxassetid://129293303801424",
+	Moltframe = "rbxassetid://130609703264142",
+	Giltfold = "rbxassetid://137880589089631",
+	Sealwork = "rbxassetid://90587660646204",
+	Payload = "rbxassetid://74808720750414",
+	Inkshift = "rbxassetid://92911837408821",
 }) :: { [string]: string }
 
 -- The gun's model in ReplicatedStorage.Weapons (Studio-owned; the Lobby gets

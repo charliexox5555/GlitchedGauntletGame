@@ -19,7 +19,6 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 - **1v1 challenge on Party menu cards** (RIVALS has a 1v1 button next to Invite): needs a private-duel flow (challenge → accept → both to a 1v1 match). Parked 2026-11-15 ([UI Play and Party Menus](../02%20Art/UI%20Play%20and%20Party%20Menus.md)).
 - **Device icons next to names** (PC / phone / console, like RIVALS): a client-reported attribute, cosmetic only, never for matchmaking or balance. Parked 2026-11-15.
 - **Own art for the BEGINNER 2V2, 4V4 and 5V5 tiles** (they reuse the 2v2 / 3v3 art dimmed). 2026-11-15.
-- **Skin line emblem art** (10 single-colour icons, prompt in [UI Locker](../02%20Art/UI%20Locker.md) → v5); ids go in `Shared/Locker.EMBLEMS`. 2026-11-15.
 - **Phone layout for the new Play and Party menus** (phones still use the old code-built queue menu and have no Party menu). 2026-11-15.
 | Idea | Why it might be good | Parked until |
 |---|---|---|
