@@ -31,6 +31,7 @@ local UserInputService = game:GetService("UserInputService")
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Pivot = require(script.Parent.Pivot)
+local Plates = require(script.Parent.Plates)
 local QueueState = require(script.Parent.QueueState)
 local Router = require(script.Parent.Router)
 
@@ -303,6 +304,7 @@ local function renderList()
 			end
 		end
 		row.Parent = s.list
+		Plates.deepen(row) -- the level tag: one-piece plate (owner, 2026-11-16)
 		seen[p.UserId] = true
 		if not shownRows[p.UserId] and listIntro then
 			openRow(row, if next(shownRows) then 0 else (i - 1) * 0.05)
@@ -476,6 +478,7 @@ function LobbyHudView.renderParty()
 			local shot = child(child(child(made, "Ring"), "Disc"), "Headshot") :: ImageLabel
 			shot.Image = headshot(m.UserId)
 			made.Parent = s.party
+			Plates.deepen(made)
 			s.slots[m] = made
 			slot = made
 			local pop = slotPop(made)
@@ -787,6 +790,11 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 		end
 		task.defer(renderList)
 	end)
+	-- the lobby's slanted plates (PLAY, the bottom bar, the toast, the you
+	-- slot's leader tag) are one-piece plates like the menus'
+	for _, g in guis do
+		Plates.deepen(g)
+	end
 	renderList()
 	LobbyHudView.renderParty()
 	for name, g in guis do

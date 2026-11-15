@@ -25,4 +25,9 @@ for _, controller in loaded do
 	end
 end
 
+-- self-sizing text measured before its font loaded gets measured again
+local TextFit = require(script.Util.TextFit)
+local player = game:GetService("Players").LocalPlayer
+TextFit.settle(player:WaitForChild("PlayerGui"))
+
 print("[Lobby] client ready")

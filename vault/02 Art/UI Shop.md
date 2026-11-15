@@ -237,3 +237,12 @@ Owner on pass 1 (with RIVALS button crops): "it looks better", but the WEAPONS t
 - **No scroll bars:** Shop, Season Pass odds, Locker list and skin strip, Party grid: `ScrollBarThickness = 0` **and** `ScrollBarImageTransparency = 1` (thickness 0 alone still drew a hairline). In the builders and in StarterGui.
 
 Checked in Studio play: [look2_shop_home.jpg](Shop/look2_shop_home.jpg), [look2_case_popup.jpg](Shop/look2_case_popup.jpg), close-ups [look2_plates_zoom.png](Shop/look2_plates_zoom.png). No new errors.
+
+### Plate look, pass 3: one piece (2026-11-16)
+Owner: "how are those slanted buttons working, if they are multiple parts ... the look and highlights and parts unalign with each other when hovered".
+- They were a body + two cap images + gradients; a hover pop scales each piece and rounds it to the pixel separately, so seams showed. **Now every slanted plate is one sliced image** (`art-source/ui/plates/plate_base.png`, greyscale parallelogram: bright top → a little deeper → darker lip, tinted with the plate's colour) plus `plate_gloss.png` (thin top line + soft sheen) on the exact same rect and slicing. The end columns keep their width (SliceScale from the old cap width), the middle stretches. `Util/Plates.finish` hides the body's own fill (a transparent UIGradient), removes the caps, adds the two layers; the body's colour and transparency still drive it, so code that recolours or fades plates is unchanged. No Figma needed: the plate is our own baked art.
+- Plates that size themselves to their words now get their width from their words in code (Roblox's AutomaticSize counted the plate art and grew every frame).
+- **The lobby HUD** (PLAY, the bottom bar, the level / streak tags, the toast, the leader tag) uses the same plates (`LobbyHudView` deepens the HUD guis and each cloned row and slot).
+- **Text that sizes itself was measured before its font loaded** (the Season Pass title was a 288 px box for 361 px of text, centred, so it spilled out; tags clipped their words). New `Util/TextFit.settle(PlayerGui)` waits for the fonts, then has every self-sizing text measure itself again. Checked: 391 self-sizing texts, 0 too short.
+
+Checked in Studio play: [look3_shop_hover.jpg](Shop/look3_shop_hover.jpg) (a hovered card mid-pop, plates in one piece), [look3_season_pass.jpg](Shop/look3_season_pass.jpg), [look3_hud_zoom.png](Shop/look3_hud_zoom.png). No new errors.
