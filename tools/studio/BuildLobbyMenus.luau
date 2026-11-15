@@ -734,9 +734,9 @@ do
 		Size = UDim2.fromOffset(RW + 18, 800),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
-		ScrollBarThickness = 5,
+		ScrollBarThickness = 0, -- no visible bar (owner, 2026-11-16)
 		ScrollBarImageColor3 = WHITE,
-		ScrollBarImageTransparency = 0.5,
+		ScrollBarImageTransparency = 1, -- Thickness 0 still drew a hairline
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		CanvasSize = UDim2.new(),
 		ZIndex = 2,
