@@ -89,3 +89,22 @@ The owner picked all four groups as pill-like: player list badges and rows, the 
 - Helper `slant(body, colour, h, capW, parallel)` in the builder: caps outside each end; parallel = both lean the same way, otherwise mirrored.
 
 ![v5](References/ui-overhaul/2026-11-14-lobby-hud-v5.jpg)
+
+## Built (desktop; owner: "Build it")
+- **Studio-owned `StarterGui.LobbyHudScreen`** in the Lobby place, with the row template `ReplicatedStorage.UiTemplates.Lobby.PlayerRow`. Backup `tools/studio/BuildLobbyHud.luau`; Studio was rebuilt from it, so they match exactly.
+- **Four groups**, each anchored to its screen edge with its own Fit scale: **TopLeft** (profile; the daily tasks panel, hidden), **TopRight** (the player list), **Bottom** (bar, PLAY, party, callout), **Toast** (top centre).
+- **`src/lobby/client/Util/LobbyHudView.luau`** fills and animates it; `Controllers/LobbyHud` uses it on desktop. Phones keep the old v2 dock, and `LobbyHud.toast` goes to the new toast.
+  - **Bar:** Locker, Shop, Pass, Range, Settings open their menus through `Router.toggle`. On hover the icon grows and lifts and the name turns gold.
+  - **PLAY:** opens the Play menu. While searching it is navy (mode, timer, CLICK TO CANCEL; a click leaves the queue). MATCH FOUND is green.
+  - **Party:** your portrait, and + opens Roblox's game invite prompt.
+  - **Player list** (owner: "will show level and win streak"): everyone in this lobby, you first, with portrait, name, where they are (IN LOBBY / QUEUED · mode / JOINING A MATCH, read from the server's `QueueStatus` / `QueueMode` attributes), an orange **win streak** tag and the gold **level** tag, under STREAK / LV column labels. 8 rows, then "+N MORE". Roblox's own player list is hidden.
+  - **Menus:** while a menu is open the corners step up and the bottom slides away, so the menu's title and close button are clear.
+- **Placeholders until the data exists:** level and XP (`Level`, `XpShare` player attributes; LV 1 today), win streak (`WinStreak`; 0, shown dimmer), badges (`setBadge`), the callout (`callout`), daily tasks (`setTasks`, panel hidden).
+- **Checked live** in the Lobby:
+  - the HUD shows and the old dock and top row are gone;
+  - PLAY opens the Play menu, Find Match makes PLAY "SEARCHING · 1V1 · 0:02" and your row "QUEUED · 1V1", and bots filled it into MATCH FOUND (Studio can't teleport);
+  - hovering SHOP lifts it; Settings opens from the bar and the corners step aside.
+- **Open:** new illustrated icons; the menus themselves (Play, Settings...) are still the old style; phone layout.
+
+Live: ![live](References/ui-overhaul/2026-11-14-lobby-hud-live.jpg)
+Searching: ![searching](References/ui-overhaul/2026-11-14-lobby-hud-live-searching.jpg)

@@ -12,6 +12,11 @@
 --   player list (top right) draw (LihFolk: Safe Areas and Insets).
 -- * Edge-to-edge shades in their own ScreenInsets.None gui.
 -- Every colour and size comes from Util/Style; shapes from Util/Kit.
+--
+-- Desktop (v5, vault/02 Art/UI Lobby HUD.md): the Studio-built
+-- StarterGui.LobbyHudScreen through Util/LobbyHudView (profile, player list,
+-- bottom bar, PLAY, party, toasts); everything below builds the old v2 dock,
+-- which phones keep until the mobile pass.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -21,6 +26,7 @@ local Fx = require(script.Parent.Parent.Util.Fx)
 local Icons = require(script.Parent.Parent.Util.Icons)
 local Kit = require(script.Parent.Parent.Util.Kit)
 local Layout = require(script.Parent.Parent.Util.Layout)
+local LobbyHudView = require(script.Parent.Parent.Util.LobbyHudView)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
 local Sound = require(script.Parent.Parent.Util.Sound)
@@ -85,6 +91,7 @@ local toastText: TextLabel
 local toastStrip: Frame
 
 local timerConn: RBXScriptConnection? = nil
+local useView = false -- desktop: the Studio-built HUD (Util/LobbyHudView)
 local lastSecond = -1
 local dockShown = true
 local toastToken = 0
@@ -673,6 +680,10 @@ end
 
 -- A short message. kind: "error" (red strip) or "info".
 function LobbyHud.toast(text: string, kind: string?)
+	if useView then
+		LobbyHudView.toast(text, kind)
+		return
+	end
 	toastToken += 1
 	local token = toastToken
 	placeToast()
@@ -855,6 +866,16 @@ function LobbyHud.init()
 		shadeBottom
 	)
 
+	-- Desktop: the Studio-built HUD replaces the dock, top row, pill and toast.
+	if not PHONE then
+		local screen = playerGui:WaitForChild("LobbyHudScreen", 10)
+		if screen and screen:IsA("ScreenGui") then
+			useView = LobbyHudView.bind(screen)
+		end
+	end
+	if useView then
+		return
+	end
 	gui = Kit.make("ScreenGui", {
 		Name = "LobbyHud",
 		ResetOnSpawn = false,
@@ -872,6 +893,15 @@ end
 
 function LobbyHud.start()
 	Sound.preload()
+	if useView then
+		QueueState.onChanged(LobbyHudView.refresh)
+		Router.onChanged(function()
+			LobbyHudView.refresh()
+		end)
+		LobbyHudView.refresh()
+		LobbyHudView.intro()
+		return
+	end
 	QueueState.onChanged(refresh)
 	Router.onChanged(onMenuChanged)
 	refresh()
