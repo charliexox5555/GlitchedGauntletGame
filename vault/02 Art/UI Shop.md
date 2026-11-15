@@ -108,3 +108,27 @@ One style for all of it: our lobby bar icons v2 (`art-source/ui/lobby-icons/`), 
 6. Later, once the bundles, charms, emotes and login rewards exist: bundle art per bundle, item icons per cosmetic, login reward icons.
 
 Upload: like the emblems (local server + Studio MCP `upload_image`); the ids go in a shop config.
+
+## Mockup v1 (2026-11-16, owner: "Build the mockup")
+Built in Studio by `tools/studio/BuildShop.luau`: `StarterGui.Shop` (off) and `StarterGui.LobbyCoins` (the top-middle counter, off until Coins are wired so it never shows a fake balance). Placeholder art throughout: colour washes, a gold diamond for the coin, chamfered slabs for cases. Every picture is an `Art` ImageLabel ready for the ChatGPT set.
+
+![Home](Shop/mockup_v1_home.jpg)
+![Bundles](Shop/mockup_v1_bundles.jpg)
+![Daily](Shop/mockup_v1_daily.jpg)
+![Coins](Shop/mockup_v1_coins.jpg)
+
+- **Backdrop:** the Router's blur plus a **violet-to-navy wash** (`3B1D63` → `161A44` → `0A1230`, 35°, 0.3 see-through). No back panel.
+- **Coin counter:** top middle, a dark plate with the coin, the balance and a gold **+** (opens COINS). DisplayOrder 31, over the shop.
+- **One ScrollingFrame** (1280 content) holds the tab row and the page. The close button (drawn X) and the counter stay put.
+- **Tabs:** HOME · BUNDLES · DAILY · COINS. Dark plates; the open one is white with ink text. An `Icon` slot pokes above each for the tab icons.
+- **Home:**
+  - CASES: Standard / Elite / Apex cards with a Coins price;
+  - the SEASON PASS card (season, tier, VIEW »);
+  - SPECIAL OFFERS: the Starter Bundle card with page dots and a Robux price;
+  - a 3x2 grid of cosmetics (CHARM / EMOTE tags, Coins prices).
+- **Bundles:** 3 + 2 big cards with Robux prices. Neon shows the **hover contents** (SKIN, SKIN, MOD, CHARM cells) and an **EXCLUSIVE MOD** tag.
+- **Daily:** TODAY'S ITEMS (8 cells, 4x2, tags + Coins prices, "NEW ITEMS IN 5H 12M"); LOGIN REWARDS (days 1-3 claimed in green, day 4 lit white with CLAIM, days 5-6 ahead, a big DAY 7 GRAND PRIZE).
+- **Coins:** 6 pack cards (+500 to +24,000; the coin grows with the pack) with Robux prices. The amounts and prices are placeholders.
+- **Price plates:** Coins = gold with the coin mark; Robux = green with the Robux mark (`rbxasset://textures/ui/common/robux.png`).
+- **Selection frame:** four thick white corner brackets around a big card. Shown on the Season Pass and Neon cards in the mockup; the controller will tween them in from outside on hover.
+- Not wired yet: tabs, scroll, the counter tweening out, hover frames, bundle hover, item card, skin-bundle preview, case popup + odds. The Lobby still opens the old placeholder shop.
