@@ -602,6 +602,7 @@ local function runMatch(): boolean
 		round += 1
 		MatchState.set("Round", round)
 		MatchState.set("RoundWinner", nil)
+		StatsService.newRound()
 		setAllLocked(true)
 		MapService.setBarriers(true)
 		applyTakeovers()

@@ -20,6 +20,7 @@ local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 
 local RecallCrash = require(script.Parent.RecallCrash)
+local StatusTray = require(script.Parent.Parent.StatusTray)
 local RecallFx = require(script.Parent.Parent.RecallFx)
 local RecallRing = require(script.Parent.Parent.RecallRing)
 local Types = require(script.Parent.Types)
@@ -108,11 +109,34 @@ local function buildChip(): Chip
 	return made
 end
 
+-- Desktop: the state is an entry in the status tray (short words under it).
+local TRAY: { [ChipState]: string } = {
+	Hidden = "",
+	Ready = "CRASH READY",
+	OutOfRange = "OUT OF RANGE",
+	NoAnchor = "PLANT ANCHOR",
+	Recovered = "RECOVERED",
+}
+
 local function setChip(state: ChipState)
 	if state == shown then
 		return
 	end
 	shown = state
+	if StatusTray.active() then
+		local def = Mods.def("Recall")
+		StatusTray.setStatic(
+			"RecallCrash",
+			if state == "Hidden"
+				then nil
+				else {
+					icon = if def then def.icon else "",
+					label = TRAY[state],
+					buff = state == "Ready" or state == "Recovered",
+				}
+		)
+		return
+	end
 	local c = buildChip()
 	c.gui.Enabled = state ~= "Hidden"
 	c.label.Text = TEXT[state]

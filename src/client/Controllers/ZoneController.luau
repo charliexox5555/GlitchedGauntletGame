@@ -22,6 +22,7 @@ local VfxTextures = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local Zone = require(ReplicatedStorage.Shared.Zone)
 
 local UiSound = require(script.Parent.Parent.Util.UiSound)
+local MatchHudController = require(script.Parent.MatchHudController)
 
 local ZoneController = {}
 
@@ -199,6 +200,10 @@ local function step()
 	if outside ~= wasOutside then
 		wasOutside = outside
 		setTint(outside)
+	end
+	if outside then
+		-- The notification band says it too (kept up while you're out).
+		MatchHudController.alert("OUTSIDE THE ZONE", "Get back inside the circle", "danger", 0.4)
 	end
 	if outside and os.clock() >= nextWarn then
 		nextWarn = os.clock() + Z.warnEvery

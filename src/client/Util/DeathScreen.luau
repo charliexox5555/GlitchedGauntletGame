@@ -52,6 +52,28 @@ type State = {
 }
 
 local state: State? = nil
+-- Your combat report against your killer (StatsService's CombatReport), shown
+-- under the killed-by card until your next life.
+local report: { dealt: number, taken: number }? = nil
+
+local function showReport(s: State)
+	local holder = s.killed.holder:FindFirstChild("Report")
+	if not holder or not holder:IsA("Frame") then
+		return
+	end
+	local r = report
+	holder.Visible = r ~= nil
+	local label = holder:FindFirstChild("Label")
+	if r and label and label:IsA("TextLabel") then
+		label.Text = string.format(
+			'YOU DEALT <font color="#%s">%d</font>   ·   TOOK <font color="#%s">%d</font>',
+			ALLY:ToHex(),
+			r.dealt,
+			ENEMY:ToHex(),
+			r.taken
+		)
+	end
+end
 local cycle: ((step: number) -> ())? = nil -- set by SpectateController (may be before bind)
 local overKeys = 0 -- the pointer is over a < > keycap (its click isn't also a Fire)
 
@@ -248,6 +270,7 @@ function DeathScreen.killedBy(k: KilledBy)
 	hp.Visible = k.hp ~= nil
 	local value = child(hp, "Value") :: TextLabel
 	value.Text = tostring(math.max(0, math.ceil(k.hp or 0)))
+	showReport(s)
 	setShown(s.spectate, false)
 	setShown(s.killed, true)
 end
@@ -289,7 +312,17 @@ function DeathScreen.setHealth(hp: number, max: number)
 	end
 end
 
+-- The damage you dealt to your killer and took from them (this life).
+function DeathScreen.setReport(dealt: number, taken: number)
+	report = { dealt = math.max(0, math.floor(dealt)), taken = math.max(0, math.floor(taken)) }
+	local s = state
+	if s then
+		showReport(s)
+	end
+end
+
 function DeathScreen.hide()
+	report = nil
 	local s = state
 	if s then
 		setShown(s.killed, false)

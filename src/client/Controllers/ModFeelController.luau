@@ -27,6 +27,7 @@ local WindFx = require(script.Parent.Parent.Util.WindFx)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
+local StatusTray = require(script.Parent.Parent.Util.StatusTray)
 
 local ModFeelController = {}
 
@@ -343,7 +344,10 @@ local function update(_dt: number)
 	local tag = revealedTag
 	if tag then
 		local rk = (now - revealedAt) / REVEALED_TIME
-		tag.TextTransparency = if rk >= 1 then 1 else math.max(rk * 1.5 - 0.5, 0)
+		-- Desktop: the status tray shows REVEALED as a ring instead.
+		tag.TextTransparency = if rk >= 1 or StatusTray.active()
+			then 1
+			else math.max(rk * 1.5 - 0.5, 0)
 	end
 
 	local f = flash
@@ -362,6 +366,10 @@ local function onFx(kind: unknown, data: unknown)
 		ModAudio.play(S.Recon.revealed)
 		blastFlash(TeamColor.ENEMY, 0.18)
 		revealedAt = os.clock()
+		local duration = (data :: any).duration
+		if typeof(duration) == "number" then
+			StatusTray.reveal(duration) -- its ring in the status tray
+		end
 	end
 end
 

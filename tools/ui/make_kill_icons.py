@@ -8,6 +8,7 @@ Faceted like the rest of the HUD icons (angled plates, no round blade tips).
   (the glitch colour split is done in Roblox: cyan and pink copies offset behind)
 - kill_ring_seg.png: one of 5 ring segments (the top one); rotate by 72 deg
 - kill_wave.png: a full ring (straight-edged, 40 sides) for the shockwave
+- status_seg.png: one of 24 status-ring segments (the top one); rotate by 15 deg
 
     python tools/ui/make_kill_icons.py <out_dir>
 """
@@ -155,6 +156,25 @@ def wave():
     return img.resize((size, size), Image.LANCZOS)
 
 
+def status_seg():
+    """The top one of 24 segments of the status tray's draining ring."""
+    size = 256
+    img = Image.new("RGBA", (size * SS, size * SS), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    c = size * SS / 2
+    r_out, r_in = 126 * SS, 104 * SS
+    half = math.radians(7.5) - math.radians(1.6)
+    a0, a1 = -math.pi / 2 - half, -math.pi / 2 + half
+    pts = [
+        (c + r_out * math.cos(a0), c + r_out * math.sin(a0)),
+        (c + r_out * math.cos(a1), c + r_out * math.sin(a1)),
+        (c + r_in * math.cos(a1), c + r_in * math.sin(a1)),
+        (c + r_in * math.cos(a0), c + r_in * math.sin(a0)),
+    ]
+    d.polygon(pts, fill=(255, 255, 255, 255))
+    return img.resize((size, size), Image.LANCZOS)
+
+
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "art-source/ui/hud")
     out.mkdir(parents=True, exist_ok=True)
@@ -163,6 +183,7 @@ def main():
     shard().save(out / "kill_shard.png")
     ring_seg().save(out / "kill_ring_seg.png")
     wave().save(out / "kill_wave.png")
+    status_seg().save(out / "status_seg.png")
     print("wrote", out)
 
 

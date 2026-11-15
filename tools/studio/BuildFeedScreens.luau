@@ -468,6 +468,24 @@ do
 		MUTED,
 		{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(46, 44) }
 	)
+	-- The combat report under the card: what you did to them, and took.
+	local report = make("Frame", {
+		Name = "Report",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 1, 10),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 30),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+		Visible = false,
+	}, kb)
+	make("UICorner", { CornerRadius = UDim.new(0, 6) }, report)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }, report)
+	text(report, "Label", "YOU DEALT 0  ·  TOOK 0", 13, MUTED, {
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromScale(0, 0.5),
+		RichText = true,
+	})
 
 	-- Spectating: keycaps either side of the strip.
 	local sp = make("Frame", {

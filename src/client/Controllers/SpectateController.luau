@@ -691,6 +691,17 @@ function SpectateController.start()
 	buildUi()
 	DeathScreen.start(Device.compact())
 	DeathScreen.onCycle(SpectateController.cycle)
+	-- Your combat report vs your killer (server: StatsService).
+	Net.event("CombatReport").OnClientEvent:Connect(function(dealt: unknown, taken: unknown)
+		if
+			typeof(dealt) == "number"
+			and typeof(taken) == "number"
+			and dealt == dealt
+			and taken == taken
+		then
+			DeathScreen.setReport(dealt, taken)
+		end
+	end)
 	Net.event("Killed").OnClientEvent
 		:Connect(function(victim: unknown, attacker: unknown, sourceId: unknown, headshot: unknown)
 			if victim ~= nil and victim == myBody and typeof(attacker) == "Instance" then

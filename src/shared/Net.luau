@@ -36,6 +36,8 @@ local RELIABLE = {
 	"Spectate",
 	"Replay",
 	"MatchSummary",
+	"Scoreboard", -- StatsService: client asks (no args), server answers that client
+	"CombatReport", -- StatsService: your damage vs your killer, on death
 	"MatchChoice",
 }
 local UNRELIABLE = { "Aim", "ShotFx" }

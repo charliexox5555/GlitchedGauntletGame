@@ -113,5 +113,6 @@ return table.freeze({
 		DraftPick = { 8, 12 },
 		Spectate = { 4, 6 },
 		MatchChoice = { 4, 6 },
+		Scoreboard = { 2, 4 },
 	},
 })

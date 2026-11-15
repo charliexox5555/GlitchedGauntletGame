@@ -176,6 +176,8 @@ end
 
 local liveSince = -math.huge
 local suddenSince = -math.huge
+-- A short fight-time alert (MatchHudController.alert), e.g. OUTSIDE THE ZONE.
+local alertTitle, alertSub, alertTone, alertUntil = "", "", "danger" :: Tone, -math.huge
 
 local function refresh(ui: Ui)
 	local phase = MatchState.phase()
@@ -247,7 +249,19 @@ local function refresh(ui: Ui)
 		kicker, title, sub = "MATCH OVER", if won then "VICTORY" else "DEFEAT", scoreLine
 		tone = if won then "gold" else "enemy"
 	end
+	-- An alert fills the band in a fight when nothing else is showing.
+	if title == "" and now < alertUntil and (phase == "Live" or phase == "SuddenDeath") then
+		kicker, title, sub, tone = roundTag, alertTitle, alertSub, alertTone
+	end
 	show(ui, kicker, title, sub, tone)
+end
+
+-- Shows a short alert in the notification band for `seconds` (called again
+-- to keep it up). Tones: "neutral" | "ally" | "enemy" | "gold" | "danger".
+function MatchHudController.alert(title: string, sub: string, tone: string, seconds: number)
+	alertTitle, alertSub = title, sub
+	alertTone = (if TONE[tone] then tone else "danger") :: any
+	alertUntil = os.clock() + seconds
 end
 
 -- One life per round, so no Reset Character in a match. SetCore isn't ready

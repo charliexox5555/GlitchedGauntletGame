@@ -24,6 +24,7 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
+local Mods = require(ReplicatedStorage.Shared.Mods)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
@@ -68,6 +69,8 @@ local head = 0 -- the ring slot written last
 local tracks: { [Model]: Track } = {}
 local shots: { Shot } = {}
 local killers: { [Model]: Instance } = setmetatable({}, { __mode = "k" }) :: any
+-- What the final kill was made with (the Killed event), for its card.
+local killedWith: { [Model]: { id: string, head: boolean } } = setmetatable({}, { __mode = "k" }) :: any
 local nextSample = 0
 local playing = false
 local recording = false
@@ -290,6 +293,8 @@ end
 -- UI: letterbox bars and the FINAL KILL line.
 local overlay: ScreenGui? = nil
 local caption: TextLabel? = nil
+-- The Studio-built card (UiTemplates.Replay.FinalKill), when it's there.
+local card: Frame? = nil
 local function buildUi()
 	local gui = Ui.make("ScreenGui", {
 		Name = "Replay",
@@ -306,6 +311,18 @@ local function buildUi()
 			BackgroundColor3 = Color3.new(0, 0, 0),
 			BorderSizePixel = 0,
 		}, gui)
+	end
+	-- The match UI's card: the gold FINAL KILL block, killer, weapon, victim.
+	local templates = ReplicatedStorage:FindFirstChild("UiTemplates")
+	local folder = templates and templates:FindFirstChild("Replay")
+	local template = folder and folder:FindFirstChild("FinalKill")
+	if template and template:IsA("Frame") then
+		local made = template:Clone()
+		made.Parent = gui
+		Ui.fit(made)
+		card = made
+		overlay = gui
+		return
 	end
 	local holder = Ui.make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 1),
@@ -500,6 +517,32 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	local gui = overlay
 	if gui then
 		gui.Enabled = true
+	end
+	local made = card
+	if made then
+		local victimHolder: Instance = Players:GetPlayerFromCharacter(victim) or victim
+		local strip = made:FindFirstChild("Strip")
+		local function setText(name: string, text: string, color: Color3)
+			local l = strip and strip:FindFirstChild(name)
+			if l and l:IsA("TextLabel") then
+				l.Text = text
+				l.TextColor3 = color
+			end
+		end
+		setText("Killer", nameOf(killer), teamColour(killer))
+		setText("Victim", nameOf(victimHolder), teamColour(victimHolder))
+		local with = killedWith[victim]
+		local def = if with then Mods.def(with.id) else nil
+		local weapon = strip and strip:FindFirstChild("Weapon")
+		if weapon and weapon:IsA("ImageLabel") then
+			weapon.Image = if def then def.icon elseif with then Theme.GUN[with.id] or "" else ""
+			weapon.Size = if def then UDim2.fromOffset(30, 30) else UDim2.fromOffset(96, 30)
+			weapon.Visible = weapon.Image ~= ""
+		end
+		local skull = strip and strip:FindFirstChild("Head")
+		if skull and skull:IsA("GuiObject") then
+			skull.Visible = with ~= nil and with.head
+		end
 	end
 	local label = caption
 	if label then
@@ -720,15 +763,20 @@ function ReplayController.start()
 	ShotLog.listen(function(weaponId: string, origin: Vector3, ends: { Vector3 })
 		addShot(player.Character, weaponId, origin, ends)
 	end)
-	Net.event("Killed").OnClientEvent:Connect(function(victim: unknown, attacker: unknown)
-		if
-			typeof(victim) == "Instance"
-			and victim:IsA("Model")
-			and typeof(attacker) == "Instance"
-		then
-			killers[victim] = attacker
-		end
-	end)
+	Net.event("Killed").OnClientEvent
+		:Connect(function(victim: unknown, attacker: unknown, sourceId: unknown, headshot: unknown)
+			if
+				typeof(victim) == "Instance"
+				and victim:IsA("Model")
+				and typeof(attacker) == "Instance"
+			then
+				killers[victim] = attacker
+				killedWith[victim] = {
+					id = if typeof(sourceId) == "string" then sourceId else "",
+					head = headshot == true,
+				}
+			end
+		end)
 	Net.event("Replay").OnClientEvent
 		:Connect(function(victim: unknown, killTime: unknown, startAt: unknown)
 			if

@@ -5,11 +5,20 @@
 -- deaths from HealthService.onDowned (the zone and falls too). An assist is
 -- damage on the victim in the ASSIST_WINDOW before the kill by anyone but the
 -- killer (LihFolk "Kill Credit, Assists, Kill Feed and Death Recaps").
+--
+-- Also (vault/02 Art/UI Match Extras.md): the hold-Tab scoreboard asks for
+-- the live lines with everyone's build (`Scoreboard`, rate-limited, no
+-- arguments trusted), and a victim gets a combat report on death: the damage
+-- they dealt to their killer and took from them this life (`CombatReport`).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local MatchConfig = require(ReplicatedStorage.Shared.Config.Match)
+local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
+local Net = require(ReplicatedStorage.Shared.Net)
+local Pawns = require(ReplicatedStorage.Shared.Simulation.Pawns)
+local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local HealthService = require(script.Parent.HealthService)
@@ -28,6 +37,7 @@ export type Line = {
 	dealt: number,
 	taken: number,
 	mvp: boolean?,
+	kit: { string }?, -- "id:level" per filled Mod slot
 }
 
 type Entry = {
@@ -44,6 +54,49 @@ type Entry = {
 }
 
 local entries: { [string]: Entry } = {}
+-- Damage this life: attacker id → victim id → damage (the combat report).
+local pair: { [string]: { [string]: number } } = {}
+local limiter = RateLimit.new(MatchConfig.RATE)
+
+-- Who holds a fighter's Mod attributes: the Player, or a bot's owner stand-in.
+local function holderOf(id: string): Instance?
+	if string.sub(id, 1, 1) == "p" then
+		local userId = tonumber(string.sub(id, 2))
+		return if userId then Players:GetPlayerByUserId(userId) else nil
+	end
+	for _, pawn in Pawns.list() do
+		if "b" .. tostring(pawn.owner:GetAttribute("BotId")) == id then
+			return pawn.owner
+		end
+	end
+	return nil
+end
+
+local function kitOf(id: string): { string }
+	local holder = holderOf(id)
+	local kit: { string } = {}
+	if holder then
+		for slot = 1, ModsConfig.SLOTS do
+			local modId = holder:GetAttribute("Mod" .. slot .. "Id")
+			local level = holder:GetAttribute("Mod" .. slot .. "Level")
+			if typeof(modId) == "string" and modId ~= "" then
+				table.insert(
+					kit,
+					modId .. ":" .. (if typeof(level) == "string" then level else "L1")
+				)
+			end
+		end
+	end
+	return kit
+end
+
+-- A death ends that fighter's life: their damage both ways starts over.
+local function forgetLife(id: string)
+	pair[id] = nil
+	for _, row in pair do
+		row[id] = nil
+	end
+end
 
 -- A fighter's id and name: a player (or their character) or a bot's model.
 local function identify(x: Instance): (string?, string, number?)
@@ -105,8 +158,22 @@ local function onHit(attacker: Instance, victim: Model, dealt: number, killed: b
 	a.dealt += dealt
 	if dealt > 0 then
 		v.hurtBy[a.id] = now
+		local row = pair[a.id]
+		if not row then
+			row = {}
+			pair[a.id] = row
+		end
+		row[v.id] = (row[v.id] or 0) + dealt
 	end
 	if killed then
+		-- The victim's combat report: what they did to their killer, and took.
+		local owner = Players:GetPlayerFromCharacter(victim)
+		if owner then
+			local dealtTo = (pair[v.id] or {})[a.id] or 0
+			local takenFrom = (pair[a.id] or {})[v.id] or 0
+			Net.event("CombatReport"):FireClient(owner, math.round(dealtTo), math.round(takenFrom))
+		end
+		forgetLife(v.id)
 		a.eliminations += 1
 		for id, at in v.hurtBy do
 			local helper = entries[id]
@@ -121,6 +188,12 @@ end
 -- A new match: everyone starts from zero.
 function StatsService.reset()
 	table.clear(entries)
+	table.clear(pair)
+end
+
+-- A new round: everyone's life (and combat report) starts over.
+function StatsService.newRound()
+	table.clear(pair)
 end
 
 -- Makes sure everyone in the match has a line, even with nothing on it.
@@ -143,6 +216,7 @@ function StatsService.summary(): { Line }
 			assists = e.assists,
 			dealt = math.round(e.dealt),
 			taken = math.round(e.taken),
+			kit = kitOf(e.id),
 		}
 		table.insert(out, line)
 		if
@@ -172,7 +246,19 @@ function StatsService.start()
 		local e = body and entryOf(body)
 		if e then
 			e.deaths += 1
+			-- The zone and falls too. Deferred: the killing hit's listener (and
+			-- its combat report) runs after this, and needs the life's damage.
+			task.defer(forgetLife, e.id)
 		end
+	end)
+	-- The hold-Tab scoreboard: the live lines, for the asker only.
+	Net.event("Scoreboard").OnServerEvent:Connect(function(player: Player)
+		if limiter:allow(player, "Scoreboard") then
+			Net.event("Scoreboard"):FireClient(player, StatsService.summary())
+		end
+	end)
+	Players.PlayerRemoving:Connect(function(player: Player)
+		limiter:forget(player)
 	end)
 end
 

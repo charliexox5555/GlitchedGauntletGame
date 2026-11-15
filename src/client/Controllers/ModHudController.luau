@@ -19,6 +19,8 @@ local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local StimFx = require(script.Parent.Parent.Util.StimFx)
+local Device = require(script.Parent.Parent.Util.Device)
+local StatusTray = require(script.Parent.Parent.Util.StatusTray)
 
 -- The status line's colours: Hinder (Frost's ice), Stimmed (electric yellow).
 local ICE = Color3.fromHex("BFE8FF")
@@ -776,7 +778,9 @@ local function update(dt: number)
 	bar.Visible = any
 	BottomHud.setModsVisible(any)
 	local status = slowedLabel
-	if status then
+	if status and StatusTray.active() then
+		status.Visible = false -- desktop: the status tray shows effects as rings
+	elseif status then
 		local hindered = FrostFx.hinderedLeft()
 		local stimmed = StimFx.stimmedLeft()
 		local stimWord = if StimFx.strong() then "STRONG STIM" else "STIMMED"
@@ -797,7 +801,11 @@ local function update(dt: number)
 	if h then
 		local message, warning = ModController.hint()
 		local shown = message or ""
-		if shown ~= shownHint then
+		if StatusTray.active() then
+			-- Desktop: the hint sits on its plate over the status tray.
+			StatusTray.setHint(shown, warning == true)
+			h.Visible = false
+		elseif shown ~= shownHint then
 			shownHint = shown
 			h.Text = shown
 			h.Visible = shown ~= ""
@@ -819,6 +827,7 @@ end
 
 function ModHudController.start()
 	build()
+	StatusTray.start(Device.compact())
 	ModController.onDeny(function(slot: number, _reason: string)
 		local ui = slots[slot]
 		if ui then

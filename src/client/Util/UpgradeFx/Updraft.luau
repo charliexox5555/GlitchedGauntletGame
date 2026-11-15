@@ -638,6 +638,12 @@ end
 -- Crouch (an InputBinding on the Crouch action, like HudController's buttons).
 local HEAVY = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
 local BACK = Color3.fromHex("16181B")
+-- The match UI's prompt look (vault/02 Art/UI Match Extras.md).
+local PROMPT_FONT =
+	Font.new("rbxasset://fonts/families/BuilderExtended.json", Enum.FontWeight.ExtraBold)
+local KEY_FACE, KEY_LIP = Color3.fromHex("E9EDF3"), Color3.fromHex("0B0F17")
+local INK = Color3.fromHex("141A26")
+local PLATE = Color3.fromHex("1C2740")
 local PROMPT_Y = 0.62 -- screen height of the prompt (under the crosshair)
 
 type Prompt = {
@@ -685,38 +691,57 @@ local function buildPrompt(): Prompt
 	local key = Instance.new("TextLabel")
 	key.Name = "Key"
 	key.LayoutOrder = 1
-	key.Size = UDim2.fromOffset(34, 34)
-	key.BackgroundColor3 = BACK
-	key.BackgroundTransparency = 0.2
-	key.FontFace = HEAVY
-	key.TextSize = 20
-	key.TextColor3 = WHITE
+	-- A keycap (the match UI's "fake button"): a light face on a dark lip.
+	key.Size = UDim2.fromOffset(36, 38)
+	key.BackgroundColor3 = KEY_FACE
+	key.BackgroundTransparency = 0
+	key.FontFace = PROMPT_FONT
+	key.TextSize = 18
+	key.TextColor3 = INK
 	key.Parent = row
 	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 6)
+	corner.CornerRadius = UDim.new(0, 5)
 	corner.Parent = key
-	local stroke = Instance.new("UIStroke")
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	stroke.Color = TeamColor.GLITCH
-	stroke.Thickness = 2
-	stroke.Parent = key
+	local lip = Instance.new("Frame")
+	lip.Name = "Lip"
+	lip.AnchorPoint = Vector2.new(0, 1)
+	lip.Position = UDim2.fromScale(0, 1)
+	lip.Size = UDim2.new(1, 0, 0, 6)
+	lip.BackgroundColor3 = KEY_LIP
+	lip.BorderSizePixel = 0
+	lip.ZIndex = 0
+	lip.Parent = key
+	local lipCorner = Instance.new("UICorner")
+	lipCorner.CornerRadius = UDim.new(0, 5)
+	lipCorner.Parent = lip
 
+	-- The words on a navy plate (no outline).
 	local text = Instance.new("Frame")
 	text.Name = "Text"
 	text.LayoutOrder = 2
-	text.Size = UDim2.fromOffset(150, 34)
-	text.BackgroundTransparency = 1
+	text.Size = UDim2.fromOffset(196, 38)
+	text.BackgroundColor3 = PLATE
+	text.BorderSizePixel = 0
 	text.Parent = row
+	local plateCorner = Instance.new("UICorner")
+	plateCorner.CornerRadius = UDim.new(0, 6)
+	plateCorner.Parent = text
+	local plateFrame = text
+	text = Instance.new("Frame")
+	text.Name = "Words"
+	text.Position = UDim2.fromOffset(14, 0)
+	text.Size = UDim2.new(1, -28, 1, 0)
+	text.BackgroundTransparency = 1
+	text.Parent = plateFrame
 	local function line(name: string, color: Color3, z: number): TextLabel
 		local l = Instance.new("TextLabel")
 		l.Name = name
 		l.Size = UDim2.fromScale(1, 1)
 		l.BackgroundTransparency = 1
-		l.FontFace = HEAVY
-		l.TextSize = 22
+		l.FontFace = PROMPT_FONT
+		l.TextSize = 17
 		l.TextXAlignment = Enum.TextXAlignment.Left
 		l.TextColor3 = color
-		l.TextStrokeTransparency = 0.6
 		l.Text = "CRASH DOWN"
 		l.ZIndex = z
 		l.Parent = text
