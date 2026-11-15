@@ -5,7 +5,7 @@
 -- edge strips, pills, glows or gradients). vault/02 Art/UI Feed and Spectate.md
 -- Paste into the Studio command bar (Edit mode). Builds StarterGui.FeedMockup
 -- (Enabled off) with two canvases: CanvasDeath (feed + killed-by) and
--- CanvasSpectate (feed + ELIMINATED + spectate bar).
+-- CanvasSpectate (feed + spectate bar), and CanvasKill (the kill pop options).
 
 local SG = game:GetService("StarterGui")
 
@@ -390,100 +390,6 @@ end
 -- Spectating: the feed, your ELIMINATED pop, and the spectate bar
 local spec = canvas("CanvasSpectate")
 feed(spec)
-do -- ELIMINATED (your kill), just under the crosshair
-	local holder = make("Frame", {
-		Name = "Eliminated",
-		AnchorPoint = CENTRE,
-		Position = UDim2.fromOffset(960, 660),
-		Size = UDim2.fromOffset(420, 110),
-		BackgroundTransparency = 1,
-	}, spec)
-	local s = strip(
-		holder,
-		"Strip",
-		64,
-		NAVY,
-		{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(210, 0) }
-	)
-	local skull = make("Frame", {
-		Name = "Team",
-		LayoutOrder = 1,
-		Size = UDim2.fromOffset(64, 64),
-		BackgroundColor3 = ENEMY,
-		BorderSizePixel = 0,
-		ZIndex = 2,
-	}, s)
-	make("ImageLabel", {
-		Name = "Skull",
-		AnchorPoint = CENTRE,
-		Position = UDim2.new(0.5, 6, 0.5, 0),
-		Size = UDim2.fromOffset(36, 36),
-		BackgroundTransparency = 1,
-		Image = SKULL,
-		ZIndex = 3,
-	}, skull)
-	make("ImageLabel", {
-		Name = "Cap",
-		LayoutOrder = 2,
-		Size = UDim2.fromOffset(27, 64),
-		BackgroundTransparency = 1,
-		Image = CAP_R,
-		ImageColor3 = ENEMY,
-		ZIndex = 2,
-	}, s)
-	gap(s, 3, 10)
-	local words = make("Frame", {
-		Name = "Words",
-		LayoutOrder = 4,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 64),
-		BackgroundTransparency = 1,
-	}, s)
-	make("UIListLayout", {
-		VerticalAlignment = Enum.VerticalAlignment.Center,
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Padding = UDim.new(0, 0),
-	}, words)
-	text(words, "Title", "ELIMINATED", 26, WHITE, { LayoutOrder = 1 })
-	local line = make("Frame", {
-		Name = "Line",
-		LayoutOrder = 2,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 18),
-		BackgroundTransparency = 1,
-	}, words)
-	make("UIListLayout", {
-		FillDirection = Enum.FillDirection.Horizontal,
-		Padding = UDim.new(0, 10),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-	}, line)
-	text(line, "Victim", "BYTE", 13, ENEMY, { LayoutOrder = 1 })
-	text(line, "Head", "HEADSHOT", 13, GOLD, { LayoutOrder = 2 })
-	gap(s, 5, 22)
-	-- kills this round (the kill ladder): one bar each, lit up to the count
-	local pips = make("Frame", {
-		Name = "Pips",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(210, 76),
-		Size = UDim2.fromOffset(5 * 22, 6),
-		BackgroundTransparency = 1,
-	}, holder)
-	make("UIListLayout", {
-		FillDirection = Enum.FillDirection.Horizontal,
-		Padding = UDim.new(0, 6),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-	}, pips)
-	for i = 1, 5 do
-		make("Frame", {
-			Name = "Pip" .. i,
-			LayoutOrder = i,
-			Size = UDim2.fromOffset(16, 6),
-			BackgroundColor3 = if i <= 2 then ENEMY else WHITE,
-			BackgroundTransparency = if i <= 2 then 0 else 0.7,
-			BorderSizePixel = 0,
-		}, pips)
-	end
-end
 do -- the spectate bar (bottom centre)
 	local holder = make("Frame", {
 		Name = "Spectate",
@@ -548,6 +454,110 @@ do -- the spectate bar (bottom centre)
 		FontFace = Font.new(BX, SB),
 	})
 end
+
+-- The kill pop (your kill, just under the crosshair; Valorant-style): a disc
+-- with an emblem, ringed by 5 segments, one lit per kill this round. Gold on a
+-- headshot. No words.
+local SWORD, BLADES, SHARD =
+	"rbxassetid://123591008906340", "rbxassetid://98763575799680", "rbxassetid://76745392849672"
+local RING_SEG = "rbxassetid://136514326667794"
+local function killPop(
+	c: Instance,
+	x: number,
+	y: number,
+	emblem: string,
+	kills: number,
+	head: boolean,
+	glitch: boolean,
+	caption: string
+)
+	local holder = make(
+		"Frame",
+		{
+			Name = "KillPop",
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromOffset(x, y),
+			Size = UDim2.fromOffset(150, 150),
+			BackgroundTransparency = 1,
+		},
+		c
+	)
+	local lit = if head then GOLD else ENEMY
+	for i = 1, 5 do
+		make("ImageLabel", {
+			Name = "Seg" .. i,
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(1, 1),
+			Rotation = (i - 1) * 72,
+			BackgroundTransparency = 1,
+			Image = RING_SEG,
+			ImageColor3 = if i <= kills then lit else WHITE,
+			ImageTransparency = if i <= kills then 0 else 0.7,
+			ZIndex = 1,
+		}, holder)
+	end
+	local disc = make(
+		"Frame",
+		{
+			Name = "Disc",
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(112, 112),
+			BackgroundColor3 = NAVY,
+			BorderSizePixel = 0,
+			ZIndex = 2,
+		},
+		holder
+	)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, disc)
+	if glitch then -- the colour split, like the glitched draft title
+		for _, g in { { hex("00E5FF"), -4 }, { hex("FF8BE0"), 4 } } do
+			make(
+				"ImageLabel",
+				{
+					Name = "Split",
+					AnchorPoint = CENTRE,
+					Position = UDim2.new(0.5, g[2], 0.5, 0),
+					Size = UDim2.fromOffset(98, 98),
+					BackgroundTransparency = 1,
+					Image = emblem,
+					ImageColor3 = g[1],
+					ZIndex = 3,
+				},
+				disc
+			)
+		end
+	end
+	make(
+		"ImageLabel",
+		{
+			Name = "Emblem",
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(98, 98),
+			BackgroundTransparency = 1,
+			Image = emblem,
+			ImageColor3 = if head then GOLD else WHITE,
+			ZIndex = 4,
+		},
+		disc
+	)
+	make("UIScale", { Name = "Pop" }, holder)
+	text(
+		c,
+		"Caption",
+		caption,
+		12,
+		WHITE,
+		{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(x, y + 92) }
+	)
+end
+
+local killC = canvas("CanvasKill")
+killPop(killC, 660, 600, SWORD, 1, false, false, "A  SWORD  ·  1ST KILL")
+killPop(killC, 960, 600, BLADES, 3, false, false, "B  CROSSED BLADES  ·  3RD KILL")
+killPop(killC, 1260, 600, SHARD, 2, true, true, "C  GLITCH SHARD  ·  HEADSHOT, 2ND")
 
 gui.Parent = SG
 print("FeedMockup built")
