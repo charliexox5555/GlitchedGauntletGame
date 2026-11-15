@@ -34,6 +34,7 @@ local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
+local OddsList = require(script.Parent.Parent.Util.OddsList)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Layout = require(script.Parent.Parent.Util.Layout)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -450,33 +451,9 @@ local function showPanel(panel: Frame?)
 end
 
 local function fillOdds(case: ShopCatalog.Case)
-	local list = child(oddsPanel, "List") :: ScrollingFrame
-	for _, c in list:GetChildren() do
-		if c:IsA("Frame") then
-			c:Destroy()
-		end
-	end
 	(child(oddsPanel, "Sub") :: TextLabel).Text = case.name;
 	(child(oddsPanel, "Note") :: TextLabel).Text = ShopCatalog.ODDS_NOTE
-	local odds = ShopCatalog.odds(case)
-	for i, item in case.contents do
-		local row = (templates:WaitForChild("ShopOddsRow") :: Frame):Clone()
-		row.Name = "Row" .. i
-		row.LayoutOrder = i
-		local color = if item.rarity then ShopCatalog.RARITY_COLOR[item.rarity] else WHITE;
-		(child(row, "Cell") :: Frame).BackgroundColor3 = color or WHITE
-		local name = child(row, "Name") :: TextLabel
-		name.Text = item.name
-		name.TextColor3 = color or WHITE;
-		(child(row, "Sub") :: TextLabel).Text = string.format(
-			"%s %s  ·  %s",
-			string.upper(item.rarity or ""),
-			string.upper(item.kind),
-			string.upper(item.gun or "")
-		);
-		(child(row, "Pct") :: TextLabel).Text = ShopCatalog.formatOdds(odds[i])
-		row.Parent = list
-	end
+	OddsList.fill(child(oddsPanel, "List") :: ScrollingFrame, case)
 end
 
 local function setPlate(button: Instance, amount: string)
@@ -941,7 +918,13 @@ function ShopController.init()
 			end)
 		end
 	end
-	soonOn("SeasonPass", "The season pass")
+	local passHolder = scroll:FindFirstChild("SeasonPass", true)
+	local passCardB = passHolder and passHolder:FindFirstChild("Card")
+	if passCardB and passCardB:IsA("GuiButton") then
+		passCardB.Activated:Connect(function()
+			Router.open("BattlePass")
+		end)
+	end
 	soonOn("Offer", "Special offers")
 	for i = 1, 6 do
 		soonOn("Pack" .. i, "Buying coins")
@@ -956,7 +939,7 @@ function ShopController.init()
 	local view = passCard and passCard:FindFirstChild("View", true)
 	if view and view:IsA("GuiButton") then
 		view.Activated:Connect(function()
-			soon("The season pass")
+			Router.open("BattlePass")
 		end)
 	end
 	local day4 = scroll:FindFirstChild("Day4", true)

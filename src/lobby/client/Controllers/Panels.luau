@@ -447,7 +447,10 @@ function Panels.init()
 	if PHONE then
 		buildShop()
 	end
-	buildBattlePass()
+	-- desktop: the Studio-built Season Pass (Controllers/BattlePassController)
+	if PHONE then
+		buildBattlePass()
+	end
 	buildSettings()
 	buildRange()
 end

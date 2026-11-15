@@ -44,6 +44,15 @@ export type Bundle = {
 
 local ShopCatalog = {}
 
+-- Shared art ids (art-source/ui/shop/, uploaded 2026-11-16) for screens that
+-- show shop things outside the Shop (the Season Pass). The Shop's builder has
+-- its own copy in tools/studio/BuildShop.luau.
+ShopCatalog.ART = table.freeze({
+	coin = "rbxassetid://126250416946442",
+	coinStack = "rbxassetid://77893326046955",
+	seasonPass = "rbxassetid://129516715347397",
+})
+
 ShopCatalog.RARITY_COLOR = table.freeze({
 	Common = Color3.fromHex("AEB8D6"),
 	Rare = Color3.fromHex("3FA9FF"),
