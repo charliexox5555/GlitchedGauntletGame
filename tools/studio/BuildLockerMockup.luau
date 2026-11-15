@@ -1,5 +1,5 @@
 --!strict
--- Locker mockup v1 (vault/02 Art/UI Locker.md) in the LOBBY place, Edit mode:
+-- Locker mockup v2 (vault/02 Art/UI Locker.md; v1 was "too AI, pilly and boring") in the LOBBY place, Edit mode:
 --   Workspace.LockerStage     the hidden studio stage: a faceted backdrop, an
 --                             octagonal plinth, three lights, the gun (Prism Vandal)
 --   StarterGui.LockerMockup   the screen: tabs, the weapon list (left), the gun's
@@ -28,25 +28,24 @@ end
 
 local BX = "rbxasset://fonts/families/BuilderExtended.json"
 local XB = Enum.FontWeight.ExtraBold
-local NAVY, NAVY_HI, NAVY_LO = hex("1C2740"), hex("2B3A5A"), hex("141C30")
+local NAVY, NAVY_HI = hex("1C2740"), hex("2B3A5A")
 local ALLY, GOLD = hex("3FE0F2"), hex("FFC83D")
 local MUTED, INK, WHITE = hex("8E98A8"), hex("141A26"), Color3.new(1, 1, 1)
-local SHADOW = "rbxassetid://121253415859134"
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local CENTRE = Vector2.new(0.5, 0.5)
 
 -- Skin lines with a ready Vandal, and a swatch colour each (placeholders).
 local LINES = {
-	{ "DEFAULT", "BASE MODEL", hex("8E98A8") },
-	{ "PRISM", "STRUCTURAL", hex("B58CFF") },
-	{ "REDLINE", "STRUCTURAL", hex("FF4D5E") },
-	{ "NITROUS", "STRUCTURAL", hex("3FE0F2") },
-	{ "POPCIRCUIT", "STRUCTURAL", hex("FF7AD9") },
-	{ "MOLTFRAME", "STRUCTURAL", hex("FF7A3D") },
-	{ "GILTFOLD", "STRUCTURAL", hex("E8C46A") },
-	{ "SEALWORK", "STRUCTURAL", hex("2BD9A8") },
-	{ "PAYLOAD", "STRUCTURAL", hex("9AA36B") },
-	{ "INKSHIFT", "STRUCTURAL", hex("E9ECF2") },
+	{ "DEFAULT", "BASE MODEL", hex("8E98A8"), "" },
+	{ "PRISM", "STRUCTURAL", hex("B58CFF"), "Prism" },
+	{ "REDLINE", "STRUCTURAL", hex("FF4D5E"), "Redline" },
+	{ "NITROUS", "STRUCTURAL", hex("3FE0F2"), "Nitrous" },
+	{ "POPCIRCUIT", "STRUCTURAL", hex("FF7AD9"), "PopCircuit" },
+	{ "MOLTFRAME", "STRUCTURAL", hex("FF7A3D"), "Moltframe" },
+	{ "GILTFOLD", "STRUCTURAL", hex("E8C46A"), "Giltfold" },
+	{ "SEALWORK", "STRUCTURAL", hex("2BD9A8"), "Sealwork" },
+	{ "PAYLOAD", "STRUCTURAL", hex("9AA36B"), "Payload" },
+	{ "INKSHIFT", "STRUCTURAL", hex("E9ECF2"), "Inkshift" },
 }
 local GROUPS = {
 	{ "SIDEARMS", { "CLASSIC", "SHORTY", "GHOST", "SHERIFF" } },
@@ -184,7 +183,12 @@ make("CFrameValue", {
 	),
 }, stage)
 
--- screen --------------------------------------------------------------------------
+-- screen v2 ------------------------------------------------------------------------
+-- Owner on v1: "too AI, pilly and boring". So: no panels-in-panels or rows of
+-- grey bars; every gun and skin is a picture (a ViewportFrame of the real
+-- model); colour means something (a skin's colour is its block, like the bar's
+-- name tags); big chunky type; sharp slanted plates only where they mark the
+-- active thing; gold only on EQUIP; no pills, outlines, glows or edge strips.
 local oldGui = SG:FindFirstChild("LockerMockup")
 if oldGui then
 	oldGui:Destroy()
@@ -223,8 +227,9 @@ local function text(
 	return t
 end
 local function corner(p: Instance)
-	make("UICorner", { CornerRadius = UDim.new(0, 2) }, p)
+	make("UICorner", { CornerRadius = UDim.new(0, 3) }, p)
 end
+-- both ends lean the same way (the bar's parallelogram)
 local function slant(body: GuiObject, color: Color3, h: number, capW: number)
 	make("ImageLabel", {
 		Name = "CapL",
@@ -247,20 +252,42 @@ local function slant(body: GuiObject, color: Color3, h: number, capW: number)
 		ZIndex = body.ZIndex,
 	}, body)
 end
-local function shadow(p: Instance, x: number, y: number, w: number, h: number)
-	make("ImageLabel", {
-		Name = "Shadow",
-		Position = UDim2.fromOffset(x - 30, y - 22),
-		Size = UDim2.fromOffset(w + 60, h + 60),
+
+-- A picture of a real model: a ViewportFrame looking at its side, muzzle to
+-- the right, a touch from above and behind, framed to fit.
+local function thumb(parent: Instance, model: Model, w: number, h: number, pos: UDim2, z: number)
+	local vf = make("ViewportFrame", {
+		Name = "Thumb",
+		Position = pos,
+		Size = UDim2.fromOffset(w, h),
 		BackgroundTransparency = 1,
-		Image = SHADOW,
-		ImageColor3 = Color3.new(0, 0, 0),
-		ImageTransparency = 0.45,
-		ScaleType = Enum.ScaleType.Slice,
-		SliceCenter = Rect.new(48, 48, 80, 80),
-		ZIndex = 0,
-	}, p)
+		Ambient = hex("CDD3DF"),
+		LightColor = Color3.new(1, 1, 1),
+		LightDirection = Vector3.new(-0.6, -1, -0.4),
+		ZIndex = z,
+	}, parent)
+	local m = model:Clone()
+	for _, d in m:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+		end
+	end
+	m:PivotTo(CFrame.new())
+	local cf, size = m:GetBoundingBox()
+	m.Parent = vf
+	local cam = make("Camera", { FieldOfView = 20 }, vf)
+	vf.CurrentCamera = cam
+	local half = math.max(size.Y, size.Z / (w / h)) / 2 * 0.98
+	local dist = half / math.tan(math.rad(10)) + size.X / 2
+	cam.CFrame =
+		CFrame.lookAt(cf.Position + Vector3.new(dist, dist * 0.12, dist * 0.16), cf.Position)
 end
+
+local function gunModel(name: string): Model
+	local id = string.sub(name, 1, 1) .. string.lower(string.sub(name, 2))
+	return RS.Weapons:WaitForChild(id) :: Model
+end
+
 -- one design-size canvas (1920x1080), scaled to fit and centred
 local canvas = make("Frame", {
 	Name = "Canvas",
@@ -270,13 +297,13 @@ local canvas = make("Frame", {
 	BackgroundTransparency = 1,
 }, gui)
 make("UIScale", { Name = "Fit" }, canvas)
--- a soft dark fade at the left and right edges so the panels sit on calm ground
+-- the side columns sit on a dark fade (no boxes), the stage stays open
 for i, side in { 0, 1 } do
 	local f = make("Frame", {
 		Name = if i == 1 then "FadeL" else "FadeR",
 		AnchorPoint = Vector2.new(side, 0),
 		Position = UDim2.fromScale(side, 0),
-		Size = UDim2.fromOffset(560, 1080),
+		Size = UDim2.fromOffset(640, 1080),
 		BackgroundColor3 = hex("06080C"),
 		BorderSizePixel = 0,
 		ZIndex = 0,
@@ -284,26 +311,26 @@ for i, side in { 0, 1 } do
 	make("UIGradient", {
 		Rotation = if side == 0 then 0 else 180,
 		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 0.35),
+			NumberSequenceKeypoint.new(0, 0.12),
+			NumberSequenceKeypoint.new(0.55, 0.45),
 			NumberSequenceKeypoint.new(1, 1),
 		}),
 	}, f)
 end
 
--- top: title, tabs, close
-text(canvas, "Kicker", "LOBBY", 12, ALLY, { Position = UDim2.fromOffset(60, 72) })
-text(canvas, "Title", "LOCKER", 44, WHITE, { Position = UDim2.fromOffset(60, 86) })
+-- top left: LOCKER and the three tabs (the active one on a cyan slab)
+text(canvas, "Title", "LOCKER", 60, WHITE, { Position = UDim2.fromOffset(64, 40) })
 local tabs = make("Frame", {
 	Name = "Tabs",
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromOffset(960, 84),
-	Size = UDim2.fromOffset(0, 44),
+	Position = UDim2.fromOffset(78, 120),
+	Size = UDim2.fromOffset(0, 50),
 	AutomaticSize = Enum.AutomaticSize.X,
 	BackgroundTransparency = 1,
 }, canvas)
 make("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
-	Padding = UDim.new(0, 26),
+	VerticalAlignment = Enum.VerticalAlignment.Center,
+	Padding = UDim.new(0, 30),
 	SortOrder = Enum.SortOrder.LayoutOrder,
 }, tabs)
 for i, t in { "WEAPONS", "ABILITIES", "EMOTES" } do
@@ -311,289 +338,305 @@ for i, t in { "WEAPONS", "ABILITIES", "EMOTES" } do
 	local tab = make("TextButton", {
 		Name = t,
 		LayoutOrder = i,
-		Size = UDim2.fromOffset(170, 44),
-		BackgroundColor3 = if on then ALLY else NAVY,
+		Size = UDim2.fromOffset(0, 50),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = ALLY,
+		BackgroundTransparency = if on then 0 else 1,
 		BorderSizePixel = 0,
 		Text = "",
 		AutoButtonColor = false,
 		ZIndex = 3,
 	}, tabs)
-	slant(tab, if on then ALLY else NAVY, 44, 14)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, tab)
+	if on then
+		slant(tab, ALLY, 50, 16)
+	end
 	text(
 		tab,
 		"Label",
 		t,
-		16,
-		if on then INK else WHITE,
-		{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 5 }
+		20,
+		if on then INK else MUTED,
+		{ Size = UDim2.fromOffset(0, 50), ZIndex = 5 }
 	)
 end
+-- top right: a round close (circles are for things you touch)
 local close = make("TextButton", {
 	Name = "Close",
 	AnchorPoint = Vector2.new(1, 0),
-	Position = UDim2.fromOffset(1860, 84),
-	Size = UDim2.fromOffset(130, 44),
+	Position = UDim2.fromOffset(1856, 48),
+	Size = UDim2.fromOffset(60, 60),
 	BackgroundColor3 = NAVY,
 	BorderSizePixel = 0,
 	Text = "",
 	AutoButtonColor = false,
 	ZIndex = 3,
 }, canvas)
-slant(close, NAVY, 44, 14)
+make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, close)
 text(
 	close,
-	"Label",
-	"X  CLOSE",
-	14,
+	"X",
+	"X",
+	22,
 	WHITE,
 	{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 5 }
 )
 
--- left: the weapon list, grouped by class
-local LX, LY, LW, LH = 60, 168, 340, 800
-shadow(canvas, LX, LY, LW, LH)
-local left = make("Frame", {
-	Name = "Weapons",
-	Position = UDim2.fromOffset(LX, LY),
-	Size = UDim2.fromOffset(LW, LH),
-	BackgroundColor3 = NAVY,
-	BorderSizePixel = 0,
-	ZIndex = 1,
-}, canvas)
-corner(left)
-local leftHead = make("Frame", {
-	Name = "Head",
-	Size = UDim2.fromOffset(LW, 40),
-	BackgroundColor3 = NAVY_HI,
-	BorderSizePixel = 0,
-	ZIndex = 2,
-}, left)
-corner(leftHead)
-text(
-	leftHead,
-	"Label",
-	"WEAPONS",
-	14,
-	WHITE,
-	{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 16, 0.5, 0), ZIndex = 3 }
-)
-text(
-	leftHead,
-	"Count",
-	"18",
-	12,
-	MUTED,
-	{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -16, 0.5, 0), ZIndex = 3 }
-)
+-- left: every gun as a picture card, grouped by class
+local GW, GH, GAP = 204, 112, 10
 local list = make("ScrollingFrame", {
-	Name = "List",
-	Position = UDim2.fromOffset(0, 46),
-	Size = UDim2.new(1, 0, 1, -52),
+	Name = "Guns",
+	Position = UDim2.fromOffset(64, 196),
+	Size = UDim2.fromOffset(2 * GW + GAP + 14, 840),
 	BackgroundTransparency = 1,
 	BorderSizePixel = 0,
-	ScrollBarThickness = 3,
+	ScrollBarThickness = 4,
 	ScrollBarImageColor3 = MUTED,
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	CanvasSize = UDim2.new(),
 	ZIndex = 2,
-}, left)
-make("UIListLayout", { Padding = UDim.new(0, 3), SortOrder = Enum.SortOrder.LayoutOrder }, list)
-make("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 12) }, list)
-local order = 0
-for _, g in GROUPS do
-	order += 1
-	text(list, "Group", g[1], 10, ALLY, {
-		LayoutOrder = order,
-		Size = UDim2.fromOffset(0, 22),
-		TextYAlignment = Enum.TextYAlignment.Bottom,
-		ZIndex = 3,
-	})
-	for _, name in g[2] do
-		order += 1
+}, canvas)
+make("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, list)
+for gi, g in GROUPS do
+	local group = make("Frame", {
+		Name = g[1],
+		LayoutOrder = gi,
+		Size = UDim2.fromOffset(2 * GW + GAP, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1,
+	}, list)
+	make(
+		"UIListLayout",
+		{ Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder },
+		group
+	)
+	text(group, "Head", g[1], 13, ALLY, { LayoutOrder = 0, ZIndex = 3 })
+	local grid = make("Frame", {
+		Name = "Grid",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(2 * GW + GAP, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1,
+	}, group)
+	make("UIGridLayout", {
+		CellSize = UDim2.fromOffset(GW, GH),
+		CellPadding = UDim2.fromOffset(GAP, GAP),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, grid)
+	for i, name in g[2] do
 		local selected = name == "VANDAL"
-		local row = make("TextButton", {
+		local card = make("TextButton", {
 			Name = name,
-			LayoutOrder = order,
-			Size = UDim2.fromOffset(LW - 22, 34),
-			BackgroundColor3 = if selected then ALLY else NAVY_LO,
+			LayoutOrder = i,
+			BackgroundColor3 = if selected then ALLY else NAVY,
+			BackgroundTransparency = if selected then 0 else 0.08,
 			BorderSizePixel = 0,
 			Text = "",
 			AutoButtonColor = false,
 			ZIndex = 3,
-		}, list)
-		corner(row)
-		text(
-			row,
-			"Name",
-			name,
-			13,
-			if selected then INK else WHITE,
-			{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 12, 0.5, 0), ZIndex = 4 }
-		)
+		}, grid)
+		corner(card)
+		thumb(card, gunModel(name), GW - 16, 74, UDim2.fromOffset(8, 4), 4)
+		text(card, "Name", name, 14, if selected then INK else WHITE, {
+			Position = UDim2.fromOffset(12, GH - 30),
+			ZIndex = 5,
+		})
+		-- the equipped skin's colour as a slanted block in the corner
 		local eq = EQUIPPED[name]
 		if eq then
-			local line = LINES[eq]
-			local tag = make("Frame", {
+			local c = LINES[eq][3]
+			local chip = make("Frame", {
 				Name = "Skin",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -16, 0.5, 0),
-				Size = UDim2.fromOffset(0, 20),
-				AutomaticSize = Enum.AutomaticSize.X,
-				BackgroundColor3 = line[3],
+				AnchorPoint = Vector2.new(1, 1),
+				Position = UDim2.new(1, -14, 1, -8),
+				Size = UDim2.fromOffset(26, 18),
+				BackgroundColor3 = c,
 				BorderSizePixel = 0,
-				ZIndex = 4,
-			}, row)
-			make("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, tag)
-			slant(tag, line[3], 20, 6)
-			text(tag, "Label", line[1], 9, INK, { Size = UDim2.fromOffset(0, 20), ZIndex = 5 })
+				ZIndex = 5,
+			}, card)
+			slant(chip, c, 18, 6)
 		end
 	end
 end
 
--- right: the selected gun and its skins
-local RX, RY, RW = 1520, 168, 340
-local head = make("Frame", {
-	Name = "Gun",
-	Position = UDim2.fromOffset(RX, RY),
-	Size = UDim2.fromOffset(RW, 84),
-	BackgroundTransparency = 1,
-}, canvas)
-text(head, "Class", "RIFLE  ·  TIER 3", 12, ALLY, { Position = UDim2.fromOffset(0, 0) })
-text(head, "Name", "VANDAL", 42, WHITE, { Position = UDim2.fromOffset(0, 18) })
-local SY, SH = RY + 92, 600
-shadow(canvas, RX, SY, RW, SH)
-local skins = make("Frame", {
-	Name = "Skins",
-	Position = UDim2.fromOffset(RX, SY),
-	Size = UDim2.fromOffset(RW, SH),
-	BackgroundColor3 = NAVY,
-	BorderSizePixel = 0,
-	ZIndex = 1,
-}, canvas)
-corner(skins)
-local skinHead = make("Frame", {
-	Name = "Head",
-	Size = UDim2.fromOffset(RW, 40),
-	BackgroundColor3 = NAVY_HI,
-	BorderSizePixel = 0,
-	ZIndex = 2,
-}, skins)
-corner(skinHead)
+-- centre top: the gun's name, and the skin on it in the skin's colour
+local SEL = LINES[2]
 text(
-	skinHead,
-	"Label",
-	"SKINS",
-	14,
+	canvas,
+	"GunName",
+	"VANDAL",
+	84,
 	WHITE,
-	{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 16, 0.5, 0), ZIndex = 3 }
+	{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(960, 168) }
+)
+local skinTag = make("Frame", {
+	Name = "SkinTag",
+	AnchorPoint = Vector2.new(0.5, 0),
+	Position = UDim2.fromOffset(960, 268),
+	Size = UDim2.fromOffset(0, 36),
+	AutomaticSize = Enum.AutomaticSize.X,
+	BackgroundColor3 = SEL[3],
+	BorderSizePixel = 0,
+	ZIndex = 3,
+}, canvas)
+make("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }, skinTag)
+slant(skinTag, SEL[3], 36, 12)
+text(
+	skinTag,
+	"Label",
+	SEL[1] .. "  ·  RIFLE",
+	16,
+	INK,
+	{ Size = UDim2.fromOffset(0, 36), ZIndex = 5 }
 )
 text(
-	skinHead,
-	"Count",
+	canvas,
+	"Hint",
+	"DRAG TO TURN  ·  SCROLL TO ZOOM",
+	12,
+	MUTED,
+	{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(960, 912) }
+)
+
+-- right: the skins as big picture cards; each card's foot is its colour
+local SW, SHH = 204, 152
+text(canvas, "SkinsHead", "SKINS", 16, WHITE, { Position = UDim2.fromOffset(1438, 150) })
+text(
+	canvas,
+	"SkinsCount",
 	"10 OWNED",
 	12,
 	MUTED,
-	{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -16, 0.5, 0), ZIndex = 3 }
+	{ AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromOffset(1856, 154) }
 )
-local slist = make("Frame", {
-	Name = "List",
-	Position = UDim2.fromOffset(10, 48),
-	Size = UDim2.new(1, -20, 1, -56),
+local skins = make("ScrollingFrame", {
+	Name = "Skins",
+	Position = UDim2.fromOffset(1438, 190),
+	Size = UDim2.fromOffset(2 * SW + GAP + 14, 680),
 	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 4,
+	ScrollBarImageColor3 = MUTED,
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(),
 	ZIndex = 2,
+}, canvas)
+make("UIGridLayout", {
+	CellSize = UDim2.fromOffset(SW, SHH),
+	CellPadding = UDim2.fromOffset(GAP, GAP),
+	SortOrder = Enum.SortOrder.LayoutOrder,
 }, skins)
-make("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, slist)
 for i, line in LINES do
-	local previewing = i == 2 -- PRISM is on the stand
-	local row = make("TextButton", {
+	local onStage = i == 2
+	local card = make("TextButton", {
 		Name = line[1],
 		LayoutOrder = i,
-		Size = UDim2.fromOffset(RW - 20, 50),
-		BackgroundColor3 = if previewing then NAVY_HI else NAVY_LO,
+		BackgroundColor3 = if onStage then NAVY_HI else NAVY,
+		BackgroundTransparency = if onStage then 0 else 0.08,
 		BorderSizePixel = 0,
 		Text = "",
 		AutoButtonColor = false,
 		ZIndex = 3,
-	}, slist)
-	corner(row)
-	local sw = make("Frame", {
-		Name = "Swatch",
-		Position = UDim2.fromOffset(0, 0),
-		Size = UDim2.fromOffset(40, 50),
+	}, skins)
+	corner(card)
+	local model = if line[4] == ""
+		then gunModel("VANDAL")
+		else RS.WeaponSkins:WaitForChild(line[4]):WaitForChild("Vandal")
+	thumb(card, model :: Model, SW - 12, 100, UDim2.fromOffset(6, 4), 4)
+	local foot = make("Frame", {
+		Name = "Foot",
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 0, 1, 0),
+		Size = UDim2.new(1, 0, 0, 40),
 		BackgroundColor3 = line[3],
 		BorderSizePixel = 0,
 		ZIndex = 4,
-	}, row)
-	make("ImageLabel", {
-		Name = "Cap",
-		Position = UDim2.new(1, -1, 0, 0),
-		Size = UDim2.fromOffset(14, 50),
-		BackgroundTransparency = 1,
-		Image = CAP_R,
-		ImageColor3 = line[3],
-		ZIndex = 4,
-	}, sw)
-	text(row, "Name", line[1], 15, WHITE, { Position = UDim2.fromOffset(66, 8), ZIndex = 5 })
-	text(row, "Kind", line[2], 10, MUTED, { Position = UDim2.fromOffset(66, 28), ZIndex = 5 })
-	if i == EQUIPPED.VANDAL then
+	}, card)
+	corner(foot)
+	text(
+		foot,
+		"Name",
+		line[1],
+		15,
+		INK,
+		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 12, 0.5, 0), ZIndex = 5 }
+	)
+	if onStage then
 		text(
-			row,
-			"Equipped",
-			"EQUIPPED",
-			10,
-			ALLY,
-			{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -14, 0.5, 0), ZIndex = 5 }
-		)
-	elseif previewing then
-		text(
-			row,
-			"Viewing",
+			foot,
+			"On",
 			"»",
-			22,
-			WHITE,
-			{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -14, 0.5, 0), ZIndex = 5 }
+			24,
+			INK,
+			{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, -1), ZIndex = 5 }
 		)
 	end
+	if i == EQUIPPED.VANDAL then
+		local eq = make("Frame", {
+			Name = "Equipped",
+			Position = UDim2.fromOffset(12, 10),
+			Size = UDim2.fromOffset(0, 20),
+			AutomaticSize = Enum.AutomaticSize.X,
+			BackgroundColor3 = WHITE,
+			BorderSizePixel = 0,
+			ZIndex = 6,
+		}, card)
+		make("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, eq)
+		slant(eq, WHITE, 20, 6)
+		text(eq, "Label", "EQUIPPED", 10, INK, { Size = UDim2.fromOffset(0, 20), ZIndex = 7 })
+	end
 end
--- EQUIP: the one gold thing on the screen
+
+-- EQUIP: the one gold thing, big, with the » that says "go"
 local equip = make("TextButton", {
 	Name = "Equip",
-	Position = UDim2.fromOffset(RX + 20, SY + SH + 24),
-	Size = UDim2.fromOffset(RW - 40, 64),
+	Position = UDim2.fromOffset(1458, 900),
+	Size = UDim2.fromOffset(2 * SW + GAP - 40, 80),
 	BackgroundColor3 = GOLD,
 	BorderSizePixel = 0,
 	Text = "",
 	AutoButtonColor = false,
 	ZIndex = 3,
 }, canvas)
-slant(equip, GOLD, 64, 20)
+slant(equip, GOLD, 80, 24)
 text(
 	equip,
 	"Label",
 	"EQUIP",
-	28,
+	34,
 	INK,
-	{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.42), ZIndex = 5 }
+	{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 18, 0.5, -8), ZIndex = 5 }
 )
-text(equip, "Sub", "PRISM  ·  VANDAL", 10, INK, {
-	AnchorPoint = CENTRE,
-	Position = UDim2.fromScale(0.5, 0.8),
-	TextTransparency = 0.3,
-	ZIndex = 5,
-})
+text(
+	equip,
+	"Sub",
+	"PRISM VANDAL",
+	11,
+	INK,
+	{ Position = UDim2.new(0, 20, 0.5, 14), TextTransparency = 0.3, ZIndex = 5 }
+)
+text(
+	equip,
+	"Go",
+	"»",
+	54,
+	INK,
+	{ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, -4), ZIndex = 5 }
+)
 
--- bottom centre: what you're changing on the gun, and the drag hint
+-- bottom centre: what you're changing; big words, the active one on a white slab
 local kinds = make("Frame", {
 	Name = "Kinds",
 	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromOffset(960, 948),
-	Size = UDim2.fromOffset(0, 46),
+	Position = UDim2.fromOffset(960, 960),
+	Size = UDim2.fromOffset(0, 50),
 	AutomaticSize = Enum.AutomaticSize.X,
 	BackgroundTransparency = 1,
 }, canvas)
 make("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
-	Padding = UDim.new(0, 22),
+	VerticalAlignment = Enum.VerticalAlignment.Center,
+	Padding = UDim.new(0, 34),
 	SortOrder = Enum.SortOrder.LayoutOrder,
 }, kinds)
 for i, k in { "SKIN", "CHARM", "WRAP", "FINISHER" } do
@@ -601,20 +644,23 @@ for i, k in { "SKIN", "CHARM", "WRAP", "FINISHER" } do
 	local b = make("TextButton", {
 		Name = k,
 		LayoutOrder = i,
-		Size = UDim2.fromOffset(140, 46),
-		BackgroundColor3 = if on then WHITE else NAVY,
-		BackgroundTransparency = if on then 0 else 0.15,
+		Size = UDim2.fromOffset(0, 50),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = WHITE,
+		BackgroundTransparency = if on then 0 else 1,
 		BorderSizePixel = 0,
 		Text = "",
 		AutoButtonColor = false,
 		ZIndex = 3,
 	}, kinds)
-	slant(b, if on then WHITE else NAVY, 46, 14)
-	text(b, "Label", k, 15, if on then INK else WHITE, {
-		AnchorPoint = CENTRE,
-		Position = UDim2.fromScale(0.5, if on then 0.5 else 0.38),
+	make("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, b)
+	if on then
+		slant(b, WHITE, 50, 16)
+	end
+	text(b, "Label", k, 20, if on then INK else WHITE, {
+		Size = UDim2.fromOffset(0, 50),
+		TextTransparency = if on then 0 else 0.45,
 		ZIndex = 5,
-		TextTransparency = if on then 0 else 0.35,
 	})
 	if not on then
 		text(
@@ -623,18 +669,10 @@ for i, k in { "SKIN", "CHARM", "WRAP", "FINISHER" } do
 			"SOON",
 			9,
 			ALLY,
-			{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.76), ZIndex = 5 }
+			{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 1, -6), ZIndex = 5 }
 		)
 	end
 end
-text(
-	canvas,
-	"Hint",
-	"DRAG TO TURN  ·  SCROLL TO ZOOM",
-	11,
-	MUTED,
-	{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(960, 1008) }
-)
 
 gui.Parent = SG
-print("Locker mockup v1 built (Workspace.LockerStage, StarterGui.LockerMockup)")
+print("Locker mockup v2 built (Workspace.LockerStage, StarterGui.LockerMockup)")
