@@ -609,10 +609,6 @@ do
 		INK,
 		{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 7 }
 	)
-	-- the pass card's selection frame is shown on the mockup to preview it
-	local sel = pass:WaitForChild("Select") :: Frame
-	sel.Visible = true
-
 	header(home, "SPECIAL OFFERS", nil, 3)
 	local mid = row(home, "Mid", 330, 24, 4)
 	local offer =
@@ -698,44 +694,6 @@ do
 		local b = card(b2, "Bundle_" .. c[1], Vector2.new(bw2, 280), c[3], c[2], 30, true, i)
 		price(b, "robux", c[4], UDim2.new(1, -20, 1, -20), Vector2.new(1, 1), 54)
 	end
-	-- the contents layout a bundle shows on hover (mockup: shown on Neon)
-	local neon = b1:WaitForChild("Bundle_Neon"):WaitForChild("Card") :: TextButton
-	local contents = frame(neon, "Contents", {
-		Position = UDim2.fromOffset(22, 104),
-		Size = UDim2.fromOffset(bw3 - 44, 92),
-		ZIndex = 6,
-	})
-	make("UIListLayout", {
-		FillDirection = Enum.FillDirection.Horizontal,
-		Padding = UDim.new(0, 8),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-	}, contents)
-	for i, c in
-		{
-			{ "SKIN", hex("2B6FE0") },
-			{ "SKIN", hex("3FE0F2") },
-			{ "MOD", GOLD },
-			{ "CHARM", hex("B58CFF") },
-		}
-	do
-		local cell = make("Frame", {
-			Name = "Item" .. i,
-			LayoutOrder = i,
-			Size = UDim2.fromOffset(84, 84),
-			BackgroundColor3 = c[2],
-			BackgroundTransparency = 0.15,
-			BorderSizePixel = 0,
-			ZIndex = 6,
-		}, contents)
-		corner(cell, 6)
-		text(cell, "Kind", c[1], 12, INK, {
-			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 1, -6),
-			ZIndex = 7,
-		})
-	end
-	(neon:WaitForChild("Select") :: Frame).Visible = true
-
 	---------------------------------------------------------------- DAILY
 	local daily = page(scroll, "Daily", false)
 	header(daily, "TODAY'S ITEMS", "NEW ITEMS IN 5H 12M", 1)
@@ -868,6 +826,277 @@ do
 		price(b, "robux", c[2], UDim2.new(1, -20, 1, -20), Vector2.new(1, 1), 54)
 	end
 
+	---------------------------------------------------------------- POPUPS
+	-- A dim over everything, then the popup panels on their own fitted canvas
+	-- (over the dim): the case popup and its CONTENTS odds list.
+	make("Frame", {
+		Name = "Dim",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = hex("05060E"),
+		BackgroundTransparency = 0.35,
+		BorderSizePixel = 0,
+		Active = true,
+		Visible = false,
+		ZIndex = 30,
+	}, gui)
+	local pop = make("Frame", {
+		Name = "PopupCanvas",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(1920, 1080),
+		BackgroundTransparency = 1,
+		Visible = false,
+		ZIndex = 31,
+	}, gui)
+	make("UIScale", { Name = "Fit" }, pop)
+
+	local function panel(name: string, w: number, h: number): Frame
+		local f = make("Frame", {
+			Name = name,
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromOffset(960, 540),
+			Size = UDim2.fromOffset(w, h),
+			BackgroundColor3 = CARD,
+			BackgroundTransparency = 0, -- solid: nothing ghosts through
+			BorderSizePixel = 0,
+			Visible = false,
+			ZIndex = 32,
+		}, pop)
+		corner(f, 10)
+		make("UIScale", { Name = "Pop" }, f)
+		return f
+	end
+	local function smallClose(p: Instance): TextButton
+		local c = make("TextButton", {
+			Name = "Close",
+			AnchorPoint = CENTRE,
+			Position = UDim2.new(1, -46, 0, 46),
+			Size = UDim2.fromOffset(60, 60),
+			BackgroundColor3 = hex("1A2150"),
+			BorderSizePixel = 0,
+			Text = "",
+			AutoButtonColor = false,
+			ZIndex = 34,
+		}, p)
+		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, c)
+		make("UIScale", { Name = "Pop" }, c)
+		local g = frame(c, "Glyph", {
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromOffset(24, 24),
+			ZIndex = 35,
+		})
+		for _, r in { 45, -45 } do
+			local bar = make("Frame", {
+				Name = if r > 0 then "A" else "B",
+				AnchorPoint = CENTRE,
+				Position = UDim2.fromScale(0.5, 0.5),
+				Size = UDim2.fromOffset(24, 4),
+				Rotation = r,
+				BackgroundColor3 = WHITE,
+				BorderSizePixel = 0,
+				ZIndex = 35,
+			}, g)
+			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, bar)
+		end
+		return c
+	end
+	-- a button holding a price plate (the plate itself is a Frame)
+	local function buyButton(
+		p: Instance,
+		name: string,
+		kind: "coins" | "robux",
+		amount: string,
+		x: number,
+		kicker: string?
+	): TextButton
+		local b = make("TextButton", {
+			Name = name,
+			AnchorPoint = Vector2.new(0.5, 1),
+			Position = UDim2.new(0, x, 1, -40),
+			Size = UDim2.fromOffset(230, 92),
+			BackgroundTransparency = 1,
+			Text = "",
+			AutoButtonColor = false,
+			ZIndex = 33,
+		}, p)
+		make("UIScale", { Name = "Pop" }, b)
+		local plate = price(b, kind, amount, UDim2.new(0.5, 0, 1, 0), Vector2.new(0.5, 1), 66)
+		plate.ZIndex = 34
+		for _, d in plate:GetDescendants() do
+			if d:IsA("GuiObject") then
+				d.ZIndex = 35
+			end
+		end
+		if kicker then
+			text(b, "Kicker", kicker, 15, WHITE, {
+				AnchorPoint = Vector2.new(0.5, 1),
+				Position = UDim2.new(0.5, 0, 1, -72),
+				ZIndex = 35,
+				FontFace = Font.new(BX, BOLD),
+			})
+		end
+		return b
+	end
+
+	-- the case popup: CONTENTS, the case name, close; the case x1; three buys
+	local casePanel = panel("CasePanel", 820, 560)
+	text(casePanel, "Title", "STANDARD CASE", 40, WHITE, {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 24),
+		ZIndex = 34,
+	})
+	smallClose(casePanel)
+	local contentsB = make("TextButton", {
+		Name = "Contents",
+		Position = UDim2.fromOffset(40, 22),
+		Size = UDim2.fromOffset(170, 50),
+		BackgroundColor3 = hex("3FE0F2"),
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false,
+		ZIndex = 34,
+	}, casePanel)
+	slant(contentsB, hex("3FE0F2"), 50, 16)
+	make("UIScale", { Name = "Pop" }, contentsB)
+	text(contentsB, "Label", "CONTENTS", 20, INK, {
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		ZIndex = 35,
+	})
+	make("ImageLabel", {
+		Name = "Art",
+		AnchorPoint = CENTRE,
+		Position = UDim2.new(0.5, 0, 0, 220),
+		Size = UDim2.fromOffset(360, 200),
+		BackgroundTransparency = 1,
+		Image = "",
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 34,
+	}, casePanel)
+	local slabP = make("Frame", {
+		Name = "Placeholder",
+		AnchorPoint = CENTRE,
+		Position = UDim2.new(0.5, 0, 0, 220),
+		Size = UDim2.fromOffset(260, 130),
+		BackgroundColor3 = hex("5D6B82"),
+		BorderSizePixel = 0,
+		ZIndex = 33,
+	}, casePanel)
+	corner(slabP, 14)
+	make("Frame", {
+		Name = "Lid",
+		Position = UDim2.fromOffset(18, 24),
+		Size = UDim2.new(1, -36, 0, 12),
+		BackgroundColor3 = WHITE,
+		BackgroundTransparency = 0.6,
+		BorderSizePixel = 0,
+		ZIndex = 34,
+	}, slabP)
+	text(casePanel, "Count", "x1", 44, WHITE, {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 312),
+		ZIndex = 34,
+	})
+	buyButton(casePanel, "BuyCoins", "coins", "400", 160)
+	buyButton(casePanel, "BuyRobux", "robux", "99", 410)
+	buyButton(casePanel, "BuyRobux3", "robux", "249", 660, "BUY x3")
+
+	-- CONTENTS: every outcome with its odds (they add up to 100%)
+	local oddsPanel = panel("OddsPanel", 860, 760)
+	text(
+		oddsPanel,
+		"Title",
+		"CONTENTS",
+		40,
+		WHITE,
+		{ Position = UDim2.fromOffset(40, 26), ZIndex = 34 }
+	)
+	text(oddsPanel, "Sub", "STANDARD CASE", 18, MUTED, {
+		Position = UDim2.fromOffset(42, 78),
+		ZIndex = 34,
+		FontFace = Font.new(BX, BOLD),
+	})
+	smallClose(oddsPanel)
+	local list = make("ScrollingFrame", {
+		Name = "List",
+		Position = UDim2.fromOffset(30, 118),
+		Size = UDim2.new(1, -60, 1, -230),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = WHITE,
+		ScrollBarImageTransparency = 0.5,
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		CanvasSize = UDim2.new(),
+		ZIndex = 33,
+	}, oddsPanel)
+	make("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, list)
+	text(oddsPanel, "Note", "", 13, MUTED, {
+		AutomaticSize = Enum.AutomaticSize.None,
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 40, 1, -22),
+		Size = UDim2.new(1, -80, 0, 76),
+		TextWrapped = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Bottom,
+		FontFace = Font.new(BX, BOLD),
+		ZIndex = 34,
+	})
+
+	-- the item card a bundle's item shows when clicked ("given to Vandal")
+	local itemCard = make("Frame", {
+		Name = "ItemCard",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.fromOffset(960, 540),
+		Size = UDim2.fromOffset(0, 116),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		Visible = false,
+		ZIndex = 25,
+	}, canvas)
+	corner(itemCard, 8)
+	make("UIScale", { Name = "Pop" }, itemCard)
+	make("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 28) }, itemCard)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 18),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, itemCard)
+	local icCell = make("Frame", {
+		Name = "Cell",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(88, 88),
+		BackgroundColor3 = hex("2B6FE0"),
+		BorderSizePixel = 0,
+		ZIndex = 26,
+	}, itemCard)
+	corner(icCell, 6)
+	text(icCell, "Kind", "SKIN", 13, INK, {
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -6),
+		ZIndex = 27,
+	})
+	local icWords = frame(itemCard, "Words", {
+		LayoutOrder = 2,
+		Size = UDim2.fromOffset(0, 88),
+		AutomaticSize = Enum.AutomaticSize.X,
+		ZIndex = 26,
+	})
+	make("UIListLayout", {
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 4),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, icWords)
+	text(icWords, "Name", "NITROUS VANDAL", 30, INK, { LayoutOrder = 1, ZIndex = 27 })
+	text(icWords, "Sub", "SKIN  ·  GIVEN TO VANDAL", 16, hex("C98A12"), {
+		LayoutOrder = 2,
+		ZIndex = 27,
+		FontFace = Font.new(BX, BOLD),
+	})
+
 	gui.Parent = SG
 end
 
@@ -942,6 +1171,80 @@ do
 		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, barP)
 	end
 	gui.Parent = SG
+end
+
+--------------------------------------------------------------------------------------
+-- TEMPLATES: a bundle's content cell, an odds row
+--------------------------------------------------------------------------------------
+do
+	local templates =
+		game:GetService("ReplicatedStorage"):WaitForChild("UiTemplates"):WaitForChild("Lobby")
+	for _, n in { "ShopContentCell", "ShopOddsRow" } do
+		local old = templates:FindFirstChild(n)
+		if old then
+			old:Destroy()
+		end
+	end
+	-- a bundle's item: a coloured cell (its rarity / kind), the kind on top,
+	-- the name under it; clicking shows the item card
+	local cell = make("TextButton", {
+		Name = "ShopContentCell",
+		Size = UDim2.fromOffset(84, 84),
+		BackgroundColor3 = hex("2B6FE0"),
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false,
+		ZIndex = 7,
+	}, templates)
+	corner(cell, 6)
+	make("UIScale", { Name = "Pop" }, cell)
+	text(cell, "Kind", "SKIN", 11, INK, { Position = UDim2.fromOffset(8, 6), ZIndex = 8 })
+	text(cell, "Name", "NAME", 11, WHITE, {
+		AutomaticSize = Enum.AutomaticSize.None,
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 1, -6),
+		Size = UDim2.new(1, -8, 0, 26),
+		TextWrapped = true,
+		TextYAlignment = Enum.TextYAlignment.Bottom,
+		ZIndex = 8,
+	})
+	-- an odds row: a rarity-coloured cell, the name in its rarity colour, the
+	-- rarity and gun underneath, the % on the right
+	local oddsRow = make("Frame", {
+		Name = "ShopOddsRow",
+		Size = UDim2.new(1, -10, 0, 68),
+		BackgroundColor3 = hex("141B45"),
+		BorderSizePixel = 0,
+		ZIndex = 33,
+	}, templates)
+	corner(oddsRow, 6)
+	local rc = make("Frame", {
+		Name = "Cell",
+		Position = UDim2.fromOffset(10, 8),
+		Size = UDim2.fromOffset(52, 52),
+		BackgroundColor3 = hex("3FA9FF"),
+		BorderSizePixel = 0,
+		ZIndex = 34,
+	}, oddsRow)
+	corner(rc, 6)
+	text(
+		oddsRow,
+		"Name",
+		"PRISM VANDAL",
+		22,
+		WHITE,
+		{ Position = UDim2.fromOffset(78, 8), ZIndex = 34 }
+	)
+	text(oddsRow, "Sub", "EPIC SKIN  ·  VANDAL", 14, MUTED, {
+		Position = UDim2.fromOffset(78, 38),
+		ZIndex = 34,
+		FontFace = Font.new(BX, BOLD),
+	})
+	text(oddsRow, "Pct", "14.29%", 26, WHITE, {
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -18, 0.5, 0),
+		ZIndex = 34,
+	})
 end
 
 print("[BuildShop] StarterGui.Shop (mockup) and StarterGui.LobbyCoins built")

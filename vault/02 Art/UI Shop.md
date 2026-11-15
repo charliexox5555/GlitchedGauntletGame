@@ -143,3 +143,27 @@ Built in Studio by `tools/studio/BuildShop.luau`: `StarterGui.Shop` (off) and `S
 - Lesson (saved in memory): when a screen "looks AI", the missing piece is usually real art and icons, not a palette swap. Change one thing at a time.
 - Next: drop in the ChatGPT art (coin, cases, tab icons, coin packs, banners) when it lands, then wire the shop.
 
+## Wired, pass 1 (2026-11-16, owner: "Wire the shop")
+![Bundle hover + item card](Shop/wired_bundle_hover.jpg)
+![Case popup](Shop/wired_case_popup.jpg)
+![Case contents](Shop/wired_case_contents.jpg)
+
+Code: `client/Controllers/ShopController` (desktop; phones keep the old placeholder shop in `Panels`). The data is `Lobby/ShopCatalog`: cases with contents and weights, bundles with items. **Placeholder** names, prices and weights until the owner fills them; the economy will read the same table.
+
+- **Router "Shop":** the world blurs and the violet wash fades in. Opening it with a tab name opens that tab (the counter's **+** opens COINS).
+- **Tabs:** the icon lifts on hover, the plate dips on press, and switching resets the scroll. The page's cards rise in (0.94 → 1, staggered).
+- **Coin counter:** shown while the shop is open (with the `Coins` attribute, or 0); on the HUD only once Coins exist. It tweens up and out after 50 px of scroll and back at the top.
+- **Selection frame:** every big card (cases, season pass, offer, bundles, coin packs). On hover the four corner brackets start 22 px outside and close in (0.2 s Quint); leaving sends them back out. Small cells lift 1.04.
+- **Bundles:** hovering shows the bundle's items as cells (sized to fit the card, popping in one after another). Clicking a cell shows the **item card** above it:
+  - a skin: "SKIN · GIVEN TO VANDAL";
+  - a Mod: "EXCLUSIVE MOD · JOINS YOUR DRAFT POOL";
+  - coins: "+1,500 COINS".
+
+  Leaving the bundle or clicking elsewhere hides it.
+- **Cases:** clicking a case opens the **case popup**: name, CONTENTS, close, the case x1, buy with Coins / Robux / x3 Robux.
+  - **CONTENTS** lists every outcome: a rarity-coloured cell, the name in its rarity colour, rarity + gun, and the % (from the weights, adding up to 100, at least 4 significant digits), then the disclaimer. Close goes back to the case.
+  - **Region check:** `PolicyService:GetPolicyInfoForPlayerAsync` on the client. If paid random items are restricted, **or the check fails**, buying a case says "Cases aren't available where you are". **The server must enforce the same rule** in the economy pass; the client check is only for display.
+- **Daily:** "NEW ITEMS IN 2H 26M" counts down to 00:00 UTC (display only; the server will own the rotation's end time).
+- **Buying anything** (cases, bundles, packs, daily items, cosmetics, the pass, the offer, login CLAIM) shows "... opens with the shop economy" for now.
+- Checked in Studio play: open from the bar, the selection frame on the Season Pass, the BUNDLES tab, Neon hover contents + the Mod item card, the Elite case popup, CONTENTS (35 / 30 / 20 / 12 / 3 %), back and close, Daily scrolled with the counter gone. No errors. Fixed after the test: bundle cells overflowed a 5-item card (they size to fit now); the popup panels were see-through (solid now); the counter waited too long to leave (50 px now).
+- **Next:** the skin-bundle 3D preview (Locker stage: BACK · BUY ITEM · BUY BUNDLE + a strip of items), then the economy (Coins in data, `ProcessReceipt`, the daily rotation, login rewards, case rolls + the server region gate; security review), and the ChatGPT art when it lands.

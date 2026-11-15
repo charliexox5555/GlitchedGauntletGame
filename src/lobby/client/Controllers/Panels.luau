@@ -443,7 +443,10 @@ local function buildRange()
 end
 
 function Panels.init()
-	buildShop()
+	-- desktop: the Studio-built shop (Controllers/ShopController); phones keep this one
+	if PHONE then
+		buildShop()
+	end
 	buildBattlePass()
 	buildSettings()
 	buildRange()
