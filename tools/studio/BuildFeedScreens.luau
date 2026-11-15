@@ -41,6 +41,7 @@ local SKULL = "rbxassetid://113224984089670"
 local BOT_HEAD = "rbxassetid://119185654291939"
 local SHARD = "rbxassetid://76745392849672"
 local RING_SEG = "rbxassetid://136514326667794"
+local WAVE = "rbxassetid://128750671180422" -- kill_wave.png: the shockwave ring
 local PREVIEW_GUN = "" -- filled in play
 local CENTRE = Vector2.new(0.5, 0.5)
 
@@ -104,17 +105,13 @@ local function keycap(
 		ZIndex = 8,
 	}, p)
 	make("UICorner", { CornerRadius = UDim.new(0, 5) }, k)
-	local f = make(
-		"Frame",
-		{
-			Name = "Face",
-			Size = UDim2.new(1, 0, 1, -4),
-			BackgroundColor3 = hex("E9EDF3"),
-			BorderSizePixel = 0,
-			ZIndex = 9,
-		},
-		k
-	)
+	local f = make("Frame", {
+		Name = "Face",
+		Size = UDim2.new(1, 0, 1, -4),
+		BackgroundColor3 = hex("E9EDF3"),
+		BorderSizePixel = 0,
+		ZIndex = 9,
+	}, k)
 	make("UICorner", { CornerRadius = UDim.new(0, 5) }, f)
 	make("TextLabel", {
 		Name = "Label",
@@ -198,42 +195,30 @@ local function teamBlock(
 end
 
 local function gap(p: Instance, name: string, order: number, w: number)
-	make(
-		"Frame",
-		{
-			Name = name,
-			LayoutOrder = order,
-			Size = UDim2.fromOffset(w, 2),
-			BackgroundTransparency = 1,
-		},
-		p
-	)
+	make("Frame", {
+		Name = name,
+		LayoutOrder = order,
+		Size = UDim2.fromOffset(w, 2),
+		BackgroundTransparency = 1,
+	}, p)
 end
 
 local function cell(p: Instance, size: number, color: Color3)
-	local f = make(
-		"Frame",
-		{
-			Name = "Cell",
-			LayoutOrder = 0,
-			Size = UDim2.fromOffset(size, size),
-			BackgroundColor3 = color,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		p
-	)
-	make(
-		"ImageLabel",
-		{
-			Name = "Headshot",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			Image = BOT_HEAD,
-			ZIndex = 3,
-		},
-		f
-	)
+	local f = make("Frame", {
+		Name = "Cell",
+		LayoutOrder = 0,
+		Size = UDim2.fromOffset(size, size),
+		BackgroundColor3 = color,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, p)
+	make("ImageLabel", {
+		Name = "Headshot",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Image = BOT_HEAD,
+		ZIndex = 3,
+	}, f)
 end
 
 local function screen(name: string, order: number): (ScreenGui, Frame)
@@ -245,17 +230,13 @@ local function screen(name: string, order: number): (ScreenGui, Frame)
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		DisplayOrder = order,
 	})
-	local c = make(
-		"Frame",
-		{
-			Name = "Canvas",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(1920, 1080),
-			BackgroundTransparency = 1,
-		},
-		gui
-	)
+	local c = make("Frame", {
+		Name = "Canvas",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(1920, 1080),
+		BackgroundTransparency = 1,
+	}, gui)
 	make("UIScale", { Name = "Fit" }, c)
 	return gui, c
 end
@@ -280,34 +261,26 @@ do
 		strip(holder, 38, { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.fromScale(1, 0.5) })
 	teamBlock(row, 1, "KILLER", 14, ALLY, 38, 14)
 	gap(row, "Gap1", 3, 6)
-	make(
-		"ImageLabel",
-		{
-			Name = "Weapon",
-			LayoutOrder = 4,
-			Size = UDim2.fromOffset(78, 26),
-			BackgroundTransparency = 1,
-			Image = PREVIEW_GUN,
-			ScaleType = Enum.ScaleType.Fit,
-			ZIndex = 3,
-		},
-		row
-	)
+	make("ImageLabel", {
+		Name = "Weapon",
+		LayoutOrder = 4,
+		Size = UDim2.fromOffset(78, 26),
+		BackgroundTransparency = 1,
+		Image = PREVIEW_GUN,
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 3,
+	}, row)
 	gap(row, "Gap2", 5, 10)
-	make(
-		"ImageLabel",
-		{
-			Name = "Head",
-			LayoutOrder = 6,
-			Size = UDim2.fromOffset(18, 18),
-			BackgroundTransparency = 1,
-			Image = SKULL,
-			ImageColor3 = GOLD,
-			ZIndex = 3,
-			Visible = false,
-		},
-		row
-	)
+	make("ImageLabel", {
+		Name = "Head",
+		LayoutOrder = 6,
+		Size = UDim2.fromOffset(18, 18),
+		BackgroundTransparency = 1,
+		Image = SKULL,
+		ImageColor3 = GOLD,
+		ZIndex = 3,
+		Visible = false,
+	}, row)
 	gap(row, "Gap3", 7, 10)
 	text(row, "Victim", "VICTIM", 14, ENEMY, { LayoutOrder = 8 })
 	gap(row, "Gap4", 9, 14)
@@ -328,25 +301,47 @@ do
 		HorizontalAlignment = Enum.HorizontalAlignment.Right,
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	}, feed)
-	-- The kill pop: a disc with the glitch shard, ringed by 5 kill segments.
-	local pop = make(
-		"Frame",
-		{
-			Name = "KillPop",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromOffset(960, 650),
-			Size = UDim2.fromOffset(150, 150),
-			BackgroundTransparency = 1,
-			Visible = false,
-		},
-		c
-	)
+	-- The kill pop (low centre, above the Mod cells): a disc with the glitch
+	-- shard, ringed by 5 kill segments (in "Ring", which spins in), a "Flash" on
+	-- the disc and a "Wave" ring that bursts outward on impact.
+	local pop = make("Frame", {
+		Name = "KillPop",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(960, 790),
+		Size = UDim2.fromOffset(150, 150),
+		BackgroundTransparency = 1,
+		Visible = false,
+	}, c)
 	make("UIScale", { Name = "Pop" }, pop)
 	local group = make(
 		"CanvasGroup",
-		{ Name = "Group", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 },
+		{ -- room around the ring: a CanvasGroup clips, and the new segment pops out
+			Name = "Group",
+			AnchorPoint = CENTRE,
+			Position = UDim2.fromScale(0.5, 0.5),
+			Size = UDim2.fromScale(1.3, 1.3),
+			BackgroundTransparency = 1,
+		},
 		pop
 	)
+	make("ImageLabel", {
+		Name = "Wave",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Image = WAVE,
+		ImageTransparency = 1,
+		ZIndex = 0,
+	}, pop)
+	local ring = make("Frame", { -- each segment spins in on its own
+		Name = "Ring",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(150, 150),
+		BackgroundTransparency = 1,
+		ZIndex = 1,
+	}, group)
 	for i = 1, 5 do
 		make("ImageLabel", {
 			Name = "Seg" .. i,
@@ -359,52 +354,49 @@ do
 			ImageColor3 = WHITE,
 			ImageTransparency = 0.7,
 			ZIndex = 1,
-		}, group)
+		}, ring)
 	end
-	local disc = make(
-		"Frame",
-		{
-			Name = "Disc",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(112, 112),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		group
-	)
+	local disc = make("Frame", {
+		Name = "Disc",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(112, 112),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, group)
 	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, disc)
+	local flash = make("Frame", {
+		Name = "Flash",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = WHITE,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ZIndex = 5,
+	}, disc)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, flash)
 	for _, s in { { "SplitA", hex("00E5FF"), -4 }, { "SplitB", hex("FF8BE0"), 4 } } do
-		make(
-			"ImageLabel",
-			{
-				Name = s[1],
-				AnchorPoint = CENTRE,
-				Position = UDim2.new(0.5, s[3], 0.5, 0),
-				Size = UDim2.fromOffset(98, 98),
-				BackgroundTransparency = 1,
-				Image = SHARD,
-				ImageColor3 = s[2],
-				ZIndex = 3,
-			},
-			disc
-		)
-	end
-	make(
-		"ImageLabel",
-		{
-			Name = "Emblem",
+		make("ImageLabel", {
+			Name = s[1],
 			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
+			Position = UDim2.new(0.5, s[3], 0.5, 0),
 			Size = UDim2.fromOffset(98, 98),
 			BackgroundTransparency = 1,
 			Image = SHARD,
-			ImageColor3 = WHITE,
-			ZIndex = 4,
-		},
-		disc
-	)
+			ImageColor3 = s[2],
+			ZIndex = 3,
+		}, disc)
+	end
+	make("ImageLabel", {
+		Name = "Emblem",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(98, 98),
+		BackgroundTransparency = 1,
+		Image = SHARD,
+		ImageColor3 = WHITE,
+		ZIndex = 4,
+	}, disc)
 	gui.Parent = SG
 end
 
@@ -412,18 +404,14 @@ end
 do
 	local gui, c = screen("DeathScreen", 7)
 	-- Killed by: during the death camera.
-	local kb = make(
-		"Frame",
-		{
-			Name = "KilledBy",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromOffset(960, 856),
-			Size = UDim2.fromOffset(800, 72),
-			BackgroundTransparency = 1,
-			Visible = false,
-		},
-		c
-	)
+	local kb = make("Frame", {
+		Name = "KilledBy",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(960, 856),
+		Size = UDim2.fromOffset(800, 72),
+		BackgroundTransparency = 1,
+		Visible = false,
+	}, c)
 	make("UIScale", { Name = "Pop" }, kb)
 	shadow(kb)
 	local s =
@@ -431,55 +419,39 @@ do
 	cell(s, 72, ENEMY_CELL)
 	teamBlock(s, 1, "KILLER", 28, ENEMY, 72, 18, "KILLED BY")
 	gap(s, "Gap1", 3, 14)
-	make(
-		"ImageLabel",
-		{
-			Name = "Weapon",
-			LayoutOrder = 4,
-			Size = UDim2.fromOffset(120, 44),
-			BackgroundTransparency = 1,
-			Image = PREVIEW_GUN,
-			ScaleType = Enum.ScaleType.Fit,
-			ZIndex = 3,
-		},
-		s
-	)
+	make("ImageLabel", {
+		Name = "Weapon",
+		LayoutOrder = 4,
+		Size = UDim2.fromOffset(120, 44),
+		BackgroundTransparency = 1,
+		Image = PREVIEW_GUN,
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 3,
+	}, s)
 	gap(s, "Gap2", 5, 14)
-	local info = make(
-		"Frame",
-		{
-			Name = "Info",
-			LayoutOrder = 6,
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 72),
-			BackgroundTransparency = 1,
-		},
-		s
-	)
-	make(
-		"UIListLayout",
-		{
-			VerticalAlignment = Enum.VerticalAlignment.Center,
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			Padding = UDim.new(0, 2),
-		},
-		info
-	)
+	local info = make("Frame", {
+		Name = "Info",
+		LayoutOrder = 6,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 72),
+		BackgroundTransparency = 1,
+	}, s)
+	make("UIListLayout", {
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Padding = UDim.new(0, 2),
+	}, info)
 	text(info, "Gun", "GUN", 16, WHITE, { LayoutOrder = 1 })
 	text(info, "Head", "HEADSHOT", 12, GOLD, { LayoutOrder = 2 })
 	gap(s, "Gap3", 7, 22)
-	local hp = make(
-		"Frame",
-		{
-			Name = "HP",
-			LayoutOrder = 8,
-			Size = UDim2.fromOffset(92, 72),
-			BackgroundColor3 = NAVY_HI,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		s
-	)
+	local hp = make("Frame", {
+		Name = "HP",
+		LayoutOrder = 8,
+		Size = UDim2.fromOffset(92, 72),
+		BackgroundColor3 = NAVY_HI,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, s)
 	text(
 		hp,
 		"Value",
@@ -498,90 +470,62 @@ do
 	)
 
 	-- Spectating: keycaps either side of the strip.
-	local sp = make(
-		"Frame",
-		{
-			Name = "Spectate",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromOffset(960, 856),
-			Size = UDim2.fromOffset(800, 64),
-			BackgroundTransparency = 1,
-			Visible = false,
-		},
-		c
-	)
+	local sp = make("Frame", {
+		Name = "Spectate",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(960, 856),
+		Size = UDim2.fromOffset(800, 64),
+		BackgroundTransparency = 1,
+		Visible = false,
+	}, c)
 	make("UIScale", { Name = "Pop" }, sp)
 	shadow(sp)
-	local row = make(
-		"Frame",
-		{
-			Name = "Row",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 64),
-			BackgroundTransparency = 1,
-		},
-		sp
-	)
-	make(
-		"UIListLayout",
-		{
-			FillDirection = Enum.FillDirection.Horizontal,
-			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 14),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		},
-		row
-	)
+	local row = make("Frame", {
+		Name = "Row",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 64),
+		BackgroundTransparency = 1,
+	}, sp)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 14),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, row)
 	keycap(row, "Prev", "<", 40, 42, 1)
 	local st = strip(row, 64, { LayoutOrder = 2 })
 	cell(st, 64, ALLY_CELL)
 	teamBlock(st, 1, "PLAYER", 24, ALLY, 64, 16, "SPECTATING")
 	gap(st, "Gap1", 3, 12)
-	local health = make(
-		"Frame",
-		{
-			Name = "Health",
-			LayoutOrder = 4,
-			Size = UDim2.fromOffset(150, 64),
-			BackgroundTransparency = 1,
-		},
-		st
-	)
+	local health = make("Frame", {
+		Name = "Health",
+		LayoutOrder = 4,
+		Size = UDim2.fromOffset(150, 64),
+		BackgroundTransparency = 1,
+	}, st)
 	text(health, "Value", "100", 22, WHITE, { Position = UDim2.fromOffset(0, 10) })
 	text(health, "Unit", "HP", 11, MUTED, { Position = UDim2.fromOffset(48, 19) })
-	local bar = make(
-		"Frame",
-		{
-			Name = "Bar",
-			Position = UDim2.fromOffset(0, 42),
-			Size = UDim2.fromOffset(138, 6),
-			BackgroundTransparency = 1,
-		},
-		health
-	)
-	make(
-		"UIListLayout",
-		{
-			FillDirection = Enum.FillDirection.Horizontal,
-			Padding = UDim.new(0, 2),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		},
-		bar
-	)
+	local bar = make("Frame", {
+		Name = "Bar",
+		Position = UDim2.fromOffset(0, 42),
+		Size = UDim2.fromOffset(138, 6),
+		BackgroundTransparency = 1,
+	}, health)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		Padding = UDim.new(0, 2),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, bar)
 	for i = 1, 10 do
-		make(
-			"Frame",
-			{
-				Name = "Seg" .. i,
-				LayoutOrder = i,
-				Size = UDim2.fromOffset(12, 6),
-				BackgroundColor3 = WHITE,
-				BorderSizePixel = 0,
-			},
-			bar
-		)
+		make("Frame", {
+			Name = "Seg" .. i,
+			LayoutOrder = i,
+			Size = UDim2.fromOffset(12, 6),
+			BackgroundColor3 = WHITE,
+			BorderSizePixel = 0,
+		}, bar)
 	end
 	gap(st, "Gap2", 5, 12)
 	keycap(row, "Next", ">", 40, 42, 3)

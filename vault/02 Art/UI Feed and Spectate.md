@@ -45,6 +45,18 @@ Killed by: ![killed by](References/ui-overhaul/2026-11-14-live-killed-by.jpg)
 Spectating: ![spectate](References/ui-overhaul/2026-11-14-live-spectate.jpg)
 Kill pop (headshot): ![kill pop](References/ui-overhaul/2026-11-14-live-kill-pop.jpg)
 
+## Kill pop v2 (owner: "not really satisfying enough, and too high up")
+- **Lower:** centre at y 790 (of 1080), above the Mod cells, like Valorant's kill banner (was 650, just under the crosshair).
+- **Impact** (`KillFeedController`, beats at the top of the file; the owner's "oomph" rule: snap, brake, overshoot, settle):
+  - slams in from 1.6x (a bit bigger each kill) to 0.88 in 70 ms, rebounds to 1.06, settles to 1;
+  - on the hit: the disc flashes white (gold on a headshot), a **shockwave ring** bursts out to 2.1x and fades (`tools/ui/make_kill_icons.py` → `kill_wave.png`, `rbxassetid://128750671180422`);
+  - the ring spins into place from -70° (each segment turns on its own); the new segment lights white-hot, a little out, then takes its colour and settles in;
+  - the glitch split snaps from ±16 px to ±4 and the shard kicks side to side (7, -5, 3, 0 px);
+  - out: the split closes, it shrinks to 0.85 and fades.
+- Studio: `KillPop.Wave` (the shockwave), `Group` is now 1.3x with room around the ring (a CanvasGroup clips), `Group.Ring` holds the segments, `Disc.Flash`. Backup updated; rebuild matches Studio (0 differences).
+- Checked in play (a test `Killed` from the server): no errors; settled frame below. The impact itself is too fast for a still capture.
+![kill pop v2](References/ui-overhaul/2026-11-14-kill-pop-v2.jpg)
+
 ## Fix: hotbar over the ammo panel (owner, testing)
 The hotbar sat a fixed 106 px above the bottom while the ammo panel grows with the screen (its UIScale), so above 1080p the panel ran into it. `StarterGui.BottomHud.Root.Right` is now one column (hotbar, ammo, key hints) with a vertical `UIListLayout` (8 px) and one `Fit` UIScale, so they stack at any size. `Util/BottomHud` and `tools/studio/BuildBottomHud.luau` updated (rebuild matches Studio but for preview-only values). Checked at 1.4x scale: 11 px between each.
 ![1.4x](References/ui-overhaul/2026-11-14-hud-right-column-1_4x.jpg)

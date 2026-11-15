@@ -42,7 +42,27 @@ type Pop = {
 	group: CanvasGroup,
 	segs: { ImageLabel },
 	emblem: ImageLabel,
+	splits: { ImageLabel }, -- cyan (left) and pink (right) copies of the emblem
+	flash: Frame,
+	wave: ImageLabel,
 }
+
+-- The kill pop's beats (seconds). It slams in big, snaps down past its size,
+-- overshoots and settles (vault: Animation oomph: snap, brake, overshoot,
+-- settle); the impact flashes the disc, bursts a ring outward, lights the
+-- new segment white-hot and snaps the glitch split tight.
+local SLAM = 0.07 -- big to under-size: the hit
+local SLAM_FROM = 1.6 -- start scale (a little bigger each kill)
+local SLAM_STEP = 0.1
+local SLAM_UNDER = 0.88
+local REBOUND, REBOUND_TO = 0.09, 1.06
+local SETTLE = 0.18
+local SPIN_FROM, SPIN_TIME = -70, 0.5 -- the ring spins into place
+local FLASH_TIME = 0.32
+local WAVE_TIME, WAVE_TO = 0.45, 2.1
+local SPLIT_FROM, SPLIT_TO, SPLIT_TIME = 16, 4, 0.22
+local JITTER = { 7, -5, 3, 0 } -- emblem x kicks, one per 0.03 s
+local OUT_TIME = 0.25
 
 local feed: Frame? = nil
 local template: Frame? = nil
@@ -172,8 +192,8 @@ local function row(killer: Instance?, victim: Instance, sourceId: string, head: 
 	end)
 end
 
--- Your kill: the disc pops from its centre, a little bigger each kill this
--- round, with one more ring segment lit (gold on a headshot).
+-- Your kill: the disc slams in from big, one more ring segment lights
+-- (gold on a headshot), and it holds, then shrinks away.
 local function showPop(head: boolean)
 	local p = pop
 	if not p then
@@ -184,30 +204,102 @@ local function showPop(head: boolean)
 	popToken += 1
 	local token = popToken
 	local lit = if head then GOLD else ENEMY
+	local function live(): boolean
+		return token == popToken
+	end
+	-- Start: big, faint, the ring turned back, the split wide.
 	for i, seg in p.segs do
-		local on = i <= count
+		local on = i < count
 		seg.ImageColor3 = if on then lit else WHITE
 		seg.ImageTransparency = if on then 0 else 0.7
+		seg.Size = UDim2.fromScale(1, 1)
+		-- The ring spins into place (each segment turns about the centre).
+		local home = (i - 1) * 72
+		seg.Rotation = home + SPIN_FROM
+		tween(seg, SPIN_TIME, { Rotation = home }, Enum.EasingStyle.Back)
 	end
 	p.emblem.ImageColor3 = if head then GOLD else WHITE
+	p.emblem.Position = UDim2.fromScale(0.5, 0.5)
 	p.holder.Visible = true
-	p.group.GroupTransparency = 0
-	p.scale.Scale = 1.3 + 0.08 * (count - 1)
-	tween(p.scale, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
-	task.delay(POP_HOLD, function()
-		if token ~= popToken then
+	p.group.GroupTransparency = 0.6
+	p.scale.Scale = SLAM_FROM + SLAM_STEP * (count - 1)
+	p.flash.BackgroundTransparency = 1
+	p.wave.ImageTransparency = 1
+	for i, split in p.splits do
+		local side = if i == 1 then -1 else 1
+		split.Position = UDim2.new(0.5, side * SPLIT_FROM, 0.5, 0)
+		split.ImageTransparency = 0
+	end
+	tween(p.group, SLAM, { GroupTransparency = 0 }, Enum.EasingStyle.Linear)
+	-- The slam: accelerates into the hit.
+	tween(p.scale, SLAM, { Scale = SLAM_UNDER }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+	task.delay(SLAM, function()
+		if not live() then
 			return
+		end
+		-- Rebound past full size, then settle.
+		tween(p.scale, REBOUND, { Scale = REBOUND_TO }, Enum.EasingStyle.Quad).Completed:Once(
+			function()
+				if live() then
+					tween(
+						p.scale,
+						SETTLE,
+						{ Scale = 1 },
+						Enum.EasingStyle.Sine,
+						Enum.EasingDirection.InOut
+					)
+				end
+			end
+		)
+		-- Flash and shockwave.
+		p.flash.BackgroundColor3 = if head then GOLD else WHITE
+		p.flash.BackgroundTransparency = 0.05
+		tween(p.flash, FLASH_TIME, { BackgroundTransparency = 1 }, Enum.EasingStyle.Quad)
+		p.wave.ImageColor3 = lit
+		p.wave.ImageTransparency = 0.1
+		p.wave.Size = UDim2.fromScale(1, 1)
+		tween(
+			p.wave,
+			WAVE_TIME,
+			{ ImageTransparency = 1, Size = UDim2.fromScale(WAVE_TO, WAVE_TO) }
+		)
+		-- The new segment: white-hot and a little out, then its colour, home.
+		local seg = p.segs[count]
+		seg.ImageColor3 = WHITE
+		seg.ImageTransparency = 0
+		seg.Size = UDim2.fromScale(1.16, 1.16)
+		tween(seg, 0.3, { ImageColor3 = lit, Size = UDim2.fromScale(1, 1) }, Enum.EasingStyle.Back)
+		-- The glitch split snaps tight, the emblem kicks side to side.
+		for i, split in p.splits do
+			local side = if i == 1 then -1 else 1
+			tween(split, SPLIT_TIME, { Position = UDim2.new(0.5, side * SPLIT_TO, 0.5, 0) })
+		end
+		for i, dx in JITTER do
+			task.delay((i - 1) * 0.03, function()
+				if live() then
+					p.emblem.Position = UDim2.new(0.5, dx, 0.5, 0)
+				end
+			end)
+		end
+	end)
+	-- Out: the split closes, it shrinks and fades.
+	task.delay(POP_HOLD, function()
+		if not live() then
+			return
+		end
+		for _, split in p.splits do
+			tween(split, OUT_TIME, { Position = UDim2.fromScale(0.5, 0.5), ImageTransparency = 1 })
 		end
 		tween(
 			p.group,
-			0.3,
+			OUT_TIME,
 			{ GroupTransparency = 1 },
 			Enum.EasingStyle.Quad,
 			Enum.EasingDirection.In
 		)
-		tween(p.scale, 0.3, { Scale = 0.9 }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-		task.delay(0.31, function()
-			if token == popToken then
+		tween(p.scale, OUT_TIME, { Scale = 0.85 }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		task.delay(OUT_TIME + 0.01, function()
+			if live() then
 				p.holder.Visible = false
 			end
 		end)
@@ -256,9 +348,10 @@ local function bind(gui: ScreenGui)
 	local holder = canvas:WaitForChild("KillPop") :: Frame
 	local group = holder:WaitForChild("Group") :: CanvasGroup
 	local disc = group:WaitForChild("Disc") :: Frame
+	local ring = group:WaitForChild("Ring") :: Frame
 	local segs: { ImageLabel } = {}
 	for i = 1, SEGMENTS do
-		segs[i] = group:WaitForChild("Seg" .. i) :: ImageLabel
+		segs[i] = ring:WaitForChild("Seg" .. i) :: ImageLabel
 	end
 	pop = {
 		holder = holder,
@@ -266,6 +359,12 @@ local function bind(gui: ScreenGui)
 		group = group,
 		segs = segs,
 		emblem = disc:WaitForChild("Emblem") :: ImageLabel,
+		splits = {
+			disc:WaitForChild("SplitA") :: ImageLabel,
+			disc:WaitForChild("SplitB") :: ImageLabel,
+		},
+		flash = disc:WaitForChild("Flash") :: Frame,
+		wave = holder:WaitForChild("Wave") :: ImageLabel,
 	}
 	local folder = ReplicatedStorage:WaitForChild("UiTemplates"):WaitForChild("KillFeed")
 	template = folder:WaitForChild("Row") :: Frame

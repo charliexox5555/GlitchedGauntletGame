@@ -7,6 +7,7 @@ Faceted like the rest of the HUD icons (angled plates, no round blade tips).
 - kill_shard.png: a diamond shard cut in three, the slices knocked sideways
   (the glitch colour split is done in Roblox: cyan and pink copies offset behind)
 - kill_ring_seg.png: one of 5 ring segments (the top one); rotate by 72 deg
+- kill_wave.png: a full ring (straight-edged, 40 sides) for the shockwave
 
     python tools/ui/make_kill_icons.py <out_dir>
 """
@@ -139,6 +140,21 @@ def ring_seg():
     return img.resize((size, size), Image.LANCZOS)
 
 
+def wave():
+    """A full ring for the shockwave that bursts out on a kill."""
+    size = 256
+    img = Image.new("RGBA", (size * SS, size * SS), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    c = size * SS / 2
+    r_out, r_in = 124 * SS, 112 * SS
+    n = 40
+    outer = [(c + r_out * math.cos(2 * math.pi * i / n), c + r_out * math.sin(2 * math.pi * i / n)) for i in range(n)]
+    d.polygon(outer, fill=(255, 255, 255, 255))
+    inner = [(c + r_in * math.cos(2 * math.pi * i / n), c + r_in * math.sin(2 * math.pi * i / n)) for i in range(n)]
+    d.polygon(inner, fill=(0, 0, 0, 0))
+    return img.resize((size, size), Image.LANCZOS)
+
+
 def main():
     out = Path(sys.argv[1] if len(sys.argv) > 1 else "art-source/ui/hud")
     out.mkdir(parents=True, exist_ok=True)
@@ -146,6 +162,7 @@ def main():
     blades().save(out / "kill_blades.png")
     shard().save(out / "kill_shard.png")
     ring_seg().save(out / "kill_ring_seg.png")
+    wave().save(out / "kill_wave.png")
     print("wrote", out)
 
 
