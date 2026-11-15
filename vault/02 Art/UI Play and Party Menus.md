@@ -63,3 +63,16 @@ Other changes:
 **Not tested yet:** two players (party invite cards, IN YOUR PARTY, full party), the FRIENDS tab with online friends (needs a live server; `GetFriendsOnlineAsync` may return nothing in Studio), and a monitor bigger than 1080p.
 
 **Art to come:** the BEGINNER 2V2 / 4V4 / 5V5 tiles reuse the 2v2 / 3v3 art dimmed; they need their own art.
+
+## Match found (2026-11-16, owner: "more simple... you don't need to show who's in the match... just a little overlay")
+Like RIVALS: when the server finds your match, the screen dims and blurs, and **three white dots** pulse in turn in the middle until the teleport. There are no teams, names, title or countdown.
+- `StarterGui.LobbyMatchFound` (builder `tools/studio/BuildMatchFound.luau`, DisplayOrder 40) is wired by `Controllers/MatchFoundController` on every device.
+  - It opens on QueueEvent "found" (or a found / teleporting status).
+  - It closes when you're idle again.
+  - It turns "failed" / "info" into toasts and blocks menus while it's up.
+- The player list and topbar leave the screen while it's up (`LobbyHudView.placeCorners`), as they do for a menu.
+- Motion: the dots pop in from their centres (staggered 0.06 s, Quint), then each grows to 1.45x in 0.26 s and eases back (Sine in-out), 0.22 s apart. Background blur 20, scrim `08060E` at 0.2.
+- Studio only: a small "STUDIO · TELEPORT SKIPPED" under the dots.
+- The old MATCH FOUND band (teams, avatars, countdown) is gone from `Controllers/QueueMenu`, which is now only the phone queue menu.
+- Checked in Studio play: 1v1 → searching → MATCH FOUND dots (clean screen) → the Studio skip → back to the lobby, with no errors.
+- Next (owner): a loading screen in the match place.

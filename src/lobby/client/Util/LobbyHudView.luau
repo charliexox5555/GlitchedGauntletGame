@@ -849,7 +849,9 @@ function LobbyHudView.placeCorners(force: boolean)
 	if not s then
 		return
 	end
-	local menuOpen = Router.current() ~= nil
+	-- MATCH FOUND (Controllers/MatchFoundController) clears the screen too
+	local status = QueueState.status()
+	local menuOpen = Router.current() ~= nil or status == "found" or status == "teleporting"
 	if menuOpen ~= s.topShown and not force then
 		return
 	end

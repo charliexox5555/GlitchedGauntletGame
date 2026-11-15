@@ -1,20 +1,17 @@
 --!strict
--- MATCH FOUND on every device, and on PHONES the old full-screen Play menu v2
--- (desktop: Controllers/PlayMenuController, vault/02 Art/UI Play and Party
--- Menus.md). The phone menu, v2 (vault/01 Design/Lobby UI and Queue.md section
--- 8; Figma "Lobby v2 · Play menu 1920x1080"): three mode cards (1v1 / 2v2 /
--- 3v3) with full-bleed art, live "searching" counts, FIND MATCH, and while
--- queued a status panel with the elapsed timer, the bot-fill countdown and
--- CANCEL. Also the MATCH FOUND moment (teams, bots, countdown) and, in Studio,
--- the TeleportData the server would have sent. The server decides everything.
+-- The old full-screen Play menu v2, for PHONES only until the mobile pass
+-- (desktop: Controllers/PlayMenuController; MATCH FOUND on every device:
+-- Controllers/MatchFoundController; vault/02 Art/UI Play and Party Menus.md).
+-- v2 (vault/01 Design/Lobby UI and Queue.md section 8): three mode cards
+-- (1v1 / 2v2 / 3v3) with full-bleed art, live "searching" counts, FIND MATCH,
+-- and while queued a status panel with the elapsed timer, the bot-fill
+-- countdown and CANCEL. The server decides everything.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
-local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 
 local Fx = require(script.Parent.Parent.Util.Fx)
 local Kit = require(script.Parent.Parent.Util.Kit)
@@ -29,7 +26,6 @@ local QueueMenu = {}
 
 local C = Style.COLOR
 local A = Style.ALPHA
-local player = Players.LocalPlayer
 
 -- Card art: the un-cut ChatGPT art (assets/UI/lobby/mode_*.png, 840 x 940,
 -- uploaded as decals 103850486455095 / 85740050789097 / 105604126054827),
@@ -135,18 +131,6 @@ local statusCancel: TextButton
 
 local timerConn: RBXScriptConnection? = nil
 local lastSecond = -1
-
--- Match found overlay.
-local foundGui: ScreenGui
-local foundBand: Frame
-local foundInner: Frame
-local foundTitle: TextLabel
-local foundMode: TextLabel
-local foundTeams: Frame
-local foundCountdown: TextLabel
-local foundStudio: TextLabel
-local foundOpen = false
-local foundToken = 0
 
 --------------------------------------------------------------------------------
 -- Cards
@@ -713,295 +697,9 @@ local function buildMenu()
 end
 
 --------------------------------------------------------------------------------
--- MATCH FOUND
-
-local function slot(parent: Instance, userId: number?, color: Color3, order: number)
-	local f = Kit.make("Frame", {
-		Size = UDim2.fromOffset(120, 160),
-		BackgroundTransparency = 1,
-		LayoutOrder = order,
-	}, parent)
-	local card = Kit.surface(f, {
-		Name = "Card",
-		Size = UDim2.fromOffset(120, 120),
-		ZIndex = 2,
-	}, {
-		color = if userId then C.surfaceHover else C.surface,
-		radius = Style.RADIUS.lg,
-		stroke = color,
-		strokeTransparency = if userId then 0 else 0.55,
-		strokeThickness = Style.STROKE.selected,
-	})
-	Kit.shadow(card, Style.RADIUS.lg)
-	local name = "BOT"
-	if userId then
-		local p = Players:GetPlayerByUserId(userId)
-		name = if p then p.DisplayName else "Player"
-		local img = Kit.make("ImageLabel", {
-			Position = UDim2.fromOffset(3, 3),
-			Size = UDim2.new(1, -6, 1, -6),
-			BackgroundTransparency = 1,
-			ZIndex = 3,
-		}, card)
-		Kit.corner(img, Style.RADIUS.lg - 3)
-		task.spawn(function()
-			local ok, image = pcall(
-				Players.GetUserThumbnailAsync,
-				Players,
-				userId,
-				Enum.ThumbnailType.HeadShot,
-				Enum.ThumbnailSize.Size150x150
-			)
-			if ok then
-				img.Image = image
-			end
-		end)
-	else
-		Kit.text(card, "BOT", "heading", {
-			Size = UDim2.fromScale(1, 1),
-			TextSize = 30,
-			TextColor3 = C.textSecondary,
-			ZIndex = 3,
-		})
-	end
-	Kit.text(f, name, "name", {
-		Position = UDim2.fromOffset(0, 130),
-		Size = UDim2.fromOffset(120, 24),
-		TextTruncate = Enum.TextTruncate.AtEnd,
-		TextColor3 = if userId == player.UserId then C.primary else C.text,
-	})
-	local s = Fx.scale(f)
-	s.Scale = 0.6
-	task.delay(0.25 + order * 0.06, function()
-		Fx.tween(s, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
-	end)
-end
-
-local function buildFound()
-	foundGui = Kit.make("ScreenGui", {
-		Name = "LobbyMatchFound",
-		ResetOnSpawn = false,
-		IgnoreGuiInset = true,
-		ScreenInsets = Enum.ScreenInsets.None, -- edge art only, nothing to press
-		SafeAreaCompatibility = Enum.SafeAreaCompatibility.None,
-		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-		DisplayOrder = 30,
-		Enabled = false,
-	}, player:WaitForChild("PlayerGui"))
-	foundBand = Kit.make("Frame", {
-		Name = "Band",
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.new(1, 0, 0, 0),
-		BackgroundColor3 = C.white, -- coloured by the gradient below
-		BackgroundTransparency = 0.08, -- a hint of the world through the band
-		BorderSizePixel = 0,
-		ClipsDescendants = true,
-	}, foundGui)
-	Kit.make("UIGradient", {
-		Rotation = 90,
-		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, C.surface),
-			ColorSequenceKeypoint.new(0.5, C.scrim),
-			ColorSequenceKeypoint.new(1, C.surface),
-		}),
-	}, foundBand)
-	for _, y in { 0, 1 } do
-		Kit.make("Frame", {
-			AnchorPoint = Vector2.new(0, y),
-			Position = UDim2.fromScale(0, y),
-			Size = UDim2.new(1, 0, 0, 3),
-			BackgroundColor3 = C.primary,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-		}, foundBand)
-	end
-	local inner = Kit.make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(1920, 520),
-		BackgroundTransparency = 1,
-	}, foundBand)
-	foundInner = inner
-	foundTitle = Kit.text(inner, "MATCH FOUND", "hero", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(960, 18),
-		Size = UDim2.fromOffset(1200, 136),
-		TextColor3 = C.primary,
-		ZIndex = 4,
-	})
-	foundMode = Kit.text(inner, "", "label", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(960, 154),
-		Size = UDim2.fromOffset(800, 26),
-		TextSize = 20,
-		TextColor3 = C.textSecondary,
-		ZIndex = 4,
-	})
-	foundTeams = Kit.make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(960, 200),
-		Size = UDim2.fromOffset(1400, 170),
-		BackgroundTransparency = 1,
-		ZIndex = 4,
-	}, inner)
-	Kit.make("UIListLayout", {
-		FillDirection = Enum.FillDirection.Horizontal,
-		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		VerticalAlignment = Enum.VerticalAlignment.Top,
-		Padding = UDim.new(0, 18),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-	}, foundTeams)
-	foundCountdown = Kit.text(inner, "", "heading", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(960, 392),
-		Size = UDim2.fromOffset(900, 30),
-		TextSize = 26,
-		ZIndex = 4,
-	})
-	foundStudio = Kit.text(inner, "", "bodyS", {
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromOffset(960, 430),
-		Size = UDim2.fromOffset(1500, 70),
-		TextWrapped = true,
-		TextColor3 = C.textSecondary,
-		Visible = false,
-		ZIndex = 4,
-	})
-	Layout.fit(inner, "found")
-end
-
-local function closeFound()
-	if not foundOpen then
-		return
-	end
-	foundOpen = false
-	foundToken += 1
-	local token = foundToken
-	Fx.tween(
-		foundBand,
-		0.22,
-		{ Size = UDim2.new(1, 0, 0, 0) },
-		Enum.EasingStyle.Quint,
-		Enum.EasingDirection.In
-	)
-	task.delay(0.25, function()
-		if foundToken == token then
-			foundGui.Enabled = false
-		end
-	end)
-end
-
-local function showFound(payload: LobbyNet.QueueEventPayload)
-	local teams = payload.teams
-	local teamSize = payload.teamSize
-	if typeof(teams) ~= "table" or typeof(teamSize) ~= "number" then
-		return
-	end
-	Router.close()
-	foundToken += 1
-	local token = foundToken
-	foundOpen = true
-	for _, child in foundTeams:GetChildren() do
-		if not child:IsA("UIListLayout") then
-			child:Destroy()
-		end
-	end
-	local order = 0
-	for t = 1, 2 do
-		local team = teams[t] or {}
-		local color = if t == 1 then C.ally else C.enemy
-		for i = 1, teamSize do
-			order += 1
-			local id = team[i]
-			slot(foundTeams, if typeof(id) == "number" then id else nil, color, order)
-		end
-		if t == 1 then
-			order += 1
-			local vs = Kit.make("Frame", {
-				Size = UDim2.fromOffset(110, 120),
-				BackgroundTransparency = 1,
-				LayoutOrder = order,
-			}, foundTeams)
-			Kit.text(
-				vs,
-				"VS",
-				"title",
-				{ Size = UDim2.fromScale(1, 1), TextColor3 = C.textSecondary }
-			)
-		end
-	end
-	local bots = 0
-	for t = 1, 2 do
-		bots += teamSize - #(teams[t] or {})
-	end
-	foundMode.Text = `{string.upper(payload.mode or "")}  ·  CASUAL`
-		.. (if bots > 0 then `  ·  {bots} BOT{if bots == 1 then "" else "S"}` else "")
-	foundStudio.Visible = false
-	foundCountdown.TextColor3 = C.text
-
-	foundGui.Enabled = true
-	foundBand.Size = UDim2.new(1, 0, 0, 0)
-	-- The band opens to its content's drawn height (it scales per screen).
-	local bandHeight = foundInner.AbsoluteSize.Y + 24
-	if foundGui.AbsoluteSize.Y > 0 then
-		bandHeight = math.min(bandHeight, foundGui.AbsoluteSize.Y)
-	end
-	Fx.tween(foundBand, Fx.MOTION.enter, { Size = UDim2.new(1, 0, 0, bandHeight) })
-	local s = Fx.scale(foundTitle)
-	s.Scale = 1.35
-	Fx.tween(s, 0.4, { Scale = 1 }, Enum.EasingStyle.Back)
-	task.delay(0.12, function()
-		Fx.glitch(foundTitle)
-	end)
-
-	-- Countdown to the teleport.
-	task.spawn(function()
-		local last = -1
-		while foundToken == token and foundOpen and not foundStudio.Visible do
-			local st = QueueState.status()
-			if st == "teleporting" then
-				foundCountdown.Text = "TELEPORTING..."
-			elseif st == "found" then
-				local left = math.ceil(QueueState.startsIn())
-				foundCountdown.Text = if left > 0 then `TELEPORTING IN {left}` else "CONNECTING..."
-				if left ~= last and left > 0 then
-					last = left
-					Fx.pop(foundCountdown, 1.15)
-				end
-			end
-			task.wait(0.1)
-		end
-	end)
-end
-
-local function onQueueEvent(payload: any)
-	if typeof(payload) ~= "table" then
-		return
-	end
-	local kind = payload.kind
-	if kind == "found" then
-		showFound(payload)
-	elseif kind == "studio" then
-		if foundOpen and typeof(payload.payload) == "string" then
-			foundCountdown.Text =
-				"STUDIO: TELEPORT SKIPPED. THIS IS THE TELEPORTDATA IT WOULD SEND:"
-			foundCountdown.TextColor3 = C.textSecondary
-			foundStudio.Text = payload.payload
-			foundStudio.Visible = true
-		end
-	elseif kind == "failed" and typeof(payload.text) == "string" then
-		closeFound()
-		LobbyHud.toast(payload.text, "error")
-	elseif kind == "info" and typeof(payload.text) == "string" then
-		LobbyHud.toast(payload.text, "info")
-	end
-end
-
---------------------------------------------------------------------------------
 
 function QueueMenu.init()
-	buildFound()
+	-- MATCH FOUND is Controllers/MatchFoundController now (every device).
 	-- Desktop uses the Studio-built Play menu (Controllers/PlayMenuController);
 	-- this code-built one stays for phones until the mobile pass.
 	if not PHONE then
@@ -1026,15 +724,8 @@ function QueueMenu.init()
 end
 
 function QueueMenu.start()
-	Router.setBlocked(function()
-		return foundOpen
-	end)
-	LobbyNet.event("QueueEvent").OnClientEvent:Connect(onQueueEvent)
 	QueueState.onChanged(function()
 		pendingUntil = 0
-		if QueueState.status() == "idle" then
-			closeFound()
-		end
 		if isOpen then
 			refreshCards()
 			refreshAction()
