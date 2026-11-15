@@ -292,7 +292,7 @@ function BottomHud.setSpectating(on: boolean)
 		r.ammo.Visible = not on
 		local row = r.gui:FindFirstChild("Root")
 		for _, name in { "Loadout", "Hints" } do
-			local part = row and row:FindFirstChild(name)
+			local part = row and row:FindFirstChild(name, true)
 			if part and part:IsA("GuiObject") then
 				part.Visible = not on
 			end
@@ -517,13 +517,16 @@ local function bind(gui: ScreenGui)
 	local hpBody = health:WaitForChild("Body") :: Frame
 	local segs = hpBody:WaitForChild("Segments") :: Frame
 	local chip = hpBody:WaitForChild("ShieldChip") :: Frame
-	local ammo = root:WaitForChild("Ammo") :: Frame
+	-- The right side is one column (hotbar, ammo, key hints) in a vertical list
+	-- with one UIScale, so they stack and can't overlap at any screen size.
+	local right = root:WaitForChild("Right") :: Frame
+	local ammo = right:WaitForChild("Ammo") :: Frame
 	local amBody = ammo:WaitForChild("Body") :: Frame
 	local rounds = amBody:WaitForChild("Rounds") :: Frame
 	local reloadBar = amBody:WaitForChild("ReloadBar") :: Frame
 	local mods = root:WaitForChild("Mods") :: Frame
-	local loadoutRow = root:WaitForChild("Loadout") :: Frame
-	local hints = root:WaitForChild("Hints") :: Frame
+	local loadoutRow = right:WaitForChild("Loadout") :: Frame
+	local hints = right:WaitForChild("Hints") :: Frame
 	-- The hint keycaps show the real bindings (Config/Input), not typed letters.
 	for _, pair in hints:GetChildren() do
 		local action = (Bindings :: any)[pair.Name]
@@ -610,10 +613,8 @@ local function bind(gui: ScreenGui)
 	-- One UIScale per cluster keeps the 1920 x 1080 layout proportional.
 	local fits = {
 		health:WaitForChild("Fit"),
-		ammo:WaitForChild("Fit"),
 		mods:WaitForChild("Fit"),
-		loadoutRow:WaitForChild("Fit"),
-		hints:WaitForChild("Fit"),
+		right:WaitForChild("Fit"),
 	}
 	local function refit()
 		local size = gui.AbsoluteSize

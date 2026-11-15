@@ -262,10 +262,29 @@ for i = 1, 5 do
 	make("UICorner", { CornerRadius = UDim.new(0, 2) }, s)
 end
 
+-- RIGHT COLUMN: hotbar, ammo, key hints stacked by one vertical list with
+-- one UIScale, so they can't overlap at any screen size --------------------------
+local right = make("Frame", {
+	Name = "Right",
+	AnchorPoint = Vector2.new(1, 1),
+	Position = UDim2.new(0.976, 0, 0.992, 0),
+	AutomaticSize = Enum.AutomaticSize.XY,
+	BackgroundTransparency = 1,
+}, root)
+make("UIScale", { Name = "Fit" }, right)
+make("UIListLayout", {
+	FillDirection = Enum.FillDirection.Vertical,
+	HorizontalAlignment = Enum.HorizontalAlignment.Right,
+	VerticalAlignment = Enum.VerticalAlignment.Bottom,
+	Padding = UDim.new(0, 8),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+}, right)
+
 -- AMMO (bottom-right) --------------------------------------------------------
-local amHolder, am = panel(root, "Ammo", false)
-amHolder.AnchorPoint = Vector2.new(1, 1)
-amHolder.Position = UDim2.new(0.976, 0, 0.965, 0)
+local amHolder, am = panel(right, "Ammo", false)
+amHolder.LayoutOrder = 2
+amHolder.AnchorPoint = Vector2.zero -- the list places it
+amHolder:FindFirstChild("Fit"):Destroy() -- the column scales it
 make("ImageLabel", {
 	Name = "Gun",
 	Position = UDim2.fromOffset(28, 14),
@@ -515,13 +534,12 @@ end
 -- WEAPON HOTBAR (above the ammo) -------------------------------------------------
 local loadout = make("Frame", {
 	Name = "Loadout",
-	AnchorPoint = Vector2.new(1, 1),
-	Position = UDim2.new(0.976, -8, 0.965, -106),
+	LayoutOrder = 1,
 	Size = UDim2.fromOffset(0, 52),
 	AutomaticSize = Enum.AutomaticSize.X,
 	BackgroundTransparency = 1,
-}, root)
-make("UIScale", { Name = "Fit" }, loadout)
+}, right)
+make("UIPadding", { PaddingRight = UDim.new(0, 8) }, loadout)
 make("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	HorizontalAlignment = Enum.HorizontalAlignment.Right,
@@ -592,13 +610,12 @@ end
 -- KEY HINTS (under the ammo; the script writes the real bindings) -------------
 local hints = make("Frame", {
 	Name = "Hints",
-	AnchorPoint = Vector2.new(1, 1),
-	Position = UDim2.new(0.976, -8, 0.992, 0),
+	LayoutOrder = 3,
 	Size = UDim2.fromOffset(0, 24),
 	AutomaticSize = Enum.AutomaticSize.X,
 	BackgroundTransparency = 1,
-}, root)
-make("UIScale", { Name = "Fit" }, hints)
+}, right)
+make("UIPadding", { PaddingRight = UDim.new(0, 8) }, hints)
 make("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	HorizontalAlignment = Enum.HorizontalAlignment.Right,

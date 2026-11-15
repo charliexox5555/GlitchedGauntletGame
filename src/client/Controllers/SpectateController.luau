@@ -20,6 +20,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
+local Mods = require(ReplicatedStorage.Shared.Mods)
 local Ease = require(ReplicatedStorage.Shared.Util.Ease)
 local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
@@ -37,6 +38,8 @@ local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
+local DeathScreen = require(script.Parent.Parent.Util.DeathScreen)
+local Device = require(script.Parent.Parent.Util.Device)
 local Ui = require(script.Parent.Parent.Util.Ui)
 
 type WeaponConfig = Types.WeaponConfig
@@ -56,6 +59,8 @@ type Fighter = Fighters.Fighter
 local mode: Mode = "Off"
 local target: Fighter? = nil
 local killer: Instance? = nil
+local killedWith = "" -- the gun or Mod id that killed you (the Killed event)
+local killedHead = false
 local myBody: Model? = nil
 
 -- Death camera.
@@ -271,7 +276,49 @@ local function doBlink()
 	TweenService:Create(b, TweenInfo.new(S.fadeTime * 2), { BackgroundTransparency = 1 }):Play()
 end
 
+-- What the death screen shows for a fighter (Util/DeathScreen).
+local BOT_HEAD = "rbxassetid://119185654291939"
+local function fighterView(holder: Instance): DeathScreen.Fighter
+	return {
+		name = nameOf(holder),
+		ally = Teams.of(holder) == Teams.of(player),
+		image = if holder:IsA("Player")
+			then string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", holder.UserId)
+			else BOT_HEAD,
+	}
+end
+
+-- Desktop: who killed you, with what, and their HP left.
+local function showKilledBy()
+	local k = killer
+	if not k or k == player or k == myBody then
+		return -- the zone, a fall, your own Molly
+	end
+	local view = fighterView(k) :: any
+	local def = Mods.def(killedWith)
+	local config = if def then nil else Weapons.get(killedWith)
+	view.weapon = if def then def.icon else Theme.GUN[killedWith] or ""
+	view.isMod = def ~= nil
+	view.gun = if def then def.name elseif config then config.displayName else ""
+	view.head = killedHead
+	local body: Model? = if k:IsA("Player") then k.Character elseif k:IsA("Model") then k else nil
+	view.hp = if body and alive(body) then Health.get(humanoidOf(body)) else nil
+	DeathScreen.killedBy(view)
+end
+
 local function setBar(f: Fighter?)
+	if DeathScreen.active() then
+		-- Desktop: the Studio-built spectate bar.
+		if bar then
+			(bar :: Frame).Visible = false
+		end
+		if f then
+			DeathScreen.spectate(fighterView(f.holder))
+		else
+			DeathScreen.hide()
+		end
+		return
+	end
 	local b = bar
 	if not b then
 		return
@@ -377,7 +424,9 @@ local function watchStep(cam: Camera, dt: number)
 	-- Their health on the bar.
 	local fill = healthFill
 	local humanoid = humanoidOf(body)
-	if fill and humanoid then
+	if humanoid and DeathScreen.active() then
+		DeathScreen.setHealth(Health.get(humanoid), Health.max(humanoid))
+	elseif fill and humanoid then
 		fill.Size = UDim2.fromScale(
 			math.clamp(Health.get(humanoid) / math.max(Health.max(humanoid), 1), 0, 1),
 			1
@@ -491,6 +540,9 @@ local function startDeathCam(body: Model)
 	CameraController.setOverride(deathStep)
 	HudController.setSpectating(true)
 	HudController.setCrosshairVisible(false)
+	if DeathScreen.active() then
+		showKilledBy()
+	end
 end
 
 -- Ends everything: a new life plays from its own eyes.
@@ -505,6 +557,7 @@ local function stop()
 	mode = "Off"
 	target = nil
 	killer = nil
+	killedWith, killedHead = "", false
 	sendAt = nil
 	if equippedId ~= nil then
 		unequip()
@@ -636,16 +689,25 @@ end
 
 function SpectateController.start()
 	buildUi()
-	Net.event("Killed").OnClientEvent:Connect(function(victim: unknown, attacker: unknown)
-		if victim ~= nil and victim == myBody and typeof(attacker) == "Instance" then
-			killer = attacker
+	DeathScreen.start(Device.compact())
+	DeathScreen.onCycle(SpectateController.cycle)
+	Net.event("Killed").OnClientEvent
+		:Connect(function(victim: unknown, attacker: unknown, sourceId: unknown, headshot: unknown)
+			if victim ~= nil and victim == myBody and typeof(attacker) == "Instance" then
+				killer = attacker
+				killedWith = if typeof(sourceId) == "string" then sourceId else ""
+				killedHead = headshot == true
+			end
+		end)
+	InputController.onPressed("Fire", function()
+		if not DeathScreen.overKeys() then -- the keycap's own click cycles
+			SpectateController.cycle(1)
 		end
 	end)
-	InputController.onPressed("Fire", function()
-		SpectateController.cycle(1)
-	end)
 	InputController.onPressed("Aim", function()
-		SpectateController.cycle(-1)
+		if not DeathScreen.overKeys() then
+			SpectateController.cycle(-1)
+		end
 	end)
 	player.CharacterAdded:Connect(onCharacter)
 	if player.Character then

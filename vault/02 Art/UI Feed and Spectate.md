@@ -31,8 +31,20 @@ Owner: the kill pop should be "a little more simple", the skull "doesn't look" r
 
 Kill pop options: ![options](References/ui-overhaul/2026-11-14-kill-pop-options.jpg)
 
-## Build plan (after the owner's OK)
-- Studio-owned `StarterGui.KillFeed` (feed + kill pop) and `StarterGui.DeathScreen` (killed-by + spectate), backups in `tools/studio/`; row and cell templates in `ReplicatedStorage.UiTemplates`.
-- `Util/KillFeed` keeps its feed logic and the kill-ladder sound/pips (another session's uncommitted work), drawing into the new gui on desktop. `SpectateController` feeds the spectate bar and a new killed-by card from the `Killed` event (attacker, weapon, headshot) and the killer's health.
-- Motion: rows slide in from the right and fade out; the kill pop pops from its centre (bigger per kill, as now); killed-by rises in, then hands over to the spectate bar.
-- Phones keep the old layout until the mobile pass.
+## Built (live on desktop; owner picked C, the glitch shard)
+- **Studio-owned guis** (backup `tools/studio/BuildFeedScreens.luau`, checked: a rebuild matches Studio with 0 differences):
+  - `StarterGui.KillFeed` (DisplayOrder 6): `Canvas.Feed` (vertical list, right-aligned, under the top bar) and `Canvas.KillPop` (5 ring segments, navy disc, the glitch shard with its cyan / pink split).
+  - Feed row template `ReplicatedStorage.UiTemplates.KillFeed.Row`: a fixed holder, the `Strip` (CanvasGroup, horizontal list, sizes to the names) right-aligned in it.
+  - `StarterGui.DeathScreen` (DisplayOrder 7): `Canvas.KilledBy` and `Canvas.Spectate` (`<` `>` keycap buttons either side of the strip).
+- **`Controllers/KillFeedController`** fills the feed and the kill pop from the `Killed` event. Rows slide in from the right and fade (5 s, 4 at most, newest on top), rows with you on the brighter navy, no killer block for the zone / falls / your own Molly. Your kill: the disc pops from its centre (bigger each kill this round), one more ring segment lit, gold on a headshot. `Util/KillFeed` keeps playing the kill sounds (its kill-tone ladder, another session's uncommitted work); its old code-built rows and pop are taken off screen on desktop.
+- **`Util/DeathScreen`**, fed by `SpectateController`: killed-by during the death camera (killer's headshot, name, gun or Mod, HEADSHOT, their HP left), then the spectate bar (name in their team colour, live HP and segments). The `<` `>` keycaps cycle; a click on them doesn't also count as the Fire / Aim cycle. The old bar is hidden.
+- Phones keep the old feed and bar until the mobile pass.
+- **Checked live** (2v2 bot match): killed-by (JINX, Classic, 100 HP left), spectating NOVA (80 HP), feed rows, and the kill pop (sent by a test `Killed` from the server: the glitch shard, gold on a headshot).
+
+Killed by: ![killed by](References/ui-overhaul/2026-11-14-live-killed-by.jpg)
+Spectating: ![spectate](References/ui-overhaul/2026-11-14-live-spectate.jpg)
+Kill pop (headshot): ![kill pop](References/ui-overhaul/2026-11-14-live-kill-pop.jpg)
+
+## Fix: hotbar over the ammo panel (owner, testing)
+The hotbar sat a fixed 106 px above the bottom while the ammo panel grows with the screen (its UIScale), so above 1080p the panel ran into it. `StarterGui.BottomHud.Root.Right` is now one column (hotbar, ammo, key hints) with a vertical `UIListLayout` (8 px) and one `Fit` UIScale, so they stack at any size. `Util/BottomHud` and `tools/studio/BuildBottomHud.luau` updated (rebuild matches Studio but for preview-only values). Checked at 1.4x scale: 11 px between each.
+![1.4x](References/ui-overhaul/2026-11-14-hud-right-column-1_4x.jpg)
