@@ -41,6 +41,23 @@ Locker.COLORS = table.freeze({
 	Inkshift = Color3.fromHex("E9ECF2"),
 }) :: { [string]: Color3 }
 
+-- Each line's emblem (owner 2026-11-15: skins need an identity besides
+-- colour): a single-colour image asset, tinted with the line's colour in the
+-- UI. Empty = not made yet; the Locker draws a lettered diamond instead.
+-- Prompt for the set: vault/02 Art/UI Locker.md -> v5.
+Locker.EMBLEMS = table.freeze({
+	Stock = "",
+	Prism = "",
+	Redline = "",
+	Nitrous = "",
+	PopCircuit = "",
+	Moltframe = "",
+	Giltfold = "",
+	Sealwork = "",
+	Payload = "",
+	Inkshift = "",
+}) :: { [string]: string }
+
 -- The gun's model in ReplicatedStorage.Weapons (Studio-owned; the Lobby gets
 -- a copy with tools/studio/SyncWeapons.luau), if the gun is in the game.
 function Locker.gunModel(gunId: string): Model?

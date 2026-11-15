@@ -33,7 +33,6 @@ local LockerController = {}
 local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
 local CARD = Color3.fromHex("0B1236")
-local CARD_T = 0.35
 local ALLY = Color3.fromHex("3FE0F2")
 local INK, WHITE = Color3.fromHex("141A26"), Color3.new(1, 1, 1)
 local QUINT, BACK = Enum.EasingStyle.Quint, Enum.EasingStyle.Back
@@ -65,7 +64,22 @@ local ZOOM_MIN, ZOOM_MAX = 0.75, 1.3
 -- where the gun sits on screen in each view (canvas x, y): the middle of the
 -- free area; the camera slides so the gun's centre lands there
 local MAIN_SPOT = Vector2.new(1240, 520)
-local TRAY_SPOT = Vector2.new(960, 400)
+local TRAY_SPOT = Vector2.new(960, 380)
+local TRAY_ZOOM = 1.3 -- the skins view pulls back so the gun clears the title
+-- the floor shadow sits this far under the gun's centre (canvas px at zoom 1)
+local FLOOR_DROP = 190
+local MUTED = Color3.fromHex("AEB8D6")
+-- gun icons fill their card's box by height or width, so a pistol drawn in
+-- the full box looks bigger than a rifle: each class gets a share of the width
+local ICON_WIDTH: { [string]: number } = {
+	Sidearm = 0.5,
+	SMG = 0.74,
+	Shotgun = 0.86,
+	Rifle = 1,
+	Sniper = 1,
+	MachineGun = 1,
+	Melee = 0.56,
+}
 
 local gui: ScreenGui
 local canvas: Frame
@@ -78,6 +92,8 @@ local gunName: TextLabel
 local skinTag: Frame
 local soonLabel: TextLabel
 local templates: Folder
+local backFit: UIScale
+local floorShadow: Frame
 
 local isOpen = false
 local trayOpen = false
@@ -131,18 +147,53 @@ local function lineTitle(line: string): string
 	return if line == "Stock" then "DEFAULT" else string.upper(line)
 end
 
-local function setFill(body: GuiObject, color: Color3)
-	body.BackgroundColor3 = color
-	for _, c in body:GetChildren() do
-		if c:IsA("ImageLabel") and (c.Name == "CapL" or c.Name == "CapR") then
-			c.ImageColor3 = color
-		end
-	end
-end
-
 -- dark ink on light colours, white on dark ones
 local function inkOn(c: Color3): Color3
 	return if (c.R * 0.3 + c.G * 0.59 + c.B * 0.11) > 0.55 then INK else WHITE
+end
+
+-- A skin line's emblem (template UiTemplates.Lobby.SkinEmblem): its image from
+-- Locker.EMBLEMS once the art exists, else a diamond in the line's colour
+-- with its first letter. `d` is the size in px.
+local function makeEmblem(parent: Instance, line: string, d: number, order: number?): Frame
+	local e = (templates:WaitForChild("SkinEmblem") :: Frame):Clone()
+	e.Name = "Emblem"
+	e.Size = UDim2.fromOffset(d, d)
+	e.LayoutOrder = order or 1
+	local color = Locker.COLORS[line] or WHITE
+	local art = child(e, "Art") :: ImageLabel
+	local id = Locker.EMBLEMS[line]
+	local hasArt = id ~= nil and id ~= ""
+	art.Visible = hasArt
+	if hasArt then
+		art.Image = id :: string
+		art.ImageColor3 = color
+	end
+	local diamond = child(e, "Diamond") :: Frame
+	local letter = child(e, "Letter") :: TextLabel
+	diamond.Visible = not hasArt
+	letter.Visible = not hasArt
+	diamond.BackgroundColor3 = color
+	letter.Text = string.sub(lineTitle(line), 1, 1)
+	letter.TextColor3 = inkOn(color)
+	if parent:IsA("GuiObject") then
+		e.ZIndex = parent.ZIndex + 2
+		for _, c in e:GetChildren() do
+			if c:IsA("GuiObject") then
+				c.ZIndex = parent.ZIndex + (if c.Name == "Diamond" then 2 else 3)
+			end
+		end
+	end
+	e.Parent = parent
+	return e
+end
+
+local function clearEmblems(parent: Instance)
+	for _, c in parent:GetChildren() do
+		if c.Name == "Emblem" then
+			c:Destroy()
+		end
+	end
 end
 
 -- Models -------------------------------------------------------------------------------
@@ -297,6 +348,10 @@ local function onRender(dt: number)
 		local s = spotValue.Value
 		local goal = cameraFor(Vector2.new(s.X, s.Y), zoomValue.Value)
 		cam.CFrame = cam.CFrame:Lerp(goal, 1 - math.exp(-dt * 10))
+		-- the floor shadow follows the gun's spot and shrinks as it pulls back
+		local z = math.max(zoomValue.Value, 0.5)
+		floorShadow.Position = UDim2.fromOffset(s.X, s.Y + FLOOR_DROP / z)
+		floorShadow.Size = UDim2.fromOffset(520 / z, 44 / z)
 	end
 end
 
@@ -316,12 +371,18 @@ local function enterStage()
 	local vf = Instance.new("ViewportFrame")
 	vf.Name = "Stage"
 	vf.Size = UDim2.fromScale(1, 1)
-	vf.BackgroundColor3 = if typeof(bg) == "Color3" then bg else Color3.fromHex("2340D8")
+	-- see-through, over Backdrop (the stage colour, shade and floor shadow)
+	-- and under the Canvas
+	local backdrop = gui:FindFirstChild("Backdrop")
+	if backdrop and backdrop:IsA("Frame") and typeof(bg) == "Color3" then
+		backdrop.BackgroundColor3 = bg
+	end
+	vf.BackgroundTransparency = 1
 	vf.BorderSizePixel = 0
 	vf.Ambient = Color3.fromRGB(150, 158, 196)
 	vf.LightColor = Color3.fromRGB(255, 250, 242)
 	vf.LightDirection = Vector3.new(-0.55, -1, -0.75)
-	vf.ZIndex = 0
+	vf.ZIndex = 1
 	spotValue.Value = Vector3.new(MAIN_SPOT.X, MAIN_SPOT.Y, 0)
 	zoomValue.Value = 1
 	local cam = Instance.new("Camera")
@@ -356,30 +417,29 @@ end
 local function refreshHeader()
 	local cfg = Weapons.get(selectedGun)
 	gunName.Text = string.upper(if cfg then cfg.displayName else selectedGun)
-	local color = Locker.COLORS[previewLine] or WHITE
-	setFill(skinTag, color)
-	local label = skinTag:FindFirstChild("Label")
-	if label and label:IsA("TextLabel") then
-		local class = if cfg
+	local classLabel = canvas:FindFirstChild("GunClass")
+	if classLabel and classLabel:IsA("TextLabel") then
+		classLabel.Text = if cfg
 			then string.upper(if cfg.class == "MachineGun" then "HEAVY" else cfg.class)
 			else ""
-		label.Text = lineTitle(previewLine) .. "  ·  " .. class
-		label.TextColor3 = inkOn(color)
 	end
-	-- the SKIN tile wears the equipped skin's colour and name
+	-- the skin on the stage: its emblem and name
+	clearEmblems(skinTag)
+	makeEmblem(skinTag, previewLine, 30, 1)
+	local label = skinTag:FindFirstChild("Label")
+	if label and label:IsA("TextLabel") then
+		label.Text = lineTitle(previewLine)
+	end
+	-- the SKIN tile shows the equipped skin
 	local skinTile = kinds:FindFirstChild("SKIN")
 	if skinTile and skinTile:IsA("GuiObject") then
 		local eq = equippedLine(selectedGun)
-		local c = Locker.COLORS[eq] or WHITE
-		skinTile.BackgroundColor3 = c
+		clearEmblems(skinTile)
+		local e = makeEmblem(skinTile, eq, 64)
+		e.Position = UDim2.fromOffset(28, 28)
 		local value = skinTile:FindFirstChild("Value")
-		local lbl = skinTile:FindFirstChild("Label")
 		if value and value:IsA("TextLabel") then
 			value.Text = lineTitle(eq)
-			value.TextColor3 = inkOn(c)
-		end
-		if lbl and lbl:IsA("TextLabel") then
-			lbl.TextColor3 = inkOn(c)
 		end
 	end
 end
@@ -387,7 +447,7 @@ end
 local function styleGunCard(card: GuiButton, on: boolean)
 	tween(card, 0.14, {
 		BackgroundColor3 = if on then ALLY else CARD,
-		BackgroundTransparency = if on then 0 else CARD_T,
+		BackgroundTransparency = if on then 0 else 0.25,
 	})
 	local name = card:FindFirstChild("Name")
 	if name and name:IsA("TextLabel") then
@@ -401,12 +461,19 @@ end
 
 local function refreshGunCards()
 	for gunId, card in gunCards do
-		styleGunCard(card, gunId == selectedGun)
-		local chip = card:FindFirstChild("Skin")
-		local line = equippedLine(gunId)
-		if chip and chip:IsA("GuiObject") then
-			chip.Visible = line ~= "Stock"
-			setFill(chip, Locker.COLORS[line] or WHITE)
+		local on = gunId == selectedGun
+		styleGunCard(card, on)
+		-- the equipped skin: its emblem and name under the gun's name
+		local row = card:FindFirstChild("Skin")
+		if row then
+			local line = equippedLine(gunId)
+			clearEmblems(row)
+			makeEmblem(row, line, 14, 1)
+			local label = row:FindFirstChild("Label")
+			if label and label:IsA("TextLabel") then
+				label.Text = lineTitle(line)
+				label.TextColor3 = if on then INK elseif line == "Stock" then MUTED else WHITE
+			end
 		end
 	end
 end
@@ -424,7 +491,7 @@ local function hoverable(card: GuiButton, lift: number?)
 	end)
 	card.Activated:Connect(function()
 		pop.Scale = 0.95
-		tween(pop, 0.24, { Scale = up }, BACK)
+		tween(pop, 0.24, { Scale = up })
 	end)
 end
 
@@ -468,9 +535,14 @@ local function buildGuns()
 		local group = (templates:WaitForChild("GunGroup") :: Frame):Clone()
 		group.Name = class[2]
 		group.LayoutOrder = order
-		local head = group:FindFirstChild("Head")
+		local headRow = group:FindFirstChild("HeadRow")
+		local head = headRow and headRow:FindFirstChild("Head")
 		if head and head:IsA("TextLabel") then
 			head.Text = class[2]
+		end
+		local count = headRow and headRow:FindFirstChild("Count")
+		if count and count:IsA("TextLabel") then
+			count.Text = tostring(#ids)
 		end
 		local grid = child(group, "Grid") :: Frame
 		for i, id in ids do
@@ -479,6 +551,8 @@ local function buildGuns()
 			card.LayoutOrder = i
 			local icon = child(card, "Icon") :: ImageLabel
 			icon.Image = Theme.GUN[id] or ""
+			local share = ICON_WIDTH[class[1]] or 1
+			icon.Size = UDim2.fromOffset(math.floor(icon.Size.X.Offset * share), icon.Size.Y.Offset)
 			local name = child(card, "Name") :: TextLabel
 			local cfg = Weapons.get(id)
 			name.Text = string.upper(if cfg then cfg.displayName else id)
@@ -497,17 +571,46 @@ local function buildGuns()
 end
 
 -- Skins tray ---------------------------------------------------------------------------
+-- The previewed tile fills with its line's colour (ink text on light ones);
+-- the rest are dark plates. A check marks the equipped one.
 local function refreshTiles()
 	local equipped = equippedLine(selectedGun)
 	for _, t in strip:GetChildren() do
 		if t:IsA("GuiButton") then
+			local on = t.Name == previewLine
+			local color = Locker.COLORS[t.Name] or WHITE
+			tween(t, 0.16, {
+				BackgroundColor3 = if on then color else CARD,
+				BackgroundTransparency = if on then 0 else 0.2,
+			})
+			local name = t:FindFirstChild("Name")
+			if name and name:IsA("TextLabel") then
+				name.TextColor3 = if on then inkOn(color) else WHITE
+			end
+			-- on a filled tile the emblem turns ink (a light line colour would hide it)
+			local e = t:FindFirstChild("Emblem")
+			if e then
+				local mark = if on then inkOn(color) else color
+				local diamond = e:FindFirstChild("Diamond")
+				local letter = e:FindFirstChild("Letter")
+				local art = e:FindFirstChild("Art")
+				if diamond and diamond:IsA("Frame") then
+					diamond.BackgroundColor3 = mark
+				end
+				if letter and letter:IsA("TextLabel") then
+					letter.TextColor3 = if on then color else inkOn(color)
+				end
+				if art and art:IsA("ImageLabel") then
+					art.ImageColor3 = mark
+				end
+			end
 			local check = t:FindFirstChild("Check")
 			if check and check:IsA("GuiObject") then
 				check.Visible = t.Name == equipped
 			end
 			local pop = t:FindFirstChild("Pop")
 			if pop and pop:IsA("UIScale") then
-				tween(pop, 0.16, { Scale = if t.Name == previewLine then 1.06 else 1 })
+				tween(pop, 0.16, { Scale = if on then 1.04 else 1 })
 			end
 		end
 	end
@@ -528,14 +631,16 @@ local function buildTiles()
 		local t = (templates:WaitForChild("SkinTile") :: GuiButton):Clone()
 		t.Name = line
 		t.LayoutOrder = i
-		t.BackgroundColor3 = Locker.COLORS[line] or WHITE
+		local w, h = t.Size.X.Offset, t.Size.Y.Offset
 		local model = Locker.skinModel(selectedGun, line)
 		if model then
-			thumb(t, model, t.Size.X.Offset - 12, t.Size.Y.Offset - 56, UDim2.fromOffset(6, 8))
+			thumb(t, model, w - 20, h - 100, UDim2.fromOffset(10, 48))
 		end
+		local e = makeEmblem(t, line, 32)
+		e.Position = UDim2.fromOffset(16, 14)
 		local name = child(t, "Name") :: TextLabel
 		name.Text = lineTitle(line)
-		hoverable(t, 1.06)
+		hoverable(t, 1.04)
 		t.Activated:Connect(function()
 			LockerController.preview(line)
 			if equippedLine(selectedGun) ~= line then
@@ -558,7 +663,7 @@ local function home(obj: GuiObject): UDim2
 end
 
 local function moveName(x: number)
-	for _, n in { "GunName", "SkinTag" } do
+	for _, n in { "GunClass", "GunName", "SkinTag" } do
 		local g = canvas:FindFirstChild(n)
 		if g and g:IsA("GuiObject") then
 			local h = home(g)
@@ -577,17 +682,26 @@ local function setTray(open: boolean)
 		hint.Visible = not open
 	end
 	local gunsHome, kindsHome, trayHome = home(gunsList), home(kinds), home(tray)
+	local side = canvas:FindFirstChild("Side")
+	local sideHome = if side and side:IsA("GuiObject") then home(side) else nil
 	if open then
 		buildTiles()
 		tween(gunsList, 0.35, { Position = gunsHome + UDim2.fromOffset(-620, 0) })
+		if side and sideHome then
+			tween(side, 0.35, { Position = sideHome + UDim2.fromOffset(-640, 0) })
+		end
 		tween(kinds, 0.3, { Position = kindsHome + UDim2.fromOffset(0, 260) })
 		tray.Visible = true
 		tray.Position = trayHome + UDim2.fromOffset(0, 340)
 		tween(tray, 0.45, { Position = trayHome })
 		tween(spotValue, 0.6, { Value = Vector3.new(TRAY_SPOT.X, TRAY_SPOT.Y, 0) })
+		tween(zoomValue, 0.6, { Value = TRAY_ZOOM })
 		moveName(TRAY_SPOT.X)
 	else
 		tween(gunsList, 0.4, { Position = gunsHome })
+		if side and sideHome then
+			tween(side, 0.4, { Position = sideHome })
+		end
 		tween(kinds, 0.4, { Position = kindsHome })
 		local t = tween(tray, 0.3, { Position = trayHome + UDim2.fromOffset(0, 340) })
 		t.Completed:Once(function()
@@ -596,6 +710,7 @@ local function setTray(open: boolean)
 			end
 		end)
 		tween(spotValue, 0.6, { Value = Vector3.new(MAIN_SPOT.X, MAIN_SPOT.Y, 0) })
+		tween(zoomValue, 0.6, { Value = 1 })
 		moveName(MAIN_SPOT.X)
 		if previewLine ~= equippedLine(selectedGun) then
 			LockerController.preview(equippedLine(selectedGun))
@@ -604,7 +719,7 @@ local function setTray(open: boolean)
 end
 
 -- Tabs -------------------------------------------------------------------------------
-local WEAPON_PARTS = { "Guns", "Kinds", "Hint", "GunName", "SkinTag", "DragArea" }
+local WEAPON_PARTS = { "Guns", "Kinds", "Hint", "GunClass", "GunName", "SkinTag", "DragArea" }
 
 local function setTab(name: string)
 	tab = name
@@ -638,6 +753,7 @@ local function setTab(name: string)
 			end
 		end
 	end
+	floorShadow.Visible = weapons
 	soonLabel.Visible = not weapons
 	soonLabel.Text = if name == "ABILITIES" then "MOD COLLECTION  ·  SOON" else "EMOTES  ·  SOON"
 end
@@ -647,6 +763,7 @@ local function refit()
 	local size = gui.AbsoluteSize
 	if size.X > 0 and size.Y > 0 then
 		fit.Scale = math.min(size.X / DESIGN.X, size.Y / DESIGN.Y)
+		backFit.Scale = fit.Scale
 	end
 end
 
@@ -679,6 +796,7 @@ local function open()
 	moveName(MAIN_SPOT.X)
 	slideIn(gunsList, -160, 0, 0.02)
 	slideIn(child(canvas, "Title"), -100, 0, 0)
+	slideIn(child(canvas, "GunClass"), 0, -40, 0.04)
 	slideIn(child(canvas, "Tabs"), -100, 0, 0.04)
 	slideIn(kinds, 0, 200, 0.08)
 	resetClose()
@@ -736,6 +854,9 @@ function LockerController.init()
 	gunName = child(canvas, "GunName")
 	skinTag = child(canvas, "SkinTag")
 	soonLabel = child(canvas, "Soon")
+	local backCanvas = child(child(gui, "Backdrop"), "BackCanvas") :: Frame
+	backFit = child(backCanvas, "Fit")
+	floorShadow = child(backCanvas, "Floor")
 	templates = ReplicatedStorage:WaitForChild("UiTemplates"):WaitForChild("Lobby") :: Folder
 	for _, o in { gunsList, kinds, tray, child(canvas, "GunName"), child(canvas, "SkinTag") } do
 		home(o :: GuiObject)

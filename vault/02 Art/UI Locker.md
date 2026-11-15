@@ -91,3 +91,57 @@ Owner: "drag and everything should be smoother... too much UI... the gun is not 
 - **Idle wobble:** while untouched, a slow bob (±0.05) and sway (yaw ±3.2°, pitch ±1.6°, roll ±1.2°) on mismatched periods (0.52-1.05 rad/s) so it never visibly loops; it fades out while dragging and back in once the gun is home.
 - Checked in play: Vandal, Classic, Operator, the PopCircuit bat (tray view) all centred on their spots; fan thumbnail upright and open.
 
+## v5 (2026-11-15, owner: "the locker seems a bit unprofessional"; "something to identify skins besides just their colour... the way they look in the list I don't like")
+**Critique of v4.1** (captures in Studio):
+- The flat blue had no depth, and the gun floated in nothing.
+- The gun list was cut off mid-screen.
+- Pistol icons were huge next to rifles.
+- A cryptic coloured slant was the only sign of a skin.
+- Tiny headers and hint.
+- SKIN / CHARM / FINISHER read as placeholder boxes.
+- The skins tray sat in a dark box that clipped tiles, with small pictures.
+- In the tray, the gun hit the title.
+- Skins were identified **only by colour**.
+
+**Owner's pick for skin identity:** an **emblem per skin line** (Prism, Redline, ...), a single-colour icon tinted with the line's colour. Tiles become neutral dark plates with a big render of the skinned gun, the emblem and the name.
+
+**Built:**
+- **Backdrop with depth:** the stage colour, a soft shade at the top and bottom, and a floor shadow under the gun that follows its spot and shrinks as the camera pulls back. The gun's ViewportFrame is now see-through, between `Backdrop` and `Canvas`.
+- **Side panel:** a dark panel from the screen's top to bottom edge behind the title, tabs and gun list. The list scrolls to the bottom edge. In the skins view the panel slides away with the list.
+- **Gun cards:**
+  - icons sized by class (a share of the box width: sidearms 0.5, SMGs 0.74, shotguns 0.86, rifles / snipers / heavy 1, melee 0.56), so guns read at a similar size;
+  - the name, then the equipped skin's **emblem and name**;
+  - class headers at 16 px with a count.
+- **Stage header:** the class (cyan) above the name, and the skin as **emblem + name** (the white slanted tag is gone).
+- **SKIN tile:** a real button, 380 wide, with the equipped skin's big emblem, its name and a ». CHARM and FINISHER are dimmer, marked SOON.
+- **Skins view:**
+  - no box around the strip;
+  - tiles 216 x 232: dark plate, emblem top left, a big live picture, the name;
+  - the **previewed** tile fills with its line's colour, and its emblem turns ink so a light colour (Inkshift) never hides it;
+  - a green tick marks the equipped one;
+  - the camera pulls back (zoom 1.3), so the gun clears the title.
+- **Emblems:** `Shared/Locker.EMBLEMS[line]` (image ids, empty for now), template `UiTemplates.Lobby.SkinEmblem`. Until the art exists, each emblem is a diamond in the line's colour with its first letter.
+- The skin tile press uses clean Quint motion (no Back), per the owner's "cleaner animations".
+- Checked in Studio play:
+  - main view, and the skins view with Prism previewed (filled lilac, dark emblem, tick moved);
+  - the side panel slides out;
+  - the owner's Vandal was put back on Inkshift afterwards;
+  - no errors.
+- Builder `tools/studio/BuildLocker.luau` v5; controller `client/Controllers/LockerController`.
+
+### Emblem art: ChatGPT prompt (paste into the icons chat)
+> Make a set of 10 emblem icons for skin collections in a stylised Roblox shooter. Each emblem is a **single flat white shape on a transparent background** (it gets tinted in-game), bold and readable at 14 px and at 64 px. Fill a square, centred, with no text, no letters, no outlines, no gradients, no 3D and no drop shadows. They are sharp and geometric: **no round curves or circles**; curves are made of angled facets, and the corners are chamfered, not blunt. All ten share one visual family, like a set of faction marks.
+> 1. **Default:** a simple chamfered hexagon plate with a notch.
+> 2. **Prism:** a faceted gem or prism with a split facet.
+> 3. **Redline:** a drafting-blueprint mark: a set square and a sharp line.
+> 4. **Nitrous:** an abstract burst of hard angular shards (explosive speed).
+> 5. **PopCircuit:** a sparkle star with angular "bubble" facets (anime pop).
+> 6. **Moltframe:** an insect-armour carapace of three overlapping plates with a slit.
+> 7. **Giltfold:** a folded fan of three pleats (folded card).
+> 8. **Sealwork:** a clipped-corner square seal with a stepped border (a stamp seal).
+> 9. **Payload:** a spacecraft or satellite mark, an angular capsule with two fins.
+> 10. **Inkshift:** a comic-panel mecha visor, an angular helmet slit with an ink stroke.
+>
+> Output each as its own 512x512 PNG with a transparent background, white only, named `emblem_<name>.png`, plus one contact sheet of all 10 on dark grey.
+
+Then upload the PNGs (Open Cloud, like the bar icons) and put the ids in `Shared/Locker.EMBLEMS`.
