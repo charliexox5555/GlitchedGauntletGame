@@ -124,8 +124,9 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 ## src/lobby (Lobby place)
 | Module | Owns |
 |---|---|
-| `server/Services/QueueService` | solo queue per mode, bot fill after `Config.botFillAfter`; attrs `QueueStatus`, `QueueMode`, `QueueSince`, `QueueStartsAt` |
-| `server/Matchmaking/Launcher`, `Matchmaker` | forms a match and teleports to a reserved Match server; the Lobby → Match TeleportData contract |
+| `server/Services/QueueService` | queue per mode (a Roblox party queues as one group on one team; the leader starts, anyone cancels), bot fill after `Config.botFillAfter`; attrs `QueueStatus`, `QueueMode`, `QueueSince`, `QueueStartsAt` |
+| `server/Matchmaking/Parties` | groups this lobby server's players by Roblox party (`Player.PartyId`, leader = first to join it via `SocialService:GetPartyAsync`); attrs `PartyKey` (local key, never the real id), `PartyLeader`; Studio test attr `TestPartyId` |
+| `server/Matchmaking/Launcher`, `Matchmaker` | packs queued groups into two teams without splitting a party, forms a match and teleports to a reserved Match server; the Lobby → Match TeleportData contract |
 | `client/Controllers/QueueMenu` | full-screen PLAY menu (1v1 / 2v2 / 3v3, FIND MATCH) |
 | `client/Controllers/LobbyHud`, `Panels`, `WorldPrompts` | the lobby HUD (desktop: the Studio-built StarterGui ScreenGuis `LobbyProfile`, `LobbyPlayerList`, `LobbyBar`, `LobbyToast` and `LobbyTasks` (off) through `client/Util/LobbyHudView`: profile, player list with level and win streak, bottom bar, PLAY, party, toasts; phones keep the old v2 dock; backup `tools/studio/BuildLobbyHud.luau`), placeholder menus (Shop, Battle Pass, Locker, Settings, Range), ProximityPrompts on tagged world parts |
 | `client/Util/*`, `shared/Config`, `shared/LobbyNet` | menu kit, layout, router, icons; config; the lobby remotes |

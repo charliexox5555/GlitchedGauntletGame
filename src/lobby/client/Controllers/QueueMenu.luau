@@ -200,6 +200,11 @@ local function findMatch()
 		return
 	end
 	local s = QueueState.status()
+	if not QueueState.isLeader() then
+		Sound.play("Denied")
+		LobbyHud.toast("Your party leader starts the search", "info")
+		return
+	end
 	if s == "idle" or (s == "searching" and QueueState.mode() ~= selected) then
 		pendingUntil = os.clock() + 1.5
 		Sound.play("LockIn")
@@ -582,6 +587,7 @@ local function refreshAction()
 	status.Visible = not idle and not switching
 	findLabel.Text = if os.clock() < pendingUntil
 		then "JOINING..."
+		elseif not QueueState.isLeader() then "LEADER STARTS"
 		elseif switching then `SWITCH TO {string.upper(selected)}`
 		else "FIND MATCH"
 	if s == "searching" then

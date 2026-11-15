@@ -51,6 +51,16 @@ function QueueState.botFillAfter(): number
 	return num(LobbyNet.folder:GetAttribute("BotFillAfter")) or Config.botFillAfter
 end
 
+-- Roblox party (server attributes from Matchmaking/Parties): solo players
+-- lead themselves; in a party only the leader starts a search.
+function QueueState.inParty(): boolean
+	return typeof(player:GetAttribute("PartyKey")) == "string"
+end
+
+function QueueState.isLeader(): boolean
+	return player:GetAttribute("PartyLeader") ~= false
+end
+
 function QueueState.join(mode: string)
 	LobbyNet.event("QueueRequest"):FireServer("join", mode)
 end
@@ -77,7 +87,9 @@ local function fire()
 	end)
 end
 
-for _, name in { "QueueStatus", "QueueMode", "QueueSince", "QueueStartsAt" } do
+for _, name in
+	{ "QueueStatus", "QueueMode", "QueueSince", "QueueStartsAt", "PartyKey", "PartyLeader" }
+do
 	player:GetAttributeChangedSignal(name):Connect(fire)
 end
 LobbyNet.folder.AttributeChanged:Connect(fire)

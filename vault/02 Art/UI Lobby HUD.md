@@ -96,7 +96,7 @@ The owner picked all four groups as pill-like: player list badges and rows, the 
 - **`src/lobby/client/Util/LobbyHudView.luau`** fills and animates it; `Controllers/LobbyHud` uses it on desktop. Phones keep the old v2 dock, and `LobbyHud.toast` goes to the new toast.
   - **Bar:** Locker, Shop, Pass, Range, Settings open their menus through `Router.toggle`. On hover the icon grows and lifts and the name turns gold.
   - **PLAY:** opens the Play menu. While searching it is navy (mode, timer, CLICK TO CANCEL; a click leaves the queue). MATCH FOUND is green.
-  - **Party:** your portrait, and + opens Roblox's game invite prompt.
+  - **Party:** you, then the friends in your Roblox party who are here (a gold LEAD tag on the leader); + opens the party card (see Functionality pass).
   - **Player list** (owner: "will show level and win streak"): everyone in this lobby, you first, with portrait, name, where they are (IN LOBBY / QUEUED · mode / JOINING A MATCH, read from the server's `QueueStatus` / `QueueMode` attributes), an orange **win streak** tag and the gold **level** tag, under STREAK / LV column labels. 8 rows, then "+N MORE". Roblox's own player list is hidden.
   - **Menus:** while a menu is open the corners step up and the bottom slides away, so the menu's title and close button are clear.
 - **Placeholders until the data exists:** level and XP (`Level`, `XpShare` player attributes; LV 1 today), win streak (`WinStreak`; 0, shown dimmer), badges (`setBadge`), the callout (`callout`), daily tasks (`setTasks`, panel hidden).
@@ -108,3 +108,16 @@ The owner picked all four groups as pill-like: player list badges and rows, the 
 
 Live: ![live](References/ui-overhaul/2026-11-14-lobby-hud-live.jpg)
 Searching: ![searching](References/ui-overhaul/2026-11-14-lobby-hud-live-searching.jpg)
+
+## Functionality pass (owner, 2026-11-14)
+Owner: "Tab should open/close leaderboard... better animations... the + should use the Roblox party feature... queue together" ("Roblox has a built in party system... rivals uses it").
+
+- **Tab** shows / hides the player list like Roblox's own (it slides off to the right and springs back; ignored while typing).
+- **Roblox parties** (research: Roblox Party API, June 2025; LihFolk *Parties and Group Teleports*): parties are made in Roblox (the Party button in the Roblox menu or app). A game **can't create a party or send a party invite**; it can read `Player.PartyId` (server only), `SocialService:GetPartyAsync` / `GetPlayersByPartyId`, and teleport members together. So:
+  - `server/Matchmaking/Parties` groups the players here by party; the leader is the first to join the Roblox party. Clients get `PartyKey` / `PartyLeader` attributes.
+  - The queue takes a party as **one group on one team**: only the leader starts a search (the whole party goes; a party bigger than the mode gets a message), anyone can cancel for all, a friend who arrives mid-search joins it, and a party that no longer fits stops with a message. The matchmaker never splits a group (checked: duo + 2 solos, two duos, solo/duo/solo, trio + duo with bot fill).
+  - HUD: party slots pop in and out; **+** opens a **party card** (SOLO / PARTY OF N, who leads, how Roblox parties work here, INVITE FRIENDS TO THE GAME = Roblox's game invite). PLAY reads YOUR LEADER STARTS and the Play menu's button LEADER STARTS for non-leaders.
+  - Studio can't test real parties: use Studio's **Party Simulator** (Server & Clients test) or set a `TestPartyId` attribute on players from the server. **Not yet tested with a real party** (needs the simulator or a published place).
+- **Motion** (coil, snap, overshoot, settle): staggered intro (corners drop, list rows open one by one, bar icons pop up in turn, PLAY lands), hover lifts with a spring, presses coil and bounce back, PLAY pops when its state changes, new players' rows open in, the bottom springs back after a menu, toasts pop in and shrink away.
+- **Studio:** patched in place (not rebuilt, to keep hand edits): `LobbyBar.Bottom.Party` (You + Invite, a row that grows), `PartyCard`, template `UiTemplates.Lobby.PartySlot`, `Pop` UIScales on the bar icons and the toast. Builder updated to match.
+- **Icons:** ChatGPT drew a first sheet (faceted locker, bag, chevron shield, gear: good; Range read as a health pickup, redo as a target). Not saved yet; the prompt is in this session's history, files go to `art-source/ui/lobby-icons/`.

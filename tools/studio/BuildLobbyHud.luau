@@ -3,7 +3,7 @@
 -- LOBBY place:
 --   StarterGui.LobbyProfile, LobbyTasks, LobbyPlayerList, LobbyBar, LobbyToast
 --                                          <- src/lobby/client/Util/LobbyHudView
---   ReplicatedStorage.UiTemplates.Lobby.PlayerRow
+--   ReplicatedStorage.UiTemplates.Lobby.PlayerRow, PartySlot
 -- Studio owns them; this is their backup. Paste into the command bar (Edit
 -- mode); refuses to run if they exist. Desktop only for now.
 --
@@ -11,7 +11,8 @@
 -- (the script sets it), so they hold the corners on any screen:
 --   TopLeft   profile; daily tasks (hidden until a tasks system feeds it)
 --   TopRight  the player list
---   Bottom    the bar (Locker, Shop, Pass, Range, Settings), PLAY, party, callout
+--   Bottom    the bar (Locker, Shop, Pass, Range, Settings), PLAY, the party row
+--             (you, your Roblox party, +) and its card, callout
 --   Toast     short messages, top centre
 -- Sharp slanted shapes (no pills): near-square corners, slant caps on tags and
 -- slabs; the party portraits are circles.
@@ -142,6 +143,86 @@ local function group(
 	return g
 end
 
+-- A party slot: a fixed 60x72 holder with a centred ring (its "Pop" UIScale
+-- pops it from the centre), the disc with a headshot (or the +), and a small
+-- gold LEAD tag under the leader.
+local function partySlot(
+	parent: Instance,
+	name: string,
+	ringColor: Color3,
+	plus: boolean?
+): GuiObject
+	local holder = make(if plus then "TextButton" else "Frame", {
+		Name = name,
+		Size = UDim2.fromOffset(60, 72),
+		BackgroundTransparency = 1,
+		ZIndex = 2,
+	}, parent)
+	if holder:IsA("TextButton") then
+		holder.Text = ""
+		holder.AutoButtonColor = false
+	end
+	local ring = make("Frame", {
+		Name = "Ring",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(30, 32),
+		Size = UDim2.fromOffset(60, 60),
+		BackgroundColor3 = ringColor,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, holder)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, ring)
+	make("UIScale", { Name = "Pop" }, ring)
+	local disc = make("Frame", {
+		Name = "Disc",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(52, 52),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+		ZIndex = 3,
+	}, ring)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, disc)
+	if plus then
+		text(
+			disc,
+			"Plus",
+			"+",
+			26,
+			WHITE,
+			{ AutomaticSize = Enum.AutomaticSize.None, Size = UDim2.fromScale(1, 1) }
+		)
+	else
+		local img = make("ImageLabel", {
+			Name = "Headshot",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			ZIndex = 4,
+		}, disc)
+		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, img)
+		local lead = make("Frame", {
+			Name = "Lead",
+			AnchorPoint = CENTRE,
+			Position = UDim2.new(0.5, 0, 1, 2),
+			Size = UDim2.fromOffset(34, 14),
+			BackgroundColor3 = GOLD,
+			BorderSizePixel = 0,
+			ZIndex = 6,
+			Visible = false,
+		}, ring)
+		slant(lead, GOLD, 14, 6, true)
+		text(
+			lead,
+			"Label",
+			"LEAD",
+			9,
+			INK,
+			{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 7 }
+		)
+	end
+	return holder
+end
+
 -- Templates -------------------------------------------------------------------
 local templates = RS:FindFirstChild("UiTemplates") or make("Folder", { Name = "UiTemplates" }, RS)
 local oldT = templates:FindFirstChild("Lobby")
@@ -207,6 +288,8 @@ do -- PlayerRow: portrait, name, where they are, win streak and level tags
 	slant(st, ORANGE, 28, 10, true)
 	text(st, "Value", "0", 14, INK, { AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5) })
 end
+
+partySlot(folder, "PartySlot", ALLY) -- a friend in your Roblox party
 
 -- One ScreenGui per part (like the match's TopBar / BottomHud / Notify), all
 -- in StarterGui so they can be edited in Explorer. Enabled = shown in Studio;
@@ -524,6 +607,7 @@ do -- Bottom: bar, PLAY, party, callout
 			ImageColor3 = it[3],
 			ZIndex = 6,
 		}, b)
+		make("UIScale", { Name = "Pop" }, b:FindFirstChild("Icon"))
 		text(
 			b,
 			"Label",
@@ -595,53 +679,122 @@ do -- Bottom: bar, PLAY, party, callout
 		Position = UDim2.fromOffset(pw / 2, 58),
 		TextTransparency = 0.3,
 	})
-	-- party: you and an invite slot (circles with rings)
-	for i = 1, 2 do
-		local cx = px + pw + 16 + (i - 1) * 66 + 30
-		local cy = py + ph / 2
-		local ring = make(if i == 2 then "TextButton" else "Frame", {
-			Name = if i == 1 then "PartyYou" else "Invite",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromOffset(cx, cy),
-			Size = UDim2.fromOffset(60, 60),
-			BackgroundColor3 = if i == 1 then ALLY else NAVY_HI,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		}, g)
-		if ring:IsA("TextButton") then
-			ring.Text = ""
-			ring.AutoButtonColor = false
-		end
-		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, ring)
-		local disc = make("Frame", {
-			Name = "Disc",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(52, 52),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-		}, ring)
-		make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, disc)
-		if i == 1 then
-			local img = make("ImageLabel", {
-				Name = "Headshot",
-				Size = UDim2.fromScale(1, 1),
-				BackgroundTransparency = 1,
-				ZIndex = 4,
-			}, disc)
-			make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, img)
-		else
-			text(
-				disc,
-				"Plus",
-				"+",
-				26,
-				WHITE,
-				{ AutomaticSize = Enum.AutomaticSize.None, Size = UDim2.fromScale(1, 1) }
-			)
-		end
-	end
+	-- party: you, your Roblox party here, and the + (a row that grows; the
+	-- script clones UiTemplates.Lobby.PartySlot for each friend)
+	local party = make("Frame", {
+		Name = "Party",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.fromOffset(px + pw + 14, py + ph / 2 + 6),
+		Size = UDim2.fromOffset(0, 72),
+		AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundTransparency = 1,
+		ZIndex = 2,
+	}, g)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		Padding = UDim.new(0, 6),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, party)
+	local you = partySlot(party, "You", ALLY)
+	you.LayoutOrder = 1
+	local inviteSlot = partySlot(party, "Invite", NAVY_HI, true)
+	inviteSlot.LayoutOrder = 99
+	-- the party card: opens from the +, says how Roblox parties work here
+	local cardW, cardH = 330, 186
+	local card = make("Frame", {
+		Name = "PartyCard",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(px + pw + 14 + cardW / 2, py - 20 - cardH / 2),
+		Size = UDim2.fromOffset(cardW, cardH),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+		ZIndex = 10,
+		Visible = false,
+	}, g)
+	corner(card)
+	make("UIScale", { Name = "Pop" }, card)
+	local cardHead = make("Frame", {
+		Name = "Head",
+		Size = UDim2.fromOffset(cardW, 36),
+		BackgroundColor3 = NAVY_HI,
+		BorderSizePixel = 0,
+		ZIndex = 10,
+	}, card)
+	corner(cardHead)
+	local cardBlock = make("Frame", {
+		Name = "Block",
+		Size = UDim2.fromOffset(110, 36),
+		BackgroundColor3 = ALLY,
+		BorderSizePixel = 0,
+		ZIndex = 11,
+	}, cardHead)
+	make("ImageLabel", {
+		Name = "Cap",
+		Position = UDim2.new(1, -1, 0, 0),
+		Size = UDim2.fromOffset(16, 36),
+		BackgroundTransparency = 1,
+		Image = CAP_R,
+		ImageColor3 = ALLY,
+		ZIndex = 11,
+	}, cardBlock)
+	text(
+		cardBlock,
+		"Label",
+		"PARTY",
+		14,
+		INK,
+		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 14, 0.5, 0), ZIndex = 12 }
+	)
+	text(cardHead, "Count", "SOLO", 11, MUTED, {
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -14, 0.5, 0),
+		ZIndex = 12,
+	})
+	text(
+		card,
+		"Status",
+		"NOT IN A PARTY",
+		15,
+		WHITE,
+		{ Position = UDim2.fromOffset(16, 48), ZIndex = 12 }
+	)
+	text(
+		card,
+		"Help",
+		"Make a party in Roblox (the Party button in the Roblox menu). Everyone in it who is here queues with you, on your team.",
+		11,
+		MUTED,
+		{
+			AutomaticSize = Enum.AutomaticSize.None,
+			Position = UDim2.fromOffset(16, 74),
+			Size = UDim2.fromOffset(cardW - 32, 46),
+			TextWrapped = true,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextYAlignment = Enum.TextYAlignment.Top,
+			FontFace = Font.new(BX, Enum.FontWeight.Bold),
+			ZIndex = 12,
+		}
+	)
+	local inviteBtn = make("TextButton", {
+		Name = "InviteFriends",
+		Position = UDim2.fromOffset(30, cardH - 52),
+		Size = UDim2.fromOffset(cardW - 60, 38),
+		BackgroundColor3 = GOLD,
+		BorderSizePixel = 0,
+		Text = "",
+		AutoButtonColor = false,
+		ZIndex = 12,
+	}, card)
+	slant(inviteBtn, GOLD, 38, 14, true)
+	text(
+		inviteBtn,
+		"Label",
+		"INVITE FRIENDS TO THE GAME",
+		13,
+		INK,
+		{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 13 }
+	)
 	-- callout: a slanted red tag with a pointer (the script places it over an item)
 	local cw, chh = 250, 40
 	local callout = make("Frame", {
@@ -695,6 +848,7 @@ do -- Toast: top centre, a navy plate led by a slanted colour block
 		Visible = false,
 	}, g)
 	corner(plate)
+	make("UIScale", { Name = "Pop" }, plate)
 	make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Horizontal,
 		VerticalAlignment = Enum.VerticalAlignment.Center,

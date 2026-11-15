@@ -36,6 +36,8 @@ Style: Theme tokens and the cut-corner 9-slice kit from the match HUD (`Config/T
 **Other panels (`Panels`)**: same chrome, a believable skeleton with a shimmer, and a gold COMING SOON line: Shop (featured card + 6 items), Battle Pass (tier bar, premium and free tracks), Locker (real gun renders for Primary / Secondary / Melee, click to preview), Settings (a working **UI sounds** toggle; the rest marked SOON), Range (what it will be).
 
 ## 3. Queue system (server)
+> **Parties (2026-11-14):** the queue is no longer solo-only. A Roblox party in this lobby server queues as **one group on one team** (`Matchmaking/Parties` reads `Player.PartyId`; the leader starts the search, anyone cancels, the matchmaker never splits a group). Details: [UI Lobby HUD → Functionality pass](../02%20Art/UI%20Lobby%20HUD.md).
+
 `src/lobby/server/Services/QueueService.luau` (state, remotes), `Matchmaking/Matchmaker.luau` (pure rules), `Matchmaking/Launcher.luau` (reserve + teleport). Numbers: `src/lobby/shared/Config.luau` (`ReplicatedStorage.Lobby.Config`, lobby-only so it isn't in Shared/Config).
 
 | Config | Value | Meaning |

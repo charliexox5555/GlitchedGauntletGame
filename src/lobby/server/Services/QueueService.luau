@@ -1,9 +1,15 @@
 --!strict
--- Server-authoritative solo queue per mode (vault/01 Design/Lobby UI and Queue.md).
--- A mode launches as soon as it fills; otherwise, once its oldest player has
+-- Server-authoritative queue per mode (vault/01 Design/Lobby UI and Queue.md).
+-- A mode launches as soon as it fills; otherwise, once its oldest group has
 -- waited Config.botFillAfter (Studio: botFillAfterStudio), everyone waiting
 -- goes with bots in the empty slots. The client only asks to join or leave;
 -- every state lives in server-owned attributes (see Lobby/LobbyNet).
+--
+-- Parties (Matchmaking/Parties): a Roblox party here queues as one group on
+-- one team. Only its leader starts the queue (the whole party goes in that
+-- mode); anyone in it can cancel for all. A party change while searching
+-- re-forms the group (a friend who arrives joins the search) or, if it no
+-- longer fits the mode, stops it with a message.
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -16,6 +22,7 @@ local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 
 local Launcher = require(script.Parent.Parent.Matchmaking.Launcher)
 local Matchmaker = require(script.Parent.Parent.Matchmaking.Matchmaker)
+local Parties = require(script.Parent.Parent.Matchmaking.Parties)
 
 type Status = "idle" | "searching" | "found" | "teleporting"
 type State = { status: Status, mode: string?, matchId: string? }
@@ -49,20 +56,52 @@ end
 
 local function updateCounts()
 	for mode, queue in queues do
-		LobbyNet.folder:SetAttribute(LobbyNet.countAttribute(mode), #queue)
+		LobbyNet.folder:SetAttribute(LobbyNet.countAttribute(mode), Matchmaker.count(queue))
 	end
 end
 
-local function removeFromQueue(player: Player): boolean
-	for _, queue in queues do
-		for i, entry in queue do
-			if entry.player == player then
-				table.remove(queue, i)
-				return true
+-- The queued group a player is in, and its mode.
+local function entryOf(player: Player): (Matchmaker.Entry?, string?)
+	for mode, queue in queues do
+		for _, entry in queue do
+			if table.find(entry.players, player) then
+				return entry, mode
 			end
 		end
 	end
-	return false
+	return nil, nil
+end
+
+local function removeEntry(entry: Matchmaker.Entry)
+	for _, queue in queues do
+		local i = table.find(queue, entry)
+		if i then
+			table.remove(queue, i)
+			return
+		end
+	end
+end
+
+-- Takes the player's whole group out of its queue; returns that group.
+local function removeFromQueue(player: Player): Matchmaker.Entry?
+	local entry = entryOf(player)
+	if entry then
+		removeEntry(entry)
+	end
+	return entry
+end
+
+-- Queues stay oldest first (the bot-fill timer reads the first group).
+local function insertEntry(mode: string, entry: Matchmaker.Entry)
+	local queue = queues[mode]
+	local at = #queue + 1
+	for i, other in queue do
+		if other.since > entry.since then
+			at = i
+			break
+		end
+	end
+	table.insert(queue, at, entry)
 end
 
 local function send(player: Player, payload: LobbyNet.QueueEventPayload)
@@ -82,19 +121,25 @@ local function backToLobby(player: Player, matchId: string, text: string?)
 	end
 end
 
-local function launch(info: Config.ModeInfo, entries: { Matchmaker.Entry })
+local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
 	local matchId = HttpService:GenerateGUID(false)
 	local players: { Player } = {}
-	local ids: { number } = {}
-	for _, entry in entries do
-		removeFromQueue(entry.player)
-		table.insert(players, entry.player)
-		table.insert(ids, entry.player.UserId)
+	for _, entry in pick.entries do
+		removeEntry(entry)
+		for _, p in entry.players do
+			table.insert(players, p)
+		end
 	end
 	updateCounts()
 
 	local startsAtServer = serverNow() + Config.matchFoundDelay
-	local teams = Matchmaker.teams(ids)
+	local teams: { { number } } = {}
+	for t, team in pick.teams do
+		teams[t] = {}
+		for _, p in team do
+			table.insert(teams[t], p.UserId)
+		end
+	end
 	for _, p in players do
 		setState(p, "found", info.id, matchId)
 		p:SetAttribute("QueueStartsAt", startsAtServer)
@@ -168,41 +213,153 @@ end
 local function tick()
 	local now = os.clock()
 	for _, info in Config.MODES do
-		local group = Matchmaker.pick(queues[info.id], info.teamSize, now, FILL_AFTER)
-		if group then
-			task.spawn(launch, info, group)
+		local pick = Matchmaker.pick(queues[info.id], info.teamSize, now, FILL_AFTER)
+		if pick then
+			task.spawn(launch, info, pick)
 		end
 	end
 end
 
-local function join(player: Player, info: Config.ModeInfo)
-	local state = states[player]
-	if not state then
-		return
+-- Puts a group in a mode's queue (keeping `since` when it re-forms).
+local function enqueue(members: { Player }, info: Config.ModeInfo, since: number)
+	insertEntry(info.id, { players = members, since = since })
+	local sinceServer = serverNow() - (os.clock() - since)
+	for _, m in members do
+		setState(m, "searching", info.id)
+		m:SetAttribute("QueueSince", sinceServer)
 	end
-	if state.status == "searching" then
-		if state.mode == info.id then
-			return
+end
+
+-- Everyone in the group must be free to queue (idle, or searching: a new
+-- PLAY moves them).
+local function free(members: { Player }): boolean
+	for _, m in members do
+		local s = states[m]
+		if not s or (s.status ~= "idle" and s.status ~= "searching") then
+			return false
 		end
-		removeFromQueue(player) -- switching modes restarts the wait
-	elseif state.status ~= "idle" then
+	end
+	return true
+end
+
+local function join(player: Player, info: Config.ModeInfo)
+	local members = Parties.members(player)
+	if members[1] ~= player then
+		send(player, { kind = "info", text = "Your party leader starts the search" })
 		return
 	end
-	table.insert(queues[info.id], { player = player, since = os.clock() })
-	setState(player, "searching", info.id)
-	player:SetAttribute("QueueSince", serverNow())
+	if #members > info.teamSize then
+		send(player, {
+			kind = "failed",
+			text = `Your party has {#members} players: pick {#members}V{#members}`,
+		})
+		return
+	end
+	local current, mode = entryOf(player)
+	if current and mode == info.id and #current.players == #members then
+		return
+	end
+	if not free(members) then
+		return
+	end
+	for _, m in members do
+		removeFromQueue(m) -- switching modes restarts the wait
+	end
+	enqueue(members, info, os.clock())
+	for i, m in members do
+		if i > 1 then
+			send(m, {
+				kind = "info",
+				text = `{string.upper(player.DisplayName)} started a {string.upper(info.id)} search`,
+			})
+		end
+	end
 	updateCounts()
 	tick()
 end
 
+-- Anyone in a queued party can cancel; it stops for the whole party.
 local function leave(player: Player)
 	local state = states[player]
 	if not state or state.status ~= "searching" then
 		return
 	end
-	removeFromQueue(player)
-	setState(player, "idle")
+	local entry = removeFromQueue(player)
+	for _, m in if entry then entry.players else { player } do
+		if m.Parent == Players and states[m] then
+			setState(m, "idle")
+			if m ~= player then
+				send(
+					m,
+					{
+						kind = "info",
+						text = `{string.upper(player.DisplayName)} stopped the search`,
+					}
+				)
+			end
+		end
+	end
 	updateCounts()
+end
+
+-- A party changed (someone joined or left it, or this server): each queued
+-- group holding one of these players re-forms around its leader's current
+-- party in the same mode and keeps its wait, or stops if it no longer fits.
+type Redo = { leader: Player, mode: string, since: number, was: { Player } }
+
+local function onPartyChanged(players: { Player })
+	local redo: { Redo } = {}
+	for _, p in players do
+		local entry, mode = entryOf(p)
+		if entry and mode then
+			removeEntry(entry)
+			for _, m in entry.players do
+				if m.Parent == Players and states[m] then
+					setState(m, "idle")
+				end
+			end
+			table.insert(
+				redo,
+				{ leader = entry.players[1], mode = mode, since = entry.since, was = entry.players }
+			)
+		end
+	end
+	for _, r in redo do
+		local info = Config.MODE_BY_ID[r.mode]
+		-- the old leader left: the next one still here takes the group on
+		local anchor: Player? = nil
+		for _, m in r.was do
+			if Parties.isHere(m) and states[m] then
+				anchor = m
+				break
+			end
+		end
+		if not anchor or entryOf(anchor) then
+			continue
+		end
+		local members = Parties.members(anchor)
+		if info and #members <= info.teamSize and free(members) then
+			enqueue(members, info, r.since)
+			for _, m in members do
+				if not table.find(r.was, m) then
+					send(m, {
+						kind = "info",
+						text = `You joined your party's {string.upper(info.id)} search`,
+					})
+				end
+			end
+		else
+			for _, m in r.was do
+				if m.Parent == Players and states[m] and not entryOf(m) then
+					send(m, { kind = "failed", text = "Your party changed, so the search stopped" })
+				end
+			end
+		end
+	end
+	if #redo > 0 then
+		updateCounts()
+		tick()
+	end
 end
 
 -- Rejected requests are dropped and counted, never kicked; a summary is
@@ -264,7 +421,7 @@ local function requeueFromMatch(player: Player)
 		return
 	end
 	local info = Config.MODE_BY_ID[mode]
-	if info and info.enabled then
+	if info and info.enabled and Parties.leader(player) == player then
 		join(player, info)
 	end
 end
@@ -288,12 +445,17 @@ function QueueService.start()
 		onPlayerAdded(p)
 	end
 	Players.PlayerRemoving:Connect(function(player)
-		if removeFromQueue(player) then
+		-- a queued party's rest is re-formed by Parties.onChanged
+		local entry = entryOf(player)
+		if entry and #entry.players == 1 then
+			removeEntry(entry)
 			updateCounts()
 		end
 		states[player] = nil
 		limiter:forget(player)
 	end)
+	Parties.onChanged(onPartyChanged)
+	Parties.start()
 	task.spawn(function()
 		while true do
 			task.wait(Config.rejectLogInterval)
