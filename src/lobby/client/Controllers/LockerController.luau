@@ -1,19 +1,21 @@
 --!strict
--- The Locker (vault/02 Art/UI Locker.md): equip a skin per gun on a live 3D
--- gun you can turn. The screen is Studio-built (StarterGui.Locker, templates
--- UiTemplates.Lobby.GunCard / SkinCard / GunGroup, backup
+-- The Locker v3 (vault/02 Art/UI Locker.md): equip a skin per gun on a big 3D
+-- gun you can turn, RIVALS-style. The screen is Studio-built (StarterGui.Locker,
+-- templates UiTemplates.Lobby.GunCard / SkinCard / GunGroup, backup
 -- tools/studio/BuildLocker.luau); this fills and animates it.
 --
--- Opening it (Router "Locker", no blur) clones ReplicatedStorage.LockerStage
--- into a full-screen ViewportFrame behind the UI and puts the selected gun on
--- the plinth. (A real far-off set with the camera cut there was tried first:
--- Roblox lights the area round the camera progressively, so it opened dark
--- for ~3 s. The ViewportFrame lights instantly, needs no camera move or
--- streaming, and works the same on phones.) Left: every gun as a picture card by class.
--- Right: that gun's skins as picture cards; clicking one puts it on the
--- stand, EQUIP asks the server (LockerRequest, Services/LockerService) which
--- sets the Skin_<gun> attribute this reads. Drag on the stage to turn the gun,
--- scroll to zoom; it turns slowly on its own when left alone.
+-- Opening it (Router "Locker", no blur) draws the gun in a full-screen
+-- ViewportFrame on flat blue behind the UI (a real far-off set opened dark for
+-- ~3 s: Roblox lights the area round the camera progressively). Left: every gun
+-- as a card with its in-game icon, by class. Right: that gun's skins with a
+-- live picture each. A selected card is a solid colour. Clicking a skin puts it
+-- on the stand; EQUIP asks the server (LockerRequest, Services/LockerService),
+-- which sets the Skin_<gun> attribute this reads.
+--
+-- Turning (owner: "rotate it around like all directions, then it goes back to
+-- its original position like RIVALS"): drag on the stage turns the gun about
+-- the screen's axes, any way; letting go tweens it back to its pose. It never
+-- turns on its own. Scroll zooms.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,6 +25,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Router = require(script.Parent.Parent.Util.Router)
 local Sound = require(script.Parent.Parent.Util.Sound)
@@ -31,13 +34,14 @@ local LockerController = {}
 
 local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
-local NAVY, NAVY_HI = Color3.fromHex("1C2740"), Color3.fromHex("2B3A5A")
+local CARD = Color3.fromHex("0B1236")
+local CARD_T = 0.35
+local NAVY_HI = Color3.fromHex("2B3A5A")
 local ALLY, GOLD = Color3.fromHex("3FE0F2"), Color3.fromHex("FFC83D")
 local INK, WHITE = Color3.fromHex("141A26"), Color3.new(1, 1, 1)
-local BACK, QUINT = Enum.EasingStyle.Back, Enum.EasingStyle.Quint
+local QUINT, BACK = Enum.EasingStyle.Quint, Enum.EasingStyle.Back
 local OUT = Enum.EasingDirection.Out
 
--- class order on the left, and the header each gets
 local CLASSES = {
 	{ "Sidearm", "SIDEARMS" },
 	{ "SMG", "SMGS" },
@@ -47,9 +51,13 @@ local CLASSES = {
 	{ "MachineGun", "HEAVY" },
 	{ "Melee", "MELEE" },
 }
-local GUN_LENGTH = 3.9 -- studs on the stand (every gun scaled to about this)
+local GUN_LENGTH = 4.7 -- studs: every item is scaled to about this
 local FOV = 30
-local IDLE_SPIN = math.rad(9) -- per second, after a few seconds untouched
+-- the pose: the model's side toward the camera, muzzle up to the right
+local POSE_YAW = math.rad(-90 + 26) -- turned a little toward the camera
+local POSE_TILT = math.rad(24) -- muzzle raised, in screen space
+local DRAG_SPEED = math.rad(0.42) -- per pixel
+local ZOOM_MIN, ZOOM_MAX = 0.75, 1.3
 
 local gui: ScreenGui
 local canvas: Frame
@@ -66,19 +74,25 @@ local templates: Folder
 local isOpen = false
 local selectedGun = "Vandal"
 local previewLine = "Stock"
-local stage: Model? = nil
-local gunOnStand: Model? = nil
-local standBase: CFrame = CFrame.new()
-local cameraHome: CFrame = CFrame.new()
+local tab = "WEAPONS"
+local gunCards: { [string]: GuiButton } = {}
+
+-- stage
 local stageView: ViewportFrame? = nil
 local stageCam: Camera? = nil
-local yaw, pitch, zoom = 0, 0, 1
-local spinLeft = 0 -- radians of a swap spin still to turn (one full turn)
-local lastTouch = 0
-local dragging = false
+local gunOnStand: Model? = nil
+local standPos = Vector3.zero
+local cameraHome = CFrame.new()
 local renderConn: RBXScriptConnection? = nil
-local gunCards: { [string]: GuiButton } = {}
-local tab = "WEAPONS"
+-- the turn the player adds (camera space) and the swap entrance: values that
+-- tween back to identity; the zoom eases the same way
+local dragRot = Instance.new("CFrameValue")
+local swapRot = Instance.new("CFrameValue")
+local zoomValue = Instance.new("NumberValue")
+zoomValue.Value = 1
+local dragging = false
+local lastPos: Vector3? = nil
+local dragTween: Tween? = nil
 
 local function tween(
 	obj: Instance,
@@ -105,7 +119,6 @@ local function lineTitle(line: string): string
 	return if line == "Stock" then "DEFAULT" else string.upper(line)
 end
 
--- body + its slanted caps in one colour
 local function setFill(body: GuiObject, color: Color3)
 	body.BackgroundColor3 = color
 	for _, c in body:GetChildren() do
@@ -115,7 +128,47 @@ local function setFill(body: GuiObject, color: Color3)
 	end
 end
 
--- A picture of a real model in a ViewportFrame: side view, muzzle right.
+-- Models -------------------------------------------------------------------------------
+-- A clean, anchored copy laid out the same way for every item: longest side
+-- along Z (left-right on screen), thinnest along X (toward the camera), so a
+-- bat lies along the screen and a fan shows its open face, like the guns.
+local function presentable(source: Model): Model
+	local m = source:Clone()
+	for _, d in m:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+			d.CanCollide = false
+			d.CanQuery = false
+			d.CanTouch = false
+		elseif d:IsA("Script") or d:IsA("LocalScript") then
+			d:Destroy()
+		end
+	end
+	m:PivotTo(CFrame.new())
+	local _, size = m:GetBoundingBox()
+	local axes = { { "X", size.X }, { "Y", size.Y }, { "Z", size.Z } }
+	table.sort(axes, function(a, b)
+		return a[2] > b[2]
+	end)
+	-- where each of the model's axes should point: long -> Z, mid -> Y, short -> X
+	local target: { [string]: Vector3 } = {
+		[axes[1][1]] = Vector3.zAxis,
+		[axes[2][1]] = Vector3.yAxis,
+		[axes[3][1]] = Vector3.xAxis,
+	}
+	local vx, vy, vz = target.X, target.Y, target.Z
+	if vx:Cross(vy):Dot(vz) < 0 then
+		vz = -vz -- keep it a rotation, not a mirror
+	end
+	m:PivotTo(CFrame.fromMatrix(Vector3.zero, vx, vy, vz))
+	-- pivot at the centre so turning spins it in place
+	local box = m:GetBoundingBox()
+	m.WorldPivot = CFrame.new(box.Position)
+	m:PivotTo(CFrame.new())
+	return m
+end
+
+-- A live picture of a model (skin cards): side view, framed to fit.
 local function thumb(parent: GuiObject, model: Model, w: number, h: number, pos: UDim2)
 	local old = parent:FindFirstChild("Thumb")
 	if old then
@@ -130,49 +183,32 @@ local function thumb(parent: GuiObject, model: Model, w: number, h: number, pos:
 	vf.LightColor = WHITE
 	vf.LightDirection = Vector3.new(-0.6, -1, -0.4)
 	vf.ZIndex = parent.ZIndex + 1
-	local m = model:Clone()
-	for _, d in m:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = true
-		elseif d:IsA("Script") or d:IsA("LocalScript") then
-			d:Destroy()
-		end
-	end
-	m:PivotTo(CFrame.new())
+	local m = presentable(model)
 	local cf, size = m:GetBoundingBox()
 	m.Parent = vf
 	local cam = Instance.new("Camera")
 	cam.FieldOfView = 20
 	cam.Parent = vf
 	vf.CurrentCamera = cam
-	local half = math.max(size.Y, size.Z / (w / h)) / 2 * 0.98
+	local half = math.max(size.Y, size.Z / (w / h)) / 2 * 1.02
 	local dist = half / math.tan(math.rad(10)) + size.X / 2
 	cam.CFrame =
-		CFrame.lookAt(cf.Position + Vector3.new(dist, dist * 0.12, dist * 0.16), cf.Position)
+		CFrame.lookAt(cf.Position + Vector3.new(dist, dist * 0.1, dist * 0.12), cf.Position)
 	vf.Parent = parent
 end
 
--- Stage ------------------------------------------------------------------------------
-local function anchorClone(model: Model): Model
-	local m = model:Clone()
-	for _, d in m:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = true
-			d.CanCollide = false
-			d.CanQuery = false
-			d.CanTouch = false
-		elseif d:IsA("Script") or d:IsA("LocalScript") then
-			d:Destroy()
-		end
-	end
-	return m
+-- Stage -------------------------------------------------------------------------------
+local function poseCFrame(): CFrame
+	local camRot = cameraHome.Rotation
+	-- the player's turn, the swap entrance and the tilt are in camera space;
+	-- the yaw that shows the side is in model space
+	local screen = dragRot.Value * swapRot.Value * CFrame.Angles(0, 0, POSE_TILT)
+	return CFrame.new(standPos) * camRot * screen * camRot:Inverse() * CFrame.Angles(0, POSE_YAW, 0)
 end
 
--- Put `line` on `gunId` on the stand: scaled to one length, centred, then
--- turned by yaw / pitch every frame.
-local function placeGun(gunId: string, line: string, spin: boolean)
-	local s = stage
-	if not s then
+local function placeGun(gunId: string, line: string, animate: boolean)
+	local view = stageView
+	if not view then
 		return
 	end
 	local source = Locker.skinModel(gunId, line) or Locker.gunModel(gunId)
@@ -182,95 +218,72 @@ local function placeGun(gunId: string, line: string, spin: boolean)
 	if gunOnStand then
 		gunOnStand:Destroy()
 	end
-	local m = anchorClone(source)
+	local m = presentable(source)
 	m.Name = "Gun"
-	m:PivotTo(CFrame.new())
 	local _, size = m:GetBoundingBox()
-	local length = math.max(size.Z, size.Y, 0.5)
-	m:ScaleTo(math.clamp(GUN_LENGTH / length, 0.6, 3))
-	-- pivot at the bounding box centre (the model sits unrotated at the
-	-- origin here), so turning spins it in place over the plinth
-	local box = m:GetBoundingBox()
-	m.WorldPivot = CFrame.new(box.Position)
-	m.Parent = s
+	-- melee reads big for its length (a bat is mostly handle): a bit smaller,
+	-- so nothing reaches under the card columns
+	local cfg = Weapons.get(gunId)
+	local length = if cfg and cfg.class == "Melee" then GUN_LENGTH * 0.78 else GUN_LENGTH
+	m:ScaleTo(math.clamp(length / math.max(size.Z, 0.5), 0.5, 4))
+	m.Parent = view
 	gunOnStand = m
-	if spin then
-		spinLeft = math.pi * 2 -- one full turn that lands back on the same angle
-		lastTouch = os.clock()
+	if animate then
+		-- rises a little and settles into the pose
+		swapRot.Value = CFrame.new(0, -0.35, 0)
+			* CFrame.Angles(math.rad(-14), math.rad(-22), math.rad(-8))
+		tween(swapRot, 0.5, { Value = CFrame.new() }, BACK)
 	end
-end
-
-local function standCFrame(): CFrame
-	-- muzzle to the right (yaw -90), the hero angle, then the player's turn
-	return standBase
-		* CFrame.Angles(0, math.rad(-90 + 22) + yaw, 0)
-		* CFrame.Angles(math.rad(-8) + pitch, 0, 0)
+	m:PivotTo(poseCFrame())
 end
 
 local function onRender(dt: number)
 	local m = gunOnStand
-	if not m then
-		return
+	if m then
+		m:PivotTo(poseCFrame())
 	end
-	if spinLeft > 0.001 then
-		local step = math.max(spinLeft * math.min(1, dt * 5), math.min(spinLeft, dt * 0.6))
-		yaw += step
-		spinLeft -= step
-	elseif not dragging and os.clock() - lastTouch > 3 then
-		yaw += IDLE_SPIN * dt
-		pitch += (0 - pitch) * math.min(1, dt * 2) -- level out slowly
-	end
-	m:PivotTo(standCFrame())
 	local cam = stageCam
 	if cam then
 		local look = cameraHome.LookVector
-		local target = cameraHome.Position
-			+ look * (cameraHome.Position - standBase.Position).Magnitude * (1 - zoom)
-		cam.CFrame = cam.CFrame:Lerp(CFrame.lookAt(target, target + look), math.min(1, dt * 12))
+		local dist = (cameraHome.Position - standPos).Magnitude
+		local target = standPos - look * dist * zoomValue.Value
+		cam.CFrame = cam.CFrame:Lerp(CFrame.lookAt(target, target + look), math.min(1, dt * 14))
 	end
 end
 
 local function enterStage()
-	local template = ReplicatedStorage:FindFirstChild("LockerStage")
-	if not template then
+	local values = ReplicatedStorage:FindFirstChild("LockerStage")
+	if not values then
 		warn("[Locker] ReplicatedStorage.LockerStage missing (tools/studio/BuildLocker.luau)")
 		return
 	end
-	-- the stage lives in a full-screen ViewportFrame under the UI
+	local spot = values:FindFirstChild("GunSpot")
+	local camValue = values:FindFirstChild("CameraCFrame")
+	standPos = if spot and spot:IsA("CFrameValue") then spot.Value.Position else Vector3.zero
+	cameraHome = if camValue and camValue:IsA("CFrameValue")
+		then camValue.Value
+		else CFrame.lookAt(standPos + Vector3.new(0, 0.6, 11.5), standPos)
+	local bg = values:GetAttribute("Background")
 	local vf = Instance.new("ViewportFrame")
 	vf.Name = "Stage"
 	vf.Size = UDim2.fromScale(1, 1)
-	vf.BackgroundColor3 = Color3.fromHex("1D2B66")
+	vf.BackgroundColor3 = if typeof(bg) == "Color3" then bg else Color3.fromHex("2340D8")
 	vf.BorderSizePixel = 0
-	vf.Ambient = Color3.fromRGB(118, 128, 170)
+	vf.Ambient = Color3.fromRGB(150, 158, 196)
 	vf.LightColor = Color3.fromRGB(255, 250, 242)
-	vf.LightDirection = Vector3.new(-0.7, -1, -0.6)
+	vf.LightDirection = Vector3.new(-0.55, -1, -0.75)
 	vf.ZIndex = 0
-	local s = template:Clone() :: Model
-	s.Name = "LockerStageLocal"
-	for _, d in s:GetDescendants() do
-		if d:IsA("Light") then
-			d:Destroy() -- ViewportFrames use their own light
-		end
-	end
-	s.Parent = vf
-	stage = s
-	local spot = s:FindFirstChild("GunSpot")
-	local camValue = s:FindFirstChild("CameraCFrame")
-	standBase = if spot and spot:IsA("CFrameValue") then spot.Value else s:GetPivot()
-	cameraHome = if camValue and camValue:IsA("CFrameValue")
-		then camValue.Value
-		else standBase * CFrame.new(0, 1, 11)
 	local cam = Instance.new("Camera")
 	cam.FieldOfView = FOV
-	cam.CFrame = cameraHome * CFrame.new(0, 0, 3) -- glides in
+	cam.CFrame = cameraHome * CFrame.new(0, 0, 2.5) -- glides in
 	cam.Parent = vf
 	vf.CurrentCamera = cam
-	stageCam = cam
 	vf.Parent = gui
 	stageView = vf
-	yaw, pitch, zoom = 0, 0, 1
-	lastTouch = os.clock() -- hold the hero angle a moment before idling
+	stageCam = cam
+	dragRot.Value = CFrame.new()
+	swapRot.Value = CFrame.new()
+	zoomValue.Value = 1
 	renderConn = RunService.RenderStepped:Connect(onRender)
 end
 
@@ -283,14 +296,12 @@ local function leaveStage()
 		stageView:Destroy()
 		stageView = nil
 	end
-	stage = nil
 	stageCam = nil
 	gunOnStand = nil
+	dragging = false
 end
 
 -- Cards -------------------------------------------------------------------------------
-local refreshSkins: () -> () = function() end
-
 local function refreshEquip()
 	local equipped = equippedLine(selectedGun) == previewLine
 	setFill(equipButton, if equipped then NAVY_HI else GOLD)
@@ -321,114 +332,123 @@ local function refreshHeader()
 	local label = skinTag:FindFirstChild("Label")
 	if label and label:IsA("TextLabel") then
 		local class = if cfg
-			then string.upper(cfg.class == "MachineGun" and "HEAVY" or cfg.class)
+			then string.upper(if cfg.class == "MachineGun" then "HEAVY" else cfg.class)
 			else ""
 		label.Text = lineTitle(previewLine) .. "  ·  " .. class
 	end
 end
 
-local function preview(line: string, spin: boolean)
-	previewLine = line
-	placeGun(selectedGun, line, spin)
-	refreshHeader()
-	refreshEquip()
-	refreshSkins()
+-- a selected card is a solid colour; the rest are dark see-through plates
+local function styleCard(card: GuiButton, on: boolean, color: Color3)
+	tween(card, 0.14, {
+		BackgroundColor3 = if on then color else CARD,
+		BackgroundTransparency = if on then 0 else CARD_T,
+	})
+	local name = card:FindFirstChild("Name")
+	if name and name:IsA("TextLabel") then
+		name.TextColor3 = if on then INK else WHITE
+	end
 end
 
-local function refreshGunChips()
+local function refreshGunCards()
 	for gunId, card in gunCards do
+		styleCard(card, gunId == selectedGun, ALLY)
+		local icon = card:FindFirstChild("Icon")
+		if icon and icon:IsA("ImageLabel") then
+			icon.ImageColor3 = if gunId == selectedGun then INK else WHITE
+		end
 		local chip = card:FindFirstChild("Skin")
 		local line = equippedLine(gunId)
 		if chip and chip:IsA("GuiObject") then
 			chip.Visible = line ~= "Stock"
 			setFill(chip, Locker.COLORS[line] or WHITE)
 		end
-		local on = gunId == selectedGun
-		card.BackgroundColor3 = if on then ALLY else NAVY
-		card.BackgroundTransparency = if on then 0 else 0.08
-		local name = card:FindFirstChild("Name")
-		if name and name:IsA("TextLabel") then
-			name.TextColor3 = if on then INK else WHITE
-		end
 	end
 end
 
-local function selectGun(gunId: string)
-	selectedGun = gunId
-	refreshGunChips()
-	preview(equippedLine(gunId), true)
+local function hoverable(card: GuiButton)
+	local pop = Instance.new("UIScale")
+	pop.Name = "Pop"
+	pop.Parent = card
+	card.MouseEnter:Connect(function()
+		tween(pop, 0.12, { Scale = 1.03 })
+		Sound.play("Hover")
+	end)
+	card.MouseLeave:Connect(function()
+		tween(pop, 0.14, { Scale = 1 })
+	end)
+	card.Activated:Connect(function()
+		pop.Scale = 0.96
+		tween(pop, 0.22, { Scale = 1.03 }, BACK)
+	end)
 end
 
-refreshSkins = function()
-	-- rebuild only when the gun changed; otherwise restyle in place
-	local built = skinsList:GetAttribute("Gun") == selectedGun
-	if not built then
+local function refreshSkins()
+	if skinsList:GetAttribute("Gun") ~= selectedGun then
 		for _, c in skinsList:GetChildren() do
 			if c:IsA("GuiButton") then
 				c:Destroy()
 			end
 		end
 		skinsList:SetAttribute("Gun", selectedGun)
-		for i, line in Locker.linesFor(selectedGun) do
+		skinsList.CanvasPosition = Vector2.zero
+		local lines = Locker.linesFor(selectedGun)
+		for i, line in lines do
 			local card = (templates:WaitForChild("SkinCard") :: GuiButton):Clone()
 			card.Name = line
 			card.LayoutOrder = i
 			local model = Locker.skinModel(selectedGun, line)
 			if model then
-				thumb(card, model, 192, 100, UDim2.fromOffset(6, 4))
+				thumb(card, model, 220, 118, UDim2.fromOffset(8, 10))
 			end
-			local foot = child(card, "Foot") :: Frame
-			foot.BackgroundColor3 = Locker.COLORS[line] or WHITE
-			local name = child(foot, "Name") :: TextLabel
+			local swatch = card:FindFirstChild("Swatch")
+			if swatch and swatch:IsA("GuiObject") then
+				setFill(swatch, Locker.COLORS[line] or WHITE)
+			end
+			local name = child(card, "Name") :: TextLabel
 			name.Text = lineTitle(line)
-			local pop = Instance.new("UIScale")
-			pop.Name = "Pop"
-			pop.Parent = card
-			card.MouseEnter:Connect(function()
-				tween(pop, 0.16, { Scale = 1.04 }, BACK)
-				Sound.play("Hover")
-			end)
-			card.MouseLeave:Connect(function()
-				tween(pop, 0.16, { Scale = 1 })
-			end)
+			hoverable(card)
 			card.Activated:Connect(function()
 				if previewLine ~= line then
 					Sound.play("Select")
-					pop.Scale = 0.94
-					tween(pop, 0.3, { Scale = 1 }, BACK)
-					preview(line, true)
+					LockerController.preview(line)
 				end
 			end)
 			card.Parent = skinsList
-			-- cascade in
-			pop.Scale = 0.8
-			task.delay(0.03 * i, function()
-				tween(pop, 0.32, { Scale = 1 }, BACK)
-			end)
 		end
 		local count = canvas:FindFirstChild("SkinsCount")
 		if count and count:IsA("TextLabel") then
-			count.Text = string.format("%d OWNED", #Locker.linesFor(selectedGun))
+			count.Text = string.format("%d OWNED", #lines)
 		end
 	end
 	local equipped = equippedLine(selectedGun)
 	for _, card in skinsList:GetChildren() do
-		if not card:IsA("GuiButton") then
-			continue
-		end
-		local onStage = card.Name == previewLine
-		card.BackgroundColor3 = if onStage then NAVY_HI else NAVY
-		card.BackgroundTransparency = if onStage then 0 else 0.08
-		local foot = card:FindFirstChild("Foot")
-		local on = foot and foot:FindFirstChild("On")
-		if on and on:IsA("GuiObject") then
-			on.Visible = onStage
-		end
-		local eq = card:FindFirstChild("Equipped")
-		if eq and eq:IsA("GuiObject") then
-			eq.Visible = card.Name == equipped
+		if card:IsA("GuiButton") then
+			styleCard(card, card.Name == previewLine, Locker.COLORS[card.Name] or WHITE)
+			local swatch = card:FindFirstChild("Swatch")
+			if swatch and swatch:IsA("GuiObject") then
+				swatch.Visible = card.Name ~= previewLine -- the whole card is the colour
+			end
+			local eq = card:FindFirstChild("Equipped")
+			if eq and eq:IsA("GuiObject") then
+				eq.Visible = card.Name == equipped
+			end
 		end
 	end
+end
+
+function LockerController.preview(line: string)
+	previewLine = line
+	placeGun(selectedGun, line, true)
+	refreshHeader()
+	refreshEquip()
+	refreshSkins()
+end
+
+local function selectGun(gunId: string)
+	selectedGun = gunId
+	refreshGunCards()
+	LockerController.preview(equippedLine(gunId))
 end
 
 local function buildGuns()
@@ -468,28 +488,15 @@ local function buildGuns()
 			local card = (templates:WaitForChild("GunCard") :: GuiButton):Clone()
 			card.Name = id
 			card.LayoutOrder = i
-			local model = Locker.gunModel(id)
-			if model then
-				thumb(card, model, 188, 74, UDim2.fromOffset(8, 4))
-			end
+			local icon = child(card, "Icon") :: ImageLabel
+			icon.Image = Theme.GUN[id] or ""
 			local name = child(card, "Name") :: TextLabel
 			local cfg = Weapons.get(id)
 			name.Text = string.upper(if cfg then cfg.displayName else id)
-			local pop = Instance.new("UIScale")
-			pop.Name = "Pop"
-			pop.Parent = card
-			card.MouseEnter:Connect(function()
-				tween(pop, 0.16, { Scale = 1.04 }, BACK)
-				Sound.play("Hover")
-			end)
-			card.MouseLeave:Connect(function()
-				tween(pop, 0.16, { Scale = 1 })
-			end)
+			hoverable(card)
 			card.Activated:Connect(function()
 				if selectedGun ~= id then
 					Sound.play("Select")
-					pop.Scale = 0.94
-					tween(pop, 0.3, { Scale = 1 }, BACK)
 					selectGun(id)
 				end
 			end)
@@ -498,17 +505,26 @@ local function buildGuns()
 		end
 		group.Parent = gunsList
 	end
-	refreshGunChips()
+	refreshGunCards()
 end
 
 -- Tabs -------------------------------------------------------------------------------
-local WEAPON_PARTS =
-	{ "Guns", "Skins", "SkinsHead", "SkinsCount", "Equip", "Kinds", "Hint", "GunName", "SkinTag" }
+local WEAPON_PARTS = {
+	"Guns",
+	"Skins",
+	"SkinsHead",
+	"SkinsCount",
+	"Equip",
+	"Kinds",
+	"Hint",
+	"GunName",
+	"SkinTag",
+	"DragArea",
+}
 
 local function setTab(name: string)
 	tab = name
-	local tabs = child(canvas, "Tabs") :: Frame
-	for _, b in tabs:GetChildren() do
+	for _, b in (child(canvas, "Tabs") :: Frame):GetChildren() do
 		if b:IsA("GuiButton") then
 			local on = b.Name == name
 			b.BackgroundTransparency = if on then 0 else 1
@@ -516,7 +532,7 @@ local function setTab(name: string)
 				if c:IsA("ImageLabel") then
 					c.ImageTransparency = if on then 0 else 1
 				elseif c:IsA("TextLabel") then
-					c.TextColor3 = if on then INK else Color3.fromHex("8E98A8")
+					c.TextColor3 = if on then INK else Color3.fromHex("AEB8D6")
 				end
 			end
 		end
@@ -530,7 +546,7 @@ local function setTab(name: string)
 	end
 	if gunOnStand then
 		for _, d in gunOnStand:GetDescendants() do
-			if d:IsA("BasePart") and d.Name ~= "Handle" then
+			if d:IsA("BasePart") then
 				d.LocalTransparencyModifier = if weapons then 0 else 1
 			end
 		end
@@ -556,7 +572,7 @@ local function slideIn(obj: GuiObject, dx: number, delay: number)
 	obj.Position = (home :: UDim2) + UDim2.fromOffset(dx, 0)
 	task.delay(delay, function()
 		if isOpen then
-			tween(obj, 0.42, { Position = home }, QUINT)
+			tween(obj, 0.45, { Position = home })
 		end
 	end)
 end
@@ -566,25 +582,24 @@ local function open()
 		return
 	end
 	isOpen = true
-	enterStage()
 	gui.Enabled = true
 	refit()
+	enterStage()
 	setTab("WEAPONS")
 	if next(gunCards) == nil then
 		buildGuns()
 	end
 	selectGun(if Locker.gunModel(selectedGun) then selectedGun else "Vandal")
-	-- entrance: the columns slide in from their edges, the title drops
 	for _, item in
 		{
-			{ "Guns", -120, 0.02 },
-			{ "Title", -80, 0 },
-			{ "Tabs", -80, 0.04 },
-			{ "Skins", 120, 0.04 },
-			{ "SkinsHead", 120, 0.02 },
-			{ "SkinsCount", 120, 0.02 },
-			{ "Equip", 160, 0.08 },
-			{ "Close", 80, 0 },
+			{ "Guns", -140, 0.02 },
+			{ "Title", -90, 0 },
+			{ "Tabs", -90, 0.04 },
+			{ "Skins", 140, 0.04 },
+			{ "SkinsHead", 140, 0.02 },
+			{ "SkinsCount", 140, 0.02 },
+			{ "Equip", 180, 0.08 },
+			{ "Close", 90, 0 },
 		}
 	do
 		local g = canvas:FindFirstChild(item[1])
@@ -611,6 +626,16 @@ local function equip()
 	equipPop.Scale = 0.9
 	tween(equipPop, 0.36, { Scale = 1 }, BACK)
 	LobbyNet.event("LockerRequest"):FireServer("equip", selectedGun, previewLine)
+end
+
+-- let go: the gun eases back to its pose
+local function release()
+	if not dragging then
+		return
+	end
+	dragging = false
+	lastPos = nil
+	dragTween = tween(dragRot, 0.7, { Value = CFrame.new() }, QUINT)
 end
 
 function LockerController.init()
@@ -640,12 +665,12 @@ function LockerController.init()
 	equipButton.Activated:Connect(equip)
 	equipButton.MouseEnter:Connect(function()
 		if equippedLine(selectedGun) ~= previewLine then
-			tween(equipPop, 0.18, { Scale = 1.04 }, BACK)
+			tween(equipPop, 0.16, { Scale = 1.03 })
 			Sound.play("Hover")
 		end
 	end)
 	equipButton.MouseLeave:Connect(function()
-		tween(equipPop, 0.18, { Scale = 1 })
+		tween(equipPop, 0.16, { Scale = 1 })
 	end)
 	local closeButton = child(canvas, "Close") :: GuiButton
 	closeButton.Activated:Connect(function()
@@ -662,38 +687,31 @@ function LockerController.init()
 			end)
 		end
 	end
-	-- the server confirms an equip by setting the attribute
 	player.AttributeChanged:Connect(function(name: string)
 		if isOpen and string.sub(name, 1, 5) == "Skin_" then
-			refreshGunChips()
+			refreshGunCards()
 			refreshEquip()
 			refreshSkins()
 		end
 	end)
-	-- drag on the stage (not on a card) to turn the gun; scroll to zoom
-	UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
-		if not isOpen or processed or tab ~= "WEAPONS" then
-			return
-		end
+
+	-- turning: press on the stage, move, let go (positions, not mouse deltas:
+	-- Roblox only fills mouse deltas while the mouse is locked)
+	local dragArea = child(canvas, "DragArea") :: GuiButton
+	dragArea.InputBegan:Connect(function(input: InputObject)
 		if
 			input.UserInputType == Enum.UserInputType.MouseButton1
 			or input.UserInputType == Enum.UserInputType.Touch
 		then
 			dragging = true
-			spinLeft = 0
-			lastTouch = os.clock()
+			lastPos = input.Position
+			if dragTween then
+				dragTween:Cancel()
+				dragTween = nil
+			end
 		end
 	end)
-	UserInputService.InputEnded:Connect(function(input: InputObject)
-		if
-			input.UserInputType == Enum.UserInputType.MouseButton1
-			or input.UserInputType == Enum.UserInputType.Touch
-		then
-			dragging = false
-			lastTouch = os.clock()
-		end
-	end)
-	UserInputService.InputChanged:Connect(function(input: InputObject, processed: boolean)
+	UserInputService.InputChanged:Connect(function(input: InputObject)
 		if not isOpen then
 			return
 		end
@@ -704,12 +722,28 @@ function LockerController.init()
 				or input.UserInputType == Enum.UserInputType.Touch
 			)
 		then
-			yaw += math.rad(input.Delta.X * 0.45)
-			pitch = math.clamp(pitch + math.rad(input.Delta.Y * 0.3), math.rad(-35), math.rad(35))
-			lastTouch = os.clock()
-		elseif input.UserInputType == Enum.UserInputType.MouseWheel and not processed then
-			zoom = math.clamp(zoom - input.Position.Z * 0.08, 0.7, 1.25)
-			lastTouch = os.clock()
+			local last = lastPos or input.Position
+			local d = input.Position - last
+			lastPos = input.Position
+			-- left / right turns about the screen's up axis, up / down about its right axis
+			dragRot.Value = CFrame.Angles(d.Y * DRAG_SPEED, d.X * DRAG_SPEED, 0) * dragRot.Value
+		elseif input.UserInputType == Enum.UserInputType.MouseWheel then
+			local over = gui:GetGuiObjectsAtPosition(input.Position.X, input.Position.Y)
+			for _, o in over do
+				if o:IsDescendantOf(gunsList) or o:IsDescendantOf(skinsList) then
+					return -- scrolling a list, not zooming
+				end
+			end
+			local goal = math.clamp(zoomValue.Value - input.Position.Z * 0.08, ZOOM_MIN, ZOOM_MAX)
+			tween(zoomValue, 0.25, { Value = goal })
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input: InputObject)
+		if
+			input.UserInputType == Enum.UserInputType.MouseButton1
+			or input.UserInputType == Enum.UserInputType.Touch
+		then
+			release()
 		end
 	end)
 end
