@@ -2,6 +2,12 @@
 -- Lobby place client entry. Same two-phase bootstrap as the match client:
 -- init() every controller in ./Controllers, then start() each in its own thread.
 
+-- the chunky cell look on every screen + re-measured self-sizing text
+-- (first, so templates are marked before any controller clones them)
+local LobbyLook = require(script.Util.LobbyLook)
+local player = game:GetService("Players").LocalPlayer
+LobbyLook.apply(player:WaitForChild("PlayerGui"))
+
 local Controllers = script:FindFirstChild("Controllers")
 
 local loaded: { [string]: any } = {}
@@ -24,10 +30,5 @@ for _, controller in loaded do
 		task.spawn(controller.start)
 	end
 end
-
--- self-sizing text measured before its font loaded gets measured again
-local TextFit = require(script.Util.TextFit)
-local player = game:GetService("Players").LocalPlayer
-TextFit.settle(player:WaitForChild("PlayerGui"))
 
 print("[Lobby] client ready")
