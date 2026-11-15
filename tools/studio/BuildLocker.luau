@@ -197,10 +197,12 @@ for i, t in { "WEAPONS", "ABILITIES", "EMOTES" } do
 		{ Size = UDim2.fromOffset(0, 56), ZIndex = 5 }
 	)
 end
+-- the round close button: a drawn X (Util/CloseButton animates it; same as
+-- tools/studio/BuildLobbyMenus.luau)
 local close = make("TextButton", {
 	Name = "Close",
-	AnchorPoint = Vector2.new(1, 0),
-	Position = UDim2.fromOffset(1866, 40),
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromOffset(1830, 76),
 	Size = UDim2.fromOffset(72, 72),
 	BackgroundColor3 = CARD,
 	BackgroundTransparency = 0.2,
@@ -210,14 +212,28 @@ local close = make("TextButton", {
 	ZIndex = 3,
 }, canvas)
 make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, close)
-text(
-	close,
-	"X",
-	"X",
-	26,
-	WHITE,
-	{ AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5), ZIndex = 5 }
-)
+make("UIScale", { Name = "Pop" }, close)
+local glyph = make("Frame", {
+	Name = "Glyph",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromScale(0.5, 0.5),
+	Size = UDim2.fromOffset(30, 30),
+	BackgroundTransparency = 1,
+	ZIndex = 5,
+}, close)
+for _, r in { 45, -45 } do
+	local bar = make("Frame", {
+		Name = if r > 0 then "A" else "B",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(30, 5),
+		Rotation = r,
+		BackgroundColor3 = WHITE,
+		BorderSizePixel = 0,
+		ZIndex = 5,
+	}, glyph)
+	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, bar)
+end
 
 -- left: the guns by class
 local GW, GH, GAP = 236, 128, 12

@@ -25,8 +25,8 @@ local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
+local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Router = require(script.Parent.Parent.Util.Router)
-local Sound = require(script.Parent.Parent.Util.Sound)
 
 local LockerController = {}
 
@@ -103,6 +103,8 @@ local spotValue = Instance.new("Vector3Value") -- the screen spot (canvas px)
 local dragging = false
 local lastPos: Vector3? = nil
 local dragTween: Tween? = nil
+
+local resetClose: () -> () = function() end
 
 local function tween(
 	obj: Instance,
@@ -416,7 +418,6 @@ local function hoverable(card: GuiButton, lift: number?)
 	local up = lift or 1.03
 	card.MouseEnter:Connect(function()
 		tween(pop, 0.12, { Scale = up })
-		Sound.play("Hover")
 	end)
 	card.MouseLeave:Connect(function()
 		tween(pop, 0.14, { Scale = 1 })
@@ -484,7 +485,6 @@ local function buildGuns()
 			hoverable(card)
 			card.Activated:Connect(function()
 				if selectedGun ~= id then
-					Sound.play("Select")
 					selectGun(id)
 				end
 			end)
@@ -537,10 +537,8 @@ local function buildTiles()
 		name.Text = lineTitle(line)
 		hoverable(t, 1.06)
 		t.Activated:Connect(function()
-			Sound.play("Select")
 			LockerController.preview(line)
 			if equippedLine(selectedGun) ~= line then
-				Sound.play("LockIn")
 				LobbyNet.event("LockerRequest"):FireServer("equip", selectedGun, line)
 			end
 			refreshTiles()
@@ -683,6 +681,7 @@ local function open()
 	slideIn(child(canvas, "Title"), -100, 0, 0)
 	slideIn(child(canvas, "Tabs"), -100, 0, 0.04)
 	slideIn(kinds, 0, 200, 0.08)
+	resetClose()
 	slideIn(child(canvas, "Close"), 100, 0, 0)
 end
 
@@ -744,16 +743,13 @@ function LockerController.init()
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
 	Router.register("Locker", { open = open, close = close, clear = true })
-	local closeButton = child(canvas, "Close") :: GuiButton
-	closeButton.Activated:Connect(function()
-		Sound.play("Close")
+	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
 		Router.close()
 	end)
 	for _, b in (child(canvas, "Tabs") :: Frame):GetChildren() do
 		if b:IsA("GuiButton") then
 			b.Activated:Connect(function()
 				if tab ~= b.Name then
-					Sound.play("Select")
 					setTab(b.Name)
 				end
 			end)
@@ -765,10 +761,7 @@ function LockerController.init()
 			hoverable(t)
 			t.Activated:Connect(function()
 				if t.Name == "SKIN" then
-					Sound.play("Open")
 					setTray(true)
-				else
-					Sound.play("Denied")
 				end
 			end)
 		end
@@ -776,7 +769,6 @@ function LockerController.init()
 	local backButton = child(tray, "Back") :: GuiButton
 	hoverable(backButton)
 	backButton.Activated:Connect(function()
-		Sound.play("Close")
 		setTray(false)
 	end)
 	player.AttributeChanged:Connect(function(name: string)

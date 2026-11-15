@@ -11,7 +11,6 @@
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
-local Sound = require(script.Parent.Sound)
 local Style = require(script.Parent.Style)
 
 local Fx = {}
@@ -289,9 +288,6 @@ function Fx.button(button: GuiButton, onClick: () -> (), opts: ButtonOptions?)
 		end
 		hovering = on
 		rest = if on and not o.noScale then Fx.HOVER_SCALE else 1
-		if on and not o.silent then
-			Sound.play("Hover")
-		end
 		Fx.tween(scale, Fx.MOTION.hover, { Scale = rest }, Enum.EasingStyle.Quad)
 		local lift = o.lift
 		if lift then
@@ -348,13 +344,9 @@ function Fx.button(button: GuiButton, onClick: () -> (), opts: ButtonOptions?)
 	end)
 	button.Activated:Connect(function()
 		if o.enabled and not o.enabled() then
-			Sound.play("Denied")
 			Fx.shake(button)
 			Fx.tween(scale, Fx.MOTION.settle, { Scale = rest }, Enum.EasingStyle.Back)
 			return
-		end
-		if not o.silent then
-			Sound.play("Select")
 		end
 		Fx.tween(scale, Fx.MOTION.settle, { Scale = rest }, Enum.EasingStyle.Back)
 		onClick()

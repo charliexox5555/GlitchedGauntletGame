@@ -30,7 +30,6 @@ local Layout = require(script.Parent.Parent.Util.Layout)
 local LobbyHudView = require(script.Parent.Parent.Util.LobbyHudView)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
-local Sound = require(script.Parent.Parent.Util.Sound)
 local Style = require(script.Parent.Parent.Util.Style)
 
 local LobbyHud = {}
@@ -700,7 +699,6 @@ function LobbyHud.toast(text: string, kind: string?)
 		{ Position = UDim2.fromOffset(0, 0), BackgroundTransparency = 0.02 }
 	)
 	Fx.tween(toastText, Fx.MOTION.enter, { TextTransparency = 0 })
-	Sound.play(if kind == "error" then "Denied" else "Banner")
 	task.delay(5, function()
 		if toastToken ~= token then
 			return
@@ -896,7 +894,6 @@ function LobbyHud.init()
 end
 
 function LobbyHud.start()
-	Sound.preload()
 	if useView then
 		QueueState.onChanged(LobbyHudView.refresh)
 		Router.onChanged(function()

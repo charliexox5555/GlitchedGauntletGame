@@ -12,7 +12,6 @@ local UserInputService = game:GetService("UserInputService")
 
 local CoreUi = require(script.Parent.CoreUi)
 local Fx = require(script.Parent.Fx)
-local Sound = require(script.Parent.Sound)
 
 export type Menu = {
 	open: (arg: any?) -> (),
@@ -135,7 +134,6 @@ function Router.open(name: string, arg: any?)
 		end
 	else
 		setWorldDimmed(true, menu.clear)
-		Sound.play("Open")
 	end
 	current = name
 	menu.open(arg)
@@ -157,7 +155,6 @@ function Router.close()
 	current = nil
 	menus[name].close()
 	GuiService.SelectedObject = nil
-	Sound.play("Close")
 	setWorldDimmed(false)
 	notify()
 end

@@ -1,5 +1,7 @@
 --!strict
--- The full-screen Play menu, v2 (vault/01 Design/Lobby UI and Queue.md section
+-- MATCH FOUND on every device, and on PHONES the old full-screen Play menu v2
+-- (desktop: Controllers/PlayMenuController, vault/02 Art/UI Play and Party
+-- Menus.md). The phone menu, v2 (vault/01 Design/Lobby UI and Queue.md section
 -- 8; Figma "Lobby v2 · Play menu 1920x1080"): three mode cards (1v1 / 2v2 /
 -- 3v3) with full-bleed art, live "searching" counts, FIND MATCH, and while
 -- queued a status panel with the elapsed timer, the bot-fill countdown and
@@ -20,7 +22,6 @@ local Layout = require(script.Parent.Parent.Util.Layout)
 local Menu = require(script.Parent.Parent.Util.Menu)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
-local Sound = require(script.Parent.Parent.Util.Sound)
 local Style = require(script.Parent.Parent.Util.Style)
 local LobbyHud = require(script.Parent.LobbyHud)
 
@@ -179,9 +180,6 @@ local function selectMode(id: string, quiet: boolean?)
 	if not Config.MODE_BY_ID[id] then
 		return
 	end
-	if selected ~= id and not quiet then
-		Sound.play("Select")
-	end
 	selected = id
 	for _, card in cards do
 		if card.info.id == id and not quiet then
@@ -201,13 +199,11 @@ local function findMatch()
 	end
 	local s = QueueState.status()
 	if not QueueState.isLeader() then
-		Sound.play("Denied")
 		LobbyHud.toast("Your party leader starts the search", "info")
 		return
 	end
 	if s == "idle" or (s == "searching" and QueueState.mode() ~= selected) then
 		pendingUntil = os.clock() + 1.5
-		Sound.play("LockIn")
 		findLabel.Text = "JOINING..."
 		QueueState.join(selected)
 	end
@@ -468,7 +464,6 @@ local function buildAction()
 		onPress = p.press,
 		onHover = function(on)
 			if on then
-				Sound.play("Hover")
 				Fx.glitch(findLabel)
 			end
 		end,
@@ -632,7 +627,6 @@ local function animateIn(arg: any?)
 		task.delay((i - 1) * Fx.MOTION.stagger, function()
 			if isOpen then
 				Fx.tween(card.button, 0.32, { Position = base })
-				Sound.play("CardIn")
 			end
 		end)
 	end
@@ -780,7 +774,6 @@ local function slot(parent: Instance, userId: number?, color: Color3, order: num
 	s.Scale = 0.6
 	task.delay(0.25 + order * 0.06, function()
 		Fx.tween(s, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
-		Sound.play("CardIn")
 	end)
 end
 
@@ -958,8 +951,6 @@ local function showFound(payload: LobbyNet.QueueEventPayload)
 	local s = Fx.scale(foundTitle)
 	s.Scale = 1.35
 	Fx.tween(s, 0.4, { Scale = 1 }, Enum.EasingStyle.Back)
-	Sound.play("LockIn")
-	Sound.play("Banner")
 	task.delay(0.12, function()
 		Fx.glitch(foundTitle)
 	end)
@@ -976,7 +967,6 @@ local function showFound(payload: LobbyNet.QueueEventPayload)
 				foundCountdown.Text = if left > 0 then `TELEPORTING IN {left}` else "CONNECTING..."
 				if left ~= last and left > 0 then
 					last = left
-					Sound.play(if left == 1 then "TickFinal" else "Tick")
 					Fx.pop(foundCountdown, 1.15)
 				end
 			end
@@ -1011,8 +1001,13 @@ end
 --------------------------------------------------------------------------------
 
 function QueueMenu.init()
-	buildMenu()
 	buildFound()
+	-- Desktop uses the Studio-built Play menu (Controllers/PlayMenuController);
+	-- this code-built one stays for phones until the mobile pass.
+	if not PHONE then
+		return
+	end
+	buildMenu()
 	Router.register("Queue", {
 		open = animateIn,
 		close = animateOut,

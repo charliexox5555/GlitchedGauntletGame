@@ -4,7 +4,6 @@
 -- with a believable skeleton of what will live there and a clear "coming soon"
 -- line. Settings has one working toggle. (The Locker is Controllers/LockerController.)
 
-local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
 local Fx = require(script.Parent.Parent.Util.Fx)
@@ -13,7 +12,6 @@ local Kit = require(script.Parent.Parent.Util.Kit)
 local Layout = require(script.Parent.Parent.Util.Layout)
 local Menu = require(script.Parent.Parent.Util.Menu)
 local Router = require(script.Parent.Parent.Util.Router)
-local Sound = require(script.Parent.Parent.Util.Sound)
 local Style = require(script.Parent.Parent.Util.Style)
 
 local Panels = {}
@@ -295,22 +293,8 @@ local function buildSettings()
 	local p = build("Settings", "OPTIONS", "SETTINGS")
 	local rowW, rowH, rowGap =
 		Layout.pick(1100, BODY_SIZE.X), Layout.pick(88, 70), Layout.pick(104, 78)
-	local function setSound(on: boolean)
-		local group = SoundService:FindFirstChild("Ui")
-		if group and group:IsA("SoundGroup") then
-			group.Volume = if on then 1 else 0
-		end
-	end
 	type Row = { name: string, hint: string, value: (() -> boolean)?, set: ((boolean) -> ())? }
 	local rows: { Row } = {
-		{
-			name = "UI SOUNDS",
-			hint = "Clicks, whooshes and stingers in menus.",
-			value = function()
-				return true
-			end,
-			set = setSound,
-		},
 		{
 			-- LihFolk: UI Motion Language and Timing (offer an in-game toggle;
 			-- starts from the Roblox setting).
@@ -463,7 +447,6 @@ function Panels.init()
 	buildBattlePass()
 	buildSettings()
 	buildRange()
-	local _ = Sound
 end
 
 return Panels

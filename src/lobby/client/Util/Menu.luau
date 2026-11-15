@@ -8,6 +8,7 @@
 
 local Players = game:GetService("Players")
 
+local CloseButton = require(script.Parent.CloseButton)
 local Fx = require(script.Parent.Fx)
 local Kit = require(script.Parent.Kit)
 local Layout = require(script.Parent.Layout)
@@ -26,6 +27,7 @@ export type Chrome = {
 	header: Frame,
 	headerPos: Vector2,
 	close: TextButton,
+	resetClose: () -> (),
 }
 
 function Menu.canvas(): Vector2
@@ -114,30 +116,14 @@ function Menu.build(name: string, kicker: string, title: string): Chrome
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
 
-	local close = Kit.circle(content, {
-		Name = "Close",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.fromOffset(M.close.X, M.close.Y),
-	}, M.closeSize)
-	Kit.cross(close, math.floor(M.closeSize * 0.42))
-	local stroke = Kit.strokeOf(close)
-	Fx.button(close, function()
+	-- the shared close button (Util/CloseButton): the same drawn X as the
+	-- Studio-built menus; its top-right corner sits where the old one did
+	local half = M.closeSize / 2
+	local close =
+		CloseButton.make(content, Vector2.new(M.close.X - half, M.close.Y + half), M.closeSize)
+	local resetClose = CloseButton.hook(close, function()
 		Router.close()
-	end, {
-		silent = true,
-		onHover = function(on)
-			Fx.tween(
-				close,
-				Fx.MOTION.hover,
-				{ BackgroundColor3 = if on then C.surfaceHover else C.surface }
-			)
-			Fx.tween(
-				stroke,
-				Fx.MOTION.hover,
-				{ Transparency = if on then Style.ALPHA.strokeHover else Style.ALPHA.stroke }
-			)
-		end,
-	})
+	end)
 	Layout.fit(content, "menu")
 	return {
 		gui = gui,
@@ -147,11 +133,13 @@ function Menu.build(name: string, kicker: string, title: string): Chrome
 		header = header,
 		headerPos = M.header,
 		close = close,
+		resetClose = resetClose,
 	}
 end
 
 -- Shared open / close motion: the dimmer and content fade, the header slides.
 function Menu.show(chrome: Chrome)
+	chrome.resetClose()
 	chrome.gui.Enabled = true
 	chrome.backdrop.Enabled = true
 	chrome.scrim.BackgroundTransparency = 1

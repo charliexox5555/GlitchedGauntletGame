@@ -16,6 +16,10 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 - **`WeaponBuilder` sets `CollisionFidelity = Box` in a `pcall` that never takes effect** (a loaded MeshPart's fidelity can't be changed from a script), so guns keep `Default` colliders. Harmless today; the aim sight-line check relies on those colliders.
 
 ## 💡 Ideas
+- **1v1 challenge on Party menu cards** (RIVALS has a 1v1 button next to Invite): needs a private-duel flow (challenge → accept → both to a 1v1 match). Parked 2026-11-15 ([UI Play and Party Menus](../02%20Art/UI%20Play%20and%20Party%20Menus.md)).
+- **Device icons next to names** (PC / phone / console, like RIVALS): a client-reported attribute, cosmetic only, never for matchmaking or balance. Parked 2026-11-15.
+- **Own art for the BEGINNER 2V2, 4V4 and 5V5 tiles** (they reuse the 2v2 / 3v3 art dimmed). 2026-11-15.
+- **Phone layout for the new Play and Party menus** (phones still use the old code-built queue menu and have no Party menu). 2026-11-15.
 | Idea | Why it might be good | Parked until |
 |---|---|---|
 | **Video research, part 2 (2026-11-12):** with the [Video Analyzer](../04%20Tech/Video%20Analyzer.md): (a) Roblox FPS architecture talks (FastCast vs hitscan, lag compensation, viewmodel replication, round state machines); (b) Valorant round/economy pacing for our draft + tier loop; (c) RIVALS kill cam, match end, phone locker and Touch settings; (d) console UI. The owner's first brief asked for these; this pass did UI only | Grounds gunplay and match-flow work in measured references | After the owner reviews UI v4 |

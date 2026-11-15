@@ -141,6 +141,9 @@ Owner: "remove the player level top left... improve animations a bit for the las
 - **Motion:** the hover plate's » slides in, PLAY breathes every few seconds while idle (not while hovered or with the card open), player rows tint on hover, party circles lift on hover, the invite pop-up springs in and shrinks away.
 - Party card rebuilt as a list (`Head`, `Body` with Status, Help (fixed 3 lines: auto-height wrapped text in an auto list measures one line), PLAYERS HERE, `Here` rows from `UiTemplates.Lobby.PartyInviteRow`, InviteFriends, Leave); invite pop-up `LobbyToast.Toast.Invite`; `PlayerRow.Invite`. Studio patched in place; builder matches.
 
+## Play menu, Party menu, searching bar (2026-11-15)
+The party pop-over card is replaced by a full Party menu, PLAY scales out while queued, and every menu shares one close button: see [UI Play and Party Menus](UI%20Play%20and%20Party%20Menus.md).
+
 ## Topbar buttons (owner, 2026-11-14)
 Owner: "a top bar button above the leaderboard for both settings and opening/closing leaderboard... something like TopbarPlus."
 - Built our own instead of adding the TopbarPlus package (two buttons don't need a dependency): `StarterGui.LobbyTopbar` with `ScreenInsets = TopbarSafeInsets` (the free part of Roblox's top bar row, measured 208-1919 x 58 px at 1920 wide; it follows Roblox's own controls), a right-aligned row 40 px in so it lines up with the player list.
