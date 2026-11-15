@@ -90,7 +90,7 @@ Each class has one gun at launch, and players can pick between guns in the same 
 | November | Ranked Duels, Squads (3v3/4v4), scheduled Gauntlet events |
 
 ### Money
-Cosmetics only, all sold directly, with **no Robux loot boxes** (they're restricted in the UK, Australia and Brazil). Every gun and Mod is free in ranked. Nothing that changes a fight is ever sold.
+Cosmetics, all sold directly, with **no Robux loot boxes** (they're restricted in the UK, Australia and Brazil). **Changed 2026-11-15 (owner):** extra **Mods can be bought**; the base Mods stay free, a bought Mod joins your draft pool for good (it can't be unequipped), and Mod skins may follow. Every gun stays free. Open: whether bought Mods are earnable with in-game currency too, and whether ranked uses only base Mods (see [UI Locker](../02%20Art/UI%20Locker.md)).
 
 ---
 
