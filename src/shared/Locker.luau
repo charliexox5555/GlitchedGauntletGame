@@ -59,7 +59,9 @@ function Locker.skinModel(gunId: string, line: string): Model?
 	end
 	local skins = ReplicatedStorage:FindFirstChild("WeaponSkins")
 	local folder = skins and skins:FindFirstChild(line)
-	local m = folder and folder:FindFirstChild(gunId)
+	-- the PopCircuit knife is the Bat (same rule as Shared/SkinPreview.resolve)
+	local name = if gunId == "Knife" and line == "PopCircuit" then "Bat" else gunId
+	local m = folder and folder:FindFirstChild(name)
 	if m and m:IsA("Model") and m:GetAttribute("SkinReady") == true then
 		return m
 	end

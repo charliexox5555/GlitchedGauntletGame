@@ -23,6 +23,7 @@ local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Launcher = require(script.Parent.Parent.Matchmaking.Launcher)
 local Matchmaker = require(script.Parent.Parent.Matchmaking.Matchmaker)
 local Parties = require(script.Parent.Parent.Matchmaking.Parties)
+local LockerService = require(script.Parent.LockerService)
 
 type Status = "idle" | "searching" | "found" | "teleporting"
 type State = { status: Status, mode: string?, matchId: string? }
@@ -132,6 +133,10 @@ local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
 	end
 	updateCounts()
 
+	-- save Locker equips now so the write lands before the teleport
+	for _, p in players do
+		LockerService.flush(p)
+	end
 	local startsAtServer = serverNow() + Config.matchFoundDelay
 	local teams: { { number } } = {}
 	for t, team in pick.teams do
@@ -289,13 +294,10 @@ local function leave(player: Player)
 		if m.Parent == Players and states[m] then
 			setState(m, "idle")
 			if m ~= player then
-				send(
-					m,
-					{
-						kind = "info",
-						text = `{string.upper(player.DisplayName)} stopped the search`,
-					}
-				)
+				send(m, {
+					kind = "info",
+					text = `{string.upper(player.DisplayName)} stopped the search`,
+				})
 			end
 		end
 	end

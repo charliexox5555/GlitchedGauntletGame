@@ -25,13 +25,16 @@ local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 
 local LockerService = {}
 
-local SAVE_DELAY = 3 -- seconds after the last equip
+local SAVE_DELAY = 6 -- seconds after the last equip (Roblox: ~1 write per key per 6 s)
+local MIN_GAP = 6 -- seconds between two writes of one player's key
 
 type Record = {
 	skins: { [string]: string },
 	loaded: boolean, -- false: the load failed, so never save
 	dirty: boolean,
 	token: number,
+	saving: boolean, -- one write at a time per player
+	lastSave: number,
 }
 
 local store = DataStoreService:GetDataStore(Locker.STORE)
@@ -59,25 +62,52 @@ local function retry<T>(what: string, fn: () -> T): (boolean, T?)
 	return false, nil
 end
 
+-- One write at a time per player; it loops while new equips arrived during
+-- a write. The write merges into what's stored (only this session's changes
+-- replace their guns), so a pair this Lobby's synced copy doesn't know about
+-- is never dropped from the save.
 local function save(player: Player)
 	local rec = records[player]
-	if not rec or not rec.loaded or not rec.dirty then
+	if not rec or not rec.loaded or rec.saving then
 		return
 	end
-	rec.dirty = false
-	local skins = table.clone(rec.skins)
-	local ok = retry("save " .. player.UserId, function()
-		return store:UpdateAsync(Locker.key(player.UserId), function()
-			return { v = Locker.VERSION, skins = skins }
+	rec.saving = true
+	while rec.dirty do
+		local wait = MIN_GAP - (os.clock() - rec.lastSave)
+		if wait > 0 then
+			task.wait(wait)
+		end
+		rec.dirty = false
+		local changes = table.clone(rec.skins)
+		local ok = retry("save " .. player.UserId, function()
+			return store:UpdateAsync(Locker.key(player.UserId), function(old: any)
+				local skins = if typeof(old) == "table" and typeof(old.skins) == "table"
+					then table.clone(old.skins)
+					else {}
+				for gunId, line in changes do
+					skins[gunId] = line
+				end
+				return { v = Locker.VERSION, skins = skins }
+			end)
 		end)
-	end)
-	if not ok then
-		rec.dirty = true -- try again on the next change or on leave
+		rec.lastSave = os.clock()
+		if not ok then
+			rec.dirty = true -- try again on the next change or on leave
+			break
+		end
 	end
+	rec.saving = false
+end
+
+-- Saves now (no debounce): MATCH FOUND calls this so the write lands before
+-- the teleport and the match reads the new skins.
+function LockerService.flush(player: Player)
+	task.spawn(save, player)
 end
 
 local function load(player: Player)
-	local rec: Record = { skins = {}, loaded = false, dirty = false, token = 0 }
+	local rec: Record =
+		{ skins = {}, loaded = false, dirty = false, token = 0, saving = false, lastSave = 0 }
 	records[player] = rec
 	local ok, data = retry("load " .. player.UserId, function()
 		return store:GetAsync(Locker.key(player.UserId))
@@ -144,21 +174,32 @@ function LockerService.start()
 		task.spawn(load, p)
 	end
 	Players.PlayerRemoving:Connect(function(p)
-		save(p)
-		records[p] = nil
+		local rec = records[p]
 		limiter:forget(p)
+		if rec then
+			save(p) -- returns at once if a write is already running; it finishes on its own
+			while rec.saving do
+				task.wait(0.1)
+			end
+		end
+		records[p] = nil
 	end)
 	game:BindToClose(function()
-		local waiting = 0
 		for p in records do
-			waiting += 1
-			task.spawn(function()
-				save(p)
-				waiting -= 1
-			end)
+			task.spawn(save, p)
 		end
+		-- wait for every write in flight (including ones already running)
 		local t = os.clock()
-		while waiting > 0 and os.clock() - t < 25 do
+		while os.clock() - t < 25 do
+			local busy = false
+			for _, rec in records do
+				if rec.saving or (rec.loaded and rec.dirty) then
+					busy = true
+				end
+			end
+			if not busy then
+				break
+			end
 			task.wait(0.1)
 		end
 	end)
