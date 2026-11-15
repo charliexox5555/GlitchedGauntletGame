@@ -43,11 +43,12 @@ local RED, PURPLE, TEAL = hex("FF4D5E"), hex("B58CFF"), hex("2BD9A8")
 local SHADOW = "rbxassetid://121253415859134"
 local CAP_R, CAP_L = "rbxassetid://130377997107460", "rbxassetid://75584308608588"
 local ICON = {
-	Shop = "rbxassetid://134974442051869",
-	Locker = "rbxassetid://73637059723267",
-	BattlePass = "rbxassetid://133121960419132",
-	Range = "rbxassetid://82357119585599",
-	Settings = "rbxassetid://85379480378289",
+	-- full-colour faceted icons (ChatGPT, art-source/ui/lobby-icons/, cropped 400 px)
+	Shop = "rbxassetid://105282475222207",
+	Locker = "rbxassetid://132989779567545",
+	BattlePass = "rbxassetid://89820225124220",
+	Range = "rbxassetid://115113209840744",
+	Settings = "rbxassetid://140552828867154",
 	Coin = "rbxassetid://122645025340088",
 }
 local CENTRE = Vector2.new(0.5, 0.5)
@@ -604,7 +605,7 @@ do -- Bottom: bar, PLAY, party, callout
 			Size = UDim2.fromOffset(74, 74),
 			BackgroundTransparency = 1,
 			Image = ICON[it[1]],
-			ImageColor3 = it[3],
+			ScaleType = Enum.ScaleType.Fit, -- the colour is in the art
 			ZIndex = 6,
 		}, b)
 		make("UIScale", { Name = "Pop" }, b:FindFirstChild("Icon"))
