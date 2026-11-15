@@ -32,3 +32,20 @@ Victory 2v2: ![victory](References/ui-overhaul/2026-11-14-match-end-victory.jpg)
 Defeat 4v4: ![defeat](References/ui-overhaul/2026-11-14-match-end-defeat.jpg)
 
 **To build:** round winners need recording (a `MatchRounds` list on the match state); motion as in idea 1 (result slams like the kill pop, then the history, scoreboard rows and buttons slide in one after another).
+
+## Built (live on desktop, owner: "looks good")
+- **Studio-owned `StarterGui.MatchEndScreen`** + templates `ReplicatedStorage.UiTemplates.MatchEnd` (Header, Row, Tier, Chip, Plate); backup `tools/studio/BuildMatchEndScreen.luau` (rebuild matches Studio, 0 differences).
+- **`Util/MatchEndScreen`** fills and animates it; **`MatchEndController`** keeps the victory scene, the server choices (`MatchChoice`) and the old code-built screen for phones. Keys: Enter = PLAY AGAIN, R = REMATCH.
+- **Changes from the mockup:**
+  - the right column is exactly 400 px and stacked by a list layout;
+  - PLAY AGAIN is a flat gold block the column's width (the slanted caps stuck out);
+  - REMATCH shows its votes and "VOTED" in gold, LEAVE shows "LOBBY IN n";
+  - build cards are full-art like the draft half-cards;
+  - the scoreboard is one UIListLayout, so rows can't overlap.
+- **Name plates** over the cheering winners are drawn in the same ScreenGui and placed over each head every frame (BillboardGuis didn't show up in captures).
+- **Entrance:** the result slams in (1.6x → 0.88 → 1.05 → 1), the round history drops in, scoreboard rows slide in one by one, the build cards pop, the buttons pop; soft shadows fade in once the result settles.
+- **Round history:** `MatchService` now writes `MatchRoundHistory` ("winner:WeaponPhase" per round); draws show grey.
+- **Checked live** (two full 2v2 bot matches): DEFEAT 0 · 5 with the glitch split, round chips by tier, scoreboard with your row and the MVP, your real build, plates over BOLT and JINX (MVP), R voted a rematch (1 / 1). The shadow-timing fix wasn't re-checked live (the owner called it done).
+- Studio note: a play session can start as "phone" when Studio reports a small viewport at startup (`Util/Device` decides once); use `Workspace.ForceLayout = "desktop"` when testing.
+
+![live](References/ui-overhaul/2026-11-14-match-end-live.jpg)

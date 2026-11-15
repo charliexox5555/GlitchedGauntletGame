@@ -9,6 +9,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -29,6 +30,8 @@ local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
 local Ui = require(script.Parent.Parent.Util.Ui)
 local BodyClone = require(script.Parent.Parent.Util.BodyClone)
+local Device = require(script.Parent.Parent.Util.Device)
+local MatchEndScreen = require(script.Parent.Parent.Util.MatchEndScreen)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 
 local MatchEndController = {}
@@ -53,6 +56,8 @@ local summary: { Line } = {}
 local summaryWinner = 0
 local active = false
 local scene: Folder? = nil
+-- The scene's copies and the bodies they copy (for the name plates).
+local sceneCopies: { { copy: Model, body: Model } } = {}
 local hidden: { Instance } = {}
 local hiddenGuis: { ScreenGui } = {}
 local gui: ScreenGui? = nil
@@ -168,6 +173,7 @@ local function buildScene(winner: number): (Vector3?, Vector3?, Vector3?)
 			local at = Vector3.new(base.X, ground + hip, base.Z) + right * offset
 			copy:PivotTo(CFrame.lookAt(at, at + dir))
 			copy.Parent = folder
+			table.insert(sceneCopies, { copy = copy, body = body })
 			cheer(copy)
 		end
 	end
@@ -446,7 +452,118 @@ local function buildScreen(winner: number)
 	Ui.fit(side)
 end
 
+-- Desktop: the Studio-built screen (Util/MatchEndScreen) ---------------------------
+
+local BOT_HEAD = "rbxassetid://119185654291939"
+
+local function lineOf(body: Model): Line?
+	local owner = Players:GetPlayerFromCharacter(body)
+	for _, line in summary do
+		if (owner and line.id == "p" .. owner.UserId) or (not owner and line.name == body.Name) then
+			return line
+		end
+	end
+	return nil
+end
+
+-- What the server's choice buttons do (same rules as the old buttons).
+local function choose(name: string)
+	if picked == "PlayAgain" or picked == "Leave" then
+		return
+	end
+	if name == "Rematch" and MatchState.get("RematchOpen") ~= true then
+		UiSound.play("Denied")
+		return
+	end
+	UiSound.play("Select")
+	picked = name
+	Net.event("MatchChoice"):FireServer(name)
+end
+
+local function screenData(winner: number): MatchEndScreen.Data
+	local myTeam = Teams.of(player) or 1
+	local one, two = MatchState.get("Score1") or 0, MatchState.get("Score2") or 0
+	local rounds: { MatchEndScreen.Round } = {}
+	local history = MatchState.get("RoundHistory")
+	if typeof(history) == "string" then
+		for w, tier in string.gmatch(history, "(%d+):(%a*)") do
+			local team = tonumber(w) or 0
+			table.insert(rounds, { won = team == myTeam, draw = team == 0, tier = tier })
+		end
+	end
+	local allies: { MatchEndScreen.RowData } = {}
+	local enemies: { MatchEndScreen.RowData } = {}
+	local me = "p" .. player.UserId
+	local lines = table.clone(summary)
+	table.sort(lines, function(a, b)
+		if a.eliminations ~= b.eliminations then
+			return a.eliminations > b.eliminations
+		end
+		return a.dealt > b.dealt
+	end)
+	for _, line in lines do
+		local ally = line.team == myTeam
+		local row: MatchEndScreen.RowData = {
+			name = line.name,
+			ally = ally,
+			image = if line.userId
+				then string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", line.userId)
+				else BOT_HEAD,
+			stats = { line.eliminations, line.deaths, line.assists, line.dealt },
+			mine = line.id == me,
+			mvp = line.mvp == true,
+		}
+		table.insert(if ally then allies else enemies, row)
+	end
+	local build = {}
+	for slot = 1, 3 do
+		local id = player:GetAttribute("Mod" .. slot .. "Id")
+		local level = player:GetAttribute("Mod" .. slot .. "Level")
+		if typeof(id) == "string" and id ~= "" then
+			table.insert(
+				build,
+				{ id = id, level = if typeof(level) == "string" then level else "L1" }
+			)
+		end
+	end
+	return {
+		won = winner == myTeam,
+		us = if myTeam == 1 then one else two,
+		them = if myTeam == 1 then two else one,
+		rounds = rounds,
+		allies = allies,
+		enemies = enemies,
+		build = build,
+	}
+end
+
+local function showPlates(winner: number)
+	local myTeam = Teams.of(player)
+	local list: { MatchEndScreen.PlateData } = {}
+	for _, pair in sceneCopies do
+		local owner = Players:GetPlayerFromCharacter(pair.body)
+		local line = lineOf(pair.body)
+		table.insert(list, {
+			model = pair.copy,
+			name = if owner then owner.DisplayName else pair.body.Name,
+			ally = winner == myTeam,
+			mvp = line ~= nil and line.mvp == true,
+		})
+	end
+	MatchEndScreen.plates(list)
+end
+
 local function refreshScreen()
+	if MatchEndScreen.active() then
+		MatchEndScreen.refresh(
+			MatchState.get("RematchOpen") == true,
+			MatchState.get("RematchVotes") or 0,
+			MatchState.get("RematchNeeded") or 0,
+			MatchState.timeLeft(),
+			picked
+		)
+		return
+	end
 	local label = countdown
 	if label then
 		label.Text = string.format("BACK TO THE LOBBY IN %d", math.ceil(MatchState.timeLeft()))
@@ -479,6 +596,8 @@ local function stop()
 		s:Destroy()
 		scene = nil
 	end
+	table.clear(sceneCopies)
+	MatchEndScreen.hide()
 	for _, d in hidden do
 		local body = Fighters.bodyOfPart(d)
 		if d.Parent and body and Health.isAlive(body) then
@@ -529,14 +648,27 @@ local function begin()
 	local playerGui = player:FindFirstChildOfClass("PlayerGui")
 	if playerGui then
 		for _, g in playerGui:GetChildren() do
-			if g:IsA("ScreenGui") and g.Name ~= "MatchEnd" and g.Enabled then
+			if
+				g:IsA("ScreenGui")
+				and g.Name ~= "MatchEnd"
+				and g.Name ~= "MatchEndScreen"
+				and g.Enabled
+			then
 				g.Enabled = false
 				table.insert(hiddenGuis, g)
 			end
 		end
 	end
+	table.clear(sceneCopies)
 	local far, near, focus = buildScene(winner)
-	buildScreen(winner)
+	if MatchEndScreen.active() then
+		picked = nil
+		MatchEndScreen.show(screenData(winner), choose)
+		showPlates(winner)
+		refreshScreen()
+	else
+		buildScreen(winner) -- phones: the old code-built screen
+	end
 	UiSound.play(if winner == Teams.of(player) then "Victory" else "RoundLost")
 	local cam = Workspace.CurrentCamera
 	if cam and far and near and focus then
@@ -571,6 +703,18 @@ local function onPhase()
 end
 
 function MatchEndController.start()
+	MatchEndScreen.start(Device.compact())
+	-- Keys: Enter = PLAY AGAIN, R = REMATCH.
+	UserInputService.InputBegan:Connect(function(input: InputObject)
+		if not active or not MatchEndScreen.active() or UserInputService:GetFocusedTextBox() then
+			return
+		end
+		if input.KeyCode == Enum.KeyCode.Return or input.KeyCode == Enum.KeyCode.KeypadEnter then
+			MatchEndScreen.press("PlayAgain")
+		elseif input.KeyCode == Enum.KeyCode.R then
+			MatchEndScreen.press("Rematch")
+		end
+	end)
 	Net.event("MatchSummary").OnClientEvent:Connect(function(lines: unknown, winner: unknown)
 		if typeof(lines) == "table" then
 			summary = lines :: any

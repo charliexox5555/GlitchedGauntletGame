@@ -586,6 +586,7 @@ local function runMatch(): boolean
 	MatchState.set("Score2", 0)
 	MatchState.set("RoundWinner", nil)
 	MatchState.set("MatchWinner", nil)
+	MatchState.set("RoundHistory", "") -- "winner:WeaponPhase" per round, comma-separated
 	MapService.setBarriers(true)
 	resetKits()
 	table.clear(lastDown)
@@ -675,6 +676,18 @@ local function runMatch(): boolean
 		MatchState.set("Score1", scores[1])
 		MatchState.set("Score2", scores[2])
 		MatchState.set("RoundWinner", winner)
+		-- The match end screen's round chips (display only).
+		local history = MatchState.get("RoundHistory")
+		local phaseName = MatchState.get("WeaponPhase")
+		MatchState.set(
+			"RoundHistory",
+			(if typeof(history) == "string" and history ~= "" then history .. "," else "")
+				.. string.format(
+					"%d:%s",
+					winner,
+					if typeof(phaseName) == "string" then phaseName else ""
+				)
+		)
 		if winner ~= 0 and scores[winner] >= Config.ROUNDS_TO_WIN then
 			playReplay(winner, eliminated) -- the match-winning kill
 			break
