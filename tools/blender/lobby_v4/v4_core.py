@@ -1,0 +1,412 @@
+"""Lobby V4 ("Gauntlet Bunker", the RIVALS feel in our own pieces): theme palette and the shared kit.
+
+Run in the owner's live Blender (the Lobby V4 instance, MCP bridge on port 9999) through tools/blender/lobby_v4/send.py:
+    import sys; sys.path[:0] = [r"<repo>/tools/blender/lobby_v4", r"<repo>/tools/blender/sunwell_p1", r"<repo>/tools/blender/lobby_v3"]
+    import v4_run as R; R.build_all()
+Reuses the Sunwell builder (sw_core: frames, pieces, lights, screens, anchors) and the V3 solid builder (lv3_core.B).
+Units: 1 Blender unit = 1 stud. X east, Y north (= towards Duels, Roblox -Z), Z up. Origin = the spawn dais centre.
+Theme: vault/02 Art/Lobby V4 Theme.md. Plan: vault/02 Art/Lobby V4 Plan.md.
+"""
+from math import cos, sin, radians, pi
+
+from mathutils import Matrix, Vector
+
+import lv3_core as C
+import sw_core as S
+
+ROOT = "LobbyV4"
+D = radians
+
+# ---------------------------------------------------------------- palette: name -> (Blender hex, roughness, metal, bevel)
+PAL = {
+	"V_Wall": ("#4E5359", 0.85, 0.0, 0.07),  # graphite shell
+	"V_Panel": ("#5A5F66", 0.8, 0.0, 0.05),  # big inset wall panels, one step lighter
+	"V_Low": ("#383C41", 0.85, 0.0, 0.05),  # battered wainscot
+	"V_Base": ("#26292D", 0.85, 0.0, 0.05),  # plinth, pier feet
+	"V_Trim": ("#8A8F96", 0.6, 0.0, 0.04),  # the light grey contrast line: belts, bezels, sign rims
+	"V_Ceil": ("#33363A", 0.9, 0.0, 0.04),
+	"V_Beam": ("#41454A", 0.85, 0.0, 0.08),
+	"V_Slab": ("#17191B", 0.9, 0.0, 0.0),  # the dark floor under the plates (shows in the gaps)
+	"V_Floor": ("#4A4E54", 0.7, 0.0, 0.03),
+	"V_Floor2": ("#41454A", 0.7, 0.0, 0.03),
+	"V_Lane": ("#62666C", 0.65, 0.0, 0.03),
+	"V_Steel": ("#5E646B", 0.45, 0.4, 0.03),
+	"V_Dark": ("#16171A", 0.6, 0.0, 0.03),  # sign plates, TV cases
+	"V_Paint": ("#D9D9D4", 0.6, 0.0, 0.0),  # floor stencils
+	"V_Crate": ("#3D4347", 0.75, 0.0, 0.05),
+	"V_Gold": ("#E3AC2C", 0.35, 0.6, 0.03),
+	"V_Strap": ("#1B1D20", 0.7, 0.0, 0.05),
+	"V_GoldPaint": ("#E3AC2C", 0.6, 0.0, 0.03),
+	"V_Seat": ("#2E3135", 0.8, 0.0, 0.04),
+	"V_Rock": ("#55585C", 0.9, 0.0, 0.0),
+	"V_Rock2": ("#63676B", 0.9, 0.0, 0.0),
+}
+GLOW = {
+	"E_White": ("#F4F1EA", 9.0),  # lamp lenses and sign letters
+	"E_Gold": ("#FFC83D", 9.0),
+	"E_Violet": ("#8E6CFF", 9.0),
+	"E_Coral": ("#FF5C8A", 9.0),
+	"E_Lime": ("#B4E04A", 9.0),
+	"E_Panel": ("#DCE4EA", 3.0),  # frosted clerestory panels
+}
+_L = S._L
+LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVariants)
+	"V_Wall": _L("SmoothPlastic", "#4E5359", v="SW_Plaster"),
+	"V_Panel": _L("SmoothPlastic", "#5A5F66", v="SW_Plaster"),
+	"V_Low": _L("SmoothPlastic", "#383C41", v="SW_Plaster"),
+	"V_Base": _L("SmoothPlastic", "#26292D"),
+	"V_Trim": _L("SmoothPlastic", "#8A8F96"),
+	"V_Ceil": _L("SmoothPlastic", "#33363A", v="SW_Plaster"),
+	"V_Beam": _L("SmoothPlastic", "#41454A", v="SW_Plaster"),
+	"V_Slab": _L("SmoothPlastic", "#17191B"),
+	"V_Floor": _L("SmoothPlastic", "#4A4E54", v="SW_Floor"),
+	"V_Floor2": _L("SmoothPlastic", "#41454A", v="SW_Floor"),
+	"V_Lane": _L("SmoothPlastic", "#62666C", v="SW_Floor"),
+	"V_Steel": _L("SmoothPlastic", "#5E646B", v="SW_Steel", r=0.04),
+	"V_Dark": _L("SmoothPlastic", "#16171A"),
+	"V_Paint": _L("SmoothPlastic", "#CFCFCA"),
+	"V_Crate": _L("SmoothPlastic", "#3D4347", v="SW_Steel"),
+	"V_Gold": _L("SmoothPlastic", "#E0A830", r=0.12),
+	"V_Strap": _L("SmoothPlastic", "#1B1D20"),
+	"V_GoldPaint": _L("SmoothPlastic", "#E3AC2C"),
+	"V_Seat": _L("SmoothPlastic", "#2E3135"),
+	"V_Rock": _L("SmoothPlastic", "#55585C", v="SW_Plaster"),
+	"V_Rock2": _L("SmoothPlastic", "#63676B", v="SW_Plaster"),
+	"E_White": _L("Neon", "#8F8E8A", glow=True),  # Neon lighter than ~#8C877F clips to white: this reads clean white
+	"E_Gold": _L("Neon", "#D49A1A", glow=True),
+	"E_Violet": _L("Neon", "#6446D0", glow=True),
+	"E_Coral": _L("Neon", "#D9406E", glow=True),
+	"E_Lime": _L("Neon", "#7CAA1C", glow=True),
+	"E_Panel": _L("Neon", "#6E7378", glow=True),
+	"Glass": _L("Glass", "#E2E4E2", t=0.86, r=0.03),
+}
+WHITE = "#F4F1EA"  # lamp light
+
+
+def register():
+	"""Add the V4 materials to the Sunwell tables (called after sw_core is reloaded)."""
+	S.ROOT = ROOT
+	S.PAL.update(PAL)
+	S.GLOW.update(GLOW)
+	S.LOOKS.update(LOOKS)
+
+
+# ---------------------------------------------------------------- geometry helpers
+def oct_pts(r, rot=D(22.5), n=8):
+	"""Regular polygon with inradius r whose flat faces face the axes (vertices at 22.5 + 45k for n = 8)."""
+	rc = r / cos(pi / n)
+	return [(rc * cos(rot + 2 * pi * k / n), rc * sin(rot + 2 * pi * k / n)) for k in range(n)]
+
+
+def face_at(theta_deg, r, z=0.0):
+	"""Frame on the inner face of a wall whose outward direction is theta: X = right (seen from inside), Y = up, Z = into the room."""
+	t = D(theta_deg)
+	c, s = cos(t), sin(t)
+	return S.face((r * c, r * s, z), (s, -c, 0), (-c, -s, 0))
+
+
+def T(x=0.0, y=0.0, z=0.0):
+	return Matrix.Translation((x, y, z))
+
+
+def RX(a):
+	return Matrix.Rotation(D(a), 4, "X")
+
+
+def RY(a):
+	return Matrix.Rotation(D(a), 4, "Y")
+
+
+def inset(poly, d):
+	"""Inset a convex CCW polygon by d (uniform)."""
+	return [(p.x, p.y) for p in C._inset_poly([(x, y) for x, y in poly], d)]
+
+
+def ccw(poly):
+	a = sum(poly[i - 1][0] * poly[i][1] - poly[i][0] * poly[i - 1][1] for i in range(len(poly)))
+	return poly if a > 0 else poly[::-1]
+
+
+# ---------------------------------------------------------------- RIVALS-style word sign (our own build)
+def sign(K, M, text, w, h, accent="E_Gold", tilt=13.0, lh=None, standoff=1.0, name="Sign", light=True, chevrons=True):
+	"""A glowing word sign over a doorway. M: frame on the wall face at the sign's bottom centre (X right, Y up,
+	Z out of the wall). Built tilted down at the viewer: dark cut-corner plate, light grey rim, gold (accent) frame line,
+	thick glowing white block letters, accent chevrons either side, two steel brackets back to the wall."""
+	with C.grp(name, M, inst=False):
+		F = S.FK(K, M)
+		Mt = M @ T(0, 0, standoff) @ RX(tilt)
+		P = S.FK(K, Mt)
+		cut = h * 0.24
+		plate = ccw(S.cut_rect(-w / 2, w / 2, 0, h, cut, h * 0.08))
+		P["V_Dark"].prism(plate, 0, 0.7)
+		rim_in = inset(plate, 0.45)
+		S.ring_prism(P["V_Trim"], plate, rim_in, 0.7, 1.05)
+		line_o = inset(plate, 0.75)
+		line_i = inset(plate, 0.98)
+		S.ring_prism(P[accent], line_o, line_i, 0.7, 0.82)
+		# letters: thick block glyphs, as big as the plate allows
+		lh = lh or h * 0.5
+		chev = h * 0.42 if chevrons else 0.0
+		room = w - 2 * (1.6 + chev * 1.5 + 0.9) if chevrons else w - 3.0
+		while S.text_width(text, lh, s=0.25) > room and lh > 0.5:
+			lh *= 0.95
+		S.add_text(P["E_White"], text, lh, 0.32, y0=(h - lh) / 2, z0=0.7, s=0.25, c=0.12, ci=0.05)
+		# chevrons pointing in at the word
+		tw = S.text_width(text, lh, s=0.25)
+		for side in ((-1, 1) if chevrons else ()):
+			for k in range(2):
+				x0 = side * (tw / 2 + 0.9 + k * chev * 0.62)
+				t0, ch = chev * 0.34, chev
+				yc = h / 2
+				pts = [(x0, yc), (x0 + side * t0, yc), (x0 + side * (t0 + ch * 0.5), yc + ch / 2), (x0 + side * ch * 0.5, yc + ch / 2)]
+				pts2 = [(x0, yc), (x0 + side * ch * 0.5, yc - ch / 2), (x0 + side * (t0 + ch * 0.5), yc - ch / 2), (x0 + side * t0, yc)]
+				for q in (pts, pts2):
+					P[accent].prism(ccw(q), 0.7, 0.98)
+		# brackets: steel arms from the wall to the plate back, at the plate's quarter points
+		for bx in (-w * 0.3, w * 0.3):
+			top_out = standoff + h * sin(D(tilt))
+			F["V_Steel"].ext_x(ccw([(h * 0.15, -0.6), (h * 0.15, standoff + 0.05), (h * 0.85, top_out - 0.1), (h * 0.95, -0.6)]), bx - 0.35, bx + 0.35)
+		if light:
+			S.light(M, 0, h * 0.4, standoff + 5.0, WHITE, 1.1, 16)
+
+
+# ---------------------------------------------------------------- fixtures
+def bar_lamp(K, M, length=9.0, name="BarLamp"):
+	"""Vertical white bar lamp (RIVALS' signature fixture, our build): charcoal housing, light grey caps, a white lens
+	split by two dark bands. M: frame on the mounting face at the lamp's bottom centre, Z out."""
+	with C.grp(name, M, inst=True):
+		F = S.FK(K, M)
+		F["V_Dark"].prism(ccw(S.cham_rect(-0.95, 0.95, 0, length, 0.16)), 0, 0.75)
+		for y0 in (0.0, length - 0.7):
+			F["V_Trim"].prism(ccw(S.cut_rect(-1.15, 1.15, y0 - 0.15, y0 + 0.85, 0.32, 0.08)), -0.05, 0.95)
+		seg = (length - 1.6) / 3
+		for k in range(3):
+			y0 = 0.8 + k * seg + (0.15 if k else 0)
+			y1 = 0.8 + (k + 1) * seg - (0.15 if k < 2 else 0)
+			F["E_White"].prism(ccw(S.cham_rect(-0.55, 0.55, y0, y1, 0.07)), 0.5, 0.92)
+	S.light(M, 0, length * 0.5, 1.6, WHITE, 0.9, 13)
+
+
+def down_light(K, M, x, y, z, rng=24, bright=1.6, angle=80, name="DownLight"):
+	"""A hooded ceiling can at (x, y, z) of frame M (world-up must be M's +Z or the ceiling plane): the spot points down."""
+	S.light(M, x, y, z - 0.6, WHITE, bright, rng, angle)
+
+
+def board(K, M, w, h, kind, title, sub="", name="Board", accent="E_Gold"):
+	"""A dark-cased screen on a wall (TV): case with big chamfers, light grey bezel, the screen face recorded for a
+	SurfaceGui, a hood lamp over it. M: frame on the wall face at the board's bottom centre."""
+	with C.grp(name, M, inst=False):
+		F = S.FK(K, M)
+		case = ccw(S.cut_rect(-w / 2, w / 2, 0, h, 1.1, 0.25))
+		F["V_Dark"].prism(case, 0, 1.1)
+		S.ring_prism(F["V_Trim"], inset(case, 0.25), inset(case, 0.6), 1.1, 1.3)
+		F[accent].prism(ccw(S.cham_rect(-w / 2 + 1.4, -w / 2 + 3.6, 0.32, 0.62, 0.1)), 1.1, 1.22)  # status bar
+		S.screen(kind, title, sub, M, 0, h / 2, 1.16, w - 1.6, h - 1.6)
+		# hood lamp: a steel wedge over the top edge with a white lens underneath
+		F["V_Steel"].ext_x(ccw([(h + 0.2, 0.2), (h + 0.2, 2.4), (h + 1.0, 2.6), (h + 1.3, 0.2)]), -w * 0.3, w * 0.3)
+		F["E_White"].ext_x(ccw([(h + 0.12, 0.6), (h + 0.12, 2.1), (h + 0.25, 2.1), (h + 0.25, 0.6)]), -w * 0.28, w * 0.28)
+		S.light(M, 0, h + 0.2, 3.2, WHITE, 0.9, 12)
+
+
+def crate(K, M, w=5.0, d=4.0, h=3.2, name="Crate"):
+	"""Equipment crate: chamfered body, two dark straps that wrap it, corner caps, a gold stencil plate."""
+	with C.grp(name, M, inst=True):
+		F = S.FK(K, M)
+		F["V_Crate"].ext_y(ccw(S.cham_rect(-w / 2, w / 2, 0, h, 0.18)), -d / 2, d / 2)
+		for sx in (-w * 0.28, w * 0.28):
+			S.ring_prism(F["V_Strap"], ccw(S.cham_rect(-d / 2 - 0.08, d / 2 + 0.08, -0.04, h + 0.08, 0.22)),
+				ccw(S.cham_rect(-d / 2 + 0.02, d / 2 - 0.02, 0.02, h - 0.02, 0.15)), sx - 0.35, sx + 0.35, plane="yz")
+		F["V_GoldPaint"].box(-0.9, 0.9, -d / 2 - 0.05, -d / 2 + 0.02, h * 0.42, h * 0.72)
+		F["V_Strap"].box(-w / 2 + 0.25, w / 2 - 0.25, -d / 2 + 0.3, d / 2 - 0.3, h - 0.02, h + 0.12)  # lid seam plate
+
+
+def floor_text(K, M, text, h, mat="V_Paint", z=0.0):
+	"""Stencil text lying on the floor: M's XY plane is the floor, text baseline along X, reading towards +Y."""
+	b = S.FK(K, M)[mat]
+	S.add_text(b, text, h, 0.04, y0=0.0, z0=z, s=0.2, stencil=True)
+
+
+def chevron(K, M, x, y, size, mat="V_Paint", z=0.0, depth=0.04, t=0.32):
+	"""A floor chevron pointing +Y at (x, y) of frame M."""
+	b = S.FK(K, M)[mat]
+	a = size / 2
+	pts = [(x - a, y - a * 0.6), (x, y + a * 0.4), (x + a, y - a * 0.6), (x + a, y - a * 0.6 + t * size), (x, y + a * 0.4 + t * size), (x - a, y - a * 0.6 + t * size)]
+	b.prism(ccw(pts), z, z + depth)
+
+
+# ---------------------------------------------------------------- wall runs (shared by every room)
+def spans(x0, x1, cuts):
+	out = [(x0, x1)]
+	for c0, c1 in cuts:
+		nxt = []
+		for a, b in out:
+			if c1 <= a or c0 >= b:
+				nxt.append((a, b))
+				continue
+			if c0 > a:
+				nxt.append((a, c0))
+			if c1 < b:
+				nxt.append((c1, b))
+		out = nxt
+	return [(a, b) for a, b in out if b - a > 0.05]
+
+
+def wall_run(K, KD, M, x0, x1, H, ops=(), panel_skip=(), panels=True, t=4.0, crown=True, dx0=None, dx1=None):
+	"""A wall in face frame M from x0 to x1, height H. ops: openings (x0, x1, y0, y1). Layers: slab (collides),
+	plinth, battered wainscot panels, light belt ledge, big inset upper panels with a mid rail, stepped crown."""
+	F = S.FK(K, M)
+	FD = S.FK(KD, M)
+	ys = sorted({0.0, H} | {o[2] for o in ops} | {min(o[3], H) for o in ops})
+	for ylo, yhi in zip(ys, ys[1:]):
+		cuts = [(o[0], o[1]) for o in ops if o[2] < yhi - 1e-6 and o[3] > ylo + 1e-6]
+		for a, b in spans(x0, x1, cuts):
+			F["V_Wall"].box(a, b, ylo, yhi, -t, 0)
+
+	x0, x1 = (x0 if dx0 is None else max(x0, dx0)), (x1 if dx1 is None else min(x1, dx1))
+
+	def band(y0, y1):
+		return spans(x0, x1, [(o[0], o[1]) for o in ops if o[2] < y1 and o[3] > y0])
+
+	for a, b in band(0, 1.4):
+		FD["V_Base"].ext_x(ccw([(0, 0), (0, 0.7), (1.0, 0.7), (1.4, 0.38), (1.4, 0)]), a, b)
+	for a, b in band(1.4, 9.0):
+		n = max(1, round((b - a) / 7.5))
+		w = (b - a) / n
+		for k in range(n):
+			p0, p1 = a + k * w + (0.11 if k else 0), a + (k + 1) * w - (0.11 if k < n - 1 else 0)
+			FD["V_Low"].ext_x(ccw([(1.4, 0), (1.4, 0.55), (9.0, 0.26), (9.0, 0)]), p0, p1)
+	for a, b in band(9.0, 10.0):
+		FD["V_Trim"].ext_x(ccw([(9.0, 0), (9.0, 0.85), (9.55, 0.85), (10.0, 0.45), (10.0, 0)]), a, b)
+	top = H - 4.0
+	if panels:
+		cuts = [(o[0] - 0.8, o[1] + 0.8) for o in ops if o[3] > 11.0] + list(panel_skip)
+		for a, b in spans(x0 + 0.8, x1 - 0.8, cuts):
+			n = max(1, round((b - a) / 11.0))
+			w = (b - a) / n
+			for k in range(n):
+				p0, p1 = a + k * w + 0.5, a + (k + 1) * w - 0.5
+				if p1 - p0 < 2.0:
+					continue
+				FD["V_Panel"].prism(ccw(S.cut_rect(p0, p1, 11.2, top - 0.8, 1.5, 0.3)), 0, 0.32)
+				ym = (11.2 + top - 0.8) / 2
+				FD["V_Trim"].prism(ccw(S.cham_rect(p0 + 1.7, p1 - 1.7, ym - 0.25, ym + 0.25, 0.08)), 0.32, 0.46)
+	if crown:
+		for a, b in band(top, H):
+			FD["V_Trim"].ext_x(ccw([(top, 0), (top, 0.55), (top + 0.8, 0.55), (top + 0.8, 0)]), a, b)
+			FD["V_Wall"].ext_x(ccw([(top + 0.8, 0), (top + 0.8, 0.6), (top + 2.6, 1.8), (H, 1.8), (H, 0)]), a, b)
+
+
+def pier_at(K, KD, M, H, area, lamp=True, w=3.6, d=3.1, name="Pier"):
+	"""A pier standing against a wall (frame M on the wall face, Z out): flared foot, shaft, trim flare, capital,
+	a channel with a bar lamp, a down-light from the head. Hand collider inside the shaft."""
+	with C.grp(name, M, inst=True):
+		F = S.FK(KD, M)
+		S.collider(area, M, -w + 0.6, w - 0.6, 0.0, H, -1.0, d - 0.5, "B")
+		F["V_Base"].ext_y(ccw(S.cham_rect(-w - 0.7, w + 0.7, -1.0, d + 0.7, 0.45)), 0, 1.8)
+		F["V_Wall"].ext_y(ccw(S.cham_rect(-w, w, -1.0, d, 0.6)), 1.8, H - 5.4)
+		S.taper_y(F["V_Trim"], (-w, w, -1.0, d), H - 5.4, (-w - 0.7, w + 0.7, -1.0, d + 0.8), H - 4.25)
+		F["V_Wall"].ext_y(ccw(S.cham_rect(-w - 0.7, w + 0.7, -1.0, d + 0.8, 0.5)), H - 4.25, H)
+		if lamp:
+			F["V_Low"].ext_y(ccw(S.cham_rect(-1.5, 1.5, d - 0.2, d + 0.25, 0.08)), 10.6, 22.4)
+	if lamp:
+		bar_lamp(KD, M @ T(0, 11.2, d + 0.25), length=10.6)
+	S.light(M, 0, H - 4.6, d + 2.2, WHITE, 1.3, 30, 75)
+
+
+# ---------------------------------------------------------------- rooms (Locker, Shop): shell, mouth, display niches
+def wframe(origin, xdir, z0=0.0):
+	"""Wall face frame at origin (floor level z0): X along xdir, Z into the room (right of xdir seen from above)."""
+	x = Vector(xdir).normalized()
+	return S.face((origin[0], origin[1], z0), (x.x, x.y, 0), (x.y, -x.x, 0))
+
+
+def cframe(p, zin, z0=0.0):
+	z = Vector(zin).normalized()
+	return S.face((p[0], p[1], z0), (-z.y, z.x, 0), (z.x, z.y, 0))
+
+
+def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.0):
+	"""A rectangular room: four wall runs (ops / skips per wall: 'S', 'N', 'W', 'E', in each wall's local x), corner
+	piers, a ceiling slab with beams across X at beams_x and light panels between, a slab floor with plates.
+	Returns the wall frames {side: (M, length)}."""
+	ops, skips = ops or {}, skips or {}
+	W, D = x1 - x0, y1 - y0
+	walls = {"S": (wframe((x1, y0), (-1, 0), z0), W), "N": (wframe((x0, y1), (1, 0), z0), W),
+		"W": (wframe((x0, y0), (0, 1), z0), D), "E": (wframe((x1, y1), (0, -1), z0), D)}
+	for side, (M, L) in walls.items():
+		ext = 4.0 if side in "SN" else 0.0
+		run(K, KD, M, -ext, L + ext, H, ops.get(side, []), skips.get(side, []), dx0=2.0, dx1=L - 2.0)
+	for p, zin in (((x0, y0), (1, 1)), ((x1, y0), (-1, 1)), ((x1, y1), (-1, -1)), ((x0, y1), (1, -1))):
+		pier_at(K, KD, cframe(p, zin, z0), H, area, w=2.8, d=3.0, name="CornerPier")
+	z = z0 + H
+	K["V_Ceil"].box(x0 - 4, x1 + 4, y0 - 4, y1 + 4, z, z + 1.5)
+	K["V_Slab"].box(x0 - 4, x1 + 4, y0 - 4, y1 + 4, z0 - 1.2, z0 - 0.02)
+	xs = [x0] + list(beams_x) + [x1]
+	for bx in beams_x:
+		KD["V_Beam"].ext_y(ccw([(bx - 1.4, z + 0.25), (bx - 1.4, z - 1.6), (bx - 0.8, z - 2.3), (bx + 0.8, z - 2.3), (bx + 1.4, z - 1.6), (bx + 1.4, z + 0.25)]), y0, y1)
+	for a, b in zip(xs, xs[1:]):
+		xm = (a + b) / 2
+		KD["E_White"].prism(ccw(S.cham_rect(xm - min(5.0, (b - a) / 2 - 3), xm + min(5.0, (b - a) / 2 - 3), (y0 + y1) / 2 - 2.2, (y0 + y1) / 2 + 2.2, 0.6)), z - 0.15, z)
+		S.light(Matrix.Identity(4), xm, (y0 + y1) / 2, z - 0.4, WHITE, 1.1, 30, 80)
+	nx, ny = max(1, round(W / 12)), max(1, round(D / 12))
+	for i in range(nx):
+		for j in range(ny):
+			ax, bx = x0 + W * i / nx, x0 + W * (i + 1) / nx
+			ay, by = y0 + D * j / ny, y0 + D * (j + 1) / ny
+			KD["V_Floor" if (i + j) % 2 == 0 else "V_Floor2"].box(ax + 0.125, bx - 0.125, ay + 0.125, by - 0.125, z0, z0 + 0.12)
+	return walls
+
+
+def run(K, KD, M, x0, x1, H, ops, skips, dx0=None, dx1=None):
+	wall_run(K, KD, M, x0, x1, H, ops, panel_skip=skips, dx0=dx0, dx1=dx1)
+
+
+def mouth(KD, M, hw, h, rings=(1.5, 1.3, 1.2), cut=2.4, depth=4.2, y0=0.0):
+	"""The room side of a hub doorway: the same stepped rings, the lining carried through the room's wall."""
+	a, b, c = rings
+	h1, h2, h3 = hw - a, hw - a - b, hw - a - b - c
+	v1, v2, v3 = h - a + 0.1, h - a - b + 0.1, h - a - b - c + 0.1
+	F = S.FK(KD, M)
+	S.u_frame(F["V_Trim"], hw, h, h1, v1, -1.0, 1.6, ci=cut + 0.4, y0=y0)
+	S.u_frame(F["V_Wall"], h1, v1, h2, v2, -3.0, 0.9, co=cut + 0.4, ci=cut + 0.2, y0=y0)
+	S.u_frame(F["V_Low"], h2, v2, h3, v3, -depth, 0.3, co=cut + 0.2, ci=cut, y0=y0)
+	S.light(M, 0, v3 - 0.8, 4.5, WHITE, 1.4, 20, 80)
+
+
+def niche(K, KD, M, u, w, label, guns, accent, area, sill=3.6, top=13.0, depth=3.2):
+	"""A display cabinet standing against a wall (frame M, centred at u), so the wall trims run on behind it untouched:
+	a base cabinet with a kick and a light lip, a lined glass case with a white wash under its cap, a light grey front
+	frame, an accent strip, a label plate on the cap, real guns resting inside (S.gun_row). Returns its panel skip."""
+	B = M @ T(u, 0, 0)
+	hw = w / 2
+	z0, z1 = 0.85, 0.85 + depth
+	with C.grp("Case_" + label.title(), B):
+		F, G = S.FK(K, B), S.FK(KD, B)
+		F["V_Wall"].box(-hw - 0.6, hw + 0.6, 0.5, sill - 0.2, z0, z1 + 0.3)
+		G["V_Base"].box(-hw - 0.4, hw + 0.4, 0.0, 0.5, z0, z1)
+		G["V_Trim"].box(-hw - 0.7, hw + 0.7, sill - 0.2, sill, z0, z1 + 0.42)
+		G["V_Panel"].box(-hw, hw, sill, top, z0, z0 + 0.25)  # a lighter back so the guns read
+		for sx in (-1, 1):
+			G["V_Dark"].box(sx * hw, sx * (hw + 0.6), sill, top, z0, z1)
+		G["V_Wall"].box(-hw - 0.6, hw + 0.6, top, top + 1.1, z0, z1 + 0.3)
+		G["V_Trim"].box(-hw - 0.7, hw + 0.7, top + 1.1, top + 1.3, z0, z1 + 0.42)
+		G["E_White"].box(-hw + 0.4, hw - 0.4, top - 0.25, top - 0.05, z0 + 0.4, z1 - 0.3)
+		S.ring_prism(G["V_Trim"], ccw(S.cham_rect(-hw - 0.6, hw + 0.6, sill, top, 0.01)), ccw(S.cham_rect(-hw + 0.15, hw - 0.15, sill + 0.15, top - 0.15, 0.25)), z1, z1 + 0.35)
+		G["Glass"].box(-hw + 0.1, hw - 0.1, sill + 0.1, top - 0.1, z1 - 0.12, z1 - 0.02)
+		G[accent].box(-hw + 0.5, hw - 0.5, sill - 0.75, sill - 0.5, z1 + 0.3, z1 + 0.42)
+		S.add_text(G["E_White"], label, 0.8, 0.08, y0=top + 0.15, z0=z1 + 0.3, s=0.22, c=0.06, ci=0.02, track=0.16)
+		S.collider(area, B, -hw - 0.4, hw + 0.4, 0.0, sill - 0.4, z0 + 0.1, z1 + 0.2, "B")  # inside the base only
+		S.collider(area, B, -hw - 0.4, hw + 0.4, sill - 0.4, top + 1.1, z0 + 0.1, z1 + 0.2, "Y")  # invisible keep-out over the glass
+		S.light(B, 0, top - 1.2, z0 + depth / 2, WHITE, 1.6, 12)
+		import sw_locker
+		R = B.to_3x3()
+		for gid, sc, yy in guns:  # one gun per shelf height, centred, scaled to fit the case
+			L, _h = sw_locker.gun_box(gid)
+			sc = min(sc, (w - 2.4) / max(L, 0.1))
+			p = B @ Vector((0.0, yy, z0 + depth / 2))
+			G["V_Steel"].box(-L * sc * 0.32, L * sc * 0.32, yy - 0.16, yy, z0 + depth / 2 - 0.35, z0 + depth / 2 + 0.35)  # the rail it rests on
+			for rx in (-L * sc * 0.28, L * sc * 0.28):
+				G["V_Steel"].box(rx - 0.12, rx + 0.12, yy - 0.16, yy - 0.04, z0 + 0.25, z0 + depth / 2 - 0.35)  # arms back to the case
+			t = R @ Vector((1, 0, 0))
+			S.gun_row([gid, sc, round(p.x, 3), round(p.y, 3), round(p.z, 3), round(t.x, 4), round(t.y, 4), 0, 0])
+	return (u - hw - 1.4, u + hw + 1.4)

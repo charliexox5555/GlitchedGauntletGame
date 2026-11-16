@@ -55,6 +55,7 @@ Last updated 2026-11-12. Skills that enforce it:
 - No pills, no hard boxes everywhere, no glow halos, no glossy gradients.
 
 ## 7. Lobby and menus in the world
+- **Changed 2026-11-16 (owner): Lobby V4 takes the RIVALS feel** ([Lobby V4 Theme](Lobby%20V4%20Theme.md)): a dark, structured bunker (graphite walls, light grey trim lines, white bar lamps), colour only in floor lines, signs and gameplay objects (gold for the lobby, one extra accent per wing), RIVALS-style glowing word signs in chunky cut-corner frames over each door. Our own meshes and words; the faceted rule stays. The light-grey lines below are the Sunwell look it replaces.
 - Lobby: a stylised hub in third person (Sunwell Works). It has faceted architecture, real fixtures that make light pools, SurfaceGui boards in the UI theme, and equal duel pads in mode order. One accent per room.
 - **Changed 2026-11-13 (owner, with friends' notes):** a **clean modern tactical facility, not steampunk, not dull**.
   - Structure: light grey walls, a slate wainscot and charcoal trim.
