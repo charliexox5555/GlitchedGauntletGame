@@ -15,7 +15,7 @@ Studio (`References/lobby/v4/studio/`): `r2_01_spawn`, `r3_02_hub_oblique`, `r1_
 | **Locker** | 52 x 48 x 28 room: six lit gun cabinets (SIDEARMS, RIFLES, SNIPERS, SMGS, SHOTGUNS, HEAVY: 12 real guns), the LOADOUT station (stage, board, sign, console), a hero Vandal turning over a violet plinth. | `LobbyLocker` on the console |
 | **Shop** | 54 x 52 x 28 room: the SUPPLY counter with the featured board, the **SEASON PASS** wall (board, sign, podium, terminal), three skin cabinets (SKINS, BUNDLES, NEW), a crate group. | `LobbyShop` on the counter, `LobbyBattlePass` on the terminal |
 
-**Numbers:** 2,942 instances in Studio (budget 3,200), about 83k triangles exported (Concourse 24k, Duels 29k, Locker 16k, Shop 14k), 118 lights (no shadows; bar lamps throw short pools), 19 SurfaceGui screens, 19 real guns, 746 colliders (hand boxes inside the visible solids; glass and cases use invisible keep-outs).
+**Numbers (after the detail and life rounds):** 3,817 instances in Studio (budget raised to 4,000; RIVALS' hub is about 5,700), about 195k triangles (budget 240k), 151 lights with no shadows (each lamp, sign and pad throws its own light; RIVALS uses about 130), 38 SurfaceGui screens, 23 real guns, about 950 colliders (hand boxes inside the visible solids; glass and cases use invisible keep-outs). **Phone check still to do** in a real phone test (MicroProfiler).
 
 ## Pipeline (live Blender MCP only)
 - Blender: the owner's V4 instance. It listened on **port 9999**, not 9934 as first said. Code goes through `tools/blender/lobby_v4/send.py --port 9999 --pid <pid>`. File `art-source/lobby/LobbyV4.blend`.
@@ -57,6 +57,27 @@ Studio (`References/lobby/v4/studio/`): `r2_01_spawn`, `r3_02_hub_oblique`, `r1_
 1. **Lighting depth:** lamps that really pool (SurfaceLights on the bar lamps, a lower ambient), ceiling lamp cards with housings, and darker Locker / Shop walls (they read lighter than the hub).
 2. **Dressing:** the walls between fixtures are bare. Add vents, plaques, kick plates, crate groups and wall breaks; dress the bay interiors (side lamps, back frames); give the Shop centre a featured plinth.
 3. **The sign silhouette:** two reviewers called the `>> WORD <<` plate the closest thing to a RIVALS copy. Option: our own frame shape (one slanted end, our gold bar) while keeping the glow.
+
+## Detail and life rounds (owner 2026-11-16: "more character, less simple shapes and pill looks; connection parts; vents, warning signs, lights and accents pull RIVALS together")
+| Round | Added or changed |
+|---|---|
+| Character | Bar lamps rebuilt as caged faceted lamps (bolted plate, trapezoid housing, lens behind steel bars, angled caps, conduit up into a junction box, a down-light pool). Pier collars at the belt line and steel gussets under every beam root. Conduit runs with saddle clamps and flanges into the piers. Boards on bolted ears with a power feed into a wall junction box. Tunnel ribs with light strips inside every doorway. Gold hazard thresholds at every bay mouth. Housed ceiling lamps with grilles (no floating light cards). Our own sign silhouette: a leaning plate, a gold slash pair and a gold tab. |
+| The little things | Wall vents (faceted louvre frames, angled slats, bolts) in mixed sizes. Printed safety plaques in our words (WARNING / CAUTION / NOTICE: "WHEN LAMPS FLASH, MATCH STARTS", "STAND ON PAD TO QUEUE", "RANGE CLOSED, OPENS SOON"). Alarm beacons in cages. A hung octagonal truss ring with eight yoke-mounted stage spots on the dais, kept under the lantern ring so it never crosses a door sign. |
+| Life | Four showcase stands with real guns turning round the dais (our answer to RIVALS' hologram stands). An arcade cabinet ("TARGET RUN"). Hard-case and crate groups. A Shop feature plinth. Hero guns on turntables (they read as floating before). |
+| Light | Env diffuse for form gradients, ambient under outdoor (LihFolk), a neutral grade (the sky's blue was tinting the rooms), team-coloured light off every pad, signs that throw their room's accent, lighter bay linings, lighter ceilings so the coffers read, bloom 0.6/24/1.4, light distance haze. |
+
+**Checks each round:** the geometry audit (0 floating, 0 leaks; the visible pairs left are clamp and plate backs against wall planes), a scripted sightline check from the spawn, the hub corners, the Duels landing and middle and the room doors to every sign and board (no blockers), a route check along every lane (clear), and close-up captures. Two "white outline" sightings in captures were Studio's mouse-hover highlight (rays hit only the wall there). The bay boards are partly hidden by the near door jamb at oblique angles, which is perspective, not a glitch.
+
+**Compared with RIVALS** (three blind reviewers rate both lobbies on the same rubric):
+| Round | V4 weighted | RIVALS weighted | V4 as % of RIVALS |
+|---|---|---|---|
+| After the character pass | 6.9, 7.3, 6.7 | 7.6, 7.9, 8.1 | 91%, 92%, 83% |
+| After the life pass (showcases, arcade, props, team light, lower ambient) | 6.8, 7.3, 7.1 | 7.8, 7.3, 7.3 | 88%, 99%, 97% |
+| After round 5 (dais collar, drop stand, grates, hero spots, tighter accents) | 6.6, 7.3, 6.9 | 7.8, 7.7, 7.8 | 85%, 94%, 88% (median **88%**) |
+
+What all three still say holds V4 under RIVALS: **life that moves or rewards a look** (RIVALS' spinning hologram pickups and sparkles; ours turn slowly and are dim), **light pools and hero light shapes** (beam cones from the spots), **prop storytelling** (rooms read as the same shell recoloured), the **sealed Range door** in a prime spot, and **placeholder boards** filling wall space. Fixed after the last panel: solid floor words (the stencil breaks read as glitches), white STAND HERE text (gold broke the violet and pink rooms), the Locker room sign now says LOCKER (it said LOADOUT, a mismatch with the hub).
+
+**Next round (proposed):** Beam light cones from the truss spots onto the dais and showcases, sparkle emitters and a slow bob on the showcase guns, a SurfaceLight on every wall tube, a dressed vault hall end in Duels, one prop story per room (Locker: a gunsmith bench; Shop: a crate being unpacked), live board content from the lobby UI lane, and a phone performance test.
 
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.

@@ -284,7 +284,7 @@ def crate(K, M, w=5.0, d=4.0, h=3.2, name="Crate"):
 def floor_text(K, M, text, h, mat="V_Paint", z=0.0):
 	"""Stencil text lying on the floor: M's XY plane is the floor, text baseline along X, reading towards +Y."""
 	b = S.FK(K, M)[mat]
-	S.add_text(b, text, h, 0.04, y0=0.0, z0=z, s=0.2, stencil=True)
+	S.add_text(b, text, h, 0.04, y0=0.0, z0=z, s=0.2)  # solid letters: the stencil breaks read as glitches
 
 
 def chevron(K, M, x, y, size, mat="V_Paint", z=0.0, depth=0.04, t=0.32):
