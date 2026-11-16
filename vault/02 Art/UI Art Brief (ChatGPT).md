@@ -37,14 +37,26 @@ Note: ChatGPT's desktop app refused Claude's clicks (Windows UIPI, likely run as
 
 
 ## Card art v2 + the free pack (2026-11-17)
-The owner: the v1 cards are "a bit too realistic", they "don't really fit the vibe"; they want a cooler, cleaner, less fancy look that shows what each power does without looking Roblox-blocky, plus cards for the three new Mods (Shock Dart, Flash, Roller).
+The owner: the v1 cards are "a bit too realistic", they "don't really fit the vibe"; they want a cooler, cleaner, less fancy look that shows what each power does without looking Roblox-blocky, plus cards for the three new Mods (Shock Dart, Flash, Roller). Then: "they all need their own kind of theme... the background should be more simple, like a simple backdrop... so they all look exactly the same... and should look like our new abilities."
+
+### The theme: "Gauntlet Stage"
+One backdrop behind all 12 cards, made by us so it is exactly the same on every card: `art-source/ui/chatgpt/card_backdrop.png` (1024 x 768, `tools/ui/make_card_backdrop.py`).
+- A dark slate room: a gradient from slate `#2A313B` at the top to charcoal `#14181E`.
+- Two staggered plates in our UI shape language: a darker one at the back with its top-left corner cut, and the front panel with one 45° cut on the top right, a lit top edge and a hairline.
+- A faint diagonal slash across the front panel (the brand mark) and a faint floor grid.
+- A soft neutral pool of light on the floor where the subject stands.
+- The bottom 35% fades to `#12151A` for the card's text.
+- No colour of its own: each card adds only its subject and that power's coloured light. `card_backdrop_example.png` shows a sample orange light on it.
+
+### Matching our abilities
+`art-source/ui/chatgpt/card_refs/` (`tools/ui/make_card_refs.py`): for each Mod, its real model captured clean in Studio and its in-game effect, side by side and labelled. `All.png` puts the 12 on one sheet; the sources are in `card_refs/src/`. ChatGPT redraws these in the clean stylised look, so the shapes, colours and effects match what players see in game. Dash and Updraft have no model, only their wind strokes. Firewall shows only its wall.
 
 **What changes from v1:**
-- Painterly brushwork, detailed arena buildings and busy particles become clean cel-shaded graphic shapes on a plain dark gradient with a few angular hints.
+- Painterly brushwork, detailed arena buildings and busy particles become clean cel-shaded subjects on one fixed backdrop.
 - One hero subject per card, showing the power in action, readable at draft-card size.
-- Colours now follow each power's in-game look (the fire, ice, scan and flash colours), not the old guesses.
+- Subjects and colours come from the in-game models and effects (the reference sheet), not guesses.
 - Our faceted shape language: angular, chunky, not cubes.
-- The Flash and Roller cards come with their Blender renders attached (`art-source/abilities/FreePack/v01/renders/Flash_hero.png`, `Roller_front.png`) so the art matches the in-game models.
+- A style lock: Molly is made first as the style master; once the owner likes it, the other 11 match it.
 - Part 2 makes ChatGPT icons for the three new Mods (they use stand-ins today).
 
 **Pipeline when the images come back:**
@@ -53,42 +65,48 @@ The owner: the v1 cards are "a bit too realistic", they "don't really fit the vi
 3. Upload with `tools/opencloud/upload_asset.py --type Decal` and resolve the image ids.
 4. Wire them up: `Config/Theme CARD_ART` (draft cards, the match-end screen) and `Config/Mods` `icon` (draft, HUD slots, kill feed, status tray).
 
-### The prompt (paste into ChatGPT, attaching the two renders)
-> I'm remaking the ability card art for my Roblox shooter (GlitchedGauntletGame). The old cards were too painterly and realistic. I want a cleaner, cooler, more stylised set where each card clearly shows what the ability does. Everything must be original: no characters, logos or ability art from Valorant, RIVALS, Overwatch or any other game.
+### The prompt
+Attach `card_backdrop.png` and `card_refs/All.png`. Then paste the text below. If a card drifts from the set, attach that power's own sheet (`card_refs/<Id>.png`) and ask for a redo.
+
+> I'm remaking the ability card art for my Roblox shooter. There are 12 cards, one per ability. They must look like one matching set, and each card has to show clearly what its ability does. Everything must be original: no characters, logos or ability art from Valorant, RIVALS, Overwatch or any other game.
 >
-> STYLE (the same for all 12; they must look like one set)
-> - Clean stylised game illustration: bold graphic shapes, crisp edges, cel-shading with 2-3 flat tones per surface, and one soft glow on the energy only. Think simplified modern hero-shooter splash art. Not painterly, not photoreal: no brush texture, film grain, tiny details or busy particle clouds.
-> - Shapes are angular and faceted (cut corners, flat planes, sharp tapers), solid and chunky, but NOT Roblox-blocky: no plain cubes, studs or LEGO look.
-> - One hero subject: the ability in action, big and readable, in the upper middle of the frame, seen at a dynamic 3/4 angle. It must still read when the card is shown small (about 190 x 150 px).
-> - Background: simple and dark.
->   - A smooth gradient from charcoal at the bottom (#14181E) to slate at the top (#2A313B).
->   - A few faint, large angular shapes (a diagonal slash, a cut-corner panel, a floor line) to hint at an arena.
->   - No buildings, props, sky or detailed scenery.
-> - Colour: neutral greys plus the ability's own colour (given below), which is the light source and the only saturated colour. The light comes from the effect itself, with a soft rim light on the shapes around it.
-> - The bottom 35% of the image stays dark and empty, fading to #12151A; the card's text sits there.
+> I've attached two images:
+> 1. card_backdrop.png: THE BACKGROUND FOR EVERY CARD. Use it exactly as it is, the same on all 12: same size, same plates, same floor, same framing. Don't redraw it, restyle it, zoom it, add scenery or change its colours. On top of it, add only the ability's subject and that ability's coloured light.
+> 2. All.png: our real in-game abilities. For each one it shows the model and what the effect looks like in game. Draw OUR versions: the same shapes, parts, colours and effect type, redrawn in the style below. These are game screenshots, so leave out the screenshot look: no sky, no arena, no gun or hand, no HUD, no plastic Roblox look.
+>
+> STYLE (identical on all 12)
+> - Clean stylised game illustration: bold graphic shapes, crisp edges, cel-shading with 2-3 flat tones per surface, a thin bright rim light, and one soft glow on the energy only. Think simplified modern hero-shooter splash art.
+> - Not painterly or photoreal: no brush texture, film grain, tiny details or busy particle clouds.
+> - Shapes are angular and faceted (cut corners, flat planes, sharp tapers), solid and chunky, but NOT Roblox-blocky: no plain cubes, no studs, no LEGO look.
+>
+> LAYOUT (identical on all 12)
+> - One hero subject, the ability in action, standing on the backdrop's floor in the pool of light, centred, in front of the cut-corner panel. Seen from a slight 3/4 angle a little above, like the reference model shots.
+> - Same scale on every card: the subject fills about the middle half of the width, and its top stays inside the panel.
+> - The effect may spread across the floor and rise into the panel, but the bottom 35% of the image stays dark and empty for the card's text.
+> - The ability's colour lights the subject, the floor around it and the panel behind it. That's the only saturated colour on the card.
 > - No text, numbers, UI, frames, borders, people, hands, or weapons held by anyone.
-> - Format: 1024 x 768 PNG (4:3).
+> - 1024 x 768 PNG (4:3), the same size as the backdrop.
 >
-> THE 12 CARDS (file name: what to show, then colour)
-> 1. Dash: a sharp burst of speed racing across the floor from left to right. A long tapered wind streak shaped like an arrow, two or three fading after-image chevrons behind it, a few chunks of floor dust kicked up. Cool white with sky blue #5BC8FF.
-> 2. Updraft: a tight spiralling column of wind blasting straight up from a small hexagonal launch ring on the floor, angular debris lifted inside it, motion lines going up. White with sky blue #5BC8FF.
-> 3. Molly: a faceted metal fire canister (octagonal body, pull ring) tumbling onto the floor and bursting into a wide pool of stylised angular flame tongues. Orange #FF7A2E with a hot yellow core.
-> 4. Firewall: a tall wall of stylised angular flame tongues running in a curve across the floor, blocking the view, a scorch line at its base. Orange-red #FF5A2E with hot yellow tips.
-> 5. Frost: a canister shattering on the floor into a starburst of big faceted ice crystals, a frost ring spreading flat across the floor, a few ice shards in the air. Icy blue #7FD6FF and white.
-> 6. Recon: a small sensor dart stuck at an angle in a wall, sending out a flat ring-shaped scan pulse; behind the wall, two enemy positions show as red diamond markers. Cyan #2FD3E6, markers red #FF5A4E.
-> 7. HealOrb: a floating glowing orb with a bright plus-shaped core, a slow ring of light around it and a few healing motes rising. Green #5EE09A.
-> 8. Stim: a small beacon on the floor projecting a low glowing zone dome, with upward chevron arrows rising inside it (a speed boost) and a crackle of energy on the beacon's coil. Yellow #FFC83D.
-> 9. Recall: a faceted anchor beacon planted on the floor, a glowing trail looping back to it like a rewind arrow, broken light fragments being pulled in. Violet #9B6BFF.
-> 10. ShockDart: a bow bolt with a pronged, amber-tipped head hitting the floor, a lightning strike cracking down onto the impact, and jagged electric arcs crawling out across a flat ring on the floor. Electric blue #5EC4FF with amber #FFB547 tips.
-> 11. Flash: a faceted flare canister with a gold lens bursting in mid-air into a blinding starburst, with a white-gold core and long light rays fanning out across the whole frame. Gold #FFF0B8 core, pale cool teal #BFE6D6 rays; the background stays dark. (The attached Flash_hero.png is the in-game canister; match its shape.)
-> 12. Roller: a cheeky little bomb bot rolling fast toward the camera, about to blow. A faceted charcoal body slung between two big chunky wheels, two angry slanted glowing orange eyes, a yellow-and-black hazard stripe on its chin, a small antenna, sparks and a hint of fire trailing behind. Fire orange #FF6A1A and hazard yellow #FFC83D. (The attached Roller_front.png is the in-game bot; match its shape.)
+> THE 12 CARDS (name: what to show, then its colour)
+> 1. Dash: there's no object, just the wind. A burst of speed racing across the floor from left to right: long sharp white wind strokes like the ones in the reference, two or three fading after-image chevrons, a few flecks kicked off the floor. White with sky blue #5BC8FF.
+> 2. Updraft: the wind again. A tight column of the same sharp wind strokes blasting straight up from a small hexagonal ring on the floor, a few angular flecks lifted inside it. White with sky blue #5BC8FF.
+> 3. Molly: our canister (a squat charcoal body with orange side panels and a small cap) landing on the floor and bursting into a wide round pool of angular flame tongues, like its in-game fire pool. Orange #FF7A2E with a hot yellow core.
+> 4. Firewall: a long, low wall of angular flame tongues crossing the floor at a slight angle, red-orange at the top, yellow at the base, like the reference. A scorch line runs along its base. Orange-red #FF5A2E with hot yellow.
+> 5. Frost: our canister (a tall white body with ice-blue window strips and a black cap) shattering into a burst of big pale-blue ice crystals rising from the floor, with a flat frost star spreading across the floor around them. Icy blue #7FD6FF and white.
+> 6. Recon: our bow (a slim dark recurve bow) and its glowing sensor dart stuck in the floor. A flat cyan ring of scan light spreads out across the floor from the dart, and two red diamond markers float where enemies are spotted. Cyan #2FD3E6, markers red #FF5A4E.
+> 7. HealOrb: our orb, floating: a glowing teal-green core inside two or three thin curved bands of light orbiting it at different angles, and a few healing motes rising. Green #5EE09A with teal.
+> 8. Stim: our beacon (a small charcoal unit on short splayed legs, with a yellow-black hazard plate and a glowing yellow coil on top) projecting a flat glowing ring on the floor around it, with upward chevron arrows rising inside the ring (a speed boost). Yellow #FFC83D.
+> 9. Recall: our anchor beacon (the same small legged charcoal unit, topped with a glowing violet crystal) on the floor. A glowing trail loops back to it like a rewind arrow, with broken light fragments being pulled in. Violet #9B6BFF.
+> 10. ShockDart: our bow and its bolt with a glowing amber tip, striking the floor. A bright lightning strike cracks down onto the impact, and jagged electric arcs crawl out across a flat glowing ring on the floor. Electric blue #5EC4FF with amber #FFB547.
+> 11. Flash: our flare canister (a tall charcoal body in stacked sections, a glowing gold cap and a cyan light band) bursting in mid-air into a blinding starburst: a white-gold core and long pale light rays fanning out across the panel. Keep the card mostly dark around the rays. Gold #FFF0B8 core, pale cool teal #BFE6D6 rays.
+> 12. Roller: our bot rolling fast toward the camera, about to blow: a charcoal body between two big chunky tread wheels, two angry slanted glowing orange eyes, a yellow-and-black hazard stripe on its chin and a thin antenna with a cyan tip. A trail of sparks and fire behind it. Fire orange #FF6A1A and hazard yellow #FFC83D.
 >
-> Save them as art-source/ui/chatgpt/cards_v2/<Name>.png, using exactly these names: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall, ShockDart, Flash, Roller. Keep all 12 one consistent set: if one comes out more detailed or more realistic than the others, redo it to match.
+> HOW TO MAKE THEM
+> - Make Molly first and show it to me. That's the style master. Once I say it's good, make the other 11 one at a time to match it exactly: the same backdrop, scale, camera, rendering style and level of detail.
+> - If one comes out more detailed, more realistic or with a different background than the others, redo it.
+> - Name each one exactly: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall, ShockDart, Flash, Roller.
 >
-> PART 2: three new icons, to match the existing nine in art-source/ui/chatgpt/icons/ exactly. Each is a 512 x 512 PNG with a transparent background and one flat, solid white glyph: no colour, no outline, no text, thick shapes with a few sharp angles, readable at 40 px, about 12% padding.
+> PART 2: three new icons, matching the style of my existing ability icons. Each is a 512 x 512 PNG on a transparent background with one flat, solid white glyph: no colour, no outline, no text, thick shapes with a few sharp angles, readable at 40 px, about 12% padding.
 > - ShockDart: a bolt with a lightning zigzag beside its head.
 > - Flash: a short canister bursting into a starburst.
 > - Roller: a small two-wheeled bot with angry slanted eyes.
-> Save them as art-source/ui/chatgpt/icons/<Name>.png (ShockDart, Flash, Roller).
->
-> If you can't save files, show them here and I'll download them.
