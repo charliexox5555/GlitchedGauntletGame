@@ -13,7 +13,9 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
 
+local LoadingConfig = require(game:GetService("ReplicatedStorage").Shared.Config.Loading)
 local LobbyNet = require(game:GetService("ReplicatedStorage").Lobby.LobbyNet)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -93,10 +95,50 @@ local function stopWave()
 	end
 end
 
+-- The loading screen Roblox shows during the teleport (StarterGui.LobbyLoading,
+-- tools/studio/BuildLoading.luau): the mode as the hero word and a tip; the
+-- match place's ReplicatedFirst script keeps it up until the match loads.
+local function setTeleportGui()
+	local src = player:FindFirstChild("PlayerGui")
+		and player.PlayerGui:FindFirstChild("LobbyLoading")
+	if not (src and src:IsA("ScreenGui")) then
+		return
+	end
+	local copy = src:Clone()
+	local center = copy:FindFirstChild("Center")
+	local mode = center and center:FindFirstChild("Mode")
+	local id = QueueState.mode()
+	if mode and mode:IsA("TextLabel") and typeof(id) == "string" then
+		mode.Text = string.upper(id)
+	end
+	-- the mode's art from its Play menu tile, faint behind the words
+	local art = copy:FindFirstChild("Art")
+	local menu = player.PlayerGui:FindFirstChild("PlayMenu")
+	local modes = menu and menu:FindFirstChild("Modes", true)
+	local tile = modes and typeof(id) == "string" and modes:FindFirstChild(id, true)
+	local tileArt = tile and tile:FindFirstChild("Art")
+	if art and art:IsA("ImageLabel") and tileArt and tileArt:IsA("ImageLabel") then
+		art.Image = tileArt.Image
+	end
+	local tip = copy:FindFirstChild("Tip")
+	local tips = LoadingConfig.tips
+	if tip and tip:IsA("TextLabel") and #tips > 0 then
+		tip.Text = "TIP  ·  " .. tips[math.random(1, #tips)]
+	end
+	copy.Enabled = true
+	local ok, err = pcall(function()
+		TeleportService:SetTeleportGui(copy)
+	end)
+	if not ok then
+		warn("[MatchFound] SetTeleportGui failed: " .. tostring(err))
+	end
+end
+
 local function open()
 	if isOpen then
 		return
 	end
+	setTeleportGui()
 	isOpen = true
 	token += 1
 	local my = token

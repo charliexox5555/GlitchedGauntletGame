@@ -56,18 +56,27 @@ function Cards.finish(cell: GuiObject)
 		return
 	end
 	local corner = cell:FindFirstChildOfClass("UICorner")
-	local r = if corner then corner.CornerRadius.Offset else 8
+	-- no UICorner = a square box: a near-square bevel
+	local r = if corner then corner.CornerRadius.Offset else 2
 	if corner and corner.CornerRadius.Scale > 0 then
 		return -- circles stay circles
 	end
-	-- the fill is hidden with a UIGradient, which would hide a cell's own
-	-- words too: only boxes whose words are child labels (a label named
-	-- like a cell, e.g. the Season Pass bar's "Next", is left alone)
-	if
-		cell:IsA("TextLabel")
-		or cell:IsA("TextBox")
-		or (cell:IsA("TextButton") and cell.Text ~= "")
-	then
+	-- labels named like a cell (the Season Pass bar's "Next") are left alone
+	if cell:IsA("TextLabel") or cell:IsA("TextBox") then
+		return
+	end
+	-- A button with its own words (INVITE, VIEW, ACCEPT): hiding its fill
+	-- would hide the words too, so it keeps its fill and words and gets only
+	-- the bevel (top edge line, sheen, lip), drawn over it but clear of
+	-- centred words (overhaul, 2026-11-16: no flat buttons left)
+	if cell:IsA("TextButton") and cell.Text ~= "" then
+		cell:SetAttribute("Carded", true)
+		local over = layer(cell, "Bevel", OVER, math.max(r, 2) / IMG_R, cell.ZIndex)
+		local function fadeOver()
+			over.ImageTransparency = math.clamp((cell.BackgroundTransparency - 0.6) / 0.4, 0, 1)
+		end
+		fadeOver()
+		cell:GetPropertyChangedSignal("BackgroundTransparency"):Connect(fadeOver)
 		return
 	end
 	cell:SetAttribute("Carded", true)

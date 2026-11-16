@@ -21,6 +21,11 @@
           "$path": "src/client"
         }
       }
+    },
+    "ReplicatedFirst": {
+      "Loading": {
+        "$path": "src/first"
+      }
     }
   }
 }

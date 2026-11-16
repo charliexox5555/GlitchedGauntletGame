@@ -31,16 +31,20 @@ end
 
 -- ScreenGui → the named cells in it
 local CELLS: { [string]: { string } } = {
-	Shop = join({ "Card", "CasePanel", "OddsPanel", "ItemCard", "Plate" }, range("Day", 7)), -- Plate: the tabs
+	Shop = join(
+		{ "Card", "CasePanel", "OddsPanel", "ItemCard", "Plate", "View", "Back" },
+		range("Day", 7)
+	), -- Plate: the tabs
 	BattlePass = join(
 		{ "FreeBadge", "PremiumBadge", "Box", "Prev", "Next", "OddsPanel", "Card" },
 		range("Free", 7),
 		range("Premium", 7)
 	),
 	PlayMenu = { "1v1", "2v2", "3v3", "4v4", "5v5", "Beginner2v2" },
-	PartyMenu = range("Slot", 3),
+	PartyMenu = join(range("Slot", 3), { "Search", "Invite", "InviteFriends", "Leave" }),
 	Locker = { "SKIN", "CHARM", "FINISHER" },
 	LobbyPlayerList = { "Head" },
+	LobbyToast = { "Accept", "Decline" },
 }
 
 -- No lobby words under this size (design px): Fredoka One smears below it,
