@@ -15,8 +15,8 @@ Code: `client/Util/FrostFx.luau` (`kitBurst`, `screen`, `setHindered`). Not chan
 ## Scan (Recon pulse) — grade ~6 → ~7.5
 Before: a flat floor ring plus the `ScanRing` band at full team colour, which bloomed into a soft cyan glow; nothing above the floor (capture scan 1). After: the band darker (35% toward black) and at 0.35 transparency, no bloom; a faint faceted `Scan_Shell` dome (ReworkVFX) sweeps out from the dart at a constant speed, 0.82 transparency, fading over the last 15% and kept clear while the camera is near its front (scan 2). The reveal outlines were already right. Code: `ModFxController.onReconPulse`.
 
-## Impact (Crash Down) — not reviewed
-Blocked: Updraft casts but the body doesn't rise in a fresh Play (Bugs & Ideas U1; another session's uncommitted `Simulation/Movement.luau`), so there is no slam to look at.
+## Impact (Crash Down, Updraft G2) — grade ~4 → ~7.5
+Before (impact 1): a magenta hex-tile floor, magenta pixel static, magenta dashed rings, sparkles, glowing team-colour cracks and a magenta-slice pillar on the dive: it read as glitch magic, not a slam (the owner rejected "glitch static on everything"; the spec keeps glitch for four beats only). After (impact 2): the floor's own colour cracked open (dark splits, not glowing), bigger rubble chunks thrown up and landing, one white hit flash, the team-coloured shockwave and landing ring kept, dust and chips; the dive pillar is white. Code: `client/Util/UpgradeFx/Updraft.luau` (`kitImpact`, `impact`, `startDive`, `stepDive`). The earlier "Updraft doesn't rise" was a mis-read (Bugs & Ideas U1, closed).
 
 ## Healing (Heal Orb) — ~6.5, left as is
 The held orb (glowing core with orbit rings above the fist) and the self-heal screen cue (soft green edges + HEALING status) both read (captures `hold Heal Orb`, `heal self screen`). Not changed tonight; the heal-on-others leaves and Heal Zone were not seen.

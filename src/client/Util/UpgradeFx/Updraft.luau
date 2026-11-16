@@ -76,7 +76,6 @@ local RUBBLE: { GlitchVfx.Name } = { "Rubble1", "Rubble2", "Rubble3" }
 -- are 2.02 / 2.05 across, the hex floor 1.77.
 local CRACK_SPAN = 2.02
 local RING_SPAN = 2.05
-local HEX_SPAN = 1.77
 -- Floors that make no sense as rubble.
 local NO_RUBBLE_MATERIAL: { [Enum.Material]: boolean } = {
 	[Enum.Material.Neon] = true,
@@ -123,10 +122,6 @@ end
 local function rootOf(model: Model): BasePart?
 	local r = model:FindFirstChild("HumanoidRootPart")
 	return if r and r:IsA("BasePart") then r else nil
-end
-
-local function later(delay: number, fn: () -> ())
-	table.insert(queued, { at = os.clock() + delay, fn = fn })
 end
 
 local function getHolder(): BasePart
@@ -225,21 +220,6 @@ local function refreshRayFilter()
 end
 
 -- Glitch static: a magenta voxel blinking in and out at `at`.
-local function static(at: Vector3, size: number, life: number)
-	local s = Vector3.one * size
-	ModVfx.shell({
-		shape = Enum.PartType.Block,
-		cframe = CFrame.new(at) * CFrame.Angles(0, math.random() * math.pi, 0),
-		from = s,
-		to = s * 0.3,
-		color = TeamColor.GLITCH,
-		life = life,
-		alpha0 = 0.05,
-		alpha1 = 0.6,
-		material = Enum.Material.Neon,
-	})
-end
-
 -- The dive -------------------------------------------------------------------
 
 local function column(dive: Dive, root: BasePart)
@@ -320,7 +300,7 @@ local function startDive(other: Player, root: BasePart): Dive
 			shape = Enum.PartType.Block,
 			cframe = root.CFrame,
 			from = Vector3.one * 0.5,
-			color = TeamColor.GLITCH,
+			color = WHITE, -- motion without gameplay meaning is white (was glitch magenta)
 			life = DIVE_LIFE,
 			alpha0 = 0.45,
 			hold = true,
@@ -330,11 +310,10 @@ local function startDive(other: Player, root: BasePart): Dive
 			name = "Streak_Energy",
 			cframe = root.CFrame,
 			scale = Vector3.one * 0.3,
-			color = color:Lerp(TeamColor.GLITCH, 0.5),
+			color = WHITE:Lerp(color, 0.2),
 			life = DIVE_LIFE,
 			alpha0 = 0.2,
 			hold = true,
-			stutter = 0.15,
 		}),
 		top = root.Position + Vector3.new(0, 2, 0),
 		size = size,
@@ -359,17 +338,6 @@ local function stepDive(dive: Dive, root: BasePart, now: number)
 	local d = dive.size * (RING_START + (1 - RING_START) * k)
 	local ring = Vector3.new(d, QUAD_THICKNESS, d)
 	dive.ring.from, dive.ring.to = ring, ring
-	if now >= dive.nextStatic then
-		dive.nextStatic = now + 0.03
-		for _ = 1, 2 do
-			local offset = Vector3.new(
-				(math.random() - 0.5) * 3.5,
-				(math.random() - 0.3) * 5,
-				(math.random() - 0.5) * 3.5
-			)
-			static(root.Position + offset, 0.25 + math.random() * 0.45, 0.1 + math.random() * 0.06)
-		end
-	end
 end
 
 local function endDive(dive: Dive)
@@ -423,13 +391,17 @@ local function kitImpact(feet: Vector3, radius: number, color: Color3): boolean
 		alpha0 = 0.05,
 		hold = true,
 	})
+	-- Crash Down pass (2026-11-16, Ability VFX Direction → Impact: "the floor
+	-- broke"): the cracks are the floor's own colour darkened, not glowing;
+	-- only the snap-open copy below is hot for a frame.
 	GlitchVfx.piece({
 		name = "Crack_Energy",
 		cframe = CFrame.new(at + Vector3.new(0, 0.05, 0)) * yaw,
 		scale = flat,
-		color = color,
+		color = (floorColor or GREY):Lerp(Color3.new(0, 0, 0), 0.4),
+		material = Enum.Material.SmoothPlastic,
 		life = FEEL.crackLife,
-		alpha0 = 0.15,
+		alpha0 = 0.05,
 		hold = true,
 	})
 	GlitchVfx.piece({
@@ -453,30 +425,6 @@ local function kitImpact(feet: Vector3, radius: number, color: Color3): boolean
 		alpha0 = 0,
 		alpha1 = 0.9,
 	})
-	later(0.05, function()
-		GlitchVfx.piece({
-			name = "PixelRing_Energy",
-			cframe = CFrame.new(at + Vector3.new(0, 0.1, 0)) * yaw:Inverse(),
-			scale = Vector3.new(0.3, 3, 0.3),
-			scale1 = Vector3.new(ring * 0.9, 1, ring * 0.9),
-			color = TeamColor.GLITCH,
-			life = 0.3,
-			alpha0 = 0.1,
-			stutter = 0.35,
-		})
-	end)
-	-- The floor glitching out: a hex tile disc.
-	local hex = radius * 2 / HEX_SPAN
-	GlitchVfx.piece({
-		name = "HexFloor_Energy",
-		cframe = CFrame.new(at + Vector3.new(0, 0.09, 0)) * yaw,
-		scale = Vector3.new(hex, 1, hex),
-		color = TeamColor.GLITCH,
-		life = 0.65,
-		alpha0 = 0.45,
-		hold = true,
-		stutter = 0.25,
-	})
 	-- Rubble in the floor's own colour, thrown up and out; it lands and lies.
 	local material = if floorMaterial and not NO_RUBBLE_MATERIAL[floorMaterial]
 		then floorMaterial
@@ -490,7 +438,7 @@ local function kitImpact(feet: Vector3, radius: number, color: Color3): boolean
 			name = RUBBLE[math.random(1, #RUBBLE)],
 			cframe = CFrame.new(start)
 				* CFrame.Angles(math.random() * 6.3, math.random() * 6.3, math.random() * 6.3),
-			scale = Vector3.one * (1.3 + math.random() * 1.1),
+			scale = Vector3.one * (2 + math.random() * 1.6), -- chunks, not gravel
 			color = rubbleColor,
 			material = material,
 			life = FEEL.rubbleLife,
@@ -510,7 +458,7 @@ local function impact(at: Vector3, radius: number, color: Color3, mine: boolean)
 	local cf = CFrame.new(floor)
 	local size = radius * 2 * RING_SCALE
 	refreshRayFilter()
-	local kit = kitImpact(at, radius, color)
+	kitImpact(at, radius, color)
 
 	-- A small hot flash, a frame or two.
 	ModVfx.shell({
@@ -518,7 +466,7 @@ local function impact(at: Vector3, radius: number, color: Color3, mine: boolean)
 		cframe = CFrame.new(at + Vector3.new(0, 1, 0)),
 		from = Vector3.one * 2,
 		to = Vector3.one * 4.5,
-		color = color:Lerp(WHITE, 0.6),
+		color = WHITE, -- the one hit frame is white (X4)
 		life = 0.08,
 		alpha0 = 0.1,
 		material = Enum.Material.Neon,
@@ -542,34 +490,6 @@ local function impact(at: Vector3, radius: number, color: Color3, mine: boolean)
 		life = 0.3,
 		alpha0 = 0.25,
 	})
-	-- The glitch ring: shown at three sizes with gaps (skipped frames).
-	for i, k in { 0.45, 0.75, 1.05 } do
-		later((i - 1) * 0.05, function()
-			ModVfx.quad({
-				texture = Tex.MOD_RING_DASHED,
-				cframe = cf * CFrame.Angles(0, math.random() * math.pi, 0),
-				from = size * k,
-				to = size * k * 1.06,
-				color = TeamColor.GLITCH,
-				life = 0.09,
-				alpha0 = 0.05,
-				alpha1 = 0.5,
-			})
-		end)
-	end
-	-- The floor under it glitches out for a moment (the kit draws its hex disc).
-	if not kit then
-		ModVfx.quad({
-			texture = Tex.MOD_HEX,
-			cframe = cf,
-			from = radius * 2,
-			color = TeamColor.GLITCH,
-			life = 0.65,
-			alpha0 = 0.4,
-			hold = true,
-		})
-	end
-
 	-- Dust out flat in every direction, chips up.
 	local h = getHolder()
 	local d, c = dust, chips
@@ -587,18 +507,6 @@ local function impact(at: Vector3, radius: number, color: Color3, mine: boolean)
 		ca.WorldPosition = at + Vector3.new(0, 0.4, 0)
 		c.Color = ColorSequence.new(GREY)
 		c:Emit(10)
-	end
-	ModVfx.burst(at + Vector3.new(0, 1, 0), color, 14, "Sparkle")
-
-	-- Magenta voxel static scattered over the area for a moment.
-	for _ = 1, 16 do
-		local angle = math.random() * math.pi * 2
-		local dist = math.sqrt(math.random()) * radius
-		local pos = at
-			+ Vector3.new(math.cos(angle) * dist, 0.3 + math.random() * 1.6, math.sin(angle) * dist)
-		later(math.random() * 0.35, function()
-			static(pos, 0.3 + math.random() * 0.6, 0.12 + math.random() * 0.15)
-		end)
 	end
 
 	-- One light, low, under the flash.
