@@ -1,0 +1,1025 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "BookStep": {
+   "props": {},
+   "parts": [
+    "BookStep_MK_Rust",
+    "BookStep_MK_Paper",
+    "BookStep_MK_Purple"
+   ]
+  },
+  "BookStepLow": {
+   "props": {},
+   "parts": [
+    "BookStepLow_MK_Rust",
+    "BookStepLow_MK_Paper"
+   ]
+  },
+  "BookTop": {
+   "props": {},
+   "parts": [
+    "BookTop_MK_Purple",
+    "BookTop_MK_Paper",
+    "BookTop_MK_Rust",
+    "BookTop_MK_Blue"
+   ]
+  },
+  "CraftKnife": {
+   "props": {},
+   "parts": [
+    "CraftKnife_MK_Blue",
+    "CraftKnife_MK_Dark",
+    "CraftKnife_MK_Grey"
+   ]
+  },
+  "DeskLamp": {
+   "props": {},
+   "parts": [
+    "DeskLamp_MK_Dark",
+    "DeskLamp_MK_Red",
+    "DeskLamp_MK_White"
+   ]
+  },
+  "GluePot": {
+   "props": {},
+   "parts": [
+    "GluePot_MK_White",
+    "GluePot_MK_Red",
+    "GluePot_MK_Dark",
+    "GluePot_MK_Orange"
+   ]
+  },
+  "PaintPotBlue": {
+   "props": {},
+   "parts": [
+    "PaintPotBlue_MK_Blue",
+    "PaintPotBlue_MK_Paper",
+    "PaintPotBlue_MK_Dark"
+   ]
+  },
+  "PaintPotRed": {
+   "props": {},
+   "parts": [
+    "PaintPotRed_MK_Red",
+    "PaintPotRed_MK_Paper",
+    "PaintPotRed_MK_Dark"
+   ]
+  },
+  "PartsBox": {
+   "props": {},
+   "parts": [
+    "PartsBox_MK_Yellow",
+    "PartsBox_MK_Dark",
+    "PartsBox_MK_Grey"
+   ]
+  },
+  "PencilCup": {
+   "props": {},
+   "parts": [
+    "PencilCup_MK_Blue",
+    "PencilCup_MK_Yellow",
+    "PencilCup_MK_Red"
+   ]
+  },
+  "PencilRamp": {
+   "props": {},
+   "parts": [
+    "PencilRamp_MK_Wood",
+    "PencilRamp_MK_Dark",
+    "PencilRamp_MK_Yellow",
+    "PencilRamp_MK_Grey",
+    "PencilRamp_MK_Rust"
+   ]
+  },
+  "Ruler": {
+   "props": {},
+   "parts": [
+    "Ruler_MK_Wood",
+    "Ruler_MK_Grey",
+    "Ruler_MK_Dark"
+   ]
+  },
+  "SprueFrame": {
+   "props": {},
+   "parts": [
+    "SprueFrame_MK_Dark",
+    "SprueFrame_MK_Sprue"
+   ]
+  },
+  "TapeRoll": {
+   "props": {},
+   "parts": [
+    "TapeRoll_MK_Tape",
+    "TapeRoll_MK_Wood"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "BookStep",
+   "name": "BookStep_MK_Rust",
+   "material": "MK_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C25B3A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.14,
+    0.0,
+    1.75
+   ],
+   "size": [
+    14.58,
+    9.6,
+    3.5
+   ]
+  },
+  {
+   "piece": "BookStep",
+   "name": "BookStep_MK_Paper",
+   "material": "MK_Paper",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDE6D6"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.465,
+    0.0,
+    3.5
+   ],
+   "size": [
+    14.03,
+    8.8,
+    6.4
+   ]
+  },
+  {
+   "piece": "BookStep",
+   "name": "BookStep_MK_Purple",
+   "material": "MK_Purple",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6B4FA0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.14,
+    0.0,
+    5.25
+   ],
+   "size": [
+    14.58,
+    9.6,
+    3.5
+   ]
+  },
+  {
+   "piece": "BookStepLow",
+   "name": "BookStepLow_MK_Rust",
+   "material": "MK_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C25B3A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.14,
+    0.0,
+    1.75
+   ],
+   "size": [
+    9.58,
+    4.6,
+    3.5
+   ]
+  },
+  {
+   "piece": "BookStepLow",
+   "name": "BookStepLow_MK_Paper",
+   "material": "MK_Paper",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDE6D6"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.465,
+    0.0,
+    1.75
+   ],
+   "size": [
+    9.03,
+    3.8,
+    2.9
+   ]
+  },
+  {
+   "piece": "BookTop",
+   "name": "BookTop_MK_Purple",
+   "material": "MK_Purple",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6B4FA0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.14,
+    0.0,
+    1.66667
+   ],
+   "size": [
+    14.58,
+    19.6,
+    3.33333
+   ]
+  },
+  {
+   "piece": "BookTop",
+   "name": "BookTop_MK_Paper",
+   "material": "MK_Paper",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDE6D6"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.465,
+    0.0,
+    5.0
+   ],
+   "size": [
+    14.03,
+    18.8,
+    9.4
+   ]
+  },
+  {
+   "piece": "BookTop",
+   "name": "BookTop_MK_Rust",
+   "material": "MK_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C25B3A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.14,
+    0.0,
+    5.0
+   ],
+   "size": [
+    14.58,
+    19.6,
+    3.33333
+   ]
+  },
+  {
+   "piece": "BookTop",
+   "name": "BookTop_MK_Blue",
+   "material": "MK_Blue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B6FC8"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.14,
+    0.0,
+    8.33333
+   ],
+   "size": [
+    14.58,
+    19.6,
+    3.33333
+   ]
+  },
+  {
+   "piece": "CraftKnife",
+   "name": "CraftKnife_MK_Blue",
+   "material": "MK_Blue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B6FC8"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    -2.25,
+    0.0,
+    1.5
+   ],
+   "size": [
+    10.5,
+    2.42487,
+    2.8
+   ]
+  },
+  {
+   "piece": "CraftKnife",
+   "name": "CraftKnife_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    3.75,
+    0.0,
+    1.5
+   ],
+   "size": [
+    1.5,
+    2.07846,
+    2.4
+   ]
+  },
+  {
+   "piece": "CraftKnife",
+   "name": "CraftKnife_MK_Grey",
+   "material": "MK_Grey",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B9BEC4"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    6.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    3.0,
+    0.3,
+    2.2
+   ]
+  },
+  {
+   "piece": "DeskLamp",
+   "name": "DeskLamp_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    -0.59254,
+    0.0,
+    16.75
+   ],
+   "size": [
+    17.81492,
+    16.62983,
+    33.5
+   ]
+  },
+  {
+   "piece": "DeskLamp",
+   "name": "DeskLamp_MK_Red",
+   "material": "MK_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C8443B"
+   },
+   "glow": false,
+   "tris": 52,
+   "center": [
+    -19.35812,
+    0.0,
+    24.40692
+   ],
+   "size": [
+    40.06583,
+    14.78207,
+    43.18615
+   ]
+  },
+  {
+   "piece": "DeskLamp",
+   "name": "DeskLamp_MK_White",
+   "material": "MK_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F0EEE6"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -32.0,
+    0.0,
+    35.9
+   ],
+   "size": [
+    13.30386,
+    13.30387,
+    0.6
+   ]
+  },
+  {
+   "piece": "GluePot",
+   "name": "GluePot_MK_White",
+   "material": "MK_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F0EEE6"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    10.0
+   ],
+   "size": [
+    13.67342,
+    13.67342,
+    20.0
+   ]
+  },
+  {
+   "piece": "GluePot",
+   "name": "GluePot_MK_Red",
+   "material": "MK_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C8443B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    9.0
+   ],
+   "size": [
+    13.85819,
+    13.85819,
+    6.0
+   ]
+  },
+  {
+   "piece": "GluePot",
+   "name": "GluePot_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    9.0
+   ],
+   "size": [
+    13.95058,
+    13.95058,
+    0.8
+   ]
+  },
+  {
+   "piece": "GluePot",
+   "name": "GluePot_MK_Orange",
+   "material": "MK_Orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8823A"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    24.5
+   ],
+   "size": [
+    6.28238,
+    6.28238,
+    9.0
+   ]
+  },
+  {
+   "piece": "PaintPotBlue",
+   "name": "PaintPotBlue_MK_Blue",
+   "material": "MK_Blue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B6FC8"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    5.1
+   ],
+   "size": [
+    8.86924,
+    8.86924,
+    10.2
+   ]
+  },
+  {
+   "piece": "PaintPotBlue",
+   "name": "PaintPotBlue_MK_Paper",
+   "material": "MK_Paper",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDE6D6"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    9.01706,
+    9.01706,
+    4.0
+   ]
+  },
+  {
+   "piece": "PaintPotBlue",
+   "name": "PaintPotBlue_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    11.1
+   ],
+   "size": [
+    8.31492,
+    8.31492,
+    1.8
+   ]
+  },
+  {
+   "piece": "PaintPotRed",
+   "name": "PaintPotRed_MK_Red",
+   "material": "MK_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C8443B"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    5.1
+   ],
+   "size": [
+    8.86924,
+    8.86924,
+    10.2
+   ]
+  },
+  {
+   "piece": "PaintPotRed",
+   "name": "PaintPotRed_MK_Paper",
+   "material": "MK_Paper",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "EDE6D6"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    9.01706,
+    9.01706,
+    4.0
+   ]
+  },
+  {
+   "piece": "PaintPotRed",
+   "name": "PaintPotRed_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    11.1
+   ],
+   "size": [
+    8.31492,
+    8.31492,
+    1.8
+   ]
+  },
+  {
+   "piece": "PartsBox",
+   "name": "PartsBox_MK_Yellow",
+   "material": "MK_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E3B33A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    3.75
+   ],
+   "size": [
+    25.0,
+    5.0,
+    7.5
+   ]
+  },
+  {
+   "piece": "PartsBox",
+   "name": "PartsBox_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    7.4
+   ],
+   "size": [
+    25.2,
+    5.5,
+    2.4
+   ]
+  },
+  {
+   "piece": "PartsBox",
+   "name": "PartsBox_MK_Grey",
+   "material": "MK_Grey",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B9BEC4"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    8.95
+   ],
+   "size": [
+    25.0,
+    5.0,
+    2.1
+   ]
+  },
+  {
+   "piece": "PencilCup",
+   "name": "PencilCup_MK_Blue",
+   "material": "MK_Blue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3B6FC8"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    4.52701,
+    4.52701,
+    10.0
+   ]
+  },
+  {
+   "piece": "PencilCup",
+   "name": "PencilCup_MK_Yellow",
+   "material": "MK_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E3B33A"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    -0.4,
+    0.2,
+    12.0
+   ],
+   "size": [
+    1.95263,
+    2.7,
+    8.0
+   ]
+  },
+  {
+   "piece": "PencilCup",
+   "name": "PencilCup_MK_Red",
+   "material": "MK_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C8443B"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.8,
+    -0.4,
+    11.5
+   ],
+   "size": [
+    0.95263,
+    1.1,
+    7.0
+   ]
+  },
+  {
+   "piece": "PencilRamp",
+   "name": "PencilRamp_MK_Wood",
+   "material": "MK_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9A27A"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    -2.31377,
+    0.0,
+    -2.57934
+   ],
+   "size": [
+    5.57246,
+    11.6,
+    8.35869
+   ]
+  },
+  {
+   "piece": "PencilRamp",
+   "name": "PencilRamp_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    -4.14475,
+    0.0,
+    -3.77935
+   ],
+   "size": [
+    1.21489,
+    2.4,
+    1.72938
+   ]
+  },
+  {
+   "piece": "PencilRamp",
+   "name": "PencilRamp_MK_Yellow",
+   "material": "MK_Yellow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E3B33A"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    2.48623,
+    0.0,
+    0.62066
+   ],
+   "size": [
+    15.17246,
+    11.6,
+    14.75869
+   ]
+  },
+  {
+   "piece": "PencilRamp",
+   "name": "PencilRamp_MK_Grey",
+   "material": "MK_Grey",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B9BEC4"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    7.88623,
+    0.0,
+    4.22066
+   ],
+   "size": [
+    6.86854,
+    11.8,
+    9.30281
+   ]
+  },
+  {
+   "piece": "PencilRamp",
+   "name": "PencilRamp_MK_Rust",
+   "material": "MK_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C25B3A"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    9.38623,
+    0.0,
+    5.22066
+   ],
+   "size": [
+    7.22834,
+    11.3,
+    9.34252
+   ]
+  },
+  {
+   "piece": "Ruler",
+   "name": "Ruler_MK_Wood",
+   "material": "MK_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9A27A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.4
+   ],
+   "size": [
+    25.0,
+    5.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "Ruler",
+   "name": "Ruler_MK_Grey",
+   "material": "MK_Grey",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B9BEC4"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    1.9
+   ],
+   "size": [
+    24.6,
+    0.8,
+    2.2
+   ]
+  },
+  {
+   "piece": "Ruler",
+   "name": "Ruler_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 1400,
+   "center": [
+    0.0,
+    0.0,
+    2.575
+   ],
+   "size": [
+    24.1,
+    0.84,
+    0.75
+   ]
+  },
+  {
+   "piece": "SprueFrame",
+   "name": "SprueFrame_MK_Dark",
+   "material": "MK_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3A3E45"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.4
+   ],
+   "size": [
+    15.0,
+    5.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "SprueFrame",
+   "name": "SprueFrame_MK_Sprue",
+   "material": "MK_Sprue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9AA0A6"
+   },
+   "glow": false,
+   "tris": 504,
+   "center": [
+    0.0,
+    0.0,
+    5.4
+   ],
+   "size": [
+    15.0,
+    1.0,
+    9.2
+   ]
+  },
+  {
+   "piece": "TapeRoll",
+   "name": "TapeRoll_MK_Tape",
+   "material": "MK_Tape",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D8CBA8"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    3.5
+   ],
+   "size": [
+    9.14641,
+    9.14641,
+    7.0
+   ]
+  },
+  {
+   "piece": "TapeRoll",
+   "name": "TapeRoll_MK_Wood",
+   "material": "MK_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9A27A"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    3.5
+   ],
+   "size": [
+    5.17373,
+    5.17373,
+    7.0
+   ]
+  }
+ ],
+ "tris": 3468
+}

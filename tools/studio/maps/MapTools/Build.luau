@@ -171,6 +171,18 @@ return function(D: any): string
 	for i, f in floor do
 		part("Part", sec("Floor"), "Deck" .. i, Vector3.new(f[3] - f[1], 4, f[4] - f[2]), CFrame.new((f[1] + f[3]) / 2, -2, (f[2] + f[4]) / 2), "deck")
 	end
+	if D.apron then -- ground round the map (past the bounds, never reachable) so scenery beyond the edge stands on something
+		local w = D.apron.w
+		for i, a in {
+			{ Vector3.new(w, 4, 2 * hz + 2 * w), CFrame.new(hx + w / 2, -2, 0) },
+			{ Vector3.new(w, 4, 2 * hz + 2 * w), CFrame.new(-hx - w / 2, -2, 0) },
+			{ Vector3.new(2 * hx, 4, w), CFrame.new(0, -2, hz + w / 2) },
+			{ Vector3.new(2 * hx, 4, w), CFrame.new(0, -2, -hz - w / 2) },
+		} do
+			local p = part("Part", sec("Apron"), "Apron" .. i, a[1], a[2], D.apron.look or "deck")
+			p.CanQuery = false
+		end
+	end
 	if D.water then
 		local w = part("Part", sec("Water"), "Water", Vector3.new(2 * hx + 400, 2, 2 * hz + 400), CFrame.new(0, D.waterY or -6, 0), "water")
 		w.CanCollide = false
@@ -205,6 +217,21 @@ return function(D: any): string
 		end
 		for i, f in tiles do
 			part("Part", sec("Roof"), "Roof" .. i, Vector3.new(f[3] - f[1], 2, f[4] - f[2]), CFrame.new((f[1] + f[3]) / 2, D.roof.h + 1, (f[2] + f[4]) / 2), "roof")
+		end
+	end
+	-- an indoor map is closed: visible outer walls just outside the bounds, floor to roof top. D.walls
+	-- ({h, look}) closes a map without a roof the same way (Greenhouse glass)
+	if D.roof or D.walls then
+		local wh = if D.walls then D.walls.h else D.roof.h + 2
+		local wl = (D.walls and D.walls.look) or (D.roof and D.roof.wallLook) or "cover"
+		for i, w in {
+			{ Vector3.new(4, wh + 12, 2 * hz + 8), CFrame.new(hx + 2, wh / 2 - 6, 0) },
+			{ Vector3.new(4, wh + 12, 2 * hz + 8), CFrame.new(-hx - 2, wh / 2 - 6, 0) },
+			{ Vector3.new(2 * hx, wh + 12, 4), CFrame.new(0, wh / 2 - 6, hz + 2) },
+			{ Vector3.new(2 * hx, wh + 12, 4), CFrame.new(0, wh / 2 - 6, -hz - 2) },
+		} do
+			local p = part("Part", sec("Walls"), "OuterWall" .. i, w[1], w[2], wl)
+			p.CanQuery = false
 		end
 	end
 

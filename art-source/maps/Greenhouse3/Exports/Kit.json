@@ -1,0 +1,1429 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "Bed10x20": {
+   "props": {},
+   "parts": [
+    "Bed10x20_GH_Wood",
+    "Bed10x20_GH_Leaf",
+    "Bed10x20_GH_LeafLight"
+   ]
+  },
+  "Bed10x25": {
+   "props": {},
+   "parts": [
+    "Bed10x25_GH_Wood",
+    "Bed10x25_GH_Leaf",
+    "Bed10x25_GH_LeafLight"
+   ]
+  },
+  "Bed15x5": {
+   "props": {},
+   "parts": [
+    "Bed15x5_GH_Wood",
+    "Bed15x5_GH_Leaf",
+    "Bed15x5_GH_LeafLight"
+   ]
+  },
+  "Bed20x5": {
+   "props": {},
+   "parts": [
+    "Bed20x5_GH_Wood",
+    "Bed20x5_GH_Leaf",
+    "Bed20x5_GH_LeafLight"
+   ]
+  },
+  "Bed5x15": {
+   "props": {},
+   "parts": [
+    "Bed5x15_GH_Wood",
+    "Bed5x15_GH_Leaf",
+    "Bed5x15_GH_LeafLight"
+   ]
+  },
+  "ColdFrame": {
+   "props": {},
+   "parts": [
+    "ColdFrame_GH_Brick",
+    "ColdFrame_GH_Glass",
+    "ColdFrame_GH_Iron"
+   ]
+  },
+  "Fountain": {
+   "props": {},
+   "parts": [
+    "Fountain_GH_Stone",
+    "Fountain_GH_Water",
+    "Fountain_GH_Iron"
+   ]
+  },
+  "GlassCase": {
+   "props": {},
+   "parts": [
+    "GlassCase_GH_Wood",
+    "GlassCase_GH_Iron",
+    "GlassCase_GH_Glass",
+    "GlassCase_GH_LeafLight"
+   ]
+  },
+  "GlassDome": {
+   "props": {},
+   "parts": [
+    "GlassDome_GH_Iron",
+    "GlassDome_GH_Glass"
+   ]
+  },
+  "HallWall40": {
+   "props": {},
+   "parts": [
+    "HallWall40_GH_Brick",
+    "HallWall40_GH_Stone",
+    "HallWall40_GH_Iron",
+    "HallWall40_GH_Glass"
+   ]
+  },
+  "HallWall60": {
+   "props": {},
+   "parts": [
+    "HallWall60_GH_Brick",
+    "HallWall60_GH_Stone",
+    "HallWall60_GH_Iron",
+    "HallWall60_GH_Glass"
+   ]
+  },
+  "Hedge5x15": {
+   "props": {},
+   "parts": [
+    "Hedge5x15_GH_Wood",
+    "Hedge5x15_GH_Leaf",
+    "Hedge5x15_GH_LeafLight"
+   ]
+  },
+  "Hedge5x20": {
+   "props": {},
+   "parts": [
+    "Hedge5x20_GH_Wood",
+    "Hedge5x20_GH_Leaf",
+    "Hedge5x20_GH_LeafLight"
+   ]
+  },
+  "IronBridge": {
+   "props": {},
+   "parts": [
+    "IronBridge_GH_IronDark",
+    "IronBridge_GH_Iron"
+   ]
+  },
+  "IronLanding": {
+   "props": {},
+   "parts": [
+    "IronLanding_GH_Iron",
+    "IronLanding_GH_IronDark"
+   ]
+  },
+  "Palm": {
+   "props": {},
+   "parts": [
+    "Palm_GH_Terracotta",
+    "Palm_GH_Wood",
+    "Palm_GH_Leaf"
+   ]
+  },
+  "PottingBench": {
+   "props": {},
+   "parts": [
+    "PottingBench_GH_Wood",
+    "PottingBench_GH_Terracotta",
+    "PottingBench_GH_Leaf"
+   ]
+  },
+  "PottingWall": {
+   "props": {},
+   "parts": [
+    "PottingWall_GH_Brick",
+    "PottingWall_GH_Wood",
+    "PottingWall_GH_Terracotta",
+    "PottingWall_GH_Leaf"
+   ]
+  },
+  "SeedCrates": {
+   "props": {},
+   "parts": [
+    "SeedCrates_GH_Wood",
+    "SeedCrates_GH_LeafLight"
+   ]
+  },
+  "WaterButt": {
+   "props": {},
+   "parts": [
+    "WaterButt_GH_Brick",
+    "WaterButt_GH_Wood",
+    "WaterButt_GH_IronDark"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "Bed10x20",
+   "name": "Bed10x20_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    10.0,
+    20.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "Bed10x20",
+   "name": "Bed10x20_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    9.6,
+    19.6,
+    7.0
+   ]
+  },
+  {
+   "piece": "Bed10x20",
+   "name": "Bed10x20_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    1.0,
+    0.0,
+    10.1
+   ],
+   "size": [
+    2.07846,
+    18.4,
+    1.0
+   ]
+  },
+  {
+   "piece": "Bed10x25",
+   "name": "Bed10x25_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    10.0,
+    25.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "Bed10x25",
+   "name": "Bed10x25_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    9.6,
+    24.6,
+    7.0
+   ]
+  },
+  {
+   "piece": "Bed10x25",
+   "name": "Bed10x25_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 120,
+   "center": [
+    1.0,
+    0.0,
+    10.1
+   ],
+   "size": [
+    2.07846,
+    23.23333,
+    1.0
+   ]
+  },
+  {
+   "piece": "Bed15x5",
+   "name": "Bed15x5_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    15.0,
+    5.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "Bed15x5",
+   "name": "Bed15x5_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    14.6,
+    4.6,
+    7.0
+   ]
+  },
+  {
+   "piece": "Bed15x5",
+   "name": "Bed15x5_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.5,
+    10.1
+   ],
+   "size": [
+    12.07846,
+    2.4,
+    1.0
+   ]
+  },
+  {
+   "piece": "Bed20x5",
+   "name": "Bed20x5_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    20.0,
+    5.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "Bed20x5",
+   "name": "Bed20x5_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    19.6,
+    4.6,
+    7.0
+   ]
+  },
+  {
+   "piece": "Bed20x5",
+   "name": "Bed20x5_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    0.0,
+    0.5,
+    10.1
+   ],
+   "size": [
+    18.07846,
+    2.4,
+    1.0
+   ]
+  },
+  {
+   "piece": "Bed5x15",
+   "name": "Bed5x15_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    5.0,
+    15.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "Bed5x15",
+   "name": "Bed5x15_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    4.6,
+    14.6,
+    7.0
+   ]
+  },
+  {
+   "piece": "Bed5x15",
+   "name": "Bed5x15_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.5,
+    0.0,
+    10.1
+   ],
+   "size": [
+    2.07846,
+    12.4,
+    1.0
+   ]
+  },
+  {
+   "piece": "ColdFrame",
+   "name": "ColdFrame_GH_Brick",
+   "material": "GH_Brick",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B07D5E"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    3.0
+   ],
+   "size": [
+    10.0,
+    5.0,
+    6.0
+   ]
+  },
+  {
+   "piece": "ColdFrame",
+   "name": "ColdFrame_GH_Glass",
+   "material": "GH_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8D8C0"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    8.0
+   ],
+   "size": [
+    10.0,
+    5.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "ColdFrame",
+   "name": "ColdFrame_GH_Iron",
+   "material": "GH_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E8E2"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    8.5
+   ],
+   "size": [
+    9.9,
+    5.15435,
+    3.25725
+   ]
+  },
+  {
+   "piece": "Fountain",
+   "name": "Fountain_GH_Stone",
+   "material": "GH_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9C3B6"
+   },
+   "glow": false,
+   "tris": 180,
+   "center": [
+    0.0,
+    0.0,
+    3.2
+   ],
+   "size": [
+    13.67342,
+    13.67342,
+    6.4
+   ]
+  },
+  {
+   "piece": "Fountain",
+   "name": "Fountain_GH_Water",
+   "material": "GH_Water",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5C9FB0"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    3.525
+   ],
+   "size": [
+    11.36372,
+    11.36372,
+    5.85
+   ]
+  },
+  {
+   "piece": "Fountain",
+   "name": "Fountain_GH_Iron",
+   "material": "GH_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E8E2"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    7.3
+   ],
+   "size": [
+    0.86603,
+    1.0,
+    1.8
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    10.0,
+    10.0,
+    2.0
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_GH_Iron",
+   "material": "GH_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E8E2"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    10.0,
+    10.0,
+    8.0
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_GH_Glass",
+   "material": "GH_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8D8C0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    5.7
+   ],
+   "size": [
+    9.0,
+    9.0,
+    7.4
+   ]
+  },
+  {
+   "piece": "GlassCase",
+   "name": "GlassCase_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    4.75
+   ],
+   "size": [
+    3.81051,
+    4.4,
+    5.5
+   ]
+  },
+  {
+   "piece": "GlassDome",
+   "name": "GlassDome_GH_Iron",
+   "material": "GH_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E8E2"
+   },
+   "glow": false,
+   "tris": 1200,
+   "center": [
+    0.0,
+    0.0,
+    22.14573
+   ],
+   "size": [
+    68.8,
+    68.8,
+    44.29145
+   ]
+  },
+  {
+   "piece": "GlassDome",
+   "name": "GlassDome_GH_Glass",
+   "material": "GH_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8D8C0"
+   },
+   "glow": false,
+   "tris": 88,
+   "center": [
+    0.0,
+    0.0,
+    40.1
+   ],
+   "size": [
+    41.76,
+    41.76,
+    8.0
+   ]
+  },
+  {
+   "piece": "HallWall40",
+   "name": "HallWall40_GH_Brick",
+   "material": "GH_Brick",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B07D5E"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    1.25
+   ],
+   "size": [
+    4.6,
+    40.0,
+    2.5
+   ]
+  },
+  {
+   "piece": "HallWall40",
+   "name": "HallWall40_GH_Stone",
+   "material": "GH_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9C3B6"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.75
+   ],
+   "size": [
+    5.0,
+    40.0,
+    0.5
+   ]
+  },
+  {
+   "piece": "HallWall40",
+   "name": "HallWall40_GH_Iron",
+   "material": "GH_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E8E2"
+   },
+   "glow": false,
+   "tris": 308,
+   "center": [
+    0.0,
+    0.0,
+    8.5
+   ],
+   "size": [
+    0.6,
+    40.6,
+    11.0
+   ]
+  },
+  {
+   "piece": "HallWall40",
+   "name": "HallWall40_GH_Glass",
+   "material": "GH_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8D8C0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    8.325
+   ],
+   "size": [
+    0.16,
+    39.4,
+    10.55
+   ]
+  },
+  {
+   "piece": "HallWall60",
+   "name": "HallWall60_GH_Brick",
+   "material": "GH_Brick",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B07D5E"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    1.25
+   ],
+   "size": [
+    4.6,
+    60.0,
+    2.5
+   ]
+  },
+  {
+   "piece": "HallWall60",
+   "name": "HallWall60_GH_Stone",
+   "material": "GH_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C9C3B6"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.75
+   ],
+   "size": [
+    5.0,
+    60.0,
+    0.5
+   ]
+  },
+  {
+   "piece": "HallWall60",
+   "name": "HallWall60_GH_Iron",
+   "material": "GH_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E8E2"
+   },
+   "glow": false,
+   "tris": 420,
+   "center": [
+    0.0,
+    0.0,
+    8.5
+   ],
+   "size": [
+    0.6,
+    60.6,
+    11.0
+   ]
+  },
+  {
+   "piece": "HallWall60",
+   "name": "HallWall60_GH_Glass",
+   "material": "GH_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A8D8C0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    8.325
+   ],
+   "size": [
+    0.16,
+    59.4,
+    10.55
+   ]
+  },
+  {
+   "piece": "Hedge5x15",
+   "name": "Hedge5x15_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    5.0,
+    15.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "Hedge5x15",
+   "name": "Hedge5x15_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    4.6,
+    14.6,
+    7.0
+   ]
+  },
+  {
+   "piece": "Hedge5x15",
+   "name": "Hedge5x15_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.5,
+    0.0,
+    10.1
+   ],
+   "size": [
+    2.07846,
+    12.4,
+    1.0
+   ]
+  },
+  {
+   "piece": "Hedge5x20",
+   "name": "Hedge5x20_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    5.0,
+    20.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "Hedge5x20",
+   "name": "Hedge5x20_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    4.6,
+    19.6,
+    7.0
+   ]
+  },
+  {
+   "piece": "Hedge5x20",
+   "name": "Hedge5x20_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    0.5,
+    0.0,
+    10.1
+   ],
+   "size": [
+    2.07846,
+    18.4,
+    1.0
+   ]
+  },
+  {
+   "piece": "IronBridge",
+   "name": "IronBridge_GH_IronDark",
+   "material": "GH_IronDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9BA39B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    1.2
+   ],
+   "size": [
+    60.0,
+    10.0,
+    2.4
+   ]
+  },
+  {
+   "piece": "IronBridge",
+   "name": "IronBridge_GH_Iron",
+   "material": "GH_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E8E2"
+   },
+   "glow": false,
+   "tris": 1012,
+   "center": [
+    0.54527,
+    0.0,
+    4.3875
+   ],
+   "size": [
+    61.09055,
+    10.0,
+    3.975
+   ]
+  },
+  {
+   "piece": "IronLanding",
+   "name": "IronLanding_GH_Iron",
+   "material": "GH_Iron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E8E8E2"
+   },
+   "glow": false,
+   "tris": 112,
+   "center": [
+    0.0,
+    0.0,
+    4.5
+   ],
+   "size": [
+    9.8,
+    9.8,
+    9.0
+   ]
+  },
+  {
+   "piece": "IronLanding",
+   "name": "IronLanding_GH_IronDark",
+   "material": "GH_IronDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9BA39B"
+   },
+   "glow": false,
+   "tris": 52,
+   "center": [
+    0.0,
+    0.0,
+    5.45109
+   ],
+   "size": [
+    10.0,
+    10.0,
+    9.09783
+   ]
+  },
+  {
+   "piece": "Palm",
+   "name": "Palm_GH_Terracotta",
+   "material": "GH_Terracotta",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B5643F"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    4.43462,
+    4.43462,
+    3.0
+   ]
+  },
+  {
+   "piece": "Palm",
+   "name": "Palm_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 120,
+   "center": [
+    0.18505,
+    0.0,
+    9.0
+   ],
+   "size": [
+    1.66913,
+    1.5,
+    12.0
+   ]
+  },
+  {
+   "piece": "Palm",
+   "name": "Palm_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.75283,
+    0.0,
+    14.32591
+   ],
+   "size": [
+    10.24872,
+    10.51229,
+    3.57896
+   ]
+  },
+  {
+   "piece": "PottingBench",
+   "name": "PottingBench_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 252,
+   "center": [
+    0.0,
+    0.5,
+    1.5
+   ],
+   "size": [
+    15.0,
+    5.8,
+    3.0
+   ]
+  },
+  {
+   "piece": "PottingBench",
+   "name": "PottingBench_GH_Terracotta",
+   "material": "GH_Terracotta",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B5643F"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    3.45
+   ],
+   "size": [
+    9.20104,
+    1.20104,
+    0.9
+   ]
+  },
+  {
+   "piece": "PottingBench",
+   "name": "PottingBench_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    4.35
+   ],
+   "size": [
+    9.21244,
+    1.4,
+    0.9
+   ]
+  },
+  {
+   "piece": "PottingWall",
+   "name": "PottingWall_GH_Brick",
+   "material": "GH_Brick",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B07D5E"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    4.7
+   ],
+   "size": [
+    40.0,
+    4.4,
+    9.4
+   ]
+  },
+  {
+   "piece": "PottingWall",
+   "name": "PottingWall_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    0.0,
+    0.0,
+    7.3
+   ],
+   "size": [
+    40.0,
+    5.0,
+    5.4
+   ]
+  },
+  {
+   "piece": "PottingWall",
+   "name": "PottingWall_GH_Terracotta",
+   "material": "GH_Terracotta",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B5643F"
+   },
+   "glow": false,
+   "tris": 504,
+   "center": [
+    0.0,
+    0.0,
+    5.5
+   ],
+   "size": [
+    33.29343,
+    5.99343,
+    1.0
+   ]
+  },
+  {
+   "piece": "PottingWall",
+   "name": "PottingWall_GH_Leaf",
+   "material": "GH_Leaf",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3F7A47"
+   },
+   "glow": false,
+   "tris": 360,
+   "center": [
+    0.0,
+    0.0,
+    6.45
+   ],
+   "size": [
+    33.21244,
+    6.1,
+    0.9
+   ]
+  },
+  {
+   "piece": "SeedCrates",
+   "name": "SeedCrates_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    3.5
+   ],
+   "size": [
+    5.0,
+    10.0,
+    7.0
+   ]
+  },
+  {
+   "piece": "SeedCrates",
+   "name": "SeedCrates_GH_LeafLight",
+   "material": "GH_LeafLight",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5E9A55"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    7.3
+   ],
+   "size": [
+    1.55885,
+    7.8,
+    0.6
+   ]
+  },
+  {
+   "piece": "WaterButt",
+   "name": "WaterButt_GH_Brick",
+   "material": "GH_Brick",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B07D5E"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.8
+   ],
+   "size": [
+    5.0,
+    5.0,
+    1.6
+   ]
+  },
+  {
+   "piece": "WaterButt",
+   "name": "WaterButt_GH_Wood",
+   "material": "GH_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E4F3A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    5.6
+   ],
+   "size": [
+    4.24985,
+    4.24985,
+    8.0
+   ]
+  },
+  {
+   "piece": "WaterButt",
+   "name": "WaterButt_GH_IronDark",
+   "material": "GH_IronDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9BA39B"
+   },
+   "glow": false,
+   "tris": 112,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    4.39767,
+    4.39767,
+    7.0
+   ]
+  }
+ ],
+ "tris": 7188
+}

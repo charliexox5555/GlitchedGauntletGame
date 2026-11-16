@@ -71,6 +71,7 @@ META = {
     ),
     "Courtyard": dict(
         origin=(7500, 200, 0), ceiling=70, killDepth=30, kit="Town", looks=TOWN_LOOKS,
+        walls={"h": 18, "look": "block"},  # townhouse backdrop: the square is closed, like the RIVALS town maps
         rowlooks=[("Clock tower", "tower"), ("Tower steps", "plinth"), ("Stall", "stall"), ("Cart", "wood"), ("Crates", "wood")],
         lighting=light(14.2, ColorShift_Top="FFEBD2"),
         atmosphere={"density": 0.26, "haze": 1.0, "color": "E9E0D2", "decay": "B3A28E"},
@@ -89,7 +90,8 @@ META = {
     ),
     "Foundry": dict(
         origin=(9500, 200, 0), ceiling=70, killDepth=8, kit="Foundry",
-        under={"y": -3, "look": "molten"},
+        apron={"w": 40, "look": "cover"},  # the hall floor round the play space; the furnace stands on it
+        under={"y": -7, "look": "molten"},  # below the deck (bottom -4) so the glow never meets the deck rim
         looks=dict(
             deck=lk("6F7378", "tread", topOnly=True), default=lk("8A8E94", "concrete"), cover=lk("8A8E94", "concrete"),
             low=lk("5D6168", "tread"), pillar=lk("4F535A"), deck2=lk("4F535A", "tread"), ramp=lk("4F535A", "tread"),
@@ -102,6 +104,7 @@ META = {
     ),
     "Snowpeak": dict(
         origin=(10500, 200, 0), ceiling=70, killDepth=30, id="Snowpeak3", kit="Snowpeak3",
+        apron={"w": 60, "look": "low"},  # a snowfield round the map: the treeline and gondola stand on it
         looks=dict(
             deck=lk("EEF2F6", "pavers", topOnly=True), default=lk("8A5A3C", "planks"), cover=lk("8A5A3C", "planks"),
             low=lk("F4F7FA"), pillar=lk("2F5E45"), deck2=lk("8A5A3C", "planks"), ramp=lk("7A5038", "planks"),
@@ -113,10 +116,11 @@ META = {
     ),
     "ModelKit": dict(
         origin=(11500, 200, 0), ceiling=70, killDepth=30, kit="ModelKit",
+        apron={"w": 50, "look": "desk"},  # the cutting mat lies on a wooden desk; the lamp stands on it
         looks=dict(
             deck=lk("3E7B5A", "cuttingmat", topOnly=True), default=lk("D9D4C8"), cover=lk("D9D4C8"),
             low=lk("B9BEC4"), pillar=lk("F0EEE6"), deck2=lk("6B4FA0"), ramp=lk("E3B33A"), plinth=lk("C25B3A"),
-            red=lk("C8443B"), blue=lk("3B6FC8"), book=lk("6B4FA0"), book2=lk("C25B3A"), tape=lk("D8CBA8"), steel=lk("8E949B"),
+            red=lk("C8443B"), blue=lk("3B6FC8"), desk=lk("B58A62", "planks"), book=lk("6B4FA0"), book2=lk("C25B3A"), tape=lk("D8CBA8"), steel=lk("8E949B"),
         ),
         rowlooks=[("Paint pot A", "red"), ("Paint pot B", "blue"), ("Book top", "book"), ("Book step low", "book2"),
                   ("Book step", "book2"), ("Tape", "tape"), ("Craft knife", "steel"), ("Ruler", "low"), ("Pencil ramp", "ramp"),
@@ -137,7 +141,7 @@ META = {
         looks=dict(
             deck=lk("B9BBBF", "pavers", topOnly=True), default=lk("C9CBD0", "concrete"), cover=lk("C9CBD0", "concrete"),
             low=lk("8D9197", "tread"), pillar=lk("8D9197", "concrete"), deck2=lk("7A7E85", "tread"), ramp=lk("7A7E85", "tread"),
-            bridge=lk("4B4F55", "tread"), roof=lk("6A6E75", "concrete"), train=lk("D3D6DB", "tread"), accent=lk("E3B12C"),
+            bridge=lk("4B4F55", "tread"), roof=lk("6A6E75", "concrete"), train=lk("D3D6DB", "tread"), accent=lk("C2413A"),
         ),
         rowlooks=[("Train", "train"), ("Kiosk", "accent"), ("Map board", "accent"), ("Footbridge", "deck2")],
         lighting=light(12, Brightness=2.6, Ambient="8E929A", OutdoorAmbient="B2B8C4", ExposureCompensation=0.2),
@@ -145,10 +149,11 @@ META = {
     ),
     "Greenhouse": dict(
         origin=(8500, 200, -1500), ceiling=80, killDepth=30, id="Greenhouse3", kit="Greenhouse3",
+        walls={"h": 16, "look": "glasswall"},
         looks=dict(
             deck=lk("C4BBA9", "pavers", topOnly=True), default=lk("6E4F3A", "planks"), cover=lk("3F7A47"),
             low=lk("B07D5E", "brick"), pillar=lk("4E8A4F"), deck2=lk("E8E8E2", "tread"), ramp=lk("E8E8E2", "tread"),
-            bed=lk("6E4F3A", "planks"), glass=lk("BFE3D0", transparency=0.55), fountain=lk("C9C3B6", "brick"),
+            bed=lk("6E4F3A", "planks"), glass=lk("BFE3D0", transparency=0.55), glasswall=lk("CFEBDD", transparency=0.6), fountain=lk("C9C3B6", "brick"),
         ),
         rowlooks=[("Bed", "bed"), ("Planter", "bed"), ("Potting", "bed"), ("Seed", "bed"), ("Glass case", "glass"),
                   ("Fountain", "fountain"), ("Cold frame", "glass"), ("Spawn screen", "bed"), ("Water butt", "bed")],
@@ -192,12 +197,49 @@ PIECES: dict = {
         ("Lodge wall E", "LodgeWall5x10", {}), ("Woodpile", "Woodpile20x5", {}), ("Pine", "Pine", {}), ("Snowbank", "Snowbank", {}),
         ("Ski rack", "SkiRack", {}), ("Sled shed", "SledShed", {}), ("Woodshed", "Woodshed", {}), ("Porch", "Porch", {}),
     ],
+    "ModelKit": [
+        ("Glue pot", "GluePot", {}), ("Parts box", "PartsBox", {}), ("Paint pot A", "PaintPotRed", {}),
+        ("Paint pot B", "PaintPotBlue", {}), ("Ruler", "Ruler", {}), ("Pencil ramp", "PencilRamp", {}),
+        ("Pencil cup", "PencilCup", {}), ("Book top", "BookTop", {}), ("Book step low", "BookStepLow", {}),
+        ("Book step", "BookStep", {}), ("Sprue frame", "SprueFrame", {}), ("Craft knife", "CraftKnife", {}),
+        ("Tape roll", "TapeRoll", {}),
+    ],
+    "Bunker": [
+        ("Generator", "Generator", {}), ("Blast wall", "BlastWall", {}), ("Locker row", "LockerRow", {}),
+        ("Crate stack", "CrateStack", {}), ("Console", "Console", {}), ("Overlook step", "", {}),
+        ("Overlook", "Overlook", {"pieceYaw": 180}),
+    ],
+    "Metro": [
+        ("Footbridge", "Footbridge", {}), ("Train", "TrainCar", {}), ("Column", "Column", {}), ("Spawn wall", "SpawnWall", {}),
+        ("Kiosk", "Kiosk", {}), ("Ticket gates", "TicketGates", {}), ("Vending", "Vending", {"pieceYaw": 180}),
+        ("Stairwell", "Stairwell", {}), ("Map board", "MapBoard", {}),
+    ],
+    "Greenhouse": [
+        ("Fountain", "Fountain", {}), ("Dome bridge", "IronBridge", {}), ("Bridge landing", "IronLanding", {}),
+        ("Spawn screen", "PottingWall", {}), ("Planter ring NE", "Bed15x5", {}), ("Planter ring NW", "Bed5x15", {}),
+        ("Hedge W", "Hedge5x20", {}), ("Hedge E", "Hedge5x15", {}), ("Hall wall E", "HallWall60", {}),
+        ("Hall wall W", "HallWall40", {}), ("Bed E1", "Bed10x20", {}), ("Bed W1", "Bed10x25", {}), ("Bed mid", "Bed20x5", {}),
+        ("Bed N", "Bed15x5", {}), ("Potting bench", "PottingBench", {}), ("Palm", "Palm", {}), ("Seed crates", "SeedCrates", {}),
+        ("Glass case", "GlassCase", {}), ("Cold frame", "ColdFrame", {}), ("Water butt", "WaterButt", {}),
+    ],
 }
 META_PROPS = {
     # piece, x, z, y, yaw, mirrored
     "Rooftops": [["TowerCrane", 62, -20, 0, 0, False]],
     "Foundry": [["Furnace", 60, 0, 0, 0, False]],
-    "Snowpeak": [["GondolaStation", 68, 78, 0, 0, False]],
+    # a pine treeline past the east and north edges (mirrored to west and south), clear of the gondola station
+    "Snowpeak": [["GondolaStation", 68, 78, 0, 0, False]]
+    + [["Pine", 57 + 5 * (i % 2), -63 + 11 * i, 0, 37 * i, True] for i in range(12)]
+    + [["Pine", -44 + 11 * i, 77 + 5 * (i % 2), 0, 53 * i, True] for i in range(8)],
+    # the lamp's arm reaches 32 studs toward -X, so the shade hangs over the east third of the bench
+    "ModelKit": [["DeskLamp", 72, -20, 0, 0, False]],
+    # floodlights under the shaft rim and along the corridors (roof underside at 14)
+    "Bunker": [["ShaftLamp", 13.5, 0, 14, 90, True], ["ShaftLamp", 0, 13.5, 14, 0, True], ["ShaftLamp", 0, 40, 14, 0, True],
+               ["ShaftLamp", 32, 25, 14, 90, True], ["ShaftLamp", -30, 55, 14, 0, True]],
+    # two-faced clocks over the trench, clear of both trains
+    "Metro": [["StationClock", 0, 40, 15, 0, True]],
+    # yaw 20 puts the four legs at least 6.6 studs from every greybox box (checked against the plan)
+    "Greenhouse": [["GlassDome", 0, 0, 0, 20, False]],
 }
 
 
@@ -243,7 +285,7 @@ def data(plan: Plan) -> dict:
         "looks": m["looks"], "textures": TEX, "lighting": m["lighting"], "atmosphere": m.get("atmosphere", {}),
         "props": m.get("props", META_PROPS.get(plan.name, [])),
     }
-    for k in ("roof", "under", "water"):
+    for k in ("roof", "under", "water", "walls", "apron"):
         if k in m:
             d[k] = m[k]
     return d
