@@ -2,8 +2,10 @@
 -- Recon's upgrade levels on the client (vault/01 Design/Abilities/Upgrade
 -- Paths.md → 6. Recon). A Recharge and B More Pulses look like L1 (each pulse
 -- is drawn by ModFxController, however many there are). G Ping Spike, the
--- glitched path, has its own look over the magenta glitch static
--- (TeamColor.GLITCH), its theme a corrupted network ping:
+-- glitched path, has its own look, its theme a corrupted network ping. Since
+-- 2026-11-17 it is in team colour (enemy colour on the revealed) with white
+-- stutter frames; the glitch magenta is only a rare one-frame flick on the
+-- wave front (Ability VFX Direction → Glitch is a rare accent):
 --   ReconStick   the dart arming: dead pixels crackle around it and a whine
 --                rises until the spike (the window to shoot it down)
 --   ReconPulse   one huge corrupted scan instead of the clean ring: a ring of
@@ -89,11 +91,12 @@ local function teamColor(data: { [string]: any }): Color3
 	return TeamColor.forTeam(if typeof(data.team) == "number" then data.team else nil)
 end
 
--- Glitch colour picks: mostly magenta, some team colour, a white frame now
--- and then.
+-- Colour picks for the stuttering pieces: team colour, a white frame now and
+-- then, and the glitch magenta only rarely (2026-11-17, Ability VFX
+-- Direction: magenta is an accent on the wave front, not the whole look).
 local function glitchColor(team: Color3): Color3
 	local r = rng:NextNumber()
-	return if r < 0.55 then GLITCH elseif r < 0.9 then team else WHITE
+	return if r < 0.08 then GLITCH elseif r < 0.85 then team else WHITE
 end
 
 -- Pixels (the arming crackle and the wave's slabs) --------------------------------
@@ -223,7 +226,7 @@ local function tearUi(): ScreenGui
 	local tint = Instance.new("Frame")
 	tint.Size = UDim2.fromScale(1, 1)
 	tint.BorderSizePixel = 0
-	tint.BackgroundColor3 = GLITCH
+	tint.BackgroundColor3 = WHITE
 	tint.BackgroundTransparency = 1
 	tint.Parent = gui
 	tearTint = tint
@@ -279,7 +282,7 @@ local function stepTear(now: number)
 		local h = rng:NextNumber(0.006, 0.05)
 		bar.Size = UDim2.new(rng:NextNumber(0.3, 1.2), 0, h, 0)
 		bar.Position = UDim2.fromScale(rng:NextNumber(-0.2, 0.6), rng:NextNumber(0, 1 - h))
-		bar.BackgroundColor3 = if rng:NextNumber() < 0.7 then GLITCH else WHITE
+		bar.BackgroundColor3 = WHITE
 		bar.BackgroundTransparency = 1 - rng:NextNumber(0.25, 0.6) * tearStrength
 	end
 end
@@ -333,7 +336,7 @@ local function onSpike(data: { [string]: any })
 	ModAudio.play(S.spike, at)
 	ModAudio.play(S.spikeStatic, at)
 	-- The dart flashes out in static.
-	ModVfx.burst(at, GLITCH, 36, "Sparkle")
+	ModVfx.burst(at, WHITE, 24, "Sparkle")
 	ModVfx.burst(at, color, 16, "Glow")
 	-- Flat glitch rings at three heights, spinning against each other, and
 	-- the scan across the ground: the clean L1 look, corrupted.
@@ -343,7 +346,7 @@ local function onSpike(data: { [string]: any })
 			cframe = CFrame.new(at + Vector3.new(0, dy, 0)),
 			from = 2,
 			to = d * (if i == 2 then 1 else 0.85),
-			color = if i == 2 then GLITCH else color,
+			color = color,
 			life = WAVE_TIME + 0.2,
 			alpha0 = 0,
 			spin = if i == 1 then 3 else -3,
@@ -354,7 +357,7 @@ local function onSpike(data: { [string]: any })
 		cframe = CFrame.new(floorUnder(at)),
 		from = 2,
 		to = d,
-		color = GLITCH,
+		color = color,
 		life = WAVE_TIME,
 		alpha0 = 0.1,
 	})
@@ -368,7 +371,7 @@ local function onSpike(data: { [string]: any })
 		for _ = 1, #BAND_HEIGHTS do
 			local band = GlitchVfx.take("ScanWave_Energy")
 			if band then
-				band.Color = GLITCH
+				band.Color = color
 				band.Parent = model
 				table.insert(bands, band)
 			end
@@ -384,7 +387,7 @@ local function onSpike(data: { [string]: any })
 		made.CanTouch = false
 		made.CastShadow = false
 		made.Material = Enum.Material.ForceField
-		made.Color = GLITCH
+		made.Color = color
 		made.Size = Vector3.one * 2
 		made.CFrame = CFrame.new(at)
 		made.Parent = fxFolder()
@@ -402,9 +405,9 @@ local function onSpike(data: { [string]: any })
 	end
 	local h = Instance.new("Highlight")
 	h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-	h.FillColor = GLITCH
+	h.FillColor = color
 	h.FillTransparency = 0.4
-	h.OutlineColor = GLITCH
+	h.OutlineColor = color
 	h.OutlineTransparency = 0.2
 	h.Adornee = model
 	h.Parent = model
@@ -475,7 +478,8 @@ local function stepWaves(now: number)
 		if shell then
 			shell.Size = Vector3.one * math.max(r * 2, 2)
 			shell.CFrame = CFrame.new(w.at + jitter)
-			shell.Color = if rng:NextNumber() < 0.75 then GLITCH else w.color
+			-- The accent: the front flicks to magenta for a frame now and then.
+			shell.Color = if rng:NextNumber() < 0.12 then GLITCH else w.color
 			shell.Transparency = fade
 		end
 		-- The kit's bands: each slips round on its own and drops a frame now and then.
@@ -491,7 +495,7 @@ local function stepWaves(now: number)
 			band.Color = glitchColor(w.color)
 			band.Transparency = rng:NextNumber(0, 0.2) + 0.8 * fade
 		end
-		w.highlight.OutlineColor = if rng:NextNumber() < 0.7 then GLITCH else w.color
+		w.highlight.OutlineColor = if rng:NextNumber() < 0.12 then GLITCH else w.color
 		w.highlight.OutlineTransparency = 0.2 + 0.8 * fade
 		w.highlight.FillTransparency = 0.4 + 0.6 * fade
 		for j, p in w.slabs do
@@ -557,7 +561,7 @@ local function makeTag(model: Model, text: string): (BillboardGui?, TextLabel?)
 	label.FontFace = Font.new("rbxasset://fonts/families/RobotoMono.json", Enum.FontWeight.Bold)
 	label.TextScaled = true
 	label.Text = text
-	label.TextColor3 = GLITCH
+	label.TextColor3 = WHITE
 	label.TextStrokeColor3 = Color3.new(0, 0, 0)
 	label.TextStrokeTransparency = 0.3
 	label.Parent = gui
@@ -589,7 +593,7 @@ local function onReveal(data: { [string]: any })
 			local h = Instance.new("Highlight")
 			h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 			h.FillColor = TeamColor.ENEMY
-			h.OutlineColor = GLITCH
+			h.OutlineColor = TeamColor.ENEMY
 			h.FillTransparency = 0.5
 			h.OutlineTransparency = 0
 			h.Adornee = model
@@ -636,15 +640,15 @@ local function stepMarks(now: number)
 		-- drops out now and then (the outline never does: they stay tracked).
 		local r = rng:NextNumber()
 		local h = mark.highlight
-		h.OutlineColor = if r < 0.6 then GLITCH elseif r < 0.9 then TeamColor.ENEMY else WHITE
-		h.FillColor = if rng:NextNumber() < 0.8 then TeamColor.ENEMY else GLITCH
+		h.OutlineColor = if r < 0.85 then TeamColor.ENEMY else WHITE
+		h.FillColor = TeamColor.ENEMY
 		h.FillTransparency = if rng:NextNumber() < 0.15 then 0.9 else rng:NextNumber(0.4, 0.65)
 		local tag, label = mark.tag, mark.label
 		if tag and label then
 			tag.StudsOffsetWorldSpace =
 				Vector3.new(rng:NextNumber(-0.12, 0.12), 2.6 + rng:NextNumber(-0.08, 0.08), 0)
 			label.Text = if rng:NextNumber() < 0.15 then scrambled(mark.text) else mark.text
-			label.TextColor3 = if rng:NextNumber() < 0.85 then GLITCH else WHITE
+			label.TextColor3 = WHITE
 		end
 	end
 end

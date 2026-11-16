@@ -676,10 +676,12 @@ local function buildPrompt(): Prompt
 		l.Parent = text
 		return l
 	end
-	-- A cyan copy behind the magenta text: the colour split of a bad signal.
+	-- White words (magenta and a cyan split until 2026-11-17: glitch is no
+	-- longer this Mod's look). The split label stays, hidden, for the code
+	-- that drives it.
 	local split = line("Split", TeamColor.ALLY, 1)
-	split.TextTransparency = 0.55
-	local label = line("Label", TeamColor.GLITCH, 2)
+	split.TextTransparency = 1
+	local label = line("Label", Color3.new(1, 1, 1), 2)
 
 	local button = Instance.new("TextButton")
 	button.Name = "CrashDownButton"
@@ -690,7 +692,7 @@ local function buildPrompt(): Prompt
 	button.BackgroundTransparency = 0.3
 	button.FontFace = HEAVY
 	button.TextSize = 16
-	button.TextColor3 = TeamColor.GLITCH
+	button.TextColor3 = Color3.new(1, 1, 1)
 	button.Text = "CRASH"
 	button.AutoButtonColor = true
 	button.Visible = false
@@ -700,7 +702,7 @@ local function buildPrompt(): Prompt
 	round.Parent = button
 	local ring = Instance.new("UIStroke")
 	ring.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	ring.Color = TeamColor.GLITCH
+	ring.Color = TeamColor.ALLY
 	ring.Thickness = 2.5
 	ring.Parent = button
 

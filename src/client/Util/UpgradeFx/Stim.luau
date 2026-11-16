@@ -13,9 +13,9 @@
 --                         reads StimStrong.
 --   G2 / G3 Heal Zone     the Heal Orb's look (Util/HealFx's green-teal halo
 --                         ring, motes and wisps, its chimes as a soft hum)
---                         with the glitch on top: magenta static pixels,
---                         tearing scanlines, the ring and coil flickering
---                         magenta, the beacon jittering. Anyone being healed
+--                         (no glitch since 2026-11-17: no static pixels or
+--                         tears; the ring and coil flicker pale now and
+--                         then, the beacon jitters). Anyone being healed
 --                         inside glows and shows "+N"; read from their health
 --                         going up, so it only shows what the server healed.
 --                         Look (stylized, 2026-11-03), with the GlitchVFX kit
@@ -29,7 +29,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
-local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
@@ -49,7 +48,7 @@ local S = ModSounds.Stim
 local curve = StimFx.curve
 
 local HEAL = Color3.fromHex("5CFFC8") -- the Heal Orb's green-teal (Util/HealFx)
-local GLITCH = Config.COLORS.glitch
+local GLITCH = Color3.fromHex("C8FFEA") -- was the glitch magenta: now a pale heal flicker
 local HEAL_STATS = Mods.stats("Stim", "G2")
 local ZONE_HEIGHT: number = if HEAL_STATS then HEAL_STATS.height else 8
 
@@ -118,8 +117,6 @@ local STRONG_LOOK: StimFx.Look = {
 
 -- Heal Zone -----------------------------------------------------------------------
 
-local PIXEL_RATE = 32 -- static pixels a second
-local PIXEL_MAX = 16 -- live at once per zone
 -- With the GlitchVFX kit (sizes: the hex floor is 1.77 across, the ring 2.05).
 local KIT_HEX_SPAN = 1.77
 local KIT_RING_SPAN = 2.05
@@ -323,55 +320,6 @@ local function healDeploy(zone: StimFx.Zone)
 	healZones[zone] = state
 end
 
-local function pixel(zone: StimFx.Zone, state: HealState, now: number): Part
-	local p = table.remove(state.free)
-	if not p then
-		local made = Instance.new("Part")
-		made.Name = "GlitchPixel"
-		made.Anchored = true
-		made.CanCollide = false
-		made.CanQuery = false
-		made.CanTouch = false
-		made.CastShadow = false
-		made.Material = Enum.Material.Neon
-		made.Parent = zone.edge
-		p = made
-	end
-	local part = p :: Part
-	table.insert(state.pixels, { part = part, untilT = now + 0.05 + math.random() * 0.09 })
-	return part
-end
-
--- One square of static: mostly on the rim, some inside; mostly magenta.
-local function staticPixel(zone: StimFx.Zone, state: HealState, now: number)
-	local p = pixel(zone, state, now)
-	local a = math.random() * math.pi * 2
-	local r = if math.random() < 0.6
-		then zone.radius * (0.9 + math.random() * 0.14)
-		else zone.radius * math.sqrt(math.random()) * 0.9
-	local s = 0.2 + math.random() * 0.45
-	p.Size = Vector3.new(s * (1 + math.random() * 2), s, s)
-	p.Color = if math.random() < 0.8 then GLITCH else HEAL
-	p.Transparency = math.random() * 0.3
-	p.CFrame = CFrame.new(
-		zone.spot.Position
-			+ Vector3.new(math.cos(a) * r, 0.15 + math.random() * 2.4, math.sin(a) * r)
-	) * CFrame.Angles(0, a, 0)
-end
-
--- A thin magenta scanline tearing across the zone for a blink.
-local function tear(zone: StimFx.Zone, state: HealState, now: number)
-	local p = pixel(zone, state, now)
-	p.Size = Vector3.new(zone.radius * 2 * (0.4 + math.random() * 0.6), 0.06, 0.25)
-	p.Color = GLITCH
-	p.Transparency = 0.3
-	local yaw = math.random() * math.pi * 2
-	local off = (math.random() * 2 - 1) * zone.radius * 0.5
-	p.CFrame = CFrame.new(zone.spot.Position + Vector3.new(0, 0.3 + math.random() * 2.7, 0))
-		* CFrame.Angles(0, yaw, 0)
-		* CFrame.new(0, 0, off)
-end
-
 -- A chunky pixel plus rising off the floor and turning (the kit).
 local function risePlus(zone: StimFx.Zone)
 	local a = math.random() * math.pi * 2
@@ -415,17 +363,9 @@ local function healStep(zone: StimFx.Zone, now: number)
 	if zone.fading then
 		return
 	end
-	state.spawn += dt * PIXEL_RATE
-	while state.spawn >= 1 do
-		state.spawn -= 1
-		if #state.pixels < PIXEL_MAX then
-			staticPixel(zone, state, now)
-		end
-	end
-	if now >= state.nextTear then
-		state.nextTear = now + 0.7 + math.random() * 1.1
-		tear(zone, state, now)
-	end
+	-- 2026-11-17 (Ability VFX Direction → Heal Zone: calm healing, no glitch
+	-- beat): no static pixels and no tears; the zone is the healing look.
+
 	if state.floor then
 		state.plus += dt * PLUS_RATE
 		while state.plus >= 1 do

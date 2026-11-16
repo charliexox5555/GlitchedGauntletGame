@@ -54,7 +54,10 @@ local rng = Random.new()
 
 local ICE = Color3.fromHex("BFE8FF")
 local ICE_DEEP = Color3.fromHex("7FD4FF")
-local GLITCH = TeamColor.GLITCH
+-- 2026-11-17 (Ability VFX Direction → Freeze Frame: ice, held still, a
+-- white flash; no glitch beat): every piece that used to flick magenta now
+-- flicks ice white, so the stutters read as glints, not glitch.
+local GLITCH = Color3.fromHex("EAF7FF")
 local GHOST = Color3.fromHex("3DF2FF") -- the cyan half of the chromatic split
 
 -- The burst's timeline (seconds).

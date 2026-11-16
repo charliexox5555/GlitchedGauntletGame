@@ -61,3 +61,18 @@ The base effects reworked tonight match the spec or deviate with a record. Glitc
 2. Sustained magenta static and flicker in `BarrierFx.luau` (`GLITCH_SCALE`), `FrostWallFx.luau`, `UpgradeFx/Frost.luau` (Freeze Frame), `UpgradeFx/Stim.luau` (Heal Zone): these get no glitch beat.
 3. `RecallCrash.luau` departure and `DashDecoy` Desync exit: cut to the two-frame doubled-shape accent (no screen tears, no 0.3 s static).
 4. The Crash Down prompt (`UpgradeFx/Updraft.luau` `buildPrompt`): magenta text and a round `UICorner` button, against the UI theme.
+
+## Glitch magenta cleanup (2026-11-17, owner: "Yes, do it")
+Magenta is now only the spec's four short accents. Every file below checked with lint and build; Barrier and Ping Spike seen in Play (captures `barrier 1/2`, `ping spike after`).
+| Upgrade | Before | After |
+|---|---|---|
+| Ping Spike (`UpgradeFx/Recon`) | Highlights, bands, rings, ground scan, label, screen tint all magenta | Team colour (enemy colour on the revealed), white stutter frames and label; magenta only as a rare one-frame flick on the wave front |
+| Barrier (`BarrierFx`) | A magenta static shell, magenta pixels and flickers; panels 0.62 transparency, a glaring opaque egg (4/10) | No static shell; flickers and pixels white, pixels only on a hit's flicker frames; panels 0.84 / frame 0.4, darkened Neon: a see-through hex shield with the player visible (7/10) |
+| Frost Wall (`FrostWallFx`) | Each piece glitched magenta every 0.5-1.8 s | No recurring glitch; leftover accents ice white |
+| Freeze Frame (`UpgradeFx/Frost`) | Magenta flickers, rings, pixels, screen bars | All of those ice white (glints) |
+| Heal Zone (`UpgradeFx/Stim`) | Magenta static pixels, screen-tear scanlines, flickering coil | Pixels and tears removed; flickers pale heal green |
+| Crash Recovery (`UpgradeFx/RecallCrash`) | ~1 s of tears, scatter, a blue "fatal error" screen over the centre, magenta scanlines | Tears and scatter for the two-frame accent only; no fatal-error screen or scanlines; violet otherwise; magenta sparkle burst at the departure |
+| Desync exit (`UpgradeFx/DashDecoy`) | 0.3 s of magenta static, a magenta pixel pop | Two frames of magenta static, then a violet pinch (0.2 s exit) |
+| Crash Down prompt (`UpgradeFx/Updraft`) | Magenta words with a cyan split, magenta ring on the touch button | White words, the touch ring in ally cyan (circles with rings are in the UI theme) |
+
+**Note for the body lane:** `UpgradeFx/Recon.luau` and `UpgradeFx/DashDecoy.luau` were committed with only these colour hunks; their skinned-limb (`LimbHold`, `MatchBody.attachLimb`) edits are still in the working tree, waiting for the skinned-limb system.

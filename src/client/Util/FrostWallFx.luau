@@ -38,7 +38,9 @@ local player = Players.LocalPlayer
 FrostWallFx.ICE = Color3.fromHex("BFE8FF")
 local ICE = FrostWallFx.ICE
 local DEEP = Color3.fromHex("6FB8E8") -- the slabs' deeper blue
-local GLITCH = TeamColor.GLITCH
+-- 2026-11-17 (Ability VFX Direction → Frost Wall: held still, no glitch):
+-- the pieces no longer glitch every second or two; what was magenta is ice white.
+local GLITCH = Color3.fromHex("EAF7FF")
 
 local FADE = 0.5 -- the ice sinks over this at the end (ModWalls FADE)
 local RISE = 0.3 -- each slab grows out of the floor over this
@@ -52,7 +54,6 @@ local MIST_RATE = 5
 local GLINT_RATE = 4
 local KIT_MIST_RATE = 2 -- the kit's look: shapes, few particles
 local KIT_GLINT_RATE = 2
-local GLITCH_GAP = NumberRange.new(0.5, 1.8) -- seconds between a piece's glitches
 local GLITCH_TIME = NumberRange.new(0.05, 0.12)
 local SLABS: { IceKit.Name } = { "SlabA", "SlabB" }
 
@@ -520,7 +521,7 @@ function FrostWallFx.dress(part: BasePart): boolean
 		k = 1,
 		shattered = false,
 		rng = rng,
-		nextGlitch = now + RISE + rng:NextNumber(GLITCH_GAP.Min, GLITCH_GAP.Max),
+		nextGlitch = math.huge,
 		glitchUntil = 0,
 		glitched = false,
 	}
@@ -602,7 +603,7 @@ local function glitch(p: Piece, now: number)
 	end
 	p.glitched = true
 	p.glitchUntil = now + rng:NextNumber(GLITCH_TIME.Min, GLITCH_TIME.Max)
-	p.nextGlitch = now + rng:NextNumber(GLITCH_GAP.Min, GLITCH_GAP.Max)
+	p.nextGlitch = math.huge
 end
 
 -- The kit's shatter: a few chips fly off the top of the piece.

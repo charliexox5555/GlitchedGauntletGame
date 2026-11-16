@@ -39,7 +39,12 @@ local RecallCrash = {}
 local S = ModSounds.Recall
 local player = Players.LocalPlayer
 
-local GLITCH = Config.COLORS.glitch
+-- 2026-11-17 (Ability VFX Direction → Crash Recovery: the glitch accent is
+-- two frames at the departure; teleport violet otherwise; no screen tear or
+-- centre cover): what was magenta is violet, except the departure accent.
+local GLITCH = Color3.fromHex("9B6BFF")
+local ACCENT = Config.COLORS.glitch
+local ACCENT_TIME = 2 / 30 -- the two-frame accent
 local WHITE = Color3.new(1, 1, 1)
 local BLUE = Color3.fromHex("1B2FD6") -- the corrupted "fatal error" screen
 local CYAN = Config.COLORS.ally
@@ -57,7 +62,7 @@ local STREAK_LENGTH = 4 -- the kit's Streak_Energy is 4 long (along Z)
 
 -- Our screen (seconds from the event).
 local TEAR_TIME = 0.18
-local BLUE_FROM, BLUE_TO = 0.1, 0.34
+local BLUE_FROM = 0.1
 local SCREEN_TIME = 1
 local TEARS = 9
 local NOISE = 42
@@ -303,7 +308,7 @@ local function shatter(g: Ghost)
 	end
 	table.clear(g.parts)
 	ModAudio.play(S.destroyedBreak, g.from.Position, 1.4)
-	ModVfx.burst(g.from.Position, GLITCH, 18, "Sparkle")
+	ModVfx.burst(g.from.Position, ACCENT, 18, "Sparkle")
 	streak(g.from.Position, home, g.color)
 end
 
@@ -525,17 +530,14 @@ local function stepScreen()
 		then 0.45
 		else 0.45 + 0.55 * math.clamp((t - TEAR_TIME) / 0.5, 0, 1)
 	if flicker then
-		tear(sc, if frozen then 0.85 else math.max(0.5 - t, 0))
-		scatter(sc, if frozen then 0.5 else math.max(0.6 - t * 0.6, 0))
+		local accent = t < ACCENT_TIME
+		tear(sc, if accent then 0.85 else 0)
+		scatter(sc, if accent then 0.5 else 0)
 	end
 	-- The fatal-error flash, flickering and corrupting.
-	local blueOn = t >= BLUE_FROM and t < BLUE_TO
+	-- (No "fatal error" screen since 2026-11-17: it covered the centre.)
+	local blueOn = false
 	local blueAlpha = 1
-	if t >= BLUE_TO then
-		blueAlpha = 0.08 + 0.92 * math.clamp((t - BLUE_TO) / 0.12, 0, 1)
-	elseif blueOn then
-		blueAlpha = if flicker and math.random() < 0.25 then 0.5 else 0.08
-	end
 	sc.blue.BackgroundTransparency = blueAlpha
 	for i, l in sc.lines do
 		l.TextTransparency = blueAlpha
@@ -550,9 +552,9 @@ local function stepScreen()
 		local y = 1 - ((t * 2.6 + i / SCANS) % 1)
 		s.Position = UDim2.fromScale(0, y)
 		s.BackgroundColor3 = if i % 2 == 0 then GLITCH else WHITE
-		s.BackgroundTransparency = if rewinding then 0.35 + 0.65 * r else 1
+		s.BackgroundTransparency = 1 -- no scanlines over the view
 	end
-	sc.warp.ImageTransparency = if rewinding then 0.35 + 0.65 * r else 0.6
+	sc.warp.ImageTransparency = if rewinding then 0.6 + 0.4 * r else 0.75
 	local blink = math.floor(t * 8) % 2 == 0
 	sc.rewind.TextTransparency = if rewinding and blink then 0.6 * r else 1
 	local rewindStroke = sc.rewind:FindFirstChildOfClass("UIStroke")

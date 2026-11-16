@@ -39,7 +39,9 @@ local TeamColor = require(script.Parent.Parent.TeamColor)
 
 local DashDecoy = {}
 
-local GLITCH_TIME = 0.3 -- seconds of static before the decoy is gone
+local GLITCH_TIME = 0.2 -- the exit (Ability VFX Direction → Desync: 0.2 s)
+local ACCENT_TIME = 2 / 30 -- the magenta static: a two-frame accent, then violet
+local EXIT_VIOLET = Color3.fromHex("9B6BFF")
 local SPLIT_TIME = 0.22 -- the static where the dash started
 local SLICES = 7 -- static slices across a body
 local TURN_RATE = 14 -- how fast the G3 decoy turns to its target (1/s)
@@ -413,7 +415,7 @@ local function glitchOut(d: Decoy)
 		return
 	end
 	d.glitchAt = os.clock()
-	DashDecoy.static(d.root.CFrame, bodySize(d), GLITCH_TIME)
+	DashDecoy.static(d.root.CFrame, bodySize(d), ACCENT_TIME)
 	for _, track in { d.run, d.aim, d.sprint } do
 		if track then
 			track:AdjustSpeed(0) -- freezes mid-stride, like a lost connection
@@ -518,16 +520,16 @@ local function stepDecoy(d: Decoy, dt: number, now: number)
 	if d.glitchAt then
 		local k = (os.clock() - d.glitchAt) / GLITCH_TIME
 		if k >= 1 then
-			ModVfx.burst(d.pos, TeamColor.GLITCH, 14, "Cross")
+			-- Gone: a violet pinch (the teleport fold, no more static).
+			ModVfx.burst(d.pos, EXIT_VIOLET, 10, "Cross")
 			GlitchVfx.piece({
 				name = "Pixels_Energy",
 				cframe = CFrame.new(d.pos) * CFrame.Angles(0, math.random() * math.pi * 2, 0),
-				scale = Vector3.one * 1.8,
-				scale1 = Vector3.one * 0.4,
-				color = TeamColor.GLITCH,
-				life = 0.25,
-				alpha0 = 0,
-				stutter = 0.2,
+				scale = Vector3.one * 1.4,
+				scale1 = Vector3.one * 0.1,
+				color = EXIT_VIOLET,
+				life = 0.12,
+				alpha0 = 0.1,
 			})
 			remove(d)
 			return

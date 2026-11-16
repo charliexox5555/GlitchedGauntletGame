@@ -42,7 +42,10 @@ local S = ModAudio.SOUNDS.HealOrb
 local ATTR = HealOrb.BARRIER_ATTRIBUTE
 
 local WHITE = Color3.new(1, 1, 1)
-local GLITCH = TeamColor.GLITCH
+-- 2026-11-17 (Ability VFX Direction → Barrier: team colour, no glitch beat):
+-- what used to flick to magenta flicks to white, the static shell is gone and
+-- the skin pixels show only on the flicker frames of a hit.
+local GLITCH = Color3.fromHex("F2F6FF")
 
 -- The bubble (studs; an ellipsoid around a standing R15 body).
 local SIZE = Vector3.new(5.8, 7.6, 5.8)
@@ -61,7 +64,6 @@ local MAX_LAYERS = 3
 -- Glitch static.
 local STATIC_PIXELS = 8
 local STATIC_STEP = 0.05 -- the pixels re-roll this often
-local STATIC_ODDS = 0.35 -- share of them showing at a time
 local FLICKER_EVERY = NumberRange.new(0.7, 1.6)
 local FLICKER_TIME = 0.12
 
@@ -80,8 +82,12 @@ local CRACKS = 7
 -- The kit's hex shell (GlitchVFX: panels at r 1, frame 1.01, crack 1.02, all
 -- in a 2.04 box): a layer's part is SIZE x KIT_SPAN at full size.
 local KIT_SPAN = 1.02
-local KIT_PANEL_ALPHA = { ally = 0.62, enemy = 0.45 } -- the panels (see-through for your side)
-local KIT_EDGE_ALPHA = { ally = 0.2, enemy = 0.05 } -- the frame reads solid
+-- 2026-11-17 (Ability VFX Direction B1: Neon at 0.8, team colour): at 0.62 /
+-- 0.45 the shell was a glaring opaque egg that hid the player. Lighter
+-- panels, a frame that still reads, both darkened so Neon doesn't bloom.
+local KIT_PANEL_ALPHA = { ally = 0.84, enemy = 0.74 } -- the panels
+local KIT_EDGE_ALPHA = { ally = 0.4, enemy = 0.25 } -- the frame
+local NEON_DARKEN = 0.3
 local SHELL_CRACK_TIME = 0.6 -- a hit that leaves a layer cracks the next one this long
 local TILES_FULL = 18 -- hex tiles a full break throws (the pixels come too, fewer)
 local TILES_LAYER = 9
@@ -347,11 +353,7 @@ local function makeBubble(model: Model, hits: number, form: boolean): Bubble
 			table.insert(layers, { part = part, mesh = mesh, edges = nil, scale = scale })
 		end
 	end
-	if not kit then
-		local g, gm = newShell(nil)
-		g.Color = GLITCH
-		glitch, glitchMesh = g, gm
-	end
+	-- (No static shell: it was a sustained magenta layer.)
 	local pixels = {}
 	for i = 1, STATIC_PIXELS do
 		local p = newPart()
@@ -462,7 +464,9 @@ local function drawBubble(b: Bubble, now: number, camPos: Vector3?)
 		l.part.Transparency = alpha
 		local mesh, edges = l.mesh, l.edges
 		if shown then
-			l.part.Color = if flicker and math.random() < 0.5 then GLITCH else b.color
+			l.part.Color = if flicker and math.random() < 0.5
+				then GLITCH
+				else b.color:Lerp(Color3.new(0, 0, 0), NEON_DARKEN)
 			l.part.CFrame = center * jitter
 			if mesh then
 				mesh.Scale = Vector3.one * (l.scale * grown)
@@ -471,11 +475,13 @@ local function drawBubble(b: Bubble, now: number, camPos: Vector3?)
 			end
 		end
 		if edges then
-			-- The frame: bright and nearly solid, magenta in a flicker.
+			-- The frame: reads clearly, white in a flicker.
 			local edgeAlpha = if shown then edgeBase + (1 - edgeBase) * fade else 1
 			edges.Transparency = edgeAlpha
 			if shown then
-				edges.Color = if flicker then GLITCH else b.color
+				edges.Color = if flicker
+					then GLITCH
+					else b.color:Lerp(Color3.new(0, 0, 0), NEON_DARKEN * 0.5)
 				edges.Size = SIZE * (KIT_SPAN * l.scale * grown)
 				edges.CFrame = center * jitter
 			end
@@ -511,7 +517,7 @@ local function drawBubble(b: Bubble, now: number, camPos: Vector3?)
 	if now >= b.nextStatic then
 		b.nextStatic = now + STATIC_STEP
 		for i, p in b.pixels do
-			if inside or fade > 0 or math.random() > (if flicker then 0.9 else STATIC_ODDS) then
+			if inside or fade > 0 or not flicker or math.random() > 0.5 then
 				p.Transparency = 1
 			else
 				local offset = onSkin(SIZE * GLITCH_SCALE)
