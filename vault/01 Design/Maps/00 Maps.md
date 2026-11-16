@@ -11,8 +11,8 @@ Owner calls: **no 4v4 at release** (large maps `minTeam 2, maxTeam 3`), keep the
 |---|---|---|---|---|---|---|
 | [Arena](Arena.md) | regular, 1v1-2v2 | Arena | Grey panel court under open sky, mostly full cover | none (two greys + grid) | the Beacon pylon | 🟡 v2 built (ForceMap), waits on owner |
 | [Big Arena](Arena.md) | large, 2v2-3v3 | Big Arena | Arena on a 12-sided court, three lanes, a +14 tower a side | none | the Beacon | 🟡 v2 built (ForceMap), waits on owner |
-| Pier | regular | Docks | Duel slice of the container port | red containers | gantry crane | next batch |
-| Dockyard | large | Docks | Full port at dusk | red containers | gantry crane | next batch |
+| [Pier](Pier%20and%20Dockyard.md) | regular | Docks | Duel slice of the container port | red containers | gantry crane | 🟡 layout + kit test, waits on owner |
+| [Dockyard](Pier%20and%20Dockyard.md) | large | Docks | Full port, late afternoon | red containers | gantry crane | 🟡 layout + kit test, waits on owner |
 | Rooftops | regular | Construction | Two team roofs over a pit, crane deck high spot | orange | crane deck | – |
 | Courtyard | regular | Village / Westown | Small stone plaza, arcades | terracotta | clock tower | – |
 | Old Town | large | Westown | Full plaza and streets, one long marked line | terracotta | clock tower | – |

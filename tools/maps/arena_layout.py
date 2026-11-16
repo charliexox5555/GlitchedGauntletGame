@@ -471,6 +471,8 @@ def report(plan: Plan):
 
     # sprint + first contact
     centre = (0.0, 14.0 if plan.duel else 16.0)
+    while not g.walk.get(g.cell_of(*centre)) and centre[1] < 60:
+        centre = (0.0, centre[1] + 2.0)  # the nearest walkable spot north of the middle piece
     s0 = plan.spawns_a[0]
     c1, _ = g.path(s0, centre)
     c2, pa = g.path(s0, plan.spawns_b[-1])

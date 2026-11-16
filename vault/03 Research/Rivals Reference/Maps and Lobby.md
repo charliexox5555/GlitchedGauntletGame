@@ -72,6 +72,12 @@ Height levels: ~85-90% of the area is floor; Arena +3 / +15 / +20, Docks +2/+4 s
 - **Big Arena:** round court ~200 across, same kit, 3 spawns a side (80-160 apart), 30 chest / 39 full cover (aerial in `third-party/maps/`).
 - **For us:** take the module (5-stud sizes, 10-high cover, 30-high walls), the two-tone + grid overlay and the restraint; our own layout, spawn hold and landmark. Edit-mode captures of the RIVALS file come out white when its window isn't drawing; use the saved shots.
 
+### Docks (2026-11-16, for [Pier and Dockyard](../../01%20Design/Maps/Pier%20and%20Dockyard.md))
+- **Kit:** containers 9-10 wide × 10 tall × 27 or 34 long (608 parts from 4 meshes), stacked two high in places; flat colours grey (163,162,165, most common), blue (80,105,158), green (55,121,44), red (189,73,73), purple (184,98,255), orange (255,177,67). Crates (13 meshes), barrels, pallets, cones, railings, bollard cleats, lights, shelves, roadblocks, 16 building meshes, 2 gantry cranes (107 long × 70 tall, orange and red) off the far end.
+- **Layout:** deck top about +9.5, water lower; core play area about 180 × 216; 3 spawn groups (108-256 apart); big warehouses 69 × 41 × 82 make the edges; two-storey buildings with interiors in the middle.
+- **Mix:** MeshParts for the shaped things (containers, crates, buildings, cranes), plain Parts for floors and simple walls; category folders under `Extra`.
+- **For us:** the 10 × 10 × 30 container as the module, stacks of two, crates as steps, one crane as the landmark, flat colours with one accent (red); our own layouts and meshes.
+
 ## Lobby (RIVALS file `Workspace.Lobby.Hub`)
 - **Plan:** a compact **cross** about 340×290: a round centre hub (spawn on a ringed logo dais, holograms around it) with short wings: **Duels** hall, **Market** (holo-bays: UGC shop, season pass), **Weapons** room (display tables), **Hallway**, and the **outdoor shooting range** facing a landmark hill. Separate `WaitingRoom` and `ShootingRange` rooms elsewhere. See `lobby/04_topdown_plan.jpg`.
 - **Walks from spawn** (16 studs/s): range 68 studs (~4 s), first pad ~102 (~6 s), farthest pad ~232 (~15 s), weapons ~100, market ~137.
