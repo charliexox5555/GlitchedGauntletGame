@@ -111,6 +111,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `MapVoteController` | the map vote screen: clones Studio-built `StarterGui.MapVote` as `MapVoteLive` (no spawn yet), templates `UiTemplates.MapVote` (Slot, Head); backup `tools/studio/BuildMapVote.luau` |
 | `NetStatsController` (match + lobby) | `Shared/NetStats.mount`: server / FPS / ping readout top right (`Config/NetStats`) |
 | `DeviceController` | reports the device (`Device` remote) |
+| `Util/WaitGui` | waits for a StarterGui screen's PlayerGui copy with no timeout (one ChildAdded connection); every match screen binds through it, because the map vote holds the first spawn |
 | `Util/PlayerTags` | level chip + device icon (Player attrs `Level`, `Device`) for the top bar tiles and Tab scoreboard rows |
 | `Util/BottomHud` (2026-11-14) | the bottom combat HUD: fills the Studio-built `StarterGui.BottomHud` (health + shield, ammo, Mod cells, weapon hotbar, key hints); fed by `HudController`, `ModHudController`, `WeaponController.updateHudWeapon`; desktop only; backup `tools/studio/BuildBottomHud.luau` |
 | `MatchHudController`, `PhoneHudController` | banners (get ready, countdown, round won / lost, match end); its old top bar is hidden (kept for its sounds until removed); phone layout |

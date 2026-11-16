@@ -24,7 +24,7 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/BuilderExtended.json"
+local BX = "rbxassetid://12187365977" -- Rubik (UI Match Overhaul: was Builder Extended)
 local CAP_R, CAP_L = "rbxassetid://130377997107460", "rbxassetid://75584308608588"
 local SHADOW = "rbxassetid://121253415859134"
 local ICON_HP, ICON_SHIELD = "rbxassetid://118284450466320", "rbxassetid://122576084707248"
@@ -39,12 +39,12 @@ local PREVIEW_LOADOUT = {
 	{ "Secondary", "rbxassetid://91264904103058", "13" },
 	{ "Melee", "rbxassetid://113310955014391", "" },
 }
-local NAVY = Color3.fromHex("1C2740")
+local NAVY = Color3.fromHex("262629")
 local CYAN = Color3.fromHex("3FE0F2")
 local WHITE = Color3.new(1, 1, 1)
 local TEXT = Color3.fromHex("F4F6F9")
-local MUTED = Color3.fromHex("9AA4B2")
-local INK = Color3.fromHex("06080C")
+local MUTED = Color3.fromHex("A3A3A6")
+local INK = Color3.fromHex("08080B")
 local CENTRE = Vector2.new(0.5, 0.5)
 local FILL = UDim2.fromScale(1, 1)
 
@@ -76,7 +76,7 @@ local function number(
 			BackgroundTransparency = 1,
 			ZIndex = if part == "Shadow" then 4 else 5,
 			Text = text,
-			FontFace = Font.new(BX, Enum.FontWeight.ExtraBold),
+			FontFace = Font.new(BX, Enum.FontWeight.Heavy),
 			TextSize = size,
 			TextColor3 = if part == "Shadow" then INK else WHITE,
 			TextTransparency = if part == "Shadow" then 0.6 else 0,
@@ -112,7 +112,7 @@ local function keycap(
 	local key = make("Frame", {
 		Name = "Key",
 		Size = UDim2.fromOffset(w, h),
-		BackgroundColor3 = Color3.fromHex("0B0F17"),
+		BackgroundColor3 = Color3.fromHex("0F0F12"),
 		BorderSizePixel = 0,
 		ZIndex = 3,
 	}, parent)
@@ -123,7 +123,7 @@ local function keycap(
 	local face = make("Frame", {
 		Name = "Face",
 		Size = UDim2.new(1, 0, 1, -3),
-		BackgroundColor3 = Color3.fromHex("3A4766"),
+		BackgroundColor3 = Color3.fromHex("464649"),
 		BorderSizePixel = 0,
 		ZIndex = 4,
 	}, key)
@@ -134,7 +134,7 @@ local function keycap(
 		BackgroundTransparency = 1,
 		ZIndex = 5,
 		Text = text,
-		FontFace = Font.new(BX, Enum.FontWeight.ExtraBold),
+		FontFace = Font.new(BX, Enum.FontWeight.Heavy),
 		TextSize = math.floor(h * 0.5),
 		TextColor3 = WHITE,
 	}, face)
@@ -581,7 +581,7 @@ for i, p in PREVIEW_LOADOUT do
 		Size = UDim2.fromOffset(40, 14),
 		BackgroundTransparency = 1,
 		Text = p[3],
-		FontFace = Font.new(BX, Enum.FontWeight.ExtraBold),
+		FontFace = Font.new(BX, Enum.FontWeight.Heavy),
 		TextSize = 12,
 		TextColor3 = WHITE,
 		TextXAlignment = Enum.TextXAlignment.Right,
@@ -653,7 +653,7 @@ do
 		Text = h[3],
 		FontFace = Font.new(BX, Enum.FontWeight.Bold),
 		TextSize = 13,
-		TextColor3 = Color3.fromHex("C9D1DC"),
+		TextColor3 = Color3.fromHex("D0D0D3"),
 	}, pair)
 	make("UIStroke", { Color = INK, Thickness = 1.5, Transparency = 0.5 }, label)
 	keycap(pair, h[2], 24, 24, { LayoutOrder = 2 })

@@ -565,14 +565,13 @@ local function slamInput(pad: boolean): (string?, string)
 	return name, if b.keys and b.keys[1] then b.keys[1].Name else ""
 end
 
-local HEAVY = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
+local HEAVY = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy)
 local BACK = Color3.fromHex("16181B")
 -- The match UI's prompt look (vault/02 Art/UI Match Extras.md).
-local PROMPT_FONT =
-	Font.new("rbxasset://fonts/families/BuilderExtended.json", Enum.FontWeight.ExtraBold)
-local KEY_FACE, KEY_LIP = Color3.fromHex("E9EDF3"), Color3.fromHex("0B0F17")
-local INK = Color3.fromHex("141A26")
-local PLATE = Color3.fromHex("1C2740")
+local PROMPT_FONT = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy)
+local KEY_FACE, KEY_LIP = Color3.fromHex("E9EDF3"), Color3.fromHex("0F0F12")
+local INK = Color3.fromHex("1A1A1D")
+local PLATE = Color3.fromHex("262629")
 local PROMPT_Y = 0.62 -- screen height of the prompt (under the crosshair)
 
 type Prompt = {

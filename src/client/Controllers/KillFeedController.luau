@@ -20,6 +20,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Parent.Util.Device)
+local WaitGui = require(script.Parent.Parent.Util.WaitGui)
 
 local KillFeedController = {}
 
@@ -321,7 +322,7 @@ end
 -- The old code-built feed and pop (Util/KillFeed, in CombatHud) leave the
 -- screen; Util/KillFeed keeps playing the kill sounds.
 local function hideOld()
-	local hud = player:WaitForChild("PlayerGui"):WaitForChild("CombatHud", 30)
+	local hud = WaitGui("CombatHud")
 	if not hud then
 		return
 	end
@@ -375,7 +376,7 @@ function KillFeedController.start()
 		return -- phones keep the old feed for now
 	end
 	task.spawn(function()
-		local gui = player:WaitForChild("PlayerGui"):WaitForChild("KillFeed", 30)
+		local gui = WaitGui("KillFeed")
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end

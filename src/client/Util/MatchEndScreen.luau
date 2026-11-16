@@ -8,7 +8,6 @@
 -- MatchEndController owns when it shows and what the buttons do (the server
 -- decides everything). Desktop only for now.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -17,6 +16,7 @@ local Mods = require(ReplicatedStorage.Shared.Mods)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local UiSound = require(script.Parent.UiSound)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
+local WaitGui = require(script.Parent.WaitGui)
 
 local MatchEndScreen = {}
 
@@ -42,8 +42,6 @@ export type Data = {
 }
 
 export type PlateData = { model: Model, name: string, ally: boolean, mvp: boolean }
-
-local player = Players.LocalPlayer
 
 local DESIGN = Vector2.new(1920, 1080)
 local NAVY, NAVY_HI = Color3.fromHex("262629"), Color3.fromHex("39393C")
@@ -414,7 +412,7 @@ function MatchEndScreen.start(isCompact: boolean)
 		return -- phones keep the old screen for now
 	end
 	task.spawn(function()
-		local gui = player:WaitForChild("PlayerGui"):WaitForChild("MatchEndScreen", 30)
+		local gui = WaitGui("MatchEndScreen")
 		if gui and gui:IsA("ScreenGui") then
 			bind(gui)
 		end

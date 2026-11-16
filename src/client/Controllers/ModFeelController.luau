@@ -88,7 +88,7 @@ local function build(): ScreenGui
 		Position = UDim2.new(0.5, 0, 0, 90),
 		Size = UDim2.fromOffset(260, 34),
 		BackgroundTransparency = 1,
-		FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy),
+		FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy),
 		TextSize = 26,
 		TextColor3 = TeamColor.ENEMY,
 		TextStrokeTransparency = 0.5,

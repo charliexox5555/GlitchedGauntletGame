@@ -28,12 +28,12 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/BuilderExtended.json"
+local BX = "rbxassetid://12187365977" -- Rubik (UI Match Overhaul: was Builder Extended)
 local XB = Enum.FontWeight.ExtraBold
-local NAVY = hex("1C2740")
+local NAVY = hex("262629")
 local ALLY, ENEMY = hex("3FE0F2"), hex("FF6B57")
 local ALLY_CELL = hex("0D5C7A")
-local GOLD, MUTED, INK, WHITE = hex("FFC83D"), hex("8E98A8"), hex("141A26"), Color3.new(1, 1, 1)
+local GOLD, MUTED, INK, WHITE = hex("FFC83D"), hex("97979A"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460"
 local BOT_HEAD = "rbxassetid://119185654291939"
 local SHARD = "rbxassetid://76745392849672"
@@ -272,16 +272,12 @@ do -- Scoreboard: header, row, build chip
 		{ Name = "Row", Size = UDim2.fromOffset(W, 46), BackgroundTransparency = 1 },
 		folder
 	)
-	local body = make(
-		"CanvasGroup",
-		{
-			Name = "Body",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		holder
-	)
+	local body = make("CanvasGroup", {
+		Name = "Body",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, holder)
 	corner(body)
 	local cell = make("Frame", {
 		Name = "Cell",
@@ -500,7 +496,7 @@ do
 	make("Frame", {
 		Name = "Dim",
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = hex("070A10"),
+		BackgroundColor3 = hex("0A0A0D"),
 		BackgroundTransparency = 0.45,
 		BorderSizePixel = 0,
 	}, gui)

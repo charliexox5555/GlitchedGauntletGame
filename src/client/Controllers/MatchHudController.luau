@@ -21,6 +21,7 @@ local TestMode = require(ReplicatedStorage.Shared.TestMode)
 local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle) -- FLAGS only (Roblox UI placement)
 
 local UiSound = require(script.Parent.Parent.Util.UiSound)
+local WaitGui = require(script.Parent.Parent.Util.WaitGui)
 
 local MatchHudController = {}
 
@@ -95,7 +96,7 @@ local function tierFor(round: number): Config.Phase
 end
 
 local function bind(): Ui
-	local gui = player:WaitForChild("PlayerGui"):WaitForChild("Notify") :: ScreenGui
+	local gui = WaitGui("Notify") :: ScreenGui
 	local root = gui:WaitForChild("Root") :: Frame
 	local band = root:WaitForChild("Band") :: CanvasGroup
 	local ui: Ui = {
@@ -202,7 +203,8 @@ local function refresh(ui: Ui)
 
 	local kicker, title, sub, tone = "", "", "", "neutral" :: Tone
 	if phase == "Vote" then
-		-- the map vote screen (MapVoteController) has the middle
+		-- the map vote screen (MapVoteController) has the middle: no banner
+		title = ""
 	elseif phase == "Waiting" then
 		title, sub = "WAITING FOR OPPONENT", string.format("First to %d", Config.ROUNDS_TO_WIN)
 	elseif phase == "Draft" then

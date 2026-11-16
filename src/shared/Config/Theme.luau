@@ -53,8 +53,8 @@ return table.freeze({
 		Escape = hex("8E7CFF"),
 	} :: { [string]: Color3 }),
 
-	-- Two families (Oswald for titles and numbers, Montserrat for the rest),
-	-- both built into Roblox. Sizes are design pixels at 1080p.
+	-- One family, Rubik, in Heavy / Bold / Medium (UI Match Overhaul; was
+	-- Oswald + Montserrat). Sizes are design pixels at 1080p.
 	TEXT = table.freeze({
 		displayXL = { font = rubik(Enum.FontWeight.Heavy), size = 132 },
 		displayL = { font = rubik(Enum.FontWeight.Heavy), size = 56 },

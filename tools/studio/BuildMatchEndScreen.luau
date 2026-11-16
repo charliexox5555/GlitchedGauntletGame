@@ -28,12 +28,12 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/BuilderExtended.json"
+local BX = "rbxassetid://12187365977" -- Rubik (UI Match Overhaul: was Builder Extended)
 local XB = Enum.FontWeight.ExtraBold
-local NAVY = hex("1C2740")
+local NAVY = hex("262629")
 local ALLY, ENEMY = hex("3FE0F2"), hex("FF6B57")
 local ALLY_CELL = hex("0D5C7A")
-local GOLD, MUTED, INK, WHITE = hex("FFC83D"), hex("8E98A8"), hex("141A26"), Color3.new(1, 1, 1)
+local GOLD, MUTED, INK, WHITE = hex("FFC83D"), hex("97979A"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local SHADOW = "rbxassetid://121253415859134"
 local CAP_R = "rbxassetid://130377997107460"
 local BOT_HEAD = "rbxassetid://119185654291939"
@@ -91,7 +91,7 @@ local function keycap(p: Instance, s: string, w: number, h: number, props: { [st
 	local k = make("Frame", {
 		Name = "Key",
 		Size = UDim2.fromOffset(w, h),
-		BackgroundColor3 = hex("0B0F17"),
+		BackgroundColor3 = hex("0F0F12"),
 		BorderSizePixel = 0,
 		ZIndex = 8,
 	}, p)

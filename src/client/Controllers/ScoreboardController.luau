@@ -21,6 +21,7 @@ local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Parent.Util.Device)
 local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
+local WaitGui = require(script.Parent.Parent.Util.WaitGui)
 
 local ScoreboardController = {}
 
@@ -249,7 +250,7 @@ function ScoreboardController.start()
 		return -- phones later
 	end
 	task.spawn(function()
-		local gui = player:WaitForChild("PlayerGui"):WaitForChild("Scoreboard", 30)
+		local gui = WaitGui("Scoreboard")
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end

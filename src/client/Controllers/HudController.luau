@@ -39,9 +39,9 @@ local player = Players.LocalPlayer
 local WHITE = Color3.new(1, 1, 1)
 local AMBER = Color3.fromHex("F2C94C")
 local RED = Color3.fromHex("EB5757")
-local BACK = Color3.fromHex("16181B")
+local BACK = Color3.fromHex("18181B")
 local T = Theme.COLORS
-local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
+local BOLD = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold)
 
 -- Touch layout: designed for a 760-px-tall screen, scaled down to fit (never
 -- below TOUCH_SCALE_MIN) and never up. Positions are offsets from the

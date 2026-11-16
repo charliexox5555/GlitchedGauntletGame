@@ -6,8 +6,7 @@
 -- SpectateController owns when each shows. Desktop only for now: phones keep
 -- SpectateController's old bar.
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
-
-local Players = game:GetService("Players")
+local WaitGui = require(script.Parent.WaitGui)
 
 local DeathScreen = {}
 
@@ -24,8 +23,6 @@ export type KilledBy = Fighter & {
 	head: boolean,
 	hp: number?, -- their HP left (nil hides it)
 }
-
-local player = Players.LocalPlayer
 
 local DESIGN = Vector2.new(1920, 1080)
 local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
@@ -211,7 +208,7 @@ end
 
 function DeathScreen.start(isCompact: boolean)
 	task.spawn(function()
-		local gui = player:WaitForChild("PlayerGui"):WaitForChild("DeathScreen", 30)
+		local gui = WaitGui("DeathScreen")
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end

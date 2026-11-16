@@ -8,11 +8,11 @@
 -- timeout rules) and feeds it through `show` and `refresh`.
 -- Desktop only for now: phones keep DraftController's own layout.
 
-local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
 local UiSound = require(script.Parent.UiSound)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
+local WaitGui = require(script.Parent.WaitGui)
 
 local DraftScreen = {}
 
@@ -63,8 +63,6 @@ export type Handlers = {
 	lock: () -> (),
 	canHover: () -> boolean,
 }
-
-local player = Players.LocalPlayer
 
 local DESIGN = Vector2.new(1920, 1080)
 local COL_W, CARD_H = 400, 500
@@ -311,7 +309,7 @@ end
 -- Phones keep the old layout until the mobile pass.
 function DraftScreen.start(isCompact: boolean, onReady: () -> ())
 	task.spawn(function()
-		local gui = player:WaitForChild("PlayerGui"):WaitForChild("DraftScreen", 30)
+		local gui = WaitGui("DraftScreen")
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end

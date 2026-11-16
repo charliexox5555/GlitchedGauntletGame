@@ -127,25 +127,32 @@ Fixed in this pass:
 - the spawn barrier's label (`Util/BarrierFx`).
 
 **Not yet, and why:**
-1. **The ability HUD and ability effect texts** (`ModHudController`, `HudController`, `ModFxController`, `ModFeelController`, `UpgradeFx/*`) still use Builder Sans. These files hold the ability-rework lane's uncommitted work, so they wait for that lane. It's a one-line font change per file.
-2. **Not yet seen in a full match:** kill feed, death card, notifications, match end. They're restyled, just not looked at.
-3. **Phones:** the phone HUD and phone draft cards are code-built in the old look. Left out on purpose (device restructuring later).
-4. **In-world boards:**
+1. **Phones:** the phone HUD and phone draft cards are code-built in the old look. Left out on purpose (device restructuring later).
+2. **In-world boards:**
    - the lobby's signs and boards (Sarpanch / Titillium / Gotham, 184 texts) belong to the lobby build lane's rebuild;
    - the maps' spawn and door signs (Gotham, Roboto Mono) belong to the maps the owner is redoing.
-5. **Dev and test tools** (loadout picker, range panel, dev Mod panel, gun review) stay on Builder Sans: not player-facing.
-6. **Builders still navy:**
-   - BuildBottomHud, BuildMatchEndScreen and BuildMatchExtras (backups only; the Studio screens are done);
-   - the code colours in `Util/StatusTray`;
-   - all waiting on other lanes' uncommitted edits.
-7. The "Skins · Stock [;]" hint belongs to the skin preview lane.
+3. **Dev and test tools** (loadout picker, range panel, dev Mod panel, gun review) stay on Builder Sans: not player-facing.
+4. The "Skins · Stock [;]" hint belongs to the skin preview lane.
+5. **Kept on purpose:** the glitch-style mono and pixel texts in the ability effects (Frost's Arcade bars, Recall crash and Recon's Roboto Mono) are part of those effects' look, not UI chrome.
+
+### Ability HUD pass + full match check (2026-11-16, owner: "swap now")
+- **Fonts to Rubik:** `ModHudController`, `HudController`, `ModFxController`, `ModFeelController`, `UpgradeFx/Recall`, `Stim`, `Updraft` (Updraft's prompt was Builder Extended ExtraBold → Rubik Heavy; its prompt plates went navy → charcoal).
+- **Builders done:** BuildBottomHud, BuildMatchEndScreen and BuildMatchExtras are on Rubik (ExtraBold → Heavy, like the Studio screens) and charcoal. `Util/StatusTray` had no navy left.
+- **Key letters under the fallback Mod tiles** were grey with no outline and vanished on a light floor: now white with the soft dark outline.
+- **Bug found and fixed:** eight match screens bound with `WaitForChild(name, 30)`. StarterGui only copies on a spawn, and the vote holds the first spawn, so a slow start could leave a screen unbound for the whole match. Now they all use `Util/WaitGui` (no timeout, one ChildAdded connection; a `:Wait()` loop missed screens that arrived in the same frame, which left the banner on its template text "MATCH POINT · ROUND 9": [capture before the fix](Overhaul/match_killfeed_spectate.jpg)). The "infinite yield" warnings are gone too.
+- **Played a full bot match** (vote → draft → five rounds → match end), all screens on the new style:
+  - [FIGHT banner](Overhaul/match_fight_banner.jpg);
+  - [ability HUD](Overhaul/match_ability_hud_rubik.jpg);
+  - [kill feed + spectate](Overhaul/match_killfeed_spectate.jpg);
+  - [match end](Overhaul/match_end_restyle.jpg).
+- Test mode was put back after (TestMode on, ForceMap OldTown2).
 
 ## Test list for you
 1. **Save the match place** (vote screen, restyled screens, templates) and the **Lobby place**.
 2. Match: the vote (click a card, change your mind, let the clock run out with no vote = random), then the map loads and round 1's draft opens.
 3. Top right in the match and the lobby: region, FPS, ping and bars (live servers should show a region, not "SERVER xxxx").
 4. Top bar tiles and the Tab scoreboard: LV and device marks; bots show BOT.
-5. A full match: kill feed, death card, notifications and match end in the new look.
+5. A full match with a friend: the death card from your side (the bot kills in one burst, so I only saw spectate).
 
 ## Open questions (parked)
 1. **Map pictures:** yours, later. Add `image = "rbxassetid://..."` to the map's entry in `Config/Match MAPS` and the card shows it.

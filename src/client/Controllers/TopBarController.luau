@@ -26,6 +26,7 @@ local TestMode = require(ReplicatedStorage.Shared.TestMode)
 local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
+local WaitGui = require(script.Parent.Parent.Util.WaitGui)
 
 local TopBarController = {}
 
@@ -135,7 +136,7 @@ local function headshot(userId: number?): string
 end
 
 function TopBarController.start()
-	local gui = player:WaitForChild("PlayerGui"):WaitForChild("TopBar") :: ScreenGui
+	local gui = WaitGui("TopBar") :: ScreenGui
 	local root = gui:WaitForChild("Root") :: Frame
 	local fit = root:WaitForChild("Fit") :: UIScale
 	local shadow = root:WaitForChild("Shadow") :: ImageLabel

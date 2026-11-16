@@ -8,7 +8,6 @@
 -- weapon, ammo, reload, spectating) and ModHudController (each Mod slot).
 -- Desktop only for now: on phones it stays hidden and the old panels show.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
@@ -16,6 +15,7 @@ local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Device)
 local Bindings = require(ReplicatedStorage.Shared.Config.Input)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
+local WaitGui = require(script.Parent.WaitGui)
 
 local BottomHud = {}
 
@@ -41,8 +41,6 @@ export type ModInfo = {
 	denied: number, -- seconds since the last denied use
 	active: number, -- 0..1 of an active effect left
 }
-
-local player = Players.LocalPlayer
 
 local DESIGN = Vector2.new(1920, 1080)
 local WHITE = Color3.new(1, 1, 1)
@@ -631,7 +629,7 @@ end
 -- Bind once the StarterGui copy reaches PlayerGui (never blocks the caller).
 function BottomHud.start()
 	task.spawn(function()
-		local gui = player:WaitForChild("PlayerGui"):WaitForChild("BottomHud", 30)
+		local gui = WaitGui("BottomHud")
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end

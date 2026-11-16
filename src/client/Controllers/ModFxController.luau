@@ -350,8 +350,7 @@ local function floater(target: Model, text: string, color: Color3)
 		local label = Instance.new("TextLabel")
 		label.Size = UDim2.fromScale(1, 1)
 		label.BackgroundTransparency = 1
-		label.FontFace =
-			Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
+		label.FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy)
 		label.TextSize = 26
 		label.TextStrokeTransparency = 0.4
 		label.Parent = gui

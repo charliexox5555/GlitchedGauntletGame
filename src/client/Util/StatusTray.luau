@@ -22,6 +22,7 @@ local Workspace = game:GetService("Workspace")
 
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
+local WaitGui = require(script.Parent.WaitGui)
 
 local StatusTray = {}
 
@@ -342,7 +343,7 @@ end
 
 function StatusTray.start(isCompact: boolean)
 	task.spawn(function()
-		local gui = player:WaitForChild("PlayerGui"):WaitForChild("StatusTray", 30)
+		local gui = WaitGui("StatusTray")
 		if not gui or not gui:IsA("ScreenGui") then
 			return
 		end

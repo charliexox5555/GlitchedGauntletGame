@@ -40,14 +40,14 @@ local player = Players.LocalPlayer
 
 local WHITE = Color3.new(1, 1, 1)
 local BLACK = Color3.new(0, 0, 0)
-local MUTED = Color3.fromHex("C9CCD1")
+local MUTED = Color3.fromHex("CCCCCF")
 local AMBER = Color3.fromHex("F2C94C")
 local RED = Color3.fromHex("EB5757")
 local BACK = Theme.COLORS.panel
 local CYAN = Config.COLORS.ally
-local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
-local HEAVY = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
-local MEDIUM = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Medium)
+local BOLD = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold)
+local HEAVY = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy)
+local MEDIUM = Font.new("rbxassetid://12187365977", Enum.FontWeight.Medium)
 
 local SLOT_SIZE = 84 -- UI v1 (vault/02 Art/UI Design.md → HUD), design px scaled by Util/Ui
 local SLOT_GAP = 24
@@ -287,9 +287,12 @@ local function buildSlot(index: number, parent: Instance): SlotUi
 	local key = Ui.text(body, "", "key", {
 		Position = UDim2.fromOffset(0, SLOT_SIZE + 8),
 		Size = UDim2.fromOffset(SLOT_SIZE, 18),
-		TextColor3 = Theme.COLORS.textSecondary,
+		TextColor3 = WHITE,
 		ZIndex = 7,
 	})
+	-- The soft dark outline the match screens use, so the key reads over a
+	-- bright floor (UI Match Overhaul).
+	make("UIStroke", { Color = BLACK, Thickness = 1.5, Transparency = 0.35 }, key)
 	-- Charges: diamonds above the box.
 	local pipRow = make("Frame", {
 		Position = UDim2.fromOffset(0, -16),
