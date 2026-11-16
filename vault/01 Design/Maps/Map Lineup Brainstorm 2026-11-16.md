@@ -53,7 +53,7 @@ Each line pairs one of our concepts or a new one with the RIVALS map it learns f
 5. **Check:** the Map Quality Standard audit (z-fighting, floating, mesh cap), score 9+, and the owner approves.
 
 ## Questions for the owner
-1. **Detail level.** The Maps lock (2026-11-05) says Valorant-level worn detail. The lobby just moved to the RIVALS look (2026-11-16). Do maps follow: **RIVALS-clean** (flat colours, clear shapes, faint textures; fast to build) or keep **Valorant detail**?
+1. ~~**Detail level.**~~ **Answered 2026-11-16: RIVALS-clean.** The Maps lock (2026-11-05) says Valorant-level worn detail. The lobby just moved to the RIVALS look (2026-11-16). Do maps follow: **RIVALS-clean** (flat colours, clear shapes, faint textures; fast to build) or keep **Valorant detail**?
 2. **Two sizes per theme** (duel + big from one kit)?
 3. **The list:** which of the 12 to keep, cut or add? Is the launch set of 6 right?
 4. **Old builds:** start fresh from the layouts, or reuse any built v2 map (Dockyard2, Metro2, Snowpeak2…)?
