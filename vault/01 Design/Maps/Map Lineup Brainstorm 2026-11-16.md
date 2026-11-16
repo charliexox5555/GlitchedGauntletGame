@@ -25,7 +25,35 @@ A brainstorm for redesigning every map, built on the [RIVALS map study](../../03
 - **Jumping:** ledges at most 7.5, gaps at most 9 ([Jump Audit](Jump%20Audit%202026-11-13.md)).
 - **Symmetry:** 180° rotational, not mirrored. Spawns are out of sight. Two exits per room.
 
-## Proposed lineup
+## Release lineup (locked by the owner 2026-11-16)
+**8 regular maps for 1v1 and 2v2**: about 100-190 across, spawns 120-160 apart, first contact in ~4-5 s. `Config/Match` entry `minTeam = 1, maxTeam = 2`.
+
+| # | Map | Idea | Learns from (RIVALS) | Shares kit with |
+|---|---|---|---|---|
+| 1 | **Arena** | Clean faceted panel arena under open sky, mostly full cover; the default and tutorial map | Arena | Big Arena |
+| 2 | **Rooftops** | Two team roofs over a pit, a crane deck as the high spot; the vertical map (Updraft, Crash Down) | Construction | — |
+| 3 | **Pier** | The duel slice of the container port: tight container lanes, one gantry | Docks | Dockyard |
+| 4 | **Courtyard** | A small stone plaza with arcades and a clock tower | Village / Westown | Old Town |
+| 5 | **Bunker** | Concrete corridors round a light shaft; the close-range map | Backrooms / Gate | — |
+| 6 | **Foundry** | Steel works with a molten kill channel (`KillDepth` / kill floor) and catwalks | Factory + Onyx | — |
+| 7 | **Snowpeak** | Ski lodge and its yard in the snow | Village / Iceberg | — |
+| 8 | **Model Kit** | Giant scale: a fight on a hobby workbench (glue pots, sprue frames, cutting-mat grid); the fun one | Chess / Playground | — |
+
+**5 large maps for 3v3, also a choice for 2v2**: about 200-300 across, spawns ~180-200 apart. `Config/Match` entry `minTeam = 2, maxTeam = 3`.
+
+| # | Map | Idea | Learns from (RIVALS) | Shares kit with |
+|---|---|---|---|---|
+| 1 | **Big Arena** | Arena scaled up: three lanes, two high spots a side | Big Arena | Arena |
+| 2 | **Dockyard** | The full container port at dusk, a gantry crane over the middle | Docks | Pier |
+| 3 | **Old Town** | The full plaza and streets, one long marked sightline | Westown | Courtyard |
+| 4 | **Metro** | Station with two platforms, parked trains as cover | Station | — |
+| 5 | **Greenhouse** | Glass halls, a dome and a bridge; our most unique theme | Museum interiors | — |
+
+13 maps from 10 theme kits. **Bench:** Quarry (open pit, long range), Gallery (museum at night), a Metro or Greenhouse duel cut.
+**Still open (ask in the maps chat's interview):** is 4v4 in the release (then large maps take `maxTeam = 4`)? Keep the name "Arena" (it's RIVALS' name too) or rename it (e.g. Proving Grounds)?
+**Build order (by kit):** Arena + Big Arena (simplest kit; proves the pipeline) → Pier + Dockyard → Rooftops → Courtyard + Old Town → Bunker → Foundry → Metro → Snowpeak → Greenhouse → Model Kit.
+
+## Proposed lineup (first brainstorm, superseded by the release lineup above)
 Each line pairs one of our concepts or a new one with the RIVALS map it learns from. **D** = duel size (1v1-2v2), **B** = big size (3v3-4v4).
 
 | # | Map | Sizes | Learns from | Idea and our twist | Accent |
@@ -54,6 +82,6 @@ Each line pairs one of our concepts or a new one with the RIVALS map it learns f
 
 ## Questions for the owner
 1. ~~**Detail level.**~~ **Answered 2026-11-16: RIVALS-clean.** The Maps lock (2026-11-05) says Valorant-level worn detail. The lobby just moved to the RIVALS look (2026-11-16). Do maps follow: **RIVALS-clean** (flat colours, clear shapes, faint textures; fast to build) or keep **Valorant detail**?
-2. **Two sizes per theme** (duel + big from one kit)?
-3. **The list:** which of the 12 to keep, cut or add? Is the launch set of 6 right?
+2. ~~**Two sizes per theme**~~ **Answered: yes where a pair exists (Arena, Port, Old Town); see the release lineup.**
+3. ~~**The list**~~ **Answered: the release lineup above (8 regular + 5 large).**
 4. **Old builds:** start fresh from the layouts, or reuse any built v2 map (Dockyard2, Metro2, Snowpeak2…)?

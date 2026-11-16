@@ -2,7 +2,7 @@
 
 The match maps: a mix of RIVALS (fast, simple, run-and-gun readable) and Valorant (disciplined layouts, callouts, clean value structure). The rules for building one are in the [Game Plan](../../05%20Production/Game%20Plan.md) §5.
 
-**Redesign 2026-11-16:** every map gets redesigned from the RIVALS map study. The owner picked the **RIVALS-clean** look. Lineup and questions: [Map Lineup Brainstorm](Map%20Lineup%20Brainstorm%202026-11-16.md). The roster below is the old one.
+**Redesign 2026-11-16:** every map is redesigned from the RIVALS map study in the **RIVALS-clean** look (owner). The **release lineup is 8 regular maps (1v1/2v2) + 5 large maps (3v3, also for 2v2)**: Arena, Rooftops, Pier, Courtyard, Bunker, Foundry, Snowpeak, Model Kit; Big Arena, Dockyard, Old Town, Metro, Greenhouse. Table, build order and open questions: [Map Lineup Brainstorm](Map%20Lineup%20Brainstorm%202026-11-16.md) → Release lineup. The roster below is the old one, kept until the new maps replace it.
 
 **Every map rebuild follows the [Map Quality Standard](Map%20Quality%20Standard.md)** (2026-11-06): pipeline, hard rules, audits, review loop and the `<Map>2` convention.
 

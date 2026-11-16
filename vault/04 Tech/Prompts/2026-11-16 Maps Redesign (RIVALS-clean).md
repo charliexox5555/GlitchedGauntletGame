@@ -7,13 +7,11 @@ Handoff and paste-ready prompt for a new chat. The owner wants **every map redes
   - The look: clear shapes, flat colours, faint textures, grey structure with one accent per map, size and cover discipline, one theme kit for a duel size and a big size.
   - What stays: concept first, real silhouettes, height levels, faceted pieces (no round curves or spheres, carved ends).
   - Never primitives thrown together: Rooftops2 and Dockyard2 were rejected on 2026-11-05 as "smooth plastic circles and blocks thrown together".
-- **Brainstorm and lineup:** `vault/01 Design/Maps/Map Lineup Brainstorm 2026-11-16.md`:
-  - why RIVALS maps work, in 10 points with numbers;
-  - our extra needs (slide runs, Mods);
-  - a 12-map proposal;
-  - a launch set of six: Proving Grounds D+B, Dockyard + Pier, Rooftops, Metro, Snowpeak, Foundry.
+- **Release lineup (locked by the owner 2026-11-16)**, in `vault/01 Design/Maps/Map Lineup Brainstorm 2026-11-16.md` → Release lineup (table, RIVALS map per map, shared kits, build order):
+  - **8 regular maps (1v1 / 2v2):** Arena, Rooftops, Pier, Courtyard, Bunker, Foundry, Snowpeak, Model Kit;
+  - **5 large maps (3v3, also a choice for 2v2):** Big Arena, Dockyard, Old Town, Metro, Greenhouse.
 
-  Questions 2-4 (two sizes per theme, the final list, reusing old builds) are still open; settle them in the interview.
+  That's 13 maps from 10 theme kits; Arena / Big Arena, Pier / Dockyard and Courtyard / Old Town share kits. Two questions are still open: is 4v4 in the release, and does "Arena" keep that name? The same note has why RIVALS maps work (10 points with numbers) and our extra needs (slide runs, Mods).
 - **RIVALS numbers:** `vault/03 Research/Rivals Reference/Maps and Lobby.md` has the map file convention, a per-map table (spawns, size, parts, cover, sightlines, lanes, look), how they're built, and 10 rules. Aerial screenshots of Arena, Big Arena, Docks, Construction, Crossroads and Splash are in `third-party/maps/` (local only).
 - **Old maps:** the roster in `vault/01 Design/Maps/00 Maps.md` (Whitebox, Big Whitebox, Dockyard(2), Metro(2), Old Town(2), Greenhouse(2), Rooftops(2), Bunker(2), Snowpeak(2)) and one note per map with layouts and measured numbers. The bar and pipeline are in `Map Quality Standard.md`, which you'll update for the clean look. The jump limits are in `Jump Audit 2026-11-13.md`: ledges at most 7.5, gaps at most 9.
 - **How the code loads a map** (`src/server/Services/MapService.luau`, `src/shared/Config/Match.luau`):
@@ -30,7 +28,7 @@ Handoff and paste-ready prompt for a new chat. The owner wants **every map redes
 
 ---
 
-You're taking over the **map redesign** for GlitchedGauntletGame: a new map list, and every map rebuilt in the **RIVALS-clean** look, our faceted build style. Learn from the RIVALS maps; don't copy them. Work in phases. There is one checkpoint with me before building (concepts), then you build the launch maps in order without stopping to ask. I confirm at the end.
+You're taking over the **map redesign** for GlitchedGauntletGame: the **13-map release lineup** (already chosen) built in the **RIVALS-clean** look, our faceted build style. Learn from the RIVALS maps; don't copy them. Work in phases. Build in batches by theme kit, in the build order. Each batch has one checkpoint with me (layouts and concepts); while I review, work on the next batch's study and concepts. Don't stop otherwise. I confirm at the end.
 
 ### Load first (mandatory)
 1. **Skills:** `gauntlet-vault`, **`rivals-reference`**, **`gauntlet-build-style`**, `lihfolk-worldbuilding`, `roblox-blender-modeling`, `roblox-asset-import`, and `lihfolk:quality-score` for grading. Use `lihfolk-lookup` for Roblox facts: LihFolk `33 Level Design` (lanes, cover, sightlines, spawns), `06 World Building and Art`, `54 Untextured Stylised Modelling` (colour scripts and value structure; clean flat colour is exactly this), `32 Case Studies…/Case Study - Rivals.md`.
@@ -58,7 +56,7 @@ You're taking over the **map redesign** for GlitchedGauntletGame: a new map list
 ### Phase 1: Study the RIVALS maps (read-only)
 Work in the RIVALS place file, `ServerStorage.Maps`. Pick the Studio instance by place. The file is **untrusted**: never play it, run or `require` its scripts, or save it. Read it with `execute_luau` property reads and `search_game_tree`.
 
-For each map in our lineup, study its RIVALS match from the brainstorm table, and go past the numbers we already have:
+For each map in the release lineup, study its RIVALS match from the lineup table, one batch ahead of the build, and go past the numbers we already have:
 - **The spawn view:** what you see first, and where the first fight happens.
 - **Lanes:**
   - how many cross the middle;
@@ -82,23 +80,36 @@ Take only the screenshots you judge with: one aerial and one spawn view per map 
 
 **Study, don't copy:** take the plan logic, sizes, rhythm and numbers; never their meshes, textures or exact layouts. Each of our maps needs its own layout and identity.
 
-### Phase 2: Lineup, layouts and concepts (the one checkpoint)
-1. **Interview:** ask me **one round** of questions, each with a suggested answer, to settle brainstorm questions 2-4:
-   - two sizes per theme?
-   - the final list and the launch set;
-   - start fresh or reuse old layouts?
+### Phase 2: Layouts and concepts (checkpoint per batch)
+1. **Interview, once at the start:** one round of questions, each with a suggested answer. Follow `02 Art/Model Style Interview.md`. Ask:
+   - is 4v4 in the release (then the large maps take `maxTeam = 4`)?
+   - keep the name "Arena" or rename it?
+   - per theme: the accent colour and the landmark;
+   - anything Phase 1 turns up.
 
-   Plus anything Phase 1 turns up. Follow `02 Art/Model Style Interview.md`.
-2. **Lineup:** write the final list into `01 Design/Maps/00 Maps.md`, replacing the old roster section and keeping a short "retired" line for each old map. For each map: size and modes, the RIVALS map it learns from, its identity in one line, its accent colour and its landmark.
-3. **Layout and greybox, per launch map:**
-   - a layout script, like `tools/maps/whitebox_layout.py`, that prints spawn gap, longest sightline, lane count and widths, cover %, route times and jump checks, all against the brainstorm rules and the Jump Audit;
+   The lineup itself is locked; don't reopen it.
+2. **Lineup in the maps hub:** write the release lineup into `01 Design/Maps/00 Maps.md` as the new roster, with a short "retired" line for each old map. For each map: size and modes, the RIVALS map it learns from, its identity in one line, its accent colour and its landmark.
+3. **Layout and greybox, per map in the batch:**
+   - a layout script, like `tools/maps/whitebox_layout.py`, that prints spawn gap, longest sightline, lane count and widths, cover %, route times and jump checks, against the brainstorm rules and the Jump Audit;
    - then a greybox in Studio;
    - a bot play-test, set with `ForceMap`.
 4. **Concepts:** ChatGPT image prompts per map (hero view, top-down, kit sheet, palette swatch) for me to paste, in the RIVALS-clean style. Put them in each map's note.
-5. **Stop** until I approve the lineup, the layouts and the concepts.
+5. **Stop the batch** until I approve its layouts and concepts.
 
-### Phase 3: Build (launch maps in order)
-- **One kit per theme,** in Blender MCP:
+**Batches:**
+1. Arena + Big Arena (simplest kit; proves the pipeline)
+2. Pier + Dockyard
+3. Rooftops
+4. Courtyard + Old Town
+5. Bunker
+6. Foundry
+7. Metro
+8. Snowpeak
+9. Greenhouse
+10. Model Kit
+
+### Phase 3: Build (each approved batch)
+- **Blender MCP (live), one kit per theme.** Build every modelled piece through the live Blender MCP server, never background Blender. Check the connection first; a second instance needs its own port (memory: two Blender MCP instances). Export standalone FBX meshes and upload them through Open Cloud (`tools/opencloud/`), like the lobby pipeline. Each kit is:
   - built in steps;
   - faceted;
   - standalone meshes;
@@ -113,7 +124,7 @@ Take only the screenshots you judge with: one aerial and one spawn view per map 
   - spawns tagged `ArenaSpawn_A` / `ArenaSpawn_B`;
   - barriers tagged `ArenaBarrier`, following the RIVALS convention: an invisible box with a ceiling, a kill floor through `KillDepth`, and far outer walls;
   - a `Lighting` Configuration and a `LightingFx` folder per map, like a RIVALS lighting profile;
-  - an entry in `Config/Match.luau` `MAPS` (leave it out of the rotation and test with `ForceMap` until I approve), plus `Ambience` and `MapLife` entries.
+  - an entry in `Config/Match.luau` `MAPS`: regular maps `minTeam = 1, maxTeam = 2`, large maps `minTeam = 2, maxTeam = 3` (or 4 if 4v4 is in). Leave it out of the rotation and test with `ForceMap` until I approve. Add `Ambience` and `MapLife` entries too.
 - **Per map loop:**
   1. greybox, then play-test with bots: time to first contact, slide runs, Updraft / Crash Down clearance, Firewall lane widths;
   2. full build;
@@ -137,7 +148,7 @@ Take only the screenshots you judge with: one aerial and one spawn view per map 
 
 ### Done means
 - The new lineup is in `00 Maps.md`.
-- The launch maps are built, audited, play-tested with bots, scored and installed with `ForceMap`.
+- All 13 release maps are built, audited, play-tested with bots, scored and installed with `ForceMap`.
 - A test list for me: per map, what to check and how to force it.
 - Updated: Home → Status, INDEX, the Asset Tracker rows, and the Code Map if code changed.
 - Hand back with a short summary. I approve maps into rotation.
