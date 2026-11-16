@@ -100,6 +100,19 @@ return table.freeze({
 	RECALL_MOTE = "rbxassetid://92235284417353", -- a soft glowing mote
 	RECALL_WARP = "rbxassetid://96699089140331", -- full-screen streaks pulling inward (centre clear)
 
+	-- The rework texture set (vault/02 Art/Ability VFX Direction.md → Texture
+	-- set), all greyscale, tinted in code by Util/FireFx and the other element
+	-- modules. Sources in art-source/abilities/Rework/v03/Textures/. STAND-IN:
+	-- plain Pillow shapes (tools/vfx/make_rework_standins.py) until the owner's
+	-- ChatGPT picks replace them (same file name, re-upload, swap the id here).
+	FLAME_SHEET_4x4 = "rbxassetid://78155163253287", -- T_FlameSheet (Blender render, final): tongues curl and break off, frame 1 top left (decal 114907753756805)
+	T_CHIP = "rbxassetid://110341416119736", -- STAND-IN: faceted diamond chip (decal 123534502111001)
+	T_STREAK = "rbxassetid://104254723912529", -- STAND-IN: long stroke pointed at both ends, vertical (decal 106614138743455)
+	T_PUFF = "rbxassetid://92072734048844", -- STAND-IN: faceted puff, three greys (decal 76370743815827)
+	T_RING = "rbxassetid://97644638931490", -- STAND-IN: 16-segment ring, four cut gaps (decal 75563038611258)
+	T_FLASH = "rbxassetid://124638098094424", -- STAND-IN: four-point flash, octagon core (decal 133579224655627)
+	T_FROST_CORNER = "rbxassetid://97490918317013", -- STAND-IN: ice from the top-left corner (decal 80039929191116)
+
 	-- Sudden-death zone (tools/vfx/make_zone_vfx.py → art-source/vfx/zone/): white, tiles left-right.
 	ZONE_WALL = "rbxassetid://108018292345432", -- glitch-storm curtain, top fades out (decal 116087755457548)
 	ZONE_GLITCH = "rbxassetid://128662496057045", -- sparse pixel blocks and streaks (decal 110875138601582)

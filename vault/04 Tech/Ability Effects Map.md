@@ -15,6 +15,7 @@ Made 2026-11-15 from a full read of the client effect code, so effect work can s
 | Status tray | `client/Util/StatusTray.luau` (`TIMED` table reads `*Until` attributes) |
 | First-person gestures and item actions | `shared/Config/Viewmodel.luau` (data), `client/Util/ViewmodelHeldMods.luau`, triggers in `client/Controllers/ModController.luau` |
 | Screen wind strokes (Dash, slide, Updraft, Ghost cue) | `client/Util/WindStrokes.luau`, numbers in `Config/Mods.luau` `WIND_FEEL` |
+| **Rework kit** (the locked spec's 19 meshes) | `client/Util/ReworkVfx.luau`: `ready`, `take` / `give`, `place` (kit axes, anchor at the origin), `flush`, `now()` (frozen by `Workspace.VfxTimeScale`), spec curves. Element modules build on it: `client/Util/FireFx.luau` (fire). Old looks stay as the fallback |
 
 ## Per Mod
 | Mod | Effect | File and function |
@@ -28,9 +29,9 @@ Made 2026-11-15 from a full read of the client effect code, so effect work can s
 | | Ghost: see-through body, afterimages, cloak | `client/Util/UpgradeFx/DashGhost.luau` |
 | | Desync decoy | `client/Util/UpgradeFx/DashDecoy.luau` (`copyOf`, `spawn`, `stepDecoy`, `fakeShot`, `glitchOut`) |
 | Molly | Flight (pooled canister, embers, clinks) | `ModFxController.onCanisterThrow` |
-| | Floor burst and fire patch | `client/Util/MollyFx.luau` `ignite`, `meshFire` (FireKit), `build` (particle fallback) |
-| | Burning player | `MollyFx.stepBurning` (reads `BurningUntil`) |
-| | Fork Fire | `client/Util/UpgradeFx/Molly.luau` (`onThrow`, `MollyFork`, bomblets in `step`) |
+| | Floor burst and fire patch | Rework: `client/Util/FireFx.luau` `patch`, `ignite`, `stepPatch`, called from `MollyFx.ignite` (keeps the sounds). Fallback: `MollyFx` `meshFire` (FireKit), `build` (particles) |
+| | Burning player | `MollyFx.stepBurning` (reads `BurningUntil`) → `FireFx.setBurning` (torso licks for others, screen corners for you) |
+| | Fork Fire | `client/Util/UpgradeFx/Molly.luau` (`onThrow`, `onFork` → `FireFx.split`, bomblets in `step`) |
 | | Pin pull, throw, lob | `ModController.startHold`, `use`; `Viewmodel` `MollyPinPull`, `ITEM_ACTIONS.Throw` / `Lob` |
 | Firewall | Hand flame (own) | `ViewmodelHeldMods.flameEmitter` |
 | | Hand flame (others) | `client/Util/WallFx.luau` `stepHands` |

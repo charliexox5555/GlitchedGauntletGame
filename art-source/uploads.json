@@ -77,6 +77,48 @@
   "type": "Decal",
   "uploaded": "2026-10-26 00:26:22"
  },
+ "art-source/abilities/Rework/v03/Textures/T_Chip.png": {
+  "assetId": 123534502111001,
+  "name": "GG VFX T_Chip",
+  "type": "Decal",
+  "uploaded": "2026-11-16 01:44:37"
+ },
+ "art-source/abilities/Rework/v03/Textures/T_FlameSheet.png": {
+  "assetId": 114907753756805,
+  "name": "GG VFX T_FlameSheet",
+  "type": "Decal",
+  "uploaded": "2026-11-16 01:44:34"
+ },
+ "art-source/abilities/Rework/v03/Textures/T_Flash.png": {
+  "assetId": 133579224655627,
+  "name": "GG VFX T_Flash",
+  "type": "Decal",
+  "uploaded": "2026-11-16 01:44:49"
+ },
+ "art-source/abilities/Rework/v03/Textures/T_FrostCorner.png": {
+  "assetId": 80039929191116,
+  "name": "GG VFX T_FrostCorner",
+  "type": "Decal",
+  "uploaded": "2026-11-16 01:44:52"
+ },
+ "art-source/abilities/Rework/v03/Textures/T_Puff.png": {
+  "assetId": 76370743815827,
+  "name": "GG VFX T_Puff",
+  "type": "Decal",
+  "uploaded": "2026-11-16 01:44:43"
+ },
+ "art-source/abilities/Rework/v03/Textures/T_Ring.png": {
+  "assetId": 75563038611258,
+  "name": "GG VFX T_Ring",
+  "type": "Decal",
+  "uploaded": "2026-11-16 01:44:46"
+ },
+ "art-source/abilities/Rework/v03/Textures/T_Streak.png": {
+  "assetId": 106614138743455,
+  "name": "GG VFX T_Streak",
+  "type": "Decal",
+  "uploaded": "2026-11-16 01:44:40"
+ },
  "art-source/abilities/Rework/v03/Textures/Wind_Stroke.png": {
   "assetId": 76106421221981,
   "name": "GG VFX Wind_Stroke",

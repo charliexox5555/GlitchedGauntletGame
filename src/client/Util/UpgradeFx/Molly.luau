@@ -32,6 +32,7 @@ local CameraController = require(script.Parent.Parent.Parent.Controllers.CameraC
 local ModAudio = require(script.Parent.Parent.ModAudio)
 local ModVfx = require(script.Parent.Parent.ModVfx)
 local MollyFx = require(script.Parent.Parent.MollyFx)
+local FireFx = require(script.Parent.Parent.FireFx)
 local TeamColor = require(script.Parent.Parent.TeamColor)
 local Types = require(script.Parent.Types)
 
@@ -199,15 +200,21 @@ local function onFork(data: { [string]: any })
 	local color = colorOf(data)
 	ModAudio.play(S.forkSplit, at)
 	ModAudio.play(S.glitchCrackle, at, 1)
-	ModVfx.burst(at, GLITCH, 18, "Sparkle")
-	ModVfx.quad({
-		texture = VFX.MOD_RING,
-		cframe = CFrame.new(at + Vector3.new(0, 0.1, 0)),
-		from = 1,
-		to = 9,
-		color = GLITCH,
-		life = 0.3,
-	})
+	if FireFx.ready() then
+		-- The rework split (Ability VFX Direction → Fork Fire): the glitch
+		-- accent and four ignite spikes.
+		FireFx.split(at)
+	else
+		ModVfx.burst(at, GLITCH, 18, "Sparkle")
+		ModVfx.quad({
+			texture = VFX.MOD_RING,
+			cframe = CFrame.new(at + Vector3.new(0, 0.1, 0)),
+			from = 1,
+			to = 9,
+			color = GLITCH,
+			life = 0.3,
+		})
+	end
 	for i, raw in ipairs(paths :: { any }) do
 		if i > MAX_FORKS then
 			break
@@ -229,7 +236,7 @@ local function onBurst(data: { [string]: any })
 	then
 		return
 	end
-	MollyFx.ignite(at, radius, duration, start, true)
+	MollyFx.ignite(at, radius, duration, start, true, colorOf(data))
 	local cam = Workspace.CurrentCamera
 	if cam then
 		local away = (cam.CFrame.Position - at).Magnitude

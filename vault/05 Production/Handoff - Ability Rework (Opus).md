@@ -44,6 +44,8 @@ For a new chat on **Opus 5.5**. The previous parent chat ran on Fable and used t
 | VFX mesh kit (19 meshes) + `T_FlameSheet.png` | Built, staged in Studio | Not used by any effect yet |
 
 ## What is left, in order
+**Progress (2026-11-16, Opus):** step 1 started. Kit module `ReworkVfx`, fire module `FireFx`, `T_FlameSheet` uploaded, six texture **stand-ins** uploaded. Molly patch, Fork Fire split and burning bodies built; Molly captured in grey and colour → [Fire Element Pass 1](Playtests/2026-11-16%20Fire%20Element%20Pass%201.md). **Waiting on the owner:** sign off fire (and the listed spec deviations; maybe reshape the A tongue mesh). Firewall curtain and hand flame not started.
+
 1. **Effects, one element at a time, fire first** (the owner signs off a greyscale capture per element before the next starts).
    - Write one small client kit module for `Abilities.ReworkVFX` (same pattern as `client/Util/GlitchVfx.luau`: `ready`, `take`, `give`, `piece`).
    - Upload `art-source/abilities/Rework/v03/Textures/T_FlameSheet.png` with `tools/opencloud/upload_asset.py` and add its key to `Config/VfxTextures.luau`.

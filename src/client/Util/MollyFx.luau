@@ -44,6 +44,7 @@ local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
+local FireFx = require(script.Parent.FireFx)
 local FireKit = require(script.Parent.FireKit)
 local ModAudio = require(script.Parent.ModAudio)
 local ModVfx = require(script.Parent.ModVfx)
@@ -159,6 +160,18 @@ type Fire = {
 }
 
 local fires: { Fire } = {}
+
+-- The rework fire (Util/FireFx, Ability VFX Direction F1-F6): it draws the
+-- patch, this keeps the sounds.
+type ReworkFire = {
+	patch: FireFx.Patch,
+	at: Vector3,
+	radius: number,
+	endAt: number, -- os.clock()
+	hum: ModAudio.Hum?,
+	sizzled: boolean,
+}
+local reworkFires: { ReworkFire } = {}
 local sparks: { Spark } = {}
 local lastAnim = 0
 local freeRigs: { Rig } = {}
@@ -720,7 +733,8 @@ function MollyFx.ignite(
 	radius: number,
 	duration: number,
 	start: number,
-	glitch: boolean?
+	glitch: boolean?,
+	ringColor: Color3?
 )
 	local left = duration - (Workspace:GetServerTimeNow() - start)
 	if left <= 0 then
@@ -728,6 +742,25 @@ function MollyFx.ignite(
 	end
 	local isGlitch = glitch == true
 	local now = os.clock()
+	-- The rework look (Fork Fire's small fires are Molly fires too).
+	local patch = FireFx.patch(at, radius, left, ringColor)
+	if patch then
+		local pitch = pitchFor(radius)
+		ModAudio.play(S.burst, at, pitch)
+		local hum = ModAudio.hum(S.fireLoop, patch.anchor)
+		if hum then
+			hum.sound.PlaybackSpeed *= pitch
+		end
+		table.insert(reworkFires, {
+			patch = patch,
+			at = at,
+			radius = radius,
+			endAt = now + left,
+			hum = hum,
+			sizzled = false,
+		})
+		return
+	end
 	local mesh = meshFire(radius, isGlitch, now)
 	local rig = takeRig(mesh == nil)
 	layout(rig, at + Vector3.new(0, 0.1, 0), radius)
@@ -851,15 +884,19 @@ local function stepBurning(serverNow: number)
 		local untilT = model:GetAttribute("BurningUntil")
 		local burning = typeof(untilT) == "number" and serverNow < untilT
 		local b = burns[model]
-		if not burning and not b then
+		if not burning and not b and not FireFx.tracked(model, model == player.Character) then
 			return
 		end
 		local root = model:FindFirstChild("HumanoidRootPart")
 		if not root or not root:IsA("BasePart") then
 			return
 		end
-		local burn = burnOf(model, root)
-		burn.emitter.Rate = if burning then 14 else 0
+		if FireFx.ready() then
+			FireFx.setBurning(model, root, burning, model == player.Character)
+		else
+			local burn = burnOf(model, root)
+			burn.emitter.Rate = if burning then 14 else 0
+		end
 		if burning and model == player.Character then
 			local now = os.clock()
 			if now - burnSoundAt >= BURN_SOUND_GAP then
@@ -985,6 +1022,21 @@ function MollyFx.step()
 		local spike = math.max(0, 1 - since / 0.35) * 4
 		rig.light.Brightness = math.max(0, base * k + spike)
 	end
+	for i = #reworkFires, 1, -1 do
+		local r = reworkFires[i]
+		local left = r.endAt - now
+		if left <= FADE_TIME and not r.sizzled then
+			r.sizzled = true
+			ModAudio.stopHum(r.hum)
+			r.hum = nil
+			ModAudio.play(S.sizzleOut, r.at, pitchFor(r.radius))
+		end
+		if r.patch.done then
+			ModAudio.stopHum(r.hum)
+			table.remove(reworkFires, i)
+		end
+	end
+	FireFx.step()
 	stepSparks(now)
 	FireKit.flush()
 	stepBurning(Workspace:GetServerTimeNow())

@@ -321,7 +321,7 @@ local function onMollyBurst(data: { [string]: any })
 	then
 		return
 	end
-	MollyFx.ignite(at, radius, duration, start)
+	MollyFx.ignite(at, radius, duration, start, nil, teamColor(data))
 	local cam = Workspace.CurrentCamera
 	if cam then
 		local away = (cam.CFrame.Position - at).Magnitude
