@@ -2,7 +2,7 @@
 -- The other lobby menus (Shop, Battle Pass, Settings, Range) as framed
 -- placeholders: the same chrome as the Play menu (blur, scrim, header, close)
 -- with a believable skeleton of what will live there and a clear "coming soon"
--- line. Settings has one working toggle. (The Locker is Controllers/LockerController.)
+-- line. (Settings: Controllers/SettingsController; the Locker: LockerController.)
 
 local TweenService = game:GetService("TweenService")
 
@@ -23,8 +23,6 @@ local C = Style.COLOR
 local PHONE = Layout.isPhone()
 local BODY = Layout.pick(Vector2.new(96, 228), Vector2.new(24, 76))
 local BODY_SIZE = Layout.pick(Vector2.new(1728, 700), Vector2.new(752, 330))
--- Settings toggles: 44+ px drawn on a phone too.
-local TOGGLE = Layout.pick(Vector2.new(84, 44), Vector2.new(100, 60))
 
 type Panel = {
 	chrome: Menu.Chrome,
@@ -289,116 +287,6 @@ end
 
 -- The Locker is its own controller now (Controllers/LockerController, a 3D stage).
 
-local function buildSettings()
-	local p = build("Settings", "OPTIONS", "SETTINGS")
-	local rowW, rowH, rowGap =
-		Layout.pick(1100, BODY_SIZE.X), Layout.pick(88, 70), Layout.pick(104, 78)
-	type Row = { name: string, hint: string, value: (() -> boolean)?, set: ((boolean) -> ())? }
-	local rows: { Row } = {
-		{
-			-- LihFolk: UI Motion Language and Timing (offer an in-game toggle;
-			-- starts from the Roblox setting).
-			name = "REDUCED MOTION",
-			hint = "Fades instead of slides, pops, sweeps and spins.",
-			value = Fx.reduced,
-			set = function(on: boolean)
-				Fx.setReduced(on)
-			end,
-		},
-		{ name = "CAMERA SENSITIVITY", hint = "Saved with your profile." },
-		{ name = "FIELD OF VIEW", hint = "Match camera FOV." },
-	}
-	for i, row in rows do
-		local live = row.set ~= nil
-		local c = card(p.body, 0, (i - 1) * rowGap, rowW, rowH)
-		Kit.text(c, row.name, "heading", {
-			Position = UDim2.fromOffset(28, Layout.pick(14, 8)),
-			Size = UDim2.fromOffset(600, 26),
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = if live then C.text else C.textMuted,
-			ZIndex = 4,
-		})
-		Kit.text(c, row.hint, "bodyS", {
-			Position = UDim2.fromOffset(28, Layout.pick(46, 38)),
-			Size = UDim2.fromOffset(Layout.pick(600, 520), 20),
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextColor3 = C.textSecondary,
-			ZIndex = 4,
-		})
-		local value, set = row.value, row.set
-		if value and set then
-			local holder = Kit.make("Frame", {
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -28, 0.5, 0),
-				Size = UDim2.fromOffset(TOGGLE.X, TOGGLE.Y),
-				BackgroundTransparency = 1,
-				ZIndex = 4,
-			}, c)
-			local on = value()
-			local toggle = Kit.make("TextButton", {
-				Size = UDim2.fromScale(1, 1),
-				BackgroundColor3 = if on then C.success else C.surfaceHover,
-				AutoButtonColor = false,
-				Text = "",
-				ZIndex = 4,
-			}, holder)
-			Kit.make("UICorner", { CornerRadius = UDim.new(1, 0) }, toggle)
-			local knob = Kit.make("Frame", {
-				AnchorPoint = Vector2.new(0, 0.5),
-				Position = if on
-					then UDim2.new(1, -(TOGGLE.Y - 5), 0.5, 0)
-					else UDim2.new(0, 5, 0.5, 0),
-				Size = UDim2.fromOffset(TOGGLE.Y - 10, TOGGLE.Y - 10),
-				BackgroundColor3 = C.white,
-				BorderSizePixel = 0,
-				ZIndex = 5,
-			}, toggle)
-			Kit.make("UICorner", { CornerRadius = UDim.new(1, 0) }, knob)
-			-- State is a word too, not only the colour (LihFolk: Accessibility).
-			local stateLabel = Kit.text(c, if on then "ON" else "OFF", "label", {
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -(TOGGLE.X + 40), 0.5, 0),
-				Size = UDim2.fromOffset(50, 20),
-				TextXAlignment = Enum.TextXAlignment.Right,
-				TextColor3 = C.textSecondary,
-				ZIndex = 4,
-			})
-			if i == 1 then
-				p.focus = toggle
-			end
-			Fx.button(toggle, function()
-				on = not on
-				set(on)
-				stateLabel.Text = if on then "ON" else "OFF"
-				Fx.tween(
-					toggle,
-					Fx.MOTION.enter,
-					{ BackgroundColor3 = if on then C.success else C.surfaceHover }
-				)
-				Fx.tween(knob, Fx.MOTION.enter, {
-					Position = if on
-						then UDim2.new(1, -(TOGGLE.Y - 5), 0.5, 0)
-						else UDim2.new(0, 5, 0.5, 0),
-				})
-			end)
-		else
-			Kit.tag(c, "SOON", C.textMuted, {
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -28, 0.5, 0),
-				ZIndex = 4,
-			})
-		end
-	end
-	if PHONE then
-		return
-	end
-	soon(
-		p.body,
-		"More options (keybinds, graphics, crosshair) come with saved player settings.",
-		600
-	)
-end
-
 local function buildRange()
 	local p = build("Range", "PRACTICE", "SHOOTING RANGE")
 	if PHONE then
@@ -451,7 +339,7 @@ function Panels.init()
 	if PHONE then
 		buildBattlePass()
 	end
-	buildSettings()
+	-- Settings: the Studio-built screen (Controllers/SettingsController)
 	buildRange()
 end
 
