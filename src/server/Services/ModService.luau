@@ -39,7 +39,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Authority = require(Shared.Authority)
 local Charges = require(Shared.Mods.Charges)
+local Combat = require(Shared.Config.Combat)
 local Config = require(Shared.Config.Mods)
 local Dev = require(Shared.Config.Dev)
 local MatchState = require(Shared.MatchState)
@@ -49,6 +51,7 @@ local Net = require(Shared.Net)
 local RateLimit = require(Shared.Util.RateLimit)
 local SelfBuff = require(Shared.Mods.Blocks.SelfBuff)
 local Status = require(Shared.Mods.Status)
+local StatusEffects = require(Shared.Config.StatusEffects)
 local Teams = require(Shared.Mods.Teams)
 local TestMode = require(Shared.TestMode)
 local TestRange = require(Shared.Config.TestRange)
@@ -56,6 +59,8 @@ local Validate = require(Shared.Util.Validate)
 
 local ModEntities = require(script.Parent.ModEntities)
 local ModRecall = require(script.Parent.ModRecall)
+local ModSim = require(script.Parent.ModSim)
+local Motion = require(script.Parent.Weapon.Motion)
 local ModWalls = require(script.Parent.ModWalls)
 local StatusService = require(script.Parent.StatusService)
 local WeaponService = require(script.Parent.WeaponService)
@@ -63,7 +68,7 @@ local Health = require(ReplicatedStorage.Shared.Health)
 
 type SlotState = { id: string?, level: string, charges: number, rechargeAt: number }
 type PlayerState = { slots: { SlotState }, held: number, heldAt: number }
-type Heal = { target: Model, from: Player, effect: SelfBuff.Timed }
+type Heal = { target: Model, from: Player, id: string, effect: SelfBuff.Timed }
 
 local MODES: { [string]: boolean } = { Primary = true, Alt = true }
 -- The third-person clip a use of each held kind plays (Simulation/Poses).
@@ -249,6 +254,11 @@ local function cameraLook(player: Player): Vector3?
 end
 
 local function aimPlausible(player: Player, root: BasePart, direction: Vector3): boolean
+	-- Server Authority off (Config/Combat, owner 2026-11-11): there is no
+	-- camera to compare with, and the facing check refused real throws.
+	if not Authority.server() then
+		return true
+	end
 	local look = cameraLook(player)
 	if look then
 		return angleBetween(direction, look) <= Config.AIM_TOLERANCE
@@ -400,6 +410,24 @@ end
 -- life starts full.
 local function carryCharges(player: Player, character: Model)
 	local state = states[player]
+	if state and not Authority.server() then
+		-- The client simulates: the character's charge attributes never reach
+		-- the server. Carry the server's own count (Services/ModSim), so the
+		-- next life's simulation starts with what the server will accept. (A
+		-- per-round charge only: a recharge time would be on the wrong clock.)
+		for slot, s in state.slots do
+			local id = s.id
+			local def = id and Mods.def(id)
+			if id and def and def.authority == "Simulation" then
+				local left = ModSim.left(player, slot, id .. ":" .. s.level)
+				if left ~= nil then
+					player:SetAttribute(prefix(slot) .. "Carry", left)
+					player:SetAttribute(prefix(slot) .. "CarryAt", nil)
+				end
+			end
+		end
+		return
+	end
 	local serial = player:GetAttribute("ModResetSerial")
 	local seen = character:GetAttribute("ModResetSeen")
 	if not state or seen ~= (if typeof(serial) == "number" then serial else 0) then
@@ -565,7 +593,10 @@ local function use(
 		deny(player, slot, "teleporting")
 		return
 	end
-	if (origin - head.Position).Magnitude > Config.ORIGIN_TOLERANCE then
+	local originTolerance = if Authority.server()
+		then Config.ORIGIN_TOLERANCE
+		else Combat.CLIENT_ORIGIN_TOLERANCE
+	if (origin - head.Position).Magnitude > originTolerance then
 		deny(player, slot, "origin too far from head")
 		return
 	end
@@ -602,6 +633,7 @@ local function use(
 			-- A new heal replaces what's left of an old one (no stacking).
 			for i = #heals, 1, -1 do
 				if heals[i].target == healTarget then
+					StatusService.healingEnded(healTarget, heals[i].id)
 					table.remove(heals, i)
 				end
 			end
@@ -611,12 +643,19 @@ local function use(
 				table.insert(heals, {
 					target = healTarget,
 					from = player,
+					id = modId,
 					effect = SelfBuff.timed(os.clock(), duration, amount),
 				})
+				-- HEALING shows for as long as this heal over time runs.
+				StatusService.healing(healTarget, modId, duration)
 			end
 		end,
 		restore = function(healTarget: Model, amount: number)
-			WeaponService.heal(healTarget, amount)
+			-- HEALING: only a tick that really healed holds the status, for one
+			-- tick interval plus slack (a full-health ally shows none).
+			if WeaponService.heal(healTarget, amount) > 0 then
+				StatusService.healing(healTarget, modId, stats.tick + StatusEffects.healing.slack)
+			end
 		end,
 		fx = function(kind: string, data: { [string]: any })
 			data.caster = player
@@ -879,6 +918,7 @@ local function stepHeals()
 	for i = #heals, 1, -1 do
 		local h = heals[i]
 		if not liveHumanoid(h.target) or h.target.Parent == nil then
+			StatusService.healingEnded(h.target, h.id)
 			table.remove(heals, i)
 			continue
 		end
@@ -887,6 +927,7 @@ local function stepHeals()
 			WeaponService.heal(h.target, amount)
 		end
 		if SelfBuff.done(h.effect, now) then
+			StatusService.healingEnded(h.target, h.id)
 			table.remove(heals, i)
 		end
 	end
@@ -1001,6 +1042,7 @@ function ModService.start()
 		dropLife(player)
 		for i = #heals, 1, -1 do
 			if heals[i].from == player then
+				StatusService.healingEnded(heals[i].target, heals[i].id)
 				table.remove(heals, i)
 			end
 		end
@@ -1030,6 +1072,7 @@ function ModService.start()
 		end,
 		worldParams = worldParams,
 		now = serverNow,
+		gunDown = Motion.gunDown,
 	}
 	for _, id in Config.ORDER do
 		local module = Mods.module(id)
@@ -1038,6 +1081,8 @@ function ModService.start()
 			hook(api)
 		end
 	end
+	-- Server Authority off: the predicted Mods' reports from their owners.
+	ModSim.bind(api, limiter)
 end
 
 return ModService

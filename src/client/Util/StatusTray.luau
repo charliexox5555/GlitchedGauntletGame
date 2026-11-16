@@ -21,6 +21,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Mods = require(ReplicatedStorage.Shared.Mods)
+local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 
 local StatusTray = {}
 
@@ -40,7 +41,15 @@ local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
 local GOLD, WHITE = Color3.fromHex("FFC83D"), Color3.new(1, 1, 1)
 local SPENT = 0.82 -- a drained segment's transparency
 
-type Kind = { key: string, attr: string, mod: string, label: string, buff: boolean, order: number }
+type Kind = {
+	key: string,
+	attr: string,
+	mod: string,
+	label: string,
+	buff: boolean,
+	order: number,
+	sourceAttr: string?, -- a character attribute naming the Mod whose icon shows
+}
 
 -- Timed effects, in tray order (debuffs first).
 local TIMED: { Kind } = {
@@ -67,6 +76,17 @@ local TIMED: { Kind } = {
 		label = "BURNING",
 		buff = false,
 		order = 3,
+	},
+	{
+		-- Heal Orb's heal over time or Stim's Heal Zone: the icon is the newest
+		-- source's Mod (HealingSource), both written by the server.
+		key = "Healing",
+		attr = StatusEffects.healing.attribute,
+		sourceAttr = StatusEffects.healing.sourceAttribute,
+		mod = "HealOrb",
+		label = StatusEffects.healing.label,
+		buff = true,
+		order = 5,
 	},
 	{
 		key = "StimStrong",
@@ -237,7 +257,13 @@ local function step()
 			lastUntil[kind.key] = untilAt :: number
 			active[kind.key] = true
 			local e = entry(s, kind.key, kind.order)
-			draw(e, iconOf(kind.mod), kind.label, kind.buff, left / (totals[kind.key] or left))
+			local source = if kind.sourceAttr and character
+				then character:GetAttribute(kind.sourceAttr)
+				else nil
+			local modId = if typeof(source) == "string" and Mods.def(source)
+				then source
+				else kind.mod
+			draw(e, iconOf(modId), kind.label, kind.buff, left / (totals[kind.key] or left))
 		else
 			lastUntil[kind.key] = 0
 		end
@@ -248,7 +274,7 @@ local function step()
 		draw(
 			entry(s, "Revealed", 4),
 			iconOf("Recon"),
-			"REVEALED",
+			StatusEffects.detected.label,
 			false,
 			revealLeft / math.max(revealedTotal, 0.1)
 		)
@@ -335,8 +361,13 @@ end
 -- An enemy Recon dart revealed you for `duration` seconds.
 function StatusTray.reveal(duration: number)
 	if typeof(duration) == "number" and duration > 0 and duration == duration then
-		revealedTotal = duration
-		revealedUntil = os.clock() + duration
+		-- A repeat scan while still detected refreshes the one entry (never a
+		-- second one, never a shorter end).
+		local untilAt = os.clock() + duration
+		if untilAt >= revealedUntil then
+			revealedTotal = duration
+			revealedUntil = untilAt
+		end
 	end
 end
 

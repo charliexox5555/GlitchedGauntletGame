@@ -20,9 +20,10 @@
 --   rubble chunks in the floor's own colour and material are thrown up and
 --   land, a stepped pixel ring rides out over the shockwave, the corrupted
 --   floor is a hex tile disc, and the dive trails a bundle of falling bars.
---   The prompt: while you're up in an Updraft with Crash Down, a "C  CRASH
---   DOWN" prompt under the crosshair (B on a gamepad; on touch a CRASH button
---   that presses Crouch), so the slam can be found.
+--   The prompt: while you're up in an Updraft with Crash Down, a "Q  CRASH
+--   DOWN" prompt under the crosshair: the key is the Updraft slot's own input
+--   (a second press slams; LB on a gamepad; on touch a CRASH button that
+--   presses that same input), so the slam can be found.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -30,6 +31,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
+local Bindings = require(Shared.Config.Input)
 local Health = require(ReplicatedStorage.Shared.Health)
 local S = require(Shared.Config.ModSounds)
 local Tex = require(Shared.Config.VfxTextures)
@@ -633,9 +635,31 @@ end
 
 -- The prompt -------------------------------------------------------------------
 
--- "C  CRASH DOWN" under the crosshair while a slam is ready (up in an Updraft
--- with Crash Down), so it can be found. Touch: a CRASH button that presses
--- Crouch (an InputBinding on the Crouch action, like HudController's buttons).
+-- "Q  CRASH DOWN" under the crosshair while a slam is ready (up in an Updraft
+-- with Crash Down), so it can be found. The key is the Updraft slot's input:
+-- a second press of it slams (Mods/Updraft simPress). Touch: a CRASH button
+-- that presses that input (an InputBinding on its action, like
+-- HudController's buttons).
+local PAD_NAMES: { [string]: string } = { ButtonL1 = "LB", ButtonR1 = "RB", DPadUp = "D-UP" }
+
+-- The input action and the key label of the slot Updraft is in.
+local function slamInput(pad: boolean): (string?, string)
+	local _, slot = UpdraftMod.slamStats(player)
+	if not slot then
+		return nil, ""
+	end
+	local name = "Mod" .. slot
+	local b = (Bindings :: any)[name]
+	if not b then
+		return name, ""
+	end
+	if pad and b.gamepad and b.gamepad[1] then
+		local key = b.gamepad[1].Name
+		return name, PAD_NAMES[key] or key
+	end
+	return name, if b.keys and b.keys[1] then b.keys[1].Name else ""
+end
+
 local HEAVY = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
 local BACK = Color3.fromHex("16181B")
 -- The match UI's prompt look (vault/02 Art/UI Match Extras.md).
@@ -784,12 +808,17 @@ local function buildPrompt(): Prompt
 	return made
 end
 
--- The touch button presses Crouch (once the input context is ready).
+-- The touch button presses the Updraft slot's input (once the input context
+-- is ready): the same second press as the key.
 local function bindPromptButton(p: Prompt)
 	if promptBound then
 		return
 	end
-	local ok, action = pcall(InputController.action, "Crouch")
+	local name = slamInput(false)
+	if not name then
+		return
+	end
+	local ok, action = pcall(InputController.action, name)
 	if not ok then
 		return
 	end
@@ -837,7 +866,7 @@ local function stepPrompt(now: number)
 	local last = UserInputService:GetLastInputType()
 	local touch = last == Enum.UserInputType.Touch
 	local pad = string.find(last.Name, "Gamepad") ~= nil
-	local key = if pad then "B" else "C"
+	local _, key = slamInput(pad)
 	if touch ~= promptTouch then
 		promptTouch = touch
 		p.row.Visible = not touch

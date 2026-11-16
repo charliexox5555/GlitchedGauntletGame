@@ -73,6 +73,27 @@ export type SimCtx = {
 	now: number, -- time()
 }
 
+-- Server Authority off: one event of a predicted Mod, reported by the owner's
+-- client (remote ModSim) after ModService checked the sender, the slot, the
+-- kind and, for a "Cast", a charge on the server's own count. `data` is the
+-- client's claim: the Mod's `simReport` validates every field it reads and
+-- decides nothing that matters from it (Services/ModSim).
+export type SimReport = {
+	player: Player,
+	character: Model,
+	humanoid: Humanoid,
+	root: BasePart,
+	stats: Stats,
+	level: string,
+	kind: string, -- "Cast" | "Slam" | "Land"
+	data: { [string]: unknown },
+	now: number, -- the server's time()
+	-- The round lock is on (behind the barrier, between rounds). A "Cast" or
+	-- a "Slam" never gets here locked; a "Land" does, to end the flight: deal
+	-- nothing.
+	locked: boolean,
+}
+
 -- A use request after ModService checked its types.
 export type Request = {
 	mode: UseMode,
@@ -172,6 +193,10 @@ export type ServerApi = {
 	onRefill: (fn: (player: Player) -> ()) -> (),
 	-- World-only raycast params (as ctx.worldParams).
 	worldParams: () -> RaycastParams,
+	-- Server Authority off: `player`'s gun is down for `seconds` from now on
+	-- the server's own shot gate (a reported dash or launch; with it on, the
+	-- gate reads the simulation). `focus`: a dash's Focus window after that.
+	gunDown: (player: Player, seconds: number, focus: number?) -> (),
 	-- Server time (workspace:GetServerTimeNow()).
 	now: () -> number,
 }
@@ -179,6 +204,16 @@ export type ServerApi = {
 export type ModModule = {
 	-- Simulation Mods: returns true when it cast (spends a charge).
 	simCast: ((ctx: SimCtx) -> boolean)?,
+	-- Simulation Mods: every fresh press of the slot's input, before charges
+	-- are checked. True = the Mod used the press itself (no cast, no charge
+	-- spent): Updraft's Crash Down on a second press in the air.
+	simPress: ((ctx: SimCtx) -> boolean)?,
+	-- Simulation Mods with Server Authority off: the owner's client simulates
+	-- the Mod, so the server only hears of it here. Do the server's part (a
+	-- dodge window, a slam's damage) from the server's own view of the
+	-- character, and return what the other clients need to draw it (relative
+	-- times: every client has its own clock), or nil to refuse the report.
+	simReport: ((api: ServerApi, report: SimReport) -> { [string]: any }?)?,
 	-- Server Mods: Mod-specific checks, then the effect. `validate` may fill
 	-- in `req.target`. Returns false and a reason to reject.
 	validate: ((ctx: ServerCtx, req: Request) -> (boolean, string?))?,

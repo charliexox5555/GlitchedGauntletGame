@@ -31,12 +31,22 @@
 --   DashDecoyRun  the way it keeps running (flat); Y = 1 when it fires
 --                 fake shots (G3)
 
+local Players = game:GetService("Players")
+
 local Types = require(script.Parent.Types)
 local DashBlock = require(script.Parent.Blocks.Dash)
+local Validate = require(script.Parent.Parent.Util.Validate)
 
 local Dash = {}
 
 local module: Types.ModModule = {}
+
+-- Server Authority off: the character and the time() until which each
+-- player's Ghost dodge window is open, from the server's clock
+-- (module.simReport). The DashWindows attribute carries it when the server
+-- simulates the character itself. By player, strong (a weak table keyed by
+-- an Instance can drop a live entry); cleared when the player leaves.
+local serverDodge: { [Player]: { character: Model, untilT: number } } = {}
 
 -- The simulation's fixed step (Simulation/Movement STEP). A dash lasts a
 -- whole number of steps, so a fast one (A3: 160 studs/s, 2.7 studs a step)
@@ -120,13 +130,84 @@ end
 module.server = function(api: Types.ServerApi)
 	api.guard(
 		function(victim: Model, _humanoid: Humanoid, amount: number, _attacker: Player?): number
+			local now = time()
 			local dodgeUntil = Dash.windows(victim)
-			if time() < dodgeUntil then
+			if now < dodgeUntil then
+				return 0
+			end
+			local owner = Players:GetPlayerFromCharacter(victim)
+			local reported = owner and serverDodge[owner]
+			if reported and reported.character == victim and now < reported.untilT then
 				return 0
 			end
 			return amount
 		end
 	)
+	Players.PlayerRemoving:Connect(function(player: Player)
+		serverDodge[player] = nil
+	end)
+end
+
+-- Server Authority off: the owner's client simulates the dash, so the server
+-- hears of it here (Services/ModSim: the report already cost a charge on the
+-- server's own count). The dodge window is the server's, from its own clock
+-- and the level's stats. What the client sent only shapes what other players
+-- see (the dash's line and length, the way the decoy runs), each value
+-- checked and clamped to what this level can do.
+module.simReport = function(api: Types.ServerApi, report: Types.SimReport): { [string]: any }?
+	if report.kind ~= "Cast" then
+		return nil
+	end
+	local stats = report.stats
+	local data = report.data
+	local root = report.root
+
+	if stats.dodgeWindow then
+		serverDodge[report.player] =
+			{ character = report.character, untilT = report.now + stats.dodgeWindow }
+	end
+	-- The gun is down for the whole dash and its fire delay on the server's
+	-- shot gate too, whatever the client does (a Ghost can't shoot from
+	-- inside its dodge window by reporting a dash it never made).
+	api.gunDown(report.player, stats.duration + stats.fireDelay, stats.focusWindow)
+
+	-- (A one-step dash reports half a step: DashUntil sits half a step early.)
+	local duration = Validate.number(data.dur, SIM_STEP / 2, stats.duration + SIM_STEP)
+		or stats.duration
+	local velocity = Validate.vector(data.vel)
+	local flatVel = if velocity then Vector3.new(velocity.X, 0, velocity.Z) else Vector3.zero
+	local top = stats.distance / stats.duration
+	if flatVel.Magnitude > top then
+		flatVel = flatVel.Unit * top
+	end
+
+	local desync = stats.behaviour == "Desync"
+	local cloak = 0
+	if stats.cloakAfter then
+		cloak = duration + stats.cloakAfter
+	elseif stats.decoyCloak then
+		cloak = stats.decoyTime
+	end
+	local mirror: { [string]: any } = {
+		dur = duration,
+		vel = flatVel,
+		tune = Vector3.new(stats.exitSpeed, stats.fireDelay, stats.focusWindow),
+		-- Seconds from now (0 = none): dodge, cloak, decoy.
+		windows = Vector3.new(stats.dodgeWindow or 0, cloak, if desync then stats.decoyTime else 0),
+	}
+	if desync then
+		-- The decoy starts where the server sees the dasher, facing its yaw.
+		local look = root.CFrame.LookVector
+		mirror.decoy = CFrame.new(root.Position) * CFrame.Angles(0, math.atan2(-look.X, -look.Z), 0)
+		local run = Validate.vector(data.run)
+		local flatRun = if run then Vector3.new(run.X, 0, run.Z) else Vector3.zero
+		if flatRun.Magnitude > 0.01 then
+			flatRun = flatRun.Unit
+				* math.clamp(flatRun.Magnitude, stats.decoyMinSpeed, stats.decoyMaxSpeed)
+		end
+		mirror.run = Vector3.new(flatRun.X, if stats.decoyFires then 1 else 0, flatRun.Z)
+	end
+	return mirror
 end
 
 Dash.module = module
@@ -183,6 +264,17 @@ function Dash.resetGate(gate: GunGate)
 	gate.lastUpdraft = 0
 	gate.readyAt = -math.huge
 	gate.focusOpen = false
+end
+
+-- Server Authority off (Services/ModSim): a reported dash or launch lowers
+-- the gun for `down` seconds from `now` (os.clock()). `focus`: a dash's Focus
+-- window once it's back up (nil: none, an Updraft).
+function Dash.pushGate(gate: GunGate, now: number, down: number, focus: number?)
+	gate.readyAt = math.max(gate.readyAt, now + down)
+	if focus then
+		gate.focusOpen = true
+		gate.focusUntil = gate.readyAt + focus
+	end
 end
 
 -- Call every frame. `now`: os.clock(); `simNow`: time() (the simulation's

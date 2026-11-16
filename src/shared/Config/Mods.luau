@@ -38,18 +38,24 @@ local defs: { [string]: ModDef } = {
 		hint = {},
 		levels = {
 			L1 = {
-				note = "Dash 12 studs in your move direction",
+				note = "Dash 16 studs in your move direction",
 				cooldown = 0, -- Dash: 1 per round, no recharge
 				charges = 1,
-				distance = 12,
+				-- 16 (was 12; owner 2026-11-15: a quick dodge that earns its slot
+				-- beside sliding). Trial 12 / 16 / 18 at the same 0.15 s: the gun
+				-- is back at the same moment for all three (+0.23 s), 18 mostly
+				-- bought more wall stops in a lane (vault/05 Production/Ability
+				-- Rework 2026-11-15.md → Dash trial). Open to the owner's feel check.
+				distance = 16,
 				duration = 0.15, -- seconds the dash lasts
 				exitSpeed = 22, -- horizontal speed kept when the dash ends
 				radius = 1.4, -- spherecast radius: stops short of walls
 				fireDelay = 0.1, -- the gun is down while dashing and this long after
 				focusWindow = 0.6, -- Dash Focus: the first shot this soon after has no move/air spread
 			},
-			A2 = { note = "Dash 18 studs instead of 12, just as fast", distance = 18 },
-			A3 = { note = "Dash 24 studs, just as fast, and 2 charges", distance = 24, charges = 2 },
+			-- Long Dash keeps its +6 steps over the new L1.
+			A2 = { note = "Dash 22 studs instead of 16, just as fast", distance = 22 },
+			A3 = { note = "Dash 28 studs, just as fast, and 2 charges", distance = 28, charges = 2 },
 			B2 = {
 				note = "Bullets pass through you for 0.35 s from the press",
 				card = "BULLETPROOF FOR 0.35 S",
@@ -117,12 +123,14 @@ local defs: { [string]: ModDef } = {
 			B2 = { note = "Second Wind: 2 Updrafts every round", charges = 2 },
 			B3 = { note = "Second Wind: 3 Updrafts every round", charges = 3 },
 			G2 = {
-				note = "Crash Down: crouch mid-air to slam, 30 damage within 8 studs",
-				card = "SLAM  ·  30 DAMAGE IN 8 STUDS",
+				-- Owner 2026-11-15: a second press of the Updraft key, not Crouch.
+				note = "Crash Down: press Updraft again mid-air to slam, 30 damage within 8 studs",
+				card = "PRESS AGAIN TO SLAM  ·  30 DAMAGE IN 8 STUDS",
 				behaviour = "Slam",
 				slamDamage = 30, -- enemies in sight of the landing (no self or team damage)
-				slamRadius = 8, -- studs from your root where you land
-				slamSpeed = 90, -- studs/s straight down
+				slamRadius = 8, -- studs from your root where you land (10 is the trial value)
+				slamSpeed = 90, -- studs/s down
+				slamCarry = 16, -- most horizontal studs/s the dive keeps (walk speed: a nudge, not a glide)
 				slamArm = 0.15, -- seconds after the launch before a slam starts (a press waits)
 			},
 			G3 = {
@@ -534,6 +542,16 @@ local ORDER = {
 	"Recall",
 }
 
+-- One wind stroke on the screen (WIND_FEEL).
+type WindStroke = {
+	x: number, -- where the head starts: share of the screen width
+	y: number, -- ... and of its height (0 = top)
+	size: number, -- index into WIND_FEEL.sizes
+	at: number?, -- Updraft: share of the rise when it starts
+	ahead: boolean?, -- Dash: only when dashing forward or back
+	slide: boolean?, -- Dash: also drawn for a slide
+}
+
 return table.freeze({
 	defs = defs,
 	ORDER = ORDER,
@@ -584,9 +602,6 @@ return table.freeze({
 		lunge = 0.35, -- studs the camera leads the dash, then settles back
 		lungeTime = 0.3,
 		shake = 0.12,
-		blur = 4, -- BlurEffect size at the start, gone after blurTime
-		blurTime = 0.18,
-		streakTime = 0.3, -- screen-edge wind streaks
 		trailTime = 0.35, -- the wind trail others see lingers this long
 		crackle = true, -- play the Dash_Crackle layer (on/off to try the classic feel)
 	},
@@ -600,6 +615,101 @@ return table.freeze({
 		lurchTime = 0.3,
 		shake = 0.1,
 		trailTime = 0.3, -- the wind trail under you while rising
+	},
+
+	-- Wind strokes: what Dash and Updraft put on your own screen (vault/02 Art/
+	-- Ability VFX Direction.md → Wind; drawn by client/Util/WindStrokes). One
+	-- tapered stroke (VfxTextures.WIND_STROKE) in a few sizes, on the screen
+	-- edges only: it snaps in, moves along the move on held frames and goes by
+	-- closing from the tail. No blur, no fade. Places are shares of the screen
+	-- (x across, y down); lengths are shares of the screen height.
+	WIND_FEEL = {
+		color = Color3.fromHex("EAF4FF"), -- off-white, a faint cool tint
+		alpha = 0.08, -- ImageTransparency of a stroke (flat: it never fades)
+		-- The dark edge: a bigger copy of the shape under each stroke, so the
+		-- white reads on a bright sky or a pale floor.
+		ink = Color3.fromHex("1B2838"),
+		inkAlpha = 0.5, -- its ImageTransparency
+		inkThick = 1.6, -- its thickness (x the stroke's)
+		inkLength = 1.035, -- ... and its length
+		fps = 14, -- held frames a second (the stepped motion)
+		onset = 0.05, -- seconds a stroke takes to shoot out to its full length
+		onsetLength = 0.45, -- its length on the first frame (share of the full one)
+		hold = 0.3, -- share of a stroke's life at full length before the tail closes
+		thin = 0.55, -- thickness left once the tail has closed (share)
+		clear = 0.4, -- the aim area: the middle share of the screen no stroke enters
+		clearPad = 0.015, -- extra gap kept round it (share of the screen height)
+		sizes = { -- { length, thickness }
+			{ 0.46, 0.028 },
+			{ 0.34, 0.021 },
+			{ 0.24, 0.015 },
+			{ 0.15, 0.01 },
+		},
+		-- Dash: every stroke at once, pointing the way you dash. Forward they
+		-- converge on the centre, back they leave it, sideways they lie flat on
+		-- the leading and trailing edges. x, y: where the head starts.
+		dash = {
+			time = 0.25, -- seconds from the dash to the last stroke gone
+			travel = 0.09, -- how far a head moves (share of the screen height)
+			-- A slide draws only the `slide` strokes, lighter: at strength 0 they
+			-- keep this share of the length, travel and opacity (1 = a dash's).
+			light = 0.5,
+			strokes = {
+				{ x = 0.13, y = 0.25, size = 1 },
+				{ x = 0.88, y = 0.29, size = 1 },
+				{ x = 0.09, y = 0.58, size = 2, slide = true },
+				{ x = 0.91, y = 0.54, size = 2, slide = true },
+				{ x = 0.17, y = 0.85, size = 2, slide = true },
+				{ x = 0.84, y = 0.82, size = 3, slide = true },
+				{ x = 0.37, y = 0.1, size = 3, ahead = true }, -- top and bottom:
+				{ x = 0.65, y = 0.93, size = 4, ahead = true }, -- not for a side dash
+			} :: { WindStroke },
+		},
+		-- Updraft: the same strokes straight up, in waves over the rise: the
+		-- bottom corners on the launch, then up the sides. `at`: share of the
+		-- rise when a stroke starts (0.25 is about the hand's downward flick).
+		-- Three waves and a short life, so at most five are up at once (the
+		-- rise is only about 0.4 s: nine strokes in four waves all overlapped).
+		updraft = {
+			life = 0.18, -- seconds one stroke lasts
+			endBy = 0.88, -- every stroke is gone by this share of the rise
+			travel = 0.2, -- how far a head runs up (share of the screen height)
+			strokes = {
+				{ x = 0.07, y = 0.84, size = 1, at = 0 },
+				{ x = 0.93, y = 0.8, size = 1, at = 0 },
+				{ x = 0.18, y = 0.97, size = 2, at = 0 },
+				{ x = 0.84, y = 0.62, size = 2, at = 0.25 },
+				{ x = 0.14, y = 0.56, size = 2, at = 0.25 },
+				{ x = 0.06, y = 0.3, size = 3, at = 0.5 },
+				{ x = 0.94, y = 0.26, size = 3, at = 0.5 },
+			} :: { WindStroke },
+		},
+		-- Ghost (Dash B2/B3): while the dodge window is open, short thin strokes
+		-- jump along both side edges on held frames; gone the frame it closes.
+		-- The cloak (B3, G3) is one long thin line down each side, and the world
+		-- a little greyer; both come off over the cloak's fade-out.
+		ghost = {
+			color = Color3.fromHex("D8F0FF"),
+			alpha = 0.15,
+			fps = 12, -- the shimmer's held frames a second
+			inset = 0.02, -- from the side edge (share of the screen width)
+			strokes = { -- per side (the right side is the left one upside down)
+				{ y = 0.34, length = 0.26, thick = 0.014 },
+				{ y = 0.56, length = 0.14, thick = 0.012 },
+				{ y = 0.72, length = 0.2, thick = 0.012 },
+			},
+			jump = { 0, 0.05, -0.03, 0.07, -0.05 }, -- y steps a stroke cycles through
+			blink = 3, -- each stroke is dark one held frame in this many
+			cloak = {
+				alpha = 0.45,
+				length = 0.5,
+				thick = 0.006,
+				fps = 5,
+				jump = 0.012, -- the line steps up and down by this (share of the height)
+				fadeIn = 0.15, -- seconds
+				saturation = -0.2, -- ColorCorrection while cloaked (no tint, no flash)
+			},
+		},
 	},
 
 	-- Colours by viewer: you and your team / enemies / glitch static.
@@ -627,8 +737,25 @@ return table.freeze({
 		ModUse = { 6, 8 },
 		ModSteer = { 30, 40 }, -- the Firewall's steering stream (~20 a second)
 		ModRecall = { 4, 6 }, -- Recall's teleport / pick-up
+		ModSim = { 10, 14 }, -- predicted Mods' reports with Server Authority off (dash, launch, slam, landing)
 		DevMod = { 6, 10 },
 		DevDummy = { 0.5, 3 }, -- SpawnDummy on top of DevMod: one every 2 s, burst 3
+	},
+
+	-- Server Authority off (Services/ModSim): each client simulates its own
+	-- Dash and Updraft and reports them; the server checks the reports against
+	-- its own charge count and its own view of the character.
+	SIM_REPORT = {
+		grace = 0.25, -- seconds of slack on a recharge (two clocks, latency)
+		flightLife = 8, -- seconds an Updraft can stay in the air before its reports are dropped
+		-- Crash Down, from the server's view of the root:
+		armSlack = 0.05, -- seconds of jitter allowed under slamArm (must stay below it)
+		slamMinRise = 1, -- studs the root must have risen above the launch before a dive counts
+		slamMinDive = 0.03, -- seconds a dive must last (two steps: no launch-and-land in one burst)
+		slamFloorReach = 8, -- studs above the floor the server may still see a landed root (it sees it late)
+		slamTravelSlack = 8, -- studs on top of maxCarry x the flight's time a slam may land from its launch
+		slamMaxTravel = 70, -- ... and never further than this
+		slamMaxDrop = 60, -- studs below the launch a slam may land
 	},
 
 	-- Dev test panel (DevModService): who may use it outside Studio and test

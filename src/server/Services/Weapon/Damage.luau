@@ -101,13 +101,16 @@ end
 
 -- A player's damage on a combatant: the Mod modifiers, then hurt, then the
 -- feedback. `sourceId`: the gun's id, or a Mod's id for Mod damage.
+-- `modSource`: the Mod's id when a Mod dealt it; the attacker's client gets it
+-- in the hit confirm and shows the ability feedback (marker, no numbers).
 function Damage.apply(
 	attacker: Player,
 	victimModel: Model,
 	amount: number,
 	zone: HitZone,
 	sourceId: string,
-	at: Vector3
+	at: Vector3,
+	modSource: string?
 )
 	local humanoid = Targets.liveHumanoid(victimModel)
 	if not humanoid then
@@ -136,6 +139,7 @@ function Damage.apply(
 		killed = killed,
 		position = at,
 		blocked = blocked or nil, -- a guard took it (Barrier, Ghost dash)
+		source = modSource,
 	})
 
 	local victim = Players:GetPlayerFromCharacter(victimModel)
@@ -163,7 +167,7 @@ function Damage.damage(
 	if amount ~= amount or amount <= 0 then
 		return
 	end
-	Damage.apply(attacker, victim, amount, "Body", sourceId, at)
+	Damage.apply(attacker, victim, amount, "Body", sourceId, at, sourceId)
 end
 
 -- AI bots (vault/01 Design/Bots.md, Services/BotService): damage from a

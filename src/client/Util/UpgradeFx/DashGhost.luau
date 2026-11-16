@@ -12,19 +12,24 @@
 --
 -- Only LocalTransparencyModifier on other characters' parts and decals
 -- (their world gun and held item are inside the character), put back to 0
--- when it ends. Your own character is left alone (first person): you get a
--- screen tint instead.
+-- when it ends. Your own character is left alone (first person): you get an
+-- edge cue instead (Util/WindStrokes.ghost): thin strokes that shimmer along
+-- the screen's side edges for exactly the dodge window, and a thin line down
+-- each side with the colours turned down a little while you're cloaked. No
+-- colour flash.
 
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local DashMod = require(ReplicatedStorage.Shared.Mods.Dash)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local TeamColor = require(script.Parent.Parent.TeamColor)
+local WindStrokes = require(script.Parent.Parent.WindStrokes)
 
 local DashGhost = {}
 
@@ -37,6 +42,7 @@ local SHIMMER_HZ = 9 -- the close-enemy flicker
 local SHIMMER_DEPTH = 0.12 -- +- around cloakShimmerAlpha
 local FADE_OUT = 0.15 -- seconds the cloak takes to come off
 local REVEALED_MAX = 0.6 -- a revealed (Recon) dasher is never more see-through
+local CLOAK_CUE = Config.WIND_FEEL.ghost.cloak
 
 type Shown = {
 	alpha: number,
@@ -202,16 +208,27 @@ local function alphaFor(owner: Player, character: Model, now: number): (number, 
 	return math.clamp(alpha, 0, 0.98), cloaked and alpha > 0.5
 end
 
--- Our own screen while we're the ghost: a pale wash (dodge) or a cold,
--- washed-out tint (cloaked), so you know it's running.
+-- Our own screen while we're the ghost, so you know it's running: the edge
+-- shimmer for exactly the dodge window (it's gone the frame the protection
+-- is), and for the cloak a thin line down each side with the colours turned
+-- down a little (no tint), coming off over the cloak's fade-out.
 local function stepCue(now: number)
 	local character = player.Character
 	local dodge = character ~= nil and now < select(1, DashMod.windows(character))
-	local cloak = character ~= nil
-		and now >= number(character, "DashStart")
-		and now < select(2, DashMod.windows(character))
+	local amount = 0
+	if character then
+		local start = number(character, "DashStart")
+		local cloakUntil = select(2, DashMod.windows(character))
+		if now >= start and now < cloakUntil then
+			amount = math.min(
+				math.clamp((now - start) / CLOAK_CUE.fadeIn, 0, 1),
+				math.clamp((cloakUntil - now) / FADE_OUT, 0, 1)
+			)
+		end
+	end
+	WindStrokes.ghost(dodge, amount)
 	local c = cue
-	if not dodge and not cloak then
+	if amount <= 0 then
 		if c then
 			c.Enabled = false
 		end
@@ -219,27 +236,14 @@ local function stepCue(now: number)
 	end
 	if not c or not c.Parent then
 		local made = Instance.new("ColorCorrectionEffect")
-		made.Name = "DashGhostCue"
+		made.Name = "DashCloakCue"
 		made.Parent = Lighting
 		c = made
 		cue = made
 	end
 	local effect = c :: ColorCorrectionEffect
 	effect.Enabled = true
-	local ally = TeamColor.ALLY
-	if cloak then
-		local left = select(2, DashMod.windows(character :: Model)) - now
-		local k = math.clamp(left / FADE_OUT, 0, 1)
-		effect.Saturation = -0.35 * k
-		effect.Contrast = 0.05 * k
-		effect.Brightness = 0
-		effect.TintColor = Color3.new(1, 1, 1):Lerp(ally:Lerp(Color3.new(1, 1, 1), 0.75), k)
-	else
-		effect.Saturation = -0.15
-		effect.Contrast = 0
-		effect.Brightness = 0.04
-		effect.TintColor = ally:Lerp(Color3.new(1, 1, 1), 0.85)
-	end
+	effect.Saturation = CLOAK_CUE.saturation * amount
 end
 
 -- Every frame (UpgradeFx/Dash).

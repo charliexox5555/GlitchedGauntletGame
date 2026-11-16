@@ -10,15 +10,21 @@
 -- the spark streak, the soft glow and the tracer gradient, all plain white.
 
 return table.freeze({
-	FLASH_FRONT_2x2 = "rbxassetid://130264884057726", -- star burst, seen down the barrel
-	FLASH_SIDE_2x2 = "rbxassetid://123859178693153", -- side flame, base at the bottom
+	-- Feel pass 2 (2026-11-10): stylised, Valorant-like flashes with clean
+	-- shapes (Codex image sheets, cut up by tools/vfx/make_shot_vfx.py). The
+	-- procedural ones were 130264884057726 (front) and 123859178693153 (side).
+	FLASH_FRONT_2x2 = "rbxassetid://91156038137129", -- star burst, seen down the barrel
+	FLASH_SIDE_2x2 = "rbxassetid://124105892235080", -- side flame, base at the bottom
+	IMPACT_2x2 = "rbxassetid://103365983879660", -- a bullet strike: hot core and spark spikes, colours baked
 	SMOKE_2x2 = "rbxassetid://117925333534520",
 	DUST_2x2 = "rbxassetid://109666546750603",
 	CHIPS_2x2 = "rbxassetid://113906816207530", -- rock chips (tinted by surface colour)
 	HOLE = "rbxassetid://128028546664274", -- bullet hole, neutral greys (tinted per material)
 	SPARK = "rbxassetid://118834850594357", -- streak, head at the top
 	GLOW = "rbxassetid://135016131754746",
-	TRACER = "rbxassetid://95042043941638", -- u: tail -> head
+	-- Feel pass 2 (2026-11-10, tools/vfx/make_shot_vfx.py → art-source/vfx/shot/).
+	TRACER = "rbxassetid://75239334697161", -- u: tail -> head, tapering into a hot head (was 95042043941638, a plain gradient)
+	TRACER_WAKE = "rbxassetid://120480355813374", -- the faint, broken vapour line a round leaves (u along it)
 
 	-- Mod set (tools/vfx/make_mod_vfx.py → art-source/vfx/mods/): stylized,
 	-- all white, tinted per viewer by Util/ModVfx.
@@ -36,9 +42,12 @@ return table.freeze({
 	DASH_WIND_TRAIL = "rbxassetid://93485856775142", -- wind wisps; u: head (left) -> tail
 	DASH_AIR_BURST_2x2 = "rbxassetid://130185238645234", -- gust ring expanding over 4 frames
 	DASH_PUFF_2x2 = "rbxassetid://86393263788167", -- soft dust puff dissipating over 4 frames
-	DASH_SCREEN_STREAK = "rbxassetid://75317717584279", -- one wind streak, head on the left
-	-- Updraft (tools/vfx/make_updraft_vfx.py): white, tinted in game.
-	UPDRAFT_EDGE = "rbxassetid://123162845090695", -- full-screen wind rising along the sides and bottom (centre clear)
+	DASH_SCREEN_STREAK = "rbxassetid://75317717584279", -- one soft wind streak, head on the left (now only WindFx's wisps)
+	-- The wind stroke (2026-11-15 rework; tools/vfx/make_wind_stroke.py →
+	-- art-source/abilities/Rework/v03/Textures/Wind_Stroke.png, decal
+	-- 76106421221981): the one shape of the Dash and Updraft screen effects
+	-- (Util/WindStrokes). Replaced the Updraft screen edge 123162845090695.
+	WIND_STROKE = "rbxassetid://118728636893673", -- hard-edged wedge pointed at both ends, head on the left, tail 4x longer
 
 	-- Molly (tools/vfx/make_molly_vfx.py → art-source/vfx/abilities/molly/).
 	-- Fire keeps its own colours (Util/MollyFx).

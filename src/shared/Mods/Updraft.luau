@@ -9,11 +9,17 @@
 --
 -- Upgrades (vault/01 Design/Abilities/Upgrade Paths.md → 2. Updraft): path A
 -- raises `peak`, path B adds `charges` (numbers only). The glitch path
--- (`behaviour = "Slam"`): a new Crouch press while an Updraft is in the air
--- slams you straight down at `slamSpeed`; a press in the first `slamArm`
--- seconds waits until then, so a launch can't slam where it stood. The
--- landing is a simulation write; the server's hook (module.server) deals
--- `slamDamage` to enemies within `slamRadius` in sight of it (+ Hinder at G3).
+-- (`behaviour = "Slam"`, Crash Down): a fresh SECOND press of the Updraft
+-- input while an Updraft is in the air slams you down at `slamSpeed`
+-- (owner, 2026-11-15: was a Crouch press). The first press launches; from
+-- then until you land, a press of that input is always Crash Down's
+-- (module.simPress) and never another launch, so a held key, a repeat or a
+-- second press can't spend a charge. A press in the first `slamArm` seconds
+-- waits until then, so a launch can't slam where it stood. The dive keeps up
+-- to `slamCarry` studs/s of horizontal speed (and the Humanoid's own air
+-- steering inside that cap). The landing is a simulation write; the server's
+-- hook (module.server) deals `slamDamage` to enemies within `slamRadius` in
+-- sight of it (+ Hinder at G3).
 --
 -- Character attributes (simulation-written):
 --   UpdraftAt     time() of the launch (clients play the effects on change)
@@ -24,8 +30,7 @@
 --                 attribute for three: a character's attributes share a
 --                 1024-byte budget under Server Authority
 --   Updrafting    true from the launch until you land (nil otherwise)
---   UpdraftCrouchIn  last step's Crouch input (Slam owners only: presses)
---   UpdraftSlam   "Queued": a Crouch press waiting for `slamArm`; "Down":
+--   UpdraftSlam   "Queued": a second press waiting for `slamArm`; "Down":
 --                 from the slam's start until its landing; nil otherwise
 --   UpdraftSlamStart time() the slam started (clients: the dive effects)
 --   UpdraftSlamAt / UpdraftSlamPos  time() and root position of the last
@@ -71,14 +76,6 @@ local function set(inst: Instance, name: string, value: any)
 	end
 end
 
-local function actionDown(context: Instance?, name: string): boolean
-	local action = context and context:FindFirstChild(name)
-	if action and action:IsA("InputAction") then
-		return action:GetState() == true
-	end
-	return false
-end
-
 -- Updraft's stats at `level`, resolved like Mods.stats (Mods/init requires
 -- this module, so it can't be required back).
 local statsCache: { [string]: Types.Stats } = {}
@@ -114,17 +111,20 @@ for slot = 1, Config.SLOTS do
 end
 
 -- The stats of `player`'s Updraft when it's on the Slam path (nil: no
--- Updraft slotted, or another level). Reads the loadout attributes, so it
--- works inside the simulation and on any client.
-function Updraft.slamStats(player: Player): Types.Stats?
+-- Updraft slotted, or another level), and the slot it is in. Reads the
+-- loadout attributes, so it works inside the simulation and on any client.
+function Updraft.slamStats(player: Player): (Types.Stats?, number?)
 	for slot = 1, Config.SLOTS do
 		if player:GetAttribute(SLOT_ID[slot]) == "Updraft" then
 			local level = player:GetAttribute(SLOT_LEVEL[slot])
 			local stats = if typeof(level) == "string" then statsAt(level) else nil
-			return if stats and stats.behaviour == "Slam" then stats else nil
+			if stats and stats.behaviour == "Slam" then
+				return stats, slot
+			end
+			return nil, nil
 		end
 	end
-	return nil
+	return nil, nil
 end
 
 -- The slam's state in one attribute (a character's attributes share a
@@ -134,36 +134,49 @@ local function endSlam(character: Model)
 	set(character, "UpdraftSlam", nil)
 end
 
+-- The dive's velocity: `slamSpeed` down, keeping at most `slamCarry` studs/s
+-- of the horizontal speed it has (the Humanoid's air steering moves it inside
+-- that cap, so the landing can be nudged, not flown).
+local function diveVelocity(root: BasePart, slam: Types.Stats): Vector3
+	local vel = root.AssemblyLinearVelocity
+	local flat = Vector3.new(vel.X, 0, vel.Z)
+	local carry: number = slam.slamCarry or 0
+	local speed = flat.Magnitude
+	if speed > carry then
+		flat = if carry > 0 and speed > 1e-3 then flat.Unit * carry else Vector3.zero
+	end
+	return Vector3.new(flat.X, -slam.slamSpeed, flat.Z)
+end
+
+local function startSlam(character: Model, root: BasePart, slam: Types.Stats, now: number)
+	set(character, "UpdraftSlam", "Down")
+	set(character, "UpdraftSlamStart", now)
+	-- No slide-jump air speed in the dive: walk-speed steering, capped by slamCarry.
+	set(character, "SlideJumpSpeed", 0)
+	root.AssemblyLinearVelocity = diveVelocity(root, slam)
+end
+
 -- Simulation, every step (before the cast): holds the rise, runs a slam, and
--- ends the Updraft on landing. `context`: the player's PlayContext
--- (InputActions).
+-- ends the Updraft on landing.
 function Updraft.step(
 	player: Player,
 	character: Model,
 	humanoid: Humanoid,
 	root: BasePart,
-	context: Instance?,
+	_context: Instance?,
 	now: number
 )
-	local slam = Updraft.slamStats(player)
-	local pressed = false
-	if slam then
-		-- Only a new press: crouch held from a slide into the launch isn't one.
-		local crouch = actionDown(context, "Crouch")
-		pressed = crouch and character:GetAttribute("UpdraftCrouchIn") ~= true
-		set(character, "UpdraftCrouchIn", if crouch then true else nil)
-	end
 	if character:GetAttribute("Updrafting") ~= true then
 		return
 	end
+	local slam = Updraft.slamStats(player)
 	local since = now - number(character, "UpdraftAt", 0)
 	local airborne = humanoid.FloorMaterial == Enum.Material.Air
 
 	if slam then
 		if character:GetAttribute("UpdraftSlam") == "Down" then
 			if airborne then
-				-- Straight down (no air steering, no carried run speed).
-				root.AssemblyLinearVelocity = Vector3.new(0, -slam.slamSpeed, 0)
+				root.AssemblyLinearVelocity = diveVelocity(root, slam)
 			else
 				endSlam(character)
 				set(character, "Updrafting", nil)
@@ -172,18 +185,13 @@ function Updraft.step(
 			end
 			return
 		end
-		if pressed then
-			set(character, "UpdraftSlam", "Queued")
-		end
+		-- A second press that came before the arm time (module.simPress).
 		if
 			character:GetAttribute("UpdraftSlam") == "Queued"
 			and since >= slam.slamArm
 			and airborne
 		then
-			set(character, "UpdraftSlam", "Down")
-			set(character, "UpdraftSlamStart", now)
-			set(character, "SlideJumpSpeed", 0)
-			root.AssemblyLinearVelocity = Vector3.new(0, -slam.slamSpeed, 0)
+			startSlam(character, root, slam, now)
 			return
 		end
 	end
@@ -202,10 +210,12 @@ function Updraft.step(
 	end
 end
 
--- Server: a slam landing the server's own simulation wrote. Enemies within
--- `slamRadius` of the root, in sight of it, take `slamDamage` (no self or
--- team damage), Hindered at G3.
-local function slamLanded(api: Types.ServerApi, player: Player, character: Model)
+-- Server: a slam landed with the root at `center` (the server's own
+-- simulation wrote it, or with Server Authority off the server's view of the
+-- root when the owner's client reported it). Enemies within `slamRadius` of
+-- the root, in sight of it, take `slamDamage` (no self or team damage),
+-- Hindered at G3.
+local function slamLanded(api: Types.ServerApi, player: Player, character: Model, center: Vector3)
 	local _, level = api.slotOf(player, "Updraft")
 	local stats = if level then statsAt(level) else nil
 	if not stats or stats.behaviour ~= "Slam" then
@@ -213,14 +223,7 @@ local function slamLanded(api: Types.ServerApi, player: Player, character: Model
 	end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	local root = character:FindFirstChild("HumanoidRootPart")
-	local center = character:GetAttribute("UpdraftSlamPos")
-	if
-		not humanoid
-		or not Health.isAlive(humanoid)
-		or not root
-		or not root:IsA("BasePart")
-		or typeof(center) ~= "Vector3"
-	then
+	if not humanoid or not Health.isAlive(humanoid) or not root or not root:IsA("BasePart") then
 		return
 	end
 	local params = api.worldParams()
@@ -257,6 +260,10 @@ end
 
 local module: Types.ModModule = {}
 
+-- Server Authority off: follows the flights players report (defined with
+-- module.simReport at the end of this file; started by module.server).
+local followFlights: () -> ()
+
 module.simCast = function(ctx: Types.SimCtx): boolean
 	local root = ctx.root
 	local character = ctx.character
@@ -275,13 +282,39 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 	character:SetAttribute("UpdraftAt", ctx.now)
 	character:SetAttribute("UpdraftLaunch", Vector3.new(up, gravity, ctx.stats.gunDown))
 	character:SetAttribute("Updrafting", true)
-	-- A new launch mid-slam cancels the slam.
+	-- A launch always starts without a slam (a stale one from a lost landing).
 	endSlam(character)
 	return true
 end
 
+-- A fresh press of the Updraft input. While an Updraft with Crash Down is in
+-- the air (Updrafting: from the launch until the landing) the press is the
+-- slam's: it starts the dive, or waits for the arm time, and is never a
+-- second launch, whether or not a charge is left. Outside that window (on
+-- the ground, after a landing, without Crash Down) it returns false and the
+-- press is an ordinary cast.
+module.simPress = function(ctx: Types.SimCtx): boolean
+	local character = ctx.character
+	local slam = ctx.stats
+	if slam.behaviour ~= "Slam" or character:GetAttribute("Updrafting") ~= true then
+		return false
+	end
+	if character:GetAttribute("UpdraftSlam") == nil then
+		local since = ctx.now - number(character, "UpdraftAt", 0)
+		local airborne = ctx.humanoid.FloorMaterial == Enum.Material.Air
+		if airborne and since >= slam.slamArm then
+			startSlam(character, ctx.root, slam, ctx.now)
+		else
+			set(character, "UpdraftSlam", "Queued")
+		end
+	end
+	return true
+end
+
 -- Watches every character's slam landings (the server's simulation writes
--- UpdraftSlamAt; a value seen on the first look is old).
+-- UpdraftSlamAt; a value seen on the first look is old). With Server
+-- Authority off this only ever fires for characters the server simulates;
+-- players' landings come in through module.simReport.
 module.server = function(api: Types.ServerApi)
 	local seen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 	RunService.Heartbeat:Connect(function()
@@ -293,11 +326,142 @@ module.server = function(api: Types.ServerApi)
 			local at = number(character, "UpdraftSlamAt", 0)
 			local last = seen[character]
 			seen[character] = at
-			if last ~= nil and at > last then
-				slamLanded(api, player, character)
+			local center = character:GetAttribute("UpdraftSlamPos")
+			if last ~= nil and at > last and typeof(center) == "Vector3" then
+				slamLanded(api, player, character, center)
 			end
 		end
 	end)
+	followFlights()
+end
+
+-- Server Authority off ----------------------------------------------------------
+-- The owner's client simulates the Updraft, so the server follows a flight
+-- from its reports (Services/ModSim: a "Cast" already cost a charge on the
+-- server's own count). Nothing the client sends is used: every check and the
+-- slam's centre come from the server's view of the character, sampled every
+-- frame while the flight lasts (Config/Mods SIM_REPORT holds the limits).
+type Flight = {
+	character: Model,
+	at: number, -- time() of the launch report
+	from: Vector3, -- the root then
+	peak: number, -- the highest the server has seen the root since
+	slamAt: number?, -- time() of the dive report
+}
+-- By player (strong: a weak table keyed by an Instance can drop a live entry).
+local flights: { [Player]: Flight } = {}
+
+local function flat(v: Vector3): Vector3
+	return Vector3.new(v.X, 0, v.Z)
+end
+
+-- Where the root stands once it's down: the server sees a client-owned
+-- character a little late, so a root still up to `slamFloorReach` above the
+-- floor counts as landed, on that floor. nil: no floor under it (no slam).
+local function landedRoot(
+	api: Types.ServerApi,
+	humanoid: Humanoid,
+	root: BasePart,
+	reach: number
+): Vector3?
+	local stand = humanoid.HipHeight + root.Size.Y * 0.5
+	local hit =
+		workspace:Raycast(root.Position, Vector3.new(0, -(stand + reach), 0), api.worldParams())
+	if not hit then
+		return nil
+	end
+	return Vector3.new(root.Position.X, hit.Position.Y + stand, root.Position.Z)
+end
+
+-- Every frame: how high each flight has been, and no flight outlives its
+-- player or its time.
+followFlights = function()
+	RunService.Heartbeat:Connect(function()
+		local now = time()
+		for player, flight in flights do
+			local root = flight.character:FindFirstChild("HumanoidRootPart")
+			if
+				player.Character ~= flight.character
+				or not root
+				or not root:IsA("BasePart")
+				or now - flight.at > Config.SIM_REPORT.flightLife
+			then
+				flights[player] = nil
+			else
+				flight.peak = math.max(flight.peak, root.Position.Y)
+			end
+		end
+	end)
+	Players.PlayerRemoving:Connect(function(player: Player)
+		flights[player] = nil
+	end)
+end
+
+module.simReport = function(api: Types.ServerApi, report: Types.SimReport): { [string]: any }?
+	local player = report.player
+	local character = report.character
+	local root = report.root
+	local stats = report.stats
+	local now = report.now
+	local tune = Config.SIM_REPORT
+
+	if report.kind == "Cast" then
+		local y = root.Position.Y
+		flights[player] = { character = character, at = now, from = root.Position, peak = y }
+		-- The gun is down for the launch on the server's shot gate too.
+		api.gunDown(player, stats.gunDown, nil)
+		local gravity = gravityOf(player)
+		return {
+			launch = Vector3.new(Updraft.launchSpeed(stats.peak, gravity), gravity, stats.gunDown),
+		}
+	end
+
+	local flight = flights[player]
+	if not flight or flight.character ~= character then
+		flights[player] = nil
+		-- A landing still ends the flight other players are watching.
+		return if report.kind == "Land" then { slam = false } else nil
+	end
+	flight.peak = math.max(flight.peak, root.Position.Y)
+	local since = now - flight.at
+
+	if report.kind == "Slam" then
+		-- Armed (less a little jitter between the two clocks), once per
+		-- flight, and only after the server saw the root actually go up.
+		if
+			stats.behaviour ~= "Slam"
+			or flight.slamAt ~= nil
+			or since < stats.slamArm - tune.armSlack
+			or flight.peak - flight.from.Y < tune.slamMinRise
+		then
+			return nil
+		end
+		flight.slamAt = now
+		return {}
+	elseif report.kind == "Land" then
+		flights[player] = nil
+		local slamAt = flight.slamAt
+		if not slamAt then
+			return { slam = false }
+		end
+		-- The damage: a dive that took some time, landing within what the
+		-- carried speed could cover since the launch and not far below it,
+		-- on a floor, outside a round lock.
+		local reach = math.min(tune.slamMaxTravel, stats.maxCarry * since + tune.slamTravelSlack)
+		if
+			not report.locked
+			and now - slamAt >= tune.slamMinDive
+			and flat(root.Position - flight.from).Magnitude <= reach
+			and flight.from.Y - root.Position.Y <= tune.slamMaxDrop
+		then
+			local center = landedRoot(api, report.humanoid, root, tune.slamFloorReach)
+			if center then
+				slamLanded(api, player, character, center)
+			end
+		end
+		return { slam = true }
+	end
+	return nil
 end
 
 Updraft.module = module

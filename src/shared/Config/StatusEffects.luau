@@ -89,4 +89,20 @@ return table.freeze({
 	-- use either side's timing (the client and server see the change a ping
 	-- apart).
 	GRACE = 0.3,
+	-- HEALING (Heal Orb's heal over time, Stim's Heal Zone ticks): not a
+	-- multiplier effect, a display status. StatusService publishes `attribute`
+	-- (server time it runs until) and `sourceAttribute` (the Mod id of the
+	-- newest source) on the healed character. A zone tick holds it for the
+	-- tick interval plus `slack`, so leaving the zone clears it.
+	healing = {
+		attribute = "HealingUntil",
+		sourceAttribute = "HealingSource",
+		slack = 0.25,
+		label = "HEALING",
+	},
+	-- Recon's scan (the ModFx `Revealed` event, victim only): what the victim
+	-- sees. The tray, the fallback label and the phone status line read it.
+	detected = {
+		label = "DETECTED",
+	},
 })

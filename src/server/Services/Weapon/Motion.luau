@@ -116,6 +116,17 @@ function Motion.takeFocus(player: Player, now: number, ping: number): boolean
 	return focus
 end
 
+-- Server Authority off: the player's client reported a dash or a launch
+-- (Services/ModSim), so the gate above never sees it in the simulation's
+-- attributes. The gun is down for `seconds` from now; `focus`: a dash's
+-- Focus window after that.
+function Motion.gunDown(player: Player, seconds: number, focus: number?)
+	local track = motion[player]
+	if track then
+		DashMod.pushGate(track.dash, os.clock(), seconds, focus)
+	end
+end
+
 -- A new life: no dash left over from the last one.
 function Motion.resetDash(player: Player)
 	local track = motion[player]

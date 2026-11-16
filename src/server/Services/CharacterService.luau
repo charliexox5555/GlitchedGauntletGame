@@ -1,15 +1,18 @@
 --!strict
 -- Prepares every combatant (player characters and test dummies): the standard
--- match body (shared/MatchBody: same parts, scales and slim arms for everyone,
+-- match body (shared/MatchBody: same parts and scales for everyone, drawn as blocks,
 -- vault/01 Design/Match Avatar.md), full health with no natural regen (the
 -- game's own HP, HealthService: nobody truly dies), standard jump, hats that
 -- bullets ignore, hitbox history. In test mode (characters auto-load) a
 -- downed player comes back after RESPAWN_TIME.
 
+local CollectionService = game:GetService("CollectionService")
+local PhysicsService = game:GetService("PhysicsService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local Collision = require(ReplicatedStorage.Shared.Config.Collision)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Health = require(ReplicatedStorage.Shared.Health)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
@@ -98,10 +101,14 @@ local function applyStandard(player: Player, character: Model)
 	end
 end
 
+-- An accessory on a combatant: the rule in Config/Avatar decides whether it
+-- stays (size, type, no layered clothing) and strips its effects
+-- (MatchBody.filterAccessory); one that stays is never part of a hit.
 local function ignoreAccessory(accessory: Instance)
-	if accessory:IsA("Accessory") then
+	if accessory:IsA("Accessory") and MatchBody.filterAccessory(accessory) then
 		for _, d in accessory:GetDescendants() do
 			if d:IsA("BasePart") then
+				d.CanCollide = false
 				d.CanQuery = false
 				d.CanTouch = false
 			end
@@ -109,8 +116,58 @@ local function ignoreAccessory(accessory: Instance)
 	end
 end
 
+-- Registers the Bodies group once (idempotent): no collision with itself,
+-- collision with Default kept so walls, floors and raycasts still work.
+local function registerCollision()
+	local ok, err = pcall(function()
+		if not PhysicsService:IsCollisionGroupRegistered(Collision.BODIES) then
+			PhysicsService:RegisterCollisionGroup(Collision.BODIES)
+		end
+		PhysicsService:CollisionGroupSetCollidable(Collision.BODIES, Collision.BODIES, false)
+		PhysicsService:CollisionGroupSetCollidable(Collision.BODIES, Collision.DEFAULT, true)
+	end)
+	if not ok then
+		warn("[CharacterService] couldn't set up the Bodies collision group:", err)
+	end
+end
+
+local function setBodyGroup(part: Instance)
+	if part:IsA("BasePart") and part.CollisionGroup ~= Collision.BODIES then
+		part.CollisionGroup = Collision.BODIES
+	end
+end
+
+-- Characters already tracked, and their connections (dropped with the model).
+local bodyTracked: { [Model]: RBXScriptConnection } = {}
+
+-- Puts a combatant in the Bodies group: every part now and every part added
+-- later (accessories, a rebuilt body, held props, respawned limbs).
+-- Idempotent; the connection goes when the model leaves the world.
+local function trackBody(model: Model)
+	if bodyTracked[model] then
+		return
+	end
+	for _, d in model:GetDescendants() do
+		setBodyGroup(d)
+	end
+	local added = model.DescendantAdded:Connect(setBodyGroup)
+	bodyTracked[model] = added
+	local ancestry: RBXScriptConnection? = nil
+	ancestry = model.AncestryChanged:Connect(function(_, parent)
+		if parent == nil then
+			added:Disconnect()
+			bodyTracked[model] = nil
+			if ancestry then
+				ancestry:Disconnect()
+			end
+		end
+	end)
+end
+CharacterService.trackBody = trackBody
+
 -- Shared setup for anything that can be shot.
 function CharacterService.prepare(model: Model)
+	trackBody(model)
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	if not humanoid then
 		return
@@ -128,7 +185,14 @@ function CharacterService.prepare(model: Model)
 	for _, child in model:GetChildren() do
 		ignoreAccessory(child)
 	end
-	model.ChildAdded:Connect(ignoreAccessory)
+	model.ChildAdded:Connect(function(child)
+		-- Deferred: an instance can't be removed while it is still being added.
+		task.defer(function()
+			if child.Parent == model then
+				ignoreAccessory(child)
+			end
+		end)
+	end)
 
 	-- Lost its root (the engine deleted it in the void, or a script did):
 	-- down it, since a Humanoid doesn't die on its own any more.
@@ -168,6 +232,15 @@ function CharacterService.useOurAnimations(character: Model)
 end
 
 local function onCharacter(character: Model)
+	-- Non-solid to other bodies from the first frame (prepare runs later).
+	trackBody(character)
+	-- No name or health tags over players (owner, 2026-11-08); bots and
+	-- dummies already hide theirs.
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+		or character:WaitForChild("Humanoid", 5)
+	if humanoid and humanoid:IsA("Humanoid") then
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+	end
 	-- The Health script and accessories arrive with the character; wait a frame.
 	task.defer(function()
 		if character.Parent then
@@ -181,7 +254,7 @@ local function onCharacter(character: Model)
 					return
 				end
 			end
-			MatchBody.slimArms(character)
+			MatchBody.dress(character)
 			CharacterService.prepare(character)
 			character:WaitForChild("Animate", 5)
 			CharacterService.useOurAnimations(character)
@@ -199,6 +272,17 @@ end
 
 function CharacterService.init()
 	Players.RespawnTime = Combat.RESPAWN_TIME
+	registerCollision()
+	-- Skinned limb meshes live in Workspace.GGBodyLimbs, outside the character.
+	local function onLimb(limb: Instance)
+		setBodyGroup(limb)
+	end
+	for _, limb in CollectionService:GetTagged(Avatar.LIMB_TAG) do
+		onLimb(limb)
+	end
+	CollectionService:GetInstanceAddedSignal(Avatar.LIMB_TAG):Connect(onLimb)
+	-- The body blocks' meshes, ahead of the first spawn.
+	task.spawn(MatchBody.preload)
 	HealthService.onDowned(function(humanoid)
 		local character = humanoid.Parent
 		local player = character and Players:GetPlayerFromCharacter(character)

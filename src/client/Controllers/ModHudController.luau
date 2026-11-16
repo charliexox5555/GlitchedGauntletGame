@@ -15,6 +15,7 @@ local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
+local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
@@ -25,6 +26,7 @@ local StatusTray = require(script.Parent.Parent.Util.StatusTray)
 -- The status line's colours: Hinder (Frost's ice), Stimmed (electric yellow).
 local ICE = Color3.fromHex("BFE8FF")
 local ELECTRIC = Color3.fromHex("FFD23F")
+local HEAL = Color3.fromHex("3FE0F2") -- same cyan as the tray's buffs
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
@@ -784,17 +786,26 @@ local function update(dt: number)
 		local hindered = FrostFx.hinderedLeft()
 		local stimmed = StimFx.stimmedLeft()
 		local stimWord = if StimFx.strong() then "STRONG STIM" else "STIMMED"
-		status.Visible = hindered > 0 or stimmed > 0
-		if hindered > 0 and stimmed > 0 then
-			status.Text = string.format("HINDERED  %.1f  ·  %s  %.1f", hindered, stimWord, stimmed)
-			status.TextColor3 = ICE
-		elseif hindered > 0 then
-			status.Text = string.format("HINDERED  %.1f", hindered)
-			status.TextColor3 = ICE
-		elseif stimmed > 0 then
-			status.Text = string.format("%s  %.1f", stimWord, stimmed)
-			status.TextColor3 = ELECTRIC
+		-- HEALING: the server's HealingUntil on your character (Heal Orb or Heal Zone).
+		local healUntil = if player.Character
+			then player.Character:GetAttribute(StatusEffects.healing.attribute)
+			else nil
+		local healing = if typeof(healUntil) == "number"
+			then math.max(healUntil - workspace:GetServerTimeNow(), 0)
+			else 0
+		status.Visible = hindered > 0 or stimmed > 0 or healing > 0
+		local parts: { string } = {}
+		if hindered > 0 then
+			table.insert(parts, string.format("HINDERED  %.1f", hindered))
 		end
+		if stimmed > 0 then
+			table.insert(parts, string.format("%s  %.1f", stimWord, stimmed))
+		end
+		if healing > 0 then
+			table.insert(parts, string.format("%s  %.1f", StatusEffects.healing.label, healing))
+		end
+		status.Text = table.concat(parts, "  \u{B7}  ")
+		status.TextColor3 = if hindered > 0 then ICE elseif stimmed > 0 then ELECTRIC else HEAL
 	end
 
 	local h = hint

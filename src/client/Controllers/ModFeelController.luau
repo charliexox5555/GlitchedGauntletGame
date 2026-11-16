@@ -6,13 +6,12 @@
 --   UpdraftAt / Updrafting (Updraft) and RecallAt (Recall) attributes
 --   replicate, so a new value here means that player just cast: play its 3D
 --   sound there (and, for others' Dash and Updraft, Util/WindFx).
---   Your screen: Dash wind streaks and blur, the Updraft's rising-wind edge
---   while you go up, a violet flash as your Recall lands, and the enemy-only
---   warnings (revealed by a Recon dart).
+--   Your screen: the wind strokes of your Dash and your Updraft
+--   (Util/WindStrokes), a violet flash as your Recall lands, and the
+--   enemy-only warnings (revealed by a Recon dart).
 --
 -- All overlays are built once and reused.
 
-local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -21,9 +20,10 @@ local Workspace = game:GetService("Workspace")
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local DashMod = require(ReplicatedStorage.Shared.Mods.Dash)
 local Net = require(ReplicatedStorage.Shared.Net)
-local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
+local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 
 local WindFx = require(script.Parent.Parent.Util.WindFx)
+local WindStrokes = require(script.Parent.Parent.Util.WindStrokes)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local ModProps = require(script.Parent.Parent.Util.ModProps)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
@@ -46,29 +46,12 @@ local seen: { [Model]: Seen } = setmetatable({}, { __mode = "k" }) :: any
 -- Held Mod items in other players' hands, already tinted for this viewer.
 local tinted: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
-local SPEED_LINES = 18
 local DASH = Config.DASH_FEEL
 local FLASH_TIME = 0.35
 
--- Dash wind streaks: radial streaks near the edges, weighted toward the
--- way you dash (all round going forward or back), drifting with the wind.
-local lines: { ImageLabel } = {}
-local lineAngles: { number } = {}
-local linesAt = -math.huge
-local linesDir = Vector3.new(0, 0, -1) -- the dash in camera space
-local linesStrength = 1 -- 1 for a dash; lighter for a slide (ModFeelController.streaks)
-local blurWith = true -- the blur pulse goes with the streaks (not for a slide)
-local blur: BlurEffect? = nil
 -- Updraft: our wind loop while rising.
 local windHum: ModAudio.Hum? = nil
 local windUntil = -math.huge
--- Updraft: the rising-wind screen edge (in fast, sliding down the screen
--- as you go up, gone by the peak).
-local updraftEdge: ImageLabel? = nil
-local updraftAt = -math.huge
-local updraftRise = 0.4
-local UPDRAFT_EDGE_IN = 0.06
-local UPDRAFT_EDGE_PEAK = 0.25 -- image transparency at its strongest
 local flash: Frame? = nil
 local revealedTag: TextLabel? = nil
 local revealedAt = -math.huge
@@ -99,32 +82,7 @@ local function build(): ScreenGui
 		ResetOnSpawn = false,
 		DisplayOrder = 3,
 	}, player:WaitForChild("PlayerGui"))
-	-- Dash streaks: the streak texture (head on the left) pointing outward.
-	for i = 1, SPEED_LINES do
-		local angle = (i - 1) / SPEED_LINES * math.pi * 2 + (i % 3) * 0.13
-		lineAngles[i] = angle
-		lines[i] = make("ImageLabel", {
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Size = UDim2.fromOffset(170 + (i % 4) * 45, 14),
-			Rotation = math.deg(angle) + 180,
-			BackgroundTransparency = 1,
-			Image = VFX.DASH_SCREEN_STREAK,
-			ImageTransparency = 1,
-		}, screen)
-	end
-	-- Updraft: wind rising along the sides and the bottom (Blender texture),
-	-- a little larger than the screen so it can slide.
-	updraftEdge = make("ImageLabel", {
-		Name = "UpdraftEdge",
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(1.08, 1.08),
-		BackgroundTransparency = 1,
-		Image = VFX.UPDRAFT_EDGE,
-		ImageColor3 = Color3.fromHex("E6F4FF"),
-		ImageTransparency = 1,
-	}, screen)
-	-- "REVEALED" (placeholder) when an enemy Recon spots you.
+	-- "DETECTED" (placeholder) when an enemy Recon spots you.
 	revealedTag = make("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 90),
@@ -134,7 +92,7 @@ local function build(): ScreenGui
 		TextSize = 26,
 		TextColor3 = TeamColor.ENEMY,
 		TextStrokeTransparency = 0.5,
-		Text = "REVEALED",
+		Text = StatusEffects.detected.label,
 		TextTransparency = 1,
 	}, screen)
 	-- Blast flash.
@@ -210,13 +168,12 @@ local function stepCharacters()
 				if DASH.crackle then
 					ModAudio.play(S.Dash.crackle)
 				end
+				-- Wind strokes on the screen edges, pointing the way we dash.
 				local cam = Workspace.CurrentCamera
-				linesAt = os.clock()
-				linesStrength = 1
-				blurWith = true
-				linesDir = if cam
-					then cam.CFrame:VectorToObjectSpace(dir)
-					else Vector3.new(0, 0, -1)
+				WindStrokes.dash(
+					if cam then cam.CFrame:VectorToObjectSpace(dir) else Vector3.new(0, 0, -1),
+					1
+				)
 			elseif select(3, DashMod.windows(character)) > dash then
 				-- Desync: no wind trail to tell the real one from the decoy
 				-- (UpgradeFx/Dash draws the split).
@@ -256,8 +213,8 @@ local function stepCharacters()
 				ModAudio.stopHum(windHum)
 				windHum = ModAudio.hum(S.Updraft.wind, root)
 				windUntil = os.clock() + rise
-				updraftAt = os.clock()
-				updraftRise = math.clamp(rise, 0.2, 1)
+				-- Wind strokes up the screen edges, gone before the peak.
+				WindStrokes.updraft(math.clamp(rise, 0.2, 1))
 			else
 				ModAudio.play(S.Updraft.world, root.Position)
 				WindFx.updraft(character, root, rise, TeamColor.forOwner(other))
@@ -278,73 +235,21 @@ end
 
 -- Per frame ---------------------------------------------------------------------
 
-local function update(_dt: number)
+local function update(dt: number)
 	local now = os.clock()
 	stepCharacters()
 	WindFx.step()
+	WindStrokes.step(dt)
 	-- Our Updraft wind fades out at the top of the rise.
 	if windHum and now >= windUntil then
 		ModAudio.stopHum(windHum)
 		windHum = nil
 	end
 
-	-- Updraft edge: in fast, then fading out toward the peak while it slides
-	-- down the screen (the world falls away below you).
-	local ue = updraftEdge
-	if ue then
-		local t = now - updraftAt
-		local total = updraftRise + 0.15
-		if t >= total then
-			if ue.ImageTransparency ~= 1 then
-				ue.ImageTransparency = 1
-			end
-		else
-			local strength = if t < UPDRAFT_EDGE_IN
-				then t / UPDRAFT_EDGE_IN
-				else (1 - (t - UPDRAFT_EDGE_IN) / (total - UPDRAFT_EDGE_IN)) ^ 1.5
-			ue.ImageTransparency = 1 - (1 - UPDRAFT_EDGE_PEAK) * strength
-			ue.Position = UDim2.fromScale(0.5, 0.47 + 0.06 * (t / total))
-		end
-	end
-
-	-- Dash streaks: weighted to the dash's side (a sideways dash), all round
-	-- going forward (drifting out) or back (drifting in); then a blur pulse.
-	local k = (now - linesAt) / DASH.streakTime
-	local side, ahead = linesDir.X, -linesDir.Z
-	for i, f in lines do
-		if k >= 1 then
-			if f.ImageTransparency ~= 1 then
-				f.ImageTransparency = 1
-			end
-		else
-			local angle = lineAngles[i]
-			local cx, cy = math.cos(angle), math.sin(angle)
-			local toward = math.max(cx * side, 0) -- this edge is the dash's side
-			local weight = math.clamp(math.abs(ahead) + math.sqrt(toward) * math.abs(side), 0, 1)
-			local drift = 0.06 * k * (if ahead >= 0 then 1 else -1)
-			local r = 0.42 + drift * math.abs(ahead)
-			f.Position = UDim2.fromScale(0.5 + cx * r - side * 0.05 * k, 0.5 + cy * r)
-			f.ImageTransparency = 1
-				- (1 - k) * (1 - k) * (0.85 - (i % 2) * 0.15) * weight * linesStrength
-		end
-	end
-	local b = blur
-	local bk = if blurWith then (now - linesAt) / DASH.blurTime else 1
-	if bk < 1 and not b then
-		b = make("BlurEffect", { Name = "DashBlur", Size = 0 }, Lighting)
-		blur = b
-	end
-	if b then
-		local size = if bk < 1 then DASH.blur * (1 - bk) * (1 - bk) else 0
-		if b.Size ~= size then
-			b.Size = size
-		end
-	end
-
 	local tag = revealedTag
 	if tag then
 		local rk = (now - revealedAt) / REVEALED_TIME
-		-- Desktop: the status tray shows REVEALED as a ring instead.
+		-- Desktop: the status tray shows DETECTED as a ring instead.
 		tag.TextTransparency = if rk >= 1 or StatusTray.active()
 			then 1
 			else math.max(rk * 1.5 - 0.5, 0)
@@ -373,13 +278,10 @@ local function onFx(kind: unknown, data: unknown)
 	end
 end
 
--- The wind streaks on their own (a slide start): `dir` in camera space,
--- `strength` 0..1 of a dash's, no blur pulse.
+-- The Dash's wind strokes on their own (a slide start): `dir` in camera
+-- space, `strength` 0..1 of a dash's (fewer, shorter, fainter strokes).
 function ModFeelController.streaks(dir: Vector3, strength: number)
-	linesAt = os.clock()
-	linesDir = if dir.Magnitude > 1e-3 then dir.Unit else Vector3.new(0, 0, -1)
-	linesStrength = math.clamp(strength, 0, 1)
-	blurWith = false
+	WindStrokes.dash(dir, math.clamp(strength, 0, 1))
 end
 
 function ModFeelController.start()

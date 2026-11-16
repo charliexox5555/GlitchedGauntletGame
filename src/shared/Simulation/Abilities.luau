@@ -196,7 +196,6 @@ function AbilitiesSim.stepCharacter(
 		-- Frozen (StatusStunned, published by the server's StatusService): no casts.
 		if
 			pressed
-			and (charges >= 1 or unlimited)
 			and Health.isAlive(humanoid)
 			and player:GetAttribute("StatusStunned") ~= true
 		then
@@ -209,7 +208,11 @@ function AbilitiesSim.stepCharacter(
 				slot = slot,
 				now = now,
 			}
-			if cast(ctx) then
+			-- A press the Mod uses itself (Updraft's Crash Down) is never a
+			-- cast, so it can't spend a charge, with or without one left.
+			local press = module.simPress
+			local used = press ~= nil and press(ctx)
+			if not used and (charges >= 1 or unlimited) and cast(ctx) then
 				set(character, names.castAt, now)
 				if not unlimited then
 					charges, rechargeAt = Charges.spend(charges, rechargeAt, max, cooldown, now)

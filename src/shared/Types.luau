@@ -21,7 +21,8 @@ export type WeaponClass =
 	| "MachineGun"
 	| "Wildcard"
 	| "Melee"
-export type Penetration = "None" | "ThinWall" | "All"
+-- Config/Combat PENETRATION: how much wall a round gets through (Util/Penetration).
+export type Penetration = "None" | "Light" | "Heavy"
 export type HitZone = "Head" | "Body" | "Legs"
 
 -- Damage falloff in steps (Gunplay.md §3): from `from` studs on, damage is
@@ -127,6 +128,13 @@ export type WeaponConfig = {
 	-- size) from rest: a spent shell vanishes as it's pulled clear of the gun
 	-- and the fresh one appears as it nears the chamber.
 	hideBeyond: { [string]: number }?,
+	-- Rounds the support hand carries in during Reload / ReloadEmpty
+	-- (Util/RoundCarry): `show` "both" (the spent one out, then the fresh one
+	-- in) or "in" (only the fresh one); `follow`: the left hand carries it.
+	-- carryHideAtRest: those parts are hidden outside the reload (a revolver's
+	-- rounds and speedloader).
+	carry: { { joint: string, show: string, follow: boolean? } }?,
+	carryHideAtRest: boolean?,
 	-- After the last round the action stays open (a pistol's slide locked
 	-- back: the first frame of its ReloadEmpty clip) until the reload.
 	lockOnEmpty: boolean?,
@@ -163,6 +171,8 @@ export type WeaponConfig = {
 	viewmodelOffset: Vector3,
 	viewmodelRotation: Vector3?,
 	viewmodelScale: number?, -- default Viewmodel.SCALE
+	hipShift: Vector3?, -- default Viewmodel.HIP_SHIFT (added to viewmodelOffset at the hip)
+	viewmodelKick: number?, -- first-person kick multiplier on each shot (default 1)
 	-- Extra camera-space lift per track slot ("Reload", "Inspect", "Equip"),
 	-- eased in and out: e.g. a bullpup raised and pushed out so its reload reads.
 	trackLift: { [string]: { pos: Vector3, rot: Vector3? } }?,
@@ -206,6 +216,7 @@ export type HitConfirm = {
 	killed: boolean,
 	position: Vector3,
 	blocked: boolean?, -- a damage guard took it all (a Barrier, a Ghost dash)
+	source: string?, -- the Mod id when a Mod dealt it (nil: a gun or the knife); server-set
 }
 
 return nil
