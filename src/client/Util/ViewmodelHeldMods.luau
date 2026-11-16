@@ -262,7 +262,8 @@ function ViewmodelHeldMods.holdItem(h: HeldMods, template: Model?)
 	if not template or not cam then
 		return
 	end
-	h.item = visualCopy(template, "ViewmodelItem", cam, nil)
+	local hold = VM.ITEM_HOLDS[template.Name]
+	h.item = visualCopy(template, "ViewmodelItem", cam, hold and hold.scale)
 end
 
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",
@@ -1044,47 +1045,50 @@ local function bowOffset(h: HeldMods, clock: number, shown: number, tremble: num
 	return cf
 end
 
--- The drawing (left) hand on a bow: comes to the nock when the draw starts
--- and pulls back with it; after the release it follows through, holds and
--- drops away; on a let-down it rides the string forward and drops away.
+-- The drawing hand on a bow (the hand the bow isn't in): out of view at
+-- rest (a block forearm reaching the far string covers the screen), up to
+-- the string as the draw starts, pulling straight back to the cheek with
+-- the nock, riding it forward and dropping on a let-down; after the release
+-- it follows through back toward the ear, holds, and drops away.
 local function stepBowHand(
 	h: HeldMods,
 	a: ViewmodelArms.Arms,
 	root: CFrame,
 	clock: number,
 	nockWorld: Vector3,
-	bowCf: CFrame
+	bowCf: CFrame,
+	side: ViewmodelArms.Side
 )
 	local B = VM.BOW
-	local from = root:PointToWorldSpace(VM.FREE_POSE_FROM)
+	local from = root:PointToWorldSpace(B.handFrom)
 	local point: Vector3
 	local w: number
-	if h.bowCharge then
+	local f = B.follow
+	local t = clock - h.bowReleaseAt
+	if not h.bowCharge and t >= 0 and t < f.out + f.hold + f.back then
+		local strength = B.kick.tap + (1 - B.kick.tap) * h.bowReleaseDraw
+		local k = Ease.out(math.clamp(t / f.out, 0, 1))
+		w = 1 - Ease.smooth(math.clamp((t - f.out - f.hold) / f.back, 0, 1))
+		point = from:Lerp(root:PointToWorldSpace(h.bowHand + f.offset * (k * strength)), w)
+	elseif h.bowCharge then
 		local u = math.clamp((clock - h.bowDrawAt) / B.nockTime, 0, 1)
 		w = 1 - (1 - u) ^ 3
 		point = from:Lerp(nockWorld + bowCf:VectorToWorldSpace(B.hand), w)
 		h.bowHand = root:PointToObjectSpace(point)
 	else
-		local f = B.follow
-		local t = clock - h.bowReleaseAt
 		local l = clock - h.bowLetAt
-		if t >= 0 and t < f.out + f.hold + f.back then
-			local strength = B.kick.tap + (1 - B.kick.tap) * h.bowReleaseDraw
-			local k = Ease.out(math.clamp(t / f.out, 0, 1))
-			w = 1 - Ease.smooth(math.clamp((t - f.out - f.hold) / f.back, 0, 1))
-			point = from:Lerp(root:PointToWorldSpace(h.bowHand + f.offset * (k * strength)), w)
-		elseif l >= 0 and l < B.letDown * 1.6 then
-			w = 1 - Ease.smooth(math.clamp((l - B.letDown * 0.5) / B.letDown, 0, 1))
-			point = from:Lerp(nockWorld + bowCf:VectorToWorldSpace(B.hand), w)
-		else
+		if l < 0 or l >= B.letDown * 1.6 then
 			return
 		end
+		w = 1 - Ease.smooth(math.clamp((l - B.letDown * 0.5) / B.letDown, 0, 1))
+		point = from:Lerp(nockWorld + bowCf:VectorToWorldSpace(B.hand), w)
 	end
 	if w <= 1e-3 then
 		return
 	end
+	-- The drawing elbow comes up level as the draw goes back.
 	local toward = point + root:VectorToWorldSpace(B.handDir)
-	ViewmodelArms.place(a, "Left", point, toward, root.RightVector)
+	ViewmodelArms.place(a, side, point, toward, root.RightVector)
 end
 
 -- A held Mod's item, in the right hand: raise (overshoots a little),
@@ -1144,7 +1148,8 @@ function ViewmodelHeldMods.stepItem(
 		end
 		useCf *= bowOffset(h, clock, shown, tremble)
 	end
-	local pos = ((hold and hold.offset) or VM.ITEM_OFFSET) + VM.ITEM_FROM * (1 - h.raiseX)
+	local pos = ((hold and hold.offset) or VM.ITEM_OFFSET)
+		+ ((hold and hold.from) or VM.ITEM_FROM) * (1 - h.raiseX)
 	local grip = root * CFrame.new(pos) * useCf * idleCf
 	local itemCf = grip * angles((hold and hold.rotation) or VM.ITEM_ROTATION)
 	-- Where the item sits from the grip: the builder's HoldOffset, plus the
@@ -1161,10 +1166,12 @@ function ViewmodelHeldMods.stepItem(
 	if a and lowerT > 0.05 then
 		local hand = grip.Position
 		local arm = ((hold and hold.arm) or VM.ITEM_ARM) + useArm
-		ViewmodelArms.place(a, "Right", hand, hand + root:VectorToWorldSpace(arm), root.RightVector)
+		local side: ViewmodelArms.Side = (hold and hold.side) or "Right"
+		ViewmodelArms.place(a, side, hand, hand + root:VectorToWorldSpace(arm), root.RightVector)
 		if nock then
 			local base = model:GetPivot()
-			stepBowHand(h, a, root, clock, base:PointToWorldSpace(nock), base)
+			local other: ViewmodelArms.Side = if side == "Left" then "Right" else "Left"
+			stepBowHand(h, a, root, clock, base:PointToWorldSpace(nock), base, other)
 		end
 	end
 end

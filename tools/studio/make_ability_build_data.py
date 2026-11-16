@@ -45,6 +45,12 @@ DOUBLE_SIDED |= {
 	"FX_Ring", "FX_FloorStar", "Heal_Leaf", "Heal_Crown", "Stim_Chevron", "Tele_Fold", "Tele_Ring", "Scan_Shell", "Shield_Plate",
 }
 
+# Meshes the FBX importer brings in turned 180° about their own Y (front and
+# back swapped inside their box), found by eye in Studio. The Recon limbs
+# (2026-11-16): they curved toward the arrowhead with the string and tip caps
+# floating behind them ("looks backwards, the string is not attached").
+MESH_TURN_Y = {"Recon/LimbTop": 180, "Recon/LimbBottom": 180}
+
 
 def main(only=None):
 	os.makedirs(OUT, exist_ok=True)
@@ -64,6 +70,8 @@ def main(only=None):
 			if p["name"] in DOUBLE_SIDED:
 				q["doubleSided"] = True
 			key = mod + "/" + p["name"]
+			if key in MESH_TURN_Y:
+				q["turnY"] = MESH_TURN_Y[key]
 			if key in decals:
 				q["decal"] = decals[key]
 			parts.append(q)

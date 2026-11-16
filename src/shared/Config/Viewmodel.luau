@@ -65,7 +65,19 @@ export type ItemAction = { length: number, hideAt: number?, smooth: boolean?, ke
 -- ITEM_OFFSET / ITEM_ROTATION / ITEM_ARM (ITEM_HOLDS, by the model's name).
 -- `lift` moves the item from the grip (on top of the model's HoldOffset
 -- attribute), so the fist doesn't cover it.
-export type ItemHold = { offset: Vector3?, rotation: Vector3?, arm: Vector3?, lift: Vector3? }
+-- `side`: the hand that holds it (default Right; the bow is Left, drawn with
+-- the Right); `from`: where it rises from (default ITEM_FROM); `scale`: the
+-- viewmodel copy's size (pushing a held item back keeps the block arms from
+-- filling the screen; the scale keeps it big).
+export type ItemHold = {
+	offset: Vector3?,
+	rotation: Vector3?,
+	arm: Vector3?,
+	lift: Vector3?,
+	side: ("Left" | "Right")?,
+	from: Vector3?,
+	scale: number?,
+}
 
 -- One moving part of the held item (ITEM_PART_MOVES; Util/ViewmodelHeldMods
 -- moveItemPart). The part named `part` (or its `part`_<Material> pieces)
@@ -1126,16 +1138,35 @@ return table.freeze({
 			arm = Vector3.new(0.3, -0.42, 0.85),
 			lift = Vector3.new(0, 0.1, 0),
 		},
-		-- Recon bow (2026-11-16): upright, the top canted out to the right
-		-- (roll), turned so the rear and left flank of the riser (read-outs,
-		-- nocked bolt) face the camera, the lower limb clear of the forearm.
+		-- Recon bow (rebuilt 2026-11-16, owner: "should look like a good two
+		-- hand first person draw back"): a right-handed archer. The bow in the
+		-- LEFT hand left of centre, upright with the top canted 12° right, the
+		-- bolt running straight down the view at the crosshair; the right hand
+		-- on the string from the raise and drawing it straight back toward the
+		-- cheek (BOW.hand*). Was: right hand, turned 58° across the view, so
+		-- the bolt pointed sideways and the draw read as a short side tug.
 		Recon = {
-			-- Turned well across the view so the draw reads sideways (to the
-			-- right), as in the full-draw render, not into the camera.
-			offset = Vector3.new(0.66, -0.46, -2.3),
-			rotation = Vector3.new(8, 58, -30),
-			arm = Vector3.new(0.5, -0.78, 0.35), -- up from below right, off the lower limb
-			lift = Vector3.new(0, 0.12, 0),
+			-- Rebuilt 2026-11-16 (owner: "a good two hand first person draw
+			-- back"). A right-handed archer: the bow in the LEFT hand, drawn
+			-- with the right. Geometry that decides it: the bow, string and
+			-- bolt lie in one plane, and you only see the bow's face when the
+			-- camera is off that plane. With the bolt running straight down the
+			-- view the face only shows at ~10° (a stick), so the bolt crosses
+			-- the view at 25° (yaw +25: nock low right, head just left of the
+			-- crosshair) and the top cants RIGHT 42°: the face shows at ~22°,
+			-- like the full-draw render, and the draw comes back to the right
+			-- cheek. Canted left, or yawed with the nock left, the bow was a
+			-- stick or pointed away from the crosshair ("looks backwards").
+			-- With block arms, forearms go DOWN out of frame (pointed back at
+			-- the camera they fill it). 1.35 scale, 2.45 out: the hands stay
+			-- >= 1.3 from the camera at full draw.
+			scale = 1.35,
+			offset = Vector3.new(-0.26, -0.62, -2.4), -- the riser just below left of the crosshair
+			rotation = Vector3.new(2, 25, -42),
+			arm = Vector3.new(0.14, -0.92, 0.36), -- down, a little right: the lower limb (down left) stays clear of it
+			lift = Vector3.zero,
+			side = "Left",
+			from = Vector3.new(-0.5, -1.3, 0.3),
 		},
 	} :: { [string]: ItemHold }),
 	-- A drawn bow (Util/ViewmodelHeldMods bow rig: any held item with the
@@ -1147,10 +1178,10 @@ return table.freeze({
 		limbs = { Top = { "LimbTop", "TipCapTop" }, Bottom = { "LimbBottom", "TipCapBottom" } },
 		bolt = "Dart", -- the nocked bolt: parts Dart / Dart_*, slide with the nock
 		chargePart = "Charge_Energy",
-		flex = 12, -- each limb at full draw, toward the string
+		flex = 16, -- each limb at full draw, toward the string (26 opened gaps at the pockets)
 		-- Draw from the charge: 1 - (1 - charge)^drawEase (fast, easing into full).
 		drawEase = 2.6,
-		nockTime = 0.11, -- the free hand reaching the string (the string waits for it)
+		nockTime = 0.14, -- the drawing hand coming up to the string (the string waits for it)
 		-- The bow pushes out a little as it's drawn (the bow arm extends).
 		drawPush = { pos = Vector3.new(-0.02, 0.015, -0.06), rot = Vector3.new(-2, 2, 1) },
 		-- Held at full draw: a small tremble (from `from` charge up).
@@ -1171,11 +1202,12 @@ return table.freeze({
 		},
 		-- The drawing hand: the fist from the nock (bow space), the arm's
 		-- direction from the fist, and where it comes up from.
-		hand = Vector3.new(0, -0.04, 0.06),
-		handDir = Vector3.new(0.8, -0.35, 0.45),
+		hand = Vector3.new(0.06, -0.07, 0.07),
+		handDir = Vector3.new(0.35, -0.85, 0.4), -- the drawing forearm down and back, out of the bottom right
+		handFrom = Vector3.new(0.75, -1.5, -0.5), -- where the drawing hand comes up from / drops to
 		-- After the release it follows through (back and out, root space), holds,
 		-- then drops away.
-		follow = { offset = Vector3.new(0.05, 0.03, 0.2), out = 0.07, hold = 0.05, back = 0.24 },
+		follow = { offset = Vector3.new(0.14, 0.05, 0.3), out = 0.07, hold = 0.08, back = 0.24 },
 		letDown = 0.16, -- a cancelled draw easing back to rest
 		-- Charge_Energy: transparency from `dim` to 0 with the charge, its
 		-- colour from `dimColour` toward its own; a flash at full.

@@ -37,6 +37,7 @@ type PartData = {
 	size: { number },
 	doubleSided: boolean?,
 	decal: number?,
+	turnY: number?, -- degrees about the part's own Y: a mesh the FBX brought in mirrored (make_ability_build_data MESH_TURN_Y)
 }
 type Locator = { name: string, matrix: { { number } } }
 type BuildData = {
@@ -187,7 +188,7 @@ function Builder.build(id: string, axes: string?): Model
 		end
 		local part = src:Clone()
 		part:ClearAllChildren()
-		part.CFrame = CFrame.new(gv(p.center)) * rot
+		part.CFrame = CFrame.new(gv(p.center)) * rot * CFrame.Angles(0, math.rad(p.turnY or 0), 0)
 		setPhysics(part, placed and not p.energy)
 		if p.look then
 			part.Material = (Enum.Material :: any)[p.look.material]
