@@ -21,6 +21,7 @@ local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local Cards = require(script.Parent.Cards)
 local CloseButton = require(script.Parent.CloseButton)
+local Layout = require(script.Parent.Layout)
 local Pivot = require(script.Parent.Pivot)
 local Plates = require(script.Parent.Plates)
 local Router = require(script.Parent.Router)
@@ -135,6 +136,11 @@ export type PageSpec = {
 	close: GuiButton?, -- the drawn-X close
 	onOpen: ((arg: any?) -> ())?,
 	onClose: (() -> ())?,
+	-- Phones (Util/Layout family "phone"): the whole 1920 x 1080 canvas would
+	-- draw at ~0.35 (4-9 px words, 30 px buttons), so a phone shows only
+	-- `region` of the canvas (design px, min / max corners), zoomed to fill
+	-- the screen; `arrange` moves the page's pieces into that region once.
+	phone: { region: Rect, arrange: (() -> ())? }?,
 }
 
 export type Page = { isOpen: () -> boolean, refit: () -> () }
@@ -155,10 +161,25 @@ function LobbyKit.page(spec: PageSpec): Page
 	local token = 0
 	local washT = if spec.wash then spec.wash.BackgroundTransparency else 1
 
+	local phone = if Layout.isPhone() then spec.phone else nil
+	if phone and phone.arrange then
+		phone.arrange()
+	end
 	local function target(): number
 		local size = spec.gui.AbsoluteSize
 		if size.X <= 0 or size.Y <= 0 then
 			return 1
+		end
+		if phone then
+			local r = phone.region
+			local w, h = r.Max.X - r.Min.X, r.Max.Y - r.Min.Y
+			local k = math.min(size.X / w, size.Y / h)
+			-- the region's centre on the screen's centre (the canvas is
+			-- centre-anchored: offsets are in screen px)
+			local cx, cy = (r.Min.X + r.Max.X) / 2, (r.Min.Y + r.Max.Y) / 2
+			spec.canvas.Position =
+				UDim2.new(0.5, (spec.design.X / 2 - cx) * k, 0.5, (spec.design.Y / 2 - cy) * k)
+			return k
 		end
 		return math.min(size.X / spec.design.X, size.Y / spec.design.Y)
 	end

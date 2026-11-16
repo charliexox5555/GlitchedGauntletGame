@@ -529,6 +529,17 @@ function SettingsController.init()
 		focus = function()
 			return list:FindFirstChildWhichIsA("GuiButton", true)
 		end,
+		-- phones: the title, tabs and list fill the screen (about 0.78 zoom on
+		-- a 812 x 375 phone: 20 px words, 70 px rows); INSPECT steps aside
+		phone = {
+			region = Rect.new(130, 20, 1090, 500),
+			arrange = function()
+				inspect.Visible = false
+				local close = child(canvas, "Close") :: GuiObject
+				close.Position = UDim2.fromOffset(1040, 76)
+				list.Size = UDim2.fromOffset(940, 270)
+			end,
+		},
 		onOpen = function(arg: any?)
 			if arg == "crosshair" then
 				pick(2)

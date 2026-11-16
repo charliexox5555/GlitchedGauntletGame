@@ -175,6 +175,28 @@ function ProfileController.init()
 		focus = function()
 			return action
 		end,
+		-- phones: a shorter card (the match stats wait for the profile system
+		-- anyway), about 0.63 zoom on a 812 x 375 phone; the button grows to
+		-- stay a 44 px+ target
+		phone = {
+			region = Rect.new(450, 190, 1470, 790),
+			arrange = function()
+				local stats = child(card, "Stats") :: GuiObject
+				local note = child(card, "StatsNote") :: GuiObject
+				stats.Visible = false
+				note.Visible = false
+				local skinsTitle = child(card, "SkinsTitle") :: GuiObject
+				local skins = child(card, "Skins") :: GuiObject
+				skinsTitle.Position = UDim2.fromOffset(56, 262)
+				skins.Position = UDim2.fromOffset(56, 302)
+				action.Position = UDim2.fromOffset(490, 476)
+				action.Size = UDim2.fromOffset(420, 78)
+				card.Size = UDim2.fromOffset(980, 560)
+				card.Position = UDim2.fromOffset(960, 490)
+				local close = child(canvas, "Close") :: GuiObject
+				close.Position = UDim2.fromOffset(1420, 250)
+			end,
+		},
 		onOpen = function(arg: any?)
 			local p = if typeof(arg) == "Instance" and arg:IsA("Player") then arg else player
 			fill(p)

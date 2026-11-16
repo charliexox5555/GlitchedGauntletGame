@@ -78,7 +78,7 @@ function RewardsController.init()
 	local gui = g
 	gui.Enabled = false
 	local canvas = child(gui, "Canvas") :: Frame
-	local list = child(canvas, "List") :: Frame
+	local list = child(canvas, "List") :: ScrollingFrame
 	local first: GuiButton? = nil
 	for i, r in RewardsCatalog do
 		local row = LobbyKit.slot(tpl, list, function(f: Frame)
@@ -120,6 +120,23 @@ function RewardsController.init()
 		focus = function()
 			return first
 		end,
+		-- phones: the title and a scrolling list fill the screen (about 0.65
+		-- zoom on a 812 x 375 phone); GO grows to stay a 44 px+ target
+		phone = {
+			region = Rect.new(420, 40, 1500, 620),
+			arrange = function()
+				local close = child(canvas, "Close") :: GuiObject
+				close.Position = UDim2.fromOffset(1450, 96)
+				list.Size = UDim2.fromOffset(1040, 380)
+				local note = child(canvas, "Note") :: GuiObject
+				note.Position = UDim2.fromOffset(460, 586)
+				for _, d in list:GetDescendants() do
+					if d:IsA("TextButton") and d.Name == "Go" then
+						d.Size = UDim2.fromOffset(200, 72)
+					end
+				end
+			end,
+		},
 	})
 	-- the top bar's gift button opens it
 	local topbar = player.PlayerGui:WaitForChild("LobbyTopbar", 15)

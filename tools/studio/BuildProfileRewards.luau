@@ -363,15 +363,26 @@ text(rc, "Sub", "FREE COINS FOR HELPING THE GAME GROW", 22, CYAN, {
 	Size = UDim2.fromOffset(1000, 28),
 	TextXAlignment = Enum.TextXAlignment.Left,
 })
-local rlist = make("Frame", {
+local rlist = make("ScrollingFrame", {
 	Name = "List",
 	Position = UDim2.fromOffset(440, 190),
 	Size = UDim2.fromOffset(1040, 760),
 	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 0, -- no visible bar (owner, 2026-11-16)
+	ScrollBarImageTransparency = 1,
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(),
+	ScrollingDirection = Enum.ScrollingDirection.Y,
 	ZIndex = 2,
 }, rc)
 make("UIListLayout", { Padding = UDim.new(0, 16), SortOrder = Enum.SortOrder.LayoutOrder }, rlist)
-make("UIPadding", { PaddingLeft = UDim.new(0, 20), PaddingRight = UDim.new(0, 20) }, rlist)
+make("UIPadding", {
+	PaddingLeft = UDim.new(0, 20),
+	PaddingRight = UDim.new(0, 20),
+	PaddingTop = UDim.new(0, 4),
+	PaddingBottom = UDim.new(0, 8),
+}, rlist)
 text(
 	rc,
 	"Note",
