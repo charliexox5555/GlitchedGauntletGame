@@ -84,6 +84,7 @@ class Locker:
 		V.board(KD, Mw @ V.T(24, 6.2, 0), 22.0, 9.4, "locker", "LOADOUT", name="Board_Loadout", accent="E_Violet")
 		V.sign(KD, Mw @ V.T(24, 18.6, 0), "LOADOUT", 22.0, 5.2, accent="E_Violet", name="Sign_Loadout")
 		console(K, KD, cls.X0 + 17.5, 0.0, 90, "E_Violet", A, "LobbyLocker", "LockerConsole")
+		V.prop_group(K, V.wframe((cls.X1, cls.Y1), (0, -1)) @ V.RX(-90), [("case", 9.0, -2.0, 0.0, 0), ("case", 9.2, -2.0, 0.92, -4), ("crate_s", 9.0, -6.2, 0.0, 8)])
 		# centre: the hero gun turning over a lit plinth
 		with C.grp("HeroPlinth", Matrix.Translation((-88.0, 0.0, 0.0))):
 			F, G = S.FK(K, Matrix.Translation((-88.0, 0.0, 0.0))), S.FK(KD, Matrix.Translation((-88.0, 0.0, 0.0)))
@@ -160,6 +161,8 @@ class Shop:
 			G["V_Steel"].prism(V.ccw(V.oct_pts(2.3)), 3.3, 3.5)  # turntable the gun stands on
 			S.gun_row(["Phantom", 2.0, 84.0, -5.0, 4.5, 1.0, 0.0, 1, 14])
 			S.light(I4, 84.0, -5.0, cls.H - 0.6, V.WHITE, 2.2, 30, 40)
+		# hard cases stacked by the Season Pass wall
+		V.prop_group(K, V.wframe((cls.X0, cls.Y1), (1, 0)) @ V.RX(-90), [("case", 44.0, -2.2, 0.0, 2), ("case", 44.2, -2.2, 0.92, -3), ("case", 44.0, -2.2, 1.84, 5)])
 		# a crate group beside the door
 		Mf = Matrix.Translation((cls.X0 + 3.6, cls.Y0 + 6.0, 0.0))
 		V.crate(K, Mf @ Matrix.Rotation(radians(90), 4, "Z"))

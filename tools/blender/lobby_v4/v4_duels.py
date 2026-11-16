@@ -46,7 +46,7 @@ def bay(K, KD, M, mode, idx):
 		FD = S.FK(KD, M)
 		S.u_frame(FD["V_Trim"], hw, h, hw - 1.2, h - 1.2, -1.0, 1.6, ci=2.8)
 		S.u_frame(FD["V_Wall"], hw - 1.2, h - 1.2, hw - 2.2, h - 2.2, -3.0, 0.9, co=2.8, ci=2.5)
-		S.u_frame(FD["V_Low"], hw - 2.2, h - 2.2, hw - 3.2, h - 3.2, -d, 0.3, co=2.5, ci=2.2)
+		S.u_frame(FD["V_Panel"], hw - 2.2, h - 2.2, hw - 3.2, h - 3.2, -d, 0.3, co=2.5, ci=2.2)
 		F["V_Wall"].box(-hw - 2.5, hw + 2.5, h - 2.2, h + 2.0, -d, -1.0)
 		for sx in (-1, 1):
 			F["V_Wall"].box(sx * (hw - 2.2), sx * (hw + 2.5), 0, h - 2.2, -d, -1.0)
@@ -55,8 +55,8 @@ def bay(K, KD, M, mode, idx):
 		F["V_Slab"].box(-hw - 2.5, hw + 2.5, -1.2, -0.02, -d - 3.0, -2.0)
 		FD["V_Floor2"].box(-(hw - 3.2), hw - 3.2, 0, 0.12, -d, 0)
 		# back wall: a lit panel with the queue board
-		FD["V_Panel"].prism(V.ccw(S.cham_rect(-6.6, 6.6, 3.2, 14.4, 1.0)), -d, -d + 0.3)
-		S.screen("queue", mode.upper(), f"0 / {2 * n} QUEUED", M, 0, 9.4, -d + 0.36, 10.8, 5.6)
+		FD["V_Low"].prism(V.ccw(S.cham_rect(-7.2, 7.2, 3.2, 14.4, 0.4)), -d, -d + 0.3)
+		S.screen("queue", mode.upper(), f"0 / {2 * n} QUEUED", M, 0, 9.4, -d + 0.36, 13.2, 6.2)
 		FD["E_White"].box(-6.0, 6.0, 15.0, 15.25, -d + 0.02, -d + 0.6)  # wash strip over the board
 		# team footlights low on the lining sides
 		for sx, glow in ((-1, "E_TeamA"), (1, "E_TeamB")):
@@ -77,6 +77,7 @@ def bay(K, KD, M, mode, idx):
 			for k in range(n):
 				px = cx + (k - (n - 1) / 2) * 1.35
 				P[glow].box(px - 0.45, px + 0.45, 2.4, 3.3, 0.66, 0.72)
+			S.light(Mf, cx, d * 0.5, 2.2, "#FF7A3D" if sx < 0 else "#3A94FF", 1.4, 9)  # the team colour lifts off the plate
 		P["V_Trim"].box(-0.3, 0.3, 1.4, d - 2.0, 0.56, 0.76)  # divider
 		for cx in (-7.0, 7.0):
 			for cy in (1.0, d - 1.6):
@@ -260,12 +261,15 @@ def walls(K, KD):
 		bay(K, KD, frame((X, y), (0, -1)), m, idx)
 	# front wall (the hub side), seen from the hall: local x = -world x
 	Mf = frame((0, Y0), (-1, 0))
+	Mfloor = Mf @ V.RX(-90)
+	with C.grp("Props_Front", Mf):  # one odd group on the side without vents, clear of the corner pier
+		V.prop_group(K, Mfloor, [("crate", 32.8, -3.4, 0.0, 3), ("case", 28.0, -2.0, 0.0, -2), ("case", 28.2, -2.0, 0.92, 4)])
 	with C.grp("FrontDetails", Mf):
 		for sx in (-1, 1):
 			V.plaque(KD, Mf, sx * 18.4, 10.6, 3.6, 2.6, "warning", "WARNING!", ["WHEN LAMPS FLASH", "MATCH STARTS"])
 			V.beacon(KD, Mf, sx * 18.4, 14.2)
 			V.plaque(KD, Mf, sx * 22.8, 10.6, 3.2, 2.2, "caution", "CAUTION", ["KEEP LANE", "CLEAR"])
-			for x in (27.6, 31.2):
+			for x in ((27.6, 31.2) if sx < 0 else ()):
 				V.vent(KD, Mf, sx * x, 2.6, 3.0, 2.2)
 	V.wall_run(K, KD, Mf, -X, X, H, [(-PHW, PHW, 3.0, 25.0)], panel_skip=[(-PHW - 1.0, PHW + 1.0), (15.6, 25.2), (-25.2, -15.6)], dx0=-X + 2.0, dx1=X - 2.0)
 	# piers: three between bays on each side, one at every apse corner

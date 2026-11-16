@@ -128,7 +128,7 @@ def floor(K, KD):
 	ring_sectors(K["V_Trim"], 11.9, 12.55, 0.86, 1.05)
 	K["V_Lane"].prism(V.ccw(V.oct_pts(8.5)), 1.0, 2.0)
 	ring_sectors(K["V_Trim"], 7.9, 8.55, 1.86, 2.05)
-	ring_sectors(KD["E_Gold"], 5.6, 6.0, 2.0, 2.06)
+	ring_sectors(KD["V_GoldPaint"], 5.6, 6.0, 2.0, 2.06)
 	KD["V_Dark"].prism(V.ccw(V.oct_pts(4.6)), 2.0, 2.05)
 	S.add_text(KD["E_Gold"], "GG", 3.2, 0.06, y0=-1.6, z0=2.05, s=0.24)
 	# lanes to the doors: a lighter lane with two gold edge lines
@@ -141,9 +141,9 @@ def floor(K, KD):
 		G = S.FK(KD, Ml)
 		for sx in (-1, 1):
 			G["V_GoldPaint"].box(sx * (hw + 0.1), sx * (hw + 0.5), y0, y1, 0.12, 0.19)
-		V.floor_text(KD, Ml @ Matrix.Translation((0, 36.5, 0)), name, 2.4, z=0.17)
+		V.floor_text(KD, Ml @ Matrix.Translation((0, 34.2, 0)), name, 2.4, z=0.17)
 		if th == 90:
-			for y in (22.0, 27.0, 32.0, 41.5):
+			for y in (21.5, 26.5, 39.5):
 				V.chevron(KD, Ml, 0, y, 4.2, z=0.17)
 
 
@@ -227,7 +227,6 @@ def diagonals(K, KD):
 	Mf = M @ V.RX(-90)
 	for x, z, yaw in ((-10.4, 0.0, 0.0), (-4.9, 0.0, 4.0), (-7.8, 3.32, -7.0)):
 		V.crate(K, Mf @ V.T(x, -3.2, z) @ Matrix.Rotation(radians(yaw), 4, "Z"))
-	V.crate(K, Mf @ V.T(10.4, -2.9, 0) @ Matrix.Rotation(radians(-12), 4, "Z"), w=3.6, d=3.2, h=2.6, name="CrateSmall")
 	# SE: the social niche: two benches, a show stage, the featured board
 	M = V.face_at(315, R)
 	wall(K, KD, M, panel_skip=(-8.5, 8.5))
@@ -237,7 +236,7 @@ def diagonals(K, KD):
 		with C.grp("Bench", M @ V.T(sx * 10.0, 0, 0), inst=True):
 			F = S.FK(K, M @ V.T(sx * 10.0, 0, 0))
 			F["V_Base"].ext_x(V.ccw([(0, 1.2), (0, 3.2), (1.5, 3.0), (1.5, 1.4)]), -2.8, 2.8)
-			F["V_Seat"].ext_x(V.ccw([(1.5, 0.45), (1.5, 3.8), (2.2, 3.9), (2.45, 3.6), (2.45, 0.45)]), -3.0, 3.0)
+			F["V_Panel"].ext_x(V.ccw([(1.5, 0.45), (1.5, 3.8), (2.2, 3.9), (2.45, 3.6), (2.45, 0.45)]), -3.0, 3.0)
 			F["V_Seat"].ext_x(V.ccw([(2.45, 0.4), (2.45, 1.7), (4.8, 1.45), (5.0, 1.0), (5.0, 0.35)]), -3.0, 3.0)
 			F["V_Trim"].ext_x(V.ccw([(2.2, 3.7), (2.45, 3.95), (2.6, 3.95), (2.6, 3.6)]), -3.1, 3.1)
 	S.light(M, 0, 30.0, 6.0, V.WHITE, 1.4, 26, 60)
@@ -255,8 +254,8 @@ def details(K, KD):
 	for th in (45, 135, 225, 315):
 		M = V.face_at(th, R)
 		with C.grp("Vents", M):
-			for x in ((4.6,) if th == 225 else (-4.6, 4.6)):  # none behind the crate stack
-				V.vent(KD, M, x, 2.6, 3.0, 2.2)
+			for x, w_, h_ in (((-0.5, 2.0, 3.0),) if th == 225 else ((-5.2, 4.2, 1.8), (4.6, 2.2, 3.0))):  # none behind the crates or the arcade
+				V.vent(KD, M, x, 2.4, w_, h_, slats=4 if h_ < 2.5 else 6)
 	M = V.face_at(180, R)  # Locker door: plaques on the left strip, a beacon over them
 	with C.grp("Plaques_Locker", M):
 		V.plaque(KD, M, -11.4, 10.6, 3.2, 2.2, "notice", "NOTICE", ["SKINS SAVE", "PER GUN"])
@@ -266,6 +265,13 @@ def details(K, KD):
 		V.plaque(KD, M, -11.8, 10.6, 3.4, 2.6, "warning", "WARNING!", ["RANGE CLOSED", "OPENS SOON"])
 		V.beacon(KD, M, -11.8, 14.0)
 		V.plaque(KD, M, 11.8, 10.6, 3.4, 2.2, "caution", "CAUTION", ["DO NOT", "BLOCK DOOR"])
+
+
+def life(K, KD):
+	for th, gun in ((45, "Vandal"), (135, "Sheriff"), (225, "Operator"), (315, "Spectre")):
+		a = radians(th)
+		V.showcase(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), gun, 1.7, name="Showcase")
+	V.arcade(K, KD, V.face_at(225, R), 10.0, name="Arcade")
 
 
 def build():
@@ -288,6 +294,7 @@ def build():
 	diagonals(K, KD)
 	rig(KD)
 	details(K, KD)
+	life(K, KD)
 	S.light(Matrix.Identity(4), 0, 0, 30.5, V.WHITE, 1.2, 34, 70)  # a soft pool on the dais under the lantern ring
 	return K.done() + KD.done() + KC.done() + KCD.done()
 

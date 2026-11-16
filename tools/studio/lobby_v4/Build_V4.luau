@@ -941,13 +941,13 @@ local LIGHTING_PROPS = {
 M.V4_LIGHTING = {
 	-- round 3 (2026-11-16): RIVALS runs full environment light on mid-grey shells; ours: env diffuse for the form
 	-- gradients, ambient below outdoor (LihFolk: Lighting Technologies and Settings), a neutral grade against sky blue
-	Ambient = Color3.fromRGB(80, 80, 82),
-	OutdoorAmbient = Color3.fromRGB(122, 121, 120),
+	Ambient = Color3.fromRGB(62, 62, 65), -- round 4: lower, so the lamp, sign and pad light carries the rooms
+	OutdoorAmbient = Color3.fromRGB(100, 100, 102),
 	Brightness = 3,
 	ClockTime = 12.3,
 	GeographicLatitude = 4,
 	ExposureCompensation = 0.1,
-	EnvironmentDiffuseScale = 0.6,
+	EnvironmentDiffuseScale = 0.45,
 	EnvironmentSpecularScale = 0.25,
 	ColorShift_Top = Color3.fromRGB(255, 253, 248),
 	ShadowSoftness = 0.6,
@@ -996,7 +996,7 @@ function M.use(which: string): string
 				r:SetAttribute("V3_AtmDensity", atm.Density)
 				r:SetAttribute("V3_AtmOffset", atm.Offset)
 			end
-			atm.Haze, atm.Density, atm.Offset = 0.15, 0.22, 0.1
+			atm.Haze, atm.Density, atm.Offset = 0.6, 0.25, 0.15 -- a light distance fade down the Duels hall
 		end
 		local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
 		if bloom then
@@ -1006,7 +1006,7 @@ function M.use(which: string): string
 					Vector3.new(bloom.Intensity, bloom.Size, bloom.Threshold)
 				)
 			end
-			bloom.Intensity, bloom.Size, bloom.Threshold = 0.55, 18, 1.4
+			bloom.Intensity, bloom.Size, bloom.Threshold = 0.6, 24, 1.4
 		end
 		local grade = cc :: ColorCorrectionEffect
 		grade.Contrast, grade.Saturation, grade.TintColor =

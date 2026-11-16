@@ -57,8 +57,8 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"V_Low": _L("SmoothPlastic", "#383C41", v="SW_Plaster"),
 	"V_Base": _L("SmoothPlastic", "#26292D"),
 	"V_Trim": _L("SmoothPlastic", "#8A8F96"),
-	"V_Ceil": _L("SmoothPlastic", "#33363A", v="SW_Plaster"),
-	"V_Beam": _L("SmoothPlastic", "#41454A", v="SW_Plaster"),
+	"V_Ceil": _L("SmoothPlastic", "#4C5056", v="SW_Plaster"),  # round 4: lighter, the coffers read
+	"V_Beam": _L("SmoothPlastic", "#5A5F66", v="SW_Plaster"),
 	"V_Slab": _L("SmoothPlastic", "#17191B"),
 	"V_Floor": _L("SmoothPlastic", "#4A4E54", v="SW_Floor"),
 	"V_Floor2": _L("SmoothPlastic", "#41454A", v="SW_Floor"),
@@ -80,7 +80,7 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"E_Lime": _L("Neon", "#7CAA1C", glow=True),
 	"E_Panel": _L("Neon", "#6E7378", glow=True),
 	"E_Alarm": _L("Neon", "#B21E30", glow=True),
-	"Glass": _L("Glass", "#E2E4E2", t=0.86, r=0.03),
+	"Glass": _L("SmoothPlastic", "#DDE2E4", t=0.9, r=0.04),
 }
 WHITE = "#F4F1EA"  # lamp light
 
@@ -176,7 +176,7 @@ def sign(K, M, text, w, h, accent="E_Gold", tilt=13.0, lh=None, standoff=1.0, na
 			top_out = standoff + h * sin(D(tilt))
 			F["V_Steel"].ext_x(ccw([(h * 0.15, -0.6), (h * 0.15, standoff + 0.05), (h * 0.85, top_out - 0.1), (h * 0.95, -0.6)]), bx - 0.35, bx + 0.35)
 		if light:
-			S.light(M, 0, h * 0.4, standoff + 5.0, WHITE, 1.1, 16)
+			S.light(M, 0, h * 0.4, standoff + 4.0, GLOW.get(accent, (WHITE,))[0], 1.3, 16)
 
 
 # ---------------------------------------------------------------- fixtures
@@ -258,10 +258,10 @@ def board(K, M, w, h, kind, title, sub="", name="Board", accent="E_Gold"):
 			F["V_Steel"].prism(ccw([(sx * (w / 2 - 0.1), h * 0.25), (sx * (w / 2 + 0.9), h * 0.32), (sx * (w / 2 + 0.9), h * 0.68), (sx * (w / 2 - 0.1), h * 0.75)]), 0, 0.8)
 			for by in (h * 0.4, h * 0.6):
 				F["V_Trim"].box(sx * (w / 2 + 0.5) - 0.13, sx * (w / 2 + 0.5) + 0.13, by - 0.13, by + 0.13, 0.8, 0.92)
-		F["V_Steel"].pipe((w * 0.32, h - 0.3, 0.5), (w * 0.32, h + 2.8, 0.5), 0.18, n=8)  # power feed: out of the case top...
+		F["V_Steel"].pipe((w * 0.32, h - 0.3, 0.5), (w * 0.32, h + 2.8, 0.5), 0.24, n=8)  # power feed: out of the case top...
+		F["V_Trim"].ext_y(ccw(oct_pts(0.36)), h - 0.05, h + 0.35) if False else F["V_Trim"].box(w * 0.32 - 0.36, w * 0.32 + 0.36, h - 0.05, h + 0.3, 0.14, 0.86)  # gland
 		F["V_Dark"].prism(ccw(S.cut_rect(w * 0.32 - 0.5, w * 0.32 + 0.5, h + 2.6, h + 3.6, 0.2, 0.05)), 0.0, 0.9)  # ...into a junction box on the wall
 		S.ring_prism(F["V_Trim"], inset(case, 0.25), inset(case, 0.6), 1.1, 1.3)
-		F[accent].prism(ccw(S.cham_rect(-w / 2 + 1.4, -w / 2 + 3.6, 0.32, 0.62, 0.1)), 1.1, 1.22)  # status bar
 		S.screen(kind, title, sub, M, 0, h / 2, 1.16, w - 1.6, h - 1.6)
 		# hood lamp: a steel wedge over the top edge with a white lens underneath
 		F["V_Steel"].ext_x(ccw([(h + 0.2, 0.2), (h + 0.2, 2.4), (h + 1.0, 2.6), (h + 1.3, 0.2)]), -w * 0.3, w * 0.3)
@@ -572,3 +572,74 @@ def truss_ring(K, center, r, z0, z1, ceiling, n_seg=8, diag=4):
 		m = (hi_in[k] + hi_out[k]) / 2
 		F["V_Steel"].pipe(tuple(m), (m.x, m.y, ceiling + 0.2), 0.1, n=6)
 		F["V_Steel"].box(m.x - 0.45, m.x + 0.45, m.y - 0.45, m.y + 0.45, ceiling - 0.15, ceiling + 0.05)
+
+
+def showcase(K, KD, area, x, y, gun, scale, accent="E_Gold", name="Showcase", spin=14):
+	"""A display stand (our answer to RIVALS' hologram stands, with real objects): a faceted plinth with a kick, an
+	accent ring, a light grey cap, a steel turntable, a real gun turning on it, a down-light. World position x, y."""
+	M = Matrix.Translation((x, y, 0.0))
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		F["V_Base"].prism(ccw(oct_pts(2.9)), 0.0, 0.6)
+		F["V_Wall"].solid([(a, b, 0.6) for a, b in ccw(oct_pts(2.4))], [(a, b, 2.6) for a, b in ccw(oct_pts(2.1))])
+		o, i = oct_pts(2.3), oct_pts(2.05)
+		for k in range(8):
+			j = (k + 1) % 8
+			G[accent].prism(ccw([i[k], i[j], o[j], o[k]]), 1.9, 2.05)
+		G["V_Trim"].prism(ccw(oct_pts(2.3)), 2.6, 2.85)
+		G["V_Steel"].prism(ccw(oct_pts(1.8)), 2.85, 3.0)
+		S.gun_row([gun, scale, x, y, 4.05, 1.0, 0.0, 1, spin])
+		S.light(Matrix.Identity(4), x, y, 12.0, WHITE, 1.6, 16, 40)
+
+
+def arcade(K, KD, M, x, title="TARGET RUN", name="Arcade"):
+	"""A standing game cabinet against a wall (frame M, centred at x): faceted side profile, a set-back screen
+	(SurfaceGui), a marquee with gold letters, a control deck with buttons and a stick, side stripes, a kick plate."""
+	Mx = M @ T(x, 0, 0)
+	prof = ccw([(0.0, 0.9), (0.0, 3.6), (3.0, 3.6), (3.4, 3.1), (3.4, 2.6), (4.0, 2.0), (6.8, 2.0), (6.9, 2.6), (7.8, 2.6), (8.0, 2.2), (8.0, 0.9)])
+	with C.grp(name, Mx):
+		F, G = S.FK(K, Mx), S.FK(KD, Mx)
+		F["V_Wall"].ext_x(prof, -1.45, 1.45)
+		for sx in (-1, 1):
+			G["V_Dark"].ext_x(ccw([(0.05, 0.85), (0.05, 3.7), (3.05, 3.7), (3.5, 3.12), (3.5, 2.55), (4.05, 1.95), (6.75, 1.95), (6.85, 2.65), (7.85, 2.65), (8.05, 2.2), (8.05, 0.85)]), sx * 1.45, sx * 1.62)
+			G["E_Gold"].ext_x(ccw([(0.9, 3.1), (1.2, 3.4), (6.6, 1.25), (6.3, 0.95)]), sx * 1.62, sx * 1.66)  # side stripe
+		G["V_Base"].box(-1.4, 1.4, 0.0, 0.5, 2.8, 3.66)  # kick plate
+		G["V_Dark"].box(-1.3, 1.3, 4.1, 6.7, 1.9, 2.02)  # screen bezel
+		S.screen("notice", title, "HIGH SCORE|00000", Mx, 0, 5.4, 2.06, 2.4, 2.4)
+		G["V_Dark"].box(-1.4, 1.4, 6.95, 7.75, 2.55, 2.66)
+		S.add_text(G["E_Gold"], title, 0.42, 0.06, y0=7.14, z0=2.66, s=0.22, c=0.05, ci=0.02, track=0.14)
+		for k, bx in enumerate((-0.2, 0.35, 0.9)):  # buttons
+			G["E_White" if k == 1 else "E_Gold"].prism(ccw([(bx + 0.18 * cos(radians(22.5 + 45 * q)), 2.4 + 0.18 * sin(radians(22.5 + 45 * q))) for q in range(8)]), 3.6, 3.72) if False else None
+			Mb = Mx @ T(bx, 3.6, 2.3) @ RX(-90)
+			S.FK(KD, Mb)["E_White" if k == 1 else "E_Gold"].prism(ccw(oct_pts(0.17)), 0.0, 0.12)
+		S.FK(KD, Mx @ T(-0.85, 3.6, 2.2) @ RX(-90))["V_Steel"].prism(ccw(oct_pts(0.06)), 0.0, 0.55)  # stick
+		S.FK(KD, Mx @ T(-0.85, 3.6, 2.2) @ RX(-90))["E_Coral"].prism(ccw(oct_pts(0.17)), 0.55, 0.8) if False else S.FK(KD, Mx @ T(-0.85, 3.6, 2.2) @ RX(-90))["V_Dark"].prism(ccw(oct_pts(0.17)), 0.55, 0.8)
+		S.light(Mx, 0, 5.4, 4.0, WHITE, 0.6, 8)
+
+
+
+def hard_case(K, M, w=4.6, d=1.6, h=0.9, name="HardCase"):
+	"""A rugged gun case lying flat: ribbed shell with cut corners, a lid seam, two latches, a handle, corner guards."""
+	with C.grp(name, M, inst=True):
+		F = S.FK(K, M)
+		F["V_Dark"].ext_y(ccw(S.cham_rect(-w / 2, w / 2, 0.0, h, 0.16)), -d / 2, d / 2)
+		F["V_Strap"].ext_y(ccw(S.cham_rect(-w / 2 - 0.03, w / 2 + 0.03, h * 0.48, h * 0.56, 0.02)), -d / 2 - 0.03, d / 2 + 0.03)  # lid seam
+		for lx in (-w * 0.3, w * 0.3):
+			F["V_Trim"].box(lx - 0.18, lx + 0.18, -d / 2 - 0.08, -d / 2 + 0.02, h * 0.3, h * 0.75)  # latches
+		F["V_Steel"].box(-0.45, 0.45, -d / 2 - 0.14, -d / 2 - 0.04, h * 0.42, h * 0.62)  # handle
+		F["V_GoldPaint"].box(-w * 0.12, w * 0.12, -0.3, 0.3, h - 0.01, h + 0.02)  # stencil plate on the lid
+		for cx in (-w / 2 + 0.2, w / 2 - 0.2):
+			F["V_Steel"].box(cx - 0.22, cx + 0.22, -d / 2 - 0.02, d / 2 + 0.02, -0.0, 0.22)  # corner feet
+
+
+def prop_group(K, M, items):
+	"""An odd-numbered group of crates and hard cases against a wall (frame M on the floor, X along the wall,
+	Y away from it). items: [(kind, x, y, z, yaw)]."""
+	for kind, x, y, z, yaw in items:
+		Mi = M @ T(x, y, z) @ Matrix.Rotation(radians(yaw), 4, "Z")
+		if kind == "crate":
+			crate(K, Mi)
+		elif kind == "crate_s":
+			crate(K, Mi, w=3.6, d=3.2, h=2.6, name="CrateSmall")
+		else:
+			hard_case(K, Mi)
