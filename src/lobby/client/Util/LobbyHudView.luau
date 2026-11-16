@@ -41,9 +41,9 @@ local LobbyHudView = {}
 local player = Players.LocalPlayer
 
 local DESIGN = Vector2.new(1920, 1080)
-local NAVY, NAVY_HI = Color3.fromHex("1C2740"), Color3.fromHex("2B3A5A")
+local NAVY, NAVY_HI = Color3.fromHex("27272A"), Color3.fromHex("39393C")
 local ALLY, GOLD = Color3.fromHex("3FE0F2"), Color3.fromHex("FFC83D")
-local RED, WHITE, INK = Color3.fromHex("FF4D5E"), Color3.new(1, 1, 1), Color3.fromHex("141A26")
+local RED, WHITE, INK = Color3.fromHex("FF4D5E"), Color3.new(1, 1, 1), Color3.fromHex("1A1A1D")
 local MAX_ROWS = 8
 local ICON_SIZE, ICON_HOVER, LIFT = 74, 84, 10
 local LIST_AWAY = 440 -- least px the player list slides right when hidden with Tab

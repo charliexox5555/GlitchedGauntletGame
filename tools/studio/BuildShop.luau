@@ -35,12 +35,12 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
-local XB, BOLD = Enum.FontWeight.Regular, Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
-local CARD = hex("0B1236")
+local BX = "rbxassetid://12187365977" -- Rubik (owner pick 2026-11-16, after RIVALS): Heavy headings, Bold words
+local XB, BOLD = Enum.FontWeight.Heavy, Enum.FontWeight.Bold
+local CARD = hex("141417")
 local CARD_T = 0.2
 local ALLY, GOLD, GREEN = hex("3FE0F2"), hex("FFC83D"), hex("3FD45C")
-local MUTED, INK, WHITE = hex("AEB8D6"), hex("141A26"), Color3.new(1, 1, 1)
+local MUTED, INK, WHITE = hex("B8B8BB"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local ROBUX = "rbxasset://textures/ui/common/robux.png"
 local CENTRE = Vector2.new(0.5, 0.5)
@@ -325,7 +325,7 @@ local function card(
 	local shade = make("Frame", {
 		Name = "Shade",
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = hex("060B2A"),
+		BackgroundColor3 = hex("0D0D10"),
 		BorderSizePixel = 0,
 		ZIndex = 3,
 	}, b)
@@ -430,9 +430,9 @@ do
 	make("UIGradient", {
 		Rotation = 35,
 		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, hex("3B1D63")),
-			ColorSequenceKeypoint.new(0.55, hex("161A44")),
-			ColorSequenceKeypoint.new(1, hex("0A1230")),
+			ColorSequenceKeypoint.new(0, hex("2E2E31")),
+			ColorSequenceKeypoint.new(0.55, hex("1E1E21")),
+			ColorSequenceKeypoint.new(1, hex("131316")),
 		}),
 	}, wash)
 
@@ -561,7 +561,7 @@ do
 	}, cases)
 	for i, c in
 		{
-			{ "Standard", "STANDARD", hex("5D6B82"), "400" },
+			{ "Standard", "STANDARD", hex("69696C"), "400" },
 			{ "Elite", "ELITE", hex("6A3FC2"), "900" },
 			{ "Apex", "APEX", hex("C2412F"), "2,000" },
 		}
@@ -1137,7 +1137,7 @@ do
 	make("Frame", {
 		Name = "Dim",
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = hex("05060E"),
+		BackgroundColor3 = hex("07070A"),
 		BackgroundTransparency = 0.35,
 		BorderSizePixel = 0,
 		Active = true,
@@ -1177,7 +1177,7 @@ do
 			AnchorPoint = CENTRE,
 			Position = UDim2.new(1, -46, 0, 46),
 			Size = UDim2.fromOffset(60, 60),
-			BackgroundColor3 = hex("1A2150"),
+			BackgroundColor3 = hex("242427"),
 			BorderSizePixel = 0,
 			Text = "",
 			AutoButtonColor = false,
@@ -1284,7 +1284,7 @@ do
 		AnchorPoint = CENTRE,
 		Position = UDim2.new(0.5, 0, 0, 220),
 		Size = UDim2.fromOffset(260, 130),
-		BackgroundColor3 = hex("5D6B82"),
+		BackgroundColor3 = hex("69696C"),
 		BorderSizePixel = 0,
 		ZIndex = 33,
 	}, casePanel)
@@ -1518,7 +1518,7 @@ do
 	local oddsRow = make("Frame", {
 		Name = "ShopOddsRow",
 		Size = UDim2.new(1, -10, 0, 68),
-		BackgroundColor3 = hex("141B45"),
+		BackgroundColor3 = hex("1E1E21"),
 		BorderSizePixel = 0,
 		ZIndex = 33,
 	}, templates)

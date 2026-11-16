@@ -27,13 +27,13 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
-local XB, BOLD = Enum.FontWeight.Regular, Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
-local CARD = hex("0B1236")
+local BX = "rbxassetid://12187365977" -- Rubik (owner pick 2026-11-16, after RIVALS): Heavy headings, Bold words
+local XB, BOLD = Enum.FontWeight.Heavy, Enum.FontWeight.Bold
+local CARD = hex("141417")
 local CARD_T = 0.15 -- over a blurred world the plates need more body than the Locker's
-local SCRIM = hex("06080C")
+local SCRIM = hex("08080B")
 local ALLY, GREEN, RED = hex("3FE0F2"), hex("3FD68A"), hex("FF4D5E")
-local MUTED, INK, WHITE = hex("AEB8D6"), hex("141A26"), Color3.new(1, 1, 1)
+local MUTED, INK, WHITE = hex("B8B8BB"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local CENTRE = Vector2.new(0.5, 0.5)
 -- mode art (the ChatGPT art the old queue menu used; Controllers/QueueMenu MODE_ART)

@@ -36,12 +36,12 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
-local XB = Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
-local CARD = hex("0B1236") -- dark see-through plate over the blue
+local BX = "rbxassetid://12187365977" -- Rubik (owner pick 2026-11-16, after RIVALS): Heavy headings, Bold words
+local XB = Enum.FontWeight.Heavy
+local CARD = hex("141417") -- dark see-through plate over the blue
 
 local ALLY = hex("3FE0F2")
-local MUTED, INK, WHITE = hex("AEB8D6"), hex("141A26"), Color3.new(1, 1, 1)
+local MUTED, INK, WHITE = hex("B8B8BB"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
 local CENTRE = Vector2.new(0.5, 0.5)
 
@@ -129,8 +129,8 @@ local function slant(body: GuiObject, color: Color3, h: number, capW: number)
 	}, body)
 end
 
-local BOLD = Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
-local SIDE = hex("0A1030") -- the left panel
+local BOLD = Enum.FontWeight.Bold
+local SIDE = hex("121215") -- the left panel
 
 -- behind the gun: the stage colour, a soft shade top and bottom, and a floor
 -- shadow under the gun (the controller draws the gun in a transparent
@@ -146,15 +146,15 @@ local backdrop = make("Frame", {
 make("UIGradient", {
 	Rotation = 35,
 	Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, hex("3B1D63")),
-		ColorSequenceKeypoint.new(0.55, hex("161A44")),
-		ColorSequenceKeypoint.new(1, hex("0A1230")),
+		ColorSequenceKeypoint.new(0, hex("2E2E31")),
+		ColorSequenceKeypoint.new(0.55, hex("1E1E21")),
+		ColorSequenceKeypoint.new(1, hex("131316")),
 	}),
 }, backdrop)
 local shade = make("Frame", {
 	Name = "Shade",
 	Size = UDim2.fromScale(1, 1),
-	BackgroundColor3 = hex("060B2A"),
+	BackgroundColor3 = hex("0D0D10"),
 	BorderSizePixel = 0,
 	ZIndex = 0,
 }, backdrop)
@@ -176,12 +176,25 @@ local backCanvas = make("Frame", {
 	ZIndex = 0,
 }, backdrop)
 make("UIScale", { Name = "Fit" }, backCanvas)
+-- the room's light behind the gun: a soft radial (art-source/ui/plates/
+-- radial_light.png), tinted with the skin line's colour by the controller
+make("ImageLabel", {
+	Name = "Light",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromOffset(1240, 440),
+	Size = UDim2.fromOffset(1500, 1000),
+	BackgroundTransparency = 1,
+	Image = "rbxassetid://111400909546922",
+	ImageColor3 = hex("C8C8D0"),
+	ImageTransparency = 0.84,
+	ZIndex = 0,
+}, backCanvas)
 local floor = make("Frame", {
 	Name = "Floor",
 	AnchorPoint = CENTRE,
 	Position = UDim2.fromOffset(1240, 720),
 	Size = UDim2.fromOffset(520, 44),
-	BackgroundColor3 = hex("060B2A"),
+	BackgroundColor3 = hex("0D0D10"),
 	BackgroundTransparency = 0.62,
 	BorderSizePixel = 0,
 	ZIndex = 0,
@@ -211,7 +224,7 @@ local function chunkyTick(p: Instance, d: number, z: number, anchor: Vector2, po
 	}, p)
 	for i, layer in
 		{
-			{ "Shadow", Color3.fromHex("0B0E1F"), 0.45, math.max(3, d // 22) },
+			{ "Shadow", Color3.fromHex("0F0F12"), 0.45, math.max(3, d // 22) },
 			{ "Face", Color3.fromHex("5BE36C"), 0, 0 },
 		}
 	do

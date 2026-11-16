@@ -28,13 +28,13 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
-local XB, BOLD = Enum.FontWeight.Regular, Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
-local CARD = hex("0B1236")
+local BX = "rbxassetid://12187365977" -- Rubik (owner pick 2026-11-16, after RIVALS): Heavy headings, Bold words
+local XB, BOLD = Enum.FontWeight.Heavy, Enum.FontWeight.Bold
+local CARD = hex("141417")
 local CARD_T = 0.2
 local GOLD, GREEN = hex("FFC83D"), hex("3FD45C")
 local ALLY = hex("3FE0F2")
-local MUTED, INK, WHITE = hex("AEB8D6"), hex("141A26"), Color3.new(1, 1, 1)
+local MUTED, INK, WHITE = hex("B8B8BB"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local PREMIUM_CELL = hex("3A3016") -- a dark gold plate for the premium track
 local CAP_R = "rbxassetid://130377997107460"
 local ROBUX = "rbxasset://textures/ui/common/robux.png"
@@ -111,7 +111,7 @@ local function chunkyTick(p: Instance, d: number, z: number, anchor: Vector2, po
 	}, p)
 	for i, layer in
 		{
-			{ "Shadow", Color3.fromHex("0B0E1F"), 0.45, math.max(3, d // 22) },
+			{ "Shadow", Color3.fromHex("0F0F12"), 0.45, math.max(3, d // 22) },
 			{ "Face", Color3.fromHex("5BE36C"), 0, 0 },
 		}
 	do
@@ -232,9 +232,9 @@ local wash = make("Frame", {
 make("UIGradient", {
 	Rotation = 35,
 	Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, hex("3B1D63")),
-		ColorSequenceKeypoint.new(0.55, hex("161A44")),
-		ColorSequenceKeypoint.new(1, hex("0A1230")),
+		ColorSequenceKeypoint.new(0, hex("2E2E31")),
+		ColorSequenceKeypoint.new(0.55, hex("1E1E21")),
+		ColorSequenceKeypoint.new(1, hex("131316")),
 	}),
 }, wash)
 local canvas = make("Frame", {
@@ -642,7 +642,7 @@ for col = 1, 7 do
 		make("Frame", {
 			Name = "Dim",
 			Size = UDim2.fromScale(1, 1),
-			BackgroundColor3 = hex("05060E"),
+			BackgroundColor3 = hex("07070A"),
 			BackgroundTransparency = 0.45,
 			BorderSizePixel = 0,
 			Visible = false,
@@ -701,7 +701,7 @@ for col = 1, 7 do
 		AnchorPoint = Vector2.new(0, 1),
 		Position = UDim2.fromScale(0, 1),
 		Size = UDim2.new(1, 0, 0, 8),
-		BackgroundColor3 = hex("2A3156"),
+		BackgroundColor3 = hex("333336"),
 		BorderSizePixel = 0,
 		ZIndex = 4,
 	}, num)
@@ -713,7 +713,7 @@ end
 make("Frame", {
 	Name = "Dim",
 	Size = UDim2.fromScale(1, 1),
-	BackgroundColor3 = hex("05060E"),
+	BackgroundColor3 = hex("07070A"),
 	BackgroundTransparency = 0.35,
 	BorderSizePixel = 0,
 	Active = true,
@@ -752,7 +752,7 @@ local oclose = make("TextButton", {
 	AnchorPoint = CENTRE,
 	Position = UDim2.new(1, -46, 0, 46),
 	Size = UDim2.fromOffset(60, 60),
-	BackgroundColor3 = hex("1A2150"),
+	BackgroundColor3 = hex("242427"),
 	BorderSizePixel = 0,
 	Text = "",
 	AutoButtonColor = false,

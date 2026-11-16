@@ -38,8 +38,8 @@ local QUINT = Enum.EasingStyle.Quint
 local IN = Enum.EasingDirection.In
 local ALLY, GOLD, GREEN =
 	Color3.fromHex("3FE0F2"), Color3.fromHex("FFC83D"), Color3.fromHex("3FD68A")
-local MUTED, INK, WHITE = Color3.fromHex("AEB8D6"), Color3.fromHex("141A26"), Color3.new(1, 1, 1)
-local NAVY_HI = Color3.fromHex("2B3A5A")
+local MUTED, INK, WHITE = Color3.fromHex("B8B8BB"), Color3.fromHex("1A1A1D"), Color3.new(1, 1, 1)
+local NAVY_HI = Color3.fromHex("39393C")
 local CARD_T, CARD_HOVER_T = 0.15, 0.02
 local FRIENDS_TTL = 30 -- seconds between friend lookups (Roblox caches 30 s too)
 local STAGGER_MAX = 12 -- cards past this appear together

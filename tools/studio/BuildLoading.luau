@@ -28,7 +28,7 @@ local function hex(h: string): Color3
 	return Color3.fromHex(h)
 end
 
-local FONT = Font.new("rbxasset://fonts/families/FredokaOne.json")
+local FONT = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy) -- Rubik
 local CENTRE = Vector2.new(0.5, 0.5)
 local DOT = 34
 local STEP = 54
@@ -58,9 +58,9 @@ local wash = make("Frame", {
 make("UIGradient", {
 	Rotation = 35,
 	Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, hex("3B1D63")),
-		ColorSequenceKeypoint.new(0.55, hex("161A44")),
-		ColorSequenceKeypoint.new(1, hex("0A1230")),
+		ColorSequenceKeypoint.new(0, hex("2E2E31")),
+		ColorSequenceKeypoint.new(0.55, hex("1E1E21")),
+		ColorSequenceKeypoint.new(1, hex("131316")),
 	}),
 }, wash)
 
@@ -114,7 +114,7 @@ make("TextLabel", {
 	Text = "LOADING MATCH",
 	FontFace = FONT,
 	TextSize = 30,
-	TextColor3 = hex("8FA0C8"),
+	TextColor3 = hex("9F9FA2"),
 	ZIndex = 3,
 }, center)
 local dots = make("Frame", {

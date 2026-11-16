@@ -41,7 +41,7 @@ local gui = make("ScreenGui", {
 make("Frame", {
 	Name = "Scrim",
 	Size = UDim2.fromScale(1, 1),
-	BackgroundColor3 = Color3.fromHex("08060E"),
+	BackgroundColor3 = Color3.fromHex("08080B"),
 	BackgroundTransparency = 0.2,
 	BorderSizePixel = 0,
 	Active = true, -- swallows clicks while it's up
@@ -93,7 +93,7 @@ make("TextLabel", {
 	Size = UDim2.fromOffset(600, 22),
 	BackgroundTransparency = 1,
 	Text = "STUDIO  ·  TELEPORT SKIPPED",
-	FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json"),
+	FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold),
 	TextSize = 15,
 	TextColor3 = Color3.new(1, 1, 1),
 	TextTransparency = 0.5,

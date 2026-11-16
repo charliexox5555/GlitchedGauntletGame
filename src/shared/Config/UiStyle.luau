@@ -232,21 +232,22 @@ Style.MENU = table.freeze({
 -- with our easing: Quint Out, no overshoot (owner rule).
 Style.KIT = table.freeze({
 	color = table.freeze({
-		navy = hex("0B1236"), -- cells and plates at rest
-		navyHi = hex("1A2350"), -- a hovered / own row
-		ink = hex("0B0E1F"), -- dark words on bright plates
+		navy = hex("141417"), -- cells and plates at rest
+		navyHi = hex("252528"), -- a hovered / own row
+		ink = hex("0F0F12"), -- dark words on bright plates
 		white = Color3.new(1, 1, 1),
-		muted = hex("8FA0C8"), -- secondary words, idle tabs
+		muted = hex("9F9FA2"), -- secondary words, idle tabs
 		gold = hex("FFC83D"), -- the one act-now thing; coin prices
 		robux = hex("3FD45C"), -- Robux prices (white words)
 		cyan = hex("3FE0F2"), -- selection, info tags
 		red = hex("FF4D5E"), -- warnings, badges
-		wash = table.freeze({ hex("3B1D63"), hex("161A44"), hex("0A1230") }), -- menu backdrop
+		wash = table.freeze({ hex("2E2E31"), hex("1E1E21"), hex("131316") }), -- menu backdrop
 	}),
 	font = table.freeze({
-		-- the owner's pick from the font board (one weight: never ask for more,
-		-- Roblox fakes it and small words smear)
-		display = Font.new("rbxasset://fonts/families/FredokaOne.json"),
+		-- Rubik (owner pick 2026-11-16, after RIVALS' own UI; a Roblox font):
+		-- Heavy for headings and big numbers, Bold for words
+		display = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy),
+		body = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold),
 	}),
 	motion = table.freeze({
 		beat = 0.25, -- the default tween (RIVALS: 0.25 s)

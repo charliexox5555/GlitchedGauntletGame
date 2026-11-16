@@ -18,6 +18,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
@@ -34,9 +35,9 @@ local LockerController = {}
 
 local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
-local CARD = Color3.fromHex("0B1236")
+local CARD = Color3.fromHex("141417")
 local ALLY = Color3.fromHex("3FE0F2")
-local INK, WHITE = Color3.fromHex("141A26"), Color3.new(1, 1, 1)
+local INK, WHITE = Color3.fromHex("1A1A1D"), Color3.new(1, 1, 1)
 local BACK = Enum.EasingStyle.Back
 
 local CLASSES = {
@@ -69,7 +70,7 @@ local TRAY_SPOT = Vector2.new(960, 380)
 local TRAY_ZOOM = 1.3 -- the skins view pulls back so the gun clears the title
 -- the floor shadow sits this far under the gun's centre (canvas px at zoom 1)
 local FLOOR_DROP = 190
-local MUTED = Color3.fromHex("AEB8D6")
+local MUTED = Color3.fromHex("B8B8BB")
 -- gun icons fill their card's box by height or width, so a pistol drawn in
 -- the full box looks bigger than a rifle: each class gets a share of the width
 local ICON_WIDTH: { [string]: number } = {
@@ -105,6 +106,7 @@ local gunCards: { [string]: GuiButton } = {}
 
 -- stage
 local stageView: ViewportFrame? = nil
+local stageLight: ImageLabel? = nil -- Backdrop.BackCanvas.Light
 local stageCam: Camera? = nil
 local gunOnStand: Model? = nil
 local standPos = Vector3.zero
@@ -238,7 +240,7 @@ local function thumb(parent: GuiObject, model: Model, w: number, h: number, pos:
 	vf.Position = pos
 	vf.Size = UDim2.fromOffset(w, h)
 	vf.BackgroundTransparency = 1
-	vf.Ambient = Color3.fromHex("CDD3DF")
+	vf.Ambient = Color3.fromHex("D3D3D6")
 	vf.LightColor = WHITE
 	vf.LightDirection = Vector3.new(-0.6, -1, -0.4)
 	vf.ZIndex = parent.ZIndex + 1
@@ -410,6 +412,15 @@ local function refreshHeader()
 		classLabel.Text = if cfg
 			then string.upper(if cfg.class == "MachineGun" then "HEAVY" else cfg.class)
 			else ""
+	end
+	-- the room's light takes the skin line's colour (each skin changes the
+	-- space around the gun, like a lit scene; Stock / no colour = soft white)
+	if stageLight then
+		local c = Locker.COLORS[previewLine]
+		tween(stageLight, 0.5, {
+			ImageColor3 = if c and previewLine ~= "Stock" then c else Color3.fromHex("C8C8D0"),
+			ImageTransparency = if c and previewLine ~= "Stock" then 0.72 else 0.84,
+		})
 	end
 	-- the skin on the stage: its emblem and name
 	clearEmblems(skinTag)
@@ -730,7 +741,7 @@ local function setTab(name: string)
 				if c:IsA("ImageLabel") then
 					c.ImageTransparency = if on then 0 else 1
 				elseif c:IsA("TextLabel") then
-					c.TextColor3 = if on then INK else Color3.fromHex("AEB8D6")
+					c.TextColor3 = if on then INK else Color3.fromHex("B8B8BB")
 				end
 			end
 		end
@@ -742,12 +753,11 @@ local function setTab(name: string)
 			g.Visible = weapons
 		end
 	end
-	if gunOnStand then
-		for _, d in gunOnStand:GetDescendants() do
-			if d:IsA("BasePart") then
-				d.LocalTransparencyModifier = if weapons then 0 else 1
-			end
-		end
+	-- hide the whole 3D stage, not the gun's parts: Textures and Decals ignore
+	-- LocalTransparencyModifier, so the skin's textures floated on (owner,
+	-- 2026-11-16: "the gun outline should disappear")
+	if stageView then
+		stageView.Visible = weapons
 	end
 	floorShadow.Visible = weapons
 	soonLabel.Visible = not weapons
@@ -773,11 +783,9 @@ local function slideIn(obj: GuiObject, dx: number, dy: number, delay: number)
 	end)
 end
 
-local function open()
-	if isOpen then
-		return
-	end
-	isOpen = true
+-- What the Locker shows once you're "in": the screen, the stage and its
+-- staged entrance (open() gets here through the wipe).
+local function reveal()
 	trayOpen = false
 	tray.Visible = false
 	tray.Position = home(tray)
@@ -858,16 +866,98 @@ local function open()
 	end
 end
 
-local function close()
-	if not isOpen then
-		return
-	end
-	isOpen = false
+local function conceal()
 	trayOpen = false
 	gui.Enabled = false
 	gunsList.Position = home(gunsList)
 	kinds.Position = home(kinds)
 	leaveStage()
+end
+
+-- Going into the Locker, after RIVALS' (vault/02 Art/UI Lobby Overhaul.md →
+-- Locker): the world camera rises (accelerating, RISE studs in RISE_TIME),
+-- a charcoal wipe sweeps down the screen, and while it covers the screen the
+-- Locker appears behind it, so you come out of the wipe in a new place.
+-- Leaving: the wipe sweeps back up and the camera is home again under it.
+-- Reduced motion: straight in and out.
+local RISE, RISE_TIME = 25, 0.375
+local WIPE_IN, WIPE_OUT = 0.9, 0.75
+local wipe: Frame
+local savedCamType: Enum.CameraType? = nil
+local passToken = 0
+
+local function restoreCamera()
+	if savedCamType then
+		workspace.CurrentCamera.CameraType = savedCamType
+		savedCamType = nil
+	end
+end
+
+-- Run the wipe from one end to the other; `atCover` runs when it covers the
+-- screen (half way: the wipe is two screens tall, eased In-Out).
+local function sweep(fromY: number, toY: number, time: number, atCover: () -> ())
+	wipe.Visible = true
+	wipe.Position = UDim2.new(0.5, 0, fromY, 0)
+	local tw = TweenService:Create(
+		wipe,
+		TweenInfo.new(time, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut),
+		{ Position = UDim2.new(0.5, 0, toY, 0) }
+	)
+	tw:Play()
+	task.delay(time * 0.5, atCover)
+	tw.Completed:Once(function(state: Enum.PlaybackState)
+		if state == Enum.PlaybackState.Completed then
+			wipe.Visible = false
+		end
+	end)
+end
+
+local function open()
+	if isOpen then
+		return
+	end
+	isOpen = true
+	passToken += 1
+	local my = passToken
+	if UiMotion.reduced() then
+		reveal()
+		return
+	end
+	local cam = workspace.CurrentCamera
+	if not savedCamType then
+		savedCamType = cam.CameraType
+	end
+	cam.CameraType = Enum.CameraType.Scriptable
+	TweenService:Create(
+		cam,
+		TweenInfo.new(RISE_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+		{ CFrame = cam.CFrame * CFrame.new(0, RISE, 0) }
+	):Play()
+	sweep(-1, 2, WIPE_IN, function()
+		if passToken == my and isOpen then
+			reveal()
+		end
+	end)
+end
+
+local function close()
+	if not isOpen then
+		return
+	end
+	isOpen = false
+	passToken += 1
+	local my = passToken
+	if UiMotion.reduced() then
+		conceal()
+		restoreCamera()
+		return
+	end
+	sweep(2, -1, WIPE_OUT, function()
+		if passToken == my and not isOpen then
+			conceal()
+			restoreCamera()
+		end
+	end)
 end
 
 local function release()
@@ -912,6 +1002,8 @@ function LockerController.init()
 	local backCanvas = child(child(gui, "Backdrop"), "BackCanvas") :: Frame
 	backFit = child(backCanvas, "Fit")
 	floorShadow = child(backCanvas, "Floor")
+	local light = backCanvas:FindFirstChild("Light")
+	stageLight = if light and light:IsA("ImageLabel") then light else nil
 	templates = ReplicatedStorage:WaitForChild("UiTemplates"):WaitForChild("Lobby") :: Folder
 	for _, o in { gunsList, kinds, tray, child(canvas, "GunName"), child(canvas, "SkinTag") } do
 		home(o :: GuiObject)
@@ -919,6 +1011,32 @@ function LockerController.init()
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 
 	Plates.deepen(gui)
+	-- the wipe (above everything, two screens tall, soft top and bottom edges)
+	local wipeGui = Instance.new("ScreenGui")
+	wipeGui.Name = "LockerWipe"
+	wipeGui.ResetOnSpawn = false
+	wipeGui.IgnoreGuiInset = true
+	wipeGui.ScreenInsets = Enum.ScreenInsets.None
+	wipeGui.DisplayOrder = 60
+	local w = Instance.new("Frame")
+	w.Name = "Wipe"
+	w.AnchorPoint = Vector2.new(0.5, 0.5)
+	w.Size = UDim2.fromScale(1, 2)
+	w.BackgroundColor3 = Color3.fromHex("121215")
+	w.BorderSizePixel = 0
+	w.Visible = false
+	local edge = Instance.new("UIGradient")
+	edge.Rotation = 90
+	edge.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.1, 0),
+		NumberSequenceKeypoint.new(0.9, 0),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	edge.Parent = w
+	w.Parent = wipeGui
+	wipeGui.Parent = playerGui
+	wipe = w
 	Router.register("Locker", { open = open, close = close })
 	resetClose = CloseButton.hook(child(canvas, "Close") :: GuiButton, function()
 		Router.close()

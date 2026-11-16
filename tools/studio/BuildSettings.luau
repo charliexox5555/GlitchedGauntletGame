@@ -28,10 +28,10 @@ local function hex(h: string): Color3
 	return Color3.fromHex(h)
 end
 
-local FONT = Font.new("rbxasset://fonts/families/FredokaOne.json")
+local FONT = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy) -- Rubik
 local WHITE = Color3.new(1, 1, 1)
-local NAVY = hex("0B1236")
-local MUTED = hex("8FA0C8")
+local NAVY = hex("141417")
+local MUTED = hex("9F9FA2")
 local CYAN = hex("3FE0F2")
 local CENTRE = Vector2.new(0.5, 0.5)
 local CAP_R = "rbxassetid://130377997107460" -- slant cap (rotated 180 for the left end)
@@ -139,9 +139,9 @@ local wash = make("Frame", {
 make("UIGradient", {
 	Rotation = 35,
 	Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, hex("3B1D63")),
-		ColorSequenceKeypoint.new(0.55, hex("161A44")),
-		ColorSequenceKeypoint.new(1, hex("0A1230")),
+		ColorSequenceKeypoint.new(0, hex("2E2E31")),
+		ColorSequenceKeypoint.new(0.55, hex("1E1E21")),
+		ColorSequenceKeypoint.new(1, hex("131316")),
 	}),
 }, wash)
 
@@ -203,7 +203,7 @@ for i, name in { "GENERAL", "CROSSHAIR" } do
 		ZIndex = 3,
 	}, tabs)
 	slant(tab, tab.BackgroundColor3, 56, 18)
-	text(tab, "Label", name, 26, if i == 1 then hex("0B0E1F") else MUTED, {
+	text(tab, "Label", name, 26, if i == 1 then hex("0F0F12") else MUTED, {
 		Size = UDim2.fromScale(1, 1),
 		ZIndex = 5,
 	})
@@ -275,9 +275,9 @@ corner(preview)
 make("UIGradient", {
 	Rotation = 90,
 	Color = ColorSequence.new({
-		ColorSequenceKeypoint.new(0, hex("5A6FA8")),
-		ColorSequenceKeypoint.new(0.55, hex("2A386A")),
-		ColorSequenceKeypoint.new(1, hex("141C3C")),
+		ColorSequenceKeypoint.new(0, hex("6F6F72")),
+		ColorSequenceKeypoint.new(0.55, hex("3A3A3D")),
+		ColorSequenceKeypoint.new(1, hex("1D1D20")),
 	}),
 }, preview)
 make("Frame", {
@@ -366,7 +366,7 @@ local switch = make("TextButton", {
 }, toggle)
 slant(switch, WHITE, 48, 15)
 make("UIScale", { Name = "Pop" }, switch)
-text(switch, "State", "ON", 24, hex("0B0E1F"), { Size = UDim2.fromScale(1, 1), ZIndex = 7 })
+text(switch, "State", "ON", 24, hex("0F0F12"), { Size = UDim2.fromScale(1, 1), ZIndex = 7 })
 
 -- a slider: a track, its fill, a round knob and the value
 local slider = make("Frame", {
@@ -386,7 +386,7 @@ local track = make("TextButton", {
 	AnchorPoint = Vector2.new(0, 0.5),
 	Position = UDim2.new(0, 10, 0.5, 0),
 	Size = UDim2.fromOffset(270, 12),
-	BackgroundColor3 = hex("060A22"),
+	BackgroundColor3 = hex("0C0C0F"),
 	BorderSizePixel = 0,
 	Text = "",
 	AutoButtonColor = false,

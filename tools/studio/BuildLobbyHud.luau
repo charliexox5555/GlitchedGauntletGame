@@ -36,11 +36,11 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/FredokaOne.json" -- owner pick, font board 2026-11-16
-local XB = Enum.FontWeight.Regular -- Fredoka One has one weight; asking for more fakes it and smears small words
-local NAVY, NAVY_HI = hex("1C2740"), hex("2B3A5A")
+local BX = "rbxassetid://12187365977" -- Rubik (owner pick 2026-11-16, after RIVALS): Heavy headings, Bold words
+local XB = Enum.FontWeight.Heavy
+local NAVY, NAVY_HI = hex("27272A"), hex("39393C")
 local ALLY, ALLY_CELL = hex("3FE0F2"), hex("0D5C7A")
-local GOLD, MUTED, INK, WHITE = hex("FFC83D"), hex("8E98A8"), hex("141A26"), Color3.new(1, 1, 1)
+local GOLD, MUTED, INK, WHITE = hex("FFC83D"), hex("97979A"), hex("1A1A1D"), Color3.new(1, 1, 1)
 local RED, PURPLE, TEAL = hex("FF4D5E"), hex("B58CFF"), hex("2BD9A8")
 local SHADOW = "rbxassetid://121253415859134"
 local CAP_R, CAP_L = "rbxassetid://130377997107460", "rbxassetid://75584308608588"

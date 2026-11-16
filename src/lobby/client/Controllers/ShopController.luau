@@ -49,8 +49,8 @@ local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
 local QUINT = Enum.EasingStyle.Quint
 local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
-local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("141A26")
-local CARD = Color3.fromHex("0B1236")
+local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("1A1A1D")
+local CARD = Color3.fromHex("141417")
 local TAB_OFF_T = 0.2
 local TABS = { "HOME", "BUNDLES", "DAILY", "COINS" }
 local PAGE_OF = { HOME = "Home", BUNDLES = "Bundles", DAILY = "Daily", COINS = "Coins" }

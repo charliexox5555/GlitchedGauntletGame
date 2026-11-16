@@ -28,12 +28,12 @@ local function hex(h: string): Color3
 	return Color3.fromHex(h)
 end
 
-local FONT = Font.new("rbxasset://fonts/families/FredokaOne.json")
+local FONT = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy) -- Rubik
 local WHITE = Color3.new(1, 1, 1)
-local INK = hex("0B0E1F")
-local NAVY = hex("0B1236")
-local NAVY_HI = hex("1A2350")
-local MUTED = hex("8FA0C8")
+local INK = hex("0F0F12")
+local NAVY = hex("141417")
+local NAVY_HI = hex("252528")
+local MUTED = hex("9F9FA2")
 local CYAN = hex("3FE0F2")
 local GOLD = hex("FFC83D")
 local CENTRE = Vector2.new(0.5, 0.5)
@@ -172,9 +172,9 @@ local function screen(name: string): (ScreenGui, Frame)
 	make("UIGradient", {
 		Rotation = 35,
 		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, hex("3B1D63")),
-			ColorSequenceKeypoint.new(0.55, hex("161A44")),
-			ColorSequenceKeypoint.new(1, hex("0A1230")),
+			ColorSequenceKeypoint.new(0, hex("2E2E31")),
+			ColorSequenceKeypoint.new(0.55, hex("1E1E21")),
+			ColorSequenceKeypoint.new(1, hex("131316")),
 		}),
 	}, wash)
 	local canvas = make("Frame", {

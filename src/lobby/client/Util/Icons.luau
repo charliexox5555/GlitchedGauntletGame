@@ -67,7 +67,7 @@ DRAW.Settings = function(f, color, px)
 		Name = "Hole",
 		Position = at(0.5, 0.5),
 		Size = UDim2.fromScale(0.3, 0.3),
-		BackgroundColor3 = Color3.fromHex("11151C"),
+		BackgroundColor3 = Color3.fromHex("151518"),
 		ZIndex = 2,
 	})
 	round(hole, UDim.new(1, 0))

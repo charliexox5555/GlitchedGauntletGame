@@ -13,8 +13,8 @@ local M = require(game:GetService("ReplicatedStorage").Shared.UiMotion).M -- hov
 
 local CloseButton = {}
 
-local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("141A26")
-local NAVY = Color3.fromHex("0B1236")
+local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("1A1A1D")
+local NAVY = Color3.fromHex("141417")
 
 local function tween(
 	obj: Instance,

@@ -30,7 +30,7 @@ local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
 local QUINT = Enum.EasingStyle.Quint
 local IN = Enum.EasingDirection.In
-local GREEN, MUTED = Color3.fromHex("3FD68A"), Color3.fromHex("AEB8D6")
+local GREEN, MUTED = Color3.fromHex("3FD68A"), Color3.fromHex("B8B8BB")
 local LIVE = { "1v1", "2v2", "3v3" }
 
 type Tile = {

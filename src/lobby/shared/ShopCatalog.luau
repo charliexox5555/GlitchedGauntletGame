@@ -54,7 +54,7 @@ ShopCatalog.ART = table.freeze({
 })
 
 ShopCatalog.RARITY_COLOR = table.freeze({
-	Common = Color3.fromHex("AEB8D6"),
+	Common = Color3.fromHex("B8B8BB"),
 	Rare = Color3.fromHex("3FA9FF"),
 	Epic = Color3.fromHex("B58CFF"),
 	Legendary = Color3.fromHex("FFC83D"),
@@ -73,7 +73,7 @@ ShopCatalog.CASES = {
 		coins = 400,
 		robux = 99,
 		robux3 = 249,
-		color = Color3.fromHex("5D6B82"),
+		color = Color3.fromHex("69696C"),
 		contents = {
 			{
 				kind = "Skin",
