@@ -5,9 +5,9 @@
 -- tools/studio/BuildFeedScreens.luau); this fills and animates it.
 -- SpectateController owns when each shows. Desktop only for now: phones keep
 -- SpectateController's old bar.
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 
 local DeathScreen = {}
 
@@ -77,19 +77,7 @@ end
 local cycle: ((step: number) -> ())? = nil -- set by SpectateController (may be before bind)
 local overKeys = 0 -- the pointer is over a < > keycap (its click isn't also a Fire)
 
-local function tween(
-	obj: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-)
-	TweenService:Create(
-		obj,
-		TweenInfo.new(time, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out),
-		goal
-	):Play()
-end
+local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T
@@ -135,7 +123,7 @@ local function setShown(c: Card, on: boolean)
 		c.pop.Scale = 0.9
 		c.strip.GroupTransparency = 1
 		c.shadow.ImageTransparency = 1
-		tween(c.pop, IN_TIME, { Scale = 1 }, Enum.EasingStyle.Back)
+		tween(c.pop, IN_TIME, { Scale = 1 })
 		tween(c.strip, IN_TIME, { GroupTransparency = 0 })
 		tween(c.shadow, IN_TIME, { ImageTransparency = 0.4 })
 		task.defer(fitShadow, c)

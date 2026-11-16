@@ -10,12 +10,12 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Device)
 local Bindings = require(ReplicatedStorage.Shared.Config.Input)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 
 local BottomHud = {}
 
@@ -136,18 +136,7 @@ local loadoutNow: { LoadoutEntry } = {}
 local equippedNow: string? = nil
 local shownEquipped: string? = nil
 
-local function tween(
-	inst: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?
-)
-	TweenService:Create(
-		inst,
-		TweenInfo.new(time, style or Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-		goal
-	):Play()
-end
+local tween = UiMotion.tween
 
 local function setNumber(frame: Frame, text: string, color: Color3?)
 	for _, part in { "Shadow", "Value" } do
@@ -410,7 +399,7 @@ local function drawLoadout()
 		local c = if equippedNow then r.loadout[equippedNow] else nil
 		if c then
 			c.pop.Scale = 1.12
-			tween(c.pop, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+			tween(c.pop, 0.3, { Scale = 1 })
 		end
 	end
 end
@@ -459,7 +448,7 @@ function BottomHud.setMod(index: number, info: ModInfo)
 		if info.id then
 			-- a new Mod pops in with a shine
 			s.pop.Scale = 0.7
-			tween(s.pop, 0.36, { Scale = 1 }, Enum.EasingStyle.Back)
+			tween(s.pop, 0.36, { Scale = 1 })
 			glint(s)
 		end
 	end
@@ -476,7 +465,7 @@ function BottomHud.setMod(index: number, info: ModInfo)
 	if s.wasCooling and not info.cooling and info.id ~= nil then
 		-- ready again: a pop and a shine
 		s.pop.Scale = 1.14
-		tween(s.pop, 0.36, { Scale = 1 }, Enum.EasingStyle.Back)
+		tween(s.pop, 0.36, { Scale = 1 })
 		glint(s)
 	end
 	s.wasCooling = info.cooling

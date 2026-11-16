@@ -16,7 +16,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -25,6 +24,7 @@ local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
 
 local UiSound = require(script.Parent.Parent.Util.UiSound)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 
 local TopBarController = {}
 
@@ -62,19 +62,7 @@ type Side = {
 	shown: number,
 }
 
-local function tween(
-	inst: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-)
-	TweenService:Create(
-		inst,
-		TweenInfo.new(time, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out),
-		goal
-	):Play()
-end
+local tween = UiMotion.tween
 
 local function clockText(seconds: number): string
 	local whole = math.max(math.ceil(seconds), 0)
@@ -221,7 +209,7 @@ function TopBarController.start()
 		local pop = cell:WaitForChild("Pop") :: UIScale
 		pop.Scale = 0.5
 		holder.Parent = sides[key].players
-		tween(pop, 0.36, { Scale = 1 }, Enum.EasingStyle.Back)
+		tween(pop, 0.36, { Scale = 1 })
 		return { holder = holder, cell = cell, head = head, pop = pop, alive = nil }
 	end
 
@@ -244,7 +232,7 @@ function TopBarController.start()
 		if not first then
 			-- A dip on a death, a lift on a respawn.
 			slot.pop.Scale = if alive then 1.15 else 0.85
-			tween(slot.pop, 0.32, { Scale = 1 }, Enum.EasingStyle.Back)
+			tween(slot.pop, 0.32, { Scale = 1 })
 		end
 	end
 
@@ -278,7 +266,7 @@ function TopBarController.start()
 			-- A point: the block bumps and flashes bright, the number pops.
 			UiSound.play("Score")
 			s.pop.Scale = 1.35
-			tween(s.pop, 0.42, { Scale = 1 }, Enum.EasingStyle.Back)
+			tween(s.pop, 0.42, { Scale = 1 })
 			local flash = s.color:Lerp(WHITE, 0.55)
 			s.body.BackgroundColor3 = flash
 			s.slant.ImageColor3 = flash
@@ -320,7 +308,7 @@ function TopBarController.start()
 		timerEdge.Transparency = if urgent then 0.2 else 1
 		if urgent and second ~= lastSecond and second >= 1 and second <= URGENT_LIVE then
 			timerPop.Scale = 1.08
-			tween(timerPop, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
+			tween(timerPop, 0.3, { Scale = 1 })
 		end
 		lastSecond = second
 		-- The last seconds tick (moved here from MatchHudController's old bar).
@@ -358,7 +346,7 @@ function TopBarController.start()
 	root:GetPropertyChangedSignal("Visible"):Connect(function()
 		if root.Visible then
 			root.Position = home - UDim2.fromOffset(0, 40)
-			tween(root, 0.42, { Position = home }, Enum.EasingStyle.Back)
+			tween(root, 0.42, { Position = home })
 		end
 	end)
 

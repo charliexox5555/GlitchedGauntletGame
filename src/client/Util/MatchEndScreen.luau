@@ -12,11 +12,11 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
-local TweenService = game:GetService("TweenService")
 
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local UiSound = require(script.Parent.UiSound)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 
 local MatchEndScreen = {}
 
@@ -79,21 +79,7 @@ type State = {
 
 local state: State? = nil
 
-local function tween(
-	obj: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-): Tween
-	local t = TweenService:Create(
-		obj,
-		TweenInfo.new(time, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out),
-		goal
-	)
-	t:Play()
-	return t
-end
+local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T
@@ -336,7 +322,7 @@ local function animateIn(s: State, rows: { Frame })
 		cardPop.Scale = 0.7
 		at(RIGHT_AT + (i - 1) * CARD_STEP, function()
 			tween(card, 0.2, { GroupTransparency = 0 })
-			tween(cardPop, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
+			tween(cardPop, 0.35, { Scale = 1 })
 		end)
 	end
 	local n = 0
@@ -345,7 +331,7 @@ local function animateIn(s: State, rows: { Frame })
 		local bPop = child(b, "Pop") :: UIScale
 		bPop.Scale = 0
 		at(RIGHT_AT + 0.15 + n * CARD_STEP, function()
-			tween(bPop, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
+			tween(bPop, 0.35, { Scale = 1 })
 		end)
 	end
 	-- Shadows: measured once the result has settled (it's scaled mid-slam).
@@ -466,7 +452,7 @@ function MatchEndScreen.press(name: string)
 	end
 	local pop = child(b, "Pop") :: UIScale
 	pop.Scale = 0.94
-	tween(pop, 0.25, { Scale = 1 }, Enum.EasingStyle.Back)
+	tween(pop, 0.25, { Scale = 1 })
 	local fn = s.onChoice
 	if fn then
 		fn(name)

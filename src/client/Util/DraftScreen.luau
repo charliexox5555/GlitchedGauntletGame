@@ -12,6 +12,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
 local UiSound = require(script.Parent.UiSound)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 
 local DraftScreen = {}
 
@@ -132,21 +133,7 @@ type State = {
 
 local state: State? = nil
 
-local function tween(
-	obj: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-): Tween
-	local t = TweenService:Create(
-		obj,
-		TweenInfo.new(time, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out),
-		goal
-	)
-	t:Play()
-	return t
-end
+local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T
@@ -179,7 +166,7 @@ local function popScale(scale: UIScale, peak: number)
 	scale.Scale = 1
 	tween(scale, 0.07, { Scale = peak }).Completed:Once(function(s)
 		if s == Enum.PlaybackState.Completed then
-			tween(scale, 0.25, { Scale = 1 }, Enum.EasingStyle.Back)
+			tween(scale, 0.25, { Scale = 1 })
 		end
 	end)
 end
@@ -629,11 +616,11 @@ function DraftScreen.setOpen(value: boolean)
 					return
 				end
 				tween(p.card, OPEN_TIME, { GroupTransparency = 0 })
-				tween(p.pop, OPEN_TIME, { Scale = 1 }, Enum.EasingStyle.Back)
+				tween(p.pop, OPEN_TIME, { Scale = 1 })
 			end)
 		end
 		s.lockPop.Scale = 0.92
-		tween(s.lockPop, OPEN_TIME, { Scale = 1 }, Enum.EasingStyle.Back)
+		tween(s.lockPop, OPEN_TIME, { Scale = 1 })
 	else
 		tween(
 			s.backdrop,

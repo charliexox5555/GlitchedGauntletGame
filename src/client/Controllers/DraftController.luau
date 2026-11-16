@@ -435,7 +435,7 @@ local function popScale(scale: UIScale, peak: number)
 	scale.Scale = 1
 	Ui.tween(scale, 0.07, { Scale = peak }).Completed:Once(function(state)
 		if state == Enum.PlaybackState.Completed then
-			Ui.tween(scale, 0.25, { Scale = 1 }, Enum.EasingStyle.Back)
+			Ui.tween(scale, 0.25, { Scale = 1 })
 		end
 	end)
 end
@@ -1558,7 +1558,7 @@ local function show(o: MatchState.DraftOffer)
 
 	refreshSelection()
 	setOpen(true)
-	Ui.tween(scale, Theme.MOTION.enter, { Scale = 1 }, Enum.EasingStyle.Back)
+	Ui.tween(scale, Theme.MOTION.enter, { Scale = 1 })
 	local order: { Card } = {}
 	for _, c in gunCards do
 		table.insert(order, c)
