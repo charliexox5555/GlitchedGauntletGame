@@ -1149,38 +1149,34 @@ return table.freeze({
 		-- cheek (BOW.hand*). Was: right hand, turned 58° across the view, so
 		-- the bolt pointed sideways and the draw read as a short side tug.
 		Recon = {
-			-- Rebuilt 2026-11-16 (owner: "a good two hand first person draw
-			-- back"). A right-handed archer: the bow in the LEFT hand, drawn
-			-- with the right. Geometry that decides it: the bow, string and
-			-- bolt lie in one plane, and you only see the bow's face when the
-			-- camera is off that plane. With the bolt running straight down the
-			-- view the face only shows at ~10° (a stick), so the bolt crosses
-			-- the view at 25° (yaw +25: nock low right, head just left of the
-			-- crosshair) and the top cants RIGHT 42°: the face shows at ~22°,
-			-- like the full-draw render, and the draw comes back to the right
-			-- cheek. Canted left, or yawed with the nock left, the bow was a
-			-- stick or pointed away from the crosshair ("looks backwards").
-			-- With block arms, forearms go DOWN out of frame (pointed back at
-			-- the camera they fill it). 1.35 scale, 2.45 out: the hands stay
-			-- >= 1.3 from the camera at full draw.
-			scale = 1.35,
-			offset = Vector3.new(-0.26, -0.62, -2.4), -- the riser just below left of the crosshair
-			rotation = Vector3.new(2, 25, -42),
-			arm = Vector3.new(0.14, -0.92, 0.36), -- down, a little right: the lower limb (down left) stays clear of it
+			-- Rebuilt 2026-11-17 to the owner's Valorant reference (Sova's
+			-- bow): big and canted, on the RIGHT of the screen. The bow fist
+			-- low in the middle (its forearm out of the bottom), the top limb
+			-- reaching for the top-right corner, the bolt running in from the
+			-- lower right with its head just below the crosshair. Drawn, the
+			-- string pulls down-right toward the bottom-right corner. The
+			-- owner's first note that day ("the bow's at an angle and it's not
+			-- actually being drawn back") was about the old small hold up the
+			-- middle; their reference is canted. Tuned live with the Studio
+			-- TuneHold* attributes (Util/ViewmodelHeldMods).
+			scale = 2.9,
+			offset = Vector3.new(0.45, -1.15, -2.75),
+			rotation = Vector3.new(6, 22, -40),
+			arm = Vector3.new(-0.15, -0.9, 0.4), -- the bow forearm straight down out of frame
 			lift = Vector3.zero,
 			side = "Left",
-			from = Vector3.new(-0.5, -1.3, 0.3),
+			from = Vector3.new(0.2, -1.4, 0.3),
 		},
 		-- Shock Dart (free pack): Recon's bow with its own bolt head, held
 		-- and drawn the same way (BOW drives any held bow rig).
 		ShockDart = {
-			scale = 1.35,
-			offset = Vector3.new(-0.26, -0.62, -2.4),
-			rotation = Vector3.new(2, 25, -42),
-			arm = Vector3.new(0.14, -0.92, 0.36),
+			scale = 2.9,
+			offset = Vector3.new(0.45, -1.15, -2.75),
+			rotation = Vector3.new(6, 22, -40),
+			arm = Vector3.new(-0.15, -0.9, 0.4),
 			lift = Vector3.zero,
 			side = "Left",
-			from = Vector3.new(-0.5, -1.3, 0.3),
+			from = Vector3.new(0.2, -1.4, 0.3),
 		},
 		-- Flash: a canister like Frost's, pin side to the free hand.
 		Flash = {
@@ -1210,6 +1206,10 @@ return table.freeze({
 		flex = 16, -- each limb at full draw, toward the string (26 opened gaps at the pockets)
 		-- Draw from the charge: 1 - (1 - charge)^drawEase (fast, easing into full).
 		drawEase = 2.6,
+		-- The nock's travel at full draw, as a share of the model's Nock →
+		-- NockDrawn (more than 1 pulls the string further than modelled).
+		stringThick = 0.55, -- the strings' thickness, as a share of the model's
+		drawStretch = 0.72, -- at 2.9 scale: the bolt head stays in front of the riser at full draw
 		nockTime = 0.14, -- the drawing hand coming up to the string (the string waits for it)
 		-- The bow pushes out a little as it's drawn (the bow arm extends).
 		drawPush = { pos = Vector3.new(-0.02, 0.015, -0.06), rot = Vector3.new(-2, 2, 1) },
@@ -1232,8 +1232,8 @@ return table.freeze({
 		-- The drawing hand: the fist from the nock (bow space), the arm's
 		-- direction from the fist, and where it comes up from.
 		hand = Vector3.new(0.06, -0.07, 0.07),
-		handDir = Vector3.new(0.35, -0.85, 0.4), -- the drawing forearm down and back, out of the bottom right
-		handFrom = Vector3.new(0.75, -1.5, -0.5), -- where the drawing hand comes up from / drops to
+		handDir = Vector3.new(0.45, -0.75, 0.5), -- the drawing forearm down and out of the bottom-right corner
+		handFrom = Vector3.new(0.75, -1.5, -0.5), -- where the drawing hand comes up from / drops to (lower right)
 		-- After the release it follows through (back and out, root space), holds,
 		-- then drops away.
 		follow = { offset = Vector3.new(0.14, 0.05, 0.3), out = 0.07, hold = 0.08, back = 0.24 },
@@ -1241,6 +1241,17 @@ return table.freeze({
 		-- Charge_Energy: transparency from `dim` to 0 with the charge, its
 		-- colour from `dimColour` toward its own; a flash at full.
 		charge = { dim = 0.85, dimColour = 0.55, flash = 0.18 },
+		-- The bolt head's charge glow (light brightness and spark rate at
+		-- full draw, both rising with the charge; the colour is the bolt
+		-- light's: team colour).
+		glow = {
+			part = "Dart_Head",
+			colourFrom = "Dart_Light_Energy",
+			brightness = 2.5,
+			range = 5,
+			rate = 40,
+			spark = 0.12,
+		},
 	}),
 	-- Moving parts on equip (ModController.startHold → itemParts(def.id)),
 	-- seconds from the equip, in step with MOLLY_PIN_AT / MOLLY_PIN_GONE

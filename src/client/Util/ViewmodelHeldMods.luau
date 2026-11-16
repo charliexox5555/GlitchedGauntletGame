@@ -35,6 +35,18 @@ local angles = ViewmodelTracks.angles
 
 local STUDIO = RunService:IsStudio()
 
+-- Studio tuning (never in a live game): Workspace attributes TuneHoldOffset,
+-- TuneHoldRotation, TuneHoldArm, TuneBowHand, TuneBowHandDir (Vector3) and
+-- TuneBowDraw (number, the draw stretch) and TuneHoldScale (at the raise) override the held item's numbers
+-- live, so a hold can be posed in Play without restarting it.
+local function tune(name: string, fallback: any): any
+	if not STUDIO then
+		return fallback
+	end
+	local v = Workspace:GetAttribute(name)
+	return if v ~= nil then v else fallback
+end
+
 -- A part of the held item on the move (VM.PartMove): where its pieces sat
 -- as built (in the model's pivot space), and the turn's pivot or the slide
 -- there.
@@ -122,6 +134,9 @@ type BowRig = {
 	boltRest: { CFrame },
 	charge: BasePart?,
 	chargeColour: Color3,
+	-- The bolt head's charge glow (light + sparks), made once per held bow.
+	glowLight: PointLight?,
+	glowSparks: ParticleEmitter?,
 }
 
 local ViewmodelHeldMods = {}
@@ -263,7 +278,7 @@ function ViewmodelHeldMods.holdItem(h: HeldMods, template: Model?)
 		return
 	end
 	local hold = VM.ITEM_HOLDS[template.Name]
-	h.item = visualCopy(template, "ViewmodelItem", cam, hold and hold.scale)
+	h.item = visualCopy(template, "ViewmodelItem", cam, tune("TuneHoldScale", hold and hold.scale))
 end
 
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] ("DashForward",
@@ -911,6 +926,11 @@ local function findBow(h: HeldMods, model: Model): BowRig?
 	if not stringTop or not stringBottom then
 		return nil
 	end
+	-- Thinner than modelled: held big, a full-thickness string was the
+	-- heaviest line on screen (owner, 2026-11-17).
+	for _, str in { stringTop, stringBottom } do
+		str.Size = Vector3.new(str.Size.X * B.stringThick, str.Size.Y, str.Size.Z * B.stringThick)
+	end
 	local base = model:GetPivot()
 	local function at(name: string): Vector3
 		return base:PointToObjectSpace(found[name].WorldPosition)
@@ -949,7 +969,38 @@ local function findBow(h: HeldMods, model: Model): BowRig?
 		boltRest[i] = base:ToObjectSpace(p.CFrame)
 	end
 	local charge = named[B.chargePart]
+	-- The bolt head gathers light as it's drawn (Sova's arrow tip, our
+	-- look): a light and a few sparks on the head, in the bolt light's colour.
+	local head = named[B.glow.part]
+	local lightPart = named[B.glow.colourFrom]
+	local glowLight: PointLight? = nil
+	local glowSparks: ParticleEmitter? = nil
+	if head then
+		local colour = if lightPart then lightPart.Color else Color3.new(1, 1, 1)
+		local l = Instance.new("PointLight")
+		l.Color = colour
+		l.Brightness = 0
+		l.Range = B.glow.range
+		l.Shadows = false
+		l.Parent = head
+		glowLight = l
+		local e = Instance.new("ParticleEmitter")
+		e.Texture = VFX.MOD_SPARKLE
+		e.Color = ColorSequence.new(Color3.new(1, 1, 1), colour)
+		e.LightEmission = 1
+		e.LightInfluence = 0
+		e.Size = NumberSequence.new(B.glow.spark, 0)
+		e.Lifetime = NumberRange.new(0.12, 0.22)
+		e.Speed = NumberRange.new(0.6, 1.6)
+		e.SpreadAngle = Vector2.new(180, 180)
+		e.Rate = 0
+		e.LockedToPart = true
+		e.Parent = head
+		glowSparks = e
+	end
 	return {
+		glowLight = glowLight,
+		glowSparks = glowSparks,
 		limbs = limbs,
 		axis = axis,
 		strings = { stringTop, stringBottom },
@@ -977,7 +1028,8 @@ local function stepBow(
 	shown: number
 ): Vector3
 	local B = VM.BOW
-	local nock = rig.nock + rig.draw * shown
+	local stretch: number = tune("TuneBowDraw", B.drawStretch)
+	local nock = rig.nock + rig.draw * (shown * stretch)
 	if shown ~= h.bowShown then
 		h.bowShown = shown
 		local base = model:GetPivot()
@@ -1003,7 +1055,7 @@ local function stepBow(
 				end
 			end
 		end
-		local slide = CFrame.new(rig.draw * math.max(shown, 0))
+		local slide = CFrame.new(rig.draw * (math.max(shown, 0) * stretch))
 		for i, part in rig.bolt do
 			part.CFrame = base * slide * rig.boltRest[i]
 		end
@@ -1026,6 +1078,14 @@ local function stepBow(
 		end
 		strip.Transparency = look.dim * (1 - lit)
 		strip.Color = colour
+	end
+	local c = h.bowCharge or 0
+	local g = B.glow
+	if rig.glowLight then
+		rig.glowLight.Brightness = g.brightness * c * c
+	end
+	if rig.glowSparks then
+		rig.glowSparks.Rate = if c > 0.05 then g.rate * c else 0
 	end
 	return nock
 end
@@ -1083,7 +1143,7 @@ local function stepBowHand(
 	elseif h.bowCharge then
 		local u = math.clamp((clock - h.bowDrawAt) / B.nockTime, 0, 1)
 		w = 1 - (1 - u) ^ 3
-		point = from:Lerp(nockWorld + bowCf:VectorToWorldSpace(B.hand), w)
+		point = from:Lerp(nockWorld + bowCf:VectorToWorldSpace(tune("TuneBowHand", B.hand)), w)
 		h.bowHand = root:PointToObjectSpace(point)
 	else
 		local l = clock - h.bowLetAt
@@ -1091,13 +1151,13 @@ local function stepBowHand(
 			return
 		end
 		w = 1 - Ease.smooth(math.clamp((l - B.letDown * 0.5) / B.letDown, 0, 1))
-		point = from:Lerp(nockWorld + bowCf:VectorToWorldSpace(B.hand), w)
+		point = from:Lerp(nockWorld + bowCf:VectorToWorldSpace(tune("TuneBowHand", B.hand)), w)
 	end
 	if w <= 1e-3 then
 		return
 	end
 	-- The drawing elbow comes up level as the draw goes back.
-	local toward = point + root:VectorToWorldSpace(B.handDir)
+	local toward = point + root:VectorToWorldSpace(tune("TuneBowHandDir", B.handDir))
 	ViewmodelArms.place(a, side, point, toward, root.RightVector)
 end
 
@@ -1158,10 +1218,11 @@ function ViewmodelHeldMods.stepItem(
 		end
 		useCf *= bowOffset(h, clock, shown, tremble)
 	end
-	local pos = ((hold and hold.offset) or VM.ITEM_OFFSET)
+	local pos = tune("TuneHoldOffset", (hold and hold.offset) or VM.ITEM_OFFSET)
 		+ ((hold and hold.from) or VM.ITEM_FROM) * (1 - h.raiseX)
 	local grip = root * CFrame.new(pos) * useCf * idleCf
-	local itemCf = grip * angles((hold and hold.rotation) or VM.ITEM_ROTATION)
+	local itemCf = grip
+		* angles(tune("TuneHoldRotation", (hold and hold.rotation) or VM.ITEM_ROTATION))
 	-- Where the item sits from the grip: the builder's HoldOffset, plus the
 	-- hold's own `lift` (clear of the fist).
 	local offset = model:GetAttribute("HoldOffset")
@@ -1175,7 +1236,7 @@ function ViewmodelHeldMods.stepItem(
 	local nock = if rig then stepBow(h, rig, model, clock, shown) else nil
 	if a and lowerT > 0.05 then
 		local hand = grip.Position
-		local arm = ((hold and hold.arm) or VM.ITEM_ARM) + useArm
+		local arm = tune("TuneHoldArm", (hold and hold.arm) or VM.ITEM_ARM) + useArm
 		local side: ViewmodelArms.Side = (hold and hold.side) or "Right"
 		ViewmodelArms.place(a, side, hand, hand + root:VectorToWorldSpace(arm), root.RightVector)
 		if nock then

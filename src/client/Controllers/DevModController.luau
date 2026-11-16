@@ -293,7 +293,9 @@ local function build(): TextButton
 	end
 
 	label("Mod (greyed: not built yet)", 13, panel, MUTED)
-	local modRow = row(panel, 102)
+	-- Three 140-wide buttons a line; tall enough for every Mod (12 since the
+	-- free pack: a fixed 3-line row hid the 4th line).
+	local modRow = row(panel, math.ceil(#Config.ORDER / 3) * 34)
 	for _, id in Config.ORDER do
 		local def = Mods.def(id)
 		local built = Mods.isBuilt(id)
