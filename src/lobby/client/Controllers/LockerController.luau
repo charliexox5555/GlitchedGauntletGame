@@ -72,10 +72,11 @@ local TRAY_ZOOM = 1.3 -- the skins view pulls back so the gun clears the title
 -- the floor shadow sits this far under the gun's centre (canvas px at zoom 1)
 local FLOOR_DROP = 190
 local MUTED = Color3.fromHex("B8B8BB")
--- gun icons fill their card's box by height or width, so a pistol drawn in
--- the full box looks bigger than a rifle: each class gets a share of the width
+-- gun pictures (shared/ItemIcons) are all cut to the same width, so a pistol
+-- drawn in the full box looks as long as a rifle: each class gets a share of
+-- the box's width
 local ICON_WIDTH: { [string]: number } = {
-	Sidearm = 0.5,
+	Sidearm = 0.56,
 	SMG = 0.74,
 	Shotgun = 0.86,
 	Rifle = 1,
@@ -430,8 +431,10 @@ local function refreshHeader()
 	if label and label:IsA("TextLabel") then
 		label.Text = lineTitle(previewLine)
 	end
-	-- the SKIN tile shows the equipped skin
-	local skinTile = kinds:FindFirstChild("SKIN")
+	-- the SKIN tile shows the equipped skin (inside its pop holder: the holder
+	-- has no Value label, so the words used to stay on the template's skin)
+	local skinHolder = kinds:FindFirstChild("SKIN")
+	local skinTile = if skinHolder then Pivot.item(skinHolder) else nil
 	if skinTile and skinTile:IsA("GuiObject") then
 		local eq = equippedLine(selectedGun)
 		clearEmblems(skinTile)

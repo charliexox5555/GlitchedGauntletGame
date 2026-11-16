@@ -333,7 +333,7 @@ for i, t in { "WEAPONS", "ABILITIES", "EMOTES" } do
 end
 
 -- the guns by class: a scrolling list down to the bottom edge
-local GW, GH, GAP = 248, 120, 12
+local GW, GH, GAP = 248, 150, 12 -- 150 tall: room for the gun pictures (shared/ItemIcons)
 local guns = make("ScrollingFrame", {
 	Name = "Guns",
 	Position = UDim2.fromOffset(40, 196),
@@ -668,8 +668,8 @@ corner(gunCard)
 make("ImageLabel", {
 	Name = "Icon",
 	AnchorPoint = CENTRE,
-	Position = UDim2.fromOffset(GW / 2, 44),
-	Size = UDim2.fromOffset(GW - 40, 62),
+	Position = UDim2.fromOffset(GW / 2, 55),
+	Size = UDim2.fromOffset(GW - 16, 86),
 	BackgroundTransparency = 1,
 	Image = Theme.GUN.Vandal,
 	ScaleType = Enum.ScaleType.Fit,
