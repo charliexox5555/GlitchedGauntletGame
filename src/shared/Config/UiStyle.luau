@@ -225,4 +225,43 @@ Style.MENU = table.freeze({
 	}),
 })
 
+-- The lobby look from the 2026-11-16 overhaul (vault/02 Art/UI Lobby
+-- Overhaul.md): the colours, font and motion every Studio-built screen and
+-- the shared kit (lobby Util/LobbyKit, Shared/UiMotion) read. Motion numbers
+-- from RIVALS' own UI (vault/03 Research/Rivals Reference/UI and Client.md)
+-- with our easing: Quint Out, no overshoot (owner rule).
+Style.KIT = table.freeze({
+	color = table.freeze({
+		navy = hex("0B1236"), -- cells and plates at rest
+		navyHi = hex("1A2350"), -- a hovered / own row
+		ink = hex("0B0E1F"), -- dark words on bright plates
+		white = Color3.new(1, 1, 1),
+		muted = hex("8FA0C8"), -- secondary words, idle tabs
+		gold = hex("FFC83D"), -- the one act-now thing; coin prices
+		robux = hex("3FD45C"), -- Robux prices (white words)
+		cyan = hex("3FE0F2"), -- selection, info tags
+		red = hex("FF4D5E"), -- warnings, badges
+		wash = table.freeze({ hex("3B1D63"), hex("161A44"), hex("0A1230") }), -- menu backdrop
+	}),
+	font = table.freeze({
+		-- the owner's pick from the font board (one weight: never ask for more,
+		-- Roblox fakes it and small words smear)
+		display = Font.new("rbxasset://fonts/families/FredokaOne.json"),
+	}),
+	motion = table.freeze({
+		beat = 0.25, -- the default tween (RIVALS: 0.25 s)
+		quick = 0.12, -- exits, small fades
+		long = 0.45, -- entrances that travel
+		stagger = 0.03, -- per item in a cascade
+		hover = 1.125, -- buttons, plates, icon buttons (RIVALS ButtonEffect)
+		press = 0.875,
+		hoverCard = 1.04, -- big cards and tiles (1.125 would cover their neighbours)
+		pressCard = 0.96,
+		pageFrom = 0.75, -- a page opens from 0.75 scale (RIVALS Page)
+		blur = 24, -- the world behind an open page
+		blurIn = 0.5,
+		nudge = table.freeze({ -8, 6, -3, 0 }), -- a locked thing shakes (px)
+	}),
+})
+
 return table.freeze(Style)

@@ -17,7 +17,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 
 local SeasonCatalog = require(ReplicatedStorage.Lobby.SeasonCatalog)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
@@ -32,13 +31,15 @@ local Pivot = require(script.Parent.Parent.Util.Pivot)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
+local KM = UiMotion.M
 
 local BattlePassController = {}
 
 local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
-local QUINT, QUAD = Enum.EasingStyle.Quint, Enum.EasingStyle.Quad
-local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
+local QUINT = Enum.EasingStyle.Quint
+local IN = Enum.EasingDirection.In
 local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("141A26")
 local CARD = Color3.fromHex("0B1236")
 local REACHED = Color3.fromHex("3FD68A")
@@ -83,17 +84,7 @@ local progress = {
 	} :: { [string]: { [number]: boolean } },
 }
 
-local function tween(
-	obj: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-): Tween
-	local t = TweenService:Create(obj, TweenInfo.new(time, style or QUINT, dir or OUT), goal)
-	t:Play()
-	return t
-end
+local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T
@@ -104,25 +95,16 @@ local function pop(obj: Instance): UIScale?
 	return if p and p:IsA("UIScale") then p else nil
 end
 
-local function rest(scale: UIScale?, to: number)
-	if scale then
-		scale:SetAttribute("Rest", to)
-		tween(scale, 0.18, { Scale = to })
+local function rest(p: UIScale?, scale: number)
+	if p then
+		UiMotion.rest(p, scale)
 	end
 end
 
-local function press(scale: UIScale?)
-	if not scale then
-		return
+local function press(p: UIScale?, _low: number?)
+	if p then
+		UiMotion.press(p)
 	end
-	local r = scale:GetAttribute("Rest")
-	local home = if typeof(r) == "number" then r else 1
-	local t = tween(scale, 0.07, { Scale = home * 0.95 }, QUAD)
-	t.Completed:Once(function(state: Enum.PlaybackState)
-		if state == Enum.PlaybackState.Completed then
-			tween(scale, 0.26, { Scale = home })
-		end
-	end)
 end
 
 local function commas(n: number): string
@@ -550,7 +532,7 @@ function BattlePassController.init()
 				child(tracks, (if track == "free" then "Free" else "Premium") .. col) :: GuiButton
 			local sc = pop(cell)
 			cell.MouseEnter:Connect(function()
-				rest(sc, 1.04)
+				rest(sc, KM.hoverCard)
 			end)
 			cell.MouseLeave:Connect(function()
 				rest(sc, 1)
@@ -585,7 +567,7 @@ function BattlePassController.init()
 		local b = child(actions, name) :: GuiButton
 		local sc = pop(b)
 		b.MouseEnter:Connect(function()
-			rest(sc, 1.05)
+			rest(sc, KM.hover)
 		end)
 		b.MouseLeave:Connect(function()
 			rest(sc, 1)

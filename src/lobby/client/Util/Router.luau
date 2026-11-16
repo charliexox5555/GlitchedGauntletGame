@@ -12,6 +12,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local CoreUi = require(script.Parent.CoreUi)
 local Fx = require(script.Parent.Fx)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion)
 
 export type Menu = {
 	open: (arg: any?) -> (),
@@ -24,7 +25,9 @@ export type Menu = {
 
 local Router = {}
 
-local BLUR_SIZE = 16
+-- RIVALS blurs the world 24 behind each page (Config/UiStyle.KIT.motion)
+local BLUR_SIZE = UiMotion.M.blur
+local BLUR_IN = UiMotion.M.blurIn
 local SATURATION = -0.25
 
 local menus: { [string]: Menu } = {}
@@ -72,8 +75,10 @@ local function setWorldDimmed(on: boolean, clear: boolean?)
 		blur.Enabled = true
 		grade.Enabled = true
 		-- Blur Size isn't motion, so it eases under reduced motion too.
-		TweenService:Create(blur, TweenInfo.new(Fx.MOTION.dimIn), { Size = BLUR_SIZE }):Play()
-		Fx.tween(grade, Fx.MOTION.dimIn, { Saturation = SATURATION })
+		TweenService
+			:Create(blur, TweenInfo.new(BLUR_IN, Enum.EasingStyle.Quint), { Size = BLUR_SIZE })
+			:Play()
+		Fx.tween(grade, BLUR_IN, { Saturation = SATURATION })
 	else
 		TweenService:Create(blur, TweenInfo.new(Fx.MOTION.dimOut), { Size = 0 }):Play()
 		Fx.tween(grade, Fx.MOTION.dimOut, { Saturation = 0 }, Enum.EasingStyle.Quad)

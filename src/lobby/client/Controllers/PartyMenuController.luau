@@ -19,7 +19,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SocialService = game:GetService("SocialService")
-local TweenService = game:GetService("TweenService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
@@ -28,13 +27,15 @@ local Layout = require(script.Parent.Parent.Util.Layout)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
+local KM = UiMotion.M
 
 local PartyMenuController = {}
 
 local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
-local QUINT, QUAD = Enum.EasingStyle.Quint, Enum.EasingStyle.Quad
-local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
+local QUINT = Enum.EasingStyle.Quint
+local IN = Enum.EasingDirection.In
 local ALLY, GOLD, GREEN =
 	Color3.fromHex("3FE0F2"), Color3.fromHex("FFC83D"), Color3.fromHex("3FD68A")
 local MUTED, INK, WHITE = Color3.fromHex("AEB8D6"), Color3.fromHex("141A26"), Color3.new(1, 1, 1)
@@ -77,17 +78,7 @@ local friends: { { [string]: any } } = {}
 local friendsAt = -math.huge
 local friendsLoading = false
 
-local function tween(
-	obj: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-): Tween
-	local t = TweenService:Create(obj, TweenInfo.new(time, style or QUINT, dir or OUT), goal)
-	t:Play()
-	return t
-end
+local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T
@@ -97,20 +88,16 @@ local function headshot(userId: number): string
 	return string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", userId)
 end
 
-local function press(pop: UIScale)
-	local r = pop:GetAttribute("Rest")
-	local home = if typeof(r) == "number" then r else 1
-	local t = tween(pop, 0.07, { Scale = home * 0.94 }, QUAD)
-	t.Completed:Once(function(playback: Enum.PlaybackState)
-		if playback == Enum.PlaybackState.Completed then
-			tween(pop, 0.26, { Scale = home })
-		end
-	end)
+local function press(p: UIScale?, _low: number?)
+	if p then
+		UiMotion.press(p)
+	end
 end
 
-local function rest(pop: UIScale, scale: number)
-	pop:SetAttribute("Rest", scale)
-	tween(pop, 0.18, { Scale = scale })
+local function rest(p: UIScale?, scale: number)
+	if p then
+		UiMotion.rest(p, scale)
+	end
 end
 
 -- A button with a Pop UIScale: hover grows it a touch, a press dips it.
@@ -118,7 +105,7 @@ local function hookButton(b: GuiButton, onClick: () -> ())
 	local pop = b:FindFirstChild("Pop")
 	b.MouseEnter:Connect(function()
 		if pop and pop:IsA("UIScale") then
-			rest(pop, 1.04)
+			rest(pop, KM.hover)
 		end
 	end)
 	b.MouseLeave:Connect(function()

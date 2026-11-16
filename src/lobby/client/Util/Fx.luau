@@ -8,10 +8,10 @@
 -- to their end value, loops and sweeps stop, transparency and colour still ease.
 -- Idle loops pause while their ScreenGui is disabled.
 
-local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
 local Style = require(script.Parent.Style)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion)
 
 local Fx = {}
 
@@ -29,25 +29,19 @@ Fx.MOTION = table.freeze({
 	stagger = 0.04, -- per item; totals stay under 0.4 s
 })
 
-Fx.HOVER_SCALE = 1.04
-Fx.PRESS_SCALE = 0.96
+-- the overhaul's numbers (Config/UiStyle.KIT.motion, RIVALS' beats)
+Fx.HOVER_SCALE = UiMotion.M.hover
+Fx.PRESS_SCALE = UiMotion.M.press
 Fx.HOVER_LIFT = 3
 
-local reducedOverride: boolean? = nil
-
+-- One switch for the whole UI: Shared/UiMotion owns it.
 function Fx.reduced(): boolean
-	if reducedOverride ~= nil then
-		return reducedOverride
-	end
-	local ok, v = pcall(function()
-		return (GuiService :: any).ReducedMotionEnabled
-	end)
-	return ok and v == true
+	return UiMotion.reduced()
 end
 
 -- The Settings toggle (nil = follow the Roblox setting).
 function Fx.setReduced(on: boolean?)
-	reducedOverride = on
+	UiMotion.setReduced(on)
 end
 
 local MOVEMENT = { Position = true, Size = true, Rotation = true, Scale = true, Offset = true }
@@ -158,14 +152,14 @@ function Fx.scale(obj: GuiObject): UIScale
 	return s
 end
 
--- Pop: scale up a touch, then settle back with Back easing.
+-- Pop: scale up a touch, then settle back (Quint, no overshoot: owner rule).
 function Fx.pop(obj: GuiObject, amount: number?)
 	if Fx.reduced() then
 		return
 	end
 	local s = Fx.scale(obj)
 	s.Scale = amount or 1.08
-	Fx.tween(s, Fx.MOTION.settle, { Scale = 1 }, Enum.EasingStyle.Back)
+	Fx.tween(s, Fx.MOTION.settle, { Scale = 1 })
 end
 
 -- A soft light band that sweeps across `parent` once each time the returned
@@ -345,10 +339,10 @@ function Fx.button(button: GuiButton, onClick: () -> (), opts: ButtonOptions?)
 	button.Activated:Connect(function()
 		if o.enabled and not o.enabled() then
 			Fx.shake(button)
-			Fx.tween(scale, Fx.MOTION.settle, { Scale = rest }, Enum.EasingStyle.Back)
+			Fx.tween(scale, Fx.MOTION.settle, { Scale = rest })
 			return
 		end
-		Fx.tween(scale, Fx.MOTION.settle, { Scale = rest }, Enum.EasingStyle.Back)
+		Fx.tween(scale, Fx.MOTION.settle, { Scale = rest })
 		onClick()
 	end)
 end

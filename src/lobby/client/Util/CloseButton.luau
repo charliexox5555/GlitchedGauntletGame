@@ -9,6 +9,8 @@
 
 local TweenService = game:GetService("TweenService")
 
+local M = require(game:GetService("ReplicatedStorage").Shared.UiMotion).M -- hover 1.125, press 0.875
+
 local CloseButton = {}
 
 local WHITE, INK = Color3.new(1, 1, 1), Color3.fromHex("141A26")
@@ -100,7 +102,7 @@ function CloseButton.hook(b: GuiButton, onClick: () -> ()): () -> ()
 			end
 		end
 		if pop and pop:IsA("UIScale") then
-			tween(pop, 0.18 * k, { Scale = if on then 1.06 else 1 })
+			tween(pop, 0.18 * k, { Scale = if on then M.hover else 1 })
 		end
 	end
 	b.MouseEnter:Connect(function()
@@ -111,8 +113,8 @@ function CloseButton.hook(b: GuiButton, onClick: () -> ()): () -> ()
 	end)
 	b.Activated:Connect(function()
 		if pop and pop:IsA("UIScale") then
-			local rest = if hovered then 1.06 else 1
-			local t = tween(pop, 0.07, { Scale = rest * 0.92 })
+			local rest = if hovered then M.hover else 1
+			local t = tween(pop, 0.07, { Scale = rest * M.press })
 			t.Completed:Once(function(state: Enum.PlaybackState)
 				if state == Enum.PlaybackState.Completed then
 					tween(pop, 0.26, { Scale = rest })

@@ -379,7 +379,7 @@ local function buildSettings()
 					Position = if on
 						then UDim2.new(1, -(TOGGLE.Y - 5), 0.5, 0)
 						else UDim2.new(0, 5, 0.5, 0),
-				}, Enum.EasingStyle.Back)
+				})
 			end)
 		else
 			Kit.tag(c, "SOON", C.textMuted, {

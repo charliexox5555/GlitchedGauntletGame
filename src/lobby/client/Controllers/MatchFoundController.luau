@@ -13,18 +13,18 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 
 local LobbyNet = require(game:GetService("ReplicatedStorage").Lobby.LobbyNet)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 
 local MatchFoundController = {}
 
 local player = Players.LocalPlayer
 local QUINT = Enum.EasingStyle.Quint
-local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
+local IN = Enum.EasingDirection.In
 local SCRIM_T = 0.2 -- the scrim's see-through when shown
 local BLUR = 20
 -- The dots ride one continuous wave, drawn every frame (no chained tweens,
@@ -43,17 +43,7 @@ local blur: BlurEffect
 local isOpen = false
 local token = 0
 
-local function tween(
-	obj: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-): Tween
-	local t = TweenService:Create(obj, TweenInfo.new(time, style or QUINT, dir or OUT), goal)
-	t:Play()
-	return t
-end
+local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T

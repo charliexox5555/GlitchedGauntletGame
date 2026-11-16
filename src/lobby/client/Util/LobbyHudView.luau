@@ -25,7 +25,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
-local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
@@ -34,6 +33,8 @@ local Pivot = require(script.Parent.Pivot)
 local Plates = require(script.Parent.Plates)
 local QueueState = require(script.Parent.QueueState)
 local Router = require(script.Parent.Router)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
+local KM = UiMotion.M
 
 local LobbyHudView = {}
 
@@ -46,7 +47,7 @@ local RED, WHITE, INK = Color3.fromHex("FF4D5E"), Color3.new(1, 1, 1), Color3.fr
 local MAX_ROWS = 8
 local ICON_SIZE, ICON_HOVER, LIFT = 74, 84, 10
 local LIST_AWAY = 440 -- least px the player list slides right when hidden with Tab
-local QUINT, QUAD = Enum.EasingStyle.Quint, Enum.EasingStyle.Quad
+local QUINT = Enum.EasingStyle.Quint
 local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
 
 -- Bar buttons → the Router's menus.
@@ -98,42 +99,24 @@ type State = {
 
 local state: State? = nil
 
-local function tween(
-	obj: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-): Tween
-	local t = TweenService:Create(
-		obj,
-		TweenInfo.new(time, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out),
-		goal
-	)
-	t:Play()
-	return t
-end
+local tween = UiMotion.tween
 
 -- Motion is clean, not bouncy (owner, 2026-11-15: "cleaner, less glitchy"):
 -- Quint out for anything arriving, Quint in for leaving, no Back overshoot,
 -- and nothing snaps to a start value while a tween on it is still running.
 
 -- The scale a pop rests at (1, or its hover size), so a press returns there.
-local function rest(pop: UIScale, scale: number)
-	pop:SetAttribute("Rest", scale)
-	tween(pop, 0.18, { Scale = scale }, QUINT, OUT)
+local function rest(p: UIScale?, scale: number)
+	if p then
+		UiMotion.rest(p, scale)
+	end
 end
 
 -- A press: a quick dip from wherever it is, then an ease back to its rest.
-local function press(pop: UIScale, low: number?)
-	local r = pop:GetAttribute("Rest")
-	local home = if typeof(r) == "number" then r else 1
-	local t = tween(pop, 0.07, { Scale = home * math.max(low or 0.94, 0.9) }, QUAD, OUT)
-	t.Completed:Once(function(playback: Enum.PlaybackState)
-		if playback == Enum.PlaybackState.Completed then
-			tween(pop, 0.28, { Scale = home }, QUINT, OUT)
-		end
-	end)
+local function press(p: UIScale?, _low: number?)
+	if p then
+		UiMotion.press(p)
+	end
 end
 
 -- Pops in from nothing after `delay`.
@@ -417,7 +400,7 @@ local function hoverLift(slot: GuiObject, pop: UIScale?)
 		return
 	end
 	slot.MouseEnter:Connect(function()
-		rest(pop, 1.1)
+		rest(pop, KM.hover)
 	end)
 	slot.MouseLeave:Connect(function()
 		rest(pop, 1)
@@ -660,7 +643,7 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	end
 	play.MouseEnter:Connect(function()
 		s.playHover = true
-		rest(s.playPop, 1.04)
+		rest(s.playPop, KM.hoverCard)
 	end)
 	play.MouseLeave:Connect(function()
 		s.playHover = false
@@ -697,7 +680,7 @@ function LobbyHudView.bind(guis: { [string]: ScreenGui }): boolean
 	local invitePop = slotPop(inviteSlot)
 	inviteSlot.MouseEnter:Connect(function()
 		if invitePop then
-			rest(invitePop, 1.1)
+			rest(invitePop, KM.hover)
 		end
 	end)
 	inviteSlot.MouseLeave:Connect(function()

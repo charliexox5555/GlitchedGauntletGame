@@ -18,7 +18,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
@@ -29,6 +28,7 @@ local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Pivot = require(script.Parent.Parent.Util.Pivot)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local Router = require(script.Parent.Parent.Util.Router)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 
 local LockerController = {}
 
@@ -37,8 +37,7 @@ local DESIGN = Vector2.new(1920, 1080)
 local CARD = Color3.fromHex("0B1236")
 local ALLY = Color3.fromHex("3FE0F2")
 local INK, WHITE = Color3.fromHex("141A26"), Color3.new(1, 1, 1)
-local QUINT, BACK = Enum.EasingStyle.Quint, Enum.EasingStyle.Back
-local OUT = Enum.EasingDirection.Out
+local BACK = Enum.EasingStyle.Back
 
 local CLASSES = {
 	{ "Sidearm", "SIDEARMS" },
@@ -124,17 +123,7 @@ local dragTween: Tween? = nil
 
 local resetClose: () -> () = function() end
 
-local function tween(
-	obj: Instance,
-	t: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-): Tween
-	local tw = TweenService:Create(obj, TweenInfo.new(t, style or QUINT, dir or OUT), goal)
-	tw:Play()
-	return tw
-end
+local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T

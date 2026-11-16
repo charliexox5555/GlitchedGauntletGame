@@ -299,7 +299,7 @@ local function buildWallet(right: Frame)
 				{ Transparency = if on then A.strokeHover else A.stroke }
 			)
 			tintIcon(icon, if on then C.text else C.textSecondary, Fx.MOTION.hover)
-			Fx.tween(icon, 0.35, { Rotation = if on then 60 else 0 }, Enum.EasingStyle.Back)
+			Fx.tween(icon, 0.35, { Rotation = if on then 60 else 0 })
 		end,
 	})
 end
@@ -402,7 +402,7 @@ local function sideTile(tile: Tile, order: number)
 			tintIcon(icon, if on then C.text else C.textSecondary, t)
 			Fx.tween(icon, 0.25, {
 				Position = if on then iconBase + UDim2.fromOffset(0, -2) else iconBase,
-			}, Enum.EasingStyle.Back)
+			})
 		end,
 	})
 end
@@ -818,13 +818,13 @@ local function intro()
 			local base = Fx.base(target)
 			target.Position = base + UDim2.fromOffset(0, 160)
 			task.delay(0.1 + i * Fx.MOTION.stagger, function()
-				Fx.tween(target, Fx.MOTION.reveal, { Position = base }, Enum.EasingStyle.Back)
+				Fx.tween(target, Fx.MOTION.reveal, { Position = base })
 			end)
 		elseif target then
 			local s = Fx.scale(play.face)
 			s.Scale = 0.85
 			task.delay(0.1 + i * Fx.MOTION.stagger, function()
-				Fx.tween(s, Fx.MOTION.reveal, { Scale = 1 }, Enum.EasingStyle.Back)
+				Fx.tween(s, Fx.MOTION.reveal, { Scale = 1 })
 			end)
 		end
 	end

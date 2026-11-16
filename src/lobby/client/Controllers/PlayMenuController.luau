@@ -13,7 +13,6 @@
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
@@ -22,13 +21,15 @@ local Plates = require(script.Parent.Parent.Util.Plates)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
+local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
+local KM = UiMotion.M
 
 local PlayMenuController = {}
 
 local player = Players.LocalPlayer
 local DESIGN = Vector2.new(1920, 1080)
-local QUINT, QUAD = Enum.EasingStyle.Quint, Enum.EasingStyle.Quad
-local IN, OUT = Enum.EasingDirection.In, Enum.EasingDirection.Out
+local QUINT = Enum.EasingStyle.Quint
+local IN = Enum.EasingDirection.In
 local GREEN, MUTED = Color3.fromHex("3FD68A"), Color3.fromHex("AEB8D6")
 local LIVE = { "1v1", "2v2", "3v3" }
 
@@ -67,17 +68,7 @@ local barSpin: UIGradient
 local barShown = false
 local barConn: RBXScriptConnection? = nil
 
-local function tween(
-	obj: Instance,
-	time: number,
-	goal: { [string]: any },
-	style: Enum.EasingStyle?,
-	dir: Enum.EasingDirection?
-): Tween
-	local t = TweenService:Create(obj, TweenInfo.new(time, style or QUINT, dir or OUT), goal)
-	t:Play()
-	return t
-end
+local tween = UiMotion.tween
 
 local function child<T>(parent: Instance, name: string): T
 	return (parent:WaitForChild(name) :: any) :: T
@@ -94,30 +85,20 @@ local function clock(seconds: number): string
 end
 
 -- A quick dip from the pop's rest scale and an ease back (no overshoot).
-local function press(pop: UIScale)
-	local r = pop:GetAttribute("Rest")
-	local home = if typeof(r) == "number" then r else 1
-	local t = tween(pop, 0.07, { Scale = home * 0.95 }, QUAD)
-	t.Completed:Once(function(playback: Enum.PlaybackState)
-		if playback == Enum.PlaybackState.Completed then
-			tween(pop, 0.26, { Scale = home })
-		end
-	end)
+local function press(p: UIScale?, _low: number?)
+	if p then
+		UiMotion.press(p)
+	end
 end
 
-local function rest(pop: UIScale, scale: number)
-	pop:SetAttribute("Rest", scale)
-	tween(pop, 0.2, { Scale = scale })
+local function rest(p: UIScale?, scale: number)
+	if p then
+		UiMotion.rest(p, scale)
+	end
 end
 
 -- A small left-right nudge for things that aren't ready (SOON tiles).
-local function nudge(obj: GuiObject, home: UDim2)
-	task.spawn(function()
-		for _, dx in { -8, 6, -3, 0 } do
-			tween(obj, 0.05, { Position = home + UDim2.fromOffset(dx, 0) }, QUAD).Completed:Wait()
-		end
-	end)
-end
+local nudge = UiMotion.nudge
 
 --------------------------------------------------------------------------------
 -- Tiles
@@ -165,7 +146,7 @@ end
 
 local function hookTile(t: Tile)
 	t.button.MouseEnter:Connect(function()
-		rest(t.pop, if t.live then 1.03 else 1.012)
+		rest(t.pop, if t.live then KM.hoverCard else 1.012)
 		if t.art then
 			tween(t.art, 0.2, {
 				ImageColor3 = if t.live
@@ -382,7 +363,7 @@ function PlayMenuController.init()
 	local cancel = child(bar, "Cancel") :: TextButton
 	local cancelPop = child(cancel, "Pop") :: UIScale
 	cancel.MouseEnter:Connect(function()
-		rest(cancelPop, 1.06)
+		rest(cancelPop, KM.hover)
 	end)
 	cancel.MouseLeave:Connect(function()
 		rest(cancelPop, 1)
