@@ -33,6 +33,23 @@ Builder: `tools/studio/maps/Port/Greybox.luau` → `Workspace.Pier` (4800, 200, 
 ## Kit test (Blender, port 9930)
 `tools/blender/maps_port/port_kit.py` → `container()`: chamfered corner posts, top/bottom rails, angled-plate corrugation on the long sides and blind end, a two-leaf door end with three inset bands, four 6-sided lock bars, handle plates, hinges, corner castings. 30 × 10 × 10, **1,760 tris** (medium piece). Render: `vault/02 Art/References/maps/port/kit-test-container.png` (red and grey, one stacked, beside the R15 proxy). Next kit pieces: short container, gantry crane (truss legs, beam, trolley, hanging hook block), bollard, warehouse roof (corrugated, eaves), quay edge with a fender strip.
 
+## Port kit v1 (built 2026-11-16)
+Owner's go: "build the kit". Blender (port 9930): `tools/blender/maps_port/port_kit.py` + `port_pieces.py` (`build_all()`), run with `run_kit.py` (contact sheet `kit-sheet-v1.png`) and exported with `run_export.py` through `tools/blender/export_lobby_kit.py` → `art-source/maps/Port/Exports/Kit.fbx` (+ `Kit.json`), uploaded with `upload_models.py --maps Port` (asset **103877392135288**), installed with `kit_bundle.py Port Kit` into `ServerStorage.MapKit.Port` (11 pieces, 37 parts).
+
+| Piece | Tris | Notes |
+|---|---|---|
+| ContainerGrey30 / Red30 / Grey25 / Grey20 / Red20 / Grey15 | 1,440-1,760 | the lengths the layouts use; red = the port accent |
+| GantryPier / GantryDock | 1,232 / 1,400 | twin chamfered columns, ties and zigzag braces, box girder with flanges and stiffeners, red trolley, cables, hook block |
+| WarehouseRoof | 508 | slab, corrugated sheet, fascia band |
+| RoofStair | 680 | stringers with level-cut ends, a tread per stud of rise, posts and handrails |
+| Bollard | 116 | 8-sided, decor |
+
+**Mix (owner):** meshes for these; the quay deck, warehouse walls, crates and steps stay Roblox parts.
+
+**Art pass:** `tools/studio/maps/Port/Art.luau` puts the kit on the greybox (Pier 11 containers + gantry + 12 bollards; Dockyard 19 containers + gantry + roof + 2 stairs + 24 bollards); the replaced greybox parts stay as invisible collision, so the play is what the bot test played. Fixes: the roof fascia shared the warehouse walls' outer faces between 11.8 and 12, so the walls are now 11.8 (layout and builder too). Captures: `pier-kit-aerial.jpg`, `pier-kit-exit.jpg`, `dockyard-kit-aerial.jpg` in `vault/02 Art/References/maps/port/`.
+
+**Open points:** from a spawn marker the view is the spawn container 5-10 studs ahead (it hides the spawn; you step out to either side, where the gantry frames the middle). Moving it out pinches the cross container, so it's the owner's call. Not done yet: lighting pass per map, the quay edge (fender strip), crate meshes if the owner wants them, Dockyard playtest, blind score.
+
 ## Concept prompts (owner pastes into ChatGPT; RIVALS-clean, our build style)
 Shared style line for every prompt: *"Stylized Roblox shooter map, clean flat colours with faint texture, chunky readable shapes with chamfered edges and no rounded or bubbly forms, bright midday light with soft shadows, grey concrete structure with one accent colour, no text or logos, no characters."*
 1. **Pier, hero view:** "Eye-level view from a spawn at the end of a long concrete pier: a crosswise red shipping container ahead, rows of grey and red containers forming three lanes, a big charcoal steel gantry crane straddling the middle of the pier, wooden crates as steps up onto a container top, calm blue water on both sides, low bollards along the edge. [style line]"
@@ -50,4 +67,4 @@ Shared style line for every prompt: *"Stylized Roblox shooter map, clean flat co
 6. Say whether Dockyard needs more cover (it's lighter than RIVALS Docks).
 
 ## Next
-Owner review of the layouts, the container test and the concepts; then the full port kit in Blender (export → Open Cloud → `put()` on the greybox), lighting, audits, the bot playtest, and `Config/Match` entries on approval.
+Owner review of the dressed maps; then lighting, the Dockyard playtest, the blind score, and `Config/Match` entries on approval.

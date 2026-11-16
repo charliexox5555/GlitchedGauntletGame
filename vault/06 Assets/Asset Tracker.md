@@ -8,7 +8,7 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
 ## Weapons
 
-**Battle pass cosmetics (2026-11-16).** Poolside Spectre v02 is owner approved. Both 17-gun rosters and Rootglass Broad Leaf are complete in Blender. [Blend, maps and review evidence](../02%20Art/Skins/Battle%20Pass%20Blender%20Build%20Ledger.md)
+**Battle pass cosmetics (2026-11-16).** Poolside Spectre v02 is owner approved. Both 17-gun rosters and Rootglass Broad Leaf are installed as regular skins and saved in Lobby v604 and Match v617. [Blend, maps and review evidence](../02%20Art/Skins/Battle%20Pass%20Blender%20Build%20Ledger.md)
 
 **Moderate skins (2026-11-15).** All 21 Playback, Breakwater and Sundial variants are installed in the lobby and match, including 3 Knife variants. [Deployment](../02%20Art/Skins/Moderate%20Skin%20Deployment.md) Playback Phantom v01 is look-approved. [Assets and review evidence](../02%20Art/Skins/Moderate%20Skin%20Line%20Build%20Ledger.md)
 
@@ -55,8 +55,8 @@ Where they live: models in `ReplicatedStorage.Weapons` (saved with the place), b
 | **[Whitebox](../01%20Design/Maps/Whitebox.md)** | 1v1 / 2v2 | ✅ | ✅ | 🟡 | 🟡 | Built 2026-11-02 as a Studio model, `Workspace.Whitebox`, backup `art-source/maps/Whitebox.rbxm`. 80×112 room + spawn alcoves, 74 parts, 178 textures. Layout approved by the user; they're refining it by hand in Studio. Matches load it ([Match Flow](../01%20Design/Match%20Flow.md)); it has spawn barriers now. Other ideas: [Maps](../01%20Design/Maps/00%20Maps.md) |
 | **[Arena](../01%20Design/Maps/Arena.md)** (redesign) | 1v1 / 2v2 | ✅ | ✅ | 🟡 | ✅ parts | v2 2026-11-16, `Workspace.Arena` in the match place (4500,200,0), 48 parts, plain RIVALS-style parts (two greys, grid tile `rbxassetid://99198970022758`), layout `tools/maps/arena_layout.py`. ForceMap only; replaces Whitebox on approval |
 | **[Big Arena](../01%20Design/Maps/Arena.md)** (redesign) | 2v2 / 3v3 | ✅ | ✅ | ⬜ | ✅ parts | v2 2026-11-16, `Workspace.BigArena` (4500,200,-600), 90 parts, 12-sided court. ForceMap only; replaces Big Whitebox on approval |
-| **[Pier](../01%20Design/Maps/Pier%20and%20Dockyard.md)** (redesign) | 1v1 / 2v2 | ✅ | ⬜ | ⬜ | 🟡 kit test | Layout `tools/maps/port_layout.py`; greybox builder `tools/studio/maps/Port/Greybox.luau` (4800,200,0); container test `tools/blender/maps_port/port_kit.py` |
-| **[Dockyard](../01%20Design/Maps/Pier%20and%20Dockyard.md)** (redesign) | 2v2 / 3v3 | ✅ | ⬜ | ⬜ | 🟡 kit test | Same kit; greybox (4800,200,-600) |
+| **[Pier](../01%20Design/Maps/Pier%20and%20Dockyard.md)** (redesign) | 1v1 / 2v2 | ✅ | ✅ | 🟡 | 🟡 kit v1 placed | Layout `tools/maps/port_layout.py`; greybox builder `tools/studio/maps/Port/Greybox.luau` (4800,200,0); container test `tools/blender/maps_port/port_kit.py` |
+| **[Dockyard](../01%20Design/Maps/Pier%20and%20Dockyard.md)** (redesign) | 2v2 / 3v3 | ✅ | ✅ | ⬜ | 🟡 kit v1 placed | Same kit; greybox (4800,200,-600) |
 | **[Big Whitebox](../01%20Design/Maps/Big%20Whitebox.md)** | 3v3 / 4v4 | ✅ | ✅ | 🟡 | 🟡 | Built 2026-11-03 by script (`tools/studio/maps/BigWhitebox/Greybox.luau`), `Workspace.BigWhitebox`, backup `art-source/maps/BigWhitebox/BigWhitebox.rbxm`, 78 parts. Playtested solo as a match |
 | **[Dockyard](../01%20Design/Maps/Dockyard.md)** | 1v1–4v4 | ✅ | ✅ | 🟡 | ✅ | Built 2026-11-03: layout script, greybox, Blender kit (asset 109909832133442), art + dusk lighting; 1,181 MeshParts; backups `art-source/maps/Dockyard/*.rbxm`. Playtested solo; lighting brightened |
 | **[Metro](../01%20Design/Maps/Metro.md)** | 2v2–4v4 | ✅ | ✅ | 🟡 | ✅ | Built 2026-11-03: layout script, greybox, Blender kit (asset 107161243155344), art + lighting; 261 kit pieces, 65k tris; backups `art-source/maps/Metro/*.rbxm`. Playtested solo |

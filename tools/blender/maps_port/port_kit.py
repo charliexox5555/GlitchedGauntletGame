@@ -24,6 +24,11 @@ A.PAL.update(
 		"C_GreyDark": ("#6F747E", 0.7),
 		"C_Bar": ("#33363C", 0.6),  # lock bars, hinges
 		"C_Cast": ("#4A4E56", 0.7),  # corner castings
+		"G_Steel": ("#555B63", 0.6),  # gantry, stair, rails
+		"G_SteelDark": ("#41464D", 0.6),
+		"W_Roof": ("#7C818A", 0.75),  # warehouse roof sheet
+		"W_Trim": ("#5A5F68", 0.7),
+		"B_Iron": ("#3B3F46", 0.6),  # bollards
 	}
 )
 
@@ -55,13 +60,13 @@ def corrugated_wall(M, mat, x0, x1, y_face, sign, z0, z1, depth=0.32, skin=0.18)
 	M.prism(poly if sign > 0 else list(reversed(poly)), z0, z1, mat)
 
 
-def container(name, body="C_Red", frame="C_RedDark", collection=None, doors=True):
-	"""10 x 10 x 30 shipping container: chamfered corner posts, top and bottom rails, corrugated long sides and
-	blind end, a two-leaf door end with four lock bars, corner castings. Fills its 30 x 10 x 10 box exactly."""
+def container(name, body="C_Red", frame="C_RedDark", collection=None, doors=True, length=L):
+	"""10 x 10 x `length` shipping container: chamfered corner posts, top and bottom rails, corrugated long sides
+	and blind end, a two-leaf door end with four lock bars, corner castings. Fills its box exactly."""
 	col = collection or A.coll(ROOT)
 	M = A.Mesh(name, col)
 	B, F, Bar, Cast = A.mat(body), A.mat(frame), A.mat("C_Bar"), A.mat("C_Cast")
-	hx, hy = L / 2, W / 2
+	hx, hy = length / 2, W / 2
 	c = 0.16  # post chamfer
 	# corner posts
 	for sx in (-1, 1):
