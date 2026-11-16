@@ -135,8 +135,13 @@ function Hits.validate(
 		if ModEntities.isObject(hitPart) then
 			local offset = position - origin
 			local rel = hitPart.CFrame:PointToObjectSpace(position)
-			-- Objects don't move: a tight box (not the bodies' latency allowance).
-			local half = hitPart.Size / 2 + Vector3.one * Combat.OBJECT_HIT_TOLERANCE
+			-- Objects mostly stand still: a tight box (not the bodies' latency
+			-- allowance), with extra slack for one that moves (the Roller).
+			local slack = Combat.OBJECT_HIT_TOLERANCE
+			if hitPart:GetAttribute("Moving") == true then
+				slack += Combat.MOVING_OBJECT_TOLERANCE -- seen a ping behind (the Roller)
+			end
+			local half = hitPart.Size / 2 + Vector3.one * slack
 			if
 				config.melee
 				or pelletUsed[pellet]

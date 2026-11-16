@@ -10,7 +10,7 @@ Recon's bow and controls exactly: hold LMB to charge (1 s to full: 45 → 130 st
 | | L1 |
 |---|---|
 | Charges | 1 per round, no recharge |
-| Blast | 50 at the centre → 25 at 5 studs, line of sight from the impact (pulled 0.4 studs off the surface) |
+| Blast | 50 at the centre → 25 at **8 studs** (5 until 2026-11-17, owner: the radius should be bigger), line of sight from the impact (pulled 0.4 studs off the surface) |
 | Distance | the nearer of the chest and the root to the impact |
 
 | Level | Effect |
@@ -19,8 +19,8 @@ Recon's bow and controls exactly: hold LMB to charge (1 s to full: 45 → 130 st
 | A3 Recharge | back 6 s after use |
 | B2 More Darts | 2 darts, 42 → 21 |
 | B3 More Darts | 4 darts, 36 → 18 |
-| G2 Static ⚡ | no damage: Hinder 2 s on everyone in the radius but you; recharges in 15 s |
-| G3 Static ⚡ | Hinder 3 s in a 7-stud radius |
+| G2 Static ⚡ | no damage: Hinder 2 s on everyone in the 8-stud radius but you; recharges in 15 s |
+| G3 Static ⚡ | Hinder 3 s in an 11-stud radius (7 until 2026-11-17) |
 
 ## Built
 - Server: `src/shared/Mods/ShockDart.luau` (validate clamps the charge to the server's hold time, like Recon). Blast data: ModFx `ShockThrow` (the path) and `ShockBurst` (`at`, surface `normal`, `radius`, `static`, `hits`).

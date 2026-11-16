@@ -547,7 +547,7 @@ local defs: { [string]: ModDef } = {
 		hint = { primary = "Hold: charge", alt = "Bounces" },
 		levels = {
 			L1 = {
-				note = "Shock dart: Recon's bow; the bolt explodes where it lands, 50 → 25 over 5 studs",
+				note = "Shock dart: Recon's bow; the bolt explodes where it lands, 50 → 25 over 8 studs",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
 				chargeTime = 1, -- Recon's flight from here to maxFlight
@@ -560,7 +560,7 @@ local defs: { [string]: ModDef } = {
 				friction = 0.9,
 				maxBounces = 2,
 				maxFlight = 3,
-				radius = 5,
+				radius = 8, -- 5 until 2026-11-17 (owner: "the damage radius should increase")
 				damage = 50, -- at the centre
 				edgeDamage = 25, -- at `radius`
 			},
@@ -581,17 +581,17 @@ local defs: { [string]: ModDef } = {
 			-- No damage: Hinder (Config/StatusEffects) on everyone in the radius
 			-- the impact can see, but you.
 			G2 = {
-				note = "Static: no damage; Hinders everyone in 5 studs for 2 s; recharges in 15 s",
+				note = "Static: no damage; Hinders everyone in 8 studs for 2 s; recharges in 15 s",
 				card = "HINDERS INSTEAD OF DAMAGE",
 				behaviour = "Static",
 				hinder = 2,
 				cooldown = 15,
 			},
 			G3 = {
-				note = "Static: Hinder 3 s in a 7-stud radius",
-				card = "HINDER 3 S  ·  RADIUS 5 → 7",
+				note = "Static: Hinder 3 s in an 11-stud radius",
+				card = "HINDER 3 S  ·  RADIUS 8 → 11",
 				hinder = 3,
-				radius = 7,
+				radius = 11,
 			},
 		},
 	},
@@ -616,7 +616,7 @@ local defs: { [string]: ModDef } = {
 		quickCast = "Primary",
 		levels = {
 			L1 = {
-				note = "Flash: pops 0.9 s after the throw; blinds everyone facing it in 30 studs, up to 1.75 s",
+				note = "Flash: pops 0.9 s after the throw; blinds everyone who has it on screen with a clear line, up to 1.75 s",
 				cooldown = 0, -- 1 per round, no recharge
 				charges = 1,
 				throwSpeed = 75, -- LMB
@@ -630,20 +630,25 @@ local defs: { [string]: ModDef } = {
 				size = 0.25,
 				fuse = 0.9, -- seconds after the throw it pops
 				quickFuse = 0.3, -- RMB
-				range = 30,
-				-- On your screen when it pops (owner 2026-11-17: "if you can see
-				-- the flash on the screen when it pops, you will get flashed"):
-				-- the default 80° camera's view, ±screenX across and ±screenY up
-				-- and down from where you look. blindMax in the middle, blindEdge
-				-- at the screen's edge.
+				-- No range (owner 2026-11-17: "there's no radius to the flash... if
+				-- it's in the person's line of sight, they get flashed"): a clear
+				-- line to their head is the rule; `range` only bounds the search.
+				range = 500,
+				-- Where it pops on their screen (the default 80° camera: ±screenX
+				-- across, ±screenY up and down from their look), as a share of
+				-- the way to the edge (0 middle, 1 edge). Inside `edgeBand`: the
+				-- full flash, blindMax in the middle to blindEdge at the band.
+				-- From there to `glanceEdge`: a short glance that goes away right
+				-- away (Valorant's flash at the edge of your view). Past it, or
+				-- behind them: nothing.
 				screenX = 56,
 				screenY = 40,
+				edgeBand = 0.8,
+				glanceEdge = 1.3,
 				blindMax = 1.75,
-				blindEdge = 1.25,
-				-- Off screen but within glanceAngle of your look: a short glance
-				-- (Valorant: a flash at the edge of your view still stings).
+				blindEdge = 1.5,
 				glance = 0.35,
-				glanceAngle = 100,
+				glanceStrength = 0.55,
 				walls = 0, -- walls the flash reaches through
 			},
 			A2 = { note = "More Flashes: 2 a round", charges = 2 },
@@ -957,15 +962,25 @@ return table.freeze({
 	-- fill clears from the edges inward while a glow on the flash's spot
 	-- shrinks into it, tinted in the Flash's colour as it fades.
 	FLASH_FEEL = {
-		peak = Color3.fromHex("FFF8EA"), -- the held white (warm, never pure)
-		tint = Color3.fromHex("FFC24D"), -- the Flash's colour, shown in the fade
+		-- v3 2026-11-17 (owner's Valorant screenshot): the whole screen covered
+		-- in a deep cool wash, light rays fanning out from the spot the flash
+		-- popped (cool and pale outside, warm gold at the core), held, then
+		-- everything clears together, the rays shrinking into the spot.
+		fill = Color3.fromHex("2C4F53"), -- the wash (covers the screen at full strength)
+		rays = Color3.fromHex("BFE6D6"), -- the outer, wider rays
+		raysWarm = Color3.fromHex("FFF0B8"), -- the inner rays and the core
+		raysSize = 4.4, -- the outer rays, in screen heights (the texture fades out before its edge)
+		raysWarmSize = 2.2,
+		coreSize = 0.55, -- the hot core glow
+		spin = 4, -- degrees a second the rays turn (a slow shimmer)
 		rampIn = 0.05, -- seconds to full
-		peakAlpha = 0.03, -- the fill's transparency at full strength
-		fadeShare = 0.4, -- the last share of the blind spent clearing
-		minFade = 0.35, -- ... but never faster than this
-		coreSize = 2.4, -- the glow on the flash's spot, in screen heights, at the peak
-		coreEnd = 0.25, -- ... and as it closes
+		fadeShare = 0.35, -- the last share of the blind spent clearing
+		minFade = 0.3,
 		muffle = 0.6, -- 0..1 of the full sound muffle
+		-- On the flashed player's head, for everyone else: a small burst of the
+		-- same rays over the face (you can see who you flashed).
+		headSize = 4.2, -- studs
+		headColor = Color3.fromHex("FFF0B8"),
 	},
 
 	-- Remote budgets (per player): rate per second, burst.

@@ -41,9 +41,9 @@ function Flash.options(stats: Types.Stats, quick: boolean): Projectile.Options
 end
 
 -- Seconds of blind (and strength 0..1) for a viewer at `head` looking
--- along `look` when the flash pops at `at`: on their screen, blindMax in the
--- middle down to blindEdge at the edge; off screen but within glanceAngle, a
--- short glance; behind them, nothing.
+-- along `look` when the flash pops at `at`: well inside their screen, the
+-- full flash (blindMax in the middle to blindEdge at `edgeBand`); near the
+-- edge (to `glanceEdge`), a short glance; off screen or behind, nothing.
 function Flash.blindFor(
 	stats: Types.Stats,
 	head: Vector3,
@@ -55,22 +55,23 @@ function Flash.blindFor(
 		return stats.blindMax, 1
 	end
 	local f = look.Unit
+	local z = to:Dot(f)
+	if z <= 0 then
+		return 0, 0 -- behind them
+	end
 	local side = f:Cross(Vector3.yAxis)
 	side = if side.Magnitude > 1e-3 then side.Unit else Vector3.xAxis
 	local up = side:Cross(f)
-	local z = to:Dot(f)
-	local angle = math.deg(math.acos(math.clamp(to.Unit:Dot(f), -1, 1)))
-	if z > 0 then
-		local ax = math.deg(math.atan2(math.abs(to:Dot(side)), z))
-		local ay = math.deg(math.atan2(math.abs(to:Dot(up)), z))
-		local edge = math.max(ax / stats.screenX, ay / stats.screenY)
-		if edge <= 1 then
-			local seconds = stats.blindMax + (stats.blindEdge - stats.blindMax) * edge
-			return seconds, seconds / stats.blindMax
-		end
+	local ax = math.deg(math.atan2(math.abs(to:Dot(side)), z))
+	local ay = math.deg(math.atan2(math.abs(to:Dot(up)), z))
+	local edge = math.max(ax / stats.screenX, ay / stats.screenY)
+	if edge <= stats.edgeBand then
+		local u = edge / stats.edgeBand
+		local seconds = stats.blindMax + (stats.blindEdge - stats.blindMax) * u
+		return seconds, seconds / stats.blindMax
 	end
-	if angle <= stats.glanceAngle then
-		return stats.glance, stats.glance / stats.blindMax
+	if edge <= stats.glanceEdge then
+		return stats.glance, stats.glanceStrength
 	end
 	return 0, 0
 end

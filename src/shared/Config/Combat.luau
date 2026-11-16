@@ -85,6 +85,9 @@ return table.freeze({
 	-- point at most this many studs outside its box (bodies get the latency
 	-- allowance above instead).
 	OBJECT_HIT_TOLERANCE = 0.5,
+	-- A Mod object that moves (attribute Moving = true: the Roller) is seen by
+	-- the shooter a ping behind the server: this much more slack on its box.
+	MOVING_OBJECT_TOLERANCE = 3,
 	-- A Mod's fire-rate boost (WeaponService.setFireRate): the multiplier is
 	-- clamped to [FIRE_BOOST_MIN, FIRE_BOOST_MAX], and shots up to
 	-- FIRE_BOOST_GRACE seconds after it ends still get it (latency).

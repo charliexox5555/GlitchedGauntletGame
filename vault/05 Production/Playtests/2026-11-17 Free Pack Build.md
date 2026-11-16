@@ -63,3 +63,14 @@ The owner looked and asked for:
 - Boom Bot: 60 HP, 5 s life, 80 → 30 damage between 2 m and 6 m; it bounces off walls and beeps faster as it locks on.
 
 **Still for the owner:** save the match place (the new Roller and Flash models, bow strings, Shock Dart props); listen to the new sounds; a 2-client check; ChatGPT icons.
+
+## Round 3: the owner's notes (2026-11-17)
+| Note | Done |
+|---|---|
+| Shock Dart: a bigger damage radius | 5 → 8 studs (Static G3 7 → 11); the blast visuals scale with it. |
+| Roller: the other team must be able to break it | It always could (25 HP, enemy shots only), but a moving Roller could have its hits refused: the server checks shots on Mod objects against a tight box. It now gets 3 studs of slack when the part is marked `Moving`. |
+| Flash: no radius, line of sight like Valorant | The 30-stud range is gone: a clear line to the head plus on screen is the rule. Well on screen: the full flash; at the edge: a short 0.35 s glance that goes away right away; off screen or behind: nothing. |
+| Flash: cover the whole screen, a burst from where it came | The screen is fully covered in a deep cool wash, with light rays fanning from the pop's spot (cool outside, gold core), off-screen pops coming in from their side. Our own ray texture, generated (`tools/vfx/make_flash_starburst.py`). Captured in Play: close to the owner's screenshot. |
+| Flash: show who got flashed | A burst of rays with a white core over each flashed player's face for everyone else, in front of the head, fading with their blind. Captured on a dummy. |
+
+Not checked: a real enemy shooting a Roller (needs 2 clients); the head burst seen by a second player.

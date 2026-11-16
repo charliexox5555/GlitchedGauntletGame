@@ -106,6 +106,7 @@ return table.freeze({
 	-- plain Pillow shapes (tools/vfx/make_rework_standins.py) until the owner's
 	-- ChatGPT picks replace them (same file name, re-upload, swap the id here).
 	FLAME_SHEET_4x4 = "rbxassetid://78155163253287", -- T_FlameSheet (Blender render, final): tongues curl and break off, frame 1 top left (decal 114907753756805)
+	FLASH_RAYS = "rbxassetid://131808559990708", -- light rays fanning from a hot core (tools/vfx/make_flash_starburst.py)
 	T_CHIP = "rbxassetid://110341416119736", -- STAND-IN: faceted diamond chip (decal 123534502111001)
 	T_STREAK = "rbxassetid://104254723912529", -- STAND-IN: long stroke pointed at both ends, vertical (decal 106614138743455)
 	T_PUFF = "rbxassetid://92072734048844", -- STAND-IN: faceted puff, three greys (decal 76370743815827)

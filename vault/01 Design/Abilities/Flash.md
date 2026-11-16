@@ -5,15 +5,15 @@
 Control, Projectile. **Q** (slot 1).
 
 ## How it works
-A held throw. LMB throws it (75 studs/s, walls bounce it) and it **pops 0.9 s after leaving the hand**, wherever it is; RMB tosses it a step ahead and it pops after 0.3 s (round a corner). The server decides who is blinded: every live combatant within 30 studs with a clear line from the pop to their head. **The rule (owner 2026-11-17): if the pop is on your screen, you are flashed**: the default 80° camera's view, ±56° across and ±40° up and down from your look, 1.75 s in the middle down to 1.25 s at the screen's edge. Off screen but within 100° of your look: a 0.35 s glance. Behind you: nothing. Enemies, teammates and **you** alike.
+A held throw. LMB throws it (75 studs/s, walls bounce it) and it **pops 0.9 s after leaving the hand**, wherever it is; RMB tosses it a step ahead and it pops after 0.3 s (round a corner). **No range** (owner 2026-11-17: "there's no radius to the flash"): whoever has a clear line from the pop to their head and has it **on their screen** is flashed, like Valorant. On screen means the default 80° camera's view (±56° across, ±40° up and down from their look). Well inside it (to 80% of the way to the edge): the full flash, 1.75 s in the middle to 1.5 s. Near the edge (to 130%): a **short glance** (0.35 s, weaker) that goes away right away. Off screen or behind: nothing. Enemies, teammates and **you** alike.
 
 Where someone looks (`Target.lookOf`): the server's camera copy when there is one, else the body's facing tilted by the replicated `AimPitch` (Server Authority is off, so this is the client's claim: see Security).
 
 | | L1 |
 |---|---|
 | Charges | 1 per round, no recharge |
-| Range | 30 studs, line of sight (no walls) |
-| Blind | on screen: 1.75 s (centre) → 1.25 s (edge); off screen within 100°: 0.35 s; behind: none |
+| Range | none: line of sight only (no walls) |
+| Blind | well on screen: 1.75 s (centre) → 1.5 s; at the screen's edge: a 0.35 s glance; off screen or behind: none |
 
 | Level | Effect |
 |---|---|
@@ -27,8 +27,11 @@ Where someone looks (`Target.lookOf`): the server's camera copy when there is on
 ## Blinded (new status)
 `Config/StatusEffects.blinded`: `BlindedUntil` (server time), `BlindStrength` (0..1: seconds / 1.75) and `BlindedAt` on the character, written only by `StatusService.blind` (a new flash only extends the time and the strength). Not a multiplier: the victim's screen, the status tray (BLINDED, Flash icon), and bots (`Bots/Brain`: a blinded bot doesn't engage, aim or shoot).
 
-## What a blinded player sees (`Util/FlashFx`, v2 2026-11-17)
-Valorant's recipe in our colours (`Config/Mods` FLASH_FEEL; research summary in the playtest note): a 0.05 s ramp to a **warm near-white** (`FFF8EA`, never pure white), held, then the last 40% (at least 0.35 s) clears from the edges inward while a glow pinned to **where it popped** (projected every frame, so it stays on the flash as you turn) shrinks into that spot and the colour turns **gold** (`FFC24D`, owner's pick). A glance is a short, weaker version. Sound muffled (60% of the full EQ) and a low thump; no ringing (Valorant has none). The v1 angled white plates were replaced (owner: "not just white out... kind of like a colour").
+## What a blinded player sees (`Util/FlashFx`, v3 2026-11-17)
+From the owner's Valorant screenshot (`Config/Mods` FLASH_FEEL): the **whole screen covered** (a full flash is opaque; a glance only partly) in a deep cool wash (`2C4F53`), with **light rays fanning out from the spot the flash popped** (pale and cool outside, warm gold at the core, turning slowly), so you can tell where it came from. The spot is projected every frame; off screen, the rays come in from that side. It ramps in over 0.05 s, holds, then clears over the last 35% (at least 0.3 s): the rays shrink into the spot and the wash fades. Sound muffled (60% EQ) and a low thump. The ray texture is ours: `tools/vfx/make_flash_starburst.py` → `art-source/vfx/flash/T_FlashRays.png` (asset `VfxTextures.FLASH_RAYS`). Earlier versions: v1 angled white plates, v2 a warm white that turned gold (owner: it should cover the screen and show the burst like Valorant).
+
+## Who you flashed (everyone else's view)
+While a player (or dummy) is blinded, everyone else sees **a small burst of the same rays with a white core over their face** (a BillboardGui pushed toward the viewer so the head never hides it, 4.2 studs, pulsing and turning, fading out as their blind runs out), like Valorant's flashed marker.
 
 ## Built
 - Server: `src/shared/Mods/Flash.luau` (`blindFor`, `reaches` for the wall count). ModFx `FlashThrow` (path, `land` = the fuse) and `FlashPop` (`at`, `range`, `exposure`, `hits`).

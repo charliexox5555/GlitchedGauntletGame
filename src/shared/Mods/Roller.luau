@@ -312,6 +312,7 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	part.CanQuery = true -- shootable (WeaponService hits on Mod objects)
 	part.CanTouch = false
 	part:SetAttribute("Remote", stats.behaviour == "Remote" or nil)
+	part:SetAttribute("Moving", true) -- shots get the moving-object slack (Weapon/Hits)
 	-- Its own end decides (fizzle / blast); this is only a backstop.
 	local life = stats.life + stats.chase + stats.warn + 1
 	ctx.place("Roller", part, life, stats.hp, stats.maxActive)
