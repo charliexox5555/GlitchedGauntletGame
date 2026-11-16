@@ -27,19 +27,38 @@ Where someone looks (`Target.lookOf`): the server's camera copy when there is on
 ## Blinded (new status)
 `Config/StatusEffects.blinded`: `BlindedUntil` (server time), `BlindStrength` (0..1: seconds / 1.75) and `BlindedAt` on the character, written only by `StatusService.blind` (a new flash only extends the time and the strength). Not a multiplier: the victim's screen, the status tray (BLINDED, Flash icon), and bots (`Bots/Brain`: a blinded bot doesn't engage, aim or shoot).
 
-## What a blinded player sees (`Util/FlashFx`, v3 2026-11-17)
-From the owner's Valorant screenshot (`Config/Mods` FLASH_FEEL): the **whole screen covered** (a full flash is opaque; a glance only partly) in a deep cool wash (`2C4F53`), with **light rays fanning out from the spot the flash popped** (pale and cool outside, warm gold at the core, turning slowly), so you can tell where it came from. The spot is projected every frame; off screen, the rays come in from that side. It ramps in over 0.05 s, holds, then clears over the last 35% (at least 0.3 s): the rays shrink into the spot and the wash fades. Sound muffled (60% EQ) and a low thump. The ray texture is ours: `tools/vfx/make_flash_starburst.py` → `art-source/vfx/flash/T_FlashRays.png` (asset `VfxTextures.FLASH_RAYS`). Earlier versions: v1 angled white plates, v2 a warm white that turned gold (owner: it should cover the screen and show the burst like Valorant).
+## What a blinded player sees (`Util/FlashFx`, v4 2026-11-17)
+From the owner's Valorant screenshot and their round-4 notes ("looks a little sloppy", "where it came from shouldn't move as you move", "some pulsing, not fully"), `Config/Mods` FLASH_FEEL:
+- **The whole screen covered** (a full flash is opaque; a glance only partly) in a deep cool wash (`2C4F53`).
+- **A burst fixed on your screen where the flash went off**: the spot is taken once, when the blind starts, and stays put as you turn. Off screen, it sits just past that edge.
+- **Clean layers** (`tools/vfx/make_flash_layers.py`, our own): wide soft beams (cool, pale, turning slowly), fine crisp streaks (warm gold, turning the other way), a soft halo and a hot core. The burst pops in a little big and settles over about 0.1 s.
+- **A soft pulse**: the core breathes (±7%), the halo swells (±5%) and the beams shimmer at 2.4 beats a second. Gentle, not a strobe.
+- It ramps in over 0.05 s, holds, then clears over the last 35% (at least 0.3 s): the burst shrinks away and the wash fades. The sound is muffled (60% EQ).
+
+Earlier versions: v1 angled white plates, v2 a warm white that turned gold, v3 one ray sheet that followed the flash as you turned.
 
 ## Who you flashed (everyone else's view)
-While a player (or dummy) is blinded, everyone else sees **a small burst of the same rays with a white core over their face** (a BillboardGui pushed toward the viewer so the head never hides it, 4.2 studs, pulsing and turning, fading out as their blind runs out), like Valorant's flashed marker.
+While a player (or dummy) is blinded, everyone else sees **a small burst of the gold streaks with a white core over their face** (a BillboardGui pushed toward the viewer so the head never hides it, 4.2 studs, pulsing and turning, fading out as their blind runs out), like Valorant's flashed marker.
 
 ## Built
 - Server: `src/shared/Mods/Flash.luau` (`blindFor`, `reaches` for the wall count). ModFx `FlashThrow` (path, `land` = the fuse) and `FlashPop` (`at`, `range`, `exposure`, `hits`).
 - World pop (`Util/BlastFx.flashPop`): one glow 50 → 1 studs over 0.5 s, a hard four-point sparkle, a light (RIVALS FlashbangEffect numbers, our look). Exposure: a cold sparkle (first two frames magenta) and a `ScanRing` in team colour running out to the range.
 - Model v2 (2026-11-17, owner's interview pick "faceted flare canister"): Blender, `tools/blender/freepack/fp_flash.py`, source `art-source/abilities/FreePack/v01/Flash.blend`, asset 105163066204555, 688 tris, audit clean. An 8-facet canister with a foot step, three grip rings, a thin team light band (`Band_Energy`), a metal collar, a dark crown with four guard teeth round a stepped faceted **gold lens** (`Lens_Fire`, keeps its colour), a spoon lever hooked over the collar and a pin ring. Hold: `ITEM_HOLDS.Flash` (scale 1.3).
 
-## Sound (`Config/ModSounds` → `Flash`, ProSoundEffects, picked 2026-11-17, not yet heard by the owner)
-`equip` "Grenade Pull Pin 2" (the pin as it comes up) · `flight` "Fireworks Fast 2" (a fuse whistle) · `pop` "Synth Thunder Cracks Individual Explosion Booms 5" pitched up (the crack) + `popThump` "Mortar Explosion 3" pitched up (the body) · `blinded` "Mortar Explosion 5" pitched down (2D thump) · `throw` / `throwLob` / `bounce` / `exposure` as before. Store rips of other games' flashbangs were skipped on purpose.
+## Sound (`Config/ModSounds` → `Flash`, ProSoundEffects; v2 2026-11-17, waiting for the owner's ear)
+- `equip`: "Grenade Pull Pin 2" (the pin as it comes up).
+- `flight`: "Fireworks Fast 2" (a fuse whistle).
+- **The pop, four layers:**
+  - `pop`: "Synth Thunder Cracks Individual Explosion Booms 5", pitched up (the crack).
+  - `popThump`: "Mortar Explosion 3", pitched up (the body).
+  - `popFlash`: "Camera Flash 4", a Canon Speedlite's sharp electronic pop.
+  - `popZap`: "Whoosh Explosion 1", a dry metallic zap tail.
+- **Blinded, you only:**
+  - `blinded`: "Mortar Explosion 5", pitched down (a low thump).
+  - `blindedShimmer`: "Magic Tone Falling Shimmer Flanged 3" (a soft falling sparkle under the white-out, no ringing).
+- `throw` / `throwLob` / `bounce` / `exposure`: as before.
+
+Store rips of other games' flashbangs were skipped on purpose.
 
 ## Bots
 `BotMods`: an enemy seen in the last 4 s but out of sight, 8-30 studs away: thrown at where they were.

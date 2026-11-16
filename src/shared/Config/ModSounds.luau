@@ -335,9 +335,17 @@ return table.freeze({
 		pop = cue(9126082854, 1, 1.3, nil, 80, 0.7),
 		-- ... and a short sub thump under it ("Mortar Explosion 3", pitched up).
 		popThump = cue(9116973611, 0.8, 1.35, nil, 70, 0.7),
+		-- ... a flashgun's sharp electronic pop on top ("Camera Flash 4",
+		-- Canon Speedlite, sharp pop, pitched down) ...
+		popFlash = cue(9113669552, 0.9, 0.85, nil, 80, 0.45),
+		-- ... and a metallic zap tail ("Whoosh Explosion 1", dry, slapback).
+		popZap = cue(9120705982, 0.6, 1.15, nil, 80, 0.9),
 		-- Flash_Blinded: you, 2D, the low thump under the white-out ("Mortar
 		-- Explosion 5", pitched down). No ringing (Valorant has none either).
 		blinded = cue(9116973607, 0.55, 0.65, nil, nil, 0.9),
+		-- Flash_BlindedShimmer: you, 2D, a soft falling sparkle while the
+		-- white-out lasts ("Magic Tone Falling Shimmer Flanged 3"), no ringing.
+		blindedShimmer = cue(9116418035, 0.4, 1, nil, nil, 1.7),
 		-- Flash_Exposure (G): 3D. the sonar throb, short
 		exposure = cue(9125981390, 0.7, 1.2, nil, 60, 1, 0.05),
 	}),

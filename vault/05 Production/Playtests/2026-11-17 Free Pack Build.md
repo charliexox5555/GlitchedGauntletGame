@@ -74,3 +74,15 @@ The owner looked and asked for:
 | Flash: show who got flashed | A burst of rays with a white core over each flashed player's face for everyone else, in front of the head, fading with their blind. Captured on a dummy. |
 
 Not checked: a real enemy shooting a Roller (needs 2 clients); the head burst seen by a second player.
+
+## Round 4: the owner's last Flash notes (2026-11-17)
+The owner's 2-client test passed. The notes were all on the Flash.
+
+| Note | Done |
+|---|---|
+| "The flash UI looks a little sloppy" | Rebuilt from three clean layers made at 4x and scaled down: wide soft beams, fine crisp streaks and a soft halo, plus the core. They turn against each other, and the burst settles in over about 0.1 s. |
+| "Where it came from shouldn't move as you move around" | The burst's screen spot is taken once when the blind starts and stays fixed. Checked: the core held 0.502, 0.683 through a full camera turn. |
+| "Some pulsing, not fully" | A soft 2.4 Hz breath: core ±7%, halo ±5%, beams shimmer ±8%. |
+| Better sounds | The pop now has four layers (crack, thump, a flashgun's sharp pop, a metallic zap). The blinded player gets a thump and a soft falling shimmer. All are ProSoundEffects, waiting for the owner's ear. |
+
+**Not pushed**: committed locally, waiting for the owner's approval.

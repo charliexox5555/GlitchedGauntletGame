@@ -908,6 +908,8 @@ local function onFlashPop(data: { [string]: any })
 	ModAudio.play(if exposure then S.Flash.exposure else S.Flash.pop, at)
 	if not exposure then
 		ModAudio.play(S.Flash.popThump, at)
+		ModAudio.play(S.Flash.popFlash, at)
+		ModAudio.play(S.Flash.popZap, at)
 	end
 end
 

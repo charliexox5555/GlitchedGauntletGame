@@ -962,23 +962,34 @@ return table.freeze({
 	-- fill clears from the edges inward while a glow on the flash's spot
 	-- shrinks into it, tinted in the Flash's colour as it fades.
 	FLASH_FEEL = {
-		-- v3 2026-11-17 (owner's Valorant screenshot): the whole screen covered
-		-- in a deep cool wash, light rays fanning out from the spot the flash
-		-- popped (cool and pale outside, warm gold at the core), held, then
-		-- everything clears together, the rays shrinking into the spot.
+		-- v4 2026-11-17 (owner: "looks a little sloppy", "where it came from
+		-- shouldn't move as you move", "some pulsing, not fully"): the whole
+		-- screen covered in a deep cool wash; a burst fixed on the screen where
+		-- the flash went off, built from clean layers (wide soft beams, fine
+		-- streaks, a soft halo, the hot core) that turn against each other and
+		-- breathe softly; held, then it clears, the burst shrinking away.
 		fill = Color3.fromHex("2C4F53"), -- the wash (covers the screen at full strength)
-		rays = Color3.fromHex("BFE6D6"), -- the outer, wider rays
-		raysWarm = Color3.fromHex("FFF0B8"), -- the inner rays and the core
-		raysSize = 4.4, -- the outer rays, in screen heights (the texture fades out before its edge)
-		raysWarmSize = 2.2,
-		coreSize = 0.55, -- the hot core glow
-		spin = 4, -- degrees a second the rays turn (a slow shimmer)
+		beams = Color3.fromHex("BFE6D6"), -- the wide soft beams (cool, pale)
+		streaks = Color3.fromHex("FFF0B8"), -- the fine streaks and the halo (warm gold)
+		core = Color3.fromHex("FFF8E2"), -- the hot core
+		beamsSize = 4.6, -- screen heights (the textures fade out before their edges)
+		streaksSize = 2.6,
+		haloSize = 1.1,
+		coreSize = 0.5,
+		spin = 3, -- degrees a second the beams turn (the streaks turn the other way, faster)
+		pulse = {
+			rate = 2.4, -- beats a second
+			core = 0.07, -- the core's size swing (share)
+			halo = 0.05,
+			streaks = 0.03,
+			beams = 0.08, -- the beams' brightness shimmer
+		},
 		rampIn = 0.05, -- seconds to full
 		fadeShare = 0.35, -- the last share of the blind spent clearing
 		minFade = 0.3,
 		muffle = 0.6, -- 0..1 of the full sound muffle
 		-- On the flashed player's head, for everyone else: a small burst of the
-		-- same rays over the face (you can see who you flashed).
+		-- streaks with a white core over the face (you can see who you flashed).
 		headSize = 4.2, -- studs
 		headColor = Color3.fromHex("FFF0B8"),
 	},
