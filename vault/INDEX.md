@@ -56,6 +56,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Lobby V4 Plan.md` (12): **Lobby V4 plan** (2026-11-16) from the RIVALS lobby study: octagon Concourse with a lantern dais, horseshoe Duels (8 equal bays, trophy at the end), Locker, Supply (Shop + Season Pass), Range window + yard; sizes, walk times, budgets, reuse, ChatGPT concept prompts, the owner's interview answers
 - `02 Art/Sunwell Works Build.md` (9): the Sunwell Works build in Studio: hall, Locker, Shop, Duels staging, checks, pipeline, rollback (the style rules from it are the project skill `.claude/skills/gauntlet-build-style`)
 - `02 Art/Sunwell Hub Upgrade.md` (15): the hub hall's sixth pass (2026-11-12): Sun Well, sun ring, boards, pipe racks, turbine, story props, floor route cues, four blind review rounds (median 6.7, stop rule), next list
+- `02 Art/Sunwell Build Rules Handoff.md` (6): every rule from the Sunwell hub sessions in one page: shape rules, de-steampunk palette, lighting lessons, Blender → Studio pipeline, blind grading, open owner calls, git
 - `02 Art/Sunwell Lobby Reference Pack.md` and `Sunwell Lobby Fable Prompt.md`: new lobby layout, image gallery, Roblox research, Studio captures and phase-one build brief
 - `02 Art/Lobby Art Plan.md` (29), `Lobby Kit.md` (15), `Lobby Rebuild 2026-11-04.md` (33), `Lobby Professional Pass.md` (3): Lobby art plan, Blender kit, rebuild log, review pass
 - `02 Art/Mod Props.md` (8), `02 Art/Mod Audio.md` (18): Mod models; Mod sound shortlist (unauditioned)
