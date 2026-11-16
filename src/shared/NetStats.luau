@@ -1,9 +1,9 @@
 --!strict
 -- The server / FPS / ping readout (vault/02 Art/UI Match Overhaul.md), lobby
--- and match, after RIVALS' "Details" chip: a small dark plate in the Roblox
--- top bar row, top right, two lines:
---   VIRGINIA, US                (Shared/ServerRegion)
---   [bars] 144 FPS   32 MS      (bars: 3 green / 2 gold / 1 red by ping)
+-- and match, as simple as RIVALS' (owner, 2026-11-16): no plate, two small
+-- right-aligned lines in the Roblox top bar row, top right:
+--   France      (globe)        Shared/ServerRegion
+--   13fps 1ms   (bars)         3 green / 2 gold / 1 red bars by ping
 -- Client only. NetStats.mount(rightInset) builds its own ScreenGui.
 
 local Players = game:GetService("Players")
@@ -14,16 +14,14 @@ local ServerRegion = require(script.Parent.ServerRegion)
 
 local NetStats = {}
 
-local RUBIK = "rbxassetid://12187365977"
-local BOLD = Font.new(RUBIK, Enum.FontWeight.Bold)
-local HEAVY = Font.new(RUBIK, Enum.FontWeight.Heavy)
-local WHITE = Color3.new(1, 1, 1)
-local MUTED = Color3.fromHex("A9A9B0")
+local FONT = Font.new("rbxassetid://12187365977", Enum.FontWeight.Medium, Enum.FontStyle.Italic)
+local TEXT = Color3.fromHex("D8D8DC")
 local GOOD = Color3.fromHex("64FF32")
 local OK = Color3.fromHex("FFD700")
 local BAD = Color3.fromHex("FF3232")
-local OFF = Color3.fromHex("4A4A52")
-local HEIGHT = 40
+local OFF = Color3.fromHex("6A6A70")
+local GLOBE = "rbxassetid://84851804750230"
+local SIZE = 14
 
 local function make(class: string, props: { [string]: any }, parent: Instance?): any
 	local i = Instance.new(class)
@@ -36,26 +34,41 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local function label(
-	parent: Instance,
-	name: string,
-	font: Font,
-	size: number,
-	color: Color3,
-	order: number
-): TextLabel
-	return make("TextLabel", {
-		Name = name,
+local function line(parent: Instance, order: number): (TextLabel, Frame)
+	local row = make("Frame", {
+		Name = "Line" .. order,
 		BackgroundTransparency = 1,
 		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, size + 2),
-		FontFace = font,
-		TextSize = size,
-		TextColor3 = color,
-		TextXAlignment = Enum.TextXAlignment.Right,
+		Size = UDim2.fromOffset(0, SIZE + 3),
 		LayoutOrder = order,
-		Text = "",
 	}, parent)
+	make("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		HorizontalAlignment = Enum.HorizontalAlignment.Right,
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Padding = UDim.new(0, 5),
+	}, row)
+	local text = make("TextLabel", {
+		Name = "Text",
+		BackgroundTransparency = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, SIZE + 3),
+		FontFace = FONT,
+		TextSize = SIZE,
+		TextColor3 = TEXT,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		LayoutOrder = 1,
+		Text = "",
+	}, row)
+	make("UIStroke", { Color = Color3.new(0, 0, 0), Transparency = 0.7, Thickness = 1 }, text)
+	local icon = make("Frame", {
+		Name = "Icon",
+		BackgroundTransparency = 1,
+		Size = UDim2.fromOffset(SIZE - 1, SIZE - 1),
+		LayoutOrder = 2,
+	}, row)
+	return text, icon
 end
 
 -- Builds the readout and keeps it updated. `rightInset`: px from the right edge.
@@ -69,64 +82,39 @@ function NetStats.mount(rightInset: number): ScreenGui
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 	})
 	local inset = game:GetService("GuiService"):GetGuiInset()
-	local plate = make("Frame", {
-		Name = "Plate",
+	local stack = make("Frame", {
+		Name = "Stack",
 		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -rightInset, 0, math.max(inset.Y, HEIGHT + 8) / 2),
-		Size = UDim2.fromOffset(0, HEIGHT),
+		Position = UDim2.new(1, -rightInset, 0, math.max(inset.Y, 44) / 2),
+		Size = UDim2.fromOffset(0, 2 * (SIZE + 3)),
 		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundColor3 = Color3.fromHex("0F0F12"),
-		BackgroundTransparency = 0.35,
-		BorderSizePixel = 0,
+		BackgroundTransparency = 1,
 	}, gui)
-	make("UICorner", { CornerRadius = UDim.new(0, 8) }, plate)
-	make("UIPadding", {
-		PaddingLeft = UDim.new(0, 10),
-		PaddingRight = UDim.new(0, 10),
-		PaddingTop = UDim.new(0, 4),
-		PaddingBottom = UDim.new(0, 4),
-	}, plate)
 	make("UIListLayout", {
 		FillDirection = Enum.FillDirection.Vertical,
 		HorizontalAlignment = Enum.HorizontalAlignment.Right,
-		VerticalAlignment = Enum.VerticalAlignment.Center,
 		SortOrder = Enum.SortOrder.LayoutOrder,
-		Padding = UDim.new(0, 1),
-	}, plate)
-	local region = label(plate, "Region", BOLD, 12, MUTED, 1)
-	local row = make("Frame", {
-		Name = "Row",
+	}, stack)
+	local region, globeBox = line(stack, 1)
+	make("ImageLabel", {
+		Name = "Globe",
 		BackgroundTransparency = 1,
-		AutomaticSize = Enum.AutomaticSize.X,
-		Size = UDim2.fromOffset(0, 16),
-		LayoutOrder = 2,
-	}, plate)
-	make("UIListLayout", {
-		FillDirection = Enum.FillDirection.Horizontal,
-		VerticalAlignment = Enum.VerticalAlignment.Center,
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Padding = UDim.new(0, 8),
-	}, row)
-	local bars = make("Frame", {
-		Name = "Bars",
-		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(14, 12),
-		LayoutOrder = 1,
-	}, row)
+		Size = UDim2.fromScale(1, 1),
+		Image = GLOBE,
+		ImageColor3 = TEXT,
+	}, globeBox)
+	local stats, barBox = line(stack, 2)
 	local barList: { Frame } = {}
 	for i = 1, 3 do
-		local h = 4 + (i - 1) * 4
 		barList[i] = make("Frame", {
 			Name = "Bar" .. i,
 			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new(0, (i - 1) * 5, 1, 0),
-			Size = UDim2.fromOffset(3, h),
+			Position = UDim2.new(0, 1 + (i - 1) * 4, 1, -1),
+			Size = UDim2.fromOffset(3, 3 + (i - 1) * 4),
 			BackgroundColor3 = OFF,
 			BorderSizePixel = 0,
-		}, bars)
+		}, barBox)
 	end
-	local fps = label(row, "Fps", HEAVY, 14, WHITE, 2)
-	local ping = label(row, "Ping", HEAVY, 14, WHITE, 3)
 	gui.Parent = player:WaitForChild("PlayerGui")
 
 	local function showRegion()
@@ -147,9 +135,9 @@ function NetStats.mount(rightInset: number): ScreenGui
 	task.spawn(function()
 		while gui.Parent do
 			local avg = if #frames > 0 then sum / #frames else 1 / 60
-			fps.Text = string.format("%d FPS", math.floor(1 / math.max(avg, 1e-3) + 0.5))
+			local fps = math.floor(1 / math.max(avg, 1e-3) + 0.5)
 			local ms = math.floor(player:GetNetworkPing() * 1000 + 0.5)
-			ping.Text = string.format("%d MS", ms)
+			stats.Text = string.format("%dfps  %dms", fps, ms)
 			local level = if ms < Config.PING.good then 3 elseif ms < Config.PING.ok then 2 else 1
 			local color = if level == 3 then GOOD elseif level == 2 then OK else BAD
 			for i, b in barList do

@@ -110,6 +110,36 @@ Answered 2026-11-16 (all as recommended):
   - small body text on the draft cards reads crowded in Rubik (its spaces are narrow);
   - the outline on the ability titles over coloured bands looks a little heavy.
 
+### Readout made simple (owner, 2026-11-16: "much simpler like RIVALS")
+- No plate. Two small right-aligned lines in Rubik Medium Italic: the region with a globe, then "13fps 1ms" with the signal bars ([capture](Overhaul/netstats_simple.jpg)).
+- The region is now a name like "France" (US servers: the state); Studio shows "Studio".
+- The globe icon is ours (`art-source/ui/device-icons/Globe.png`).
+
+### Whole-game UI audit (2026-11-16)
+**On the new style (Rubik + charcoal):**
+- every lobby screen and template, checked live in the lobby;
+- every match screen (Studio);
+- the map vote, the readout, the loading screen.
+
+Fixed in this pass:
+- the lobby's searching bar (was Builder Extended);
+- `Config/UiStyle`'s older `FONT` tokens (were Montserrat / Builder Sans; the Range page reads them) and its navy colours;
+- the spawn barrier's label (`Util/BarrierFx`).
+
+**Not yet, and why:**
+1. **The ability HUD and ability effect texts** (`ModHudController`, `HudController`, `ModFxController`, `ModFeelController`, `UpgradeFx/*`) still use Builder Sans. These files hold the ability-rework lane's uncommitted work, so they wait for that lane. It's a one-line font change per file.
+2. **Not yet seen in a full match:** kill feed, death card, notifications, match end. They're restyled, just not looked at.
+3. **Phones:** the phone HUD and phone draft cards are code-built in the old look. Left out on purpose (device restructuring later).
+4. **In-world boards:**
+   - the lobby's signs and boards (Sarpanch / Titillium / Gotham, 184 texts) belong to the lobby build lane's rebuild;
+   - the maps' spawn and door signs (Gotham, Roboto Mono) belong to the maps the owner is redoing.
+5. **Dev and test tools** (loadout picker, range panel, dev Mod panel, gun review) stay on Builder Sans: not player-facing.
+6. **Builders still navy:**
+   - BuildBottomHud, BuildMatchEndScreen and BuildMatchExtras (backups only; the Studio screens are done);
+   - the code colours in `Util/StatusTray`;
+   - all waiting on other lanes' uncommitted edits.
+7. The "Skins · Stock [;]" hint belongs to the skin preview lane.
+
 ## Test list for you
 1. **Save the match place** (vote screen, restyled screens, templates) and the **Lobby place**.
 2. Match: the vote (click a card, change your mind, let the clock run out with no vote = random), then the map loads and round 1's draft opens.

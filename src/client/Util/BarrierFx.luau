@@ -639,7 +639,7 @@ local function buildScreen(): Screen
 	label.LayoutOrder = 0
 	label.Size = UDim2.fromOffset(64, 18)
 	label.BackgroundTransparency = 1
-	label.FontFace = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
+	label.FontFace = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold) -- Rubik
 	label.TextSize = 15
 	label.TextColor3 = TeamColor.ALLY
 	label.TextXAlignment = Enum.TextXAlignment.Left

@@ -18,10 +18,6 @@ local function hex(h: string): Color3
 	return Color3.fromHex(h)
 end
 
-local function font(family: string, weight: Enum.FontWeight): Font
-	return Font.new("rbxasset://fonts/families/" .. family .. ".json", weight)
-end
-
 export type TextStyle = { font: Font, size: number }
 
 local Style = {}
@@ -46,17 +42,17 @@ Style.FLAGS = table.freeze({
 Style.COLOR = table.freeze({
 	-- Surfaces: the fill colour is the TOP of the panel; a gradient darkens it
 	-- toward the bottom by `SHADE.bottom`.
-	surface = hex("1C2531"),
-	surfaceHover = hex("2A3647"),
-	surfaceSelected = hex("243246"),
-	surfaceDeep = hex("0B0F15"), -- key chips, tracks, sunken wells
-	scrim = hex("070A0F"),
+	surface = hex("242427"),
+	surfaceHover = hex("353538"),
+	surfaceSelected = hex("303033"),
+	surfaceDeep = hex("0F0F12"), -- key chips, tracks, sunken wells
+	scrim = hex("0A0A0D"),
 	stroke = hex("FFFFFF"), -- used at ALPHA.stroke
 	shadow = hex("000000"),
 
 	text = hex("FFFFFF"),
-	textSecondary = hex("C8D0DB"), -- about 11:1 on the surface
-	textMuted = hex("A6B0BE"), -- about 7.5:1 on the surface (never below 4.5:1)
+	textSecondary = hex("CFCFD2"), -- about 11:1 on the surface
+	textMuted = hex("AFAFB2"), -- about 7.5:1 on the surface (never below 4.5:1)
 
 	-- The one "act now" colour: PLAY, FIND MATCH, the level, the coin.
 	primary = hex("FFC83D"),
@@ -96,16 +92,16 @@ Style.ALPHA = table.freeze({
 
 -- Gradients: multiply the fill from white (top) to this colour (bottom).
 Style.SHADE = table.freeze({
-	bottom = hex("A3ACB8"), -- 1C2531 top → about 121922 bottom
+	bottom = hex("ABABAE"), -- 1C2531 top → about 121922 bottom
 })
 
 Style.FONT = table.freeze({
-	-- Montserrat Heavy matches the Lobby's Montserrat Black 3D signs.
-	display = font("Montserrat", Enum.FontWeight.Heavy),
-	-- Builder Sans for labels and body (LihFolk: Gotham is retired).
-	label = font("BuilderSans", Enum.FontWeight.ExtraBold),
-	bodyBold = font("BuilderSans", Enum.FontWeight.Bold),
-	body = font("BuilderSans", Enum.FontWeight.SemiBold),
+	-- Rubik everywhere (owner's pick 2026-11-16, Heavy + Bold; vault/02 Art/UI
+	-- Match Overhaul.md). These older tokens were Montserrat / Builder Sans.
+	display = Font.new("rbxassetid://12187365977", Enum.FontWeight.Heavy),
+	label = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold),
+	bodyBold = Font.new("rbxassetid://12187365977", Enum.FontWeight.Bold),
+	body = Font.new("rbxassetid://12187365977", Enum.FontWeight.Medium),
 })
 
 -- Type scale (design px). The text floor in Util/Layout keeps every label at
