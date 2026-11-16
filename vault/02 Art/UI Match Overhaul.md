@@ -95,5 +95,29 @@ Answered 2026-11-16 (all as recommended):
 - The vote delays the first spawn, so two screens log a harmless "infinite yield possible" warning while they wait.
 - Testing needs Workspace `TestMode` off and `ForceMap` cleared in the match place. Both were put back (TestMode on, ForceMap OldTown2).
 
-### Next
-The match screens restyle (Plan step 2).
+### Match screens restyle
+- **In Studio (match place, in place):**
+  - every match screen (TopBar, BottomHud, Notify, DraftScreen, KillFeed, DeathScreen, MatchEndScreen, StatusTray, Scoreboard) and their templates (TopBar, KillFeed, MatchEnd, Status, Scoreboard, Replay) are on **Rubik** (ExtraBold and up → Heavy, SemiBold / Bold → Bold, lighter → Medium): 229 text objects;
+  - the lobby's navy → charcoal rule on every colour: 685 colours;
+  - 24 big white words got the soft dark outline.
+- **Code:**
+  - `Config/Theme` text styles moved from Oswald / Montserrat to Rubik, and its greys to charcoal (this also touches lobby screens that read Theme);
+  - the navy constants in `KillFeedController`, `ScoreboardController`, `TopBarController`, `Util/BottomHud`, `Util/DraftScreen` and `Util/MatchEndScreen` moved to charcoal.
+- **Builders updated** (font + colours): BuildTopBar, BuildNotify, BuildDraftScreen, BuildFeedScreens.
+- **Not touched** because other lanes have uncommitted work in them: BuildBottomHud, BuildMatchEndScreen, BuildMatchExtras, `ModHudController`, `Util/StatusTray`. Their Studio screens are restyled, but their backups and code colours still say navy; do them when those lanes land.
+- **Seen in play:** the draft and the live HUD ([draft](Overhaul/match_draft_restyle.jpg), [HUD](Overhaul/match_hud_restyle.jpg)). **Not seen yet:** kill feed, death card, match end, notifications; the change is the same uniform pass.
+- **Grade 8.5:** consistent with the lobby now. Weak spots:
+  - small body text on the draft cards reads crowded in Rubik (its spaces are narrow);
+  - the outline on the ability titles over coloured bands looks a little heavy.
+
+## Test list for you
+1. **Save the match place** (vote screen, restyled screens, templates) and the **Lobby place**.
+2. Match: the vote (click a card, change your mind, let the clock run out with no vote = random), then the map loads and round 1's draft opens.
+3. Top right in the match and the lobby: region, FPS, ping and bars (live servers should show a region, not "SERVER xxxx").
+4. Top bar tiles and the Tab scoreboard: LV and device marks; bots show BOT.
+5. A full match: kill feed, death card, notifications and match end in the new look.
+
+## Open questions (parked)
+1. **Map pictures:** yours, later. Add `image = "rbxassetid://..."` to the map's entry in `Config/Match MAPS` and the card shows it.
+2. **Levels:** nothing gives levels yet. Progression (XP per match, saved) is its own task.
+3. **Vote length:** 12 s like RIVALS. Shorter?

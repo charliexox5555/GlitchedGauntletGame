@@ -26,13 +26,13 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/BuilderExtended.json"
+local BX = "rbxassetid://12187365977" -- Rubik (UI Match Overhaul: was Builder Extended)
 local BOT_HEAD = "rbxassetid://119185654291939"
 local CAP_RIGHT, CAP_LEFT = "rbxassetid://130377997107460", "rbxassetid://75584308608588"
 local SHADOW = "rbxassetid://121253415859134"
 local STOPWATCH = "rbxassetid://85745477188818"
 local WHITE = Color3.new(1, 1, 1)
-local INK = Color3.fromHex("06080C")
+local INK = Color3.fromHex("08080B")
 local CENTRE = Vector2.new(0.5, 0.5)
 local FILL = UDim2.fromScale(1, 1)
 
@@ -256,7 +256,7 @@ local timer = make("Frame", {
 	AnchorPoint = CENTRE,
 	Position = UDim2.fromScale(0.5, 0.5),
 	Size = FILL,
-	BackgroundColor3 = Color3.fromHex("1A202A"),
+	BackgroundColor3 = Color3.fromHex("1F1F22"),
 	BorderSizePixel = 0,
 }, centre)
 make("UICorner", { CornerRadius = UDim.new(0, 6) }, timer)
@@ -313,7 +313,7 @@ make("TextLabel", {
 	Text = "ROUND 6 · HEAVY",
 	FontFace = Font.new(BX, Enum.FontWeight.Bold),
 	TextSize = 13,
-	TextColor3 = Color3.fromHex("9AA4B2"),
+	TextColor3 = Color3.fromHex("A3A3A6"),
 }, timer)
 
 teamBlock("EnemyTeam", 3, TEAMS.enemy, false)

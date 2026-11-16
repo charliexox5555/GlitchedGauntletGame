@@ -23,7 +23,7 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/BuilderExtended.json"
+local BX = "rbxassetid://12187365977" -- Rubik (UI Match Overhaul: was Builder Extended)
 local WIDTH, HEIGHT = 980, 68
 
 assert(not StarterGui:FindFirstChild("Notify"), "StarterGui.Notify already exists")
@@ -50,7 +50,7 @@ local band = make("CanvasGroup", {
 	AnchorPoint = Vector2.new(0.5, 0),
 	Position = UDim2.fromScale(0.5, 0),
 	Size = UDim2.fromOffset(WIDTH, HEIGHT),
-	BackgroundColor3 = hex("07090D"),
+	BackgroundColor3 = hex("09090C"),
 	BackgroundTransparency = 0,
 	BorderSizePixel = 0,
 }, root)

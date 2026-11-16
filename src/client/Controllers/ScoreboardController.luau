@@ -40,7 +40,7 @@ type Line = {
 local player = Players.LocalPlayer
 
 local DESIGN = Vector2.new(1920, 1080)
-local NAVY, NAVY_HI = Color3.fromHex("1C2740"), Color3.fromHex("2B3A5A")
+local NAVY, NAVY_HI = Color3.fromHex("262629"), Color3.fromHex("39393C")
 local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
 local ALLY_CELL, ENEMY_CELL = Color3.fromHex("0D5C7A"), Color3.fromHex("8A1C24")
 local BOT_HEAD = "rbxassetid://119185654291939"
@@ -123,7 +123,7 @@ local function row(s: State, order: number, line: Line, ally: boolean)
 		lv.LayoutOrder = 2
 		local dev = PlayerTags.device(nameLine, who, 16, name.ZIndex)
 		dev.LayoutOrder = 3
-		dev.ImageColor3 = Color3.fromHex("A9A9B0")
+		dev.ImageColor3 = Color3.fromHex("AAAAAD")
 		shard.LayoutOrder = 4
 		dead.LayoutOrder = 5
 	end

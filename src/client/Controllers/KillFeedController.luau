@@ -33,7 +33,7 @@ local NAME_MAX = 14 -- characters before a name is cut with "…"
 local POP_HOLD = 1.6 -- seconds the kill pop stays
 local SEGMENTS = 5
 local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
-local NAVY, NAVY_HI = Color3.fromHex("1C2740"), Color3.fromHex("2B3A5A")
+local NAVY, NAVY_HI = Color3.fromHex("262629"), Color3.fromHex("39393C")
 local GOLD, WHITE = Color3.fromHex("FFC83D"), Color3.new(1, 1, 1)
 
 type Pop = {

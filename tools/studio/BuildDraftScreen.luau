@@ -26,11 +26,11 @@ local function make(class: string, props: { [string]: any }, parent: Instance?):
 	return i
 end
 
-local BX = "rbxasset://fonts/families/BuilderExtended.json"
+local BX = "rbxassetid://12187365977" -- Rubik (UI Match Overhaul: was Builder Extended)
 local XB, BD, SB = Enum.FontWeight.ExtraBold, Enum.FontWeight.Bold, Enum.FontWeight.SemiBold
-local NAVY, PANEL = hex("1C2740"), hex("0E1320")
+local NAVY, PANEL = hex("262629"), hex("131316")
 local CYAN, GOLD, BODY, MUTED, INK =
-	hex("3FE0F2"), hex("FFC83D"), hex("D7DDE6"), hex("8E98A8"), hex("141A26")
+	hex("3FE0F2"), hex("FFC83D"), hex("D7DDE6"), hex("97979A"), hex("1A1A1D")
 local WHITE = Color3.new(1, 1, 1)
 local SHADOW = "rbxassetid://121253415859134"
 local CAP_R, CAP_L = "rbxassetid://130377997107460", "rbxassetid://75584308608588"
@@ -80,7 +80,7 @@ local function keycap(p: Instance, s: string, w: number, h: number, props: { [st
 	local k = make("Frame", {
 		Name = "Key",
 		Size = UDim2.fromOffset(w, h),
-		BackgroundColor3 = hex("0B0F17"),
+		BackgroundColor3 = hex("0F0F12"),
 		BorderSizePixel = 0,
 		ZIndex = 8,
 	}, p)
@@ -186,7 +186,7 @@ local gui = make("ScreenGui", {
 make("TextButton", {
 	Name = "Backdrop", -- Modal while open: frees the mouse in first person
 	Size = UDim2.fromScale(1, 1),
-	BackgroundColor3 = hex("070A10"),
+	BackgroundColor3 = hex("0A0A0D"),
 	BackgroundTransparency = 0.2,
 	BorderSizePixel = 0,
 	AutoButtonColor = false,

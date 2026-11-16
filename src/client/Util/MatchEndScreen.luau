@@ -46,10 +46,10 @@ export type PlateData = { model: Model, name: string, ally: boolean, mvp: boolea
 local player = Players.LocalPlayer
 
 local DESIGN = Vector2.new(1920, 1080)
-local NAVY, NAVY_HI = Color3.fromHex("1C2740"), Color3.fromHex("2B3A5A")
+local NAVY, NAVY_HI = Color3.fromHex("262629"), Color3.fromHex("39393C")
 local ALLY, ENEMY = Color3.fromHex("3FE0F2"), Color3.fromHex("FF6B57")
 local ALLY_CELL, ENEMY_CELL = Color3.fromHex("0D5C7A"), Color3.fromHex("8A1C24")
-local GOLD, MUTED, WHITE = Color3.fromHex("FFC83D"), Color3.fromHex("8E98A8"), Color3.new(1, 1, 1)
+local GOLD, MUTED, WHITE = Color3.fromHex("FFC83D"), Color3.fromHex("97979A"), Color3.new(1, 1, 1)
 local KEY_FACE = Color3.fromHex("E9EDF3")
 local MINE_H, ROW_H = 58, 46
 

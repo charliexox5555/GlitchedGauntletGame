@@ -42,7 +42,7 @@ local WHITE = Color3.new(1, 1, 1)
 local DANGER = Color3.fromHex("FF4D5E")
 local DEAD_TINT = Color3.fromRGB(120, 124, 132) -- greyed-out headshot
 local DEAD_FADE = 0.35 -- headshot fade inside a dead cell
-local CELL_DEAD = Color3.fromHex("3A3F48")
+local CELL_DEAD = Color3.fromHex("3F3F42")
 local CELL_FADE = 0.1
 
 type Fighter = { key: Instance, userId: number?, humanoid: Humanoid? }

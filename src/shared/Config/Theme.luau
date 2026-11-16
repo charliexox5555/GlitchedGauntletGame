@@ -11,8 +11,10 @@ local function hex(h: string): Color3
 	return Color3.fromHex(h)
 end
 
-local function family(name: string, weight: Enum.FontWeight): Font
-	return Font.new("rbxasset://fonts/families/" .. name .. ".json", weight)
+-- Rubik, the game's UI font (owner's pick 2026-11-16: Heavy + Bold; vault/02
+-- Art/UI Match Overhaul.md). A Roblox-owned font.
+local function rubik(weight: Enum.FontWeight): Font
+	return Font.new("rbxassetid://12187365977", weight)
 end
 
 export type TextStyle = { font: Font, size: number }
@@ -21,17 +23,17 @@ return table.freeze({
 	DESIGN = Vector2.new(1920, 1080),
 
 	COLORS = table.freeze({
-		scrim = hex("07090D"),
-		panel = hex("11151C"),
-		card = hex("181D26"),
-		raised = hex("212833"),
-		hover = hex("2A3340"),
-		lineSoft = hex("2C3440"),
-		lineStrong = hex("4A5564"),
+		scrim = hex("09090C"),
+		panel = hex("151518"),
+		card = hex("1D1D20"),
+		raised = hex("27272A"),
+		hover = hex("323235"),
+		lineSoft = hex("333336"),
+		lineStrong = hex("545457"),
 		text = hex("F5F7FA"),
-		textSecondary = hex("A7B0BC"),
-		textDim = hex("69727F"),
-		onAccent = hex("11151C"),
+		textSecondary = hex("AFAFB2"),
+		textDim = hex("717174"),
+		onAccent = hex("151518"),
 		ally = Mods.COLORS.ally,
 		enemy = Mods.COLORS.enemy,
 		gold = hex("FFD23F"),
@@ -54,17 +56,17 @@ return table.freeze({
 	-- Two families (Oswald for titles and numbers, Montserrat for the rest),
 	-- both built into Roblox. Sizes are design pixels at 1080p.
 	TEXT = table.freeze({
-		displayXL = { font = family("Oswald", Enum.FontWeight.Bold), size = 132 },
-		displayL = { font = family("Oswald", Enum.FontWeight.Bold), size = 56 },
-		displayM = { font = family("Oswald", Enum.FontWeight.Bold), size = 40 },
-		titleCard = { font = family("Oswald", Enum.FontWeight.Bold), size = 44 },
-		titleS = { font = family("Oswald", Enum.FontWeight.SemiBold), size = 22 },
-		numberHud = { font = family("Oswald", Enum.FontWeight.Bold), size = 76 },
-		timer = { font = family("Oswald", Enum.FontWeight.Medium), size = 44 },
-		label = { font = family("Montserrat", Enum.FontWeight.Bold), size = 13 },
-		bodyM = { font = family("Montserrat", Enum.FontWeight.SemiBold), size = 17 },
-		bodyS = { font = family("Montserrat", Enum.FontWeight.Medium), size = 14 },
-		key = { font = family("Montserrat", Enum.FontWeight.ExtraBold), size = 16 },
+		displayXL = { font = rubik(Enum.FontWeight.Heavy), size = 132 },
+		displayL = { font = rubik(Enum.FontWeight.Heavy), size = 56 },
+		displayM = { font = rubik(Enum.FontWeight.Heavy), size = 40 },
+		titleCard = { font = rubik(Enum.FontWeight.Heavy), size = 44 },
+		titleS = { font = rubik(Enum.FontWeight.Bold), size = 22 },
+		numberHud = { font = rubik(Enum.FontWeight.Heavy), size = 76 },
+		timer = { font = rubik(Enum.FontWeight.Heavy), size = 44 },
+		label = { font = rubik(Enum.FontWeight.Bold), size = 13 },
+		bodyM = { font = rubik(Enum.FontWeight.Medium), size = 17 },
+		bodyS = { font = rubik(Enum.FontWeight.Medium), size = 14 },
+		key = { font = rubik(Enum.FontWeight.Heavy), size = 16 },
 	} :: { [string]: TextStyle }),
 
 	-- 9-slice and plate images. CutFill/CutLine: 128 px with 32 px cuts.
