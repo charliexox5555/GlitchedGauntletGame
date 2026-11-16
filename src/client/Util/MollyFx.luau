@@ -102,6 +102,21 @@ local SKIP_CHANCE = 0.06 -- per glitch frame: a ring of flames skips sideways
 local GLITCH_PINK = Color3.fromRGB(255, 170, 240)
 local GLITCH_POOL = Color3.fromRGB(150, 24, 130)
 
+-- Fire pass 2 (2026-11-16): the owner judged the rework's shard patch
+-- (Util/FireFx) worse than this mesh fire, so this stays the Molly's look and
+-- gets the improvements instead. FireFx's patch is kept for reference only.
+local REWORK_PATCH = false
+-- Depth instead of one blown-out yellow. Neon draws a step brighter than its
+-- colour, so these are darker than they look: a deep red-orange pool, an
+-- orange outer crown, a yellow inner crown, the hot yellow edge (FireKit.CORE).
+local POOL_FIRE = Color3.fromHex("A8300A")
+local CROWN_OUT = Color3.fromHex("C8430E")
+local CROWN_IN = Color3.fromHex("D9922A")
+local TONGUE_HOT = Color3.fromHex("D9922A")
+local TONGUE_BODY = Color3.fromHex("C8430E")
+local TONGUE_DEEP = Color3.fromHex("9A2208")
+local MIDDLE_TALL, EDGE_TALL_K = 1.5, 0.75 -- flame height at the middle / at 72% out: a mound, not a flat disc
+
 local rng = Random.new()
 
 type MeshFire = {
@@ -430,21 +445,25 @@ end
 
 -- The mesh fire (FireKit) ----------------------------------------------------------
 
--- Every third flame over the patch is the bright yellow, the rest orange.
-local function flameColor(i: number, glitch: boolean): Color3
+-- Flames over the patch (`i` counts outward from the middle, of `count`):
+-- hot yellow in the middle, orange further out with a deep red now and then.
+local function flameColor(i: number, glitch: boolean, count: number?): Color3
 	if glitch then
 		return if i % 2 == 0 then GLITCH_PINK else GLITCH
 	end
-	return if i % 3 == 0 then FireKit.CORE else FireKit.BODY
+	if i <= (count or 0) * 0.4 then
+		return TONGUE_HOT
+	end
+	return if i % 3 == 0 then TONGUE_DEEP else TONGUE_BODY
 end
 
 local function paintMesh(m: MeshFire, glitch: boolean)
-	m.pool.Color = if glitch then GLITCH_POOL else FireKit.POOL
+	m.pool.Color = if glitch then GLITCH_POOL else POOL_FIRE
 	m.ring.Color = if glitch then GLITCH else FireKit.CORE
-	m.crownA.Color = if glitch then GLITCH else FireKit.BODY
-	m.crownB.Color = if glitch then GLITCH_PINK else FireKit.CORE
+	m.crownA.Color = if glitch then GLITCH else CROWN_OUT
+	m.crownB.Color = if glitch then GLITCH_PINK else CROWN_IN
 	for i, f in m.flames do
-		FireKit.paint(f, flameColor(i, glitch))
+		FireKit.paint(f, flameColor(i, glitch, #m.flames))
 	end
 end
 
@@ -474,7 +493,7 @@ local function meshFire(radius: number, glitch: boolean, now: number): MeshFire?
 	local golden = math.pi * (3 - math.sqrt(5))
 	local turn = rng:NextNumber(0, math.pi * 2)
 	for n = 1, count do
-		local f = FireKit.flame(flameColor(n, glitch), now)
+		local f = FireKit.flame(flameColor(n, glitch, count), now)
 		if not f then
 			break
 		end
@@ -482,7 +501,9 @@ local function meshFire(radius: number, glitch: boolean, now: number): MeshFire?
 		local a = turn + n * golden
 		table.insert(flames, f)
 		table.insert(spots, Vector3.new(math.cos(a) * r, 0, math.sin(a) * r))
-		table.insert(heights, rng:NextNumber(FLAME_LOW, FLAME_HIGH) * sizeK)
+		local out = math.sqrt((n - 0.5) / count) -- 0 middle .. 1 at 72% of the radius
+		local mound = MIDDLE_TALL + (EDGE_TALL_K - MIDDLE_TALL) * out
+		table.insert(heights, rng:NextNumber(FLAME_LOW, FLAME_HIGH) * sizeK * mound)
 	end
 	local m: MeshFire = {
 		pool = pool,
@@ -743,7 +764,7 @@ function MollyFx.ignite(
 	local isGlitch = glitch == true
 	local now = os.clock()
 	-- The rework look (Fork Fire's small fires are Molly fires too).
-	local patch = FireFx.patch(at, radius, left, ringColor)
+	local patch = if REWORK_PATCH then FireFx.patch(at, radius, left, ringColor) else nil
 	if patch then
 		local pitch = pitchFor(radius)
 		ModAudio.play(S.burst, at, pitch)

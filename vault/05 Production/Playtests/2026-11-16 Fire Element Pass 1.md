@@ -2,7 +2,26 @@
 
 Step 1 of [Handoff - Ability Rework (Opus)](../Handoff%20-%20Ability%20Rework%20(Opus).md) → "Effects, one element at a time, fire first". Spec: [Ability VFX Direction](../../02%20Art/Ability%20VFX%20Direction.md) (F1-F7, Per Mod → Molly / Fork Fire). Code: `src/client/Util/ReworkVfx.luau` (the kit), `src/client/Util/FireFx.luau` (fire), wired from `MollyFx.ignite` / `step` / `stepBurning` and `UpgradeFx/Molly.onFork`. The old FireKit / particle looks stay as the fallback when the kit is missing.
 
-**Waiting on the owner: sign off the fire captures (or say what to change) before ice starts.**
+**Superseded by pass 2 below:** the owner judged the shard patch "horrible", worse than the old fire. The old mesh fire is the base again, improved.
+
+## Pass 2: back to the old fire, improved (2026-11-16)
+Owner: "the visual effects look horrible, the ones before were better". Side by side (captures 5 and 6 vs 3):
+
+| | Old fire (FireKit) | Rework shards (pass 1) |
+|---|---|---|
+| Body | A glowing pool disc ties it into one shape: the floor is burning | 14 separate shards on bare floor: reads as props |
+| Density, scale | Two continuous crown rings of many small knee-high points | A few tall pieces up to 7 studs: plants or claws |
+| Heat | Glows from a hot core | One flat colour per piece; dark red reads cold; LightEmission -1 particles go muddy |
+| Motion | Smooth flicker, crowns turning | 12 Hz held poses: choppy, near frozen |
+| Weak points | Nearly all one blown-out yellow (Neon brightens colours); flat like a pie | Cyan team ring fights the fire colours |
+
+**How the old one is made:** `Util/FireKit` (Blender `FireVFX` meshes, `tools/blender/build_mod_firevfx.py`) drawn by `MollyFx.meshFire` / `placeMesh`: pool disc at 0.15 transparency, a hot edge ring, two crown rings turning opposite ways with a noise flicker, tongues over the inner 72% facing you, flickering, leaning and swapping variants; the burst grows the rings from 35% to full radius in 0.3 s with ember sparks.
+
+**Pass 2 changes (`MollyFx`):** the rework patch is off (`REWORK_PATCH = false`; `FireFx` kept for reference). Colour depth instead of one yellow, using darker values because Neon draws a step brighter: deep red-orange pool `A8300A`, orange outer crown `C8430E`, yellow inner crown `D9922A`, hot yellow edge kept. The inner 40% of the tongues are hot yellow, outer ones orange with a deep red every third. The tongues stand 1.5x taller in the middle, down to 0.75x at the edge (a mound, not a disc). Capture 6. My grade: old about 6.5, pass 1 about 3, pass 2 about 8.
+
+Still from pass 1 and live: Fork Fire's split accent (`FireFx.split`) and burning bodies (`FireFx.setBurning`), neither seen in Play yet. No team ring on the fire now (the spec wants one; a cyan neon ring fought the fire).
+
+**Waiting on the owner:** play the Molly and say if pass 2 is the fire to keep. Then Firewall gets the same treatment.
 
 ## Captures (`2026-11-16 fire captures/`)
 | File | What |
