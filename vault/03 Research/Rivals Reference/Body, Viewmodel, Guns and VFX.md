@@ -47,3 +47,22 @@ Part of [Rivals Reference](00%20Rivals%20Reference.md). Studied 2026-11-15, read
 ## What we take / don't
 - **Take:** the IK-from-viewmodel idea, spring numbers, the attachment contract, the VFX layer recipes and timings above, flat-colour gun budgets.
 - **Don't take:** their meshes, flipbook/particle textures, wrap textures, animation assets, sounds or code. Rebuild every effect with our textures from the recipe. A copied texture is the "obvious" part, so we don't use theirs at all.
+
+## Hit feedback and crosshair (studied 2026-11-15)
+Read as text from the RIVALS client modules (`Modules.Crosshair`, `ItemInterface.Mouse` + `MouseCrosshair`, `FighterInterface.DamageIndicators` / `Health` / `EliminationSlots`, `UserInterface.EliminatedEffect`, `CameraController`). Numbers and behaviour only. Their springs are Quenty-style `Spring.new(start, damper, speed)`; a lot of them **jump straight up to a bigger target and only ease down** (`if target > value then value = target`), so a gap or tilt is instant and the recovery is the soft part.
+
+| Item | RIVALS behaviour and numbers |
+|---|---|
+| Crosshair default | 4 bars **6 × 2 px**, dot 2 px, gap **16 px**, black outline (stroke), white; settings: colour, outline, scale, rotation, per-bar off, dot/bars/circle shape, hit-marker colour + crit colour, hit-marker scale/rotation. |
+| Crosshair gap | `gap = (16 + 8·(0.75·speed/16)² + 32·air + 100·|recoil|/accuracy) · crouch / accuracy`; `crouch` = **0.25 while crouched/sliding** (gap closes), `air` = 1 off the ground. Each term on a spring (damper 0.875, speed 20) that **snaps up and eases down**. |
+| Crosshair on ADS | gap × (1 − aim) and transparency = aim: the bars **collapse into the dot while fading** as you aim. |
+| Crosshair on slide | the whole mouse frame **rotates to 20°** (whole degrees) the moment the slide starts (spring 0.875 / 20, snaps up), springs back when it ends. First person only. |
+| Crosshair follows camera | it's projected through the viewmodel offset × shake, so camera shake moves the crosshair with the view. |
+| Hit marker | 4 corner wedges. On hit: spring **reset to 0 → 1** (damper 1, speed 20 ≈ 0.25 s): wedge size **16 → 8 px**, offset from centre **32 → 6 px** (starts big and wide, shrinks in tight). Holds, then fades: transparency = `min(1, t/2)^10` (fully visible ~1.4 s, gone at 2 s). Colour white, **crit `#ff3232`**. A ±15° random tilt is computed but isn't applied in the decompile. Same marker on a kill. |
+| Damage-direction wedge | one per source (a new hit from the same source replaces it); angle on a spring (damper 1, speed 40), on a ring at **0.375** of the frame; size 0.5 of the frame, shrinking with distance (`0.5 / max(1, (d-5)/25)`, min 0.125); holds **5 s**, fades `^4` over ~0.4 s. |
+| Hurt vignette | per hit, opacity = **0.5 + 0.5·(damage / health)** at start, fades linearly over ~0.4 s. Low-HP vignette: off above 50 % HP, transparency = HP%·2 below that. Health bar colour ramp (255,50,50) → (255,215,0) → (100,255,50), Quint 0.5 s. |
+| "Eliminated <name>" | row under the crosshair grows in (**Back, 0.25 s**), holds **3 s**, shrinks (Quint 0.5 s) and fades; name in the victim's team colour, weight 800 with a 3 px black stroke, "Eliminated" weight 500; streak sounds climb with the chain; rows queue 0.04 s apart. |
+| Death card (victim) | `EliminatedEffect` card unfolds width 0 → 1 (Quint 1 s), holds 5 s, fades. |
+| Slide camera | position spring (0.75 / 30) drops the eye **3 studs** (crouch 2); roll **−5°** on a bouncy spring (damper **0.5**, speed 15); FOV + (speed − 16)·10/16 on a spring (0.75 / 30); head bob off while sliding. No legs in first person. |
+
+**What we used** (owner's answers, 2026-11-15): 20° slide tilt like RIVALS; no first-person legs; no extra headshot screen cue; the same marker on a kill, with our own kill UI and line. Result note: [2026-11-15 Gunplay Feel RIVALS](../../05%20Production/Playtests/2026-11-15%20Gunplay%20Feel%20RIVALS.md).

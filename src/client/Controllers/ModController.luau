@@ -44,6 +44,7 @@ local RecallRing = require(script.Parent.Parent.Util.RecallRing)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 local VfxPool = require(script.Parent.Parent.Util.VfxPool)
 local CameraController = require(script.Parent.CameraController)
+local HudController = require(script.Parent.HudController)
 local InputController = require(script.Parent.InputController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
@@ -582,7 +583,10 @@ end
 
 -- Uses the held Mod (or queues the use while it's still coming up).
 local function use(mode: ModTypes.UseMode)
-	if phase ~= "Equipping" and phase ~= "Held" then
+	-- Mid-draw (Recon, owner 2026-11-15): RMB still cycles the bounces. The
+	-- charge keeps running and the release fires with the count shown then.
+	local drawing = phase == "Charging"
+	if phase ~= "Equipping" and phase ~= "Held" and not (drawing and mode == "Alt") then
 		return
 	end
 	if not Health.isAlive(player.Character) then
@@ -594,12 +598,19 @@ local function use(mode: ModTypes.UseMode)
 		endHold(true)
 		return
 	end
+	if drawing and def.activation ~= "HeldCharge" then
+		return
+	end
 	if def.activation == "HeldCharge" then
 		if mode == "Alt" then
-			-- RMB picks the bounces (it isn't a use).
+			-- RMB picks the bounces (it isn't a use): 0, 1, 2, round again.
 			chargeBounces = (chargeBounces + 1) % ((stats.maxBounces or 2) + 1)
 			ModAudio.play(ModAudio.SOUNDS.Recon.bounceSelect)
-			launcherLights(0)
+			launcherLights(
+				if drawing
+					then math.clamp((os.clock() - chargeStart) / (stats.chargeTime or 1), 0, 1)
+					else 0
+			)
 			return
 		end
 		if phase == "Equipping" then
@@ -1040,6 +1051,7 @@ local function update(_dt: number)
 			CameraController.rollKick(-localDir.X * feel.roll, feel.rollTime)
 			CameraController.lunge(dir * feel.lunge, feel.lungeTime)
 			CameraController.shake(feel.shake)
+			HudController.crosshairDash()
 		end
 	end
 	-- Updraft: the free hand flicks down, the gun drops away while you rise

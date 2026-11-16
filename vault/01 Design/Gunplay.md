@@ -14,10 +14,10 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 | Action | Value | Notes |
 |---|---|---|
 | Walk | 16 studs/s | |
-| Sprint | 22 studs/s | Toggle or hold (setting). Pressing fire **cancels sprint instantly** |
+| Run | 22 studs/s | **Automatic (2026-11-11, owner; it's there for mobile players).** Move forward and you run almost at once: 0.05 s, then walk → run speed over 0.12 s (`RUN_DELAY`, `RUN_RAMP`; first tried 0.4 / 0.35: "too slow, hard to get going"). Aiming, crouching, stopping, backing up or firing drops you to a walk (**fire still cancels it instantly**). **The Sprint key (Shift, PC) does one thing:** held while you move it overrides crouch, so you stand up and run without letting go of C; letting go of Shift with C still down crouches again (no slide). Was Shift to sprint, toggle or hold |
 | Crouch | 9 studs/s | Tighter spread. Key: C or Left Ctrl (Mod 3 is T) |
-| Jump | **5.6 studs** (was 7.2, changed 2026-11-04: "jumps too high") | Falling uses 1.3× gravity (`FALL_GRAVITY`): same peak, a crisper landing. Soft takeoff sound, landing dip + thud. No fall damage |
-| **Slide** | Sprint + crouch → 30 studs/s burst, slowing to crouch speed over 0.7 s | 0.6 s cooldown. You can shoot while sliding |
+| Jump | **4.4 studs** (2026-11-11: "way too high"; was 5.6 from 2026-11-04, 7.2 before) | Falling uses 1.6× gravity (`FALL_GRAVITY`, was 1.3): a quick hop, not a float. **Check map jumps built for 5.6.** Soft takeoff sound, landing dip + thud. No fall damage |
+| **Slide** | Sprint + **tap** crouch → 30 studs/s burst, slowing over 0.85 s to the speed you'll have next: sprint, walk or crouch (2026-11-11; was 0.7 s to crouch speed, and it stopped when C was released) | The tap commits the whole slide, and it **holds the line it started on** (2026-11-11): the camera turns freely, the move keys bend it only about 12°/s (`SLIDE_STEER`, 0 = fully locked). Jump = slide-jump; C held at the end = stay crouched; hitting something ends it. 0.6 s cooldown. You can shoot while sliding |
 | **Slide-jump** | Jumping out of a slide keeps 80% of the speed | The "Hypershot" flavour. No other advanced tech |
 | ADS move speed | ×0.75 (snipers scoped ×0.55) | |
 | Heavy guns | ×0.85 (Overflow), ×0.75 (Flood) | From [Weapons](Weapons.md) |
@@ -82,7 +82,7 @@ All numbers are **starting values**. They live in `src/shared/Config/` so they c
 | Headshot | **About ×1.6** (changed from ×2.25, 2026-11-02): 3–5 headshots to kill at 150 on anything but a sniper |
 | Legs | ×0.85 |
 | One-tap headshot guns | Only snipers (the Marshal only against no shield) |
-| Target time-to-kill | Body **0.5–0.75 s** against 150 for main guns (changed from 0.3–0.5 s) |
+| Target time-to-kill | Body **0.75–0.9 s** against 150 for main guns (2026-11-12, the owner wanted longer fights; was 0.5–0.75 s, and 0.3–0.5 s before that). Numbers per gun: [Gun Balance](Gun%20Balance.md) |
 | Falloff | **Steps** per gun (a multiplier per range band, in studs); some guns (Vandal-type) have none |
 | Tagging | **None**: getting hit does not slow you (chosen) |
 | Wall penetration | Low / Medium / High tiers per gun (later; ThinWall today) |
@@ -241,7 +241,7 @@ Not done: Valorant's aimed 4-round burst mode (it would need an ADS fire-mode sw
 | Equip | 0.45 s draw (twirl), every equip; ×1.05 move speed | |
 
 ### Scopes (snipers, 2026-10-26)
-A gun with `scope = { zoom }` aims like any other until the aim blend passes `Viewmodel.SCOPE_AT` (0.85); then the gun and arms hide and the HUD shows the scope: black outside a round lens, a soft rim, a duplex reticle with a red centre dot. The zoom is a true magnification of the player's own FOV (`2·atan(tan(FOV/2) / zoom)`), so it's the same at any FOV setting; mouse sensitivity already scales with FOV. Scoped, the local muzzle flash and casing are skipped (the camera kick stays). Snipers use `adsMultiplier = 0`: a standing scoped shot goes exactly where you aim (server-checked: 0° claim, 0° band low edge); moving still adds the Sniper row (halved fully scoped). Not built: the Operator's second 5× level.
+A gun with `scope = { zoom }` aims like any other until the aim blend passes `Viewmodel.SCOPE_AT` (0.85); then the gun and arms hide and the HUD shows the scope (rebuilt 2026-11-15 from the owner's clips, [Gunplay Overhaul](../05%20Production/Playtests/2026-11-15%20Gunplay%20Overhaul.md); `Util/ScopeOverlay`, `Config/Scope`): black round a feathered window that opens from where the eyepiece was, a thin cross and a red dot; the surround lags the turn a little and a scoped shot jolts it. The zoom is a true magnification of the player's own FOV (`2·atan(tan(FOV/2) / zoom)`), so it's the same at any FOV setting; mouse sensitivity already scales with FOV. Scoped, the local muzzle flash and casing are skipped (the camera kick stays). Snipers use `adsMultiplier = 0`: a standing scoped shot goes exactly where you aim (server-checked: 0° claim, 0° band low edge); moving still adds the Sniper row (halved fully scoped). Not built: the Operator's second 5× level.
 
 ### Marshal v2 (roster 11, lever-action sniper)
 | Stat | Value | Valorant Marshal |
@@ -270,7 +270,7 @@ A gun with `scope = { zoom }` aims like any other until the aim blend passes `Vi
 |---|---|---|
 | Fire | Bolt, 1.667 s (0.6/s); the trigger hand works the bolt, its arm rising from the lower right | 0.6/s |
 | Mag / reload | 5 / 3.2 s, 3.7 s empty (mag, then the bolt) | 5 / 3.7 s |
-| Damage | 125 body / 250 head / 106 legs, no falloff: 2 body or 1 head at 150; penetrates everything | 150 / 255 / 120 |
+| Damage | **150 body / 300 head / 150 legs (2026-11-12): one shot anywhere**; through walls up to 4.5 studs at 70% per wall (was 125 / 250 / 106 and through everything) | 150 / 255 / 120 |
 | Spread | 5° hip, **0° scoped**, recovery 0.8 s | hip 5°, scoped 0° |
 | Scope | 2.5× (one level), 0.38 s; ×0.85 speed, **×0.4 scoped** | 2.5× / 5× |
 | Recoil | 5° per shot, 90% back over 0.45 s | |
@@ -294,7 +294,7 @@ Measured in Studio (2026-10-26, server `FireSpread`): a held spray goes 1.00, 0.
 |---|---|---|
 | Fire | Auto, **spins up** from 0.083 s (12/s) to 0.064 s (15.6/s) over 1 s | 12 → 15.6/s |
 | Mag / reload | 100 / 4.2 s, 5 s empty (feed cover, box swap, belt, cover, charging handle) | 100 / 5 s |
-| Damage | 20 body / 30 head / 17 legs; ×0.82 from 107 studs; penetrates everything | 38 / 95 / 32 → 31 / 77 / 26 past 30 m |
+| Damage | **15 body / 23 head / 13 legs (2026-11-12)**; ×0.82 from 107 studs; through walls up to 4.5 studs at 70% per wall (was 20 / 30 / 17 and through everything) | 38 / 95 / 32 → 31 / 77 / 26 past 30 m |
 | Spread | 0.8° → 1.3° (2 protected shots, +0.04°/shot), ADS ×0.75, recovery 0.5 s | 0.8° → 1.3° |
 | Recoil | 0.3° × 4, then 0.16° up + 0.22° side, 15% switch, 70% back over 0.4 s | |
 | ADS / speed | Iron sights, 1.15× (FOV 70), eye 1.0 stud back (the rear sight is big), 0.32 s; ×0.85, ×0.65 aimed | |
@@ -322,10 +322,14 @@ Not built yet: per-gun ammo and one-gun-at-a-time staged reloads (the brief's id
 ## 5. Feedback ("juice")
 This is a big part of why RIVALS feels good. Build it alongside the very first gun.
 Fresh base (2026-10-25): the old UI is gone; this is what the plain HUD keeps until the new UI pass.
-- **Hit marker:** white for body, **amber for headshots**, red X on a kill. Instant on the client, confirmed by the server.
+- **Hit marker (RIVALS-style, 2026-11-15):** four slim kite blades on the diagonals, white for body, red `FF3232` for headshots, the same on a kill. They start big and wide (tips 40 px out, 22 px long) and shrink in tight (8 px out, 11 px long) on a critically damped spring of speed 20, stay solid ~1.2 s and are gone at 1.7 s (`(t/life)^10`); computed from the time since the hit, so it looks the same at any frame rate. Length follows the damage; the marker tilts with the crosshair. It pops instantly on the client; the server's confirm merges into that pop. Numbers: `Config/HitFx` ([2026-11-15 Gunplay Feel RIVALS](../05%20Production/Playtests/2026-11-15%20Gunplay%20Feel%20RIVALS.md)).
+- **Headshot (2026-11-15):** a small hot impact on the hit frame, then (50 ms later) a faceted crown burst above the head (our 4×4 flipbook, RIVALS' layer recipe), a soft glow, a dark contrast layer, an upward streak and stretched shards; white → orange → red. No screen cue (owner).
+- **Crosshair motion (2026-11-15):** springs that snap up and ease back (RIVALS): 20° tilt while sliding, +10 px in the air, +14 px on a Dash, a per-shot bloom kick by the gun's kick, and aiming pulls the bars into the dot as it fades (`Config/Crosshair` `motion`, settable per player later).
 - **Sounds:** distinct body-hit tick, headshot "ding", **kill sound**.
-- **Damage numbers** that stack while you keep hitting the same target, then fall off in an arc (RIVALS style); amber for headshots, bigger on the kill.
-- **Victim:** directional hit indicator, red low-HP vignette. Later: a short death recap showing **the killer's gun and Mods** (teaches the draft).
+- **Damage numbers** that stack while you keep hitting the same target, then tip over clockwise and drop; a new hit snaps the number upright and keeps adding (2026-11-15, from the owner's clip); Sarpanch 42 px, red E01F35 for headshots, bigger on the kill.
+- **ADS (2026-11-15):** the gun springs to the sights and settles, the zoom trails it, the corners darken while aimed (`Config/Viewmodel ADS_FEEL`, `Config/Scope AIM_VIGNETTE`).
+- **Tracers (2026-11-15, RIVALS timing 2026-11-16):** your own shot is a dart whose tail starts at the muzzle and runs into the hit at 800 studs/s (head at most 75 studs ahead), sized per class on screen; other players' are a 15-stud streak at 800 studs/s with a trail (`Config/Juice TRACER`).
+- **Victim:** directional hit indicator (holds 2.5 s following the shooter; RIVALS 5 s), a red edge pulse scaled by the share of your health the hit took, a red low-HP vignette from 50 % HP (2026-11-15). Later: a short death recap showing **the killer's gun and Mods** (teaches the draft).
 - Later, with the new UI: kill feed, kill banner, a round-win stinger, a slow-mo kill cam on the deciding round.
 - **Realistic shot effects** (no neon): fiery muzzle flash, smoke and barrel wisps, brass from `Eject`, warm tracers (none for suppressed guns), impacts that depend on the surface. Deaths use the default Roblox death for now (the pixel dissolve was retired with the sci-fi look; a ragdoll is a later task). No blood.
 
@@ -333,11 +337,27 @@ Fresh base (2026-10-25): the old UI is gone; this is what the plain HUD keeps un
 Numbers in `Config/Juice` (new). Competitive rule from LihFolk ("Motion Sensitivity and Camera Comfort"): feedback may move and roll the camera a little, **never turn it**, so it never moves your aim.
 - **Other players look smoother:** the posed aim pitch eases toward the camera pitch inside the simulation (`AIM_SMOOTHING` 14/s) and weights snap to 0.02 instead of 0.05 (that made aim move in ~3.5° steps); fades are 0.1 aim / 0.25 sprint / 0.2 crouch / 0.15 slide; crouch blends into crouch-walk by speed instead of a hard switch.
 - **Their guns kick:** on every shot another player's or dummy's gun jumps back along the barrel and muzzle-up in their hand, then springs home (`WORLD_KICK`, scaled by the gun's `recoil.up`). Done on each viewer by offsetting the grip's C1, so nothing replicates.
-- **The body you hit flashes:** white on the body, amber on a headshot, orange-red on the kill (`HIT_FLASH`, a short Highlight).
+- **The body you hit flashes:** white on the body, amber on a headshot, orange-red on the kill (`HIT_FLASH`, a short Highlight). **Replaced 2026-11-13** ([2026-11-13 Hit Feedback Pass](../05%20Production/Playtests/2026-11-13%20Hit%20Feedback%20Pass.md)): the whole body including the limb meshes flashes white then red with a slash; a headshot flashes white then fire orange and pops a quick muzzle-flash-style burst from the head; a kill flashes deep red and carries onto the falling death copy (`Util/HitFx`, `Config/HitFx`).
 - **Getting hit:** the camera is pushed a little away from the shot and rolls away from its side, scaled by damage (`FLINCH`), and the screen edges pulse red on top of the low-HP vignette.
 - **Slide:** a quick FOV punch on top of the slide FOV, roll down from 5° to 3°, a dirt-scrape sound (2D for you, 3D for everyone else) and dust at the feet that everyone sees (`CharacterFxController`). You also get the Dash's wind streaks at 45% (`Juice.SLIDE.streaks`, no blur), weighted to the slide's direction.
 - **Landing:** the camera height spring gets an impulse by fall speed (k² of 70 studs/s, peak ~0.55 studs) and a soft thud past 24 studs/s.
 - Sounds are **provisional** licensed ProSoundEffects picks (dirt slide, cloth whump): audition them.
+
+### Feel pass 3 (2026-11-12)
+Details and measurements: [playtest note](../05%20Production/Playtests/2026-11-12%20Gunplay%20Feel%20Pass%203.md).
+- **The gun's sideways kick follows the camera recoil** (`PUNCH_LEAN`); it never picks a random side. Jitter stays at ±15%.
+- **In the air:** the muzzle tips with vertical speed, falling rolls the gun out and flares the elbows (`AIR_*`). Jump buffer 0.12 s, coyote time 0.1 s.
+- **Run step:** the swing hangs at each side, each step rises slowly and drops fast (`BOB_HANG`, `BOB_STEP`); never a plain sine.
+- **Knife:** held along the inside edge of the fist; the knife arm always runs to the shoulder (`MELEE_SHOULDER`), so no attack can throw it across the view; the heavy stab is one-handed, from the chest up the centre line, edge down.
+
+### Feel pass 2 (2026-11-10)
+Full table, measurements and the test list: [playtest note](../05%20Production/Playtests/2026-11-10%20Gunplay%20Feel%20Pass%202.md).
+- **Pistols** sit closer and bigger: `SIDEARM_VM` (0.52, -0.72, -1.0).
+- **Sprint** swings the gun side to side with the stride; walk and sprint loops run at the footstep cadence (`BOB_WALK_STRIDE`, `BOB_SPRINT_STRIDE`).
+- **Aimed strafe** leans the gun into the strafe (`ADS_STRAFE_ROLL` negative, capped at `ADS_STRAFE_ROLL_MAX` 4.5°), around the sight line.
+- **Arms follow through** (`ARM_FOLLOW`): the hand stays on the grip, the forearm trails on a spring, so recoil bends at the wrist. This replaces "one rigid rig" for the arm *direction* only.
+- **Slide:** tap to commit; camera lunge; gun kick in, scrape chatter, settle out (`SLIDE_ENTER_KICK`, `SLIDE_CHATTER`).
+- **Tracers** (`Config/Juice` `TRACER`): core, glow and a wake that hangs 0.28 s. **Flash and impact:** stylised sheets, Valorant-like (the owner's call: not photoreal). Keep shot sprites under the place's Bloom threshold (2) or a spray whites out the screen.
 
 ### Polish roadmap (next)
 1. ✅ **Custom third-person locomotion, first version (2026-11-04).** `tools/studio/MakeLocomotionAnimations.luau` builds the legs-and-hips clips procedurally: run forward / back / left / right (one 0.62 s stride, so blended feet stay in step), a longer, leaning sprint stride, a ready-stance idle with a slow breath, jump tuck, fall, a landing knee dip, and an empty clip. `Simulation/Poses` blends the four directions by where you move relative to where you face (`stepLegs`), swaps to the sprint stride when sprinting forward, scales the clip rate by ground speed (16 / 22 studs/s, 0.6–1.5×), turns the legs off while crouched, sliding or airborne, and plays the land dip on touchdown. Roblox's `Animate` keeps idle / jump / fall with our clips and plays the empty clip for walk / run (`CharacterService.useOurAnimations`). The test opponent uses the same legs (`PoseSim.legs`), so a solo test shows them. Measured: strafing right = RunR 1.0, backpedal = RunB 1.0, standing = Idle. **Needs the user's eye in play** (clip shapes were checked as still poses only); tune the gait numbers at the top of the tool and re-upload. Crouch-walking has the same four directions (2026-11-04: back and side-step strides, blended by `Poses.directions`).

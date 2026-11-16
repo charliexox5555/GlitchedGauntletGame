@@ -15,6 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local CameraConfig = require(ReplicatedStorage.Shared.Config.Camera)
+local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 
 local CameraController = {}
 
@@ -70,8 +71,16 @@ local SHAKE_DECAY = 16
 local SHAKE_MAX = math.rad(1.2)
 local SHAKE_FREQ = 38
 
-local KICK_APPLY_RATE = 45
-local ROLL_RATE = 10
+-- How fast a shot's kick goes in (1/s): Juice.SHOT_FEEL.kickApplyRate.
+local KICK_APPLY_RATE = Juice.SHOT_FEEL.kickApplyRate
+-- View punch (Juice.SHOT_FEEL.viewPunch): a look-only jolt on each shot,
+-- applied and taken back every frame like the shake, so it never moves the aim.
+local viewPunchDegrees = 0
+local viewPunchAt = -math.huge
+local viewPunchTime = 0.1
+local viewPunchFrom = 0 -- radians it rises from (a punch still going when the next lands)
+local viewPunchApplied = 0
+local rollVelocity = 0 -- rad/s: the roll rides a spring (Juice.SLIDE.rollSpeed / rollDamping)
 
 local function lerp(a: number, b: number, t: number): number
 	return a + (b - a) * t
@@ -125,6 +134,32 @@ function CameraController.kick(up: number, side: number, recover: number, recove
 	kickYaw += sideRad * recover
 	kickRecoverTime = math.max(recoverTime or 0.3, 0.05)
 	lastKickAt = os.clock()
+end
+
+-- A view punch: the view jolts up `degrees` within a frame or two, comes back
+-- over `duration` seconds, dips a touch past level and settles. Look only.
+function CameraController.viewPunch(degrees: number, duration: number)
+	if degrees ~= degrees or duration ~= duration or duration <= 0 then
+		return
+	end
+	viewPunchFrom = viewPunchApplied
+	viewPunchDegrees = degrees
+	viewPunchAt = os.clock()
+	viewPunchTime = duration
+end
+
+local function viewPunchNow(): number
+	local t = os.clock() - viewPunchAt
+	local rise = Juice.SHOT_FEEL.viewPunchRise
+	if t < 0 or t >= rise + viewPunchTime then
+		return 0
+	elseif t < rise then
+		local top = math.rad(viewPunchDegrees)
+		return viewPunchFrom + (top - viewPunchFrom) * t / rise
+	end
+	-- Back down with a small dip below level (about 9%), home at the end.
+	local u = (t - rise) / viewPunchTime
+	return math.rad(viewPunchDegrees) * math.exp(-4 * u) * math.cos(1.5 * math.pi * u)
 end
 
 -- Camera shake, in degrees of wobble (stacks up to a cap and dies away fast).
@@ -324,9 +359,22 @@ local function step(dt: number)
 	pitch += sp - shakePitch
 	yaw += sy - shakeYaw
 	shakePitch = sp
+	local vp = if placed then 0 else viewPunchNow()
+	pitch += vp - viewPunchApplied
+	viewPunchApplied = vp
 	shakeYaw = sy
 
-	roll = lerp(roll, targetRoll, 1 - math.exp(-ROLL_RATE * dt))
+	do
+		-- An underdamped spring: it swings a touch past the tilt and settles.
+		local w = Juice.SLIDE.rollSpeed
+		local c = 2 * Juice.SLIDE.rollDamping * w
+		local steps = math.max(1, math.ceil(dt / (1 / 120)))
+		local h = dt / steps
+		for _ = 1, steps do
+			rollVelocity += ((targetRoll - roll) * w * w - rollVelocity * c) * h
+			roll += rollVelocity * h
+		end
+	end
 
 	local totalRoll = if placed then 0 else roll + shakeRoll + rollKickNow()
 	if math.abs(pitch) > 1e-6 or math.abs(yaw) > 1e-6 or math.abs(totalRoll) > 1e-5 then

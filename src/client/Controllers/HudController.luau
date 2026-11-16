@@ -19,9 +19,13 @@ local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
-local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
+local AimVignette = require(script.Parent.Parent.Util.AimVignette)
+local Crosshair = require(script.Parent.Parent.Util.Crosshair)
+local DamageIndicator = require(script.Parent.Parent.Util.DamageIndicator)
+local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 local KillFeed = require(script.Parent.Parent.Util.KillFeed)
+local ScopeOverlay = require(script.Parent.Parent.Util.ScopeOverlay)
 local Ui = require(script.Parent.Parent.Util.Ui)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local AudioController = require(script.Parent.AudioController)
@@ -33,14 +37,12 @@ local HudController = {}
 local player = Players.LocalPlayer
 
 local WHITE = Color3.new(1, 1, 1)
-local BLACK = Color3.new(0, 0, 0)
 local AMBER = Color3.fromHex("F2C94C")
 local RED = Color3.fromHex("EB5757")
 local BACK = Color3.fromHex("16181B")
 local T = Theme.COLORS
 local BOLD = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Bold)
 
-local INDICATOR_TIME = 1.1 -- damage direction fade, seconds
 -- Touch layout: designed for a 760-px-tall screen, scaled down to fit (never
 -- below TOUCH_SCALE_MIN) and never up. Positions are offsets from the
 -- layer's bottom-right corner.
@@ -60,8 +62,6 @@ end
 
 type Refs = {
 	gui: ScreenGui,
-	crosshair: CanvasGroup,
-	lines: { Frame },
 	scope: Frame,
 	ammo: TextLabel,
 	mag: TextLabel,
@@ -77,16 +77,12 @@ type Refs = {
 	shieldBar: Frame,
 	shieldFill: Frame,
 	vignette: CanvasGroup,
-	indicator: Frame,
-	wedge: Frame,
 }
 
 local refs: Refs? = nil
 local spreadDegrees = 1
-local shownGap = 6
 local crosshairWanted = true
-local crosshairAlpha = 1
-local indicatorAge = math.huge
+local crosshairSprint = false
 local hitPulse = 0 -- the red edge pulse when hit (0..1), fades over Juice.FLINCH.pulseTime
 -- Health chip: the bar's lost part stays red for CHIP_HOLD, then drains.
 local CHIP_HOLD = 0.4
@@ -148,87 +144,13 @@ local function build(): Refs
 		}, f)
 	end
 
-	-- Sniper scope (config scope): black outside a round lens (a huge stroke
-	-- drawn outward from a circle), a soft dark rim inside it, and a duplex
-	-- reticle: thick posts from the edge, a fine cross and dot in the middle.
-	local scope = make("Frame", {
-		Name = "Scope",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Visible = false,
-	}, gui)
-	local lens = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(0.96, 0.96),
-		SizeConstraint = Enum.SizeConstraint.RelativeYY,
-		BackgroundTransparency = 1,
-	}, scope)
-	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, lens)
-	make("UIStroke", { Color = BLACK, Thickness = 4000 }, lens)
-	local rim = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromScale(0.97, 0.97),
-		BackgroundTransparency = 1,
-	}, lens)
-	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, rim)
-	make("UIStroke", { Color = BLACK, Thickness = 10, Transparency = 0.45 }, rim)
-	for _, line in
-		{
-			-- size, position (fine cross across the lens, then the four posts)
-			{ UDim2.new(1, 0, 0, 1), UDim2.fromScale(0.5, 0.5) },
-			{ UDim2.new(0, 1, 1, 0), UDim2.fromScale(0.5, 0.5) },
-			{ UDim2.new(0.38, 0, 0, 4), UDim2.fromScale(0.19, 0.5) },
-			{ UDim2.new(0.38, 0, 0, 4), UDim2.fromScale(0.81, 0.5) },
-			{ UDim2.new(0, 4, 0.38, 0), UDim2.fromScale(0.5, 0.81) },
-		}
-	do
-		make("Frame", {
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Size = line[1],
-			Position = line[2],
-			BackgroundColor3 = BLACK,
-			BorderSizePixel = 0,
-		}, lens)
-	end
-	local scopeDot = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(3, 3),
-		BackgroundColor3 = RED,
-		BorderSizePixel = 0,
-	}, lens)
-	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, scopeDot)
+	-- Aimed: the screen's edges darken (Util/AimVignette).
+	AimVignette.build(gui)
+	-- Sniper scope (config scope): Util/ScopeOverlay (numbers in Config/Scope).
+	local scope = ScopeOverlay.build(gui)
 
-	-- Crosshair (CanvasGroup so it fades as one): a centre dot plus four short
-	-- lines that open with spread. A thin dark outline keeps it readable.
-	local crosshair = make("CanvasGroup", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(160, 160),
-		BackgroundTransparency = 1,
-	}, gui)
-	local lines = {}
-	for i = 1, 4 do
-		local horizontal = i <= 2
-		local line = make("Frame", {
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			Size = if horizontal then UDim2.fromOffset(8, 2) else UDim2.fromOffset(2, 8),
-			BackgroundColor3 = WHITE,
-			BorderSizePixel = 0,
-		}, crosshair)
-		make("UIStroke", { Color = BLACK, Thickness = 1, Transparency = 0.5 }, line)
-		lines[i] = line
-	end
-	local dot = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(2, 2),
-		BackgroundColor3 = WHITE,
-		BorderSizePixel = 0,
-	}, crosshair)
-	make("UIStroke", { Color = BLACK, Thickness = 1, Transparency = 0.5 }, dot)
+	-- Crosshair: Util/Crosshair (numbers in Config/Crosshair).
+	Crosshair.build(gui)
 
 	-- Ammo (bottom right, UI v1): the gun's picture, rounds in the mag big, the
 	-- mag size and the gun's name small, a thin reload bar. Design px, scaled.
@@ -368,30 +290,8 @@ local function build(): Refs
 		BorderSizePixel = 0,
 	}, healthBar)
 
-	-- Damage direction: a red arc segment orbiting the crosshair.
-	local indicator = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(0, 0),
-		BackgroundTransparency = 1,
-	}, gui)
-	local wedge = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromOffset(0, -120),
-		Size = UDim2.fromOffset(80, 5),
-		BackgroundColor3 = RED,
-		BorderSizePixel = 0,
-		BackgroundTransparency = 1,
-	}, indicator)
-	make("UICorner", { CornerRadius = UDim.new(1, 0) }, wedge)
-	make("UIGradient", {
-		Transparency = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 1),
-			NumberSequenceKeypoint.new(0.3, 0),
-			NumberSequenceKeypoint.new(0.7, 0),
-			NumberSequenceKeypoint.new(1, 1),
-		}),
-	}, wedge)
+	-- Damage direction: red arcs round the crosshair (Util/DamageIndicator).
+	DamageIndicator.build(gui)
 
 	-- Touch buttons (names match Config/Input), on their own layer: a
 	-- bottom-right frame in a ScreenGui that respects the device's safe area
@@ -454,8 +354,6 @@ local function build(): Refs
 
 	return {
 		gui = gui,
-		crosshair = crosshair,
-		lines = lines,
 		scope = scope,
 		ammo = ammo,
 		mag = mag,
@@ -471,8 +369,6 @@ local function build(): Refs
 		vignette = vignette,
 		gunPicture = gunPicture,
 		shieldBadge = badge,
-		indicator = indicator,
-		wedge = wedge,
 	}
 end
 
@@ -528,17 +424,41 @@ function HudController.setSpread(degrees: number)
 	spreadDegrees = degrees
 end
 
--- Fades rather than pops (ADS, sprint).
-function HudController.setCrosshairVisible(visible: boolean)
+-- Fades rather than pops (ADS). `sprinting`: it stays up and opens wider.
+function HudController.setCrosshairVisible(visible: boolean, sprinting: boolean?)
 	crosshairWanted = visible
+	crosshairSprint = sprinting == true
+end
+
+-- Crosshair reactions (Config/Crosshair motion): sliding tilts it, the air
+-- opens it, aiming (0..1) pulls the bars into the dot as it fades.
+function HudController.setCrosshairState(sliding: boolean, airborne: boolean, aim: number)
+	Crosshair.setState(sliding, airborne, aim)
+end
+
+-- A shot: the crosshair blooms by the gun's kick (recoil.up).
+function HudController.crosshairShot(recoilUp: number)
+	Crosshair.shot(recoilUp)
+end
+
+-- A Dash: the crosshair kicks open.
+function HudController.crosshairDash()
+	Crosshair.dash()
 end
 
 -- The sniper scope overlay (WeaponController shows it once scoped in).
 function HudController.setScope(visible: boolean)
-	local r = refs
-	if r then
-		r.scope.Visible = visible
-	end
+	ScopeOverlay.set(visible)
+end
+
+-- How far into the sights the gun is, 0..1: the screen's edges darken with it.
+function HudController.setAim(alpha: number)
+	AimVignette.set(alpha)
+end
+
+-- A shot fired while scoped in: the scope picture jolts.
+function HudController.scopeShot()
+	ScopeOverlay.shot()
 end
 
 -- Hit feedback (Util/HitFeedback): markers and damage numbers.
@@ -561,20 +481,10 @@ function HudController.damageNumber(
 	HitFeedback.damage(amount, headshot, position, killed)
 end
 
+-- An arc on the side the hit came from; it follows that spot as you turn
+-- and move, and is bigger the closer it is.
 function HudController.damageFrom(sourcePosition: Vector3)
-	local r = refs
-	local cam = Workspace.CurrentCamera
-	if not r or not cam then
-		return
-	end
-	local flat = (sourcePosition - cam.CFrame.Position) * Vector3.new(1, 0, 1)
-	local look = cam.CFrame.LookVector * Vector3.new(1, 0, 1)
-	if flat.Magnitude < 0.1 or look.Magnitude < 0.1 then
-		return
-	end
-	local angle = math.atan2(flat.Unit:Cross(look.Unit).Y, flat.Unit:Dot(look.Unit))
-	r.indicator.Rotation = -math.deg(angle)
-	indicatorAge = 0
+	DamageIndicator.hit(sourcePosition)
 end
 
 -- Getting hit: the camera is pushed a little away from the shot and rolls
@@ -593,7 +503,12 @@ function HudController.flinch(sourcePosition: Vector3, amount: number)
 		local side = cam.CFrame.RightVector:Dot(-away.Unit)
 		CameraController.rollKick((if side >= 0 then 1 else -1) * f.roll * s, 0.3)
 	end
-	hitPulse = math.max(hitPulse, f.pulse * s)
+	-- The pulse follows the share of your health the hit took (RIVALS).
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local before = if humanoid then Health.get(humanoid) + amount else f.fullDamage * 2
+	local share = math.clamp(amount / math.max(before, 1), 0, 1)
+	hitPulse = math.max(hitPulse, math.min(f.pulse + f.pulsePerShare * share, f.pulseMax))
 end
 
 -- Loop -------------------------------------------------------------------------
@@ -604,26 +519,13 @@ local function update(dt: number)
 	if not r or not cam then
 		return
 	end
-	-- Crosshair gap from spread in degrees -> pixels at the current FOV, eased.
-	local half = cam.ViewportSize.Y / 2
-	local gap = math.tan(math.rad(spreadDegrees)) / math.tan(math.rad(cam.FieldOfView / 2)) * half
-	gap = math.clamp(gap + 3, 3, 70)
-	shownGap += (gap - shownGap) * (1 - math.exp(-18 * dt))
-	local g = math.floor(shownGap + 0.5) + 4
-	r.lines[1].Position = UDim2.new(0.5, -g, 0.5, 0)
-	r.lines[2].Position = UDim2.new(0.5, g, 0.5, 0)
-	r.lines[3].Position = UDim2.new(0.5, 0, 0.5, -g)
-	r.lines[4].Position = UDim2.new(0.5, 0, 0.5, g)
-	local goal = if crosshairWanted then 1 else 0
-	crosshairAlpha += (goal - crosshairAlpha) * (1 - math.exp(-20 * dt))
-	r.crosshair.GroupTransparency = 1 - crosshairAlpha
-	r.crosshair.Visible = crosshairAlpha > 0.02
+	-- Crosshair: the gap follows the spread cone and opens on a sprint; it
+	-- fades for ADS.
+	Crosshair.step(dt, spreadDegrees, crosshairWanted, nil, crosshairSprint)
 	HitFeedback.step(dt)
+	ScopeOverlay.step(dt)
 
-	-- Damage direction: holds, then fades.
-	indicatorAge += dt
-	local k = indicatorAge / INDICATOR_TIME
-	r.wedge.BackgroundTransparency = if k >= 1 then 1 else 0.05 + 0.95 * k * k
+	DamageIndicator.step(dt)
 
 	-- Health.
 	local character = player.Character
@@ -664,7 +566,10 @@ local function update(dt: number)
 			if hasShield then shield :: number else 0,
 			dt
 		)
-		local hurt = if frac > 0 then math.clamp((0.45 - frac) / 0.35, 0, 1) else 0
+		local fl = Juice.FLINCH
+		local hurt = if frac > 0
+			then math.clamp((fl.lowFrom - frac) / (fl.lowFrom - fl.lowFull), 0, 1)
+			else 0
 		hitPulse = math.max(hitPulse - dt / Juice.FLINCH.pulseTime, 0)
 		r.vignette.GroupTransparency = 1 - math.max(hurt, hitPulse)
 	end
@@ -714,6 +619,16 @@ function HudController.start()
 	end
 	RunService.RenderStepped:Connect(update)
 	Net.event("Killed").OnClientEvent:Connect(KillFeed.kill)
+	if RunService:IsStudio() then
+		-- Studio only: Workspace DevDamageFrom (Vector3) shows the damage
+		-- direction arc for a hit from that spot (no damage, no flinch).
+		Workspace:GetAttributeChangedSignal("DevDamageFrom"):Connect(function()
+			local from = Workspace:GetAttribute("DevDamageFrom")
+			if typeof(from) == "Vector3" then
+				HudController.damageFrom(from)
+			end
+		end)
+	end
 	local lastHurt = 0
 	Net.event("Damaged").OnClientEvent:Connect(function(from: Vector3, amount: number?)
 		if typeof(from) == "Vector3" then

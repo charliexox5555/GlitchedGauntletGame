@@ -77,6 +77,12 @@
   "type": "Decal",
   "uploaded": "2026-10-26 00:26:22"
  },
+ "art-source/abilities/Rework/v03/Textures/Wind_Stroke.png": {
+  "assetId": 76106421221981,
+  "name": "GG VFX Wind_Stroke",
+  "type": "Decal",
+  "uploaded": "2026-11-15 17:10:31"
+ },
  "art-source/abilities/Textures/FirewallGrid.png": {
   "assetId": 74639457803541,
   "name": "GG Mod FirewallGrid",
@@ -84,148 +90,220 @@
   "uploaded": "2026-10-26 01:15:31"
  },
  "art-source/animations/GG_AdsDown.rbxm": {
-  "assetId": 104787336098355,
-  "name": "GG AdsDown ext",
+  "assetId": 139601720262674,
+  "name": "GG AdsDown v6",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:09"
+  "uploaded": "2026-11-12 23:53:32"
+ },
+ "art-source/animations/GG_AdsKickDown.rbxm": {
+  "assetId": 132640996566965,
+  "name": "GG AdsKickDown v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:41"
+ },
+ "art-source/animations/GG_AdsKickLevel.rbxm": {
+  "assetId": 73969040108481,
+  "name": "GG AdsKickLevel v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:38"
+ },
+ "art-source/animations/GG_AdsKickUp.rbxm": {
+  "assetId": 136021206805401,
+  "name": "GG AdsKickUp v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:34"
  },
  "art-source/animations/GG_AdsLevel.rbxm": {
-  "assetId": 132668202933655,
-  "name": "GG AdsLevel ext",
+  "assetId": 95863412039587,
+  "name": "GG AdsLevel v6",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:06"
+  "uploaded": "2026-11-12 23:53:35"
  },
  "art-source/animations/GG_AdsUp.rbxm": {
-  "assetId": 116679062451031,
-  "name": "GG AdsUp ext",
+  "assetId": 88665317482255,
+  "name": "GG AdsUp v6",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:04"
+  "uploaded": "2026-11-12 23:53:41"
  },
  "art-source/animations/GG_AimDown.rbxm": {
-  "assetId": 78979562573102,
-  "name": "GG AimDown ext",
+  "assetId": 86939677186257,
+  "name": "GG AimDown v7",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:01"
+  "uploaded": "2026-11-15 00:58:04"
  },
  "art-source/animations/GG_AimLevel.rbxm": {
-  "assetId": 83176652381307,
-  "name": "GG AimLevel ext",
+  "assetId": 133205732621181,
+  "name": "GG AimLevel v6",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:31:59"
+  "uploaded": "2026-11-12 23:53:47"
  },
  "art-source/animations/GG_AimUp.rbxm": {
-  "assetId": 129273156461804,
-  "name": "GG AimUp ext",
+  "assetId": 137847543596504,
+  "name": "GG AimUp v6",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:31:56"
+  "uploaded": "2026-11-12 23:53:50"
+ },
+ "art-source/animations/GG_Cast.rbxm": {
+  "assetId": 91161079508050,
+  "name": "GG Cast v6",
+  "type": "Animation",
+  "uploaded": "2026-11-12 23:53:53"
  },
  "art-source/animations/GG_Crouch.rbxm": {
-  "assetId": 99568083489164,
-  "name": "GG Crouch",
+  "assetId": 79991946157030,
+  "name": "GG Crouch v6",
   "type": "Animation",
-  "uploaded": "2026-10-25 13:53:26"
+  "uploaded": "2026-11-13 01:05:58"
  },
  "art-source/animations/GG_CrouchWalk.rbxm": {
-  "assetId": 120617369360340,
-  "name": "GG Crouch Walk",
+  "assetId": 117039700985521,
+  "name": "GG CrouchWalk v9",
   "type": "Animation",
-  "uploaded": "2026-10-25 13:53:29"
+  "uploaded": "2026-11-13 01:45:50"
  },
  "art-source/animations/GG_CrouchWalkB.rbxm": {
-  "assetId": 139454894380024,
-  "name": "GG CrouchWalkB",
+  "assetId": 82235519011694,
+  "name": "GG CrouchWalkB v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 03:02:57"
+  "uploaded": "2026-11-13 01:46:00"
+ },
+ "art-source/animations/GG_CrouchWalkBL.rbxm": {
+  "assetId": 95758423303446,
+  "name": "GG CrouchWalkBL v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:46:03"
+ },
+ "art-source/animations/GG_CrouchWalkBR.rbxm": {
+  "assetId": 129306109767897,
+  "name": "GG CrouchWalkBR v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:57"
+ },
+ "art-source/animations/GG_CrouchWalkFL.rbxm": {
+  "assetId": 91208655342459,
+  "name": "GG CrouchWalkFL v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:46:08"
+ },
+ "art-source/animations/GG_CrouchWalkFR.rbxm": {
+  "assetId": 140110042704887,
+  "name": "GG CrouchWalkFR v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:52"
  },
  "art-source/animations/GG_CrouchWalkL.rbxm": {
-  "assetId": 104336317188168,
-  "name": "GG CrouchWalkL",
+  "assetId": 78069980558194,
+  "name": "GG CrouchWalkL v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 03:03:00"
+  "uploaded": "2026-11-13 01:46:05"
  },
  "art-source/animations/GG_CrouchWalkR.rbxm": {
-  "assetId": 96202691168303,
-  "name": "GG CrouchWalkR",
+  "assetId": 84497263575143,
+  "name": "GG CrouchWalkR v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 03:03:03"
+  "uploaded": "2026-11-13 01:45:55"
  },
  "art-source/animations/GG_DashBack.rbxm": {
-  "assetId": 128130101853691,
-  "name": "GG Dash Back",
+  "assetId": 75006063877431,
+  "name": "GG DashBack v5",
   "type": "Animation",
-  "uploaded": "2026-10-28 21:01:13"
+  "uploaded": "2026-11-12 23:25:23"
  },
  "art-source/animations/GG_DashForward.rbxm": {
-  "assetId": 132740788102457,
-  "name": "GG Dash Forward",
+  "assetId": 76094407168365,
+  "name": "GG DashForward v5",
   "type": "Animation",
-  "uploaded": "2026-10-28 21:01:09"
+  "uploaded": "2026-11-12 23:25:20"
  },
  "art-source/animations/GG_DashLeft.rbxm": {
-  "assetId": 117063604285762,
-  "name": "GG Dash Left",
+  "assetId": 93347970953423,
+  "name": "GG DashLeft v5",
   "type": "Animation",
-  "uploaded": "2026-10-28 21:01:16"
+  "uploaded": "2026-11-12 23:25:26"
  },
  "art-source/animations/GG_DashRight.rbxm": {
-  "assetId": 107635192627945,
-  "name": "GG Dash Right",
+  "assetId": 110331158301717,
+  "name": "GG DashRight v5",
   "type": "Animation",
-  "uploaded": "2026-10-28 21:03:22"
+  "uploaded": "2026-11-12 23:25:29"
  },
  "art-source/animations/GG_Death.rbxm": {
-  "assetId": 81024323443020,
-  "name": "GG Death",
+  "assetId": 120072987587692,
+  "name": "GG Death v6",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:10:17"
+  "uploaded": "2026-11-12 23:53:56"
  },
  "art-source/animations/GG_Draw.rbxm": {
-  "assetId": 106927072941770,
-  "name": "GG Draw ext",
+  "assetId": 116807890408322,
+  "name": "GG Draw v6",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:33"
+  "uploaded": "2026-11-12 23:53:59"
  },
  "art-source/animations/GG_Fall.rbxm": {
-  "assetId": 125318466462876,
-  "name": "GG Fall",
+  "assetId": 91199093837077,
+  "name": "GG Fall v6",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:27"
+  "uploaded": "2026-11-13 01:05:53"
  },
  "art-source/animations/GG_Flinch.rbxm": {
-  "assetId": 114576995497102,
-  "name": "GG Flinch",
+  "assetId": 134800149922990,
+  "name": "GG Flinch v5",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:03:41"
+  "uploaded": "2026-11-12 23:25:41"
+ },
+ "art-source/animations/GG_Heal.rbxm": {
+  "assetId": 99974559870040,
+  "name": "GG Heal v6",
+  "type": "Animation",
+  "uploaded": "2026-11-12 23:54:02"
  },
  "art-source/animations/GG_Idle.rbxm": {
-  "assetId": 91664102456591,
-  "name": "GG Idle",
+  "assetId": 114709237157503,
+  "name": "GG Idle v10",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:22"
+  "uploaded": "2026-11-13 02:21:08"
  },
  "art-source/animations/GG_Jump.rbxm": {
-  "assetId": 104715456957101,
-  "name": "GG Jump",
+  "assetId": 117724474892981,
+  "name": "GG Jump v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:24"
+  "uploaded": "2026-11-13 01:46:13"
+ },
+ "art-source/animations/GG_KickDown.rbxm": {
+  "assetId": 89250731384338,
+  "name": "GG KickDown v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:30"
+ },
+ "art-source/animations/GG_KickLevel.rbxm": {
+  "assetId": 76597005020546,
+  "name": "GG KickLevel v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:27"
+ },
+ "art-source/animations/GG_KickUp.rbxm": {
+  "assetId": 95144292931563,
+  "name": "GG KickUp v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:23"
  },
  "art-source/animations/GG_KnifeHeavy.rbxm": {
-  "assetId": 71735833836709,
-  "name": "GG KnifeHeavy mb",
+  "assetId": 103333794439708,
+  "name": "GG KnifeHeavy w1",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:35:36"
+  "uploaded": "2026-11-13 15:56:08"
  },
  "art-source/animations/GG_KnifeReady.rbxm": {
-  "assetId": 78670545007592,
-  "name": "GG KnifeReady mb",
+  "assetId": 84503652869545,
+  "name": "GG KnifeReady v6b",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:35:31"
+  "uploaded": "2026-11-13 00:16:08"
  },
  "art-source/animations/GG_KnifeSlash.rbxm": {
-  "assetId": 136327489942967,
-  "name": "GG KnifeSlash mb",
+  "assetId": 77623478703999,
+  "name": "GG KnifeSlash w1",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:35:34"
+  "uploaded": "2026-11-13 15:55:59"
  },
  "art-source/animations/GG_KnifeSlash1.rbxm": {
   "assetId": 93885278536146,
@@ -234,22 +312,28 @@
   "uploaded": "2026-11-05 10:07:12"
  },
  "art-source/animations/GG_KnifeSlash2.rbxm": {
-  "assetId": 138622195195928,
-  "name": "GG_KnifeSlash2",
+  "assetId": 108779916506580,
+  "name": "GG KnifeSlash2 w1",
   "type": "Animation",
-  "uploaded": "2026-11-05 10:07:15"
+  "uploaded": "2026-11-13 15:56:02"
  },
  "art-source/animations/GG_KnifeSlash3.rbxm": {
-  "assetId": 83936340288160,
-  "name": "GG_KnifeSlash3",
+  "assetId": 126637574050244,
+  "name": "GG KnifeSlash3 w1",
   "type": "Animation",
-  "uploaded": "2026-11-05 10:07:18"
+  "uploaded": "2026-11-13 15:56:05"
  },
  "art-source/animations/GG_Land.rbxm": {
-  "assetId": 88050773886302,
-  "name": "GG Land",
+  "assetId": 97529375997799,
+  "name": "GG Land v11",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:30"
+  "uploaded": "2026-11-13 02:22:35"
+ },
+ "art-source/animations/GG_Lob.rbxm": {
+  "assetId": 86298417428874,
+  "name": "GG Lob v6",
+  "type": "Animation",
+  "uploaded": "2026-11-12 23:54:05"
  },
  "art-source/animations/GG_ModCast.rbxm": {
   "assetId": 93574122239655,
@@ -264,10 +348,10 @@
   "uploaded": "2026-11-04 02:57:46"
  },
  "art-source/animations/GG_ModHold.rbxm": {
-  "assetId": 115940553232675,
-  "name": "GG ModHold",
+  "assetId": 79414521552493,
+  "name": "GG ModHold v5b",
   "type": "Animation",
-  "uploaded": "2026-11-04 02:57:32"
+  "uploaded": "2026-11-12 23:29:29"
  },
  "art-source/animations/GG_ModLob.rbxm": {
   "assetId": 91952970218420,
@@ -294,118 +378,298 @@
   "uploaded": "2026-11-04 01:49:32"
  },
  "art-source/animations/GG_PistolAdsDown.rbxm": {
-  "assetId": 126090135031854,
-  "name": "GG PistolAdsDown ext",
+  "assetId": 80580729310516,
+  "name": "GG PistolAdsDown w2",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:28"
+  "uploaded": "2026-11-13 16:02:04"
+ },
+ "art-source/animations/GG_PistolAdsKickDown.rbxm": {
+  "assetId": 100422843394946,
+  "name": "GG PistolAdsKickDown v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:11:02"
+ },
+ "art-source/animations/GG_PistolAdsKickLevel.rbxm": {
+  "assetId": 93859139822565,
+  "name": "GG PistolAdsKickLevel v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:59"
+ },
+ "art-source/animations/GG_PistolAdsKickUp.rbxm": {
+  "assetId": 117128552950066,
+  "name": "GG PistolAdsKickUp v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:55"
  },
  "art-source/animations/GG_PistolAdsLevel.rbxm": {
-  "assetId": 72552798753494,
-  "name": "GG PistolAdsLevel ext",
+  "assetId": 77191013164054,
+  "name": "GG PistolAdsLevel w2",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:25"
+  "uploaded": "2026-11-13 16:02:01"
  },
  "art-source/animations/GG_PistolAdsUp.rbxm": {
-  "assetId": 103143608523355,
-  "name": "GG PistolAdsUp ext",
+  "assetId": 115421178439718,
+  "name": "GG PistolAdsUp w2",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:23"
+  "uploaded": "2026-11-13 16:01:58"
  },
  "art-source/animations/GG_PistolAimDown.rbxm": {
-  "assetId": 97244117982397,
-  "name": "GG PistolAimDown ext",
+  "assetId": 70510113818516,
+  "name": "GG PistolAimDown w2",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:20"
+  "uploaded": "2026-11-13 16:01:55"
  },
  "art-source/animations/GG_PistolAimLevel.rbxm": {
-  "assetId": 129884050636579,
-  "name": "GG PistolAimLevel ext",
+  "assetId": 91403700231911,
+  "name": "GG PistolAimLevel w2",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:17"
+  "uploaded": "2026-11-13 16:01:52"
  },
  "art-source/animations/GG_PistolAimUp.rbxm": {
-  "assetId": 125048577056615,
-  "name": "GG PistolAimUp ext",
+  "assetId": 95901417628746,
+  "name": "GG PistolAimUp w2",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:14"
+  "uploaded": "2026-11-13 16:01:49"
+ },
+ "art-source/animations/GG_PistolKickDown.rbxm": {
+  "assetId": 90306962924727,
+  "name": "GG PistolKickDown v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:51"
+ },
+ "art-source/animations/GG_PistolKickLevel.rbxm": {
+  "assetId": 89288747742889,
+  "name": "GG PistolKickLevel v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:48"
+ },
+ "art-source/animations/GG_PistolKickUp.rbxm": {
+  "assetId": 71397627439679,
+  "name": "GG PistolKickUp v1",
+  "type": "Animation",
+  "uploaded": "2026-11-15 01:10:44"
+ },
+ "art-source/animations/GG_PistolReload.rbxm": {
+  "assetId": 120367219025692,
+  "name": "GG PistolReload w2",
+  "type": "Animation",
+  "uploaded": "2026-11-13 16:02:07"
+ },
+ "art-source/animations/GG_Place.rbxm": {
+  "assetId": 92359767222451,
+  "name": "GG Place v6",
+  "type": "Animation",
+  "uploaded": "2026-11-12 23:54:28"
  },
  "art-source/animations/GG_Reload.rbxm": {
-  "assetId": 130903306208412,
-  "name": "GG Reload ext",
+  "assetId": 102765870602957,
+  "name": "GG Reload v7",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:31"
+  "uploaded": "2026-11-15 00:58:01"
  },
  "art-source/animations/GG_RunB.rbxm": {
-  "assetId": 81677261253829,
-  "name": "GG RunB",
+  "assetId": 93806441016839,
+  "name": "GG RunB v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:11"
+  "uploaded": "2026-11-13 01:45:18"
+ },
+ "art-source/animations/GG_RunBL.rbxm": {
+  "assetId": 86554426697561,
+  "name": "GG RunBL v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:21"
+ },
+ "art-source/animations/GG_RunBR.rbxm": {
+  "assetId": 98895949935688,
+  "name": "GG RunBR v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:15"
  },
  "art-source/animations/GG_RunF.rbxm": {
-  "assetId": 115636402441240,
-  "name": "GG RunF",
+  "assetId": 134990246201069,
+  "name": "GG RunF v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:08"
+  "uploaded": "2026-11-13 01:45:07"
+ },
+ "art-source/animations/GG_RunFL.rbxm": {
+  "assetId": 99898123613921,
+  "name": "GG RunFL v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:26"
+ },
+ "art-source/animations/GG_RunFR.rbxm": {
+  "assetId": 119114552228570,
+  "name": "GG RunFR v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:10"
  },
  "art-source/animations/GG_RunL.rbxm": {
-  "assetId": 126639525655633,
-  "name": "GG RunL",
+  "assetId": 114966760138568,
+  "name": "GG RunL v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:16"
+  "uploaded": "2026-11-13 01:45:23"
  },
  "art-source/animations/GG_RunR.rbxm": {
-  "assetId": 103693381646071,
-  "name": "GG RunR",
+  "assetId": 98090231712481,
+  "name": "GG RunR v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:14"
+  "uploaded": "2026-11-13 01:45:13"
  },
  "art-source/animations/GG_Slide.rbxm": {
-  "assetId": 75102784945494,
-  "name": "GG Slide mb",
+  "assetId": 103527653788997,
+  "name": "GG Slide v6",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:57"
+  "uploaded": "2026-11-13 01:06:12"
  },
  "art-source/animations/GG_SlideIn.rbxm": {
-  "assetId": 80692529364914,
-  "name": "GG SlideIn mb",
+  "assetId": 132143568389295,
+  "name": "GG SlideIn v9",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:50:55"
+  "uploaded": "2026-11-13 01:46:19"
+ },
+ "art-source/animations/GG_SlideInKnife.rbxm": {
+  "assetId": 81899005096253,
+  "name": "GG SlideInKnife v1",
+  "type": "Animation",
+  "uploaded": "2026-11-13 02:13:55"
+ },
+ "art-source/animations/GG_SlideInPistol.rbxm": {
+  "assetId": 79156910221465,
+  "name": "GG SlideInPistol w2",
+  "type": "Animation",
+  "uploaded": "2026-11-13 16:02:10"
+ },
+ "art-source/animations/GG_SlideKnife.rbxm": {
+  "assetId": 107595824469218,
+  "name": "GG SlideKnife v1",
+  "type": "Animation",
+  "uploaded": "2026-11-13 02:13:53"
  },
  "art-source/animations/GG_SlideOut.rbxm": {
-  "assetId": 102780739852463,
-  "name": "GG SlideOut mb",
+  "assetId": 108310232385404,
+  "name": "GG SlideOut v9",
   "type": "Animation",
-  "uploaded": "2026-11-05 16:51:00"
+  "uploaded": "2026-11-13 01:46:22"
+ },
+ "art-source/animations/GG_SlideOutKnife.rbxm": {
+  "assetId": 109072548908167,
+  "name": "GG SlideOutKnife w1",
+  "type": "Animation",
+  "uploaded": "2026-11-13 15:56:10"
+ },
+ "art-source/animations/GG_SlideOutPistol.rbxm": {
+  "assetId": 79155087791028,
+  "name": "GG SlideOutPistol w2",
+  "type": "Animation",
+  "uploaded": "2026-11-13 16:02:13"
+ },
+ "art-source/animations/GG_SlidePistol.rbxm": {
+  "assetId": 123494865248021,
+  "name": "GG SlidePistol v1",
+  "type": "Animation",
+  "uploaded": "2026-11-13 02:13:45"
  },
  "art-source/animations/GG_Sprint.rbxm": {
-  "assetId": 98701661117593,
-  "name": "GG Sprint ext",
+  "assetId": 135280483179256,
+  "name": "GG Sprint v6",
   "type": "Animation",
-  "uploaded": "2026-11-05 17:32:12"
+  "uploaded": "2026-11-12 23:54:42"
+ },
+ "art-source/animations/GG_SprintKnife.rbxm": {
+  "assetId": 123727434361000,
+  "name": "GG SprintKnife v6b",
+  "type": "Animation",
+  "uploaded": "2026-11-13 00:16:21"
+ },
+ "art-source/animations/GG_SprintPistol.rbxm": {
+  "assetId": 127136320549965,
+  "name": "GG SprintPistol w1",
+  "type": "Animation",
+  "uploaded": "2026-11-13 15:55:51"
  },
  "art-source/animations/GG_SprintRun.rbxm": {
-  "assetId": 81006580789818,
-  "name": "GG SprintRun",
+  "assetId": 118361992368136,
+  "name": "GG SprintRun v9",
   "type": "Animation",
-  "uploaded": "2026-11-04 01:49:19"
+  "uploaded": "2026-11-13 01:46:11"
+ },
+ "art-source/animations/GG_Throw.rbxm": {
+  "assetId": 80403547544782,
+  "name": "GG Throw v6",
+  "type": "Animation",
+  "uploaded": "2026-11-12 23:54:48"
  },
  "art-source/animations/GG_Updraft.rbxm": {
-  "assetId": 125684824115691,
-  "name": "GG Updraft",
+  "assetId": 122572879619635,
+  "name": "GG Updraft v5",
   "type": "Animation",
-  "uploaded": "2026-10-28 21:20:05"
+  "uploaded": "2026-11-12 23:25:32"
  },
  "art-source/animations/GG_UpdraftSlam.rbxm": {
-  "assetId": 81823689314585,
-  "name": "GG Updraft Slam",
+  "assetId": 91174387556328,
+  "name": "GG UpdraftSlam v6",
   "type": "Animation",
-  "uploaded": "2026-11-03 13:34:13"
+  "uploaded": "2026-11-12 23:54:51"
  },
  "art-source/animations/GG_UpdraftSlamLand.rbxm": {
-  "assetId": 139188293218588,
-  "name": "GG Updraft Slam Land",
+  "assetId": 131769446021191,
+  "name": "GG UpdraftSlamLand v6",
   "type": "Animation",
-  "uploaded": "2026-11-03 13:34:16"
+  "uploaded": "2026-11-12 23:54:54"
+ },
+ "art-source/animations/GG_Victory.rbxm": {
+  "assetId": 71447089078892,
+  "name": "GG Victory v6",
+  "type": "Animation",
+  "uploaded": "2026-11-12 23:54:57"
+ },
+ "art-source/animations/GG_WalkB.rbxm": {
+  "assetId": 86945287609346,
+  "name": "GG WalkB v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:39"
+ },
+ "art-source/animations/GG_WalkBL.rbxm": {
+  "assetId": 100608079004581,
+  "name": "GG WalkBL v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:42"
+ },
+ "art-source/animations/GG_WalkBR.rbxm": {
+  "assetId": 91920468560649,
+  "name": "GG WalkBR v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:36"
+ },
+ "art-source/animations/GG_WalkF.rbxm": {
+  "assetId": 107342133831860,
+  "name": "GG WalkF v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:29"
+ },
+ "art-source/animations/GG_WalkFL.rbxm": {
+  "assetId": 93351123775758,
+  "name": "GG WalkFL v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:47"
+ },
+ "art-source/animations/GG_WalkFR.rbxm": {
+  "assetId": 108041601441541,
+  "name": "GG WalkFR v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:31"
+ },
+ "art-source/animations/GG_WalkL.rbxm": {
+  "assetId": 75856907068096,
+  "name": "GG WalkL v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:44"
+ },
+ "art-source/animations/GG_WalkR.rbxm": {
+  "assetId": 107142626991120,
+  "name": "GG WalkR v9",
+  "type": "Animation",
+  "uploaded": "2026-11-13 01:45:34"
  },
  "art-source/audio/GameAtlas.flac": {
   "assetId": 136994389000525,
@@ -426,10 +690,28 @@
   "uploaded": "2026-10-25 12:37:39"
  },
  "art-source/audio/GunSfx.flac": {
-  "assetId": 78823707282052,
-  "name": "GG Gun Atlas v2",
+  "assetId": 119437853694239,
+  "name": "GG Gun Atlas v3",
   "type": "Audio",
-  "uploaded": "2026-11-09 01:13:13"
+  "uploaded": "2026-11-13 16:03:48"
+ },
+ "art-source/audio/ProPack/ProAtlas.flac": {
+  "assetId": 97238006800068,
+  "name": "GG Gun Atlas v9",
+  "type": "Audio",
+  "uploaded": "2026-11-14 17:25:48"
+ },
+ "art-source/body/BlockBody.fbx": {
+  "assetId": 103550484592616,
+  "name": "GG Block Body v2 mitre joints",
+  "type": "Model",
+  "uploaded": "2026-11-12 18:24:11"
+ },
+ "art-source/body/SkinnedLimbs.fbx": {
+  "assetId": 112809907225612,
+  "name": "GG Skinned Body v4",
+  "type": "Model",
+  "uploaded": "2026-11-12 22:46:12"
  },
  "art-source/lobby/textures/Bunker_Concrete_color.png": {
   "assetId": 82210257771317,
@@ -2171,6 +2453,48 @@
   "type": "Decal",
   "uploaded": "2026-10-25 13:52:03"
  },
+ "art-source/vfx/hit/damage_arc.png": {
+  "assetId": 121870947037186,
+  "name": "GG Damage Direction Arc",
+  "type": "Decal",
+  "uploaded": "2026-11-15 14:52:35"
+ },
+ "art-source/vfx/hit/head_crown_4x4.png": {
+  "assetId": 138460998541469,
+  "name": "GG Headshot Crown 4x4",
+  "type": "Decal",
+  "uploaded": "2026-11-16 00:00:28"
+ },
+ "art-source/vfx/hit/head_flare_2x2.png": {
+  "assetId": 80426787467983,
+  "name": "GG VFX headshot flare 2x2 aligned",
+  "type": "Decal",
+  "uploaded": "2026-11-13 18:34:06"
+ },
+ "art-source/vfx/hit/head_flash.png": {
+  "assetId": 99616835206256,
+  "name": "GG VFX head flash",
+  "type": "Decal",
+  "uploaded": "2026-11-13 15:29:56"
+ },
+ "art-source/vfx/hit/head_ray.png": {
+  "assetId": 118817818796942,
+  "name": "GG Headshot Ray v2",
+  "type": "Decal",
+  "uploaded": "2026-11-15 23:57:00"
+ },
+ "art-source/vfx/hit/marker_kite.png": {
+  "assetId": 106716197115622,
+  "name": "GG Hit Marker Kite",
+  "type": "Decal",
+  "uploaded": "2026-11-15 23:52:16"
+ },
+ "art-source/vfx/hit/marker_wedge.png": {
+  "assetId": 115701958881742,
+  "name": "GG VFX hit marker wedge",
+  "type": "Decal",
+  "uploaded": "2026-11-13 15:29:54"
+ },
  "art-source/vfx/hole.png": {
   "assetId": 82921010626575,
   "name": "GG VFX hole",
@@ -2364,10 +2688,424 @@
   "uploaded": "2026-11-07 00:48:00"
  },
  "art-source/viewmodel/Arms.fbx": {
-  "assetId": 112778616991962,
-  "name": "GG Viewmodel Arms",
+  "assetId": 115198041447582,
+  "name": "GG Viewmodel Arms v3 (sharp block + outline)",
   "type": "Model",
-  "uploaded": "2026-10-25 14:50:09"
+  "uploaded": "2026-11-12 01:46:57"
+ },
+ "art-source/weapons/Skins/Giltfold/Classic/v02/Classic_Giltfold_RobloxFlat.fbx": {
+  "assetId": 90119117859435,
+  "name": "GG Skin Giltfold Classic flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:25:00"
+ },
+ "art-source/weapons/Skins/Giltfold/Fan/v01/Fan_Giltfold_RobloxFlat.fbx": {
+  "assetId": 109531411909595,
+  "name": "GG Skin Giltfold Fan flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:25:28"
+ },
+ "art-source/weapons/Skins/Giltfold/Ghost/v02/Ghost_Giltfold_RobloxFlat.fbx": {
+  "assetId": 84240496171961,
+  "name": "GG Skin Giltfold Ghost flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:24:45"
+ },
+ "art-source/weapons/Skins/Giltfold/Marshal/v02/Marshal_Giltfold_RobloxFlat.fbx": {
+  "assetId": 87314504499660,
+  "name": "GG Skin Giltfold Marshal flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:24:29"
+ },
+ "art-source/weapons/Skins/Giltfold/Stinger/v02/Stinger_Giltfold_RobloxFlat.fbx": {
+  "assetId": 109379619873940,
+  "name": "GG Skin Giltfold Stinger flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:24:39"
+ },
+ "art-source/weapons/Skins/Giltfold/Vandal/v02/Vandal_Giltfold_Roblox.fbx": {
+  "assetId": 104571981232724,
+  "name": "GG Skin Giltfold Vandal v02",
+  "type": "Model",
+  "uploaded": "2026-11-14 12:18:01"
+ },
+ "art-source/weapons/Skins/Giltfold/Vandal/v02/Vandal_Giltfold_RobloxFlat.fbx": {
+  "assetId": 134634217463158,
+  "name": "GG Skin Giltfold Vandal flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:29:51"
+ },
+ "art-source/weapons/Skins/Giltfold/Vandal/v02/textures/Vandal_Atlas_Color.png": {
+  "assetId": 128473108089537,
+  "name": "GG Skin Giltfold Vandal Atlas Color padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:25:59"
+ },
+ "art-source/weapons/Skins/Giltfold/Vandal/v02/textures/Vandal_Atlas_Metal.png": {
+  "assetId": 105710056622725,
+  "name": "GG Skin Giltfold Vandal Atlas Metal padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:08"
+ },
+ "art-source/weapons/Skins/Giltfold/Vandal/v02/textures/Vandal_Atlas_Rough.png": {
+  "assetId": 79750230710053,
+  "name": "GG Skin Giltfold Vandal Atlas Rough padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:02"
+ },
+ "art-source/weapons/Skins/Giltfold/Vandal/v02/textures/Vandal_Chamber_Color.png": {
+  "assetId": 116689735550460,
+  "name": "GG Skin Giltfold Vandal Chamber Color padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:11"
+ },
+ "art-source/weapons/Skins/Giltfold/_shared/Giltfold_Solid_Color.png": {
+  "assetId": 99116234909742,
+  "name": "GG Skin Giltfold Solid Color",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:17:44"
+ },
+ "art-source/weapons/Skins/Giltfold/_shared/Giltfold_Solid_Metal.png": {
+  "assetId": 122315629047689,
+  "name": "GG Skin Giltfold Solid Metal",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:17:50"
+ },
+ "art-source/weapons/Skins/Giltfold/_shared/Giltfold_Solid_Rough.png": {
+  "assetId": 130402653365811,
+  "name": "GG Skin Giltfold Solid Rough",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:17:47"
+ },
+ "art-source/weapons/Skins/Inkshift/Blade/v02/Blade_Inkshift_RobloxFlat.fbx": {
+  "assetId": 110989950847267,
+  "name": "GG Skin Inkshift Blade flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:26:29"
+ },
+ "art-source/weapons/Skins/Inkshift/Odin/v02/Odin_Inkshift_RobloxFlat.fbx": {
+  "assetId": 101518743692664,
+  "name": "GG Skin Inkshift Odin flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:25:38"
+ },
+ "art-source/weapons/Skins/Inkshift/Phantom/v02/Phantom_Inkshift_RobloxFlat.fbx": {
+  "assetId": 72863325487773,
+  "name": "GG Skin Inkshift Phantom flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:25:53"
+ },
+ "art-source/weapons/Skins/Inkshift/Shorty/v02/Shorty_Inkshift_RobloxFlat.fbx": {
+  "assetId": 107336060300820,
+  "name": "GG Skin Inkshift Shorty flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:26:04"
+ },
+ "art-source/weapons/Skins/Inkshift/Stinger/v02/Stinger_Inkshift_RobloxFlat.fbx": {
+  "assetId": 136031190606725,
+  "name": "GG Skin Inkshift Stinger flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:26:19"
+ },
+ "art-source/weapons/Skins/Inkshift/Vandal/v02/Vandal_Inkshift_Roblox.fbx": {
+  "assetId": 135980562174834,
+  "name": "GG Skin Inkshift Vandal v02",
+  "type": "Model",
+  "uploaded": "2026-11-14 12:20:17"
+ },
+ "art-source/weapons/Skins/Inkshift/Vandal/v02/Vandal_Inkshift_RobloxFlat.fbx": {
+  "assetId": 87648100328697,
+  "name": "GG Skin Inkshift Vandal flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:30:06"
+ },
+ "art-source/weapons/Skins/Inkshift/Vandal/v02/textures/Vandal_Atlas_Color.png": {
+  "assetId": 78598093425457,
+  "name": "GG Skin Inkshift Vandal Atlas Color padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:52"
+ },
+ "art-source/weapons/Skins/Inkshift/Vandal/v02/textures/Vandal_Atlas_Metal.png": {
+  "assetId": 138727607024981,
+  "name": "GG Skin Inkshift Vandal Atlas Metal padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:58"
+ },
+ "art-source/weapons/Skins/Inkshift/Vandal/v02/textures/Vandal_Atlas_Rough.png": {
+  "assetId": 94054749938021,
+  "name": "GG Skin Inkshift Vandal Atlas Rough padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:55"
+ },
+ "art-source/weapons/Skins/Inkshift/Vandal/v02/textures/Vandal_Chamber_Color.png": {
+  "assetId": 103027344532920,
+  "name": "GG Skin Inkshift Vandal Chamber Color padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:27:01"
+ },
+ "art-source/weapons/Skins/Inkshift/_shared/Inkshift_Solid_Color.png": {
+  "assetId": 79558758594773,
+  "name": "GG Skin Inkshift Solid Color",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:19:57"
+ },
+ "art-source/weapons/Skins/Inkshift/_shared/Inkshift_Solid_Metal.png": {
+  "assetId": 92123530140317,
+  "name": "GG Skin Inkshift Solid Metal",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:20:03"
+ },
+ "art-source/weapons/Skins/Inkshift/_shared/Inkshift_Solid_Rough.png": {
+  "assetId": 85607232701800,
+  "name": "GG Skin Inkshift Solid Rough",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:20:00"
+ },
+ "art-source/weapons/Skins/Moltframe/Ares/v01/Ares_Moltframe_RobloxFlat.fbx": {
+  "assetId": 110942190008881,
+  "name": "GG Skin Moltframe Ares flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:29:21"
+ },
+ "art-source/weapons/Skins/Moltframe/Dagger/v01/Dagger_Moltframe_RobloxFlat.fbx": {
+  "assetId": 137597353917379,
+  "name": "GG Skin Moltframe Dagger flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:29:41"
+ },
+ "art-source/weapons/Skins/Moltframe/Spectre/v01/Spectre_Moltframe_RobloxFlat.fbx": {
+  "assetId": 117851159731079,
+  "name": "GG Skin Moltframe Spectre flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:29:31"
+ },
+ "art-source/weapons/Skins/Moltframe/Vandal/v05/Vandal_Moltframe_RobloxFlat.fbx": {
+  "assetId": 133398496935620,
+  "name": "GG Skin Moltframe Vandal flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:30:37"
+ },
+ "art-source/weapons/Skins/Moltframe/_shared/Moltframe_Flow.png": {
+  "assetId": 96163927400875,
+  "name": "GG Skin Tile Moltframe Flow",
+  "type": "Decal",
+  "uploaded": "2026-11-14 13:17:06"
+ },
+ "art-source/weapons/Skins/Payload/Ares/v02/Ares_Payload_RobloxFlat.fbx": {
+  "assetId": 111423558547055,
+  "name": "GG Skin Payload Ares flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:27:40"
+ },
+ "art-source/weapons/Skins/Payload/Bulldog/v02/Bulldog_Payload_RobloxFlat.fbx": {
+  "assetId": 87978341342907,
+  "name": "GG Skin Payload Bulldog flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:27:55"
+ },
+ "art-source/weapons/Skins/Payload/Classic/v02/Classic_Payload_RobloxFlat.fbx": {
+  "assetId": 102311352613021,
+  "name": "GG Skin Payload Classic flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:28:01"
+ },
+ "art-source/weapons/Skins/Payload/Ghost/v02/Ghost_Payload_RobloxFlat.fbx": {
+  "assetId": 115318631483751,
+  "name": "GG Skin Payload Ghost flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:28:16"
+ },
+ "art-source/weapons/Skins/Payload/Odin/v02/Odin_Payload_RobloxFlat.fbx": {
+  "assetId": 112070120989867,
+  "name": "GG Skin Payload Odin flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:28:31"
+ },
+ "art-source/weapons/Skins/Payload/Operator/v02/Operator_Payload_RobloxFlat.fbx": {
+  "assetId": 84720574427545,
+  "name": "GG Skin Payload Operator flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:29:00"
+ },
+ "art-source/weapons/Skins/Payload/Stinger/v02/Stinger_Payload_RobloxFlat.fbx": {
+  "assetId": 115247183148224,
+  "name": "GG Skin Payload Stinger flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:29:06"
+ },
+ "art-source/weapons/Skins/Payload/Vandal/v02/Vandal_Payload_Roblox.fbx": {
+  "assetId": 131366745501724,
+  "name": "GG Skin Payload Vandal v02",
+  "type": "Model",
+  "uploaded": "2026-11-14 12:19:38"
+ },
+ "art-source/weapons/Skins/Payload/Vandal/v02/Vandal_Payload_RobloxFlat.fbx": {
+  "assetId": 128893448377330,
+  "name": "GG Skin Payload Vandal flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:30:12"
+ },
+ "art-source/weapons/Skins/Payload/Vandal/v02/textures/Vandal_Atlas_Color.png": {
+  "assetId": 99824826053704,
+  "name": "GG Skin Payload Vandal Atlas Color padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:35"
+ },
+ "art-source/weapons/Skins/Payload/Vandal/v02/textures/Vandal_Atlas_Metal.png": {
+  "assetId": 88345999303683,
+  "name": "GG Skin Payload Vandal Atlas Metal padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:44"
+ },
+ "art-source/weapons/Skins/Payload/Vandal/v02/textures/Vandal_Atlas_Rough.png": {
+  "assetId": 123890128717647,
+  "name": "GG Skin Payload Vandal Atlas Rough padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:41"
+ },
+ "art-source/weapons/Skins/Payload/Vandal/v02/textures/Vandal_Chamber_Color.png": {
+  "assetId": 124592847881006,
+  "name": "GG Skin Payload Vandal Chamber Color padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:46"
+ },
+ "art-source/weapons/Skins/Payload/_shared/Payload_Solid_Color.png": {
+  "assetId": 99306567172130,
+  "name": "GG Skin Payload Solid Color",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:19:15"
+ },
+ "art-source/weapons/Skins/Payload/_shared/Payload_Solid_Metal.png": {
+  "assetId": 84305345744464,
+  "name": "GG Skin Payload Solid Metal",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:19:21"
+ },
+ "art-source/weapons/Skins/Payload/_shared/Payload_Solid_Rough.png": {
+  "assetId": 98322903245858,
+  "name": "GG Skin Payload Solid Rough",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:19:18"
+ },
+ "art-source/weapons/Skins/Playback/Phantom/v01/textures/Phantom_Color.png": {
+  "assetId": 94721428360212,
+  "name": "GG Playback Phantom Color",
+  "type": "Decal",
+  "uploaded": "2026-11-15 23:39:28"
+ },
+ "art-source/weapons/Skins/Sealwork/Dagger/v02/Dagger_Sealwork_RobloxFlat.fbx": {
+  "assetId": 110715312800484,
+  "name": "GG Skin Sealwork Dagger flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:27:30"
+ },
+ "art-source/weapons/Skins/Sealwork/Guardian/v02/Guardian_Sealwork_RobloxFlat.fbx": {
+  "assetId": 139040085052716,
+  "name": "GG Skin Sealwork Guardian flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:26:38"
+ },
+ "art-source/weapons/Skins/Sealwork/Marshal/v02/Marshal_Sealwork_RobloxFlat.fbx": {
+  "assetId": 122729451851141,
+  "name": "GG Skin Sealwork Marshal flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:26:48"
+ },
+ "art-source/weapons/Skins/Sealwork/Sheriff/v02/Sheriff_Sealwork_RobloxFlat.fbx": {
+  "assetId": 81708465959801,
+  "name": "GG Skin Sealwork Sheriff flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:27:08"
+ },
+ "art-source/weapons/Skins/Sealwork/Shorty/v02/Shorty_Sealwork_RobloxFlat.fbx": {
+  "assetId": 108042921674404,
+  "name": "GG Skin Sealwork Shorty flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:26:58"
+ },
+ "art-source/weapons/Skins/Sealwork/Vandal/v02/Vandal_Sealwork_Roblox.fbx": {
+  "assetId": 110105341846285,
+  "name": "GG Skin Sealwork Vandal v02",
+  "type": "Model",
+  "uploaded": "2026-11-14 12:18:53"
+ },
+ "art-source/weapons/Skins/Sealwork/Vandal/v02/Vandal_Sealwork_RobloxFlat.fbx": {
+  "assetId": 135080910680523,
+  "name": "GG Skin Sealwork Vandal flat r4",
+  "type": "Model",
+  "uploaded": "2026-11-14 18:30:27"
+ },
+ "art-source/weapons/Skins/Sealwork/Vandal/v02/textures/Vandal_Atlas_Color.png": {
+  "assetId": 132303837885753,
+  "name": "GG Skin Sealwork Vandal Atlas Color padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:17"
+ },
+ "art-source/weapons/Skins/Sealwork/Vandal/v02/textures/Vandal_Atlas_Metal.png": {
+  "assetId": 118649374282994,
+  "name": "GG Skin Sealwork Vandal Atlas Metal padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:26"
+ },
+ "art-source/weapons/Skins/Sealwork/Vandal/v02/textures/Vandal_Atlas_Rough.png": {
+  "assetId": 127827200236248,
+  "name": "GG Skin Sealwork Vandal Atlas Rough padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:23"
+ },
+ "art-source/weapons/Skins/Sealwork/Vandal/v02/textures/Vandal_Chamber_Color.png": {
+  "assetId": 91253054743348,
+  "name": "GG Skin Sealwork Vandal Chamber Color padded",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:26:29"
+ },
+ "art-source/weapons/Skins/Sealwork/_shared/Sealwork_Solid_Color.png": {
+  "assetId": 126042126005369,
+  "name": "GG Skin Sealwork Solid Color",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:18:22"
+ },
+ "art-source/weapons/Skins/Sealwork/_shared/Sealwork_Solid_Metal.png": {
+  "assetId": 83997632370062,
+  "name": "GG Skin Sealwork Solid Metal",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:18:30"
+ },
+ "art-source/weapons/Skins/Sealwork/_shared/Sealwork_Solid_Rough.png": {
+  "assetId": 123311545267958,
+  "name": "GG Skin Sealwork Solid Rough",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:18:25"
+ },
+ "art-source/weapons/Skins/_casing/SkinCasing.fbx": {
+  "assetId": 135378276891009,
+  "name": "GG Skin Casing",
+  "type": "Model",
+  "uploaded": "2026-11-14 13:45:09"
+ },
+ "art-source/weapons/Skins/_tiles/Giltfold_Wave.png": {
+  "assetId": 110202734035328,
+  "name": "GG Skin Tile Giltfold Wave v2",
+  "type": "Decal",
+  "uploaded": "2026-11-14 13:55:27"
+ },
+ "art-source/weapons/Skins/_tiles/Payload_Carbon.png": {
+  "assetId": 113233933286545,
+  "name": "GG Skin Tile Payload_Carbon",
+  "type": "Decal",
+  "uploaded": "2026-11-14 12:31:17"
+ },
+ "art-source/weapons/Skins/_tiles/Payload_Foil.png": {
+  "assetId": 140526423579451,
+  "name": "GG Skin Tile Payload Foil v2",
+  "type": "Decal",
+  "uploaded": "2026-11-14 13:55:30"
+ },
+ "art-source/weapons/Skins/_tiles/Sealwork_Ruby.png": {
+  "assetId": 135106383206479,
+  "name": "GG Skin Tile Sealwork Ruby soft",
+  "type": "Decal",
+  "uploaded": "2026-11-14 13:17:02"
  },
  "art-source/weapons/Textures/Akimbo_Color.png": {
   "assetId": 109410022810181,

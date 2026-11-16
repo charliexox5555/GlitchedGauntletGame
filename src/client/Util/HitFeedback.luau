@@ -1,46 +1,42 @@
 --!strict
--- Hit feedback on the combat HUD (Gunplay.md §5): hit / headshot / kill X
--- markers and stacking damage numbers that fall off when the stack ends. A
--- hit a damage guard took (a Heal Orb Barrier, a Ghost dash) shows a cool
--- grey X and a BLOCKED tag at the hit point instead of a number.
+-- Hit feedback on the combat HUD (Gunplay.md §5, numbers in Config/HitFx):
+-- hit / headshot / kill X markers and stacking damage numbers that fall off
+-- when the stack ends. A hit a damage guard took (a Heal Orb Barrier, a Ghost
+-- dash) shows a cool grey X and a BLOCKED tag at the hit point instead of a
+-- number.
+-- 2026-11-13, after the owner played (RIVALS references in vault/02 Art/
+-- References/hitfx/): four small wedges slide in to the crosshair and hit,
+-- white on the body and plain red on a headshot; their length follows the
+-- damage; a kill shows the normal marker (HitFx.KILL_MARKER). Damage numbers use
+-- Sarpanch (UI theme v4.1) and go red on headshots.
 -- Everything is animated by hand from step(dt) (no tweens), so each element
 -- always ends fully hidden, and rapid fire just restarts it.
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local CrosshairConfig = require(ReplicatedStorage.Shared.Config.Crosshair)
+local HitFx = require(ReplicatedStorage.Shared.Config.HitFx)
+
+local Crosshair = require(script.Parent.Crosshair)
+
 local HitFeedback = {}
 
-local WHITE = Color3.new(1, 1, 1)
-local AMBER = Color3.fromHex("F2C94C") -- headshots
-local RED = Color3.fromHex("EB5757") -- kills
-local BLOCKED = Color3.fromHex("A9BCD6") -- a guard took it: no damage
-local BLACK = Color3.new(0, 0, 0)
-local NUMBER_FONT = Font.new("rbxasset://fonts/families/BuilderSans.json", Enum.FontWeight.Heavy)
+type MarkerSpec = HitFx.MarkerSpec
+
+local BLOCKED = HitFx.COLOR.blocked
+local BLACK = HitFx.COLOR.outline
+local NUMBER = HitFx.NUMBER
+local NUMBER_FONT =
+	Font.new("rbxasset://fonts/families/" .. NUMBER.family .. ".json", NUMBER.weight)
 
 -- Damage numbers.
 local POOL_SIZE = 10
-local STACK_TIME = 0.9 -- a stack ends this long after its last hit
-local KILL_HOLD = 0.45 -- a killing stack holds this long, then falls
-local STACK_RANGE = 8 -- studs: hits further from the last one start a new stack
-local POP_TIME = 0.12
-local FALL_TIME = 0.6
-local FALL_GRAVITY = 950 -- px/s²
-local NUMBER_OFFSET = Vector2.new(34, -30) -- from the hit point on screen
+local FALL = NUMBER.fall
+local NUMBER_OFFSET = NUMBER.offset -- from the hit point on screen
 
-type MarkerStyle = {
-	color: Color3,
-	life: number,
-	peak: number, -- pop-in scale
-	kick: number, -- degrees of rotation kick
-}
-
-local STYLES: { [string]: MarkerStyle } = {
-	Body = { color = WHITE, life = 0.2, peak = 1.35, kick = 6 },
-	Head = { color = AMBER, life = 0.28, peak = 1.55, kick = 10 },
-	Kill = { color = RED, life = 0.45, peak = 1.7, kick = 16 },
-	Blocked = { color = BLOCKED, life = 0.3, peak = 1.2, kick = 0 },
-}
+local MARKER_BOX = 200 -- px: the marker's canvas (holds the kill wedges and ring at 1.5x)
 
 -- The BLOCKED tag: pops in at the hit point, holds, rises and fades.
 local TAG_POP = 0.1
@@ -51,12 +47,18 @@ local TAG_RISE = 26 -- px over the fade
 type Marker = {
 	root: CanvasGroup,
 	scale: UIScale,
-	bars: { Frame },
-	reach: number, -- bar distance from the centre
-	style: MarkerStyle,
-	spin: number,
+	wedges: { ImageLabel },
+	backs: { ImageLabel }, -- a dark wedge behind each (reads on a white-flashed body)
+	ring: Frame,
+	ringStroke: UIStroke,
+	spec: MarkerSpec,
 	t: number,
 	active: boolean,
+	size: number, -- wedge length from the damage (HitFx.DAMAGE_SCALE), easing to targetSize
+	targetSize: number,
+	matched: boolean, -- the server's confirm already merged into this pop
+	k0: number, -- where this pop's shrink starts (0: from the very start; a quick re-pop starts part way)
+	ringOn: boolean,
 }
 
 type DamageNumber = {
@@ -68,10 +70,10 @@ type DamageNumber = {
 	world: Vector3,
 	lastHit: number,
 	killed: boolean,
+	head: boolean,
 	t: number, -- time in the current state (pop timer while stacking)
 	position: Vector2,
-	velocity: Vector2,
-	spin: number,
+	fallFrom: Vector2, -- where it stood when it tipped over
 	size: number, -- base scale
 	offscreen: boolean, -- its hit point is out of view: not drawn
 	crosshair: boolean, -- no hit point: it sits by the crosshair
@@ -101,14 +103,26 @@ local function easeOut(k: number): number
 	return 1 - inv * inv
 end
 
+-- Marker px are designed at 1080p and scale exactly like the crosshair
+-- (Config/Crosshair limits), so the X and the crosshair keep their proportions
+-- on a phone.
+local function screenScale(): number
+	local cam = Workspace.CurrentCamera
+	local c = CrosshairConfig.DEFAULT
+	local h = if cam then cam.ViewportSize.Y else c.designHeight
+	return math.clamp(h / c.designHeight, c.minScale, c.maxScale)
+end
+
 -- Markers ------------------------------------------------------------------------
 
--- An X of four bars in a CanvasGroup, so the bars and their outlines fade together.
-local function newMarker(parent: Instance, size: number, thickness: number): Marker
+-- Four wedges (HitFx.TEXTURES.wedge: tip at the image's bottom, dark edge baked
+-- in, tinted by the spec's colour) on the diagonals, tips toward the centre,
+-- and a ring, in a CanvasGroup so they fade together.
+local function newMarker(parent: Instance): Marker
 	local root = Instance.new("CanvasGroup")
 	root.AnchorPoint = Vector2.new(0.5, 0.5)
 	root.Position = UDim2.fromScale(0.5, 0.5)
-	root.Size = UDim2.fromOffset(size * 4, size * 4)
+	root.Size = UDim2.fromOffset(MARKER_BOX, MARKER_BOX)
 	root.BackgroundTransparency = 1
 	root.GroupTransparency = 1
 	root.Visible = false
@@ -116,43 +130,110 @@ local function newMarker(parent: Instance, size: number, thickness: number): Mar
 	root.Parent = parent
 	local scale = Instance.new("UIScale")
 	scale.Parent = root
-	local bars = {}
+	local wedges = {}
+	local backs = {}
 	for i = 0, 3 do
-		local bar = Instance.new("Frame")
-		bar.AnchorPoint = Vector2.new(0.5, 0.5)
-		bar.Size = UDim2.fromOffset(size * 0.6, thickness)
-		bar.Rotation = 45 + 90 * i
-		bar.BorderSizePixel = 0
-		bar.BackgroundColor3 = WHITE
-		bar.Parent = root
-		local outline = Instance.new("UIStroke")
-		outline.Color = BLACK
-		outline.Thickness = 1
-		outline.Transparency = 0.35
-		outline.Parent = bar
-		bars[i + 1] = bar
+		local back = Instance.new("ImageLabel")
+		back.AnchorPoint = Vector2.new(0.5, 0.5)
+		back.BackgroundTransparency = 1
+		back.Image = HitFx.TEXTURES.marker
+		back.Visible = HitFx.MARKER_BACK.enabled
+		back.ImageColor3 = HitFx.MARKER_BACK.color
+		back.ImageTransparency = HitFx.MARKER_BACK.transparency
+		back.Rotation = 45 + 90 * i + 90
+		back.ZIndex = 1
+		back.Parent = root
+		backs[i + 1] = back
+		local w = Instance.new("ImageLabel")
+		w.AnchorPoint = Vector2.new(0.5, 0.5)
+		w.BackgroundTransparency = 1
+		w.Image = HitFx.TEXTURES.marker
+		-- The image's tip points down; turn it to point at the centre from its
+		-- diagonal (45 + 90 i degrees, screen y down): rotation = angle + 90.
+		w.Rotation = 45 + 90 * i + 90
+		w.ZIndex = 2
+		w.Parent = root
+		wedges[i + 1] = w
 	end
+	local ring = Instance.new("Frame")
+	ring.AnchorPoint = Vector2.new(0.5, 0.5)
+	ring.Position = UDim2.fromScale(0.5, 0.5)
+	ring.BackgroundTransparency = 1
+	ring.Visible = false
+	ring.Parent = root
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.5, 0)
+	corner.Parent = ring
+	local ringStroke = Instance.new("UIStroke")
+	ringStroke.Color = HitFx.MARKER_RING.color
+	ringStroke.Parent = ring
 	return {
 		root = root,
 		scale = scale,
-		bars = bars,
-		reach = size * 0.62,
-		style = STYLES.Body,
-		spin = 0,
+		wedges = wedges,
+		backs = backs,
+		ring = ring,
+		ringStroke = ringStroke,
+		spec = HitFx.MARKER.Body,
 		t = 0,
 		active = false,
+		size = 1,
+		targetSize = 1,
+		matched = false,
+		k0 = 0,
+		ringOn = false,
 	}
 end
 
-local function popMarker(m: Marker, style: MarkerStyle)
-	m.style = style
-	for _, bar in m.bars do
-		bar.BackgroundColor3 = style.color
+-- Colour and parts for `spec`, without restarting the animation.
+local function paint(m: Marker, spec: MarkerSpec)
+	m.spec = spec
+	for _, w in m.wedges do
+		w.ImageColor3 = spec.color
 	end
-	m.spin = (if math.random() < 0.5 then -1 else 1) * style.kick * (0.6 + math.random() * 0.4)
+	m.ringOn = spec.ring
+	m.ring.Visible = spec.ring
+end
+
+-- Wedge length of the last confirmed hit: a predicted pop starts at it (the
+-- same gun usually does the same damage), the confirm corrects it.
+local lastSize = 1
+
+-- Critically damped spring from 0 to 1 at angular speed `w`, `t` seconds
+-- after it was let go (RIVALS' marker spring: damper 1).
+local function shrinkAt(t: number, w: number): number
+	local x = w * math.max(t, 0)
+	return 1 - (1 + x) * math.exp(-x)
+end
+
+local function progressOf(m: Marker): number
+	return m.k0 + (1 - m.k0) * shrinkAt(m.t, m.spec.speed)
+end
+
+local function popMarker(m: Marker, spec: MarkerSpec)
+	-- A hit while the last marker still shows restarts most of the travel
+	-- (MARKER_REPOP), so a spray pulses instead of jumping.
+	m.k0 = if m.active then progressOf(m) * (1 - HitFx.MARKER_REPOP) else 0
+	paint(m, spec)
 	m.t = 0
+	m.size = lastSize
+	m.targetSize = lastSize
+	m.matched = false
 	m.active = true
 	m.root.Visible = true
+end
+
+local function stepRing(m: Marker, px: number)
+	local r = HitFx.MARKER_RING
+	local k = m.t / r.life
+	if k >= 1 then
+		m.ring.Visible = false
+		return
+	end
+	local radius = (r.from + (r.to - r.from) * easeOut(k)) * px
+	m.ring.Size = UDim2.fromOffset(radius * 2, radius * 2)
+	m.ringStroke.Thickness = r.thickness * px * (1 - 0.5 * k)
+	m.ringStroke.Transparency = k ^ 1.5
 end
 
 local function stepMarker(m: Marker, dt: number)
@@ -160,37 +241,87 @@ local function stepMarker(m: Marker, dt: number)
 		return
 	end
 	m.t += dt
-	local style = m.style
-	if m.t >= style.life then
+	local spec = m.spec
+	if m.t >= spec.life then
 		m.active = false
 		m.root.Visible = false
 		m.root.GroupTransparency = 1
 		return
 	end
-	local life = m.t / style.life
-	-- Pop in big, snap back; rotation kick settles the same way.
-	local settle = 1 - easeOut(m.t / 0.08)
-	m.scale.Scale = 1 + (style.peak - 1) * settle
-	m.root.Rotation = m.spin * settle
-	-- Hold, then fade; the arms drift outward as it goes.
-	local hold = 0.4
-	m.root.GroupTransparency = if life < hold then 0 else ((life - hold) / (1 - hold)) ^ 1.4
-	local reach = m.reach * (1 + 0.35 * life)
-	for i, bar in m.bars do
+	local px = screenScale()
+	-- The same whole-pixel centre as Util/Crosshair, so the marker and the
+	-- crosshair share one centre (the canvas is an even size).
+	local cam = Workspace.CurrentCamera
+	if cam then
+		m.root.Position =
+			UDim2.fromOffset(math.floor(cam.ViewportSize.X / 2), math.floor(cam.ViewportSize.Y / 2))
+	end
+	m.size += (m.targetSize - m.size) * (1 - math.exp(-HitFx.SIZE_RATE * dt))
+	-- Big and wide at the hit, shrinking in tight (time-based: the same at any
+	-- frame rate); solid for most of its life, then a quick fade.
+	local k = progressOf(m)
+	m.scale.Scale = 1
+	m.root.GroupTransparency = math.clamp(m.t / spec.life, 0, 1) ^ spec.fadePow
+	-- It tilts with the crosshair (the slide tilt), as RIVALS' does.
+	m.root.Rotation = Crosshair.tilt()
+	local tipGap = spec.fromGap + (spec.gap - spec.fromGap) * k
+	local len = (spec.fromLength + (spec.length - spec.fromLength) * k) * m.size
+	local centreDist = (tipGap + len / 2) * px
+	for i, w in m.wedges do
 		local rad = math.rad(45 + 90 * (i - 1))
-		bar.Position = UDim2.new(0.5, math.cos(rad) * reach, 0.5, math.sin(rad) * reach)
+		w.Position = UDim2.new(0.5, math.cos(rad) * centreDist, 0.5, math.sin(rad) * centreDist)
+		w.Size = UDim2.fromOffset(len * px * HitFx.MARKER_ASPECT, len * px)
+		local back = m.backs[i]
+		local grow = HitFx.MARKER_BACK.grow * px
+		back.Position = w.Position
+		back.Size = UDim2.fromOffset(len * px * HitFx.MARKER_ASPECT + grow, len * px + grow * 1.6)
+	end
+	if m.ringOn then
+		stepRing(m, px)
 	end
 end
 
+-- Wedge length for a hit of `amount` damage.
+local function damageSize(amount: number): number
+	local d = HitFx.DAMAGE_SCALE
+	local k = math.clamp((amount - d.low) / (d.high - d.low), 0, 1)
+	return d.min + (d.max - d.min) * k
+end
+
+-- A hit: pops the X. The client pops it on its predicted hit and the server's
+-- confirm calls this again about a ping later; that confirm merges into the
+-- pop still playing (no second pop), upgrading it to a headshot if the server
+-- says so (a re-pop: the bigger event) or quietly downgrading it.
 function HitFeedback.hit(headshot: boolean)
-	if hitMarker then
-		popMarker(hitMarker, if headshot then STYLES.Head else STYLES.Body)
+	local m = hitMarker
+	if not m then
+		return
 	end
+	local head = HitFx.MARKER.Head
+	if
+		m.active
+		and not m.matched
+		and m.t < HitFx.CONFIRM_WINDOW
+		and m.spec ~= HitFx.MARKER.Blocked
+	then
+		if headshot and m.spec ~= head then
+			popMarker(m, head)
+		elseif not headshot and m.spec == head then
+			paint(m, HitFx.MARKER.Body)
+		end
+		m.matched = true
+		return
+	end
+	popMarker(m, if headshot then head else HitFx.MARKER.Body)
 end
 
+-- A kill: nothing extra by default (HitFx.KILL_MARKER); when on, bigger red
+-- wedges and a ring over the hit marker.
 function HitFeedback.kill()
-	if killMarker then
-		popMarker(killMarker, STYLES.Kill)
+	if killMarker and HitFx.KILL_MARKER then
+		popMarker(killMarker, HitFx.MARKER.Kill)
+		killMarker.size = HitFx.DAMAGE_SCALE.max
+		killMarker.targetSize = HitFx.DAMAGE_SCALE.max
 	end
 end
 
@@ -198,7 +329,7 @@ end
 -- `position`: the world hit point (nil: by the crosshair).
 function HitFeedback.blocked(position: Vector3?)
 	if hitMarker then
-		popMarker(hitMarker, STYLES.Blocked)
+		popMarker(hitMarker, HitFx.MARKER.Blocked)
 	end
 	local tg = tag
 	if tg then
@@ -217,8 +348,8 @@ local function newNumber(parent: Instance): DamageNumber
 	label.Size = UDim2.fromOffset(140, 44)
 	label.BackgroundTransparency = 1
 	label.FontFace = NUMBER_FONT
-	label.TextSize = 28
-	label.TextColor3 = WHITE
+	label.TextSize = NUMBER.textSize
+	label.TextColor3 = NUMBER.color
 	label.TextTransparency = 1
 	label.Text = ""
 	label.Visible = false
@@ -226,7 +357,7 @@ local function newNumber(parent: Instance): DamageNumber
 	label.Parent = parent
 	local outline = Instance.new("UIStroke")
 	outline.Color = BLACK
-	outline.Thickness = 2
+	outline.Thickness = NUMBER.stroke
 	outline.Transparency = 1
 	outline.Parent = label
 	local scale = Instance.new("UIScale")
@@ -240,10 +371,10 @@ local function newNumber(parent: Instance): DamageNumber
 		world = Vector3.zero,
 		lastHit = 0,
 		killed = false,
+		head = false,
 		t = 0,
 		position = Vector2.zero,
-		velocity = Vector2.zero,
-		spin = 0,
+		fallFrom = Vector2.zero,
 		size = 1,
 		offscreen = false,
 		crosshair = false,
@@ -256,6 +387,9 @@ local function setAlpha(n: DamageNumber, transparency: number)
 end
 
 local function hide(n: DamageNumber)
+	if current == n then
+		current = nil
+	end
 	n.state = "Idle"
 	n.label.Visible = false
 	setAlpha(n, 1)
@@ -301,9 +435,7 @@ local function startFall(n: DamageNumber)
 	end
 	n.state = "Fall"
 	n.t = 0
-	local side = if math.random() < 0.5 then -1 else 1
-	n.velocity = Vector2.new(side * (50 + math.random() * 70), -(170 + math.random() * 60))
-	n.spin = side * (70 + math.random() * 60)
+	n.fallFrom = n.position
 end
 
 -- Picks a free label, or the oldest falling one when all are busy.
@@ -320,19 +452,32 @@ local function takeNumber(): DamageNumber?
 end
 
 -- A confirmed hit: stacks onto the current number while you keep hitting the
--- same target, else starts a new one. Amber for headshots, bigger on the kill.
+-- same target, else starts a new one. Red for headshots, bigger on the kill.
+-- Also sizes the hit marker just popped for this hit by its damage.
 function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3?, killed: boolean?)
 	if amount ~= amount or amount <= 0 then
 		return
 	end
+	local m = hitMarker
+	if m and m.active then
+		lastSize = damageSize(amount)
+		m.targetSize = lastSize
+	end
 	local now = clock
 	local world = position or Vector3.zero
 	local n = current
+	-- The same target again in time: it keeps counting, and a number that
+	-- had already tipped over snaps back upright.
 	local continues = n ~= nil
-		and n.state == "Stack"
+		and n.state ~= "Idle"
 		and not n.killed
-		and now - n.lastHit < STACK_TIME
-		and (position == nil or (n.world - world).Magnitude < STACK_RANGE)
+		and now - n.lastHit < NUMBER.stackTime
+		and (position == nil or (n.world - world).Magnitude < NUMBER.stackRange)
+	if n and continues and n.state == "Fall" then
+		n.state = "Stack"
+		n.label.Rotation = 0
+		setAlpha(n, 0)
+	end
 	if n and not continues then
 		if n.state == "Stack" then
 			startFall(n)
@@ -358,8 +503,10 @@ function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3
 	stack.lastHit = now
 	stack.t = 0 -- pop again
 	stack.killed = killed == true
-	stack.size = if stack.killed then 1.3 elseif headshot then 1.12 else 1
-	stack.label.TextColor3 = if headshot then AMBER else WHITE
+	stack.head = headshot
+	stack.size = if stack.killed then NUMBER.killSize elseif headshot then NUMBER.headSize else 1
+	stack.label.TextColor3 = if headshot then NUMBER.headColor else NUMBER.color
+	stack.stroke.Color = if headshot then NUMBER.headOutline else BLACK
 	stack.label.Text = tostring(math.round(stack.total))
 	stack.crosshair = position == nil -- no hit point: by the crosshair
 	place(stack)
@@ -369,30 +516,28 @@ local function stepNumber(n: DamageNumber, dt: number, now: number)
 	if n.state == "Stack" then
 		n.t += dt
 		place(n)
-		local pop = 1 - easeOut(n.t / POP_TIME)
-		n.scale.Scale = n.size * (1 + 0.5 * pop)
+		local pop = 1 - easeOut(n.t / NUMBER.popTime)
+		n.scale.Scale = n.size
+			* (1 + (if n.head then NUMBER.headPopScale else NUMBER.popScale) * pop)
 		n.label.Position = UDim2.fromOffset(n.position.X, n.position.Y)
-		if now - n.lastHit > (if n.killed then KILL_HOLD else STACK_TIME) then
+		if now - n.lastHit > (if n.killed then NUMBER.killHold else NUMBER.hold) then
 			startFall(n)
-			if current == n then
-				current = nil
-			end
 		end
 	elseif n.state == "Fall" then
 		n.t += dt
-		local k = n.t / FALL_TIME
+		local k = n.t / FALL.time
 		if k >= 1 then
 			hide(n)
 			return
 		end
-		n.velocity += Vector2.new(0, FALL_GRAVITY * dt)
-		n.position += n.velocity * dt
+		-- It tips over clockwise and drops, slowly at first (like something
+		-- toppling), shrinking as it goes, and fades over the second half.
+		local g = k * k
+		n.position = n.fallFrom + Vector2.new(FALL.drift * k, FALL.drop * g)
 		n.label.Position = UDim2.fromOffset(n.position.X, n.position.Y)
-		n.label.Rotation += n.spin * dt
-		-- A quick swell as it lets go, then it shrinks and fades as it drops.
-		local swell = if n.t < 0.06 then n.t / 0.06 else math.max(0, 1 - (n.t - 0.06) / 0.1)
-		n.scale.Scale = n.size * (1 + 0.2 * swell - 0.35 * k)
-		setAlpha(n, k ^ 1.6)
+		n.label.Rotation = FALL.tip * g
+		n.scale.Scale = n.size * (1 - (1 - FALL.shrink) * k)
+		setAlpha(n, math.clamp((k - 0.45) / 0.55, 0, 1) ^ 1.5)
 	end
 end
 
@@ -460,8 +605,8 @@ function HitFeedback.build(gui: ScreenGui)
 	root.ZIndex = 4
 	root.Parent = gui
 	container = root
-	hitMarker = newMarker(root, 16, 2)
-	killMarker = newMarker(root, 22, 3)
+	hitMarker = newMarker(root)
+	killMarker = newMarker(root)
 	for i = 1, POOL_SIZE do
 		numbers[i] = newNumber(root)
 	end

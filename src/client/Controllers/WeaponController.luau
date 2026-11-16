@@ -7,7 +7,6 @@
 -- Fire modes mirror WeaponService.onFire: Semi/Pump/Bolt (one per press),
 -- Auto, Burst (one press = burst.count shots) and Melee.
 
-local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -21,18 +20,23 @@ local Status = require(Shared.Mods.Status)
 local Animations = require(Shared.Config.Animations)
 local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
+local HitFx = require(Shared.Config.HitFx)
+local Juice = require(Shared.Config.Juice)
 local GunSounds = require(Shared.Config.GunSounds)
 local FireRate = require(Shared.Util.FireRate)
 local MatchState = require(Shared.MatchState)
 local Net = require(Shared.Net)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
+local Penetration = require(ReplicatedStorage.Shared.Util.Penetration)
 local Types = require(Shared.Types)
 local VM = require(Shared.Config.Viewmodel)
 local Weapons = require(Shared.Config.Weapons)
 
 local AudioController = require(script.Parent.AudioController)
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
+local GunAudio = require(script.Parent.Parent.Util.GunAudio)
+local LocalHide = require(script.Parent.Parent.Util.LocalHide)
 local CameraController = require(script.Parent.CameraController)
 local EffectsController = require(script.Parent.EffectsController)
 local HudController = require(script.Parent.HudController)
@@ -98,9 +102,14 @@ local devAim = false -- Studio only: Workspace DevAim holds ADS for scripted rev
 local adsAlpha = 0
 local scoped = false -- a scoped gun aimed past Viewmodel.SCOPE_AT: the scope overlay is up
 local lastShotAt = 0
+-- When our own shot last showed a hit (the hit sound plays then, not on the
+-- server's confirm a round trip later; owner 2026-11-14: "fires way too late").
+local lastPredictedHit = -math.huge
+local lastPredictedHead = -math.huge
 local lastAimSent = 0
 local lastPitchSent = 0
 local lastAimingSent = false
+local lastStateSent = ""
 local alive = false
 -- Spread seeds come from the server's sequence (see Util/Spread.seedFor).
 local seedBase = 0
@@ -172,10 +181,6 @@ local function rayParams(): RaycastParams
 	end
 	params.FilterDescendantsInstances = exclude
 	return params
-end
-
-local function ease(t: number): number
-	return t * t * (3 - 2 * t)
 end
 
 -- What we're doing right now, for the spread (the server recomputes the same
@@ -254,6 +259,9 @@ local function kickRecoil(s: LocalSlot, sinceLast: number, now: number)
 		end
 	end
 	CameraController.kick(up, side, r.recover, r.recoverTime / statusMults().recoil)
+	-- Which way this shot pulls sideways (-1 left .. 1 right): the viewmodel's
+	-- kick follows it (ViewmodelController.fire).
+	return if r.side > 0 then math.clamp(side / r.side, -1, 1) else 0
 end
 
 local function playLocal(id: string?, group: AudioController.Group, volume: number, pitch: number?)
@@ -266,14 +274,21 @@ local function playGun(
 	name: string,
 	group: AudioController.Group?,
 	pitchScale: number?
-)
+): AudioController.Handle?
 	local set = GunSounds.get(config.id) :: any
-	AudioController.playSound(set[name], group or "Foley", nil, nil, pitchScale)
+	return AudioController.playSound(set[name], group or "Foley", nil, nil, pitchScale)
 end
 
 -- Clip beats (ViewmodelController clipBeats) to GunSounds names.
-local BEAT_SOUNDS: { [string]: string } =
-	{ MagOut = "magOut", MagIn = "magIn", Rack = "rack", Open = "open", ShellIn = "shellIn" }
+local BEAT_SOUNDS: { [string]: string } = {
+	MagOut = "magOut",
+	MagIn = "magIn",
+	Rack = "rack",
+	Open = "open",
+	Eject = "eject",
+	ShellIn = "shellIn",
+	Close = "close",
+}
 
 local function updateHudWeapon()
 	local s = current()
@@ -462,6 +477,7 @@ local function applyEquip(slot: Slot)
 	equipReadyAt = os.clock() + duration
 	updateHudWeapon()
 	playGun(config, "draw")
+	playGun(config, "drawWhoosh")
 	local token = reloadToken
 	for _, beat in ViewmodelController.equip(config, duration) do
 		task.delay(duration * beat.at, function()
@@ -511,6 +527,7 @@ local function cast(
 	local out: Cast = { hits = {}, finish = origin + dir * config.range, impact = nil }
 	local from = origin
 	local remaining = config.range
+	local budget = Penetration.budget(config.penetration)
 	for _ = 1, 8 do
 		local result = Workspace:Raycast(from, dir * remaining, params)
 		if not result then
@@ -528,11 +545,8 @@ local function cast(
 			end
 			params:AddToFilter(model)
 		else
-			local passThrough = config.penetration == "All"
-				or (
-					config.penetration == "ThinWall"
-					and CollectionService:HasTag(part, Combat.THIN_WALL_TAG)
-				)
+			-- A wall: through it if the round has the budget (Util/Penetration).
+			local passThrough = Penetration.pass(budget, part, result.Position, dir)
 			if not passThrough then
 				-- A Mod object (a placed Mod object) takes the hit: report it.
 				if part:GetAttribute("MaxHp") ~= nil and part:IsA("BasePart") then
@@ -679,6 +693,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 		origin = origin,
 		direction = aim,
 		shot = shotIndex,
+		seedBase = seedBase,
 		spread = spread,
 		centred = centred,
 		alt = altFire ~= nil,
@@ -688,11 +703,14 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	ShotLog.own(config.id, origin, ends)
 
 	-- Feel.
-	if not scoped then -- no flash or casing in the scope picture
+	if scoped then
+		HudController.scopeShot() -- no flash or casing in the scope picture: it jolts
+	else
 		EffectsController.localShot(config, side, muzzleName)
 	end
-	playGun(config, "fire", "Gun")
-	playGun(config, "tail", "Gun")
+	-- The shot's sounds (Util/GunAudio: first shot, random takes, a tail
+	-- with every shot faded by the next, the last round), per gun slot.
+	GunAudio.shot(s, config, { lastRound = config.magSize > 0 and s.ammo <= 0 })
 	-- A hollow tick from a near-empty mag, louder as it runs dry.
 	local mag = config.magSize
 	local low = math.ceil(mag * Audio.LOW_AMMO_FRACTION)
@@ -707,7 +725,7 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 			end
 		end)
 	end
-	kickRecoil(s, sinceLast, now)
+	local recoilLean = kickRecoil(s, sinceLast, now)
 	if altFire then
 		-- The burst kicks harder than a single shot.
 		CameraController.kick(
@@ -717,14 +735,41 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 			config.recoil.recoverTime / statusMults().recoil
 		)
 	end
-	CameraController.shake((0.04 + config.recoil.up * 0.1) * (1 - 0.35 * adsAlpha))
+	local feel = Juice.SHOT_FEEL
+	local feelScale = 1 - (1 - feel.adsScale) * adsAlpha
+	-- Low-recoil automatics still get some weight per shot (upFloor).
+	local feelUp = math.max(config.recoil.up, feel.upFloor)
+	CameraController.shake((feel.shakeBase + feelUp * feel.shakePerUp) * feelScale)
+	CameraController.punchFov(
+		math.min(feelUp * feel.fovPerUp, feel.fovMax) * feelScale,
+		feel.fovTime
+	)
+	CameraController.rollKick(
+		math.min(feelUp * feel.rollPerUp, feel.rollMax)
+			* feelScale
+			* (if math.random() < 0.5 then -1 else 1),
+		feel.rollTime
+	)
+	HudController.crosshairShot(feelUp * (if altFire then 1.6 else 1))
 	ViewmodelController.fire(
-		(1 - 0.5 * adsAlpha) * (if altFire then 1.6 else 1),
+		(1 - 0.5 * adsAlpha) * (if altFire then 1.6 else 1) * (config.viewmodelKick or 1),
 		side,
-		config.magSize > 0 and s.ammo <= 0
+		config.magSize > 0 and s.ammo <= 0,
+		recoilLean
 	)
 	if predictedHit then
 		HudController.hitMarker(predictedHead)
+		-- The hit sound right away (LihFolk: predict the neutral contact); the
+		-- kill tone still waits for the server.
+		local hitAt = os.clock()
+		lastPredictedHit = hitAt
+		if predictedHead then
+			lastPredictedHead = hitAt
+			task.delay(Audio.HIT_DELAY, playLocal, Sounds.HitHead, "Feedback", Audio.HEAD_VOLUME)
+		else
+			-- Just after the shot's crack, not under it (Audio.HIT_DELAY).
+			task.delay(Audio.HIT_DELAY, playLocal, Sounds.HitBody, "Feedback", Audio.HIT_VOLUME)
+		end
 	end
 	updateHudWeapon()
 
@@ -868,10 +913,18 @@ local function swing(s: LocalSlot, heavy: boolean?)
 			end)
 		end
 	end
-	-- A whiff (and every slash): the streak, and a tiny punch as the blade goes.
+	-- A whiff (and every slash): the streak, and a punch as the blade goes.
 	if #hits == 0 and look then
 		task.delay(hitDelay, punch, look.kick.X)
 	end
+	-- The view leads into every swing (Animations KNIFE_FEEL leadRoll): a roll
+	-- along its path just before contact, eased back.
+	task.delay(
+		math.max(hitDelay - feel.leadEarly, 0),
+		CameraController.rollKick,
+		path.X * feel.leadRoll * (if heavy then 0.6 else 1),
+		feel.leadTime
+	)
 	if look and look.swipe then
 		local lead = hitDelay - feel.swipeSweep * 0.45 -- the head crosses the crosshair at contact
 		EffectsController.knifeSwipe(
@@ -886,6 +939,7 @@ local function swing(s: LocalSlot, heavy: boolean?)
 		origin = origin,
 		direction = aim,
 		shot = shotIndex,
+		seedBase = seedBase,
 		spread = 0,
 		hits = hits,
 		ends = {},
@@ -1003,6 +1057,16 @@ local function update(dt: number)
 		and not PickerController.isOpen()
 		and not gunBlocked()
 		and not dashBlocked()
+		-- Reloading drops the sights and keeps them down (owner, 2026-11-08);
+		-- a bolt or lever gun drops them while it cycles after a shot, and a
+		-- scoped gun with nothing left in it (the Outlaw after both barrels).
+		and not reloading
+		and not (s.config.fireMode == "Bolt" and now < s.lastFire + s.config.fireInterval)
+		and not (s.config.scope ~= nil and s.config.magSize > 0 and s.ammo <= 0)
+	-- Into and out of the sights: a cloth flick (a scope's lens on scoped guns).
+	if s and aimingWanted ~= aiming then
+		playGun(s.config, if aimingWanted then "aimIn" else "aimOut")
+	end
 	aiming = aimingWanted
 	if s then
 		local rate = 1 / math.max(s.config.adsTime, 0.05)
@@ -1014,10 +1078,14 @@ local function update(dt: number)
 	local scope = s and s.config.scope
 	CameraController.setZoom(
 		if scope then CameraController.scopeFov(scope.zoom) elseif s then s.config.adsFov else nil,
-		ease(adsAlpha)
+		-- The zoom trails the gun (ViewmodelController: VM.ADS_FEEL).
+		ViewmodelController.adsZoom()
 	)
+	HudController.setAim(ViewmodelController.adsBlend())
 	setScoped(scope ~= nil and adsAlpha >= VM.SCOPE_AT)
-	HudController.setCrosshairVisible(adsAlpha < 0.5 and not MovementController.isSprinting())
+	HudController.setCrosshairVisible(adsAlpha < 0.5, MovementController.isSprinting())
+	local crossMove = MovementController.getState()
+	HudController.setCrosshairState(crossMove == "Slide", crossMove == "Air", adsAlpha)
 
 	-- Trigger.
 	if s and alive then
@@ -1097,21 +1165,29 @@ local function update(dt: number)
 			if world then
 				for _, d in world:GetDescendants() do
 					if d:IsA("BasePart") then
-						d.LocalTransparencyModifier = 1
+						LocalHide.set(d, 1)
 					end
 				end
 			end
 		end
 	end
 
-	-- Tell the server where we're aiming (third-person pose for others).
+	-- Tell the server where we're aiming (third-person pose for others) and,
+	-- with Server Authority off, what we're doing (shared/Authority: the
+	-- server publishes it for everyone else's footsteps, dust and spectating).
 	if cam and now - lastAimSent > 0.1 then
 		local pitch = math.asin(math.clamp(cam.CFrame.LookVector.Y, -1, 1))
-		if math.abs(pitch - lastPitchSent) > 0.03 or aimingWanted ~= lastAimingSent then
+		local moving = MovementController.getState()
+		if
+			math.abs(pitch - lastPitchSent) > 0.03
+			or aimingWanted ~= lastAimingSent
+			or moving ~= lastStateSent
+		then
 			lastAimSent = now
 			lastPitchSent = pitch
 			lastAimingSent = aimingWanted
-			Net.unreliable("Aim"):FireServer(pitch, aimingWanted)
+			lastStateSent = moving
+			Net.unreliable("Aim"):FireServer(pitch, aimingWanted, moving)
 		end
 	end
 end
@@ -1216,33 +1292,82 @@ local function onWeaponState(state: Types.WeaponState)
 	updateHudWeapon()
 end
 
+-- Can the camera see `point`? A ray from the camera; a hit short of the point
+-- is cover, unless it is a body (a Humanoid's model never counts as cover).
+local function canSee(point: Vector3): boolean
+	local cam = Workspace.CurrentCamera
+	if not cam then
+		return false
+	end
+	local from = cam.CFrame.Position
+	local offset = point - from
+	local dist = offset.Magnitude
+	if dist < 1e-3 then
+		return true
+	end
+	local params = rayParams()
+	local slack = HitFx.SIGHT.slack
+	for _ = 1, 8 do -- step past bodies; bounded
+		local result = Workspace:Raycast(from, offset.Unit * (dist - slack), params)
+		if not result then
+			return true
+		end
+		local model = result.Instance:FindFirstAncestorOfClass("Model")
+		if model and model:FindFirstChildOfClass("Humanoid") then
+			local list = params.FilterDescendantsInstances
+			table.insert(list, model)
+			params.FilterDescendantsInstances = list
+		else
+			return false
+		end
+	end
+	return false
+end
+
 local function onHitConfirm(confirm: Types.HitConfirm)
 	if typeof(confirm) ~= "table" then
 		return
 	end
+	local at: Vector3? = if typeof(confirm.position) == "Vector3" then confirm.position else nil
+	-- A Mod dealt it (the server says so): the marker, no numbers, and nothing
+	-- drawn on a victim the attacker can't see (HitFx.SOURCE_DEFAULT / SOURCES).
+	local rule: HitFx.SourceRule? = nil
+	if typeof(confirm.source) == "string" then
+		rule = HitFx.SOURCES[confirm.source] or HitFx.SOURCE_DEFAULT
+	end
+	local worldFx = true
+	if rule and at then
+		worldFx = rule.worldFx == "always" or (rule.worldFx == "visible" and canSee(at))
+	end
 	-- A guard took the hit (a Barrier, a Ghost dash): BLOCKED, no damage.
 	if confirm.blocked == true then
-		HitFeedback.blocked(if typeof(confirm.position) == "Vector3" then confirm.position else nil)
+		HitFeedback.blocked(if worldFx then at else nil)
 		return
 	end
 	local head = confirm.zone == "Head"
-	HudController.hitMarker(head)
-	if typeof(confirm.position) == "Vector3" then
-		EffectsController.hitFlash(confirm.position, head, confirm.killed == true)
+	if not rule or rule.marker then
+		HudController.hitMarker(head)
 	end
-	HudController.damageNumber(
-		confirm.damage,
-		head,
-		if typeof(confirm.position) == "Vector3" then confirm.position else nil,
-		confirm.killed == true
-	)
-	if confirm.killed then
-		HudController.killMarker()
-		playLocal(if head then Sounds.KillHead else Sounds.Kill, "Feedback", Audio.KILL_VOLUME)
-	elseif head then
-		playLocal(Sounds.HitHead, "Feedback", Audio.HEAD_VOLUME)
-	else
+	if at and worldFx then
+		EffectsController.hitFlash(at, head, confirm.killed == true)
+	end
+	if not rule or rule.numbers then
+		HudController.damageNumber(confirm.damage, head, at, confirm.killed == true)
+	end
+	-- One contact cue for a hit. The kill tone plays from the server's Killed
+	-- event (Util/KillFeed), so it climbs per kill in the round.
+	-- Hits our own shot already sounded (just above in fireShot) stay quiet
+	-- here; a hit the client didn't see (a wallbang) sounds on the confirm.
+	local now = os.clock()
+	if head then
+		if now - lastPredictedHead > Audio.HIT_PREDICT_WINDOW then
+			playLocal(Sounds.HitHead, "Feedback", Audio.HEAD_VOLUME)
+		end
+	elseif now - lastPredictedHit > Audio.HIT_PREDICT_WINDOW then
 		playLocal(Sounds.HitBody, "Feedback", Audio.HIT_VOLUME)
+	end
+	if confirm.killed and (not rule or rule.marker) then
+		HudController.killMarker()
 	end
 end
 
@@ -1348,11 +1473,20 @@ function WeaponController.start()
 	RunService.Heartbeat:Connect(pollDowned)
 	-- Studio only: the Workspace attribute DevAction ("inspect", "reload",
 	-- "draw" = draw again, "fire" = one shot, or a slot name to switch to)
-	-- runs that action, and DevAim (true) holds aim down sights, so scripts can review
+	-- runs that action, DevHold (true) holds the trigger, and DevAim (true)
+	-- holds aim down sights, so scripts can review
 	-- the animations (MCP key presses are unreliable).
 	if RunService:IsStudio() then
 		Workspace:GetAttributeChangedSignal("DevAim"):Connect(function()
 			devAim = Workspace:GetAttribute("DevAim") == true
+		end)
+		-- DevHold (true): hold the trigger until it's cleared (sprays, by script).
+		Workspace:GetAttributeChangedSignal("DevHold"):Connect(function()
+			if Workspace:GetAttribute("DevHold") == true then
+				onFirePressed()
+			else
+				onFireReleased()
+			end
 		end)
 		Workspace:GetAttributeChangedSignal("DevAction"):Connect(function()
 			local action = Workspace:GetAttribute("DevAction")

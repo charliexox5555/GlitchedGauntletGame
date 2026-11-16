@@ -27,11 +27,12 @@ Last updated 2026-11-12. Skills that enforce it:
 ## 3. Guns and first person ([Art Direction](Art%20Direction.md), [Gunplay](../01%20Design/Gunplay.md))
 - Guns: tactical matte charcoal with a neutral base; RemasterV2 colour roles (body, panel, brass, glass, a small neon). Self-grade 9-10. Nothing floats or is see-through. **ADS = a big, clear sight window** per gun.
 - Arms: RIVALS-style sharp blocks with a hairline outline (skin only without a shirt); guns held straight ahead, pistols two-handed.
-- Feel: Valorant-tight first shot plus RIVALS movement (slide is the core move). Recoil is camera-only. Feedback may roll the camera a little but never turns it. Body time-to-kill 0.5-0.75 s at 150 HP, headshot about ×1.6.
+- Feel: Valorant-tight first shot plus RIVALS movement (slide is the core move). Recoil is camera-only. Feedback may roll the camera a little but never turns it. Body time-to-kill 0.75-0.9 s at 150 HP, headshot about ×1.6.
 
 ## 4. Hit feedback, VFX and death
-- Hit marker: white X; headshot red X with a white core; kill bigger red/white X with a ring. Damage numbers (Sarpanch) stack and arc off (red on headshot). The body you hit flashes white then red with a slash; a headshot flashes fire orange and pops a quick muzzle-flash-style burst from the head (2026-11-13, `Config/HitFx`). Flinch, **no hit-stop**.
-- Muzzle flash, tracers (core + glow + 0.28 s wake) and impacts are **stylised like Valorant**: never photoreal, never full cartoon. Surface-aware impacts: sparks on metal, dust on concrete, splinters on wood.
+- Hit marker (RIVALS-style, 2026-11-15): four slim **kite blades** on the diagonals, big and wide at the hit, shrinking in tight on a spring (~0.25 s), solid for about a second, then a quick fade; white on a body hit, red `FF3232` on a headshot, the **same marker on a kill** (our kill UI and kill line carry the kill). Damage numbers (Sarpanch) stack and tip off (red on headshot). A body hit flashes the body white then red; a headshot pops a **faceted crown burst** above the head (a tall centre blade and side blades that shoot out, split and break up in 0.5 s, white to orange to red, glowing) with a soft glow and shards; no screen cue (`Config/HitFx`, [2026-11-15 Gunplay Feel RIVALS](../05%20Production/Playtests/2026-11-15%20Gunplay%20Feel%20RIVALS.md)). Flinch, **no hit-stop**.
+- Crosshair: tilts 20° the moment you slide and springs back; opens in the air, on a Dash and per shot; aiming pulls the bars into the dot as it fades (`Config/Crosshair` `motion`).
+- Muzzle flash, tracers (core + glow + wake; your own round runs from the muzzle into the hit at 800 studs/s, RIVALS-style) and impacts are **stylised like Valorant**: never photoreal, never full cartoon. Surface-aware impacts: sparks on metal, dust on concrete, splinters on wood.
 - Ability VFX: shapes over particles, opaque mesh-first walls, team colours (ally cyan, enemy orange-red), magenta only for glitches. Sprites stay under the Bloom threshold.
 - Death: a still copy crumples, tips over and fades with dust.
 
@@ -39,6 +40,7 @@ Last updated 2026-11-12. Skills that enforce it:
 - **Real recordings only, designed and layered like Valorant**, never synth, never ripped from the Creator Store. Audition before shipping.
 - Per gun class: punch + mechanics + tail, spray climb. Hits: a short body thwack, a bright headshot "tink", and a kill tone that climbs per kill (with pips on the pop-up).
 - UI sounds: short, soft, tonal; one confirm sound family for PLAY / LOCK IN.
+- Play custom cues from individual private asset IDs. Gunfire starts at the beginning of each recording.
 
 ## 6. UI (skill `gauntlet-ui-style`, [UI Theme Soft Edge](UI%20Theme%20v4%20Soft%20Edge.md))
 - **The theme is a direction, not final UI**; the owner redesigns the screens from it.
