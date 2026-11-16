@@ -16,15 +16,20 @@ Big Arena, Pier and Dockyard were moved there by a pivot shift (their notes give
 ## Owner notes during the run
 - Arena and Pier are "the simple ones"; the rest should be nicer: "not as simple… not too blocky… actually having good nice things in it" (RIVALS Docks-level dressing). So every themed map gets a Blender kit for its shaped pieces, plus tile textures (brick, planks, concrete panel, pavers, cutting mat, tread plate; `art-source/maps/Themes/textures/`).
 
+## Incident and repair (overnight, owner please read)
+- The shared builder replaces `Workspace.<id>`, and six new maps first used old map names (Rooftops, Bunker, Snowpeak, OldTown, Metro, Greenhouse), so building them **deleted the old maps of those names** in the open match place (unsaved). The Rooftops kit export also overwrote the old Rooftops kit's `Exports` files and updated its asset `112960022711405`.
+- **Repaired the same night:** the old export files restored from git and re-uploaded (asset 112960022711405 holds the old kit again); the six old maps re-loaded into Workspace at their original origins from their `.rbxm` backups (`art-source/maps/<Map>/<Map>.rbxm`, uploaded as private model assets 109930451154210 Rooftops, 125498566478940 Bunker, 114897179638328 Snowpeak, 125168710705746 OldTown, 116106415285601 Metro, 77293910762832 Greenhouse). The new maps were renamed **Rooftops3, Bunker3, Snowpeak3, OldTown3, Metro3, Greenhouse3** with their own kit folders, and `map_meta.py` now carries an explicit id per map.
+- **Check before saving the match place:** the backups may be older than the last saved place. If you edited any of those six old maps by hand after their backup, compare with the last saved version first (or skip saving and keep that version's old maps).
+
 ## Status
 | Map | Layout | Greybox | Kit | Lighting | Bot run | Grade | Notes |
 |---|---|---|---|---|---|---|---|
-| Rooftops | ✅ alley + 3 bridges, billboards over the gap; long rays 32% | ✅ 45 parts | | | | | |
+| Rooftops3 | ✅ alley + 3 bridges, billboards over the gap; long rays 32% | ✅ 45 parts | | | | | |
 | Courtyard | ✅ first sight 1.6 s (plaza; review point) | ✅ 44 parts | | | | | |
-| Bunker | ✅ shaft room, generator blocks door lines | ✅ 43 parts, roof +14 with the shaft open | | | | | |
+| Bunker3 | ✅ shaft room, generator blocks door lines | ✅ 43 parts, roof +14 with the shaft open | | | | | |
 | Foundry | ✅ first sight 1.5 s (review point) | ✅ 43 parts, molten channel (Neon) | | | | | |
-| Snowpeak | ✅ | ✅ 42 parts | | | | | |
+| Snowpeak3 | ✅ | ✅ 42 parts | | | | | |
 | Model Kit | ✅ | ✅ 39 parts | | | | | |
-| Old Town | ✅ one 260 line (0.2% of rays) | ✅ 46 parts | | | | | |
-| Metro | ✅ rebuilt as platforms + concourse | ✅ 64 parts, roof +22 with skylights | | | | | |
-| Greenhouse | ✅ one 278 line (0.1%) | ✅ 60 parts | | | | | |
+| OldTown3 | ✅ one 260 line (0.2% of rays) | ✅ 46 parts | | | | | |
+| Metro3 | ✅ rebuilt as platforms + concourse | ✅ 64 parts, roof +22 with skylights | | | | | |
+| Greenhouse3 | ✅ one 278 line (0.1%) | ✅ 60 parts | | | | | |

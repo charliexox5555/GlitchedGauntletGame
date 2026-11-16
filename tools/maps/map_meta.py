@@ -58,7 +58,7 @@ TOWN_LOOKS = dict(
 
 META = {
     "Rooftops": dict(
-        origin=(6500, 200, 0), ceiling=70, killDepth=25, kit="Rooftops",
+        origin=(6500, 200, 0), ceiling=70, killDepth=25, id="Rooftops3", kit="Rooftops3",
         under={"y": -30, "look": "street"},
         looks=dict(
             deck=lk("B3B5BA", "concrete", topOnly=True), default=lk("A4A7AD", "concrete"), cover=lk("A4A7AD", "concrete"),
@@ -76,7 +76,7 @@ META = {
         atmosphere={"density": 0.26, "haze": 1.0, "color": "E9E0D2", "decay": "B3A28E"},
     ),
     "Bunker": dict(
-        origin=(8500, 200, 0), ceiling=40, killDepth=30, kit="Bunker",
+        origin=(8500, 200, 0), ceiling=40, killDepth=30, id="Bunker3", kit="Bunker3",
         roof={"h": 14, "holes": [[0, 0, 30, 30]]},
         looks=dict(
             deck=lk("8F9297", "concrete", topOnly=True), default=lk("A5A8AD", "concrete"), cover=lk("A5A8AD", "concrete"),
@@ -101,7 +101,7 @@ META = {
         atmosphere={"density": 0.38, "haze": 2.0, "color": "D9B9A0", "decay": "8A6A58"},
     ),
     "Snowpeak": dict(
-        origin=(10500, 200, 0), ceiling=70, killDepth=30, kit="Snowpeak",
+        origin=(10500, 200, 0), ceiling=70, killDepth=30, id="Snowpeak3", kit="Snowpeak3",
         looks=dict(
             deck=lk("EEF2F6", "pavers", topOnly=True), default=lk("8A5A3C", "planks"), cover=lk("8A5A3C", "planks"),
             low=lk("F4F7FA"), pillar=lk("2F5E45"), deck2=lk("8A5A3C", "planks"), ramp=lk("7A5038", "planks"),
@@ -125,14 +125,14 @@ META = {
         atmosphere={"density": 0.22, "haze": 0.8, "color": "EDE6DA", "decay": "B8AE9E"},
     ),
     "OldTown": dict(
-        origin=(6500, 200, -1500), ceiling=80, killDepth=30, kit="Town", looks=TOWN_LOOKS,
+        origin=(6500, 200, -1500), ceiling=80, killDepth=30, id="OldTown3", kit="Town", looks=TOWN_LOOKS,
         rowlooks=[("Clock tower", "tower"), ("Tower steps", "plinth"), ("Stall", "stall"), ("Cart", "wood"), ("Barrels", "wood"),
                   ("Block", "block")],
         lighting=light(15, ColorShift_Top="FFE6C6"),
         atmosphere={"density": 0.28, "haze": 1.2, "color": "E9DECF", "decay": "B3A08A"},
     ),
     "Metro": dict(
-        origin=(7500, 200, -1500), ceiling=40, killDepth=30, kit="Metro",
+        origin=(7500, 200, -1500), ceiling=40, killDepth=30, id="Metro3", kit="Metro3",
         roof={"h": 22, "holes": [[-40, 60, 20, 30, True], [40, 60, 20, 30, True]]},
         looks=dict(
             deck=lk("B9BBBF", "pavers", topOnly=True), default=lk("C9CBD0", "concrete"), cover=lk("C9CBD0", "concrete"),
@@ -144,7 +144,7 @@ META = {
         atmosphere={"density": 0.32, "haze": 0.8, "color": "DDE1E8", "decay": "9CA4B2"},
     ),
     "Greenhouse": dict(
-        origin=(8500, 200, -1500), ceiling=80, killDepth=30, kit="Greenhouse",
+        origin=(8500, 200, -1500), ceiling=80, killDepth=30, id="Greenhouse3", kit="Greenhouse3",
         looks=dict(
             deck=lk("C4BBA9", "pavers", topOnly=True), default=lk("6E4F3A", "planks"), cover=lk("3F7A47"),
             low=lk("B07D5E", "brick"), pillar=lk("4E8A4F"), deck2=lk("E8E8E2", "tread"), ramp=lk("E8E8E2", "tread"),
@@ -200,7 +200,7 @@ def data(plan: Plan) -> dict:
                 break
         rows.append([b.name, b.kind, b.x, b.z, b.sx, b.sz, b.h, b.yaw, b.base, look, piece, extra])
     d = {
-        "id": plan.name, "version": "v1 overnight 2026-11-16", "origin": list(m["origin"]),
+        "id": m.get("id", plan.name), "version": "v1 overnight 2026-11-16", "origin": list(m["origin"]),
         "hx": max(xs), "hz": max(zs), "ceiling": m["ceiling"], "killDepth": m["killDepth"], "kit": m.get("kit"),
         "center": len(plan.center), "rows": rows, "spawns": [list(s) for s in plan.spawns_a],
         "looks": m["looks"], "textures": TEX, "lighting": m["lighting"], "atmosphere": m.get("atmosphere", {}),

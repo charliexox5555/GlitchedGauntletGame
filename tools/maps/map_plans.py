@@ -299,7 +299,7 @@ if __name__ == "__main__" and "--luau" in sys.argv:
     import map_meta as M  # noqa: E402
 
     for nm in [a for a in sys.argv[1:] if a != "--luau"]:
-        out = ROOT / "art-source/maps" / nm
+        out = ROOT / "art-source/maps" / M.data(PLANS[nm])["id"]
         out.mkdir(parents=True, exist_ok=True)
         code = "return require(game.ServerStorage.MapTools.Build)(" + M.luau(M.data(PLANS[nm])) + ")\n"
         (out / "build.luau").write_text(code, encoding="utf-8")

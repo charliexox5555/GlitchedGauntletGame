@@ -1061,6 +1061,12 @@
   "type": "Decal",
   "uploaded": "2026-11-16 03:47:19"
  },
+ "art-source/maps/Bunker/Bunker.rbxm": {
+  "assetId": 125498566478940,
+  "name": "GG Old Bunker backup",
+  "type": "Model",
+  "uploaded": "2026-11-16 05:43:43"
+ },
  "art-source/maps/Bunker2/signs/blast_A.png": {
   "assetId": 120853801800119,
   "name": "GG Bunk2 Sign GALLERY A",
@@ -1325,6 +1331,18 @@
   "type": "Decal",
   "uploaded": "2026-11-05 17:30:41"
  },
+ "art-source/maps/Greenhouse/Greenhouse.rbxm": {
+  "assetId": 77293910762832,
+  "name": "GG Old Greenhouse backup",
+  "type": "Model",
+  "uploaded": "2026-11-16 05:44:10"
+ },
+ "art-source/maps/Metro/Metro.rbxm": {
+  "assetId": 116106415285601,
+  "name": "GG Old Metro backup",
+  "type": "Model",
+  "uploaded": "2026-11-16 05:44:03"
+ },
  "art-source/maps/Metro2/textures/Metro2_Ballast_Color.png": {
   "assetId": 109417735456288,
   "name": "GG Map Metro2 Metro2_Ballast_Color",
@@ -1565,6 +1583,12 @@
   "type": "Decal",
   "uploaded": "2026-11-06 01:16:24"
  },
+ "art-source/maps/OldTown/OldTown.rbxm": {
+  "assetId": 125168710705746,
+  "name": "GG Old OldTown backup",
+  "type": "Model",
+  "uploaded": "2026-11-16 05:43:56"
+ },
  "art-source/maps/OldTown2/textures/OT2_Ashlar_Color.png": {
   "assetId": 103678755410421,
   "name": "GG Map OldTown2 OT2_Ashlar_Color",
@@ -1636,6 +1660,12 @@
   "name": "GG Map OldTown2 OT2_Terracotta_Normal",
   "type": "Decal",
   "uploaded": "2026-11-06 01:23:12"
+ },
+ "art-source/maps/Rooftops/Rooftops.rbxm": {
+  "assetId": 109930451154210,
+  "name": "GG Old Rooftops backup",
+  "type": "Model",
+  "uploaded": "2026-11-16 05:43:35"
  },
  "art-source/maps/Rooftops2/sky/Sky_Bk.png": {
   "assetId": 134987703195267,
@@ -1768,6 +1798,12 @@
   "name": "GG Rooftops2 Sign_Scooter",
   "type": "Decal",
   "uploaded": "2026-11-06 00:01:57"
+ },
+ "art-source/maps/Snowpeak/Snowpeak.rbxm": {
+  "assetId": 114897179638328,
+  "name": "GG Old Snowpeak backup",
+  "type": "Model",
+  "uploaded": "2026-11-16 05:43:50"
  },
  "art-source/maps/Snowpeak2/signs/GONDOLA_NORTH_PEAK.png": {
   "assetId": 116223721883060,
