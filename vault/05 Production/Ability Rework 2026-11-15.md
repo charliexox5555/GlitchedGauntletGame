@@ -79,6 +79,26 @@ The gun comes back at the same moment for all three, so distance is free on that
 - In hand: silhouette, orange jacket, latch, ring and fuse light read. It sits small and the fist hides the lower half, so it is being scaled up 1.2x and the hold raised. The owner has not seen it yet.
 - Studio: uploaded as a new version of asset 81883123985254 and staged; `ReplicatedStorage.Abilities.Molly` is the new canister, the old one is kept at `ServerStorage.ImportStaging.Molly_Baseline`. Place not saved, `.rbxm` backup not written yet (after the owner's yes).
 
+## Props in Studio (2026-11-16)
+| Prop | Size (studs) | Tris | In the hand | Captures |
+|---|---|---|---|---|
+| Molly (scaled 1.2x) | 0.38 x 0.45 x 0.46 | 1,976 | Reads; the fist still hides the lower half until the hold is lifted | [in hand](../02%20Art/References/mods/rework-v03/molly-in-hand-v2.jpg), [pair render](../02%20Art/References/mods/rework-v03/molly-frost-pair-blender.jpg) |
+| Frost | 0.32 x 0.31 x 0.60 | 1,832 | Tall pale cell with blue vent slots, clearly not Molly; same hold issue | [in hand](../02%20Art/References/mods/rework-v03/frost-in-hand-v1.jpg) |
+| Recon bow | 1.0 x 0.21 x 1.53 | 2,314 | Loads with all 27 parts; shown edge-on and through the arm because the hold is still the launcher's. Needs its own canted hold and draw | [in hand, unposed](../02%20Art/References/mods/rework-v03/recon-bow-in-hand-v1-unposed.jpg), [render](../02%20Art/References/mods/rework-v03/recon-bow-blender-hero.jpg), [full draw](../02%20Art/References/mods/rework-v03/recon-bow-blender-full-draw.jpg) |
+| Recon bolt | 1.0 long, 0.13 across | 466 | Not checked in flight yet | |
+
+| Stim | 1.02 x 1.02 x 1.16 | 3,046 (over the ~2,600 target) | Deployed in the range: legs out, yellow coil glowing, reads at 10 studs | [placed, with Recall](../02%20Art/References/mods/rework-v03/stim-recall-placed-v1.jpg), [render](../02%20Art/References/mods/rework-v03/stim-blender-hero.jpg) |
+| Recall | 0.70 x 0.78 x 1.02 | 2,140 | Planted in the range: violet core in three prongs, facing chevron | [render](../02%20Art/References/mods/rework-v03/recall-blender-hero.jpg) |
+
+**First-person gesture pass (Opus, 2026-11-16):** holds lifted (Molly about 80% above the fist, Frost about 85%), Molly pad / pin / latch and Frost pin / latch animate on equip, throw / lob / javelin re-keyed with a windup and snap, Stim toss now 8 studs on a 2.2 arc, Recall twist re-keyed (0.6 s kept), Firewall push and guide. Worker's grades 6.5 to 8; Firewall's push not confirmed by eye. Captures `fp-*.jpg` in the same folder.
+
+**VFX mesh kit (Opus, to the locked spec):** 19 meshes, 415 triangles, plus `T_FlameSheet.png`; uploaded as asset 139137930819171 (`ReworkVFX`), not staged in Studio yet. Sheet: `art-source/abilities/Rework/v03/Renders/VFX_kit_sheet.jpg`.
+
+All six props are uploaded as new versions of their existing assets and installed in `ReplicatedStorage.Abilities`; the old models are kept in `ServerStorage.ImportStaging` as `<Id>_Baseline`. Place not saved, `.rbxm` backups not written. Sessions' part sheets: `art-source/abilities/Rework/v03/<Mod>/PARTS.md`.
+
+Found while checking: the interrupted first-person gesture pass had left held items broken (it read a config table it had not written yet). Patched so items show; the pass is being finished on Opus.
+
 ## Status
+- 2026-11-16: routing changed to Opus-first; RIVALS ability VFX study written ([Ability VFX Numbers](../03%20Research/Rivals%20Reference/Ability%20VFX%20Numbers.md)); effects map for the builders ([Ability Effects Map](../04%20Tech/Ability%20Effects%20Map.md)); day 1's finished code committed (`b937dd10`). Running: Stim and Recall props, the effects-language lock (one Fable agent), the gesture pass. Waiting: VFX kit and effect rewrites, the skinned-body fix, the Recon bow hold and draw, third-person clips, the two-client test.
 - 2026-11-15: phases 1 and 2 done. Phase 3 running in three Opus 5.5 sessions (Recon bow and bolt, Stim, Recall) plus Frost in Molly's session. Phases 5 and 6 partly done in code (above). Also running: wind strokes for Dash and Updraft (code done, Play checks left), skinned-body outline and Desync decoy, first-person gesture pass, the shared VFX mesh kit. Owner asked (mid-run) to keep usage down: new sub-tasks go to Opus 5.5 or lighter.
 - Not started: effect rewrites on the new kit (fire, ice, heal, teleport, scan, impact), Studio import of the remaining props, third-person clips, the two-client verification (needs the owner to start a 2-player test in Studio: the MCP can't).

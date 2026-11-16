@@ -83,6 +83,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 ## Tech (04 Tech)
 - `04 Tech/Mod System.md` (36): how Mods are built: data, server, predicted simulation, stages, Mod HUD/VFX/audio
 - `04 Tech/Prompts/2026-11-15 Ability Rework.md`: current Claude implementation brief for all nine Mods, fresh Blender MCP art direction and model routing. `02 Art/References/mods/rework/` holds the earlier art reviews.
+- `04 Tech/Prompts/2026-11-16 Ability Rework Follow-up.md` (5): follow-up for the ability rework session: Opus 5.5 for nearly everything (Fable only to lock in), RIVALS VFX/ability study per Mod, what assets may be used
 - `04 Tech/Prompts/2026-11-15 Lobby UI Overhaul.md` (5): prompt for the lobby UI overhaul session (shared kit, router, every lobby screen, phones, match UI pass)
 - `04 Tech/Prompts/2026-11-15 Gunplay Feel (RIVALS).md` (9): handoff (current state with file:line) + prompt for RIVALS-style hit markers, headshot look, crosshair motion on slide, body on slide
 - `04 Tech/Prompts/2026-11-16 Lobby Build (RIVALS study).md` (10): handoff (Sunwell / V3 state, locked look, rejected list, pipeline, scripted hooks) + prompt to study the RIVALS lobby and rebuild ours as Lobby V4, main area first
@@ -94,6 +95,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 
 ## Production (05 Production)
 - `02 Art/Ability VFX Direction.md` (5): the shared effects language for the nine Mods (2026-11-15): grammar (shapes first, three beats, stepped motion, clear aim area, glitch as a rare accent), element signatures (wind, fire, ice, healing, teleport, scan, impact, shield), per-effect changes, review method
+- `04 Tech/Ability Effects Map.md` (6): where each Mod's effect is drawn (file and function per effect, shared helpers, mesh kits), plus the skinned-limb gap; start effect work here instead of searching
 - `05 Production/Ability Rework 2026-11-15.md` (5): plan and status for the nine-Mod rework: model routing, live Blender MCP rules + shared core `tools/blender/rework/rw_core.py`, prop interfaces to keep, phases
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
 - `05 Production/Handoff - Grades to 9-10.md` (5): the lanes left to bring every animation and gunplay grade to 9-10 (2026-11-13), shared rules for parallel sessions
@@ -117,6 +119,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `03 Research/Valorant Gun Mechanics.md` (10): Valorant spread/recoil numbers behind Gunplay v2
 - `03 Research/UI References/00 UI References.md` (4): hub of the 2026-11-12 video study + 12 findings; `Rivals PC UI.md` (19), `Rivals Mobile UI.md` (22), `Valorant UI.md` (27): HUD maps, touch layouts, menus, timestamped
 - `03 Research/Rivals Reference/00 Rivals Reference.md` (4): hub of the 2026-11-15 study of RIVALS' own files (place file + match-place folder), sources, rules (study, don't copy), screenshot index (local only), top findings, risks; with `Maps and Lobby.md` (map convention, per-map numbers, layout rules, lobby hub and queue pads), `UI and Client.md` (5: UI storage, router, motion numbers, 9-slice, phones, client architecture), `Body, Viewmodel, Guns and VFX.md` (6: own-R15 body + hand IK, viewmodel springs, gun attachment contract, abilities, VFX recipes). Skill: `rivals-reference`
+- `03 Research/Rivals Reference/Ability VFX Numbers.md` (13): per-layer numbers of RIVALS ability effects (fire, freeze, explosion, dash, vortex, portals, war horn, deflect, smoke clouds, thrown props), read 2026-11-16; summary in `Body, Viewmodel, Guns and VFX.md` → Ability VFX
 - `03 Research/Notes/` : raw research: `ability_draft_design.md` (39), `gun_system_tech.md` (50), `matchmaking_queues.md` (50), `monetization_retention.md` (32), `top_roblox_shooters.md` (30)
 
 ## Assets (06 Assets)

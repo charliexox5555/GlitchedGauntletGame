@@ -1,0 +1,599 @@
+{
+ "mod": "Recall",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "placed",
+  "size_studs": 1.022
+ },
+ "parts": [
+  {
+   "name": "Base",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 76,
+   "center": [
+    0.0075,
+    0.0,
+    0.09
+   ],
+   "size": [
+    0.655,
+    0.52,
+    0.08
+   ]
+  },
+  {
+   "name": "Legs",
+   "material": "RW_Panel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "555C69"
+   },
+   "energy": false,
+   "tris": 112,
+   "center": [
+    -0.04729,
+    0.0,
+    0.05886
+   ],
+   "size": [
+    0.58342,
+    0.71544,
+    0.0928
+   ]
+  },
+  {
+   "name": "Pads",
+   "material": "RW_Grip",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272D"
+   },
+   "energy": false,
+   "tris": 176,
+   "center": [
+    -0.045,
+    0.0,
+    0.023
+   ],
+   "size": [
+    0.63739,
+    0.784,
+    0.046
+   ]
+  },
+  {
+   "name": "Housing",
+   "material": "RW_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383D48"
+   },
+   "energy": false,
+   "tris": 56,
+   "center": [
+    0.0075,
+    0.0,
+    0.24
+   ],
+   "size": [
+    0.555,
+    0.42,
+    0.24
+   ]
+  },
+  {
+   "name": "Deck",
+   "material": "RW_Panel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "555C69"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.0322,
+    0.0,
+    0.364
+   ],
+   "size": [
+    0.3756,
+    0.32,
+    0.024
+   ]
+  },
+  {
+   "name": "SidePanels",
+   "material": "RW_Panel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "555C69"
+   },
+   "energy": false,
+   "tris": 64,
+   "center": [
+    -0.07,
+    0.0,
+    0.24
+   ],
+   "size": [
+    0.26,
+    0.42733,
+    0.14
+   ]
+  },
+  {
+   "name": "Fixings",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 256,
+   "center": [
+    -0.075,
+    0.0,
+    0.23967
+   ],
+   "size": [
+    0.22078,
+    0.43713,
+    0.11456
+   ]
+  },
+  {
+   "name": "Handle",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 76,
+   "center": [
+    -0.28838,
+    0.0,
+    0.23502
+   ],
+   "size": [
+    0.09923,
+    0.15,
+    0.17131
+   ]
+  },
+  {
+   "name": "Bezel",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 32,
+   "center": [
+    0.276,
+    0.0,
+    0.2
+   ],
+   "size": [
+    0.012,
+    0.05543,
+    0.064
+   ]
+  },
+  {
+   "name": "Light_Energy",
+   "material": "RW_Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 32,
+   "center": [
+    0.2775,
+    0.0,
+    0.2
+   ],
+   "size": [
+    0.031,
+    0.03637,
+    0.042
+   ]
+  },
+  {
+   "name": "Strips_Violet",
+   "material": "RW_Violet",
+   "look": {
+    "material": "Neon",
+    "color": "9B6BFF"
+   },
+   "energy": false,
+   "tris": 32,
+   "center": [
+    0.21687,
+    0.0,
+    0.32089
+   ],
+   "size": [
+    0.10623,
+    0.17,
+    0.07544
+   ]
+  },
+  {
+   "name": "Collar",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.3925
+   ],
+   "size": [
+    0.27716,
+    0.27716,
+    0.115
+   ]
+  },
+  {
+   "name": "Ring_Violet",
+   "material": "RW_Violet",
+   "look": {
+    "material": "Neon",
+    "color": "9B6BFF"
+   },
+   "energy": false,
+   "tris": 64,
+   "center": [
+    0.0,
+    0.0,
+    0.43
+   ],
+   "size": [
+    0.21804,
+    0.21804,
+    0.06
+   ]
+  },
+  {
+   "name": "CradlePin",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 32,
+   "center": [
+    0.0,
+    0.0,
+    0.4225
+   ],
+   "size": [
+    0.05543,
+    0.064,
+    0.185
+   ]
+  },
+  {
+   "name": "Core_Violet",
+   "material": "RW_Violet",
+   "look": {
+    "material": "Neon",
+    "color": "9B6BFF"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.7
+   ],
+   "size": [
+    0.2,
+    0.17321,
+    0.4
+   ]
+  },
+  {
+   "name": "Prong1",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 200,
+   "center": [
+    -0.14543,
+    0.0,
+    0.70696
+   ],
+   "size": [
+    0.18442,
+    0.1,
+    0.62935
+   ]
+  },
+  {
+   "name": "Prong2",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 184,
+   "center": [
+    0.09291,
+    0.15395,
+    0.62739
+   ],
+   "size": [
+    0.12367,
+    0.13715,
+    0.47022
+   ]
+  },
+  {
+   "name": "Prong3",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 184,
+   "center": [
+    0.09291,
+    -0.15395,
+    0.62739
+   ],
+   "size": [
+    0.12367,
+    0.13715,
+    0.47022
+   ]
+  },
+  {
+   "name": "Sockets",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 264,
+   "center": [
+    -0.03084,
+    0.0,
+    0.4
+   ],
+   "size": [
+    0.38833,
+    0.44671,
+    0.12
+   ]
+  },
+  {
+   "name": "HingePins",
+   "material": "RW_Accent",
+   "look": {
+    "material": "Metal",
+    "color": "AEB4BC"
+   },
+   "energy": false,
+   "tris": 132,
+   "center": [
+    -0.02065,
+    0.0,
+    0.42
+   ],
+   "size": [
+    0.35948,
+    0.41109,
+    0.024
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Prong1Pivot",
+   "matrix": [
+    [
+     -1.0,
+     8.742277657347586e-08,
+     0.0,
+     -0.1899999976158142
+    ],
+    [
+     -8.742277657347586e-08,
+     -1.0,
+     0.0,
+     2.32682895373737e-17
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.41999998688697815
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Prong2Pivot",
+   "matrix": [
+    [
+     0.4999999701976776,
+     -0.866025447845459,
+     0.0,
+     0.0949999988079071
+    ],
+    [
+     0.866025447845459,
+     0.4999999701976776,
+     0.0,
+     0.16454482078552246
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.41999998688697815
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Prong3Pivot",
+   "matrix": [
+    [
+     0.4999999701976776,
+     0.866025447845459,
+     0.0,
+     0.0949999988079071
+    ],
+    [
+     -0.866025447845459,
+     0.4999999701976776,
+     0.0,
+     -0.16454482078552246
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.41999998688697815
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Floor",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Top",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     1.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "CoreUp",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.7799999713897705
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 2140,
+ "bounds": {
+  "min": [
+   -0.36369,
+   -0.392,
+   0.0
+  ],
+  "max": [
+   0.335,
+   0.392,
+   1.02163
+  ]
+ }
+}

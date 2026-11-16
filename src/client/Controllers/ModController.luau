@@ -516,11 +516,11 @@ local function dropItem()
 	end)
 end
 
--- Recon's launcher lights: the bounce counter (0 / 1 / 2) and the charge.
-local function launcherLights(charge: number)
+-- Recon's bow lights: the bounce counter (0 / 1 / 2). The charge strip is
+-- lit by the bow's draw (ViewmodelController.setItemCharge).
+local function launcherLights()
 	ViewmodelController.setItemPart("Bounce1_Energy", if chargeBounces >= 1 then 0 else 0.85)
 	ViewmodelController.setItemPart("Bounce2_Energy", if chargeBounces >= 2 then 0 else 0.85)
-	ViewmodelController.setItemPart("Charge_Energy", 0.9 - 0.9 * charge)
 end
 
 local function stopChargeHum()
@@ -542,6 +542,7 @@ local function endHold(tellServer: boolean)
 	queued = nil
 	stopChargeHum()
 	WeaponController.setHolstered("Mod", false)
+	ViewmodelController.setItemCharge(nil) -- a drawn bow eases back to rest
 	ViewmodelController.setFreeHand(nil)
 	hideArc()
 	hidePlacement()
@@ -606,11 +607,7 @@ local function use(mode: ModTypes.UseMode)
 			-- RMB picks the bounces (it isn't a use): 0, 1, 2, round again.
 			chargeBounces = (chargeBounces + 1) % ((stats.maxBounces or 2) + 1)
 			ModAudio.play(ModAudio.SOUNDS.Recon.bounceSelect)
-			launcherLights(
-				if drawing
-					then math.clamp((os.clock() - chargeStart) / (stats.chargeTime or 1), 0, 1)
-					else 0
-			)
+			launcherLights()
 			return
 		end
 		if phase == "Equipping" then
@@ -711,6 +708,8 @@ local function startHold(slot: number, view: SlotView)
 		ModAudio.play(wallSounds(view.stats).ignite)
 	else
 		ViewmodelController.holdItem(ModProps.get(def.id, TeamColor.ALLY))
+		-- Its moving parts on equip, if it has any (Config/Viewmodel ITEM_PART_MOVES).
+		ViewmodelController.itemParts(def.id)
 	end
 	Net.event("ModHold"):FireServer(slot)
 	if def.id == "Recall" then
@@ -718,19 +717,24 @@ local function startHold(slot: number, view: SlotView)
 	elseif def.id == "Recon" then
 		ModAudio.play(ModAudio.SOUNDS.Recon.equip)
 		chargeBounces = 0
-		launcherLights(0)
+		launcherLights()
 	elseif def.id == "Frost" then
 		ModAudio.play(ModAudio.SOUNDS.Frost.equip)
-	elseif def.id == "Molly" then
-		-- Canister out, then the free hand pulls the pin.
-		ModAudio.play(ModAudio.SOUNDS.Molly.equip)
+	end
+	if def.id == "Molly" or def.id == "Frost" then
+		-- Canister out, then the free hand pulls the pin (Molly's sound only).
+		if def.id == "Molly" then
+			ModAudio.play(ModAudio.SOUNDS.Molly.equip)
+		end
 		local token = itemToken
 		task.delay(Config.MOLLY_PIN_AT, function()
 			-- Not once the throw has started (a quick-cast or a queued click).
 			if token == itemToken and (phase == "Equipping" or phase == "Held") then
-				ViewmodelController.gesture("MollyPinPull")
+				ViewmodelController.gesture(def.id .. "PinPull")
 				ViewmodelController.hideItemPart("Pin", Config.MOLLY_PIN_GONE)
-				ModAudio.play(ModAudio.SOUNDS.Molly.pinPull)
+				if def.id == "Molly" then
+					ModAudio.play(ModAudio.SOUNDS.Molly.pinPull)
+				end
 			end
 		end)
 	elseif def.id == "HealOrb" then
@@ -976,7 +980,7 @@ local function stepCharge(now: number)
 	local stats = view.stats
 	local chargeTime = if stats then stats.chargeTime else 1
 	local charge = math.clamp((now - chargeStart) / chargeTime, 0, 1)
-	launcherLights(charge)
+	ViewmodelController.setItemCharge(charge) -- the bow draws with it
 	local hum = chargeHum
 	if hum then
 		hum.sound.PlaybackSpeed = 0.8 + 0.6 * charge
@@ -989,7 +993,7 @@ local function stepCharge(now: number)
 	setPhase("Using", current)
 	ModAudio.play(ModAudio.SOUNDS.Recon.fire)
 	ViewmodelController.setItemPart("Dart", 1)
-	ViewmodelController.itemAction("LauncherFire")
+	ViewmodelController.releaseItem() -- the string snaps, the bow kicks
 	CameraController.kick(1.2, 0, 1, 0.25)
 end
 

@@ -44,6 +44,65 @@ Part of [Rivals Reference](00%20Rivals%20Reference.md). Studied 2026-11-15, read
 
 **Pattern:** many single-job layers (glow, smoke, shards, ring, dark), everything under ~1.5 s, eased size curves with 10+ keys, counts in attributes, one helper to play/scale emitters. This matches our [gun VFX direction](../../02%20Art/Style%20Bible.md) (stylised, Valorant-like).
 
+## Ability VFX (2026-11-16)
+Read for the [Ability Rework follow-up](../../04%20Tech/Prompts/2026-11-16%20Ability%20Rework%20Follow-up.md) §2, `Default` variant of each folder under `StarterPlayer.StarterPlayerScripts.Assets.Misc`. **Per-layer tables: [Ability VFX Numbers](Ability%20VFX%20Numbers.md).** Mapped onto [Ability VFX Direction](../../02%20Art/Ability%20VFX%20Direction.md). No asset ids recorded; rebuild with our own art.
+
+### Fire: Molly / Fork Fire / Firewall
+Read: `MolotovExplosionEffects`, `BurningEffects`, `FireHitboxes`, `FlamethrowerFlames`.
+- Shatter = 5 bursts of 6-15 (embers, 4x4 flame blooms 5.5 → 11 studs, shard streaks, 0.05-0.13 s spikes to 8.9 studs, a 23 → 36-stud dark-red smoke). All fire layers **LightEmission -1**, LightInfluence 0, Brightness 5-7: saturated colour that doesn't blow out. Smoke is `AA1A00` dark red, not grey.
+- Patch = a 32-stud disc volume emitting from its Surface: flame field + rim ring (4x4 flipbook, 2 → 5 studs), embers up at 200 accel, low smoke, PointLight 3 / 27 / `FF440B`. Burning player = 3 tiny constant layers (flame 3, smoke 10, ember 1) + the same light.
+- What reads: flames solid for 77 % of life then cut in 20 % (`0:0 0.77:0 0.81:0.38 … 1:1`); **TimeScale 0.2-0.5** on looping fire slows it into a held, chunky motion; one warm light carries the area.
+- Ours does it as: hooked flame-tongue meshes / a stepped 4x4 sheet of our own in 3 value bands for the field; keep the solid-then-cut fade, negative LightEmission and a single warm light; the 32-stud disc is our Molly footprint ring in team colour on the floor edge; burning players get 3-4 licks riding the body, not a fire cloud.
+
+### Ice: Frost / Freeze Frame / Frost Wall
+Read: `FreezeEffects` (Default). **Zero particles:** four faceted Glass MeshParts (2.2-2.9 x 1.8-4.3 x 3 studs, `43A4FF`, transparency 0.5) wrapped round the body + an opaque white snow cap 5.6 x 2 x 3.5.
+- What reads: hard shapes around the pose; translucent glass with a solid base.
+- Ours does it as: exactly our "angled plates and prisms" signature; add the 0.1 s snap-out with overshoot and a 0.2 s chip shatter (RIVALS' version has no authored entry/exit in this folder). `FreezeRayExplosionEffect` not read.
+
+### Impact and lift: Crash Down / Updraft
+Read: `ExplosionEffect` (11 emitters + light), `JumpPads`.
+- Burst counts 1-40 (`EmitCount`), lifetimes 0.13-1.33 s, every size an 11-key ease-out reaching half size by t 0.1. Two flat **VelocityPerpendicular** layers do the "wind": a ring 0 → 24 studs in 0.13-0.33 s starting at 0.7 transparency, and spinning crescents to 18 / 37.5 studs (rotspd 45-180). Fire layers LE 1, smoke LE 0, `orange2` LE 0 at br 8. Light: 24 range, script decays it (`Brightness=10`, `DecaySpeed=0.1` attributes).
+- Jump pad: three stacked MeshPart plates (10.4-stud base, 9.2-stud Neon face), no particles; no launch effect in `Misc`.
+- What reads: a big flash (1 particle to 27 studs) + a fast flat ring + slower arcs; smoke and sparks outlast the flash.
+- Ours does it as: the ring is our ground-hugging pressure ring, flat, team colour, footprint = damage radius, 0.25 s; crescents become 2-3 wind strokes; drop the fire/smoke cloud for floor-coloured chunk meshes + a dust skirt. Updraft: the crescent idea as vertical tapered strokes.
+
+### Movement: Dash / Ghost / Desync
+Read: `DashParticles`, `Vortexes`.
+- Dash: 4 white VelocityParallel streak emitters, life 0.03-0.25, EC 25 / 5 / 7 / 5, speed up to 150-300 with **drag 24-48** (launch then stop dead), size → 1 or 0.4, LE 1.
+- Vortex: a pull field built from SurfaceGui ring plates (30 / 34 studs) + Neon disc + 8 emitters: a LE-0 dark centre, a spinning rim, 8x8 / 4x4 swirl flipbooks that shrink, and streaks from a 28-stud sphere surface (drag -6 accelerates them in). Colour `20FFA2`.
+- What reads: very short, very fast, heavy drag; centre-dark vs rim-bright contrast.
+- Ours does it as: tapered stroke meshes or sheets with the same speed/drag profile (in 0.05, gone 0.25), on screen edges for the caster; Desync's pull-in uses the inward-streak + dark-centre idea at a much smaller scale.
+
+### Teleport: Recall
+Read: `Portals` (Default).
+- Built from flat discs: 7.7-stud Neon ring mesh, 6.2-stud inner discs with tinted decals, 11-13-stud outer image plates spun by AngularVelocity, SurfaceLight 0.5 / 60 / `C12FFF`; a 1-stud Small (closed) version. Only 2 emitters (3 dots each, life 1.5, br 200, LE 0, ts 0.5).
+- What reads: layered rotating flat shapes with a coloured light, almost no particles.
+- Ours does it as: the vertical fold: a disc that pinches to a line and a ring that snaps in (0.12 / 0.15 s) in violet `9B6BFF`; borrow the Small → Big two-size swap as the open beat; no constant spin (our rule: still once open).
+
+### Scan: Recon / Ping Spike
+Read: `WarHornEffects`, `DeflectActiveEffects`, `DeflectHitEffects`.
+- War Horn: 4 white single-particle rings (EC 1-2), 0.12 / 0.23 / 0.31 / 0.46 s, 4-5.4 studs on a 24-stud part, LE 1; one fast bright, three lingering faint.
+- Deflect active: ring + star (0.12 / 0.28 s, rotspd 720, br 8) and a `NotLocal` copy **10x bigger** for other players. Deflect hit: a 0.1 s sparkle, then shards **75 ms later** (`EmitDelay`), PointLight 3 / 24.
+- What reads: stacked rings with staggered lifetimes; a different size for the owner vs everyone else.
+- Ours does it as: Recon = one constant-speed shell (team colour) with a fast bright front ring and 2 fainter trailing rings; Ping Spike = the Burst1Fast-style bright pulse doubled. Keep the owner/other split for size.
+
+### Healing: Heal Zone / Heal Orb / Stim
+Read: `SmokeClouds` (three nested Neon MeshPart cores scaled by script, each fading by a `DecaySpeed` attribute, no particles). **Heal effect NOT FOUND** (searched `Misc` for Heal / Medkit / Regen; Medkit viewmodel and bundle are models only).
+- Ours does it as: the zone volume as 2-3 nested faceted shells with their own fade rates (the SmokeClouds idea), plus our soft leaf/chevron pulses; nothing to copy for the heal itself.
+
+### Shield: Barrier
+Read: `ViewModels.Weapons.Riot Shield` (no emitters, lights or beams), `DeflectHitEffects`. Ours does it as: the hex shell, a deflect-style hit (sparkle + 75 ms delayed shards, ≤0.3 s) in team colour.
+
+### Thrown props
+Read: `Throwables.Molotov`, `.Grenade`, `.Smoke Grenade`. 3-6 MeshParts (0.13-1.6 studs) + an invisible Primary 0.16-0.24 cube carrying **one Trail between two Attachments 0.5 studs apart** (white, life 0.25, width 1 → 0, tr 0 → 1, LE 1, FaceCamera). The Molotov adds a second orange trail on the wick (`FF4800`, life 0.13). Ours does it as: the same Primary + short trail contract on our faceted canisters; Fork Fire's split adds one flicker.
+
+### Across effects
+- **Layer counts:** bursts 3-5 layers (Molotov 5, Deflect hit 3 + light), big explosion 11 + light; constant effects 3-8 emitters. Three of the ten folders use **no particles** (Freeze, SmokeClouds, JumpPads) and Portals almost none.
+- **Lifetimes:** bursts ≤ 0.6 s except smoke (≤ 1.33 s); dash ≤ 0.25 s; constant fire 0.2-0.4 s stretched by TimeScale 0.2-0.5.
+- **LightEmission:** 1 for light/wind/rings, 0 for smoke and dark centres, **-1 / -0.5 for all fire** (saturated, no bloom). LightInfluence 0 everywhere.
+- **Counts and timing:** `EmitCount` attribute per emitter (1-40), `EmitDelay` for order (0.075 s on Deflect), `EmitDuration`; lights driven by `Brightness` / `DecaySpeed` attributes; volumes faded by `DecaySpeed`; skins coloured by `WrapGroup`.
+- **Contradictions with our direction note:** (1) RIVALS fire is smooth flipbook particles with drag, not stepped meshes; its "held" feel comes from TimeScale 0.2-0.5, which we may want instead of or alongside 12-15 fps stepping. (2) Its explosion/impact is a fire-and-smoke cloud; our Crash Down calls for floor fragments and a ring only. (3) Portals spin constantly; our teleport is a still fold. (4) RIVALS shows owner and other players different sizes (Deflect `NotLocal` 10x); our note doesn't specify per-viewer scale. (5) RIVALS has no shared element colour for team lines; rings are white.
+
 ## What we take / don't
 - **Take:** the IK-from-viewmodel idea, spring numbers, the attachment contract, the VFX layer recipes and timings above, flat-colour gun budgets.
 - **Don't take:** their meshes, flipbook/particle textures, wrap textures, animation assets, sounds or code. Rebuild every effect with our textures from the recipe. A copied texture is the "obvious" part, so we don't use theirs at all.

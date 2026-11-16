@@ -1,0 +1,404 @@
+{
+ "mod": "ReworkVFX",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "vfx",
+  "fx_doubleSided": "FX_Ring,FX_FloorStar,Heal_Leaf,Heal_Crown,Stim_Chevron,Tele_Fold,Tele_Ring,Scan_Shell,Shield_Plate"
+ },
+ "parts": [
+  {
+   "name": "FX_Stroke",
+   "material": "RW_FxWind",
+   "look": {
+    "material": "Neon",
+    "color": "EAF4FF"
+   },
+   "energy": false,
+   "tris": 8,
+   "center": [
+    -0.5,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.0,
+    0.08,
+    0.045
+   ]
+  },
+  {
+   "name": "FX_Ring",
+   "material": "RW_FxWind",
+   "look": {
+    "material": "Neon",
+    "color": "EAF4FF"
+   },
+   "energy": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "name": "FX_FloorStar",
+   "material": "RW_FxIce",
+   "look": {
+    "material": "Ice",
+    "color": "CFEFFF"
+   },
+   "energy": false,
+   "tris": 22,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.0,
+    0.86002,
+    0.0
+   ]
+  },
+  {
+   "name": "Fire_TongueA",
+   "material": "RW_FxFireDeep",
+   "look": {
+    "material": "Neon",
+    "color": "C2331A"
+   },
+   "energy": false,
+   "tris": 30,
+   "center": [
+    0.19255,
+    0.0,
+    0.5
+   ],
+   "size": [
+    0.80867,
+    0.14949,
+    1.0
+   ]
+  },
+  {
+   "name": "Fire_TongueB",
+   "material": "RW_FxFire",
+   "look": {
+    "material": "Neon",
+    "color": "FF7A1F"
+   },
+   "energy": false,
+   "tris": 26,
+   "center": [
+    -0.19266,
+    0.0,
+    0.5
+   ],
+   "size": [
+    0.82172,
+    0.16001,
+    1.0
+   ]
+  },
+  {
+   "name": "Fire_TongueC",
+   "material": "RW_FxFireCore",
+   "look": {
+    "material": "Neon",
+    "color": "FFE08A"
+   },
+   "energy": false,
+   "tris": 14,
+   "center": [
+    0.17459,
+    0.0,
+    0.5
+   ],
+   "size": [
+    0.94275,
+    0.23084,
+    1.0
+   ]
+  },
+  {
+   "name": "Ice_PlateA",
+   "material": "RW_FxIce",
+   "look": {
+    "material": "Ice",
+    "color": "CFEFFF"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    0.01266,
+    0.01,
+    0.5
+   ],
+   "size": [
+    0.45901,
+    0.27722,
+    1.0
+   ]
+  },
+  {
+   "name": "Ice_PlateB",
+   "material": "RW_FxIce",
+   "look": {
+    "material": "Ice",
+    "color": "CFEFFF"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    0.98367,
+    0.16327,
+    1.0
+   ]
+  },
+  {
+   "name": "Ice_PlateC",
+   "material": "RW_FxIce",
+   "look": {
+    "material": "Ice",
+    "color": "CFEFFF"
+   },
+   "energy": false,
+   "tris": 10,
+   "center": [
+    0.0,
+    0.0225,
+    0.5
+   ],
+   "size": [
+    0.20785,
+    0.135,
+    1.0
+   ]
+  },
+  {
+   "name": "Ice_Cap",
+   "material": "RW_FxIce",
+   "look": {
+    "material": "Ice",
+    "color": "CFEFFF"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    0.04348,
+    -0.00941,
+    0.14674
+   ],
+   "size": [
+    1.0,
+    0.92251,
+    0.29348
+   ]
+  },
+  {
+   "name": "Heal_Leaf",
+   "material": "RW_FxHeal",
+   "look": {
+    "material": "Neon",
+    "color": "5CFFC8"
+   },
+   "energy": false,
+   "tris": 4,
+   "center": [
+    -0.005,
+    0.035,
+    0.5
+   ],
+   "size": [
+    0.39,
+    0.07,
+    1.0
+   ]
+  },
+  {
+   "name": "Heal_Crown",
+   "material": "RW_FxHeal",
+   "look": {
+    "material": "Neon",
+    "color": "5CFFC8"
+   },
+   "energy": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    0.03823
+   ],
+   "size": [
+    1.0,
+    1.0,
+    0.07647
+   ]
+  },
+  {
+   "name": "Stim_Chevron",
+   "material": "RW_FxFireCore",
+   "look": {
+    "material": "Neon",
+    "color": "FFE08A"
+   },
+   "energy": false,
+   "tris": 5,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.0,
+    1.0,
+    0.46
+   ]
+  },
+  {
+   "name": "Tele_Fold",
+   "material": "RW_FxTele",
+   "look": {
+    "material": "Neon",
+    "color": "9B6BFF"
+   },
+   "energy": false,
+   "tris": 4,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.0,
+    0.64,
+    1.0
+   ]
+  },
+  {
+   "name": "Tele_Ring",
+   "material": "RW_FxTele",
+   "look": {
+    "material": "Neon",
+    "color": "9B6BFF"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.0,
+    1.0,
+    0.0
+   ]
+  },
+  {
+   "name": "Scan_Shell",
+   "material": "RW_FxIceLight",
+   "look": {
+    "material": "Neon",
+    "color": "7FD6FF"
+   },
+   "energy": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.0,
+    1.0,
+    1.0
+   ]
+  },
+  {
+   "name": "Impact_ChunkA",
+   "material": "RW_FxStone",
+   "look": {
+    "material": "Concrete",
+    "color": "6B6F76"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0,
+    0.0,
+    0.26316
+   ],
+   "size": [
+    1.0,
+    0.86316,
+    0.52632
+   ]
+  },
+  {
+   "name": "Impact_ChunkB",
+   "material": "RW_FxStone",
+   "look": {
+    "material": "Concrete",
+    "color": "6B6F76"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    0.22198
+   ],
+   "size": [
+    1.0,
+    0.67382,
+    0.44396
+   ]
+  },
+  {
+   "name": "Shield_Plate",
+   "material": "RW_FxIceLight",
+   "look": {
+    "material": "Neon",
+    "color": "7FD6FF"
+   },
+   "energy": false,
+   "tris": 4,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.0,
+    0.86603,
+    1.0
+   ]
+  }
+ ],
+ "locators": [],
+ "tris": 415,
+ "bounds": {
+  "min": [
+   -1.0,
+   -0.5,
+   -0.5
+  ],
+  "max": [
+   0.64596,
+   0.5,
+   1.0
+  ]
+ }
+}

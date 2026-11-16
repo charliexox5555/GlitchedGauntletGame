@@ -32,17 +32,26 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Ease = require(ReplicatedStorage.Shared.Util.Ease)
+local Juice = require(ReplicatedStorage.Shared.Config.Juice)
+local RoundCarry = require(script.Parent.Parent.Util.RoundCarry)
 local Spring = require(ReplicatedStorage.Shared.Util.Spring)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
+local SkinPreview = require(ReplicatedStorage.Shared.SkinPreview)
+local MeleeSkins = require(ReplicatedStorage.Shared.Config.MeleeSkins)
 
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local MagDrop = require(script.Parent.Parent.Util.MagDrop)
+local FanMotion = require(script.Parent.Parent.Util.FanMotion)
+local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
+local LocalHide = require(script.Parent.Parent.Util.LocalHide)
+local PopCircuitBat = require(script.Parent.Parent.Util.PopCircuitBat)
 local ViewmodelArms = require(script.Parent.Parent.Util.ViewmodelArms)
 local ViewmodelHeldMods = require(script.Parent.Parent.Util.ViewmodelHeldMods)
 local ViewmodelMotion = require(script.Parent.Parent.Util.ViewmodelMotion)
 local ViewmodelRig = require(script.Parent.Parent.Util.ViewmodelRig)
 local ViewmodelTracks = require(script.Parent.Parent.Util.ViewmodelTracks)
+local CameraController = require(script.Parent.CameraController)
 local MovementController = require(script.Parent.MovementController)
 
 type WeaponConfig = Types.WeaponConfig
@@ -62,7 +71,16 @@ local player = Players.LocalPlayer
 type Anchor = { part: BasePart, offset: Vector3, reach: Vector3?, frame: BasePart? }
 
 -- While clip `clip` plays, `hand` moves to `anchor` during [from, to] (0..1).
-type FollowRule = { clip: string, hand: Side, anchor: Anchor, from: number, to: number }
+-- `hold`: "both" stays on the part the whole clip; "out" / "in" skip the
+-- ramp at that end (the hand carries on into / came from the next clip).
+type FollowRule = {
+	clip: string,
+	hand: Side,
+	anchor: Anchor,
+	from: number,
+	to: number,
+	hold: string?,
+}
 
 -- One held model. A normal gun has only `Right`; akimbo guns have both.
 type Gun = {
@@ -80,16 +98,45 @@ type Gun = {
 	follow: { FollowRule },
 	adsHide: { BasePart }, -- parts that block the sight line, faded while aiming
 	adsFade: number, -- last fade written to adsHide
+	outline: Highlight?, -- the faint outline round the gun (VM.GUN_OUTLINE)
+	outlineShown: number, -- the OutlineTransparency last written
 	reticle: SurfaceGui?,
 	props: { Prop }, -- parts hidden while their joint is far from rest (config hideBeyond)
+	carries: { Carry }, -- rounds the support hand carries in during reloads (config carry)
 	mags: { Mag }, -- removable mags / belt boxes: dropped on reloads (Util/MagDrop)
 	key: string, -- pool key for its dropped mags
 	lockPending: boolean, -- the last round went: lock the action once the Fire clip's recoil peaks
 	recoil: Spring.Spring, -- hip kick
 	adsRecoil: Spring.Spring, -- aimed kick (stiff, critically damped)
+	-- Shot snap (VM.SHOT_PUNCH sizes, VM.SHOT_SNAP timing): each shot adds to
+	-- a slow and a fast exponential; their difference is the kick (back studs,
+	-- rise, yaw rad; and the twist), so it rises in ~13 ms and eases home.
+	snapSlow: Vector3,
+	snapFast: Vector3,
+	snapRollSlow: number,
+	snapRollFast: number,
+	snapAttack: number, -- seconds
+	snapDecay: number,
+	snapHold: number, -- seconds the kick stays at its peak (VM.SHOT_SNAP `hold`)
+	snapHeld: number, -- ...left of it
+	climb: Spring.Spring, -- spray climb: rise, yaw (rad), follows `target`
+	bounce: Spring.Spring, -- handling bounce (VM.HANDLE_BUMPS): drop (studs), pitch, roll (rad)
+	lastShot: number, -- os.clock() of the last shot (the climb settles after a pause)
+	sprayShots: number, -- shots in the current burst (VM.SPRAY_GAP starts a new one)
+	batMotion: PopCircuitBat.Motion?,
+	batTrails: { Trail }?,
+	fan: FanMotion.Fan?, -- the Giltfold Fan's ribs (Util/FanMotion)
+	cosmeticInspect: CosmeticInspect.State?,
 }
 
 type Prop = { motor: Motor6D, parts: { BasePart }, limit: number, hiddenNow: boolean }
+type Carry = {
+	joint: string,
+	parts: { BasePart },
+	show: string,
+	hideAtRest: boolean,
+	hiddenNow: boolean,
+}
 
 -- A mag during a reload clip: hidden from `outAt` (a copy drops) until the new
 -- one shows at `inAt` (0..1 through `clip`).
@@ -102,7 +149,10 @@ type Mag = {
 }
 
 -- A foley cue inside a clip: `at` is 0..1 through it.
-export type Beat = { at: number, sound: "MagOut" | "MagIn" | "Rack" | "Open" | "ShellIn" }
+export type Beat = {
+	at: number,
+	sound: "MagOut" | "MagIn" | "Rack" | "Open" | "Eject" | "ShellIn" | "Close",
+}
 
 type PoseWeight = { x: number, v: number, goal: number }
 
@@ -119,8 +169,20 @@ local poseWeights: { [string]: PoseWeight } = {}
 local weights: { [string]: number } = {}
 
 local adsAlpha = 0
+-- The aim blend the gun is drawn at (VM.ADS_FEEL): the alpha's goal (0 hip, 1
+-- sights) through an underdamped spring. May run a little past 0 or 1.
+local adsGoal = 0
+local adsBlend = 0
+local adsBlendVel = 0
+local adsZoom = 0 -- the camera's zoom blend: trails the gun (VM.ADS_FEEL zoomReach)
+local adsZoomVel = 0
+local adsStepAt = 0
+local meleeIdle = 1 -- how much of the knife's idle drift shows (0 in a swing)
 local hidden = false
-local heavyUntil = 0 -- knife heavy stab: both hands on the handle until then
+local heavyFrom = 0 -- knife heavy stab: both hands on the handle from then...
+local heavyUntil = 0 -- ...until then (VM.MELEE_HEAVY_HAND)
+local freeHeavy = 0 -- knife free hand: 0 guard .. 1 on the handle (heavy stab)
+local freeHidden = 0 -- knife free hand: 0 guard .. 1 dropped out of view (inspect)
 local turnToken = 0 -- bumped to cancel akimbo turns waiting to start (playTurns)
 local motion = ViewmodelMotion.new()
 local motionInput: ViewmodelMotion.Input = {
@@ -128,8 +190,20 @@ local motionInput: ViewmodelMotion.Input = {
 	velocity = Vector3.zero,
 	grounded = true,
 	sprinting = false,
+	sliding = false,
+	crouching = false,
 	ads = 0,
 }
+
+-- Arm follow-through: each arm's direction (camera space) trails where the
+-- gun asks it to point, on a critically damped spring (VM.ARM_FOLLOW). The
+-- hand itself stays exactly on its grip; only the forearm lags, so a kick, a
+-- sway or a pose change bends at the wrist instead of turning gun and arms as
+-- one stiff piece. `frame` is the render frame it last ran (a gap = snap).
+type ArmFollow = { dir: Vector3, vel: Vector3, frame: number }
+local armFollow: { [Side]: ArmFollow } = {}
+local frameIndex = 0
+local frameDt = 1 / 60
 
 local studio = RunService:IsStudio()
 
@@ -138,12 +212,6 @@ local studio = RunService:IsStudio()
 local heldMods = ViewmodelHeldMods.new()
 
 -- Small helpers ----------------------------------------------------------------
-
--- ADS blend: smootherstep, so it starts and lands without a jolt.
-local function adsEase(t: number): number
-	t = math.clamp(t, 0, 1)
-	return t * t * t * (t * (t * 6 - 15) + 10)
-end
 
 local angles = ViewmodelTracks.angles
 local mirrorPos = ViewmodelTracks.mirrorPos
@@ -469,9 +537,43 @@ local function addFollow(gun: Gun, clip: string, hand: Side, rule: VM.Follow): b
 	return true
 end
 
+-- A carried round's timing, with its pick-up moved VM.CARRY_JOIN of the
+-- way in from the turnaround (the round stays hidden until then).
+local function carryTiming(clip: any, joint: string, gunId: string): RoundCarry.Timing?
+	local timing = RoundCarry.timing(clip, joint)
+	local join = VM.CARRY_JOIN[gunId]
+	if not timing or not join then
+		return timing
+	end
+	local joined = table.clone(timing)
+	joined.farTo = timing.farTo + (timing.arrive - timing.farTo) * math.clamp(join, 0, 0.9)
+	return joined
+end
+
 local function buildFollow(gun: Gun, weapon: WeaponConfig, dual: boolean)
 	if dual or weapon.fireMode == "Melee" then
 		return -- each hand is busy holding its own gun / nothing to work
+	end
+	-- Carried rounds first: the support hand brings each fresh round in from
+	-- off the screen (config carry), before it holds barrels or a crane.
+	for _, entry in weapon.carry or {} do
+		if entry.follow then
+			for _, clip in { "Reload", "ReloadEmpty" } do
+				local data = gun.animator.clips and (gun.animator.clips :: any)[clip]
+				local timing = data and carryTiming(data, entry.joint, weapon.id)
+				local anchor = timing
+					and followAnchor(gun, { joint = entry.joint, grab = "Center" }, "Left")
+				if timing and anchor then
+					table.insert(gun.follow, {
+						clip = clip,
+						hand = "Left",
+						anchor = anchor,
+						from = timing.farTo,
+						to = timing.arrive,
+					})
+				end
+			end
+		end
 	end
 	-- The support hand works the gun in every handling clip it has (on a
 	-- lever-action the trigger hand works the lever, which drives the bolt).
@@ -497,6 +599,34 @@ local function buildFollow(gun: Gun, weapon: WeaponConfig, dual: boolean)
 			end
 		end
 	end
+	-- Shell-by-shell loops (owner 2026-11-08: "the hand just jumps"): the
+	-- loading hand stays at the gate for the whole loop, reaches it during
+	-- ReloadStart and leaves it during ReloadEnd, instead of going back to its
+	-- grip between shells.
+	if weapon.shellReload then
+		for _, rule in gun.follow do
+			if rule.clip == "ReloadInsert" then
+				rule.from, rule.to, rule.hold = 0, 1, "both"
+				table.insert(gun.follow, {
+					clip = "ReloadStart",
+					hand = rule.hand,
+					anchor = rule.anchor,
+					from = VM.SHELL_GATE_REACH,
+					to = 1,
+					hold = "out",
+				})
+				table.insert(gun.follow, {
+					clip = "ReloadEnd",
+					hand = rule.hand,
+					anchor = rule.anchor,
+					from = 0,
+					to = 1 - VM.SHELL_GATE_REACH,
+					hold = "in",
+				})
+				break
+			end
+		end
+	end
 	if weapon.fireMode == "Pump" then
 		addFollow(gun, "Fire", "Left", VM.PUMP_FOLLOW)
 	elseif weapon.fireMode == "Bolt" then
@@ -506,12 +636,17 @@ end
 
 -- 0..1: how much a hand is on a follow rule's part at clip progress `t`.
 local function followWeight(rule: FollowRule, t: number): number
+	if rule.hold == "both" then
+		return 1
+	end
 	local lead = VM.FOLLOW_LEAD
 	local inStart = math.max(0, rule.from - lead)
 	local inLength = math.max(rule.from - inStart, lead * 0.5)
 	local outEnd = math.min(1, rule.to + lead)
 	local outLength = math.max(outEnd - rule.to, lead * 0.5)
-	return Ease.smooth((t - inStart) / inLength) * Ease.smooth((outEnd - t) / outLength)
+	local rampIn = if rule.hold == "in" then 1 else Ease.smooth((t - inStart) / inLength)
+	local rampOut = if rule.hold == "out" then 1 else Ease.smooth((outEnd - t) / outLength)
+	return rampIn * rampOut
 end
 
 -- Where an anchor is this frame: from the rig's freshly solved joint CFrames
@@ -721,13 +856,22 @@ end
 local function buildGun(templateId: string, name: string, weapon: WeaponConfig, dual: boolean): Gun?
 	local folder = weaponsFolder()
 	local template = folder and folder:FindFirstChild(templateId)
+	-- Skin preview: the spectated player's pick when watching someone, else
+	-- ours; a body that isn't a player (a bot, a replay) stays stock.
+	local skinOwner: Player? = if subject then Players:GetPlayerFromCharacter(subject) else player
+	if SkinPreview.allowed() and skinOwner then
+		template = SkinPreview.geometry(templateId, skinOwner) or template
+	end
 	if not template or not template:IsA("Model") or not template.PrimaryPart then
 		warn("[Viewmodel] no model for " .. templateId)
 		return nil
 	end
 	local clone = template:Clone()
-	local scale = weapon.viewmodelScale or VM.SCALE
-	clone:ScaleTo(scale)
+	local skinItem = template:GetAttribute("SkinItem")
+	local scale = (weapon.viewmodelScale or VM.SCALE)
+		* (if typeof(skinItem) == "string" then MeleeSkins.VIEWMODEL_SCALE[skinItem] or 1 else 1)
+	local isBat = template:GetAttribute("PreviewMeleeModel") == "Bat"
+	clone:ScaleTo(if isBat then 1 else scale)
 	local h = clone.PrimaryPart :: BasePart
 	-- Same contents, but in a WorldModel (exact part positions, see the top).
 	local m = Instance.new("WorldModel")
@@ -739,6 +883,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		child.Parent = m
 	end
 	m.PrimaryPart = h
+	m:SetAttribute(SkinPreview.OWNER_ATTRIBUTE, if skinOwner then skinOwner.UserId else 0)
 	clone:Destroy()
 	for _, d in m:GetDescendants() do
 		if d:IsA("BasePart") then
@@ -764,7 +909,7 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		model = m,
 		handle = h,
 		rig = nil,
-		animator = GunAnimator.new(m, templateId, scale),
+		animator = GunAnimator.new(m, if isBat then "Bat" else templateId, scale),
 		rightGrip = anchorFor(m, h, attachment(m, "RightGrip")),
 		leftGrip = anchorFor(m, h, attachment(m, "LeftGrip")),
 		muzzle = attachment(m, "Muzzle"),
@@ -778,14 +923,46 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		follow = {},
 		adsHide = hide,
 		adsFade = 0,
+		outline = nil,
+		outlineShown = -1,
 		reticle = reticle,
 		props = {},
+		carries = {},
 		mags = {},
 		key = name .. weapon.id,
 		lockPending = false,
 		recoil = Spring.new(VM.RECOIL_STIFFNESS, VM.RECOIL_DAMPING),
 		adsRecoil = Spring.new(VM.ADS_RECOIL_STIFFNESS, 2 * math.sqrt(VM.ADS_RECOIL_STIFFNESS)),
+		snapSlow = Vector3.zero,
+		snapFast = Vector3.zero,
+		snapRollSlow = 0,
+		snapRollFast = 0,
+		snapAttack = (VM.SHOT_SNAP.gun[weapon.id] or {}).attack or VM.SHOT_SNAP.attack,
+		snapDecay = (VM.SHOT_SNAP.gun[weapon.id] or {}).decay
+			or VM.SHOT_SNAP.decay[weapon.class]
+			or VM.SHOT_SNAP.decay.Rifle,
+		snapHold = (VM.SHOT_SNAP.gun[weapon.id] or {}).hold or 0,
+		snapHeld = 0,
+		climb = Spring.new(
+			VM.CLIMB_STIFFNESS,
+			2 * VM.CLIMB_DAMPING_RATIO * math.sqrt(VM.CLIMB_STIFFNESS)
+		),
+		bounce = Spring.new(VM.HANDLE_STIFFNESS, VM.HANDLE_DAMPING),
+		lastShot = 0,
+		sprayShots = 0,
 	}
+	if isBat then
+		gun.batMotion = PopCircuitBat.play("Idle")
+		local trails: { Trail } = {}
+		for _, child in m:GetChildren() do
+			if child:IsA("Trail") then
+				table.insert(trails, child)
+			end
+		end
+		gun.batTrails = trails
+	end
+	gun.fan = FanMotion.new(m)
+	gun.cosmeticInspect = CosmeticInspect.new(m)
 	local rg, lg = gun.rightGrip, gun.leftGrip
 	gun.pistol = rg ~= nil
 		and lg ~= nil
@@ -823,6 +1000,27 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 				gun.props,
 				{ motor = motor, parts = parts, limit = limit * scale, hiddenNow = false }
 			)
+		end
+	end
+	for _, entry in weapon.carry or {} do
+		local joint = rigJoint(m, entry.joint)
+		if joint then
+			local parts: { BasePart } = {}
+			for _, d in m:GetDescendants() do
+				if (d:IsA("Weld") or d:IsA("Motor6D")) and d.Part0 == joint then
+					local p = d.Part1
+					if p and p.Parent ~= joint.Parent and p.Transparency < 1 then
+						table.insert(parts, p)
+					end
+				end
+			end
+			table.insert(gun.carries, {
+				joint = entry.joint,
+				parts = parts,
+				show = entry.show,
+				hideAtRest = weapon.carryHideAtRest == true,
+				hiddenNow = false,
+			})
 		end
 	end
 	-- Mags and belt boxes, with whatever rides them (a belt on its box).
@@ -930,7 +1128,7 @@ local function setGunsVisible(visible: boolean)
 	for _, gun in guns do
 		for _, d in gun.model:GetDescendants() do
 			if d:IsA("BasePart") then
-				d.LocalTransparencyModifier = modifier
+				LocalHide.set(d, modifier)
 			end
 		end
 		gun.adsFade = -1 -- rewrite ADS fades next frame
@@ -953,24 +1151,74 @@ function ViewmodelController.unequip()
 	end
 end
 
+-- The clip markers (gg_markers, set in Blender) that are foley beats, and
+-- the sound each plays. A clip with a marker uses it instead of guessing the
+-- moment from its moving joints.
+local MARKER_BEATS: { [string]: "MagOut" | "MagIn" | "Rack" | "Open" | "Eject" | "ShellIn" | "Close" } =
+	{
+		MagOut = "MagOut",
+		MagIn = "MagIn",
+		Open = "Open",
+		RoundOut = "Eject",
+		RoundIn = "ShellIn",
+		ShellIn = "ShellIn",
+		Close = "Close",
+		Rack = "Rack",
+	}
+
 -- Foley cues read off a clip: the mag leaving and seating, the charging
 -- handle (or bolt, or a pistol's slide) slamming home. Empty when the gun has no such clip.
 local function clipBeats(gun: Gun, clip: string): { Beat }
 	local beats: { Beat } = {}
 	local animator = gun.animator
+	local data = animator.clips and (animator.clips :: any)[clip]
+	local marks: { [string]: any } = (data and data.markers) or {}
+	for name, sound in MARKER_BEATS do
+		local at = marks[name]
+		if typeof(at) == "number" then
+			-- 2026-11-13 (lane B, measured from the clip data): the exported
+			-- MagIn markers sit mid-travel (Vandal .302, mag seated .454;
+			-- Phantom .394 / .611; Classic .39 / .65), so the clack and the
+			-- slap came before the mag reached the gun. The beat is where the
+			-- mag stops moving.
+			if sound == "MagIn" then
+				for _, joint in { "Mag", "AmmoBox" } do
+					local _, magTo = animator:activity(clip, joint)
+					if magTo then
+						at = math.max(at, magTo - VM.BEAT_MAG_IN)
+						break
+					end
+				end
+			end
+			table.insert(beats, { at = at, sound = sound })
+		end
+	end
+	local hasMark = function(...: string): boolean
+		for _, name in { ... } do
+			if typeof(marks[name]) == "number" then
+				return true
+			end
+		end
+		return false
+	end
 	-- Mags and belt boxes: out as they start moving, in as they stop. A belt
-	-- feed cover opens, then latches shut (a shell-in click).
-	for _, joint in { "Mag", "AmmoBox" } do
-		local magFrom, magTo = animator:activity(clip, joint)
-		if magFrom and magTo then
-			table.insert(beats, { at = magFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
-			table.insert(beats, { at = math.max(magTo - VM.BEAT_MAG_IN, magFrom), sound = "MagIn" })
+	-- feed cover opens, then latches shut.
+	if not hasMark("MagOut", "MagIn") then
+		for _, joint in { "Mag", "AmmoBox" } do
+			local magFrom, magTo = animator:activity(clip, joint)
+			if magFrom and magTo then
+				table.insert(beats, { at = magFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
+				table.insert(
+					beats,
+					{ at = math.max(magTo - VM.BEAT_MAG_IN, magFrom), sound = "MagIn" }
+				)
+			end
 		end
 	end
 	local coverFrom, coverTo = animator:activity(clip, "FeedCover")
 	if coverFrom and coverTo then
 		table.insert(beats, { at = coverFrom + VM.BEAT_MAG_OUT, sound = "Open" })
-		table.insert(beats, { at = math.max(coverTo - VM.BEAT_RACK, coverFrom), sound = "ShellIn" })
+		table.insert(beats, { at = math.max(coverTo - VM.BEAT_RACK, coverFrom), sound = "Close" })
 	end
 	for _, joint in { "ChargingHandle", "Bolt", "Slide", "Lever" } do
 		local _, to = animator:activity(clip, joint)
@@ -980,25 +1228,27 @@ local function clipBeats(gun: Gun, clip: string): { Beat }
 		end
 	end
 	-- Break-actions and revolvers: open as the barrels drop / the cylinder
-	-- swings out, shut (a rack) as they close, the spent cases out as a
-	-- revolver's ejector rod pushes, and a shell-in as each round settles.
-	for _, joint in { "Barrels", "Crane" } do
-		local openFrom, openTo = animator:activity(clip, joint)
-		if openFrom and openTo then
-			table.insert(beats, { at = openFrom + VM.BEAT_MAG_OUT, sound = "Open" })
-			table.insert(beats, { at = math.max(openTo - VM.BEAT_RACK, openFrom), sound = "Rack" })
+	-- swings out, shut as they close, the spent cases out as a revolver's
+	-- ejector rod pushes, and a shell-in as each round settles.
+	if not hasMark("Open", "Close") then
+		for _, joint in { "Barrels", "Crane" } do
+			local openFrom, openTo = animator:activity(clip, joint)
+			if openFrom and openTo then
+				table.insert(beats, { at = openFrom + VM.BEAT_MAG_OUT, sound = "Open" })
+				table.insert(
+					beats,
+					{ at = math.max(openTo - VM.BEAT_RACK, openFrom), sound = "Close" }
+				)
+			end
 		end
 	end
 	local ejectFrom = animator:activity(clip, "EjectorRod")
-	if ejectFrom then
-		table.insert(beats, { at = ejectFrom + VM.BEAT_MAG_OUT, sound = "MagOut" })
+	if ejectFrom and not hasMark("RoundOut") then
+		table.insert(beats, { at = ejectFrom + VM.BEAT_MAG_OUT, sound = "Eject" })
 	end
-	-- Rounds going in: the clip's ShellIn marker (set in Blender) when it has
-	-- one, else as each round prop stops moving.
-	local data = animator.clips and (animator.clips :: any)[clip]
-	local shellMark = data and data.markers and data.markers.ShellIn
-	if typeof(shellMark) == "number" then
-		table.insert(beats, { at = shellMark, sound = "ShellIn" })
+	-- Rounds going in: the clip's ShellIn / RoundIn marker when it has one,
+	-- else as each round prop stops moving.
+	if hasMark("ShellIn", "RoundIn") then
 		return beats
 	end
 	for _, shell in { "ShellUpper", "ShellLower", "Shell", "Rounds", "RoundUpper", "RoundLower" } do
@@ -1039,6 +1289,60 @@ local function playTurns(clip: string, duration: number, onStart: ((Gun) -> ())?
 	end)
 end
 
+-- Handling bounce -----------------------------------------------------------------
+
+-- A spring at rest hit by velocity v peaks at v * HANDLE_PEAK.
+local HANDLE_PEAK = (function(): number
+	local omega = math.sqrt(VM.HANDLE_STIFFNESS)
+	local zeta = math.min(VM.HANDLE_DAMPING / (2 * omega), 0.99)
+	local root = math.sqrt(1 - zeta * zeta)
+	return math.exp(-zeta * math.atan2(root, zeta) / root) / omega
+end)()
+
+-- Beats still to come (os.clock() times); `token` is the turnToken they were
+-- queued under, so a cancelled reload's kicks never land.
+local pendingBumps: { { at: number, kind: string, token: number } } = {}
+
+-- Kicks every gun's handling spring (VM.HANDLE_BUMPS): the snap on a beat.
+local function bump(kind: string)
+	local b = VM.HANDLE_BUMPS[kind]
+	if not b then
+		return
+	end
+	local v = Vector3.new(b.drop, math.rad(b.pitch), math.rad(b.roll)) / HANDLE_PEAK
+	for _, gun in guns do
+		gun.bounce:impulse(v)
+	end
+end
+
+-- Queues a clip's beats (0..1 through `duration`) as kicks.
+local function queueBumps(beats: { Beat }, duration: number)
+	local now = os.clock()
+	for _, beat in beats do
+		table.insert(
+			pendingBumps,
+			{ at = now + duration * beat.at, kind = beat.sound, token = turnToken }
+		)
+	end
+end
+
+-- Queues one kick `delay` seconds from now.
+local function queueBump(kind: string, delay: number)
+	table.insert(pendingBumps, { at = os.clock() + delay, kind = kind, token = turnToken })
+end
+
+local function stepBumps(now: number)
+	for i = #pendingBumps, 1, -1 do
+		local p = pendingBumps[i]
+		if p.token ~= turnToken then
+			table.remove(pendingBumps, i)
+		elseif now >= p.at then
+			table.remove(pendingBumps, i)
+			bump(p.kind)
+		end
+	end
+end
+
 -- A clip's foley cues for the whole turn-taking span: akimbo guns hear the
 -- right gun's cues in the first half and the left gun's in the second.
 local function turnBeats(beats: { Beat }): { Beat }
@@ -1051,6 +1355,74 @@ local function turnBeats(beats: { Beat }): { Beat }
 		table.insert(out, { at = 0.5 + b.at * 0.5, sound = b.sound })
 	end
 	return out
+end
+
+-- Track beats that stand in for each other (revolvers, break-actions).
+local MARK_STAND_INS: { [string]: { string } } = {
+	MagOut = { "MagOut", "Open" },
+	MagIn = { "MagIn", "Close" },
+	Rack = { "Rack" },
+}
+
+-- Lines the track in `slot` up with the gun clip's beats (VM.Track marks):
+-- its keys are time-warped, piecewise linear, so the track's mag slap lands
+-- on the clip's mag going in and its muzzle kick on the clip's rack. Akimbo
+-- pairs (beats in turns) and tracks without marks play as authored.
+local function alignTrack(slot: string, beats: { Beat })
+	local p = playing[slot]
+	local marks = p and p.track.marks
+	if not p or not marks or guns.Left then
+		return
+	end
+	local anchors: { { number } } = {}
+	for name, at in marks do
+		for _, wanted in MARK_STAND_INS[name] or { name } do
+			local found: number? = nil
+			for _, b in beats do
+				if b.sound == wanted and (found == nil or b.at < found) then
+					found = b.at
+				end
+			end
+			if found then
+				table.insert(anchors, { at, found })
+				break
+			end
+		end
+	end
+	if #anchors == 0 then
+		return
+	end
+	table.sort(anchors, function(a, b)
+		return a[1] < b[1]
+	end)
+	-- Keep the anchors whose clip times also rise (a beat out of order is
+	-- dropped rather than folding the track back on itself).
+	local map: { { number } } = { { 0, 0 } }
+	for _, a in anchors do
+		local last = map[#map]
+		if a[1] > last[1] and a[2] > last[2] and a[1] < 1 and a[2] < 1 then
+			table.insert(map, a)
+		end
+	end
+	table.insert(map, { 1, 1 })
+	local function warp(t: number): number
+		for i = 2, #map do
+			local a, b = map[i - 1], map[i]
+			if t <= b[1] then
+				return a[2] + (t - a[1]) / (b[1] - a[1]) * (b[2] - a[2])
+			end
+		end
+		return t
+	end
+	local track = table.clone(p.track)
+	local keys: { VM.Key } = {}
+	for i, k in p.track.keys do
+		local copy = table.clone(k)
+		copy.t = warp(k.t)
+		keys[i] = copy
+	end
+	track.keys = keys
+	p.track = track
 end
 
 -- Equips `weapon`: every equip plays the gun's "Draw" clip (raise and rack
@@ -1075,6 +1447,16 @@ function ViewmodelController.equip(weapon: WeaponConfig, duration: number?): { B
 	for _, gun in guns do
 		gun.model.Parent = cam
 		finishGun(gun, weapon)
+		if VM.GUN_OUTLINE.enabled then
+			local h = Instance.new("Highlight")
+			h.Name = "GunOutline"
+			h.FillTransparency = 1
+			h.OutlineColor = VM.GUN_OUTLINE.color
+			h.OutlineTransparency = 1
+			h.DepthMode = Enum.HighlightDepthMode.Occluded
+			h.Parent = gun.model
+			gun.outline = h
+		end
 	end
 
 	config = weapon
@@ -1086,12 +1468,38 @@ function ViewmodelController.equip(weapon: WeaponConfig, duration: number?): { B
 	a.model.Parent = cam
 	ViewmodelArms.setVisible(a, true)
 	local time = duration or weapon.equipTime
+	if right.batMotion then
+		-- The bat's own pull-out (Util/PopCircuitBat Draw), then its idle.
+		right.batMotion = PopCircuitBat.play("Draw", time)
+		return {}
+	end
+	-- The knife's pull-out is its own screen-keyed track (VM.MELEE_DRAW_TRACK;
+	-- owner 2026-11-08: the Blender Draw clip's slow twirl read as an
+	-- unnatural 360). The free arm starts out of view and comes up last.
+	local drawTrack = VM.MELEE_DRAW_TRACK
+	if right.fan then
+		FanMotion.play(right.fan, "Draw", time)
+	end
+	if weapon.fireMode == "Melee" and VM.TRACKS[drawTrack] then
+		ViewmodelTracks.play(playing, "Equip", drawTrack, time)
+		freeHidden = 1
+		return {}
+	end
 	if right.animator:has("Draw") then
 		playTurns("Draw", time)
-		ViewmodelTracks.play(playing, "Equip", "Draw", time)
-		return turnBeats(clipBeats(right, "Draw"))
+		-- Each class comes in its own way (VM.DRAW_TRACK).
+		ViewmodelTracks.play(playing, "Equip", VM.DRAW_TRACK[weapon.class] or "Draw", time)
+		local beats = turnBeats(clipBeats(right, "Draw"))
+		alignTrack("Equip", beats)
+		queueBumps(beats, time)
+		-- The gun lands in the hands with a bounce as it arrives (at the
+		-- start it is still below the screen).
+		queueBump("Draw", time * VM.DRAW_BUMP_AT)
+		return beats
 	end
-	ViewmodelTracks.play(playing, "Equip", "Equip", math.max(time * 1.4, VM.TRACKS.Equip.length))
+	local raise = math.max(time * 1.4, VM.TRACKS.Equip.length)
+	ViewmodelTracks.play(playing, "Equip", "Equip", raise)
+	queueBump("Draw", raise * VM.DRAW_BUMP_AT)
 	return {}
 end
 
@@ -1110,7 +1518,28 @@ function ViewmodelController.isHidden(): boolean
 	return hidden
 end
 
-function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean?)
+-- The shot snap's peak as a share of what a shot adds (slow minus fast
+-- exponential, attack a and decay d seconds), so SHOT_PUNCH stays the peak.
+local function snapPeak(a: number, d: number): number
+	if d <= a then
+		return 1
+	end
+	local t = math.log(d / a) * a * d / (d - a)
+	return math.exp(-t / d) - math.exp(-t / a)
+end
+local CLIMB_SETTLE_AFTER = 0.12 -- s without a shot before the spray climb starts settling
+
+-- The shot punch for a gun: its own entry, else its class's (VM.SHOT_PUNCH).
+local function shotPunch(c: WeaponConfig?): { [string]: number }?
+	if not c then
+		return nil
+	end
+	return VM.SHOT_PUNCH_GUN[c.id] or VM.SHOT_PUNCH[c.class]
+end
+
+-- `lean`: which way this shot's camera recoil pulls sideways (-1 left, 0
+-- straight up, 1 right), so the gun's kick goes the same way.
+function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean?, lean: number?)
 	local gun = guns[side or "Right"] or guns.Right
 	if not gun then
 		return
@@ -1125,23 +1554,91 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 		and gun.animator:has("ReloadEmpty")
 	local up = if config then config.recoil.up else 1
 	local k = math.clamp(up, 0.3, 4) * kickScale
-	gun.recoil:impulse(
-		Vector3.new(
-			VM.KICK_BACK * 40 * k,
-			VM.KICK_ROTATE * 40 * k,
-			(math.random() - 0.5) * VM.KICK_ROTATE * 20 * k
+	gun.recoil:impulse(Vector3.new(
+		VM.KICK_BACK * 40 * k,
+		VM.KICK_ROTATE * 40 * k,
+		(math.random() - 0.5) * VM.KICK_ROTATE * 6 * k -- a small twist (was x20: it read as random)
+	))
+	-- Texture in a long spray (VM.SPRAY_FIRST, SHOT_VARY): the first shots of
+	-- an automatic burst slam harder, and every shot's size varies a little,
+	-- so a spray reads as shots, not as a hum.
+	local now = os.clock()
+	if now - gun.lastShot > VM.SPRAY_GAP then
+		gun.sprayShots = 0
+	end
+	gun.sprayShots += 1
+	local size = 1 + (math.random() * 2 - 1) * VM.SHOT_VARY
+	if config and config.fireMode == "Auto" and VM.SPRAY_FIRST_SHOTS > 0 then
+		local first = math.max(0, 1 - (gun.sprayShots - 1) / VM.SPRAY_FIRST_SHOTS)
+		size *= 1 + (VM.SPRAY_FIRST - 1) * first
+	end
+	-- Aimed kick (VM.ADS_PUNCH): sized by class, not by the camera recoil, so
+	-- an aimed shot pushes the gun toward your eye every time; its rise is
+	-- small, so the sight stays on target. A critically damped spring hit by
+	-- v peaks at v / (omega * e). `kickScale` arrives halved while aimed
+	-- (WeaponController), so that is taken back out here.
+	local aimed = if config then VM.ADS_PUNCH_GUN[config.id] or VM.ADS_PUNCH[config.class] else nil
+	if aimed then
+		local scale = kickScale / math.max(1 - 0.5 * adsAlpha, 0.5) * size
+		local peak = math.sqrt(VM.ADS_RECOIL_STIFFNESS) * math.exp(1) * scale
+		gun.adsRecoil:impulse(
+			Vector3.new(
+				aimed.back,
+				math.rad(aimed.rise),
+				(math.random() - 0.5) * math.rad(aimed.rise) * VM.ADS_PUNCH_TWIST
+			) * peak
 		)
-	)
-	-- Aimed kick: sized so its peak is ADS_KICK_* (a critically damped
-	-- spring hit by v peaks at v / (omega * e)).
-	local peak = math.sqrt(VM.ADS_RECOIL_STIFFNESS) * math.exp(1) * k
-	gun.adsRecoil:impulse(
-		Vector3.new(
-			VM.ADS_KICK_BACK,
-			VM.ADS_KICK_ROTATE,
-			(math.random() - 0.5) * VM.ADS_KICK_ROTATE
-		) * peak
-	)
+	end
+	-- The screen's own jolt (Juice SHOT_FEEL.viewPunch): look only, never the aim.
+	if config then
+		local feel = Juice.SHOT_FEEL
+		local vp = feel.viewPunchGun[config.id] or feel.viewPunch[config.class]
+		if vp then
+			local aimScale = 1 - (1 - feel.adsScale) * adsAlpha
+			CameraController.viewPunch(vp.degrees * aimScale * math.min(size, 1.4), vp.time)
+		end
+	end
+	-- The shot punch: sized by class, not by the camera recoil. Its sideways
+	-- part follows the spray (`lean`: the side the camera recoil pulls, -1
+	-- left .. 1 right), with a little jitter; it never picks a side at random.
+	local p = shotPunch(config)
+	if p then
+		-- kickScale already includes the gun's viewmodelKick (WeaponController).
+		local s = kickScale * VM.PUNCH_SCALE
+		local pull = math.clamp(lean or 0, -1, 1)
+		local function jitter(): number
+			return (math.random() - 0.5) * 2 * VM.PUNCH_JITTER
+		end
+		-- The muzzle goes the way the recoil pulls (a positive gun yaw is left).
+		local turn = -(pull * VM.PUNCH_LEAN + jitter())
+		local twist = -(pull * VM.PUNCH_ROLL_LEAN + jitter())
+		-- A snap, not a spring (2026-11-14, owner's clips: every gun peaks in one
+		-- frame and eases home in 0.1-0.2 s with no wobble; the spring peaked at
+		-- ~42 ms and overshot): each shot adds to both exponentials.
+		-- (A held kick reaches the whole of the slow one, so it needs no gain.)
+		local gain = s / (if gun.snapHold > 0 then 1 else snapPeak(gun.snapAttack, gun.snapDecay))
+		gun.snapHeld = gun.snapHold
+		local add = Vector3.new(p.back * size, math.rad(p.rise) * size, math.rad(p.yaw) * turn)
+			* gain
+		gun.snapSlow += add
+		gun.snapFast += add
+		local twistAdd = math.rad(p.roll) * twist * gain
+		gun.snapRollSlow += twistAdd
+		gun.snapRollFast += twistAdd
+		if p.climb > 0 then
+			local t = gun.climb.target
+			gun.climb.target = Vector3.new(
+				math.min(t.X + math.rad(p.climb) * s, math.rad(p.climbMax) * VM.PUNCH_CLIMB_SCALE),
+				math.clamp(
+					t.Y + math.rad(p.climb) * 0.35 * turn,
+					-math.rad(p.climbMax) * 0.5,
+					math.rad(p.climbMax) * 0.5
+				),
+				0
+			)
+		end
+	end
+	gun.lastShot = now
 end
 
 -- `empty`: the mag ran dry, so the reload ends by racking the action (the
@@ -1160,13 +1657,25 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 			mag.timing = if data then MagDrop.timing(data, mag.bone) else nil
 		end
 	end)
+	-- A gun with its own reload track (VM.TRACKS["Reload" .. id], e.g. the
+	-- Outlaw's break-action) uses it for both reloads; others share the one
+	-- for their clip.
+	local own = if config then VM.TRACKS["Reload" .. config.id] else nil
+	local trackName = if own and config
+		then "Reload" .. config.id
+		elseif clip == "ReloadEmpty" then "ReloadEmpty"
+		else "Reload"
 	ViewmodelTracks.play(
 		playing,
 		"Reload",
-		if clip == "ReloadEmpty" then "ReloadEmpty" else "Reload",
-		duration
+		trackName,
+		duration,
+		if config then VM.RELOAD_TRACK_TURN[config.id] else nil
 	)
-	return turnBeats(clipBeats(right, clip))
+	local beats = turnBeats(clipBeats(right, clip))
+	alignTrack("Reload", beats)
+	queueBumps(beats, duration)
+	return beats
 end
 
 local RELOAD_CLIPS = { "Reload", "ReloadEmpty", "ReloadStart", "ReloadInsert", "ReloadEnd" }
@@ -1202,7 +1711,12 @@ function ViewmodelController.playClip(clip: string, duration: number): { Beat }
 	for _, gun in guns do
 		gun.animator:play(clip, duration, holdEnd)
 	end
-	return clipBeats(right, clip)
+	local beats = clipBeats(right, clip)
+	queueBumps(beats, duration)
+	if clip == "ReloadEnd" then
+		queueBump("Settle", duration * VM.SHELL_END_SETTLE_AT)
+	end
+	return beats
 end
 
 -- Melee swing uses the weapon's Fire clip.
@@ -1216,6 +1730,20 @@ function ViewmodelController.swing(attack: string?): number
 	local hitDelay = 0
 	local own = attack and VM.TRACKS[attack]
 	local length = own and own.length or 0
+	if right and right.batMotion then
+		local heavy = attack == "HeavyStab"
+		-- The side follows the combo step, like the knife's (Slash2 is the
+		-- backhand): the view's lead, the streak and the wall mark are drawn
+		-- for that step's path. (Until 2026-11-15 the bat took turns on its
+		-- own, so it could swing backhand under a forehand's camera and streak.)
+		local name = if heavy
+			then "Smash"
+			elseif attack == "Slash2" then "SlashRight"
+			else "SlashLeft"
+		local bat = PopCircuitBat.play(name, if length > 0 then length else nil)
+		right.batMotion = bat
+		return PopCircuitBat.hitDelay(bat)
+	end
 	if right and own and own.own then
 		-- The keyed track is the whole attack (Config/Viewmodel, 2026-11-05).
 		if right.animator:isPlaying() then
@@ -1243,7 +1771,20 @@ function ViewmodelController.swing(attack: string?): number
 			end
 		end
 	end
-	heavyUntil = if attack == "HeavyStab" then os.clock() + length else 0
+	if right and right.fan then
+		FanMotion.play(
+			right.fan,
+			if attack == "HeavyStab" then "Heavy" else "Slash",
+			if length > 0 then length else nil
+		)
+	end
+	-- The free hand comes in for the thrust only (owner's knife clip, 2026-11-14).
+	local window = VM.MELEE_HEAVY_HAND
+	local started = os.clock()
+	heavyFrom = started + window.from * length
+	heavyUntil = if attack == "HeavyStab" and VM.MELEE_HEAVY_TWO_HAND
+		then started + window.to * length
+		else 0
 	return hitDelay
 end
 
@@ -1254,15 +1795,35 @@ function ViewmodelController.inspect(): boolean
 	if not c or not guns.Right or hidden or adsAlpha > 0.05 then
 		return false
 	end
-	if playing.Equip or playing.Reload or playing.Inspect then
+	if playing.Equip or playing.Reload or (playing.Swing and not playing.Swing.fading) then
 		return false
 	end
-	for _, gun in guns do
-		if gun.animator:isPlaying() then
+	-- Pressing inspect again restarts it from the top (owner 2026-11-12:
+	-- "you can just spam it to restart the inspect, I want that"). Only an
+	-- inspect restarts: a draw, reload or swing still blocks it.
+	local bat = guns.Right.batMotion
+	if bat then
+		if bat.name ~= "Idle" and bat.name ~= "Inspect" then
 			return false
 		end
+		guns.Right.batMotion = PopCircuitBat.play("Inspect")
+		return true
 	end
-	local track = if c.fireMode == "Melee" then "InspectMelee" else "Inspect"
+	local again = playing.Inspect ~= nil
+	for _, gun in guns do
+		if gun.animator:isPlaying() and not gun.animator:isPlaying("Inspect") then
+			return false
+		end
+		if gun.animator:isPlaying("Inspect") then
+			again = true
+		end
+	end
+	if again then
+		ViewmodelController.cancelInspect()
+	end
+	local track = if c.fireMode == "Melee"
+		then "InspectMelee"
+		else VM.INSPECT_TRACK[c.id] or "Inspect"
 	-- Akimbo: each gun gets a whole inspect, one after the other.
 	local length = VM.TRACKS[track].length * (if guns.Left then 2 else 1)
 	-- A track that owns the move turns the gun itself; otherwise a knife's own
@@ -1270,15 +1831,32 @@ function ViewmodelController.inspect(): boolean
 	local ownTrack = VM.TRACKS[track].own == true
 	local clipTurns = not ownTrack and c.fireMode == "Melee" and guns.Right.animator:has("Inspect")
 	ViewmodelTracks.play(playing, "Inspect", track, length, if clipTurns then 0 else 1)
+	if guns.Right.fan then
+		FanMotion.play(guns.Right.fan, "Inspect", length)
+	end
 	-- The gun's own Inspect clip (a press check, the charm swinging) runs
 	-- alongside, over the same time.
 	if not ownTrack and guns.Right.animator:has("Inspect") then
 		playTurns("Inspect", length)
 	end
+	-- A part rolled as the inspect starts, with its sound (VM.INSPECT_SPIN).
+	local roll = VM.INSPECT_SPIN[c.id]
+	if roll then
+		for _, gun in guns do
+			gun.animator:spin(roll.bone, roll.degrees, roll.seconds, roll.axis)
+		end
+	end
 	return true
 end
 
 function ViewmodelController.cancelInspect()
+	local right = guns.Right
+	if right and right.batMotion and right.batMotion.name == "Inspect" then
+		right.batMotion = PopCircuitBat.play("Idle")
+	end
+	if right and right.fan and right.fan.name == "Inspect" then
+		FanMotion.play(right.fan, "Idle")
+	end
 	if playing.Inspect then
 		turnToken += 1
 	end
@@ -1290,12 +1868,22 @@ function ViewmodelController.cancelInspect()
 	end
 end
 
--- Hit-stop (LihFolk Hit-Stop and Screen Shake Tuning by Numbers): the swing
--- holds its frame for `seconds`, then carries on. Runtime only, on a hit.
+-- A hit's drag (VM.HIT_DRAG; was a hit-stop that held one frame, which the
+-- owner found choppy, 2026-11-15): the swing slows for a moment and eases
+-- back to speed. `seconds`: the attack's `stop`. Runtime only, on a hit.
 function ViewmodelController.hitStop(seconds: number)
+	if seconds ~= seconds then
+		return
+	end
 	local p = playing.Swing
-	if p and not p.fading and seconds == seconds then
-		p.freeze = math.clamp(seconds, 0, 0.15)
+	if p and not p.fading then
+		p.freezeFor = ViewmodelMotion.dragTime(seconds)
+		p.freeze = p.freezeFor
+	end
+	-- The bat moves on its own system: drag it too.
+	local right = guns.Right
+	if right and right.batMotion then
+		PopCircuitBat.hitStop(right.batMotion, seconds)
 	end
 end
 
@@ -1305,10 +1893,52 @@ function ViewmodelController.isInspecting(): boolean
 end
 
 function ViewmodelController.setAds(alpha: number)
+	-- Which way the aim is going: the drawn blend (adsBlend) springs there.
+	if alpha >= 1 or alpha > adsAlpha then
+		adsGoal = 1
+	elseif alpha <= 0 or alpha < adsAlpha then
+		adsGoal = 0
+	end
 	adsAlpha = alpha
+	-- Stepped here, once a frame, by whoever owns the aim (WeaponController,
+	-- spectating, a replay), so the zoom they set from adsBlend() is this
+	-- frame's and not the last one's.
+	local now = os.clock()
+	local dt = math.clamp(now - adsStepAt, 0, 0.1)
+	adsStepAt = now
+	if studio then
+		local scale = Workspace:GetAttribute("VfxTimeScale")
+		if typeof(scale) == "number" then
+			dt *= math.clamp(scale, 0, 1)
+		end
+	end
+	local feel = VM.ADS_FEEL
+	local c = config
+	local omega = feel.reach / math.max(if c then c.adsTime else 0.2, 0.05)
+	local d, v = ViewmodelMotion.bounce(adsBlend - adsGoal, adsBlendVel, omega, feel.damping, dt)
+	adsBlend, adsBlendVel = adsGoal + d, v
+	adsZoom, adsZoomVel = ViewmodelMotion.spring(
+		adsZoom,
+		adsZoomVel,
+		adsGoal,
+		(if adsGoal > 0 then feel.zoomReach else feel.zoomOutReach)
+			/ math.max(if c then c.adsTime else 0.2, 0.05),
+		dt
+	)
 	if alpha > 0.05 and playing.Inspect then
 		ViewmodelController.cancelInspect()
 	end
+end
+
+-- The aim blend the gun is drawn at, 0..1.
+function ViewmodelController.adsBlend(): number
+	return math.clamp(adsBlend, 0, 1)
+end
+
+-- The aim blend for the camera's zoom, 0..1: it starts with the gun and
+-- lands after it.
+function ViewmodelController.adsZoom(): number
+	return math.clamp(adsZoom, 0, 1)
 end
 
 function ViewmodelController.setHidden(value: boolean)
@@ -1337,8 +1967,9 @@ end
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] while the gun
 -- moves by `dip` ("Dash", "Updraft", "Stim", "Recall"; nil: it stays).
 -- `prop`: a model carried in the fist until the gesture's release.
-function ViewmodelController.gesture(gesture: string, dip: string?, prop: Model?)
-	ViewmodelHeldMods.gesture(heldMods, gesture, dip, prop)
+-- `duration`: seconds it takes instead of its own length (its dip with it).
+function ViewmodelController.gesture(gesture: string, dip: string?, prop: Model?, duration: number?)
+	ViewmodelHeldMods.gesture(heldMods, gesture, dip, prop, duration)
 end
 
 -- Holds the free hand in a FREE_POSES pose until nil (the Firewall's
@@ -1358,9 +1989,32 @@ function ViewmodelController.hideItemPart(name: string, delay: number)
 	ViewmodelHeldMods.hideItemPart(heldMods, name, delay)
 end
 
+-- Moves one part of the held item: a turn about a pivot attachment or a
+-- slide onto an attachment (VM.PartMove). Nothing happens when the item has
+-- no such part or attachment; it's whole again the next time it's held.
+function ViewmodelController.moveItemPart(move: VM.PartMove)
+	ViewmodelHeldMods.moveItemPart(heldMods, move)
+end
+
+-- Plays the part moves VM.ITEM_PART_MOVES[`sequence`] on the held item (the
+-- Molly's "MollyPad", "CanisterPin").
+function ViewmodelController.itemParts(sequence: string)
+	ViewmodelHeldMods.itemParts(heldMods, sequence)
+end
+
 -- A use, keyframed on the held item (ITEM_ACTIONS): "Throw", "Place" or "Heal".
 function ViewmodelController.itemAction(kind: string)
 	ViewmodelHeldMods.itemAction(heldMods, kind)
+end
+
+-- A held bow (VM.BOW, Recon): drawn to `charge` 0..1 while LMB is held, nil
+-- lets it down to rest (a cancel); releaseItem lets it go.
+function ViewmodelController.setItemCharge(charge: number?)
+	ViewmodelHeldMods.setItemCharge(heldMods, charge)
+end
+
+function ViewmodelController.releaseItem()
+	ViewmodelHeldMods.releaseItem(heldMods)
 end
 
 -- `name`: a muzzle other than "Muzzle" (a double barrel's "MuzzleLower").
@@ -1399,15 +2053,10 @@ local function poseOffset(mirror: boolean): CFrame
 end
 
 -- How much of each pose (Config/Viewmodel POSES) the movement state asks for.
+-- (Aiming isn't in here: updatePoseWeights takes every pose out by the aim
+-- blend itself, so they leave exactly as the sights come up.)
 local function poseTarget(name: string, state: string): number
-	if state ~= name then
-		return 0
-	elseif name == "Sprint" then
-		return 1 - adsAlpha
-	elseif name == "Slide" then
-		return 1 - 0.75 * adsAlpha
-	end
-	return 1 - 0.8 * adsAlpha
+	return if state == name then 1 else 0
 end
 
 -- Drops the old mag as it leaves the gun and hides it until the new one
@@ -1415,7 +2064,7 @@ end
 local function showMag(mag: Mag, visible: boolean)
 	mag.gone = not visible
 	for _, p in mag.parts do
-		p.LocalTransparencyModifier = if visible and not hidden then 0 else 1
+		LocalHide.set(p, if visible and not hidden then 0 else 1)
 	end
 end
 
@@ -1435,7 +2084,13 @@ local function stepMags(gun: Gun)
 		end
 		local t = gun.animator:progress()
 		if not mag.gone and t >= timing.outAt and t < timing.inAt then
-			MagDrop.drop(gun.key, mag.parts)
+			-- Kicked off and thrown forward (owner, 2026-11-08), in camera space.
+			local cam = Workspace.CurrentCamera
+			MagDrop.drop(
+				gun.key,
+				mag.parts,
+				if cam then cam.CFrame:VectorToWorldSpace(VM.MAG_DROP.throw) else nil
+			)
 			showMag(mag, false)
 		elseif mag.gone and t >= timing.inAt then
 			mag.timing = nil
@@ -1455,7 +2110,10 @@ local function updatePoseWeights(dt: number, state: string)
 		-- sudden acceleration (an S-curve, not a kick).
 		s.goal += (poseTarget(name, state) - s.goal) * (1 - math.exp(-VM.POSE_FREQUENCY * dt))
 		s.x, s.v = ViewmodelMotion.spring(s.x, s.v, s.goal, VM.POSE_FREQUENCY, dt)
-		weights[name] = s.x
+		-- Aimed, no movement pose is left at all, and it goes with the aim blend
+		-- rather than on the pose's own slower spring (2026-11-12: aiming in a
+		-- slide left the sights off the crosshair for about 0.7 s).
+		weights[name] = s.x * (1 - math.clamp(adsBlend, 0, 1))
 	end
 end
 
@@ -1491,24 +2149,74 @@ local function holdPose(
 	adsT: number,
 	dt: number
 ): CFrame
-	local hipPos = tuned("VmOffset", c.viewmodelOffset)
+	-- Every hold sits a little more right, higher and closer (owner, 2026-11-08:
+	-- "more personal", Valorant-like); the sight picture (AimPoint) is unchanged.
+	local hipPos = tuned("VmOffset", c.viewmodelOffset) + (c.hipShift or VM.HIP_SHIFT)
 	local hipRot = tuned("VmRotation", c.viewmodelRotation or Vector3.zero)
 	if mirror then
 		hipPos, hipRot = mirrorPos(hipPos), mirrorRot(hipRot)
 	end
 	local hip = CFrame.new(hipPos) * angles(hipRot) * CFrame.new(-gun.hipRel)
 	local base = hip
-	if adsT > 0 then
+	if adsBlend ~= 0 or adsBlendVel ~= 0 then
 		local ads = CFrame.new(c.adsOffset or Vector3.zero)
 			* CFrame.new(0, 0, -adsDistanceOf(c))
 			* CFrame.new(-gun.aimRel)
-		base = hip:Lerp(ads, adsT)
+		-- The raw spring blend: it runs a little past the pose and settles
+		-- (VM.ADS_FEEL). On the way the gun cants into the move and swings
+		-- under the straight line; both vanish at either end.
+		local feel = VM.ADS_FEEL
+		local arc = 4 * adsT * (1 - adsT)
+		local cant = math.rad(feel.cant) * math.clamp(adsBlendVel * c.adsTime / 1.8, -1.5, 1.5)
+		base = hip:Lerp(ads, adsBlend)
+			* CFrame.new(0, -feel.dip * arc, feel.pull * arc)
+			* CFrame.Angles(0, 0, if mirror then -cant else cant)
 	end
 	local r = gun.recoil:update(dt) * 0.1 * (1 - adsT)
 	local a = gun.adsRecoil:update(dt) * adsT
 	local kick = r + a
-	local recoilCf = CFrame.new(0, 0, kick.X) * CFrame.Angles(kick.Y, 0, kick.Z)
+	-- Shot punch and spray climb (hip only: aimed, the sights stay put and the
+	-- camera recoil carries it). The climb settles once the shooting stops.
+	-- Once the shooting stops the climb lets go at once and the gun drops
+	-- home on its spring (a small overshoot, settled in ~0.35 s; VM.CLIMB_*).
+	-- (A slow semi-auto with a climb, the Judge, keeps it between its shots.)
+	local settleAfter = math.max(CLIMB_SETTLE_AFTER, c.fireInterval * 1.25)
+	if os.clock() - gun.lastShot > settleAfter then
+		gun.climb.target = Vector3.zero
+	end
+	local hipK = 1 - adsT
+	local slowK, fastK = math.exp(-dt / gun.snapDecay), math.exp(-dt / gun.snapAttack)
+	if gun.snapHeld > 0 then
+		-- Held at the peak: the kick doesn't start home yet (the revolver).
+		gun.snapHeld -= dt
+		slowK = 1
+	end
+	gun.snapSlow *= slowK
+	gun.snapFast *= fastK
+	gun.snapRollSlow *= slowK
+	gun.snapRollFast *= fastK
+	local p = (gun.snapSlow - gun.snapFast) * hipK
+	local roll = (gun.snapRollSlow - gun.snapRollFast) * hipK
+	local climb = gun.climb:update(dt) * hipK
+	-- Handling bounce: the snap on a mag, a rack, a shell, the draw.
+	local h = gun.bounce:update(dt) * (1 - (1 - VM.HANDLE_ADS) * adsT)
+	local recoilCf = CFrame.new(0, -h.X, kick.X + p.X)
+		* CFrame.Angles(kick.Y + p.Y + climb.X + h.Y, p.Z + climb.Y, kick.Z + roll + h.Z)
 	local held = base * poseOffset(mirror) * trackOffset(gun, mirror, false) * recoilCf
+	-- The knife is never quite still in the hand (VM.MELEE_IDLE): a slow
+	-- roll and turn, through the inspect and the pull-out too (their holds
+	-- sat dead still: "staged"). It eases out for a swing, which has to land
+	-- where it is keyed, and back in after.
+	if c.fireMode == "Melee" then
+		local idle = VM.MELEE_IDLE
+		meleeIdle += ((if playing.Swing then 0 else 1) - meleeIdle) * (1 - math.exp(-idle.fade * dt))
+		local t = os.clock() * idle.rate * 2 * math.pi
+		held *= CFrame.new(0, math.sin(t * 0.5) * idle.lift * meleeIdle, 0) * CFrame.Angles(
+			0,
+			math.rad(idle.yaw) * math.sin(t * 0.7 + 1) * meleeIdle,
+			math.rad(idle.roll) * math.sin(t) * meleeIdle
+		)
+	end
 	local screen = trackOffset(gun, mirror, true)
 	if screen == CFrame.identity then
 		return held
@@ -1524,6 +2232,32 @@ local function mirrorHand(hand: VM.Hand, mirror: boolean): (Vector3, Vector3)
 	return hand.offset, hand.direction
 end
 
+-- The arm direction to draw this frame: `want` (world, unit) eased through the
+-- side's follow spring in camera space. Snaps on the first frame after a gap
+-- (a new gun, a hidden rig, another pose that placed the arm itself).
+local function followArm(side: Side, camCf: CFrame, want: Vector3): Vector3
+	local target = camCf:VectorToObjectSpace(want)
+	local f = armFollow[side]
+	if not f or f.frame < frameIndex - 1 or VM.ARM_FOLLOW <= 0 then
+		armFollow[side] = { dir = target, vel = Vector3.zero, frame = frameIndex }
+		return want
+	end
+	f.frame = frameIndex
+	-- Aimed, the arms stiffen up (the sight picture stays quiet).
+	local omega = VM.ARM_FOLLOW + (VM.ARM_FOLLOW_ADS - VM.ARM_FOLLOW) * math.clamp(adsBlend, 0, 1)
+	f.dir, f.vel = ViewmodelMotion.spring3(f.dir, f.vel, target, omega, frameDt)
+	if f.dir.Magnitude < 1e-3 then
+		f.dir = target
+		f.vel = Vector3.zero
+	end
+	return camCf:VectorToWorldSpace(f.dir.Unit)
+end
+
+-- A hand that has let go of the gun: where it is and where its arm runs
+-- (world), and how far (0..1) it has left its hold for there.
+type FreeHand = { point: Vector3, dir: Vector3, weight: number }
+local runHand: FreeHand = { point = Vector3.zero, dir = Vector3.yAxis, weight = 0 }
+
 -- Puts one arm on a gun: `grip` is the grip attachment's position this frame,
 -- `hand` the hand's offset and arm direction in gun space. During the gun's
 -- clips the hand moves toward the part it works (handTarget).
@@ -1534,7 +2268,9 @@ local function holdWith(
 	gunCf: CFrame,
 	grip: Vector3,
 	hand: VM.Hand,
-	mirror: boolean
+	mirror: boolean,
+	free: FreeHand?,
+	shoulder: Vector3?
 )
 	local offset, direction = mirrorHand(hand, mirror)
 	local point, working, partReach = handTarget(gun, side, grip + gunCf:VectorToWorldSpace(offset))
@@ -1588,7 +2324,79 @@ local function holdWith(
 			along = unit:Lerp(cam.CFrame:VectorToWorldSpace(Vector3.new(x, y, z)), working)
 		end
 	end
-	ViewmodelArms.place(a, side, point, point + along, gunCf.RightVector)
+	-- Melee (2026-11-14, owner: "keep it on the edge of the hand", "the hands
+	-- don't have fingers"): the knife is rigid in the block fist. The forearm
+	-- runs at a fixed angle from the knife (VM.MELEE_HAND.direction, the hold
+	-- he approved, measured in play), bent at most VM.MELEE_WRIST_BEND toward
+	-- the shoulder. The keys (tools/studio/knife_fp_keys.py) pick the wrist
+	-- roll that brings it from the shoulder side. Before: it aimed at the
+	-- shoulder and was only kept VM.MELEE_ARM_ANGLE off the blade, so the
+	-- knife slid round the fist as the blade turned.
+	local twistRef = gunCf.RightVector
+	if shoulder then
+		local rigid = gunCf:VectorToWorldSpace(direction)
+		local want = shoulder - point
+		along = rigid
+		if rigid.Magnitude > 1e-4 and want.Magnitude > 1e-3 then
+			rigid, want = rigid.Unit, want.Unit
+			local angle = math.acos(math.clamp(rigid:Dot(want), -1, 1))
+			local bend = math.min(angle, math.rad(VM.MELEE_WRIST_BEND))
+			local axis = rigid:Cross(want)
+			if bend > 1e-4 and axis.Magnitude > 1e-6 then
+				-- The wrist: the fist and forearm turn about the pivot inside the
+				-- fist, so the handle stays seated as the knife bends.
+				local turn = CFrame.fromAxisAngle(axis.Unit, bend)
+				local pivot = gunCf:PointToWorldSpace(VM.MELEE_WRIST_PIVOT)
+				point = pivot + turn:VectorToWorldSpace(point - pivot)
+				twistRef = turn:VectorToWorldSpace(twistRef)
+				along = turn:VectorToWorldSpace(rigid)
+			end
+		end
+	end
+	-- In the air the elbows flare out from the body (ViewmodelMotion airPos.Z).
+	local flare = motion.airPos.Z * VM.AIR_ELBOW * (1 - math.clamp(adsBlend, 0, 1))
+	if flare > 1e-3 and cam and along.Magnitude > 1e-4 then
+		along = along.Unit + cam.CFrame.RightVector * (if side == "Right" then flare else -flare)
+	end
+	-- Off the gun (a pistol's support hand while running): blend to where
+	-- that hand swings, unless it's working a part right now.
+	if free and free.weight > 0 and along.Magnitude > 1e-4 then
+		local w = free.weight * (1 - working)
+		point = point:Lerp(free.point, w)
+		along = along.Unit:Lerp(free.dir, w)
+	end
+	-- (A knife arm skips the follow spring: rigid with the fist, a trailing
+	-- forearm would show as the knife moving in the hand.)
+	if cam and along.Magnitude > 1e-4 and not shoulder then
+		along = followArm(side, cam.CFrame, along.Unit)
+	end
+	-- Last eye guard, after the follow spring (which can carry an arm back
+	-- over the bend above). 2026-11-13, owner: "the Outlaw reload... the left
+	-- hand goes into the screen". Measured: loading each round the hand sat
+	-- 0.49 studs in front of the eye and its arm ran 40% back toward the
+	-- camera, so the eye was inside the block. When the block's line passes
+	-- within ARM_EYE_CLEARANCE, it turns down and out with nothing back
+	-- toward the camera, blended in by how close it gets (no pop).
+	if cam and not shoulder and along.Magnitude > 1e-4 then
+		local camCf = cam.CFrame
+		local unit = along.Unit
+		local toEye = camCf.Position - point
+		local t = math.clamp(toEye:Dot(unit), 0, VM.ARM_REACH_LENGTH)
+		local gap = (toEye - unit * t).Magnitude
+		local k = math.clamp((VM.ARM_EYE_CLEARANCE - gap) / (VM.ARM_EYE_CLEARANCE * 0.5), 0, 1)
+		if k > 0 then
+			local c = camCf:VectorToObjectSpace(unit)
+			local y = math.min(c.Y, -VM.ARM_MIN_DROP)
+			local z = math.min(c.Z, 0)
+			local sideSign = if math.abs(c.X) > 1e-3
+				then math.sign(c.X)
+				elseif side == "Right" then 1
+				else -1
+			local x = sideSign * math.sqrt(math.max(1 - y * y - z * z, 0))
+			along = unit:Lerp(camCf:VectorToWorldSpace(Vector3.new(x, y, z)), k)
+		end
+	end
+	ViewmodelArms.place(a, side, point, point + along, twistRef)
 end
 
 local handleCFrames: { [Side]: CFrame } = {}
@@ -1606,6 +2414,9 @@ local function update(dt: number)
 			dt *= math.clamp(scale, 0, 1)
 		end
 	end
+	frameIndex += 1
+	frameDt = dt
+	stepBumps(os.clock())
 	MagDrop.step(dt) -- dropped mags keep falling after a swap
 	if not cam or not right or not c then
 		motion.lastCamera = cam and cam.CFrame
@@ -1630,7 +2441,7 @@ local function update(dt: number)
 		else MovementController.getState()
 	local character = subjectBody()
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-	local adsT = adsEase(adsAlpha)
+	local adsT = math.clamp(adsBlend, 0, 1)
 	motionInput.camera = camCf
 	local velocity = if rootPart and rootPart:IsA("BasePart")
 		then rootPart.AssemblyLinearVelocity
@@ -1650,6 +2461,8 @@ local function update(dt: number)
 	motionInput.velocity = velocity
 	motionInput.grounded = state ~= "Air" and state ~= "Slide"
 	motionInput.sprinting = state == "Sprint"
+	motionInput.sliding = state == "Slide"
+	motionInput.crouching = state == "Crouch"
 	motionInput.ads = adsT
 	local root = camCf * ViewmodelMotion.step(motion, motionInput, dt)
 
@@ -1659,12 +2472,34 @@ local function update(dt: number)
 	-- 2. Guns: root * hold pose, then every joint of the gun from its clip.
 	updatePoseWeights(dt, state)
 	ViewmodelTracks.step(playing, dt)
+	local batPose: CFrame? = nil
+	local batPalm: Vector3? = nil
+	local batSupport: Vector3? = nil
+	local batSupportHeld = false
+	if right.batMotion then
+		local pose, palm, support, _held, supportHeld, trail, done =
+			PopCircuitBat.step(right.batMotion, dt)
+		batPose = pose
+		batPalm = palm
+		batSupport = support
+		batSupportHeld = supportHeld
+		for _, ribbon in right.batTrails or {} do
+			ribbon.Enabled = trail and not hidden and lowerT < 0.1
+		end
+		if done then
+			right.batMotion = PopCircuitBat.play("Idle")
+		end
+	end
 	local fade = Ease.smooth((adsAlpha - 0.35) / 0.45)
+	local rightToss: CFrame? = nil -- the knife in the air (VM Track `toss`)
 	for _, side in SIDES do
 		local gun = guns[side]
 		local rig = gun and gun.rig
 		if gun and rig then
 			gun.animator:update(dt)
+			if gun.fan then
+				FanMotion.step(gun.fan, dt) -- after the clip, before the rig solve
+			end
 			if
 				gun.lockPending
 				and (not gun.animator:isPlaying("Fire") or gun.animator:progress() >= VM.LOCK_AT)
@@ -1672,36 +2507,84 @@ local function update(dt: number)
 				gun.lockPending = false
 				gun.animator:holdStart("ReloadEmpty")
 			end
+			if gun.cosmeticInspect then
+				local inspect = playing.Inspect
+				local progress = if inspect and not inspect.fading then inspect.time / inspect.length else nil
+				CosmeticInspect.step(gun.cosmeticInspect, progress)
+			end
 			stepMags(gun)
+			local clipName = gun.animator.clipName
+			local clipData = clipName
+				and gun.animator.clips
+				and (gun.animator.clips :: any)[clipName]
+			for _, carry in gun.carries do
+				local timing = clipData
+					and (clipName == "Reload" or clipName == "ReloadEmpty")
+					and carryTiming(clipData, carry.joint, if c then c.id else "")
+				local off = if timing
+					then not RoundCarry.visible(timing, carry.show, gun.animator:progress())
+					else carry.hideAtRest
+				if off ~= carry.hiddenNow then
+					carry.hiddenNow = off
+					for _, p in carry.parts do
+						LocalHide.set(p, if off or hidden then 1 else 0)
+					end
+				end
+			end
 			for _, prop in gun.props do
 				local away = prop.motor.Transform.Position.Magnitude > prop.limit
 				if away ~= prop.hiddenNow then
 					prop.hiddenNow = away
 					for _, p in prop.parts do
-						p.LocalTransparencyModifier = if away or hidden then 1 else 0
+						LocalHide.set(p, if away or hidden then 1 else 0)
 					end
 				end
 			end
-			local handleCf = root * lowerCf * holdPose(gun, c, side == "Left", adsT, dt)
-			ViewmodelRig.solve(rig, handleCf, 1 - (1 - VM.ADS_CLIP_KICK) * adsT)
+			local handleCf = if batPose and side == "Right"
+				then root * lowerCf * batPose
+				else root * lowerCf * holdPose(gun, c, side == "Left", adsT, dt)
+			-- A knife toss (VM Track `toss`): the knife leaves the fist, the arm
+			-- stays on the fist (handleCf) until the catch.
+			local toss = if side == "Right" then ViewmodelTracks.toss(playing) else nil
+			if side == "Right" then
+				rightToss = toss
+			end
+			ViewmodelRig.solve(
+				rig,
+				if toss then handleCf * toss else handleCf,
+				1 - (1 - VM.ADS_CLIP_KICK) * adsT
+			)
 			-- The hands hold the gun's body: the handle frame plus the clip's
 			-- Root motion, so when a clip rolls the gun in the hands (a draw,
 			-- an inspect) the arms turn with it instead of the gun turning
 			-- into them.
 			local rootMotor = rig.rootMotor
 			local body = rootMotor and rootMotor.Part1 and rig.world[rootMotor.Part1]
-			handleCFrames[side] = if body and rootMotor
-				then body * rootMotor.C1 * rootMotor.C0:Inverse()
+			handleCFrames[side] = if toss
+				then handleCf
+				elseif body and rootMotor then body * rootMotor.C1 * rootMotor.C0:Inverse()
 				else handleCf
 
 			if gun.reticle then
 				gun.reticle.Enabled = adsAlpha > 0.4 and not hidden
 			end
+			-- The gun's outline: gone while it's hidden, fading out as you aim.
+			local h = gun.outline
+			if h then
+				local shown = if hidden
+					then 1
+					else 1 - (1 - VM.GUN_OUTLINE.transparency) * (1 - adsT)
+				if math.abs(shown - gun.outlineShown) > 0.01 then
+					gun.outlineShown = shown
+					h.OutlineTransparency = shown
+					h.Enabled = shown < 0.99
+				end
+			end
 			-- Fade only the parts that block the sight line, while aiming.
 			if not hidden and fade ~= gun.adsFade then
 				gun.adsFade = fade
 				for _, p in gun.adsHide do
-					p.LocalTransparencyModifier = fade
+					LocalHide.set(p, fade)
 				end
 			end
 		end
@@ -1710,10 +2593,36 @@ local function update(dt: number)
 	-- 3. Hands and arms on the grips: gun space, from the same pass.
 	local a = arms
 	local rightCf = handleCFrames.Right
-	if a and rightCf and right.rig then
+	if a and rightCf and right.rig and batPalm and batSupport then
+		-- The PopCircuit Bat (Util/PopCircuitBat): each fist is a block on
+		-- its point, its arm straight back to its shoulder, nothing turning in
+		-- the hand (owner 2026-11-12: "there isn't fingers... very simple").
+		local frame = root * lowerCf
+		local hand = frame:PointToWorldSpace(batPalm)
+		ViewmodelArms.place(
+			a,
+			"Right",
+			hand,
+			frame:PointToWorldSpace(PopCircuitBat.RIGHT_SHOULDER),
+			frame.RightVector
+		)
+		ViewmodelArms.place(
+			a,
+			"Left",
+			frame:PointToWorldSpace(batSupport),
+			frame:PointToWorldSpace(PopCircuitBat.LEFT_SHOULDER),
+			frame.RightVector
+		)
+		if not batSupportHeld then
+			ViewmodelHeldMods.stepFreeHand(heldMods, a, root, now, dt, hidden)
+		end
+	elseif a and rightCf and right.rig then
 		local left = guns.Left
 		local leftCf = handleCFrames.Left
 		local pistol = right.pistol or left ~= nil -- akimbo: a pistol in each hand
+		-- (Melee uses its own hand: the fist round the handle. The ChatGPT pass
+		-- had dropped this, so the knife sat on top of the rifle hand offset,
+		-- above the fist; owner 2026-11-12.)
 		local rightHand = if c.fireMode == "Melee"
 			then VM.MELEE_HAND
 			elseif pistol then VM.PISTOL_RIGHT_HAND
@@ -1721,7 +2630,28 @@ local function update(dt: number)
 		local gripR = if right.rightGrip
 			then anchorPosition(right, right.rightGrip)
 			else rightCf.Position
-		holdWith(a, "Right", right, rightCf, gripR, tunedHand(rightHand, "Right"), false)
+		if rightToss then
+			-- The fist stays where the grip was before the throw, not on the
+			-- flying knife.
+			gripR = rightCf:PointToWorldSpace(
+				rightToss:PointToObjectSpace(rightCf:PointToObjectSpace(gripR))
+			)
+		end
+		if c.fireMode == "Melee" then
+			holdWith(
+				a,
+				"Right",
+				right,
+				rightCf,
+				gripR,
+				tunedHand(rightHand, "Right"),
+				false,
+				nil,
+				root:PointToWorldSpace(VM.MELEE_SHOULDER)
+			)
+		else
+			holdWith(a, "Right", right, rightCf, gripR, tunedHand(rightHand, "Right"), false)
+		end
 
 		if left and left.rightGrip and left.rig and leftCf then
 			-- Akimbo: the left hand holds the left gun, mirrored.
@@ -1735,7 +2665,19 @@ local function update(dt: number)
 				true
 			)
 		elseif c.fireMode ~= "Melee" and right.pistol and right.rightGrip then
-			holdWith(a, "Left", right, rightCf, gripR, VM.PISTOL_LEFT_HAND, false)
+			-- Running: the support hand lets go and pumps (VM.PISTOL_RUN_HAND).
+			local run = Ease.smooth(math.clamp(weights.Sprint or 0, 0, 1))
+			if run > 0.001 then
+				local swing = math.sin(motion.bobPhase + math.pi)
+					* math.clamp(motion.bobAmount, 0, 1.4)
+				local s = VM.PISTOL_RUN_SWING
+				runHand.point = root:PointToWorldSpace(
+					VM.PISTOL_RUN_HAND.offset + Vector3.new(s.X * swing, s.Y * swing, -s.Z * swing)
+				)
+				runHand.dir = root:VectorToWorldSpace(VM.PISTOL_RUN_HAND.direction)
+			end
+			runHand.weight = run
+			holdWith(a, "Left", right, rightCf, gripR, VM.PISTOL_LEFT_HAND, false, runHand)
 		elseif c.fireMode ~= "Melee" and right.leftGrip then
 			holdWith(
 				a,
@@ -1749,14 +2691,41 @@ local function update(dt: number)
 				}, "Left"),
 				false
 			)
-		elseif os.clock() < heavyUntil and right.rightGrip then
-			-- Knife heavy stab: both hands on the handle.
-			holdWith(a, "Left", right, rightCf, gripR, VM.MELEE_TWO_HAND, false)
 		else
-			-- Melee: the free hand is a guard, riding the root.
-			local point = root:PointToWorldSpace(VM.FREE_HAND.offset)
-			local toward = point + root:VectorToWorldSpace(VM.FREE_HAND.direction)
-			ViewmodelArms.place(a, "Left", point, toward, root.RightVector)
+			-- Melee: the free hand is a raised guard riding the root. It drops
+			-- out of view for the inspect (one hand only) and moves onto the
+			-- handle for the heavy stab, blended both ways so it never pops
+			-- (owner, 2026-11-08).
+			local clock = os.clock()
+			local heavy = clock >= heavyFrom and clock < heavyUntil and right.rightGrip ~= nil
+			-- Out of view through the inspect and the pull-out (VM.FREE_HAND_DRAW_AT).
+			local drawing = playing.Equip
+			local tucked = playing.Inspect ~= nil
+				or (drawing ~= nil and drawing.time < drawing.length * VM.FREE_HAND_DRAW_AT)
+			local blend = VM.FREE_HAND_BLEND
+			freeHeavy = math.clamp(freeHeavy + (if heavy then dt else -dt) / blend, 0, 1)
+			freeHidden = math.clamp(freeHidden + (if tucked then dt else -dt) / (blend * 2), 0, 1)
+			local h = Ease.smooth(freeHidden)
+			local offset = VM.FREE_HAND.offset:Lerp(VM.FREE_HAND_HIDDEN.offset, h)
+			local direction = VM.FREE_HAND.direction:Lerp(VM.FREE_HAND_HIDDEN.direction, h)
+			-- It goes with the body as the knife travels (VM.FREE_HAND_FOLLOW).
+			local follow = VM.FREE_HAND_FOLLOW
+			local travel = root:PointToObjectSpace(gripR)
+				- (c.viewmodelOffset + (c.hipShift or VM.HIP_SHIFT))
+			local far = Ease.smooth(math.clamp(travel.Magnitude / follow.reach, 0, 1)) * (1 - h)
+			offset += Vector3.new(travel.X * follow.travel, -follow.drop * far, follow.back * far)
+			local point = root:PointToWorldSpace(offset)
+			local dir = root:VectorToWorldSpace(direction)
+			if freeHeavy > 0 then
+				local t = Ease.smooth(freeHeavy)
+				local two = VM.MELEE_HEAVY_HAND
+				point = point:Lerp(gripR + root:VectorToWorldSpace(two.offset), t)
+				dir = dir:Lerp(root:VectorToWorldSpace(two.direction), t)
+			end
+			if dir.Magnitude > 1e-4 then
+				dir = followArm("Left", camCf, dir.Unit)
+			end
+			ViewmodelArms.place(a, "Left", point, point + dir, root.RightVector)
 		end
 		-- A Mod gesture or a held free-hand pose takes the free hand off the gun.
 		ViewmodelHeldMods.stepFreeHand(heldMods, a, root, now, dt, hidden)
@@ -1797,16 +2766,54 @@ end
 
 -- Spectating: show `body`'s view (nil: back to yours). Starts empty; the
 -- spectate controller equips their gun.
+-- Skin preview: `owner` picked another line; rebuild the camera gun if it is
+-- theirs and its geometry differs (surface-only lines re-skin in place).
+local function onSkinPick(owner: Player)
+	local weapon = config
+	local right = guns.Right
+	local viewer = if subject then Players:GetPlayerFromCharacter(subject) else player
+	if not weapon or not right or viewer ~= owner then
+		return
+	end
+	local templateId = if weapon.models then weapon.models.right else weapon.id
+	if SkinPreview.geometryChanged(right.model, templateId, owner) then
+		local wasHidden = hidden
+		ViewmodelController.equip(weapon)
+		ViewmodelController.setHidden(wasHidden)
+	elseif subject then
+		for _, gun in guns do
+			SkinPreview.apply(gun.model)
+		end
+	end
+end
+
+local subjectSkinWatch: (() -> ())? = nil
+
 function ViewmodelController.setSubject(body: Model?)
 	if body == subject then
 		return
 	end
 	resetView()
 	subject = body
+	if subjectSkinWatch then
+		subjectSkinWatch()
+		subjectSkinWatch = nil
+	end
+	local owner = if body then Players:GetPlayerFromCharacter(body) else nil
+	if owner and SkinPreview.allowed() then
+		subjectSkinWatch = SkinPreview.observe(owner, function()
+			onSkinPick(owner)
+		end)
+	end
 end
 
 function ViewmodelController.start()
 	RunService:BindToRenderStep("GGViewmodel", Enum.RenderPriority.Camera.Value + 2, update)
+	if SkinPreview.allowed() then
+		SkinPreview.observe(player, function()
+			onSkinPick(player)
+		end)
+	end
 	player.CharacterRemoving:Connect(function()
 		if not subject then
 			resetView()

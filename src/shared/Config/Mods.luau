@@ -441,7 +441,7 @@ local defs: { [string]: ModDef } = {
 				height = 8, -- studs up from the floor that still count
 				duration = 8, -- seconds the zone lasts
 				linger = 4, -- seconds you stay Stimmed after leaving it
-				tossDistance = 5, -- studs ahead it lands (short of a wall)
+				tossDistance = 8, -- studs ahead it lands (short of a wall); 5 until 2026-11-16
 				tossRelease = 0.3, -- seconds from the press to leaving the hand (StimToss)
 				tossTime = 0.4, -- seconds in the air
 				deployTime = 0.25, -- seconds from landing to the zone switching on
@@ -586,7 +586,7 @@ return table.freeze({
 	-- Molly in first person: the pin pull starts this long after the raise,
 	-- and the pin leaves the canister this far into it (seconds).
 	MOLLY_PIN_AT = 0.12,
-	MOLLY_PIN_GONE = 0.2,
+	MOLLY_PIN_GONE = 0.3, -- 0.2 until 2026-11-16: hid it before the yank (Viewmodel ITEM_PART_MOVES)
 
 	-- Damage from your own Mods to you and your team, as a share of the
 	-- enemy damage (00 Abilities.md → Friendly fire). Exceptions per Mod.

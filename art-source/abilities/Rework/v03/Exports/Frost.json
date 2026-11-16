@@ -1,0 +1,381 @@
+{
+ "mod": "Frost",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "thrown",
+  "size_studs": 0.602
+ },
+ "parts": [
+  {
+   "name": "Body",
+   "material": "RW_Pale",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C4C9CF"
+   },
+   "energy": false,
+   "tris": 298,
+   "center": [
+    0.01621,
+    0.0,
+    -0.0372
+   ],
+   "size": [
+    0.24,
+    0.2592,
+    0.408
+   ]
+  },
+  {
+   "name": "Band",
+   "material": "RW_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383D48"
+   },
+   "energy": false,
+   "tris": 100,
+   "center": [
+    0.03176,
+    0.0,
+    -0.0612
+   ],
+   "size": [
+    0.2231,
+    0.27339,
+    0.048
+   ]
+  },
+  {
+   "name": "Core",
+   "material": "RW_Cold",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8CCBEB"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    0.01629,
+    0.0,
+    -0.0468
+   ],
+   "size": [
+    0.18736,
+    0.20673,
+    0.4032
+   ]
+  },
+  {
+   "name": "Foot",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 252,
+   "center": [
+    0.0012,
+    0.0,
+    -0.24378
+   ],
+   "size": [
+    0.32038,
+    0.30956,
+    0.11485
+   ]
+  },
+  {
+   "name": "Lid",
+   "material": "RW_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383D48"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.01157,
+    0.0,
+    0.1896
+   ],
+   "size": [
+    0.24513,
+    0.25506,
+    0.0504
+   ]
+  },
+  {
+   "name": "FuseHead",
+   "material": "RW_Panel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "555C69"
+   },
+   "energy": false,
+   "tris": 120,
+   "center": [
+    -0.07259,
+    0.0,
+    0.2496
+   ],
+   "size": [
+    0.1776,
+    0.108,
+    0.0792
+   ]
+  },
+  {
+   "name": "FuseBezel",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 80,
+   "center": [
+    -0.05579,
+    0.0,
+    0.2916
+   ],
+   "size": [
+    0.04878,
+    0.04878,
+    0.012
+   ]
+  },
+  {
+   "name": "Fuse_Energy",
+   "material": "RW_Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 44,
+   "center": [
+    -0.05579,
+    0.0,
+    0.2922
+   ],
+   "size": [
+    0.03104,
+    0.03104,
+    0.018
+   ]
+  },
+  {
+   "name": "Latch",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 262,
+   "center": [
+    -0.13259,
+    0.0,
+    0.01509
+   ],
+   "size": [
+    0.03326,
+    0.096,
+    0.47383
+   ]
+  },
+  {
+   "name": "HingePin",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 124,
+   "center": [
+    -0.13259,
+    0.0,
+    -0.2052
+   ],
+   "size": [
+    0.02217,
+    0.1224,
+    0.02217
+   ]
+  },
+  {
+   "name": "Pin",
+   "material": "RW_Accent",
+   "look": {
+    "material": "Metal",
+    "color": "AEB4BC"
+   },
+   "energy": false,
+   "tris": 240,
+   "center": [
+    -0.12539,
+    0.03949,
+    0.21935
+   ],
+   "size": [
+    0.02106,
+    0.21578,
+    0.08996
+   ]
+  },
+  {
+   "name": "Valve",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 240,
+   "center": [
+    0.05581,
+    0.0,
+    0.24
+   ],
+   "size": [
+    0.05987,
+    0.05987,
+    0.0576
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Fuse",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.05578970909118652
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.3012000024318695
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "LatchPivot",
+   "matrix": [
+    [
+     -1.0,
+     8.742277657347586e-08,
+     0.0,
+     -0.13258972764015198
+    ],
+    [
+     -8.742277657347586e-08,
+     -1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     -0.20520001649856567
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinOut",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.1253897249698639
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.1680000126361847
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.24480000138282776
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 1832,
+ "bounds": {
+  "min": [
+   -0.16139,
+   -0.15478,
+   -0.3012
+  ],
+  "max": [
+   0.16139,
+   0.15478,
+   0.3012
+  ]
+ }
+}

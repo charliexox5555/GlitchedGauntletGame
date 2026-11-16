@@ -40,6 +40,10 @@ EXTRA = {
 DOUBLE_SIDED = {"Panel_Energy", "Shockwave_Energy", "Dome_Energy", "Sphere_Energy", "ScanRing_Energy"}
 # GlitchVFX (tools/blender/build_mod_glitchvfx.py): the shells and the open scan band.
 DOUBLE_SIDED |= {"HexShell_Energy", "HexEdge_Energy", "ShellCrack_Energy", "ScanWave_Energy"}
+# ReworkVFX (2026-11-16, art-source/abilities/Rework/v03/ReworkVFX/vfx_kit.py): the flat single-sheet pieces.
+DOUBLE_SIDED |= {
+	"FX_Ring", "FX_FloorStar", "Heal_Leaf", "Heal_Crown", "Stim_Chevron", "Tele_Fold", "Tele_Ring", "Scan_Shell", "Shield_Plate",
+}
 
 
 def main(only=None):

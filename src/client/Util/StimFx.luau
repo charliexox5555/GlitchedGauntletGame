@@ -27,6 +27,7 @@ local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ModAudio = require(script.Parent.ModAudio)
 local ModProps = require(script.Parent.ModProps)
 local ModVfx = require(script.Parent.ModVfx)
+local ViewmodelHeldMods = require(script.Parent.ViewmodelHeldMods)
 
 local StimFx = {}
 
@@ -37,7 +38,7 @@ local YELLOW = Color3.fromHex("FFD23F")
 local STRONG = Color3.fromHex("FFC21F") -- Strong Stim: a deeper, hotter gold
 local WHITE_HOT = Color3.fromHex("FFF8E0")
 local BEACON_SCALE = 1.5 -- the Blender beacon is 1.1 studs tall; knee-high reads better
-local TOSS_HEIGHT = 1.4 -- studs the toss arcs above the straight line
+local TOSS_HEIGHT = 2.2 -- studs the toss arcs above the straight line (1.4 until 2026-11-16)
 local TOSS_TUMBLE = 300 -- degrees it pitches over in the air (lands upright)
 local BOUNCE_TIME = 0.14 -- the little hop as it lands
 local POP_TIME = 0.15 -- snapping open
@@ -274,7 +275,7 @@ export type Drop = {
 
 -- Where our toss lets go, in camera space (Config/Viewmodel StimToss at its
 -- release).
-local OWN_HAND = Vector3.new(-0.22, -0.62, -1.65)
+local OWN_HAND = ViewmodelHeldMods.releasePoint("StimToss") or Vector3.new(-0.2, -0.42, -1.75)
 
 function StimFx.drop(d: Drop)
 	-- Shown late (streaming, lag): skip what has already happened.

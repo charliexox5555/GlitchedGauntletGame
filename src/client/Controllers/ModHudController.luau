@@ -102,6 +102,9 @@ type Meter = {
 	pips: { Frame },
 	shown: number, -- the fill drawn (eased toward the charge)
 	alpha: number, -- group fade 0 (shown) .. 1
+	bounces: number, -- the count last shown, and when it changed (the pips pop)
+	popAt: number,
+	fullAt: number, -- when the charge reached full (one flash, then held)
 }
 local meter: Meter? = nil
 local METER_WIDTH = 240
@@ -527,6 +530,9 @@ local function build(): ScreenGui
 		pips = pips,
 		shown = 0,
 		alpha = 1,
+		bounces = 0,
+		popAt = -math.huge,
+		fullAt = -math.huge,
 	}
 
 	local layer = HudController.touchLayer()
@@ -753,15 +759,28 @@ local function updateMeter(dt: number, now: number)
 	end
 	m.fill.Size = UDim2.fromScale(m.shown, 1)
 	local full = state.charge >= 1
-	-- At full the fill flickers plain white (the gradient off).
-	m.gradient.Enabled = not (full and math.sin(now * 30) > 0)
+	-- At full: one plain-white flash (the gradient off), then held cyan.
+	if full and m.fullAt == -math.huge then
+		m.fullAt = now
+	elseif not full then
+		m.fullAt = -math.huge
+	end
+	m.gradient.Enabled = not (full and now - m.fullAt < 0.12)
 	m.percent.Text = if full then "MAX" else string.format("%d%%", math.floor(state.charge * 100))
 	m.percent.TextColor3 = if full then CYAN else WHITE
+	-- A new bounce count: the pips pop (Quint out, no overshoot).
+	if state.bounces ~= m.bounces then
+		m.bounces = state.bounces
+		m.popAt = now
+	end
+	local pop = 1 - math.clamp((now - m.popAt) / 0.18, 0, 1)
+	local size = 9 + 5 * pop ^ 5
 	for i, pip in m.pips do
 		pip.Visible = i <= state.maxBounces
 		local on = i <= state.bounces
 		pip.BackgroundColor3 = if on then CYAN else BACK
 		pip.BackgroundTransparency = if on then 0 else 0.3
+		pip.Size = UDim2.fromOffset(size, size)
 	end
 end
 

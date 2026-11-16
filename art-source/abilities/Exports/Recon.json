@@ -2,354 +2,610 @@
  "mod": "Recon",
  "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
  "props": {
-  "ability_name": "Recon",
   "kind": "handheld",
-  "size_studs": 1.045,
-  "tris": 2928
+  "size_studs": 1.532
  },
  "parts": [
   {
+   "name": "Riser",
+   "material": "RW_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383D48"
+   },
+   "energy": false,
+   "tris": 332,
+   "center": [
+    0.0075,
+    0.018,
+    0.0
+   ],
+   "size": [
+    0.225,
+    0.16,
+    0.62
+   ]
+  },
+  {
+   "name": "Grip",
+   "material": "RW_Grip",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "25272D"
+   },
+   "energy": false,
+   "tris": 128,
+   "center": [
+    -0.026,
+    0.0,
+    -0.036
+   ],
+   "size": [
+    0.192,
+    0.148,
+    0.184
+   ]
+  },
+  {
+   "name": "PocketTop",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 68,
+   "center": [
+    0.037,
+    0.0,
+    0.346
+   ],
+   "size": [
+    0.126,
+    0.162,
+    0.092
+   ]
+  },
+  {
+   "name": "BoltTop",
+   "material": "RW_Accent",
+   "look": {
+    "material": "Metal",
+    "color": "AEB4BC"
+   },
+   "energy": false,
+   "tris": 92,
+   "center": [
+    0.035,
+    0.0,
+    0.355
+   ],
+   "size": [
+    0.038,
+    0.184,
+    0.03291
+   ]
+  },
+  {
+   "name": "LimbTop",
+   "material": "RW_Panel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "555C69"
+   },
+   "energy": false,
+   "tris": 208,
+   "center": [
+    -0.12552,
+    0.0,
+    0.53879
+   ],
+   "size": [
+    0.38504,
+    0.095,
+    0.43158
+   ]
+  },
+  {
+   "name": "TipCapTop",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    -0.31081,
+    0.0,
+    0.73806
+   ],
+   "size": [
+    0.06639,
+    0.054,
+    0.0556
+   ]
+  },
+  {
+   "name": "StringTop",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    -0.335,
+    0.0,
+    0.421
+   ],
+   "size": [
+    0.016,
+    0.01386,
+    0.622
+   ]
+  },
+  {
+   "name": "PocketBottom",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 68,
+   "center": [
+    0.037,
+    0.0,
+    -0.346
+   ],
+   "size": [
+    0.126,
+    0.162,
+    0.092
+   ]
+  },
+  {
+   "name": "BoltBottom",
+   "material": "RW_Accent",
+   "look": {
+    "material": "Metal",
+    "color": "AEB4BC"
+   },
+   "energy": false,
+   "tris": 92,
+   "center": [
+    0.035,
+    0.0,
+    -0.355
+   ],
+   "size": [
+    0.038,
+    0.184,
+    0.03291
+   ]
+  },
+  {
+   "name": "LimbBottom",
+   "material": "RW_Panel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "555C69"
+   },
+   "energy": false,
+   "tris": 208,
+   "center": [
+    -0.12552,
+    0.0,
+    -0.53879
+   ],
+   "size": [
+    0.38504,
+    0.095,
+    0.43158
+   ]
+  },
+  {
+   "name": "TipCapBottom",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    -0.31081,
+    0.0,
+    -0.73806
+   ],
+   "size": [
+    0.06639,
+    0.054,
+    0.0556
+   ]
+  },
+  {
+   "name": "StringBottom",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    -0.335,
+    0.0,
+    -0.311
+   ],
+   "size": [
+    0.016,
+    0.01386,
+    0.842
+   ]
+  },
+  {
+   "name": "Rest",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 64,
+   "center": [
+    -0.09,
+    0.0095,
+    0.0835
+   ],
+   "size": [
+    0.042,
+    0.073,
+    0.031
+   ]
+  },
+  {
+   "name": "Readout",
+   "material": "RW_Dark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.0751,
+    0.066,
+    0.16741
+   ],
+   "size": [
+    0.02716,
+    0.038,
+    0.17582
+   ]
+  },
+  {
    "name": "Charge_Energy",
-   "material": "Energy",
+   "material": "RW_Energy",
    "look": {
     "material": "Neon",
     "color": "00E5FF"
    },
    "energy": true,
-   "tris": 140,
+   "tris": 176,
    "center": [
-    -0.01,
-    0.0,
-    0.362
+    -0.08236,
+    0.066,
+    0.15311
    ],
    "size": [
-    0.205,
-    0.03705,
-    0.038
+    0.02179,
+    0.024,
+    0.12612
    ]
   },
   {
    "name": "Bounce1_Energy",
-   "material": "Energy",
+   "material": "RW_Energy",
    "look": {
     "material": "Neon",
     "color": "00E5FF"
    },
    "energy": true,
-   "tris": 80,
+   "tris": 44,
    "center": [
-    -0.21846,
-    0.036,
-    0.29009
+    -0.0743,
+    0.0745,
+    0.23371
    ],
    "size": [
-    0.0299,
-    0.03196,
-    0.02591
+    0.01085,
+    0.015,
+    0.01667
    ]
   },
   {
    "name": "Bounce2_Energy",
-   "material": "Energy",
+   "material": "RW_Energy",
    "look": {
     "material": "Neon",
     "color": "00E5FF"
    },
    "energy": true,
-   "tris": 80,
+   "tris": 44,
    "center": [
-    -0.21846,
-    -0.036,
-    0.29009
+    -0.0743,
+    0.0575,
+    0.23371
    ],
    "size": [
-    0.0299,
-    0.03196,
-    0.02591
+    0.01085,
+    0.015,
+    0.01667
    ]
   },
   {
-   "name": "Grip_Dark",
-   "material": "Dark",
+   "name": "Sensor",
+   "material": "RW_Dark",
    "look": {
     "material": "SmoothPlastic",
-    "color": "16171B"
+    "color": "1C1E23"
    },
    "energy": false,
-   "tris": 264,
+   "tris": 32,
    "center": [
-    0.0325,
-    0.0,
-    -0.1875
+    0.053,
+    0.1005,
+    0.215
    ],
    "size": [
-    0.445,
-    0.184,
-    0.515
+    0.082,
+    0.017,
+    0.07
    ]
   },
   {
-   "name": "Grip_Trim",
-   "material": "Trim",
+   "name": "SensorLens",
+   "material": "RW_Scan",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3FA9C4"
+   },
+   "energy": false,
+   "tris": 32,
+   "center": [
+    0.053,
+    0.10975,
+    0.215
+   ],
+   "size": [
+    0.058,
+    0.0075,
+    0.046
+   ]
+  },
+  {
+   "name": "Screws",
+   "material": "RW_Metal",
    "look": {
     "material": "Metal",
-    "color": "6E7480"
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 128,
+   "center": [
+    -0.02375,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.0125,
+    0.14251,
+    0.6606
+   ]
+  },
+  {
+   "name": "Dart_Head",
+   "material": "RW_Accent",
+   "look": {
+    "material": "Metal",
+    "color": "AEB4BC"
+   },
+   "energy": false,
+   "tris": 46,
+   "center": [
+    0.598,
+    0.0,
+    0.1185
+   ],
+   "size": [
+    0.098,
+    0.05889,
+    0.051
+   ]
+  },
+  {
+   "name": "Dart_Collar",
+   "material": "RW_Body",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383D48"
    },
    "energy": false,
    "tris": 60,
    "center": [
-    0.11993,
+    0.5255,
     0.0,
-    0.00295
+    0.11
    ],
    "size": [
-    0.03895,
-    0.04,
-    0.1141
+    0.071,
+    0.054,
+    0.054
    ]
   },
   {
-   "name": "Grip_Polymer",
-   "material": "Polymer",
+   "name": "Dart_Light_Energy",
+   "material": "RW_Energy",
+   "look": {
+    "material": "Neon",
+    "color": "00E5FF"
+   },
+   "energy": true,
+   "tris": 60,
+   "center": [
+    0.532,
+    0.0,
+    0.11
+   ],
+   "size": [
+    0.018,
+    0.065,
+    0.065
+   ]
+  },
+  {
+   "name": "Dart_Band",
+   "material": "RW_Metal",
+   "look": {
+    "material": "Metal",
+    "color": "62676F"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.51,
+    0.0,
+    0.11
+   ],
+   "size": [
+    0.016,
+    0.065,
+    0.065
+   ]
+  },
+  {
+   "name": "Dart_Shaft",
+   "material": "RW_Dark",
    "look": {
     "material": "SmoothPlastic",
-    "color": "2B2D31"
+    "color": "1C1E23"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    0.092,
+    0.0,
+    0.11
+   ],
+   "size": [
+    0.83,
+    0.037,
+    0.03204
+   ]
+  },
+  {
+   "name": "Dart_Fletch",
+   "material": "RW_Scan",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3FA9C4"
    },
    "energy": false,
    "tris": 144,
    "center": [
-    -0.03531,
+    -0.234,
     0.0,
-    -0.165
+    0.11
    ],
    "size": [
-    0.25303,
-    0.16,
-    0.47
+    0.162,
+    0.13364,
+    0.13364
    ]
   },
   {
-   "name": "Body_Dark",
-   "material": "Dark",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "16171B"
-   },
-   "energy": false,
-   "tris": 340,
-   "center": [
-    -0.0646,
-    0.0,
-    0.245
-   ],
-   "size": [
-    0.3892,
-    0.224,
-    0.31
-   ]
-  },
-  {
-   "name": "Body_Polymer",
-   "material": "Polymer",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "2B2D31"
-   },
-   "energy": false,
-   "tris": 136,
-   "center": [
-    -0.0625,
-    0.0,
-    0.1925
-   ],
-   "size": [
-    0.435,
-    0.21,
-    0.285
-   ]
-  },
-  {
-   "name": "Body_Gunmetal",
-   "material": "Gunmetal",
+   "name": "Dart_Nock",
+   "material": "RW_Metal",
    "look": {
     "material": "Metal",
-    "color": "4A4F57"
+    "color": "62676F"
    },
    "energy": false,
-   "tris": 204,
+   "tris": 76,
    "center": [
-    -0.04598,
-    0.03254,
-    0.27771
-   ],
-   "size": [
-    0.38999,
-    0.17892,
-    0.06359
-   ]
-  },
-  {
-   "name": "Body_Steel",
-   "material": "Steel",
-   "look": {
-    "material": "Metal",
-    "color": "9EA2A8"
-   },
-   "energy": false,
-   "tris": 192,
-   "center": [
-    -0.01,
+    -0.334,
     0.0,
-    0.16326
+    0.11
    ],
    "size": [
-    0.342,
-    0.236,
-    0.20253
-   ]
-  },
-  {
-   "name": "Body_Stencil",
-   "material": "Stencil",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "8C9096"
-   },
-   "energy": false,
-   "tris": 72,
-   "center": [
-    -0.04504,
-    0.1125,
-    0.17864
-   ],
-   "size": [
-    0.13056,
-    0.0,
-    0.028
-   ]
-  },
-  {
-   "name": "Barrel_Dark",
-   "material": "Dark",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "16171B"
-   },
-   "energy": false,
-   "tris": 120,
-   "center": [
-    0.335,
-    0.0,
-    0.2
-   ],
-   "size": [
-    0.27,
-    0.21864,
-    0.034
-   ]
-  },
-  {
-   "name": "Barrel_Polymer",
-   "material": "Polymer",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "2B2D31"
-   },
-   "energy": false,
-   "tris": 192,
-   "center": [
-    0.35,
-    0.0,
-    0.2
-   ],
-   "size": [
-    0.36,
-    0.21064,
-    0.21064
-   ]
-  },
-  {
-   "name": "Barrel_Gunmetal",
-   "material": "Gunmetal",
-   "look": {
-    "material": "Metal",
-    "color": "4A4F57"
-   },
-   "energy": false,
-   "tris": 448,
-   "center": [
-    0.4325,
-    0.0,
-    0.1965
-   ],
-   "size": [
-    0.665,
-    0.208,
-    0.283
-   ]
-  },
-  {
-   "name": "Dart_Gunmetal",
-   "material": "Gunmetal",
-   "look": {
-    "material": "Metal",
-    "color": "4A4F57"
-   },
-   "energy": false,
-   "tris": 240,
-   "center": [
-    0.765,
-    0.0,
-    0.2
-   ],
-   "size": [
-    0.172,
-    0.07989,
-    0.084
-   ]
-  },
-  {
-   "name": "Dart_Steel",
-   "material": "Steel",
-   "look": {
-    "material": "Metal",
-    "color": "9EA2A8"
-   },
-   "energy": false,
-   "tris": 136,
-   "center": [
-    0.901,
-    -0.00596,
-    0.2
-   ],
-   "size": [
-    0.108,
-    0.04807,
-    0.05446
-   ]
-  },
-  {
-   "name": "Dart_Lens",
-   "material": "Lens",
-   "look": {
-    "material": "SmoothPlastic",
-    "color": "101C24"
-   },
-   "energy": false,
-   "tris": 80,
-   "center": [
-    0.768,
-    0.0,
-    0.2
-   ],
-   "size": [
-    0.018,
-    0.08274,
-    0.087
+    0.038,
+    0.041,
+    0.041
    ]
   }
  ],
  "locators": [
+  {
+   "name": "TipTop",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.33500000834465027
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.7319999933242798
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "TipBottom",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.33500000834465027
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     -0.7319999933242798
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
   {
    "name": "Handle",
    "matrix": [
@@ -386,7 +642,7 @@
      1.0,
      0.0,
      0.0,
-     -0.02
+     -0.33500000834465027
     ],
     [
      0.0,
@@ -398,7 +654,65 @@
      0.0,
      0.0,
      1.0,
-     -0.15
+     0.10999999940395355
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Nock",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.33500000834465027
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.10999999940395355
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "NockDrawn",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.8849999904632568
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.10999999940395355
     ],
     [
      0.0,
@@ -415,7 +729,7 @@
      1.0,
      0.0,
      0.0,
-     0.765
+     0.6470000147819519
     ],
     [
      0.0,
@@ -427,7 +741,65 @@
      0.0,
      0.0,
      1.0,
-     0.2
+     0.10999999940395355
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "LimbTopPivot",
+   "matrix": [
+    [
+     -1.0,
+     8.742277657347586e-08,
+     0.0,
+     0.03500000014901161
+    ],
+    [
+     -8.742277657347586e-08,
+     -1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.35499998927116394
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "LimbBottomPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.03500000014901161
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     -0.35499998927116394
     ],
     [
      0.0,
@@ -438,5 +810,17 @@
    ]
   }
  ],
- "tris": 2928
+ "tris": 2314,
+ "bounds": {
+  "min": [
+   -0.353,
+   -0.092,
+   -0.76585
+  ],
+  "max": [
+   0.647,
+   0.1135,
+   0.76585
+  ]
+ }
 }
