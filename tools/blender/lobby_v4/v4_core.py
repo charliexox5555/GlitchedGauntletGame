@@ -112,7 +112,7 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"Glass": _L("SmoothPlastic", "#DDE2E4", t=0.9, r=0.04),
 }
 WHITE = "#F4F1EA"  # lamp light
-THEME = {"deep": "#401C99", "violet": "#6539D7", "lilac": "#C5B7D9", "pale": "#E5DDEF", "white": "#FFFDFE"}  # studio palette (owner 2026-11-16; "#FFDFE" read as #FFFDFE)
+THEME = {"deep": "#401C99", "violet": "#6539D7", "lilac": "#C5B7D9", "pale": "#E5DDEF", "white": "#FFFDFE"}  # studio palette (owner 2026-11-16)
 PAINT = {"E_Gold": "V_ThViolet", "E_Violet": "V_Violet", "E_Coral": "V_Pink", "E_Lime": "V_Lime", "E_ThViolet": "V_ThViolet", "E_ThLilac": "V_ThLilac"}  # accent -> painted twin
 
 
