@@ -70,6 +70,14 @@ local SLOTS: { Slot } = {
 	{ along = 1.35, y = 7.2, h = 2.5, w = 2.2, tip = false },
 }
 local SLOT_DEPTH = 1.8 -- tongue depth scale: as thin as the sheet's top
+-- Fire pass 2 (2026-11-16, as the Molly): Neon draws a step brighter than its
+-- colour, so FireKit's tones blew the wall out to pale yellow with glowing
+-- edges. Darker values that land on red-orange body, yellow licks, orange
+-- tongues and deep red tips.
+local WALL_SHEET = Color3.fromHex("B8360C")
+local WALL_CORE = Color3.fromHex("D9922A")
+local WALL_TONGUE = Color3.fromHex("C8430E")
+local WALL_TIP = Color3.fromHex("9A2208")
 
 type MeshWall = {
 	sheet: BasePart,
@@ -140,6 +148,36 @@ local function flames(part: BasePart, size: number, rate: number): ParticleEmitt
 	return e
 end
 
+-- The flame in a Firewall caster's hand, as others see it: our stylised
+-- faceted flame sheet (tongues curl and break off) in flat fire colours at
+-- ~14 fps, matching the mesh fire (was the realistic Molly flipbook).
+local HAND_COLOR = ColorSequence.new({
+	ColorSequenceKeypoint.new(0, Color3.fromHex("FFE7A0")),
+	ColorSequenceKeypoint.new(0.5, Color3.fromHex("FF8A2A")),
+	ColorSequenceKeypoint.new(1, Color3.fromHex("E04A12")),
+})
+local function handFlame(hand: BasePart): ParticleEmitter
+	local e = Instance.new("ParticleEmitter")
+	e.Texture = VFX.FLAME_SHEET_4x4
+	e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid4x4
+	e.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
+	e.Lifetime = NumberRange.new(0.9, 1.2)
+	e.Speed = NumberRange.new(0.1, 0.4)
+	e.EmissionDirection = Enum.NormalId.Top
+	e.SpreadAngle = Vector2.new(12, 12)
+	e.Size = curve({ 0, 0.7, 0.3, 1.2, 1, 1 })
+	e.Transparency = curve({ 0, 0, 0.77, 0, 0.89, 0.74, 1, 1 })
+	e.Rotation = NumberRange.new(-10, 10)
+	e.Color = HAND_COLOR
+	e.LightEmission = 0.2
+	e.LightInfluence = 0
+	e.Brightness = 2
+	e.Rate = 0
+	e.LockedToPart = true
+	e.Parent = hand
+	return e
+end
+
 -- The wall's sounds: the build as it starts (an ice wall crackles along its
 -- length), a loop every HUM_EVERY pieces.
 local function sound(part: BasePart, kind: string)
@@ -184,12 +222,12 @@ local function meshWall(part: BasePart): MeshWall?
 	if not sheet or not core then
 		return nil
 	end
-	sheet.Color = FireKit.SHEET
-	core.Color = FireKit.CORE
+	sheet.Color = WALL_SHEET
+	core.Color = WALL_CORE
 	local now = os.clock()
 	local made: { FireKit.Flame } = {}
 	for _, slot in SLOTS do
-		local f = FireKit.flame(if slot.tip then FireKit.TIP else FireKit.BODY, now)
+		local f = FireKit.flame(if slot.tip then WALL_TIP else WALL_TONGUE, now)
 		if f then
 			table.insert(made, f)
 		end
@@ -315,8 +353,8 @@ local function dress(part: BasePart)
 	if typeof(index) == "number" and index % 2 == 1 then
 		local l = Instance.new("PointLight")
 		l.Color = Color3.fromRGB(255, 150, 70)
-		l.Range = 14
-		l.Brightness = 2.5
+		l.Range = 10
+		l.Brightness = 1.2 -- 2.5 / 14 on every other piece washed the floor pink
 		l.Shadows = false
 		l.Parent = part
 		light = l
@@ -445,7 +483,7 @@ local function stepHands()
 			if kind == "Frost" then
 				made = coldHand(hand)
 			else
-				made = flames(hand, 0.9, 0)
+				made = handFlame(hand)
 				made.Shape = Enum.ParticleEmitterShape.Sphere
 				made.LockedToPart = true
 				made.Speed = NumberRange.new(0.5, 1.5)
@@ -454,7 +492,7 @@ local function stepHands()
 			hands[character] = h
 		end
 		if h then
-			h.emitter.Rate = if kind then (if h.kind == "Frost" then 20 else 26) else 0
+			h.emitter.Rate = if kind then (if h.kind == "Frost" then 20 else 9) else 0
 		end
 	end
 end

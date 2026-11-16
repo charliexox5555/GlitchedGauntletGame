@@ -673,29 +673,39 @@ local function flameEmitter(h: HeldMods): (Part, ParticleEmitter)
 	part.Transparency = 1
 	part.Size = Vector3.new(0.25, 0.25, 0.25)
 	local size = VM.HAND_FLAME_SIZE
+	-- Our stylised faceted flame sheet in flat fire colours at ~14 fps,
+	-- matching the mesh fire (2026-11-16; was the realistic Molly flipbook).
 	local made = Instance.new("ParticleEmitter")
-	made.Texture = VFX.MOLLY_FLAME_4x4
+	made.Texture = VFX.FLAME_SHEET_4x4
 	made.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid4x4
-	made.FlipbookMode = Enum.ParticleFlipbookMode.Loop
-	made.FlipbookFramerate = NumberRange.new(20, 24)
-	made.FlipbookStartRandom = true
+	made.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
 	made.LockedToPart = true
-	made.Lifetime = NumberRange.new(0.35, 0.55)
-	made.Speed = NumberRange.new(0.3, 0.8)
+	made.Lifetime = NumberRange.new(0.9, 1.2)
+	made.Speed = NumberRange.new(0.05, 0.2) -- the sheet's own pieces rise; faster drifted over the crosshair
 	made.EmissionDirection = Enum.NormalId.Top
-	made.SpreadAngle = Vector2.new(15, 15)
+	made.SpreadAngle = Vector2.new(12, 12)
+	made.Rotation = NumberRange.new(-10, 10)
+	-- Half the old flipbook's size: a whole sheet frame this near the camera is big.
 	made.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, size * 0.7),
-		NumberSequenceKeypoint.new(0.4, size),
+		NumberSequenceKeypoint.new(0, size * 0.35),
+		NumberSequenceKeypoint.new(0.3, size * 0.55),
 		NumberSequenceKeypoint.new(1, size * 0.5),
 	})
 	made.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0.5),
-		NumberSequenceKeypoint.new(0.2, 0.05),
+		NumberSequenceKeypoint.new(0, 0),
+		NumberSequenceKeypoint.new(0.77, 0),
+		NumberSequenceKeypoint.new(0.89, 0.74),
 		NumberSequenceKeypoint.new(1, 1),
 	})
-	made.LightEmission = 0.7
+	made.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.fromHex("FFE7A0")),
+		ColorSequenceKeypoint.new(0.5, Color3.fromHex("FF8A2A")),
+		ColorSequenceKeypoint.new(1, Color3.fromHex("E04A12")),
+	})
+	-- The sheet's darkest grey tinted to a dull red at 1.2: lifted.
+	made.LightEmission = 0.2
 	made.LightInfluence = 0
+	made.Brightness = 2
 	made.Rate = 0
 	made.Parent = part
 	local light = Instance.new("PointLight")
@@ -832,7 +842,7 @@ function ViewmodelHeldMods.stepFreeHand(
 		h.steerX = 0
 	end
 	if flame then
-		flame.Rate = if pose and not hidden then 40 else 0
+		flame.Rate = if pose and not hidden then 12 else 0 -- one-shot sheets living ~1 s (was 40 of a looping flipbook)
 	end
 end
 

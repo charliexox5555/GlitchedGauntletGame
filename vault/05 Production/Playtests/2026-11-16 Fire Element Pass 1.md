@@ -21,7 +21,9 @@ Owner: "the visual effects look horrible, the ones before were better". Side by 
 
 Still from pass 1 and live: Fork Fire's split accent (`FireFx.split`) and burning bodies (`FireFx.setBurning`), neither seen in Play yet. No team ring on the fire now (the spec wants one; a cyan neon ring fought the fire).
 
-**Waiting on the owner:** play the Molly and say if pass 2 is the fire to keep. Then Firewall gets the same treatment.
+**Firewall (same night, captures 7-10):** the same fix. The wall (FireKit sheet, core licks, tongues) blew out to pale yellow with glowing edges and washed the floor pink: darker Neon tones (`WallFx` `WALL_SHEET B8360C`, `WALL_CORE D9922A`, `WALL_TONGUE C8430E`, `WALL_TIP 9A2208`) give a red-orange body, saturated yellow licks and red tips; the light is 1.2 / range 10 (was 2.5 / 14). Grade ~5 → ~8. The hand flame (yours and others') was the realistic Molly flipbook: now our faceted flame sheet in flat fire colours, ~14 fps, half size, slow rise (`ViewmodelHeldMods.flameEmitter`, `WallFx.handFlame`). Grade ~4 → ~6.5.
+
+**Waiting on the owner:** play the Molly and the Firewall and say if this fire is the one to keep.
 
 ## Captures (`2026-11-16 fire captures/`)
 | File | What |
