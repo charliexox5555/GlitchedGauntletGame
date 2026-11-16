@@ -11,7 +11,7 @@ Layout: `src/shared` (ReplicatedStorage.Shared), `src/server` (match place serve
 | `Aim` (unreliable) | client → server | `WeaponService` |
 | `WeaponState`, `HitConfirm`, `Damaged`, `Killed` | server → client | `WeaponService` |
 | `ShotFx` (unreliable) | server → other clients | `WeaponService` → `EffectsController`, `GripController` |
-| `ModHold`, `ModUse`, `ModSteer`, `ModRecall` | client → server | `ModService` |
+| `ModHold`, `ModUse`, `ModSteer`, `ModRecall`, `ModTrigger` (a second press on a Mod already out: Roller's Remote) | client → server | `ModService` |
 | `ModFx` | server → all clients | `ModService` → `ModFxController`, `ModFeelController` |
 | `ModReveal` | server → caster's team | `ModService` (Recon) |
 | `ModSim` | client → server: a predicted Mod's event (`Cast`, `Slam`, `Land`, with slot and data); the report path while Server Authority is off | `ModSim` |
@@ -57,7 +57,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `Simulation/Poses.luau` | third-person pose and leg tracks (holds by pitch, run set, sprint upper body by weapon kind in step with the legs, crouch, slide, one-shots); a client poses its own character, the server its bots (about 700 l). Clips: `Config/Animations`, keyed in `tools/anim/tp_clips.py` |
 | `Simulation/Pawns.luau` | gives bots a stand-in owner so the simulations drive them |
 | `Mods/init.luau` | Mod registry: `def(id)`, `stats(id, level)`, `module(id)` |
-| `Mods/<Ability>.luau` | one per ability: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall. Predicted hooks in `Mods/Types.luau`: `simPress` (Updraft), `simReport` (Dash: Ghost window and gun-down gate; Updraft: follows each flight, deals the slam damage) |
+| `Mods/<Ability>.luau` | one per ability: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall, ShockDart, Flash, Roller (the free pack, 2026-11-17; Roller moves its server bots every Heartbeat and has the `trigger` hook). Predicted hooks in `Mods/Types.luau`: `simPress` (Updraft), `simReport` (Dash: Ghost window and gun-down gate; Updraft: follows each flight, deals the slam damage) |
 | `Mods/Blocks/*` | reusable parts: Projectile (deterministic arc), Placeable, Target, Zone, Reveal, Rewind, SelfBuff, Dash |
 | `Mods/Charges`, `Mods/Status`, `Mods/Teams`, `Mods/Types` | per-round charges, status reads, ally checks (`Teams.isAlly`), types |
 | `Util/` | `Spread`, `Accuracy` (Gunplay v2 spread), `Damage` (falloff), `FireRate`, `Spring`, `Validate`, `RateLimit`, `Ease` (smooth/out/lerp/approach: use it, don't redefine easing), `Fighters` (players' bodies + bots: `bodies()`, `all()`, `bodyOfPart()`) |
@@ -80,7 +80,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `Services/Weapon/` (no init/start, required by WeaponService) | `Hits` (per-hit validation with rewind, damage tally), `Motion` (motion samples, `spreadBand`, the Dash gate, `gunDown`), `Damage` (guards, modifiers, `hurt`, `applyDamage`, `damage`, `damageBy`, `onHit`), `Targets` (live humanoids, hitbox owners, wall exclusions), `WorldModel` (the third-person gun) |
 | `Services/HitboxHistory` | last second of each root position, for lag compensation |
 | `Services/HealthService` | the game's own HP / downed state |
-| `Services/StatusService` | status effects (Hindered, Stunned…), the only writer of expiry attributes; healing (`HealingUntil`, `HealingSource`, 2026-11-15) |
+| `Services/StatusService` | status effects (Hindered, Stunned…), the only writer of expiry attributes; healing (`HealingUntil`, `HealingSource`, 2026-11-15); Blinded (`blind`: `BlindedUntil`, `BlindStrength`, `BlindedAt`, Flash, 2026-11-17) |
 | `Services/ModSim` | (2026-11-15) the report path for predicted Mods while Server Authority is off: checks `ModSim` reports, keeps the server's own charge count, relays them as `ModSimFx`; bound from `ModService.start` |
 | `Services/StatsService` | per-fighter eliminations, deaths, assists, damage; answers `Scoreboard` (live lines + kits); sends the victim `CombatReport` (damage vs their killer this life) |
 | `Services/ModService` (1050 l) | each player's 3 Mod slots, charges, cooldowns, checks for `ModHold/Use/Steer/Recall`, sends `ModFx`; clears at round end (`clearRound`) |
@@ -129,6 +129,9 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `CharacterFxController`, `DeathFxController`, `MapLifeController` | slide dust, the fake-death body copy, ambient map life |
 | `SpectateController` | death camera and first-person spectating; desktop shows the killed-by card and spectate bar through `Util/DeathScreen` (Studio-built `StarterGui.DeathScreen`); `ReplayController`: final-kill replay (`Replay`) |
 | `MatchEndController` → `Util/MatchEndScreen` (2026-11-14) | desktop match end screen: fills the Studio-built `StarterGui.MatchEndScreen` (templates `UiTemplates.MatchEnd`; result, round history from `MatchRoundHistory`, scoreboard, your build, PLAY AGAIN / REMATCH / LEAVE, name plates over the winners); backup `tools/studio/BuildMatchEndScreen.luau` |
+| `Util/BlastFx` (2026-11-17) | the free pack's world blasts on the rework kit: Shock Dart burst, Roller blast, Flash pop (stepped by ModFxController) |
+| `Util/FlashFx` (2026-11-17) | the Flash white-out on the blinded player's screen (plates in a CanvasGroup, muffled sound), from the character's `BlindedUntil` / `BlindStrength` / `BlindedAt` (StatusService.blind) |
+| `Util/RollerFx` (2026-11-17) | draws each Roller: the finished model follows the server part, wheels, eye on `LockedAt` / `WarnAt`, its hum |
 | `Util/StatusTray` (2026-11-14) | the status tray: your effects as icons with draining 24-segment rings + the Mod hint, in the Studio-built `StarterGui.StatusTray`; fed by ModHudController (hint), ModFeelController (Revealed), UpgradeFx/Recall (Crash Recovery); reads the `*Until` attributes and `BarrierHits` |
 | `ScoreboardController` (2026-11-14) | hold Tab: live stats + builds in the Studio-built `StarterGui.Scoreboard`; asks `Scoreboard` (StatsService answers that client, rate-limited) |
 | `KillFeedController` (2026-11-14) | the kill feed and the kill pop (glitch shard, 5-kill ring) in the Studio-built `StarterGui.KillFeed` (row template `UiTemplates.KillFeed.Row`), from `Killed`; desktop only; `Util/KillFeed` keeps the kill sounds; backup `tools/studio/BuildFeedScreens.luau` |

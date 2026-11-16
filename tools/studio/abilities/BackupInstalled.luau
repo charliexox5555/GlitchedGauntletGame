@@ -12,7 +12,7 @@ local HttpService = game:GetService("HttpService")
 local SerializationService = game:GetService("SerializationService")
 local EncodingService = game:GetService("EncodingService")
 
-for _, id in { "Molly", "Frost", "Recon", "ReconDart", "Stim", "Recall", "ReworkVFX" } do
+for _, id in { "Molly", "Frost", "Recon", "ReconDart", "Stim", "Recall", "ReworkVFX", "ShockDart", "ShockBolt", "Flash", "Roller" } do
 	local model = game:GetService("ReplicatedStorage").Abilities:FindFirstChild(id)
 	if not model then
 		warn(id, "missing")

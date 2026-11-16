@@ -16,7 +16,8 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Mods.md` (15): the 9 abilities, controls, activation types, A/B/Glitch paths
 - `01 Design/Abilities/00 Abilities.md` (8): base ability redesign overview and build prompt
 - `01 Design/Abilities/<Dash|Updraft|Molly|Firewall|Frost|Recon|Heal Orb|Stim|Recall>.md` (10–16 each): the locked spec of that ability (numbers, behaviour, VFX/sound)
-- `01 Design/Abilities/Upgrade Paths.md` (11): L2/L3 paths A/B/Glitch for all 9 abilities
+- `01 Design/Abilities/Upgrade Paths.md` (11): L2/L3 paths A/B/Glitch for all 12 abilities
+- `01 Design/Abilities/<Shock Dart|Flash|Roller>.md` (3–4 each): the free pack, built 2026-11-17 (numbers, how it's built, sounds, bots, counter-play)
 - `01 Design/Bots.md` (23): AI bots: seats, brain, perception, aim, Mods, tuning
 - `01 Design/Match Avatar.md` (11): the standard body for players, bots and dummies
 - `01 Design/Third Person Overhaul.md` (19): 2026-11-12, built: why players weren't posed (Server Authority off), the block body and how its clothing is drawn, the accessory rule, the 40 re-authored clips and the `tools/anim` rig, per-gun findings; §7 second pass: research links, Toolbox findings, the jitter measurement, rifle stance, spring recoil, self-grade, what is not verified
@@ -119,6 +120,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Playtests/2026-11-15 Gunplay Feel RIVALS.md`: RIVALS-style hit marker (kite blades, shrink spring), faceted headshot crown burst, crosshair slide tilt / air / Dash / bloom / ADS collapse, springy slide roll, RIVALS tracer timing; RIVALS numbers, grades, test list, parked calls.
 - `04 Tech/Prompts/2026-11-17 New Abilities (Free Pack).md`: **locked spec** for three new free Mods (Roller bot, Flash, Shock Dart): every level's numbers, the owner's 8 decisions, build order and per-Mod steps. Not built yet.
 - `05 Production/Handoff - New Abilities.md`: paste-to-start handoff for building those three Mods: phases (Shock Dart, Flash, Roller, finish), rules, gotchas from the rework.
+- `05 Production/Playtests/2026-11-17 Free Pack Build.md`: Shock Dart, Flash and Roller built and checked in Play at their levels; the fixes found in the test, grades, what still needs the 2-client test.
 - `05 Production/Playtests/2026-11-16 Effects Pass Overnight.md`: the overnight pass over every ability effect after fire (ice, then the rest), before / after grades and captures, the capture recipe on the shared effects clock.
 - `05 Production/Playtests/2026-11-16 Recon Bow Draw.md`: the Recon bow's limbs were installed backwards (fixed in Studio + builder `turnY`); first-person hold rebuilt as a left-hand bow with a right-hand two-hand draw; the geometry rules behind the numbers.
 - `05 Production/Playtests/2026-11-16 Fire Element Pass 1.md`: rework fire (ReworkVfx kit + FireFx): Molly patch, Fork Fire split, burning bodies; greyscale and colour captures, spec deviations waiting on the owner, how to freeze and capture through the MCP.

@@ -165,3 +165,12 @@ L1: plant an anchor (free), press within 40 studs to teleport to it (0.6 s wind-
 | **B3 Long Range** | **80 studs** (200%). |
 | **G2 Crash Recovery** ⚡ | Passive: the first time you'd die in a round **while within 40 studs of your anchor**, you're pulled back to it at **1 HP** instead. Then the anchor breaks. Only works if the anchor is still standing. |
 | **G3 Crash Recovery** ⚡ | You arrive with **40 HP** instead of 1. |
+
+## 10-12. The free pack (Roller T, Flash Q, Shock Dart E): decided 2026-11-17
+Built 2026-11-17; full numbers in each note: [Roller](Roller.md), [Flash](Flash.md), [Shock Dart](Shock%20Dart.md).
+
+| Mod | A | B | G ⚡ |
+|---|---|---|---|
+| **Roller** (T) | More Bots: 2, then 4 a round | Faster: 125% for 7 s, then 150% for 10 s | Remote: press T again to blow it up; G3 + 7 s recharge, 125%, 7 s |
+| **Flash** (Q) | More Flashes: 2, then 3 a round | Recharge: 15 s, then 6 s | Exposure: reveals instead of blinding, 3 s + 15 s recharge; G3 5 s and through one wall |
+| **Shock Dart** (E) | Recharge: 15 s, then 6 s | More Darts: 2 (42 → 21), then 4 (36 → 18) | Static: Hinder 2 s instead of damage + 15 s recharge; G3 Hinder 3 s, 7 studs |

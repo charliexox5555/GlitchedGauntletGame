@@ -37,7 +37,7 @@ type Tracked = {
 	last: Vector3, -- the part's position last frame (speed estimate)
 	velocity: Vector3,
 	roll: number, -- radians the wheels have turned
-	hum: any,
+	hum: Sound?,
 	lockedSeen: any,
 	warnSeen: any,
 	color: Color3,
@@ -179,12 +179,30 @@ function RollerFx.track(part: BasePart, color: Color3)
 		last = part.Position,
 		velocity = Vector3.zero,
 		roll = 0,
-		hum = ModAudio.hum(S.Roller.roll, model.PrimaryPart or eye or part),
+		hum = nil,
 		lockedSeen = part:GetAttribute("LockedAt"),
 		warnSeen = part:GetAttribute("WarnAt"),
 		color = color,
 	}
 	tracked[part] = entry
+	-- Its own looping Sound (not ModAudio's pool): it goes with the model.
+	local cue = S.Roller.roll
+	local hum = Instance.new("Sound")
+	hum.SoundId = cue.id
+	hum.Looped = true
+	hum.Volume = cue.volume
+	hum.PlaybackSpeed = cue.pitch or 1
+	hum.RollOffMode = Enum.RollOffMode.InverseTapered
+	hum.RollOffMinDistance = 6
+	hum.RollOffMaxDistance = cue.range or 35
+	local loopEnd = cue.loopEnd
+	if loopEnd then
+		hum.PlaybackRegionsEnabled = true
+		hum.LoopRegion = NumberRange.new(cue.start or 0, loopEnd)
+	end
+	hum.Parent = model.PrimaryPart or eye or model:FindFirstChildWhichIsA("BasePart")
+	hum:Play()
+	entry.hum = hum
 	ModAudio.play(S.Roller.place, part.Position)
 	part.AncestryChanged:Connect(function()
 		if not part:IsDescendantOf(Workspace) then
@@ -199,8 +217,7 @@ function RollerFx.untrack(part: BasePart)
 		return
 	end
 	tracked[part] = nil
-	ModAudio.stopHum(entry.hum)
-	entry.model:Destroy()
+	entry.model:Destroy() -- its hum too
 end
 
 function RollerFx.step(dt: number)

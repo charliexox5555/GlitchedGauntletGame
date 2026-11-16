@@ -19,9 +19,9 @@ We're redesigning the **base (L1) version** of each of the 9 Mods, one at a time
 | 7 | [Heal Orb](Heal%20Orb.md) | Patch Up | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
 | 8 | [Stim](Stim.md) | Overclock | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
 | 9 | [Recall](Recall.md) | Rollback | ✅ locked 2026-10-29 | ✅ 2026-10-29 |
-| 10 | Roller (T) | new, free pack | ✅ locked 2026-11-17: [spec](../../04%20Tech/Prompts/2026-11-17%20New%20Abilities%20(Free%20Pack).md), [handoff](../../05%20Production/Handoff%20-%20New%20Abilities.md) | — |
-| 11 | Flash (Q) | new, free pack | ✅ locked 2026-11-17 (same spec) | — |
-| 12 | Shock Dart (E) | new, free pack | ✅ locked 2026-11-17 (same spec) | — |
+| 10 | [Roller](Roller.md) (T) | new, free pack | ✅ locked 2026-11-17: [spec](../../04%20Tech/Prompts/2026-11-17%20New%20Abilities%20(Free%20Pack).md) | ✅ 2026-11-17 |
+| 11 | [Flash](Flash.md) (Q) | new, free pack | ✅ locked 2026-11-17 (same spec) | ✅ 2026-11-17 |
+| 12 | [Shock Dart](Shock%20Dart.md) (E) | new, free pack | ✅ locked 2026-11-17 (same spec) | ✅ 2026-11-17 |
 
 L2/L3 upgrade paths and fixed keys per ability: in review in [Upgrade Paths](Upgrade%20Paths.md) (started 2026-11-03).
 

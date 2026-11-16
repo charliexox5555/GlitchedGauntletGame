@@ -1,5 +1,7 @@
 # Handoff: build the three new free Mods (2026-11-17)
 
+**Status: done 2026-11-17** (the owner said "when I get back I want all of the powers to be done"). What was built and what is left: [playtest](Playtests/2026-11-17%20Free%20Pack%20Build.md). Left for the owner: save the match place, the 2-client test, ChatGPT icons, Blender props if wanted.
+
 For a new chat on **Opus 5.5**, once Studio is free. The spec is locked; this note is how to build it without re-exploring.
 
 **Paste this to start the new chat:**

@@ -364,8 +364,8 @@ function BlastFx.roller(at: Vector3, radius: number, color: Color3)
 	local flat = surfaceFrame(floorAt, Vector3.yAxis) * CFrame.Angles(0, math.random() * math.pi, 0)
 	local hot = Color3.fromHex("FFE2B8")
 	glow(at, Tex.MOD_SPARKLE, Color3.fromHex("FFF4E0"), radius * 1.6, radius * 0.6, 0.14)
-	glow(at, Tex.MOD_GLOW, Color3.fromHex("FFB060"), radius * 1.4, radius * 2.2, 0.32, 0.25)
-	light(at, Color3.fromHex("FFD9A8"), 8, radius * 4, 0.35)
+	glow(at, Tex.MOD_GLOW, Color3.fromHex("FFB060"), radius * 1.2, radius * 1.8, 0.28, 0.55)
+	light(at, Color3.fromHex("FFD9A8"), 3, radius * 2.5, 0.3)
 	piece(
 		"FX_FloorStar",
 		flat,

@@ -1,6 +1,6 @@
 # New abilities for the free pack: brainstorm and build brief (2026-11-17)
 
-**Status: spec locked 2026-11-17 (the owner accepted every proposal below). Nothing is built yet.** Studio is busy with other work; the build starts from [Handoff - New Abilities](../../05%20Production/Handoff%20-%20New%20Abilities.md). Every "proposed" number and name in this note is now the spec.
+**Status: spec locked 2026-11-17 (the owner accepted every proposal below); built the same day** ([playtest](../../05%20Production/Playtests/2026-11-17%20Free%20Pack%20Build.md); notes [Roller](../../01%20Design/Abilities/Roller.md), [Flash](../../01%20Design/Abilities/Flash.md), [Shock Dart](../../01%20Design/Abilities/Shock%20Dart.md)). Two calls made in the build are in the Roller note (when the warning starts, stopping at the target). Every "proposed" number and name in this note is now the spec.
 
 The owner wants three new Mods, free for everybody, joining the nine in [Abilities](../../01%20Design/Abilities/00%20Abilities.md): a **bot that rolls out and blows up**, a **flash**, and a **shock dart** fired from a bow like Recon's. The owner's paths are below as given, then turned into our level format (L1, A2/A3, B2/B3, G2/G3) with proposed numbers.
 
