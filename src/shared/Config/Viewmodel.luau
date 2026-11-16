@@ -1123,11 +1123,13 @@ return table.freeze({
 	-- forearm running in under it.
 	ITEM_HOLDS = table.freeze({
 		Molly = {
+			scale = 1.3, -- at 1 the canister read small, perched on the forearm's end (2026-11-16)
 			offset = Vector3.new(0.56, -0.72, -2),
 			rotation = Vector3.new(12, -22, -6),
 			lift = Vector3.new(0, 0.13, 0),
 		},
 		Frost = {
+			scale = 1.3,
 			offset = Vector3.new(0.56, -0.82, -2.05),
 			rotation = Vector3.new(10, -20, -6),
 			lift = Vector3.new(0, 0.17, 0),

@@ -17,3 +17,20 @@ Before: a flat floor ring plus the `ScanRing` band at full team colour, which bl
 
 ## Impact (Crash Down) — not reviewed
 Blocked: Updraft casts but the body doesn't rise in a fresh Play (Bugs & Ideas U1; another session's uncommitted `Simulation/Movement.luau`), so there is no slam to look at.
+
+## Healing (Heal Orb) — ~6.5, left as is
+The held orb (glowing core with orbit rings above the fist) and the self-heal screen cue (soft green edges + HEALING status) both read (captures `hold Heal Orb`, `heal self screen`). Not changed tonight; the heal-on-others leaves and Heal Zone were not seen.
+
+## First-person holds — grades
+| Mod | Grade | Notes |
+|---|---|---|
+| Recon (bow) | 3 → 7 | Rebuilt; see [Recon Bow Draw](2026-11-16%20Recon%20Bow%20Draw.md) |
+| Molly | 6 → 7 | Canister scaled 1.3 (`ITEM_HOLDS.Molly.scale`): at 1 it read small, perched on the forearm's end |
+| Frost | 6 → 7 | Same, scale 1.3 |
+| Firewall hand flame | 4 → 6.5 | Stylised flame sheet (fire note) |
+| Heal Orb | 6 | Unchanged |
+| Stim, Recall, Dash, Updraft | not graded | Stim is instant, Recall's plant and Updraft were not reached (Updraft bug U1) |
+
+## Not done tonight
+- **Third-person poses and animations** can't be judged from one client (your own body is hidden in first person and dummies don't use Mods): needs the owner's 2-client test (handoff step 7).
+- Impact (Crash Down, blocked by U1), teleport (Recall), shield (Barrier), Stim, the Dash / Updraft wind seen by others.
