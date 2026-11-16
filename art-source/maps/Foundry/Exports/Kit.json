@@ -1,0 +1,714 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "Catwalk30": {
+   "props": {},
+   "parts": [
+    "Catwalk30_FD_SteelDark",
+    "Catwalk30_FD_Steel",
+    "Catwalk30_FD_Hazard"
+   ]
+  },
+  "ChannelBridge": {
+   "props": {},
+   "parts": [
+    "ChannelBridge_FD_SteelDark",
+    "ChannelBridge_FD_Steel",
+    "ChannelBridge_FD_Hazard"
+   ]
+  },
+  "CoilStack": {
+   "props": {},
+   "parts": [
+    "CoilStack_FD_Ingot",
+    "CoilStack_FD_SteelDark"
+   ]
+  },
+  "Furnace": {
+   "props": {},
+   "parts": [
+    "Furnace_FD_Concrete",
+    "Furnace_FD_Rust",
+    "Furnace_FD_SteelDark",
+    "Furnace_FD_MoltenGlow",
+    "Furnace_FD_Hazard",
+    "Furnace_FD_Steel"
+   ]
+  },
+  "Hopper": {
+   "props": {},
+   "parts": [
+    "Hopper_FD_SteelDark",
+    "Hopper_FD_Steel",
+    "Hopper_FD_Rust"
+   ]
+  },
+  "IngotStack20x5": {
+   "props": {},
+   "parts": [
+    "IngotStack20x5_FD_Rust",
+    "IngotStack20x5_FD_Ingot"
+   ]
+  },
+  "LadleCart": {
+   "props": {},
+   "parts": [
+    "LadleCart_FD_SteelDark",
+    "LadleCart_FD_Steel",
+    "LadleCart_FD_Rust",
+    "LadleCart_FD_MoltenGlow"
+   ]
+  },
+  "MouldRow": {
+   "props": {},
+   "parts": [
+    "MouldRow_FD_SteelDark",
+    "MouldRow_FD_Steel",
+    "MouldRow_FD_Rust"
+   ]
+  },
+  "Press": {
+   "props": {},
+   "parts": [
+    "Press_FD_Concrete",
+    "Press_FD_SteelDark",
+    "Press_FD_Steel",
+    "Press_FD_Hazard"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "Catwalk30",
+   "name": "Catwalk30_FD_SteelDark",
+   "material": "FD_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E434A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    1.2
+   ],
+   "size": [
+    5.0,
+    30.0,
+    2.4
+   ]
+  },
+  {
+   "piece": "Catwalk30",
+   "name": "Catwalk30_FD_Steel",
+   "material": "FD_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A6068"
+   },
+   "glow": false,
+   "tris": 360,
+   "center": [
+    0.0,
+    0.0,
+    4.3
+   ],
+   "size": [
+    5.0,
+    30.0,
+    3.8
+   ]
+  },
+  {
+   "piece": "Catwalk30",
+   "name": "Catwalk30_FD_Hazard",
+   "material": "FD_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9A23A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -2.35,
+    0.0,
+    3.2
+   ],
+   "size": [
+    0.3,
+    30.0,
+    0.4
+   ]
+  },
+  {
+   "piece": "ChannelBridge",
+   "name": "ChannelBridge_FD_SteelDark",
+   "material": "FD_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E434A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    10.0,
+    10.0,
+    1.0
+   ]
+  },
+  {
+   "piece": "ChannelBridge",
+   "name": "ChannelBridge_FD_Steel",
+   "material": "FD_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A6068"
+   },
+   "glow": false,
+   "tris": 272,
+   "center": [
+    0.0,
+    0.0,
+    2.6
+   ],
+   "size": [
+    9.5,
+    9.9,
+    3.2
+   ]
+  },
+  {
+   "piece": "ChannelBridge",
+   "name": "ChannelBridge_FD_Hazard",
+   "material": "FD_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9A23A"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    1.25
+   ],
+   "size": [
+    9.5,
+    10.0,
+    0.5
+   ]
+  },
+  {
+   "piece": "CoilStack",
+   "name": "CoilStack_FD_Ingot",
+   "material": "FD_Ingot",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A9AEB5"
+   },
+   "glow": false,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    4.9
+   ],
+   "size": [
+    4.52701,
+    4.52701,
+    9.8
+   ]
+  },
+  {
+   "piece": "CoilStack",
+   "name": "CoilStack_FD_SteelDark",
+   "material": "FD_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E434A"
+   },
+   "glow": false,
+   "tris": 112,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    4.6194,
+    4.6194,
+    7.6
+   ]
+  },
+  {
+   "piece": "Furnace",
+   "name": "Furnace_FD_Concrete",
+   "material": "FD_Concrete",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8C9096"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.0
+   ],
+   "size": [
+    20.0,
+    30.0,
+    4.0
+   ]
+  },
+  {
+   "piece": "Furnace",
+   "name": "Furnace_FD_Rust",
+   "material": "FD_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7A5440"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    13.0
+   ],
+   "size": [
+    19.02113,
+    20.0,
+    18.0
+   ]
+  },
+  {
+   "piece": "Furnace",
+   "name": "Furnace_FD_SteelDark",
+   "material": "FD_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E434A"
+   },
+   "glow": false,
+   "tris": 120,
+   "center": [
+    -1.57612,
+    0.0,
+    23.0
+   ],
+   "size": [
+    18.84776,
+    21.69552,
+    46.0
+   ]
+  },
+  {
+   "piece": "Furnace",
+   "name": "Furnace_FD_MoltenGlow",
+   "material": "FD_MoltenGlow",
+   "look": {
+    "material": "Neon",
+    "color": "FF7A2A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    -11.2,
+    0.0,
+    6.0
+   ],
+   "size": [
+    0.4,
+    6.0,
+    6.0
+   ]
+  },
+  {
+   "piece": "Furnace",
+   "name": "Furnace_FD_Hazard",
+   "material": "FD_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9A23A"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    6.0,
+    0.0,
+    40.75
+   ],
+   "size": [
+    3.97268,
+    21.97268,
+    1.5
+   ]
+  },
+  {
+   "piece": "Furnace",
+   "name": "Furnace_FD_Steel",
+   "material": "FD_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A6068"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    10.0,
+    16.0
+   ],
+   "size": [
+    5.18528,
+    9.19768,
+    24.55727
+   ]
+  },
+  {
+   "piece": "Hopper",
+   "name": "Hopper_FD_SteelDark",
+   "material": "FD_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E434A"
+   },
+   "glow": false,
+   "tris": 140,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    9.2388,
+    9.2388,
+    10.0
+   ]
+  },
+  {
+   "piece": "Hopper",
+   "name": "Hopper_FD_Steel",
+   "material": "FD_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A6068"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    2.5
+   ],
+   "size": [
+    1.84776,
+    1.84776,
+    2.0
+   ]
+  },
+  {
+   "piece": "Hopper",
+   "name": "Hopper_FD_Rust",
+   "material": "FD_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7A5440"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    6.45
+   ],
+   "size": [
+    9.05402,
+    9.05402,
+    5.9
+   ]
+  },
+  {
+   "piece": "IngotStack20x5",
+   "name": "IngotStack20x5_FD_Rust",
+   "material": "FD_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7A5440"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.4
+   ],
+   "size": [
+    20.0,
+    5.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "IngotStack20x5",
+   "name": "IngotStack20x5_FD_Ingot",
+   "material": "FD_Ingot",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "A9AEB5"
+   },
+   "glow": false,
+   "tris": 396,
+   "center": [
+    0.0,
+    0.0,
+    4.775
+   ],
+   "size": [
+    20.0,
+    5.0,
+    7.95
+   ]
+  },
+  {
+   "piece": "LadleCart",
+   "name": "LadleCart_FD_SteelDark",
+   "material": "FD_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E434A"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    4.65
+   ],
+   "size": [
+    10.0,
+    6.28238,
+    9.3
+   ]
+  },
+  {
+   "piece": "LadleCart",
+   "name": "LadleCart_FD_Steel",
+   "material": "FD_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A6068"
+   },
+   "glow": false,
+   "tris": 80,
+   "center": [
+    0.0,
+    0.0,
+    4.8
+   ],
+   "size": [
+    9.8,
+    4.0,
+    6.4
+   ]
+  },
+  {
+   "piece": "LadleCart",
+   "name": "LadleCart_FD_Rust",
+   "material": "FD_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7A5440"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    5.4
+   ],
+   "size": [
+    5.91283,
+    5.91283,
+    6.4
+   ]
+  },
+  {
+   "piece": "LadleCart",
+   "name": "LadleCart_FD_MoltenGlow",
+   "material": "FD_MoltenGlow",
+   "look": {
+    "material": "Neon",
+    "color": "FF7A2A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    9.375
+   ],
+   "size": [
+    5.17373,
+    5.17373,
+    0.15
+   ]
+  },
+  {
+   "piece": "MouldRow",
+   "name": "MouldRow_FD_SteelDark",
+   "material": "FD_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E434A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    5.0,
+    15.0,
+    1.0
+   ]
+  },
+  {
+   "piece": "MouldRow",
+   "name": "MouldRow_FD_Steel",
+   "material": "FD_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A6068"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    5.5
+   ],
+   "size": [
+    4.8,
+    15.0,
+    9.0
+   ]
+  },
+  {
+   "piece": "MouldRow",
+   "name": "MouldRow_FD_Rust",
+   "material": "FD_Rust",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7A5440"
+   },
+   "glow": false,
+   "tris": 176,
+   "center": [
+    0.0,
+    0.0,
+    5.525
+   ],
+   "size": [
+    4.4,
+    12.4,
+    8.25
+   ]
+  },
+  {
+   "piece": "Press",
+   "name": "Press_FD_Concrete",
+   "material": "FD_Concrete",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8C9096"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.6
+   ],
+   "size": [
+    10.0,
+    15.0,
+    1.2
+   ]
+  },
+  {
+   "piece": "Press",
+   "name": "Press_FD_SteelDark",
+   "material": "FD_SteelDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E434A"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    5.6
+   ],
+   "size": [
+    10.0,
+    15.0,
+    8.8
+   ]
+  },
+  {
+   "piece": "Press",
+   "name": "Press_FD_Steel",
+   "material": "FD_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A6068"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    7.2,
+    13.4,
+    6.0
+   ]
+  },
+  {
+   "piece": "Press",
+   "name": "Press_FD_Hazard",
+   "material": "FD_Hazard",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9A23A"
+   },
+   "glow": false,
+   "tris": 76,
+   "center": [
+    -0.75,
+    -0.6,
+    2.43373
+   ],
+   "size": [
+    7.9,
+    12.07593,
+    2.13254
+   ]
+  }
+ ],
+ "tris": 2748
+}

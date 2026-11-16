@@ -160,8 +160,45 @@ META = {
 KIND_LOOK = {"full": "cover", "baffle": "cover", "low": "low", "pillar": "pillar", "deck": "deck2", "plinth": "low",
              "ramp": "ramp", "bridge": "bridge", "decor": "default"}
 
-# map -> [(row name prefix, kit piece, extra)]; filled as each theme's kit lands
-PIECES: dict = {}
+# map -> [(row name prefix, kit piece, extra)]; filled as each theme's kit lands. First match wins, so a longer
+# prefix that must not take a piece ("Penthouse stair") comes before the shorter one ("Penthouse").
+PIECES: dict = {
+    "Rooftops": [
+        ("Stair hut", "StairHut", {}), ("AC unit", "ACUnit", {}), ("Water tank", "WaterTank", {}), ("Roof shed", "RoofShed", {}),
+        ("Vent stack", "VentStack", {}), ("Parapet", "Parapet", {}), ("Penthouse stair", "", {}), ("Penthouse", "Penthouse", {}),
+        ("Bridge mid", "SteelBridge", {}), ("Bridge east", "PlankBridge", {}), ("Bridge west", "PlankBridge", {}),
+        ("Billboard", "Billboard", {}), ("Skylight", "Skylight", {}), ("Duct run", "DuctRun", {}),
+    ],
+    "Courtyard": [
+        ("Clock tower", "ClockTower", {}), ("Tower steps", "TowerSteps", {}), ("Gate wall", "GateWall20", {}),
+        ("Arcade walk", "Arcade40", {}), ("Arcade pier", "ArcadePier", {}), ("Arcade stair", "", {}),
+        ("Stall N", "Stall15x5", {}), ("Stall S", "Stall10x15", {}), ("Stall W", "Stall10x5", {}), ("Stall E", "Stall15x5", {}),
+        ("Planter", "Planter", {}), ("Well", "Well", {}), ("Cart", "Cart", {}), ("Crates", "Crates", {}),
+    ],
+    "OldTown": [
+        ("Clock tower", "ClockTower", {}), ("Tower steps", "TowerSteps", {}), ("Gate wall", "GateWall30", {}),
+        ("Block NW", "Block40", {}), ("Block NE", "Block30", {}), ("Block W", "Block30", {}),
+        ("Arcade walk", "Arcade20", {}), ("Arcade stair", "", {}), ("Arcade pier", "ArcadePier", {}),
+        ("Stall A", "Stall15x5", {}), ("Stall B", "Stall5x15", {}), ("Planter", "Planter", {}), ("Fountain", "Fountain", {}),
+        ("Cart", "Cart", {}), ("Barrels", "Barrels", {}), ("Well", "Well", {}),
+    ],
+    "Foundry": [
+        ("Ingot stack", "IngotStack20x5", {}), ("Catwalk stair", "", {}), ("Catwalk post", "", {}), ("Catwalk", "Catwalk30", {}),
+        ("Press", "Press", {}), ("Mould row", "MouldRow", {}), ("Hopper", "Hopper", {}), ("Ladle cart", "LadleCart", {}),
+        ("Coil stack", "CoilStack", {}), ("Bridge", "ChannelBridge", {}),
+    ],
+    "Snowpeak": [
+        ("Lodge roof", "LodgeRoof", {}), ("Hearth", "Hearth", {}), ("Lodge wall N", "LodgeWall10x5", {}),
+        ("Lodge wall E", "LodgeWall5x10", {}), ("Woodpile", "Woodpile20x5", {}), ("Pine", "Pine", {}), ("Snowbank", "Snowbank", {}),
+        ("Ski rack", "SkiRack", {}), ("Sled shed", "SledShed", {}), ("Woodshed", "Woodshed", {}), ("Porch", "Porch", {}),
+    ],
+}
+META_PROPS = {
+    # piece, x, z, y, yaw, mirrored
+    "Rooftops": [["TowerCrane", 62, -20, 0, 0, False]],
+    "Foundry": [["Furnace", 60, 0, 0, 0, False]],
+    "Snowpeak": [["GondolaStation", 68, 78, 0, 0, False]],
+}
 
 
 def _rise(ramp: Box, rows: list) -> str:
@@ -204,7 +241,7 @@ def data(plan: Plan) -> dict:
         "hx": max(xs), "hz": max(zs), "ceiling": m["ceiling"], "killDepth": m["killDepth"], "kit": m.get("kit"),
         "center": len(plan.center), "rows": rows, "spawns": [list(s) for s in plan.spawns_a],
         "looks": m["looks"], "textures": TEX, "lighting": m["lighting"], "atmosphere": m.get("atmosphere", {}),
-        "props": m.get("props", []),
+        "props": m.get("props", META_PROPS.get(plan.name, [])),
     }
     for k in ("roof", "under", "water"):
         if k in m:

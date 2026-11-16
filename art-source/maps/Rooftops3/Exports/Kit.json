@@ -1,0 +1,1042 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "ACUnit": {
+   "props": {},
+   "parts": [
+    "ACUnit_RT_ConcreteDark",
+    "ACUnit_RT_White",
+    "ACUnit_RT_Trim",
+    "ACUnit_RT_Steel"
+   ]
+  },
+  "Billboard": {
+   "props": {},
+   "parts": [
+    "Billboard_RT_Steel",
+    "Billboard_RT_Trim",
+    "Billboard_RT_Orange",
+    "Billboard_RT_White"
+   ]
+  },
+  "DuctRun": {
+   "props": {},
+   "parts": [
+    "DuctRun_RT_Trim",
+    "DuctRun_RT_White"
+   ]
+  },
+  "Parapet": {
+   "props": {},
+   "parts": [
+    "Parapet_RT_ConcreteDark",
+    "Parapet_RT_Trim"
+   ]
+  },
+  "Penthouse": {
+   "props": {},
+   "parts": [
+    "Penthouse_RT_ConcreteDark",
+    "Penthouse_RT_Concrete",
+    "Penthouse_RT_Trim",
+    "Penthouse_RT_Glass"
+   ]
+  },
+  "PlankBridge": {
+   "props": {},
+   "parts": [
+    "PlankBridge_RT_Steel",
+    "PlankBridge_RT_Wood"
+   ]
+  },
+  "RoofShed": {
+   "props": {},
+   "parts": [
+    "RoofShed_RT_ConcreteDark",
+    "RoofShed_RT_Concrete",
+    "RoofShed_RT_Trim",
+    "RoofShed_RT_Steel"
+   ]
+  },
+  "Skylight": {
+   "props": {},
+   "parts": [
+    "Skylight_RT_ConcreteDark",
+    "Skylight_RT_Glass",
+    "Skylight_RT_Trim"
+   ]
+  },
+  "StairHut": {
+   "props": {},
+   "parts": [
+    "StairHut_RT_ConcreteDark",
+    "StairHut_RT_Concrete",
+    "StairHut_RT_Trim",
+    "StairHut_RT_Steel",
+    "StairHut_RT_LampGlow"
+   ]
+  },
+  "SteelBridge": {
+   "props": {},
+   "parts": [
+    "SteelBridge_RT_Steel",
+    "SteelBridge_RT_Trim",
+    "SteelBridge_RT_Orange"
+   ]
+  },
+  "TowerCrane": {
+   "props": {},
+   "parts": [
+    "TowerCrane_RT_Trim",
+    "TowerCrane_RT_Orange",
+    "TowerCrane_RT_Steel",
+    "TowerCrane_RT_Glass"
+   ]
+  },
+  "VentStack": {
+   "props": {},
+   "parts": [
+    "VentStack_RT_ConcreteDark",
+    "VentStack_RT_Steel",
+    "VentStack_RT_Trim"
+   ]
+  },
+  "WaterTank": {
+   "props": {},
+   "parts": [
+    "WaterTank_RT_Steel",
+    "WaterTank_RT_Tank",
+    "WaterTank_RT_Trim",
+    "WaterTank_RT_Orange"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "ACUnit",
+   "name": "ACUnit_RT_ConcreteDark",
+   "material": "RT_ConcreteDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8F9399"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    10.0,
+    10.0,
+    1.0
+   ]
+  },
+  {
+   "piece": "ACUnit",
+   "name": "ACUnit_RT_White",
+   "material": "RT_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E9E6DE"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    5.2
+   ],
+   "size": [
+    9.4,
+    9.4,
+    8.4
+   ]
+  },
+  {
+   "piece": "ACUnit",
+   "name": "ACUnit_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 588,
+   "center": [
+    0.0,
+    0.0,
+    6.0
+   ],
+   "size": [
+    10.0,
+    10.0,
+    8.0
+   ]
+  },
+  {
+   "piece": "ACUnit",
+   "name": "ACUnit_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    9.825
+   ],
+   "size": [
+    8.49552,
+    3.69552,
+    0.25
+   ]
+  },
+  {
+   "piece": "Billboard",
+   "name": "Billboard_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 156,
+   "center": [
+    0.0,
+    0.0,
+    5.775
+   ],
+   "size": [
+    15.0,
+    18.0,
+    18.45
+   ]
+  },
+  {
+   "piece": "Billboard",
+   "name": "Billboard_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    -0.6,
+    9.0
+   ],
+   "size": [
+    15.0,
+    0.8,
+    12.0
+   ]
+  },
+  {
+   "piece": "Billboard",
+   "name": "Billboard_RT_Orange",
+   "material": "RT_Orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9772E"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    -1.1,
+    9.0
+   ],
+   "size": [
+    14.0,
+    0.3,
+    11.0
+   ]
+  },
+  {
+   "piece": "Billboard",
+   "name": "Billboard_RT_White",
+   "material": "RT_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E9E6DE"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    -0.8,
+    -1.295,
+    9.0
+   ],
+   "size": [
+    7.4,
+    0.05,
+    6.0
+   ]
+  },
+  {
+   "piece": "DuctRun",
+   "name": "DuctRun_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 112,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    7.8,
+    4.6,
+    3.0
+   ]
+  },
+  {
+   "piece": "DuctRun",
+   "name": "DuctRun_RT_White",
+   "material": "RT_White",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E9E6DE"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    1.9
+   ],
+   "size": [
+    10.0,
+    4.0,
+    2.2
+   ]
+  },
+  {
+   "piece": "Parapet",
+   "name": "Parapet_RT_ConcreteDark",
+   "material": "RT_ConcreteDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8F9399"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    1.2
+   ],
+   "size": [
+    15.0,
+    4.0,
+    2.4
+   ]
+  },
+  {
+   "piece": "Parapet",
+   "name": "Parapet_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    2.7
+   ],
+   "size": [
+    15.0,
+    5.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_RT_ConcreteDark",
+   "material": "RT_ConcreteDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8F9399"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.4
+   ],
+   "size": [
+    20.0,
+    30.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_RT_Concrete",
+   "material": "RT_Concrete",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B7B9BE"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    5.0
+   ],
+   "size": [
+    19.4,
+    29.4,
+    8.4
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 168,
+   "center": [
+    0.0,
+    0.0,
+    5.4
+   ],
+   "size": [
+    20.0,
+    30.0,
+    9.2
+   ]
+  },
+  {
+   "piece": "Penthouse",
+   "name": "Penthouse_RT_Glass",
+   "material": "RT_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D4C5C"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    5.25
+   ],
+   "size": [
+    19.856,
+    23.3,
+    4.8
+   ]
+  },
+  {
+   "piece": "PlankBridge",
+   "name": "PlankBridge_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    0.3
+   ],
+   "size": [
+    9.4,
+    15.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "PlankBridge",
+   "name": "PlankBridge_RT_Wood",
+   "material": "RT_Wood",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "7A5A40"
+   },
+   "glow": false,
+   "tris": 420,
+   "center": [
+    0.0,
+    0.0,
+    0.8
+   ],
+   "size": [
+    10.0,
+    14.9,
+    0.4
+   ]
+  },
+  {
+   "piece": "RoofShed",
+   "name": "RoofShed_RT_ConcreteDark",
+   "material": "RT_ConcreteDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8F9399"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.3
+   ],
+   "size": [
+    10.0,
+    10.0,
+    0.6
+   ]
+  },
+  {
+   "piece": "RoofShed",
+   "name": "RoofShed_RT_Concrete",
+   "material": "RT_Concrete",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B7B9BE"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.0,
+    4.6
+   ],
+   "size": [
+    9.2,
+    9.2,
+    8.0
+   ]
+  },
+  {
+   "piece": "RoofShed",
+   "name": "RoofShed_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    -0.125,
+    4.8
+   ],
+   "size": [
+    10.0,
+    9.45,
+    8.4
+   ]
+  },
+  {
+   "piece": "RoofShed",
+   "name": "RoofShed_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    9.3
+   ],
+   "size": [
+    10.0,
+    10.0,
+    1.4
+   ]
+  },
+  {
+   "piece": "Skylight",
+   "name": "Skylight_RT_ConcreteDark",
+   "material": "RT_ConcreteDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8F9399"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.7
+   ],
+   "size": [
+    10.0,
+    10.0,
+    1.4
+   ]
+  },
+  {
+   "piece": "Skylight",
+   "name": "Skylight_RT_Glass",
+   "material": "RT_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D4C5C"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    2.15
+   ],
+   "size": [
+    8.8,
+    8.8,
+    1.5
+   ]
+  },
+  {
+   "piece": "Skylight",
+   "name": "Skylight_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    2.185
+   ],
+   "size": [
+    8.80492,
+    8.75646,
+    1.65946
+   ]
+  },
+  {
+   "piece": "StairHut",
+   "name": "StairHut_RT_ConcreteDark",
+   "material": "RT_ConcreteDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8F9399"
+   },
+   "glow": false,
+   "tris": 112,
+   "center": [
+    0.0,
+    0.0,
+    4.6
+   ],
+   "size": [
+    20.0,
+    10.0,
+    9.2
+   ]
+  },
+  {
+   "piece": "StairHut",
+   "name": "StairHut_RT_Concrete",
+   "material": "RT_Concrete",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B7B9BE"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    4.9
+   ],
+   "size": [
+    19.2,
+    9.4,
+    8.2
+   ]
+  },
+  {
+   "piece": "StairHut",
+   "name": "StairHut_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 240,
+   "center": [
+    0.0,
+    0.0,
+    5.4
+   ],
+   "size": [
+    20.0,
+    10.0,
+    9.2
+   ]
+  },
+  {
+   "piece": "StairHut",
+   "name": "StairHut_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    -4.85,
+    3.85
+   ],
+   "size": [
+    4.2,
+    0.2,
+    6.1
+   ]
+  },
+  {
+   "piece": "StairHut",
+   "name": "StairHut_RT_LampGlow",
+   "material": "RT_LampGlow",
+   "look": {
+    "material": "Neon",
+    "color": "E8D7B0"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    -4.95,
+    8.05
+   ],
+   "size": [
+    1.0,
+    0.1,
+    0.5
+   ]
+  },
+  {
+   "piece": "SteelBridge",
+   "name": "SteelBridge_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.5
+   ],
+   "size": [
+    10.0,
+    15.0,
+    1.0
+   ]
+  },
+  {
+   "piece": "SteelBridge",
+   "name": "SteelBridge_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 524,
+   "center": [
+    0.0,
+    0.0,
+    2.6
+   ],
+   "size": [
+    9.5,
+    14.7,
+    3.2
+   ]
+  },
+  {
+   "piece": "SteelBridge",
+   "name": "SteelBridge_RT_Orange",
+   "material": "RT_Orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9772E"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    9.6,
+    14.8,
+    0.2
+   ]
+  },
+  {
+   "piece": "TowerCrane",
+   "name": "TowerCrane_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    6.5,
+    0.0,
+    18.0
+   ],
+   "size": [
+    21.0,
+    8.0,
+    96.0
+   ]
+  },
+  {
+   "piece": "TowerCrane",
+   "name": "TowerCrane_RT_Orange",
+   "material": "RT_Orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9772E"
+   },
+   "glow": false,
+   "tris": 1356,
+   "center": [
+    -25.98591,
+    0.0,
+    21.425
+   ],
+   "size": [
+    88.04816,
+    4.5,
+    99.15
+   ]
+  },
+  {
+   "piece": "TowerCrane",
+   "name": "TowerCrane_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    -18.55,
+    0.0,
+    54.0
+   ],
+   "size": [
+    43.1,
+    6.0,
+    24.0
+   ]
+  },
+  {
+   "piece": "TowerCrane",
+   "name": "TowerCrane_RT_Glass",
+   "material": "RT_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3D4C5C"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    5.5,
+    0.0,
+    61.8
+   ],
+   "size": [
+    0.2,
+    4.0,
+    2.4
+   ]
+  },
+  {
+   "piece": "VentStack",
+   "name": "VentStack_RT_ConcreteDark",
+   "material": "RT_ConcreteDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8F9399"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.8
+   ],
+   "size": [
+    5.0,
+    5.0,
+    1.6
+   ]
+  },
+  {
+   "piece": "VentStack",
+   "name": "VentStack_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    5.8
+   ],
+   "size": [
+    2.95641,
+    2.95641,
+    8.4
+   ]
+  },
+  {
+   "piece": "VentStack",
+   "name": "VentStack_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 84,
+   "center": [
+    0.0,
+    0.0,
+    6.5
+   ],
+   "size": [
+    4.06507,
+    4.06507,
+    6.2
+   ]
+  },
+  {
+   "piece": "WaterTank",
+   "name": "WaterTank_RT_Steel",
+   "material": "RT_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "4E545C"
+   },
+   "glow": false,
+   "tris": 188,
+   "center": [
+    0.0,
+    0.0,
+    2.0
+   ],
+   "size": [
+    8.6,
+    8.6,
+    4.0
+   ]
+  },
+  {
+   "piece": "WaterTank",
+   "name": "WaterTank_RT_Tank",
+   "material": "RT_Tank",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E7C88"
+   },
+   "glow": false,
+   "tris": 36,
+   "center": [
+    0.0,
+    0.0,
+    6.3
+   ],
+   "size": [
+    8.55951,
+    9.0,
+    4.6
+   ]
+  },
+  {
+   "piece": "WaterTank",
+   "name": "WaterTank_RT_Trim",
+   "material": "RT_Trim",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "6E737B"
+   },
+   "glow": false,
+   "tris": 144,
+   "center": [
+    0.0,
+    0.0,
+    7.35
+   ],
+   "size": [
+    9.03504,
+    9.5,
+    4.9
+   ]
+  },
+  {
+   "piece": "WaterTank",
+   "name": "WaterTank_RT_Orange",
+   "material": "RT_Orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D9772E"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    9.9
+   ],
+   "size": [
+    1.03923,
+    1.2,
+    0.2
+   ]
+  }
+ ],
+ "tris": 5584
+}

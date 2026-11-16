@@ -1,0 +1,949 @@
+{
+ "group": "Kit",
+ "axes": "blender (+X east, +Y north, +Z up), 1 unit = 1 stud, piece origin at 0; Roblox = (x, z, -y)",
+ "pieces": {
+  "GondolaStation": {
+   "props": {},
+   "parts": [
+    "GondolaStation_SP_Steel",
+    "GondolaStation_SP_LogDark",
+    "GondolaStation_SP_Red",
+    "GondolaStation_SP_Glass",
+    "GondolaStation_SP_Snow"
+   ]
+  },
+  "Hearth": {
+   "props": {},
+   "parts": [
+    "Hearth_SP_Stone",
+    "Hearth_SP_LogDark"
+   ]
+  },
+  "LodgeRoof": {
+   "props": {},
+   "parts": [
+    "LodgeRoof_SP_LogDark",
+    "LodgeRoof_SP_Snow",
+    "LodgeRoof_SP_WarmGlow",
+    "LodgeRoof_SP_Red"
+   ]
+  },
+  "LodgeWall10x5": {
+   "props": {},
+   "parts": [
+    "LodgeWall10x5_SP_Stone",
+    "LodgeWall10x5_SP_LogDark",
+    "LodgeWall10x5_SP_Log",
+    "LodgeWall10x5_SP_Red",
+    "LodgeWall10x5_SP_WarmGlow"
+   ]
+  },
+  "LodgeWall5x10": {
+   "props": {},
+   "parts": [
+    "LodgeWall5x10_SP_Stone",
+    "LodgeWall5x10_SP_LogDark",
+    "LodgeWall5x10_SP_Log",
+    "LodgeWall5x10_SP_Red"
+   ]
+  },
+  "Pine": {
+   "props": {},
+   "parts": [
+    "Pine_SP_LogDark",
+    "Pine_SP_Pine",
+    "Pine_SP_Snow"
+   ]
+  },
+  "Porch": {
+   "props": {},
+   "parts": [
+    "Porch_SP_LogDark",
+    "Porch_SP_Log"
+   ]
+  },
+  "SkiRack": {
+   "props": {},
+   "parts": [
+    "SkiRack_SP_LogDark",
+    "SkiRack_SP_Red"
+   ]
+  },
+  "SledShed": {
+   "props": {},
+   "parts": [
+    "SledShed_SP_Stone",
+    "SledShed_SP_Red",
+    "SledShed_SP_LogDark",
+    "SledShed_SP_Snow"
+   ]
+  },
+  "Snowbank": {
+   "props": {},
+   "parts": [
+    "Snowbank_SP_Snow",
+    "Snowbank_SP_Stone"
+   ]
+  },
+  "Woodpile20x5": {
+   "props": {},
+   "parts": [
+    "Woodpile20x5_SP_LogDark",
+    "Woodpile20x5_SP_Log",
+    "Woodpile20x5_SP_Red"
+   ]
+  },
+  "Woodshed": {
+   "props": {},
+   "parts": [
+    "Woodshed_SP_Stone",
+    "Woodshed_SP_Log",
+    "Woodshed_SP_LogDark",
+    "Woodshed_SP_Snow"
+   ]
+  }
+ },
+ "parts": [
+  {
+   "piece": "GondolaStation",
+   "name": "GondolaStation_SP_Steel",
+   "material": "SP_Steel",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5A6068"
+   },
+   "glow": false,
+   "tris": 184,
+   "center": [
+    55.72669,
+    0.0,
+    35.05651
+   ],
+   "size": [
+    128.65338,
+    13.2,
+    70.11303
+   ]
+  },
+  {
+   "piece": "GondolaStation",
+   "name": "GondolaStation_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    0.0,
+    0.0,
+    20.25
+   ],
+   "size": [
+    20.0,
+    16.0,
+    12.5
+   ]
+  },
+  {
+   "piece": "GondolaStation",
+   "name": "GondolaStation_SP_Red",
+   "material": "SP_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B33A2E"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    16.4,
+    0.0,
+    21.0
+   ],
+   "size": [
+    50.8,
+    14.0,
+    12.0
+   ]
+  },
+  {
+   "piece": "GondolaStation",
+   "name": "GondolaStation_SP_Glass",
+   "material": "SP_Glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "3E4E5E"
+   },
+   "glow": false,
+   "tris": 76,
+   "center": [
+    17.125,
+    -3.614,
+    21.275
+   ],
+   "size": [
+    49.55,
+    7.228,
+    9.85
+   ]
+  },
+  {
+   "piece": "GondolaStation",
+   "name": "GondolaStation_SP_Snow",
+   "material": "SP_Snow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2F5F8"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    24.65
+   ],
+   "size": [
+    19.2,
+    15.2,
+    4.3
+   ]
+  },
+  {
+   "piece": "Hearth",
+   "name": "Hearth_SP_Stone",
+   "material": "SP_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 72,
+   "center": [
+    0.0,
+    0.0,
+    12.0
+   ],
+   "size": [
+    5.6,
+    5.6,
+    24.0
+   ]
+  },
+  {
+   "piece": "Hearth",
+   "name": "Hearth_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    -2.5,
+    1.5
+   ],
+   "size": [
+    3.2,
+    0.1,
+    3.0
+   ]
+  },
+  {
+   "piece": "LodgeRoof",
+   "name": "LodgeRoof_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 40,
+   "center": [
+    0.0,
+    0.0,
+    5.4
+   ],
+   "size": [
+    42.4,
+    32.4,
+    10.8
+   ]
+  },
+  {
+   "piece": "LodgeRoof",
+   "name": "LodgeRoof_SP_Snow",
+   "material": "SP_Snow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2F5F8"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    5.975
+   ],
+   "size": [
+    42.0,
+    32.0,
+    10.35
+   ]
+  },
+  {
+   "piece": "LodgeRoof",
+   "name": "LodgeRoof_SP_WarmGlow",
+   "material": "SP_WarmGlow",
+   "look": {
+    "material": "Neon",
+    "color": "F2C98A"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    4.25
+   ],
+   "size": [
+    39.7,
+    4.0,
+    3.5
+   ]
+  },
+  {
+   "piece": "LodgeRoof",
+   "name": "LodgeRoof_SP_Red",
+   "material": "SP_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B33A2E"
+   },
+   "glow": false,
+   "tris": 48,
+   "center": [
+    0.0,
+    0.0,
+    5.15
+   ],
+   "size": [
+    41.3,
+    32.67557,
+    11.11721
+   ]
+  },
+  {
+   "piece": "LodgeWall10x5",
+   "name": "LodgeWall10x5_SP_Stone",
+   "material": "SP_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.6
+   ],
+   "size": [
+    10.0,
+    5.0,
+    1.2
+   ]
+  },
+  {
+   "piece": "LodgeWall10x5",
+   "name": "LodgeWall10x5_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 140,
+   "center": [
+    0.0,
+    0.0,
+    5.69
+   ],
+   "size": [
+    10.0,
+    5.0,
+    8.98
+   ]
+  },
+  {
+   "piece": "LodgeWall10x5",
+   "name": "LodgeWall10x5_SP_Log",
+   "material": "SP_Log",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A5A3C"
+   },
+   "glow": false,
+   "tris": 140,
+   "center": [
+    0.0,
+    0.0,
+    6.69
+   ],
+   "size": [
+    9.7,
+    4.7,
+    8.98
+   ]
+  },
+  {
+   "piece": "LodgeWall10x5",
+   "name": "LodgeWall10x5_SP_Red",
+   "material": "SP_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B33A2E"
+   },
+   "glow": false,
+   "tris": 100,
+   "center": [
+    0.0,
+    0.0,
+    8.5
+   ],
+   "size": [
+    10.0,
+    5.24,
+    7.0
+   ]
+  },
+  {
+   "piece": "LodgeWall10x5",
+   "name": "LodgeWall10x5_SP_WarmGlow",
+   "material": "SP_WarmGlow",
+   "look": {
+    "material": "Neon",
+    "color": "F2C98A"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    6.7
+   ],
+   "size": [
+    3.2,
+    5.32,
+    2.6
+   ]
+  },
+  {
+   "piece": "LodgeWall5x10",
+   "name": "LodgeWall5x10_SP_Stone",
+   "material": "SP_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.6
+   ],
+   "size": [
+    5.0,
+    10.0,
+    1.2
+   ]
+  },
+  {
+   "piece": "LodgeWall5x10",
+   "name": "LodgeWall5x10_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 140,
+   "center": [
+    0.0,
+    0.0,
+    5.69
+   ],
+   "size": [
+    5.0,
+    10.0,
+    8.98
+   ]
+  },
+  {
+   "piece": "LodgeWall5x10",
+   "name": "LodgeWall5x10_SP_Log",
+   "material": "SP_Log",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A5A3C"
+   },
+   "glow": false,
+   "tris": 140,
+   "center": [
+    0.0,
+    0.0,
+    6.69
+   ],
+   "size": [
+    4.7,
+    9.7,
+    8.98
+   ]
+  },
+  {
+   "piece": "LodgeWall5x10",
+   "name": "LodgeWall5x10_SP_Red",
+   "material": "SP_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B33A2E"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    11.6
+   ],
+   "size": [
+    5.0,
+    10.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "Pine",
+   "name": "Pine_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    0.0,
+    0.0,
+    2.4
+   ],
+   "size": [
+    0.72053,
+    0.832,
+    4.8
+   ]
+  },
+  {
+   "piece": "Pine",
+   "name": "Pine_SP_Pine",
+   "material": "SP_Pine",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "2F5E45"
+   },
+   "glow": false,
+   "tris": 96,
+   "center": [
+    -0.12874,
+    0.0,
+    10.342
+   ],
+   "size": [
+    4.94252,
+    5.06963,
+    14.924
+   ]
+  },
+  {
+   "piece": "Pine",
+   "name": "Pine_SP_Snow",
+   "material": "SP_Snow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2F5F8"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    -0.05942,
+    0.0,
+    15.2
+   ],
+   "size": [
+    2.28116,
+    2.33983,
+    2.0
+   ]
+  },
+  {
+   "piece": "Porch",
+   "name": "Porch_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.75
+   ],
+   "size": [
+    10.0,
+    5.0,
+    1.5
+   ]
+  },
+  {
+   "piece": "Porch",
+   "name": "Porch_SP_Log",
+   "material": "SP_Log",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A5A3C"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    -0.85,
+    2.25
+   ],
+   "size": [
+    9.2,
+    3.3,
+    1.5
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 68,
+   "center": [
+    0.0,
+    0.0,
+    1.3
+   ],
+   "size": [
+    0.6,
+    9.4,
+    2.6
+   ]
+  },
+  {
+   "piece": "SkiRack",
+   "name": "SkiRack_SP_Red",
+   "material": "SP_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B33A2E"
+   },
+   "glow": false,
+   "tris": 60,
+   "center": [
+    -0.85,
+    0.15,
+    1.525
+   ],
+   "size": [
+    2.07727,
+    8.00956,
+    3.01554
+   ]
+  },
+  {
+   "piece": "SledShed",
+   "name": "SledShed_SP_Stone",
+   "material": "SP_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.4
+   ],
+   "size": [
+    15.0,
+    10.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "SledShed",
+   "name": "SledShed_SP_Red",
+   "material": "SP_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B33A2E"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    14.4,
+    9.4,
+    6.8
+   ]
+  },
+  {
+   "piece": "SledShed",
+   "name": "SledShed_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 388,
+   "center": [
+    0.0,
+    0.0,
+    5.375
+   ],
+   "size": [
+    15.0,
+    10.0,
+    9.15
+   ]
+  },
+  {
+   "piece": "SledShed",
+   "name": "SledShed_SP_Snow",
+   "material": "SP_Snow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2F5F8"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    9.075
+   ],
+   "size": [
+    14.8,
+    9.8,
+    2.25
+   ]
+  },
+  {
+   "piece": "Snowbank",
+   "name": "Snowbank_SP_Snow",
+   "material": "SP_Snow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2F5F8"
+   },
+   "glow": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    1.5
+   ],
+   "size": [
+    15.0,
+    5.0,
+    3.0
+   ]
+  },
+  {
+   "piece": "Snowbank",
+   "name": "Snowbank_SP_Stone",
+   "material": "SP_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 20,
+   "center": [
+    5.5,
+    1.4,
+    0.6
+   ],
+   "size": [
+    1.55885,
+    1.8,
+    1.2
+   ]
+  },
+  {
+   "piece": "Woodpile20x5",
+   "name": "Woodpile20x5_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    4.5
+   ],
+   "size": [
+    19.8,
+    4.4,
+    9.0
+   ]
+  },
+  {
+   "piece": "Woodpile20x5",
+   "name": "Woodpile20x5_SP_Log",
+   "material": "SP_Log",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A5A3C"
+   },
+   "glow": false,
+   "tris": 1300,
+   "center": [
+    -0.25,
+    0.0,
+    3.4
+   ],
+   "size": [
+    18.6778,
+    4.2,
+    6.76
+   ]
+  },
+  {
+   "piece": "Woodpile20x5",
+   "name": "Woodpile20x5_SP_Red",
+   "material": "SP_Red",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B33A2E"
+   },
+   "glow": false,
+   "tris": 12,
+   "center": [
+    0.0,
+    0.0,
+    9.3
+   ],
+   "size": [
+    20.0,
+    5.0,
+    1.4
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_SP_Stone",
+   "material": "SP_Stone",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8E949B"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    0.4
+   ],
+   "size": [
+    10.0,
+    10.0,
+    0.8
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_SP_Log",
+   "material": "SP_Log",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "8A5A3C"
+   },
+   "glow": false,
+   "tris": 28,
+   "center": [
+    0.0,
+    0.0,
+    4.2
+   ],
+   "size": [
+    9.4,
+    9.4,
+    6.8
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_SP_LogDark",
+   "material": "SP_LogDark",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "5F3E2A"
+   },
+   "glow": false,
+   "tris": 276,
+   "center": [
+    0.0,
+    0.0,
+    5.375
+   ],
+   "size": [
+    10.0,
+    10.0,
+    9.15
+   ]
+  },
+  {
+   "piece": "Woodshed",
+   "name": "Woodshed_SP_Snow",
+   "material": "SP_Snow",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "F2F5F8"
+   },
+   "glow": false,
+   "tris": 24,
+   "center": [
+    0.0,
+    0.0,
+    9.075
+   ],
+   "size": [
+    9.8,
+    9.8,
+    2.25
+   ]
+  }
+ ],
+ "tris": 4104
+}
