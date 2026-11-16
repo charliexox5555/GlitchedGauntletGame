@@ -297,4 +297,62 @@ return table.freeze({
 		-- ... and "Glass Breaks 17"
 		destroyedBreak = cue(9114593205, 0.4, 1.2, nil, 40, 0.4),
 	}),
+	-- Free pack hooks (vault/01 Design/Abilities/Shock Dart.md, Flash.md,
+	-- Roller.md → Sound). Placeholders reusing ids above (ProSoundEffects,
+	-- unauditioned), listed in each note for the audition pass.
+	ShockDart = table.freeze({
+		-- the bow: Recon's own cues (same bow, same hands)
+		equip = cue(9114004483, 0.5, 1.05, nil, nil, 1.6, 0.18),
+		charge = cue(9117882920, 0.5, 1.15, true, nil, nil, 0.25, 2),
+		bounceSelect = cue(9118727210, 0.6, 1.1, nil, nil, 0.15, 0.2),
+		fire = cue(9114659666, 0.7, 1.2, nil, nil, 0.22),
+		throw = cue(9114659666, 0.6, 1.2, nil, 40, 0.22),
+		throwLob = cue(9114659666, 0.6, 1.2, nil, 40, 0.22),
+		flight = cue(9125363711, 0.6, 1.25, true, 40, nil, 0.8, 1.5),
+		bounce = cue(9118168962, 0.5, 1.3, nil, 40, 0.3, 0.14),
+		-- ShockDart_Burst: 3D, ~60 studs. "Static Zap Blast 2" ...
+		burst = cue(9119594571, 0.9, 1, nil, 60, 0.6, 0.6),
+		-- ... and "Lightning Flashes Quick Electrical Bursts 56" (the crack)
+		burstCrack = cue(9116279560, 0.7, 1.15, nil, 60, 0.45),
+		-- ShockDart_Static (G): "Static Zap Mix Reverberant Bursts 3"
+		static = cue(9119595114, 0.6, 1.05, nil, 50, 0.6, 0.4),
+	}),
+	Flash = table.freeze({
+		-- Flash_Equip: you. "Gun From Holster 1", higher
+		equip = cue(9114701864, 0.45, 1.25, nil, nil, 0.6),
+		-- Flash_Throw: 3D at the hand. Molly's overhand / underhand
+		throw = cue(9126013811, 0.5, 1, nil, 40, 0.4, 0.1),
+		throwLob = cue(9126283272, 0.35, 0.95, nil, 40, nil, 0.18),
+		-- Flash_Flight: 3D. a short whine: "Power Up Accelerating Motors 3", fast
+		flight = cue(9117882661, 0.35, 1.8, true, 35, nil, 0.8, 1.4),
+		-- Flash_Bounce: 3D. "Canister Drop Canister Impact 3"
+		bounce = cue(9113704875, 0.55, 1.2, nil, 40, 0.5, 0.08),
+		-- Flash_Pop: 3D, ~70 studs. "Grenade Launcher 2" pitched up, a sharp pop
+		pop = cue(9114659666, 1, 1.6, nil, 70, 0.3),
+		-- Flash_Blinded: you, 2D, the low thump under the white-out. "Meaty Thud 7"
+		blinded = cue(9116488211, 0.5, 0.7, nil, nil, 0.6),
+		-- Flash_Exposure (G): 3D. the sonar throb, short
+		exposure = cue(9125981390, 0.7, 1.2, nil, 60, 1, 0.05),
+	}),
+	Roller = table.freeze({
+		-- Roller_Equip: you. "Crossbow Movement Latches 13"
+		equip = cue(9114004483, 0.5, 0.9, nil, nil, 1.6, 0.18),
+		-- Roller_Place: 3D. "Metal Box Set Down Metal Drawer 1"
+		place = cue(9116527569, 0.7, 1.15, nil, 40, 0.35),
+		-- Roller_Roll: 3D loop on the bot, ~35 studs. "Power Up Accelerating Motors 1" held
+		roll = cue(9117882920, 0.4, 1.4, true, 35, nil, 0.9, 2),
+		-- Roller_Lock: 3D, ~50 studs. "Car Alarm Chirp 1"
+		lock = cue(9113719080, 0.7, 1.3, nil, 50, 0.35, 0.14),
+		-- Roller_Warn: 3D. the chirp again, faster
+		warn = cue(9113719080, 0.8, 1.6, nil, 50, 0.4, 0.14),
+		-- Roller_Boom: 3D, ~90 studs. "Meaty Thud 7" ...
+		boom = cue(9116488211, 1, 0.75, nil, 90, 1),
+		-- ... and "Fire Whoosh 2" (the blast)
+		boomBlast = cue(9114442751, 0.8, 1.1, nil, 80),
+		-- Roller_Fizzle: 3D. "Static Many Various Length Bursts 24"
+		fizzle = cue(9119583983, 0.5, 0.9, nil, 40, 0.5),
+		-- Roller_Destroyed: 3D. Recon's broken-dart pair
+		destroyed = cue(9119594871, 0.6, 0.9, nil, 40),
+		destroyedBreak = cue(9116264240, 0.4, 1, nil, 40, 0.6, 0.08),
+	}),
 })

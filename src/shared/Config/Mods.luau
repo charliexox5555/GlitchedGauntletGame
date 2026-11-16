@@ -527,6 +527,214 @@ local defs: { [string]: ModDef } = {
 			},
 		},
 	},
+	-- The free pack (vault/04 Tech/Prompts/2026-11-17 New Abilities (Free Pack).md,
+	-- spec locked 2026-11-17; spec notes in vault/01 Design/Abilities/).
+	-- Shock Dart: Recon's bow and flight, but the bolt explodes where it lands
+	-- (Mods/ShockDart). Damage falls from `damage` at the centre to
+	-- `edgeDamage` at `radius`; line of sight from the impact; none to you,
+	-- FRIENDLY_FIRE of it to your team.
+	ShockDart = {
+		id = "ShockDart",
+		name = "Shock Dart",
+		role = "Damage",
+		slot = 2, -- E, like Recon (same bow: you never hold both)
+		paths = { A = "Recharge", B = "More Darts", G = "Static" },
+		block = "Projectile",
+		activation = "HeldCharge",
+		authority = "Server",
+		icon = "rbxassetid://72311263273723", -- stand-in (tools/icons/make_free_pack_icons.py) until the ChatGPT icon
+		glyph = "SD",
+		hint = { primary = "Hold: charge", alt = "Bounces" },
+		levels = {
+			L1 = {
+				note = "Shock dart: Recon's bow; the bolt explodes where it lands, 50 → 25 over 5 studs",
+				cooldown = 0, -- 1 per round, no recharge
+				charges = 1,
+				chargeTime = 1, -- Recon's flight from here to maxFlight
+				minSpeed = 45,
+				maxSpeed = 130,
+				lift = 0.04,
+				gravity = 45,
+				size = 0.15,
+				restitution = 0.85,
+				friction = 0.9,
+				maxBounces = 2,
+				maxFlight = 3,
+				radius = 5,
+				damage = 50, -- at the centre
+				edgeDamage = 25, -- at `radius`
+			},
+			A2 = { note = "Recharge: the dart comes back 15 s after use", cooldown = 15 },
+			A3 = { note = "Recharge: the dart comes back 6 s after use", cooldown = 6 },
+			B2 = {
+				note = "More Darts: 2 darts a round, 42 → 21 damage",
+				charges = 2,
+				damage = 42,
+				edgeDamage = 21,
+			},
+			B3 = {
+				note = "More Darts: 4 darts a round, 36 → 18 damage",
+				charges = 4,
+				damage = 36,
+				edgeDamage = 18,
+			},
+			-- No damage: Hinder (Config/StatusEffects) on everyone in the radius
+			-- the impact can see, but you.
+			G2 = {
+				note = "Static: no damage; Hinders everyone in 5 studs for 2 s; recharges in 15 s",
+				card = "HINDERS INSTEAD OF DAMAGE",
+				behaviour = "Static",
+				hinder = 2,
+				cooldown = 15,
+			},
+			G3 = {
+				note = "Static: Hinder 3 s in a 7-stud radius",
+				card = "HINDER 3 S  ·  RADIUS 5 → 7",
+				hinder = 3,
+				radius = 7,
+			},
+		},
+	},
+	-- Flash: a held throw (Mods/Flash). LMB throws it (it pops `fuse` s after
+	-- leaving the hand, wherever it is), RMB pops it from the hand after
+	-- `quickFuse` s (a short toss). Everyone facing the pop with a clear line,
+	-- within `range`, is Blinded (StatusService.blind): `blindMax` s looking
+	-- straight at it, down to `blindSide` at `sideAngle`, none past `maxAngle`.
+	-- Enemies, teammates and you alike.
+	Flash = {
+		id = "Flash",
+		name = "Flash",
+		role = "Control",
+		slot = 1, -- Q
+		paths = { A = "More Flashes", B = "Recharge", G = "Exposure" },
+		block = "Projectile",
+		activation = "HeldThrow",
+		authority = "Server",
+		icon = "rbxassetid://86922815169421", -- stand-in (tools/icons/make_free_pack_icons.py)
+		glyph = "FL",
+		hint = { primary = "Throw", alt = "Quick pop" },
+		quickCast = "Primary",
+		levels = {
+			L1 = {
+				note = "Flash: pops 0.9 s after the throw; blinds everyone facing it in 30 studs, up to 1.75 s",
+				cooldown = 0, -- 1 per round, no recharge
+				charges = 1,
+				throwSpeed = 75, -- LMB
+				throwLift = 0.08,
+				lobSpeed = 14, -- RMB: a short toss that pops just ahead
+				lobLift = 0.2,
+				gravity = 55,
+				bounces = 3, -- off walls (it pops in the air or on the floor)
+				restitution = 0.45,
+				friction = 0.7,
+				size = 0.25,
+				fuse = 0.9, -- seconds after the throw it pops
+				quickFuse = 0.3, -- RMB
+				range = 30,
+				blindMax = 1.75, -- looking straight at it
+				blindSide = 0.6, -- at sideAngle
+				sideAngle = 90,
+				maxAngle = 110, -- past this (behind you): nothing
+				walls = 0, -- walls the flash reaches through
+			},
+			A2 = { note = "More Flashes: 2 a round", charges = 2 },
+			A3 = { note = "More Flashes: 3 a round", charges = 3 },
+			B2 = { note = "Recharge: comes back 15 s after use", cooldown = 15 },
+			B3 = { note = "Recharge: comes back 6 s after use", cooldown = 6 },
+			-- No blind: every enemy who would have been blinded is revealed
+			-- (Recon's outline for your team, DETECTED for them).
+			G2 = {
+				note = "Exposure: no blind; enemies who see it are revealed for 3 s; recharges in 15 s",
+				card = "REVEALS INSTEAD OF BLINDING",
+				behaviour = "Exposure",
+				reveal = 3,
+				cooldown = 15,
+			},
+			G3 = {
+				note = "Exposure: revealed for 5 s, and it reaches through one wall",
+				card = "REVEAL 3 → 5 S  ·  THROUGH 1 WALL",
+				reveal = 5,
+				walls = 1,
+			},
+		},
+	},
+	-- Roller: a held placement (Mods/Roller). LMB sets the bot down just ahead;
+	-- it rolls at `speed` for `life` s, turns at walls and ledges, and locks on
+	-- to the first enemy in sight within `lockRange` inside a `lockAngle` cone
+	-- ahead. Locked, it chases at `lockSpeed`; within `trigger` studs (or
+	-- `chase` s after the lock) it chirps for `warn` s and explodes: `damage`
+	-- at the centre to `edgeDamage` at `radius`, line of sight, none to you,
+	-- FRIENDLY_FIRE to your team. `hp`: it can be shot. Nobody locked by the
+	-- end: it fizzles.
+	Roller = {
+		id = "Roller",
+		name = "Roller",
+		role = "Damage",
+		slot = 3, -- T
+		paths = { A = "More Bots", B = "Faster", G = "Remote" },
+		block = "Placeable",
+		activation = "HeldPlace",
+		authority = "Server",
+		icon = "rbxassetid://93611125603416", -- stand-in (tools/icons/make_free_pack_icons.py)
+		glyph = "RB",
+		hint = { primary = "Set down" },
+		quickCast = "Primary",
+		levels = {
+			L1 = {
+				note = "Roller: a bot that rolls 5 s, locks on to an enemy ahead and explodes, 60 → 30",
+				cooldown = 0, -- 1 per round, no recharge
+				charges = 1,
+				placeRange = 9, -- studs ahead it can be set down
+				width = 1.7, -- its box (studs)
+				height = 1.2,
+				length = 2,
+				speed = 14, -- studs/s
+				lockSpeed = 22, -- once locked on
+				life = 5, -- seconds rolling
+				lockRange = 25,
+				lockAngle = 60, -- the cone ahead (full angle)
+				trigger = 4, -- studs from the target: the warning starts
+				chase = 2.5, -- seconds locked before it warns anyway
+				warn = 0.4, -- the chirp before it explodes
+				radius = 6,
+				damage = 60,
+				edgeDamage = 30,
+				hp = 25,
+				maxActive = 1,
+				stepUp = 1.6, -- highest step it climbs
+				dropDown = 6, -- deepest drop it rolls off (deeper: it turns)
+			},
+			A2 = { note = "More Bots: 2 a round", charges = 2, maxActive = 2 },
+			A3 = { note = "More Bots: 4 a round", charges = 4, maxActive = 2 },
+			B2 = {
+				note = "Faster: 125% speed for 7 s",
+				speed = 17.5,
+				lockSpeed = 27.5,
+				life = 7,
+			},
+			B3 = {
+				note = "Faster: 150% speed for 10 s",
+				speed = 21,
+				lockSpeed = 33,
+				life = 10,
+			},
+			-- Remote: press the key again while it rolls to blow it up there
+			-- (no charge spent: ModTrigger). It still seeks on its own.
+			G2 = {
+				note = "Remote: press the key again to blow it up any time",
+				card = "PRESS AGAIN: DETONATE",
+				behaviour = "Remote",
+			},
+			G3 = {
+				note = "Remote: + recharges in 7 s, 125% speed, 7 s",
+				card = "RECHARGE 7 S  ·  125% SPEED",
+				cooldown = 7,
+				speed = 17.5,
+				lockSpeed = 27.5,
+				life = 7,
+			},
+		},
+	},
 }
 
 -- The order Mods are listed in (dev panel, draft later).
@@ -540,6 +748,9 @@ local ORDER = {
 	"HealOrb",
 	"Stim",
 	"Recall",
+	"ShockDart",
+	"Flash",
+	"Roller",
 }
 
 -- One wind stroke on the screen (WIND_FEEL).
@@ -737,6 +948,7 @@ return table.freeze({
 		ModUse = { 6, 8 },
 		ModSteer = { 30, 40 }, -- the Firewall's steering stream (~20 a second)
 		ModRecall = { 4, 6 }, -- Recall's teleport / pick-up
+		ModTrigger = { 4, 6 }, -- a second press on a Mod already out (Roller's Remote)
 		ModSim = { 10, 14 }, -- predicted Mods' reports with Server Authority off (dash, launch, slam, landing)
 		DevMod = { 6, 10 },
 		DevDummy = { 0.5, 3 }, -- SpawnDummy on top of DevMod: one every 2 s, burst 3

@@ -28,7 +28,9 @@ local Teams = require(Shared.Mods.Teams)
 local THROWS: { [string]: any } = {
 	Molly = require(Shared.Mods.Molly),
 	Frost = require(Shared.Mods.Frost),
+	Flash = require(Shared.Mods.Flash),
 }
+local Target = require(Shared.Mods.Blocks.Target)
 
 local Services = script.Parent.Parent.Services
 local ModEntities = require(Services.ModEntities)
@@ -49,6 +51,9 @@ local SERVER_MODS: { [string]: boolean } = {
 	Recon = true,
 	HealOrb = true,
 	Stim = true,
+	ShockDart = true,
+	Flash = true,
+	Roller = true,
 }
 local USE_KINDS: { [string]: string } = {
 	HeldThrow = "Throw",
@@ -275,6 +280,13 @@ local function context(
 			ModEntities.damage(part, amount, nil)
 		end,
 		anchorDown = false,
+		remove = function(part: BasePart, why: string)
+			ModEntities.remove(part, why)
+		end,
+		blind = function(target: Model, duration: number, strength: number)
+			StatusService.blind(target, duration, strength)
+		end,
+		lookOf = Target.lookOf,
 	}
 end
 
@@ -366,6 +378,14 @@ local function castServer(
 		local throwable = THROWS[id]
 		if aimAt and throwable then
 			dir = aimThrow(bot, throwable, stats, mode, aimAt)
+		elseif aimAt and id == "ShockDart" then
+			-- Straight at their feet: the blast does the rest.
+			dir = (aimAt - Vector3.new(0, 2.5, 0) - eye).Unit
+		elseif aimAt and id == "Roller" then
+			-- Set it down a few steps ahead, toward them.
+			local flat = (aimAt - eye) * Vector3.new(1, 0, 1)
+			local forward = if flat.Magnitude > 0.1 then flat.Unit else look
+			dir = forward * math.cos(math.rad(35)) - Vector3.new(0, math.sin(math.rad(35)), 0)
 		elseif aimAt and def.activation == "HeldCharge" then
 			dir = ((aimAt - eye) * Vector3.new(1, 0, 1)).Unit * math.cos(math.rad(20))
 				+ Vector3.new(0, math.sin(math.rad(20)), 0)
@@ -562,6 +582,40 @@ function BotMods.think(bot: Bot, world: any, now: number)
 					if aRoot and aRoot:IsA("BasePart") then aRoot.Position else nil,
 					ally
 				)
+				return
+			end
+		elseif id == "ShockDart" then
+			-- A shot at someone in a fight, not too close (it splashes).
+			if
+				engaged
+				and target
+				and distance > 10
+				and distance < 60
+				and rng:NextNumber() < 0.5
+			then
+				castServer(bot, slot, id, "Primary", target.lastPos, nil)
+				return
+			end
+		elseif id == "Flash" then
+			-- Before pushing someone just out of sight (it pops on their side).
+			local known = Perception.lastKnown(bot, now)
+			if not engaged and known and now - known.seenAt < 4 then
+				local d = (known.lastPos - root.Position).Magnitude
+				if d > 8 and d < 30 then
+					castServer(bot, slot, id, "Primary", known.lastPos, nil)
+					return
+				end
+			end
+		elseif id == "Roller" then
+			-- Sent at someone in a fight, or round to where they were last seen.
+			local known = Perception.lastKnown(bot, now)
+			local at = if engaged and target
+				then target.lastPos
+				elseif known then known.lastPos
+				else nil
+			local d = if at then (at - root.Position).Magnitude else math.huge
+			if at and d > 8 and d < 35 and rng:NextNumber() < 0.5 then
+				castServer(bot, slot, id, "Primary", at, nil)
 				return
 			end
 		elseif id == "Recon" then

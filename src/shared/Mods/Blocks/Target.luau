@@ -63,6 +63,38 @@ function Target.visible(from: Vector3, model: Model, params: RaycastParams): boo
 	return false
 end
 
+-- Where `model` looks: a player's server copy of the camera when there is
+-- one (Server Authority on), else the body's facing tilted by the
+-- replicated AimPitch (players report it, bots publish it).
+function Target.lookOf(model: Model): Vector3
+	local who = Players:GetPlayerFromCharacter(model)
+	if who then
+		local ok, state = pcall(function()
+			return (who :: any):GetCameraState()
+		end)
+		local cf = if ok and typeof(state) == "table" then state.CFrame else nil
+		if typeof(cf) == "CFrame" then
+			return cf.LookVector
+		end
+	end
+	local root = model:FindFirstChild("HumanoidRootPart")
+	local head = model:FindFirstChild("Head")
+	local basis = if root and root:IsA("BasePart")
+		then root
+		elseif head and head:IsA("BasePart") then head
+		else nil
+	if not basis then
+		return Vector3.new(0, 0, -1)
+	end
+	local flat = basis.CFrame.LookVector * Vector3.new(1, 0, 1)
+	flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
+	local pitchAttr = if who then who:GetAttribute("AimPitch") else model:GetAttribute("AimPitch")
+	local pitch = if typeof(pitchAttr) == "number" and pitchAttr == pitchAttr
+		then math.clamp(pitchAttr, -1.5, 1.5)
+		else 0
+	return flat * math.cos(pitch) + Vector3.new(0, math.sin(pitch), 0)
+end
+
 -- Live allies of `owner` (a Player), not counting `owner`'s own character.
 function Target.allies(owner: Player): { Model }
 	local out: { Model } = {}

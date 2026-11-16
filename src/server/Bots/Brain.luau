@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
+local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 local RunService = game:GetService("RunService")
 
 local STUDIO = RunService:IsStudio()
@@ -366,7 +367,10 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 	end
 
 	local target = bot.target
-	local engage = target ~= nil and Perception.engageable(bot, target, now)
+	-- Blinded (a Flash): it can't see to aim or shoot until it clears.
+	local blindUntil = model:GetAttribute(StatusEffects.blinded.attribute)
+	local blind = typeof(blindUntil) == "number" and blindUntil > workspace:GetServerTimeNow()
+	local engage = not blind and target ~= nil and Perception.engageable(bot, target, now)
 	local point = if engage then Aim.targetPoint(bot, now) else nil
 	local lag = Aim.step(bot, point, dt)
 	if align then

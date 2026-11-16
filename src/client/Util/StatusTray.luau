@@ -71,6 +71,14 @@ local TIMED: { Kind } = {
 		order = 2,
 	},
 	{
+		key = "Blinded",
+		attr = StatusEffects.blinded.attribute,
+		mod = "Flash",
+		label = StatusEffects.blinded.label,
+		buff = false,
+		order = 2,
+	},
+	{
 		key = "Burning",
 		attr = "BurningUntil",
 		mod = "Molly",

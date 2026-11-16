@@ -20,6 +20,9 @@ BotDraft.USABLE = table.freeze({
 	Recon = true,
 	HealOrb = true,
 	Stim = true,
+	ShockDart = true,
+	Flash = true,
+	Roller = true,
 })
 
 -- How much a bot of this aggression likes each gun class.

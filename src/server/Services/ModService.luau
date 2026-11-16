@@ -52,6 +52,7 @@ local RateLimit = require(Shared.Util.RateLimit)
 local SelfBuff = require(Shared.Mods.Blocks.SelfBuff)
 local Status = require(Shared.Mods.Status)
 local StatusEffects = require(Shared.Config.StatusEffects)
+local Target = require(Shared.Mods.Blocks.Target)
 local Teams = require(Shared.Mods.Teams)
 local TestMode = require(Shared.TestMode)
 local TestRange = require(Shared.Config.TestRange)
@@ -754,6 +755,13 @@ local function use(
 			end)
 		end,
 		anchorDown = ModRecall.anchor(player) ~= nil,
+		remove = function(part: BasePart, why: string)
+			ModEntities.remove(part, why)
+		end,
+		blind = function(model: Model, duration: number, strength: number)
+			StatusService.blind(model, duration, strength)
+		end,
+		lookOf = Target.lookOf,
 	}
 	local req: ModTypes.Request = {
 		charge = if chargeArg == nil then nil else Validate.number(chargeArg, 0, 1),
@@ -811,6 +819,33 @@ end
 -- "PickUp" after holding the key next to it). Services/ModRecall runs it;
 -- the slot, the charge and the request checks are here.
 local RECALL_ACTIONS: { [string]: boolean } = { Teleport = true, PickUp = true }
+
+-- ModTrigger(slot): the key of a Mod with something already out, pressed
+-- again (the Roller's Remote). The Mod's `trigger` decides from its own
+-- server state; no hold, no charge. Checks: rate, slot, a built Mod with a
+-- trigger, Mods on, alive, not stunned.
+local function onTrigger(player: Player, slotArg: unknown)
+	if not limiter:allow(player, "ModTrigger") then
+		return
+	end
+	local slot = Validate.integer(slotArg, 1, Config.SLOTS)
+	local state = states[player]
+	if not slot or not state then
+		return
+	end
+	local s = state.slots[slot]
+	local module = s.id and Mods.module(s.id)
+	local trigger = module and module.trigger
+	if not s.id or not trigger then
+		return
+	end
+	if not active(player) or not liveHumanoid(player.Character) or stunned(player) then
+		return
+	end
+	if not trigger(player, s.level) then
+		deny(player, slot, "nothing to trigger")
+	end
+end
 
 local function onRecall(player: Player, slotArg: unknown, actionArg: unknown)
 	if not limiter:allow(player, "ModRecall") then
@@ -1029,6 +1064,7 @@ function ModService.init()
 	Net.event("ModUse").OnServerEvent:Connect(onUse)
 	Net.event("ModSteer").OnServerEvent:Connect(onSteer)
 	Net.event("ModRecall").OnServerEvent:Connect(onRecall)
+	Net.event("ModTrigger").OnServerEvent:Connect(onTrigger)
 end
 
 function ModService.start()

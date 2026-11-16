@@ -157,6 +157,15 @@ export type ServerCtx = {
 	-- whether one is already down.
 	anchor: (part: BasePart) -> (),
 	anchorDown: boolean,
+	-- Takes a placed object of the caster's out now (`why`: "Used"; clients
+	-- get ObjectGone). The Roller exploding.
+	remove: (part: BasePart, why: string) -> (),
+	-- Blinded (Flash): `model` can't see for `duration` s, at `strength` 0..1
+	-- (StatusService.blind; the screen effect scales with it).
+	blind: (model: Model, duration: number, strength: number) -> (),
+	-- Where a combatant is looking: a player's server copy of the camera,
+	-- else its head's (a dummy, a bot).
+	lookOf: (model: Model) -> Vector3,
 }
 
 -- A wall to build (Firewall → Services/ModWalls): the way it starts going,
@@ -223,6 +232,9 @@ export type ModModule = {
 	spends: ((ctx: ServerCtx, req: Request) -> boolean)?,
 	-- Server only, once at start (see ServerApi).
 	server: ((api: ServerApi) -> ())?,
+	-- A press of the Mod's key while something of it is out (ModTrigger: the
+	-- Roller's Remote). No hold, no charge spent. True = it did something.
+	trigger: ((player: Player, level: string) -> boolean)?,
 }
 
 return nil

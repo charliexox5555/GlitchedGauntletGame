@@ -35,6 +35,24 @@
   "type": "Decal",
   "uploaded": "2026-10-26 00:26:08"
  },
+ "art-source/abilities/Icons/FreePack/Flash.png": {
+  "assetId": 70676643983517,
+  "name": "GG Mod icon Flash",
+  "type": "Decal",
+  "uploaded": "2026-11-16 09:36:47"
+ },
+ "art-source/abilities/Icons/FreePack/Roller.png": {
+  "assetId": 100128981202391,
+  "name": "GG Mod icon Roller",
+  "type": "Decal",
+  "uploaded": "2026-11-16 09:36:50"
+ },
+ "art-source/abilities/Icons/FreePack/ShockDart.png": {
+  "assetId": 86203718705711,
+  "name": "GG Mod icon ShockDart",
+  "type": "Decal",
+  "uploaded": "2026-11-16 09:36:44"
+ },
  "art-source/abilities/Icons/LagField.png": {
   "assetId": 137404144691996,
   "name": "GG Mod Icon LagField",

@@ -1171,6 +1171,32 @@ return table.freeze({
 			side = "Left",
 			from = Vector3.new(-0.5, -1.3, 0.3),
 		},
+		-- Shock Dart (free pack): Recon's bow with its own bolt head, held
+		-- and drawn the same way (BOW drives any held bow rig).
+		ShockDart = {
+			scale = 1.35,
+			offset = Vector3.new(-0.26, -0.62, -2.4),
+			rotation = Vector3.new(2, 25, -42),
+			arm = Vector3.new(0.14, -0.92, 0.36),
+			lift = Vector3.zero,
+			side = "Left",
+			from = Vector3.new(-0.5, -1.3, 0.3),
+		},
+		-- Flash: a canister like Frost's, pin side to the free hand.
+		Flash = {
+			scale = 1.3,
+			offset = Vector3.new(0.56, -0.78, -2.02),
+			rotation = Vector3.new(10, -20, -6),
+			lift = Vector3.new(0, 0.15, 0),
+		},
+		-- Roller: the bot on the palm, nose forward (its placed model held small).
+		Roller = {
+			scale = 1.4,
+			offset = Vector3.new(0.5, -0.7, -2),
+			rotation = Vector3.new(6, -14, 0),
+			arm = Vector3.new(0.3, -0.42, 0.85),
+			lift = Vector3.new(0, 0.12, 0),
+		},
 	} :: { [string]: ItemHold }),
 	-- A drawn bow (Util/ViewmodelHeldMods bow rig: any held item with the
 	-- attachments LimbTopPivot, LimbBottomPivot, TipTop, TipBottom, Nock and

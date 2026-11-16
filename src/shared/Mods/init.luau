@@ -24,6 +24,9 @@ local modules: { [string]: Types.ModModule } = {
 	HealOrb = require(script.HealOrb).module,
 	Stim = require(script.Stim).module,
 	Recall = require(script.Recall).module,
+	ShockDart = require(script.ShockDart).module,
+	Flash = require(script.Flash).module,
+	Roller = require(script.Roller).module,
 }
 
 local cache: { [string]: Types.Stats } = {}

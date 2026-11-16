@@ -4,7 +4,7 @@
 --
 -- Client -> server: Equip, Fire, Reload, PickWeapon (Studio / test mode), Aim (unreliable)
 -- Server -> client: WeaponState, HitConfirm, Damaged, Killed, ShotFx (unreliable)
--- Mods (ModService): ModHold, ModUse, ModSteer, ModRecall (client -> server), ModFx (server -> clients),
+-- Mods (ModService): ModHold, ModUse, ModSteer, ModRecall, ModTrigger (client -> server), ModFx (server -> clients),
 -- ModReveal (server -> the caster's team only)
 -- Dev test panel (DevModService; Studio, test mode or the owner): DevMod (client -> server)
 -- Match (DraftService): DraftPick (client -> server), DraftOffer (server -> one client)
@@ -30,6 +30,7 @@ local RELIABLE = {
 	"ModUse",
 	"ModSteer",
 	"ModRecall",
+	"ModTrigger", -- a second press on a Mod already out (Roller's Remote; client -> server)
 	"ModFx",
 	"ModSim", -- Server Authority off: a client's own predicted Dash / Updraft events (client -> server)
 	"ModSimFx", -- ... relayed to every other client (server -> clients): what to draw

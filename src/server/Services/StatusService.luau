@@ -50,6 +50,36 @@ function StatusService.apply(model: Model, name: string, duration: number)
 	end
 end
 
+-- Blinded (Flash, Config/StatusEffects.blinded): `model` can't see for
+-- `duration` s at `strength` 0..1. A new flash only extends it (the later
+-- end and the stronger strength win while one is running).
+function StatusService.blind(model: Model, duration: number, strength: number)
+	if
+		duration ~= duration
+		or duration <= 0
+		or strength ~= strength
+		or not Health.isAlive(model)
+	then
+		return
+	end
+	local cfg = Config.blinded
+	local now = workspace:GetServerTimeNow()
+	local untilAt = model:GetAttribute(cfg.attribute)
+	local running = typeof(untilAt) == "number" and untilAt > now
+	local oldStrength = model:GetAttribute(cfg.strengthAttribute)
+	local s = math.clamp(strength, 0, 1)
+	if running and typeof(oldStrength) == "number" then
+		s = math.max(s, oldStrength)
+	end
+	local newUntil = now + duration
+	if running and typeof(untilAt) == "number" then
+		newUntil = math.max(newUntil, untilAt)
+	end
+	model:SetAttribute(cfg.strengthAttribute, s)
+	model:SetAttribute(cfg.startAttribute, now)
+	model:SetAttribute(cfg.attribute, newUntil)
+end
+
 -- `fn(model, name)` after every apply (a start or a refresh): WeaponService
 -- drops a reload when a stun (Frozen) lands.
 function StatusService.onApply(fn: (model: Model, name: string) -> ())

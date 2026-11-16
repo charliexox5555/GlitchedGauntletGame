@@ -105,4 +105,15 @@ return table.freeze({
 	detected = {
 		label = "DETECTED",
 	},
+	-- Blinded (Flash): not a multiplier, the victim's screen. StatusService.blind
+	-- publishes `attribute` (server time it runs until), `strengthAttribute`
+	-- (0..1: how directly they looked) and `startAttribute` (server time of the
+	-- newest flash) on the character; the victim's client draws the white-out
+	-- (Util/FlashFx), bots stop aiming while it runs.
+	blinded = {
+		attribute = "BlindedUntil",
+		strengthAttribute = "BlindStrength",
+		startAttribute = "BlindedAt",
+		label = "BLINDED",
+	},
 })

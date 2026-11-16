@@ -42,6 +42,9 @@ local Tex = require(Shared.Config.VfxTextures)
 local ModSounds = require(Shared.Config.ModSounds)
 
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
+local BlastFx = require(script.Parent.Parent.Util.BlastFx)
+local FlashFx = require(script.Parent.Parent.Util.FlashFx)
+local RollerFx = require(script.Parent.Parent.Util.RollerFx)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local HealFx = require(script.Parent.Parent.Util.HealFx)
 local LimbHold = require(script.Parent.Parent.Util.LimbHold)
@@ -149,6 +152,13 @@ local TRAILS: { [string]: TrailSpec } = {
 		texture = Tex.RECON_GLOW,
 		color = Color3.fromHex("9BE7FF"),
 		size = 0.5,
+		rate = 80,
+	},
+	ShockBolt = {
+		name = "ShockTrail",
+		texture = Tex.RECON_GLOW,
+		color = Color3.fromHex("CFEBFF"),
+		size = 0.45,
 		rate = 80,
 	},
 	Frost = {
@@ -280,7 +290,8 @@ local function onCanisterThrow(id: string, sounds: CanisterSounds, data: { [stri
 		sparks.Rate = trail.rate
 	end
 	local streak: Trail? = nil
-	if id == "ReconDart" then
+	local dart = id == "ReconDart" or id == "ShockBolt"
+	if dart then
 		local light: PointLight?
 		streak, light = streakOf(model, color:Lerp(Color3.new(1, 1, 1), 0.3))
 		-- Start the streak from where it is now (a pooled model was elsewhere).
@@ -303,7 +314,7 @@ local function onCanisterThrow(id: string, sounds: CanisterSounds, data: { [stri
 		color = color,
 		key = key,
 		spin = 11,
-		pointed = id == "ReconDart",
+		pointed = dart,
 		hum = ModAudio.hum(
 			sounds.flight,
 			model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
@@ -766,6 +777,11 @@ local function colourObject(part: Instance)
 		end
 		return
 	end
+	if part:GetAttribute("Kind") == "Roller" then
+		-- The bot is drawn and moved by RollerFx (it follows the server part).
+		RollerFx.track(part, objectColor(part))
+		return
+	end
 	known[part] = true
 	if part:GetAttribute("Kind") == "ReconDart" then
 		dressDart(part)
@@ -818,6 +834,14 @@ local function onObjectGone(data: { [string]: any })
 		ModAudio.play(S.Recall.destroyedBreak, at)
 		ModVfx.burst(at, Color3.fromHex("9B6BFF"), 16, "Sparkle")
 	end
+	if data.kind == "Roller" then
+		if broken then
+			ModAudio.play(S.Roller.destroyed, at)
+			ModAudio.play(S.Roller.destroyedBreak, at)
+			ModVfx.burst(at, color, 24, "Sparkle")
+		end
+		return -- a blast or a fizzle has its own effects
+	end
 	if data.kind == "ReconDart" and broken then
 		ModAudio.play(S.Recon.destroyed, at)
 		ModAudio.play(S.Recon.destroyedBreak, at)
@@ -834,6 +858,56 @@ local function onObjectGone(data: { [string]: any })
 		material = Enum.Material.Neon,
 	})
 	ModVfx.burst(at, color, if broken then 30 else 10, "Sparkle")
+end
+
+-- The free pack -----------------------------------------------------------------------
+
+-- A camera shake that falls off with distance (`reach`: radii it's felt in).
+local function blastShake(at: Vector3, radius: number, strength: number, reach: number)
+	local cam = Workspace.CurrentCamera
+	if not cam then
+		return
+	end
+	local away = (cam.CFrame.Position - at).Magnitude
+	local far = radius * reach
+	if away < far then
+		CameraController.shake(strength * (1 - away / far))
+	end
+end
+
+local function onShockBurst(data: { [string]: any })
+	local at, radius = data.at, data.radius
+	if typeof(at) ~= "Vector3" or typeof(radius) ~= "number" then
+		return
+	end
+	local normal = if typeof(data.normal) == "Vector3" then data.normal else Vector3.yAxis
+	local static = data.static == true
+	BlastFx.shock(at, normal, radius, teamColor(data), static)
+	ModAudio.play(if static then S.ShockDart.static else S.ShockDart.burst, at)
+	ModAudio.play(S.ShockDart.burstCrack, at)
+	blastShake(at, radius, 0.4, 3)
+end
+
+local function onFlashPop(data: { [string]: any })
+	local at = data.at
+	if typeof(at) ~= "Vector3" then
+		return
+	end
+	local exposure = data.exposure == true
+	local range = if typeof(data.range) == "number" then data.range else 30
+	BlastFx.flashPop(at, teamColor(data), exposure, range)
+	ModAudio.play(if exposure then S.Flash.exposure else S.Flash.pop, at)
+end
+
+local function onRollerBoom(data: { [string]: any })
+	local at, radius = data.at, data.radius
+	if typeof(at) ~= "Vector3" or typeof(radius) ~= "number" then
+		return
+	end
+	BlastFx.roller(at, radius, teamColor(data))
+	ModAudio.play(S.Roller.boom, at)
+	ModAudio.play(S.Roller.boomBlast, at)
+	blastShake(at, radius, 0.8, 4)
 end
 
 local function onFx(kind: unknown, data: unknown)
@@ -876,6 +950,21 @@ local function onFx(kind: unknown, data: unknown)
 		end
 	elseif kind == "ReconPulse" then
 		onReconPulse(d)
+	elseif kind == "ShockThrow" then
+		onCanisterThrow("ShockBolt", S.ShockDart, d)
+	elseif kind == "ShockBurst" then
+		onShockBurst(d)
+	elseif kind == "FlashThrow" then
+		onCanisterThrow("Flash", S.Flash, d)
+	elseif kind == "FlashPop" then
+		onFlashPop(d)
+	elseif kind == "RollerBoom" then
+		onRollerBoom(d)
+	elseif kind == "RollerFizzle" then
+		if typeof(d.at) == "Vector3" then
+			ModAudio.play(S.Roller.fizzle, d.at)
+			ModVfx.burst(d.at, teamColor(d), 12, "Sparkle")
+		end
 	elseif kind == "RecallPlaced" then
 		RecallFx.placed(d)
 	elseif kind == "RecallWindup" then
@@ -969,6 +1058,9 @@ local function update(dt: number)
 		end
 	end
 	ModVfx.step()
+	BlastFx.step()
+	FlashFx.step()
+	RollerFx.step(dt)
 	MollyFx.step()
 	HealFx.step()
 	StimFx.step()

@@ -34,6 +34,7 @@ local ModTypes = require(Shared.Mods.Types)
 local Net = require(Shared.Net)
 local HealOrb = require(Shared.Mods.HealOrb)
 local Recall = require(Shared.Mods.Recall)
+local Roller = require(Shared.Mods.Roller)
 local Stim = require(Shared.Mods.Stim)
 local Placeable = require(Shared.Mods.Blocks.Placeable)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
@@ -107,6 +108,7 @@ type Finder = (Vector3, Vector3, ModTypes.Stats, RaycastParams, OverlapParams?) 
 type PlaceDef = { find: Finder, size: (ModTypes.Stats) -> Vector3, bodies: boolean }
 local PLACE: { [string]: PlaceDef } = {
 	Recall = { find = Recall.find, size = Recall.size, bodies = false },
+	Roller = { find = Roller.find, size = Roller.size, bodies = false },
 }
 -- Overlap params for the hologram, rebuilt twice a second (not per frame).
 local overlapCache: { [boolean]: OverlapParams } = {}
@@ -518,6 +520,11 @@ end
 
 -- Recon's bow lights: the bounce counter (0 / 1 / 2). The charge strip is
 -- lit by the bow's draw (ViewmodelController.setItemCharge).
+-- The bow Mods' sounds (Recon, Shock Dart: the same bow, their own cues).
+local function bowSounds(id: string?): typeof(ModAudio.SOUNDS.Recon)
+	return if id == "ShockDart" then ModAudio.SOUNDS.ShockDart :: any else ModAudio.SOUNDS.Recon
+end
+
 local function launcherLights()
 	ViewmodelController.setItemPart("Bounce1_Energy", if chargeBounces >= 1 then 0 else 0.85)
 	ViewmodelController.setItemPart("Bounce2_Energy", if chargeBounces >= 2 then 0 else 0.85)
@@ -606,7 +613,7 @@ local function use(mode: ModTypes.UseMode)
 		if mode == "Alt" then
 			-- RMB picks the bounces (it isn't a use): 0, 1, 2, round again.
 			chargeBounces = (chargeBounces + 1) % ((stats.maxBounces or 2) + 1)
-			ModAudio.play(ModAudio.SOUNDS.Recon.bounceSelect)
+			ModAudio.play(bowSounds(def.id).bounceSelect)
 			launcherLights()
 			return
 		end
@@ -619,7 +626,7 @@ local function use(mode: ModTypes.UseMode)
 		chargeStart = os.clock()
 		stopChargeHum()
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-		chargeHum = ModAudio.hum(ModAudio.SOUNDS.Recon.charge, root)
+		chargeHum = ModAudio.hum(bowSounds(def.id).charge, root)
 		return
 	end
 	if mode == "Alt" and not def.hint.alt then
@@ -714,10 +721,14 @@ local function startHold(slot: number, view: SlotView)
 	Net.event("ModHold"):FireServer(slot)
 	if def.id == "Recall" then
 		ModAudio.play(ModAudio.SOUNDS.Recall.equip)
-	elseif def.id == "Recon" then
-		ModAudio.play(ModAudio.SOUNDS.Recon.equip)
+	elseif def.id == "Recon" or def.id == "ShockDart" then
+		ModAudio.play(bowSounds(def.id).equip)
 		chargeBounces = 0
 		launcherLights()
+	elseif def.id == "Flash" then
+		ModAudio.play(ModAudio.SOUNDS.Flash.equip)
+	elseif def.id == "Roller" then
+		ModAudio.play(ModAudio.SOUNDS.Roller.equip)
 	elseif def.id == "Frost" then
 		ModAudio.play(ModAudio.SOUNDS.Frost.equip)
 	end
@@ -858,6 +869,23 @@ stepRecallHold = function(now: number)
 	end
 end
 
+-- One of our Rollers is out (its server part in ModObjects).
+local function ourRoller(): boolean
+	local objects = Workspace:FindFirstChild("ModObjects")
+	if not objects then
+		return false
+	end
+	for _, part in objects:GetChildren() do
+		if
+			part:GetAttribute("Kind") == "Roller"
+			and part:GetAttribute("OwnerId") == player.UserId
+		then
+			return true
+		end
+	end
+	return false
+end
+
 local function onModPressed(slot: number)
 	if
 		not player.Character
@@ -890,6 +918,13 @@ local function onModPressed(slot: number)
 	end
 	if def.id == "Recall" and recallAnchor() then
 		recallPress(slot, view) -- a pick-up works on cooldown; a teleport doesn't
+		return
+	end
+	-- Roller's Remote: the key while one of ours rolls blows it up (no
+	-- charge; the server decides from its own bots: ModTrigger).
+	if def.id == "Roller" and view.stats and view.stats.behaviour == "Remote" and ourRoller() then
+		Net.event("ModTrigger"):FireServer(slot)
+		ModAudio.play(ModAudio.SOUNDS.Roller.warn)
 		return
 	end
 	if not ready(view) then
@@ -991,7 +1026,7 @@ local function stepCharge(now: number)
 	stopChargeHum()
 	sendUse(current, "Primary", nil, charge, chargeBounces)
 	setPhase("Using", current)
-	ModAudio.play(ModAudio.SOUNDS.Recon.fire)
+	ModAudio.play(bowSounds(view.id).fire)
 	ViewmodelController.setItemPart("Dart", 1)
 	ViewmodelController.releaseItem() -- the string snaps, the bow kicks
 	CameraController.kick(1.2, 0, 1, 0.25)
