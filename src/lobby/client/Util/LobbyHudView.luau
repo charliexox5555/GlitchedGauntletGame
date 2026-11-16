@@ -276,6 +276,13 @@ local function renderList()
 			inviteB.Visible = false
 			if canInvite(p) then
 				hookInvite(inviteB, p)
+				local ib = inviteB
+				ib.MouseEnter:Connect(function()
+					ib:SetAttribute("Over", true)
+				end)
+				ib.MouseLeave:Connect(function()
+					ib:SetAttribute("Over", false)
+				end)
 				row.MouseEnter:Connect(function()
 					inviteB.Visible = true
 					tween(row, 0.12, { BackgroundColor3 = NAVY_HI })
@@ -286,6 +293,19 @@ local function renderList()
 				end)
 			end
 		end
+		-- a click or tap on the row (not on its INVITE) opens their profile,
+		-- like RIVALS' player list (Controllers/ProfileController)
+		row.InputBegan:Connect(function(input: InputObject)
+			local t = input.UserInputType
+			if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then
+				return
+			end
+			local b = row:FindFirstChild("Invite")
+			if b and b:IsA("GuiObject") and b.Visible and b:GetAttribute("Over") == true then
+				return -- that's the INVITE button's click
+			end
+			Router.open("Profile", p)
+		end)
 		row.Parent = s.list
 		Plates.deepen(row) -- the level tag: one-piece plate (owner, 2026-11-16)
 		seen[p.UserId] = true

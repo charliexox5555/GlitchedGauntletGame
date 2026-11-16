@@ -47,6 +47,7 @@ local CELLS: { [string]: { string } } = {
 	LobbyToast = { "Accept", "Decline" },
 	LobbySearch = { "Bar", "Cancel" }, -- the searching bar and its cancel
 	Settings = { "Inspect" },
+	Profile = { "Card", "Stat1", "Stat2", "Stat3" },
 }
 
 -- No lobby words under this size (design px): Fredoka One smears below it,
@@ -64,8 +65,16 @@ local function floorText(d: Instance)
 end
 
 -- templates whose clones are cells wherever they land
-local TEMPLATES =
-	{ "PlayerRow", "ShopContentCell", "PartyPlayerCard", "GunCard", "SkinTile", "SettingRow" }
+local TEMPLATES = {
+	"PlayerRow",
+	"ShopContentCell",
+	"PartyPlayerCard",
+	"GunCard",
+	"SkinTile",
+	"SettingRow",
+	"ProfileSkin",
+	"RewardRow",
+}
 
 function LobbyLook.apply(playerGui: Instance)
 	local folder = ReplicatedStorage:FindFirstChild("UiTemplates")
