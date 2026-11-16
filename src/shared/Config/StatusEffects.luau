@@ -114,6 +114,7 @@ return table.freeze({
 		attribute = "BlindedUntil",
 		strengthAttribute = "BlindStrength",
 		startAttribute = "BlindedAt",
+		fromAttribute = "BlindFrom", -- where it popped (the victim's screen centres the flash there)
 		label = "BLINDED",
 	},
 })

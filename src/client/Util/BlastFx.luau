@@ -34,6 +34,8 @@ local WHITE = Color3.new(1, 1, 1)
 local ARC_COLOR = Color3.fromHex("4FB2EE") -- Neon draws it a step brighter: a light electric blue
 local ARC_GLOW = Color3.fromHex("5EC4FF")
 local STATIC_ARC = Color3.fromHex("A9D9F0")
+local FIRE_HOT = Color3.fromHex("E08A1E") -- Neon draws it a step brighter: hot gold-orange
+local FIRE_DEEP = Color3.fromHex("D2481A") -- the outer flame, orange-red
 local MAGENTA = ModsConfig.COLORS.glitch
 local ACCENT_TIME = 2 / 30 -- the glitch accent: two frames
 local ARC_FPS = 24 -- held frames: arcs jump to new paths this often
@@ -70,6 +72,13 @@ type Piece = {
 
 type Arc = {
 	strokes: { BasePart },
+	-- `field`: each new path starts somewhere inside the radius (arcs
+	-- crawling over the area); `target`: the path always ends there (an arc
+	-- jumping to someone it hit); `from`: a fixed start (a bolt from above).
+	field: boolean,
+	target: Vector3?,
+	from: Vector3?,
+	thick: number,
 	center: Vector3,
 	normal: Vector3,
 	reach: number,
@@ -213,23 +222,36 @@ local function worldParams(): RaycastParams
 	return params
 end
 
--- An arc's new path: from the centre a random way out (biased off the
--- surface by `normal`), stopped by the first thing it meets, broken into
--- ARC_SEGMENTS jagged steps.
+-- A random unit vector on the surface plane (normal `n`).
+local function along(n: Vector3): Vector3
+	local d = Vector3.new(math.random() * 2 - 1, math.random() * 2 - 1, math.random() * 2 - 1)
+	d -= n * d:Dot(n)
+	return if d.Magnitude > 1e-3 then d.Unit else n:Cross(Vector3.xAxis).Unit
+end
+
+-- An arc's new path: from `center` a random way out (biased off the surface
+-- by `normal`), stopped by the first thing it meets (or to `finishAt`),
+-- broken into ARC_SEGMENTS jagged steps.
 local function arcPath(
 	center: Vector3,
 	normal: Vector3,
 	reach: number,
-	params: RaycastParams
+	params: RaycastParams,
+	finishAt: Vector3?
 ): { Vector3 }
-	local dir = Vector3.new(math.random() * 2 - 1, math.random() * 2 - 1, math.random() * 2 - 1)
-	if dir.Magnitude < 1e-3 then
-		dir = normal
+	local finish: Vector3
+	if finishAt then
+		finish = finishAt
+	else
+		local dir = Vector3.new(math.random() * 2 - 1, math.random() * 2 - 1, math.random() * 2 - 1)
+		if dir.Magnitude < 1e-3 then
+			dir = normal
+		end
+		dir = (dir.Unit + normal * 0.25).Unit -- mostly along the surface: arcs crawl out
+		local len = reach * (0.55 + 0.45 * math.random())
+		local hit = Workspace:Raycast(center, dir * len, params)
+		finish = if hit then hit.Position else center + dir * len
 	end
-	dir = (dir.Unit + normal * 0.25).Unit -- mostly along the surface: arcs crawl out
-	local len = reach * (0.55 + 0.45 * math.random())
-	local hit = Workspace:Raycast(center, dir * len, params)
-	local finish = if hit then hit.Position else center + dir * len
 	local span = finish - center
 	local side = span:Cross(normal)
 	if side.Magnitude < 1e-3 then
@@ -264,6 +286,24 @@ local function placeArc(a: Arc, thick: number)
 	end
 end
 
+local function pathFor(a: Arc, params: RaycastParams): { Vector3 }
+	local from = a.from
+	if from then
+		return arcPath(from, a.normal, a.reach, params, a.target or a.center)
+	end
+	if a.target then
+		return arcPath(a.center, a.normal, a.reach, params, a.target)
+	end
+	if a.field then
+		-- A short arc crawling somewhere inside the radius.
+		local start = a.center + along(a.normal) * (a.reach * math.sqrt(math.random()) * 0.85)
+		return arcPath(start, a.normal, a.reach * 0.45, params)
+	end
+	return arcPath(a.center, a.normal, a.reach, params)
+end
+
+type ArcKind = { field: boolean?, target: Vector3?, from: Vector3?, thick: number? }
+
 local function addArcs(
 	center: Vector3,
 	normal: Vector3,
@@ -271,7 +311,8 @@ local function addArcs(
 	color: Color3,
 	count: number,
 	life: number,
-	accent: boolean
+	accent: boolean,
+	kind: ArcKind?
 )
 	local now = ReworkVfx.now()
 	local params = worldParams()
@@ -288,6 +329,10 @@ local function addArcs(
 		end
 		local a: Arc = {
 			strokes = strokes,
+			field = kind ~= nil and kind.field == true,
+			target = if kind then kind.target else nil,
+			from = if kind then kind.from else nil,
+			thick = if kind and kind.thick then kind.thick else ARC_THICK,
 			center = center,
 			normal = normal,
 			reach = reach,
@@ -296,9 +341,10 @@ local function addArcs(
 			nextJump = now + 1 / ARC_FPS,
 			accentUntil = if accent then now + ACCENT_TIME else nil,
 			color = color,
-			points = arcPath(center, normal, reach, params),
+			points = {},
 		}
-		placeArc(a, ARC_THICK)
+		a.points = pathFor(a, params)
+		placeArc(a, a.thick)
 		table.insert(arcs, a)
 	end
 end
@@ -312,76 +358,167 @@ local function surfaceFrame(at: Vector3, normal: Vector3): CFrame
 	return CFrame.fromMatrix(at + up * 0.06, right, up, back)
 end
 
-function BlastFx.shock(at: Vector3, normal: Vector3, radius: number, color: Color3, static: boolean)
+-- Shock Dart's burst (2026-11-17 v2, owner: "it doesn't look like there's a
+-- radius"): the blast area is drawn at its true size and held long enough to
+-- read, and it's fun. Beat 1: a bolt cracks down from above onto the impact,
+-- a white star flat on the surface, the flash and light. Beat 2: an electric
+-- dome and a lit floor disc fill exactly `radius`, the edge ring in team
+-- colour, arcs crawling over the whole area on held frames for half a
+-- second, an arc jumping to everyone it hit (`struck`). Beat 3: it all
+-- snaps off, sparks fall. Static (G): ice-white, dashed edge, the first two
+-- frames magenta.
+function BlastFx.shock(
+	at: Vector3,
+	normal: Vector3,
+	radius: number,
+	color: Color3,
+	static: boolean,
+	struck: { Vector3 }?
+)
 	local flat = surfaceFrame(at, normal)
 	local spin = flat * CFrame.Angles(0, math.random() * math.pi, 0)
-	-- Beat 1: a hard white star on the surface, a glow under it, the light.
+	local arcColor = if static then STATIC_ARC else ARC_COLOR
+	local d = radius * 2
+	-- Beat 1: the strike from above, the star, the flash.
+	local sky = at + normal * 9 + along(normal) * 1.5
+	addArcs(
+		at,
+		normal,
+		radius,
+		Color3.fromHex("DDF3FF"),
+		2,
+		0.14,
+		static,
+		{ from = sky, thick = ARC_THICK * 2.2 }
+	)
 	piece(
 		"FX_FloorStar",
 		spin,
-		Vector3.new(radius * 1.1, 1, radius * 1.1),
-		Vector3.new(radius * 0.5, 1, radius * 0.5),
-		0.12,
+		Vector3.new(d * 0.6, 1, d * 0.6),
+		Vector3.new(d * 0.25, 1, d * 0.25),
+		0.14,
 		WHITE
 	)
-	glow(at + normal * 0.5, Tex.MOD_SPARKLE, WHITE, radius * 1.2, radius * 0.4, 0.1)
-	glow(at + normal * 0.5, Tex.MOD_GLOW, ARC_GLOW, radius * 1.6, radius * 2.2, 0.25, 0.45)
-	light(at + normal * 0.5, ARC_COLOR, 6, radius * 3, 0.25)
-	-- Beat 2: the arcs snap out to the edge on held frames.
-	addArcs(
-		at + normal * 0.15,
-		normal,
-		radius,
-		if static then STATIC_ARC else ARC_COLOR,
-		if static then 7 else 6,
-		0.24,
+	glow(at + normal * 0.5, Tex.MOD_SPARKLE, WHITE, radius * 1.4, radius * 0.5, 0.12)
+	glow(at + normal * 0.5, Tex.MOD_GLOW, ARC_GLOW, d * 1.1, d * 1.3, 0.35, 0.45)
+	light(at + normal * 0.8, ARC_COLOR, 7, radius * 3.5, 0.5)
+	-- Beat 2: the area, at its true size.
+	piece(
+		"Scan_Shell",
+		flat,
+		Vector3.one * (d * 0.35),
+		Vector3.one * d,
+		0.45,
+		arcColor,
+		0.82,
 		static
 	)
-	-- Beat 3: the gameplay line (team colour at the blast's edge) and sparks.
-	piece(
-		"FX_Ring",
-		flat,
-		Vector3.new(radius * 0.8, 1, radius * 0.8),
-		Vector3.new(radius * 2, 1, radius * 2),
-		0.3,
-		color,
-		0.1
-	)
+	ModVfx.quad({
+		texture = Tex.MOD_GLOW,
+		cframe = flat,
+		from = d * 0.6,
+		to = d * 1.05,
+		color = arcColor,
+		life = 0.5,
+		alpha0 = 0.35,
+		hold = true,
+	})
+	piece("FX_Ring", flat, Vector3.new(d * 0.5, 1, d * 0.5), Vector3.new(d, 1, d), 0.5, color, 0.05)
 	ModVfx.quad({
 		texture = if static then Tex.MOD_RING_DASHED else Tex.MOD_RING,
 		cframe = flat,
-		from = radius * 1.4,
-		to = radius * 2.05,
+		from = d * 0.7,
+		to = d * 1.02,
 		color = color,
-		life = if static then 0.5 else 0.35,
-		alpha0 = 0.15,
+		life = 0.55,
+		alpha0 = 0.1,
+		hold = true,
 	})
-	ModVfx.burst(at + normal * 0.2, ARC_GLOW, 16, "Sparkle")
+	addArcs(at + normal * 0.15, normal, radius, arcColor, 6, 0.3, static)
+	addArcs(
+		at + normal * 0.1,
+		normal,
+		radius,
+		arcColor,
+		7,
+		0.5,
+		static,
+		{ field = true, thick = ARC_THICK * 0.8 }
+	)
+	for _, p in struck or {} do
+		addArcs(
+			at + normal * 0.3,
+			normal,
+			radius,
+			Color3.fromHex("CFEFFF"),
+			1,
+			0.35,
+			static,
+			{ target = p, thick = ARC_THICK * 1.3 }
+		)
+		ModVfx.burst(p, ARC_GLOW, 8, "Sparkle")
+	end
+	-- Beat 3: sparks thrown off.
+	ModVfx.burst(at + normal * 0.2, ARC_GLOW, 24, "Sparkle")
 end
 
+-- The Roller's blast (2026-11-17 v2, owner: "more like the Boom Bot... like
+-- fire", not a blue flash): a fireball. Beat 1: a hot white-gold star and
+-- flash, a warm light. Beat 2: a crown of fire tongues (the rework kit's)
+-- bursts up and out around the bot, hot yellow inside, orange outside, a
+-- shockwave runs over the floor, the gameplay ring in team colour marks the
+-- radius. Beat 3: the tongues fall back and fade, embers fly.
 function BlastFx.roller(at: Vector3, radius: number, color: Color3)
-	local floorAt = at - Vector3.new(0, 0.5, 0)
+	local floorAt = at - Vector3.new(0, 0.55, 0)
 	local flat = surfaceFrame(floorAt, Vector3.yAxis) * CFrame.Angles(0, math.random() * math.pi, 0)
-	local hot = Color3.fromHex("FFE2B8")
-	glow(at, Tex.MOD_SPARKLE, Color3.fromHex("FFF4E0"), radius * 1.6, radius * 0.6, 0.14)
-	glow(at, Tex.MOD_GLOW, Color3.fromHex("FFB060"), radius * 1.2, radius * 1.8, 0.28, 0.55)
-	light(at, Color3.fromHex("FFD9A8"), 3, radius * 2.5, 0.3)
+	local d = radius * 2
+	glow(at, Tex.MOD_SPARKLE, Color3.fromHex("FFF4D6"), radius * 1.5, radius * 0.5, 0.12)
+	glow(at + Vector3.new(0, 1, 0), Tex.MOD_GLOW, FIRE_DEEP, d * 0.9, d * 1.3, 0.4, 0.3)
+	light(at + Vector3.new(0, 1, 0), FIRE_HOT, 5, radius * 3, 0.45)
 	piece(
 		"FX_FloorStar",
 		flat,
-		Vector3.new(radius * 1.4, 1, radius * 1.4),
-		Vector3.new(radius * 0.6, 1, radius * 0.6),
-		0.16,
-		hot
+		Vector3.new(d * 0.7, 1, d * 0.7),
+		Vector3.new(d * 0.3, 1, d * 0.3),
+		0.18,
+		FIRE_HOT
 	)
+	-- The fire crown: an inner ring standing tall, an outer ring leaning out.
+	local base = CFrame.new(floorAt)
+	for i = 0, 11 do
+		local outer = i % 2 == 1
+		local yaw = (i / 12) * math.pi * 2 + math.random() * 0.3
+		local out = if outer then radius * 0.42 else radius * 0.18
+		local lean = if outer
+			then math.rad(28 + math.random() * 12)
+			else math.rad(8 + math.random() * 8)
+		local anchor = base
+			* CFrame.Angles(0, yaw, 0)
+			* CFrame.new(0, 0, -out)
+			* CFrame.Angles(-lean, 0, 0)
+		local tall = radius * (if outer then 0.75 else 1.05) * (0.85 + math.random() * 0.3)
+		local wide = if outer then 2.2 else 2.6
+		piece(
+			if i % 3 == 0
+				then "Fire_TongueA"
+				elseif i % 3 == 1 then "Fire_TongueB"
+				else "Fire_TongueC",
+			anchor,
+			Vector3.new(1.2, 0.4, wide * 0.6),
+			Vector3.new(1.2, tall, wide),
+			0.42 + math.random() * 0.12,
+			if outer then FIRE_DEEP else FIRE_HOT,
+			0
+		)
+	end
 	local wave = ModVfx.mesh({
 		name = "Shockwave",
 		cframe = CFrame.new(floorAt),
-		from = Vector3.new(radius * 0.3, radius * 0.25, radius * 0.3),
-		to = Vector3.new(radius, radius * 0.5, radius),
-		color = Color3.fromHex("FFE7C8"),
+		from = Vector3.new(radius * 0.3, radius * 0.2, radius * 0.3),
+		to = Vector3.new(radius, radius * 0.4, radius),
+		color = Color3.fromHex("FFD9A0"),
 		life = 0.3,
-		alpha0 = 0.2,
+		alpha0 = 0.25,
 	})
 	if not wave then
 		ModVfx.shell({
@@ -389,7 +526,7 @@ function BlastFx.roller(at: Vector3, radius: number, color: Color3)
 			cframe = CFrame.new(at),
 			from = Vector3.one * radius * 0.4,
 			to = Vector3.one * radius * 1.4,
-			color = Color3.fromHex("FFE7C8"),
+			color = FIRE_HOT,
 			life = 0.25,
 			alpha0 = 0.4,
 			material = Enum.Material.Neon,
@@ -398,14 +535,13 @@ function BlastFx.roller(at: Vector3, radius: number, color: Color3)
 	piece(
 		"FX_Ring",
 		flat,
-		Vector3.new(radius, 1, radius),
-		Vector3.new(radius * 2, 1, radius * 2),
-		0.38,
+		Vector3.new(d * 0.5, 1, d * 0.5),
+		Vector3.new(d, 1, d),
+		0.42,
 		color,
 		0.05
 	)
-	ModVfx.burst(at, Color3.fromHex("FFB060"), 26, "Sparkle")
-	addArcs(at, Vector3.yAxis, radius * 0.7, hot, 3, 0.12, false)
+	ModVfx.burst(at, FIRE_HOT, 30, "Sparkle")
 end
 
 function BlastFx.flashPop(at: Vector3, color: Color3, exposure: boolean, range: number)
@@ -492,10 +628,10 @@ function BlastFx.step()
 		if now >= a.nextJump then
 			a.nextJump = now + 1 / ARC_FPS
 			params = params or worldParams()
-			a.points = arcPath(a.center, a.normal, a.reach, params :: RaycastParams)
+			a.points = pathFor(a, params :: RaycastParams)
 		end
 		-- Thinner as it dies (no fade: a held stroke snaps off).
-		placeArc(a, ARC_THICK * (1 - u * 0.65))
+		placeArc(a, a.thick * (1 - u * 0.65))
 		local accent = a.accentUntil
 		local c = if accent and now < accent then MAGENTA else a.color
 		for _, s in a.strokes do

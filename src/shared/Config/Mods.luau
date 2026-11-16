@@ -631,10 +631,19 @@ local defs: { [string]: ModDef } = {
 				fuse = 0.9, -- seconds after the throw it pops
 				quickFuse = 0.3, -- RMB
 				range = 30,
-				blindMax = 1.75, -- looking straight at it
-				blindSide = 0.6, -- at sideAngle
-				sideAngle = 90,
-				maxAngle = 110, -- past this (behind you): nothing
+				-- On your screen when it pops (owner 2026-11-17: "if you can see
+				-- the flash on the screen when it pops, you will get flashed"):
+				-- the default 80° camera's view, ±screenX across and ±screenY up
+				-- and down from where you look. blindMax in the middle, blindEdge
+				-- at the screen's edge.
+				screenX = 56,
+				screenY = 40,
+				blindMax = 1.75,
+				blindEdge = 1.25,
+				-- Off screen but within glanceAngle of your look: a short glance
+				-- (Valorant: a flash at the edge of your view still stings).
+				glance = 0.35,
+				glanceAngle = 100,
 				walls = 0, -- walls the flash reaches through
 			},
 			A2 = { note = "More Flashes: 2 a round", charges = 2 },
@@ -941,6 +950,23 @@ return table.freeze({
 		{ id = "Dash", level = "L1" }, -- slot 2 (E)
 		{ id = "Firewall", level = "L1" }, -- slot 3 (T)
 	} :: { Types.SlotLoadout },
+
+	-- The Flash's white-out on the blinded player's screen (Util/FlashFx,
+	-- vault/01 Design/Abilities/Flash.md). Valorant's recipe, our colours: a
+	-- fast ramp in, a near-white peak (a hair under full), held, then the
+	-- fill clears from the edges inward while a glow on the flash's spot
+	-- shrinks into it, tinted in the Flash's colour as it fades.
+	FLASH_FEEL = {
+		peak = Color3.fromHex("FFF8EA"), -- the held white (warm, never pure)
+		tint = Color3.fromHex("FFC24D"), -- the Flash's colour, shown in the fade
+		rampIn = 0.05, -- seconds to full
+		peakAlpha = 0.03, -- the fill's transparency at full strength
+		fadeShare = 0.4, -- the last share of the blind spent clearing
+		minFade = 0.35, -- ... but never faster than this
+		coreSize = 2.4, -- the glow on the flash's spot, in screen heights, at the peak
+		coreEnd = 0.25, -- ... and as it closes
+		muffle = 0.6, -- 0..1 of the full sound muffle
+	},
 
 	-- Remote budgets (per player): rate per second, burst.
 	RATE = {

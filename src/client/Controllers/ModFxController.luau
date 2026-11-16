@@ -882,9 +882,18 @@ local function onShockBurst(data: { [string]: any })
 	end
 	local normal = if typeof(data.normal) == "Vector3" then data.normal else Vector3.yAxis
 	local static = data.static == true
-	BlastFx.shock(at, normal, radius, teamColor(data), static)
+	local struck: { Vector3 } = {}
+	if typeof(data.struck) == "table" then
+		for _, p in data.struck do
+			if typeof(p) == "Vector3" and #struck < 6 then
+				table.insert(struck, p)
+			end
+		end
+	end
+	BlastFx.shock(at, normal, radius, teamColor(data), static, struck)
 	ModAudio.play(if static then S.ShockDart.static else S.ShockDart.burst, at)
 	ModAudio.play(S.ShockDart.burstCrack, at)
+	ModAudio.play(S.ShockDart.crackle, at)
 	blastShake(at, radius, 0.4, 3)
 end
 
@@ -897,6 +906,9 @@ local function onFlashPop(data: { [string]: any })
 	local range = if typeof(data.range) == "number" then data.range else 30
 	BlastFx.flashPop(at, teamColor(data), exposure, range)
 	ModAudio.play(if exposure then S.Flash.exposure else S.Flash.pop, at)
+	if not exposure then
+		ModAudio.play(S.Flash.popThump, at)
+	end
 end
 
 local function onRollerBoom(data: { [string]: any })

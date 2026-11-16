@@ -35,3 +35,31 @@ Studio Play (solo, test range), driven through the dev remotes and keys. Built f
 - The 2-client test (what others see of each): needs the owner (Test → Clients and Servers, 2 players).
 - Bots using the new Mods in a real match (the rules are in; only dummies were in the range).
 - The Flash world pop capture; third-person poses (the activations' generic clips: Throw / Lob / Place / the bow).
+
+## Round 2: the owner's notes (2026-11-17, same day)
+The owner looked and asked for:
+- a Roller more like the Boom Bot and fiery (not "a blue thing");
+- new Flash and Roller models (the Studio-part ones were disliked);
+- the Flash to blind whoever has it **on screen**, with a coloured flash in Valorant's style and real sounds;
+- Shock Dart's radius to be visible, plus fun animations;
+- a better bow draw for Recon and Shock Dart;
+- the F8 panel to list the new Mods (it didn't).
+
+| Note | Done |
+|---|---|
+| F8 panel missing the new Mods | The Mod row had a fixed 3-line height (9 buttons); it now grows with the list. |
+| Bow "at an angle, not drawn back" | Re-posed live in Play to the owner's Sova screenshots, using new Studio-only `TuneHold*` / `TuneBow*` attributes. Big (2.9 scale), canted 40°, right of centre, the fist low in the middle, the bolt head just under the crosshair, the draw pulling down-right. Strings thinned (0.55) and recoloured light, shafts steel; the bolt head glows and sparks as it's drawn. Both bows (Recon, Shock Dart). Self-grade 7.5. |
+| Flash rule | Blinded if the pop is on your screen (80° default camera: ±56° across, ±40° up and down): 1.75 s in the centre to 1.25 s at the edge. Off screen within 100°: a 0.35 s glance. Behind you: nothing. |
+| Flash look | Valorant's recipe (research below): a warm near-white peak that clears from the edges, a glow pinned on the pop's spot that shrinks into it, gold in the fade (owner's pick). The pop position is sent as `BlindFrom`. |
+| Flash sounds | Pin pull, fuse whistle, a crack plus thump for the pop, a thump for the victim (ProSoundEffects; game rips skipped). |
+| Shock Dart radius and fun | A lightning strike from above, a dome and floor disc at the true radius held 0.5 s, arcs crawling over the area, arcs to everyone hit. Self-grade 8. |
+| Roller fire | A fire-crown blast (kit tongues), fiery bang and gas-fire sounds, fire-orange eyes (not team-tinted). |
+| New models | An interview first (4 questions; the owner took every suggestion), then live Blender: the Roller (two big wheels, charcoal with fire glow, hazard chin, team antenna light) and the Flash (faceted flare canister, gold lens). Uploaded, built and installed; the installed models match the renders. |
+
+**Research (agent, 2026-11-17; numbers from guides and patch notes, the look partly from memory):**
+- Valorant flashes need line of sight and blind fully when you face them.
+- Patch 5.07 made the white shrink as the blind ends; patch 2.02 cut the brightness of its first moment.
+- Agents tint their flash mostly in the fade, and there is no ringing.
+- Boom Bot: 60 HP, 5 s life, 80 → 30 damage between 2 m and 6 m; it bounces off walls and beeps faster as it locks on.
+
+**Still for the owner:** save the match place (the new Roller and Flash models, bow strings, Shock Dart props); listen to the new sounds; a 2-client check; ChatGPT icons.

@@ -53,7 +53,7 @@ end
 -- Blinded (Flash, Config/StatusEffects.blinded): `model` can't see for
 -- `duration` s at `strength` 0..1. A new flash only extends it (the later
 -- end and the stronger strength win while one is running).
-function StatusService.blind(model: Model, duration: number, strength: number)
+function StatusService.blind(model: Model, duration: number, strength: number, from: Vector3?)
 	if
 		duration ~= duration
 		or duration <= 0
@@ -76,6 +76,7 @@ function StatusService.blind(model: Model, duration: number, strength: number)
 		newUntil = math.max(newUntil, untilAt)
 	end
 	model:SetAttribute(cfg.strengthAttribute, s)
+	model:SetAttribute(cfg.fromAttribute, from)
 	model:SetAttribute(cfg.startAttribute, now)
 	model:SetAttribute(cfg.attribute, newUntil)
 end

@@ -45,6 +45,7 @@ local function blast(ctx: Types.ServerCtx, at: Vector3, normal: Vector3)
 	local eye = at + normal * 0.4
 	local static = stats.behaviour == "Static"
 	local hits = 0
+	local struck: { Vector3 } = {} -- where each hit body is (the arcs jump to them)
 	for _, model in Target.combatants() do
 		if model == ctx.character or not Target.alive(model) then
 			continue
@@ -62,6 +63,9 @@ local function blast(ctx: Types.ServerCtx, at: Vector3, normal: Vector3)
 			continue
 		end
 		hits += 1
+		if #struck < 6 then
+			table.insert(struck, point)
+		end
 		if static then
 			ctx.status(model, "Hinder", stats.hinder)
 		else
@@ -85,6 +89,7 @@ local function blast(ctx: Types.ServerCtx, at: Vector3, normal: Vector3)
 		radius = stats.radius,
 		static = static,
 		hits = hits,
+		struck = struck,
 	})
 end
 

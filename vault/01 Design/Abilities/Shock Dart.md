@@ -26,10 +26,11 @@ Recon's bow and controls exactly: hold LMB to charge (1 s to full: 45 → 130 st
 - Server: `src/shared/Mods/ShockDart.luau` (validate clamps the charge to the server's hold time, like Recon). Blast data: ModFx `ShockThrow` (the path) and `ShockBurst` (`at`, surface `normal`, `radius`, `static`, `hits`).
 - First person: `ITEM_HOLDS.ShockDart` = Recon's hold; the bow rig (`VM.BOW`) draws it. Sounds per bow Mod (`ModController.bowSounds`).
 - Model: `ReplicatedStorage.Abilities.ShockDart` (Recon's bow with an amber `Charge_Energy`, `OwnColour = true`, and a shock head: four splayed prongs with amber tips and a diamond coil, all `Dart_*` so they slide with the nock) and `Abilities.ShockBolt` (the flying bolt, same head). Built in Studio from Recon's installed models (2026-11-17); no Blender source yet.
-- Look (`Util/BlastFx.shock`): beat 1 a white `FX_FloorStar` flat on the surface it hit, a four-point sparkle and a light; beat 2 six jagged `FX_Stroke` arcs (light electric blue) snapping to new paths 24 times a second; beat 3 an `FX_Ring` and a `MOD_RING` in team colour at the edge, sparks. Static: ice-white arcs, dashed ring, the arcs' first two frames magenta (the glitch accent).
+- Look v2 (`Util/BlastFx.shock`, 2026-11-17, owner: "it doesn't look like there's a radius... have fun animations"): beat 1 **a bolt cracks down from 9 studs above** onto the impact, a white `FX_FloorStar` on the surface (the server now sends the surface normal), a sparkle and a light; beat 2 **the area at its true size, held about 0.5 s**: an electric dome (`Scan_Shell`) and a lit floor disc filling the radius, the edge ring in team colour, arcs crawling over the whole area on held frames, **an arc jumping to everyone it hit** (`struck` positions in the ModFx); beat 3 sparks. Static: ice-white, dashed edge, magenta first two frames.
+- Bow v2 (2026-11-17): the owner's Sova reference (playtest note, round 2): big, canted, right of centre, the draw pulling down-right; thin light strings and a steel shaft; the bolt head glows and sparks as it's drawn.
 
 ## Sound (placeholders, unauditioned: `Config/ModSounds` → `ShockDart`)
-Bow cues are Recon's ids, pitched up a little. `burst` "Static Zap Blast 2", `burstCrack` "Lightning Flashes Quick Electrical Bursts 56", `static` (G) "Static Zap Mix Reverberant Bursts 3".
+Bow cues are Recon's ids, pitched up a little. The blast (2026-11-17): `burstCrack` "Synth Thunder Cracks Individual Explosion Booms 5" pitched up (the strike) + `burst` "Static Zap Blast 2" + `crackle` "Tesla Coil 2" (the field); `static` (G) "Static Zap Mix Reverberant Bursts 3".
 
 ## Bots
 `BotMods`: in a fight, 10-60 studs, half the time: fired straight at their feet.

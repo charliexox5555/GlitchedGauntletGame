@@ -52,6 +52,8 @@ RW_PALETTE = {
     "Energy": ("#00E5FF", 0.40, 0.0, 2.5, "Neon"),
     "Yellow": ("#FFD23F", 0.40, 0.0, 2.5, "Neon"),          # Stim coil
     "Violet": ("#9B6BFF", 0.40, 0.0, 2.5, "Neon"),          # Recall core
+    "Fire": ("#D9561A", 0.40, 0.0, 2.5, "Neon"),            # Roller eye / vents (free pack): name parts "..._Fire"
+    "Gold": ("#D9A21E", 0.40, 0.0, 2.5, "Neon"),            # Flash lens (free pack): name parts "..._Fire" too
     # VFX kit meshes (review colours only: the game colours, sizes and fades them in code).
     "FxFireDeep": ("#C2331A", 0.60, 0.0, 1.2, "Neon"),      # flame base band
     "FxFire": ("#FF7A1F", 0.60, 0.0, 1.8, "Neon"),          # flame body

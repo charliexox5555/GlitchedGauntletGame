@@ -310,27 +310,34 @@ return table.freeze({
 		throwLob = cue(9114659666, 0.6, 1.2, nil, 40, 0.22),
 		flight = cue(9125363711, 0.6, 1.25, true, 40, nil, 0.8, 1.5),
 		bounce = cue(9118168962, 0.5, 1.3, nil, 40, 0.3, 0.14),
-		-- ShockDart_Burst: 3D, ~60 studs. "Static Zap Blast 2" ...
-		burst = cue(9119594571, 0.9, 1, nil, 60, 0.6, 0.6),
-		-- ... and "Lightning Flashes Quick Electrical Bursts 56" (the crack)
-		burstCrack = cue(9116279560, 0.7, 1.15, nil, 60, 0.45),
+		-- ShockDart_Burst: 3D, ~70 studs. The crack ("Synth Thunder Cracks
+		-- Individual Explosion Booms 5", pitched up hard) ...
+		burstCrack = cue(9126082854, 0.9, 1.6, nil, 70, 0.5),
+		-- ... the zap ("Static Zap Blast 2") ...
+		burst = cue(9119594571, 0.8, 1.05, nil, 60, 0.6, 0.6),
+		-- ... and the arcs crackling on in the field ("Tesla Coil 2").
+		crackle = cue(9119992534, 0.6, 1.1, nil, 50, 0.8),
 		-- ShockDart_Static (G): "Static Zap Mix Reverberant Bursts 3"
 		static = cue(9119595114, 0.6, 1.05, nil, 50, 0.6, 0.4),
 	}),
 	Flash = table.freeze({
-		-- Flash_Equip: you. "Gun From Holster 1", higher
-		equip = cue(9114701864, 0.45, 1.25, nil, nil, 0.6),
+		-- Flash_Equip: you, the pin pulled as it comes up. "Grenade Pull Pin 2"
+		equip = cue(9114659833, 0.6, 1.15, nil, nil, 0.5),
 		-- Flash_Throw: 3D at the hand. Molly's overhand / underhand
 		throw = cue(9126013811, 0.5, 1, nil, 40, 0.4, 0.1),
 		throwLob = cue(9126283272, 0.35, 0.95, nil, 40, nil, 0.18),
-		-- Flash_Flight: 3D. a short whine: "Power Up Accelerating Motors 3", fast
-		flight = cue(9117882661, 0.35, 1.8, true, 35, nil, 0.8, 1.4),
+		-- Flash_Flight: 3D, a rising fuse whistle while it flies. "Fireworks Fast 2"
+		flight = cue(9114447104, 0.55, 1.25, true, 40, nil, 0.15, 1.3),
 		-- Flash_Bounce: 3D. "Canister Drop Canister Impact 3"
 		bounce = cue(9113704875, 0.55, 1.2, nil, 40, 0.5, 0.08),
-		-- Flash_Pop: 3D, ~70 studs. "Grenade Launcher 2" pitched up, a sharp pop
-		pop = cue(9114659666, 1, 1.6, nil, 70, 0.3),
-		-- Flash_Blinded: you, 2D, the low thump under the white-out. "Meaty Thud 7"
-		blinded = cue(9116488211, 0.5, 0.7, nil, nil, 0.6),
+		-- Flash_Pop: 3D, ~80 studs, two layers: the bright crack
+		-- ("Synth Thunder Cracks Individual Explosion Booms 5", pitched up) ...
+		pop = cue(9126082854, 1, 1.3, nil, 80, 0.7),
+		-- ... and a short sub thump under it ("Mortar Explosion 3", pitched up).
+		popThump = cue(9116973611, 0.8, 1.35, nil, 70, 0.7),
+		-- Flash_Blinded: you, 2D, the low thump under the white-out ("Mortar
+		-- Explosion 5", pitched down). No ringing (Valorant has none either).
+		blinded = cue(9116973607, 0.55, 0.65, nil, nil, 0.9),
 		-- Flash_Exposure (G): 3D. the sonar throb, short
 		exposure = cue(9125981390, 0.7, 1.2, nil, 60, 1, 0.05),
 	}),
@@ -345,10 +352,11 @@ return table.freeze({
 		lock = cue(9113719080, 0.7, 1.3, nil, 50, 0.35, 0.14),
 		-- Roller_Warn: 3D. the chirp again, faster
 		warn = cue(9113719080, 0.8, 1.6, nil, 50, 0.4, 0.14),
-		-- Roller_Boom: 3D, ~90 studs. "Meaty Thud 7" ...
-		boom = cue(9116488211, 1, 0.75, nil, 90, 1),
-		-- ... and "Fire Whoosh 2" (the blast)
-		boomBlast = cue(9114442751, 0.8, 1.1, nil, 80),
+		-- Roller_Boom: 3D, ~90 studs, a fiery blast in two layers: the bang
+		-- ("Dirt Explosion 1", sharp bang) ...
+		boom = cue(9114086657, 1, 1.05, nil, 90, 1.4),
+		-- ... and the fireball ("Gas Fire Explosion 2", its first burst)
+		boomBlast = cue(9114554564, 0.7, 1.15, nil, 80, 1.5),
 		-- Roller_Fizzle: 3D. "Static Many Various Length Bursts 24"
 		fizzle = cue(9119583983, 0.5, 0.9, nil, 40, 0.5),
 		-- Roller_Destroyed: 3D. Recon's broken-dart pair

@@ -133,6 +133,7 @@ function ModProps.tint(model: Model, glow: Color3)
 			and (d:GetAttribute("Energy") == true or d.Material == Enum.Material.Neon)
 			and string.sub(d.Name, -7) ~= "_Yellow"
 			and string.sub(d.Name, -7) ~= "_Violet"
+			and string.sub(d.Name, -5) ~= "_Fire"
 			and d:GetAttribute("OwnColour") ~= true
 		then
 			d.Color = glow

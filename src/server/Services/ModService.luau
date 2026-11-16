@@ -758,8 +758,8 @@ local function use(
 		remove = function(part: BasePart, why: string)
 			ModEntities.remove(part, why)
 		end,
-		blind = function(model: Model, duration: number, strength: number)
-			StatusService.blind(model, duration, strength)
+		blind = function(model: Model, duration: number, strength: number, from: Vector3?)
+			StatusService.blind(model, duration, strength, from)
 		end,
 		lookOf = Target.lookOf,
 	}

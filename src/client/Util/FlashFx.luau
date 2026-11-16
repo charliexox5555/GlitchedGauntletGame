@@ -1,14 +1,15 @@
 --!strict
--- The Flash's white-out on the blinded player's own screen (vault/01 Design/
--- Abilities/Flash.md → What a blinded player sees). Our stylised look, not a
--- photoreal glare: angled white plates close in from the edges in `CLOSE`
--- s (the centre plate last), hold while BlindedUntil runs, then break away
--- outward over `BREAK` s. Strength (0..1, how directly you looked) sets how
--- opaque the hold is. The game's sound is muffled while it lasts (an EQ on
--- the Combat master group, eased back as the plates go).
+-- The Flash on the blinded player's own screen (vault/01 Design/Abilities/
+-- Flash.md → What a blinded player sees). Valorant's recipe in our colours
+-- (Config/Mods FLASH_FEEL): it ramps in fast to a warm near-white (a hair
+-- under full), holds, then clears from the edges inward. A glow sits on the
+-- spot where it popped (projected every frame, so it stays on the flash as
+-- you turn) and shrinks into it, turning the Flash's gold as the fill fades.
+-- The game's sound is muffled while it lasts (an EQ on the Combat master
+-- group) and a low thump plays.
 --
--- Driven by the character's BlindedUntil / BlindStrength / BlindedAt
--- attributes (written only by the server's StatusService.blind):
+-- Driven by the character's BlindedUntil / BlindStrength / BlindedAt /
+-- BlindFrom attributes (written only by the server's StatusService.blind):
 -- FlashFx.step() each frame from ModFxController.
 
 local Players = game:GetService("Players")
@@ -16,97 +17,24 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
+local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
 local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
+local Tex = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local ModAudio = require(script.Parent.ModAudio)
 
 local FlashFx = {}
 
-local CLOSE = 0.06 -- seconds the plates take to close in
-local BREAK = 0.4 -- ... and to break away
-local WHITE = Color3.fromHex("F7F9FF")
-
--- Each plate: where it rests (scale position of its centre), its size
--- (scale), its tilt (degrees), and the way it comes in / leaves.
-type PlateSpec = { at: Vector2, size: Vector2, tilt: number, from: Vector2, order: number }
-local PLATES: { PlateSpec } = {
-	{
-		at = Vector2.new(0.18, 0.2),
-		size = Vector2.new(0.7, 0.62),
-		tilt = -14,
-		from = Vector2.new(-1, -1),
-		order = 0,
-	},
-	{
-		at = Vector2.new(0.84, 0.18),
-		size = Vector2.new(0.66, 0.6),
-		tilt = 11,
-		from = Vector2.new(1, -1),
-		order = 0,
-	},
-	{
-		at = Vector2.new(0.12, 0.62),
-		size = Vector2.new(0.6, 0.7),
-		tilt = 8,
-		from = Vector2.new(-1, 0.2),
-		order = 0.1,
-	},
-	{
-		at = Vector2.new(0.9, 0.66),
-		size = Vector2.new(0.6, 0.72),
-		tilt = -9,
-		from = Vector2.new(1, 0.3),
-		order = 0.1,
-	},
-	{
-		at = Vector2.new(0.3, 0.9),
-		size = Vector2.new(0.75, 0.5),
-		tilt = 6,
-		from = Vector2.new(-0.3, 1),
-		order = 0.2,
-	},
-	{
-		at = Vector2.new(0.74, 0.92),
-		size = Vector2.new(0.7, 0.5),
-		tilt = -12,
-		from = Vector2.new(0.4, 1),
-		order = 0.2,
-	},
-	{
-		at = Vector2.new(0.5, 0.06),
-		size = Vector2.new(0.6, 0.34),
-		tilt = -3,
-		from = Vector2.new(0, -1),
-		order = 0.1,
-	},
-	{
-		at = Vector2.new(0.52, 0.97),
-		size = Vector2.new(0.6, 0.3),
-		tilt = 3,
-		from = Vector2.new(0, 1),
-		order = 0.2,
-	},
-	-- The centre, last.
-	{
-		at = Vector2.new(0.5, 0.48),
-		size = Vector2.new(0.62, 0.6),
-		tilt = 4,
-		from = Vector2.new(0, 0),
-		order = 0.6,
-	},
-}
-
-type Plate = { frame: Frame, spec: PlateSpec }
+local FEEL = ModsConfig.FLASH_FEEL
 
 local gui: ScreenGui? = nil
--- The plates draw inside one CanvasGroup: its GroupTransparency is the hold's
--- see-through, so overlapping plates don't stack into patches.
-local group: CanvasGroup? = nil
-local plates: { Plate } = {}
+local fill: Frame? = nil
+local core: ImageLabel? = nil
 local eq: EqualizerSoundEffect? = nil
 
 -- The current blind (os.clock() times): nil when the screen is clear.
-local shown: { closedAt: number, untilAt: number, strength: number }? = nil
+type Shown = { start: number, untilAt: number, strength: number, from: Vector3? }
+local shown: Shown? = nil
 local lastStart = -math.huge
 
 local function build(): ScreenGui
@@ -114,32 +42,31 @@ local function build(): ScreenGui
 	if existing and existing.Parent then
 		return existing
 	end
-	local player = Players.LocalPlayer
 	local made = Instance.new("ScreenGui")
 	made.Name = "FlashBlind"
 	made.IgnoreGuiInset = true
 	made.ResetOnSpawn = false
 	made.DisplayOrder = 60 -- over the HUD
 	made.Enabled = false
-	local canvas = Instance.new("CanvasGroup")
-	canvas.Name = "Plates"
-	canvas.Size = UDim2.fromScale(1, 1)
-	canvas.BackgroundTransparency = 1
-	canvas.Parent = made
-	group = canvas
-	table.clear(plates)
-	for _, spec in PLATES do
-		local frame = Instance.new("Frame")
-		frame.AnchorPoint = Vector2.new(0.5, 0.5)
-		frame.Size = UDim2.fromScale(spec.size.X, spec.size.Y)
-		frame.Rotation = spec.tilt
-		frame.BackgroundColor3 = WHITE
-		frame.BorderSizePixel = 0
-		frame.BackgroundTransparency = 1
-		frame.Parent = canvas
-		table.insert(plates, { frame = frame, spec = spec })
-	end
-	made.Parent = player:WaitForChild("PlayerGui")
+	local f = Instance.new("Frame")
+	f.Name = "Fill"
+	f.Size = UDim2.fromScale(1, 1)
+	f.BorderSizePixel = 0
+	f.BackgroundColor3 = FEEL.peak
+	f.BackgroundTransparency = 1
+	f.Parent = made
+	fill = f
+	local c = Instance.new("ImageLabel")
+	c.Name = "Core"
+	c.AnchorPoint = Vector2.new(0.5, 0.5)
+	c.BackgroundTransparency = 1
+	c.Image = Tex.MOD_GLOW
+	c.ImageColor3 = FEEL.peak
+	c.ImageTransparency = 1
+	c.SizeConstraint = Enum.SizeConstraint.RelativeYY
+	c.Parent = made
+	core = c
+	made.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 	gui = made
 	return made
 end
@@ -155,9 +82,6 @@ local function equalizer(): EqualizerSoundEffect?
 	end
 	local made = Instance.new("EqualizerSoundEffect")
 	made.Name = "FlashMuffle"
-	made.HighGain = 0
-	made.MidGain = 0
-	made.LowGain = 0
 	made.Priority = 5
 	made.Enabled = false
 	made.Parent = master
@@ -170,7 +94,7 @@ local function quint(u: number): number
 end
 
 -- Reads the server's attributes on our character: a new or extended blind
--- starts (or keeps) the plates.
+-- starts (or keeps) it.
 local function poll()
 	local character = Players.LocalPlayer.Character
 	if not character then
@@ -179,29 +103,34 @@ local function poll()
 	local cfg = StatusEffects.blinded
 	local untilAt = character:GetAttribute(cfg.attribute)
 	local startedAt = character:GetAttribute(cfg.startAttribute)
-	local strength = character:GetAttribute(cfg.strengthAttribute)
-	if typeof(untilAt) ~= "number" or typeof(startedAt) ~= "number" then
+	if typeof(untilAt) ~= "number" or typeof(startedAt) ~= "number" or startedAt == lastStart then
 		return
 	end
-	local serverNow = Workspace:GetServerTimeNow()
-	local left = untilAt - serverNow
+	local left = untilAt - Workspace:GetServerTimeNow()
 	if left <= 0.05 then
 		return
 	end
+	lastStart = startedAt
+	local strength = character:GetAttribute(cfg.strengthAttribute)
+	local from = character:GetAttribute(cfg.fromAttribute)
 	local s = if typeof(strength) == "number" then math.clamp(strength, 0, 1) else 1
 	local clock = os.clock()
-	local untilClock = clock + left
 	local current = shown
-	if startedAt ~= lastStart then
-		lastStart = startedAt
-		if current and clock < current.untilAt + BREAK then
-			-- Already white: extend it (never shorter, never weaker).
-			current.untilAt = math.max(current.untilAt, untilClock)
-			current.strength = math.max(current.strength, s)
-		else
-			shown = { closedAt = clock + CLOSE, untilAt = untilClock, strength = s }
-			ModAudio.play(ModAudio.SOUNDS.Flash.blinded)
+	if current and clock < current.untilAt then
+		-- Already blind: extend it (never shorter, never weaker).
+		current.untilAt = math.max(current.untilAt, clock + left)
+		current.strength = math.max(current.strength, s)
+		if typeof(from) == "Vector3" then
+			current.from = from
 		end
+	else
+		shown = {
+			start = clock,
+			untilAt = clock + left,
+			strength = s,
+			from = if typeof(from) == "Vector3" then from else nil,
+		}
+		ModAudio.play(ModAudio.SOUNDS.Flash.blinded)
 	end
 end
 
@@ -214,10 +143,7 @@ function FlashFx.step()
 	local screen = build()
 	local clock = os.clock()
 	local muffle = equalizer()
-	-- Holding: the plates' opacity from the strength (a glance is see-through).
-	local holdAlpha = 1 - (0.35 + 0.65 * current.strength)
-	local over = clock >= current.untilAt + BREAK
-	if over or not Players.LocalPlayer.Character then
+	if clock >= current.untilAt or not Players.LocalPlayer.Character then
 		screen.Enabled = false
 		shown = nil
 		if muffle then
@@ -226,26 +152,48 @@ function FlashFx.step()
 		return
 	end
 	screen.Enabled = true
-	local closing = current.closedAt - CLOSE
-	local breaking = math.max(clock - current.untilAt, 0) / BREAK -- 0 until it breaks
-	for _, p in plates do
-		local spec = p.spec
-		-- In: each plate on its own short delay (the centre last), all inside CLOSE.
-		local delay = spec.order * CLOSE * 0.6
-		local u = quint((clock - closing - delay) / math.max(CLOSE - delay, 0.01))
-		local out = quint(breaking)
-		local push = (1 - u) + out * 0.9
-		local pos = spec.at + spec.from * push * 0.6
-		p.frame.Position = UDim2.fromScale(pos.X, pos.Y)
-		p.frame.Rotation = spec.tilt + out * spec.tilt * 0.8
-		p.frame.BackgroundTransparency = if u <= 0 then 1 else math.max(1 - u, out)
+	local total = current.untilAt - current.start
+	local fade = math.max(total * FEEL.fadeShare, FEEL.minFade)
+	local fadeAt = current.untilAt - fade
+	local into = quint((clock - current.start) / FEEL.rampIn)
+	local clearing = math.clamp((clock - fadeAt) / fade, 0, 1) -- 0 held, 1 clear
+	-- The fill: full at the peak (by strength), clearing first and fastest.
+	local peakAlpha = FEEL.peakAlpha + (1 - FEEL.peakAlpha) * (1 - current.strength) * 0.7
+	local fillAlpha = 1 - (1 - peakAlpha) * into * (1 - quint(clearing * 1.6))
+	local tint = FEEL.peak:Lerp(FEEL.tint, math.clamp(clearing * 1.4, 0, 1))
+	local f = fill
+	if f then
+		f.BackgroundTransparency = fillAlpha
+		f.BackgroundColor3 = tint
 	end
-	local canvas = group
-	if canvas then
-		canvas.GroupTransparency = holdAlpha
+	-- The core: on the flash's spot (or the middle), shrinking into it.
+	local c = core
+	if c then
+		local cam = Workspace.CurrentCamera
+		local spot = Vector2.new(0.5, 0.5)
+		local from = current.from
+		if cam and from then
+			local p = cam:WorldToViewportPoint(from)
+			local view = cam.ViewportSize
+			if p.Z > 0 then
+				spot = Vector2.new(
+					math.clamp(p.X / view.X, -0.1, 1.1),
+					math.clamp(p.Y / view.Y, -0.1, 1.1)
+				)
+			else
+				-- Behind the camera (a glance): pinned to the nearest edge.
+				spot = Vector2.new(if p.X / view.X < 0.5 then 1.05 else -0.05, 0.5)
+			end
+		end
+		local size = FEEL.coreSize + (FEEL.coreEnd - FEEL.coreSize) * quint(clearing)
+		c.Position = UDim2.fromScale(spot.X, spot.Y)
+		c.Size = UDim2.fromScale(size, size)
+		c.ImageColor3 = tint
+		c.ImageTransparency = 1
+			- into * (1 - clearing * clearing) * (0.35 + 0.65 * current.strength)
 	end
 	if muffle then
-		local m = (1 - quint(breaking)) * current.strength
+		local m = (1 - quint(clearing)) * current.strength * FEEL.muffle
 		muffle.Enabled = m > 0.01
 		muffle.HighGain = -30 * m
 		muffle.MidGain = -14 * m

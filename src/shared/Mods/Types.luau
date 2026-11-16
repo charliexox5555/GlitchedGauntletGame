@@ -162,7 +162,7 @@ export type ServerCtx = {
 	remove: (part: BasePart, why: string) -> (),
 	-- Blinded (Flash): `model` can't see for `duration` s, at `strength` 0..1
 	-- (StatusService.blind; the screen effect scales with it).
-	blind: (model: Model, duration: number, strength: number) -> (),
+	blind: (model: Model, duration: number, strength: number, from: Vector3?) -> (),
 	-- Where a combatant is looking: a player's server copy of the camera,
 	-- else its head's (a dummy, a bot).
 	lookOf: (model: Model) -> Vector3,

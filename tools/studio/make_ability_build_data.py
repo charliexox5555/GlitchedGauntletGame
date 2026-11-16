@@ -35,6 +35,11 @@ EXTRA = {
 	# Strips_Violet are Neon in a fixed cool violet (#9B6BFF), NOT team-tinted: code that recolours Neon parts must skip
 	# them (only Light_Energy, the small status light, takes the team colour).
 	"Recall": {"kind": "placed"},
+	# Free pack (2026-11-17, tools/blender/freepack/). Roller: placed (pivot = floor centre, nose +X in Blender =
+	# -Z in Roblox); Eye*_Fire and Vent*_Fire keep their fire orange, Light_Energy (antenna tip) takes the team colour.
+	# Flash: thrown (pivot = centre), held like the Frost canister; Lens_Fire keeps its gold, Band_Energy is the team light.
+	"Roller": {"kind": "placed"},
+	"Flash": {"kind": "thrown", "holdOffset": [0, 0.3, -0.12]},
 }
 # Parts that are seen from both sides.
 DOUBLE_SIDED = {"Panel_Energy", "Shockwave_Energy", "Dome_Energy", "Sphere_Energy", "ScanRing_Energy"}

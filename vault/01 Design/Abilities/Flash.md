@@ -5,7 +5,7 @@
 Control, Projectile. **Q** (slot 1).
 
 ## How it works
-A held throw. LMB throws it (75 studs/s, walls bounce it) and it **pops 0.9 s after leaving the hand**, wherever it is; RMB tosses it a step ahead and it pops after 0.3 s (round a corner). The server decides who is blinded: every live combatant within 30 studs with a clear line from the pop to their head. Where they look sets how long: **1.75 s straight on, falling to 0.6 s at 90°, held to 110°, nothing past it** (behind you). Enemies, teammates and **you** alike.
+A held throw. LMB throws it (75 studs/s, walls bounce it) and it **pops 0.9 s after leaving the hand**, wherever it is; RMB tosses it a step ahead and it pops after 0.3 s (round a corner). The server decides who is blinded: every live combatant within 30 studs with a clear line from the pop to their head. **The rule (owner 2026-11-17): if the pop is on your screen, you are flashed**: the default 80° camera's view, ±56° across and ±40° up and down from your look, 1.75 s in the middle down to 1.25 s at the screen's edge. Off screen but within 100° of your look: a 0.35 s glance. Behind you: nothing. Enemies, teammates and **you** alike.
 
 Where someone looks (`Target.lookOf`): the server's camera copy when there is one, else the body's facing tilted by the replicated `AimPitch` (Server Authority is off, so this is the client's claim: see Security).
 
@@ -13,7 +13,7 @@ Where someone looks (`Target.lookOf`): the server's camera copy when there is on
 |---|---|
 | Charges | 1 per round, no recharge |
 | Range | 30 studs, line of sight (no walls) |
-| Blind | 1.75 s → 0.6 s by angle |
+| Blind | on screen: 1.75 s (centre) → 1.25 s (edge); off screen within 100°: 0.35 s; behind: none |
 
 | Level | Effect |
 |---|---|
@@ -27,16 +27,16 @@ Where someone looks (`Target.lookOf`): the server's camera copy when there is on
 ## Blinded (new status)
 `Config/StatusEffects.blinded`: `BlindedUntil` (server time), `BlindStrength` (0..1: seconds / 1.75) and `BlindedAt` on the character, written only by `StatusService.blind` (a new flash only extends the time and the strength). Not a multiplier: the victim's screen, the status tray (BLINDED, Flash icon), and bots (`Bots/Brain`: a blinded bot doesn't engage, aim or shoot).
 
-## What a blinded player sees (`Util/FlashFx`)
-Nine angled white plates close in from the edges in 0.06 s (the centre last), held while it runs, then break away outward over 0.4 s (Quint). They draw inside one CanvasGroup, whose transparency is the hold's see-through (`1 - (0.35 + 0.65 × strength)`): straight on is a full white-out, a glance shows the scene faintly. The game's sound is muffled (an EQ on the Combat master group), and a low thump plays.
+## What a blinded player sees (`Util/FlashFx`, v2 2026-11-17)
+Valorant's recipe in our colours (`Config/Mods` FLASH_FEEL; research summary in the playtest note): a 0.05 s ramp to a **warm near-white** (`FFF8EA`, never pure white), held, then the last 40% (at least 0.35 s) clears from the edges inward while a glow pinned to **where it popped** (projected every frame, so it stays on the flash as you turn) shrinks into that spot and the colour turns **gold** (`FFC24D`, owner's pick). A glance is a short, weaker version. Sound muffled (60% of the full EQ) and a low thump; no ringing (Valorant has none). The v1 angled white plates were replaced (owner: "not just white out... kind of like a colour").
 
 ## Built
 - Server: `src/shared/Mods/Flash.luau` (`blindFor`, `reaches` for the wall count). ModFx `FlashThrow` (path, `land` = the fuse) and `FlashPop` (`at`, `range`, `exposure`, `hits`).
 - World pop (`Util/BlastFx.flashPop`): one glow 50 → 1 studs over 0.5 s, a hard four-point sparkle, a light (RIVALS FlashbangEffect numbers, our look). Exposure: a cold sparkle (first two frames magenta) and a `ScanRing` in team colour running out to the range.
-- Model: `Abilities.Flash` (Kind `thrown`): an octagonal canister (two boxes, no cylinder), chamfered caps, two team-coloured bands, a pale lens, the spoon and a square pin ring. Studio-built 2026-11-17. Hold: `ITEM_HOLDS.Flash` (Frost-style, scale 1.3).
+- Model v2 (2026-11-17, owner's interview pick "faceted flare canister"): Blender, `tools/blender/freepack/fp_flash.py`, source `art-source/abilities/FreePack/v01/Flash.blend`, asset 105163066204555, 688 tris, audit clean. An 8-facet canister with a foot step, three grip rings, a thin team light band (`Band_Energy`), a metal collar, a dark crown with four guard teeth round a stepped faceted **gold lens** (`Lens_Fire`, keeps its colour), a spoon lever hooked over the collar and a pin ring. Hold: `ITEM_HOLDS.Flash` (scale 1.3).
 
-## Sound (placeholders: `Config/ModSounds` → `Flash`)
-`equip`, `throw` / `throwLob` (Molly's), `flight` (a short whine), `bounce`, `pop` ("Grenade Launcher 2" pitched up), `blinded` (a low thump, 2D), `exposure` (the sonar throb).
+## Sound (`Config/ModSounds` → `Flash`, ProSoundEffects, picked 2026-11-17, not yet heard by the owner)
+`equip` "Grenade Pull Pin 2" (the pin as it comes up) · `flight` "Fireworks Fast 2" (a fuse whistle) · `pop` "Synth Thunder Cracks Individual Explosion Booms 5" pitched up (the crack) + `popThump` "Mortar Explosion 3" pitched up (the body) · `blinded` "Mortar Explosion 5" pitched down (2D thump) · `throw` / `throwLob` / `bounce` / `exposure` as before. Store rips of other games' flashbangs were skipped on purpose.
 
 ## Bots
 `BotMods`: an enemy seen in the last 4 s but out of sight, 8-30 studs away: thrown at where they were.

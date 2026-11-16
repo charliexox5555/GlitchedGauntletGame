@@ -23,7 +23,7 @@ local S = ModAudio.SOUNDS
 local RollerFx = {}
 
 local FOLLOW = 22 -- 1/s: how fast the model closes on the part
-local WHEEL_RADIUS = 0.42
+local WHEEL_RADIUS = 0.5 -- the Blender wheel (tools/blender/freepack/fp_roller.py WR)
 local EYE_DIM = 0.55 -- the eye's transparency while seeking
 local WARN_BLINK = 14 -- Hz
 
@@ -31,7 +31,8 @@ type Tracked = {
 	part: BasePart,
 	model: Model,
 	eyes: { BasePart },
-	wheels: { { part: BasePart, rest: CFrame } },
+	-- Each wheel part with its rest (model space) and its wheel's axle centre.
+	wheels: { { part: BasePart, rest: CFrame, axle: Vector3 } },
 	light: PointLight?,
 	pivot: CFrame, -- drawn
 	last: Vector3, -- the part's position last frame (speed estimate)
@@ -144,14 +145,27 @@ function RollerFx.track(part: BasePart, color: Color3)
 	local model = modelFor(color)
 	local pivotNow = floorPivot(part)
 	local eyes: { BasePart } = {}
-	local wheels: { { part: BasePart, rest: CFrame } } = {}
+	local wheels: { { part: BasePart, rest: CFrame, axle: Vector3 } } = {}
 	local inverse = model:GetPivot():Inverse()
+	-- A wheel's parts share a prefix (WheelL_Tyre, WheelL_Lug3...): they turn
+	-- together about that wheel's centre (its tyre's, else the part's own).
+	local centres: { [string]: Vector3 } = {}
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") and string.find(d.Name, "^Wheel") and string.find(d.Name, "Tyre") then
+			centres[string.match(d.Name, "^(Wheel%w*)") or d.Name] = (inverse * d.CFrame).Position
+		end
+	end
 	for _, d in model:GetDescendants() do
 		if d:IsA("BasePart") then
 			if string.find(d.Name, "^Eye") then
 				table.insert(eyes, d)
 			elseif string.find(d.Name, "^Wheel") then
-				table.insert(wheels, { part = d, rest = inverse * d.CFrame })
+				local rest = inverse * d.CFrame
+				local key = string.match(d.Name, "^(Wheel%w*)") or d.Name
+				table.insert(
+					wheels,
+					{ part = d, rest = rest, axle = centres[key] or rest.Position }
+				)
 			end
 		end
 	end
@@ -159,7 +173,7 @@ function RollerFx.track(part: BasePart, color: Color3)
 	local light: PointLight? = nil
 	if eye then
 		local l = Instance.new("PointLight")
-		l.Color = color
+		l.Color = eye.Color -- the eye's own fire colour (OwnColour), not the team's
 		l.Brightness = 1
 		l.Range = 6
 		l.Shadows = false
@@ -243,8 +257,10 @@ function RollerFx.step(dt: number)
 		local drawn = (t.pivot.Position - before) * Vector3.new(1, 0, 1)
 		local forward = t.pivot.LookVector
 		t.roll += drawn:Dot(forward) / WHEEL_RADIUS
+		-- Each wheel turns about its axle (the model's X through its centre).
+		local turn = CFrame.Angles(-t.roll, 0, 0)
 		for _, w in t.wheels do
-			w.part.CFrame = t.pivot * w.rest * CFrame.Angles(0, t.roll, 0) -- the axle is the wheel's Y
+			w.part.CFrame = t.pivot * CFrame.new(w.axle) * turn * CFrame.new(-w.axle) * w.rest
 		end
 		-- The eye: dim seeking, lit locked, blinking through the warning.
 		local locked = part:GetAttribute("LockedAt")

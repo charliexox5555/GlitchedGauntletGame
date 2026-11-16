@@ -40,17 +40,39 @@ function Flash.options(stats: Types.Stats, quick: boolean): Projectile.Options
 	}
 end
 
--- Seconds of blind for a viewer whose look is `angle` degrees off the pop
--- (0: none).
-function Flash.blindFor(stats: Types.Stats, angle: number): number
-	if angle > stats.maxAngle then
-		return 0
+-- Seconds of blind (and strength 0..1) for a viewer at `head` looking
+-- along `look` when the flash pops at `at`: on their screen, blindMax in the
+-- middle down to blindEdge at the edge; off screen but within glanceAngle, a
+-- short glance; behind them, nothing.
+function Flash.blindFor(
+	stats: Types.Stats,
+	head: Vector3,
+	look: Vector3,
+	at: Vector3
+): (number, number)
+	local to = at - head
+	if to.Magnitude < 1e-3 or look.Magnitude < 1e-3 then
+		return stats.blindMax, 1
 	end
-	if angle >= stats.sideAngle then
-		return stats.blindSide
+	local f = look.Unit
+	local side = f:Cross(Vector3.yAxis)
+	side = if side.Magnitude > 1e-3 then side.Unit else Vector3.xAxis
+	local up = side:Cross(f)
+	local z = to:Dot(f)
+	local angle = math.deg(math.acos(math.clamp(to.Unit:Dot(f), -1, 1)))
+	if z > 0 then
+		local ax = math.deg(math.atan2(math.abs(to:Dot(side)), z))
+		local ay = math.deg(math.atan2(math.abs(to:Dot(up)), z))
+		local edge = math.max(ax / stats.screenX, ay / stats.screenY)
+		if edge <= 1 then
+			local seconds = stats.blindMax + (stats.blindEdge - stats.blindMax) * edge
+			return seconds, seconds / stats.blindMax
+		end
 	end
-	local u = angle / stats.sideAngle
-	return stats.blindMax + (stats.blindSide - stats.blindMax) * u
+	if angle <= stats.glanceAngle then
+		return stats.glance, stats.glance / stats.blindMax
+	end
+	return 0, 0
 end
 
 -- A line from `from` to `to` that crosses at most `walls` world surfaces.
@@ -91,13 +113,6 @@ local function headOf(model: Model): Vector3?
 	return Target.aimPoint(model)
 end
 
-local function angleDeg(a: Vector3, b: Vector3): number
-	if a.Magnitude < 1e-4 or b.Magnitude < 1e-4 then
-		return 180
-	end
-	return math.deg(math.acos(math.clamp(a.Unit:Dot(b.Unit), -1, 1)))
-end
-
 local function pop(ctx: Types.ServerCtx, at: Vector3)
 	local stats = ctx.stats
 	local params = ctx.worldParams()
@@ -115,7 +130,7 @@ local function pop(ctx: Types.ServerCtx, at: Vector3)
 		if not Flash.reaches(at, head, params, stats.walls or 0) then
 			continue
 		end
-		local seconds = Flash.blindFor(stats, angleDeg(ctx.lookOf(model), at - head))
+		local seconds, strength = Flash.blindFor(stats, head, ctx.lookOf(model), at)
 		if seconds <= 0 then
 			continue
 		end
@@ -125,7 +140,7 @@ local function pop(ctx: Types.ServerCtx, at: Vector3)
 				table.insert(revealed, model)
 			end
 		else
-			ctx.blind(model, seconds, seconds / stats.blindMax)
+			ctx.blind(model, seconds, strength, at)
 			blinded += 1
 		end
 	end
