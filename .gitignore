@@ -90,3 +90,12 @@ art-source/audio/ProPack/
 
 # Owner's reference clips of other games (gun / knife feel; third-party, never commit)
 art-source/reference/feel-videos/
+
+# Gun render and review-sheet PNGs (2+ GB, over GitHub's push limit): local only.
+# The .blend / .fbx / .json sources next to them are committed.
+art-source/weapons/Remaster/**/*.png
+art-source/weapons/RemasterV2/**/*.png
+# RIVALS comparison screenshots (third-party, the repo is public)
+vault/02 Art/References/hitfx/*rivals*
+vault/02 Art/References/ui-overhaul/*rivals*
+vault/05 Production/Playtests/*vs RIVALS*
