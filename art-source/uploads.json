@@ -1865,6 +1865,42 @@
   "type": "Decal",
   "uploaded": "2026-11-06 01:51:23"
  },
+ "art-source/maps/Themes/textures/brick.png": {
+  "assetId": 128324915521905,
+  "name": "GG Map Tile brick",
+  "type": "Decal",
+  "uploaded": "2026-11-16 05:33:27"
+ },
+ "art-source/maps/Themes/textures/concrete.png": {
+  "assetId": 99998516335731,
+  "name": "GG Map Tile concrete",
+  "type": "Decal",
+  "uploaded": "2026-11-16 05:33:34"
+ },
+ "art-source/maps/Themes/textures/cuttingmat.png": {
+  "assetId": 127741351298219,
+  "name": "GG Map Tile cuttingmat",
+  "type": "Decal",
+  "uploaded": "2026-11-16 05:33:40"
+ },
+ "art-source/maps/Themes/textures/pavers.png": {
+  "assetId": 129359735361909,
+  "name": "GG Map Tile pavers",
+  "type": "Decal",
+  "uploaded": "2026-11-16 05:33:37"
+ },
+ "art-source/maps/Themes/textures/planks.png": {
+  "assetId": 110665018980787,
+  "name": "GG Map Tile planks",
+  "type": "Decal",
+  "uploaded": "2026-11-16 05:33:31"
+ },
+ "art-source/maps/Themes/textures/tread.png": {
+  "assetId": 88907388394548,
+  "name": "GG Map Tile tread",
+  "type": "Decal",
+  "uploaded": "2026-11-16 05:33:44"
+ },
  "art-source/maps/whitebox/Whitebox_Panel.png": {
   "assetId": 115771155467964,
   "name": "GG Whitebox Panel",

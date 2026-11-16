@@ -68,7 +68,7 @@ class Box:
 
     @property
     def blocks_eye(self):
-        return self.kind not in ("ramp", "low", "plinth") and self.base < EYE <= self.h
+        return self.kind not in ("ramp", "low", "plinth", "void", "bridge", "decor") and self.base < EYE <= self.h
 
     @property
     def collides_floor(self):
@@ -258,8 +258,17 @@ class Grid:
                 ins = poly_contains(plan.room, x, z)
                 self.inside[(ix, iz)] = ins
                 self.sight[(ix, iz)] = (not ins) or any(b.blocks_eye and b.contains(x, z) for b in boxes)
-                self.walk[(ix, iz)] = ins and not any(
-                    b.kind != "ramp" and b.collides_floor and b.contains(x, z, 2.2) for b in boxes
+                self.walk[(ix, iz)] = (
+                    ins
+                    and not any(
+                        b.kind not in ("ramp", "void", "bridge", "decor") and b.collides_floor and b.contains(x, z, 2.2)
+                        for b in boxes
+                    )
+                    # a void (alley gap, molten channel) is walkable only where a bridge crosses it
+                    and not (
+                        any(b.kind == "void" and b.contains(x, z) for b in boxes)
+                        and not any(b.kind == "bridge" and b.contains(x, z) for b in boxes)
+                    )
                 )
 
     def cell_of(self, x, z):
@@ -431,14 +440,14 @@ def report(plan: Plan):
     n = 0
     for i, a in enumerate(boxes):
         for b in boxes[i + 1 :]:
-            if {"ramp", "plinth"} & {a.kind, b.kind} or not (a.collides_floor and b.collides_floor):
+            if {"ramp", "plinth", "void", "bridge", "decor"} & {a.kind, b.kind} or not (a.collides_floor and b.collides_floor):
                 continue
             gp = seg_gap(a, b)
             if 0 < gp < 6.5 and not (a.name.startswith("Frame") and b.name.startswith("Frame")):
                 print(f"   {a.name} - {b.name}: {gp:.1f}")
                 n += 1
     for b in boxes:
-        if b.collides_floor and b.kind not in ("ramp",):
+        if b.collides_floor and b.kind not in ("ramp", "void", "bridge", "decor"):
             wg = wall_gap(plan, b)
             if 0.3 < wg < 6.5:
                 print(f"   {b.name} - room wall: {wg:.1f}")
