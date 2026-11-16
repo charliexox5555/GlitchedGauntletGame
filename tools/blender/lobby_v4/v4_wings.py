@@ -62,11 +62,19 @@ class Locker:
 			(40.0, "HEAVY", [("Odin", 1.9, 4.4), ("Ares", 1.9, 8.6)])]
 		W = V.wframe
 		Mn, Ms = W((cls.X0, cls.Y1), (1, 0)), W((cls.X1, cls.Y0), (-1, 0))
-		skips = {"N": [], "S": [], "W": [(24 - 12.5, 24 + 12.5)], "E": [(24 - 10.0, 24 + 10.0)]}
+		skips = {"N": [], "S": [], "W": [(8.0, 40.5)], "E": [(24 - 10.0, 24 + 10.0)]}
 		for M, side, cases in ((Mn, "N", cases_n), (Ms, "S", cases_s)):
 			for u, label, guns in cases:
 				skips[side].append(V.niche(K, KD, M, u, 9.0, label, guns, "E_Violet", A))
 		walls = V.room(K, KD, A, cls.X0, cls.X1, cls.Y0, cls.Y1, cls.H, ops={"E": [(15.0, 33.0, 0.0, 18.0)]}, skips=skips, beams_x=(-96.0, -80.0))
+		for side in "NS":
+			Mv, _ = walls[side]
+			with C.grp("Vents_" + side, Mv):
+				for u in (19.0, 33.0):
+					V.vent(KD, Mv, u, 2.6, 2.8, 2.0)
+		Mw0, _ = walls["W"]
+		with C.grp("Plaques_Loadout", Mw0):
+			V.plaque(KD, Mw0, 37.6, 10.6, 3.4, 2.4, "notice", "NOTICE", ["PICK YOUR", "LOADOUT HERE"])
 		Me, _ = walls["E"]
 		V.mouth(KD, Me @ V.T(24, 0, 0), 9.0, 18.0)
 		KD["V_Floor2"].box(cls.X1, cls.X1 + 4.0, -5.0, 5.0, 0.0, 0.12)
@@ -86,7 +94,8 @@ class Locker:
 				j = (k + 1) % 8
 				G["E_Violet"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.6, 2.8)
 			G["V_Trim"].prism(V.ccw(V.oct_pts(2.9)), 3.2, 3.5)
-			S.gun_row(["Vandal", 2.2, -88.0, 0.0, 5.3, 0.0, 1.0, 1, 16])
+			G["V_Steel"].prism(V.ccw(V.oct_pts(2.3)), 3.5, 3.7)  # turntable the gun stands on
+			S.gun_row(["Vandal", 2.2, -88.0, 0.0, 4.9, 0.0, 1.0, 1, 16])
 			S.light(I4, -88.0, 0.0, cls.H - 0.6, V.WHITE, 2.4, 30, 40)
 		return K.done() + KD.done()
 
@@ -103,11 +112,18 @@ class Shop:
 		A = cls.AREA
 		W = V.wframe
 		Ms = W((cls.X1, cls.Y0), (-1, 0))
-		skips = {"S": [], "N": [(27 - 15.0, 27 + 15.0)], "E": [(26 - 13.5, 26 + 13.5)], "W": [(26 - 13.0, 26 + 13.0)]}
+		skips = {"S": [], "N": [(27 - 15.0, 27 + 15.0)], "E": [(6.0, 46.0)], "W": [(26 - 13.0, 26 + 13.0)]}
 		for u, label, guns in ((13.0, "SKINS", [("Vandal", 1.9, 4.4), ("Phantom", 1.9, 8.6)]), (27.0, "BUNDLES", [("Spectre", 1.9, 4.4), ("Sheriff", 1.9, 8.6)]),
 				(41.0, "NEW", [("Guardian", 1.9, 4.4), ("Ghost", 1.9, 8.6)])):
 			skips["S"].append(V.niche(K, KD, Ms, u, 9.0, label, guns, "E_Coral", A))
 		walls = V.room(K, KD, A, cls.X0, cls.X1, cls.Y0, cls.Y1, cls.H, ops={"W": [(14.0, 38.0, 0.0, 18.0)]}, skips=skips, beams_x=(80.0, 98.0))
+		Mv, _ = walls["S"]
+		with C.grp("Vents_S", Mv):
+			for u in (20.0, 34.0):
+				V.vent(KD, Mv, u, 2.6, 2.8, 2.0)
+		Me0, _ = walls["E"]
+		with C.grp("Plaques_Counter", Me0):
+			V.plaque(KD, Me0, 9.0, 10.6, 3.4, 2.4, "notice", "NOTICE", ["NEW SKINS", "EVERY WEEK"])
 		Mw, _ = walls["W"]
 		V.mouth(KD, Mw @ V.T(26, 0, 0), 12.0, 18.0)
 		KD["V_Floor2"].box(cls.X0 - 4.0, cls.X0, -8.0, 8.0, 0.0, 0.12)
@@ -131,6 +147,19 @@ class Shop:
 		V.sign(KD, Mn @ V.T(27, 18.5, 0), "SEASON PASS", 20.0, 4.6, accent="E_Coral", name="Sign_SeasonPass", chevrons=False, lh=2.4)
 		stage(K, KD, 89.0, cls.Y1 - 9.6, 5.2, 3.6, "E_Coral")
 		console(K, KD, 89.0, cls.Y1 - 17.5, 0, "E_Coral", A, "LobbyBattlePass", "PassConsole")
+		with C.grp("FeaturePlinth", Matrix.Translation((84.0, -5.0, 0.0))):
+			Mp = Matrix.Translation((84.0, -5.0, 0.0))
+			F, G = S.FK(K, Mp), S.FK(KD, Mp)
+			F["V_Base"].prism(V.ccw(V.oct_pts(3.6)), 0, 0.8)
+			F["V_Wall"].prism(V.ccw(V.oct_pts(2.9)), 0.8, 3.0)
+			o, i = V.oct_pts(3.05), V.oct_pts(2.75)
+			for k in range(8):
+				j = (k + 1) % 8
+				G["E_Coral"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.4, 2.6)
+			G["V_Trim"].prism(V.ccw(V.oct_pts(3.1)), 3.0, 3.3)
+			G["V_Steel"].prism(V.ccw(V.oct_pts(2.3)), 3.3, 3.5)  # turntable the gun stands on
+			S.gun_row(["Phantom", 2.0, 84.0, -5.0, 4.5, 1.0, 0.0, 1, 14])
+			S.light(I4, 84.0, -5.0, cls.H - 0.6, V.WHITE, 2.2, 30, 40)
 		# a crate group beside the door
 		Mf = Matrix.Translation((cls.X0 + 3.6, cls.Y0 + 6.0, 0.0))
 		V.crate(K, Mf @ Matrix.Rotation(radians(90), 4, "Z"))

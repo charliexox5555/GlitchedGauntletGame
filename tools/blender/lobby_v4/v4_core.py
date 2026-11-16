@@ -48,6 +48,7 @@ GLOW = {
 	"E_Coral": ("#FF5C8A", 9.0),
 	"E_Lime": ("#B4E04A", 9.0),
 	"E_Panel": ("#DCE4EA", 3.0),  # frosted clerestory panels
+	"E_Alarm": ("#FF3348", 8.0),
 }
 _L = S._L
 LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVariants)
@@ -78,6 +79,7 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"E_Coral": _L("Neon", "#D9406E", glow=True),
 	"E_Lime": _L("Neon", "#7CAA1C", glow=True),
 	"E_Panel": _L("Neon", "#6E7378", glow=True),
+	"E_Alarm": _L("Neon", "#B21E30", glow=True),
 	"Glass": _L("Glass", "#E2E4E2", t=0.86, r=0.03),
 }
 WHITE = "#F4F1EA"  # lamp light
@@ -136,8 +138,8 @@ def sign(K, M, text, w, h, accent="E_Gold", tilt=13.0, lh=None, standoff=1.0, na
 		F = S.FK(K, M)
 		Mt = M @ T(0, 0, standoff) @ RX(tilt)
 		P = S.FK(K, Mt)
-		cut = h * 0.24
-		plate = ccw(S.cut_rect(-w / 2, w / 2, 0, h, cut, h * 0.08))
+		lean = h * 0.28  # the plate leans forward like motion: our silhouette, not a symmetric frame
+		plate = ccw([(-w / 2, 0.0), (w / 2 - lean, 0.0), (w / 2, h * 0.5), (w / 2 - h * 0.08, h), (-w / 2 + lean, h), (-w / 2 - 0.0, h * 0.62)])
 		P["V_Dark"].prism(plate, 0, 0.7)
 		rim_in = inset(plate, 0.45)
 		S.ring_prism(P["V_Trim"], plate, rim_in, 0.7, 1.05)
@@ -146,14 +148,21 @@ def sign(K, M, text, w, h, accent="E_Gold", tilt=13.0, lh=None, standoff=1.0, na
 		S.ring_prism(P[accent], line_o, line_i, 0.7, 0.82)
 		# letters: thick block glyphs, as big as the plate allows
 		lh = lh or h * 0.5
-		chev = h * 0.42 if chevrons else 0.0
-		room = w - 2 * (1.6 + chev * 1.5 + 0.9) if chevrons else w - 3.0
+		chev = 0.0
+		room = w - 2 * (h * 0.28 + 3.4) if chevrons else w - 2 * (h * 0.28 + 1.0)
 		while S.text_width(text, lh, s=0.25) > room and lh > 0.5:
 			lh *= 0.95
 		S.add_text(P["E_White"], text, lh, 0.32, y0=(h - lh) / 2, z0=0.7, s=0.25, c=0.12, ci=0.05)
+		if chevrons:
+			tw0 = S.text_width(text, lh, s=0.25)
+			for k in range(2):  # the slash pair before the word
+				sx = -tw0 / 2 - 1.2 - k * 1.05
+				P[accent].prism(ccw([(sx - 0.55, h * 0.2), (sx - 0.05, h * 0.2), (sx + 0.55, h * 0.8), (sx + 0.05, h * 0.8)]), 0.7, 0.98)
 		# chevrons pointing in at the word
 		tw = S.text_width(text, lh, s=0.25)
-		for side in ((-1, 1) if chevrons else ()):
+		if chevrons:  # a gold tab on the top edge and a slash pair at the left: our marks
+			P[accent].prism(ccw([(-w / 2 + lean + 0.6, h - 0.05), (-w / 2 + lean + 4.6, h - 0.05), (-w / 2 + lean + 4.2, h + 0.55), (-w / 2 + lean + 1.0, h + 0.55)]), 0.2, 0.8)
+		for side in (() if True else (-1, 1)):
 			for k in range(2):
 				x0 = side * (tw / 2 + 0.9 + k * chev * 0.62)
 				t0, ch = chev * 0.34, chev
@@ -171,20 +180,66 @@ def sign(K, M, text, w, h, accent="E_Gold", tilt=13.0, lh=None, standoff=1.0, na
 
 
 # ---------------------------------------------------------------- fixtures
-def bar_lamp(K, M, length=9.0, name="BarLamp"):
-	"""Vertical white bar lamp (RIVALS' signature fixture, our build): charcoal housing, light grey caps, a white lens
-	split by two dark bands. M: frame on the mounting face at the lamp's bottom centre, Z out."""
+def bar_lamp(K, M, length=9.0, name="BarLamp", feed=3.0):
+	"""Caged wall lamp (our take on RIVALS' bar lamps, built to read as a made object, not a pill): bolted steel back
+	plate, a trapezoid housing, one long lens set behind a steel cage (two rails, four bars), angled end caps, a conduit
+	from the top cap up into a junction box. A spot under it throws a pool on the floor. M: mount face, bottom centre."""
+	L = length
 	with C.grp(name, M, inst=True):
 		F = S.FK(K, M)
-		F["V_Dark"].prism(ccw(S.cham_rect(-0.95, 0.95, 0, length, 0.16)), 0, 0.75)
-		for y0 in (0.0, length - 0.7):
-			F["V_Trim"].prism(ccw(S.cut_rect(-1.15, 1.15, y0 - 0.15, y0 + 0.85, 0.32, 0.08)), -0.05, 0.95)
-		seg = (length - 1.6) / 3
-		for k in range(3):
-			y0 = 0.8 + k * seg + (0.15 if k else 0)
-			y1 = 0.8 + (k + 1) * seg - (0.15 if k < 2 else 0)
-			F["E_White"].prism(ccw(S.cham_rect(-0.55, 0.55, y0, y1, 0.07)), 0.5, 0.92)
-	S.light(M, 0, length * 0.5, 1.6, WHITE, 0.9, 13)
+		F["V_Steel"].prism(ccw(S.cut_rect(-1.3, 1.3, -0.6, L + 0.6, 0.5, 0.12)), 0, 0.2)
+		for bx in (-0.95, 0.95):
+			for by in (-0.3, L + 0.3):
+				F["V_Trim"].box(bx - 0.14, bx + 0.14, by - 0.14, by + 0.14, 0.2, 0.32)
+		F["V_Dark"].ext_y(ccw([(-1.0, 0.2), (-0.72, 0.95), (0.72, 0.95), (1.0, 0.2)]), 0.55, L - 0.55)
+		for y0, y1 in ((0.0, 0.6), (L - 0.6, L)):
+			F["V_Trim"].ext_y(ccw([(-1.12, 0.2), (-0.84, 1.12), (0.84, 1.12), (1.12, 0.2)]), y0, y1)
+		F["E_White"].ext_y(ccw([(-0.5, 0.9), (-0.44, 1.0), (0.44, 1.0), (0.5, 0.9)]), 0.6, L - 0.6)
+		for rx in (-0.62, 0.62):
+			F["V_Steel"].box(rx - 0.09, rx + 0.09, 0.6, L - 0.6, 0.95, 1.16)
+		for k in range(4):
+			by = 0.6 + (L - 1.2) * (k + 0.5) / 4
+			F["V_Steel"].box(-0.66, 0.66, by - 0.09, by + 0.09, 1.0, 1.18)
+		if feed > 0:
+			F["V_Steel"].pipe((0, L - 0.1, 0.6), (0, L + feed, 0.6), 0.2, n=8)
+			F["V_Dark"].prism(ccw(S.cut_rect(-0.55, 0.55, L + feed, L + feed + 1.1, 0.25, 0.06)), 0.0, 1.0)
+			F["V_Trim"].box(-0.3, 0.3, L + feed - 0.05, L + feed + 0.05, 0.3, 0.9)  # gland
+	S.light(M, 0, -0.4, 1.8, WHITE, 1.5, 18, 110)
+
+
+def gusset(K, M, x, y, z, depth=3.6, height=2.6, t=0.35):
+	"""A steel knee brace in frame M: a cut triangle plate under a beam end (y = beam bottom, z = start), with bolts."""
+	F = S.FK(K, M)
+	F["V_Steel"].ext_x(ccw([(y - height, z), (y, z), (y, z + depth), (y - 0.5, z + depth), (y - height, z + 0.6)]), x - t / 2, x + t / 2)
+	for by, bz in ((y - 0.6, z + 0.6), (y - 0.5, z + depth - 0.8)):
+		F["V_Trim"].box(x - t / 2 - 0.08, x + t / 2 + 0.08, by - 0.14, by + 0.14, bz - 0.14, bz + 0.14)
+
+
+def conduit(K, M, x0, x1, y, z=0.62, r=0.22, every=5.0, flanges=(True, True)):
+	"""A conduit run along a wall (frame M), saddle clamps back to the wall, flanges where it enters a pier."""
+	F = S.FK(K, M)
+	F["V_Steel"].pipe((x0, y, z), (x1, y, z), r, n=8)
+	n = max(1, int(abs(x1 - x0) // every))
+	for k in range(n):
+		cx = x0 + (x1 - x0) * (k + 0.5) / n
+		F["V_Trim"].box(cx - 0.14, cx + 0.14, y - r - 0.12, y + r + 0.12, 0.0, z + r + 0.08)
+		F["V_Steel"].box(cx - 0.3, cx + 0.3, y - r - 0.3, y + r + 0.3, 0.0, 0.12)
+	for x, on in ((x0, flanges[0]), (x1, flanges[1])):
+		if on:
+			o = [(1.55 * r * cos(radians(22.5 + 45 * q)), 1.55 * r * sin(radians(22.5 + 45 * q))) for q in range(8)]
+			F["V_Trim"].ext_x(ccw([(y + b, z + a) for a, b in o]), x - 0.15 if x == x0 else x - 0.15, x + 0.15)
+
+
+def hazard_strip(K, M, x0, x1, y0, y1, z, step=1.2):
+	"""Gold and dark diagonal stripes on the floor (frame M floor plane): a threshold mark."""
+	F = S.FK(K, M)
+	F["V_Base"].box(x0, x1, y0, y1, z, z + 0.03)
+	w = y1 - y0
+	x = x0
+	while x < x1 - 0.2:
+		a, b = x, min(x + step * 0.5, x1)
+		F["V_GoldPaint"].prism(ccw([(a, y0), (b, y0), (min(b + w * 0.6, x1), y1), (min(a + w * 0.6, x1), y1)]), z + 0.03, z + 0.06)
+		x += step
 
 
 def down_light(K, M, x, y, z, rng=24, bright=1.6, angle=80, name="DownLight"):
@@ -197,8 +252,14 @@ def board(K, M, w, h, kind, title, sub="", name="Board", accent="E_Gold"):
 	SurfaceGui, a hood lamp over it. M: frame on the wall face at the board's bottom centre."""
 	with C.grp(name, M, inst=False):
 		F = S.FK(K, M)
-		case = ccw(S.cut_rect(-w / 2, w / 2, 0, h, 1.1, 0.25))
+		case = ccw(S.cham_rect(-w / 2, w / 2, 0, h, 0.18))
 		F["V_Dark"].prism(case, 0, 1.1)
+		for sx in (-1, 1):  # side ears bolted to the wall
+			F["V_Steel"].prism(ccw([(sx * (w / 2 - 0.1), h * 0.25), (sx * (w / 2 + 0.9), h * 0.32), (sx * (w / 2 + 0.9), h * 0.68), (sx * (w / 2 - 0.1), h * 0.75)]), 0, 0.8)
+			for by in (h * 0.4, h * 0.6):
+				F["V_Trim"].box(sx * (w / 2 + 0.5) - 0.13, sx * (w / 2 + 0.5) + 0.13, by - 0.13, by + 0.13, 0.8, 0.92)
+		F["V_Steel"].pipe((w * 0.32, h - 0.3, 0.5), (w * 0.32, h + 2.8, 0.5), 0.18, n=8)  # power feed: out of the case top...
+		F["V_Dark"].prism(ccw(S.cut_rect(w * 0.32 - 0.5, w * 0.32 + 0.5, h + 2.6, h + 3.6, 0.2, 0.05)), 0.0, 0.9)  # ...into a junction box on the wall
 		S.ring_prism(F["V_Trim"], inset(case, 0.25), inset(case, 0.6), 1.1, 1.3)
 		F[accent].prism(ccw(S.cham_rect(-w / 2 + 1.4, -w / 2 + 3.6, 0.32, 0.62, 0.1)), 1.1, 1.22)  # status bar
 		S.screen(kind, title, sub, M, 0, h / 2, 1.16, w - 1.6, h - 1.6)
@@ -306,10 +367,11 @@ def pier_at(K, KD, M, H, area, lamp=True, w=3.6, d=3.1, name="Pier"):
 		F["V_Wall"].ext_y(ccw(S.cham_rect(-w, w, -1.0, d, 0.6)), 1.8, H - 5.4)
 		S.taper_y(F["V_Trim"], (-w, w, -1.0, d), H - 5.4, (-w - 0.7, w + 0.7, -1.0, d + 0.8), H - 4.25)
 		F["V_Wall"].ext_y(ccw(S.cham_rect(-w - 0.7, w + 0.7, -1.0, d + 0.8, 0.5)), H - 4.25, H)
+		F["V_Trim"].ext_y(ccw(S.cham_rect(-w - 0.3, w + 0.3, -1.0, d + 0.3, 0.2)), 8.9, 9.9)  # collar at the belt line
 		if lamp:
 			F["V_Low"].ext_y(ccw(S.cham_rect(-1.5, 1.5, d - 0.2, d + 0.25, 0.08)), 10.6, 22.4)
 	if lamp:
-		bar_lamp(KD, M @ T(0, 11.2, d + 0.25), length=10.6)
+		bar_lamp(KD, M @ T(0, 11.2, d + 0.25), length=10.6, feed=max(0.0, H - 5.4 - 11.2 - 10.6 - 1.4))
 	S.light(M, 0, H - 4.6, d + 2.2, WHITE, 1.3, 30, 75)
 
 
@@ -346,7 +408,8 @@ def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.
 		KD["V_Beam"].ext_y(ccw([(bx - 1.4, z + 0.25), (bx - 1.4, z - 1.6), (bx - 0.8, z - 2.3), (bx + 0.8, z - 2.3), (bx + 1.4, z - 1.6), (bx + 1.4, z + 0.25)]), y0, y1)
 	for a, b in zip(xs, xs[1:]):
 		xm = (a + b) / 2
-		KD["E_White"].prism(ccw(S.cham_rect(xm - min(5.0, (b - a) / 2 - 3), xm + min(5.0, (b - a) / 2 - 3), (y0 + y1) / 2 - 2.2, (y0 + y1) / 2 + 2.2, 0.6)), z - 0.15, z)
+		hw_, ym = min(5.0, (b - a) / 2 - 3), (y0 + y1) / 2
+		ceiling_lamp(KD, xm, ym, z, hw_, 2.2)
 		S.light(Matrix.Identity(4), xm, (y0 + y1) / 2, z - 0.4, WHITE, 1.1, 30, 80)
 	nx, ny = max(1, round(W / 12)), max(1, round(D / 12))
 	for i in range(nx):
@@ -354,7 +417,19 @@ def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.
 			ax, bx = x0 + W * i / nx, x0 + W * (i + 1) / nx
 			ay, by = y0 + D * j / ny, y0 + D * (j + 1) / ny
 			KD["V_Floor" if (i + j) % 2 == 0 else "V_Floor2"].box(ax + 0.125, bx - 0.125, ay + 0.125, by - 0.125, z0, z0 + 0.12)
+	for side in "NS":
+		M, L = walls[side]
+		conduit(KD, M, 3.4, L - 3.4, H - 4.4)
 	return walls
+
+
+def ceiling_lamp(KD, x, y, z, hw, hd):
+	"""A housed ceiling panel: a dark stepped frame, a recessed lens, three steel grille bars (not a floating card)."""
+	G = KD
+	S.ring_prism(G["V_Dark"], ccw(S.cham_rect(x - hw - 0.7, x + hw + 0.7, y - hd - 0.7, y + hd + 0.7, 0.3)), ccw(S.cham_rect(x - hw, x + hw, y - hd, y + hd, 0.2)), z - 0.55, z + 0.05)
+	G["E_White"].prism(ccw(S.cham_rect(x - hw, x + hw, y - hd, y + hd, 0.2)), z - 0.3, z - 0.15)
+	for k in (-1, 0, 1):
+		G["V_Steel"].box(x + k * hw * 0.5 - 0.1, x + k * hw * 0.5 + 0.1, y - hd, y + hd, z - 0.52, z - 0.3)
 
 
 def run(K, KD, M, x0, x1, H, ops, skips, dx0=None, dx1=None):
@@ -410,3 +485,90 @@ def niche(K, KD, M, u, w, label, guns, accent, area, sill=3.6, top=13.0, depth=3
 			t = R @ Vector((1, 0, 0))
 			S.gun_row([gid, sc, round(p.x, 3), round(p.y, 3), round(p.z, 3), round(t.x, 4), round(t.y, 4), 0, 0])
 	return (u - hw - 1.4, u + hw + 1.4)
+
+
+# ---------------------------------------------------------------- the little things (owner 2026-11-16: vents, warning
+# signs, lights and accents are what pull RIVALS together): our own versions, faceted, bolted, connected to the wall
+def vent(K, M, x, y, w=3.2, h=2.4, slats=5):
+	"""A wall vent in frame M (wall face, centre x, bottom y): a body seated into the wall, a faceted frame with cut
+	corners, a dark recess, angled louvre slats, four bolts."""
+	F = S.FK(K, M)
+	x0, x1, y0, y1 = x - w / 2, x + w / 2, y, y + h
+	F["V_Wall"].box(x0 + 0.1, x1 - 0.1, y0 + 0.1, y1 - 0.1, -0.2, 0.75)
+	S.ring_prism(F["V_Trim"], ccw(S.cut_rect(x0, x1, y0, y1, 0.45, 0.12)), ccw(S.cut_rect(x0 + 0.32, x1 - 0.32, y0 + 0.32, y1 - 0.32, 0.3, 0.06)), 0.6, 1.0)
+	F["V_Base"].box(x0 + 0.3, x1 - 0.3, y0 + 0.3, y1 - 0.3, 0.6, 0.66)
+	for k in range(slats):
+		sy = y0 + 0.45 + (h - 0.9) * (k + 0.5) / slats
+		F["V_Steel"].ext_x(ccw([(sy - 0.14, 0.66), (sy - 0.02, 0.66), (sy + 0.16, 0.92), (sy + 0.04, 0.92)]), x0 + 0.32, x1 - 0.32)
+	for bx in (x0 + 0.2, x1 - 0.2):
+		for by in (y0 + 0.2, y1 - 0.2):
+			F["V_Steel"].box(bx - 0.08, bx + 0.08, by - 0.08, by + 0.08, 1.0, 1.08)
+
+
+def plaque(K, M, x, y, w, h, kind, title, lines):
+	"""A printed safety plaque in frame M (wall face): a thin steel backer with bolts; the print is a SurfaceGui."""
+	F = S.FK(K, M)
+	F["V_Steel"].prism(ccw(S.cham_rect(x - w / 2 - 0.15, x + w / 2 + 0.15, y - 0.15, y + h + 0.15, 0.08)), 0.55, 0.75)
+	F["V_Wall"].box(x - w / 2 + 0.3, x + w / 2 - 0.3, y + 0.3, y + h - 0.3, -0.2, 0.56)  # seat into the wall
+	for bx in (x - w / 2 + 0.05, x + w / 2 - 0.05):
+		F["V_Trim"].box(bx - 0.07, bx + 0.07, y + h / 2 - 0.07, y + h / 2 + 0.07, 0.75, 0.82)
+	S.screen(kind, title, "|".join(lines), M, x, y + h / 2, 0.79, w, h)
+
+
+def beacon(K, M, x, y, z=0.0):
+	"""An alarm beacon on a wall bracket: steel base plate, an 8-sided red lens in a cage, a light."""
+	F = S.FK(K, M)
+	F["V_Steel"].prism(ccw(S.cut_rect(x - 0.6, x + 0.6, y - 0.6, y + 0.6, 0.2, 0.05)), z + 0.5, z + 0.7)
+	F["V_Dark"].ext_x(ccw([(y - 0.35, z + 0.7), (y - 0.35, z + 1.2), (y + 0.35, z + 1.2), (y + 0.35, z + 0.7)]), x - 0.35, x + 0.35)
+	Mb = M @ T(x, y, z + 1.55) @ RX(90)
+	B = S.FK(K, Mb)
+	B["E_Alarm"].prism(ccw(oct_pts(0.42)), -0.45, 0.45)
+	for k in range(4):
+		a = radians(45 + 90 * k)
+		B["V_Steel"].box(0.5 * cos(a) - 0.05, 0.5 * cos(a) + 0.05, 0.5 * sin(a) - 0.05, 0.5 * sin(a) + 0.05, -0.5, 0.5)
+	B["V_Dark"].prism(ccw(oct_pts(0.36)), 0.45, 0.6)
+	S.light(M, x, y, z + 2.4, "#FF4A5A", 0.6, 8)
+
+
+def stage_spot(K, center, ang, r, z, aim):
+	"""A stage spot hung under a truss: clamp, yoke, an 8-sided can tilted down at the aim point, a lens."""
+	c, s = cos(ang), sin(ang)
+	p = Vector((center[0] + r * c, center[1] + r * s, z))
+	d = (Vector(aim) - p).normalized()
+	F = S.FK(K, Matrix.Identity(4))
+	F["V_Dark"].box(p.x - 0.25, p.x + 0.25, p.y - 0.25, p.y + 0.25, z - 0.1, z + 0.35)  # clamp
+	F["V_Steel"].pipe((p.x, p.y, z - 0.1), (p.x, p.y, z - 0.6), 0.12, n=6)  # yoke stem
+	can0 = p + Vector((0, 0, -1.0)) - d * 0.5
+	can1 = p + Vector((0, 0, -1.0)) + d * 0.75
+	F["V_Dark"].pipe(tuple(can0), tuple(can1), 0.4, n=8)
+	F["V_Trim"].pipe(tuple(can1 - d * 0.05), tuple(can1 + d * 0.12), 0.47, n=8)
+	F["E_White"].pipe(tuple(can1 + d * 0.1), tuple(can1 + d * 0.16), 0.32, n=8)
+	for side in (-1, 1):  # yoke arms
+		q = Vector((-s, c, 0)) * 0.62 * side
+		F["V_Steel"].pipe((p.x + q.x, p.y + q.y, z - 0.6), (p.x + q.x, p.y + q.y, z - 1.1), 0.08, n=6)
+	F["V_Steel"].pipe((p.x - s * 0.62, p.y + c * 0.62, z - 0.6), (p.x + s * 0.62, p.y - c * 0.62, z - 0.6), 0.08, n=6)
+
+
+def truss_ring(K, center, r, z0, z1, ceiling, n_seg=8, diag=4):
+	"""An octagonal box truss hung on rods: two chord rings, zigzag web members, hangers up to the ceiling."""
+	F = S.FK(K, Matrix.Identity(4))
+	pts = lambda rr, zz: [Vector((center[0] + rr * cos(radians(45 * k)), center[1] + rr * sin(radians(45 * k)), zz)) for k in range(n_seg)]  # nodes between the radial beams
+	for rr in (r - 0.6, r + 0.6):
+		lo, hi = pts(rr, z0), pts(rr, z1)
+		for k in range(n_seg):
+			j = (k + 1) % n_seg
+			F["V_Dark"].pipe(tuple(lo[k]), tuple(lo[j]), 0.16, n=6)
+			F["V_Dark"].pipe(tuple(hi[k]), tuple(hi[j]), 0.16, n=6)
+			for q in range(diag):
+				a = lo[k].lerp(lo[j], q / diag)
+				b = hi[k].lerp(hi[j], (q + 0.5) / diag)
+				c2 = lo[k].lerp(lo[j], (q + 1) / diag)
+				F["V_Steel"].pipe(tuple(a), tuple(b), 0.07, n=6)
+				F["V_Steel"].pipe(tuple(b), tuple(c2), 0.07, n=6)
+	lo_in, lo_out, hi_in, hi_out = pts(r - 0.6, z0), pts(r + 0.6, z0), pts(r - 0.6, z1), pts(r + 0.6, z1)
+	for k in range(n_seg):  # rungs across the box at every node, a hanger rod to the ceiling with a plate
+		F["V_Steel"].pipe(tuple(lo_in[k]), tuple(lo_out[k]), 0.08, n=6)
+		F["V_Steel"].pipe(tuple(hi_in[k]), tuple(hi_out[k]), 0.08, n=6)
+		m = (hi_in[k] + hi_out[k]) / 2
+		F["V_Steel"].pipe(tuple(m), (m.x, m.y, ceiling + 0.2), 0.1, n=6)
+		F["V_Steel"].box(m.x - 0.45, m.x + 0.45, m.y - 0.45, m.y + 0.45, ceiling - 0.15, ceiling + 0.05)

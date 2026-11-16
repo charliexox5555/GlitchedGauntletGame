@@ -691,7 +691,33 @@ function M.screens(): string
 		gui.Parent = part
 		local W, H = w * PX, h * PX
 		local bg = frame(gui, 0, 0, W, H, INK)
-		if kind == "queue" or kind == "locked" then
+		if kind == "warning" or kind == "caution" or kind == "notice" then
+			-- printed safety plaques (our own words): WARNING red, CAUTION yellow, NOTICE dark with the gold slash
+			local base = if kind == "warning"
+				then Color3.fromHex("#C3263C")
+				elseif kind == "caution" then Color3.fromHex("#F0B414")
+				else Color3.fromHex("#1B1D21")
+			local ink = if kind == "caution" then Color3.fromHex("#141414") else Color3.fromHex("#F6F4EE")
+			bg.BackgroundColor3 = base
+			gui.Brightness = 1
+			local m = math.floor(math.min(W, H) * 0.06)
+			local panel = frame(bg, m, m, W - 2 * m, H - 2 * m, base)
+			outline(panel, ink, math.max(2, math.floor(m * 0.45)))
+			local band = math.floor((H - 2 * m) * 0.34)
+			local head = frame(panel, 0, 0, W - 2 * m, band, if kind == "caution" then Color3.fromHex("#141414") else base)
+			if kind == "notice" then
+				slashMark(head, 10, math.floor(band * 0.15), math.floor(band * 0.7), GOLD)
+			end
+			label(head, title, 0, 0, W - 2 * m, band, math.floor(band * 0.72), if kind == "caution" then Color3.fromHex("#F0B414") else ink, true, Enum.TextXAlignment.Center)
+			if kind == "warning" then
+				frame(panel, m, band, W - 4 * m, math.max(2, math.floor(m * 0.4)), ink)
+			end
+			local lines = string.split(sub, "|")
+			local lh = math.floor((H - 2 * m - band - m) / math.max(1, #lines))
+			for i, line in lines do
+				label(panel, line, 0, band + m * 0.5 + (i - 1) * lh, W - 2 * m, lh, math.floor(lh * 0.78), ink, true, Enum.TextXAlignment.Center)
+			end
+		elseif kind == "queue" or kind == "locked" then
 			local live = kind == "queue"
 			local n = tonumber(string.sub(title, 1, 1)) or 1
 			label(bg, title, 18, 4, 220, 50, 50, if live then CREAM else MUTED, true)
@@ -913,14 +939,16 @@ local LIGHTING_PROPS = {
 -- Lighting for Lobby V4 ("Gauntlet Bunker", the RIVALS feel): a dark interior lit by white bar lamps and pools, daylight
 -- down the lantern over the spawn. Tuned from Studio captures.
 M.V4_LIGHTING = {
-	Ambient = Color3.fromRGB(112, 114, 120), -- tuned in Studio 2026-11-16 (round 2: lamps make the pools, ambient a step lower)
-	OutdoorAmbient = Color3.fromRGB(140, 143, 150),
-	Brightness = 2.8,
+	-- round 3 (2026-11-16): RIVALS runs full environment light on mid-grey shells; ours: env diffuse for the form
+	-- gradients, ambient below outdoor (LihFolk: Lighting Technologies and Settings), a neutral grade against sky blue
+	Ambient = Color3.fromRGB(80, 80, 82),
+	OutdoorAmbient = Color3.fromRGB(122, 121, 120),
+	Brightness = 3,
 	ClockTime = 12.3,
 	GeographicLatitude = 4,
-	ExposureCompensation = 0,
-	EnvironmentDiffuseScale = 0.5,
-	EnvironmentSpecularScale = 0.1,
+	ExposureCompensation = 0.1,
+	EnvironmentDiffuseScale = 0.6,
+	EnvironmentSpecularScale = 0.25,
 	ColorShift_Top = Color3.fromRGB(255, 253, 248),
 	ShadowSoftness = 0.6,
 }
@@ -982,7 +1010,7 @@ function M.use(which: string): string
 		end
 		local grade = cc :: ColorCorrectionEffect
 		grade.Contrast, grade.Saturation, grade.TintColor =
-			0.16, 0.02, Color3.fromRGB(248, 250, 255) -- neutral, a touch crisp
+			0.12, -0.12, Color3.fromRGB(255, 251, 245) -- neutral: takes the sky's blue out of the env light
 		grade.Enabled = true
 		if v3 then
 			v3.Enabled = false

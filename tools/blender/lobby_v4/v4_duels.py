@@ -85,6 +85,10 @@ def bay(K, KD, M, mode, idx):
 		P["V_Steel"].prism(V.ccw(S.cham_rect(3.9, 6.1, d - 0.4, d, 0.15)), 0.0, 1.0)  # its flange
 		S.light(M, 0, h - 3.6, -d * 0.5, V.WHITE, 2.6, 22, 85)
 		S.light(M, 0, 8.0, -d * 0.35, V.WHITE, 0.9, 16)  # fill: the queue is a stage
+	V.hazard_strip(KD, M @ V.RX(-90), -hw + 1.2, hw - 1.2, -2.6, -1.3, 0.12)  # threshold stripes on the hall floor
+	with C.grp("BayDetails", M):
+		V.plaque(KD, M @ V.T(-(hw - 3.2), 0, -d * 0.5) @ Matrix.Rotation(radians(90), 4, "Y"), 0, 5.4, 3.2, 2.0, "caution", "CAUTION", ["STAND ON PAD", "TO QUEUE"])
+		V.beacon(KD, M, -(hw + 0.2), h + 0.9)
 	V.sign(KD, M @ V.T(0, h + 1.6, 0), mode.upper(), 11.0, 5.0, accent="E_Gold", tilt=10, standoff=0.8, name="BaySign", light=False, lh=3.1, chevrons=False)
 	c = Mf @ Vector((0, d * 0.5 - 0.3, 3.0))
 	if mode in ("1v1", "2v2", "3v3"):
@@ -170,9 +174,9 @@ def ceiling(K, KD):
 		KD["V_Beam"].ext_y(V.ccw([(x - 1.3, z + 0.25), (x - 1.3, z - 1.4), (x - 0.7, z - 2.0), (x + 0.7, z - 2.0), (x + 1.3, z - 1.4), (x + 1.3, z + 0.25)]), Y0, Y1 + 6.0)
 	for y0, y1 in ((66.0, PIERS[0]), (PIERS[0], PIERS[1]), (PIERS[1], Y1)):
 		ym = (y0 + y1) / 2
-		KD["E_White"].prism(V.ccw(S.cham_rect(-8.0, 8.0, ym - 2.4, ym + 2.4, 0.8)), z - 0.15, z)
+		V.ceiling_lamp(KD, 0.0, ym, z, 8.0, 2.4)
 		for sx in (-1, 1):
-			KD["E_White"].prism(V.ccw(S.cham_rect(sx * 29 - 5.0, sx * 29 + 5.0, ym - 1.2, ym + 1.2, 0.5)), z - 0.15, z)
+			V.ceiling_lamp(KD, sx * 29.0, ym, z, 5.0, 1.2)
 		S.light(Matrix.Identity(4), 0, ym, z - 0.4, V.WHITE, 1.5, 36, 80)
 
 
@@ -256,7 +260,14 @@ def walls(K, KD):
 		bay(K, KD, frame((X, y), (0, -1)), m, idx)
 	# front wall (the hub side), seen from the hall: local x = -world x
 	Mf = frame((0, Y0), (-1, 0))
-	V.wall_run(K, KD, Mf, -X, X, H, [(-PHW, PHW, 3.0, 25.0)], panel_skip=[(-PHW - 1.0, PHW + 1.0)], dx0=-X + 2.0, dx1=X - 2.0)
+	with C.grp("FrontDetails", Mf):
+		for sx in (-1, 1):
+			V.plaque(KD, Mf, sx * 18.4, 10.6, 3.6, 2.6, "warning", "WARNING!", ["WHEN LAMPS FLASH", "MATCH STARTS"])
+			V.beacon(KD, Mf, sx * 18.4, 14.2)
+			V.plaque(KD, Mf, sx * 22.8, 10.6, 3.2, 2.2, "caution", "CAUTION", ["KEEP LANE", "CLEAR"])
+			for x in (27.6, 31.2):
+				V.vent(KD, Mf, sx * x, 2.6, 3.0, 2.2)
+	V.wall_run(K, KD, Mf, -X, X, H, [(-PHW, PHW, 3.0, 25.0)], panel_skip=[(-PHW - 1.0, PHW + 1.0), (15.6, 25.2), (-25.2, -15.6)], dx0=-X + 2.0, dx1=X - 2.0)
 	# piers: three between bays on each side, one at every apse corner
 	for y in PIERS:
 		V.pier_at(K, KD, frame((-X, y), (0, 1)), H, AREA, w=3.0)

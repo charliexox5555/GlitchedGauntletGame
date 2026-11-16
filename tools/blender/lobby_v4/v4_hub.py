@@ -41,7 +41,11 @@ def pier(K, KD, k):
 		F["V_Wall"].ext_y(V.ccw(S.cham_rect(-4.3, 4.3, -4.6, 3.9, 0.5)), 29.8, HW)
 		# a shallow channel up the shaft front that holds the lamp
 		F["V_Low"].ext_y(V.ccw(S.cham_rect(-1.5, 1.5, 2.9, 3.35, 0.08)), 10.6, 22.4)
-	V.bar_lamp(KD, M @ V.T(0, 11.2, 3.35), length=10.6)
+	V.bar_lamp(KD, M @ V.T(0, 11.2, 3.35), length=10.6, feed=5.2)
+	with C.grp("PierCollar", M, inst=True):
+		S.FK(KD, M)["V_Trim"].ext_y(V.ccw(S.cham_rect(-3.9, 3.9, -4.6, 3.4, 0.2)), 8.9, 9.9)
+		for sx in (-1.4, 1.4):
+			V.gusset(KD, M, sx, 31.6, 3.0)
 	S.light(M, 0, 29.4, 5.2, V.WHITE, 1.3, 30, 75)
 	return M
 
@@ -58,6 +62,10 @@ def ceiling(KC, KCD, KD):
 	ring_sectors(KCD["V_Beam"], 30.0, 32.4, 32.6, HW + 0.3)  # coffer ring (tops sunk into the slab)
 	ring_sectors(KCD["V_Beam"], RL - 0.3, RL + 2.4, 31.2, HW + 0.3)  # lantern ring
 	ring_sectors(KD["E_White"], RL + 0.5, RL + 1.6, 31.08, 31.22)  # cove strip under the lantern ring
+	# a housed lamp in every outer coffer, between the radial beams
+	for k in range(8):
+		th = radians(45 * k)
+		V.ceiling_lamp(KD, 39.0 * cos(th), 39.0 * sin(th), HW, 1.6, 1.6)
 	for k in range(8):
 		phi = radians(22.5 + 45 * k)
 		c, s = cos(phi), sin(phi)
@@ -159,6 +167,9 @@ def portal(K, KD, M, hw, h, depth, close=True, cut=2.4, lining="V_Low", name="Po
 		for sx in (-1, 1):  # the lining is visual: players stop at boxes hidden inside its legs and head
 			S.collider(AREA, M, sx * (h3 + 0.15), sx * (h2 - 0.1), 0.0, v3 - 0.1, -depth, 0.2, "B")
 		S.collider(AREA, M, -(h2 - 0.2), h2 - 0.2, v3 + 0.15, v2 - 0.1, -depth, 0.2, "B")
+		for rz in ([-depth * 0.35, -depth * 0.7] if depth > 6 else []):
+			S.u_frame(FD["V_Trim"], h3 + 0.05, v3 + 0.05, h3 - 0.45, v3 - 0.45, rz - 0.3, rz + 0.3, co=cut, ci=cut - 0.2)
+			FD["E_White"].box(-h3 * 0.5, h3 * 0.5, v3 - 0.5, v3 - 0.42, rz - 0.15, rz + 0.15)
 		if close:
 			F["V_Base"].box(-hw - 1, hw + 1, 0, h + 1, -depth - 1.0, -depth)
 		S.light(M, 0, v3 - 0.6, -depth * 0.45, V.WHITE, 1.6, 22, 80)
@@ -206,10 +217,12 @@ def diagonals(K, KD):
 	for th, title in ((45, "TOP WINS"), (135, "WIN STREAKS")):
 		M = V.face_at(th, R)
 		wall(K, KD, M, panel_skip=(-11.0, 11.0))
+		V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
 		V.board(KD, M @ V.T(0, 11.6, 0), 19.0, 11.5, "leader", title, name="Board_" + title.replace(" ", ""))
 	# SW: news board and a crate stack
 	M = V.face_at(225, R)
 	wall(K, KD, M, panel_skip=(-9.5, 9.5))
+	V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
 	V.board(KD, M @ V.T(0, 12.4, 0), 17.0, 10.0, "news", "SEASON 1", "NEW MAPS · NEW MODS", name="Board_News")
 	Mf = M @ V.RX(-90)
 	for x, z, yaw in ((-10.4, 0.0, 0.0), (-4.9, 0.0, 4.0), (-7.8, 3.32, -7.0)):
@@ -218,6 +231,7 @@ def diagonals(K, KD):
 	# SE: the social niche: two benches, a show stage, the featured board
 	M = V.face_at(315, R)
 	wall(K, KD, M, panel_skip=(-8.5, 8.5))
+	V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
 	V.board(KD, M @ V.T(0, 13.4, 0), 15.0, 9.0, "featured", "FEATURED", "THIS WEEK", name="Board_Featured")
 	for sx in (-1, 1):
 		with C.grp("Bench", M @ V.T(sx * 10.0, 0, 0), inst=True):
@@ -227,6 +241,31 @@ def diagonals(K, KD):
 			F["V_Seat"].ext_x(V.ccw([(2.45, 0.4), (2.45, 1.7), (4.8, 1.45), (5.0, 1.0), (5.0, 0.35)]), -3.0, 3.0)
 			F["V_Trim"].ext_x(V.ccw([(2.2, 3.7), (2.45, 3.95), (2.6, 3.95), (2.6, 3.6)]), -3.1, 3.1)
 	S.light(M, 0, 30.0, 6.0, V.WHITE, 1.4, 26, 60)
+
+
+def rig(KD):
+	with C.grp("LightingRig", Matrix.Identity(4)):
+		V.truss_ring(KD, (0.0, 0.0), 17.0, 29.5, 30.5, 31.2)  # under the lantern ring: clear of every door sign sightline
+		for k in range(8):
+			V.stage_spot(KD, (0.0, 0.0), radians(22.5 + 45 * k), 17.0, 29.5, (0.0, 0.0, 1.0))
+
+
+def details(K, KD):
+	"""Vents low on the board walls, safety plaques and beacons beside the doors."""
+	for th in (45, 135, 225, 315):
+		M = V.face_at(th, R)
+		with C.grp("Vents", M):
+			for x in ((4.6,) if th == 225 else (-4.6, 4.6)):  # none behind the crate stack
+				V.vent(KD, M, x, 2.6, 3.0, 2.2)
+	M = V.face_at(180, R)  # Locker door: plaques on the left strip, a beacon over them
+	with C.grp("Plaques_Locker", M):
+		V.plaque(KD, M, -11.4, 10.6, 3.2, 2.2, "notice", "NOTICE", ["SKINS SAVE", "PER GUN"])
+		V.plaque(KD, M, 11.4, 10.6, 3.2, 2.2, "caution", "CAUTION", ["KEEP DOOR", "CLEAR"])
+	M = V.face_at(270, R)  # Range door: sealed, says so
+	with C.grp("Plaques_Range", M):
+		V.plaque(KD, M, -11.8, 10.6, 3.4, 2.6, "warning", "WARNING!", ["RANGE CLOSED", "OPENS SOON"])
+		V.beacon(KD, M, -11.8, 14.0)
+		V.plaque(KD, M, 11.8, 10.6, 3.4, 2.2, "caution", "CAUTION", ["DO NOT", "BLOCK DOOR"])
 
 
 def build():
@@ -247,6 +286,8 @@ def build():
 	wall(K, KD, V.face_at(270, R), ops=[(-10.0, 10.0, 0.0, 18.0)], panels=False)
 	doors(K, KD)
 	diagonals(K, KD)
+	rig(KD)
+	details(K, KD)
 	S.light(Matrix.Identity(4), 0, 0, 30.5, V.WHITE, 1.2, 34, 70)  # a soft pool on the dais under the lantern ring
 	return K.done() + KD.done() + KC.done() + KCD.done()
 
