@@ -39,7 +39,7 @@ PIER = Plan(
         container("Mid container", 0, 0, along_z=True, length=20),
         Box("Gantry leg", -42.5, 0, 5, 10, 30, 0, "pillar"),
         Box("Gantry leg", 42.5, 0, 5, 10, 30, 0, "pillar"),
-        Box("Gantry beam", 0, 0, 90, 5, 30, 0, "full", 25.0),
+        Box("Gantry beam", 0, 0, 85, 5, 30, 0, "full", 25.0),
     ],
     half=[
         container("Spawn container", 0, 55, along_z=False, length=30),
@@ -73,7 +73,7 @@ DOCKYARD = Plan(
         container("Mid container", 0, 0, along_z=True, length=30),
         Box("Gantry leg", -60, 0, 5, 10, 34, 0, "pillar"),
         Box("Gantry leg", 60, 0, 5, 10, 34, 0, "pillar"),
-        Box("Gantry beam", 0, 0, 125, 5, 34, 0, "full", 29.0),
+        Box("Gantry beam", 0, 0, 120, 5, 34, 0, "full", 29.0),
     ],
     half=[
         container("Spawn container", 0, 85, along_z=False, length=30),

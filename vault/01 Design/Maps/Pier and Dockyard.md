@@ -26,7 +26,9 @@ Kit module: container **10 × 10 × 30** (short 10 × 10 × 20), 10 high = full 
 Plans: `vault/02 Art/References/maps/port/pier-layout.png`, `dockyard-layout.png` (+ SVG). Fixes made on the way: spawn exits that faced each other down one lane (crate stacks block it), containers 2.5-5.6 apart (now touching or 10+ apart), the Dockyard warehouse given real doors and two ways onto the roof, two 258-stud diagonals broken by crate stacks.
 
 ## Greybox (match place)
-Builder: `tools/studio/maps/Port/Greybox.luau` → `Workspace.Pier` (4800, 200, 0) and `Workspace.Dockyard` (4800, 200, -600). Plain parts with the grid tile (deck grey, containers slate, crates tan, gantry and warehouse greys), a water plane 6 below, `KillDepth` 30, empty `Barriers`, a `Lighting` profile (Pier midday 13.5, Dockyard late afternoon 17.2). **Not built yet on 2026-11-16:** the owner was playtesting in the match place; run the file in edit mode.
+Builder: `tools/studio/maps/Port/Greybox.luau` → `Workspace.Pier` (4800, 200, 0) and `Workspace.Dockyard` (4800, 200, -600). Plain parts with the grid tile (deck grey, containers slate, crates tan, gantry and warehouse greys), a water plane 6 below, `KillDepth` 30, empty `Barriers`, a `Lighting` profile (Pier midday 13.5, Dockyard late afternoon 17.2). **Built 2026-11-16:** Pier 41 parts, Dockyard 73 parts. Same-plane check: 650 face pairs; the only overlap was each gantry beam ending flush with its legs' outer faces, fixed by shortening the beams to end inside the legs (Pier 85, Dockyard 120; builder and layout updated), so 0 now.
+
+**Bot playtest (Pier, 2026-11-16):** `ForceMap = Pier`, `TestMode = false` for the run (put back to `true` / `OldTown2`). Player and bot spawned on the markers (±5, ±70), held through the draft and 3-2-1, then the bot ran the east lane (16,-51) → (13,-35) → our spawn with no stuck spots; the next round reset to the markers. Not played yet: Dockyard, the perches and the warehouse roof by hand, Updraft under the gantry.
 
 ## Kit test (Blender, port 9930)
 `tools/blender/maps_port/port_kit.py` → `container()`: chamfered corner posts, top/bottom rails, angled-plate corrugation on the long sides and blind end, a two-leaf door end with three inset bands, four 6-sided lock bars, handle plates, hinges, corner castings. 30 × 10 × 10, **1,760 tris** (medium piece). Render: `vault/02 Art/References/maps/port/kit-test-container.png` (red and grey, one stacked, beside the R15 proxy). Next kit pieces: short container, gantry crane (truss legs, beam, trolley, hanging hook block), bollard, warehouse roof (corrugated, eaves), quay edge with a fender strip.
@@ -40,7 +42,7 @@ Shared style line for every prompt: *"Stylized Roblox shooter map, clean flat co
 5. **Palette swatch:** "Colour swatch board for a stylized port map: concrete greys, slate container grey, one container red accent, tan crate wood, dark charcoal steel, sea blue water; flat swatches with names. No text other than colour names."
 
 ## Test list (owner, once the greybox is built)
-1. Match place, edit mode: run `tools/studio/maps/Port/Greybox.luau` if `Workspace.Pier` is missing.
+1. Both greyboxes are in the match place (`Workspace.Pier`, `Workspace.Dockyard`); save the place.
 2. `ForceMap` = `Pier` (or `Dockyard`), `TestMode` = false, Play; put them back after.
 3. Spawn hold at the container, then the lanes; climb the crate steps onto the +10 perch from both ends.
 4. Dockyard: walk through the warehouse doors, up the outside stair and the crate route to the +14 roof.
