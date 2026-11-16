@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local Tex = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
 local VfxPool = require(script.Parent.VfxPool)
+local ReworkVfx = require(script.Parent.ReworkVfx) -- the effects clock (Studio review can slow / freeze it)
 
 local ModVfx = {}
 
@@ -174,7 +175,7 @@ function ModVfx.quad(spec: QuadSpec): Handle
 		part = p,
 		pool = quads(),
 		decal = decal,
-		born = os.clock(),
+		born = ReworkVfx.now(),
 		life = spec.life,
 		cframe = spec.cframe,
 		from = from,
@@ -202,7 +203,7 @@ function ModVfx.shell(spec: ShellSpec): Handle
 		part = p,
 		pool = shells(),
 		decal = nil,
-		born = os.clock(),
+		born = ReworkVfx.now(),
 		life = spec.life,
 		cframe = spec.cframe,
 		from = spec.from,
@@ -260,7 +261,7 @@ function ModVfx.mesh(spec: MeshSpec): Handle?
 		part = p,
 		pool = pool,
 		decal = nil,
-		born = os.clock(),
+		born = ReworkVfx.now(),
 		life = spec.life,
 		cframe = spec.cframe,
 		from = spec.from,
@@ -281,7 +282,7 @@ function ModVfx.stop(handle: Handle)
 		return
 	end
 	handle.stopped = true
-	local age = os.clock() - handle.born
+	local age = ReworkVfx.now() - handle.born
 	handle.life = math.min(handle.life, age + FADE_TAIL)
 	handle.hold = true
 end
@@ -357,7 +358,7 @@ end
 -- Per frame ----------------------------------------------------------------------
 
 function ModVfx.step()
-	local now = os.clock()
+	local now = ReworkVfx.now()
 	for i = #live, 1, -1 do
 		local l = live[i]
 		local k = (now - l.born) / l.life

@@ -36,6 +36,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local VfxPool = require(script.Parent.VfxPool)
+local ReworkVfx = require(script.Parent.ReworkVfx) -- the effects clock (Studio review can slow / freeze it)
 
 local GlitchVfx = {}
 
@@ -106,7 +107,7 @@ local templates: { [string]: Template } = {}
 local pools: { [string]: VfxPool.Pool<BasePart> } = {}
 local live: { Live } = {}
 local connection: RBXScriptConnection? = nil
-local lastStep = os.clock()
+local lastStep = ReworkVfx.now()
 
 local NAMES: { Name } = {
 	"Crack_Energy",
@@ -208,7 +209,7 @@ local function poolFor(name: string, tpl: Template): VfxPool.Pool<BasePart>
 end
 
 local function step()
-	local now = os.clock()
+	local now = ReworkVfx.now()
 	local dt = math.min(now - lastStep, 0.1)
 	lastStep = now
 	for i = #live, 1, -1 do
@@ -278,7 +279,7 @@ function GlitchVfx.piece(spec: Spec): Handle?
 	local entry: Live = {
 		part = p,
 		pool = pool,
-		born = os.clock(),
+		born = ReworkVfx.now(),
 		life = math.max(spec.life, 0.01),
 		cframe = spec.cframe,
 		from = from,
@@ -295,7 +296,7 @@ function GlitchVfx.piece(spec: Spec): Handle?
 	}
 	table.insert(live, entry)
 	if not connection then
-		lastStep = os.clock()
+		lastStep = ReworkVfx.now()
 		connection = RunService.RenderStepped:Connect(step)
 	end
 	return entry
@@ -340,7 +341,7 @@ function GlitchVfx.stop(handle: Handle)
 		return
 	end
 	handle.stopped = true
-	local age = os.clock() - handle.born
+	local age = ReworkVfx.now() - handle.born
 	handle.life = math.min(handle.life, age + FADE_TAIL)
 	handle.hold = true
 end

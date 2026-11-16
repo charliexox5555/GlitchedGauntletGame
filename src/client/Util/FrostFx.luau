@@ -37,9 +37,14 @@ local ICE = Color3.fromHex("BFE8FF")
 local DEEP = Color3.fromHex("7FD4FF") -- every other crystal: a deeper blue
 local CRACK = Color3.fromHex("E8F8FF") -- the ring and the cracks glow ice white
 local GROUND_TIME = 3.5 -- the frost on the floor lingers, then fades
+-- Ice pass (2026-11-16, Ability VFX Direction → Ice: "hard, still shapes"):
+-- the crystals hold for the whole Hinder (3 s) instead of sinking after ~1 s,
+-- then shatter into flying fragments; no round flash.
+local HOLD_TIME = 3 -- crystals stand this long (Frost L1's Hinder)
+local SHATTER_LIFE = 0.5
 local rng = Random.new()
-local VIGNETTE_IN = TweenInfo.new(0.2)
-local VIGNETTE_OUT = TweenInfo.new(0.5)
+local VIGNETTE_IN = TweenInfo.new(0.1, Enum.EasingStyle.Quint, Enum.EasingDirection.Out) -- the ice snaps in
+local VIGNETTE_OUT = TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
 
 local function curve(points: { number }): NumberSequence
 	local keys = {}
@@ -151,7 +156,7 @@ local function kitBurst(at: Vector3, radius: number): boolean
 		at = floor,
 		scale = flat,
 		color = ICE,
-		alpha = 0.35,
+		alpha = 0.5, -- 0.35 read as a flat white sheet
 		life = GROUND_TIME,
 		from = 0.3,
 		grow = 0.15,
@@ -185,22 +190,65 @@ local function kitBurst(at: Vector3, radius: number): boolean
 	IceKit.spawn({
 		name = "Cluster",
 		at = floor,
-		scale = Vector3.one * 2.6 * big,
+		scale = Vector3.one * 4.6 * big, -- 2.6 was a small sprig among the bigger spikes
 		color = ICE,
-		alpha = 0.1,
-		life = 1.2,
+		alpha = 0.05,
+		life = HOLD_TIME,
 		from = 0.1,
 		grow = 0.12,
 		snap = true,
-		fade = 0.35,
-		sink = 2.8 * big,
+		fade = 0.15,
 	})
+	-- Two more clusters, smaller and leaning out, so the centre reads as an
+	-- ice growth, not one small crystal on a big patch.
+	for k = 1, 2 do
+		local a = rng:NextNumber(0, math.pi * 2)
+		local off = Vector3.new(math.cos(a), 0, math.sin(a)) * radius * 0.22
+		IceKit.spawn({
+			name = "Cluster",
+			at = CFrame.new(at + off + Vector3.new(0, 0.02, 0))
+				* IceKit.yaw(rng)
+				* CFrame.Angles(math.rad(rng:NextNumber(10, 22)), 0, 0),
+			scale = Vector3.one * (3.4 - k * 0.5) * big,
+			color = if k == 1 then DEEP else ICE,
+			alpha = 0.05,
+			delay = 0.03 * k,
+			life = HOLD_TIME - 0.03 * k,
+			from = 0.1,
+			grow = 0.12,
+			snap = true,
+			fade = 0.15,
+		})
+	end
+	local function shatter(base: Vector3, out: Vector3, n: number, delay: number)
+		for k = 1, n do
+			local dir = (out + Vector3.new(rng:NextNumber(-0.6, 0.6), 0, rng:NextNumber(-0.6, 0.6))).Unit
+			IceKit.spawn({
+				name = IceKit.FRAGMENTS[(k - 1) % #IceKit.FRAGMENTS + 1],
+				at = CFrame.new(base + Vector3.new(0, rng:NextNumber(0.4, 1.4), 0))
+					* IceKit.yaw(rng),
+				scale = Vector3.one * rng:NextNumber(0.6, 1) * big,
+				color = if k % 2 == 0 then DEEP else ICE,
+				alpha = 0.1,
+				delay = delay,
+				life = SHATTER_LIFE,
+				fade = 0.25,
+				velocity = dir * rng:NextNumber(8, 14) + Vector3.new(0, rng:NextNumber(6, 10), 0),
+				spin = Vector3.new(
+					rng:NextNumber(-9, 9),
+					rng:NextNumber(-9, 9),
+					rng:NextNumber(-9, 9)
+				),
+			})
+		end
+	end
+	shatter(at, Vector3.new(0.01, 0, 0), 4, HOLD_TIME - 0.1) -- the centre: every way
 	local count = math.clamp(math.floor(radius * 0.7), 6, 12)
 	for i = 1, count do
 		local angle = (i + rng:NextNumber(-0.3, 0.3)) / count * math.pi * 2
 		local out = Vector3.new(math.cos(angle), 0, math.sin(angle))
 		local dist = radius * rng:NextNumber(0.35, 0.7)
-		local len = rng:NextNumber(1.6, 2.6) * big
+		local len = rng:NextNumber(2.4, 3.6) * big -- 1.6-2.6 read as pebbles
 		local base = at + out * dist
 		IceKit.spawn({
 			name = IceKit.pick(rng, IceKit.SHARDS),
@@ -210,24 +258,16 @@ local function kitBurst(at: Vector3, radius: number): boolean
 			color = if i % 2 == 0 then DEEP else ICE,
 			alpha = 0.1,
 			delay = dist / radius * 0.08,
-			life = 0.9,
+			life = HOLD_TIME - dist / radius * 0.08,
 			from = 0.05,
 			grow = 0.1,
 			snap = true,
-			fade = 0.3,
-			sink = len,
+			fade = 0.15,
 		})
+		if i % 2 == 0 then
+			shatter(base, out, 1, HOLD_TIME - 0.1)
+		end
 	end
-	ModVfx.shell({
-		shape = Enum.PartType.Ball,
-		cframe = CFrame.new(at + Vector3.new(0, 1, 0)),
-		from = Vector3.one * 2,
-		to = Vector3.one * radius * 0.6,
-		color = ICE,
-		life = 0.14,
-		alpha0 = 0.3,
-		material = Enum.Material.Neon,
-	})
 	ModVfx.burst(at + Vector3.new(0, 1, 0), ICE, 12, "Sparkle")
 	return true
 end
@@ -423,34 +463,51 @@ local vignette: ImageLabel? = nil
 local hinderedNow = false
 local coldHum: ModAudio.Hum? = nil
 
-local function screen(): ImageLabel
+-- While hindered: stylised ice plates in the two top corners (T_FrostCorner,
+-- the texture grows from its top-left; the right one is turned 90°), snapping
+-- in and holding still. Was a full-screen realistic frost-fern vignette.
+local corners: { ImageLabel } = {}
+local function screen(): { ImageLabel }
 	local v = vignette
-	if v and v.Parent then
-		return v
+	if v and v.Parent and #corners > 0 then
+		return corners
 	end
+	table.clear(corners)
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "FrostScreen"
 	gui.IgnoreGuiInset = true
 	gui.ResetOnSpawn = false
 	gui.DisplayOrder = 2
 	gui.Parent = player:WaitForChild("PlayerGui")
-	local img = Instance.new("ImageLabel")
-	img.Name = "Vignette"
-	img.Size = UDim2.fromScale(1, 1)
-	img.BackgroundTransparency = 1
-	img.Image = VFX.FROST_VIGNETTE
-	img.ImageColor3 = ICE
-	img.ImageTransparency = 1
-	img.ScaleType = Enum.ScaleType.Stretch
-	img.Parent = gui
-	vignette = img
-	return img
+	for i, x in { 0, 1 } do
+		local img = Instance.new("ImageLabel")
+		img.Name = if i == 1 then "CornerLeft" else "CornerRight"
+		img.AnchorPoint = Vector2.new(x, 0)
+		img.Position = UDim2.fromScale(x, 0)
+		img.Size = UDim2.fromScale(0.42, 0.42)
+		img.Rotation = if i == 1 then 0 else 90
+		img.BackgroundTransparency = 1
+		img.Image = VFX.T_FROST_CORNER
+		img.ImageColor3 = ICE
+		img.ImageTransparency = 1
+		img.ScaleType = Enum.ScaleType.Stretch
+		local ratio = Instance.new("UIAspectRatioConstraint")
+		ratio.AspectRatio = 1
+		ratio.DominantAxis = Enum.DominantAxis.Height
+		ratio.Parent = img
+		img.Parent = gui
+		table.insert(corners, img)
+	end
+	vignette = corners[1]
+	return corners
 end
 
 local function setHindered(on: boolean)
-	TweenService:Create(screen(), if on then VIGNETTE_IN else VIGNETTE_OUT, {
-		ImageTransparency = if on then 0.15 else 1,
-	}):Play()
+	for _, img in screen() do
+		TweenService:Create(img, if on then VIGNETTE_IN else VIGNETTE_OUT, {
+			ImageTransparency = if on then 0.1 else 1,
+		}):Play()
+	end
 	if on then
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		ModAudio.stopHum(coldHum)

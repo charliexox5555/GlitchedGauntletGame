@@ -29,6 +29,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local VfxPool = require(script.Parent.VfxPool)
+local ReworkVfx = require(script.Parent.ReworkVfx) -- the effects clock (Studio review can slow / freeze it)
 
 local IceKit = {}
 
@@ -101,7 +102,7 @@ function IceKit.ready(): boolean
 		table.clear(nameOf)
 		table.clear(lastScale)
 	end
-	local now = os.clock()
+	local now = ReworkVfx.now()
 	if now < nextCheck then
 		return false
 	end
@@ -231,7 +232,7 @@ function IceKit.spawn(spec: Spec): Handle?
 	local h: Handle = {
 		part = part,
 		spec = spec,
-		born = os.clock() + (spec.delay or 0),
+		born = ReworkVfx.now() + (spec.delay or 0),
 		life = spec.life,
 		stopped = false,
 	}
@@ -245,11 +246,11 @@ function IceKit.stop(h: Handle)
 		return
 	end
 	h.stopped = true
-	if os.clock() < h.born then
+	if ReworkVfx.now() < h.born then
 		h.life = 0 -- still waiting out its delay: never shows
 		return
 	end
-	local age = os.clock() - h.born
+	local age = ReworkVfx.now() - h.born
 	h.life = math.min(h.life, age + (h.spec.fade or 0.3))
 end
 
@@ -260,7 +261,7 @@ local function backOut(x: number): number
 end
 
 function IceKit.step()
-	local now = os.clock()
+	local now = ReworkVfx.now()
 	for i = #live, 1, -1 do
 		local h = live[i]
 		local s = h.spec

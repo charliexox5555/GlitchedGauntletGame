@@ -88,6 +88,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `04 Tech/Prompts/2026-11-15 Lobby UI Overhaul.md` (5): prompt for the lobby UI overhaul session (shared kit, router, every lobby screen, phones, match UI pass)
 - `04 Tech/Prompts/2026-11-15 Gunplay Feel (RIVALS).md` (9): handoff (current state with file:line) + prompt for RIVALS-style hit markers, headshot look, crosshair motion on slide, body on slide
 - `04 Tech/Prompts/2026-11-16 Lobby Build (RIVALS study).md` (10): handoff (Sunwell / V3 state, locked look, rejected list, pipeline, scripted hooks) + prompt to study the RIVALS lobby and rebuild ours as Lobby V4, main area first
+- `04 Tech/Prompts/2026-11-16 Maps Redesign (RIVALS-clean).md` (9): handoff (decision, lineup, RIVALS numbers, map contract the code reads) + prompt for the full map redesign in the RIVALS-clean look, Opus routing
 - `04 Tech/Setup Guide.md` (9): install, Rojo, Obsidian, Claude, prompts
 - `04 Tech/Codex Collaboration.md` (3): how the core chat uses the user's Codex app
 - `04 Tech/LihFolk.md` (2): the Roblox knowledge plugin and where its notes live
@@ -112,6 +113,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Daily Log/YYYY-MM-DD.md`: one note per work day (only 2026-10-26 so far)
 - `05 Production/Playtests/2026-11-14 Full-Length Gun Audio.md`: match-range roster checks, full Vandal tail and 70-shot positional overlap, hit and metallic headshot playback.
 - `05 Production/Playtests/2026-11-15 Gunplay Feel RIVALS.md`: RIVALS-style hit marker (kite blades, shrink spring), faceted headshot crown burst, crosshair slide tilt / air / Dash / bloom / ADS collapse, springy slide roll, RIVALS tracer timing; RIVALS numbers, grades, test list, parked calls.
+- `05 Production/Playtests/2026-11-16 Effects Pass Overnight.md`: the overnight pass over every ability effect after fire (ice, then the rest), before / after grades and captures, the capture recipe on the shared effects clock.
 - `05 Production/Playtests/2026-11-16 Recon Bow Draw.md`: the Recon bow's limbs were installed backwards (fixed in Studio + builder `turnY`); first-person hold rebuilt as a left-hand bow with a right-hand two-hand draw; the geometry rules behind the numbers.
 - `05 Production/Playtests/2026-11-16 Fire Element Pass 1.md`: rework fire (ReworkVfx kit + FireFx): Molly patch, Fork Fire split, burning bodies; greyscale and colour captures, spec deviations waiting on the owner, how to freeze and capture through the MCP.
 - `05 Production/Playtests/2026-11-15 Match Damage and Reset.md`: shot counter lockout and Player attribute overflow, reproduced and tested through a full bot match.

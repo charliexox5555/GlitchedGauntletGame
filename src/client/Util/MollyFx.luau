@@ -48,6 +48,7 @@ local FireFx = require(script.Parent.FireFx)
 local FireKit = require(script.Parent.FireKit)
 local ModAudio = require(script.Parent.ModAudio)
 local ModVfx = require(script.Parent.ModVfx)
+local ReworkVfx = require(script.Parent.ReworkVfx)
 
 local MollyFx = {}
 
@@ -762,7 +763,7 @@ function MollyFx.ignite(
 		return
 	end
 	local isGlitch = glitch == true
-	local now = os.clock()
+	local now = ReworkVfx.now()
 	-- The rework look (Fork Fire's small fires are Molly fires too).
 	local patch = if REWORK_PATCH then FireFx.patch(at, radius, left, ringColor) else nil
 	if patch then
@@ -985,7 +986,7 @@ end
 
 -- Per frame (ModFxController.update).
 function MollyFx.step()
-	local now = os.clock()
+	local now = ReworkVfx.now()
 	local animate = now - lastAnim >= ANIM_GAP
 	if animate then
 		lastAnim = now
