@@ -55,6 +55,11 @@ function Cards.finish(cell: GuiObject)
 	if cell:FindFirstChild("CapL") or cell:GetAttribute("Plated") == true then
 		return
 	end
+	-- a box that lays out its children would lay out the skin too (the shop's
+	-- item card grew to 4,776 px: "it kind of glitches", 2026-11-16)
+	if cell:FindFirstChildWhichIsA("UIGridStyleLayout") then
+		return
+	end
 	local corner = cell:FindFirstChildOfClass("UICorner")
 	-- no UICorner = a square box: a near-square bevel
 	local r = if corner then corner.CornerRadius.Offset else 2

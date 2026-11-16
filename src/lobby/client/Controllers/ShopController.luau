@@ -35,6 +35,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local ItemStage = require(script.Parent.Parent.Util.ItemStage)
 local OddsList = require(script.Parent.Parent.Util.OddsList)
 local Pivot = require(script.Parent.Parent.Util.Pivot)
+local Thumb = require(script.Parent.Parent.Util.Thumb)
 local Plates = require(script.Parent.Parent.Util.Plates)
 local CloseButton = require(script.Parent.Parent.Util.CloseButton)
 local Layout = require(script.Parent.Parent.Util.Layout)
@@ -206,7 +207,7 @@ local function hookBig(card: GuiButton)
 	local hovered = false
 	card.MouseEnter:Connect(function()
 		hovered = true
-		rest(scale, 1.015)
+		rest(scale, KM.hoverCard) -- the card pops inside the closing brackets (RIVALS: grows on hover)
 		if sel and sel:IsA("GuiObject") then
 			sel.Visible = true
 			for _, b in brackets do
@@ -292,6 +293,7 @@ end
 
 local function showItemCard(item: ShopCatalog.Item, at: GuiObject)
 	local cell = child(itemCard, "Cell") :: Frame
+	Thumb.item(cell, item)
 	cell.BackgroundColor3 = itemColor(item);
 	(child(cell, "Kind") :: TextLabel).Text = string.upper(item.kind)
 	local words = child(itemCard, "Words") :: Frame;
@@ -341,7 +343,8 @@ local function buildBundle(card: GuiButton, bundle: ShopCatalog.Bundle)
 		c.Name = "Item" .. i
 		c.LayoutOrder = i
 		c.Size = UDim2.fromOffset(cellSize, cellSize)
-		c.BackgroundColor3 = itemColor(item);
+		c.BackgroundColor3 = itemColor(item)
+		Thumb.item(c, item);
 		(child(c, "Kind") :: TextLabel).Text = string.upper(item.kind);
 		(child(c, "Name") :: TextLabel).Text = if item.kind == "Coins"
 			then "x" .. commas(item.amount or 0)
@@ -607,6 +610,7 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 				d.ZIndex = 13
 			end
 		end
+		Thumb.item(c, item);
 		(child(c, "Kind") :: TextLabel).Text = kindWord(item);
 		(child(c, "Name") :: TextLabel).Text = if item.kind == "Coins"
 			then "x" .. commas(item.amount or 0)

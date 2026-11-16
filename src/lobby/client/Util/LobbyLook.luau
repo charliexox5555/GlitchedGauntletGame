@@ -31,10 +31,7 @@ end
 
 -- ScreenGui → the named cells in it
 local CELLS: { [string]: { string } } = {
-	Shop = join(
-		{ "Card", "CasePanel", "OddsPanel", "ItemCard", "Plate", "View", "Back" },
-		range("Day", 7)
-	), -- Plate: the tabs
+	Shop = join({ "Card", "CasePanel", "OddsPanel", "Plate", "View", "Back" }, range("Day", 7)), -- Plate: the tabs
 	BattlePass = join(
 		{ "FreeBadge", "PremiumBadge", "Box", "Prev", "Next", "OddsPanel", "Card" },
 		range("Free", 7),
@@ -54,13 +51,45 @@ local CELLS: { [string]: { string } } = {
 -- and the player list's column heads were drawn at 8 px (overhaul review).
 local TEXT_FLOOR = 12
 
+-- Big white words get a dark outline, like RIVALS' headings (their file:
+-- black, 2 px, on most words), so titles hold over art and bright plates.
+-- Words on slanted plates are skipped: Util/Plates outlines those in the
+-- plate's own colour.
+local TITLE_SIZE = 26
+local WHITE = Color3.new(1, 1, 1)
+
+local function onPlate(d: Instance): boolean
+	local p = d.Parent
+	while p and not p:IsA("LayerCollector") do
+		if p:FindFirstChild("CapL") or p:GetAttribute("Plated") == true then
+			return true
+		end
+		p = p.Parent
+	end
+	return false
+end
+
 local function floorText(d: Instance)
-	if
-		(d:IsA("TextLabel") or d:IsA("TextButton"))
-		and not d.TextScaled
-		and d.TextSize < TEXT_FLOOR
-	then
+	if not (d:IsA("TextLabel") or d:IsA("TextButton")) then
+		return
+	end
+	if not d.TextScaled and d.TextSize < TEXT_FLOOR then
 		d.TextSize = TEXT_FLOOR
+	end
+	if
+		d:IsA("TextLabel")
+		and d.TextSize >= TITLE_SIZE
+		and d.TextColor3 == WHITE
+		and not d:FindFirstChildOfClass("UIStroke")
+		and not onPlate(d)
+	then
+		local s = Instance.new("UIStroke")
+		s.Name = "TitleOutline"
+		s.Color = Color3.new(0, 0, 0)
+		s.Transparency = 0.45
+		s.Thickness = 2.5
+		s.LineJoinMode = Enum.LineJoinMode.Round
+		s.Parent = d
 	end
 end
 

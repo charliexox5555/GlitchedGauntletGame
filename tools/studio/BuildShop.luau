@@ -384,20 +384,38 @@ local function page(p: Instance, name: string, visible: boolean): Frame
 end
 
 -- A tag chip (MOD, SKIN, CHARM...): a small slanted plate.
+-- A card's tag (overhaul, after RIVALS' shop, 2026-11-16: the white chips read
+-- as "pills"). A kind word (WHITE) is bold white words on the art with a soft
+-- dark edge, no chip; a callout (any other colour) is a saturated slanted
+-- flag with white words, like RIVALS' "x5 VALUE".
 local function tag(p: Instance, label: string, color: Color3, pos: UDim2, anchor: Vector2?): Frame
+	local plain = color == WHITE
 	local c = make("Frame", {
 		Name = "Tag",
 		AnchorPoint = anchor or Vector2.zero,
 		Position = pos,
 		Size = UDim2.fromOffset(0, 26),
 		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundColor3 = color,
+		BackgroundColor3 = if plain then WHITE else hex("FF3B3B"),
+		BackgroundTransparency = if plain then 1 else 0,
 		BorderSizePixel = 0,
 		ZIndex = 7,
 	}, p)
 	make("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, c)
-	slant(c, color, 26, 10)
-	text(c, "Label", label, 13, INK, { Size = UDim2.fromOffset(0, 26), ZIndex = 8 })
+	if not plain then
+		slant(c, hex("FF3B3B"), 26, 10)
+	end
+	local l = text(
+		c,
+		"Label",
+		label,
+		if plain then 16 else 13,
+		WHITE,
+		{ Size = UDim2.fromOffset(0, 26), ZIndex = 8 }
+	)
+	if plain then
+		make("UIStroke", { Color = Color3.new(0, 0, 0), Transparency = 0.6, Thickness = 1.5 }, l)
+	end
 	return c
 end
 
@@ -1356,7 +1374,7 @@ do
 		Position = UDim2.fromOffset(960, 540),
 		Size = UDim2.fromOffset(0, 116),
 		AutomaticSize = Enum.AutomaticSize.X,
-		BackgroundColor3 = WHITE,
+		BackgroundColor3 = hex("1C1C22"), -- charcoal, white words (overhaul: no white slab)
 		BorderSizePixel = 0,
 		Visible = false,
 		ZIndex = 25,
@@ -1379,7 +1397,7 @@ do
 		ZIndex = 26,
 	}, itemCard)
 	corner(icCell, 6)
-	text(icCell, "Kind", "SKIN", 13, INK, {
+	text(icCell, "Kind", "SKIN", 13, WHITE, {
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -6),
 		ZIndex = 27,
@@ -1395,7 +1413,7 @@ do
 		Padding = UDim.new(0, 4),
 		SortOrder = Enum.SortOrder.LayoutOrder,
 	}, icWords)
-	text(icWords, "Name", "NITROUS VANDAL", 30, INK, { LayoutOrder = 1, ZIndex = 27 })
+	text(icWords, "Name", "NITROUS VANDAL", 30, WHITE, { LayoutOrder = 1, ZIndex = 27 })
 	text(icWords, "Sub", "SKIN  ·  GIVEN TO VANDAL", 16, hex("C98A12"), {
 		LayoutOrder = 2,
 		ZIndex = 27,
