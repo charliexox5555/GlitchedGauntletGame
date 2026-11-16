@@ -89,7 +89,7 @@ local openPreview: (bundle: ShopCatalog.Bundle, index: number) -> ()
 
 local isOpen = false
 local tab = "HOME"
-local counterShown = true
+local counterShown = false -- starts off-screen (y -80); placeCounter brings it in
 local openCase: ShopCatalog.Case? = nil
 local casesRestricted = true -- until PolicyService says otherwise (fail closed)
 local resetClose: () -> () = function() end
@@ -163,10 +163,20 @@ local function showCounter(on: boolean)
 	}, QUINT, if on then OUT else IN)
 end
 
--- The counter is on while the shop is open, and on the HUD once Coins exist.
+-- The counter is the HUD's currency (owner: "a coin section ... at the top
+-- middle of the screen like rivals does with its keys"): on whenever no other
+-- page is open, and in the shop. It reads 0 until the economy gives Coins.
+local function hudCounter(): boolean
+	local page = Router.current()
+	return page == nil or page == "Shop"
+end
 local function placeCounter()
 	coinsAmount.Text = commas(coins())
-	coinsGui.Enabled = isOpen or player:GetAttribute("Coins") ~= nil
+	local on = hudCounter()
+	coinsGui.Enabled = on
+	if on and not isOpen then
+		showCounter(true)
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -824,9 +834,6 @@ local function close()
 		if openToken == my and not isOpen then
 			gui.Enabled = false
 			placeCounter()
-			if player:GetAttribute("Coins") ~= nil then
-				showCounter(true)
-			end
 		end
 	end)
 end
@@ -1065,6 +1072,9 @@ function ShopController.start()
 		return
 	end
 	player:GetAttributeChangedSignal("Coins"):Connect(placeCounter)
+	Router.onChanged(function()
+		placeCounter()
+	end)
 	placeCounter()
 	-- cases: fail closed until Roblox says paid random items are allowed here
 	task.spawn(function()

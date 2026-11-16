@@ -43,6 +43,20 @@ local CELLS: { [string]: { string } } = {
 	LobbyPlayerList = { "Head" },
 }
 
+-- No lobby words under this size (design px): Fredoka One smears below it,
+-- and the player list's column heads were drawn at 8 px (overhaul review).
+local TEXT_FLOOR = 12
+
+local function floorText(d: Instance)
+	if
+		(d:IsA("TextLabel") or d:IsA("TextButton"))
+		and not d.TextScaled
+		and d.TextSize < TEXT_FLOOR
+	then
+		d.TextSize = TEXT_FLOOR
+	end
+end
+
 -- templates whose clones are cells wherever they land
 local TEMPLATES = { "PlayerRow", "ShopContentCell", "PartyPlayerCard", "GunCard", "SkinTile" }
 
@@ -54,6 +68,9 @@ function LobbyLook.apply(playerGui: Instance)
 			local t = lobby:FindFirstChild(name)
 			if t then
 				Cards.mark(t)
+				for _, d in t:GetDescendants() do
+					floorText(d)
+				end
 			end
 		end
 	end
@@ -62,6 +79,10 @@ function LobbyLook.apply(playerGui: Instance)
 		if g:IsA("ScreenGui") and not seen[g] then
 			seen[g] = true
 			Cards.watch(g, CELLS[g.Name] or {})
+			for _, d in g:GetDescendants() do
+				floorText(d)
+			end
+			g.DescendantAdded:Connect(floorText)
 		end
 	end
 	for _, g in playerGui:GetChildren() do
