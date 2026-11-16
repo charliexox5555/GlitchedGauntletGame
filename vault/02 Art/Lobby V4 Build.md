@@ -165,9 +165,14 @@ Studied against the owner's paste of the RIVALS lobby (`Workspace.LobbyRivals`, 
 
 **Checks:** 0 floating, 0 leaks, visible pairs 64 → 52; the Shop clash list is only the stage frames and the door collar seated into the wall at the opening edges; props checked against every collider (none intersect) and sit on the floor; play-tested: FEATURED opened the Shop and SEASON PASS the Battle Pass.
 
+## The Market turns a corner (owner 2026-11-16: "Add the corner")
+The far end wall of the hall is now a **wide arch** (24 high, about 24 clear) into **the Broker's room**, which runs north behind the hall: 32 wide x 84 long x 30 high (`LX0..LX1` = X1 + 8 .. X1 + 40, Y -24..60). Through the arch you see the room's back wall: the FEATURED TV under a **MARKET** ribbon sign. The lit path runs through the arch and **turns left** at an L corner piece (`PathCorner`: rails round the outside only, so no line crosses the path) up to the **BROKER**, who now stands at the far north end on his plinth (facing the way in), with his own TV and a BROKER badge sign behind him. Props in the room's corners (5 more, 22 in all), the violet band carried on, two extra ceiling lamps at the room's ends. Both sides of the arch are stepped collars (`mouth`), their linings meeting inside the 8-deep passage.
+
+**Checks:** 0 floating, 0 leaks; clash list only the usual seats (conduit clamps, bands into the wainscot, stage frames and collars at opening edges). Play-tested: a character walks from the hall through the arch to the Broker; the Broker plays his idle. The extra SHOP sign over the arch was dropped (it ran into the end wall's cornice); the MARKET sign reads through the arch instead. Shop: 106 pieces, about 55k triangles.
+
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.
-- RIVALS' Market hall turns a corner at the end; ours is a straight dead end with the Broker. A turn or a deeper end room would add the same "more to see" pull.
+- The Broker's room is dim next to the lit stages and its long walls are plain; it could take a feature of its own (a counter, a display wall).
 - The props are RIVALS' meshes (placeholders). Our own crates, cases and barrels are still to model.
 - Lighting reads flat (all three reviewers, both rounds), and the walls between fixtures are bare. See the blind review.
 - The farthest pad is about 10.5 s from spawn (plan target 9.5 s; RIVALS is 15 s).

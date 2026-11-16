@@ -133,9 +133,9 @@ class Shop:
 		nb = (BX - X0 - BHW, BX - X0 + BHW, 0.0, BH)  # north wall: local x = world x - X0
 		sb = (X1 - BX - BHW, X1 - BX + BHW, 0.0, BH)  # south wall: local x = X1 - world x
 		gap = 2.4
-		ops = {"W": [(Y1 - 12.0, Y1 + 12.0, 0.0, 18.0)], "N": [nb], "S": [sb]}
+		ops = {"W": [(Y1 - 12.0, Y1 + 12.0, 0.0, 18.0)], "N": [nb], "S": [sb], "E": [(Y1 - 15.0, Y1 + 15.0, 0.0, 24.0)]}  # E: the bend
 		skips = {"N": [(nb[0] - gap, nb[1] + gap), (3.0, 20.0)], "S": [(sb[0] - gap, sb[1] + gap), (X1 - X0 - 20.0, X1 - X0 - 3.0)],
-			"E": [(Y1 - 11.0, Y1 + 11.0)], "W": []}
+			"E": [(Y1 - 18.0, Y1 + 18.0)], "W": []}
 		walls = V.room(K, KD, A, X0, X1, Y0, Y1, H, ops=ops, skips=skips, beams_x=(84.0, 124.0))
 		Mw, _ = walls["W"]
 		V.mouth(KD, Mw @ V.T(Y1, 0, 0), 12.0, 18.0)
@@ -193,13 +193,32 @@ class Shop:
 				P["E_ThViolet"].prism([(a, b + 7.7) for a, b in poly], -0.2, 0.2)  # set into the crest top
 		V.fx("sparkle", heroS.x, heroS.y, heroS.z + 5.5, "#C5B7D9", name="SeasonFX", Rate=8, Spread=3.4)
 		V.step_mark(KD, A, BX, Y1 - 5.4, 24.0, 8.0, "E_ThViolet", "LobbyBattlePass", "Mark_Season", facing=1.0)
-		# the far end: the BROKER on a stepped plinth, the SHOP sign and a TV behind him
+		# the far end turns a corner (owner 2026-11-16, like RIVALS' Market): a wide arch in the end wall into the
+		# Broker's room, which runs north; through the arch you see its FEATURED TV, the path turns left to the Broker
 		Me, _ = walls["E"]
-		V.tv(K, KD, Me @ V.T(Y1, 12.4, 0), 18.0, 8.8, "shop", "FEATURED", out=2.6, name="TV_ShopEnd")
-		V.sign(KD, Me @ V.T(Y1, 22.2, 0), "SHOP", 18.0, 4.0, accent="E_Coral", name="Sign_ShopEnd", shape="tag", icon="sparkle", icon_at="right", icon_size=4.0)
-		px = X1 - 9.0
-		with C.grp("BrokerPlinth", Matrix.Translation((px, 0.0, 0.0))):
-			F, G = S.FK(K, Matrix.Translation((px, 0.0, 0.0))), S.FK(KD, Matrix.Translation((px, 0.0, 0.0)))
+		V.mouth(KD, Me @ V.T(Y1, 0, 0), 15.0, 24.0, rings=(1.2, 1.0, 0.9), depth=4.2)
+		LX0, LX1, LY0, LY1 = X1 + 8.0, X1 + 40.0, -24.0, 60.0  # the Broker's room, behind the end wall
+		with C.grp("Threshold"):
+			KD["V_Floor2"].box(X1, LX0, -11.8, 11.8, 0.0, 0.12)
+		walls2 = V.room(K, KD, A, LX0, LX1, LY0, LY1, H, ops={"W": [(9.0, 39.0, 0.0, 24.0)]}, skips={"W": [(6.0, 42.0)], "E": [(48.0, 72.0)], "N": [(5.0, 27.0)]})
+		MwL, _ = walls2["W"]
+		MeL, _ = walls2["E"]
+		MnL, _ = walls2["N"]
+		V.mouth(KD, MwL @ V.T(24.0, 0, 0), 15.0, 24.0, rings=(1.2, 1.0, 0.9), depth=3.8)
+		# what you see through the arch: the FEATURED TV under the MARKET sign
+		V.tv(K, KD, MeL @ V.T(60.0, 12.4, 0), 18.0, 8.8, "shop", "FEATURED", out=2.6, name="TV_ShopEnd")
+		V.sign(KD, MeL @ V.T(60.0, 21.4, 0), "MARKET", 18.0, 4.0, accent="E_ThViolet", name="Sign_Market", shape="ribbon", icon="star", icon_at="left", icon_size=3.8)
+		for Mw_, segs in ((MeL, ((6.0, 49.0), (71.0, 78.0))), (MwL, ((41.5, 78.0),))):
+			with C.grp("WallBand", Mw_):
+				G = S.FK(KD, Mw_)
+				for a_, b_ in segs:
+					G["V_ThViolet"].box(a_, b_, 5.9, 7.9, 0.3, 0.6)
+		# the BROKER at the far end on a stepped plinth, his TV and sign behind him
+		px, py = (LX0 + LX1) / 2, LY1 - 12.0
+		V.tv(K, KD, MnL @ V.T(px - LX0, 10.8, 0), 16.0, 8.0, "shop", "BROKER", "DEALS DAILY", out=2.6, name="TV_Broker")
+		V.sign(KD, MnL @ V.T(px - LX0, 20.8, 0), "BROKER", 15.0, 3.6, accent="E_Coral", name="Sign_Broker", shape="badge", icon="crown", icon_at="left", icon_size=3.6)
+		with C.grp("BrokerPlinth", Matrix.Translation((px, py, 0.0))):
+			F, G = S.FK(K, Matrix.Translation((px, py, 0.0))), S.FK(KD, Matrix.Translation((px, py, 0.0)))
 			F["V_Floor2"].prism(V.ccw(V.oct_pts(5.4)), 0.12, 1.0)
 			F["V_Lane"].prism(V.ccw(V.oct_pts(3.8)), 1.0, 1.9)
 			for r_, zz in ((5.4, 1.0), (3.8, 1.9)):
@@ -211,13 +230,26 @@ class Shop:
 			for k in range(8):
 				j = (k + 1) % 8
 				G["E_ThViolet"].prism(V.ccw([i_[k], i_[j], o[j], o[k]]), 1.9, 1.95)
-		V.npc("Broker", px, 0.0, 1.9, 90, "broker", "BROKER", scale=1.8)
-		S.light(I4, px, 0.0, H - 1.0, V.WHITE, 2.2, 30, 45)
+		V.npc("Broker", px, py, 1.9, 180, "broker", "BROKER", scale=1.8)
+		S.light(I4, px, py, H - 1.0, V.WHITE, 2.2, 30, 45)
 		# hologram stands by the entrance, props in the corners
 		V.holo_stand(K, KD, A, 73.0, Y1 - 7.0, "gift", name="Holo_ShopGift", size=2.6)
 		V.holo_stand(K, KD, A, 73.0, Y0 + 7.0, "badge", name="Holo_ShopBadge", size=2.6)
-		for (x, y, yaw, kind) in ((139.0, Y1 - 3.9, -6.0, "crate"), (133.5, Y1 - 3.6, 10.0, "barrel"), (139.0, Y0 + 3.9, 6.0, "container"), (133.5, Y0 + 3.6, -8.0, "crate_s")):
+		for (x, y, yaw, kind) in ((139.0, Y1 - 3.9, -6.0, "crate"), (133.5, Y1 - 3.6, 10.0, "barrel"), (139.0, Y0 + 3.9, 6.0, "container"), (133.5, Y0 + 3.6, -8.0, "crate_s"),
+				(LX0 + 8.4, LY1 - 3.4, 4.0, "crate"), (LX1 - 8.0, LY1 - 3.4, -8.0, "barrel"), (LX1 - 4.2, py + 1.0, 10.0, "crate_s"),
+				(LX0 + 8.0, LY0 + 4.0, 3.0, "container"), (LX0 + 14.5, LY0 + 3.4, -4.0, "crate")):
 			V.prop_m(kind, Matrix.Translation((x, y, 0.0)) @ Matrix.Rotation(radians(yaw), 4, "Z"), name="Prop")
-		# a lit path from the door to the plinth
-		V.path_lane(KD, Matrix.Rotation(radians(-90), 4, "Z"), 3.0, X0 + 3.0, px - 6.0, arrows=(px - 11.0, px - 8.6))
+		# a lit path from the door through the arch, turning left to the plinth
+		V.path_lane(KD, Matrix.Rotation(radians(-90), 4, "Z"), 3.0, X0 + 3.0, px - 3.9, arrows=(X1 - 6.0, X1 - 3.6))
+		V.path_lane(KD, Matrix.Translation((px, 0.0, 0.0)), 3.0, 3.95, py - 6.5, arrows=(py - 12.0, py - 9.6))
+		with C.grp("PathCorner"):  # the turn: rails round the outside only, so no line crosses the path
+			G = S.FK(KD, Matrix.Translation((px, 0.0, 0.0)))
+			G["V_Base"].box(-3.9, 3.0, -3.0, 3.95, 0.12, 0.16)
+			G["V_Steel"].prism(V.ccw(S.cham_rect(-3.9, 3.9, -3.9, -3.0, 0.12)), 0.12, 0.24)
+			G["V_Steel"].prism(V.ccw(S.cham_rect(3.0, 3.9, -3.0, 3.95, 0.12)), 0.12, 0.24)
+			G["E_ThLilac"].box(-3.5, 3.58, -3.58, -3.32, 0.2, 0.26)
+			G["E_ThLilac"].box(3.32, 3.58, -3.32, 3.55, 0.2, 0.26)
+		for ly_ in (LY0 + 8.0, LY1 - 6.0):  # more light at both ends of the long room
+			V.ceiling_lamp(KD, px, ly_, H, 5.0, 1.6)
+			S.light(I4, px, ly_, H - 0.4, V.WHITE, 1.2, 30, 85)
 		return K.done() + KD.done()
