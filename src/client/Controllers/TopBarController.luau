@@ -23,6 +23,7 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
 
+local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module (lobby + match)
 
@@ -208,6 +209,16 @@ function TopBarController.start()
 		head.Image = headshot(f.userId)
 		local pop = cell:WaitForChild("Pop") :: UIScale
 		pop.Scale = 0.5
+		-- level on the tile's foot, device in its corner (vault/02 Art/UI Match
+		-- Overhaul.md); bots get a BOT chip
+		local who = if f.key:IsA("Player") then f.key :: Player else nil
+		local z = cell.ZIndex + 5
+		local lv = PlayerTags.level(holder, who, 11, z)
+		lv.AnchorPoint = Vector2.new(0.5, 0.5)
+		lv.Position = UDim2.new(0.5, 0, 1, -1)
+		local dev = PlayerTags.device(holder, who, 14, z)
+		dev.AnchorPoint = Vector2.new(1, 0)
+		dev.Position = UDim2.new(1, -4, 0, 4)
 		holder.Parent = sides[key].players
 		tween(pop, 0.36, { Scale = 1 })
 		return { holder = holder, cell = cell, head = head, pop = pop, alive = nil }
@@ -280,7 +291,10 @@ function TopBarController.start()
 	local lastTick = -1
 	local function refresh()
 		local phase = MatchState.phase()
-		root.Visible = phase ~= nil and phase ~= "Waiting" and not TestMode.isOn()
+		root.Visible = phase ~= nil
+			and phase ~= "Waiting"
+			and phase ~= "Vote"
+			and not TestMode.isOn()
 		if not root.Visible then
 			return
 		end

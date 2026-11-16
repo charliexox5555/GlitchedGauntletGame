@@ -10,6 +10,7 @@ local Weapons = require(script.Parent.Config.Weapons)
 
 export type Phase =
 	"Waiting"
+	| "Vote" -- the map vote before round 1 (MapVoteService)
 	| "Draft"
 	| "Countdown"
 	| "Live"

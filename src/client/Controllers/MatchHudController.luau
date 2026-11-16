@@ -201,7 +201,9 @@ local function refresh(ui: Ui)
 	local matchPoint = myScore == need or theirScore == need
 
 	local kicker, title, sub, tone = "", "", "", "neutral" :: Tone
-	if phase == "Waiting" then
+	if phase == "Vote" then
+		-- the map vote screen (MapVoteController) has the middle
+	elseif phase == "Waiting" then
 		title, sub = "WAITING FOR OPPONENT", string.format("First to %d", Config.ROUNDS_TO_WIN)
 	elseif phase == "Draft" then
 		-- The draft screen covers the middle until you've locked in.

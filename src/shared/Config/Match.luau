@@ -4,7 +4,7 @@
 
 -- flatShield: everyone's shield this phase. Without it, your gun's `shield` decides.
 export type Phase = { name: string, tier: number, fromRound: number, flatShield: number? }
-export type MapEntry = { id: string, minTeam: number, maxTeam: number }
+export type MapEntry = { id: string, minTeam: number, maxTeam: number, name: string?, image: string? }
 
 return table.freeze({
 	MAP = "Whitebox", -- the default map: a Model in ServerStorage.Maps (or still in Workspace)
@@ -25,6 +25,17 @@ return table.freeze({
 		{ id = "Snowpeak", minTeam = 1, maxTeam = 3 },
 		-- Dockyard2 (redesign, 2026-11-05) is installed but left out on purpose: ForceMap only until approved.
 	} :: { MapEntry },
+
+	-- The map vote before round 1 (vault/02 Art/UI Match Overhaul.md, after
+	-- RIVALS' duels): every map in MAPS that fits the bigger team, plus Random.
+	-- Each vote is a ticket and one is drawn (no votes = any map). Skipped when
+	-- only one map fits, or in Studio with ForceMap.
+	VOTE = table.freeze({
+		seconds = 12, -- the vote
+		allInSeconds = 1.5, -- once every player has voted, the clock cuts to this
+		chosenSeconds = 2.5, -- the picked map is shown, then the map loads
+		random = "Random", -- the Random card's option name
+	}),
 
 	ROUNDS_TO_WIN = 5,
 	LATE_SPAWN_WAIT = 3, -- seconds a slow spawn gets past the countdown
@@ -114,5 +125,6 @@ return table.freeze({
 		Spectate = { 4, 6 },
 		MatchChoice = { 4, 6 },
 		Scoreboard = { 2, 4 },
+		MapVote = { 4, 6 },
 	},
 })

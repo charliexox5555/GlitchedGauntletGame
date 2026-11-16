@@ -21,6 +21,7 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local DraftService = require(script.Parent.DraftService)
 local MapService = require(script.Parent.MapService)
+local MapVoteService = require(script.Parent.MapVoteService)
 local ModService = require(script.Parent.ModService)
 local BotService = require(script.Parent.BotService)
 local CharacterService = require(script.Parent.CharacterService)
@@ -764,9 +765,10 @@ local function waitForPlayers()
 	end
 end
 
--- The map for the next match: a random installed map from Config.MAPS that fits
--- the bigger team, not the last one when there's another (Studio: the
--- Workspace attribute ForceMap wins). nil keeps the current map.
+-- The map for the next match (vault/02 Art/UI Match Overhaul.md): the
+-- players vote among every installed map in Config.MAPS that fits the bigger
+-- team (MapVoteService). One map that fits, or nobody here: no vote. In Studio
+-- the Workspace attribute ForceMap wins. nil keeps the current map.
 local lastMap: string? = nil
 local function pickMap(): string?
 	local forced = workspace:GetAttribute("ForceMap")
@@ -780,16 +782,12 @@ local function pickMap(): string?
 			table.insert(fits, entry.id)
 		end
 	end
-	if #fits > 1 and lastMap then
-		local i = table.find(fits, lastMap)
-		if i then
-			table.remove(fits, i)
-		end
-	end
 	if #fits == 0 then
 		return nil
+	elseif #fits == 1 or #Players:GetPlayers() == 0 then
+		return fits[math.random(1, #fits)]
 	end
-	return fits[math.random(1, #fits)]
+	return MapVoteService.run(fits, size)
 end
 
 local function loop()
@@ -804,8 +802,7 @@ local function loop()
 			lastMap = nextMap
 		end
 		matchesPlayed += 1
-		local ok, result = pcall(runMatch)
-		local err = if ok then nil else result
+		local ok, result = xpcall(runMatch, debug.traceback)
 		inMatch = false
 		ZoneService.stop()
 		BotService.setFighting(false)
@@ -815,7 +812,7 @@ local function loop()
 			table.clear(pendingTakeovers)
 		end
 		if not ok then
-			warn("[MatchService] the match stopped on an error:", err)
+			warn("[MatchService] the match stopped on an error:", result)
 			-- Back behind the barrier, whatever phase it stopped in.
 			DraftService.reset()
 			table.clear(pendingTakeovers)

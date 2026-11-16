@@ -606,7 +606,10 @@ local function tick()
 	end
 	-- The match is over (or restarting): nobody respawns to end this.
 	local phase = MatchState.phase()
-	if mode ~= "Off" and (phase == "MatchEnd" or phase == "Waiting" or phase == "Replay") then
+	if
+		mode ~= "Off"
+		and (phase == "MatchEnd" or phase == "Waiting" or phase == "Vote" or phase == "Replay")
+	then
 		stop()
 		return
 	end

@@ -20,6 +20,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Parent.Util.Device)
+local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
 
 local ScoreboardController = {}
 
@@ -113,6 +114,19 @@ local function row(s: State, order: number, line: Line, ally: boolean)
 	shard.Visible = line.mvp == true
 	local dead = child(nameLine, "Dead") :: ImageLabel
 	dead.Visible = not up
+	-- level and device after the name (vault/02 Art/UI Match Overhaul.md); a
+	-- player who left gets neither
+	local who = if line.userId then Players:GetPlayerByUserId(line.userId) else nil
+	if who or not line.userId then
+		name.LayoutOrder = 1
+		local lv = PlayerTags.level(nameLine, who, 12, name.ZIndex)
+		lv.LayoutOrder = 2
+		local dev = PlayerTags.device(nameLine, who, 16, name.ZIndex)
+		dev.LayoutOrder = 3
+		dev.ImageColor3 = Color3.fromHex("A9A9B0")
+		shard.LayoutOrder = 4
+		dead.LayoutOrder = 5
+	end
 	for i, v in { line.eliminations, line.deaths, line.assists, line.dealt } do
 		local stat = body:FindFirstChild("Stat" .. i)
 		if stat and stat:IsA("TextLabel") then
@@ -251,7 +265,7 @@ function ScoreboardController.start()
 		UserInputService.InputBegan:Connect(function(input: InputObject)
 			if KEYS[input.KeyCode] and not UserInputService:GetFocusedTextBox() then
 				local phase = MatchState.phase()
-				if phase ~= "MatchEnd" and phase ~= "Waiting" then
+				if phase ~= "MatchEnd" and phase ~= "Waiting" and phase ~= "Vote" then
 					setOpen(true)
 				end
 			end

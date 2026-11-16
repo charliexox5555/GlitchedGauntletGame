@@ -11,6 +11,8 @@
 -- Spectating (SpectateService): Spectate (client -> server)
 -- Final-kill replay (MatchService): Replay (server -> all clients)
 -- Match end (MatchEndService): MatchSummary (server -> all clients), MatchChoice (client -> server)
+-- Map vote (MapVoteService): MapVote (client -> server)
+-- Device marks (DeviceService): Device (client -> server)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -29,6 +31,8 @@ local RELIABLE = {
 	"ModSteer",
 	"ModRecall",
 	"ModFx",
+	"ModSim", -- Server Authority off: a client's own predicted Dash / Updraft events (client -> server)
+	"ModSimFx", -- ... relayed to every other client (server -> clients): what to draw
 	"ModReveal",
 	"DevMod",
 	"DraftPick",
@@ -39,6 +43,8 @@ local RELIABLE = {
 	"Scoreboard", -- StatsService: client asks (no args), server answers that client
 	"CombatReport", -- StatsService: your damage vs your killer, on death
 	"MatchChoice",
+	"MapVote",
+	"Device",
 }
 local UNRELIABLE = { "Aim", "ShotFx" }
 
