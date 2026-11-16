@@ -96,6 +96,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 ## Production (05 Production)
 - `02 Art/Ability VFX Direction.md` (5): the shared effects language for the nine Mods (2026-11-15): grammar (shapes first, three beats, stepped motion, clear aim area, glitch as a rare accent), element signatures (wind, fire, ice, healing, teleport, scan, impact, shield), per-effect changes, review method
 - `04 Tech/Ability Effects Map.md` (6): where each Mod's effect is drawn (file and function per effect, shared helpers, mesh kits), plus the skinned-limb gap; start effect work here instead of searching
+- `05 Production/Handoff - Ability Rework (Opus).md` (9): start here to continue the ability rework in a pure Opus chat: paste-ready opener, usage rules, what is done and Play-checked, what is left in order, Studio / Blender / git state, gotchas
 - `05 Production/Ability Rework 2026-11-15.md` (5): plan and status for the nine-Mod rework: model routing, live Blender MCP rules + shared core `tools/blender/rework/rw_core.py`, prop interfaces to keep, phases
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
 - `05 Production/Handoff - Grades to 9-10.md` (5): the lanes left to bring every animation and gunplay grade to 9-10 (2026-11-13), shared rules for parallel sessions
