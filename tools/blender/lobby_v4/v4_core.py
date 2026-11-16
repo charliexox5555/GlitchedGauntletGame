@@ -38,6 +38,11 @@ PAL = {
 	"V_Strap": ("#1B1D20", 0.7, 0.0, 0.05),
 	"V_GoldPaint": ("#E3AC2C", 0.6, 0.0, 0.03),
 	"V_Seat": ("#2E3135", 0.8, 0.0, 0.04),
+	"V_TeamA": ("#C9602A", 0.6, 0.0, 0.02),
+	"V_TeamB": ("#2F6FC0", 0.6, 0.0, 0.02),
+	"V_Violet": ("#6650B8", 0.6, 0.0, 0.02),
+	"V_Pink": ("#B8406A", 0.6, 0.0, 0.02),
+	"V_Lime": ("#86A830", 0.6, 0.0, 0.02),
 	"V_Rock": ("#55585C", 0.9, 0.0, 0.0),
 	"V_Rock2": ("#63676B", 0.9, 0.0, 0.0),
 }
@@ -71,6 +76,11 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"V_Strap": _L("SmoothPlastic", "#1B1D20"),
 	"V_GoldPaint": _L("SmoothPlastic", "#E3AC2C"),
 	"V_Seat": _L("SmoothPlastic", "#2E3135"),
+	"V_TeamA": _L("SmoothPlastic", "#C9602A"),
+	"V_TeamB": _L("SmoothPlastic", "#2F6FC0"),
+	"V_Violet": _L("SmoothPlastic", "#6650B8"),
+	"V_Pink": _L("SmoothPlastic", "#B8406A"),
+	"V_Lime": _L("SmoothPlastic", "#86A830"),
 	"V_Rock": _L("SmoothPlastic", "#55585C", v="SW_Plaster"),
 	"V_Rock2": _L("SmoothPlastic", "#63676B", v="SW_Plaster"),
 	"E_White": _L("Neon", "#8F8E8A", glow=True),  # Neon lighter than ~#8C877F clips to white: this reads clean white
@@ -83,6 +93,7 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"Glass": _L("SmoothPlastic", "#DDE2E4", t=0.9, r=0.04),
 }
 WHITE = "#F4F1EA"  # lamp light
+PAINT = {"E_Gold": "V_GoldPaint", "E_Violet": "V_Violet", "E_Coral": "V_Pink", "E_Lime": "V_Lime"}  # accent -> painted twin
 
 
 def register():
@@ -130,48 +141,109 @@ def ccw(poly):
 
 
 # ---------------------------------------------------------------- RIVALS-style word sign (our own build)
-def sign(K, M, text, w, h, accent="E_Gold", tilt=13.0, lh=None, standoff=1.0, name="Sign", light=True, chevrons=True):
-	"""A glowing word sign over a doorway. M: frame on the wall face at the sign's bottom centre (X right, Y up,
-	Z out of the wall). Built tilted down at the viewer: dark cut-corner plate, light grey rim, gold (accent) frame line,
-	thick glowing white block letters, accent chevrons either side, two steel brackets back to the wall."""
+def _rot(pts, a, cx=0.0, cy=0.0):
+	c, s_ = cos(a), sin(a)
+	return [(cx + x * c - y * s_, cy + x * s_ + y * c) for x, y in pts]
+
+
+def plate_shape(shape, w, h):
+	"""Sign plate outlines (owner 2026-11-16: every sign different, with character): one per sign family."""
+	if shape == "badge":  # pointed both ends, like a blade
+		return ccw([(-w / 2, h / 2), (-w / 2 + h * 0.45, 0), (w / 2 - h * 0.45, 0), (w / 2, h / 2), (w / 2 - h * 0.45, h), (-w / 2 + h * 0.45, h)])
+	if shape == "tag":  # a price tag: pointed left, cut corners right
+		c = h * 0.18
+		return ccw([(-w / 2, h / 2), (-w / 2 + h * 0.5, 0), (w / 2 - c, 0), (w / 2, c), (w / 2, h - c), (w / 2 - c, h), (-w / 2 + h * 0.5, h)])
+	if shape == "arrow":  # notched tail, pointed head
+		return ccw([(-w / 2, 0), (w / 2 - h * 0.5, 0), (w / 2, h / 2), (w / 2 - h * 0.5, h), (-w / 2, h), (-w / 2 + h * 0.32, h / 2)])
+	if shape == "ribbon":  # notched both ends
+		return ccw([(-w / 2, 0), (w / 2, 0), (w / 2 - h * 0.3, h / 2), (w / 2, h), (-w / 2, h), (-w / 2 + h * 0.3, h / 2)])
+	lean = h * 0.28  # "lean": the plate leans forward like motion
+	return ccw([(-w / 2, 0.0), (w / 2 - lean, 0.0), (w / 2, h * 0.5), (w / 2 - h * 0.08, h), (-w / 2 + lean, h), (-w / 2, h * 0.62)])
+
+
+def _icon_shapes(icon, s):
+	"""Icon polygons centred on (0, 0), size s (about its height). Faceted, chunky, ours."""
+	out = []
+	if icon == "blades":  # two crossed blades with guards and grips
+		L, t = s * 1.25, s * 0.12
+		blade = [(-L / 2 + s * 0.28, -t), (L / 2 - s * 0.22, -t), (L / 2, 0), (L / 2 - s * 0.22, t), (-L / 2 + s * 0.28, t)]
+		guard = [(-L / 2 + s * 0.24, -t * 2.6), (-L / 2 + s * 0.31, -t * 2.6), (-L / 2 + s * 0.31, t * 2.6), (-L / 2 + s * 0.24, t * 2.6)]
+		grip = [(-L / 2, -t * 0.8), (-L / 2 + s * 0.24, -t * 0.8), (-L / 2 + s * 0.24, t * 0.8), (-L / 2, t * 0.8)]
+		for a in (radians(40), radians(140)):
+			for p in (blade, guard, grip):
+				out.append(_rot(p, a))
+	elif icon == "sparkle":  # a four-point star with a small twin
+		for cx, cy, r in ((0, 0, s * 0.55), (s * 0.5, s * 0.42, s * 0.22)):
+			pts = []
+			for k in range(8):
+				rr = r if k % 2 == 0 else r * 0.3
+				a = radians(90 + 45 * k)
+				pts.append((cx + rr * cos(a), cy + rr * sin(a)))
+			out.append(pts)
+	elif icon == "reticle":  # octagon ring, four ticks, a centre dot
+		R, t = s * 0.42, s * 0.1
+		o, i_ = oct_pts(R), oct_pts(R - t)
+		for k in range(8):
+			j = (k + 1) % 8
+			out.append([i_[k], i_[j], o[j], o[k]])
+		for a in range(4):
+			out.append(_rot([(R - t * 0.5, -t * 0.5), (R + s * 0.18, -t * 0.5), (R + s * 0.18, t * 0.5), (R - t * 0.5, t * 0.5)], radians(90 * a)))
+		out.append(oct_pts(t * 0.9))
+	elif icon == "target":  # rings and a dart through them
+		for R, t in ((s * 0.45, s * 0.09), (s * 0.24, s * 0.08)):
+			o, i_ = oct_pts(R), oct_pts(R - t)
+			for k in range(8):
+				j = (k + 1) % 8
+				out.append([i_[k], i_[j], o[j], o[k]])
+		out.append(oct_pts(s * 0.07))
+		out.append(_rot([(-s * 0.05, -s * 0.035), (s * 0.62, -s * 0.035), (s * 0.62, s * 0.035), (-s * 0.05, s * 0.035)], radians(-25)))
+		out.append(_rot([(s * 0.5, -s * 0.14), (s * 0.72, -s * 0.02), (s * 0.72, s * 0.02), (s * 0.5, s * 0.14)], radians(-25)))
+	elif icon == "crown":  # three points on a band
+		w = s * 1.1
+		out.append([(-w / 2, 0), (w / 2, 0), (w / 2, s * 0.22), (-w / 2, s * 0.22)])
+		for cx, hh in ((-w / 2 + s * 0.16, s * 0.62), (0.0, s * 0.8), (w / 2 - s * 0.16, s * 0.62)):
+			out.append([(cx - s * 0.17, s * 0.2), (cx + s * 0.17, s * 0.2), (cx + s * 0.04, hh), (cx - s * 0.04, hh)])
+	elif icon == "star":  # five points
+		pts = []
+		for k in range(10):
+			rr = s * 0.5 if k % 2 == 0 else s * 0.21
+			a = radians(90 + 36 * k)
+			pts.append((rr * cos(a), rr * sin(a)))
+		out.append(pts)
+	return [ccw(p) for p in out]
+
+
+def sign(K, M, text, w, h, accent="E_Gold", tilt=13.0, lh=None, standoff=1.0, name="Sign", light=True, chevrons=True,
+		shape="lean", icon=None, icon_at="left", icon_size=None, letters="E_White"):
+	"""A glowing word sign over a doorway, in its own shape (plate_shape) with its own icon (_icon_shapes) that breaks
+	the plate's outline on a dark backing. M: frame on the wall face at the sign's bottom centre (X right, Y up,
+	Z out of the wall). Built tilted down at the viewer: dark plate, light grey rim, accent frame line, thick solid
+	glowing letters, brackets back to the wall."""
 	with C.grp(name, M, inst=False):
 		F = S.FK(K, M)
 		Mt = M @ T(0, 0, standoff) @ RX(tilt)
 		P = S.FK(K, Mt)
-		lean = h * 0.28  # the plate leans forward like motion: our silhouette, not a symmetric frame
-		plate = ccw([(-w / 2, 0.0), (w / 2 - lean, 0.0), (w / 2, h * 0.5), (w / 2 - h * 0.08, h), (-w / 2 + lean, h), (-w / 2 - 0.0, h * 0.62)])
+		plate = plate_shape(shape, w, h)
 		P["V_Dark"].prism(plate, 0, 0.7)
-		rim_in = inset(plate, 0.45)
-		S.ring_prism(P["V_Trim"], plate, rim_in, 0.7, 1.05)
-		line_o = inset(plate, 0.75)
-		line_i = inset(plate, 0.98)
-		S.ring_prism(P[accent], line_o, line_i, 0.7, 0.82)
-		# letters: thick block glyphs, as big as the plate allows
+		S.ring_prism(P["V_Trim"], plate, inset(plate, 0.45), 0.7, 1.05)
+		S.ring_prism(P[accent], inset(plate, 0.75), inset(plate, 0.98), 0.7, 0.82)
+		isz = icon_size or h * 1.05
+		ishift = 0.0
+		if icon:
+			ix = {"left": -w / 2 + isz * 0.35, "right": w / 2 - isz * 0.35, "top": 0.0}[icon_at]
+			iy = h * 0.92 if icon_at == "top" else h * 0.5
+			ishift = {"left": isz * 0.42, "right": -isz * 0.42, "top": 0.0}[icon_at]
+			for k, poly in enumerate(_icon_shapes(icon, isz)):
+				pts = [(x + ix, y + iy) for x, y in poly]
+				P["V_Dark"].prism(inset(pts, -0.28) if len(pts) > 2 else pts, -0.05, 1.04)  # backing: the icon breaks the outline
+				steel = icon == "blades" and k % 3 == 0  # blades read as steel with gold guards and grips
+				P["V_Trim" if steel else accent].prism(ccw(pts), 1.04, 1.3)
 		lh = lh or h * 0.5
-		chev = 0.0
-		room = w - 2 * (h * 0.28 + 3.4) if chevrons else w - 2 * (h * 0.28 + 1.0)
+		room = w - 2 * (h * 0.4 + 1.0) - (isz * 0.85 if icon and icon_at != "top" else 0.0)
 		while S.text_width(text, lh, s=0.25) > room and lh > 0.5:
 			lh *= 0.95
-		S.add_text(P["E_White"], text, lh, 0.32, y0=(h - lh) / 2, z0=0.7, s=0.25, c=0.12, ci=0.05)
-		if chevrons:
-			tw0 = S.text_width(text, lh, s=0.25)
-			for k in range(2):  # the slash pair before the word
-				sx = -tw0 / 2 - 1.2 - k * 1.05
-				P[accent].prism(ccw([(sx - 0.55, h * 0.2), (sx - 0.05, h * 0.2), (sx + 0.55, h * 0.8), (sx + 0.05, h * 0.8)]), 0.7, 0.98)
-		# chevrons pointing in at the word
 		tw = S.text_width(text, lh, s=0.25)
-		if chevrons:  # a gold tab on the top edge and a slash pair at the left: our marks
-			P[accent].prism(ccw([(-w / 2 + lean + 0.6, h - 0.05), (-w / 2 + lean + 4.6, h - 0.05), (-w / 2 + lean + 4.2, h + 0.55), (-w / 2 + lean + 1.0, h + 0.55)]), 0.2, 0.8)
-		for side in (() if True else (-1, 1)):
-			for k in range(2):
-				x0 = side * (tw / 2 + 0.9 + k * chev * 0.62)
-				t0, ch = chev * 0.34, chev
-				yc = h / 2
-				pts = [(x0, yc), (x0 + side * t0, yc), (x0 + side * (t0 + ch * 0.5), yc + ch / 2), (x0 + side * ch * 0.5, yc + ch / 2)]
-				pts2 = [(x0, yc), (x0 + side * ch * 0.5, yc - ch / 2), (x0 + side * (t0 + ch * 0.5), yc - ch / 2), (x0 + side * t0, yc)]
-				for q in (pts, pts2):
-					P[accent].prism(ccw(q), 0.7, 0.98)
-		# brackets: steel arms from the wall to the plate back, at the plate's quarter points
+		S.add_text(P[letters], text, lh, 0.32, y0=(h - lh) / 2 - (h * 0.06 if icon_at == "top" and icon else 0.0), z0=0.7, x0=-tw / 2 + ishift, s=0.25, c=0.12, ci=0.05)
 		for bx in (-w * 0.3, w * 0.3):
 			top_out = standoff + h * sin(D(tilt))
 			F["V_Steel"].ext_x(ccw([(h * 0.15, -0.6), (h * 0.15, standoff + 0.05), (h * 0.85, top_out - 0.1), (h * 0.95, -0.6)]), bx - 0.35, bx + 0.35)
@@ -468,7 +540,7 @@ def niche(K, KD, M, u, w, label, guns, accent, area, sill=3.6, top=13.0, depth=3
 		G["E_White"].box(-hw + 0.4, hw - 0.4, top - 0.25, top - 0.05, z0 + 0.4, z1 - 0.3)
 		S.ring_prism(G["V_Trim"], ccw(S.cham_rect(-hw - 0.6, hw + 0.6, sill, top, 0.01)), ccw(S.cham_rect(-hw + 0.15, hw - 0.15, sill + 0.15, top - 0.15, 0.25)), z1, z1 + 0.35)
 		G["Glass"].box(-hw + 0.1, hw - 0.1, sill + 0.1, top - 0.1, z1 - 0.12, z1 - 0.02)
-		G[accent].box(-hw + 0.5, hw - 0.5, sill - 0.75, sill - 0.5, z1 + 0.3, z1 + 0.42)
+		G[PAINT.get(accent, accent)].box(-hw + 0.5, hw - 0.5, sill - 0.75, sill - 0.5, z1 + 0.3, z1 + 0.42)
 		S.add_text(G["E_White"], label, 0.8, 0.08, y0=top + 0.15, z0=z1 + 0.3, s=0.22, c=0.06, ci=0.02, track=0.16)
 		S.collider(area, B, -hw - 0.4, hw + 0.4, 0.0, sill - 0.4, z0 + 0.1, z1 + 0.2, "B")  # inside the base only
 		S.collider(area, B, -hw - 0.4, hw + 0.4, sill - 0.4, top + 1.1, z0 + 0.1, z1 + 0.2, "Y")  # invisible keep-out over the glass
@@ -585,7 +657,7 @@ def showcase(K, KD, area, x, y, gun, scale, accent="E_Gold", name="Showcase", sp
 		o, i = oct_pts(2.3), oct_pts(2.05)
 		for k in range(8):
 			j = (k + 1) % 8
-			G[accent].prism(ccw([i[k], i[j], o[j], o[k]]), 1.9, 2.05)
+			G[PAINT.get(accent, accent)].prism(ccw([i[k], i[j], o[j], o[k]]), 1.9, 2.05)
 		G["V_Trim"].prism(ccw(oct_pts(2.3)), 2.6, 2.85)
 		G["V_Steel"].prism(ccw(oct_pts(1.8)), 2.85, 3.0)
 		S.gun_row([gun, scale, x, y, 3.0, 1.0, 0.0, 0, spin])  # rests on the turntable
@@ -673,7 +745,7 @@ def drop_stand(K, KD, area, x, y, name="DailyDrop"):
 		G["V_Trim"].prism(ccw(S.cham_rect(-3.2, 3.2, -2.6, 2.6, 0.5)), 1.3, 1.45)
 		for cx in (-2.7, 2.7):
 			for cy in (-2.1, 2.1):
-				G["E_Gold"].prism(ccw(oct_pts(0.22)), 1.45, 1.55)
+				G["V_GoldPaint"].prism(ccw(oct_pts(0.22)), 1.45, 1.55)
 	crate(KD, M @ T(0, 0, 1.45), w=4.4, d=3.4, h=3.0, name="DropCrate")
 	S.collider(area, M, -2.0, 2.0, -1.5, 1.5, 1.6, 4.3, "B")
 	with C.grp(name + "Beacon", M):
@@ -683,3 +755,48 @@ def drop_stand(K, KD, area, x, y, name="DailyDrop"):
 		S.FK(KD, Mb)["E_Gold"].prism(ccw(oct_pts(0.4)), -0.4, 0.4)
 		S.FK(KD, Mb)["V_Dark"].prism(ccw(oct_pts(0.32)), 0.4, 0.55)
 	S.light(Matrix.Identity(4), x, y, 11.0, WHITE, 2.4, 14, 40)
+
+
+
+def gun_table(K, KD, area, M, guns, accent="E_Violet", w=9.0, d=3.6, name="GunTable"):
+	"""A display table (frame M on the floor, X along the table): a faceted top with a dark mat and a painted accent
+	edge, two A-frame steel legs with a cross bar, a lower shelf with ammo boxes, guns standing on little stands."""
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		top = 3.1
+		F["V_Wall"].prism(ccw(S.cham_rect(-w / 2, w / 2, -d / 2, d / 2, 0.3)), top - 0.35, top)
+		G["V_Trim"].prism(ccw(S.cham_rect(-w / 2 - 0.12, w / 2 + 0.12, -d / 2 - 0.12, d / 2 + 0.12, 0.32)), top - 0.5, top - 0.35)
+		G["V_Dark"].prism(ccw(S.cham_rect(-w / 2 + 0.35, w / 2 - 0.35, -d / 2 + 0.35, d / 2 - 0.35, 0.2)), top, top + 0.06)
+		G[PAINT.get(accent, accent)].box(-w / 2 + 0.4, w / 2 - 0.4, -d / 2 - 0.13, -d / 2 - 0.05, top - 0.45, top - 0.2)
+		for lx in (-w / 2 + 0.9, w / 2 - 0.9):
+			G["V_Steel"].ext_x(ccw([(-d / 2 + 0.2, 0.0), (-d / 2 + 0.75, 0.0), (-0.12, top - 0.5), (0.12, top - 0.5), (d / 2 - 0.75, 0.0), (d / 2 - 0.2, 0.0), (0.2, top - 0.2), (-0.2, top - 0.2)]), lx - 0.18, lx + 0.18)
+		G["V_Steel"].box(-w / 2 + 0.9, w / 2 - 0.9, -0.15, 0.15, 1.0, 1.25)
+		G["V_Base"].box(-w / 2 + 1.2, w / 2 - 1.2, -d / 2 + 0.6, d / 2 - 0.6, 1.25, 1.4)  # lower shelf
+		for k, bx in enumerate((-w / 2 + 2.0, -w / 2 + 3.4, w / 2 - 2.4)):
+			G["V_Crate"].box(bx - 0.55, bx + 0.55, -0.5, 0.5, 1.4, 2.2 - 0.15 * k)
+			G["V_GoldPaint"].box(bx - 0.25, bx + 0.25, -0.53, -0.5, 1.6, 1.9 - 0.15 * k)
+		S.collider(area, M, -w / 2 + 0.2, w / 2 - 0.2, -d / 2 + 0.2, d / 2 - 0.2, 0.0, top, "B")
+		import sw_locker
+		R = M.to_3x3()
+		n = len(guns)
+		for k, (gid, sc) in enumerate(guns):
+			gx = -w / 2 + w * (k + 0.5) / n
+			G["V_Steel"].prism(ccw(S.cham_rect(gx - 0.5, gx + 0.5, -0.35, 0.35, 0.12)), top + 0.06, top + 0.32)
+			L, _h = sw_locker.gun_box(gid)
+			sc = min(sc, (w / n - 0.6) / max(L, 0.1))
+			p = M @ Vector((gx, 0.0, top + 0.32))
+			t = R @ Vector((1, 0, 0))
+			S.gun_row([gid, sc, round(p.x, 3), round(p.y, 3), round(p.z, 3), round(t.x, 4), round(t.y, 4), 0, 0])
+		S.light(M, 0, 0, 11.0, WHITE, 1.6, 14, 50)
+
+
+def poster(K, M, x, y, w, h, title, sub, name="Poster"):
+	"""A printed poster on the wall: a thin dark backer with corner clips; the print is a SurfaceGui."""
+	with C.grp(name, M @ T(x, y, 0)):
+		F = S.FK(K, M)
+		F["V_Dark"].prism(ccw(S.cham_rect(x - w / 2 - 0.15, x + w / 2 + 0.15, y - 0.15, y + h + 0.15, 0.1)), 0.55, 0.72)
+		F["V_Wall"].box(x - w / 2 + 0.3, x + w / 2 - 0.3, y + 0.3, y + h - 0.3, -0.2, 0.56)
+		for cx in (x - w / 2 + 0.1, x + w / 2 - 0.1):
+			for cy in (y + 0.1, y + h - 0.1):
+				F["V_Steel"].box(cx - 0.12, cx + 0.12, cy - 0.12, cy + 0.12, 0.72, 0.8)
+		S.screen("poster", title, sub, M, x, y + h / 2, 0.76, w, h)

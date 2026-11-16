@@ -708,15 +708,76 @@ function M.screens(): string
 			if kind == "notice" then
 				slashMark(head, 10, math.floor(band * 0.15), math.floor(band * 0.7), GOLD)
 			end
-			label(head, title, 0, 0, W - 2 * m, band, math.floor(band * 0.72), if kind == "caution" then Color3.fromHex("#F0B414") else ink, true, Enum.TextXAlignment.Center)
+			local ttl = label(head, title, m, 0, W - 4 * m, band, math.floor(band * 0.72), if kind == "caution" then Color3.fromHex("#F0B414") else ink, true, Enum.TextXAlignment.Center)
+			ttl.TextScaled = true
 			if kind == "warning" then
 				frame(panel, m, band, W - 4 * m, math.max(2, math.floor(m * 0.4)), ink)
 			end
 			local lines = string.split(sub, "|")
-			local lh = math.floor((H - 2 * m - band - m) / math.max(1, #lines))
+			local top = band + math.max(4, m)
+			local lh = math.floor((H - 2 * m - top - m) / math.max(1, #lines))
 			for i, line in lines do
-				label(panel, line, 0, band + m * 0.5 + (i - 1) * lh, W - 2 * m, lh, math.floor(lh * 0.78), ink, true, Enum.TextXAlignment.Center)
+				local t = label(panel, line, m, top + (i - 1) * lh, W - 4 * m, lh, math.floor(lh * 0.7), ink, true, Enum.TextXAlignment.Center)
+				t.TextScaled = true
+				local c = Instance.new("UITextSizeConstraint")
+				c.MaxTextSize = math.floor(lh * 0.72)
+				c.Parent = t
 			end
+		elseif kind == "poster" then
+			-- a printed poster (Locker, owner 2026-11-16: more decor): a gold slash, a big title, lines under it
+			bg.BackgroundColor3 = Color3.fromHex("#14171B")
+			gui.Brightness = 1
+			frame(bg, 0, 0, W, math.floor(H * 0.04), GOLD)
+			slashMark(bg, math.floor(W * 0.08), math.floor(H * 0.1), math.floor(H * 0.16), GOLD)
+			local t = label(bg, title, math.floor(W * 0.08), math.floor(H * 0.3), math.floor(W * 0.84), math.floor(H * 0.28), math.floor(H * 0.12), CREAM, true, Enum.TextXAlignment.Left)
+			t.TextScaled = true
+			t.TextWrapped = true
+			local lines = string.split(sub, "|")
+			local lh = math.floor(H * 0.32 / math.max(1, #lines))
+			for i, line in lines do
+				local l = label(bg, line, math.floor(W * 0.08), math.floor(H * 0.62) + (i - 1) * lh, math.floor(W * 0.84), lh, math.floor(lh * 0.7), GOLD, true, Enum.TextXAlignment.Left)
+				l.TextScaled = true
+			end
+		elseif kind == "lineup" then
+			-- the big queue screen behind each pad (owner 2026-11-16: big screens that show the players): mode and
+			-- count across the top, then a TEAM A and a TEAM B column with one player card per slot. Static layout;
+			-- the lobby UI code fills names and avatars later.
+			local n = tonumber(string.sub(title, 1, 1)) or 1
+			bg.BackgroundColor3 = Color3.fromHex("#0B0D10")
+			local head = math.floor(H * 0.17)
+			local t = label(bg, title, 20, 4, math.floor(W * 0.4), head - 8, math.floor(head * 0.8), CREAM, true)
+			t.TextScaled = true
+			local q = label(bg, sub, math.floor(W * 0.45), 8, math.floor(W * 0.55) - 20, head - 16, math.floor(head * 0.4), GOLD, true, Enum.TextXAlignment.Right)
+			q.TextScaled = true
+			frame(bg, 20, head, W - 40, 3, GOLD)
+			local colW = math.floor((W - 60) / 2)
+			local top = head + 14
+			local foot = math.floor(H * 0.09)
+			local avail = H - top - foot - 10
+			for side = 1, 2 do
+				local x = 20 + (side - 1) * (colW + 20)
+				local col = if side == 1 then TEAM_A else TEAM_B
+				local hdr = frame(bg, x, top, colW, math.floor(avail * 0.14), col)
+				local ht = label(hdr, if side == 1 then "TEAM A" else "TEAM B", 12, 0, colW - 24, math.floor(avail * 0.14), 22, Color3.fromHex("#0B0D10"), true)
+				ht.TextScaled = true
+				local cardsTop = top + math.floor(avail * 0.14) + 8
+				local rows = math.max(n, 2)
+				local slotH = math.floor((avail - math.floor(avail * 0.14) - 8 - (rows - 1) * 8) / rows)
+				for i = 1, n do
+					local card = frame(bg, x, cardsTop + (i - 1) * (slotH + 8), colW, slotH, PANEL)
+					frame(card, 0, 0, 6, slotH, col)
+					local av = frame(card, 14, 6, slotH - 12, slotH - 12, Color3.fromHex("#1C2530"))
+					outline(av, col, 2)
+					label(av, "+", 0, 0, slotH - 12, slotH - 12, math.floor(slotH * 0.5), MUTED, true, Enum.TextXAlignment.Center)
+					local nm = label(card, "OPEN SLOT", slotH + 10, 0, colW - slotH - 20, slotH, math.floor(slotH * 0.34), MUTED, true)
+					nm.TextScaled = true
+					local c = Instance.new("UITextSizeConstraint")
+					c.MaxTextSize = math.floor(slotH * 0.36)
+					c.Parent = nm
+				end
+			end
+			local f = label(bg, "STAND ON THE PAD TO QUEUE", 0, H - foot, W, foot - 4, math.floor(foot * 0.6), MUTED, true, Enum.TextXAlignment.Center)
+			f.TextScaled = true
 		elseif kind == "queue" or kind == "locked" then
 			local live = kind == "queue"
 			local n = tonumber(string.sub(title, 1, 1)) or 1

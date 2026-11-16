@@ -44,7 +44,7 @@ CAMS = {  # name: (position, target, lens mm)
 MODULES = [HB, DU, WG]
 OPEN = {"Duels", "Locker", "Shop"}  # wings built: the hub leaves their doorway open
 PROBES = {"hub": (0, 0, 5), "hub_ring": (30, 12, 4), "hub_niche": (20, -20, 3), "duels_landing": (0, 64, 4), "duels_mid": (0, 100, 1),
-	"duels_apse": (0, 165, 1), "duels_bay": (-50, 82, 1), "duels_bay_e": (50, 142, 1), "locker": (-88, 0, 5), "locker_case": (-80, 18, 4), "shop": (89, 0, 5), "shop_pass": (89, 14, 4)}
+	"duels_apse": (0, 165, 1), "duels_bay": (-34, 78, 1), "duels_bay_e": (34, 134, 1), "locker": (-88, 0, 5), "locker_case": (-80, 18, 4), "shop": (89, 0, 5), "shop_pass": (89, 14, 4)}
 
 
 def reload():

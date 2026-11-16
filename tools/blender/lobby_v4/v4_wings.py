@@ -26,24 +26,27 @@ def stage(K, KD, cx, cy, r1, r2, ring, area_light=True):
 	o, i = V.oct_pts(r2 - 1.1), V.oct_pts(r2 - 1.45)
 	for k in range(8):
 		j = (k + 1) % 8
-		G[ring].prism(V.ccw([i[k], i[j], o[j], o[k]]), 1.8, 1.86)
+		G[V.PAINT.get(ring, ring)].prism(V.ccw([i[k], i[j], o[j], o[k]]), 1.8, 1.86)
 
 
-def console(K, KD, cx, cy, yaw, accent, area, tag, name):
-	"""A terminal on a faceted pedestal, its angled screen facing yaw; the gameplay hook sits on it."""
+def console(K, KD, cx, cy, yaw, accent, area, tag, name, title="TERMINAL"):
+	"""A terminal kiosk (owner 2026-11-16: the slanted neon slab read like a tablet and overlapped): a faceted column
+	with a kick, a vertical SurfaceGui screen in a bezel, a visor over it, a dark key shelf below, one painted accent
+	band. Faces -Y of its frame (yaw turns it). The gameplay hook sits in front of the screen."""
 	M = Matrix.Translation((cx, cy, 0)) @ Matrix.Rotation(radians(yaw), 4, "Z")
 	with C.grp(name, M):
 		F, G = S.FK(K, M), S.FK(KD, M)
-		F["V_Base"].prism(V.ccw(V.oct_pts(1.9)), 0, 0.6)
-		F["V_Wall"].solid([(x, y, 0.6) for x, y in V.ccw(V.oct_pts(1.5))], [(x, y, 3.2) for x, y in V.ccw(V.oct_pts(1.7))])
-		Ms = M @ Matrix.Translation((0, -0.4, 3.2)) @ Matrix.Rotation(radians(-35), 4, "X")
-		P = S.FK(KD, Ms)
-		P["V_Dark"].prism(V.ccw(S.cut_rect(-2.0, 2.0, -1.3, 1.3, 0.45, 0.12)), 0, 0.35)
-		S.ring_prism(P["V_Trim"], V.ccw(S.cut_rect(-2.0, 2.0, -1.3, 1.3, 0.45, 0.12)), V.ccw(S.cut_rect(-1.7, 1.7, -1.0, 1.0, 0.3, 0.08)), 0.35, 0.5)
-		P[accent].box(-1.5, 1.5, -0.85, 0.85, 0.3, 0.42)
-		G[accent].box(-1.0, 1.0, -1.72, -1.6, 0.8, 1.2)
-		c = M @ Vector((0, -1.5, 3.0))
-		S.ANCHORS.append([name, tag, round(c.x, 3), round(c.y, 3), round(c.z, 3), 4.0, 6.0, 4.0, {}])
+		F["V_Base"].prism(V.ccw(S.cham_rect(-1.9, 1.9, -1.3, 1.3, 0.4)), 0, 0.5)
+		F["V_Wall"].prism(V.ccw(S.cham_rect(-1.6, 1.6, -1.0, 1.0, 0.3)), 0.5, 6.0)
+		G["V_Trim"].prism(V.ccw(S.cham_rect(-1.75, 1.75, -1.15, 1.15, 0.32)), 6.0, 6.3)
+		G[V.PAINT.get(accent, accent)].prism(V.ccw(S.cham_rect(-1.63, 1.63, -1.03, 1.03, 0.3)), 1.1, 1.4)  # accent band
+		G["V_Dark"].box(-1.35, 1.35, -1.12, -1.0, 2.9, 5.5)  # screen bezel
+		Ms = S.face((0, -1.14, 0), (1, 0, 0), (0, -1, 0))
+		S.screen("notice", title, "PRESS E", M @ Ms, 0, 4.2, 0.0, 2.4, 2.4)
+		G["V_Steel"].ext_x(V.ccw([(5.5, -1.0), (5.5, -1.7), (5.75, -1.85), (6.0, -1.0)]), -1.45, 1.45)  # visor
+		G["V_Dark"].ext_x(V.ccw([(2.3, -1.0), (2.6, -1.9), (2.85, -1.9), (2.75, -1.0)]), -1.3, 1.3)  # key shelf
+		c = M @ Vector((0, -2.6, 3.0))
+		S.ANCHORS.append([name, tag, round(c.x, 3), round(c.y, 3), round(c.z, 3), 4.0, 4.0, 5.0, {}])
 
 
 class Locker:
@@ -74,18 +77,22 @@ class Locker:
 					V.vent(KD, Mv, u, 2.6, 2.8, 2.0)
 		Mw0, _ = walls["W"]
 		with C.grp("Plaques_Loadout", Mw0):
-			V.plaque(KD, Mw0, 37.6, 10.6, 3.4, 2.4, "notice", "NOTICE", ["PICK YOUR", "LOADOUT HERE"])
+			V.plaque(KD, Mw0, 37.6, 10.6, 3.4, 2.4, "notice", "NOTICE", ["PICK YOUR LOADOUT"])
 		Me, _ = walls["E"]
 		V.mouth(KD, Me @ V.T(24, 0, 0), 9.0, 18.0)
 		KD["V_Floor2"].box(cls.X1, cls.X1 + 4.0, -5.0, 5.0, 0.0, 0.12)
 		# loadout station on the end wall: stage, board, sign, console
 		Mw, _ = walls["W"]
 		stage(K, KD, cls.X0 + 8.6, 0.0, 6.6, 4.6, "E_Violet")
-		V.floor_text(KD, Matrix.Translation((cls.X0 + 8.6, 0.0, 1.8)) @ Matrix.Rotation(radians(90), 4, "Z"), "STAND HERE", 0.9, mat="V_Paint", z=0.06)
-		V.board(KD, Mw @ V.T(24, 6.2, 0), 22.0, 9.4, "locker", "SELECTED", name="Board_Loadout", accent="E_Violet")
-		V.sign(KD, Mw @ V.T(24, 18.6, 0), "LOCKER", 22.0, 5.2, accent="E_Violet", name="Sign_Loadout")
-		console(K, KD, cls.X0 + 17.5, 0.0, 90, "E_Violet", A, "LobbyLocker", "LockerConsole")
+		V.board(KD, Mw @ V.T(24, 6.2, 0), 22.0, 9.4, "featured", "SELECTED", name="Board_Loadout", accent="E_Violet")
+		V.sign(KD, Mw @ V.T(24, 18.6, 0), "LOCKER", 22.0, 5.2, accent="E_Violet", name="Sign_Loadout", icon="reticle")
+		console(K, KD, cls.X0 + 17.5, 0.0, 90, "E_Violet", A, "LobbyLocker", "LockerConsole", title="LOCKER")
 		V.prop_group(K, V.wframe((cls.X1, cls.Y1), (0, -1)) @ V.RX(-90), [("case", 9.0, -2.0, 0.0, 0), ("case", 9.2, -2.0, 0.92, -4), ("crate_s", 9.0, -6.2, 0.0, 8)])
+		for ty, guns in ((-12.0, [("Sheriff", 1.6), ("Bulldog", 1.6), ("Ghost", 1.6)]), (12.0, [("Judge", 1.6), ("Spectre", 1.6), ("Classic", 1.6)])):
+			V.gun_table(K, KD, A, Matrix.Translation((-75.0, ty, 0.0)), guns, name="GunTable")
+		Me1, _ = walls["E"]
+		V.poster(KD, Me1, 7.5, 6.0, 6.0, 8.0, "KNOW YOUR LOADOUT", "PICK|SKIN|WIN", name="Poster_Loadout")
+		V.poster(KD, Me1, 40.5, 6.0, 6.0, 8.0, "EVERY GUN", "HAS A STORY", name="Poster_Story")
 		# centre: the hero gun turning over a lit plinth
 		with C.grp("HeroPlinth", Matrix.Translation((-88.0, 0.0, 0.0))):
 			F, G = S.FK(K, Matrix.Translation((-88.0, 0.0, 0.0))), S.FK(KD, Matrix.Translation((-88.0, 0.0, 0.0)))
@@ -94,7 +101,7 @@ class Locker:
 			o, i = V.oct_pts(2.85), V.oct_pts(2.55)
 			for k in range(8):
 				j = (k + 1) % 8
-				G["E_Violet"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.6, 2.8)
+				G["V_Violet"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.6, 2.8)
 			G["V_Trim"].prism(V.ccw(V.oct_pts(2.9)), 3.2, 3.5)
 			G["V_Steel"].prism(V.ccw(V.oct_pts(2.3)), 3.5, 3.7)  # turntable the gun stands on
 			S.gun_row(["Vandal", 1.35, -88.0, 0.0, 4.4, 0.0, 1.0, 1, 16])
@@ -125,7 +132,7 @@ class Shop:
 				V.vent(KD, Mv, u, 2.6, 2.8, 2.0)
 		Me0, _ = walls["E"]
 		with C.grp("Plaques_Counter", Me0):
-			V.plaque(KD, Me0, 9.0, 10.6, 3.4, 2.4, "notice", "NOTICE", ["NEW SKINS", "EVERY WEEK"])
+			V.plaque(KD, Me0, 9.0, 10.6, 3.4, 2.4, "notice", "NOTICE", ["NEW SKINS WEEKLY"])
 		Mw, _ = walls["W"]
 		V.mouth(KD, Mw @ V.T(26, 0, 0), 12.0, 18.0)
 		KD["V_Floor2"].box(cls.X0 - 4.0, cls.X0, -8.0, 8.0, 0.0, 0.12)
@@ -142,14 +149,13 @@ class Shop:
 				G["V_Dark"].ext_y(V.ccw([(-2.0, 1.2), (-2.2, 2.8), (-2.08, 2.8), (-1.88, 1.2)]), y - 2.6, y + 2.6)
 			S.ANCHORS.append(["ShopCounter", "LobbyShop", round(cls.X1 - 12.0, 3), 0.0, 3.0, 4.0, 18.0, 6.0, {}])
 		V.board(KD, Me @ V.T(26, 6.0, 0), 24.0, 9.4, "shop", "FEATURED", name="Board_Featured", accent="E_Coral")
-		V.sign(KD, Me @ V.T(26, 18.4, 0), "SHOP", 18.0, 5.4, accent="E_Coral", name="Sign_ShopCounter")
+		V.sign(KD, Me @ V.T(26, 18.4, 0), "SHOP", 18.0, 5.2, accent="E_Coral", name="Sign_ShopCounter", shape="tag", icon="sparkle", icon_at="right", icon_size=4.2)
 		# the Season Pass wall on the north side, with its podium and terminal
 		Mn, _ = walls["N"]
 		V.board(KD, Mn @ V.T(27, 4.6, 0), 26.0, 10.8, "battlepass", "SEASON PASS", name="Board_SeasonPass", accent="E_Coral")
-		V.sign(KD, Mn @ V.T(27, 18.5, 0), "SEASON PASS", 20.0, 4.6, accent="E_Coral", name="Sign_SeasonPass", chevrons=False, lh=2.4)
+		V.sign(KD, Mn @ V.T(27, 18.5, 0), "SEASON PASS", 22.0, 4.6, accent="E_Coral", name="Sign_SeasonPass", shape="ribbon", icon="star", icon_size=3.6, lh=2.4)
 		stage(K, KD, 89.0, cls.Y1 - 9.6, 5.2, 3.6, "E_Coral")
-		V.floor_text(KD, Matrix.Translation((89.0, cls.Y1 - 9.6, 1.8)) @ Matrix.Rotation(radians(0), 4, "Z"), "STAND HERE", 0.8, mat="V_Paint", z=0.06)
-		console(K, KD, 89.0, cls.Y1 - 17.5, 0, "E_Coral", A, "LobbyBattlePass", "PassConsole")
+		console(K, KD, 89.0, cls.Y1 - 17.5, 0, "E_Coral", A, "LobbyBattlePass", "PassConsole", title="SEASON PASS")
 		with C.grp("FeaturePlinth", Matrix.Translation((84.0, -5.0, 0.0))):
 			Mp = Matrix.Translation((84.0, -5.0, 0.0))
 			F, G = S.FK(K, Mp), S.FK(KD, Mp)
@@ -158,7 +164,7 @@ class Shop:
 			o, i = V.oct_pts(3.05), V.oct_pts(2.75)
 			for k in range(8):
 				j = (k + 1) % 8
-				G["E_Coral"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.4, 2.6)
+				G["V_Pink"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.4, 2.6)
 			G["V_Trim"].prism(V.ccw(V.oct_pts(3.1)), 3.0, 3.3)
 			G["V_Steel"].prism(V.ccw(V.oct_pts(2.3)), 3.3, 3.5)  # turntable the gun stands on
 			S.gun_row(["Phantom", 2.0, 84.0, -5.0, 4.5, 1.0, 0.0, 1, 14])

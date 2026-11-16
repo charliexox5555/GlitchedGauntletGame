@@ -150,8 +150,18 @@ def run(only=None):
 			o.select_set(True)
 		bpy.context.view_layer.objects.active = obs[0]
 		fbx = os.path.join(FBX_DIR, f"V4_{area}.fbx")
-		bpy.ops.export_scene.fbx(filepath=fbx, use_selection=True, object_types={"MESH"},
+		tmp_fbx = fbx[:-4] + "_tmp.fbx"  # export beside it, then swap with retries (Windows file locks, OSError 22)
+		bpy.ops.export_scene.fbx(filepath=tmp_fbx, use_selection=True, object_types={"MESH"},
 			apply_scale_options="FBX_SCALE_UNITS", use_mesh_modifiers=True, bake_anim=False)
+		import time
+		for _k in range(30):
+			try:
+				os.replace(tmp_fbx, fbx)
+				break
+			except OSError:
+				time.sleep(0.5)
+		else:
+			raise OSError("could not replace " + fbx)
 		lights = S.LIGHTS.get(area, [])
 		with open(os.path.join(DATA_DIR, f"{area}.json"), "w") as f:
 			json.dump({"area": area, "parts": parts, "lights": lights, "pieces": ginfo}, f, separators=(",", ":"))

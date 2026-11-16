@@ -79,6 +79,29 @@ What all three still say holds V4 under RIVALS: **life that moves or rewards a l
 
 **Next round (proposed):** Beam light cones from the truss spots onto the dais and showcases, sparkle emitters and a slow bob on the showcase guns, a SurfaceLight on every wall tube, a dressed vault hall end in Duels, one prop story per room (Locker: a gunsmith bench; Shop: a crate being unpacked), live board content from the lobby UI lane, and a phone performance test.
 
+## Owner round, night of 2026-11-16 (pads, neon, consoles, signs, Locker)
+The owner's notes:
+- tablet-looking terminals that overlap;
+- too much neon;
+- overlapping text on the STAND HERE pads and the plaques;
+- too many caution signs (none needed in the pads);
+- boring queue pads: "more like the RIVALS queue area, with bigger pads and room to queue, and big screens that show the players";
+- the Locker needs shelves and decor;
+- every sign is the same: each should have its own character, without copying.
+
+| Note | Done |
+|---|---|
+| Queue pads | **Open stage pads** in front of a shallow recess, like RIVALS' open pads beside the walkway but our build. Each pad: 19 x 12 deck on a stepped base with a steel rim and a hazard-striped front step; two team plates (one thin lit outline, painted team band, A/B letter, one chevron slot marker per player); a VS pylon between them; two waist-high lamp bollards. Bays respaced (78 / 106 / 134) so the bigger pads clear the piers and the apse pads. |
+| Big screens | Each recess holds a **14 x 10 player screen** (new `lineup` layout): mode and "0 / N QUEUED" across the top, TEAM A and TEAM B columns, one card per player slot (avatar box, name line), "STAND ON THE PAD TO QUEUE". Static until the lobby UI code fills it. |
+| Neon | Painted accent twins (`V_Violet`, `V_Pink`, `V_Lime`, `V_TeamA`, `V_TeamB`) replace glow on cases, showcases, stages, plinths, consoles and the drop stand. Glow stays on signs, lamps, pad outlines and the GG. |
+| Consoles | Rebuilt as **terminal kiosks**: faceted column, a vertical screen in a bezel (SurfaceGui), a visor, a key shelf, one painted band. No slanted neon slab. |
+| Text overlap | STAND HERE removed. Plaques print with text scaled to fit, the rule sits under the header, one line each. |
+| Caution signs | The plaque in every pad removed. The hub keeps one notice by the Locker and one warning by the Range. Duels keeps one warning. |
+| Signs | **Each sign has its own plate shape and icon**, breaking its outline on a dark backing: DUELS a blade-shaped badge with crossed steel blades (gold guards); SHOP a price tag with a sparkle; LOCKER a leaning plate with a reticle; RANGE an arrow with a bullseye and dart; THE GAUNTLET a ribbon with a crown; SEASON PASS a ribbon with a star. |
+| Locker | Two **gun tables** (faceted top, dark mat, A-frame legs, a lower shelf with ammo boxes, three guns on stands each) and two **posters** by the door ("KNOW YOUR LOADOUT", "EVERY GUN HAS A STORY"). The loadout board now shows. |
+
+**Checks:** geometry audit 0 floating, 0 leaks; 0 missing meshes; 29 real guns placed; play-test: all 10 prompts bind, spawn on the dais. 4,052 instances. **The exporter now writes FBX and JSON through temp files with retries**, after Windows file locks broke two exports. Captures: `References/lobby/v4/studio/`.
+
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.
 - The Shop centre is empty. A featured-skin plinth would carry it.

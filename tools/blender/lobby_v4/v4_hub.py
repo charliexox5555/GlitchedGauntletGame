@@ -183,7 +183,7 @@ def doors(K, KD):
 	# Duels (+Y): the big stepped portal, gold sign
 	M = V.face_at(90, R)
 	portal(K, KD, M, DUELS_HW, 22.0, 12.0, close="Duels" not in OPEN, name="Portal_Duels")
-	V.sign(KD, M @ V.T(0, 22.6, 0), "DUELS", 25.0, 7.0, accent="E_Gold", name="Sign_Duels")
+	V.sign(KD, M @ V.T(0, 22.6, 0), "DUELS", 25.0, 6.6, accent="E_Gold", name="Sign_Duels", shape="badge", icon="blades")
 	# Shop (+X): roll-shutter door, coral sign
 	M = V.face_at(0, R)
 	portal(K, KD, M, 12.0, 18.0, 12.0, close="Shop" not in OPEN, name="Portal_Shop")
@@ -195,11 +195,11 @@ def doors(K, KD):
 			F["V_Trim"].ext_x(V.ccw([(18.2, 0.0), (18.2, 2.2), (18.8, 2.85), (20.75, 2.85), (21.2, 2.3), (21.2, 0.0)]), sx * 12.6 - 0.4, sx * 12.6 + 0.4)
 			F["V_Steel"].box(sx * 12.15, sx * 12.95, 0, 18.6, 0, 0.9)  # guide channel
 		F["E_Coral"].box(-10.0, 10.0, 18.25, 18.45, 0.5, 1.0)  # threshold lamp line under the housing
-	V.sign(KD, M @ V.T(0, 22.4, 0), "SHOP", 22.0, 6.8, accent="E_Coral", name="Sign_Shop")
+	V.sign(KD, M @ V.T(0, 22.4, 0), "SHOP", 21.0, 6.4, accent="E_Coral", name="Sign_Shop", shape="tag", icon="sparkle", icon_at="right", icon_size=5.2)
 	# Locker (-X): gallery arch with display cases either side, violet sign
 	M = V.face_at(180, R)
 	portal(K, KD, M, 9.0, 18.0, 12.0, close="Locker" not in OPEN, cut=2.6, name="Portal_Locker")
-	V.sign(KD, M @ V.T(0, 22.4, 0), "LOCKER", 25.0, 6.8, accent="E_Violet", name="Sign_Locker")
+	V.sign(KD, M @ V.T(0, 22.4, 0), "LOCKER", 25.0, 6.4, accent="E_Violet", name="Sign_Locker", icon="reticle")
 	# Range (-Y): not built yet (owner 2026-11-16). A sealed door in its frame, the RANGE sign kept for later.
 	M = V.face_at(270, R)
 	portal(K, KD, M, 10.0, 18.0, 4.6, close=True, cut=2.6, name="Portal_Range")
@@ -211,7 +211,7 @@ def doors(K, KD):
 			for y in (3.0, 7.0, 11.0):
 				G["V_Dark"].box(sx * 0.6, sx * (h3 - 0.6), y, y + 0.5, -1.9, -1.75)
 		G["E_Lime"].box(-2.0, 2.0, v3 - 1.2, v3 - 0.9, -1.9, -1.75)
-	V.sign(KD, M @ V.T(0, 22.4, 0), "RANGE", 25.0, 6.8, accent="E_Lime", name="Sign_Range")
+	V.sign(KD, M @ V.T(0, 22.4, 0), "RANGE", 25.0, 6.4, accent="E_Lime", name="Sign_Range", shape="arrow", icon="target")
 	return {"Duels": V.face_at(90, R), "Shop": V.face_at(0, R), "Locker": V.face_at(180, R), "Range": M}
 
 
@@ -261,13 +261,11 @@ def details(K, KD):
 				V.vent(KD, M, x, 2.4, w_, h_, slats=4 if h_ < 2.5 else 6)
 	M = V.face_at(180, R)  # Locker door: plaques on the left strip, a beacon over them
 	with C.grp("Plaques_Locker", M):
-		V.plaque(KD, M, -11.4, 10.6, 3.2, 2.2, "notice", "NOTICE", ["SKINS SAVE", "PER GUN"])
-		V.plaque(KD, M, 11.4, 10.6, 3.2, 2.2, "caution", "CAUTION", ["KEEP DOOR", "CLEAR"])
+		V.plaque(KD, M, 11.4, 10.6, 3.2, 2.2, "notice", "NOTICE", ["SKINS SAVE PER GUN"])
 	M = V.face_at(270, R)  # Range door: sealed, says so
 	with C.grp("Plaques_Range", M):
-		V.plaque(KD, M, -11.8, 10.6, 3.4, 2.6, "warning", "WARNING!", ["RANGE CLOSED", "OPENS SOON"])
+		V.plaque(KD, M, -11.8, 10.6, 3.4, 2.6, "warning", "WARNING", ["RANGE CLOSED"])
 		V.beacon(KD, M, -11.8, 14.0)
-		V.plaque(KD, M, 11.8, 10.6, 3.4, 2.2, "caution", "CAUTION", ["DO NOT", "BLOCK DOOR"])
 
 
 def life(K, KD):
