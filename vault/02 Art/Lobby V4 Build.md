@@ -153,9 +153,22 @@ The owner: "it still needs improvements on the structure of the whole thing". Re
 
 **Checks:** 0 floating, 0 leaks; the Shop clash list is down to intended seats (piers into walls, frame legs into the floor, lamp housings into the ceiling); 0 missing; about 5,050 instances (the split adds Models).
 
+## RIVALS props, a wider Market, lit stages (owner 2026-11-16)
+Studied against the owner's paste of the RIVALS lobby (`Workspace.LobbyRivals`, read only, 0 scripts). Their Market hall is about as wide as ours now; what sells it is that both bays are **lit, full stages** (bright backdrop, curtains, glowing grid figures, spot cans) and one colour band runs down both walls. Their Ski Crate lies flat, like our cases.
+
+| Note | Done |
+|---|---|
+| "Create a folder called Rivals Props and paste them into the world" | The owner's `Workspace.RivalsProps` (14 RIVALS props) moves to `ServerStorage.RivalsPropTemplates` the first time `Build_V4.props()` runs. Every crate and case spot in the builders is now a **`LobbyPropSpot` anchor** (`v4_core.prop_m`: `Kind` = template name, `Yaw`), and Studio drops a copy there, bottom on the floor, scripts and prompts stripped, in `LobbyV4Staging["Rivals Props"]`. 17 props: the hub stack (two weapon crates, a wooden crate across them, a barrel, an explosive barrel), the Duels and Locker case stacks, the two stage cases, four by the Broker. The Ski Crate stands on end in the owner's folder, so `PROP_LAY` lays it flat (shortest side up). **Placeholders: RIVALS' meshes, replaced before publishing.** Map in `v4_core.PROP_KIND`. |
+| Hallway too narrow | 26 → **40 wide** (88 long, 30 high), stages 18 deep, the floor marks 24 x 8 with heel and ball footprints. |
+| Shop "a bit rough" | Both stages are lit stages now: FEATURED has **folded coral curtains** (zigzag flat plates, no curves) on a steel rail, SEASON PASS a **lilac backdrop**; each has **two hologram figures** (`v4_core.holo_figure`: block bodies in a violet ForceField, so they shimmer like a grid, no bloom) on lit discs; stage light 2.4 → 3.2, the accent fill doubled. A **painted violet band** runs down both long walls between the piers. Hologram stands (gift, badge) by the entrance. |
+| Separate pieces | The bay spot cans (`stage_spot`) and door collars (`mouth`) were merged into one loose mesh per material; now each is its own piece. |
+
+**Checks:** 0 floating, 0 leaks, visible pairs 64 → 52; the Shop clash list is only the stage frames and the door collar seated into the wall at the opening edges; props checked against every collider (none intersect) and sit on the floor; play-tested: FEATURED opened the Shop and SEASON PASS the Battle Pass.
+
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.
-- The Shop centre is empty. A featured-skin plinth would carry it.
+- RIVALS' Market hall turns a corner at the end; ours is a straight dead end with the Broker. A turn or a deeper end room would add the same "more to see" pull.
+- The props are RIVALS' meshes (placeholders). Our own crates, cases and barrels are still to model.
 - Lighting reads flat (all three reviewers, both rounds), and the walls between fixtures are bare. See the blind review.
 - The farthest pad is about 10.5 s from spawn (plan target 9.5 s; RIVALS is 15 s).
 

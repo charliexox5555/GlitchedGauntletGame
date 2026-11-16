@@ -7,7 +7,7 @@ Reuses the Sunwell builder (sw_core: frames, pieces, lights, screens, anchors) a
 Units: 1 Blender unit = 1 stud. X east, Y north (= towards Duels, Roblox -Z), Z up. Origin = the spawn dais centre.
 Theme: vault/02 Art/Lobby V4 Theme.md. Plan: vault/02 Art/Lobby V4 Plan.md.
 """
-from math import cos, sin, radians, pi
+from math import cos, sin, radians, pi, atan2, degrees
 
 from mathutils import Matrix, Vector
 
@@ -64,6 +64,7 @@ GLOW = {
 	"H_Ghost": ("#C5B7D9", 4.0),
 	"H_Cone": ("#C5B7D9", 2.0),
 	"H_Ring": ("#C5B7D9", 6.0),
+	"H_Figure": ("#6539D7", 3.0),
 }
 _L = S._L
 LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVariants)
@@ -109,6 +110,7 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"H_Ghost": _L("Neon", "#9F8FC0", t=0.55, glow=True),  # its offset ghost copy
 	"H_Cone": _L("Neon", "#9F8FC0", t=0.82, glow=True),  # the projection cone
 	"H_Ring": _L("Neon", "#9F8FC0", t=0.3, glow=True),  # the floor ring
+	"H_Figure": _L("ForceField", "#7A4CF0"),  # stage hologram figures: Roblox's shimmering force field, no bloom
 	"Glass": _L("SmoothPlastic", "#DDE2E4", t=0.9, r=0.04),
 }
 WHITE = "#F4F1EA"  # lamp light
@@ -936,7 +938,7 @@ def effect_stand(K, KD, area, x, y, accent="E_Gold", name="EffectStand"):
 	fx("cone", x, y, 16.0, "#FFF4E0", to=(x, y, 2.8), name=name + "Cone", W0=1.0, W1=6.0)
 
 
-def holobay(K, KD, area, M, hw, h, d, title, accent, icon, name="Holobay"):
+def holobay(K, KD, area, M, hw, h, d, title, accent, icon, name="Holobay", backdrop="V_Dark", curtains=None, figures=()):
 	"""A show stage set into a wall (RIVALS' Market holobays, our build). M: wall face frame at the bay centre (X along
 	the wall, Y up, Z into the room). A stepped frame, a lined recess d deep, a raised stage floor with a lit lip, a
 	backdrop with a big painted slash graphic, an inner box truss with three spot cans aimed at the hero point, a tab
@@ -954,7 +956,7 @@ def holobay(K, KD, area, M, hw, h, d, title, accent, icon, name="Holobay"):
 			F["V_Wall"].box(sx * (hw - 2.2), sx * (hw + 2.0), 0, h - 2.2, -d, -1.0)
 		F["V_Wall"].box(-hw - 2.0, hw + 2.0, 0, h + 1.6, -d - 2.0, -d)
 		F["V_Slab"].box(-hw - 2.0, hw + 2.0, -1.2, -0.02, -d - 2.0, -2.0)
-		FD["V_Dark"].box(-iw, iw, 1.2, h - 3.3, -d, -d + 0.25)  # backdrop
+		FD[backdrop].box(-iw, iw, 1.2, h - 3.3, -d, -d + 0.25)  # backdrop (a lit paint on the pass stage, owner 2026-11-16)
 		for sx in (-iw * 0.62, -iw * 0.3):
 			FD[paint].prism(ccw([(sx - 1.1, 1.8), (sx + 0.4, 1.8), (sx + 3.4, h - 4.8), (sx + 1.9, h - 4.8)]), -d + 0.25, -d + 0.3)
 		FD[paint].box(-iw + 0.6, iw - 0.6, h - 4.4, h - 4.25, -d + 0.25, -d + 0.3)
@@ -964,6 +966,15 @@ def holobay(K, KD, area, M, hw, h, d, title, accent, icon, name="Holobay"):
 		P["V_Trim"].box(-iw + 0.05, iw - 0.05, 0.0, 0.35, 1.0, 1.32)
 		P[accent].box(-iw + 0.4, iw - 0.4, 0.14, 0.24, 0.4, 0.7)  # lit lip, seated in the stage face
 		S.collider(area, Mf, -iw + 0.3, iw - 0.3, 0.5, d - 0.3, 0.0, 1.1, "B")
+		if curtains:
+			with C.grp(name + "Curtains", M):
+				Pc = S.FK(KD, Mf)
+				for sx in (-1, 1):
+					Pc[curtains].prism(_curtain(sx, iw), 1.15, h - 2.9)
+					Pc["V_Steel"].box(min(sx * (iw + 0.1), sx * (iw - 3.0)), max(sx * (iw + 0.1), sx * (iw - 3.0)), 0.35, 0.55, h - 2.9, h - 2.6)  # rail
+		for k, (fx_, fy, fs) in enumerate(figures):
+			with C.grp(name + "Holo%d" % (k + 1), M):
+				holo_figure(S.FK(KD, Mf), fx_, d * fy, 1.18, fs)
 		for yy in (h - 3.7, h - 4.7):
 			for zz in (tz - 0.5, tz + 0.5):
 				FD["V_Dark"].pipe((-iw, yy, zz), (iw, yy, zz), 0.13, n=6)
@@ -977,8 +988,8 @@ def holobay(K, KD, area, M, hw, h, d, title, accent, icon, name="Holobay"):
 		stage_spot(KD, (can.x, can.y), 0.0, 0.0, can.z, tuple(hero + Vector((0, 0, 1.5))))
 		if k != 1:
 			fx("cone", can.x, can.y, can.z - 1.3, "#FFF4E0", to=tuple(hero + Vector((0, 0, 1.0))), name=name + "Cone", W0=0.5, W1=4.5)
-	S.light(M, 0, h - 4.2, -d * 0.5, WHITE, 2.4, 18, 70)
-	S.light(M, 0, 4.0, -1.5, GLOW.get(accent, (WHITE,))[0], 0.7, 12)
+	S.light(M, 0, h - 4.2, -d * 0.5, WHITE, 3.2, 24, 80)
+	S.light(M, 0, 4.0, -1.5, GLOW.get(accent, (WHITE,))[0], 1.4, 16)
 	sign(KD, M @ T(0, h + 0.9, 0), title, hw * 1.4, 4.4, accent=accent, tilt=10, standoff=0.8, name=name + "Sign", icon=icon, icon_size=3.4, light=False)
 	fx("dust", hero.x, hero.y, hero.z + 4.0, "#FFF4E0", name=name + "Dust", Spread=round(iw * 0.8, 2))
 	return hero
@@ -1239,8 +1250,9 @@ def step_mark(KD, area, x, y, w, d, accent, tag, name, facing=1.0, word="STEP IN
 				G[accent].box(*sorted((bx - sx * 0.12, bx + sx * 0.12)), *sorted((by, by - sy * 1.8)), 0.15, 0.2)
 		for k, fx_ in enumerate((-w * 0.28, 0.0, w * 0.28)):
 			mat = paint if k == 1 else "V_Paint"
-			for sx, flip in ((-0.45, True), (0.45, False)):
-				G[mat].prism(_sole(fx_ + sx, -0.3, 1.3, flip), 0.15, 0.18)
+			for sx, flip, dy in ((-0.5, True, 0.0), (0.5, False, 0.35)):
+				G[mat].prism(_sole(fx_ + sx, -0.3 + dy, 1.4, flip), 0.15, 0.18)
+				G[mat].prism(_heel(fx_ + sx, -0.3 + dy, 1.4, flip), 0.15, 0.18)
 		hazard_strip(KD, M, -w / 2, w / 2, d / 2 + 0.2, d / 2 + 1.0, 0.12)
 		floor_text(KD, M @ Matrix.Translation((0, d / 2 - 1.9, 0)), word, 0.8, mat="V_Paint", z=0.15)
 	S.ANCHORS.append([name + "Hook", tag, round(x, 3), round(y, 3), 2.6, w, d, 4.0, {"Trigger": "Step"}])
@@ -1262,3 +1274,68 @@ hazard_strip = grouped(hazard_strip, "Hazard")
 ceiling_lamp = grouped(ceiling_lamp, "CeilingLamp")
 path_lane = grouped(path_lane, "Path")
 slab_with_hole = grouped(slab_with_hole, "Ceiling")
+stage_spot = grouped(stage_spot, "StageSpot")
+mouth = grouped(mouth, "Mouth")
+
+
+
+# ---------------------------------------------------------------- props from the owner's RivalsProps templates (owner 2026-11-16)
+PROP_KIND = {"crate": "Wep Crate", "crate_s": "Crate02", "case": "Ski Crate", "crate_tall": "Crate07", "container": "Container02",
+	"barrel": "Barrel", "barrel_x": "Explosive Barrel", "pallet": "Pallet", "crate_long": "Crate03b"}
+
+
+def prop_m(kind, M, name="Prop"):
+	"""A prop spot: Studio drops a copy of the owner's RivalsProps template there (Build_V4.props). M: the prop's
+	floor frame (its origin is the bottom centre, its X axis the prop's length)."""
+	p = M.translation
+	ax = M.to_3x3() @ Vector((1, 0, 0))
+	yaw = degrees(atan2(ax.y, ax.x))
+	S.ANCHORS.append([name, "LobbyPropSpot", round(p.x, 3), round(p.y, 3), round(p.z, 3), 1.0, 1.0, 1.0, {"Kind": PROP_KIND.get(kind, kind), "Yaw": round(yaw, 2)}])
+
+
+def crate(K, M, w=5.0, d=4.0, h=3.2, name="Crate"):
+	"""Placeholder crate: a prop spot (a RIVALS crate template) instead of our own model."""
+	prop_m("crate" if w >= 4.5 else "crate_s", M, name)
+
+
+def hard_case(K, M, w=4.6, d=1.6, h=0.9, name="HardCase"):
+	prop_m("case", M, name)
+
+
+def _sole(cx, cy, s_, flip):
+	"""A footprint: the ball of the foot (faceted), one polygon; the heel is drawn by _heel."""
+	f = -1 if flip else 1
+	pts = [(-0.3, -0.05), (-0.18, -0.2), (0.16, -0.2), (0.32, -0.02), (0.36, 0.28), (0.28, 0.55), (0.06, 0.66), (-0.18, 0.6), (-0.32, 0.38)]
+	return ccw([(cx + f * x * s_, cy + y * s_) for x, y in pts])
+
+
+def _heel(cx, cy, s_, flip):
+	f = -1 if flip else 1
+	pts = [(-0.22, -0.62), (0.14, -0.64), (0.26, -0.5), (0.24, -0.32), (0.1, -0.26), (-0.16, -0.27), (-0.26, -0.4)]
+	return ccw([(cx + f * x * s_, cy + y * s_) for x, y in pts])
+
+
+
+# ---------------------------------------------------------------- Market stage dressing (owner 2026-11-16: the Shop is "a bit rough")
+def _curtain(sx, iw, folds=5, w=2.9, y0=0.5, amp=0.7, t=0.22):
+	"""A stage curtain in plan (x across the stage, y into it): a zigzag of flat folds, no curves. sx: -1 left, 1 right."""
+	xs = [sx * (iw + 0.1 - w * k / folds) for k in range(folds + 1)]
+	front = [(x, y0 + (amp if k % 2 else 0.0)) for k, x in enumerate(xs)]
+	back = [(x, y + t) for x, y in front]
+	return ccw(front + back[::-1])
+
+
+def holo_figure(b, x, y, z0, s=1.0):
+	"""A blocky hologram figure (RIVALS' Market shows cosmetics on glowing grid figures; ours are lilac block bodies)
+	standing at (x, y) on a floor frame (z up), z0 the floor. A base disc, legs, torso, arms, head, small gaps
+	between the blocks (no flush faces)."""
+	b["H_Item"].prism(ccw([(x + px * 1.5 * s, y + py * 1.5 * s) for px, py in oct_pts(1.0)]), z0 - 0.03, z0 + 0.05)
+	z = z0 + 0.02  # legs seated into the disc
+	def blk(x0, x1, y0, y1, za, zb, c=0.14):
+		b["H_Figure"].prism(ccw(S.cham_rect(x + x0 * s, x + x1 * s, y + y0 * s, y + y1 * s, c * s)), z + za * s, z + zb * s)
+	for lx in (-0.95, 0.05):
+		blk(lx, lx + 0.9, -0.45, 0.45, 0.0, 1.98)
+	blk(-1.0, 1.0, -0.5, 0.5, 2.03, 4.0)
+	for ax in (-2.0, 1.05):
+		blk(ax, ax + 0.95, -0.45, 0.45, 2.08, 4.0)
+	blk(-0.6, 0.6, -0.6, 0.6, 4.035, 5.2, c=0.2)

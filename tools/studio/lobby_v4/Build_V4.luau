@@ -1244,6 +1244,100 @@ function M.fx(): string
 	return "fx: " .. n
 end
 
+
+-- Props (owner 2026-11-16): the owner's RivalsProps templates stand in for our crates and cases until our own props are
+-- made. The templates live in ServerStorage.RivalsPropTemplates (moved there from Workspace.RivalsProps the first time,
+-- so nothing floats in the world); each LobbyPropSpot anchor (Kind = template name, Yaw = degrees from Blender +X,
+-- counter-clockwise) gets a copy, bottom on the floor, in LobbyV4Staging["Rivals Props"]. Placeholders only: they are
+-- RIVALS' meshes and must be replaced before publishing.
+local PROP_LAY = { ["Ski Crate"] = true } -- templates that stand on end in RivalsProps but lie flat in the lobby
+
+function M.props(): string
+	local templates = ServerStorage:FindFirstChild("RivalsPropTemplates")
+	if not templates then
+		local src = workspace:FindFirstChild("RivalsProps")
+		if not src then
+			return "props: no templates (Workspace.RivalsProps or ServerStorage.RivalsPropTemplates)"
+		end
+		src.Name = "RivalsPropTemplates"
+		src.Parent = ServerStorage
+		templates = src
+	end
+	local folder = fresh(root(), "Rivals Props")
+	local n, missing = 0, {}
+	for _, spot in CollectionService:GetTagged("LobbyPropSpot") do
+		if not spot:IsDescendantOf(root()) or not spot:IsA("BasePart") then
+			continue
+		end
+		local kind = spot:GetAttribute("Kind")
+		local tpl = if typeof(kind) == "string" then (templates :: Instance):FindFirstChild(kind) else nil
+		if not tpl then
+			table.insert(missing, tostring(kind))
+			continue
+		end
+		local copy = tpl:Clone()
+		for _, d in copy:GetDescendants() do
+			if d:IsA("BaseScript") or d:IsA("ProximityPrompt") or d:IsA("ClickDetector") then
+				d:Destroy()
+			elseif d:IsA("BasePart") then
+				d.Anchored = true
+			end
+		end
+		if copy:IsA("BasePart") then
+			copy.Anchored = true
+		end
+		local yawAttr = spot:GetAttribute("Yaw")
+		local yaw = math.rad(if typeof(yawAttr) == "number" then yawAttr else 0)
+		if not (copy:IsA("Model") or copy:IsA("BasePart")) then
+			copy:Destroy()
+			continue
+		end
+		-- keep the template's world orientation (the owner placed them upright), pivot at the bottom centre of its world
+		-- box, then turn it by the spot's yaw (Blender yaw about +Z is Roblox yaw about +Y) and sit it on the spot
+		local lo, hi = Vector3.one * math.huge, -Vector3.one * math.huge
+		local parts: { BasePart } = if copy:IsA("BasePart") then { copy } else {}
+		for _, d in copy:GetDescendants() do
+			if d:IsA("BasePart") then
+				table.insert(parts, d)
+			end
+		end
+		for _, p in parts do
+			local h = p.Size / 2
+			for _, c in { Vector3.new(1, 1, 1), Vector3.new(1, 1, -1), Vector3.new(1, -1, 1), Vector3.new(1, -1, -1), Vector3.new(-1, 1, 1), Vector3.new(-1, 1, -1), Vector3.new(-1, -1, 1), Vector3.new(-1, -1, -1) } do
+				local w = p.CFrame:PointToWorldSpace(h * c)
+				lo, hi = lo:Min(w), hi:Max(w)
+			end
+		end
+		if #parts == 0 then
+			copy:Destroy()
+			continue
+		end
+		local base = CFrame.new((lo.X + hi.X) / 2, lo.Y, (lo.Z + hi.Z) / 2)
+		if PROP_LAY[tpl.Name] and copy:IsA("Model") then
+			-- stood upright in the owner's folder; lay it down: shortest box axis up, longest along the spot's X
+			local bcf, bsize = copy:GetBoundingBox()
+			local axes = { { bcf.RightVector, bsize.X }, { bcf.UpVector, bsize.Y }, { bcf.LookVector, bsize.Z } }
+			table.sort(axes, function(a, b)
+				return a[2] < b[2]
+			end)
+			local up, long = axes[1][1], axes[3][1]
+			base = CFrame.fromMatrix(bcf.Position - up * axes[1][2] / 2, long, up)
+		end
+		local target = CFrame.new(spot.Position) * CFrame.Angles(0, yaw, 0)
+		if copy:IsA("Model") then
+			copy.WorldPivot = base
+			copy:PivotTo(target)
+		else
+			local bp = copy :: BasePart
+			bp.CFrame = target * base:ToObjectSpace(bp.CFrame)
+		end
+		copy.Name = tpl.Name
+		copy.Parent = folder
+		n += 1
+	end
+	return "props: " .. n .. (if #missing > 0 then " (no template: " .. table.concat(missing, ", ") .. ")" else "")
+end
+
 local LIGHTING_PROPS = {
 	"Ambient",
 	"OutdoorAmbient",
@@ -1402,6 +1496,7 @@ function M.rebuild(): string
 	table.insert(out, M.guns())
 	table.insert(out, M.anchors())
 	table.insert(out, M.npcs())
+	table.insert(out, M.props())
 	table.insert(out, M.fx())
 	table.insert(out, M.sounds())
 	return table.concat(out, "\n")

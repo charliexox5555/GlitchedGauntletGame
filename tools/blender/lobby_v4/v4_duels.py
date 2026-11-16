@@ -278,7 +278,7 @@ def walls(K, KD):
 	Mf = frame((0, Y0), (-1, 0))
 	Mfloor = Mf @ V.RX(-90)
 	with C.grp("Props_Front", Mf):  # one odd group on the side without vents, clear of the corner pier
-		V.prop_group(K, Mfloor, [("crate", 32.8, -3.4, 0.0, 3), ("case", 28.0, -2.0, 0.0, -2), ("case", 28.2, -2.0, 0.92, 4)])
+		V.prop_group(K, Mfloor, [("crate", 32.8, -3.4, 0.0, 3), ("case", 28.0, -2.0, 0.0, -2), ("case", 28.2, -2.0, 1.62, 4)])
 	with C.grp("FrontDetails", Mf):
 		for sx in (-1, 1):
 			if sx < 0:

@@ -89,7 +89,7 @@ class Locker:
 		# the armorer: an NPC behind a gun bench in the south-west corner, facing the room
 		V.gun_table(K, KD, A, Matrix.Translation((cls.X0 + 7.6, -13.0, 0.0)) @ Matrix.Rotation(radians(90), 4, "Z"), [("Knife", 1.6), ("Sheriff", 1.6)], w=7.0, d=3.2, name="ArmorerBench")
 		V.npc("Armorer", cls.X0 + 12.5, -8.0, 0.0, -60, "armorer", "ARMORER")  # in the open beside the pad, facing the door
-		V.prop_group(K, V.wframe((cls.X1, cls.Y1), (0, -1)) @ V.RX(-90), [("case", 9.0, -2.0, 0.0, 0), ("case", 9.2, -2.0, 0.92, -4), ("crate_s", 9.0, -6.2, 0.0, 8)])
+		V.prop_group(K, V.wframe((cls.X1, cls.Y1), (0, -1)) @ V.RX(-90), [("case", 9.0, -2.0, 0.0, 0), ("case", 9.2, -2.0, 1.62, -4), ("crate_s", 9.0, -6.2, 0.0, 8)])
 		for ty, guns in ((-12.0, [("Sheriff", 1.6), ("Bulldog", 1.6), ("Ghost", 1.6)]), (12.0, [("Judge", 1.6), ("Spectre", 1.6), ("Classic", 1.6)])):
 			V.gun_table(K, KD, A, Matrix.Translation((-75.0, ty, 0.0)), guns, name="GunTable")
 		Me1, _ = walls["E"]
@@ -119,8 +119,8 @@ class Shop:
 	walk-in floor mark that opens its menu; a big NPC, the BROKER, stands at the far end on a stepped plinth under the
 	SHOP sign and a TV. Piers with bar lamps, TVs and posters by the entrance, a lit path down the middle."""
 	AREA = "Shop"
-	X0, X1, Y0, Y1, H = 62.0, 150.0, -13.0, 13.0, 30.0
-	BX, BHW, BH, BD = 104.0, 15.0, 20.0, 16.0  # stage centre x, half width, height, depth
+	X0, X1, Y0, Y1, H = 62.0, 150.0, -20.0, 20.0, 30.0  # owner 2026-11-16: wider (was 26)
+	BX, BHW, BH, BD = 104.0, 15.0, 20.0, 18.0  # stage centre x, half width, height, depth
 
 	@classmethod
 	def build(cls):
@@ -143,6 +143,12 @@ class Shop:
 			KD["V_Floor2"].box(X0 - 4.0, X0, -8.0, 8.0, 0.0, 0.12)
 		Mn, _ = walls["N"]
 		Ms, _ = walls["S"]
+		# a painted violet band down both long walls (RIVALS' Market runs one colour band the length of the hall)
+		for Mw_, segs in ((Mn, ((2.5, 20.0), (64.0, 85.5))), (Ms, ((2.5, 24.0), (68.0, 85.5)))):
+			with C.grp("WallBand", Mw_):
+				G = S.FK(KD, Mw_)
+				for a_, b_ in segs:
+					G["V_ThViolet"].box(a_, b_, 5.9, 7.9, 0.5, 0.6)
 		# piers between the entrance section, the stages and the end
 		for x in (84.0, 124.0):
 			V.pier_at(K, KD, V.wframe((x, Y1), (1, 0)), H, A, w=3.0)
@@ -155,7 +161,8 @@ class Shop:
 		with C.grp("Vents", Ms):
 			V.vent(KD, Ms, X1 - X0 - 11.5, 2.6, 3.2, 2.2)
 		# FEATURED stage (south)
-		heroF = V.holobay(K, KD, A, Ms @ V.T(X1 - BX, 0, 0), BHW, BH, BD, "FEATURED", "E_Coral", "sparkle", name="Bay_Featured")
+		heroF = V.holobay(K, KD, A, Ms @ V.T(X1 - BX, 0, 0), BHW, BH, BD, "FEATURED", "E_Coral", "sparkle", name="Bay_Featured",
+			curtains="V_Pink", figures=((-5.2, 0.76, 1.15), (5.2, 0.76, 1.15)))
 		Mh = Matrix.Translation(tuple(heroF))
 		with C.grp("FeaturedPedestal", Mh):
 			G = S.FK(KD, Mh)
@@ -168,9 +175,10 @@ class Shop:
 		for k, dx in enumerate((-7.5, 7.5)):
 			V.hard_case(KD, Matrix.Translation((heroF.x + dx, heroF.y + (0.6 if k else -0.4), heroF.z)) @ Matrix.Rotation(radians(8 - 16 * k), 4, "Z"), name="StageCase")
 		V.fx("sparkle", heroF.x, heroF.y, heroF.z + 5.5, "#FF5C8A", name="FeaturedFX", Rate=8, Spread=3.4)
-		V.step_mark(KD, A, BX, Y0 + 4.8, 22.0, 7.0, "E_Coral", "LobbyShop", "Mark_Featured", facing=-1.0)
+		V.step_mark(KD, A, BX, Y0 + 5.4, 24.0, 8.0, "E_Coral", "LobbyShop", "Mark_Featured", facing=-1.0)
 		# SEASON PASS stage (north)
-		heroS = V.holobay(K, KD, A, Mn @ V.T(BX - X0, 0, 0), BHW, BH, BD, "SEASON PASS", "E_ThViolet", "star", name="Bay_Season")
+		heroS = V.holobay(K, KD, A, Mn @ V.T(BX - X0, 0, 0), BHW, BH, BD, "SEASON PASS", "E_ThViolet", "star", name="Bay_Season",
+			backdrop="V_ThLilac", figures=((-7.0, 0.74, 1.15), (7.0, 0.74, 1.15)))
 		Mh = Matrix.Translation(tuple(heroS))
 		with C.grp("SeasonCrest", Mh):
 			G = S.FK(KD, Mh)
@@ -184,7 +192,7 @@ class Shop:
 			for poly in V._icon_shapes("star", 1.6):
 				P["E_ThViolet"].prism([(a, b + 7.7) for a, b in poly], -0.2, 0.2)  # set into the crest top
 		V.fx("sparkle", heroS.x, heroS.y, heroS.z + 5.5, "#C5B7D9", name="SeasonFX", Rate=8, Spread=3.4)
-		V.step_mark(KD, A, BX, Y1 - 4.8, 22.0, 7.0, "E_ThViolet", "LobbyBattlePass", "Mark_Season", facing=1.0)
+		V.step_mark(KD, A, BX, Y1 - 5.4, 24.0, 8.0, "E_ThViolet", "LobbyBattlePass", "Mark_Season", facing=1.0)
 		# the far end: the BROKER on a stepped plinth, the SHOP sign and a TV behind him
 		Me, _ = walls["E"]
 		V.tv(K, KD, Me @ V.T(Y1, 12.4, 0), 18.0, 8.8, "shop", "FEATURED", out=2.6, name="TV_ShopEnd")
@@ -205,6 +213,11 @@ class Shop:
 				G["E_ThViolet"].prism(V.ccw([i_[k], i_[j], o[j], o[k]]), 1.9, 1.95)
 		V.npc("Broker", px, 0.0, 1.9, 90, "broker", "BROKER", scale=1.8)
 		S.light(I4, px, 0.0, H - 1.0, V.WHITE, 2.2, 30, 45)
+		# hologram stands by the entrance, props in the corners
+		V.holo_stand(K, KD, A, 73.0, Y1 - 7.0, "gift", name="Holo_ShopGift", size=2.6)
+		V.holo_stand(K, KD, A, 73.0, Y0 + 7.0, "badge", name="Holo_ShopBadge", size=2.6)
+		for (x, y, yaw, kind) in ((139.0, Y1 - 3.9, -6.0, "crate"), (133.5, Y1 - 3.6, 10.0, "barrel"), (139.0, Y0 + 3.9, 6.0, "container"), (133.5, Y0 + 3.6, -8.0, "crate_s")):
+			V.prop_m(kind, Matrix.Translation((x, y, 0.0)) @ Matrix.Rotation(radians(yaw), 4, "Z"), name="Prop")
 		# a lit path from the door to the plinth
 		V.path_lane(KD, Matrix.Rotation(radians(-90), 4, "Z"), 3.0, X0 + 3.0, px - 6.0, arrows=(px - 11.0, px - 8.6))
 		return K.done() + KD.done()

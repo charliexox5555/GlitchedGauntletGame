@@ -238,8 +238,8 @@ def diagonals(K, KD):
 	V.gallery(K, KD, M, -A + 3.4, A - 3.4, 27.6, name="Gallery")
 	V.tv(K, KD, M @ V.T(0, 11.0, 0), 19.0, 11.0, "news", "SEASON 1", "NEW MAPS · NEW MODS", name="TV_News")
 	Mf = M @ V.RX(-90)
-	for x, z, yaw in ((-10.4, 0.0, 0.0), (-4.9, 0.0, 4.0), (-7.8, 3.32, -7.0)):
-		V.crate(K, Mf @ V.T(x, -3.2, z) @ Matrix.Rotation(radians(yaw), 4, "Z"))
+	for x, z, yaw, kind in ((-11.0, 0.0, 0.0, "crate"), (-4.2, 0.0, 4.0, "crate"), (-7.6, 3.8, -7.0, "crate_s"), (8.6, 0.0, 12.0, "barrel"), (12.2, 0.0, -20.0, "barrel_x")):
+		V.prop_m(kind, Mf @ V.T(x, -3.4, z) @ Matrix.Rotation(radians(yaw), 4, "Z"), name="Prop")
 	# SE: the social niche: two benches, a show stage, the featured board
 	M = V.face_at(315, R)
 	wall(K, KD, M, panel_skip=(-9.0, 9.0))
@@ -268,7 +268,7 @@ def details(K, KD):
 	for th in (45, 135, 225, 315):
 		M = V.face_at(th, R)
 		with C.grp("Vents", M):
-			vents = {225: ((-0.5, 2.0, 3.0),), 315: ((0.0, 3.2, 2.2),)}.get(th, ((-5.2, 4.2, 1.8), (4.6, 2.2, 3.0)))  # none behind crates or benches
+			vents = {225: ((4.6, 2.0, 3.0),), 315: ((0.0, 3.2, 2.2),)}.get(th, ((-5.2, 4.2, 1.8), (4.6, 2.2, 3.0)))  # none behind crates or benches
 			for x, w_, h_ in vents:
 				V.vent(KD, M, x, 2.4, w_, h_, slats=4 if h_ < 2.5 else 6)
 	M = V.face_at(180, R)  # Locker door: plaques on the left strip, a beacon over them
