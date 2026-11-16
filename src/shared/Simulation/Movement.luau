@@ -40,6 +40,7 @@ local RunService = game:GetService("RunService")
 
 local Authority = require(script.Parent.Parent.Authority)
 local Health = require(script.Parent.Parent.Health)
+local MatchState = require(script.Parent.Parent.MatchState)
 local Movement = require(script.Parent.Parent.Config.Movement)
 local AbilitiesSim = require(script.Parent.Abilities)
 local Pawns = require(script.Parent.Pawns)
@@ -230,6 +231,12 @@ local function stepCharacter(player: Player, character: Model)
 	end
 	local dashSpeed = AbilitiesSim.speedOverride(character, now)
 	local walkSpeed = dashSpeed or speed * mult
+	-- Spawn hold (select + 3-2-1): stand at the marker, look around only.
+	-- Players and bots alike (bots step here on the server).
+	local held = MatchState.isSpawnHold()
+	if held then
+		walkSpeed = 0
+	end
 	if math.abs(humanoid.WalkSpeed - walkSpeed) > 1e-3 then
 		humanoid.WalkSpeed = walkSpeed
 	end
@@ -266,7 +273,7 @@ local function stepCharacter(player: Player, character: Model)
 	-- part of gravity is given back every step.
 	local jumpMult = (player:GetAttribute("StatusJumpMult") :: number?) or 1
 	local gravityMult = (player:GetAttribute("StatusGravityMult") :: number?) or 1
-	local jumpHeight = Movement.JUMP_HEIGHT * jumpMult * gravityMult
+	local jumpHeight = if held then 0 else Movement.JUMP_HEIGHT * jumpMult * gravityMult
 	if math.abs(humanoid.JumpHeight - jumpHeight) > 1e-3 then
 		humanoid.JumpHeight = jumpHeight
 	end

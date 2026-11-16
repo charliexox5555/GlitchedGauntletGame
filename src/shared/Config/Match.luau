@@ -51,6 +51,14 @@ return table.freeze({
 	FIRST_SELECT_TIME = 30,
 	SELECT_TIME = 15,
 	COUNTDOWN_TIME = 3,
+	-- Spawn hold (vault/01 Design/Spawn Hold.md, 2026-11-16): through the select
+	-- and the 3-2-1 everyone stands at their spawn marker, can look but not
+	-- move or jump (Simulation/Movement), and other fighters show as ghosts
+	-- (SpawnHoldController). Shots and Mods are already off (CombatLocked).
+	SPAWN_HOLD = table.freeze({
+		ghost = 0.6, -- LocalTransparencyModifier on other fighters' bodies
+		refresh = 0.25, -- seconds between passes that catch late spawns
+	}),
 	ROUND_TIME = 50, -- then sudden death
 	ROUND_END_TIME = 5,
 	-- The match-end screen (Services/MatchEndService): `time` seconds to pick

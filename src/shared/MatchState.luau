@@ -87,6 +87,14 @@ function MatchState.replayLength(): number
 	return R.delay + MatchState.replayPlayback() + R.hold
 end
 
+-- The spawn hold (vault/01 Design/Spawn Hold.md): the select and its 3-2-1,
+-- when every fighter waits at their marker. Read by the movement simulation
+-- (no moving or jumping) and SpawnHoldController (ghost bodies).
+function MatchState.isSpawnHold(): boolean
+	local phase = MatchState.get("Phase")
+	return phase == "Draft" or phase == "Countdown"
+end
+
 -- Seconds left on the current phase's clock.
 function MatchState.timeLeft(): number
 	local endsAt = MatchState.get("EndsAt")

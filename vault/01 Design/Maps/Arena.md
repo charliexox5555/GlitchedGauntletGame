@@ -49,7 +49,7 @@ Plans are data in `tools/maps/arena_layout.py` (Arena, Big Arena, and the RIVALS
 **Finding for the RIVALS study:** measured the same way (longest free line on a 1-stud grid), RIVALS' Arena has a 144-stud line, not 49; "longest line ≈ half the spawn gap" doesn't hold. The comparable number is the share of long rays (~18-20%).
 
 ## Playtest (Studio, bot, 2026-11-16)
-Run on v1 (same lanes and spawns; v2 moved pieces ≤ 2.5 studs). `ForceMap = "Arena"`, `TestMode = false` for the run (both put back after: `TestMode = true`, `ForceMap = "OldTown2"`). The map loaded, player and bot spawned on the markers, both held through the ~26 s draft, then the bot ran the left lane (-19,-44) → (-25,0) → (-17,30) and reached our spawn screen ~7 s after GO with no stuck spots; the round reset back to the markers. Not tested: Big Arena in play, slide runs and Updraft / Crash Down clearance by hand, the ghost hold (code not built yet).
+Run on v1 (same lanes and spawns; v2 moved pieces ≤ 2.5 studs). `ForceMap = "Arena"`, `TestMode = false` for the run (both put back after: `TestMode = true`, `ForceMap = "OldTown2"`). The map loaded, player and bot spawned on the markers, both held through the ~26 s draft, then the bot ran the left lane (-19,-44) → (-25,0) → (-17,30) and reached our spawn screen ~7 s after GO with no stuck spots; the round reset back to the markers. Not tested: Big Arena in play, slide runs and Updraft / Crash Down clearance by hand. The ghost hold was tested on Arena afterwards (see Spawn Hold).
 
 ## Captures (local, `tool-results`; re-shoot for the review)
 v2: Arena aerial, Arena spawn view (two-tone screen with the grid lining up into the floor, Beacon above), Big Arena aerial. R15 scale dummies (5.0 studs) at spawns, Beacon, decks and tower in `Workspace.ScaleDummies` (not part of the maps; delete before publishing).
@@ -65,5 +65,5 @@ v2: Arena aerial, Arena spawn view (two-tone screen with the grid lining up into
 
 ## Next
 - Owner review of this batch (layouts + look). Then: add `{ id = "Arena", minTeam = 1, maxTeam = 2 }` and `{ id = "BigArena", minTeam = 2, maxTeam = 3 }` to `Config/Match` MAPS, plus `Ambience` / `MapLife` entries, and retire Whitebox / BigWhitebox.
-- Build the [Spawn Hold](../Spawn%20Hold.md) (code) so these maps hold players in place without gates.
+- ~~Build the Spawn Hold code~~ **done 2026-11-16** ([Spawn Hold](../Spawn%20Hold.md)): players and bots stand still and show as ghosts through the select, checked on Arena with a bot.
 - Batch 2: Pier + Dockyard (Blender kit, themed).
