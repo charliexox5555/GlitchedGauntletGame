@@ -1,0 +1,58 @@
+# RIVALS reference: UI and client
+
+Part of [Rivals Reference](00%20Rivals%20Reference.md). Studied 2026-11-15 from the RIVALS place file (read-only, nothing run). The scripts in the file are decompiles, so this note records **patterns and numbers, never their code**. Pair it with the live-video study in [UI References](../UI%20References/00%20UI%20References.md), which shows how these screens look when filled in; this file shows how they are built.
+
+Paths below are in the RIVALS file. `UI.` = `StarterPlayer.StarterPlayerScripts.UserInterface`.
+
+## How the UI is stored
+- **Nothing in StarterGui.** All UI is a template library in `UI.` (7,523 instances). `Controllers.UserInterfaceController` builds it at runtime from 24 `Modules.UserInterface.*` modules.
+- **One main ScreenGui**, `UI.MainGui` (`ResetOnSpawn=false`, `IgnoreGuiInset=true`, `ZIndexBehavior=Sibling`), with a `MainFrame` holding the always-there screens: `Lobby` (menu bar, Play, currency, party), `Queue`, `Equipment` (locker), `BottomStack` (spectate), `Notifications`, `SideTasks`, `Spotlight`, and an empty `Pages` holder.
+- **Pages** (`UI.Pages`, 38 frames: Shop 788, Rewards, Matchmaking, Gifting, Settings, Ranked, BattlePass, ViewProfile, Maps, Collection, Tasks, Party…) live outside the gui and are **reparented into `MainFrame.Pages` when opened**. Each has a `UIAspectRatioConstraint` + `Container`; logic in `Modules.Pages.<Name>`.
+- **Match HUD** is cloned per fighter: `FighterInterface` (bottom-left/right/centre, damage indicators, full-screen vignettes for damage, heal, frozen, low-ammo, speed lines), `DuelInterface` (top bar timer/scores/match point/round result, scoreboard, kill feed, voting, final results), `ItemInterface` (mouse + aiming vignette), `Crosshair` (foreground/background/hitmarker).
+- **~150 `…Slot` / `…Card` templates** at the top of `UI.`, each with a matching `Modules.<Name>Slot` that clones and fills it (NotificationSlot, EliminationFeedSlot, ScoreboardPlayerSlot, ShopSlot, BattlePassRewardSlot, CosmeticSlot, WeaponSlot, MatchmakingQueueSlot…).
+- **World-space UI:** 14 BillboardGuis (nametag, damage, teammate label, scope glare) and 9 SurfaceGuis (duels board, leaderboard, likes board, eliminations board, starter-bundle board, shooting-range board, video ads).
+
+**For us:** the same split we already use (Studio-built templates + a module per screen). Worth copying as a *pattern*: one Slot module per repeated card, pages that live outside the gui until opened, one router (below).
+
+## Motion (the numbers)
+- **Buttons** (`Modules.ButtonEffect`): hover grows to **1.125×** (Quint Out 0.25 s); press shrinks to **0.875×** (Quint Out 0.25 s) with a click sound; release snaps to 1.125 then eases home with **Back Out 0.25 s** (small overshoot). Re-anchors to (0.5, 0.5) so it scales from the centre (same as our [UI scale pivot](../../02%20Art/UI%20Shop.md) rule). Also reacts to gamepad selection.
+- **Pages** (`Modules.Page`): open starts at **0.75 scale, y = 0.6**, tweens to full size at y = 0.5 with **Back Out 0.25 s** (rises and pops). **No close animation** (just hides). Reduced Motion turns the pop off. Shop opts out.
+- **Router** (`Modules.PageSystem`): one page open at a time; `OpenPage(name, toggle)`, `CloseCurrentPage`, signals for opened/closed; each page must give a default element (gamepad) and a close request.
+- **Backdrop** (`Modules.GlowyBackground`): each screen has its own Lighting **Blur (size 24) + ColorCorrection (brightness -0.3, contrast 0, tint 220 grey)**, faded over **2 s on a quintic ease-out**; four tiled pattern images drift slowly behind pages. Prompts dim the background to 0.333 transparency.
+- **Totals across modules:** Quint ~45 uses, Back ~12 (pops only), then Quad/Quart/Linear; **Out** nearly always; **0.25 s is the default beat**, 0.5 s next. No sine, elastic or bounce. Springs are used for the viewmodel, not the UI.
+
+**For us:** this matches the owner's rule (Quint, no overshoot except pops). Our pop = their Back Out 0.25 s; our default = Quint Out 0.25 s.
+
+## Build details
+| Item | Count | Note |
+|---|---|---|
+| Frame / ImageLabel / ImageButton / TextLabel | 2,004 / 1,808 / 441 / 974 | **no TextButtons**: every button is an ImageButton with labels inside |
+| 9-slice images | 1,042 of 2,249 | one rounded-square source, `SliceCenter` (15,15)-(16,16), corner size set by `SliceScale` (0.5 most, also 0.35 / 0.25 / 1 / 0.125) |
+| UICorner | 367 | 0,8 most; 1,0 (circles) 102 |
+| UIStroke | 423 | thickness 2 nearly always, Round joins |
+| UIGradient | 915 | heavy use for sheen and fades |
+| UIAspectRatioConstraint / UIScale | 146 / 8 | layout is scale + aspect ratio, not UIScale |
+| Fonts | ~1,000 labels | **one custom family** (weights Medium, ExtraBold, Bold, Heavy, SemiBold) |
+| Button base colour | RGB 18,18,21 at 0.08 transparency, icons 247,247,248 | |
+
+- **3D previews:** ViewportFrames only for emotes and cosmetics (cameras at **FOV 25**, plus a zoomed-out variant). The **locker is a real 3D scene in the world** with its own camera and a fade frame, not a ViewportFrame (we did the same for our Locker).
+
+## Phones
+- **No separate phone gui and almost no UIScale.** Layout = scale sizes + aspect-ratio constraints.
+- Touch players are sent to a **separate mobile duels place** (`MobileController`, a mobile place id, a `MobileDuels` page).
+- Code branches on `ControlsController.CurrentControls == "Touch"` in ~15 files (camera, locker spin, settings tab, shop opens an inspect prompt instead of hover).
+- Touch overlay `MainGui.MobileInputs`: joystick area, double-tap area, buttons, and an **editor that lets players move and resize their touch buttons** (saved per profile through two Data remotes).
+
+## Client architecture
+- `ReplicatedFirst` bootstrap → `StarterPlayerScripts.Client` requires **51 Controllers** each in a pcall (one broken controller doesn't stop the rest).
+- `Modules` (935): UI kit, `Pages` (37), `ViewModels` (347), `LightingProfiles` (36), `Items`, `GameComponents`, `LobbyElements`.
+- Shared `ReplicatedStorage.Modules`: `*Library` modules (Item, Shop, Cosmetic, Sound, Animation, Settings, Season…), `Signal`, `Spring`, `CONSTANTS`, enums.
+- **Replication:** a `ReplicatedController` base; server objects arrive on `Remotes.Replication.<Name>.Replicate` / `ReplicateUnreliable` as Added/Changed/Removed with ids.
+- **Remotes:** 196 plain RemoteEvents/Functions/Unreliable, grouped in folders (Data, Misc, Replication, Matchmaking, PrivateServer, Moderator, Duels, Permissions, Arcade, Debug, Analytics). No networking library.
+
+## Screenshots (local only)
+`third-party/ui/` (git-ignored): the lobby play / queue bar, the shop tabs with empty cards, the match HUD template. Static captures come out half-empty because code fills the slots; use the video study for the filled look.
+
+## What we take
+- Patterns: page router, slot modules, aspect-ratio layout, per-screen blur, the motion numbers above, the touch-button editor idea (parked for mobile).
+- **Not** their images, 9-slice sources, icons, font or code. Our look stays [Soft Edge](../../02%20Art/UI%20Theme%20v4%20Soft%20Edge.md) + the owner's plate style.
