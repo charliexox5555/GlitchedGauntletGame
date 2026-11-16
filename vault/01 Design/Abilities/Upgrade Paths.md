@@ -43,12 +43,12 @@ E has 5 abilities and Q and T have 2 each; the user is fine with that for now (m
 The names below in each section are the ones decided in the review (e.g. Updraft "Height" / "Charges" / "Slam"); the table above is what the cards say now. Two glitches both start with "Crash" (Crash Down, Crash Recovery): see [Bugs & Ideas](../../05%20Production/Bugs%20%26%20Ideas.md).
 
 ## 1. Dash (E): decided 2026-11-03
-L1 (unchanged): 12 studs in 0.15 s, 1 per round, no recharge.
+L1: 16 studs in 0.15 s (was 12), 1 per round, no recharge.
 
 | Level | Effect |
 |---|---|
-| **A2 Distance** | Dash 150% as far (18 studs) in the same 0.15 s. |
-| **A3 Distance** | 200% as far (24 studs) in the same 0.15 s, and **2 charges**. |
+| **A2 Distance** | Dash about 1.4x as far (22 studs; L1 is 16 since 2026-11-15) in the same 0.15 s. |
+| **A3 Distance** | About 1.75x as far (28 studs) in the same 0.15 s, and **2 charges**. |
 | **B2 Ghost** | Bullets pass through you for 0.35 s from the press (longer than the dash itself, so you can dodge a shot you see coming). |
 | **B3 Ghost** | After dashing you're nearly invisible for 1 s (enemies within 10 studs see a shimmer), and **2 charges**. |
 | **G2 Desync** ⚡ | The dash leaves a decoy afterimage that keeps running your old direction for 1.5 s. Drawback: you can't shoot for 0.3 s after dashing. |
@@ -65,7 +65,7 @@ L1 (built): straight up ~14 studs, works mid-air, **1 per round** (lowered from 
 | **A3 Height** | 200% as high (~28 studs). |
 | **B2 Charges** | **2 charges**. |
 | **B3 Charges** | **3 charges**. |
-| **G2 Slam** ⚡ | Press crouch in the air to slam straight down: 30 damage within 8 studs of where you land. |
+| **G2 Slam** ⚡ | Press the Updraft key (Q) again in the air to slam straight down (was crouch): 30 damage within 8 studs of where you land. |
 | **G3 Slam** ⚡ | The slam does 45 damage and Hinders enemies it hits for 1 s, and **2 charges**. |
 
 ## 3. Molly: decided 2026-11-03

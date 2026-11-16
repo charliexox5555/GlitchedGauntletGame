@@ -73,7 +73,7 @@ Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → 2. Updraft (the nu
 | A3 High Rise | Launch twice as high, about 28 studs | `peak` 28: ≈ 105 studs/s, rise ≈ 0.53 s (L1 ≈ 0.38 s) |
 | B2 Second Wind | 2 Updrafts every round | `charges` 2 |
 | B3 Second Wind | 3 Updrafts every round | `charges` 3 (the HUD has 3 pips) |
-| G2 Crash Down ⚡ | Crouch mid-air to slam, 30 damage within 8 studs | below |
+| G2 Crash Down ⚡ | Press the Updraft key (Q) again mid-air to slam, 30 damage within 8 studs (was crouch) | below |
 | G3 Crash Down ⚡ | 45 damage, Hinders for 1 s, 2 Updrafts a round | `slamDamage` 45, `slamHinder` 1, `charges` 2 |
 
 **Path names** (proposed; Upgrade Paths.md still says Height / Charges / Slam): *High Rise*, *Second Wind* (an extra breath of air, the wind theme), *Crash Down* (a crash is the glitch theme: the slam is a corrupted packet hitting the floor).
@@ -84,8 +84,8 @@ Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → 2. Updraft (the nu
 - Running speed carried (`maxCarry` 24) over ~1.07 s of air at A3 is ~26 studs of drift (L1 ~18): still a predictable arc.
 
 ### Crash Down (the slam): how it works
-- **Input:** a **new** Crouch press (C / Left Ctrl / B / the slide button) while an Updraft is in the air. Holding crouch from a slide into the launch doesn't count. A press in the first `slamArm` 0.15 s after the launch waits until then (~9 studs up at L1), so you can't slam the spot you launched from.
-- **Movement:** straight down at `slamSpeed` 90 studs/s, no steering, no carried run speed (a Dash mid-slam still pushes you sideways). A second Updraft (G3 has 2) mid-slam cancels it into a new launch. No slide starts: the press is in the air, and the landing doesn't count as a new press.
+- **Input:** a **second press of the Updraft key** (Q by default) while an Updraft is in the air (was a Crouch press). The first press launches. From the launch until landing, a press of that key is always the slam, never another launch, so it can't spend a charge. A press in the first `slamArm` 0.15 s after the launch waits until then (~9 studs up at L1), so you can't slam the spot you launched from.
+- **Movement:** straight down at `slamSpeed` 90 studs/s, no steering; it keeps up to 16 studs/s of horizontal speed (`slamCarry`, was none), and a Dash mid-slam still pushes you sideways. A second Updraft (G3 has 2) mid-slam cancels it into a new launch. No slide starts: the press is in the air, and the landing doesn't count as a new press.
 - **Landing:** enemies whose root is within `slamRadius` 8 studs of yours, with a clear line from you to their chest or head, take `slamDamage` (kill feed: Updraft). G3 also Hinders them for `slamHinder` 1 s. No self or team damage.
 - **Code:** `Mods/Updraft.step` (predicted in the simulation) writes `UpdraftSlamQueued`, `UpdraftSlamming`, `UpdraftSlamStart`, and on landing `UpdraftSlamPos` + `UpdraftSlamAt`. `module.server` (ModService's hook) watches every character's `UpdraftSlamAt` (the server's own simulation), re-checks the level on the server, deals the damage, then fires ModFx `UpdraftSlam` { at, radius, hits, hinder }.
 
@@ -94,7 +94,7 @@ Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → 2. Updraft (the nu
 - **The impact:** a small hot flash (2 frames), a shockwave ring out to the radius (plus the Blender Shockwave mesh when installed), a magenta dashed ring that jumps out in three skipped frames, a hex "corrupted floor" patch that holds 0.65 s, dust thrown out flat, chips kicked up, magenta voxel static scattered over the area, one short light. Ours draws on our own predicted landing; others' come from the server's ModFx.
 - **Caster camera:** FOV push +5 on the dive; on landing a shake (1.2°), FOV squeeze −8 and a 2.2° nod down that comes back (2026-11-03: heavier). Anyone within twice the radius gets a smaller shake.
 - **Look (stylized, 2026-11-03):** the user found the slam hard to read ("doesn't seem to be working; should have a different animation and cracks on the ground"). It did work (a dummy went 100 → 70); it just didn't look like a hit. With the [GlitchVFX kit](../../../art-source/abilities/README.md#glitchvfx-kit) installed (`Util/GlitchVfx`; the look above stays until then): **the floor cracks open** to the 8-stud radius (glowing cracks in the slammer's team colour over dark splits, a hot copy snapping open, lingering 3 s), **9 rubble chunks** in the floor's own colour and material thrown up that land and lie, the shockwave is a **stepped pixel ring** (a magenta one stuttering behind), the corrupted floor a **hex-tile disc**, and the dive trails a turning **bundle of falling bars**.
-- **The prompt (2026-11-03):** while you're up in an Updraft with Crash Down (and not slamming yet), **"C  CRASH DOWN"** sits under the crosshair (pulsing, magenta with a cyan split; **B** on a gamepad). On touch it's a round **CRASH** button under the crosshair that presses Crouch (an `InputBinding` on the Crouch action). A press waiting for `slamArm` dims it.
+- **The prompt (2026-11-03):** while you're up in an Updraft with Crash Down (and not slamming yet), **"Q  CRASH DOWN"** sits under the crosshair (the Updraft slot's own key, pulsing; the slot's pad button on a gamepad). On touch it's a round **CRASH** button under the crosshair that presses the Updraft slot's input (an `InputBinding` on its action). (Was "C" / Crouch until 2026-11-15.) A press waiting for `slamArm` dims it.
 - **Poses (2026-11-03):** a **dive** pose while `UpdraftSlam = "Down"` (hunched, knees up, the right fist cocked) and a **landing** clip (hips drop, right knee down, the fist into the floor) once per landing, in `Simulation/Poses` (a looped track and a one-shot; the landing mark is kept in Lua, not an attribute). The clips come from `tools/studio/MakeSlamAnimations.luau` (run in Studio, upload, ids into `Config/Animations` `MODS.UpdraftSlam` / `UpdraftSlamLand`); until then the dive borrows the Crouch pose and there's no landing clip.
 - **Sounds** (`Config/ModSounds` → `Updraft`, ProSoundEffects placeholders, unauditioned):
 
@@ -108,9 +108,9 @@ Decided 2026-11-03 in [Upgrade Paths](Upgrade%20Paths.md) → 2. Updraft (the nu
 ### Playtest checklist (Studio)
 - A3: peak ≈ 28 studs from the ground; gun back up before the peak; edge and wind loop last the whole rise.
 - B3: 3 pips, 3 launches, empty after; refilled at round start.
-- G2: Updraft, press C at the top → straight drop, 30 damage to a dummy within 8 studs, none behind a wall, none to a teammate or yourself.
-- G2: hold C while sliding, press Q → no slam (needs a new press). Tap C right after Q → the slam starts ~0.15 s in, not on the spot.
-- G2: landing with C still held → crouch, no slide; let go → normal.
+- G2: Updraft, press Q again at the top → straight drop, 30 damage to a dummy within 8 studs, none behind a wall, none to a teammate or yourself.
+- G2: press Q twice very fast → the slam starts ~0.15 s in (`slamArm`), not on the spot; a press while airborne never spends a charge.
+- G2: the impact (2026-11-16 look): the floor cracks in its own colour, rubble flies and lands, one white flash, the team ring; no magenta glitch tiles.
 - G3: 45 damage and Hinder 1 s; 2 charges; Updraft again mid-slam → new launch, no slam damage.
 - Two clients: the enemy sees the orange-red pulsing ring under the slammer and hears the dive; the caster's impact plays at once, others' within ping.
-- 2026-11-03 look: "C  CRASH DOWN" shows only while up in an Updraft with Crash Down; B with a gamepad; CRASH button on touch (ForceTouchUI) slams. Cracks sized to the radius (8 studs), rubble in the floor's colour lands and fades, bars trail the dive. Dive / landing poses once the clips are uploaded (Crouch pose before).
+- 2026-11-03 look (key now Q, impact restyled 2026-11-16 → Playtests/2026-11-16 Effects Pass Overnight): "CRASH DOWN" shows only while up in an Updraft with Crash Down; B with a gamepad; CRASH button on touch (ForceTouchUI) slams. Cracks sized to the radius (8 studs), rubble in the floor's colour lands and fades, bars trail the dive. Dive / landing poses once the clips are uploaded (Crouch pose before).

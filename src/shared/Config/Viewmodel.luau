@@ -1134,6 +1134,7 @@ return table.freeze({
 			rotation = Vector3.new(10, -20, -6),
 			lift = Vector3.new(0, 0.17, 0),
 		},
+		Recall = { scale = 1.3 }, -- the anchor read tiny on the fist (2026-11-16); default offset
 		HealOrb = {
 			offset = Vector3.new(0.48, -0.72, -1.85),
 			rotation = Vector3.new(0, -10, 0),
