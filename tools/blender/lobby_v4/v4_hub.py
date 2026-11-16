@@ -156,7 +156,7 @@ def floor(K, KD):
 	ring_sectors(K["V_Trim"], 11.9, 12.55, 0.86, 1.05)
 	K["V_Lane"].prism(V.ccw(V.oct_pts(8.5)), 1.0, 2.0)
 	ring_sectors(K["V_Trim"], 7.9, 8.55, 1.86, 2.05)
-	ring_sectors(KD["V_GoldPaint"], 5.6, 6.0, 2.0, 2.06)
+	ring_sectors(KD["V_ThLilac"], 5.6, 6.0, 2.0, 2.06)  # studio lilac
 	KD["V_Dark"].prism(V.ccw(V.oct_pts(4.6)), 2.0, 2.05)
 	S.add_text(KD["E_Gold"], "GG", 3.2, 0.06, y0=-1.6, z0=2.05, s=0.24)
 	# paths to the doors: inlaid lanes with lit rails, chevrons near each door (RIVALS' floor paths, our build)

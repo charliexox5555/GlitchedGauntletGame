@@ -565,10 +565,10 @@ local INK = Color3.fromHex("#0C1218")
 local PANEL = Color3.fromHex("#151E28")
 local CREAM = Color3.fromHex("#EDE2CA")
 local MUTED = Color3.fromHex("#8A97A6")
-local AMBER = Color3.fromHex("#F0A030")
+local AMBER = Color3.fromHex("#C5B7D9") -- studio lilac (owner 2026-11-16)
 local TEAM_A = Color3.fromHex("#FF7A3D")
 local TEAM_B = Color3.fromHex("#3A94FF")
-local GOLD = Color3.fromHex("#FFC83D") -- the one act-now colour (UI theme)
+local GOLD = Color3.fromHex("#E5DDEF") -- studio pale lilac replaces gold on screens (owner 2026-11-16)
 local TEXT = Color3.fromHex("#F4F6F9")
 local PX = 40
 

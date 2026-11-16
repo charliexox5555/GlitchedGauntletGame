@@ -139,7 +139,7 @@ The owner: "it still needs improvements on the structure of the whole thing". Re
 | Grand entrances | `v4_core.gatehouse`: a deep frame block standing out between the piers round each door: columns with chamfered fronts and a lit slot, a plinth, a head with a cornice and a lit soffit with downlights, glowing jamb strips, hazard thresholds beside the lane; the sign stands on the cornice. The Duels door is 23 x 20 now (was 26 x 22) to make room, and the Duels mouth follows. |
 | Arcade | Removed. |
 | Props (cases, crates) | Kept as placeholders for now (owner: later). Not copied from RIVALS: their file is untrusted and the rule is study, don't copy. |
-| Colour theme | Waiting for the owner's codes (deep violet, violet, lilac). The new hub pieces already use theme materials (`E_ThViolet`, `E_ThLilac`, `H_*`) with placeholder hexes, so the swap is one table. |
+| Colour theme | **Studio palette applied** (owner's codes): deep violet `#401C99`, violet `#6539D7`, lilac `#C5B7D9`, pale lilac `#E5DDEF`, off-white `#FFFDFE` (sent as `#FFDFE`, read as `#FFFDFE`: to confirm). Violet replaces gold as the lobby's glow (hub, Duels, Locker: signs, GG, collar, bay signs); lilac on paths, rails and holograms (as Neon `#9F8FC0`, since lighter Neon clips to white); pale lilac replaces gold on the screens. Kept: hazard stripes yellow/black (safety), the gold trophy, Shop pink and Range lime as room accents. `v4_core.THEME`. |
 
 **Checks:** 0 floating, 0 leaks; clash audit clean for fixtures; 0 missing meshes; about 4,630 instances.
 

@@ -40,30 +40,30 @@ PAL = {
 	"V_Seat": ("#2E3135", 0.8, 0.0, 0.04),
 	"V_TeamA": ("#C9602A", 0.6, 0.0, 0.02),
 	"V_TeamB": ("#2F6FC0", 0.6, 0.0, 0.02),
-	"V_Violet": ("#6650B8", 0.6, 0.0, 0.02),
+	"V_Violet": ("#6539D7", 0.6, 0.0, 0.02),
 	"V_Pink": ("#B8406A", 0.6, 0.0, 0.02),
 	"V_Lime": ("#86A830", 0.6, 0.0, 0.02),
-	"V_ThDeep": ("#2E1A5C", 0.6, 0.0, 0.02),
-	"V_ThViolet": ("#6A3FD0", 0.6, 0.0, 0.02),
-	"V_ThLilac": ("#B9A0F0", 0.6, 0.0, 0.02),
+	"V_ThDeep": ("#401C99", 0.6, 0.0, 0.02),
+	"V_ThViolet": ("#6539D7", 0.6, 0.0, 0.02),
+	"V_ThLilac": ("#C5B7D9", 0.6, 0.0, 0.02),
 	"V_Rock": ("#55585C", 0.9, 0.0, 0.0),
 	"V_Rock2": ("#63676B", 0.9, 0.0, 0.0),
 }
 GLOW = {
 	"E_White": ("#F4F1EA", 9.0),  # lamp lenses and sign letters
-	"E_Gold": ("#FFC83D", 9.0),
-	"E_Violet": ("#8E6CFF", 9.0),
+	"E_Gold": ("#7A4CF0", 9.0),  # studio violet (owner 2026-11-16)
+	"E_Violet": ("#7A4CF0", 9.0),
 	"E_Coral": ("#FF5C8A", 9.0),
 	"E_Lime": ("#B4E04A", 9.0),
 	"E_Panel": ("#DCE4EA", 3.0),  # frosted clerestory panels
 	"E_Alarm": ("#FF3348", 8.0),
 	# studio theme (owner 2026-11-16: deep violet, violet, lilac; exact codes to come: placeholders until then)
-	"E_ThViolet": ("#8B5CFF", 9.0),
-	"E_ThLilac": ("#C9B0FF", 8.0),
-	"H_Item": ("#8B5CFF", 7.0),
-	"H_Ghost": ("#C9B0FF", 4.0),
-	"H_Cone": ("#B49CFF", 2.0),
-	"H_Ring": ("#B49CFF", 6.0),
+	"E_ThViolet": ("#7A4CF0", 9.0),
+	"E_ThLilac": ("#C5B7D9", 8.0),
+	"H_Item": ("#6539D7", 7.0),
+	"H_Ghost": ("#C5B7D9", 4.0),
+	"H_Cone": ("#C5B7D9", 2.0),
+	"H_Ring": ("#C5B7D9", 6.0),
 }
 _L = S._L
 LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVariants)
@@ -88,31 +88,32 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"V_Seat": _L("SmoothPlastic", "#2E3135"),
 	"V_TeamA": _L("SmoothPlastic", "#C9602A"),
 	"V_TeamB": _L("SmoothPlastic", "#2F6FC0"),
-	"V_Violet": _L("SmoothPlastic", "#6650B8"),
+	"V_Violet": _L("SmoothPlastic", "#6539D7"),
 	"V_Pink": _L("SmoothPlastic", "#B8406A"),
 	"V_Lime": _L("SmoothPlastic", "#86A830"),
-	"V_ThDeep": _L("SmoothPlastic", "#2E1A5C"),
-	"V_ThViolet": _L("SmoothPlastic", "#6A3FD0"),
-	"V_ThLilac": _L("SmoothPlastic", "#B9A0F0"),
+	"V_ThDeep": _L("SmoothPlastic", "#401C99"),
+	"V_ThViolet": _L("SmoothPlastic", "#6539D7"),
+	"V_ThLilac": _L("SmoothPlastic", "#C5B7D9"),
 	"V_Rock": _L("SmoothPlastic", "#55585C"),
 	"V_Rock2": _L("SmoothPlastic", "#63676B"),
 	"E_White": _L("Neon", "#8F8E8A", glow=True),  # Neon lighter than ~#8C877F clips to white: this reads clean white
-	"E_Gold": _L("Neon", "#D49A1A", glow=True),
-	"E_Violet": _L("Neon", "#6446D0", glow=True),
+	"E_Gold": _L("Neon", "#6539D7", glow=True),  # studio violet replaces gold (owner 2026-11-16)
+	"E_Violet": _L("Neon", "#6539D7", glow=True),
 	"E_Coral": _L("Neon", "#D9406E", glow=True),
 	"E_Lime": _L("Neon", "#7CAA1C", glow=True),
 	"E_Panel": _L("Neon", "#6E7378", glow=True),
 	"E_Alarm": _L("Neon", "#B21E30", glow=True),
-	"E_ThViolet": _L("Neon", "#6A40E0", glow=True),
-	"E_ThLilac": _L("Neon", "#9A80D8", glow=True),
-	"H_Item": _L("Neon", "#6A40E0", t=0.08, glow=True),  # hologram silhouette
-	"H_Ghost": _L("Neon", "#8E6FE0", t=0.55, glow=True),  # its offset ghost copy
-	"H_Cone": _L("Neon", "#8E6FE0", t=0.82, glow=True),  # the projection cone
-	"H_Ring": _L("Neon", "#8E6FE0", t=0.3, glow=True),  # the floor ring
+	"E_ThViolet": _L("Neon", "#6539D7", glow=True),
+	"E_ThLilac": _L("Neon", "#9F8FC0", glow=True),  # lilac #C5B7D9, a step darker: lighter Neon clips to white
+	"H_Item": _L("Neon", "#6539D7", t=0.08, glow=True),  # hologram silhouette
+	"H_Ghost": _L("Neon", "#9F8FC0", t=0.55, glow=True),  # its offset ghost copy
+	"H_Cone": _L("Neon", "#9F8FC0", t=0.82, glow=True),  # the projection cone
+	"H_Ring": _L("Neon", "#9F8FC0", t=0.3, glow=True),  # the floor ring
 	"Glass": _L("SmoothPlastic", "#DDE2E4", t=0.9, r=0.04),
 }
 WHITE = "#F4F1EA"  # lamp light
-PAINT = {"E_Gold": "V_GoldPaint", "E_Violet": "V_Violet", "E_Coral": "V_Pink", "E_Lime": "V_Lime", "E_ThViolet": "V_ThViolet", "E_ThLilac": "V_ThLilac"}  # accent -> painted twin
+THEME = {"deep": "#401C99", "violet": "#6539D7", "lilac": "#C5B7D9", "pale": "#E5DDEF", "white": "#FFFDFE"}  # studio palette (owner 2026-11-16; "#FFDFE" read as #FFFDFE)
+PAINT = {"E_Gold": "V_ThViolet", "E_Violet": "V_Violet", "E_Coral": "V_Pink", "E_Lime": "V_Lime", "E_ThViolet": "V_ThViolet", "E_ThLilac": "V_ThLilac"}  # accent -> painted twin
 
 
 def register():
