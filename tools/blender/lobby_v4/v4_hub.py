@@ -221,11 +221,13 @@ def diagonals(K, KD):
 		M = V.face_at(th, R)
 		wall(K, KD, M, panel_skip=(-11.0, 11.0))
 		V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
+		V.gallery(K, KD, M, -A + 0.4, A - 0.4, 27.6, name="Gallery")
 		V.board(KD, M @ V.T(0, 11.6, 0), 19.0, 11.5, "leader", title, name="Board_" + title.replace(" ", ""))
 	# SW: news board and a crate stack
 	M = V.face_at(225, R)
 	wall(K, KD, M, panel_skip=(-9.5, 9.5))
 	V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
+	V.gallery(K, KD, M, -A + 0.4, A - 0.4, 27.6, name="Gallery")
 	V.board(KD, M @ V.T(0, 12.4, 0), 17.0, 10.0, "news", "SEASON 1", "NEW MAPS · NEW MODS", name="Board_News")
 	Mf = M @ V.RX(-90)
 	for x, z, yaw in ((-10.4, 0.0, 0.0), (-4.9, 0.0, 4.0), (-7.8, 3.32, -7.0)):
@@ -234,6 +236,7 @@ def diagonals(K, KD):
 	M = V.face_at(315, R)
 	wall(K, KD, M, panel_skip=(-8.5, 8.5))
 	V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
+	V.gallery(K, KD, M, -A + 0.4, A - 0.4, 27.6, name="Gallery")
 	V.board(KD, M @ V.T(0, 13.4, 0), 15.0, 9.0, "featured", "FEATURED", "THIS WEEK", name="Board_Featured")
 	for sx in (-1, 1):
 		with C.grp("Bench", M @ V.T(sx * 10.0, 0, 0), inst=True):

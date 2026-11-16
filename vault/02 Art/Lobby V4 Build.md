@@ -117,6 +117,17 @@ The owner's asks: no "E to open" in the Locker, step on a pad and it opens; an N
 
 **Checks:** 0 floating, 0 leaks; 0 missing meshes; 2 NPCs; 20 effects; 23 guns; the play-test opened the Locker from its pad; the only prompts left are the 7 queue pads; no new Output errors. About 4,400 instances.
 
+## Structure pass (2026-11-16)
+The owner: "it still needs improvements on the structure of the whole thing". Reviewers had called the Duels hall a flat box and the rooms the same shell.
+
+| Where | Done |
+|---|---|
+| Duels | A **raised nave vault** over the middle of the hall: the ceiling slab opens 32 wide along the nave, with clerestory walls of frosted panels on steel mullions, angled plates up to a flat top 10 higher (faceted, no curves), gable ends, section ribs on steel shoes every 12, housed lamps along the top. The side aisles keep their lamps. |
+| Locker, Shop | The same vault along each room (7 higher), lamps either side of it: the rooms stop reading as boxes. |
+| Hub | **Upper galleries** on the four diagonal walls: steel decks with grate fields and a trim edge, knee braces down to wall shoes, posts and two pipe rails, a lit strip and down-lights under the deck washing the boards below. Layered depth like RIVALS' hub ring, decorative (no access). |
+
+`v4_core.slab_with_hole`, `nave_vault`, `gallery`. **Checks:** 0 floating, 0 leaks, the seams between vault and slab stepped proud (no flush faces); 0 missing; all 27 screens have content (black screens in a capture taken straight after a rebuild are the SurfaceGui capture delay). About 4,650 instances, 204k triangles (budget 240k).
+
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.
 - The Shop centre is empty. A featured-skin plinth would carry it.

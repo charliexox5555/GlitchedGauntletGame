@@ -178,7 +178,8 @@ def island(K, KD):
 def ceiling(K, KD):
 	z = Z0 + H
 	apse = [(-X, Y1), (-XE, YE), (XE, YE), (X, Y1)]
-	K["V_Ceil"].box(-X - 4, X + 4, Y0 - 4, Y1 - 4.0, z, z + 1.5)
+	V.slab_with_hole(K, -X - 4, X + 4, Y0 - 4, Y1 - 4.0, -16.0, 16.0, 66.0, Y1 - 8.0, z)  # the nave opening
+	V.nave_vault(K, KD, Matrix.Identity(4), 16.0, 66.0, Y1 - 8.0, z, rise=10.0, top=10.0, lamp=(7.0, 2.2), name="NaveVault")
 	K["V_Ceil"].prism(V.inset(V.ccw(apse), -4.0), z, z + 1.5)
 	K["V_Slab"].box(-X - 4, X + 4, Y0 - 4, Y1 - 4.0, Z0 - 1.2, Z0)
 	K["V_Slab"].prism(V.inset(V.ccw(apse), -4.0), Z0 - 1.2, Z0)
@@ -188,10 +189,9 @@ def ceiling(K, KD):
 		KD["V_Beam"].ext_y(V.ccw([(x - 1.3, z + 0.25), (x - 1.3, z - 1.4), (x - 0.7, z - 2.0), (x + 0.7, z - 2.0), (x + 1.3, z - 1.4), (x + 1.3, z + 0.25)]), Y0, Y1 + 6.0)
 	for y0, y1 in ((66.0, PIERS[0]), (PIERS[0], PIERS[1]), (PIERS[1], Y1)):
 		ym = (y0 + y1) / 2
-		V.ceiling_lamp(KD, 0.0, ym, z, 8.0, 2.4)
-		for sx in (-1, 1):
+		for sx in (-1, 1):  # side aisles; the nave is lit from the vault top
 			V.ceiling_lamp(KD, sx * 29.0, ym, z, 5.0, 1.2)
-		S.light(Matrix.Identity(4), 0, ym, z - 0.4, V.WHITE, 1.5, 36, 80)
+			S.light(Matrix.Identity(4), sx * 29.0, ym, z - 0.4, V.WHITE, 1.2, 32, 80)
 
 
 def floor(K, KD):

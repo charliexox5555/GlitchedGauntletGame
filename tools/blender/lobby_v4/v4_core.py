@@ -473,7 +473,10 @@ def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.
 	for p, zin in (((x0, y0), (1, 1)), ((x1, y0), (-1, 1)), ((x1, y1), (-1, -1)), ((x0, y1), (1, -1))):
 		pier_at(K, KD, cframe(p, zin, z0), H, area, w=2.8, d=3.0, name="CornerPier")
 	z = z0 + H
-	K["V_Ceil"].box(x0 - 4, x1 + 4, y0 - 4, y1 + 4, z, z + 1.5)
+	ym_, vhw = (y0 + y1) / 2, min(8.0, (y1 - y0) / 6)
+	slab_with_hole(K, x0 - 4, x1 + 4, y0 - 4, y1 + 4, x0 + 4.0, x1 - 4.0, ym_ - vhw, ym_ + vhw, z)
+	Mv = Matrix.Translation((0.0, ym_, 0.0)) @ Matrix.Rotation(radians(-90), 4, "Z")  # local u = -world y, v = world x
+	nave_vault(K, KD, Mv, vhw, x0 + 4.0, x1 - 4.0, z, rise=7.0, top=vhw - 4.0, lamp=(5.0, 1.6), name="RoomVault")
 	K["V_Slab"].box(x0 - 4, x1 + 4, y0 - 4, y1 + 4, z0 - 1.2, z0 - 0.02)
 	xs = [x0] + list(beams_x) + [x1]
 	for bx in beams_x:
@@ -481,8 +484,9 @@ def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.
 	for a, b in zip(xs, xs[1:]):
 		xm = (a + b) / 2
 		hw_, ym = min(5.0, (b - a) / 2 - 3), (y0 + y1) / 2
-		ceiling_lamp(KD, xm, ym, z, hw_, 2.2)
-		S.light(Matrix.Identity(4), xm, (y0 + y1) / 2, z - 0.4, WHITE, 1.5, 34, 90)  # owner 2026-11-16: rooms read dim (a point fill washed the walls flat)
+		for sy in (-1, 1):  # side lamps either side of the vault (the middle is lit from the vault top)
+			ceiling_lamp(KD, xm, ym + sy * (vhw + 6.0), z, hw_, 1.6)
+			S.light(Matrix.Identity(4), xm, ym + sy * (vhw + 6.0), z - 0.4, WHITE, 1.2, 30, 85)
 	nx, ny = max(1, round(W / 12)), max(1, round(D / 12))
 	for i in range(nx):
 		for j in range(ny):
@@ -954,3 +958,86 @@ def holobay(K, KD, area, M, hw, h, d, title, accent, icon, name="Holobay"):
 	sign(KD, M @ T(0, h + 0.9, 0), title, hw * 1.4, 4.4, accent=accent, tilt=10, standoff=0.8, name=name + "Sign", icon=icon, icon_size=3.4, light=False)
 	fx("dust", hero.x, hero.y, hero.z + 4.0, "#FFF4E0", name=name + "Dust", Spread=round(iw * 0.8, 2))
 	return hero
+
+
+
+# ---------------------------------------------------------------- structure pass (owner 2026-11-16: "improve the structure")
+def slab_with_hole(K, sx0, sx1, sy0, sy1, ox0, ox1, oy0, oy1, z, t=1.5, mat="V_Ceil"):
+	"""A ceiling slab (world rect s*) with a rectangular opening (o*), as four boxes."""
+	K[mat].box(sx0, sx1, sy0, oy0, z, z + t)
+	K[mat].box(sx0, sx1, oy1, sy1, z, z + t)
+	K[mat].box(sx0, ox0, oy0, oy1, z, z + t)
+	K[mat].box(ox1, sx1, oy0, oy1, z, z + t)
+
+
+def nave_vault(K, KD, M, hw, v0, v1, z, rise=10.0, top=None, cl=3.2, rib_every=12.0, lamp=(6.0, 2.0), name="Vault"):
+	"""A raised vault over a ceiling opening, in frame M (local u across, v along, z up; the opening is u in [-hw, hw],
+	v in [v0, v1], its rim at height z). Clerestory walls with frosted panels, angled plates (faceted, no curves) up to a
+	flat top, gable ends, steel ribs that follow the section, housed lamps and pools along the top."""
+	thw = top if top is not None else hw - 6.0
+	zt = z + rise
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		for s in (-1, 1):
+			F["V_Wall"].box(*sorted((s * (hw - 0.15), s * (hw + 0.9))), v0 - 0.1, v1 + 0.1, z - 0.2, z + cl)  # proud of the slab edge
+			F["V_Wall"].ext_y(ccw([(s * (hw - 0.15), z + cl - 0.25), (s * (hw + 1.2), z + cl - 0.25), (s * (thw + 0.2), zt + 1.0), (s * thw, zt)]), v0, v1)
+			n = max(1, int((v1 - v0) // 6.0))
+			for k in range(n):
+				vc = v0 + (v1 - v0) * (k + 0.5) / n
+				G["E_Panel"].box(*sorted((s * (hw - 0.21), s * (hw - 0.1))), vc - 1.9, vc + 1.9, z + 0.8, z + cl - 0.6)
+				G["V_Steel"].box(*sorted((s * (hw - 0.3), s * (hw - 0.12))), vc - 0.12, vc + 0.12, z + 0.65, z + cl - 0.45)
+		F["V_Ceil"].box(-thw - 0.2, thw + 0.2, v0, v1, zt, zt + 1.2)
+		sec = ccw([(-hw, z), (hw, z), (hw, z + cl), (thw, zt), (-thw, zt), (-hw, z + cl)])
+		for va, vb in ((v0 - 0.9, v0 + 0.15), (v1 - 0.15, v1 + 0.9)):  # gable ends, proud of the slab edge
+			F["V_Wall"].ext_y(sec, va, vb)
+		# ribs that follow the section (open at the bottom), on steel shoes at the rim
+		band = [(hw, z), (hw, z + cl), (thw, zt), (-thw, zt), (-hw, z + cl), (-hw, z),
+			(-hw + 0.7, z), (-hw + 0.7, z + cl - 0.25), (-thw + 0.45, zt - 0.7), (thw - 0.45, zt - 0.7), (hw - 0.7, z + cl - 0.25), (hw - 0.7, z)]
+		n = max(1, int((v1 - v0) // rib_every))
+		for k in range(1, n):
+			vr = v0 + (v1 - v0) * k / n
+			G["V_Beam"].ext_y(ccw(band) if False else band[::-1], vr - 0.45, vr + 0.45)
+			for s in (-1, 1):
+				G["V_Steel"].box(*sorted((s * (hw - 0.9), s * hw)), vr - 0.7, vr + 0.7, z - 0.25, z + 0.35)
+	# lamps along the top
+	n = max(1, int((v1 - v0) // 14.0))
+	for k in range(n):
+		vc = v0 + (v1 - v0) * (k + 0.5) / n
+		w = M @ Vector((0.0, vc, zt))
+		R = M.to_3x3()
+		ax = R @ Vector((1, 0, 0))
+		lx, ly = (lamp[0], lamp[1]) if abs(ax.x) > 0.5 else (lamp[1], lamp[0])
+		ceiling_lamp(KD, w.x, w.y, zt, lx, ly)
+		S.light(Matrix.Identity(4), w.x, w.y, zt - 0.4, WHITE, 1.6, 42, 80)
+
+
+
+def gallery(K, KD, M, x0, x1, z, d=4.0, name="Gallery"):
+	"""An upper gallery deck on a wall (frame M: X along the wall, Y up, Z into the room): a steel deck with grate
+	strips and a trim edge, steel knee braces under it, posts and two pipe rails along its front, a lit strip and
+	downlights under the deck washing the wall below. Decorative (no access); layered depth like RIVALS' hub ring."""
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		F["V_Steel"].box(x0, x1, z - 0.7, z, 0.0, d)  # deck
+		G["V_Trim"].box(x0 - 0.1, x1 + 0.1, z - 0.85, z + 0.12, d - 0.35, d + 0.1)  # front edge
+		G["V_Dark"].box(x0 + 0.4, x1 - 0.4, z, z + 0.05, 0.4, d - 0.6)  # grate field
+		n = max(2, int((x1 - x0) // 0.7))
+		for k in range(1, n):
+			xx = x0 + (x1 - x0) * k / n
+			G["V_Steel"].box(xx - 0.08, xx + 0.08, z, z + 0.09, 0.4, d - 0.6)
+		nb = max(2, int((x1 - x0) // 6.0) + 1)
+		for k in range(nb):
+			xx = x0 + 0.6 + (x1 - x0 - 1.2) * k / (nb - 1)
+			G["V_Steel"].ext_x(ccw([(z - 0.7, 0.0), (z - 0.7, d - 0.6), (z - 1.2, d - 0.6), (z - 3.4, 0.0)]), xx - 0.17, xx + 0.17)  # knee brace
+			G["V_Trim"].box(xx - 0.3, xx + 0.3, z - 3.6, z - 3.0, -0.02, 0.18)  # wall shoe
+		npost = max(2, int((x1 - x0) // 3.0) + 1)
+		for k in range(npost):
+			xx = x0 + 0.3 + (x1 - x0 - 0.6) * k / (npost - 1)
+			G["V_Steel"].box(xx - 0.12, xx + 0.12, z + 0.05, z + 2.4, d - 0.3, d - 0.06)
+		for zz in (z + 1.2, z + 2.3):
+			G["V_Steel"].pipe((x0 + 0.1, zz, d - 0.18), (x1 - 0.1, zz, d - 0.18), 0.11, n=6)
+		G["E_White"].box(x0 + 1.0, x1 - 1.0, z - 0.8, z - 0.72, d - 0.9, d - 0.6)  # lit strip under the edge
+	nl = max(1, int((x1 - x0) // 8.0))
+	for k in range(nl):
+		xx = x0 + (x1 - x0) * (k + 0.5) / nl
+		S.light(M, xx, z - 0.9, d * 0.55, WHITE, 1.3, 16, 70)
