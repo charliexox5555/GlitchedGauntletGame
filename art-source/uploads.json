@@ -1049,6 +1049,18 @@
   "type": "Decal",
   "uploaded": "2026-10-29 22:40:09"
  },
+ "art-source/maps/Arena/textures/arena_grid_tile.png": {
+  "assetId": 106150007798065,
+  "name": "GG Arena Grid Tile",
+  "type": "Decal",
+  "uploaded": "2026-11-16 03:55:17"
+ },
+ "art-source/maps/Arena/textures/arena_panel_tile.png": {
+  "assetId": 73995022959947,
+  "name": "GG Arena Panel Tile",
+  "type": "Decal",
+  "uploaded": "2026-11-16 03:47:19"
+ },
  "art-source/maps/Bunker2/signs/blast_A.png": {
   "assetId": 120853801800119,
   "name": "GG Bunk2 Sign GALLERY A",

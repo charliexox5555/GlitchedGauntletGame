@@ -4,6 +4,27 @@ The match maps: a mix of RIVALS (fast, simple, run-and-gun readable) and Valoran
 
 **Redesign 2026-11-16:** every map is redesigned from the RIVALS map study in the **RIVALS-clean** look (owner). The **release lineup is 8 regular maps (1v1/2v2) + 5 large maps (3v3, also for 2v2)**: Arena, Rooftops, Pier, Courtyard, Bunker, Foundry, Snowpeak, Model Kit; Big Arena, Dockyard, Old Town, Metro, Greenhouse. Table, build order and open questions: [Map Lineup Brainstorm](Map%20Lineup%20Brainstorm%202026-11-16.md) → Release lineup. The roster below is the old one, kept until the new maps replace it.
 
+## Release roster (redesign, 2026-11-16)
+Owner calls: **no 4v4 at release** (large maps `minTeam 2, maxTeam 3`), keep the name **Arena**, accents and landmarks as below, **no spawn nooks** on any new map ([Spawn Hold](../Spawn%20Hold.md): ghost hold at open-floor markers). Arena and Big Arena are **plain Roblox Parts like RIVALS'** (owner: "keep it simple like rivals for this one"); the themed maps get a Blender kit.
+
+| Map | Size / modes | Learns from (RIVALS) | Identity | Accent | Landmark | Status |
+|---|---|---|---|---|---|---|
+| [Arena](Arena.md) | regular, 1v1-2v2 | Arena | Grey panel court under open sky, mostly full cover | none (two greys + grid) | the Beacon pylon | 🟡 v2 built (ForceMap), waits on owner |
+| [Big Arena](Arena.md) | large, 2v2-3v3 | Big Arena | Arena on a 12-sided court, three lanes, a +14 tower a side | none | the Beacon | 🟡 v2 built (ForceMap), waits on owner |
+| Pier | regular | Docks | Duel slice of the container port | red containers | gantry crane | next batch |
+| Dockyard | large | Docks | Full port at dusk | red containers | gantry crane | next batch |
+| Rooftops | regular | Construction | Two team roofs over a pit, crane deck high spot | orange | crane deck | – |
+| Courtyard | regular | Village / Westown | Small stone plaza, arcades | terracotta | clock tower | – |
+| Old Town | large | Westown | Full plaza and streets, one long marked line | terracotta | clock tower | – |
+| Bunker | regular | Backrooms / Gate | Concrete corridors round a light shaft | white light | light shaft | – |
+| Foundry | regular | Factory + Onyx | Steel works, molten kill channel, catwalks | molten orange | ladle / furnace | – |
+| Metro | large | Station | Two platforms, parked trains | yellow line | station clock | – |
+| Snowpeak | regular | Village / Iceberg | Ski lodge and yard | red lodge trim | gondola | – |
+| Greenhouse | large | Museum interiors | Glass halls, dome, bridge | green glass | dome | – |
+| Model Kit | regular | Chess / Playground | Giant-scale hobby workbench | cutting-mat green | glue pot | – |
+
+**Retired when the new ones are approved:** Whitebox → Arena; Big Whitebox → Big Arena; Dockyard / Dockyard2 → Dockyard + Pier; Rooftops / Rooftops2 → Rooftops; Old Town / OldTown2 → Old Town + Courtyard; Bunker / Bunker2 → Bunker; Metro / Metro2 → Metro; Greenhouse / Greenhouse2 → Greenhouse; Snowpeak / Snowpeak2 → Snowpeak. The roster below is the old one.
+
 **Every map rebuild follows the [Map Quality Standard](Map%20Quality%20Standard.md)** (2026-11-06): pipeline, hard rules, audits, review loop and the `<Map>2` convention.
 
 **Status (2026-11-03):** the **release lineup is 8 maps** (decided by Claude overnight on the user's "use your judgement"; research below). **Built in Studio:** Whitebox, Big Whitebox, Dockyard, Metro, Old Town (all playable as matches; `Workspace.ForceMap` = map id in Studio to test one). **Concepts:** Rooftops, Bunker. Matches pick a map by team size from `Config/Match MAPS`.

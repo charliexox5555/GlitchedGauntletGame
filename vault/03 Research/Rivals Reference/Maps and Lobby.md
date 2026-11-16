@@ -64,6 +64,14 @@ Height levels: ~85-90% of the area is floor; Arena +3 / +15 / +20, Docks +2/+4 s
 9. **Budget:** duel map ~250 instances, mid 700-1,300, dense 2,900-3,300 only with heavy mesh reuse and category folders.
 10. **Lighting per map in a profile**, with match-point / sudden-death variants.
 
+## Map studies
+### Arena / Big Arena (2026-11-16, for [our Arena](../../01%20Design/Maps/Arena.md))
+- **Layout (Arena, 36 visible parts):** floor 100 × 5 × 140, walls 140/90 × 30 × 5, spawns at z ±60 (gap 121). Cover: 4 window arches (two 5 × 12 × 5 posts, a 10 × 5 × 5 lintel, a 20 × 3 × 5 base; two turned 150°), 2 wall + block pairs (20 × 15 × 5 + 20 × 15 × 15), a 4-pillar canopy in the middle (5 × 15 × 5 pillars, 20 × 5 × 20 roof at +20), 4 slabs 20 × 20 × 5 and 2 blocks 15 × 20 × 10.
+- **Look:** two colours only: structure and arches Sand violet metallic (151,153,163), slabs and blocks Silver flip/flop (132,134,143), SmoothPlastic; one overlay Texture on every face (5-stud tile, black, 0.75 transparent): thin seams with a plus cross at each joint. Sizes are multiples of 5, so the grid lines continue from part to part. No trims, no extra parts.
+- **Measured with our layout script** (`tools/maps/arena_layout.py rivals`, calibration only): longest eye-height line **144** (a wall-hugging diagonal; the "49" above was a different estimate), 18.3% of rays longer than 0.55 × the spawn gap, 3 lanes across the middle, 15% cover footprint, 2.2 pieces per 1000 sq studs, spawns unseen from the enemy half, first sight on a head-on rush 1.8 s.
+- **Big Arena:** round court ~200 across, same kit, 3 spawns a side (80-160 apart), 30 chest / 39 full cover (aerial in `third-party/maps/`).
+- **For us:** take the module (5-stud sizes, 10-high cover, 30-high walls), the two-tone + grid overlay and the restraint; our own layout, spawn hold and landmark. Edit-mode captures of the RIVALS file come out white when its window isn't drawing; use the saved shots.
+
 ## Lobby (RIVALS file `Workspace.Lobby.Hub`)
 - **Plan:** a compact **cross** about 340×290: a round centre hub (spawn on a ringed logo dais, holograms around it) with short wings: **Duels** hall, **Market** (holo-bays: UGC shop, season pass), **Weapons** room (display tables), **Hallway**, and the **outdoor shooting range** facing a landmark hill. Separate `WaitingRoom` and `ShootingRange` rooms elsewhere. See `lobby/04_topdown_plan.jpg`.
 - **Walks from spawn** (16 studs/s): range 68 studs (~4 s), first pad ~102 (~6 s), farthest pad ~232 (~15 s), weapons ~100, market ~137.

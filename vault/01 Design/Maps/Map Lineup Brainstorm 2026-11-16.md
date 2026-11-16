@@ -50,7 +50,7 @@ A brainstorm for redesigning every map, built on the [RIVALS map study](../../03
 | 5 | **Greenhouse** | Glass halls, a dome and a bridge; our most unique theme | Museum interiors | — |
 
 13 maps from 10 theme kits. **Bench:** Quarry (open pit, long range), Gallery (museum at night), a Metro or Greenhouse duel cut.
-**Still open (ask in the maps chat's interview):** is 4v4 in the release (then large maps take `maxTeam = 4`)? Keep the name "Arena" (it's RIVALS' name too) or rename it (e.g. Proving Grounds)?
+**Answered 2026-11-16 (maps chat interview):** no 4v4 at release (large maps `maxTeam = 3`); keep the name "Arena"; accents and landmarks as in [Maps](00%20Maps.md) → Release roster, except Arena and Big Arena have no accent (owner: plain RIVALS-style parts, two greys). No spawn nooks on new maps ([Spawn Hold](../Spawn%20Hold.md)).
 **Build order (by kit):** Arena + Big Arena (simplest kit; proves the pipeline) → Pier + Dockyard → Rooftops → Courtyard + Old Town → Bunker → Foundry → Metro → Snowpeak → Greenhouse → Model Kit.
 
 ## Proposed lineup (first brainstorm, superseded by the release lineup above)

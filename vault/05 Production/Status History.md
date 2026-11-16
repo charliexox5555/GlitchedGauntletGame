@@ -1,6 +1,21 @@
 # Status History
 
 <!-- moved from Home 2026-11-16 (Gunplay feel RIVALS) -->
+- **Hub, owner round 3 (2026-11-13, [note](02%20Art/Sunwell%20Hub%20Upgrade.md) → Owner round 3, Rounds 22-24):**
+  - The Shop pilaster glitch is fixed (colliders showed through, plus one pilaster jammed against a pier).
+  - The Duels pipes run wall to wall into flanges and wear saddle clamps that wrap them; collars where they pass the piers.
+  - **Moved away from steampunk**: light grey and slate, gold accents, white lamps; no brass, ochre or hand wheels. No reviewer sees steampunk.
+  - Later rounds:
+    - lower exposure, so the walls stop blowing out;
+    - the turbine is now the hall's hero: a stepped dark frame, angled corner plates, a gold rim, and a lit stepped dais in place of the rail;
+    - Duels ceiling coffers;
+    - squarer wall lamps;
+    - richer doorway pools;
+    - bigger SHOP letters;
+    - gold stanchion belts.
+  - Blind median about **8.0** (rounds 22-23). The panels keep asking for new dressing and lighting, so the stop rule ended the loop.
+  - **Owner calls** (note → Rounds 22-24): the turbine bay's function, the Locker shutter, the Range's green.
+  - **Save the Lobby place.** Committed.
 - **Gun and knife feel from the owner's videos (2026-11-14, [note](05%20Production/Playtests/2026-11-14%20Gun%20and%20Knife%20Feel%20from%20Videos.md)):** every clip measured at 60 fps (knife, six guns, hits). **Pass 2 (owner's overlay):** the knife comes up out of the top of a forward-reaching forearm at its inner edge (fitted to his overlay; nothing pokes through, measured), the slashes lay the blade over and trail it like the clip, a flowing heavy, an inspect that tosses and catches the knife, cut-in moves blend. **Pass 1 rebuilt the knife RIVALS-style:** upright in the screen's plane, rigid in the block fist on its inner edge (nothing pokes through: measured), the arm follows the knife; every knife track re-solved as fist place + forearm roll and played through a monotone spline (held coil, ~60 ms strike, brake, overshoot, settle), alternating forehand / backhand, a two-fist heavy, a pull-out that tosses, flips and catches the knife, a face / back inspect, the camera leading each swing. **Guns:** the kick is a snap (peak ~10-13 ms, home 100-210 ms by class, measured) sized from the clips; the camera's FOV / roll / shake halved and view punch trimmed (the clips' cameras don't move); the gun draw is a spline; the Sheriff's inspect rolls its cylinder from the first frame with its sound. Hit differences (adding-up damage number with a tip-over exit) handed to lane F in the note. Owner: slashes "really good", pull-out good; still "a little blocky", the inspect's second turn "staged". **Next:** a Fable session from [Handoff - Feel Polish (Fable)](05%20Production/Handoff%20-%20Feel%20Polish%20%28Fable%29.md) (knife polish, guns, Sheriff, Bat, headshot / crosshair / head flare). Nothing committed.
 - **Standalone audio (2026-11-14, [note §19](02%20Art/Sound%20Library%20Pick.md)):** 373 individual group audio assets replaced the runtime atlases. All loaded in the match range. The roster levels checked out, and the body hit and headshot cues are up 3.5 dB after the final range test. Nothing staged or committed.
 
