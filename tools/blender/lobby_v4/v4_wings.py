@@ -200,7 +200,15 @@ class Shop:
 		LX0, LX1, LY0, LY1 = X1 + 8.0, X1 + 40.0, -24.0, 60.0  # the Broker's room, behind the end wall
 		with C.grp("Threshold"):
 			KD["V_Floor2"].box(X1, LX0, -11.8, 11.8, 0.0, 0.12)
-		walls2 = V.room(K, KD, A, LX0, LX1, LY0, LY1, H, ops={"W": [(9.0, 39.0, 0.0, 24.0)]}, skips={"W": [(6.0, 42.0)], "E": [(48.0, 72.0)], "N": [(5.0, 27.0)]})
+		# the Broker's exchange (owner 2026-11-16: the room needed a feature): lit gun cabinets down both long walls
+		skips2 = {"W": [(6.0, 42.0)], "E": [(48.0, 72.0)], "N": [(5.0, 27.0)]}
+		MwL0, MeL0 = V.wframe((LX0, LY0), (0, 1)), V.wframe((LX1, LY1), (0, -1))  # local u: W = y - LY0, E = LY1 - y
+		for M_, side, cases in ((MwL0, "W", ((24.0, "DEALS", [("Vandal", 1.9, 4.4), ("Sheriff", 1.9, 8.6)]), (38.0, "RARE", [("Operator", 1.9, 4.4), ("Judge", 1.9, 8.6)]))),
+				(MeL0, "E", ((24.0, "NEW", [("Phantom", 1.9, 4.4), ("Spectre", 1.9, 8.6)]), (38.0, "VAULT", [("Odin", 1.9, 4.4), ("Bucky", 1.9, 8.6)])))):
+			for y_, label, guns in cases:
+				u = y_ - LY0 if side == "W" else LY1 - y_
+				skips2[side].append(V.niche(K, KD, M_, u, 9.0, label, guns, "E_ThViolet", A))
+		walls2 = V.room(K, KD, A, LX0, LX1, LY0, LY1, H, ops={"W": [(9.0, 39.0, 0.0, 24.0)]}, skips=skips2)
 		MwL, _ = walls2["W"]
 		MeL, _ = walls2["E"]
 		MnL, _ = walls2["N"]
@@ -208,15 +216,12 @@ class Shop:
 		# what you see through the arch: the FEATURED TV under the MARKET sign
 		V.tv(K, KD, MeL @ V.T(60.0, 12.4, 0), 18.0, 8.8, "shop", "FEATURED", out=2.6, name="TV_ShopEnd")
 		V.sign(KD, MeL @ V.T(60.0, 21.4, 0), "MARKET", 18.0, 4.0, accent="E_ThViolet", name="Sign_Market", shape="ribbon", icon="star", icon_at="left", icon_size=3.8)
-		for Mw_, segs in ((MeL, ((6.0, 49.0), (71.0, 78.0))), (MwL, ((41.5, 78.0),))):
-			with C.grp("WallBand", Mw_):
-				G = S.FK(KD, Mw_)
-				for a_, b_ in segs:
-					G["V_ThViolet"].box(a_, b_, 5.9, 7.9, 0.3, 0.6)
 		# the BROKER at the far end on a stepped plinth, his TV and sign behind him
 		px, py = (LX0 + LX1) / 2, LY1 - 12.0
-		V.tv(K, KD, MnL @ V.T(px - LX0, 10.8, 0), 16.0, 8.0, "shop", "BROKER", "DEALS DAILY", out=2.6, name="TV_Broker")
+		V.tv(K, KD, MnL @ V.T(px - LX0, 10.8, 0), 16.0, 8.0, "shop", "DAILY DEALS", out=2.6, name="TV_Broker")
 		V.sign(KD, MnL @ V.T(px - LX0, 20.8, 0), "BROKER", 15.0, 3.6, accent="E_Coral", name="Sign_Broker", shape="badge", icon="crown", icon_at="left", icon_size=3.6)
+		V.bundle_stand(K, KD, A, px - 8.5, py - 8.0, accent="E_Coral", name="BrokerBundle")
+		V.effect_stand(K, KD, A, px + 8.5, py - 8.0, accent="E_ThViolet", name="BrokerEffect")
 		with C.grp("BrokerPlinth", Matrix.Translation((px, py, 0.0))):
 			F, G = S.FK(K, Matrix.Translation((px, py, 0.0))), S.FK(KD, Matrix.Translation((px, py, 0.0)))
 			F["V_Floor2"].prism(V.ccw(V.oct_pts(5.4)), 0.12, 1.0)

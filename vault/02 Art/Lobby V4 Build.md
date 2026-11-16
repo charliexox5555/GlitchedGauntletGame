@@ -170,9 +170,13 @@ The far end wall of the hall is now a **wide arch** (24 high, about 24 clear) in
 
 **Checks:** 0 floating, 0 leaks; clash list only the usual seats (conduit clamps, bands into the wainscot, stage frames and collars at opening edges). Play-tested: a character walks from the hall through the arch to the Broker; the Broker plays his idle. The extra SHOP sign over the arch was dropped (it ran into the end wall's cornice); the MARKET sign reads through the arch instead. Shop: 106 pieces, about 55k triangles.
 
+## The Broker's exchange (owner 2026-11-16: "Add a feature")
+The Broker's room is now an exchange: **four lit glass gun cabinets** down its long walls (`v4_core.niche`, the Locker's cabinet: DEALS with Vandal and Sheriff, RARE with Operator and Judge, NEW with Phantom and Spectre, VAULT with Odin and Bucky; real guns, own lights, violet accent strips), and a **bundle stand** (coral gift box, turning medal) and an **effect stand** (violet crystal shards, embers) flanking the end of the path in front of the Broker. The Broker's TV reads DAILY DEALS (the sign and his name tag already say BROKER). The violet wall band was taken out of this room: between the cabinets it was only stubs. Checks: 0 floating, 0 leaks, no new clashes; 30 guns placed, 0 missing; Shop 113 pieces, about 62k triangles.
+
+The cabinets and stands were rebuilt and captured in Studio. The last small change (band stubs out, TV title) is built and uploaded, but **not yet rebuilt in Studio**: the Lobby place closed mid-session. Next time it is open: load `V4Data` and run `.rebuild()` (Pipeline above). If `Workspace.RivalsProps` is back in the place (the move to `ServerStorage.RivalsPropTemplates` was not saved), `props()` moves it again.
+
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.
-- The Broker's room is dim next to the lit stages and its long walls are plain; it could take a feature of its own (a counter, a display wall).
 - The props are RIVALS' meshes (placeholders). Our own crates, cases and barrels are still to model.
 - Lighting reads flat (all three reviewers, both rounds), and the walls between fixtures are bare. See the blind review.
 - The farthest pad is about 10.5 s from spawn (plan target 9.5 s; RIVALS is 15 s).
