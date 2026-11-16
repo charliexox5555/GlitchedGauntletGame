@@ -31,6 +31,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Maps/Arena.md` (6): Arena + Big Arena (redesign batch 1): owner calls, v2 build (plain parts, 5-stud module, two greys, grid tile), layout checks vs RIVALS, playtest, test list
 - `01 Design/Maps/Pier and Dockyard.md` (6): redesign batch 2: port kit module, layout checks, greybox builder, container kit test, ChatGPT concept prompts, test list
 - `01 Design/Spawn Hold.md` (2): pre-round ghost hold at open-floor markers (no spawn nooks), why, build plan
+- `01 Design/Maps/Overnight Run 2026-11-16.md` (6): all 13 release maps built overnight: method, origins, incident and repair, status table (layout, greybox, kit, grade), checks, builder additions
 - `01 Design/Maps/Map Lineup Brainstorm 2026-11-16.md` (7): why RIVALS maps work (10 points with numbers), our extra needs (slide, Mods), a 12-map proposed lineup with duel/big pairs and a launch set of 6, owner questions
 - `01 Design/Maps/<Name>.md` and `<Name>2.md`: layout, callouts, props and build log per map. Original: Whitebox (15), Big Whitebox (2), Rooftops (19), Dockyard (21), Metro (24), Old Town (26), Bunker (24), Greenhouse (19), Snowpeak Lodge (20). Rebuilds to the standard: Rooftops2 (94), Dockyard2 (75), Metro2 (33), OldTown2 (10), Bunker2 (14), Greenhouse2 (25), Snowpeak2 (15)
 

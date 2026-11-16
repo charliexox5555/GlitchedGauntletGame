@@ -24,12 +24,22 @@ Big Arena, Pier and Dockyard were moved there by a pivot shift (their notes give
 ## Status
 | Map | Layout | Greybox | Kit | Lighting | Bot run | Grade | Notes |
 |---|---|---|---|---|---|---|---|
-| Rooftops3 | ✅ alley + 3 bridges, billboards over the gap; long rays 32% | ✅ 45 parts | | | | | |
-| Courtyard | ✅ first sight 1.6 s (plaza; review point) | ✅ 44 parts | | | | | |
-| Bunker3 | ✅ shaft room, generator blocks door lines | ✅ 43 parts, roof +14 with the shaft open | | | | | |
-| Foundry | ✅ first sight 1.5 s (review point) | ✅ 43 parts, molten channel (Neon) | | | | | |
-| Snowpeak3 | ✅ | ✅ 42 parts | | | | | |
-| Model Kit | ✅ | ✅ 39 parts | | | | | |
-| OldTown3 | ✅ one 260 line (0.2% of rays) | ✅ 46 parts | | | | | |
-| Metro3 | ✅ rebuilt as platforms + concourse | ✅ 64 parts, roof +22 with skylights | | | | | |
-| Greenhouse3 | ✅ one 278 line (0.1%) | ✅ 60 parts | | | | | |
+| Rooftops3 | ✅ alley + 3 bridges, billboards over the gap; long rays 32% | ✅ 45 parts | ✅ RT_ 13 pieces (asset 97994515689937) + tower crane | ✅ | not run | 7.5 | parapets want an edge coping; billboard backs are bare |
+| Courtyard | ✅ first sight 1.6 s (plaza; review point) | ✅ 44 parts | ✅ Town kit (100363366584662) | ✅ | not run | 8 | brick townhouse walls (18 high) close the square |
+| Bunker3 | ✅ shaft room, generator blocks door lines | ✅ 43 parts, roof +14 with the shaft open | ✅ BK_ 7 pieces (80566606784164) + 10 floodlights | ✅ | not run | 7.5 | outer walls close it; ring walls are still plain concrete blocks |
+| Foundry | ✅ first sight 1.5 s (review point) | ✅ 43 parts, molten channel (Neon) | ✅ FD_ 9 pieces (71729193914093) + furnace | ✅ | not run | 8 | molten plane lowered to -7 (no rim glow); hall floor apron; catwalk hazard trim is yellow (owner disliked yellow accents: review) |
+| Snowpeak3 | ✅ | ✅ 42 parts | ✅ SP_ 12 pieces (128541608803309) + gondola station | ✅ | not run | 8 | snowfield apron + 40-pine treeline frame the map |
+| Model Kit | ✅ | ✅ 39 parts | ✅ MK_ 14 pieces (73169723533803) + desk lamp | ✅ | not run | 8 | fat pencil is the ramp (wedge hidden, keeps collision); mat lies on a wooden desk apron |
+| OldTown3 | ✅ one 260 line (0.2% of rays) | ✅ 46 parts | ✅ Town kit | ✅ | not run | 8 | open edges past the blocks |
+| Metro3 | ✅ rebuilt as platforms + concourse | ✅ 64 parts, roof +22 with skylights | ✅ MT_ 10 pieces (128225709564447) + 2 station clocks | ✅ | not run | 8 | outer walls close the station; accent is signal red (no yellow); bridge stairs are greybox wedges |
+| Greenhouse3 | ✅ one 278 line (0.1%) | ✅ 60 parts | ✅ GH_ 20 pieces (116034571488607) + glass dome | ✅ | not run | 7.5 | glass outer walls (16 high, 0.6 clear); dome legs placed 6.6+ studs from every box |
+
+Checks run on all nine (and the contract on all 13): no same-plane visible faces (z-fight script), spawns 4/4 or 5/5
+tagged and on ground, KillDepth, Lighting, Barriers present. **Bot runs were not done tonight**: run each with
+`Workspace.ForceMap` before the maps go into `Config/Match`.
+
+Builder additions tonight (`tools/studio/maps/MapTools/Build.luau`, patched into the Studio copy too): visible outer
+walls for roofed maps or `walls = {h, look}`; `apron = {w, look}` ground past the bounds for scenery. New
+`MapTools.Run` builds with a fresh copy of Build and stores each map's data in `ServerStorage.MapTools.Data.<id>`
+(JSON), so `require(MapTools.Run)("Metro3", true)` rebuilds without a paste. Build files now call `Run`.
+

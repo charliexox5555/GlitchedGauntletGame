@@ -169,6 +169,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 
 ## Tools (not synced; `tools/`)
 `anim/` (`tp_rig.py`, `tp_clips.py`: the third-person clips, keyed on a rig of the match body and exported to `art-source/animations/`), `blender/` (model scripts; `make_body_mesh.py` = the block body), `opencloud/` (uploads), `studio/` (Studio-side builders and validators, e.g. `ValidateWeapons.luau`, `ThirdPersonReviewRig.luau`, `TpPreviewSheet.luau`, `MakePoseAnimations.luau` (old generators, now only the Mod / dash / flinch clips), `receive_server.py`, `maps/<Map>/`), `maps/`, `vfx/`, `audio/`, `textures/`, `icons/`, `balance/`.
+- **Map tools (2026-11-16):** `tools/maps/map_plans.py` (layouts + checks; `--luau <id>` writes `art-source/maps/<id>/build.luau`), `map_meta.py` (looks, lighting, kit pieces, props, roof / walls / apron), `kit_compact.py` (InstallKit call); `tools/blender/maps_kit/` (kit scripts, `run.py <theme> <Kit>`). Studio side, match place `ServerStorage.MapTools`: `Build` (repo copy `tools/studio/maps/MapTools/Build.luau`), `Run` (fresh-require + stores data in `MapTools.Data.<id>`), `InstallKit`, `Textures`; kits in `ServerStorage.MapKit.<kit>`.
 
 ## How to use this map
 1. Name the area (e.g. "the Frost burst hurts allies") → find the rows → `Grep -n "symbol" src/...` → `Read` with `offset`/`limit`.
