@@ -19,7 +19,23 @@ from PIL import Image, ImageChops, ImageDraw, ImageOps
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SRC = os.path.join(ROOT, "art-source", "ui", "chatgpt")
 OUT = os.path.join(SRC, "out")
-IDS = ["Dash", "Updraft", "Molly", "Firewall", "Frost", "Recon", "HealOrb", "Stim", "Recall"]
+IDS = [
+	"Dash",
+	"Updraft",
+	"Molly",
+	"Firewall",
+	"Frost",
+	"Recon",
+	"HealOrb",
+	"Stim",
+	"Recall",
+	"ShockDart",
+	"Flash",
+	"Roller",
+]
+# Card art v2 (2026-11-17, cleaner stylised set): read from cards_v2/ when it has the file,
+# else the v1 painterly card in cards/.
+CARD_DIRS = ["cards_v2", "cards"]
 ICON = 256
 ICON_PAD = 20
 CARD = (760, 600)
@@ -70,8 +86,9 @@ def main():
 		os.makedirs(os.path.join(OUT, kind), exist_ok=True)
 		done = []
 		for name in IDS:
-			src = os.path.join(SRC, kind, name + ".png")
-			if os.path.exists(src):
+			dirs = CARD_DIRS if kind == "cards" else [kind]
+			src = next((os.path.join(SRC, d, name + ".png") for d in dirs if os.path.exists(os.path.join(SRC, d, name + ".png"))), "")
+			if src:
 				fn(src, os.path.join(OUT, kind, name + ".png"))
 				done.append(name)
 		print(kind, len(done), done)
