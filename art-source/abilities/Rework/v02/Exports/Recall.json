@@ -1,0 +1,368 @@
+{
+ "mod": "Recall",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "placed"
+ },
+ "parts": [
+  {
+   "name": "Skid",
+   "material": "Receiver charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343942"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.014,
+    -0.0345,
+    0.072
+   ],
+   "size": [
+    0.818,
+    0.619,
+    0.144
+   ]
+  },
+  {
+   "name": "BaseSeat",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.01106,
+    -0.02725,
+    0.1685
+   ],
+   "size": [
+    0.64622,
+    0.48901,
+    0.049
+   ]
+  },
+  {
+   "name": "Crown",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 244,
+   "center": [
+    0.009,
+    -0.004,
+    0.429
+   ],
+   "size": [
+    0.678,
+    0.362,
+    0.476
+   ]
+  },
+  {
+   "name": "Bank_LeftFront",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.24099,
+    -0.1755,
+    0.482
+   ],
+   "size": [
+    0.10406,
+    0.011,
+    0.18318
+   ]
+  },
+  {
+   "name": "Bank_RightFront",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.24099,
+    -0.1755,
+    0.482
+   ],
+   "size": [
+    0.10406,
+    0.011,
+    0.18318
+   ]
+  },
+  {
+   "name": "Bank_LeftRear",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.24099,
+    0.1675,
+    0.482
+   ],
+   "size": [
+    0.10406,
+    0.011,
+    0.18318
+   ]
+  },
+  {
+   "name": "Bank_RightRear",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.24099,
+    0.1675,
+    0.482
+   ],
+   "size": [
+    0.10406,
+    0.011,
+    0.18318
+   ]
+  },
+  {
+   "name": "CoreBase",
+   "material": "Receiver charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343942"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.003,
+    0.0045,
+    0.364
+   ],
+   "size": [
+    0.3,
+    0.247,
+    0.104
+   ]
+  },
+  {
+   "name": "PhaseRing",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    0.4315
+   ],
+   "size": [
+    0.21651,
+    0.25,
+    0.029
+   ]
+  },
+  {
+   "name": "Core",
+   "material": "Recall optic glass",
+   "look": {
+    "material": "Neon",
+    "color": "72C7BF"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.467
+   ],
+   "size": [
+    0.14228,
+    0.15268,
+    0.104
+   ]
+  },
+  {
+   "name": "Light_Energy",
+   "material": "Recall optic glass",
+   "look": {
+    "material": "Neon",
+    "color": "72C7BF"
+   },
+   "energy": true,
+   "tris": 44,
+   "center": [
+    -0.00015,
+    -0.177,
+    0.28647
+   ],
+   "size": [
+    0.16928,
+    0.008,
+    0.03772
+   ]
+  },
+  {
+   "name": "PhaseInset",
+   "material": "Recall optic glass",
+   "look": {
+    "material": "Neon",
+    "color": "72C7BF"
+   },
+   "energy": false,
+   "tris": 36,
+   "center": [
+    0.183,
+    0.0215,
+    0.505
+   ],
+   "size": [
+    0.052,
+    0.167,
+    0.138
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Floor",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "CorePivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.44
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PhasePivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.43
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Top",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.519
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 752
+}

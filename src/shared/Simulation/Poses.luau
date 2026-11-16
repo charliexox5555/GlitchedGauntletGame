@@ -1,6 +1,6 @@
 --!strict
 -- Third-person pose tracks (Config/Animations): holding the gun (a blend of
--- three pitch poses), the sprint carry, crouch / crouch-walk and slide, and
+-- three pitch poses), the run's upper body, crouch / crouch-walk and slide, and
 -- the Mods: a hold pose while a held Mod is up (player attribute ModHeld)
 -- and a one-shot throw / place / heal on each use (ModUseKind / ModUseAt,
 -- written by ModService; the character attribute PoseUseSeen remembers the
@@ -19,6 +19,7 @@ local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
+local Authority = require(script.Parent.Parent.Authority)
 local Health = require(script.Parent.Parent.Health)
 local Pawns = require(script.Parent.Pawns)
 local Animations = require(script.Parent.Parent.Config.Animations)
@@ -34,18 +35,14 @@ local SPECS: { [string]: Spec } = {
 	AimLevel = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	AimDown = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	Sprint = { priority = Enum.AnimationPriority.Action2, fade = FADE.sprint },
+	SprintPistol = { priority = Enum.AnimationPriority.Action2, fade = FADE.sprint },
+	SprintKnife = { priority = Enum.AnimationPriority.Action2, fade = FADE.sprint },
 	Crouch = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
-	CrouchWalk = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
-	CrouchWalkB = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
-	CrouchWalkL = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
-	CrouchWalkR = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch },
 	Slide = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
+	SlidePistol = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
+	SlideKnife = { priority = Enum.AnimationPriority.Action3, fade = FADE.slide },
 	ModHold = { priority = Enum.AnimationPriority.Action, fade = Animations.MOD_FADE },
 	UpdraftSlam = { priority = Enum.AnimationPriority.Action4, fade = Animations.SLAM_FADE },
-	RunF = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
-	RunB = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
-	RunL = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
-	RunR = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
 	SprintRun = { priority = Enum.AnimationPriority.Movement, fade = FADE.run },
 	AdsUp = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	AdsLevel = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
@@ -58,10 +55,38 @@ local SPECS: { [string]: Spec } = {
 	PistolAdsDown = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 	KnifeReady = { priority = Enum.AnimationPriority.Action, fade = FADE.aim },
 }
-local RUN_SET = { "RunF", "RunB", "RunL", "RunR" }
-local CROUCH_SET = { "CrouchWalk", "CrouchWalkB", "CrouchWalkL", "CrouchWalkR" }
+-- The eight move directions every leg set has a clip for (tools/anim/tp_clips.py
+-- dir_clips), clockwise from straight ahead, 45 degrees apart.
+local DIR8 = { "F", "FR", "R", "BR", "B", "BL", "L", "FL" }
+local function legSet(prefix: string, forward: string): { string }
+	local out = {}
+	for _, dir in DIR8 do
+		table.insert(out, if dir == "F" then forward else prefix .. dir)
+	end
+	return out
+end
+local WALK_SET = legSet("Walk", "WalkF")
+local RUN_SET = legSet("Run", "RunF")
+local CROUCH_SET = legSet("CrouchWalk", "CrouchWalk")
+-- Every standing leg cycle. They share one stride phase (the right foot lands
+-- at phase 0 in each), so cross-fades keep the feet in step.
+local GAIT_SET = table.clone(WALK_SET)
+for _, name in RUN_SET do
+	table.insert(GAIT_SET, name)
+end
+table.insert(GAIT_SET, "SprintRun")
+for _, name in GAIT_SET do
+	SPECS[name] = { priority = Enum.AnimationPriority.Movement, fade = FADE.run }
+end
+for _, name in CROUCH_SET do
+	SPECS[name] = { priority = Enum.AnimationPriority.Action2, fade = FADE.crouch }
+end
+-- The slide's weapon kinds: the rifle's ("") and the sidearm's and knife's own arms.
+local SLIDE_KINDS = { "", "Pistol", "Knife" }
+-- The run's upper body, one per kind of weapon (long guns, sidearms, knife).
+local SPRINT_SET = { "Sprint", "SprintPistol", "SprintKnife" }
 local IDS: { [string]: string } = table.clone(Animations.POSES :: any)
-for _, name in { "RunF", "RunB", "RunL", "RunR", "SprintRun" } do
+for _, name in GAIT_SET do
 	IDS[name] = (Animations.LOCOMOTION :: any)[name]
 end
 for _, name in { "AdsUp", "AdsLevel", "AdsDown", "KnifeReady" } do
@@ -109,7 +134,13 @@ local USE_IDS: { [string]: string } = {
 	Land = Animations.LOCOMOTION.Land, -- a knee dip on touching down
 	SlideIn = Animations.LOCOMOTION.SlideIn, -- the kick-out and drop into a slide
 	SlideOut = Animations.LOCOMOTION.SlideOut, -- the push back up when a slide ends on your feet
+	-- ...with a sidearm or the knife out (their own arms; the rifle's otherwise).
+	SlideInPistol = Animations.LOCOMOTION.SlideInPistol,
+	SlideOutPistol = Animations.LOCOMOTION.SlideOutPistol,
+	SlideInKnife = Animations.LOCOMOTION.SlideInKnife,
+	SlideOutKnife = Animations.LOCOMOTION.SlideOutKnife,
 	Reload = Animations.COMBAT.Reload, -- at the gun's reload time (ReloadAt / ReloadFor)
+	PistolReload = Animations.COMBAT.PistolReload, -- ...a sidearm's
 	Flinch = Animations.COMBAT.Flinch, -- hit (HitAt), at FLINCH_WEIGHT
 	Draw = Animations.COMBAT.Draw, -- a weapon swap (at the gun's equipTime)
 	KnifeSlash = Animations.COMBAT.KnifeSlash, -- a knife swing (SwingAt): SwingStep 1, forehand
@@ -136,6 +167,14 @@ local slamSeen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 -- Run only where this side simulates the character (the server for
 -- everyone, a client for its own character), like Animate does.
 local function isSimulated(instance: Instance): boolean
+	-- Server Authority off (shared/Authority): nothing is predicted, so the
+	-- Animator reports PredictionStatus.None and this used to skip every
+	-- player's poses (2026-11-12: players stood in the idle with the gun
+	-- hanging). `step` already picks who poses whom in that mode: a client
+	-- its own character, the server its bots.
+	if not Authority.server() then
+		return true
+	end
 	local ok, status = pcall(RunService.GetPredictionStatus, RunService, instance)
 	return not ok or status ~= Enum.PredictionStatus.None
 end
@@ -256,6 +295,26 @@ local function setWeight(animator: Animator, name: string, weight: number)
 	end
 end
 
+-- Pose tracks the cache no longer drives (2026-11-13, measured: a track
+-- stopped and re-adopted in the same step, or one started past the Animator's
+-- 16-track limit, kept playing at 0.001, or stuck at full weight, for good).
+-- They hold the Animator's track slots and, at weight, pose the body. Fade
+-- each out and stop it.
+local function sweep(animator: Animator)
+	local byName = cache[animator]
+	for _, t in animator:GetPlayingAnimationTracks() do
+		local a = t.Animation
+		local name = a and a.Name
+		if name and IDS[name] and (not byName or byName[name] ~= t) then
+			if t.WeightCurrent <= 0.02 then
+				t:Stop(0)
+			elseif t.WeightTarget > OFF then
+				t:AdjustWeight(OFF, FADE.run)
+			end
+		end
+	end
+end
+
 local function aimPitch(player: Player): number
 	local context = player:FindFirstChild("PlayContext")
 	local action = context and context:FindFirstChild("AimPitch")
@@ -300,64 +359,185 @@ local function newMark(seen: { [Model]: number }, character: Model, value: unkno
 	return last ~= nil and stamp > last
 end
 
--- Whether each character was in the air last step (for the landing clip).
+-- Whether each character was in the air last step, and since when
+-- (os.clock), for the landing clip.
 local wasAir: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local airSince: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 -- Whether each character was sliding last step (the slide's way in and out).
 local wasSlide: { [Model]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
--- How much the body moves forward / back / left / right relative to where
--- it faces (shares summing to 1; standing still counts as forward).
-local function directions(root: BasePart): (number, number, number, number)
+-- Which way the body moves relative to where it faces, as the shares of the
+-- two DIR8 clips either side of it (`index` 1..8 into DIR8, weight of the
+-- next one clockwise). Standing still counts as forward.
+local function direction8(root: BasePart): (number, number)
 	local flat = root.CFrame:VectorToObjectSpace(root.AssemblyLinearVelocity * Vector3.new(1, 0, 1))
-	local f, b = math.max(-flat.Z, 0), math.max(flat.Z, 0)
-	local r, l = math.max(flat.X, 0), math.max(-flat.X, 0)
-	local sum = f + b + r + l
-	if sum > 1e-3 then
-		return f / sum, b / sum, l / sum, r / sum
+	if flat.Magnitude < 1e-3 then
+		return 1, 0
 	end
-	return 1, 0, 0, 0
+	local steps = (math.deg(math.atan2(flat.X, -flat.Z)) % 360) / 45
+	local i = math.floor(steps)
+	-- Near one clip's direction, that clip alone: an Animator plays at most
+	-- 16 tracks (a 17th never plays, never fades and never stops), and a
+	-- second leg clip at a sliver of weight for every small drift pushed the
+	-- body past that (measured 18 in a strafing test, 2026-11-13).
+	local next = steps - i
+	local snap = Animations.DIRECTION_SNAP
+	if next < snap then
+		next = 0
+	elseif next > 1 - snap then
+		next = 1
+	end
+	return i % 8 + 1, next
 end
 
--- The legs: the run set blended by where the body moves relative to where it
--- faces (forward / back / left / right), the sprint stride when sprinting
--- forward, all off while crouched, sliding or in the air. The clips share
--- one length so blended feet stay in step; their rate follows ground speed.
+-- Weights a leg set's eight clips toward `total`, split between the two
+-- either side of the move direction.
+local function setDirections(
+	animator: Animator,
+	set: { string },
+	total: number,
+	index: number,
+	next: number,
+	skip: string?
+)
+	for i, name in set do
+		local w = if i == index then 1 - next elseif i == index % 8 + 1 then next else 0
+		setWeight(animator, name, if name == skip then 0 else total * w)
+	end
+end
+
+-- Keeps a set of looping leg clips on one cycle: each plays at `cycles` a
+-- second and follows the phase of the heaviest one.
+local function inStep(animator: Animator, set: { string }, cycles: number)
+	local lead: AnimationTrack? = nil
+	local leadWeight = -1
+	for _, name in set do
+		local t = playing(animator, name)
+		if t and t.Length > 0 and t.WeightTarget > leadWeight then
+			lead, leadWeight = t, t.WeightTarget
+		end
+	end
+	if not lead then
+		return
+	end
+	local rate = Animations.RUN_RATE
+	local phase = lead.TimePosition / lead.Length
+	for _, name in set do
+		local t = playing(animator, name)
+		if t and t.Length > 0 then
+			local want = math.clamp(cycles * t.Length, rate.min, rate.max)
+			if math.abs(t.Speed - want) > 0.01 then
+				t:AdjustSpeed(want)
+			end
+			if t ~= lead then
+				local drift = (t.TimePosition / t.Length - phase) % 1
+				if drift > 0.04 and drift < 0.96 then
+					t.TimePosition = phase * t.Length
+				end
+			end
+		end
+	end
+end
+
+-- Studs one cycle of each leg clip covers (its made-for speed x its length),
+-- so a blend of gaits plays at one shared cycle rate.
+local function strideOf(name: string, length: number): number
+	if string.sub(name, 1, 4) == "Walk" then
+		return Animations.WALK_CLIP_SPEED * length
+	elseif name == "SprintRun" then
+		return Animations.SPRINT_RUN_SPEED * length
+	end
+	return Animations.RUN_SPEED * length
+end
+
+-- The legs: a walk set (slow, aimed movement) and a run set, each blended by
+-- where the body moves relative to where it faces (forward / back / left /
+-- right), cross-faded by ground speed (Animations.WALK_RUN); the sprint
+-- stride when sprinting forward. All off while crouched, sliding or in the
+-- air. Every leg clip plays at one cycle rate (ground speed over the blended
+-- stride) and on one phase (the heaviest clip leads, the rest follow it), so
+-- the planted feet stay locked to the ground through any blend
+-- (LihFolk "Locomotion Systems": gaits that cannot slide, phase-preserving
+-- gait swaps).
 local function stepLegs(
 	animator: Animator,
 	root: BasePart,
 	state: unknown,
 	speed: number,
-	alive: boolean
+	alive: boolean,
+	airborne: boolean
 )
+	-- (Off the floor the run stops whatever the move state says: holding
+	-- forward through a jump stays "Sprint", and the legs used to keep
+	-- running in mid-air over the jump and fall poses.)
 	local onFeet = alive
+		and not airborne
 		and (state == "Walk" or state == "Sprint" or state == "Idle" or state == nil)
-	local run = if onFeet
+	local legs = if onFeet
 		then math.clamp(
 			(speed - Animations.RUN_FROM) / (Animations.RUN_FULL - Animations.RUN_FROM),
 			0,
 			1
 		)
 		else 0
-	local f, b, l, r = directions(root)
+	local index, next = direction8(root)
+	local band = Animations.WALK_RUN
+	local runShare = math.clamp((speed - band.from) / (band.to - band.from), 0, 1)
 	local sprint = if state == "Sprint" then 1 else 0
-	setWeight(animator, "RunF", run * f * (1 - sprint))
-	setWeight(animator, "SprintRun", run * f * sprint)
-	setWeight(animator, "RunB", run * b)
-	setWeight(animator, "RunL", run * l)
-	setWeight(animator, "RunR", run * r)
-	if run > 0 then
-		local rate = Animations.RUN_RATE
-		local runRate = math.clamp(speed / Animations.RUN_SPEED, rate.min, rate.max)
-		for _, name in RUN_SET do
-			local t = playing(animator, name)
-			if t and math.abs(t.Speed - runRate) > 0.05 then
-				t:AdjustSpeed(runRate)
+	local forward = if index == 1 then 1 - next elseif index == 8 then next else 0
+	setDirections(animator, WALK_SET, legs * (1 - runShare), index, next, nil)
+	-- Sprinting, the forward share runs the sprint stride instead.
+	setDirections(
+		animator,
+		RUN_SET,
+		legs * runShare,
+		index,
+		next,
+		if sprint > 0 then "RunF" else nil
+	)
+	setWeight(animator, "SprintRun", legs * runShare * forward * sprint)
+	if legs <= 0 then
+		return
+	end
+	-- One cycle rate for all of them: ground speed over the blended stride.
+	local stride, total = 0, 0
+	for _, name in GAIT_SET do
+		local t = playing(animator, name)
+		if t and t.Length > 0 then
+			local w = t.WeightTarget
+			stride += strideOf(name, t.Length) * w
+			total += w
+		end
+	end
+	if total > 0 and stride > 0 then
+		inStep(animator, GAIT_SET, speed / (stride / total))
+	end
+	-- The run's upper body swings with the stride: same rate, same time
+	-- (the clips are one length).
+	local sprintTrack = playing(animator, "SprintRun")
+	if sprintTrack and sprintTrack.Length > 0 then
+		for _, name in SPRINT_SET do
+			local arms = playing(animator, name)
+			if arms and arms.Length > 0 then
+				if math.abs(arms.Speed - sprintTrack.Speed) > 0.05 then
+					arms:AdjustSpeed(sprintTrack.Speed)
+				end
+				local drift = (arms.TimePosition - sprintTrack.TimePosition) % sprintTrack.Length
+				if drift > 0.04 and drift < sprintTrack.Length - 0.04 then
+					arms.TimePosition = sprintTrack.TimePosition
+				end
 			end
 		end
-		local sprintTrack = playing(animator, "SprintRun")
-		local sprintRate = math.clamp(speed / Animations.SPRINT_RUN_SPEED, rate.min, rate.max)
-		if sprintTrack and math.abs(sprintTrack.Speed - sprintRate) > 0.05 then
-			sprintTrack:AdjustSpeed(sprintRate)
+	end
+end
+
+-- Lines every leg clip up so its right footfall (phase 0) comes `inSeconds`
+-- from now (SlideOut ends in that footfall).
+local function footfallIn(animator: Animator, inSeconds: number)
+	for _, name in GAIT_SET do
+		local t = playing(animator, name)
+		if t and t.Length > 0 then
+			t.TimePosition = (-inSeconds * t.Speed) % t.Length
 		end
 	end
 end
@@ -381,6 +561,7 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 			useTrack(animator, kind)
 		end
 	end
+	sweep(animator)
 
 	local alive = Health.isAlive(humanoid)
 	local state = if alive then character:GetAttribute("MoveState") else nil
@@ -416,6 +597,9 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	local pistol = PISTOL_SET
 		and config ~= nil
 		and (config.class == "Sidearm" or (config.models ~= nil and config.models.left ~= nil))
+	local knife = alive and config ~= nil and config.fireMode == "Melee" and not holding
+	-- The slide's arms follow the weapon kind ("" = the rifle's).
+	local slideKind = if knife then "Knife" elseif pistol then "Pistol" else ""
 	for setName, names in HOLD_SETS do
 		local on = if (setName == "pistol") == pistol then 1 else 0
 		setWeight(animator, names[1], on * hip * math.max(pitch, 0))
@@ -429,7 +613,11 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	if newMark(reloadSeen, character, player:GetAttribute("ReloadAt")) and alive and armed > 0 then
 		local duration = player:GetAttribute("ReloadFor")
 		if typeof(duration) == "number" and duration > 0.1 then
-			playOnce(animator, "Reload", Animations.RELOAD_LENGTH / duration)
+			playOnce(
+				animator,
+				if pistol then "PistolReload" else "Reload",
+				Animations.RELOAD_LENGTH / duration
+			)
 		end
 	end
 	if newMark(hitSeen, character, player:GetAttribute("HitAt")) and alive then
@@ -445,7 +633,6 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	end
 	-- The knife: its ready hold while it's out, and each swing (also a quick
 	-- melee with a gun out).
-	local knife = alive and config ~= nil and config.fireMode == "Melee" and not holding
 	setWeight(animator, "KnifeReady", if knife then 1 else 0)
 	if newMark(swingSeen, character, player:GetAttribute("SwingAt")) and alive then
 		local step = player:GetAttribute("SwingStep")
@@ -459,16 +646,21 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		)
 	end
 	-- Movement (Action2 / Action3) layers over the aim and the walk cycle.
-	setWeight(animator, "Sprint", if state == "Sprint" then 1 else 0)
+	local sprintPose = if knife then "SprintKnife" elseif pistol then "SprintPistol" else "Sprint"
+	for _, name in SPRINT_SET do
+		setWeight(animator, name, if state == "Sprint" and name == sprintPose then 1 else 0)
+	end
 	setWeight(animator, "Crouch", crouch * (1 - moving))
-	-- Crouch-walking blends its four directions like the run.
-	local wf, wb, wl, wr = directions(root)
-	local walking = crouch * moving
-	setWeight(animator, "CrouchWalk", walking * wf)
-	setWeight(animator, "CrouchWalkB", walking * wb)
-	setWeight(animator, "CrouchWalkL", walking * wl)
-	setWeight(animator, "CrouchWalkR", walking * wr)
-	setWeight(animator, "Slide", if state == "Slide" then 1 else 0)
+	-- Crouch-walking blends its eight directions like the run.
+	local index, next = direction8(root)
+	setDirections(animator, CROUCH_SET, crouch * moving, index, next, nil)
+	for _, kind in SLIDE_KINDS do
+		setWeight(
+			animator,
+			"Slide" .. kind,
+			if state == "Slide" and kind == slideKind then 1 else 0
+		)
+	end
 	setWeight(animator, "ModHold", if holding then 1 else 0)
 	if SLAM_POSE then
 		setWeight(animator, "UpdraftSlam", if diving then 1 else 0)
@@ -540,11 +732,24 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		end
 	end
 
-	stepLegs(animator, root, state, speed, alive)
-	-- Touching down: a quick knee dip over whatever the legs are doing.
-	local inAir = state == "Air"
+	local airborne = humanoid.FloorMaterial == Enum.Material.Air
+	stepLegs(animator, root, state, speed, alive, airborne)
+	-- Touching down: a squash over whatever the legs are doing, full when you
+	-- land slow and none at a run (the run's own bounce carries it, and frozen
+	-- legs would skate), and only after a real jump or fall (a step off a
+	-- ledge or a bump in the floor is airborne for a moment too).
+	local inAir = airborne or state == "Air"
+	local now = os.clock()
+	if inAir and not wasAir[character] then
+		airSince[character] = now
+	end
 	if wasAir[character] and not inAir and alive then
-		playOnce(animator, "Land")
+		local land = Animations.LAND
+		local weight = 1
+			- math.clamp((speed - land.fullBelow) / (land.noneAbove - land.fullBelow), 0, 1)
+		if now - (airSince[character] or now) >= land.minAir and weight > 0.05 then
+			playOnce(animator, "Land", 1, weight)
+		end
 	end
 	wasAir[character] = inAir
 	-- The slide: dropping into it, and getting up out of it when it ends on
@@ -553,44 +758,51 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	local sliding = state == "Slide"
 	local slidWas = wasSlide[character]
 	if sliding and slidWas == false and alive then
-		playOnce(animator, "SlideIn")
+		playOnce(animator, "SlideIn" .. slideKind)
 	elseif
 		slidWas
 		and not sliding
 		and alive
 		and (state == "Walk" or state == "Sprint" or state == "Idle")
 	then
-		local into = playing(animator, "UseSlideIn")
-		if into then
-			into:Stop(0.05) -- a very short slide
+		for _, kind in SLIDE_KINDS do
+			local into = playing(animator, "UseSlideIn" .. kind)
+			if into then
+				into:Stop(0.05) -- a very short slide
+			end
 		end
-		playOnce(animator, "SlideOut")
+		playOnce(animator, "SlideOut" .. slideKind)
+		-- It ends in the run's right footfall: the run lands there too.
+		footfallIn(animator, Animations.SLIDE_OUT_LENGTH)
 	end
 	wasSlide[character] = sliding
 	-- The hold's scrape chatter calms as the slide slows.
-	local hold = playing(animator, "Slide")
+	local hold = playing(animator, "Slide" .. slideKind)
 	local chatter =
 		math.clamp(speed / Animations.SLIDE_CHATTER_SPEED, Animations.SLIDE_CHATTER_MIN, 1)
 	if hold and math.abs(hold.Speed - chatter) > 0.05 then
 		hold:AdjustSpeed(chatter)
 	end
 
-	-- Crouch-walk stride speed follows the ground speed.
-	local stride = math.clamp(speed / Animations.CROUCH_WALK_SPEED, 0.4, 1.6)
-	for _, name in CROUCH_SET do
-		local walk = playing(animator, name)
-		if walk and math.abs(walk.Speed - stride) > 0.1 then
-			walk:AdjustSpeed(stride)
-		end
-	end
+	-- Crouch-walk stride speed follows the ground speed, all eight in step
+	-- (one length, so one cycle rate).
+	local crouchLength = Animations.CROUCH_WALK_LENGTH
+	inStep(animator, CROUCH_SET, speed / (Animations.CROUCH_WALK_SPEED * crouchLength))
 end
 
 local function step(dt: number)
 	if RunService:IsServer() then
-		for _, player in Players:GetPlayers() do
-			local character = player.Character
-			if character then
-				stepCharacter(player, character, dt)
+		-- Real players only under Server Authority (shared/Authority). Without
+		-- it each client poses its own character, and the tracks a client
+		-- plays on its own Animator replicate to everyone, as in any classic
+		-- Roblox game; the server posing them too (from inputs it can't see)
+		-- would play a second, standing-still set over them.
+		if Authority.server() then
+			for _, player in Players:GetPlayers() do
+				local character = player.Character
+				if character then
+					stepCharacter(player, character, dt)
+				end
 			end
 		end
 		-- AI bots (Simulation/Pawns): posed from their owner's attributes.
@@ -616,7 +828,14 @@ function PoseSim.legs(character: Model)
 		return
 	end
 	local speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
-	stepLegs(animator, root, "Walk", speed, Health.isAlive(humanoid))
+	stepLegs(
+		animator,
+		root,
+		"Walk",
+		speed,
+		Health.isAlive(humanoid),
+		humanoid.FloorMaterial == Enum.Material.Air
+	)
 end
 
 -- Call once on the server and once on each client.

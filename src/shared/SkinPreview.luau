@@ -14,6 +14,7 @@ local SkinPreview = {}
 
 -- Camera guns carry their owner's UserId in this attribute (ViewmodelController).
 SkinPreview.OWNER_ATTRIBUTE = "SkinOwnerId"
+SkinPreview.LOCKER_FOLDER = "LockerSkins"
 
 -- Whether the preview runs in this server at all (match place; Studio or LIVE).
 function SkinPreview.allowed(): boolean
@@ -38,7 +39,7 @@ end
 -- The line `player`'s gun `id` wears; on the client, nil means the local
 -- player. A line picked with the in-match preview (F7) wins while it isn't
 -- Stock; otherwise the skin equipped for that gun in the Lobby's Locker
--- (the server-set attribute Skin_<id>, Shared/Locker).
+-- (the server-set attributes under the player's LockerSkins folder).
 function SkinPreview.line(player: Player?, id: string?): string
 	local who = player or (if RunService:IsClient() then Players.LocalPlayer else nil)
 	if not who or not SkinPreview.allowed() then
@@ -48,13 +49,29 @@ function SkinPreview.line(player: Player?, id: string?): string
 	if SkinPreview.valid(value) and value ~= "Stock" then
 		return value :: string
 	end
-	if id then
-		local saved = who:GetAttribute("Skin_" .. id)
+	local locker = who:FindFirstChild(SkinPreview.LOCKER_FOLDER)
+	if id and locker then
+		local saved = locker:GetAttribute(id)
 		if SkinPreview.valid(saved) then
 			return saved :: string
 		end
 	end
 	return "Stock"
+end
+
+-- The Locker folder is populated before parenting, so a late load is one
+-- update for both the surface watcher and the geometry rebuilders.
+function SkinPreview.observe(player: Player, onChange: () -> ()): () -> ()
+	local preview = player:GetAttributeChangedSignal(Config.ATTRIBUTE):Connect(onChange)
+	local locker = player.ChildAdded:Connect(function(child)
+		if child.Name == SkinPreview.LOCKER_FOLDER then
+			onChange()
+		end
+	end)
+	return function()
+		preview:Disconnect()
+		locker:Disconnect()
+	end
 end
 
 -- Whose line a gun model shows: a camera gun's SkinOwnerId (else the local
@@ -247,9 +264,9 @@ function SkinPreview.watch(): () -> ()
 			end
 		end
 	end
-	local perPlayer: { [Player]: RBXScriptConnection } = {}
+	local perPlayer: { [Player]: () -> () } = {}
 	local function watchPlayer(p: Player)
-		perPlayer[p] = p:GetAttributeChangedSignal(Config.ATTRIBUTE):Connect(function()
+		perPlayer[p] = SkinPreview.observe(p, function()
 			refreshFor(p)
 		end)
 	end
@@ -263,7 +280,7 @@ function SkinPreview.watch(): () -> ()
 			Players.PlayerRemoving:Connect(function(p)
 				local c = perPlayer[p]
 				if c then
-					c:Disconnect()
+					c()
 					perPlayer[p] = nil
 				end
 			end)
@@ -278,7 +295,7 @@ function SkinPreview.watch(): () -> ()
 			c:Disconnect()
 		end
 		for _, c in perPlayer do
-			c:Disconnect()
+			c()
 		end
 		table.clear(perPlayer)
 		table.clear(pending)

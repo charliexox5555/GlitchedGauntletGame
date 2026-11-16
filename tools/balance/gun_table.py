@@ -23,7 +23,7 @@ PHASES = {1: "Sidearm", 2: "Light", 3: "Heavy", 4: "Elite"}
 FLAT_SHIELD = {3: 50, 4: 50}
 
 # Targets (Gun Balance.md). Body kill against 150, on guns that aren't snipers or shotguns.
-TTK_MIN, TTK_MAX = 0.5, 1.1
+TTK_MIN, TTK_MAX = 0.7, 1.4  # 2026-11-12: slower kills (was 0.5, 1.1)
 NO_ONE_SHOT_HEAD = {"Rifle", "SMG", "MachineGun", "Sidearm"}
 
 

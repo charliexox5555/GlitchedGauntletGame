@@ -1,0 +1,475 @@
+{
+ "mod": "Molly",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "thrown"
+ },
+ "parts": [
+  {
+   "name": "Body",
+   "material": "Receiver charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343942"
+   },
+   "energy": false,
+   "tris": 168,
+   "center": [
+    -0.003,
+    0.0,
+    -0.0285
+   ],
+   "size": [
+    0.354,
+    0.218,
+    0.405
+   ]
+  },
+  {
+   "name": "HeatCassette_Front",
+   "material": "Heat pack oxide",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C3592C"
+   },
+   "energy": false,
+   "tris": 76,
+   "center": [
+    -0.00189,
+    -0.1005,
+    -0.03997
+   ],
+   "size": [
+    0.24831,
+    0.009,
+    0.28272
+   ]
+  },
+  {
+   "name": "HeatStampFront1",
+   "material": "Warm indicator",
+   "look": {
+    "material": "Neon",
+    "color": "F4B053"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    -0.069,
+    -0.10545,
+    -0.1405
+   ],
+   "size": [
+    0.028,
+    0.0011,
+    0.023
+   ]
+  },
+  {
+   "name": "HeatStampFront2",
+   "material": "Warm indicator",
+   "look": {
+    "material": "Neon",
+    "color": "F4B053"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    -0.043,
+    -0.10545,
+    -0.1405
+   ],
+   "size": [
+    0.028,
+    0.0011,
+    0.023
+   ]
+  },
+  {
+   "name": "HeatCassette_Rear",
+   "material": "Heat pack oxide",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C3592C"
+   },
+   "energy": false,
+   "tris": 76,
+   "center": [
+    -0.00189,
+    0.1005,
+    -0.03997
+   ],
+   "size": [
+    0.24831,
+    0.009,
+    0.28272
+   ]
+  },
+  {
+   "name": "HeatStampRear1",
+   "material": "Warm indicator",
+   "look": {
+    "material": "Neon",
+    "color": "F4B053"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    -0.069,
+    0.10545,
+    -0.1405
+   ],
+   "size": [
+    0.028,
+    0.0011,
+    0.023
+   ]
+  },
+  {
+   "name": "HeatStampRear2",
+   "material": "Warm indicator",
+   "look": {
+    "material": "Neon",
+    "color": "F4B053"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    -0.043,
+    0.10545,
+    -0.1405
+   ],
+   "size": [
+    0.028,
+    0.0011,
+    0.023
+   ]
+  },
+  {
+   "name": "FootShoe",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 52,
+   "center": [
+    0.004,
+    0.0,
+    -0.217
+   ],
+   "size": [
+    0.342,
+    0.208,
+    0.076
+   ]
+  },
+  {
+   "name": "FuseHead",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 106,
+   "center": [
+    0.023,
+    0.0,
+    0.1775
+   ],
+   "size": [
+    0.226,
+    0.158,
+    0.061
+   ]
+  },
+  {
+   "name": "Fuse_Energy",
+   "material": "Warm indicator",
+   "look": {
+    "material": "Neon",
+    "color": "F4B053"
+   },
+   "energy": true,
+   "tris": 36,
+   "center": [
+    -0.00146,
+    -0.0725,
+    0.17894
+   ],
+   "size": [
+    0.0648,
+    0.005,
+    0.0144
+   ]
+  },
+  {
+   "name": "Lever",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 128,
+   "center": [
+    0.1565,
+    0.0,
+    0.114
+   ],
+   "size": [
+    0.131,
+    0.124,
+    0.208
+   ]
+  },
+  {
+   "name": "Pin",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 88,
+   "center": [
+    0.104,
+    -0.071,
+    0.2115
+   ],
+   "size": [
+    0.064,
+    0.02,
+    0.059
+   ]
+  },
+  {
+   "name": "PrimePad",
+   "material": "Heat pack oxide",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "C3592C"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.0005,
+    -0.004,
+    0.206
+   ],
+   "size": [
+    0.109,
+    0.098,
+    0.018
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "LeverPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.112
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.188
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.112
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.071
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.188
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinPull",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.112
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.181
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.188
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PrimePadPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.004
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.203
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PrimePadPressed",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.004
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.195
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Fuse",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.003
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.08
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.178
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 822
+}

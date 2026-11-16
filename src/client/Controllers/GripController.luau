@@ -1,16 +1,26 @@
 --!strict
--- Hands on the gun for every character this client can see (other players,
--- AI bots and test-range dummies, both in Workspace.Dummies): an IKControl puts the left hand on
--- the held gun's LeftGrip attachment (slid back along the barrel when a long
--- gun's grip is out of the arm's reach), and on each shot (ShotFx) a second
--- IKControl pulls the right forearm back with the gun so the arms take the
--- kick (Config/Animations GRIP, FIRE_KICK). Cosmetic and local: the clips
--- (Simulation/Poses) already hold the gun two-handed for the reference guns;
--- this lands the hand exactly on each gun's own grip.
+-- The support hand on the gun, for every character this client can see
+-- (other players, AI bots and test-range dummies, both in Workspace.Dummies):
+-- an IKControl puts the end of the left forearm block on the held gun's
+-- LeftGrip (slid back along the barrel when the arm can't reach it). Cosmetic
+-- and local: the hold clips (Simulation/Poses) already put both hands on the
+-- reference guns; this lands the hand on each gun's own grip.
 --
--- IK and not more clips (2026-11-04, lane D): scripted joint Transforms don't
--- stick on these AnimationConstraint rigs (the Animator overwrites them), but
--- IKControl solves after the Animator on server and client alike.
+-- The IK target is an Attachment on the RIGHT HAND, at the spot where the
+-- gun's grip sits when the gun is at rest in that hand. So the support hand
+-- follows the gun through every pose, and holds still while the gun kicks:
+-- on a shot the gun jumps between two steady hands (EffectsController moves
+-- it in the hand with a spring; Config/Juice WORLD_KICK). Until 2026-11-12
+-- the target sat on the chest and a second IKControl pulled the right arm
+-- back on every shot: that one switched on and off per shot and threw the
+-- gun and both hands up to 1.2 studs in a frame (measured), which is what
+-- read as jitter. A target on the gun itself was tried too: the solver
+-- can't keep up with a kick and the hand twitched (0.7 studs off for a
+-- frame). Nothing here moves or restarts on a shot now.
+--
+-- IK and not more clips: scripted joint Transforms don't stick on these
+-- AnimationConstraint rigs (the Animator overwrites them), but IKControl
+-- solves after the Animator.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -19,7 +29,6 @@ local Workspace = game:GetService("Workspace")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local Health = require(ReplicatedStorage.Shared.Health)
-local Net = require(ReplicatedStorage.Shared.Net)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local GripController = {}
@@ -31,21 +40,17 @@ type Rig = {
 	character: Model,
 	humanoid: Humanoid,
 	left: IKControl,
-	leftTarget: Attachment, -- on UpperTorso, moved each frame
 	leftPole: Attachment,
-	right: IKControl,
-	rightTarget: Attachment, -- on UpperTorso
-	rightRest: CFrame?, -- the hand in UpperTorso space when the kick started
+	target: Attachment?, -- on the right hand, moved along the barrel's line
 	gun: Model?,
-	handle: BasePart?,
+	hand: BasePart?, -- the right hand, which carries the gun
+	rest: CFrame, -- the gun's handle in the hand's frame, at rest (no kick)
 	probe: BasePart?, -- a visible part of the gun (the Handle itself is invisible)
-	grip: Attachment?,
-	class: string,
-	reach: number, -- longest shoulder-to-hand distance for this rig's left arm
+	base: Vector3, -- where the hand goes, in the handle's frame, before any slide
+	forward: Vector3, -- the barrel's direction, in the handle's frame
+	slide: number, -- studs the hand has slid back from `base`
+	reach: number, -- longest shoulder-to-block-end distance for this rig's left arm
 	weight: number,
-	kickAt: number,
-	kick: { back: number, rise: number, recover: number },
-	kickForward: Vector3,
 }
 
 local rigs: { [Model]: Rig } = {}
@@ -54,7 +59,7 @@ local function attributeSource(character: Model): Instance
 	return Players:GetPlayerFromCharacter(character) or character
 end
 
--- The left arm's length, shoulder to hand centre (avatars differ).
+-- The left arm's length, shoulder to the end of the forearm block.
 local function armLength(character: Model): number
 	local function at(partName: string, attName: string): Vector3?
 		local part = character:FindFirstChild(partName)
@@ -67,9 +72,9 @@ local function armLength(character: Model): number
 	local w1 = at("LeftLowerArm", "LeftWristRigAttachment")
 	local w2 = at("LeftHand", "LeftWristRigAttachment")
 	if not (s and e1 and e2 and w1 and w2) then
-		return 1.86 -- a default R15 arm
+		return 1.86 + GRIP.tip -- a default R15 arm
 	end
-	return (e1 - s).Magnitude + (w1 - e2).Magnitude + w2.Magnitude
+	return (e1 - s).Magnitude + (w1 - e2).Magnitude + w2.Magnitude + GRIP.tip
 end
 
 local function newRig(character: Model): Rig?
@@ -77,83 +82,50 @@ local function newRig(character: Model): Rig?
 	local torso = character:FindFirstChild("UpperTorso")
 	local upperL = character:FindFirstChild("LeftUpperArm")
 	local handL = character:FindFirstChild("LeftHand")
-	local upperR = character:FindFirstChild("RightUpperArm")
-	local lowerR = character:FindFirstChild("RightLowerArm")
-	local handR = character:FindFirstChild("RightHand")
 	if
 		not humanoid
 		or not (torso and torso:IsA("BasePart"))
 		or not (upperL and upperL:IsA("BasePart"))
 		or not (handL and handL:IsA("BasePart"))
-		or not (upperR and upperR:IsA("BasePart"))
-		or not (lowerR and lowerR:IsA("BasePart"))
-		or not (handR and handR:IsA("BasePart"))
 	then
 		return nil
 	end
-	-- IK targets are read against the animated (pre-IK) pose, so the left
-	-- hand's target lives on the chest and is placed where the gun will be
-	-- this frame, kick included (a target on the gun would miss the kick).
-	local leftTarget = Instance.new("Attachment")
-	leftTarget.Name = "GGLeftHold"
-	leftTarget.Parent = torso
 	local pole = Instance.new("Attachment")
 	pole.Name = "GGLeftPole"
 	pole.Position = GRIP.leftPole
 	pole.Parent = torso
 	local left = Instance.new("IKControl")
 	left.Name = "GGLeftGrip"
-	-- Position only: on the standard match body a full transform target asks
-	-- for a palm angle the arm's joint cone limits refuse (measured: the hand
-	-- stopped 0.71 studs short; position-only lands it at 0.08). The hold
-	-- clips already set the hand's angle for this body.
+	-- Position only: a full transform target asks for a palm angle the arm's
+	-- joint cone limits refuse (measured 2026-11-05: the hand stopped 0.71
+	-- studs short). The hold clips already set the hand's angle.
 	left.Type = Enum.IKControlType.Position
 	left.ChainRoot = upperL
 	left.EndEffector = handL
-	left.Target = leftTarget
-	-- The Pole matters: without it the hand settles 0.31 studs off its target
-	-- (0.10 with it, measured 2026-11-05). With a Pole an IKControl bends the
-	-- arm even at Weight 0 (LihFolk "IKControl Reference"), hence the Enabled
-	-- toggle below.
+	-- The visible forearm block ends past the hand part: that end goes to the grip.
+	left.EndEffectorOffset = CFrame.new(0, -GRIP.tip, 0)
+	-- With a Pole an IKControl bends the arm even at Weight 0 (LihFolk
+	-- "IKControl Reference"), hence the Enabled switch in stepRig.
 	left.Pole = pole
 	left.Weight = 0
-	left.Enabled = false -- (an enabled IKControl bends the arm even at Weight 0)
-	left.Priority = 1
+	left.Enabled = false
 	left.SmoothTime = 0 -- follow the gun exactly (the default 0.05 s lags it)
 	left.Parent = humanoid
-	local rightTarget = Instance.new("Attachment")
-	rightTarget.Name = "GGRightKick"
-	rightTarget.Parent = torso
-	local right = Instance.new("IKControl")
-	right.Name = "GGRightKick"
-	right.Type = Enum.IKControlType.Transform
-	right.ChainRoot = upperR -- (rooted at the forearm only the wrist turns)
-	right.EndEffector = handR
-	right.Target = rightTarget
-	right.Weight = 0
-	right.Enabled = false
-	right.Priority = 2 -- before the left hand, which follows the gun
-	right.SmoothTime = 0
-	right.Parent = humanoid
 	local rig: Rig = {
 		character = character,
 		humanoid = humanoid,
 		left = left,
-		leftTarget = leftTarget,
 		leftPole = pole,
-		right = right,
-		rightTarget = rightTarget,
-		rightRest = nil,
+		target = nil,
 		gun = nil,
-		handle = nil,
+		hand = nil,
+		rest = CFrame.identity,
 		probe = nil,
-		grip = nil,
-		class = "",
+		base = Vector3.zero,
+		forward = Vector3.new(0, 0, -1),
+		slide = 0,
 		reach = armLength(character) * GRIP.reachFraction,
 		weight = 0,
-		kickAt = -math.huge,
-		kick = Animations.FIRE_KICK.Rifle,
-		kickForward = Vector3.new(0, 0, -1),
 	}
 	character.Destroying:Once(function()
 		rigs[character] = nil
@@ -165,16 +137,24 @@ local function dropRig(character: Model)
 	local rig = rigs[character]
 	if rig then
 		rig.left:Destroy()
-		rig.right:Destroy()
-		rig.leftTarget:Destroy()
 		rig.leftPole:Destroy()
-		rig.rightTarget:Destroy()
+		if rig.target then
+			rig.target:Destroy()
+		end
 		rigs[character] = nil
 	end
 end
 
+-- Studio only: Workspace attribute DevThirdPerson (true) rigs your own
+-- character too, for looking at it from outside (tools/studio/
+-- ThirdPersonReviewRig.luau); it is first person otherwise, so its own grip
+-- is never seen.
+local function ownToo(): boolean
+	return RunService:IsStudio() and Workspace:GetAttribute("DevThirdPerson") == true
+end
+
 local function watch(character: Model)
-	if rigs[character] or character == Players.LocalPlayer.Character then
+	if rigs[character] or (character == Players.LocalPlayer.Character and not ownToo()) then
 		return
 	end
 	local rig = newRig(character)
@@ -185,7 +165,7 @@ end
 
 local function scan()
 	for _, player in Players:GetPlayers() do
-		if player ~= Players.LocalPlayer and player.Character then
+		if player.Character then
 			watch(player.Character)
 		end
 	end
@@ -204,46 +184,68 @@ local function scan()
 	end
 end
 
--- The held gun (rebuilt by WeaponService on every swap).
+-- The held gun (rebuilt by WeaponService on every swap): a new target on it.
 local function refreshGun(rig: Rig)
 	local gun = rig.character:FindFirstChild("WorldWeapon")
 	if gun == rig.gun then
 		return
 	end
 	rig.gun = if gun and gun:IsA("Model") then gun else nil
-	rig.handle = nil
+	rig.hand = nil
 	rig.probe = nil
-	rig.grip = nil
-	rig.rightRest = nil
-	rig.kickAt = -math.huge
+	rig.slide = 0
+	if rig.target then
+		rig.target:Destroy()
+		rig.target = nil
+	end
+	rig.left.Target = nil
 	if not rig.gun then
 		return
 	end
 	local handle = (rig.gun :: Model).PrimaryPart
+	local hand = rig.character:FindFirstChild("RightHand")
+	local motor = (rig.gun :: Model):FindFirstChild("WeaponGrip", true)
 	local grip = (rig.gun :: Model):FindFirstChild("LeftGrip", true)
 	local id = (rig.gun :: Model):GetAttribute("WeaponId")
 	local config = if typeof(id) == "string" then Weapons.get(id) else nil
-	rig.class = if config then config.class else ""
-	rig.kick = Animations.FIRE_KICK[rig.class] or Animations.FIRE_KICK.Rifle
-	-- Akimbo holds a gun in each hand; the knife has no grip.
-	local akimbo = rig.character:FindFirstChild("WorldWeaponLeft") ~= nil
-	if handle and grip and grip:IsA("Attachment") and not akimbo then
-		rig.handle = handle
-		rig.grip = grip
+	-- A second gun in the left hand needs no grip; the knife has none.
+	local second = rig.character:FindFirstChild("WorldWeaponLeft") ~= nil
+	if
+		not (handle and grip and grip:IsA("Attachment"))
+		or not (hand and hand:IsA("BasePart"))
+		or not (motor and motor:IsA("Motor6D"))
+		or second
+	then
+		return
 	end
+	local style = if config and config.class == "Sidearm" then GRIP.sidearm else GRIP.long
+	rig.hand = hand
+	-- (C0 alone: the joint's C1 is identity at rest, and the kick lives in C1.)
+	rig.rest = motor.C0
+	rig.base = handle.CFrame:PointToObjectSpace(grip.WorldPosition)
+		+ Vector3.new(style.side, -style.under, 0)
 	local muzzle = (rig.gun :: Model):FindFirstChild("Muzzle", true)
-	if handle and muzzle and muzzle:IsA("Attachment") then
+	rig.forward = Vector3.new(0, 0, -1)
+	if muzzle and muzzle:IsA("Attachment") then
 		local toMuzzle = handle.CFrame:PointToObjectSpace(muzzle.WorldPosition)
-		rig.kickForward = if toMuzzle.Magnitude > 0.05 then toMuzzle.Unit else Vector3.new(0, 0, -1)
+		if toMuzzle.Magnitude > 0.05 then
+			rig.forward = toMuzzle.Unit
+		end
 	end
+	local target = Instance.new("Attachment")
+	target.Name = "GGLeftHold"
+	target.Position = rig.rest:PointToWorldSpace(rig.base)
+	target.Parent = hand
+	rig.target = target
+	rig.left.Target = target
 end
 
 -- Whether the left hand belongs on the gun right now.
 local function wantsGrip(rig: Rig): boolean
-	if not rig.grip or not Health.isAlive(rig.humanoid) then
+	if not rig.target or not Health.isAlive(rig.humanoid) then
 		return false
 	end
-	-- The slide clip puts the left hand on the floor (MakeHoldAnimations SLIDE).
+	-- The slide clip puts the left hand on the floor.
 	if rig.character:GetAttribute("MoveState") == "Slide" then
 		return false
 	end
@@ -252,7 +254,7 @@ local function wantsGrip(rig: Rig): boolean
 	if typeof(held) == "number" and held ~= 0 then
 		return false
 	end
-	-- The reload clip takes the left hand to the mag.
+	-- The reload clip takes the left hand to the magazine.
 	local reloadAt = src:GetAttribute("ReloadAt")
 	local reloadFor = src:GetAttribute("ReloadFor")
 	if typeof(reloadAt) == "number" and typeof(reloadFor) == "number" then
@@ -284,62 +286,29 @@ local function wantsGrip(rig: Rig): boolean
 	return probe ~= nil
 end
 
--- Where the left hand goes: the grip (cupping the grip hand on a sidearm),
--- slid back along the barrel until the left shoulder can reach it.
-local function placeLeftTarget(rig: Rig, torso: BasePart, h: CFrame)
-	local handle = rig.handle :: BasePart
-	local grip = (rig.grip :: Attachment).WorldPosition
-	local gripAt = h:PointToWorldSpace(handle.CFrame:PointToObjectSpace(grip))
+-- How far the hand has to slide back from the grip, toward the handle, for
+-- the left arm to reach it (0 when it reaches the grip itself).
+local function slideFor(rig: Rig, hand: BasePart): number
 	local shoulder = rig.character:FindFirstChild("LeftUpperArm")
 	local shoulderAtt = shoulder and shoulder:FindFirstChild("LeftShoulderRigAttachment")
-	local style = if rig.class == "Sidearm" then GRIP.sidearm else GRIP.long
-	local base = gripAt - h.UpVector * style.under + h.RightVector * style.side
-	local target = base
-	if shoulderAtt and shoulderAtt:IsA("Attachment") then
-		local from = shoulderAtt.WorldPosition
-		local reach = rig.reach
-		local excess = (target - from).Magnitude - reach
-		if excess > 0 then
-			-- Solve |base - fwd * t - from| = reach for the smallest t >= 0.
-			local fwd = h.LookVector
-			local rel = base - from
-			local b = rel:Dot(fwd)
-			local c = rel:Dot(rel) - reach * reach
-			local disc = b * b - c
-			local t = if disc >= 0 then b - math.sqrt(disc) else b
-			target = base - fwd * math.clamp(t, 0, GRIP.maxSlide)
-		end
-	end
-	local world = CFrame.fromMatrix(target, h.LookVector:Cross(h.UpVector), h.UpVector)
-		* CFrame.Angles(0, 0, math.rad(style.palm))
-	rig.leftTarget.CFrame = torso.CFrame:ToObjectSpace(world)
-end
-
-local function kickAmount(rig: Rig, now: number): number
-	local t = now - rig.kickAt
-	if t < 0 then
+	if not (shoulderAtt and shoulderAtt:IsA("Attachment")) then
 		return 0
 	end
-	local rise = Animations.FIRE_KICK_RISE
-	if t < rise then
-		local u = t / rise
-		return 1 - (1 - u) * (1 - u) -- fast out
-	end
-	-- An underdamped spring home (LihFolk "Springs Damping and Smoothing":
-	-- zeta ~0.5, ~16% overshoot), so the gun settles with weight instead of
-	-- sliding back. Decay rate = `recover`.
-	local zeta = Animations.FIRE_KICK_DAMPING
-	local omega = rig.kick.recover / zeta
-	local wd = omega * math.sqrt(1 - zeta * zeta)
-	local s = t - rise
-	if s > 6 / rig.kick.recover then
+	-- (In the gun's frame at rest, so a kick doesn't change the answer.)
+	local from = (hand.CFrame * rig.rest):PointToObjectSpace(shoulderAtt.WorldPosition)
+	local rel = rig.base - from
+	if rel.Magnitude <= rig.reach then
 		return 0
 	end
-	return math.exp(-rig.kick.recover * s)
-		* (math.cos(wd * s) + zeta / math.sqrt(1 - zeta * zeta) * math.sin(wd * s))
+	-- Solve |base - forward * t - from| = reach for the smallest t >= 0.
+	local b = rel:Dot(rig.forward)
+	local c = rel:Dot(rel) - rig.reach * rig.reach
+	local disc = b * b - c
+	local t = if disc >= 0 then b - math.sqrt(disc) else b
+	return math.clamp(t, 0, GRIP.maxSlide)
 end
 
-local function stepRig(rig: Rig, dt: number, now: number, camPos: Vector3)
+local function stepRig(rig: Rig, dt: number, camPos: Vector3)
 	local root = rig.character:FindFirstChild("HumanoidRootPart")
 	if not root or not root:IsA("BasePart") then
 		return
@@ -352,70 +321,19 @@ local function stepRig(rig: Rig, dt: number, now: number, camPos: Vector3)
 	if rig.weight < 0.01 and want == 0 then
 		rig.weight = 0
 	end
-
-	-- The kick: the right hand pulled back along the barrel and the muzzle
-	-- flipped up, in UpperTorso space so the body's pose still carries it.
-	local upper = rig.character:FindFirstChild("UpperTorso")
-	local hand = rig.character:FindFirstChild("RightHand")
-	local handle = rig.handle
-	if
-		not (upper and upper:IsA("BasePart"))
-		or not (hand and hand:IsA("BasePart"))
-		or not handle
-	then
-		rig.left.Enabled = false
-		rig.right.Enabled = false
-		return
-	end
-	local k = if far then 0 else kickAmount(rig, now)
-	local handNow = hand.CFrame
-	if math.abs(k) < 0.01 then
-		rig.right.Enabled = false
-		rig.rightRest = nil
-	else
-		if not rig.rightRest then
-			rig.rightRest = upper.CFrame:ToObjectSpace(hand.CFrame)
-		end
-		local rest = upper.CFrame * (rig.rightRest :: CFrame)
-		local back = handle.CFrame:VectorToWorldSpace(-rig.kickForward) * rig.kick.back * k
-		local axis = handle.CFrame:VectorToWorldSpace(rig.kickForward):Cross(Vector3.yAxis)
-		local flip = if axis.Magnitude > 1e-3
-			then CFrame.fromAxisAngle(axis.Unit, math.rad(rig.kick.rise) * k)
-			else CFrame.identity
-		handNow = CFrame.new(rest.Position + back) * flip * rest.Rotation
-		rig.rightTarget.CFrame = upper.CFrame:ToObjectSpace(handNow)
-		rig.right.Weight = 1
-		-- (Enabled only once the target is placed, so the first frame can't
-		-- reach for the attachment's old spot.)
-		rig.right.Enabled = true
-	end
-
-	-- The left hand follows the gun where the right hand puts it this frame.
-	if rig.weight > 0 then
-		placeLeftTarget(rig, upper, handNow * hand.CFrame:ToObjectSpace(handle.CFrame))
+	local hand, target = rig.hand, rig.target
+	if hand and target and rig.weight > 0 then
+		-- Eased, so the hand glides along the barrel as the aim or the body
+		-- changes what it can reach.
+		local slide = slideFor(rig, hand)
+		rig.slide += (slide - rig.slide) * (1 - math.exp(-GRIP.slideSmoothing * dt))
+		target.Position = rig.rest:PointToWorldSpace(rig.base - rig.forward * rig.slide)
 	end
 	rig.left.Weight = rig.weight
-	rig.left.Enabled = rig.weight > 0
-end
-
-local function onShotFx(shooter: unknown, weaponId: unknown)
-	if typeof(shooter) ~= "Instance" or typeof(weaponId) ~= "string" then
-		return
-	end
-	local character: Instance? = if shooter:IsA("Player") then shooter.Character else shooter
-	local rig = if character and character:IsA("Model") then rigs[character] else nil
-	if not rig then
-		return
-	end
-	local config = Weapons.get(weaponId)
-	if not config or config.fireMode == "Melee" then
-		return
-	end
-	rig.kickAt = os.clock()
+	rig.left.Enabled = rig.weight > 0 and target ~= nil
 end
 
 function GripController.start()
-	Net.unreliable("ShotFx").OnClientEvent:Connect(onShotFx)
 	task.spawn(function()
 		while true do
 			scan()
@@ -427,10 +345,9 @@ function GripController.start()
 		if not cam then
 			return
 		end
-		local now = os.clock()
 		local camPos = cam.CFrame.Position
 		for _, rig in rigs do
-			stepRig(rig, dt, now, camPos)
+			stepRig(rig, dt, camPos)
 		end
 	end)
 end

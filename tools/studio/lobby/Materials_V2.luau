@@ -7,10 +7,28 @@ assert(game.PlaceId == 133387545285290, "not the Lobby")
 local MaterialService = game:GetService("MaterialService")
 
 local VARIANTS = {
-	Bunker_Concrete = { Enum.Material.Concrete, 16, "104737392584669", "93691597282176", "95184551126688" },
+	Bunker_Concrete = {
+		Enum.Material.Concrete,
+		16,
+		"104737392584669",
+		"93691597282176",
+		"95184551126688",
+	},
 	Bunker_Floor = { Enum.Material.Slate, 16, "73383285439881", "99655568297239", "99239709018479" },
-	Bunker_Metal = { Enum.Material.Metal, 8, "108704579785681", "123918256871933", "132089430474107" },
-	Bunker_Grate = { Enum.Material.DiamondPlate, 4, "119119110235077", "128288039114085", "132404926483451" },
+	Bunker_Metal = {
+		Enum.Material.Metal,
+		8,
+		"108704579785681",
+		"123918256871933",
+		"132089430474107",
+	},
+	Bunker_Grate = {
+		Enum.Material.DiamondPlate,
+		4,
+		"119119110235077",
+		"128288039114085",
+		"132404926483451",
+	},
 }
 
 for name, v in VARIANTS do

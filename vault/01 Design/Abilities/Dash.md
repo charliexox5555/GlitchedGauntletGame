@@ -11,7 +11,7 @@
 |---|---|
 | Activation | **Instant on press** (mobile-friendly) |
 | Direction | The way you're moving (WASD / joystick); **forward** if standing still |
-| Distance / speed | **Keep current:** 12 studs in 0.15 s. Retune once maps exist |
+| Distance / speed | **Now 16 studs in 0.15 s (was 12)**, pending the owner's feel check. Retune once maps exist |
 | Mid-air | **Yes**, works in the air |
 | Speed after | Ends at **sprint speed** (keep current `exitSpeed` 22) |
 | Walls | Stops at walls (keep current) |
@@ -75,16 +75,16 @@ Path names: **A Long Dash** (was "Distance": "Dash · Long Dash" reads as what i
 
 | Level | Card text |
 |---|---|
-| L1 | Dash 12 studs in your move direction |
-| A2 Long Dash | Dash 18 studs instead of 12, just as fast |
-| A3 Long Dash | Dash 24 studs, just as fast, and 2 charges |
+| L1 | Dash 16 studs in your move direction (was 12) |
+| A2 Long Dash | Dash 22 studs instead of 16, just as fast (was 18) |
+| A3 Long Dash | Dash 28 studs, just as fast, and 2 charges (was 24) |
 | B2 Ghost | Bullets pass through you for 0.35 s from the press |
 | B3 Ghost | Vanish for 1 s after a dash (a shimmer up close), 2 charges |
 | G2 Desync ⚡ | Leave a decoy that keeps running for 1.5 s; no shots for 0.3 s |
 | G3 Desync ⚡ | The decoy fires fake shots, and you vanish while it runs |
 
 ### What each level does
-- **A2 / A3 Long Dash:** numbers only. 18 / 24 studs in the same 0.15 s (120 / 160 studs/s); A3 has 2 charges. Exit speed is still capped at `exitSpeed` 22.
+- **A2 / A3 Long Dash:** numbers only. 22 / 28 studs in the same 0.15 s, about 147 / 187 studs/s (was 18 / 24 studs, 120 / 160 studs/s); A3 has 2 charges. Exit speed is still capped at `exitSpeed` 22.
 - **B2 Ghost:** for `dodgeWindow` 0.35 s from the press, **every hit on you is blocked** (guns and ability damage alike; the shooter gets the BLOCKED marker from `HitConfirm.blocked`). Everyone sees you half see-through (`ghostAlpha` 0.55, a fast shimmer) with team-tinted ForceField afterimages peeling off behind you; you get a pale screen wash.
 - **B3 Ghost:** B2, plus **nearly invisible** from the dash until `cloakAfter` 1 s after it ends (it fades in over the dash, off over the last 0.15 s), 2 charges. Enemies further than `cloakShimmer` 10 studs see you at `cloakAlpha` 0.95 (5% visible), closer ones a flickering shimmer around `cloakShimmerAlpha` 0.75; your team sees you half see-through (`cloakAllyAlpha`). Your name tag is hidden from enemies while cloaked. A Recon reveal still shows: a revealed dasher is never more than 60% see-through, so the outline always draws. You get a cold, washed-out screen tint.
 - **G2 Desync ⚡:** the dash leaves a **decoy** at the spot you pressed: a copy of your character (same avatar, gun, name tag) that keeps running the way you were already going (your facing from a standstill) at your old speed (16–22 studs/s), with your run clip and gun pose (the sprint carry above walking speed). It follows the ground, falls off ledges, stops at walls, and after `decoyTime` 1.5 s freezes mid-stride and glitches out in magenta static. Nothing hits it (no hit marker). There's no wind trail on a Desync dash, and the split point gets the same magenta static, so the trail can't tell enemies which one is you. Drawback: no shots for `fireDelay` 0.3 s after the dash.

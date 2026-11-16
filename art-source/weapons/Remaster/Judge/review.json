@@ -1,0 +1,99 @@
+{
+  "gun": "Judge",
+  "tris": 3480,
+  "budget": 5000,
+  "sight": "rib",
+  "round": "Shell",
+  "clips": {
+    "Fire": {
+      "frames": 12,
+      "bones": [
+        "Bolt",
+        "ChargingHandle",
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 12
+    },
+    "Reload": {
+      "frames": 76,
+      "bones": [
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 76
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 97
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "FireSelector",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.2118,
+  "old_bounds": [
+    [
+      -1.0198999643325806,
+      2.117300033569336
+    ],
+    [
+      -0.3453291058540344,
+      0.3453291058540344
+    ],
+    [
+      -0.3360291123390198,
+      0.7626000046730042
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Mag",
+    "ChargingHandle",
+    "Bolt",
+    "Trigger",
+    "FireSelector",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "Eject",
+    "CharmPoint",
+    "AimPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "broad high receiver / longitudinal drum / short rib"
+}

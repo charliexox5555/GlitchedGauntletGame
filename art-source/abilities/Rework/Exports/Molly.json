@@ -1,0 +1,695 @@
+{
+ "mod": "Molly",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "thrown"
+ },
+ "parts": [
+  {
+   "name": "PanelSeat_Front",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282E"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    -0.00988,
+    -0.13993,
+    -0.07826
+   ],
+   "size": [
+    0.26312,
+    0.03234,
+    0.17992
+   ]
+  },
+  {
+   "name": "HeatMark_Front1",
+   "material": "Heat marks",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E5AC72"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    -0.08762,
+    -0.15262,
+    -0.12532
+   ],
+   "size": [
+    0.02652,
+    0.00415,
+    0.02236
+   ]
+  },
+  {
+   "name": "HeatMark_Front2",
+   "material": "Heat marks",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E5AC72"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    -0.0663,
+    -0.15262,
+    -0.12532
+   ],
+   "size": [
+    0.02652,
+    0.00415,
+    0.02236
+   ]
+  },
+  {
+   "name": "PanelSeat_Back",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282E"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    -0.00988,
+    0.13993,
+    -0.07826
+   ],
+   "size": [
+    0.26312,
+    0.03234,
+    0.17992
+   ]
+  },
+  {
+   "name": "HeatMark_Back1",
+   "material": "Heat marks",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E5AC72"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    -0.08762,
+    0.15262,
+    -0.12532
+   ],
+   "size": [
+    0.02652,
+    0.00415,
+    0.02236
+   ]
+  },
+  {
+   "name": "HeatMark_Back2",
+   "material": "Heat marks",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "E5AC72"
+   },
+   "energy": false,
+   "tris": 12,
+   "center": [
+    -0.0663,
+    0.15262,
+    -0.12532
+   ],
+   "size": [
+    0.02652,
+    0.00415,
+    0.02236
+   ]
+  },
+  {
+   "name": "PrimePad",
+   "material": "Burnt orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D7682C"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.00845,
+    0.0,
+    0.22854
+   ],
+   "size": [
+    0.1261,
+    0.1118,
+    0.02392
+   ]
+  },
+  {
+   "name": "IndicatorBezel_Front",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282E"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    -0.00572,
+    -0.08846,
+    0.1092
+   ],
+   "size": [
+    0.1118,
+    0.0154,
+    0.02548
+   ]
+  },
+  {
+   "name": "Fuse_Energy",
+   "material": "Amber indicator",
+   "look": {
+    "material": "Neon",
+    "color": "FFB24B"
+   },
+   "energy": true,
+   "tris": 20,
+   "center": [
+    -0.0052,
+    -0.09192,
+    0.10933
+   ],
+   "size": [
+    0.09464,
+    0.00941,
+    0.01586
+   ]
+  },
+  {
+   "name": "IndicatorBezel_Back",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282E"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    -0.00572,
+    0.08846,
+    0.1092
+   ],
+   "size": [
+    0.1118,
+    0.0154,
+    0.02548
+   ]
+  },
+  {
+   "name": "IndicatorBack_Energy",
+   "material": "Amber indicator",
+   "look": {
+    "material": "Neon",
+    "color": "FFB24B"
+   },
+   "energy": true,
+   "tris": 20,
+   "center": [
+    -0.0052,
+    0.09192,
+    0.10933
+   ],
+   "size": [
+    0.09464,
+    0.00941,
+    0.01586
+   ]
+  },
+  {
+   "name": "Lever",
+   "material": "Charcoal shell",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383A40"
+   },
+   "energy": false,
+   "tris": 56,
+   "center": [
+    0.15379,
+    -0.00455,
+    0.09815
+   ],
+   "size": [
+    0.19422,
+    0.11466,
+    0.24362
+   ]
+  },
+  {
+   "name": "Pin",
+   "material": "Graphite shoulder",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "535860"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.08086,
+    -0.07423,
+    0.18564
+   ],
+   "size": [
+    0.05285,
+    0.02522,
+    0.05285
+   ]
+  },
+  {
+   "name": "Body_Recess",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282E"
+   },
+   "energy": false,
+   "tris": 54,
+   "center": [
+    -0.0013,
+    0.0,
+    -0.09841
+   ],
+   "size": [
+    0.3926,
+    0.3068,
+    0.30238
+   ]
+  },
+  {
+   "name": "Body_Charcoal shell",
+   "material": "Charcoal shell",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383A40"
+   },
+   "energy": false,
+   "tris": 54,
+   "center": [
+    -0.0013,
+    0.0,
+    -0.07215
+   ],
+   "size": [
+    0.3926,
+    0.3068,
+    0.3211
+   ]
+  },
+  {
+   "name": "Band_Charcoal shell",
+   "material": "Charcoal shell",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383A40"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.013,
+    0.0,
+    0.05993
+   ],
+   "size": [
+    0.34372,
+    0.26936,
+    0.08294
+   ]
+  },
+  {
+   "name": "Band_Graphite shoulder",
+   "material": "Graphite shoulder",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "535860"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.013,
+    0.0,
+    0.05174
+   ],
+   "size": [
+    0.34372,
+    0.26936,
+    0.01716
+   ]
+  },
+  {
+   "name": "HeatPanel_Front_Burnt orange",
+   "material": "Burnt orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D7682C"
+   },
+   "energy": false,
+   "tris": 6,
+   "center": [
+    -0.01027,
+    -0.14537,
+    -0.07813
+   ],
+   "size": [
+    0.23946,
+    0.0242,
+    0.16042
+   ]
+  },
+  {
+   "name": "HeatPanel_Front_Oxide orange",
+   "material": "Oxide orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9E4525"
+   },
+   "energy": false,
+   "tris": 22,
+   "center": [
+    -0.01027,
+    -0.14355,
+    -0.07813
+   ],
+   "size": [
+    0.23946,
+    0.02784,
+    0.16042
+   ]
+  },
+  {
+   "name": "HeatPanel_Back_Burnt orange",
+   "material": "Burnt orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D7682C"
+   },
+   "energy": false,
+   "tris": 6,
+   "center": [
+    -0.01027,
+    0.14537,
+    -0.07813
+   ],
+   "size": [
+    0.23946,
+    0.0242,
+    0.16042
+   ]
+  },
+  {
+   "name": "HeatPanel_Back_Oxide orange",
+   "material": "Oxide orange",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "9E4525"
+   },
+   "energy": false,
+   "tris": 22,
+   "center": [
+    -0.01027,
+    0.14355,
+    -0.07813
+   ],
+   "size": [
+    0.23946,
+    0.02784,
+    0.16042
+   ]
+  },
+  {
+   "name": "FuseHead_Charcoal shell",
+   "material": "Charcoal shell",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "383A40"
+   },
+   "energy": false,
+   "tris": 54,
+   "center": [
+    -0.00429,
+    0.0,
+    0.14781
+   ],
+   "size": [
+    0.2093,
+    0.18044,
+    0.10634
+   ]
+  },
+  {
+   "name": "FuseHead_Recess",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "26282E"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    -0.00377,
+    0.0,
+    0.13793
+   ],
+   "size": [
+    0.14118,
+    0.12948,
+    0.01066
+   ]
+  },
+  {
+   "name": "FuseHead_Graphite shoulder",
+   "material": "Graphite shoulder",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "535860"
+   },
+   "energy": false,
+   "tris": 38,
+   "center": [
+    -0.00533,
+    0.0,
+    0.16692
+   ],
+   "size": [
+    0.18226,
+    0.1612,
+    0.10348
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Fuse",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.0052
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.0949
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.11128
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "LeverPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.08086
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.18564
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.08086
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.0702
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.18564
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinPull",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.08086
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.1802
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.18564
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PrimePadPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.01001
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.22897
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PrimePadPressed",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.01001
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.22097
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 676
+}

@@ -1,0 +1,702 @@
+{
+ "mod": "Recon",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "handheld"
+ },
+ "parts": [
+  {
+   "name": "Receiver",
+   "material": "Receiver charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343942"
+   },
+   "energy": false,
+   "tris": 254,
+   "center": [
+    0.033,
+    0.0,
+    0.004
+   ],
+   "size": [
+    0.346,
+    0.138,
+    0.506
+   ]
+  },
+  {
+   "name": "LowerInsert_Left",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.07336,
+    0.062,
+    -0.19549
+   ],
+   "size": [
+    0.14973,
+    0.006,
+    0.04743
+   ]
+  },
+  {
+   "name": "UpperInsert_Left",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.0697,
+    0.061,
+    0.19607
+   ],
+   "size": [
+    0.17391,
+    0.008,
+    0.04836
+   ]
+  },
+  {
+   "name": "LowerInsert_Right",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.07336,
+    -0.062,
+    -0.19549
+   ],
+   "size": [
+    0.14973,
+    0.006,
+    0.04743
+   ]
+  },
+  {
+   "name": "UpperInsert_Right",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.0697,
+    -0.061,
+    0.19607
+   ],
+   "size": [
+    0.17391,
+    0.008,
+    0.04836
+   ]
+  },
+  {
+   "name": "Charge_Energy",
+   "material": "Recon indicator",
+   "look": {
+    "material": "Neon",
+    "color": "4AA7DD"
+   },
+   "energy": true,
+   "tris": 44,
+   "center": [
+    0.0405,
+    -0.0655,
+    0.2045
+   ],
+   "size": [
+    0.095,
+    0.005,
+    0.015
+   ]
+  },
+  {
+   "name": "Bounce1_Energy",
+   "material": "Recon indicator",
+   "look": {
+    "material": "Neon",
+    "color": "4AA7DD"
+   },
+   "energy": true,
+   "tris": 36,
+   "center": [
+    0.054,
+    -0.0655,
+    -0.197
+   ],
+   "size": [
+    0.032,
+    0.005,
+    0.018
+   ]
+  },
+  {
+   "name": "Bounce2_Energy",
+   "material": "Recon indicator",
+   "look": {
+    "material": "Neon",
+    "color": "4AA7DD"
+   },
+   "energy": true,
+   "tris": 36,
+   "center": [
+    0.106,
+    -0.0655,
+    -0.197
+   ],
+   "size": [
+    0.032,
+    0.005,
+    0.018
+   ]
+  },
+  {
+   "name": "Grip",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 144,
+   "center": [
+    -0.003,
+    0.0,
+    -0.011
+   ],
+   "size": [
+    0.174,
+    0.168,
+    0.244
+   ]
+  },
+  {
+   "name": "UpperLimb",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 140,
+   "center": [
+    0.007,
+    0.0,
+    0.405
+   ],
+   "size": [
+    0.418,
+    0.068,
+    0.374
+   ]
+  },
+  {
+   "name": "UpperStringTip",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.1625,
+    -0.028,
+    0.559
+   ],
+   "size": [
+    0.087,
+    0.102,
+    0.048
+   ]
+  },
+  {
+   "name": "UpperLimbPlate",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.141,
+    -0.0385,
+    0.2585
+   ],
+   "size": [
+    0.094,
+    0.009,
+    0.057
+   ]
+  },
+  {
+   "name": "UpperPivotPin",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.132,
+    -0.047,
+    0.243
+   ],
+   "size": [
+    0.02425,
+    0.006,
+    0.028
+   ]
+  },
+  {
+   "name": "StringUpperSegment",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    -0.1755,
+    -0.092,
+    0.331
+   ],
+   "size": [
+    0.01189,
+    0.04488,
+    0.47452
+   ]
+  },
+  {
+   "name": "LowerLimb",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 140,
+   "center": [
+    0.007,
+    0.0,
+    -0.3888
+   ],
+   "size": [
+    0.418,
+    0.068,
+    0.35904
+   ]
+  },
+  {
+   "name": "LowerStringTip",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.1625,
+    -0.028,
+    -0.53664
+   ],
+   "size": [
+    0.087,
+    0.102,
+    0.04608
+   ]
+  },
+  {
+   "name": "LowerLimbPlate",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.141,
+    -0.0385,
+    -0.24816
+   ],
+   "size": [
+    0.094,
+    0.009,
+    0.05472
+   ]
+  },
+  {
+   "name": "LowerPivotPin",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.132,
+    -0.047,
+    -0.243
+   ],
+   "size": [
+    0.02425,
+    0.006,
+    0.028
+   ]
+  },
+  {
+   "name": "StringLowerSegment",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    -0.1755,
+    -0.092,
+    -0.22564
+   ],
+   "size": [
+    0.0119,
+    0.04488,
+    0.63966
+   ]
+  },
+  {
+   "name": "BoltRest",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 36,
+   "center": [
+    0.143,
+    -0.097,
+    0.0725
+   ],
+   "size": [
+    0.094,
+    0.07,
+    0.021
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "LimbUpperPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.132
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.213
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "StringUpper",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.173
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.073
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.568
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "LimbLowerPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.132
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     -0.213
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "StringLower",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.173
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.073
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     -0.54528
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "LeftGrip",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.006
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     -0.017
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "StringNock",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.178
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.111
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.094
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "StringNockDrawn",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.467
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.111
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.094
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "BoltTipHeld",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.662
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.111
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.094
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Muzzle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.198
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.111
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.094
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 1326
+}

@@ -13,14 +13,26 @@ type Face = { n: Vector3, d: number, pts: { Vector3 } }
 local function faces(p: BasePart): { Face }
 	local cf, s = p.CFrame, p.Size / 2
 	local out = {}
-	for _, ax in { { cf.RightVector, s.X, cf.UpVector, s.Y, cf.LookVector, s.Z }, { cf.UpVector, s.Y, cf.RightVector, s.X, cf.LookVector, s.Z }, { cf.LookVector, s.Z, cf.RightVector, s.X, cf.UpVector, s.Y } } do
-		local n: Vector3, h: number, u: Vector3, hu: number, v: Vector3, hv: number = ax[1], ax[2], ax[3], ax[4], ax[5], ax[6]
+	for _, ax in
+		{
+			{ cf.RightVector, s.X, cf.UpVector, s.Y, cf.LookVector, s.Z },
+			{ cf.UpVector, s.Y, cf.RightVector, s.X, cf.LookVector, s.Z },
+			{ cf.LookVector, s.Z, cf.RightVector, s.X, cf.UpVector, s.Y },
+		}
+	do
+		local n: Vector3, h: number, u: Vector3, hu: number, v: Vector3, hv: number =
+			ax[1], ax[2], ax[3], ax[4], ax[5], ax[6]
 		for _, sgn in { 1, -1 } do
 			local c = cf.Position + n * h * sgn
 			table.insert(out, {
 				n = n * sgn,
 				d = (n * sgn):Dot(c),
-				pts = { c + u * hu + v * hv, c - u * hu + v * hv, c - u * hu - v * hv, c + u * hu - v * hv },
+				pts = {
+					c + u * hu + v * hv,
+					c - u * hu + v * hv,
+					c - u * hu - v * hv,
+					c + u * hu - v * hv,
+				},
 			})
 		end
 	end
@@ -85,9 +97,15 @@ local boxes: { { Vector3 } } = {}
 for i, p in parts do
 	local cf, s = p.CFrame, p.Size / 2
 	local ext = Vector3.new(
-		math.abs(cf.RightVector.X) * s.X + math.abs(cf.UpVector.X) * s.Y + math.abs(cf.LookVector.X) * s.Z,
-		math.abs(cf.RightVector.Y) * s.X + math.abs(cf.UpVector.Y) * s.Y + math.abs(cf.LookVector.Y) * s.Z,
-		math.abs(cf.RightVector.Z) * s.X + math.abs(cf.UpVector.Z) * s.Y + math.abs(cf.LookVector.Z) * s.Z
+		math.abs(cf.RightVector.X) * s.X
+			+ math.abs(cf.UpVector.X) * s.Y
+			+ math.abs(cf.LookVector.X) * s.Z,
+		math.abs(cf.RightVector.Y) * s.X
+			+ math.abs(cf.UpVector.Y) * s.Y
+			+ math.abs(cf.LookVector.Y) * s.Z,
+		math.abs(cf.RightVector.Z) * s.X
+			+ math.abs(cf.UpVector.Z) * s.Y
+			+ math.abs(cf.LookVector.Z) * s.Z
 	)
 	local lo, hi = cf.Position - ext - Vector3.one * EPS, cf.Position + ext + Vector3.one * EPS
 	boxes[i] = { lo, hi }
@@ -114,16 +132,28 @@ for _, list in grid do
 				seen[key] = true
 				local A, B = parts[i], parts[j]
 				local ba, bb = boxes[i], boxes[j]
-				local touch = ba[1].X <= bb[2].X and bb[1].X <= ba[2].X and ba[1].Y <= bb[2].Y and bb[1].Y <= ba[2].Y and ba[1].Z <= bb[2].Z and bb[1].Z <= ba[2].Z
-				local sameModel = A:FindFirstAncestorOfClass("Model") ~= nil and A:FindFirstAncestorOfClass("Model") == B:FindFirstAncestorOfClass("Model")
+				local touch = ba[1].X <= bb[2].X
+					and bb[1].X <= ba[2].X
+					and ba[1].Y <= bb[2].Y
+					and bb[1].Y <= ba[2].Y
+					and ba[1].Z <= bb[2].Z
+					and bb[1].Z <= ba[2].Z
+				local sameModel = A:FindFirstAncestorOfClass("Model") ~= nil
+					and A:FindFirstAncestorOfClass("Model")
+						== B:FindFirstAncestorOfClass("Model")
 				if touch and not sameModel then
 					faceCache[i] = faceCache[i] or faces(A)
 					faceCache[j] = faceCache[j] or faces(B)
 					for _, fa in faceCache[i] do
 						for _, fb in faceCache[j] do
 							-- Bottoms at floor level (buried) and roof tops above the ceilings are never seen.
-							local hidden = (fa.n.Y < -0.99 and fa.pts[1].Y < 3) or (fa.n.Y > 0.99 and fa.pts[1].Y > 21.5)
-							if not hidden and fa.n:Dot(fb.n) > 0.999 and math.abs(fa.d - fb.d) < EPS then
+							local hidden = (fa.n.Y < -0.99 and fa.pts[1].Y < 3)
+								or (fa.n.Y > 0.99 and fa.pts[1].Y > 21.5)
+							if
+								not hidden
+								and fa.n:Dot(fb.n) > 0.999
+								and math.abs(fa.d - fb.d) < EPS
+							then
 								local u = (fa.pts[1] - fa.pts[2]).Unit
 								local v = fa.n:Cross(u)
 								local function to2(list2: { Vector3 }): { Vector2 }
@@ -136,7 +166,10 @@ for _, list in grid do
 								local poly = clip(to2(fb.pts), to2(fa.pts))
 								local ar = if #poly >= 3 then area2(poly) else 0
 								if ar > MIN_AREA then
-									table.insert(findings, { ar, A:GetFullName(), B:GetFullName(), fa.n })
+									table.insert(
+										findings,
+										{ ar, A:GetFullName(), B:GetFullName(), fa.n }
+									)
 								end
 							end
 						end
@@ -152,6 +185,14 @@ end)
 local out = { ("parts %d, z-fight candidates %d"):format(#parts, #findings) }
 for k = 1, math.min(40, #findings) do
 	local f = findings[k]
-	table.insert(out, ("%.2f  %s  |  %s  n=%s"):format(f[1], string.gsub(f[2], "Workspace.Lobby.Hub.", ""), string.gsub(f[3], "Workspace.Lobby.Hub.", ""), tostring(f[4])))
+	table.insert(
+		out,
+		("%.2f  %s  |  %s  n=%s"):format(
+			f[1],
+			string.gsub(f[2], "Workspace.Lobby.Hub.", ""),
+			string.gsub(f[3], "Workspace.Lobby.Hub.", ""),
+			tostring(f[4])
+		)
+	)
 end
 return table.concat(out, "\n")

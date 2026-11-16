@@ -2,9 +2,14 @@
 #
 #   blender --background --factory-startup --python tools/blender/make_arm_mesh.py
 #
-# Writes art-source/viewmodel/Arms.fbx with two meshes, ArmRight and ArmLeft:
-# one long block per arm (1 x LENGTH x 1 studs, R6 cross-section) with softly
-# bevelled edges and smooth shading. UVs map each side onto that arm's region
+# Writes art-source/viewmodel/Arms.fbx with four meshes. ArmRight and ArmLeft:
+# one long block per arm (1 x LENGTH x 1 studs, R6 cross-section) with small
+# bevelled edges and smooth shading (2026-11-12, owner: RIVALS' arm is "a
+# sturdy block", ours read "a little curved": the bevel went 0.16 x 5
+# segments → 0.035 x 1, like the reference). ArmRightOutline and ArmLeftOutline: the same blocks
+# with their faces turned inside out; drawn a hair larger in black behind the
+# arm they show only as a thin dark rim (the owner's "very, very slight black
+# outline"). UVs map each side onto that arm's region
 # of the classic Roblox shirt template (585 x 559), so the game can lay the
 # player's Shirt over the skin-coloured block. The template's 128 px arm
 # height covers the TEMPLATE_SPAN studs nearest the hand (R6: 2 studs); the
@@ -23,8 +28,10 @@ OUT = os.path.join(ROOT, "art-source", "viewmodel", "Arms.fbx")
 
 LENGTH = 5.0
 TEMPLATE_SPAN = 2.0
-BEVEL = 0.16
-BEVEL_SEGMENTS = 5
+# RIVALS reference (owner's screenshots, 2026-11-12): a sharp, flat-shaded
+# block. One small chamfer so the edges catch a highlight, flat faces.
+BEVEL = 0.035
+BEVEL_SEGMENTS = 1
 SIZE = (585.0, 559.0)
 
 # Template regions (top-left px) of each arm face on the classic shirt template
@@ -70,7 +77,7 @@ def uv_for(key, p, regions):
 	return (px / SIZE[0], 1 - py / SIZE[1])
 
 
-def make(name):
+def make(name, outline=False):
 	bm = bmesh.new()
 	bmesh.ops.create_cube(bm, size=1.0)
 	for v in bm.verts:
@@ -91,12 +98,17 @@ def make(name):
 		clamp_overlap=True,
 	)
 	bmesh.ops.triangulate(bm, faces=bm.faces[:])
+	if outline:
+		# Inside out: from outside only the far faces draw, as a rim.
+		bmesh.ops.reverse_faces(bm, faces=bm.faces[:])
 	uv = bm.loops.layers.uv.new("UVMap")
 	regions = FACES[name]
 	for f in bm.faces:
 		key = face_key(f.normal)
 		for loop in f.loops:
 			loop[uv].uv = uv_for(key, to_roblox(loop.vert.co), regions)
+	if outline:
+		name += "Outline"
 	mesh = bpy.data.meshes.new(name)
 	bm.to_mesh(mesh)
 	bm.free()
@@ -112,7 +124,7 @@ def make(name):
 
 def main():
 	bpy.ops.wm.read_factory_settings(use_empty=True)
-	objs = [make(n) for n in FACES]
+	objs = [make(n) for n in FACES] + [make(n, True) for n in FACES]
 	bpy.ops.object.select_all(action="DESELECT")
 	for o in objs:
 		o.select_set(True)

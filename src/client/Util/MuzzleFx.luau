@@ -28,6 +28,10 @@ local SMOKE = Color3.fromHex("C9C7C2")
 local PUFF = Color3.fromHex("EEEDEA") -- suppressed / muzzle-device puff: light, reads on grey floors
 
 local LIGHT_TIME = 0.05
+-- The flash sprites' Brightness: over 1 so they hold their colour against a
+-- bright floor or sky, under the place's Bloom threshold (2) so a spray
+-- doesn't white the view out.
+local FLASH_BRIGHTNESS = 1.7
 -- First-person flashes are this much smaller again than the viewmodel's scale
 -- (the gun sits right in front of the camera).
 local FP_FLASH = 0.75
@@ -150,9 +154,12 @@ local function buildRig(
 		fire(front)
 		flipbook(front)
 		front.LockedToPart = true
-		front.Lifetime = NumberRange.new(0.035, 0.05)
-		front.Size = curve({ 0, 0.5 * s, 1, 0.72 * s })
-		front.Transparency = curve({ 0, 0.05, 0.5, 0.25, 1, 1 })
+		-- 2026-11-10: the stylised sheet; a touch bigger, brighter and a frame
+		-- longer than the old one, which washed out over bright floors.
+		front.Brightness = FLASH_BRIGHTNESS
+		front.Lifetime = NumberRange.new(0.045, 0.06)
+		front.Size = curve({ 0, 0.6 * s, 0.35, 0.95 * s, 1, 0.8 * s })
+		front.Transparency = curve({ 0, 0, 0.55, 0.15, 1, 1 })
 		front.ZOffset = 0.15 * s
 
 		local c = emitter(holder, VFX.GLOW, FIRE)
@@ -185,9 +192,10 @@ local function buildRig(
 		e.EmissionDirection = Enum.NormalId.Front
 		e.Speed = NumberRange.new(0.01)
 		e.Rotation = NumberRange.new(0)
-		e.Lifetime = NumberRange.new(0.035, 0.05)
-		e.Size = curve({ 0, sideSize * 0.8, 1, sideSize })
-		e.Transparency = curve({ 0, 0, 0.5, 0.2, 1, 1 })
+		e.Brightness = FLASH_BRIGHTNESS
+		e.Lifetime = NumberRange.new(0.045, 0.06)
+		e.Size = curve({ 0, sideSize * 0.75, 0.4, sideSize * 1.1, 1, sideSize })
+		e.Transparency = curve({ 0, 0, 0.55, 0.15, 1, 1 })
 		side = e
 
 		local em = Kit.sparkEmitter(holder, 0.07 * s)

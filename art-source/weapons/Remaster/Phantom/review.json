@@ -1,0 +1,98 @@
+{
+  "gun": "Phantom",
+  "tris": 3344,
+  "budget": 5000,
+  "sight": "holo",
+  "round": "Rifle",
+  "clips": {
+    "Fire": {
+      "frames": 12,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 12
+    },
+    "Reload": {
+      "frames": 72,
+      "bones": [
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 72
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 97
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "FireSelector",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.17,
+  "old_bounds": [
+    [
+      -1.097599983215332,
+      2.5023999214172363
+    ],
+    [
+      -0.08063999563455582,
+      0.10527999699115753
+    ],
+    [
+      -0.313252329826355,
+      0.6292267441749573
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Mag",
+    "ChargingHandle",
+    "Bolt",
+    "Trigger",
+    "FireSelector",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "Eject",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "integral faceted suppressor / floating cheek comb"
+}

@@ -1,0 +1,175 @@
+{
+  "line": "Oilwake",
+  "gun": "Outlaw",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Outlaw/Outlaw_RemasterV2_v05.blend",
+  "source_sha256": "a8b3e9fb72b144eeb33cc8d1364d30f3a2d1bacc82e8ed7669202b3e5be5268f",
+  "blend": "art-source/weapons/Skins/Oilwake/Outlaw/v01/Outlaw_Oilwake_v01.blend",
+  "blend_sha256": "8c7d7fcf28c43e88361f1d4ef9065a751a56105fda90c45d992a577e0304c2b5",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Outlaw_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "b13058c7350ebb9e9767d4acecbc62d135d0de73f7cda09ac3a64b786091fb50",
+    "geometry_and_material_slots": "03fcefd8263345fd2218c657c10121cf1266441826a90f4a71cc90128062a9e9",
+    "uv": "f175df06ea04ff057608f8fd73731be6e6075440702a406b017b3f711c7084cf",
+    "rig_and_nla": "73ec5079fa8419b7bff312a8749efe8c8052c89bf450f7964b69d476508d0dd3",
+    "actions": "065db07ff4270087352130e905b90961d1e935e8dfc6a68f8725723bd372bcb6"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "b13058c7350ebb9e9767d4acecbc62d135d0de73f7cda09ac3a64b786091fb50",
+    "geometry_and_material_slots": "03fcefd8263345fd2218c657c10121cf1266441826a90f4a71cc90128062a9e9",
+    "uv": "f175df06ea04ff057608f8fd73731be6e6075440702a406b017b3f711c7084cf",
+    "rig_and_nla": "73ec5079fa8419b7bff312a8749efe8c8052c89bf450f7964b69d476508d0dd3",
+    "actions": "065db07ff4270087352130e905b90961d1e935e8dfc6a68f8725723bd372bcb6"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 5069,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.297,
+        0.968,
+        0.307,
+        0.409
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Outlaw_CharmLoop",
+    "Outlaw_RoundLower",
+    "Outlaw_RoundUpper",
+    "Outlaw_Scope",
+    "Outlaw_ScopeLens"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Outlaw_Draw",
+    "Outlaw_Fire",
+    "Outlaw_Inspect",
+    "Outlaw_Reload",
+    "Outlaw_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Superseded by v02 placement revision",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Outlaw/v01/textures/Outlaw_Color.png",
+      "sha256": "6222218d388b63a8a187704d736575ed9e58d0a721ffe54ff0542dcffbf5c6b7",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Outlaw/v01/textures/Outlaw_Normal.png",
+      "sha256": "58768e80ef0cdd03d443d0c300a2bd6fce7274dbb8cffcc3e687ba1f45b3bd7a",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Outlaw/v01/textures/Outlaw_Roughness.png",
+      "sha256": "d0e64564a6ef137cf4332e99498196575c43e37ac669870bbcc223dc99f73980",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Outlaw/v01/textures/Outlaw_Metalness.png",
+      "sha256": "49934416a25a702ff9ae9fca95e9fc62a839f7ba7efeddcced1a3f02dfd70cdf",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Outlaw_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -2.0257723331451416
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        4.535107612609863
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        7.364151954650879
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Outlaw/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Outlaw",
+  "replacement": "art-source/weapons/Skins/Oilwake/Outlaw/v02/Outlaw_Oilwake_v02.blend"
+}

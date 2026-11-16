@@ -1,0 +1,193 @@
+{
+  "line": "Faultline",
+  "gun": "Bulldog",
+  "version": "v02",
+  "source": "art-source/weapons/Skins/Shared Sources/Bulldog/BoltFix_v02/Bulldog_RemasterV2_v05_BoltFix_v02.blend",
+  "source_sha256": "c8af5064cb922c47f342820ecb709a7b5fe23a336b8dd20627da1363b4205efd",
+  "blend": "art-source/weapons/Skins/Faultline/Bulldog/v02/Bulldog_Faultline_v02.blend",
+  "blend_sha256": "822cfccdfe43eeb6194dad0e2fbc7e1d5525380b10c774d0d405b5cb1d7f9104",
+  "concept": "vault/02 Art/Skins/Faultline/out/Sheriff_concept_v02.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Bulldog_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "2a0b1dd9845fd818cb98d454ccb96d125d0f6fbef5cc026611e954cdc0b5666a",
+    "geometry_and_material_slots": "2c89ffb4305068ef10d5e9c4a472117e61218e61d36063745d70ec8c9a2026fc",
+    "uv": "c2ec2fc28aae69d5ff5492cd85d9280805909d5315c4fd0e487ae48f56760445",
+    "rig_and_nla": "5828309d84d82ca6095c7bb1a6341a3aeada3afb5665fa7bbf5b23c230dd9564",
+    "actions": "96ff4d7faa0fb03874117164659a41013a13ea0077519f459af90b5f014ef92d"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "2a0b1dd9845fd818cb98d454ccb96d125d0f6fbef5cc026611e954cdc0b5666a",
+    "geometry_and_material_slots": "2c89ffb4305068ef10d5e9c4a472117e61218e61d36063745d70ec8c9a2026fc",
+    "uv": "d50465856e6387841a7063c047466c5ccc5a8733d34e5b4c2ac6ee53929820f9",
+    "rig_and_nla": "5828309d84d82ca6095c7bb1a6341a3aeada3afb5665fa7bbf5b23c230dd9564",
+    "actions": "96ff4d7faa0fb03874117164659a41013a13ea0077519f459af90b5f014ef92d"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 5223,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Bulldog_Barrel": {
+        "uv_corners": 51,
+        "source": "Owner-approved Misprint Bulldog v03"
+      },
+      "Bulldog_Stock": {
+        "uv_corners": 72,
+        "source": "Owner-approved Misprint Bulldog v03"
+      }
+    }
+  },
+  "triangles": 3640,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Stock": [
+          "Body",
+          "Panel"
+        ],
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -1.134,
+        0.659,
+        0.156,
+        0.413
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Bulldog_Bolt",
+    "Bulldog_CharmLoop",
+    "Bulldog_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "171B21",
+      0.44,
+      0.04
+    ],
+    "Panel": [
+      "31363F",
+      0.47,
+      0.07
+    ],
+    "Dark": [
+      "101216",
+      0.63,
+      0.07
+    ],
+    "Grip": [
+      "25262C",
+      0.77,
+      0.03
+    ],
+    "Metal": [
+      "555C69",
+      0.4,
+      0.7
+    ],
+    "Accent": [
+      "C07D57",
+      0.28,
+      0.78
+    ],
+    "Neon": [
+      "DEA987",
+      0.26,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Bulldog_Draw",
+    "Bulldog_Fire",
+    "Bulldog_Inspect",
+    "Bulldog_Reload",
+    "Bulldog_ReloadEmpty"
+  ],
+  "map_resolution": 2048,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "source_repair": "art-source/weapons/Skins/Shared Sources/Bulldog/BoltFix_v02/repair.json",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Faultline/Bulldog/v02/textures/Bulldog_Color.png",
+      "sha256": "5b13f1b5516a3c83470afd685b3e4c00203a3ce7f2d0e442216cdc00cc8c8580",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Faultline/Bulldog/v02/textures/Bulldog_Normal.png",
+      "sha256": "30d85df96189aaef07939e31ff7583e7585997fa696a4f604b814e7a72948fa6",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Faultline/Bulldog/v02/textures/Bulldog_Roughness.png",
+      "sha256": "fbb8e29b488714aeb2b93fe85f670980794867263e6ad9a1d9a03715a3c3ba80",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Faultline/Bulldog/v02/textures/Bulldog_Metalness.png",
+      "sha256": "27d3ba6627c4dd15a85ba5b094cff06fc08cf7ea00df7bdccd404eba008fa287",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Bulldog_Cam_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.7042666673660278
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.5838000178337097
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.13333334028720856,
+    "lens_mm": 17.79073143005371
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Faultline/Bulldog/v02/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Bulldog",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

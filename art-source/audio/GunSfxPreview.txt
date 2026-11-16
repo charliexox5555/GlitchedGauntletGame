@@ -1,0 +1,21 @@
+GunSfxPreview.wav, at game volumes (gun x Gun group, foley x Foley group).
+Reload beats sit on the clips' markers; joint beats (Sheriff, Shorty, Odin, racks) are approximate.
+
+   0.50  Classic: draw, inspect, shots, dry fire, reload, empty reload  (to 12.8)
+  12.85  Ghost: draw, inspect, shots, dry fire, reload, empty reload  (to 24.9)
+  24.89  Sheriff: draw, inspect, shots, dry fire, reload, empty reload  (to 37.8)
+  37.80  Shorty: draw, inspect, shots, dry fire, reload, empty reload  (to 49.5)
+  49.49  Stinger: draw, inspect, shots, dry fire, reload, empty reload  (to 63.4)
+  63.37  Spectre: draw, inspect, shots, dry fire, reload, empty reload  (to 77.2)
+  77.24  Bucky: draw, inspect, shots, dry fire, reload, empty reload  (to 90.0)
+  89.98  Judge: draw, inspect, shots, dry fire, reload, empty reload  (to 106.9)
+ 106.92  Vandal: draw, inspect, shots, dry fire, reload, empty reload  (to 122.0)
+ 121.98  Phantom: draw, inspect, shots, dry fire, reload, empty reload  (to 136.6)
+ 136.56  Bulldog: draw, inspect, shots, dry fire, reload, empty reload  (to 151.4)
+ 151.41  Guardian: draw, inspect, shots, dry fire, reload, empty reload  (to 165.3)
+ 165.26  Marshal: draw, inspect, shots, dry fire, reload, empty reload  (to 177.3)
+ 177.28  Outlaw: draw, inspect, shots, dry fire, reload, empty reload  (to 192.4)
+ 192.41  Operator: draw, inspect, shots, dry fire, reload, empty reload  (to 213.9)
+ 213.93  Ares: draw, inspect, shots, dry fire, reload, empty reload  (to 230.8)
+ 230.84  Odin: draw, inspect, shots, dry fire, reload, empty reload  (to 249.8)
+(reel scaled by 0.82 to avoid clipping)

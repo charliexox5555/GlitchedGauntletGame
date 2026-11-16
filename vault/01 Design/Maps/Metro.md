@@ -198,3 +198,6 @@ The Studio audit (`tools/studio/maps/Audit.luau`) found overlapping same-plane s
 - [01-overview-v2.png](../../../art-source/maps/Metro2/concepts/01-overview-v2.png) - Preferred aerial: two straight tracks and staggered trains.
 - [02-hero.png](../../../art-source/maps/Metro2/concepts/02-hero.png) - Blue concourse terrace toward the gantry and trains.
 - [03-kit-sheet.png](../../../art-source/maps/Metro2/concepts/03-kit-sheet.png) - Structure pieces, train, props and material swatches.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. Only the vending machines' tops (8) left the jump's reach.

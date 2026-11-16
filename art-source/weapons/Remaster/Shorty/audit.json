@@ -1,0 +1,33 @@
+{
+  "gun": "Shorty",
+  "passed": true,
+  "errors": [],
+  "tris": 1916,
+  "budget": 3000,
+  "size_ratios_xyz": [
+    0.9972214498417183,
+    1.5339963459384225,
+    1.0742827533135326
+  ],
+  "bounds": [
+    [
+      -0.22932592034339905,
+      1.448199987411499
+    ],
+    [
+      -0.14000000059604645,
+      0.1745000034570694
+    ],
+    [
+      -0.3169959783554077,
+      0.4089999794960022
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 27,
+  "attachment_count": 14,
+  "actions": 5,
+  "eye_clearance": 0.3016
+}

@@ -1,0 +1,23 @@
+{
+  "status": "concept_unavailable_direct_modeling_authorized",
+  "concept_approved": false,
+  "handoff_sent": false,
+  "mode": "built-in image_gen.imagegen",
+  "prompt": "concept-prompt-v01.txt",
+  "output_image": null,
+  "error": {
+    "code": "moderation_blocked",
+    "category": "violence",
+    "stage": "output",
+    "request_id": "e729a6a4-6364-497d-81b9-706c75a61ab7"
+  },
+  "note": "Original concept preferred; preserve its identity, increase model thickness, add separate trigger and integrated charm/charging parts, and make ADS clearly readable. No further image-generation attempt or API call has been made.",
+  "latest_requested_route": "Claude Opus to model Vandal directly from original concept using live interactive Blender MCP; stop for visual review before other weapons",
+  "modeling_authorized_without_new_concept": true,
+  "handoff_recipient": "Claude Opus",
+  "handoff_document": "vault/05 Production/Astra Weapon Rebuild Handoff 2026-11-07.md",
+  "handoff_status": "prepared_for_user_to_send; no identifiable Opus destination in available chats",
+  "codex_session_result": "No Blender MCP tools exposed; no scene inspection, modeling, rendering or blend saving performed",
+  "latest_prompt": "chatgpt-concept-prompt-v02.md",
+  "primary_positive_reference": "vault/02 Art/References/vandal-concept.webp"
+}

@@ -130,6 +130,10 @@ def build() -> tuple[list[Put], list[Part]]:
             for k in range(int(round(b.h / 8))):
                 yaw = (90 if along_x else 0) + (180 if rnd.random() < 0.5 else 0)
                 puts.append(Put(b.piece, b.x, STACK * k, b.z, yaw, lane_tint(b.lane()), "Containers", [i]))
+        elif b.kind == "low" and b.name.rstrip("'") in ("Stack step crate", "Mid post crate"):
+            # The 4.4-jump step crates (dockyard_layout STEPS): a fixed turn, so they draw nothing
+            # from the seeded random and every other placement stays as it was.
+            puts.append(Put("Crate", b.x, 0, b.z, 90, None, "Yard", [i]))
         elif b.kind == "low":
             puts.append(Put("Crate", b.x, 0, b.z, 0 if rnd.random() < 0.5 else 90, None, "Yard", [i]))
         elif b.kind == "ramp":

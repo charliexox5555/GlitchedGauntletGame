@@ -1,0 +1,33 @@
+{
+  "gun": "Judge",
+  "passed": true,
+  "errors": [],
+  "tris": 3480,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.0019125468461312,
+    1.0,
+    1.0072818170286815
+  ],
+  "bounds": [
+    [
+      -1.0259000062942505,
+      2.117300033569336
+    ],
+    [
+      -0.3453291058540344,
+      0.3453291058540344
+    ],
+    [
+      -0.3360291123390198,
+      0.7706000208854675
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 53,
+  "attachment_count": 9,
+  "actions": 5,
+  "eye_clearance": 0.2118
+}

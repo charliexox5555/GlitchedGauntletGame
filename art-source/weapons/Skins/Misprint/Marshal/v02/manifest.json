@@ -1,0 +1,224 @@
+{
+  "line": "Misprint",
+  "gun": "Marshal",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Marshal/Marshal_RemasterV2_v05.blend",
+  "source_sha256": "979997d2b7cc6060f8893788f324b79e9a5bfa5e3fbe0b1f0adf39e3ed8572c3",
+  "blend": "art-source/weapons/Skins/Misprint/Marshal/v02/Marshal_Misprint_v02.blend",
+  "blend_sha256": "adf2c1b771b335468477688f21107c98d53b014662bbc70e58fafb84c7025d28",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Marshal_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "347c0a151c70cac110aaa82bda86685e16051e2cf6f2ec429020bd52b550add9",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "b8108b017f7ab5da157cbe0987aa1a5a64011fee5f0a71f61143474c50f11977",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 58,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Marshal_Hammer": [
+        {
+          "face": 202,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 144,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 198,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 66,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 67,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 24,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 4407,
+  "finish_hosts": [
+    {
+      "parts": {
+        "ForeEnd": [
+          "Grip"
+        ]
+      },
+      "bounds_xz": [
+        1.009,
+        1.651,
+        0.03,
+        0.166
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Marshal_Bolt",
+    "Marshal_CharmLoop",
+    "Marshal_Scope",
+    "Marshal_ScopeLens",
+    "Marshal_Shell"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Marshal_Draw",
+    "Marshal_Fire",
+    "Marshal_Inspect",
+    "Marshal_Reload",
+    "Marshal_ReloadEmpty",
+    "Marshal_ReloadEnd",
+    "Marshal_ReloadInsert",
+    "Marshal_ReloadStart"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Marshal/v02/textures/Marshal_Color.png",
+      "sha256": "0addfa23c1dcab4a2e2322bfc5db230e08a514283e18a306793d8e70c3c35aff",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Marshal/v02/textures/Marshal_Normal.png",
+      "sha256": "87eab1844c1c67a02b6cf16537b4ead0ea3cad0c0f76026e6daff577c9b3f1d9",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Marshal/v02/textures/Marshal_Roughness.png",
+      "sha256": "61b680b0151f89bf01ddb00e9fceda2f1bc70b202c469e429d4b98ead370be05",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Marshal/v02/textures/Marshal_Metalness.png",
+      "sha256": "ad75125648045c6d6f0051988ada73e0fd92cd8d3438d8177ea759aa29f519ee",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Marshal_Stock|Dark",
+        "over": "Marshal_Stock|Panel",
+        "faces": 2
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Marshal_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -1.971773624420166
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        4.19883918762207
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        6.678272247314453
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Marshal/v02/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Marshal",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

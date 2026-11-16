@@ -1,0 +1,490 @@
+{
+  "line": "Misprint",
+  "gun": "Bulldog",
+  "version": "v01",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Bulldog_model_sheet.png",
+  "source": "art-source/weapons/Skins/Shared Sources/Bulldog/BoltFix_v01/Bulldog_RemasterV2_v05_BoltFix_v01.blend",
+  "source_sha256": "27fa91d739c178801c01d3ebeb1b19886281902e0bc5221bcc8e25e32355b763",
+  "blend": "art-source/weapons/Skins/Misprint/Bulldog/v01/Bulldog_Misprint_v01.blend",
+  "blend_sha256": "5af3d30cb9804dbbb6a30d47386997631c7356a4c93cdb44218175578cb09d0f",
+  "stock_uv_preserved": true,
+  "uv_audit": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 135827,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 292,
+    "different_role_overlap_pixels": 292,
+    "conflicting_parts": [
+      "Bulldog_Barrel",
+      "Bulldog_Stock"
+    ]
+  },
+  "stock_repair": {
+    "stock": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/RemasterV2/Bulldog/Bulldog_RemasterV2_v05.blend",
+    "saved_source": "C:\\Users\\charl\\Documents\\GauntletGame\\GlitchedGauntletGame\\art-source\\weapons\\Skins\\Shared Sources\\Bulldog\\BoltFix_v01\\Bulldog_RemasterV2_v05_BoltFix_v01.blend",
+    "geometry_exception": "Translated the bolt mesh 0.0030 toward the outside of the existing recess along world -Y in rest pose.",
+    "affected_object": "Bulldog_Bolt",
+    "changed_vertices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23
+    ],
+    "unmodified_dimensions": [
+      2.8968000411987305,
+      0.23000000417232513,
+      0.9595680236816406
+    ],
+    "stock_fingerprints": {
+      "hierarchy_pivots_attachments": "2a0b1dd9845fd818cb98d454ccb96d125d0f6fbef5cc026611e954cdc0b5666a",
+      "geometry_and_material_slots": "2ec96f43d06704f2985acc73a837c04e8febfda28b7ad2670537f79f59d3d6b6",
+      "uv": "c2ec2fc28aae69d5ff5492cd85d9280805909d5315c4fd0e487ae48f56760445",
+      "rig_and_nla": "5828309d84d82ca6095c7bb1a6341a3aeada3afb5665fa7bbf5b23c230dd9564",
+      "actions": "96ff4d7faa0fb03874117164659a41013a13ea0077519f459af90b5f014ef92d"
+    },
+    "repaired_fingerprints": {
+      "hierarchy_pivots_attachments": "2a0b1dd9845fd818cb98d454ccb96d125d0f6fbef5cc026611e954cdc0b5666a",
+      "geometry_and_material_slots": "fc23be5c75bc32e969dd2aa57e3a6eff0c69325b285fe8337ef9918571cea32a",
+      "uv": "c2ec2fc28aae69d5ff5492cd85d9280805909d5315c4fd0e487ae48f56760445",
+      "rig_and_nla": "5828309d84d82ca6095c7bb1a6341a3aeada3afb5665fa7bbf5b23c230dd9564",
+      "actions": "96ff4d7faa0fb03874117164659a41013a13ea0077519f459af90b5f014ef92d"
+    },
+    "shape_audit_after_reopen": {
+      "triangles": 3640,
+      "coplanar_pairs": [],
+      "zero_area": {},
+      "crossed": {}
+    },
+    "depth": {
+      "frontmost_ray_hits": {
+        "Stock": 39,
+        "Receiver": 183,
+        "Bolt": 181
+      },
+      "minimum_receiver_bolt_depth_delta": 0.0005000382661819458
+    },
+    "motion": {
+      "Bulldog_Draw": {
+        "frames": [
+          1,
+          31
+        ],
+        "maximum_bone_motion": {
+          "Root": [
+            0.2581650736221261,
+            15
+          ],
+          "Mag": [
+            0.3231542364051413,
+            15
+          ],
+          "ChargingHandle": [
+            0.47587598782304097,
+            15
+          ],
+          "Bolt": [
+            0.2849564944314525,
+            15
+          ]
+        },
+        "min_sampled_receiver_bolt_depth_delta": null
+      },
+      "Bulldog_Fire": {
+        "frames": [
+          1,
+          10
+        ],
+        "maximum_bone_motion": {
+          "Root": [
+            0.0989651082959063,
+            3
+          ],
+          "Mag": [
+            0.0993314973188745,
+            3
+          ],
+          "ChargingHandle": [
+            0.21447851877541535,
+            3
+          ],
+          "Bolt": [
+            0.2049746257061976,
+            3
+          ]
+        },
+        "min_sampled_receiver_bolt_depth_delta": [
+          4.634261131286621e-05,
+          6
+        ]
+      },
+      "Bulldog_Inspect": {
+        "frames": [
+          1,
+          67
+        ],
+        "maximum_bone_motion": {
+          "Root": [
+            0.014472471518770904,
+            15
+          ],
+          "Mag": [
+            0.05746255874909041,
+            15
+          ],
+          "ChargingHandle": [
+            0.05439402727608092,
+            45
+          ],
+          "Bolt": [
+            0.014769829019247793,
+            52
+          ]
+        },
+        "min_sampled_receiver_bolt_depth_delta": null
+      },
+      "Bulldog_Reload": {
+        "frames": [
+          1,
+          66
+        ],
+        "maximum_bone_motion": {
+          "Root": [
+            0.3948805631920691,
+            47
+          ],
+          "Mag": [
+            1.0924921662804028,
+            21
+          ],
+          "ChargingHandle": [
+            0.5246313896475926,
+            47
+          ],
+          "Bolt": [
+            0.40361774470353873,
+            47
+          ]
+        },
+        "min_sampled_receiver_bolt_depth_delta": null
+      },
+      "Bulldog_ReloadEmpty": {
+        "frames": [
+          1,
+          97
+        ],
+        "maximum_bone_motion": {
+          "Root": [
+            0.3948805631920691,
+            48
+          ],
+          "Mag": [
+            1.0924921662804028,
+            22
+          ],
+          "ChargingHandle": [
+            0.5246313896475926,
+            48
+          ],
+          "Bolt": [
+            0.40361774470353873,
+            48
+          ]
+        },
+        "min_sampled_receiver_bolt_depth_delta": [
+          1.2814998626708984e-06,
+          40
+        ]
+      }
+    }
+  },
+  "packed_external_maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Bulldog/v01/textures/Bulldog_Color.png",
+      "sha256": "75b81e960e02a2c83229d6860b22d3c94930fbc6cab0504c4383d280c2e6b751",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Bulldog/v01/textures/Bulldog_Normal.png",
+      "sha256": "f3da9968b25f0d9cb8b6df57f34662c1dfe5769162bcfee64ea18daca1fa62f2",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Bulldog/v01/textures/Bulldog_Roughness.png",
+      "sha256": "ee04aa0332d031bc8e393954cd628e0ec8bb0bce1faaa0879a3bc8a8f0440734",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Bulldog/v01/textures/Bulldog_Metalness.png",
+      "sha256": "c899631cbf58e1944d4403bd8dfd767b94d5bec95ea30a09d00a80aa7b50c70a",
+      "color_space": "Non-Color"
+    }
+  },
+  "bake_padding_pixels": 6,
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0.04
+    ]
+  },
+  "print_hex": [
+    "2447B9",
+    "E5533E",
+    "874077",
+    "252849"
+  ],
+  "fingerprints_after_reopen": {
+    "hierarchy_pivots_attachments": "2a0b1dd9845fd818cb98d454ccb96d125d0f6fbef5cc026611e954cdc0b5666a",
+    "geometry_and_material_slots": "fc23be5c75bc32e969dd2aa57e3a6eff0c69325b285fe8337ef9918571cea32a",
+    "uv": "c2ec2fc28aae69d5ff5492cd85d9280805909d5315c4fd0e487ae48f56760445",
+    "rig_and_nla": "5828309d84d82ca6095c7bb1a6341a3aeada3afb5665fa7bbf5b23c230dd9564",
+    "actions": "96ff4d7faa0fb03874117164659a41013a13ea0077519f459af90b5f014ef92d"
+  },
+  "active_shader_outputs": {
+    "Body": [
+      "PV_Out"
+    ],
+    "Panel": [
+      "PV_Out"
+    ],
+    "Dark": [
+      "PV_Out"
+    ],
+    "Metal": [
+      "PV_Out"
+    ],
+    "Grip": [
+      "PV_Out"
+    ],
+    "Accent": [
+      "PV_Out"
+    ],
+    "Neon": [
+      "Shader_Out"
+    ],
+    "Brass": [
+      "Shader_Out"
+    ]
+  },
+  "actions": [
+    "Bulldog_Draw",
+    "Bulldog_Fire",
+    "Bulldog_Inspect",
+    "Bulldog_Reload",
+    "Bulldog_ReloadEmpty"
+  ],
+  "protected_parts": [
+    "Bolt",
+    "CharmLoop",
+    "Sights"
+  ],
+  "engine": "Blender 5.2.2 LTS via Blender MCP 127.0.0.1:9999",
+  "shape_audit_after_reopen": {
+    "triangles": 3640,
+    "coplanar_pairs": [],
+    "zero_area": {},
+    "crossed": {}
+  },
+  "motion_after_reopen": {
+    "Bulldog_Draw": {
+      "frames": [
+        1,
+        31
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.2581650736221261,
+          15
+        ],
+        "Mag": [
+          0.3231542364051413,
+          15
+        ],
+        "ChargingHandle": [
+          0.47587598782304097,
+          15
+        ],
+        "Bolt": [
+          0.2849564944314525,
+          15
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": null
+    },
+    "Bulldog_Fire": {
+      "frames": [
+        1,
+        10
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.0989651082959063,
+          3
+        ],
+        "Mag": [
+          0.0993314973188745,
+          3
+        ],
+        "ChargingHandle": [
+          0.21447851877541535,
+          3
+        ],
+        "Bolt": [
+          0.2049746257061976,
+          3
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": [
+        4.634261131286621e-05,
+        6
+      ]
+    },
+    "Bulldog_Inspect": {
+      "frames": [
+        1,
+        67
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.014472471518770904,
+          15
+        ],
+        "Mag": [
+          0.05746255874909041,
+          15
+        ],
+        "ChargingHandle": [
+          0.05439402727608092,
+          45
+        ],
+        "Bolt": [
+          0.014769829019247793,
+          52
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": null
+    },
+    "Bulldog_Reload": {
+      "frames": [
+        1,
+        66
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.3948805631920691,
+          47
+        ],
+        "Mag": [
+          1.0924921662804028,
+          21
+        ],
+        "ChargingHandle": [
+          0.5246313896475926,
+          47
+        ],
+        "Bolt": [
+          0.40361774470353873,
+          47
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": null
+    },
+    "Bulldog_ReloadEmpty": {
+      "frames": [
+        1,
+        97
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.3948805631920691,
+          48
+        ],
+        "Mag": [
+          1.0924921662804028,
+          22
+        ],
+        "ChargingHandle": [
+          0.5246313896475926,
+          48
+        ],
+        "Bolt": [
+          0.40361774470353873,
+          48
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": [
+        1.2814998626708984e-06,
+        40
+      ]
+    }
+  },
+  "sightline_after_reopen": {
+    "eye": [
+      -0.7016,
+      -0.0889,
+      0.5798
+    ],
+    "len": 0.45,
+    "geo_hits": {},
+    "box_hits": {}
+  },
+  "stock_aim_camera": {
+    "name": "Bulldog_Cam_ADS",
+    "clip_start": 0.13333334028720856
+  },
+  "working_review": "review",
+  "build_status": "Superseded by v03",
+  "review_state": "Texture bleed identified in 1K bake",
+  "replacement": "../v03/Bulldog_Misprint_v03.blend"
+}

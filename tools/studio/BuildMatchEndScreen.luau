@@ -259,16 +259,12 @@ do -- Row: a fixed holder; the Body slides in (your row: the script makes it 58 
 		{ Name = "Row", Size = UDim2.fromOffset(ROW_W, 46), BackgroundTransparency = 1 },
 		folder
 	)
-	local body = make(
-		"CanvasGroup",
-		{
-			Name = "Body",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		holder
-	)
+	local body = make("CanvasGroup", {
+		Name = "Body",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, holder)
 	corner(body)
 	local cell = make("Frame", {
 		Name = "Cell",

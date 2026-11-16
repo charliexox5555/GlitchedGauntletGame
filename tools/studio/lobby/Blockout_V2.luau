@@ -13,7 +13,8 @@ local root = Instance.new("Model")
 root.Name = "LobbyBlockoutV2"
 root.Parent = workspace
 
-local GREY, DARK, LIGHT = Color3.fromHex("9A9690"), Color3.fromHex("5E5B57"), Color3.fromHex("C9C4BC")
+local GREY, DARK, LIGHT =
+	Color3.fromHex("9A9690"), Color3.fromHex("5E5B57"), Color3.fromHex("C9C4BC")
 local ZONE = {
 	duels = Color3.fromHex("3A4450"),
 	market = Color3.fromHex("8C7F6B"),
@@ -34,7 +35,14 @@ local function folder(name: string): Folder
 	return f
 end
 
-local function box(parent: Instance, name: string, size: Vector3, cf: CFrame, color: Color3, shape: Enum.PartType?): Part
+local function box(
+	parent: Instance,
+	name: string,
+	size: Vector3,
+	cf: CFrame,
+	color: Color3,
+	shape: Enum.PartType?
+): Part
 	local p = Instance.new("Part")
 	p.Name = name
 	p.Anchored = true
@@ -51,8 +59,24 @@ local function box(parent: Instance, name: string, size: Vector3, cf: CFrame, co
 	return p
 end
 
-local function cyl(parent: Instance, name: string, r: number, y0: number, y1: number, x: number, z: number, color: Color3): Part
-	return box(parent, name, Vector3.new(y1 - y0, r * 2, r * 2), CFrame.new(x, (y0 + y1) / 2, z) * CFrame.Angles(0, 0, math.rad(90)), color, Enum.PartType.Cylinder)
+local function cyl(
+	parent: Instance,
+	name: string,
+	r: number,
+	y0: number,
+	y1: number,
+	x: number,
+	z: number,
+	color: Color3
+): Part
+	return box(
+		parent,
+		name,
+		Vector3.new(y1 - y0, r * 2, r * 2),
+		CFrame.new(x, (y0 + y1) / 2, z) * CFrame.Angles(0, 0, math.rad(90)),
+		color,
+		Enum.PartType.Cylinder
+	)
 end
 
 local function polar(r: number, b: number): (number, number)
@@ -61,7 +85,18 @@ local function polar(r: number, b: number): (number, number)
 end
 
 -- Ring of tangent boxes between radii r0..r1 and heights y0..y1, skipping `gaps` ({bearing, width at r1}).
-local function arc(parent: Instance, name: string, r0: number, r1: number, y0: number, y1: number, color: Color3, gaps: { { number } }?, cx: number?, cz: number?)
+local function arc(
+	parent: Instance,
+	name: string,
+	r0: number,
+	r1: number,
+	y0: number,
+	y1: number,
+	color: Color3,
+	gaps: { { number } }?,
+	cx: number?,
+	cz: number?
+)
 	local n = math.max(16, math.ceil(2 * math.pi * r1 / 5))
 	local step = 360 / n
 	for i = 0, n - 1 do
@@ -80,7 +115,13 @@ local function arc(parent: Instance, name: string, r0: number, r1: number, y0: n
 			z += cz or 0
 			local chord = 2 * r1 * math.sin(math.rad(step / 2)) + 0.05
 			local look = CFrame.lookAt(Vector3.new(x, 0, z), Vector3.new(cx or 0, 0, cz or 0))
-			box(parent, name, Vector3.new(chord, y1 - y0, r1 - r0), look.Rotation + Vector3.new(x, (y0 + y1) / 2, z), color)
+			box(
+				parent,
+				name,
+				Vector3.new(chord, y1 - y0, r1 - r0),
+				look.Rotation + Vector3.new(x, (y0 + y1) / 2, z),
+				color
+			)
 		end
 	end
 end
@@ -103,7 +144,17 @@ local function label(p: BasePart, text: string, color: Color3)
 end
 
 -- A sign panel facing `toward` (a point), centre at (x, y, z).
-local function sign(parent: Instance, text: string, w: number, h: number, x: number, y: number, z: number, toward: Vector3, color: Color3)
+local function sign(
+	parent: Instance,
+	text: string,
+	w: number,
+	h: number,
+	x: number,
+	y: number,
+	z: number,
+	toward: Vector3,
+	color: Color3
+)
 	local cf = CFrame.lookAt(Vector3.new(x, y, z), Vector3.new(toward.X, y, toward.Z))
 	local p = box(parent, "Sign_" .. text, Vector3.new(w, h, 0.6), cf, Color3.fromHex("23272D"))
 	label(p, text, color)
@@ -118,13 +169,20 @@ local hub = folder("Hub")
 box(hub, "Floor", Vector3.new(182, 1, 176), CFrame.new(2, -0.5, -25), DARK)
 cyl(hub, "RotundaFloor", 30, -0.4, 0.1, 0, 0, LIGHT)
 cyl(hub, "SpawnDais", 9, 0, 0.6, 0, 0, Color3.fromHex("B08D55"))
-local spawnMark = box(hub, "SpawnFacing", Vector3.new(1, 0.2, 6), CFrame.new(0, 0.7, -4), ACCENT.duels)
+local spawnMark =
+	box(hub, "SpawnFacing", Vector3.new(1, 0.2, 6), CFrame.new(0, 0.7, -4), ACCENT.duels)
 spawnMark.CanCollide = false
 
 -- Colonnade R30 (8 piers between the 8 openings), drum 20..27, stepped dome to the skylight R11 at 38.
 for k = 0, 7 do
 	local x, z = polar(30, 22.5 + 45 * k)
-	box(hub, "Pier", Vector3.new(4, 20, 4), CFrame.new(x, 10, z) * CFrame.Angles(0, -math.rad(22.5 + 45 * k), 0), GREY)
+	box(
+		hub,
+		"Pier",
+		Vector3.new(4, 20, 4),
+		CFrame.new(x, 10, z) * CFrame.Angles(0, -math.rad(22.5 + 45 * k), 0),
+		GREY
+	)
 end
 arc(hub, "Drum", 28.5, 31.5, 20, 27, GREY)
 arc(hub, "Dome1", 24, 31.5, 27, 30, LIGHT)
@@ -137,7 +195,13 @@ local gaps = { { 0, 40 }, { 270, 28 }, { 90, 28 }, { 180, 28 } }
 arc(hub, "RingWall", 44, 46, 0, 22, DARK, gaps)
 for _, g in gaps do -- lintels over the portals (14 clear)
 	local x, z = polar(45, g[1])
-	box(hub, "PortalLintel", Vector3.new(g[2] + 2, 8, 2), CFrame.lookAt(Vector3.new(x, 18, z), Vector3.new(0, 18, 0)), GREY)
+	box(
+		hub,
+		"PortalLintel",
+		Vector3.new(g[2] + 2, 8, 2),
+		CFrame.lookAt(Vector3.new(x, 18, z), Vector3.new(0, 18, 0)),
+		GREY
+	)
 end
 -- Leaderboards behind the NE / NW colonnade openings, facing spawn.
 for _, b in { -45, 45 } do
@@ -152,7 +216,8 @@ local duels = folder("Duels")
 box(duels, "HallFloor", Vector3.new(44, 0.2, 92), CFrame.new(0, 0.1, -90), ZONE.duels)
 box(duels, "Walkway", Vector3.new(10, 0.25, 92), CFrame.new(0, 0.12, -90), Color3.fromHex("4A5562"))
 for z = -50, -128, -8 do
-	local c = box(duels, "Chevron", Vector3.new(4, 0.3, 1), CFrame.new(0, 0.15, z), Color3.new(1, 1, 1))
+	local c =
+		box(duels, "Chevron", Vector3.new(4, 0.3, 1), CFrame.new(0, 0.15, z), Color3.new(1, 1, 1))
 	c.CanCollide = false
 end
 box(duels, "WallW", Vector3.new(2, 28, 94), CFrame.new(-23, 14, -90), DARK)
@@ -166,18 +231,54 @@ for z = -52, -128, -19 do -- buttresses and roof trusses give the hall its rhyth
 	box(duels, "Truss", Vector3.new(44, 2, 2), CFrame.new(0, 25, z), GREY)
 end
 sign(duels, "DUELS", 26, 6, 0, 18, -42.6, Vector3.new(0, 0, 0), ACCENT.duels)
-local modeColor = { ["1V1"] = Color3.fromHex("FF7A2F"), ["2V2"] = Color3.fromHex("27B7FF"), ["3V3"] = Color3.fromHex("A15CFF") }
+local modeColor = {
+	["1V1"] = Color3.fromHex("FF7A2F"),
+	["2V2"] = Color3.fromHex("27B7FF"),
+	["3V3"] = Color3.fromHex("A15CFF"),
+}
 local pads = { { "1V1", 12, -54 }, { "1V1", 12, -68 }, { "2V2", 14, -84 }, { "3V3", 16, -102 } }
 for _, p in pads do
 	for _, s in { -1, 1 } do
 		local x = s * (5 + 1 + p[2] / 2)
-		box(duels, "Pad_" .. p[1], Vector3.new(p[2], 0.4, p[2]), CFrame.new(x, 0.2, p[3]), modeColor[p[1]])
-		sign(duels, "0/" .. string.sub(p[1], 1, 1), p[2] - 2, 7, s * 21.9, 6, p[3], Vector3.new(0, 0, p[3]), Color3.new(1, 1, 1))
-		local tab = box(duels, "ModeTab_" .. p[1], Vector3.new(6, 2.5, 0.4), CFrame.new(x, 16, p[3]) * CFrame.Angles(math.rad(-20), 0, 0), modeColor[p[1]])
+		box(
+			duels,
+			"Pad_" .. p[1],
+			Vector3.new(p[2], 0.4, p[2]),
+			CFrame.new(x, 0.2, p[3]),
+			modeColor[p[1]]
+		)
+		sign(
+			duels,
+			"0/" .. string.sub(p[1], 1, 1),
+			p[2] - 2,
+			7,
+			s * 21.9,
+			6,
+			p[3],
+			Vector3.new(0, 0, p[3]),
+			Color3.new(1, 1, 1)
+		)
+		local tab = box(
+			duels,
+			"ModeTab_" .. p[1],
+			Vector3.new(6, 2.5, 0.4),
+			CFrame.new(x, 16, p[3]) * CFrame.Angles(math.rad(-20), 0, 0),
+			modeColor[p[1]]
+		)
 		label(tab, p[1], Color3.fromHex("10151C"))
 	end
 end
-sign(duels, "4V4 / GAUNTLET SOON", 20, 14, 0, 9, -135.6, Vector3.new(0, 0, 0), Color3.fromHex("8899AA"))
+sign(
+	duels,
+	"4V4 / GAUNTLET SOON",
+	20,
+	14,
+	0,
+	9,
+	-135.6,
+	Vector3.new(0, 0, 0),
+	Color3.fromHex("8899AA")
+)
 sign(duels, "QUEUE BOARD", 14, 8, -21.9, 14, -122, Vector3.new(0, 0, -122), Color3.new(1, 1, 1))
 sign(duels, "WIN STREAKS", 14, 8, 21.9, 14, -122, Vector3.new(0, 0, -122), Color3.new(1, 1, 1))
 
@@ -217,16 +318,37 @@ box(range, "VestW", Vector3.new(2, 16, 16), CFrame.new(-15, 8, 51), DARK)
 box(range, "VestE", Vector3.new(2, 16, 16), CFrame.new(15, 8, 51), DARK)
 box(range, "VestBack", Vector3.new(32, 16, 2), CFrame.new(0, 8, 59), DARK)
 box(range, "VestCeiling", Vector3.new(32, 1.5, 16), CFrame.new(0, 16.75, 51), GREY)
-local door = box(range, "EnterRangeDoor", Vector3.new(12, 14, 0.4), CFrame.new(0, 7, 57.8), ACCENT.range)
+local door =
+	box(range, "EnterRangeDoor", Vector3.new(12, 14, 0.4), CFrame.new(0, 7, 57.8), ACCENT.range)
 door.Material = Enum.Material.Neon
 sign(range, "RANGE", 18, 4, 0, 17.5, 42.6, Vector3.zero, ACCENT.range)
 
 -- ---------------------------------------------------------------- scale proxies and a sunbeam stand-in
 local people = folder("People")
-for _, p in { { 0, 0 }, { -12, -54 }, { 12, -84 }, { -14, -102 }, { 2, -120 }, { -64, 15 }, { 64, 4 }, { 0, 52 }, { 36, -6 }, { -38, 10 } } do
+for _, p in
+	{
+		{ 0, 0 },
+		{ -12, -54 },
+		{ 12, -84 },
+		{ -14, -102 },
+		{ 2, -120 },
+		{ -64, 15 },
+		{ 64, 4 },
+		{ 0, 52 },
+		{ 36, -6 },
+		{ -38, 10 },
+	}
+do
 	avatar(people, p[1], p[2])
 end
-local beam = box(hub, "SunPatch", Vector3.new(0.2, 18, 18), CFrame.new(0, 0.15, 0) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromHex("FFE2B8"), Enum.PartType.Cylinder)
+local beam = box(
+	hub,
+	"SunPatch",
+	Vector3.new(0.2, 18, 18),
+	CFrame.new(0, 0.15, 0) * CFrame.Angles(0, 0, math.rad(90)),
+	Color3.fromHex("FFE2B8"),
+	Enum.PartType.Cylinder
+)
 beam.Material = Enum.Material.Neon
 beam.Transparency = 0.6
 beam.CanCollide = false

@@ -35,6 +35,25 @@ return table.freeze({
 	-- moving, they spread evenly over the cone.
 	CENTRE_BIAS = 1, -- radius = cone * u^this (0.5 would be even over the disc)
 
+	-- Server Authority off (shared/Authority; owner 2026-11-11: "disable the
+	-- anti-cheat for now, revisit a better one later"). The server can't see a
+	-- player's stance, aim or camera any more, so the checks built on them
+	-- turned real hits into hit markers with no damage (worst on the scoped
+	-- snipers: the server thought you were unscoped) and refused Mod throws
+	-- ("aim doesn't match the camera"). While the server isn't simulating
+	-- players:
+	--   * a shot's cone is what the client claims, up to CLIENT_SPREAD_MAX
+	--     (it was clamped into the band the server computed from its own view);
+	--   * the shot / Mod origin may be CLIENT_ORIGIN_TOLERANCE from the head
+	--     (your own position reaches the server a ping late, at slide speed);
+	--   * a Mod's aim isn't compared with the camera or your facing.
+	-- Still checked: types, rate limits, fire rate, ammo, reloads, range, that
+	-- the target was really there (rewind), walls, teams.
+	-- Used only if a script can't read Workspace.AuthorityMode:
+	SERVER_AUTHORITY_FALLBACK = false,
+	CLIENT_SPREAD_MAX = 45, -- degrees
+	CLIENT_ORIGIN_TOLERANCE = 9, -- studs
+
 	-- Server validation tolerances. Generous enough for ~250 ms ping,
 	-- tight enough that hits through walls / across the map are rejected.
 	ORIGIN_TOLERANCE = 5, -- studs between the claimed shot origin (camera) and the server head
@@ -106,12 +125,31 @@ return table.freeze({
 	-- Remote budgets (per player): rate per second, burst.
 	RATE = {
 		Fire = { 30, 40 },
+		FireResync = { 2, 1 }, -- limit full weapon state corrections
 		Equip = { 10, 10 },
 		Reload = { 5, 5 },
 		PickWeapon = { 3, 5 },
 		Aim = { 20, 30 },
 	},
 
-	-- Parts tagged with this can be shot through by guns with penetration = "ThinWall".
+	-- Wall penetration (Util/Penetration; owner 2026-11-12: "wall penetration
+	-- isn't really good, not on the maps", "the Odin can penetrate through the
+	-- walls an infinite"). It used to need a ThinWall tag on the part, which
+	-- no map has, or be "All", which went through everything for ever. Now a
+	-- gun's class gives each round a budget, measured on the wall itself:
+	--   depth   studs of wall it can pass in total, along its own line
+	--   walls   how many walls it can pass
+	--   damage  share of its damage left after each wall
+	-- Light: rifles, the DMR, the heavy pistol, the lighter snipers. Heavy: the
+	-- Operator and the Odin (through one thick wall or two thin ones, at 70%
+	-- then 49%, so an Operator wall-bang is no longer a certain kill).
+	PENETRATION = table.freeze({
+		None = table.freeze({ depth = 0, walls = 0, damage = 1 }),
+		Light = table.freeze({ depth = 1.6, walls = 1, damage = 0.6 }),
+		Heavy = table.freeze({ depth = 4.5, walls = 2, damage = 0.7 }),
+	}),
+	-- Parts tagged with this (a plywood sheet, a fence) count as this thick for
+	-- any gun that penetrates, whatever their real size.
 	THIN_WALL_TAG = "ThinWall",
+	THIN_WALL_DEPTH = 0.5,
 })

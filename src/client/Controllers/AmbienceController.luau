@@ -3,7 +3,7 @@
 -- 2D for the map the camera is in, emitters tagged in the map play
 -- positional loops (the nearest few) and random one-shots, and inside a
 -- tagged room the outdoor bus is muffled while the room tone comes up.
--- Every sound is a slice of the shared sound atlas (Config/Sounds ATLAS).
+-- Beds and emitters each use a complete asset (Config/SharedSoundAssets).
 -- LihFolk: lihfolk-sfx (beds on their own bus, positional sounds mono,
 -- InverseTapered roll-off, cull by distance, cap live voices), Spatial Audio
 -- and Mixing (duck ambience under combat: the Ambience bus is sidechained to
@@ -16,8 +16,7 @@ local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
 local Ambience = require(ReplicatedStorage.Shared.Config.Ambience)
-local SoundAtlas = require(ReplicatedStorage.Shared.Config.SoundAtlas)
-local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
+local SharedSoundAssets = require(ReplicatedStorage.Shared.Config.SharedSoundAssets)
 
 local AudioController = require(script.Parent.AudioController)
 
@@ -37,16 +36,7 @@ local indoorTarget = 0
 local activeMap: string? = nil
 local eq: EqualizerSoundEffect? = nil
 
-local function region(id: string): NumberRange?
-	if string.sub(id, 1, 6) ~= "atlas:" then
-		return nil
-	end
-	local variants = SoundAtlas[string.sub(id, 7)]
-	local r = variants and variants[1]
-	return if r then NumberRange.new(r.start, r.start + r.length) else nil
-end
-
--- A looping slice of the atlas. `at`: a positional holder (Attachment), else 2D.
+-- A looping asset. `at` is a positional holder (Attachment), otherwise 2D.
 local function newLoop(
 	id: string,
 	group: AudioController.Group,
@@ -55,16 +45,14 @@ local function newLoop(
 	at: Instance?,
 	range: number?
 ): Loop?
-	local r = region(id)
-	if not r then
+	local takes = SharedSoundAssets[string.sub(id, 5)]
+	local take = takes and takes[1]
+	if not take then
 		return nil
 	end
 	local s = Instance.new("Sound")
 	s.Name = id
-	s.SoundId = Sounds.ATLAS
-	s.PlaybackRegionsEnabled = true
-	s.PlaybackRegion = r
-	s.LoopRegion = r
+	s.SoundId = take.asset
 	s.Looped = true
 	s.Volume = 0
 	s.PlaybackSpeed = pitch or 1
@@ -76,7 +64,7 @@ local function newLoop(
 	end
 	s.Parent = at or folder
 	-- Start somewhere inside the loop so emitters of one kind never phase.
-	s.TimePosition = r.Min + math.random() * (r.Max - r.Min) * 0.9
+	s.TimePosition = math.random() * take.length * 0.9
 	s:Play()
 	return { sound = s, holder = at, base = base, current = 0, target = 0 }
 end

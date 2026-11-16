@@ -1,0 +1,198 @@
+{
+  "line": "Misprint",
+  "gun": "Ghost",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Ghost/Ghost_RemasterV2_v05.blend",
+  "source_sha256": "56b6fc58cb0669dc4d86942484be74c6fd8e078321b41270bca9f81d6e8db402",
+  "blend": "art-source/weapons/Skins/Misprint/Ghost/v02/Ghost_Misprint_v02.blend",
+  "blend_sha256": "14970826bd772232d8be8cc69a3c0a5e75fd45d204c67eaf948bb6061aea32ea",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Ghost_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "ee6a3afdc0c8672f7ff764288fdd6d21c8a0dd2a2d2e685c5bc5e4cf19cc30da",
+    "geometry_and_material_slots": "11364f1775b0a4963b637eee09bf5cb888ea0942786c7b9dc769bb749eae5003",
+    "uv": "f0d77bb620eeceaa5bd761308b4d353a0d0810e9a65c8ed40fe21107c56e8e0c",
+    "rig_and_nla": "4355bc913738ef8f19ecfd229baa2eb770769834ad57188a0715da5b314d9bea",
+    "actions": "4f1481fce7a15edae85d0a6e19cf41e81e15a8cd74687560b4cb7089d4e3a50b"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "ee6a3afdc0c8672f7ff764288fdd6d21c8a0dd2a2d2e685c5bc5e4cf19cc30da",
+    "geometry_and_material_slots": "11364f1775b0a4963b637eee09bf5cb888ea0942786c7b9dc769bb749eae5003",
+    "uv": "f0d77bb620eeceaa5bd761308b4d353a0d0810e9a65c8ed40fe21107c56e8e0c",
+    "rig_and_nla": "4355bc913738ef8f19ecfd229baa2eb770769834ad57188a0715da5b314d9bea",
+    "actions": "4f1481fce7a15edae85d0a6e19cf41e81e15a8cd74687560b4cb7089d4e3a50b"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 2964,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Slide": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.095,
+        1.067,
+        0.247,
+        0.376
+      ]
+    },
+    {
+      "parts": {
+        "Suppressor": [
+          "Dark"
+        ]
+      },
+      "bounds_xz": [
+        1.236,
+        1.493,
+        0.271,
+        0.359
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Ghost_CharmLoop",
+    "Ghost_SlideNeon"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Ghost_Draw",
+    "Ghost_Fire",
+    "Ghost_Inspect",
+    "Ghost_Reload",
+    "Ghost_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Ghost/v02/textures/Ghost_Color.png",
+      "sha256": "18e198ad4a9c0fcb56d0acbfe2a1774d95eeb146753c5001197d67c64729b0d1",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Ghost/v02/textures/Ghost_Normal.png",
+      "sha256": "02ffec0c3bae408684f31f6d631a4f7809520aba19a815998a279cd1c10907dd",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Ghost/v02/textures/Ghost_Roughness.png",
+      "sha256": "0bd9ebf63f8dc0cdd2fc6b892a61ca6bd8c8a6de02b62adf54b6ee7767cc22f5",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Ghost/v02/textures/Ghost_Metalness.png",
+      "sha256": "3093b19658ed278d0641325eff998eb4f5bfede5cd6f8e9cece4df2750de1749",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Ghost_SlideNeon|Neon",
+        "over": "Ghost_Slide|Dark",
+        "faces": 4
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Ghost_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -0.981433629989624
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        2.6925017833709717
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        4.261466979980469
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Ghost/v02/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Ghost",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "gun": "Spectre",
+  "passed": true,
+  "errors": [],
+  "tris": 3276,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.0020215774433214,
+    2.195353780732212,
+    1.098032978292141
+  ],
+  "bounds": [
+    [
+      -1.0728000402450562,
+      1.9012000560760498
+    ],
+    [
+      -0.16899999976158142,
+      0.2329999953508377
+    ],
+    [
+      -0.40781649947166443,
+      0.6652288436889648
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 55,
+  "attachment_count": 9,
+  "actions": 5,
+  "eye_clearance": 0.17
+}

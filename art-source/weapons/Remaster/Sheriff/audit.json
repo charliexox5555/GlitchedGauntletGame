@@ -1,0 +1,33 @@
+{
+  "gun": "Sheriff",
+  "passed": true,
+  "errors": [],
+  "tris": 2800,
+  "budget": 3000,
+  "size_ratios_xyz": [
+    1.0075476395430034,
+    1.15851259366262,
+    0.9454007492663141
+  ],
+  "bounds": [
+    [
+      -0.2418106198310852,
+      1.4950000047683716
+    ],
+    [
+      -0.15399999916553497,
+      0.1745000034570694
+    ],
+    [
+      -0.3197999894618988,
+      0.3831999897956848
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 45,
+  "attachment_count": 18,
+  "actions": 5,
+  "eye_clearance": 0.2064
+}

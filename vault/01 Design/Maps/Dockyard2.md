@@ -775,3 +775,6 @@ What holds it back, and what would move it:
 4. **Navigation** is 1 in all reviews: the lanes are corridors between container walls. Next: a landmark per lane (a reach stacker, a reefer bank, a gangway).
 
 Best shots: [mid-crane](../../02%20Art/References/maps/dockyard2/v5-r3-mid-crane.jpg), [quay](../../02%20Art/References/maps/dockyard2/v5-r3-quay.jpg), [red-lane](../../02%20Art/References/maps/dockyard2/v5-r3-red-lane.jpg) and [side-by-side](../../02%20Art/References/maps/dockyard2/v5-r3-side-by-side.jpg).
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. Only the 16-high tops (Updraft-only by design) left the jump's reach.

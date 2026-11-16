@@ -57,7 +57,8 @@ for id, weapon in Weapons :: { [string]: any } do
 			Vector3.new(0, -spread, 0),
 		}
 	do
-		local eye = handle.CFrame:PointToWorldSpace(aimRel - offset + o + Vector3.new(0, 0, distance))
+		local eye =
+			handle.CFrame:PointToWorldSpace(aimRel - offset + o + Vector3.new(0, 0, distance))
 		local dir = handle.CFrame.LookVector * (distance - 0.02)
 		local remaining = table.clone(candidates)
 		for _ = 1, 8 do

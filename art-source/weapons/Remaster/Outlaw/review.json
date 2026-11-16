@@ -1,0 +1,106 @@
+{
+  "gun": "Outlaw",
+  "tris": 3280,
+  "budget": 5000,
+  "sight": "scope35",
+  "round": "Sniper",
+  "clips": {
+    "Fire": {
+      "frames": 20,
+      "bones": [
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 20
+    },
+    "Reload": {
+      "frames": 74,
+      "bones": [
+        "Barrels",
+        "BreechLatch",
+        "Charm",
+        "Root",
+        "RoundUpper"
+      ],
+      "declared_frames": 74
+    },
+    "ReloadEmpty": {
+      "frames": 90,
+      "bones": [
+        "Barrels",
+        "BreechLatch",
+        "Charm",
+        "Root",
+        "RoundLower",
+        "RoundUpper"
+      ],
+      "declared_frames": 90
+    },
+    "Draw": {
+      "frames": 26,
+      "bones": [
+        "Barrels",
+        "BreechLatch",
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 26
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Barrels",
+        "BreechLatch",
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.19,
+  "old_bounds": [
+    [
+      -1.132200002670288,
+      3.4475998878479004
+    ],
+    [
+      -0.10999999940395355,
+      0.10999999940395355
+    ],
+    [
+      -0.2754000127315521,
+      0.7820000052452087
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Barrels",
+    "RoundUpper",
+    "RoundLower",
+    "BreechLatch",
+    "Trigger",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "MuzzleLower",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "ScopeAxis",
+    "Eject",
+    "EjectLower",
+    "ChamberUpper",
+    "ChamberLower",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "stacked break barrels / twin visible rounds / 3.5x scope"
+}

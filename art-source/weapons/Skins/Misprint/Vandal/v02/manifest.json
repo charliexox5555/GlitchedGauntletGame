@@ -1,0 +1,184 @@
+{
+  "line": "Misprint",
+  "gun": "Vandal",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
+  "source_sha256": "c306f1916fe6270ec6fb80b325881f6c5d3cf176bf06759017e0e7e09c8f298e",
+  "blend": "art-source/weapons/Skins/Misprint/Vandal/v02/Vandal_Misprint_v02.blend",
+  "blend_sha256": "e7d197b6d5f44d77145a230fc28291b0a4937d1db11c63a05574340043815b94",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Vandal_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "a32703dc13dd95f383906fe6788cd99527db8ccf70ad960c177365fe7b985f3a",
+    "geometry_and_material_slots": "1893300ed9735bf663de79e01648076ab4d8d3c0772f4b1cb51bbdb02e8f2437",
+    "uv": "581b8bb66143ff83b94d123f8709ab6df50631de6cb1646ff8dd03eff4cff0c7",
+    "rig_and_nla": "aea3f9403e8f4dfbb4a31cde56b45690b93612c3e0259ed3be6189cfa0564f35",
+    "actions": "74d1161ed601abcd4537bf391613aa3690712d0b786338bfc25dae833229281a"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "a32703dc13dd95f383906fe6788cd99527db8ccf70ad960c177365fe7b985f3a",
+    "geometry_and_material_slots": "1893300ed9735bf663de79e01648076ab4d8d3c0772f4b1cb51bbdb02e8f2437",
+    "uv": "581b8bb66143ff83b94d123f8709ab6df50631de6cb1646ff8dd03eff4cff0c7",
+    "rig_and_nla": "aea3f9403e8f4dfbb4a31cde56b45690b93612c3e0259ed3be6189cfa0564f35",
+    "actions": "74d1161ed601abcd4537bf391613aa3690712d0b786338bfc25dae833229281a"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 5171,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ],
+        "Handguard": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.014,
+        1.48,
+        0.177,
+        0.412
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Vandal_Bolt",
+    "Vandal_CharmLoop",
+    "Vandal_FrontSight",
+    "Vandal_RearSight"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Vandal_Draw",
+    "Vandal_Fire",
+    "Vandal_Inspect",
+    "Vandal_Reload",
+    "Vandal_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Vandal/v02/textures/Vandal_Color.png",
+      "sha256": "24538a9cba29a02903f623adb1a7c97fb942919a1b8e4382f7b95918df19c838",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Vandal/v02/textures/Vandal_Normal.png",
+      "sha256": "81c1a8c7fbf2fbdba1d85dd3f321cd2e206188fb7553f320de0459b926783d7d",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Vandal/v02/textures/Vandal_Roughness.png",
+      "sha256": "71c800ae6845f95a3627c6eefcf471fc81b93b9f6a708973472f03465751ef26",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Vandal/v02/textures/Vandal_Metalness.png",
+      "sha256": "00254838aaa0f00da0cf18512f15e9f8e5c59b062d5116ef7c074bafcf38a6b1",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Vandal_Cam_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.4025000035762787
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.5598000288009644
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.13333334028720856,
+    "lens_mm": 17.79073143005371
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Vandal/v02/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Vandal",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

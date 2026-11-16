@@ -1,0 +1,183 @@
+{
+  "line": "Faultline",
+  "gun": "Outlaw",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Outlaw/Outlaw_RemasterV2_v05.blend",
+  "source_sha256": "a8b3e9fb72b144eeb33cc8d1364d30f3a2d1bacc82e8ed7669202b3e5be5268f",
+  "blend": "art-source/weapons/Skins/Faultline/Outlaw/v01/Outlaw_Faultline_v01.blend",
+  "blend_sha256": "f11799c424d8b63e87d3fd2e052842538df716236afe13b4a9098fbdda068c2f",
+  "concept": "vault/02 Art/Skins/Faultline/out/Sheriff_concept_v02.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Outlaw_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "b13058c7350ebb9e9767d4acecbc62d135d0de73f7cda09ac3a64b786091fb50",
+    "geometry_and_material_slots": "03fcefd8263345fd2218c657c10121cf1266441826a90f4a71cc90128062a9e9",
+    "uv": "f175df06ea04ff057608f8fd73731be6e6075440702a406b017b3f711c7084cf",
+    "rig_and_nla": "73ec5079fa8419b7bff312a8749efe8c8052c89bf450f7964b69d476508d0dd3",
+    "actions": "065db07ff4270087352130e905b90961d1e935e8dfc6a68f8725723bd372bcb6"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "b13058c7350ebb9e9767d4acecbc62d135d0de73f7cda09ac3a64b786091fb50",
+    "geometry_and_material_slots": "03fcefd8263345fd2218c657c10121cf1266441826a90f4a71cc90128062a9e9",
+    "uv": "f175df06ea04ff057608f8fd73731be6e6075440702a406b017b3f711c7084cf",
+    "rig_and_nla": "73ec5079fa8419b7bff312a8749efe8c8052c89bf450f7964b69d476508d0dd3",
+    "actions": "065db07ff4270087352130e905b90961d1e935e8dfc6a68f8725723bd372bcb6"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 5069,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.186,
+        0.985,
+        0.165,
+        0.437
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Outlaw_CharmLoop",
+    "Outlaw_RoundLower",
+    "Outlaw_RoundUpper",
+    "Outlaw_Scope",
+    "Outlaw_ScopeLens"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "171B21",
+      0.44,
+      0.04
+    ],
+    "Panel": [
+      "31363F",
+      0.47,
+      0.07
+    ],
+    "Dark": [
+      "101216",
+      0.63,
+      0.07
+    ],
+    "Grip": [
+      "25262C",
+      0.77,
+      0.03
+    ],
+    "Metal": [
+      "555C69",
+      0.4,
+      0.7
+    ],
+    "Accent": [
+      "C07D57",
+      0.28,
+      0.78
+    ],
+    "Neon": [
+      "DEA987",
+      0.26,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Outlaw_Draw",
+    "Outlaw_Fire",
+    "Outlaw_Inspect",
+    "Outlaw_Reload",
+    "Outlaw_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Faultline/Outlaw/v01/textures/Outlaw_Color.png",
+      "sha256": "44bdf60a5936c48bd0533df0efde939c681469959fc66c57b23c381198721e7a",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Faultline/Outlaw/v01/textures/Outlaw_Normal.png",
+      "sha256": "9da87e79a7f2732a6c1c180af425937792f13e66ed3ece6535d56cafa06face5",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Faultline/Outlaw/v01/textures/Outlaw_Roughness.png",
+      "sha256": "603a7b1d45fa8eba920b42740b25e61a54353b19f27df0e306399c9f5ff346e7",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Faultline/Outlaw/v01/textures/Outlaw_Metalness.png",
+      "sha256": "fdf63ca6c12ed282f6931666b3432f43d9ee53e6f464e3bb9a511a4b6a0cd094",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Outlaw_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -2.0257723331451416
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        4.535107612609863
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        7.364151954650879
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Faultline/Outlaw/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Outlaw",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

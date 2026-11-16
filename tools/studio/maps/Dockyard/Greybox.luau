@@ -119,6 +119,10 @@ local LAYOUT: { Piece } = {
 	{ name = "Backdrop'", kind = "backdrop", lane = "neutral", x = 43, z = -105, sx = 50, sz = 26, h = 56, y0 = 0 },
 	{ name = "Backdrop'", kind = "backdrop", lane = "neutral", x = -43, z = -105, sx = 50, sz = 26, h = 56, y0 = 0 },
 	{ name = "Backdrop'", kind = "backdrop", lane = "neutral", x = 0, z = -114, sx = 36, sz = 8, h = 56, y0 = 0 },
+	{ name = "Stack step crate", kind = "low", lane = "mid", x = -8, z = 14, sx = 4, sz = 4, h = 3.5, y0 = 0, piece = "Crate" },
+	{ name = "Mid post crate", kind = "low", lane = "mid", x = 10, z = 34, sx = 4, sz = 4, h = 3.5, y0 = 0, piece = "Crate" },
+	{ name = "Stack step crate'", kind = "low", lane = "mid", x = 8, z = -14, sx = 4, sz = 4, h = 3.5, y0 = 0, piece = "Crate" },
+	{ name = "Mid post crate'", kind = "low", lane = "mid", x = -10, z = -34, sx = 4, sz = 4, h = 3.5, y0 = 0, piece = "Crate" },
 }
 local SPAWNS_A = { { 6, -98 }, { -6, -98 }, { 6, -104 }, { -6, -104 } }
 local SPAWNS_B = { { -6, 98 }, { 6, 98 }, { -6, 104 }, { 6, 104 } }

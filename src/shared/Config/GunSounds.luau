@@ -1,31 +1,30 @@
 --!strict
--- Every gun's sounds, one entry per gun. Change a sound here and it changes
--- everywhere: AudioController plays these, and the reload / draw / inspect
--- foley lands on the gun's own animation beats (mag out, mag in, rack).
+-- Every gun's sounds (2026-11-13, v5): all from the pro sound pack the owner
+-- bought (vault/06 Assets/NewGunSounds), matched to our guns by type (pistol
+-- set on the pistols, revolver on the revolver, rifle sets on the rifles, ...)
+-- and using EVERY numbered take of each sound, so no shot, cock, mag or dry
+-- fire is the same twice in a row. The table is in vault/02 Art/Sound Library
+-- Pick.md §13.
 --
--- HOW TO CHANGE A SOUND
---   1. Upload the sound to Roblox (Creator Dashboard → Development Items →
---      Audio, or tools/opencloud/upload_asset.py --type Audio).
---   2. Paste its id over the placeholder: id = "rbxassetid://1234567890".
---   3. Adjust `volume` (0..10, ~0.6 is a normal foley level) and `pitch`
---      ({ min, max } playback speed, picked at random each play; { 1, 1 } = none).
---   4. Save; Rojo syncs it into Studio. Play to hear it.
---   Ids starting with "atlas:" are PLACEHOLDERS: slices of the shared gun
---   sound atlas (Config/SoundAtlas). Replace them with a plain rbxassetid.
---   Leave an optional sound out (or set it to nil) to play nothing.
---   Gunshot placeholders in the atlas (real recordings; add "_Far" for the
---   enemy version): PPQ (9mm pistol), Revolver (.38), M1911 (.45), Bersa
---   (.380), Ruger22 (.22, quiet), SwedishK and PPSh (SMGs), PPShBurst, AR15,
---   AK47Suppressed, AKBurst (AK full auto), Marlin (.30-30 lever), SKS,
---   Springfield / Tikka / Mosin (bolt rifles), Nova / Model12 / Mossberg
---   (shotguns). Foley: DryFire.
+-- Each slot names recordings from Config/GunSoundAssets. A slot plays
+-- one of its files at random, never the same
+-- twice running, with a small random pitch (`pitch`) and level (Config/Audio
+-- VOLUME_JITTER_DB). `takes(prefix, first, last)` is shorthand for numbered
+-- files: takes(P .. "shot_", 1, 5) = gun_pistol_shot_01 .. _05.
 --
--- A NEW GUN: copy the Vandal's entry, rename it to the gun's id (the same
--- name as in Config/Weapons and ReplicatedStorage.Weapons) and swap the ids.
--- Guns without an entry use DEFAULT.
+-- Audition the complete takes in art-source/audio/ProPack/standalone/ and
+-- update a slot's cue names to select any existing uploaded recording.
+--
+-- How a shot plays (Util/GunAudio, the pack's guide): `fireFirst` opens a
+-- sequence, then random `fire` takes; `tail` starts with every shot and the
+-- next shot fades it; the shot that empties the mag plays `fireLast` (the
+-- pack's last shot with its own tail). Other players hear `fireFar` (3D) with
+-- the same first / tail / fade logic. Handling plays on the gun's clip beats
+-- (gg_markers MagOut, MagIn, Open, RoundOut, RoundIn, Close, ShellIn, or the
+-- moving joints).
 
 export type GunSound = {
-	id: string, -- "rbxassetid://…" (or an "atlas:" placeholder)
+	id: string, -- "gun:<cue>|<cue>…" or a plain Roblox SoundId
 	volume: number,
 	pitch: { number }?, -- { min, max } random playback speed per play
 }
@@ -33,15 +32,22 @@ export type GunSound = {
 export type GunSoundSet = {
 	fire: GunSound, -- your own shot (2D, every shot)
 	fireFar: GunSound, -- what other players hear when this gun fires (3D, at the muzzle)
-	tail: GunSound?, -- optional: an echo / tail after each shot (2D)
-	dryFire: GunSound, -- trigger pulled on an empty mag
-	magOut: GunSound, -- reloads: the mag leaves the gun (when the Mag starts moving)
-	magIn: GunSound, -- reloads: the mag seats (when the Mag stops moving)
-	rack: GunSound?, -- charging handle / bolt / pump / slide / break-action shut: empty reloads, first draw, pump & bolt shots
-	open: GunSound?, -- break-action / revolver: the action opens on a reload
-	shellIn: GunSound?, -- shotguns / revolvers: each round loaded
+	fireFirst: GunSound?, -- the first shot of a sequence (Config/Audio FIRST_SHOT_GAP)
+	fireLast: GunSound?, -- the shot that empties the mag (with its own tail)
+	tail: GunSound?, -- the room, started with every shot, faded by the next (Config/Audio TAIL_FADE)
+	dryFire: GunSound?, -- trigger pulled on an empty mag
+	magOut: GunSound?, -- the mag (or ammo box) leaves the gun
+	magIn: GunSound?, -- the mag seats
+	rack: GunSound?, -- charging handle / bolt / pump / slide / lever / hammer: empty reloads, every draw, pump & bolt shots
+	open: GunSound?, -- barrels drop, a cylinder swings out, a feed cover lifts
+	eject: GunSound?, -- spent cases out
+	shellIn: GunSound?, -- each shell / round loaded
+	close: GunSound?, -- the action shut again
 	draw: GunSound, -- pulling the gun out (every equip)
+	drawWhoosh: GunSound?, -- a small whoosh under every equip (defaults to EQUIP_WHOOSH)
 	inspect: GunSound?, -- start of an inspect (Y)
+	aimIn: GunSound?, -- aiming down sights (defaults to AIM_IN; scoped guns: the scope lens)
+	aimOut: GunSound?, -- leaving the sights
 	-- Melee only: the heavy attack's whoosh, and the blade striking a wall or a body.
 	heavy: GunSound?,
 	hitWall: GunSound?, -- stone, concrete, brick, plastic (any surface without its own)
@@ -52,396 +58,369 @@ export type GunSoundSet = {
 	inspectFlip: GunSound?, -- each flip inside the inspect
 }
 
-local Weapons = require(script.Parent.Weapons)
+-- Default volumes per kind of slot.
+local FIRE = 1 -- 2026-11-13: up from 0.85 (the owner found the shots quiet)
+local TAIL = 1
+local FAR = 0.9
+local FOLEY = 0.8
+local DRAW = 0.7
+local INSPECT = 0.6
 
-local FOLEY = 0.6 -- normal handling loudness
-local PITCH = { 0.97, 1.03 } -- a little variation so repeats never sound looped
+local SHOT_PITCH = { 0.98, 1.02 } -- +/- 2 %
+local FOLEY_PITCH = { 0.97, 1.03 } -- +/- 3 %
+local SOURCE_PITCH = { 1, 1 }
+-- Keep the Vandal's split recording at its original pitch and bring the
+-- recorded ambience up ~4 dB so the end of a tap or spray reads.
+local VANDAL_TAIL = 1.6
 
-local function id(n: number): string
-	return "rbxassetid://" .. tostring(n)
+-- A slot: these pack files (one picked per play), at this volume and pitch.
+local function S(files: { string }, volume: number, pitch: { number }?): GunSound
+	return { id = "gun:" .. table.concat(files, "|"), volume = volume, pitch = pitch or FOLEY_PITCH }
 end
 
--- Handling placeholders (Audioscape foley, Roblox-licensed), shared by every gun;
--- CLASS_FOLEY below swaps them for real per-class recordings.
-local MAG_OUT = id(101803348893194) -- AS_gun_foley-01
-local MAG_IN = id(92321876028160) -- AS_gun_foley-02
-local RACK = id(135901981148051) -- AS_gun_foley-03
-local DRAW = id(73599108833500) -- AS_gun_foley-04
+-- Numbered takes: takes("gun_pistol_shot_", 1, 5) = { "gun_pistol_shot_01", ... "_05" }.
+local function takes(prefix: string, first: number, last: number): { string }
+	local out = {}
+	for i = first, last do
+		table.insert(out, prefix .. string.format("%02d", i))
+	end
+	return out
+end
 
-local DEFAULT: GunSoundSet = {
-	fire = { id = "atlas:AR15", volume = 0.75, pitch = PITCH },
-	fireFar = { id = "atlas:AR15_Far", volume = 0.9, pitch = PITCH },
-	dryFire = { id = "atlas:DryFire", volume = FOLEY },
-	magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH },
-	magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH },
-	rack = { id = RACK, volume = FOLEY, pitch = PITCH },
-	draw = { id = DRAW, volume = FOLEY, pitch = PITCH },
+-- Several lists as one.
+local function join(...: { string }): { string }
+	local out = {}
+	for _, list in { ... } do
+		for _, name in list do
+			table.insert(out, name)
+		end
+	end
+	return out
+end
+
+-- Pack families (file name prefixes).
+local P = "gun_pistol_"
+local R = "gun_revolver_pistol_"
+local SG = "gun_shotgun_"
+local M = "gun_submachine_auto_"
+local A = "gun_semi_auto_rifle_"
+local RF = "gun_rifle_"
+local SN = "gun_rifle_sniper_"
+local H = "gun_machinegun_auto_heavy_"
+local GEAR = "foley_soldier_gear_equipment_"
+
+-- A small whoosh under every gun's equip, and the aim-down-sights sounds
+-- (2026-11-13, owner): a short cloth flick in and out.
+local EQUIP_WHOOSH: GunSound
+local AIM_IN: GunSound
+local AIM_OUT: GunSound
+
+-- Shared pools.
+local PISTOL_DRAW = takes(P .. "general_handling_", 5, 10) -- the short handling takes (0.3-0.4 s)
+local LONG_GUN_DRAW = { RF .. "grab_pickup_01", SG .. "pickup_01", SG .. "pickup_02" }
+local HEAVY_DRAW = takes(GEAR .. "metal_cloth_heavy_movement_strong_", 1, 4)
+
+-- Match the reports at about -12 LUFS over their loudest 100 ms. Apply the
+-- same trim to first, repeat, last and tail to keep each family's balance.
+local REPORT_LEVEL: { [string]: number } = {
+	Classic = 0.77,
+	Ghost = 1.13,
+	Sheriff = 0.60,
+	Shorty = 0.59,
+	Stinger = 1.28,
+	Spectre = 1.28,
+	Bucky = 0.59,
+	Judge = 0.59,
+	Vandal = 1.34, -- +2.2 dB so the report reads above the rest of the mix
+	Phantom = 1.04,
+	Bulldog = 1.04,
+	Guardian = 0.54,
+	Marshal = 0.54,
+	Outlaw = 0.48,
+	Operator = 0.48,
+	Ares = 0.62,
+	Odin = 0.62,
 }
 
 local sets: { [string]: GunSoundSet } = {
-	-- Vandal: heavy AK-style rifle.
-	Vandal = {
-		fire = { id = "atlas:AKBurst", volume = 0.75, pitch = PITCH }, -- PLACEHOLDER: real AK-47 full-auto shot
-		fireFar = { id = "atlas:AKBurst_Far", volume = 0.9, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER (synthesized click)
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER: charging handle
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Phantom: suppressed rifle (quiet shot, no loud tail).
-	Phantom = {
-		fire = { id = "atlas:AK47Suppressed", volume = 0.75, pitch = PITCH }, -- PLACEHOLDER: filtered AK-47
-		fireFar = { id = "atlas:AK47Suppressed_Far", volume = 0.9, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER: charging handle
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Classic: default 9 mm pistol. `fire` also plays for the 3-pellet alt-fire.
+	-- Pistols: the pack's pistol ------------------------------------------------
 	Classic = {
-		fire = { id = "atlas:PPQ", volume = 0.7, pitch = PITCH }, -- PLACEHOLDER: Walther PPQ 9mm
-		fireFar = { id = "atlas:PPQ_Far", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER (pitched up: smaller mag)
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = { 1.1, 1.16 } }, -- PLACEHOLDER: slide racked / released
-		draw = { id = DRAW, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER
+		fire = S(takes(P .. "shot_", 1, 5), FIRE, SHOT_PITCH),
+		fireFar = S(takes(P .. "shot_", 1, 5), FAR, SHOT_PITCH),
+		draw = S(PISTOL_DRAW, DRAW),
+		rack = S(takes(P .. "cock_", 1, 7), FOLEY),
+		magOut = S(takes(P .. "remove_mag_", 1, 6), FOLEY),
+		magIn = S(takes(P .. "insert_mag_", 1, 5), FOLEY),
+		inspect = S(takes(P .. "slide_slow_", 1, 6), INSPECT),
+		dryFire = S(takes(P .. "dry_fire_", 1, 6), FOLEY),
 	},
-
-	-- Shorty: over-under break-action pocket shotgun.
-	Shorty = {
-		fire = { id = "atlas:Mossberg", volume = 0.8, pitch = PITCH }, -- PLACEHOLDER: Mossberg 190 shotgun
-		fireFar = { id = "atlas:Mossberg_Far", volume = 0.9, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER (hammer falls on an empty chamber)
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- unused (no mag); kept for the type
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- unused (no mag)
-		open = { id = MAG_OUT, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: barrels break open
-		shellIn = { id = MAG_IN, volume = FOLEY * 0.8, pitch = { 1.15, 1.2 } }, -- PLACEHOLDER: shell into a chamber
-		rack = { id = RACK, volume = FOLEY, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER: barrels snap shut
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Ghost: suppressed pistol.
+	-- The pack's suppressed pistol shots, the pistol's handling.
 	Ghost = {
-		fire = { id = "atlas:Ruger22", volume = 0.7, pitch = { 0.95, 1.0 } }, -- PLACEHOLDER: Ruger .22, filtered (quiet)
-		fireFar = { id = "atlas:Ruger22_Far", volume = 0.75, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = { 1.1, 1.16 } }, -- PLACEHOLDER: slide released / racked
-		draw = { id = DRAW, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER
+		fire = S(takes(P .. "shot_silenced_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(P .. "shot_silenced_", 1, 4), FAR, SHOT_PITCH),
+		draw = S(PISTOL_DRAW, DRAW),
+		rack = S(takes(P .. "slide_fast_", 1, 6), FOLEY),
+		magOut = S(takes(P .. "remove_mag_", 1, 6), FOLEY),
+		magIn = S(takes(P .. "insert_mag_", 1, 5), FOLEY),
+		inspect = S(takes(P .. "general_handling_", 2, 4), INSPECT),
+		dryFire = S(takes(P .. "dry_fire_", 1, 6), FOLEY),
 	},
-
-	-- Judge: drum-fed automatic shotgun.
-	Judge = {
-		fire = { id = "atlas:Model12", volume = 0.8, pitch = PITCH }, -- PLACEHOLDER: Winchester Model 12 shotgun
-		fireFar = { id = "atlas:Model12_Far", volume = 0.9, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: drum out (heavier)
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: drum slapped home
-		rack = { id = RACK, volume = FOLEY, pitch = { 0.92, 0.97 } }, -- PLACEHOLDER: charging handle
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Stinger: Uzi-type SMG.
-	Stinger = {
-		fire = { id = "atlas:SwedishK", volume = 0.7, pitch = { 1.02, 1.08 } }, -- PLACEHOLDER: Carl Gustav M45 SMG
-		fireFar = { id = "atlas:SwedishK_Far", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 1.04, 1.1 } }, -- PLACEHOLDER: mag out of the grip
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.04, 1.1 } }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER: side knob
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Spectre: suppressed SMG.
-	Spectre = {
-		fire = { id = "atlas:AK47Suppressed", volume = 0.65, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER: filtered AK, pitched up
-		fireFar = { id = "atlas:AK47Suppressed_Far", volume = 0.8, pitch = { 1.06, 1.12 } }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 1.04, 1.1 } }, -- PLACEHOLDER
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.04, 1.1 } }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = { 1.02, 1.08 } }, -- PLACEHOLDER: HK-style cocking handle slap
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Bucky: pump shotgun, loads shell by shell.
-	Bucky = {
-		fire = { id = "atlas:Nova", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER: Benelli Nova 12ga
-		fireFar = { id = "atlas:Nova_Far", volume = 0.95, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- unused (tube magazine)
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- unused
-		shellIn = { id = MAG_IN, volume = FOLEY * 0.85, pitch = { 1.18, 1.25 } }, -- PLACEHOLDER: shell into the tube
-		rack = { id = RACK, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: the pump, after each shot and on an empty reload
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Sheriff: six-shot revolver with a speedloader.
+	-- Revolver: the pack's revolver.
 	Sheriff = {
-		fire = { id = "atlas:Revolver", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER: S&W .38 revolver
-		fireFar = { id = "atlas:Revolver_Far", volume = 0.95, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER (hammer on an empty chamber)
-		open = { id = MAG_OUT, volume = FOLEY, pitch = { 1.15, 1.2 } }, -- PLACEHOLDER: cylinder swings out
-		magOut = { id = RACK, volume = FOLEY * 0.8, pitch = { 1.2, 1.28 } }, -- PLACEHOLDER: ejector rod, cases out
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- unused (no mag)
-		shellIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER: speedloader seats the rounds
-		rack = { id = RACK, volume = FOLEY, pitch = { 1.15, 1.22 } }, -- PLACEHOLDER: cylinder flicked shut
-		draw = { id = DRAW, volume = FOLEY, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER
+		fire = S(takes(R .. "shot_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(R .. "shot_", 1, 4), FAR, SHOT_PITCH),
+		draw = S(PISTOL_DRAW, DRAW),
+		rack = S(takes(R .. "cock_", 1, 5), FOLEY),
+		open = S(takes(R .. "cylinder_open_", 1, 3), FOLEY),
+		eject = S(takes(P .. "load_bullet_", 1, 7), FOLEY), -- loose rounds clinking out
+		shellIn = S(takes(R .. "load_bullet_", 1, 5), FOLEY),
+		close = S(takes(R .. "cylinder_close_", 1, 4), FOLEY),
+		inspect = S(takes(R .. "cylinder_spin_", 1, 2), INSPECT),
+		dryFire = S(takes(R .. "dry_fire_", 1, 5), FOLEY),
 	},
-
-	-- Bulldog: bullpup rifle.
-	Bulldog = {
-		fire = { id = "atlas:AR15", volume = 0.75, pitch = PITCH }, -- PLACEHOLDER: AR-15
-		fireFar = { id = "atlas:AR15_Far", volume = 0.9, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER: mag out of the stock
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER: charging handle
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Guardian: semi-auto marksman rifle.
-	Guardian = {
-		fire = { id = "atlas:SKS", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER: SKS
-		fireFar = { id = "atlas:SKS_Far", volume = 0.95, pitch = PITCH }, -- PLACEHOLDER
-		tail = nil,
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = { 0.95, 1.0 } }, -- PLACEHOLDER: charging handle
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-		inspect = { id = DRAW, volume = FOLEY * 0.6, pitch = { 1.05, 1.1 } }, -- PLACEHOLDER
-	},
-
-	-- Knife (2026-11-05, lane F): real CC0 recordings, polished, in the atlas
-	-- (tools/audio/build_sfx.py; sources, licences and 2 alternates per sound
-	-- in vault/05 Production/Playtests/2026-11-05 Knife and Sound Pass.md).
-	-- `fire` is a light slash's whoosh (WeaponController times it so its peak
-	-- lands on the strike; each step of a 1-2-3 chain climbs a semitone),
-	-- fireFar what others hear. Each name has 2-4 takes (round-robin) plus the
-	-- pitch range here.
-	Knife = {
-		fire = { id = "atlas:KnifeSwing", volume = 0.55, pitch = { 0.97, 1.05 } }, -- bamboo-stick / whip swishes
-		heavy = { id = "atlas:KnifeSwingHeavy", volume = 0.65, pitch = { 0.94, 1.0 } }, -- a stick swung hard, low whooshes
-		hitBody = { id = "atlas:KnifeHitBody", volume = 0.75, pitch = { 0.95, 1.05 } }, -- stabbing a cabbage
-		hitWall = { id = "atlas:KnifeHitStone", volume = 0.6, pitch = { 0.95, 1.05 } }, -- axe / hatchet on concrete and rock
-		hitMetal = { id = "atlas:KnifeHitMetal", volume = 0.5, pitch = { 0.96, 1.04 } }, -- kitchen knives clashing
-		hitWood = { id = "atlas:KnifeHitWood", volume = 0.65, pitch = { 0.95, 1.05 } }, -- a knife into wood
-		hitSoft = { id = "atlas:KnifeHitBody", volume = 0.4, pitch = { 0.8, 0.86 } }, -- grass, dirt, snow: a duller stab
-		fireFar = { id = "atlas:KnifeSwing", volume = 0.4, pitch = { 0.95, 1.05 } },
-		tail = nil,
-		dryFire = { id = "atlas:KnifeSwing", volume = 0 }, -- unused (no ammo)
-		magOut = { id = MAG_OUT, volume = 0 }, -- unused
-		magIn = { id = MAG_IN, volume = 0 }, -- unused
-		draw = { id = "atlas:KnifeDraw", volume = 0.55, pitch = { 0.98, 1.06 } }, -- a blade drawn along steel / from a sheath
-		inspect = { id = "atlas:KnifeInspect", volume = 0.4, pitch = { 1.0, 1.05 } }, -- a blade across a steel
-		inspectFlip = { id = "atlas:KnifeFlip", volume = 0.45, pitch = { 0.97, 1.03 } }, -- a real balisong clicking
-	},
-
-	-- Marshal: lever-action rifle.
-	Marshal = {
-		fire = { id = "atlas:Marlin", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER: Marlin .30-30 lever-action
-		fireFar = { id = "atlas:Marlin_Far", volume = 0.95, pitch = PITCH }, -- PLACEHOLDER
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER (unused: no mag)
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER (unused: no mag)
-		rack = { id = RACK, volume = FOLEY, pitch = { 1.05, 1.12 } }, -- PLACEHOLDER: the lever
-		shellIn = { id = MAG_IN, volume = 0.5, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER: a round through the gate
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-	},
-
-	-- Outlaw: twin-barrel break-action rifle.
-	Outlaw = {
-		fire = { id = "atlas:Mosin", volume = 0.9, pitch = { 0.92, 0.97 } }, -- PLACEHOLDER: Mosin-Nagant, pitched down
-		fireFar = { id = "atlas:Mosin_Far", volume = 1.0, pitch = PITCH }, -- PLACEHOLDER
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER (unused: no mag)
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER (unused: no mag)
-		rack = { id = RACK, volume = FOLEY, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER: the action snaps shut
-		open = { id = MAG_OUT, volume = FOLEY, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: the barrels drop
-		shellIn = { id = MAG_IN, volume = 0.5, pitch = { 1.15, 1.25 } }, -- PLACEHOLDER: a round into its chamber
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-	},
-
-	-- Operator: heavy bolt-action sniper.
-	Operator = {
-		fire = { id = "atlas:Tikka", volume = 0.95, pitch = { 0.88, 0.93 } }, -- PLACEHOLDER: Tikka bolt rifle, pitched down
-		fireFar = { id = "atlas:Tikka_Far", volume = 1.0, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 0.9, 0.95 } }, -- PLACEHOLDER
-		rack = { id = RACK, volume = 0.7, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: the bolt
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-	},
-
-	-- Ares: drum-fed light machine gun.
-	Ares = {
-		fire = { id = "atlas:PPSh", volume = 0.75, pitch = { 0.86, 0.9 } }, -- PLACEHOLDER: PPSh-41, pitched down (heavier)
-		fireFar = { id = "atlas:PPSh_Far", volume = 0.9, pitch = { 0.86, 0.9 } }, -- PLACEHOLDER
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = 0.7, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER: the drum
-		magIn = { id = MAG_IN, volume = 0.7, pitch = { 0.85, 0.9 } }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER: charging handle
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-	},
-
-	-- Odin: belt-fed heavy machine gun.
-	Odin = {
-		fire = { id = "atlas:AKBurst", volume = 0.8, pitch = { 0.82, 0.86 } }, -- PLACEHOLDER: AK full auto, pitched well down
-		fireFar = { id = "atlas:AKBurst_Far", volume = 0.95, pitch = { 0.82, 0.86 } }, -- PLACEHOLDER
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = 0.7, pitch = { 0.8, 0.85 } }, -- PLACEHOLDER: the ammo box
-		magIn = { id = MAG_IN, volume = 0.7, pitch = { 0.8, 0.85 } }, -- PLACEHOLDER
-		rack = { id = RACK, volume = 0.7, pitch = { 0.88, 0.92 } }, -- PLACEHOLDER: charging handle
-		open = { id = MAG_OUT, volume = FOLEY, pitch = { 1.1, 1.15 } }, -- PLACEHOLDER: the feed cover lifts
-		shellIn = { id = RACK, volume = 0.55, pitch = { 1.2, 1.3 } }, -- PLACEHOLDER: the feed cover latches
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-	},
-
-	-- Akimbo: two compact automatic pistols.
-	Akimbo = {
-		fire = { id = "atlas:Bersa", volume = 0.7, pitch = { 1.02, 1.08 } }, -- PLACEHOLDER: Bersa .380, pitched up
-		fireFar = { id = "atlas:Bersa_Far", volume = 0.85, pitch = PITCH }, -- PLACEHOLDER
-		dryFire = { id = "atlas:DryFire", volume = FOLEY }, -- PLACEHOLDER
-		magOut = { id = MAG_OUT, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
-		magIn = { id = MAG_IN, volume = FOLEY, pitch = { 1.08, 1.14 } }, -- PLACEHOLDER
-		rack = { id = RACK, volume = FOLEY, pitch = { 1.15, 1.22 } }, -- PLACEHOLDER: the slide
-		draw = { id = DRAW, volume = FOLEY, pitch = PITCH }, -- PLACEHOLDER
-	},
-}
-
--- Handling foley per gun class (2026-11-05, lane F): real recordings of real
--- guns in the atlas (Foley* slices; sources, licences and alternates in
--- vault/05 Production/Playtests/2026-11-05 Knife and Sound Pass.md → Reload
--- and equip). Every placeholder handling sound above (MAG_OUT / MAG_IN / RACK
--- / DRAW) is swapped for its class's slice here, keeping the gun's volume; a
--- gun's own pitch range is replaced by the class one (the old ranges bent one
--- shared take into many guns; these takes are already the right size).
--- `GUN_FOLEY` overrides single guns (break actions, the revolver, the lever).
--- To try another take, edit the table; to go back to a placeholder, delete
--- the gun's line in GUN_FOLEY or the class's field.
-type Foley = { id: string, pitch: { number } }
-local function f(slice: string, lo: number?, hi: number?): Foley
-	return { id = "atlas:Foley" .. slice, pitch = { lo or 0.97, hi or 1.03 } }
-end
-
-local CLASS_FOLEY: { [string]: { [string]: Foley } } = {
-	Rifle = { -- AR-15 / AK / M16 magazine changes and charging handle
-		magOut = f("RifleMagOut"),
-		magIn = f("RifleMagIn"),
-		rack = f("RifleRack"),
-		draw = f("DrawRifle"),
-		inspect = f("DrawRifle", 1.02, 1.06),
-	},
-	SMG = { -- an Uzi-style SMG's mag and bolt
-		magOut = f("SmgMagOut"),
-		magIn = f("SmgMagIn"),
-		rack = f("SmgRack"),
-		draw = f("DrawRifle", 1.04, 1.08),
-		inspect = f("DrawRifle", 1.06, 1.1),
-	},
-	Sidearm = { -- a Glock 19's mag and slide, a holster draw
-		magOut = f("PistolMagOut"),
-		magIn = f("PistolMagIn"),
-		rack = f("PistolRack"),
-		draw = f("DrawPistol"),
-		inspect = f("DrawPistol", 1.02, 1.06),
-	},
-	Shotgun = { -- pump, shells into the tube
-		rack = f("ShotgunPump"),
-		shellIn = f("ShellIn"),
-		draw = f("DrawRifle", 0.95, 1.0),
-		inspect = f("DrawRifle", 0.98, 1.02),
-	},
-	Sniper = { -- a bolt action, mag in the stock
-		magOut = f("RifleMagOut", 0.94, 0.98),
-		magIn = f("RifleMagIn", 0.94, 0.98),
-		rack = f("Bolt"),
-		draw = f("DrawRifle", 0.95, 1.0),
-		inspect = f("DrawRifle", 0.98, 1.02),
-	},
-	MachineGun = { -- rifle handling, pitched a little heavier
-		magOut = f("RifleMagOut", 0.9, 0.94),
-		magIn = f("RifleMagIn", 0.9, 0.94),
-		rack = f("RifleRack", 0.92, 0.96),
-		draw = f("DrawRifle", 0.92, 0.96),
-		inspect = f("DrawRifle", 0.96, 1.0),
-	},
-}
-
-local GUN_FOLEY: { [string]: { [string]: Foley } } = {
-	-- Revolver: the cylinder swings out, cases out, speedloader, flicked shut.
-	Sheriff = {
-		open = f("RevolverOpen"),
-		magOut = f("PistolMagOut", 1.08, 1.14),
-		shellIn = f("ShellIn", 1.05, 1.1),
-		rack = f("RevolverRack"),
-	},
-	-- Break-action shotgun: the barrels drop, shells in, snapped shut.
+	-- Sawn-off: the pack's shotgun. Its break action has no recording in the
+	-- pack, so the barrels open and shut on the revolver's hinge sounds.
 	Shorty = {
-		open = f("RevolverOpen", 0.84, 0.88),
-		shellIn = f("ShellIn"),
-		rack = f("Bolt", 0.9, 0.95),
+		fire = S(takes(SG .. "shot_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(SG .. "shot_", 1, 4), FAR, SHOT_PITCH),
+		draw = S(takes(SG .. "pickup_", 1, 2), DRAW),
+		open = S(takes(R .. "cylinder_open_", 1, 3), FOLEY),
+		shellIn = S(takes(SG .. "load_bullet_", 1, 8), FOLEY),
+		close = S(takes(R .. "cylinder_close_", 1, 4), FOLEY),
+		rack = S(takes(R .. "cock_", 1, 5), FOLEY), -- the hammers
+		inspect = S(takes(SG .. "safety_switch_", 1, 4), INSPECT),
+		dryFire = S(takes(SG .. "dry_fire_", 1, 2), FOLEY),
 	},
+
+	-- SMGs: the pack's automatic SMG ----------------------------------------------
+	Stinger = {
+		fire = S(takes(M .. "shot_", 1, 9), FIRE, SHOT_PITCH),
+		fireFirst = S({ M .. "shot_00_first_01" }, FIRE, SHOT_PITCH),
+		fireLast = S({ M .. "shot_00_last_with_tail_01" }, FIRE, SHOT_PITCH),
+		tail = S({ M .. "shot_00_tail_only_01" }, TAIL, SHOT_PITCH),
+		fireFar = S(takes(M .. "shot_", 1, 9), FAR, SHOT_PITCH),
+		draw = S(LONG_GUN_DRAW, DRAW),
+		magOut = S(takes(M .. "magazine_unload_", 1, 3), FOLEY),
+		magIn = S(takes(M .. "magazine_load_", 1, 4), FOLEY),
+		rack = S(takes(M .. "cock_", 1, 4), FOLEY),
+		inspect = S(takes(M .. "magazine_safety_switch_", 1, 2), INSPECT),
+		dryFire = S(takes(M .. "dry_fire_", 1, 3), FOLEY),
+	},
+	-- The same SMG set (the pack has no suppressed SMG); a quieter room tail.
+	Spectre = {
+		fire = S(takes(M .. "shot_", 1, 9), FIRE, SHOT_PITCH),
+		fireFirst = S({ M .. "shot_00_first_01" }, FIRE, SHOT_PITCH),
+		fireLast = S({ M .. "shot_00_last_with_tail_01" }, FIRE * 0.8, SHOT_PITCH),
+		tail = S({ M .. "shot_00_tail_only_01" }, TAIL * 0.5, SHOT_PITCH),
+		fireFar = S(takes(M .. "shot_", 1, 9), FAR * 0.8, SHOT_PITCH),
+		draw = S(LONG_GUN_DRAW, DRAW),
+		magOut = S(takes(M .. "magazine_unload_", 1, 3), FOLEY),
+		magIn = S(takes(M .. "magazine_load_", 1, 4), FOLEY),
+		rack = S(takes(M .. "cock_", 1, 4), FOLEY),
+		inspect = S(takes(M .. "load_bullet_", 1, 4), INSPECT),
+		dryFire = S(takes(M .. "dry_fire_", 1, 3), FOLEY),
+	},
+
+	-- Shotguns: the pack's shotgun -------------------------------------------------
+	Bucky = {
+		fire = S(takes(SG .. "shot_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(SG .. "shot_", 1, 4), FAR, SHOT_PITCH),
+		draw = S(takes(SG .. "pickup_", 1, 2), DRAW),
+		rack = S(takes(SG .. "cock_", 1, 5), FOLEY), -- the pump, after every shot
+		shellIn = S(takes(SG .. "load_bullet_", 1, 8), FOLEY),
+		inspect = S(takes(SG .. "safety_switch_", 1, 4), INSPECT),
+		dryFire = S(takes(SG .. "dry_fire_", 1, 2), FOLEY),
+	},
+	-- Drum shotgun: shotgun shots and pump; the pack's shotgun has no mag, so
+	-- the drum comes out and in on the semi-auto rifle's mag takes.
+	Judge = {
+		fire = S(takes(SG .. "shot_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(SG .. "shot_", 1, 4), FAR, SHOT_PITCH),
+		draw = S(takes(SG .. "pickup_", 1, 2), DRAW),
+		magOut = S(takes(A .. "magazine_unload_", 1, 4), FOLEY),
+		magIn = S(takes(A .. "magazine_load_", 1, 5), FOLEY),
+		rack = S(takes(SG .. "cock_", 1, 5), FOLEY),
+		inspect = S(takes(SG .. "load_bullet_", 1, 8), INSPECT),
+		dryFire = S(takes(SG .. "dry_fire_", 1, 2), FOLEY),
+	},
+
+	-- Rifles: the pack's (automatic) semi-auto rifle set ------------------------------
+	Vandal = {
+		fire = S(takes(A .. "shot_", 1, 8), FIRE, SOURCE_PITCH),
+		fireFirst = S({ A .. "shot_00_first_01" }, FIRE, SOURCE_PITCH),
+		fireLast = S({ A .. "shot_00_last_with_tail_01" }, FIRE, SOURCE_PITCH),
+		tail = S({ A .. "shot_00_tail_only_01" }, VANDAL_TAIL, SOURCE_PITCH),
+		fireFar = S(takes(A .. "shot_", 1, 8), FAR, SOURCE_PITCH),
+		draw = S(LONG_GUN_DRAW, DRAW),
+		magOut = S(takes(A .. "magazine_unload_", 1, 4), FOLEY),
+		magIn = S(takes(A .. "magazine_load_", 1, 5), FOLEY),
+		rack = S(takes(A .. "cock_", 1, 5), FOLEY),
+		inspect = S(takes(A .. "safety_switch_", 1, 3), INSPECT),
+		dryFire = S(takes(A .. "dry_fire_", 1, 4), FOLEY),
+	},
+	-- The same rifle set (the pack has no suppressed rifle); a quieter room tail.
+	Phantom = {
+		fire = S(takes(A .. "shot_", 1, 8), FIRE, SHOT_PITCH),
+		fireFirst = S({ A .. "shot_00_first_01" }, FIRE, SHOT_PITCH),
+		fireLast = S({ A .. "shot_00_last_with_tail_01" }, FIRE * 0.8, SHOT_PITCH),
+		tail = S({ A .. "shot_00_tail_only_01" }, TAIL * 0.5, SHOT_PITCH),
+		fireFar = S(takes(A .. "shot_", 1, 8), FAR * 0.8, SHOT_PITCH),
+		draw = S(LONG_GUN_DRAW, DRAW),
+		magOut = S(takes(A .. "magazine_unload_", 1, 4), FOLEY),
+		magIn = S(takes(A .. "magazine_load_", 1, 5), FOLEY),
+		rack = S(takes(A .. "cock_", 1, 5), FOLEY),
+		inspect = S(takes(A .. "safety_switch_", 1, 3), INSPECT),
+		dryFire = S(takes(A .. "dry_fire_", 1, 4), FOLEY),
+	},
+	Bulldog = {
+		fire = S(takes(A .. "shot_", 1, 8), FIRE, SHOT_PITCH),
+		fireFirst = S({ A .. "shot_00_first_01" }, FIRE, SHOT_PITCH),
+		fireLast = S({ A .. "shot_00_last_with_tail_01" }, FIRE, SHOT_PITCH),
+		tail = S({ A .. "shot_00_tail_only_01" }, TAIL, SHOT_PITCH),
+		fireFar = S(takes(A .. "shot_", 1, 8), FAR, SHOT_PITCH),
+		draw = S(LONG_GUN_DRAW, DRAW),
+		magOut = S(takes(A .. "magazine_unload_", 1, 4), FOLEY),
+		magIn = S(takes(A .. "magazine_load_", 1, 5), FOLEY),
+		rack = S(takes(A .. "cock_", 1, 5), FOLEY),
+		inspect = S(takes(A .. "load_bullet_", 1, 7), INSPECT),
+		dryFire = S(takes(A .. "dry_fire_", 1, 4), FOLEY),
+	},
+	-- The semi-automatic DMR uses the rifle's four complete shot recordings.
+	-- Its magazine and charging handle still use the magazine-fed rifle set.
+	Guardian = {
+		fire = S(takes(RF .. "shot_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(RF .. "shot_", 1, 4), FAR, SHOT_PITCH),
+		draw = S(LONG_GUN_DRAW, DRAW),
+		magOut = S(takes(A .. "magazine_unload_", 1, 4), FOLEY),
+		magIn = S(takes(A .. "magazine_load_", 1, 5), FOLEY),
+		rack = S(takes(A .. "cock_", 1, 5), FOLEY),
+		inspect = S(takes(A .. "load_bullet_", 1, 7), INSPECT),
+		dryFire = S(takes(A .. "dry_fire_", 1, 4), FOLEY),
+	},
+
+	-- Snipers -------------------------------------------------------------------
+	-- Lever gun: the pack's (bolt / lever) rifle.
+	Marshal = {
+		fire = S(takes(RF .. "shot_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(RF .. "shot_", 1, 4), FAR, SHOT_PITCH),
+		draw = S({ RF .. "grab_pickup_01" }, DRAW),
+		rack = S(takes(RF .. "cock_", 1, 4), FOLEY), -- the action, after every shot
+		shellIn = S(takes(RF .. "load_bullet_", 1, 8), FOLEY),
+		inspect = S(takes(RF .. "safety_switch_", 1, 2), INSPECT),
+		dryFire = S(takes(RF .. "dry_fire_", 1, 4), FOLEY),
+	},
+	-- Double rifle: the pack's sniper shots; its break action opens and shuts on
+	-- the revolver's hinge sounds (no break-action recording in the pack).
 	Outlaw = {
-		open = f("RevolverOpen", 0.84, 0.88),
-		shellIn = f("ShellIn", 0.95, 1.0),
-		rack = f("Bolt", 0.88, 0.93),
+		fire = S(takes(SN .. "shot_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(SN .. "shot_", 1, 4), FAR, SHOT_PITCH),
+		draw = S({ RF .. "grab_pickup_01" }, DRAW),
+		open = S(takes(R .. "cylinder_open_", 1, 3), FOLEY),
+		eject = S(takes(SN .. "load_bullet_", 1, 5), FOLEY),
+		shellIn = S(takes(RF .. "load_bullet_", 1, 8), FOLEY),
+		close = S(takes(R .. "cylinder_close_", 1, 4), FOLEY),
+		rack = S(takes(SN .. "cock_", 1, 4), FOLEY),
+		inspect = S(takes(RF .. "safety_switch_", 1, 2), INSPECT),
+		dryFire = S(takes(SN .. "dry_fire_", 1, 2), FOLEY),
 	},
-	-- Lever action: the lever, a round through the gate.
-	Marshal = { rack = f("Lever"), shellIn = f("ShellIn") },
-	Operator = { rack = f("Bolt", 0.92, 0.96) },
-	-- Belt-fed: the feed cover lifts and latches.
-	Odin = { open = f("RevolverOpen", 0.95, 1.0), shellIn = f("PistolRack", 0.88, 0.92) },
-	-- Two compact pistols.
-	Akimbo = { draw = f("DrawPistol", 1.02, 1.06) },
+	-- Bolt sniper: the pack's sniper.
+	Operator = {
+		fire = S(takes(SN .. "shot_", 1, 4), FIRE, SHOT_PITCH),
+		fireFar = S(takes(SN .. "shot_", 1, 4), FAR, SHOT_PITCH),
+		draw = S({ RF .. "grab_pickup_01" }, DRAW),
+		rack = S(takes(SN .. "cock_", 1, 4), FOLEY), -- the bolt, after every shot
+		magOut = S(takes(RF .. "magazine_unload_", 1, 5), FOLEY),
+		magIn = S(takes(RF .. "magazine_load_", 1, 4), FOLEY),
+		shellIn = S(takes(SN .. "load_bullet_", 1, 5), FOLEY),
+		inspect = S(takes(SN .. "scope_zoom_lens_", 1, 7), INSPECT),
+		aimIn = S(takes(SN .. "scope_zoom_lens_", 1, 7), 0.5),
+		dryFire = S(takes(SN .. "dry_fire_", 1, 2), FOLEY),
+	},
+
+	-- Machine guns: the pack's heavy machine gun -----------------------------------
+	Ares = {
+		fire = S(takes(H .. "shot_", 1, 8), FIRE, SHOT_PITCH),
+		fireFirst = S({ H .. "shot_00_first_01" }, FIRE, SHOT_PITCH),
+		fireLast = S({ H .. "shot_00_last_with_tail_01" }, FIRE, SHOT_PITCH),
+		tail = S({ H .. "shot_00_tail_only_01" }, TAIL, SHOT_PITCH),
+		fireFar = S(takes(H .. "shot_", 1, 8), FAR, SHOT_PITCH),
+		draw = S(HEAVY_DRAW, DRAW),
+		magOut = S(takes(A .. "magazine_unload_", 1, 4), FOLEY),
+		magIn = S(takes(H .. "reload_", 1, 2), FOLEY), -- the pack's full MG reloads
+		rack = S(takes(A .. "cock_", 1, 5), FOLEY),
+		inspect = S(takes(GEAR .. "rattle_movement_med_", 1, 3), INSPECT),
+		dryFire = S(takes(RF .. "dry_fire_", 1, 4), FOLEY),
+	},
+	Odin = {
+		fire = S(takes(H .. "shot_", 1, 8), FIRE, SHOT_PITCH),
+		fireFirst = S({ H .. "shot_00_first_01" }, FIRE, SHOT_PITCH),
+		fireLast = S({ H .. "shot_00_last_with_tail_01" }, FIRE, SHOT_PITCH),
+		tail = S({ H .. "shot_00_tail_only_01" }, TAIL, SHOT_PITCH),
+		fireFar = S(takes(H .. "shot_", 1, 8), FAR, SHOT_PITCH),
+		draw = S(HEAVY_DRAW, DRAW),
+		open = S(takes(GEAR .. "rattle_movement_med_", 1, 3), FOLEY), -- the feed cover
+		magOut = S(takes(A .. "magazine_unload_", 1, 4), FOLEY),
+		magIn = S(takes(H .. "reload_", 1, 2), FOLEY),
+		close = S(takes(A .. "cock_", 1, 5), FOLEY),
+		rack = S(takes(A .. "cock_", 1, 5), FOLEY),
+		inspect = S(takes(GEAR .. "movement_grab_item_", 1, 7), INSPECT),
+		dryFire = S(takes(RF .. "dry_fire_", 1, 4), FOLEY),
+	},
+
+	-- Knife: `fire` is a light slash's whoosh (WeaponController times its peak
+	-- onto the strike; each step of a 1-2-3 chain climbs a semitone), `heavy`
+	-- the two-handed stab. The whooshes are pure air (cloth swishes, no hit at
+	-- the start); the hit sounds play only when the blade lands. Built slices
+	-- from the pack (tools/audio/build_pro_atlas.py).
+	-- 2026-11-13 (owner): every knife move is one of the pack's whoosh_swish
+	-- files (small for slashes, the pull-out, the inspect and its flips; high
+	-- fast for the heavy stab). The cloth swishes are knife_whoosh_cloth /
+	-- knife_whoosh_cloth_heavy.
+	Knife = {
+		fire = S({ "knife_whoosh" }, 0.75, { 0.97, 1.05 }),
+		heavy = S({ "knife_whoosh_heavy" }, 0.85, { 0.94, 1.0 }),
+		fireFar = S({ "knife_whoosh" }, 0.6, { 0.95, 1.05 }),
+		hitBody = S(join(takes("punch_grit_wet_impact_", 1, 5)), 0.85),
+		hitWall = S({ "impact_hard" }, 0.85),
+		hitMetal = S({ "impact_metal" }, 0.75),
+		hitWood = S({ "impact_wood" }, 0.85),
+		hitSoft = S({ "impact_soft" }, 0.7),
+		draw = S(takes("whoosh_swish_small_", 1, 4), DRAW),
+		drawWhoosh = S(takes("whoosh_swish_high_fast_", 1, 4), 0.45),
+		inspect = S(takes("whoosh_swish_small_", 1, 4), 0.55),
+		inspectFlip = S(takes("whoosh_swish_small_", 1, 4), 0.45),
+	},
 }
 
-do
-	local placeholder = { [MAG_OUT] = true, [MAG_IN] = true, [RACK] = true, [DRAW] = true }
-	local function swap(set: GunSoundSet, class: string?, gun: string?)
-		local byClass = if class then CLASS_FOLEY[class] else nil
-		local byGun = if gun then GUN_FOLEY[gun] else nil
-		for field, sound in set :: { [string]: GunSound } do
-			local foley = (byGun and byGun[field]) or (byClass and byClass[field])
-			if foley and placeholder[sound.id] then
-				(set :: any)[field] = { id = foley.id, volume = sound.volume, pitch = foley.pitch }
+-- Beats a set has no sound for fall back to the nearest one it has: the
+-- action shutting to the rack, the cases coming out to the mag out. Every
+-- equip gets the small whoosh.
+EQUIP_WHOOSH = S(takes("whoosh_swish_small_", 1, 4), 0.35)
+AIM_IN = S({ "foley_cloth_light_fast_movement_13", "foley_cloth_light_fast_movement_14" }, 0.3)
+AIM_OUT = S({ "foley_cloth_light_fast_movement_06", "foley_cloth_light_fast_movement_15" }, 0.22)
+-- The scoped guns' scope ring (Marshal, Outlaw; the Operator's is set above).
+for _, gun in { "Marshal", "Outlaw" } do
+	(sets[gun] :: any).aimIn = S(takes(SN .. "scope_zoom_lens_", 1, 7), 0.5)
+end
+for id, set in sets do
+	local s = set :: any
+	local level = REPORT_LEVEL[id]
+	if level then
+		for _, sound in { set.fire, set.fireFar, set.fireFirst, set.fireLast, set.tail } do
+			if sound then
+				sound.volume *= level
 			end
 		end
 	end
-	swap(DEFAULT, "Rifle")
-	for gun, set in sets do
-		local w = Weapons.get(gun)
-		swap(set, w and w.class, gun)
-	end
+	s.close = s.close or s.rack
+	s.eject = s.eject or s.magOut
+	s.drawWhoosh = s.drawWhoosh or EQUIP_WHOOSH
+	s.aimIn = s.aimIn or AIM_IN
+	s.aimOut = s.aimOut or AIM_OUT
 end
+
+-- A gun without its own set uses the Vandal's.
+local DEFAULT: GunSoundSet = sets.Vandal
 
 local GunSounds = {}
 
@@ -450,17 +429,6 @@ GunSounds.DEFAULT = DEFAULT
 -- The sound set for a gun id (DEFAULT if it has none).
 function GunSounds.get(weaponId: string): GunSoundSet
 	return sets[weaponId] or DEFAULT
-end
-
--- Every sound id, for preloading.
-function GunSounds.allIds(): { string }
-	local out = {}
-	for _, set in sets do
-		for _, sound in set :: { [string]: GunSound } do
-			table.insert(out, sound.id)
-		end
-	end
-	return out
 end
 
 return GunSounds

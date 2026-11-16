@@ -1,0 +1,207 @@
+{
+  "line": "Misprint",
+  "gun": "Ares",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Ares/Ares_RemasterV2_v05.blend",
+  "source_sha256": "dd1e0002e8fb66be4f9d459e99a13b0bc707e973b4397903a4675535b689efe1",
+  "blend": "art-source/weapons/Skins/Misprint/Ares/v01/Ares_Misprint_v01.blend",
+  "blend_sha256": "be60b2d1ef75967401583dd10f2f9f7da69e5effd88e489bd53bbaf8e10e72f4",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Ares_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "4a407fd63239662048f84f45b7ccfad7633d35d085454008c9bdad47033a21c2",
+    "geometry_and_material_slots": "dd722a4e002dbf757966c59bacf7393771743ed2737342ac1a07f9f6419b3a9c",
+    "uv": "7646b5e9d0238e92b8409ea6ce9606ebf8679b02f6562309c0afcf245163e0db",
+    "rig_and_nla": "106dad8edb4db2f3b9572b0bbb78cabe20ee912562c10b0aba41c5460b4893fd",
+    "actions": "d6e41fef2a14ea792a91b14d097fe9ad5e75081867439c31d5aaafe098235687"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "4a407fd63239662048f84f45b7ccfad7633d35d085454008c9bdad47033a21c2",
+    "geometry_and_material_slots": "dd722a4e002dbf757966c59bacf7393771743ed2737342ac1a07f9f6419b3a9c",
+    "uv": "7646b5e9d0238e92b8409ea6ce9606ebf8679b02f6562309c0afcf245163e0db",
+    "rig_and_nla": "106dad8edb4db2f3b9572b0bbb78cabe20ee912562c10b0aba41c5460b4893fd",
+    "actions": "d6e41fef2a14ea792a91b14d097fe9ad5e75081867439c31d5aaafe098235687"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 4936,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ],
+        "Handguard": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.07,
+        1.923,
+        0.191,
+        0.476
+      ]
+    },
+    {
+      "parts": {
+        "Drum": [
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.616,
+        1.011,
+        -0.308,
+        -0.156
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Ares_Bolt",
+    "Ares_CharmLoop",
+    "Ares_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Ares_Draw",
+    "Ares_Fire",
+    "Ares_Inspect",
+    "Ares_Reload",
+    "Ares_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Ares/v01/textures/Ares_Color.png",
+      "sha256": "350b674562cb9ce70e73542723ea75a9fd426da6feff9ce33a9afac9af47ec0d",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Ares/v01/textures/Ares_Normal.png",
+      "sha256": "0b0a0cabfd9c8afcbb6673f1ed1b9890a11143a3f144e848734babfa7bc54b2b",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Ares/v01/textures/Ares_Roughness.png",
+      "sha256": "85315684a8b35d9815bb5738899b3c3c443f10049146e08618b84d4b768fe0e2",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Ares/v01/textures/Ares_Metalness.png",
+      "sha256": "4535fb2adc13fe532ef085a00f8182c0dc2d99cbb8befd3fb9892238ab5ea214",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Ares_Handguard|Dark",
+        "over": "Ares_Barrel|Metal",
+        "faces": 2
+      },
+      {
+        "lift": "Ares_FireSelector|Accent",
+        "over": "Ares_FireSelector|Metal",
+        "faces": 1
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Ares_Cam_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.42453333735466003
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.63919997215271
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.13333334028720856,
+    "lens_mm": 17.137775421142578
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Ares/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Ares",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

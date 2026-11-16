@@ -1,0 +1,33 @@
+{
+  "gun": "Ghost",
+  "passed": true,
+  "errors": [],
+  "tris": 2920,
+  "budget": 3000,
+  "size_ratios_xyz": [
+    1.0,
+    1.5449393631557287,
+    1.0221250620322662
+  ],
+  "bounds": [
+    [
+      -0.24699999392032623,
+      2.053999900817871
+    ],
+    [
+      -0.13300000131130219,
+      0.1745000034570694
+    ],
+    [
+      -0.3481999933719635,
+      0.4464000165462494
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 43,
+  "attachment_count": 9,
+  "actions": 5,
+  "eye_clearance": 0.2293
+}

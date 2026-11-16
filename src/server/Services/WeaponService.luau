@@ -23,6 +23,7 @@ local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
+local Authority = require(Shared.Authority)
 local Combat = require(Shared.Config.Combat)
 local MatchState = require(Shared.MatchState)
 local Status = require(Shared.Mods.Status)
@@ -30,6 +31,7 @@ local StatusEffects = require(Shared.Config.StatusEffects)
 local FireRate = require(Shared.Util.FireRate)
 local Net = require(Shared.Net)
 local RateLimit = require(Shared.Util.RateLimit)
+local SkinPreview = require(Shared.SkinPreview)
 local Spread = require(Shared.Util.Spread)
 local TestMode = require(Shared.TestMode)
 local Types = require(Shared.Types)
@@ -82,7 +84,6 @@ type PlayerState = {
 	worldModel: Model?,
 	seedBase: number, -- server-issued: spread seeds can't be chosen by the client
 	shotIndex: number, -- last accepted shot counter
-	resync: boolean?, -- the next state sent sets the client's counter to ours
 }
 
 local SLOTS: { Slot } = { "Primary", "Secondary", "Melee" }
@@ -156,7 +157,7 @@ end
 local liveHumanoid = Targets.liveHumanoid
 local reject = Hits.reject
 
-local function snapshot(state: PlayerState): Types.WeaponState
+local function snapshot(state: PlayerState, resync: boolean?): Types.WeaponState
 	local slots = {}
 	for slot, s in state.slots do
 		slots[slot] = { id = s.id, ammo = s.ammo }
@@ -166,15 +167,14 @@ local function snapshot(state: PlayerState): Types.WeaponState
 		equipped = state.equipped,
 		seedBase = state.seedBase,
 		shotIndex = state.shotIndex,
-		resync = state.resync,
+		resync = resync,
 	}
 end
 
-local function sendState(player: Player)
+local function sendState(player: Player, resync: boolean?)
 	local state = states[player]
 	if state then
-		Net.event("WeaponState"):FireClient(player, snapshot(state))
-		state.resync = nil -- once only: later states must not move a counter in use
+		Net.event("WeaponState"):FireClient(player, snapshot(state, resync))
 	end
 end
 
@@ -264,13 +264,10 @@ function WeaponService.giveLoadout(player: Player)
 		-- Keep the seed sequence across respawns so in-flight shots stay valid.
 		seedBase = if old then old.seedBase else seedRng:NextInteger(1, 2 ^ 30),
 		shotIndex = if old then old.shotIndex else 0,
-		-- Shots refused at the end of the last life (locked, dead) moved the
-		-- client's counter but not ours: without this it could stay out of reach
-		-- of MAX_SHOT_SKIP and every shot after it would be refused.
-		resync = true,
 	}
 	refreshWorldModel(player)
-	sendState(player)
+	-- A fresh loadout also corrects shots rejected at the end of the last life.
+	sendState(player, true)
 end
 
 -- The match's loadout for the player (MatchService): what the next
@@ -564,7 +561,21 @@ local function onPickWeapon(player: Player, id: unknown)
 	WeaponService.equip(player, config.slot)
 end
 
-local function onAim(player: Player, pitch: unknown, aiming: unknown)
+-- The move states a client may report (Server Authority off).
+local MOVE_STATES: { [string]: boolean } = {
+	Idle = true,
+	Walk = true,
+	Sprint = true,
+	Crouch = true,
+	Slide = true,
+	Air = true,
+}
+
+-- `moveState`: with Server Authority off the client owns its movement, so it
+-- says what it's doing (shared/Authority) and the server publishes that on
+-- the character for everyone else (footsteps, slide dust, spectating).
+-- Cosmetic: nothing is decided from it.
+local function onAim(player: Player, pitch: unknown, aiming: unknown, moveState: unknown)
 	if not allow(player, "Aim") then
 		return
 	end
@@ -573,6 +584,13 @@ local function onAim(player: Player, pitch: unknown, aiming: unknown)
 	end
 	player:SetAttribute("AimPitch", math.clamp(pitch, -1.5, 1.5))
 	player:SetAttribute("Aiming", aiming)
+	if Authority.server() or typeof(moveState) ~= "string" or not MOVE_STATES[moveState] then
+		return
+	end
+	local character = player.Character
+	if character and character:GetAttribute("MoveState") ~= moveState then
+		character:SetAttribute("MoveState", moveState)
+	end
 end
 
 -- The equipped gun's config (Weapon/Motion's ADS blend).
@@ -595,18 +613,18 @@ local function onFire(player: Player, payload: unknown)
 	local p = payload :: { [string]: unknown }
 	local origin = finiteVector(p.origin)
 	local aim = finiteVector(p.direction)
-	local shot = p.shot
-	local spreadClaim = p.spread
+	local shot = Validate.integer(p.shot, 1)
+	local spreadClaim = Validate.number(p.spread)
 	if not origin or not aim then
 		reject(player, "not origin or not aim")
 		return
 	end
-	if typeof(shot) ~= "number" or shot ~= math.floor(shot) then
-		reject(player, "typeof(shot) ~= 'number' or shot ~= math.floor(shot)")
+	if not shot then
+		reject(player, "invalid shot counter")
 		return
 	end
-	if typeof(spreadClaim) ~= "number" or spreadClaim ~= spreadClaim then
-		reject(player, "typeof(spreadClaim) ~= 'number' or spreadClaim ~= spreadClaim")
+	if not spreadClaim then
+		reject(player, "invalid spread")
 		return
 	end
 	if aim.Magnitude < 0.9 or aim.Magnitude > 1.1 then
@@ -638,9 +656,21 @@ local function onFire(player: Player, payload: unknown)
 	local config = slot.config
 	local now = os.clock()
 
-	-- Shot counter: must move forward, and only by a little (lost shots).
-	if shot <= state.shotIndex or shot > state.shotIndex + Combat.MAX_SHOT_SKIP then
-		reject(player, "shot <= state.shotIndex or shot > state.shotIndex + Combat.MAX_SHOT_SKIP")
+	-- Ignore requests queued before a counter reset. Only the server can
+	-- issue a new spread seed.
+	if p.seedBase ~= state.seedBase or shot <= state.shotIndex then
+		reject(player, "stale shot")
+		return
+	end
+	if shot > state.shotIndex + Combat.MAX_SHOT_SKIP then
+		reject(player, "shot counter ahead")
+		if allow(player, "FireResync") then
+			-- Repeated rejections can put all subsequent shots out of range.
+			-- Rotate the seed so in-flight shots can't race the reset.
+			local seed = seedRng:NextInteger(1, 2 ^ 30 - 1)
+			state.seedBase = if seed >= state.seedBase then seed + 1 else seed
+			sendState(player, true)
+		end
 		return
 	end
 
@@ -690,8 +720,12 @@ local function onFire(player: Player, payload: unknown)
 		reject(player, "not head or not head:IsA('BasePart')")
 		return
 	end
-	if (origin - head.Position).Magnitude > Combat.ORIGIN_TOLERANCE then
-		reject(player, "(origin - head.Position).Magnitude > Combat.ORIGIN_TOLERANCE")
+	-- (Server Authority off: the head the server has is a ping old, so wider.)
+	local originTolerance = if Authority.server()
+		then Combat.ORIGIN_TOLERANCE
+		else Combat.CLIENT_ORIGIN_TOLERANCE
+	if (origin - head.Position).Magnitude > originTolerance then
+		reject(player, "origin too far from the head")
 		return
 	end
 	local exclude = Targets.wallExclusions(character)
@@ -772,6 +806,14 @@ local function onFire(player: Player, payload: unknown)
 	local low, high, mayCentre =
 		Motion.spreadBand(player, config, heatLow, heatHigh, Hits.networkPing(player), focus)
 	local spread = math.clamp(spreadClaim, low, high)
+	-- Server Authority off (Config/Combat): the server can't see the shooter's
+	-- stance or aim, so its band is wrong (it reads everyone as unscoped and
+	-- walking). The cone is the client's claim, and so is the centre bias.
+	local trusted = not Authority.server()
+	if trusted then
+		spread = math.clamp(spreadClaim, 0, Combat.CLIENT_SPREAD_MAX)
+		mayCentre = true
+	end
 	if RunService:IsStudio() then
 		-- Tuning aid: what the client claimed and the band the server allowed.
 		player:SetAttribute(
@@ -862,7 +904,35 @@ function WeaponService.init()
 	Net.unreliable("Aim").OnServerEvent:Connect(onAim)
 end
 
+-- Each player's skin-preview watch (released when they leave).
+local skinWatch: { [Player]: () -> () } = {}
+
 function WeaponService.start()
+	if SkinPreview.allowed() then
+		-- A player's skin pick swaps their world gun when its geometry differs.
+		local function watchSkin(player: Player)
+			skinWatch[player] = SkinPreview.observe(player, function()
+				local state = states[player]
+				local slot = state and state.equipped and state.slots[state.equipped]
+				local model = state and state.worldModel
+				if
+					slot
+					and model
+					and SkinPreview.geometryChanged(
+						model,
+						if slot.config.models then slot.config.models.right else slot.id,
+						player
+					)
+				then
+					refreshWorldModel(player)
+				end
+			end)
+		end
+		Players.PlayerAdded:Connect(watchSkin)
+		for _, player in Players:GetPlayers() do
+			watchSkin(player)
+		end
+	end
 	Players.PlayerAdded:Connect(onPlayer)
 	for _, player in Players:GetPlayers() do
 		onPlayer(player)
@@ -892,6 +962,11 @@ function WeaponService.start()
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		Motion.forget(player)
+		local watch = skinWatch[player]
+		if watch then
+			watch()
+			skinWatch[player] = nil
+		end
 		states[player] = nil
 		loadouts[player] = nil
 		limiter:forget(player)

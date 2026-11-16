@@ -1,0 +1,106 @@
+{
+  "gun": "Shorty",
+  "tris": 1916,
+  "budget": 3000,
+  "sight": "bead",
+  "round": "Shell",
+  "clips": {
+    "Fire": {
+      "frames": 12,
+      "bones": [
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 12
+    },
+    "Reload": {
+      "frames": 72,
+      "bones": [
+        "Barrels",
+        "BreechLatch",
+        "Charm",
+        "Root",
+        "ShellUpper"
+      ],
+      "declared_frames": 72
+    },
+    "ReloadEmpty": {
+      "frames": 86,
+      "bones": [
+        "Barrels",
+        "BreechLatch",
+        "Charm",
+        "Root",
+        "ShellLower",
+        "ShellUpper"
+      ],
+      "declared_frames": 86
+    },
+    "Draw": {
+      "frames": 24,
+      "bones": [
+        "Barrels",
+        "BreechLatch",
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 24
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Barrels",
+        "BreechLatch",
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.3016,
+  "old_bounds": [
+    [
+      -0.23399999737739563,
+      1.448199987411499
+    ],
+    [
+      -0.10002005100250244,
+      0.10499999672174454
+    ],
+    [
+      -0.3169959783554077,
+      0.3587999939918518
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Barrels",
+    "ShellUpper",
+    "ShellLower",
+    "BreechLatch",
+    "Trigger",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "MuzzleLower",
+    "RightGrip",
+    "LeftGrip",
+    "Eject",
+    "EjectLower",
+    "ForeGrip",
+    "ChamberUpper",
+    "ChamberLower",
+    "CharmPoint",
+    "AimPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "side-by-side break barrels / compact ribbed fore-end"
+}

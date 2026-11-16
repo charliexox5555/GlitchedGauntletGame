@@ -243,3 +243,6 @@ The offline check now matches `tools/studio/maps/Audit.luau`: it includes the ba
 - [01-overview.png](../../../art-source/maps/OldTown2/concepts/01-overview.png) - Whole-arena aerial with plaza, arcades, alleys and tower.
 - [02-hero.png](../../../art-source/maps/OldTown2/concepts/02-hero.png) - Blue gate approach toward the fountain and cafe terrace.
 - [03-kit-sheet.png](../../../art-source/maps/OldTown2/concepts/03-kit-sheet.png) - Structure pieces, landmarks, props and material swatches.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. Only the gate shrines' tops (8) and two arch tops (15) left the jump's reach.

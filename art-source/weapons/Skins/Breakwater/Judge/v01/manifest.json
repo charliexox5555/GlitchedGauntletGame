@@ -1,0 +1,231 @@
+{
+  "line": "Breakwater",
+  "weapon": "Judge",
+  "version": "v01",
+  "readiness": "Blender review",
+  "batch": "Moderate skin line expansion",
+  "source": {
+    "path": "art-source/weapons/RemasterV2/Judge/Judge_RemasterV2_v05.blend",
+    "sha256": "9fda37905acd200af472e5581d55d69e9886189ac1cddb2fc71accf2593f135d"
+  },
+  "model_sheet": "art-source/weapons/ModelSheets/Judge_model_sheet.png",
+  "style_concept": "vault/02 Art/Skins/Breakwater/out/Bucky_concept_v02.png",
+  "authoring_endpoint": "Blender MCP 127.0.0.1:9999 and isolated local Blender review processes",
+  "static_pose": "Frame 1, decorative NLA tracks muted.",
+  "inspect": {
+    "fps": 24,
+    "pose_frames": {
+      "1": "Static finish",
+      "12": "Reveal",
+      "24": "Motion",
+      "45": "Settle"
+    },
+    "animated_parts": {
+      "Breakwater_AmberLatch": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            24,
+            -1.05
+          ],
+          [
+            36,
+            0
+          ],
+          [
+            45,
+            0
+          ]
+        ],
+        "property": "rotation_euler",
+        "axis": 0,
+        "world_pivot": [
+          0.3230000138282776,
+          0.1080000028014183,
+          0.3555999994277954
+        ],
+        "track": "Breakwater Inspect Reference"
+      }
+    },
+    "review_camera_proxy": "Camera angle changes present the turn for the animator."
+  },
+  "maps": {
+    "Color": {
+      "path": "textures/Judge_Color.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "1c05d584994a4164c0ac8f56fb844de9554304c5fe19b075fe8b5d0ff93e23e8"
+    },
+    "Roughness": {
+      "path": "textures/Judge_Roughness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "58937dd27ff37ef079fee7d5320e28ce396106106170934e3a85fad4b682763e"
+    },
+    "Metalness": {
+      "path": "textures/Judge_Metalness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "7b4248ae23653c8ccd9d233272e16241ea38c11cf67b7a0db5a9257cc09fdc2b"
+    },
+    "Normal": {
+      "path": "textures/Judge_Normal.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    }
+  },
+  "atlas": {
+    "atlas": "Moderate_Atlas",
+    "covered_pixels": 734329,
+    "padding": 6,
+    "xy_overlap_samples": 0,
+    "collapsed_uv_triangles": 0,
+    "island_repairs": {},
+    "normal_map": "Neutral tangent-space map. Facet shape and weighted normals are authored geometry."
+  },
+  "quality": {
+    "stock_bounds": [
+      [
+        -1.02,
+        -0.168,
+        -0.314
+      ],
+      [
+        2.1173,
+        0.168,
+        0.71
+      ]
+    ],
+    "skin_bounds": [
+      [
+        -1.02,
+        -0.168,
+        -0.314
+      ],
+      [
+        2.1173,
+        0.168,
+        0.71
+      ]
+    ],
+    "preserved_stock_vertex_data": true,
+    "stock_rest_transforms": true,
+    "sight": {
+      "camera": "Stock model-sheet aim camera",
+      "checked": 225,
+      "matching": 224,
+      "cosmetic_hits": 1
+    },
+    "scope_matches": true,
+    "frames": 283,
+    "differing_action_frames": [],
+    "cosmetic_to_stock_motion_contacts": {},
+    "rest_stock_geom": {},
+    "rest_variant_geom": {},
+    "stock_coplanar": [],
+    "skin_coplanar": [],
+    "packed_maps_match": {
+      "Color": true,
+      "Roughness": true,
+      "Metalness": true,
+      "Normal": true
+    },
+    "inspect_contact_frames": {},
+    "fbx": {
+      "missing": [],
+      "additional": [],
+      "max_pivot_delta": 8.429369702178807e-08,
+      "image_count": 4,
+      "parent_mismatches": [],
+      "triangle_delta": 0,
+      "active_uv_mismatches": [],
+      "geometry_flags": {}
+    }
+  },
+  "silhouette_iou": {
+    "hero": 0.99895,
+    "left": 0.99999,
+    "right": 0.99999,
+    "top": 0.9911,
+    "held": 0.99584,
+    "hip": 0.99973,
+    "aim": 0.99687
+  },
+  "bounds_max_surface_difference": 0.0,
+  "scope": [
+    "Hands are not animated in the stock Blender review scene. Check live hands, scope/ADS fades, magazine hiding and the final inspect later in Studio."
+  ],
+  "grade": {
+    "design_finish": "33/35",
+    "fit_geometry": "30/30",
+    "bake_seams": "20/20",
+    "held_aim_motion": "12/15",
+    "total": 95
+  },
+  "files": [
+    {
+      "path": "Judge_Breakwater_v01.blend",
+      "sha256": "86730a6c4a7e00e06315fc3a56bbf86b9a463ce5599b8100f5cdd8498f38b940"
+    },
+    {
+      "path": "Judge_Breakwater_v01.fbx",
+      "sha256": "973f3a0d5ca84ace9b7e3967dede09d27b9c20d2518c58aa9074b8c5308a92b5"
+    },
+    {
+      "path": "review/bake.json",
+      "sha256": "03b1ee53206b11a6f9d2d71166420017c58fd50ee14cf77d9265749439730167"
+    },
+    {
+      "path": "review/fbx-culling.jpg",
+      "sha256": "287937bfaaaee1c59ced82f067b897a314d4147a918a05f12c2b8febb576dc36"
+    },
+    {
+      "path": "review/hero-finish.jpg",
+      "sha256": "486471eb1d95784dc76e83166bcaadbfaae4845eea60e3b1ce43b3ca14775c06"
+    },
+    {
+      "path": "review/inspect-poses.jpg",
+      "sha256": "139f58b18b37796ab639721b374fb8b8358244f4e2664429ab180c1c3436e997"
+    },
+    {
+      "path": "review/matched-views.jpg",
+      "sha256": "c248b327b6fd688bee3a736833fc669a9e915a1adb701ba27b628c6f5d0c828e"
+    },
+    {
+      "path": "review/verification.json",
+      "sha256": "e30d2d9cce3e816aabb1cf7ad1163b0b658c2218b3ce321d52d4bd22453b0404"
+    },
+    {
+      "path": "textures/Judge_Color.png",
+      "sha256": "1c05d584994a4164c0ac8f56fb844de9554304c5fe19b075fe8b5d0ff93e23e8"
+    },
+    {
+      "path": "textures/Judge_Metalness.png",
+      "sha256": "7b4248ae23653c8ccd9d233272e16241ea38c11cf67b7a0db5a9257cc09fdc2b"
+    },
+    {
+      "path": "textures/Judge_Normal.png",
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    },
+    {
+      "path": "textures/Judge_Roughness.png",
+      "sha256": "58937dd27ff37ef079fee7d5320e28ce396106106170934e3a85fad4b682763e"
+    }
+  ]
+}

@@ -39,6 +39,22 @@ local COM = 1.35 -- the bat's centre of mass, this far up from the pivot
 local LEFT_REST = Vector3.new(-1.35, -2.6, -1.0) -- the free fist, low and out of view
 -- Follow-through springs (Hz, and the damping ratio: under 1 overshoots).
 local FOLLOW = { fist = 11, dir = 8, damping = 0.62, maxLag = math.rad(40) }
+-- The bat is never quite still in the hand (2026-11-15: measured 0-1 degrees a
+-- second at rest, a frozen hold): a slow roll and lean (degrees) and a lift
+-- (studs), `rate` cycles a second, off-ratio so it doesn't repeat. It eases
+-- out for a swing (`fade`, 1/s), which has to land where it is keyed.
+local DRIFT = { roll = 3.2, lean = 2, lift = 0.02, rate = 0.31, fade = 10 }
+local drift = 1
+-- A hit drags the bat (it slows and eases back, never holding a frame: the
+-- dead stop read as choppy, owner 2026-11-15). The drag lasts STOP_SCALE
+-- times the knife's stop (the bat is heavier) times STOP_STRETCH, up to
+-- STOP_MAX seconds; its speed dips to STOP_FLOOR of normal over the first
+-- STOP_INTO share and eases back (as Config/Viewmodel HIT_DRAG).
+local STOP_SCALE = 1.4
+local STOP_STRETCH = 1.6
+local STOP_MAX = 0.3
+local STOP_FLOOR = 0.4
+local STOP_INTO = 0.22
 local springs: {
 	ready: boolean?,
 	fist: Vector3,
@@ -116,6 +132,13 @@ local clips: { [string]: Clip } = {
 				dir = v(-0.75, -0.45, 0.35),
 				face = v(0.2, 1, 0),
 			},
+			-- Home a little past the idle (it came from the left), then back.
+			{
+				t = 0.82,
+				fist = IDLE_FIST + v(0.06, 0.03, 0),
+				dir = IDLE_DIR + v(0.07, 0, 0),
+				face = FACE,
+			},
 			{ t = 1, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 		},
 	},
@@ -135,6 +158,13 @@ local clips: { [string]: Clip } = {
 			},
 			{ t = 0.3, fist = v(0.2, -0.75, -2.05), dir = v(1, 0.2, -0.35), face = v(0, 1, 0.2) },
 			{ t = 0.44, fist = v(1.2, -0.6, -1.65), dir = v(0.55, 0.8, 0.2), face = v(-1, 0.2, 0) },
+			-- Home a little past the idle (it came from up on the right), then back.
+			{
+				t = 0.82,
+				fist = IDLE_FIST + v(-0.04, -0.06, 0),
+				dir = IDLE_DIR + v(-0.06, 0, 0),
+				face = FACE,
+			},
 			{ t = 1, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 		},
 	},
@@ -177,6 +207,13 @@ local clips: { [string]: Clip } = {
 				face = v(1, 0, 0),
 				left = v(0.15, -1.6, -1.75),
 				support = true,
+			},
+			-- Up out of the smash a little past the idle, then back.
+			{
+				t = 0.86,
+				fist = IDLE_FIST + v(0.03, 0.07, 0),
+				dir = IDLE_DIR + v(0.03, 0, -0.04),
+				face = FACE,
 			},
 			{ t = 1, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 		},
@@ -254,12 +291,26 @@ local clips: { [string]: Clip } = {
 				dir = v(0.35, 1, -0.22),
 				face = FACE,
 			},
+			-- ...and it comes back up past the idle (a rebound), then settles.
+			{
+				t = 0.87,
+				fist = IDLE_FIST + v(-0.02, 0.08, 0),
+				dir = IDLE_DIR + v(-0.04, 0, 0.02),
+				face = FACE,
+			},
 			{ t = 1, fist = IDLE_FIST, dir = IDLE_DIR, face = FACE },
 		},
 	},
 }
 
-export type Motion = { name: string, clip: Clip, time: number, speed: number }
+export type Motion = {
+	name: string,
+	clip: Clip,
+	time: number,
+	speed: number,
+	freeze: number, -- seconds left of a hit's drag: the move plays slower
+	freezeFor: number, -- how long that drag is in all
+}
 
 function Bat.play(name: string, duration: number?): Motion
 	local clip = clips[name] or clips.Idle
@@ -271,7 +322,17 @@ function Bat.play(name: string, duration: number?): Motion
 		clip = clip,
 		time = 0,
 		speed = if duration and duration > 0 then clip.length / duration else 1,
+		freeze = 0,
+		freezeFor = 0,
 	}
+end
+
+-- A hit: the bat is dragged for a moment (the time it eats is not caught up).
+function Bat.hitStop(motion: Motion, seconds: number)
+	if motion.clip.hit then
+		motion.freezeFor = math.clamp(seconds * STOP_SCALE * STOP_STRETCH, 0, STOP_MAX)
+		motion.freeze = motion.freezeFor
+	end
 end
 
 -- Seconds from the start of the move to contact.
@@ -460,6 +521,14 @@ function Bat.step(
 	motion: Motion,
 	dt: number
 ): (CFrame, Vector3, Vector3, boolean, boolean, boolean, boolean)
+	if motion.freeze > 0 and motion.freezeFor > 0 then
+		-- A hit's drag: everything slows (the springs included) and eases back.
+		local k = math.clamp(1 - motion.freeze / motion.freezeFor, 0, 1)
+		local dip = if k < STOP_INTO then k / STOP_INTO else 1 - (k - STOP_INTO) / (1 - STOP_INTO)
+		dip = dip * dip * (3 - 2 * dip)
+		motion.freeze -= dt
+		dt *= 1 - (1 - STOP_FLOOR) * dip
+	end
 	motion.time += dt * motion.speed
 	local clip = motion.clip
 	local u = motion.time / clip.length
@@ -479,6 +548,18 @@ function Bat.step(
 		done = true
 	end
 	local bat, fist, left, support = sample(clip, u)
+	-- The drift (DRIFT): on the keyed pose, so the springs carry it.
+	drift += ((if clip.hit then 0 else 1) - drift) * (1 - math.exp(-DRIFT.fade * dt))
+	local aim = bat.LookVector
+	if drift > 1e-3 then
+		local a = os.clock() * DRIFT.rate * 2 * math.pi
+		aim = CFrame.Angles(
+			math.rad(DRIFT.lean) * math.sin(a * 0.7 + 1) * drift,
+			0,
+			math.rad(DRIFT.roll) * math.sin(a) * drift
+		):VectorToWorldSpace(aim)
+		fist += Vector3.new(0, math.sin(a * 0.5) * DRIFT.lift * drift, 0)
+	end
 	-- Follow-through: the fist lags its key a touch and the barrel trails
 	-- the hand (two springs, slightly under-damped), so a swing overshoots
 	-- and settles instead of stopping dead. The bat stays rigid in the fist.
@@ -489,16 +570,15 @@ function Bat.step(
 		s.ready = false
 	end
 	if not s.ready then
-		s.fist, s.fistV, s.dir, s.dirV, s.ready =
-			fist, Vector3.zero, bat.LookVector, Vector3.zero, true
+		s.fist, s.fistV, s.dir, s.dirV, s.ready = fist, Vector3.zero, aim, Vector3.zero, true
 	end
 	s.fist, s.fistV = spring(s.fist, s.fistV, fist, FOLLOW.fist, FOLLOW.damping, step)
-	s.dir, s.dirV = spring(s.dir, s.dirV, bat.LookVector, FOLLOW.dir, FOLLOW.damping, step)
+	s.dir, s.dirV = spring(s.dir, s.dirV, aim, FOLLOW.dir, FOLLOW.damping, step)
 	-- Keep the trailing direction a unit vector at most FOLLOW.maxLag behind
 	-- the key: a swing that reverses the bat (the smash: up-back to
 	-- forward-down) pulled a plain vector spring through zero length, and
 	-- the bat jumped 1,272 studs for a frame (measured 2026-11-12).
-	local target = bat.LookVector
+	local target = aim
 	if s.dir.Magnitude < 1e-3 then
 		s.dir, s.dirV = target, Vector3.zero
 	else

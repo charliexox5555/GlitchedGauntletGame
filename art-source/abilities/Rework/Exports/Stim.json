@@ -1,0 +1,339 @@
+{
+ "mod": "Stim",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "placed"
+ },
+ "parts": [
+  {
+   "name": "Base",
+   "material": "Graphite",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343840"
+   },
+   "energy": false,
+   "tris": 56,
+   "center": [
+    0.0,
+    0.0,
+    0.1405
+   ],
+   "size": [
+    0.87214,
+    0.93592,
+    0.281
+   ]
+  },
+  {
+   "name": "Shoulder",
+   "material": "Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "525B69"
+   },
+   "energy": false,
+   "tris": 32,
+   "center": [
+    0.0,
+    0.0,
+    0.298
+   ],
+   "size": [
+    0.55802,
+    0.59883,
+    0.092
+   ]
+  },
+  {
+   "name": "Foot1",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "232730"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.32811,
+    0.19062,
+    0.12433
+   ],
+   "size": [
+    0.3931,
+    0.32055,
+    0.22458
+   ]
+  },
+  {
+   "name": "FootMark1",
+   "material": "Saffron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D99B32"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.27471,
+    0.16005,
+    0.20493
+   ],
+   "size": [
+    0.21512,
+    0.15133,
+    0.1045
+   ]
+  },
+  {
+   "name": "Foot2",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "232730"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.32811,
+    0.19062,
+    0.12433
+   ],
+   "size": [
+    0.3931,
+    0.32055,
+    0.22458
+   ]
+  },
+  {
+   "name": "FootMark2",
+   "material": "Saffron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D99B32"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.27471,
+    0.16005,
+    0.20493
+   ],
+   "size": [
+    0.21512,
+    0.15133,
+    0.1045
+   ]
+  },
+  {
+   "name": "Foot3",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "232730"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    -0.38198,
+    0.12433
+   ],
+   "size": [
+    0.204,
+    0.37972,
+    0.22458
+   ]
+  },
+  {
+   "name": "FootMark3",
+   "material": "Saffron",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D99B32"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    -0.31564,
+    0.20493
+   ],
+   "size": [
+    0.078,
+    0.22397,
+    0.1045
+   ]
+  },
+  {
+   "name": "Mast",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "232730"
+   },
+   "energy": false,
+   "tris": 76,
+   "center": [
+    0.0,
+    0.0,
+    0.5375
+   ],
+   "size": [
+    0.28271,
+    0.28271,
+    0.471
+   ]
+  },
+  {
+   "name": "Coil_Yellow",
+   "material": "Amber coil",
+   "look": {
+    "material": "Neon",
+    "color": "FFD03C"
+   },
+   "energy": false,
+   "tris": 96,
+   "center": [
+    0.0,
+    0.0,
+    0.616
+   ],
+   "size": [
+    0.308,
+    0.308,
+    0.106
+   ]
+  },
+  {
+   "name": "Crown",
+   "material": "Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "525B69"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    0.717
+   ],
+   "size": [
+    0.30118,
+    0.30118,
+    0.126
+   ]
+  },
+  {
+   "name": "Light_Energy",
+   "material": "Cyan signal",
+   "look": {
+    "material": "Neon",
+    "color": "45BDDB"
+   },
+   "energy": true,
+   "tris": 44,
+   "center": [
+    0.0,
+    0.0,
+    0.784
+   ],
+   "size": [
+    0.13304,
+    0.13304,
+    0.066
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Floor",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Top",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.817
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "CoilPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.612
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 724
+}

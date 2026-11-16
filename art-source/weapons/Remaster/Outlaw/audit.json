@@ -1,0 +1,33 @@
+{
+  "gun": "Outlaw",
+  "passed": true,
+  "errors": [],
+  "tris": 3280,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.001310110071423,
+    1.4750000507994134,
+    1.019292592539042
+  ],
+  "bounds": [
+    [
+      -1.138200044631958,
+      3.4475998878479004
+    ],
+    [
+      -0.15000000596046448,
+      0.1745000034570694
+    ],
+    [
+      -0.2754000127315521,
+      0.8023999929428101
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 38,
+  "attachment_count": 14,
+  "actions": 5,
+  "eye_clearance": 0.19
+}

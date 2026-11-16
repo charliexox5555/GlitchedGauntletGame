@@ -268,3 +268,6 @@ Kit v2 scored 5.0, 5.0 and 5.0. Every review across 6 rounds and 18 reviewers ga
 - dress the spawn wall as a real Orangery (citrus tubs, benches, a tiled floor).
 
 That's a design pass, ideally with Codex concepts for the garden, not another polish round. **Not for approval.**
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. As Greenhouse (the Lodge roof is a hard, undesigned climb).

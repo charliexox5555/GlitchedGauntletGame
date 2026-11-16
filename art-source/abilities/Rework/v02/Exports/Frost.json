@@ -1,0 +1,357 @@
+{
+ "mod": "Frost",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "thrown"
+ },
+ "parts": [
+  {
+   "name": "Body",
+   "material": "Ceramic panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "B2C1CE"
+   },
+   "energy": false,
+   "tris": 152,
+   "center": [
+    -0.0055,
+    0.0,
+    0.002
+   ],
+   "size": [
+    0.247,
+    0.184,
+    0.512
+   ]
+  },
+  {
+   "name": "VentPanel_Front",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 166,
+   "center": [
+    -0.01406,
+    -0.078,
+    -0.01069
+   ],
+   "size": [
+    0.14852,
+    0.016,
+    0.35062
+   ]
+  },
+  {
+   "name": "CoolingGrille_Front",
+   "material": "Frost diffuser",
+   "look": {
+    "material": "Neon",
+    "color": "74B6D5"
+   },
+   "energy": false,
+   "tris": 36,
+   "center": [
+    -0.0115,
+    -0.06925,
+    0.009
+   ],
+   "size": [
+    0.109,
+    0.0045,
+    0.276
+   ]
+  },
+  {
+   "name": "VentPanel_Rear",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 170,
+   "center": [
+    -0.01406,
+    0.078,
+    -0.01069
+   ],
+   "size": [
+    0.14852,
+    0.016,
+    0.35062
+   ]
+  },
+  {
+   "name": "CoolingGrille_Rear",
+   "material": "Frost diffuser",
+   "look": {
+    "material": "Neon",
+    "color": "74B6D5"
+   },
+   "energy": false,
+   "tris": 36,
+   "center": [
+    -0.0115,
+    0.06925,
+    0.009
+   ],
+   "size": [
+    0.109,
+    0.0045,
+    0.276
+   ]
+  },
+  {
+   "name": "FootShoe",
+   "material": "Receiver charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343942"
+   },
+   "energy": false,
+   "tris": 52,
+   "center": [
+    0.003,
+    0.0,
+    -0.24
+   ],
+   "size": [
+    0.228,
+    0.176,
+    0.07
+   ]
+  },
+  {
+   "name": "FuseHead",
+   "material": "Receiver charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343942"
+   },
+   "energy": false,
+   "tris": 74,
+   "center": [
+    0.007,
+    0.0,
+    0.25
+   ],
+   "size": [
+    0.134,
+    0.138,
+    0.07
+   ]
+  },
+  {
+   "name": "Fuse_Energy",
+   "material": "Frost diffuser",
+   "look": {
+    "material": "Neon",
+    "color": "74B6D5"
+   },
+   "energy": true,
+   "tris": 36,
+   "center": [
+    0.01138,
+    -0.0635,
+    0.25288
+   ],
+   "size": [
+    0.0522,
+    0.003,
+    0.0198
+   ]
+  },
+  {
+   "name": "Lever",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 116,
+   "center": [
+    0.1005,
+    0.0,
+    0.141
+   ],
+   "size": [
+    0.109,
+    0.1,
+    0.228
+   ]
+  },
+  {
+   "name": "Pin",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 88,
+   "center": [
+    0.054,
+    -0.059,
+    0.2535
+   ],
+   "size": [
+    0.064,
+    0.02,
+    0.059
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "LeverPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.062
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.23
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.062
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.059
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.23
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinPull",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.062
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.169
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.23
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Fuse",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.006
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.069
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.251
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 926
+}

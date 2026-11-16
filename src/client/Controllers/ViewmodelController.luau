@@ -2509,7 +2509,9 @@ local function update(dt: number)
 			end
 			if gun.cosmeticInspect then
 				local inspect = playing.Inspect
-				local progress = if inspect and not inspect.fading then inspect.time / inspect.length else nil
+				local progress = if inspect and not inspect.fading
+					then inspect.time / inspect.length
+					else nil
 				CosmeticInspect.step(gun.cosmeticInspect, progress)
 			end
 			stepMags(gun)

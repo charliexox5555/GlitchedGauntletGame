@@ -13,20 +13,17 @@ local function appearance(model: Model): string
 			local sa = p:FindFirstChildOfClass("SurfaceAppearance")
 			table.insert(
 				rows,
-				table.concat(
-					{
-						p.Name,
-						p.Color:ToHex(),
-						p.Material.Name,
-						p.MaterialVariant,
-						tostring(p.Reflectance),
-						p.TextureID,
-						if sa
-							then sa.ColorMap .. sa.NormalMap .. sa.RoughnessMap .. sa.MetalnessMap
-							else "",
-					},
-					"|"
-				)
+				table.concat({
+					p.Name,
+					p.Color:ToHex(),
+					p.Material.Name,
+					p.MaterialVariant,
+					tostring(p.Reflectance),
+					p.TextureID,
+					if sa
+						then sa.ColorMap .. sa.NormalMap .. sa.RoughnessMap .. sa.MetalnessMap
+						else "",
+				}, "|")
 			)
 		end
 	end

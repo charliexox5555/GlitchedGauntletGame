@@ -1,0 +1,205 @@
+{
+  "line": "Oilwake",
+  "gun": "Odin",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Odin/Odin_RemasterV2_v05.blend",
+  "source_sha256": "26ae474ba886cb32e0fffd6bf9a0a6a02c32cdab74ac9142ce4332771d16fe8f",
+  "blend": "art-source/weapons/Skins/Oilwake/Odin/v01/Odin_Oilwake_v01.blend",
+  "blend_sha256": "503b03677defe868665e4b749f21ad424d512aca6890a6988e23ba4a8cfb21ed",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Odin_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "3c8e7f82cfde5acde46adde901f175fc9d0df88a305c5f1965f3bb006fb51c3c",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "ac3d0b2d9f60f1006d7810e5a8ffa30be074d94eb6d634f895f18da7004c6561",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 1,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Odin_Grip": [
+        {
+          "face": 21,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 4528,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.065,
+        0.99,
+        0.282,
+        0.474
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Odin_Bolt",
+    "Odin_CharmLoop",
+    "Odin_FeedBelt",
+    "Odin_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Odin_Draw",
+    "Odin_Fire",
+    "Odin_Inspect",
+    "Odin_Reload",
+    "Odin_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Odin/v01/textures/Odin_Color.png",
+      "sha256": "06020f146011ff0808ce00e23177de2ae24e64880632d75299b0c81f36afeba9",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Odin/v01/textures/Odin_Normal.png",
+      "sha256": "4b92eca20d426b39e3871e584510e01ee39194e18ac34e15d69bc72b9d4f1c3a",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Odin/v01/textures/Odin_Roughness.png",
+      "sha256": "19b409b29e88c49a101300f03f2587b2c79305cf7fb4b2c86b61b0f7dedea00b",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Odin/v01/textures/Odin_Metalness.png",
+      "sha256": "d7e8a57f75258f5fb5d1bf7dc2c045d7967672c052bf221c26864fb8a8f4c895",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Odin_FeedBelt|Metal",
+        "over": "Odin_FeedBelt|Accent",
+        "faces": 30
+      },
+      {
+        "lift": "Odin_FeedCover|Body",
+        "over": "Odin_FeedCover|Dark",
+        "faces": 2
+      },
+      {
+        "lift": "Odin_Stock|Body",
+        "over": "Odin_Stock|Dark",
+        "faces": 2
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Odin_FP_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.46650001406669617
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.6503000259399414
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.125,
+    "lens_mm": 17.137775421142578
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Odin/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Odin",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

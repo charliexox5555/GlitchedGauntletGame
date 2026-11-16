@@ -1,0 +1,259 @@
+{
+ "mod": "Stim",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "placed"
+ },
+ "parts": [
+  {
+   "name": "Skid",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.025,
+    -0.02,
+    0.0655
+   ],
+   "size": [
+    0.904,
+    0.636,
+    0.131
+   ]
+  },
+  {
+   "name": "Seat",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.02075,
+    -0.0166,
+    0.1485
+   ],
+   "size": [
+    0.75032,
+    0.52788,
+    0.035
+   ]
+  },
+  {
+   "name": "Base",
+   "material": "Receiver charcoal",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343942"
+   },
+   "energy": false,
+   "tris": 230,
+   "center": [
+    -0.0155,
+    -0.005,
+    0.384
+   ],
+   "size": [
+    0.779,
+    0.486,
+    0.436
+   ]
+  },
+  {
+   "name": "Coil_Yellow",
+   "material": "Stim diffuser",
+   "look": {
+    "material": "Neon",
+    "color": "EDC85B"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.00956,
+    -0.232,
+    0.29552
+   ],
+   "size": [
+    0.51304,
+    0.024,
+    0.10296
+   ]
+  },
+  {
+   "name": "ServicePanel",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.006,
+    0.227,
+    0.28341
+   ],
+   "size": [
+    0.52143,
+    0.014,
+    0.08099
+   ]
+  },
+  {
+   "name": "FlushFastener1",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.309,
+    -0.2535,
+    0.218
+   ],
+   "size": [
+    0.02252,
+    0.005,
+    0.026
+   ]
+  },
+  {
+   "name": "FlushFastener2",
+   "material": "Machined fasteners",
+   "look": {
+    "material": "Metal",
+    "color": "747F8C"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.28,
+    -0.2535,
+    0.218
+   ],
+   "size": [
+    0.02252,
+    0.005,
+    0.026
+   ]
+  },
+  {
+   "name": "Light_Energy",
+   "material": "Frost diffuser",
+   "look": {
+    "material": "Neon",
+    "color": "74B6D5"
+   },
+   "energy": true,
+   "tris": 36,
+   "center": [
+    0.2308,
+    -0.2405,
+    0.3804
+   ],
+   "size": [
+    0.0651,
+    0.007,
+    0.03627
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Floor",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Top",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.014
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.593
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "CoilPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.03
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.229
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.296
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 546
+}

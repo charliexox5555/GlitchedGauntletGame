@@ -192,3 +192,6 @@ Self-score from the offline evidence: **8.8 / 10**, gates pass (0 z-fights, ever
 - [01-overview.png](../../../art-source/maps/Greenhouse2/concepts/01-overview.png) - Whole-arena aerial cutaway with dome, galleries and flanks.
 - [02-hero.png](../../../art-source/maps/Greenhouse2/concepts/02-hero.png) - Blue spawn approach toward the fountain, bridge and dome.
 - [03-kit-sheet.png](../../../art-source/maps/Greenhouse2/concepts/03-kit-sheet.png) - Structure pieces, planting props and material swatches.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. Nothing designed is lost. Open for the owner: the statue plinth and shelf racks (9) still allow a hard climb onto the spawn Lodge's roof.

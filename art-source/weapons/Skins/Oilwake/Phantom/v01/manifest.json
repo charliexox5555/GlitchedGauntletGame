@@ -1,0 +1,264 @@
+{
+  "line": "Oilwake",
+  "gun": "Phantom",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Phantom/Phantom_RemasterV2_v05.blend",
+  "source_sha256": "99afea9d16d8d316893868ce36579fd0b141dcb7ccf59c7b390f033c2ffc1f98",
+  "blend": "art-source/weapons/Skins/Oilwake/Phantom/v01/Phantom_Oilwake_v01.blend",
+  "blend_sha256": "137038dca7a58cf7279f051331c7fc0825e4fbcebcae095d8b5dc7b714d47f1f",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Phantom_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "71358908ad9e82468c5683b4c42e752a283ea2308ad79fb1ded26067ce332542",
+    "geometry_and_material_slots": "ea4ad6af765cd466ae786458ebb7edb9939a1e3ee94c7d72b5df605f681ea4b8",
+    "uv": "cf60e93479883a23583a361b2dce7bfaaf937a847f10a78bbb71ad8b130bdc2e",
+    "rig_and_nla": "1265baf69019fd86afa5e89cee1dbafc2eec2c9b68109a03b3f7ac22a5adb660",
+    "actions": "8196b4c05744ffb0226e1ca06a0649d1877b3df1d460e78870805ab39078c459"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "71358908ad9e82468c5683b4c42e752a283ea2308ad79fb1ded26067ce332542",
+    "geometry_and_material_slots": "ea4ad6af765cd466ae786458ebb7edb9939a1e3ee94c7d72b5df605f681ea4b8",
+    "uv": "02ed394a8278e71962d799ab2bc73a91abd30e6258b352e7e7267c275cf10d75",
+    "rig_and_nla": "1265baf69019fd86afa5e89cee1dbafc2eec2c9b68109a03b3f7ac22a5adb660",
+    "actions": "8196b4c05744ffb0226e1ca06a0649d1877b3df1d460e78870805ab39078c459"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 29,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Phantom_Mag": [
+        {
+          "face": 191,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 206,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 27,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 21,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 4724,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Handguard": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.909,
+        1.617,
+        0.199,
+        0.429
+      ]
+    },
+    {
+      "parts": {
+        "Receiver": [
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.16,
+        0.37,
+        0.19,
+        0.32
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Phantom_Bolt",
+    "Phantom_CharmLoop",
+    "Phantom_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Phantom_Draw",
+    "Phantom_Fire",
+    "Phantom_Inspect",
+    "Phantom_Reload",
+    "Phantom_ReloadEmpty"
+  ],
+  "map_resolution": 2048,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Phantom/v01/textures/Phantom_Color.png",
+      "sha256": "df114bb96fa7a038ef8e23f73f2ce069ea39567bfa58188a0e0c0dbebcdce242",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Phantom/v01/textures/Phantom_Normal.png",
+      "sha256": "614a9d04703c637f7d460ab5c5d8458e2fa8b4f719a10f8bcbf40095a556c01a",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Phantom/v01/textures/Phantom_Roughness.png",
+      "sha256": "c19a5c5e57a858849149824f54f854e4fa29eb7769dd0a976449c76050bf1eaa",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Phantom/v01/textures/Phantom_Metalness.png",
+      "sha256": "454d4da9a9cc3f2d3d2f22b00f3e16fb0ecb2d122515557526c262a743345a09",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Phantom_Suppressor|Panel",
+        "over": "Phantom_Suppressor|Dark",
+        "faces": 2
+      },
+      {
+        "lift": "Phantom_Receiver|Panel",
+        "over": "Phantom_Receiver|Body",
+        "faces": 1
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Phantom_FP_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.37139999866485596
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.5784000158309937
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.125,
+    "lens_mm": 17.79073143005371
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Phantom/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Phantom",
+  "motion_comparison": {
+    "clip": "Phantom_ReloadEmpty",
+    "part": "Phantom_Mag",
+    "matched_action_frames": 279,
+    "rendered_frame": 29,
+    "stock_render": "review/motion-stock.png",
+    "skin_render": "review/motion-skin.png",
+    "actions": {
+      "Phantom_Draw": {
+        "count": 31,
+        "world_matrix_sha256": "c207c583f6d35614517f91bf9434c5fdfb35b62d58a5323ede4db6492ceec9eb"
+      },
+      "Phantom_Fire": {
+        "count": 12,
+        "world_matrix_sha256": "a32227226ac1eabeba0523811a6bd038bb4a2a17fddbc16e6d1d31b4db31e570"
+      },
+      "Phantom_Inspect": {
+        "count": 67,
+        "world_matrix_sha256": "f16b7bb037db69cd68f7b30b7e83d9aef80da98d83a5fc2ec797908d3da18285"
+      },
+      "Phantom_Reload": {
+        "count": 72,
+        "world_matrix_sha256": "f6f17be164d0ec24fb09ece0c5c17afa016783ea08e5c5ee313ded23134c5cc6"
+      },
+      "Phantom_ReloadEmpty": {
+        "count": 97,
+        "world_matrix_sha256": "080e6796c24a94b2ef99012a59e2fecf7ced33c70c712a6ce18a40214c9eff93"
+      }
+    }
+  },
+  "blender_grade": {
+    "design_finish": 34,
+    "geometry_rig_fidelity": 29,
+    "baked_texture_seams": 18,
+    "held_aim_motion": 14,
+    "total": 95
+  },
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

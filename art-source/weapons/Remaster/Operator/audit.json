@@ -1,0 +1,33 @@
+{
+  "gun": "Operator",
+  "passed": true,
+  "errors": [],
+  "tris": 4468,
+  "budget": 6000,
+  "size_ratios_xyz": [
+    1.001239550069824,
+    1.324751692834275,
+    1.0184723870527361
+  ],
+  "bounds": [
+    [
+      -1.3255000114440918,
+      3.5209999084472656
+    ],
+    [
+      -0.27000001072883606,
+      0.17299999296665192
+    ],
+    [
+      -0.254594624042511,
+      0.8067499995231628
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 63,
+  "attachment_count": 10,
+  "actions": 5,
+  "eye_clearance": 0.17
+}

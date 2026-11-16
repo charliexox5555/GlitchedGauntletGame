@@ -1,0 +1,596 @@
+[
+  {
+    "gun": "Vandal",
+    "passed": true,
+    "errors": [],
+    "tris": 3300,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.001538551220425,
+      2.0937499563442548,
+      1.0713906783229121
+    ],
+    "bounds": [
+      [
+        -1.2584000825881958,
+        2.64739990234375
+      ],
+      [
+        -0.16899999976158142,
+        0.2329999953508377
+      ],
+      [
+        -0.4074399471282959,
+        0.6776288747787476
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 54,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.195
+  },
+  {
+    "gun": "Classic",
+    "passed": true,
+    "errors": [],
+    "tris": 2632,
+    "budget": 3000,
+    "size_ratios_xyz": [
+      1.0,
+      2.148846979705941,
+      1.0451328368183948
+    ],
+    "bounds": [
+      [
+        -0.2667999863624573,
+        1.000499963760376
+      ],
+      [
+        -0.13300000131130219,
+        0.1745000034570694
+      ],
+      [
+        -0.38771528005599976,
+        0.5153999924659729
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 41,
+    "attachment_count": 9,
+    "actions": 6,
+    "eye_clearance": 0.2293
+  },
+  {
+    "gun": "Bulldog",
+    "passed": true,
+    "errors": [],
+    "tris": 3308,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      0.9991795615589154,
+      1.7091835782748555,
+      1.0988463636495556
+    ],
+    "bounds": [
+      [
+        -1.456223726272583,
+        1.4378000497817993
+      ],
+      [
+        -0.16899999976158142,
+        0.2329999953508377
+      ],
+      [
+        -0.30393341183662415,
+        0.727400004863739
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 53,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.165
+  },
+  {
+    "gun": "Phantom",
+    "passed": true,
+    "errors": [],
+    "tris": 3344,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.001666678366838,
+      2.162220369283842,
+      1.0939790383043446
+    ],
+    "bounds": [
+      [
+        -1.103600025177002,
+        2.5023999214172363
+      ],
+      [
+        -0.16899999976158142,
+        0.2329999953508377
+      ],
+      [
+        -0.313252329826355,
+        0.7178000211715698
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 55,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.17
+  },
+  {
+    "gun": "Guardian",
+    "passed": true,
+    "errors": [],
+    "tris": 3408,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.0014140370569746,
+      1.7091835782748555,
+      1.0873762658806878
+    ],
+    "bounds": [
+      [
+        -1.2508000135421753,
+        2.9983999729156494
+      ],
+      [
+        -0.16899999976158142,
+        0.2329999953508377
+      ],
+      [
+        -0.3065348267555237,
+        0.6240000128746033
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 54,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.18
+  },
+  {
+    "gun": "Stinger",
+    "passed": true,
+    "errors": [],
+    "tris": 3368,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.002247206763337,
+      2.1753245729614004,
+      1.100009494980506
+    ],
+    "bounds": [
+      [
+        -1.5360000133514404,
+        1.1399999856948853
+      ],
+      [
+        -0.16899999976158142,
+        0.2329999953508377
+      ],
+      [
+        -0.5899999737739563,
+        0.6349999904632568
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 55,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.18
+  },
+  {
+    "gun": "Spectre",
+    "passed": true,
+    "errors": [],
+    "tris": 3276,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.0020215774433214,
+      2.195353780732212,
+      1.098032978292141
+    ],
+    "bounds": [
+      [
+        -1.0728000402450562,
+        1.9012000560760498
+      ],
+      [
+        -0.16899999976158142,
+        0.2329999953508377
+      ],
+      [
+        -0.40781649947166443,
+        0.6652288436889648
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 55,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.17
+  },
+  {
+    "gun": "Shorty",
+    "passed": true,
+    "errors": [],
+    "tris": 1916,
+    "budget": 3000,
+    "size_ratios_xyz": [
+      0.9972214498417183,
+      1.5339963459384225,
+      1.0742827533135326
+    ],
+    "bounds": [
+      [
+        -0.22932592034339905,
+        1.448199987411499
+      ],
+      [
+        -0.14000000059604645,
+        0.1745000034570694
+      ],
+      [
+        -0.3169959783554077,
+        0.4089999794960022
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 27,
+    "attachment_count": 14,
+    "actions": 5,
+    "eye_clearance": 0.3016
+  },
+  {
+    "gun": "Ghost",
+    "passed": true,
+    "errors": [],
+    "tris": 2920,
+    "budget": 3000,
+    "size_ratios_xyz": [
+      1.0,
+      1.5449393631557287,
+      1.0221250620322662
+    ],
+    "bounds": [
+      [
+        -0.24699999392032623,
+        2.053999900817871
+      ],
+      [
+        -0.13300000131130219,
+        0.1745000034570694
+      ],
+      [
+        -0.3481999933719635,
+        0.4464000165462494
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 43,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.2293
+  },
+  {
+    "gun": "Sheriff",
+    "passed": true,
+    "errors": [],
+    "tris": 2800,
+    "budget": 3000,
+    "size_ratios_xyz": [
+      1.0075476395430034,
+      1.15851259366262,
+      0.9454007492663141
+    ],
+    "bounds": [
+      [
+        -0.2418106198310852,
+        1.4950000047683716
+      ],
+      [
+        -0.15399999916553497,
+        0.1745000034570694
+      ],
+      [
+        -0.3197999894618988,
+        0.3831999897956848
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 45,
+    "attachment_count": 18,
+    "actions": 5,
+    "eye_clearance": 0.2064
+  },
+  {
+    "gun": "Judge",
+    "passed": true,
+    "errors": [],
+    "tris": 3480,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.0019125468461312,
+      1.0,
+      1.0072818170286815
+    ],
+    "bounds": [
+      [
+        -1.0259000062942505,
+        2.117300033569336
+      ],
+      [
+        -0.3453291058540344,
+        0.3453291058540344
+      ],
+      [
+        -0.3360291123390198,
+        0.7706000208854675
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 53,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.2118
+  },
+  {
+    "gun": "Bucky",
+    "passed": true,
+    "errors": [],
+    "tris": 3380,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.0015860381626025,
+      2.2271584641601496,
+      1.049015702628022
+    ],
+    "bounds": [
+      [
+        -0.9569999575614929,
+        2.8320000171661377
+      ],
+      [
+        -0.16899999976158142,
+        0.17299999296665192
+      ],
+      [
+        -0.2952621281147003,
+        0.5180000066757202
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 54,
+    "attachment_count": 10,
+    "actions": 8,
+    "eye_clearance": 0.2118
+  },
+  {
+    "gun": "Marshal",
+    "passed": true,
+    "errors": [],
+    "tris": 3656,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.001351817483046,
+      2.279999860922501,
+      1.0523810134113394
+    ],
+    "bounds": [
+      [
+        -1.2468000650405884,
+        3.197700023651123
+      ],
+      [
+        -0.16899999976158142,
+        0.17299999296665192
+      ],
+      [
+        -0.33284837007522583,
+        0.4796000123023987
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 49,
+    "attachment_count": 11,
+    "actions": 8,
+    "eye_clearance": 0.18
+  },
+  {
+    "gun": "Outlaw",
+    "passed": true,
+    "errors": [],
+    "tris": 3280,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.001310110071423,
+      1.4750000507994134,
+      1.019292592539042
+    ],
+    "bounds": [
+      [
+        -1.138200044631958,
+        3.4475998878479004
+      ],
+      [
+        -0.15000000596046448,
+        0.1745000034570694
+      ],
+      [
+        -0.2754000127315521,
+        0.8023999929428101
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 38,
+    "attachment_count": 14,
+    "actions": 5,
+    "eye_clearance": 0.19
+  },
+  {
+    "gun": "Operator",
+    "passed": true,
+    "errors": [],
+    "tris": 4468,
+    "budget": 6000,
+    "size_ratios_xyz": [
+      1.001239550069824,
+      1.324751692834275,
+      1.0184723870527361
+    ],
+    "bounds": [
+      [
+        -1.3255000114440918,
+        3.5209999084472656
+      ],
+      [
+        -0.27000001072883606,
+        0.17299999296665192
+      ],
+      [
+        -0.254594624042511,
+        0.8067499995231628
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 63,
+    "attachment_count": 10,
+    "actions": 5,
+    "eye_clearance": 0.17
+  },
+  {
+    "gun": "Ares",
+    "passed": true,
+    "errors": [],
+    "tris": 3720,
+    "budget": 6000,
+    "size_ratios_xyz": [
+      1.0013930260629442,
+      1.0202796458067092,
+      1.0811992240981343
+    ],
+    "bounds": [
+      [
+        -1.2380000352859497,
+        3.075200080871582
+      ],
+      [
+        -0.29179999232292175,
+        0.29179999232292175
+      ],
+      [
+        -0.3659999966621399,
+        0.7757753133773804
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 59,
+    "attachment_count": 9,
+    "actions": 5,
+    "eye_clearance": 0.195
+  },
+  {
+    "gun": "Odin",
+    "passed": true,
+    "errors": [],
+    "tris": 4148,
+    "budget": 6000,
+    "size_ratios_xyz": [
+      1.001302657810671,
+      1.4160735000183393,
+      1.080171371054331
+    ],
+    "bounds": [
+      [
+        -1.2484999895095825,
+        3.3635001182556152
+      ],
+      [
+        -0.20200000703334808,
+        0.27549999952316284
+      ],
+      [
+        -0.3675000071525574,
+        0.7868000268936157
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 68,
+    "attachment_count": 10,
+    "actions": 5,
+    "eye_clearance": 0.195
+  },
+  {
+    "gun": "Knife",
+    "passed": true,
+    "errors": [],
+    "tris": 658,
+    "budget": 5000,
+    "size_ratios_xyz": [
+      1.0,
+      1.1265714672008516,
+      0.9949332618773102
+    ],
+    "bounds": [
+      [
+        -0.4498000144958496,
+        1.271399974822998
+      ],
+      [
+        -0.10199999809265137,
+        0.10199999809265137
+      ],
+      [
+        -0.09700000286102295,
+        0.11900000274181366
+      ]
+    ],
+    "skin_texel_density": 128.0,
+    "zero_area_uv_triangles": 0,
+    "uv_overlaps": [],
+    "mesh_parts": 16,
+    "attachment_count": 11,
+    "actions": 9,
+    "eye_clearance": 0.5255
+  }
+]

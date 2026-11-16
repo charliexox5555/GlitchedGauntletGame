@@ -8,7 +8,9 @@ Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
 ## Weapons
 
-**Moderate skins (2026-11-15).** All 21 Playback, Breakwater and Sundial variants are saved for Blender review, including 3 Knife variants. Playback Phantom v01 is look-approved. [Assets and review evidence](../02%20Art/Skins/Moderate%20Skin%20Line%20Build%20Ledger.md)
+**Battle pass cosmetics (2026-11-16).** Poolside Spectre v02 is owner approved. Rootglass Vandal is in production. [Blend, maps and review evidence](../02%20Art/Skins/Battle%20Pass%20Blender%20Build%20Ledger.md)
+
+**Moderate skins (2026-11-15).** All 21 Playback, Breakwater and Sundial variants are installed in the lobby and match, including 3 Knife variants. [Deployment](../02%20Art/Skins/Moderate%20Skin%20Deployment.md) Playback Phantom v01 is look-approved. [Assets and review evidence](../02%20Art/Skins/Moderate%20Skin%20Line%20Build%20Ledger.md)
 
 **Skin roster (2026-11-12):** Prism, Redline, Nitrous and PopCircuit are in Blender review. Each entry links to the versioned asset, four PBR maps and build manifest. Prism Vandal is the previously accepted baseline. The PopCircuit Bat has its own Blender model, rig and poses. [Review sheets and completion table](../02%20Art/Skins/Blender%20Review.md)
 

@@ -1,0 +1,99 @@
+{
+  "gun": "Bulldog",
+  "tris": 3308,
+  "budget": 5000,
+  "sight": "aperture",
+  "round": "Rifle",
+  "clips": {
+    "Fire": {
+      "frames": 10,
+      "bones": [
+        "Bolt",
+        "ChargingHandle",
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 10
+    },
+    "Reload": {
+      "frames": 66,
+      "bones": [
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 66
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 97
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "FireSelector",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.165,
+  "old_bounds": [
+    [
+      -1.4586000442504883,
+      1.4378000497817993
+    ],
+    [
+      -0.09184000641107559,
+      0.14336000382900238
+    ],
+    [
+      -0.30393341183662415,
+      0.6346267461776733
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Mag",
+    "ChargingHandle",
+    "Bolt",
+    "Trigger",
+    "FireSelector",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "Eject",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "bullpup / rear magazine / broad shoulder chassis"
+}

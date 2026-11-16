@@ -1,0 +1,217 @@
+{
+  "line": "Misprint",
+  "gun": "Phantom",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Phantom/Phantom_RemasterV2_v05.blend",
+  "source_sha256": "99afea9d16d8d316893868ce36579fd0b141dcb7ccf59c7b390f033c2ffc1f98",
+  "blend": "art-source/weapons/Skins/Misprint/Phantom/v01/Phantom_Misprint_v01.blend",
+  "blend_sha256": "33ce13a7a197cd93d6d57fb5b15a737bcaf925d04709c4dd754237b22daa346c",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Phantom_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "71358908ad9e82468c5683b4c42e752a283ea2308ad79fb1ded26067ce332542",
+    "geometry_and_material_slots": "ea4ad6af765cd466ae786458ebb7edb9939a1e3ee94c7d72b5df605f681ea4b8",
+    "uv": "cf60e93479883a23583a361b2dce7bfaaf937a847f10a78bbb71ad8b130bdc2e",
+    "rig_and_nla": "1265baf69019fd86afa5e89cee1dbafc2eec2c9b68109a03b3f7ac22a5adb660",
+    "actions": "8196b4c05744ffb0226e1ca06a0649d1877b3df1d460e78870805ab39078c459"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "71358908ad9e82468c5683b4c42e752a283ea2308ad79fb1ded26067ce332542",
+    "geometry_and_material_slots": "ea4ad6af765cd466ae786458ebb7edb9939a1e3ee94c7d72b5df605f681ea4b8",
+    "uv": "02ed394a8278e71962d799ab2bc73a91abd30e6258b352e7e7267c275cf10d75",
+    "rig_and_nla": "1265baf69019fd86afa5e89cee1dbafc2eec2c9b68109a03b3f7ac22a5adb660",
+    "actions": "8196b4c05744ffb0226e1ca06a0649d1877b3df1d460e78870805ab39078c459"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 29,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Phantom_Mag": [
+        {
+          "face": 191,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 206,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 27,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 21,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 4724,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ],
+        "Handguard": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.049,
+        1.539,
+        0.157,
+        0.414
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Phantom_Bolt",
+    "Phantom_CharmLoop",
+    "Phantom_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Phantom_Draw",
+    "Phantom_Fire",
+    "Phantom_Inspect",
+    "Phantom_Reload",
+    "Phantom_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Phantom/v01/textures/Phantom_Color.png",
+      "sha256": "abf130c93416d18c301be543e28ae7b4dc4dcb9c5739e97475dc8a13e87fe617",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Phantom/v01/textures/Phantom_Normal.png",
+      "sha256": "98df6e4591cd378966ffb4c31128a92247580a86c86619f25c118cc3b3b6c0be",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Phantom/v01/textures/Phantom_Roughness.png",
+      "sha256": "e0df99138e8295fa75701c18fa23ba6892ef2f6bcb465b3c1d3248ce053305e0",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Phantom/v01/textures/Phantom_Metalness.png",
+      "sha256": "fa02b48bce39aedaa2a1edeff1009b787675c3c0e478b21257d6ae529a3b9248",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Phantom_Suppressor|Panel",
+        "over": "Phantom_Suppressor|Dark",
+        "faces": 2
+      },
+      {
+        "lift": "Phantom_Receiver|Panel",
+        "over": "Phantom_Receiver|Body",
+        "faces": 1
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Phantom_FP_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.37139999866485596
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.5784000158309937
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.125,
+    "lens_mm": 17.79073143005371
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Phantom/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Phantom",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

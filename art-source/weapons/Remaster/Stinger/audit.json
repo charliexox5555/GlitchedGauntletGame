@@ -1,0 +1,33 @@
+{
+  "gun": "Stinger",
+  "passed": true,
+  "errors": [],
+  "tris": 3368,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.002247206763337,
+    2.1753245729614004,
+    1.100009494980506
+  ],
+  "bounds": [
+    [
+      -1.5360000133514404,
+      1.1399999856948853
+    ],
+    [
+      -0.16899999976158142,
+      0.2329999953508377
+    ],
+    [
+      -0.5899999737739563,
+      0.6349999904632568
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 55,
+  "attachment_count": 9,
+  "actions": 5,
+  "eye_clearance": 0.18
+}

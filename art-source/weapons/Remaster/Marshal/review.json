@@ -1,0 +1,126 @@
+{
+  "gun": "Marshal",
+  "tris": 3656,
+  "budget": 5000,
+  "sight": "scope35",
+  "round": "Sniper",
+  "clips": {
+    "Fire": {
+      "frames": 22,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Hammer",
+        "Lever",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 22
+    },
+    "Reload": {
+      "frames": 60,
+      "bones": [
+        "Charm",
+        "Root",
+        "Shell"
+      ],
+      "declared_frames": 60
+    },
+    "ReloadEmpty": {
+      "frames": 86,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Hammer",
+        "Lever",
+        "Root",
+        "Shell"
+      ],
+      "declared_frames": 86
+    },
+    "ReloadStart": {
+      "frames": 12,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 12
+    },
+    "ReloadInsert": {
+      "frames": 17,
+      "bones": [
+        "Charm",
+        "Root",
+        "Shell"
+      ],
+      "declared_frames": 16
+    },
+    "ReloadEnd": {
+      "frames": 14,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 14
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "Bolt",
+        "Hammer",
+        "Lever",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Bolt",
+        "Lever",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.18,
+  "old_bounds": [
+    [
+      -1.2408000230789185,
+      3.197700023651123
+    ],
+    [
+      -0.07500000298023224,
+      0.07500000298023224
+    ],
+    [
+      -0.3331097364425659,
+      0.4388999938964844
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Lever",
+    "Bolt",
+    "Hammer",
+    "Trigger",
+    "Shell",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "ScopeAxis",
+    "Eject",
+    "LoadPoint",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "lever loop / slim 3.5x scope / long tapered fore-end"
+}

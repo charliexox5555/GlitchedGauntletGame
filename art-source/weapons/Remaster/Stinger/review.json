@@ -1,0 +1,99 @@
+{
+  "gun": "Stinger",
+  "tris": 3368,
+  "budget": 5000,
+  "sight": "aperture",
+  "round": "SMG",
+  "clips": {
+    "Fire": {
+      "frames": 10,
+      "bones": [
+        "Bolt",
+        "ChargingHandle",
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 10
+    },
+    "Reload": {
+      "frames": 66,
+      "bones": [
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 66
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 97
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "FireSelector",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.18,
+  "old_bounds": [
+    [
+      -1.5299999713897705,
+      1.1399999856948853
+    ],
+    [
+      -0.08400000631809235,
+      0.10080000013113022
+    ],
+    [
+      -0.5849999785423279,
+      0.5286267399787903
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Mag",
+    "ChargingHandle",
+    "Bolt",
+    "Trigger",
+    "FireSelector",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "Eject",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "folding twin-beam stock / grip magazine / stubby shroud"
+}

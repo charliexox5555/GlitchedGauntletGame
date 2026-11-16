@@ -1,0 +1,33 @@
+{
+  "gun": "Knife",
+  "passed": true,
+  "errors": [],
+  "tris": 658,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.0,
+    1.1265714672008516,
+    0.9949332618773102
+  ],
+  "bounds": [
+    [
+      -0.4498000144958496,
+      1.271399974822998
+    ],
+    [
+      -0.10199999809265137,
+      0.10199999809265137
+    ],
+    [
+      -0.09700000286102295,
+      0.11900000274181366
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 16,
+  "attachment_count": 11,
+  "actions": 9,
+  "eye_clearance": 0.5255
+}

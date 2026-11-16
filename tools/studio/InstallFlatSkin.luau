@@ -72,7 +72,8 @@ local function addJoints(rig: Instance, joints: { Joint })
 		local parent = rig:FindFirstChild(j.parent)
 		assert(parent and parent:IsA("BasePart"), "Missing parent joint " .. j.parent)
 		local c = j.c0
-		local c0 = CFrame.new(c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12])
+		local c0 =
+			CFrame.new(c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12])
 		local part = Instance.new("Part")
 		part.Name = j.name
 		part.Size = Vector3.one * 0.1
@@ -237,7 +238,9 @@ local function install(args: { [string]: any }): (Model, { string })
 		variant:SetAttribute("SkinItem", args.item) -- the knife slot's model: Fan, Blade, Dagger
 	end
 	variant.Parent = line
-	ChangeHistoryService:SetWaypoint("Install " .. lineName .. " " .. gun .. " " .. tostring(args.version))
+	ChangeHistoryService:SetWaypoint(
+		"Install " .. lineName .. " " .. gun .. " " .. tostring(args.version)
+	)
 	return variant, notes
 end
 

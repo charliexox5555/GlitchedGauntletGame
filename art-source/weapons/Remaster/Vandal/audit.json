@@ -1,0 +1,33 @@
+{
+  "gun": "Vandal",
+  "passed": true,
+  "errors": [],
+  "tris": 3300,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.001538551220425,
+    2.0937499563442548,
+    1.0713906783229121
+  ],
+  "bounds": [
+    [
+      -1.2584000825881958,
+      2.64739990234375
+    ],
+    [
+      -0.16899999976158142,
+      0.2329999953508377
+    ],
+    [
+      -0.4074399471282959,
+      0.6776288747787476
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 54,
+  "attachment_count": 9,
+  "actions": 5,
+  "eye_clearance": 0.195
+}

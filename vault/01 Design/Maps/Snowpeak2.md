@@ -132,3 +132,6 @@ Completed after the Metro pair passed. Original models made through interactive 
 - **Lanes on the flat field.** Fences, cover rows and stronger track lines. This changes cover and sightlines, so it needs the layout script and its checks.
 - **Window glow.** Neon panes render as flat colour squares in edit captures. Lit interiors behind glass, or a SurfaceGui glow, would need a test in play mode.
 - **Codex snowcat:** 4 small internal coplanar triangle pairs in its own mesh, not visible in Studio. Left as modelled; my offset attempts only moved them.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. Only the trail-map signs' tops (8) left the jump's reach.

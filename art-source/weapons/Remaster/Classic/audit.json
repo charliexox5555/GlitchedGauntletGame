@@ -1,0 +1,33 @@
+{
+  "gun": "Classic",
+  "passed": true,
+  "errors": [],
+  "tris": 2632,
+  "budget": 3000,
+  "size_ratios_xyz": [
+    1.0,
+    2.148846979705941,
+    1.0451328368183948
+  ],
+  "bounds": [
+    [
+      -0.2667999863624573,
+      1.000499963760376
+    ],
+    [
+      -0.13300000131130219,
+      0.1745000034570694
+    ],
+    [
+      -0.38771528005599976,
+      0.5153999924659729
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 41,
+  "attachment_count": 9,
+  "actions": 6,
+  "eye_clearance": 0.2293
+}

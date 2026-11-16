@@ -50,7 +50,8 @@ local PARENT: { [string]: string } = {
 }
 
 local function cf(p: JointPose): CFrame
-	local r = CFrame.Angles(0, math.rad(p[2] or 0), 0) * CFrame.Angles(math.rad(p[1]), 0, math.rad(p[3] or 0))
+	local r = CFrame.Angles(0, math.rad(p[2] or 0), 0)
+		* CFrame.Angles(math.rad(p[1]), 0, math.rad(p[3] or 0))
 	return CFrame.new(p[4] or 0, p[5] or 0, p[6] or 0) * r
 end
 
@@ -83,7 +84,12 @@ local function keyframe(time: number, frame: Frame): Keyframe
 end
 
 -- `keys`: { time, frame } pairs.
-local function sequence(name: string, priority: Enum.AnimationPriority, loop: boolean, keys: { { any } }): KeyframeSequence
+local function sequence(
+	name: string,
+	priority: Enum.AnimationPriority,
+	loop: boolean,
+	keys: { { any } }
+): KeyframeSequence
 	local ks = Instance.new("KeyframeSequence")
 	ks.Name = name
 	ks.Loop = loop

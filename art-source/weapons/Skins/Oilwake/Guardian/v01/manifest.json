@@ -1,0 +1,298 @@
+{
+  "line": "Oilwake",
+  "gun": "Guardian",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Guardian/Guardian_RemasterV2_v05.blend",
+  "source_sha256": "ee55e6fa7f27728bb30e51fa2e5f3ae96122aa5cc052c58841c10b19c75b649d",
+  "blend": "art-source/weapons/Skins/Oilwake/Guardian/v01/Guardian_Oilwake_v01.blend",
+  "blend_sha256": "f965cdfec9b0d81aff4154e891ec8d3708034f672b6562b8b7fb0bbb5b70b0b2",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Guardian_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "f633a65fd3afe73469c925775294b9a5c58264b4a30a0258d8f52bca07172d39",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "5c4d4daebc9a047cd5dfde567bae436fc8eb8d379fe4552f38aea48eef3bf8dc",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 965,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Guardian_Barrel": [
+        {
+          "face": 71,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 218,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 77,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 226,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 91,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 92,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 261,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 258,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 243,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 244,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 275,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 85,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 124,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 41,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 242,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 245,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 98,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 274,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 246,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 259,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 260,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 4374,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ],
+        "Handguard": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.17,
+        1.95,
+        0.231,
+        0.377
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Guardian_Bolt",
+    "Guardian_CharmLoop",
+    "Guardian_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Guardian_Draw",
+    "Guardian_Fire",
+    "Guardian_Inspect",
+    "Guardian_Reload",
+    "Guardian_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Guardian/v01/textures/Guardian_Color.png",
+      "sha256": "96d6f609c6f0f2fcf8ea4cd8c5679cda5e0899944c563e59d50a24b733434966",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Guardian/v01/textures/Guardian_Normal.png",
+      "sha256": "3eab9a861566cdf31d27f76e125d3383b6b5beb02b49ffb2c1b8c94706f0588b",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Guardian/v01/textures/Guardian_Roughness.png",
+      "sha256": "5a4d734a9811152f9986451cef53f8ad28b2bba6f8c507219268aaa45ca44759",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Guardian/v01/textures/Guardian_Metalness.png",
+      "sha256": "c781029494f44bf8d34e261bebc5936cf558f00907583ae80ec85f34597978ae",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Guardian_Receiver|Dark",
+        "over": "Guardian_Handguard|Body",
+        "faces": 1
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Guardian_Cam_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.30239999294281006
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.4984000027179718
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.13333334028720856,
+    "lens_mm": 21.64857292175293
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Guardian/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Guardian",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

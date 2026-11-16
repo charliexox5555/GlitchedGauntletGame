@@ -228,14 +228,27 @@ end
 local count = 0
 for _, s in BOXES do
 	local kind = s[3] :: string
-	local x0, x1, y0, y1, z0, z1 = s[4] :: number, s[5] :: number, s[6] :: number, s[7] :: number, s[8] :: number, s[9] :: number
+	local x0, x1, y0, y1, z0, z1 =
+		s[4] :: number,
+		s[5] :: number,
+		s[6] :: number,
+		s[7] :: number,
+		s[8] :: number,
+		s[9] :: number
 	local size = Vector3.new(x1 - x0, y1 - y0, z1 - z0)
 	local small = math.min(size.X, size.Z) < 4 or size.Y < 4
-	local p = box(sec(s[1] :: string), s[2] :: string, size, at((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), KIND[kind], {
-		material = MATERIAL[kind],
-		transparency = if kind == "glass" then 0.85 else 0,
-		castShadow = kind == "roof" or kind == "wall" or not small, -- roofs and walls keep the inside dark
-	})
+	local p = box(
+		sec(s[1] :: string),
+		s[2] :: string,
+		size,
+		at((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2),
+		KIND[kind],
+		{
+			material = MATERIAL[kind],
+			transparency = if kind == "glass" then 0.85 else 0,
+			castShadow = kind == "roof" or kind == "wall" or not small, -- roofs and walls keep the inside dark
+		}
+	)
 	p:SetAttribute("Kind", kind)
 	p:SetAttribute("Art", s[10] :: string)
 	count += 1
@@ -243,12 +256,25 @@ end
 
 -- WedgePart: low at local -Z, high at +Z, so a ramp rising toward -Z turns 180 degrees.
 for _, s in RAMPS do
-	local x0, x1, y0, y1, z0, z1 = s[3] :: number, s[4] :: number, s[5] :: number, s[6] :: number, s[7] :: number, s[8] :: number
+	local x0, x1, y0, y1, z0, z1 =
+		s[3] :: number,
+		s[4] :: number,
+		s[5] :: number,
+		s[6] :: number,
+		s[7] :: number,
+		s[8] :: number
 	local up = s[9] :: number
 	local size = Vector3.new(x1 - x0, y1 - y0, z1 - z0)
-	local p = wedge(sec(s[1] :: string), s[2] :: string, size, at((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, if up > 0 then 0 else 180), KIND.ramp, {
-		material = MATERIAL.ramp,
-	})
+	local p = wedge(
+		sec(s[1] :: string),
+		s[2] :: string,
+		size,
+		at((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, if up > 0 then 0 else 180),
+		KIND.ramp,
+		{
+			material = MATERIAL.ramp,
+		}
+	)
 	p:SetAttribute("Kind", "ramp")
 	p:SetAttribute("Art", "hide")
 	count += 1
@@ -256,10 +282,20 @@ end
 
 spawnsClear()
 for _, s in SPAWNS do
-	spawnPad(s[1] :: string, s[2] :: number, at(s[3] :: number, 0, s[4] :: number, if s[1] == "A" then 180 else 0))
+	spawnPad(
+		s[1] :: string,
+		s[2] :: number,
+		at(s[3] :: number, 0, s[4] :: number, if s[1] == "A" then 180 else 0)
+	)
 end
 for i, b in BARRIERS do
-	barrier("Barrier" .. i, Vector3.new(b[2] - b[1], b[4] - b[3], b[6] - b[5]), at((b[1] + b[2]) / 2, (b[3] + b[4]) / 2, (b[5] + b[6]) / 2))
+	barrier(
+		"Barrier" .. i,
+		Vector3.new(b[2] - b[1], b[4] - b[3], b[6] - b[5]),
+		at((b[1] + b[2]) / 2, (b[3] + b[4]) / 2, (b[5] + b[6]) / 2)
+	)
 end
 
-report(string.format("Bunker2 greybox: %d parts, %d spawns, %d barriers", count, #SPAWNS, #BARRIERS))
+report(
+	string.format("Bunker2 greybox: %d parts, %d spawns, %d barriers", count, #SPAWNS, #BARRIERS)
+)

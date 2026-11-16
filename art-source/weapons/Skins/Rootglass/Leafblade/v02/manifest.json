@@ -1,0 +1,165 @@
+{
+  "line": "Rootglass",
+  "item": "Knife",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Knife/Knife_RemasterV2_v05.blend",
+  "source_file_sha256": "cfdaabce69b1e534a8faed9b0c3c21db40e985dba692bb4069665e4a0e0c1dc9",
+  "concept": "vault/02 Art/Skins/Rootglass/out/Leafblade_concept_v02.png",
+  "review_state": "Baked. Reopen and comparison pending.",
+  "blend": "art-source/weapons/Skins/Rootglass/Leafblade/v02/Leafblade_Rootglass_v02.blend",
+  "fbx": "art-source/weapons/Skins/Rootglass/Leafblade/v02/Leafblade_Rootglass_v02.fbx",
+  "art": {
+    "host": "Knife_Hilt",
+    "bone": "Root",
+    "profile": "A / Broad Leaf",
+    "window_center": [
+      0.732,
+      0.0215,
+      0.023
+    ],
+    "width": 0.552,
+    "height": 0.084
+  },
+  "anchors": {
+    "Knife_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Knife_BladeBase": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.36399999260902405
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.006500000134110451
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Knife_BladeTip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.271399974822998
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.015599999576807022
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 368640,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "6846ef655f128a358ac05f4e52505ec192dae274bd804d12c93b84f67c0ca6b4",
+    "geometry_and_material_slots": "99393686d5e0c05b25280be85b5d05d9a67bfcf5e631c80b66ae2abc68c80caa",
+    "uv": "926ba232dc76274403c5793a7e70ca34fcf0c51b2e037943d077e0e848114bf1",
+    "rig_and_nla": "d7b0acc748759cf2539fef235ecad2d7927f946b56b4e8d1c9e1fb93192820f0",
+    "actions": "7c2ea6193d59a4aeff015840fe160a083a7c80621e5f4ce6935d136b3616699b"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "6846ef655f128a358ac05f4e52505ec192dae274bd804d12c93b84f67c0ca6b4",
+    "geometry_and_material_slots": "14efe3b05d0614f352584846a9b792aa42abb1c2a075c0e22ee448e2692983bb",
+    "uv": "dccb8c03397403092cf71288f8be3d55732efbb83dc81dbe2ab8489ac1569039",
+    "rig_and_nla": "d7b0acc748759cf2539fef235ecad2d7927f946b56b4e8d1c9e1fb93192820f0",
+    "actions": "7c2ea6193d59a4aeff015840fe160a083a7c80621e5f4ce6935d136b3616699b"
+  },
+  "built_mesh_count": 10,
+  "triangles": 1768,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Rootglass/Leafblade/v02/textures/Knife_Color.png",
+      "sha256": "1b613c6a8213090fd74b4adef3586c85eaaa4386b82486282f5f636b7d9d76b4"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Rootglass/Leafblade/v02/textures/Knife_Normal.png",
+      "sha256": "0e277b8ef6b7b732f6291a5fc1ee08162c5cbee6a6376431319a27afd53b12b8"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Rootglass/Leafblade/v02/textures/Knife_Roughness.png",
+      "sha256": "533f20dc28f66ee7311b527a22fdea14a5fea84e495d69b48a516ff97f6be678"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Rootglass/Leafblade/v02/textures/Knife_Metalness.png",
+      "sha256": "640cbde802daaeebfbf269b4573468facd8e2ff60c2b44505ae427869ec57dce"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the RootglassAtlas UVs supplied by the Blender file and local FBX.",
+  "inspect_pulse_targets": [
+    "Rootglass_SpineLeft_AmberVein_1",
+    "Rootglass_SpineLeft_AmberVein_2",
+    "Rootglass_SpineRight_AmberVein_1",
+    "Rootglass_SpineRight_AmberVein_2"
+  ]
+}

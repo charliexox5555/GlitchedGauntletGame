@@ -89,31 +89,23 @@ local function hlist(p: Instance, pad: number, h: Enum.HorizontalAlignment?)
 end
 
 local function gap(p: Instance, order: number, w: number)
-	make(
-		"Frame",
-		{
-			Name = "Gap" .. order,
-			LayoutOrder = order,
-			Size = UDim2.fromOffset(w, 2),
-			BackgroundTransparency = 1,
-		},
-		p
-	)
+	make("Frame", {
+		Name = "Gap" .. order,
+		LayoutOrder = order,
+		Size = UDim2.fromOffset(w, 2),
+		BackgroundTransparency = 1,
+	}, p)
 end
 
 local function strip(p: Instance, h: number, props: { [string]: any }): CanvasGroup
-	local g = make(
-		"CanvasGroup",
-		{
-			Name = "Strip",
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, h),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-			ZIndex = 1,
-		},
-		p
-	)
+	local g = make("CanvasGroup", {
+		Name = "Strip",
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, h),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+		ZIndex = 1,
+	}, p)
 	for k, v in props do
 		(g :: any)[k] = v
 	end
@@ -150,17 +142,13 @@ do -- Status.Entry: an icon in a navy disc, a 24-segment ring that drains, a tag
 		{ Name = "Entry", Size = UDim2.fromOffset(76, 88), BackgroundTransparency = 1 },
 		folder
 	)
-	local body = make(
-		"Frame",
-		{
-			Name = "Body",
-			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.fromScale(0.5, 0),
-			Size = UDim2.fromOffset(64, 64),
-			BackgroundTransparency = 1,
-		},
-		holder
-	)
+	local body = make("Frame", {
+		Name = "Body",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromScale(0.5, 0),
+		Size = UDim2.fromOffset(64, 64),
+		BackgroundTransparency = 1,
+	}, holder)
 	make("UIScale", { Name = "Pop" }, body)
 	local ring = make(
 		"Frame",
@@ -180,46 +168,34 @@ do -- Status.Entry: an icon in a navy disc, a 24-segment ring that drains, a tag
 			ZIndex = 1,
 		}, ring)
 	end
-	local disc = make(
-		"Frame",
-		{
-			Name = "Disc",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(48, 48),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		body
-	)
+	local disc = make("Frame", {
+		Name = "Disc",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(48, 48),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, body)
 	circle(disc)
-	make(
-		"ImageLabel",
-		{
-			Name = "Icon",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(30, 30),
-			BackgroundTransparency = 1,
-			ZIndex = 3,
-		},
-		disc
-	)
-	local count = make(
-		"Frame",
-		{
-			Name = "Count",
-			AnchorPoint = Vector2.new(1, 1),
-			Position = UDim2.new(1, 6, 1, 4),
-			Size = UDim2.fromOffset(20, 20),
-			BackgroundColor3 = GOLD,
-			BorderSizePixel = 0,
-			ZIndex = 4,
-			Visible = false,
-		},
-		body
-	)
+	make("ImageLabel", {
+		Name = "Icon",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(30, 30),
+		BackgroundTransparency = 1,
+		ZIndex = 3,
+	}, disc)
+	local count = make("Frame", {
+		Name = "Count",
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, 6, 1, 4),
+		Size = UDim2.fromOffset(20, 20),
+		BackgroundColor3 = GOLD,
+		BorderSizePixel = 0,
+		ZIndex = 4,
+		Visible = false,
+	}, body)
 	corner(count, 4)
 	text(
 		count,
@@ -229,19 +205,15 @@ do -- Status.Entry: an icon in a navy disc, a 24-segment ring that drains, a tag
 		INK,
 		{ AutomaticSize = Enum.AutomaticSize.None, Size = UDim2.fromScale(1, 1), ZIndex = 5 }
 	)
-	local tag = make(
-		"Frame",
-		{
-			Name = "Tag",
-			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.new(0.5, 0, 0, 68),
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 18),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		holder
-	)
+	local tag = make("Frame", {
+		Name = "Tag",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 68),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 18),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, holder)
 	corner(tag, 4)
 	make("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, tag)
 	text(tag, "Label", "HINDERED", 10, WHITE, { Size = UDim2.fromOffset(0, 18) })
@@ -251,43 +223,31 @@ do -- Scoreboard: header, row, build chip
 	local folder = make("Folder", { Name = "Scoreboard" }, templates)
 	local W = 1040
 	local COLS = { 470, 540, 610, 690 }
-	local h = make(
-		"Frame",
-		{
-			Name = "Header",
-			Size = UDim2.fromOffset(W, 34),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		folder
-	)
+	local h = make("Frame", {
+		Name = "Header",
+		Size = UDim2.fromOffset(W, 34),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, folder)
 	corner(h)
-	local block = make(
-		"Frame",
-		{
-			Name = "Team",
-			Size = UDim2.fromOffset(170, 34),
-			BackgroundColor3 = ALLY,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		h
-	)
+	local block = make("Frame", {
+		Name = "Team",
+		Size = UDim2.fromOffset(170, 34),
+		BackgroundColor3 = ALLY,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, h)
 	corner(block)
 	text(block, "Label", "YOUR TEAM", 14, INK, { Position = UDim2.fromOffset(14, 8) })
-	make(
-		"ImageLabel",
-		{
-			Name = "Cap",
-			Position = UDim2.fromOffset(166, 0),
-			Size = UDim2.fromOffset(14, 34),
-			BackgroundTransparency = 1,
-			Image = CAP_R,
-			ImageColor3 = ALLY,
-			ZIndex = 2,
-		},
-		h
-	)
+	make("ImageLabel", {
+		Name = "Cap",
+		Position = UDim2.fromOffset(166, 0),
+		Size = UDim2.fromOffset(14, 34),
+		BackgroundTransparency = 1,
+		Image = CAP_R,
+		ImageColor3 = ALLY,
+		ZIndex = 2,
+	}, h)
 	for i, l in { "E", "D", "A", "DMG" } do
 		text(
 			h,
@@ -314,75 +274,60 @@ do -- Scoreboard: header, row, build chip
 	)
 	local body = make(
 		"CanvasGroup",
-		{ Name = "Body", Size = UDim2.fromScale(1, 1), BackgroundColor3 = NAVY, BorderSizePixel = 0 },
+		{
+			Name = "Body",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundColor3 = NAVY,
+			BorderSizePixel = 0,
+		},
 		holder
 	)
 	corner(body)
-	local cell = make(
-		"Frame",
-		{
-			Name = "Cell",
-			Size = UDim2.fromOffset(46, 46),
-			BackgroundColor3 = ALLY_CELL,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		body
-	)
+	local cell = make("Frame", {
+		Name = "Cell",
+		Size = UDim2.fromOffset(46, 46),
+		BackgroundColor3 = ALLY_CELL,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, body)
 	corner(cell)
-	make(
-		"ImageLabel",
-		{
-			Name = "Headshot",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-			Image = BOT_HEAD,
-			ZIndex = 3,
-		},
-		cell
-	)
-	local line = make(
-		"Frame",
-		{
-			Name = "NameLine",
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 60, 0.5, 0),
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 26),
-			BackgroundTransparency = 1,
-		},
-		body
-	)
+	make("ImageLabel", {
+		Name = "Headshot",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Image = BOT_HEAD,
+		ZIndex = 3,
+	}, cell)
+	local line = make("Frame", {
+		Name = "NameLine",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 60, 0.5, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 26),
+		BackgroundTransparency = 1,
+	}, body)
 	hlist(line, 8)
 	text(line, "PlayerName", "PLAYER", 16, ALLY, { LayoutOrder = 1 })
-	make(
-		"ImageLabel",
-		{
-			Name = "Shard",
-			LayoutOrder = 2,
-			Size = UDim2.fromOffset(22, 22),
-			BackgroundTransparency = 1,
-			Image = SHARD,
-			ImageColor3 = GOLD,
-			ZIndex = 3,
-			Visible = false,
-		},
-		line
-	)
-	make(
-		"ImageLabel",
-		{
-			Name = "Dead",
-			LayoutOrder = 3,
-			Size = UDim2.fromOffset(18, 18),
-			BackgroundTransparency = 1,
-			Image = SKULL,
-			ImageColor3 = MUTED,
-			ZIndex = 3,
-			Visible = false,
-		},
-		line
-	)
+	make("ImageLabel", {
+		Name = "Shard",
+		LayoutOrder = 2,
+		Size = UDim2.fromOffset(22, 22),
+		BackgroundTransparency = 1,
+		Image = SHARD,
+		ImageColor3 = GOLD,
+		ZIndex = 3,
+		Visible = false,
+	}, line)
+	make("ImageLabel", {
+		Name = "Dead",
+		LayoutOrder = 3,
+		Size = UDim2.fromOffset(18, 18),
+		BackgroundTransparency = 1,
+		Image = SKULL,
+		ImageColor3 = MUTED,
+		ZIndex = 3,
+		Visible = false,
+	}, line)
 	for i = 1, 4 do
 		text(
 			body,
@@ -393,43 +338,31 @@ do -- Scoreboard: header, row, build chip
 			{ AnchorPoint = CENTRE, Position = UDim2.new(0, COLS[i], 0.5, 0) }
 		)
 	end
-	local build = make(
-		"Frame",
-		{
-			Name = "Build",
-			AnchorPoint = Vector2.new(0, 0.5),
-			Position = UDim2.new(0, 770, 0.5, 0),
-			Size = UDim2.fromOffset(250, 36),
-			BackgroundTransparency = 1,
-		},
-		body
-	)
+	local build = make("Frame", {
+		Name = "Build",
+		AnchorPoint = Vector2.new(0, 0.5),
+		Position = UDim2.new(0, 770, 0.5, 0),
+		Size = UDim2.fromOffset(250, 36),
+		BackgroundTransparency = 1,
+	}, body)
 	hlist(build, 6)
 
-	local chip = make(
-		"Frame",
-		{
-			Name = "Chip",
-			Size = UDim2.fromOffset(36, 36),
-			BackgroundColor3 = ALLY,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		folder
-	)
+	local chip = make("Frame", {
+		Name = "Chip",
+		Size = UDim2.fromOffset(36, 36),
+		BackgroundColor3 = ALLY,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, folder)
 	corner(chip)
-	make(
-		"ImageLabel",
-		{
-			Name = "Icon",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(24, 24),
-			BackgroundTransparency = 1,
-			ZIndex = 3,
-		},
-		chip
-	)
+	make("ImageLabel", {
+		Name = "Icon",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(24, 24),
+		BackgroundTransparency = 1,
+		ZIndex = 3,
+	}, chip)
 	text(
 		chip,
 		"Level",
@@ -442,31 +375,23 @@ end
 
 do -- Replay.FinalKill: the gold FINAL KILL block, killer, weapon, victim
 	local folder = make("Folder", { Name = "Replay" }, templates)
-	local holder = make(
-		"Frame",
-		{
-			Name = "FinalKill",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.95),
-			Size = UDim2.fromOffset(900, 60),
-			BackgroundTransparency = 1,
-		},
-		folder
-	)
+	local holder = make("Frame", {
+		Name = "FinalKill",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.95),
+		Size = UDim2.fromOffset(900, 60),
+		BackgroundTransparency = 1,
+	}, folder)
 	local s = strip(holder, 56, { AnchorPoint = CENTRE, Position = UDim2.fromScale(0.5, 0.5) })
-	local b = make(
-		"Frame",
-		{
-			Name = "Kicker",
-			LayoutOrder = 1,
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 56),
-			BackgroundColor3 = GOLD,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		s
-	)
+	local b = make("Frame", {
+		Name = "Kicker",
+		LayoutOrder = 1,
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 56),
+		BackgroundColor3 = GOLD,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, s)
 	make("UIPadding", { PaddingLeft = UDim.new(0, 18), PaddingRight = UDim.new(0, 6) }, b)
 	text(
 		b,
@@ -476,49 +401,37 @@ do -- Replay.FinalKill: the gold FINAL KILL block, killer, weapon, victim
 		INK,
 		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0, 0.5) }
 	)
-	make(
-		"ImageLabel",
-		{
-			Name = "Cap",
-			LayoutOrder = 2,
-			Size = UDim2.fromOffset(24, 56),
-			BackgroundTransparency = 1,
-			Image = CAP_R,
-			ImageColor3 = GOLD,
-			ZIndex = 2,
-		},
-		s
-	)
+	make("ImageLabel", {
+		Name = "Cap",
+		LayoutOrder = 2,
+		Size = UDim2.fromOffset(24, 56),
+		BackgroundTransparency = 1,
+		Image = CAP_R,
+		ImageColor3 = GOLD,
+		ZIndex = 2,
+	}, s)
 	gap(s, 3, 18)
 	text(s, "Killer", "KILLER", 22, ALLY, { LayoutOrder = 4 })
 	gap(s, 5, 16)
-	make(
-		"ImageLabel",
-		{
-			Name = "Weapon",
-			LayoutOrder = 6,
-			Size = UDim2.fromOffset(96, 30),
-			BackgroundTransparency = 1,
-			ScaleType = Enum.ScaleType.Fit,
-			ZIndex = 3,
-		},
-		s
-	)
+	make("ImageLabel", {
+		Name = "Weapon",
+		LayoutOrder = 6,
+		Size = UDim2.fromOffset(96, 30),
+		BackgroundTransparency = 1,
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 3,
+	}, s)
 	gap(s, 7, 12)
-	make(
-		"ImageLabel",
-		{
-			Name = "Head",
-			LayoutOrder = 8,
-			Size = UDim2.fromOffset(20, 20),
-			BackgroundTransparency = 1,
-			Image = SKULL,
-			ImageColor3 = GOLD,
-			ZIndex = 3,
-			Visible = false,
-		},
-		s
-	)
+	make("ImageLabel", {
+		Name = "Head",
+		LayoutOrder = 8,
+		Size = UDim2.fromOffset(20, 20),
+		BackgroundTransparency = 1,
+		Image = SKULL,
+		ImageColor3 = GOLD,
+		ZIndex = 3,
+		Visible = false,
+	}, s)
 	gap(s, 9, 12)
 	text(s, "Victim", "VICTIM", 22, ENEMY, { LayoutOrder = 10 })
 	gap(s, 11, 22)
@@ -528,53 +441,37 @@ end
 -- the Mod cells (the script anchors it to the bottom like the bottom HUD).
 do
 	local gui = screen("StatusTray", 6, true)
-	local holder = make(
-		"Frame",
-		{
-			Name = "Holder",
-			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 0.965, -114),
-			Size = UDim2.fromOffset(900, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 1,
-		},
-		gui
-	)
+	local holder = make("Frame", {
+		Name = "Holder",
+		AnchorPoint = Vector2.new(0.5, 1),
+		Position = UDim2.new(0.5, 0, 0.965, -114),
+		Size = UDim2.fromOffset(900, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1,
+	}, gui)
 	make("UIScale", { Name = "Fit" }, holder)
-	make(
-		"UIListLayout",
-		{
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			VerticalAlignment = Enum.VerticalAlignment.Bottom,
-			Padding = UDim.new(0, 8),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-		},
-		holder
-	)
-	local hint = make(
-		"Frame",
-		{
-			Name = "Hint",
-			LayoutOrder = 1,
-			Size = UDim2.fromOffset(900, 32),
-			BackgroundTransparency = 1,
-			Visible = false,
-		},
-		holder
-	)
-	local plate = make(
-		"Frame",
-		{
-			Name = "Plate",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 32),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		hint
-	)
+	make("UIListLayout", {
+		HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		VerticalAlignment = Enum.VerticalAlignment.Bottom,
+		Padding = UDim.new(0, 8),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}, holder)
+	local hint = make("Frame", {
+		Name = "Hint",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(900, 32),
+		BackgroundTransparency = 1,
+		Visible = false,
+	}, holder)
+	local plate = make("Frame", {
+		Name = "Plate",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 32),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, hint)
 	corner(plate)
 	make("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14) }, plate)
 	text(
@@ -585,17 +482,13 @@ do
 		WHITE,
 		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0, 0.5) }
 	)
-	local row = make(
-		"Frame",
-		{
-			Name = "Row",
-			LayoutOrder = 2,
-			Size = UDim2.fromOffset(900, 88),
-			BackgroundTransparency = 1,
-			Visible = false,
-		},
-		holder
-	)
+	local row = make("Frame", {
+		Name = "Row",
+		LayoutOrder = 2,
+		Size = UDim2.fromOffset(900, 88),
+		BackgroundTransparency = 1,
+		Visible = false,
+	}, holder)
 	hlist(row, 10, Enum.HorizontalAlignment.Center)
 	gui.Parent = SG
 end
@@ -604,58 +497,42 @@ end
 -- each team's header and rows (the script fills them).
 do
 	local gui = screen("Scoreboard", 12, false)
-	make(
-		"Frame",
-		{
-			Name = "Dim",
-			Size = UDim2.fromScale(1, 1),
-			BackgroundColor3 = hex("070A10"),
-			BackgroundTransparency = 0.45,
-			BorderSizePixel = 0,
-		},
-		gui
-	)
-	local c = make(
-		"Frame",
-		{
-			Name = "Canvas",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(1920, 1080),
-			BackgroundTransparency = 1,
-		},
-		gui
-	)
+	make("Frame", {
+		Name = "Dim",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = hex("070A10"),
+		BackgroundTransparency = 0.45,
+		BorderSizePixel = 0,
+	}, gui)
+	local c = make("Frame", {
+		Name = "Canvas",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(1920, 1080),
+		BackgroundTransparency = 1,
+	}, gui)
 	make("UIScale", { Name = "Fit" }, c)
-	local panel = make(
-		"Frame",
-		{
-			Name = "Panel",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromOffset(960, 540),
-			Size = UDim2.fromOffset(1040, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			BackgroundTransparency = 1,
-		},
-		c
-	)
+	local panel = make("Frame", {
+		Name = "Panel",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(960, 540),
+		Size = UDim2.fromOffset(1040, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1,
+	}, c)
 	make("UIScale", { Name = "Pop" }, panel)
 	make(
 		"UIListLayout",
 		{ Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder },
 		panel
 	)
-	local top = make(
-		"Frame",
-		{
-			Name = "Top",
-			LayoutOrder = 0,
-			Size = UDim2.fromOffset(1040, 56),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-		},
-		panel
-	)
+	local top = make("Frame", {
+		Name = "Top",
+		LayoutOrder = 0,
+		Size = UDim2.fromOffset(1040, 56),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+	}, panel)
 	corner(top)
 	text(
 		top,
@@ -673,32 +550,24 @@ do
 		MUTED,
 		{ AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 260, 0.5, 2) }
 	)
-	local score = make(
-		"Frame",
-		{
-			Name = "Score",
-			AnchorPoint = Vector2.new(1, 0.5),
-			Position = UDim2.new(1, -20, 0.5, 0),
-			AutomaticSize = Enum.AutomaticSize.X,
-			Size = UDim2.fromOffset(0, 40),
-			BackgroundTransparency = 1,
-		},
-		top
-	)
+	local score = make("Frame", {
+		Name = "Score",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -20, 0.5, 0),
+		AutomaticSize = Enum.AutomaticSize.X,
+		Size = UDim2.fromOffset(0, 40),
+		BackgroundTransparency = 1,
+	}, top)
 	hlist(score, 12)
 	text(score, "Us", "0", 30, ALLY, { LayoutOrder = 1 })
 	text(score, "Dash", "·", 22, MUTED, { LayoutOrder = 2 })
 	text(score, "Them", "0", 30, ENEMY, { LayoutOrder = 3 })
-	make(
-		"Frame",
-		{
-			Name = "TopGap",
-			LayoutOrder = 1,
-			Size = UDim2.fromOffset(10, 8),
-			BackgroundTransparency = 1,
-		},
-		panel
-	)
+	make("Frame", {
+		Name = "TopGap",
+		LayoutOrder = 1,
+		Size = UDim2.fromOffset(10, 8),
+		BackgroundTransparency = 1,
+	}, panel)
 	gui.Parent = SG
 end
 

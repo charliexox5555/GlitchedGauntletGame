@@ -1,0 +1,264 @@
+{
+  "line": "Playback",
+  "item": "Phantom",
+  "version": "v01",
+  "state": "look approved",
+  "sources": {
+    "stock": {
+      "path": "art-source/weapons/RemasterV2/Phantom/Phantom_RemasterV2_v05.blend",
+      "sha256": "99afea9d16d8d316893868ce36579fd0b141dcb7ccf59c7b390f033c2ffc1f98"
+    },
+    "model_sheet": {
+      "path": "art-source/weapons/ModelSheets/Phantom_model_sheet.png",
+      "sha256": "1ca4db896f88c6d17c2679dde3ccf80b5efe06e70fff6abbfa1ca53ff2fcf50f"
+    },
+    "concept": {
+      "path": "vault/02 Art/Skins/Playback/out/Phantom_concept_v02.png",
+      "sha256": "d8b6602abf1e9582f36ced03efb4214a6fc93ae0cac25ba42aa99903ee8ea1eb"
+    }
+  },
+  "blender_mcp": {
+    "endpoint": "127.0.0.1:9999",
+    "version": "5.2.2 LTS",
+    "pre_edit_scene": "Bulldog_RemasterV2_Review",
+    "pre_edit_file": "art-source/weapons/Skins/Faultline/Bulldog/v02/Bulldog_Faultline_v02.blend",
+    "pre_edit_unsaved_changes": false
+  },
+  "asset": {
+    "path": "Phantom_Playback_v01.blend",
+    "sha256": "8e19a2bd714f12ec59591884e860625c1fe299ac9737326c614b61080fe3e67d"
+  },
+  "local_fbx": {
+    "path": "Phantom_Playback_v01.fbx",
+    "sha256": "5d92e46b80c4b3803436c5b128aa16da02d92e824eabecc07e335779e7cbc0be",
+    "pose": "stock rest, cosmetic playback idle",
+    "animation": "Stock and inspect actions are in the .blend. The FBX carries the static rig and the named parts, with playback pivots.",
+    "uv_channel": "Playback_Atlas only",
+    "embedded_images": [
+      "Phantom_Playback_Color",
+      "Phantom_Playback_Metalness",
+      "Phantom_Playback_Normal",
+      "Phantom_Playback_Roughness"
+    ],
+    "material_note": "Use the four PNG maps for PBR setup when importing into a DCC or engine that does not restore all FBX material connections."
+  },
+  "maps": {
+    "Color": {
+      "path": "textures/Phantom_Color.png",
+      "pixels": [
+        2048,
+        2048
+      ],
+      "sha256": "f86265b72ae677a9cdad6d6f413e47c38361fa4461a8a240321928f12aa1af95"
+    },
+    "Roughness": {
+      "path": "textures/Phantom_Roughness.png",
+      "pixels": [
+        2048,
+        2048
+      ],
+      "sha256": "1d383f29710d3146621cbb9413b0c25b9816793c1b70aa70fe8d5eaee8aeb934"
+    },
+    "Metalness": {
+      "path": "textures/Phantom_Metalness.png",
+      "pixels": [
+        2048,
+        2048
+      ],
+      "sha256": "5025f723e125bbd81003f834525ef12e5c151ecabd5ceb47cb787e53e3ca8d01"
+    },
+    "Normal": {
+      "path": "textures/Phantom_Normal.png",
+      "pixels": [
+        2048,
+        2048
+      ],
+      "sha256": "258c96ee40c7b81d519b7e83b50d17f6dc0c2417f0e2e1ca1636a600b5cf09e0"
+    }
+  },
+  "build": {
+    "geometry": "Stepped, left-side cassette housing recessed into fixed receiver and fore-end. Clearances around the existing charging channel, charm lug and underside contact were maintained.",
+    "finishes": "Warm-grey brushed alloy, aubergine lower shell, graphite hardware, smoked cover and a muted-lime level meter.",
+    "stock_geometry_edits": [
+      "Phantom_Receiver",
+      "Phantom_Handguard"
+    ],
+    "source_contact_and_locator_transforms_match": true,
+    "rest_dimensions_xyz": [
+      3.6034,
+      0.218,
+      0.9649568
+    ],
+    "rig_matches": true,
+    "bake": {
+      "atlas": "Playback_Atlas",
+      "resolution": 2048,
+      "margin_pixels": 6,
+      "overlapping_sample_pixels": 0,
+      "normal_space": "Blender tangent +X +Y +Z"
+    }
+  },
+  "inspect": {
+    "fps": 24,
+    "duration_seconds": 2,
+    "static_fallback": "Frame 1 with the three inspect tracks muted. The reels and active meter mark remain visible through the 23% opacity pane.",
+    "preview": "Enable Playback Inspect Reference on all three named parts. The orbit in the pose sheet is a camera proxy for the animator’s weapon turn.",
+    "track_names": {
+      "Playback_Reel_Front": "Playback Inspect Reference",
+      "Playback_Reel_Rear": "Playback Inspect Reference",
+      "Playback_MeterSweep": "Playback Inspect Reference"
+    },
+    "actions": {
+      "Playback_Reel_Front": "Playback_Reel_Front_Inspect",
+      "Playback_Reel_Rear": "Playback_Reel_Rear_Inspect",
+      "Playback_MeterSweep": "Playback_MeterSweep_Inspect"
+    },
+    "world_pivots_xyz": {
+      "Playback_Reel_Front": [
+        1.2460001,
+        0.067,
+        0.306
+      ],
+      "Playback_Reel_Rear": [
+        0.757,
+        0.067,
+        0.281
+      ],
+      "Playback_MeterSweep": [
+        0.18,
+        0.0925,
+        0.2415
+      ]
+    },
+    "motion": {
+      "Playback_Reel_Front": "Local Y +137° over frames 11–31.",
+      "Playback_Reel_Rear": "Local Y +197° over frames 11–31.",
+      "Playback_MeterSweep": "Local X moves +0.068 by frame 29, returns by frame 36."
+    },
+    "poses": {
+      "1": "Static baseline",
+      "11": "Reveal",
+      "26": "Reels advancing and meter sweeping",
+      "49": "Settle"
+    }
+  },
+  "checks": {
+    "stock_action_frames_matched": 279,
+    "decorative_motion_half_frames_sampled": 97,
+    "ads_rays_matched": 625,
+    "support_contact_rays_matched": 15,
+    "sight_camera": "Phantom_FP_ADS",
+    "silhouette_iou": {
+      "hero": {
+        "view": "Front-left three-quarter",
+        "intersection_over_union": 1.0
+      },
+      "left": {
+        "view": "Left profile",
+        "intersection_over_union": 0.998589
+      },
+      "right": {
+        "view": "Right profile",
+        "intersection_over_union": 0.998589
+      },
+      "top": {
+        "view": "Top",
+        "intersection_over_union": 0.987401
+      },
+      "held": {
+        "view": "Held / model-sheet angle",
+        "intersection_over_union": 0.998899
+      },
+      "hip": {
+        "view": "Hip / matched viewmodel proxy",
+        "intersection_over_union": 1.0
+      },
+      "ads": {
+        "view": "ADS / stock camera",
+        "intersection_over_union": 1.0
+      }
+    },
+    "fbx_mesh_count": 36,
+    "fbx_max_pivot_delta": 6.143906154658885e-08,
+    "fbx_max_bound_delta": 1.043081283569336e-07,
+    "coplanar_material_candidates": [],
+    "receiver_topology": {
+      "low_area_triangles": 0,
+      "crossed_faces": 0,
+      "boundary_edges": 72,
+      "overjoined_edges": 1
+    },
+    "limitations": [
+      "The stock receiver starts with open edges. The recessed edit leaves concealed open edges and one overjoined edge; the culling sheet covers visible joins.",
+      "The held view uses stock hand locators, preserved grip geometry, and underside samples. This source has no animated hands.",
+      "Live hand intersections, game lighting, ADS fading, magazine hiding, runtime tint and final cosmetic inspect animation remain for later Studio work."
+    ]
+  },
+  "review_files": [
+    {
+      "path": "review/hero-finish.jpg",
+      "sha256": "26f809bbcf8fbf61d3e0b5402d9f4a34ee6c43a9e1b815cc8f2eb93972d88703"
+    },
+    {
+      "path": "review/matched-exterior.jpg",
+      "sha256": "5616c9a649f17aac3b31fdfdf9f5aa8c115082bc5155168a113073d8077bc8e5"
+    },
+    {
+      "path": "review/matched-held-ads.jpg",
+      "sha256": "ab42bb3e26af0eb515ec7bbc736013adb620415ed037aac565dd3a4ba881aae4"
+    },
+    {
+      "path": "review/inspect-poses.jpg",
+      "sha256": "fbc679253a32ed7a26e708864d3cfa927f20b8bd05053fef0adc50b988a8ee18"
+    },
+    {
+      "path": "review/fbx-culling.jpg",
+      "sha256": "357f538ec7887cea24ced4aaef306805ca41d744a67dad402598244a407df023"
+    },
+    {
+      "path": "review/asset-verification.json",
+      "sha256": "8102fd61d41fa531cd452b1ba56be1407d4ca39eb7eb1653c8b96aa25d7f9af1"
+    },
+    {
+      "path": "review/bake-and-export.json",
+      "sha256": "e6ad041e23df16d6a2f4c9036dccb93657c8ff4aaeeb077a54b1749210b673a9"
+    },
+    {
+      "path": "review/fbx-roundtrip.json",
+      "sha256": "3965056c42f2c736f4239e8d0571c41fd2c02d3e2bc2400fc09bdca3bca743db"
+    },
+    {
+      "path": "review/silhouette-comparison.json",
+      "sha256": "86cd5ba43a878b50a55ccdf8b1cf44eb3fff52d1af3f7d40c86b9c6ed30151ad"
+    }
+  ],
+  "grade": {
+    "design_and_finish": {
+      "score": 33,
+      "max": 35,
+      "reason": "Window, offset faceted reels, warm alloy, aubergine and lime controls read well; the smaller reel and meter are subtle in the held angle."
+    },
+    "stock_fit_and_geometry": {
+      "score": 29,
+      "max": 30,
+      "reason": "Matching stock envelope and pivots, separate sights and moving parts, with concealed receiver topology noted."
+    },
+    "bake_and_seams": {
+      "score": 20,
+      "max": 20,
+      "reason": "Four packed 2K maps match PNGs, the atlas overlap audit is clear and the fixed joins read cleanly in the reviewed angles."
+    },
+    "held_aim_and_motion": {
+      "score": 13,
+      "max": 15,
+      "reason": "ADS and stock action transforms match, with clean mechanical sweeps. The Blender source cannot validate animated hand meshes or runtime presentation."
+    },
+    "total": 95,
+    "scope": "Blender look review"
+  },
+  "next": "Build Breakwater Bucky, Sundial Guardian and the remaining nine variants.",
+  "look_approval": {
+    "date": "2026-11-15",
+    "result": "Owner approved the Playback Phantom look and asked to continue."
+  }
+}

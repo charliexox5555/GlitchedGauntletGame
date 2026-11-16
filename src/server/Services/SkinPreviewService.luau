@@ -4,7 +4,7 @@
 -- (clients can't write it), so their camera guns and the world gun everyone
 -- sees follow it. Cosmetic only: no inventory, loadout or purchase.
 -- Also loads the skins equipped in the Lobby's Locker (Shared/Locker, one line
--- per gun, saved by the Lobby's LockerService) into Skin_<gunId> attributes;
+-- per gun, saved by the Lobby's LockerService) into a replicated folder;
 -- Shared/SkinPreview.line uses them whenever the F7 preview is on Stock.
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
@@ -32,9 +32,13 @@ local function loadLocker(player: Player)
 		end)
 		if ok then
 			if player.Parent == Players then
+				-- Keep equipped skins off the Player's combat attribute budget.
+				local folder = Instance.new("Folder")
+				folder.Name = Preview.LOCKER_FOLDER
 				for gunId, line in Locker.clean(data) do
-					player:SetAttribute(Locker.attr(gunId), line)
+					folder:SetAttribute(gunId, line)
 				end
+				folder.Parent = player
 			end
 			return
 		end

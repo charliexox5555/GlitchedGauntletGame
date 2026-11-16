@@ -1,0 +1,184 @@
+{
+  "line": "Oilwake",
+  "gun": "Sheriff",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Sheriff/Sheriff_RemasterV2_v05.blend",
+  "source_sha256": "bf79df28719fa3cf51d862c255156769816f208b1ead54537be91b2e20b67d59",
+  "blend": "art-source/weapons/Skins/Oilwake/Sheriff/v01/Sheriff_Oilwake_v01.blend",
+  "blend_sha256": "33a35fbfaf82927fe6a02538f3cc0c58d623f6eb67e349dde724751bf14859f4",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Sheriff_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 3066,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Frame": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.599,
+        0.776,
+        0.175,
+        0.284
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Sheriff_CharmLoop",
+    "Sheriff_Crane",
+    "Sheriff_Cylinder",
+    "Sheriff_EjectorRod",
+    "Sheriff_Rounds",
+    "Sheriff_Sights",
+    "Sheriff_Speedloader"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Sheriff_Draw",
+    "Sheriff_Fire",
+    "Sheriff_Inspect",
+    "Sheriff_Reload",
+    "Sheriff_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Sheriff/v01/textures/Sheriff_Color.png",
+      "sha256": "c5ffedbbc06fd5c0f5d0f037f9f8685cce935346d7bfd26fc5bed51bc16d881f",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Sheriff/v01/textures/Sheriff_Normal.png",
+      "sha256": "9a8406b1c6b949b9428edb5cb1576954f294d830e03d33f4aed7135659f624c9",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Sheriff/v01/textures/Sheriff_Roughness.png",
+      "sha256": "ff665a7aace39db01359695b3c7a69069c1edd4d456f76bf96690cab8a9aeebf",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Sheriff/v01/textures/Sheriff_Metalness.png",
+      "sha256": "88b73ea2c71b3587184df08c057ab420a5bf9bf46d2e8b7bf016dcda2de968a9",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Sheriff_FP_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.1218181923031807
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.4180000126361847
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.09090909361839294,
+    "lens_mm": 17.79073143005371
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Sheriff/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Sheriff",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

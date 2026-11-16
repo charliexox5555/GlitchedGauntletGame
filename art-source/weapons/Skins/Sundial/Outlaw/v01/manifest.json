@@ -1,0 +1,228 @@
+{
+  "line": "Sundial",
+  "weapon": "Outlaw",
+  "version": "v01",
+  "readiness": "Blender review",
+  "batch": "Moderate skin line expansion",
+  "source": {
+    "path": "art-source/weapons/RemasterV2/Outlaw/Outlaw_RemasterV2_v05.blend",
+    "sha256": "a8b3e9fb72b144eeb33cc8d1364d30f3a2d1bacc82e8ed7669202b3e5be5268f"
+  },
+  "model_sheet": "art-source/weapons/ModelSheets/Outlaw_model_sheet.png",
+  "style_concept": "vault/02 Art/Skins/Sundial/out/Guardian_concept_v02.png",
+  "authoring_endpoint": "Blender MCP 127.0.0.1:9999 and isolated local Blender review processes",
+  "static_pose": "Frame 1, decorative NLA tracks muted.",
+  "inspect": {
+    "fps": 24,
+    "pose_frames": {
+      "1": "Static finish",
+      "12": "Reveal",
+      "24": "Motion",
+      "45": "Settle"
+    },
+    "animated_parts": {
+      "Sundial_Dial": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            25,
+            0.7853981633974483
+          ],
+          [
+            45,
+            0.7853981633974483
+          ]
+        ],
+        "property": "local quaternion",
+        "axis": 2,
+        "world_pivot": [
+          0.46000000834465027,
+          0.12586046755313873,
+          0.3503907024860382
+        ],
+        "track": "Sundial Inspect Reference"
+      }
+    },
+    "review_camera_proxy": "Camera angle changes present the turn for the animator."
+  },
+  "maps": {
+    "Color": {
+      "path": "textures/Outlaw_Color.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "1a48792982c7866b80ca9ae44872ffeda0614dd079c1d82bfd9ae8c8c28d9d73"
+    },
+    "Roughness": {
+      "path": "textures/Outlaw_Roughness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "c2bab711dc44b146f1eb1e794adf93f9b4213f97c9bea2fdc2583685f9b68604"
+    },
+    "Metalness": {
+      "path": "textures/Outlaw_Metalness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "78a6381135b7cbf58d4e3033a8c200cd35327fa0fa8b952f749bd29a28af43b4"
+    },
+    "Normal": {
+      "path": "textures/Outlaw_Normal.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    }
+  },
+  "atlas": {
+    "atlas": "Moderate_Atlas",
+    "covered_pixels": 705102,
+    "padding": 6,
+    "xy_overlap_samples": 0,
+    "collapsed_uv_triangles": 0,
+    "island_repairs": {},
+    "normal_map": "Neutral tangent-space map. Facet shape and weighted normals are authored geometry."
+  },
+  "quality": {
+    "stock_bounds": [
+      [
+        -1.132,
+        -0.13,
+        -0.275
+      ],
+      [
+        3.4476,
+        0.122,
+        0.762
+      ]
+    ],
+    "skin_bounds": [
+      [
+        -1.132,
+        -0.13,
+        -0.275
+      ],
+      [
+        3.4476,
+        0.147412,
+        0.762
+      ]
+    ],
+    "preserved_stock_vertex_data": true,
+    "stock_rest_transforms": true,
+    "sight": {
+      "camera": "Stock AimPoint scope-axis comparison, scope overlay requires Studio",
+      "checked": 225,
+      "matching": 225,
+      "cosmetic_hits": 0
+    },
+    "scope_matches": true,
+    "frames": 265,
+    "differing_action_frames": [],
+    "cosmetic_to_stock_motion_contacts": {},
+    "rest_stock_geom": {},
+    "rest_variant_geom": {},
+    "stock_coplanar": [],
+    "skin_coplanar": [],
+    "packed_maps_match": {
+      "Color": true,
+      "Roughness": true,
+      "Metalness": true,
+      "Normal": true
+    },
+    "inspect_contact_frames": {},
+    "fbx": {
+      "missing": [],
+      "additional": [],
+      "max_pivot_delta": 1.3328003749250113e-07,
+      "image_count": 4,
+      "parent_mismatches": [],
+      "triangle_delta": 0,
+      "active_uv_mismatches": [],
+      "geometry_flags": {}
+    }
+  },
+  "silhouette_iou": {
+    "hero": 1.0,
+    "left": 1.0,
+    "right": 1.0,
+    "top": 0.98157,
+    "held": 1.0,
+    "hip": 1.0,
+    "aim": 0.99978
+  },
+  "bounds_max_surface_difference": 0.025412,
+  "scope": [
+    "Hands are not animated in the stock Blender review scene. Check live hands, scope/ADS fades, magazine hiding and the final inspect later in Studio.",
+    "The optic geometry, its source materials and optical alignment locators were retained. Runtime scope overlay remains for Studio."
+  ],
+  "grade": {
+    "design_finish": "33/35",
+    "fit_geometry": "28/30",
+    "bake_seams": "20/20",
+    "held_aim_motion": "13/15",
+    "total": 94
+  },
+  "files": [
+    {
+      "path": "Outlaw_Sundial_v01.blend",
+      "sha256": "e188f1cc784aa23683af9bec1ffc0a83a9fc3d1ca89fe9b1ee240b8234b8de3a"
+    },
+    {
+      "path": "Outlaw_Sundial_v01.fbx",
+      "sha256": "079262aa8799ab9befd74b0678d795f5fa0e9621da268aa7f80e774621d53e38"
+    },
+    {
+      "path": "review/bake.json",
+      "sha256": "fa3e2e91ffaae7d03da4bba197ac8eccf60af9c2993bd137ac741c2b8129a7da"
+    },
+    {
+      "path": "review/fbx-culling.jpg",
+      "sha256": "464191d74f96e57efa035acbdafb68153a5f3928e31d44791b1853353334bcca"
+    },
+    {
+      "path": "review/hero-finish.jpg",
+      "sha256": "599e1c9766a6cd59e502f139347a2accee44a1e5ec5b6d1c5a23edb923b831cc"
+    },
+    {
+      "path": "review/inspect-poses.jpg",
+      "sha256": "4c57d31ca1975ef351c82772f8d7a8ebce903e0792ebe08919d862dea2ce4a0e"
+    },
+    {
+      "path": "review/matched-views.jpg",
+      "sha256": "98eb268b863633bb968872eb4cfbb4f69179fdbb7e35432ad4c6e8580a24dcf8"
+    },
+    {
+      "path": "review/verification.json",
+      "sha256": "d847983c9cf6e9813d050dd9c80f01c6a027acf1b8a7587ec4831a4ce85eca92"
+    },
+    {
+      "path": "textures/Outlaw_Color.png",
+      "sha256": "1a48792982c7866b80ca9ae44872ffeda0614dd079c1d82bfd9ae8c8c28d9d73"
+    },
+    {
+      "path": "textures/Outlaw_Metalness.png",
+      "sha256": "78a6381135b7cbf58d4e3033a8c200cd35327fa0fa8b952f749bd29a28af43b4"
+    },
+    {
+      "path": "textures/Outlaw_Normal.png",
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    },
+    {
+      "path": "textures/Outlaw_Roughness.png",
+      "sha256": "c2bab711dc44b146f1eb1e794adf93f9b4213f97c9bea2fdc2583685f9b68604"
+    }
+  ]
+}

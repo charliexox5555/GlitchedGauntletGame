@@ -1,0 +1,450 @@
+{
+  "line": "Rootglass",
+  "item": "Vandal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
+  "source_file_sha256": "c306f1916fe6270ec6fb80b325881f6c5d3cf176bf06759017e0e7e09c8f298e",
+  "concept": "vault/02 Art/Skins/Rootglass/out/Vandal_concept_v01.png",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Rootglass/Vandal/v01/Vandal_Rootglass_v01.blend",
+  "fbx": "art-source/weapons/Skins/Rootglass/Vandal/v01/Vandal_Rootglass_v01.fbx",
+  "art": {
+    "host": "Vandal_Handguard",
+    "bone": "Root",
+    "window_center": [
+      1.34,
+      0.11799998998641968,
+      0.277
+    ],
+    "width": 0.648,
+    "height": 0.258,
+    "specimen_profile": "hero"
+  },
+  "anchors": {
+    "Vandal_RearSight": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_FrontSight": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.6470000743865967
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2849999964237213
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.3200000524520874
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1704999953508377
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        0.07750000059604645
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.5598000288009644
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.483599990606308
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.07199999690055847
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.3160000145435333
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9300000071525574
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.09579998254776001
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.17030000686645508
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.6470000743865967
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2849999964237213
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6200000047683716
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.47600001096725464
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.3200000524520874
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1704999953508377
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 214994,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "a32703dc13dd95f383906fe6788cd99527db8ccf70ad960c177365fe7b985f3a",
+    "geometry_and_material_slots": "1893300ed9735bf663de79e01648076ab4d8d3c0772f4b1cb51bbdb02e8f2437",
+    "uv": "581b8bb66143ff83b94d123f8709ab6df50631de6cb1646ff8dd03eff4cff0c7",
+    "rig_and_nla": "aea3f9403e8f4dfbb4a31cde56b45690b93612c3e0259ed3be6189cfa0564f35",
+    "actions": "74d1161ed601abcd4537bf391613aa3690712d0b786338bfc25dae833229281a"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "a32703dc13dd95f383906fe6788cd99527db8ccf70ad960c177365fe7b985f3a",
+    "geometry_and_material_slots": "1893300ed9735bf663de79e01648076ab4d8d3c0772f4b1cb51bbdb02e8f2437",
+    "uv": "be4c2b125bd4387bbfebd36894c85b78ea96a6ed97bdfc1e1033cfbbcdd878de",
+    "rig_and_nla": "aea3f9403e8f4dfbb4a31cde56b45690b93612c3e0259ed3be6189cfa0564f35",
+    "actions": "74d1161ed601abcd4537bf391613aa3690712d0b786338bfc25dae833229281a"
+  },
+  "built_mesh_count": 25,
+  "triangles": 5779,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Rootglass/Vandal/v01/textures/Vandal_Color.png",
+      "sha256": "b525db9148d5352596266f4292a37c8ed527fd4f54b442138bf6885daf624c08"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Rootglass/Vandal/v01/textures/Vandal_Normal.png",
+      "sha256": "028a783a5f4f47c1f37767dd43e9d9d07884ef435d451c81d39df6dafaafdf5d"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Rootglass/Vandal/v01/textures/Vandal_Roughness.png",
+      "sha256": "f37d9d854869d0a64864aa17f2d0eeca39460aed5482a97c56ee58736f0bbd3f"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Rootglass/Vandal/v01/textures/Vandal_Metalness.png",
+      "sha256": "5b5080ef53a55d2f508a409faf7cc78c03e192b87814848f7c363af54b48a7e0"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the RootglassAtlas UVs supplied by the Blender file and local FBX.",
+  "inspect_pulse_targets": [
+    "Rootglass_Left_AmberVein_1",
+    "Rootglass_Left_AmberVein_2",
+    "Rootglass_Left_AmberVein_3"
+  ],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.3725,
+      0.0,
+      0.5598
+    ],
+    "len": 0.425,
+    "geo_hits": {},
+    "box_hits": {
+      "RearSight_Dark": [
+        0.375,
+        0.525
+      ]
+    },
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 36,
+      "review_frame": 19,
+      "sample_count": 36,
+      "pose_sha256": "e61636309ce33d563ec5473c5f89d21800a509a6fe6290ed3d1d54b856c4ea21"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "133ca0b7dfcdf3639423abfad656cbddaafe03f72a68afacd204c6bf387d0d25"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "25bce58bc810c9d8e757ee621217d286f3c5491f08f969f8dfb810062de80bf1"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 24,
+      "sample_count": 97,
+      "pose_sha256": "bd50a29676ac44d85dfb73697cab8ddeffdf3592836201a825f63cf717bbd058"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 24,
+      "sample_count": 97,
+      "pose_sha256": "f178b2d76ba942dc67ae9c9f9362ab762112137b716cc7f9da05a0821cbe2c9d"
+    }
+  },
+  "new_geometry_contacts": {
+    "Rootglass_LowerWalnutLeaf / Vandal_Mag": [
+      "Vandal_Draw",
+      "Vandal_Fire",
+      "Vandal_Inspect",
+      "Vandal_Reload",
+      "Vandal_ReloadEmpty"
+    ],
+    "Rootglass_LowerWalnutLeaf / Vandal_FireSelector": [
+      "Vandal_Draw",
+      "Vandal_Fire",
+      "Vandal_Inspect",
+      "Vandal_Reload",
+      "Vandal_ReloadEmpty"
+    ]
+  },
+  "fbx_reimport": {
+    "mesh_count": 25,
+    "culling_views": [
+      "left",
+      "right",
+      "rear"
+    ]
+  }
+}

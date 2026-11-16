@@ -1,0 +1,250 @@
+{
+  "line": "Breakwater",
+  "weapon": "Knife",
+  "version": "v01",
+  "readiness": "Blender review",
+  "batch": "Moderate skin line expansion",
+  "source": {
+    "path": "art-source/weapons/RemasterV2/Knife/Knife_RemasterV2_v05.blend",
+    "sha256": "cfdaabce69b1e534a8faed9b0c3c21db40e985dba692bb4069665e4a0e0c1dc9"
+  },
+  "model_sheet": "art-source/weapons/ModelSheets/Knife_model_sheet.png",
+  "style_concept": "vault/02 Art/Skins/Breakwater/out/Bucky_concept_v02.png",
+  "authoring_endpoint": "Blender MCP 127.0.0.1:9999 and isolated local Blender review processes",
+  "static_pose": "Frame 1, decorative NLA tracks muted.",
+  "inspect": {
+    "fps": 24,
+    "pose_frames": {
+      "1": "Static finish",
+      "12": "Reveal",
+      "24": "Motion",
+      "45": "Settle"
+    },
+    "animated_parts": {
+      "Breakwater_AmberLatch": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            24,
+            -1.02
+          ],
+          [
+            36,
+            0
+          ],
+          [
+            45,
+            0
+          ]
+        ],
+        "property": "rotation_euler",
+        "axis": 0,
+        "world_pivot": [
+          0.45100000500679016,
+          0.02710000053048134,
+          0.01360000018030405
+        ],
+        "track": "Breakwater Inspect Reference"
+      }
+    },
+    "review_camera_proxy": "Camera angle changes present the turn for the animator."
+  },
+  "maps": {
+    "Color": {
+      "path": "textures/Knife_Color.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "df6d58a5f738ed238b28dc4ed5ff361caddac26837164150caca993720440def"
+    },
+    "Roughness": {
+      "path": "textures/Knife_Roughness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "b4b02a47fc5890c920916f725ca99e35b4cda4d22c03c913a4c52af698061b19"
+    },
+    "Metalness": {
+      "path": "textures/Knife_Metalness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "15a6d7db5008b699e76dfd303b54a5bc50f76d8f24943c4089096d024fa61ce9"
+    },
+    "Normal": {
+      "path": "textures/Knife_Normal.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    }
+  },
+  "atlas": {
+    "atlas": "Moderate_Atlas",
+    "covered_pixels": 980026,
+    "padding": 6,
+    "xy_overlap_samples": 0,
+    "collapsed_uv_triangles": 0,
+    "island_repairs": {},
+    "normal_map": "Neutral tangent-space map. Facet shape and weighted normals are authored geometry."
+  },
+  "quality": {
+    "stock_bounds": [
+      [
+        -0.4524,
+        -0.09054,
+        -0.1092
+      ],
+      [
+        1.267411,
+        0.09054,
+        0.1274
+      ]
+    ],
+    "skin_bounds": [
+      [
+        -0.4524,
+        -0.09054,
+        -0.1092
+      ],
+      [
+        1.267411,
+        0.09054,
+        0.1274
+      ]
+    ],
+    "preserved_stock_vertex_data": true,
+    "stock_rest_transforms": true,
+    "sight": {
+      "camera": "Stock blade-edge camera; melee has no ADS",
+      "checked": 225,
+      "matching": 225,
+      "cosmetic_hits": 0
+    },
+    "scope_matches": true,
+    "frames": 169,
+    "differing_action_frames": [],
+    "cosmetic_to_stock_motion_contacts": {},
+    "rest_stock_geom": {},
+    "rest_variant_geom": {},
+    "stock_coplanar": [],
+    "skin_coplanar": [],
+    "packed_maps_match": {
+      "Color": true,
+      "Roughness": true,
+      "Metalness": true,
+      "Normal": true
+    },
+    "inspect_contact_frames": {},
+    "fbx": {
+      "missing": [],
+      "additional": [],
+      "max_pivot_delta": 2.6489538426190414e-08,
+      "image_count": 4,
+      "parent_mismatches": [],
+      "triangle_delta": 0,
+      "active_uv_mismatches": [],
+      "geometry_flags": {}
+    },
+    "melee_validation": {
+      "locators_verified_in_stock_motion": [
+        "Knife_RightGrip",
+        "Knife_BladeBase",
+        "Knife_BladeTip"
+      ],
+      "melee_actions": [
+        "Knife_Draw",
+        "Knife_Fire",
+        "Knife_HeavyStab",
+        "Knife_Inspect",
+        "Knife_Slash1",
+        "Knife_Slash2",
+        "Knife_Slash3"
+      ],
+      "blade_tip_contact_pose": "Original BladeTip locator and original blade vertices",
+      "gameplay_clearance": "No animated character hands or gameplay hit test in stock scene."
+    }
+  },
+  "silhouette_iou": {
+    "hero": 1.0,
+    "left": 0.9999,
+    "right": 0.99989,
+    "top": 0.98255,
+    "held": 0.99892,
+    "hip": 0.99966,
+    "aim": 1.0
+  },
+  "bounds_max_surface_difference": 0.0,
+  "scope": [
+    "Hands are not animated in the stock Blender review scene. Check live hands, scope/ADS fades, magazine hiding and the final inspect later in Studio.",
+    "Stock blade edge, grip, BladeBase and BladeTip are retained. The decorative geometry stays on the stock Root. Runtime arm placement and swing visuals require later Studio review."
+  ],
+  "grade": {
+    "design_finish": "34/35",
+    "fit_geometry": "30/30",
+    "bake_seams": "20/20",
+    "held_aim_motion": "13/15",
+    "total": 97
+  },
+  "files": [
+    {
+      "path": "Knife_Breakwater_v01.blend",
+      "sha256": "f276ef84ce5ea6e7c465e3999f914aacf1d83327ca9e131c14867d4882b01f65"
+    },
+    {
+      "path": "Knife_Breakwater_v01.fbx",
+      "sha256": "1c5a340d2a6c00526728822a29bb15e9cfd4377725499888159d20c3513f2260"
+    },
+    {
+      "path": "review/bake.json",
+      "sha256": "c2d3a05a55e2e02cb77d8fc25e5660c8c38c629825ee56985c0ce22b231e4d6d"
+    },
+    {
+      "path": "review/fbx-culling.jpg",
+      "sha256": "301fdca77c56b82c68db452b92321f2f1ec4f0a1b812cf88fe5022c2e2989b61"
+    },
+    {
+      "path": "review/hero-finish.jpg",
+      "sha256": "2e318d18948768e054c938a547476b525c8d615adde79ce9a85dd8dcd5f99e64"
+    },
+    {
+      "path": "review/inspect-poses.jpg",
+      "sha256": "6e5f216b3a814005fa83f1f11ec5f1e8e79f1a5b2f6dbee2316b28afc11adce0"
+    },
+    {
+      "path": "review/matched-views.jpg",
+      "sha256": "0b9eea807fa59a7e5c06d75ef02c56a5dce085257a97c52be2342dc5979b6675"
+    },
+    {
+      "path": "review/verification.json",
+      "sha256": "dd4481c0b01ba965e09510bf4b198a5257c4bb36b188cb38bfd08b494883f00a"
+    },
+    {
+      "path": "textures/Knife_Color.png",
+      "sha256": "df6d58a5f738ed238b28dc4ed5ff361caddac26837164150caca993720440def"
+    },
+    {
+      "path": "textures/Knife_Metalness.png",
+      "sha256": "15a6d7db5008b699e76dfd303b54a5bc50f76d8f24943c4089096d024fa61ce9"
+    },
+    {
+      "path": "textures/Knife_Normal.png",
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    },
+    {
+      "path": "textures/Knife_Roughness.png",
+      "sha256": "b4b02a47fc5890c920916f725ca99e35b4cda4d22c03c913a4c52af698061b19"
+    }
+  ]
+}

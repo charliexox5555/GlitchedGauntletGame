@@ -1,11 +1,18 @@
 --!strict
 -- First-person arms, RIVALS style (Gunplay.md §6): each arm is one long,
--- softly bevelled block (R6 cross-section) that comes up from off-screen and
--- ends at the gun's grip; the end of the block is the hand. Skin colour from
--- the avatar; if they wear a classic Shirt, a second, slightly larger copy of
--- the block carries the shirt texture (the mesh's UVs sit on the template's
--- arm faces, like Roblox draws shirts on R6 arms; transparent template areas
--- show the skin underneath). Mesh: tools/blender/make_arm_mesh.py.
+-- sturdy block (R6 cross-section, small bevels) that comes up from off-screen
+-- and ends at the gun's grip; the end of the block is the hand. Three layers
+-- per arm, all the same block (tools/blender/make_arm_mesh.py):
+--   skin     the avatar's own arm colour. With no classic Shirt this is all
+--            you see: a plain skin-coloured block.
+--   sleeve   only if the avatar wears a classic Shirt: a slightly fatter copy
+--            carrying the shirt texture (the mesh's UVs sit on the template's
+--            arm faces, like Roblox draws shirts on R6 arms). It starts
+--            VM.ARM_SLEEVE.bare studs up from the hand end, so the hand and
+--            wrist stay skin and the sleeve's end reads as a cuff.
+--   outline  the block turned inside out, a hair larger, near-black: from
+--            outside only its far faces draw, as a thin dark rim round the
+--            hand (VM.ARM_OUTLINE; rim 0 turns it off).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -13,7 +20,7 @@ local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 
 export type Side = "Right" | "Left"
 
-type Arm = { base: BasePart, overlay: BasePart }
+type Arm = { base: BasePart, overlay: BasePart, outline: BasePart }
 
 export type Arms = {
 	-- A WorldModel, not a plain Model: under Server Authority the Workspace
@@ -22,10 +29,13 @@ export type Arms = {
 	-- WorldModel keeps exact positions and still renders under the Camera.
 	model: WorldModel,
 	sides: { [Side]: Arm },
-	parts: { BasePart }, -- RightArm, RightSleeve, LeftArm, LeftSleeve
+	-- RightArm, RightSleeve, RightOutline, LeftArm, LeftSleeve, LeftOutline
+	parts: { BasePart },
 	cframes: { CFrame }, -- where `place` put each part this frame
 	shirt: boolean,
 }
+
+local LAYERS = 3 -- parts per arm, in the order above
 
 local ViewmodelArms = {}
 
@@ -62,18 +72,34 @@ end
 
 local function block(
 	name: string,
-	side: Side,
+	meshId: string,
 	scale: number,
 	color: Color3,
 	texture: string,
-	parent: Instance
+	parent: Instance,
+	rim: number?
 ): BasePart
 	local p = Instance.new("Part")
 	p.Name = name
 	-- The mesh draws at its own scale; the part's size only sets the bounds
 	-- the renderer culls by. A tiny part was culled whenever its centre went
 	-- behind the camera, so an arm reaching toward the camera vanished.
-	p.Size = VM.ARM_MESH_SIZE * scale
+	-- Stretched along its length (VM.ARM_LENGTH_SCALE) so the cut end of the
+	-- arm stays off-screen in wide moves (knife slashes, inspects).
+	-- `rim` (the outline): this many studs larger all round instead of a
+	-- uniform scale, which would stick out much further at the two ends of a
+	-- long block than at its sides.
+	local length = scale * VM.ARM_LENGTH_SCALE
+	local stretch = Vector3.new(scale, length, scale)
+	if rim then
+		local size = VM.ARM_MESH_SIZE
+		stretch = Vector3.new(
+			scale + 2 * rim / size.X,
+			length + 2 * rim / size.Y,
+			scale + 2 * rim / size.Z
+		)
+	end
+	p.Size = VM.ARM_MESH_SIZE * stretch
 	p.Anchored = true
 	p.CanCollide = false
 	p.CanQuery = false
@@ -84,9 +110,9 @@ local function block(
 	p.Color = color
 	local mesh = Instance.new("SpecialMesh")
 	mesh.MeshType = Enum.MeshType.FileMesh
-	mesh.MeshId = VM.ARM_MESH[side]
+	mesh.MeshId = meshId
 	mesh.TextureId = texture
-	mesh.Scale = Vector3.one * scale
+	mesh.Scale = stretch
 	mesh.Parent = p
 	p.Parent = parent
 	return p
@@ -100,19 +126,34 @@ function ViewmodelArms.build(character: Model?): Arms
 	local sides: { [Side]: Arm } = {}
 	local parts: { BasePart } = {}
 	for _, side: Side in { "Right", "Left" } :: { Side } do
-		local base = block(side .. "Arm", side, width, armColor(character, side), "", model)
+		local skin = armColor(character, side)
+		local base = block(side .. "Arm", VM.ARM_MESH[side], width, skin, "", model)
+		-- The sleeve's own colour is the skin too: where the engine draws the
+		-- template's clear areas in the part's colour, it's skin that shows.
 		local overlay = block(
 			side .. "Sleeve",
-			side,
-			width * VM.SLEEVE_INFLATE,
-			Color3.new(1, 1, 1),
+			VM.ARM_MESH[side],
+			width * VM.ARM_SLEEVE.inflate,
+			skin,
 			template,
 			model
 		)
 		overlay.Transparency = if template ~= "" then 0 else 1
-		sides[side] = { base = base, overlay = overlay }
+		local rim = VM.ARM_OUTLINE.rim
+		local outline = block(
+			side .. "Outline",
+			VM.ARM_OUTLINE.mesh[side],
+			width,
+			VM.ARM_OUTLINE.color,
+			"",
+			model,
+			math.max(rim, 0)
+		)
+		outline.Transparency = if rim > 0 then VM.ARM_OUTLINE.transparency else 1
+		sides[side] = { base = base, overlay = overlay, outline = outline }
 		table.insert(parts, base)
 		table.insert(parts, overlay)
+		table.insert(parts, outline)
 	end
 	return {
 		model = model,
@@ -138,7 +179,7 @@ end
 -- Lays one arm along the line from `hand` toward `toward` (any point further
 -- up the arm, off-screen): the block's hand end sits just past `hand`, so the
 -- grip is in its "palm". `right` sets the block's roll (its X axis is the
--- character's right). Writes both layers' CFrames into `arms.cframes`; `apply`
+-- character's right). Writes every layer's CFrame into `arms.cframes`; `apply`
 -- moves them, in the same render step as the gun.
 function ViewmodelArms.place(arms: Arms, side: Side, hand: Vector3, toward: Vector3, right: Vector3)
 	local up = toward - hand
@@ -151,12 +192,14 @@ function ViewmodelArms.place(arms: Arms, side: Side, hand: Vector3, toward: Vect
 		x = up:Cross(Vector3.zAxis)
 	end
 	x = x.Unit
-	local length = VM.ARM_WIDTH / VM.ARM_MESH_SIZE.X * VM.ARM_MESH_SIZE.Y
+	local length = VM.ARM_WIDTH / VM.ARM_MESH_SIZE.X * VM.ARM_MESH_SIZE.Y * VM.ARM_LENGTH_SCALE
 	local center = hand + up * (length / 2 - VM.ARM_WIDTH * VM.HAND_OVERSHOOT)
 	local cf = CFrame.fromMatrix(center, x, up, x:Cross(up))
-	local index = if side == "Right" then 1 else 3
+	local index = if side == "Right" then 1 else 1 + LAYERS
 	arms.cframes[index] = cf
-	arms.cframes[index + 1] = cf
+	-- The sleeve starts above the wrist: the hand end stays skin.
+	arms.cframes[index + 1] = cf + up * VM.ARM_SLEEVE.bare
+	arms.cframes[index + 2] = cf
 end
 
 return ViewmodelArms

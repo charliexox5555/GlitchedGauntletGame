@@ -23,7 +23,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
+local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local TestRange = require(ReplicatedStorage.Shared.Config.TestRange)
@@ -278,6 +280,26 @@ local function copyOf(character: Model): Model?
 		end
 	end
 	kinematicJoints(model)
+	-- Skinned limbs live outside the body (shared/MatchBody limbFolder), so a
+	-- clone has none: give the decoy its own on this client (as
+	-- Util/BodyClone.copy does). Copies of limbs held inside an outlined body
+	-- (Util/LimbHold) go: the ones made here replace them.
+	local held = model:FindFirstChild(Avatar.LIMB_HOLD)
+	if held then
+		held:Destroy()
+	end
+	for _, d in model:GetDescendants() do
+		local part = d.Parent
+		if
+			d.Name == Avatar.LIMB_LINK
+			and d:IsA("ObjectValue")
+			and d.Value
+			and part
+			and part:IsA("BasePart")
+		then
+			MatchBody.attachLimb(d.Value, part, true)
+		end
+	end
 	return model
 end
 

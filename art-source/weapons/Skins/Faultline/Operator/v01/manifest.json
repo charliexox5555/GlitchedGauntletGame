@@ -1,0 +1,186 @@
+{
+  "line": "Faultline",
+  "gun": "Operator",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Operator/Operator_RemasterV2_v05.blend",
+  "source_sha256": "c7a8419c9552a21ea4377458023ad572ee098af66c40b1ecdd6dd54703a0de73",
+  "blend": "art-source/weapons/Skins/Faultline/Operator/v01/Operator_Faultline_v01.blend",
+  "blend_sha256": "0e00864a5c3146a7356093d56caf285a1853e7e427ca253eda41718e1ebd553b",
+  "concept": "vault/02 Art/Skins/Faultline/out/Sheriff_concept_v02.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Operator_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 4950,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ],
+        "Handguard": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.153,
+        2.148,
+        0.155,
+        0.435
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Operator_Bolt",
+    "Operator_CharmLoop",
+    "Operator_Scope",
+    "Operator_ScopeLens"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "171B21",
+      0.44,
+      0.04
+    ],
+    "Panel": [
+      "31363F",
+      0.47,
+      0.07
+    ],
+    "Dark": [
+      "101216",
+      0.63,
+      0.07
+    ],
+    "Grip": [
+      "25262C",
+      0.77,
+      0.03
+    ],
+    "Metal": [
+      "555C69",
+      0.4,
+      0.7
+    ],
+    "Accent": [
+      "C07D57",
+      0.28,
+      0.78
+    ],
+    "Neon": [
+      "DEA987",
+      0.26,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Operator_Draw",
+    "Operator_Fire",
+    "Operator_Inspect",
+    "Operator_Reload",
+    "Operator_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Faultline/Operator/v01/textures/Operator_Color.png",
+      "sha256": "eed2a140bd617716ac1da8965f01e1929aad8fbbd77e2a5c0ba4f1ba9be5cd1b",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Faultline/Operator/v01/textures/Operator_Normal.png",
+      "sha256": "6e90eb0ceefdf3b7a5c493e6f488efb8beb9ea67f9f2d99bbb1172dc9c56c753",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Faultline/Operator/v01/textures/Operator_Roughness.png",
+      "sha256": "c308ad49f8a56682f132a844b2609fe2040f67d2fbb5f5aaadec3b2e62cf33eb",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Faultline/Operator/v01/textures/Operator_Metalness.png",
+      "sha256": "532b2aa85f40214ef46e144cc9be4a8740065187a3f0c40814f849255979b3da",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Operator_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -2.172846794128418
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        4.674066543579102
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        7.604310989379883
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Faultline/Operator/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Operator",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

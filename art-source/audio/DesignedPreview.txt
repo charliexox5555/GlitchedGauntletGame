@@ -1,0 +1,8 @@
+DesignedPreview.wav: each gun NOW (live) then NEW (designed), at game volume
+
+  0.50  Vandal NOW
+  3.13  Vandal NEW
+  5.76  Classic NOW
+  8.96  Classic NEW
+ 12.16  Operator NOW
+ 17.96  Operator NEW

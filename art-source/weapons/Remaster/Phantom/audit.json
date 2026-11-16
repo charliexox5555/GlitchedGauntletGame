@@ -1,0 +1,33 @@
+{
+  "gun": "Phantom",
+  "passed": true,
+  "errors": [],
+  "tris": 3344,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.001666678366838,
+    2.162220369283842,
+    1.0939790383043446
+  ],
+  "bounds": [
+    [
+      -1.103600025177002,
+      2.5023999214172363
+    ],
+    [
+      -0.16899999976158142,
+      0.2329999953508377
+    ],
+    [
+      -0.313252329826355,
+      0.7178000211715698
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 55,
+  "attachment_count": 9,
+  "actions": 5,
+  "eye_clearance": 0.17
+}

@@ -1,0 +1,218 @@
+{
+  "line": "Misprint",
+  "gun": "Odin",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Odin/Odin_RemasterV2_v05.blend",
+  "source_sha256": "26ae474ba886cb32e0fffd6bf9a0a6a02c32cdab74ac9142ce4332771d16fe8f",
+  "blend": "art-source/weapons/Skins/Misprint/Odin/v01/Odin_Misprint_v01.blend",
+  "blend_sha256": "486b4cf569d9419fd123549e0e1f7460aa7baef695215c81c46f9410e7ffcc70",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Odin_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "3c8e7f82cfde5acde46adde901f175fc9d0df88a305c5f1965f3bb006fb51c3c",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "ac3d0b2d9f60f1006d7810e5a8ffa30be074d94eb6d634f895f18da7004c6561",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 1,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Odin_Grip": [
+        {
+          "face": 21,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 4528,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.062,
+        1.119,
+        0.192,
+        0.518
+      ]
+    },
+    {
+      "parts": {
+        "AmmoBox": [
+          "Dark",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.362,
+        0.791,
+        -0.282,
+        -0.115
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Odin_Bolt",
+    "Odin_CharmLoop",
+    "Odin_FeedBelt",
+    "Odin_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Odin_Draw",
+    "Odin_Fire",
+    "Odin_Inspect",
+    "Odin_Reload",
+    "Odin_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Odin/v01/textures/Odin_Color.png",
+      "sha256": "2a6fd285b65323139cdfa800e82c15a6dba6ee28c90beb28daa04360572ed664",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Odin/v01/textures/Odin_Normal.png",
+      "sha256": "67d908649e7d88278041270e8d6046ee16c2461a43f84e3684a6a963a8dd66af",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Odin/v01/textures/Odin_Roughness.png",
+      "sha256": "e31ae7b4337db69eafcb566b4495307fa602206407beee038140bd20c1cfb624",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Odin/v01/textures/Odin_Metalness.png",
+      "sha256": "7ae74ada6b9f12a957aee09cfdcf31729b5a81f2bcc85b52014284f3cf1126a6",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Odin_FeedBelt|Metal",
+        "over": "Odin_FeedBelt|Accent",
+        "faces": 30
+      },
+      {
+        "lift": "Odin_FeedCover|Body",
+        "over": "Odin_FeedCover|Dark",
+        "faces": 2
+      },
+      {
+        "lift": "Odin_Stock|Body",
+        "over": "Odin_Stock|Dark",
+        "faces": 2
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Odin_FP_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.46650001406669617
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.6503000259399414
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.125,
+    "lens_mm": 17.137775421142578
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Odin/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Odin",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

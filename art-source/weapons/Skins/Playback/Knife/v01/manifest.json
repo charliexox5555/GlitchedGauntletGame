@@ -1,0 +1,278 @@
+{
+  "line": "Playback",
+  "weapon": "Knife",
+  "version": "v01",
+  "readiness": "Blender review",
+  "batch": "Moderate skin line expansion",
+  "source": {
+    "path": "art-source/weapons/RemasterV2/Knife/Knife_RemasterV2_v05.blend",
+    "sha256": "cfdaabce69b1e534a8faed9b0c3c21db40e985dba692bb4069665e4a0e0c1dc9"
+  },
+  "model_sheet": "art-source/weapons/ModelSheets/Knife_model_sheet.png",
+  "style_concept": "vault/02 Art/Skins/Playback/out/Phantom_concept_v02.png",
+  "authoring_endpoint": "Blender MCP 127.0.0.1:9999 and isolated local Blender review processes",
+  "static_pose": "Frame 1, decorative NLA tracks muted.",
+  "inspect": {
+    "fps": 24,
+    "pose_frames": {
+      "1": "Static finish",
+      "12": "Reveal",
+      "24": "Motion",
+      "45": "Settle"
+    },
+    "animated_parts": {
+      "Playback_ReelFront": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            32,
+            2.3911010752322315
+          ],
+          [
+            45,
+            2.3911010752322315
+          ]
+        ],
+        "property": "rotation_euler",
+        "axis": 1,
+        "world_pivot": [
+          0.5958499908447266,
+          0.020500000566244125,
+          0.017999999225139618
+        ],
+        "track": "Playback Inspect Reference"
+      },
+      "Playback_MeterSweep": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            25,
+            0.020979
+          ],
+          [
+            33,
+            0
+          ],
+          [
+            45,
+            0
+          ]
+        ],
+        "property": "location",
+        "axis": 0,
+        "world_pivot": [
+          0.47411999106407166,
+          0.020500000566244125,
+          0.03863999992609024
+        ],
+        "track": "Playback Inspect Reference"
+      }
+    },
+    "review_camera_proxy": "Camera angle changes present the turn for the animator."
+  },
+  "maps": {
+    "Color": {
+      "path": "textures/Knife_Color.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "8d434ceb95e95f1d83132142d089a3d12a2bf8aa1ab106c3c53b4be728d4a798"
+    },
+    "Roughness": {
+      "path": "textures/Knife_Roughness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "5c8e296e3e5eaaa13730a2a405bc35666697bf8625d707574bb87dd49c0e7666"
+    },
+    "Metalness": {
+      "path": "textures/Knife_Metalness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "2204f08bb8a6fc342c07eb81cd8a916ca7f6f539a40c973ffa97a4b4723dbdcc"
+    },
+    "Normal": {
+      "path": "textures/Knife_Normal.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    }
+  },
+  "atlas": {
+    "atlas": "Moderate_Atlas",
+    "covered_pixels": 982335,
+    "padding": 6,
+    "xy_overlap_samples": 0,
+    "collapsed_uv_triangles": 0,
+    "island_repairs": {},
+    "normal_map": "Neutral tangent-space map. Facet shape and weighted normals are authored geometry."
+  },
+  "quality": {
+    "stock_bounds": [
+      [
+        -0.4524,
+        -0.09054,
+        -0.1092
+      ],
+      [
+        1.267411,
+        0.09054,
+        0.1274
+      ]
+    ],
+    "skin_bounds": [
+      [
+        -0.4524,
+        -0.09054,
+        -0.1092
+      ],
+      [
+        1.267411,
+        0.09054,
+        0.1274
+      ]
+    ],
+    "preserved_stock_vertex_data": true,
+    "stock_rest_transforms": true,
+    "sight": {
+      "camera": "Stock blade-edge camera; melee has no ADS",
+      "checked": 225,
+      "matching": 225,
+      "cosmetic_hits": 0
+    },
+    "scope_matches": true,
+    "frames": 169,
+    "differing_action_frames": [],
+    "cosmetic_to_stock_motion_contacts": {},
+    "rest_stock_geom": {},
+    "rest_variant_geom": {},
+    "stock_coplanar": [],
+    "skin_coplanar": [],
+    "packed_maps_match": {
+      "Color": true,
+      "Roughness": true,
+      "Metalness": true,
+      "Normal": true
+    },
+    "inspect_contact_frames": {},
+    "fbx": {
+      "missing": [],
+      "additional": [],
+      "max_pivot_delta": 3.1673453889042364e-08,
+      "image_count": 4,
+      "parent_mismatches": [],
+      "triangle_delta": 0,
+      "active_uv_mismatches": [],
+      "geometry_flags": {}
+    },
+    "melee_validation": {
+      "locators_verified_in_stock_motion": [
+        "Knife_RightGrip",
+        "Knife_BladeBase",
+        "Knife_BladeTip"
+      ],
+      "melee_actions": [
+        "Knife_Draw",
+        "Knife_Fire",
+        "Knife_HeavyStab",
+        "Knife_Inspect",
+        "Knife_Slash1",
+        "Knife_Slash2",
+        "Knife_Slash3"
+      ],
+      "blade_tip_contact_pose": "Original BladeTip locator and original blade vertices",
+      "gameplay_clearance": "No animated character hands or gameplay hit test in stock scene."
+    }
+  },
+  "silhouette_iou": {
+    "hero": 1.0,
+    "left": 1.0,
+    "right": 1.0,
+    "top": 0.95686,
+    "held": 1.0,
+    "hip": 1.0,
+    "aim": 0.99796
+  },
+  "bounds_max_surface_difference": 0.0,
+  "scope": [
+    "Hands are not animated in the stock Blender review scene. Check live hands, scope/ADS fades, magazine hiding and the final inspect later in Studio.",
+    "Stock blade edge, grip, BladeBase and BladeTip are retained. The decorative geometry stays on the stock Root. Runtime arm placement and swing visuals require later Studio review."
+  ],
+  "grade": {
+    "design_finish": "34/35",
+    "fit_geometry": "30/30",
+    "bake_seams": "20/20",
+    "held_aim_motion": "13/15",
+    "total": 97
+  },
+  "files": [
+    {
+      "path": "Knife_Playback_v01.blend",
+      "sha256": "5ca4f8331a30a10c5501b98653b50b447afba91bdc41b2b4d50a49998778379e"
+    },
+    {
+      "path": "Knife_Playback_v01.fbx",
+      "sha256": "3512ae80634fc2bcd2da48299f9a07b310b79087e897dfde1e9ae8396f61e692"
+    },
+    {
+      "path": "review/bake.json",
+      "sha256": "bc2fb40a5c4ea892904fece91e5f781b5a8a5384c991dc4c6e07da1905dc8668"
+    },
+    {
+      "path": "review/fbx-culling.jpg",
+      "sha256": "e8a83eee8d9570f645a0cc0ab79f46777ed01e881818ac902728d96f97ddc225"
+    },
+    {
+      "path": "review/hero-finish.jpg",
+      "sha256": "baa16cde930dd3863d57ba09e74fe200fe3754debb13d1743786e0fc0d39b154"
+    },
+    {
+      "path": "review/inspect-poses.jpg",
+      "sha256": "d7e45ba7de259396673cb8193feb2a89e2d4d2891d94fa61b659c16834a775f7"
+    },
+    {
+      "path": "review/matched-views.jpg",
+      "sha256": "924a34029d24443fdcf81a74f94539a8997f723c66754ca3cb5f87775d0be26a"
+    },
+    {
+      "path": "review/verification.json",
+      "sha256": "13c7d99fcea9dbc0e109d0e80e32baf76cd1263c22fee7a6ac9645130b6a9176"
+    },
+    {
+      "path": "textures/Knife_Color.png",
+      "sha256": "8d434ceb95e95f1d83132142d089a3d12a2bf8aa1ab106c3c53b4be728d4a798"
+    },
+    {
+      "path": "textures/Knife_Metalness.png",
+      "sha256": "2204f08bb8a6fc342c07eb81cd8a916ca7f6f539a40c973ffa97a4b4723dbdcc"
+    },
+    {
+      "path": "textures/Knife_Normal.png",
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    },
+    {
+      "path": "textures/Knife_Roughness.png",
+      "sha256": "5c8e296e3e5eaaa13730a2a405bc35666697bf8625d707574bb87dd49c0e7666"
+    }
+  ]
+}

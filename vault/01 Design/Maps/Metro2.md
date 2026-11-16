@@ -397,3 +397,6 @@ Every reviewer, every round, held W3 (cohesion), W4 (light) and W5 (detail) at 1
 - [v2-r2 overview](../../02%20Art/References/maps/metro2/v2-r2-overview.jpg)
 - [v2-r2 spawn](../../02%20Art/References/maps/metro2/v2-r2-b-spawn.jpg)
 - [side-by-side](../../02%20Art/References/maps/metro2/v2-r1-side-by-side.jpg)
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. Only the vending machines' tops (8) left the jump's reach.

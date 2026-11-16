@@ -1,5 +1,7 @@
 # Match Avatar
 
+> **Superseded in part, 2026-11-12:** the slim 0.6 arms, the hair-only accessory rule and the holds below were replaced. The body is now drawn as blocks with regular arms; see [Third Person Overhaul](Third%20Person%20Overhaul.md). What still stands: one standard body for everyone, equal hitboxes, the spawn path.
+
 One standard body for every combatant in the **match place** (players, AI bots, range dummies), so every gun is held right and every hitbox is the same size. The Lobby keeps players' own avatars. Owner: lane D (animation). Closes gap-review item #11 ([LihFolk Gap Review 2026-11-05](../05%20Production/LihFolk%20Gap%20Review%202026-11-05.md)).
 
 ## Why

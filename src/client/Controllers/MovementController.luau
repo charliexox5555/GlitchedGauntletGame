@@ -8,6 +8,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
@@ -27,6 +28,11 @@ local state: MoveState = "Idle"
 local cameraDrop = 0
 local dropVelocity = 0
 local fallSpeed = 0 -- the fastest downward speed of this time in the air
+local groundFov = 0 -- the movement FOV kick we had when we last stood on something
+-- Jump buffer and coyote time (Config/Movement JUMP_BUFFER, COYOTE_TIME).
+local jumpAskedAt = -math.huge -- os.clock() of the last jump press
+local groundedAt = -math.huge -- the last time we stood on something
+local jumpedAt = -math.huge -- the last time the Humanoid actually jumped
 
 local function character(): Model?
 	return player.Character
@@ -39,7 +45,13 @@ local function update(dt: number)
 		return
 	end
 	local previous = state
-	state = ((c:GetAttribute("MoveState") :: string?) or "Idle") :: MoveState
+	-- Our own simulation's state when this client owns its movement (the
+	-- attribute also carries the server's echo of what we reported).
+	state = (
+		MovementSim.ownState(c)
+		or (c:GetAttribute("MoveState") :: string?)
+		or "Idle"
+	) :: MoveState
 	local root = c:FindFirstChild("HumanoidRootPart")
 	local vy = if root and root:IsA("BasePart") then root.AssemblyLinearVelocity.Y else 0
 	if state == "Air" and previous ~= "Air" and vy > Juice.JUMP.minRise then
@@ -72,6 +84,11 @@ local function update(dt: number)
 		local velocity = if root and root:IsA("BasePart")
 			then root.AssemblyLinearVelocity
 			else Vector3.zero
+		-- The view leads into the slide, then settles (position only).
+		local flat = velocity * Vector3.new(1, 0, 1)
+		if flat.Magnitude > 1 then
+			CameraController.lunge(flat.Unit * slide.lunge, slide.lungeTime)
+		end
 		ModFeelController.streaks(
 			if cam
 				then cam.CFrame:VectorToObjectSpace(velocity * Vector3.new(1, 0, 1))
@@ -97,12 +114,36 @@ local function update(dt: number)
 	humanoid.CameraOffset = Vector3.new(0, -cameraDrop, 0)
 
 	CameraController.setRoll(if state == "Slide" then Movement.SLIDE_CAMERA_TILT else 0)
-	CameraController.setMoveFov(
-		if state == "Slide"
+	-- In the air the view keeps the FOV it left the ground with (plus a
+	-- touch): a jump out of a run used to snap it back to walking FOV.
+	if state ~= "Air" then
+		groundFov = if state == "Slide"
 			then Movement.SLIDE_FOV_KICK
 			elseif state == "Sprint" then Movement.SPRINT_FOV_KICK
 			else 0
+	end
+	CameraController.setMoveFov(
+		if state == "Air" then groundFov + Movement.AIR_FOV_KICK else groundFov
 	)
+
+	-- Jump buffer and coyote time: a jump asked for just before landing, or
+	-- just after running off an edge, still happens.
+	local now = os.clock()
+	local grounded = humanoid.FloorMaterial ~= Enum.Material.Air
+	if grounded then
+		groundedAt = now
+	end
+	local asked = now - jumpAskedAt
+	if asked <= math.max(Movement.JUMP_BUFFER, Movement.COYOTE_TIME) and now - jumpedAt > 0.25 then
+		local buffered = grounded and asked <= Movement.JUMP_BUFFER
+		local coyote = not grounded
+			and now - groundedAt <= Movement.COYOTE_TIME
+			and groundedAt > jumpedAt
+		if (buffered or coyote) and humanoid:GetState() ~= Enum.HumanoidStateType.Jumping then
+			jumpAskedAt = -math.huge
+			humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+		end
+	end
 end
 
 function MovementController.getState(): MoveState
@@ -116,9 +157,26 @@ end
 function MovementController.start()
 	MovementSim.initialize()
 	RunService:BindToRenderStep("GGMovementView", Enum.RenderPriority.Camera.Value - 1, update)
-	player.CharacterAdded:Connect(function()
+	local function watchJumps(c: Model)
+		local humanoid = c:WaitForChild("Humanoid", 5)
+		if humanoid and humanoid:IsA("Humanoid") then
+			humanoid.StateChanged:Connect(function(_, new)
+				if new == Enum.HumanoidStateType.Jumping then
+					jumpedAt = os.clock()
+				end
+			end)
+		end
+	end
+	player.CharacterAdded:Connect(function(c)
 		cameraDrop = 0
 		dropVelocity = 0
+		task.spawn(watchJumps, c)
+	end)
+	if player.Character then
+		task.spawn(watchJumps, player.Character)
+	end
+	UserInputService.JumpRequest:Connect(function()
+		jumpAskedAt = os.clock()
 	end)
 end
 

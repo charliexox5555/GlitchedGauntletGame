@@ -211,3 +211,6 @@ The previews are Blender EEVEE stand-ins for the Roblox look (sun at the zenith 
 - [01-overview.png](../../../art-source/maps/Bunker2/concepts/01-overview.png) - Whole-arena aerial cutaway.
 - [02-hero.png](../../../art-source/maps/Bunker2/concepts/02-hero.png) - Spawn approach toward the sunwell and ring.
 - [03-kit-sheet.png](../../../art-source/maps/Bunker2/concepts/03-kit-sheet.png) - Structure pieces, props and material swatches.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change: everything reachable with the old jump is reachable with the new one.

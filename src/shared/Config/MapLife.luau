@@ -72,7 +72,7 @@ return table.freeze({
 		back = { 22, 40 }, -- seconds away before they return
 		flapHz = 8,
 		flapDeg = 55,
-		sound = "atlas:AmbFlap",
+		sound = "sfx:AmbFlap",
 		volume = 0.5,
 		range = 70,
 	}),

@@ -154,3 +154,6 @@ Spawn A and its amber band: `v1-r4-spawn-a.jpg`. Corridor with pier lamps: `v1-r
 ### For the user (layout; not built)
 - **A visible stair from the sunwell floor to the ring.** Every reviewer asked for it. Today the ring is reached only from the gallery overlooks. Adding one changes sightlines and the ring's strength, so it needs `bunker2_layout.py` and its checks.
 - **The sunwell generator** blocks the hero view of the plinth from one corner. Swapping it for lower cover is a layout change.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change: everything reachable with the old jump is reachable with the new one.

@@ -1,0 +1,369 @@
+{
+  "line": "Poolside",
+  "item": "Vandal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
+  "source_file_sha256": "c306f1916fe6270ec6fb80b325881f6c5d3cf176bf06759017e0e7e09c8f298e",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Baked. Reopen and comparison pending.",
+  "blend": "art-source/weapons/Skins/Poolside/Vandal/v01/Vandal_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Receiver",
+      "Handguard"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Vandal_RearSight": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_FrontSight": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.6470000743865967
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2849999964237213
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.3200000524520874
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1704999953508377
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        0.07750000059604645
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.5598000288009644
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.483599990606308
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.07199999690055847
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.3160000145435333
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9300000071525574
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.09579998254776001
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.17030000686645508
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.6470000743865967
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2849999964237213
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6200000047683716
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.47600001096725464
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Vandal_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.3200000524520874
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1704999953508377
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 468221,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "a32703dc13dd95f383906fe6788cd99527db8ccf70ad960c177365fe7b985f3a",
+    "geometry_and_material_slots": "1893300ed9735bf663de79e01648076ab4d8d3c0772f4b1cb51bbdb02e8f2437",
+    "uv": "581b8bb66143ff83b94d123f8709ab6df50631de6cb1646ff8dd03eff4cff0c7",
+    "rig_and_nla": "aea3f9403e8f4dfbb4a31cde56b45690b93612c3e0259ed3be6189cfa0564f35",
+    "actions": "74d1161ed601abcd4537bf391613aa3690712d0b786338bfc25dae833229281a"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "a32703dc13dd95f383906fe6788cd99527db8ccf70ad960c177365fe7b985f3a",
+    "geometry_and_material_slots": "1893300ed9735bf663de79e01648076ab4d8d3c0772f4b1cb51bbdb02e8f2437",
+    "uv": "581b8bb66143ff83b94d123f8709ab6df50631de6cb1646ff8dd03eff4cff0c7",
+    "rig_and_nla": "aea3f9403e8f4dfbb4a31cde56b45690b93612c3e0259ed3be6189cfa0564f35",
+    "actions": "74d1161ed601abcd4537bf391613aa3690712d0b786338bfc25dae833229281a"
+  },
+  "built_mesh_count": 16,
+  "triangles": 5171,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Vandal/v01/textures/Vandal_Color.png",
+      "sha256": "7563eeafc3c91fedec66372ec232af00b23d52ee23e9d769e315c2cf7dfa4765"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Vandal/v01/textures/Vandal_Normal.png",
+      "sha256": "64dca8e10baf09f34d07cbef8f1655960e09328ed3800d463f0011ba1ff11f63"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Vandal/v01/textures/Vandal_Roughness.png",
+      "sha256": "bfea91e05db4f1846899c392f35e1aae296c2c9ae2b66da24f23bdec515d9e35"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Vandal/v01/textures/Vandal_Metalness.png",
+      "sha256": "6ada1632800d6be71a8671b736d3b2c1ef4c2ed8bf99bf7489b38d1a3611683e"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": []
+}

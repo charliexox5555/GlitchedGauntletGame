@@ -45,7 +45,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local T = {}
 local function rows(cf)
 	local out = {}
-	for _, v in { cf:GetComponents() } do table.insert(out, math.round(v * 100000) / 100000) end
+	for _, v in { cf:GetComponents() } do
+		table.insert(out, math.round(v * 100000) / 100000)
+	end
 	return out
 end
 local function setup()
@@ -58,7 +60,10 @@ local function setup()
 	for _, p in vm:GetChildren() do
 		if p:IsA("MeshPart") then
 			local o = orig:FindFirstChild(p.Name)
-			if o then scale = p.Size.X / o.Size.X; break end
+			if o then
+				scale = p.Size.X / o.Size.X
+				break
+			end
 		end
 	end
 	local rest = { [handle] = CFrame.identity }
@@ -70,13 +75,25 @@ local function setup()
 			local m = pending[i]
 			local base = m.Part0 and rest[m.Part0]
 			if base and m.Part1 then
-				rest[m.Part1] = base * m.C0; joints[m.Name] = m.Part1
-				table.remove(pending, i); progressed = true
+				rest[m.Part1] = base * m.C0
+				joints[m.Name] = m.Part1
+				table.remove(pending, i)
+				progressed = true
 			end
 		end
-		if not progressed then break end
+		if not progressed then
+			break
+		end
 	end
-	return { cam = cam, vm = vm, id = id, handle = handle, scale = scale, rest = rest, joints = joints }
+	return {
+		cam = cam,
+		vm = vm,
+		id = id,
+		handle = handle,
+		scale = scale,
+		rest = rest,
+		joints = joints,
+	}
 end
 local function sample(label, ctx)
 	local arms = ctx.cam:FindFirstChild("ViewmodelArms")
@@ -108,19 +125,32 @@ function T.run(mode, duration, step, action)
 	if mode == "hold" then
 		table.insert(frames, sample("hold", ctx))
 	else
-		if action then workspace:SetAttribute("DevAction", action) end
+		if action then
+			workspace:SetAttribute("DevAction", action)
+		end
 		local t0 = os.clock()
 		while os.clock() - t0 < (duration or 3) do
 			table.insert(frames, sample(string.format("%s %.2f", mode, os.clock() - t0), ctx))
 			task.wait(step or 1 / 30)
 		end
 	end
-	local body = HttpService:JSONEncode({ id = ctx.id, mode = mode, scale = ctx.scale, half = { 0.25 / ctx.scale, 1.25 / ctx.scale, 0.25 / ctx.scale }, frames = frames })
+	local body = HttpService:JSONEncode({
+		id = ctx.id,
+		mode = mode,
+		scale = ctx.scale,
+		half = { 0.25 / ctx.scale, 1.25 / ctx.scale, 0.25 / ctx.scale },
+		frames = frames,
+	})
 	local status = ReplicatedStorage:WaitForChild("DevHandStatus")
 	status.Value = ""
-	ReplicatedStorage.DevHandSink:FireServer("art-source/viewmodel/checks/" .. ctx.id .. "_" .. mode .. ".json", body)
+	ReplicatedStorage.DevHandSink:FireServer(
+		"art-source/viewmodel/checks/" .. ctx.id .. "_" .. mode .. ".json",
+		body
+	)
 	local t = os.clock()
-	while status.Value == "" and os.clock() - t < 5 do task.wait() end
+	while status.Value == "" and os.clock() - t < 5 do
+		task.wait()
+	end
 	return string.format("%s %s: %d frames, %s", ctx.id, mode, #frames, status.Value)
 end
 function T.pick(id, wait)

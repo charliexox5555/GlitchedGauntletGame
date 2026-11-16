@@ -10,7 +10,10 @@ local function install(data: any, assetId: number, maps: any): Model
 	local line = rs:WaitForChild("WeaponSkins"):WaitForChild("PopCircuit")
 	local old = line:FindFirstChild("Bat")
 	if old then
-		assert(old:IsA("Model") and old:GetAttribute("SkinReady") == true, "Existing Bat needs review")
+		assert(
+			old:IsA("Model") and old:GetAttribute("SkinReady") == true,
+			"Existing Bat needs review"
+		)
 		return old
 	end
 	local raw = game:GetService("InsertService"):LoadAsset(assetId)

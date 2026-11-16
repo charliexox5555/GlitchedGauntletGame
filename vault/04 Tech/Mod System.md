@@ -8,6 +8,7 @@
 > - **Activations:** `HeldSteer` (Firewall, `ModSteer` remote, `Services/ModWalls`) and `HeldCharge` (Recon) next to the held throw / place / target ones; Recall uses `HeldPlace` for planting and its own `ModRecall` remote (`Services/ModRecall`) for the teleport and pick-up. `ModModule.spends` lets a use cost nothing; `ModDef.useKind` picks the third-person clip.
 > - **Shared status effects:** `Config/StatusEffects` (Hinder, Stimmed), `Mods/Status`, `Services/StatusService`; they multiply, and the simulation, both weapon sides and dummies read them.
 > - **Server-published moves in the simulation:** the server writes player attributes (`StatusMoveMult`, `RecallTo` / `RecallSerial`) that `Simulation/Abilities` and `Movement` apply, so server-decided movement stays predicted.
+> - **2026-11-15 (ability rework, [note](../05%20Production/Ability%20Rework%202026-11-15.md)):** new Mod hooks `simPress` (Updraft: the second press is the slam) and `simReport` (Dash, Updraft), and the report path `ModSim` / `ModSimFx` for predicted Mods while Server Authority is off.
 
 ## What exists today (surveyed 2026-10-26)
 - **Server Authority is on.** Movement runs in `shared/Simulation/Movement.luau` (`BindToSimulation`, 60 Hz, both sides), reads `PlayContext` InputActions and moves the character only through `Humanoid.WalkSpeed` × the player attributes `MoveMult` / `AdsMult`. State lives in character attributes (`MoveState`, `SlideStart`, …). Poses are a second simulation module.

@@ -178,3 +178,6 @@ The user approved these defaults on 2026-11-02.
 | **Size** | 1v1 and 2v2 first, the 3v3/4v4 version after | Build one larger map for every mode |
 | **Long diagonals** | Keep them, cut them if they dominate | Cut to 70 now, which hurts the scoped-gun rounds |
 | **Name** | Whitebox | Anything you like |
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. The 8-high cover blocks' tops are out of a jump now (7.5 is the reach); the perches (7, ramp) are unaffected. No designed route needs a tight jump.

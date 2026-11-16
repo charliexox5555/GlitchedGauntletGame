@@ -84,7 +84,9 @@ function M.applyLook(part: MeshPart, p: any, override: any?)
 	part.CanCollide = false
 	part.CanQuery = false
 	part.CanTouch = false
-	part.CastShadow = not look.glow and not look.t and (p.ceil == 1 or math.max(p.s[1], p.s[2], p.s[3]) >= 6)
+	part.CastShadow = not look.glow
+		and not look.t
+		and (p.ceil == 1 or math.max(p.s[1], p.s[2], p.s[3]) >= 6)
 	part:SetAttribute("SWMat", p.mat)
 end
 
@@ -107,7 +109,20 @@ local function pieceIndex(): { [string]: Model }
 end
 
 local function frameCF(f: { number }): CFrame
-	return CFrame.new(ORIGIN.X + f[1], ORIGIN.Y + f[2], ORIGIN.Z + f[3], f[4], f[5], f[6], f[7], f[8], f[9], f[10], f[11], f[12])
+	return CFrame.new(
+		ORIGIN.X + f[1],
+		ORIGIN.Y + f[2],
+		ORIGIN.Z + f[3],
+		f[4],
+		f[5],
+		f[6],
+		f[7],
+		f[8],
+		f[9],
+		f[10],
+		f[11],
+		f[12]
+	)
 end
 
 -- Layout: every piece is a Model you can click and move on its own (Studio selects the outermost Model, so pieces
@@ -223,7 +238,10 @@ function M.visual(area: string): string
 		if row.anim then
 			m.WorldPivot = CFrame.new(G(row.anim.pivot))
 			m:SetAttribute("SpinSpeed", row.anim.spin)
-			m:SetAttribute("SpinAxis", Vector3.new(row.anim.axis[1], row.anim.axis[3], -row.anim.axis[2]))
+			m:SetAttribute(
+				"SpinAxis",
+				Vector3.new(row.anim.axis[1], row.anim.axis[3], -row.anim.axis[2])
+			)
 			CollectionService:AddTag(m, "LobbySpin")
 			for _, x in m:GetChildren() do
 				if x:IsA("BasePart") then
@@ -238,8 +256,16 @@ function M.visual(area: string): string
 		end
 	end
 	raw:Destroy()
-	return string.format("%s: %d pieces, %d meshes + %d shared copies, %d missing [%s], worst size delta %.3f", area, #paths, n, cloned,
-		#missing, table.concat(missing, ","), worst)
+	return string.format(
+		"%s: %d pieces, %d meshes + %d shared copies, %d missing [%s], worst size delta %.3f",
+		area,
+		#paths,
+		n,
+		cloned,
+		#missing,
+		table.concat(missing, ","),
+		worst
+	)
 end
 
 -- Our own subtle MaterialVariants (tools/textures/make_sunwell_textures.py). Rows: { name, studs per tile, colour, normal,
@@ -290,7 +316,16 @@ function M.relook(looks: any, areas: { string }?): string
 			local mat = part:GetAttribute("SWMat")
 			if part:IsA("MeshPart") and mat and looks[mat] then
 				local sz = part.Size
-				M.applyLook(part, { mat = mat, s = { sz.X, sz.Z, sz.Y }, ceil = if part:GetAttribute("Ceil") then 1 else 0, look = looks[mat] }, looks)
+				M.applyLook(
+					part,
+					{
+						mat = mat,
+						s = { sz.X, sz.Z, sz.Y },
+						ceil = if part:GetAttribute("Ceil") then 1 else 0,
+						look = looks[mat],
+					},
+					looks
+				)
 				n += 1
 			end
 		end
@@ -319,13 +354,19 @@ function M.collision(area: string): string
 		local chunk = Instance.new("Folder")
 		chunk.Name = "c" .. k
 		for i, r in rows do
-			local part: BasePart = if r[1] == "W" then Instance.new("WedgePart") else Instance.new("Part")
+			local part: BasePart = if r[1] == "W"
+				then Instance.new("WedgePart")
+				else Instance.new("Part")
 			if r[1] == "C" or r[1] == "X" then
 				(part :: Part).Shape = Enum.PartType.Cylinder
 			end
 			part.Name = "C"
 			part.Size = Vector3.new(r[2], r[3], r[4])
-			part.CFrame = CFrame.fromMatrix(ORIGIN + Vector3.new(r[5], r[6], r[7]), Vector3.new(r[8], r[9], r[10]), Vector3.new(r[11], r[12], r[13]))
+			part.CFrame = CFrame.fromMatrix(
+				ORIGIN + Vector3.new(r[5], r[6], r[7]),
+				Vector3.new(r[8], r[9], r[10]),
+				Vector3.new(r[11], r[12], r[13])
+			)
 			part.Anchored = true
 			part.CanTouch = false
 			part.CastShadow = false
@@ -339,7 +380,9 @@ function M.collision(area: string): string
 			end
 			part:SetAttribute("ColArea", area)
 			local g = r[14]
-			part.Parent = if type(g) == "string" and g ~= "" then piece(idx, g, home, nil) else chunk
+			part.Parent = if type(g) == "string" and g ~= ""
+				then piece(idx, g, home, nil)
+				else chunk
 			if i % 350 == 0 then
 				chunk.Parent = folder
 				task.wait()
@@ -466,7 +509,11 @@ function M.guns(): string
 			CollectionService:AddTag(model, "LobbySpin")
 		end
 		model:SetAttribute("SWGun", true)
-		model.Parent = if type(pl[10]) == "string" and pl[10] ~= "" and idx[pl[10]] then idx[pl[10]] else folder
+		model.Parent = if type(pl[10]) == "string"
+				and pl[10] ~= ""
+				and idx[pl[10]]
+			then idx[pl[10]]
+			else folder
 		placed += 1
 		if placed % 4 == 0 then
 			task.wait()
@@ -522,7 +569,15 @@ local GOLD = Color3.fromHex("#FFC83D") -- the one act-now colour (UI theme)
 local TEXT = Color3.fromHex("#F4F6F9")
 local PX = 40
 
-local function frame(parent: Instance, x: number, y: number, w: number, h: number, color: Color3, alpha: number?): Frame
+local function frame(
+	parent: Instance,
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+	color: Color3,
+	alpha: number?
+): Frame
 	local f = Instance.new("Frame")
 	f.Position = UDim2.fromOffset(x, y)
 	f.Size = UDim2.fromOffset(w, h)
@@ -533,7 +588,18 @@ local function frame(parent: Instance, x: number, y: number, w: number, h: numbe
 	return f
 end
 
-local function label(parent: Instance, text: string, x: number, y: number, w: number, h: number, size: number, color: Color3, bold: boolean?, align: Enum.TextXAlignment?): TextLabel
+local function label(
+	parent: Instance,
+	text: string,
+	x: number,
+	y: number,
+	w: number,
+	h: number,
+	size: number,
+	color: Color3,
+	bold: boolean?,
+	align: Enum.TextXAlignment?
+): TextLabel
 	local t = Instance.new("TextLabel")
 	t.Position = UDim2.fromOffset(x, y)
 	t.Size = UDim2.fromOffset(w, h)
@@ -566,7 +632,16 @@ local function outline(f: GuiObject, color: Color3, thickness: number)
 	s.Parent = f
 end
 
-local function teamPanel(bg: Frame, x: number, w: number, h: number, name: string, color: Color3, slots: number, live: boolean)
+local function teamPanel(
+	bg: Frame,
+	x: number,
+	w: number,
+	h: number,
+	name: string,
+	color: Color3,
+	slots: number,
+	live: boolean
+)
 	local p = frame(bg, x, 62, w, h - 76, PANEL)
 	outline(p, if live then color else MUTED, 2)
 	frame(p, 0, 0, w, 6, if live then color else MUTED)
@@ -617,12 +692,34 @@ function M.screens(): string
 			local live = kind == "queue"
 			local n = tonumber(string.sub(title, 1, 1)) or 1
 			label(bg, title, 18, 4, 220, 50, 50, if live then CREAM else MUTED, true)
-			label(bg, if live then "STATION " .. sub else "LOCKED", W - 340, 6, 320, 46, 28, if live then AMBER else MUTED, true, Enum.TextXAlignment.Right)
+			label(
+				bg,
+				if live then "STATION " .. sub else "LOCKED",
+				W - 340,
+				6,
+				320,
+				46,
+				28,
+				if live then AMBER else MUTED,
+				true,
+				Enum.TextXAlignment.Right
+			)
 			frame(bg, 18, 54, W - 36, 2, if live then AMBER else MUTED)
 			local pw = (W - 54) / 2
 			teamPanel(bg, 18, pw, H, "TEAM A", TEAM_A, n, live)
 			teamPanel(bg, 36 + pw, pw, H, "TEAM B", TEAM_B, n, live)
-			label(bg, if live then "STEP ON A PAD TO QUEUE" else "COMING SOON", 0, H - 15, W, 14, 12, MUTED, false, Enum.TextXAlignment.Center)
+			label(
+				bg,
+				if live then "STEP ON A PAD TO QUEUE" else "COMING SOON",
+				0,
+				H - 15,
+				W,
+				14,
+				12,
+				MUTED,
+				false,
+				Enum.TextXAlignment.Center
+			)
 		elseif kind == "battlepass" then
 			label(bg, title, 22, 12, W - 200, 44, 34, CREAM, true)
 			label(bg, sub, W - 190, 12, 170, 44, 20, AMBER, true, Enum.TextXAlignment.Right)
@@ -632,7 +729,18 @@ function M.screens(): string
 			for i = 1, n do
 				local t = frame(bg, 22 + (i - 1) * (tw + 10), 76, tw, H - 150, PANEL)
 				outline(t, if i <= 2 then AMBER else MUTED, 2)
-				label(t, tostring(i), 0, 4, tw, 24, 18, if i <= 2 then AMBER else MUTED, true, Enum.TextXAlignment.Center)
+				label(
+					t,
+					tostring(i),
+					0,
+					4,
+					tw,
+					24,
+					18,
+					if i <= 2 then AMBER else MUTED,
+					true,
+					Enum.TextXAlignment.Center
+				)
 			end
 			frame(bg, 22, H - 54, W - 44, 12, PANEL)
 			frame(bg, 22, H - 54, (W - 44) * 0.3, 12, AMBER)
@@ -661,7 +769,18 @@ function M.screens(): string
 				corner.Parent = av
 				outline(av, c, 1.5)
 				label(row, "—", 40 + rh, 0, 140, rh - 4, 18, MUTED, false)
-				label(row, "0 WINS", W - 150, 0, 106, rh - 4, 17, TEXT, true, Enum.TextXAlignment.Right)
+				label(
+					row,
+					"0 WINS",
+					W - 150,
+					0,
+					106,
+					rh - 4,
+					17,
+					TEXT,
+					true,
+					Enum.TextXAlignment.Right
+				)
 			end
 		elseif kind == "season" then -- season board in the hall
 			slashMark(bg, 22, 16, 56, GOLD)
@@ -672,7 +791,14 @@ function M.screens(): string
 			local n = 6
 			local sw = (W - 44 - (n - 1) * 8) / n
 			for i = 1, n do
-				local seg = frame(bg, 22 + (i - 1) * (sw + 8), H - 44, sw, 8, if i == 1 then GOLD else PANEL)
+				local seg = frame(
+					bg,
+					22 + (i - 1) * (sw + 8),
+					H - 44,
+					sw,
+					8,
+					if i == 1 then GOLD else PANEL
+				)
 				outline(seg, if i == 1 then GOLD else Color3.fromHex("#2A3642"), 1)
 			end
 			label(bg, "COMING SOON", 22, H - 34, W - 44, 28, 20, TEXT, true)
@@ -684,12 +810,27 @@ function M.screens(): string
 				local row = frame(bg, 22, y, W - 44, (H - 80) / 5 - 6, PANEL)
 				label(row, tostring(i), 10, 0, 40, row.Size.Y.Offset, 22, AMBER, true)
 				label(row, "—", 60, 0, 300, row.Size.Y.Offset, 20, MUTED, true)
-				label(row, "0", W - 190, 0, 130, row.Size.Y.Offset, 22, CREAM, true, Enum.TextXAlignment.Right)
+				label(
+					row,
+					"0",
+					W - 190,
+					0,
+					130,
+					row.Size.Y.Offset,
+					22,
+					CREAM,
+					true,
+					Enum.TextXAlignment.Right
+				)
 			end
 		end
 		outline(bg, Color3.fromHex("#2A3642"), 3)
 		part:SetAttribute("SWScreen", true)
-		part.Parent = if type(r[11]) == "string" and r[11] ~= "" and idx[r[11]] then idx[r[11]] else folder
+		part.Parent = if type(r[11]) == "string"
+				and r[11] ~= ""
+				and idx[r[11]]
+			then idx[r[11]]
+			else folder
 	end
 	return "screens: " .. #rows
 end
@@ -753,8 +894,18 @@ function M.spawn(x: number?, y: number?, z: number?): string
 	return "staging spawn placed (disabled)"
 end
 
-local LIGHTING_PROPS = { "Ambient", "OutdoorAmbient", "Brightness", "ClockTime", "GeographicLatitude", "ExposureCompensation",
-	"EnvironmentDiffuseScale", "EnvironmentSpecularScale", "ColorShift_Top", "ShadowSoftness" }
+local LIGHTING_PROPS = {
+	"Ambient",
+	"OutdoorAmbient",
+	"Brightness",
+	"ClockTime",
+	"GeographicLatitude",
+	"ExposureCompensation",
+	"EnvironmentDiffuseScale",
+	"EnvironmentSpecularScale",
+	"ColorShift_Top",
+	"ShadowSoftness",
+}
 
 -- Lighting for the Sunwell hall: daylight down the skylights, warm-neutral fill.
 M.SUNWELL_LIGHTING = {
@@ -819,12 +970,16 @@ function M.use(which: string): string
 		local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
 		if bloom then
 			if r:GetAttribute("V3_Bloom") == nil then
-				r:SetAttribute("V3_Bloom", Vector3.new(bloom.Intensity, bloom.Size, bloom.Threshold))
+				r:SetAttribute(
+					"V3_Bloom",
+					Vector3.new(bloom.Intensity, bloom.Size, bloom.Threshold)
+				)
 			end
 			bloom.Intensity, bloom.Size, bloom.Threshold = 0.6, 18, 1.6
 		end
 		local grade = cc :: ColorCorrectionEffect
-		grade.Contrast, grade.Saturation, grade.TintColor = 0.16, 0.02, Color3.fromRGB(248, 250, 255) -- neutral, a touch crisp
+		grade.Contrast, grade.Saturation, grade.TintColor =
+			0.16, 0.02, Color3.fromRGB(248, 250, 255) -- neutral, a touch crisp
 		grade.Enabled = true
 		if v3 then
 			v3.Enabled = false
@@ -841,7 +996,10 @@ function M.use(which: string): string
 	end
 	local atm = Lighting:FindFirstChildOfClass("Atmosphere")
 	if atm and which ~= "Sunwell" and r:GetAttribute("V3_AtmHaze") ~= nil then
-		atm.Haze, atm.Density, atm.Offset = r:GetAttribute("V3_AtmHaze"), r:GetAttribute("V3_AtmDensity"), r:GetAttribute("V3_AtmOffset")
+		atm.Haze, atm.Density, atm.Offset =
+			r:GetAttribute("V3_AtmHaze"),
+			r:GetAttribute("V3_AtmDensity"),
+			r:GetAttribute("V3_AtmOffset")
 	end
 	local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
 	local bv = r:GetAttribute("V3_Bloom")
@@ -867,7 +1025,8 @@ end
 -- area's data, e.g. the doorway lamps' lights are recorded with the hall), then colliders, lights, screens, guns.
 M.AREAS = { "Hall", "Doors", "Props", "Hub", "Locker", "Shop", "Duels" }
 -- point-light scale per area (2026-11-13: the point fills pushed the light walls past white; spots make the pools)
-M.POINT_MULT = { Hall = 0.55, Doors = 0.55, Props = 0.55, Hub = 0.55, Shop = 0.75, Locker = 0.8, Duels = 0.9 }
+M.POINT_MULT =
+	{ Hall = 0.55, Doors = 0.55, Props = 0.55, Hub = 0.55, Shop = 0.75, Locker = 0.8, Duels = 0.9 }
 function M.rebuild(): string
 	local out = {}
 	for _, a in M.AREAS do

@@ -1,0 +1,662 @@
+{
+ "mod": "Recon",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "handheld"
+ },
+ "parts": [
+  {
+   "name": "Grip",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "232730"
+   },
+   "energy": false,
+   "tris": 76,
+   "center": [
+    -0.002,
+    0.0,
+    -0.0245
+   ],
+   "size": [
+    0.204,
+    0.118,
+    0.297
+   ]
+  },
+  {
+   "name": "Riser",
+   "material": "Graphite",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343840"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.0155,
+    0.0,
+    0.006
+   ],
+   "size": [
+    0.309,
+    0.15,
+    0.528
+   ]
+  },
+  {
+   "name": "UpperPlate_Right",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    0.0265,
+    -0.0795,
+    0.1725
+   ],
+   "size": [
+    0.229,
+    0.021,
+    0.159
+   ]
+  },
+  {
+   "name": "LowerPlate_Right",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    0.008,
+    -0.0795,
+    -0.173
+   ],
+   "size": [
+    0.25,
+    0.021,
+    0.12
+   ]
+  },
+  {
+   "name": "UpperPlate_Left",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    0.0265,
+    0.0795,
+    0.1725
+   ],
+   "size": [
+    0.229,
+    0.021,
+    0.159
+   ]
+  },
+  {
+   "name": "LowerPlate_Left",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    0.008,
+    0.0795,
+    -0.173
+   ],
+   "size": [
+    0.25,
+    0.021,
+    0.12
+   ]
+  },
+  {
+   "name": "UpperLimb",
+   "material": "Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "525B69"
+   },
+   "energy": false,
+   "tris": 52,
+   "center": [
+    -0.0215,
+    0.0,
+    0.4015
+   ],
+   "size": [
+    0.401,
+    0.094,
+    0.383
+   ]
+  },
+  {
+   "name": "UpperLimbPlate",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    -0.0015,
+    -0.049,
+    0.387
+   ],
+   "size": [
+    0.301,
+    0.008,
+    0.23
+   ]
+  },
+  {
+   "name": "UpperStringTip",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "232730"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.177,
+    -0.024,
+    0.585
+   ],
+   "size": [
+    0.036,
+    0.136,
+    0.04
+   ]
+  },
+  {
+   "name": "LowerLimb",
+   "material": "Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "525B69"
+   },
+   "energy": false,
+   "tris": 52,
+   "center": [
+    -0.0215,
+    0.0,
+    -0.4015
+   ],
+   "size": [
+    0.401,
+    0.094,
+    0.383
+   ]
+  },
+  {
+   "name": "LowerLimbPlate",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    -0.0015,
+    -0.049,
+    -0.387
+   ],
+   "size": [
+    0.301,
+    0.008,
+    0.23
+   ]
+  },
+  {
+   "name": "LowerStringTip",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "232730"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.176,
+    -0.024,
+    -0.558
+   ],
+   "size": [
+    0.036,
+    0.136,
+    0.04
+   ]
+  },
+  {
+   "name": "StringUpperSegment",
+   "material": "Steel",
+   "look": {
+    "material": "Metal",
+    "color": "929AA5"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    -0.1775,
+    -0.0985,
+    0.337
+   ],
+   "size": [
+    0.00918,
+    0.03716,
+    0.49647
+   ]
+  },
+  {
+   "name": "StringLowerSegment",
+   "material": "Steel",
+   "look": {
+    "material": "Metal",
+    "color": "929AA5"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    -0.177,
+    -0.0985,
+    -0.2345
+   ],
+   "size": [
+    0.01034,
+    0.03734,
+    0.64736
+   ]
+  },
+  {
+   "name": "Charge_Energy",
+   "material": "Cyan signal",
+   "look": {
+    "material": "Neon",
+    "color": "45BDDB"
+   },
+   "energy": true,
+   "tris": 16,
+   "center": [
+    0.0955,
+    -0.0945,
+    0.1525
+   ],
+   "size": [
+    0.059,
+    0.007,
+    0.099
+   ]
+  },
+  {
+   "name": "Bounce1_Energy",
+   "material": "Cyan signal",
+   "look": {
+    "material": "Neon",
+    "color": "45BDDB"
+   },
+   "energy": true,
+   "tris": 28,
+   "center": [
+    0.087,
+    -0.0805,
+    -0.1
+   ],
+   "size": [
+    0.028,
+    0.009,
+    0.028
+   ]
+  },
+  {
+   "name": "Bounce2_Energy",
+   "material": "Cyan signal",
+   "look": {
+    "material": "Neon",
+    "color": "45BDDB"
+   },
+   "energy": true,
+   "tris": 28,
+   "center": [
+    0.087,
+    -0.0805,
+    -0.051
+   ],
+   "size": [
+    0.028,
+    0.009,
+    0.028
+   ]
+  },
+  {
+   "name": "BoltRest",
+   "material": "Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "525B69"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    0.11,
+    -0.0975,
+    0.065
+   ],
+   "size": [
+    0.06,
+    0.067,
+    0.02
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "LimbUpperPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.075
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.219
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "StringUpper",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.177
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.084
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.585
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "LimbLowerPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.064
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     -0.211
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "StringLower",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.176
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.084
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     -0.558
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "LeftGrip",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "StringNock",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.178
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.113
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.089
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "StringNockDrawn",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.45
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.113
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.089
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "BoltTipHeld",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.662
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.113
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.089
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Muzzle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.197
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.113
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.089
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 684
+}

@@ -1,0 +1,99 @@
+{
+  "gun": "Ares",
+  "tris": 3720,
+  "budget": 6000,
+  "sight": "bigreflex",
+  "round": "Belt",
+  "clips": {
+    "Fire": {
+      "frames": 12,
+      "bones": [
+        "Bolt",
+        "ChargingHandle",
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 12
+    },
+    "Reload": {
+      "frames": 66,
+      "bones": [
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 66
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 97
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "FireSelector",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.195,
+  "old_bounds": [
+    [
+      -1.2319999933242798,
+      3.075200080871582
+    ],
+    [
+      -0.28600001335144043,
+      0.28600001335144043
+    ],
+    [
+      -0.3659999966621399,
+      0.6900267601013184
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Mag",
+    "ChargingHandle",
+    "Bolt",
+    "FireSelector",
+    "Trigger",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "Eject",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "wide drum / cooling jacket / broad wedge stock"
+}

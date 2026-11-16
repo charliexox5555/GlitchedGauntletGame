@@ -1,0 +1,125 @@
+{
+  "gun": "Bucky",
+  "tris": 3380,
+  "budget": 5000,
+  "sight": "bead",
+  "round": "Shell",
+  "clips": {
+    "Fire": {
+      "frames": 20,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Pump",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 20
+    },
+    "Reload": {
+      "frames": 60,
+      "bones": [
+        "Charm",
+        "Root",
+        "Shell"
+      ],
+      "declared_frames": 60
+    },
+    "ReloadEmpty": {
+      "frames": 86,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Pump",
+        "Root",
+        "Shell"
+      ],
+      "declared_frames": 86
+    },
+    "ReloadStart": {
+      "frames": 12,
+      "bones": [
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 12
+    },
+    "ReloadInsert": {
+      "frames": 17,
+      "bones": [
+        "Charm",
+        "Root",
+        "Shell"
+      ],
+      "declared_frames": 16
+    },
+    "ReloadEnd": {
+      "frames": 14,
+      "bones": [
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 14
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Pump",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Pump",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.2118,
+  "old_bounds": [
+    [
+      -0.9509999752044678,
+      2.8320000171661377
+    ],
+    [
+      -0.07355889678001404,
+      0.07999999821186066
+    ],
+    [
+      -0.2952621281147003,
+      0.47999998927116394
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Pump",
+    "Bolt",
+    "Trigger",
+    "Shell",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "Eject",
+    "ShellLoadPoint",
+    "CharmPoint",
+    "AimPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "sculpted ribbed pump / long tube / stepped shoulder stock"
+}

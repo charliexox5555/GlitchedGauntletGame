@@ -1,0 +1,75 @@
+{
+  "stock": "art-source/weapons/RemasterV2/Stinger/Stinger_RemasterV2_v05.blend",
+  "saved_source": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/Stinger_RemasterV2_v05_HandguardFix_v01.blend",
+  "geometry_exception": "Six groove floors at \u00b10.0800 moved out to \u00b10.0827, leaving 0.0013 recess behind the original handguard outer face.",
+  "affected_object": "Stinger_Handguard",
+  "changed_vertices": [
+    1,
+    3,
+    5,
+    7,
+    9,
+    11,
+    19,
+    21,
+    23,
+    25,
+    27,
+    29,
+    36,
+    38,
+    40,
+    43,
+    45,
+    47,
+    55,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73
+  ],
+  "unmodified_dimensions": [
+    2.6700000762939453,
+    0.2019999921321869,
+    1.0687999725341797
+  ],
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "105311e350fbc29eee4682c489ab29f303f732741691a658413990eaba100937",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "repaired_fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "7b0fa0cadb9ab94029857eb7e3254f097a0c077a52ddfa3fcceb3ce6b23eebe4",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "shape_audit_after_reopen": {
+    "triangles": 3134,
+    "coplanar_pairs": [],
+    "zero_area": {},
+    "crossed": {}
+  },
+  "before_after_evidence": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/evidence/before-after.png",
+  "use_for": [
+    "Oilwake Stinger",
+    "Misprint Stinger",
+    "Faultline Stinger"
+  ]
+}

@@ -2,14 +2,21 @@
 -- Kill feed (top right) and the ELIMINATED pop-up for your own kills, UI v1
 -- (vault/02 Art/UI Design.md → HUD). Fed by the server's "Killed" event
 -- (WeaponService.damage: gun and Mod kills), which every client hears.
+-- Your own kills also play the kill tone, a step higher for every kill in
+-- the round (Config/Audio KILL_LADDER, Valorant-style), and light one more
+-- pip on the pop-up (2026-11-09).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Audio = require(ReplicatedStorage.Shared.Config.Audio)
+local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Mods = require(ReplicatedStorage.Shared.Mods)
+local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
+local AudioController = require(script.Parent.Parent.Controllers.AudioController)
 local Ui = require(script.Parent.Ui)
 
 local KillFeed = {}
@@ -28,6 +35,11 @@ local banner: CanvasGroup? = nil
 local bannerScale: UIScale? = nil
 local victimLabel: TextLabel? = nil
 local headshotTag: Frame? = nil
+local pips: { Frame } = {}
+-- Your kills this round (back to 0 when the round changes).
+local roundKills = 0
+local PIP_ON = Theme.COLORS.enemy
+local PIP_OFF = Color3.new(1, 1, 1)
 local bannerToken = 0
 
 local function nameOf(x: Instance?): string
@@ -129,6 +141,19 @@ function KillFeed.build(gui: ScreenGui)
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
 	headshotTag = Ui.tag(pop, "Headshot", C.gold, { Position = UDim2.fromOffset(330, 60) }, true)
+	-- One pip per kill this round, under the skull.
+	table.clear(pips)
+	for i = 1, #Audio.KILL_LADDER do
+		pips[i] = make("Frame", {
+			Name = "Pip" .. i,
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromOffset(114 + (i - 3) * 12, 89),
+			Size = UDim2.fromOffset(9, 4),
+			BorderSizePixel = 0,
+			BackgroundColor3 = PIP_OFF,
+			BackgroundTransparency = 0.7,
+		}, pop)
+	end
 	banner = group
 end
 
@@ -227,7 +252,7 @@ local function row(killer: Instance?, victim: Instance?, sourceId: string, heads
 	end)
 end
 
-local function pop(victim: Instance?, headshot: boolean)
+local function pop(victim: Instance?, headshot: boolean, count: number)
 	local group, scale, label, tag = banner, bannerScale, victimLabel, headshotTag
 	if not group or not scale or not label or not tag then
 		return
@@ -236,9 +261,15 @@ local function pop(victim: Instance?, headshot: boolean)
 	local token = bannerToken
 	label.Text = nameOf(victim)
 	tag.Visible = headshot
+	for i, pip in pips do
+		local lit = i <= count
+		pip.BackgroundColor3 = if lit then PIP_ON else PIP_OFF
+		pip.BackgroundTransparency = if lit then 0 else 0.7
+	end
 	group.Visible = true
 	group.GroupTransparency = 0
-	scale.Scale = 1.25
+	-- Each kill in the round lands a little bigger.
+	scale.Scale = 1.25 + 0.08 * (math.min(count, #pips) - 1)
 	Ui.tween(scale, Theme.MOTION.enter, { Scale = 1 }, Enum.EasingStyle.Back)
 	task.delay(BANNER_HOLD, function()
 		if token == bannerToken then
@@ -253,6 +284,10 @@ local function pop(victim: Instance?, headshot: boolean)
 	end)
 end
 
+MatchState.changed("Round"):Connect(function()
+	roundKills = 0
+end)
+
 function KillFeed.kill(victim: unknown, attacker: unknown, sourceId: unknown, headshot: unknown)
 	local v = if typeof(victim) == "Instance" then victim else nil
 	local a = if typeof(attacker) == "Instance" then attacker else nil
@@ -260,7 +295,16 @@ function KillFeed.kill(victim: unknown, attacker: unknown, sourceId: unknown, he
 	local head = headshot == true
 	row(a, v, id, head)
 	if a == player then
-		pop(v, head)
+		roundKills += 1
+		local step = math.min(roundKills, #Audio.KILL_LADDER)
+		-- A learned signature cue: its pitch is the ladder step, never jittered.
+		AudioController.play(if head then Sounds.KillHead else Sounds.Kill, {
+			group = "Feedback",
+			volume = Audio.KILL_VOLUME,
+			pitch = Audio.KILL_LADDER[step],
+			jitter = false,
+		})
+		pop(v, head, roundKills)
 	end
 end
 

@@ -26,6 +26,11 @@ type Drop = {
 	parts: { BasePart },
 	offsets: { CFrame }, -- each part relative to the drop's frame
 	base: { number }, -- each part's own transparency
+	-- Each part's skin pattern Textures and their own transparency: a Texture
+	-- doesn't fade with its part, so it hung in the air after the mag faded
+	-- (owner 2026-11-14).
+	faces: { { Texture } },
+	faceBase: { { number } },
 	active: boolean,
 	age: number,
 	position: Vector3,
@@ -94,11 +99,18 @@ local function build(parts: { BasePart }): Drop?
 	local copies: { BasePart } = {}
 	local offsets: { CFrame } = {}
 	local base: { number } = {}
+	local faces: { { Texture } } = {}
+	local faceBase: { { number } } = {}
 	local origin = first.CFrame
 	for _, p in parts do
 		local c = p:Clone()
 		for _, child in c:GetChildren() do
-			if not child:IsA("DataModelMesh") and not child:IsA("SurfaceAppearance") then
+			-- keep the look (meshes, appearances and skin pattern Textures); drop welds etc.
+			if
+				not child:IsA("DataModelMesh")
+				and not child:IsA("SurfaceAppearance")
+				and not child:IsA("Texture")
+			then
 				child:Destroy()
 			end
 		end
@@ -112,12 +124,25 @@ local function build(parts: { BasePart }): Drop?
 		table.insert(copies, c)
 		table.insert(offsets, origin:ToObjectSpace(p.CFrame))
 		table.insert(base, p.Transparency)
+		local list: { Texture } = {}
+		local alpha: { number } = {}
+		for _, child in c:GetChildren() do
+			if child:IsA("Texture") then
+				child.LocalTransparencyModifier = 0 -- the live mag's may be hidden (LocalHide)
+				table.insert(list, child)
+				table.insert(alpha, child.Transparency)
+			end
+		end
+		table.insert(faces, list)
+		table.insert(faceBase, alpha)
 	end
 	return {
 		model = model,
 		parts = copies,
 		offsets = offsets,
 		base = base,
+		faces = faces,
+		faceBase = faceBase,
 		active = false,
 		age = 0,
 		position = Vector3.zero,
@@ -137,6 +162,17 @@ local function place(d: Drop)
 	end
 end
 
+-- The mag's identity: its meshes in order. Skins replace the mag with their own
+-- parts (a different count and meshes), so copies are pooled per identity, never
+-- per gun alone: a pooled copy of another skin's mag would fall instead of this one.
+local function signature(parts: { BasePart }): string
+	local ids = table.create(#parts)
+	for i, p in parts do
+		ids[i] = if p:IsA("MeshPart") then p.MeshId else p.ClassName
+	end
+	return table.concat(ids, "|")
+end
+
 -- Drops a copy of `parts` (the gun's mag, as they are now) for gun `key`.
 -- `velocity`: the gun's own motion at that moment (studs/s), added to the fall.
 function MagDrop.drop(key: string, parts: { BasePart }, velocity: Vector3?)
@@ -144,10 +180,11 @@ function MagDrop.drop(key: string, parts: { BasePart }, velocity: Vector3?)
 	if not first then
 		return
 	end
-	local pool = pools[key]
+	local poolKey = key .. "#" .. signature(parts)
+	local pool = pools[poolKey]
 	if not pool then
 		pool = {}
-		pools[key] = pool
+		pools[poolKey] = pool
 	end
 	-- A free copy, else a new one, else recycle the oldest.
 	local d: Drop? = nil
@@ -174,7 +211,7 @@ function MagDrop.drop(key: string, parts: { BasePart }, velocity: Vector3?)
 			active -= 1
 		end
 	end
-	if not d then
+	if not d or #d.parts ~= #parts then
 		return
 	end
 	-- Copies follow the live part sizes (the viewmodel's scale can differ).
@@ -194,6 +231,9 @@ function MagDrop.drop(key: string, parts: { BasePart }, velocity: Vector3?)
 	d.resting = false
 	for i, p in d.parts do
 		p.Transparency = d.base[i]
+		for j, face in d.faces[i] do
+			face.Transparency = d.faceBase[i][j]
+		end
 	end
 	place(d)
 	d.model.Parent = Workspace
@@ -254,8 +294,13 @@ function MagDrop.step(dt: number)
 			end
 			local fade = (d.age - (cfg.life - cfg.fade)) / cfg.fade
 			if fade > 0 then
+				local k = math.min(fade, 1)
 				for i, p in d.parts do
-					p.Transparency = d.base[i] + (1 - d.base[i]) * math.min(fade, 1)
+					p.Transparency = d.base[i] + (1 - d.base[i]) * k
+					for j, face in d.faces[i] do
+						local b = d.faceBase[i][j]
+						face.Transparency = b + (1 - b) * k
+					end
 				end
 			end
 		end

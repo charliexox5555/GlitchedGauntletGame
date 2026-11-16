@@ -1,0 +1,465 @@
+{
+  "variant": "Giltfold Stinger v03 (flat-material export)",
+  "joints": [],
+  "date": "2026-11-14",
+  "gun": "Stinger",
+  "source_blend": "Stinger_Giltfold_v03.blend",
+  "fbx": "Stinger_Giltfold_RobloxFlat.fbx",
+  "replaced_stock_prefixes": [
+    "Barrel",
+    "Bolt",
+    "ChargingHandle",
+    "CharmLoop",
+    "FireSelector",
+    "Grip",
+    "Handguard",
+    "Mag",
+    "Neon",
+    "Pins",
+    "Receiver",
+    "Sights",
+    "Stock",
+    "Trigger"
+  ],
+  "untouched_stock": [],
+  "flipped_islands": {},
+  "coplanar_lifted": [],
+  "crossed_faces_fixed": {},
+  "crossed_faces_left": {},
+  "parts": {
+    "SK_Bolt_01": {
+      "color": "A89A7E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Bolt",
+      "blender_material": "GF1 Pewter",
+      "triangles": 44,
+      "size": [
+        0.234,
+        0.02,
+        0.032
+      ],
+      "center": [
+        0.033,
+        -0.066,
+        0.29
+      ]
+    },
+    "SK_ChargingHandle_01": {
+      "color": "C9AA68",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "ChargingHandle",
+      "blender_material": "GF1 Champagne Foil",
+      "triangles": 108,
+      "size": [
+        0.0997,
+        0.03,
+        0.052
+      ],
+      "center": [
+        0.2048,
+        0.095,
+        0.336
+      ]
+    },
+    "SK_ChargingHandle_02": {
+      "color": "A89A7E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "ChargingHandle",
+      "blender_material": "GF1 Pewter",
+      "triangles": 12,
+      "size": [
+        0.105,
+        0.016,
+        0.028
+      ],
+      "center": [
+        0.2025,
+        0.076,
+        0.334
+      ]
+    },
+    "SK_FireSelector_01": {
+      "color": "C9AA68",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "FireSelector",
+      "blender_material": "GF1 Champagne Foil",
+      "triangles": 12,
+      "size": [
+        0.02,
+        0.005,
+        0.026
+      ],
+      "center": [
+        0.05,
+        0.0895,
+        0.197
+      ]
+    },
+    "SK_FireSelector_02": {
+      "color": "A89A7E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "FireSelector",
+      "blender_material": "GF1 Pewter",
+      "triangles": 92,
+      "size": [
+        0.124,
+        0.011,
+        0.0376
+      ],
+      "center": [
+        0.004,
+        0.0835,
+        0.1988
+      ]
+    },
+    "SK_Mag_01": {
+      "color": "C2B49A",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "GF1 Fold Slate",
+      "triangles": 144,
+      "size": [
+        0.243,
+        0.144,
+        0.3576
+      ],
+      "center": [
+        -0.0714,
+        0.0,
+        -0.4136
+      ]
+    },
+    "SK_Mag_02": {
+      "color": "26252D",
+      "material": "SmoothPlastic",
+      "reflectance": 0.05,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "GF1 Ink Lacquer",
+      "triangles": 108,
+      "size": [
+        0.2308,
+        0.1,
+        0.524
+      ],
+      "center": [
+        -0.0617,
+        0.0,
+        -0.272
+      ]
+    },
+    "SK_Mag_03": {
+      "color": "E8DAC0",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "GF1 Paper Ivory",
+      "triangles": 102,
+      "size": [
+        0.243,
+        0.144,
+        0.3623
+      ],
+      "center": [
+        -0.0714,
+        0.0,
+        -0.4112
+      ]
+    },
+    "SK_Mag_04": {
+      "color": "A89A7E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "GF1 Pewter",
+      "triangles": 90,
+      "size": [
+        0.145,
+        0.0388,
+        0.0416
+      ],
+      "center": [
+        -0.0275,
+        0.0046,
+        0.003
+      ]
+    },
+    "SK_Mag_05": {
+      "color": "6E737D",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Mag",
+      "blender_material": "GF1 Smoked Pewter Casing",
+      "triangles": 40,
+      "size": [
+        0.0806,
+        0.0383,
+        0.0442
+      ],
+      "center": [
+        -0.0647,
+        0.006,
+        0.003
+      ]
+    },
+    "SK_Root_01": {
+      "color": "C9AA68",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Champagne Foil",
+      "triangles": 160,
+      "size": [
+        1.15,
+        0.2078,
+        0.098
+      ],
+      "center": [
+        -0.089,
+        0.0,
+        0.261
+      ]
+    },
+    "SK_Root_02": {
+      "color": "C2B49A",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Fold Slate",
+      "triangles": 414,
+      "size": [
+        2.704,
+        0.2078,
+        0.5656
+      ],
+      "center": [
+        -0.208,
+        0.0,
+        0.1028
+      ]
+    },
+    "SK_Root_03": {
+      "color": "34323B",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Grip Graphite",
+      "triangles": 48,
+      "size": [
+        0.2174,
+        0.124,
+        0.29
+      ],
+      "center": [
+        -0.0124,
+        0.0,
+        -0.025
+      ]
+    },
+    "SK_Root_Sight_04": {
+      "color": "BFD8FF",
+      "material": "Neon",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Indicator",
+      "triangles": 28,
+      "size": [
+        0.012,
+        0.0148,
+        0.0148
+      ],
+      "center": [
+        0.8355,
+        0.0,
+        0.4698
+      ]
+    },
+    "SK_Root_05": {
+      "color": "26252D",
+      "material": "SmoothPlastic",
+      "reflectance": 0.05,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Ink Lacquer",
+      "triangles": 663,
+      "size": [
+        1.633,
+        0.1645,
+        0.6327
+      ],
+      "center": [
+        0.3275,
+        0.0023,
+        0.1126
+      ]
+    },
+    "SK_Root_Sight_06": {
+      "color": "26252D",
+      "material": "SmoothPlastic",
+      "reflectance": 0.05,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Ink Lacquer",
+      "triangles": 162,
+      "size": [
+        1.2973,
+        0.1324,
+        0.1128
+      ],
+      "center": [
+        0.2307,
+        0.0,
+        0.4274
+      ]
+    },
+    "SK_Root_07": {
+      "color": "1E1C26",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": "Giltfold_Wave",
+      "bone": "Root",
+      "blender_material": "GF1 Lacquer Pattern",
+      "triangles": 18,
+      "size": [
+        2.2648,
+        0.168,
+        0.4038
+      ],
+      "center": [
+        -0.3328,
+        0.0,
+        0.1404
+      ]
+    },
+    "SK_Root_08": {
+      "color": "E8DAC0",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Paper Ivory",
+      "triangles": 669,
+      "size": [
+        2.704,
+        0.2,
+        0.585
+      ],
+      "center": [
+        -0.208,
+        0.0,
+        0.1125
+      ]
+    },
+    "SK_Root_09": {
+      "color": "A89A7E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Pewter",
+      "triangles": 428,
+      "size": [
+        0.7435,
+        0.1364,
+        0.2036
+      ],
+      "center": [
+        0.7683,
+        0.018,
+        0.2424
+      ]
+    },
+    "SK_Root_Sight_10": {
+      "color": "A89A7E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Pewter",
+      "triangles": 16,
+      "size": [
+        0.01,
+        0.01,
+        0.0378
+      ],
+      "center": [
+        0.8355,
+        0.0,
+        0.4469
+      ]
+    },
+    "SK_Root_11": {
+      "color": "17161C",
+      "material": "SmoothPlastic",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Root",
+      "blender_material": "GF1 Recess Wall",
+      "triangles": 60,
+      "size": [
+        2.2648,
+        0.1882,
+        0.4038
+      ],
+      "center": [
+        -0.3328,
+        0.0,
+        0.1404
+      ]
+    },
+    "SK_Trigger_01": {
+      "color": "A89A7E",
+      "material": "Metal",
+      "reflectance": 0.0,
+      "pattern": null,
+      "bone": "Trigger",
+      "blender_material": "GF1 Pewter",
+      "triangles": 108,
+      "size": [
+        0.0379,
+        0.022,
+        0.0887
+      ],
+      "center": [
+        0.2011,
+        0.0,
+        0.1257
+      ]
+    }
+  },
+  "source_repairs": {
+    "bolt_vertices_moved": 0,
+    "coplanar_lifts": [
+      {
+        "lift": "GFS_Handguard|GF1 Lacquer Pattern",
+        "over": "Stinger_Receiver|GF1 Paper Ivory",
+        "faces": 6
+      },
+      {
+        "lift": "GFS_Shroud|GF1 Ink Lacquer",
+        "over": "Stinger_Barrel|GF1 Pewter",
+        "faces": 2
+      }
+    ],
+    "remaining": []
+  }
+}

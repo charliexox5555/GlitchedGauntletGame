@@ -52,9 +52,17 @@ params.IgnoreWater = true
 
 -- Roblox's default character sounds (RbxCharacterSounds) loop a "Running"
 -- footstep of their own; it's silenced on every character tracked here so
--- steps don't double. Its other sounds (jump, land, swim) are left alone.
+-- steps don't double. So are its jump and landing (the game plays its own,
+-- Config/Juice) and its "uuhhh" death sound (owner 2026-11-14: "a really weird
+-- sound on the ragdoll when the player dies"). Swim, climb and splash stay.
+-- With Config/Audio ROBLOX_CHARACTER_SOUNDS on, Roblox's running, jump and
+-- landing play and only the death sound is silenced.
+local SILENCED: { [string]: boolean } = if Audio.ROBLOX_CHARACTER_SOUNDS
+	then { Died = true }
+	else { Running = true, Jumping = true, Landing = true, Died = true }
+
 local function silenceDefault(sound: Instance)
-	if sound:IsA("Sound") and sound.Name == "Running" then
+	if sound:IsA("Sound") and SILENCED[sound.Name] then
 		sound.Volume = 0
 	end
 end
@@ -136,8 +144,32 @@ local function stepFor(character: Model, own: boolean, dt: number)
 	end
 end
 
+-- Every player's character, near or far, gets its default jump / land /
+-- death / running sounds silenced as it spawns (the step tracking above only
+-- covers characters in earshot).
+local function muteCharacter(character: Model)
+	local root = character:WaitForChild("HumanoidRootPart", 10)
+	if root and root:IsA("BasePart") then
+		muteDefaultSteps(root) -- the connection goes with the root
+	end
+end
+
+local function watchPlayer(p: Player)
+	if p.Character then
+		task.spawn(muteCharacter, p.Character)
+	end
+	p.CharacterAdded:Connect(muteCharacter)
+end
+
 function FootstepController.start()
 	local player = Players.LocalPlayer
+	for _, p in Players:GetPlayers() do
+		watchPlayer(p)
+	end
+	Players.PlayerAdded:Connect(watchPlayer)
+	if Audio.ROBLOX_CHARACTER_SOUNDS then
+		return -- Roblox's own running sound plays the steps
+	end
 	RunService.Heartbeat:Connect(function(dt)
 		local cam = Workspace.CurrentCamera
 		local eye = if cam then cam.CFrame.Position else Vector3.zero

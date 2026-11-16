@@ -12,6 +12,7 @@ local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
+local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local VfxTextures = require(ReplicatedStorage.Shared.Config.VfxTextures)
@@ -140,10 +141,23 @@ local function fall(body: Model, parent: Instance?)
 			return
 		end
 		local info = TweenInfo.new(D.fade, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		local fading: { Instance } = {}
 		for _, d in copy:GetDescendants() do
 			if d:IsA("BasePart") or d:IsA("Decal") then
-				TweenService:Create(d, info, { Transparency = 1 }):Play()
+				table.insert(fading, d)
+			elseif d.Name == Avatar.LIMB_LINK and d:IsA("ObjectValue") and d.Value then
+				-- The skinned limbs live outside the copy (shared/MatchBody
+				-- limbFolder): fade them and their clothing with it.
+				table.insert(fading, d.Value)
+				for _, t in d.Value:GetChildren() do
+					if t:IsA("Decal") then
+						table.insert(fading, t)
+					end
+				end
 			end
+		end
+		for _, d in fading do
+			TweenService:Create(d, info, { Transparency = 1 }):Play()
 		end
 		puff(copy:GetPivot().Position)
 		task.wait(D.fade)

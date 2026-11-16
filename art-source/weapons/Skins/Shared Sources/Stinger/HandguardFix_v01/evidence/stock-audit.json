@@ -1,0 +1,22 @@
+{
+  "shape": {
+    "triangles": 3134,
+    "coplanar_pairs": [
+      {
+        "lift": "Stinger_Handguard|Grip",
+        "over": "Stinger_Receiver|Body",
+        "faces": 18
+      }
+    ],
+    "zero_area": {},
+    "crossed": {}
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 125925,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  }
+}

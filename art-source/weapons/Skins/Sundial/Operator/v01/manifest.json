@@ -1,0 +1,227 @@
+{
+  "line": "Sundial",
+  "weapon": "Operator",
+  "version": "v01",
+  "readiness": "Blender review",
+  "source": {
+    "path": "art-source/weapons/RemasterV2/Operator/Operator_RemasterV2_v05.blend",
+    "sha256": "c7a8419c9552a21ea4377458023ad572ee098af66c40b1ecdd6dd54703a0de73"
+  },
+  "model_sheet": "art-source/weapons/ModelSheets/Operator_model_sheet.png",
+  "style_concept": "vault/02 Art/Skins/Sundial/out/Guardian_concept_v02.png",
+  "authoring_endpoint": "Blender MCP 127.0.0.1:9999 and isolated local Blender review processes",
+  "static_pose": "Frame 1, decorative NLA tracks muted.",
+  "inspect": {
+    "fps": 24,
+    "pose_frames": {
+      "1": "Static finish",
+      "12": "Reveal",
+      "24": "Motion",
+      "45": "Settle"
+    },
+    "animated_parts": {
+      "Sundial_Dial": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            25,
+            0.7853981633974483
+          ],
+          [
+            45,
+            0.7853981633974483
+          ]
+        ],
+        "property": "local quaternion",
+        "axis": 2,
+        "world_pivot": [
+          0.25,
+          0.09902381896972656,
+          0.37794244289398193
+        ],
+        "track": "Sundial Inspect Reference"
+      }
+    },
+    "review_camera_proxy": "Camera angle changes present the turn for the animator."
+  },
+  "maps": {
+    "Color": {
+      "path": "textures/Operator_Color.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "322acf254f1772abd5198feafb1fec1c3a2da1546ea37424ff6bc6c689bf1ccd"
+    },
+    "Roughness": {
+      "path": "textures/Operator_Roughness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "11b5a13023c1520f58bf8bec953cfcde49b344c1ce2f513f8f917d9dd54bdad8"
+    },
+    "Metalness": {
+      "path": "textures/Operator_Metalness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "bbe5ae9e0881a05891af2ba52892bac230263c53a4a81a21c86163d0f209d7ff"
+    },
+    "Normal": {
+      "path": "textures/Operator_Normal.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    }
+  },
+  "atlas": {
+    "atlas": "Moderate_Atlas",
+    "covered_pixels": 672241,
+    "padding": 6,
+    "xy_overlap_samples": 0,
+    "collapsed_uv_triangles": 0,
+    "island_repairs": {},
+    "normal_map": "Neutral tangent-space map. Facet shape and weighted normals are authored geometry."
+  },
+  "quality": {
+    "stock_bounds": [
+      [
+        -1.3195,
+        -0.173066,
+        -0.254232
+      ],
+      [
+        3.521,
+        0.142797,
+        0.7875
+      ]
+    ],
+    "skin_bounds": [
+      [
+        -1.3195,
+        -0.173066,
+        -0.254232
+      ],
+      [
+        3.521,
+        0.142797,
+        0.7875
+      ]
+    ],
+    "preserved_stock_vertex_data": false,
+    "stock_rest_transforms": true,
+    "sight": {
+      "camera": "Stock AimPoint scope-axis comparison, scope overlay requires Studio",
+      "checked": 225,
+      "matching": 225,
+      "cosmetic_hits": 0
+    },
+    "scope_matches": true,
+    "frames": 296,
+    "differing_action_frames": [],
+    "cosmetic_to_stock_motion_contacts": {},
+    "rest_stock_geom": {},
+    "rest_variant_geom": {},
+    "stock_coplanar": [],
+    "skin_coplanar": [],
+    "packed_maps_match": {
+      "Color": true,
+      "Roughness": true,
+      "Metalness": true,
+      "Normal": true
+    },
+    "inspect_contact_frames": {},
+    "fbx": {
+      "missing": [],
+      "additional": [],
+      "max_pivot_delta": 1.3328003749250113e-07,
+      "image_count": 4,
+      "parent_mismatches": [],
+      "triangle_delta": 0,
+      "active_uv_mismatches": [],
+      "geometry_flags": {}
+    }
+  },
+  "silhouette_iou": {
+    "hero": 1.0,
+    "left": 1.0,
+    "right": 1.0,
+    "top": 0.98328,
+    "held": 0.99997,
+    "hip": 1.0,
+    "aim": 0.99339
+  },
+  "bounds_max_surface_difference": 0.0,
+  "scope": [
+    "Hands are not animated in the stock Blender review scene. Check live hands, scope/ADS fades, magazine hiding and the final inspect later in Studio.",
+    "The optic geometry, its source materials and optical alignment locators were retained. Runtime scope overlay remains for Studio."
+  ],
+  "grade": {
+    "design_finish": "33/35",
+    "fit_geometry": "30/30",
+    "bake_seams": "20/20",
+    "held_aim_motion": "13/15",
+    "total": 96
+  },
+  "files": [
+    {
+      "path": "Operator_Sundial_v01.blend",
+      "sha256": "337b3d2d8403297ffac74eaa06a046f35794ddc583e93fddd51bb6594fabec09"
+    },
+    {
+      "path": "Operator_Sundial_v01.fbx",
+      "sha256": "29d92c7b852417c7abed92f40a36451c82e1ca7b2cd3e4e180390c52584a0de3"
+    },
+    {
+      "path": "review/bake.json",
+      "sha256": "dc1abb8a87be8b0cc0fd7717931af16dbc70c775b24808e5d4d95daa3feec49f"
+    },
+    {
+      "path": "review/fbx-culling.jpg",
+      "sha256": "5ab42f7cef7e1af84a072a3d98727489e754c7de007354bff830140b20475345"
+    },
+    {
+      "path": "review/hero-finish.jpg",
+      "sha256": "c07b1c84d7ab46055ad2b028d613d6127fe4d832c99b6fe5eded2141fd3e1334"
+    },
+    {
+      "path": "review/inspect-poses.jpg",
+      "sha256": "cf503e219bdfbbe263b7f417954fca941588dd5a2a9a7fe673764236d0d413ad"
+    },
+    {
+      "path": "review/matched-views.jpg",
+      "sha256": "8bc5b3c8e38b2084b9d6754a6aa3df0f3829a24fbf8d3bdc7d4e67cd7a9d3faa"
+    },
+    {
+      "path": "review/verification.json",
+      "sha256": "4206c6a3c450e0f79e28a3c805140703423e51907c725c488af70fa6eaea0980"
+    },
+    {
+      "path": "textures/Operator_Color.png",
+      "sha256": "322acf254f1772abd5198feafb1fec1c3a2da1546ea37424ff6bc6c689bf1ccd"
+    },
+    {
+      "path": "textures/Operator_Metalness.png",
+      "sha256": "bbe5ae9e0881a05891af2ba52892bac230263c53a4a81a21c86163d0f209d7ff"
+    },
+    {
+      "path": "textures/Operator_Normal.png",
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    },
+    {
+      "path": "textures/Operator_Roughness.png",
+      "sha256": "11b5a13023c1520f58bf8bec953cfcde49b344c1ce2f513f8f917d9dd54bdad8"
+    }
+  ]
+}

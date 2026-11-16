@@ -1,0 +1,216 @@
+{
+  "line": "Oilwake",
+  "gun": "Marshal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Marshal/Marshal_RemasterV2_v05.blend",
+  "source_sha256": "979997d2b7cc6060f8893788f324b79e9a5bfa5e3fbe0b1f0adf39e3ed8572c3",
+  "blend": "art-source/weapons/Skins/Oilwake/Marshal/v01/Marshal_Oilwake_v01.blend",
+  "blend_sha256": "64ec9f699145c62f2d02c2d6b730901b19dce54f287c4180934514a246b48a40",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Marshal_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "347c0a151c70cac110aaa82bda86685e16051e2cf6f2ec429020bd52b550add9",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "b8108b017f7ab5da157cbe0987aa1a5a64011fee5f0a71f61143474c50f11977",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 58,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Marshal_Hammer": [
+        {
+          "face": 202,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 144,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 198,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 66,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 67,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 24,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 4407,
+  "finish_hosts": [
+    {
+      "parts": {
+        "ForeEnd": [
+          "Dark"
+        ]
+      },
+      "bounds_xz": [
+        0.969,
+        1.815,
+        0.064,
+        0.165
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Marshal_Bolt",
+    "Marshal_CharmLoop",
+    "Marshal_Scope",
+    "Marshal_ScopeLens",
+    "Marshal_Shell"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Marshal_Draw",
+    "Marshal_Fire",
+    "Marshal_Inspect",
+    "Marshal_Reload",
+    "Marshal_ReloadEmpty",
+    "Marshal_ReloadEnd",
+    "Marshal_ReloadInsert",
+    "Marshal_ReloadStart"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Superseded by v02 placement revision",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Marshal/v01/textures/Marshal_Color.png",
+      "sha256": "54fab910de3cb5c84e74685cff989ddc698d84ed0e5fdc9fb085d778e5c9afa9",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Marshal/v01/textures/Marshal_Normal.png",
+      "sha256": "f79d237540636a8fad0c434279449bf3eb6ed26cc50a5b800550588b451c6f12",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Marshal/v01/textures/Marshal_Roughness.png",
+      "sha256": "bfeb172124ded604a136981f6e8d8c7b661b4a44d1ac27f948114804b5969ad5",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Marshal/v01/textures/Marshal_Metalness.png",
+      "sha256": "ac34e34e50012783bbf1eabd74c6f2353728142709d4e54f57a3178fe3fddd3a",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Marshal_Stock|Dark",
+        "over": "Marshal_Stock|Panel",
+        "faces": 2
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Marshal_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -1.971773624420166
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        4.19883918762207
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        6.678272247314453
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Marshal/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Marshal",
+  "replacement": "art-source/weapons/Skins/Oilwake/Marshal/v02/Marshal_Oilwake_v02.blend"
+}

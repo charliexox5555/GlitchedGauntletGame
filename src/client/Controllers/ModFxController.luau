@@ -44,6 +44,7 @@ local ModSounds = require(Shared.Config.ModSounds)
 local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local HealFx = require(script.Parent.Parent.Util.HealFx)
+local LimbHold = require(script.Parent.Parent.Util.LimbHold)
 local RecallFx = require(script.Parent.Parent.Util.RecallFx)
 local ReworkVfx = require(script.Parent.Parent.Util.ReworkVfx)
 local StimFx = require(script.Parent.Parent.Util.StimFx)
@@ -618,6 +619,9 @@ local function onReconPulse(data: { [string]: any })
 end
 
 -- Revealed enemies: an orange-red outline through walls (your team only).
+-- One Highlight on the character. Its skinned arms, legs and torso live
+-- outside the character, so they're held inside it while it's outlined
+-- (Util/LimbHold): the outline is the whole posed body, one silhouette.
 type RevealMark = { highlight: Highlight, untilT: number }
 local reveals: { [Model]: RevealMark } = {}
 
@@ -651,6 +655,7 @@ local function onReveal(targets: unknown, duration: unknown, info: unknown)
 				h.OutlineTransparency = 0
 				h.Adornee = model
 				h.Parent = fxFolder()
+				LimbHold.take(model)
 				reveals[model] = { highlight = h, untilT = untilT }
 			end
 		end
@@ -973,8 +978,11 @@ local function update(dt: number)
 	FrostFx.step()
 	UpgradeFx.step(dt)
 	for model, mark in reveals do
-		if now >= mark.untilT or not model.Parent then
+		-- Over, gone (a respawn, streamed out) or down (the body is hidden and
+		-- its falling copy takes over: Controllers/DeathFxController).
+		if now >= mark.untilT or not model.Parent or Health.isDowned(model) then
 			mark.highlight:Destroy()
+			LimbHold.release(model)
 			reveals[model] = nil
 		end
 	end

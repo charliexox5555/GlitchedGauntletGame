@@ -106,7 +106,15 @@ local function anchor(name: string, x: number, y: number, z: number, size: Vecto
 	return a
 end
 
-local function point(name: string, x: number, y: number, z: number, colour: Color3, range: number, brightness: number)
+local function point(
+	name: string,
+	x: number,
+	y: number,
+	z: number,
+	colour: Color3,
+	range: number,
+	brightness: number
+)
 	local l = Instance.new("PointLight")
 	l.Color = colour
 	l.Range = range
@@ -130,8 +138,16 @@ bottom.Parent = beamPart
 bottom.WorldPosition = W(CFrame.new(0, 0.6, 0)).Position
 for _, spec in
 	{
-		{ name = "Shaft", w = 22, t = { { 0, 1 }, { 0.1, 0.62 }, { 0.5, 0.72 }, { 0.85, 0.8 }, { 1, 0.94 } } },
-		{ name = "Core", w = 12, t = { { 0, 1 }, { 0.1, 0.5 }, { 0.5, 0.62 }, { 0.85, 0.72 }, { 1, 0.9 } } },
+		{
+			name = "Shaft",
+			w = 22,
+			t = { { 0, 1 }, { 0.1, 0.62 }, { 0.5, 0.72 }, { 0.85, 0.8 }, { 1, 0.94 } },
+		},
+		{
+			name = "Core",
+			w = 12,
+			t = { { 0, 1 }, { 0.1, 0.5 }, { 0.5, 0.62 }, { 0.85, 0.72 }, { 1, 0.9 } },
+		},
 	}
 do
 	local bm = Instance.new("Beam")
@@ -206,7 +222,14 @@ count += 1
 -- so the light comes from fixtures you can see. Room accents: a cool wash over the server racks, a warm one on the pumps.
 local LAMP_C = LAMP.color :: Color3
 for _, d in layer("Art"):GetDescendants() do
-	if d:IsA("BasePart") and (d.Name == "Pier12_Lamp_Glow" or d.Name == "WallLamp_Lamp_Glow" or d.Name == "CageLamp_Bulb_Glow") then
+	if
+		d:IsA("BasePart")
+		and (
+			d.Name == "Pier12_Lamp_Glow"
+			or d.Name == "WallLamp_Lamp_Glow"
+			or d.Name == "CageLamp_Bulb_Glow"
+		)
+	then
 		local l = Instance.new("PointLight")
 		l.Color = LAMP_C
 		l.Range = LAMP.range

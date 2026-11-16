@@ -1,0 +1,224 @@
+{
+  "line": "Faultline",
+  "gun": "Sheriff",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Sheriff/Sheriff_RemasterV2_v05.blend",
+  "source_sha256": "bf79df28719fa3cf51d862c255156769816f208b1ead54537be91b2e20b67d59",
+  "blend": "art-source/weapons/Skins/Faultline/Sheriff/v01/Sheriff_Faultline_v01.blend",
+  "blend_sha256": "8766edcc4c04cb7b5676012b93af7ce5c98ecbe725c59c5b9c1c12972ff14ee3",
+  "concept": "vault/02 Art/Skins/Faultline/out/Sheriff_concept_v02.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Sheriff_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 3066,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Frame": [
+          "Body",
+          "Panel"
+        ],
+        "Barrel": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.34,
+        1.43,
+        0.093,
+        0.36
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Sheriff_CharmLoop",
+    "Sheriff_Crane",
+    "Sheriff_Cylinder",
+    "Sheriff_EjectorRod",
+    "Sheriff_Rounds",
+    "Sheriff_Sights",
+    "Sheriff_Speedloader"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "171B21",
+      0.44,
+      0.04
+    ],
+    "Panel": [
+      "31363F",
+      0.47,
+      0.07
+    ],
+    "Dark": [
+      "101216",
+      0.63,
+      0.07
+    ],
+    "Grip": [
+      "25262C",
+      0.77,
+      0.03
+    ],
+    "Metal": [
+      "555C69",
+      0.4,
+      0.7
+    ],
+    "Accent": [
+      "C07D57",
+      0.28,
+      0.78
+    ],
+    "Neon": [
+      "DEA987",
+      0.26,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Sheriff_Draw",
+    "Sheriff_Fire",
+    "Sheriff_Inspect",
+    "Sheriff_Reload",
+    "Sheriff_ReloadEmpty"
+  ],
+  "map_resolution": 2048,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Faultline/Sheriff/v01/textures/Sheriff_Color.png",
+      "sha256": "4f38855f9108653b25e3b562545a32c68cc19eface7e7569e7846398cf5ec7c9",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Faultline/Sheriff/v01/textures/Sheriff_Normal.png",
+      "sha256": "96280c39d7c187cdc3453306a10180831d4e0d86b4db085778a0cbf47c092f38",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Faultline/Sheriff/v01/textures/Sheriff_Roughness.png",
+      "sha256": "fd2d62a707d09f57ee680d273434cc7b6f028c4a4f3b41b29f474cebbee43b43",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Faultline/Sheriff/v01/textures/Sheriff_Metalness.png",
+      "sha256": "8884e02569c8043cc0ec852659b99bb7bbc8f6a4e188dad4d33c1352be0cb366",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Sheriff_FP_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.1218181923031807
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.4180000126361847
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.09090909361839294,
+    "lens_mm": 17.79073143005371
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Faultline/Sheriff/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Sheriff",
+  "motion_comparison": {
+    "clip": "Sheriff_Reload",
+    "part": "Sheriff_Cylinder",
+    "matched_action_frames": 325,
+    "rendered_frame": 10,
+    "stock_render": "review/motion-stock.png",
+    "skin_render": "review/motion-skin.png",
+    "actions": {
+      "Sheriff_Draw": {
+        "count": 24,
+        "world_matrix_sha256": "35625dc96179a6d17a6f32f8591136e5529c6016b67f8bc9f5264f422df8f62b"
+      },
+      "Sheriff_Fire": {
+        "count": 14,
+        "world_matrix_sha256": "484a200d3df72c901e3ae92b56850338713df9443f3f0542dafb0936389700fb"
+      },
+      "Sheriff_Inspect": {
+        "count": 67,
+        "world_matrix_sha256": "a759a8de18018d5c03b0bf17408bbb119c4eb3d386bbe9b99839e518eb1251df"
+      },
+      "Sheriff_Reload": {
+        "count": 110,
+        "world_matrix_sha256": "c57938c203acc12221e42ee0a82e196542553000c92e69a0046f26fff2ed814c"
+      },
+      "Sheriff_ReloadEmpty": {
+        "count": 110,
+        "world_matrix_sha256": "c57938c203acc12221e42ee0a82e196542553000c92e69a0046f26fff2ed814c"
+      }
+    }
+  },
+  "blender_grade": {
+    "design_finish": 34,
+    "geometry_rig_fidelity": 30,
+    "baked_texture_seams": 18,
+    "held_aim_motion": 14,
+    "total": 96
+  },
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

@@ -4,8 +4,8 @@
 --
 -- One equipped skin line per gun, saved in DataStore STORE under key(userId)
 -- as { v = 1, skins = { [gunId] = line } }. The Lobby's LockerService writes
--- it; the Match's SkinPreviewService reads it on join. Both set the server-
--- owned Player attribute attr(gunId) = line, which clients only read.
+-- it and sets the Player attribute attr(gunId) = line. The Match's
+-- SkinPreviewService reads the same record into a child folder on join.
 -- Lines are Config/SkinPreview.LINES ("Stock" = the base model); a line is
 -- valid for a gun only if WeaponSkins/<Line>/<Gun> exists and is SkinReady.
 
@@ -39,6 +39,12 @@ Locker.COLORS = table.freeze({
 	Sealwork = Color3.fromHex("2BD9A8"),
 	Payload = Color3.fromHex("9AA36B"),
 	Inkshift = Color3.fromHex("E9ECF2"),
+	Oilwake = Color3.fromHex("408B72"),
+	Misprint = Color3.fromHex("2447B9"),
+	Faultline = Color3.fromHex("C07D57"),
+	Playback = Color3.fromHex("746079"),
+	Breakwater = Color3.fromHex("327C80"),
+	Sundial = Color3.fromHex("B89A57"),
 }) :: { [string]: Color3 }
 
 -- Each line's emblem (owner 2026-11-15: skins need an identity besides

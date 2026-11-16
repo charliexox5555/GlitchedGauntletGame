@@ -1,0 +1,128 @@
+[
+  {
+    "id": "Vandal",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Vandal\\Vandal.fbx",
+    "parts": 54,
+    "tris": 3300,
+    "split": {}
+  },
+  {
+    "id": "Classic",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Classic\\Classic.fbx",
+    "parts": 41,
+    "tris": 2632,
+    "split": {}
+  },
+  {
+    "id": "Bulldog",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Bulldog\\Bulldog.fbx",
+    "parts": 53,
+    "tris": 3308,
+    "split": {}
+  },
+  {
+    "id": "Phantom",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Phantom\\Phantom.fbx",
+    "parts": 55,
+    "tris": 3344,
+    "split": {}
+  },
+  {
+    "id": "Guardian",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Guardian\\Guardian.fbx",
+    "parts": 54,
+    "tris": 3408,
+    "split": {}
+  },
+  {
+    "id": "Stinger",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Stinger\\Stinger.fbx",
+    "parts": 55,
+    "tris": 3368,
+    "split": {}
+  },
+  {
+    "id": "Spectre",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Spectre\\Spectre.fbx",
+    "parts": 55,
+    "tris": 3276,
+    "split": {}
+  },
+  {
+    "id": "Shorty",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Shorty\\Shorty.fbx",
+    "parts": 27,
+    "tris": 1916,
+    "split": {}
+  },
+  {
+    "id": "Ghost",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Ghost\\Ghost.fbx",
+    "parts": 43,
+    "tris": 2920,
+    "split": {}
+  },
+  {
+    "id": "Sheriff",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Sheriff\\Sheriff.fbx",
+    "parts": 45,
+    "tris": 2800,
+    "split": {}
+  },
+  {
+    "id": "Judge",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Judge\\Judge.fbx",
+    "parts": 53,
+    "tris": 3480,
+    "split": {}
+  },
+  {
+    "id": "Bucky",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Bucky\\Bucky.fbx",
+    "parts": 53,
+    "tris": 3284,
+    "split": {}
+  },
+  {
+    "id": "Marshal",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Marshal\\Marshal.fbx",
+    "parts": 48,
+    "tris": 3560,
+    "split": {}
+  },
+  {
+    "id": "Outlaw",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Outlaw\\Outlaw.fbx",
+    "parts": 38,
+    "tris": 3280,
+    "split": {}
+  },
+  {
+    "id": "Operator",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Operator\\Operator.fbx",
+    "parts": 63,
+    "tris": 4468,
+    "split": {}
+  },
+  {
+    "id": "Ares",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Ares\\Ares.fbx",
+    "parts": 59,
+    "tris": 3720,
+    "split": {}
+  },
+  {
+    "id": "Odin",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Odin\\Odin.fbx",
+    "parts": 68,
+    "tris": 4148,
+    "split": {}
+  },
+  {
+    "id": "Knife",
+    "fbx": "C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/art-source/weapons/Remaster/Knife\\Knife.fbx",
+    "parts": 16,
+    "tris": 658,
+    "split": {}
+  }
+]

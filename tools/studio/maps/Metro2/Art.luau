@@ -339,10 +339,17 @@ both("Concourse", "CCTV", -48, 14, 102, 0)
 -- v2: an opaque slab over the vault, above the coffers (never seen from inside), so the sun can't rake through the
 -- hall (the hidden greybox ceiling is transparent and casts no shadow); the hall is lit by its ambient and Neon.
 do
-	local p = box(section("Art", "SunBlock"), "SunBlock", Vector3.new(100, 1, 104), at(0, 31.13, 0), Color3.fromHex("ADA9A2"), {
-		material = Enum.Material.Concrete,
-		castShadow = true,
-	})
+	local p = box(
+		section("Art", "SunBlock"),
+		"SunBlock",
+		Vector3.new(100, 1, 104),
+		at(0, 31.13, 0),
+		Color3.fromHex("ADA9A2"),
+		{
+			material = Enum.Material.Concrete,
+			castShadow = true,
+		}
+	)
 	decor(p)
 end
 

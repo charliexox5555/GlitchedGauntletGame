@@ -1,0 +1,100 @@
+{
+  "gun": "Vandal",
+  "tris": 3300,
+  "budget": 5000,
+  "sight": "reflex",
+  "round": "Rifle",
+  "clips": {
+    "Fire": {
+      "frames": 12,
+      "bones": [
+        "Bolt",
+        "ChargingHandle",
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 12
+    },
+    "Reload": {
+      "frames": 97,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 97
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 97
+    },
+    "Draw": {
+      "frames": 36,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "FireSelector",
+        "Root"
+      ],
+      "declared_frames": 36
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.195,
+  "old_bounds": [
+    [
+      -1.2524000406265259,
+      2.64739990234375
+    ],
+    [
+      -0.08799999952316284,
+      0.10400000214576721
+    ],
+    [
+      -0.4024399518966675,
+      0.6103267669677734
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Mag",
+    "ChargingHandle",
+    "Bolt",
+    "Trigger",
+    "FireSelector",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "Eject",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "split wedge / triangular stock / swept magazine"
+}

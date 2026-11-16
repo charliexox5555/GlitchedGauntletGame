@@ -1,0 +1,19 @@
+{
+  "weapons": 18,
+  "guns": 17,
+  "knife": 1,
+  "skipped": [
+    "Akimbo"
+  ],
+  "total_tris": 57062,
+  "total_actions": 101,
+  "review_renders": 162,
+  "blender_audits_passed": 18,
+  "fbx_roundtrips_passed": 18,
+  "minimum_eye_clearance": 0.165,
+  "concept_method": "Blender sheets substituted after built-in image generation rejection",
+  "studio_validation": "Pending user",
+  "user_art_review": "rejected",
+  "approved_for_integration": false,
+  "superseded_by": "vault/05 Production/Astra Weapon Rebuild Handoff 2026-11-07.md"
+}

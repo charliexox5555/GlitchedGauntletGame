@@ -1,0 +1,33 @@
+{
+  "gun": "Guardian",
+  "passed": true,
+  "errors": [],
+  "tris": 3408,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.0014140370569746,
+    1.7091835782748555,
+    1.0873762658806878
+  ],
+  "bounds": [
+    [
+      -1.2508000135421753,
+      2.9983999729156494
+    ],
+    [
+      -0.16899999976158142,
+      0.2329999953508377
+    ],
+    [
+      -0.3065348267555237,
+      0.6240000128746033
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 54,
+  "attachment_count": 9,
+  "actions": 5,
+  "eye_clearance": 0.18
+}

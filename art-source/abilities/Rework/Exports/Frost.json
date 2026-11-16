@@ -1,0 +1,617 @@
+{
+ "mod": "Frost",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "thrown"
+ },
+ "parts": [
+  {
+   "name": "Body",
+   "material": "Graphite",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343840"
+   },
+   "energy": false,
+   "tris": 92,
+   "center": [
+    -0.003,
+    0.0,
+    -0.0535
+   ],
+   "size": [
+    0.254,
+    0.222,
+    0.437
+   ]
+  },
+  {
+   "name": "Band",
+   "material": "Slate",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "525B69"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.007,
+    0.0,
+    0.112
+   ],
+   "size": [
+    0.232,
+    0.218,
+    0.058
+   ]
+  },
+  {
+   "name": "FuseHead",
+   "material": "Recess",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "232730"
+   },
+   "energy": false,
+   "tris": 92,
+   "center": [
+    -0.023,
+    0.0,
+    0.2
+   ],
+   "size": [
+    0.172,
+    0.148,
+    0.126
+   ]
+  },
+  {
+   "name": "TopPlate",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 44,
+   "center": [
+    -0.039,
+    0.0,
+    0.2685
+   ],
+   "size": [
+    0.1,
+    0.096,
+    0.021
+   ]
+  },
+  {
+   "name": "Shoulder_Front",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    -0.005,
+    -0.1103,
+    0.032
+   ],
+   "size": [
+    0.154,
+    0.00926,
+    0.108
+   ]
+  },
+  {
+   "name": "Heel_Front",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    -0.001,
+    -0.11667,
+    -0.179
+   ],
+   "size": [
+    0.168,
+    0.00751,
+    0.05
+   ]
+  },
+  {
+   "name": "VentFront1",
+   "material": "Cold glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "80BDDB"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    -0.11144,
+    -0.039
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentLipFront1",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    -0.1168,
+    -0.051
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentFront2",
+   "material": "Cold glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "80BDDB"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    -0.11262,
+    -0.078
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentLipFront2",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    -0.11798,
+    -0.09
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentFront3",
+   "material": "Cold glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "80BDDB"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    -0.1138,
+    -0.117
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentLipFront3",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    -0.11916,
+    -0.129
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "Shoulder_Back",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 24,
+   "center": [
+    -0.005,
+    0.1103,
+    0.032
+   ],
+   "size": [
+    0.154,
+    0.00926,
+    0.108
+   ]
+  },
+  {
+   "name": "Heel_Back",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 20,
+   "center": [
+    -0.001,
+    0.11667,
+    -0.179
+   ],
+   "size": [
+    0.168,
+    0.00751,
+    0.05
+   ]
+  },
+  {
+   "name": "VentBack1",
+   "material": "Cold glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "80BDDB"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    0.11144,
+    -0.039
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentLipBack1",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    0.1168,
+    -0.051
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentBack2",
+   "material": "Cold glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "80BDDB"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    0.11262,
+    -0.078
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentLipBack2",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    0.11798,
+    -0.09
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentBack3",
+   "material": "Cold glass",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "80BDDB"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    0.1138,
+    -0.117
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "VentLipBack3",
+   "material": "Ceramic",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "D5DADF"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.0075,
+    0.11916,
+    -0.129
+   ],
+   "size": [
+    0.143,
+    0.00709,
+    0.036
+   ]
+  },
+  {
+   "name": "Lever",
+   "material": "Graphite",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "343840"
+   },
+   "energy": false,
+   "tris": 28,
+   "center": [
+    0.101,
+    0.0,
+    0.1435
+   ],
+   "size": [
+    0.12,
+    0.1,
+    0.229
+   ]
+  },
+  {
+   "name": "Pin",
+   "material": "Steel",
+   "look": {
+    "material": "Metal",
+    "color": "929AA5"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    0.059,
+    -0.0585,
+    0.224
+   ],
+   "size": [
+    0.04,
+    0.023,
+    0.04
+   ]
+  },
+  {
+   "name": "Fuse_Energy",
+   "material": "Cyan signal",
+   "look": {
+    "material": "Neon",
+    "color": "45BDDB"
+   },
+   "energy": true,
+   "tris": 28,
+   "center": [
+    -0.029,
+    -0.0725,
+    0.162
+   ],
+   "size": [
+    0.02,
+    0.009,
+    0.058
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "LeverPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.059
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.224
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinPivot",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.059
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.052
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.224
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "PinPull",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.059
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.16
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.224
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Fuse",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.029
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     -0.077
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.162
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 684
+}

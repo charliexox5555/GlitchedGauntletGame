@@ -14,13 +14,15 @@ local Workspace = game:GetService("Workspace")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
+local HitFxConfig = require(ReplicatedStorage.Shared.Config.HitFx)
+local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
 local Kit = require(script.Parent.ShotFxKit)
+local AudioController = require(script.Parent.Parent.Controllers.AudioController)
 
 local ImpactFx = {}
 
 local WHITE = Kit.WHITE
-local FIRE = Kit.FIRE
 
 local HOLE_POOL = 64
 local HOLE_LIFE = 14 -- seconds, the last HOLE_FADE of it fading
@@ -78,11 +80,15 @@ local function getHitSet(): HitSet
 		return hitSet
 	end
 	local att = Kit.worldAttachment("ImpactFx")
-	local flash = emitter(att, VFX.GLOW, FIRE)
+	-- The strike: a hot core with spark spikes (stylised sheet, colours baked;
+	-- 2026-11-10, was a plain soft glow), one random frame, two frames long.
+	local flash = emitter(att, VFX.IMPACT_2x2, WHITE)
 	Kit.fire(flash)
-	flash.Lifetime = NumberRange.new(0.05)
-	flash.Size = curve({ 0, 0.7, 1, 0.3 })
-	flash.Transparency = curve({ 0, 0.15, 1, 1 })
+	flipbook(flash)
+	flash.Brightness = 1.6
+	flash.Lifetime = NumberRange.new(0.06, 0.085)
+	flash.Size = curve({ 0, 0.9, 0.3, 1.6, 1, 1.9 })
+	flash.Transparency = curve({ 0, 0, 0.5, 0.2, 1, 1 })
 	flash.ZOffset = 0.4
 	-- A couple of quick sparks off stone.
 	local sparks = Kit.sparkEmitter(att, 0.07)
@@ -288,9 +294,11 @@ function ImpactFx.knifeContact(position: Vector3)
 	set.sparks:Emit(2)
 end
 
+local lastImpactSound = -math.huge
+
 -- A shot landing at `position`. `hit` is the part it hit: characters get a
--- small puff (no blood); the world gets an impact for its surface and a
--- bullet hole. `size` scales the hole (pellets are smaller).
+-- small puff (no blood); the world gets an impact for its surface, its sound
+-- and a bullet hole. `size` scales the hole (pellets are smaller).
 function ImpactFx.impact(
 	position: Vector3,
 	normal: Vector3,
@@ -320,6 +328,20 @@ function ImpactFx.impact(
 	end
 	local mat = material or hit.Material
 	local kind: Surface = SURFACES[mat] or "Hard"
+	-- The surface's bullet-impact sound (audio lane: Config/Sounds IMPACTS),
+	-- throttled so a shotgun's pellets don't stack. Not for the knife (its
+	-- own wall sounds) and not on bodies (hit sounds handle those, above).
+	local sound = HitFxConfig.IMPACT_SOUND
+	local now = os.clock()
+	if not noHole and now - lastImpactSound >= sound.minGap then
+		lastImpactSound = now
+		AudioController.play(Sounds.IMPACTS[kind], {
+			group = "Enemy",
+			at = position,
+			range = sound.range,
+			volume = sound.volume,
+		})
+	end
 	local color = surfaceColor(hit, mat)
 	local set = getHitSet()
 	set.att.WorldCFrame = cf

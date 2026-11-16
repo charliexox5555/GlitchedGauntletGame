@@ -16,3 +16,6 @@ The [Whitebox](Whitebox.md) look scaled up for **3v3–4v4** (and 2v2), the way 
 ## To do
 - User review, then a layout pass after real 3v3s (the right lane may be too open).
 - A layout-check script like `whitebox_layout.py` if it changes much.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. The 8-high cover tops and the Diamond (14) are out of a jump now; the perches and ramps are unaffected. No designed route needs a tight jump.

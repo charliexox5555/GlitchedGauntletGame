@@ -28,11 +28,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Health = require(Shared.Health)
 local Mods = require(Shared.Mods)
 local Tex = require(Shared.Config.VfxTextures)
 
 local CameraController = require(script.Parent.Parent.Parent.Controllers.CameraController)
 local GlitchVfx = require(script.Parent.Parent.GlitchVfx)
+local LimbHold = require(script.Parent.Parent.LimbHold)
 local ModAudio = require(script.Parent.Parent.ModAudio)
 local ModVfx = require(script.Parent.Parent.ModVfx)
 local TeamColor = require(script.Parent.Parent.TeamColor)
@@ -598,6 +600,9 @@ local function onReveal(data: { [string]: any })
 			h.OutlineTransparency = 0
 			h.Adornee = model
 			h.Parent = fxFolder()
+			-- The skinned limbs come inside the character while it's outlined,
+			-- so the one Highlight traces the whole body (Util/LimbHold).
+			LimbHold.take(model)
 			mark = { highlight = h, text = "", untilT = untilT, nextRoll = 0 }
 			marks[model] = mark
 		end
@@ -619,6 +624,7 @@ end
 
 local function dropMark(model: Model, mark: Mark)
 	mark.highlight:Destroy()
+	LimbHold.release(model)
 	local tag = mark.tag
 	if tag then
 		tag:Destroy()
@@ -628,7 +634,7 @@ end
 
 local function stepMarks(now: number)
 	for model, mark in marks do
-		if now >= mark.untilT or not model.Parent then
+		if now >= mark.untilT or not model.Parent or Health.isDowned(model) then
 			dropMark(model, mark)
 			continue
 		end

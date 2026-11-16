@@ -471,17 +471,13 @@ local function killPop(
 	glitch: boolean,
 	caption: string
 )
-	local holder = make(
-		"Frame",
-		{
-			Name = "KillPop",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromOffset(x, y),
-			Size = UDim2.fromOffset(150, 150),
-			BackgroundTransparency = 1,
-		},
-		c
-	)
+	local holder = make("Frame", {
+		Name = "KillPop",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(150, 150),
+		BackgroundTransparency = 1,
+	}, c)
 	local lit = if head then GOLD else ENEMY
 	for i = 1, 5 do
 		make("ImageLabel", {
@@ -497,52 +493,40 @@ local function killPop(
 			ZIndex = 1,
 		}, holder)
 	end
-	local disc = make(
-		"Frame",
-		{
-			Name = "Disc",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(112, 112),
-			BackgroundColor3 = NAVY,
-			BorderSizePixel = 0,
-			ZIndex = 2,
-		},
-		holder
-	)
+	local disc = make("Frame", {
+		Name = "Disc",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(112, 112),
+		BackgroundColor3 = NAVY,
+		BorderSizePixel = 0,
+		ZIndex = 2,
+	}, holder)
 	make("UICorner", { CornerRadius = UDim.new(0.5, 0) }, disc)
 	if glitch then -- the colour split, like the glitched draft title
 		for _, g in { { hex("00E5FF"), -4 }, { hex("FF8BE0"), 4 } } do
-			make(
-				"ImageLabel",
-				{
-					Name = "Split",
-					AnchorPoint = CENTRE,
-					Position = UDim2.new(0.5, g[2], 0.5, 0),
-					Size = UDim2.fromOffset(98, 98),
-					BackgroundTransparency = 1,
-					Image = emblem,
-					ImageColor3 = g[1],
-					ZIndex = 3,
-				},
-				disc
-			)
+			make("ImageLabel", {
+				Name = "Split",
+				AnchorPoint = CENTRE,
+				Position = UDim2.new(0.5, g[2], 0.5, 0),
+				Size = UDim2.fromOffset(98, 98),
+				BackgroundTransparency = 1,
+				Image = emblem,
+				ImageColor3 = g[1],
+				ZIndex = 3,
+			}, disc)
 		end
 	end
-	make(
-		"ImageLabel",
-		{
-			Name = "Emblem",
-			AnchorPoint = CENTRE,
-			Position = UDim2.fromScale(0.5, 0.5),
-			Size = UDim2.fromOffset(98, 98),
-			BackgroundTransparency = 1,
-			Image = emblem,
-			ImageColor3 = if head then GOLD else WHITE,
-			ZIndex = 4,
-		},
-		disc
-	)
+	make("ImageLabel", {
+		Name = "Emblem",
+		AnchorPoint = CENTRE,
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(98, 98),
+		BackgroundTransparency = 1,
+		Image = emblem,
+		ImageColor3 = if head then GOLD else WHITE,
+		ZIndex = 4,
+	}, disc)
 	make("UIScale", { Name = "Pop" }, holder)
 	text(
 		c,

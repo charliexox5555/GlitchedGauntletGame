@@ -27,7 +27,14 @@ local Targets = require(script.Parent.Targets)
 type WeaponConfig = Types.WeaponConfig
 type HitZone = Types.HitZone
 
-export type ValidHit = { model: Model, part: BasePart, rewound: Vector3, pellet: number }
+-- `mult`: the share of the round's damage left after the walls it passed.
+export type ValidHit = {
+	model: Model,
+	part: BasePart,
+	rewound: Vector3,
+	pellet: number,
+	mult: number,
+}
 export type ObjectHit = { part: BasePart, position: Vector3 }
 
 local finiteVector = Validate.vector
@@ -225,7 +232,8 @@ function Hits.validate(
 		end
 		-- ...and nothing solid sits between the shooter and the hit point, or
 		-- between the hit point and the actual body part.
-		if Targets.blocked(exclude, origin, position, config.penetration) then
+		local stopped, mult = Targets.path(exclude, origin, position, config.penetration)
+		if stopped then
 			reject(player, "blocked(exclude, origin, position, config.penetration)")
 			continue
 		end
@@ -239,7 +247,10 @@ function Hits.validate(
 		end
 		seenForModel[pellet] = true
 		pelletUsed[pellet] = true
-		table.insert(valid, { model = model, part = hitPart, rewound = rewound, pellet = pellet })
+		table.insert(
+			valid,
+			{ model = model, part = hitPart, rewound = rewound, pellet = pellet, mult = mult }
+		)
 	end
 	return valid, objectHits
 end
@@ -278,6 +289,7 @@ function Hits.apply(
 			zone = "Body"
 		else
 			amount = DamageMath.compute(config, zone, (hit.rewound - head.Position).Magnitude)
+				* hit.mult
 		end
 		local t = tally[hit.model]
 		if t then

@@ -1,0 +1,181 @@
+{
+  "line": "Misprint",
+  "gun": "Stinger",
+  "version": "v01",
+  "source": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/Stinger_RemasterV2_v05_HandguardFix_v01.blend",
+  "source_sha256": "9110c2f5b4fb74cda0d9830f11382e682c808424a74a316e51544bedfb02d4eb",
+  "blend": "art-source/weapons/Skins/Misprint/Stinger/v01/Stinger_Misprint_v01.blend",
+  "blend_sha256": "37cba09ced8c4696d1d72e527c82bcb18f6a1088fa91e4083049e0a4e4bec056",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Stinger_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "7b0fa0cadb9ab94029857eb7e3254f097a0c077a52ddfa3fcceb3ce6b23eebe4",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "7b0fa0cadb9ab94029857eb7e3254f097a0c077a52ddfa3fcceb3ce6b23eebe4",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 3134,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.289,
+        0.735,
+        0.224,
+        0.383
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Stinger_Bolt",
+    "Stinger_CharmLoop",
+    "Stinger_Neon",
+    "Stinger_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Stinger_Draw",
+    "Stinger_Fire",
+    "Stinger_Inspect",
+    "Stinger_Reload",
+    "Stinger_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "source_repair": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/repair.json",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Stinger/v01/textures/Stinger_Color.png",
+      "sha256": "094a684f33701c7b2d5b3d70c3b3dcbe1aec9f2c587eeaf0c3fff12473249433",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Stinger/v01/textures/Stinger_Normal.png",
+      "sha256": "d7e21412af71af9ff4d4db857291fcb7b5d6de9fb6ff76488b6ddca39b452d2e",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Stinger/v01/textures/Stinger_Roughness.png",
+      "sha256": "3e6f457a854f4d892d616ec40e7bf9fc12e7e1ad7074f3852fd979a9b20eb59d",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Stinger/v01/textures/Stinger_Metalness.png",
+      "sha256": "951617218f38ad2c5a0f266fe15b4e3a1e29592144ac4e2b33b23d3239669da5",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Stinger_Cam_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.8080000281333923
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.47780001163482666
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.13333334028720856,
+    "lens_mm": 16.516582489013672
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Stinger/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Stinger",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

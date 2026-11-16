@@ -1,0 +1,13 @@
+Opus: take over the Vandal rebuild in C:/Users/charl/Documents/GauntletGame/GlitchedGauntletGame/.
+
+Read vault/05 Production/Astra Weapon Rebuild Handoff 2026-11-07.md. It has been fully updated for you; the old filename remains only to preserve existing links. It includes the user's latest authorization, rejected-pass history, required reference images, live Blender MCP method, unsaved-scene protection, lock procedure, original rig/attachment/animation contracts, visual checkpoints and delivery requirements.
+
+Begin directly from vault/02 Art/References/vandal-concept.webp and the written requirements. The user explicitly waived the new-concept-image gate. Preserve that concept's identity and length while increasing thickness and improving the curved magazine/well fit, independent trigger, charging track, supported charm eyelet, clean materials and open ring/front-post ADS visibility.
+
+First verify your Blender MCP connection by inspecting the current scene and obtaining a viewport screenshot. Codex's tool list never exposed Blender MCP, although its local configuration was enabled and Blender was listening on localhost:9876. No model work was done in that session. The user's last screenshot showed an unsaved Blender 5.2.2 LTS session; inspect its actual current state and protect it. Do not assume a live connection or an empty scene.
+
+Use only Blender MCP inside the visible interactive Blender session for all Blender operations. No background/headless/subprocess Blender or separate worker. Take the project Blender lock, preserve the user's existing scene, and create a separate named rebuild scene with independent data. Never modify originals or GunTest.blend. Do not run or lightly retune the rejected Remaster/_Library/remaster.py. No Roblox Studio, game-code edits, uploads/imports or git operations.
+
+Save fresh work under art-source/weapons/RemasterV2/Vandal/. Deliver a saved .blend plus complete hero, side, top/front, actual first-person ADS with a visible background target, and magazine/trigger/charging/charm close-ups. Inspect and correct MCP screenshots at primary-form and refinement checkpoints; a technical audit alone is not visual approval. Report incomplete rig/UV/animation work honestly.
+
+Stop after presenting Vandal for the user's visual review. Do not start Classic or other weapons until the user approves. The eventual roster is future context, not permission to skip this review gate.

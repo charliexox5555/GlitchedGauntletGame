@@ -1,0 +1,111 @@
+{
+  "gun": "Classic",
+  "tris": 2632,
+  "budget": 3000,
+  "sight": "notch",
+  "round": "Pistol",
+  "clips": {
+    "Fire": {
+      "frames": 9,
+      "bones": [
+        "Barrel",
+        "Charm",
+        "Root",
+        "Slide",
+        "Trigger"
+      ],
+      "declared_frames": 9
+    },
+    "Reload": {
+      "frames": 60,
+      "bones": [
+        "Charm",
+        "Mag",
+        "MagRelease",
+        "Root"
+      ],
+      "declared_frames": 60
+    },
+    "ReloadEmpty": {
+      "frames": 70,
+      "bones": [
+        "Barrel",
+        "Charm",
+        "Mag",
+        "MagRelease",
+        "Root",
+        "Slide",
+        "SlideCatch"
+      ],
+      "declared_frames": 70
+    },
+    "Draw": {
+      "frames": 20,
+      "bones": [
+        "Charm",
+        "Root",
+        "Slide"
+      ],
+      "declared_frames": 20
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Charm",
+        "Mag",
+        "MagRelease",
+        "Root",
+        "Slide"
+      ],
+      "declared_frames": 67
+    },
+    "DryFire": {
+      "frames": 8,
+      "bones": [
+        "Trigger"
+      ],
+      "declared_frames": 8
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.2293,
+  "old_bounds": [
+    [
+      -0.2667999863624573,
+      1.000499963760376
+    ],
+    [
+      -0.06480000168085098,
+      0.07829999923706055
+    ],
+    [
+      -0.38271528482437134,
+      0.4814000129699707
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Slide",
+    "Barrel",
+    "Mag",
+    "Trigger",
+    "SlideCatch",
+    "MagRelease",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "Eject",
+    "CharmPoint",
+    "AimPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "stepped slide / scalloped dust cover / two-hand grip"
+}

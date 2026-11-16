@@ -159,3 +159,6 @@ In the **match place**, edit mode (Command Bar or the Studio MCP). Everything is
 - **Readability:** a player against B's slate brick and against a dark roof, first person; raise OutdoorAmbient if they're lost. Greyscale and no-shadow (quality 1–3) views. Where the low light comes from at ClockTime 18.45 (`GetSunDirection` / moon): if it's too dark, ClockTime 18.1 brings the last sun back.
 - **Edges and falls:** stepping off a ledge into an alley dies at y −24 (about half a second, well above the street); parapets and rails stop a walk; a Dash across an 8 alley works.
 - **Budget:** about 828 MeshParts and 177k triangles; 6 lights.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. Flues, stair huts, pit billboards and the lift tower are out of a jump now; the side towers are reached by the gangway and plank ramp as designed. Open for the owner: the Roof AC (7.5) still allows a hard climb onto the Penthouse and Lift-house roofs.

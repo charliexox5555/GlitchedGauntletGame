@@ -43,6 +43,10 @@ def look(o):
 
 def export_mod(mod, out_dir):
 	bpy.ops.wm.open_mainfile(filepath=blend_of(mod))
+	return export_collection(mod, out_dir)
+
+
+def export_collection(mod, out_dir):
 	col = bpy.data.collections[mod]
 	for o in list(col.objects):
 		if o.type == "MESH" and len({p.material_index for p in o.data.polygons}) > 1:

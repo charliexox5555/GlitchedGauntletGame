@@ -1,0 +1,192 @@
+{
+  "line": "Oilwake",
+  "gun": "Shorty",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Shorty/Shorty_RemasterV2_v05.blend",
+  "source_sha256": "dd258687aa58116b7ac05ed15b30993bca225a91e52c5181948e4c16308c4bc2",
+  "blend": "art-source/weapons/Skins/Oilwake/Shorty/v01/Shorty_Oilwake_v01.blend",
+  "blend_sha256": "b244462031ad4ef12f151b3c2bb1e5b9af5da6856cce5c3f4ae67b7b19fe8247",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Shorty_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "7c8547e73ec62b92c2195e1c7a211a89dab71cce2a980d1ca037816ec6c0f2c4",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "7b4a0865b76ffa99cf19b532618386678ddf979c728e614a313d723ace99a452",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 50,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Shorty_Frame": [
+        {
+          "face": 51,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 302,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 2734,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Frame": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.077,
+        0.462,
+        0.187,
+        0.268
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Shorty_CharmLoop",
+    "Shorty_ShellLower",
+    "Shorty_ShellUpper"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Shorty_Draw",
+    "Shorty_Fire",
+    "Shorty_Inspect",
+    "Shorty_Reload",
+    "Shorty_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Superseded by v02 placement revision",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Shorty/v01/textures/Shorty_Color.png",
+      "sha256": "cad95cae597898f72ee0fd0ead0b8cb3d2ca8781b5c3c676f8e399f6a69362b6",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Shorty/v01/textures/Shorty_Normal.png",
+      "sha256": "f90c4d160acfebb85e142eabce092aa93bf23fe74f2e146f4807d8fbf54f1931",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Shorty/v01/textures/Shorty_Roughness.png",
+      "sha256": "a43cbf23516c93783778da0d07438a9330812f31556c744732035e4e2bcf3183",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Shorty/v01/textures/Shorty_Metalness.png",
+      "sha256": "1f89a15468100e2f1b2b2389aea7b5071bca11128df2d3e33206834344ba6ea1",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Shorty_Barrels|Metal",
+        "over": "Shorty_Barrels|Dark",
+        "faces": 2
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Shorty_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -0.8153889775276184
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        2.0452332496643066
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        3.2576584815979004
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Shorty/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Shorty",
+  "replacement": "art-source/weapons/Skins/Oilwake/Shorty/v02/Shorty_Oilwake_v02.blend"
+}

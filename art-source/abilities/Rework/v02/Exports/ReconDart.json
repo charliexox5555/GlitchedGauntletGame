@@ -1,0 +1,190 @@
+{
+ "mod": "ReconDart",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "thrown"
+ },
+ "parts": [
+  {
+   "name": "Body",
+   "material": "Rubber seats",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "222831"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.465,
+    0.0,
+    0.0
+   ],
+   "size": [
+    0.748,
+    0.046,
+    0.038
+   ]
+  },
+  {
+   "name": "Tip",
+   "material": "Slate panels",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "545C6A"
+   },
+   "energy": false,
+   "tris": 60,
+   "center": [
+    -0.0695,
+    -0.0,
+    -0.0
+   ],
+   "size": [
+    0.139,
+    0.07,
+    0.058
+   ]
+  },
+  {
+   "name": "Fin1",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    -0.764,
+    0.0,
+    0.03
+   ],
+   "size": [
+    0.142,
+    0.008,
+    0.04
+   ]
+  },
+  {
+   "name": "Fin2",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    -0.764,
+    -0.02598,
+    -0.015
+   ],
+   "size": [
+    0.142,
+    0.03864,
+    0.02693
+   ]
+  },
+  {
+   "name": "Fin3",
+   "material": "Limb spring steel",
+   "look": {
+    "material": "Metal",
+    "color": "454E5F"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    -0.764,
+    0.02598,
+    -0.015
+   ],
+   "size": [
+    0.142,
+    0.03864,
+    0.02693
+   ]
+  },
+  {
+   "name": "Light_Energy",
+   "material": "Recon indicator",
+   "look": {
+    "material": "Neon",
+    "color": "4AA7DD"
+   },
+   "energy": true,
+   "tris": 20,
+   "center": [
+    -0.0715,
+    -0.03,
+    -0.002
+   ],
+   "size": [
+    0.073,
+    0.008,
+    0.026
+   ]
+  }
+ ],
+ "locators": [
+  {
+   "name": "Handle",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  },
+  {
+   "name": "Trail",
+   "matrix": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     -0.837
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ]
+  }
+ ],
+ "tris": 188
+}

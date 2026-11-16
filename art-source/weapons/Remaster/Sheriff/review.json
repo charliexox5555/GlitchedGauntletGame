@@ -1,0 +1,118 @@
+{
+  "gun": "Sheriff",
+  "tris": 2800,
+  "budget": 3000,
+  "sight": "notch",
+  "round": "HeavyPistol",
+  "clips": {
+    "Fire": {
+      "frames": 14,
+      "bones": [
+        "Charm",
+        "Cylinder",
+        "Hammer",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 14
+    },
+    "Reload": {
+      "frames": 110,
+      "bones": [
+        "Charm",
+        "Crane",
+        "CylinderRelease",
+        "EjectorRod",
+        "Root",
+        "Rounds",
+        "Speedloader"
+      ],
+      "declared_frames": 110
+    },
+    "ReloadEmpty": {
+      "frames": 110,
+      "bones": [
+        "Charm",
+        "Crane",
+        "CylinderRelease",
+        "EjectorRod",
+        "Root",
+        "Rounds",
+        "Speedloader"
+      ],
+      "declared_frames": 110
+    },
+    "Draw": {
+      "frames": 24,
+      "bones": [
+        "Charm",
+        "Cylinder",
+        "Root"
+      ],
+      "declared_frames": 24
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Charm",
+        "Crane",
+        "Cylinder",
+        "CylinderRelease",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.2064,
+  "old_bounds": [
+    [
+      -0.2287999987602234,
+      1.4950000047683716
+    ],
+    [
+      -0.14177662134170532,
+      0.14177662134170532
+    ],
+    [
+      -0.3197999894618988,
+      0.423799991607666
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Crane",
+    "Cylinder",
+    "EjectorRod",
+    "Rounds",
+    "Speedloader",
+    "Hammer",
+    "Trigger",
+    "CylinderRelease",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "CylinderAxis",
+    "Chamber_01",
+    "Chamber_02",
+    "Chamber_03",
+    "Chamber_04",
+    "Chamber_05",
+    "Chamber_06",
+    "EjectorReference",
+    "ReloadInsertPoint",
+    "CharmPoint",
+    "Eject",
+    "AimPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "faceted six-shot cylinder / sculpted barrel spine"
+}

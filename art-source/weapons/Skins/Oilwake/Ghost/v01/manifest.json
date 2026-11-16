@@ -1,0 +1,186 @@
+{
+  "line": "Oilwake",
+  "gun": "Ghost",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Ghost/Ghost_RemasterV2_v05.blend",
+  "source_sha256": "56b6fc58cb0669dc4d86942484be74c6fd8e078321b41270bca9f81d6e8db402",
+  "blend": "art-source/weapons/Skins/Oilwake/Ghost/v01/Ghost_Oilwake_v01.blend",
+  "blend_sha256": "1605de486bb34b57be2e8a34ed3344d6358285fceff37949aeec060689536f85",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Ghost_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "ee6a3afdc0c8672f7ff764288fdd6d21c8a0dd2a2d2e685c5bc5e4cf19cc30da",
+    "geometry_and_material_slots": "11364f1775b0a4963b637eee09bf5cb888ea0942786c7b9dc769bb749eae5003",
+    "uv": "f0d77bb620eeceaa5bd761308b4d353a0d0810e9a65c8ed40fe21107c56e8e0c",
+    "rig_and_nla": "4355bc913738ef8f19ecfd229baa2eb770769834ad57188a0715da5b314d9bea",
+    "actions": "4f1481fce7a15edae85d0a6e19cf41e81e15a8cd74687560b4cb7089d4e3a50b"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "ee6a3afdc0c8672f7ff764288fdd6d21c8a0dd2a2d2e685c5bc5e4cf19cc30da",
+    "geometry_and_material_slots": "11364f1775b0a4963b637eee09bf5cb888ea0942786c7b9dc769bb749eae5003",
+    "uv": "f0d77bb620eeceaa5bd761308b4d353a0d0810e9a65c8ed40fe21107c56e8e0c",
+    "rig_and_nla": "4355bc913738ef8f19ecfd229baa2eb770769834ad57188a0715da5b314d9bea",
+    "actions": "4f1481fce7a15edae85d0a6e19cf41e81e15a8cd74687560b4cb7089d4e3a50b"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 2964,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Slide": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.14,
+        0.995,
+        0.284,
+        0.35
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Ghost_CharmLoop",
+    "Ghost_SlideNeon"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Ghost_Draw",
+    "Ghost_Fire",
+    "Ghost_Inspect",
+    "Ghost_Reload",
+    "Ghost_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Ghost/v01/textures/Ghost_Color.png",
+      "sha256": "f4427119392f22fc6fa6a1556e5b3bcdd8fa5f52a8c695ff5e542941f8acd9a8",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Ghost/v01/textures/Ghost_Normal.png",
+      "sha256": "c511d6d61c26101eea002dcb16e6ecd105053b4f24c56da531f8890224499edb",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Ghost/v01/textures/Ghost_Roughness.png",
+      "sha256": "47d5cdf7b509cd8af973177b9b151275c80e04896d7781341814ca5c9b652758",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Ghost/v01/textures/Ghost_Metalness.png",
+      "sha256": "6f94046ad9acd596cb228fc8ed58d01569bc492062f3d075aac5430c306c6f78",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Ghost_SlideNeon|Neon",
+        "over": "Ghost_Slide|Dark",
+        "faces": 4
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Ghost_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -0.981433629989624
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        2.6925017833709717
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        4.261466979980469
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Ghost/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Ghost",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

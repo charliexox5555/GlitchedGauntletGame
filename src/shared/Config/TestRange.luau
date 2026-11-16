@@ -76,15 +76,19 @@ return table.freeze({
 	}) :: { [DummyKind]: KindInfo },
 
 	DUMMIES = table.freeze({
-		-- Falloff row: one static dummy per marker.
+		-- Falloff row: one static dummy per marker. The dummies carry one gun
+		-- per class (2026-11-12) so the third-person holds can be reviewed on
+		-- the range: rifle, sidearm, sniper, machine gun, SMG, pistol, shotgun,
+		-- and the knife.
 		{ kind = "Idle", x = -36, distance = 10, weapon = "Vandal" },
-		{ kind = "Idle", x = -24, distance = 25, weapon = "Vandal" },
-		{ kind = "Idle", x = -12, distance = 50, weapon = "Vandal" },
-		{ kind = "Idle", x = 0, distance = 100, weapon = "Vandal" },
+		{ kind = "Idle", x = -46, distance = 10, weapon = "Knife", label = "KNIFE" },
+		{ kind = "Idle", x = -24, distance = 25, weapon = "Sheriff" },
+		{ kind = "Idle", x = -12, distance = 50, weapon = "Operator" },
+		{ kind = "Idle", x = 0, distance = 100, weapon = "Odin" },
 		-- Moving targets.
-		{ kind = "Strafe", x = 12, distance = 25, weapon = "Vandal" },
-		{ kind = "StrafeJump", x = 24, distance = 35, weapon = "Vandal" },
-		{ kind = "Crouch", x = 36, distance = 20, weapon = "Vandal" },
+		{ kind = "Strafe", x = 12, distance = 25, weapon = "Spectre" },
+		{ kind = "StrafeJump", x = 24, distance = 35, weapon = "Classic" },
+		{ kind = "Crouch", x = 36, distance = 20, weapon = "Judge" },
 		-- Sniper target on the back platform.
 		{ kind = "LongRange", x = 24, distance = 150, y = 6, weapon = "Vandal" },
 		-- Fires harmless tracers at the firing line (see SHOOTER).
@@ -92,7 +96,7 @@ return table.freeze({
 		-- Cover section: penetration and peeking.
 		{ kind = "Idle", x = -78, distance = 30, weapon = "Vandal", label = "BEHIND THINWALL" },
 		{ kind = "Idle", x = -94, distance = 30, weapon = "Vandal", label = "BEHIND WALL" },
-		{ kind = "Idle", x = -62, distance = 30, weapon = "Vandal", label = "LOW COVER" },
+		{ kind = "Idle", x = -62, distance = 30, weapon = "Bucky", label = "LOW COVER" },
 	}) :: { DummySpot },
 
 	RESPAWN = 2.5, -- seconds after a dummy dies

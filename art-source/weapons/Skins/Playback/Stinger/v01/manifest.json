@@ -1,0 +1,297 @@
+{
+  "line": "Playback",
+  "weapon": "Stinger",
+  "version": "v01",
+  "readiness": "Blender review",
+  "source": {
+    "path": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/Stinger_RemasterV2_v05_HandguardFix_v01.blend",
+    "sha256": "9110c2f5b4fb74cda0d9830f11382e682c808424a74a316e51544bedfb02d4eb"
+  },
+  "model_sheet": "art-source/weapons/ModelSheets/Stinger_model_sheet.png",
+  "style_concept": "vault/02 Art/Skins/Playback/out/Phantom_concept_v02.png",
+  "authoring_endpoint": "Blender MCP 127.0.0.1:9999 and isolated local Blender review processes",
+  "static_pose": "Frame 1, decorative NLA tracks muted.",
+  "inspect": {
+    "fps": 24,
+    "pose_frames": {
+      "1": "Static finish",
+      "12": "Reveal",
+      "24": "Motion",
+      "45": "Settle"
+    },
+    "animated_parts": {
+      "Playback_ReelFront": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            32,
+            2.3911010752322315
+          ],
+          [
+            45,
+            2.3911010752322315
+          ]
+        ],
+        "property": "rotation_euler",
+        "axis": 1,
+        "world_pivot": [
+          0.601610004901886,
+          0.08649999648332596,
+          0.3490000069141388
+        ],
+        "track": "Playback Inspect Reference"
+      },
+      "Playback_ReelRear": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            32,
+            3.4382986264288293
+          ],
+          [
+            45,
+            3.4382986264288293
+          ]
+        ],
+        "property": "rotation_euler",
+        "axis": 1,
+        "world_pivot": [
+          0.47462600469589233,
+          0.08649999648332596,
+          0.3440000116825104
+        ],
+        "track": "Playback Inspect Reference"
+      },
+      "Playback_MeterSweep": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            25,
+            0.032966999999999996
+          ],
+          [
+            33,
+            0
+          ],
+          [
+            45,
+            0
+          ]
+        ],
+        "property": "location",
+        "axis": 0,
+        "world_pivot": [
+          0.37775999307632446,
+          0.08649999648332596,
+          0.36691999435424805
+        ],
+        "track": "Playback Inspect Reference"
+      }
+    },
+    "review_camera_proxy": "Camera angle changes present the turn for the animator."
+  },
+  "maps": {
+    "Color": {
+      "path": "textures/Stinger_Color.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "sha256": "0ee57e74573505c8dc0c10341fe719cd135c2d2345544c6ea9a91eef421d3c99"
+    },
+    "Roughness": {
+      "path": "textures/Stinger_Roughness.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "sha256": "95eb1b35da200eb0ebecd456c72396866c81cb857471cdd786be5b23484d66a5"
+    },
+    "Metalness": {
+      "path": "textures/Stinger_Metalness.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "sha256": "4f7b0d1c76cdbba4ade71cd7d70a47c86a33dc9ca524c875374be967a571d0ed"
+    },
+    "Normal": {
+      "path": "textures/Stinger_Normal.png",
+      "size": [
+        2048,
+        2048
+      ],
+      "sha256": "abb8bd271af2ec2eb7da0d722fea87fd31aac4b0668b1ae5282495e10390cd89"
+    }
+  },
+  "atlas": {
+    "atlas": "Moderate_Atlas",
+    "covered_pixels": 1696177,
+    "padding": 6,
+    "xy_overlap_samples": 0,
+    "collapsed_uv_triangles": 0,
+    "island_repairs": {},
+    "normal_map": "Neutral tangent-space map. Facet shape and weighted normals are authored geometry."
+  },
+  "quality": {
+    "stock_bounds": [
+      [
+        -1.53,
+        -0.092,
+        -0.585
+      ],
+      [
+        1.14,
+        0.11,
+        0.4838
+      ]
+    ],
+    "skin_bounds": [
+      [
+        -1.53,
+        -0.092,
+        -0.585
+      ],
+      [
+        1.14,
+        0.11,
+        0.4838
+      ]
+    ],
+    "preserved_stock_vertex_data": true,
+    "stock_rest_transforms": true,
+    "sight": {
+      "camera": "Stock ADS camera",
+      "checked": 225,
+      "matching": 224,
+      "cosmetic_hits": 1
+    },
+    "scope_matches": true,
+    "frames": 271,
+    "differing_action_frames": [],
+    "cosmetic_to_stock_motion_contacts": {},
+    "rest_stock_geom": {},
+    "rest_variant_geom": {},
+    "stock_coplanar": [],
+    "skin_coplanar": [
+      {
+        "lift": "Playback_CassetteBed|Playback / Recess graphite",
+        "over": "Stinger_Receiver|Playback / Main finish",
+        "faces": 1
+      }
+    ],
+    "packed_maps_match": {
+      "Color": true,
+      "Roughness": true,
+      "Metalness": true,
+      "Normal": true
+    },
+    "inspect_contact_frames": {},
+    "fbx": {
+      "missing": [],
+      "additional": [],
+      "max_pivot_delta": 8.940696716308594e-08,
+      "image_count": 4,
+      "parent_mismatches": [],
+      "triangle_delta": 0,
+      "active_uv_mismatches": [],
+      "geometry_flags": {}
+    }
+  },
+  "silhouette_iou": {
+    "hero": 1.0,
+    "left": 1.0,
+    "right": 1.0,
+    "top": 0.98593,
+    "held": 1.0,
+    "hip": 1.0,
+    "aim": 0.99877
+  },
+  "bounds_max_surface_difference": 0.0,
+  "scope": [
+    "Hands are not animated in the stock Blender review scene. Check live hands, scope/ADS fades, magazine hiding and the final inspect later in Studio.",
+    "Dry-run coplanarity candidates are recorded in verification.json."
+  ],
+  "grade": {
+    "design_finish": "33/35",
+    "fit_geometry": "29/30",
+    "bake_seams": "20/20",
+    "held_aim_motion": "12/15",
+    "total": 94
+  },
+  "files": [
+    {
+      "path": "review/bake.json",
+      "sha256": "efbe1e3ff1b26f9d2c3bccdf5776fb4b7e64ca9f5b46f806c06a67d0bc8e0ef6"
+    },
+    {
+      "path": "review/fbx-culling.jpg",
+      "sha256": "c4f888f61f6cb95aa58c43c8a216ed7f8d28a5ba8cfa133db1fc40b7ab44a336"
+    },
+    {
+      "path": "review/hero-finish.jpg",
+      "sha256": "e403e0fdf04d82b6c378ef38351ab84271208e22cb20de4897404fa3a39b5f7c"
+    },
+    {
+      "path": "review/inspect-poses.jpg",
+      "sha256": "506802f24f08658a1b4bb73e98aa06db1ab0ffca9b68faf12d7d7883a1de8735"
+    },
+    {
+      "path": "review/matched-views.jpg",
+      "sha256": "aaa92d8ee06f1fed53cf04863cc5e809e7b3da996e8d397557599e440424ad31"
+    },
+    {
+      "path": "review/regression.jpg",
+      "sha256": "56482cb53a63dcea7f68004577a26239c5039a70597669f2e5f7a4f4725a9015"
+    },
+    {
+      "path": "review/verification.json",
+      "sha256": "bd8478f0515da185124f76be65483d6b539fed4ea5dd3a6bc038937202532bb0"
+    },
+    {
+      "path": "Stinger_Playback_v01.blend",
+      "sha256": "0e2f7fc002e9162808a912157598337f12b383749faf810e254eb558dfcb4f3c"
+    },
+    {
+      "path": "Stinger_Playback_v01.fbx",
+      "sha256": "d1feac17d0582bf3b568fe131ebc28d02f2e1fa7f7d822f41a61ce596a47e0ed"
+    },
+    {
+      "path": "textures/Stinger_Color.png",
+      "sha256": "0ee57e74573505c8dc0c10341fe719cd135c2d2345544c6ea9a91eef421d3c99"
+    },
+    {
+      "path": "textures/Stinger_Metalness.png",
+      "sha256": "4f7b0d1c76cdbba4ade71cd7d70a47c86a33dc9ca524c875374be967a571d0ed"
+    },
+    {
+      "path": "textures/Stinger_Normal.png",
+      "sha256": "abb8bd271af2ec2eb7da0d722fea87fd31aac4b0668b1ae5282495e10390cd89"
+    },
+    {
+      "path": "textures/Stinger_Roughness.png",
+      "sha256": "95eb1b35da200eb0ebecd456c72396866c81cb857471cdd786be5b23484d66a5"
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "line": "Oilwake",
+  "gun": "Judge",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Judge/Judge_RemasterV2_v05.blend",
+  "source_sha256": "9fda37905acd200af472e5581d55d69e9886189ac1cddb2fc71accf2593f135d",
+  "blend": "art-source/weapons/Skins/Oilwake/Judge/v02/Judge_Oilwake_v02.blend",
+  "blend_sha256": "6baef779390c54d657cc47ba5754a1ad1da98501ec7b2b8267ecc227b2d3ce3c",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Judge_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "33350f32b6b548d2ce781909c981d74ff53b9857342df8d233b7f0360d8d60ee",
+    "geometry_and_material_slots": "635fdfc3e18922d6d888770216ccd55810581459d730b882b2c9e8fef71d44d0",
+    "uv": "5e30e601eee71883f506c8178a99787e87b2a36c4057466c1679f310a52fe425",
+    "rig_and_nla": "59db06d98c504df62ca0dda14c9aecb2c74f7ce71545caefa6b864f1f6debebe",
+    "actions": "113b50da9c38ac7651adae8477d8ba97ec051aab7f7ca1799dde0b278bec06de"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "33350f32b6b548d2ce781909c981d74ff53b9857342df8d233b7f0360d8d60ee",
+    "geometry_and_material_slots": "635fdfc3e18922d6d888770216ccd55810581459d730b882b2c9e8fef71d44d0",
+    "uv": "69c23bfec40a956e14c5de7af7844e4ece0e5feb26254bc83844d78815dc0b0d",
+    "rig_and_nla": "59db06d98c504df62ca0dda14c9aecb2c74f7ce71545caefa6b864f1f6debebe",
+    "actions": "113b50da9c38ac7651adae8477d8ba97ec051aab7f7ca1799dde0b278bec06de"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 13,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Judge_Receiver": [
+        {
+          "face": 540,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 4260,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.062,
+        1.022,
+        0.381,
+        0.586
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Judge_Bolt",
+    "Judge_CharmLoop",
+    "Judge_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Judge_Draw",
+    "Judge_Fire",
+    "Judge_Inspect",
+    "Judge_Reload",
+    "Judge_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Judge/v02/textures/Judge_Color.png",
+      "sha256": "e05237eeda93ae8cca42dbfda62882fe1c52c0aef39b75ae8573e3bcab304a7a",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Judge/v02/textures/Judge_Normal.png",
+      "sha256": "535f751cb162f650dc09d416ca354c1692527354c66c3d6d61b56827df014196",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Judge/v02/textures/Judge_Roughness.png",
+      "sha256": "69d280e526dd7f83382399908c45bce83b95b1c3e0e7cabafad7f736abd7aa65",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Judge/v02/textures/Judge_Metalness.png",
+      "sha256": "76909d42a117e14ed7f59ceef6626aef8a554a1baa78273ea0235a8f4f128a76",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Judge_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -1.7345428466796875
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        3.258877754211426
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        5.439643383026123
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Judge/v02/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Judge",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

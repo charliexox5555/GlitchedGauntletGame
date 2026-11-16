@@ -18,6 +18,7 @@ local Animations = require(ReplicatedStorage.Shared.Config.Animations)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local Net = require(ReplicatedStorage.Shared.Net)
+local PoseSim = require(ReplicatedStorage.Shared.Simulation.Poses)
 local Status = require(ReplicatedStorage.Shared.Mods.Status)
 local TestRange = require(ReplicatedStorage.Shared.Config.TestRange)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -114,7 +115,7 @@ makeDummy = function(index: number)
 	desc.RightLegColor = CLOTH
 	local model = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
 	model.Name = string.format("Dummy_%s_%d", spot.kind, spot.distance)
-	MatchBody.slimArms(model)
+	MatchBody.dress(model)
 	-- Stream the whole dummy at once, like player characters.
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	local animate = model:FindFirstChild("Animate")
@@ -187,8 +188,23 @@ makeDummy = function(index: number)
 		if not animator then
 			return
 		end
-		-- Hold the gun up with the players' pose (Config/Animations).
-		local hold = loadTrack(animator, Animations.POSES.AimLevel, Enum.AnimationPriority.Action)
+		-- Hold the gun up with the players' pose (Config/Animations): the
+		-- two-handed sidearm hold for sidearms, as Simulation/Poses picks it.
+		local held = Weapons.get(spot.weapon)
+		local sidearm = held ~= nil
+			and held.class == "Sidearm"
+			and Animations.POSES.PistolAimLevel ~= ""
+		local melee = held ~= nil
+			and held.fireMode == "Melee"
+			and Animations.COMBAT.KnifeReady ~= ""
+		local hold = loadTrack(
+			animator,
+			if melee
+				then Animations.COMBAT.KnifeReady
+				elseif sidearm then Animations.POSES.PistolAimLevel
+				else Animations.POSES.AimLevel,
+			Enum.AnimationPriority.Action
+		)
 		hold.Looped = true
 		hold:Play(0)
 		d.tracks.Hold = hold
@@ -204,16 +220,13 @@ makeDummy = function(index: number)
 			d.tracks.Crouch = crouch
 			d.tracks.CrouchWalk = walk
 		elseif kind.speed then
-			local run =
-				loadTrack(animator, TestRange.ANIMATIONS.Run, Enum.AnimationPriority.Movement)
-			run.Looped = true
-			run:Play(0, 0.001)
-			d.tracks.Run = run
+			-- The legs are the players' own run set (PoseSim.legs, each step):
+			-- what you see on a strafing dummy is what you'd see on a player.
 			if kind.jumpAfter then
 				d.tracks.Jump =
-					loadTrack(animator, TestRange.ANIMATIONS.Jump, Enum.AnimationPriority.Movement)
+					loadTrack(animator, Animations.ANIMATE.jump, Enum.AnimationPriority.Movement)
 				local fall =
-					loadTrack(animator, TestRange.ANIMATIONS.Fall, Enum.AnimationPriority.Movement)
+					loadTrack(animator, Animations.ANIMATE.fall, Enum.AnimationPriority.Movement)
 				fall.Looped = true
 				d.tracks.Fall = fall
 				humanoid.StateChanged:Connect(function(_, new)
@@ -295,7 +308,6 @@ local function stepMover(d: Dummy, now: number, dt: number)
 	local v = d.root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)
 	local ground = v.Magnitude
 	local stride = math.clamp(ground / speed, 0, 1)
-	local run = d.tracks.Run
 	if frozen then
 		local saved = paused[d] or {}
 		paused[d] = saved
@@ -314,9 +326,8 @@ local function stepMover(d: Dummy, now: number, dt: number)
 			track:AdjustSpeed(was)
 		end
 	end
-	if run then
-		run:AdjustWeight(math.max(stride, 0.001), 0.15)
-		run:AdjustSpeed(math.max(ground / 16, 0.1))
+	if not kind.crouch then
+		PoseSim.legs(d.model)
 	end
 	local walk, crouch = d.tracks.CrouchWalk, d.tracks.Crouch
 	if walk and crouch then

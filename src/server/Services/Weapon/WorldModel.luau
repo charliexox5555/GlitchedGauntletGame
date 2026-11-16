@@ -10,10 +10,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Animations = require(Shared.Config.Animations)
 local Weapons = require(Shared.Config.Weapons)
+local SkinPreview = require(Shared.SkinPreview)
 
 local WorldModel = {}
 
-local GRIP_C0 = CFrame.new(0, -0.15, -0.05) * CFrame.Angles(-math.pi / 2, 0, 0)
+local GRIP_C0 = Animations.GUN_WORLD_GRIP
 
 local WeaponsFolder: Instance? = nil
 
@@ -38,6 +39,10 @@ local function holdModel(
 	gripC0: CFrame?
 ): Model?
 	local template = WorldModel.template(templateId)
+	if SkinPreview.allowed() then
+		template = SkinPreview.geometry(templateId, Players:GetPlayerFromCharacter(character))
+			or template
+	end
 	local hand = character:FindFirstChild(handName)
 		or character:FindFirstChild(if handName == "RightHand" then "Right Arm" else "Left Arm")
 	if not template or not hand or not hand:IsA("BasePart") then
@@ -87,8 +92,11 @@ function WorldModel.attach(character: Model, id: string?): Model?
 	local rightId = if config and config.models then config.models.right else id
 	-- Melee: the blade sticks forward out of the fist (Config/Animations
 	-- KNIFE_WORLD_GRIP), not along the forearm like a gun's grip.
+	-- Sidearms sit on the fist barrel-along-the-forearm (arms out), long guns
+	-- on its end (Config/Animations GUN_WORLD_GRIP / _SIDEARM).
 	local gripC0 = if config and config.fireMode == "Melee"
 		then Animations.KNIFE_WORLD_GRIP
+		elseif config and config.class == "Sidearm" then Animations.GUN_WORLD_GRIP_SIDEARM
 		else nil
 	local model = holdModel(character, rightId, "RightHand", "WorldWeapon", gripC0)
 	if model then

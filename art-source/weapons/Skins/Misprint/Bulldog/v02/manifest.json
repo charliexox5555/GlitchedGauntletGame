@@ -1,0 +1,249 @@
+{
+  "line": "Misprint",
+  "gun": "Bulldog",
+  "version": "v02",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "source": "art-source/weapons/Skins/Shared Sources/Bulldog/BoltFix_v01/Bulldog_RemasterV2_v05_BoltFix_v01.blend",
+  "source_sha256": "27fa91d739c178801c01d3ebeb1b19886281902e0bc5221bcc8e25e32355b763",
+  "blend": "art-source/weapons/Skins/Misprint/Bulldog/v02/Bulldog_Misprint_v02.blend",
+  "blend_sha256": "b0329b36dbe074c64f2e64b5f9e9927708a6d13d9ad7004dbfc681f77a4e2cb4",
+  "geometry_repair": "art-source/weapons/Skins/Shared Sources/Bulldog/BoltFix_v01/repair.json",
+  "stock_export_atlas_changes": {
+    "Bulldog_Barrel": {
+      "faces": [
+        70,
+        78,
+        84,
+        85,
+        86,
+        191,
+        207,
+        208,
+        209,
+        210,
+        211,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226
+      ],
+      "uv_corners": 51,
+      "scale": 1.0
+    },
+    "Bulldog_Stock": {
+      "faces": [
+        168,
+        169,
+        173,
+        174,
+        178,
+        179,
+        183,
+        184,
+        188,
+        189,
+        193,
+        194,
+        480,
+        481,
+        485,
+        486,
+        490,
+        491,
+        495,
+        496,
+        500,
+        501,
+        505,
+        506
+      ],
+      "uv_corners": 72,
+      "scale": 0.8
+    }
+  },
+  "uv_audit_at_2048": {
+    "audit_pixels_per_axis": 2048,
+    "used_pixels": 2166374,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "packed_external_maps": {
+    "resolution": [
+      2048,
+      2048
+    ],
+    "padding_pixels": 6,
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Bulldog/v02/textures/Bulldog_Color.png",
+      "sha256": "019592018a7c7ab4f2046eb523f2f4cdc351fea6265bb1f513235aa5e5341bb7",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Bulldog/v02/textures/Bulldog_Normal.png",
+      "sha256": "777740018dea62c7f9abc21f3c59a49d5d0d557f57c82eb0ba2fc4627ce77c06",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Bulldog/v02/textures/Bulldog_Roughness.png",
+      "sha256": "f866ea4c079e650551fbb73d0e5afb1976762805459e080b26146a9679013817",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Bulldog/v02/textures/Bulldog_Metalness.png",
+      "sha256": "5340bacb40e554d799f168371c18a27c035b407321867432f42c3c6bc90f6b93",
+      "color_space": "Non-Color"
+    }
+  },
+  "active_shader_outputs": {
+    "Body": [
+      "PV_Out"
+    ],
+    "Panel": [
+      "PV_Out"
+    ],
+    "Dark": [
+      "PV_Out"
+    ],
+    "Metal": [
+      "PV_Out"
+    ],
+    "Grip": [
+      "PV_Out"
+    ],
+    "Accent": [
+      "PV_Out"
+    ],
+    "Neon": [
+      "Shader_Out"
+    ],
+    "Brass": [
+      "Shader_Out"
+    ]
+  },
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0.04
+    ]
+  },
+  "print_hex": [
+    "2447B9",
+    "E5533E",
+    "874077",
+    "252849"
+  ],
+  "protected_parts": [
+    "Bolt",
+    "CharmLoop",
+    "Sights"
+  ],
+  "shape_audit_after_reopen": {
+    "triangles": 3640,
+    "coplanar_pairs": [],
+    "zero_area": {},
+    "crossed": {}
+  },
+  "fingerprints_after_reopen": {
+    "hierarchy_pivots_attachments": "2a0b1dd9845fd818cb98d454ccb96d125d0f6fbef5cc026611e954cdc0b5666a",
+    "geometry_and_material_slots": "fc23be5c75bc32e969dd2aa57e3a6eff0c69325b285fe8337ef9918571cea32a",
+    "uv": "d50465856e6387841a7063c047466c5ccc5a8733d34e5b4c2ac6ee53929820f9",
+    "rig_and_nla": "5828309d84d82ca6095c7bb1a6341a3aeada3afb5665fa7bbf5b23c230dd9564",
+    "actions": "96ff4d7faa0fb03874117164659a41013a13ea0077519f459af90b5f014ef92d"
+  },
+  "pose_frame_hash_matches_stock": {
+    "Bulldog_Draw": {
+      "frame_count": 31,
+      "pose_matrices_sha256": "19a1e5c6345cdc05cbc010fa7e9215aece7b0d4502feb270d1347fac72d36824"
+    },
+    "Bulldog_Fire": {
+      "frame_count": 10,
+      "pose_matrices_sha256": "699048cff4148d30f89e489fb6164908f611ee83782078ef9019ef6f828ae4bd"
+    },
+    "Bulldog_Inspect": {
+      "frame_count": 67,
+      "pose_matrices_sha256": "dad05b123f4172cf4b9991902c635b2acf9f74853b785884a7eca0b95bf40d26"
+    },
+    "Bulldog_Reload": {
+      "frame_count": 66,
+      "pose_matrices_sha256": "df567afb6baecb6edb45eebc0436b69576923a5006f526faa1617ffb32b0f2dd"
+    },
+    "Bulldog_ReloadEmpty": {
+      "frame_count": 97,
+      "pose_matrices_sha256": "4caca22734a59dfaaaeb5526a7a990e9fe5a007e8ab48c8ae3bf4aa7c386e947"
+    }
+  },
+  "stock_aim_camera_grid_matches": {
+    "camera": "Bulldog_Cam_ADS",
+    "matrix": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.7042666673660278
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.5838000178337097
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "fov": 1.186823844909668,
+    "clip_start": 0.13333334028720856,
+    "central_grid_first_hits": {
+      "Bulldog_Sights": 262,
+      "clear": 321,
+      "Bulldog_Receiver": 42
+    }
+  },
+  "engine": "Blender 5.2.2 LTS via Blender MCP 127.0.0.1:9999",
+  "review_state": "Superseded by v03 after bolt contact at Fire frame 3",
+  "replacement": "../v03/Bulldog_Misprint_v03.blend"
+}

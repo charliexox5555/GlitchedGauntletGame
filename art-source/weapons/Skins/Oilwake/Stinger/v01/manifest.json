@@ -1,0 +1,182 @@
+{
+  "line": "Oilwake",
+  "gun": "Stinger",
+  "version": "v01",
+  "source": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/Stinger_RemasterV2_v05_HandguardFix_v01.blend",
+  "source_sha256": "9110c2f5b4fb74cda0d9830f11382e682c808424a74a316e51544bedfb02d4eb",
+  "blend": "art-source/weapons/Skins/Oilwake/Stinger/v01/Stinger_Oilwake_v01.blend",
+  "blend_sha256": "ae6fe1f9d5f45a0d5f36830f698a4087ca0152c893ed9aa23ab6f87a2cba20d2",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Stinger_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "7b0fa0cadb9ab94029857eb7e3254f097a0c077a52ddfa3fcceb3ce6b23eebe4",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "7b0fa0cadb9ab94029857eb7e3254f097a0c077a52ddfa3fcceb3ce6b23eebe4",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 3134,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.31,
+        0.724,
+        0.254,
+        0.315
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Stinger_Bolt",
+    "Stinger_CharmLoop",
+    "Stinger_Neon",
+    "Stinger_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Stinger_Draw",
+    "Stinger_Fire",
+    "Stinger_Inspect",
+    "Stinger_Reload",
+    "Stinger_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "source_repair": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/repair.json",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Stinger/v01/textures/Stinger_Color.png",
+      "sha256": "238a4e7bcc2e7b6f76845ed522a59b094dbdacfe7fb8577e90b2555986cfa6af",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Stinger/v01/textures/Stinger_Normal.png",
+      "sha256": "e05175e76f0ea109489fb5178aafd759abc8be0549dbd5fe6913f9fed8b015a9",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Stinger/v01/textures/Stinger_Roughness.png",
+      "sha256": "436b862e2680880a5b9a2b2215573cdfad221a5c20328495b0f957e68df468ba",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Stinger/v01/textures/Stinger_Metalness.png",
+      "sha256": "adf273cde141528bf54fdbed8789ab80f2731bdfb18a12abd128b459478b557e",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Stinger_Cam_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.8080000281333923
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.47780001163482666
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.13333334028720856,
+    "lens_mm": 16.516582489013672
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Stinger/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Stinger",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

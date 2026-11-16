@@ -1,0 +1,33 @@
+{
+  "gun": "Marshal",
+  "passed": true,
+  "errors": [],
+  "tris": 3656,
+  "budget": 5000,
+  "size_ratios_xyz": [
+    1.001351817483046,
+    2.279999860922501,
+    1.0523810134113394
+  ],
+  "bounds": [
+    [
+      -1.2468000650405884,
+      3.197700023651123
+    ],
+    [
+      -0.16899999976158142,
+      0.17299999296665192
+    ],
+    [
+      -0.33284837007522583,
+      0.4796000123023987
+    ]
+  ],
+  "skin_texel_density": 128.0,
+  "zero_area_uv_triangles": 0,
+  "uv_overlaps": [],
+  "mesh_parts": 49,
+  "attachment_count": 11,
+  "actions": 8,
+  "eye_clearance": 0.18
+}

@@ -136,7 +136,7 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 		return
 	end
 	model.Name = "DevDummy_" .. label
-	MatchBody.slimArms(model)
+	MatchBody.dress(model)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	local animate = model:FindFirstChild("Animate")
 	if animate then

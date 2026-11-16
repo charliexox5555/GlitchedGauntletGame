@@ -1,0 +1,96 @@
+{
+  "gun": "Operator",
+  "tris": 4468,
+  "budget": 6000,
+  "sight": "scope25",
+  "round": "Operator",
+  "clips": {
+    "Fire": {
+      "frames": 35,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 34
+    },
+    "Reload": {
+      "frames": 66,
+      "bones": [
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 66
+    },
+    "ReloadEmpty": {
+      "frames": 97,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 97
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Bolt",
+        "Charm",
+        "Mag",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.17,
+  "old_bounds": [
+    [
+      -1.3194999694824219,
+      3.5209999084472656
+    ],
+    [
+      -0.1956000179052353,
+      0.13880227506160736
+    ],
+    [
+      -0.254594624042511,
+      0.7875000238418579
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Bolt",
+    "Mag",
+    "Trigger",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "ScopeAxis",
+    "Eject",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "premium 2.5x scope / heavy fluted barrel / adjustable stock"
+}

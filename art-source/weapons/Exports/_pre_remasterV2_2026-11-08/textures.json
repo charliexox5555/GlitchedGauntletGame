@@ -1,0 +1,230 @@
+{
+ "Vandal": {
+  "ColorMap": 93685886787117,
+  "NormalMap": 72795939972061,
+  "RoughnessMap": 117945566120641,
+  "MetalnessMap": 121862122626226,
+  "decals": {
+   "Color": 120017216843759,
+   "Normal": 78219314730039,
+   "Roughness": 72045149618865,
+   "Metalness": 78679644074346
+  }
+ },
+ "Phantom": {
+  "ColorMap": 118699841640822,
+  "NormalMap": 101088202256765,
+  "RoughnessMap": 103119042566228,
+  "MetalnessMap": 76758387055770,
+  "decals": {
+   "Color": 112205945588742,
+   "Normal": 98838111076031,
+   "Roughness": 109477249093666,
+   "Metalness": 125150925979474
+  }
+ },
+ "Shorty": {
+  "ColorMap": 101150051119606,
+  "NormalMap": 101766745737465,
+  "RoughnessMap": 115637760333986,
+  "MetalnessMap": 123825942480331,
+  "decals": {
+   "Color": 71350224645341,
+   "Normal": 118563187733032,
+   "Roughness": 102956952520829,
+   "Metalness": 135829311975688
+  }
+ },
+ "Ghost": {
+  "ColorMap": 80809447868952,
+  "NormalMap": 74440337594607,
+  "RoughnessMap": 97203996102190,
+  "MetalnessMap": 112267814769103,
+  "decals": {
+   "Color": 137027317040622,
+   "Normal": 127308460653695,
+   "Roughness": 126511191448379,
+   "Metalness": 79731574267504
+  }
+ },
+ "Judge": {
+  "ColorMap": 135300830455560,
+  "NormalMap": 92356917681262,
+  "RoughnessMap": 99634380282190,
+  "MetalnessMap": 76704436416946,
+  "decals": {
+   "Color": 76502011395030,
+   "Normal": 103296840423059,
+   "Roughness": 100587759898595,
+   "Metalness": 105707961820081
+  }
+ },
+ "Stinger": {
+  "ColorMap": 91793021570509,
+  "NormalMap": 96114065819264,
+  "RoughnessMap": 92649622391621,
+  "MetalnessMap": 136575226007934,
+  "decals": {
+   "Color": 95178862854981,
+   "Normal": 92271171741203,
+   "Roughness": 80351961657225,
+   "Metalness": 77979575211622
+  }
+ },
+ "Spectre": {
+  "ColorMap": 105261643055557,
+  "NormalMap": 88084480449995,
+  "RoughnessMap": 75243294123881,
+  "MetalnessMap": 91413469901165,
+  "decals": {
+   "Color": 92530506858368,
+   "Normal": 77415452927548,
+   "Roughness": 132926071271313,
+   "Metalness": 105709693028599
+  }
+ },
+ "Bucky": {
+  "ColorMap": 120525810742920,
+  "NormalMap": 102395581921126,
+  "RoughnessMap": 92134503619207,
+  "MetalnessMap": 101907669330206,
+  "decals": {
+   "Color": 96810005228113,
+   "Normal": 105200151381266,
+   "Roughness": 126073163677164,
+   "Metalness": 100542870909332
+  }
+ },
+ "Sheriff": {
+  "ColorMap": 120289932270415,
+  "NormalMap": 132626035185839,
+  "RoughnessMap": 74465877093979,
+  "MetalnessMap": 101711196100656,
+  "decals": {
+   "Color": 75972239310513,
+   "Normal": 84645984888098,
+   "Roughness": 74171663687397,
+   "Metalness": 71137237717786
+  }
+ },
+ "Bulldog": {
+  "ColorMap": 81686267290109,
+  "NormalMap": 91349281778727,
+  "RoughnessMap": 105134151457586,
+  "MetalnessMap": 115882065631611,
+  "decals": {
+   "Color": 94875947731877,
+   "Normal": 105794818223998,
+   "Roughness": 97005507954608,
+   "Metalness": 123548629157196
+  }
+ },
+ "Guardian": {
+  "ColorMap": 132866331114109,
+  "NormalMap": 94034846494618,
+  "RoughnessMap": 136021474751668,
+  "MetalnessMap": 79456650393924,
+  "decals": {
+   "Color": 120581483738157,
+   "Normal": 89800846016328,
+   "Roughness": 130766114793998,
+   "Metalness": 94425356964035
+  }
+ },
+ "Knife": {
+  "ColorMap": 120151853232519,
+  "NormalMap": 102921562618603,
+  "RoughnessMap": 78807192924669,
+  "MetalnessMap": 123304120012537,
+  "decals": {
+   "Color": 104737464625127,
+   "Normal": 128041504016811,
+   "Roughness": 112103893124657,
+   "Metalness": 111654814977353
+  }
+ },
+ "Marshal": {
+  "ColorMap": 88356961005560,
+  "NormalMap": 129069837648270,
+  "RoughnessMap": 132140479890917,
+  "MetalnessMap": 121535921316478,
+  "decals": {
+   "Color": 106123656736772,
+   "Normal": 98584621612112,
+   "Roughness": 122891218078200,
+   "Metalness": 109133908613924
+  }
+ },
+ "Outlaw": {
+  "ColorMap": 132654454512147,
+  "NormalMap": 94059934164781,
+  "RoughnessMap": 130076613559272,
+  "MetalnessMap": 85371013753184,
+  "decals": {
+   "Color": 121985300286386,
+   "Normal": 123453405917967,
+   "Roughness": 87501142420778,
+   "Metalness": 114344517217917
+  }
+ },
+ "Operator": {
+  "ColorMap": 118033924455352,
+  "NormalMap": 119160153109858,
+  "RoughnessMap": 84775088583074,
+  "MetalnessMap": 107627688697622,
+  "decals": {
+   "Color": 127842876192745,
+   "Normal": 92442332539359,
+   "Roughness": 91245978808592,
+   "Metalness": 85135550944674
+  }
+ },
+ "Ares": {
+  "ColorMap": 85984873550965,
+  "NormalMap": 119010730302986,
+  "RoughnessMap": 73917174820325,
+  "MetalnessMap": 132095397647684,
+  "decals": {
+   "Color": 116002820348010,
+   "Normal": 76450709339044,
+   "Roughness": 115330182992998,
+   "Metalness": 75551342606017
+  }
+ },
+ "Odin": {
+  "ColorMap": 97996490216659,
+  "NormalMap": 72189121443214,
+  "RoughnessMap": 126238645421796,
+  "MetalnessMap": 79111187063068,
+  "decals": {
+   "Color": 114722266708219,
+   "Normal": 107976060202224,
+   "Roughness": 99001769030468,
+   "Metalness": 139654985393967
+  }
+ },
+ "Akimbo": {
+  "ColorMap": 109264341204566,
+  "NormalMap": 119262902222669,
+  "RoughnessMap": 80019491857015,
+  "MetalnessMap": 89107814299261,
+  "decals": {
+   "Color": 109410022810181,
+   "Normal": 128089755441475,
+   "Roughness": 111952921092852,
+   "Metalness": 133427789287174
+  }
+ },
+ "Classic": {
+  "ColorMap": 89317394366745,
+  "NormalMap": 132947100570195,
+  "RoughnessMap": 100087493781785,
+  "MetalnessMap": 107373657437502,
+  "decals": {
+   "Color": 137368616933892,
+   "Normal": 93896466176234,
+   "Roughness": 120637671752777,
+   "Metalness": 94573705678773
+  }
+ }
+}

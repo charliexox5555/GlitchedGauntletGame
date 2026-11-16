@@ -1,0 +1,178 @@
+{
+  "line": "Misprint",
+  "gun": "Sheriff",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Sheriff/Sheriff_RemasterV2_v05.blend",
+  "source_sha256": "bf79df28719fa3cf51d862c255156769816f208b1ead54537be91b2e20b67d59",
+  "blend": "art-source/weapons/Skins/Misprint/Sheriff/v01/Sheriff_Misprint_v01.blend",
+  "blend_sha256": "fc3e938293c881384dd56ccbcb08a4e90c6d10db082c1411ccd411077cb2323f",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Sheriff_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 3066,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Frame": [
+          "Body",
+          "Panel"
+        ],
+        "Barrel": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.616,
+        1.386,
+        0.145,
+        0.344
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Sheriff_CharmLoop",
+    "Sheriff_Crane",
+    "Sheriff_Cylinder",
+    "Sheriff_EjectorRod",
+    "Sheriff_Rounds",
+    "Sheriff_Sights",
+    "Sheriff_Speedloader"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Sheriff_Draw",
+    "Sheriff_Fire",
+    "Sheriff_Inspect",
+    "Sheriff_Reload",
+    "Sheriff_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Superseded by v02 placement revision",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Sheriff/v01/textures/Sheriff_Color.png",
+      "sha256": "d9c5c53a74c544227818e8fa62c30eb898e307940ae23862433175d6c6b7d97f",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Sheriff/v01/textures/Sheriff_Normal.png",
+      "sha256": "303b70ffb90c57549fc709dd6233069d5271c9b5920b68926b33239fa1539a8d",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Sheriff/v01/textures/Sheriff_Roughness.png",
+      "sha256": "6bef0cbfd07147639f7630cb6c32219ccd9f12620438793eb9f92300e3cda7c3",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Sheriff/v01/textures/Sheriff_Metalness.png",
+      "sha256": "13af4ee1e769e142090a51e0b1cd8634d2b267845696674f470bc0730bbfb383",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Sheriff_FP_ADS",
+    "matrix_world": [
+      [
+        -4.371138828673793e-08,
+        -4.371138828673793e-08,
+        -1.0,
+        -0.1218181923031807
+      ],
+      [
+        -1.0,
+        1.910685676922942e-15,
+        4.371138828673793e-08,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        -4.371138828673793e-08,
+        0.4180000126361847
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.09090909361839294,
+    "lens_mm": 17.79073143005371
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Sheriff/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Sheriff",
+  "replacement": "art-source/weapons/Skins/Misprint/Sheriff/v02/Sheriff_Misprint_v02.blend"
+}

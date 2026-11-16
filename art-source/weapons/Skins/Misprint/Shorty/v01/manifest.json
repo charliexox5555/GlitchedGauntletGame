@@ -1,0 +1,200 @@
+{
+  "line": "Misprint",
+  "gun": "Shorty",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Shorty/Shorty_RemasterV2_v05.blend",
+  "source_sha256": "dd258687aa58116b7ac05ed15b30993bca225a91e52c5181948e4c16308c4bc2",
+  "blend": "art-source/weapons/Skins/Misprint/Shorty/v01/Shorty_Misprint_v01.blend",
+  "blend_sha256": "9f4cea8f1fa58aacea77f31698ee587725d905a73754f8c81455240ea96b85ce",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Shorty_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "7c8547e73ec62b92c2195e1c7a211a89dab71cce2a980d1ca037816ec6c0f2c4",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "7b4a0865b76ffa99cf19b532618386678ddf979c728e614a313d723ace99a452",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 50,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Shorty_Frame": [
+        {
+          "face": 51,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 302,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "triangles": 2734,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Frame": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.054,
+        0.52,
+        0.116,
+        0.315
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Shorty_CharmLoop",
+    "Shorty_ShellLower",
+    "Shorty_ShellUpper"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Shorty_Draw",
+    "Shorty_Fire",
+    "Shorty_Inspect",
+    "Shorty_Reload",
+    "Shorty_ReloadEmpty"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Shorty/v01/textures/Shorty_Color.png",
+      "sha256": "fdb386c1631e759ddfbf313342c1ff52eee9d20da6b4a98a170ad7bfc1078c0f",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Shorty/v01/textures/Shorty_Normal.png",
+      "sha256": "1c30844825c086d5195e5cdca3b2f9a548f729a0e313f7875406464499aadea3",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Shorty/v01/textures/Shorty_Roughness.png",
+      "sha256": "7c37181915b56ba4e62dc93029276bebebfa1428efd1c1f92b0a412acabb872c",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Shorty/v01/textures/Shorty_Metalness.png",
+      "sha256": "28f9ec5097d9006b122285c09eaae644d5a47c6e3182f4b67dacd97136771630",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Shorty_Barrels|Metal",
+        "over": "Shorty_Barrels|Dark",
+        "faces": 2
+      }
+    ]
+  },
+  "aim_camera": {
+    "name": "Shorty_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -0.8153889775276184
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        2.0452332496643066
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        3.2576584815979004
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Shorty/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Shorty",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

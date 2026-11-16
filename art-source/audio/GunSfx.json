@@ -1,0 +1,1242 @@
+{
+ "ClassicFire": [
+  {
+   "start": 0.12,
+   "length": 0.75
+  },
+  {
+   "start": 0.99,
+   "length": 0.75
+  },
+  {
+   "start": 1.86,
+   "length": 0.75
+  }
+ ],
+ "ClassicFireFar": [
+  {
+   "start": 2.73,
+   "length": 1.35
+  },
+  {
+   "start": 4.2,
+   "length": 1.35
+  }
+ ],
+ "GhostFire": [
+  {
+   "start": 5.67,
+   "length": 0.5
+  },
+  {
+   "start": 6.29,
+   "length": 0.5
+  },
+  {
+   "start": 6.91,
+   "length": 0.5
+  }
+ ],
+ "GhostFireFar": [
+  {
+   "start": 7.53,
+   "length": 1.0
+  },
+  {
+   "start": 8.65,
+   "length": 1.0
+  }
+ ],
+ "SheriffFire": [
+  {
+   "start": 9.77,
+   "length": 1.0
+  },
+  {
+   "start": 10.89,
+   "length": 1.0
+  },
+  {
+   "start": 12.01,
+   "length": 1.0
+  }
+ ],
+ "SheriffFireFar": [
+  {
+   "start": 13.13,
+   "length": 1.7
+  },
+  {
+   "start": 14.95,
+   "length": 1.7
+  }
+ ],
+ "ShortyFire": [
+  {
+   "start": 16.77,
+   "length": 0.8
+  },
+  {
+   "start": 17.69,
+   "length": 0.8
+  },
+  {
+   "start": 18.61,
+   "length": 0.8
+  }
+ ],
+ "ShortyFireFar": [
+  {
+   "start": 19.53,
+   "length": 1.42
+  },
+  {
+   "start": 21.07,
+   "length": 1.42
+  }
+ ],
+ "StingerFire": [
+  {
+   "start": 22.61,
+   "length": 0.142
+  },
+  {
+   "start": 22.873,
+   "length": 0.142
+  },
+  {
+   "start": 23.136,
+   "length": 0.142
+  },
+  {
+   "start": 23.399,
+   "length": 0.142
+  },
+  {
+   "start": 23.662,
+   "length": 0.142
+  },
+  {
+   "start": 23.925,
+   "length": 0.142
+  }
+ ],
+ "StingerFireFar": [
+  {
+   "start": 24.188,
+   "length": 1.4
+  }
+ ],
+ "StingerFireFirst": [
+  {
+   "start": 25.708,
+   "length": 0.142
+  }
+ ],
+ "StingerTail": [
+  {
+   "start": 25.971,
+   "length": 0.988
+  },
+  {
+   "start": 27.079,
+   "length": 0.988
+  },
+  {
+   "start": 28.187,
+   "length": 0.988
+  }
+ ],
+ "SpectreFire": [
+  {
+   "start": 29.295,
+   "length": 0.142
+  },
+  {
+   "start": 29.558,
+   "length": 0.142
+  },
+  {
+   "start": 29.821,
+   "length": 0.142
+  },
+  {
+   "start": 30.084,
+   "length": 0.142
+  },
+  {
+   "start": 30.347,
+   "length": 0.142
+  },
+  {
+   "start": 30.61,
+   "length": 0.142
+  }
+ ],
+ "SpectreFireFar": [
+  {
+   "start": 30.873,
+   "length": 1.4
+  }
+ ],
+ "SpectreFireFirst": [
+  {
+   "start": 32.393,
+   "length": 0.142
+  }
+ ],
+ "SpectreTail": [
+  {
+   "start": 32.656,
+   "length": 0.988
+  },
+  {
+   "start": 33.764,
+   "length": 0.988
+  },
+  {
+   "start": 34.872,
+   "length": 0.988
+  }
+ ],
+ "BuckyFire": [
+  {
+   "start": 35.98,
+   "length": 1.1
+  },
+  {
+   "start": 37.2,
+   "length": 1.1
+  },
+  {
+   "start": 38.42,
+   "length": 1.1
+  }
+ ],
+ "BuckyFireFar": [
+  {
+   "start": 39.64,
+   "length": 1.84
+  },
+  {
+   "start": 41.6,
+   "length": 1.84
+  }
+ ],
+ "JudgeFire": [
+  {
+   "start": 43.56,
+   "length": 0.459
+  },
+  {
+   "start": 44.139,
+   "length": 0.459
+  },
+  {
+   "start": 44.718,
+   "length": 0.459
+  }
+ ],
+ "JudgeFireFar": [
+  {
+   "start": 45.297,
+   "length": 1.4
+  },
+  {
+   "start": 46.817,
+   "length": 1.4
+  }
+ ],
+ "JudgeTail": [
+  {
+   "start": 48.337,
+   "length": 0.542
+  },
+  {
+   "start": 48.999,
+   "length": 0.542
+  },
+  {
+   "start": 49.661,
+   "length": 0.542
+  }
+ ],
+ "VandalFire": [
+  {
+   "start": 50.323,
+   "length": 0.184
+  },
+  {
+   "start": 50.628,
+   "length": 0.184
+  },
+  {
+   "start": 50.933,
+   "length": 0.184
+  },
+  {
+   "start": 51.238,
+   "length": 0.184
+  },
+  {
+   "start": 51.543,
+   "length": 0.184
+  },
+  {
+   "start": 51.848,
+   "length": 0.184
+  }
+ ],
+ "VandalFireFar": [
+  {
+   "start": 52.153,
+   "length": 1.4
+  }
+ ],
+ "VandalFireFirst": [
+  {
+   "start": 53.673,
+   "length": 0.184
+  }
+ ],
+ "VandalTail": [
+  {
+   "start": 53.978,
+   "length": 0.946
+  },
+  {
+   "start": 55.044,
+   "length": 0.946
+  },
+  {
+   "start": 56.11,
+   "length": 0.946
+  }
+ ],
+ "PhantomFire": [
+  {
+   "start": 57.176,
+   "length": 0.167
+  },
+  {
+   "start": 57.463,
+   "length": 0.167
+  },
+  {
+   "start": 57.75,
+   "length": 0.167
+  },
+  {
+   "start": 58.037,
+   "length": 0.167
+  },
+  {
+   "start": 58.324,
+   "length": 0.167
+  },
+  {
+   "start": 58.611,
+   "length": 0.167
+  }
+ ],
+ "PhantomFireFar": [
+  {
+   "start": 58.898,
+   "length": 1.4
+  }
+ ],
+ "PhantomFireFirst": [
+  {
+   "start": 60.418,
+   "length": 0.167
+  }
+ ],
+ "PhantomTail": [
+  {
+   "start": 60.705,
+   "length": 0.942
+  },
+  {
+   "start": 61.767,
+   "length": 0.942
+  },
+  {
+   "start": 62.829,
+   "length": 0.942
+  }
+ ],
+ "BulldogFire": [
+  {
+   "start": 63.891,
+   "length": 0.195
+  },
+  {
+   "start": 64.206,
+   "length": 0.195
+  },
+  {
+   "start": 64.521,
+   "length": 0.195
+  },
+  {
+   "start": 64.836,
+   "length": 0.195
+  },
+  {
+   "start": 65.151,
+   "length": 0.195
+  },
+  {
+   "start": 65.466,
+   "length": 0.195
+  }
+ ],
+ "BulldogFireFar": [
+  {
+   "start": 65.781,
+   "length": 1.4
+  }
+ ],
+ "BulldogFireFirst": [
+  {
+   "start": 67.301,
+   "length": 0.195
+  }
+ ],
+ "BulldogTail": [
+  {
+   "start": 67.616,
+   "length": 0.873
+  },
+  {
+   "start": 68.609,
+   "length": 0.873
+  },
+  {
+   "start": 69.602,
+   "length": 0.873
+  }
+ ],
+ "GuardianFire": [
+  {
+   "start": 70.595,
+   "length": 1.1
+  },
+  {
+   "start": 71.815,
+   "length": 1.1
+  },
+  {
+   "start": 73.035,
+   "length": 1.1
+  }
+ ],
+ "GuardianFireFar": [
+  {
+   "start": 74.255,
+   "length": 1.84
+  },
+  {
+   "start": 76.215,
+   "length": 1.84
+  }
+ ],
+ "MarshalFire": [
+  {
+   "start": 78.175,
+   "length": 1.1
+  },
+  {
+   "start": 79.395,
+   "length": 1.1
+  },
+  {
+   "start": 80.615,
+   "length": 1.1
+  }
+ ],
+ "MarshalFireFar": [
+  {
+   "start": 81.835,
+   "length": 1.84
+  },
+  {
+   "start": 83.795,
+   "length": 1.84
+  }
+ ],
+ "OutlawFire": [
+  {
+   "start": 85.755,
+   "length": 1.6
+  },
+  {
+   "start": 87.475,
+   "length": 1.6
+  },
+  {
+   "start": 89.195,
+   "length": 1.6
+  }
+ ],
+ "OutlawFireFar": [
+  {
+   "start": 90.915,
+   "length": 1.9
+  },
+  {
+   "start": 92.935,
+   "length": 1.9
+  }
+ ],
+ "OperatorFire": [
+  {
+   "start": 94.955,
+   "length": 1.8
+  },
+  {
+   "start": 96.875,
+   "length": 1.8
+  },
+  {
+   "start": 98.795,
+   "length": 1.8
+  }
+ ],
+ "OperatorFireFar": [
+  {
+   "start": 100.715,
+   "length": 1.9
+  },
+  {
+   "start": 102.735,
+   "length": 1.9
+  }
+ ],
+ "AresFire": [
+  {
+   "start": 104.755,
+   "length": 0.145
+  },
+  {
+   "start": 105.021,
+   "length": 0.145
+  },
+  {
+   "start": 105.287,
+   "length": 0.145
+  },
+  {
+   "start": 105.553,
+   "length": 0.145
+  },
+  {
+   "start": 105.819,
+   "length": 0.145
+  },
+  {
+   "start": 106.085,
+   "length": 0.145
+  }
+ ],
+ "AresFireFar": [
+  {
+   "start": 106.351,
+   "length": 1.4
+  }
+ ],
+ "AresFireFirst": [
+  {
+   "start": 107.871,
+   "length": 0.145
+  }
+ ],
+ "AresTail": [
+  {
+   "start": 108.137,
+   "length": 0.942
+  },
+  {
+   "start": 109.2,
+   "length": 0.942
+  },
+  {
+   "start": 110.263,
+   "length": 0.942
+  }
+ ],
+ "OdinFire": [
+  {
+   "start": 111.326,
+   "length": 0.126
+  },
+  {
+   "start": 111.572,
+   "length": 0.126
+  },
+  {
+   "start": 111.818,
+   "length": 0.126
+  },
+  {
+   "start": 112.064,
+   "length": 0.126
+  },
+  {
+   "start": 112.31,
+   "length": 0.126
+  },
+  {
+   "start": 112.556,
+   "length": 0.126
+  }
+ ],
+ "OdinFireFar": [
+  {
+   "start": 112.802,
+   "length": 1.4
+  }
+ ],
+ "OdinFireFirst": [
+  {
+   "start": 114.322,
+   "length": 0.126
+  }
+ ],
+ "OdinTail": [
+  {
+   "start": 114.568,
+   "length": 1.004
+  },
+  {
+   "start": 115.692,
+   "length": 1.004
+  },
+  {
+   "start": 116.816,
+   "length": 1.004
+  }
+ ],
+ "SpectreV2Fire": [
+  {
+   "start": 117.94,
+   "length": 0.142
+  },
+  {
+   "start": 118.203,
+   "length": 0.142
+  },
+  {
+   "start": 118.466,
+   "length": 0.142
+  }
+ ],
+ "SpectreV2FireFar": [
+  {
+   "start": 118.729,
+   "length": 1.0
+  }
+ ],
+ "SpectreV2Tail": [
+  {
+   "start": 119.849,
+   "length": 0.788
+  },
+  {
+   "start": 120.757,
+   "length": 0.788
+  },
+  {
+   "start": 121.665,
+   "length": 0.788
+  }
+ ],
+ "R44Eject": [
+  {
+   "start": 122.573,
+   "length": 1.153
+  }
+ ],
+ "R44EjectFloor": [
+  {
+   "start": 123.847,
+   "length": 0.65
+  }
+ ],
+ "ProPistolMagOut": [
+  {
+   "start": 124.617,
+   "length": 0.36
+  },
+  {
+   "start": 125.097,
+   "length": 0.33
+  }
+ ],
+ "ProPistolMagIn": [
+  {
+   "start": 125.547,
+   "length": 0.28
+  },
+  {
+   "start": 125.948,
+   "length": 0.188
+  }
+ ],
+ "ProPistolSlide": [
+  {
+   "start": 126.256,
+   "length": 0.265
+  },
+  {
+   "start": 126.641,
+   "length": 0.124
+  }
+ ],
+ "ProPistolSlideSlow": [
+  {
+   "start": 126.885,
+   "length": 0.356
+  },
+  {
+   "start": 127.361,
+   "length": 0.306
+  }
+ ],
+ "ProPistolDry": [
+  {
+   "start": 127.787,
+   "length": 0.218
+  },
+  {
+   "start": 128.125,
+   "length": 0.13
+  }
+ ],
+ "ProPistolSafety": [
+  {
+   "start": 128.375,
+   "length": 0.087
+  },
+  {
+   "start": 128.583,
+   "length": 0.111
+  }
+ ],
+ "ProRevolverCock": [
+  {
+   "start": 128.815,
+   "length": 0.28
+  },
+  {
+   "start": 129.215,
+   "length": 0.267
+  }
+ ],
+ "ProRevolverOpen": [
+  {
+   "start": 129.602,
+   "length": 0.595
+  },
+  {
+   "start": 130.318,
+   "length": 0.565
+  },
+  {
+   "start": 131.003,
+   "length": 0.564
+  }
+ ],
+ "ProRevolverLoad": [
+  {
+   "start": 131.687,
+   "length": 0.319
+  },
+  {
+   "start": 132.126,
+   "length": 0.36
+  }
+ ],
+ "ProRevolverClose": [
+  {
+   "start": 132.606,
+   "length": 0.222
+  },
+  {
+   "start": 132.948,
+   "length": 0.135
+  }
+ ],
+ "ProRevolverCloseHeavy": [
+  {
+   "start": 133.203,
+   "length": 0.348
+  }
+ ],
+ "ProRevolverSpin": [
+  {
+   "start": 133.672,
+   "length": 1.276
+  }
+ ],
+ "ProRevolverDry": [
+  {
+   "start": 135.069,
+   "length": 0.087
+  },
+  {
+   "start": 135.277,
+   "length": 0.101
+  }
+ ],
+ "ProShotgunPump": [
+  {
+   "start": 135.499,
+   "length": 0.609
+  },
+  {
+   "start": 136.229,
+   "length": 0.597
+  }
+ ],
+ "ProShotgunPumpLight": [
+  {
+   "start": 136.946,
+   "length": 0.481
+  }
+ ],
+ "ProShellIn": [
+  {
+   "start": 137.548,
+   "length": 0.523
+  },
+  {
+   "start": 138.192,
+   "length": 0.455
+  },
+  {
+   "start": 138.767,
+   "length": 0.507
+  }
+ ],
+ "ProShellRattle": [
+  {
+   "start": 139.394,
+   "length": 0.555
+  }
+ ],
+ "ProShotgunPickup": [
+  {
+   "start": 140.069,
+   "length": 0.625
+  }
+ ],
+ "ProShotgunDry": [
+  {
+   "start": 140.814,
+   "length": 0.158
+  },
+  {
+   "start": 141.092,
+   "length": 0.137
+  }
+ ],
+ "ProSmgMagOut": [
+  {
+   "start": 141.349,
+   "length": 0.306
+  },
+  {
+   "start": 141.775,
+   "length": 0.478
+  }
+ ],
+ "ProSmgMagIn": [
+  {
+   "start": 142.373,
+   "length": 0.323
+  },
+  {
+   "start": 142.816,
+   "length": 0.387
+  }
+ ],
+ "ProSmgCock": [
+  {
+   "start": 143.323,
+   "length": 0.443
+  },
+  {
+   "start": 143.886,
+   "length": 0.367
+  },
+  {
+   "start": 144.373,
+   "length": 0.412
+  }
+ ],
+ "ProSmgSafety": [
+  {
+   "start": 144.905,
+   "length": 0.129
+  }
+ ],
+ "ProSmgDry": [
+  {
+   "start": 145.154,
+   "length": 0.21
+  },
+  {
+   "start": 145.484,
+   "length": 0.214
+  }
+ ],
+ "ProArMagOut": [
+  {
+   "start": 145.818,
+   "length": 0.423
+  },
+  {
+   "start": 146.362,
+   "length": 0.328
+  }
+ ],
+ "ProArMagIn": [
+  {
+   "start": 146.811,
+   "length": 0.471
+  },
+  {
+   "start": 147.403,
+   "length": 0.566
+  }
+ ],
+ "ProArCock": [
+  {
+   "start": 148.089,
+   "length": 0.61
+  },
+  {
+   "start": 148.819,
+   "length": 0.612
+  },
+  {
+   "start": 149.552,
+   "length": 0.621
+  }
+ ],
+ "ProArCockHeavy": [
+  {
+   "start": 150.293,
+   "length": 0.592
+  },
+  {
+   "start": 151.006,
+   "length": 0.656
+  }
+ ],
+ "ProArSafety": [
+  {
+   "start": 151.783,
+   "length": 0.083
+  },
+  {
+   "start": 151.987,
+   "length": 0.056
+  }
+ ],
+ "ProArDry": [
+  {
+   "start": 152.163,
+   "length": 0.129
+  },
+  {
+   "start": 152.412,
+   "length": 0.076
+  }
+ ],
+ "ProRifleMagOut": [
+  {
+   "start": 152.609,
+   "length": 0.417
+  },
+  {
+   "start": 153.146,
+   "length": 0.45
+  },
+  {
+   "start": 153.717,
+   "length": 0.469
+  }
+ ],
+ "ProRifleMagIn": [
+  {
+   "start": 154.306,
+   "length": 0.312
+  },
+  {
+   "start": 154.739,
+   "length": 0.33
+  },
+  {
+   "start": 155.189,
+   "length": 0.352
+  }
+ ],
+ "ProRifleLever": [
+  {
+   "start": 155.661,
+   "length": 0.55
+  }
+ ],
+ "ProRifleRound": [
+  {
+   "start": 156.331,
+   "length": 0.268
+  },
+  {
+   "start": 156.719,
+   "length": 0.227
+  },
+  {
+   "start": 157.067,
+   "length": 0.273
+  }
+ ],
+ "ProRifleRoundCheck": [
+  {
+   "start": 157.46,
+   "length": 0.32
+  }
+ ],
+ "ProRifleSafety": [
+  {
+   "start": 157.9,
+   "length": 0.176
+  }
+ ],
+ "ProRifleDry": [
+  {
+   "start": 158.196,
+   "length": 0.087
+  },
+  {
+   "start": 158.404,
+   "length": 0.117
+  },
+  {
+   "start": 158.642,
+   "length": 0.113
+  }
+ ],
+ "ProRifleDryHeavy": [
+  {
+   "start": 158.875,
+   "length": 0.143
+  }
+ ],
+ "ProSniperBolt": [
+  {
+   "start": 159.139,
+   "length": 0.82
+  }
+ ],
+ "ProSniperBoltShort": [
+  {
+   "start": 160.079,
+   "length": 0.45
+  }
+ ],
+ "ProSniperScope": [
+  {
+   "start": 160.649,
+   "length": 0.332
+  },
+  {
+   "start": 161.101,
+   "length": 0.328
+  }
+ ],
+ "ProSniperDry": [
+  {
+   "start": 161.55,
+   "length": 0.36
+  }
+ ],
+ "ProMgBoxOut": [
+  {
+   "start": 162.03,
+   "length": 0.293
+  }
+ ],
+ "ProMgBoxIn": [
+  {
+   "start": 162.443,
+   "length": 0.85
+  }
+ ],
+ "ProMgCoverOpen": [
+  {
+   "start": 163.413,
+   "length": 0.157
+  }
+ ],
+ "ProMgBeltOut": [
+  {
+   "start": 163.691,
+   "length": 0.233
+  }
+ ],
+ "ProMgBeltIn": [
+  {
+   "start": 164.045,
+   "length": 0.28
+  }
+ ],
+ "ProMgCoverClose": [
+  {
+   "start": 164.445,
+   "length": 0.45
+  }
+ ],
+ "ProGearRattle": [
+  {
+   "start": 165.015,
+   "length": 0.65
+  }
+ ],
+ "ProDrawPistol": [
+  {
+   "start": 165.785,
+   "length": 0.596
+  }
+ ],
+ "ProDrawRifle": [
+  {
+   "start": 166.501,
+   "length": 0.591
+  }
+ ],
+ "ProDrawShotgun": [
+  {
+   "start": 167.213,
+   "length": 0.596
+  }
+ ],
+ "ProDrawHeavy": [
+  {
+   "start": 167.929,
+   "length": 0.599
+  }
+ ],
+ "HitBody": [
+  {
+   "start": 168.648,
+   "length": 0.221
+  },
+  {
+   "start": 168.99,
+   "length": 0.221
+  },
+  {
+   "start": 169.332,
+   "length": 0.221
+  }
+ ],
+ "HitBodyV2": [
+  {
+   "start": 169.674,
+   "length": 0.22
+  },
+  {
+   "start": 170.015,
+   "length": 0.22
+  },
+  {
+   "start": 170.356,
+   "length": 0.22
+  }
+ ],
+ "HitHead": [
+  {
+   "start": 170.697,
+   "length": 0.26
+  },
+  {
+   "start": 171.078,
+   "length": 0.238
+  },
+  {
+   "start": 171.436,
+   "length": 0.294
+  }
+ ],
+ "KillTone": [
+  {
+   "start": 171.851,
+   "length": 0.806
+  }
+ ],
+ "KillHeadTone": [
+  {
+   "start": 172.778,
+   "length": 0.826
+  }
+ ],
+ "ProKnifeSwing": [
+  {
+   "start": 173.725,
+   "length": 0.3
+  },
+  {
+   "start": 174.146,
+   "length": 0.27
+  },
+  {
+   "start": 174.536,
+   "length": 0.235
+  },
+  {
+   "start": 174.892,
+   "length": 0.201
+  }
+ ],
+ "ProKnifeSwingHeavy": [
+  {
+   "start": 175.214,
+   "length": 0.197
+  },
+  {
+   "start": 175.531,
+   "length": 0.232
+  },
+  {
+   "start": 175.884,
+   "length": 0.184
+  },
+  {
+   "start": 176.189,
+   "length": 0.241
+  }
+ ],
+ "ProKnifeHitBody": [
+  {
+   "start": 176.551,
+   "length": 0.321
+  },
+  {
+   "start": 176.992,
+   "length": 0.34
+  },
+  {
+   "start": 177.452,
+   "length": 0.32
+  }
+ ],
+ "ProSlideStart": [
+  {
+   "start": 177.893,
+   "length": 0.5
+  }
+ ]
+}

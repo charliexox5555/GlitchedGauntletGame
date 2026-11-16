@@ -1,0 +1,186 @@
+{
+  "line": "Oilwake",
+  "gun": "Bucky",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Bucky/Bucky_RemasterV2_v05.blend",
+  "source_sha256": "bf698c43e0777f411ebf736c39cc7fc1838aaac7c49b1bc781107ed83d580878",
+  "blend": "art-source/weapons/Skins/Oilwake/Bucky/v01/Bucky_Oilwake_v01.blend",
+  "blend_sha256": "b41b3d4cdb6187290d80a25c808447ada3a2dd67edc920485492196014e7028c",
+  "concept": "vault/02 Art/Skins/Oilwake/out/Phantom_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Bucky_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "6026984325b23cff9c94a1d8aa40bbb946677fecb25f34ed5ef8f15166b5eb70",
+    "geometry_and_material_slots": "c1df4398a3e12f0fca9e655bc119111a87c21e20d32315e5baed08a5d4e6b620",
+    "uv": "815b211a3a1554a22ccfd652850cb81b60305b4eabe6addf153f59b70666b1c9",
+    "rig_and_nla": "4614367657dbb6719c358cf098589c2146a642a7b01a8ec6b660f7fbae3e9701",
+    "actions": "f81544c5397c6324f7d2393975f18000e79af27afa5d935e51ffd933a151047c"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "6026984325b23cff9c94a1d8aa40bbb946677fecb25f34ed5ef8f15166b5eb70",
+    "geometry_and_material_slots": "c1df4398a3e12f0fca9e655bc119111a87c21e20d32315e5baed08a5d4e6b620",
+    "uv": "815b211a3a1554a22ccfd652850cb81b60305b4eabe6addf153f59b70666b1c9",
+    "rig_and_nla": "4614367657dbb6719c358cf098589c2146a642a7b01a8ec6b660f7fbae3e9701",
+    "actions": "f81544c5397c6324f7d2393975f18000e79af27afa5d935e51ffd933a151047c"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 3030,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        0.37,
+        0.887,
+        0.252,
+        0.357
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Bucky_Bolt",
+    "Bucky_CharmLoop",
+    "Bucky_Shell",
+    "Bucky_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "142633",
+      0.36,
+      0.59
+    ],
+    "Panel": [
+      "255B57",
+      0.34,
+      0.49
+    ],
+    "Dark": [
+      "121A22",
+      0.68,
+      0.1
+    ],
+    "Grip": [
+      "232A31",
+      0.78,
+      0.03
+    ],
+    "Metal": [
+      "506875",
+      0.39,
+      0.82
+    ],
+    "Accent": [
+      "A77538",
+      0.31,
+      0.76
+    ],
+    "Neon": [
+      "68CBB8",
+      0.24,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Bucky_Draw",
+    "Bucky_Fire",
+    "Bucky_Inspect",
+    "Bucky_Reload",
+    "Bucky_ReloadEmpty",
+    "Bucky_ReloadEnd",
+    "Bucky_ReloadInsert",
+    "Bucky_ReloadStart"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "oilwake_preview": "Baked PBR base with localized Blender Layer Weight coating; 4 maps contain static petrol/amber fallback.",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Oilwake/Bucky/v01/textures/Bucky_Color.png",
+      "sha256": "8228d2de92add244e980668eb0b91c8795e3b53b20cb8ee0e8296ac53abe46a5",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Oilwake/Bucky/v01/textures/Bucky_Normal.png",
+      "sha256": "e2ecefaede25d7943e247fd3789cec2adcd39ad7aee837a4dd91604e04fa74b6",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Oilwake/Bucky/v01/textures/Bucky_Roughness.png",
+      "sha256": "9161ad6dea978c83f52527026b1297e5db0d40df25f600569d58e25f06f81d25",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Oilwake/Bucky/v01/textures/Bucky_Metalness.png",
+      "sha256": "b2189f3162862ed989f137bbb7bfff32c224da15ad19bf0f3d7dd06d751025db",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Bucky_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -1.720168948173523
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        3.7909271717071533
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        6.120889186859131
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Oilwake/Bucky/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Bucky",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

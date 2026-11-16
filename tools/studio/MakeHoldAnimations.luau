@@ -75,7 +75,7 @@ local rig =
 -- (Set here too: Studio caches required modules, and an older MatchBody
 -- without this line let the Humanoid re-widen the arms on parenting.)
 rig:FindFirstChildOfClass("Humanoid").AutomaticScalingEnabled = false
-MatchBody.slimArms(rig)
+MatchBody.dress(rig)
 rig.Name = "GGHoldRig"
 for _, d in rig:GetDescendants() do
 	if d:IsA("BasePart") then
@@ -83,7 +83,7 @@ for _, d in rig:GetDescendants() do
 	end
 end
 rig.Parent = workspace
-MatchBody.slimArms(rig)
+MatchBody.dress(rig)
 
 local joints: { [string]: AnimationConstraint } = {}
 for _, c in rig:GetDescendants() do

@@ -211,7 +211,9 @@ local function template(team: number): Model?
 		warn("[BotService] couldn't build a bot rig:", model)
 		return nil
 	end
-	MatchBody.slimArms(model)
+	-- Not dressed here: a clone would keep links to the template's limb
+	-- meshes (which live outside the model), so each spawn dresses its own.
+	MatchBody.preload()
 	templates[team] = model
 	return model
 end
@@ -321,6 +323,9 @@ local function spawnBot(bot: Bot, at: CFrame)
 	aligns[bot] = align
 
 	model.Parent = dummyFolder()
+	-- The block body, this bot's own (its skinned limbs live in
+	-- Workspace.GGBodyLimbs and go with its parts).
+	MatchBody.dress(model)
 	pcall(function()
 		root:SetNetworkOwner(nil) -- the server simulates bots
 	end)

@@ -1,0 +1,230 @@
+{
+  "line": "Breakwater",
+  "weapon": "Vandal",
+  "version": "v01",
+  "readiness": "Blender review",
+  "source": {
+    "path": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
+    "sha256": "c306f1916fe6270ec6fb80b325881f6c5d3cf176bf06759017e0e7e09c8f298e"
+  },
+  "model_sheet": "art-source/weapons/ModelSheets/Vandal_model_sheet.png",
+  "style_concept": "vault/02 Art/Skins/Breakwater/out/Bucky_concept_v02.png",
+  "authoring_endpoint": "Blender MCP 127.0.0.1:9999 and isolated local Blender review processes",
+  "static_pose": "Frame 1, decorative NLA tracks muted.",
+  "inspect": {
+    "fps": 24,
+    "pose_frames": {
+      "1": "Static finish",
+      "12": "Reveal",
+      "24": "Motion",
+      "45": "Settle"
+    },
+    "animated_parts": {
+      "Breakwater_AmberLatch": {
+        "keys": [
+          [
+            1,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            24,
+            -1.05
+          ],
+          [
+            36,
+            0
+          ],
+          [
+            45,
+            0
+          ]
+        ],
+        "property": "rotation_euler",
+        "axis": 0,
+        "world_pivot": [
+          0.2669999897480011,
+          0.0949999988079071,
+          0.22421999275684357
+        ],
+        "track": "Breakwater Inspect Reference"
+      }
+    },
+    "review_camera_proxy": "Camera angle changes present the turn for the animator."
+  },
+  "maps": {
+    "Color": {
+      "path": "textures/Vandal_Color.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "91d17621094e53ea20ff157240561ffbba6d7030306f7d0ab9eff0b76190a5f0"
+    },
+    "Roughness": {
+      "path": "textures/Vandal_Roughness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "2e1a29570da77b2b55726e4d19dd05d89e4095d81b371ad73aa77330fe5754ab"
+    },
+    "Metalness": {
+      "path": "textures/Vandal_Metalness.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "54a23e23e90e314b64ce834f567e0833e6ee648604f30ba0ab62052d1a3c6657"
+    },
+    "Normal": {
+      "path": "textures/Vandal_Normal.png",
+      "size": [
+        1536,
+        1536
+      ],
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    }
+  },
+  "atlas": {
+    "atlas": "Moderate_Atlas",
+    "covered_pixels": 720544,
+    "padding": 6,
+    "xy_overlap_samples": 0,
+    "collapsed_uv_triangles": 0,
+    "island_repairs": {},
+    "normal_map": "Neutral tangent-space map. Facet shape and weighted normals are authored geometry."
+  },
+  "quality": {
+    "stock_bounds": [
+      [
+        -1.252,
+        -0.104,
+        -0.404057
+      ],
+      [
+        2.647,
+        0.128,
+        0.634864
+      ]
+    ],
+    "skin_bounds": [
+      [
+        -1.252,
+        -0.104,
+        -0.404057
+      ],
+      [
+        2.647,
+        0.128,
+        0.634864
+      ]
+    ],
+    "preserved_stock_vertex_data": true,
+    "stock_rest_transforms": true,
+    "sight": {
+      "camera": "Stock ADS camera",
+      "checked": 225,
+      "matching": 225,
+      "cosmetic_hits": 0
+    },
+    "scope_matches": true,
+    "frames": 309,
+    "differing_action_frames": [],
+    "cosmetic_to_stock_motion_contacts": {},
+    "rest_stock_geom": {},
+    "rest_variant_geom": {},
+    "stock_coplanar": [],
+    "skin_coplanar": [],
+    "packed_maps_match": {
+      "Color": true,
+      "Roughness": true,
+      "Metalness": true,
+      "Normal": true
+    },
+    "inspect_contact_frames": {},
+    "fbx": {
+      "missing": [],
+      "additional": [],
+      "max_pivot_delta": 6.664001874625056e-08,
+      "image_count": 4,
+      "parent_mismatches": [],
+      "triangle_delta": 0,
+      "active_uv_mismatches": [],
+      "geometry_flags": {}
+    }
+  },
+  "silhouette_iou": {
+    "hero": 0.99502,
+    "left": 0.99713,
+    "right": 0.99713,
+    "top": 0.98518,
+    "held": 0.99366,
+    "hip": 0.99928,
+    "aim": 1.0
+  },
+  "bounds_max_surface_difference": 0.0,
+  "scope": [
+    "Hands are not animated in the stock Blender review scene. Check live hands, scope/ADS fades, magazine hiding and the final inspect later in Studio."
+  ],
+  "grade": {
+    "design_finish": "33/35",
+    "fit_geometry": "30/30",
+    "bake_seams": "20/20",
+    "held_aim_motion": "13/15",
+    "total": 96
+  },
+  "files": [
+    {
+      "path": "review/bake.json",
+      "sha256": "6f7d5d4f3d348765dae8d65152e65007f95fa075350ac87b078699d7b84aee48"
+    },
+    {
+      "path": "review/fbx-culling.jpg",
+      "sha256": "4ac0f1579730331ee4bf2b46e76ac0d1f6c92aeeee05def20a75f614d75dca28"
+    },
+    {
+      "path": "review/hero-finish.jpg",
+      "sha256": "2daa005e9e0b3ab78068325d908f6923c62a0af6842f811b79af4cde75f4d114"
+    },
+    {
+      "path": "review/inspect-poses.jpg",
+      "sha256": "52a570bdc2ebcfff4d6422bf47ddb6a41315ba7135ca51bb017c389d587c6ee8"
+    },
+    {
+      "path": "review/matched-views.jpg",
+      "sha256": "79e19ec7477950efc6f09cb1d1bdbe6a122ac70b44d926636cbff92e91701764"
+    },
+    {
+      "path": "review/verification.json",
+      "sha256": "c5a68481392ff90613498c93714545eea0a71424b6b8b5ae88fcb7eba4da1062"
+    },
+    {
+      "path": "textures/Vandal_Color.png",
+      "sha256": "91d17621094e53ea20ff157240561ffbba6d7030306f7d0ab9eff0b76190a5f0"
+    },
+    {
+      "path": "textures/Vandal_Metalness.png",
+      "sha256": "54a23e23e90e314b64ce834f567e0833e6ee648604f30ba0ab62052d1a3c6657"
+    },
+    {
+      "path": "textures/Vandal_Normal.png",
+      "sha256": "813f05d52bcea2d89eced80b076805819f5b80cbb1723b82006507f46b6cdbd3"
+    },
+    {
+      "path": "textures/Vandal_Roughness.png",
+      "sha256": "2e1a29570da77b2b55726e4d19dd05d89e4095d81b371ad73aa77330fe5754ab"
+    },
+    {
+      "path": "Vandal_Breakwater_v01.blend",
+      "sha256": "70ba732ff20cb79c1524d4d8f4a6c25b5e2a749c8ca61111fd31fa1ceeb98503"
+    },
+    {
+      "path": "Vandal_Breakwater_v01.fbx",
+      "sha256": "b25f367143b1d8573b65df649200deecf5ef4006ff22c70fe16d3b6c079d4be9"
+    }
+  ]
+}

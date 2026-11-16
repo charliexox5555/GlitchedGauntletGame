@@ -1120,7 +1120,11 @@ for i, s in PLACES do
 		end
 	elseif piece == "BlastDoor" then
 		local p = m:FindFirstChild("BlastDoor_Sign")
-		if p and p:IsA("BasePart") and sign(p, right, "GALLERY " .. (if z > 0 then "B" else "A")) then
+		if
+			p
+			and p:IsA("BasePart")
+			and sign(p, right, "GALLERY " .. (if z > 0 then "B" else "A"))
+		then
 			signs += 1
 		end
 	end

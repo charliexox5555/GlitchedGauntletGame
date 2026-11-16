@@ -1,0 +1,185 @@
+{
+  "line": "Misprint",
+  "gun": "Bucky",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Bucky/Bucky_RemasterV2_v05.blend",
+  "source_sha256": "bf698c43e0777f411ebf736c39cc7fc1838aaac7c49b1bc781107ed83d580878",
+  "blend": "art-source/weapons/Skins/Misprint/Bucky/v01/Bucky_Misprint_v01.blend",
+  "blend_sha256": "ce8561e78a0d5141ebf739490178c771865ada1b13e3d810faa2680615e1ea21",
+  "concept": "vault/02 Art/Skins/Misprint/out/Bulldog_concept_v01.png",
+  "model_sheet": "art-source/weapons/ModelSheets/Bucky_model_sheet.png",
+  "source_fingerprints": {
+    "hierarchy_pivots_attachments": "6026984325b23cff9c94a1d8aa40bbb946677fecb25f34ed5ef8f15166b5eb70",
+    "geometry_and_material_slots": "c1df4398a3e12f0fca9e655bc119111a87c21e20d32315e5baed08a5d4e6b620",
+    "uv": "815b211a3a1554a22ccfd652850cb81b60305b4eabe6addf153f59b70666b1c9",
+    "rig_and_nla": "4614367657dbb6719c358cf098589c2146a642a7b01a8ec6b660f7fbae3e9701",
+    "actions": "f81544c5397c6324f7d2393975f18000e79af27afa5d935e51ffd933a151047c"
+  },
+  "baked_fingerprints": {
+    "hierarchy_pivots_attachments": "6026984325b23cff9c94a1d8aa40bbb946677fecb25f34ed5ef8f15166b5eb70",
+    "geometry_and_material_slots": "c1df4398a3e12f0fca9e655bc119111a87c21e20d32315e5baed08a5d4e6b620",
+    "uv": "815b211a3a1554a22ccfd652850cb81b60305b4eabe6addf153f59b70666b1c9",
+    "rig_and_nla": "4614367657dbb6719c358cf098589c2146a642a7b01a8ec6b660f7fbae3e9701",
+    "actions": "f81544c5397c6324f7d2393975f18000e79af27afa5d935e51ffd933a151047c"
+  },
+  "uv_audit": {
+    "before_overlap_texels": 0,
+    "after_overlap_texels": 0,
+    "parts": {}
+  },
+  "triangles": 3030,
+  "finish_hosts": [
+    {
+      "parts": {
+        "Receiver": [
+          "Body",
+          "Panel"
+        ]
+      },
+      "bounds_xz": [
+        -0.029,
+        0.938,
+        0.173,
+        0.405
+      ]
+    }
+  ],
+  "protected_parts": [
+    "Bucky_Bolt",
+    "Bucky_CharmLoop",
+    "Bucky_Shell",
+    "Bucky_Sights"
+  ],
+  "palette_srgb_roughness_metalness": {
+    "Body": [
+      "ECE3D2",
+      0.31,
+      0.04
+    ],
+    "Panel": [
+      "D7CABA",
+      0.35,
+      0.04
+    ],
+    "Dark": [
+      "232632",
+      0.69,
+      0.04
+    ],
+    "Grip": [
+      "2B303B",
+      0.78,
+      0.04
+    ],
+    "Metal": [
+      "8996A8",
+      0.41,
+      0.68
+    ],
+    "Accent": [
+      "2447B9",
+      0.35,
+      0.68
+    ],
+    "Neon": [
+      "8198F7",
+      0.25,
+      0
+    ]
+  },
+  "animation_actions": [
+    "Bucky_Draw",
+    "Bucky_Fire",
+    "Bucky_Inspect",
+    "Bucky_Reload",
+    "Bucky_ReloadEmpty",
+    "Bucky_ReloadEnd",
+    "Bucky_ReloadInsert",
+    "Bucky_ReloadStart"
+  ],
+  "map_resolution": 1536,
+  "padding_pixels": 6,
+  "review_state": "Blender review passed",
+  "maps": {
+    "Color": {
+      "path": "art-source/weapons/Skins/Misprint/Bucky/v01/textures/Bucky_Color.png",
+      "sha256": "9089d6e1e970ef427a4a22ad0902d09ea7432ea2a5a4ccb8014682c6b7e2a736",
+      "color_space": "sRGB"
+    },
+    "Normal": {
+      "path": "art-source/weapons/Skins/Misprint/Bucky/v01/textures/Bucky_Normal.png",
+      "sha256": "984553f593a6fd0b0375104e90f1856b6904846886f17019da1b4c39b1a03a36",
+      "color_space": "Non-Color"
+    },
+    "Roughness": {
+      "path": "art-source/weapons/Skins/Misprint/Bucky/v01/textures/Bucky_Roughness.png",
+      "sha256": "d15ff909fab508da968c35675533610e8e7ee7fb3f07b6d3ceb136837d329926",
+      "color_space": "Non-Color"
+    },
+    "Metalness": {
+      "path": "art-source/weapons/Skins/Misprint/Bucky/v01/textures/Bucky_Metalness.png",
+      "sha256": "e67bd590c4458ce1c60e51b489c2ef9e5199a8147e45b000ffa21c80c1e388a4",
+      "color_space": "Non-Color"
+    }
+  },
+  "topology_and_stock_candidates": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "aim_camera": {
+    "name": "Bucky_MS_Reskin_sight_check",
+    "matrix_world": [
+      [
+        -0.8192318677902222,
+        0.4559291899204254,
+        -0.3478328287601471,
+        -1.720168948173523
+      ],
+      [
+        -0.5734624266624451,
+        -0.6513273119926453,
+        0.4969039559364319,
+        3.7909271717071533
+      ],
+      [
+        -3.1960920021667505e-10,
+        0.6065486669540405,
+        0.795046329498291,
+        6.120889186859131
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "near_clip": 0.009999999776482582,
+    "lens_mm": 60.0,
+    "view_kind": "Model sheet three-quarter sight check"
+  },
+  "active_material_outputs": {
+    "Body": "PV_Out",
+    "Panel": "PV_Out",
+    "Dark": "PV_Out",
+    "Metal": "PV_Out",
+    "Grip": "PV_Out",
+    "Accent": "PV_Out",
+    "Neon": "Shader_Out",
+    "Brass": "Shader_Out",
+    "Glass": "Shader_Out"
+  },
+  "review_renders": "art-source/weapons/Skins/Misprint/Bucky/v01/review",
+  "matched_stock_renders": "art-source/weapons/Skins/Review/Oilwake-Misprint-Faultline/stock/Bucky",
+  "review_camera_silhouettes": {
+    "silhouette_overlap_50pct_alpha": {
+      "hero": 100.0,
+      "left": 100.0,
+      "right": 100.0,
+      "held": 100.0,
+      "aim": 100.0,
+      "top": 100.0
+    }
+  }
+}

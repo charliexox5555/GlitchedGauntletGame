@@ -9,11 +9,11 @@
 --
 -- One GunState per bot, no allocations per shot beyond the hit list.
 
-local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
+local Penetration = require(Shared.Util.Penetration)
 local Combat = require(Shared.Config.Combat)
 local Damage = require(Shared.Util.Damage)
 local FireRate = require(Shared.Util.FireRate)
@@ -284,6 +284,7 @@ local function tracePellet(
 	local from = origin
 	local remaining = config.range
 	local pierced = 0
+	local budget = Penetration.budget(config.penetration)
 	for _ = 1, 8 do
 		local result = workspace:Raycast(from, dir * remaining, rayParams)
 		if not result then
@@ -304,7 +305,7 @@ local function tracePellet(
 				and Health.isAlive(model:FindFirstChildOfClass("Humanoid"))
 			then
 				local zone = Damage.zoneOf(part.Name)
-				local amount = Damage.compute(config, zone, (at - origin).Magnitude)
+				local amount = Damage.compute(config, zone, (at - origin).Magnitude) * budget.mult
 				local t = tally[model]
 				if t then
 					t.amount += amount
@@ -322,12 +323,7 @@ local function tracePellet(
 			rayParams:AddToFilter(model)
 		elseif
 			-- A hat or held gun (not a hitbox, not a wall), or a wall this gun goes through.
-			combatantOf(part)
-			or config.penetration == "All"
-			or (
-				config.penetration == "ThinWall"
-				and CollectionService:HasTag(part, Combat.THIN_WALL_TAG)
-			)
+			combatantOf(part) or Penetration.pass(budget, part, at, dir)
 		then
 			rayParams:AddToFilter(part)
 		else

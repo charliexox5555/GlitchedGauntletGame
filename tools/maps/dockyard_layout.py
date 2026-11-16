@@ -181,7 +181,16 @@ HALF = [
     Box("Backdrop", 0, 114, 36, 8, 56, "backdrop"),
 ]
 
-BOXES = CENTER + HALF + [b.rotated() for b in HALF]
+# Step crates for the 4.4-stud jump (2026-11-13, vault/01 Design/Maps/Jump Audit 2026-11-13.md):
+# a jump now climbs 7.5 at most, so an 8-high box is no longer climbed from the deck. These two
+# high-lane tops had no crate, stair or ramp: each gets a crate against the face toward its own
+# spawn (8 clear to the next piece). Listed after the mirrored half so every earlier piece keeps
+# its index (the art's Id / own) and the art's random draws.
+STEPS = [
+    crate("Stack step crate", -8, 14),  # the crane stack's step, from the B side
+    crate("Mid post crate", 10, 34),  # the mid post box, from the B side
+]
+BOXES = CENTER + HALF + [b.rotated() for b in HALF] + STEPS + [b.rotated() for b in STEPS]
 SPAWNS_B = [(-6.0, 98.0), (6.0, 98.0), (-6.0, 104.0), (6.0, 104.0)]
 SPAWNS_A = [(-x, -z) for x, z in SPAWNS_B]
 BARRIER_Z = YARD_Z  # the alcove mouth

@@ -1,0 +1,10 @@
+HitSfxPreview.wav (game volumes)
+
+  0.50  Classic, body hits
+  3.10  Vandal spray, body hits
+  4.70  Classic, headshots
+  7.30  Vandal spray, headshots
+  8.90  kill tone alone, kills 1-5 in a round
+ 13.40  headshot kill tone, kills 1-5
+ 17.90  in context: Vandal taps, two body hits then the kill (x3, climbing)
+ 22.10  in context: Guardian headshot kill

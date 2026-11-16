@@ -84,17 +84,13 @@ local function keycap(
 	picked: boolean,
 	props: { [string]: any }
 ): Frame
-	local k = make(
-		"Frame",
-		{
-			Name = "Key",
-			Size = UDim2.fromOffset(w, h),
-			BackgroundColor3 = hex("0B0F17"),
-			BorderSizePixel = 0,
-			ZIndex = 8,
-		},
-		p
-	)
+	local k = make("Frame", {
+		Name = "Key",
+		Size = UDim2.fromOffset(w, h),
+		BackgroundColor3 = hex("0B0F17"),
+		BorderSizePixel = 0,
+		ZIndex = 8,
+	}, p)
 	for kk, v in props do
 		(k :: any)[kk] = v
 	end
@@ -222,18 +218,14 @@ local function newCard(canvas: Instance, i: number, id: string, key: string, pic
 		ZIndex = 1,
 	}, c)
 	band(c, Theme.ROLE[m.role], 286)
-	make(
-		"Frame",
-		{
-			Name = "Panel",
-			Position = UDim2.fromOffset(0, 384),
-			Size = UDim2.fromOffset(COL_W, 120),
-			BackgroundColor3 = PANEL,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-		},
-		c
-	)
+	make("Frame", {
+		Name = "Panel",
+		Position = UDim2.fromOffset(0, 384),
+		Size = UDim2.fromOffset(COL_W, 120),
+		BackgroundColor3 = PANEL,
+		BorderSizePixel = 0,
+		ZIndex = 3,
+	}, c)
 	text(c, string.upper(m.name), 24, 306, 36, WHITE, XB, { ZIndex = 6 })
 	text(c, string.upper(m.role), 26, 350, 12, WHITE, XB, { TextTransparency = 0.2, ZIndex = 6 })
 	text(c, L1.note .. ".", 24, 402, 16, BODY, SB, {
@@ -243,20 +235,11 @@ local function newCard(canvas: Instance, i: number, id: string, key: string, pic
 		ZIndex = 6,
 	})
 	text(c, chargeLine(L1), 24, CARD_H - 32, 12, MUTED, XB, { ZIndex = 6 })
-	text(
-		c,
-		"NEW",
-		0,
-		CARD_H - 32,
-		12,
-		GOLD,
-		XB,
-		{
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.fromOffset(COL_W - 24, CARD_H - 32),
-			ZIndex = 6,
-		}
-	)
+	text(c, "NEW", 0, CARD_H - 32, 12, GOLD, XB, {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.fromOffset(COL_W - 24, CARD_H - 32),
+		ZIndex = 6,
+	})
 	keyTab(canvas, i, key, picked, picked)
 end
 
@@ -297,18 +280,14 @@ local function upgradeColumn(
 			ZIndex = 1,
 		}, c)
 		band(c, if o.glitch then MAGENTA else role, h - 104)
-		make(
-			"Frame",
-			{
-				Name = "Panel",
-				Position = UDim2.fromOffset(0, h - 40),
-				Size = UDim2.fromOffset(COL_W, 40),
-				BackgroundColor3 = PANEL,
-				BorderSizePixel = 0,
-				ZIndex = 3,
-			},
-			c
-		)
+		make("Frame", {
+			Name = "Panel",
+			Position = UDim2.fromOffset(0, h - 40),
+			Size = UDim2.fromOffset(COL_W, 40),
+			BackgroundColor3 = PANEL,
+			BorderSizePixel = 0,
+			ZIndex = 3,
+		}, c)
 		if o.glitch then
 			text(
 				c,
@@ -362,51 +341,35 @@ local function lockIn(canvas: Instance, pick: string)
 	local w, h = COL_W + 40, 78
 	local x, y = colX(2) - 20, CARD_Y + CARD_H + 36
 	shadow(canvas, x + 20, y, w - 40, h)
-	local lock = make(
-		"Frame",
-		{
-			Name = "LockIn",
-			Position = UDim2.fromOffset(x, y),
-			Size = UDim2.fromOffset(w, h),
-			BackgroundTransparency = 1,
-			ZIndex = 2,
-		},
-		canvas
-	)
-	make(
-		"Frame",
-		{
-			Name = "Body",
-			Position = UDim2.fromOffset(26, 0),
-			Size = UDim2.fromOffset(w - 52, h),
-			BackgroundColor3 = GOLD,
-			BorderSizePixel = 0,
-		},
-		lock
-	)
-	make(
-		"ImageLabel",
-		{
-			Name = "CapL",
-			Size = UDim2.fromOffset(28, h),
-			BackgroundTransparency = 1,
-			Image = CAP_L,
-			ImageColor3 = GOLD,
-		},
-		lock
-	)
-	make(
-		"ImageLabel",
-		{
-			Name = "CapR",
-			Position = UDim2.fromOffset(w - 28, 0),
-			Size = UDim2.fromOffset(28, h),
-			BackgroundTransparency = 1,
-			Image = CAP_R,
-			ImageColor3 = GOLD,
-		},
-		lock
-	)
+	local lock = make("Frame", {
+		Name = "LockIn",
+		Position = UDim2.fromOffset(x, y),
+		Size = UDim2.fromOffset(w, h),
+		BackgroundTransparency = 1,
+		ZIndex = 2,
+	}, canvas)
+	make("Frame", {
+		Name = "Body",
+		Position = UDim2.fromOffset(26, 0),
+		Size = UDim2.fromOffset(w - 52, h),
+		BackgroundColor3 = GOLD,
+		BorderSizePixel = 0,
+	}, lock)
+	make("ImageLabel", {
+		Name = "CapL",
+		Size = UDim2.fromOffset(28, h),
+		BackgroundTransparency = 1,
+		Image = CAP_L,
+		ImageColor3 = GOLD,
+	}, lock)
+	make("ImageLabel", {
+		Name = "CapR",
+		Position = UDim2.fromOffset(w - 28, 0),
+		Size = UDim2.fromOffset(28, h),
+		BackgroundTransparency = 1,
+		Image = CAP_R,
+		ImageColor3 = GOLD,
+	}, lock)
 	text(
 		lock,
 		"LOCK IN",
@@ -417,20 +380,11 @@ local function lockIn(canvas: Instance, pick: string)
 		XB,
 		{ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromOffset(w / 2, 12) }
 	)
-	text(
-		lock,
-		pick,
-		0,
-		0,
-		12,
-		INK,
-		XB,
-		{
-			AnchorPoint = Vector2.new(0.5, 0),
-			Position = UDim2.fromOffset(w / 2, 48),
-			TextTransparency = 0.3,
-		}
-	)
+	text(lock, pick, 0, 0, 12, INK, XB, {
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromOffset(w / 2, 48),
+		TextTransparency = 0.3,
+	})
 	keycap(
 		lock,
 		"ENTER",
@@ -457,19 +411,10 @@ local function enemy(canvas: Instance, kit: { any })
 		)
 		return
 	end
-	text(
-		canvas,
-		"ENEMY",
-		0,
-		0,
-		12,
-		MUTED,
-		XB,
-		{
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.fromOffset(right - #kit * 54 - 4, y + 14),
-		}
-	)
+	text(canvas, "ENEMY", 0, 0, 12, MUTED, XB, {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.fromOffset(right - #kit * 54 - 4, y + 14),
+	})
 	for i, e in kit do
 		local m = Defs[e[1]]
 		local b = make("Frame", {
@@ -479,17 +424,13 @@ local function enemy(canvas: Instance, kit: { any })
 			BorderSizePixel = 0,
 		}, canvas)
 		make("UICorner", { CornerRadius = UDim.new(0, 6) }, b)
-		make(
-			"ImageLabel",
-			{
-				Position = UDim2.fromOffset(8, 8),
-				Size = UDim2.fromOffset(30, 30),
-				BackgroundTransparency = 1,
-				Image = m.icon,
-				ZIndex = 2,
-			},
-			b
-		)
+		make("ImageLabel", {
+			Position = UDim2.fromOffset(8, 8),
+			Size = UDim2.fromOffset(30, 30),
+			BackgroundTransparency = 1,
+			Image = m.icon,
+			ZIndex = 2,
+		}, b)
 		text(
 			b,
 			e[2],
@@ -516,17 +457,13 @@ local gui = make("ScreenGui", {
 	DisplayOrder = 8,
 	Enabled = false,
 })
-make(
-	"Frame",
-	{
-		Name = "Dim",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = hex("070A10"),
-		BackgroundTransparency = 0.2,
-		BorderSizePixel = 0,
-	},
-	gui
-)
+make("Frame", {
+	Name = "Dim",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundColor3 = hex("070A10"),
+	BackgroundTransparency = 0.2,
+	BorderSizePixel = 0,
+}, gui)
 local function canvas(name: string): Frame
 	local c = make("Frame", {
 		Name = name,

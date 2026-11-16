@@ -11,7 +11,7 @@
 |---|---|
 | Ready | Press the key → the gun lowers, the **dart launcher** comes up and a dart is loaded. Press again or swap weapons to cancel (costs nothing) |
 | Charge | **Hold LMB to charge** the shot distance (~1 s to full); release to fire. A quick tap = a short shot |
-| Bounces | **RMB (before firing) cycles 0 / 1 / 2 wall bounces.** Bounce physics are shared with the Molly/Frost projectile code |
+| Bounces | **RMB cycles 0 / 1 / 2 wall bounces, before the shot and during the draw (was before firing only).** Bounce physics are shared with the Molly/Frost projectile code |
 | Flight | A fast dart with a slight arc. After its bounces it **sticks to the next surface** it hits (walls, floor, ceiling) |
 | Pulses | Once stuck: **2 pulses, 1.5 s apart** (first pulse ~0.5 s after sticking), then it goes dead |
 | Reveal | Each pulse reveals **enemies within 40 studs that the dart has line of sight to** (hiding behind cover beats it) |
@@ -71,7 +71,7 @@ All ProSoundEffects library audio (public, no upload). Search terms that worked:
 
 ## Build notes (2026-10-29)
 - **Removed:** the Ping's instant pulse. `ReplicatedStorage.Abilities` has no Ping model.
-- **New use type `HeldCharge`:** hold the Mod (the launcher comes up), hold LMB to charge (`chargeTime` 1 s; the charge light fills, the hum rises), release to fire; RMB before firing cycles 0 / 1 / 2 bounces (the launcher's two bounce lights, and the hint shows "Bounces: n"). `ModUse` carries the charge and bounces; the server caps the charge to how long it saw the hold, and the bounces to 0–2.
+- **New use type `HeldCharge`:** hold the Mod (the launcher comes up), hold LMB to charge (`chargeTime` 1 s; the charge light fills, the hum rises), release to fire; RMB cycles 0 / 1 / 2 bounces, before the shot and during the draw (was before firing only) (the launcher's two bounce lights, and the hint shows "Bounces: n"). `ModUse` carries the charge and bounces; the server caps the charge to how long it saw the hold, and the bounces to 0–2.
 - **Rules:** `Mods/Recon`: speed 45 (tap) to 130 (full), a slight arc; the shared projectile code bounces it then it sticks to the next surface. Stuck, it's a 1-HP Mod object (`ModEntities`; any bullet destroys it through the existing object-hit path). Pulses at 0.5 s and 2 s after sticking: enemies within 40 studs the dart can see are revealed to your team only (`ModReveal`, outline through walls, 2 s); revealed players get the cue, a red edge flash and "REVEALED". Measured in Studio: the dart stuck 0.18 s after the shot, two pulses 1.5 s apart, each revealed the enemy dummy and a range dummy.
 - **Models:** Blender `tools/blender/build_mod_recon.py` (launcher, handheld, 2.9K tris, `Charge_Energy`, `Bounce1/2_Energy`, the loaded `Dart_*` hidden when fired) and `build_mod_recondart.py` (sensor dart, 1.3K tris, `Light_Energy` blinks and flashes on pulses), uploaded (101313572671047, 116053167550293) and built into **`ReplicatedStorage.Abilities.Recon` / `ReconDart`** (backups in `art-source/abilities/Studio/`). Preview `02 Art/References/abilities/recon/recon_model.jpg`.
 - **Effects:** Blender-rendered textures (`tools/vfx/make_recon_vfx.py`, `Config/VfxTextures RECON_*`): the scan ring on each pulse (plus the ground scan wave), the dart's glow trail in flight. The launcher kicks on fire (`ITEM_ACTIONS.LauncherFire`).

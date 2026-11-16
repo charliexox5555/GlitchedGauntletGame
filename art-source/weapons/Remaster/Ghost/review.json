@@ -1,0 +1,101 @@
+{
+  "gun": "Ghost",
+  "tris": 2920,
+  "budget": 3000,
+  "sight": "notch",
+  "round": "Pistol",
+  "clips": {
+    "Fire": {
+      "frames": 10,
+      "bones": [
+        "Charm",
+        "Root",
+        "Slide",
+        "Trigger"
+      ],
+      "declared_frames": 10
+    },
+    "Reload": {
+      "frames": 60,
+      "bones": [
+        "Charm",
+        "Mag",
+        "MagRelease",
+        "Root"
+      ],
+      "declared_frames": 60
+    },
+    "ReloadEmpty": {
+      "frames": 70,
+      "bones": [
+        "Charm",
+        "Mag",
+        "MagRelease",
+        "Root",
+        "Slide",
+        "SlideCatch"
+      ],
+      "declared_frames": 70
+    },
+    "Draw": {
+      "frames": 20,
+      "bones": [
+        "Charm",
+        "Root",
+        "Slide"
+      ],
+      "declared_frames": 20
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Charm",
+        "Mag",
+        "MagRelease",
+        "Root",
+        "Slide"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.2293,
+  "old_bounds": [
+    [
+      -0.24699999392032623,
+      2.053999900817871
+    ],
+    [
+      -0.09951847046613693,
+      0.09951847046613693
+    ],
+    [
+      -0.3431999981403351,
+      0.4341999888420105
+    ]
+  ],
+  "bones": [
+    "Root",
+    "Slide",
+    "Mag",
+    "Trigger",
+    "SlideCatch",
+    "MagRelease",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "Eject",
+    "CharmPoint",
+    "AimPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "long ventless slide / polygon suppressor / wrap grip"
+}

@@ -44,6 +44,15 @@ export type GunAnimator = {
 	progress: (self: GunAnimator) -> number,
 	activity: (self: GunAnimator, name: string, bone: string) -> (number?, number?),
 	update: (self: GunAnimator, dt: number) -> (),
+	-- A roll on one bone on top of whatever clip plays (a revolver's cylinder
+	-- rolled by the palm as the inspect starts): `degrees` about `axis` (the
+	-- bone's own), fast at first and easing to a stop over `seconds`.
+	spin: (self: GunAnimator, bone: string, degrees: number, seconds: number, axis: Vector3) -> (),
+	spinBone: string?,
+	spinTime: number,
+	spinLength: number,
+	spinAngle: number, -- radians
+	spinAxis: Vector3,
 }
 
 local GunAnimator = {}
@@ -189,10 +198,46 @@ local function activity(self: GunAnimator, name: string, bone: string): (number?
 	return nil
 end
 
+-- The bone spin's motor and its turn this frame (nil when none).
+local function stepSpin(self: GunAnimator, dt: number): (Motor6D?, CFrame)
+	local bone = self.spinBone
+	local motor = bone and self.motors[bone]
+	if not motor then
+		return nil, CFrame.identity
+	end
+	self.spinTime += dt
+	local u = math.clamp(self.spinTime / math.max(self.spinLength, 1e-3), 0, 1)
+	if u >= 1 then
+		self.spinBone = nil -- whole turns: it lands where it started
+		return motor, CFrame.identity
+	end
+	local eased = 1 - (1 - u) ^ 3 -- rolled hard, slowing to a stop
+	return motor, CFrame.fromAxisAngle(self.spinAxis, self.spinAngle * eased)
+end
+
+local function spin(
+	self: GunAnimator,
+	bone: string,
+	degrees: number,
+	seconds: number,
+	axis: Vector3
+)
+	self.spinBone = bone
+	self.spinTime = 0
+	self.spinLength = seconds
+	self.spinAngle = math.rad(degrees)
+	self.spinAxis = axis.Unit
+end
+
 local function update(self: GunAnimator, dt: number)
+	local spinMotor, spinCf = stepSpin(self, dt)
 	local clip = self.clip
 	local clips = self.clips
 	if not clip or not clips then
+		if spinMotor then
+			spinMotor.Transform = spinCf
+			self.dirty = true
+		end
 		return
 	end
 	self.time += dt * self.speed
@@ -228,6 +273,9 @@ local function update(self: GunAnimator, dt: number)
 			motor.Transform = if a > 0 and i1 ~= i0
 				then c0:Lerp(frameCFrame(data, i1, self.scale), a)
 				else c0
+			if motor == spinMotor then
+				motor.Transform *= spinCf
+			end
 		end
 	end
 	self.dirty = true
@@ -265,6 +313,12 @@ function GunAnimator.new(model: Model, weaponId: string, scale: number): GunAnim
 		progress = progress,
 		activity = activity,
 		update = update,
+		spin = spin,
+		spinBone = nil,
+		spinTime = 0,
+		spinLength = 0,
+		spinAngle = 0,
+		spinAxis = Vector3.xAxis,
 	}
 end
 

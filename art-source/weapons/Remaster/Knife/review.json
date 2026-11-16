@@ -1,0 +1,109 @@
+{
+  "gun": "Knife",
+  "tris": 658,
+  "budget": 5000,
+  "sight": "blade",
+  "round": "None",
+  "clips": {
+    "Fire": {
+      "frames": 12,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 12
+    },
+    "Draw": {
+      "frames": 20,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 20
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 67
+    },
+    "Slash1": {
+      "frames": 14,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 14
+    },
+    "Slash2": {
+      "frames": 14,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 14
+    },
+    "Slash3": {
+      "frames": 18,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 18
+    },
+    "HeavyStab": {
+      "frames": 24,
+      "bones": [
+        "Root"
+      ],
+      "declared_frames": 24
+    },
+    "Reload": {
+      "frames": 24,
+      "bones": [
+        "Root"
+      ],
+      "note": "regrip utility; no ammunition",
+      "declared_frames": 24
+    },
+    "ReloadEmpty": {
+      "frames": 24,
+      "bones": [
+        "Root"
+      ],
+      "note": "regrip utility; no ammunition",
+      "declared_frames": 24
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.5255,
+  "old_bounds": [
+    [
+      -0.4498000144958496,
+      1.271399974822998
+    ],
+    [
+      -0.09054019302129745,
+      0.09054019302129745
+    ],
+    [
+      -0.09749999642372131,
+      0.11959999799728394
+    ]
+  ],
+  "bones": [
+    "Root"
+  ],
+  "attachments": [
+    "RightGrip",
+    "BladeBase",
+    "BladeTip",
+    "LeftGrip",
+    "Muzzle",
+    "Eject",
+    "CharmPoint",
+    "AimPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "faceted drop point / satin edge planes / chamfered guard"
+}

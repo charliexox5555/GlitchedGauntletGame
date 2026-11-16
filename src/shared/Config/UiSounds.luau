@@ -17,7 +17,7 @@ local function cue(n: number, volume: number, pitch: number?, gap: number?): Cue
 	return { id = "rbxassetid://" .. tostring(n), volume = volume, pitch = pitch, gap = gap }
 end
 
--- A slice of the game's sound atlas (Config/SoundAtlas).
+-- A UI sound backed by an individual Roblox audio asset.
 local function atlas(name: string, volume: number, pitch: number?, gap: number?): Cue
 	return { id = "atlas:" .. name, volume = volume, pitch = pitch, gap = gap }
 end

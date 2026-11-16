@@ -1,0 +1,530 @@
+{
+ "mod": "ReworkVFX",
+ "axes": "blender (+X forward, +Z up, +Y left), 1 unit = 1 stud; same as the gun exports",
+ "props": {
+  "kind": "vfx"
+ },
+ "parts": [
+  {
+   "name": "WindSwipe_Energy",
+   "material": "Wind | chalk blue",
+   "look": {
+    "material": "Neon",
+    "color": "C2EAF5",
+    "transparency": 0.31000000000000005
+   },
+   "energy": true,
+   "tris": 44,
+   "center": [
+    0.02522,
+    0.01947,
+    0.0
+   ],
+   "size": [
+    1.09308,
+    0.32592,
+    0.014
+   ]
+  },
+  {
+   "name": "GhostSkim_Energy",
+   "material": "Wind | chalk blue",
+   "look": {
+    "material": "Neon",
+    "color": "C2EAF5",
+    "transparency": 0.31000000000000005
+   },
+   "energy": true,
+   "tris": 36,
+   "center": [
+    -0.0001,
+    -0.0152,
+    0.0
+   ],
+   "size": [
+    0.94343,
+    0.23346,
+    0.014
+   ]
+  },
+  {
+   "name": "CrashPressureRing_Energy",
+   "material": "Crash | pale dust",
+   "look": {
+    "material": "Neon",
+    "color": "F1BB7C",
+    "transparency": 0.5
+   },
+   "energy": true,
+   "tris": 264,
+   "center": [
+    0.0,
+    0.0,
+    0.023
+   ],
+   "size": [
+    2.0,
+    1.97964,
+    0.074
+   ]
+  },
+  {
+   "name": "CrashDustPetal_Energy",
+   "material": "Crash | pale dust",
+   "look": {
+    "material": "Neon",
+    "color": "F1BB7C",
+    "transparency": 0.5
+   },
+   "energy": true,
+   "tris": 28,
+   "center": [
+    -0.015,
+    0.0,
+    0.16
+   ],
+   "size": [
+    0.99,
+    0.052,
+    0.32
+   ]
+  },
+  {
+   "name": "CrashChip",
+   "material": "Crash | rock",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "857269"
+   },
+   "energy": false,
+   "tris": 16,
+   "center": [
+    0.025,
+    0.0035,
+    0.083
+   ],
+   "size": [
+    0.43,
+    0.267,
+    0.166
+   ]
+  },
+  {
+   "name": "FlameOuter_Energy",
+   "material": "Molly | hot edge",
+   "look": {
+    "material": "Neon",
+    "color": "F97027"
+   },
+   "energy": true,
+   "tris": 52,
+   "center": [
+    -0.0035,
+    0.0,
+    0.5095
+   ],
+   "size": [
+    0.773,
+    0.058,
+    1.019
+   ]
+  },
+  {
+   "name": "FlameCore_Energy",
+   "material": "Molly | warm core",
+   "look": {
+    "material": "Neon",
+    "color": "FFBE4B"
+   },
+   "energy": true,
+   "tris": 28,
+   "center": [
+    0.0045,
+    -0.0385,
+    0.353
+   ],
+   "size": [
+    0.369,
+    0.017,
+    0.706
+   ]
+  },
+  {
+   "name": "FlameWallSegment",
+   "material": "Molly | hot edge",
+   "look": {
+    "material": "Neon",
+    "color": "F97027"
+   },
+   "energy": false,
+   "tris": 48,
+   "center": [
+    0.005,
+    0.0,
+    0.603
+   ],
+   "size": [
+    1.01,
+    0.15,
+    1.206
+   ]
+  },
+  {
+   "name": "FlameWallCrest_Energy",
+   "material": "Molly | warm core",
+   "look": {
+    "material": "Neon",
+    "color": "FFBE4B"
+   },
+   "energy": true,
+   "tris": 72,
+   "center": [
+    -0.0015,
+    -0.0755,
+    0.876
+   ],
+   "size": [
+    0.977,
+    0.019,
+    0.652
+   ]
+  },
+  {
+   "name": "Ember_Energy",
+   "material": "Molly | warm core",
+   "look": {
+    "material": "Neon",
+    "color": "FFBE4B"
+   },
+   "energy": true,
+   "tris": 26,
+   "center": [
+    0.01602,
+    0.00447,
+    0.098
+   ],
+   "size": [
+    0.12061,
+    0.11467,
+    0.196
+   ]
+  },
+  {
+   "name": "FrostChip",
+   "material": "Frost | inner white",
+   "look": {
+    "material": "Neon",
+    "color": "CDEBFF",
+    "transparency": 0.16000000000000003
+   },
+   "energy": false,
+   "tris": 36,
+   "center": [
+    -0.00107,
+    0.01024,
+    0.2
+   ],
+   "size": [
+    0.27402,
+    0.26264,
+    0.4
+   ]
+  },
+  {
+   "name": "FrostWallPlate",
+   "material": "Frost | ice blue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "70B9D6",
+    "transparency": 0.24
+   },
+   "energy": false,
+   "tris": 32,
+   "center": [
+    0.0,
+    0.0175,
+    0.625
+   ],
+   "size": [
+    1.02,
+    0.295,
+    1.25
+   ]
+  },
+  {
+   "name": "FrostBurstRim_Energy",
+   "material": "Frost | inner white",
+   "look": {
+    "material": "Neon",
+    "color": "CDEBFF",
+    "transparency": 0.16000000000000003
+   },
+   "energy": true,
+   "tris": 192,
+   "center": [
+    0.0,
+    0.0,
+    0.014
+   ],
+   "size": [
+    2.0,
+    2.0,
+    0.048
+   ]
+  },
+  {
+   "name": "FreezeShell",
+   "material": "Frost | ice blue",
+   "look": {
+    "material": "SmoothPlastic",
+    "color": "70B9D6",
+    "transparency": 0.24
+   },
+   "energy": false,
+   "tris": 92,
+   "center": [
+    0.018,
+    0.0,
+    0.53
+   ],
+   "size": [
+    1.10866,
+    1.10866,
+    1.06
+   ]
+  },
+  {
+   "name": "FreezeCrack_Energy",
+   "material": "Frost | inner white",
+   "look": {
+    "material": "Neon",
+    "color": "CDEBFF",
+    "transparency": 0.16000000000000003
+   },
+   "energy": true,
+   "tris": 36,
+   "center": [
+    -0.019,
+    0.0,
+    0.542
+   ],
+   "size": [
+    0.132,
+    0.016,
+    0.916
+   ]
+  },
+  {
+   "name": "ReconEquator_Energy",
+   "material": "Recon | pulse edge",
+   "look": {
+    "material": "Neon",
+    "color": "77DEFF",
+    "transparency": 0.26
+   },
+   "energy": true,
+   "tris": 256,
+   "center": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    1.99901,
+    1.99901,
+    0.06299
+   ]
+  },
+  {
+   "name": "ReconUpper_Energy",
+   "material": "Recon | pulse edge",
+   "look": {
+    "material": "Neon",
+    "color": "77DEFF",
+    "transparency": 0.26
+   },
+   "energy": true,
+   "tris": 256,
+   "center": [
+    0.0,
+    0.0,
+    0.50203
+   ],
+   "size": [
+    1.74206,
+    1.74206,
+    0.03535
+   ]
+  },
+  {
+   "name": "ReconLower_Energy",
+   "material": "Recon | pulse edge",
+   "look": {
+    "material": "Neon",
+    "color": "77DEFF",
+    "transparency": 0.26
+   },
+   "energy": true,
+   "tris": 256,
+   "center": [
+    0.0,
+    0.0,
+    -0.50203
+   ],
+   "size": [
+    1.74206,
+    1.74206,
+    0.03535
+   ]
+  },
+  {
+   "name": "ReconSpike_Energy",
+   "material": "Recon | pulse edge",
+   "look": {
+    "material": "Neon",
+    "color": "77DEFF",
+    "transparency": 0.26
+   },
+   "energy": true,
+   "tris": 256,
+   "center": [
+    0.0,
+    0.0,
+    0.21674
+   ],
+   "size": [
+    1.97349,
+    1.97349,
+    0.11346
+   ]
+  },
+  {
+   "name": "HealRibbon_Energy",
+   "material": "Heal | sea mint",
+   "look": {
+    "material": "Neon",
+    "color": "8AF4C2",
+    "transparency": 0.24
+   },
+   "energy": true,
+   "tris": 44,
+   "center": [
+    -0.02091,
+    -0.01787,
+    0.0
+   ],
+   "size": [
+    1.06768,
+    0.3262,
+    0.014
+   ]
+  },
+  {
+   "name": "HealZonePulse_Energy",
+   "material": "Heal | sea mint",
+   "look": {
+    "material": "Neon",
+    "color": "8AF4C2",
+    "transparency": 0.24
+   },
+   "energy": true,
+   "tris": 160,
+   "center": [
+    0.0,
+    0.0,
+    0.0185
+   ],
+   "size": [
+    2.0,
+    2.0,
+    0.059
+   ]
+  },
+  {
+   "name": "HealMote_Energy",
+   "material": "Heal | sea mint",
+   "look": {
+    "material": "Neon",
+    "color": "8AF4C2",
+    "transparency": 0.24
+   },
+   "energy": true,
+   "tris": 26,
+   "center": [
+    -0.00095,
+    0.00281,
+    0.0775
+   ],
+   "size": [
+    0.07395,
+    0.07213,
+    0.155
+   ]
+  },
+  {
+   "name": "BarrierHexTile_Energy",
+   "material": "Barrier | pale honey",
+   "look": {
+    "material": "Neon",
+    "color": "FFD494",
+    "transparency": 0.42000000000000004
+   },
+   "energy": true,
+   "tris": 60,
+   "center": [
+    0.0,
+    0.0,
+    -0.0005
+   ],
+   "size": [
+    0.79674,
+    0.92,
+    0.047
+   ]
+  },
+  {
+   "name": "RecallPhaseStreak_Energy",
+   "material": "Recall | cool phase",
+   "look": {
+    "material": "Neon",
+    "color": "7FE4DA",
+    "transparency": 0.26
+   },
+   "energy": true,
+   "tris": 44,
+   "center": [
+    -0.01044,
+    -0.00702,
+    0.0
+   ],
+   "size": [
+    1.12739,
+    0.36291,
+    0.014
+   ]
+  },
+  {
+   "name": "RecallPhaseRim_Energy",
+   "material": "Recall | cool phase",
+   "look": {
+    "material": "Neon",
+    "color": "7FE4DA",
+    "transparency": 0.26
+   },
+   "energy": true,
+   "tris": 100,
+   "center": [
+    0.0,
+    0.0,
+    0.016
+   ],
+   "size": [
+    2.0,
+    1.90211,
+    0.066
+   ]
+  }
+ ],
+ "locators": [],
+ "tris": 2460
+}

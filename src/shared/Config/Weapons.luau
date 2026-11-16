@@ -24,7 +24,9 @@ local SCOPED_VM = Vector3.new(0.52, -0.3, -0.47)
 -- gun's round 2 sight rise (round 2 feedback: "too close").
 -- Pistols are placed by their grip: big, low and right of centre, held in
 -- both hands, high enough that the fists around the grip show.
-local SIDEARM_VM = Vector3.new(0.42, -0.76, -1.3)
+-- 2026-11-10 (owner: "closer to the body, fit more of the screen"): was
+-- (0.42, -0.76, -1.3), which read small and near the centre. Tuned live.
+local SIDEARM_VM = Vector3.new(0.52, -0.72, -1.0)
 local SIDEARM_SCALE = 1.1
 
 -- Open iron sights (round 2, RIVALS / Hypershot style, vault/02 Art/References/
@@ -34,7 +36,7 @@ local SIDEARM_SCALE = 1.1
 -- ADS) sit a little further back (measured per gun, 2026-10-27).
 local OPEN_IRONS_ADS = 0.3
 
-local TRACER = Color3.fromHex("FFD9A0") -- warm, like a real tracer round
+local TRACER = Color3.fromHex("FAEBB4") -- pale yellow round a near-white core (the owner's clips; FFD9A0 until 2026-11-15)
 
 local weapons: { [string]: WeaponConfig } = {
 	-- Rifle -------------------------------------------------------------
@@ -47,7 +49,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 24, head = 40, legs = 20 },
+		damage = { body = 18, head = 29, legs = 15 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.103, -- 9.75 rounds/s
@@ -55,7 +57,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.5, -- tactical: mag swap, then a tug on the charging handle
 		emptyReloadTime = 2.8, -- mag swap, then rack the charging handle
 		equipTime = 0.5,
-		drawTime = 0.9, -- every draw: raise and rack the charging handle
+		drawTime = 1.12, -- every draw: raise and rack the charging handle (x1.25 2026-11-08: owner, draws too fast)
 		range = 500,
 		-- No falloff. Tap-accurate, three protected shots, then the cone opens
 		-- to 1 degree; back to a first-shot tap after 0.375 s off the trigger.
@@ -85,8 +87,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsTime = 0.2,
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
-		penetration = "ThinWall",
-		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		penetration = "Light",
 		viewmodelOffset = Vector3.new(0.52, -0.266, -0.38), -- round 2 sight sits higher: raised by the same to keep the hold
 		tracerColor = TRACER,
 	},
@@ -100,7 +101,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 21, head = 34, legs = 18 },
+		damage = { body = 16, head = 26, legs = 14 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.091, -- 11 rounds/s
@@ -108,7 +109,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.3,
 		emptyReloadTime = 2.8,
 		equipTime = 0.45,
-		drawTime = 0.8,
+		drawTime = 1.0, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 500,
 		falloff = { { from = 70, multiplier = 0.87 } },
 		spread = {
@@ -135,7 +136,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsTime = 0.2,
 		moveMultiplier = 0.97,
 		adsMoveMultiplier = 0.76,
-		penetration = "ThinWall",
+		penetration = "Light",
 		suppressed = true, -- no tracer for enemies, quieter shot, small flash
 		viewmodelOffset = Vector3.new(0.52, -0.277, -0.38), -- round 2 sight sits higher: raised by the same to keep the hold
 		tracerColor = TRACER,
@@ -152,15 +153,15 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Secondary",
 		shield = 50, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 20, head = 32, legs = 17 },
+		damage = { body = 16, head = 26, legs = 14 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.148, -- 6.75 rounds/s
 		magSize = 12,
-		reloadTime = 1.6,
-		emptyReloadTime = 1.9,
+		reloadTime = 1.85, -- +0.25 s 2026-11-08 (owner: too fast); every reload racks the slide
+		emptyReloadTime = 2.15, -- +0.25 s 2026-11-08
 		equipTime = 0.35,
-		drawTime = 0.6,
+		drawTime = 0.75, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 400,
 		falloff = { { from = 105, multiplier = 0.85 } },
 		spread = {
@@ -206,7 +207,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Secondary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 6, head = 9, legs = 5 }, -- per pellet
+		damage = { body = 5, head = 8, legs = 4 }, -- per pellet
 		pellets = 15,
 		pelletSpread = 4,
 		fireInterval = 0.333, -- 3 shots/s
@@ -214,7 +215,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 1.5, -- one shell
 		emptyReloadTime = 1.9, -- both shells
 		equipTime = 0.35,
-		drawTime = 0.55,
+		drawTime = 0.69, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 120,
 		-- 7 m and 15 m in Valorant (1 stud ~ 0.28 m).
 		falloff = { { from = 25, multiplier = 0.55 }, { from = 54, multiplier = 0.27 } },
@@ -240,7 +241,12 @@ local weapons: { [string]: WeaponConfig } = {
 		noAds = true,
 		muzzles = { "Muzzle", "MuzzleLower" },
 		shellsOnFire = false,
-		hideBeyond = { ShellUpper = 0.35, ShellLower = 0.35 },
+		-- 2026-11-08 (owner: shells appeared out of nowhere): the left hand pulls
+		-- the spent shells and carries the fresh ones in (Util/RoundCarry).
+		carry = {
+			{ joint = "ShellUpper", show = "both", follow = true },
+			{ joint = "ShellLower", show = "both", follow = true },
+		},
 		adsFov = 80,
 		adsTime = 0.2,
 		moveMultiplier = 1,
@@ -260,15 +266,15 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Secondary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 23, head = 37, legs = 20 },
+		damage = { body = 18, head = 29, legs = 15 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.148, -- 6.75 rounds/s
 		magSize = 13,
-		reloadTime = 1.5,
-		emptyReloadTime = 1.75, -- slide release at the end
+		reloadTime = 1.75, -- +0.25 s 2026-11-08 (owner: too fast); every reload racks the slide
+		emptyReloadTime = 2.0, -- +0.25 s 2026-11-08
 		equipTime = 0.35,
-		drawTime = 0.55,
+		drawTime = 0.69, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 400,
 		falloff = { { from = 105, multiplier = 0.83 } },
 		spread = {
@@ -313,7 +319,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 6, head = 9, legs = 5 }, -- per pellet
+		damage = { body = 5, head = 8, legs = 4 }, -- per pellet
 		pellets = 12,
 		pelletSpread = 2.5,
 		fireInterval = 0.286, -- 3.5 shots/s
@@ -321,7 +327,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.2,
 		emptyReloadTime = 2.6, -- drum, then rack
 		equipTime = 0.5,
-		drawTime = 0.9,
+		drawTime = 1.12, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 150,
 		-- 10 m and 15 m in Valorant.
 		falloff = { { from = 36, multiplier = 0.59 }, { from = 54, multiplier = 0.41 } },
@@ -367,7 +373,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 19, head = 30, legs = 16 },
+		damage = { body = 14, head = 22, legs = 12 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.075, -- 13.3 rounds/s
@@ -375,7 +381,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.1,
 		emptyReloadTime = 2.5, -- mag, then the knob rack
 		equipTime = 0.4,
-		drawTime = 0.8,
+		drawTime = 1.0, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 400,
 		falloff = { { from = 54, multiplier = 0.85 } }, -- 15 m
 		spread = {
@@ -418,7 +424,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 16, head = 26, legs = 14 },
+		damage = { body = 12, head = 19, legs = 10 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.075, -- 13.3 rounds/s
@@ -426,7 +432,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.1,
 		emptyReloadTime = 2.5, -- mag, then the cocking-handle rack
 		equipTime = 0.4,
-		drawTime = 0.8,
+		drawTime = 1.0, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 400,
 		-- 20 m and 50 m in Valorant.
 		falloff = { { from = 71, multiplier = 0.85 }, { from = 178, multiplier = 0.77 } },
@@ -471,7 +477,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Pump",
-		damage = { body = 8, head = 12, legs = 7 }, -- per pellet
+		damage = { body = 6, head = 9, legs = 5 }, -- per pellet
 		pellets = 15,
 		pelletSpread = 3,
 		fireInterval = 0.91, -- 1.1 shots/s (the pump)
@@ -480,7 +486,7 @@ local weapons: { [string]: WeaponConfig } = {
 		emptyReloadTime = 2.55,
 		shellReload = { start = 0.25, insert = 0.45, finish = 0.25 },
 		equipTime = 0.5,
-		drawTime = 1.0, -- racks the pump
+		drawTime = 1.25, -- racks the pump (x1.25 2026-11-08: owner, draws too fast)
 		range = 150,
 		-- 8 m and 12 m in Valorant.
 		falloff = { { from = 29, multiplier = 0.65 }, { from = 43, multiplier = 0.45 } },
@@ -523,7 +529,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Secondary",
 		shield = 0, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 50, head = 74, legs = 43 },
+		damage = { body = 38, head = 60, legs = 32 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.25, -- 4 rounds/s
@@ -531,12 +537,12 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.25, -- speedloader, same either way
 		emptyReloadTime = 2.25,
 		equipTime = 0.4,
-		drawTime = 0.65, -- cylinder spin
+		drawTime = 0.81, -- cylinder spin (x1.25 2026-11-08: owner, draws too fast)
 		range = 400,
 		falloff = { { from = 107, multiplier = 0.91 } }, -- 30 m
 		spread = {
 			first = 0.25,
-			adsMultiplier = 1, -- no ADS
+			adsMultiplier = 0.6, -- aimed like the rifles (2026-11-08)
 			protected = 0,
 			protectedGrowth = 0,
 			growth = 0.6,
@@ -553,15 +559,22 @@ local weapons: { [string]: WeaponConfig } = {
 			recover = 0.8,
 			recoverTime = 0.35,
 		},
-		noAds = true,
 		shellsOnFire = false, -- the cases leave at the reload (ejector rod)
-		hideBeyond = { Rounds = 0.45, Speedloader = 0.3 },
-		adsFov = 80,
+		-- 2026-11-08 (owner): the rounds come in on a speedloader the hand
+		-- carries, and no rounds show in the cylinder at rest.
+		carry = {
+			{ joint = "Speedloader", show = "in", follow = true },
+			{ joint = "Rounds", show = "both" },
+		},
+		carryHideAtRest = true,
+		adsFov = 68, -- 1.25x like the rifles (ADS added 2026-11-08)
+		adsDistance = 0.42,
 		adsTime = 0.2,
 		moveMultiplier = 1,
-		adsMoveMultiplier = 1,
-		penetration = "ThinWall",
+		adsMoveMultiplier = 0.76,
+		penetration = "Light",
 		viewmodelOffset = SIDEARM_VM,
+		viewmodelKick = 1.8, -- a heavy revolver: more kick in the hand (owner, 2026-11-08)
 		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = TRACER,
 	},
@@ -575,7 +588,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 22, head = 36, legs = 19 },
+		damage = { body = 17, head = 27, legs = 14 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.11, -- 9.1 rounds/s
@@ -583,7 +596,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.3,
 		emptyReloadTime = 2.7,
 		equipTime = 0.5,
-		drawTime = 0.9,
+		drawTime = 1.12, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 500,
 		spread = {
 			first = 0.3,
@@ -609,8 +622,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsTime = 0.2,
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.76,
-		penetration = "ThinWall",
-		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		penetration = "Light",
 		viewmodelOffset = Vector3.new(0.44, -0.246, -0.85), -- round 2 sight sits higher: raised by the same to keep the hold
 		-- Bullpup: the mag sits behind the grip, under the camera. Raise the gun
 		-- and push it out during reloads so the mag change is on screen.
@@ -629,7 +641,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Semi",
-		damage = { body = 46, head = 74, legs = 39 },
+		damage = { body = 36, head = 58, legs = 31 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.19, -- 5.25 rounds/s
@@ -637,7 +649,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 2.3,
 		emptyReloadTime = 2.7,
 		equipTime = 0.55,
-		drawTime = 1.0,
+		drawTime = 1.25, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 600,
 		spread = {
 			first = 0.1,
@@ -663,8 +675,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsTime = 0.25,
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.76,
-		penetration = "ThinWall",
-		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		penetration = "Light",
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},
@@ -681,7 +692,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 0, -- with this gun in the Sidearm and Light phases
 		fireMode = "Bolt", -- the lever cycles after every shot
-		damage = { body = 60, head = 120, legs = 51 },
+		damage = { body = 55, head = 105, legs = 47 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.667, -- 1.5 rounds/s
@@ -691,7 +702,7 @@ local weapons: { [string]: WeaponConfig } = {
 		shellReload = { start = 0.3, insert = 0.4, finish = 0.35 },
 		shellHand = "Right", -- round 3: rounds go in with the right hand, the left steadies the gun
 		equipTime = 0.7,
-		drawTime = 1.2, -- works the lever
+		drawTime = 1.5, -- works the lever (x1.25 2026-11-08: owner, draws too fast)
 		range = 800,
 		spread = {
 			first = 1, -- hip
@@ -717,7 +728,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsTime = 0.25,
 		moveMultiplier = 0.95,
 		adsMoveMultiplier = 0.6,
-		penetration = "ThinWall",
+		penetration = "Light",
 		viewmodelOffset = SCOPED_VM,
 		tracerColor = TRACER,
 	},
@@ -731,7 +742,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Semi",
-		damage = { body = 75, head = 160, legs = 64 },
+		damage = { body = 75, head = 150, legs = 64 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.364, -- 2.75 rounds/s
@@ -740,9 +751,13 @@ local weapons: { [string]: WeaponConfig } = {
 		emptyReloadTime = 3.8, -- both
 		muzzles = { "Muzzle", "MuzzleLower" },
 		shellsOnFire = false, -- the reload clip shows the spent rounds
-		hideBeyond = { RoundUpper = 0.35, RoundLower = 0.35 },
+		-- 2026-11-08 (owner: rounds came out of nowhere): carried in by hand.
+		carry = {
+			{ joint = "RoundUpper", show = "both", follow = true },
+			{ joint = "RoundLower", show = "both", follow = true },
+		},
 		equipTime = 0.75,
-		drawTime = 1.1, -- snaps the action
+		drawTime = 1.38, -- snaps the action (x1.25 2026-11-08: owner, draws too fast)
 		range = 800,
 		spread = {
 			first = 3.5, -- hip
@@ -768,7 +783,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsTime = 0.28,
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.55,
-		penetration = "ThinWall",
+		penetration = "Light",
 		viewmodelOffset = SCOPED_VM,
 		tracerColor = TRACER,
 	},
@@ -783,7 +798,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 4,
 		slot = "Primary",
 		fireMode = "Bolt",
-		damage = { body = 125, head = 250, legs = 106 },
+		damage = { body = 150, head = 300, legs = 150 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 1.667, -- 0.6 rounds/s (the bolt)
@@ -791,7 +806,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 3.2,
 		emptyReloadTime = 3.7, -- mag, then the bolt
 		equipTime = 0.9,
-		drawTime = 1.4,
+		drawTime = 1.75, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 1000,
 		spread = {
 			first = 5, -- hip
@@ -817,8 +832,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsTime = 0.38,
 		moveMultiplier = 0.85,
 		adsMoveMultiplier = 0.4,
-		penetration = "All",
-		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		penetration = "Heavy",
 		viewmodelOffset = SCOPED_VM,
 		tracerColor = TRACER,
 	},
@@ -833,7 +847,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 18, head = 27, legs = 15 },
+		damage = { body = 14, head = 21, legs = 12 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.077, -- 13 rounds/s
@@ -841,7 +855,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 3.25,
 		emptyReloadTime = 3.8, -- drum, then the charging handle
 		equipTime = 0.8,
-		drawTime = 1.25,
+		drawTime = 1.56, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 500,
 		-- 30 m in Valorant.
 		falloff = { { from = 107, multiplier = 0.93 } },
@@ -869,8 +883,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsTime = 0.3,
 		moveMultiplier = 0.9,
 		adsMoveMultiplier = 0.7,
-		penetration = "ThinWall",
-		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		penetration = "Light",
 		viewmodelOffset = Vector3.new(0.52, -0.291, -0.43), -- round 2 sight sits higher: raised by the same to keep the hold
 		tracerColor = TRACER,
 	},
@@ -884,7 +897,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 4,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 20, head = 30, legs = 17 },
+		damage = { body = 15, head = 23, legs = 13 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.064, -- 15.6 rounds/s once spun up
@@ -893,7 +906,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 4.2,
 		emptyReloadTime = 5, -- box, then the charging handle
 		equipTime = 0.9,
-		drawTime = 1.3,
+		drawTime = 1.62, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 500,
 		-- 30 m in Valorant.
 		falloff = { { from = 107, multiplier = 0.82 } },
@@ -921,63 +934,8 @@ local weapons: { [string]: WeaponConfig } = {
 		adsDistance = 0.39, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		moveMultiplier = 0.85,
 		adsMoveMultiplier = 0.65,
-		penetration = "All",
-		muzzleDevice = true, -- brake / flash hider: a grey puff, no flare
+		penetration = "Heavy",
 		viewmodelOffset = RIFLE_VM,
-		tracerColor = TRACER,
-	},
-
-	-- Akimbo v2 (roster 16): a pair of compact automatic pistols, one in each
-	-- hand, firing in turn. Hip fire only. (One shared mag for both guns.)
-	Akimbo = {
-		id = "Akimbo",
-		displayName = "Akimbo",
-		class = "SMG",
-		tier = 2,
-		slot = "Primary",
-		shield = 50, -- with this gun in the Sidearm and Light phases
-		fireMode = "Auto",
-		damage = { body = 15, head = 23, legs = 13 },
-		pellets = 1,
-		pelletSpread = 0,
-		fireInterval = 0.08, -- 12.5 rounds/s, alternating guns
-		magSize = 36, -- 18 a gun
-		reloadTime = 2.3,
-		emptyReloadTime = 2.7, -- both slides locked back
-		equipTime = 0.5,
-		drawTime = 0.8,
-		range = 350,
-		-- 15 m and 30 m.
-		falloff = { { from = 54, multiplier = 0.85 }, { from = 107, multiplier = 0.7 } },
-		spread = {
-			first = 0.6,
-			adsMultiplier = 1, -- no ADS
-			protected = 2,
-			protectedGrowth = 0.03,
-			growth = 0.07,
-			max = 2,
-			recoveryTime = 0.3,
-		},
-		recoil = {
-			up = 0.25,
-			protected = 4,
-			upAfter = 0.15,
-			side = 0.2,
-			switchChance = 0.3,
-			switchMinTime = 0.25,
-			recover = 0.75,
-			recoverTime = 0.25,
-		},
-		noAds = true,
-		models = { right = "Akimbo", left = "Akimbo" },
-		lockOnEmpty = true,
-		adsFov = 80,
-		adsTime = 0.2,
-		moveMultiplier = 1,
-		adsMoveMultiplier = 1,
-		penetration = "None",
-		viewmodelOffset = Vector3.new(0.55, -0.78, -1.3), -- each gun out toward its own side
-		viewmodelScale = SIDEARM_SCALE,
 		tracerColor = TRACER,
 	},
 
@@ -999,7 +957,7 @@ local weapons: { [string]: WeaponConfig } = {
 		reloadTime = 0,
 		emptyReloadTime = 0,
 		equipTime = 0.25,
-		drawTime = 0.45, -- the twirl
+		drawTime = 0.75, -- the pull-out (x1.25 2026-11-08: owner, draws too fast; 0.56 -> 0.75 2026-11-14: the toss, flip and catch, Config/Viewmodel DrawMelee)
 		range = 7, -- about 2 m
 		spread = {
 			first = 0,
@@ -1039,8 +997,27 @@ local weapons: { [string]: WeaponConfig } = {
 		penetration = "None",
 		-- Low-right ready hold (Valorant / RIVALS): the blade angles up and
 		-- in toward the centre without pointing at the crosshair.
-		viewmodelOffset = Vector3.new(0.62, -0.7, -1.12),
-		viewmodelRotation = Vector3.new(16, 30, -34),
+		-- 2026-11-12 (owner's RIVALS references): held upright on the right,
+		-- the blade leaning in a little, instead of laid toward the centre
+		-- (was offset (0.62, -0.7, -1.12), rotation (16, 30, -34)). The attack
+		-- keys are solved against this pose: tools/studio/knife_fp_keys.py.
+		-- (Final, from the owner's RIVALS knife screenshot: a little further out
+		-- and more upright, the blade seen narrow, nearly edge-on. Tried and
+		-- rejected on the way: (0.78, -0.72, -1.28) / (56, 14, -10), "a real weird
+		-- angle", and a flat-on blade, rotation (57.1, 11.6, -58.1).)
+		-- 2026-11-14 (owner: "look at the hold [in RIVALS], really analyze it and
+		-- replicate it"; frame study in vault Playtests/2026-11-14 Gun and Knife
+		-- Feel from Videos): the blade upright in the screen's plane, leaning in
+		-- ~16 degrees, still seen nearly edge-on, longer on screen; the guard and
+		-- the top half of the handle come out of the fist's inner corner
+		-- (Config/Viewmodel MELEE_HAND). Was (0.893, -0.762, -1.455) /
+		-- (59.2, 9.9, -25): tilted ~30 degrees into the screen, the handle aimed
+		-- at the camera.
+		-- Pass 2 (owner's overlay "Knife hold alignment": the blade ~18 deg off
+		-- vertical, the tip a little further right and lower): fitted in play to
+		-- the overlay's targets.
+		viewmodelOffset = Vector3.new(0.902, -0.546, -1.565),
+		viewmodelRotation = Vector3.new(74.2, 9.9, -26.5),
 		viewmodelScale = 1.0,
 		tracerColor = TRACER,
 	},

@@ -1,0 +1,183 @@
+{
+  "shape": {
+    "triangles": 3640,
+    "coplanar_pairs": [
+      {
+        "lift": "Bulldog_Bolt|Metal",
+        "over": "Bulldog_Receiver|Body",
+        "faces": 2
+      }
+    ],
+    "zero_area": {},
+    "crossed": {}
+  },
+  "uv": {
+    "audit_pixels_per_axis": 512,
+    "used_pixels": 135827,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 292,
+    "different_role_overlap_pixels": 292,
+    "conflicting_parts": [
+      "Bulldog_Barrel",
+      "Bulldog_Stock"
+    ]
+  },
+  "depth": {
+    "frontmost_ray_hits": {
+      "Stock": 39,
+      "Receiver": 301,
+      "Bolt": 63
+    },
+    "minimum_receiver_bolt_depth_delta": 0.0
+  },
+  "motion": {
+    "Bulldog_Draw": {
+      "frames": [
+        1,
+        31
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.2581650736221261,
+          15
+        ],
+        "Mag": [
+          0.3231542364051413,
+          15
+        ],
+        "ChargingHandle": [
+          0.47587598782304097,
+          15
+        ],
+        "Bolt": [
+          0.2849564944314525,
+          15
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": null
+    },
+    "Bulldog_Fire": {
+      "frames": [
+        1,
+        10
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.0989651082959063,
+          3
+        ],
+        "Mag": [
+          0.0993314973188745,
+          3
+        ],
+        "ChargingHandle": [
+          0.21447851877541535,
+          3
+        ],
+        "Bolt": [
+          0.2049746257061976,
+          3
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": [
+        0.0,
+        1
+      ]
+    },
+    "Bulldog_Inspect": {
+      "frames": [
+        1,
+        67
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.014472471518770904,
+          15
+        ],
+        "Mag": [
+          0.05746255874909041,
+          15
+        ],
+        "ChargingHandle": [
+          0.05439402727608092,
+          45
+        ],
+        "Bolt": [
+          0.014769829019247793,
+          52
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": null
+    },
+    "Bulldog_Reload": {
+      "frames": [
+        1,
+        66
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.3948805631920691,
+          47
+        ],
+        "Mag": [
+          1.0924921662804028,
+          21
+        ],
+        "ChargingHandle": [
+          0.5246313896475926,
+          47
+        ],
+        "Bolt": [
+          0.40361774470353873,
+          47
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": null
+    },
+    "Bulldog_ReloadEmpty": {
+      "frames": [
+        1,
+        97
+      ],
+      "maximum_bone_motion": {
+        "Root": [
+          0.3948805631920691,
+          48
+        ],
+        "Mag": [
+          1.0924921662804028,
+          22
+        ],
+        "ChargingHandle": [
+          0.5246313896475926,
+          48
+        ],
+        "Bolt": [
+          0.40361774470353873,
+          48
+        ]
+      },
+      "min_sampled_receiver_bolt_depth_delta": [
+        0.0,
+        1
+      ]
+    }
+  },
+  "sightline": {
+    "eye": [
+      -0.7016,
+      -0.0889,
+      0.5798
+    ],
+    "len": 0.45,
+    "geo_hits": {},
+    "box_hits": {}
+  },
+  "fingerprints": {
+    "hierarchy_pivots_attachments": "2a0b1dd9845fd818cb98d454ccb96d125d0f6fbef5cc026611e954cdc0b5666a",
+    "geometry_and_material_slots": "2ec96f43d06704f2985acc73a837c04e8febfda28b7ad2670537f79f59d3d6b6",
+    "uv": "c2ec2fc28aae69d5ff5492cd85d9280805909d5315c4fd0e487ae48f56760445",
+    "rig_and_nla": "5828309d84d82ca6095c7bb1a6341a3aeada3afb5665fa7bbf5b23c230dd9564",
+    "actions": "96ff4d7faa0fb03874117164659a41013a13ea0077519f459af90b5f014ef92d"
+  }
+}

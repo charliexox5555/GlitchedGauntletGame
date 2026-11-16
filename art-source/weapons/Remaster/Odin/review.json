@@ -1,0 +1,105 @@
+{
+  "gun": "Odin",
+  "tris": 4148,
+  "budget": 6000,
+  "sight": "holo",
+  "round": "Belt",
+  "clips": {
+    "Fire": {
+      "frames": 12,
+      "bones": [
+        "Bolt",
+        "ChargingHandle",
+        "Charm",
+        "FeedBelt",
+        "Root",
+        "Trigger"
+      ],
+      "declared_frames": 12
+    },
+    "Reload": {
+      "frames": 80,
+      "bones": [
+        "AmmoBox",
+        "Charm",
+        "FeedBelt",
+        "FeedCover",
+        "Root"
+      ],
+      "declared_frames": 80
+    },
+    "ReloadEmpty": {
+      "frames": 110,
+      "bones": [
+        "AmmoBox",
+        "ChargingHandle",
+        "Charm",
+        "FeedBelt",
+        "FeedCover",
+        "Root"
+      ],
+      "declared_frames": 110
+    },
+    "Draw": {
+      "frames": 31,
+      "bones": [
+        "ChargingHandle",
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 31
+    },
+    "Inspect": {
+      "frames": 67,
+      "bones": [
+        "AmmoBox",
+        "ChargingHandle",
+        "Charm",
+        "Root"
+      ],
+      "declared_frames": 67
+    }
+  },
+  "renders": 9,
+  "eye_clearance": 0.195,
+  "old_bounds": [
+    [
+      -1.2424999475479126,
+      3.3635001182556152
+    ],
+    [
+      -0.16200001537799835,
+      0.17520000040531158
+    ],
+    [
+      -0.3675000071525574,
+      0.701126754283905
+    ]
+  ],
+  "bones": [
+    "Root",
+    "AmmoBox",
+    "FeedBelt",
+    "FeedCover",
+    "ChargingHandle",
+    "Bolt",
+    "Trigger",
+    "Flash",
+    "Charm"
+  ],
+  "attachments": [
+    "Muzzle",
+    "RightGrip",
+    "LeftGrip",
+    "AimPoint",
+    "Eject",
+    "BeltFeedPoint",
+    "CharmPoint",
+    "Socket_Muzzle",
+    "Socket_Optic",
+    "Socket_Under"
+  ],
+  "concept": "Blender-generated sheet; ImageGen rejected request",
+  "studio_validation": "Pending user; no Studio opened",
+  "design": "hinged feed cover / exposed linked belt / deep ammunition box"
+}

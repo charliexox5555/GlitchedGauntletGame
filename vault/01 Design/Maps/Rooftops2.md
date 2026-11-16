@@ -956,3 +956,6 @@ Reviewers' low points:
 - [a-roof-tank](../../02%20Art/References/maps/rooftops2/v5-r8-a-roof-tank.jpg)
 - [b-roof-side](../../02%20Art/References/maps/rooftops2/v5-r8-b-roof-side.jpg)
 - [side-by-side](../../02%20Art/References/maps/rooftops2/v5-r8-side-by-side.jpg)
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. As Rooftops; the Roof AC (7.5) is a hard climb but leads nowhere designed.

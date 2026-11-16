@@ -158,3 +158,6 @@ What holds it back (all reviewers, every round), and what would move it:
 - [side-by-side](../../02%20Art/References/maps/oldtown2/v1-r3-side-by-side.jpg)
 
 **Approval read: not ready.** It is clearly warmer and more finished than Old Town: textured stone and stucco, an octagonal fountain, a balustraded gate, lit lanterns, and 0 / 0 audits. The perimeter and prop finish keep it at 6.3.
+
+## Jump check (2026-11-13)
+Against the 4.4-stud jump (reach: ledges 7.5, gaps 9 at sprint), [Jump Audit](Jump%20Audit%202026-11-13.md). No change. Only the gate shrines' tops (8) and two arch tops (15) left the jump's reach.

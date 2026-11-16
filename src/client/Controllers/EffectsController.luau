@@ -28,7 +28,7 @@ local Workspace = game:GetService("Workspace")
 
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Net = require(ReplicatedStorage.Shared.Net)
-local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
+local Spring = require(ReplicatedStorage.Shared.Util.Spring)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
@@ -36,13 +36,16 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 
 local AudioController = require(script.Parent.AudioController)
+local GunAudio = require(script.Parent.Parent.Util.GunAudio)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
+local HitFx = require(script.Parent.Parent.Util.HitFx)
 local ImpactFx = require(script.Parent.Parent.Util.ImpactFx)
 local KnifeSwipeFx = require(script.Parent.Parent.Util.KnifeSwipeFx)
 local MuzzleFx = require(script.Parent.Parent.Util.MuzzleFx)
 local ShellFx = require(script.Parent.Parent.Util.ShellFx)
 local ShotFxKit = require(script.Parent.Parent.Util.ShotFxKit)
 local TracerFx = require(script.Parent.Parent.Util.TracerFx)
+local BodyRecoil = require(script.Parent.Parent.Util.BodyRecoil)
 
 type WeaponConfig = Types.WeaponConfig
 type Surface = ImpactFx.Surface
@@ -220,16 +223,16 @@ local function animateWorldWeapon(character: Model?, modelName: string, clipId: 
 end
 
 -- Other players' guns kick in their hands on every shot: the grip's C1 is
--- offset on this client only (back along the barrel, muzzle up) and springs
--- home (Config/Juice WORLD_KICK). Part1 = Part0 * C0 * T * C1^-1, so moving
--- Part1 by K in its own space is C1 = K^-1 * C1.
+-- offset on this client only (back along the barrel, muzzle up) by a spring
+-- that each shot pushes (Config/Juice WORLD_KICK). Part1 = Part0 * C0 * T *
+-- C1^-1, so moving Part1 by K in its own space is C1 = K^-1 * C1.
 type GunKick = {
 	motor: Motor6D,
 	base: CFrame,
 	forward: Vector3,
-	back: number,
-	rise: number,
-	k: number,
+	spring: Spring.Spring, -- X = studs back, Y = radians muzzle up
+	limit: Vector3,
+	live: boolean,
 }
 local gunKicks: { [Motor6D]: GunKick } = {}
 
@@ -244,6 +247,7 @@ local function kickWorldGun(
 	if not motor or not motor:IsA("Motor6D") or not motor.Part1 then
 		return
 	end
+	local w = Juice.WORLD_KICK
 	local kick = gunKicks[motor]
 	if not kick then
 		local forward = Vector3.new(0, 0, -1)
@@ -254,32 +258,50 @@ local function kickWorldGun(
 				forward = toMuzzle.Unit
 			end
 		end
-		local new: GunKick =
-			{ motor = motor, base = motor.C1, forward = forward, back = 0, rise = 0, k = 0 }
+		local new: GunKick = {
+			motor = motor,
+			base = motor.C1,
+			forward = forward,
+			spring = Spring.new(w.frequency * w.frequency, 2 * w.damping * w.frequency),
+			limit = Vector3.zero,
+			live = false,
+		}
 		kick = new
 		gunKicks[motor] = new
 		motor.Destroying:Once(function()
 			gunKicks[motor] = nil
 		end)
 	end
-	local w = Juice.WORLD_KICK
 	local recoil = config.recoil
 	local up = if recoil then recoil.up else 0.4
+	local peak = Vector3.new(w.back + w.backPerUp * up, math.rad(w.rise + w.risePerUp * up), 0)
 	local active = kick :: GunKick
-	active.back = w.back + w.backPerUp * up
-	active.rise = math.rad(w.rise + w.risePerUp * up)
-	active.k = 1
+	-- A push, not a jump: a spring left alone after a push of v swells to
+	-- about v / (frequency * e), so this one shot peaks at `peak`.
+	active.spring:impulse(peak * w.frequency * math.exp(1))
+	active.limit = peak * w.hold
+	active.live = true
 end
 
 local function stepGunKicks(dt: number)
-	local decay = math.exp(-Juice.WORLD_KICK.recover * dt)
 	for motor, kick in gunKicks do
-		if kick.k <= 0 then
+		if not kick.live then
 			continue
 		end
-		kick.k *= decay
-		if kick.k < 0.01 then
-			kick.k = 0
+		local spring = kick.spring
+		local at = spring:update(dt)
+		local limit = kick.limit
+		if at.X > limit.X or at.Y > limit.Y then
+			-- Held fire: ride at the cap instead of winding up.
+			at = Vector3.new(math.min(at.X, limit.X), math.min(at.Y, limit.Y), 0)
+			spring.position = at
+			spring.velocity =
+				Vector3.new(math.min(spring.velocity.X, 0), math.min(spring.velocity.Y, 0), 0)
+		end
+		if at.Magnitude < 1e-3 and spring.velocity.Magnitude < 1e-2 then
+			spring.position = Vector3.zero
+			spring.velocity = Vector3.zero
+			kick.live = false
 			motor.C1 = kick.base
 			continue
 		end
@@ -293,73 +315,16 @@ local function stepGunKicks(dt: number)
 		if axis.Magnitude < 1e-3 then
 			continue
 		end
-		local k = kick.k
-		local offset = CFrame.new(-kick.forward * kick.back * k)
-			* CFrame.fromAxisAngle(axis.Unit, kick.rise * k)
+		local offset = CFrame.new(-kick.forward * at.X) * CFrame.fromAxisAngle(axis.Unit, at.Y)
 		motor.C1 = offset:Inverse() * kick.base
 	end
 end
 
--- The body you hit flashes for a moment (Config/Juice HIT_FLASH).
-type Flash = { highlight: Highlight, startedAt: number, time: number, from: number }
-local flashes: { [Model]: Flash } = {}
-
-local function bodyAt(position: Vector3): Model?
-	local params = OverlapParams.new()
-	local own = Players.LocalPlayer.Character
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = if own then { own } else {}
-	for _, part in Workspace:GetPartBoundsInRadius(position, Juice.HIT_FLASH.search, params) do
-		local node: Instance? = part.Parent
-		while node and node ~= Workspace do
-			if node:IsA("Model") and node:FindFirstChildOfClass("Humanoid") then
-				return node
-			end
-			node = node.Parent
-		end
-	end
-	return nil
-end
-
+-- The body you hit: a white-then-red flash over the whole body (limb meshes
+-- too), a slash, and fire from the head on a headshot (Util/HitFx, numbers in
+-- Config/HitFx).
 function EffectsController.hitFlash(position: Vector3, head: boolean, killed: boolean)
-	local body = bodyAt(position)
-	if not body then
-		return
-	end
-	local f = Juice.HIT_FLASH
-	local spec = if killed then f.kill elseif head then f.head else f.body
-	local flash = flashes[body]
-	if not flash then
-		local highlight = Instance.new("Highlight")
-		highlight.Name = "HitFlash"
-		highlight.OutlineTransparency = 1
-		highlight.DepthMode = Enum.HighlightDepthMode.Occluded
-		highlight.Adornee = body
-		highlight.Parent = body
-		local new: Flash = { highlight = highlight, startedAt = 0, time = 0, from = 1 }
-		flash = new
-		flashes[body] = new
-	end
-	local active = flash :: Flash
-	active.highlight.FillColor = spec.color
-	active.highlight.FillTransparency = spec.transparency
-	active.highlight.Enabled = true
-	active.startedAt = os.clock()
-	active.time = spec.time
-	active.from = spec.transparency
-end
-
-local function stepFlashes()
-	local now = os.clock()
-	for body, flash in flashes do
-		local t = (now - flash.startedAt) / flash.time
-		if t >= 1 or not body.Parent then
-			flash.highlight:Destroy()
-			flashes[body] = nil
-		else
-			flash.highlight.FillTransparency = flash.from + (1 - flash.from) * t
-		end
-	end
+	HitFx.hit(position, head, killed)
 end
 
 -- Where a remote shot from `origin` toward `finish` landed (for its impact).
@@ -438,11 +403,12 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 		if hook then
 			hook(config, left)
 		end
-		local sounds = GunSounds.get(weaponId)
-		AudioController.playSound(sounds.fire, "Gun")
 		if config.melee then
+			AudioController.playSound(GunSounds.get(weaponId).fire, "Gun")
 			return
 		end
+		-- The spectated player's gun, as your own sounds (Util/GunAudio).
+		GunAudio.shot(shooter, config)
 		local muzzleName = "Muzzle"
 		local muzzles = config.muzzles
 		if muzzles and #muzzles > 1 then
@@ -479,6 +445,8 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 			config,
 			worldPoint(character, "Muzzle", left)
 		)
+		-- ...and the body takes the rest of it (Util/BodyRecoil).
+		BodyRecoil.shot(character, config)
 	end
 	-- Guns with several muzzles fire them in turn (we don't know their
 	-- ammo, so just alternate per shooter).
@@ -508,7 +476,9 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 			EffectsController.ejectShell(eject, config, 1, rootVelocity(character))
 		end
 	end
-	AudioController.playSound(sounds.fireFar, "Enemy", from)
+	-- Their shot, 3D at the muzzle: first shot, random takes, a tail with every
+	-- shot faded by the next (Util/GunAudio, per shooter).
+	GunAudio.shot(shooter, config, { at = from })
 	local maxPellets =
 		math.max(config.pellets, if config.altFire then config.altFire.pellets else 0)
 	for i, e in ends do
@@ -535,23 +505,13 @@ end
 
 function EffectsController.start()
 	effectsFolder()
-	-- Load the atlas and textures up front so the first shot isn't missing them.
+	-- AudioController preloads the recordings, and this primes the shot textures.
 	task.spawn(function()
-		local probe = Instance.new("Sound")
-		probe.SoundId = Sounds.ATLAS
-		local preload: { Instance | string } = { probe }
+		local preload: { string } = {}
 		for _, id in VFX do
 			table.insert(preload, id)
 		end
-		for _, id in GunSounds.allIds() do
-			if string.sub(id, 1, 6) ~= "atlas:" then
-				local s = Instance.new("Sound")
-				s.SoundId = id
-				table.insert(preload, s)
-			end
-		end
 		game:GetService("ContentProvider"):PreloadAsync(preload)
-		probe:Destroy()
 	end)
 	Net.unreliable("ShotFx").OnClientEvent:Connect(onShotFx)
 	if RunService:IsStudio() then
@@ -570,8 +530,9 @@ function EffectsController.start()
 	end
 	RunService.RenderStepped:Connect(function(frameDt)
 		stepGunKicks(frameDt)
-		stepFlashes()
+		BodyRecoil.step(frameDt)
 		local dt = frameDt * ShotFxKit.getTimeScale()
+		HitFx.step(dt)
 		for _, animator in worldAnimators do
 			animator:update(dt)
 		end
