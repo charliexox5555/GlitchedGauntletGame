@@ -84,5 +84,5 @@ Wiring: `HudController.setCrosshairState / crosshairShot / crosshairDash`, calle
 - Damage wedge: 2.5 s or RIVALS' 5 s?
 - A fly-by whoosh for rounds that pass near you (RIVALS has one)?
 
-## Not committed
-The files I changed also hold earlier uncommitted work from other sessions. `Config/HitFx`, `Util/HitFx`, `Util/Crosshair`, `Config/Crosshair`, `Config/DamageIndicator` and `art-source/vfx/hit/` are untracked; `HitFeedback`, `WeaponController`, `HudController`, `CameraController`, `ModController`, `Juice`, `Movement` and `TracerFx` carry other sessions' edits. Commit scope waits on the owner. No Studio-owned changes, so no place save is needed.
+## Commit
+Committed on `main` in 6ca4c13c (owner, 2026-11-16: "commit all touched files"). It also carries earlier uncommitted work from other sessions in the same files (the 2026-11-13 hit feedback pass, the 2026-11-15 gunplay overhaul edits in `WeaponController`, `HudController`, `CameraController`, `ModController`, `Juice`, `Movement`, `TracerFx`, and `art-source/vfx/hit/`). Not pushed. No Studio-owned changes, so no place save is needed.
