@@ -984,6 +984,251 @@ function M.spawn(x: number?, y: number?, z: number?): string
 	return "staging spawn placed (disabled)"
 end
 
+
+-- NPCs (owner 2026-11-16: "an NPC in there that looks good", like RIVALS' vendors). Anchors tagged LobbyNPCSpot
+-- (Yaw = degrees from Blender +Y, counter-clockwise; Look = uniform; Title = name tag) become real R15 rigs in a
+-- uniform with a little gear and a name tag, the root anchored, tagged LobbyNPC (the client plays an idle).
+local NPC_LOOKS: { [string]: { [string]: string } } = {
+	armorer = {
+		skin = "#B98364",
+		torso = "#34383C",
+		arms = "#34383C",
+		legs = "#26292D",
+		vest = "#3D4347",
+		strap = "#8E6CFF",
+		cap = "#26292D",
+	},
+	shopkeeper = {
+		skin = "#8D5B43",
+		torso = "#41454A",
+		arms = "#41454A",
+		legs = "#2E3135",
+		vest = "#B8406A",
+		strap = "#E0A830",
+		cap = "#2E3135",
+	},
+}
+
+local function gear(parent: Model, attach: BasePart, name: string, size: Vector3, offset: CFrame, color: string)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Size = size
+	p.Color = Color3.fromHex(color)
+	p.Material = Enum.Material.SmoothPlastic
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.Massless = true
+	p.CFrame = attach.CFrame * offset
+	local w = Instance.new("WeldConstraint")
+	w.Part0 = attach
+	w.Part1 = p
+	w.Parent = p
+	p.Parent = parent
+end
+
+local function nameTag(head: BasePart, title: string, accentHex: string)
+	local tag = Instance.new("BillboardGui")
+	tag.Name = "NameTag"
+	tag.Size = UDim2.fromScale(5.5, 1.3)
+	tag.StudsOffset = Vector3.new(0, 2.6, 0)
+	tag.MaxDistance = 70
+	tag.LightInfluence = 0
+	local bar = Instance.new("Frame")
+	bar.Size = UDim2.fromScale(1, 1)
+	bar.BackgroundColor3 = Color3.fromHex("#14171B")
+	bar.BackgroundTransparency = 0.15
+	bar.BorderSizePixel = 0
+	bar.Parent = tag
+	local accent = Instance.new("Frame")
+	accent.Size = UDim2.fromScale(1, 0.1)
+	accent.Position = UDim2.fromScale(0, 0.9)
+	accent.BackgroundColor3 = Color3.fromHex(accentHex)
+	accent.BorderSizePixel = 0
+	accent.Parent = bar
+	local t = Instance.new("TextLabel")
+	t.Size = UDim2.fromScale(1, 0.86)
+	t.BackgroundTransparency = 1
+	t.Text = title
+	t.TextScaled = true
+	t.Font = Enum.Font.FredokaOne
+	t.TextColor3 = Color3.fromHex("#F4F1EA")
+	t.Parent = bar
+	tag.Adornee = head
+	tag.Parent = head
+end
+
+function M.npcs(): string
+	local folder = fresh(root(), "NPCs")
+	local n = 0
+	for _, spot in CollectionService:GetTagged("LobbyNPCSpot") do
+		if not spot:IsDescendantOf(root()) or not spot:IsA("BasePart") then
+			continue
+		end
+		local lookName = spot:GetAttribute("Look")
+		local look = NPC_LOOKS[if typeof(lookName) == "string" then lookName else "armorer"] or NPC_LOOKS.armorer
+		local d = Instance.new("HumanoidDescription")
+		d.HeadColor = Color3.fromHex(look.skin)
+		d.TorsoColor = Color3.fromHex(look.torso)
+		d.LeftArmColor = Color3.fromHex(look.arms)
+		d.RightArmColor = Color3.fromHex(look.arms)
+		d.LeftLegColor = Color3.fromHex(look.legs)
+		d.RightLegColor = Color3.fromHex(look.legs)
+		local ok, rig = pcall(function()
+			return game:GetService("Players"):CreateHumanoidModelFromDescription(d, Enum.HumanoidRigType.R15)
+		end)
+		if not ok or not rig then
+			continue
+		end
+		local model = rig :: Model
+		model.Name = spot.Name
+		local hum = model:FindFirstChildWhichIsA("Humanoid")
+		if hum then
+			hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+		end
+		local yawAttr = spot:GetAttribute("Yaw")
+		local yaw = math.rad(if typeof(yawAttr) == "number" then yawAttr else 0)
+		local dir = Vector3.new(-math.sin(yaw), 0, -math.cos(yaw)) -- Blender (-sin, cos) -> Roblox (x, -y)
+		local feet = spot.Position -- the anchor sits at the feet (Blender z = floor)
+		model:PivotTo(CFrame.lookAt(feet, feet + dir))
+		local cf, size = model:GetBoundingBox()
+		model:PivotTo(model:GetPivot() + Vector3.new(0, feet.Y - (cf.Position.Y - size.Y / 2), 0))
+		for _, x in model:GetDescendants() do
+			if x:IsA("BasePart") then
+				x.CanQuery = false
+				x.CanTouch = false
+			end
+		end
+		local hrp = model:FindFirstChild("HumanoidRootPart")
+		if hrp and hrp:IsA("BasePart") then
+			hrp.Anchored = true
+		end
+		local torso = model:FindFirstChild("UpperTorso")
+		if torso and torso:IsA("BasePart") then
+			gear(model, torso, "Vest", torso.Size * Vector3.new(1.08, 0.86, 1.18), CFrame.new(0, -0.05, 0), look.vest)
+			gear(
+				model,
+				torso,
+				"Strap",
+				Vector3.new(0.35, torso.Size.Y * 1.02, torso.Size.Z * 1.24),
+				CFrame.new(torso.Size.X * 0.22, 0, 0) * CFrame.Angles(0, 0, math.rad(-28)),
+				look.strap
+			)
+		end
+		local head = model:FindFirstChild("Head")
+		if head and head:IsA("BasePart") then
+			gear(model, head, "Cap", Vector3.new(head.Size.X * 1.08, head.Size.Y * 0.32, head.Size.Z * 1.08), CFrame.new(0, head.Size.Y * 0.42, 0), look.cap)
+			gear(model, head, "Brim", Vector3.new(head.Size.X * 0.9, 0.12, head.Size.Z * 0.55), CFrame.new(0, head.Size.Y * 0.3, -head.Size.Z * 0.62), look.cap)
+			local title = spot:GetAttribute("Title")
+			nameTag(head, if typeof(title) == "string" then title else "NPC", look.strap)
+		end
+		CollectionService:AddTag(model, "LobbyNPC")
+		model.Parent = folder
+		n += 1
+	end
+	return "npcs: " .. n
+end
+
+-- Visual effects (owner 2026-11-16: "add visual effects", like RIVALS' pickups and stages). Anchors tagged LobbyFX:
+-- Kind sparkle | embers | dust (ParticleEmitters in a box the size of Spread) or cone (a soft Beam light cone from
+-- the anchor to To). Built-in Roblox textures only.
+local SPARKLE = "rbxasset://textures/particles/sparkles_main.dds"
+local SMOKE = "rbxasset://textures/particles/smoke_main.dds"
+
+local function num(inst: Instance, key: string, default: number): number
+	local v = inst:GetAttribute(key)
+	return if typeof(v) == "number" then v else default
+end
+
+function M.fx(): string
+	local n = 0
+	for _, a in CollectionService:GetTagged("LobbyFX") do
+		if not a:IsDescendantOf(root()) or not a:IsA("BasePart") then
+			continue
+		end
+		for _, c in a:GetChildren() do
+			c:Destroy()
+		end
+		local kind = a:GetAttribute("Kind")
+		local hex = a:GetAttribute("Color")
+		local color = Color3.fromHex(if typeof(hex) == "string" then hex else "#FFC83D")
+		local spread = num(a, "Spread", 1.5)
+		if kind == "cone" then
+			local toAttr = a:GetAttribute("To")
+			local to = string.split(if typeof(toAttr) == "string" then toAttr else "0,0,0", ",")
+			local target = G({ tonumber(to[1]) or 0, tonumber(to[2]) or 0, tonumber(to[3]) or 0 })
+			local a0 = Instance.new("Attachment")
+			a0.Parent = a
+			local a1 = Instance.new("Attachment")
+			a1.Parent = a
+			a1.WorldPosition = target
+			local b = Instance.new("Beam")
+			b.Attachment0 = a0
+			b.Attachment1 = a1
+			b.Width0 = num(a, "W0", 1)
+			b.Width1 = num(a, "W1", 5)
+			b.FaceCamera = true
+			b.Segments = 1
+			b.Texture = SMOKE
+			b.TextureMode = Enum.TextureMode.Stretch
+			b.LightEmission = 1
+			b.LightInfluence = 0
+			b.Color = ColorSequence.new(color)
+			b.Transparency = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.74),
+				NumberSequenceKeypoint.new(0.7, 0.84),
+				NumberSequenceKeypoint.new(1, 1),
+			})
+			b.Parent = a
+		else
+			a.Size = Vector3.new(spread * 2, if kind == "dust" then spread else 0.5, spread * 2)
+			local e = Instance.new("ParticleEmitter")
+			e.Shape = Enum.ParticleEmitterShape.Box
+			e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+			e.Texture = SPARKLE
+			e.LightEmission = 1
+			e.LightInfluence = 0
+			e.Color = ColorSequence.new(color)
+			e.Rate = num(a, "Rate", 5)
+			if kind == "embers" then
+				e.Lifetime = NumberRange.new(1.2, 2.2)
+				e.Speed = NumberRange.new(1.5, 3.5)
+				e.Acceleration = Vector3.new(0, 1.2, 0)
+				e.SpreadAngle = Vector2.new(25, 25)
+				e.EmissionDirection = Enum.NormalId.Top
+				e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 0) })
+				e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(1, 1) })
+			elseif kind == "dust" then
+				e.Lifetime = NumberRange.new(6, 10)
+				e.Speed = NumberRange.new(0.1, 0.3)
+				e.SpreadAngle = Vector2.new(180, 180)
+				e.Rate = 3
+				e.Size = NumberSequence.new(0.14)
+				e.Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(0.3, 0.55),
+					NumberSequenceKeypoint.new(1, 1),
+				})
+			else -- sparkle
+				e.Lifetime = NumberRange.new(0.8, 1.6)
+				e.Speed = NumberRange.new(0.3, 1.2)
+				e.SpreadAngle = Vector2.new(180, 180)
+				e.Rotation = NumberRange.new(0, 360)
+				e.RotSpeed = NumberRange.new(-90, 90)
+				e.Size = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 0),
+					NumberSequenceKeypoint.new(0.3, 0.45),
+					NumberSequenceKeypoint.new(1, 0),
+				})
+				e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(1, 0.6) })
+			end
+			e.Parent = a
+		end
+		n += 1
+	end
+	return "fx: " .. n
+end
+
 local LIGHTING_PROPS = {
 	"Ambient",
 	"OutdoorAmbient",
@@ -1002,8 +1247,8 @@ local LIGHTING_PROPS = {
 M.V4_LIGHTING = {
 	-- round 3 (2026-11-16): RIVALS runs full environment light on mid-grey shells; ours: env diffuse for the form
 	-- gradients, ambient below outdoor (LihFolk: Lighting Technologies and Settings), a neutral grade against sky blue
-	Ambient = Color3.fromRGB(62, 62, 65), -- round 4: lower, so the lamp, sign and pad light carries the rooms
-	OutdoorAmbient = Color3.fromRGB(100, 100, 102),
+	Ambient = Color3.fromRGB(74, 74, 78), -- owner 2026-11-16: some parts too dark; a step up from round 4
+	OutdoorAmbient = Color3.fromRGB(112, 112, 116),
 	Brightness = 3,
 	ClockTime = 12.3,
 	GeographicLatitude = 4,
@@ -1141,6 +1386,8 @@ function M.rebuild(): string
 	table.insert(out, M.screens())
 	table.insert(out, M.guns())
 	table.insert(out, M.anchors())
+	table.insert(out, M.npcs())
+	table.insert(out, M.fx())
 	table.insert(out, M.sounds())
 	return table.concat(out, "\n")
 end

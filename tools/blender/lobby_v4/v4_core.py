@@ -57,21 +57,21 @@ GLOW = {
 }
 _L = S._L
 LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVariants)
-	"V_Wall": _L("SmoothPlastic", "#4E5359", v="SW_Plaster"),
-	"V_Panel": _L("SmoothPlastic", "#5A5F66", v="SW_Plaster"),
-	"V_Low": _L("SmoothPlastic", "#383C41", v="SW_Plaster"),
+	"V_Wall": _L("SmoothPlastic", "#4E5359"),
+	"V_Panel": _L("SmoothPlastic", "#5A5F66"),
+	"V_Low": _L("SmoothPlastic", "#383C41"),
 	"V_Base": _L("SmoothPlastic", "#26292D"),
 	"V_Trim": _L("SmoothPlastic", "#8A8F96"),
-	"V_Ceil": _L("SmoothPlastic", "#4C5056", v="SW_Plaster"),  # round 4: lighter, the coffers read
-	"V_Beam": _L("SmoothPlastic", "#5A5F66", v="SW_Plaster"),
+	"V_Ceil": _L("SmoothPlastic", "#4C5056"),  # round 4: lighter, the coffers read
+	"V_Beam": _L("SmoothPlastic", "#5A5F66"),
 	"V_Slab": _L("SmoothPlastic", "#17191B"),
-	"V_Floor": _L("SmoothPlastic", "#4A4E54", v="SW_Floor", r=0.03),
-	"V_Floor2": _L("SmoothPlastic", "#41454A", v="SW_Floor", r=0.03),
-	"V_Lane": _L("SmoothPlastic", "#62666C", v="SW_Floor"),
-	"V_Steel": _L("SmoothPlastic", "#5E646B", v="SW_Steel", r=0.04),
+	"V_Floor": _L("SmoothPlastic", "#4A4E54", r=0.03),
+	"V_Floor2": _L("SmoothPlastic", "#45494F", r=0.03),
+	"V_Lane": _L("SmoothPlastic", "#62666C"),
+	"V_Steel": _L("SmoothPlastic", "#5E646B", r=0.04),
 	"V_Dark": _L("SmoothPlastic", "#16171A"),
 	"V_Paint": _L("SmoothPlastic", "#CFCFCA"),
-	"V_Crate": _L("SmoothPlastic", "#3D4347", v="SW_Steel"),
+	"V_Crate": _L("SmoothPlastic", "#3D4347"),
 	"V_Gold": _L("SmoothPlastic", "#E0A830", r=0.12),
 	"V_Strap": _L("SmoothPlastic", "#1B1D20"),
 	"V_GoldPaint": _L("SmoothPlastic", "#E3AC2C"),
@@ -81,8 +81,8 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"V_Violet": _L("SmoothPlastic", "#6650B8"),
 	"V_Pink": _L("SmoothPlastic", "#B8406A"),
 	"V_Lime": _L("SmoothPlastic", "#86A830"),
-	"V_Rock": _L("SmoothPlastic", "#55585C", v="SW_Plaster"),
-	"V_Rock2": _L("SmoothPlastic", "#63676B", v="SW_Plaster"),
+	"V_Rock": _L("SmoothPlastic", "#55585C"),
+	"V_Rock2": _L("SmoothPlastic", "#63676B"),
 	"E_White": _L("Neon", "#8F8E8A", glow=True),  # Neon lighter than ~#8C877F clips to white: this reads clean white
 	"E_Gold": _L("Neon", "#D49A1A", glow=True),
 	"E_Violet": _L("Neon", "#6446D0", glow=True),
@@ -482,7 +482,7 @@ def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.
 		xm = (a + b) / 2
 		hw_, ym = min(5.0, (b - a) / 2 - 3), (y0 + y1) / 2
 		ceiling_lamp(KD, xm, ym, z, hw_, 2.2)
-		S.light(Matrix.Identity(4), xm, (y0 + y1) / 2, z - 0.4, WHITE, 1.1, 30, 80)
+		S.light(Matrix.Identity(4), xm, (y0 + y1) / 2, z - 0.4, WHITE, 1.5, 34, 90)  # owner 2026-11-16: rooms read dim (a point fill washed the walls flat)
 	nx, ny = max(1, round(W / 12)), max(1, round(D / 12))
 	for i in range(nx):
 		for j in range(ny):
@@ -800,3 +800,157 @@ def poster(K, M, x, y, w, h, title, sub, name="Poster"):
 			for cy in (y + 0.1, y + h - 0.1):
 				F["V_Steel"].box(cx - 0.12, cx + 0.12, cy - 0.12, cy + 0.12, 0.72, 0.8)
 		S.screen("poster", title, sub, M, x, y + h / 2, 0.76, w, h)
+
+
+# ---------------------------------------------------------------- owner round 2026-11-16 (night 2): RIVALS-style life
+def fx(kind, x, y, z, color="#FFC83D", to=None, name="FX", **attrs):
+	"""A visual effect built in Studio (Build_V4 M.fx): kind sparkle | embers | dust | cone. World Blender coords.
+	cone runs from (x, y, z) to `to` (a light cone from a spot can)."""
+	a = {"Kind": kind, "Color": color}
+	if to:
+		a["To"] = "%.3f,%.3f,%.3f" % tuple(to)
+	a.update(attrs)
+	S.ANCHORS.append([name, "LobbyFX", round(x, 3), round(y, 3), round(z, 3), 1.0, 1.0, 1.0, a])
+
+
+def npc(name, x, y, z, yaw, look, title):
+	"""An R15 NPC built in Studio (Build_V4 M.npcs) standing at (x, y, z) (feet), facing yaw (degrees, 0 = +Y)."""
+	S.ANCHORS.append([name, "LobbyNPCSpot", round(x, 3), round(y, 3), round(z, 3), 2.0, 2.0, 5.0, {"Yaw": yaw, "Look": look, "Title": title}])
+
+
+def step_pad(K, KD, area, x, y, r, accent, tag, name, emblem="ring", z0=0.0):
+	"""A floor pad you step on to open a menu (WorldPrompts Trigger=Step): a low octagon with a steel rim, a lit
+	accent outline, a painted emblem. The hook covers the pad."""
+	M = Matrix.Translation((x, y, z0))
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		F["V_Base"].prism(ccw(oct_pts(r + 0.6)), 0.0, 0.4)
+		S.ring_prism(G["V_Steel"], ccw(oct_pts(r + 0.6)), ccw(oct_pts(r + 0.1)), 0.4, 0.55)
+		G["V_Dark"].prism(ccw(oct_pts(r + 0.1)), 0.4, 0.5)
+		o, i = oct_pts(r - 0.2), oct_pts(r - 0.45)
+		for k in range(8):
+			j = (k + 1) % 8
+			G[accent].prism(ccw([i[k], i[j], o[j], o[k]]), 0.5, 0.56)
+		paint = PAINT.get(accent, accent)
+		rings = ((r * 0.55, 0.35), (r * 0.25, 0.3)) if emblem == "ring" else ((r * 0.55, 0.35),)
+		for R_, t in rings:
+			o, i = oct_pts(R_), oct_pts(R_ - t)
+			for k in range(8):
+				j = (k + 1) % 8
+				G[paint].prism(ccw([i[k], i[j], o[j], o[k]]), 0.5, 0.55)
+		if emblem == "coin":
+			for poly in _icon_shapes("star", r * 0.6):
+				G[paint].prism(poly, 0.5, 0.55)
+		S.collider(area, M, -r, r, -r * 0.4, r * 0.4, 0.0, 0.45, "B")
+		S.collider(area, M, -r * 0.4, r * 0.4, -r, r, 0.0, 0.45, "B")
+	S.ANCHORS.append([name + "Hook", tag, round(x, 3), round(y, 3), round(z0 + 2.5, 3), r * 1.6, r * 1.6, 4.0, {"Trigger": "Step"}])
+	S.light(Matrix.Identity(4), x, y, z0 + 12.0, WHITE, 1.4, 16, 60)
+	fx("sparkle", x, y, z0 + 1.0, GLOW.get(accent, ("#FFFFFF",))[0], name=name + "FX", Rate=3, Spread=round(r * 0.7, 2))
+
+
+def _stand_base(K, KD, M, paint):
+	F, G = S.FK(K, M), S.FK(KD, M)
+	F["V_Base"].prism(ccw(oct_pts(2.9)), 0.0, 0.6)
+	F["V_Wall"].solid([(a, b, 0.6) for a, b in ccw(oct_pts(2.4))], [(a, b, 2.4) for a, b in ccw(oct_pts(2.1))])
+	G["V_Trim"].prism(ccw(oct_pts(2.3)), 2.4, 2.65)
+	o, i = oct_pts(2.3), oct_pts(2.05)
+	for k in range(8):
+		j = (k + 1) % 8
+		G[paint].prism(ccw([i[k], i[j], o[j], o[k]]), 1.7, 1.85)
+	return F, G
+
+
+def bundle_stand(K, KD, area, x, y, accent="E_Gold", name="BundleStand"):
+	"""A bundle on show (RIVALS' floating pickups, our build): a stepped plinth with an accent band, a faceted gift box
+	with crossing straps and a bow, a gold medal floating and turning above it, sparkles and a light cone."""
+	M = Matrix.Translation((x, y, 0.0))
+	paint = PAINT.get(accent, accent)
+	with C.grp(name, M):
+		F, G = _stand_base(K, KD, M, paint)
+		G["V_Crate"].prism(ccw(S.cham_rect(-1.3, 1.3, -1.3, 1.3, 0.15)), 2.65, 4.55)
+		G["V_Dark"].prism(ccw(S.cham_rect(-1.42, 1.42, -1.42, 1.42, 0.17)), 4.55, 4.95)  # lid
+		for rot in (0, 90):
+			S.FK(KD, M @ Matrix.Rotation(radians(rot), 4, "Z"))[paint].box(-0.28, 0.28, -1.47, 1.47, 2.7, 5.0)  # straps
+		for sx in (-1, 1):  # bow: two angled plates
+			G[paint].prism(ccw([(0.0, 0.0), (sx * 0.9, 0.5), (sx * 1.0, -0.1), (sx * 0.2, -0.3)]), 4.95, 5.25)
+	Mm = Matrix.Translation((x, y, 7.6))
+	with C.grp(name + "Medal", Mm):
+		P = S.FK(KD, Mm @ RX(90))
+		P["V_Gold"].prism(ccw(oct_pts(1.25)), -0.2, 0.2)
+		S.ring_prism(P["V_Trim"], ccw(oct_pts(1.42)), ccw(oct_pts(1.2)), -0.16, 0.16)
+		for poly in _icon_shapes("star", 1.3):
+			P["E_Gold"].prism(poly, 0.2, 0.3)
+			P["E_Gold"].prism(poly, -0.3, -0.2)
+	S.ANIM[name + "Medal"] = {"pivot": [x, y, 7.6], "spin": 40, "axis": [0, 0, 1]}
+	S.light(Matrix.Identity(4), x, y, 12.0, WHITE, 2.0, 14, 34)
+	fx("sparkle", x, y, 7.6, GLOW.get(accent, ("#FFC83D",))[0], name=name + "FX", Rate=8, Spread=1.6)
+	fx("cone", x, y, 16.0, "#FFF4E0", to=(x, y, 2.8), name=name + "Cone", W0=1.0, W1=6.0)
+
+
+def effect_stand(K, KD, area, x, y, accent="E_Gold", name="EffectStand"):
+	"""A kill-effect preview (RIVALS shows effects on stands): a plinth with a cluster of faceted crystal shards and
+	rising embers, a light cone over it."""
+	M = Matrix.Translation((x, y, 0.0))
+	paint = PAINT.get(accent, accent)
+	with C.grp(name, M):
+		F, G = _stand_base(K, KD, M, paint)
+		G["V_Dark"].prism(ccw(oct_pts(1.9)), 2.65, 2.8)
+		shards = ((0.0, 0.0, 4.2, 0, 0.55), (0.9, 0.4, 2.8, 18, 0.4), (-0.8, 0.6, 3.1, -15, 0.42), (0.3, -0.9, 2.4, 22, 0.35), (-0.6, -0.7, 2.0, -25, 0.32))
+		for k, (dx, dy, hgt, tilt, rad) in enumerate(shards):
+			Mc = M @ Matrix.Translation((dx, dy, 2.75)) @ Matrix.Rotation(radians(tilt), 4, "X" if k % 2 else "Y")
+			ring = ccw([(rad * cos(radians(30 + 60 * q)), rad * sin(radians(30 + 60 * q))) for q in range(6)])
+			b = S.FK(KD, Mc)["E_Gold" if k == 0 else "V_Gold"]
+			b.solid([(a * 0.6, c * 0.6, 0.0) for a, c in ring], [(a, c, hgt * 0.7) for a, c in ring])
+			b.solid([(a, c, hgt * 0.7) for a, c in ring], [(a * 0.05, c * 0.05, hgt) for a, c in ring])
+	S.light(Matrix.Identity(4), x, y, 12.0, WHITE, 1.8, 14, 34)
+	S.light(Matrix.Identity(4), x, y, 4.5, GLOW.get(accent, ("#FFC83D",))[0], 0.8, 8)
+	fx("embers", x, y, 3.2, GLOW.get(accent, ("#FFC83D",))[0], name=name + "FX", Rate=10, Spread=1.2)
+	fx("cone", x, y, 16.0, "#FFF4E0", to=(x, y, 2.8), name=name + "Cone", W0=1.0, W1=6.0)
+
+
+def holobay(K, KD, area, M, hw, h, d, title, accent, icon, name="Holobay"):
+	"""A show stage set into a wall (RIVALS' Market holobays, our build). M: wall face frame at the bay centre (X along
+	the wall, Y up, Z into the room). A stepped frame, a lined recess d deep, a raised stage floor with a lit lip, a
+	backdrop with a big painted slash graphic, an inner box truss with three spot cans aimed at the hero point, a tab
+	sign above. Returns the hero point (world)."""
+	paint = PAINT.get(accent, accent)
+	iw = hw - 3.0
+	tz = -d * 0.45
+	with C.grp(name, M):
+		F, FD = S.FK(K, M), S.FK(KD, M)
+		S.u_frame(FD["V_Trim"], hw, h, hw - 1.2, h - 1.2, -1.0, 1.6, ci=2.6)
+		S.u_frame(FD["V_Wall"], hw - 1.2, h - 1.2, hw - 2.2, h - 2.2, -3.0, 0.9, co=2.6, ci=2.3)
+		S.u_frame(FD["V_Low"], hw - 2.2, h - 2.2, hw - 3.0, h - 3.0, -d, 0.3, co=2.3, ci=2.0)
+		F["V_Wall"].box(-hw - 2.0, hw + 2.0, h - 2.2, h + 1.6, -d, -1.0)
+		for sx in (-1, 1):
+			F["V_Wall"].box(sx * (hw - 2.2), sx * (hw + 2.0), 0, h - 2.2, -d, -1.0)
+		F["V_Wall"].box(-hw - 2.0, hw + 2.0, 0, h + 1.6, -d - 2.0, -d)
+		F["V_Slab"].box(-hw - 2.0, hw + 2.0, -1.2, -0.02, -d - 2.0, -2.0)
+		FD["V_Dark"].box(-iw, iw, 1.2, h - 3.3, -d, -d + 0.25)  # backdrop
+		for sx in (-iw * 0.62, -iw * 0.3):
+			FD[paint].prism(ccw([(sx - 1.1, 1.8), (sx + 0.4, 1.8), (sx + 3.4, h - 4.8), (sx + 1.9, h - 4.8)]), -d + 0.25, -d + 0.3)
+		FD[paint].box(-iw + 0.6, iw - 0.6, h - 4.4, h - 4.25, -d + 0.25, -d + 0.3)
+		Mf = M @ RX(-90)
+		P = S.FK(KD, Mf)
+		P["V_Floor2"].prism(ccw(S.cham_rect(-iw + 0.05, iw - 0.05, 0.2, d - 0.05, 0.3)), 0.0, 1.2)
+		P["V_Trim"].box(-iw + 0.05, iw - 0.05, 0.0, 0.35, 1.0, 1.32)
+		P[accent].box(-iw + 0.4, iw - 0.4, 0.14, 0.24, 0.4, 0.7)  # lit lip, seated in the stage face
+		S.collider(area, Mf, -iw + 0.3, iw - 0.3, 0.5, d - 0.3, 0.0, 1.1, "B")
+		for yy in (h - 3.7, h - 4.7):
+			for zz in (tz - 0.5, tz + 0.5):
+				FD["V_Dark"].pipe((-iw, yy, zz), (iw, yy, zz), 0.13, n=6)
+		n = int((2 * iw) // 1.5)
+		for q in range(n):
+			xx = -iw + 0.3 + q * 1.5
+			FD["V_Steel"].pipe((xx, h - 3.7, tz - 0.5), (xx + 0.75, h - 4.7, tz + 0.5), 0.06, n=6)
+	hero = M @ Vector((0.0, 1.2, -d * 0.5))
+	for k, sx in enumerate((-iw * 0.6, 0.0, iw * 0.6)):
+		can = M @ Vector((sx, h - 4.7, tz))
+		stage_spot(KD, (can.x, can.y), 0.0, 0.0, can.z, tuple(hero + Vector((0, 0, 1.5))))
+		if k != 1:
+			fx("cone", can.x, can.y, can.z - 1.3, "#FFF4E0", to=tuple(hero + Vector((0, 0, 1.0))), name=name + "Cone", W0=0.5, W1=4.5)
+	S.light(M, 0, h - 4.2, -d * 0.5, WHITE, 2.4, 18, 70)
+	S.light(M, 0, 4.0, -1.5, GLOW.get(accent, (WHITE,))[0], 0.7, 12)
+	sign(KD, M @ T(0, h + 0.9, 0), title, hw * 1.4, 4.4, accent=accent, tilt=10, standoff=0.8, name=name + "Sign", icon=icon, icon_size=3.4, light=False)
+	fx("dust", hero.x, hero.y, hero.z + 4.0, "#FFF4E0", name=name + "Dust", Spread=round(iw * 0.8, 2))
+	return hero

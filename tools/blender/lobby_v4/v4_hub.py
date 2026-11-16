@@ -269,11 +269,18 @@ def details(K, KD):
 
 
 def life(K, KD):
-	for th, gun in ((135, "Sheriff"), (225, "Operator"), (315, "Spectre")):
-		a = radians(th)
-		V.showcase(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), gun, 2.3, name="Showcase")
+	# owner 2026-11-16: the stands should show bundles and effects like RIVALS, not only guns
+	a = radians(135)
+	V.bundle_stand(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), name="BundleStand")
+	a = radians(225)
+	V.showcase(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), "Operator", 2.3, name="Showcase")
+	V.fx("sparkle", 27.0 * cos(a), 27.0 * sin(a), 4.5, "#FFC83D", name="ShowcaseFX", Rate=4, Spread=2.0)
+	a = radians(315)
+	V.effect_stand(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), name="EffectStand")
 	a = radians(45)
 	V.drop_stand(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a))
+	V.fx("sparkle", 27.0 * cos(a), 27.0 * sin(a), 4.0, "#FFC83D", name="DropFX", Rate=5, Spread=2.4)
+	V.fx("dust", 0.0, 0.0, 14.0, "#FFF4E0", name="LanternDust", Spread=10.0)
 	# the dais collar: four faceted segments on the diagonals (open on the lanes), gold uplights on top
 	for k in range(4):
 		th = radians(45 + 90 * k)

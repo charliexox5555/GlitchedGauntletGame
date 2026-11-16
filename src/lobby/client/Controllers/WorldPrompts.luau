@@ -4,9 +4,15 @@
 -- ProximityPrompt that opens its menu. `LobbyQueue` parts may carry a `Mode`
 -- attribute ("1v1" / "2v2" / "3v3") that preselects that mode. Works whenever
 -- tags appear (late builds, StreamingEnabled streaming parts in and out).
+-- Step pads (owner 2026-11-16, like RIVALS): a tagged BasePart with the
+-- attribute `Trigger = "Step"` gets no prompt; walking onto it opens its menu
+-- once, and it re-arms when the player steps off. Client UI only: opening a
+-- menu changes nothing on the server, so no remote is involved.
 
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 
@@ -25,6 +31,11 @@ local HOOKS: { [string]: Hook } = {
 }
 
 local PROMPT_NAME = "LobbyMenuPrompt"
+local STEP_CHECK = 0.1 -- seconds between step-pad checks
+local STEP_HEIGHT = 8 -- studs above the pad's centre that still count as standing on it
+
+type StepZone = { part: BasePart, tag: string, hook: Hook, inst: Instance, inside: boolean }
+local stepZones: { [Instance]: StepZone } = {}
 
 local function anchorOf(inst: Instance): Instance?
 	if inst:IsA("BasePart") or inst:IsA("Attachment") then
@@ -47,6 +58,10 @@ end
 local function attach(tag: string, hook: Hook, inst: Instance)
 	local anchor = anchorOf(inst)
 	if not anchor or anchor:FindFirstChild(PROMPT_NAME) then
+		return
+	end
+	if inst:GetAttribute("Trigger") == "Step" and anchor:IsA("BasePart") then
+		stepZones[inst] = { part = anchor, tag = tag, hook = hook, inst = inst, inside = false }
 		return
 	end
 	local mode = if tag == "LobbyQueue" then modeOf(inst) else nil
@@ -88,6 +103,7 @@ local function track(tag: string, hook: Hook, inst: Instance)
 end
 
 local function detach(inst: Instance)
+	stepZones[inst] = nil
 	local watcher = watchers[inst]
 	if watcher then
 		watcher:Disconnect()
@@ -100,7 +116,44 @@ local function detach(inst: Instance)
 	end
 end
 
+local function insideZone(zone: StepZone, pos: Vector3): boolean
+	local part = zone.part
+	if not part.Parent then
+		return false
+	end
+	local rel = part.CFrame:PointToObjectSpace(pos)
+	local half = part.Size / 2
+	return math.abs(rel.X) <= half.X
+		and math.abs(rel.Z) <= half.Z
+		and rel.Y >= -half.Y - 2
+		and rel.Y <= half.Y + STEP_HEIGHT
+end
+
+local function checkSteps()
+	local character = Players.LocalPlayer.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not (root and root:IsA("BasePart")) then
+		return
+	end
+	local pos = root.Position
+	for _, zone in stepZones do
+		local now = insideZone(zone, pos)
+		if now and not zone.inside then
+			Router.open(zone.hook.menu, if zone.tag == "LobbyQueue" then modeOf(zone.inst) else nil)
+		end
+		zone.inside = now
+	end
+end
+
 function WorldPrompts.start()
+	local acc = 0
+	RunService.Heartbeat:Connect(function(dt)
+		acc += dt
+		if acc >= STEP_CHECK then
+			acc = 0
+			checkSteps()
+		end
+	end)
 	for tag, hook in HOOKS do
 		CollectionService:GetInstanceAddedSignal(tag):Connect(function(inst)
 			track(tag, hook, inst)

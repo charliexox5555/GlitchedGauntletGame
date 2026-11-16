@@ -102,6 +102,21 @@ The owner's notes:
 
 **Checks:** geometry audit 0 floating, 0 leaks; 0 missing meshes; 29 real guns placed; play-test: all 10 prompts bind, spawn on the dais. 4,052 instances. **The exporter now writes FBX and JSON through temp files with retries**, after Windows file locks broke two exports. Captures: `References/lobby/v4/studio/`.
 
+## Owner round 3 (2026-11-16): step pads, NPCs, Shop stages, bundles and effects, lighting, flat surfaces
+The owner's asks: no "E to open" in the Locker, step on a pad and it opens; an NPC that looks good; a Shop like RIVALS' Market instead of a boring room; the hub stands should show effects and bundles, not only guns; visual effects; parts of the lobby too dark; the "blocky" textures.
+
+| Ask | Done |
+|---|---|
+| Step pads | `src/lobby/client/Controllers/WorldPrompts.luau`: a tagged part with `Trigger = "Step"` gets no prompt; walking onto it opens its menu once (re-arms on leaving; a 10 Hz client check; client UI only, no remote). Locker pad (in front of the loadout board), Shop pad (in front of the counter), Season Pass pad (in front of its stage). The queue pads keep their prompts. Play-tested: stepping on the Locker pad opened the Locker. |
+| NPCs | Real R15 rigs built by `Build_V4.npcs()` from `LobbyNPCSpot` anchors: an ARMORER in the Locker beside the pad, a SHOPKEEPER at the counter end, in uniform colours with a vest, strap and cap, a name tag in Fredoka One, the root anchored. `src/lobby/client/Controllers/LobbyNpcs.luau` plays a looping idle on anything tagged `LobbyNPC` (both playing in the test). |
+| Shop | RIVALS' Market logic in our build: two **show stages** set into the long walls (`v4_core.holobay`: stepped frame, lined recess, raised stage with a lit lip, slash backdrop, an inner truss with three spot cans and light cones, a tab sign). FEATURED: the bundle gun turning on a pedestal, hard cases, a price card ("PHANTOM BUNDLE, 1,200 COINS"). SEASON PASS: a gold crest with "1" on a stepped podium. The old wall cases, the board and the console are gone. |
+| Hub stands | `bundle_stand` (a gift box with straps and a bow, a gold star medal floating and turning above it, sparkles, a light cone) and `effect_stand` (a cluster of faceted gold shards with rising embers, a light cone). One gun showcase stays, with sparkles; the supply drop gets sparkles. |
+| Effects | `Build_V4.fx()` from `LobbyFX` anchors: sparkle, embers and dust ParticleEmitters and soft Beam light cones, built-in Roblox textures only. 20 effects. |
+| Lighting | Ambient 74 / outdoor 112 (from 62 / 100), room ceiling pools 1.5 (from 1.1). A point fill was tried and washed the walls flat, so it was removed. |
+| Textures | The SW_* painted MaterialVariants are off every V4 material (flat SmoothPlastic). The two floor plate tones are closer. |
+
+**Checks:** 0 floating, 0 leaks; 0 missing meshes; 2 NPCs; 20 effects; 23 guns; the play-test opened the Locker from its pad; the only prompts left are the 7 queue pads; no new Output errors. About 4,400 instances.
+
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.
 - The Shop centre is empty. A featured-skin plinth would carry it.
