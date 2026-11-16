@@ -542,7 +542,7 @@ local defs: { [string]: ModDef } = {
 		block = "Projectile",
 		activation = "HeldCharge",
 		authority = "Server",
-		icon = "rbxassetid://72311263273723", -- stand-in (tools/icons/make_free_pack_icons.py) until the ChatGPT icon
+		icon = "rbxassetid://97380674672036", -- ChatGPT icon (art-source/ui/chatgpt, vault/02 Art/UI Art Brief (ChatGPT).md)
 		glyph = "SD",
 		hint = { primary = "Hold: charge", alt = "Bounces" },
 		levels = {
@@ -610,7 +610,7 @@ local defs: { [string]: ModDef } = {
 		block = "Projectile",
 		activation = "HeldThrow",
 		authority = "Server",
-		icon = "rbxassetid://86922815169421", -- stand-in (tools/icons/make_free_pack_icons.py)
+		icon = "rbxassetid://93044821674912", -- ChatGPT icon (art-source/ui/chatgpt, vault/02 Art/UI Art Brief (ChatGPT).md)
 		glyph = "FL",
 		hint = { primary = "Throw", alt = "Quick pop" },
 		quickCast = "Primary",
@@ -689,7 +689,7 @@ local defs: { [string]: ModDef } = {
 		block = "Placeable",
 		activation = "HeldPlace",
 		authority = "Server",
-		icon = "rbxassetid://93611125603416", -- stand-in (tools/icons/make_free_pack_icons.py)
+		icon = "rbxassetid://94477150756855", -- ChatGPT icon (art-source/ui/chatgpt, vault/02 Art/UI Art Brief (ChatGPT).md)
 		glyph = "RB",
 		hint = { primary = "Set down" },
 		quickCast = "Primary",

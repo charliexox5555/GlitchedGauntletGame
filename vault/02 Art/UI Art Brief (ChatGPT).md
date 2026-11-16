@@ -110,3 +110,14 @@ Attach `card_backdrop.png` and `card_refs/All.png`. Then paste the text below. I
 > - ShockDart: a bolt with a lightning zigzag beside its head.
 > - Flash: a short canister bursting into a starburst.
 > - Roller: a small two-wheeled bot with angry slanted eyes.
+
+### Result (2026-11-17)
+ChatGPT (with access to the repo) made all 12 cards at 1024 x 768 and the 3 icons at 512 x 512, checked at 40 px.
+- **The set holds together:** the same stage, camera, scale and clean cel-shaded look on every card, and each power drawn from our model (Molly's orange-panel canister, the Frost canister, the legged Stim and Recall beacons, the bow, the Flash canister, the two-wheel Roller).
+- **The backdrop:** ChatGPT redrew it with a little more panel detail than `card_backdrop.png`, but it's the same on all 12, which is what the owner asked for.
+- **Processed:** `tools/ui_chatgpt.py` crops to 760 x 600 with the cut corner and fade; every subject stays above the fade.
+- **Uploaded** as decals `ModCard_v2_<Id>` and `ModIcon_<Id>`.
+- **Wired:** `Config/Theme CARD_ART` (12 ids) and `Config/Mods` `icon` for ShockDart, Flash and Roller (the stand-ins are gone).
+- All 15 load in Studio at draft-card size.
+
+The v1 ids are in git history (Theme.luau before this change).

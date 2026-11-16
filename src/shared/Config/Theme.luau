@@ -96,15 +96,19 @@ return table.freeze({
 	-- card's cut corner and a bottom fade baked in (tools/ui_chatgpt.py, made with ChatGPT). A card
 	-- without one shows its big faded icon instead.
 	CARD_ART = table.freeze({
-		Dash = "rbxassetid://140533506579264",
-		Updraft = "rbxassetid://104192200505705",
-		Molly = "rbxassetid://85118788731965",
-		Firewall = "rbxassetid://74192677647271",
-		Frost = "rbxassetid://138876276704481",
-		Recon = "rbxassetid://134354078754707",
-		HealOrb = "rbxassetid://91450560774587",
-		Stim = "rbxassetid://136778934313659",
-		Recall = "rbxassetid://81529533451310",
+		-- v2 2026-11-17: theme "Gauntlet Stage" (art-source/ui/chatgpt/cards_v2, vault/02 Art/UI Art Brief (ChatGPT).md)
+		Dash = "rbxassetid://93422732615695",
+		Updraft = "rbxassetid://90498446579810",
+		Molly = "rbxassetid://87768495278098",
+		Firewall = "rbxassetid://112029131191298",
+		Frost = "rbxassetid://75871004165189",
+		Recon = "rbxassetid://103202448930917",
+		HealOrb = "rbxassetid://101032280288349",
+		Stim = "rbxassetid://132219063014496",
+		Recall = "rbxassetid://105313707468451",
+		ShockDart = "rbxassetid://113581888121712",
+		Flash = "rbxassetid://106074677525394",
+		Roller = "rbxassetid://117734954987735",
 	} :: { [string]: string }),
 
 	-- Side renders of each gun, muzzle to the right (Config/Weapons ids).
