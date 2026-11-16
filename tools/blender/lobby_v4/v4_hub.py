@@ -123,6 +123,9 @@ def floor(K, KD):
 			for h, quad in enumerate(([i[k], im, om, o[k]], [im, i[j], o[j], om])):
 				mat = "V_Floor" if (ring + h) % 2 == 0 else "V_Floor2"
 				KD[mat].prism(V.inset(V.ccw(quad), 0.125), 0, 0.12)
+	for k in range(2):  # grates at the foot of the two board walls (the other diagonals carry props)
+		Mz = Matrix.Rotation(radians(45 + 90 * k) - pi / 2, 4, "Z")
+		V.grate(KD, Mz, -13.0, 13.0, R - 4.2, R - 2.4, 0.12)
 	# the dais: two octagonal steps with light nosings, a gold ring and a dark centre plate with a gold arrow to Duels
 	K["V_Floor2"].prism(V.ccw(V.oct_pts(12.5)), 0.12, 1.0)
 	ring_sectors(K["V_Trim"], 11.9, 12.55, 0.86, 1.05)
@@ -143,7 +146,7 @@ def floor(K, KD):
 			G["V_GoldPaint"].box(sx * (hw + 0.1), sx * (hw + 0.5), y0, y1, 0.12, 0.19)
 		V.floor_text(KD, Ml @ Matrix.Translation((0, 34.2, 0)), name, 2.4, z=0.17)
 		if th == 90:
-			for y in (21.5, 26.5, 39.5):
+			for y in (22.5, 27.5):
 				V.chevron(KD, Ml, 0, y, 4.2, z=0.17)
 
 
@@ -268,9 +271,21 @@ def details(K, KD):
 
 
 def life(K, KD):
-	for th, gun in ((45, "Vandal"), (135, "Sheriff"), (225, "Operator"), (315, "Spectre")):
+	for th, gun in ((135, "Sheriff"), (225, "Operator"), (315, "Spectre")):
 		a = radians(th)
-		V.showcase(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), gun, 1.7, name="Showcase")
+		V.showcase(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), gun, 2.3, name="Showcase")
+	a = radians(45)
+	V.drop_stand(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a))
+	# the dais collar: four faceted segments on the diagonals (open on the lanes), gold uplights on top
+	for k in range(4):
+		th = radians(45 + 90 * k)
+		Mz = Matrix.Rotation(th - pi / 2, 4, "Z")
+		with C.grp("DaisCollar", Mz, inst=True):
+			F, G = S.FK(K, Mz), S.FK(KD, Mz)
+			F["V_Wall"].prism(V.ccw([(-4.6, 13.3), (4.6, 13.3), (5.6, 14.6), (-5.6, 14.6)]), 0.12, 1.6)
+			G["V_Trim"].prism(V.ccw([(-5.0, 13.2), (5.0, 13.2), (6.0, 14.7), (-6.0, 14.7)]), 1.6, 1.8)
+			for u in (-3.6, 0.0, 3.6):
+				G["E_Gold"].prism(V.ccw(S.cham_rect(u - 0.35, u + 0.35, 13.75, 14.15, 0.1)), 1.8, 1.86)
 	V.arcade(K, KD, V.face_at(225, R), 10.0, name="Arcade")
 
 

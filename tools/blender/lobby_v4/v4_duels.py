@@ -84,8 +84,8 @@ def bay(K, KD, M, mode, idx):
 				P["V_Steel"].prism(V.ccw(S.cham_rect(cx - 0.6, cx + 0.6, cy - 0.6, cy + 0.6, 0.25)), 0.3, 0.82)
 		P["V_Strap"].box(4.4, 5.6, d - 1.6, d, 0.12, 0.62)  # cable duct to the back wall
 		P["V_Steel"].prism(V.ccw(S.cham_rect(3.9, 6.1, d - 0.4, d, 0.15)), 0.0, 1.0)  # its flange
-		S.light(M, 0, h - 3.6, -d * 0.5, V.WHITE, 2.6, 22, 85)
-		S.light(M, 0, 8.0, -d * 0.35, V.WHITE, 0.9, 16)  # fill: the queue is a stage
+		S.light(M, 0, h - 3.6, -d * 0.5, V.WHITE, 2.0, 22, 85)
+		S.light(M, 0, 8.0, -d * 0.35, V.WHITE, 0.6, 14)  # fill: the queue is a stage
 	V.hazard_strip(KD, M @ V.RX(-90), -hw + 1.2, hw - 1.2, -2.6, -1.3, 0.12)  # threshold stripes on the hall floor
 	with C.grp("BayDetails", M):
 		V.plaque(KD, M @ V.T(-(hw - 3.2), 0, -d * 0.5) @ Matrix.Rotation(radians(90), 4, "Y"), 0, 5.4, 3.2, 2.0, "caution", "CAUTION", ["STAND ON PAD", "TO QUEUE"])
@@ -198,6 +198,8 @@ def floor(K, KD):
 		KD["V_GoldPaint"].box(sx * 6.1, sx * 6.5, Y0, 70.0, 0.12, 0.19)  # across the landing
 	for y in (76.0, 82.0, 88.0):
 		V.chevron(KD, Matrix.Identity(4), 0, y, 4.0, z=Z0 + 0.17)
+	for sx in (-1, 1):
+		V.grate(KD, Matrix.Identity(4), sx * 7.8 - 1.0, sx * 7.8 + 1.0, 73.6, 99.6, Z0 + 0.12)
 	V.floor_text(KD, Matrix.Translation((0, 92.6, Z0)), "PLAY", 2.2, z=0.17)
 
 

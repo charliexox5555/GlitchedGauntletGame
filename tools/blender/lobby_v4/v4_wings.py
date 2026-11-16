@@ -81,7 +81,8 @@ class Locker:
 		# loadout station on the end wall: stage, board, sign, console
 		Mw, _ = walls["W"]
 		stage(K, KD, cls.X0 + 8.6, 0.0, 6.6, 4.6, "E_Violet")
-		V.board(KD, Mw @ V.T(24, 6.2, 0), 22.0, 9.4, "locker", "LOADOUT", name="Board_Loadout", accent="E_Violet")
+		V.floor_text(KD, Matrix.Translation((cls.X0 + 8.6, 0.0, 1.8)) @ Matrix.Rotation(radians(90), 4, "Z"), "STAND HERE", 0.9, mat="V_GoldPaint", z=0.06)
+		V.board(KD, Mw @ V.T(24, 6.2, 0), 22.0, 9.4, "locker", "SELECTED", name="Board_Loadout", accent="E_Violet")
 		V.sign(KD, Mw @ V.T(24, 18.6, 0), "LOADOUT", 22.0, 5.2, accent="E_Violet", name="Sign_Loadout")
 		console(K, KD, cls.X0 + 17.5, 0.0, 90, "E_Violet", A, "LobbyLocker", "LockerConsole")
 		V.prop_group(K, V.wframe((cls.X1, cls.Y1), (0, -1)) @ V.RX(-90), [("case", 9.0, -2.0, 0.0, 0), ("case", 9.2, -2.0, 0.92, -4), ("crate_s", 9.0, -6.2, 0.0, 8)])
@@ -96,7 +97,7 @@ class Locker:
 				G["E_Violet"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.6, 2.8)
 			G["V_Trim"].prism(V.ccw(V.oct_pts(2.9)), 3.2, 3.5)
 			G["V_Steel"].prism(V.ccw(V.oct_pts(2.3)), 3.5, 3.7)  # turntable the gun stands on
-			S.gun_row(["Vandal", 2.2, -88.0, 0.0, 4.9, 0.0, 1.0, 1, 16])
+			S.gun_row(["Vandal", 1.35, -88.0, 0.0, 4.4, 0.0, 1.0, 1, 16])
 			S.light(I4, -88.0, 0.0, cls.H - 0.6, V.WHITE, 2.4, 30, 40)
 		return K.done() + KD.done()
 
@@ -147,6 +148,7 @@ class Shop:
 		V.board(KD, Mn @ V.T(27, 4.6, 0), 26.0, 10.8, "battlepass", "SEASON PASS", name="Board_SeasonPass", accent="E_Coral")
 		V.sign(KD, Mn @ V.T(27, 18.5, 0), "SEASON PASS", 20.0, 4.6, accent="E_Coral", name="Sign_SeasonPass", chevrons=False, lh=2.4)
 		stage(K, KD, 89.0, cls.Y1 - 9.6, 5.2, 3.6, "E_Coral")
+		V.floor_text(KD, Matrix.Translation((89.0, cls.Y1 - 9.6, 1.8)) @ Matrix.Rotation(radians(0), 4, "Z"), "STAND HERE", 0.8, mat="V_GoldPaint", z=0.06)
 		console(K, KD, 89.0, cls.Y1 - 17.5, 0, "E_Coral", A, "LobbyBattlePass", "PassConsole")
 		with C.grp("FeaturePlinth", Matrix.Translation((84.0, -5.0, 0.0))):
 			Mp = Matrix.Translation((84.0, -5.0, 0.0))

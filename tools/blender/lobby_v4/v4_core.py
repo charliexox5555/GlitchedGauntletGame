@@ -60,8 +60,8 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"V_Ceil": _L("SmoothPlastic", "#4C5056", v="SW_Plaster"),  # round 4: lighter, the coffers read
 	"V_Beam": _L("SmoothPlastic", "#5A5F66", v="SW_Plaster"),
 	"V_Slab": _L("SmoothPlastic", "#17191B"),
-	"V_Floor": _L("SmoothPlastic", "#4A4E54", v="SW_Floor"),
-	"V_Floor2": _L("SmoothPlastic", "#41454A", v="SW_Floor"),
+	"V_Floor": _L("SmoothPlastic", "#4A4E54", v="SW_Floor", r=0.03),
+	"V_Floor2": _L("SmoothPlastic", "#41454A", v="SW_Floor", r=0.03),
 	"V_Lane": _L("SmoothPlastic", "#62666C", v="SW_Floor"),
 	"V_Steel": _L("SmoothPlastic", "#5E646B", v="SW_Steel", r=0.04),
 	"V_Dark": _L("SmoothPlastic", "#16171A"),
@@ -176,7 +176,7 @@ def sign(K, M, text, w, h, accent="E_Gold", tilt=13.0, lh=None, standoff=1.0, na
 			top_out = standoff + h * sin(D(tilt))
 			F["V_Steel"].ext_x(ccw([(h * 0.15, -0.6), (h * 0.15, standoff + 0.05), (h * 0.85, top_out - 0.1), (h * 0.95, -0.6)]), bx - 0.35, bx + 0.35)
 		if light:
-			S.light(M, 0, h * 0.4, standoff + 4.0, GLOW.get(accent, (WHITE,))[0], 1.3, 16)
+			S.light(M, 0, h * 0.3, standoff + 2.2, GLOW.get(accent, (WHITE,))[0], 0.8, 9)
 
 
 # ---------------------------------------------------------------- fixtures
@@ -265,7 +265,7 @@ def board(K, M, w, h, kind, title, sub="", name="Board", accent="E_Gold"):
 		S.screen(kind, title, sub, M, 0, h / 2, 1.16, w - 1.6, h - 1.6)
 		# hood lamp: a steel wedge over the top edge with a white lens underneath
 		F["V_Steel"].ext_x(ccw([(h + 0.2, 0.2), (h + 0.2, 2.4), (h + 1.0, 2.6), (h + 1.3, 0.2)]), -w * 0.3, w * 0.3)
-		F["E_White"].ext_x(ccw([(h + 0.12, 0.6), (h + 0.12, 2.1), (h + 0.25, 2.1), (h + 0.25, 0.6)]), -w * 0.28, w * 0.28)
+		F["E_White"].ext_x(ccw([(h + 0.24, 0.6), (h + 0.24, 2.1), (h + 0.36, 2.1), (h + 0.36, 0.6)]), -w * 0.28, w * 0.28)
 		S.light(M, 0, h + 0.2, 3.2, WHITE, 0.9, 12)
 
 
@@ -588,8 +588,8 @@ def showcase(K, KD, area, x, y, gun, scale, accent="E_Gold", name="Showcase", sp
 			G[accent].prism(ccw([i[k], i[j], o[j], o[k]]), 1.9, 2.05)
 		G["V_Trim"].prism(ccw(oct_pts(2.3)), 2.6, 2.85)
 		G["V_Steel"].prism(ccw(oct_pts(1.8)), 2.85, 3.0)
-		S.gun_row([gun, scale, x, y, 4.05, 1.0, 0.0, 1, spin])
-		S.light(Matrix.Identity(4), x, y, 12.0, WHITE, 1.6, 16, 40)
+		S.gun_row([gun, scale, x, y, 3.0, 1.0, 0.0, 0, spin])  # rests on the turntable
+		S.light(Matrix.Identity(4), x, y, 11.0, WHITE, 3.0, 14, 34)
 
 
 def arcade(K, KD, M, x, title="TARGET RUN", name="Arcade"):
@@ -643,3 +643,43 @@ def prop_group(K, M, items):
 			crate(K, Mi, w=3.6, d=3.2, h=2.6, name="CrateSmall")
 		else:
 			hard_case(K, Mi)
+
+
+
+def grate(K, M, x0, x1, y0, y1, z, pitch=0.55):
+	"""A floor grate strip (frame M floor plane): a dark frame and steel ribs across it."""
+	F = S.FK(K, M)
+	S.ring_prism(F["V_Steel"], ccw(S.cham_rect(x0, x1, y0, y1, 0.08)), ccw(S.cham_rect(x0 + 0.25, x1 - 0.25, y0 + 0.25, y1 - 0.25, 0.04)), z, z + 0.08)
+	F["V_Slab"].box(x0 + 0.25, x1 - 0.25, y0 + 0.25, y1 - 0.25, z - 0.1, z + 0.01)
+	along_x = (x1 - x0) >= (y1 - y0)
+	n = int(((x1 - x0) if along_x else (y1 - y0)) // pitch)
+	for k in range(1, n):
+		if along_x:
+			c = x0 + k * (x1 - x0) / n
+			F["V_Steel"].box(c - 0.07, c + 0.07, y0 + 0.25, y1 - 0.25, z, z + 0.06)
+		else:
+			c = y0 + k * (y1 - y0) / n
+			F["V_Steel"].box(x0 + 0.25, x1 - 0.25, c - 0.07, c + 0.07, z, z + 0.06)
+
+
+def drop_stand(K, KD, area, x, y, name="DailyDrop"):
+	"""A supply-drop stand: a stepped plinth with gold corner lights, a big strapped crate on it, a beacon post and a
+	notice plaque. Decoration now; a reward hook can be tagged on it later."""
+	M = Matrix.Translation((x, y, 0.0))
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		F["V_Base"].prism(ccw(S.cham_rect(-3.6, 3.6, -3.0, 3.0, 0.6)), 0.0, 0.6)
+		F["V_Wall"].prism(ccw(S.cham_rect(-3.1, 3.1, -2.5, 2.5, 0.5)), 0.6, 1.4)
+		G["V_Trim"].prism(ccw(S.cham_rect(-3.2, 3.2, -2.6, 2.6, 0.5)), 1.3, 1.45)
+		for cx in (-2.7, 2.7):
+			for cy in (-2.1, 2.1):
+				G["E_Gold"].prism(ccw(oct_pts(0.22)), 1.45, 1.55)
+	crate(KD, M @ T(0, 0, 1.45), w=4.4, d=3.4, h=3.0, name="DropCrate")
+	S.collider(area, M, -2.0, 2.0, -1.5, 1.5, 1.6, 4.3, "B")
+	with C.grp(name + "Beacon", M):
+		G = S.FK(KD, M)
+		G["V_Steel"].pipe((3.0, 2.2, 1.45), (3.0, 2.2, 6.2), 0.14, n=8)
+		Mb = M @ T(3.0, 2.2, 6.6)
+		S.FK(KD, Mb)["E_Gold"].prism(ccw(oct_pts(0.4)), -0.4, 0.4)
+		S.FK(KD, Mb)["V_Dark"].prism(ccw(oct_pts(0.32)), 0.4, 0.55)
+	S.light(Matrix.Identity(4), x, y, 11.0, WHITE, 2.4, 14, 40)

@@ -103,6 +103,21 @@ def pieces(obs, dg):
 	return info, skip
 
 
+def _write(path, obj):
+	"""Write JSON through a temp file and retry the swap: Windows sometimes holds a lock on the target (OSError 22)."""
+	import time
+	tmp = path + ".tmp"
+	with open(tmp, "w") as f:
+		json.dump(obj, f, separators=(",", ":"))
+	for k in range(20):
+		try:
+			os.replace(tmp, path)
+			return
+		except OSError:
+			time.sleep(0.5)
+	raise OSError("could not replace " + path)
+
+
 def run(only=None):
 	os.makedirs(DATA_DIR, exist_ok=True)
 	dg = bpy.context.evaluated_depsgraph_get()
@@ -159,16 +174,12 @@ def run(only=None):
 			d = json.load(open(os.path.join(sw_locker.BUILD_DATA, gid + ".json")))
 			guns[gid] = {"assetId": d["assetId"], "parts": [[q["name"], q["look"]["material"], q["look"]["color"]] + [round(v, 4) for v in q["center"]]
 				+ [round(v, 4) for v in q["size"]] for q in d["parts"] if not q.get("option") and q.get("look")]}
-		with open(os.path.join(DATA_DIR, "Guns.json"), "w") as f:
-			json.dump({"guns": guns, "place": S.GUNS}, f, separators=(",", ":"))
+		_write(os.path.join(DATA_DIR, "Guns.json"), {"guns": guns, "place": S.GUNS})
 		summary["Guns"] = {"models": len(guns), "placed": len(S.GUNS)}
-	with open(os.path.join(DATA_DIR, "Anchors.json"), "w") as f:
-		json.dump(S.ANCHORS, f, separators=(",", ":"))
+	_write(os.path.join(DATA_DIR, "Anchors.json"), S.ANCHORS)
 	summary["Anchors"] = len(S.ANCHORS)
-	with open(os.path.join(DATA_DIR, "Screens.json"), "w") as f:
-		json.dump(S.SCREENS, f, separators=(",", ":"))
+	_write(os.path.join(DATA_DIR, "Screens.json"), S.SCREENS)
 	summary["Screens"] = len(S.SCREENS)
-	with open(os.path.join(DATA_DIR, "Sounds.json"), "w") as f:
-		json.dump(S.SOUNDS, f, separators=(",", ":"))
+	_write(os.path.join(DATA_DIR, "Sounds.json"), S.SOUNDS)
 	summary["Sounds"] = len(S.SOUNDS)
 	return summary
