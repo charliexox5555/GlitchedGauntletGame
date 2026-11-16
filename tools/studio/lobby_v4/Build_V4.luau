@@ -1000,6 +1000,15 @@ local NPC_LOOKS: { [string]: { [string]: string } } = {
 		strap = "#8E6CFF",
 		cap = "#26292D",
 	},
+	broker = { -- the Shop's big NPC (owner 2026-11-16: a larger character like RIVALS' vendor)
+		skin = "#C08A66",
+		torso = "#2A1F45",
+		arms = "#2A1F45",
+		legs = "#1E1A2B",
+		vest = "#401C99",
+		strap = "#C5B7D9",
+		cap = "#1E1A2B",
+	},
 	shopkeeper = {
 		skin = "#8D5B43",
 		torso = "#41454A",
@@ -1084,6 +1093,10 @@ function M.npcs(): string
 		end
 		local model = rig :: Model
 		model.Name = spot.Name
+		local scaleAttr = spot:GetAttribute("Scale")
+		if typeof(scaleAttr) == "number" and scaleAttr > 0 and scaleAttr ~= 1 then
+			model:ScaleTo(scaleAttr)
+		end
 		local hum = model:FindFirstChildWhichIsA("Humanoid")
 		if hum then
 			hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None

@@ -326,3 +326,7 @@ def build():
 def bpy_col(name):
 	import bpy
 	return bpy.data.collections[name]
+
+
+floor = V.grouped(floor, "HubFloor")
+ceiling = V.grouped(ceiling, "HubCeiling")

@@ -143,6 +143,16 @@ The owner: "it still needs improvements on the structure of the whole thing". Re
 
 **Checks:** 0 floating, 0 leaks; clash audit clean for fixtures; 0 missing meshes; about 4,630 instances.
 
+## Shop as a Market hallway, separate meshes, railings (owner 2026-11-16)
+| Note | Done |
+|---|---|
+| Gallery railings not on the deck | Railing posts and rails now stand on the deck, inside its cut corners, each post on a base plate. |
+| Every structure its own mesh | Walls, floors, ceilings, conduits, paths, hazard strips and ceiling lamps are their own pieces (`v4_core.grouped`), the gallery splits into Deck / Braces / Railing, the hub and Duels floors, ceilings and the Duels landing too. 178 → 308 pieces; each piece is a Model in Studio, and inside a piece each material is its own MeshPart. |
+| Shop redesign (like RIVALS' Market) | The Shop is now a **hallway** 88 long x 26 wide x 30 high with a vault: two big show stages face each other (FEATURED south, SEASON PASS north, 30 wide x 16 deep), each with a **walk-in floor mark** (`v4_core.step_mark`: inlaid field, lit corner brackets in the stage colour, three pairs of footprints, a hazard strip with STEP IN) that opens its menu, no pad. The far end: the **BROKER**, a big R15 NPC (about 9.8 studs, scale 1.8) on a stepped plinth, a TV and the SHOP sign behind him. Pop-out TVs and vents by the entrance, piers with bar lamps, a lit path down the middle. Play-tested: FEATURED opened the Shop, SEASON PASS the Battle Pass. |
+| Props from RIVALS | Copying between two Studio windows is not possible from here (each place is its own DataModel to the tools, no clipboard). The owner can paste them into `Workspace.LobbyV4Staging.PropsPlaceholder`; they are RIVALS' meshes, so placeholders only, replaced before publishing. |
+
+**Checks:** 0 floating, 0 leaks; the Shop clash list is down to intended seats (piers into walls, frame legs into the floor, lamp housings into the ceiling); 0 missing; about 5,050 instances (the split adds Models).
+
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.
 - The Shop centre is empty. A featured-skin plinth would carry it.

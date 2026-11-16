@@ -114,11 +114,13 @@ class Locker:
 
 
 class Shop:
-	"""The Shop (owner 2026-11-16: boring, unclear): RIVALS' Market logic in our build. Two show stages set into the
-	long walls (FEATURED with a turning bundle gun, SEASON PASS with a big crest), a step pad in front of each menu,
-	the counter with a shopkeeper behind it, the featured board over the counter."""
+	"""The Shop as a Market hallway (owner 2026-11-16, after RIVALS' Market: a hall, not a room). From the hub door a
+	long hall runs east; two big show stages face each other across it (FEATURED south, SEASON PASS north), each with a
+	walk-in floor mark that opens its menu; a big NPC, the BROKER, stands at the far end on a stepped plinth under the
+	SHOP sign and a TV. Piers with bar lamps, TVs and posters by the entrance, a lit path down the middle."""
 	AREA = "Shop"
-	X0, X1, Y0, Y1, H = 62.0, 116.0, -26.0, 26.0, 28.0
+	X0, X1, Y0, Y1, H = 62.0, 150.0, -13.0, 13.0, 30.0
+	BX, BHW, BH, BD = 104.0, 15.0, 20.0, 16.0  # stage centre x, half width, height, depth
 
 	@classmethod
 	def build(cls):
@@ -126,75 +128,83 @@ class Shop:
 		KD = C.Kit(K.col, prefix=cls.AREA + "D")
 		KD.nocol = True
 		A = cls.AREA
-		bay = (13.0, 41.0, 0.0, 16.0)
-		skips = {"S": [(10.0, 44.0)], "N": [(10.0, 44.0)], "E": [(6.0, 46.0)], "W": [(26 - 13.0, 26 + 13.0)]}
-		walls = V.room(K, KD, A, cls.X0, cls.X1, cls.Y0, cls.Y1, cls.H, ops={"W": [(14.0, 38.0, 0.0, 18.0)], "N": [bay], "S": [bay]}, skips=skips, beams_x=(80.0, 98.0))
-		Mv, _ = walls["S"]
-		with C.grp("Vents_S", Mv):
-			for u in (6.2, 47.8):
-				V.vent(KD, Mv, u, 2.6, 2.8, 2.0)
-		Me0, _ = walls["E"]
-		with C.grp("Plaques_Counter", Me0):
-			V.plaque(KD, Me0, 9.0, 10.6, 3.4, 2.4, "notice", "NOTICE", ["NEW SKINS WEEKLY"])
+		X0, X1, Y0, Y1, H = cls.X0, cls.X1, cls.Y0, cls.Y1, cls.H
+		BX, BHW, BH, BD = cls.BX, cls.BHW, cls.BH, cls.BD
+		nb = (BX - X0 - BHW, BX - X0 + BHW, 0.0, BH)  # north wall: local x = world x - X0
+		sb = (X1 - BX - BHW, X1 - BX + BHW, 0.0, BH)  # south wall: local x = X1 - world x
+		gap = 2.4
+		ops = {"W": [(Y1 - 12.0, Y1 + 12.0, 0.0, 18.0)], "N": [nb], "S": [sb]}
+		skips = {"N": [(nb[0] - gap, nb[1] + gap), (3.0, 20.0)], "S": [(sb[0] - gap, sb[1] + gap), (X1 - X0 - 20.0, X1 - X0 - 3.0)],
+			"E": [(Y1 - 11.0, Y1 + 11.0)], "W": []}
+		walls = V.room(K, KD, A, X0, X1, Y0, Y1, H, ops=ops, skips=skips, beams_x=(84.0, 124.0))
 		Mw, _ = walls["W"]
-		V.mouth(KD, Mw @ V.T(26, 0, 0), 12.0, 18.0)
-		KD["V_Floor2"].box(cls.X0 - 4.0, cls.X0, -8.0, 8.0, 0.0, 0.12)
-		# the counter on the end wall, a shopkeeper behind it, the featured board and the SHOP sign over it
-		Me, _ = walls["E"]
-		with C.grp("Counter", Matrix.Translation((cls.X1 - 9.0, 0.0, 0.0))):
-			M = Matrix.Translation((cls.X1 - 9.0, 0.0, 0.0))
-			F, G = S.FK(K, M), S.FK(KD, M)
-			G["V_Base"].box(-1.4, 1.6, -10.0, 10.0, 0.0, 0.6)
-			F["V_Wall"].ext_y(V.ccw([(-1.8, 0.6), (-2.1, 3.4), (1.9, 3.4), (1.9, 0.6)]), -10.4, 10.4)
-			G["V_Trim"].ext_y(V.ccw([(-2.5, 3.4), (-2.5, 3.75), (2.1, 3.75), (2.1, 3.4)]), -10.8, 10.8)
-			G["V_Pink"].ext_y(V.ccw([(-2.3, 3.0), (-2.3, 3.25), (-2.06, 3.25), (-2.03, 3.0)]), -9.6, 9.6)
-			for y in (-6.6, 0.0, 6.6):
-				G["V_Dark"].ext_y(V.ccw([(-2.0, 1.2), (-2.2, 2.8), (-2.08, 2.8), (-1.88, 1.2)]), y - 2.6, y + 2.6)
-			for k, y in enumerate((-6.0, 6.0)):  # goods on the counter: hard cases and a small crate
-				V.hard_case(KD, M @ Matrix.Translation((0.0, y, 3.75)) @ Matrix.Rotation(radians(90 + 6 * (k * 2 - 1)), 4, "Z"), name="CounterCase")
-		V.npc("Shopkeeper", cls.X1 - 12.0, -13.5, 0.0, 70, "shopkeeper", "SHOPKEEPER")  # at the counter end, in the open
-		V.board(KD, Me @ V.T(26, 6.6, 0), 24.0, 9.0, "shop", "FEATURED", name="Board_Featured", accent="E_Coral")
-		V.sign(KD, Me @ V.T(26, 18.4, 0), "SHOP", 18.0, 5.2, accent="E_Coral", name="Sign_ShopCounter", shape="tag", icon="sparkle", icon_at="right", icon_size=4.2)
-		V.step_pad(K, KD, A, cls.X1 - 17.5, 0.0, 4.6, "E_Coral", "LobbyShop", "ShopPad", emblem="coin")
-		# SEASON PASS show stage on the north wall: a crest on a stepped podium
+		V.mouth(KD, Mw @ V.T(Y1, 0, 0), 12.0, 18.0)
+		with C.grp("Threshold"):
+			KD["V_Floor2"].box(X0 - 4.0, X0, -8.0, 8.0, 0.0, 0.12)
 		Mn, _ = walls["N"]
-		hero = V.holobay(K, KD, A, Mn @ V.T(27, 0, 0), 14.0, 16.0, 10.0, "SEASON PASS", "E_Coral", "star", name="Bay_Season")
-		Mh = Matrix.Translation(tuple(hero))
+		Ms, _ = walls["S"]
+		# piers between the entrance section, the stages and the end
+		for x in (84.0, 124.0):
+			V.pier_at(K, KD, V.wframe((x, Y1), (1, 0)), H, A, w=3.0)
+			V.pier_at(K, KD, V.wframe((x, Y0), (-1, 0)), H, A, w=3.0)
+		# entrance section: pop-out TVs either side, a vent below each
+		V.tv(K, KD, Mn @ V.T(11.5, 9.0, 0), 13.0, 7.5, "featured", "NEW THIS WEEK", "SKINS · BUNDLES", out=2.6, name="TV_ShopN")
+		V.tv(K, KD, Ms @ V.T(X1 - X0 - 11.5, 9.0, 0), 13.0, 7.5, "news", "SEASON 1", "PASS OUT NOW", out=2.6, name="TV_ShopS")
+		with C.grp("Vents", Mn):
+			V.vent(KD, Mn, 11.5, 2.6, 3.2, 2.2)
+		with C.grp("Vents", Ms):
+			V.vent(KD, Ms, X1 - X0 - 11.5, 2.6, 3.2, 2.2)
+		# FEATURED stage (south)
+		heroF = V.holobay(K, KD, A, Ms @ V.T(X1 - BX, 0, 0), BHW, BH, BD, "FEATURED", "E_Coral", "sparkle", name="Bay_Featured")
+		Mh = Matrix.Translation(tuple(heroF))
+		with C.grp("FeaturedPedestal", Mh):
+			G = S.FK(KD, Mh)
+			G["V_Base"].prism(V.ccw(V.oct_pts(3.0)), 0.0, 0.8)
+			G["V_Wall"].prism(V.ccw(V.oct_pts(2.5)), 0.8, 3.0)
+			G["V_Pink"].prism(V.ccw(V.oct_pts(2.65)), 2.4, 2.6)
+			G["V_Trim"].prism(V.ccw(V.oct_pts(2.7)), 3.0, 3.25)
+			G["V_Steel"].prism(V.ccw(V.oct_pts(2.2)), 3.25, 3.4)
+			S.gun_row(["Phantom", 2.2, round(heroF.x, 3), round(heroF.y, 3), round(heroF.z + 3.4, 3), 1.0, 0.0, 0, 16])
+		for k, dx in enumerate((-7.5, 7.5)):
+			V.hard_case(KD, Matrix.Translation((heroF.x + dx, heroF.y + (0.6 if k else -0.4), heroF.z)) @ Matrix.Rotation(radians(8 - 16 * k), 4, "Z"), name="StageCase")
+		V.fx("sparkle", heroF.x, heroF.y, heroF.z + 5.5, "#FF5C8A", name="FeaturedFX", Rate=8, Spread=3.4)
+		V.step_mark(KD, A, BX, Y0 + 4.8, 22.0, 7.0, "E_Coral", "LobbyShop", "Mark_Featured", facing=-1.0)
+		# SEASON PASS stage (north)
+		heroS = V.holobay(K, KD, A, Mn @ V.T(BX - X0, 0, 0), BHW, BH, BD, "SEASON PASS", "E_ThViolet", "star", name="Bay_Season")
+		Mh = Matrix.Translation(tuple(heroS))
 		with C.grp("SeasonCrest", Mh):
 			G = S.FK(KD, Mh)
-			G["V_Base"].prism(V.ccw(V.oct_pts(3.2)), 0.0, 0.8)
-			G["V_Trim"].prism(V.ccw(V.oct_pts(2.6)), 0.8, 1.6)
-			Mc = Mh @ Matrix.Translation((0, 0, 1.6)) @ V.RX(90)
-			P = S.FK(KD, Mc)
-			crest = V.ccw([(-2.6, 7.2), (2.6, 7.2), (3.0, 6.2), (3.0, 2.6), (0.0, 0.0), (-3.0, 2.6), (-3.0, 6.2)])
+			G["V_Base"].prism(V.ccw(V.oct_pts(3.4)), 0.0, 0.8)
+			G["V_Trim"].prism(V.ccw(V.oct_pts(2.8)), 0.8, 1.6)
+			P = S.FK(KD, Mh @ Matrix.Translation((0, 0, 1.6)) @ V.RX(90))
+			crest = V.ccw([(-2.8, 7.8), (2.8, 7.8), (3.2, 6.7), (3.2, 2.8), (0.0, 0.0), (-3.2, 2.8), (-3.2, 6.7)])
 			P["V_Gold"].prism(crest, -0.35, 0.35)
 			S.ring_prism(P["V_Trim"], V.inset(crest, -0.08), V.inset(crest, 0.45), 0.3, 0.55)
-			S.add_text(P["E_White"], "1", 3.4, 0.25, y0=2.4, z0=0.3, s=0.26)
-			for poly in V._icon_shapes("star", 1.5):
-				P["E_Coral"].prism([(a, b + 8.1) for a, b in poly], -0.2, 0.2)
-		V.fx("sparkle", hero.x, hero.y, hero.z + 5.0, "#FF5C8A", name="SeasonFX", Rate=8, Spread=3.0)
-		V.step_pad(K, KD, A, 89.0, 13.0, 4.0, "E_Coral", "LobbyBattlePass", "SeasonPad", emblem="ring")
-		# FEATURED show stage on the south wall: the bundle gun turning on a pedestal, cases, the price card
-		Ms, _ = walls["S"]
-		hero2 = V.holobay(K, KD, A, Ms @ V.T(27, 0, 0), 14.0, 16.0, 10.0, "FEATURED", "E_Coral", "sparkle", name="Bay_Featured")
-		Mh2 = Matrix.Translation(tuple(hero2))
-		with C.grp("FeaturedPedestal", Mh2):
-			G = S.FK(KD, Mh2)
-			G["V_Base"].prism(V.ccw(V.oct_pts(2.8)), 0.0, 0.8)
-			G["V_Wall"].prism(V.ccw(V.oct_pts(2.3)), 0.8, 2.8)
-			G["V_Pink"].prism(V.ccw(V.oct_pts(2.45)), 2.2, 2.4)
-			G["V_Trim"].prism(V.ccw(V.oct_pts(2.5)), 2.8, 3.05)
-			G["V_Steel"].prism(V.ccw(V.oct_pts(2.0)), 3.05, 3.2)
-			S.gun_row(["Phantom", 2.0, round(hero2.x, 3), round(hero2.y, 3), round(hero2.z + 3.2, 3), 1.0, 0.0, 0, 16])
-		for k, dx in enumerate((-6.0, 6.2)):
-			V.hard_case(KD, Matrix.Translation((hero2.x + dx, hero2.y + (0.8 if k else -0.6), hero2.z)) @ Matrix.Rotation(radians(8 - 16 * k), 4, "Z"), name="StageCase")
-		Mp = Ms @ V.T(27, 0, 0)
-		V.poster(KD, Mp, 14.0 + 3.4, 4.0, 4.2, 5.6, "PHANTOM BUNDLE", "1,200 COINS", name="Price_Featured")
-		V.fx("sparkle", hero2.x, hero2.y, hero2.z + 5.0, "#FF5C8A", name="FeaturedFX", Rate=8, Spread=3.0)
-		# hard cases stacked by the Season Pass bay, a crate group beside the door
-		V.prop_group(K, V.wframe((cls.X0, cls.Y1), (1, 0)) @ V.RX(-90), [("case", 47.4, -2.2, 0.0, 2), ("case", 47.6, -2.2, 0.92, -3), ("case", 47.4, -2.2, 1.84, 5)])
-		Mf = Matrix.Translation((cls.X0 + 3.6, cls.Y0 + 6.0, 0.0))
-		V.crate(K, Mf @ Matrix.Rotation(radians(90), 4, "Z"))
-		V.crate(K, Mf @ Matrix.Translation((0, 5.4, 0)) @ Matrix.Rotation(radians(86), 4, "Z"))
-		V.crate(K, Mf @ Matrix.Translation((0.2, 2.7, 3.32)) @ Matrix.Rotation(radians(97), 4, "Z"))
+			S.add_text(P["E_White"], "1", 3.6, 0.25, y0=2.6, z0=0.3, s=0.26)
+			for poly in V._icon_shapes("star", 1.6):
+				P["E_ThViolet"].prism([(a, b + 7.7) for a, b in poly], -0.2, 0.2)  # set into the crest top
+		V.fx("sparkle", heroS.x, heroS.y, heroS.z + 5.5, "#C5B7D9", name="SeasonFX", Rate=8, Spread=3.4)
+		V.step_mark(KD, A, BX, Y1 - 4.8, 22.0, 7.0, "E_ThViolet", "LobbyBattlePass", "Mark_Season", facing=1.0)
+		# the far end: the BROKER on a stepped plinth, the SHOP sign and a TV behind him
+		Me, _ = walls["E"]
+		V.tv(K, KD, Me @ V.T(Y1, 12.4, 0), 18.0, 8.8, "shop", "FEATURED", out=2.6, name="TV_ShopEnd")
+		V.sign(KD, Me @ V.T(Y1, 22.2, 0), "SHOP", 18.0, 4.0, accent="E_Coral", name="Sign_ShopEnd", shape="tag", icon="sparkle", icon_at="right", icon_size=4.0)
+		px = X1 - 9.0
+		with C.grp("BrokerPlinth", Matrix.Translation((px, 0.0, 0.0))):
+			F, G = S.FK(K, Matrix.Translation((px, 0.0, 0.0))), S.FK(KD, Matrix.Translation((px, 0.0, 0.0)))
+			F["V_Floor2"].prism(V.ccw(V.oct_pts(5.4)), 0.12, 1.0)
+			F["V_Lane"].prism(V.ccw(V.oct_pts(3.8)), 1.0, 1.9)
+			for r_, zz in ((5.4, 1.0), (3.8, 1.9)):
+				o, i_ = V.oct_pts(r_ + 0.05), V.oct_pts(r_ - 0.5)
+				for k in range(8):
+					j = (k + 1) % 8
+					G["V_Trim"].prism(V.ccw([i_[k], i_[j], o[j], o[k]]), zz - 0.12, zz + 0.06)
+			o, i_ = V.oct_pts(3.2), V.oct_pts(2.9)
+			for k in range(8):
+				j = (k + 1) % 8
+				G["E_ThViolet"].prism(V.ccw([i_[k], i_[j], o[j], o[k]]), 1.9, 1.95)
+		V.npc("Broker", px, 0.0, 1.9, 90, "broker", "BROKER", scale=1.8)
+		S.light(I4, px, 0.0, H - 1.0, V.WHITE, 2.2, 30, 45)
+		# a lit path from the door to the plinth
+		V.path_lane(KD, Matrix.Rotation(radians(-90), 4, "Z"), 3.0, X0 + 3.0, px - 6.0, arrows=(px - 11.0, px - 8.6))
 		return K.done() + KD.done()

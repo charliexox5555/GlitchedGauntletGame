@@ -493,26 +493,30 @@ def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.
 	for p, zin in (((x0, y0), (1, 1)), ((x1, y0), (-1, 1)), ((x1, y1), (-1, -1)), ((x0, y1), (1, -1))):
 		pier_at(K, KD, cframe(p, zin, z0), H, area, w=2.8, d=3.0, name="CornerPier")
 	z = z0 + H
-	ym_, vhw = (y0 + y1) / 2, min(8.0, (y1 - y0) / 6)
+	ym_, vhw = (y0 + y1) / 2, min(8.0, max((y1 - y0) / 6, 6.0))  # narrow halls still get a real vault
 	slab_with_hole(K, x0 - 4, x1 + 4, y0 - 4, y1 + 4, x0 + 4.0, x1 - 4.0, ym_ - vhw, ym_ + vhw, z)
 	Mv = Matrix.Translation((0.0, ym_, 0.0)) @ Matrix.Rotation(radians(-90), 4, "Z")  # local u = -world y, v = world x
-	nave_vault(K, KD, Mv, vhw, x0 + 4.0, x1 - 4.0, z, rise=7.0, top=vhw - 4.0, lamp=(5.0, 1.6), name="RoomVault")
-	K["V_Slab"].box(x0 - 4, x1 + 4, y0 - 4, y1 + 4, z0 - 1.2, z0 - 0.02)
+	nave_vault(K, KD, Mv, vhw, x0 + 4.0, x1 - 4.0, z, rise=7.0, top=max(vhw - 4.0, 2.6), lamp=(max(vhw - 4.0, 2.6) - 1.0, 5.0), name="RoomVault")  # lamp = (across the vault, along it)
+	with C.grp("Floor"):
+		K["V_Slab"].box(x0 - 4, x1 + 4, y0 - 4, y1 + 4, z0 - 1.2, z0 - 0.02)
+		nx, ny = max(1, round(W / 12)), max(1, round(D / 12))
+		for i in range(nx):
+			for j in range(ny):
+				ax, bx = x0 + W * i / nx, x0 + W * (i + 1) / nx
+				ay, by = y0 + D * j / ny, y0 + D * (j + 1) / ny
+				KD["V_Floor" if (i + j) % 2 == 0 else "V_Floor2"].box(ax + 0.125, bx - 0.125, ay + 0.125, by - 0.125, z0, z0 + 0.12)
 	xs = [x0] + list(beams_x) + [x1]
 	for bx in beams_x:
-		KD["V_Beam"].ext_y(ccw([(bx - 1.4, z + 0.25), (bx - 1.4, z - 1.6), (bx - 0.8, z - 2.3), (bx + 0.8, z - 2.3), (bx + 1.4, z - 1.6), (bx + 1.4, z + 0.25)]), y0, y1)
+		with C.grp("Beam"):
+			KD["V_Beam"].ext_y(ccw([(bx - 1.4, z + 0.25), (bx - 1.4, z - 1.6), (bx - 0.8, z - 2.3), (bx + 0.8, z - 2.3), (bx + 1.4, z - 1.6), (bx + 1.4, z + 0.25)]), y0, y1)
 	for a, b in zip(xs, xs[1:]):
 		xm = (a + b) / 2
 		hw_, ym = min(5.0, (b - a) / 2 - 3), (y0 + y1) / 2
+		avail = (y1 - y0) / 2 - vhw - 2.4  # between the vault rim and the wall crown
+		ly, lhd = vhw + avail / 2, max(0.8, min(1.6, avail / 2 - 0.9))
 		for sy in (-1, 1):  # side lamps either side of the vault (the middle is lit from the vault top)
-			ceiling_lamp(KD, xm, ym + sy * (vhw + 6.0), z, hw_, 1.6)
-			S.light(Matrix.Identity(4), xm, ym + sy * (vhw + 6.0), z - 0.4, WHITE, 1.2, 30, 85)
-	nx, ny = max(1, round(W / 12)), max(1, round(D / 12))
-	for i in range(nx):
-		for j in range(ny):
-			ax, bx = x0 + W * i / nx, x0 + W * (i + 1) / nx
-			ay, by = y0 + D * j / ny, y0 + D * (j + 1) / ny
-			KD["V_Floor" if (i + j) % 2 == 0 else "V_Floor2"].box(ax + 0.125, bx - 0.125, ay + 0.125, by - 0.125, z0, z0 + 0.12)
+			ceiling_lamp(KD, xm, ym + sy * ly, z, hw_, lhd)
+			S.light(Matrix.Identity(4), xm, ym + sy * ly, z - 0.4, WHITE, 1.2, 30, 85)
 	for side in "NS":
 		M, L = walls[side]
 		conduit(KD, M, 3.4, L - 3.4, H - 4.4)
@@ -837,9 +841,9 @@ def fx(kind, x, y, z, color="#FFC83D", to=None, name="FX", **attrs):
 	S.ANCHORS.append([name, "LobbyFX", round(x, 3), round(y, 3), round(z, 3), 1.0, 1.0, 1.0, a])
 
 
-def npc(name, x, y, z, yaw, look, title):
+def npc(name, x, y, z, yaw, look, title, scale=1.0):
 	"""An R15 NPC built in Studio (Build_V4 M.npcs) standing at (x, y, z) (feet), facing yaw (degrees, 0 = +Y)."""
-	S.ANCHORS.append([name, "LobbyNPCSpot", round(x, 3), round(y, 3), round(z, 3), 2.0, 2.0, 5.0, {"Yaw": yaw, "Look": look, "Title": title}])
+	S.ANCHORS.append([name, "LobbyNPCSpot", round(x, 3), round(y, 3), round(z, 3), 2.0, 2.0, 5.0, {"Yaw": yaw, "Look": look, "Title": title, "Scale": scale}])
 
 
 def step_pad(K, KD, area, x, y, r, accent, tag, name, emblem="ring", z0=0.0):
@@ -1033,31 +1037,38 @@ def nave_vault(K, KD, M, hw, v0, v1, z, rise=10.0, top=None, cl=3.2, rib_every=1
 
 
 def gallery(K, KD, M, x0, x1, z, d=4.0, name="Gallery"):
-	"""An upper gallery deck on a wall (frame M: X along the wall, Y up, Z into the room): a steel deck with grate
-	strips and a trim edge, steel knee braces under it, posts and two pipe rails along its front, a lit strip and
-	downlights under the deck washing the wall below. Decorative (no access); layered depth like RIVALS' hub ring."""
+	"""An upper gallery deck on a wall (frame M: X along the wall, Y up, Z into the room): deck, braces and railing as
+	separate pieces (owner 2026-11-16: every structure its own mesh). The railing stands on the deck, inside its cut
+	corners, each post on a base plate. Decorative (no access)."""
 	with C.grp(name, M):
-		F, G = S.FK(K, M), S.FK(KD, M)
-		deck = ccw([(x0, 0.0), (x1, 0.0), (x1, d - 0.9), (x1 - 0.9, d), (x0 + 0.9, d), (x0, d - 0.9)])
-		F["V_Steel"].solid([(a, z - 0.7, b) for a, b in deck], [(a, z, b) for a, b in deck])  # deck with cut ends
-		G["V_Trim"].box(x0 + 0.9, x1 - 0.9, z - 0.85, z + 0.12, d - 0.35, d + 0.1)  # front edge
-		G["V_Dark"].box(x0 + 0.4, x1 - 0.4, z, z + 0.05, 0.4, d - 0.6)  # grate field
-		n = max(2, int((x1 - x0) // 0.7))
-		for k in range(1, n):
-			xx = x0 + (x1 - x0) * k / n
-			G["V_Steel"].box(xx - 0.08, xx + 0.08, z, z + 0.09, 0.4, d - 0.6)
-		nb = max(2, int((x1 - x0) // 6.0) + 1)
-		for k in range(nb):
-			xx = x0 + 0.6 + (x1 - x0 - 1.2) * k / (nb - 1)
-			G["V_Steel"].ext_x(ccw([(z - 0.7, 0.4), (z - 0.7, d - 0.6), (z - 1.2, d - 0.6), (z - 3.4, 0.4)]), xx - 0.17, xx + 0.17)  # knee brace
-			G["V_Trim"].box(xx - 0.3, xx + 0.3, z - 3.6, z - 3.0, 0.34, 0.56)  # wall shoe, on the panel face
-		npost = max(2, int((x1 - x0) // 3.0) + 1)
-		for k in range(npost):
-			xx = x0 + 0.3 + (x1 - x0 - 0.6) * k / (npost - 1)
-			G["V_Steel"].box(xx - 0.12, xx + 0.12, z + 0.05, z + 2.4, d - 0.3, d - 0.06)
-		for zz in (z + 1.2, z + 2.3):
-			G["V_Steel"].pipe((x0 + 0.1, zz, d - 0.18), (x1 - 0.1, zz, d - 0.18), 0.11, n=6)
-		G["E_White"].box(x0 + 1.0, x1 - 1.0, z - 0.8, z - 0.72, d - 0.9, d - 0.6)  # lit strip under the edge
+		with C.grp("Deck", M):
+			F, G = S.FK(K, M), S.FK(KD, M)
+			deck = ccw([(x0, 0.0), (x1, 0.0), (x1, d - 0.9), (x1 - 0.9, d), (x0 + 0.9, d), (x0, d - 0.9)])
+			F["V_Steel"].solid([(a, z - 0.7, b) for a, b in deck], [(a, z, b) for a, b in deck])  # deck with cut ends
+			G["V_Trim"].box(x0 + 0.9, x1 - 0.9, z - 0.85, z + 0.12, d - 0.35, d + 0.1)  # front edge
+			G["V_Dark"].box(x0 + 0.4, x1 - 0.4, z, z + 0.05, 0.4, d - 1.4)  # grate field
+			n = max(2, int((x1 - x0) // 0.7))
+			for k in range(1, n):
+				xx = x0 + (x1 - x0) * k / n
+				G["V_Steel"].box(xx - 0.08, xx + 0.08, z, z + 0.09, 0.4, d - 1.4)
+			G["E_White"].box(x0 + 1.0, x1 - 1.0, z - 0.8, z - 0.72, d - 0.9, d - 0.6)  # lit strip under the edge
+		with C.grp("Braces", M):
+			G = S.FK(KD, M)
+			nb = max(2, int((x1 - x0) // 6.0) + 1)
+			for k in range(nb):
+				xx = x0 + 1.2 + (x1 - x0 - 2.4) * k / (nb - 1)
+				G["V_Steel"].ext_x(ccw([(z - 0.7, 0.4), (z - 0.7, d - 0.9), (z - 1.2, d - 0.9), (z - 3.4, 0.4)]), xx - 0.17, xx + 0.17)  # knee brace
+				G["V_Trim"].box(xx - 0.3, xx + 0.3, z - 3.6, z - 3.0, 0.34, 0.56)  # wall shoe, on the panel face
+		with C.grp("Railing", M):
+			G = S.FK(KD, M)
+			ra, rb, rz = x0 + 1.3, x1 - 1.3, d - 1.0  # inside the cut corners, on the deck
+			npost = max(2, int((rb - ra) // 3.0) + 1)
+			for k in range(npost):
+				xx = ra + (rb - ra) * k / (npost - 1)
+				G["V_Trim"].box(xx - 0.3, xx + 0.3, z, z + 0.12, rz - 0.3, rz + 0.3)  # base plate
+				G["V_Steel"].box(xx - 0.12, xx + 0.12, z + 0.12, z + 2.5, rz - 0.12, rz + 0.12)
+			for zz in (z + 1.2, z + 2.35):
+				G["V_Steel"].pipe((ra - 0.05, zz, rz), (rb + 0.05, zz, rz), 0.11, n=6)
 	nl = max(1, int((x1 - x0) // 8.0))
 	for k in range(nl):
 		xx = x0 + (x1 - x0) * (k + 0.5) / nl
@@ -1200,3 +1211,54 @@ def gatehouse(K, KD, M, hw, h, glow="E_ThViolet", span=14.6, out=3.6, name="Gate
 	Mf = M @ RX(-90)
 	for sx in (-1, 1):
 		hazard_strip(KD, Mf, *sorted((sx * 7.4, sx * (hw - 0.2))), -(out + 1.6), -(out + 0.4), 0.12)
+
+
+
+# ---------------------------------------------------------------- Shop as a Market hallway (owner 2026-11-16)
+def _sole(cx, cy, s_, flip):
+	"""A faceted shoe-print outline (pointing +Y), mirrored for the left foot."""
+	f = -1 if flip else 1
+	pts = [(-0.28, -0.6), (0.22, -0.62), (0.32, -0.3), (0.3, 0.2), (0.38, 0.5), (0.24, 0.66), (-0.12, 0.66), (-0.3, 0.42), (-0.34, 0.0), (-0.36, -0.36)]
+	return ccw([(cx + f * x * s_, cy + y * s_) for x, y in pts])
+
+
+def step_mark(KD, area, x, y, w, d, accent, tag, name, facing=1.0, word="STEP IN"):
+	"""A walk-in floor mark in front of a show stage (RIVALS' foot emblems, our build; owner 2026-11-16: no raised
+	pad): an inlaid dark field, lit corner brackets in the stage's colour, three pairs of footprints, a hazard strip
+	with a stencil on the stage side. Walking onto it opens the menu (Trigger=Step). World coords; facing = +1 when the
+	stage is toward +Y, -1 toward -Y."""
+	M = Matrix.Translation((x, y, 0.0)) @ Matrix.Rotation(0.0 if facing > 0 else pi, 4, "Z")
+	paint = PAINT.get(accent, accent)
+	with C.grp(name, M):
+		G = S.FK(KD, M)
+		G["V_Base"].box(-w / 2, w / 2, -d / 2, d / 2, 0.12, 0.15)
+		for sx in (-1, 1):
+			for sy in (-1, 1):
+				bx, by = sx * (w / 2 - 0.4), sy * (d / 2 - 0.4)
+				G[accent].box(*sorted((bx, bx - sx * 1.8)), *sorted((by - sy * 0.12, by + sy * 0.12)), 0.15, 0.2)
+				G[accent].box(*sorted((bx - sx * 0.12, bx + sx * 0.12)), *sorted((by, by - sy * 1.8)), 0.15, 0.2)
+		for k, fx_ in enumerate((-w * 0.28, 0.0, w * 0.28)):
+			mat = paint if k == 1 else "V_Paint"
+			for sx, flip in ((-0.45, True), (0.45, False)):
+				G[mat].prism(_sole(fx_ + sx, -0.3, 1.3, flip), 0.15, 0.18)
+		hazard_strip(KD, M, -w / 2, w / 2, d / 2 + 0.2, d / 2 + 1.0, 0.12)
+		floor_text(KD, M @ Matrix.Translation((0, d / 2 - 1.9, 0)), word, 0.8, mat="V_Paint", z=0.15)
+	S.ANCHORS.append([name + "Hook", tag, round(x, 3), round(y, 3), 2.6, w, d, 4.0, {"Trigger": "Step"}])
+	S.light(Matrix.Identity(4), x, y, 12.0, GLOW.get(accent, (WHITE,))[0], 0.7, 12)
+
+
+def grouped(fn, name):
+	"""Wrap a builder so everything it makes is one piece of its own (owner 2026-11-16: every structure separate)."""
+	def w(*a, **k):
+		with C.grp(name):
+			return fn(*a, **k)
+	w.__name__ = fn.__name__
+	return w
+
+
+wall_run = grouped(wall_run, "Wall")
+conduit = grouped(conduit, "Conduit")
+hazard_strip = grouped(hazard_strip, "Hazard")
+ceiling_lamp = grouped(ceiling_lamp, "CeilingLamp")
+path_lane = grouped(path_lane, "Path")
+slab_with_hole = grouped(slab_with_hole, "Ceiling")

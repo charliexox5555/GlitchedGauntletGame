@@ -310,3 +310,8 @@ def build():
 	trophy(K, KD)
 	ceiling(K, KD)
 	return K.done() + KD.done()
+
+
+floor = V.grouped(floor, "DuelsFloor")
+ceiling = V.grouped(ceiling, "DuelsCeiling")
+landing = V.grouped(landing, "Landing")
