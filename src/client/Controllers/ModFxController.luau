@@ -45,6 +45,7 @@ local ModAudio = require(script.Parent.Parent.Util.ModAudio)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local HealFx = require(script.Parent.Parent.Util.HealFx)
 local RecallFx = require(script.Parent.Parent.Util.RecallFx)
+local ReworkVfx = require(script.Parent.Parent.Util.ReworkVfx)
 local StimFx = require(script.Parent.Parent.Util.StimFx)
 local MollyFx = require(script.Parent.Parent.Util.MollyFx)
 local WallFx = require(script.Parent.Parent.Util.WallFx)
@@ -562,15 +563,47 @@ local function onReconPulse(data: { [string]: any })
 		life = 0.7,
 		alpha0 = 0,
 	})
+	-- Neon draws a step brighter than its colour: the band at full team
+	-- colour bloomed into a soft glow. Darker, a little more see-through.
 	local band = ModVfx.mesh({
 		name = "ScanRing",
 		cframe = CFrame.new(floor),
 		from = Vector3.new(2, 2.5, 2),
 		to = Vector3.new(d, 1, d),
-		color = color,
+		color = color:Lerp(Color3.new(0, 0, 0), 0.35),
 		life = 0.7,
-		alpha0 = 0.2,
+		alpha0 = 0.35,
 	})
+	-- The front (Ability VFX Direction S1): a faint faceted dome sweeping out
+	-- at a constant speed from the dart, fading over the last 15% and when it
+	-- reaches the camera, so the scan reads as passing through the space.
+	local shell = ReworkVfx.take("Scan_Shell")
+	if shell then
+		local SHELL_LIFE, SHELL_ALPHA = 0.7, 0.82
+		shell.Color = color:Lerp(Color3.new(0, 0, 0), 0.3)
+		shell.Material = Enum.Material.Neon
+		local born = ReworkVfx.now()
+		local conn: RBXScriptConnection? = nil
+		conn = RunService.RenderStepped:Connect(function()
+			local k = (ReworkVfx.now() - born) / SHELL_LIFE
+			if k >= 1 or not shell.Parent then
+				if conn then
+					conn:Disconnect()
+				end
+				ReworkVfx.give("Scan_Shell", shell)
+				return
+			end
+			local r = 2 + (d - 2) * k
+			local fade = math.clamp((k - 0.85) / 0.15, 0, 1)
+			local cam = Workspace.CurrentCamera
+			if cam and (cam.CFrame.Position - at).Magnitude < r * 0.5 + 6 then
+				fade = math.max(fade, 0.85) -- the camera is at the front: keep the view clear
+			end
+			shell.Transparency = SHELL_ALPHA + (1 - SHELL_ALPHA) * fade
+			ReworkVfx.place(shell, "Scan_Shell", CFrame.new(at), Vector3.one * r)
+			ReworkVfx.flush()
+		end)
+	end
 	if not band then
 		ModVfx.shell({
 			shape = Enum.PartType.Ball,
