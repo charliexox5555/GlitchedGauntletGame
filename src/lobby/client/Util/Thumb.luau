@@ -3,14 +3,16 @@
 -- shop shows the real items in every cell, ours showed flat colour squares
 -- with words ("looks AI" = missing art). Thumb.item(parent, item) puts the
 -- item's picture in a cell:
---   * a skin: a live 3D render of that skinned gun (Shared/Locker.skinModel),
---     side-on, framed to fit, the line's emblem if the model isn't synced;
+--   * a skin: its pre-rendered picture (Shared/ItemIcons, like RIVALS' cells:
+--     the gun fills the cell), else a live 3D view of the skinned gun
+--     (Shared/Locker.skinModel), else the line's emblem;
 --   * coins: the coin art;
 --   * anything else: nothing (the cell keeps its words).
--- The render is static (one ViewportFrame, no per-frame cost).
+-- Pictures cost one image each; the 3D fallback is one static ViewportFrame.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local ItemStage = require(script.Parent.ItemStage)
 
@@ -20,12 +22,18 @@ local COIN = "rbxassetid://126250416946442"
 
 export type Item = { kind: string, gun: string?, line: string?, amount: number? }
 
-local function image(parent: GuiObject, id: string, inset: number, color: Color3?): ImageLabel
+local function image(
+	parent: GuiObject,
+	id: string,
+	inset: number,
+	color: Color3?,
+	tall: number?
+): ImageLabel
 	local i = Instance.new("ImageLabel")
 	i.Name = "Art"
 	i.AnchorPoint = Vector2.new(0.5, 0.5)
 	i.Position = UDim2.fromScale(0.5, 0.44)
-	i.Size = UDim2.fromScale(inset, inset)
+	i.Size = UDim2.fromScale(inset, tall or inset)
 	i.BackgroundTransparency = 1
 	i.Image = id
 	i.ImageColor3 = color or Color3.new(1, 1, 1)
@@ -69,8 +77,12 @@ function Thumb.item(parent: GuiObject, item: Item)
 		old:Destroy()
 	end
 	if item.kind == "Skin" and item.gun and item.line then
-		local m = Locker.skinModel(item.gun, item.line)
-		if m then
+		local pic = ItemIcons.get(item.gun, item.line)
+		local m = if pic then nil else Locker.skinModel(item.gun, item.line)
+		if pic then
+			-- the gun across most of the cell, clear of the words at the foot
+			image(parent, pic, 0.88, nil, 0.66)
+		elseif m then
 			Thumb.model(parent, m)
 		elseif Locker.EMBLEMS[item.line] then
 			image(parent, Locker.EMBLEMS[item.line], 0.5, Locker.COLORS[item.line])

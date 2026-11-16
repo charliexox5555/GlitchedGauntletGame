@@ -60,6 +60,17 @@ Commits (local, **not pushed**): `3d15cc12` system, `61af1dbe` HUD, `465082f4` p
 ### 7. Match consistency pass
 - Top bar, combat HUD, draft, death card and match end now use `Shared/UiMotion`; their 17 overshoot pops are Quint now. **Skipped** because other lanes have uncommitted edits in them: `KillFeed`, `StatusTray`, `HudController`. Fonts unchanged (question 4). Built with Rojo and linted; **not played** (the match Studio isn't on Rojo here). Grade **8**.
 
+### 8. Look pass (owner, 2026-11-16, after RIVALS' loaded Shop)
+- **Type and colour:** Rubik (a Roblox font, asset 12187365977), Heavy for headings and Bold for words; neutral charcoal instead of navy / violet (`Config/UiStyle` KIT, recoloured in place). Big white titles get a soft dark outline (`Util/LobbyLook`). [Font board](Overhaul/font_board_rubik.jpg).
+- **Locker:** the camera rises and a charcoal wipe carries you into the Locker (RIVALS: rise 25 studs / 0.375 s, wipe ~0.94 s, our own code); a skin-tinted stage light; ABILITIES hides the whole stage, so skin textures no longer float. [Charcoal Locker](Overhaul/locker_charcoal_rubik.jpg), [abilities fixed](Overhaul/locker_abilities_fixed.jpg).
+- **Shop:** the bundle item card glitch fixed (the card skin had landed inside a layout and grew to 4,776 px); a dark item card; kind tags as plain words, callouts as red slanted flags; cards pop 1.04. [Item card](Overhaul/shop_itemcard_fixed.jpg), [home tags](Overhaul/shop_home_tags.jpg).
+- **Item icons (pre-rendered, like RIVALS):** RIVALS' shop and locker cells show rendered pictures, not live 3D; ours were small ViewportFrames ("the viewports for Vandal are tiny"). Every gun and skin (170) is now rendered once at the same 3/4 angle and uploaded as our own image:
+  1. `tools/studio/RenderItemIcons.luau` lays out 5 x 4 guns per sheet in Edit (preload, wait ~8 s: SurfaceAppearance textures load late);
+  2. capture the sheet on black and on white; `tools/render/icon_sheet.py` takes alpha from the difference (clean edges, no colour key) and cuts `Gun_Line.png` (≤ 512 px) into `art-source/ui/item-icons/`;
+  3. upload (Studio MCP `upload_image`), ids in `shared/ItemIcons` (`ItemIcons.get(gun, line)`, "Stock" = base gun).
+  
+  Used by the Locker gun cards (the gun in its equipped skin, full colour), the Locker skin tiles, and the Shop cells / preview strip / item card (`Util/Thumb`); anything without a picture falls back to the 3D view. **Re-render and re-upload when a gun or skin model changes.** [Gun cards](Overhaul/locker_gun_cards_icons.jpg), [skin tiles](Overhaul/locker_skin_tiles_icons.jpg). Grade **9**: the guns read at a glance; the gun cards still have spare height (a bigger icon box is a builder tweak).
+
 ## Test list for you
 1. **Save both places.** Lobby: the new `Settings`, `Profile`, `Rewards` and `LobbyLoading` guis, the top bar's gift button, the templates, Fredoka at Regular. Match: connect Rojo once so the new `ReplicatedFirst.Loading` script syncs.
 2. Lobby, any page: buttons grow 1.125 and dip 0.875, cards 1.04; pages open from 0.75 with the blur; Backspace or gamepad B closes.
@@ -70,6 +81,7 @@ Commits (local, **not pushed**): `3d15cc12` system, `61af1dbe` HUD, `465082f4` p
 7. Live: queue, MATCH FOUND, then the loading screen through the teleport, fading out in the match.
 8. A match: the top bar, draft, death card and match end pop in with no overshoot.
 9. Phone (Studio device emulator, 812 x 375): Settings, Rewards and Profile.
+10. Locker: every gun card shows its gun in the equipped skin; equip a new skin and the card's picture changes; the skin tiles show each skin. Shop: open a bundle, the contents and item card show the gun pictures.
 
 ## Open questions (parked)
 1. RIVALS pops pages and released buttons with **Back Out** (a small overshoot); our rule is Quint Out with no overshoot, so the page pop here is Quint Out from 0.75. Say if you want the RIVALS overshoot on pages only.

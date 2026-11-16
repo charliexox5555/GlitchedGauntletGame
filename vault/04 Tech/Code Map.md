@@ -14,6 +14,8 @@ Layout: `src/shared` (ReplicatedStorage.Shared), `src/server` (match place serve
 | `ModHold`, `ModUse`, `ModSteer`, `ModRecall` | client → server | `ModService` |
 | `ModFx` | server → all clients | `ModService` → `ModFxController`, `ModFeelController` |
 | `ModReveal` | server → caster's team | `ModService` (Recon) |
+| `ModSim` | client → server: a predicted Mod's event (`Cast`, `Slam`, `Land`, with slot and data); the report path while Server Authority is off | `ModSim` |
+| `ModSimFx` | server → every other client: the same events, relayed | `ModSim` |
 | `DevMod` | client → server | `DevModService` (Studio / test mode / owner) |
 | `DraftPick` / `DraftOffer` | client → server / server → one client | `DraftService` |
 | `Spectate` | client → server | `SpectateService` |
@@ -26,7 +28,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 
 ## Shared state (attributes)
 - **Skin preview** (`shared/Config/SkinPreview`, `shared/SkinPreview`, `SkinPreviewService`, `SkinPreviewController`): each player picks a skin line for their own guns (F7 / `\` cycle, `;` opens the list). The pick is a **server-set Player attribute** `PreviewSkinLine` (starts Stock); the `PreviewSkinLine` remote takes an allowlisted line name (type and length checked, `Util/RateLimit` 1/s burst 3, `canUse`). Runs in the match place 133387545285290, in Studio and, with `Config/SkinPreview.LIVE`, in live servers (`USER_IDS` can limit it). Camera guns follow their viewer (or the spectated player; bots and replays stay stock; owner in the camera model's `SkinOwnerId`), world guns follow the character holding them (server). Immutable `Weapons` stock templates and `WeaponSkins/<Line>/<Id>` variants; missing variants fall back to stock. No ownership, purchases or saving. `client/Util/ChamberFlow` (started by `SkinPreviewController`): on camera guns only, drifts the two flow `Texture` layers tagged `MoltframeFlowLayer` on structural-skin chamber parts and pulses the chamber `SurfaceAppearance.Color` (`Config/SkinPreview.CHAMBER_FLOW`); world models keep the static map. Installer for geometry skins: `tools/studio/InstallMoltframeSkin.luau` (Decal -> Image id resolve).
-- **Locker skins** (`shared/Locker`): one equipped line per gun, saved by the Lobby's `LockerService` (DataStore `LockerV1`); the match's `SkinPreviewService` loads it into `Skin_<gunId>` attributes on join, and `SkinPreview.line(player, gunId)` uses them whenever the F7 preview is on Stock.
+- **Locker skins** (`shared/Locker`): one equipped line per gun, saved by the Lobby's `LockerService` (DataStore `LockerV1`). The match's `SkinPreviewService` loads it into attributes keyed by gun ID on the player's `LockerSkins` folder. `SkinPreview.line(player, gunId)` uses them when the F7 preview is on Stock.
 - `tools/studio/InstallFlatSkin.luau`: Studio-edit installer for flat-material geometry skins (one MeshPart per material from `tools/blender/export_roblox_flat.py`, tiled pattern Textures, kept stock parts in the line finish) into `WeaponSkins/<Line>/<Gun>`; `InstallMoltframeSkin.luau` now takes `line` too.
 - Whole skin lines: `tools/blender/export_skin_items_flat.py` (per item: flat FBX + `manifest_flat.json` with replaced stock prefixes, extra rig joints, the line Vandal's palette) → `tools/studio/make_flat_install_jobs.py` stages `InstallFlatSkin` + jobs in a temporary Rojo folder `src/shared/_SkinInstall` (remove with `--clean`). Knife-slot skins install as `WeaponSkins/<Line>/Knife` with attribute `SkinItem` (Fan / Blade / Dagger).
 - Skin casings: `client/Util/ShellFx` throws `WeaponSkins._Casing` (CasingBody + CasingBand, Studio-owned) coloured by `shared/Config/SkinCasings` when the gun model's `SkinLine` has an entry; else the stock brass shell.
@@ -51,11 +53,11 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `MatchBody.luau` | the standard match avatar: `description`, `dress` (welds the block body over the R15 rig and draws shirt / pants on it, `Config/Avatar BLOCKS`), `preload`, `filterAccessory` (the accessory rule); see [Third Person Overhaul](../01%20Design/Third%20Person%20Overhaul.md) |
 | `Authority.luau` | `server()`: is Roblox Server Authority on (`Workspace.AuthorityMode`)? Off since 2026-11-11: the simulations skip real players on the server and the input-based checks in `WeaponService` / `ModService` are off |
 | `Simulation/Movement.luau` | sprint, crouch, slide, slide-jump; bound with `BindToSimulation`. Server: every player under Server Authority, bots only without it; client: its own character (`ownState`) |
-| `Simulation/Abilities.luau` | predicted half of Mods (Dash, Updraft…) inside the movement step; no remotes |
+| `Simulation/Abilities.luau` | predicted half of Mods (Dash, Updraft…) inside the movement step; calls each Mod's `simPress` (Updraft's second press is the slam) and reports through `ModSim` |
 | `Simulation/Poses.luau` | third-person pose and leg tracks (holds by pitch, run set, sprint upper body by weapon kind in step with the legs, crouch, slide, one-shots); a client poses its own character, the server its bots (about 700 l). Clips: `Config/Animations`, keyed in `tools/anim/tp_clips.py` |
 | `Simulation/Pawns.luau` | gives bots a stand-in owner so the simulations drive them |
 | `Mods/init.luau` | Mod registry: `def(id)`, `stats(id, level)`, `module(id)` |
-| `Mods/<Ability>.luau` | one per ability: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall |
+| `Mods/<Ability>.luau` | one per ability: Dash, Updraft, Molly, Firewall, Frost, Recon, HealOrb, Stim, Recall. Predicted hooks in `Mods/Types.luau`: `simPress` (Updraft), `simReport` (Dash: Ghost window and gun-down gate; Updraft: follows each flight, deals the slam damage) |
 | `Mods/Blocks/*` | reusable parts: Projectile (deterministic arc), Placeable, Target, Zone, Reveal, Rewind, SelfBuff, Dash |
 | `Mods/Charges`, `Mods/Status`, `Mods/Teams`, `Mods/Types` | per-round charges, status reads, ally checks (`Teams.isAlly`), types |
 | `Util/` | `Spread`, `Accuracy` (Gunplay v2 spread), `Damage` (falloff), `FireRate`, `Spring`, `Validate`, `RateLimit`, `Ease` (smooth/out/lerp/approach: use it, don't redefine easing), `Fighters` (players' bodies + bots: `bodies()`, `all()`, `bodyOfPart()`) |
@@ -72,10 +74,11 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `Services/MatchEndService` | stats broadcast (`MatchSummary`), Rematch / Play Again / Leave votes (`MatchChoice`), teleports out |
 | `Services/DraftService` | rolls and stores each offer, checks `DraftPick`, sends `DraftOffer`; attr `DraftLocked` |
 | `Services/WeaponService` (905 l) | loadouts, ammo, reload, fire timing, the remote handlers and the shot-accept ladder in `onFire`; re-exports the helpers below |
-| `Services/Weapon/` (no init/start, required by WeaponService) | `Hits` (per-hit validation with rewind, damage tally), `Motion` (motion samples, `spreadBand`, the Dash gate), `Damage` (guards, modifiers, `hurt`, `applyDamage`, `damage`, `damageBy`, `onHit`), `Targets` (live humanoids, hitbox owners, wall exclusions), `WorldModel` (the third-person gun) |
+| `Services/Weapon/` (no init/start, required by WeaponService) | `Hits` (per-hit validation with rewind, damage tally), `Motion` (motion samples, `spreadBand`, the Dash gate, `gunDown`), `Damage` (guards, modifiers, `hurt`, `applyDamage`, `damage`, `damageBy`, `onHit`), `Targets` (live humanoids, hitbox owners, wall exclusions), `WorldModel` (the third-person gun) |
 | `Services/HitboxHistory` | last second of each root position, for lag compensation |
 | `Services/HealthService` | the game's own HP / downed state |
-| `Services/StatusService` | status effects (Hindered, Stunned…), the only writer of expiry attributes |
+| `Services/StatusService` | status effects (Hindered, Stunned…), the only writer of expiry attributes; healing (`HealingUntil`, `HealingSource`, 2026-11-15) |
+| `Services/ModSim` | (2026-11-15) the report path for predicted Mods while Server Authority is off: checks `ModSim` reports, keeps the server's own charge count, relays them as `ModSimFx`; bound from `ModService.start` |
 | `Services/StatsService` | per-fighter eliminations, deaths, assists, damage; answers `Scoreboard` (live lines + kits); sends the victim `CombatReport` (damage vs their killer this life) |
 | `Services/ModService` (1050 l) | each player's 3 Mod slots, charges, cooldowns, checks for `ModHold/Use/Steer/Recall`, sends `ModFx`; clears at round end (`clearRound`) |
 | `Services/ModEntities` | server things that outlive a request: timers, Molly fire, Frost bursts, Stim beacons; attrs `OwnerId`, `TeamId`, `Hp`, `ExpiresAt` |
@@ -85,7 +88,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `Services/MapService` | at start moves every map model left in Workspace to `ServerStorage.Maps`; clones the picked one into `workspace.ActiveMap`; tags `ArenaSpawn_A/B`, `ArenaBarrier`; `spawnCentre(team)` |
 | `Services/ZoneService` | sudden-death circle, damage outside it |
 | `Services/SpectateService` | streams the target's surroundings to a spectator (`Spectate`) |
-| `Services/CharacterService` | prepares every combatant: match body, full HP, no regen, hitbox history; our `Animate` ids |
+| `Services/CharacterService` | prepares every combatant: match body, full HP, no regen, hitbox history; our `Animate` ids; puts each one in the `Bodies` collision group (`Config/Collision`, 2026-11-15) |
 | `Services/MovementService` | server half of the movement and pose simulation |
 | `Services/InputContextService` | per-player Input Action contexts from `Config/Input` |
 | `Services/TestRangeService`, `TestRange/*` | practice yard and dummies, only with `TestMode` on |
@@ -98,15 +101,16 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `WeaponController` | fire input, spread, recoil, predicted hit marker, sends `Fire`/`Reload`/`Equip`/`Aim` |
 | `ViewmodelController` (1817 l) | first-person gun and arms rig (also shows a spectated or replayed fighter's view via `setSubject`); uses `Util/ViewmodelTracks` (keyframed tracks), `Util/ViewmodelHeldMods` (held Mods, gestures, free hand), `Util/ViewmodelArms/Rig/Motion`, `GunAnimator`, `MagDrop` |
 | `BodySkinController` | bends every third-person body's skinned arms, legs and torso each frame from its R15 parts (meshes tagged `GGSkinLimb` in `Workspace.GGBodyLimbs`, made by `shared/MatchBody`), and copies each part's LocalTransparencyModifier to its mesh. No remotes |
-| `GripController` | the support hand's IK on every visible character's gun (target on the right hand, so it holds still through the kick); Studio attr `DevThirdPerson` rigs your own character too. The fire kick itself is the gun-in-hand spring in `EffectsController` (`Config/Juice WORLD_KICK`) |
+| `GripController` | the support hand's IK on every visible character's gun (target on the right hand, so it holds still through the kick); Studio attr `DevThirdPerson` rigs your own character too. The fire kick itself is the gun-in-hand spring in `EffectsController` (`Config/Juice WORLD_KICK`) plus `Util/BodyRecoil` (2026-11-15): recoil poses (`Config/Animations RECOIL`) blended over the hold tracks by a spring per shooter (`Config/Juice BODY_KICK`), local to each watcher |
 | `EffectsController` (585 l) | your own shot from the viewmodel, other players' `ShotFx`, spectated / replayed shots (`setSpectated`, `playShot`), hit flash (forwards to `Util/HitFx`: whole-body flash incl. limb meshes, slash, headshot flash pop; numbers `Config/HitFx`); forwards to `Util/MuzzleFx`, `ShellFx`, `TracerFx`, `ImpactFx` (surfaces, bullet holes, knife marks), `KnifeSwipeFx`, all built on `Util/ShotFxKit` |
-| `HudController` | crosshair, hit markers, ammo, health/shield, low-HP vignette, damage direction |
+| `HudController` | crosshair, hit markers, ammo, health/shield, low-HP vignette, damage direction; builds and steps the sniper scope (`Util/ScopeOverlay`, `setScope`, `scopeShot`) and the aimed corner darkening (`Util/AimVignette`, `setAim`), numbers in `Config/Scope` (2026-11-15); the damage direction arcs are `Util/DamageIndicator` (`damageFrom`, `Config/DamageIndicator`; Studio attribute `DevDamageFrom`) |
 | `TopBarController` | the match top bar (2026-11-14): fills the Studio-built `StarterGui.TopBar` (team blocks, headshots greyed when dead, score, clock, info line) from `MatchState`; template `ReplicatedStorage.UiTemplates.TopBar.Player`; backup `tools/studio/BuildTopBar.luau` |
 | `Util/BottomHud` (2026-11-14) | the bottom combat HUD: fills the Studio-built `StarterGui.BottomHud` (health + shield, ammo, Mod cells, weapon hotbar, key hints); fed by `HudController`, `ModHudController`, `WeaponController.updateHudWeapon`; desktop only; backup `tools/studio/BuildBottomHud.luau` |
 | `MatchHudController`, `PhoneHudController` | banners (get ready, countdown, round won / lost, match end); its old top bar is hidden (kept for its sounds until removed); phone layout |
 | `Util/DraftScreen` (2026-11-14) | the desktop draft screen: fills and animates the Studio-built `StarterGui.DraftScreen` (guns, Q/E/T columns of new cards / upgrade half-cards / MAXED, LOCK IN, hint, enemy kit); fed by `DraftController`; backup `tools/studio/BuildDraftScreen.luau` |
 | `DraftController` (1774 l) | the select/draft logic (offer, keys, `DraftPick` calls, hint); desktop draws through `Util/DraftScreen`, phones keep its own code-built cards |
 | `ModController` (1250 l) | Mod input, held state machine, previews, sends `ModHold/Use/Steer/Recall` |
+| `ModSimController` | (2026-11-15) reports our own predicted Mod events (`Cast`, `Slam`, `Land`) through `ModSim`; writes other players' events onto their characters as local attributes (from `ModSimFx`) |
 | `ModHudController` | 3 slots with cooldown sweep and charges |
 | `ModFxController`, `ModFeelController` | world effects and sounds of Mods (`Util/*Fx`, `Util/UpgradeFx/<Ability>`) |
 | `MovementController`, `PoseController` | start the client's predicted movement / pose simulation |
@@ -122,7 +126,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `MatchEndController` | victory scene and post-match screen (Rematch / Play Again / Leave) |
 | `ZoneController` | sudden-death wall, screen tint, warning tick |
 | `DevModController`, `PickerController`, `RangeController`, `GunReviewController` | test-mode tools: Mod panel (F8), gun picker (P), dummy health bars, gun review panel (F6, `Config/GunReview`) |
-| `Util/` | `BodyClone` (client-only copies of bodies for death falls, the replay, the victory scene), `ShotLog` (your own shots, for the replay), `Crosshair` (the crosshair, `Config/Crosshair`), `HitFeedback` (crosshair markers + damage numbers, `Config/HitFx`), `HitFx`, `KillFeed`, `Ui`, `UiSound`, `TeamColor` (cyan allies, orange-red enemies), `Device`, `VfxPool`, `Frozen`, VFX kits (`FireKit`, `IceKit`, `GlitchVfx`, `WallFx`, `WindFx`) |
+| `Util/` | `BodyClone` (client-only copies of bodies for death falls, the replay, the victory scene), `ShotLog` (your own shots, for the replay), `Crosshair` (the crosshair, `Config/Crosshair`), `HitFeedback` (crosshair markers + damage numbers, `Config/HitFx`), `ScopeOverlay` (the sniper scope picture) and `AimVignette` (corners darken while aimed), both `Config/Scope`, `DamageIndicator` (the red damage direction arcs, `Config/DamageIndicator`), `HitFx`, `KillFeed`, `Ui`, `UiSound`, `TeamColor` (cyan allies, orange-red enemies), `Device`, `VfxPool`, `Frozen`, VFX kits (`FireKit`, `IceKit`, `GlitchVfx`, `WallFx`, `WindFx`) |
 
 ## src/lobby (Lobby place)
 | Module | Owns |
@@ -148,6 +152,8 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `client/Controllers/ProfileController` | a player's card (Router "Profile", opened with a Player from their player-list row): `StarterGui.Profile` + `ProfileSkin` (backup `tools/studio/BuildProfileRewards.luau`); level, streak, equipped skins (`Skin_<gun>` + `shared/Locker.EMBLEMS`); INVITE TO PARTY (the existing `PartyRequest`) / OPEN LOCKER |
 | `client/Controllers/RewardsController` | Rewards (Router "Rewards", the top bar's gift `LobbyTopbar.Bar.Rewards`): `StarterGui.Rewards` + `RewardRow`, data `lobby/shared/RewardsCatalog`; favourite / game invite / notifications use Roblox prompts; coins wait for the economy; no remotes |
 | `client/Util/LobbyKit` | the shared component kit: plate, cell, button, tabs, price, close, slot / clearSlots, page (a Router page: blur 24, wash, opens from 0.75, back / B closes, phone regions) |
+| `client/Util/Thumb` | item art in shop cells: `Thumb.item(cell, item)` = the skin's picture (`shared/ItemIcons`), else a static 3D view, else its emblem; coins get the coin art |
+| `shared/ItemIcons` | pre-rendered gun / skin pictures (170): `ItemIcons.get(gunId, line)`; made with `tools/studio/RenderItemIcons.luau` + `tools/render/icon_sheet.py` (vault UI Lobby Overhaul → 8) |
 | `client/Util/LobbyLook` | runs first in the lobby client: which cells get `Util/Cards` per screen, template marks, the 12 px text floor, `Util/TextFit.watch` |
 | `client/Util/Plates`, `Cards`, `TextFit` | one-piece slanted plates (sliced art, `art-source/ui/plates/`), one-piece chunky cells (skin + bevel; bevel-only on text buttons), self-sizing text re-measured when its font lands |
 | `client/Controllers/MatchFoundController` + `src/first/LoadingScreen.client` | MATCH FOUND hands `StarterGui.LobbyLoading` (backup `tools/studio/BuildLoading.luau`: mode, mode art, dots, tip) to `TeleportService:SetTeleportGui`; the match place's ReplicatedFirst script keeps it up and fades it out once loaded |

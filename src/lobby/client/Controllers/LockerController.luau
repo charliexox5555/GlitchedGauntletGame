@@ -22,6 +22,7 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
+local ItemIcons = require(ReplicatedStorage.Shared.ItemIcons)
 local Locker = require(ReplicatedStorage.Shared.Locker)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
@@ -454,13 +455,22 @@ local function styleGunCard(card: GuiButton, on: boolean)
 	end
 	local icon = card:FindFirstChild("Icon")
 	if icon and icon:IsA("ImageLabel") then
-		icon.ImageColor3 = if on then INK else WHITE
+		-- a rendered picture keeps its own colours; a flat silhouette is tinted
+		icon.ImageColor3 = if icon:GetAttribute("Rendered") == true or not on then WHITE else INK
 	end
 end
 
 local function refreshGunCards()
 	for gunId, card in gunCards do
 		local on = gunId == selectedGun
+		-- the card shows the gun in its equipped skin (ItemIcons, pre-rendered
+		-- like RIVALS' list), the flat silhouette if there's no picture
+		local icon = card:FindFirstChild("Icon")
+		if icon and icon:IsA("ImageLabel") then
+			local pic = ItemIcons.get(gunId, equippedLine(gunId))
+			icon.Image = pic or Theme.GUN[gunId] or ""
+			icon:SetAttribute("Rendered", pic ~= nil)
+		end
 		styleGunCard(card, on)
 		-- the equipped skin: its emblem and name under the gun's name
 		local row = card:FindFirstChild("Skin")
@@ -639,8 +649,19 @@ local function buildTiles()
 		t.Name = line
 		t.LayoutOrder = i
 		local w, h = t.Size.X.Offset, t.Size.Y.Offset
-		local model = Locker.skinModel(selectedGun, line)
-		if model then
+		local pic = ItemIcons.get(selectedGun, line)
+		local model = if pic then nil else Locker.skinModel(selectedGun, line)
+		if pic then
+			local art = Instance.new("ImageLabel")
+			art.Name = "Thumb"
+			art.Position = UDim2.fromOffset(10, 48)
+			art.Size = UDim2.fromOffset(w - 20, h - 100)
+			art.BackgroundTransparency = 1
+			art.Image = pic
+			art.ScaleType = Enum.ScaleType.Fit
+			art.ZIndex = t.ZIndex + 1
+			art.Parent = t
+		elseif model then
 			thumb(t, model, w - 20, h - 100, UDim2.fromOffset(10, 48))
 		end
 		local e = makeEmblem(t, line, 32)
