@@ -675,7 +675,9 @@ function M.screens(): string
 		local part = Instance.new("Part")
 		part.Name = "Screen_" .. kind
 		part.Size = Vector3.new(w, h, 0.05)
-		part.CFrame = CFrame.lookAt(pos, pos + Vector3.new(r[9], 0, -r[10]))
+		local nz = if typeof(r[12]) == "number" then r[12] else 0
+		local normal = Vector3.new(r[9], nz, -r[10]).Unit -- Blender (x, y, z) -> Roblox (x, z, -y): tilted screens follow their case
+		part.CFrame = CFrame.lookAt(pos, pos + normal, Vector3.yAxis)
 		part.Anchored = true
 		part.CanCollide = false
 		part.CanTouch = false

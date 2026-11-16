@@ -17,7 +17,7 @@ HW = 34.0  # wall height (ceiling underside)
 WT = 4.0  # wall thickness
 A = RC * sin(pi / 8) - 1.6  # half span of a wall bay between the piers
 RL = 16.0  # lantern ring inradius
-DUELS_HW = 13.0  # Duels portal half width: clears the corner piers, which reach 13.65 along a wall
+DUELS_HW = 11.5  # Duels portal half width: clears the corner piers, which reach 13.65 along a wall
 OPEN = set()  # wings already built: their doorway closure is left out
 
 
@@ -75,43 +75,68 @@ def ceiling(KC, KCD, KD):
 
 
 def lantern(K, KC, KD):
+	"""The sunroof (owner 2026-11-16: needs work). A clerestory drum of frosted panels, a faceted stepped roof of eight
+	sloped plates with ribs, an upper drum, and a frosted oculus; a light ring hung inside on rods; a soft light shaft."""
 	z0 = HW + 1.5
+	zr = z0 + 10.0  # drum top
 	with C.grp("Lantern", Matrix.Identity(4)):
 		half = RL * sin(pi / 8) / cos(pi / 8)
 		for k in range(8):
-			th = 45 * k
-			M = V.face_at(th, RL, z0)
+			M = V.face_at(45 * k, RL, z0)
 			F = S.FK(KC, M)
-			F["V_Wall"].box(-half, half, 0, 2.0, -1.6, 0)
+			F["V_Wall"].box(-half, half, 0.05, 2.0, -1.6, 0)
 			F["V_Wall"].box(-half, half, 8.4, 10.0, -1.6, 0)
-			S.FK(KD, M)["E_Panel"].box(-half, half, 2.0, 8.4, -1.1, -0.9)
+			S.FK(KD, M)["E_Panel"].box(-half + 0.9, half - 0.9, 2.0, 8.4, -1.1, -0.9)
 			S.FK(KD, M)["V_Steel"].box(-0.25, 0.25, 2.0, 8.4, -0.9, -0.5)  # mullion
-		for k in range(8):  # posts at the drum corners
+			S.FK(KD, M)["V_Trim"].box(-half + 0.4, half - 0.4, 1.7, 2.12, -0.05, 0.35)  # sill
+		for k in range(8):  # corner posts, set on the drum (clear of the ceiling ring)
 			phi = radians(22.5 + 45 * k)
 			rc = RL / cos(pi / 8)
 			c, s = cos(phi), sin(phi)
 			M = S.face((rc * c, rc * s, z0), (s, -c, 0), (-c, -s, 0))
-			S.FK(KC, M)["V_Trim"].ext_y(V.ccw(S.cham_rect(-1.0, 1.0, -1.9, 0.5, 0.2)), 0, 9.9)
-		ring_sectors(KC["V_Ceil"], 7.0, RL + 1.8, z0 + 10.0, z0 + 11.5)
-		KC["V_Ceil"].prism(V.ccw(V.oct_pts(7.2)), z0 + 10.6, z0 + 10.9)
-		S.FK(KD, Matrix.Identity(4))["E_Panel"].prism(V.ccw(V.oct_pts(6.4)), z0 + 10.45, z0 + 10.6)  # frosted skylight panel
-	fz = z0 + 8.0
-	with C.grp("Fan", Matrix.Translation((0, 0, fz)), inst=False):
-		F = S.FK(KD, Matrix.Translation((0, 0, fz)))
-		F["V_Steel"].prism(V.ccw(V.oct_pts(1.3)), -0.5, 0.5)
-		F["V_Steel"].box(-0.3, 0.3, -0.3, 0.3, 0.5, 2.6)  # drop rod to the cap
-		for k in range(6):
-			a = radians(60 * k)
-			Mb = Matrix.Translation((0, 0, fz)) @ Matrix.Rotation(a, 4, "Z") @ Matrix.Rotation(radians(10), 4, "X")
-			S.FK(KD, Mb)["V_Dark"].prism(V.ccw([(1.0, -0.7), (6.4, -1.15), (6.9, -0.6), (6.9, 0.6), (6.4, 1.15), (1.0, 0.7)]), -0.12, 0.12)
-	S.ANIM["Fan"] = {"pivot": [0, 0, fz], "spin": 14, "axis": [0, 0, 1]}
-	S.light(Matrix.Identity(4), 0, 0, z0 + 9.5, V.WHITE, 2.2, 56, 62)
+			S.FK(KC, M)["V_Trim"].ext_y(V.ccw(S.cham_rect(-0.9, 0.9, -1.7, 0.3, 0.2)), 0.1, 9.9)
+		# sloped roof: eight plates from the drum top up to the upper drum
+		ro, ri, zt = RL + 1.2, 8.6, zr + 5.0
+		o, i_ = V.oct_pts(ro), V.oct_pts(ri)
+		for k in range(8):
+			j = (k + 1) % 8
+			KC["V_Ceil"].solid([(o[k][0], o[k][1], zr), (o[j][0], o[j][1], zr), (i_[j][0], i_[j][1], zt), (i_[k][0], i_[k][1], zt)],
+				[(o[k][0], o[k][1], zr + 1.2), (o[j][0], o[j][1], zr + 1.2), (i_[j][0], i_[j][1], zt + 1.2), (i_[k][0], i_[k][1], zt + 1.2)])
+		for k in range(8):  # ribs along the plate seams
+			a = V.oct_pts(ro + 0.3)[k]
+			b = V.oct_pts(ri + 0.3)[k]
+			S.FK(KD, Matrix.Identity(4))["V_Beam"].pipe((a[0], a[1], zr - 0.3), (b[0], b[1], zt - 0.3), 0.45, n=6)
+		# upper drum with a frosted band, flat cap with the oculus
+		for k in range(8):
+			M = V.face_at(45 * k, ri, zt)
+			hh = ri * sin(pi / 8) / cos(pi / 8)
+			S.FK(KC, M)["V_Wall"].box(-hh, hh, 0.0, 0.8, -1.0, 0)
+			S.FK(KD, M)["E_Panel"].box(-hh + 0.6, hh - 0.6, 0.8, 2.8, -0.7, -0.5)
+			S.FK(KC, M)["V_Wall"].box(-hh, hh, 2.8, 3.6, -1.0, 0)
+		ring_sectors(KC["V_Ceil"], 4.2, ri + 0.4, zt + 3.6, zt + 4.6)
+		S.FK(KD, Matrix.Identity(4))["E_Panel"].prism(V.ccw(V.oct_pts(4.3)), zt + 3.9, zt + 4.1)  # frosted oculus
+	# the light ring hung inside the drum
+	zh = z0 + 3.4
+	with C.grp("LightRing", Matrix.Translation((0, 0, zh))):
+		G = S.FK(KD, Matrix.Translation((0, 0, zh)))
+		o, i_ = V.oct_pts(10.4), V.oct_pts(9.0)
+		for k in range(8):
+			j = (k + 1) % 8
+			G["V_Dark"].prism(V.ccw([i_[k], i_[j], o[j], o[k]]), 0.0, 0.8)
+			G["E_ThViolet"].prism(V.ccw([V.oct_pts(9.9)[k], V.oct_pts(9.9)[j], V.oct_pts(10.5)[j], V.oct_pts(10.5)[k]]), 0.25, 0.55)
+			G["E_White"].prism(V.ccw([V.oct_pts(9.2)[k], V.oct_pts(9.2)[j], V.oct_pts(10.2)[j], V.oct_pts(10.2)[k]]), -0.08, 0.0)
+		for k in range(8):  # hanger rods up to the drum top
+			p = V.oct_pts(9.7, rot=radians(0))[k]
+			G["V_Steel"].pipe((p[0], p[1], 0.8), (p[0], p[1], zr + 4.5 - zh), 0.09, n=6)  # up into the sloped roof
+	S.light(Matrix.Identity(4), 0, 0, zh - 0.5, V.WHITE, 2.4, 50, 80)
+	S.light(Matrix.Identity(4), 0, 0, zt + 2.0, V.WHITE, 1.4, 40, 70)
+	V.fx("cone", 0.0, 0.0, zt + 3.4, "#F4F1EA", to=(0.0, 0.0, 2.2), name="Sunshaft", W0=7.0, W1=16.0)
 
 
 def floor(K, KD):
 	K["V_Slab"].prism(V.ccw(V.oct_pts(R + 4.6)), -1.2, 0)
 	K["V_Floor2"].prism(V.ccw(V.oct_pts(15.4)), 0, 0.12)
-	ring_sectors(KD["V_GoldPaint"], 15.6, 16.2, 0, 0.15)
+	ring_sectors(KD["E_ThLilac"], 15.7, 16.1, 0.12, 0.17)  # a lit ring round the dais (lanes start from it)
 	# plates: 16 per ring, two rings, split by 0.25 shadow gaps
 	for ring, (r0, r1) in enumerate(((16.45, 31.0), (31.25, R + 0.6))):
 		o = V.oct_pts(r1)
@@ -134,20 +159,10 @@ def floor(K, KD):
 	ring_sectors(KD["V_GoldPaint"], 5.6, 6.0, 2.0, 2.06)
 	KD["V_Dark"].prism(V.ccw(V.oct_pts(4.6)), 2.0, 2.05)
 	S.add_text(KD["E_Gold"], "GG", 3.2, 0.06, y0=-1.6, z0=2.05, s=0.24)
-	# lanes to the doors: a lighter lane with two gold edge lines
-	for th, off, name in ((90, 0.0, "DUELS"), (0, 0.0, "SHOP"), (180, 0.0, "LOCKER")):
-		Ml = Matrix.Rotation(radians(th - 90), 4, "Z") @ Matrix.Translation((off, 0, 0))
-		y0 = 16.55 if off == 0 else 20.0
-		hw, y1 = (6.0, R - 0.4) if off == 0 else (4.0, R - 1.7)
-		F = S.FK(KD, Ml)
-		F["V_Lane"].box(-hw, hw, y0, y1, 0.12, 0.17)
-		G = S.FK(KD, Ml)
-		for sx in (-1, 1):
-			G["V_GoldPaint"].box(sx * (hw + 0.1), sx * (hw + 0.5), y0, y1, 0.12, 0.19)
-		V.floor_text(KD, Ml @ Matrix.Translation((0, 34.2, 0)), name, 2.4, z=0.17)
-		if th == 90:
-			for y in (22.5, 27.5):
-				V.chevron(KD, Ml, 0, y, 4.2, z=0.17)
+	# paths to the doors: inlaid lanes with lit rails, chevrons near each door (RIVALS' floor paths, our build)
+	for th, name in ((90, "DUELS"), (0, "SHOP"), (180, "LOCKER")):
+		Ml = Matrix.Rotation(radians(th - 90), 4, "Z")
+		V.path_lane(KD, Ml, 5.0, 16.6, R - 4.2, arrows=(33.0, 36.4), word=name)
 
 
 def portal(K, KD, M, hw, h, depth, close=True, cut=2.4, lining="V_Low", name="Portal", rings=(1.5, 1.3, 1.2)):
@@ -180,29 +195,23 @@ def portal(K, KD, M, hw, h, depth, close=True, cut=2.4, lining="V_Low", name="Po
 
 
 def doors(K, KD):
-	# Duels (+Y): the big stepped portal, gold sign
+	"""Each door in a gatehouse (owner 2026-11-16: grand entrances), its sign standing on the gatehouse head."""
 	M = V.face_at(90, R)
-	portal(K, KD, M, DUELS_HW, 22.0, 12.0, close="Duels" not in OPEN, name="Portal_Duels")
-	V.sign(KD, M @ V.T(0, 22.6, 0), "DUELS", 25.0, 6.6, accent="E_Gold", name="Sign_Duels", shape="badge", icon="blades")
-	# Shop (+X): roll-shutter door, coral sign
+	portal(K, KD, M, DUELS_HW, 20.0, 12.0, close="Duels" not in OPEN, name="Portal_Duels")
+	V.gatehouse(K, KD, M, DUELS_HW, 20.0, name="Gate_Duels")
+	V.sign(KD, M @ V.T(0, 23.9, 0), "DUELS", 25.0, 6.4, accent="E_Gold", name="Sign_Duels", shape="badge", icon="blades", standoff=4.2)
 	M = V.face_at(0, R)
 	portal(K, KD, M, 12.0, 18.0, 12.0, close="Shop" not in OPEN, name="Portal_Shop")
-	with C.grp("Shutter", M):
-		F = S.FK(KD, M)
-		box = [(18.4, 0.0), (18.4, 2.0), (18.9, 2.6), (20.6, 2.6), (21.0, 2.1), (21.0, 0.0)]  # shutter housing: angled box
-		F["V_Steel"].ext_x(V.ccw(box), -12.6, 12.6)
-		for sx in (-1, 1):
-			F["V_Trim"].ext_x(V.ccw([(18.2, 0.0), (18.2, 2.2), (18.8, 2.85), (20.75, 2.85), (21.2, 2.3), (21.2, 0.0)]), sx * 12.6 - 0.4, sx * 12.6 + 0.4)
-			F["V_Steel"].box(sx * 12.15, sx * 12.95, 0, 18.6, 0, 0.9)  # guide channel
-		F["E_Coral"].box(-10.0, 10.0, 18.25, 18.45, 0.5, 1.0)  # threshold lamp line under the housing
-	V.sign(KD, M @ V.T(0, 22.4, 0), "SHOP", 21.0, 6.4, accent="E_Coral", name="Sign_Shop", shape="tag", icon="sparkle", icon_at="right", icon_size=5.2)
-	# Locker (-X): gallery arch with display cases either side, violet sign
+	V.gatehouse(K, KD, M, 12.0, 18.0, name="Gate_Shop")
+	V.sign(KD, M @ V.T(0, 21.6, 0), "SHOP", 21.0, 6.2, accent="E_Coral", name="Sign_Shop", shape="tag", icon="sparkle", icon_at="right", icon_size=5.0, standoff=4.2)
 	M = V.face_at(180, R)
 	portal(K, KD, M, 9.0, 18.0, 12.0, close="Locker" not in OPEN, cut=2.6, name="Portal_Locker")
-	V.sign(KD, M @ V.T(0, 22.4, 0), "LOCKER", 25.0, 6.4, accent="E_Violet", name="Sign_Locker", icon="reticle")
-	# Range (-Y): not built yet (owner 2026-11-16). A sealed door in its frame, the RANGE sign kept for later.
+	V.gatehouse(K, KD, M, 9.0, 18.0, name="Gate_Locker", plain=(-1,))
+	V.sign(KD, M @ V.T(0, 22.4, 0), "LOCKER", 25.0, 6.2, accent="E_Violet", name="Sign_Locker", icon="reticle", standoff=4.2)
+	# Range (-Y): not built yet (owner 2026-11-16). A sealed door in its gatehouse, the RANGE sign kept for later.
 	M = V.face_at(270, R)
 	portal(K, KD, M, 10.0, 18.0, 4.6, close=True, cut=2.6, name="Portal_Range")
+	V.gatehouse(K, KD, M, 10.0, 18.0, name="Gate_Range", plain=(-1,))
 	with C.grp("RangeDoor", M):
 		G = S.FK(KD, M)
 		h3, v3 = 10.0 - 4.0, 18.0 - 3.9
@@ -211,33 +220,32 @@ def doors(K, KD):
 			for y in (3.0, 7.0, 11.0):
 				G["V_Dark"].box(sx * 0.6, sx * (h3 - 0.6), y, y + 0.5, -1.9, -1.75)
 		G["E_Lime"].box(-2.0, 2.0, v3 - 1.2, v3 - 0.9, -1.9, -1.75)
-	V.sign(KD, M @ V.T(0, 22.4, 0), "RANGE", 25.0, 6.4, accent="E_Lime", name="Sign_Range", shape="arrow", icon="target")
-	return {"Duels": V.face_at(90, R), "Shop": V.face_at(0, R), "Locker": V.face_at(180, R), "Range": M}
+	V.sign(KD, M @ V.T(0, 21.7, 0), "RANGE", 25.0, 6.2, accent="E_Lime", name="Sign_Range", shape="arrow", icon="target", standoff=4.2)
 
 
 def diagonals(K, KD):
 	# NE / NW: leaderboards in the first frame from the spawn
 	for th, title in ((45, "TOP WINS"), (135, "WIN STREAKS")):
 		M = V.face_at(th, R)
-		wall(K, KD, M, panel_skip=(-11.0, 11.0))
+		wall(K, KD, M, panel_skip=(-11.6, 11.6))
 		V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
-		V.gallery(K, KD, M, -A + 0.4, A - 0.4, 27.6, name="Gallery")
-		V.board(KD, M @ V.T(0, 11.6, 0), 19.0, 11.5, "leader", title, name="Board_" + title.replace(" ", ""))
+		V.gallery(K, KD, M, -A + 3.4, A - 3.4, 27.6, name="Gallery")
+		V.tv(K, KD, M @ V.T(0, 10.0, 0), 21.0, 12.0, "leader", title, name="TV_" + title.replace(" ", ""))
 	# SW: news board and a crate stack
 	M = V.face_at(225, R)
-	wall(K, KD, M, panel_skip=(-9.5, 9.5))
+	wall(K, KD, M, panel_skip=(-10.6, 10.6))
 	V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
-	V.gallery(K, KD, M, -A + 0.4, A - 0.4, 27.6, name="Gallery")
-	V.board(KD, M @ V.T(0, 12.4, 0), 17.0, 10.0, "news", "SEASON 1", "NEW MAPS · NEW MODS", name="Board_News")
+	V.gallery(K, KD, M, -A + 3.4, A - 3.4, 27.6, name="Gallery")
+	V.tv(K, KD, M @ V.T(0, 11.0, 0), 19.0, 11.0, "news", "SEASON 1", "NEW MAPS · NEW MODS", name="TV_News")
 	Mf = M @ V.RX(-90)
 	for x, z, yaw in ((-10.4, 0.0, 0.0), (-4.9, 0.0, 4.0), (-7.8, 3.32, -7.0)):
 		V.crate(K, Mf @ V.T(x, -3.2, z) @ Matrix.Rotation(radians(yaw), 4, "Z"))
 	# SE: the social niche: two benches, a show stage, the featured board
 	M = V.face_at(315, R)
-	wall(K, KD, M, panel_skip=(-8.5, 8.5))
+	wall(K, KD, M, panel_skip=(-9.0, 9.0))
 	V.conduit(KD, M, -14.7, 14.7, HW - 4.4)
-	V.gallery(K, KD, M, -A + 0.4, A - 0.4, 27.6, name="Gallery")
-	V.board(KD, M @ V.T(0, 13.4, 0), 15.0, 9.0, "featured", "FEATURED", "THIS WEEK", name="Board_Featured")
+	V.gallery(K, KD, M, -A + 3.4, A - 3.4, 27.6, name="Gallery")
+	V.tv(K, KD, M @ V.T(0, 12.4, 0), 16.0, 9.5, "featured", "FEATURED", "THIS WEEK", name="TV_Featured")
 	for sx in (-1, 1):
 		with C.grp("Bench", M @ V.T(sx * 10.0, 0, 0), inst=True):
 			F = S.FK(K, M @ V.T(sx * 10.0, 0, 0))
@@ -250,9 +258,9 @@ def diagonals(K, KD):
 
 def rig(KD):
 	with C.grp("LightingRig", Matrix.Identity(4)):
-		V.truss_ring(KD, (0.0, 0.0), 17.0, 29.5, 30.5, 31.2)  # under the lantern ring: clear of every door sign sightline
+		V.truss_ring(KD, (0.0, 0.0), 21.0, 30.0, 31.0, HW)  # outside the lantern ring: hangers up to the coffer ceiling
 		for k in range(8):
-			V.stage_spot(KD, (0.0, 0.0), radians(22.5 + 45 * k), 17.0, 29.5, (0.0, 0.0, 1.0))
+			V.stage_spot(KD, (0.0, 0.0), radians(22.5 + 45 * k), 21.0, 30.0, (0.0, 0.0, 1.0))
 
 
 def details(K, KD):
@@ -260,29 +268,23 @@ def details(K, KD):
 	for th in (45, 135, 225, 315):
 		M = V.face_at(th, R)
 		with C.grp("Vents", M):
-			for x, w_, h_ in (((-0.5, 2.0, 3.0),) if th == 225 else ((-5.2, 4.2, 1.8), (4.6, 2.2, 3.0))):  # none behind the crates or the arcade
+			vents = {225: ((-0.5, 2.0, 3.0),), 315: ((0.0, 3.2, 2.2),)}.get(th, ((-5.2, 4.2, 1.8), (4.6, 2.2, 3.0)))  # none behind crates or benches
+			for x, w_, h_ in vents:
 				V.vent(KD, M, x, 2.4, w_, h_, slats=4 if h_ < 2.5 else 6)
 	M = V.face_at(180, R)  # Locker door: plaques on the left strip, a beacon over them
 	with C.grp("Plaques_Locker", M):
-		V.plaque(KD, M, 11.4, 10.6, 3.2, 2.2, "notice", "NOTICE", ["SKINS SAVE PER GUN"])
+		V.plaque(KD, M @ V.T(0, 0, 3.6), -11.8, 9.0, 3.0, 2.2, "notice", "NOTICE", ["SKINS SAVE PER GUN"])
 	M = V.face_at(270, R)  # Range door: sealed, says so
 	with C.grp("Plaques_Range", M):
-		V.plaque(KD, M, -11.8, 10.6, 3.4, 2.6, "warning", "WARNING", ["RANGE CLOSED"])
-		V.beacon(KD, M, -11.8, 14.0)
+		V.plaque(KD, M @ V.T(0, 0, 3.6), -12.3, 8.6, 3.0, 2.4, "warning", "WARNING", ["RANGE CLOSED"])
+		V.beacon(KD, M @ V.T(0, 0, 3.6), -12.3, 12.6)
 
 
 def life(K, KD):
-	# owner 2026-11-16: the stands should show bundles and effects like RIVALS, not only guns
-	a = radians(135)
-	V.bundle_stand(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), name="BundleStand")
-	a = radians(225)
-	V.showcase(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), "Operator", 2.3, name="Showcase")
-	V.fx("sparkle", 27.0 * cos(a), 27.0 * sin(a), 4.5, "#FFC83D", name="ShowcaseFX", Rate=4, Spread=2.0)
-	a = radians(315)
-	V.effect_stand(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), name="EffectStand")
-	a = radians(45)
-	V.drop_stand(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a))
-	V.fx("sparkle", 27.0 * cos(a), 27.0 * sin(a), 4.0, "#FFC83D", name="DropFX", Rate=5, Spread=2.4)
+	# hologram stands on the diagonals (owner 2026-11-16: like RIVALS' holograms, fun; items are placeholders)
+	for th, item in ((45, "gift"), (135, "badge"), (225, "rifle"), (315, "crate")):
+		a = radians(th)
+		V.holo_stand(K, KD, AREA, 27.0 * cos(a), 27.0 * sin(a), item, name="Holo_" + item.title())
 	V.fx("dust", 0.0, 0.0, 14.0, "#FFF4E0", name="LanternDust", Spread=10.0)
 	# the dais collar: four faceted segments on the diagonals (open on the lanes), gold uplights on top
 	for k in range(4):
@@ -294,7 +296,6 @@ def life(K, KD):
 			G["V_Trim"].prism(V.ccw([(-5.0, 13.2), (5.0, 13.2), (6.0, 14.7), (-6.0, 14.7)]), 1.6, 1.8)
 			for u in (-3.6, 0.0, 3.6):
 				G["E_Gold"].prism(V.ccw(S.cham_rect(u - 0.35, u + 0.35, 13.75, 14.15, 0.1)), 1.8, 1.86)
-	V.arcade(K, KD, V.face_at(225, R), 10.0, name="Arcade")
 
 
 def build():
@@ -309,7 +310,7 @@ def build():
 	KCD.nocol = True
 	ceiling(KC, KCD, KD)
 	lantern(K, KC, KD)
-	wall(K, KD, V.face_at(90, R), ops=[(-DUELS_HW, DUELS_HW, 0.0, 22.0)], panels=False)
+	wall(K, KD, V.face_at(90, R), ops=[(-DUELS_HW, DUELS_HW, 0.0, 20.0)], panels=False)
 	wall(K, KD, V.face_at(0, R), ops=[(-12.0, 12.0, 0.0, 18.0)], panels=False)
 	wall(K, KD, V.face_at(180, R), ops=[(-9.0, 9.0, 0.0, 18.0)], panels=False)
 	wall(K, KD, V.face_at(270, R), ops=[(-10.0, 10.0, 0.0, 18.0)], panels=False)

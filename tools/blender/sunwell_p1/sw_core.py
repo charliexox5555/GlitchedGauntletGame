@@ -541,7 +541,7 @@ def screen(kind, title, sub, M, x, y, z, w, h):
 	"""A live-looking display: recorded here, built in Studio as a SurfaceGui on a thin part at (x, y, z) of frame M."""
 	c = M @ Vector((x, y, z))
 	n = M.to_3x3() @ Vector((0, 0, 1))
-	SCREENS.append([kind, title, sub, round(c.x, 3), round(c.y, 3), round(c.z, 3), w, h, round(n.x, 4), round(n.y, 4), C.cur_group() or ""])
+	SCREENS.append([kind, title, sub, round(c.x, 3), round(c.y, 3), round(c.z, 3), w, h, round(n.x, 4), round(n.y, 4), C.cur_group() or "", round(n.z, 4)])  # n.z (12th) lets tilted screens follow their case (lobby V4)
 
 
 def taper_y(b, r0, y0, r1, y1):

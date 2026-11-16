@@ -19,7 +19,7 @@ Y0, Y1, YE = 62.0, 158.0, 182.0  # front wall face, apse start, end wall
 XE = 18.0  # half width of the apse end face
 BAYS = (78.0, 106.0, 134.0)  # bay centres along each side wall (respaced for the open stage pads)
 PIERS = (92.0, 120.0)
-PHW = 13.0  # the hub Duels portal half width (v4_hub.DUELS_HW): the mouth continues its lining
+PHW = 11.5  # the hub Duels portal half width (v4_hub.DUELS_HW): the mouth continues its lining
 BAY_HW, BAY_H, BAY_D = 11.0, 18.0, 4.0
 PLAYERS = {"1v1": 1, "2v2": 2, "3v3": 3, "4v4": 4}
 
@@ -235,9 +235,9 @@ def landing(K, KD):
 	# the mouth: the hub tunnel's lining continues through the 4-stud front wall
 	M = frame((0, Y0), (-1, 0))
 	FD = S.FK(KD, M)
-	S.u_frame(FD["V_Trim"], PHW, 25.0, PHW - 1.5, 23.6, -1.0, 1.6, ci=2.8, y0=3.0)
-	S.u_frame(FD["V_Wall"], PHW - 1.5, 23.6, PHW - 2.8, 22.3, -3.0, 0.9, co=2.8, ci=2.6, y0=3.0)
-	S.u_frame(FD["V_Low"], PHW - 2.8, 22.3, PHW - 4.0, 21.1, -4.2, 0.3, co=2.6, ci=2.4, y0=3.0)
+	S.u_frame(FD["V_Trim"], PHW, 23.0, PHW - 1.5, 21.6, -1.0, 1.6, ci=2.8, y0=3.0)
+	S.u_frame(FD["V_Wall"], PHW - 1.5, 21.6, PHW - 2.8, 20.3, -3.0, 0.9, co=2.8, ci=2.6, y0=3.0)
+	S.u_frame(FD["V_Low"], PHW - 2.8, 20.3, PHW - 4.0, 19.1, -4.2, 0.3, co=2.6, ci=2.4, y0=3.0)
 	S.light(M, 0, 21.0, 5.0, V.WHITE, 1.6, 22, 80)
 
 
@@ -286,7 +286,7 @@ def walls(K, KD):
 			V.beacon(KD, Mf, sx * 18.4, 14.2)
 			for x in ((27.6, 31.2) if sx < 0 else ()):
 				V.vent(KD, Mf, sx * x, 2.6, 3.0, 2.2)
-	V.wall_run(K, KD, Mf, -X, X, H, [(-PHW, PHW, 3.0, 25.0)], panel_skip=[(-PHW - 1.0, PHW + 1.0), (15.6, 25.2), (-25.2, -15.6)], dx0=-X + 2.0, dx1=X - 2.0)
+	V.wall_run(K, KD, Mf, -X, X, H, [(-PHW, PHW, 3.0, 23.0)], panel_skip=[(-PHW - 1.0, PHW + 1.0), (15.6, 25.2), (-25.2, -15.6)], dx0=-X + 2.0, dx1=X - 2.0)
 	# piers: three between bays on each side, one at every apse corner
 	for y in PIERS:
 		V.pier_at(K, KD, frame((-X, y), (0, 1)), H, AREA, w=3.0)

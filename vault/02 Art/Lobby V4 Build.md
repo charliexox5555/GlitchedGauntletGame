@@ -128,6 +128,21 @@ The owner: "it still needs improvements on the structure of the whole thing". Re
 
 `v4_core.slab_with_hole`, `nave_vault`, `gallery`. **Checks:** 0 floating, 0 leaks, the seams between vault and slab stepped proud (no flush faces); 0 missing; all 27 screens have content (black screens in a capture taken straight after a rebuild are the SurfaceGui capture delay). About 4,650 instances, 204k triangles (budget 240k).
 
+## Hub section pass (owner 2026-11-16, section by section, starting with the hub)
+| Note | Done |
+|---|---|
+| Overlaps (bar lamp 5 into gallery 3, vent 4 into the bench, others) | A new **clash audit** (`tools/blender/lobby_v4/v4_clash.py`): triangles of one piece cutting through another. Fixed: galleries now stop short of the piers (every bar lamp's feed was hitting them), braces and shoes sit on the wall panels, the SE vent moved off the bench, the truss ring moved outside the lantern ring, the fan's rod through the skylight is gone, the Shop shutter channels are gone, signs clear the new cornices, plaques clear the lit slots. What is left are intended seats (piers into walls, collars round piers, rods into the roof). |
+| TVs should pop out like RIVALS' | `v4_core.tv`: a wall plate, two faceted arms, a thick case 3.2 out from the wall and tilted down at the room, a bezel, a glow strip, a light bar. Screens now follow the tilt (`sw_core.screen` records the normal's z; `Build_V4.screens` uses it). |
+| Hologram stands like RIVALS' | `v4_core.holo_stand`: a stepped emitter with a glowing lens, a translucent ring on the floor, a soft projection cone widening upward, the item as a glowing silhouette with an offset ghost copy, turning, sparkles. Placeholders: gift, badge, rifle, supply case. |
+| Paths | `v4_core.path_lane`: an inlaid dark lane with steel edge rails, a lit slot in each rail, lit chevrons near the door, the word at the start; a lit ring round the dais where they begin. |
+| Sunroof | The lantern rebuilt: clerestory drum with sills, eight sloped faceted roof plates with ribs, an upper drum with a frosted band, a frosted oculus, a hung light ring on rods (white underside, violet edge), a soft light shaft. The fan is gone. |
+| Grand entrances | `v4_core.gatehouse`: a deep frame block standing out between the piers round each door: columns with chamfered fronts and a lit slot, a plinth, a head with a cornice and a lit soffit with downlights, glowing jamb strips, hazard thresholds beside the lane; the sign stands on the cornice. The Duels door is 23 x 20 now (was 26 x 22) to make room, and the Duels mouth follows. |
+| Arcade | Removed. |
+| Props (cases, crates) | Kept as placeholders for now (owner: later). Not copied from RIVALS: their file is untrusted and the rule is study, don't copy. |
+| Colour theme | Waiting for the owner's codes (deep violet, violet, lilac). The new hub pieces already use theme materials (`E_ThViolet`, `E_ThLilac`, `H_*`) with placeholder hexes, so the swap is one table. |
+
+**Checks:** 0 floating, 0 leaks; clash audit clean for fixtures; 0 missing meshes; about 4,630 instances.
+
 ## Still weak
 - Screens are placeholders: the queue, kiosk and featured boards use the old Sunwell layouts, and the live data comes from the lobby UI code later.
 - The Shop centre is empty. A featured-skin plinth would carry it.

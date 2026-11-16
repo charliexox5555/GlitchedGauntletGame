@@ -43,6 +43,9 @@ PAL = {
 	"V_Violet": ("#6650B8", 0.6, 0.0, 0.02),
 	"V_Pink": ("#B8406A", 0.6, 0.0, 0.02),
 	"V_Lime": ("#86A830", 0.6, 0.0, 0.02),
+	"V_ThDeep": ("#2E1A5C", 0.6, 0.0, 0.02),
+	"V_ThViolet": ("#6A3FD0", 0.6, 0.0, 0.02),
+	"V_ThLilac": ("#B9A0F0", 0.6, 0.0, 0.02),
 	"V_Rock": ("#55585C", 0.9, 0.0, 0.0),
 	"V_Rock2": ("#63676B", 0.9, 0.0, 0.0),
 }
@@ -54,6 +57,13 @@ GLOW = {
 	"E_Lime": ("#B4E04A", 9.0),
 	"E_Panel": ("#DCE4EA", 3.0),  # frosted clerestory panels
 	"E_Alarm": ("#FF3348", 8.0),
+	# studio theme (owner 2026-11-16: deep violet, violet, lilac; exact codes to come: placeholders until then)
+	"E_ThViolet": ("#8B5CFF", 9.0),
+	"E_ThLilac": ("#C9B0FF", 8.0),
+	"H_Item": ("#8B5CFF", 7.0),
+	"H_Ghost": ("#C9B0FF", 4.0),
+	"H_Cone": ("#B49CFF", 2.0),
+	"H_Ring": ("#B49CFF", 6.0),
 }
 _L = S._L
 LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVariants)
@@ -81,6 +91,9 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"V_Violet": _L("SmoothPlastic", "#6650B8"),
 	"V_Pink": _L("SmoothPlastic", "#B8406A"),
 	"V_Lime": _L("SmoothPlastic", "#86A830"),
+	"V_ThDeep": _L("SmoothPlastic", "#2E1A5C"),
+	"V_ThViolet": _L("SmoothPlastic", "#6A3FD0"),
+	"V_ThLilac": _L("SmoothPlastic", "#B9A0F0"),
 	"V_Rock": _L("SmoothPlastic", "#55585C"),
 	"V_Rock2": _L("SmoothPlastic", "#63676B"),
 	"E_White": _L("Neon", "#8F8E8A", glow=True),  # Neon lighter than ~#8C877F clips to white: this reads clean white
@@ -90,10 +103,16 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"E_Lime": _L("Neon", "#7CAA1C", glow=True),
 	"E_Panel": _L("Neon", "#6E7378", glow=True),
 	"E_Alarm": _L("Neon", "#B21E30", glow=True),
+	"E_ThViolet": _L("Neon", "#6A40E0", glow=True),
+	"E_ThLilac": _L("Neon", "#9A80D8", glow=True),
+	"H_Item": _L("Neon", "#6A40E0", t=0.08, glow=True),  # hologram silhouette
+	"H_Ghost": _L("Neon", "#8E6FE0", t=0.55, glow=True),  # its offset ghost copy
+	"H_Cone": _L("Neon", "#8E6FE0", t=0.82, glow=True),  # the projection cone
+	"H_Ring": _L("Neon", "#8E6FE0", t=0.3, glow=True),  # the floor ring
 	"Glass": _L("SmoothPlastic", "#DDE2E4", t=0.9, r=0.04),
 }
 WHITE = "#F4F1EA"  # lamp light
-PAINT = {"E_Gold": "V_GoldPaint", "E_Violet": "V_Violet", "E_Coral": "V_Pink", "E_Lime": "V_Lime"}  # accent -> painted twin
+PAINT = {"E_Gold": "V_GoldPaint", "E_Violet": "V_Violet", "E_Coral": "V_Pink", "E_Lime": "V_Lime", "E_ThViolet": "V_ThViolet", "E_ThLilac": "V_ThLilac"}  # accent -> painted twin
 
 
 def register():
@@ -1018,8 +1037,9 @@ def gallery(K, KD, M, x0, x1, z, d=4.0, name="Gallery"):
 	downlights under the deck washing the wall below. Decorative (no access); layered depth like RIVALS' hub ring."""
 	with C.grp(name, M):
 		F, G = S.FK(K, M), S.FK(KD, M)
-		F["V_Steel"].box(x0, x1, z - 0.7, z, 0.0, d)  # deck
-		G["V_Trim"].box(x0 - 0.1, x1 + 0.1, z - 0.85, z + 0.12, d - 0.35, d + 0.1)  # front edge
+		deck = ccw([(x0, 0.0), (x1, 0.0), (x1, d - 0.9), (x1 - 0.9, d), (x0 + 0.9, d), (x0, d - 0.9)])
+		F["V_Steel"].solid([(a, z - 0.7, b) for a, b in deck], [(a, z, b) for a, b in deck])  # deck with cut ends
+		G["V_Trim"].box(x0 + 0.9, x1 - 0.9, z - 0.85, z + 0.12, d - 0.35, d + 0.1)  # front edge
 		G["V_Dark"].box(x0 + 0.4, x1 - 0.4, z, z + 0.05, 0.4, d - 0.6)  # grate field
 		n = max(2, int((x1 - x0) // 0.7))
 		for k in range(1, n):
@@ -1028,8 +1048,8 @@ def gallery(K, KD, M, x0, x1, z, d=4.0, name="Gallery"):
 		nb = max(2, int((x1 - x0) // 6.0) + 1)
 		for k in range(nb):
 			xx = x0 + 0.6 + (x1 - x0 - 1.2) * k / (nb - 1)
-			G["V_Steel"].ext_x(ccw([(z - 0.7, 0.0), (z - 0.7, d - 0.6), (z - 1.2, d - 0.6), (z - 3.4, 0.0)]), xx - 0.17, xx + 0.17)  # knee brace
-			G["V_Trim"].box(xx - 0.3, xx + 0.3, z - 3.6, z - 3.0, -0.02, 0.18)  # wall shoe
+			G["V_Steel"].ext_x(ccw([(z - 0.7, 0.4), (z - 0.7, d - 0.6), (z - 1.2, d - 0.6), (z - 3.4, 0.4)]), xx - 0.17, xx + 0.17)  # knee brace
+			G["V_Trim"].box(xx - 0.3, xx + 0.3, z - 3.6, z - 3.0, 0.34, 0.56)  # wall shoe, on the panel face
 		npost = max(2, int((x1 - x0) // 3.0) + 1)
 		for k in range(npost):
 			xx = x0 + 0.3 + (x1 - x0 - 0.6) * k / (npost - 1)
@@ -1041,3 +1061,141 @@ def gallery(K, KD, M, x0, x1, z, d=4.0, name="Gallery"):
 	for k in range(nl):
 		xx = x0 + (x1 - x0) * (k + 0.5) / nl
 		S.light(M, xx, z - 0.9, d * 0.55, WHITE, 1.3, 16, 70)
+
+
+
+# ---------------------------------------------------------------- hub pass (owner 2026-11-16, section by section: the hub)
+def tv(K, KD, M, w, h, kind, title, sub="", out=3.2, tilt=7.0, glow="E_ThViolet", name="TV"):
+	"""A screen that pops out of the wall like RIVALS' TVs, our build. M: wall face frame at the TV's bottom centre (X
+	along the wall, Y up, Z out). A bolted wall plate, two faceted arms with an elbow, a thick chamfered case tilted down
+	at the room, a light grey bezel, a glowing strip under it, a light bar on top. The screen is a SurfaceGui."""
+	Mt = M @ T(0, h / 2, out) @ RX(tilt) @ T(0, -h / 2, 0)
+	with C.grp(name, M):
+		F, P = S.FK(KD, M), S.FK(KD, Mt)
+		F["V_Steel"].prism(ccw(S.cut_rect(-w * 0.22, w * 0.22, h * 0.3, h * 0.7, 0.5, 0.12)), 0.0, 0.3)  # wall plate
+		for bx in (-w * 0.18, w * 0.18):
+			for by in (h * 0.34, h * 0.66):
+				F["V_Trim"].box(bx - 0.15, bx + 0.15, by - 0.15, by + 0.15, 0.3, 0.42)
+		for ax in (-w * 0.12, w * 0.12):  # arms: wall knuckle, a faceted beam, the case knuckle
+			F["V_Dark"].prism(ccw(S.cham_rect(ax - 0.55, ax + 0.55, h * 0.42, h * 0.58, 0.18)), 0.3, 1.1)
+			F["V_Steel"].ext_y(ccw(S.cham_rect(ax - 0.35, ax + 0.35, 1.1, out - 0.4, 0.12)), h * 0.46, h * 0.54)
+			P["V_Dark"].prism(ccw(S.cham_rect(ax - 0.6, ax + 0.6, h * 0.42, h * 0.58, 0.18)), -0.6, 0.0)
+		case = ccw(S.cham_rect(-w / 2, w / 2, 0, h, 0.3))
+		P["V_Dark"].prism(case, 0.0, 1.3)
+		S.ring_prism(P["V_Trim"], inset(case, 0.05), inset(case, 0.55), 1.3, 1.5)
+		P[glow].box(-w * 0.36, w * 0.36, -0.12, 0.08, 0.5, 1.1)  # glow strip under the case
+		P["V_Steel"].ext_x(ccw([(h - 0.1, 0.4), (h + 0.55, 0.4), (h + 0.75, 1.0), (h + 0.55, 1.6), (h - 0.1, 1.6)]), -w * 0.42, w * 0.42)  # light bar
+		P["E_White"].box(-w * 0.4, w * 0.4, h + 0.05, h + 0.12, 1.5, 1.62)
+		S.screen(kind, title, sub, Mt, 0, h / 2, 1.42, w - 1.2, h - 1.2)
+	S.light(Mt, 0, h + 0.6, 3.2, WHITE, 1.4, 14, 75)
+	S.light(Mt, 0, -0.4, 2.0, GLOW.get(glow, (WHITE,))[0], 0.6, 8)
+
+
+def _open_frustum(b, r0, z0, r1, z1, n=8):
+	"""The sides of an n-sided frustum only (no caps): a projection cone."""
+	lo = [b.bm.verts.new(b.M @ Vector((r0 * cos(2 * pi * k / n + pi / n), r0 * sin(2 * pi * k / n + pi / n), z0))) for k in range(n)]
+	hi = [b.bm.verts.new(b.M @ Vector((r1 * cos(2 * pi * k / n + pi / n), r1 * sin(2 * pi * k / n + pi / n), z1))) for k in range(n)]
+	for k in range(n):
+		j = (k + 1) % n
+		b.bm.faces.new((lo[k], lo[j], hi[j], hi[k]))
+
+
+def _holo_item(b, item, s):
+	"""Placeholder hologram items, built upright in the XZ plane (Y = depth), centred on x 0, bottom at z 0, size s."""
+	if item == "gift":
+		b.box(-s * 0.45, s * 0.45, -s * 0.45, s * 0.45, 0.0, s * 0.62)
+		b.box(-s * 0.52, s * 0.52, -s * 0.52, s * 0.52, s * 0.62, s * 0.8)
+		for sx in (-1, 1):
+			b.prism(ccw([(0, 0), (sx * s * 0.42, s * 0.24), (sx * s * 0.46, -s * 0.04), (sx * s * 0.1, -s * 0.12)]), s * 0.8, s * 0.92)
+	elif item == "badge":
+		pts = ccw([(-s * 0.42, s), (s * 0.42, s), (s * 0.5, s * 0.82), (s * 0.5, s * 0.36), (0.0, 0.0), (-s * 0.5, s * 0.36), (-s * 0.5, s * 0.82)])
+		b.solid([(x, -0.2, z) for x, z in pts], [(x, 0.2, z) for x, z in pts])
+	elif item == "rifle":
+		prof = ccw([(-s * 0.95, s * 0.28), (-s * 0.95, s * 0.5), (-s * 0.35, s * 0.56), (-s * 0.2, s * 0.66), (s * 0.4, s * 0.66), (s * 0.45, s * 0.58),
+			(s * 1.05, s * 0.58), (s * 1.05, s * 0.5), (s * 0.5, s * 0.5), (s * 0.3, s * 0.36), (s * 0.05, s * 0.36), (s * 0.12, s * 0.0),
+			(-s * 0.12, s * 0.0), (-s * 0.12, s * 0.36), (-s * 0.55, s * 0.36)])
+		b.solid([(x, -0.18, z) for x, z in prof], [(x, 0.18, z) for x, z in prof])
+	else:  # "crate": a supply case
+		b.box(-s * 0.55, s * 0.55, -s * 0.35, s * 0.35, 0.0, s * 0.55)
+		b.box(-s * 0.6, s * 0.6, -s * 0.4, s * 0.4, s * 0.48, s * 0.62)
+
+
+def holo_stand(K, KD, area, x, y, item, name="Holo", size=3.0, spin=24):
+	"""A hologram projector (RIVALS' pickup stands, our build; owner 2026-11-16: "like a hologram, fun"): a stepped
+	octagonal emitter with a glowing lens, a translucent ring on the floor, a soft projection cone widening upward, the
+	item as a glowing silhouette with an offset ghost copy, turning; sparkles and light. Items are placeholders."""
+	M = Matrix.Translation((x, y, 0.0))
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		F["V_Base"].prism(ccw(oct_pts(2.2)), 0.12, 0.5)
+		S.ring_prism(G["V_Steel"], ccw(oct_pts(2.2)), ccw(oct_pts(1.8)), 0.5, 0.62)
+		G["V_Dark"].prism(ccw(oct_pts(1.8)), 0.5, 0.58)
+		o, i = oct_pts(1.5), oct_pts(1.25)
+		for k in range(8):
+			j = (k + 1) % 8
+			G["E_ThLilac"].prism(ccw([i[k], i[j], o[j], o[k]]), 0.58, 0.64)
+		G["H_Item"].prism(ccw(oct_pts(0.7)), 0.58, 0.68)  # the lens
+		o, i = oct_pts(4.2), oct_pts(3.8)
+		for k in range(8):
+			j = (k + 1) % 8
+			G["H_Ring"].prism(ccw([i[k], i[j], o[j], o[k]]), 0.13, 0.16)  # floor ring
+		_open_frustum(G["H_Cone"], 0.7, 0.68, size * 1.45, size * 2.6, n=8)
+	zi = size * 0.85
+	Mi = Matrix.Translation((x, y, zi))
+	with C.grp(name + "Item", Mi):
+		P = S.FK(KD, Mi)
+		_holo_item(P["H_Item"], item, size)
+		Pg = S.FK(KD, Mi @ T(size * 0.18, -size * 0.12, size * 0.08))
+		_holo_item(Pg["H_Ghost"], item, size)
+	S.ANIM[name + "Item"] = {"pivot": [x, y, zi], "spin": spin, "axis": [0, 0, 1]}
+	S.collider(area, M, -1.6, 1.6, -1.6, 1.6, 0.0, 0.6, "B")
+	S.light(Matrix.Identity(4), x, y, zi + size * 0.5, GLOW["E_ThViolet"][0], 1.1, 12)
+	fx("sparkle", x, y, zi + size * 0.4, "#C9B0FF", name=name + "FX", Rate=7, Spread=round(size * 0.6, 2))
+
+
+def path_lane(KD, Ml, hw, y0, y1, glow="E_ThLilac", arrows=(), word=None):
+	"""A walkway to a door (RIVALS' floor paths, our build): a dark inlaid lane, steel edge rails with a glowing slot
+	in each, glowing chevrons near the door, the room word stencilled at the start. Frame Ml: floor plane, +Y to door."""
+	F = S.FK(KD, Ml)
+	F["V_Base"].box(-hw, hw, y0, y1, 0.12, 0.16)
+	for sx in (-1, 1):
+		F["V_Steel"].prism(ccw(S.cham_rect(*sorted((sx * hw, sx * (hw + 0.9))), y0, y1, 0.12)), 0.12, 0.24)
+		F[glow].box(*sorted((sx * (hw + 0.32), sx * (hw + 0.58))), y0 + 0.4, y1 - 0.4, 0.2, 0.26)
+	for y in arrows:
+		chevron(KD, Ml, 0, y, hw * 0.75, mat=glow, z=0.16, depth=0.05, t=0.22)
+	if word:
+		floor_text(KD, Ml @ Matrix.Translation((0, y0 + 2.0, 0)), word, 2.0, z=0.16)
+
+
+def gatehouse(K, KD, M, hw, h, glow="E_ThViolet", span=14.6, out=3.6, name="Gatehouse", area="Concourse", plain=()):
+	"""A grand entrance (owner 2026-11-16: entrances need character like RIVALS'): a deep frame block standing out from
+	the wall between the piers, built around the existing door opening (hw x h). Two columns with chamfered fronts and a
+	lit slot, a stepped head with a cornice and a soffit with downlights, glowing strips up both jambs, a hazard
+	threshold beside the lane. M: wall face frame at the door's bottom centre."""
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		for sx in (-1, 1):
+			a, b = sorted((sx * hw, sx * span))
+			inner, outer = sx * hw, sx * span
+			col = ccw([(inner, 0.0), (outer, 0.0), (outer, out - 0.7), (outer - sx * 0.7, out), (inner + sx * 0.3, out), (inner, out - 0.3)])
+			F["V_Wall"].solid([(p, 0.0, q) for p, q in col], [(p, h + 0.2, q) for p, q in col])
+			S.collider(area, M, a + 0.15, b - 0.15, 0.0, h, 0.15, out - 0.2, "B")
+			G["V_Base"].solid([(p, 0.0, q) for p, q in ccw([(a - 0.12, -0.1), (b + 0.12, -0.1), (b + 0.12, out + 0.3), (a - 0.12, out + 0.3)])],
+				[(p, 1.4, q) for p, q in ccw([(a - 0.12, -0.1), (b + 0.12, -0.1), (b + 0.12, out + 0.3), (a - 0.12, out + 0.3)])])  # plinth
+			cx = (a + b) / 2
+			if sx not in plain:  # a column that carries a plaque has no slot
+				G["V_Low"].box(cx - 0.45, cx + 0.45, 2.4, h - 1.6, out - 0.1, out + 0.02)  # slot recess
+				G[glow].box(cx - 0.22, cx + 0.22, 2.8, h - 2.0, out - 0.06, out + 0.06)  # lit slot
+			G[glow].box(*sorted((sx * (hw + 0.02), sx * (hw - 0.1))), 1.6, h - 1.2, 1.2, 1.5)  # jamb strip
+		head = ccw([(-span, h), (span, h), (span, h + 2.2), (-span, h + 2.2)])
+		F["V_Wall"].solid([(p, q, 0.0) for p, q in head], [(p, q, out) for p, q in head])
+		S.collider(area, M, -span + 0.15, span - 0.15, h + 0.15, h + 2.05, 0.15, out - 0.15, "B")
+		G["V_Trim"].box(-span - 0.3, span + 0.3, h + 2.2, h + 2.75, -0.1, out + 0.7)  # cornice
+		G["V_Trim"].box(-span, span, h - 0.25, h, out - 0.5, out + 0.05)  # lip under the head front
+		G["V_Dark"].box(-hw + 0.6, hw - 0.6, h - 0.06, h, 0.4, out - 0.6)  # soffit
+		for lx in (-hw * 0.5, hw * 0.5):
+			G["E_White"].box(lx - 1.4, lx + 1.4, h - 0.12, h - 0.06, out * 0.4, out * 0.65)
+			S.light(M, lx, h - 0.4, out * 0.5, WHITE, 1.8, 16, 80)
+	Mf = M @ RX(-90)
+	for sx in (-1, 1):
+		hazard_strip(KD, Mf, *sorted((sx * 7.4, sx * (hw - 0.2))), -(out + 1.6), -(out + 0.4), 0.12)
