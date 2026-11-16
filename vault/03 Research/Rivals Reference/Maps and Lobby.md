@@ -75,3 +75,67 @@ Height levels: ~85-90% of the area is floor; Arena +3 / +15 / +20, Docks +2/+4 s
   - floor: metal plate + translucent plate, 9-high side panels, team-colour neon trim strips, a base slab. See `lobby/03_queue_pads_close.jpg`, `09_duels_end_1v1_2v2.jpg`.
 
 **For us:** our lobby direction is our own (light tactical, gold accents, no neon/glitch: Home → Locked decisions → Art). Take the **plan** (compact cross, short walks, Duels hall with pads both sides and mode signs over the lanes), the **pad logic** (mode attributes, count board, team triggers) and **walk times**. Don't take the neon-heavy look.
+
+## What makes it work (lobby study, 2026-11-16)
+Read from the RIVALS file (`Workspace.Lobby.Hub`, read-only: property reads and raycasts from the spawn at `(109, -681, 1184)`, no play, no scripts) plus the saved shots `lobby/01, 02, 04, 05, 08, 09`. Numbers in studs; walk = 16 studs/s. Used for the [Lobby V4 Plan](../../02%20Art/Lobby%20V4%20Plan.md). **Study, don't copy:** the "for us" lines are our versions, in our look.
+
+**The file's own split:** `Hub.Important` (2,599 instances: the gameplay bits: Center, Duels pads, Displays, Range sign) and `Hub.Extra` (3,079: shell and dressing per wing, plus 12 `CameraBlocker` planes and blocks loose at the top). Whole hub about 5,700 instances, 1,445 MeshParts.
+
+### 1. Spawn view and flow
+1. **One axis, one promise.** The spawn stands on the centre dais facing east down a 256-stud line: dais → Duels doorway (40 away) → the whole Duels aisle → the far door. The first frame is the DUELS sign (22 wide, 32 up, tilted at the spawn) with two white lamps under it and the pad hall behind. What you came to do is the first and deepest thing you see.
+   *For us:* the spawn faces the Duels mouth on one long axis; the Duels sign tops the first frame, and the far end of Duels has a lit end wall so the line has a destination.
+2. **The ring round the dais is the floor-line hub.** Two accent lines (purple + yellow) ring the logo dais and peel off into each doorway; the Duels aisle carries both, one per side, to the far end. Lines do the wayfinding; the walls stay grey.
+   *For us:* one gold line ring round our landmark and one gold lead into Duels (the main action). Other wings start their own accent at their threshold (one accent per room).
+3. **Everything else sits on the diagonals.** The four doorways are on the axes (E Duels, W Range, N Market, S Weapons). Between them, at radius 25-30: 6 hologram stands (rewards, ranked, bundles; 3 more empty bases), 4 wall TVs (8-16 wide, 12-20 tall, bottoms 3-12 up: Duels, Likes, Leaderboard, Starter bundle) and an arcade cabinet. Doors stay clear; the "stuff" is in the corners.
+   *For us:* keep the axes clear; boards and the social niche go on the diagonal faces.
+4. **Bunching:** players stop at the dais (spawn), the reward stands beside it, the pad squares and the range window: all within 40 of the spawn except the pads. Nothing to sit on: standing on things is the social act.
+   *For us:* one place to stand on (a stepped dais) and one to sit (a niche), both off the walking lines.
+
+### 2. Layout (rays at eye height)
+| Area | Doorway (w × h) | Room (w × h) | Length | From spawn |
+|---|---|---|---|---|
+| Hub (round) | 4 axis doors | ~85 across, ceiling 37 | — | 0 |
+| Duels (E) | 27-30 × 30 | 64-67 × 33, then 47 in the back half; floor steps down 4-6 | ~200 | sign 40, first pad ~100 (6 s), last ~230 (15 s) |
+| Weapons (S) | 26 × **17** | 65-88 × 33-37 | ~60 | ~100 |
+| Market (N) | 26-31 × **20**, then a 31 × 27 corridor 70 long | opens to 77-118 wide | ~100 | ~137 |
+| Range (W) | 25 | 70-110 × 38, then a window onto the outdoor range | ~50 + yard | window ~70 (4 s) |
+
+5. **Compress, then release, on every wing.** Weapons and Market doors are 17-20 high under a 37 ceiling, then open into 33-37 rooms; Duels goes 30 → 33 → 47 and drops 4-6 in floor height. The squeeze makes each room feel bigger than it is.
+   *For us:* each wing door is a low, deep frame (16-20 high, 6-10 deep) into a taller room, and each frame is different (the owner likes different entries).
+6. **Short walks, one long hall.** Everything but Duels is under 140 (9 s). Only Duels is long, and that is the walk you take every match.
+   *For us:* farthest pad ≤ 150 (9.5 s), everything else ≤ 70 (4.5 s): shorter than theirs.
+7. **The plan is a compact cross** (~340 × 290) with the range yard spilling outside. Five rooms.
+
+### 3. Duels area
+8. **Rhythm:** 10 pads in two rows facing a central aisle, rows 48 apart (about 19 clear between pad edges), pads 27-39 apart along the hall (x 208, 242, 281, 308, 340). A **pier with a vertical bar lamp stands between every pair of pads** (lamps at x 192, 225, 258, 309, 355, 18 up): pier, pad, pier, pad.
+9. **Pad build:** a 21 × 29 footprint; two **team squares** side by side along the aisle (8 × 8 floor plates with a ring logo, gold / purple team outlines), sunk so the deck is 1-2 above the hall floor; a floating, spinning ring hologram over each square (7 neon parts on AlignOrientation / AngularVelocity: 88 movers in Duels); an invisible 10 × 13 × 13 trigger per team.
+10. **How the mode reads:** not from the pads (they all look alike). A small white mode tag (9 × 2, about 23 up, tilted down at the aisle) hangs over each pad with the count board behind. From the door you read the *rhythm*, then the tags as you walk. Mode order from the door: 1v1, 1v1, 2v2, 2v2, 3v3, 3v3, 4v4 / 5v5, then 1v1v1 / 2v2v2 at the end.
+11. **Waiting players are on show:** they stand on raised, lit squares right beside the aisle everyone walks down, against two dark boards per pad (10 × 14, 4-18 up), so the avatar is the brightest thing there. The queue is a stage.
+   *For us:* keep "waiting = on show" and "piers carry the lamps". Drop the straight two-row aisle: the owner rejected that as too close to RIVALS in V3. Our pads go in mode order round our own room shape, each in a framed bay with its own mode board, lit like a stage.
+
+### 4. Signs and boards
+12. **Wing signs:** one big tilted sign per wing door (Duels 22 wide at 32 up; Weapons 20-26 at 27-28 up; Range 36 wide at 19 up over the window; UGC 34 at 13 up). Each is a neon outline word with an icon or arrows, **over the door, tilted down at the spawn**. One per door, never two.
+13. **Small signs carry the jokes:** floor stencils (KEEP CLEAR, 35 long), department plates (MANAGEMENT, LABORATORY, WEST GATE), warning plaques (WARNING, BUNKER ACCESS). 96 SurfaceGuis in the lobby, most of them flavour.
+14. **Every board has a light on it:** TVs and display walls get a SpotLight or SurfaceLight beside them (Displays: 9 warm spots for 17 boards).
+   *For us:* one solid-letter sign per wing door (neon tubes and pictograms were rejected), plus a few department plates and floor stencils in our own words, each board lit by a real fixture.
+
+### 5. Structure language
+15. **Big chunky shell meshes, reused:** Duels has 217 MeshParts from **37 unique meshes**; Hallway 223 from 78; the hub 283 from 149 (the hub is where the unique pieces go).
+16. **Ceilings are never flat:** a dark coffered vault over Duels, a ring of ceiling detail over the hub, a big lit end feature (red ring) at the far end of Duels.
+17. **Floors are broken up:** the dark aisle, the lit pad squares, grated strips beside the aisle, the accent lines: four floor types in one hall.
+18. **Camera blockers:** 12 large invisible planes and blocks (8-84 long) over door heads and outside thin walls, so the third-person camera can't clip through or see out.
+   *For us:* one bay mesh for every pad bay, one pier, one lamp; a coffer or soffit on every ceiling; opaque invisible camera blockers over thin walls and door heads (our V3 "see-through when zoomed out" bug).
+
+### 6. Life
+19. **Counts:** hub 57 particle emitters (mostly the 6 hologram stands), 12 beams, 6 SurfaceGuis (4 TVs), 11 lights; Duels 88 movers (the ring holograms), 23 beams, 20 SurfaceGuis; Market 23 SurfaceGuis, 8 beams; Weapons 1 mover. Life sits where players stop (spawn ring, pads, shop bays), never in corridors.
+   *For us:* mesh holograms are rejected. Our life is SurfaceGui boards with real content (live queue counts, leaderboard, featured skins), a few `LobbySpin` movers (a slow fan, turntables), soft dust in light shafts and the range seen through glass.
+
+### 7. Lighting
+20. Lighting service: Ambient `#797979`, OutdoorAmbient `#C6C6C1`, Brightness 3, noon, exposure -0.15. **Interiors run on few lights:** hub 11, Duels 19 (12 SurfaceLight bar lamps of range 60 + 4 red spots on the end feature), Weapons 10, Market 8, Displays 9. White to warm white (`#FFF3E6`, `#FFE4AE`); colour only on the end feature (red) and in the range (purple and amber spots).
+   *For us:* the same as our rule: white lamp light, few lights, pools at doors and pads, one coloured feature per room.
+
+### 8. Fun
+21. **The range is 4 s from spawn and visible from it** (a big window with SHOOTING RANGE over it). Shooting is the first toy.
+22. **Show-off spots:** the dais, the lit pad squares, the Weapons room's gun tables. Your skin is seen most while you wait on a pad.
+23. **Things to do while waiting:** walk to the range, read the boards, the arcade cabinet, slide down the long aisle.
+   *For us:* a range window in the hub, a stage to stand on, a slide run (the Duels walk), live boards.

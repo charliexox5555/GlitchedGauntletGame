@@ -22,6 +22,7 @@ Quick capture. Move items into the Game Plan or a fix list when they're schedule
 - **`WeaponBuilder` sets `CollisionFidelity = Box` in a `pcall` that never takes effect** (a loaded MeshPart's fidelity can't be changed from a script), so guns keep `Default` colliders. Harmless today; the aim sight-line check relies on those colliders.
 
 ## 💡 Ideas
+- **A `4v4` queue mode for the Lobby V4 4v4 pad (2026-11-16, [plan](../02%20Art/Lobby%20V4%20Plan.md)):** `src/lobby/shared/Config.luau` has only 1v1 / 2v2 / 3v3, so the 4v4 pad has no `Mode` to carry. Needs the mode in config and queue code (not part of the geometry-only build).
 - **Gunplay feel RIVALS, parked calls (2026-11-16, [playtest](Playtests/2026-11-15%20Gunplay%20Feel%20RIVALS.md)):** full RIVALS solid-red head on a headshot vs our subtle flash; RIVALS-length muzzle flash (0.1-0.3 s, no light); damage wedge 2.5 s vs RIVALS' 5 s; a fly-by whoosh for rounds passing near you; re-check the third-person slide clips (rifle, pistol, knife) from a second player.
 - **(2026-11-15)** Seen in a playtest's Output, not looked into: `Failed to load sound atlas:UiClick: Temp read failed` (five times). Headshot and kill sound candidates wait for the owner's ear ([Gunplay Overhaul](Playtests/2026-11-15%20Gunplay%20Overhaul.md) §9); the tracer palette is a first pick.
 - **1v1 challenge on Party menu cards** (RIVALS has a 1v1 button next to Invite): needs a private-duel flow (challenge → accept → both to a 1v1 match). Parked 2026-11-15 ([UI Play and Party Menus](../02%20Art/UI%20Play%20and%20Party%20Menus.md)).

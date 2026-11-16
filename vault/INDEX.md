@@ -53,6 +53,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Model Style Interview.md` (4): the owner's modelling rules (no curves/spheres, carved ends), the reference-screenshot interview question bank, design methods
 - `02 Art/Lobby Style Guide.md` (8): the stylized grounded look, written for rebuilding maps in it
 - `02 Art/Lobby V3 Rebuild.md` (11): the current Lobby rebuild (2026-11): owner's notes, rules, layout, audit, self-review, steps
+- `02 Art/Lobby V4 Plan.md` (12): **Lobby V4 plan** (2026-11-16) from the RIVALS lobby study: octagon Concourse with a lantern dais, horseshoe Duels (8 equal bays, trophy at the end), Locker, Supply (Shop + Season Pass), Range window + yard; sizes, walk times, budgets, reuse, ChatGPT concept prompts, the owner's interview answers
 - `02 Art/Sunwell Works Build.md` (9): the Sunwell Works build in Studio: hall, Locker, Shop, Duels staging, checks, pipeline, rollback (the style rules from it are the project skill `.claude/skills/gauntlet-build-style`)
 - `02 Art/Sunwell Hub Upgrade.md` (15): the hub hall's sixth pass (2026-11-12): Sun Well, sun ring, boards, pipe racks, turbine, story props, floor route cues, four blind review rounds (median 6.7, stop rule), next list
 - `02 Art/Sunwell Lobby Reference Pack.md` and `Sunwell Lobby Fable Prompt.md`: new lobby layout, image gallery, Roblox research, Studio captures and phase-one build brief
