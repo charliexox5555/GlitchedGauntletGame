@@ -40,3 +40,24 @@ The held orb (glowing core with orbit rings above the fist) and the self-heal sc
 - **Barrier, Stim, wind for others:** not reviewed.
 - **Skinned-body fix (handoff step 2):** finished in the working tree, **not committed**: `Util/LimbHold` (an outlined body holds its skinned limbs inside it, so one Highlight traces the whole body; used by the Recon reveal and Ping Spike), `BodyClone.copy` re-attaches limbs, and the Desync decoy (`DashDecoy.copyOf`) now gets its own limbs. It depends on the skinned-limb system (`Config/Avatar` `LIMB_LINK` / `LIMB_HOLD`, `MatchBody.attachLimb`), which is itself still uncommitted in the third-person body lane; commit them together. Freeze Frame's box and Crash Recovery's ghost use the R15 parts, so they have no gap. The decoy's limbs were not seen in Play (the Desync window wasn't hit by key presses).
 - **Studio:** the ability build leftovers in `ServerStorage.ImportStaging` (`Raw_*` and the staged copies of the six props and ReworkVFX) are deleted; the `*_Baseline` models stay for the 2-client before / after review; weapon staging untouched. `src/server/AbilityBuild/` deleted. The `.rbxm` backups could not be written from the MCP (its HttpService calls to 127.0.0.1 are blocked): run `tools/studio/abilities/BackupInstalled.luau` from the Command Bar with `receive_server.py` running. **Save the place again** (ImportStaging changed).
+
+## Deviations from the locked spec (recorded 2026-11-17)
+| Where | Spec | Now | Why |
+|---|---|---|---|
+| Fire (Molly, Firewall, Fork Fire patches) | F1-F7 faceted tongues, team ring | The old FireKit mesh fire, darker Neon tones, no team ring | Owner: "the ones before were better" (Fire Element Pass 1) |
+| Scan (Recon pulse) | S1: 3 nested shells | The floor band (darker) + one faceted dome | One dome reads; three stacked looked like a glow |
+| Ice (Frost) | I1-I6 plates, cap, star front | IceKit crystals and patch, held for the Hinder then shattered; corners stand-in | Improve the existing look |
+| Crash Down impact | X1-X7 (ReworkVFX chunks, FX_FloorStar crack) | GlitchVFX cracks (floor-coloured) and rubble, white flash, team ring | Same read with the installed kit |
+| Updraft / Dash wind for others | White (W1-W3) | Team-tinted (`ModFeelController` → `WindFx`) | Not changed yet |
+| Heal Orb | H1-H5 leaves, crowns | Old sparkle burst + quad ring, green screen edges | Not changed yet |
+| Stim | Amber `FFC83D`, chevrons | Yellow `FFD23F`, arcs and sparks | Owner had not asked for the colour change |
+| Recall caster cue | Violet edge bars | A violet tint | Not built yet |
+
+## Final review (Fable, 2026-11-17) and what was done
+The base effects reworked tonight match the spec or deviate with a record. Glitch-path upgrades still carry **sustained magenta** where the spec allows only a two-frame accent on four beats. Fixed now: Fork Fire bomblets burn as normal fire (fire-coloured sparks, light, trail; the split keeps its accent), the armed Recall anchor and the Crash Recovery arrival ring are violet, and the stale magenta comments in `UpgradeFx/Updraft.luau` are gone.
+
+**Still open (next pass, in this order):**
+1. `UpgradeFx/Recon.luau` (Ping Spike): team colour for highlights, shells, label; magenta only on the wave front (`stepWaves`).
+2. Sustained magenta static and flicker in `BarrierFx.luau` (`GLITCH_SCALE`), `FrostWallFx.luau`, `UpgradeFx/Frost.luau` (Freeze Frame), `UpgradeFx/Stim.luau` (Heal Zone): these get no glitch beat.
+3. `RecallCrash.luau` departure and `DashDecoy` Desync exit: cut to the two-frame doubled-shape accent (no screen tears, no 0.3 s static).
+4. The Crash Down prompt (`UpgradeFx/Updraft.luau` `buildPrompt`): magenta text and a round `UICorner` button, against the UI theme.

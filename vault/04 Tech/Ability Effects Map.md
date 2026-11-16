@@ -23,7 +23,7 @@ Made 2026-11-15 from a full read of the client effect code, so effect work can s
 | Updraft | Launch, world (others only): gust rings, puffs, trail | `client/Util/WindFx.luau` `updraft` |
 | | Launch, caster camera and hands | `ModController` (grep `UpdraftAt`), `Config/Mods` `UPDRAFT_FEEL`, `Viewmodel` `UpdraftDown`, `UPDRAFT_DIP` |
 | | Crash Down dive | `client/Util/UpgradeFx/Updraft.luau` `startDive`, `stepDive`, `endDive` |
-| | Crash Down impact | same file `impact`, `kitImpact` (GlitchVFX cracks, rubble, pixel ring) |
+| | Crash Down impact | same file `impact`, `kitImpact` (GlitchVFX cracks in the floor's colour, rubble, stepped ring, white flash, team ring; no magenta since 2026-11-16) |
 | | Third-person poses | `shared/Simulation/Poses.luau` (`Updraft`, `UpdraftSlam`, `UpdraftSlamLand` clips) |
 | Dash | World (others): gust ring, wisps, trail, end puffs | `WindFx.dashStart`, `dashEnd`, called from `ModFeelController` |
 | | Ghost: see-through body, afterimages, cloak | `client/Util/UpgradeFx/DashGhost.luau` |

@@ -7,14 +7,13 @@
 -- us while winding up: the screen warping inward. Textures are the Recall's
 -- Blender renders (Config/VfxTextures RECALL_*), tinted violet here.
 -- Crash Recovery armed (glitch path, Util/UpgradeFx/Recall): our own anchor
--- glows magenta and sheds glitch static (setArmed).
+-- sheds violet sparks (setArmed; magenta until 2026-11-17).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
-local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local ModSounds = require(ReplicatedStorage.Shared.Config.ModSounds)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
@@ -27,7 +26,6 @@ local S = ModSounds.Recall
 local player = Players.LocalPlayer
 
 local VIOLET = Color3.fromHex("9B6BFF")
-local GLITCH = Config.COLORS.glitch
 local HALO_SIZE = 3.5 -- studs across the ground halo under an anchor
 local WARP_OUT = TweenInfo.new(0.25)
 
@@ -128,7 +126,7 @@ local function staticOn(part: BasePart): ParticleEmitter
 	e.Texture = VFX.RECALL_SHIMMER_2x2
 	e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid2x2
 	e.FlipbookMode = Enum.ParticleFlipbookMode.Random
-	e.Color = ColorSequence.new(GLITCH)
+	e.Color = ColorSequence.new(VIOLET:Lerp(Color3.new(1, 1, 1), 0.35)) -- violet sparks, not magenta static
 	e.LightEmission = 1
 	e.LightInfluence = 0
 	e.Shape = Enum.ParticleEmitterShape.Box
@@ -148,7 +146,7 @@ end
 
 local function setUp(part: BasePart)
 	local glitched = armed and isMine(part)
-	local color = if glitched then GLITCH else VIOLET
+	local color = VIOLET -- armed or not (2026-11-17: no sustained magenta; the static below marks it)
 	local light = Instance.new("PointLight")
 	light.Color = color
 	light.Range = 8
@@ -186,7 +184,7 @@ local function restyle(part: BasePart, a: Anchor)
 		return
 	end
 	a.armed = glitched
-	local color = if glitched then GLITCH else VIOLET
+	local color = VIOLET -- armed or not (2026-11-17: no sustained magenta; the static below marks it)
 	a.light.Color = color
 	ModVfx.stop(a.halo)
 	a.halo = halo(part, color)
@@ -392,7 +390,7 @@ function RecallFx.crashArrive(at: Vector3, color: Color3)
 		cframe = CFrame.new(at + Vector3.new(0, 0.1, 0)),
 		from = 1,
 		to = 7,
-		color = GLITCH,
+		color = VIOLET, -- the arrival is violet; magenta is only the departure accent
 		life = 0.3,
 		alpha0 = 0,
 		pulse = 0.6,

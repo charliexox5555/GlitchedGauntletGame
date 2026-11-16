@@ -38,6 +38,9 @@ local Types = require(script.Parent.Types)
 
 local S = ModSounds.Molly
 local GLITCH = Config.COLORS.glitch
+-- 2026-11-17 (Ability VFX Direction: glitch is a two-frame accent on the
+-- split only): the bomblets, their sparks, light and fires are fire.
+local EMBER = Color3.fromRGB(255, 150, 60)
 local player = Players.LocalPlayer
 
 local MAX_FORKS = 8 -- more paths than this in one event: ignored
@@ -106,7 +109,7 @@ local function takePart(): (Part, ParticleEmitter)
 	local static = Instance.new("ParticleEmitter")
 	static.Name = "Static"
 	static.Texture = VFX.MOLLY_EMBER
-	static.Color = ColorSequence.new(GLITCH, Color3.fromRGB(120, 50, 255))
+	static.Color = ColorSequence.new(Color3.fromRGB(255, 214, 120), Color3.fromRGB(200, 50, 20))
 	static.LightEmission = 1
 	static.LightInfluence = 0
 	static.Brightness = 2
@@ -118,7 +121,7 @@ local function takePart(): (Part, ParticleEmitter)
 	static.Rate = 0
 	static.Parent = made
 	local light = Instance.new("PointLight")
-	light.Color = GLITCH
+	light.Color = EMBER
 	light.Range = 6
 	light.Brightness = 2
 	light.Shadows = false
@@ -189,7 +192,7 @@ local function onThrow(data: { [string]: any })
 	if not path or typeof(start) ~= "number" then
 		return
 	end
-	addMover(path, start, GLITCH, false)
+	addMover(path, start, EMBER, false)
 end
 
 local function onFork(data: { [string]: any })
@@ -236,7 +239,7 @@ local function onBurst(data: { [string]: any })
 	then
 		return
 	end
-	MollyFx.ignite(at, radius, duration, start, true, colorOf(data))
+	MollyFx.ignite(at, radius, duration, start, false, colorOf(data)) -- normal fire (was glitch fire)
 	local cam = Workspace.CurrentCamera
 	if cam then
 		local away = (cam.CFrame.Position - at).Magnitude
@@ -291,7 +294,7 @@ handler.step = function(_dt: number)
 			local seg = segs[m.nextSeg]
 			m.nextSeg += 1
 			ModAudio.play(S.forkBounce, seg.p)
-			ModVfx.burst(seg.p, GLITCH, 5, "Sparkle")
+			ModVfx.burst(seg.p, EMBER, 5, "Sparkle")
 		end
 		if not m.bomblet then
 			m.part.CFrame = CFrame.new(Projectile.positionAt(m.path, math.max(t, 0)))

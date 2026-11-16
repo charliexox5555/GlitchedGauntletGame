@@ -2,24 +2,22 @@
 -- Updraft's upgrade levels on the client (vault/01 Design/Abilities/Upgrade
 -- Paths.md → 2. Updraft). High Rise (A) and Second Wind (B) are numbers only:
 -- the L1 look already scales with the rise (ModFeelController, WindFx) and
--- the HUD has 3 charge pips. Crash Down (G, the slam) is drawn here, in the
--- glitch theme "a corrupted packet crashing into the floor":
+-- the HUD has 3 charge pips. Crash Down (G, the slam) is drawn here.
+-- Restyled 2026-11-16 to the effects spec ("the floor broke"; glitch magenta
+-- is no longer on the dive or the impact):
 --   The dive (UpdraftSlam = "Down" / UpdraftSlamStart, simulation-written: ours
---   predicted, others' replicated): a streak above the body with a magenta
---   slice jittering beside it, magenta static round the body, and a ring on
---   the floor where it lands, sized to the slam's radius (cyan for your side,
---   pulsing orange-red for enemies: the danger read), plus a falling whoosh.
+--   predicted, others' replicated): a white streak above the body with a white
+--   slice beside it, and a ring on the floor where it lands, sized to the
+--   slam's radius (cyan for your side, pulsing orange-red for enemies: the
+--   danger read), plus a falling whoosh.
 --   The impact (ours at once from our predicted UpdraftSlamAt, others' from
---   the server's UpdraftSlam ModFx): a small flash, a shockwave ring at the
---   radius, a magenta ring that skips frames as it grows, a hex "corrupted
---   floor" patch, dust thrown out flat, chips up, magenta voxel static, one
---   light; for the caster a camera punch (a smaller one for anyone near).
---   Look (stylized, 2026-11-03), with the GlitchVFX kit installed (Util/
---   GlitchVfx; the old look stays until then): the floor cracks open to the
---   slam's radius (glowing cracks over dark splits, lingering a few seconds),
---   rubble chunks in the floor's own colour and material are thrown up and
---   land, a stepped pixel ring rides out over the shockwave, the corrupted
---   floor is a hex tile disc, and the dive trails a bundle of falling bars.
+--   the server's UpdraftSlam ModFx): one white flash, the team-coloured
+--   shockwave ring at the radius, dust thrown out flat, chips up, one light;
+--   for the caster a camera punch (a smaller one for anyone near). With the
+--   GlitchVFX kit installed (Util/GlitchVfx): the floor cracks open in its own
+--   colour darkened (dark splits, lingering a few seconds), rubble chunks in
+--   the floor's own colour and material are thrown up and land, and a stepped
+--   ring rides out over the shockwave.
 --   The prompt: while you're up in an Updraft with Crash Down, a "Q  CRASH
 --   DOWN" prompt under the crosshair: the key is the Updraft slot's own input
 --   (a second press slams; LB on a gamepad; on touch a CRASH button that
@@ -219,7 +217,6 @@ local function refreshRayFilter()
 	rayParams.FilterDescendantsInstances = list
 end
 
--- Glitch static: a magenta voxel blinking in and out at `at`.
 -- The dive -------------------------------------------------------------------
 
 local function column(dive: Dive, root: BasePart)
@@ -413,7 +410,7 @@ local function kitImpact(feet: Vector3, radius: number, color: Color3): boolean
 		life = 0.28,
 		alpha0 = 0,
 	})
-	-- The shockwave: a stepped ring out to the radius, a magenta one stuttering behind.
+	-- The shockwave: a stepped ring out to the radius.
 	local ring = radius * 2 / RING_SPAN
 	GlitchVfx.piece({
 		name = "PixelRing_Energy",
