@@ -623,6 +623,8 @@ end
 type RoundOutcome = "next" | "stop" | "abandon"
 
 -- Runs one match. Returns true when the players voted a rematch.
+local roundHistory: { string } = {} -- the match end screen's round chips (MatchState list "RoundHistory")
+
 local function runMatch(): boolean
 	balanceTeams()
 	inMatch = true
@@ -635,7 +637,8 @@ local function runMatch(): boolean
 	MatchState.set("Score2", 0)
 	MatchState.set("RoundWinner", nil)
 	MatchState.set("MatchWinner", nil)
-	MatchState.set("RoundHistory", "") -- "winner:WeaponPhase" per round, comma-separated
+	roundHistory = {}
+	MatchState.setList("RoundHistory", roundHistory) -- "winner:WeaponPhase" per round, one attribute each (50-character cap)
 	MapService.setBarriers(true)
 	resetKits()
 	table.clear(lastDown)
@@ -731,17 +734,12 @@ local function runMatch(): boolean
 		MatchState.set("Score2", scores[2])
 		MatchState.set("RoundWinner", winner)
 		-- The match end screen's round chips (display only).
-		local history = MatchState.get("RoundHistory")
 		local phaseName = MatchState.get("WeaponPhase")
-		MatchState.set(
-			"RoundHistory",
-			(if typeof(history) == "string" and history ~= "" then history .. "," else "")
-				.. string.format(
-					"%d:%s",
-					winner,
-					if typeof(phaseName) == "string" then phaseName else ""
-				)
+		table.insert(
+			roundHistory,
+			string.format("%d:%s", winner, if typeof(phaseName) == "string" then phaseName else "")
 		)
+		MatchState.setList("RoundHistory", roundHistory)
 		if winner ~= 0 and scores[winner] >= Config.ROUNDS_TO_WIN then
 			closeRound()
 			playReplay(winner, eliminated) -- the match-winning kill

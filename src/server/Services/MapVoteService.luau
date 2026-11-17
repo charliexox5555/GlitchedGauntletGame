@@ -92,7 +92,7 @@ function MapVoteService.run(pool: { string }, teamSize: number): string
 		table.insert(options, 1, VOTE.random)
 	end
 	clearVotes()
-	MatchState.set("VoteOptions", table.concat(options, ","))
+	MatchState.setList("VoteOptions", options) -- one attribute per option (a joined string passed the 50-character cap)
 	MatchState.set("VoteChosen", "")
 	MatchState.set("VoteTeamSize", teamSize)
 	setClock(VOTE.seconds)

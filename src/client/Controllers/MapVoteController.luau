@@ -298,11 +298,10 @@ end
 
 local function buildCards()
 	clearCards()
-	local raw = MatchState.get("VoteOptions")
-	if typeof(raw) ~= "string" or raw == "" then
+	local ids = MatchState.getList("VoteOptions")
+	if #ids == 0 then
 		return
 	end
-	local ids = string.split(raw, ",")
 	placeGrid(#ids)
 	for i, id in ids do
 		local slot = (child(templates, "Slot") :: Frame):Clone()

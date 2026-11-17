@@ -55,6 +55,43 @@ function MatchState.get(name: string): any
 	return ReplicatedStorage:GetAttribute("Match" .. name)
 end
 
+-- Lists (the map vote's options). Roblox caps an attribute's string at 50 characters (a live 2v2 vote over
+-- "Random" plus every fitting map hit it, 2026-11-16, and the match never started), so a list is one attribute per
+-- item ("Match<Name>_1".."_n", count in "Match<Name>_n") and "Match<Name>" holds a number that changes with every
+-- new list, set last: listeners keep watching MatchState.changed(name).
+local listSerial = 0
+
+function MatchState.setList(name: string, items: { string })
+	local key = "Match" .. name
+	local old = ReplicatedStorage:GetAttribute(key .. "_n")
+	for i, v in items do
+		ReplicatedStorage:SetAttribute(key .. "_" .. i, v)
+	end
+	if typeof(old) == "number" then
+		for i = #items + 1, old do
+			ReplicatedStorage:SetAttribute(key .. "_" .. i, nil)
+		end
+	end
+	ReplicatedStorage:SetAttribute(key .. "_n", #items)
+	listSerial += 1
+	ReplicatedStorage:SetAttribute(key, listSerial)
+end
+
+function MatchState.getList(name: string): { string }
+	local key = "Match" .. name
+	local n = ReplicatedStorage:GetAttribute(key .. "_n")
+	local out = {}
+	if typeof(n) == "number" then
+		for i = 1, math.min(n, 64) do
+			local v = ReplicatedStorage:GetAttribute(key .. "_" .. i)
+			if typeof(v) == "string" then
+				table.insert(out, v)
+			end
+		end
+	end
+	return out
+end
+
 function MatchState.changed(name: string): RBXScriptSignal
 	return ReplicatedStorage:GetAttributeChangedSignal("Match" .. name)
 end

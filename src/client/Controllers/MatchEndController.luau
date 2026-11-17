@@ -484,11 +484,11 @@ local function screenData(winner: number): MatchEndScreen.Data
 	local myTeam = Teams.of(player) or 1
 	local one, two = MatchState.get("Score1") or 0, MatchState.get("Score2") or 0
 	local rounds: { MatchEndScreen.Round } = {}
-	local history = MatchState.get("RoundHistory")
-	if typeof(history) == "string" then
-		for w, tier in string.gmatch(history, "(%d+):(%a*)") do
+	for _, item in MatchState.getList("RoundHistory") do
+		local w, tier = string.match(item, "^(%d+):(%a*)$")
+		if w then
 			local team = tonumber(w) or 0
-			table.insert(rounds, { won = team == myTeam, draw = team == 0, tier = tier })
+			table.insert(rounds, { won = team == myTeam, draw = team == 0, tier = tier or "" })
 		end
 	end
 	local allies: { MatchEndScreen.RowData } = {}
