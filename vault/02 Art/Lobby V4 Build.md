@@ -234,3 +234,10 @@ Rebuilt and captured in Studio after the place restarted (`LobbyRivals` and the 
 - Aisle: a dark lane with a violet line and a lilac line, grates either side, the island mid hall, the trophy at the end; crates and vents on the apse faces. A **5** glyph added to the stencil font.
 
 **Checks:** 0 floating, 0 leaks, visible pairs 66 (TV backs seated into the wall trims); played: 16 wells built, standing on 1v1's A well turned its rings orange with the glow and opened the Queue menu for 1v1.
+
+### Duels round 2 (owner 2026-11-16: "glitched pads ... area is kind of boring ... don't need the centre piece ... paths and arrows more like RIVALS, animated and fun")
+- **Pad glass fixed:** the see-through plastic plates caught jagged shadow steps and hid the emblem. They are now see-through **Neon** (`G_PadA` / `G_PadB`, 0.78): Neon takes no shadows, glows softly, and the lit emblem shows through.
+- **Island removed.** The aisle runs straight from the landing to the trophy plinth.
+- **A four-sided screen cube** hangs over the middle of the hall (`v4_duels.jumbotron`: faceted dark body, a blank screen per face with `LobbyHallBoard` anchors for the UI later, trim caps, a violet light ring under it, four hangers into the vault between two vault lamps).
+- **Animated paths** (`client/Controllers/LobbyPathFx`, anchors `LobbyPathRun` / `LobbyLineRun` from `v4_duels.path_run / line_run`): **chevrons up the aisle** light in a wave running toward the trophy (lilac, 42 studs a second); **a chevron run from the aisle to every pad** (violet, 26 a second); **a light pulse runs along each aisle edge line**. Studied first: RIVALS' floor textures are static (a metal pattern and stripes) and its Beams are the screens' scanlines, so the motion is our own.
+- **Checks:** 0 floating, 0 leaks, visible pairs 71; the cube's hangers clear the vault lamps; played: 9 chevron runs and 2 line pulses built, the aisle wave travels (lit chevrons move on within half a second), the pad glass reads without shadow steps.

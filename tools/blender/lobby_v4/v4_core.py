@@ -92,8 +92,8 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"V_Seat": _L("SmoothPlastic", "#2E3135"),
 	"V_TeamA": _L("SmoothPlastic", "#C9602A"),
 	"V_TeamB": _L("SmoothPlastic", "#2F6FC0"),
-	"G_PadA": _L("SmoothPlastic", "#8A4A30", t=0.45),  # tinted see-through: the lit emblem shows (Glass glared and blurred it)
-	"G_PadB": _L("SmoothPlastic", "#2A4A8A", t=0.45),
+	"G_PadA": _L("Neon", "#B4552E", t=0.78, glow=True),  # see-through glowing glass: Neon takes no shadows (the plastic caught jagged ones) and the emblem shows
+	"G_PadB": _L("Neon", "#2F5FB4", t=0.78, glow=True),
 	"G_Screen": _L("Glass", "#141418", t=0.05, r=0.02),
 	"V_Violet": _L("SmoothPlastic", "#6539D7"),
 	"V_Pink": _L("SmoothPlastic", "#B8406A"),

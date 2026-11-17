@@ -4,7 +4,7 @@ portal: a landing with steps down (-3), 88 wide, straight to y 222 then a facete
 queue pads along the side walls, a pier with a bar lamp between each (one section per pad): a raised deck with two
 sunken team wells under tinted glass and a lit emblem below, a hazard divider, light posts; two tall TVs on the wall
 behind (blank until the pad UI) and the mode sign over them. Near to far: left 1v1, 1v1, 2v2, 2v2; right 3v3, 3v3,
-4v4, 5v5. The match-board island mid hall, the gauntlet trophy under THE GAUNTLET at the end. The client draws the
+4v4, 5v5. A four-sided screen cube hangs mid hall (the island went, owner), the gauntlet trophy under THE GAUNTLET at the end. The client draws the
 ring holograms and the glow when a player stands on a team well (LobbyPadFx). Plan: vault/02 Art/Lobby V4 Build.md.
 """
 from math import cos, sin, radians, pi, sqrt
@@ -167,30 +167,33 @@ def trophy(K, KD):
 	S.light(Matrix.Identity(4), cx, cy, Z0 + H - 1.0, V.WHITE, 3.0, 34, 38)
 
 
-def island(K, KD):
-	cx, cy = 0.0, 137.0
-	M = Matrix.Translation((cx, cy, Z0))
-	with C.grp("Island", M):
-		F = S.FK(K, M)
+def jumbotron(K, KD):
+	"""A four-sided screen cube hanging over the middle of the hall (an arena's scoreboard): a faceted dark body, a
+	blank screen on each face (LobbyHallBoard anchors for the UI later), trim caps, a violet light ring under it,
+	four steel hangers up into the vault."""
+	cy, z0, z1 = 154.8, Z0 + 17.0, Z0 + 24.0  # between two vault lamps (147.4, 162.2): the hangers miss them
+	hw = 6.4
+	M = Matrix.Translation((0.0, cy, 0.0))
+	with C.grp("Jumbotron", M):
 		G = S.FK(KD, M)
-		F["V_Base"].prism(V.ccw(V.oct_pts(5.4)), 0, 1.0)
-		F["V_Wall"].prism(V.ccw(V.oct_pts(4.6)), 1.0, 7.0)
-		G["V_Trim"].prism(V.ccw(V.oct_pts(5.0)), 6.6, 7.4)
-		G["E_Gold"].prism(V.ccw(V.oct_pts(4.2)), 7.4, 7.55)
-		G["V_Dark"].prism(V.ccw(V.oct_pts(3.4)), 7.55, 8.1)
-		# the sitting kerb: eight faceted blocks round the kiosk, with a light seat top and a gap at the lane
-		o, i = V.oct_pts(11.6), V.oct_pts(9.2)
-		for k in range(8):
-			j = (k + 1) % 8
-			quad = V.ccw([i[k], i[j], o[j], o[k]])
-			F["V_Low"].prism(V.inset(quad, 0.12), 0, 1.5)
-			G["V_Seat"].prism(V.inset(quad, 0.0), 1.5, 1.85)
-		for th, title in ((270, "QUEUES"), (90, "LAST MATCHES"), (0, "QUEUES"), (180, "LAST MATCHES")):
-			c, s = cos(radians(th)), sin(radians(th))
-			Mk = S.face((cx + 4.6 * c, cy + 4.6 * s, Z0), (-s, c, 0), (c, s, 0))  # on the kiosk face, Z out
-			S.screen("queue_summary", title, "", Mk, 0, 4.2, 0.16, 3.4, 3.8)
-			S.FK(KD, Mk)["V_Trim"].prism(V.ccw(S.cham_rect(-1.95, 1.95, 2.0, 6.4, 0.25)), -0.05, 0.12)
-	S.light(Matrix.Identity(4), cx, cy, Z0 + H - 1.0, V.WHITE, 1.4, 32, 70)
+		G["V_Dark"].prism(V.ccw(S.cham_rect(-hw, hw, -hw, hw, 1.2)), z0, z1)
+		G["V_Trim"].prism(V.ccw(S.cham_rect(-hw - 0.4, hw + 0.4, -hw - 0.4, hw + 0.4, 1.4)), z1, z1 + 0.8)
+		G["V_Trim"].prism(V.ccw(S.cham_rect(-hw - 0.4, hw + 0.4, -hw - 0.4, hw + 0.4, 1.4)), z0 - 0.8, z0)
+		G["V_Dark"].prism(V.ccw(S.cham_rect(-hw + 1.0, hw - 1.0, -hw + 1.0, hw - 1.0, 0.8)), z0 - 1.5, z0 - 0.8)
+		S.ring_prism(G["E_ThViolet"], V.ccw(S.cham_rect(-hw + 1.05, hw - 1.05, -hw + 1.05, hw - 1.05, 0.8)), V.ccw(S.cham_rect(-hw + 1.5, hw - 1.5, -hw + 1.5, hw - 1.5, 0.6)), z0 - 1.6, z0 - 1.5)
+		for k in range(4):
+			R = Matrix.Rotation(radians(90 * k), 4, "Z")
+			F = S.FK(KD, M @ R)
+			F["G_Screen"].box(-hw + 1.1, hw - 1.1, hw, hw + 0.06, z0 + 0.6, z1 - 0.6)
+			F["V_Trim"].box(-hw + 0.7, hw - 0.7, hw - 0.02, hw + 0.12, z0 + 0.25, z0 + 0.6)
+			c = M @ R @ Vector((0.0, hw + 0.06, (z0 + z1) / 2))
+			n = (M @ R).to_3x3() @ Vector((0, 1, 0))
+			S.ANCHORS.append([f"HallBoard_{k + 1}", "LobbyHallBoard", round(c.x, 3), round(c.y, 3), round(c.z, 3), 1.0, 1.0, 1.0,
+				{"NX": round(n.x, 4), "NY": round(n.y, 4), "W": round(2 * (hw - 1.1), 2), "H": round(z1 - z0 - 1.2, 2)}])
+		for hx in (-3.6, 3.6):
+			for hy in (-3.6, 3.6):
+				G["V_Steel"].box(hx - 0.14, hx + 0.14, hy - 0.14, hy + 0.14, z1 + 0.8, Z0 + H + 10.3)
+	S.light(Matrix.Identity(4), 0.0, cy, z0 - 2.0, V.WHITE, 1.6, 30, 80)
 
 
 def ceiling(K, KD):
@@ -211,8 +214,21 @@ def ceiling(K, KD):
 			S.light(Matrix.Identity(4), sx * 30.0, ym, z - 0.4, V.WHITE, 1.2, 32, 80)
 
 
+def path_run(name, x, y, dx, dy, length, width, spacing, speed, tone):
+	"""A spot where the client lays a run of chevrons that light up in a wave along it (LobbyPathFx): start (x, y) on
+	the hall floor, direction (dx, dy), length, chevron width and spacing (studs), wave speed (studs a second)."""
+	S.ANCHORS.append([name, "LobbyPathRun", round(x, 3), round(y, 3), round(Z0 + 0.17, 3), 1.0, 1.0, 1.0,
+		{"DX": dx, "DY": dy, "Length": round(length, 2), "Width": width, "Spacing": spacing, "Speed": speed, "Tone": tone}])
+
+
+def line_run(name, x, y, dx, dy, length, width, tone):
+	"""A spot where the client runs a light pulse along a lit floor line (LobbyPathFx)."""
+	S.ANCHORS.append([name, "LobbyLineRun", round(x, 3), round(y, 3), round(Z0 + 0.2, 3), 1.0, 1.0, 1.0,
+		{"DX": dx, "DY": dy, "Length": round(length, 2), "Width": width, "Tone": tone}])
+
+
 def floor(K, KD):
-	# plates over the hall (8 x 11), the aisle down the middle to the island and on to the trophy
+	# plates over the hall (8 x 11), the aisle straight down the middle to the trophy
 	ys = [72.8 + k * (Y1 - 72.8) / 11 for k in range(12)]
 	xs = [-X + k * 11.0 for k in range(9)]
 	for a in range(11):
@@ -221,19 +237,23 @@ def floor(K, KD):
 			KD[mat].box(xs[b] + 0.125, xs[b + 1] - 0.125, ys[a] + 0.125, ys[a + 1] - 0.125, Z0, Z0 + 0.12)
 	apse = [(-X, Y1), (-XE, YE), (XE, YE), (X, Y1)]
 	KD["V_Floor2"].prism(V.inset(V.ccw(apse), 0.125), Z0, Z0 + 0.12)
-	isl = 137.0
-	for ya, yb in ((72.8, isl - 13.0), (isl + 13.0, Y1 + 8.0)):  # the aisle: before and after the island
-		KD["V_Lane"].box(-6, 6, ya, yb, Z0 + 0.12, Z0 + 0.17)
-		KD["E_ThViolet"].box(-6.5, -6.1, ya, yb, Z0 + 0.12, Z0 + 0.19)  # RIVALS runs two lit lines down its aisle; ours: violet and lilac
-		KD["E_ThLilac"].box(6.1, 6.5, ya, yb, Z0 + 0.12, Z0 + 0.19)
-		for sx in (-1, 1):
-			V.grate(KD, Matrix.Identity(4), sx * 8.0 - 1.0, sx * 8.0 + 1.0, ya + 0.8, yb - 0.8, Z0 + 0.12)
+	ya, yb = 72.8, YE - 17.0  # the aisle, to the trophy plinth
+	KD["V_Lane"].box(-6, 6, ya, yb, Z0 + 0.12, Z0 + 0.17)
+	KD["E_ThViolet"].box(-6.5, -6.1, ya, yb, Z0 + 0.12, Z0 + 0.19)  # RIVALS runs two lit lines down its aisle; ours: violet and lilac
+	KD["E_ThLilac"].box(6.1, 6.5, ya, yb, Z0 + 0.12, Z0 + 0.19)
 	for sx in (-1, 1):
+		V.grate(KD, Matrix.Identity(4), sx * 8.0 - 1.0, sx * 8.0 + 1.0, ya + 0.8, yb - 0.8, Z0 + 0.12)
 		KD["V_GoldPaint"].box(sx * 6.1, sx * 6.5, 46.0, Y0 - 4.0, 0.12, 0.19)  # through the hub tunnel
 		KD["V_GoldPaint"].box(sx * 6.1, sx * 6.5, Y0, 70.0, 0.12, 0.19)  # across the landing
-	for y in (76.0, 82.0, 88.0):
-		V.chevron(KD, Matrix.Identity(4), 0, y, 4.0, z=Z0 + 0.17)
 	V.floor_text(KD, Matrix.Translation((0, 92.6, Z0)), "PLAY", 2.2, z=0.17)
+	# animated (LobbyPathFx): chevrons up the aisle, a light running along each edge line, a short run to every pad
+	path_run("PathAisle", 0.0, 99.0, 0.0, 1.0, yb - 2.0 - 99.0, 7.0, 4.0, 42.0, "lilac")
+	line_run("LineAisleL", -6.3, ya, 0.0, 1.0, yb - ya, 0.5, "violet")
+	line_run("LineAisleR", 6.3, ya, 0.0, 1.0, yb - ya, 0.5, "lilac")
+	front = X - 1.0 - PAD_D - 2.3  # the hazard edge in front of each pad's step
+	for side, sx in (("L", -1), ("R", 1)):
+		for k, y in enumerate(PADS):
+			path_run(f"PathPad{side}{k + 1}", sx * 10.0, y, float(sx), 0.0, front - 10.6, 6.0, 3.0, 26.0, "violet")
 
 
 def landing(K, KD):
@@ -326,7 +346,7 @@ def build():
 	landing(K, KD)
 	floor(K, KD)
 	walls(K, KD)
-	island(K, KD)
+	jumbotron(K, KD)
 	trophy(K, KD)
 	ceiling(K, KD)
 	return K.done() + KD.done()
