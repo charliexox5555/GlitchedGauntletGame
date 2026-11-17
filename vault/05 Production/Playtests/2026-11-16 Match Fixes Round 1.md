@@ -32,7 +32,21 @@ The owner's first list before the last polish: seven match fixes. Items 1-6 are 
 - **Fix (`Util/HitFeedback`, `Config/HitFx NUMBER`):** one number per target (the server now sends `HitConfirm.victim`), sitting over their head and following them; a hit within `stackTime` (0.9 s) of the last on that target adds to it, even after it fell (it comes back with the running total); sized each frame like that billboard (`distance`: 15 studs + 250 px, 1.0 at 20 studs, 0.5..1.35). Tested on range dummies: 20 → 40 → 60 → 80 on one number at a 0.6 s cadence; two targets get one number each; a target at 131 studs draws at 0.5.
 
 ## 7. Map vote screen revamp (planned, waiting on the owner)
-The owner: the screen doesn't fit the theme, no circle timer, no player cards like these, better animations, study RIVALS' UI and code. RIVALS study of `DuelInterface.Voting`: see the section below once it is filled in. Built as a real ScreenGui in Studio for the owner to edit (memory `ui-design-in-studio`), Soft Edge theme ([UI Theme v4 Soft Edge](../../02%20Art/UI%20Theme%20v4%20Soft%20Edge.md)).
+The owner: the screen doesn't fit the theme, no circle timer, no player cards like these, better animations, study RIVALS' UI and code.
+
+**RIVALS' vote screen** (read-only: `UserInterface.DuelInterface.Voting`, `MapSlot`, `VoterSlot`, `Top.Timer`; code `ClientDuel.DuelInterface.Voting`, `.Timer`, `.Blur`, `Modules.ButtonEffect`). No springs: all TweenService.
+- **Layout:** a 0.75-wide frame at the top centre over a full-screen Modal button. Six options or fewer: a centred grid of wide cards, 0.325 x 0.2 (about 455 x 208 px at 1080p, 2.2:1), 3 per row (2 x 2 for four). More than six: a scrolling list, 3 big featured cards and 4-per-row small ones.
+- **Card:** picture fading out at the bottom, a foot bar (bottom 20 %, dark, patterned in the difficulty colour) with the name and "[40 %]", a corner tag. Voters are square team-coloured headshot tiles in a grid over the card. **Your pick:** the foot turns white, the name black.
+- **Timer:** no timer of its own: the top-bar timer grows (0.25 s Quint Out), tenths under 10 s, red only at 0.
+- **Motion:** open: each card scales 0.25 → 1, Quint Out, `sqrt(i)*0.1 + 0.1` s (stagger by length, not delay); blur to 24 over 0.4 s. Hover 1.025 (0.25 s Quint Out); press 0.875, release Back Out. **Votes redraw instantly** (no tween). Winner: other cards vanish, a copy of the winner flies to a centre box (0.75 s Quint Out), holds 1.25 s, shrinks away (0.75 s Quint In).
+
+**Plan for ours (Soft Edge, owner to approve):**
+1. **No circle timer:** a slanted bar under the "VOTE FOR A MAP" title plate that drains, with the seconds beside it (tenths under 5 s, one colour change at 3 s).
+2. **No head cards:** each map is a wide soft plate (one cut corner, art fading under the foot). The foot is a **vote-share bar** that fills to its %, with the % in it; voters are small team-coloured chips on the foot (cut corner, no circles). Your pick is the one bright accent.
+3. **Grid like RIVALS:** 3 per row, 2 x 2 for four, a featured row above six.
+4. **Motion on our tokens** (Quint, no overshoot, no sounds): cards slide 12 px and fade in, 0.24 s, 0.04 s stagger; hover lifts 2 px and 1.025; tap 0.97 for 0.08 s; every vote change animates (bar fill 0.24 s, chips slide in 0.12 s), where RIVALS snaps; background blur about 24 over 0.4 s.
+5. **Winner:** the other cards fade (0.14 s), the winner moves to the centre (0.5 s Quint Out), holds about 1.25 s, leaves (0.14 s).
+Built as a real ScreenGui in Studio (`StarterGui.MapVote`, builder `tools/studio/BuildMapVote.luau`) for the owner to edit (memory `ui-design-in-studio`), then wired in `MapVoteController`. [UI Theme v4 Soft Edge](../../02%20Art/UI%20Theme%20v4%20Soft%20Edge.md).
 
 ## What to test
 - [ ] A bot match and a two-player match all the way to the end screen. If the map changes mid-match, send the Output line.

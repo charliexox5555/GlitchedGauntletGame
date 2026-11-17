@@ -59,3 +59,6 @@ Paths below are in the RIVALS file. `UI.` = `StarterPlayer.StarterPlayerScripts.
 
 ## Damage numbers (2026-11-16)
 - `UserInterface.DamageGui`: a BillboardGui sized `{15, 250}, {15, 250}` (15 studs + 250 px: smaller with distance, less than the world), AlwaysOnTop, MaxDistance 400. The file's `Modules.DamageNumbers` says it is a port rebuilt from captures (not original code): one billboard **per target**, on top of the head, whole numbers, crit red and taller, and a hit while it's alive **adds to the same number and re-pops it**. What we took: [Match Fixes Round 1](../../05%20Production/Playtests/2026-11-16%20Match%20Fixes%20Round%201.md) → 6.
+
+## Map vote (2026-11-16)
+- `DuelInterface.Voting`: wide 2.2:1 map cards in a grid (3 per row, 2 x 2 for four, featured + small above six), voters as square team-coloured headshot tiles, your pick = white foot. No vote timer of its own (the top-bar timer grows). No springs: cards open 0.25 → 1 scale Quint Out over `sqrt(i)*0.1+0.1` s, blur 24; votes redraw instantly; the winner flies to the centre (0.75 s Quint Out), holds 1.25 s. Full numbers and our plan: [Match Fixes Round 1](../../05%20Production/Playtests/2026-11-16%20Match%20Fixes%20Round%201.md) → 7.
