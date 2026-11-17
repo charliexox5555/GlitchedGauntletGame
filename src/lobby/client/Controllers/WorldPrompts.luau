@@ -6,8 +6,9 @@
 -- tags appear (late builds, StreamingEnabled streaming parts in and out).
 -- Step pads (owner 2026-11-16, like RIVALS): a tagged BasePart with the
 -- attribute `Trigger = "Step"` gets no prompt; walking onto it opens its menu
--- once, and it re-arms when the player steps off. Client UI only: opening a
--- menu changes nothing on the server, so no remote is involved.
+-- once, and it re-arms when the player steps off. A `LobbyQueue` step pad
+-- instead starts a search for its mode when you step on and cancels it when
+-- you step off (QueueState join / leave: the Play menu's own QueueRequest).
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -16,6 +17,7 @@ local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 
+local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
 
 local WorldPrompts = {}
@@ -129,6 +131,35 @@ local function insideZone(zone: StepZone, pos: Vector3): boolean
 		and rel.Y <= half.Y + STEP_HEIGHT
 end
 
+-- Queue pads (owner 2026-11-16: "just have it queue the player auto", like RIVALS): stepping onto a pad starts a
+-- search for its mode, stepping off cancels it, through the same QueueRequest join / leave the Play menu sends (the
+-- server's QueueService checks the mode, the party leader, the party size and the rate). Only a search this pad
+-- started is cancelled by stepping off, and a party member who isn't the leader never cancels the party's search.
+local padSearch: string? = nil -- the mode a pad started for this player
+
+local function stepQueue(zone: StepZone, now: boolean)
+	local mode = modeOf(zone.inst)
+	if not mode or now == zone.inside then
+		return
+	end
+	local status = QueueState.status()
+	local leads = not QueueState.inParty() or QueueState.isLeader()
+	if now then
+		if status == "found" or status == "teleporting" then
+			return
+		end
+		if not (status == "searching" and QueueState.mode() == mode) then
+			QueueState.join(mode)
+		end
+		padSearch = if leads then mode else nil
+	elseif padSearch == mode then
+		padSearch = nil
+		if leads and status == "searching" and QueueState.mode() == mode then
+			QueueState.leave()
+		end
+	end
+end
+
 local function checkSteps()
 	local character = Players.LocalPlayer.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
@@ -138,8 +169,10 @@ local function checkSteps()
 	local pos = root.Position
 	for _, zone in stepZones do
 		local now = insideZone(zone, pos)
-		if now and not zone.inside then
-			Router.open(zone.hook.menu, if zone.tag == "LobbyQueue" then modeOf(zone.inst) else nil)
+		if zone.tag == "LobbyQueue" then
+			stepQueue(zone, now)
+		elseif now and not zone.inside then
+			Router.open(zone.hook.menu)
 		end
 		zone.inside = now
 	end
