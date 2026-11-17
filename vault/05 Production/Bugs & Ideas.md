@@ -3,6 +3,7 @@
 Quick capture. Move items into the Game Plan or a fix list when they're scheduled.
 
 ## 🐛 Bugs
+- **2026-11-16, live 2v2 with friends: "old UI and nothing starts" after the teleport.** Today's match code starts a 2v2 fine in Studio (a 2v2 plan with 3 bots reached the draft, no errors), so the live servers are running an older *published* match place: Studio's Save to Roblox stores a version, only **Publish to Roblox** (Alt+P) puts it live. Fix: publish the match place (it is clean: no RIVALS reference content). Don't publish the Lobby place as it is: it holds the owner's RIVALS paste (`LobbyRivals`), `ServerStorage.RivalsPropTemplates` and 35 placed RIVALS props (placeholders); take those out of the published copy first.
 | # | Found | What happens | Steps to reproduce | Severity | Status |
 |---|---|---|---|---|---|
 | U1 | 2026-11-16 (overnight) | ~~Updraft casts but the body doesn't rise~~ | Fresh Play, press Q | — | ❌ Not a bug (2026-11-17): a per-frame log shows the launch at 71 studs/s, 14 studs up by 0.35 s, falling by 0.37 s; the first checks read the height after the landing |
