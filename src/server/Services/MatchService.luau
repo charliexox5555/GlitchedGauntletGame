@@ -345,9 +345,27 @@ local function noteHumans()
 	end
 end
 
+-- Every player the Lobby match lists is on the server (no plan: whoever is
+-- here is everyone).
+local function everyoneArrived(): boolean
+	local plan = MatchPlan.current()
+	if not plan then
+		return true
+	end
+	for team = 1, 2 do
+		for _, userId in plan.teams[team] do
+			if not Players:GetPlayerByUserId(userId) then
+				return false
+			end
+		end
+	end
+	return true
+end
+
 -- The select screen: SELECT time in all, the last COUNTDOWN of it the 3-2-1.
--- The top-bar clock counts to the fight. Round 1 runs its full time (people
--- are still arriving); later rounds skip to the 3-2-1 once all have locked in.
+-- The top-bar clock counts to the fight. Any round skips to the 3-2-1 once
+-- everyone has locked in; round 1 also waits until every listed player has
+-- arrived (people are still loading in).
 local function runDraft(round: number)
 	local total = if round == 1 then Config.FIRST_SELECT_TIME else Config.SELECT_TIME
 	local picking = math.max(total - Config.COUNTDOWN_TIME, 1)
@@ -364,7 +382,8 @@ local function runDraft(round: number)
 	MatchState.set("EndsAt", now + total)
 	MatchState.set("Phase", "Draft")
 	runClock(picking, function()
-		return forfeited() or (round > 1 and DraftService.allLocked(seatKeys()))
+		return forfeited()
+			or (DraftService.allLocked(seatKeys()) and (round > 1 or everyoneArrived()))
 	end)
 	DraftService.close(seatKeys())
 	applyDraft(seatKeys())
@@ -574,6 +593,35 @@ local function noteFighters()
 	end
 end
 
+-- The round is over for good: combat locks and every Mod's leftovers (walls,
+-- fire, Recall anchors) go. Runs after RoundEnd, or straight away when the
+-- match ends (a replay or the end screen comes next).
+local function closeRound()
+	setAllLocked(true)
+	for _, player in Players:GetPlayers() do
+		ModService.clearRound(player)
+	end
+end
+
+-- After a round stopped on an error: no fight, no circle, no open select;
+-- everyone back behind the barrier, ready to play the round again.
+local function recoverRound()
+	local ok, err = pcall(function()
+		ZoneService.stop()
+		BotService.setFighting(false)
+		if DraftService.isOpen() then
+			DraftService.close(seatKeys())
+		end
+		closeRound()
+		MapService.setBarriers(true)
+	end)
+	if not ok then
+		warn("[MatchService] couldn't tidy up after the round error:", err)
+	end
+end
+
+type RoundOutcome = "next" | "stop" | "abandon"
+
 -- Runs one match. Returns true when the players voted a rematch.
 local function runMatch(): boolean
 	balanceTeams()
@@ -599,8 +647,12 @@ local function runMatch(): boolean
 	local function over(): boolean
 		return someoneOut() or forfeited()
 	end
-	while scores[1] < Config.ROUNDS_TO_WIN and scores[2] < Config.ROUNDS_TO_WIN do
+	-- One round, from the select to RoundEnd: "next", "stop" (the match is
+	-- decided) or "abandon" (nobody left to play).
+	local scored = false -- this round's point is already on the board
+	local function playRound(): RoundOutcome
 		round += 1
+		scored = false
 		MatchState.set("Round", round)
 		MatchState.set("RoundWinner", nil)
 		StatsService.newRound()
@@ -636,7 +688,7 @@ local function runMatch(): boolean
 					emptyRounds,
 					"rounds: the match ends"
 				)
-				break
+				return "stop"
 			end
 		else
 			emptyRounds = 0
@@ -661,20 +713,20 @@ local function runMatch(): boolean
 			ZoneService.stop()
 
 			BotService.setFighting(false)
-			setAllLocked(true)
+			-- Combat stays open through RoundEnd (players can shoot and cast for
+			-- fun; Weapon/Damage deals nothing in that phase). closeRound locks it.
 			eliminated = someoneOut()
 			winner = roundWinner()
 		end
-		for _, player in Players:GetPlayers() do
-			ModService.clearRound(player)
-		end
 		forfeitBy = forfeitWinner()
 		if forfeitBy then
-			break
+			closeRound()
+			return "stop"
 		end
 		if winner ~= 0 then
 			scores[winner] += 1
 		end
+		scored = true
 		MatchState.set("Score1", scores[1])
 		MatchState.set("Score2", scores[2])
 		MatchState.set("RoundWinner", winner)
@@ -691,26 +743,65 @@ local function runMatch(): boolean
 				)
 		)
 		if winner ~= 0 and scores[winner] >= Config.ROUNDS_TO_WIN then
+			closeRound()
 			playReplay(winner, eliminated) -- the match-winning kill
-			break
+			return "stop"
 		end
 		setPhase("RoundEnd", Config.ROUND_END_TIME)
 		runClock(Config.ROUND_END_TIME, forfeited)
+		closeRound()
 
 		if #Players:GetPlayers() == 0 then
-			return false -- only bots are left
+			return "abandon" -- only bots are left
 		end
 		forfeitBy = forfeitWinner()
 		if forfeitBy then
-			break
+			return "stop"
 		end
 		if not bothSidesFilled() then
 			-- Nobody at all on one side (no bots either): whoever stayed wins.
 			forfeitBy = sideLeftStanding()
 			if not forfeitBy then
-				return false -- nobody is left at all
+				return "abandon" -- nobody is left at all
 			end
-			break
+			return "stop"
+		end
+		return "next"
+	end
+
+	-- An error in one round must not throw the match away (it used to: the loop
+	-- caught it and started a new match on a new map, mid-match). The round is
+	-- logged, everyone goes back behind the barrier and it is played again on
+	-- the same map. Too many in a row: the match ends on the current score.
+	local roundErrors = 0
+	while scores[1] < Config.ROUNDS_TO_WIN and scores[2] < Config.ROUNDS_TO_WIN do
+		local ok, outcome = xpcall(playRound, debug.traceback)
+		if ok then
+			roundErrors = 0
+			if outcome == "stop" then
+				break
+			elseif outcome == "abandon" then
+				return false
+			end
+		else
+			roundErrors += 1
+			warn(
+				string.format(
+					"[MatchService] round %d stopped on an error (%d in a row), playing on:",
+					round,
+					roundErrors
+				),
+				outcome
+			)
+			recoverRound()
+			if not scored then
+				round -= 1 -- the same round again
+			end
+			if roundErrors >= Config.MAX_ROUND_ERRORS then
+				forfeitBy = forfeitWinner()
+				break
+			end
+			task.wait(RETRY_AFTER_ERROR)
 		end
 	end
 

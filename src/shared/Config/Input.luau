@@ -42,6 +42,8 @@ local bindings: { [string]: Binding } = {
 	Melee = { keys = { Enum.KeyCode.Three }, gamepad = {} },
 	CycleWeapon = { keys = {}, gamepad = { Enum.KeyCode.ButtonY }, touch = "SwapButton" },
 	QuickMelee = { keys = { Enum.KeyCode.V }, gamepad = { Enum.KeyCode.ButtonR3 } },
+	-- Frees or re-locks the mouse (CameraController.freeMouse), owner 2026-11-16.
+	FreeMouse = { keys = { Enum.KeyCode.M }, gamepad = {} },
 	-- Inspect the held gun (Y like Valorant).
 	Inspect = { keys = { Enum.KeyCode.Y }, gamepad = { Enum.KeyCode.DPadDown } },
 	-- Mod slots (Mods.md → Controls). Simulation input: Dash and Updraft

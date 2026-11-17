@@ -217,6 +217,7 @@ export type HitConfirm = {
 	position: Vector3,
 	blocked: boolean?, -- a damage guard took it all (a Barrier, a Ghost dash)
 	source: string?, -- the Mod id when a Mod dealt it (nil: a gun or the knife); server-set
+	victim: Model?, -- who was hit (nil on the client when it isn't streamed in)
 }
 
 return nil

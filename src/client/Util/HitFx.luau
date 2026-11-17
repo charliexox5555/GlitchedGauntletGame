@@ -680,11 +680,12 @@ local function headFlash(headPart: BasePart?, head: Vector3, killed: boolean)
 		end
 	end
 	rig.att.WorldPosition = head
-	-- Size: by distance (capped up close), a head kill, and a little random.
+	-- Size: a fixed world size like RIVALS' HeadshotParticles (no distance
+	-- factor: it used to grow up to 2.4x on far targets, owner 2026-11-16), a
+	-- head kill, and a little random.
 	local dist = (head - cam.CFrame.Position).Magnitude
-	local reach = math.clamp(dist / f.range.from, f.range.near, f.range.max)
 	local jitter = 1 + (math.random() * 2 - 1) * f.sizeJitter
-	rig.scale = (if killed then f.kill else 1) * reach * jitter
+	rig.scale = (if killed then f.kill else 1) * jitter
 	-- Variety: lean, flick side, mirror.
 	local sideSign = if math.random() < 0.5 then -1 else 1
 	rig.tilt = (math.random() * 2 - 1) * f.tilt

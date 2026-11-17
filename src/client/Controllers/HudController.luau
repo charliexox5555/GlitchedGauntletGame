@@ -470,15 +470,17 @@ function HudController.killMarker()
 	HitFeedback.kill()
 end
 
--- Damage numbers stack while you keep hitting the same target, then fall off.
--- `position`: the world hit point (the number sits beside it).
+-- One damage number per target: it keeps counting while you keep hitting
+-- them, then falls off. `position`: the world hit point; `target`: who was
+-- hit (the number sits over their head).
 function HudController.damageNumber(
 	amount: number,
 	headshot: boolean,
 	position: Vector3?,
-	killed: boolean?
+	killed: boolean?,
+	target: Instance?
 )
-	HitFeedback.damage(amount, headshot, position, killed)
+	HitFeedback.damage(amount, headshot, position, killed, target)
 end
 
 -- An arc on the side the hit came from; it follows that spot as you turn

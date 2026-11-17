@@ -40,14 +40,15 @@ return table.freeze({
 	ROUNDS_TO_WIN = 5,
 	LATE_SPAWN_WAIT = 3, -- seconds a slow spawn gets past the countdown
 	MAX_EMPTY_ROUNDS = 3, -- rounds in a row with a side nobody could spawn on: the match ends
+	MAX_ROUND_ERRORS = 3, -- rounds in a row that stopped on a script error: the match ends on the score (MatchService)
 	KILL_DEPTH = 40, -- studs below a map's pivot that count as falling off (a map can set KillDepth)
 	ASSIST_WINDOW = 10, -- seconds before a kill that damage still earns an assist (StatsService)
 
 	-- Seconds (vault/05 Production/Match Structure Revamp.md). The select
 	-- screen opens as soon as the first player is in. Its time includes the
-	-- 3-2-1 at the end (guns in hand, barrier up). Round 1 always runs its full
-	-- time so everyone can arrive; later selects skip to the 3-2-1 once
-	-- everyone has locked in.
+	-- 3-2-1 at the end (guns in hand, barrier up). Every select skips to the
+	-- 3-2-1 once everyone has locked in; round 1 also waits for every listed
+	-- player to arrive (2026-11-16, owner).
 	FIRST_SELECT_TIME = 30,
 	SELECT_TIME = 15,
 	COUNTDOWN_TIME = 3,

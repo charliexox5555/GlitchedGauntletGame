@@ -1092,7 +1092,11 @@ local function update(dt: number)
 		HudController.setSpread(currentSpread(s) + s.config.pelletSpread * 0.6)
 		local mode = s.config.fireMode
 		if mode == "Melee" then
-			if pressQueued and now >= equipReadyAt and not dashBlocked() then
+			if combatLocked() then
+				-- Behind the barrier: no swings, and nothing saved up for GO.
+				pressQueued = false
+				altQueuedAt = -math.huge
+			elseif pressQueued and now >= equipReadyAt and not dashBlocked() then
 				pressQueued = false
 				swing(s)
 			elseif now - altQueuedAt < 0.2 and now >= equipReadyAt and not dashBlocked() then
@@ -1352,7 +1356,9 @@ local function onHitConfirm(confirm: Types.HitConfirm)
 		EffectsController.hitFlash(at, head, confirm.killed == true)
 	end
 	if not rule or rule.numbers then
-		HudController.damageNumber(confirm.damage, head, at, confirm.killed == true)
+		local victim = confirm.victim
+		local target = if typeof(victim) == "Instance" and victim:IsA("Model") then victim else nil
+		HudController.damageNumber(confirm.damage, head, at, confirm.killed == true, target)
 	end
 	-- One contact cue for a hit. The kill tone plays from the server's Killed
 	-- event (Util/KillFeed), so it climbs per kill in the round.
@@ -1446,6 +1452,10 @@ function WeaponController.start()
 	end)
 	InputController.onPressed("QuickMelee", function()
 		-- No melee in the loadout: nothing happens (never a shot from the gun).
+		-- Behind the barrier (the select, the 3-2-1) quick melee does nothing.
+		if combatLocked() then
+			return
+		end
 		if equip("Melee") then
 			pressQueued = true
 		end

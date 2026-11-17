@@ -24,6 +24,8 @@ local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 
+local CameraController = require(script.Parent.CameraController)
+
 local MapVoteController = {}
 
 local DESIGN = Vector2.new(1920, 1080)
@@ -239,6 +241,8 @@ local function open(on: boolean)
 		return
 	end
 	gui.Enabled = on
+	-- The mouse is free to click a card while the vote is up.
+	CameraController.freeMouse("MapVote", on)
 	if on then
 		shownChosen = ""
 		title.Text = "VOTE FOR A MAP"

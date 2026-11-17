@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Combat = require(Shared.Config.Combat)
 local Health = require(Shared.Health)
+local MatchState = require(Shared.MatchState)
 local Net = require(Shared.Net)
 local Types = require(Shared.Types)
 
@@ -74,6 +75,11 @@ function Damage.hurt(humanoid: Humanoid, amount: number, attacker: Player?): num
 	if amount ~= amount or amount <= 0 or amount == math.huge then
 		return 0
 	end
+	-- After the round is decided (RoundEnd) everyone can still shoot and cast,
+	-- but nothing hurts: the result and the stats stay as they were.
+	if MatchState.phase() == "RoundEnd" then
+		return 0
+	end
 	local victim = humanoid.Parent
 	if victim and victim:IsA("Model") then
 		for _, guard in damageGuards do
@@ -113,8 +119,8 @@ function Damage.apply(
 	modSource: string?
 )
 	local humanoid = Targets.liveHumanoid(victimModel)
-	if not humanoid then
-		return
+	if not humanoid or MatchState.phase() == "RoundEnd" then
+		return -- after the round: shots land, nothing counts (no confirm, no BLOCKED)
 	end
 	for _, modify in damageModifiers do
 		local ok, result = pcall(modify, attacker, victimModel, amount, sourceId)
@@ -140,6 +146,7 @@ function Damage.apply(
 		position = at,
 		blocked = blocked or nil, -- a guard took it (Barrier, Ghost dash)
 		source = modSource,
+		victim = victimModel, -- the damage number's target (one per target)
 	})
 
 	local victim = Players:GetPlayerFromCharacter(victimModel)

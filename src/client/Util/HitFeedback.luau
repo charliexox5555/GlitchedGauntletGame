@@ -77,13 +77,19 @@ type DamageNumber = {
 	size: number, -- base scale
 	offscreen: boolean, -- its hit point is out of view: not drawn
 	crosshair: boolean, -- no hit point: it sits by the crosshair
+	target: Instance?, -- whose number this is (one per target)
+	reach: number, -- the distance scale this frame (NUMBER.distance)
 }
 
 local container: Frame? = nil
 local hitMarker: Marker? = nil
 local killMarker: Marker? = nil
 local numbers: { DamageNumber } = {}
+-- The last number with no target known (a victim that isn't streamed in).
 local current: DamageNumber? = nil
+-- Each target's running total and when it was last hit: a hit within
+-- NUMBER.stackTime adds to it, even after its number has fallen away.
+local tallies: { [Instance]: { total: number, at: number } } = {}
 type Tag = {
 	label: TextLabel,
 	stroke: UIStroke,
@@ -378,6 +384,8 @@ local function newNumber(parent: Instance): DamageNumber
 		size = 1,
 		offscreen = false,
 		crosshair = false,
+		target = nil,
+		reach = 1,
 	}
 end
 
@@ -391,6 +399,7 @@ local function hide(n: DamageNumber)
 		current = nil
 	end
 	n.state = "Idle"
+	n.target = nil
 	n.label.Visible = false
 	setAlpha(n, 1)
 	n.label.Rotation = 0
@@ -399,7 +408,7 @@ end
 -- Where a stack's number sits: just off its hit point (it stays on the
 -- target, e.g. someone burning in a Molly). nil while the point is out of
 -- view: the number isn't drawn then (never parked on the crosshair).
-local function screenPoint(world: Vector3): Vector2?
+local function screenPoint(world: Vector3, offsetScale: number?): Vector2?
 	local cam = Workspace.CurrentCamera
 	if not cam then
 		return nil
@@ -409,18 +418,51 @@ local function screenPoint(world: Vector3): Vector2?
 		return nil
 	end
 	local size = cam.ViewportSize
-	local x = math.clamp(p.X + NUMBER_OFFSET.X, 40, size.X - 40)
-	local y = math.clamp(p.Y + NUMBER_OFFSET.Y, 30, size.Y - 30)
+	local offset = NUMBER_OFFSET * (offsetScale or 1)
+	local x = math.clamp(p.X + offset.X, 40, size.X - 40)
+	local y = math.clamp(p.Y + offset.Y, 30, size.Y - 30)
 	return Vector2.new(x, y)
+end
+
+-- The number's size for how far away its target is, like a BillboardGui
+-- sized `studs` in the world plus `px` on screen (RIVALS' DamageGui is 15
+-- studs + 250 px): it shrinks with distance, but less than the world does.
+-- 1 at `ref` studs, kept between `min` and `max`.
+local function reachScale(world: Vector3): number
+	local cam = Workspace.CurrentCamera
+	if not cam then
+		return 1
+	end
+	local d = NUMBER.distance
+	local half = math.tan(math.rad(cam.FieldOfView) / 2)
+	local height = cam.ViewportSize.Y
+	local function pxAt(dist: number): number
+		return d.px + d.studs * height / (2 * math.max(dist, 1) * half)
+	end
+	local dist = (world - cam.CFrame.Position).Magnitude
+	return math.clamp(pxAt(dist) / pxAt(d.ref), d.min, d.max)
+end
+
+-- Where a target's number sits: over its head (it follows them), else the
+-- last hit point.
+local function anchorOf(n: DamageNumber): Vector3
+	local target = n.target
+	local head = if target and target.Parent then target:FindFirstChild("Head") else nil
+	if head and head:IsA("BasePart") then
+		return head.Position + Vector3.yAxis * (head.Size.Y / 2 + NUMBER.headLift)
+	end
+	return n.world
 end
 
 -- Follows the hit point on screen; hidden while it's out of view. A hit
 -- with no point sits by the crosshair.
 local function place(n: DamageNumber)
 	local cam = Workspace.CurrentCamera
+	local world = anchorOf(n)
+	n.reach = if n.crosshair then 1 else reachScale(world)
 	local p = if n.crosshair and cam
 		then cam.ViewportSize / 2 + NUMBER_OFFSET
-		else screenPoint(n.world)
+		else screenPoint(world, n.reach)
 	n.offscreen = p == nil
 	n.label.Visible = p ~= nil
 	if p then
@@ -451,10 +493,20 @@ local function takeNumber(): DamageNumber?
 	return oldest
 end
 
--- A confirmed hit: stacks onto the current number while you keep hitting the
--- same target, else starts a new one. Red for headshots, bigger on the kill.
+-- A confirmed hit: one number per target, which keeps counting while you
+-- keep hitting them (within NUMBER.stackTime of the last hit, even if it had
+-- already fallen: it comes back with the running total), and re-pops in
+-- place instead of making a new one. Red for headshots, bigger on the kill.
 -- Also sizes the hit marker just popped for this hit by its damage.
-function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3?, killed: boolean?)
+-- `target`: who was hit (HitConfirm.victim; nil falls back to the last
+-- number with no target).
+function HitFeedback.damage(
+	amount: number,
+	headshot: boolean,
+	position: Vector3?,
+	killed: boolean?,
+	target: Instance?
+)
 	if amount ~= amount or amount <= 0 then
 		return
 	end
@@ -465,15 +517,24 @@ function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3
 	end
 	local now = clock
 	local world = position or Vector3.zero
-	local n = current
-	-- The same target again in time: it keeps counting, and a number that
-	-- had already tipped over snaps back upright.
-	local continues = n ~= nil
-		and n.state ~= "Idle"
-		and not n.killed
-		and now - n.lastHit < NUMBER.stackTime
-		and (position == nil or (n.world - world).Magnitude < NUMBER.stackRange)
+	-- This target's number, if one is up.
+	local n: DamageNumber? = nil
+	if target then
+		for _, other in numbers do
+			if other.state ~= "Idle" and other.target == target then
+				n = other
+				break
+			end
+		end
+	else
+		local last = current
+		if last and last.state ~= "Idle" and last.target == nil then
+			n = last
+		end
+	end
+	local continues = n ~= nil and not n.killed and now - n.lastHit < NUMBER.stackTime
 	if n and continues and n.state == "Fall" then
+		-- Tipped over already: it snaps back upright and keeps counting.
 		n.state = "Stack"
 		n.label.Rotation = 0
 		setAlpha(n, 0)
@@ -484,18 +545,27 @@ function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3
 		end
 		n = nil
 	end
+	-- The running total carries over a number that already fell away.
+	local carried = 0
+	local tally = if target then tallies[target] else nil
+	if tally and not n and now - tally.at < NUMBER.stackTime then
+		carried = tally.total
+	end
 	if not n then
 		n = takeNumber()
 		if not n then
 			return
 		end
-		n.total = 0
+		n.total = carried
 		n.killed = false
 		n.state = "Stack"
 		n.label.Rotation = 0
 		n.label.Visible = true
 		setAlpha(n, 0)
-		current = n
+		n.target = target
+		if not target then
+			current = n
+		end
 	end
 	local stack = n :: DamageNumber
 	stack.total += amount
@@ -508,7 +578,10 @@ function HitFeedback.damage(amount: number, headshot: boolean, position: Vector3
 	stack.label.TextColor3 = if headshot then NUMBER.headColor else NUMBER.color
 	stack.stroke.Color = if headshot then NUMBER.headOutline else BLACK
 	stack.label.Text = tostring(math.round(stack.total))
-	stack.crosshair = position == nil -- no hit point: by the crosshair
+	stack.crosshair = position == nil and target == nil -- nowhere to sit: by the crosshair
+	if target then
+		tallies[target] = if stack.killed then nil else { total = stack.total, at = now }
+	end
 	place(stack)
 end
 
@@ -518,6 +591,7 @@ local function stepNumber(n: DamageNumber, dt: number, now: number)
 		place(n)
 		local pop = 1 - easeOut(n.t / NUMBER.popTime)
 		n.scale.Scale = n.size
+			* n.reach
 			* (1 + (if n.head then NUMBER.headPopScale else NUMBER.popScale) * pop)
 		n.label.Position = UDim2.fromOffset(n.position.X, n.position.Y)
 		if now - n.lastHit > (if n.killed then NUMBER.killHold else NUMBER.hold) then
@@ -533,10 +607,10 @@ local function stepNumber(n: DamageNumber, dt: number, now: number)
 		-- It tips over clockwise and drops, slowly at first (like something
 		-- toppling), shrinking as it goes, and fades over the second half.
 		local g = k * k
-		n.position = n.fallFrom + Vector2.new(FALL.drift * k, FALL.drop * g)
+		n.position = n.fallFrom + Vector2.new(FALL.drift * k, FALL.drop * g) * n.reach
 		n.label.Position = UDim2.fromOffset(n.position.X, n.position.Y)
 		n.label.Rotation = FALL.tip * g
-		n.scale.Scale = n.size * (1 - (1 - FALL.shrink) * k)
+		n.scale.Scale = n.size * n.reach * (1 - (1 - FALL.shrink) * k)
 		setAlpha(n, math.clamp((k - 0.45) / 0.55, 0, 1) ^ 1.5)
 	end
 end
@@ -635,6 +709,11 @@ function HitFeedback.step(frameDt: number)
 	for _, n in numbers do
 		if n.state ~= "Idle" then
 			stepNumber(n, dt, now)
+		end
+	end
+	for target, tally in tallies do
+		if now - tally.at >= NUMBER.stackTime then
+			tallies[target] = nil
 		end
 	end
 	local tg = tag

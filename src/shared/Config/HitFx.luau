@@ -202,8 +202,7 @@ HitFx.NUMBER = table.freeze({
 	stroke = 2.5,
 	hold = 0.28, -- s it stands after the last hit before it tips over
 	killHold = 0.45, -- the same, for the number that made the kill
-	stackTime = 0.9, -- s after the last hit that a new one still adds to it (even mid-fall)
-	stackRange = 8, -- studs: a hit further than this from the last starts a new number
+	stackTime = 0.9, -- s after the last hit on a target that a new hit still adds to its number
 	-- The exit: it tips `tip` degrees clockwise, drops `drop` px and drifts
 	-- `drift` px right, shrinking to `shrink` of its size, over `time`.
 	fall = table.freeze({ time = 0.3, tip = 118, drop = 44, drift = 10, shrink = 0.55 }),
@@ -212,6 +211,13 @@ HitFx.NUMBER = table.freeze({
 	popTime = 0.12,
 	headSize = 1.15,
 	killSize = 1.3,
+	-- One number per target, over its head (2026-11-16, owner: it didn't
+	-- size with distance and stacked into new numbers). `headLift`: studs
+	-- above the head's top. `distance`: sized like a BillboardGui of `studs`
+	-- in the world plus `px` on screen (RIVALS' DamageGui: 15 + 250), 1 at
+	-- `ref` studs, clamped to `min`..`max`.
+	headLift = 0.6,
+	distance = table.freeze({ ref = 20, studs = 15, px = 250, min = 0.5, max = 1.35 }),
 })
 
 -- Body flash ----------------------------------------------------------------------
@@ -438,7 +444,7 @@ HitFx.HEAD_FLASH = table.freeze({
 	-- dark layer (negative LightEmission: it reads as contrast behind the
 	-- glow, not a black blob), an upward streak and stretched shards that
 	-- burst out and stop dead (high drag). Everything rides one colour ramp,
-	-- white -> orange -> red. Sizes are studs at 18 studs away (`range`).
+	-- white -> orange -> red. Sizes are studs in the world.
 	burstDelay = 0.05,
 	-- The crown (RIVALS' "big middle", owner 2026-11-15: "really see what
 	-- rivals does"): their main layer is a 4x4 one-shot flipbook of sharp
@@ -525,9 +531,8 @@ HitFx.HEAD_FLASH = table.freeze({
 	}),
 	away = 0.3, -- sparks fly along (shot direction * away + up)
 	kill = 1.2,
-	-- Size by distance (dist / from), between `near` (up close: capped on
-	-- screen) and `max` (far: still reads at 15-40 studs).
-	range = table.freeze({ from = 18, near = 0.75, max = 2.4 }),
+	-- No size-by-distance (2026-11-16): every size here is studs in the world,
+	-- like RIVALS' HeadshotParticles, so a far headshot is small on screen.
 })
 
 -- Ability hits ---------------------------------------------------------------------

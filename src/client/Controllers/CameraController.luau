@@ -17,6 +17,8 @@ local Workspace = game:GetService("Workspace")
 local CameraConfig = require(ReplicatedStorage.Shared.Config.Camera)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 
+local InputController = require(script.Parent.InputController)
+
 local CameraController = {}
 
 local baseFov: number = CameraConfig.DEFAULT_FOV
@@ -39,8 +41,15 @@ local rollKickTime = 0.3
 local lungeOffset = Vector3.zero
 local lungeAt = -math.huge
 local lungeTime = 0.3
--- The OS cursor stays hidden (the HUD draws a crosshair) unless a menu needs it.
+-- The OS cursor stays hidden (the HUD draws a crosshair) unless something
+-- frees the mouse: a menu, the map vote, or the player's own M key. Each
+-- reason is held on its own, so one closing never re-locks another's mouse.
 local cursorVisible = false
+local freeReasons: { [string]: true } = {}
+-- A see-through Modal button: in first person only a visible Modal button
+-- lets the mouse move (Roblox), so it shows while any reason holds.
+local modalButton: TextButton? = nil
+local FREE_KEY = "Key"
 -- A cap on how fast the view turns (radians/s, nil = none): Frozen. Last
 -- frame's final look, to measure this frame's turn against.
 local turnCap: number? = nil
@@ -176,9 +185,24 @@ function CameraController.setTurnCap(degreesPerSecond: number?)
 	turnCap = if degreesPerSecond then math.rad(degreesPerSecond) else nil
 end
 
--- Shows the OS cursor while a menu is open (the dev weapon menu).
+-- Frees (or stops freeing) the mouse for `reason`: the cursor shows and the
+-- view stops following the mouse while any reason holds.
+function CameraController.freeMouse(reason: string, on: boolean)
+	freeReasons[reason] = if on then true else nil
+	cursorVisible = next(freeReasons) ~= nil
+	local button = modalButton
+	if button then
+		button.Visible = cursorVisible
+	end
+end
+
+function CameraController.isMouseFree(): boolean
+	return cursorVisible
+end
+
+-- Shows the OS cursor while a menu is open (the menus share one reason).
 function CameraController.setCursorVisible(visible: boolean)
-	cursorVisible = visible
+	CameraController.freeMouse("Menu", visible)
 end
 
 function CameraController.setRoll(degrees: number)
@@ -387,6 +411,26 @@ end
 
 function CameraController.start()
 	RunService:BindToRenderStep("GGCamera", Enum.RenderPriority.Camera.Value + 1, step)
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "MouseFree"
+	gui.ResetOnSpawn = false
+	gui.DisplayOrder = -10
+	local button = Instance.new("TextButton")
+	button.Name = "Modal"
+	button.Size = UDim2.fromOffset(1, 1)
+	button.BackgroundTransparency = 1
+	button.Text = ""
+	button.AutoButtonColor = false
+	button.Selectable = false
+	button.Modal = true
+	button.Visible = cursorVisible
+	button.Parent = gui
+	gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+	modalButton = button
+	-- M (Config/Input FreeMouse): the player frees or re-locks the mouse.
+	InputController.onPressed("FreeMouse", function()
+		CameraController.freeMouse(FREE_KEY, not freeReasons[FREE_KEY])
+	end)
 end
 
 return CameraController

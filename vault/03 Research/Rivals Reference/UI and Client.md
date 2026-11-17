@@ -56,3 +56,6 @@ Paths below are in the RIVALS file. `UI.` = `StarterPlayer.StarterPlayerScripts.
 ## What we take
 - Patterns: page router, slot modules, aspect-ratio layout, per-screen blur, the motion numbers above, the touch-button editor idea (parked for mobile).
 - **Not** their images, 9-slice sources, icons, font or code. Our look stays [Soft Edge](../../02%20Art/UI%20Theme%20v4%20Soft%20Edge.md) + the owner's plate style.
+
+## Damage numbers (2026-11-16)
+- `UserInterface.DamageGui`: a BillboardGui sized `{15, 250}, {15, 250}` (15 studs + 250 px: smaller with distance, less than the world), AlwaysOnTop, MaxDistance 400. The file's `Modules.DamageNumbers` says it is a port rebuilt from captures (not original code): one billboard **per target**, on top of the head, whole numbers, crit red and taller, and a hit while it's alive **adds to the same number and re-pops it**. What we took: [Match Fixes Round 1](../../05%20Production/Playtests/2026-11-16%20Match%20Fixes%20Round%201.md) → 6.
