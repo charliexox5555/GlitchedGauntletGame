@@ -31,7 +31,7 @@ The owner's first list before the last polish: seven match fixes. Items 1-6 are 
 - **RIVALS pattern** (the file's `Modules.DamageNumbers`, which says it is a port rebuilt from captures, not original code): one `DamageGui` BillboardGui per **target**, size `{15 studs, 250 px}` (shrinks with distance, less than the world does), on top of the head; a hit while it's alive adds to it and re-pops the **same** one.
 - **Fix (`Util/HitFeedback`, `Config/HitFx NUMBER`):** one number per target (the server now sends `HitConfirm.victim`), sitting over their head and following them; a hit within `stackTime` (0.9 s) of the last on that target adds to it, even after it fell (it comes back with the running total); sized each frame like that billboard (`distance`: 15 studs + 250 px, 1.0 at 20 studs, 0.5..1.35). Tested on range dummies: 20 → 40 → 60 → 80 on one number at a 0.6 s cadence; two targets get one number each; a target at 131 studs draws at 0.5.
 
-## 7. Map vote screen revamp (planned, waiting on the owner)
+## 7. Map vote screen revamp (built 2026-11-16, owner approved the plan)
 The owner: the screen doesn't fit the theme, no circle timer, no player cards like these, better animations, study RIVALS' UI and code.
 
 **RIVALS' vote screen** (read-only: `UserInterface.DuelInterface.Voting`, `MapSlot`, `VoterSlot`, `Top.Timer`; code `ClientDuel.DuelInterface.Voting`, `.Timer`, `.Blur`, `Modules.ButtonEffect`). No springs: all TweenService.
@@ -47,6 +47,13 @@ The owner: the screen doesn't fit the theme, no circle timer, no player cards li
 4. **Motion on our tokens** (Quint, no overshoot, no sounds): cards slide 12 px and fade in, 0.24 s, 0.04 s stagger; hover lifts 2 px and 1.025; tap 0.97 for 0.08 s; every vote change animates (bar fill 0.24 s, chips slide in 0.12 s), where RIVALS snaps; background blur about 24 over 0.4 s.
 5. **Winner:** the other cards fade (0.14 s), the winner moves to the centre (0.5 s Quint Out), holds about 1.25 s, leaves (0.14 s).
 Built as a real ScreenGui in Studio (`StarterGui.MapVote`, builder `tools/studio/BuildMapVote.luau`) for the owner to edit (memory `ui-design-in-studio`), then wired in `MapVoteController`. [UI Theme v4 Soft Edge](../../02%20Art/UI%20Theme%20v4%20Soft%20Edge.md).
+
+**What was built (v2):**
+- **Look:** the lobby's current look (Rubik Heavy / Bold, neutral charcoal, gold only on your pick) and its one-piece sliced art (the same card and slanted-plate images as lobby `Util/Cards` / `Util/Plates`). Title on a slanted plate; the clock is a slanted bar that drains, with the seconds at its end (tenths under 5 s, red from 3 s). Cards 470 x 210, 3 a row (2 x 2 for four). Each card: name, team sizes, a faint big initial (no map pictures yet: a `Picture` slot fades into the foot once maps have one), and a foot that is the vote share (fill + %) with square team-coloured voter chips. Template children `MapName` / `Teams` (not `Name` / `Size`: those clash with properties).
+- **Motion:** world blur 24 over 0.4 s; header slides 12 px in; cards slide 12 px and fade in (0.24 s Quint Out, 0.04 s apart, each card a CanvasGroup); hover lifts 3 px and grows 1.025; your pick sits 6 px higher; shares ease (0.24 s), chips pop in and out (0.12 s); the winner moves from its cell to the middle and grows to 1.22 while the others fade (0.14 s); a Random win renames the Random card to the drawn map.
+- **Playtest (Studio, one client + a bot):** cards in, mouse free, blur on; a vote on Bunker filled its foot gold to 100 % with your chip and lifted it; the all-in rule cut the clock to 1.1 s; Bunker moved to the centre at 1.22, the five others faded; the screen closed into the select with the blur off. Edit-mode capture checked the layout (one fix: the % on your gold pick stays white).
+- The v1 screen and templates are kept in `ServerStorage.UiBackups` (`MapVote_v1`, `MapVoteTemplates_v1`). **The place needs saving** for the Studio-built screen to stick.
+- **Next (parked):** map pictures for the cards once the maps are approved for `Config/Match` (a top-down capture per map, uploaded with `tools/opencloud/upload_asset.py`, set as `MAPS[i].image`).
 
 ## What to test
 - [ ] A bot match and a two-player match all the way to the end screen. If the map changes mid-match, send the Output line.

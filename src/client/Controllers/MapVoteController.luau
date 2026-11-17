@@ -1,18 +1,26 @@
 --!strict
--- The map vote screen (vault/02 Art/UI Match Overhaul.md): fills the
+-- The map vote screen, v2 (2026-11-16; plan and RIVALS study in vault/05
+-- Production/Playtests/2026-11-16 Match Fixes Round 1.md → 7): fills the
 -- Studio-built StarterGui.MapVote (backup tools/studio/BuildMapVote.luau)
 -- from MatchState while the Phase is "Vote" (MapVoteService):
---   * one card per option ("VoteOptions": Random first, then the maps), the
---     map's name and team sizes from Config/Match MAPS, its picture when the
---     entry has an `image`;
---   * every player's vote is their server-set "MapVote" attribute: their
---     head goes on that card, ringed in their team colour, and each card shows
---     its chance (its share of the votes, like RIVALS' "Chance" vote);
---   * clicking a card sends MapVote (the server checks it); your card's foot
---     turns white;
---   * "VoteChosen" set: the picked card pops, the others dim, the title
---     names the map.
+--   * one wide card per option ("VoteOptions": Random first, then the maps),
+--     3 a row (2 x 2 for four), the map's name and team sizes from Config/Match
+--     MAPS, its picture when the entry has an `image` (else a faint initial);
+--   * every player's vote is their server-set "MapVote" attribute: each card's
+--     foot fills to its share of the votes (its chance: every vote is a
+--     ticket) with the %, and each voter is a small chip in their team colour;
+--     your pick's fill is gold (the one gold thing) and its card sits a little
+--     higher;
+--   * no circle timer: a slanted bar under the title drains with the clock,
+--     tenths under 5 s, red from 3 s;
+--   * "VoteChosen" set: the other cards fade, the picked one moves to the
+--     middle and grows, the title names the map.
+-- Motion (Config/UiStyle, Shared/UiMotion: Quint, no overshoot, no sounds):
+-- the world blurs; the header and the cards slide 12 px and fade in, cards
+-- 0.04 s apart; hover lifts a card and grows it to 1.025; every vote change
+-- eases (RIVALS redraws instantly).
 
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
@@ -22,6 +30,7 @@ local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
+local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
 
 local CameraController = require(script.Parent.CameraController)
@@ -30,26 +39,68 @@ local MapVoteController = {}
 
 local DESIGN = Vector2.new(1920, 1080)
 local ATTRIBUTE = "MapVote"
-local WHITE = Color3.new(1, 1, 1)
-local INK = Color3.fromHex("141418")
-local MUTED = Color3.fromHex("A9A9B0")
-local FOOT = Color3.fromHex("2A2A31")
-local URGENT = Color3.fromHex("FF3232")
+local K = UiStyle.KIT
+local WHITE = K.color.white
+local GOLD = K.color.gold
+local URGENT = K.color.red
+local SHARE = Color3.fromHex("2E2E34") -- a card's vote share (not yours)
 local HEADSHOT = "rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150"
+
+-- Layout (design px, the builder's numbers).
+local CELL = Vector2.new(470, 210)
+local GAP = 26
+local GRID_TOP, GRID_BOTTOM = 262, 1010 -- the cards sit centred between these
+
+-- Motion (Soft Edge tokens).
+local ENTER = 0.24 -- slide 12 px + fade in
+local STAGGER = 0.04
+local SLIDE = 12
+local EXIT = 0.14
+local CHANGE = 0.24 -- a vote share easing to its new size
+local CHIP = 0.12
+local HOVER = 1.025
+local LIFT = 3 -- px a hovered card rises
+local PICKED_LIFT = 6 -- px your pick sits higher
+local WIN_MOVE = 0.5
+local WIN_SCALE = 1.22
+local BLUR = K.motion.blur
+local BLUR_IN = 0.4
 
 local player = Players.LocalPlayer
 local gui: ScreenGui
+local canvas: Frame
+local fit: UIScale
 local cards: Frame
+local grid: UIGridLayout
+local stage: Frame
+local head: Frame
 local title: TextLabel
 local sub: TextLabel
+local clock: Frame
+local fillClip: Frame
+local fillSkin: ImageLabel
 local seconds: TextLabel
-local ring: UIStroke
+local hint: TextLabel
 local templates: Instance
+local blur: BlurEffect
 
-type Entry = { slot: Frame, card: TextButton, pop: UIScale, name: string }
+type Entry = {
+	id: string,
+	slot: Frame,
+	card: CanvasGroup,
+	pop: UIScale,
+	share: Frame,
+	chance: TextLabel,
+	voters: Frame,
+	chips: { [Player]: Frame },
+	hovered: boolean,
+	entered: boolean, -- its slide-in has started (settle waits for it)
+}
 local entries: { [string]: Entry } = {}
 local order: { string } = {}
 local shownChosen = ""
+local openToken = 0
+local isOpen = false
 
 local function child(parent: Instance, name: string): Instance
 	return parent:WaitForChild(name)
@@ -88,7 +139,60 @@ local function myVote(): string?
 	return if typeof(v) == "string" then v else nil
 end
 
--- Heads, chances and your pick, from every player's MapVote attribute.
+-- A card's resting place in its cell: up a little when it's your pick or
+-- hovered.
+local function restPosition(e: Entry): UDim2
+	local mine = e.id == myVote() and shownChosen == ""
+	local lift = (if mine then PICKED_LIFT else 0) + (if e.hovered then LIFT else 0)
+	return UDim2.new(0.5, 0, 0.5, -lift)
+end
+
+local function settle(e: Entry)
+	if e.entered and shownChosen == "" then
+		UiMotion.tween(e.card, K.motion.quick, { Position = restPosition(e) })
+	end
+end
+
+-- A voter's chip: their head on a square in their team colour, popping in.
+local function addChip(e: Entry, p: Player, index: number)
+	local c = (child(templates, "Chip") :: Frame):Clone()
+	c.LayoutOrder = index
+	c.BackgroundColor3 = TeamColor.forTeam(Teams.of(p))
+	local face = child(c, "Face") :: ImageLabel
+	face.Image = string.format(HEADSHOT, math.max(p.UserId, 1))
+	local pop = Instance.new("UIScale")
+	pop.Scale = 0.5
+	pop.Parent = c
+	c.BackgroundTransparency = 1
+	face.ImageTransparency = 1
+	face.BackgroundTransparency = 1
+	c.Parent = e.voters
+	UiMotion.tween(pop, CHIP, { Scale = 1 })
+	UiMotion.tween(c, CHIP, { BackgroundTransparency = 0 })
+	UiMotion.tween(face, CHIP, { ImageTransparency = 0, BackgroundTransparency = 0 })
+	e.chips[p] = c
+end
+
+local function dropChip(e: Entry, p: Player)
+	local c = e.chips[p]
+	e.chips[p] = nil
+	if not c then
+		return
+	end
+	local pop = c:FindFirstChildOfClass("UIScale")
+	if pop then
+		UiMotion.out(pop, { Scale = 0.5 }, 0.1)
+	end
+	UiMotion.out(c, { BackgroundTransparency = 1 }, 0.1)
+	local face = c:FindFirstChild("Face")
+	if face and face:IsA("ImageLabel") then
+		UiMotion.out(face, { ImageTransparency = 1, BackgroundTransparency = 1 }, 0.1)
+	end
+	task.delay(0.12, c.Destroy, c)
+end
+
+-- Shares, chips and your pick, from every player's MapVote attribute. Every
+-- change eases: shares grow or shrink, chips pop in and out.
 local function refreshVotes()
 	local byOption: { [string]: { Player } } = {}
 	local total = 0
@@ -102,55 +206,51 @@ local function refreshVotes()
 	end
 	local mine = myVote()
 	for id, e in entries do
-		local voters = child(e.card, "Voters")
-		for _, c in voters:GetChildren() do
-			if c:IsA("ImageLabel") then
-				c:Destroy()
-			end
-		end
 		local list = byOption[id] or {}
+		local here: { [Player]: boolean } = {}
 		for i, p in list do
-			local h = (child(templates, "Head") :: ImageLabel):Clone()
-			h.LayoutOrder = i
-			h.Image = string.format(HEADSHOT, math.max(p.UserId, 1))
-			local r = h:FindFirstChild("Ring")
-			if r and r:IsA("UIStroke") then
-				r.Color = TeamColor.forTeam(Teams.of(p))
+			here[p] = true
+			if not e.chips[p] then
+				addChip(e, p, i)
 			end
-			h.Parent = voters
 		end
-		local chance = child(e.card, "Chance") :: TextLabel
-		chance.Text = if total > 0 and #list > 0
-			then string.format("%d%%", math.floor(#list / total * 100 + 0.5))
+		for p in e.chips do
+			if not here[p] then
+				dropChip(e, p)
+			end
+		end
+		local share = if total > 0 then #list / total else 0
+		UiMotion.tween(e.share, CHANGE, {
+			Size = UDim2.fromScale(share, 1),
+			BackgroundColor3 = if id == mine then GOLD else SHARE,
+		})
+		e.chance.Text = if #list > 0
+			then string.format("%d%%", math.floor(share * 100 + 0.5))
 			else ""
-		local foot = child(e.card, "Foot") :: Frame
-		local on = id == mine
-		local fill = if on then WHITE else FOOT
-		UiMotion.tween(foot, 0.16, { BackgroundColor3 = fill })
-		local square = foot:FindFirstChild("Square")
-		if square then
-			UiMotion.tween(square, 0.16, { BackgroundColor3 = fill })
-		end
-		local name = child(foot, "Name") :: TextLabel
-		local size = child(foot, "Size") :: TextLabel
-		UiMotion.tween(name, 0.16, { TextColor3 = if on then INK else WHITE })
-		UiMotion.tween(size, 0.16, { TextColor3 = if on then INK else MUTED })
-		local stroke = name:FindFirstChild("Outline")
-		if stroke and stroke:IsA("UIStroke") then
-			stroke.Enabled = not on
-		end
-		if not e.pop:GetAttribute("Hover") then
-			UiMotion.rest(e.pop, if on then 1.04 else 1)
-		end
+		settle(e)
 	end
 end
 
 local function clearCards()
 	for _, e in entries do
 		e.slot:Destroy()
+		e.card:Destroy() -- a winner moved to the stage
 	end
 	table.clear(entries)
 	table.clear(order)
+end
+
+-- The grid: 3 a row (2 x 2 for four), centred under the header.
+local function placeGrid(count: number)
+	local perRow = if count == 4 then 2 else 3
+	grid.FillDirectionMaxCells = perRow
+	local cols = math.min(count, perRow)
+	local rows = math.max(1, math.ceil(count / perRow))
+	local w = cols * CELL.X + (cols - 1) * GAP
+	local h = rows * CELL.Y + (rows - 1) * GAP
+	cards.Size = UDim2.fromOffset(w, h)
+	cards.Position =
+		UDim2.fromOffset(DESIGN.X / 2, GRID_TOP + math.max(0, (GRID_BOTTOM - GRID_TOP - h) / 2))
 end
 
 local function buildCards()
@@ -159,46 +259,75 @@ local function buildCards()
 	if typeof(raw) ~= "string" or raw == "" then
 		return
 	end
-	for i, id in string.split(raw, ",") do
+	local ids = string.split(raw, ",")
+	placeGrid(#ids)
+	for i, id in ids do
 		local slot = (child(templates, "Slot") :: Frame):Clone()
 		slot.Name = id
 		slot.LayoutOrder = i
-		local card = child(slot, "Card") :: TextButton
+		local card = child(slot, "Card") :: CanvasGroup
 		local pop = child(card, "Pop") :: UIScale
+		local hit = child(card, "Hit") :: TextButton
 		local e = entryFor(id)
-		local foot = child(card, "Foot");
-		(child(foot, "Name") :: TextLabel).Text = displayName(id);
-		(child(foot, "Size") :: TextLabel).Text = sizeText(e)
+		local isRandom = id == Config.VOTE.random
+		local foot = child(card, "Foot") :: Frame;
+		(child(card, "MapName") :: TextLabel).Text = displayName(id);
+		(child(card, "Teams") :: TextLabel).Text = sizeText(e)
 		local picture = child(card, "Picture") :: ImageLabel
 		picture.Image = e and e.image or ""
 		picture.Visible = picture.Image ~= ""
 		local glyph = child(card, "Glyph") :: TextLabel
-		glyph.Visible = id == Config.VOTE.random
-		UiMotion.button(card, pop, function()
+		glyph.Text = if isRandom then "?" else string.sub(displayName(id), 1, 1)
+		glyph.Visible = not picture.Visible
+		local entry: Entry = {
+			id = id,
+			slot = slot,
+			card = card,
+			pop = pop,
+			share = child(foot, "Share") :: Frame,
+			chance = child(foot, "Chance") :: TextLabel,
+			voters = child(foot, "Voters") :: Frame,
+			chips = {},
+			hovered = false,
+			entered = false,
+		}
+		UiMotion.button(hit, pop, function()
 			if shownChosen == "" then
 				Net.event("MapVote"):FireServer(id)
 			end
 		end, {
 			card = true,
+			hover = HOVER,
 			enabled = function()
 				return shownChosen == ""
 			end,
 			onHover = function(on)
-				pop:SetAttribute("Hover", on)
+				entry.hovered = on and shownChosen == ""
+				settle(entry)
 			end,
 		})
+		-- Enter: 12 px up and in from clear, one after another.
+		card.GroupTransparency = 1
+		card.Position = UDim2.new(0.5, 0, 0.5, SLIDE)
 		slot.Parent = cards
-		entries[id] = { slot = slot, card = card, pop = pop, name = id }
+		entries[id] = entry
 		table.insert(order, id)
-		UiMotion.popIn(pop, 0.04 * (i - 1), 0.85)
+		task.delay(STAGGER * (i - 1), function()
+			if entries[id] == entry and shownChosen == "" then
+				entry.entered = true
+				UiMotion.tween(
+					card,
+					ENTER,
+					{ GroupTransparency = 0, Position = restPosition(entry) }
+				)
+			end
+		end)
 	end
-	-- the grid sits centred in the space under the header
-	local rows = math.ceil(#order / 3)
-	cards.Size = UDim2.fromOffset(cards.Size.X.Offset, rows * 216 + (rows - 1) * 24)
-	cards.Position = UDim2.fromOffset(DESIGN.X / 2, 290 + (3 - rows) * 60)
 	refreshVotes()
 end
 
+-- The winner moves from its cell to the middle of the screen (the stage) and
+-- grows; the rest fade out.
 local function showChosen()
 	local chosen = MatchState.get("VoteChosen")
 	chosen = if typeof(chosen) == "string" then chosen else ""
@@ -211,23 +340,52 @@ local function showChosen()
 	end
 	title.Text = displayName(chosen)
 	sub.Text = "LOADING MAP"
-	for id, e in entries do
-		local won = id == chosen
-		UiMotion.rest(e.pop, if won then 1.08 else 0.94)
-		UiMotion.tween(
-			child(e.card, "Dim"),
-			0.3,
-			{ BackgroundTransparency = if won then 1 else 0.5 }
-		)
-	end
-	if not entries[chosen] then
-		-- Random drew this map: the Random card wins on screen
-		local r = entries[Config.VOTE.random]
-		if r then
-			UiMotion.rest(r.pop, 1.08)
-			UiMotion.tween(child(r.card, "Dim"), 0.3, { BackgroundTransparency = 1 })
+	UiMotion.out(clock, { Position = clock.Position + UDim2.fromOffset(0, -6) }, EXIT)
+	for _, d in clock:GetDescendants() do
+		if d:IsA("ImageLabel") then
+			UiMotion.out(d, { ImageTransparency = 1 }, EXIT)
+		elseif d:IsA("TextLabel") then
+			UiMotion.out(d, { TextTransparency = 1 }, EXIT)
 		end
 	end
+	UiMotion.out(hint, { TextTransparency = 1 }, EXIT)
+	-- Random drew this map: the Random card wins on screen, now named.
+	local winner = entries[chosen] or entries[Config.VOTE.random]
+	for _, e in entries do
+		e.hovered = false
+		if e ~= winner then
+			UiMotion.tween(
+				e.card,
+				EXIT,
+				{ GroupTransparency = 1 },
+				Enum.EasingStyle.Quad,
+				Enum.EasingDirection.In
+			)
+			UiMotion.rest(e.pop, 0.96)
+		end
+	end
+	if not winner then
+		return
+	end
+	if winner.id ~= chosen then
+		(child(winner.card, "MapName") :: TextLabel).Text = displayName(chosen);
+		(child(winner.card, "Teams") :: TextLabel).Text = "RANDOM PICK"
+	end
+	-- From its cell to the stage at the same spot on screen, then to the middle.
+	local card = winner.card
+	local scale = math.max(fit.Scale, 1e-3)
+	local centre = (card.AbsolutePosition + card.AbsoluteSize / 2 - canvas.AbsolutePosition) / scale
+	card.AnchorPoint = Vector2.new(0.5, 0.5)
+	card.Size = UDim2.fromOffset(CELL.X, CELL.Y)
+	card.Position = UDim2.fromOffset(centre.X, centre.Y)
+	card.Parent = stage
+	UiMotion.tween(
+		card,
+		WIN_MOVE,
+		{ Position = UDim2.fromOffset(DESIGN.X / 2, 560), GroupTransparency = 0 }
+	)
+	UiMotion.rest(winner.pop, WIN_SCALE)
+	UiMotion.tween(winner.share, CHANGE, { Size = UDim2.fromScale(1, 1), BackgroundColor3 = GOLD })
 end
 
 local function matchLine(): string
@@ -236,34 +394,74 @@ local function matchLine(): string
 	return string.format("%sFIRST TO %d", mode, Config.ROUNDS_TO_WIN)
 end
 
+-- The header's words and the clock back to full (a vote can follow a vote).
+local function resetHeader()
+	clock.Position = UiMotion.home(clock)
+	for _, d in clock:GetDescendants() do
+		if d:IsA("ImageLabel") then
+			d.ImageTransparency = if d.Name == "Gloss" then 0.55 else 0
+		elseif d:IsA("TextLabel") then
+			d.TextTransparency = 0
+		end
+	end
+	hint.TextTransparency = 0
+	title.Text = "VOTE FOR A MAP"
+	sub.Text = matchLine()
+end
+
 local function open(on: boolean)
-	if gui.Enabled == on then
+	if isOpen == on then
 		return
 	end
-	gui.Enabled = on
+	isOpen = on
+	openToken += 1
+	local token = openToken
 	-- The mouse is free to click a card while the vote is up.
 	CameraController.freeMouse("MapVote", on)
 	if on then
+		gui.Enabled = true
 		shownChosen = ""
-		title.Text = "VOTE FOR A MAP"
-		sub.Text = matchLine()
+		resetHeader()
+		blur.Enabled = true
+		UiMotion.tween(blur, BLUR_IN, { Size = BLUR })
+		local backdrop = child(gui, "Backdrop") :: Frame
+		backdrop.BackgroundTransparency = 1
+		UiMotion.tween(backdrop, ENTER, { BackgroundTransparency = 0.12 })
+		UiMotion.slideIn(head, 0, -SLIDE, 0, ENTER)
 		buildCards()
 		showChosen()
 	else
-		clearCards()
+		UiMotion.tween(blur, EXIT, { Size = 0 })
+		local backdrop = child(gui, "Backdrop") :: Frame
+		UiMotion.out(backdrop, { BackgroundTransparency = 1 }, EXIT)
+		for _, e in entries do
+			UiMotion.out(e.card, { GroupTransparency = 1 }, EXIT)
+		end
+		task.delay(EXIT + 0.02, function()
+			if token ~= openToken then
+				return -- opened again meanwhile
+			end
+			gui.Enabled = false
+			blur.Enabled = false
+			clearCards()
+		end)
 	end
 end
 
+-- The clock: the bar drains over the vote, the seconds count down (tenths
+-- under 5 s), both red from 3 s.
 local function tick()
+	if shownChosen ~= "" then
+		return
+	end
 	local endsAt = MatchState.get("EndsAt")
 	local left = if typeof(endsAt) == "number" then endsAt - workspace:GetServerTimeNow() else 0
-	local s = math.max(0, math.ceil(left))
-	seconds.Text = tostring(s)
-	local urgent = shownChosen == "" and s <= 3
+	left = math.max(0, left)
+	fillClip.Size = UDim2.fromScale(math.clamp(left / Config.VOTE.seconds, 0, 1), 1)
+	seconds.Text = if left < 5 then string.format("%.1f", left) else tostring(math.ceil(left))
+	local urgent = left <= 3
 	seconds.TextColor3 = if urgent then URGENT else WHITE
-	ring.Color = if urgent then URGENT else WHITE
-	ring.Transparency = if shownChosen ~= "" then 1 else 0.15
-	seconds.Visible = shownChosen == ""
+	fillSkin.ImageColor3 = if urgent then URGENT else WHITE
 end
 
 function MapVoteController.start()
@@ -274,6 +472,7 @@ function MapVoteController.start()
 	local source = StarterGui:WaitForChild("MapVote") :: ScreenGui
 	gui = source:Clone()
 	gui.Name = "MapVoteLive"
+	gui.Enabled = false
 	gui.Parent = playerGui
 	local function dropCopy(c: Instance)
 		if c.Name == "MapVote" and c:IsA("ScreenGui") then
@@ -286,8 +485,8 @@ function MapVoteController.start()
 	playerGui.ChildAdded:Connect(dropCopy)
 	local folder = ReplicatedStorage:WaitForChild("UiTemplates")
 	templates = folder:WaitForChild("MapVote")
-	local canvas = child(gui, "Canvas") :: Frame
-	local fit = child(canvas, "Fit") :: UIScale
+	canvas = child(gui, "Canvas") :: Frame
+	fit = child(canvas, "Fit") :: UIScale
 	local function refit()
 		local size = gui.AbsoluteSize
 		if size.X > 0 then
@@ -297,12 +496,25 @@ function MapVoteController.start()
 	refit()
 	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(refit)
 	cards = child(canvas, "Cards") :: Frame
-	local head = child(canvas, "Head")
-	title = child(head, "Title") :: TextLabel
+	grid = child(cards, "Grid") :: UIGridLayout
+	stage = child(canvas, "Stage") :: Frame
+	hint = child(canvas, "Hint") :: TextLabel
+	head = child(canvas, "Head") :: Frame
+	UiMotion.home(head)
+	title = child(child(head, "TitlePlate"), "Title") :: TextLabel
 	sub = child(head, "Sub") :: TextLabel
-	local clock = child(head, "Clock")
+	clock = child(head, "Clock") :: Frame
+	UiMotion.home(clock)
+	fillClip = child(clock, "FillClip") :: Frame
+	fillSkin = child(child(fillClip, "Fill"), "Skin") :: ImageLabel
 	seconds = child(clock, "Seconds") :: TextLabel
-	ring = child(clock, "Ring") :: UIStroke
+
+	-- The world behind the vote blurs (ours, only while it's up).
+	blur = Instance.new("BlurEffect")
+	blur.Name = "MapVoteBlur"
+	blur.Size = 0
+	blur.Enabled = false
+	blur.Parent = Lighting
 
 	local function refresh()
 		local on = MatchState.phase() == "Vote"
@@ -313,14 +525,18 @@ function MapVoteController.start()
 	end
 	MatchState.changed("Phase"):Connect(refresh)
 	MatchState.changed("VoteOptions"):Connect(function()
-		if gui.Enabled then
+		if isOpen and shownChosen == "" then
 			buildCards()
 		end
 	end)
-	MatchState.changed("VoteChosen"):Connect(showChosen)
+	MatchState.changed("VoteChosen"):Connect(function()
+		if isOpen then
+			showChosen()
+		end
+	end)
 	local function watch(p: Player)
 		p:GetAttributeChangedSignal(ATTRIBUTE):Connect(function()
-			if gui.Enabled then
+			if isOpen and shownChosen == "" then
 				refreshVotes()
 			end
 		end)
@@ -330,17 +546,17 @@ function MapVoteController.start()
 	end
 	Players.PlayerAdded:Connect(watch)
 	Players.PlayerRemoving:Connect(function()
-		if gui.Enabled then
+		if isOpen and shownChosen == "" then
 			task.defer(refreshVotes)
 		end
 	end)
 	refresh()
 	task.spawn(function()
 		while true do
-			if gui.Enabled then
+			if isOpen then
 				tick()
 			end
-			task.wait(0.1)
+			task.wait(0.05)
 		end
 	end)
 end
