@@ -38,7 +38,6 @@ return table.freeze({
 		allInSeconds = 1.5, -- once every player has voted, the clock cuts to this
 		chosenSeconds = 2.5, -- the picked map is shown, then the map loads
 		random = "Random", -- the Random card's option name
-		stripes = "rbxassetid://132373217041083", -- the cards' name band pattern (art-source/ui/mapvote/stripes.png)
 	}),
 
 	ROUNDS_TO_WIN = 5,

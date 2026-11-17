@@ -1,5 +1,5 @@
 --!strict
--- Builds the map vote screen, v3 (2026-11-16, owner's notes on v2 with a
+-- Builds the map vote screen, v4 (2026-11-16). v3 followed the owner's notes on v2 with a
 -- RIVALS screenshot: "blur most of the background, no other HUD, nothing see-
 -- through; the top is our match top bar with the timer; the maps like the
 -- reference; a square avatar on a voted map that still looks clean with
@@ -10,12 +10,17 @@
 -- An existing screen and its templates are moved to ServerStorage.UiBackups
 -- first (nothing is deleted).
 --
--- Look: the map's picture fills the card (Config/Match MAPS `image`); a name
--- band along the foot in the card's colour with diagonal stripes
--- (Config/Match VOTE.stripes), the name and its chance ("ARENA [50%]");
--- voters are square avatar tiles in their team colour, centred on the
--- picture in a tidy grid. The top bar (TopBarController) holds the timer.
--- The controller sizes the grid and the cells for the number of maps.
+-- v4 (owner: "add our own character so it is not exactly like RIVALS, but
+-- not the bevels from before"): our Soft Edge marks instead of RIVALS'
+-- striped colour band and border. Each card and voter tile has one 45-degree
+-- cut on its top-right corner (a `Cut` UIGradient on the CanvasGroup; the
+-- controller sets its Offset for the size); the name band is charcoal with a
+-- coloured slash (1v1 maps green, team maps red), the team sizes small over
+-- the uppercase name, the chance on the right; your pick turns the band gold.
+-- Layout: the map's picture fills the card (Config/Match MAPS `image`);
+-- voters are avatar tiles in their team colour, centred on the picture in a
+-- tidy grid. The top bar (TopBarController) holds the timer. The controller
+-- sizes the grid and the cells for the number of maps.
 
 local SG = game:GetService("StarterGui")
 local RS = game:GetService("ReplicatedStorage")
@@ -37,12 +42,29 @@ end
 
 local RUBIK = "rbxassetid://12187365977"
 local HEAVY = Font.new(RUBIK, Enum.FontWeight.Heavy)
+local BOLD = Font.new(RUBIK, Enum.FontWeight.Bold)
 local WHITE = Color3.new(1, 1, 1)
 local DEEP = hex("0B0B0D")
-local BAND = hex("3E9E46") -- the controller recolours it per map
+local SLASH = hex("3E9E46") -- the controller recolours it per map
+local CHARCOAL = hex("141417")
+local MUTED = hex("9F9FA2")
 local CENTRE = Vector2.new(0.5, 0.5)
 local DESIGN = Vector2.new(1920, 1080)
-local STRIPES = "rbxassetid://132373217041083"
+-- One 45-degree cut on the top-right corner, `a` px on a `w` x `h` box: the
+-- gradient's hard step sits on the corner's diagonal (Offset moves it there).
+local function cut(parent: Instance, a: number, w: number, h: number)
+	make("UIGradient", {
+		Name = "Cut",
+		Rotation = -45,
+		Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(0.5, 0),
+			NumberSequenceKeypoint.new(0.5001, 1),
+			NumberSequenceKeypoint.new(1, 1),
+		}),
+		Offset = Vector2.new(0.5 - a / w / 2, -(0.5 - a / h / 2)),
+	}, parent)
+end
 
 -- Move the old screen out of the way (kept, not deleted).
 local backups = SS:FindFirstChild("UiBackups") or make("Folder", { Name = "UiBackups" }, SS)
@@ -57,9 +79,9 @@ local function park(item: Instance?, as: string)
 		item.Parent = backups
 	end
 end
-park(SG:FindFirstChild("MapVote"), "MapVote_v2")
+park(SG:FindFirstChild("MapVote"), "MapVote_v3")
 local folder = RS:FindFirstChild("UiTemplates") or make("Folder", { Name = "UiTemplates" }, RS)
-park(folder:FindFirstChild("MapVote"), "MapVoteTemplates_v2")
+park(folder:FindFirstChild("MapVote"), "MapVoteTemplates_v3")
 
 -- Screen ----------------------------------------------------------------------
 local gui = make("ScreenGui", {
@@ -140,13 +162,7 @@ local card = make("CanvasGroup", {
 }, slot)
 make("UICorner", { CornerRadius = UDim.new(0, 8) }, card)
 make("UIScale", { Name = "Pop" }, card)
-make("UIStroke", {
-	Name = "Edge", -- the card's colour round its edge (white on your pick)
-	Color = BAND,
-	Thickness = 2,
-	Transparency = 0.15,
-	ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-}, card)
+cut(card, 34, 560, 330)
 -- The click target, over the whole card.
 make("TextButton", {
 	Name = "Hit",
@@ -178,48 +194,75 @@ make("TextLabel", {
 	Visible = false,
 	ZIndex = 6,
 }, card)
--- The name band: the card's colour, diagonal stripes, the name and chance.
+-- The name band: charcoal, a coloured slash, the team sizes over the name,
+-- the chance on the right.
 local band = make("Frame", {
 	Name = "Band",
 	AnchorPoint = Vector2.new(0, 1),
 	Position = UDim2.fromScale(0, 1),
-	Size = UDim2.fromScale(1, 0.2),
-	BackgroundColor3 = BAND,
-	BackgroundTransparency = 0.08,
+	Size = UDim2.fromScale(1, 0.22),
+	BackgroundColor3 = CHARCOAL,
+	BackgroundTransparency = 0.06,
 	BorderSizePixel = 0,
 	ZIndex = 8,
 }, card)
-make("ImageLabel", {
-	Name = "Stripes",
-	Size = UDim2.fromScale(1, 1),
-	BackgroundTransparency = 1,
-	Image = STRIPES,
-	ImageColor3 = DEEP,
-	ImageTransparency = 0.72,
-	ScaleType = Enum.ScaleType.Tile,
-	TileSize = UDim2.fromOffset(28, 28),
-	ZIndex = 8,
+make("Frame", {
+	Name = "Slash",
+	AnchorPoint = CENTRE,
+	Position = UDim2.new(0, 26, 0.5, 0),
+	Size = UDim2.new(0, 9, 0.62, 0),
+	Rotation = 18,
+	BackgroundColor3 = SLASH,
+	BorderSizePixel = 0,
+	ZIndex = 9,
 }, band)
 local title = make("TextLabel", {
 	Name = "Title",
-	AnchorPoint = CENTRE,
-	Position = UDim2.fromScale(0.5, 0.52),
-	Size = UDim2.fromScale(0.92, 0.72),
+	AnchorPoint = Vector2.new(0, 1),
+	Position = UDim2.new(0, 46, 1, -9),
+	Size = UDim2.new(0.62, 0, 0.5, 0),
 	BackgroundTransparency = 1,
 	Text = "ARENA",
 	TextScaled = true,
+	TextXAlignment = Enum.TextXAlignment.Left,
 	FontFace = HEAVY,
 	TextColor3 = WHITE,
 	ZIndex = 9,
 }, band)
 make("UITextSizeConstraint", { MaxTextSize = 44, MinTextSize = 12 }, title)
 make("UIStroke", {
-	Name = "Outline",
+	Name = "Outline", -- off: plain words on the charcoal band
 	Color = DEEP,
 	Thickness = 2,
 	Transparency = 0.45,
 	LineJoinMode = Enum.LineJoinMode.Round,
+	Enabled = false,
 }, title)
+make("TextLabel", {
+	Name = "Teams",
+	Position = UDim2.new(0, 47, 0, 9),
+	Size = UDim2.new(0.6, 0, 0.26, 0),
+	BackgroundTransparency = 1,
+	Text = "1V1 – 2V2",
+	TextScaled = true,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	FontFace = BOLD,
+	TextColor3 = MUTED,
+	ZIndex = 9,
+}, band)
+make("TextLabel", {
+	Name = "Chance",
+	AnchorPoint = Vector2.new(1, 0.5),
+	Position = UDim2.new(1, -18, 0.5, 0),
+	Size = UDim2.new(0.22, 0, 0.55, 0),
+	BackgroundTransparency = 1,
+	Text = "",
+	TextScaled = true,
+	TextXAlignment = Enum.TextXAlignment.Right,
+	FontFace = HEAVY,
+	TextColor3 = WHITE,
+	ZIndex = 9,
+}, band)
 -- The votes: square tiles centred on the picture (the controller sizes them).
 local votes = make("Frame", {
 	Name = "Votes",
@@ -238,21 +281,29 @@ make("UIGridLayout", {
 	SortOrder = Enum.SortOrder.LayoutOrder,
 }, votes)
 
--- A vote: their head on a square in their team colour (lit top, deeper foot).
-local voter = make("Frame", {
+-- A vote: their head on a tile in their team colour (lit top, deeper foot),
+-- with the card's cut corner; a CanvasGroup so the cut clips the face too.
+local voter = make("CanvasGroup", {
 	Name = "Voter",
 	Size = UDim2.fromOffset(84, 84),
+	BackgroundTransparency = 1,
+	ZIndex = 10,
+}, tf)
+cut(voter, 12, 84, 84)
+make("UIScale", { Name = "Pop" }, voter)
+local fill = make("Frame", {
+	Name = "Fill",
+	Size = UDim2.fromScale(1, 1),
 	BackgroundColor3 = hex("7B4DFF"),
 	BorderSizePixel = 0,
 	ZIndex = 10,
-}, tf)
-make("UICorner", { CornerRadius = UDim.new(0, 8) }, voter)
+}, voter)
+make("UICorner", { CornerRadius = UDim.new(0, 6) }, fill)
 make("UIGradient", {
 	Name = "Shade",
 	Rotation = 90,
 	Color = ColorSequence.new(WHITE, hex("8C8C96")),
-}, voter)
-make("UIScale", { Name = "Pop" }, voter)
+}, fill)
 local face = make("ImageLabel", {
 	Name = "Face",
 	Size = UDim2.fromScale(1, 1),
@@ -263,4 +314,4 @@ local face = make("ImageLabel", {
 make("UICorner", { CornerRadius = UDim.new(0, 8) }, face)
 
 gui.Parent = SG
-return "MapVote v3 built (older screens kept in ServerStorage.UiBackups)"
+return "MapVote v4 built (older screens kept in ServerStorage.UiBackups)"

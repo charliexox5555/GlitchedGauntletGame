@@ -1,21 +1,21 @@
 --!strict
--- The map vote screen, v3 (2026-11-16, owner's notes on v2 with a RIVALS
--- screenshot; vault/05 Production/Playtests/2026-11-16 Match Fixes Round 1.md
--- → 7): fills the Studio-built StarterGui.MapVote (backup
+-- The map vote screen, v4 (2026-11-16: v3 followed the owner's RIVALS
+-- screenshot, v4 gives it our own character; vault/05 Production/Playtests/
+-- 2026-11-16 Match Fixes Round 1.md → 7): fills the Studio-built StarterGui.MapVote (backup
 -- tools/studio/BuildMapVote.luau) from MatchState while the Phase is "Vote"
 -- (MapVoteService):
 --   * the world is blurred and covered (nothing reads through), every other
 --     HUD screen sits under it, and the match top bar (TopBarController) sits
 --     over it with the vote's clock;
---   * one card per option ("VoteOptions": Random first, then the maps): the
---     map's picture (Config/Match MAPS `image`), a name band in the card's
---     colour (1v1 maps green, team maps red, Random grey) with diagonal
---     stripes and the name plus its chance ("Arena [50%]": every vote is a
---     ticket);
---   * every player's vote is their server-set "MapVote" attribute: a square
---     avatar tile in their team colour, centred on that card's picture; more
---     votes share the space in a centred grid (smaller tiles, two rows from
---     five) instead of stacking; your pick's band and edge turn white;
+--   * one card per option ("VoteOptions": Random first, then the maps), each
+--     with our cut top-right corner: the map's picture (Config/Match MAPS
+--     `image`), a charcoal name band with a coloured slash (1v1 maps green,
+--     team maps red, Random grey), the team sizes over the uppercase name and
+--     the chance on the right (every vote is a ticket);
+--   * every player's vote is their server-set "MapVote" attribute: an avatar
+--     tile in their team colour (the same cut corner), centred on that card's
+--     picture; more votes share the space in a centred grid (smaller tiles,
+--     even rows) instead of stacking; your pick's band turns gold;
 --   * "VoteChosen" set: the other cards fade, the picked one moves to the
 --     middle and grows; a Random win shows the drawn map on the Random card.
 -- Motion (Shared/UiMotion: Quint, no overshoot, no sounds): cards grow in from
@@ -46,13 +46,20 @@ local K = UiStyle.KIT
 local HEADSHOT = "rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150"
 local BOT_HEADSHOT = "rbxassetid://119185654291939" -- the top bar's helmet stand-in
 
--- Card colours (the band, its edge): 1v1 maps, team maps, Random; your pick.
-local BAND_SMALL = Color3.fromHex("3E9E46")
-local BAND_TEAM = Color3.fromHex("C8453A")
-local BAND_RANDOM = Color3.fromHex("2A2A30")
-local MINE = Color3.fromHex("F4F6F9")
+-- The band's slash: 1v1 maps, team maps, Random. The band is charcoal; your
+-- pick's band is gold (the one gold thing) with dark words.
+local SLASH_SMALL = Color3.fromHex("3E9E46")
+local SLASH_TEAM = Color3.fromHex("C8453A")
+local SLASH_RANDOM = Color3.fromHex("6E6E78")
+local BAND = K.color.navy
+local MINE = K.color.gold
 local INK = K.color.ink
 local WHITE = K.color.white
+local MUTED = K.color.muted
+local MUTED_ON_GOLD = Color3.fromHex("5A4716")
+-- Our cut corner (design px at the card's size): cards and voter tiles.
+local CARD_CUT = 34
+local TILE_CUT_SHARE = 0.15
 
 -- Layout (design px): the cards fill the space under the top bar.
 local TOP, BOTTOM = 132, 1052
@@ -90,14 +97,16 @@ type Entry = {
 	card: CanvasGroup,
 	pop: UIScale,
 	band: Frame,
+	slash: Frame,
 	title: TextLabel,
-	outline: UIStroke,
-	edge: UIStroke,
+	teams: TextLabel,
+	chance: TextLabel,
 	votes: Frame,
 	voteGrid: UIGridLayout,
 	color: Color3,
 	name: string, -- shown in the band (a Random win changes it)
-	tiles: { [Player]: Frame },
+	sizes: string, -- the team sizes line
+	tiles: { [Player]: CanvasGroup },
 }
 local entries: { [string]: Entry } = {}
 local shownChosen = ""
@@ -117,13 +126,32 @@ local function entryFor(id: string): Config.MapEntry?
 	return nil
 end
 
--- "OldTown" → "Old Town" (a MAPS `name` wins).
+-- "OldTown" → "OLD TOWN" (a MAPS `name` wins).
 local function displayName(id: string): string
 	if id == Config.VOTE.random then
-		return "Random"
+		return "RANDOM"
 	end
 	local e = entryFor(id)
-	return if e and e.name then e.name else (id:gsub("(%l)(%u)", "%1 %2"))
+	return string.upper(if e and e.name then e.name else (id:gsub("(%l)(%u)", "%1 %2")))
+end
+
+local function sizeText(id: string): string
+	local e = entryFor(id)
+	if not e then
+		return "ANY MAP"
+	end
+	if e.minTeam == e.maxTeam then
+		return string.format("%dV%d", e.minTeam, e.minTeam)
+	end
+	return string.format("%dV%d – %dV%d", e.minTeam, e.minTeam, e.maxTeam, e.maxTeam)
+end
+
+-- Puts a `Cut` gradient's hard step on the top-right corner's diagonal, `a`
+-- px in on a `w` x `h` box (the builder's cut()).
+local function setCut(gradient: Instance?, a: number, w: number, h: number)
+	if gradient and gradient:IsA("UIGradient") and w > 0 and h > 0 then
+		gradient.Offset = Vector2.new(0.5 - a / w / 2, -(0.5 - a / h / 2))
+	end
 end
 
 local function myVote(): string?
@@ -133,22 +161,21 @@ end
 
 local function colorFor(id: string): Color3
 	if id == Config.VOTE.random then
-		return BAND_RANDOM
+		return SLASH_RANDOM
 	end
 	local e = entryFor(id)
-	return if e and e.minTeam >= 2 then BAND_TEAM else BAND_SMALL
+	return if e and e.minTeam >= 2 then SLASH_TEAM else SLASH_SMALL
 end
 
--- Your pick's band and edge turn white with dark words; the rest wear their
--- colour.
+-- Your pick's band turns gold with dark words and slash; the rest are
+-- charcoal with the card's coloured slash.
 local function paint(e: Entry, mine: boolean)
-	UiMotion.tween(e.band, K.motion.quick, { BackgroundColor3 = if mine then MINE else e.color })
-	UiMotion.tween(e.edge, K.motion.quick, {
-		Color = if mine then MINE else e.color,
-		Thickness = if mine then 3 else 2,
-	})
-	UiMotion.tween(e.title, K.motion.quick, { TextColor3 = if mine then INK else WHITE })
-	e.outline.Enabled = not mine
+	local q = K.motion.quick
+	UiMotion.tween(e.band, q, { BackgroundColor3 = if mine then MINE else BAND })
+	UiMotion.tween(e.slash, q, { BackgroundColor3 = if mine then INK else e.color })
+	UiMotion.tween(e.title, q, { TextColor3 = if mine then INK else WHITE })
+	UiMotion.tween(e.chance, q, { TextColor3 = if mine then INK else WHITE })
+	UiMotion.tween(e.teams, q, { TextColor3 = if mine then MUTED_ON_GOLD else MUTED })
 end
 
 -- The tiles' size for `count` votes on a card: one row up to four, then two
@@ -164,22 +191,24 @@ local function tileLayout(e: Entry, count: number)
 	e.voteGrid.CellSize = UDim2.fromOffset(size, size)
 	e.voteGrid.CellPadding = UDim2.fromOffset(pad, pad)
 	e.voteGrid.FillDirectionMaxCells = perRow -- even rows (3 + 3, not 5 + 1)
+	for _, t in e.tiles do
+		setCut(t:FindFirstChild("Cut"), size * TILE_CUT_SHARE, size, size)
+	end
 end
 
 local function addTile(e: Entry, p: Player, index: number)
-	local t = (child(templates, "Voter") :: Frame):Clone()
+	local t = (child(templates, "Voter") :: CanvasGroup):Clone()
 	t.LayoutOrder = index
-	t.BackgroundColor3 = TeamColor.forTeam(Teams.of(p))
+	local fill = child(t, "Fill") :: Frame
+	fill.BackgroundColor3 = TeamColor.forTeam(Teams.of(p))
 	local face = child(t, "Face") :: ImageLabel
 	face.Image = if p.UserId > 0 then string.format(HEADSHOT, p.UserId) else BOT_HEADSHOT
 	local pop = child(t, "Pop") :: UIScale
 	pop.Scale = 0.5
-	t.BackgroundTransparency = 1
-	face.ImageTransparency = 1
+	t.GroupTransparency = 1
 	t.Parent = e.votes
 	UiMotion.tween(pop, TILE, { Scale = 1 })
-	UiMotion.tween(t, TILE, { BackgroundTransparency = 0 })
-	UiMotion.tween(face, TILE, { ImageTransparency = 0 })
+	UiMotion.tween(t, TILE, { GroupTransparency = 0 })
 	e.tiles[p] = t
 end
 
@@ -193,11 +222,7 @@ local function dropTile(e: Entry, p: Player)
 	if pop and pop:IsA("UIScale") then
 		UiMotion.out(pop, { Scale = 0.5 }, 0.1)
 	end
-	UiMotion.out(t, { BackgroundTransparency = 1 }, 0.1)
-	local face = t:FindFirstChild("Face")
-	if face and face:IsA("ImageLabel") then
-		UiMotion.out(face, { ImageTransparency = 1 }, 0.1)
-	end
+	UiMotion.out(t, { GroupTransparency = 1 }, 0.1)
 	task.delay(0.12, t.Destroy, t)
 end
 
@@ -229,9 +254,10 @@ local function refreshVotes()
 			end
 		end
 		tileLayout(e, #list)
-		e.title.Text = if #list > 0 and total > 0
-			then string.format("%s [%d%%]", e.name, math.floor(#list / total * 100 + 0.5))
-			else e.name
+		e.title.Text = e.name
+		e.chance.Text = if #list > 0 and total > 0
+			then string.format("%d%%", math.floor(#list / total * 100 + 0.5))
+			else ""
 		if shownChosen == "" then
 			paint(e, id == mine)
 		end
@@ -299,18 +325,21 @@ local function buildCards()
 			card = card,
 			pop = pop,
 			band = band,
+			slash = child(band, "Slash") :: Frame,
 			title = title,
-			outline = child(title, "Outline") :: UIStroke,
-			edge = child(card, "Edge") :: UIStroke,
+			teams = child(band, "Teams") :: TextLabel,
+			chance = child(band, "Chance") :: TextLabel,
 			votes = votes,
 			voteGrid = child(votes, "Grid") :: UIGridLayout,
 			color = colorFor(id),
 			name = displayName(id),
+			sizes = sizeText(id),
 			tiles = {},
 		}
 		title.Text = e.name
-		band.BackgroundColor3 = e.color
-		e.edge.Color = e.color
+		e.teams.Text = e.sizes
+		e.slash.BackgroundColor3 = e.color
+		setCut(card:FindFirstChild("Cut"), CARD_CUT, cell.X, cell.Y)
 		UiMotion.button(hit, pop, function()
 			if shownChosen == "" then
 				Net.event("MapVote"):FireServer(id)
@@ -374,8 +403,10 @@ local function showChosen()
 		picture.Visible = picture.Image ~= "";
 		(child(winner.card, "Glyph") :: TextLabel).Visible = not picture.Visible
 		winner.color = colorFor(chosen)
+		winner.teams.Text = "RANDOM PICK"
 	end
 	winner.title.Text = winner.name
+	winner.chance.Text = ""
 	paint(winner, false)
 	-- From its cell to the stage at the same spot on screen, then the middle.
 	local card = winner.card

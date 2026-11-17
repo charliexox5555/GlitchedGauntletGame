@@ -64,6 +64,13 @@ Built as a real ScreenGui in Studio (`StarterGui.MapVote`, builder `tools/studio
 - **Playtest:** top bar over the vote (one copy, order 41, "VOTE FOR A MAP", 0:12 → 1.1); a vote on Rooftops gave one 128 px tile and "Rooftops [100%]" on a white band; the winner moved to the centre at 1.2; after the spawn one top bar at its normal order. Edit capture with sample votes (1, 3 and 6 on a card) checked the layout.
 - v1 and v2 are kept in `ServerStorage.UiBackups`. **The match place needs saving.** New maps added to `MAPS` need a picture the same way.
 
+**v4: our own character (same day).** Owner: "add our own character so it fits our game and isn't exactly like RIVALS; not the bevels from before." Kept the v3 layout, pictures, top bar and votes; swapped the parts that read as RIVALS for our Soft Edge marks ([UI Theme v4 Soft Edge](../../02%20Art/UI%20Theme%20v4%20Soft%20Edge.md): one cut corner, the slash, gold = the one act-now thing):
+- **Cut corner:** every card has one 45-degree cut on its top-right corner (34 px), the voter tiles a small one (15 % of the tile). Built as a `Cut` UIGradient on the CanvasGroup (hard transparency step at 0.5, `Offset` puts the step on the corner's diagonal; `MapVoteController.setCut` sets it per size). A threshold near 1 does not work (the cut barely shrinks); the Offset does.
+- **Band:** charcoal (`141417`) instead of RIVALS' striped colour band; a coloured slash on the left (1v1 maps green, team maps red, Random grey), the team sizes small over the UPPERCASE name, the chance on its own on the right ("30%"). No coloured border round the card. The stripe pattern is gone (`stripes.png` and `VOTE.stripes` removed).
+- **Your pick:** the band turns gold (`FFC83D`) with dark words and slash.
+- **Playtest:** all six cards drew band, slash, sizes and the cut; a vote on Bunker turned its band gold with "100%" and one tile; the winner moved to the centre at 1.2. Edit capture checked the look (cut about 30 px, true 45 degrees).
+- v3 kept in `ServerStorage.UiBackups` (`MapVoteTemplates_v3`). **Save the match place.**
+
 ## What to test
 - [ ] A bot match and a two-player match all the way to the end screen. If the map changes mid-match, send the Output line.
 - [ ] The map vote: the cursor shows and the cards can be clicked (Studio: clear `Workspace.ForceMap` first, or there's no vote).
