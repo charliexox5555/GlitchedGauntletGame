@@ -481,7 +481,7 @@ def cframe(p, zin, z0=0.0):
 	return S.face((p[0], p[1], z0), (-z.y, z.x, 0), (z.x, z.y, 0))
 
 
-def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.0):
+def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.0, inset=0.0):
 	"""A rectangular room: four wall runs (ops / skips per wall: 'S', 'N', 'W', 'E', in each wall's local x), corner
 	piers, a ceiling slab with beams across X at beams_x and light panels between, a slab floor with plates.
 	Returns the wall frames {side: (M, length)}."""
@@ -491,9 +491,10 @@ def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.
 		"W": (wframe((x0, y0), (0, 1), z0), D), "E": (wframe((x1, y1), (0, -1), z0), D)}
 	for side, (M, L) in walls.items():
 		ext = 4.0 if side in "SN" else 0.0
-		run(K, KD, M, -ext, L + ext, H, ops.get(side, []), skips.get(side, []), dx0=2.0, dx1=L - 2.0)
+		run(K, KD, M, -ext, L + ext, H, ops.get(side, []), skips.get(side, []), dx0=2.0 + inset, dx1=L - 2.0 - inset)
 	for p, zin in (((x0, y0), (1, 1)), ((x1, y0), (-1, 1)), ((x1, y1), (-1, -1)), ((x0, y1), (1, -1))):
-		pier_at(K, KD, cframe(p, zin, z0), H, area, w=2.8, d=3.0, name="CornerPier")
+		if inset <= 0.0:  # an octagon's corners are behind its diagonal walls
+			pier_at(K, KD, cframe(p, zin, z0), H, area, w=2.8, d=3.0, name="CornerPier")
 	z = z0 + H
 	ym_, vhw = (y0 + y1) / 2, min(8.0, max((y1 - y0) / 6, 6.0))  # narrow halls still get a real vault
 	slab_with_hole(K, x0 - 4, x1 + 4, y0 - 4, y1 + 4, x0 + 4.0, x1 - 4.0, ym_ - vhw, ym_ + vhw, z)
@@ -521,7 +522,7 @@ def room(K, KD, area, x0, x1, y0, y1, H, ops=None, skips=None, beams_x=(), z0=0.
 			S.light(Matrix.Identity(4), xm, ym + sy * ly, z - 0.4, WHITE, 1.2, 30, 85)
 	for side in "NS":
 		M, L = walls[side]
-		conduit(KD, M, 3.4, L - 3.4, H - 4.4)
+		conduit(KD, M, 3.4 + inset, L - 3.4 - inset, H - 4.4)
 	return walls
 
 
@@ -843,9 +844,12 @@ def fx(kind, x, y, z, color="#FFC83D", to=None, name="FX", **attrs):
 	S.ANCHORS.append([name, "LobbyFX", round(x, 3), round(y, 3), round(z, 3), 1.0, 1.0, 1.0, a])
 
 
-def npc(name, x, y, z, yaw, look, title, scale=1.0):
+def npc(name, x, y, z, yaw, look, title, scale=1.0, talk=None):
 	"""An R15 NPC built in Studio (Build_V4 M.npcs) standing at (x, y, z) (feet), facing yaw (degrees, 0 = +Y)."""
-	S.ANCHORS.append([name, "LobbyNPCSpot", round(x, 3), round(y, 3), round(z, 3), 2.0, 2.0, 5.0, {"Yaw": yaw, "Look": look, "Title": title, "Scale": scale}])
+	attrs = {"Yaw": yaw, "Look": look, "Title": title, "Scale": scale}
+	if talk:
+		attrs["Talk"] = talk  # NpcTalk opens this NPC's lines (lobby/shared/NpcTalk)
+	S.ANCHORS.append([name, "LobbyNPCSpot", round(x, 3), round(y, 3), round(z, 3), 2.0, 2.0, 5.0, attrs])
 
 
 def step_pad(K, KD, area, x, y, r, accent, tag, name, emblem="ring", z0=0.0):
@@ -1339,3 +1343,118 @@ def holo_figure(b, x, y, z0, s=1.0):
 	for ax in (-2.0, 1.05):
 		blk(ax, ax + 0.95, -0.45, 0.45, 2.08, 4.0)
 	blk(-0.6, 0.6, -0.6, 0.6, 4.035, 5.2, c=0.2)
+
+
+
+# ---------------------------------------------------------------- the Locker as a weapons room (owner 2026-11-16, after RIVALS' weapons area)
+def gun_display(name, p, barrel, face, gid, scale, mount="Lay", spin=0.0, fill=0.0):
+	"""A spot where the client lays the player's own skin of `gid` (LobbyGunDisplays): p the point the gun's back
+	rests on (Lay / Wall) or its centre (Stand), barrel the muzzle direction, face the side that looks out (up on a
+	table, out of a wall)."""
+	b, f = Vector(barrel).normalized(), Vector(face).normalized()
+	S.ANCHORS.append([name, "LobbyGunDisplay", round(p.x, 3), round(p.y, 3), round(p.z, 3), 1.0, 1.0, 1.0,
+		{"Gun": gid, "Mount": mount, "BX": round(b.x, 4), "BY": round(b.y, 4), "BZ": round(b.z, 4), "FX": round(f.x, 4), "FY": round(f.y, 4),
+			"FZ": round(f.z, 4), "Scale": round(scale, 3), "Fill": round(fill, 2), "Spin": spin}])  # Fill: the gun's length to aim for (Scale caps it)
+
+
+def oct_corner_walls(K, KD, x0, x1, y0, y1, H, c, ext=3.0):
+	"""The four diagonal walls that make a rectangle room an octagon (cut c on each axis). Returns their frames
+	{corner: (M, length)}, Z into the room."""
+	out = {}
+	for key, a, b in (("SW", (x0 + c, y0), (x0, y0 + c)), ("NW", (x0, y1 - c), (x0 + c, y1)), ("NE", (x1 - c, y1), (x1, y1 - c)), ("SE", (x1, y0 + c), (x1 - c, y0))):
+		d = Vector((b[0] - a[0], b[1] - a[1], 0.0))
+		L = d.length
+		M = wframe(a, (d.x / L, d.y / L))
+		wall_run(K, KD, M, -ext, L + ext, H, dx0=1.0, dx1=L - 1.0)
+		out[key] = (M, L)
+	return out
+
+
+def floor_emblem(KD, cx, cy, rings=((16.0, 14.6, "V_ThViolet"), (11.2, 10.4, "V_ThLilac"), (6.6, 5.8, "V_ThViolet"))):
+	"""Our take on RIVALS' target floor: faceted octagon rings inlaid on the tiles, crosshair ticks between them."""
+	M = Matrix.Translation((cx, cy, 0.0))
+	with C.grp("FloorEmblem", M):
+		G = S.FK(KD, M)
+		for ro, ri, mat in rings:
+			S.ring_prism(G[mat], ccw(oct_pts(ro)), ccw(oct_pts(ri)), 0.12, 0.16)
+		for k in range(4):
+			R = S.FK(KD, M @ Matrix.Rotation(radians(90 * k), 4, "Z"))
+			R["V_ThViolet"].prism(ccw(S.cham_rect(11.6, 14.2, -0.42, 0.42, 0.12)), 0.12, 0.16)
+			R2 = S.FK(KD, M @ Matrix.Rotation(radians(45 + 90 * k), 4, "Z"))
+			R2["V_ThLilac"].prism(ccw(S.cham_rect(7.0, 9.8, -0.3, 0.3, 0.1)), 0.12, 0.16)
+
+
+def display_table(K, KD, area, M, gid, label, accent="E_ThViolet", w=8.0, d=3.4, scale=2.3, name="DisplayTable"):
+	"""A low display table (frame M on the floor, X along it, +Y toward the room's centre) for one gun: faceted top,
+	dark mat, accent edge facing out, A-frame legs, a shelf with ammo boxes, a name plate on the apron facing in, and a
+	LobbyGunDisplay spot on the mat (the player's own skin of the gun is laid there)."""
+	paint = PAINT.get(accent, accent)
+	top = 3.0
+	with C.grp(name, M):
+		F, G = S.FK(K, M), S.FK(KD, M)
+		F["V_Wall"].prism(ccw(S.cham_rect(-w / 2, w / 2, -d / 2, d / 2, 0.3)), top - 0.35, top)
+		G["V_Trim"].prism(ccw(S.cham_rect(-w / 2 - 0.12, w / 2 + 0.12, -d / 2 - 0.12, d / 2 + 0.12, 0.32)), top - 0.5, top - 0.35)
+		G["V_Dark"].prism(ccw(S.cham_rect(-w / 2 + 0.35, w / 2 - 0.35, -d / 2 + 0.35, d / 2 - 0.35, 0.2)), top, top + 0.06)
+		G[paint].box(-w / 2 + 0.4, w / 2 - 0.4, -d / 2 - 0.13, -d / 2 - 0.05, top - 0.45, top - 0.2)
+		for lx in (-w / 2 + 0.9, w / 2 - 0.9):
+			G["V_Steel"].ext_x(ccw([(-d / 2 + 0.2, 0.0), (-d / 2 + 0.75, 0.0), (-0.12, top - 0.5), (0.12, top - 0.5), (d / 2 - 0.75, 0.0), (d / 2 - 0.2, 0.0), (0.2, top - 0.2), (-0.2, top - 0.2)]), lx - 0.18, lx + 0.18)
+		G["V_Steel"].box(-w / 2 + 0.9, w / 2 - 0.9, -0.15, 0.15, 1.0, 1.25)
+		G["V_Base"].box(-w / 2 + 1.2, w / 2 - 1.2, -d / 2 + 0.6, d / 2 - 0.6, 1.25, 1.4)
+		for k, bx in enumerate((-w / 2 + 2.0, -w / 2 + 3.3, w / 2 - 2.3)):
+			G["V_Crate"].box(bx - 0.5, bx + 0.5, -0.45, 0.45, 1.4, 2.15 - 0.15 * k)
+			G["V_GoldPaint"].box(bx - 0.22, bx + 0.22, 0.45, 0.48, 1.6, 1.85 - 0.15 * k)
+		# the name plate hangs under the top on the side facing the centre
+		Mt = M @ Matrix.Translation((0.0, d / 2 - 0.1, 0.0)) @ Matrix.Rotation(radians(180), 4, "Z") @ RX(90)
+		P = S.FK(KD, Mt)
+		P["V_Dark"].prism(ccw(S.cham_rect(-1.9, 1.9, top - 1.3, top - 0.52, 0.12)), 0.0, 0.1)
+		S.add_text(P["E_White"], label, 0.46, 0.05, y0=top - 1.12, z0=0.1, s=0.2)
+		S.collider(area, M, -w / 2 + 0.2, w / 2 - 0.2, -d / 2 + 0.2, d / 2 - 0.2, 0.0, top, "B")
+		S.light(M, 0, 0, 10.0, WHITE, 1.5, 13, 50)
+	gun_display(name + "Gun", M @ Vector((0.0, 0.0, top + 0.06)), M.to_3x3() @ Vector((1, 0, 0)), (0, 0, 1), gid, scale, fill=w - 1.4)
+
+
+def gun_wall(K, KD, area, M, u, guns, w=22.0, y0=7.0, h=11.0, cols=(-7.0, 0.0, 7.0), rows=(2.5, 5.8, 9.1), scale=1.9, name="GunWall"):
+	"""A pegboard gun wall in wall frame M (X along the wall, Y up, Z out), centred at u: a framed dark board on
+	standoff brackets, a light grid, two hooks under each gun, and a LobbyGunDisplay spot per gun (the player's own
+	skins hang there, barrels along the wall)."""
+	B = M @ Matrix.Translation((u, 0.0, 0.0))
+	z0, z1 = 0.95, 1.25
+	with C.grp(name, B):
+		G = S.FK(KD, B)
+		G["V_Dark"].box(-w / 2, w / 2, y0, y0 + h, z0, z1)
+		S.ring_prism(G["V_Trim"], ccw(S.cham_rect(-w / 2 - 0.45, w / 2 + 0.45, y0 - 0.45, y0 + h + 0.45, 0.3)), ccw(S.cham_rect(-w / 2 + 0.05, w / 2 - 0.05, y0 + 0.05, y0 + h - 0.05, 0.1)), z0 - 0.05, z1 + 0.12)
+		for gx in [(-w / 2) + 2.0 * k for k in range(1, int(w / 2.0))]:
+			G["V_Panel"].box(gx - 0.05, gx + 0.05, y0 + 0.1, y0 + h - 0.1, z1, z1 + 0.03)
+		for gy in [y0 + 2.0 * k for k in range(1, int(h / 2.0) + 1) if 2.0 * k < h - 0.2]:
+			G["V_Panel"].box(-w / 2 + 0.1, w / 2 - 0.1, gy - 0.05, gy + 0.05, z1, z1 + 0.03)
+		for bx in (-w / 2 + 1.0, w / 2 - 1.0):
+			for by in (y0 + 1.0, y0 + h - 1.0):
+				G["V_Steel"].box(bx - 0.4, bx + 0.4, by - 0.4, by + 0.4, 0.4, z0)
+		for (cx, ry) in [(cx, ry) for ry in rows for cx in cols]:
+			for hx in (cx - 1.6, cx + 1.6):
+				yb = y0 + ry - 0.98  # one L-shaped hook: out from the board, a lip turned up at the end
+				G["V_Steel"].ext_x(ccw([(yb, z1 - 0.02), (yb + 0.16, z1 - 0.02), (yb + 0.16, z1 + 0.6), (yb + 0.36, z1 + 0.6), (yb + 0.36, z1 + 0.75), (yb, z1 + 0.75)]), hx - 0.1, hx + 0.1)
+		S.light(B, 0, y0 + h + 1.5, 4.0, WHITE, 1.4, 16, 70)
+	R = B.to_3x3()
+	k = 0
+	for ry in rows:
+		for cx in cols:
+			if k >= len(guns):
+				break
+			gid = guns[k]
+			k += 1
+			gun_display(name + "_" + gid, B @ Vector((cx, y0 + ry, z1)), R @ Vector((1, 0, 0)), R @ Vector((0, 0, 1)), gid, scale, mount="Wall", fill=5.9)
+
+
+def hang_lamp(KD, x0, x1, y, z, ceil_z, name="HangLamp"):
+	"""A hanging tube lamp (RIVALS' weapons room hangs long tubes): a faceted hex housing along X, a glowing lens
+	strip under it, end caps, two rods up into the ceiling."""
+	with C.grp(name):
+		hx = [(y + 0.62 * cos(radians(30 + 60 * q)), z + 0.62 * sin(radians(30 + 60 * q))) for q in range(6)]
+		KD["V_Dark"].ext_x(ccw(hx), x0, x1)
+		KD["E_White"].box(x0 + 0.4, x1 - 0.4, y - 0.26, y + 0.26, z - 0.62, z - 0.5)
+		for ex in (x0, x1):
+			KD["V_Trim"].ext_x(ccw([(a, b) for a, b in [(y + 0.72 * cos(radians(30 + 60 * q)), z + 0.72 * sin(radians(30 + 60 * q))) for q in range(6)]]), ex - 0.25, ex + 0.25)
+		for rx in (x0 + 1.6, x1 - 1.6):
+			KD["V_Steel"].box(rx - 0.09, rx + 0.09, y - 0.09, y + 0.09, z + 0.5, ceil_z + 0.3)
+	S.light(Matrix.Identity(4), (x0 + x1) / 2, y, z - 0.8, WHITE, 1.3, 30, 90)

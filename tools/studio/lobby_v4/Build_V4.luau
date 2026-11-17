@@ -1137,6 +1137,12 @@ function M.npcs(): string
 			local title = spot:GetAttribute("Title")
 			nameTag(head, if typeof(title) == "string" then title else "NPC", look.strap)
 		end
+		-- Talk: the lines the client's NpcTalk opens for this NPC (lobby/shared/NpcTalk); Title: the name it shows
+		local talk = spot:GetAttribute("Talk")
+		if typeof(talk) == "string" and talk ~= "" then
+			model:SetAttribute("Talk", talk)
+			model:SetAttribute("Title", spot:GetAttribute("Title"))
+		end
 		CollectionService:AddTag(model, "LobbyNPC")
 		model.Parent = folder
 		n += 1

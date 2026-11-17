@@ -50,8 +50,16 @@ def console(K, KD, cx, cy, yaw, accent, area, tag, name, title="TERMINAL"):
 
 
 class Locker:
+	"""The Locker as a weapons room (owner 2026-11-16, after RIVALS' weapons area): an octagon with a faceted emblem
+	ring in the floor and your knife turning over a plinth in the middle, eight display tables in a ring (your own
+	skins, one gun per class), a pegboard gun wall with nine more behind the ARMORER (talk to him to open the
+	Locker), crates round the walls, hanging tube lamps."""
 	AREA = "Locker"
-	X0, X1, Y0, Y1, H = -114.0, -62.0, -24.0, 24.0, 28.0
+	X0, X1, Y0, Y1, H = -126.0, -62.0, -32.0, 32.0, 32.0
+	CUT = 18.75  # a regular octagon: 64 / (2 + sqrt 2)
+	TABLES = (("Vandal", "VANDAL"), ("Phantom", "PHANTOM"), ("Operator", "OPERATOR"), ("Odin", "ODIN"), ("Judge", "JUDGE"),
+		("Spectre", "SPECTRE"), ("Sheriff", "SHERIFF"), ("Classic", "CLASSIC"))
+	WALL_GUNS = ("Ghost", "Shorty", "Outlaw", "Stinger", "Bucky", "Bulldog", "Guardian", "Marshal", "Ares")
 
 	@classmethod
 	def build(cls):
@@ -59,57 +67,73 @@ class Locker:
 		KD = C.Kit(K.col, prefix=cls.AREA + "D")
 		KD.nocol = True
 		A = cls.AREA
-		cases_n = [(12.0, "SIDEARMS", [("Classic", 1.9, 4.4), ("Sheriff", 1.9, 8.6)]), (26.0, "RIFLES", [("Vandal", 1.9, 4.4), ("Phantom", 1.9, 8.6)]),
-			(40.0, "SNIPERS", [("Operator", 1.9, 4.4), ("Marshal", 1.9, 8.6)])]
-		cases_s = [(12.0, "SMGS", [("Spectre", 1.9, 4.4), ("Stinger", 1.9, 8.6)]), (26.0, "SHOTGUNS", [("Judge", 1.9, 4.4), ("Bucky", 1.9, 8.6)]),
-			(40.0, "HEAVY", [("Odin", 1.9, 4.4), ("Ares", 1.9, 8.6)])]
-		W = V.wframe
-		Mn, Ms = W((cls.X0, cls.Y1), (1, 0)), W((cls.X1, cls.Y0), (-1, 0))
-		skips = {"N": [], "S": [], "W": [(8.0, 40.5)], "E": [(24 - 10.0, 24 + 10.0)]}
-		for M, side, cases in ((Mn, "N", cases_n), (Ms, "S", cases_s)):
-			for u, label, guns in cases:
-				skips[side].append(V.niche(K, KD, M, u, 9.0, label, guns, "E_Violet", A))
-		walls = V.room(K, KD, A, cls.X0, cls.X1, cls.Y0, cls.Y1, cls.H, ops={"E": [(15.0, 33.0, 0.0, 18.0)]}, skips=skips, beams_x=(-96.0, -80.0))
-		for side in "NS":
-			Mv, _ = walls[side]
-			with C.grp("Vents_" + side, Mv):
-				for u in (19.0, 33.0):
-					V.vent(KD, Mv, u, 2.6, 2.8, 2.0)
-		Mw0, _ = walls["W"]
-		with C.grp("Plaques_Loadout", Mw0):
-			V.plaque(KD, Mw0, 37.6, 10.6, 3.4, 2.4, "notice", "NOTICE", ["PICK YOUR LOADOUT"])
+		X0, X1, Y0, Y1, H, c = cls.X0, cls.X1, cls.Y0, cls.Y1, cls.H, cls.CUT
+		cx, cy = (X0 + X1) / 2, 0.0
+		mid = (Y1 - Y0) / 2  # wall-local centre of every straight wall
+		skips = {"N": [], "S": [], "W": [(mid - 12.0, mid + 12.0)], "E": [(mid - 13.0, mid + 13.0)]}
+		walls = V.room(K, KD, A, X0, X1, Y0, Y1, H, ops={"E": [(mid - 9.0, mid + 9.0, 0.0, 18.0)]}, skips=skips, inset=c)
+		diag = V.oct_corner_walls(K, KD, X0, X1, Y0, Y1, H, c)
 		Me, _ = walls["E"]
-		V.mouth(KD, Me @ V.T(24, 0, 0), 9.0, 18.0)
-		KD["V_Floor2"].box(cls.X1, cls.X1 + 4.0, -5.0, 5.0, 0.0, 0.12)
-		# loadout station on the end wall: stage, board, sign, console
-		Mw, _ = walls["W"]
-		V.step_pad(K, KD, A, cls.X0 + 10.0, 0.0, 5.0, "E_Violet", "LobbyLocker", "LockerPad")  # step on it: the Locker opens
-		V.board(KD, Mw @ V.T(24, 6.2, 0), 22.0, 9.4, "featured", "SELECTED", name="Board_Loadout", accent="E_Violet")
-		V.sign(KD, Mw @ V.T(24, 18.6, 0), "LOCKER", 22.0, 5.2, accent="E_Violet", name="Sign_Loadout", icon="reticle")
-		# the armorer: an NPC behind a gun bench in the south-west corner, facing the room
-		V.gun_table(K, KD, A, Matrix.Translation((cls.X0 + 7.6, -13.0, 0.0)) @ Matrix.Rotation(radians(90), 4, "Z"), [("Knife", 1.6), ("Sheriff", 1.6)], w=7.0, d=3.2, name="ArmorerBench")
-		V.npc("Armorer", cls.X0 + 12.5, -8.0, 0.0, -60, "armorer", "ARMORER")  # in the open beside the pad, facing the door
-		V.prop_group(K, V.wframe((cls.X1, cls.Y1), (0, -1)) @ V.RX(-90), [("case", 9.0, -2.0, 0.0, 0), ("case", 9.2, -2.0, 1.62, -4), ("crate_s", 9.0, -6.2, 0.0, 8)])
-		for ty, guns in ((-12.0, [("Sheriff", 1.6), ("Bulldog", 1.6), ("Ghost", 1.6)]), (12.0, [("Judge", 1.6), ("Spectre", 1.6), ("Classic", 1.6)])):
-			V.gun_table(K, KD, A, Matrix.Translation((-75.0, ty, 0.0)), guns, name="GunTable")
-		Me1, _ = walls["E"]
-		V.poster(KD, Me1, 7.5, 6.0, 6.0, 8.0, "KNOW YOUR LOADOUT", "PICK|SKIN|WIN", name="Poster_Loadout")
-		V.poster(KD, Me1, 40.5, 6.0, 6.0, 8.0, "EVERY GUN", "HAS A STORY", name="Poster_Story")
-		# centre: the hero gun turning over a lit plinth
-		with C.grp("HeroPlinth", Matrix.Translation((-88.0, 0.0, 0.0))):
-			F, G = S.FK(K, Matrix.Translation((-88.0, 0.0, 0.0))), S.FK(KD, Matrix.Translation((-88.0, 0.0, 0.0)))
-			F["V_Base"].prism(V.ccw(V.oct_pts(3.4)), 0, 0.8)
+		V.mouth(KD, Me @ V.T(mid, 0, 0), 9.0, 18.0)
+		with C.grp("Threshold"):
+			KD["V_Floor2"].box(X1, X1 + 4.0, -5.0, 5.0, 0.0, 0.12)
+		V.path_lane(KD, Matrix.Rotation(radians(90), 4, "Z"), 2.2, -X1 + 1.5, -X1 + 13.0, arrows=(-X1 + 7.5, -X1 + 9.9))
+		# the floor emblem and the centre plinth: your knife turning over it
+		V.floor_emblem(KD, cx, cy)
+		with C.grp("KnifePlinth", Matrix.Translation((cx, cy, 0.0))):
+			F, G = S.FK(K, Matrix.Translation((cx, cy, 0.0))), S.FK(KD, Matrix.Translation((cx, cy, 0.0)))
+			F["V_Base"].prism(V.ccw(V.oct_pts(3.4)), 0.12, 0.8)
 			F["V_Wall"].prism(V.ccw(V.oct_pts(2.7)), 0.8, 3.2)
 			o, i = V.oct_pts(2.85), V.oct_pts(2.55)
 			for k in range(8):
 				j = (k + 1) % 8
-				G["V_Violet"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.6, 2.8)
+				G["V_ThViolet"].prism(V.ccw([i[k], i[j], o[j], o[k]]), 2.6, 2.8)
 			G["V_Trim"].prism(V.ccw(V.oct_pts(2.9)), 3.2, 3.5)
-			G["V_Steel"].prism(V.ccw(V.oct_pts(2.3)), 3.5, 3.7)  # turntable the gun stands on
-			S.gun_row(["Vandal", 1.35, -88.0, 0.0, 4.4, 0.0, 1.0, 1, 16])
-			S.light(I4, -88.0, 0.0, cls.H - 0.6, V.WHITE, 2.4, 30, 40)
-		V.fx("sparkle", -88.0, 0.0, 5.0, "#8E6CFF", name="HeroFX", Rate=5, Spread=2.0)
-		V.fx("cone", -88.0, 0.0, cls.H - 1.5, "#FFF4E0", to=(-88.0, 0.0, 3.6), name="HeroCone", W0=1.0, W1=6.5)
+			G["V_Steel"].prism(V.ccw(V.oct_pts(2.3)), 3.5, 3.7)
+		V.gun_display("KnifeHero", Vector((cx, cy, 6.2)), (0, 0, 1), (1, 0, 0), "Knife", 2.6, mount="Stand", spin=40.0)
+		S.light(I4, cx, cy, H - 0.6, V.WHITE, 2.4, 34, 40)
+		V.fx("sparkle", cx, cy, 6.0, "#8E6CFF", name="HeroFX", Rate=5, Spread=2.0)
+		V.fx("cone", cx, cy, H - 1.5, "#FFF4E0", to=(cx, cy, 3.8), name="HeroCone", W0=1.0, W1=6.5)
+		# eight display tables in a ring (doorway east and the gun wall west stay open)
+		for k, (gid, label) in enumerate(cls.TABLES):
+			ang = radians(22.5 + 45.0 * k)
+			px, py = cx + 21.0 * cos(ang), cy + 21.0 * sin(ang)
+			M = Matrix.Translation((px, py, 0.0)) @ Matrix.Rotation(ang + radians(90), 4, "Z")
+			V.display_table(K, KD, A, M, gid, label, name="Table_" + gid)
+		# the west wall: the gun wall, the LOCKER sign, the ARMORER in front of it on a low step
+		Mw, _ = walls["W"]
+		V.gun_wall(K, KD, A, Mw, mid, cls.WALL_GUNS)
+		V.sign(KD, Mw @ V.T(mid, 20.2, 0), "LOCKER", 20.0, 4.6, accent="E_Violet", name="Sign_Loadout", icon="reticle")
+		ax = X0 + 7.5
+		with C.grp("ArmorerStep", Matrix.Translation((ax, 0.0, 0.0))):
+			F, G = S.FK(K, Matrix.Translation((ax, 0.0, 0.0))), S.FK(KD, Matrix.Translation((ax, 0.0, 0.0)))
+			F["V_Floor2"].prism(V.ccw(V.oct_pts(3.4)), 0.12, 0.8)
+			o, i_ = V.oct_pts(3.45), V.oct_pts(3.0)
+			for k in range(8):
+				j = (k + 1) % 8
+				G["V_Trim"].prism(V.ccw([i_[k], i_[j], o[j], o[k]]), 0.68, 0.86)
+		V.npc("Armorer", ax, 0.0, 0.8, -90, "armorer", "ARMORER", scale=1.6, talk="armorer")
+		S.light(I4, ax + 4.0, 0.0, H - 2.0, V.WHITE, 1.6, 26, 50)
+		# hanging tube lamps either side of the vault
+		for ly in (-11.5, 11.5):
+			V.hang_lamp(KD, cx - 12.0, cx + 12.0, ly, 25.0, H, name="HangLamp")
+		# vents low on the north and south walls, posters on the diagonals by the door
+		for side in "NS":
+			Mv, L = walls[side]
+			with C.grp("Vents_" + side, Mv):
+				for u in (c + 3.5, L - c - 3.5):
+					V.vent(KD, Mv, u, 2.6, 2.8, 2.0)
+		Mne, Lne = diag["NE"]
+		Mse, Lse = diag["SE"]
+		V.poster(KD, Mne, Lne / 2, 6.0, 6.0, 8.0, "KNOW YOUR LOADOUT", "PICK|SKIN|WIN", name="Poster_Loadout")
+		V.poster(KD, Mse, Lse / 2, 6.0, 6.0, 8.0, "EVERY GUN", "HAS A STORY", name="Poster_Story")
+		# crates round the walls (the owner's RIVALS props stand in until ours are made)
+		props = ((cx - 4.0, Y1 - 3.6, 0.0, 0.0, "crate"), (cx + 2.6, Y1 - 3.4, 0.0, 4.0, "crate"), (cx - 0.7, Y1 - 3.5, 3.8, -6.0, "crate_s"),
+			(cx - 5.0, Y0 + 3.4, 0.0, 8.0, "barrel"), (cx - 1.4, Y0 + 3.0, 0.0, -14.0, "barrel_x"), (cx + 4.6, Y0 + 3.6, 0.0, 3.0, "container"),
+			(X1 - 11.5, Y1 - 11.5, 0.0, -45.0, "crate_long"), (X1 - 11.5, Y0 + 11.5, 0.0, 45.0, "case"), (X1 - 11.3, Y0 + 11.3, 1.62, 40.0, "case"),
+			(X0 + 12.3, Y0 + 12.3, 0.0, -45.0, "container"), (X0 + 12.5, Y1 - 12.5, 0.0, 45.0, "crate_tall"))
+		for x, y, z, yaw, kind in props:
+			V.prop_m(kind, Matrix.Translation((x, y, z)) @ Matrix.Rotation(radians(yaw), 4, "Z"), name="Prop")
 		return K.done() + KD.done()
 
 
