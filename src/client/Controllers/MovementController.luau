@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
+local CameraDrop = require(ReplicatedStorage.Shared.CameraDrop)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
 local MovementSim = require(ReplicatedStorage.Shared.Simulation.Movement)
@@ -25,8 +26,7 @@ local MovementController = {}
 local player = Players.LocalPlayer
 
 local state: MoveState = "Idle"
-local cameraDrop = 0
-local dropVelocity = 0
+local cameraDrop = CameraDrop.new() -- crouch/slide eye height (shared/CameraDrop)
 local fallSpeed = 0 -- the fastest downward speed of this time in the air
 local groundFov = 0 -- the movement FOV kick we had when we last stood on something
 -- Jump buffer and coyote time (Config/Movement JUMP_BUFFER, COYOTE_TIME).
@@ -63,10 +63,9 @@ local function update(dt: number)
 	elseif previous == "Air" then
 		-- Landed: the camera dips by how fast we fell (k^2), with a thud.
 		local land = Juice.LAND
-		if fallSpeed > land.minFall then
-			local k = math.min(fallSpeed / land.fullFall, 1)
-			-- An impulse on the height spring: its peak is about v / (omega * e).
-			dropVelocity += land.dip * k * k * math.sqrt(Movement.CAMERA_STIFFNESS) * math.exp(1)
+		-- An impulse on the height spring (shared/CameraDrop.land).
+		local k = CameraDrop.land(cameraDrop, fallSpeed)
+		if k > 0 then
 			if fallSpeed > land.soundFrom then
 				AudioController.play(
 					land.sound.id,
@@ -101,17 +100,9 @@ local function update(dt: number)
 		)
 	end
 
-	-- Camera height: a damped spring so crouch/slide dips feel weighty, not snappy.
-	local target = if state == "Slide"
-		then Movement.SLIDE_CAMERA_DROP
-		elseif state == "Crouch" then Movement.CROUCH_CAMERA_DROP
-		else 0
-	local stiffness = Movement.CAMERA_STIFFNESS
-	local damping = 2 * math.sqrt(stiffness) * Movement.CAMERA_DAMPING_RATIO
-	local accel = (target - cameraDrop) * stiffness - dropVelocity * damping
-	dropVelocity += accel * dt
-	cameraDrop += dropVelocity * dt
-	humanoid.CameraOffset = Vector3.new(0, -cameraDrop, 0)
+	-- Camera height: a damped spring so crouch/slide dips feel weighty, not
+	-- snappy (shared/CameraDrop: spectators run the same spring on our MoveState).
+	humanoid.CameraOffset = Vector3.new(0, -CameraDrop.step(cameraDrop, state, dt), 0)
 
 	CameraController.setRoll(if state == "Slide" then Movement.SLIDE_CAMERA_TILT else 0)
 	-- In the air the view keeps the FOV it left the ground with (plus a
@@ -168,8 +159,7 @@ function MovementController.start()
 		end
 	end
 	player.CharacterAdded:Connect(function(c)
-		cameraDrop = 0
-		dropVelocity = 0
+		CameraDrop.reset(cameraDrop)
 		task.spawn(watchJumps, c)
 	end)
 	if player.Character then

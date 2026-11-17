@@ -390,9 +390,22 @@ return table.freeze({
 		holdTime = 0.7, -- then it watches the body before switching to a teammate
 		pullBack = 7, -- studs behind where you fell
 		pullUp = 5, -- studs above
-		headRate = 22, -- 1/s: the view follows their head this fast (smooths replication steps)
-		yawRate = 22,
-		pitchRate = 14, -- their pitch arrives 10 times a second
+		-- Their eye, built like your own camera (Roblox's first-person camera
+		-- measured in Studio 2026-11-16: 1.5 studs over the HumanoidRootPart,
+		-- 0.5 behind along the look), minus the crouch / slide drop
+		-- (shared/CameraDrop on their MoveState). Not the animated Head part:
+		-- that bobbed with the walk cycle and lagged a stud at a run.
+		eyeHeight = 1.5,
+		eyeBack = 0.5,
+		aimRate = 18, -- 1/s: one ease for their yaw and pitch (smooths the steps between updates)
+		-- Their aim, sent by their client (WeaponController, the Aim remote) and
+		-- published for bots (Bots/Brain). Combat.RATE.Aim must allow aimSendHz.
+		aimSendHz = 30, -- at most this often...
+		aimDeadband = 0.004, -- ...when the pitch moved more than this (radians)
+		aimSettle = 0.1, -- seconds after the aim stops: one more send so the last value lands
+		aimKeepalive = 0.5, -- seconds: a resend even with nothing new (a dropped packet heals)
+		botAimSendHz = 30,
+		botAimDeadband = 0.002, -- radians, on yaw or pitch
 		switchDelay = 1, -- seconds on a fighter who went down before moving on
 		fadeTime = 0.12, -- black blink when the view jumps to someone else
 	}),

@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
+local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 local RunService = game:GetService("RunService")
 
@@ -62,28 +63,42 @@ end
 local rng = Random.new()
 
 -- What each bot last told spectators about its aim (like a player's Aim
--- remote: at most 10 times a second, only on a real change).
-type AimSent = { at: number, pitch: number, aiming: boolean }
+-- remote: Juice SPECTATE botAimSendHz, only on a real change).
+type AimSent = { at: number, yaw: number, pitch: number, aiming: boolean }
 local aimSent: { [Bot]: AimSent } = setmetatable({}, { __mode = "k" }) :: any
-local AIM_SEND_EVERY = 0.1
-local AIM_SEND_DELTA = 0.03 -- radians
+local SPECTATE = Juice.SPECTATE
 
--- `AimPitch` (radians) and `Aiming` on the bot's owner (mirrored onto its
--- model), read by a teammate spectating it in first person.
+local function wrapAngle(a: number): number
+	return (a + math.pi) % (2 * math.pi) - math.pi
+end
+
+-- `AimYaw` / `AimPitch` (radians) and `Aiming` on the bot's owner (mirrored
+-- onto its model), read by a teammate spectating it in first person. It's
+-- where the gun points (Aim.direction: the spring plus aim error and recoil),
+-- so the watched crosshair kicks with each shot and sits where the tracers
+-- go; a fair miss's sideways push stays out (it would make the view jump).
 local function publishAim(bot: Bot, aiming: boolean, now: number)
 	local sent = aimSent[bot]
 	if not sent then
-		sent = { at = -math.huge, pitch = math.huge, aiming = false }
+		sent = { at = -math.huge, yaw = math.huge, pitch = math.huge, aiming = false }
 		aimSent[bot] = sent
 	end
-	if now - sent.at < AIM_SEND_EVERY then
+	if now - sent.at < 1 / SPECTATE.botAimSendHz then
 		return
 	end
-	if math.abs(bot.pitch - sent.pitch) <= AIM_SEND_DELTA and aiming == sent.aiming then
+	local yaw = wrapAngle(bot.yaw + math.rad(bot.aimError.X + bot.recoil.X))
+	local pitch = math.clamp(bot.pitch + math.rad(bot.aimError.Y + bot.recoil.Y), -1.4, 1.4)
+	local deadband = SPECTATE.botAimDeadband
+	if
+		math.abs(pitch - sent.pitch) <= deadband
+		and math.abs(wrapAngle(yaw - sent.yaw)) <= deadband
+		and aiming == sent.aiming
+	then
 		return
 	end
-	sent.at, sent.pitch, sent.aiming = now, bot.pitch, aiming
-	bot.owner:SetAttribute("AimPitch", bot.pitch)
+	sent.at, sent.yaw, sent.pitch, sent.aiming = now, yaw, pitch, aiming
+	bot.owner:SetAttribute("AimYaw", yaw)
+	bot.owner:SetAttribute("AimPitch", pitch)
 	bot.owner:SetAttribute("Aiming", aiming)
 end
 

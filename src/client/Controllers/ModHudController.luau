@@ -799,7 +799,8 @@ local function update(dt: number)
 		any = any or view.id ~= nil
 		writeSlot(ui, view, slot, now)
 	end
-	bar.Visible = any
+	-- Your Mods, not the watched fighter's: hidden while spectating.
+	bar.Visible = any and not BottomHud.isSpectating()
 	BottomHud.setModsVisible(any)
 	local status = slowedLabel
 	if status and StatusTray.active() then

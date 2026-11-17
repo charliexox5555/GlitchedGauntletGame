@@ -132,7 +132,7 @@ return table.freeze({
 		Equip = { 10, 10 },
 		Reload = { 5, 5 },
 		PickWeapon = { 3, 5 },
-		Aim = { 20, 30 },
+		Aim = { 40, 60 }, -- Juice SPECTATE.aimSendHz (30) plus headroom
 	},
 
 	-- Wall penetration (Util/Penetration; owner 2026-11-12: "wall penetration

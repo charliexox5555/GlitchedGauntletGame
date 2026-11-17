@@ -1179,13 +1179,21 @@ local function update(dt: number)
 	-- Tell the server where we're aiming (third-person pose for others) and,
 	-- with Server Authority off, what we're doing (shared/Authority: the
 	-- server publishes it for everyone else's footsteps, dust and spectating).
-	if cam and now - lastAimSent > 0.1 then
+	-- Juice SPECTATE: up to aimSendHz on a real move, one settle send once the
+	-- aim stops (so the last value lands), and a keepalive (a dropped packet
+	-- can't leave a stale Aiming / MoveState behind).
+	local aimFeel = Juice.SPECTATE
+	local sinceAim = now - lastAimSent
+	if cam and sinceAim >= 1 / aimFeel.aimSendHz then
 		local pitch = math.asin(math.clamp(cam.CFrame.LookVector.Y, -1, 1))
 		local moving = MovementController.getState()
+		local moved = math.abs(pitch - lastPitchSent)
 		if
-			math.abs(pitch - lastPitchSent) > 0.03
+			moved > aimFeel.aimDeadband
 			or aimingWanted ~= lastAimingSent
 			or moving ~= lastStateSent
+			or (sinceAim >= aimFeel.aimSettle and moved > 1e-4)
+			or sinceAim >= aimFeel.aimKeepalive
 		then
 			lastAimSent = now
 			lastPitchSent = pitch

@@ -579,11 +579,23 @@ local function onAim(player: Player, pitch: unknown, aiming: unknown, moveState:
 	if not allow(player, "Aim") then
 		return
 	end
-	if typeof(pitch) ~= "number" or pitch ~= pitch or typeof(aiming) ~= "boolean" then
+	if
+		typeof(pitch) ~= "number"
+		or pitch ~= pitch
+		or pitch == math.huge
+		or pitch == -math.huge
+		or typeof(aiming) ~= "boolean"
+	then
 		return
 	end
-	player:SetAttribute("AimPitch", math.clamp(pitch, -1.5, 1.5))
-	player:SetAttribute("Aiming", aiming)
+	-- Up to 30 sends a second now (Juice SPECTATE.aimSendHz): only real changes replicate.
+	local clamped = math.clamp(pitch, -1.5, 1.5)
+	if player:GetAttribute("AimPitch") ~= clamped then
+		player:SetAttribute("AimPitch", clamped)
+	end
+	if player:GetAttribute("Aiming") ~= aiming then
+		player:SetAttribute("Aiming", aiming)
+	end
 	if Authority.server() or typeof(moveState) ~= "string" or not MOVE_STATES[moveState] then
 		return
 	end

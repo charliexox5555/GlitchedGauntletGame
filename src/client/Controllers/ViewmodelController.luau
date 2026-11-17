@@ -229,6 +229,9 @@ end
 -- in first person (SpectateController): their arms' look, their speed and
 -- move state drive the rig.
 local subject: Model? = nil
+-- Whose skins the subject's gun wears: the player behind it (a replay copy
+-- isn't a character, so ReplayController passes the killer); nil = stock.
+local subjectOwner: Player? = nil
 
 local function subjectBody(): Model?
 	return subject or player.Character
@@ -856,9 +859,9 @@ end
 local function buildGun(templateId: string, name: string, weapon: WeaponConfig, dual: boolean): Gun?
 	local folder = weaponsFolder()
 	local template = folder and folder:FindFirstChild(templateId)
-	-- Skin preview: the spectated player's pick when watching someone, else
-	-- ours; a body that isn't a player (a bot, a replay) stays stock.
-	local skinOwner: Player? = if subject then Players:GetPlayerFromCharacter(subject) else player
+	-- Skin preview: the spectated player's pick when watching someone (a
+	-- replay copy: the killer it was recorded from), else ours; a bot stays stock.
+	local skinOwner: Player? = if subject then subjectOwner else player
 	if SkinPreview.allowed() and skinOwner then
 		template = SkinPreview.geometry(templateId, skinOwner) or template
 	end
@@ -1425,10 +1428,20 @@ local function alignTrack(slot: string, beats: { Beat })
 	p.track = track
 end
 
+export type EquipOptions = {
+	-- Already in their hands (spectating someone who has it out, a replay's
+	-- start, a skin swap): the gun and arms come up at rest, with no draw.
+	instant: boolean?,
+}
+
 -- Equips `weapon`: every equip plays the gun's "Draw" clip (raise and rack
 -- the action), when it has one; otherwise a quick raise.
 -- `duration`: the client's ready time. Returns the clip's foley cues.
-function ViewmodelController.equip(weapon: WeaponConfig, duration: number?): { Beat }
+function ViewmodelController.equip(
+	weapon: WeaponConfig,
+	duration: number?,
+	opts: EquipOptions?
+): { Beat }
 	ViewmodelController.unequip()
 	local cam = Workspace.CurrentCamera
 	if not cam then
@@ -1467,6 +1480,12 @@ function ViewmodelController.equip(weapon: WeaponConfig, duration: number?): { B
 	local a = arms :: ViewmodelArms.Arms
 	a.model.Parent = cam
 	ViewmodelArms.setVisible(a, true)
+	if opts and opts.instant then
+		-- finishGun left each gun at its rest (the bat on its Idle); no Draw
+		-- clip, track or landing bump, and the knife's free hand is up.
+		freeHidden = 0
+		return {}
+	end
 	local time = duration or weapon.equipTime
 	if right.batMotion then
 		-- The bat's own pull-out (Util/PopCircuitBat Draw), then its idle.
@@ -2459,7 +2478,18 @@ local function update(dt: number)
 		velocity = velocity.Unit * exitSpeed
 	end
 	motionInput.velocity = velocity
-	motionInput.grounded = state ~= "Air" and state ~= "Slide"
+	-- A live subject's feet: their Humanoid's floor (as Simulation/Poses reads
+	-- it for the body), not MoveState, which arrives a send and two hops
+	-- late and would shrink every landing to the minimum dip. A replay copy
+	-- is anchored and has no floor: it keeps the state.
+	local onFloor = state ~= "Air"
+	if subject and rootPart and rootPart:IsA("BasePart") and not rootPart.Anchored then
+		local subjectHumanoid = subject:FindFirstChildOfClass("Humanoid")
+		if subjectHumanoid then
+			onFloor = subjectHumanoid.FloorMaterial ~= Enum.Material.Air
+		end
+	end
+	motionInput.grounded = onFloor and state ~= "Slide"
 	motionInput.sprinting = state == "Sprint"
 	motionInput.sliding = state == "Slide"
 	motionInput.crouching = state == "Crouch"
@@ -2773,14 +2803,15 @@ end
 local function onSkinPick(owner: Player)
 	local weapon = config
 	local right = guns.Right
-	local viewer = if subject then Players:GetPlayerFromCharacter(subject) else player
+	local viewer = if subject then subjectOwner else player
 	if not weapon or not right or viewer ~= owner then
 		return
 	end
 	local templateId = if weapon.models then weapon.models.right else weapon.id
 	if SkinPreview.geometryChanged(right.model, templateId, owner) then
 		local wasHidden = hidden
-		ViewmodelController.equip(weapon)
+		-- Same gun, new look: no draw.
+		ViewmodelController.equip(weapon, nil, { instant = true })
 		ViewmodelController.setHidden(wasHidden)
 	elseif subject then
 		for _, gun in guns do
@@ -2791,20 +2822,24 @@ end
 
 local subjectSkinWatch: (() -> ())? = nil
 
-function ViewmodelController.setSubject(body: Model?)
-	if body == subject then
+-- `owner`: the player whose skins the gun wears, when `body` isn't their
+-- character (a replay copy); else the body's player (none for a bot).
+function ViewmodelController.setSubject(body: Model?, owner: Player?)
+	local resolved: Player? = if body then owner or Players:GetPlayerFromCharacter(body) else nil
+	if body == subject and resolved == subjectOwner then
 		return
 	end
 	resetView()
 	subject = body
+	subjectOwner = resolved
 	if subjectSkinWatch then
 		subjectSkinWatch()
 		subjectSkinWatch = nil
 	end
-	local owner = if body then Players:GetPlayerFromCharacter(body) else nil
-	if owner and SkinPreview.allowed() then
-		subjectSkinWatch = SkinPreview.observe(owner, function()
-			onSkinPick(owner)
+	if resolved and SkinPreview.allowed() then
+		local watched: Player = resolved
+		subjectSkinWatch = SkinPreview.observe(watched, function()
+			onSkinPick(watched)
 		end)
 	end
 end

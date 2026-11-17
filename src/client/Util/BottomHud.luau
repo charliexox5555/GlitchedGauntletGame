@@ -277,6 +277,11 @@ function BottomHud.setSpectating(on: boolean)
 	if r then
 		r.health.Visible = not on
 		r.ammo.Visible = not on
+		-- The Mod row shows your own Mods: off while you watch someone
+		-- (setModsVisible keeps it off; their Mods: spectate plan C).
+		if on then
+			r.mods.Visible = false
+		end
 		local row = r.gui:FindFirstChild("Root")
 		for _, name in { "Loadout", "Hints" } do
 			local part = row and row:FindFirstChild(name, true)
@@ -408,11 +413,16 @@ function BottomHud.setLoadout(entries: { LoadoutEntry }, equipped: string?)
 	drawLoadout()
 end
 
+-- Called every frame by ModHudController; spectating keeps the row hidden.
 function BottomHud.setModsVisible(any: boolean)
 	local r = ui
 	if r then
-		r.mods.Visible = any
+		r.mods.Visible = any and not spectating
 	end
+end
+
+function BottomHud.isSpectating(): boolean
+	return spectating
 end
 
 -- A shine sweeps across a Mod cell (ready again, or newly drafted).

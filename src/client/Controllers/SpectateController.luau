@@ -8,29 +8,38 @@
 -- arrows cycle teammates. In the round-end seconds with no teammate alive (or
 -- in 1v1) you watch the enemy who killed you. A new life ends it all.
 --
--- Their view is rebuilt from what already replicates: head position, body
--- yaw, the `AimPitch` / `Aiming` attributes (players: WeaponService's Aim
--- remote; bots: Bots/Brain), the `WorldWeapon`'s `WeaponId`, `ReloadAt` /
--- `ReloadFor`, `ModHeld`, `MoveState` and their `ShotFx`. The server only
--- streams their surroundings to you (SpectateService, `Spectate` remote).
+-- Their view is rebuilt from what already replicates: their root (the eye
+-- sits where their own camera does, lowered by the crouch / slide spring of
+-- shared/CameraDrop on `MoveState`), body yaw (a bot's `AimYaw`), the
+-- `AimPitch` / `Aiming` attributes (players: WeaponService's Aim remote;
+-- bots: Bots/Brain), the `WorldWeapon`'s `WeaponId`, `ReloadAt` /
+-- `ReloadFor`, `SwingAt` / `SwingStep` / `SwingHeavy`, `ModHeld`,
+-- `MoveState` and their `ShotFx`. Their crosshair, aim vignette and ADS
+-- sounds are rebuilt the same way. The server only streams their
+-- surroundings to you (SpectateService, `Spectate` remote).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
+local CameraDrop = require(ReplicatedStorage.Shared.CameraDrop)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Mods = require(ReplicatedStorage.Shared.Mods)
+local Accuracy = require(ReplicatedStorage.Shared.Util.Accuracy)
 local Ease = require(ReplicatedStorage.Shared.Util.Ease)
 local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
+local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Types = require(ReplicatedStorage.Shared.Types)
+local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
+local AudioController = require(script.Parent.AudioController)
 local CameraController = require(script.Parent.CameraController)
 local DeathFxController = require(script.Parent.DeathFxController)
 local EffectsController = require(script.Parent.EffectsController)
@@ -41,6 +50,7 @@ local WeaponController = require(script.Parent.WeaponController)
 local DeathScreen = require(script.Parent.Parent.Util.DeathScreen)
 local Device = require(script.Parent.Parent.Util.Device)
 local Ui = require(script.Parent.Parent.Util.Ui)
+local Watched = require(script.Parent.Parent.Util.Watched)
 
 type WeaponConfig = Types.WeaponConfig
 
@@ -77,6 +87,16 @@ local adsAlpha = 0
 local equippedId: string? = nil
 local equippedConfig: WeaponConfig? = nil
 local lastReloadAt = 0
+local lastSwingAt = 0
+local firstEquip = true -- the gun they already hold comes up with no draw
+local wasAiming: boolean? = nil -- nil: not known yet (no flick on the first frame)
+local drop = CameraDrop.new() -- their crouch / slide eye height
+local wasAirborne = false
+local fallSpeed = 0 -- the fastest they fell this time in the air
+local landedAt = -math.huge -- os.clock() of their last landing (crosshair spread)
+-- Their spray, for the crosshair (Util/Accuracy, like WeaponController's).
+local heat = 0
+local lastShotAt = -math.huge
 local wasLowered = false
 local targetDownAt: number? = nil
 local hiddenConns: { RBXScriptConnection } = {}
@@ -339,6 +359,44 @@ local function unequip()
 	ViewmodelController.unequip()
 end
 
+local function playGun(config: WeaponConfig, name: string)
+	local set = GunSounds.get(config.id) :: any
+	AudioController.playSound(set[name], "Foley")
+end
+
+-- Clip beats (ViewmodelController clipBeats) to GunSounds names, as
+-- WeaponController plays them for your own draw.
+local BEAT_SOUNDS: { [string]: string } = {
+	MagOut = "magOut",
+	MagIn = "magIn",
+	Rack = "rack",
+	Open = "open",
+	Eject = "eject",
+	ShellIn = "shellIn",
+	Close = "close",
+}
+
+-- Their gun comes out: the first one (already in their hands) appears at
+-- rest; a real swap plays the full draw at its real length, with its foley.
+local function equipTheirs(config: WeaponConfig)
+	if firstEquip then
+		firstEquip = false
+		ViewmodelController.equip(config, nil, { instant = true })
+		return
+	end
+	local duration = config.drawTime or config.equipTime
+	playGun(config, "draw")
+	playGun(config, "drawWhoosh")
+	local watched = target
+	for _, beat in ViewmodelController.equip(config, duration) do
+		task.delay(duration * beat.at, function()
+			if target == watched and equippedConfig == config then
+				playGun(config, BEAT_SOUNDS[beat.sound])
+			end
+		end)
+	end
+end
+
 -- Their view, every frame (the camera override: runs before the viewmodel).
 local function watchStep(cam: Camera, dt: number)
 	local f = target
@@ -346,24 +404,47 @@ local function watchStep(cam: Camera, dt: number)
 		return
 	end
 	local body, holder = f.body, f.holder
-	local head = body:FindFirstChild("Head")
 	local root = body:FindFirstChild("HumanoidRootPart")
-	-- The camera: their head, their body's yaw, their reported pitch.
-	if head and head:IsA("BasePart") and root and root:IsA("BasePart") then
-		local look = root.CFrame.LookVector
-		local yaw = math.atan2(-look.X, -look.Z)
+	local humanoid = humanoidOf(body)
+	local moveAttr = body:GetAttribute("MoveState")
+	local moveState = if typeof(moveAttr) == "string" then moveAttr else "Idle"
+	-- The camera: where their own sits (over their root, lowered for a crouch
+	-- or slide, dipped on a landing), their yaw (a bot's gun yaw, else the
+	-- body's facing) and their reported pitch, eased together.
+	if root and root:IsA("BasePart") then
+		local yawAttr = holder:GetAttribute("AimYaw")
+		local yaw: number
+		if typeof(yawAttr) == "number" and yawAttr == yawAttr then
+			yaw = yawAttr
+		else
+			local look = root.CFrame.LookVector
+			yaw = math.atan2(-look.X, -look.Z)
+		end
 		local pitch = math.clamp(numberAttr(holder, "AimPitch"), -1.45, 1.45)
-		local pos = viewPos
-		if pos == nil then
-			viewPos = head.Position
+		if viewPos == nil then
 			viewYaw, viewPitch = yaw, pitch
 		else
-			viewPos = pos:Lerp(head.Position, 1 - math.exp(-S.headRate * dt))
-			viewYaw = Ease.approachAngle(viewYaw, yaw, S.yawRate, dt)
-			viewPitch = Ease.approach(viewPitch, pitch, S.pitchRate, dt)
+			viewYaw = Ease.approachAngle(viewYaw, yaw, S.aimRate, dt)
+			viewPitch = Ease.approach(viewPitch, pitch, S.aimRate, dt)
 		end
-		cam.CFrame = CFrame.new(viewPos :: Vector3)
-			* CFrame.fromEulerAnglesYXZ(viewPitch, viewYaw, 0)
+		-- Landing: their feet, like the viewmodel's (Humanoid.FloorMaterial).
+		local airborne = humanoid ~= nil and humanoid.FloorMaterial == Enum.Material.Air
+		if airborne then
+			fallSpeed = math.max(fallSpeed, -root.AssemblyLinearVelocity.Y)
+		elseif wasAirborne then
+			CameraDrop.land(drop, fallSpeed)
+			fallSpeed = 0
+			landedAt = os.clock()
+		end
+		wasAirborne = airborne
+		local lowered = CameraDrop.step(drop, moveState, dt)
+		local rotation = CFrame.fromEulerAnglesYXZ(viewPitch, viewYaw, 0)
+		-- Roblox already interpolates their root: no extra smoothing here.
+		local eye = root.Position
+			+ Vector3.new(0, S.eyeHeight - lowered, 0)
+			- rotation.LookVector * S.eyeBack
+		viewPos = eye
+		cam.CFrame = CFrame.new(eye) * rotation
 	end
 
 	-- Their body stays out of view (other effects, like a dash ghost, write
@@ -378,34 +459,59 @@ local function watchStep(cam: Camera, dt: number)
 	local id = if typeof(idAttr) == "string" then idAttr else nil
 	if id ~= equippedId then
 		local config = id and Weapons.get(id)
+		heat, lastShotAt = 0, -math.huge -- a new gun, a cold spray
 		if config then
 			equippedId, equippedConfig = id, config
-			ViewmodelController.equip(config)
+			equipTheirs(config)
 		else
 			unequip()
 		end
 	end
 	local config = equippedConfig
 
-	-- Aiming down sights, zoom and the scope overlay.
+	-- Aiming down sights, zoom and the scope overlay (as WeaponController
+	-- does for yours: the zoom trails the gun, the edges darken, a cloth flick).
 	local aiming = holder:GetAttribute("Aiming") == true
 		and config ~= nil
 		and config.fireMode ~= "Melee"
 		and not config.noAds
+	if config and wasAiming ~= nil and aiming ~= wasAiming then
+		playGun(config, if aiming then "aimIn" else "aimOut")
+	end
+	wasAiming = aiming
 	local rate = 1 / math.max(if config then config.adsTime else 0.2, 0.05)
 	adsAlpha = math.clamp(adsAlpha + (if aiming then rate else -rate) * dt, 0, 1)
 	ViewmodelController.setAds(adsAlpha)
 	local scope = config and config.scope
 	CameraController.setZoom(
 		if scope then CameraController.scopeFov(scope.zoom) elseif config then config.adsFov else nil,
-		Ease.smooth(adsAlpha)
+		ViewmodelController.adsZoom()
 	)
-	local scoped = scope ~= nil and adsAlpha > 0.85
+	HudController.setAim(ViewmodelController.adsBlend())
+	local scoped = scope ~= nil and adsAlpha >= VM.SCOPE_AT
 	HudController.setScope(scoped)
 	ViewmodelController.setHidden(scoped)
-	HudController.setCrosshairVisible(adsAlpha < 0.5 and config ~= nil)
+	HudController.setCrosshairVisible(adsAlpha < 0.5 and config ~= nil, moveState == "Sprint")
 
-	-- A held Mod lowers the gun; a reload plays its clip.
+	-- Their crosshair: the gun's cone at their cooled spray heat plus their
+	-- movement (Util/Accuracy, like your own), and its slide / air reactions.
+	HudController.setCrosshairState(moveState == "Slide", moveState == "Air", adsAlpha)
+	if config then
+		local h = Accuracy.cool(config, heat, os.clock() - lastShotAt)
+		local speed = if root and root:IsA("BasePart")
+			then (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
+			else 0
+		local cone = Accuracy.cone(config, h, {
+			state = moveState,
+			speed = speed,
+			aim = adsAlpha,
+			sinceLanding = os.clock() - landedAt,
+		})
+		HudController.setSpread(cone + config.pelletSpread * 0.6)
+	end
+
+	-- A held Mod lowers the gun; a reload plays its clip; a knife swing plays
+	-- its step of the 1-2-3 chain (or the heavy).
 	local lowered = numberAttr(holder, "ModHeld") ~= 0
 	if lowered ~= wasLowered then
 		wasLowered = lowered
@@ -420,10 +526,19 @@ local function watchStep(cam: Camera, dt: number)
 			ViewmodelController.reload(left)
 		end
 	end
+	local swingAt = numberAttr(holder, "SwingAt")
+	if swingAt ~= lastSwingAt then
+		lastSwingAt = swingAt
+		if config and config.fireMode == "Melee" then
+			local step = math.clamp(math.floor(numberAttr(holder, "SwingStep")), 1, 3)
+			ViewmodelController.swing(
+				if holder:GetAttribute("SwingHeavy") == true then "HeavyStab" else "Slash" .. step
+			)
+		end
+	end
 
 	-- Their health on the bar.
 	local fill = healthFill
-	local humanoid = humanoidOf(body)
 	if humanoid and DeathScreen.active() then
 		DeathScreen.setHealth(Health.get(humanoid), Health.max(humanoid))
 	elseif fill and humanoid then
@@ -435,14 +550,25 @@ local function watchStep(cam: Camera, dt: number)
 end
 
 local function onSpectatedShot(config: WeaponConfig, left: boolean)
+	local f = target
 	if config.fireMode == "Melee" then
-		ViewmodelController.swing()
+		-- A player's swings come from SwingAt / SwingStep (watchStep), which
+		-- carries the chain step; a bot sets no SwingAt: its first slash.
+		if f and not f.holder:IsA("Player") then
+			ViewmodelController.swing("Slash1")
+		end
 		return
 	end
-	if left then
-		ViewmodelController.fire(1 - 0.5 * adsAlpha, "Left", false)
-	else
-		ViewmodelController.fire(1 - 0.5 * adsAlpha, nil, false)
+	local now = os.clock()
+	heat = Accuracy.cool(config, heat, now - lastShotAt) + 1
+	lastShotAt = now
+	local kick = (1 - 0.5 * adsAlpha) * (config.viewmodelKick or 1)
+	ViewmodelController.fire(kick, if left then "Left" else nil, false)
+	-- The crosshair blooms by the gun's kick (as for your own shots); a
+	-- scope picture jolts.
+	HudController.crosshairShot(math.max(config.recoil.up, Juice.SHOT_FEEL.upFloor))
+	if config.scope ~= nil and adsAlpha >= VM.SCOPE_AT then
+		HudController.scopeShot()
 	end
 end
 
@@ -458,9 +584,19 @@ local function watch(f: Fighter)
 	adsAlpha = 0
 	wasLowered = false
 	targetDownAt = nil
-	-- Only reloads that start from now play (not one that finished earlier).
+	-- Only reloads and swings that start from now play (not earlier ones).
 	lastReloadAt = numberAttr(f.holder, "ReloadAt")
+	lastSwingAt = numberAttr(f.holder, "SwingAt")
 	equippedId, equippedConfig = nil, nil
+	firstEquip = true -- the gun in their hands: no draw
+	wasAiming = nil
+	CameraDrop.reset(drop)
+	local humanoid = humanoidOf(f.body)
+	wasAirborne = humanoid ~= nil and humanoid.FloorMaterial == Enum.Material.Air
+	fallSpeed = 0
+	landedAt = -math.huge
+	heat, lastShotAt = 0, -math.huge
+	Watched.set(f.holder, f.body)
 	DeathFxController.clearGrade()
 	WeaponController.setSpectating(true)
 	HudController.setSpectating(true)
@@ -523,6 +659,7 @@ local function startDeathCam(body: Model)
 	ViewmodelController.unequip()
 	CameraController.setZoom(nil, 0)
 	HudController.setScope(false)
+	HudController.setAim(0) -- WeaponController stood down mid-aim: the edges clear
 	deathAt = os.clock()
 	deathFrom = cam.CFrame
 	local flat = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
@@ -565,7 +702,10 @@ local function stop()
 	CameraController.setOverride(nil)
 	CameraController.setZoom(nil, 0)
 	HudController.setScope(false)
+	HudController.setAim(0)
+	HudController.setCrosshairState(false, false, 0)
 	HudController.setSpectating(false)
+	Watched.set(nil, nil)
 	HudController.setCrosshairVisible(true)
 	ViewmodelController.setHidden(false)
 	ViewmodelController.setLowered(false)

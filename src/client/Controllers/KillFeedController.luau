@@ -21,6 +21,7 @@ local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Parent.Util.Device)
 local WaitGui = require(script.Parent.Parent.Util.WaitGui)
+local Watched = require(script.Parent.Parent.Util.Watched)
 
 local KillFeedController = {}
 
@@ -70,6 +71,9 @@ local template: Frame? = nil
 local pop: Pop? = nil
 local rowCount = 0
 local roundKills = 0
+-- The kills this round of each fighter you watched (Util/Watched), so their
+-- pop climbs its own ladder and doesn't add to yours.
+local watchedKills: { [Instance]: number } = setmetatable({}, { __mode = "k" }) :: any
 local popToken = 0
 
 local function tween(
@@ -193,15 +197,15 @@ local function row(killer: Instance?, victim: Instance, sourceId: string, head: 
 	end)
 end
 
--- Your kill: the disc slams in from big, one more ring segment lights
--- (gold on a headshot), and it holds, then shrinks away.
-local function showPop(head: boolean)
+-- Your kill (or the watched fighter's): the disc slams in from big, one
+-- more ring segment lights (gold on a headshot), and it holds, then shrinks
+-- away. `kills`: the killer's kills this round.
+local function showPop(head: boolean, kills: number)
 	local p = pop
 	if not p then
 		return
 	end
-	roundKills += 1
-	local count = math.min(roundKills, SEGMENTS)
+	local count = math.min(kills, SEGMENTS)
 	popToken += 1
 	local token = popToken
 	local lit = if head then GOLD else ENEMY
@@ -315,7 +319,16 @@ local function onKilled(victim: unknown, attacker: unknown, sourceId: unknown, h
 	local head = headshot == true
 	row(killer, victim, if typeof(sourceId) == "string" then sourceId else "", head)
 	if killer and playerOf(killer) == player and playerOf(victim) ~= player then
-		showPop(head)
+		roundKills += 1
+		showPop(head, roundKills)
+	elseif killer and Watched.is(killer) and not Watched.is(victim) then
+		-- Spectating: the one you watch got the kill (the pop, as if yours).
+		local holder = Watched.get()
+		if holder then
+			local kills = (watchedKills[holder] or 0) + 1
+			watchedKills[holder] = kills
+			showPop(head, kills)
+		end
 	end
 end
 
@@ -384,6 +397,7 @@ function KillFeedController.start()
 		Net.event("Killed").OnClientEvent:Connect(onKilled)
 		MatchState.changed("Round"):Connect(function()
 			roundKills = 0
+			table.clear(watchedKills)
 		end)
 		hideOld()
 	end)

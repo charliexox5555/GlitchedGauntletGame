@@ -18,6 +18,7 @@ local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local AudioController = require(script.Parent.Parent.Controllers.AudioController)
 local Ui = require(script.Parent.Ui)
+local Watched = require(script.Parent.Watched)
 
 local KillFeed = {}
 
@@ -38,6 +39,9 @@ local headshotTag: Frame? = nil
 local pips: { Frame } = {}
 -- Your kills this round (back to 0 when the round changes).
 local roundKills = 0
+-- Each watched fighter's kills this round (Util/Watched): their tone climbs
+-- its own ladder, not yours.
+local watchedKills: { [Instance]: number } = setmetatable({}, { __mode = "k" }) :: any
 local PIP_ON = Theme.COLORS.enemy
 local PIP_OFF = Color3.new(1, 1, 1)
 local bannerToken = 0
@@ -286,6 +290,7 @@ end
 
 MatchState.changed("Round"):Connect(function()
 	roundKills = 0
+	table.clear(watchedKills)
 end)
 
 function KillFeed.kill(victim: unknown, attacker: unknown, sourceId: unknown, headshot: unknown)
@@ -294,9 +299,20 @@ function KillFeed.kill(victim: unknown, attacker: unknown, sourceId: unknown, he
 	local id = if typeof(sourceId) == "string" then sourceId else ""
 	local head = headshot == true
 	row(a, v, id, head)
+	local kills: number? = nil
 	if a == player then
 		roundKills += 1
-		local step = math.min(roundKills, #Audio.KILL_LADDER)
+		kills = roundKills
+	elseif a and Watched.is(a) and not Watched.is(v) then
+		-- Spectating: the one you watch got the kill (its tone, as if yours).
+		local holder = Watched.get()
+		if holder then
+			kills = (watchedKills[holder] or 0) + 1
+			watchedKills[holder] = kills
+		end
+	end
+	if kills then
+		local step = math.min(kills, #Audio.KILL_LADDER)
 		-- A learned signature cue: its pitch is the ladder step, never jittered.
 		AudioController.play(if head then Sounds.KillHead else Sounds.Kill, {
 			group = "Feedback",
@@ -304,7 +320,7 @@ function KillFeed.kill(victim: unknown, attacker: unknown, sourceId: unknown, he
 			pitch = Audio.KILL_LADDER[step],
 			jitter = false,
 		})
-		pop(v, head, roundKills)
+		pop(v, head, kills)
 	end
 end
 

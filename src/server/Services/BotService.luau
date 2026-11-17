@@ -52,6 +52,7 @@ local MIRRORED: { [string]: boolean } = {
 	ModHeld = true,
 	ModUseAt = true,
 	AimPitch = true, -- first-person spectating (SpectateController)
+	AimYaw = true, -- where its gun points (Bots/Brain publishAim)
 	Aiming = true,
 }
 

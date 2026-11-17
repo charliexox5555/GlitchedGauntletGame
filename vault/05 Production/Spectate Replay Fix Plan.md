@@ -356,3 +356,38 @@ Build one shared `Util/SubjectView` that turns a holder and body into viewmodel 
 - **H:** `BodySkinController.luau`, `ReplayController.luau`, `SpectateController.luau`
 
 All under `C:\Users\charl\Documents\GauntletGame\GlitchedGauntletGame\src\`.
+
+---
+
+### Results: A (quick wins), 2026-11-16
+
+**Phase 0 numbers** (Studio, BotMatch 2v2, client at 60 fps, watching the bot teammate Vex; logged by an MCP probe on the client):
+
+| Signal | Before A | After A |
+|---|---|---|
+| Watched root CFrame | changes every rendered frame (Roblox interpolates it): p50 16.7 ms, max 183 ms (one hitch) | same: p50 16.6 ms, max 148 ms |
+| `AimPitch` arrivals | 4 / s: interval p50 117 ms, p90 249 ms, max 416 ms; step p50 0.041 rad (2.3°), p90 0.17 rad | 22 / s: p50 35 ms, p90 68 ms, max 133 ms; step p50 0.002 rad |
+| `AimYaw` (new, bots) | none (yaw came from the body) | 22 / s, same timing as pitch |
+| Camera vs published aim | n/a | p50 0.9°, p90 1.9°, max 6.8° (the 18/s ease) |
+| Eye over root | animated Head | p50 1.50 studs, 1.39-1.77 (landing dip, pitch) |
+| Frames in the air (6 s) | MoveState `Air` 19 | `FloorMaterial` Air 31: it is live on a remote bot humanoid, so the viewmodel can use it |
+
+So the root is smooth and per-frame; the aim was the coarse signal (sized for B: a 30 Hz Look stream with about 2 send intervals of playback delay, ~70-100 ms, covers the p90 gap). Render order, one frame: every `BindToRenderStep` (GGCamera at Camera+1) runs **before** `RenderStepped` and `PreRender`, so `BodySkinController`'s PreRender runs after the camera. MicroProfiler captures were not taken (MCP can't drive it).
+
+**What changed** (all 12 items):
+1. Replay skin: `ViewmodelController.setSubject(body, owner?)` keeps `subjectOwner` (used by `buildGun`, `onSkinPick`, the skin observe). `ReplayController` stores `owner` on each track when first recorded and passes the killer (Player, or the Player of a killer Model, else the track owner). Verified: the replay's camera gun had `SkinOwnerId` = your UserId (was 0). Bots stay stock.
+2. Aim send: `WeaponController` sends at up to `SPECTATE.aimSendHz` 30 when the pitch moves more than `aimDeadband` 0.004 rad, a settle send `aimSettle` 0.1 s after it stops, and a keepalive every `aimKeepalive` 0.5 s. `Combat.RATE.Aim` {40, 60}. `WeaponService.onAim` rejects ±inf and writes `AimPitch` / `Aiming` only on change. Not measured with a second real player (only bots in Studio).
+3. Bot gun look: `Brain.publishAim` publishes yaw/pitch + aimError + recoil (no `missBy`) as `AimYaw` / `AimPitch` at `botAimSendHz` 30 / `botAimDeadband` 0.002 rad; `BotService` mirrors `AimYaw` onto the model (it wasn't in `MIRRORED` at first: caught in the test). Spectate uses `AimYaw` when present.
+4. Eye from root: new `src/shared/CameraDrop.luau` (spring + landing dip), used by `MovementController` (behaviour kept: own crouch measured settling at -1.40 = `CROUCH_CAMERA_DROP`, damped shape unchanged), `SpectateController` and `ReplayController` (track now records `MoveState`). Eye = root + `eyeHeight` 1.5 - drop, `eyeBack` 0.5 behind along the look (measured from your own camera in Studio). `headRate` / `yawRate` / `pitchRate` replaced by one `aimRate` 18; the replay's hard-coded 25/20/16 are gone.
+5. Knife chain: spectate plays `Slash1..3` / `HeavyStab` from `SwingAt` / `SwingStep` / `SwingHeavy` (baseline in `watch()`); players' melee ShotFx no longer swings (no double), bots fall back to `Slash1`. Replay swings `Slash1` until E records the step. Not seen live (bots carry guns, no second player).
+6. Draw: `ViewmodelController.equip(weapon, duration, { instant = true })` skips the Draw clip, Equip track, bat/fan draw and bump; used for the first equip after `watch()`, the replay's first gun and the skin re-equip. Spectated swaps use `drawTime or equipTime` and play draw / whoosh / beat foley.
+7. Kick: both hooks multiply by `config.viewmodelKick or 1`.
+8. ADS: both use `ViewmodelController.adsZoom()`, `>= VM.SCOPE_AT`, `HudController.setAim(adsBlend())`, aimIn / aimOut sounds on a change (not on the first frame); reset on stop and replay cleanup; the death cam clears the vignette.
+9. Grounded: a live subject uses its Humanoid `FloorMaterial` (the anchored replay copy keeps MoveState); Slide still counts as not grounded.
+10. Kill pop: new `client/Util/Watched`; `KillFeedController` (pop) and `Util/KillFeed` (tone) treat the watched fighter's kills as yours, with a per-fighter ladder reset each round. Verified with two server-fired `Killed` (attacker = watched bot): pop visible both times.
+11. Mod row: `BottomHud.setModsVisible` and the legacy bar stay hidden while spectating (screenshot: no Mod cells while watching Vex).
+12. Crosshair: per-target heat / last shot, `Accuracy.cone` from their MoveState, speed and time since landing, `setCrosshairState`, `crosshairShot(max(recoil.up, upFloor))`, `scopeShot` when scoped; reset on target or gun change; cleared on stop.
+
+**Checks:** `stylua --check src`, `selene src` (0/0/0), `rojo build`. Studio: three playtests in the match place, no script errors in Output (only the known `203785492` asset warning and the Studio Assistant camera-type notices from MCP calls).
+
+**Left / not verified:** the swing chain, real swap draws, ADS sounds and a real final-kill replay won by you (the replay test was a server-fired `Replay` on a live round) need a human playtest; MicroProfiler captures; the replay camera is still slow-mo-agnostic (F). The Locked-decision tables were not changed (no decision changed).

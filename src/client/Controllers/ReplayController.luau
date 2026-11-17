@@ -16,21 +16,27 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local CameraDrop = require(ReplicatedStorage.Shared.CameraDrop)
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Ease = require(ReplicatedStorage.Shared.Util.Ease)
 local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
+local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Health = require(ReplicatedStorage.Shared.Health)
+local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
+local VM = require(ReplicatedStorage.Shared.Config.Viewmodel)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
+local AudioController = require(script.Parent.AudioController)
 local CameraController = require(script.Parent.CameraController)
 local DeathFxController = require(script.Parent.DeathFxController)
 local EffectsController = require(script.Parent.EffectsController)
+local HudController = require(script.Parent.HudController)
 local SpectateController = require(script.Parent.SpectateController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
@@ -50,6 +56,10 @@ local player = Players.LocalPlayer
 
 type Track = {
 	body: Model,
+	-- The player behind the body, taken when it was first recorded (after a
+	-- respawn GetPlayerFromCharacter no longer knows the old body): the
+	-- replay's gun wears their skins. nil for a bot.
+	owner: Player?,
 	parts: { BasePart }, -- the body's own parts (children of the model)
 	frames: { { CFrame } }, -- per ring slot, one CFrame per part
 	stamps: { number }, -- per ring slot, the time it was written (valid when it matches `times`)
@@ -60,6 +70,7 @@ type Track = {
 	pitch: { number }, -- radians, up / down
 	aiming: { boolean }, -- down the sights
 	weapon: { string }, -- the gun in hand ("" = none)
+	state: { string }, -- MoveState (the eye's crouch / slide drop: shared/CameraDrop)
 }
 
 type Shot = { t: number, body: Model, weaponId: string, origin: Vector3, ends: { Vector3 } }
@@ -84,6 +95,7 @@ local function newTrack(body: Model): Track
 	end
 	return {
 		body = body,
+		owner = Players:GetPlayerFromCharacter(body),
 		parts = parts,
 		frames = table.create(FRAMES),
 		stamps = table.create(FRAMES, -math.huge),
@@ -93,6 +105,7 @@ local function newTrack(body: Model): Track
 		pitch = table.create(FRAMES, 0),
 		aiming = table.create(FRAMES, false),
 		weapon = table.create(FRAMES, ""),
+		state = table.create(FRAMES, "Idle"),
 	}
 end
 
@@ -154,6 +167,8 @@ local function record()
 		end
 		track.stamps[head] = t
 		track.yaw[head], track.pitch[head], track.aiming[head], track.weapon[head] = viewOf(body)
+		local moveState = body:GetAttribute("MoveState")
+		track.state[head] = if typeof(moveState) == "string" then moveState else "Idle"
 		if track.downAt == nil and Health.isDowned(body) then
 			track.downAt = t
 		elseif track.downAt ~= nil and not Health.isDowned(body) then
@@ -403,6 +418,7 @@ local function cleanup(session: Session)
 		ViewmodelController.setHidden(false)
 		EffectsController.setSpectated(nil, nil)
 		CameraController.setZoom(nil, 0)
+		HudController.setAim(0)
 		WeaponController.setSpectating(false)
 		local cam = Workspace.CurrentCamera
 		if cam then
@@ -597,13 +613,18 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	local up = Vector3.yAxis
 
 	-- The killer's first-person view, rebuilt from their recorded view like
-	-- spectating (SpectateController): their head, yaw and pitch (smoothed:
-	-- others' pitch arrives 10 times a second), their gun, aim-down-sights
+	-- spectating (SpectateController): their eye over their root (lowered by
+	-- the crouch / slide spring on their recorded MoveState), yaw and pitch
+	-- (eased: Juice SPECTATE.aimRate), their gun in their skin, aim-down-sights
 	-- and zoom; their own body is hidden (the camera is inside it).
-	local viewPos: Vector3? = nil
+	local S = Juice.SPECTATE
+	local started = false
 	local viewYaw, viewPitch = 0, 0
+	local drop = CameraDrop.new()
 	local vmWeapon = ""
 	local vmConfig: any = nil
+	local vmFirst = true -- the gun in their hands at the start: no draw
+	local wasAiming: boolean? = nil
 	local ads = 0
 	local killerParts: { Instance } = {}
 	if killerActor then
@@ -612,14 +633,24 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 				table.insert(killerParts, d)
 			end
 		end
-		ViewmodelController.setSubject(killerActor.copy)
+		-- Their skins: the killer (a Player, or a body that was theirs), else
+		-- whoever the copied body belonged to when it was recorded.
+		local killerPlayer: Player? = nil
+		if typeof(killer) == "Instance" then
+			if killer:IsA("Player") then
+				killerPlayer = killer
+			elseif killer:IsA("Model") then
+				killerPlayer = Players:GetPlayerFromCharacter(killer)
+			end
+		end
+		ViewmodelController.setSubject(killerActor.copy, killerPlayer or killerActor.track.owner)
 		EffectsController.setSpectated(killerActor.copy, function(config: any, left: boolean)
 			if config.fireMode == "Melee" then
-				ViewmodelController.swing()
-			elseif left then
-				ViewmodelController.fire(1 - 0.5 * ads, "Left", false)
+				-- The chain step isn't recorded yet (plan E): the first slash.
+				ViewmodelController.swing("Slash1")
 			else
-				ViewmodelController.fire(1 - 0.5 * ads, nil, false)
+				local kick = (1 - 0.5 * ads) * (config.viewmodelKick or 1)
+				ViewmodelController.fire(kick, if left then "Left" else nil, false)
 			end
 		end)
 	end
@@ -631,55 +662,71 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 		end
 		local track = actor.track
 		local a, b, alpha = bracket(track, slots, t)
-		local headPart = actor.copy:FindFirstChild("Head")
-		if not a or not headPart or not headPart:IsA("BasePart") then
+		local root = actor.copy:FindFirstChild("HumanoidRootPart")
+		if not a or not root or not root:IsA("BasePart") then
 			return
 		end
 		local ya, yb = track.yaw[a], track.yaw[b]
 		local yaw = ya + ((yb - ya + math.pi) % (2 * math.pi) - math.pi) * alpha
 		local pitch = track.pitch[a] + (track.pitch[b] - track.pitch[a]) * alpha
-		local pos = viewPos
-		if pos == nil then
-			viewPos = headPart.Position
+		if not started then
+			started = true
 			viewYaw, viewPitch = yaw, pitch
 		else
-			viewPos = pos:Lerp(headPart.Position, 1 - math.exp(-25 * dt))
-			local dy = (yaw - viewYaw + math.pi) % (2 * math.pi) - math.pi
-			viewYaw += dy * (1 - math.exp(-20 * dt))
-			viewPitch += (pitch - viewPitch) * (1 - math.exp(-16 * dt))
+			viewYaw = Ease.approachAngle(viewYaw, yaw, S.aimRate, dt)
+			viewPitch = Ease.approach(viewPitch, pitch, S.aimRate, dt)
 		end
-		c.CFrame = CFrame.new(viewPos :: Vector3) * CFrame.fromEulerAnglesYXZ(viewPitch, viewYaw, 0)
+		-- The root is posed from the recording (already interpolated): the eye
+		-- sits on it like their own camera, no extra smoothing.
+		local lowered = CameraDrop.step(drop, track.state[a], dt)
+		local rotation = CFrame.fromEulerAnglesYXZ(viewPitch, viewYaw, 0)
+		c.CFrame = CFrame.new(
+			root.Position
+				+ Vector3.new(0, S.eyeHeight - lowered, 0)
+				- rotation.LookVector * S.eyeBack
+		) * rotation
 
-		-- Their gun (no draw: it's already in their hands).
+		-- Their gun: the one in their hands at the start comes up at rest; a
+		-- swap in the window plays its real draw.
 		local weapon = track.weapon[a]
 		if weapon ~= vmWeapon then
 			vmWeapon = weapon
 			vmConfig = if weapon ~= "" then Weapons.get(weapon) else nil
 			if vmConfig then
-				ViewmodelController.equip(vmConfig, 0.05)
+				if vmFirst then
+					ViewmodelController.equip(vmConfig, nil, { instant = true })
+				else
+					ViewmodelController.equip(vmConfig, vmConfig.drawTime or vmConfig.equipTime)
+				end
 			else
 				ViewmodelController.unequip()
 			end
+			vmFirst = false
 		end
 		local config = vmConfig
 		local aiming = track.aiming[a]
 			and config ~= nil
 			and config.fireMode ~= "Melee"
 			and not config.noAds
+		if config and wasAiming ~= nil and aiming ~= wasAiming then
+			local set = GunSounds.get(config.id) :: any
+			AudioController.playSound(set[if aiming then "aimIn" else "aimOut"], "Foley")
+		end
+		wasAiming = aiming
 		local rate = 1 / math.max(if config then config.adsTime else 0.2, 0.05)
 		ads = math.clamp(ads + (if aiming then rate else -rate) * dt, 0, 1)
 		ViewmodelController.setAds(ads)
 		local scope = config and config.scope
-		local zoomFov: number? = nil
-		if scope then
-			local base = CameraController.getBaseFov()
-			zoomFov = 2
-				* math.deg(math.atan(math.tan(math.rad(base / 2)) / math.max(scope.zoom, 1)))
-		elseif config then
-			zoomFov = config.adsFov
-		end
-		CameraController.setZoom(zoomFov, Ease.smooth(ads))
-		ViewmodelController.setHidden(scope ~= nil and ads > 0.85)
+		CameraController.setZoom(
+			if scope
+				then CameraController.scopeFov(scope.zoom)
+				elseif config then config.adsFov
+				else nil,
+			-- The zoom trails the gun, as for your own (VM.ADS_FEEL).
+			ViewmodelController.adsZoom()
+		)
+		HudController.setAim(ViewmodelController.adsBlend())
+		ViewmodelController.setHidden(scope ~= nil and ads >= VM.SCOPE_AT)
 	end
 
 	local function step(c: Camera, dt: number)
