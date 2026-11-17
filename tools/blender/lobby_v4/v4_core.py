@@ -40,6 +40,9 @@ PAL = {
 	"V_Seat": ("#2E3135", 0.8, 0.0, 0.04),
 	"V_TeamA": ("#C9602A", 0.6, 0.0, 0.02),
 	"V_TeamB": ("#2F6FC0", 0.6, 0.0, 0.02),
+	"G_PadA": ("#FF8A5C", 0.1, 0.0, 0.0),  # Duels pad glass (Studio: Glass, see-through over the lit well)
+	"G_PadB": ("#5AA0FF", 0.1, 0.0, 0.0),
+	"G_Screen": ("#16161C", 0.1, 0.0, 0.0),  # a TV's dark glass face (blank until the pad UI)
 	"V_Violet": ("#6539D7", 0.6, 0.0, 0.02),
 	"V_Pink": ("#B8406A", 0.6, 0.0, 0.02),
 	"V_Lime": ("#86A830", 0.6, 0.0, 0.02),
@@ -89,6 +92,9 @@ LOOKS = {  # Roblox look per material (SW_* are our faint painted MaterialVarian
 	"V_Seat": _L("SmoothPlastic", "#2E3135"),
 	"V_TeamA": _L("SmoothPlastic", "#C9602A"),
 	"V_TeamB": _L("SmoothPlastic", "#2F6FC0"),
+	"G_PadA": _L("SmoothPlastic", "#8A4A30", t=0.45),  # tinted see-through: the lit emblem shows (Glass glared and blurred it)
+	"G_PadB": _L("SmoothPlastic", "#2A4A8A", t=0.45),
+	"G_Screen": _L("Glass", "#141418", t=0.05, r=0.02),
 	"V_Violet": _L("SmoothPlastic", "#6539D7"),
 	"V_Pink": _L("SmoothPlastic", "#B8406A"),
 	"V_Lime": _L("SmoothPlastic", "#86A830"),
