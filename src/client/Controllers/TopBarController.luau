@@ -16,6 +16,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -38,6 +39,7 @@ local URGENT_LIVE = 10 -- the clock turns red this many seconds from the end
 local TICK_FROM: { [string]: number } = { Draft = 5, Countdown = 3, Live = 5 } -- the clock ticks (sound) from here
 local BOT_HEADSHOT = "rbxassetid://119185654291939" -- helmet stand-in for bots and test players
 local SHADOW_PAD = Vector2.new(56, 48) -- the soft shadow reaches this far past the bar
+local VOTE_ORDER = 41 -- over the map vote screen (StarterGui.MapVote is 40)
 
 local WHITE = Color3.new(1, 1, 1)
 local DANGER = Color3.fromHex("FF4D5E")
@@ -67,6 +69,9 @@ type Side = {
 local tween = UiMotion.tween
 
 local function clockText(seconds: number): string
+	if MatchState.phase() == "Vote" and seconds < 10 then
+		return string.format("%.1f", math.max(seconds, 0)) -- the vote: tenths, like RIVALS
+	end
 	local whole = math.max(math.ceil(seconds), 0)
 	return string.format("%d:%02d", math.floor(whole / 60), whole % 60)
 end
@@ -135,8 +140,34 @@ local function headshot(userId: number?): string
 	return BOT_HEADSHOT
 end
 
+-- The bar's screen. The map vote shows the bar before anyone spawns (and
+-- StarterGui only copies on a spawn), so take our own copy now and drop the
+-- one Roblox adds at the first spawn (like MapVoteController).
+local function ownCopy(): ScreenGui
+	local playerGui = player:WaitForChild("PlayerGui")
+	local source = StarterGui:FindFirstChild("TopBar")
+	if not (source and source:IsA("ScreenGui")) then
+		return WaitGui("TopBar") :: ScreenGui
+	end
+	local mine = playerGui:FindFirstChild("TopBar") :: ScreenGui?
+	if not mine then
+		local copy = source:Clone()
+		copy.ResetOnSpawn = false
+		copy.Parent = playerGui
+		mine = copy
+	end
+	local kept = mine :: ScreenGui
+	playerGui.ChildAdded:Connect(function(c)
+		if c ~= kept and c.Name == "TopBar" and c:IsA("ScreenGui") then
+			task.defer(c.Destroy, c)
+		end
+	end)
+	return kept
+end
+
 function TopBarController.start()
-	local gui = WaitGui("TopBar") :: ScreenGui
+	local gui = ownCopy()
+	local baseOrder = gui.DisplayOrder
 	local root = gui:WaitForChild("Root") :: Frame
 	local fit = root:WaitForChild("Fit") :: UIScale
 	local shadow = root:WaitForChild("Shadow") :: ImageLabel
@@ -260,7 +291,9 @@ function TopBarController.start()
 			-- Player 1 sits next to the score, closest to the timer.
 			slot.holder.LayoutOrder = if key == "ally" then -i else i
 			local h = f.humanoid
-			setAlive(key, slot, h ~= nil and h.Parent ~= nil and Health.isAlive(h))
+			-- Before anyone spawns (the map vote) nobody is greyed out.
+			local waiting = MatchState.phase() == "Vote"
+			setAlive(key, slot, waiting or (h ~= nil and h.Parent ~= nil and Health.isAlive(h)))
 		end
 		for k, slot in slots[key] do
 			if not seen[k] then
@@ -292,10 +325,9 @@ function TopBarController.start()
 	local lastTick = -1
 	local function refresh()
 		local phase = MatchState.phase()
-		root.Visible = phase ~= nil
-			and phase ~= "Waiting"
-			and phase ~= "Vote"
-			and not TestMode.isOn()
+		root.Visible = phase ~= nil and phase ~= "Waiting" and not TestMode.isOn()
+		-- Over the map vote's screen (it covers every other HUD).
+		gui.DisplayOrder = if phase == "Vote" then VOTE_ORDER else baseOrder
 		if not root.Visible then
 			return
 		end
@@ -318,6 +350,7 @@ function TopBarController.start()
 			or phase == "Countdown"
 			or (phase == "Live" and second <= URGENT_LIVE)
 			or (phase == "Draft" and second <= 5)
+			or (phase == "Vote" and second <= 3)
 		timeLabel.TextColor3 = if urgent then DANGER else WHITE
 		icon.ImageColor3 = if urgent then DANGER else WHITE
 		timerEdge.Transparency = if urgent then 0.2 else 1
@@ -338,7 +371,9 @@ function TopBarController.start()
 		local round = MatchState.get("Round") or 0
 		local matchPoint = math.max(myScore, theirScore) == Config.ROUNDS_TO_WIN - 1
 		local info
-		if phase == "SuddenDeath" then
+		if phase == "Vote" then
+			info = "VOTE FOR A MAP"
+		elseif phase == "SuddenDeath" then
 			info = string.format(
 				'ROUND %d · <font color="#%s">SUDDEN DEATH</font>',
 				round,

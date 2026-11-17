@@ -1,22 +1,21 @@
 --!strict
--- Builds the map vote screen, v2 (2026-11-16, owner: "doesn't fit the theme,
--- no circle timer, no player cards like these, better animations"; plan and
--- RIVALS study in vault/05 Production/Playtests/2026-11-16 Match Fixes Round
--- 1.md → 7) in the match place:
+-- Builds the map vote screen, v3 (2026-11-16, owner's notes on v2 with a
+-- RIVALS screenshot: "blur most of the background, no other HUD, nothing see-
+-- through; the top is our match top bar with the timer; the maps like the
+-- reference; a square avatar on a voted map that still looks clean with
+-- several votes") in the match place:
 --   StarterGui.MapVote                     <- Controllers/MapVoteController
---   ReplicatedStorage.UiTemplates.MapVote  (Slot = a grid cell holding the Card, Chip = a voter)
+--   ReplicatedStorage.UiTemplates.MapVote  (Slot = a grid cell holding the Card, Voter = a vote)
 -- Studio owns them; this is their backup. Run in Edit (command bar or MCP).
--- An existing v1 screen and its templates are moved to ServerStorage.UiBackups
+-- An existing screen and its templates are moved to ServerStorage.UiBackups
 -- first (nothing is deleted).
 --
--- Look: the lobby's chunky one-piece art (the same sliced images as lobby
--- Util/Cards and Util/Plates), Rubik Heavy / Bold, neutral charcoal, one gold
--- thing (your pick). Layout after RIVALS' vote: wide 2:1 map cards, 3 a row
--- (2 x 2 for four). No circle timer: a slanted bar that drains under the
--- title plate, the seconds at its end. No head cards: each card's foot is its
--- vote share (a fill + the %), voters are small square team-coloured chips.
--- A card is a fixed grid cell ("Slot") holding a centred "Card" CanvasGroup
--- (fades as one) with a "Pop" UIScale (pops from the centre).
+-- Look: the map's picture fills the card (Config/Match MAPS `image`); a name
+-- band along the foot in the card's colour with diagonal stripes
+-- (Config/Match VOTE.stripes), the name and its chance ("ARENA [50%]");
+-- voters are square avatar tiles in their team colour, centred on the
+-- picture in a tidy grid. The top bar (TopBarController) holds the timer.
+-- The controller sizes the grid and the cells for the number of maps.
 
 local SG = game:GetService("StarterGui")
 local RS = game:GetService("ReplicatedStorage")
@@ -38,121 +37,29 @@ end
 
 local RUBIK = "rbxassetid://12187365977"
 local HEAVY = Font.new(RUBIK, Enum.FontWeight.Heavy)
-local BOLD = Font.new(RUBIK, Enum.FontWeight.Bold)
 local WHITE = Color3.new(1, 1, 1)
-local MUTED = hex("9F9FA2")
-local NAVY = hex("141417")
 local DEEP = hex("0B0B0D")
+local BAND = hex("3E9E46") -- the controller recolours it per map
 local CENTRE = Vector2.new(0.5, 0.5)
 local DESIGN = Vector2.new(1920, 1080)
-local CELL = Vector2.new(470, 210)
-local GAP = 26
-local FOOT_H = 54
+local STRIPES = "rbxassetid://132373217041083"
 
--- The lobby's one-piece art (art-source/ui/plates): a rounded card (64 px,
--- 16 px corners, slice 24..40) and its bevel; a slanted plate (128 x 96, 32 px
--- slanted ends) and its gloss.
-local CARD_BASE = "rbxassetid://93845956518960"
-local CARD_OVER = "rbxassetid://123951162018563"
-local PLATE_BASE = "rbxassetid://106196536481675"
-local PLATE_GLOSS = "rbxassetid://93037486307954"
-local CARD_SLICE = Rect.new(24, 24, 40, 40)
-local PLATE_SLICE = Rect.new(32, 0, 96, 96)
-
--- Move a v1 screen out of the way (kept, not deleted).
+-- Move the old screen out of the way (kept, not deleted).
 local backups = SS:FindFirstChild("UiBackups") or make("Folder", { Name = "UiBackups" }, SS)
-local old = SG:FindFirstChild("MapVote")
-if old then
-	old.Name = "MapVote_v1"
-	old.Parent = backups
-end
-local folder = RS:FindFirstChild("UiTemplates") or make("Folder", { Name = "UiTemplates" }, RS)
-local oldT = folder:FindFirstChild("MapVote")
-if oldT then
-	oldT.Name = "MapVoteTemplates_v1"
-	oldT.Parent = backups
-end
-
-local function text(
-	p: Instance,
-	name: string,
-	s: string,
-	font: Font,
-	size: number,
-	color: Color3,
-	props: { [string]: any }?
-): TextLabel
-	local t = make("TextLabel", {
-		Name = name,
-		BackgroundTransparency = 1,
-		Size = UDim2.fromOffset(0, size + 6),
-		AutomaticSize = Enum.AutomaticSize.X,
-		Text = s,
-		FontFace = font,
-		TextSize = size,
-		TextColor3 = color,
-		ZIndex = 5,
-	}, p)
-	for k, v in props or {} do
-		(t :: any)[k] = v
+local function park(item: Instance?, as: string)
+	if item then
+		local name, n = as, 2
+		while backups:FindFirstChild(name) do
+			name = as .. "_" .. n
+			n += 1
+		end
+		item.Name = name
+		item.Parent = backups
 	end
-	return t
 end
-
--- A dark outline on big white words (RIVALS' headings), so they hold over art.
-local function outline(t: TextLabel, transparency: number)
-	make("UIStroke", {
-		Name = "Outline",
-		Color = DEEP,
-		Transparency = transparency,
-		Thickness = 2,
-		LineJoinMode = Enum.LineJoinMode.Round,
-	}, t)
-end
-
--- A sliced image filling its parent.
-local function skin(
-	parent: Instance,
-	name: string,
-	image: string,
-	slice: Rect,
-	scale: number,
-	color: Color3,
-	z: number
-): ImageLabel
-	return make("ImageLabel", {
-		Name = name,
-		BackgroundTransparency = 1,
-		Size = UDim2.fromScale(1, 1),
-		Image = image,
-		ImageColor3 = color,
-		ScaleType = Enum.ScaleType.Slice,
-		SliceCenter = slice,
-		SliceScale = scale,
-		ZIndex = z,
-	}, parent)
-end
-
--- A slanted plate `w` x `h` (its slanted ends inside that width).
-local function plate(
-	parent: Instance,
-	name: string,
-	w: number,
-	h: number,
-	color: Color3,
-	z: number
-): Frame
-	local f = make("Frame", {
-		Name = name,
-		Size = UDim2.fromOffset(w, h),
-		BackgroundTransparency = 1,
-		ZIndex = z,
-	}, parent)
-	skin(f, "Skin", PLATE_BASE, PLATE_SLICE, h / 96, color, z)
-	local gloss = skin(f, "Gloss", PLATE_GLOSS, PLATE_SLICE, h / 96, WHITE, z + 1)
-	gloss.ImageTransparency = 0.55
-	return f
-end
+park(SG:FindFirstChild("MapVote"), "MapVote_v2")
+local folder = RS:FindFirstChild("UiTemplates") or make("Folder", { Name = "UiTemplates" }, RS)
+park(folder:FindFirstChild("MapVote"), "MapVoteTemplates_v2")
 
 -- Screen ----------------------------------------------------------------------
 local gui = make("ScreenGui", {
@@ -160,26 +67,22 @@ local gui = make("ScreenGui", {
 	ResetOnSpawn = false,
 	IgnoreGuiInset = true,
 	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-	DisplayOrder = 40,
+	DisplayOrder = 40, -- over every HUD screen; the top bar goes above it (41) while voting
 	Enabled = false,
 })
--- Over the blurred world (the controller blurs it): dark at the top and foot.
+-- Over the blurred world: dark enough that nothing reads through.
 local backdrop = make("Frame", {
 	Name = "Backdrop",
 	Size = UDim2.fromScale(1, 1),
-	BackgroundColor3 = hex("0E0E11"),
-	BackgroundTransparency = 0.12,
+	BackgroundColor3 = hex("101014"),
+	BackgroundTransparency = 0.1,
 	BorderSizePixel = 0,
 	ZIndex = 1,
 }, gui)
 make("UIGradient", {
 	Name = "Wash",
 	Rotation = 90,
-	Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.5, 0.25),
-		NumberSequenceKeypoint.new(1, 0),
-	}),
+	Color = ColorSequence.new(hex("1B1A22"), hex("0A0A0D")),
 }, backdrop)
 
 local canvas = make("Frame", {
@@ -192,75 +95,18 @@ local canvas = make("Frame", {
 }, gui)
 make("UIScale", { Name = "Fit" }, canvas)
 
--- Header: the title plate, the match line, the clock (a draining bar + seconds)
-local head = make("Frame", {
-	Name = "Head",
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromOffset(DESIGN.X / 2, 78),
-	Size = UDim2.fromOffset(760, 170),
-	BackgroundTransparency = 1,
-	ZIndex = 3,
-}, canvas)
-local titlePlate = plate(head, "TitlePlate", 620, 78, NAVY, 3)
-titlePlate.AnchorPoint = Vector2.new(0.5, 0)
-titlePlate.Position = UDim2.fromScale(0.5, 0)
-local title = text(titlePlate, "Title", "VOTE FOR A MAP", HEAVY, 46, WHITE, {
-	AutomaticSize = Enum.AutomaticSize.None,
-	AnchorPoint = CENTRE,
-	Position = UDim2.new(0.5, 0, 0.5, -1),
-	Size = UDim2.new(1, -60, 1, 0),
-	TextScaled = false,
-	TextTruncate = Enum.TextTruncate.AtEnd,
-	ZIndex = 6,
-})
-outline(title, 0.35)
-text(head, "Sub", "1V1  ·  FIRST TO 5", BOLD, 20, MUTED, {
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.new(0.5, 0, 0, 90),
-})
--- The clock: a slanted track, a fill that drains (clipped by its holder), and
--- the seconds at the right end.
-local clock = make("Frame", {
-	Name = "Clock",
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.new(0.5, -28, 0, 128),
-	Size = UDim2.fromOffset(500, 14),
-	BackgroundTransparency = 1,
-	ZIndex = 4,
-}, head)
-local track = plate(clock, "Track", 500, 14, hex("26262B"), 4)
-track.Size = UDim2.fromScale(1, 1)
-local fillClip = make("Frame", {
-	Name = "FillClip",
-	Size = UDim2.fromScale(1, 1),
-	BackgroundTransparency = 1,
-	ClipsDescendants = true,
-	ZIndex = 6,
-}, clock)
-local fill = plate(fillClip, "Fill", 500, 14, WHITE, 6)
-fill.Size = UDim2.fromOffset(500, 14) -- full width: the clip drains it
-text(clock, "Seconds", "12", HEAVY, 34, WHITE, {
-	AutomaticSize = Enum.AutomaticSize.None,
-	AnchorPoint = Vector2.new(0, 0.5),
-	Position = UDim2.new(1, 16, 0.5, 0),
-	Size = UDim2.fromOffset(70, 40),
-	TextXAlignment = Enum.TextXAlignment.Left,
-	ZIndex = 6,
-})
-
--- The grid of cards
 local cards = make("Frame", {
 	Name = "Cards",
 	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromOffset(DESIGN.X / 2, 296),
-	Size = UDim2.fromOffset(CELL.X * 3 + GAP * 2, CELL.Y * 3 + GAP * 2),
+	Position = UDim2.fromOffset(DESIGN.X / 2, 150),
+	Size = UDim2.fromOffset(1800, 880),
 	BackgroundTransparency = 1,
 	ZIndex = 3,
 }, canvas)
 make("UIGridLayout", {
 	Name = "Grid",
-	CellSize = UDim2.fromOffset(CELL.X, CELL.Y),
-	CellPadding = UDim2.fromOffset(GAP, GAP),
+	CellSize = UDim2.fromOffset(560, 330),
+	CellPadding = UDim2.fromOffset(18, 18),
 	FillDirectionMaxCells = 3,
 	HorizontalAlignment = Enum.HorizontalAlignment.Center,
 	VerticalAlignment = Enum.VerticalAlignment.Top,
@@ -274,18 +120,12 @@ make("Frame", {
 	ZIndex = 20,
 }, canvas)
 
-text(canvas, "Hint", "CLICK A MAP TO VOTE  ·  EVERY VOTE IS A TICKET", BOLD, 16, MUTED, {
-	AnchorPoint = Vector2.new(0.5, 1),
-	Position = UDim2.fromOffset(DESIGN.X / 2, DESIGN.Y - 44),
-	ZIndex = 3,
-})
-
 -- Templates -------------------------------------------------------------------
 local tf = make("Folder", { Name = "MapVote" }, folder)
 
 local slot = make("Frame", {
 	Name = "Slot",
-	Size = UDim2.fromOffset(CELL.X, CELL.Y),
+	Size = UDim2.fromOffset(560, 330),
 	BackgroundTransparency = 1,
 }, tf)
 -- The card fades as one (CanvasGroup) and pops from its centre (Pop).
@@ -294,10 +134,19 @@ local card = make("CanvasGroup", {
 	AnchorPoint = CENTRE,
 	Position = UDim2.fromScale(0.5, 0.5),
 	Size = UDim2.fromScale(1, 1),
-	BackgroundTransparency = 1,
+	BackgroundColor3 = hex("1A1A1F"),
+	BorderSizePixel = 0,
 	ZIndex = 4,
 }, slot)
+make("UICorner", { CornerRadius = UDim.new(0, 8) }, card)
 make("UIScale", { Name = "Pop" }, card)
+make("UIStroke", {
+	Name = "Edge", -- the card's colour round its edge (white on your pick)
+	Color = BAND,
+	Thickness = 2,
+	Transparency = 0.15,
+	ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+}, card)
 -- The click target, over the whole card.
 make("TextButton", {
 	Name = "Hit",
@@ -307,110 +156,111 @@ make("TextButton", {
 	AutoButtonColor = false,
 	ZIndex = 30,
 }, card)
-skin(card, "Skin", CARD_BASE, CARD_SLICE, 0.5, NAVY, 4)
--- Map art (when a map has a picture): cropped, fading out into the foot.
-local picture = make("ImageLabel", {
+make("ImageLabel", {
 	Name = "Picture",
-	Position = UDim2.fromOffset(4, 4),
-	Size = UDim2.new(1, -8, 1, -8),
+	Size = UDim2.fromScale(1, 1),
 	BackgroundTransparency = 1,
 	ScaleType = Enum.ScaleType.Crop,
 	Image = "",
-	Visible = false,
 	ZIndex = 5,
 }, card)
-make("UICorner", { CornerRadius = UDim.new(0, 6) }, picture)
-make("UIGradient", {
-	Name = "Fade",
-	Rotation = 90,
-	Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 0),
-		NumberSequenceKeypoint.new(0.55, 0.1),
-		NumberSequenceKeypoint.new(1, 1),
-	}),
-}, picture)
--- No art: a faint big initial in the card's top-right (and "?" for Random).
-text(card, "Glyph", "", HEAVY, 120, hex("232328"), {
-	AutomaticSize = Enum.AutomaticSize.None,
-	AnchorPoint = Vector2.new(1, 0),
-	Position = UDim2.new(1, -18, 0, -6),
-	Size = UDim2.fromOffset(160, 140),
-	TextXAlignment = Enum.TextXAlignment.Right,
-	ZIndex = 5,
-})
-text(card, "Teams", "1V1 – 2V2", BOLD, 15, MUTED, {
-	Position = UDim2.new(0, 20, 1, -FOOT_H - 70),
-	ZIndex = 8,
-})
-local mapName = text(card, "MapName", "WHITEBOX", HEAVY, 36, WHITE, {
-	Position = UDim2.new(0, 18, 1, -FOOT_H - 50),
-	ZIndex = 8,
-})
-outline(mapName, 0.5)
--- The foot: the vote share (a fill from the left, its %) and the voters.
-local foot = make("Frame", {
-	Name = "Foot",
-	AnchorPoint = Vector2.new(0, 1),
-	Position = UDim2.new(0, 4, 1, -6),
-	Size = UDim2.new(1, -8, 0, FOOT_H),
-	BackgroundColor3 = DEEP,
-	BackgroundTransparency = 0.25,
-	BorderSizePixel = 0,
-	ClipsDescendants = true,
-	ZIndex = 6,
-}, card)
-make("UICorner", { CornerRadius = UDim.new(0, 6) }, foot)
-local share = make("Frame", {
-	Name = "Share",
-	Size = UDim2.fromScale(0, 1),
-	BackgroundColor3 = hex("2E2E34"),
-	BorderSizePixel = 0,
-	ZIndex = 6,
-}, foot)
-make("UICorner", { CornerRadius = UDim.new(0, 6) }, share)
-local voters = make("Frame", {
-	Name = "Voters",
-	AnchorPoint = Vector2.new(0, 0.5),
-	Position = UDim2.new(0, 12, 0.5, 0),
-	Size = UDim2.new(1, -110, 0, 30),
+-- Random (no picture): a big mark in the middle.
+make("TextLabel", {
+	Name = "Glyph",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromScale(0.5, 0.4),
+	Size = UDim2.fromScale(0.5, 0.5),
 	BackgroundTransparency = 1,
-	ZIndex = 7,
-}, foot)
-make("UIListLayout", {
-	FillDirection = Enum.FillDirection.Horizontal,
-	VerticalAlignment = Enum.VerticalAlignment.Center,
-	Padding = UDim.new(0, 6),
-	SortOrder = Enum.SortOrder.LayoutOrder,
-}, voters)
-text(foot, "Chance", "", HEAVY, 28, WHITE, {
-	AutomaticSize = Enum.AutomaticSize.None,
-	AnchorPoint = Vector2.new(1, 0.5),
-	Position = UDim2.new(1, -16, 0.5, 0),
-	Size = UDim2.fromOffset(90, 34),
-	TextXAlignment = Enum.TextXAlignment.Right,
-	ZIndex = 8,
-})
-skin(card, "Bevel", CARD_OVER, CARD_SLICE, 0.5, WHITE, 9)
-
--- A voter: a small square chip in their team colour with their head.
-local chip = make("Frame", {
-	Name = "Chip",
-	Size = UDim2.fromOffset(30, 30),
-	BackgroundColor3 = hex("3FE0F2"),
+	Text = "?",
+	TextScaled = true,
+	FontFace = HEAVY,
+	TextColor3 = WHITE,
+	Visible = false,
+	ZIndex = 6,
+}, card)
+-- The name band: the card's colour, diagonal stripes, the name and chance.
+local band = make("Frame", {
+	Name = "Band",
+	AnchorPoint = Vector2.new(0, 1),
+	Position = UDim2.fromScale(0, 1),
+	Size = UDim2.fromScale(1, 0.2),
+	BackgroundColor3 = BAND,
+	BackgroundTransparency = 0.08,
 	BorderSizePixel = 0,
-	ZIndex = 7,
+	ZIndex = 8,
+}, card)
+make("ImageLabel", {
+	Name = "Stripes",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundTransparency = 1,
+	Image = STRIPES,
+	ImageColor3 = DEEP,
+	ImageTransparency = 0.72,
+	ScaleType = Enum.ScaleType.Tile,
+	TileSize = UDim2.fromOffset(28, 28),
+	ZIndex = 8,
+}, band)
+local title = make("TextLabel", {
+	Name = "Title",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromScale(0.5, 0.52),
+	Size = UDim2.fromScale(0.92, 0.72),
+	BackgroundTransparency = 1,
+	Text = "ARENA",
+	TextScaled = true,
+	FontFace = HEAVY,
+	TextColor3 = WHITE,
+	ZIndex = 9,
+}, band)
+make("UITextSizeConstraint", { MaxTextSize = 44, MinTextSize = 12 }, title)
+make("UIStroke", {
+	Name = "Outline",
+	Color = DEEP,
+	Thickness = 2,
+	Transparency = 0.45,
+	LineJoinMode = Enum.LineJoinMode.Round,
+}, title)
+-- The votes: square tiles centred on the picture (the controller sizes them).
+local votes = make("Frame", {
+	Name = "Votes",
+	AnchorPoint = CENTRE,
+	Position = UDim2.fromScale(0.5, 0.42),
+	Size = UDim2.fromScale(0.9, 0.7),
+	BackgroundTransparency = 1,
+	ZIndex = 10,
+}, card)
+make("UIGridLayout", {
+	Name = "Grid",
+	CellSize = UDim2.fromOffset(84, 84),
+	CellPadding = UDim2.fromOffset(10, 10),
+	HorizontalAlignment = Enum.HorizontalAlignment.Center,
+	VerticalAlignment = Enum.VerticalAlignment.Center,
+	SortOrder = Enum.SortOrder.LayoutOrder,
+}, votes)
+
+-- A vote: their head on a square in their team colour (lit top, deeper foot).
+local voter = make("Frame", {
+	Name = "Voter",
+	Size = UDim2.fromOffset(84, 84),
+	BackgroundColor3 = hex("7B4DFF"),
+	BorderSizePixel = 0,
+	ZIndex = 10,
 }, tf)
-make("UICorner", { CornerRadius = UDim.new(0, 4) }, chip)
+make("UICorner", { CornerRadius = UDim.new(0, 8) }, voter)
+make("UIGradient", {
+	Name = "Shade",
+	Rotation = 90,
+	Color = ColorSequence.new(WHITE, hex("8C8C96")),
+}, voter)
+make("UIScale", { Name = "Pop" }, voter)
 local face = make("ImageLabel", {
 	Name = "Face",
-	AnchorPoint = CENTRE,
-	Position = UDim2.fromScale(0.5, 0.5),
-	Size = UDim2.new(1, -4, 1, -4),
-	BackgroundColor3 = hex("1E1E22"),
+	Size = UDim2.fromScale(1, 1),
+	BackgroundTransparency = 1,
 	Image = "",
-	ZIndex = 8,
-}, chip)
-make("UICorner", { CornerRadius = UDim.new(0, 3) }, face)
+	ZIndex = 11,
+}, voter)
+make("UICorner", { CornerRadius = UDim.new(0, 8) }, face)
 
 gui.Parent = SG
-return "MapVote v2 built (v1 kept in ServerStorage.UiBackups)"
+return "MapVote v3 built (older screens kept in ServerStorage.UiBackups)"

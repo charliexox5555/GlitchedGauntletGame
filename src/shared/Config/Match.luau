@@ -13,16 +13,19 @@ return table.freeze({
 	-- (minTeam..maxTeam players), not the last one when there's a choice. Big
 	-- maps take over from 3v3 (like RIVALS). In Studio the Workspace attribute
 	-- "ForceMap" (a map id) overrides the pick, to test one map.
+	-- `image`: the map vote card's picture (art-source/ui/mapvote, captured in
+	-- Studio 2026-11-16, uploaded with tools/opencloud/upload_asset.py; these are the Image ids
+	-- behind the uploaded Decals, resolved with InsertService).
 	MAPS = {
-		{ id = "Whitebox", minTeam = 1, maxTeam = 2 },
-		{ id = "Rooftops", minTeam = 1, maxTeam = 2 },
-		{ id = "Bunker", minTeam = 1, maxTeam = 3 },
-		{ id = "Dockyard", minTeam = 1, maxTeam = 4 },
-		{ id = "Metro", minTeam = 2, maxTeam = 4 },
-		{ id = "OldTown", minTeam = 2, maxTeam = 4 },
-		{ id = "BigWhitebox", minTeam = 3, maxTeam = 4 },
-		{ id = "Greenhouse", minTeam = 2, maxTeam = 4 },
-		{ id = "Snowpeak", minTeam = 1, maxTeam = 3 },
+		{ id = "Whitebox", minTeam = 1, maxTeam = 2, image = "rbxassetid://113699614092356" },
+		{ id = "Rooftops", minTeam = 1, maxTeam = 2, image = "rbxassetid://108512318108524" },
+		{ id = "Bunker", minTeam = 1, maxTeam = 3, image = "rbxassetid://96494315728991" },
+		{ id = "Dockyard", minTeam = 1, maxTeam = 4, image = "rbxassetid://127177914979763" },
+		{ id = "Metro", minTeam = 2, maxTeam = 4, image = "rbxassetid://93727633957094" },
+		{ id = "OldTown", minTeam = 2, maxTeam = 4, image = "rbxassetid://96459699112891" },
+		{ id = "BigWhitebox", minTeam = 3, maxTeam = 4, image = "rbxassetid://121999397106265" },
+		{ id = "Greenhouse", minTeam = 2, maxTeam = 4, image = "rbxassetid://114783178030455" },
+		{ id = "Snowpeak", minTeam = 1, maxTeam = 3, image = "rbxassetid://103440518160817" },
 		-- Dockyard2 (redesign, 2026-11-05) is installed but left out on purpose: ForceMap only until approved.
 	} :: { MapEntry },
 
@@ -35,6 +38,7 @@ return table.freeze({
 		allInSeconds = 1.5, -- once every player has voted, the clock cuts to this
 		chosenSeconds = 2.5, -- the picked map is shown, then the map loads
 		random = "Random", -- the Random card's option name
+		stripes = "rbxassetid://132373217041083", -- the cards' name band pattern (art-source/ui/mapvote/stripes.png)
 	}),
 
 	ROUNDS_TO_WIN = 5,
