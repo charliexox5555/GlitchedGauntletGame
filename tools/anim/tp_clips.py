@@ -85,6 +85,39 @@ def held(name, priority, controls, parts=UPPER):
 	return add(Clip(name, priority, lambda t: pose, parts, length=1.0, loop=True, step=None))
 
 
+BREATH_LENGTH = 2.4  # seconds per breath
+BREATH = (0.7, 0.35, 0.012)  # chest lean (deg), chest yaw sway (deg), gun rise (studs)
+
+
+def breathing(name, priority, controls, parts=UPPER):
+	"""A hold that keeps living (owner, memory animation-oomph: holds keep
+	moving; 2026-11-20: every hold measured dead still): the chest breathes
+	and sways a touch, the gun rides up and down with it on the fists, the
+	head stays on the target. One breath per BREATH_LENGTH, keyed every 0.1 s."""
+	lean, sway, rise = BREATH
+	chest = controls["chest"]
+	chest = chest if hasattr(chest, "shape") else euler(*chest)
+	gun = controls["gun"]
+	# The free hand by its block end, riding the gun: its "on_gun" reach
+	# solve flipped under these small moves (a 0.045-stud one-frame tick on
+	# AimUp / AimDown / AdsDown). In play GripController's IK places it anyway.
+	w = fk(solve(controls))
+	wrist = (w["LeftHand"] @ np.array([0, 0.125, 0, 1.0]))[:3]
+	tip0 = wrist + w["LeftLowerArm"][:3, :3] @ v3(0, -WRIST_TO_TIP, 0)
+
+	def at(t):
+		ph = TAU * t / BREATH_LENGTH
+		b, s_ = math.sin(ph), math.sin(ph * 0.5 + 0.6)
+		dy = rise * math.sin(ph - 0.5)
+		ctrl = dict(controls)
+		ctrl["chest"] = euler(lean * b, sway * s_, 0) @ chest
+		ctrl["gun"] = {**gun, "pos": (gun["pos"][0], gun["pos"][1] + dy, gun["pos"][2])}
+		ctrl["left_arm"] = {"tip": (float(tip0[0]), float(tip0[1] + dy), float(tip0[2]))}
+		return solve(ctrl)
+
+	return add(Clip(name, priority, at, parts, length=BREATH_LENGTH, loop=True, step=0.1))
+
+
 # Stance ----------------------------------------------------------------------------
 
 # Standing: straight legs like a regular block character, feet a little wider
@@ -251,10 +284,10 @@ def knife(arm=None, chest=(-8, 16, 0), left=(-0.5, 0.5, -1.5), head=(0, 0, 0), h
 
 
 for _name, _pitch in (("Up", 45), ("Level", 0), ("Down", -30)):
-	held("Aim" + _name, "Action", long_hold(_pitch))
-	held("Ads" + _name, "Action", long_hold(_pitch, True))
-	held("PistolAim" + _name, "Action", pistol_hold(_pitch))
-	held("PistolAds" + _name, "Action", pistol_hold(_pitch, True))
+	breathing("Aim" + _name, "Action", long_hold(_pitch))
+	breathing("Ads" + _name, "Action", long_hold(_pitch, True))
+	breathing("PistolAim" + _name, "Action", pistol_hold(_pitch))
+	breathing("PistolAds" + _name, "Action", pistol_hold(_pitch, True))
 	# ...and each one's recoil pose (Action2: over the hold, by weight).
 	held("Kick" + _name, "Action2", long_hold(_pitch, kick=LONG_KICK))
 	held("AdsKick" + _name, "Action2", long_hold(_pitch, True, kick=LONG_KICK))

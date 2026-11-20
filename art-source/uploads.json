@@ -150,10 +150,10 @@
   "uploaded": "2026-10-26 01:15:31"
  },
  "art-source/animations/GG_AdsDown.rbxm": {
-  "assetId": 139601720262674,
-  "name": "GG AdsDown v6",
+  "assetId": 115407361005663,
+  "name": "GG AdsDown o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:53:32"
+  "uploaded": "2026-11-20 03:16:17"
  },
  "art-source/animations/GG_AdsKickDown.rbxm": {
   "assetId": 132640996566965,
@@ -174,34 +174,34 @@
   "uploaded": "2026-11-15 01:10:34"
  },
  "art-source/animations/GG_AdsLevel.rbxm": {
-  "assetId": 95863412039587,
-  "name": "GG AdsLevel v6",
+  "assetId": 120128012932120,
+  "name": "GG AdsLevel o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:53:35"
+  "uploaded": "2026-11-20 03:16:14"
  },
  "art-source/animations/GG_AdsUp.rbxm": {
-  "assetId": 88665317482255,
-  "name": "GG AdsUp v6",
+  "assetId": 134791744503477,
+  "name": "GG AdsUp o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:53:41"
+  "uploaded": "2026-11-20 03:16:11"
  },
  "art-source/animations/GG_AimDown.rbxm": {
-  "assetId": 86939677186257,
-  "name": "GG AimDown v7",
+  "assetId": 79101581668719,
+  "name": "GG AimDown o1",
   "type": "Animation",
-  "uploaded": "2026-11-15 00:58:04"
+  "uploaded": "2026-11-20 03:16:08"
  },
  "art-source/animations/GG_AimLevel.rbxm": {
-  "assetId": 133205732621181,
-  "name": "GG AimLevel v6",
+  "assetId": 94464701903165,
+  "name": "GG AimLevel o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:53:47"
+  "uploaded": "2026-11-20 03:16:05"
  },
  "art-source/animations/GG_AimUp.rbxm": {
-  "assetId": 137847543596504,
-  "name": "GG AimUp v6",
+  "assetId": 88870025606922,
+  "name": "GG AimUp o1",
   "type": "Animation",
-  "uploaded": "2026-11-12 23:53:50"
+  "uploaded": "2026-11-20 03:16:02"
  },
  "art-source/animations/GG_Cast.rbxm": {
   "assetId": 134329068544989,
@@ -438,10 +438,10 @@
   "uploaded": "2026-11-04 01:49:32"
  },
  "art-source/animations/GG_PistolAdsDown.rbxm": {
-  "assetId": 80580729310516,
-  "name": "GG PistolAdsDown w2",
+  "assetId": 118395948212238,
+  "name": "GG PistolAdsDown o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:02:04"
+  "uploaded": "2026-11-20 03:16:35"
  },
  "art-source/animations/GG_PistolAdsKickDown.rbxm": {
   "assetId": 100422843394946,
@@ -462,34 +462,34 @@
   "uploaded": "2026-11-15 01:10:55"
  },
  "art-source/animations/GG_PistolAdsLevel.rbxm": {
-  "assetId": 77191013164054,
-  "name": "GG PistolAdsLevel w2",
+  "assetId": 126204615010452,
+  "name": "GG PistolAdsLevel o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:02:01"
+  "uploaded": "2026-11-20 03:16:32"
  },
  "art-source/animations/GG_PistolAdsUp.rbxm": {
-  "assetId": 115421178439718,
-  "name": "GG PistolAdsUp w2",
+  "assetId": 103312749068797,
+  "name": "GG PistolAdsUp o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:01:58"
+  "uploaded": "2026-11-20 03:16:29"
  },
  "art-source/animations/GG_PistolAimDown.rbxm": {
-  "assetId": 70510113818516,
-  "name": "GG PistolAimDown w2",
+  "assetId": 136745041959856,
+  "name": "GG PistolAimDown o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:01:55"
+  "uploaded": "2026-11-20 03:16:26"
  },
  "art-source/animations/GG_PistolAimLevel.rbxm": {
-  "assetId": 91403700231911,
-  "name": "GG PistolAimLevel w2",
+  "assetId": 77979426667126,
+  "name": "GG PistolAimLevel o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:01:52"
+  "uploaded": "2026-11-20 03:16:23"
  },
  "art-source/animations/GG_PistolAimUp.rbxm": {
-  "assetId": 95901417628746,
-  "name": "GG PistolAimUp w2",
+  "assetId": 90110821738932,
+  "name": "GG PistolAimUp o1",
   "type": "Animation",
-  "uploaded": "2026-11-13 16:01:49"
+  "uploaded": "2026-11-20 03:16:20"
  },
  "art-source/animations/GG_PistolKickDown.rbxm": {
   "assetId": 90306962924727,
