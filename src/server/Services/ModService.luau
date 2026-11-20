@@ -36,6 +36,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -61,6 +62,7 @@ local Validate = require(Shared.Util.Validate)
 local ModEntities = require(script.Parent.ModEntities)
 local ModRecall = require(script.Parent.ModRecall)
 local ModSim = require(script.Parent.ModSim)
+local HeldItem = require(script.Parent.Weapon.HeldItem)
 local Motion = require(script.Parent.Weapon.Motion)
 local ModWalls = require(script.Parent.ModWalls)
 local StatusService = require(script.Parent.StatusService)
@@ -80,9 +82,6 @@ local USE_KINDS: { [string]: string } = {
 	HeldSteer = "Cast",
 	HeldCharge = "Heal", -- the launcher's shove forward
 }
-local HELD_ITEM = "ModHeldItem"
--- The item sits in the right hand like a gun (WeaponService's grip).
-local HELD_GRIP = CFrame.new(0, -0.15, -0.05) * CFrame.Angles(-math.pi / 2, 0, 0)
 
 local ModService = {}
 
@@ -99,7 +98,7 @@ end
 -- mode for now (rounds will add "in a round").
 -- Behind the barrier and between rounds, no Mods (MatchService).
 local function active(player: Player): boolean
-	return player:GetAttribute(MatchState.COMBAT_LOCKED) ~= true
+	return StateValues.get(player, MatchState.COMBAT_LOCKED) ~= true
 end
 
 -- Frozen (a stun): no abilities.
@@ -120,7 +119,7 @@ local function prefix(slot: number): string
 end
 
 local function unlimited(player: Player): boolean
-	return player:GetAttribute("ModUnlimitedCharges") == true
+	return StateValues.get(player, "ModUnlimitedCharges") == true
 end
 
 local function newState(): PlayerState
@@ -157,13 +156,13 @@ end
 local function publishSlot(player: Player, slot: number, s: SlotState)
 	local p = prefix(slot)
 	local def = s.id and Mods.def(s.id)
-	player:SetAttribute(p .. "Id", s.id)
-	player:SetAttribute(p .. "Level", if s.id then s.level else nil)
+	StateValues.set(player, p .. "Id", s.id)
+	StateValues.set(player, p .. "Level", if s.id then s.level else nil)
 	local serverOwned = def ~= nil and def.authority == "Server"
 	local private = privateState(player)
 	if private then
-		private:SetAttribute(p .. "Charges", if serverOwned then s.charges else nil)
-		private:SetAttribute(p .. "RechargeAt", if serverOwned then s.rechargeAt else nil)
+		StateValues.set(private, p .. "Charges", if serverOwned then s.charges else nil)
+		StateValues.set(private, p .. "RechargeAt", if serverOwned then s.rechargeAt else nil)
 	end
 end
 
@@ -175,46 +174,8 @@ local function showHeldItem(player: Player, id: string?)
 	if not character then
 		return
 	end
-	local old = character:FindFirstChild(HELD_ITEM)
-	if old then
-		old:Destroy()
-	end
-	local folder = ReplicatedStorage:FindFirstChild("Abilities")
-	local template = id and folder and folder:FindFirstChild(id)
-	local kind = template and template:GetAttribute("Kind")
-	local hand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
-	local show = template ~= nil
-		and template:IsA("Model")
-		and (kind == "handheld" or kind == "thrown")
-	WeaponService.setWorldWeaponHidden(player, show)
-	if not show or not hand or not hand:IsA("BasePart") then
-		return
-	end
-	local model = (template :: Model):Clone()
-	model.Name = HELD_ITEM
-	local root = model.PrimaryPart
-	if not root then
-		model:Destroy()
-		return
-	end
-	for _, d in model:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Anchored = false
-			d.CanCollide = false
-			d.CanQuery = false
-			d.CanTouch = false
-			d.Massless = true
-		end
-	end
-	local offset = model:GetAttribute("HoldOffset")
-	local grip = Instance.new("Weld")
-	grip.Part0 = hand
-	grip.Part1 = root
-	grip.C0 = HELD_GRIP
-		* (if typeof(offset) == "Vector3" then CFrame.new(offset) else CFrame.identity)
-	grip.Parent = root
-	root.CFrame = hand.CFrame * grip.C0
-	model.Parent = character
+	-- The item in the hand, the gun away (shared with bots: Weapon/HeldItem).
+	WeaponService.setWorldWeaponHidden(player, HeldItem.show(character, id))
 end
 
 -- Ends the hold. `busyFor`: the gun stays down this much longer (the throw /
@@ -225,13 +186,13 @@ local function release(player: Player, busyFor: number?)
 		state.held = 0
 	end
 	WeaponService.setHolstered(player, false, busyFor)
-	player:SetAttribute("ModHeld", 0)
+	StateValues.set(player, "ModHeld", 0)
 	showHeldItem(player, nil)
 end
 
 local function deny(player: Player, slot: number, reason: string)
 	if RunService:IsStudio() then
-		player:SetAttribute("ModReject", reason)
+		StateValues.set(player, "ModReject", reason)
 	end
 	Net.event("ModFx"):FireClient(player, "Denied", { slot = slot, reason = reason })
 end
@@ -300,8 +261,8 @@ end
 
 -- The next life starts full (setSlot, refillCharges).
 local function clearCarry(player: Player, slot: number)
-	player:SetAttribute(prefix(slot) .. "Carry", nil)
-	player:SetAttribute(prefix(slot) .. "CarryAt", nil)
+	StateValues.set(player, prefix(slot) .. "Carry", nil)
+	StateValues.set(player, prefix(slot) .. "CarryAt", nil)
 end
 
 -- Loadout API (draft later; the dev panel now) ------------------------------------
@@ -330,15 +291,16 @@ function ModService.setSlot(player: Player, slot: number, id: string?, level: st
 	s.charges = if stats then stats.charges else 0
 	s.rechargeAt = serverNow()
 	clearCarry(player, slot)
-	local serial = player:GetAttribute(prefix(slot) .. "Serial")
-	player:SetAttribute(
+	local serial = StateValues.get(player, prefix(slot) .. "Serial")
+	StateValues.set(
+		player,
 		prefix(slot) .. "Serial",
 		(if typeof(serial) == "number" then serial else 0) + 1
 	)
 	publishSlot(player, slot, s)
 	local private = privateState(player)
 	if private then
-		private:SetAttribute(prefix(slot) .. "ActiveUntil", nil)
+		StateValues.set(private, prefix(slot) .. "ActiveUntil", nil)
 	end
 	return true
 end
@@ -369,14 +331,41 @@ function ModService.refillCharges(player: Player)
 			publishSlot(player, slot, s)
 		end
 	end
-	local serial = player:GetAttribute("ModResetSerial")
-	player:SetAttribute("ModResetSerial", (if typeof(serial) == "number" then serial else 0) + 1)
+	local serial = StateValues.get(player, "ModResetSerial")
+	StateValues.set(
+		player,
+		"ModResetSerial",
+		(if typeof(serial) == "number" then serial else 0) + 1
+	)
 	for _, fn in refillListeners do
 		task.spawn(fn, player)
 	end
 end
 
 -- The slot and level `player` has Mod `id` in (nil: not slotted).
+-- What a spectator's Mod row shows for `player` (SpectateService sends it to
+-- their spectators only: charges stay hidden from everyone else): per slot
+-- its id, level, charges and when the next charge is back (server time; nil
+-- for predicted Mods, whose server count is ModSim's).
+export type SlotSnapshot = { id: string?, level: string, charges: number, rechargeAt: number? }
+function ModService.snapshot(player: Player): { SlotSnapshot }
+	local out: { SlotSnapshot } = {}
+	local state = states[player]
+	if not state then
+		return out
+	end
+	for slot, s in state.slots do
+		local def = s.id and Mods.def(s.id)
+		local charges: number, rechargeAt: number? = s.charges, s.rechargeAt
+		if def and def.authority == "Simulation" and s.id then
+			charges = ModSim.left(player, slot, s.id .. ":" .. s.level) or s.charges
+			rechargeAt = nil
+		end
+		out[slot] = { id = s.id, level = s.level, charges = charges, rechargeAt = rechargeAt }
+	end
+	return out
+end
+
 function ModService.slotOf(player: Player, id: string): (number?, string?)
 	local state = states[player]
 	if not state then
@@ -401,7 +390,7 @@ end
 
 -- Test mode: casting spends nothing (charges stay where they are).
 function ModService.setUnlimitedCharges(player: Player, on: boolean)
-	player:SetAttribute("ModUnlimitedCharges", on)
+	StateValues.set(player, "ModUnlimitedCharges", on)
 end
 
 -- A life ends: remember the predicted Mods' charges (the simulation keeps them
@@ -422,15 +411,15 @@ local function carryCharges(player: Player, character: Model)
 			if id and def and def.authority == "Simulation" then
 				local left = ModSim.left(player, slot, id .. ":" .. s.level)
 				if left ~= nil then
-					player:SetAttribute(prefix(slot) .. "Carry", left)
-					player:SetAttribute(prefix(slot) .. "CarryAt", nil)
+					StateValues.set(player, prefix(slot) .. "Carry", left)
+					StateValues.set(player, prefix(slot) .. "CarryAt", nil)
 				end
 			end
 		end
 		return
 	end
-	local serial = player:GetAttribute("ModResetSerial")
-	local seen = character:GetAttribute("ModResetSeen")
+	local serial = StateValues.get(player, "ModResetSerial")
+	local seen = StateValues.get(character, "ModResetSeen")
 	if not state or seen ~= (if typeof(serial) == "number" then serial else 0) then
 		return
 	end
@@ -441,18 +430,20 @@ local function carryCharges(player: Player, character: Model)
 			continue
 		end
 		local p = prefix(slot)
-		local charges = character:GetAttribute(p .. "Charges")
-		local rechargeAt = character:GetAttribute(p .. "RechargeAt")
-		local slotSerial = player:GetAttribute(p .. "Serial")
+		local charges = StateValues.get(character, p .. "Charges")
+		local rechargeAt = StateValues.get(character, p .. "RechargeAt")
+		local slotSerial = StateValues.get(player, p .. "Serial")
 		if
-			character:GetAttribute(p .. "Key") == id .. ":" .. s.level
-			and character:GetAttribute(p .. "SerialSeen") == (if typeof(slotSerial) == "number"
+			StateValues.get(character, p .. "Key") == id .. ":" .. s.level
+			and StateValues.get(character, p .. "SerialSeen") == (if typeof(slotSerial)
+					== "number"
 				then slotSerial
 				else 0)
 			and typeof(charges) == "number"
 		then
-			player:SetAttribute(p .. "Carry", charges)
-			player:SetAttribute(
+			StateValues.set(player, p .. "Carry", charges)
+			StateValues.set(
+				player,
 				p .. "CarryAt",
 				if typeof(rechargeAt) == "number" then rechargeAt else nil
 			)
@@ -514,7 +505,7 @@ local function onHold(player: Player, slotArg: unknown)
 	state.held = slot
 	state.heldAt = os.clock()
 	WeaponService.setHolstered(player, true)
-	player:SetAttribute("ModHeld", slot)
+	StateValues.set(player, "ModHeld", slot)
 	showHeldItem(player, s.id)
 end
 
@@ -705,7 +696,7 @@ local function use(
 		active = function(duration: number)
 			local private = privateState(player)
 			if private then
-				private:SetAttribute(prefix(slot) .. "ActiveUntil", serverNow() + duration)
+				StateValues.set(private, prefix(slot) .. "ActiveUntil", serverNow() + duration)
 			end
 		end,
 		-- Where the server's own copy of the camera looks (Server Authority),
@@ -792,8 +783,8 @@ local function use(
 		then "Lob"
 		else def.useKind or USE_KINDS[def.activation]
 	if useKind then
-		player:SetAttribute("ModUseKind", useKind)
-		player:SetAttribute("ModUseAt", now)
+		StateValues.set(player, "ModUseKind", useKind)
+		StateValues.set(player, "ModUseAt", now)
 	end
 	apply(ctx, req)
 end
@@ -904,8 +895,8 @@ local function onRecall(player: Player, slotArg: unknown, actionArg: unknown)
 			Net.event("ModFx"):FireAllClients(kind, data)
 		end,
 		pose = function(kind: string)
-			player:SetAttribute("ModUseKind", kind)
-			player:SetAttribute("ModUseAt", serverNow())
+			StateValues.set(player, "ModUseKind", kind)
+			StateValues.set(player, "ModUseAt", serverNow())
 		end,
 	}
 	if action == "Teleport" then
@@ -979,7 +970,7 @@ local function assignTeam(player: Player)
 			counts[t] += 1
 		end
 	end
-	player:SetAttribute(Teams.ATTRIBUTE, if counts[2] < counts[1] then 2 else 1)
+	StateValues.set(player, Teams.ATTRIBUTE, if counts[2] < counts[1] then 2 else 1)
 end
 
 -- Connections that belong to one life (dropped when the character goes).
@@ -1031,7 +1022,7 @@ local function onPlayer(player: Player)
 	assignTeam(player)
 	states[player] = newState()
 	player:WaitForChild("PlayerGui", 10)
-	player:SetAttribute("ModHeld", 0)
+	StateValues.set(player, "ModHeld", 0)
 	-- Test mode only, never in a match. Studio follows Config/Dev; a published
 	-- test-mode server, Config/TestRange.
 	local startUnlimited = TestMode.isOn()

@@ -13,11 +13,15 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
 local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 
 local BottomHud = require(script.Parent.Parent.Util.BottomHud)
+local Watched = require(script.Parent.Parent.Util.Watched)
+local Charges = require(ReplicatedStorage.Shared.Mods.Charges)
+local Mods = require(ReplicatedStorage.Shared.Mods)
 local FrostFx = require(script.Parent.Parent.Util.FrostFx)
 local StimFx = require(script.Parent.Parent.Util.StimFx)
 local Device = require(script.Parent.Parent.Util.Device)
@@ -630,7 +634,7 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 	-- one just stays dimmed until the next refill.
 	local cooling = id ~= nil
 		and view.charges < 1
-		and player:GetAttribute("ModUnlimitedCharges") ~= true
+		and StateValues.get(player, "ModUnlimitedCharges") ~= true
 	ui.readyBar.BackgroundColor3 = if cooling or id == nil then Theme.COLORS.lineStrong else CYAN
 	local recharging = cooling and view.cooldown > 0
 	local share = if recharging then view.remaining / view.cooldown else 0
@@ -653,7 +657,7 @@ local function writeSlot(ui: SlotUi, view: ModController.SlotView, slot: number,
 	ui.wasCooling = cooling
 
 	local private = ModController.privateState()
-	local activeUntil = private and private:GetAttribute("Mod" .. slot .. "ActiveUntil")
+	local activeUntil = private and StateValues.get(private, "Mod" .. slot .. "ActiveUntil")
 	local serverNow = workspace:GetServerTimeNow()
 	if typeof(activeUntil) == "number" and activeUntil ~= ui.activeUntil then
 		ui.activeUntil = activeUntil
@@ -787,6 +791,54 @@ local function updateMeter(dt: number, now: number)
 	end
 end
 
+-- While you spectate: the watched fighter's slot, from their public kit
+-- (`Mod<n>Id` / `Level`, `ModHeld`) and the charges the server sent only to
+-- their spectators (Util/Watched, SpectateFeed "Mods").
+local function subjectView(slot: number): ModController.SlotView?
+	local holder = Watched.get()
+	if not holder then
+		return nil
+	end
+	local row = Watched.modRow(slot)
+	local p = "Mod" .. slot
+	local idValue = if row then row.id else StateValues.get(holder, p .. "Id")
+	local levelValue = if row then row.level else StateValues.get(holder, p .. "Level")
+	local level = if typeof(levelValue) == "string" then levelValue else "L1"
+	local view: ModController.SlotView = {
+		id = nil,
+		level = level,
+		def = nil,
+		stats = nil,
+		charges = 0,
+		max = 0,
+		remaining = 0,
+		cooldown = 0,
+		held = false,
+		built = false,
+	}
+	if typeof(idValue) ~= "string" then
+		return view
+	end
+	local def = Mods.def(idValue)
+	local stats = Mods.stats(idValue, level)
+	if not def or not stats then
+		return view
+	end
+	view.id, view.def, view.stats = idValue, def, stats
+	view.max, view.cooldown, view.built = stats.charges, stats.cooldown, Mods.isBuilt(idValue)
+	view.held = StateValues.get(holder, "ModHeld") == slot
+	local charges = if row then row.charges else stats.charges
+	local rechargeAt = if row then row.rechargeAt else nil
+	if rechargeAt then
+		local now = workspace:GetServerTimeNow()
+		charges, rechargeAt =
+			Charges.settle(charges, rechargeAt, stats.charges, stats.cooldown, now)
+		view.remaining = Charges.remaining(charges, rechargeAt, stats.charges, stats.cooldown, now)
+	end
+	view.charges = charges
+	return view
+end
+
 local function update(dt: number)
 	if not bar then
 		return
@@ -794,13 +846,14 @@ local function update(dt: number)
 	updateMeter(dt, os.clock())
 	local now = os.clock()
 	local any = false
+	local watching = BottomHud.isSpectating()
 	for slot, ui in slots do
-		local view = ModController.slot(slot)
+		local view = (if watching then subjectView(slot) else nil) or ModController.slot(slot)
 		any = any or view.id ~= nil
 		writeSlot(ui, view, slot, now)
 	end
-	-- Your Mods, not the watched fighter's: hidden while spectating.
-	bar.Visible = any and not BottomHud.isSpectating()
+	-- Yours, or the watched fighter's while you spectate.
+	bar.Visible = any
 	BottomHud.setModsVisible(any)
 	local status = slowedLabel
 	if status and StatusTray.active() then
@@ -811,7 +864,7 @@ local function update(dt: number)
 		local stimWord = if StimFx.strong() then "STRONG STIM" else "STIMMED"
 		-- HEALING: the server's HealingUntil on your character (Heal Orb or Heal Zone).
 		local healUntil = if player.Character
-			then player.Character:GetAttribute(StatusEffects.healing.attribute)
+			then StateValues.get(player.Character, StatusEffects.healing.attribute)
 			else nil
 		local healing = if typeof(healUntil) == "number"
 			then math.max(healUntil - workspace:GetServerTimeNow(), 0)

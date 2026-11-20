@@ -8,6 +8,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
@@ -27,6 +28,8 @@ local BotService = require(script.Parent.BotService)
 local CharacterService = require(script.Parent.CharacterService)
 local MatchPlan = require(script.Parent.Parent.Bots.MatchPlan)
 local WeaponService = require(script.Parent.WeaponService)
+local LookStream = require(script.Parent.LookStream)
+local WeaponDamage = require(script.Parent.Weapon.Damage)
 local HealthService = require(script.Parent.HealthService)
 local Net = require(ReplicatedStorage.Shared.Net)
 local ZoneService = require(script.Parent.ZoneService)
@@ -58,9 +61,11 @@ local humanSides = { false, false }
 -- final-kill replay.
 type Down = { body: Model, at: number }
 local lastDown: { [number]: Down } = {}
+-- Who took each body down (a Player or a bot's model): the replay's killer.
+local lastKiller: { [Model]: Instance } = setmetatable({}, { __mode = "k" }) :: any
 
 local function setLocked(player: Player, locked: boolean)
-	player:SetAttribute(MatchState.COMBAT_LOCKED, locked)
+	StateValues.set(player, MatchState.COMBAT_LOCKED, locked)
 end
 
 local function setAllLocked(locked: boolean)
@@ -114,7 +119,7 @@ local function balanceTeams()
 		for _, player in Players:GetPlayers() do
 			local team = MatchPlan.teamFor(player)
 			if team and Teams.of(player) ~= team then
-				player:SetAttribute(Teams.ATTRIBUTE, team)
+				StateValues.set(player, Teams.ATTRIBUTE, team)
 			end
 		end
 		return
@@ -128,7 +133,7 @@ local function balanceTeams()
 		if math.abs(#one - #two) < 2 then
 			return
 		end
-		bigger[#bigger]:SetAttribute(Teams.ATTRIBUTE, target)
+		StateValues.set(bigger[#bigger], Teams.ATTRIBUTE, target)
 	end
 end
 
@@ -213,7 +218,7 @@ local function teamState(team: number): (number, number)
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		if humanoid and Health.isAlive(humanoid) then
 			alive += 1
-			local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+			local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
 			health += Health.get(humanoid) + (if typeof(shield) == "number" then shield else 0)
 		end
 	end
@@ -275,7 +280,7 @@ local function applyDraft(keys: { any })
 	for _, key in keys do
 		if BotService.isBot(key) then
 			local seat = DraftService.seat(key)
-			BotService.applyDraft(key, matchLoadout(seat), seat.kit, seat.levels)
+			BotService.applyDraft(key, matchLoadout(seat), seat.kit, seat.levels, true)
 		elseif typeof(key) == "Instance" and key:IsA("Player") and key.Parent == Players then
 			local player = key
 			local seat = DraftService.seat(player)
@@ -310,7 +315,7 @@ local function giveShields()
 		local character = key.Character
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		if humanoid then
-			humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, DraftService.seat(key).shield)
+			StateValues.set(humanoid, Combat.SHIELD_ATTRIBUTE, DraftService.seat(key).shield)
 		end
 	end
 end
@@ -345,27 +350,9 @@ local function noteHumans()
 	end
 end
 
--- Every player the Lobby match lists is on the server (no plan: whoever is
--- here is everyone).
-local function everyoneArrived(): boolean
-	local plan = MatchPlan.current()
-	if not plan then
-		return true
-	end
-	for team = 1, 2 do
-		for _, userId in plan.teams[team] do
-			if not Players:GetPlayerByUserId(userId) then
-				return false
-			end
-		end
-	end
-	return true
-end
-
 -- The select screen: SELECT time in all, the last COUNTDOWN of it the 3-2-1.
 -- The top-bar clock counts to the fight. Any round skips to the 3-2-1 once
--- everyone has locked in; round 1 also waits until every listed player has
--- arrived (people are still loading in).
+-- everyone has locked in.
 local function runDraft(round: number)
 	local total = if round == 1 then Config.FIRST_SELECT_TIME else Config.SELECT_TIME
 	local picking = math.max(total - Config.COUNTDOWN_TIME, 1)
@@ -382,8 +369,7 @@ local function runDraft(round: number)
 	MatchState.set("EndsAt", now + total)
 	MatchState.set("Phase", "Draft")
 	runClock(picking, function()
-		return forfeited()
-			or (DraftService.allLocked(seatKeys()) and (round > 1 or everyoneArrived()))
+		return forfeited() or DraftService.allLocked(seatKeys())
 	end)
 	DraftService.close(seatKeys())
 	applyDraft(seatKeys())
@@ -396,7 +382,7 @@ end
 local function takeOver(player: Player, bot: any)
 	local team = MatchPlan.teamFor(player) or BotService.teamOf(bot)
 	if team then
-		player:SetAttribute(Teams.ATTRIBUTE, team)
+		StateValues.set(player, Teams.ATTRIBUTE, team)
 	end
 	standIns[player.UserId] = nil
 	pendingTakeovers[player] = nil
@@ -454,7 +440,7 @@ local function onJoin(player: Player)
 		-- Their side from the start, even while the bot still plays the seat.
 		local team = MatchPlan.teamFor(player) or BotService.teamOf(bot)
 		if team then
-			player:SetAttribute(Teams.ATTRIBUTE, team)
+			StateValues.set(player, Teams.ATTRIBUTE, team)
 		end
 		if selecting then
 			takeOver(player, bot)
@@ -467,7 +453,7 @@ local function onJoin(player: Player)
 	end
 	local listedTeam = MatchPlan.teamFor(player)
 	if listedTeam then
-		player:SetAttribute(Teams.ATTRIBUTE, listedTeam)
+		StateValues.set(player, Teams.ATTRIBUTE, listedTeam)
 	end
 	if selecting then
 		-- No seat kept: dealt in (a Studio test client, or a free join).
@@ -504,7 +490,7 @@ local function onLeave(player: Player)
 	standIns[player.UserId] = bot -- if they come back, they take the seat back
 	DraftService.transfer(player, bot)
 	local seat = DraftService.seat(bot)
-	BotService.applyDraft(bot, matchLoadout(seat), seat.kit, seat.levels)
+	BotService.applyDraft(bot, matchLoadout(seat), seat.kit, seat.levels, true)
 	if DraftService.isOpen() then
 		BotService.draft(bot, seat :: any)
 	end
@@ -564,7 +550,61 @@ local function playReplay(winner: number, eliminated: boolean)
 	end
 	local startAt = workspace:GetServerTimeNow() + R.delay
 	local length = MatchState.replayLength()
-	Net.event("Replay"):FireAllClients(down.body, down.at, startAt)
+	-- The killer's view as the server recorded it (Services/LookStream: their
+	-- yaw / pitch, packed as f32 seconds from the kill + f32 yaw + f32 pitch),
+	-- how late their samples reach the server, and their hits (hit markers):
+	-- every client replays the same smooth aim. Clients fall back to their
+	-- own recording when these are missing.
+	-- Always first person: a gun (or knife) kill plays from the killer's
+	-- eyes; a fall, the zone or a Mod kill from the victim's. `pov` is that
+	-- fighter as the clients know them (a Player, or a bot's model).
+	local killer = lastKiller[down.body]
+	local from, to = down.at - R.before - 1, down.at + R.after + 0.5
+	local gunKill = false
+	if killer and killer.Parent then
+		for _, hit in WeaponDamage.hitsOf(killer, from, to) do
+			if hit.killed and hit.victim == down.body then
+				gunKill = hit.source == nil
+			end
+		end
+	end
+	local victimHolder: Instance = Players:GetPlayerFromCharacter(down.body) or down.body
+	local pov: Instance = if gunKill and killer then killer else victimHolder
+	local look: buffer? = nil
+	local samples = LookStream.window(pov, from, to)
+	if #samples >= 2 then
+		local b = buffer.create(#samples * 12)
+		for i, sample in samples do
+			local at = (i - 1) * 12
+			buffer.writef32(b, at, sample.t - down.at)
+			buffer.writef32(b, at + 4, sample.yaw)
+			buffer.writef32(b, at + 8, sample.pitch)
+		end
+		look = b
+	end
+	local lag = LookStream.lagOf(pov)
+	local function pack(list: { WeaponDamage.RecentHit }): { { [string]: any } }
+		local out: { { [string]: any } } = {}
+		for _, hit in list do
+			table.insert(out, {
+				dt = hit.t - down.at,
+				victim = hit.victim,
+				damage = hit.damage,
+				zone = hit.zone,
+				killed = hit.killed,
+				position = hit.position,
+				source = hit.source,
+				from = hit.from,
+			})
+		end
+		return out
+	end
+	-- The POV fighter's own hits (hit markers) and, from the victim's eyes,
+	-- the hits they took (damage arcs).
+	local hits = pack(WeaponDamage.hitsOf(pov, from, to))
+	local hurts = if pov == victimHolder then pack(WeaponDamage.hitsOn(down.body, from, to)) else {}
+	Net.event("Replay")
+		:FireAllClients(down.body, down.at, startAt, killer, look, lag, hits, pov, hurts)
 	setPhase("Replay", length)
 	task.wait(length)
 end
@@ -598,6 +638,7 @@ end
 -- match ends (a replay or the end screen comes next).
 local function closeRound()
 	setAllLocked(true)
+	BotService.setFighting(false)
 	for _, player in Players:GetPlayers() do
 		ModService.clearRound(player)
 	end
@@ -637,8 +678,9 @@ local function runMatch(): boolean
 	MatchState.set("Score2", 0)
 	MatchState.set("RoundWinner", nil)
 	MatchState.set("MatchWinner", nil)
+	MatchState.set("Results", nil)
 	roundHistory = {}
-	MatchState.setList("RoundHistory", roundHistory) -- "winner:WeaponPhase" per round, one attribute each (50-character cap)
+	MatchState.setList("RoundHistory", roundHistory) -- "winner:WeaponPhase" per round
 	MapService.setBarriers(true)
 	resetKits()
 	table.clear(lastDown)
@@ -742,10 +784,14 @@ local function runMatch(): boolean
 		MatchState.setList("RoundHistory", roundHistory)
 		if winner ~= 0 and scores[winner] >= Config.ROUNDS_TO_WIN then
 			closeRound()
-			playReplay(winner, eliminated) -- the match-winning kill
+			local ok, err = xpcall(playReplay, debug.traceback, winner, eliminated)
+			if not ok then
+				warn("[MatchService] final replay stopped:", err)
+			end
 			return "stop"
 		end
 		setPhase("RoundEnd", Config.ROUND_END_TIME)
+		BotService.setFighting(false, true)
 		runClock(Config.ROUND_END_TIME, forfeited)
 		closeRound()
 
@@ -824,11 +870,14 @@ local function waitForPlayers()
 		balanceTeams()
 		local plan = MatchPlan.current()
 		if plan and #Players:GetPlayers() > 0 then
-			-- A Lobby (or Studio BotMatch) match starts with the first player:
-			-- bots keep everyone else's seat, and the round 1 select is the wait.
-			fillSlots()
-			if bothSidesFilled() then
-				return
+			local ready, expected, canStart = MatchPlan.readiness()
+			MatchState.set("ReadyPlayers", ready)
+			MatchState.set("ExpectedPlayers", expected)
+			if canStart then
+				fillSlots()
+				if bothSidesFilled() then
+					return
+				end
 			end
 		elseif bothSidesFilled() and #Players:GetPlayers() > 0 then
 			return
@@ -850,7 +899,7 @@ local function waitForPlayers()
 		else
 			lonelySince = nil
 		end
-		task.wait(0.5)
+		task.wait(0.2)
 	end
 end
 
@@ -860,7 +909,7 @@ end
 -- the Workspace attribute ForceMap wins. nil keeps the current map.
 local lastMap: string? = nil
 local function pickMap(): string?
-	local forced = workspace:GetAttribute("ForceMap")
+	local forced = StateValues.get(workspace, "ForceMap")
 	if RunService:IsStudio() and typeof(forced) == "string" and MapService.has(forced) then
 		return forced
 	end
@@ -876,7 +925,7 @@ local function pickMap(): string?
 	elseif #fits == 1 or #Players:GetPlayers() == 0 then
 		return fits[math.random(1, #fits)]
 	end
-	return MapVoteService.run(fits, size)
+	return MapVoteService.run(fits, size, MatchState.botSeats())
 end
 
 local function loop()
@@ -902,17 +951,17 @@ local function loop()
 		end
 		if not ok then
 			warn("[MatchService] the match stopped on an error:", result)
-			-- Back behind the barrier, whatever phase it stopped in.
 			DraftService.reset()
 			table.clear(pendingTakeovers)
-			setPhase("Waiting", 0)
 			setAllLocked(true)
 			MapService.setBarriers(true)
-			task.wait(RETRY_AFTER_ERROR)
-		elseif result ~= true and not RunService:IsStudio() then
-			-- No rematch: the players are on their way to the Lobby. A new match
-			-- starts only if some are still here after the wait (a failed teleport).
-			setPhase("Waiting", 0)
+			return
+		end
+		if result ~= true then
+			-- Keep the results visible while any remaining clients return to the Lobby.
+			if RunService:IsStudio() then
+				return
+			end
 			local until_ = os.clock() + Config.MATCH_END.emptyWait
 			local nextResend = os.clock() + 5
 			while #Players:GetPlayers() > 0 and os.clock() < until_ do
@@ -922,11 +971,10 @@ local function loop()
 					MatchEndService.resendStranded() -- a teleport that failed tries again
 				end
 			end
-			if #Players:GetPlayers() == 0 then
-				BotService.clear()
-				table.clear(standIns)
-				table.clear(pendingTakeovers)
-			end
+			BotService.clear()
+			table.clear(standIns)
+			table.clear(pendingTakeovers)
+			return
 		end
 	end
 end
@@ -945,6 +993,12 @@ function MatchService.start()
 	end
 	setAllLocked(true)
 	MatchPlan.start()
+	WeaponService.onHit(function(attacker: Instance, victim: Model, _dealt: number, killed: boolean)
+		if killed then
+			lastKiller[victim] = attacker
+		end
+		return nil
+	end)
 	HealthService.onDowned(function(humanoid: Humanoid)
 		local body = humanoid.Parent
 		local team = body and body:IsA("Model") and Teams.of(body)

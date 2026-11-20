@@ -8,6 +8,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Combat = require(Shared.Config.Combat)
@@ -15,15 +16,22 @@ local Health = require(Shared.Health)
 local MatchState = require(Shared.MatchState)
 local Net = require(Shared.Net)
 local Types = require(Shared.Types)
+local Weapons = require(Shared.Config.Weapons)
 
 local HealthService = require(script.Parent.Parent.HealthService)
+local Spectated = require(script.Parent.Parent.Parent.Bots.Spectated)
 local Targets = require(script.Parent.Targets)
 
 type HitZone = Types.HitZone
 
 -- Every hit from players and bots alike (StatsService): attacker is a Player
--- or a bot's model. Listeners only observe: nothing they do feeds back.
-export type HitListener = (attacker: Instance, victim: Model, dealt: number, killed: boolean) -> ()
+-- or a bot's model. Stats can return the assister IDs for the feed.
+export type HitListener = (
+	attacker: Instance,
+	victim: Model,
+	dealt: number,
+	killed: boolean
+) -> { number }?
 -- Damage rules from Mods (ModService's ServerApi): modifiers change
 -- player-on-player damage, guards see every hit and may block it.
 export type DamageGuard = (
@@ -41,13 +49,143 @@ export type DamageModifier = (
 
 local Damage = {}
 
+-- The spectate feed (vault/05 Production/Spectate Replay Fix Plan.md, C):
+-- what a spectator sees of the fighter they watch, sent only to the players
+-- watching them (Bots/Spectated), reliable:
+--   ("Hit", attacker, hit)        the watched fighter hit someone (the same
+--                                 fields as your own HitConfirm)
+--   ("Hurt", victim, from, dealt) the watched fighter was hit (from = the
+--                                 attacker's position, for the damage arcs)
+-- A fighter is the Player, or the bot's model (what the clients know).
+-- Also a short ring of every fighter's recent hits on the server's clock: the
+-- final-kill replay replays the killer's hit markers from it (`hitsOf`).
+export type RecentHit = {
+	t: number,
+	victim: Model,
+	damage: number,
+	zone: HitZone,
+	killed: boolean,
+	position: Vector3,
+	source: string?,
+	from: Vector3?, -- where the attacker stood (the victim's damage arcs in the replay)
+}
+local HIT_KEEP = 64
+local recentHits: { [Instance]: { RecentHit } } = setmetatable({}, { __mode = "k" }) :: any
+
+local function feed(target: Instance, ...: any)
+	local watchers = Spectated.watchersOf(target)
+	if #watchers == 0 then
+		return
+	end
+	local remote = Net.event("SpectateFeed")
+	for _, spectator in watchers do
+		if spectator.Parent == Players then
+			remote:FireClient(spectator, ...)
+		end
+	end
+end
+
+-- After any hit (a player's or a bot's, a gun's or a Mod's): the ring, the
+-- attacker's spectators (their hit marker) and the victim's (their hurt).
+local function shareHit(
+	attacker: Instance,
+	victimModel: Model,
+	dealt: number,
+	killed: boolean,
+	blocked: boolean,
+	zone: HitZone,
+	at: Vector3,
+	source: string?,
+	from: Vector3?
+)
+	local damage = math.round(dealt)
+	if not blocked then
+		local list = recentHits[attacker]
+		if not list then
+			list = {}
+			recentHits[attacker] = list
+		end
+		table.insert(list, {
+			t = workspace:GetServerTimeNow(),
+			victim = victimModel,
+			damage = damage,
+			zone = zone,
+			killed = killed,
+			position = at,
+			source = source,
+			from = from,
+		})
+		if #list > HIT_KEEP then
+			table.remove(list, 1)
+		end
+	end
+	feed(attacker, "Hit", attacker, {
+		damage = damage,
+		zone = zone,
+		killed = killed,
+		position = at,
+		blocked = blocked or nil,
+		source = source,
+		victim = victimModel,
+	})
+	if dealt > 0 and from then
+		local victimHolder: Instance = Players:GetPlayerFromCharacter(victimModel) or victimModel
+		feed(victimHolder, "Hurt", victimHolder, from, damage)
+	end
+end
+
+-- `attacker`'s hits between `from` and `to` (server time), oldest first: the
+-- final-kill replay's hit markers.
+function Damage.hitsOf(attacker: Instance, from: number, to: number): { RecentHit }
+	local out: { RecentHit } = {}
+	for _, hit in recentHits[attacker] or {} do
+		if hit.t >= from and hit.t <= to then
+			table.insert(out, hit)
+		end
+	end
+	return out
+end
+
+-- Every hit taken by `victim` between `from` and `to` (server time), oldest
+-- first, whoever dealt it: a victim's-eye replay shows them.
+function Damage.hitsOn(victim: Model, from: number, to: number): { RecentHit }
+	local out: { RecentHit } = {}
+	for _, list in recentHits do
+		for _, hit in list do
+			if hit.victim == victim and hit.t >= from and hit.t <= to then
+				table.insert(out, hit)
+			end
+		end
+	end
+	table.sort(out, function(a: RecentHit, b: RecentHit): boolean
+		return a.t < b.t
+	end)
+	return out
+end
+
 local hitListeners: { HitListener } = {}
 local damageGuards: { DamageGuard } = {}
 local damageModifiers: { DamageModifier } = {}
 
-local function tellHit(attacker: Instance, victim: Model, dealt: number, killed: boolean)
+local function tellHit(
+	attacker: Instance,
+	victim: Model,
+	dealt: number,
+	killed: boolean,
+	sourceId: string,
+	headshot: boolean
+)
+	local assists: { number }? = nil
 	for _, fn in hitListeners do
-		task.spawn(fn, attacker, victim, dealt, killed)
+		local ok, credit = pcall(fn, attacker, victim, dealt, killed)
+		if not ok then
+			warn("[WeaponService] hit listener failed:", credit)
+		elseif credit then
+			assists = credit
+		end
+	end
+	if killed then
+		Net.event("Killed"):FireAllClients(victim, attacker, sourceId, headshot, assists)
 	end
 end
 
@@ -94,10 +232,10 @@ function Damage.hurt(humanoid: Humanoid, amount: number, attacker: Player?): num
 			end
 		end
 	end
-	local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+	local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
 	local fromShield = if typeof(shield) == "number" then math.min(shield, amount) else 0
 	if fromShield > 0 then
-		humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, (shield :: number) - fromShield)
+		StateValues.set(humanoid, Combat.SHIELD_ATTRIBUTE, (shield :: number) - fromShield)
 	end
 	local taken = if amount > fromShield
 		then HealthService.damage(humanoid, amount - fromShield)
@@ -133,10 +271,10 @@ function Damage.apply(
 	local dealt = Damage.hurt(humanoid, amount, attacker)
 	local killed = Health.isDowned(humanoid)
 	local blocked = dealt <= 0 and amount > 0
-	humanoid:SetAttribute("LastAttacker", attacker.UserId)
+	StateValues.set(humanoid, "LastAttacker", attacker.UserId)
 	local victimPlayer = Players:GetPlayerFromCharacter(victimModel)
 	if victimPlayer and dealt > 0 then
-		victimPlayer:SetAttribute("HitAt", workspace:GetServerTimeNow()) -- the flinch others see
+		StateValues.set(victimPlayer, "HitAt", workspace:GetServerTimeNow()) -- the flinch others see
 	end
 
 	Net.event("HitConfirm"):FireClient(attacker, {
@@ -155,10 +293,18 @@ function Damage.apply(
 	if victim and attackerRoot and attackerRoot:IsA("BasePart") then
 		Net.event("Damaged"):FireClient(victim, attackerRoot.Position, math.round(dealt))
 	end
-	tellHit(attacker, victimModel, dealt, killed)
-	if killed then
-		Net.event("Killed"):FireAllClients(victimModel, attacker, sourceId, zone == "Head")
-	end
+	shareHit(
+		attacker,
+		victimModel,
+		dealt,
+		killed,
+		blocked,
+		zone,
+		at,
+		modSource,
+		if attackerRoot and attackerRoot:IsA("BasePart") then attackerRoot.Position else nil
+	)
+	tellHit(attacker, victimModel, dealt, killed, sourceId, zone == "Head")
 end
 
 -- Damage from a Mod (ModService), through the same path as gun damage: kill
@@ -188,7 +334,7 @@ function Damage.damageBy(
 	amount: number,
 	zone: HitZone,
 	sourceId: string,
-	_at: Vector3
+	at: Vector3
 ): number
 	local humanoid = Targets.liveHumanoid(victimModel)
 	if not humanoid or amount ~= amount or amount <= 0 or amount == math.huge then
@@ -197,17 +343,18 @@ function Damage.damageBy(
 	local dealt = Damage.hurt(humanoid, amount, nil)
 	local killed = Health.isDowned(humanoid)
 	local victim = Players:GetPlayerFromCharacter(victimModel)
+	local root = attacker:FindFirstChild("HumanoidRootPart")
+	local from = if root and root:IsA("BasePart") then root.Position else nil
 	if victim and dealt > 0 then
-		victim:SetAttribute("HitAt", workspace:GetServerTimeNow())
-		local root = attacker:FindFirstChild("HumanoidRootPart")
-		if root and root:IsA("BasePart") then
-			Net.event("Damaged"):FireClient(victim, root.Position, math.round(dealt))
+		StateValues.set(victim, "HitAt", workspace:GetServerTimeNow())
+		if from then
+			Net.event("Damaged"):FireClient(victim, from, math.round(dealt))
 		end
 	end
-	tellHit(attacker, victimModel, dealt, killed)
-	if killed then
-		Net.event("Killed"):FireAllClients(victimModel, attacker, sourceId, zone == "Head")
-	end
+	-- A Mod's damage names the Mod (its hit marker rules); a gun's doesn't.
+	local modSource = if Weapons.get(sourceId) then nil else sourceId
+	shareHit(attacker, victimModel, dealt, killed, dealt <= 0, zone, at, modSource, from)
+	tellHit(attacker, victimModel, dealt, killed, sourceId, zone == "Head")
 	return dealt
 end
 

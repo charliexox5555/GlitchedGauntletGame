@@ -9,6 +9,7 @@
 -- Desktop only for now: on phones it stays hidden and the old panels show.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
@@ -123,6 +124,7 @@ local onActive: { () -> () } = {}
 -- Last values, so a late bind (the gui arrives after the first updates) catches up.
 local weaponName, weaponId = "", nil :: string?
 local ammoNow, ammoMag = 0, 0
+local ammoReserve: number? = nil
 local reloadProgress: number? = nil
 local spectating = false
 local shownHealth = -1
@@ -226,14 +228,18 @@ local function drawAmmo()
 	if reloadProgress then
 		r.reloadFill.Size = UDim2.fromScale(math.clamp(reloadProgress, 0, 1), 1)
 	end
-	r.gunName.Text = if reloading then "RELOADING" else string.upper(weaponName)
+	r.gunName.Text = if reloading
+		then "RELOADING"
+		elseif ammoNow == 0 and ammoReserve == 0 and not knife then "NO AMMO"
+		else string.upper(weaponName)
 	r.gunName.TextColor3 = if reloading then WHITE else MUTED
 	if knife then
 		return
 	end
 	local color = if ammoNow == 0 then RED elseif ammoNow <= ammoMag * LOW_AMMO then AMBER else WHITE
 	setNumber(r.mag, tostring(ammoNow), color)
-	r.size.Text = "/" .. tostring(ammoMag)
+	r.size.Text = "/" .. (if ammoReserve == nil then "∞" else tostring(ammoReserve))
+	r.size.TextColor3 = if ammoReserve == 0 then RED else MUTED
 	buildTicks(r, ammoMag)
 	local tickColor = if color == WHITE then TEXT else color
 	if ammoMag <= MAX_TICKS then
@@ -261,8 +267,8 @@ function BottomHud.setWeapon(displayName: string, id: string?)
 	drawAmmo()
 end
 
-function BottomHud.setAmmo(ammo: number, magSize: number)
-	ammoNow, ammoMag = ammo, magSize
+function BottomHud.setAmmo(ammo: number, magSize: number, reserve: number?)
+	ammoNow, ammoMag, ammoReserve = ammo, magSize, reserve
 	drawAmmo()
 end
 
@@ -275,13 +281,11 @@ function BottomHud.setSpectating(on: boolean)
 	spectating = on
 	local r = ui
 	if r then
-		r.health.Visible = not on
-		r.ammo.Visible = not on
-		-- The Mod row shows your own Mods: off while you watch someone
-		-- (setModsVisible keeps it off; their Mods: spectate plan C).
-		if on then
-			r.mods.Visible = false
-		end
+		-- Health stays: it shows the watched fighter's (HudController.setSubject).
+		r.health.Visible = true
+		r.ammo.Visible = true -- the watched fighter's gun and rounds (SpectateController)
+		-- The Mod row shows the watched fighter's while you spectate
+		-- (ModHudController draws theirs; setModsVisible shows or hides it).
 		local row = r.gui:FindFirstChild("Root")
 		for _, name in { "Loadout", "Hints" } do
 			local part = row and row:FindFirstChild(name, true)
@@ -417,7 +421,7 @@ end
 function BottomHud.setModsVisible(any: boolean)
 	local r = ui
 	if r then
-		r.mods.Visible = any and not spectating
+		r.mods.Visible = any -- yours, or the watched fighter's (ModHudController)
 	end
 end
 
@@ -580,7 +584,7 @@ local function bind(gui: ScreenGui)
 	end
 	-- the Studio preview rounds only show the layout in Edit mode
 	for _, child in rounds:GetChildren() do
-		if child:GetAttribute("Preview") then
+		if StateValues.get(child, "Preview") then
 			child:Destroy()
 		end
 	end

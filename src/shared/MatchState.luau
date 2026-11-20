@@ -1,9 +1,10 @@
 --!strict
--- The match state both sides read: attributes on ReplicatedStorage, written
--- only by MatchService. Late joiners get them for free, and timers are one end
--- time (Workspace:GetServerTimeNow) rather than a remote every second.
+-- Server-owned match state. Each replicated value carries one encoded field,
+-- including whole lists. Timers are server timestamps, not per-second updates.
 
+local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Config = require(script.Parent.Config.Match)
 local Weapons = require(script.Parent.Config.Weapons)
@@ -44,56 +45,114 @@ export type DraftOffer = {
 
 local MatchState = {}
 
--- Player attribute: no shots and no abilities (the server enforces it too).
+local FOLDER = "MatchState"
+local fields: { [string]: StringValue } = {}
+local cache: { [string]: { encoded: string, value: any } } = {}
+
+if RunService:IsServer() and not ReplicatedStorage:FindFirstChild(FOLDER) then
+	local folder = Instance.new("Folder")
+	folder.Name = FOLDER
+	for _, name in
+		{
+			"Phase",
+			"EndsAt",
+			"Round",
+			"RoundWinner",
+			"Score1",
+			"Score2",
+			"MatchWinner",
+			"RoundHistory",
+			"Results",
+			"WeaponPhase",
+			"VoteOptions",
+			"VoteChosen",
+			"VoteTeamSize",
+			"ReadyPlayers",
+			"ExpectedPlayers",
+			"RematchVotes",
+			"RematchNeeded",
+			"RematchOpen",
+			"Zone",
+		}
+	do
+		local field = Instance.new("StringValue")
+		field.Name = name
+		field.Parent = folder
+	end
+	folder.Parent = ReplicatedStorage
+end
+
+local function field(name: string, waitForReplication: boolean): StringValue?
+	if fields[name] then
+		return fields[name]
+	end
+	local folder = if waitForReplication
+		then ReplicatedStorage:WaitForChild(FOLDER)
+		else ReplicatedStorage:FindFirstChild(FOLDER)
+	if not folder then
+		return nil
+	end
+	local value = if waitForReplication and not RunService:IsServer()
+		then folder:WaitForChild(name)
+		else folder:FindFirstChild(name)
+	if value and value:IsA("StringValue") then
+		fields[name] = value
+		return value
+	end
+	return nil
+end
+
+-- Player state field for the server-enforced combat lock.
 MatchState.COMBAT_LOCKED = "CombatLocked"
+MatchState.BOT_SEATS = "MatchBotSeats"
 
-function MatchState.set(name: string, value: any)
-	ReplicatedStorage:SetAttribute("Match" .. name, value)
-end
-
-function MatchState.get(name: string): any
-	return ReplicatedStorage:GetAttribute("Match" .. name)
-end
-
--- Lists (the map vote's options). Roblox caps an attribute's string at 50 characters (a live 2v2 vote over
--- "Random" plus every fitting map hit it, 2026-11-16, and the match never started), so a list is one attribute per
--- item ("Match<Name>_1".."_n", count in "Match<Name>_n") and "Match<Name>" holds a number that changes with every
--- new list, set last: listeners keep watching MatchState.changed(name).
-local listSerial = 0
-
-function MatchState.setList(name: string, items: { string })
-	local key = "Match" .. name
-	local old = ReplicatedStorage:GetAttribute(key .. "_n")
-	for i, v in items do
-		ReplicatedStorage:SetAttribute(key .. "_" .. i, v)
-	end
-	if typeof(old) == "number" then
-		for i = #items + 1, old do
-			ReplicatedStorage:SetAttribute(key .. "_" .. i, nil)
-		end
-	end
-	ReplicatedStorage:SetAttribute(key .. "_n", #items)
-	listSerial += 1
-	ReplicatedStorage:SetAttribute(key, listSerial)
-end
-
-function MatchState.getList(name: string): { string }
-	local key = "Match" .. name
-	local n = ReplicatedStorage:GetAttribute(key .. "_n")
-	local out = {}
-	if typeof(n) == "number" then
-		for i = 1, math.min(n, 64) do
-			local v = ReplicatedStorage:GetAttribute(key .. "_" .. i)
-			if typeof(v) == "string" then
-				table.insert(out, v)
+function MatchState.botSeats(): { Configuration }
+	local folder = ReplicatedStorage:FindFirstChild(MatchState.BOT_SEATS)
+	local seats: { Configuration } = {}
+	if folder then
+		for _, child in folder:GetChildren() do
+			if child:IsA("Configuration") then
+				table.insert(seats, child)
 			end
 		end
 	end
-	return out
+	return seats
+end
+
+function MatchState.set(name: string, value: any)
+	assert(RunService:IsServer(), "Only the server can publish match state")
+	local target = assert(field(name, false), "Unknown match field: " .. name)
+	target.Value = if value == nil then "" else HttpService:JSONEncode(value)
+end
+
+function MatchState.get(name: string): any
+	local source = field(name, false)
+	local encoded = if source then source.Value else ""
+	if encoded == "" then
+		return nil
+	end
+	local saved = cache[name]
+	if saved and saved.encoded == encoded then
+		return saved.value
+	end
+	local value = HttpService:JSONDecode(encoded)
+	cache[name] = { encoded = encoded, value = value }
+	return value
+end
+
+function MatchState.setList(name: string, items: { string })
+	MatchState.set(name, items)
+end
+
+function MatchState.getList(name: string): { string }
+	local items = MatchState.get(name)
+	return if typeof(items) == "table" then table.clone(items) else {}
 end
 
 function MatchState.changed(name: string): RBXScriptSignal
-	return ReplicatedStorage:GetAttributeChangedSignal("Match" .. name)
+	return assert(field(name, true), "Unknown match field: " .. name):GetPropertyChangedSignal(
+		"Value"
+	)
 end
 
 function MatchState.phase(): Phase?
@@ -103,8 +162,13 @@ end
 -- The shield a gun gives in a weapon phase (vault/01 Design/Gun Balance.md).
 function MatchState.shieldFor(phaseName: string, gunId: string?): number
 	for _, phase in Config.PHASES do
-		if phase.name == phaseName and phase.flatShield then
-			return phase.flatShield
+		if phase.name == phaseName then
+			local shield = phase.flatShield
+				or (gunId and phase.shieldByGun and phase.shieldByGun[gunId])
+			if shield ~= nil then
+				return shield
+			end
+			break
 		end
 	end
 	local gun = gunId and Weapons.get(gunId)
@@ -114,9 +178,15 @@ end
 -- How long the final-kill replay plays (Config/Match REPLAY), start delay
 -- and end hold included: the server's Replay phase and every client's
 -- playback use this one sum.
+-- Playback seconds of the final-kill replay (ReplayController.recordedAt):
+-- normal speed, an eased ramp of `slowRamp` playback seconds down to
+-- `slowSpeed` that ends `slowFrom` before the kill, then slow to the end.
 function MatchState.replayPlayback(): number
 	local R = Config.REPLAY
-	return (R.before - R.slowFrom) + (R.slowFrom + R.after) / R.slowSpeed
+	local rampRecorded = R.slowRamp * (1 + R.slowSpeed) / 2
+	return (R.before - R.slowFrom - rampRecorded)
+		+ R.slowRamp
+		+ (R.slowFrom + R.after) / R.slowSpeed
 end
 
 function MatchState.replayLength(): number

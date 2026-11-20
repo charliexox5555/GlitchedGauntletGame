@@ -6,6 +6,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Animations = require(Shared.Config.Animations)
@@ -39,7 +40,12 @@ local function holdModel(
 	gripC0: CFrame?
 ): Model?
 	local template = WorldModel.template(templateId)
-	if SkinPreview.allowed() then
+	local botLine = SkinPreview.botLine(character, templateId)
+	if botLine then
+		local variant, resolved = SkinPreview.resolve(templateId, botLine)
+		template = variant or template
+		botLine = resolved
+	elseif SkinPreview.allowed() then
 		template = SkinPreview.geometry(templateId, Players:GetPlayerFromCharacter(character))
 			or template
 	end
@@ -49,6 +55,9 @@ local function holdModel(
 		return nil
 	end
 	local model = template:Clone()
+	if botLine then
+		StateValues.set(model, "SkinLine", botLine)
+	end
 	model.Name = name
 	local handle = model.PrimaryPart
 	if not handle then
@@ -100,7 +109,7 @@ function WorldModel.attach(character: Model, id: string?): Model?
 		else nil
 	local model = holdModel(character, rightId, "RightHand", "WorldWeapon", gripC0)
 	if model then
-		model:SetAttribute("WeaponId", id)
+		StateValues.set(model, "WeaponId", id)
 	end
 	if config and config.models and config.models.left then
 		holdModel(character, config.models.left, "LeftHand", "WorldWeaponLeft")
@@ -109,9 +118,9 @@ function WorldModel.attach(character: Model, id: string?): Model?
 	-- never triggers Server Authority rollbacks. Dummies keep it on the model.
 	local owner = Players:GetPlayerFromCharacter(character)
 	if owner then
-		owner:SetAttribute("WeaponId", id)
+		StateValues.set(owner, "WeaponId", id)
 	else
-		character:SetAttribute("WeaponId", id)
+		StateValues.set(character, "WeaponId", id)
 	end
 	return model
 end
@@ -120,27 +129,35 @@ end
 -- keeps it hidden across a re-equip until shown again.
 local hidden: { [Player]: boolean } = {}
 
-local function applyHidden(player: Player)
-	local character = player.Character
-	if not character then
-		return
-	end
-	local hide = hidden[player] == true
+local function applyTo(character: Model, hide: boolean)
 	for _, name in { "WorldWeapon", "WorldWeaponLeft" } do
 		local model = character:FindFirstChild(name)
 		if model then
 			for _, d in model:GetDescendants() do
 				if d:IsA("BasePart") then
-					local base = d:GetAttribute("BaseTransparency")
+					local base = StateValues.get(d, "BaseTransparency")
 					if base == nil then
 						base = d.Transparency
-						d:SetAttribute("BaseTransparency", base)
+						StateValues.set(d, "BaseTransparency", base)
 					end
 					d.Transparency = if hide then 1 else base :: number
 				end
 			end
 		end
 	end
+end
+
+local function applyHidden(player: Player)
+	local character = player.Character
+	if character then
+		applyTo(character, hidden[player] == true)
+	end
+end
+
+-- A bot's gun (no Player to key it by): hidden while a Mod is in its hand
+-- (BotService, on its ModHeld).
+function WorldModel.setCharacterHidden(character: Model, hide: boolean)
+	applyTo(character, hide)
 end
 
 function WorldModel.setHidden(player: Player, hide: boolean)

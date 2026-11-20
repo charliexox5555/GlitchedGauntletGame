@@ -19,6 +19,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -34,6 +35,7 @@ local RateLimit = require(Shared.Util.RateLimit)
 local SkinPreview = require(Shared.SkinPreview)
 local Spread = require(Shared.Util.Spread)
 local TestMode = require(Shared.TestMode)
+local Ammo = require(Shared.Util.Ammo)
 local Types = require(Shared.Types)
 local Validate = require(Shared.Util.Validate)
 local Weapons = require(Shared.Config.Weapons)
@@ -55,6 +57,7 @@ type SlotState = {
 	id: string,
 	config: WeaponConfig,
 	ammo: number,
+	reserve: number?,
 	reloadToken: number,
 	reloadEnd: number?,
 	lastFire: number, -- "virtual" time of the last accepted shot (rate enforcement)
@@ -75,6 +78,7 @@ type SlotState = {
 	shellSlow: number, -- each shell phase takes this × its time (a status at the start)
 	readyAt: number,
 	meleeStep: number?, -- the knife's light-slash chain (1-3), for what others see
+	heavyWindupAt: number?,
 }
 
 type PlayerState = {
@@ -160,7 +164,7 @@ local reject = Hits.reject
 local function snapshot(state: PlayerState, resync: boolean?): Types.WeaponState
 	local slots = {}
 	for slot, s in state.slots do
-		slots[slot] = { id = s.id, ammo = s.ammo }
+		slots[slot] = { id = s.id, ammo = s.ammo, reserve = s.reserve }
 	end
 	return {
 		slots = slots,
@@ -171,10 +175,20 @@ local function snapshot(state: PlayerState, resync: boolean?): Types.WeaponState
 	}
 end
 
+-- The equipped gun's rounds for the people spectating this player (their
+-- bottom HUD shows them): `Ammo` and `AmmoReserve` (nil: no reserve). Display
+-- only; the server's own count stays in the slot.
+local function publishAmmo(player: Player, state: PlayerState)
+	local slot = state.equipped and state.slots[state.equipped]
+	StateValues.set(player, "Ammo", if slot then slot.ammo else nil)
+	StateValues.set(player, "AmmoReserve", if slot then slot.reserve else nil)
+end
+
 local function sendState(player: Player, resync: boolean?)
 	local state = states[player]
 	if state then
 		Net.event("WeaponState"):FireClient(player, snapshot(state, resync))
+		publishAmmo(player, state)
 	end
 end
 
@@ -187,6 +201,7 @@ local function newSlot(id: string): SlotState?
 		id = id,
 		config = config,
 		ammo = config.magSize,
+		reserve = if TestMode.isOn() then nil else Ammo.roundReserve(config),
 		reloadToken = 0,
 		lastFire = -math.huge,
 		burstShots = 0,
@@ -209,6 +224,7 @@ WeaponService.attachWorldModel = WorldModel.attach
 -- Hides the third-person gun while a Mod is in the hand (ModService), and
 -- keeps it hidden across a re-equip until shown again.
 WeaponService.setWorldWeaponHidden = WorldModel.setHidden
+WeaponService.setCharacterGunHidden = WorldModel.setCharacterHidden
 
 local function refreshWorldModel(player: Player)
 	local state = states[player]
@@ -220,8 +236,8 @@ local function refreshWorldModel(player: Player)
 	state.worldModel = WorldModel.attach(character, slot and slot.id or nil)
 	WorldModel.reapplyHidden(player)
 	-- Read by the movement simulation (shared/Simulation/Movement).
-	player:SetAttribute("MoveMult", if slot then slot.config.moveMultiplier else 1)
-	player:SetAttribute("AdsMult", if slot then slot.config.adsMoveMultiplier else 1)
+	StateValues.set(player, "MoveMult", if slot then slot.config.moveMultiplier else 1)
+	StateValues.set(player, "AdsMult", if slot then slot.config.adsMoveMultiplier else 1)
 end
 
 -- Loadout --------------------------------------------------------------------
@@ -239,7 +255,7 @@ end
 function WeaponService.giveLoadout(player: Player)
 	-- A new life: a fire-rate boost doesn't carry over.
 	fireBoost[player] = nil
-	player:SetAttribute("FireRateMult", nil)
+	StateValues.set(player, "FireRateMult", nil)
 	local loadout = WeaponService.getLoadout(player)
 	local slots: { [Slot]: SlotState } = {}
 	for _, slot in SLOTS do
@@ -355,11 +371,11 @@ function WeaponService.setFireRate(player: Player, mult: number, duration: numbe
 	local old = fireBoost[player]
 	local token = (if old then old.token else 0) + 1
 	fireBoost[player] = { mult = mult, untilT = os.clock() + duration, token = token }
-	player:SetAttribute("FireRateMult", mult)
+	StateValues.set(player, "FireRateMult", mult)
 	task.delay(duration, function()
 		local b = fireBoost[player]
 		if b and b.token == token then
-			player:SetAttribute("FireRateMult", nil)
+			StateValues.set(player, "FireRateMult", nil)
 		end
 	end)
 end
@@ -375,7 +391,7 @@ end
 local function holstered(player: Player): boolean
 	local busy = busyUntil[player]
 	return holsteredPlayers[player] == true
-		or player:GetAttribute(MatchState.COMBAT_LOCKED) == true
+		or StateValues.get(player, MatchState.COMBAT_LOCKED) == true
 		or (busy ~= nil and os.clock() < busy - Combat.FIRE_JITTER)
 		or stunned(player)
 end
@@ -405,7 +421,8 @@ end
 -- Ends a shell-by-shell reload in progress, keeping the shells loaded so far.
 local function settleShellReload(slot: SlotState, now: number)
 	if slot.shellFrom and slot.reloadEnd then
-		slot.ammo = math.min(slot.ammo + shellsLoaded(slot, now), slot.config.magSize)
+		slot.ammo, slot.reserve =
+			Ammo.load(slot.config.magSize, slot.ammo, slot.reserve, shellsLoaded(slot, now))
 	end
 	slot.shellFrom = nil
 	slot.reloadToken += 1
@@ -427,6 +444,7 @@ function WeaponService.equip(player: Player, slot: Slot)
 	local current = state.equipped and state.slots[state.equipped]
 	if current then
 		settleShellReload(current, os.clock())
+		current.heavyWindupAt = nil
 	end
 	state.equipped = slot
 	state.equipReadyAt = os.clock() + drawSeconds(target.config) * 0.7 / statusMult(player, "equip")
@@ -446,6 +464,9 @@ function WeaponService.refill(player: Player)
 		s.shellFrom = nil
 		s.readyAt = -math.huge
 		s.ammo = s.config.magSize
+		if s.reserve ~= nil then
+			s.reserve = Ammo.roundReserve(s.config)
+		end
 	end
 	sendState(player)
 end
@@ -487,6 +508,7 @@ local function onReload(player: Player, action: unknown)
 		local shell = config.shellReload
 		if shell and slot.shellFrom and slot.reloadEnd then
 			settleShellReload(slot, now)
+			StateValues.set(player, "ReloadStopAt", workspace:GetServerTimeNow()) -- spectators end it too
 			-- The gun comes back to the hands before it can fire.
 			slot.readyAt = now + shell.finish * slot.shellSlow - Combat.FIRE_JITTER
 			sendState(player)
@@ -496,7 +518,8 @@ local function onReload(player: Player, action: unknown)
 	if action ~= nil then
 		return
 	end
-	if config.magSize <= 0 or slot.ammo >= config.magSize or slot.reloadEnd then
+	local needed = Ammo.toLoad(config.magSize, slot.ammo, slot.reserve)
+	if needed == 0 or slot.reloadEnd then
 		return
 	end
 	local shell = config.shellReload
@@ -505,7 +528,7 @@ local function onReload(player: Player, action: unknown)
 	local slow = 1 / statusMult(player, "reload")
 	local duration: number
 	if shell then
-		slot.shellNeeded = config.magSize - slot.ammo
+		slot.shellNeeded = needed
 		slot.shellFrom = now
 		slot.shellSlow = slow
 		duration = (shell.start + shell.insert * slot.shellNeeded + shell.finish) * slow
@@ -514,14 +537,18 @@ local function onReload(player: Player, action: unknown)
 	end
 	slot.reloadToken += 1
 	local token = slot.reloadToken
-	-- Others see the reload (Simulation/Poses plays it at this length).
-	player:SetAttribute("ReloadFor", duration)
-	player:SetAttribute("ReloadAt", workspace:GetServerTimeNow())
+	-- Others see the reload (Simulation/Poses plays it at this length); its
+	-- kind goes first, so a spectator's viewmodel has it when ReloadAt moves
+	-- (an empty reload's clip, or the shells of a shell-by-shell one).
+	StateValues.set(player, "ReloadEmpty", slot.ammo == 0)
+	StateValues.set(player, "ReloadShells", if shell then needed else 0)
+	StateValues.set(player, "ReloadFor", duration)
+	StateValues.set(player, "ReloadAt", workspace:GetServerTimeNow())
 	-- Accept the client's reload a little early to hide latency.
 	slot.reloadEnd = now + duration - Combat.RELOAD_LEAD
 	task.delay(duration - Combat.RELOAD_LEAD, function()
 		if slot.reloadToken == token and states[player] == state then
-			slot.ammo = config.magSize
+			slot.ammo, slot.reserve = Ammo.load(config.magSize, slot.ammo, slot.reserve, needed)
 			slot.reloadEnd = nil
 			slot.shellFrom = nil
 			sendState(player)
@@ -590,18 +617,18 @@ local function onAim(player: Player, pitch: unknown, aiming: unknown, moveState:
 	end
 	-- Up to 30 sends a second now (Juice SPECTATE.aimSendHz): only real changes replicate.
 	local clamped = math.clamp(pitch, -1.5, 1.5)
-	if player:GetAttribute("AimPitch") ~= clamped then
-		player:SetAttribute("AimPitch", clamped)
+	if StateValues.get(player, "AimPitch") ~= clamped then
+		StateValues.set(player, "AimPitch", clamped)
 	end
-	if player:GetAttribute("Aiming") ~= aiming then
-		player:SetAttribute("Aiming", aiming)
+	if StateValues.get(player, "Aiming") ~= aiming then
+		StateValues.set(player, "Aiming", aiming)
 	end
 	if Authority.server() or typeof(moveState) ~= "string" or not MOVE_STATES[moveState] then
 		return
 	end
 	local character = player.Character
-	if character and character:GetAttribute("MoveState") ~= moveState then
-		character:SetAttribute("MoveState", moveState)
+	if character and StateValues.get(character, "MoveState") ~= moveState then
+		StateValues.set(character, "MoveState", moveState)
 	end
 end
 
@@ -614,6 +641,37 @@ end
 
 -- Shots -------------------------------------------------------------------------
 
+local function beginHeavyWindup(player: Player)
+	local state = states[player]
+	local slot = state and state.equipped and state.slots[state.equipped]
+	local now = os.clock()
+	if
+		not state
+		or not slot
+		or not slot.config.melee
+		or not slot.config.melee.heavy
+		or not slot.config.altFire
+		or not liveHumanoid(player.Character)
+		or holstered(player)
+		or Motion.dashBlocked(player)
+		or now < state.equipReadyAt
+	then
+		return
+	end
+	local interval = slot.config.fireInterval / (rateMult(player) * statusMult(player, "fireRate"))
+	local previous = slot.heavyWindupAt
+	if
+		now < math.max(slot.lastFire + interval, slot.altReadyAt) - Combat.FIRE_JITTER
+		or (previous and now - previous < Combat.HEAVY_WINDUP_MAX)
+	then
+		return
+	end
+	slot.heavyWindupAt = now
+	StateValues.set(player, "SwingHeavy", true)
+	StateValues.set(player, "SwingStep", 0)
+	StateValues.set(player, "SwingAt", now)
+end
+
 local function onFire(player: Player, payload: unknown)
 	if not allow(player, "Fire") then
 		return
@@ -623,6 +681,10 @@ local function onFire(player: Player, payload: unknown)
 		return
 	end
 	local p = payload :: { [string]: unknown }
+	if p.windup == true then
+		beginHeavyWindup(player)
+		return
+	end
 	local origin = finiteVector(p.origin)
 	local aim = finiteVector(p.direction)
 	local shot = Validate.integer(p.shot, 1)
@@ -706,6 +768,20 @@ local function onFire(player: Player, payload: unknown)
 	-- Alt-fire (guns with no ADS, e.g. the Classic's 3-pellet burst): its own
 	-- pellets, cone and ammo cost, and a longer cooldown before the next shot.
 	local altFire = if p.alt == true and config.noAds then config.altFire else nil
+	local heavyMelee = altFire ~= nil and config.melee ~= nil and config.melee.heavy ~= nil
+	local fireAt = now
+	if heavyMelee then
+		local windup = slot.heavyWindupAt
+		if
+			not windup
+			or now - windup < Combat.HEAVY_WINDUP_MIN - Combat.FIRE_JITTER
+			or now - windup > Combat.HEAVY_WINDUP_MAX
+		then
+			reject(player, "heavy contact outside windup")
+			return
+		end
+		fireAt = windup
+	end
 	-- An alt shot fires one pellet per round it uses, so a nearly empty mag
 	-- fires fewer.
 	local altRounds = if altFire
@@ -717,11 +793,11 @@ local function onFire(player: Player, payload: unknown)
 	local pelletSpread = if altFire then altFire.pelletSpread else config.pelletSpread
 	local interval = FireRate.interval(config, slot.spinStart, slot.lastFire, now, slot.burstShots)
 		/ (rateMult(player) * statusMult(player, "fireRate"))
-	if now < slot.lastFire + interval - Combat.FIRE_JITTER then
+	if fireAt < slot.lastFire + interval - Combat.FIRE_JITTER then
 		reject(player, "now < slot.lastFire + interval - Combat.FIRE_JITTER")
 		return
 	end
-	if now < slot.altReadyAt - Combat.FIRE_JITTER then
+	if fireAt < slot.altReadyAt - Combat.FIRE_JITTER then
 		reject(player, "alt-fire cooldown")
 		return
 	end
@@ -767,6 +843,7 @@ local function onFire(player: Player, payload: unknown)
 	-- step. Cosmetic: it only picks which slash clip others see.
 	local melee = config.melee
 	if melee then
+		slot.heavyWindupAt = nil
 		local step = slot.meleeStep or 0
 		local readyAt = math.max(slot.lastFire + interval, slot.altReadyAt)
 		if altFire then
@@ -777,19 +854,20 @@ local function onFire(player: Player, payload: unknown)
 			slot.meleeStep = 1
 		end
 	end
-	slot.lastFire = math.max(now, slot.lastFire + interval)
+	slot.lastFire = math.max(fireAt, slot.lastFire + interval)
 	if config.magSize > 0 then
 		slot.ammo -= altRounds
+		publishAmmo(player, state)
 	end
 	if altFire then
-		slot.altReadyAt = now
+		slot.altReadyAt = fireAt
 			+ altFire.fireInterval / (rateMult(player) * statusMult(player, "fireRate"))
 	end
 	-- Others see the knife swing (Simulation/Poses: KnifeSlash / KnifeHeavy).
-	if config.melee then
-		player:SetAttribute("SwingHeavy", altFire ~= nil and config.melee.heavy ~= nil)
-		player:SetAttribute("SwingStep", slot.meleeStep or 1)
-		player:SetAttribute("SwingAt", now)
+	if config.melee and not heavyMelee then
+		StateValues.set(player, "SwingHeavy", false)
+		StateValues.set(player, "SwingStep", slot.meleeStep or 1)
+		StateValues.set(player, "SwingAt", now)
 	end
 
 	-- Replicate the visuals to everyone else (cosmetic: clamp, don't trust).
@@ -828,7 +906,8 @@ local function onFire(player: Player, payload: unknown)
 	end
 	if RunService:IsStudio() then
 		-- Tuning aid: what the client claimed and the band the server allowed.
-		player:SetAttribute(
+		StateValues.set(
+			player,
 			"FireSpread",
 			string.format("%.3f [%.3f, %.3f]", spreadClaim, low, high)
 		)
@@ -878,7 +957,7 @@ local function onCharacter(player: Player, character: Model)
 		Motion.resetDash(player)
 		Health.onDowned(humanoid, function()
 			fireBoost[player] = nil
-			player:SetAttribute("FireRateMult", nil)
+			StateValues.set(player, "FireRateMult", nil)
 			local state = states[player]
 			if state then
 				state.equipped = nil

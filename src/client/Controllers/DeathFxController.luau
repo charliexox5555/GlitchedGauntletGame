@@ -70,7 +70,13 @@ local function puff(at: Vector3)
 end
 
 -- The body falls over (around its feet), rests, then fades.
-local function fall(body: Model, parent: Instance?)
+export type FallOptions = {
+	timeScale: number?, -- the replay's slow motion (1: real time)
+	awayFrom: Vector3?, -- tip away from here (the killer), else mostly forward
+}
+
+local function fall(body: Model, parent: Instance?, opts: FallOptions?)
+	local scale = math.clamp(if opts and opts.timeScale then opts.timeScale else 1, 0.05, 1)
 	local root = body:FindFirstChild("HumanoidRootPart")
 	if not root or not root:IsA("BasePart") then
 		hide(body)
@@ -101,6 +107,9 @@ local function fall(body: Model, parent: Instance?)
 		track.Priority = Enum.AnimationPriority.Action4
 		track.Looped = false
 		track:Play(0.05)
+		if scale < 1 then
+			track:AdjustSpeed(scale)
+		end
 		track.Stopped:Once(function()
 			-- Hold the last frame: replay frozen at the end.
 			if copy.Parent then
@@ -110,7 +119,7 @@ local function fall(body: Model, parent: Instance?)
 			end
 		end)
 	end
-	task.wait(D.buckle)
+	task.wait(D.buckle / scale)
 	if not copy.Parent then
 		return
 	end
@@ -120,6 +129,14 @@ local function fall(body: Model, parent: Instance?)
 	-- Mostly forward off the knees (sometimes backward), a little to one
 	-- side, so no two look the same.
 	local dir = if math.random() < 0.7 then -1 else 1
+	local away = opts and opts.awayFrom
+	if away then
+		-- Away from the shot: backward when it came from in front (-1 tips forward).
+		local toShooter = (away - start.Position) * Vector3.new(1, 0, 1)
+		if toShooter.Magnitude > 0.1 then
+			dir = if start.LookVector:Dot(toShooter.Unit) > 0 then 1 else -1
+		end
+	end
 	local side = math.rad((math.random() * 2 - 1) * 20)
 	local hinge = CFrame.new(feet) * (start - start.Position)
 	local offset = hinge:ToObjectSpace(start)
@@ -131,7 +148,7 @@ local function fall(body: Model, parent: Instance?)
 	end)
 	local tween = TweenService:Create(
 		progress,
-		TweenInfo.new(D.fall, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out),
+		TweenInfo.new(D.fall / scale, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out),
 		{ Value = 1 }
 	)
 	tween:Play()
@@ -217,8 +234,8 @@ end
 
 -- The fall for any body (the final-kill replay's copy of the victim); its
 -- falling copy goes in `parent` (the replay's folder, so it goes with it).
-function DeathFxController.playFall(body: Model, parent: Instance?)
-	task.spawn(fall, body, parent)
+function DeathFxController.playFall(body: Model, parent: Instance?, opts: FallOptions?)
+	task.spawn(fall, body, parent, opts)
 end
 
 -- The grey goes when you start watching someone else (SpectateController).

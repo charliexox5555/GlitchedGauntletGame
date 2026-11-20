@@ -6,6 +6,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
@@ -57,7 +58,7 @@ local touchLayer: Frame? = nil
 -- attribute ForceTouchUI is ticked (to check the layout on a PC).
 local function touchUi(): boolean
 	return UserInputService.TouchEnabled
-		or (RunService:IsStudio() and Workspace:GetAttribute("ForceTouchUI") == true)
+		or (RunService:IsStudio() and StateValues.get(Workspace, "ForceTouchUI") == true)
 end
 
 type Refs = {
@@ -84,6 +85,8 @@ local spreadDegrees = 1
 local crosshairWanted = true
 local crosshairSprint = false
 local hitPulse = 0 -- the red edge pulse when hit (0..1), fades over Juice.FLINCH.pulseTime
+-- The body whose health the HUD shows: the fighter you spectate, else yours.
+local subject: Model? = nil
 -- Health chip: the bar's lost part stays red for CHIP_HOLD, then drains.
 local CHIP_HOLD = 0.4
 local CHIP_DRAIN = 0.35
@@ -380,19 +383,29 @@ function HudController.touchLayer(): Frame?
 	return touchLayer
 end
 
-function HudController.setWeapon(displayName: string, ammo: number, magSize: number, id: string?)
+function HudController.setWeapon(
+	displayName: string,
+	ammo: number,
+	magSize: number,
+	id: string?,
+	reserve: number?
+)
 	BottomHud.setWeapon(displayName, id)
+	HudController.setAmmo(ammo, magSize, reserve)
 	local r = refs
 	if not r then
 		return
 	end
-	r.weaponName.Text = string.upper(displayName)
+	r.weaponName.Text = if ammo == 0
+			and reserve == 0
+			and magSize > 0
+		then "NO AMMO"
+		else string.upper(displayName)
 	r.gunPicture.Image = if id then Theme.GUN[id] or "" else ""
-	HudController.setAmmo(ammo, magSize)
 end
 
-function HudController.setAmmo(ammo: number, magSize: number)
-	BottomHud.setAmmo(ammo, magSize)
+function HudController.setAmmo(ammo: number, magSize: number, reserve: number?)
+	BottomHud.setAmmo(ammo, magSize, reserve)
 	local r = refs
 	if not r then
 		return
@@ -403,7 +416,8 @@ function HudController.setAmmo(ammo: number, magSize: number)
 		return
 	end
 	r.ammo.Text = tostring(ammo)
-	r.mag.Text = "/ " .. tostring(magSize)
+	r.mag.Text = "/ " .. (if reserve == nil then "∞" else tostring(reserve))
+	r.mag.TextColor3 = if reserve == 0 then RED else T.textSecondary
 	r.ammo.TextColor3 = if ammo == 0 then RED elseif ammo <= magSize * 0.25 then AMBER else WHITE
 end
 
@@ -506,7 +520,7 @@ function HudController.flinch(sourcePosition: Vector3, amount: number)
 		CameraController.rollKick((if side >= 0 then 1 else -1) * f.roll * s, 0.3)
 	end
 	-- The pulse follows the share of your health the hit took (RIVALS).
-	local character = player.Character
+	local character = subject or player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	local before = if humanoid then Health.get(humanoid) + amount else f.fullDamage * 2
 	local share = math.clamp(amount / math.max(before, 1), 0, 1)
@@ -529,8 +543,8 @@ local function update(dt: number)
 
 	DamageIndicator.step(dt)
 
-	-- Health.
-	local character = player.Character
+	-- Health (the spectated fighter's while you watch them).
+	local character = subject or player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if humanoid then
 		local frac = math.clamp(Health.get(humanoid) / Health.max(humanoid), 0, 1)
@@ -553,7 +567,7 @@ local function update(dt: number)
 			chipFrac = math.max(frac, chipFrac - dt / CHIP_DRAIN)
 		end
 		r.healthChip.Size = UDim2.fromScale(chipFrac, 1)
-		local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+		local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
 		local hasShield = typeof(shield) == "number" and shield > 0
 		r.shieldBar.Visible = hasShield
 		r.shieldBadge.Visible = hasShield
@@ -580,6 +594,18 @@ end
 -- Built in init so other controllers can update it from their start().
 -- Spectating: your own health and ammo panels hide (the spectate bar shows
 -- who you're watching instead).
+-- The fighter you spectate (SpectateController): the health and shield
+-- panels, the low-health edge and the hit pulse follow them; nil: your own.
+function HudController.setSubject(body: Model?)
+	if subject == body then
+		return
+	end
+	subject = body
+	shownHealth = -1 -- no "hit" flash for the switch itself
+	chipFrac = 0
+	hitPulse = 0
+end
+
 function HudController.setSpectating(on: boolean)
 	BottomHud.setSpectating(on)
 	local r = refs
@@ -624,8 +650,8 @@ function HudController.start()
 	if RunService:IsStudio() then
 		-- Studio only: Workspace DevDamageFrom (Vector3) shows the damage
 		-- direction arc for a hit from that spot (no damage, no flinch).
-		Workspace:GetAttributeChangedSignal("DevDamageFrom"):Connect(function()
-			local from = Workspace:GetAttribute("DevDamageFrom")
+		StateValues.changed(Workspace, "DevDamageFrom"):Connect(function()
+			local from = StateValues.get(Workspace, "DevDamageFrom")
 			if typeof(from) == "Vector3" then
 				HudController.damageFrom(from)
 			end

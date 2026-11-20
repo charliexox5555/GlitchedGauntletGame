@@ -68,7 +68,25 @@ function ModAudio.hum(cue: ModSounds.Cue?, holder: Instance?): Hum?
 	local a = Instance.new("Attachment")
 	a.Name = "ModHum"
 	a.Parent = holder
-	s.Parent = a
+	-- A pooled Sound destroyed with an old holder can't be parented again
+	-- (its Parent is locked): make a new one instead.
+	if not pcall(function()
+		s.Parent = a
+	end) then
+		local fresh = Instance.new("Sound")
+		fresh.SoundId = cue.id
+		fresh.Looped = true
+		fresh.PlaybackSpeed = s.PlaybackSpeed
+		fresh.RollOffMode = s.RollOffMode
+		fresh.RollOffMinDistance = s.RollOffMinDistance
+		fresh.RollOffMaxDistance = s.RollOffMaxDistance
+		fresh.PlaybackRegionsEnabled = s.PlaybackRegionsEnabled
+		fresh.LoopRegion = s.LoopRegion
+		fresh.TimePosition = s.TimePosition
+		fresh.Volume = 0
+		fresh.Parent = a
+		s = fresh
+	end
 	s:Play()
 	TweenService:Create(s, FADE_IN, { Volume = cue.volume }):Play()
 	return { sound = s, holder = a, id = cue.id, stopped = false }
@@ -82,7 +100,10 @@ function ModAudio.stopHum(hum: Hum?)
 	local s = hum.sound
 	local tween = TweenService:Create(s, FADE_OUT, { Volume = 0 })
 	tween.Completed:Once(function()
-		local ok = pcall(function()
+		-- Destroyed along with its holder (the thing it hummed on went first):
+		-- not reusable, so it isn't pooled.
+		local alive = hum.holder.Parent ~= nil and s.Parent == hum.holder
+		local ok = alive and pcall(function()
 			s:Stop()
 			s.Parent = nil
 		end)

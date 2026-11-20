@@ -368,16 +368,13 @@ return table.freeze({
 	-- warning ticks.
 	ZONE = table.freeze({
 		color = Color3.fromHex("CD3CFF"),
-		glitchColor = Color3.fromHex("FF5AF0"),
+		edgeColor = Color3.fromHex("FF72CD"),
+		glitchColor = Color3.fromHex("C57AFF"),
 		below = 30, -- studs the wall reaches under the circle's centre
-		height = 110, -- studs, top to bottom
-		tile = 70, -- studs of wall per texture repeat (sets the segment count)
-		minSegments = 10,
-		maxSegments = 64,
-		speed = 0.12, -- texture scroll, repeats per second
-		glitchSpeed = -0.7,
-		transparency = 0.02,
-		glitchFlicker = 0.08, -- seconds between glitch-layer flickers
+		height = 320, -- extends 290 studs above the zone centre
+		fallbackSegments = 40,
+		sparkEmitters = 5,
+		sparkDistance = 38,
 		tint = Color3.fromHex("F2DDFF"), -- the screen while you're outside
 		tintTime = 0.25,
 		warnEvery = 0.55, -- seconds between warning ticks outside
@@ -404,9 +401,35 @@ return table.freeze({
 		aimDeadband = 0.004, -- ...when the pitch moved more than this (radians)
 		aimSettle = 0.1, -- seconds after the aim stops: one more send so the last value lands
 		aimKeepalive = 0.5, -- seconds: a resend even with nothing new (a dropped packet heals)
+		-- A bot's gun look (`AimGunYaw` / `AimGunPitch`: its aim plus aim error
+		-- and recoil), published only while someone spectates it (Bots/Spectated).
 		botAimSendHz = 30,
 		botAimDeadband = 0.002, -- radians, on yaw or pitch
-		switchDelay = 1, -- seconds on a fighter who went down before moving on
+		-- A bot's intended pitch (`AimPitch`): gameplay input too (Target.lookOf:
+		-- bot Mods' aim, Flash), always published, at the old pre-spectate rate.
+		botPitchSendHz = 10,
+		botPitchDeadband = 0.03, -- radians
+		-- The look stream (Services/LookStream, plan B): every fighter's aim on
+		-- one server-time line, drawn a little in the past and interpolated, so
+		-- the watched view turns as smoothly as theirs did.
+		lookHz = 30, -- samples a second (players: WeaponController; bots: Brain)
+		lookRingSeconds = 6, -- how much the server keeps per fighter (the replay reads it)
+		lookMaxAge = 1, -- seconds: an older sample is dropped by the server
+		lookMaxAhead = 0.25, -- seconds: a sample stamped further ahead is dropped
+		lookJitter = 0.07, -- seconds of buffer on top of the measured latency (about two samples)
+		lookDelayMin = 0.05, -- seconds: never draw closer to "now" than this
+		lookDelayMax = 0.35, -- seconds: never further behind than this
+		lookExtrapolate = 0.05, -- seconds the view may run past the newest sample, then it holds
+		lookStale = 0.4, -- seconds without a sample: back to the replicated look (Fighters.lookOf)
+		relayHitVolume = 0.7, -- the watched fighter's hit sounds, against your own (SpectateFeed)
+		switchDelay = 1, -- seconds on a fighter who went down before moving on (only with nobody to cut to)
+		-- The fighter you watch goes down: you cut to the next one at once.
+		-- With nobody left to cut to, their eye sinks `downDrop` studs, tips to
+		-- `downPitch` and rolls `downRoll` over `downTime` seconds (a fall).
+		downTime = 0.45,
+		downDrop = 2.2,
+		downPitch = -0.5,
+		downRoll = 0.4,
 		fadeTime = 0.12, -- black blink when the view jumps to someone else
 	}),
 

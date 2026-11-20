@@ -6,12 +6,13 @@
 -- read (Sprint, Crouch, Aim, Fire, AimPitch) and the trigger.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Health = require(ReplicatedStorage.Shared.Health)
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
-local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
+local Zone = require(ReplicatedStorage.Shared.Zone)
 local RunService = game:GetService("RunService")
 
 local STUDIO = RunService:IsStudio()
@@ -22,6 +23,9 @@ local BotMods = require(script.Parent.BotMods)
 local BotTypes = require(script.Parent.Types)
 local Nav = require(script.Parent.Nav)
 local Perception = require(script.Parent.Perception)
+local Spectated = require(script.Parent.Spectated)
+local LookStream = require(script.Parent.Parent.Services.LookStream)
+local Tactics = require(script.Parent.Tactics)
 
 type Bot = BotTypes.Bot
 
@@ -31,13 +35,8 @@ export type World = {
 	focus: { [Model]: number }, -- how many teammates target each enemy
 	roam: Vector3?, -- where to go first with no information (the enemy side)
 	patrol: { Vector3 }, -- then from point to point over the map (spawns, middle, flanks)
-	lane: number, -- -1, 0, 1: this bot's flank offset (team play)
-	zone: Vector3?, -- sudden death: the circle's centre (nil: no circle)
-	zoneRadius: number, -- its radius now
+	zone: Zone.State?,
 }
-
--- Sudden death: a bot this close to the circle's edge (or past it) heads in.
-local ZONE_MARGIN = 6
 
 local Brain = {}
 
@@ -62,9 +61,20 @@ end
 
 local rng = Random.new()
 
--- What each bot last told spectators about its aim (like a player's Aim
--- remote: Juice SPECTATE botAimSendHz, only on a real change).
-type AimSent = { at: number, yaw: number, pitch: number, aiming: boolean }
+-- What each bot last published about its aim (like a player's Aim remote:
+-- on a fixed schedule, only on a real change). `pitchNext` / `gunNext` are
+-- the next send slots (a schedule, not a last-sent time, so 30 Hz is 30 Hz
+-- and doesn't snap to every third frame).
+type AimSent = {
+	pitchNext: number,
+	pitch: number,
+	aiming: boolean,
+	gun: boolean, -- AimGunYaw / AimGunPitch are set
+	gunNext: number,
+	gunYaw: number,
+	gunPitch: number,
+	lookNext: number, -- the next look stream slot (Services/LookStream)
+}
 local aimSent: { [Bot]: AimSent } = setmetatable({}, { __mode = "k" }) :: any
 local SPECTATE = Juice.SPECTATE
 
@@ -72,34 +82,88 @@ local function wrapAngle(a: number): number
 	return (a + math.pi) % (2 * math.pi) - math.pi
 end
 
--- `AimYaw` / `AimPitch` (radians) and `Aiming` on the bot's owner (mirrored
--- onto its model), read by a teammate spectating it in first person. It's
--- where the gun points (Aim.direction: the spring plus aim error and recoil),
--- so the watched crosshair kicks with each shot and sits where the tracers
--- go; a fair miss's sideways push stays out (it would make the view jump).
+-- The slot after a send at `now`: on schedule it keeps the cadence, after a
+-- quiet spell it starts again one interval from now.
+local function nextSlot(slot: number, now: number, interval: number): number
+	return if now - slot < interval then slot + interval else now + interval
+end
+
+-- On the bot's owner (mirrored onto its model):
+-- - `AimPitch` (radians) and `Aiming`, always: its intended pitch. That's
+--   gameplay input too (Target.lookOf: bot Mods' aim, Flash's blind check),
+--   so it stays the clean aim, at Juice SPECTATE botPitchSendHz.
+-- - `AimGunYaw` / `AimGunPitch` (radians), only while someone spectates it
+--   (Bots/Spectated): where the gun points (Aim.direction: the spring plus
+--   aim error and recoil), so the watched crosshair kicks with each shot and
+--   sits where the tracers go; a fair miss's sideways push stays out (it
+--   would make the view jump). Cleared when the last viewer leaves, so no
+--   one reads a stale look.
 local function publishAim(bot: Bot, aiming: boolean, now: number)
 	local sent = aimSent[bot]
 	if not sent then
-		sent = { at = -math.huge, yaw = math.huge, pitch = math.huge, aiming = false }
+		sent = {
+			pitchNext = -math.huge,
+			pitch = math.huge,
+			aiming = false,
+			gun = false,
+			gunNext = -math.huge,
+			gunYaw = math.huge,
+			gunPitch = math.huge,
+			lookNext = -math.huge,
+		}
 		aimSent[bot] = sent
 	end
-	if now - sent.at < 1 / SPECTATE.botAimSendHz then
-		return
+	local owner = bot.owner
+	local model = bot.model
+	-- The look stream (spectators and the final-kill replay): where the gun
+	-- points, on the server's clock, at Juice SPECTATE lookHz, always (the
+	-- replay may need it later); relayed only to whoever watches this bot.
+	if model ~= nil and now >= sent.lookNext then
+		sent.lookNext = nextSlot(sent.lookNext, now, 1 / SPECTATE.lookHz)
+		LookStream.push(
+			model,
+			workspace:GetServerTimeNow(),
+			wrapAngle(bot.yaw + math.rad(bot.aimError.X + bot.recoil.X)),
+			math.clamp(bot.pitch + math.rad(bot.aimError.Y + bot.recoil.Y), -1.4, 1.4)
+		)
 	end
-	local yaw = wrapAngle(bot.yaw + math.rad(bot.aimError.X + bot.recoil.X))
-	local pitch = math.clamp(bot.pitch + math.rad(bot.aimError.Y + bot.recoil.Y), -1.4, 1.4)
-	local deadband = SPECTATE.botAimDeadband
-	if
-		math.abs(pitch - sent.pitch) <= deadband
-		and math.abs(wrapAngle(yaw - sent.yaw)) <= deadband
-		and aiming == sent.aiming
-	then
-		return
+	if model ~= nil and Spectated.has(model) then
+		if now >= sent.gunNext then
+			local yaw = wrapAngle(bot.yaw + math.rad(bot.aimError.X + bot.recoil.X))
+			local pitch = math.clamp(bot.pitch + math.rad(bot.aimError.Y + bot.recoil.Y), -1.4, 1.4)
+			local deadband = SPECTATE.botAimDeadband
+			if
+				not sent.gun
+				or math.abs(pitch - sent.gunPitch) > deadband
+				or math.abs(wrapAngle(yaw - sent.gunYaw)) > deadband
+				or aiming ~= sent.aiming
+			then
+				sent.gunNext = nextSlot(sent.gunNext, now, 1 / SPECTATE.botAimSendHz)
+				sent.gun, sent.gunYaw, sent.gunPitch = true, yaw, pitch
+				StateValues.set(owner, "AimGunYaw", yaw)
+				StateValues.set(owner, "AimGunPitch", pitch)
+				if aiming ~= sent.aiming then
+					sent.aiming = aiming
+					StateValues.set(owner, "Aiming", aiming)
+				end
+			end
+		end
+	elseif sent.gun then
+		sent.gun, sent.gunYaw, sent.gunPitch = false, math.huge, math.huge
+		StateValues.set(owner, "AimGunYaw", nil)
+		StateValues.set(owner, "AimGunPitch", nil)
 	end
-	sent.at, sent.yaw, sent.pitch, sent.aiming = now, yaw, pitch, aiming
-	bot.owner:SetAttribute("AimYaw", yaw)
-	bot.owner:SetAttribute("AimPitch", pitch)
-	bot.owner:SetAttribute("Aiming", aiming)
+	if now >= sent.pitchNext then
+		if
+			math.abs(bot.pitch - sent.pitch) > SPECTATE.botPitchDeadband
+			or aiming ~= sent.aiming
+		then
+			sent.pitchNext = nextSlot(sent.pitchNext, now, 1 / SPECTATE.botPitchSendHz)
+			sent.pitch, sent.aiming = bot.pitch, aiming
+			StateValues.set(owner, "AimPitch", bot.pitch)
+			StateValues.set(owner, "Aiming", aiming)
+		end
+	end
 end
 
 local function setInput(bot: Bot, name: string, value: any)
@@ -115,7 +179,7 @@ function Brain.healthShare(bot: Bot): number
 	if not humanoid then
 		return 0
 	end
-	local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+	local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
 	local extra = if typeof(shield) == "number" then shield else 0
 	return (Health.get(humanoid) + extra) / math.max(Health.max(humanoid), 1)
 end
@@ -150,21 +214,26 @@ local function manageGun(bot: Bot, inFight: boolean)
 	end
 	local empty = current.config.magSize > 0 and current.ammo < 1
 	if empty and not current.reloadEnd then
-		local other = if slot == "Primary" then gun.slots.Secondary else gun.slots.Primary
-		if inFight and other and other.ammo > 0 and rng:NextNumber() < 0.7 then
-			BotGun.equip(
-				gun,
-				model,
-				bot.owner,
-				if slot == "Primary" then "Secondary" else "Primary"
+		local otherSlot = if slot == "Primary" then "Secondary" else "Primary"
+		local other = gun.slots[otherSlot]
+		if
+			other
+			and (
+				other.ammo > 0 and inFight
+				or current.reserve == 0 and other.ammo + other.reserve > 0
 			)
+		then
+			BotGun.equip(gun, model, bot.owner, otherSlot)
+		elseif current.reserve == 0 then
+			BotGun.equip(gun, model, bot.owner, "Melee")
 		else
 			BotGun.reload(gun, model, bot.owner)
 		end
 		return
 	end
 	if not inFight then
-		if slot ~= "Primary" and gun.slots.Primary then
+		local primary = gun.slots.Primary
+		if slot ~= "Primary" and primary and primary.ammo + primary.reserve > 0 then
 			BotGun.equip(gun, model, bot.owner, "Primary")
 		elseif BotGun.ammoShare(gun) < 0.6 then
 			BotGun.reload(gun, model, bot.owner)
@@ -193,10 +262,13 @@ local function spacing(bot: Bot, allies: { Model }): Vector3
 end
 
 local function newStrafe(bot: Bot, now: number)
-	local pause = rng:NextNumber() < BotsConfig.STRAFE_PAUSE
+	local pause = rng:NextNumber() < bot.profile.movement.strafePause
 	bot.strafeDir = if pause
 		then 0
-		elseif bot.strafeDir == 0 then (if rng:NextNumber() < 0.5 then -1 else 1)
+		elseif rng:NextNumber() < 0.25 or bot.strafeDir == 0 then (if rng:NextNumber()
+				< 0.5
+			then -1
+			else 1)
 		else -bot.strafeDir
 	bot.strafeUntil = now
 		+ BotsConfig.STRAFE_MIN
@@ -212,15 +284,57 @@ function Brain.think(bot: Bot, world: World, now: number)
 	end
 	Perception.update(bot, world.enemies, now)
 	local previous = bot.target
-	bot.target = Perception.pickTarget(bot, now, world.focus)
-	if bot.target and bot.target ~= previous then
+	local low, high = rangeBand(bot)
+	local weapon = BotGun.config(bot.gun)
+	bot.target =
+		Perception.pickTarget(bot, now, world.focus, high, if weapon then weapon.range else high)
+	local switched = bot.target ~= nil and bot.target ~= previous
+	if switched then
 		Aim.acquire(bot)
-		bot.missLeft = bot.profile.firstMisses
+		bot.missLeft = bot.profile.aim.firstMisses
+		bot.triggerAt = now
+			+ rng:NextNumber(BotsConfig.TRIGGER_DELAY[1], BotsConfig.TRIGGER_DELAY[2])
 	end
 	local target = bot.target
 	local hp = Brain.healthShare(bot)
-	local aggression = bot.profile.aggression
-	local known = if target then nil else Perception.lastKnown(bot, now)
+	local style = bot.openingStyle
+	local aggression = math.clamp(
+		bot.profile.tactics.aggression
+			+ (if style == "Flanker" then 0.08 elseif style == "Holder" then -0.13 else 0),
+		0,
+		1
+	)
+	local glimpse = if target then nil else Perception.glimpse(bot, now)
+	local known = if target then nil else glimpse or Perception.lastKnown(bot, now)
+	local threat = target or known
+	local zone = world.zone
+	bot.zone = zone
+	local rotate = zone ~= nil and Tactics.needsZone(bot, zone)
+	local pos = root.Position
+	local gun = BotGun.current(bot.gun)
+	local lowAmmo = gun ~= nil and gun.config.magSize > 0 and gun.ammo < 1
+	local underPressure = now - bot.lastHurtAt < 0.85
+	local cover = bot.coverGoal
+	local peeking = now < bot.peekUntil
+	if
+		rotate
+		or not threat
+		or (switched and previous ~= nil)
+		or (cover and bot.nav.failedFor and (cover - bot.nav.failedFor).Magnitude < 3)
+	then
+		bot.coverGoal, bot.peekGoal = nil, nil
+		bot.coverUntil, bot.peekUntil = 0, 0
+		cover, peeking = nil, false
+	elseif
+		not cover
+		and now >= bot.coverAt
+		and not peeking
+		and (lowAmmo or hp < bot.profile.tactics.coverHealth or (underPressure and not target))
+	then
+		bot.coverAt = now + BotsConfig.COVER_RETRY
+		bot.coverGoal, bot.peekGoal = Tactics.findCover(bot, threat.lastPos, world.allies)
+		cover = bot.coverGoal
+	end
 
 	-- Score the goals.
 	local scores: { [string]: number } = { Roam = 0.2 }
@@ -231,14 +345,11 @@ function Brain.think(bot: Bot, world: World, now: number)
 			enemyHp = Health.get(h) / math.max(Health.max(h), 1)
 		end
 		scores.Engage = 0.6 + aggression * 0.3
-		if hp < BotsConfig.RETREAT_HEALTH then
-			scores.Retreat = 0.95 - aggression * 0.3 - (if enemyHp < hp then 0.3 else 0)
+		if hp < bot.profile.tactics.coverHealth and enemyHp > hp then
+			scores.Retreat = 1.05 - aggression * 0.28
 		end
 	elseif known then
 		scores.Hunt = 0.45 + aggression * 0.35
-		if hp < BotsConfig.RETREAT_HEALTH and aggression < 0.6 then
-			scores.Hold = 0.7 -- hurt: let them come
-		end
 	end
 	local best, bestScore = "Roam", -1
 	for goal, score in scores do
@@ -257,20 +368,62 @@ function Brain.think(bot: Bot, world: World, now: number)
 	then
 		best = bot.goal
 	end
+	local peek = bot.peekGoal
+	if rotate then
+		best = "Rotate"
+	elseif cover and threat then
+		local arrived = ((cover - pos) * Vector3.new(1, 0, 1)).Magnitude < 2.4
+		if bot.coverUntil == 0 and arrived then
+			bot.coverUntil = now + bot.profile.tactics.coverPatience
+		end
+		if bot.coverUntil == 0 or now < bot.coverUntil or BotGun.reloading(bot.gun) then
+			best = "Cover"
+		elseif peek and (peeking or bot.peekUntil == 0) then
+			if not peeking then
+				bot.peekUntil = now + BotsConfig.PEEK_TIME
+			end
+			best = "Peek"
+		else
+			bot.coverGoal, bot.peekGoal = nil, nil
+			bot.coverUntil, bot.peekUntil = 0, 0
+			bot.coverAt = now + BotsConfig.COVER_RETRY
+		end
+	end
+	if best ~= bot.goal or switched then
+		Nav.clear(bot.nav)
+	end
+	if bot.goal == "Roam" and best ~= "Roam" then
+		bot.lastRoam = bot.roamGoal or bot.lastRoam
+		bot.roamGoal = nil
+	end
 	setGoal(bot, best, now)
 	if STUDIO then
 		-- Tuning aid (Studio only): what it is doing and who it's after.
-		bot.owner:SetAttribute("BotGoal", best)
-		bot.owner:SetAttribute("BotTarget", if target then target.model.Name else nil)
+		StateValues.set(bot.owner, "BotGoal", best)
+		StateValues.set(bot.owner, "BotTarget", if target then target.model.Name else nil)
 	end
 
 	-- Plan the movement for the goal.
-	local pos = root.Position
 	bot.wantSprint = false
 	bot.wantCrouch = false
 	bot.moveDir = Vector3.zero
-	if best == "Engage" and target then
-		local low, high = rangeBand(bot)
+	if best == "Rotate" and zone then
+		local destination = Tactics.zoneGoal(bot, zone)
+		Nav.setGoal(bot, destination)
+		bot.wantSprint = true
+		bot.lookAt = destination
+	elseif best == "Cover" and cover and threat then
+		if bot.coverUntil == 0 then
+			Nav.setGoal(bot, cover)
+		else
+			Nav.clear(bot.nav)
+			bot.wantCrouch = true
+		end
+		bot.lookAt = threat.lastPos
+	elseif best == "Peek" and peek and threat then
+		Nav.setGoal(bot, peek)
+		bot.lookAt = threat.lastPos
+	elseif best == "Engage" and target then
 		local offset = (target.lastPos - pos) * Vector3.new(1, 0, 1)
 		local distance = offset.Magnitude
 		local toward = if distance > 0.1 then offset.Unit else root.CFrame.LookVector
@@ -278,20 +431,18 @@ function Brain.think(bot: Bot, world: World, now: number)
 		if now >= bot.strafeUntil then
 			newStrafe(bot, now)
 		end
-		local push = 0
-		if distance > high * 1.25 then
-			push = 1
-		elseif distance > high then
-			push = 0.6
-		elseif distance < low then
-			push = -0.7
-		end
-		if push > 0 and distance > high * 1.25 then
-			Nav.setGoal(bot, target.lastPos)
+		local push = math.clamp((distance - high) / (high * 0.25), 0, 1)
+			- math.clamp((low - distance) / math.max(low * 0.5, 1), 0, 0.75)
+		local pathThreshold = if bot.nav.goal then high * 1.12 else high * 1.25
+		local shotgun = weapon and weapon.class == "Shotgun"
+		local higherGround = math.abs(target.groundPos.Y - pos.Y) > 5
+		if distance > pathThreshold or (shotgun and higherGround) then
+			Nav.setGoal(bot, target.groundPos)
 		else
 			Nav.clear(bot.nav)
 		end
 		bot.moveDir = toward * push + side * bot.strafeDir
+		bot.wantSprint = shotgun == true and (target.lastPos - pos).Magnitude > high * 1.6
 		if push == 0 and distance > BotsConfig.CROUCH_AT and now >= bot.crouchUntil then
 			if rng:NextNumber() < BotsConfig.CROUCH_CHANCE * 0.1 then
 				bot.crouchUntil = now + 0.6 + rng:NextNumber()
@@ -299,68 +450,81 @@ function Brain.think(bot: Bot, world: World, now: number)
 		end
 		bot.wantCrouch = now < bot.crouchUntil
 		bot.lookAt = target.lastPos
-		local jumpChance = BotsConfig.JUMP_CHANCE * (if bot.profile.aggression > 0.7 then 2 else 1)
-		if bot.humanoid and rng:NextNumber() < jumpChance then
-			bot.humanoid.Jump = true
-		end
 	elseif best == "Retreat" and target then
 		local away = (pos - target.lastPos) * Vector3.new(1, 0, 1)
 		local dir = if away.Magnitude > 0.1 then away.Unit else -root.CFrame.LookVector
-		Nav.setGoal(bot, pos + dir * 25)
-		bot.wantSprint = true
+		Nav.clear(bot.nav)
+		bot.moveDir = dir
 		bot.lookAt = target.lastPos
 	elseif best == "Hunt" and known then
 		-- Where it last stood (a jumping target's air position has no path).
 		local goal = known.groundPos
-		if bot.nav.failedFor and (bot.nav.failedFor - goal).Magnitude < 1 then
+		if not glimpse and bot.nav.failedFor and (bot.nav.failedFor - goal).Magnitude < 1 then
 			known.unreachableAt = now -- no path: forget it and roam instead
 		end
-		local offset = (goal - pos) * Vector3.new(1, 0, 1)
-		if world.lane ~= 0 and offset.Magnitude > 25 then
-			local side = Vector3.new(-offset.Unit.Z, 0, offset.Unit.X)
-			goal += side * world.lane * 10
+		if not glimpse and ((goal - pos) * Vector3.new(1, 0, 1)).Magnitude < 4 then
+			known.unreachableAt = now -- searched its last known position
 		end
 		Nav.setGoal(bot, goal)
-		bot.wantSprint = offset.Magnitude > 12
+		bot.wantSprint = (goal - pos).Magnitude > 12
 		bot.lookAt = known.lastPos
-	elseif best == "Hold" and known then
-		Nav.clear(bot.nav)
-		bot.lookAt = known.lastPos
-		bot.wantCrouch = true
 	else
-		-- No information: the enemy side first, then point to point over
-		-- the map (never parking: two bots that miss each other keep looking).
-		local goal = bot.roamGoal or world.roam
-		if goal and ((goal - pos) * Vector3.new(1, 0, 1)).Magnitude < 8 and #world.patrol > 0 then
-			local options: { Vector3 } = {}
-			for _, p in world.patrol do
-				if ((p - pos) * Vector3.new(1, 0, 1)).Magnitude > 20 then
-					table.insert(options, p)
-				end
-			end
-			if #options > 0 then
-				goal = options[rng:NextInteger(1, #options)]
-			end
+		local goal = Tactics.patrol(bot, world.roam, world.patrol, now)
+		if goal ~= bot.roamGoal then
+			Nav.clear(bot.nav)
 		end
 		bot.roamGoal = goal
 		if goal then
 			Nav.setGoal(bot, goal)
 			bot.wantSprint = true
 			bot.lookAt = goal
+		else
+			Nav.clear(bot.nav)
 		end
 	end
-	-- Sudden death: get inside the circle first, still shooting on the way.
-	local zone = world.zone
-	local zoneEdge = math.max(world.zoneRadius - ZONE_MARGIN, world.zoneRadius * 0.5)
-	if zone and ((pos - zone) * Vector3.new(1, 0, 1)).Magnitude > zoneEdge then
-		Nav.setGoal(bot, zone)
-		bot.wantSprint = target == nil
-		bot.lookAt = if target then bot.lookAt else zone
+	if best ~= "Rotate" and best ~= "Cover" and best ~= "Peek" then
+		bot.moveDir += spacing(bot, world.allies)
 	end
-	bot.moveDir += spacing(bot, world.allies)
 
-	manageGun(bot, target ~= nil)
+	manageGun(bot, target ~= nil and best ~= "Cover" and best ~= "Rotate")
 	BotMods.think(bot, world, now)
+end
+
+local function idle(
+	bot: Bot,
+	root: BasePart,
+	humanoid: Humanoid,
+	dt: number,
+	now: number,
+	align: AlignOrientation?
+)
+	if now >= bot.idleUntil then
+		bot.idleUntil = now + rng:NextNumber(0.75, 1.55)
+		local action = rng:NextInteger(1, 5)
+		local side = if rng:NextNumber() < 0.5 then -1 else 1
+		local look = root.CFrame.LookVector
+		local sideways = root.CFrame.RightVector * side
+		bot.lookAt = root.Position + (look + sideways * 0.65) * 10
+		bot.wantCrouch = action == 3
+		bot.moveDir = if action <= 2 then (look * 0.35 + sideways).Unit * 0.55 else Vector3.zero
+		if
+			action == 4
+			and humanoid.FloorMaterial ~= Enum.Material.Air
+			and Nav.clearLine(
+				bot,
+				root.Position + Vector3.yAxis * 1.3,
+				root.Position + Vector3.yAxis * 4.2
+			)
+		then
+			humanoid.Jump = true
+		end
+	end
+	local dir = Nav.avoid(bot, bot.moveDir, false, now)
+	humanoid:Move(dir, false)
+	Aim.step(bot, nil, dt)
+	if align then
+		align.CFrame = CFrame.Angles(0, bot.yaw, 0)
+	end
 end
 
 -- Every frame: aim, steer, inputs, trigger. Returns true when a shot went off.
@@ -372,9 +536,14 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 	local now = os.clock()
 	BotGun.step(bot.gun, model, dt)
 	if not bot.fighting then
-		humanoid:Move(Vector3.zero, false)
+		bot.steerInput = Vector3.zero
+		if bot.postRound then
+			idle(bot, root, humanoid, dt, now, align)
+		else
+			humanoid:Move(Vector3.zero, false)
+		end
 		setInput(bot, "Sprint", false)
-		setInput(bot, "Crouch", false)
+		setInput(bot, "Crouch", bot.postRound and bot.wantCrouch)
 		setInput(bot, "Fire", false)
 		setInput(bot, "Aim", false)
 		publishAim(bot, false, now)
@@ -383,9 +552,38 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 
 	local target = bot.target
 	-- Blinded (a Flash): it can't see to aim or shoot until it clears.
-	local blindUntil = model:GetAttribute(StatusEffects.blinded.attribute)
-	local blind = typeof(blindUntil) == "number" and blindUntil > workspace:GetServerTimeNow()
-	local engage = not blind and target ~= nil and Perception.engageable(bot, target, now)
+	local blind = Perception.isBlinded(bot)
+	local rotating = bot.goal == "Rotate"
+	local engage = not rotating
+		and not blind
+		and target ~= nil
+		and Perception.engageable(bot, target, now)
+	-- Follow the intended route around corners, including when entering the ring.
+	local requested, jump = bot.moveDir, false
+	if bot.nav.goal then
+		requested, jump = Nav.steer(bot, now)
+		-- Keep combat strafing away from tight waypoints, where it can push
+		-- the bot off the route and back toward the previous corner.
+		local followingPath = bot.nav.waypoints[bot.nav.index] ~= nil
+		if bot.goal == "Engage" and not followingPath then
+			requested += bot.moveDir * 0.3
+		elseif bot.goal == "Roam" or bot.goal == "Hunt" then
+			requested += bot.moveDir * (if followingPath then 0.1 else 0.22)
+		end
+	end
+	-- Ease between strafe legs and route headings before checking clearance.
+	-- A blocked direction still stops or detours immediately.
+	local moveAlpha = 1 - math.exp(-dt / BotsConfig.MOVE_RESPONSE)
+	bot.steerInput = bot.steerInput:Lerp(requested, moveAlpha)
+	local dir, hop = Nav.avoid(bot, bot.steerInput, jump, now)
+	if
+		(rotating or bot.goal == "Roam")
+		and not engage
+		and dir.Magnitude > 0.3
+		and requested.Magnitude > 0.3
+	then
+		bot.lookAt = root.Position + requested.Unit * 12
+	end
 	local point = if engage then Aim.targetPoint(bot, now) else nil
 	local lag = Aim.step(bot, point, dt)
 	if align then
@@ -393,62 +591,60 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 	end
 	setInput(bot, "AimPitch", math.clamp(math.deg(bot.pitch) / 90, -1, 1))
 
-	-- Steering: the path when there is one, else the planned direction.
-	local dir = bot.moveDir
-	if bot.nav.goal then
-		local steer, jump = Nav.steer(bot)
-		if steer.Magnitude > 0 then
-			dir = steer + (if engage then dir * 0.3 else Vector3.zero)
-		end
-		if jump then
-			humanoid.Jump = true
-		end
-	end
-	local escalate = Nav.checkStuck(bot, dir.Magnitude > 0.2)
-	if escalate == 1 then
+	if hop then
 		humanoid.Jump = true
-	elseif
-		bot.goal == "Roam"
-		and (
-			escalate == 3
-			or (
-				bot.nav.failedFor ~= nil
-				and bot.roamGoal ~= nil
-				and (bot.nav.failedFor - bot.roamGoal).Magnitude < 1
-			)
-		)
-	then
-		bot.roamGoal = root.Position -- can't get there: the next think picks another point
-	elseif escalate == 2 then
-		bot.strafeDir = if rng:NextNumber() < 0.5 then -1 else 1
-		bot.strafeUntil = now + 0.5
-		dir = Vector3.new(-dir.Z, 0, dir.X) * bot.strafeDir
 	end
-	if dir.Magnitude > 1 then
-		dir = dir.Unit
+	if Nav.checkStuck(bot, requested.Magnitude > 0.2 or jump) then
+		if bot.goal == "Roam" then
+			local failed = bot.roamGoal
+			if failed then
+				bot.roamBlocked[failed] = now + BotsConfig.ROAM_RETRY
+			end
+		elseif bot.goal == "Cover" or bot.goal == "Peek" then
+			bot.coverGoal, bot.peekGoal = nil, nil
+			bot.coverUntil, bot.peekUntil = 0, 0
+		end
 	end
 	humanoid:Move(dir, false)
 
 	-- Sprint only forward-ish (the simulation also checks), slide in when
 	-- sprinting into a fight's range.
 	local facing = root.CFrame.LookVector
-	local sprint = bot.wantSprint and not engage and dir.Magnitude > 0.5 and facing:Dot(dir) > 0.5
-	local crouch = bot.wantCrouch
 	local distance = if target then (target.lastPos - root.Position).Magnitude else math.huge
-	local state = model:GetAttribute("MoveState")
+	local config = BotGun.config(bot.gun)
+	local outsideShotgunRange = config ~= nil
+		and config.class == "Shotgun"
+		and distance > BotsConfig.RANGE.Shotgun[2] * 1.6
+	local sprint = bot.wantSprint
+		and (not engage or outsideShotgunRange)
+		and dir.Magnitude > 0.5
+		and facing:Dot(dir) > 0.5
+	local crouch = bot.wantCrouch
+	local state = StateValues.get(model, "MoveState")
 	if
-		target
+		engage
 		and state == "Sprint"
 		and distance >= BotsConfig.SLIDE_RANGE[1]
 		and distance <= BotsConfig.SLIDE_RANGE[2]
+		and now >= bot.slideCheckAt
 	then
-		crouch = true -- a press while sprinting starts a slide (Simulation/Movement)
-		bot.crouchUntil = now + 0.5
+		bot.slideCheckAt = now + 1
+		if
+			rng:NextNumber() < bot.profile.movement.slideChance
+			and Nav.canMove(bot, dir, BotsConfig.SLIDE_CLEARANCE)
+			and Nav.zoneAllows(bot, root.Position + dir * BotsConfig.SLIDE_CLEARANCE, 0.4)
+		then
+			crouch = true
+			bot.crouchUntil = now + 0.5
+		end
 	end
 	if state == "Slide" then
 		crouch = now < bot.crouchUntil
-		-- Hard bots sometimes jump out of a slide (slide-jump).
-		if bot.profile.aggression > 0.7 and rng:NextNumber() < dt * 1.5 then
+		if
+			rng:NextNumber() < dt * bot.profile.movement.slideJumpChance * 4
+			and Nav.canMove(bot, dir, BotsConfig.SLIDE_CLEARANCE, true)
+			and Nav.zoneAllows(bot, root.Position + dir * BotsConfig.SLIDE_CLEARANCE, 0.4)
+		then
 			humanoid.Jump = true
 		end
 	end
@@ -456,11 +652,11 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 	setInput(bot, "Crouch", crouch)
 
 	-- ADS for steady shots at range (guns with sights).
-	local config = BotGun.config(bot.gun)
 	local wantAds = engage
 		and config ~= nil
 		and not config.noAds
 		and config.fireMode ~= "Melee"
+		and not outsideShotgunRange
 		and distance > 14
 	bot.gun.aimHeld = wantAds
 	setInput(bot, "Aim", wantAds)
@@ -470,7 +666,7 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 	-- discipline at range, a human's trigger delay.
 	local fired = false
 	local triggerHeld = false
-	if engage and config and point then
+	if engage and config and point and not outsideShotgunRange then
 		local cone = BotGun.cone(bot.gun, root)
 		local onTarget = lag
 			< Aim.targetSize(distance) * 2 + cone * 0.5 + BotsConfig.FIRE_CONE_SLACK
@@ -483,7 +679,7 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 			-- A fair miss: the first shots at a new target, or when the target
 			-- already took its budget of bot hits this second.
 			local fair = bot.missLeft > 0
-				or overBudget(target.model, bot.profile.maxHitsPerSec, now)
+				or overBudget(target.model, bot.profile.aim.maxHitsPerSec, now)
 			local missBy = if fair
 				then (Aim.targetSize(distance) * 1.3 + BotsConfig.FAIR_MISS_ANGLE) * (if rng:NextNumber()
 						< 0.5
@@ -501,9 +697,17 @@ function Brain.act(bot: Bot, dt: number, align: AlignOrientation?): boolean
 				end
 				if STUDIO then
 					local o = bot.owner
-					o:SetAttribute("BotShots", ((o:GetAttribute("BotShots") :: number?) or 0) + 1)
+					StateValues.set(
+						o,
+						"BotShots",
+						((StateValues.get(o, "BotShots") :: number?) or 0) + 1
+					)
 					if hit then
-						o:SetAttribute("BotHits", ((o:GetAttribute("BotHits") :: number?) or 0) + 1)
+						StateValues.set(
+							o,
+							"BotHits",
+							((StateValues.get(o, "BotHits") :: number?) or 0) + 1
+						)
 					end
 				end
 				Aim.kick(bot, up, side)

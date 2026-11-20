@@ -9,23 +9,29 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Health = require(Shared.Health)
 local Accuracy = require(Shared.Util.Accuracy)
+local Ammo = require(Shared.Util.Ammo)
 local DashMod = require(Shared.Mods.Dash)
 local Status = require(Shared.Mods.Status)
+local Teams = require(Shared.Mods.Teams)
 local Animations = require(Shared.Config.Animations)
 local Audio = require(Shared.Config.Audio)
 local Combat = require(Shared.Config.Combat)
 local HitFx = require(Shared.Config.HitFx)
 local Juice = require(Shared.Config.Juice)
 local GunSounds = require(Shared.Config.GunSounds)
+local Fighters = require(Shared.Util.Fighters)
 local FireRate = require(Shared.Util.FireRate)
 local MatchState = require(Shared.MatchState)
 local Net = require(Shared.Net)
+local ShadowMistAudio = require(Shared.Config.ShadowMistAudio)
+local SkinPreviewConfig = require(Shared.Config.SkinPreview)
 local Sounds = require(Shared.Config.Sounds)
 local Spread = require(Shared.Util.Spread)
 local Penetration = require(ReplicatedStorage.Shared.Util.Penetration)
@@ -48,6 +54,8 @@ local ShotLog = require(script.Parent.Parent.Util.ShotLog)
 
 local HitFeedback = require(script.Parent.Parent.Util.HitFeedback)
 
+local studioSkinPreview = RunService:IsStudio() and game.PlaceId == SkinPreviewConfig.PLACE_ID
+
 type Slot = Types.Slot
 type WeaponConfig = Types.WeaponConfig
 
@@ -55,6 +63,7 @@ type LocalSlot = {
 	id: string,
 	config: WeaponConfig,
 	ammo: number,
+	reserve: number?,
 	lastFire: number,
 	spinStart: number?,
 	burstShots: number, -- same counter as the server's (FireRate.nextBurstCount)
@@ -91,6 +100,7 @@ local equipped: Slot? = nil
 local equipReadyAt = 0
 local reloading: Reload? = nil
 local reloadToken = 0
+local meleeEpoch = 0
 local triggerHeld = false
 local pressQueued = false
 local pressHoldUntil = -math.huge -- a queued press waits at least until this (a stopped shell reload)
@@ -107,6 +117,9 @@ local lastShotAt = 0
 local lastPredictedHit = -math.huge
 local lastPredictedHead = -math.huge
 local lastAimSent = 0
+local nextAimAt = 0 -- the next Aim send slot (a schedule: 30 Hz stays 30 Hz, not every third frame)
+local nextLookAt = 0 -- the next Look stream slot (Services/LookStream)
+local LOOK_PHASES = table.freeze({ Live = true, SuddenDeath = true, RoundEnd = true })
 local lastPitchSent = 0
 local lastAimingSent = false
 local lastStateSent = ""
@@ -178,6 +191,12 @@ local function rayParams(): RaycastParams
 	local fx = Workspace:FindFirstChild("Effects")
 	if fx then
 		table.insert(exclude, fx)
+	end
+	-- Match the server's friendly-fire rule before predicting contact feedback.
+	for _, fighter in Fighters.all(player) do
+		if Teams.isAlly(player, fighter.holder) then
+			table.insert(exclude, fighter.body)
+		end
 	end
 	params.FilterDescendantsInstances = exclude
 	return params
@@ -268,6 +287,10 @@ local function playLocal(id: string?, group: AudioController.Group, volume: numb
 	AudioController.play(id, { group = group, volume = volume, pitch = pitch })
 end
 
+local function usesRuinBlighted(): boolean
+	return studioSkinPreview and ViewmodelController.hasShadowMist()
+end
+
 -- A sound from the gun's Config/GunSounds entry, played on our side (2D).
 local function playGun(
 	config: WeaponConfig,
@@ -275,6 +298,12 @@ local function playGun(
 	group: AudioController.Group?,
 	pitchScale: number?
 ): AudioController.Handle?
+	if name == "rack" and config.id == "Vandal" and usesRuinBlighted() then
+		local custom = AudioController.playSound(ShadowMistAudio.rack, group or "Foley")
+		if custom then
+			return custom
+		end
+	end
 	local set = GunSounds.get(config.id) :: any
 	return AudioController.playSound(set[name], group or "Foley", nil, nil, pitchScale)
 end
@@ -297,7 +326,8 @@ local function updateHudWeapon()
 			s.config.displayName,
 			math.floor(s.ammo),
 			s.config.magSize,
-			s.config.id
+			s.config.id,
+			s.reserve
 		)
 	end
 	-- The bottom HUD's hotbar shows every slot, the held one lit.
@@ -341,7 +371,7 @@ end
 
 local function startShellReload(s: LocalSlot)
 	local shell = s.config.shellReload :: Types.ShellReload
-	local needed = s.config.magSize - s.ammo
+	local needed = Ammo.toLoad(s.config.magSize, s.ammo, s.reserve)
 	local slow = 1 / statusMults().reload
 	reloadToken += 1
 	reloading = {
@@ -371,7 +401,7 @@ local function stepShellReload(s: LocalSlot, r: Reload, now: number)
 	end
 	if st.phase == "Insert" then
 		st.inserted += 1
-		s.ammo = math.min(s.ammo + 1, s.config.magSize)
+		s.ammo, s.reserve = Ammo.load(s.config.magSize, s.ammo, s.reserve, 1)
 		updateHudWeapon()
 	end
 	if st.phase ~= "End" and st.inserted < st.needed then
@@ -414,7 +444,7 @@ local function startReload()
 		return
 	end
 	local config = s.config
-	if config.magSize <= 0 or s.ammo >= config.magSize then
+	if Ammo.toLoad(config.magSize, s.ammo, s.reserve) == 0 then
 		return
 	end
 	burstQueue = 0
@@ -430,7 +460,11 @@ local function startReload()
 	reloading = { start = os.clock(), duration = duration, token = token }
 	Net.event("Reload"):FireServer()
 	-- Foley (Config/GunSounds) lands on the clip's own beats.
+	local shadow = usesRuinBlighted()
 	for _, beat in ViewmodelController.reload(duration, empty) do
+		if shadow and (beat.sound == "MagOut" or beat.sound == "MagIn") then
+			continue -- ShadowMistActions owns the animated mag and its sound
+		end
 		task.delay(duration * beat.at, function()
 			if reloadToken == token then
 				playGun(config, BEAT_SOUNDS[beat.sound])
@@ -444,9 +478,12 @@ local function inspect()
 	local s = current()
 	if alive and s and not reloading and os.clock() >= equipReadyAt and not gunBlocked() then
 		if ViewmodelController.inspect() then
-			playGun(s.config, "inspect")
+			local reaver = ViewmodelController.hasRuinedReaver()
+			if not usesRuinBlighted() and not reaver then
+				playGun(s.config, "inspect")
+			end
 			-- The knife's flips click as it's caught (Config/Viewmodel InspectMelee).
-			if s.config.fireMode == "Melee" then
+			if s.config.fireMode == "Melee" and not reaver then
 				for _, at in Animations.KNIFE_FEEL.inspectFlips do
 					task.delay(at, function()
 						if ViewmodelController.isInspecting() then
@@ -462,6 +499,7 @@ end
 -- Equip ----------------------------------------------------------------------
 
 local function applyEquip(slot: Slot)
+	meleeEpoch += 1
 	local s = slots[slot]
 	if not s then
 		return
@@ -476,10 +514,17 @@ local function applyEquip(slot: Slot)
 	local duration = (config.drawTime or config.equipTime) / statusMults().equip
 	equipReadyAt = os.clock() + duration
 	updateHudWeapon()
+	local beats = ViewmodelController.equip(config, duration)
+	local shadow = usesRuinBlighted()
 	playGun(config, "draw")
-	playGun(config, "drawWhoosh")
+	if not shadow and not ViewmodelController.hasRuinedReaver() then
+		playGun(config, "drawWhoosh")
+	end
 	local token = reloadToken
-	for _, beat in ViewmodelController.equip(config, duration) do
+	for _, beat in beats do
+		if shadow and beat.sound == "Rack" then
+			continue -- the shards lock on the draw track
+		end
 		task.delay(duration * beat.at, function()
 			if reloadToken == token and current() == s then
 				playGun(config, BEAT_SOUNDS[beat.sound])
@@ -549,7 +594,7 @@ local function cast(
 			local passThrough = Penetration.pass(budget, part, result.Position, dir)
 			if not passThrough then
 				-- A Mod object (a placed Mod object) takes the hit: report it.
-				if part:GetAttribute("MaxHp") ~= nil and part:IsA("BasePart") then
+				if StateValues.get(part, "MaxHp") ~= nil and part:IsA("BasePart") then
 					table.insert(out.hits, { part = part, position = result.Position })
 				end
 				out.finish = result.Position
@@ -561,7 +606,8 @@ local function cast(
 				}
 				return out
 			end
-			EffectsController.impact(
+			EffectsController.localWallImpact(
+				config,
 				result.Position,
 				result.Normal,
 				part,
@@ -677,7 +723,8 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 		end
 		table.insert(ends, result.finish)
 		if result.impact then
-			EffectsController.impact(
+			EffectsController.localWallImpact(
+				config,
 				result.impact.position,
 				result.impact.normal,
 				result.impact.part,
@@ -710,7 +757,10 @@ local function fireShot(s: LocalSlot, alt: boolean?)
 	end
 	-- The shot's sounds (Util/GunAudio: first shot, random takes, a tail
 	-- with every shot faded by the next, the last round), per gun slot.
-	GunAudio.shot(s, config, { lastRound = config.magSize > 0 and s.ammo <= 0 })
+	GunAudio.shot(s, config, {
+		lastRound = config.magSize > 0 and s.ammo <= 0,
+		shadowMist = config.id == "Vandal" and usesRuinBlighted(),
+	})
 	-- A hollow tick from a near-empty mag, louder as it runs dry.
 	local mag = config.magSize
 	local low = math.ceil(mag * Audio.LOW_AMMO_FRACTION)
@@ -796,6 +846,151 @@ local KNIFE_WALL_SOUND: { [string]: string } = {
 -- The last light attack's place in the Slash1 -> 2 -> 3 chain.
 local comboStep = 0
 
+-- Behind the barrier and between rounds (the server refuses shots too).
+local function combatLocked(): boolean
+	return StateValues.get(player, MatchState.COMBAT_LOCKED) == true
+end
+
+-- Heavy attacks query the current aim and reach when the blade lands. Light
+-- combo input keeps its immediate hit query and times presentation to the clip.
+local function swingContact(
+	s: LocalSlot,
+	attack: string,
+	heavy: boolean,
+	reaver: boolean,
+	delay: number
+)
+	local config = s.config
+	local melee = config.melee
+	local cam = Workspace.CurrentCamera
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not melee or not cam or not root or not root:IsA("BasePart") then
+		return
+	end
+	local heavyStats = if heavy then melee.heavy else nil
+	local feel = Animations.KNIFE_FEEL
+	local look = (feel :: any)[attack]
+	local path = Animations.KNIFE_MARK.paths[attack] or Vector2.new(-1, 0)
+	local epoch = meleeEpoch
+	local function atImpact(callback: () -> ())
+		if delay <= 0 then
+			callback()
+		else
+			task.delay(delay, function()
+				if alive and meleeEpoch == epoch then
+					callback()
+				end
+			end)
+		end
+	end
+	local function punch(size: number)
+		CameraController.kick(-path.Y * size * 0.5, -path.X * size, 1, feel.recover)
+	end
+
+	local origin = cam.CFrame.Position
+	local aim = cam.CFrame.LookVector
+	local params = rayParams()
+	if reaver and heavy then
+		atImpact(function()
+			if not ViewmodelController.hasRuinedReaver() or not root.Parent then
+				return
+			end
+			local forward = Vector3.new(aim.X, 0, aim.Z)
+			if forward.Magnitude < 0.01 then
+				return
+			end
+			local floor =
+				Workspace:Raycast(root.Position + forward.Unit * 2.0, Vector3.new(0, -7, 0), params)
+			if floor and floor.Normal.Y > 0.65 and not combatantOf(floor.Instance) then
+				EffectsController.slashMark(floor.Position, floor.Normal, forward, true, true)
+			end
+		end)
+	end
+	local result = Workspace:Spherecast(origin, 1.3, aim * melee.range, params)
+	local hits = {}
+	if result and result.Instance:IsA("BasePart") then
+		local model = combatantOf(result.Instance)
+		if model and aliveHumanoid(model) then
+			table.insert(hits, { part = result.Instance, position = result.Position, pellet = 1 })
+			local hit = result
+			atImpact(function()
+				-- Contact (predicted, cosmetic; the server decides the damage):
+				-- the impact sound at the start of the hit-stop, a small flash,
+				-- the punch, then a little shake once the stop lets go.
+				lastPredictedHit = os.clock()
+				playGun(config, "hitBody")
+				EffectsController.impact(hit.Position, -aim, hit.Instance, nil, nil, true, reaver)
+				EffectsController.knifeContact(hit.Position - aim * 0.3, reaver)
+				HudController.hitMarker(false)
+				if look then
+					ViewmodelController.hitStop(look.stop)
+					punch(look.kick.Y)
+					CameraController.rollKick(path.X * look.roll, feel.recover * 1.4)
+					if look.fov then
+						CameraController.punchFov(look.fov, 0.2)
+					end
+					task.delay(look.stop, CameraController.shake, feel.hitShake)
+				end
+			end)
+			-- Lunge toward the target on hit.
+			local flat = (aim * Vector3.new(1, 0, 1))
+			if flat.Magnitude > 0.01 then
+				local lunge = if heavyStats then heavyStats.lunge else melee.lunge
+				root.AssemblyLinearVelocity = flat.Unit * (lunge / 0.15)
+					+ Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+			end
+		end
+	end
+	-- The world: a gouge where the blade actually lands, i.e. where the aim
+	-- ray meets the surface (not the reach sphere's contact point, which sits
+	-- off the crosshair on angled walls and catches nearby edges first), laid
+	-- along this swing's path as seen on screen (Config/Animations KNIFE_MARK).
+	if #hits == 0 then
+		local wall = Workspace:Raycast(origin, aim * melee.range, params)
+		if wall and wall.Instance:IsA("BasePart") and not combatantOf(wall.Instance) then
+			local along = cam.CFrame.RightVector * path.X + cam.CFrame.UpVector * path.Y
+			local at, n = wall.Position, wall.Normal
+			local surface = EffectsController.surfaceOf(wall.Instance, wall.Material)
+			local part, material = wall.Instance, wall.Material
+			atImpact(function()
+				playGun(config, KNIFE_WALL_SOUND[surface] or "hitWall")
+				EffectsController.slashMark(at, n, along, heavy, reaver)
+				EffectsController.impact(at, n, part, material, nil, true)
+				ViewmodelController.hitStop(feel.wallStop)
+				if look then
+					punch(look.kick.Y * 0.5)
+				end
+			end)
+		end
+	end
+	-- A whiff (and every slash): the streak, and a punch as the blade goes.
+	if #hits == 0 and look then
+		atImpact(function()
+			punch(look.kick.X)
+		end)
+	end
+	if not heavy and not reaver and look and look.swipe then
+		EffectsController.knifeSwipe(
+			look.swipe,
+			math.max(delay - feel.swipeSweep * 0.45, 0),
+			feel.swipeSweep,
+			if #hits > 0 then 1 else feel.swipeWhiff
+		)
+	end
+	shotIndex += 1
+	Net.event("Fire"):FireServer({
+		origin = origin,
+		direction = aim,
+		shot = shotIndex,
+		seedBase = seedBase,
+		spread = 0,
+		hits = hits,
+		ends = {},
+		alt = heavy == true,
+	})
+	ShotLog.own(s.config.id, origin, {})
+end
+
 -- A knife attack. Light attacks chain Slash1 -> 2 -> 3 when each comes within
 -- the knife's comboWindow of the last one's cooldown; `heavy` is the
 -- right-click two-handed stab (its own cooldown, altFire.fireInterval). The
@@ -830,127 +1025,56 @@ local function swing(s: LocalSlot, heavy: boolean?)
 	if heavy and altFire then
 		s.altReadyAt = now + altFire.fireInterval / fireRateMult()
 	end
-	-- Impact effects and sounds wait for the blade to land in the clip (its Hit
-	-- marker); the hit itself is checked and sent now.
 	local attack = if heavy then "HeavyStab" else "Slash" .. comboStep
+	local reaver = ViewmodelController.hasRuinedReaver()
 	local hitDelay = ViewmodelController.swing(attack)
+	local epoch = meleeEpoch
 	local step = comboStep
 	local feel = Animations.KNIFE_FEEL
 	-- The whoosh peaks on the strike (its file peaks `whooshPeak` in), and each
 	-- light slash in a chain climbs a semitone (LihFolk Combat Sound Design).
 	local peakAt = if heavy then feel.whooshPeak.heavy else feel.whooshPeak.light
-	task.delay(
-		math.max(hitDelay - peakAt - feel.whooshLead, 0),
-		playGun,
-		config,
-		if heavy then "heavy" else "fire",
-		"Gun",
-		if heavy then 1 else 1.059 ^ (step - 1)
-	)
-	local look = (feel :: any)[attack]
+	local function currentSwing(): boolean
+		return alive and meleeEpoch == epoch and current() == s and not combatLocked()
+	end
+	task.delay(math.max(hitDelay - peakAt - feel.whooshLead, 0), function()
+		if currentSwing() then
+			playGun(
+				config,
+				if heavy then "heavy" else "fire",
+				"Gun",
+				if heavy then 1 else 1.059 ^ (step - 1)
+			)
+		end
+	end)
 	local path = Animations.KNIFE_MARK.paths[attack] or Vector2.new(-1, 0)
-	-- The view is punched along the swing's screen path (a hit: harder).
-	local function punch(size: number)
-		CameraController.kick(-path.Y * size * 0.5, -path.X * size, 1, feel.recover)
-	end
-
-	local origin = cam.CFrame.Position
-	local aim = cam.CFrame.LookVector
-	local params = rayParams()
-	local result = Workspace:Spherecast(origin, 1.3, aim * melee.range, params)
-	local hits = {}
-	if result and result.Instance:IsA("BasePart") then
-		local model = combatantOf(result.Instance)
-		if model and aliveHumanoid(model) then
-			table.insert(hits, { part = result.Instance, position = result.Position, pellet = 1 })
-			local hit = result
-			task.delay(hitDelay, function()
-				-- Contact (predicted, cosmetic; the server decides the damage):
-				-- the impact sound at the start of the hit-stop, a small flash,
-				-- the punch, then a little shake once the stop lets go.
-				playGun(config, "hitBody")
-				EffectsController.impact(hit.Position, -aim, hit.Instance)
-				EffectsController.knifeContact(hit.Position + aim * -0.3)
-				HudController.hitMarker(false)
-				if look then
-					ViewmodelController.hitStop(look.stop)
-					punch(look.kick.Y)
-					CameraController.rollKick(path.X * look.roll, feel.recover * 1.4)
-					if look.fov then
-						CameraController.punchFov(look.fov, 0.2)
-					end
-					task.delay(look.stop, CameraController.shake, feel.hitShake)
-				end
-			end)
-			-- Lunge toward the target on hit.
-			local flat = (aim * Vector3.new(1, 0, 1))
-			if flat.Magnitude > 0.01 then
-				local lunge = if heavyStats then heavyStats.lunge else melee.lunge
-				root.AssemblyLinearVelocity = flat.Unit * (lunge / 0.15)
-					+ Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+	task.delay(math.max(hitDelay - feel.leadEarly, 0), function()
+		if currentSwing() then
+			CameraController.rollKick(
+				path.X * feel.leadRoll * (if heavy then 0.6 else 1),
+				feel.leadTime
+			)
+		end
+	end)
+	if heavy then
+		local look = (feel :: any)[attack]
+		if look and look.swipe and not reaver then
+			EffectsController.knifeSwipe(
+				look.swipe,
+				math.max(hitDelay - feel.swipeSweep * 0.45, 0),
+				feel.swipeSweep,
+				feel.swipeWhiff
+			)
+		end
+		Net.event("Fire"):FireServer({ windup = true })
+		task.delay(math.max(hitDelay, Combat.HEAVY_WINDUP_MIN), function()
+			if currentSwing() and not gunBlocked() and not dashBlocked() then
+				swingContact(s, attack, true, reaver, 0)
 			end
-		end
+		end)
+	else
+		swingContact(s, attack, false, reaver, hitDelay)
 	end
-	-- The world: a gouge where the blade actually lands, i.e. where the aim
-	-- ray meets the surface (not the reach sphere's contact point, which sits
-	-- off the crosshair on angled walls and catches nearby edges first), laid
-	-- along this swing's path as seen on screen (Config/Animations KNIFE_MARK).
-	if #hits == 0 then
-		local wall = Workspace:Raycast(origin, aim * melee.range, params)
-		if wall and wall.Instance:IsA("BasePart") and not combatantOf(wall.Instance) then
-			local along = cam.CFrame.RightVector * path.X + cam.CFrame.UpVector * path.Y
-			local at, n = wall.Position, wall.Normal
-			local surface = EffectsController.surfaceOf(wall.Instance, wall.Material)
-			local part, material = wall.Instance, wall.Material
-			task.delay(hitDelay, function()
-				playGun(config, KNIFE_WALL_SOUND[surface] or "hitWall")
-				EffectsController.slashMark(at, n, along, heavy)
-				EffectsController.impact(at, n, part, material, nil, true)
-				ViewmodelController.hitStop(feel.wallStop)
-				if look then
-					punch(look.kick.Y * 0.5)
-				end
-			end)
-		end
-	end
-	-- A whiff (and every slash): the streak, and a punch as the blade goes.
-	if #hits == 0 and look then
-		task.delay(hitDelay, punch, look.kick.X)
-	end
-	-- The view leads into every swing (Animations KNIFE_FEEL leadRoll): a roll
-	-- along its path just before contact, eased back.
-	task.delay(
-		math.max(hitDelay - feel.leadEarly, 0),
-		CameraController.rollKick,
-		path.X * feel.leadRoll * (if heavy then 0.6 else 1),
-		feel.leadTime
-	)
-	if look and look.swipe then
-		local lead = hitDelay - feel.swipeSweep * 0.45 -- the head crosses the crosshair at contact
-		EffectsController.knifeSwipe(
-			look.swipe,
-			math.max(lead, 0),
-			feel.swipeSweep,
-			if #hits > 0 then 1 else feel.swipeWhiff
-		)
-	end
-	shotIndex += 1
-	Net.event("Fire"):FireServer({
-		origin = origin,
-		direction = aim,
-		shot = shotIndex,
-		seedBase = seedBase,
-		spread = 0,
-		hits = hits,
-		ends = {},
-		alt = heavy == true,
-	})
-	ShotLog.own(s.config.id, origin, {})
-end
-
--- Behind the barrier and between rounds (the server refuses shots too).
-local function combatLocked(): boolean
-	return player:GetAttribute(MatchState.COMBAT_LOCKED) == true
 end
 
 local function canShoot(s: LocalSlot): boolean
@@ -975,14 +1099,19 @@ local function onFirePressed()
 	if PickerController.isBusy() or gunBlocked() or combatLocked() then
 		return -- a click in the weapon picker, or a held Mod's use
 	end
+	local recoverInspect = ViewmodelController.isFinishingShadowMistInspect()
 	ViewmodelController.cancelInspect()
 	triggerHeld = true
-	pressQueued = true
 	local s = current()
+	pressQueued = not s or s.config.fireMode ~= "Auto" or recoverInspect
+	if recoverInspect then
+		pressHoldUntil = os.clock() + VM.CANCEL_TIME
+	end
 	if not s then
 		return
 	end
 	if s.config.magSize > 0 and s.ammo < 1 and not reloading then
+		pressQueued = false
 		dryFire()
 		startReload()
 		return
@@ -1025,7 +1154,7 @@ local function update(dt: number)
 	elseif r and s then
 		local t = (now - r.start) / r.duration
 		if t >= 1 then
-			s.ammo = s.config.magSize
+			s.ammo, s.reserve = Ammo.load(s.config.magSize, s.ammo, s.reserve)
 			reloading = nil
 			HudController.setReload(nil)
 			updateHudWeapon()
@@ -1104,7 +1233,12 @@ local function update(dt: number)
 				swing(s, true)
 			end
 		elseif mode == "Auto" then
-			if triggerHeld and canShoot(s) then
+			if
+				(triggerHeld or pressQueued)
+				and canShoot(s)
+				and not ViewmodelController.isFinishingShadowMistInspect()
+			then
+				pressQueued = false
 				fireShot(s)
 			end
 		elseif mode == "Burst" then
@@ -1179,12 +1313,12 @@ local function update(dt: number)
 	-- Tell the server where we're aiming (third-person pose for others) and,
 	-- with Server Authority off, what we're doing (shared/Authority: the
 	-- server publishes it for everyone else's footsteps, dust and spectating).
-	-- Juice SPECTATE: up to aimSendHz on a real move, one settle send once the
+	-- Juice SPECTATE: aimSendHz slots on a real move, one settle send once the
 	-- aim stops (so the last value lands), and a keepalive (a dropped packet
 	-- can't leave a stale Aiming / MoveState behind).
 	local aimFeel = Juice.SPECTATE
 	local sinceAim = now - lastAimSent
-	if cam and sinceAim >= 1 / aimFeel.aimSendHz then
+	if cam and now >= nextAimAt then
 		local pitch = math.asin(math.clamp(cam.CFrame.LookVector.Y, -1, 1))
 		local moving = MovementController.getState()
 		local moved = math.abs(pitch - lastPitchSent)
@@ -1195,12 +1329,29 @@ local function update(dt: number)
 			or (sinceAim >= aimFeel.aimSettle and moved > 1e-4)
 			or sinceAim >= aimFeel.aimKeepalive
 		then
+			-- On schedule: keep the cadence; after a quiet spell: one interval from now.
+			local interval = 1 / aimFeel.aimSendHz
+			nextAimAt = if now - nextAimAt < interval then nextAimAt + interval else now + interval
 			lastAimSent = now
 			lastPitchSent = pitch
 			lastAimingSent = aimingWanted
 			lastStateSent = moving
 			Net.unreliable("Aim"):FireServer(pitch, aimingWanted, moving)
 		end
+	end
+
+	-- The look stream (Services/LookStream): our view's yaw and pitch on the
+	-- server's clock, Juice SPECTATE lookHz, in a fight. Spectators draw it a
+	-- little in the past, interpolated, and the final-kill replay reads it.
+	if cam and alive and now >= nextLookAt and LOOK_PHASES[MatchState.phase() or ""] then
+		local interval = 1 / aimFeel.lookHz
+		nextLookAt = if now - nextLookAt < interval then nextLookAt + interval else now + interval
+		local look = cam.CFrame.LookVector
+		local b = buffer.create(16)
+		buffer.writef64(b, 0, Workspace:GetServerTimeNow())
+		buffer.writef32(b, 8, math.atan2(-look.X, -look.Z))
+		buffer.writef32(b, 12, math.asin(math.clamp(look.Y, -1, 1)))
+		Net.unreliable("Look"):FireServer(b)
 	end
 end
 
@@ -1263,7 +1414,9 @@ local function onWeaponState(state: Types.WeaponState)
 	local changedEquip = false
 	for _, slot in CYCLE do
 		local incoming = state.slots[slot]
-		if incoming then
+		if not incoming then
+			slots[slot] = nil
+		else
 			local config = Weapons.get(incoming.id)
 			if config then
 				local existing = slots[slot]
@@ -1272,6 +1425,7 @@ local function onWeaponState(state: Types.WeaponState)
 						id = incoming.id,
 						config = config,
 						ammo = incoming.ammo,
+						reserve = incoming.reserve,
 						lastFire = -math.huge,
 						spinStart = nil,
 						burstShots = 0,
@@ -1291,8 +1445,9 @@ local function onWeaponState(state: Types.WeaponState)
 					-- the stop) is the one that counts.
 					local r = reloading
 					local stopped = r ~= nil and r.shell ~= nil and r.shell.phase == "End"
-					if not (r and equipped == slot) or stopped then
+					if not (r and equipped == slot) or stopped or state.equipped ~= equipped then
 						existing.ammo = incoming.ammo
+						existing.reserve = incoming.reserve
 					end
 				end
 			end
@@ -1336,8 +1491,18 @@ local function canSee(point: Vector3): boolean
 	return false
 end
 
-local function onHitConfirm(confirm: Types.HitConfirm)
+-- A hit to show: your own (the server's HitConfirm) or, `relayed`, one by
+-- the fighter you spectate (SpectateController, the SpectateFeed): drawn the
+-- same, its sounds a little quieter and never skipped as already predicted.
+local function onHitConfirm(confirm: Types.HitConfirm, relayed: boolean?)
 	if typeof(confirm) ~= "table" then
+		return
+	end
+	if
+		typeof(confirm.damage) ~= "number"
+		or confirm.damage ~= confirm.damage
+		or typeof(confirm.zone) ~= "string"
+	then
 		return
 	end
 	local at: Vector3? = if typeof(confirm.position) == "Vector3" then confirm.position else nil
@@ -1373,16 +1538,22 @@ local function onHitConfirm(confirm: Types.HitConfirm)
 	-- Hits our own shot already sounded (just above in fireShot) stay quiet
 	-- here; a hit the client didn't see (a wallbang) sounds on the confirm.
 	local now = os.clock()
+	local volume = if relayed then Juice.SPECTATE.relayHitVolume else 1
 	if head then
-		if now - lastPredictedHead > Audio.HIT_PREDICT_WINDOW then
-			playLocal(Sounds.HitHead, "Feedback", Audio.HEAD_VOLUME)
+		if relayed or now - lastPredictedHead > Audio.HIT_PREDICT_WINDOW then
+			playLocal(Sounds.HitHead, "Feedback", Audio.HEAD_VOLUME * volume)
 		end
-	elseif now - lastPredictedHit > Audio.HIT_PREDICT_WINDOW then
-		playLocal(Sounds.HitBody, "Feedback", Audio.HIT_VOLUME)
+	elseif relayed or now - lastPredictedHit > Audio.HIT_PREDICT_WINDOW then
+		playLocal(Sounds.HitBody, "Feedback", Audio.HIT_VOLUME * volume)
 	end
 	if confirm.killed and (not rule or rule.marker) then
 		HudController.killMarker()
 	end
+end
+
+-- A hit by the fighter you spectate, drawn like your own (SpectateController).
+function WeaponController.presentHit(confirm: Types.HitConfirm)
+	onHitConfirm(confirm, true)
 end
 
 -- The server sends a fresh WeaponState for every new character, so the
@@ -1390,6 +1561,7 @@ end
 -- The end of a life: dying, or a respawn without dying (LoadCharacter). The
 -- next life's WeaponState then equips (and first-draws) from scratch.
 local function endLife()
+	meleeEpoch += 1
 	alive = false
 	DashMod.resetGate(dashGate)
 	table.clear(holstered)
@@ -1495,23 +1667,26 @@ function WeaponController.start()
 	-- holds aim down sights, so scripts can review
 	-- the animations (MCP key presses are unreliable).
 	if RunService:IsStudio() then
-		Workspace:GetAttributeChangedSignal("DevAim"):Connect(function()
-			devAim = Workspace:GetAttribute("DevAim") == true
+		if studioSkinPreview then
+			AudioController.preload({ SkinPreviewConfig.SHADOW_MIST.SHOT_PREVIEW })
+		end
+		StateValues.changed(Workspace, "DevAim"):Connect(function()
+			devAim = StateValues.get(Workspace, "DevAim") == true
 		end)
 		-- DevHold (true): hold the trigger until it's cleared (sprays, by script).
-		Workspace:GetAttributeChangedSignal("DevHold"):Connect(function()
-			if Workspace:GetAttribute("DevHold") == true then
+		StateValues.changed(Workspace, "DevHold"):Connect(function()
+			if StateValues.get(Workspace, "DevHold") == true then
 				onFirePressed()
 			else
 				onFireReleased()
 			end
 		end)
-		Workspace:GetAttributeChangedSignal("DevAction"):Connect(function()
-			local action = Workspace:GetAttribute("DevAction")
+		StateValues.changed(Workspace, "DevAction"):Connect(function()
+			local action = StateValues.get(Workspace, "DevAction")
 			if action == nil then
 				return
 			end
-			Workspace:SetAttribute("DevAction", nil)
+			StateValues.set(Workspace, "DevAction", nil)
 			local s = current()
 			if action == "inspect" then
 				inspect()
@@ -1523,7 +1698,7 @@ function WeaponController.start()
 				equip(action)
 			elseif action == "fire" and s and alive then
 				if s.config.fireMode == "Melee" then
-					swing(s, Workspace:GetAttribute("DevHeavy") == true)
+					swing(s, StateValues.get(Workspace, "DevHeavy") == true)
 				else
 					-- A real press and release, so it interrupts a shell reload too.
 					onFirePressed()

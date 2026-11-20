@@ -9,6 +9,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local ServerStorage = game:GetService("ServerStorage")
 
@@ -16,9 +17,12 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BotsConfig = require(Shared.Config.Bots)
 local Combat = require(Shared.Config.Combat)
 local Health = require(Shared.Health)
+local Locker = require(Shared.Locker)
 local MatchBody = require(Shared.MatchBody)
+local MatchState = require(Shared.MatchState)
 local InputConfig = require(Shared.Config.Input)
 local Pawns = require(Shared.Simulation.Pawns)
+local SkinPreview = require(Shared.SkinPreview)
 local Teams = require(Shared.Mods.Teams)
 local Zone = require(Shared.Zone)
 
@@ -30,10 +34,14 @@ local BotMods = require(Bots.BotMods)
 local BotTypes = require(Bots.Types)
 local Brain = require(Bots.Brain)
 local Nav = require(Bots.Nav)
+local Identity = require(Bots.Identity)
 local Perception = require(Bots.Perception)
+local Tactics = require(Bots.Tactics)
 
 local CharacterService = require(script.Parent.CharacterService)
+local ModWalls = require(script.Parent.ModWalls)
 local WeaponService = require(script.Parent.WeaponService)
+local HeldItem = require(script.Parent.Weapon.HeldItem)
 
 type Bot = BotTypes.Bot
 
@@ -42,17 +50,26 @@ local BotService = {}
 local bots: { Bot } = {}
 local byKey: { [any]: Bot } = {}
 local aligns: { [Bot]: AlignOrientation } = {}
-local templates: { [number]: Model } = {}
 local usedNames: { [string]: boolean } = {}
 local rng = Random.new()
 -- Owner attributes clients need too, copied onto the bot's model.
 local MIRRORED: { [string]: boolean } = {
 	ReloadAt = true,
 	ReloadFor = true,
+	ReloadEmpty = true, -- the reload's kind, for spectators' viewmodel (BotGun.reload)
+	ReloadShells = true,
 	ModHeld = true,
 	ModUseAt = true,
-	AimPitch = true, -- first-person spectating (SpectateController)
-	AimYaw = true, -- where its gun points (Bots/Brain publishAim)
+	-- its kit, for the spectator's Mod row (BotMods.setKit)
+	Mod1Id = true,
+	Mod1Level = true,
+	Mod2Id = true,
+	Mod2Level = true,
+	Mod3Id = true,
+	Mod3Level = true,
+	AimPitch = true, -- its intended pitch (Target.lookOf, Poses, the replay)
+	AimGunYaw = true, -- where its gun points, only while spectated (Bots/Brain publishAim)
+	AimGunPitch = true,
 	Aiming = true,
 }
 
@@ -86,23 +103,11 @@ local function ownerFolder(): Instance
 end
 
 local function profile(): BotsConfig.Profile
-	local wanted = workspace:GetAttribute("BotDifficulty")
+	local wanted = StateValues.get(workspace, "BotDifficulty")
 	local name = if RunService:IsStudio() and typeof(wanted) == "string"
 		then wanted
 		else BotsConfig.DIFFICULTY
-	return BotsConfig.PROFILES[name] or BotsConfig.PROFILES.Normal
-end
-
-local function pickName(): string
-	local free: { string } = {}
-	for _, n in BotsConfig.NAMES do
-		if not usedNames[n] then
-			table.insert(free, n)
-		end
-	end
-	local name = if #free > 0 then free[rng:NextInteger(1, #free)] else "Bot" .. tostring(#bots + 1)
-	usedNames[name] = true
-	return name
+	return BotsConfig.PROFILES[name] or BotsConfig.PROFILES[BotsConfig.DIFFICULTY]
 end
 
 -- The owner's PlayContext: the same actions a player's has (Config/Input),
@@ -127,14 +132,30 @@ end
 local nextBotId = 0
 
 local function newBot(team: number): Bot
-	local name = pickName()
+	local name = Identity.name(usedNames)
+	usedNames[name] = true
+	local level, skins, starterSkin, device = Identity.profile()
 	local owner = Instance.new("Configuration")
 	owner.Name = name
 	nextBotId += 1
-	owner:SetAttribute("BotId", nextBotId) -- stats key (names are reused)
-	owner:SetAttribute(Teams.ATTRIBUTE, team)
-	owner:SetAttribute("ModHeld", 0)
-	owner:SetAttribute("IsBot", true)
+	StateValues.set(owner, "BotId", nextBotId) -- stats key (names are reused)
+	StateValues.set(owner, Teams.ATTRIBUTE, team)
+	StateValues.set(owner, "ModHeld", 0)
+	StateValues.set(owner, "IsBot", true)
+	StateValues.set(owner, "Level", level)
+	local folder = ReplicatedStorage:FindFirstChild(MatchState.BOT_SEATS)
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = MatchState.BOT_SEATS
+		folder.Parent = ReplicatedStorage
+	end
+	local seat = Instance.new("Configuration")
+	seat.Name = name
+	StateValues.set(seat, "BotId", nextBotId)
+	StateValues.set(seat, "Level", level)
+	StateValues.set(seat, "Device", device)
+	StateValues.set(seat, Teams.ATTRIBUTE, team)
+	seat.Parent = folder
 	local inputs = buildInputs(owner)
 	owner.Parent = ownerFolder()
 	local bot: Bot = {
@@ -142,6 +163,12 @@ local function newBot(team: number): Bot
 		name = name,
 		team = team,
 		profile = profile(),
+		avatar = nil,
+		avatarPending = true,
+		seat = seat,
+		portraitUserId = nil,
+		skins = skins,
+		starterSkin = starterSkin,
 		owner = owner,
 		inputs = inputs,
 		model = nil,
@@ -150,22 +177,38 @@ local function newBot(team: number): Bot
 		head = nil,
 		life = 0,
 		fighting = false,
+		postRound = false,
+		idleUntil = 0,
 		gun = BotGun.new(),
 		loadout = {},
 		memory = {},
+		sightCursor = 0,
 		target = nil,
 		targetSince = 0,
 		goal = "Roam",
 		goalSince = 0,
+		openingLane = nil,
+		openingStyle = "Controller",
+		openingOffset = Vector3.zero,
 		nextThink = 0,
 		strafeDir = 0,
 		strafeUntil = 0,
 		crouchUntil = 0,
 		moveDir = Vector3.zero,
+		steerInput = Vector3.zero,
 		wantSprint = false,
 		wantCrouch = false,
 		lookAt = nil,
 		roamGoal = nil,
+		lastRoam = nil,
+		roamBlocked = {},
+		coverGoal = nil,
+		peekGoal = nil,
+		coverAt = 0,
+		coverUntil = 0,
+		peekUntil = 0,
+		zone = nil,
+		slideCheckAt = 0,
 		yaw = 0,
 		pitch = 0,
 		yawVel = 0,
@@ -181,6 +224,7 @@ local function newBot(team: number): Bot
 		levels = { "", "", "" },
 		modReadyAt = { 0, 0, 0 },
 		modCharges = { 0, 0, 0 },
+		modRetryAt = { 0, 0, 0 },
 		nextModTry = 0,
 		lastHurtAt = -math.huge,
 		lastHealth = 0,
@@ -188,35 +232,6 @@ local function newBot(team: number): Bot
 		connections = {},
 	}
 	return bot
-end
-
--- A rig per team colour, built once (CreateHumanoidModelFromDescription
--- yields), then cloned for every spawn.
-local function template(team: number): Model?
-	local cached = templates[team]
-	if cached then
-		return cached
-	end
-	local desc = MatchBody.description(nil) -- the standard match body (Match Avatar.md)
-	local cloth = BotsConfig.TEAM_CLOTH[team] or BotsConfig.TEAM_CLOTH[1]
-	desc.HeadColor = BotsConfig.SKIN
-	desc.LeftArmColor = BotsConfig.SKIN
-	desc.RightArmColor = BotsConfig.SKIN
-	desc.TorsoColor = cloth
-	desc.LeftLegColor = cloth:Lerp(Color3.new(0, 0, 0), 0.35)
-	desc.RightLegColor = cloth:Lerp(Color3.new(0, 0, 0), 0.35)
-	local ok, model = pcall(function()
-		return Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15)
-	end)
-	if not ok or not model then
-		warn("[BotService] couldn't build a bot rig:", model)
-		return nil
-	end
-	-- Not dressed here: a clone would keep links to the template's limb
-	-- meshes (which live outside the model), so each spawn dresses its own.
-	MatchBody.preload()
-	templates[team] = model
-	return model
 end
 
 local function dropLife(bot: Bot)
@@ -252,9 +267,13 @@ end
 
 local function removeBot(bot: Bot)
 	dropLife(bot)
+	if bot.avatar then
+		bot.avatar:Destroy()
+	end
 	usedNames[bot.name] = nil
 	byKey[bot.key] = nil
 	aligns[bot] = nil
+	bot.seat:Destroy()
 	bot.owner:Destroy()
 	local i = table.find(bots, bot)
 	if i then
@@ -262,20 +281,54 @@ local function removeBot(bot: Bot)
 	end
 end
 
+local function prepareAvatar(bot: Bot)
+	local base, appearance, portraitUserId = Identity.avatar(bot.name, function()
+		return byKey[bot.key] == bot
+	end)
+	bot.avatarPending = false
+	if not byKey[bot.key] then
+		if base then
+			base:Destroy()
+		end
+		return
+	end
+	bot.avatar = base
+	bot.portraitUserId = portraitUserId
+	StateValues.set(bot.seat, "PortraitUserId", portraitUserId)
+	if RunService:IsStudio() then
+		StateValues.set(bot.owner, "AvatarSource", appearance)
+		local ready, attempts, pending = Identity.poolStatus()
+		StateValues.set(bot.owner, "AvatarPoolReady", ready)
+		StateValues.set(bot.owner, "AvatarPoolAttempts", attempts)
+		StateValues.set(bot.owner, "AvatarPoolPending", pending)
+	end
+end
+
 -- Spawns (or respawns) a bot at `at`, guns from its loadout.
 local function spawnBot(bot: Bot, at: CFrame)
 	dropLife(bot)
 	local life = bot.life
-	local base = template(bot.team)
-	if not base or bot.life ~= life or not byKey[bot.key] then
+	while bot.avatarPending and bot.life == life and byKey[bot.key] do
+		task.wait()
+	end
+	if bot.life ~= life or not byKey[bot.key] then
+		return
+	end
+	local base = bot.avatar
+	if not base then
+		warn("[BotService] Could not build a bot avatar")
 		return
 	end
 	local model = base:Clone()
 	model.Name = bot.name
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
-	model:SetAttribute(Teams.ATTRIBUTE, bot.team)
-	model:SetAttribute("IsBot", true)
-	model:SetAttribute("BotId", bot.owner:GetAttribute("BotId"))
+	StateValues.set(model, Teams.ATTRIBUTE, bot.team)
+	StateValues.set(model, "IsBot", true)
+	StateValues.set(model, "BotId", StateValues.get(bot.owner, "BotId"))
+	StateValues.set(model, "Level", StateValues.get(bot.owner, "Level"))
+	StateValues.set(model, "Device", StateValues.get(bot.seat, "Device"))
+	StateValues.set(model, "PortraitUserId", bot.portraitUserId)
+	Locker.publish(model, bot.skins, SkinPreview.BOT_LOCKER)
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	local root = model:FindFirstChild("HumanoidRootPart")
 	local head = model:FindFirstChild("Head")
@@ -289,6 +342,7 @@ local function spawnBot(bot: Bot, at: CFrame)
 		model:Destroy()
 		return
 	end
+	humanoid.DisplayName = bot.name
 	humanoid.AutoRotate = false
 	humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
 	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
@@ -336,20 +390,39 @@ local function spawnBot(bot: Bot, at: CFrame)
 	bot.lastHealth = Health.get(humanoid)
 	bot.aimError, bot.recoil = Vector2.zero, Vector2.zero
 	bot.goal, bot.goalSince = "Roam", 0
+	bot.sightCursor, bot.steerInput = 0, Vector3.zero
+	bot.moveDir = Vector3.zero
+	bot.lookAt = nil
+	bot.wantSprint, bot.wantCrouch = false, false
+	bot.strafeUntil, bot.crouchUntil = 0, 0
 	bot.roamGoal = nil
+	bot.lastRoam = nil
+	table.clear(bot.roamBlocked)
+	bot.coverGoal, bot.peekGoal = nil, nil
+	bot.coverAt, bot.coverUntil, bot.peekUntil = 0, 0, 0
+	bot.zone, bot.slideCheckAt = nil, 0
+	Nav.updateFilter(bot)
 	bot.nextThink = os.clock() + rng:NextNumber() / BotsConfig.THINK_RATE
 	Pawns.add(bot.owner, model)
 
 	-- The owner lives in ServerStorage; clients read these off the model
 	-- (lane D's GripController lets go of the gun during reloads and Mods).
 	for name in MIRRORED do
-		model:SetAttribute(name, bot.owner:GetAttribute(name))
+		StateValues.set(model, name, StateValues.get(bot.owner, name))
 	end
 	table.insert(
 		bot.connections,
-		bot.owner.AttributeChanged:Connect(function(name: string)
+		StateValues.anyChanged(bot.owner):Connect(function(name: string)
 			if MIRRORED[name] then
-				model:SetAttribute(name, bot.owner:GetAttribute(name))
+				StateValues.set(model, name, StateValues.get(bot.owner, name))
+			end
+			-- Like a player's (ModService): the Mod comes out in its right
+			-- hand in third person and the gun goes away while it's held.
+			if name == "ModHeld" and model.Parent then
+				local slot = StateValues.get(bot.owner, "ModHeld")
+				local id = if typeof(slot) == "number" and slot ~= 0 then bot.kit[slot] else nil
+				local shown = HeldItem.show(model, if id and id ~= "" then id else nil)
+				WeaponService.setCharacterGunHidden(model, shown)
 			end
 		end)
 	)
@@ -363,7 +436,7 @@ local function spawnBot(bot: Bot, at: CFrame)
 				local h = Health.get(humanoid)
 				if h < bot.lastHealth then
 					bot.lastHurtAt = os.clock()
-					bot.owner:SetAttribute("HitAt", workspace:GetServerTimeNow())
+					StateValues.set(bot.owner, "HitAt", workspace:GetServerTimeNow())
 					Aim.disturb(bot, 0.25)
 				end
 				bot.lastHealth = h
@@ -372,6 +445,7 @@ local function spawnBot(bot: Bot, at: CFrame)
 	end
 	local downed = Health.onDowned(humanoid, function()
 		Pawns.remove(model)
+		ModWalls.stop(model)
 		humanoid:Move(Vector3.zero, false)
 		local a = aligns[bot]
 		if a then
@@ -421,7 +495,7 @@ local function worldFor(bot: Bot): Brain.World
 	local folder = workspace:FindFirstChild("Dummies")
 	if folder then
 		for _, model in folder:GetChildren() do
-			local t = model:GetAttribute(Teams.ATTRIBUTE)
+			local t = StateValues.get(model, Teams.ATTRIBUTE)
 			if model ~= bot.model and model:IsA("Model") and typeof(t) == "number" then
 				if Health.isAlive(model:FindFirstChildOfClass("Humanoid")) then
 					table.insert(if t ~= bot.team then enemyScratch else allyScratch, model)
@@ -429,16 +503,16 @@ local function worldFor(bot: Bot): Brain.World
 			end
 		end
 	end
-	local lane = 0
-	local index = 0
 	for _, other in bots do
-		if other.team == bot.team then
-			index += 1
-			if other == bot then
-				lane = if index == 1 then 0 elseif index % 2 == 0 then 1 else -1
-			elseif other.target then
-				focusScratch[other.target.model] = (focusScratch[other.target.model] or 0) + 1
-			end
+		if
+			other ~= bot
+			and other.team == bot.team
+			and other.fighting
+			and other.target
+			and other.target.visible
+			and Health.isAlive(other.humanoid)
+		then
+			focusScratch[other.target.model] = (focusScratch[other.target.model] or 0) + 1
 		end
 	end
 	return {
@@ -447,9 +521,7 @@ local function worldFor(bot: Bot): Brain.World
 		focus = focusScratch,
 		roam = BotService.roamPoint(bot.team),
 		patrol = patrol,
-		lane = lane,
-		zone = zone and zone.centre,
-		zoneRadius = if zone then Zone.radiusAt(zone, workspace:GetServerTimeNow()) else 0,
+		zone = zone,
 	}
 end
 
@@ -511,7 +583,7 @@ local function debugLabel(bot: Bot)
 		return
 	end
 	local gui = head:FindFirstChild("BotDebug")
-	if workspace:GetAttribute("BotDebug") ~= true then
+	if StateValues.get(workspace, "BotDebug") ~= true then
 		if gui then
 			gui:Destroy()
 		end
@@ -547,8 +619,8 @@ local function debugLabel(bot: Bot)
 		bot.goal,
 		if bot.target then bot.target.model.Name else "-",
 		math.floor(Brain.healthShare(bot) * 100),
-		tostring(o:GetAttribute("BotHits") or 0),
-		tostring(o:GetAttribute("BotShots") or 0)
+		tostring(StateValues.get(o, "BotHits") or 0),
+		tostring(StateValues.get(o, "BotShots") or 0)
 	)
 end
 
@@ -587,9 +659,9 @@ local function step(dt: number)
 		if statFrames >= 120 then
 			local avg = statSum / statFrames
 			local folder = ownerFolder()
-			folder:SetAttribute("StepMsAvg", math.round(avg * 1000) / 1000)
-			folder:SetAttribute("StepMsMax", math.round(statMax * 1000) / 1000)
-			folder:SetAttribute("BotCount", #bots)
+			StateValues.set(folder, "StepMsAvg", math.round(avg * 1000) / 1000)
+			StateValues.set(folder, "StepMsMax", math.round(statMax * 1000) / 1000)
+			StateValues.set(folder, "BotCount", #bots)
 			if avg > BotsConfig.BUDGET_MS and not budgetWarned then
 				budgetWarned = true
 				warn(
@@ -616,6 +688,7 @@ function BotService.add(team: number, count: number): { any }
 		table.insert(bots, bot)
 		byKey[bot.key] = bot
 		table.insert(keys, bot.key)
+		task.spawn(prepareAvatar, bot)
 	end
 	return keys
 end
@@ -624,6 +697,13 @@ end
 function BotService.spawnOne(key: any, at: CFrame)
 	local bot = byKey[key]
 	if bot then
+		local taken = {}
+		for _, other in bots do
+			if other ~= bot and other.team == bot.team and other.openingLane then
+				taken[other.openingLane] = true
+			end
+		end
+		Tactics.assignOpening(bot, taken)
 		task.spawn(spawnBot, bot, at)
 	end
 end
@@ -640,6 +720,7 @@ function BotService.clear()
 	for i = #bots, 1, -1 do
 		removeBot(bots[i])
 	end
+	Identity.releaseLooks()
 end
 
 function BotService.keys(): { any }
@@ -669,6 +750,25 @@ function BotService.count(team: number): number
 	return n
 end
 
+-- A bot's Mod row for its spectators (ModService.snapshot's shape), by model.
+function BotService.modsOf(model: Model): { { [string]: any } }
+	local out: { { [string]: any } } = {}
+	for _, bot in bots do
+		if bot.model == model then
+			for slot, id in bot.kit do
+				out[slot] = {
+					id = if id ~= "" then id else nil,
+					level = bot.levels[slot] or "L1",
+					charges = bot.modCharges[slot] or 0,
+					rechargeAt = bot.modReadyAt[slot],
+				}
+			end
+			break
+		end
+	end
+	return out
+end
+
 function BotService.modelOf(key: any): Model?
 	local bot = byKey[key]
 	return bot and bot.model
@@ -678,11 +778,17 @@ end
 -- (players take the first ones).
 function BotService.spawnTeam(team: number, spawns: { SpawnLocation }, startIndex: number)
 	local i = startIndex
+	local taken = {}
 	for _, bot in bots do
 		if bot.team == team then
 			local spot = spawns[(i - 1) % math.max(#spawns, 1) + 1]
 			i += 1
 			if spot then
+				Tactics.assignOpening(bot, taken)
+				if STUDIO then
+					StateValues.set(bot.owner, "OpeningStyle", bot.openingStyle)
+					StateValues.set(bot.owner, "OpeningLane", bot.openingLane)
+				end
 				task.spawn(spawnBot, bot, spot.CFrame)
 			end
 		end
@@ -696,7 +802,7 @@ function BotService.teamState(team: number): (number, number)
 		local humanoid = bot.humanoid
 		if bot.team == team and humanoid and Health.isAlive(humanoid) then
 			alive += 1
-			local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+			local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
 			health += Health.get(humanoid) + (if typeof(shield) == "number" then shield else 0)
 		end
 	end
@@ -708,12 +814,15 @@ function BotService.isAlive(key: any): boolean
 	return bot ~= nil and Health.isAlive(bot.humanoid)
 end
 
--- Only moves and shoots while the round is live.
-function BotService.setFighting(on: boolean)
+-- Only fights during live rounds. Survivors can move during RoundEnd.
+function BotService.setFighting(on: boolean, postRound: boolean?)
 	for _, bot in bots do
 		bot.fighting = on
+		bot.postRound = postRound == true
 		if not on then
 			bot.target = nil
+			bot.zone = nil
+			bot.idleUntil = 0
 			Nav.clear(bot.nav)
 		end
 	end
@@ -722,7 +831,7 @@ end
 -- The draft: picks from the seat's offers (DraftService's seat table).
 function BotService.draft(key: any, seat: BotDraft.SeatView)
 	local bot = byKey[key]
-	BotDraft.pick(seat, if bot then bot.profile.aggression else 0.5, rng)
+	BotDraft.pick(seat, if bot then bot.profile.tactics.aggression else 0.5, rng)
 end
 
 -- What the draft decided: guns and Mods, applied at the next spawn (and now
@@ -731,13 +840,25 @@ function BotService.applyDraft(
 	key: any,
 	loadout: { [any]: string },
 	kit: { string },
-	levels: { string }
+	levels: { string },
+	drafted: boolean?
 )
 	local bot = byKey[key]
 	if not bot then
 		return
 	end
 	bot.loadout = loadout
+	local sidearm = loadout.Secondary
+	if drafted and bot.starterSkin and typeof(sidearm) == "string" then
+		bot.starterSkin = false
+		local line = Identity.starterSkin(sidearm)
+		if line then
+			bot.skins[sidearm] = line
+			if bot.model then
+				Locker.publish(bot.model, bot.skins, SkinPreview.BOT_LOCKER)
+			end
+		end
+	end
 	BotMods.setKit(bot, kit, levels)
 	local model = bot.model
 	if model and Health.isAlive(bot.humanoid) then
@@ -755,7 +876,7 @@ function BotService.giveShield(key: any, amount: number)
 	local bot = byKey[key]
 	local humanoid = bot and bot.humanoid
 	if humanoid then
-		humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, amount)
+		StateValues.set(humanoid, Combat.SHIELD_ATTRIBUTE, amount)
 	end
 end
 
@@ -768,44 +889,42 @@ end
 -- Config/Bots is consistent (LihFolk system builder: assert config at
 -- startup). A bad edit fails loudly here, not as odd behaviour mid-match.
 local function checkConfig()
-	local fields = {
-		"reaction",
-		"aimSmooth",
-		"errorStart",
-		"errorFloor",
-		"errorSettle",
-		"trackLag",
-		"firstMisses",
-		"maxHitsPerSec",
-		"easeLowHealth",
-		"headChance",
-		"recoilControl",
-		"aggression",
-		"hearing",
-		"memory",
-		"abilityUse",
-		"fov",
-	}
 	assert(BotsConfig.PROFILES[BotsConfig.DIFFICULTY], "Config/Bots DIFFICULTY names no profile")
-	for name, p in BotsConfig.PROFILES do
-		for _, field in fields do
-			local v = (p :: any)[field]
-			assert(
-				typeof(v) == "number" and v == v and v >= 0,
-				`Config/Bots {name}.{field} must be a number >= 0`
-			)
+	for name, level in BotsConfig.PROFILES do
+		for category, knobs in level :: any do
+			for field, value in knobs do
+				assert(
+					typeof(value) == "number" and value < math.huge and value >= 0,
+					`Config/Bots {name}.{category}.{field} must be finite and >= 0`
+				)
+			end
 		end
-		assert(p.errorFloor <= p.errorStart, `Config/Bots {name}: errorFloor above errorStart`)
+		local aim = level.aim
 		assert(
-			p.headChance <= 1 and p.recoilControl <= 1 and p.abilityUse <= 1,
-			`Config/Bots {name}: a chance above 1`
+			aim.aimSmooth > 0 and aim.errorSettle > 0 and aim.errorFloor <= aim.errorStart,
+			`Config/Bots {name}.aim has invalid settling or error bounds`
 		)
+		local probabilities = {
+			headChance = aim.headChance,
+			recoilControl = aim.recoilControl,
+			abilityUse = level.mods.abilityUse,
+			minScore = level.mods.minScore,
+			flankChance = level.tactics.flankChance,
+			aggression = level.tactics.aggression,
+			strafePause = level.movement.strafePause,
+			slideChance = level.movement.slideChance,
+			slideJumpChance = level.movement.slideJumpChance,
+		}
+		for field, value in probabilities do
+			assert(value <= 1, `Config/Bots {name}.{field} must be between 0 and 1`)
+		end
+		assert(level.mods.interval > 0, `Config/Bots {name}.mods.interval must be positive`)
+		assert(level.perception.fov <= 360, `Config/Bots {name}.perception.fov exceeds 360°`)
 	end
 	for _, class in { "Sidearm", "SMG", "Shotgun", "Rifle", "Sniper", "MachineGun", "Melee" } do
 		local band = BotsConfig.RANGE[class]
 		assert(band and band[1] <= band[2], `Config/Bots RANGE.{class} missing or reversed`)
 	end
-	assert(#BotsConfig.NAMES >= 6, "Config/Bots needs at least 6 NAMES (3v3)")
 	assert(
 		BotsConfig.THINK_RATE > 0 and BotsConfig.THINK_RATE <= 30,
 		"Config/Bots THINK_RATE out of range"
@@ -817,6 +936,11 @@ function BotService.init()
 end
 
 function BotService.start()
+	Players.PlayerAdded:Connect(Identity.collect)
+	for _, player in Players:GetPlayers() do
+		Identity.collect(player)
+	end
+	Identity.prefetch()
 	WeaponService.onShot(function(player: Player)
 		local character = player.Character
 		local head = character and character:FindFirstChild("Head")

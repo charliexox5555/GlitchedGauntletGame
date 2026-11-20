@@ -28,6 +28,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -43,9 +44,13 @@ local MeleeSkins = require(ReplicatedStorage.Shared.Config.MeleeSkins)
 local GunAnimator = require(script.Parent.Parent.Util.GunAnimator)
 local MagDrop = require(script.Parent.Parent.Util.MagDrop)
 local FanMotion = require(script.Parent.Parent.Util.FanMotion)
+local ShadowMistIdle = require(script.Parent.Parent.Util.ShadowMistIdle)
+local ShadowMistActions = require(script.Parent.Parent.Util.ShadowMistActions)
+local ShadowMistStyle = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
 local CosmeticInspect = require(script.Parent.Parent.Util.CosmeticInspect)
 local LocalHide = require(script.Parent.Parent.Util.LocalHide)
 local PopCircuitBat = require(script.Parent.Parent.Util.PopCircuitBat)
+local RuinedReaver = require(script.Parent.Parent.Util.RuinedReaver)
 local ViewmodelArms = require(script.Parent.Parent.Util.ViewmodelArms)
 local ViewmodelHeldMods = require(script.Parent.Parent.Util.ViewmodelHeldMods)
 local ViewmodelMotion = require(script.Parent.Parent.Util.ViewmodelMotion)
@@ -124,8 +129,11 @@ type Gun = {
 	lastShot: number, -- os.clock() of the last shot (the climb settles after a pause)
 	sprayShots: number, -- shots in the current burst (VM.SPRAY_GAP starts a new one)
 	batMotion: PopCircuitBat.Motion?,
+	reaver: RuinedReaver.State?,
 	batTrails: { Trail }?,
 	fan: FanMotion.Fan?, -- the Giltfold Fan's ribs (Util/FanMotion)
+	shadowMist: ShadowMistIdle.State?,
+	shadowActions: ShadowMistActions.State?,
 	cosmeticInspect: CosmeticInspect.State?,
 }
 
@@ -145,6 +153,9 @@ type Mag = {
 	parts: { BasePart },
 	clip: string?,
 	timing: MagDrop.Timing?,
+	seat: number?,
+	empty: boolean?,
+	seat: number?,
 	gone: boolean,
 }
 
@@ -506,6 +517,9 @@ local function partSide(gun: Gun, rule: VM.Follow): number
 end
 
 local function addFollow(gun: Gun, clip: string, hand: Side, rule: VM.Follow): boolean
+	if gun.shadowActions and (rule.joint == "ChargingHandle" or rule.joint == "Mag") then
+		return false
+	end
 	local from, to = gun.animator:activity(clip, rule.joint)
 	if not from or not to then
 		return false
@@ -669,6 +683,13 @@ end
 -- part of the gun, and the arm direction that part asks for (if any).
 local function handTarget(gun: Gun, hand: Side, base: Vector3): (Vector3, number, Vector3?)
 	local clip = gun.animator.clipName
+	local actions = gun.shadowActions
+	local cam = Workspace.CurrentCamera
+	if not clip and hand == "Left" and actions and cam and actions.frame.spread > 0.001 then
+		local spread = actions.frame.spread
+		local release = cam.CFrame:VectorToWorldSpace(Vector3.new(-0.13, -0.28, 0.045))
+		return base + release * spread, 0.46 * spread, nil
+	end
 	if not clip then
 		return base, 0, nil
 	end
@@ -687,6 +708,33 @@ local function handTarget(gun: Gun, hand: Side, base: Vector3): (Vector3, number
 				working = math.max(working, w)
 			end
 		end
+	end
+	local rig = gun.rig
+	if hand == "Left" and actions and actions.hand > 0 and rig then
+		local well = actions.well
+		local parent = well.Parent :: BasePart
+		local cf = rig.world[parent] or parent.CFrame
+		local magCf = rig.world[actions.mag] or actions.mag.CFrame
+		local gather = cf:PointToWorldSpace(well.Position)
+		local grip = magCf:PointToWorldSpace(actions.magGrip.Position)
+		local target = gather:Lerp(grip, actions.handOnMag)
+		if cam then
+			-- Keep the wrist below the effect and route the forearm away from the magwell.
+			local hold = actions.handOnMag
+			local toss = actions.handCast
+			local offset = Vector3.new(
+				-0.03 - 0.035 * hold + 0.20 * toss,
+				-0.25 + 0.16 * hold + 0.16 * toss,
+				-0.028 - 0.08 * toss
+			)
+			target += cam.CFrame:VectorToWorldSpace(offset)
+			local handle = rig.world[gun.handle] or gun.handle.CFrame
+			reach = handle:VectorToObjectSpace(
+				cam.CFrame:VectorToWorldSpace(Vector3.new(-0.64, -0.72, 0.2))
+			).Unit
+		end
+		pos = pos:Lerp(target, actions.hand)
+		working = math.max(working, actions.hand)
 	end
 	return pos, working, reach
 end
@@ -860,9 +908,14 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 	local folder = weaponsFolder()
 	local template = folder and folder:FindFirstChild(templateId)
 	-- Skin preview: the spectated player's pick when watching someone (a
-	-- replay copy: the killer it was recorded from), else ours; a bot stays stock.
+	-- replay copy: the killer it was recorded from), else ours.
 	local skinOwner: Player? = if subject then subjectOwner else player
-	if SkinPreview.allowed() and skinOwner then
+	local botLine = SkinPreview.botLine(subject, templateId)
+	if botLine then
+		local variant, resolved = SkinPreview.resolve(templateId, botLine)
+		template = variant or template
+		botLine = resolved
+	elseif SkinPreview.allowed() and skinOwner then
 		template = SkinPreview.geometry(templateId, skinOwner) or template
 	end
 	if not template or not template:IsA("Model") or not template.PrimaryPart then
@@ -870,23 +923,24 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		return nil
 	end
 	local clone = template:Clone()
-	local skinItem = template:GetAttribute("SkinItem")
+	local skinItem = StateValues.get(template, "SkinItem")
 	local scale = (weapon.viewmodelScale or VM.SCALE)
 		* (if typeof(skinItem) == "string" then MeleeSkins.VIEWMODEL_SCALE[skinItem] or 1 else 1)
-	local isBat = template:GetAttribute("PreviewMeleeModel") == "Bat"
+	local isBat = StateValues.get(template, "PreviewMeleeModel") == "Bat"
 	clone:ScaleTo(if isBat then 1 else scale)
 	local h = clone.PrimaryPart :: BasePart
 	-- Same contents, but in a WorldModel (exact part positions, see the top).
 	local m = Instance.new("WorldModel")
 	m.Name = name
-	for key, value in clone:GetAttributes() do
-		m:SetAttribute(key, value)
-	end
+	StateValues.inheritDefaults(m, clone)
 	for _, child in clone:GetChildren() do
 		child.Parent = m
 	end
 	m.PrimaryPart = h
-	m:SetAttribute(SkinPreview.OWNER_ATTRIBUTE, if skinOwner then skinOwner.UserId else 0)
+	StateValues.set(m, SkinPreview.OWNER_ATTRIBUTE, if skinOwner then skinOwner.UserId else 0)
+	if botLine then
+		StateValues.set(m, "SkinLine", botLine)
+	end
 	clone:Destroy()
 	for _, d in m:GetDescendants() do
 		if d:IsA("BasePart") then
@@ -965,6 +1019,9 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		gun.batTrails = trails
 	end
 	gun.fan = FanMotion.new(m)
+	gun.reaver = RuinedReaver.new(m, scale)
+	gun.shadowMist = if gun.reaver then nil else ShadowMistIdle.new(m, scale)
+	gun.shadowActions = ShadowMistActions.new(m, scale, weapon.id)
 	gun.cosmeticInspect = CosmeticInspect.new(m)
 	local rg, lg = gun.rightGrip, gun.leftGrip
 	gun.pistol = rg ~= nil
@@ -1060,10 +1117,14 @@ end
 
 -- Eye to AimPoint while aiming. Studio only: a Workspace number attribute
 -- VmAdsDistance overrides it (re-draw to refresh the sight-line hiding).
-local function adsDistanceOf(weapon: WeaponConfig): number
-	local live = if studio then Workspace:GetAttribute("VmAdsDistance") else nil
+local function adsDistanceOf(weapon: WeaponConfig, model: Model): number
+	local live = if studio then StateValues.get(Workspace, "VmAdsDistance") else nil
 	if typeof(live) == "number" then
 		return live
+	end
+	local skinDistance = StateValues.get(model, "SkinAdsDistance")
+	if typeof(skinDistance) == "number" then
+		return skinDistance
 	end
 	return weapon.adsDistance or VM.ADS_DISTANCE
 end
@@ -1111,7 +1172,7 @@ end
 -- Called once the gun is in the workspace (raycasts need it there).
 local function finishGun(gun: Gun, weapon: WeaponConfig)
 	if not weapon.noAds then
-		local distance = adsDistanceOf(weapon)
+		local distance = adsDistanceOf(weapon, gun.model)
 		local offset = weapon.adsOffset or Vector3.zero
 		for _, list in
 			{ findOccluders(gun, distance, offset), findNearPlaneParts(gun, distance, offset) }
@@ -1140,10 +1201,21 @@ end
 
 -- API ----------------------------------------------------------------------------
 
+-- The viewmodel's clock speed (the final-kill replay's slow motion: its
+-- kick, sway and clips slow down with the world). 1 = real time.
+local timeScale = 1
+function ViewmodelController.setTimeScale(scale: number)
+	timeScale = if scale == scale then math.clamp(scale, 0, 1) else 1
+end
 function ViewmodelController.unequip()
 	turnToken += 1
 	ViewmodelHeldMods.dropGestureProp(heldMods)
 	for _, gun in guns do
+		if gun.shadowActions then
+			ShadowMistActions.endInspect(gun.shadowActions)
+		elseif gun.reaver then
+			RuinedReaver.play(gun.reaver, "Idle")
+		end
 		gun.model:Destroy()
 	end
 	guns = {}
@@ -1152,6 +1224,11 @@ function ViewmodelController.unequip()
 	if arms then
 		arms.model.Parent = nil
 	end
+end
+
+function ViewmodelController.hasShadowMist(): boolean
+	local right = guns.Right
+	return right ~= nil and right.shadowActions ~= nil
 end
 
 -- The clip markers (gg_markers, set in Blender) that are foley beats, and
@@ -1487,6 +1564,10 @@ function ViewmodelController.equip(
 		return {}
 	end
 	local time = duration or weapon.equipTime
+	if right.reaver then
+		RuinedReaver.play(right.reaver, "Draw")
+		return {}
+	end
 	if right.batMotion then
 		-- The bat's own pull-out (Util/PopCircuitBat Draw), then its idle.
 		right.batMotion = PopCircuitBat.play("Draw", time)
@@ -1507,13 +1588,19 @@ function ViewmodelController.equip(
 	if right.animator:has("Draw") then
 		playTurns("Draw", time)
 		-- Each class comes in its own way (VM.DRAW_TRACK).
-		ViewmodelTracks.play(playing, "Equip", VM.DRAW_TRACK[weapon.class] or "Draw", time)
+		local draw = if right.shadowActions
+			then "DrawRuin" .. weapon.id
+			else VM.DRAW_TRACK[weapon.class] or "Draw"
+		ViewmodelTracks.play(playing, "Equip", draw, time)
 		local beats = turnBeats(clipBeats(right, "Draw"))
 		alignTrack("Equip", beats)
 		queueBumps(beats, time)
 		-- The gun lands in the hands with a bounce as it arrives (at the
 		-- start it is still below the screen).
-		queueBump("Draw", time * VM.DRAW_BUMP_AT)
+		queueBump(
+			"Draw",
+			time * (if right.shadowActions then ShadowMistStyle.DRAW_LOCK else VM.DRAW_BUMP_AT)
+		)
 		return beats
 	end
 	local raise = math.max(time * 1.4, VM.TRACKS.Equip.length)
@@ -1567,6 +1654,9 @@ function ViewmodelController.fire(kickScale: number, side: Side?, empty: boolean
 		ViewmodelController.cancelInspect()
 	end
 	gun.animator:play("Fire")
+	if gun.shadowActions then
+		ShadowMistActions.fire(gun.shadowActions)
+	end
 	gun.lockPending = empty == true
 		and config ~= nil
 		and config.lockOnEmpty == true
@@ -1669,19 +1759,49 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 		return {}
 	end
 	local clip = if empty and right.animator:has("ReloadEmpty") then "ReloadEmpty" else "Reload"
+	local beats = turnBeats(clipBeats(right, clip))
+	local rackAt = 1
+	for _, beat in beats do
+		if beat.sound == "Rack" then
+			rackAt = math.min(rackAt, beat.at)
+		end
+	end
+	local seatAt: number? = nil
+	local outAt: number? = nil
 	playTurns(clip, duration, function(gun)
 		local data = gun.animator.clips and (gun.animator.clips :: any)[clip]
 		for _, mag in gun.mags do
 			mag.clip = clip
 			mag.timing = if data then MagDrop.timing(data, mag.bone) else nil
+			mag.seat = nil
+			mag.empty = empty == true
+			local actions, timing = gun.shadowActions, mag.timing
+			if actions and timing and mag.bone == "Mag" then
+				if actions.hero then
+					mag.timing = { outAt = timing.outAt, inAt = ShadowMistStyle.RELOAD_FORM }
+					mag.seat = ShadowMistStyle.RELOAD_SEAT
+				elseif timing.inAt - timing.outAt >= 0.10 then
+					local seat =
+						math.max(timing.inAt, math.min(actions.profile.seat, rackAt - 0.045))
+					mag.seat = seat
+					mag.timing = {
+						outAt = timing.outAt,
+						inAt = timing.outAt + (seat - timing.outAt) * actions.profile.form,
+					}
+				end
+				seatAt = mag.seat
+				outAt = timing.outAt
+			end
 		end
 	end)
 	-- A gun with its own reload track (VM.TRACKS["Reload" .. id], e.g. the
 	-- Outlaw's break-action) uses it for both reloads; others share the one
 	-- for their clip.
 	local own = if config then VM.TRACKS["Reload" .. config.id] else nil
-	local trackName = if own and config
-		then "Reload" .. config.id
+	local trackName = if right.shadowActions and right.shadowActions.hero
+		then "ReloadShadowMist"
+		elseif right.shadowActions and config then "ReloadRuin" .. config.id
+		elseif own and config then "Reload" .. config.id
 		elseif clip == "ReloadEmpty" then "ReloadEmpty"
 		else "Reload"
 	ViewmodelTracks.play(
@@ -1689,9 +1809,26 @@ function ViewmodelController.reload(duration: number, empty: boolean?): { Beat }
 		"Reload",
 		trackName,
 		duration,
-		if config then VM.RELOAD_TRACK_TURN[config.id] else nil
+		if config and (not right.shadowActions or right.shadowActions.hero)
+			then VM.RELOAD_TRACK_TURN[config.id]
+			else nil
 	)
-	local beats = turnBeats(clipBeats(right, clip))
+	if seatAt then
+		for _, beat in beats do
+			if beat.sound == "MagIn" then
+				beat.at = seatAt
+			elseif
+				beat.sound == "MagOut"
+				and outAt
+				and not (right.shadowActions and right.shadowActions.hero)
+			then
+				beat.at = outAt
+			end
+		end
+		table.sort(beats, function(a, b)
+			return a.at < b.at
+		end)
+	end
 	alignTrack("Reload", beats)
 	queueBumps(beats, duration)
 	return beats
@@ -1749,6 +1886,9 @@ function ViewmodelController.swing(attack: string?): number
 	local hitDelay = 0
 	local own = attack and VM.TRACKS[attack]
 	local length = own and own.length or 0
+	if right and right.reaver then
+		return RuinedReaver.play(right.reaver, attack or "Slash1")
+	end
 	if right and right.batMotion then
 		local heavy = attack == "HeavyStab"
 		-- The side follows the combo step, like the knife's (Slash2 is the
@@ -1821,6 +1961,14 @@ function ViewmodelController.inspect(): boolean
 	-- "you can just spam it to restart the inspect, I want that"). Only an
 	-- inspect restarts: a draw, reload or swing still blocks it.
 	local bat = guns.Right.batMotion
+	local reaver = guns.Right.reaver
+	if reaver then
+		if reaver.name ~= "Idle" and reaver.name ~= "Inspect" then
+			return false
+		end
+		RuinedReaver.play(reaver, "Inspect")
+		return true
+	end
 	if bat then
 		if bat.name ~= "Idle" and bat.name ~= "Inspect" then
 			return false
@@ -1840,8 +1988,9 @@ function ViewmodelController.inspect(): boolean
 	if again then
 		ViewmodelController.cancelInspect()
 	end
-	local track = if c.fireMode == "Melee"
-		then "InspectMelee"
+	local track = if guns.Right.shadowActions
+		then guns.Right.shadowActions.profile.inspectTrack
+		elseif c.fireMode == "Melee" then "InspectMelee"
 		else VM.INSPECT_TRACK[c.id] or "Inspect"
 	-- Akimbo: each gun gets a whole inspect, one after the other.
 	local length = VM.TRACKS[track].length * (if guns.Left then 2 else 1)
@@ -1870,8 +2019,14 @@ end
 
 function ViewmodelController.cancelInspect()
 	local right = guns.Right
+	if right and right.shadowActions then
+		ShadowMistActions.endInspect(right.shadowActions)
+	end
 	if right and right.batMotion and right.batMotion.name == "Inspect" then
 		right.batMotion = PopCircuitBat.play("Idle")
+	end
+	if right and right.reaver and right.reaver.name == "Inspect" then
+		RuinedReaver.play(right.reaver, "Idle")
 	end
 	if right and right.fan and right.fan.name == "Inspect" then
 		FanMotion.play(right.fan, "Idle")
@@ -1908,7 +2063,17 @@ end
 
 function ViewmodelController.isInspecting(): boolean
 	local p = playing.Inspect
-	return p ~= nil and not p.fading
+	local reaver = guns.Right and guns.Right.reaver
+	return (p ~= nil and not p.fading) or (reaver ~= nil and reaver.name == "Inspect")
+end
+
+function ViewmodelController.hasRuinedReaver(): boolean
+	return guns.Right ~= nil and guns.Right.reaver ~= nil
+end
+
+function ViewmodelController.isFinishingShadowMistInspect(): boolean
+	local right = guns.Right
+	return (right and right.shadowActions ~= nil and playing.Inspect ~= nil) == true
 end
 
 function ViewmodelController.setAds(alpha: number)
@@ -1923,10 +2088,10 @@ function ViewmodelController.setAds(alpha: number)
 	-- spectating, a replay), so the zoom they set from adsBlend() is this
 	-- frame's and not the last one's.
 	local now = os.clock()
-	local dt = math.clamp(now - adsStepAt, 0, 0.1)
+	local dt = math.clamp(now - adsStepAt, 0, 0.1) * timeScale
 	adsStepAt = now
 	if studio then
-		local scale = Workspace:GetAttribute("VfxTimeScale")
+		local scale = StateValues.get(Workspace, "VfxTimeScale")
 		if typeof(scale) == "number" then
 			dt *= math.clamp(scale, 0, 1)
 		end
@@ -2099,9 +2264,24 @@ local function stepMags(gun: Gun)
 			if mag.gone then
 				showMag(mag, true)
 			end
+			if gun.shadowActions then
+				ShadowMistActions.endReload(gun.shadowActions)
+			end
 			continue
 		end
 		local t = gun.animator:progress()
+		if gun.shadowActions and mag.seat and mag.bone == "Mag" then
+			ShadowMistActions.reload(
+				gun.shadowActions,
+				mag.parts,
+				t,
+				timing,
+				mag.seat,
+				mag.empty == true
+			)
+			mag.gone = t >= timing.outAt
+			continue
+		end
 		if not mag.gone and t >= timing.outAt and t < timing.inAt then
 			-- Kicked off and thrown forward (owner, 2026-11-08), in camera space.
 			local cam = Workspace.CurrentCamera
@@ -2143,7 +2323,7 @@ end
 -- tuning a gun's hold without restarting. Unset = the config value.
 local function tuned(name: string, value: Vector3): Vector3
 	if studio then
-		local v = Workspace:GetAttribute(name)
+		local v = StateValues.get(Workspace, name)
 		if typeof(v) == "Vector3" then
 			return v
 		end
@@ -2179,7 +2359,7 @@ local function holdPose(
 	local base = hip
 	if adsBlend ~= 0 or adsBlendVel ~= 0 then
 		local ads = CFrame.new(c.adsOffset or Vector3.zero)
-			* CFrame.new(0, 0, -adsDistanceOf(c))
+			* CFrame.new(0, 0, -adsDistanceOf(c, gun.model))
 			* CFrame.new(-gun.aimRel)
 		-- The raw spring blend: it runs a little past the pose and settles
 		-- (VM.ADS_FEEL). On the way the gun cants into the move and swings
@@ -2424,11 +2604,11 @@ local function update(dt: number)
 	local cam = Workspace.CurrentCamera
 	local right = guns.Right
 	local c = config
-	dt = math.min(dt, 0.1)
+	dt = math.min(dt, 0.1) * timeScale -- the final-kill replay's slow motion
 	if studio then
 		-- Studio only: Workspace attribute VfxTimeScale slows or freezes the
 		-- viewmodel too (with the shot effects), for reviewing animations.
-		local scale = Workspace:GetAttribute("VfxTimeScale")
+		local scale = StateValues.get(Workspace, "VfxTimeScale")
 		if typeof(scale) == "number" then
 			dt *= math.clamp(scale, 0, 1)
 		end
@@ -2454,7 +2634,7 @@ local function update(dt: number)
 	end
 
 	-- 1. Root: the camera plus the rig's motion (bob, breathing, sway, tilt).
-	local moveAttr = subject and subject:GetAttribute("MoveState")
+	local moveAttr = subject and StateValues.get(subject, "MoveState")
 	local state = if subject
 		then (if typeof(moveAttr) == "string" then moveAttr else "Idle")
 		else MovementController.getState()
@@ -2467,11 +2647,11 @@ local function update(dt: number)
 		else Vector3.zero
 	-- Mid-dash the body moves ~80 studs/s: feed the sway its exit speed, so a
 	-- sideways dash doesn't tilt the gun over (the dip and gesture show it).
-	local tune = character and character:GetAttribute("DashTune")
+	local tune = character and StateValues.get(character, "DashTune")
 	local exitSpeed = if typeof(tune) == "Vector3" then tune.X else nil
 	if
 		character
-		and character:GetAttribute("Dashing") == true
+		and StateValues.get(character, "Dashing") == true
 		and typeof(exitSpeed) == "number"
 		and velocity.Magnitude > exitSpeed
 	then
@@ -2506,7 +2686,11 @@ local function update(dt: number)
 	local batPalm: Vector3? = nil
 	local batSupport: Vector3? = nil
 	local batSupportHeld = false
-	if right.batMotion then
+	local reaverSupportRoll = 0
+	if right.reaver then
+		batPose, batPalm, batSupport, batSupportHeld, reaverSupportRoll =
+			RuinedReaver.step(right.reaver, dt, not hidden and lowerT < 0.1, state == "Sprint")
+	elseif right.batMotion then
 		local pose, palm, support, _held, supportHeld, trail, done =
 			PopCircuitBat.step(right.batMotion, dt)
 		batPose = pose
@@ -2544,8 +2728,36 @@ local function update(dt: number)
 					else nil
 				CosmeticInspect.step(gun.cosmeticInspect, progress)
 			end
-			stepMags(gun)
 			local clipName = gun.animator.clipName
+			local visible = not hidden and lowerT < 0.9
+			local action: ShadowMistActions.Frame? = nil
+			if gun.shadowActions then
+				local draw = playing.Equip
+				local inspect = playing.Inspect
+				action = ShadowMistActions.step(
+					gun.shadowActions,
+					dt,
+					visible,
+					if draw and not draw.fading then draw.time / draw.length else nil,
+					if inspect and not inspect.fading then inspect.time / inspect.length else nil,
+					adsAlpha
+				)
+			end
+			stepMags(gun)
+			if gun.shadowActions then
+				ShadowMistActions.stepDrop(gun.shadowActions, dt)
+				ShadowMistActions.stepFx(gun.shadowActions, adsAlpha)
+			end
+			if gun.shadowMist then
+				ShadowMistIdle.step(
+					gun.shadowMist,
+					dt,
+					visible,
+					(clipName == nil or clipName == "Fire") and not playing.Inspect and lowerT < 0.1,
+					adsAlpha,
+					action
+				)
+			end
 			local clipData = clipName
 				and gun.animator.clips
 				and (gun.animator.clips :: any)[clipName]
@@ -2581,11 +2793,11 @@ local function update(dt: number)
 			if side == "Right" then
 				rightToss = toss
 			end
-			ViewmodelRig.solve(
-				rig,
-				if toss then handleCf * toss else handleCf,
-				1 - (1 - VM.ADS_CLIP_KICK) * adsT
-			)
+			local rootWeight = 1 - (1 - VM.ADS_CLIP_KICK) * adsT
+			if gun.shadowActions and (playing.Equip or playing.Reload) then
+				rootWeight *= 0.22
+			end
+			ViewmodelRig.solve(rig, if toss then handleCf * toss else handleCf, rootWeight)
 			-- The hands hold the gun's body: the handle frame plus the clip's
 			-- Root motion, so when a clip rolls the gun in the hands (a draw,
 			-- an inspect) the arms turn with it instead of the gun turning
@@ -2631,19 +2843,20 @@ local function update(dt: number)
 		-- the hand (owner 2026-11-12: "there isn't fingers... very simple").
 		local frame = root * lowerCf
 		local hand = frame:PointToWorldSpace(batPalm)
+		local handRight = if right.reaver then rightCf.RightVector else frame.RightVector
 		ViewmodelArms.place(
 			a,
 			"Right",
 			hand,
 			frame:PointToWorldSpace(PopCircuitBat.RIGHT_SHOULDER),
-			frame.RightVector
+			handRight
 		)
 		ViewmodelArms.place(
 			a,
 			"Left",
 			frame:PointToWorldSpace(batSupport),
 			frame:PointToWorldSpace(PopCircuitBat.LEFT_SHOULDER),
-			frame.RightVector
+			if right.reaver then frame.RightVector:Lerp(handRight, reaverSupportRoll) else handRight
 		)
 		if not batSupportHeld then
 			ViewmodelHeldMods.stepFreeHand(heldMods, a, root, now, dt, hidden)

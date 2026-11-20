@@ -11,10 +11,30 @@ local Watched = {}
 local holder: Instance? = nil -- a Player, or a bot's model
 local body: Model? = nil
 
+-- Their Mod row as the server last sent it (SpectateFeed "Mods"): per slot
+-- id, level, charges and when the next charge is back (server time; nil for
+-- predicted Mods). ModHudController draws it in place of yours.
+export type ModRow = { id: string?, level: string, charges: number, rechargeAt: number? }
+local rows: { [number]: ModRow } = {}
+
 -- nil, nil: not watching anyone.
 function Watched.set(newHolder: Instance?, newBody: Model?)
+	if newHolder ~= holder then
+		table.clear(rows)
+	end
 	holder = newHolder
 	body = newBody
+end
+
+function Watched.setModRows(list: { [number]: ModRow })
+	table.clear(rows)
+	for slot, row in list do
+		rows[slot] = row
+	end
+end
+
+function Watched.modRow(slot: number): ModRow?
+	return rows[slot]
 end
 
 -- The watched fighter's attribute holder (a Player or a bot model), and body.

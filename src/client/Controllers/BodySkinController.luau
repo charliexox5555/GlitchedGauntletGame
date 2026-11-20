@@ -53,12 +53,17 @@ local function step()
 			meshes[made] = false
 			continue
 		end
-		MatchBody.skinLimb(limb)
 		-- First person, spectating, the death fall and the replay hide a body
 		-- by its parts' LocalTransparencyModifier: the limb follows its part,
 		-- and so does its clothing (each Texture has its own modifier: hiding
-		-- the mesh alone left your own shirt floating in first person).
+		-- the mesh alone left your own shirt floating in first person). A limb
+		-- that stays fully hidden isn't bent at all (nobody sees it); one that
+		-- shows again is bent before it appears.
 		local hide = limb.upper.LocalTransparencyModifier
+		if hide >= 1 and shown[made] == hide then
+			continue
+		end
+		MatchBody.skinLimb(limb)
 		if hide ~= shown[made] then
 			shown[made] = hide
 			made.LocalTransparencyModifier = hide

@@ -2,8 +2,15 @@
 -- The match: timers, the round win, weapon phases and the draft
 -- (vault/01 Design/Match Flow.md). Replicated: nothing secret here.
 
--- flatShield: everyone's shield this phase. Without it, your gun's `shield` decides.
-export type Phase = { name: string, tier: number, fromRound: number, flatShield: number? }
+-- One installed gun is drawn per pool. Shield overrides apply to the chosen gun.
+export type Phase = {
+	name: string,
+	tier: number,
+	fromRound: number,
+	flatShield: number?,
+	shieldByGun: { [string]: number }?,
+	gunPools: { { string } }?,
+}
 export type MapEntry = { id: string, minTeam: number, maxTeam: number, name: string?, image: string? }
 
 return table.freeze({
@@ -36,6 +43,8 @@ return table.freeze({
 	VOTE = table.freeze({
 		seconds = 12, -- the vote
 		allInSeconds = 1.5, -- once every player has voted, the clock cuts to this
+		botDelay = { 1.2, 4.8 },
+		withBotsMinSeconds = 6,
 		chosenSeconds = 2.5, -- the picked map is shown, then the map loads
 		random = "Random", -- the Random card's option name
 	}),
@@ -50,8 +59,7 @@ return table.freeze({
 	-- Seconds (vault/05 Production/Match Structure Revamp.md). The select
 	-- screen opens as soon as the first player is in. Its time includes the
 	-- 3-2-1 at the end (guns in hand, barrier up). Every select skips to the
-	-- 3-2-1 once everyone has locked in; round 1 also waits for every listed
-	-- player to arrive (2026-11-16, owner).
+	-- 3-2-1 once everyone has locked in.
 	FIRST_SELECT_TIME = 30,
 	SELECT_TIME = 15,
 	COUNTDOWN_TIME = 3,
@@ -69,10 +77,12 @@ return table.freeze({
 	-- Rematch / Play Again / Leave, then everyone left goes to the Lobby.
 	MATCH_END = {
 		time = 20,
+		botRematchChance = 0.94,
+		botRematchDelay = { 0.8, 3 },
 		lobbyPlaceId = 71551303511506, -- the Lobby place (this match place is 133387545285290)
 		teleportAttempts = 3,
 		retryBackoff = { 1, 2, 4 },
-		emptyWait = 30, -- seconds the server waits for its players to leave before starting over
+		emptyWait = 30, -- time to retry Lobby teleports after the results screen
 	},
 
 	-- Sudden death: when the round clock runs out, a circle closes on the
@@ -102,9 +112,14 @@ return table.freeze({
 	-- each client keeps recorded, `rate`: frames per second.
 	REPLAY = {
 		before = 2.9,
-		after = 0.3,
+		after = 0.55, -- seconds after the kill (the fall plays out; was 0.3)
 		slowFrom = 0.4,
 		slowSpeed = 0.3,
+		slowRamp = 0.25, -- playback seconds the speed eases from 1 down to slowSpeed (no step into slow motion)
+		-- Seen from the victim's eyes (a fall, the zone or a Mod kill), their
+		-- death stays first person: over `time` recorded seconds the eye sinks
+		-- `drop` studs, the view tips to `pitch` radians and rolls `roll`.
+		deathView = { time = 0.45, drop = 2.4, pitch = -0.55, roll = 0.45 },
 		delay = 0.3,
 		hold = 0.6,
 		beat = 0.8,
@@ -113,21 +128,46 @@ return table.freeze({
 		recentKill = 1, -- seconds: the losing side's last down must be this recent (elimination ends the round within 0.1 s)
 	},
 
-	-- Gun offers by round. Each phase offers GUN_OFFERS guns of its tier, filled
-	-- up from the tiers below when the tier is short.
+	-- One shared offer per round. Pools mix weapon roles, with installed guns
+	-- from this tier or lower filling any vacancies.
 	PHASES = {
 		{ name = "Sidearm", tier = 1, fromRound = 1 },
-		{ name = "Light", tier = 2, fromRound = 2 },
-		{ name = "Heavy", tier = 3, fromRound = 4, flatShield = 50 },
-		{ name = "Elite", tier = 4, fromRound = 7, flatShield = 50 },
+		{
+			name = "Light",
+			tier = 2,
+			fromRound = 2,
+			shieldByGun = { Sheriff = 50 },
+			gunPools = { { "Spectre", "Stinger" }, { "Bucky", "Judge" }, { "Bulldog", "Marshal" } },
+		},
+		{
+			name = "Heavy",
+			tier = 3,
+			fromRound = 4,
+			flatShield = 50,
+			gunPools = { { "Vandal", "Phantom" }, { "Guardian", "Outlaw" }, { "Ares" } },
+		},
+		{
+			name = "Elite",
+			tier = 4,
+			fromRound = 7,
+			flatShield = 50,
+			gunPools = { { "Vandal", "Phantom", "Guardian" }, { "Odin" }, { "Operator" } },
+		},
 	} :: { Phase },
+	GUN_POOLS_BY_ROUND = {
+		[2] = {
+			{ "Bulldog", "Spectre" },
+			{ "Stinger", "Bucky", "Judge", "Marshal" },
+			{ "Sheriff" },
+		},
+	} :: { [number]: { { string } } },
 	GUN_OFFERS = 3,
 	ABILITY_LEVEL = "L1", -- a newly drafted ability's level
 	-- Upgrades (vault/01 Design/Abilities/Upgrade Paths.md): every filled slot's
 	-- column offers that ability's next level (empty slots offer a new ability).
-	-- At level 1 that is path A and path B, plus the glitch path with this chance
-	-- per ability, rising by `step` every draft that offered none (capped).
-	GLITCH = { chance = 0.08, step = 0.03, cap = 0.25 },
+	-- At level 1 that is path A and path B. Each eligible seat can also roll
+	-- one glitch card, with a higher chance after each eligible miss.
+	GLITCH = { chance = 0.15, step = 0.05, cap = 0.40 },
 
 	-- Studio: with nobody on the other team, a bot plays it (Config/Bots).
 
@@ -135,6 +175,7 @@ return table.freeze({
 	RATE = {
 		DraftPick = { 8, 12 },
 		Spectate = { 4, 6 },
+		Look = { 40, 60 }, -- Services/LookStream (Juice.SPECTATE.lookHz, with room for jitter)
 		MatchChoice = { 4, 6 },
 		Scoreboard = { 2, 4 },
 		MapVote = { 4, 6 },

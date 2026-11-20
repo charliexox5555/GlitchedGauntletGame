@@ -18,15 +18,22 @@ local RateLimit = require(ReplicatedStorage.Shared.Util.RateLimit)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 
 local BotService = require(script.Parent.BotService)
+local ModService = require(script.Parent.ModService)
+local Spectated = require(script.Parent.Parent.Bots.Spectated)
 
 local SpectateService = {}
 
 local limiter = RateLimit.new(Config.RATE)
 local watching: { [Player]: Instance } = {} -- spectator → the target they focus on
+-- The Mod row each spectator was last sent (encoded), so it goes only on a change.
+local sentMods: { [Player]: string } = {}
+local MODS_EVERY = 0.2 -- seconds between checks
 
 local function clearFocus(player: Player)
 	watching[player] = nil
+	sentMods[player] = nil
 	player.ReplicationFocus = nil
+	Spectated.sync(watching)
 end
 
 -- The fighter's body for a target the client named: a player in this game,
@@ -75,7 +82,9 @@ local function onSpectate(player: Player, target: unknown)
 		return
 	end
 	watching[player] = target
+	sentMods[player] = nil -- a fresh snapshot for the new target
 	player.ReplicationFocus = root
+	Spectated.sync(watching)
 end
 
 -- Out of the round end, focus on an enemy (your killer) ends; so does focus
@@ -107,9 +116,45 @@ function SpectateService.start()
 	for _, player in Players:GetPlayers() do
 		watch(player)
 	end
+	-- The watched fighter's Mod row (charges, recharge), only to the players
+	-- watching them, on a change (SpectateFeed "Mods"; the HUD's Mod row).
+	task.spawn(function()
+		while true do
+			task.wait(MODS_EVERY)
+			for spectator, target in watching do
+				local rows = if target:IsA("Player")
+					then ModService.snapshot(target)
+					elseif target:IsA("Model") then BotService.modsOf(target)
+					else {}
+				local parts: { string } = {}
+				for slot = 1, 3 do
+					local r = rows[slot]
+					table.insert(
+						parts,
+						if r
+							then string.format(
+								"%s:%s:%d:%.2f",
+								tostring(r.id),
+								r.level,
+								math.floor(r.charges * 100),
+								r.rechargeAt or 0
+							)
+							else "-"
+					)
+				end
+				local key = table.concat(parts, "|")
+				if sentMods[spectator] ~= key then
+					sentMods[spectator] = key
+					Net.event("SpectateFeed"):FireClient(spectator, "Mods", target, rows)
+				end
+			end
+		end
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		limiter:forget(player)
+		sentMods[player] = nil
 		watching[player] = nil
+		Spectated.sync(watching)
 		task.defer(recheck) -- anyone watching them
 	end)
 	MatchState.changed("Phase"):Connect(recheck)

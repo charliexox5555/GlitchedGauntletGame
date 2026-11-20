@@ -23,15 +23,20 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Fighters = require(ReplicatedStorage.Shared.Util.Fighters)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Spring = require(ReplicatedStorage.Shared.Util.Spring)
+local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Types = require(ReplicatedStorage.Shared.Types)
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 local ViewmodelConfig = require(ReplicatedStorage.Shared.Config.Viewmodel)
+local ShadowMist = require(ReplicatedStorage.Shared.Config.SkinPreview).SHADOW_MIST
+local RuinBlightedPresentation = require(ReplicatedStorage.Shared.Config.RuinBlightedPresentation)
 local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 
@@ -87,8 +92,18 @@ end
 
 -- `own`: our own shot (a little fainter: it runs straight away from the eye;
 -- fainter still from a suppressed gun, which shows enemies no tracer at all).
+local function shadowShot(config: WeaponConfig): Color3?
+	local cam = Workspace.CurrentCamera
+	local model = cam and cam:FindFirstChild("Viewmodel")
+	return if RuinBlightedPresentation[config.id] ~= nil
+			and model
+			and StateValues.get(model, "SkinLine") == ShadowMist.LINE
+		then ShadowMist.SHOT_TINT
+		else nil
+end
+
 function EffectsController.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: boolean?)
-	TracerFx.tracer(from, to, config, own)
+	TracerFx.tracer(from, to, config, own, if own then shadowShot(config) else nil)
 end
 
 -- A knife strike on the world: a long thin gouge along `along`, a short wide
@@ -97,9 +112,10 @@ function EffectsController.slashMark(
 	position: Vector3,
 	normal: Vector3,
 	along: Vector3,
-	heavy: boolean?
+	heavy: boolean?,
+	spectral: boolean?
 )
-	ImpactFx.slashMark(position, normal, along, heavy)
+	ImpactFx.slashMark(position, normal, along, heavy, spectral)
 end
 
 -- Which family of surface a part is (knife wall sounds, impacts).
@@ -121,8 +137,8 @@ function EffectsController.knifeSwipe(
 end
 
 -- The blade landing on a body: a small white flash, one frame after contact.
-function EffectsController.knifeContact(position: Vector3)
-	ImpactFx.knifeContact(position)
+function EffectsController.knifeContact(position: Vector3, spectral: boolean?)
+	ImpactFx.knifeContact(position, spectral)
 end
 
 -- A shot landing at `position`. `hit` is the part it hit: characters get a
@@ -134,9 +150,21 @@ function EffectsController.impact(
 	hit: Instance?,
 	material: Enum.Material?,
 	size: number?,
-	noHole: boolean? -- the knife: its own gouge (slashMark), not a bullet hole
+	noHole: boolean?, -- the knife: its own gouge (slashMark), not a bullet hole
+	spectral: boolean?
 )
-	ImpactFx.impact(position, normal, hit, material, size, noHole)
+	ImpactFx.impact(position, normal, hit, material, size, noHole, spectral)
+end
+
+function EffectsController.localWallImpact(
+	config: WeaponConfig,
+	position: Vector3,
+	normal: Vector3,
+	hit: BasePart,
+	material: Enum.Material,
+	size: number
+)
+	ImpactFx.impact(position, normal, hit, material, size, false, shadowShot(config) ~= nil)
 end
 
 -- Our own shot -------------------------------------------------------------------
@@ -178,7 +206,7 @@ function EffectsController.localShot(config: WeaponConfig, side: string?, muzzle
 	local scale = config.viewmodelScale or ViewmodelConfig.SCALE
 	local muzzle = viewmodelPoint(side, muzzleName or "Muzzle")
 	if muzzle then
-		EffectsController.muzzleFlash(muzzle, config, true)
+		MuzzleFx.flash(muzzle, config, true, nil, shadowShot(config))
 	end
 	local eject = if config.shellsOnFire ~= false then viewmodelPoint(side, "Eject") else nil
 	if eject then
@@ -328,22 +356,12 @@ function EffectsController.hitFlash(position: Vector3, head: boolean, killed: bo
 end
 
 -- Where a remote shot from `origin` toward `finish` landed (for its impact).
-local function remoteImpact(
-	character: Model?,
-	origin: Vector3,
-	finish: Vector3,
-	config: WeaponConfig
-)
+local function remoteImpact(origin: Vector3, finish: Vector3, config: WeaponConfig)
 	local offset = finish - origin
 	local dist = offset.Magnitude
 	if dist < 0.5 or dist > config.range + 1 then
 		return
 	end
-	local exclude: { Instance } = { effectsFolder() }
-	if character then
-		table.insert(exclude, character)
-	end
-	remoteParams.FilterDescendantsInstances = exclude
 	local result = Workspace:Raycast(origin, offset * ((dist + 0.5) / dist), remoteParams)
 	if result then
 		EffectsController.impact(
@@ -363,6 +381,10 @@ end
 -- view gun's fire clip.
 local spectated: Instance? = nil
 local onSpectatedShot: ((config: WeaponConfig, left: boolean) -> ())? = nil
+-- Seconds the spectated fighter's shots wait before they're drawn: their view
+-- is drawn a little in the past (SpectateController, the look stream), so
+-- the shot waits until the crosshair is where they fired from.
+local spectatedDelay = 0
 
 function EffectsController.setSpectated(
 	shooter: Instance?,
@@ -370,6 +392,76 @@ function EffectsController.setSpectated(
 )
 	spectated = shooter
 	onSpectatedShot = onShot
+	spectatedDelay = 0
+end
+
+function EffectsController.setSpectatedDelay(seconds: number)
+	spectatedDelay = if seconds == seconds then math.clamp(seconds, 0, 0.5) else 0
+end
+
+-- Impacts from `shooter`'s shot ignore them and their allies.
+local function setImpactFilter(shooter: Instance, character: Model?)
+	local exclude: { Instance } = { effectsFolder() }
+	if character then
+		table.insert(exclude, character)
+	end
+	for _, fighter in Fighters.all(nil) do
+		if fighter.body ~= character and Teams.isAlly(shooter, fighter.holder) then
+			table.insert(exclude, fighter.body)
+		end
+	end
+	remoteParams.FilterDescendantsInstances = exclude
+end
+
+-- The spectated fighter's shot, drawn like your own from the view gun.
+local function drawSpectated(
+	shooter: Instance,
+	config: WeaponConfig,
+	weaponId: string,
+	left: boolean,
+	origin: Vector3,
+	ends: { Vector3 }
+)
+	local hook = onSpectatedShot
+	if hook then
+		hook(config, left)
+	end
+	if config.melee then
+		AudioController.playSound(GunSounds.get(weaponId).fire, "Gun")
+		return
+	end
+	-- (Drawn a beat later than it arrived: another shot may have set the filter.)
+	setImpactFilter(
+		shooter,
+		if shooter:IsA("Player")
+			then shooter.Character
+			elseif shooter:IsA("Model") then shooter
+			else nil
+	)
+	-- The spectated player's gun, as your own sounds (Util/GunAudio).
+	GunAudio.shot(shooter, config)
+	local muzzleName = "Muzzle"
+	local muzzles = config.muzzles
+	if muzzles and #muzzles > 1 then
+		local n = (nextMuzzle[shooter] or 0) % #muzzles + 1
+		nextMuzzle[shooter] = n
+		muzzleName = muzzles[n]
+	end
+	local side = if left then "Left" else nil
+	EffectsController.localShot(config, side, muzzleName)
+	local muzzle = viewmodelPoint(side, muzzleName) or viewmodelPoint(side, "Muzzle")
+	local from = if muzzle then muzzle.WorldPosition else origin
+	local maxPellets =
+		math.max(config.pellets, if config.altFire then config.altFire.pellets else 0)
+	for i, e in ends do
+		if typeof(e) ~= "Vector3" or i > maxPellets then
+			continue
+		end
+		if not config.suppressed then
+			EffectsController.tracer(from, e, config, true)
+		end
+		remoteImpact(origin, e, config)
+	end
 end
 
 local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, ends: { Vector3 })
@@ -391,6 +483,9 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 	elseif shooter:IsA("Model") then
 		character = shooter
 	end
+	if not config.melee then
+		setImpactFilter(shooter, character)
+	end
 
 	local left = false
 	local models = config.models
@@ -399,37 +494,14 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 		nextLeft[shooter] = not left
 	end
 	if spectated ~= nil and shooter == spectated then
-		local hook = onSpectatedShot
-		if hook then
-			hook(config, left)
-		end
-		if config.melee then
-			AudioController.playSound(GunSounds.get(weaponId).fire, "Gun")
-			return
-		end
-		-- The spectated player's gun, as your own sounds (Util/GunAudio).
-		GunAudio.shot(shooter, config)
-		local muzzleName = "Muzzle"
-		local muzzles = config.muzzles
-		if muzzles and #muzzles > 1 then
-			local n = (nextMuzzle[shooter] or 0) % #muzzles + 1
-			nextMuzzle[shooter] = n
-			muzzleName = muzzles[n]
-		end
-		local side = if left then "Left" else nil
-		EffectsController.localShot(config, side, muzzleName)
-		local muzzle = viewmodelPoint(side, muzzleName) or viewmodelPoint(side, "Muzzle")
-		local from = if muzzle then muzzle.WorldPosition else origin
-		local maxPellets =
-			math.max(config.pellets, if config.altFire then config.altFire.pellets else 0)
-		for i, e in ends do
-			if typeof(e) ~= "Vector3" or i > maxPellets then
-				continue
-			end
-			if not config.suppressed then
-				EffectsController.tracer(from, e, config, true)
-			end
-			remoteImpact(character, origin, e, config)
+		if spectatedDelay > 0.005 then
+			task.delay(spectatedDelay, function()
+				if spectated == shooter then
+					drawSpectated(shooter, config, weaponId, left, origin, ends)
+				end
+			end)
+		else
+			drawSpectated(shooter, config, weaponId, left, origin, ends)
 		end
 		return
 	end
@@ -488,7 +560,7 @@ local function onShotFx(shooter: Instance, weaponId: string, origin: Vector3, en
 		if not config.suppressed then
 			EffectsController.tracer(from, e, config)
 		end
-		remoteImpact(character, origin, e, config)
+		remoteImpact(origin, e, config)
 	end
 end
 
@@ -515,8 +587,8 @@ function EffectsController.start()
 	end)
 	Net.unreliable("ShotFx").OnClientEvent:Connect(onShotFx)
 	if RunService:IsStudio() then
-		Workspace:GetAttributeChangedSignal("VfxTimeScale"):Connect(function()
-			local value = Workspace:GetAttribute("VfxTimeScale")
+		StateValues.changed(Workspace, "VfxTimeScale"):Connect(function()
+			local value = StateValues.get(Workspace, "VfxTimeScale")
 			local timeScale = if typeof(value) == "number" then math.clamp(value, 0, 1) else 1
 			ShotFxKit.setTimeScale(timeScale)
 			for _, root in { effectsFolder(), Workspace.Terrain, Workspace.CurrentCamera } do

@@ -13,6 +13,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -26,6 +27,7 @@ local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
+local Types = require(ReplicatedStorage.Shared.Types)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
 local Mods = require(ReplicatedStorage.Shared.Mods)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
@@ -41,6 +43,7 @@ local SpectateController = require(script.Parent.SpectateController)
 local ViewmodelController = require(script.Parent.ViewmodelController)
 local WeaponController = require(script.Parent.WeaponController)
 local ShotLog = require(script.Parent.Parent.Util.ShotLog)
+local ShotFxKit = require(script.Parent.Parent.Util.ShotFxKit)
 local BodyClone = require(script.Parent.Parent.Util.BodyClone)
 local Ui = require(script.Parent.Parent.Util.Ui)
 
@@ -71,6 +74,12 @@ type Track = {
 	aiming: { boolean }, -- down the sights
 	weapon: { string }, -- the gun in hand ("" = none)
 	state: { string }, -- MoveState (the eye's crouch / slide drop: shared/CameraDrop)
+	-- Their reload and knife swing marks (the replay's viewmodel plays them):
+	reloadAt: { number }, -- server time their last reload started (0: none)
+	reloadFor: { number },
+	swingAt: { number },
+	swingStep: { number }, -- 1..3, the light chain
+	swingHeavy: { boolean },
 }
 
 type Shot = { t: number, body: Model, weaponId: string, origin: Vector3, ends: { Vector3 } }
@@ -85,6 +94,9 @@ local killedWith: { [Model]: { id: string, head: boolean } } = setmetatable({}, 
 local nextSample = 0
 local playing = false
 local recording = false
+local killerLag = 0 -- seconds the killer's look samples reached the server late (Replay event)
+local decodeLook: (look: unknown) -> any
+local decodeHits: (hits: unknown) -> { any }
 
 local function newTrack(body: Model): Track
 	local parts: { BasePart } = {}
@@ -106,12 +118,23 @@ local function newTrack(body: Model): Track
 		aiming = table.create(FRAMES, false),
 		weapon = table.create(FRAMES, ""),
 		state = table.create(FRAMES, "Idle"),
+		reloadAt = table.create(FRAMES, 0),
+		reloadFor = table.create(FRAMES, 0),
+		swingAt = table.create(FRAMES, 0),
+		swingStep = table.create(FRAMES, 1),
+		swingHeavy = table.create(FRAMES, false),
 	}
 end
 
+local function numberOf(holder: Instance, name: string): number
+	local v = StateValues.get(holder, name)
+	return if typeof(v) == "number" and v == v then v else 0
+end
+
 -- Where a fighter is looking now. Yours comes straight from your camera;
--- anyone else's from their body's facing and the AimPitch / Aiming
--- attributes (players: WeaponService's Aim remote; bots: Bots/Brain).
+-- anyone else's from Util/Fighters.lookOf (a watched bot's gun look, else
+-- the body's facing and AimPitch) and the Aiming attribute (players:
+-- WeaponService's Aim remote; bots: Bots/Brain).
 local function viewOf(body: Model): (number, number, boolean, string)
 	local owner = Players:GetPlayerFromCharacter(body)
 	local holder: Instance = owner or body
@@ -122,19 +145,13 @@ local function viewOf(body: Model): (number, number, boolean, string)
 		yaw = math.atan2(-look.X, -look.Z)
 		pitch = math.asin(math.clamp(look.Y, -1, 1))
 	else
-		local root = body:FindFirstChild("HumanoidRootPart")
-		if root and root:IsA("BasePart") then
-			local look = root.CFrame.LookVector
-			yaw = math.atan2(-look.X, -look.Z)
-		end
-		local p = holder:GetAttribute("AimPitch")
-		pitch = if typeof(p) == "number" and p == p then math.clamp(p, -1.45, 1.45) else 0
+		yaw, pitch = Fighters.lookOf(holder, body)
 	end
 	local world = body:FindFirstChild("WorldWeapon")
-	local id = world and world:GetAttribute("WeaponId")
+	local id = world and StateValues.get(world, "WeaponId")
 	return yaw,
 		pitch,
-		holder:GetAttribute("Aiming") == true,
+		StateValues.get(holder, "Aiming") == true,
 		if typeof(id) == "string" then id else ""
 end
 
@@ -167,8 +184,14 @@ local function record()
 		end
 		track.stamps[head] = t
 		track.yaw[head], track.pitch[head], track.aiming[head], track.weapon[head] = viewOf(body)
-		local moveState = body:GetAttribute("MoveState")
+		local moveState = StateValues.get(body, "MoveState")
 		track.state[head] = if typeof(moveState) == "string" then moveState else "Idle"
+		local holder: Instance = track.owner or body
+		track.reloadAt[head] = numberOf(holder, "ReloadAt")
+		track.reloadFor[head] = numberOf(holder, "ReloadFor")
+		track.swingAt[head] = numberOf(holder, "SwingAt")
+		track.swingStep[head] = math.clamp(math.floor(numberOf(holder, "SwingStep")), 1, 3)
+		track.swingHeavy[head] = StateValues.get(holder, "SwingHeavy") == true
 		if track.downAt == nil and Health.isDowned(body) then
 			track.downAt = t
 		elseif track.downAt ~= nil and not Health.isDowned(body) then
@@ -273,25 +296,73 @@ local function bracket(track: Track, slots: { number }, t: number): (number?, nu
 	return a, b, if span > 1e-4 then math.clamp((t - times[a]) / span, 0, 1) else 0
 end
 
+-- The valid recorded slot before `a` and after `b` (or themselves at the ends).
+local function neighbours(track: Track, slots: { number }, a: number, b: number): (number, number)
+	local before, after = a, b
+	local prev: number? = nil
+	local pastB = false
+	for _, slot in slots do
+		if track.stamps[slot] ~= times[slot] then
+			continue
+		end
+		if pastB then
+			after = slot -- the first valid slot past b
+			break
+		end
+		if slot == a then
+			before = prev or a
+		end
+		if slot == b then
+			pastB = true
+		end
+		prev = slot
+	end
+	return before, after
+end
+
+-- Catmull-Rom between p1 and p2 (u 0..1), with p0 / p3 their neighbours:
+-- curves through the recorded positions instead of corners at each sample
+-- (slow motion stretches 30 samples a second a long way).
+local function catmull(p0: Vector3, p1: Vector3, p2: Vector3, p3: Vector3, u: number): Vector3
+	local u2, u3 = u * u, u * u * u
+	return 0.5
+		* (
+			2 * p1
+			+ (p2 - p0) * u
+			+ (2 * p0 - 5 * p1 + 4 * p2 - p3) * u2
+			+ (3 * p1 - p0 - 3 * p2 + p3) * u3
+		)
+end
+
 local function pose(actor: Actor, slots: { number }, t: number)
 	local track = actor.track
 	local a, b, alpha = bracket(track, slots, t)
 	if not a then
 		return
 	end
-	local fa, fb = track.frames[a], track.frames[b]
+	local p, n = neighbours(track, slots, a, b)
+	local fa, fb, fp, fn = track.frames[a], track.frames[b], track.frames[p], track.frames[n]
 	for i, part in actor.parts do
 		local cf = fa[i]
 		if part and cf then
 			local other = fb[i]
-			part.CFrame = if other then cf:Lerp(other, alpha) else cf
+			if other then
+				local rot = cf:Lerp(other, alpha)
+				local before = fp and fp[i] or cf
+				local after = fn and fn[i] or other
+				local pos =
+					catmull(before.Position, cf.Position, other.Position, after.Position, alpha)
+				part.CFrame = rot - rot.Position + pos
+			else
+				part.CFrame = cf
+			end
 		end
 	end
 end
 
 -- Its fall at the moment it went down: the joints come back so DeathFx's
 -- copy of it hangs together, and that copy goes with the replay's folder.
-local function fallNow(actor: Actor, folder: Instance)
+local function fallNow(actor: Actor, folder: Instance, opts: DeathFxController.FallOptions?)
 	actor.gone = true
 	local root = actor.copy:FindFirstChild("HumanoidRootPart")
 	for _, j in actor.joints do
@@ -302,7 +373,7 @@ local function fallNow(actor: Actor, folder: Instance)
 			part.Anchored = false
 		end
 	end
-	DeathFxController.playFall(actor.copy, folder)
+	DeathFxController.playFall(actor.copy, folder, opts)
 end
 
 -- UI: letterbox bars and the FINAL KILL line.
@@ -374,15 +445,71 @@ local function teamColour(x: Instance?): Color3
 	return if x and mine ~= nil and Teams.of(x) == mine then C.ally else C.enemy
 end
 
--- Recorded seconds → playback seconds: normal until `slowFrom` before the
--- kill, then `slowSpeed`.
-local function recordedAt(elapsed: number, start: number, kill: number): number
-	local normal = (kill - R.slowFrom) - start
+-- Playback seconds → recorded seconds, and the speed there: normal, then an
+-- eased ramp of `slowRamp` playback seconds down to `slowSpeed` that ends
+-- `slowFrom` before the kill, then slow (MatchState.replayPlayback mirrors
+-- this). Time stays continuous: no step into slow motion.
+local function recordedAt(elapsed: number, start: number, kill: number): (number, number)
+	local s, ramp = R.slowSpeed, R.slowRamp
+	local slowAt = kill - R.slowFrom -- recorded time the ramp ends
+	local rampFrom = slowAt - ramp * (1 + s) / 2 -- recorded time it starts
+	local normal = rampFrom - start
 	if elapsed <= normal then
-		return start + elapsed
+		return start + elapsed, 1
 	end
-	return start + normal + (elapsed - normal) * R.slowSpeed
+	local u = elapsed - normal
+	if u <= ramp then
+		return rampFrom + u - (1 - s) * u * u / (2 * ramp), 1 - (1 - s) * u / ramp
+	end
+	return slowAt + (u - ramp) * s, s
 end
+
+-- The killer's view as the server recorded it (the Replay event), on this
+-- client's replay clock: times, unwrapped yaws, pitches.
+type LookTrack = { t: { number }, yaw: { number }, pitch: { number } }
+
+local function slopeAt(values: { number }, ts: { number }, i: number, n: number): number
+	local a = math.max(i - 1, 1)
+	local b = math.min(i + 1, n)
+	local span = ts[b] - ts[a]
+	return if span > 1e-4 then (values[b] - values[a]) / span else 0
+end
+
+-- Their yaw and pitch at `t` (cubic Hermite between samples; held at the ends).
+local function lookAt(track: LookTrack, t: number): (number, number)
+	local ts, yaws, pitches = track.t, track.yaw, track.pitch
+	local n = #ts
+	if t <= ts[1] then
+		return yaws[1], pitches[1]
+	elseif t >= ts[n] then
+		return yaws[n], pitches[n]
+	end
+	local i = 1
+	while i < n - 1 and ts[i + 1] < t do
+		i += 1
+	end
+	local span = ts[i + 1] - ts[i]
+	local u = if span > 1e-4 then (t - ts[i]) / span else 0
+	local u2, u3 = u * u, u * u * u
+	local function h(values: { number }): number
+		return (2 * u3 - 3 * u2 + 1) * values[i]
+			+ (u3 - 2 * u2 + u) * span * slopeAt(values, ts, i, n)
+			+ (-2 * u3 + 3 * u2) * values[i + 1]
+			+ (u3 - u2) * span * slopeAt(values, ts, i + 1, n)
+	end
+	return h(yaws), math.clamp(h(pitches), -1.45, 1.45)
+end
+
+type ServerHit = {
+	t: number, -- this client's replay clock
+	victim: Model?,
+	damage: number,
+	zone: string,
+	killed: boolean,
+	position: Vector3,
+	source: string?,
+	from: Vector3?, -- where the attacker stood (a hurt's damage arc)
+}
 
 -- Everything the replay changed, undone in one place (also after an error).
 type Session = {
@@ -413,12 +540,18 @@ local function cleanup(session: Session)
 	if gui then
 		gui.Enabled = false
 	end
+	ShotFxKit.setTimeScale(1)
+	ViewmodelController.setTimeScale(1)
 	if session.tookCamera then
 		ViewmodelController.setSubject(nil)
 		ViewmodelController.setHidden(false)
 		EffectsController.setSpectated(nil, nil)
 		CameraController.setZoom(nil, 0)
 		HudController.setAim(0)
+		HudController.setScope(false)
+		HudController.setSubject(nil)
+		HudController.setSpectating(false)
+		HudController.setCrosshairVisible(true)
 		WeaponController.setSpectating(false)
 		local cam = Workspace.CurrentCamera
 		if cam then
@@ -433,7 +566,17 @@ local function cleanup(session: Session)
 	playing = false
 end
 
-local function play(session: Session, victim: Model, serverKill: number, startAt: number)
+local function play(
+	session: Session,
+	victim: Model,
+	serverKill: number,
+	startAt: number,
+	serverLook: LookTrack?,
+	serverHits: { ServerHit },
+	serverKiller: Instance?,
+	serverPov: Instance?,
+	serverHurts: { ServerHit }
+)
 	-- Centre on the kill as this client saw it (its frames lag the server's
 	-- time by its latency), else the server's moment.
 	local victimTrack = tracks[victim]
@@ -448,8 +591,70 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	if #slots < 2 or not victimTrack then
 		return -- joined too late, or never saw them
 	end
-	local killer = killers[victim]
+	-- The killer (the server's word, else this client's Killed event) and whose
+	-- eyes the replay plays from (the server picks: the killer for a gun or
+	-- knife kill, else the victim). Always first person.
+	local killer: Instance? = serverKiller or killers[victim]
 	local killerBody = bodyOf(killer)
+	local povBody: Model? = killerBody
+	if serverPov then
+		local victimOwner = Players:GetPlayerFromCharacter(victim)
+		local isVictim = serverPov == victim or (victimOwner ~= nil and serverPov == victimOwner)
+		povBody = if isVictim then victim else bodyOf(serverPov)
+	end
+	local povIsVictim = povBody == victim
+	-- The server's look track and hits are on its clock, relative to the kill:
+	-- they arrived as offsets (Replay event), so they line up with `kill` here.
+	local lookTrack: LookTrack? = nil
+	if serverLook and #serverLook.t >= 2 then
+		local shifted: LookTrack = { t = {}, yaw = serverLook.yaw, pitch = serverLook.pitch }
+		for i, dt in serverLook.t do
+			shifted.t[i] = kill + dt
+		end
+		lookTrack = shifted
+	end
+	local windowHits: { ServerHit } = {}
+	for _, hit in serverHits do
+		local at = kill + hit.t
+		if at >= from and at <= to + 0.5 then
+			table.insert(windowHits, {
+				t = at,
+				victim = hit.victim,
+				damage = hit.damage,
+				zone = hit.zone,
+				killed = hit.killed,
+				position = hit.position,
+				source = hit.source,
+			})
+		end
+	end
+	table.sort(windowHits, function(x: ServerHit, y: ServerHit): boolean
+		return x.t < y.t
+	end)
+	local nextHit = 1
+	-- From the victim's eyes: the hits they took (damage arcs, the red pulse).
+	local windowHurts: { ServerHit } = {}
+	if povIsVictim then
+		for _, hurt in serverHurts do
+			local at = kill + hurt.t
+			if at >= from and at <= to + 0.5 then
+				table.insert(windowHurts, {
+					t = at,
+					victim = hurt.victim,
+					damage = hurt.damage,
+					zone = hurt.zone,
+					killed = hurt.killed,
+					position = hurt.position,
+					source = hurt.source,
+					from = hurt.from,
+				})
+			end
+		end
+		table.sort(windowHurts, function(x: ServerHit, y: ServerHit): boolean
+			return x.t < y.t
+		end)
+	end
+	local nextHurt = 1
 
 	-- Copies of everyone recorded in the window who was still up at its start.
 	local folder = Instance.new("Folder")
@@ -479,7 +684,16 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	if not victimActor then
 		return -- nothing to frame
 	end
-	local killerActor = if killerBody then actorOf[killerBody] else nil
+	-- `killerActor` is whoever we see through (the killer or, see above, the
+	-- victim); `shooterActor` is the real killer (the victim tips away from them).
+	local killerActor = if povBody then actorOf[povBody] else nil
+	local shooterActor = if killerBody then actorOf[killerBody] else nil
+	if not killerActor then
+		-- Never third person: with no recording of whoever we'd see through,
+		-- the victim's own eyes.
+		killerActor = victimActor
+		povIsVictim = true
+	end
 	local windowShots: { Shot } = {}
 	for _, s in shots do
 		if s.t >= from and s.t <= to then
@@ -523,7 +737,11 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	if playerGui then
 		for _, g in playerGui:GetChildren() do
 			-- the score and the notifications stay up during a replay
-			local keep = g.Name == "MatchHud" or g.Name == "TopBar" or g.Name == "Notify"
+			-- (and the combat HUD: the killer's crosshair, hit markers and numbers)
+			local keep = g.Name == "MatchHud"
+				or g.Name == "TopBar"
+				or g.Name == "Notify"
+				or (g.Name == "CombatHud" and killerActor ~= nil)
 			if g:IsA("ScreenGui") and g ~= overlay and not keep and g.Enabled then
 				g.Enabled = false
 				table.insert(session.guis, g)
@@ -626,6 +844,10 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	local vmFirst = true -- the gun in their hands at the start: no draw
 	local wasAiming: boolean? = nil
 	local ads = 0
+	local lastReload: number? = nil -- the reload / swing marks seen so far (nil: not yet)
+	local lastSwing: number? = nil
+	local swingMarks = false -- this body carries swing marks (a player's knife)
+	local deathShown = false -- the victim's-eye view has gone down
 	local killerParts: { Instance } = {}
 	if killerActor then
 		for _, d in killerActor.copy:GetDescendants() do
@@ -636,21 +858,32 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 		-- Their skins: the killer (a Player, or a body that was theirs), else
 		-- whoever the copied body belonged to when it was recorded.
 		local killerPlayer: Player? = nil
-		if typeof(killer) == "Instance" then
-			if killer:IsA("Player") then
-				killerPlayer = killer
-			elseif killer:IsA("Model") then
-				killerPlayer = Players:GetPlayerFromCharacter(killer)
+		local seer: Instance? = if povIsVictim then (serverPov or victim) else killer
+		if typeof(seer) == "Instance" then
+			if seer:IsA("Player") then
+				killerPlayer = seer
+			elseif seer:IsA("Model") then
+				killerPlayer = Players:GetPlayerFromCharacter(seer)
 			end
 		end
 		ViewmodelController.setSubject(killerActor.copy, killerPlayer or killerActor.track.owner)
+		-- Their HUD: crosshair, hit markers, damage numbers, scope (not yours).
+		HudController.setSpectating(true)
+		HudController.setSubject(killerActor.copy)
 		EffectsController.setSpectated(killerActor.copy, function(config: any, left: boolean)
 			if config.fireMode == "Melee" then
-				-- The chain step isn't recorded yet (plan E): the first slash.
-				ViewmodelController.swing("Slash1")
+				-- A recorded swing mark plays the right step (killerView); a
+				-- body with none (a bot) gets the first slash.
+				if not swingMarks then
+					ViewmodelController.swing("Slash1")
+				end
 			else
 				local kick = (1 - 0.5 * ads) * (config.viewmodelKick or 1)
 				ViewmodelController.fire(kick, if left then "Left" else nil, false)
+				HudController.crosshairShot(math.max(config.recoil.up, Juice.SHOT_FEEL.upFloor))
+				if config.scope ~= nil and ads >= VM.SCOPE_AT then
+					HudController.scopeShot()
+				end
 			end
 		end)
 	end
@@ -658,7 +891,10 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	local function killerView(c: Camera, dt: number, t: number)
 		local actor = killerActor :: Actor
 		for _, d in killerParts do
-			(d :: any).LocalTransparencyModifier = 1
+			local part = d :: any
+			if part.LocalTransparencyModifier ~= 1 then
+				part.LocalTransparencyModifier = 1
+			end
 		end
 		local track = actor.track
 		local a, b, alpha = bracket(track, slots, t)
@@ -666,23 +902,50 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 		if not a or not root or not root:IsA("BasePart") then
 			return
 		end
-		local ya, yb = track.yaw[a], track.yaw[b]
-		local yaw = ya + ((yb - ya + math.pi) % (2 * math.pi) - math.pi) * alpha
-		local pitch = track.pitch[a] + (track.pitch[b] - track.pitch[a]) * alpha
-		if not started then
+		local serverTrack = lookTrack
+		if serverTrack then
+			-- The server's track: as smooth as they turned, no easing lag. Their
+			-- samples reach the server a little late (`lag`): read that much earlier.
+			viewYaw, viewPitch = lookAt(serverTrack, t - killerLag)
 			started = true
-			viewYaw, viewPitch = yaw, pitch
 		else
-			viewYaw = Ease.approachAngle(viewYaw, yaw, S.aimRate, dt)
-			viewPitch = Ease.approach(viewPitch, pitch, S.aimRate, dt)
+			local ya, yb = track.yaw[a], track.yaw[b]
+			local yaw = ya + ((yb - ya + math.pi) % (2 * math.pi) - math.pi) * alpha
+			local pitch = track.pitch[a] + (track.pitch[b] - track.pitch[a]) * alpha
+			if not started then
+				started = true
+				viewYaw, viewPitch = yaw, pitch
+			else
+				viewYaw = Ease.approachAngle(viewYaw, yaw, S.aimRate, dt)
+				viewPitch = Ease.approach(viewPitch, pitch, S.aimRate, dt)
+			end
 		end
 		-- The root is posed from the recording (already interpolated): the eye
 		-- sits on it like their own camera, no extra smoothing.
 		local lowered = CameraDrop.step(drop, track.state[a], dt)
+		-- Seen from the victim's eyes, their death stays first person: once
+		-- they go down the eye sinks toward the floor, the view tips down and
+		-- rolls, and the gun drops out (Config/Match REPLAY.deathView).
+		local downAt = track.downAt
+		local dying = 0
+		if povIsVictim and downAt and t >= downAt then
+			local dv = R.deathView
+			local k = math.clamp((t - downAt) / dv.time, 0, 1)
+			dying = 1 - (1 - k) * (1 - k) * (1 - k) -- ease out
+			if not deathShown then
+				deathShown = true
+				ViewmodelController.setHidden(true)
+				HudController.setCrosshairVisible(false, false)
+			end
+			viewPitch = viewPitch + (dv.pitch - viewPitch) * dying
+		end
 		local rotation = CFrame.fromEulerAnglesYXZ(viewPitch, viewYaw, 0)
+		if dying > 0 then
+			rotation *= CFrame.Angles(0, 0, R.deathView.roll * dying)
+		end
 		c.CFrame = CFrame.new(
 			root.Position
-				+ Vector3.new(0, S.eyeHeight - lowered, 0)
+				+ Vector3.new(0, S.eyeHeight - lowered - R.deathView.drop * dying, 0)
 				- rotation.LookVector * S.eyeBack
 		) * rotation
 
@@ -698,10 +961,36 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 				else
 					ViewmodelController.equip(vmConfig, vmConfig.drawTime or vmConfig.equipTime)
 				end
+				vmFirst = false -- only once a gun is really in their hands
 			else
 				ViewmodelController.unequip()
 			end
-			vmFirst = false
+		end
+		-- Their reloads and knife swings, from the recorded marks (those
+		-- already going when the window starts don't replay).
+		local reloadAt = track.reloadAt[a]
+		if lastReload == nil then
+			lastReload = reloadAt
+		elseif reloadAt > lastReload then
+			lastReload = reloadAt
+			local left = track.reloadFor[a] - (t - reloadAt)
+			if vmConfig and left > 0.1 then
+				ViewmodelController.reload(left)
+			end
+		end
+		local swingAt = track.swingAt[a]
+		if swingAt ~= 0 then
+			swingMarks = true
+		end
+		if lastSwing == nil then
+			lastSwing = swingAt
+		elseif swingAt ~= lastSwing then
+			lastSwing = swingAt
+			if vmConfig and vmConfig.fireMode == "Melee" then
+				ViewmodelController.swing(
+					if track.swingHeavy[a] then "HeavyStab" else "Slash" .. track.swingStep[a]
+				)
+			end
 		end
 		local config = vmConfig
 		local aiming = track.aiming[a]
@@ -726,12 +1015,21 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 			ViewmodelController.adsZoom()
 		)
 		HudController.setAim(ViewmodelController.adsBlend())
-		ViewmodelController.setHidden(scope ~= nil and ads >= VM.SCOPE_AT)
+		local scoped = scope ~= nil and ads >= VM.SCOPE_AT and not deathShown
+		HudController.setScope(scoped)
+		if not deathShown then
+			ViewmodelController.setHidden(scoped)
+			HudController.setCrosshairVisible(ads < 0.5 and config ~= nil, false)
+		end
 	end
 
 	local function step(c: Camera, dt: number)
 		local elapsed = math.min(os.clock() - began, length)
-		local t = recordedAt(elapsed, from, kill)
+		local t, speed = recordedAt(elapsed, from, kill)
+		-- Tracers, impacts, the hit flash and the gun in hand run at the
+		-- replay's speed too.
+		ShotFxKit.setTimeScale(speed)
+		ViewmodelController.setTimeScale(speed)
 		-- Bodies: posed from the recording; the death fall when they go down.
 		for _, actor in actors do
 			if actor.gone then
@@ -739,14 +1037,25 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 			end
 			local down = actor.track.downAt
 			if down and t >= down then
-				fallNow(actor, folder)
+				-- At the replay's speed, tipping away from the killer.
+				local killerRoot = shooterActor
+					and shooterActor.copy:FindFirstChild("HumanoidRootPart")
+				fallNow(actor, folder, {
+					timeScale = speed,
+					awayFrom = if killerRoot and killerRoot:IsA("BasePart")
+						then killerRoot.Position
+						else nil,
+				})
 				continue
 			end
 			pose(actor, slots, t)
 		end
 		-- Live bodies stay hidden (some effects write the same property).
 		for _, d in session.hidden do
-			(d :: any).LocalTransparencyModifier = 1
+			local part = d :: any
+			if part.LocalTransparencyModifier ~= 1 then
+				part.LocalTransparencyModifier = 1
+			end
 		end
 		-- Shots up to now.
 		while nextShot <= #windowShots and windowShots[nextShot].t <= t do
@@ -755,6 +1064,34 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 			local shooter = actorOf[s.body]
 			if shooter and not shooter.gone and Weapons.get(s.weaponId) then
 				EffectsController.playShot(shooter.copy, s.weaponId, s.origin, s.ends)
+			end
+		end
+		-- The killer's hits (the server's), as they saw them: hit marker,
+		-- damage number on the copy they hit, headshot flash, kill marker.
+		while nextHit <= #windowHits and windowHits[nextHit].t <= t do
+			local hit = windowHits[nextHit]
+			nextHit += 1
+			if killerActor then
+				local victimActor2 = if hit.victim then actorOf[hit.victim] else nil
+				WeaponController.presentHit({
+					damage = hit.damage,
+					zone = hit.zone :: any,
+					killed = hit.killed,
+					position = hit.position,
+					source = hit.source,
+					victim = if victimActor2 then victimActor2.copy else nil,
+				} :: Types.HitConfirm)
+			end
+		end
+		-- From the victim's eyes: the hits they took, as damage arcs and the
+		-- red edge pulse.
+		while nextHurt <= #windowHurts and windowHurts[nextHurt].t <= t do
+			local hurt = windowHurts[nextHurt]
+			nextHurt += 1
+			local origin = hurt.from
+			if origin then
+				HudController.damageFrom(origin)
+				HudController.flinch(origin, math.min(hurt.damage, 500))
 			end
 		end
 		-- Camera: through the killer's eyes, as they saw it (their gun and
@@ -788,6 +1125,93 @@ local function play(session: Session, victim: Model, serverKill: number, startAt
 	end)
 
 	task.wait(length + R.hold)
+end
+
+-- The server's look track (Replay event): f32 seconds from the kill, f32
+-- yaw, f32 pitch per sample. Checked: whole samples, finite, in order; yaw
+-- unwrapped. nil when missing or broken (the local recording is used).
+local LOOK_SAMPLE = 12
+local LOOK_MAX = 1024
+function decodeLook(look: unknown): LookTrack?
+	if typeof(look) ~= "buffer" then
+		return nil
+	end
+	local size = buffer.len(look)
+	if size < LOOK_SAMPLE * 2 or size % LOOK_SAMPLE ~= 0 or size > LOOK_SAMPLE * LOOK_MAX then
+		return nil
+	end
+	local track: LookTrack = { t = {}, yaw = {}, pitch = {} }
+	for i = 0, size // LOOK_SAMPLE - 1 do
+		local at = i * LOOK_SAMPLE
+		local dt = buffer.readf32(look, at)
+		local yaw = buffer.readf32(look, at + 4)
+		local pitch = buffer.readf32(look, at + 8)
+		if
+			dt ~= dt
+			or yaw ~= yaw
+			or pitch ~= pitch
+			or math.abs(dt) > 30
+			or math.abs(yaw) > 100
+			or math.abs(pitch) > 2
+		then
+			return nil
+		end
+		local n = #track.t
+		if n > 0 then
+			if dt <= track.t[n] then
+				continue
+			end
+			local prev = track.yaw[n]
+			yaw = prev + ((yaw - prev + math.pi) % (2 * math.pi) - math.pi)
+		end
+		table.insert(track.t, dt)
+		table.insert(track.yaw, yaw)
+		table.insert(track.pitch, math.clamp(pitch, -1.45, 1.45))
+	end
+	return if #track.t >= 2 then track else nil
+end
+
+-- The killer's hits (Replay event), checked field by field (`t` = seconds
+-- from the kill).
+local HITS_MAX = 64
+function decodeHits(hits: unknown): { ServerHit }
+	local out: { ServerHit } = {}
+	if typeof(hits) ~= "table" then
+		return out
+	end
+	for _, h in hits :: { any } do
+		if #out >= HITS_MAX then
+			break
+		end
+		if typeof(h) ~= "table" then
+			continue
+		end
+		local dt, damage, zone, position = h.dt, h.damage, h.zone, h.position
+		if
+			typeof(dt) == "number"
+			and dt == dt
+			and math.abs(dt) <= 30
+			and typeof(damage) == "number"
+			and damage == damage
+			and typeof(zone) == "string"
+			and typeof(position) == "Vector3"
+		then
+			local victim = h.victim
+			table.insert(out, {
+				t = dt,
+				victim = if typeof(victim) == "Instance" and victim:IsA("Model")
+					then victim
+					else nil,
+				damage = math.clamp(damage, 0, 10000),
+				zone = zone,
+				killed = h.killed == true,
+				position = position,
+				source = if typeof(h.source) == "string" then h.source else nil,
+				from = if typeof(h.from) == "Vector3" then h.from else nil,
+			})
+		end
+	end
+	return out
 end
 
 function ReplayController.isPlaying(): boolean
@@ -824,8 +1248,18 @@ function ReplayController.start()
 				}
 			end
 		end)
-	Net.event("Replay").OnClientEvent
-		:Connect(function(victim: unknown, killTime: unknown, startAt: unknown)
+	Net.event("Replay").OnClientEvent:Connect(
+		function(
+			victim: unknown,
+			killTime: unknown,
+			startAt: unknown,
+			killerArg: unknown,
+			look: unknown,
+			lag: unknown,
+			hits: unknown,
+			povArg: unknown,
+			hurts: unknown
+		)
 			if
 				playing
 				or typeof(victim) ~= "Instance"
@@ -838,17 +1272,37 @@ function ReplayController.start()
 			local body: Model = victim
 			local kill: number = killTime
 			local start: number = startAt
+			local serverLook = decodeLook(look)
+			local serverHits = decodeHits(hits)
+			local serverHurts = decodeHits(hurts)
+			local serverKiller: Instance? = if typeof(killerArg) == "Instance"
+				then killerArg
+				else nil
+			local serverPov: Instance? = if typeof(povArg) == "Instance" then povArg else nil
+			killerLag = if typeof(lag) == "number" and lag == lag then math.clamp(lag, 0, 1) else 0
 			playing = true -- the ring freezes from here
 			task.spawn(function()
 				local session: Session =
 					{ folder = nil, tookCamera = false, hidden = {}, guis = {} }
-				local ok, err = pcall(play, session, body, kill, start)
+				local ok, err = pcall(
+					play,
+					session,
+					body,
+					kill,
+					start,
+					serverLook,
+					serverHits,
+					serverKiller,
+					serverPov,
+					serverHurts
+				)
 				if not ok then
 					warn("[ReplayController]", err)
 				end
 				cleanup(session)
 			end)
-		end)
+		end
+	)
 end
 
 return ReplayController

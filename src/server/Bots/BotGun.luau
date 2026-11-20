@@ -10,9 +10,11 @@
 -- One GunState per bot, no allocations per shot beyond the hit list.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
+local Ammo = require(Shared.Util.Ammo)
 local Penetration = require(Shared.Util.Penetration)
 local Combat = require(Shared.Config.Combat)
 local Damage = require(Shared.Util.Damage)
@@ -36,6 +38,7 @@ type SlotState = {
 	id: string,
 	config: WeaponConfig,
 	ammo: number,
+	reserve: number,
 	reloadEnd: number?, -- os.clock() a reload finishes
 	lastFire: number,
 	spinStart: number?,
@@ -56,6 +59,8 @@ export type GunState = {
 	lastState: string,
 	landedAt: number,
 	rng: Random,
+	shownAmmo: number?, -- what the model's `Ammo` says (spectators' HUD), to write only changes
+	shownReserve: number?,
 }
 
 local BotGun = {}
@@ -87,6 +92,7 @@ local function newSlot(id: string): SlotState?
 		id = id,
 		config = config,
 		ammo = config.magSize,
+		reserve = Ammo.roundReserve(config),
 		reloadEnd = nil,
 		lastFire = -math.huge,
 		spinStart = nil,
@@ -131,9 +137,9 @@ function BotGun.equip(gun: GunState, character: Model, owner: Instance, slot: Sl
 		+ (config.drawTime or config.equipTime) / math.max(mults(character).equip, 0.05)
 	WeaponService.attachWorldModel(character, target.id)
 	-- What the simulations read off a Player (Simulation/Movement, Poses).
-	owner:SetAttribute("WeaponId", target.id)
-	owner:SetAttribute("MoveMult", config.moveMultiplier)
-	owner:SetAttribute("AdsMult", config.adsMoveMultiplier)
+	StateValues.set(owner, "WeaponId", target.id)
+	StateValues.set(owner, "MoveMult", config.moveMultiplier)
+	StateValues.set(owner, "AdsMult", config.adsMoveMultiplier)
 end
 
 function BotGun.current(gun: GunState): SlotState?
@@ -163,7 +169,11 @@ end
 -- time the player's shell reload takes). Others see it (Poses: ReloadAt).
 function BotGun.reload(gun: GunState, character: Model, owner: Instance): boolean
 	local s = BotGun.current(gun)
-	if not s or s.reloadEnd or s.config.magSize <= 0 or s.ammo >= s.config.magSize then
+	if not s or s.reloadEnd then
+		return false
+	end
+	local needed = Ammo.toLoad(s.config.magSize, s.ammo, s.reserve)
+	if needed == 0 then
 		return false
 	end
 	if Status.stunned(character, workspace:GetServerTimeNow()) or os.clock() < gun.busyUntil then
@@ -173,11 +183,15 @@ function BotGun.reload(gun: GunState, character: Model, owner: Instance): boolea
 	local slow = 1 / math.max(mults(character).reload, 0.05)
 	local shell = config.shellReload
 	local duration = if shell
-		then (shell.start + shell.insert * (config.magSize - s.ammo) + shell.finish) * slow
+		then (shell.start + shell.insert * needed + shell.finish) * slow
 		else (if s.ammo == 0 then config.emptyReloadTime else config.reloadTime) * slow
 	s.reloadEnd = os.clock() + duration
-	owner:SetAttribute("ReloadFor", duration)
-	owner:SetAttribute("ReloadAt", workspace:GetServerTimeNow())
+	-- Its kind first (spectators read it when ReloadAt changes): an empty
+	-- reload's clip, or the shell count of a shell-by-shell one.
+	StateValues.set(owner, "ReloadEmpty", s.ammo == 0)
+	StateValues.set(owner, "ReloadShells", if shell then needed else 0)
+	StateValues.set(owner, "ReloadFor", duration)
+	StateValues.set(owner, "ReloadAt", workspace:GetServerTimeNow())
 	return true
 end
 
@@ -188,9 +202,20 @@ function BotGun.step(gun: GunState, character: Model, dt: number)
 	local s = BotGun.current(gun)
 	if s and s.reloadEnd and now >= s.reloadEnd then
 		s.reloadEnd = nil
-		s.ammo = s.config.magSize
+		local count = Ammo.toLoad(s.config.magSize, s.ammo, s.reserve)
+		s.ammo += count
+		s.reserve -= count
 	end
-	local state = (character:GetAttribute("MoveState") :: string?) or "Idle"
+	-- The equipped gun's rounds on the model, for the people spectating it
+	-- (like WeaponService's `Ammo` / `AmmoReserve` for players).
+	local ammo = if s then s.ammo else nil
+	local reserve = if s then s.reserve else nil
+	if ammo ~= gun.shownAmmo or reserve ~= gun.shownReserve then
+		gun.shownAmmo, gun.shownReserve = ammo, reserve
+		StateValues.set(character, "Ammo", ammo)
+		StateValues.set(character, "AmmoReserve", reserve)
+	end
+	local state = (StateValues.get(character, "MoveState") :: string?) or "Idle"
 	if gun.lastState == "Air" and state ~= "Air" then
 		gun.landedAt = now
 	end
@@ -232,14 +257,14 @@ function BotGun.ready(gun: GunState, character: Model): boolean
 	if s.config.magSize > 0 and s.ammo < 1 then
 		return false
 	end
-	if character:GetAttribute("Dashing") == true then
+	if StateValues.get(character, "Dashing") == true then
 		return false
 	end
 	if Status.stunned(character, workspace:GetServerTimeNow()) then
 		return false
 	end
 	local m = mults(character)
-	local boost = FireRate.boost(character :: any) -- FireRateMult (Stim); bots: none yet
+	local boost = FireRate.boost(character :: any) -- FireRateMult from a Mod
 	local interval = FireRate.interval(s.config, s.spinStart, s.lastFire, now, s.burstShots)
 		/ (boost * m.fireRate)
 	return now >= s.lastFire + interval and now >= s.altReadyAt

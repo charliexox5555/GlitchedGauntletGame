@@ -8,9 +8,9 @@
 -- ModReveal (server -> the caster's team only)
 -- Dev test panel (DevModService; Studio, test mode or the owner): DevMod (client -> server)
 -- Match (DraftService): DraftPick (client -> server), DraftOffer (server -> one client)
--- Spectating (SpectateService): Spectate (client -> server)
+-- Spectating (SpectateService): Spectate (client -> server); SpectateFeed (server -> spectators, Weapon/Damage); LookStream: Look (unreliable, client -> server), LookRelay (unreliable, server -> spectators)
 -- Final-kill replay (MatchService): Replay (server -> all clients)
--- Match end (MatchEndService): MatchSummary (server -> all clients), MatchChoice (client -> server)
+-- Match end (MatchEndService): MatchChoice (client -> server), results in MatchState
 -- Map vote (MapVoteService): MapVote (client -> server)
 -- Device marks (DeviceService): Device (client -> server)
 
@@ -39,15 +39,18 @@ local RELIABLE = {
 	"DraftPick",
 	"DraftOffer",
 	"Spectate",
+	"SpectateFeed", -- Weapon/Damage: the watched fighter's hits and hurts, to their spectators only
 	"Replay",
-	"MatchSummary",
 	"Scoreboard", -- StatsService: client asks (no args), server answers that client
 	"CombatReport", -- StatsService: your damage vs your killer, on death
 	"MatchChoice",
+	"MatchReady",
 	"MapVote",
 	"Device",
 }
-local UNRELIABLE = { "Aim", "ShotFx" }
+-- Look: a fighter's aim timeline (client -> server); LookRelay: relayed only
+-- to that fighter's spectators (server -> client). Services/LookStream.
+local UNRELIABLE = { "Aim", "ShotFx", "Look", "LookRelay" }
 
 -- Skin preview remote: the match place, in Studio or with Config/SkinPreview LIVE
 -- (keep in step with shared/SkinPreview.allowed).
