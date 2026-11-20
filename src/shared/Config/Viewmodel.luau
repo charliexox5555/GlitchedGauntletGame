@@ -414,6 +414,12 @@ return table.freeze({
 	-- Scoped guns (config scope): past this much aim the gun and arms hide
 	-- and the HUD scope overlay shows.
 	SCOPE_AT = 0.85,
+	-- The scope's glass (parts by name) fades out between aim `from` and `to`:
+	-- its eyepiece reaches the middle of the view (within 0.1 stud of the sight
+	-- line, 0.65 stud from the eye) at aim ~0.5, well before SCOPE_AT, and the
+	-- Glass caught the light there (owner 2026-11-20: "a reflective part shows
+	-- in the middle"; measured on the Marshal, every skin uses ScopeLens).
+	SCOPE_LENS = { names = { "ScopeLens" }, from = 0.12, to = 0.4 },
 	-- How the gun travels into and out of the sights (2026-11-15, owner: "make
 	-- all ADS feel better"). It was a smootherstep along a straight line, the
 	-- zoom locked to it. The owner's clips (60 fps): the gun is on the sights

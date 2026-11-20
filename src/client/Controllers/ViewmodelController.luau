@@ -103,6 +103,8 @@ type Gun = {
 	follow: { FollowRule },
 	adsHide: { BasePart }, -- parts that block the sight line, faded while aiming
 	adsFade: number, -- last fade written to adsHide
+	lensHide: { BasePart }, -- scoped guns: the scope's glass (VM.SCOPE_LENS)
+	lensFade: number, -- last fade written to lensHide
 	outline: Highlight?, -- the faint outline round the gun (VM.GUN_OUTLINE)
 	outlineShown: number, -- the OutlineTransparency last written
 	reticle: SurfaceGui?,
@@ -962,6 +964,16 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 			end
 		end
 	end
+	-- Scoped guns: the scope's glass leaves before its eyepiece reaches the
+	-- middle of the view (owner 2026-11-20: a reflective part showed there).
+	local lensHide: { BasePart } = {}
+	if weapon.scope then
+		for _, d in m:GetDescendants() do
+			if d:IsA("BasePart") and table.find(VM.SCOPE_LENS.names, d.Name) then
+				table.insert(lensHide, d)
+			end
+		end
+	end
 	local gun: Gun = {
 		model = m,
 		handle = h,
@@ -980,6 +992,8 @@ local function buildGun(templateId: string, name: string, weapon: WeaponConfig, 
 		follow = {},
 		adsHide = hide,
 		adsFade = 0,
+		lensHide = lensHide,
+		lensFade = 0,
 		outline = nil,
 		outlineShown = -1,
 		reticle = reticle,
@@ -1196,6 +1210,7 @@ local function setGunsVisible(visible: boolean)
 			end
 		end
 		gun.adsFade = -1 -- rewrite ADS fades next frame
+		gun.lensFade = -1
 	end
 end
 
@@ -2705,6 +2720,8 @@ local function update(dt: number)
 		end
 	end
 	local fade = Ease.smooth((adsAlpha - 0.35) / 0.45)
+	local lens = VM.SCOPE_LENS
+	local lensFade = Ease.smooth((adsAlpha - lens.from) / (lens.to - lens.from))
 	local rightToss: CFrame? = nil -- the knife in the air (VM Track `toss`)
 	for _, side in SIDES do
 		local gun = guns[side]
@@ -2829,6 +2846,12 @@ local function update(dt: number)
 				gun.adsFade = fade
 				for _, p in gun.adsHide do
 					LocalHide.set(p, fade)
+				end
+			end
+			if not hidden and lensFade ~= gun.lensFade then
+				gun.lensFade = lensFade
+				for _, p in gun.lensHide do
+					LocalHide.set(p, lensFade)
 				end
 			end
 		end
