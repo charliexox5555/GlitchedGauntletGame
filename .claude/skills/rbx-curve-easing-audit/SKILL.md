@@ -14,3 +14,5 @@ python scripts/check.py path/to/capture.json
 ```
 
 A high endpoint speed means the transition is still moving at the cut. Localized acceleration spikes often point to a tangent or uneven spacing. Set intentional overshoot in the allowed range. Inspect the edit at full speed before flattening curves.
+
+Optional checks (added 2026-11-21, first-person melee pass): `"hold": {"min_speed": 4, "max_seconds": 0.3, "window": [t0, t1]}` fails a stretch slower than `min_speed` for longer than `max_seconds` (a staged, frozen hold; the feel checklist's 4 deg/s for 0.3 s). `"contact": {"time": 0.168, "tolerance": 0.02, "min_share": 0.85}` fails when the fastest moment is more than `tolerance` from the contact or the contact runs under `min_share` of peak speed (a wind-up faster than the strike). For a deliberate snap, set `max_acceleration` from the measured strike and judge the snap with `contact` instead: the plain acceleration limit flags every intended strike.
