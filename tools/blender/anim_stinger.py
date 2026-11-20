@@ -22,8 +22,8 @@ FPS = 24
 
 
 def mag_swap_front(c, f0, drop=0.7, tilt=-6):
-	# mag_swap's timing and markers (MagOut f0 + 3, MagIn f0 + 18, slap f0 + 37, done f0 + 40); the old mag leaves
-	# straight down as before. The new one (Mag bone: X gun-forward, Y gun-left, Z up; a negative Y turn swings the
+	# mag_swap's timing (MagIn f0 + 18, slap f0 + 37, done f0 + 40; MagOut a frame sooner, f0 + 2); the old mag
+	# leaves straight down as before. The new one (Mag bone: X gun-forward, Y gun-left, Z up; a negative Y turn swings the
 	# mag's bottom forward) shows low and in front of the trigger hand's forearm, rocks back as it rises and is
 	# straight only for the last 0.2 stud, where the mag's bottom is still inside the fist.
 	bone = "Mag"
@@ -36,7 +36,7 @@ def mag_swap_front(c, f0, drop=0.7, tilt=-6):
 	c.key(bone, f0 + 34, (0.01, 0, -0.05), (0, -2, 0))  # in the well, straight
 	c.key(bone, f0 + 37, (0, 0, 0.007), (0, 0.6, 0))  # slapped home
 	c.key(bone, f0 + 40)
-	c.mark("MagOut", f0 + 3)
+	c.mark("MagOut", f0 + 2)  # a frame before mag_swap's: at f0 + 3 it was already in the forearm's line
 	c.mark("MagIn", f0 + 18)
 	return f0 + 40
 
