@@ -85,6 +85,10 @@ export type HeldMods = {
 	dipKind: string?,
 	gestureAt: number,
 	gestureScale: number, -- the gesture (and its dip) stretched by this
+	-- Where the free hand was (root space) and its arm's direction when the
+	-- gesture began: the gesture blends out of it (GESTURE_FROM_BLEND).
+	gestureFrom: Vector3?,
+	gestureFromDir: Vector3?,
 	-- A prop in the gesturing fist (the Stim beacon) until the gesture's release.
 	gestureProp: WorldModel?,
 	-- A held free-hand pose (FREE_POSES), eased toward; and the flame that
@@ -305,6 +309,7 @@ function ViewmodelHeldMods.gesture(
 	h.dipKind = dip
 	h.gestureAt = clockNow(h)
 	h.gestureScale = if duration and duration > 0 then duration / g.length else 1
+	h.gestureFrom, h.gestureFromDir = nil, nil -- read on its first frame
 	ViewmodelHeldMods.dropGestureProp(h)
 	local cam = Workspace.CurrentCamera
 	if prop and cam and g.release then
@@ -786,6 +791,22 @@ function ViewmodelHeldMods.stepFreeHand(
 		else 1
 	if gesture and gestureT < 1 and not hidden then
 		local pos, dir = handAt(gesture.keys, gestureT, gesture.smooth)
+		-- 2026-11-21 (measured in play): the hand jumped off the gun to the
+		-- first key in one frame (~1.5 studs). It now leaves from where it
+		-- was: the hand on the gun, placed this frame before this step.
+		if not h.gestureFrom then
+			local hand, up = ViewmodelArms.handOf(a, "Left")
+			if hand and up then
+				h.gestureFrom = root:PointToObjectSpace(hand)
+				h.gestureFromDir = root:VectorToObjectSpace(up)
+			end
+		end
+		local from, fromDir = h.gestureFrom, h.gestureFromDir
+		if from and fromDir then
+			local k = Ease.smooth((clock - h.gestureAt) / VM.GESTURE_FROM_BLEND)
+			pos = from:Lerp(pos, k)
+			dir = fromDir:Lerp(dir.Unit, k)
+		end
 		local point = root:PointToWorldSpace(pos)
 		ViewmodelArms.place(
 			a,

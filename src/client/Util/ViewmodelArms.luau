@@ -181,6 +181,18 @@ end
 -- grip is in its "palm". `right` sets the block's roll (its X axis is the
 -- character's right). Writes every layer's CFrame into `arms.cframes`; `apply`
 -- moves them, in the same render step as the gun.
+-- Where `place` last put `side`'s hand (world), and the arm's direction up
+-- from it; nil before it was placed.
+function ViewmodelArms.handOf(arms: Arms, side: Side): (Vector3?, Vector3?)
+	local cf = arms.cframes[if side == "Right" then 1 else 1 + LAYERS]
+	if not cf then
+		return nil, nil
+	end
+	local length = VM.ARM_WIDTH / VM.ARM_MESH_SIZE.X * VM.ARM_MESH_SIZE.Y * VM.ARM_LENGTH_SCALE
+	local up = cf.UpVector
+	return cf.Position - up * (length / 2 - VM.ARM_WIDTH * VM.HAND_OVERSHOOT), up
+end
+
 function ViewmodelArms.place(arms: Arms, side: Side, hand: Vector3, toward: Vector3, right: Vector3)
 	local up = toward - hand
 	if up.Magnitude < 1e-4 then

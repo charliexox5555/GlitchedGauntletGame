@@ -1962,6 +1962,9 @@ return table.freeze({
 	-- Share of a keyed move over which the start bends from where the hand
 	-- really was onto the move's first key.
 	FREE_POSE_MOVE_BLEND = 0.35,
+	-- Seconds a Mod gesture takes to blend out of where the free hand was
+	-- (on the gun) into its keys; it jumped there in one frame (2026-11-21).
+	GESTURE_FROM_BLEND = 0.07,
 	-- Guiding the wall: the fist trails the view's turn and catches up.
 	FREE_POSE_STEER = table.freeze({
 		FirewallGuide = { lag = 0.05, max = 0.18, swing = 0.6, rate = 10 },
