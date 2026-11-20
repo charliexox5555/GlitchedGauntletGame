@@ -359,7 +359,12 @@ local function followAnchor(gun: Gun, rule: VM.Follow, hand: Side): Anchor?
 	local frame = if handle then handle.CFrame else joint.CFrame
 	local low, high = jointBounds(gun.model, joint, frame)
 	if not low or not high then
-		return { part = joint, offset = Vector3.zero }
+		-- Nothing visible rides this joint (the Ruin-Blighted guns have no bolt
+		-- or charging handle to work: their clips still move the empty joint),
+		-- so no hand goes to it. It used to go to the joint's origin, inside
+		-- the receiver: the "arm goes through the gun" on the Ruin-Blighted
+		-- Operator's bolt (owner 2026-11-21). First person only.
+		return nil
 	end
 	local center = (low + high) / 2
 	local at = if rule.grab == "Bottom" then Vector3.new(center.X, low.Y, center.Z) else center
