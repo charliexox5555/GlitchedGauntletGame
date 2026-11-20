@@ -75,6 +75,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `WeaponAnimations/<Gun>.luau` | generated clip ids per gun |
 | `UiKit.luau`, `CoreUi.luau` | shared UI builders |
 | `UiMotion.luau` | the one UI motion module, lobby and match (2026-11-16 overhaul): tween (Quint Out), rest / press (hover 1.125, press 0.875, cards 1.04 / 0.96), nudge, slideIn, popIn, pageIn (from 0.75), button; reduced-motion switch. Numbers: `Config/UiStyle.KIT.motion` |
+| `UiSfx.luau` | menu UI sounds (lobby; match later): pooled 2D cues from `Config/UiSounds` in the `UiSfx` SoundGroup, gap + pitch spread, `cue` claims the generic click, on / off (Settings); vault UI Polish Pass |
 | `Config/UiStyle.KIT`, `Config/Loading` | the lobby look's colour / font (Fredoka One) / motion tokens; the loading screen's tips |
 
 ## src/server
@@ -178,6 +179,7 @@ Every handler uses `Util/Validate` (types, finite numbers) and `Util/RateLimit` 
 | `client/Controllers/LobbyPadFx` | the Duels pads come alive: per `LobbyPadSquare` anchor two faceted rings hover and turn (faint), and when any player stands in the well they take the team colour with a glow curtain (Beams) and light; everyone sees it (all clients see all characters); no remotes |
 | `client/Controllers/LobbyPathFx` | animated Duels floor paths: chevron runs (`LobbyPathRun`: DX / DY, Length, Width, Spacing, Speed, Tone) light in a travelling wave; a light pulse runs along each lit edge line (`LobbyLineRun`, a flat Beam); no remotes |
 | `client/Util/*`, `shared/Config`, `shared/LobbyNet` | menu kit, layout, router, icons; config; the lobby remotes |
+| `client/Controllers/UiSoundController` | every lobby GuiButton gets `UiSfx` sounds: Click / Back on activate (attribute `UiSound` overrides, "none" mutes), a faint HoverBig on big items (1-30% of the screen or `UiHover`); no remotes |
 | `client/Controllers/SettingsController` | Settings (Router "Settings", gear in the bar and top bar): `StarterGui.Settings` + templates `SettingRow` / `SettingToggle` / `SettingSlider` / `SettingSwatches` (backup `tools/studio/BuildSettings.luau`); GENERAL (reduced motion live), CROSSHAIR editor over a session copy of `shared/Config/Crosshair` with a live preview; phone layout |
 | `client/Controllers/ProfileController` | a player's card (Router "Profile", opened with a Player from their player-list row): `StarterGui.Profile` + `ProfileSkin` (backup `tools/studio/BuildProfileRewards.luau`); level, streak, equipped skins (`LockerSkins` + `shared/Locker.EMBLEMS`); INVITE TO PARTY (the existing `PartyRequest`) / OPEN LOCKER |
 | `client/Controllers/RewardsController` | Rewards (Router "Rewards", the top bar's gift `LobbyTopbar.Bar.Rewards`): `StarterGui.Rewards` + `RewardRow`, data `lobby/shared/RewardsCatalog`; favourite / game invite / notifications use Roblox prompts; coins wait for the economy; no remotes |

@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Lobby UI polish pass (2026-11-20).** UI sounds are back (one shared player, a click on every button, a quiet hover tick on big items, queue / Locker / toggle cues; provisional Roblox-pack sounds until the owner picks from the Kenney reel). Play menu tiles focus instead of shaking, the Locker has an opaque charcoal backdrop and bigger long guns, Settings has a sliding toggle, row highlights and staggered tabs. 9-slice plate set drawn, waiting on approval. [Plan and results](02%20Art/UI%20Polish%20Pass.md)
+
 - **Combat feedback audio (2026-11-20).** Ready for audition with two dry headshot slashes and two standard kill cues, including Vandal comparisons and the five-step kill ladder. [Combat feedback audio](02%20Art/Combat%20Feedback%20Audio.md)
 
 - **Ruin-Blighted audio (2026-11-20).** Saved the owner-approved gun mix for all five weapons. Ruined Reaver's three slashes, heavy swing and two inspect beats have layered Pro Sound Effects audio. The Match client verified timing, clip playback and inspect cancellation. [Audio and playtest](05%20Production/Playtests/2026-11-20%20Ruin-Blighted%20Audio.md)
@@ -17,7 +19,6 @@
 
 - **Ammo, sidearms and assists (2026-11-19).** Match guns have round reserves. Drafting a primary grants Classic. Credited assists show in the feed and on the player's HUD. [Studio checks](05%20Production/Playtests/2026-11-19%20Ammo%20and%20Assists.md)
 
-- **Gun and round balance (2026-11-19).** Operator body hits leave full-health fighters standing. Odin has a slower spin-up and thin-cover penetration. Gun lineups rotate each round, Sheriff is offered in round two, and Mod cards vary by seat. [Balance sheet](01%20Design/Gun%20Balance.md) · [Studio playtest](05%20Production/Playtests/2026-11-19%20Gun%20and%20Round%20Balance.md)
 
 - **Results crash and state migration (2026-11-19).** The results screen handled a six-fighter snapshot over 1,024 bytes in Studio. A 2v2 bot run reached results and rematched. Lobby and Match gameplay use state values and shared asset configuration. The scene migrations are staged in both open Studio places. [State contract and test results](04%20Tech/State%20Values%20and%20Asset%20Data.md)
 

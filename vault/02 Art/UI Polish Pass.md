@@ -62,3 +62,20 @@ See the chat for the multiple-choice versions; answers go here.
 3. **Locker background:** opaque charcoal gradient + a soft spotlight behind the gun and the floor shadow, lightly skin-tinted.
 4. **Plates:** script-generated 9-slice PNGs, shown on a preview board in Studio, then uploaded and placed in the templates.
 5. "Duel to play" taken as the Play menu's mode tiles (1V1 / 2V2 / 3V3).
+
+## Results (2026-11-20, lobby; not committed to the match yet)
+Checked in a Lobby Studio play test (no errors from the new code; captures in chat).
+- **Sounds.** `Shared/UiSfx` (pooled 2D player, `UiSfx` SoundGroup, per-cue gap and pitch spread, on / off) + lobby `Controllers/UiSoundController` (every GuiButton: `Click` on activate, `Back` for Close / Back buttons, attribute `UiSound` = cue or "none"; a faint `HoverBig` tick only on buttons covering 1-30% of the screen or `UiHover = true`). Specific cues claim the click so nothing doubles: `Confirm` / `Denied` (Play tiles), `Tab` (LobbyKit.tabs), `PageOpen` (Router, from the world only; Locker / Talk quiet), `Back` (Backspace / B), `QueueJoin` / `QueueLeave` / `MatchFound` (queue status), `LockerIn` / `LockerOut` / `Equip` (Locker), `ToggleOn` / `ToggleOff` / `SliderTick` (Settings). Cues in `Config/UiSounds` are **provisional Roblox-pack sounds**; Settings → GENERAL → UI SOUNDS turns them off.
+- **Audition reel:** `art-source/audio/ui/UiReel.wav` + `UiReel.txt` (64 Kenney CC0 clips in 11 roles, `tools/audio/ui_reel.py`; the zips in `art-source/audio/downloads/kenney_ui/`, git-ignored). Owner picks a number per role → upload those (~15) → swap the ids in `Config/UiSounds`.
+- **Play tiles:** cause measured: tiles sit ~6 px apart and the old 1.04 hover pushed ~7 px into the neighbour, with the hover area scaling too, so the mouse flipped between tiles. Now each tile has a fixed invisible `<Mode>Hit` button (the tile itself `Interactable = false`); focus = lift 1.025, art full bright, the other tiles dim toward grey.
+- **Locker:** `Backdrop` is opaque (was 0.3, the world showed through); the skin-tinted light is stronger (0.7 / 0.58). Gun size per class (`CLASS_SIZE`): sidearms 1, SMG 1.12, shotgun 1.2, rifle 1.24, sniper / heavy 1.28 (before, every gun was fitted to the same 5 studs ≈ 838 px). The Vandal now spans ~880 px on screen.
+- **Settings:** toggles have a knob that slides (Quint 0.3 s) while the plate eases white / navy; rows highlight (colour + name eases 8 px) instead of growing 1.04 and don't dip; a tab's rows rise in 0.025 s apart; slider clicks ease (0.16 s) and tick per step; Inspect words cross-fade.
+- **Plates:** `tools/ui/make_plates.py` → `art-source/ui/plates/v2/` (`plate_slant`, `plate_slant_r`, `plate_cut1`, `plate_cut2`, `plate_cell`, `plate_shadow`, `slices.json`, `preview.png`). One image each (fill, top light and lip baked in), tinted by `ImageColor3`. **Not uploaded** until the owner approves the board; then the templates move onto them and `Plates.finish` / the caps go.
+
+## Test list
+1. Lobby: hover the Play tiles (no jitter, the focused one brightens, others dim); click 1V1 (Confirm) and a SOON tile (Denied + nudge).
+2. Any button clicks; big cards tick faintly on hover; small buttons silent on hover.
+3. Locker: opens with a whoosh, opaque background, Vandal / Operator big, switching guns plays Equip; closing whooshes out.
+4. Settings: REDUCED MOTION / UI SOUNDS toggles slide; rows highlight; CROSSHAIR tab rows rise in; sliders tick.
+5. Queue: search start / cancel / match found sounds.
+6. Listen to `UiReel.wav` and pick per role.
