@@ -43,3 +43,27 @@ Preview a line with the skin preview, equip the knife slot (3), then:
 - How any of it *feels* at speed (your call). Hits on a real target (the drag and the hit roll) were checked in code, not on a dummy.
 - The bow was traced in play (raise, draw, tremble, release kick and settle: clean). The other Mods' new splines were checked from data, not each in play.
 - The stock knife streak cancel was traced in play (gone one frame after a weapon switch).
+
+## Round 2 (after your play, 2026-11-21)
+Plan and evidence: the Round 2 table under MELEE + MODS in [Overnight 2026-11-20 Animation Pass](../Overnight%202026-11-20%20Animation%20Pass.md). The Bat and Fan are now the FP lane's.
+
+**What changed:**
+- **Mods.** Every Mod was played and traced frame by frame; three pops were found and fixed:
+  - After a throw, lob or chest-heal, the hand and item snapped back up in one frame. Now they stay at the end of the move until the item goes.
+  - The bow hand (and every held item's hand) jumped off the gun in one frame when the item came up and when it went. Now it eases across as the gun lowers and rises.
+  - A gesture's free hand jumped off the gun. Fixed last round, confirmed now.
+  - Held items now sway a little more (they were nearly still). The Firewall's burning hand no longer freezes while you hold it. The held Roller is smaller and sits below and right of the crosshair (it covered it). Held items sit down in the fist end instead of perched on top. When you set the Roller or the Recall down, the one in your hand disappears at the bottom of the move (there used to be two for a moment).
+- **Ruined Reaver.** The blade now keeps travelling after each slash and the heavy, and slows down gradually (the follow-through is about 2.5× longer, turning another 70-100° instead of stopping). Hit timing and sounds are unchanged.
+- **Stock knife.** The idle hold never goes still (it sat nearly frozen half the time).
+
+**What to test:**
+- [ ] Dash in every direction, Updraft, Stim: the hand leaves the gun smoothly and comes back with no jump.
+- [ ] Molly / Frost / Flash: throw (LMB) and lob (RMB). After the release, nothing should jump back up.
+- [ ] Recon and ShockDart bows: raise, draw, release, put away (E). No snap of the bow hand when it comes up or goes.
+- [ ] HealOrb on yourself and on an ally. Roller and Recall: set down and plant.
+- [ ] Firewall: hold the burning hand for a few seconds. Does it feel alive (a gentle sway) without being distracting?
+- [ ] Held items in general: is the new sway the right amount?
+- [ ] **Your call:** with block arms (no fingers), how should an item look held? The reviewers still read the items as sitting on the arm's end. Sinking them further hides them behind the forearm.
+- [ ] Throws: does the canister leave your hand when the projectile appears? (The hand releases about 0.2 s after the click; check it doesn't fly before the hand lets go.) Should the wind-up be bigger?
+- [ ] Ruined Reaver: do the slashes and the heavy now carry through far enough? Is it too floaty? (It's one number to tune: the follow-through time constant, 0.09 s.)
+- [ ] Stock knife idle: a slow sway, never frozen.
