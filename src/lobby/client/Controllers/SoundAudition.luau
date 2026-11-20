@@ -1,6 +1,6 @@
 --!strict
 -- Studio only: an audition board for the lobby UI sounds (vault/02 Art/UI
--- Polish Pass.md → Sounds, round 4). Press F4 in a Studio play test; click a
+-- Polish Pass.md → Sounds, round 5). Press F4 in a Studio play test; click a
 -- numbered button to hear that sound at the planned volume. Candidates are
 -- Roblox's licensed Pro Sound Effects library (creator "ProSoundEffects", no
 -- upload needed), picked by role; the current sound is first in each row for
@@ -14,114 +14,50 @@ local UserInputService = game:GetService("UserInputService")
 
 local SoundAudition = {}
 
-type Cand = { id: number, note: string }
+type Cand = { id: number, note: string, vol: number? }
 type Role = { name: string, volume: number, list: { Cand } }
 
-local CURRENT = 112177281704509 -- the soft tap (Kenney drop_002) everything uses now
-
+-- Round 5 (owner 2026-11-20): Click, Back, Tab, Toggles, Error and Page open
+-- are picked and live in Config/UiSounds. These three rows are new. Each
+-- candidate has its own volume, level-matched by measured PlaybackLoudness
+-- (hover ~20, confirm ~50, match found ~100) so the comparison is fair.
 local ROLES: { Role } = {
 	{
-		name = "CLICK (any button)",
-		volume = 0.3,
+		name = "HOVER (big items, quiet)",
+		volume = 0.7,
 		list = {
-			{ id = CURRENT, note = "now: soft tap" },
-			{ id = 9119717523, note = "Toggle Button 2" },
-			{ id = 9119717529, note = "Toggle Button 1" },
-			{ id = 9119727934, note = "Plastic Switch 14" },
-			{ id = 9119727796, note = "Plastic Switch 12" },
-			{ id = 9117279995, note = "Pen Click 1" },
-		},
-	},
-	{
-		name = "HOVER (big items, very quiet)",
-		volume = 0.12,
-		list = {
-			{ id = CURRENT, note = "now: soft tap" },
-			{ id = 9120232246, note = "Trackball Mouse 7" },
-			{ id = 9120232133, note = "Trackball Mouse 4" },
-			{ id = 9120232166, note = "Trackball Mouse 6" },
-			{ id = 9114651748, note = "Pulsing Fuzzy 2" },
+			{ id = 17208339919, note = "Roblox GUI Hover 01", vol = 0.6 },
+			{ id = 17208343514, note = "Roblox GUI Hover 02", vol = 0.67 },
+			{ id = 17208348006, note = "Roblox GUI Hover 03", vol = 0.7 },
+			{ id = 10066931761, note = "RBLX UI Hover 01", vol = 0.65 },
+			{ id = 10066936758, note = "RBLX UI Hover 02", vol = 1.25 },
+			{ id = 10066942189, note = "RBLX UI Hover 03", vol = 0.9 },
 		},
 	},
 	{
 		name = "CONFIRM (queue a mode)",
 		volume = 0.35,
 		list = {
-			{ id = CURRENT, note = "now: soft tap" },
-			{ id = 9126038721, note = "Thuddy select A" },
-			{ id = 9126040335, note = "Thuddy select B" },
-			{ id = 9126038468, note = "Thuddy select C" },
-			{ id = 9126040452, note = "Thuddy select D" },
+			{ id = 9126040335, note = "now: Thuddy select B", vol = 0.36 },
+			{ id = 17208396156, note = "Roblox GUI Select", vol = 0.29 },
+			{ id = 17208323435, note = "Roblox GUI Equip", vol = 0.32 },
+			{ id = 10128760939, note = "RBLX UI Select 01", vol = 1.4 },
+			{ id = 10066968815, note = "RBLX UI Select 02", vol = 1.3 },
+			{ id = 16480556621, note = "Big plastic button", vol = 0.4 },
+			{ id = 9120412125, note = "Game pad button (PSE)", vol = 0.65 },
 		},
 	},
 	{
-		name = "BACK / CLOSE",
-		volume = 0.3,
-		list = {
-			{ id = CURRENT, note = "now: soft tap" },
-			{ id = 9119703221, note = "Soft swish 14" },
-			{ id = 9120708588, note = "Dull whoosh 1" },
-			{ id = 9126041965, note = "Thuddy, buzzy A" },
-			{ id = 9126041441, note = "Thuddy, buzzy B" },
-			{ id = 9119727950, note = "Plastic Switch 15" },
-		},
-	},
-	{
-		name = "TAB SWITCH",
-		volume = 0.25,
-		list = {
-			{ id = CURRENT, note = "now: soft tap" },
-			{ id = 9119705099, note = "Paddle swish 10" },
-			{ id = 9119704482, note = "Paddle swish 1" },
-			{ id = 9119702705, note = "Soft swish 1" },
-			{ id = 9119703087, note = "Soft swish 10" },
-			{ id = 9120130564, note = "Synth switch 17" },
-		},
-	},
-	{
-		name = "TOGGLE ON / OFF",
-		volume = 0.3,
-		list = {
-			{ id = CURRENT, note = "now: soft tap" },
-			{ id = 9119717523, note = "Toggle Button 2 (on)" },
-			{ id = 9119717529, note = "Toggle Button 1 (off)" },
-			{ id = 9119727934, note = "Plastic 14 (on)" },
-			{ id = 9119727796, note = "Plastic 12 (off)" },
-			{ id = 9117028600, note = "Moviola sharp 8" },
-		},
-	},
-	{
-		name = "ERROR / SOON",
-		volume = 0.3,
-		list = {
-			{ id = 15675075163, note = "now: Roblox Delete" },
-			{ id = 9114646885, note = "Fuzzy burst 11" },
-			{ id = 9114646693, note = "Fuzzy burst 8" },
-			{ id = 9114646415, note = "Fuzzy burst 2" },
-			{ id = 9126042142, note = "Thuddy, buzzy C" },
-		},
-	},
-	{
-		name = "PAGE OPEN (soft whoosh)",
-		volume = 0.25,
-		list = {
-			{ id = 15674975792, note = "now: Roblox Whoosh 03" },
-			{ id = 9126014226, note = "Very soft swish A" },
-			{ id = 9126014267, note = "Very soft swish B" },
-			{ id = 9119702970, note = "Soft swish 8" },
-			{ id = 9120709480, note = "Dull whoosh A" },
-			{ id = 9120708843, note = "Dull whoosh 3" },
-		},
-	},
-	{
-		name = "MATCH FOUND (positive)",
+		name = "MATCH FOUND",
 		volume = 0.4,
 		list = {
-			{ id = 15675043410, note = "now: Roblox Stinger" },
-			{ id = 9126132982, note = "Soft beeps 8" },
-			{ id = 9126134197, note = "Soft beeps 10" },
-			{ id = 9126134338, note = "Soft beeps 4" },
-			{ id = 9126134526, note = "Soft beeps 9" },
+			{ id = 15675043410, note = "now: Roblox stinger", vol = 0.4 },
+			{ id = 17208361335, note = "Roblox GUI Notification High", vol = 0.3 },
+			{ id = 17208372272, note = "Roblox GUI Notification Low", vol = 0.36 },
+			{ id = 9043151109, note = "APM Get Up And Go (hit)", vol = 0.21 },
+			{ id = 9045807338, note = "APM Scoundrels (brass + drum)", vol = 0.25 },
+			{ id = 1848300577, note = "APM Raunch On (hit)", vol = 0.36 },
+			{ id = 9042542887, note = "APM Universal Flip (hit)", vol = 0.23 },
 		},
 	},
 }
@@ -155,7 +91,7 @@ local function build(): ScreenGui
 	local panel = Instance.new("Frame")
 	panel.AnchorPoint = Vector2.new(0.5, 0.5)
 	panel.Position = UDim2.fromScale(0.5, 0.5)
-	panel.Size = UDim2.fromOffset(1180, 44 * #ROLES + 70)
+	panel.Size = UDim2.fromOffset(1340, 44 * #ROLES + 70)
 	panel.BackgroundColor3 = Color3.fromHex("1C1C21")
 	panel.BorderSizePixel = 0
 	panel.Parent = g
@@ -168,7 +104,7 @@ local function build(): ScreenGui
 	title.TextColor3 = Color3.new(1, 1, 1)
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	title.Text =
-		"UI SOUND AUDITION (Studio only, F4 hides). Click to hear; tell Claude e.g. CLICK 3, TAB 2."
+		"UI SOUND AUDITION round 5 (Studio only, F4 hides). Click to hear; tell Claude e.g. HOVER 2 (or none), CONFIRM 4."
 	title.Parent = panel
 	for r, role in ROLES do
 		local y = 54 + (r - 1) * 44
@@ -200,7 +136,7 @@ local function build(): ScreenGui
 			b.Text = string.format("%d. %s", i, c.note)
 			b.Parent = panel
 			b.Activated:Connect(function()
-				play(c.id, role.volume)
+				play(c.id, c.vol or role.volume)
 			end)
 		end
 	end

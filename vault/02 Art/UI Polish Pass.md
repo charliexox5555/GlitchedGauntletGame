@@ -100,3 +100,23 @@ Owner's notes, then what changed (play-tested in the Lobby Studio; the owner's S
 - **Sounds:** the soft tap "sounds like a bubble, sci-fi cartoony"; the owner wants professional UI sounds from a real pack, not made-up ones. Source now: **Roblox's licensed Pro Sound Effects library** (Creator Store, creator "ProSoundEffects", free for Roblox games, no upload). 36 candidates by role (switch / plastic clicks, "thuddy" UI selects, soft paddle swishes, fuzzy UI buzzes, soft beep clusters), sci-fi / bubbly / metallic / high-pitched families excluded. **Audition board:** `Controllers/SoundAudition` (Studio only): press **F4** in a play test, click to hear; the first button in each row is the current sound. All 41 ids load. Owner picks per role → `Config/UiSounds`.
 - **Bottom bar »** sat behind the icon (a tag's children draw under its sibling icon); it's on the button now, above the icon, white, where the old plate had it.
 - **Play tiles get size on hover without scaling words:** the picture zooms 1.08 inside its own frame (its crop rect shrinks around the centre; `ART_PX` 840 x 940 default, read from the image when the client can) and the tile lifts 5 px.
+
+## Round 4: owner's picks (2026-11-20)
+Set in `Config/UiSounds` (Pro Sound Effects = PSE, Roblox's own UI pack = Roblox):
+
+| Cue | Sound | Volume |
+|---|---|---|
+| Click | PSE Toggle Button 1 `9119717529` | 0.3 |
+| Back / close | PSE Soft swish 14 `9119703221` | 0.3 |
+| Tab | PSE Paddle swish 1 `9119704482` | 0.25 |
+| Toggle on / off | PSE Toggle Button 2 `9119717523` / Toggle Button 1 `9119717529` | 0.3 |
+| Error / SOON | Roblox Delete `15675075163` (kept) | as before |
+| Page open | Roblox Whoosh 03 `15674975792` (kept) | 0.1 |
+| Queue leave | the close swish, pitch 0.9 | 0.26 |
+| Confirm | PSE Thuddy select B `9126040335` (provisional; "too sci-fi") | 0.35 |
+| Hover | still the old tap (provisional; owner dislikes it) | 0.05 |
+| Match found | Roblox Tonal Stinger (okay, owner wants a new one) | 0.45 |
+
+**Why the hover row seemed dead:** the three PSE "Trackball Mouse" recordings peak at about 3 PlaybackLoudness at full volume (a click is about 150), so at 0.12 they're silent. Measure loudness before shortlisting quiet sounds (`PlaybackLoudness` only reads in a play test, not in Edit).
+
+**Round 5 board** (F4, same controller): only Hover (Roblox GUI Hover 01-03, RBLX UI Hover 01-03), Confirm (Roblox GUI Select / Equip, RBLX UI Select 01-02, a big plastic button, a PSE game pad button, the current Thuddy B) and Match found (Roblox GUI Notification High / Low, APM hits: Get Up And Go, Scoundrels, Raunch On, Universal Flip, the current stinger). Every candidate is level-matched by measured loudness (hover ~20, confirm ~50, match found ~100). "No hover sound" is also an option (RIVALS has none). Found through the Creator Store search API, filtered to creators ProSoundEffects, Roblox and APMOfficial only (user uploads skipped: many are ripped from other games).

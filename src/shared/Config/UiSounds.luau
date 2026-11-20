@@ -59,16 +59,20 @@ return table.freeze({
 	-- round 3 (owner: the tick was high-pitched, "just fun sounds that add to
 	-- the game"): the tiny tick is gone; everything is the one soft round tap,
 	-- a little lower, with small pitch steps for meaning
-	HoverBig = cue(112177281704509, 0.05, 1.05, 0.08, 0.04), -- the tap, barely there: big items only
-	Click = cue(112177281704509, 0.24, 0.92, 0.04, 0.03), -- soft round tap: any button
-	Confirm = cue(112177281704509, 0.3, 1.05, 0.1), -- the tap, a touch brighter: queue a mode
-	Back = cue(112177281704509, 0.2, 0.8, 0.08), -- the tap, lower: close / back
-	Tab = cue(112177281704509, 0.18, 0.98, 0.05, 0.03), -- a tab
-	ToggleOn = cue(112177281704509, 0.2, 1.02, 0.05),
-	ToggleOff = cue(112177281704509, 0.18, 0.84, 0.05),
-	PageOpen = cue(15674975792, 0.1, 1.1, 0.2), -- Whoosh_03, very soft: a menu page opens
+	-- round 4 (owner picked from the F4 audition board, 2026-11-20): real
+	-- recordings from Roblox's licensed Pro Sound Effects library (creator
+	-- "ProSoundEffects", nothing uploaded). The round tap is gone. Hover,
+	-- Confirm and MatchFound are still being auditioned.
+	HoverBig = cue(112177281704509, 0.05, 1.05, 0.08, 0.04), -- PROVISIONAL: owner dislikes it, round 5 board
+	Click = cue(9119717529, 0.3, 1, 0.04, 0.03), -- PSE "Toggle Button 1": any button
+	Confirm = cue(9126040335, 0.35, 1, 0.1), -- PSE "Thuddy select B" (round 5 board looks for better)
+	Back = cue(9119703221, 0.3, 1, 0.08), -- PSE "Soft swish 14": close / back
+	Tab = cue(9119704482, 0.25, 1, 0.05, 0.03), -- PSE "Paddle swish 1": a tab
+	ToggleOn = cue(9119717523, 0.3, 1, 0.05), -- PSE "Toggle Button 2"
+	ToggleOff = cue(9119717529, 0.3, 1, 0.05), -- PSE "Toggle Button 1"
+	PageOpen = cue(15674975792, 0.1, 1.1, 0.2), -- Whoosh_03, very soft: a menu page opens (owner kept)
 	QueueJoin = cue(15675043410, 0.3, 1.1, 0.5), -- Tonal_Stinger: searching starts
-	QueueLeave = cue(112177281704509, 0.24, 0.8, 0.5), -- the tap, low: searching stops
+	QueueLeave = cue(9119703221, 0.26, 0.9, 0.5), -- the close swish, lower: searching stops
 	MatchFound = cue(15675043410, 0.45, 1.25, 1), -- the stinger, higher
 	LockerIn = cue(15675028888, 0.16, 1.1, 0.3, 0.06), -- Whoosh_02, soft: into the Locker
 	LockerOut = cue(15675046931, 0.14, 0.95, 0.3, 0.06), -- Sweep, soft: back to the lobby
