@@ -22,7 +22,7 @@ Best seen from another client or a Studio second player. For your own body, set 
 3. **Swap (draw):** the gun comes up from low right and lands with a small overshoot.
 4. **Slide** in and out with each kind (rifle, pistol, knife): the body goes down in one motion, and the hand reaches the floor as you settle.
 5. **Knife heavy (RMB):** creep, thrust, a little past, settle. Does it still hit hard enough?
-6. **Mods from outside:** throw (Molly LMB), lob (RMB), cast (Firewall), heal, place, Crash Down landing. Known: on cast a forearm passes through the chest for a few frames.
+6. **Mods from outside:** throw (Molly LMB), lob (RMB), cast (Firewall), heal, place, Crash Down landing.
 7. **Death:** the body starts from the exact hold, no hand jump.
 8. **IK prototype A/B:** in a Studio playtest, on the Server: `workspace:SetAttribute("TpIk", true)`, then `false`. It fades both ways. Compare:
    - [ ] Level hip and sights: IK shows the whole gun above the forearms, pointing exactly where you aim.
@@ -33,5 +33,4 @@ Best seen from another client or a Studio second player. For your own body, set 
 ## Known, not done
 - `GripController` (not in this lane): the left hand steps 0.37 studs in one frame when it re-grips after a reload, in both modes.
 - Backward walk: one touchdown frame slides 0.12 studs on the left foot.
-- Cast: a forearm passes through the chest on 6 frames.
 - No second client, no bot match; the re-keyed clips were measured and sampled in the engine, not watched at full speed by a human.

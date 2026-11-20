@@ -336,7 +336,7 @@ return table.freeze({
 		Place = id(83199924746572), -- o1 2026-11-20 overnight TP pass, splines (was 92359767222451)
 		Heal = id(77351510963020), -- o1 2026-11-20 overnight TP pass, splines (was 99974559870040)
 		Lob = id(85103387011074), -- o1 2026-11-20 overnight TP pass, splines (was 86298417428874) -- a held throw's underhand (Molly RMB)
-		Cast = id(134329068544989), -- o1 2026-11-20 overnight TP pass, splines (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
+		Cast = id(110417908522750), -- o2 2026-11-20 overnight TP pass, splines, no chest clipping (was 91161079508050) -- HeldSteer: the free hand pushes out (Firewall)
 		-- Dash: the torso leans into the dash (Simulation/Poses, by direction).
 		DashForward = id(76094407168365),
 		DashBack = id(75006063877431),

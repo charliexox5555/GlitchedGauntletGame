@@ -1879,15 +1879,19 @@ add(
 		spline_sequence(
 			[
 				(0.0, MOD_HOLD),
-				(0.08, stood(arms(bladed(-2, -18), MOD_HOLD_R, (-0.55, 0.75, -0.45), l_pole=(-1, -0.6, 0.2)))),
+				# (2026-11-20: the free hand drew back 0.3 studs less, it was inside
+				# the chest at 0.08 s; and a key out in front on the way back to the
+				# gun, the right hand cut through the chest at 0.82-0.88 s.)
+				(0.08, stood(arms(bladed(-2, -18), MOD_HOLD_R, (-0.6, 0.75, -0.75), l_pole=(-1, -0.6, 0.2)))),
 				(0.16, cast_push(0), ease_out),
 				(0.4, cast_push(1)),
 				(0.7, cast_push(-1)),
+				(0.85, stood(arms(bladed(-4, -14), (0.75, 0.9, -1.25), (-0.4, 0.8, -1.9)))),
 			],
-			end=(1.0, STAND_HOLD, ease_in_out),
+			end=(1.08, STAND_HOLD, ease_in_out),
 		),
 		UPPER,
-		length=1.0,
+		length=1.08,
 		loop=False,
 	)
 )
