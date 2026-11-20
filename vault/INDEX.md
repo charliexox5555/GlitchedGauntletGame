@@ -5,6 +5,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 ## Start
 - `00 Home.md` (13): current status, last results, what waits on the user, Locked decisions table, map of notes
 - [State Values and Asset Data](04%20Tech/State%20Values%20and%20Asset%20Data.md): results snapshot, runtime values and shared authored configuration
+- [Melee and Mods Pass playtest](05%20Production/Playtests/2026-11-21%20Melee%20and%20Mods%20Pass.md): Ruined Reaver re-key and hold, Bat pops fixed, Fan leaf, knife lead, Mod splines and bow
 - [First-Person Guns Pass playtest](05%20Production/Playtests/2026-11-21%20First-Person%20Guns%20Pass.md): scope lens fix, slide lean as one piece, ADS tilt, smoother gun clips, Marshal hammer
 - [State Values playtest](05%20Production/Playtests/2026-11-19%20State%20Values.md): oversized results, 2v2 rematch, Lobby queue and current asset audit
 - `05 Production/Status History.md` (42): dated status log before 2026-11-05 (what was built when); grep only
