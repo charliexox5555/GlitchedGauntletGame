@@ -78,6 +78,10 @@ type Key = {
 	left: Vector3?, -- the left fist, nil = at rest
 	support: boolean?, -- the left fist holds the handle
 	tension: number?, -- under 1 the move slows through this key (a coil), over 1 carries speed (a strike)
+	-- Degrees the bat must stay off the forearm's line at this key (default
+	-- BAT_MIN_ANGLE), eased between keys. The two-handed smash lets the bat
+	-- run on from the arms at contact, as a two-handed overhead swing does.
+	minAngle: number?,
 }
 type Clip = {
 	length: number, -- seconds at speed 1
@@ -234,6 +238,14 @@ local clips: { [string]: Clip } = {
 	},
 	-- Heavy: both hands on the handle, the bat raised high behind the head,
 	-- a held beat, then straight down the centre line and through.
+	-- 2026-11-21 (owner: the heavy "looks like the bat's sideways"): on
+	-- contact the bat pointed straight into the screen (0.04 of the screen
+	-- long, measured) with its art edge-on (its face on the swing's axis).
+	-- Now it comes over the top in the swing's plane with its art toward you,
+	-- and on contact runs up the middle of the screen (~0.8 of it) with the
+	-- sweet spot on the crosshair; keys ~28 degrees apart through the strike
+	-- so the speed peaks on contact, then it brakes past the hold. Both hands
+	-- are on it, so it may run on from the arms (minAngle).
 	Smash = {
 		length = 0.9,
 		hit = 0.44,
@@ -243,53 +255,85 @@ local clips: { [string]: Clip } = {
 			{
 				t = 0.14,
 				fist = v(0.42, -0.45, -1.55),
-				dir = v(0.096, 0.923, 0.373),
-				face = v(0.995, -0.089, -0.036),
+				dir = v(-0.026, 0.927, 0.374),
+				face = v(-0.026, -0.374, 0.927),
 				left = v(0.3, -0.7, -1.5),
 				support = true,
 			},
 			{
 				t = 0.3,
 				fist = v(0.38, -0.32, -1.48),
-				dir = v(0.051, 0.861, 0.506),
-				face = v(0.999, -0.044, -0.026),
+				dir = v(-0.027, 0.857, 0.514),
+				face = v(-0.027, -0.514, 0.857),
 				left = v(0.25, -0.57, -1.43),
 				support = true,
 				tension = 0.35,
+				minAngle = 45,
 			},
 			{
-				t = 0.4,
-				fist = v(0.22, -0.55, -1.85),
-				dir = v(0.646, 0.529, -0.551),
-				face = v(0.764, -0.447, 0.466),
-				left = v(0.12, -0.8, -1.75),
+				t = 0.37,
+				fist = v(0.3, -0.5, -1.72),
+				dir = v(-0.006, 0.985, 0.174),
+				face = v(-0.006, -0.174, 0.985),
+				left = v(0.2, -0.72, -1.65),
 				support = true,
+				minAngle = 20,
+			},
+			{
+				t = 0.405,
+				fist = v(0.2, -0.74, -1.9),
+				dir = v(0, 0.961, -0.276),
+				face = v(0, 0.276, 0.961),
+				left = v(0.12, -0.92, -1.8),
+				support = true,
+				minAngle = 20,
 			},
 			{
 				t = 0.44,
-				fist = v(0.12, -0.95, -2.1),
-				dir = v(0.111, -0.367, -0.924),
-				face = v(0.994, 0.041, 0.103),
-				left = v(0.05, -1.1, -2),
+				fist = v(0.1, -1, -2),
+				dir = v(-0.036, 0.719, -0.694),
+				face = v(-0.036, 0.694, 0.719),
+				left = v(0.05, -1.15, -1.92),
 				support = true,
 				tension = 1.3,
+				minAngle = 20,
 			},
 			{
-				t = 0.48,
-				fist = v(0.12, -1.25, -2),
-				dir = v(-0.1, -0.597, -0.796),
-				face = v(0.995, -0.06, -0.08),
-				left = v(0.05, -1.4, -1.9),
+				t = 0.475,
+				fist = v(0.08, -1.18, -1.98),
+				dir = v(-0.083, 0.309, -0.947),
+				face = v(-0.083, 0.947, 0.309),
+				left = v(0.05, -1.35, -1.9),
 				support = true,
+				minAngle = 20,
+			},
+			{
+				t = 0.515,
+				fist = v(0.1, -1.32, -1.93),
+				dir = v(-0.103, -0.174, -0.979),
+				face = v(-0.103, 0.979, -0.174),
+				left = v(0.08, -1.48, -1.85),
+				support = true,
+				minAngle = 30,
 			},
 			{
 				t = 0.58,
-				fist = v(0.2, -1.5, -1.88),
-				dir = v(-0.051, -0.889, -0.455),
-				face = v(0.999, -0.045, -0.023),
+				fist = v(0.18, -1.45, -1.86),
+				dir = v(-0.065, -0.669, -0.74),
+				face = v(-0.065, 0.74, -0.669),
 				left = v(0.15, -1.62, -1.75),
 				support = true,
 				tension = 0.45,
+				minAngle = 45,
+			},
+			{
+				t = 0.64,
+				fist = v(0.24, -1.42, -1.86),
+				dir = v(-0.043, -0.788, -0.614),
+				face = v(-0.043, 0.614, -0.788),
+				left = v(0.2, -1.6, -1.76),
+				support = true,
+				minAngle = 55,
 			},
 			{
 				t = 0.84,
@@ -447,14 +491,14 @@ end
 -- on the forearm's line: a swing passing it flipped the bat 113 degrees in
 -- one frame (measured). Keys keep clear of the line, so this rarely acts.
 local BAT_MIN_ANGLE = math.rad(65)
-local function acrossArm(dir: Vector3, fist: Vector3): Vector3
+local function acrossArm(dir: Vector3, fist: Vector3, minAngle: number): Vector3
 	local arm = Bat.RIGHT_SHOULDER - fist
 	if arm.Magnitude < 1e-3 or dir.Magnitude < 1e-3 then
 		return dir
 	end
 	local a, d = arm.Unit, dir.Unit
 	local along = d:Dot(a)
-	local limit = math.cos(BAT_MIN_ANGLE)
+	local limit = math.cos(minAngle)
 	if math.abs(along) <= limit then
 		return d
 	end
@@ -620,6 +664,25 @@ local function supportAt(clip: Clip, u: number): boolean
 	return keys[#keys].support == true
 end
 
+-- The bat's least angle off the forearm at u (radians): each key's minAngle
+-- (BAT_MIN_ANGLE where unset), eased between keys, so it never jumps.
+local function minAngleAt(clip: Clip, u: number): number
+	local keys = clip.keys
+	local function at(k: Key): number
+		return if k.minAngle then math.rad(k.minAngle) else BAT_MIN_ANGLE
+	end
+	for k = 1, #keys - 1 do
+		local a, b = keys[k], keys[k + 1]
+		if u <= b.t then
+			local span = b.t - a.t
+			local s = if span > 0 then math.clamp((u - a.t) / span, 0, 1) else 1
+			s = s * s * (3 - 2 * s)
+			return at(a) + (at(b) - at(a)) * s
+		end
+	end
+	return at(keys[#keys])
+end
+
 -- The pose of a clip at u (0..1): the bat, the right fist, the left fist,
 -- whether the left holds.
 local function sample(clip: Clip, u: number): (CFrame, Vector3, Vector3, boolean)
@@ -628,7 +691,7 @@ local function sample(clip: Clip, u: number): (CFrame, Vector3, Vector3, boolean
 	-- across the fist: never closer than BAT_MIN_ANGLE to the forearm's line,
 	-- so the handle never runs along the arm (that read as "weird angles").
 	local turn = orientationAt(clip, u)
-	local dir = acrossArm(turn.LookVector, fist)
+	local dir = acrossArm(turn.LookVector, fist, minAngleAt(clip, u))
 	local bat = batAt(fist, dir, turn.UpVector)
 	local support = supportAt(clip, u)
 	local left = if support
