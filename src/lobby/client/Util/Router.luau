@@ -13,6 +13,9 @@ local UserInputService = game:GetService("UserInputService")
 local CoreUi = require(script.Parent.CoreUi)
 local Fx = require(script.Parent.Fx)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion)
+local UiSfx = require(game:GetService("ReplicatedStorage").Shared.UiSfx)
+-- pages that bring their own entrance sound (the Locker whooshes in)
+local QUIET_OPEN: { [string]: boolean } = { Locker = true, Talk = true }
 
 export type Menu = {
 	open: (arg: any?) -> (),
@@ -141,6 +144,9 @@ function Router.open(name: string, arg: any?)
 		setWorldDimmed(true, menu.clear)
 	end
 	current = name
+	if not previous and not QUIET_OPEN[name] then
+		UiSfx.play("PageOpen") -- from the world into a page (switching pages stays quiet)
+	end
 	menu.open(arg)
 	-- Gamepad selection lands inside the menu at the start of its entrance.
 	if menu.focus and UserInputService.GamepadEnabled then
@@ -187,6 +193,7 @@ UserInputService.InputBegan:Connect(function(input, processed)
 		input.KeyCode == Enum.KeyCode.ButtonB
 		or (input.KeyCode == Enum.KeyCode.Backspace and not processed)
 	then
+		UiSfx.play("Back")
 		Router.close()
 	end
 end)

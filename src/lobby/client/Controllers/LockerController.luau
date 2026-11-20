@@ -18,6 +18,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local UiSfx = require(game:GetService("ReplicatedStorage").Shared.UiSfx)
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -53,8 +54,20 @@ local CLASSES = {
 }
 -- every item is scaled to fit a box: at most this long and this tall (a
 -- pistol stops at the height, a rifle at the length; melee a bit smaller)
-local GUN_LENGTH = 5
+local GUN_LENGTH = 5 -- studs on the stage, a sidearm (~840 px on the 1080 canvas)
 local GUN_HEIGHT = 2
+-- Long guns get more of the stage (owner 2026-11-20: "the Vandal and larger
+-- guns should be more zoomed in"; before, every gun was fitted to the same
+-- 5-stud length, so rifles read thin). Multiplies GUN_LENGTH / GUN_HEIGHT.
+local CLASS_SIZE: { [string]: number } = {
+	Sidearm = 1,
+	SMG = 1.12,
+	Shotgun = 1.2,
+	Rifle = 1.24,
+	Sniper = 1.28,
+	MachineGun = 1.28,
+	Melee = 0.8,
+}
 local FOV = 30
 local POSE_YAW = math.rad(-90 + 26) -- the side toward the camera, turned a little
 local POSE_TILT = math.rad(22) -- muzzle raised, in screen space
@@ -306,7 +319,7 @@ local function placeGun(gunId: string, line: string, animate: boolean)
 	m.Name = "Gun"
 	local _, size = m:GetBoundingBox()
 	local cfg = Weapons.get(gunId)
-	local k = if cfg and cfg.class == "Melee" then 0.8 else 1
+	local k = if cfg then CLASS_SIZE[cfg.class] or 1 else 1
 	local scale =
 		math.min(GUN_LENGTH * k / math.max(size.Z, 0.3), GUN_HEIGHT * k / math.max(size.Y, 0.3))
 	m:ScaleTo(math.clamp(scale, 0.4, 4))
@@ -318,6 +331,7 @@ local function placeGun(gunId: string, line: string, animate: boolean)
 	m.Parent = view
 	gunOnStand = m
 	if animate then
+		UiSfx.cue("Equip")
 		swapRot.Value = CFrame.new(0, -0.3, 0)
 			* CFrame.Angles(math.rad(-12), math.rad(-18), math.rad(-6))
 		tween(swapRot, 0.55, { Value = CFrame.new() }, BACK)
@@ -421,7 +435,7 @@ local function refreshHeader()
 		local c = Locker.COLORS[previewLine]
 		tween(stageLight, 0.5, {
 			ImageColor3 = if c and previewLine ~= "Stock" then c else Color3.fromHex("C8C8D0"),
-			ImageTransparency = if c and previewLine ~= "Stock" then 0.72 else 0.84,
+			ImageTransparency = if c and previewLine ~= "Stock" then 0.58 else 0.7,
 		})
 	end
 	-- the skin on the stage: its emblem and name
@@ -830,8 +844,10 @@ local function reveal()
 	-- piece, the tiles rise one after another, the close pops last
 	local backdrop = gui:FindFirstChild("Backdrop")
 	if backdrop and backdrop:IsA("Frame") then
+		-- opaque (owner 2026-11-20: no see-through blurred world behind the
+		-- gun): the charcoal gradient, the skin-tinted light and the floor shadow
 		backdrop.BackgroundTransparency = 1
-		tween(backdrop, 0.3, { BackgroundTransparency = 0.3 })
+		tween(backdrop, 0.3, { BackgroundTransparency = 0 })
 		local shade = backdrop:FindFirstChild("Shade")
 		if shade and shade:IsA("Frame") then
 			shade.BackgroundTransparency = 1
@@ -945,6 +961,7 @@ local function open()
 	isOpen = true
 	passToken += 1
 	local my = passToken
+	UiSfx.cue("LockerIn")
 	if UiMotion.reduced() then
 		reveal()
 		return
@@ -973,6 +990,7 @@ local function close()
 	isOpen = false
 	passToken += 1
 	local my = passToken
+	UiSfx.cue("LockerOut")
 	if UiMotion.reduced() then
 		conceal()
 		restoreCamera()

@@ -25,6 +25,7 @@ local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 local KM = UiMotion.M
+local UiSfx = require(game:GetService("ReplicatedStorage").Shared.UiSfx)
 
 local PlayMenuController = {}
 
@@ -127,10 +128,12 @@ end
 local function choose(t: Tile)
 	if not t.live then
 		nudge(t.button, t.home)
+		UiSfx.cue("Denied")
 		LobbyHud.toast("Coming soon", "info")
 		return
 	end
 	press(t.pop)
+	UiSfx.cue("Confirm")
 	if os.clock() < pendingUntil then
 		return
 	end
@@ -146,26 +149,76 @@ local function choose(t: Tile)
 	Router.close()
 end
 
-local function hookTile(t: Tile)
-	t.button.MouseEnter:Connect(function()
-		rest(t.pop, if t.live then KM.hoverCard else 1.012)
-		if t.art then
-			tween(t.art, 0.2, {
-				ImageColor3 = if t.live
-					then Color3.new(1, 1, 1)
-					else t.tone:Lerp(Color3.new(1, 1, 1), 0.2),
-			})
+-- Focus (owner 2026-11-20: "focus in on a duel, not shake it"; vault/02 Art/UI
+-- Polish Pass.md): the hovered tile lifts a little and its art goes full
+-- bright, the other tiles dim back, like RIVALS' queue cards. Hover is read
+-- from a fixed, invisible Hit button over each tile's home, so the tile's own
+-- scale and its open slide never move the hover area (that flip-flop at the
+-- edges was the shake).
+local DIM = Color3.fromRGB(120, 120, 128)
+local FOCUS = 1.025 -- the tiles sit ~6 px apart: a bigger lift would cover the gap
+local focused: Tile? = nil
+
+local function artColour(t: Tile): Color3
+	if focused == t then
+		return if t.live then Color3.new(1, 1, 1) else t.tone:Lerp(Color3.new(1, 1, 1), 0.2)
+	elseif focused then
+		return t.tone:Lerp(DIM, 0.55) -- another tile has the focus
+	end
+	return t.tone
+end
+
+local function setFocus(t: Tile?)
+	if focused == t then
+		return
+	end
+	focused = t
+	for _, o in tiles do
+		rest(o.pop, if o == t then (if o.live then FOCUS else 1.012) else 1)
+		if o.art then
+			tween(o.art, 0.25, { ImageColor3 = artColour(o) })
+		end
+	end
+end
+
+local function hookTile(t: Tile, hit: GuiButton)
+	hit.MouseEnter:Connect(function()
+		setFocus(t)
+	end)
+	hit.SelectionGained:Connect(function()
+		setFocus(t)
+	end)
+	hit.MouseLeave:Connect(function()
+		if focused == t then
+			setFocus(nil)
 		end
 	end)
-	t.button.MouseLeave:Connect(function()
-		rest(t.pop, 1)
-		if t.art then
-			tween(t.art, 0.2, { ImageColor3 = t.tone })
+	hit.SelectionLost:Connect(function()
+		if focused == t then
+			setFocus(nil)
 		end
 	end)
-	t.button.Activated:Connect(function()
+	hit.Activated:Connect(function()
 		choose(t)
 	end)
+end
+
+-- The fixed hover / click area for a tile (made once, at the tile's home).
+local function hitFor(b: TextButton): TextButton
+	local hit = Instance.new("TextButton")
+	hit.Name = b.Name .. "Hit"
+	hit.Text = ""
+	hit.AutoButtonColor = false
+	hit.BackgroundTransparency = 1
+	hit.AnchorPoint = b.AnchorPoint
+	hit.Position = b.Position
+	hit.Size = b.Size
+	hit.ZIndex = b.ZIndex + 50
+	hit.Parent = b.Parent
+	-- the tile itself no longer takes the mouse or gamepad focus
+	b.Interactable = false
+	b.Selectable = false
+	return hit
 end
 
 --------------------------------------------------------------------------------
@@ -201,6 +254,7 @@ local function open()
 			tween(o, 0.4, { Position = home })
 		end
 	end
+	focused = nil
 	for i, t in tiles do
 		t.button.Position = t.home + UDim2.fromOffset(0, 36)
 		StateValues.set(t.pop, "Rest", 1)
@@ -337,8 +391,10 @@ function PlayMenuController.init()
 				home = b.Position,
 			}
 			table.insert(tiles, t)
-			hookTile(t)
 		end
+	end
+	for _, t in tiles do
+		hookTile(t, hitFor(t.button))
 	end
 	table.sort(tiles, function(a, b)
 		return a.button.LayoutOrder < b.button.LayoutOrder

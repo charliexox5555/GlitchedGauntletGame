@@ -20,6 +20,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Crosshair = require(ReplicatedStorage.Shared.Config.Crosshair)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
+local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local LobbyKit = require(script.Parent.Parent.Util.LobbyKit)
 local Plates = require(script.Parent.Parent.Util.Plates)
 
@@ -89,6 +90,15 @@ local ROWS: { { Row } } = {
 			get = UiMotion.reduced,
 			set = function(on: boolean)
 				UiMotion.setReduced(on)
+			end,
+		},
+		{
+			name = "UI SOUNDS",
+			desc = "Clicks, tabs, toggles and the queue's sounds in every menu. Game sounds aren't affected.",
+			kind = "toggle",
+			get = UiSfx.isEnabled,
+			set = function(on: boolean)
+				UiSfx.setEnabled(on)
 			end,
 		},
 		{
@@ -304,9 +314,20 @@ end
 --------------------------------------------------------------------------------
 -- Rows
 
+-- The Inspect panel's words cross-fade to the new row (RIVALS swaps them
+-- instantly; a short fade reads cleaner). Same row again: nothing.
+local inspected: Row? = nil
 local function inspectRow(row: Row)
+	if inspected == row then
+		return
+	end
+	inspected = row
 	head.Text = row.name
 	desc.Text = if row.soon then row.desc .. "  (SOON)" else row.desc
+	for _, l in { head, desc } do
+		l.TextTransparency = 0.6
+		UiMotion.tween(l, 0.18, { TextTransparency = 0 })
+	end
 end
 
 local function soonLabel(control: Frame)
@@ -331,16 +352,42 @@ local function fillToggle(control: Frame, row: Row, rowButton: GuiButton)
 	local switch = child(t, "Switch") :: TextButton
 	local state = child(switch, "State") :: TextLabel
 	Plates.finish(switch)
+	-- the knob (owner 2026-11-20: Settings motion was clunky): a dark block
+	-- that slides to the ON / OFF side, Quint Out like RIVALS' toggle, while
+	-- the plate eases white / navy; the word sits on the other side
+	local knob = Instance.new("Frame")
+	knob.Name = "Knob"
+	knob.AnchorPoint = Vector2.new(0.5, 0.5)
+	knob.Size = UDim2.fromOffset(46, 30)
+	knob.BorderSizePixel = 0
+	knob.ZIndex = state.ZIndex
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 3)
+	corner.Parent = knob
+	knob.Parent = switch
+	state.Size = UDim2.new(0.55, 0, 1, 0)
+	state.AnchorPoint = Vector2.new(0.5, 0)
+	local first = true
 	local function look()
 		local on = row.get and row.get() == true
-		switch.BackgroundColor3 = if on then C.white else C.navyHi
+		local time = if first then 0 else 0.3
+		first = false
+		UiMotion.tween(switch, time, { BackgroundColor3 = if on then C.white else C.navyHi })
+		UiMotion.tween(knob, time, {
+			Position = UDim2.fromScale(if on then 0.76 else 0.24, 0.5),
+			BackgroundColor3 = if on then C.ink else C.muted,
+		})
 		state.Text = if on then "ON" else "OFF"
-		state.TextColor3 = if on then C.ink else C.muted
+		UiMotion.tween(state, time, {
+			Position = UDim2.fromScale(if on then 0.34 else 0.66, 0),
+			TextColor3 = if on then C.ink else C.muted,
+		})
 	end
 	look()
 	local function flip()
 		if row.get and row.set then
 			row.set(not row.get())
+			UiSfx.cue(if row.get() then "ToggleOn" else "ToggleOff")
 			look()
 			redraw()
 		end
@@ -358,21 +405,31 @@ local function fillSlider(control: Frame, row: Row)
 	local knobPop = child(knob, "Pop") :: UIScale
 	local value = child(s, "Value") :: TextLabel
 	local lo, hi, step = row.min or 0, row.max or 1, row.step or 0.1
-	local function show(v: number)
+	local shown: number? = nil
+	local function show(v: number, ease: number?)
 		local a = (v - lo) / (hi - lo)
-		fill.Size = UDim2.fromScale(a, 1)
-		knob.Position = UDim2.fromScale(a, 0.5)
+		if ease and ease > 0 then
+			UiMotion.tween(fill, ease, { Size = UDim2.fromScale(a, 1) })
+			UiMotion.tween(knob, ease, { Position = UDim2.fromScale(a, 0.5) })
+		else
+			fill.Size = UDim2.fromScale(a, 1)
+			knob.Position = UDim2.fromScale(a, 0.5)
+		end
 		value.Text = if row.fmt then row.fmt(v) else one(v)
+		if shown ~= nil and shown ~= v then
+			UiSfx.play("SliderTick", 0.9 + a * 0.25) -- a little higher as it fills
+		end
+		shown = v
 	end
 	show(if row.get then row.get() else lo)
-	local function setFromX(x: number)
+	local function setFromX(x: number, ease: number?)
 		local a =
 			math.clamp((x - track.AbsolutePosition.X) / math.max(track.AbsoluteSize.X, 1), 0, 1)
 		local v = math.clamp(lo + math.floor(a * (hi - lo) / step + 0.5) * step, lo, hi)
 		if row.set then
 			row.set(v)
 		end
-		show(v)
+		show(v, ease)
 		redraw()
 	end
 	track.InputBegan:Connect(function(input: InputObject)
@@ -380,7 +437,8 @@ local function fillSlider(control: Frame, row: Row)
 		if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then
 			return
 		end
-		setFromX(input.Position.X)
+		UiSfx.claim() -- the slider ticks; no generic click
+		setFromX(input.Position.X, 0.16) -- a click eases there; the drag then follows
 		UiMotion.rest(knobPop, LobbyKit.M.hover)
 		for _, c in dragConns do
 			c:Disconnect()
@@ -475,15 +533,45 @@ local function renderTab(i: number)
 		else
 			fillSwatches(control, row)
 		end
+		-- a full-width row doesn't grow on hover (it shoved the list about):
+		-- it lifts its colour and its name eases in a little
+		item:SetAttribute("UiSound", if row.kind == "toggle" and not row.soon then nil else "none")
+		local rowBg = item.BackgroundTransparency
+		local rowColour = item.BackgroundColor3
+		local nameLabel = child(item, "Name") :: TextLabel
+		local nameHome = nameLabel.Position
 		LobbyKit.button(item, function() end, {
-			card = true,
+			hover = 1,
+			enabled = function()
+				return false -- no dip either: rows aren't pressed, their controls are
+			end,
 			onHover = function(on: boolean)
+				UiMotion.tween(item, 0.2, {
+					BackgroundTransparency = if on then math.max(rowBg - 0.15, 0) else rowBg,
+					BackgroundColor3 = if on then C.navyHi else rowColour,
+				})
+				UiMotion.tween(nameLabel, 0.25, {
+					Position = if on then nameHome + UDim2.fromOffset(8, 0) else nameHome,
+				})
 				if on then
 					inspectRow(row)
 				end
 			end,
 		})
+		-- the tab's rows rise in one after another
+		local pop = item:FindFirstChild("Pop")
+		if pop and pop:IsA("UIScale") then
+			pop.Scale = 0.97
+			item.BackgroundTransparency = 1
+			task.delay((n - 1) * 0.025, function()
+				if item.Parent then
+					UiMotion.tween(pop, 0.3, { Scale = 1 })
+					UiMotion.tween(item, 0.3, { BackgroundTransparency = rowBg })
+				end
+			end)
+		end
 		if n == 1 then
+			inspected = nil
 			inspectRow(row)
 		end
 	end

@@ -10,6 +10,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `04 Tech/Code Map.md` (10): every Service/Controller, its remotes and attributes; pick code files from here
 - `04 Tech/Architecture.md` (15): repo layout, shot validation walkthrough, match system, test range, Rojo/Studio gotchas, code rules
 - `04 Tech/Developer Handoff.md`: both places, player journey, edit map, Studio audit, troubleshooting and release handoff
+- `04 Tech/Measured Check Skills.md` (3): the 38 installed `rbx-*` measured-check skills, which to use per area, the security scan, what was left out
 
 ## Design (01 Design)
 - `01 Design/Match Flow.md` (8): rounds, select/draft, timers, weapon phases, as built
@@ -60,6 +61,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/UI Lobby HUD.md` (5): **lobby main HUD**, built: RIVALS-style bar (coloured tags, hover plates, ChatGPT icons v2), PLAY + party slots, player list (Tab / topbar), Roblox + in-game parties with invites, topbar buttons (2026-11-14)
 - `02 Art/UI Play and Party Menus.md` (4): **Play menu** (mode tiles, BEGINNER 2V2 left, 4V4 / 5V5 soon), **searching bar** (PLAY scales out while queued), **Party menu** (your party + search, ALL / FRIENDS / LOBBY, invites), the shared close button, no lobby UI sounds (2026-11-15)
 - `02 Art/UI Lobby Overhaul.md` (12): **the lobby UI overhaul** on one kit (Shared/UiMotion, Util/LobbyKit, KIT tokens) after RIVALS' own UI files: every screen moved over, new Settings (crosshair editor), Profile, Rewards, the loading screen, phone layouts, the match motion pass; grades, test list, parked questions (2026-11-16)
+- `02 Art/UI Polish Pass.md` (8): **UI polish pass** analysis + plan (2026-11-20): UI sounds back (RIVALS sound set read from its files), duel-tile hover jitter cause, Locker backdrop + gun framing, Settings motion, cut corners as 9-slice images (vs multi-frame), owner questions
 - `02 Art/UI Match Overhaul.md` (6): **match UI overhaul + map vote**: RIVALS' duel structure read from their files, the map vote (MapVoteService / MapVote screen), server / FPS / ping readout (lobby + match), level and device marks, then the match restyle (2026-11-16)
 - `02 Art/UI Battle Pass.md` (4): **Season Pass** screen: free + premium tracks, 30 tiers in pages of 7, the picked reward big (3D skins), CLAIM / CONTENTS / +5 LEVELS / UNLOCK PREMIUM; UI only (2026-11-16)
 - `02 Art/UI Shop.md` (6): **Shop** plan: HOME (paid cases with odds + region lock, season pass, offers, cosmetics), BUNDLES (some with exclusive Mods), DAILY (8 items + login rewards), COINS; one currency (Coins); motion; ChatGPT art prompts (2026-11-16)
@@ -80,6 +82,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Lobby Art Plan.md` (29), `Lobby Kit.md` (15), `Lobby Rebuild 2026-11-04.md` (33), `Lobby Professional Pass.md` (3): Lobby art plan, Blender kit, rebuild log, review pass
 - `02 Art/Mod Props.md` (8), `02 Art/Mod Audio.md` (18): Mod models; Mod sound shortlist (unauditioned)
 - `02 Art/Sound Library Pick.md` (23): the bought pro gun sound pack (418 files) measured; picks per gun (shots, auto sets, reload parts), knife / hit / Mod candidates, processing and code plan, audition reel `art-source/audio/ProPack/PickReel.wav`
+- [Combat Feedback Audio](02%20Art/Combat%20Feedback%20Audio.md) has original headshot and standard elimination audition takes, comparisons and source credits.
 - `05 Production/Handoff - Gun and Knife Feel from Videos.md` (6): brief for the session that studies the owner's gun / knife clips (video-analyzer): what to measure, where it lives in code, lanes, rules, done-when
 - `05 Production/Handoff - Feel Polish (Fable).md` (20): the next session's brief after the feel-videos passes: owner's taste and verdicts, the clips and their numbers, what exists (knife solver + pipeline, rigid fist + wrist, PCHIP tracks, toss, gun snap, Sheriff cylinder roll), how to test, the queue (knife polish, guns, Sheriff, Bat, headshot / crosshair / head flare)
 - `05 Production/Handoff - Gun Sounds Full Length (Codex).md` (7): brief for Codex: semi-auto shots are capped short in the atlas build (pistol 1.5 to 1.0 s, rifle 2.19 to 1.6, shotgun 2.66 to 1.6), so they sound dull; restore full length, audit every gun sound, listening tools, upload quota

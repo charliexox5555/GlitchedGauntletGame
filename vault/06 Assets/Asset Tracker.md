@@ -6,6 +6,8 @@ Status of every asset from model to in-game. Update it whenever something moves 
 
 Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
+**Combat feedback audio (2026-11-20).** Four audition masters cover standard headshots and eliminations. The Vandal comparison reels include the current cues and the two new pairs. [WAVs and credits](../02%20Art/Combat%20Feedback%20Audio.md)
+
 **Overtime zone (2026-11-19).** Match Studio has the Blender curtain, ground trace and drift meshes staged with the v02 sky curtain texture and a 320-stud wall. [Source, asset IDs and Studio setup](../02%20Art/Overtime%20Zone.md)
 
 Active Lobby and Match assets now get authored fields from the shared AssetData modules. The migrated instances are staged in the open Studio places. [Asset configuration and migration](../04%20Tech/State%20Values%20and%20Asset%20Data.md#editing-active-assets)

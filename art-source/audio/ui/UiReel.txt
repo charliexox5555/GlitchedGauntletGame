@@ -1,0 +1,88 @@
+UI sound audition reel (Kenney CC0). IS = Interface Sounds, UA = UI Audio.
+Pick one number per role. Roblox's own pack is auditioned in Studio.
+
+== HoverBig (very quiet tick) ==
+   1.60  1.  IS/tick_001  (0.04 s)
+   2.19  2.  IS/tick_002  (0.02 s)
+   2.77  3.  IS/tick_004  (0.06 s)
+   3.37  4.  UA/rollover1  (0.24 s)
+   4.16  5.  UA/rollover2  (0.06 s)
+   4.77  6.  IS/select_001  (0.06 s)
+
+== Click (press) ==
+   6.98  1.  IS/click_001  (0.11 s)
+   7.65  2.  IS/click_002  (0.01 s)
+   8.21  3.  IS/click_003  (0.02 s)
+   8.78  4.  IS/click_004  (0.02 s)
+   9.35  5.  IS/click_005  (0.02 s)
+   9.92  6.  UA/click1  (0.10 s)
+  10.57  7.  UA/click3  (0.09 s)
+  11.21  8.  UA/mouseclick1  (0.08 s)
+
+== Confirm (queue, equip) ==
+  13.44  1.  IS/confirmation_001  (0.29 s)
+  14.28  2.  IS/confirmation_002  (0.56 s)
+  15.40  3.  IS/confirmation_003  (0.32 s)
+  16.27  4.  IS/confirmation_004  (0.50 s)
+  17.32  5.  IS/select_003  (0.38 s)
+  18.25  6.  IS/select_006  (1.95 s)
+
+== Back / close ==
+  22.35  1.  IS/back_001  (0.07 s)
+  22.97  2.  IS/back_002  (0.09 s)
+  23.61  3.  IS/back_003  (0.09 s)
+  24.26  4.  IS/close_001  (0.15 s)
+  24.96  5.  IS/close_002  (0.33 s)
+  25.83  6.  IS/minimize_002  (0.26 s)
+
+== Tab switch ==
+  28.24  1.  IS/switch_001  (0.62 s)
+  29.41  2.  IS/switch_002  (0.62 s)
+  30.58  3.  IS/switch_003  (0.50 s)
+  31.63  4.  IS/scroll_001  (1.02 s)
+  33.20  5.  IS/select_002  (0.06 s)
+
+== Toggle on / off (pairs) ==
+  35.42  1.  IS/toggle_001  (0.16 s)
+  36.12  2.  IS/toggle_002  (0.14 s)
+  36.81  3.  IS/toggle_003  (0.16 s)
+  37.53  4.  IS/toggle_004  (0.07 s)
+  38.15  5.  UA/switch2  (0.32 s)
+  39.02  6.  UA/switch3  (0.37 s)
+
+== Slider tick ==
+  41.53  1.  IS/tick_001  (0.04 s)
+  42.13  2.  IS/scroll_002  (1.01 s)
+  43.69  3.  IS/scroll_003  (1.01 s)
+  45.25  4.  UA/switch10  (0.39 s)
+
+== Error / SOON ==
+  47.79  1.  IS/error_001  (0.17 s)
+  48.51  2.  IS/error_002  (0.17 s)
+  49.23  3.  IS/error_004  (0.10 s)
+  49.88  4.  IS/error_006  (0.52 s)
+  50.95  5.  IS/error_008  (0.14 s)
+
+== Page open ==
+  53.24  1.  IS/open_001  (0.15 s)
+  53.94  2.  IS/open_002  (0.32 s)
+  54.81  3.  IS/open_003  (0.32 s)
+  55.67  4.  IS/maximize_001  (0.26 s)
+  56.49  5.  IS/maximize_003  (0.21 s)
+  57.25  6.  IS/maximize_006  (0.39 s)
+
+== Queue join / match found ==
+  59.78  1.  IS/bong_001  (0.13 s)
+  60.47  2.  IS/glass_001  (0.29 s)
+  61.31  3.  IS/glass_002  (0.13 s)
+  61.99  4.  IS/glass_005  (0.13 s)
+  62.67  5.  IS/pluck_001  (0.11 s)
+  63.33  6.  IS/pluck_002  (0.18 s)
+
+== Locker equip / skin switch ==
+  65.66  1.  IS/drop_001  (0.13 s)
+  66.34  2.  IS/drop_002  (0.20 s)
+  67.10  3.  IS/drop_003  (0.20 s)
+  67.85  4.  IS/drop_004  (0.29 s)
+  68.69  5.  IS/glitch_001  (0.02 s)
+  69.26  6.  IS/glitch_003  (0.01 s)

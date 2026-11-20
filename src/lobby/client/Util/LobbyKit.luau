@@ -20,6 +20,7 @@ local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
+local UiSfx = require(ReplicatedStorage.Shared.UiSfx)
 local Cards = require(script.Parent.Cards)
 local CloseButton = require(script.Parent.CloseButton)
 local Layout = require(script.Parent.Layout)
@@ -90,6 +91,9 @@ function LobbyKit.tabs(list: { GuiButton }, onSelect: (i: number) -> ()): (i: nu
 	end
 	for i, tab in list do
 		LobbyKit.button(tab, function()
+			if i ~= current then
+				UiSfx.cue("Tab")
+			end
 			pick(i)
 		end)
 	end

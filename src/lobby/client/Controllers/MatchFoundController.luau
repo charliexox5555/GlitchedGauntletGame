@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 
 local LoadingConfig = require(game:GetService("ReplicatedStorage").Shared.Config.Loading)
+local UiSfx = require(game:GetService("ReplicatedStorage").Shared.UiSfx)
 local LobbyNet = require(game:GetService("ReplicatedStorage").Lobby.LobbyNet)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
@@ -234,8 +235,21 @@ function MatchFoundController.start()
 		return isOpen
 	end)
 	LobbyNet.event("QueueEvent").OnClientEvent:Connect(onQueueEvent)
+	-- the queue's sounds (vault/02 Art/UI Polish Pass.md → Sounds): searching
+	-- starts / stops, the match is found
+	local was = QueueState.status()
 	QueueState.onChanged(function()
 		local s = QueueState.status()
+		if s ~= was then
+			if s == "searching" and was == "idle" then
+				UiSfx.play("QueueJoin")
+			elseif s == "idle" and was == "searching" then
+				UiSfx.play("QueueLeave")
+			elseif s == "found" and was ~= "teleporting" then
+				UiSfx.play("MatchFound")
+			end
+			was = s
+		end
 		if s == "found" or s == "teleporting" then
 			open() -- also covers a rejoin mid-found, before the event lands
 		elseif isOpen then
