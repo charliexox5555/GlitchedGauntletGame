@@ -254,14 +254,23 @@ local function useTrack(animator: Animator, kind: string): AnimationTrack?
 	return track
 end
 
-local function playOnce(animator: Animator, kind: string, speed: number?, weight: number?)
+local function playOnce(
+	animator: Animator,
+	kind: string,
+	speed: number?,
+	weight: number?,
+	start: number?
+)
 	local t = useTrack(animator, kind)
 	if not t then
 		return
 	end
 	t.Priority = Enum.AnimationPriority.Action4
 	t.Looped = false
-	t:Play(0.05, weight or 1, speed or 1)
+	t:Play(if start then Animations.MOD_USE_FADE else 0.05, weight or 1, speed or 1)
+	if start then
+		t.TimePosition = start
+	end
 end
 
 -- The cached track for `name` if it's playing (nil when it's stopped).
@@ -763,7 +772,8 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 			StateValues.set(character, "PoseUseSeen", useAt)
 			local kind = StateValues.get(player, "ModUseKind")
 			if typeof(seenAt) == "number" and alive and typeof(kind) == "string" then
-				playOnce(animator, kind)
+				-- (A throw joins its clip mid-coil: ModUseAt is the release.)
+				playOnce(animator, kind, nil, nil, Animations.MOD_USE_START[kind])
 			end
 		end
 	end

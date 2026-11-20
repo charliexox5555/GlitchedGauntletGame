@@ -351,6 +351,17 @@ return table.freeze({
 		UpdraftSlamLand = id(112038871870364), -- r2 2026-11-21: a three-point landing on both feet (the knee-down one buried the knee 0.73 under the floor) (was 137908275018781) -- o1 2026-11-20 overnight TP pass, splines (was 131769446021191)
 	}),
 	MOD_FADE = 0.12, -- seconds the Mod hold fades in / out
+	-- Seconds into a use clip that other players' bodies start it at
+	-- (Simulation/Poses). ModUseAt lands when the first-person hand lets go
+	-- (Config/Mods THROW_RELEASE), so a throw that played its whole coil from
+	-- there trailed the canister already in the air. Joined mid-coil instead,
+	-- the hand lets go about 60 ms after ModUseAt (Throw snaps at 0.17-0.23 s,
+	-- Lob swings up through 0.2-0.38 s; tools/anim/tp_clips.py). Round 3.
+	MOD_USE_START = table.freeze({
+		Throw = 0.14,
+		Lob = 0.2,
+	}) :: { [string]: number },
+	MOD_USE_FADE = 0.06, -- seconds a use clip fades in over the hold (from its start)
 	SLAM_FADE = 0.08, -- seconds the Crash Down dive pose fades in / out
 
 	-- Degrees baked into the Up / Down hold poses (tools/studio/MakeHoldAnimations).
