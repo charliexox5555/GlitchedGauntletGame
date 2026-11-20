@@ -130,6 +130,7 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - [Experience Naming](05%20Production/Experience%20Naming.md): Roblox naming research, spoken-name shortlist, and collision checks
 - [Experience Naming Review](05%20Production/Experience%20Naming%20Review.md): numbered name candidates for owner feedback, comparison titles, and first-page Roblox checks
 - `05 Production/Handoff - Grades to 9-10.md` (5): the lanes left to bring every animation and gunplay grade to 9-10 (2026-11-13), shared rules for parallel sessions
+- `05 Production/Overnight 2026-11-20 Animation Pass.md` (6): overnight animation pass (third person + RIVALS body study and IK toggle, first-person guns / ADS / slide tilt / scope fix, melee Bat / Fan / Reaver / knife and Mods), owner answers, 0-10 grade system, three lanes, file ownership, Studio lock rules
 - `05 Production/Match Structure Revamp.md` (21): Release 1 match flow plan, phases A–D, as built
 - `05 Production/Weapon RemasterV2.md` (6): Opus weapon rebuild via live Blender MCP; all 18 v03 guns imported into Studio 2026-11-08, first-person pass, F6 gun review mode
 - `05 Production/Weapon Final Pass 2026-11-11.md` (7): final gun pass before skins: new sight family, see-through and floating test, charm ring, nickel accent, v05 files, model sheets for ChatGPT

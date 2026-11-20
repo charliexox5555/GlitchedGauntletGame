@@ -7,6 +7,8 @@
 
 ## 📍 Status
 
+- **Overnight animation pass (2026-11-20, running).** Three lanes are working toward 9-10 grades. Third person: cleanup with the measured checks, then a study of the RIVALS body and an IK-hands prototype behind a toggle. First-person guns: ADS and slide that tilt with the crosshair, the sniper scope's see-through part, Ruin-Blighted gun animations. Melee and Mods: knife, Bat, Fan, Ruined Reaver, bow. Work is committed locally only, so nothing is pushed. [Plan, grades and results](05%20Production/Overnight%202026-11-20%20Animation%20Pass.md)
+
 - **Lobby UI polish pass (2026-11-20).** UI sounds are back (one shared player, a click on every button, a quiet hover tick on big items, queue / Locker / toggle cues; provisional Roblox-pack sounds until the owner picks from the Kenney reel). Play menu tiles focus instead of shaking, the Locker has an opaque charcoal backdrop and bigger long guns, Settings has a sliding toggle, row highlights and staggered tabs. 9-slice plate set drawn, waiting on approval. [Plan and results](02%20Art/UI%20Polish%20Pass.md)
 
 - **Combat feedback audio (2026-11-20).** Ready for audition with two dry headshot slashes and two standard kill cues, including Vandal comparisons and the five-step kill ladder. [Combat feedback audio](02%20Art/Combat%20Feedback%20Audio.md)
