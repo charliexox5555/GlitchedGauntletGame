@@ -120,3 +120,9 @@ Set in `Config/UiSounds` (Pro Sound Effects = PSE, Roblox's own UI pack = Roblox
 **Why the hover row seemed dead:** the three PSE "Trackball Mouse" recordings peak at about 3 PlaybackLoudness at full volume (a click is about 150), so at 0.12 they're silent. Measure loudness before shortlisting quiet sounds (`PlaybackLoudness` only reads in a play test, not in Edit).
 
 **Round 5 board** (F4, same controller): only Hover (Roblox GUI Hover 01-03, RBLX UI Hover 01-03), Confirm (Roblox GUI Select / Equip, RBLX UI Select 01-02, a big plastic button, a PSE game pad button, the current Thuddy B) and Match found (Roblox GUI Notification High / Low, APM hits: Get Up And Go, Scoundrels, Raunch On, Universal Flip, the current stinger). Every candidate is level-matched by measured loudness (hover ~20, confirm ~50, match found ~100). "No hover sound" is also an option (RIVALS has none). Found through the Creator Store search API, filtered to creators ProSoundEffects, Roblox and APMOfficial only (user uploads skipped: many are ripped from other games).
+
+## Round 5: last picks (owner, 2026-11-20)
+- **Hover:** Roblox "GUI - Hover 02" `17208343514` at 0.67.
+- **Confirm:** Roblox "GUI - Select" `17208396156` at 0.29.
+- **Match found:** APM "Universal Flip - Hit" `9042542887` at 0.23. **Backup the owner wants kept:** Roblox "GUI - Notification High" `17208361335` at 0.3 (a comment next to the cue in `Config/UiSounds`).
+- Every lobby UI sound is now picked by the owner. The Studio audition board (`Controllers/SoundAudition`) is removed; to audition again, rebuild it from git history (commit 07f2b45e).
