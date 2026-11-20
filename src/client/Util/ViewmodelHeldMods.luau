@@ -79,6 +79,7 @@ export type HeldMods = {
 	itemLeaving: boolean?, -- let go (letGoItem): hidden, gone once the hand is back on the gun
 	-- The free hand up and empty beside the item (VM.ITEM_READY_HAND), 0..1.
 	readyX: number,
+	readyActX: number, -- ...lowered toward its coil pose while the item's move plays, 0..1
 	-- A move called off (cancelAction): when, and its offset and arm then,
 	-- eased back out over VM.ITEM_ACTION_CANCEL.
 	cancelAt: number,
@@ -175,6 +176,7 @@ function ViewmodelHeldMods.new(): HeldMods
 		actionAt = -math.huge,
 		itemHidden = false,
 		readyX = 0,
+		readyActX = 0,
 		cancelAt = -math.huge,
 		cancelOffset = CFrame.identity,
 		cancelArm = Vector3.zero,
@@ -1362,12 +1364,14 @@ function ViewmodelHeldMods.stepItem(
 			and h.lowered
 			and side == "Right"
 			and not h.itemLeaving
-			and h.actionKind == nil
+			and not h.itemHidden -- up through a throw's coil (as RIVALS), gone at the release
 			and h.freePose == nil
 			and not gesturing
 		h.readyX =
 			math.clamp(h.readyX + (if wantReady then dt / ready.rise else -dt / ready.drop), 0, 1)
 		local w = Ease.smooth(h.readyX) * k
+		h.readyActX =
+			math.clamp(h.readyActX + (if h.actionKind then dt else -dt) / ready.actionIn, 0, 1)
 		if w > 1e-3 then
 			local fromHand, fromUp = ViewmodelArms.handOf(a, "Left")
 			if fromHand and fromUp then
@@ -1377,7 +1381,11 @@ function ViewmodelHeldMods.stepItem(
 					math.sin(phase + 1.6) * ready.sway.Y,
 					0
 				)
-				local point = fromHand:Lerp(root:PointToWorldSpace(ready.offset + sway), w)
+				local act = Ease.smooth(h.readyActX)
+				local point = fromHand:Lerp(
+					root:PointToWorldSpace(ready.offset + ready.actionShift * act + sway),
+					w
+				)
 				local dir = fromUp:Lerp(root:VectorToWorldSpace(ready.direction).Unit, w).Unit
 				ViewmodelArms.place(a, "Left", point, point + dir, root.RightVector)
 			end

@@ -1216,6 +1216,10 @@ return table.freeze({
 		sway = Vector3.new(0.012, 0.018, 0),
 		rise = 0.25,
 		drop = 0.14,
+		-- Through a throw's coil it sinks low left (RIVALS keeps it in frame
+		-- until the release), then drops at the release.
+		actionShift = Vector3.new(-0.12, -0.32, 0.18),
+		actionIn = 0.12,
 	},
 	-- Held idle: a slow breathing drift on top of the hold (position studs,
 	-- rotation degrees, cycles per second).
@@ -1472,18 +1476,29 @@ return table.freeze({
 			smooth = true,
 			keys = {
 				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
-				{ t = 0.05, pos = Vector3.new(0.02, -0.05, 0.04), rot = Vector3.new(5, 0, 2) },
+				-- Fix round 1 (3 blind reviews, 8.0): the dip deeper (it read as nothing),
+				-- the canister upright on the forearm's end at the coil (tipped back 55°
+				-- it hung off the side of a forearm that filled the screen's edge), a
+				-- little further out; through the snap it trails the arm, then whips
+				-- ~65° forward into the release (overlap).
+				{ t = 0.07, pos = Vector3.new(0.03, -0.1, 0.06), rot = Vector3.new(8, 0, 3) },
 				{
 					t = 0.22,
-					pos = Vector3.new(0.33, 1, 1.15),
-					rot = Vector3.new(-55, 18, 22),
-					arm = Vector3.new(0.1, -0.2, -0.1),
+					pos = Vector3.new(0.36, 0.95, 0.95),
+					rot = Vector3.new(-22, 18, 22),
+					arm = Vector3.new(0.05, -0.15, 0.25),
 				},
 				{
 					t = 0.28,
-					pos = Vector3.new(0.35, 1.05, 1.21),
-					rot = Vector3.new(-58, 19, 23),
-					arm = Vector3.new(0.1, -0.2, -0.1),
+					pos = Vector3.new(0.38, 1, 1),
+					rot = Vector3.new(-25, 19, 23),
+					arm = Vector3.new(0.05, -0.15, 0.25),
+				},
+				{
+					t = 0.36,
+					pos = Vector3.new(0.15, 0.74, 0),
+					rot = Vector3.new(-28, 12, 18),
+					arm = Vector3.new(0, 0.1, 0.3),
 				},
 				{
 					t = 0.42,
