@@ -31,8 +31,6 @@ end
 local L = {
 	slab = look("Concrete-02a", Color3.fromRGB(150, 148, 144)),
 	rim = look("Concrete-02a", Color3.fromRGB(176, 174, 170)),
-	square = look(nil, Color3.fromRGB(150, 150, 147), Enum.Material.SmoothPlastic),
-	edge = look(nil, Color3.fromRGB(138, 135, 128), Enum.Material.Neon),
 	steel = look("Metal 2022", Color3.fromRGB(150, 152, 156)),
 	dark = look("Metal 2022", Color3.fromRGB(52, 54, 58)),
 	cable = look(nil, Color3.fromRGB(26, 26, 28), Enum.Material.Metal),
@@ -189,7 +187,10 @@ for _, anchor in anchors do
 		box(hoist, "Sheave_B", Vector3.new(x - 0.6, 25.2, Z1 - 0.9), Vector3.new(x + 0.6, 26.12, Z1 + 0.3), L.dark)
 	end
 
-	-- the pad: a raised concrete dais with sloped edges, two light team squares, neutral edge lines, team pips
+	-- the pad (v3, owner 2026-11-20 "the duel pads have to look better"): a raised light-concrete dais with sloped
+	-- edges, holding two sunken team WELLS (dark floor, angled steel slopes down from the rim), each ringed by a
+	-- team-colour border on the rim, with one pip per player on the rim in front. The client (LobbyPadFx) floats a
+	-- reticle emblem over each well floor and locks it on in the team colour when someone stands there.
 	local pad = model(bay, "Pad")
 	local DX, DZ0, DZ1, TOP = 10.5, -101, -119, YD + 0.6
 	box(pad, "Rim_Front", Vector3.new(cx - DX, YD, DZ0 - 1.0), Vector3.new(cx + DX, TOP, DZ0), L.rim)
@@ -201,23 +202,33 @@ for _, anchor in anchors do
 	tri(pad, "Slope_Back", Vector3.new(cx, TOP, DZ1), Vector3.new(0, -1, 0), 0.6, Vector3.new(0, 0, -1), 1.0, Vector3.xAxis, 2 * DX, L.rim)
 	tri(pad, "Slope_W", Vector3.new(cx - DX, TOP, (DZ0 + DZ1) / 2), Vector3.new(0, -1, 0), 0.6, Vector3.new(-1, 0, 0), 1.0, Vector3.zAxis, DZ0 - DZ1, L.rim)
 	tri(pad, "Slope_E", Vector3.new(cx + DX, TOP, (DZ0 + DZ1) / 2), Vector3.new(0, -1, 0), 0.6, Vector3.new(1, 0, 0), 1.0, Vector3.zAxis, DZ0 - DZ1, L.rim)
+	local FLOOR = YD + 0.06
+	local well = look(nil, Color3.fromRGB(44, 46, 50), Enum.Material.SmoothPlastic)
 	for ti, t in TEAM do
 		local ha, hb = (ti == 1) and (cx - DX + 1.0) or (cx + 0.6), (ti == 1) and (cx - 0.6) or (cx + DX - 1.0)
 		local za, zb = DZ1 + 1.0, DZ0 - 1.0
-		local sq = box(pad, "Square_" .. t.name, Vector3.new(ha, YD, za), Vector3.new(hb, TOP - 0.08, zb), L.square)
+		-- the well floor (keeps the name Square_A / B: LobbyPadFx and MatchLift read it)
+		local sq = box(pad, "Square_" .. t.name, Vector3.new(ha + 0.6, YD, za + 0.6), Vector3.new(hb - 0.6, FLOOR, zb - 0.6), well)
 		state(sq, "Team", "n" .. ti)
 		CS:AddTag(sq, "LobbyPadSquare")
-		local e, ins = 0.22, 0.45
-		local y0, y1 = TOP - 0.08, TOP - 0.05
-		box(pad, "Edge_" .. t.name, Vector3.new(ha + ins, y0, zb - ins - e), Vector3.new(hb - ins, y1, zb - ins), L.edge)
-		box(pad, "Edge_" .. t.name, Vector3.new(ha + ins, y0, za + ins), Vector3.new(hb - ins, y1, za + ins + e), L.edge)
-		box(pad, "Edge_" .. t.name, Vector3.new(ha + ins, y0, za + ins + e), Vector3.new(ha + ins + e, y1, zb - ins - e), L.edge)
-		box(pad, "Edge_" .. t.name, Vector3.new(hb - ins - e, y0, za + ins + e), Vector3.new(hb - ins, y1, zb - ins - e), L.edge)
-		local pipLook = look(nil, t.glow, Enum.Material.Neon)
+		-- angled steel slopes from the rim edge down to the floor
+		local h, up = TOP - FLOOR, Vector3.new(0, 1, 0)
+		tri(pad, "WellSlope", Vector3.new((ha + hb) / 2, FLOOR, zb), up, h, Vector3.new(0, 0, -1), 0.6, Vector3.xAxis, hb - ha, L.dark)
+		tri(pad, "WellSlope", Vector3.new((ha + hb) / 2, FLOOR, za), up, h, Vector3.new(0, 0, 1), 0.6, Vector3.xAxis, hb - ha, L.dark)
+		tri(pad, "WellSlope", Vector3.new(ha, FLOOR, (za + zb) / 2), up, h, Vector3.new(1, 0, 0), 0.6, Vector3.zAxis, zb - za - 1.2, L.dark)
+		tri(pad, "WellSlope", Vector3.new(hb, FLOOR, (za + zb) / 2), up, h, Vector3.new(-1, 0, 0), 0.6, Vector3.zAxis, zb - za - 1.2, L.dark)
+		-- the team border on the rim around the well
+		local border = look(nil, t.glow, Enum.Material.Neon)
+		local y0, y1 = TOP, TOP + 0.04
+		box(pad, "Border_" .. t.name, Vector3.new(ha - 0.3, y0, zb), Vector3.new(hb + 0.3, y1, zb + 0.3), border)
+		box(pad, "Border_" .. t.name, Vector3.new(ha - 0.3, y0, za - 0.3), Vector3.new(hb + 0.3, y1, za), border)
+		box(pad, "Border_" .. t.name, Vector3.new(ha - 0.3, y0, za), Vector3.new(ha, y1, zb), border)
+		box(pad, "Border_" .. t.name, Vector3.new(hb, y0, za), Vector3.new(hb + 0.3, y1, zb), border)
+		-- one pip per player on the rim in front of the well
 		local w = hb - ha
 		for i = 1, teamSize do
 			local px = ha + w * i / (teamSize + 1)
-			box(pad, "Pip_" .. t.name, Vector3.new(px - 0.45, y0, zb - 2.2), Vector3.new(px + 0.45, y1, zb - 1.3), pipLook)
+			box(pad, "Pip_" .. t.name, Vector3.new(px - 0.4, y0, zb + 0.45), Vector3.new(px + 0.4, y1, zb + 0.85), border)
 		end
 	end
 	if QUEUE_MODES[mode] then

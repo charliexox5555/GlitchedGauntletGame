@@ -1,11 +1,11 @@
 --!strict
--- The Duels pads come alive (owner 2026-11-16: "how it looks when a player walks over a pad ... it highlights, it
--- looks really cool"; RIVALS' QueuePadVisuals: two rings float and turn over each team square, faint grey, and when a
--- team has players they take the team colour and a glow rises). Anchors tagged `LobbyPadSquare` (Build_V4 from
--- tools/blender/lobby_v4/v4_duels.pad): the anchor part is one team well under the pad's glass, with Pad, Team
--- (1 = A orange, 2 = B blue) and Mode. Per well this client builds two faceted rings (eight bars each: no curves)
--- that hover and turn in opposite directions, a glow curtain (four Beams up the well's edges) and a light; when any
--- player's character stands in the well the rings take the team colour and the glow and light fade in. Every client
+-- The Duels pads come alive. v2 (owner 2026-11-20: "the circular thing that spins around ... I don't really like.
+-- Let's improve on that"; RIVALS studied: a bold flat emblem in each well, lit in the team colour when occupied).
+-- Each well (a BasePart tagged `LobbyPadSquare`, its top is the well floor, state value Team 1 = A gold, 2 = B cyan)
+-- gets a flat RETICLE floating just above the floor: four thick corner brackets with bevelled tips and a hollow
+-- diamond in the middle, made of flat plates (no curves). Idle it sits still, light grey and faint. When any player's
+-- character stands in the well it LOCKS ON: the brackets snap inward, the diamond turns square, everything takes the
+-- team colour, and a glow curtain (four Beams up the well's edges) and a light fade in. No spinning. Every client
 -- sees every character, so everyone sees the same pads; nothing is sent to the server.
 
 local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
@@ -18,24 +18,25 @@ local LobbyPadFx = {}
 
 local TAG = "LobbyPadSquare"
 local TEAM = { [1] = Color3.fromHex("FFB627"), [2] = Color3.fromHex("2EC8FF") } -- gold / cyan (owner 2026-11-20: away from orange / blue)
-local IDLE = Color3.fromRGB(202, 203, 209)
-local IDLE_T = 0.75 -- the rings when nobody is on the well
-local ON_T = 0.05
-local FADE = 0.25 -- seconds to light up or go out
-local SPIN = 2 -- radians a second (outer ring one way, inner the other)
-local LIFT = 0.45 -- the rings above the glass
+local IDLE = Color3.fromRGB(206, 206, 202)
+local IDLE_T = 0.45 -- the reticle when nobody is on the well
+local ON_T = 0.0
+local FADE = 0.22 -- seconds to lock on or let go
+local LIFT = 0.1 -- the reticle above the well floor
+local THICK = 0.05 -- the plates' thickness
 local GLOW_H = 6.5 -- the glow curtain's height
 local CHECK = 0.1 -- seconds between occupancy checks
 local STAND_H = 7 -- studs above the glass a root part still counts as standing on it
-local RANGE = 220 -- studs: further than this from the camera the rings hold still
 
 type Well = {
 	anchor: BasePart,
 	team: number,
 	centre: CFrame,
 	half: Vector2,
-	outer: Model,
-	inner: Model,
+	corners: { Model }, -- four corner brackets
+	diamond: Model,
+	size: number, -- the reticle's half-size (bracket corner distance from the centre)
+	plates: { BasePart },
 	beams: { Beam },
 	light: PointLight,
 	holder: Folder,
@@ -57,30 +58,90 @@ local function root(): Folder
 	return f
 end
 
--- A faceted ring of eight bars (inradius r to the bar's middle, band w), centred on the origin, flat.
-local function ring(parent: Instance, r: number, w: number): Model
-	local m = Instance.new("Model")
-	m.Name = "Ring"
-	local len = 2 * (r + w / 2) * math.tan(math.rad(22.5)) + w * 0.4
-	for k = 0, 7 do
-		local a = math.rad(45 * k)
-		local p = Instance.new("Part")
-		p.Name = "Bar"
-		p.Anchored = true
-		p.CanCollide = false
-		p.CanQuery = false
-		p.CanTouch = false
-		p.CastShadow = false
-		p.Material = Enum.Material.Neon
-		p.Color = IDLE
-		p.Transparency = IDLE_T
-		p.Size = Vector3.new(w, 0.08, len)
-		p.CFrame = CFrame.Angles(0, a, 0) * CFrame.new(r, 0, 0)
-		p.Parent = m
+local function plate(parent: Instance, size: Vector3, cf: CFrame, cls: string?): BasePart
+	local p = Instance.new((cls or "Part") :: any) :: BasePart
+	p.Name = "Plate"
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.CastShadow = false
+	p.Material = Enum.Material.Neon
+	p.Color = IDLE
+	p.Transparency = IDLE_T
+	p.Size = size
+	p.CFrame = cf
+	p.Parent = parent
+	return p
+end
+
+-- A flat right triangle (a WedgePart lying flat): right angle at p, legs u (length a) and v (length b), in the
+-- model's local frame; thickness THICK along Y.
+local function flatTri(
+	parent: Instance,
+	p: Vector3,
+	u: Vector3,
+	a: number,
+	v: Vector3,
+	b: number
+): BasePart
+	local X, Y = Vector3.yAxis, u.Unit
+	if X:Cross(Y):Dot(-v.Unit) < 0 then
+		X = -X
 	end
+	local c = p + u.Unit * a / 2 + v.Unit * b / 2
+	return plate(parent, Vector3.new(THICK, a, b), CFrame.fromMatrix(c, X, Y), "WedgePart")
+end
+
+-- One corner bracket in local space: the corner at the origin, arms running +X and +Z (inward), each arm ending in
+-- a 45-degree bevelled tip. len = arm length, w = arm width.
+local function bracket(parent: Instance, len: number, w: number): Model
+	local m = Instance.new("Model")
+	m.Name = "Bracket"
+	plate(m, Vector3.new(len - w, THICK, w), CFrame.new((len - w) / 2, 0, w / 2))
+	flatTri(m, Vector3.new(len - w, 0, 0), Vector3.xAxis, w, Vector3.zAxis, w)
+	plate(m, Vector3.new(w, THICK, len - 2 * w), CFrame.new(w / 2, 0, w + (len - 2 * w) / 2))
+	flatTri(m, Vector3.new(0, 0, len - w), Vector3.zAxis, w, Vector3.xAxis, w)
 	m.WorldPivot = CFrame.new()
 	m.Parent = parent
 	return m
+end
+
+-- The hollow diamond: a square ring of side d and bar width b, plus a small centre stud; turned 45 degrees idle.
+local function diamond(parent: Instance, d: number, b: number): Model
+	local m = Instance.new("Model")
+	m.Name = "Diamond"
+	plate(m, Vector3.new(d, THICK, b), CFrame.new(0, 0, (d - b) / 2))
+	plate(m, Vector3.new(d, THICK, b), CFrame.new(0, 0, -(d - b) / 2))
+	plate(m, Vector3.new(b, THICK, d - 2 * b), CFrame.new((d - b) / 2, 0, 0))
+	plate(m, Vector3.new(b, THICK, d - 2 * b), CFrame.new(-(d - b) / 2, 0, 0))
+	plate(m, Vector3.new(b * 1.1, THICK, b * 1.1), CFrame.Angles(0, math.rad(45), 0))
+	m.WorldPivot = CFrame.new()
+	m.Parent = parent
+	return m
+end
+
+-- each corner's turn so its arms point inward: { sx, sz, turn }
+local CORNERS = {
+	{ -1, -1, 0 },
+	{ -1, 1, math.rad(90) },
+	{ 1, -1, math.rad(-90) },
+	{ 1, 1, math.rad(180) },
+}
+
+local function ease(k: number): number
+	return 1 - (1 - k) ^ 5 -- Quint out: a quick snap, a soft landing
+end
+
+-- Places the reticle for the well's lock-on amount (mix 0 idle .. 1 locked).
+local function pose(w: Well)
+	local k = ease(w.mix)
+	local r = w.size * (1.1 - 0.24 * k)
+	local base = w.centre * CFrame.new(0, LIFT, 0)
+	for i, c in CORNERS do
+		w.corners[i]:PivotTo(base * CFrame.new(c[1] * r, 0, c[2] * r) * CFrame.Angles(0, c[3], 0))
+	end
+	w.diamond:PivotTo(base * CFrame.new(0, 0.01, 0) * CFrame.Angles(0, math.rad(45) * (1 - k), 0))
 end
 
 local function curtain(holder: Instance, centre: CFrame, half: Vector2, colour: Color3): { Beam }
@@ -131,13 +192,9 @@ local function paint(w: Well)
 	local k = w.mix
 	local c = IDLE:Lerp(colour, k)
 	local t = IDLE_T + (ON_T - IDLE_T) * k
-	for _, m in { w.outer, w.inner } do
-		for _, p in m:GetChildren() do
-			if p:IsA("BasePart") then
-				p.Color = c
-				p.Transparency = t
-			end
-		end
+	for _, p in w.plates do
+		p.Color = c
+		p.Transparency = t
 	end
 	for _, b in w.beams do
 		b.Enabled = k > 0.01
@@ -165,9 +222,21 @@ local function track(inst: Instance)
 	local holder = Instance.new("Folder")
 	holder.Name = inst.Name
 	holder.Parent = root()
-	local s = math.min(half.X, half.Y) / 5.5 -- the rings follow the well's size (5.5 = an 11-stud well)
-	local outer = ring(holder, 4.0 * s, 0.45 * s)
-	local inner = ring(holder, 2.2 * s, 0.35 * s)
+	-- the reticle follows the well's short side
+	local size = math.min(half.X, half.Y) * 0.72
+	local corners = {}
+	for _ = 1, 4 do
+		table.insert(corners, bracket(holder, size * 0.62, size * 0.2))
+	end
+	local dia = diamond(holder, size * 0.56, size * 0.12)
+	local plates = {}
+	for _, m in { dia, corners[1], corners[2], corners[3], corners[4] } do
+		for _, p in m:GetChildren() do
+			if p:IsA("BasePart") then
+				table.insert(plates, p)
+			end
+		end
+	end
 	local colour = TEAM[team] or IDLE
 	local lightPart = Instance.new("Part")
 	lightPart.Name = "GlowLight"
@@ -190,8 +259,10 @@ local function track(inst: Instance)
 		team = team,
 		centre = centre,
 		half = half,
-		outer = outer,
-		inner = inner,
+		corners = corners,
+		diamond = dia,
+		size = size,
+		plates = plates,
 		beams = curtain(holder, centre, half, colour),
 		light = light,
 		holder = holder,
@@ -199,8 +270,7 @@ local function track(inst: Instance)
 		mix = 0,
 	}
 	wells[inst] = w
-	outer:PivotTo(centre + Vector3.new(0, LIFT, 0))
-	inner:PivotTo(centre + Vector3.new(0, LIFT + 0.05, 0))
+	pose(w)
 	paint(w)
 end
 
@@ -241,8 +311,6 @@ local function check()
 end
 
 local function step(dt: number)
-	local cam = workspace.CurrentCamera
-	local t = os.clock()
 	for _, w in wells do
 		local goal = if w.on then 1 else 0
 		if w.mix ~= goal then
@@ -250,13 +318,7 @@ local function step(dt: number)
 				then math.min(goal, w.mix + dt / FADE)
 				else math.max(goal, w.mix - dt / FADE)
 			paint(w)
-		end
-		if cam and (cam.CFrame.Position - w.centre.Position).Magnitude <= RANGE then
-			local spin = if w.on then SPIN * 1.6 else SPIN
-			w.outer:PivotTo(w.centre * CFrame.new(0, LIFT, 0) * CFrame.Angles(0, t * spin, 0))
-			w.inner:PivotTo(
-				w.centre * CFrame.new(0, LIFT + 0.05, 0) * CFrame.Angles(0, -t * spin, 0)
-			)
+			pose(w)
 		end
 	end
 end

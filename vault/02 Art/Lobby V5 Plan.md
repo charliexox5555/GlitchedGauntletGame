@@ -435,6 +435,33 @@ Owner: "Add match-found motion". Code: `src/lobby/client/Util/MatchLift.luau` (n
 - In Studio, standing on the pad after a skipped teleport re-queues (existing step-pad behaviour).
 - The column brightness and lift height are tunables at the top of `MatchLift.luau`.
 
+## Pads v3: wells and the reticle (2026-11-20)
+**Owner:**
+- Disliked the "circular thing that spins around when you load up" (LobbyPadFx's two thin octagon rings, hovering and spinning at 2 rad/s).
+- "The duel pads also have to be improved."
+- 4v4 / 5v5 bays are not needed for now.
+
+**RIVALS studied** (Queue Pad #3, capture `RivalsPadEmblem`):
+- Each team square is a sunken dark well with striped inner slopes and a thick team-colour neon border.
+- A bold flat emblem (thick broken arcs, flat MeshParts, Neon at 0.75 transparency) floats in the well, slowly turning, with a faint column going down into the well.
+
+Taken: the dark well, the bold flat emblem and the border. Not taken: their arcs, stripes or colours.
+
+**Pads** (`BuildQueueBays.luau` pad block, rebuilt in all 8 bays): the dais keeps its light concrete rim. Each team square is now a **sunken well**:
+- A dark floor (`44,46,50`) just above the platform.
+- Angled dark-steel slopes from the rim edge down to the floor.
+- A thick **team border** on the rim around it (gold / cyan Neon, 0.3 wide).
+- One pip per player on the rim in front.
+
+The floor part keeps the name `Square_A / B` and the `LobbyPadSquare` tag (LobbyPadFx and MatchLift read them). The MatchLift plate now rises out of the well.
+
+**LobbyPadFx v2** (`src/lobby/client/Controllers/LobbyPadFx.luau`, rewritten):
+- Per well, a flat **reticle** floats 0.1 above the floor: four thick corner brackets with 45-degree bevelled tips, and a hollow diamond with a centre stud, all flat plates (no curves).
+- **Idle:** still, light grey, 0.45 transparency. **No spinning.**
+- **Occupied:** it locks on over 0.22 s with a Quint snap. The brackets pull in by 24%, the diamond turns 45 degrees to square, the plates take the team colour, and the glow curtain and light fade in as before.
+- Sized from the well's short side, so the V4 pads get it too.
+- Format and lint clean. Capture `V5Pads_Reticle`: idle reticles, plus a cyan lock-on with a player in it.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
