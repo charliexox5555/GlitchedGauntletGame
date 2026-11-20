@@ -4,6 +4,16 @@
 -- Rig.Motors. Each clip stores, per bone and per frame, the
 -- bone's local transform from rest, which is exactly Motor6D.Transform
 -- because WeaponBuilder builds each joint in its bone's own axes.
+--
+-- Between the 24 fps keys each channel follows a monotone cubic (PCHIP,
+-- Fritsch-Butland, the spline Util/ViewmodelTracks uses): straight CFrame
+-- lerps put a corner in every part's speed every 42 ms at 60+ fps (2026-11-20
+-- animation pass). Turning points and the clip's ends stay at rest, so holds
+-- stay still and nothing swings past a key.
+--
+-- Rest: a bone whose Fire clip starts away from the built pose (the Marshal's
+-- hammer, cocked) rests there between clips, so a clip neither starts nor ends
+-- on a one-frame snap back to the built pose.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -25,6 +35,7 @@ export type GunAnimator = {
 	model: Model,
 	scale: number,
 	motors: { [string]: Motor6D },
+	rest: { [string]: CFrame }, -- bones that rest away from the built pose
 	clips: ClipSet?,
 	clip: Clip?,
 	clipName: string?,
@@ -86,9 +97,70 @@ local function frameCFrame(data: { number }, frame: number, scale: number): CFra
 	)
 end
 
+-- The velocity at the middle key (Fritsch-Butland PCHIP, keys one frame
+-- apart): zero where the channel turns back or holds.
+local function pchip(a: number, b: number, c: number): number
+	local sa, sb = b - a, c - b
+	if sa * sb <= 0 then
+		return 0
+	end
+	return 2 * sa * sb / (sa + sb)
+end
+
+-- Clip pose of `data` at frame `f` (fractional) on a monotone cubic through
+-- the keys either side. `last` is the clip's last frame index.
+local function sampleCFrame(data: { number }, f: number, last: number, scale: number): CFrame
+	local i0 = math.clamp(math.floor(f), 0, last)
+	local i1 = math.min(i0 + 1, last)
+	local t = f - i0
+	if i1 == i0 or t <= 0 then
+		return frameCFrame(data, i0, scale)
+	end
+	local im = math.max(i0 - 1, 0)
+	local i2 = math.min(i1 + 1, last)
+	local bm, b0, b1, b2 = im * 7, i0 * 7, i1 * 7, i2 * 7
+	-- Quaternions on the same side as the key we leave (q and -q are one turn).
+	local function sign(base: number): number
+		local d = data[base + 4] * data[b0 + 4]
+			+ data[base + 5] * data[b0 + 5]
+			+ data[base + 6] * data[b0 + 6]
+			+ data[base + 7] * data[b0 + 7]
+		return if d < 0 then -1 else 1
+	end
+	local sm, s1, s2 = sign(bm), sign(b1), sign(b2)
+	local t2, t3 = t * t, t * t * t
+	local h00, h10, h01, h11 = 2 * t3 - 3 * t2 + 1, t3 - 2 * t2 + t, -2 * t3 + 3 * t2, t3 - t2
+	local out = table.create(7, 0)
+	for k = 1, 7 do
+		local quat = k >= 4
+		local pm = data[bm + k] * (if quat then sm else 1)
+		local p0 = data[b0 + k]
+		local p1 = data[b1 + k] * (if quat then s1 else 1)
+		local p2 = data[b2 + k] * (if quat then s2 else 1)
+		-- The clip's ends start and stop at rest.
+		local m0 = if i0 == 0 then 0 else pchip(pm, p0, p1)
+		local m1 = if i1 == last then 0 else pchip(p0, p1, p2)
+		out[k] = h00 * p0 + h10 * m0 + h01 * p1 + h11 * m1
+	end
+	local qw, qx, qy, qz = out[4], out[5], out[6], out[7]
+	local n = math.sqrt(qw * qw + qx * qx + qy * qy + qz * qz)
+	if n < 1e-6 then
+		return frameCFrame(data, i0, scale)
+	end
+	return CFrame.new(
+		out[1] * scale,
+		out[2] * scale,
+		out[3] * scale,
+		qx / n,
+		qy / n,
+		qz / n,
+		qw / n
+	)
+end
+
 local function resetMotors(self: GunAnimator)
-	for _, m in self.motors do
-		m.Transform = CFrame.identity
+	for name, m in self.motors do
+		m.Transform = self.rest[name] or CFrame.identity
 	end
 	self.dirty = false
 end
@@ -261,18 +333,11 @@ local function update(self: GunAnimator, dt: number)
 		return
 	end
 	local f = self.time * clips.fps
-	local i = math.floor(f)
-	local a = f - i
 	local last = clip.frames - 1
-	local i0 = math.min(i, last)
-	local i1 = math.min(i + 1, last)
 	for bone, data in clip.bones do
 		local motor = self.motors[bone]
 		if motor then
-			local c0 = frameCFrame(data, i0, self.scale)
-			motor.Transform = if a > 0 and i1 ~= i0
-				then c0:Lerp(frameCFrame(data, i1, self.scale), a)
-				else c0
+			motor.Transform = sampleCFrame(data, f, last, self.scale)
 			if motor == spinMotor then
 				motor.Transform *= spinCf
 			end
@@ -292,11 +357,25 @@ function GunAnimator.new(model: Model, weaponId: string, scale: number): GunAnim
 			end
 		end
 	end
+	local clips = loadClips(weaponId)
+	local rest: { [string]: CFrame } = {}
+	local fire = clips and clips.Fire
+	if fire then
+		for bone, data in fire.bones do
+			local cf = frameCFrame(data, 0, scale)
+			local motor = motors[bone]
+			if motor and (cf.Position.Magnitude > 1e-3 or math.abs(data[4]) < 0.9995) then
+				rest[bone] = cf
+				motor.Transform = cf
+			end
+		end
+	end
 	return {
 		model = model,
 		scale = scale,
 		motors = motors,
-		clips = loadClips(weaponId),
+		rest = rest,
+		clips = clips,
 		clip = nil,
 		clipName = nil,
 		holdEnd = false,
