@@ -2452,8 +2452,11 @@ local function holdPose(
 		local idle = VM.MELEE_IDLE
 		meleeIdle += ((if playing.Swing then 0 else 1) - meleeIdle) * (1 - math.exp(-idle.fade * dt))
 		local t = os.clock() * idle.rate * 2 * math.pi
+		-- (The lean runs on the roll's cosine, so roll and lean trace an
+		-- ellipse and the knife never stops turning: 2026-11-21, it sat under
+		-- 4 degrees a second 48% of the time, as slow as 0.2.)
 		held *= CFrame.new(0, math.sin(t * 0.5) * idle.lift * meleeIdle, 0) * CFrame.Angles(
-			0,
+			math.rad(idle.lean) * math.cos(t) * meleeIdle,
 			math.rad(idle.yaw) * math.sin(t * 0.7 + 1) * meleeIdle,
 			math.rad(idle.roll) * math.sin(t) * meleeIdle
 		)

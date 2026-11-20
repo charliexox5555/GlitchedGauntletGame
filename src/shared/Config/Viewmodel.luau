@@ -677,7 +677,7 @@ return table.freeze({
 	-- you hold it (degrees, cycles per second).
 	-- (`fade`: 1/s it eases out for a swing and back in after; it stays on
 	-- through the inspect and the pull-out, so their holds keep moving.)
-	MELEE_IDLE = { roll = 2.6, yaw = 1.6, lift = 0.012, rate = 0.33, fade = 10 },
+	MELEE_IDLE = { roll = 2.6, yaw = 1.6, lean = 2, lift = 0.012, rate = 0.33, fade = 10 },
 
 	-- Running with a pistol (owner 2026-11-11: "your left hand will swing and
 	-- your right hand swings independently and holds the gun"): the support
