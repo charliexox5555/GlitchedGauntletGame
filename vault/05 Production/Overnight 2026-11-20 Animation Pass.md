@@ -57,7 +57,59 @@ For each item, record: **Before → After**, the **evidence** (the `rbx-*` check
 
 ## Lane results
 ### TP: third person
-_(anim-tp writes here: grade table before → after, RIVALS body findings, IK toggle prototype and how to switch it, what's not verified)_
+Playtest list: [2026-11-21 Third Person Pass](Playtests/2026-11-21%20Third%20Person%20Pass.md). Commits `6e0880e3` → `bfe51990` (local, not pushed).
+
+**Method.** `tools/anim/tp_measure.py` (new) runs the `rbx-*` checkers on all 90 clips, sampled at 60 Hz on the `tp_rig` rig: loop seam, easing (peak hand / foot / head acceleration over one 30 Hz key; **pop line 900 studs/s²**), foot plant, locomotion rate. `tp_check.py` adds sink, chest clipping and the per-frame step, plus a new "dead stop" count (every hand and the head halting between keys). Engine captures from the match place confirm the rig: Throw's right hand engine vs rig `rbx-motion-breakdown` PASS, RMS ≤ 0.016 studs; the 16 re-keyed clips agree within 0.01-0.02 studs except 0.06 on Throw's snap frame. Owner's angle = range dummy or own body, front-right, 5 studs. LihFolk: *IKControl Reference*, *Look-At Aim and Head Tracking*, *AnimationConstraint and Physically Simulated Characters*, *Playback, Priorities and Blending*, *Locomotion Systems*, *Squash Stretch and Anticipation*.
+
+**The main fix: splines.** Every one-shot was keyed as segments, each with its own ease. Two segments meet at different speeds (Throw's hand went 72 → 31 studs/s in one key), and ease-in-out segments stop dead at every key (the rifle reload stopped 5 times, which is the owner's "stiff posed keys" in third person). `tp_clips.py` now has `spline_sequence`, `pose_spline` and `knife_spline`: monotone cubics (PCHIP) through the keys, so velocity carries through a key and nothing overshoots between keys. Impacts can opt in to a hard hit (`hits=`, used for the magazine slap).
+
+**Skills fixed for our rig** (the owner asked to perfect them):
+- `rbx-animation-loop-seam`: optional per-joint `interior_velocity_jump` baseline. A running foot changes speed by 5-10 studs/s every frame, and a gait puts the right foot's landing on the loop point, so the fixed limit flagged every clean locomotion loop (RunF foot 5.5 at the seam against 9.6 inside the cycle).
+- `rbx-animation-loop-seam`: scale `max_pose_gap` to the clip's own steps. A fixed 0.04 passed a 0.004-stud wrap step on a breathing hold that the engine showed.
+- `rbx-foot-plant-drift`: feed integrated slip for block feet with no ankle. They roll heel to toe, and sampling "the lowest corner" read the roll as 1.41 studs of drift with no slip at all.
+
+**Grades** (clips, from the owner's angle; *prov.* = feel, provisional until played):
+
+| Clip(s) | Before → After | Evidence | Not verified / what blocks 9 |
+|---|---|---|---|
+| Run / sprint (RunF-FL, SprintRun) | 9 → 9 | seams pass (with the fixed skill), plants pass, rate fit pass, peak 343-709 | owner play |
+| Walk (8) | 9 → 8.5 | WalkB: one touchdown frame slips 0.122 studs (left foot; the right's touchdown is 0.021); rest pass | WalkB left touchdown nit, not re-keyed |
+| Strafes / crouch walk (8 + 8) | 8.5 → 8.5 | all seams, plants and rates pass; peaks 254-709 | not looked at from outside this pass |
+| Jump / Fall / Land | 8.5 → 8.5 | pass, peak ≤ 613, sink ≤ 0.005 | seen frozen only (old) |
+| Slide hold (3 kinds) | 9 → 9 | seam pass, peak 19 | — |
+| **SlideIn / SlideOut (×3 kinds)** | 8 → **9** | peak 1138 / 958 / 1252 → 663 / 611 / 610 (in), 747 / 774 / 724 → 727 / 451 / 505 (out); the free hand dived at 55-72 studs/s, now 39-53 and lands as the body settles; the body no longer halts at the kick key | in play at full speed |
+| **Holds, rifle hip / sights × up / level / down** | 8 → **8.5** | were dead still (acceleration 0); now breathe (2.4 s: chest 0.7° lean, 0.25° sway, gun 0.012 studs on the fists, head on target); engine loop wrap 0.0002 studs (inside steps 0.0005). Captured front-right on the Vandal dummy and my own body | **blocks 9:** from the front the two 1-stud forearm blocks stack in front of the chest and hide the magazine (the rifle stance on block arms). IK mode shows the gun more clearly (below) |
+| **Holds, sidearm × 6** | 8.5 → **8.5** | breathing as above; Classic captured front-right: readable Weaver, gun above both fists | the gun points a little toward the camera in the clip; IK mode is level |
+| **KnifeReady** | 8 → 8.5 | was dead still; now breathes, engine wrap 0.0005 | not looked at closely this pass |
+| Recoil poses (12 Kick*) | 8 → 8 | unchanged (§23 of the overhaul) | pistols / snipers by eye only |
+| **Reload (rifle)** | 8 → **8.5** | dead stops 5 → 0; peak 324 → 246; slap kept as a hit; engine capture at the slap (front-right): gun at low ready, canted, readable | **blocks 9:** the stock still rides up near the chin (gun turns about the grip) |
+| **PistolReload** | 7 (not seen in play) → **8.5** | dead stops 4 → 0; a waypoint carries the free hand outside the chest (the spline path grazed it at 0.38-0.43 s); peak 430 → 664; 1 frame of forearm in the chest (as before) | not seen in play |
+| **Draw** | 6 → **8** prov. | dead stop 1 → 0, peak 489 → 181 | not seen in play |
+| KnifeSlash 1-3 | 8.5 → 8.5 | peak 686-691, pass; their stops are the swing's own reversals | — |
+| **KnifeHeavy** | 7 → **8.5** prov. | jumped to 15 studs/s from rest, held the coil dead for 0.1 s, hit 55 studs/s and stopped dead at contact, then held dead → now eases out, the coil keeps creeping back, the thrust peaks at 30 studs/s, brakes into contact at 0.40 s, carries 0.14 studs past and settles. Peak 1082 → 504 | not looked at in play; contact still 0.40 s like first person |
+| **Throw** | 7 → **8.5** | snap 50 → 60 ms (owner's ~60 ms), the pointing arm tucks during the throw, longer return to the gun (0.62 → 0.68 s); peak 1494 → 1262 (that is the deliberate snap, velocity-continuous). Engine capture at release: reads as an over-the-top throw | the snap is over the pop line by design |
+| **Lob / Heal** | 7 → 8.5 | peak 968 → 617, 1106 → 787 | not seen in play |
+| **Cast** | 7 → 8 | peak 1663 → 858 | **blocks 9:** a forearm passes through the chest on 6 frames (unchanged) |
+| **Place** | 7 → 8.5 | peak 711 → 414, dead stops 2 → 0, the hand keeps pressing while down; shin sink 0.14 → 0.10 (what's left is the blend into the standing hold, whose stance sits 0.05 under like every standing clip) | not seen in play |
+| **UpdraftSlamLand** | 7 → 8.5 | peak 1428 → 677, sink 0.18 → 0.09 (feet kept out of the floor on the spline path); impact key 0.10 → 0.11 s | not seen in play |
+| **Death** | 7 → 8.5 | the first key switched how the arms were placed, so the hands jumped 1.5 studs in a frame: now its first frame equals the hold exactly (0.000); peak 1248 → 120; chest clipping 12 → 2 frames | on the falling copy, not seen |
+| Dash ×4, Flinch, Updraft, UpdraftSlam, ModHold, Victory | 7-8 → unchanged | all under the pop line; dash sink 0.09, flinch 0.2 for a moment over the run | not re-keyed this pass |
+
+**RIVALS body study:** written into [Body, Viewmodel, Guns and VFX](../03%20Research/Rivals%20Reference/Body,%20Viewmodel,%20Guns%20and%20VFX.md) → "Deeper read". In short: other players' guns are the first-person viewmodel placed at the head with the replicated aim. The hands are two IKControls with no pole and SmoothTime 0. **The arm's ball-socket limits are switched off while IK holds the arm.** Waist and neck take 0.25 / 0.75 of the pitch, written to the joint attachments, which is how they get round the `Transform` problem we hit in §22. There are no third-person arm clips at all.
+
+**IK prototype (owner picks in the morning).** `Controllers/TpIkController` + `Config/TpIk`, **off by default**; nothing about the clips changed.
+- **How to flip it:** for good, `Config/TpIk.luau` → `ENABLED = true`. Live in a Studio playtest: on the **Server**, `workspace:SetAttribute("TpIk", true)` (or `false`). The switch fades in about 0.2 s; it doesn't snap.
+- What it does: places the gun from the aim (head position, body yaw, replicated pitch swung about the right shoulder, hip / sights blended; offsets measured from the clips). It puts the right hand on the gun by IKControl (Transform type, pole down and out, SmoothTime 0, the arm's ball sockets off while it holds), and `GripController` keeps the left hand on it. It pitches the waist and neck 0.25 / 0.75 through the joint attachments. Each character's weight fades (in 0.2 s, out 0.12 s) for reload, slide, sprint, Mods, knife and death.
+- Measured: right hand on the grip within **0.002 studs and 0.0°**. Without switching the sockets off, the wrist's 10° twist limit left the fist **67° off**. The mode switch's biggest one-frame step is 0.046 studs. Through a reload the IK mode's biggest steps are right hand 0.042, gun 0.055, left 0.365; in clip mode they're 0.030, 0.037, 0.367. The 0.37 left-hand step belongs to `GripController`'s re-grip in both modes.
+- **Grades, front-right:** level hip **8.5** (clips 8): the whole gun sits above the forearms and points exactly along the aim. Sights **8.5**: gun at the eye; the head doesn't roll onto the stock like the clip. Sidearm **8.5** (clips 8.5): level, fully visible. Looking 35° up **7**: the right arm rises across the face. Looking 30° down **7.5**: the stock rides to the neck. Blends **9**. **Overall IK mode 8, clips 8.** Both are fine at level aim; IK wins at level and loses at steep pitch. To take IK to 9: swing the gun less about the shoulder at steep pitch (more from the waist), and give it a per-gun grip offset.
+
+**Found on the way:**
+- **I caused a bug and fixed it** (`e1119203`). My first Poses change called `GetService` inside the simulation callback. From about 09:00 to 09:12Z the client didn't pose its own character, so in third person you stood in the stock idle. The fix is committed and verified.
+- `GripController`'s left re-grip steps 0.37 studs in one frame after a reload, in both modes. It isn't in my lane's files.
+- `DevThirdPerson` is a StateValue now, not an attribute. The header of `tools/studio/ThirdPersonReviewRig.luau` is stale on that.
+- In a Studio playtest, `DevAim` drives the `Aiming` state but not the Aim input that Poses reads, so clip-mode sights can't be reviewed that way.
+
+**Not verified:** a second real client, a bot match, any re-keyed clip at full speed by a human (Draw, PistolReload, KnifeHeavy, Lob, Heal, Place, UpdraftSlamLand and Death were measured and sampled in the engine, not watched); `lihfolk:quality-score` was not run.
 
 ### FP: guns, ADS, slide, scope
 Playtest list: [2026-11-21 First-Person Guns Pass](Playtests/2026-11-21%20First-Person%20Guns%20Pass.md). Commits (local, main): `f7926d0c` scope lens, `13dba819` slide lean, `b21c41de` clip spline + hammer rest, `6d6ae547` Marshal reload hammer. Feel grades are provisional until the owner plays.

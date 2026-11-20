@@ -758,6 +758,13 @@ Owner picked it after §22. Before: on a shot only the gun moved, in two still f
 - The first shot seen from a character loads its recoil track, so that one shot may show the gun kick only.
 - No close-up capture of the peak is kept: the one I took did not match the measured pose and I could not explain it, so I am not using it.
 
+## 24. Overnight pass: splines, breathing holds, IK prototype (2026-11-20)
+Grades, evidence and what's open: [Overnight 2026-11-20 Animation Pass](../05%20Production/Overnight%202026-11-20%20Animation%20Pass.md) → TP. Pipeline changes worth knowing:
+- **Key on splines.** `tp_clips.py` now has `spline_sequence` (controls), `pose_spline` (solved poses, with `hits=` for impacts) and `knife_spline` (the fist's turn too). They are monotone cubics through the keys. The old per-segment eases stopped dead at every ease-in-out key and met at two speeds elsewhere. `grounded(ctrl)` keeps both feet out of the floor on a spline path. Two ways of placing the arms (`on_gun` / `gun.pos` vs `tip` / `gun.shoulder`) can't blend between keys, so write all of a clip's keys one way (`tip_of` gives a solved pose's block end).
+- **Holds breathe** (`breathing`, `BREATH`): every periodic term must fit a whole number of times in the loop.
+- **Measure** with `python -I tools/anim/tp_measure.py [clips]`: the `rbx-*` checkers on the rig. The pop line is 900 studs/s² over one 30 Hz key.
+- **RIVALS-style IK prototype** `TpIkController` (off; `Config/TpIk`). Never call `GetService` inside a `BindToSimulation` callback (Poses): it throws every step.
+
 ## Progress log
 - 2026-11-12 03:05: §0 fixed. Plan written. Stopped at 03:10 (usage limit).
 - 2026-11-12 05:50 to 06:45: resumed. Body, accessory filter, rig tool, 40 clips, upload, wiring, engine review. Studio left in Edit with `TestMode = false`, `DevThirdPerson` cleared, preview folders removed. Nothing committed.
@@ -775,3 +782,4 @@ Owner picked it after §22. Before: on a shot only the gun moved, in two still f
 - 2026-11-13: §19 (lane A: movement clips, 8-way walk / run / crouch, air, slide, the track-leak fix). Studio left in Edit, `TestMode = true`, no dev attributes. Nothing committed.
 - 2026-11-15: §22 (audit from outside, reload v7 and AimDown v7, body-recoil tests). Studio left in Edit, `TestMode = false` (as found), `DevThirdPerson` cleared. Nothing committed.
 - 2026-11-15, later: §23 (body recoil: 12 pose clips v1, `Util/BodyRecoil`, measured on the Shooter dummy). Studio left in Edit, `TestMode = false` (as found). Nothing committed.
+- 2026-11-20, overnight (lane TP): §24. Studio left in Edit, no dev attributes; lock released. Committed locally on main, not pushed.
