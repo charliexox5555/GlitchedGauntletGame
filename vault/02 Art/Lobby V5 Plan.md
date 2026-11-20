@@ -410,6 +410,31 @@ Still missing:
 - The owner's colour, sign and prop pass for the hub.
 - The LobbySeason module.
 
+## Match-found motion (2026-11-20)
+Owner: "Add match-found motion". Code: `src/lobby/client/Util/MatchLift.luau` (new) and `src/lobby/client/Controllers/MatchFoundController.luau` (waits for the lift). Local to the matched player's client; no remotes, no server change.
+
+**What happens** when your match is found while you stand on a V5 bay square:
+1. **Sign:** the bay's lightbox sign flashes gold three times, holds gold and reads **MATCH FOUND**.
+2. **Lift:** a lift plate rises out of your square, with team-colour edge strips (gold A / cyan B), a dark skirt and a team-coloured light.
+   - **Motion:** coil down 0.3 (0.14 s), then a Quint-out rise of 7 studs over 1.45 s with a 0.35 overshoot, then a 0.35 s settle (the owner's animation-oomph rule: coil, snap, brake, overshoot, settle).
+   - **Character:** the root is anchored and carried with the plate; the idle animation keeps playing.
+3. **Light column:** a faint team-colour column climbs 16 studs above the plate.
+4. **Overlay:** after 2.1 s the existing MATCH FOUND overlay (dim, blur, three dots) fades in. The server teleports at 3.5 s, as before.
+5. **Off a bay:** if you queued from the menu or a V4 pad, nothing changes; the overlay opens at once.
+6. **Cancel:** if the queue returns to idle (a failed teleport, Studio's skipped one), the plate is removed, the sign restored, and the character is put back on the pad (not dropped) and unanchored.
+
+**Playtest (Studio, bot fill 5 s):**
+- Found 5.5 s after stepping on Bay_05.
+- The lift rose (capture `V5Lift_Rising`), then the overlay showed (`V5Lift_Overlay`, "STUDIO · TELEPORT SKIPPED").
+- After the skip: lift model gone, root unanchored, sign back to STEP IN TO QUEUE.
+- Second run (Bay_06 B): root y 3.2, peak 9.9, back to 2.5 after the cancel, with no drop.
+- Format and lint clean (stylua, selene).
+
+**Known limits:**
+- Other players see the lift only on their own client (it's local). They may see the matched player stand still, or rise without the plate, depending on replication of the anchored root.
+- In Studio, standing on the pad after a skipped teleport re-queues (existing step-pad behaviour).
+- The column brightness and lift height are tunables at the top of `MatchLift.luau`.
+
 ## 5. Phases
 1. **Concept images (now).** Owner runs the §4 ChatGPT prompts; then the reference interview on the results. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).

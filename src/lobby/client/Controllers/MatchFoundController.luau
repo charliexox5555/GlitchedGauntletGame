@@ -21,6 +21,7 @@ local LobbyNet = require(game:GetService("ReplicatedStorage").Lobby.LobbyNet)
 local QueueState = require(script.Parent.Parent.Util.QueueState)
 local Router = require(script.Parent.Parent.Util.Router)
 local LobbyHud = require(script.Parent.LobbyHud)
+local MatchLift = require(script.Parent.Parent.Util.MatchLift)
 local UiMotion = require(game:GetService("ReplicatedStorage").Shared.UiMotion) -- the one motion module
 
 local MatchFoundController = {}
@@ -183,6 +184,36 @@ local function close()
 	end)
 end
 
+-- Standing on a Lobby V5 queue bay: the lift (Util/MatchLift) plays first and the overlay comes in after it.
+local pendingOpen = false
+local liftToken = 0
+local function openAfterLift()
+	if isOpen or pendingOpen then
+		return
+	end
+	local hold = MatchLift.play()
+	if hold <= 0 then
+		open()
+		return
+	end
+	pendingOpen = true
+	liftToken += 1
+	local my = liftToken
+	task.delay(hold, function()
+		if pendingOpen and my == liftToken then
+			pendingOpen = false
+			open()
+		end
+	end)
+end
+
+-- The queue left "found" without a teleport: cancel a pending overlay and put the lift back.
+local function cancelLift()
+	pendingOpen = false
+	liftToken += 1
+	MatchLift.stop()
+end
+
 local function onQueueEvent(payload: unknown)
 	if typeof(payload) ~= "table" then
 		return
@@ -190,12 +221,13 @@ local function onQueueEvent(payload: unknown)
 	local data = payload :: { [string]: unknown }
 	local kind = data.kind
 	if kind == "found" then
-		open()
+		openAfterLift()
 	elseif kind == "studio" then
 		if isOpen then
 			studioLabel.Visible = true
 		end
 	elseif kind == "failed" and typeof(data.text) == "string" then
+		cancelLift()
 		close()
 		LobbyHud.toast(data.text :: string, "error")
 	elseif kind == "info" and typeof(data.text) == "string" then
@@ -251,9 +283,14 @@ function MatchFoundController.start()
 			was = s
 		end
 		if s == "found" or s == "teleporting" then
-			open() -- also covers a rejoin mid-found, before the event lands
-		elseif isOpen then
-			close()
+			openAfterLift() -- also covers a rejoin mid-found, before the event lands
+		else
+			if pendingOpen or MatchLift.isActive() then
+				cancelLift()
+			end
+			if isOpen then
+				close()
+			end
 		end
 	end)
 end
