@@ -2700,8 +2700,16 @@ return table.freeze({
 		-- the hand works at arm's length below the sights; it flicks up as the
 		-- action closes (marks.MagIn = the clip's Close) and lands past the
 		-- hold. Used for ReloadEmpty too (ViewmodelController.reload).
+		-- 2026-11-21 (round 3, owner's pick): the open-barrel keys rolled 24 deg
+		-- back toward level (Z -22 -> +2) and 0.06 lower, so the dropped barrels
+		-- hang at 63-70 deg on screen, steeper than the loading forearm (pinned
+		-- at <= 50 deg by ARM_MIN_DROP): it ran down beside them and into them
+		-- (0.10-0.20 deep). Measured clear on both reloads in every skin line;
+		-- the loading fist stays >= 0.14 of the screen from the centre (was
+		-- 0.03). Smooth (PCHIP) instead of an ease in and out at every key.
 		ReloadOutlaw = {
 			length = 1,
+			smooth = true,
 			pivot = "Center",
 			marks = { MagOut = 0.22, MagIn = 0.83 },
 			keys = {
@@ -2715,50 +2723,50 @@ return table.freeze({
 				), -- anticipation
 				key(
 					0.16,
-					Vector3.new(-0.06, -0.17, -0.48),
-					Vector3.new(-10, 12, -22),
+					Vector3.new(-0.06, -0.23, -0.48),
+					Vector3.new(-10, 12, 2),
 					Enum.EasingStyle.Quad,
 					OUT
 				), -- out and down, past the pose
 				key(
 					0.22,
-					Vector3.new(-0.055, -0.15, -0.46),
-					Vector3.new(-6, 11, -19),
+					Vector3.new(-0.055, -0.21, -0.46),
+					Vector3.new(-6, 11, 5),
 					Enum.EasingStyle.Sine,
 					INOUT
 				), -- barrels drop
 				key(
 					0.4,
-					Vector3.new(-0.06, -0.16, -0.47),
-					Vector3.new(-8, 13, -21),
+					Vector3.new(-0.06, -0.22, -0.47),
+					Vector3.new(-8, 13, 3),
 					Enum.EasingStyle.Sine,
 					INOUT
 				),
 				key(
 					0.55,
-					Vector3.new(-0.065, -0.165, -0.48),
-					Vector3.new(-7, 14, -23),
+					Vector3.new(-0.065, -0.225, -0.48),
+					Vector3.new(-7, 14, 1),
 					Enum.EasingStyle.Sine,
 					INOUT
 				), -- rounds in
 				key(
 					0.7,
-					Vector3.new(-0.06, -0.16, -0.47),
-					Vector3.new(-8, 12, -21),
+					Vector3.new(-0.06, -0.22, -0.47),
+					Vector3.new(-8, 12, 3),
 					Enum.EasingStyle.Sine,
 					INOUT
 				),
 				key(
 					0.79,
-					Vector3.new(-0.06, -0.18, -0.47),
-					Vector3.new(-10, 12, -22),
+					Vector3.new(-0.06, -0.24, -0.47),
+					Vector3.new(-10, 12, 2),
 					Enum.EasingStyle.Sine,
 					INOUT
 				), -- brace
 				key(
 					0.84,
 					Vector3.new(-0.04, -0.09, -0.38),
-					Vector3.new(8, 8, -12),
+					Vector3.new(8, 8, 2),
 					Enum.EasingStyle.Quad,
 					OUT
 				), -- snapped shut: the muzzle flicks up
