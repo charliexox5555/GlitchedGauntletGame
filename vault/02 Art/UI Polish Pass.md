@@ -126,3 +126,4 @@ Set in `Config/UiSounds` (Pro Sound Effects = PSE, Roblox's own UI pack = Roblox
 - **Confirm:** Roblox "GUI - Select" `17208396156` at 0.29.
 - **Match found:** APM "Universal Flip - Hit" `9042542887` at 0.23. **Backup the owner wants kept:** Roblox "GUI - Notification High" `17208361335` at 0.3 (a comment next to the cue in `Config/UiSounds`).
 - Every lobby UI sound is now picked by the owner. The Studio audition board (`Controllers/SoundAudition`) is removed; to audition again, rebuild it from git history (commit 07f2b45e).
+- **After the test (owner):** hover was a bit loud: 0.67 → **0.4**. The bottom bar items (Locker, Shop, Battle Pass, Range, Settings) now play the hover sound too: `LobbyHudView.hookItem` sets `UiHover = true`, since they're under the 1%-of-screen size the sound controller ticks for on its own. Checked in play: hovering the bar plays it.

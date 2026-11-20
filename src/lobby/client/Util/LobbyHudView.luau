@@ -343,6 +343,9 @@ end
 
 -- Bottom bar ------------------------------------------------------------------------
 local function hookItem(s: State, b: TextButton)
+	-- the hover tick (owner 2026-11-20): bottom bar items are below the
+	-- "big item" size UiSoundController ticks for on its own
+	b:SetAttribute("UiHover", true)
 	local icon = child(b, "Icon") :: ImageLabel
 	local homeY = icon.Position.Y.Offset
 	-- Hover (owner 2026-11-20: the old pop-up plate didn't line up with the

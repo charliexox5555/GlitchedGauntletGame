@@ -64,7 +64,7 @@ return table.freeze({
 	-- "ProSoundEffects", nothing uploaded). The round tap is gone. Round 5:
 	-- hover, confirm and match found picked from Roblox's own UI pack and APM
 	-- (volumes level-matched by measured loudness).
-	HoverBig = cue(17208343514, 0.67, 1, 0.08, 0.03), -- Roblox "GUI - Hover 02": big items only
+	HoverBig = cue(17208343514, 0.4, 1, 0.08, 0.03), -- Roblox "GUI - Hover 02": big items and the bottom bar (0.67 was too loud)
 	Click = cue(9119717529, 0.3, 1, 0.04, 0.03), -- PSE "Toggle Button 1": any button
 	Confirm = cue(17208396156, 0.29, 1, 0.1), -- Roblox "GUI - Select": queue a mode
 	Back = cue(9119703221, 0.3, 1, 0.08), -- PSE "Soft swish 14": close / back
