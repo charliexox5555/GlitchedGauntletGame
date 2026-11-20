@@ -1,0 +1,603 @@
+{
+  "line": "Poolside",
+  "item": "Sheriff",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Sheriff/Sheriff_RemasterV2_v05.blend",
+  "source_file_sha256": "bf79df28719fa3cf51d862c255156769816f208b1ead54537be91b2e20b67d59",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Sheriff/v01/Sheriff_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Frame",
+      "Barrel"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Sheriff_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.4950000047683716
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2782000005245209
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.08000000566244125
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_CylinderAxis": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6291999816894531
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.18979999423027039
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Chamber_01": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3172000050544739
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2777999937534332
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Chamber_02": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3172000050544739
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        -0.07621024549007416
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2337999939918518
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Chamber_03": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3172000050544739
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        -0.07621024549007416
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.14579999446868896
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Chamber_04": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3172000050544739
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.10180000215768814
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Chamber_05": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3172000050544739
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.07621023803949356
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.14579999446868896
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Chamber_06": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3172000050544739
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.07621023803949356
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2337999939918518
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_EjectorReference": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.756600022315979
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.18979999423027039
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_ReloadInsertPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3172000050544739
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.18979999423027039
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6800000071525574
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.06580007076263428
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.027699999511241913
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.4950000047683716
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2782000005245209
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.4699999988079071
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.3720000088214874
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.100000023841858
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.09099999815225601
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Sheriff_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        0.25999999046325684
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.4180000126361847
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 524957,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "68fafa9fa4758923fd7804f0e068912a45c70305a4999dc2bddaff8d5537fa72",
+    "geometry_and_material_slots": "15b3286f4bae90a11af784aeac7169382e0b2ef49c7a590d8c3bc05079af92be",
+    "uv": "c8bb4158aed3ac3ef60f808e338cd52d1c99ff6d4ff4e4bbb0a47dd16b750dbe",
+    "rig_and_nla": "3ce075bce2eaa992e79998186980078d898a0dfe0521e66e8d9bbe821c69ec3e",
+    "actions": "e6f916e8d4ee45fef2c0838f66704fc6e1f44aefe3b38302a700661539d3e2b3"
+  },
+  "built_mesh_count": 15,
+  "triangles": 3066,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Sheriff/v01/textures/Sheriff_Color.png",
+      "sha256": "82a138002dd3b53df3ac5bf2693a02fd3c50e1bf8eb741157be7373b7d7bfadd"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Sheriff/v01/textures/Sheriff_Normal.png",
+      "sha256": "38e7249426187d08b737e909438ce726c4b96f774ac36f62ee9888b93a429307"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Sheriff/v01/textures/Sheriff_Roughness.png",
+      "sha256": "902805cc9eed382963ddfca6bbc1cacc47f16082dfcf736801fd46bb2479a1b6"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Sheriff/v01/textures/Sheriff_Metalness.png",
+      "sha256": "440d47cbd48621f6f749c39e0aa44bc54049617f1b3dfdd98d8d0b192b773e57"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.1218,
+      0.0,
+      0.418
+    ],
+    "len": 0.3636,
+    "geo_hits": {},
+    "box_hits": {},
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 24,
+      "review_frame": 14,
+      "sample_count": 24,
+      "pose_sha256": "cb7964de1dc0daadd9ef1caa761f0bad2851924727784e666c471b7d43ef0b68"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 14,
+      "review_frame": 6,
+      "sample_count": 14,
+      "pose_sha256": "f58ee5c0039c0f2c8c616c9e6c0b6545e89ac39d8303152ebeb18629e650a941"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 50,
+      "sample_count": 67,
+      "pose_sha256": "a60e9be296e2ac58490ccd913a21dc71cb79d0b0292bd3e4388505bdac3708fe"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 110,
+      "review_frame": 32,
+      "sample_count": 110,
+      "pose_sha256": "69505a5b3ebec904f070c6759af10ccc9f435d3b6bf553074c9308551169ef76"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 110,
+      "review_frame": 32,
+      "sample_count": 110,
+      "pose_sha256": "69505a5b3ebec904f070c6759af10ccc9f435d3b6bf553074c9308551169ef76"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

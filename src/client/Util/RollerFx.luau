@@ -12,6 +12,8 @@
 -- ModFxController routes placed parts with Kind "Roller" here (track) and
 -- steps it every frame.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Workspace = game:GetService("Workspace")
 
 local ModAudio = require(script.Parent.ModAudio)
@@ -194,8 +196,8 @@ function RollerFx.track(part: BasePart, color: Color3)
 		velocity = Vector3.zero,
 		roll = 0,
 		hum = nil,
-		lockedSeen = part:GetAttribute("LockedAt"),
-		warnSeen = part:GetAttribute("WarnAt"),
+		lockedSeen = StateValues.get(part, "LockedAt"),
+		warnSeen = StateValues.get(part, "WarnAt"),
 		color = color,
 	}
 	tracked[part] = entry
@@ -263,8 +265,8 @@ function RollerFx.step(dt: number)
 			w.part.CFrame = t.pivot * CFrame.new(w.axle) * turn * CFrame.new(-w.axle) * w.rest
 		end
 		-- The eye: dim seeking, lit locked, blinking through the warning.
-		local locked = part:GetAttribute("LockedAt")
-		local warn = part:GetAttribute("WarnAt")
+		local locked = StateValues.get(part, "LockedAt")
+		local warn = StateValues.get(part, "WarnAt")
 		if locked ~= t.lockedSeen then
 			t.lockedSeen = locked
 			if locked ~= nil then

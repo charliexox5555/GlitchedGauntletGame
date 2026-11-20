@@ -24,6 +24,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -153,9 +154,9 @@ spawnDummy = function(team: number, label: string, at: CFrame, by: Player)
 	humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
 	model:PivotTo(at)
 	root.Anchored = true -- stays on its mark: shove-proof, easy to aim at
-	model:SetAttribute(Teams.ATTRIBUTE, team)
-	model:SetAttribute("DevDummy", label)
-	model:SetAttribute("DummyLabel", string.upper(label) .. " DUMMY")
+	StateValues.set(model, Teams.ATTRIBUTE, team)
+	StateValues.set(model, "DevDummy", label)
+	StateValues.set(model, "DummyLabel", string.upper(label) .. " DUMMY")
 	CollectionService:AddTag(model, DUMMY_TAG)
 	model.Parent = dummyFolder()
 	CharacterService.prepare(model)
@@ -292,7 +293,7 @@ local function onPlayer(player: Player)
 		local ok = isAllowed(player)
 		if player.Parent == Players then
 			allowed[player] = ok
-			player:SetAttribute("DevMods", ok)
+			StateValues.set(player, "DevMods", ok)
 		end
 	end)
 end

@@ -18,6 +18,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local SocialService = game:GetService("SocialService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
@@ -137,7 +138,7 @@ end
 -- Party state (server-owned attributes)
 
 local function myKey(): string?
-	local key = player:GetAttribute("PartyKey")
+	local key = StateValues.get(player, "PartyKey")
 	return if typeof(key) == "string" then key else nil
 end
 
@@ -146,12 +147,13 @@ local function members(): { Player }
 	local key = myKey()
 	local list: { Player } = {}
 	for _, p in Players:GetPlayers() do
-		if p == player or (key and p:GetAttribute("PartyKey") == key) then
+		if p == player or (key and StateValues.get(p, "PartyKey") == key) then
 			table.insert(list, p)
 		end
 	end
 	table.sort(list, function(a, b)
-		local la, lb = a:GetAttribute("PartyLeader") == true, b:GetAttribute("PartyLeader") == true
+		local la, lb =
+			StateValues.get(a, "PartyLeader") == true, StateValues.get(b, "PartyLeader") == true
 		if la ~= lb then
 			return la
 		end
@@ -165,12 +167,12 @@ end
 
 local function inMyParty(p: Player): boolean
 	local key = myKey()
-	return key ~= nil and p:GetAttribute("PartyKey") == key
+	return key ~= nil and StateValues.get(p, "PartyKey") == key
 end
 
 local function whereHere(p: Player): (string, Color3)
-	local status = p:GetAttribute("QueueStatus")
-	local mode = p:GetAttribute("QueueMode")
+	local status = StateValues.get(p, "QueueStatus")
+	local mode = StateValues.get(p, "QueueMode")
 	if status == "searching" then
 		return "QUEUED  ·  " .. string.upper(if typeof(mode) == "string" then mode else ""), GOLD
 	elseif status == "found" or status == "teleporting" then
@@ -383,7 +385,7 @@ local function renderParty()
 		name.Visible = p ~= nil
 		sub.Visible = p ~= nil
 		empty.Visible = p == nil
-		lead.Visible = p ~= nil and inParty and p:GetAttribute("PartyLeader") == true
+		lead.Visible = p ~= nil and inParty and StateValues.get(p, "PartyLeader") == true
 		slot.BackgroundTransparency = if p then CARD_T else 0.55
 		if p then
 			(child(cell, "Headshot") :: ImageLabel).Image = headshot(p.UserId)
@@ -436,9 +438,9 @@ local function refit()
 end
 
 local function slideIn(o: GuiObject, dx: number, dy: number, delay: number)
-	local h = o:GetAttribute("Home")
+	local h = StateValues.get(o, "Home")
 	local home = if typeof(h) == "UDim2" then h else o.Position
-	o:SetAttribute("Home", home)
+	StateValues.set(o, "Home", home)
 	o.Position = home + UDim2.fromOffset(dx, dy)
 	task.delay(delay, function()
 		if isOpen then
@@ -489,7 +491,7 @@ local function close()
 	local token = openToken
 	searchBox:ReleaseFocus()
 	tween(scrim, 0.16, { BackgroundTransparency = 1 }, QUINT, IN)
-	local home = grid:GetAttribute("Home")
+	local home = StateValues.get(grid, "Home")
 	if typeof(home) == "UDim2" then
 		tween(grid, 0.16, { Position = home + UDim2.fromOffset(0, 18) }, QUINT, IN)
 	end
@@ -589,7 +591,7 @@ function PartyMenuController.start()
 		end)
 	end
 	local function watch(p: Player)
-		p.AttributeChanged:Connect(function(name: string)
+		StateValues.anyChanged(p):Connect(function(name: string)
 			if
 				name == "PartyKey"
 				or name == "PartyLeader"

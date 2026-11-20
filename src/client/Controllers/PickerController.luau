@@ -8,6 +8,7 @@
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
@@ -89,7 +90,7 @@ local function setOpen(value: boolean)
 	CameraController.setCursorVisible(value)
 	if value then
 		-- Highlight the gun in hand.
-		local held = player:GetAttribute("WeaponId")
+		local held = StateValues.get(player, "WeaponId")
 		for _, c in cards do
 			c.stroke.Enabled = c.id == held
 			c.button.BackgroundColor3 = CARD

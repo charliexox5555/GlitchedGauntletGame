@@ -16,6 +16,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -387,7 +388,7 @@ end
 -- Every frame (ModFeelController).
 function WindStrokes.step(dt: number)
 	if studio then
-		local scale = Workspace:GetAttribute("VfxTimeScale")
+		local scale = StateValues.get(Workspace, "VfxTimeScale")
 		if typeof(scale) == "number" then
 			dt *= math.clamp(scale, 0, 1)
 		end

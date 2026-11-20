@@ -20,6 +20,8 @@
 -- new "G" id). Leaving sets an empty override (solo); changing Roblox party
 -- clears the override.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local SocialService = game:GetService("SocialService")
@@ -43,7 +45,7 @@ local function readId(p: Player): string
 		return override
 	end
 	if RunService:IsStudio() then
-		local t = p:GetAttribute("TestPartyId")
+		local t = StateValues.get(p, "TestPartyId")
 		if typeof(t) == "string" and t ~= "" then
 			return t
 		end
@@ -93,8 +95,8 @@ local function publish(partyId: string)
 	end
 	local list = membersOf(partyId)
 	for i, p in list do
-		p:SetAttribute("PartyKey", if #list > 1 then keyOf(partyId) else nil)
-		p:SetAttribute("PartyLeader", if #list > 1 then i == 1 else nil)
+		StateValues.set(p, "PartyKey", if #list > 1 then keyOf(partyId) else nil)
+		StateValues.set(p, "PartyLeader", if #list > 1 then i == 1 else nil)
 	end
 end
 
@@ -148,8 +150,8 @@ local function update(p: Player)
 	partyOf[p] = now
 	joinedAt[p] = os.clock() -- the newest in a group never takes the lead
 	if now == "" then
-		p:SetAttribute("PartyKey", nil)
-		p:SetAttribute("PartyLeader", nil)
+		StateValues.set(p, "PartyKey", nil)
+		StateValues.set(p, "PartyLeader", nil)
 	else
 		for _, m in membersOf(now) do
 			if not table.find(affected, m) then
@@ -187,7 +189,7 @@ local function onAdded(p: Player)
 	if RunService:IsStudio() then
 		table.insert(
 			list,
-			p:GetAttributeChangedSignal("TestPartyId"):Connect(function()
+			StateValues.changed(p, "TestPartyId"):Connect(function()
 				update(p)
 			end)
 		)

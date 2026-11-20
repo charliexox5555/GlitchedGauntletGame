@@ -7,6 +7,33 @@
 -- sets from the REMOTE request; your camera guns and your world gun (seen by
 -- everyone) follow it. Works in Studio and, with LIVE on, in live servers of
 -- the match place (owner 2026-11-14: "check out skins out of Studio").
+local RunService = game:GetService("RunService")
+
+local shadowMistLine = "RuinBlighted"
+local lines = {
+	"Stock",
+	"Prism",
+	"Redline",
+	"Nitrous",
+	"PopCircuit",
+	"Moltframe",
+	"Giltfold",
+	"Inkshift",
+	"Sealwork",
+	"Payload",
+	"Oilwake",
+	"Misprint",
+	"Faultline",
+	"Playback",
+	"Breakwater",
+	"Sundial",
+	"Poolside",
+	"Rootglass",
+}
+if RunService:IsStudio() then
+	table.insert(lines, shadowMistLine)
+end
+
 return table.freeze({
 	PLACE_ID = 133387545285290,
 	LIVE = true, -- also outside Studio (live servers of PLACE_ID)
@@ -15,23 +42,32 @@ return table.freeze({
 	ATTRIBUTE = "PreviewSkinLine",
 	REMOTE = "PreviewSkinLine",
 	RATE = table.freeze({ 1, 3 }), -- requests per second, burst (Util/RateLimit): a few quick presses, then 1 / s
-	LINES = table.freeze({
-		"Stock",
-		"Prism",
-		"Redline",
-		"Nitrous",
-		"PopCircuit",
-		"Moltframe",
-		"Giltfold",
-		"Inkshift",
-		"Sealwork",
-		"Payload",
-		"Oilwake",
-		"Misprint",
-		"Faultline",
-		"Playback",
-		"Breakwater",
-		"Sundial",
+	LINES = table.freeze(lines),
+	SHADOW_MIST = table.freeze({
+		LINE = shadowMistLine,
+		PERIOD = 3.35,
+		SHARD_TRAVEL = 0.14, -- model studs, scaled with the viewmodel
+		SHARD_TILT = math.rad(11),
+		ADS_SHARD_WEIGHT = 0.32,
+		ADS_SIGHT_WEIGHT = 0.82,
+		TINT_PEAK = Color3.fromRGB(135, 235, 209),
+		MIST_TINT = Color3.fromRGB(74, 182, 156),
+		MIST_RATE = 4, -- per attachment
+		LIGHT_RANGE = 1.10,
+		LIGHT_BRIGHTNESS = 1.9,
+		ADS_LIGHT = 0.94,
+		DRAW_LOCK = 0.66,
+		INSPECT_SPREAD = 0.30,
+		INSPECT_CLOSE = 0.77,
+		INSPECT_LOCK = 0.90,
+		RELOAD_FORM = 0.36,
+		RELOAD_GRAB = 0.47,
+		RELOAD_THROW = 0.52,
+		RELOAD_SEAT = 0.63,
+		SHOT_TINT = Color3.fromRGB(81, 244, 210),
+		SHOT_PREVIEW = "rbxassetid://94301133893352",
+		LOCK_SOUND = "gun:impact_hard",
+		COALESCE_SOUND = "gun:whoosh_swish_small_01",
 	}),
 	KEY = Enum.KeyCode.F7,
 	CYCLE_KEY = Enum.KeyCode.BackSlash,

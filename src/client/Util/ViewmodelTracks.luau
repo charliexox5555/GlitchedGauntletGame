@@ -8,6 +8,7 @@
 -- for the left gun of an akimbo pair).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -261,7 +262,7 @@ local function liftFor(weapon: Types.WeaponConfig?, slot: string, t: number): (V
 	local lifts = weapon and weapon.trackLift
 	local lift = lifts and lifts[slot]
 	-- Studio only: Workspace VmLift<slot> (Vector3) tunes it live.
-	local live = if studio then Workspace:GetAttribute("VmLift" .. slot) else nil
+	local live = if studio then StateValues.get(Workspace, "VmLift" .. slot) else nil
 	if typeof(live) == "Vector3" then
 		lift = { pos = live, rot = if lift then lift.rot else nil }
 	end

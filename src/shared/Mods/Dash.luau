@@ -31,6 +31,8 @@
 --   DashDecoyRun  the way it keeps running (flat); Y = 1 when it fires
 --                 fake shots (G3)
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 
 local Types = require(script.Parent.Types)
@@ -99,25 +101,29 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 	local desync = stats.behaviour == "Desync"
 	local decoyUntil = if desync then now + stats.decoyTime else 0
 	local any = dodgeUntil > 0 or cloakUntil > 0 or decoyUntil > 0
-	character:SetAttribute(
+	StateValues.set(
+		character,
 		"DashWindows",
 		if any then Vector3.new(dodgeUntil, cloakUntil, decoyUntil) else nil
 	)
 	local yaw = math.atan2(-root.CFrame.LookVector.X, -root.CFrame.LookVector.Z)
-	character:SetAttribute(
+	StateValues.set(
+		character,
 		"DashDecoy",
 		if desync then CFrame.new(root.Position) * CFrame.Angles(0, yaw, 0) else nil
 	)
 	local run = if desync then decoyVelocity(stats, root) else nil
-	character:SetAttribute(
+	StateValues.set(
+		character,
 		"DashDecoyRun",
 		if run then Vector3.new(run.X, if stats.decoyFires then 1 else 0, run.Z) else nil
 	)
 
-	character:SetAttribute("DashStart", now)
-	character:SetAttribute("DashUntil", now + duration - SIM_STEP / 2)
-	character:SetAttribute("DashVelocity", dir * (reach / duration))
-	character:SetAttribute(
+	StateValues.set(character, "DashStart", now)
+	StateValues.set(character, "DashUntil", now + duration - SIM_STEP / 2)
+	StateValues.set(character, "DashVelocity", dir * (reach / duration))
+	StateValues.set(
+		character,
 		"DashTune",
 		Vector3.new(stats.exitSpeed, stats.fireDelay, stats.focusWindow)
 	)
@@ -214,7 +220,7 @@ Dash.module = module
 
 -- The upgrade windows a dash opened (time(); 0 = none): dodge, cloak, decoy.
 function Dash.windows(character: Instance): (number, number, number)
-	local w = character:GetAttribute("DashWindows")
+	local w = StateValues.get(character, "DashWindows")
 	if typeof(w) ~= "Vector3" then
 		return 0, 0, 0
 	end
@@ -224,8 +230,8 @@ end
 -- The Desync decoy of the last dash: where it starts, its yaw, the way it
 -- runs (flat) and whether it fires fake shots. nil `from`: no decoy.
 function Dash.decoy(character: Instance): (Vector3?, number, Vector3, boolean)
-	local cf = character:GetAttribute("DashDecoy")
-	local run = character:GetAttribute("DashDecoyRun")
+	local cf = StateValues.get(character, "DashDecoy")
+	local run = StateValues.get(character, "DashDecoyRun")
 	if typeof(cf) ~= "CFrame" or typeof(run) ~= "Vector3" then
 		return nil, 0, Vector3.zero, false
 	end
@@ -280,7 +286,7 @@ end
 -- Call every frame. `now`: os.clock(); `simNow`: time() (the simulation's
 -- clock, which DashUntil is on).
 function Dash.stepGate(gate: GunGate, character: Model, now: number, simNow: number)
-	local start = character:GetAttribute("DashStart")
+	local start = StateValues.get(character, "DashStart")
 	local fresh = false
 	-- (A re-simulated start a few ms off isn't a new dash.)
 	if typeof(start) == "number" and start > gate.lastStart + 0.05 then
@@ -288,9 +294,9 @@ function Dash.stepGate(gate: GunGate, character: Model, now: number, simNow: num
 		gate.focusOpen = true
 		fresh = true
 	end
-	if fresh or character:GetAttribute("Dashing") == true then
-		local untilT = character:GetAttribute("DashUntil")
-		local tune = character:GetAttribute("DashTune")
+	if fresh or StateValues.get(character, "Dashing") == true then
+		local untilT = StateValues.get(character, "DashUntil")
+		local tune = StateValues.get(character, "DashTune")
 		local delay = if typeof(tune) == "Vector3" then tune.Y else nil
 		local window = if typeof(tune) == "Vector3" then tune.Z else nil
 		local left = if typeof(untilT) == "number" then math.clamp(untilT - simNow, 0, 1) else 0
@@ -298,10 +304,10 @@ function Dash.stepGate(gate: GunGate, character: Model, now: number, simNow: num
 			math.max(gate.readyAt, now + left + (if typeof(delay) == "number" then delay else 0))
 		gate.focusUntil = gate.readyAt + (if typeof(window) == "number" then window else 0)
 	end
-	local updraft = character:GetAttribute("UpdraftAt")
+	local updraft = StateValues.get(character, "UpdraftAt")
 	if typeof(updraft) == "number" and updraft > gate.lastUpdraft + 0.05 then
 		gate.lastUpdraft = updraft
-		local launch = character:GetAttribute("UpdraftLaunch")
+		local launch = StateValues.get(character, "UpdraftLaunch")
 		local down = if typeof(launch) == "Vector3" then launch.Z else nil
 		local left = if typeof(down) == "number"
 			then math.clamp(updraft + down - simNow, 0, 1)

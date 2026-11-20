@@ -7,7 +7,7 @@
 --     first when there's more than one map.
 --   * A player votes with the MapVote remote (an option name). The vote is a
 --     server-set Player attribute "MapVote", so every client can draw who
---     voted for what; changing your mind just moves it. Bots don't vote.
+--     voted for what. Bot seats cast one vote for a random eligible map.
 --   * Every vote is a ticket and one ticket is drawn; no votes, or the Random
 --     ticket, gives any map in the pool. Once every player has voted the clock
 --     cuts to Config/Match VOTE.allInSeconds.
@@ -18,6 +18,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
@@ -41,28 +42,39 @@ end
 
 local function clearVotes()
 	for _, player in Players:GetPlayers() do
-		player:SetAttribute(ATTRIBUTE, nil)
+		StateValues.set(player, ATTRIBUTE, nil)
 	end
 end
 
-local function allVoted(): boolean
+local function allVoted(botSeats: { Configuration }): boolean
 	local players = Players:GetPlayers()
 	if #players == 0 then
 		return false
 	end
 	for _, player in players do
-		if player:GetAttribute(ATTRIBUTE) == nil then
+		if StateValues.get(player, ATTRIBUTE) == nil then
+			return false
+		end
+	end
+	for _, seat in botSeats do
+		if seat.Parent and StateValues.get(seat, ATTRIBUTE) == nil then
 			return false
 		end
 	end
 	return true
 end
 
-local function draw(pool: { string }): string
+local function draw(pool: { string }, botSeats: { Configuration }): string
 	local tickets: { string } = {}
 	for _, player in Players:GetPlayers() do
-		local vote = player:GetAttribute(ATTRIBUTE)
+		local vote = StateValues.get(player, ATTRIBUTE)
 		if typeof(vote) == "string" and table.find(options, vote) then
+			table.insert(tickets, vote)
+		end
+	end
+	for _, seat in botSeats do
+		local vote = StateValues.get(seat, ATTRIBUTE)
+		if seat.Parent and typeof(vote) == "string" and table.find(pool, vote) then
 			table.insert(tickets, vote)
 		end
 	end
@@ -80,40 +92,57 @@ local function onVote(player: Player, name: unknown)
 	if not open or typeof(name) ~= "string" or #name > 40 or not table.find(options, name) then
 		return
 	end
-	player:SetAttribute(ATTRIBUTE, name)
+	StateValues.set(player, ATTRIBUTE, name)
 end
 
 -- Runs the vote over `pool` (map ids, at least one) for teams of `teamSize`
 -- and returns the pick. Yields for the vote and the chosen-map beat.
-function MapVoteService.run(pool: { string }, teamSize: number): string
+function MapVoteService.run(pool: { string }, teamSize: number, botSeats: { Configuration }): string
 	assert(#pool > 0, "MapVoteService.run: empty pool")
 	options = table.clone(pool)
 	if #pool > 1 then
 		table.insert(options, 1, VOTE.random)
 	end
 	clearVotes()
-	MatchState.setList("VoteOptions", options) -- one attribute per option (a joined string passed the 50-character cap)
+	local started = os.clock()
+	local botTimes: { [Configuration]: number } = {}
+	for _, seat in botSeats do
+		StateValues.set(seat, ATTRIBUTE, nil)
+		botTimes[seat] = started + random:NextNumber(VOTE.botDelay[1], VOTE.botDelay[2])
+	end
+	MatchState.setList("VoteOptions", options)
 	MatchState.set("VoteChosen", "")
 	MatchState.set("VoteTeamSize", teamSize)
 	setClock(VOTE.seconds)
 	MatchState.set("Phase", "Vote")
 	open = true
 
-	local deadline = os.clock() + VOTE.seconds
+	local deadline = started + VOTE.seconds
+	local minClose = started + (if #botSeats > 0 then VOTE.withBotsMinSeconds else 0)
 	local shortened = false
 	while os.clock() < deadline do
-		if not shortened and allVoted() then
+		local now = os.clock()
+		for seat, at in botTimes do
+			if now >= at then
+				botTimes[seat] = nil
+				if seat.Parent then
+					StateValues.set(seat, ATTRIBUTE, pool[random:NextInteger(1, #pool)])
+				end
+			end
+		end
+		if not shortened and allVoted(botSeats) then
 			shortened = true
-			if deadline - os.clock() > VOTE.allInSeconds then
-				deadline = os.clock() + VOTE.allInSeconds
-				setClock(VOTE.allInSeconds)
+			local closeAt = math.max(now + VOTE.allInSeconds, minClose)
+			if deadline > closeAt then
+				deadline = closeAt
+				setClock(closeAt - now)
 			end
 		end
 		task.wait(POLL)
 	end
 	open = false
 
-	local chosen = draw(pool)
+	local chosen = draw(pool, botSeats)
 	setClock(VOTE.chosenSeconds)
 	MatchState.set("VoteChosen", chosen)
 	task.wait(VOTE.chosenSeconds)

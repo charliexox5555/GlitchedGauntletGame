@@ -10,6 +10,8 @@
 --   LobbyScroll UIGradient: slow sweep across a screen
 --   LobbyLight  Light: switched off beyond LIGHT_RANGE studs (LihFolk "Light Sources and Shadows": about 8-12 visible
 --               local lights on mid phones; tag and disable, never delete)
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
 
@@ -37,15 +39,15 @@ local function addMover(i: Instance, spinning: boolean)
 	if not cf then
 		return
 	end
-	local speed = if spinning then i:GetAttribute("SpinSpeed") else 0
-	local amp = i:GetAttribute("BobAmp")
-	local freq = i:GetAttribute("BobSpeed")
+	local speed = if spinning then StateValues.get(i, "SpinSpeed") else 0
+	local amp = StateValues.get(i, "BobAmp")
+	local freq = StateValues.get(i, "BobSpeed")
 	movers[i] = {
 		inst = i,
 		base = cf,
 		spin = math.rad(if typeof(speed) == "number" then speed else 0),
-		axis = if typeof(i:GetAttribute("SpinAxis")) == "Vector3" and (i:GetAttribute("SpinAxis") :: Vector3).Magnitude > 0.01
-			then (i:GetAttribute("SpinAxis") :: Vector3).Unit
+		axis = if typeof(StateValues.get(i, "SpinAxis")) == "Vector3" and (StateValues.get(i, "SpinAxis") :: Vector3).Magnitude > 0.01
+			then (StateValues.get(i, "SpinAxis") :: Vector3).Unit
 			else Vector3.yAxis,
 		amp = if typeof(amp) == "number" then amp else 0,
 		freq = if typeof(freq) == "number" then freq else 1,

@@ -8,6 +8,7 @@
 -- Config/Weapons, never from the client. A plain module: no init/start.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -76,7 +77,7 @@ end
 -- "FireReject"), so tuning tolerances doesn't need print debugging.
 function Hits.reject(player: Player, reason: string)
 	if RunService:IsStudio() then
-		player:SetAttribute("FireReject", string.sub(reason, 1, 50)) -- attribute strings cap at 50 chars
+		StateValues.set(player, "FireReject", string.sub(reason, 1, 50)) -- attribute strings cap at 50 chars
 	end
 end
 
@@ -138,7 +139,7 @@ function Hits.validate(
 			-- Objects mostly stand still: a tight box (not the bodies' latency
 			-- allowance), with extra slack for one that moves (the Roller).
 			local slack = Combat.OBJECT_HIT_TOLERANCE
-			if hitPart:GetAttribute("Moving") == true then
+			if StateValues.get(hitPart, "Moving") == true then
 				slack += Combat.MOVING_OBJECT_TOLERANCE -- seen a ping behind (the Roller)
 			end
 			local half = hitPart.Size / 2 + Vector3.one * slack

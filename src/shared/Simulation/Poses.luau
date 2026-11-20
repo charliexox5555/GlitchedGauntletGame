@@ -15,12 +15,15 @@
 -- get stopped by the server. Weights move through the Animator's own fades,
 -- so state changes blend instead of popping.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local Authority = require(script.Parent.Parent.Authority)
 local Health = require(script.Parent.Parent.Health)
+local Fields = require(script.Parent.Fields)
 local Pawns = require(script.Parent.Pawns)
 local Animations = require(script.Parent.Parent.Config.Animations)
 local Weapons = require(script.Parent.Parent.Config.Weapons)
@@ -543,6 +546,9 @@ local function footfallIn(animator: Animator, inSeconds: number)
 end
 
 local function stepCharacter(player: Player, character: Model, dt: number)
+	if not Fields.ready(character) then
+		return
+	end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	local root = character:FindFirstChild("HumanoidRootPart")
 	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
@@ -564,11 +570,11 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	sweep(animator)
 
 	local alive = Health.isAlive(humanoid)
-	local state = if alive then character:GetAttribute("MoveState") else nil
-	local weaponId = player:GetAttribute("WeaponId")
+	local state = if alive then StateValues.get(character, "MoveState") else nil
+	local weaponId = StateValues.get(player, "WeaponId")
 	local config = if typeof(weaponId) == "string" then Weapons.get(weaponId) else nil
 	-- The knife has no two-handed hold; it keeps the default arm swing.
-	local held = player:GetAttribute("ModHeld")
+	local held = StateValues.get(player, "ModHeld")
 	local holding = alive and typeof(held) == "number" and held ~= 0
 	local armed = if alive and config and config.fireMode ~= "Melee" and not holding then 1 else 0
 	local target = aimPitch(player)
@@ -581,7 +587,7 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	local moving =
 		math.clamp((speed - Animations.MOVING_SPEED * 0.5) / Animations.MOVING_SPEED, 0, 1)
 	-- Crash Down's dive (simulation-written UpdraftSlam).
-	local diving = alive and character:GetAttribute("UpdraftSlam") == "Down"
+	local diving = alive and StateValues.get(character, "UpdraftSlam") == "Down"
 	local crouch = if state == "Crouch" or (diving and not SLAM_POSE) then 1 else 0
 
 	-- Aim: a blend space of three held poses (Action priority).
@@ -610,8 +616,12 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 		setWeight(animator, names[6], on * sights * math.max(-pitch, 0))
 	end
 	-- A reload (timed to the gun) and a flinch when hit, from the server.
-	if newMark(reloadSeen, character, player:GetAttribute("ReloadAt")) and alive and armed > 0 then
-		local duration = player:GetAttribute("ReloadFor")
+	if
+		newMark(reloadSeen, character, StateValues.get(player, "ReloadAt"))
+		and alive
+		and armed > 0
+	then
+		local duration = StateValues.get(player, "ReloadFor")
 		if typeof(duration) == "number" and duration > 0.1 then
 			playOnce(
 				animator,
@@ -620,7 +630,7 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 			)
 		end
 	end
-	if newMark(hitSeen, character, player:GetAttribute("HitAt")) and alive then
+	if newMark(hitSeen, character, StateValues.get(player, "HitAt")) and alive then
 		playOnce(animator, "Flinch", 1, Animations.FLINCH_WEIGHT)
 	end
 	-- A weapon swap: the new gun comes up (not on the first look).
@@ -634,11 +644,11 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	-- The knife: its ready hold while it's out, and each swing (also a quick
 	-- melee with a gun out).
 	setWeight(animator, "KnifeReady", if knife then 1 else 0)
-	if newMark(swingSeen, character, player:GetAttribute("SwingAt")) and alive then
-		local step = player:GetAttribute("SwingStep")
+	if newMark(swingSeen, character, StateValues.get(player, "SwingAt")) and alive then
+		local step = StateValues.get(player, "SwingStep")
 		playOnce(
 			animator,
-			if player:GetAttribute("SwingHeavy") == true
+			if StateValues.get(player, "SwingHeavy") == true
 				then "KnifeHeavy"
 				elseif step == 2 then "KnifeSlash2"
 				elseif step == 3 then "KnifeSlash3"
@@ -676,12 +686,12 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 
 	-- A dash (simulation-written DashStart): lean into it. A new character
 	-- starts its mark at 0, so its first dash plays.
-	local dashStart = character:GetAttribute("DashStart")
+	local dashStart = StateValues.get(character, "DashStart")
 	local dashMark = if typeof(dashStart) == "number" then dashStart else 0
-	local dashSeen = character:GetAttribute("PoseDashSeen")
+	local dashSeen = StateValues.get(character, "PoseDashSeen")
 	if dashSeen ~= dashMark then
-		character:SetAttribute("PoseDashSeen", dashMark)
-		local velocity = character:GetAttribute("DashVelocity")
+		StateValues.set(character, "PoseDashSeen", dashMark)
+		local velocity = StateValues.get(character, "DashVelocity")
 		if typeof(dashSeen) == "number" and alive and typeof(velocity) == "Vector3" then
 			local rel = root.CFrame:VectorToObjectSpace(velocity)
 			playOnce(
@@ -694,11 +704,11 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 	end
 
 	-- An Updraft (simulation-written UpdraftAt): the tuck, the same way.
-	local updraftAt = character:GetAttribute("UpdraftAt")
+	local updraftAt = StateValues.get(character, "UpdraftAt")
 	local updraftMark = if typeof(updraftAt) == "number" then updraftAt else 0
-	local updraftSeen = character:GetAttribute("PoseUpdraftSeen")
+	local updraftSeen = StateValues.get(character, "PoseUpdraftSeen")
 	if updraftSeen ~= updraftMark then
-		character:SetAttribute("PoseUpdraftSeen", updraftMark)
+		StateValues.set(character, "PoseUpdraftSeen", updraftMark)
 		if typeof(updraftSeen) == "number" and alive then
 			playOnce(animator, "Updraft")
 		end
@@ -706,7 +716,7 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 
 	-- A Crash Down landing: the slam clip once (the first value seen only
 	-- sets the mark).
-	local slamAt = character:GetAttribute("UpdraftSlamAt")
+	local slamAt = StateValues.get(character, "UpdraftSlamAt")
 	if typeof(slamAt) == "number" then
 		-- (A re-simulated landing a few ms off isn't a new one.)
 		local last = slamSeen[character]
@@ -720,12 +730,12 @@ local function stepCharacter(player: Player, character: Model, dt: number)
 
 	-- A Mod use: its clip once. The first value seen (a new character) only
 	-- sets the mark, so an old use isn't replayed.
-	local useAt = player:GetAttribute("ModUseAt")
+	local useAt = StateValues.get(player, "ModUseAt")
 	if typeof(useAt) == "number" then
-		local seenAt = character:GetAttribute("PoseUseSeen")
+		local seenAt = StateValues.get(character, "PoseUseSeen")
 		if seenAt ~= useAt then
-			character:SetAttribute("PoseUseSeen", useAt)
-			local kind = player:GetAttribute("ModUseKind")
+			StateValues.set(character, "PoseUseSeen", useAt)
+			local kind = StateValues.get(player, "ModUseKind")
 			if typeof(seenAt) == "number" and alive and typeof(kind) == "string" then
 				playOnce(animator, kind)
 			end

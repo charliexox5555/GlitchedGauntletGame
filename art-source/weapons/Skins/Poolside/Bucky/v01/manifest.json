@@ -1,0 +1,405 @@
+{
+  "line": "Poolside",
+  "item": "Bucky",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Bucky/Bucky_RemasterV2_v05.blend",
+  "source_file_sha256": "bf698c43e0777f411ebf736c39cc7fc1838aaac7c49b1bc781107ed83d580878",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Bucky/v01/Bucky_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Receiver"
+    ],
+    "separate_moving_mark": "Pump",
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Bucky_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.8320000171661377
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.36899998784065247
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.6679999828338623
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.09600000083446503
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.597000002861023
+      ],
+      [
+        0.0,
+        0.5999999642372131,
+        -0.7999999523162842,
+        -0.06599999964237213
+      ],
+      [
+        0.0,
+        0.7999999523162842,
+        0.5999999642372131,
+        0.30000001192092896
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_ShellLoadPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.746999979019165
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.11400000005960464
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9150000214576721
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0798000693321228
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.13230000436306
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.8320000171661377
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.36899998784065247
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6000000238418579
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.41999998688697815
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Bucky_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.490000009536743
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.15000000596046448
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 555097,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "6026984325b23cff9c94a1d8aa40bbb946677fecb25f34ed5ef8f15166b5eb70",
+    "geometry_and_material_slots": "c1df4398a3e12f0fca9e655bc119111a87c21e20d32315e5baed08a5d4e6b620",
+    "uv": "815b211a3a1554a22ccfd652850cb81b60305b4eabe6addf153f59b70666b1c9",
+    "rig_and_nla": "4614367657dbb6719c358cf098589c2146a642a7b01a8ec6b660f7fbae3e9701",
+    "actions": "f81544c5397c6324f7d2393975f18000e79af27afa5d935e51ffd933a151047c"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "6026984325b23cff9c94a1d8aa40bbb946677fecb25f34ed5ef8f15166b5eb70",
+    "geometry_and_material_slots": "c1df4398a3e12f0fca9e655bc119111a87c21e20d32315e5baed08a5d4e6b620",
+    "uv": "815b211a3a1554a22ccfd652850cb81b60305b4eabe6addf153f59b70666b1c9",
+    "rig_and_nla": "4614367657dbb6719c358cf098589c2146a642a7b01a8ec6b660f7fbae3e9701",
+    "actions": "f81544c5397c6324f7d2393975f18000e79af27afa5d935e51ffd933a151047c"
+  },
+  "built_mesh_count": 12,
+  "triangles": 3030,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Bucky/v01/textures/Bucky_Color.png",
+      "sha256": "6983f71c75a704989eeaf8d0f3b9a68d32e5e62701fe5c831c294d3d371b9bbd"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Bucky/v01/textures/Bucky_Normal.png",
+      "sha256": "df26d2694b91113cc798e50039dacba56fb235ba792076c83f5bca2a720ebac4"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Bucky/v01/textures/Bucky_Roughness.png",
+      "sha256": "a3a9ea881eb52d2bef5857d9c8c127650561e4500a98c91ec810da1630c25b29"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Bucky/v01/textures/Bucky_Metalness.png",
+      "sha256": "6765e3cbbbdba04a80e9178332684dd4c1c4ff3969ccd9f98ba17f81b42d42ab"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "c85af0189b39ff3ec1d611ca2ced06067cd43e48c0374f619598da11e2498380"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 20,
+      "review_frame": 10,
+      "sample_count": 20,
+      "pose_sha256": "31e3ce4a9d93ecefe3b20aed3a067ecb6b1526b64a9c4c3dd440f0d08631ee95"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "98dbc20ea849a85613a9d944637b3eb8a73c68c3f7844935d63b66da9e4d91ae"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 60,
+      "review_frame": 12,
+      "sample_count": 60,
+      "pose_sha256": "156dcecbca77b90c539ff43f2c60173d68b053078fac45e64433847f9af5b044"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 86,
+      "review_frame": 55,
+      "sample_count": 86,
+      "pose_sha256": "cff9057796f0c4c49899d16a38b5da74f792d3dd2c6785ef2b3a118625aed6a8"
+    },
+    "ReloadEnd": {
+      "start": 1,
+      "end": 14,
+      "review_frame": 13,
+      "sample_count": 14,
+      "pose_sha256": "c5b9e507ff45fec1f3715a353f4a098d1a4acae228053e02e4e171f9c767d516"
+    },
+    "ReloadInsert": {
+      "start": 1,
+      "end": 17,
+      "review_frame": 13,
+      "sample_count": 17,
+      "pose_sha256": "30bc43d37c70efd8fd136a01d2371f8adbb99242e9dde35be0f795ef48a9fab8"
+    },
+    "ReloadStart": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 9,
+      "sample_count": 12,
+      "pose_sha256": "930aed262c1e39e5f44c6b80987302542dbb4eca0140ca93b10438cfa5abefe1"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

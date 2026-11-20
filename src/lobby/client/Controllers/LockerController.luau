@@ -7,7 +7,7 @@
 -- Two views. Main: the gun list (left), the gun, its name, and SKIN / CHARM /
 -- FINISHER tiles. SKIN opens the skins tray: the list and tiles slide away,
 -- the gun lifts to the middle, a strip of skin tiles slides up; clicking a
--- tile equips it (LockerRequest → Services/LockerService → Skin_<gun>).
+-- tile equips it (LockerRequest → Services/LockerService → LockerSkins).
 --
 -- The gun is drawn in a full-screen ViewportFrame on flat blue (a real
 -- far-off set opened dark for ~3 s). It turns about its own centre: drag turns
@@ -17,6 +17,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -134,8 +135,7 @@ local function child<T>(parent: Instance, name: string): T
 end
 
 local function equippedLine(gunId: string): string
-	local v = player:GetAttribute(Locker.attr(gunId))
-	return if typeof(v) == "string" then v else "Stock"
+	return Locker.equipped(player)[gunId] or "Stock"
 end
 
 local function lineTitle(line: string): string
@@ -459,7 +459,9 @@ local function styleGunCard(card: GuiButton, on: boolean)
 	local icon = card:FindFirstChild("Icon")
 	if icon and icon:IsA("ImageLabel") then
 		-- a rendered picture keeps its own colours; a flat silhouette is tinted
-		icon.ImageColor3 = if icon:GetAttribute("Rendered") == true or not on then WHITE else INK
+		icon.ImageColor3 = if StateValues.get(icon, "Rendered") == true or not on
+			then WHITE
+			else INK
 	end
 end
 
@@ -472,7 +474,7 @@ local function refreshGunCards()
 		if icon and icon:IsA("ImageLabel") then
 			local pic = ItemIcons.get(gunId, equippedLine(gunId))
 			icon.Image = pic or Theme.GUN[gunId] or ""
-			icon:SetAttribute("Rendered", pic ~= nil)
+			StateValues.set(icon, "Rendered", pic ~= nil)
 		end
 		styleGunCard(card, on)
 		-- the equipped skin: its emblem and name under the gun's name
@@ -642,7 +644,7 @@ end
 
 local function buildTiles()
 	for _, c in strip:GetChildren() do
-		if c:IsA("GuiButton") or c:GetAttribute("PivotHolder") == true then
+		if c:IsA("GuiButton") or StateValues.get(c, "PivotHolder") == true then
 			c:Destroy()
 		end
 	end
@@ -685,10 +687,10 @@ local function buildTiles()
 end
 
 local function home(obj: GuiObject): UDim2
-	local h = obj:GetAttribute("Home")
+	local h = StateValues.get(obj, "Home")
 	if typeof(h) ~= "UDim2" then
 		h = obj.Position
-		obj:SetAttribute("Home", h)
+		StateValues.set(obj, "Home", h)
 	end
 	return h :: UDim2
 end
@@ -1090,8 +1092,8 @@ function LockerController.init()
 	backButton.Activated:Connect(function()
 		setTray(false)
 	end)
-	player.AttributeChanged:Connect(function(name: string)
-		if isOpen and string.sub(name, 1, 5) == "Skin_" then
+	Locker.observe(player, function()
+		if isOpen then
 			refreshGunCards()
 			refreshHeader()
 			if trayOpen then

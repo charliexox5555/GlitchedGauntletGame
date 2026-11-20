@@ -1,0 +1,395 @@
+{
+  "line": "Poolside",
+  "item": "Stinger",
+  "version": "v01",
+  "source": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/Stinger_RemasterV2_v05_HandguardFix_v01.blend",
+  "source_file_sha256": "9110c2f5b4fb74cda0d9830f11382e682c808424a74a316e51544bedfb02d4eb",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Stinger/v01/Stinger_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Receiver",
+      "Handguard"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Stinger_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.1399999856948853
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2939999997615814
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6359999775886536
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.10499999672174454
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        -0.40799999237060547
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.47780001163482666
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.035999998450279236
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.07199999690055847
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.28999999165534973
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.4090000092983246
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.08180004358291626
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.14480000734329224
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.1399999856948853
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2939999997615814
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.05000000074505806
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.42899999022483826
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Stinger_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6399999856948853
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.10499999672174454
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 503557,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "7b0fa0cadb9ab94029857eb7e3254f097a0c077a52ddfa3fcceb3ce6b23eebe4",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "1dd3a4825c3ab2aaf622b3dfb57d35bb8189d1f02b0162cbd1a23fa48d6331c9",
+    "geometry_and_material_slots": "7b0fa0cadb9ab94029857eb7e3254f097a0c077a52ddfa3fcceb3ce6b23eebe4",
+    "uv": "5920b5e14bccd20cdd003b10447655cc5624dfae0be3fb722e0bd267b20ce44a",
+    "rig_and_nla": "1ec4b8683e7cc9704b2484d7e536ce4162ae6b5d00f5e591da07e8a135dfe530",
+    "actions": "6747ce416f5b2ceb5543c8a4151328eaf77e6405e0c0c61c13922b027cca98aa"
+  },
+  "built_mesh_count": 14,
+  "triangles": 3134,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Stinger/v01/textures/Stinger_Color.png",
+      "sha256": "c982aefe56c3c65c91a68cd4e1bdd848374e061f4a1eb29e5eb0e45aac6f73ff"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Stinger/v01/textures/Stinger_Normal.png",
+      "sha256": "8aa5847c83bc2489a56c5a7ab15207bce049c8c4d799d4343b152b75ded34ac1"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Stinger/v01/textures/Stinger_Roughness.png",
+      "sha256": "ba64399c21dd6cbc0ba98ce0640955ebf9533797254ae7d4b2bc79ba1737e793"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Stinger/v01/textures/Stinger_Metalness.png",
+      "sha256": "d6482f5de161c41d78a3207a693b9e4c4fa885e92959da51ce00dd7941f34c54"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.783,
+      0.0,
+      0.4778
+    ],
+    "len": 0.35,
+    "geo_hits": {},
+    "box_hits": {},
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "53094cf88021a90684c5157a307e585559cd04375d88a17346b836295083b998"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 10,
+      "review_frame": 3,
+      "sample_count": 10,
+      "pose_sha256": "8948ada3cf35fed51d8ac4496ed38cf23292a69dc16767eec7ec76244e7983da"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "d1662c660edfc0c91f604838f7ec9c79163db6bfb9e38408895c806d38827b0d"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 66,
+      "review_frame": 17,
+      "sample_count": 66,
+      "pose_sha256": "67772c7b63edfa27ce528721e3fd0b9d0be397c0e9dd94dc13bad47b3de48b0a"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 18,
+      "sample_count": 97,
+      "pose_sha256": "ab4a969eac3f1ecc2fa8ea0c234847d62b6d754f40a2fad21e8b47f6ffb91aab"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

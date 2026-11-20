@@ -1,0 +1,1093 @@
+{
+  "line": "Kilnlock",
+  "item": "Bulldog",
+  "file": "Bulldog_Kilnlock_structural_v01.blend",
+  "version": "v01",
+  "source": "art-source/weapons/Skins/Shared Sources/Bulldog/BoltFix_v02/Bulldog_RemasterV2_v05_BoltFix_v02.blend",
+  "mesh_count": 16,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 14,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      98,
+      140,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      165,
+      174
+    ],
+    "moving_stock_intersections": [
+      [
+        1,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        1,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        1,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        9,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        9,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        9,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        10,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        10,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        10,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        11,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        11,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        11,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        12,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        12,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        12,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        13,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        13,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        13,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        14,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        14,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        14,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        15,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        15,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        15,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        16,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        16,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        16,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        17,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        17,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        17,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        18,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        18,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        18,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        19,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        19,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        20,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        20,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        21,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        21,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        22,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        22,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        23,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        23,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        24,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        24,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        25,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        25,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        26,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        26,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        27,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        27,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        28,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        28,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        29,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        29,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        30,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        30,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        31,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        31,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        32,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        32,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        33,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        33,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        34,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        34,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        35,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        35,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        36,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        36,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        37,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        37,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        38,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        38,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        39,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        39,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        40,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        40,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        41,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        41,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        42,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        42,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        43,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        43,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        44,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        44,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        44,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        45,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        45,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        45,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        46,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        46,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        46,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        47,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        47,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        47,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        48,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        48,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        48,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        49,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        49,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        49,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        50,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        50,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        50,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        51,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        51,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        51,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        52,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        52,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        52,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        53,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        53,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        53,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        54,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        54,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        54,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        55,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        55,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        55,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        56,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        56,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        56,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        57,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        57,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        57,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        58,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        58,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        58,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        59,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        59,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        59,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        60,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        60,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        60,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        61,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        61,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        61,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        62,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        62,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        62,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        63,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        63,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        63,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        64,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        64,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        64,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        98,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        98,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        98,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        140,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        140,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        140,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        147,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        147,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        147,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        148,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        148,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        148,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        149,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        149,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        149,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        150,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        150,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        150,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        151,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        151,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        151,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        152,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        152,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        152,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        153,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        153,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        153,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        154,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        154,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        154,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        155,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        155,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        155,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        156,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        156,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        156,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        165,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        165,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        165,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ],
+      [
+        174,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Bolt"
+      ],
+      [
+        174,
+        "Bulldog | Open diagonal stock return",
+        "Bulldog_Mag"
+      ],
+      [
+        174,
+        "Bulldog | Rebuilt upper stock spar",
+        "Bulldog_Bolt"
+      ]
+    ],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": true,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -1.4589999914169312,
+        -0.09600000083446503,
+        -0.30366677045822144
+      ],
+      [
+        1.4378000497817993,
+        0.1340000033378601,
+        0.6559012532234192
+      ],
+      [
+        2.8968000411987305,
+        0.23000000417232513,
+        0.9595680236816406
+      ]
+    ],
+    "new_bounds": [
+      [
+        -1.4589999914169312,
+        -0.09600000083446503,
+        -0.30366677045822144
+      ],
+      [
+        1.4378000497817993,
+        0.16280008852481842,
+        0.6559012532234192
+      ],
+      [
+        2.8968000411987305,
+        0.25880008935928345,
+        0.9595680236816406
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 32,
+    "ready": 64,
+    "peak": 36,
+    "inspect": 98,
+    "cancel": 140,
+    "steps": [],
+    "regression": [
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156
+    ],
+    "game_reload_seconds": 2.3,
+    "charm_extremes": [
+      165,
+      174
+    ]
+  },
+  "clips": {}
+}

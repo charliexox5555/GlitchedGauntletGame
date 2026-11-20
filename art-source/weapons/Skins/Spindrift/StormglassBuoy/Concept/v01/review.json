@@ -1,0 +1,25 @@
+{
+  "line": "Spindrift",
+  "item": "StormglassBuoy",
+  "version": "v01",
+  "source": "Original concept assembly",
+  "motion": {
+    "start": 9,
+    "active": 35,
+    "reset": 61,
+    "swing_max_degrees": 15
+  },
+  "fit": {
+    "separate_mount_pivot": true
+  },
+  "rendered_panels": [
+    "hero",
+    "side",
+    "right",
+    "active",
+    "settled"
+  ],
+  "backface_culling": true,
+  "fps": 24,
+  "motion_frame_step": 3
+}

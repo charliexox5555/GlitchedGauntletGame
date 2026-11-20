@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "stage": "offline evaluated visual handoff",
+  "finish": "Storm Shadow",
+  "units": "one Blender unit per Roblox stud",
+  "authoring_axes": "+X muzzle, +Z up",
+  "export": "glTF binary",
+  "geometry": {
+    "triangles": {
+      "Receiver_IndigoForging": 462,
+      "UpperSpine_ProwBrow": 328,
+      "Receiver_Keel": 310,
+      "Shroud_OctagonalForging": 490,
+      "Shroud_DorsalBlade": 288,
+      "Shroud_SupportSaddle": 280,
+      "Rear_DovetailBed_Player": 100,
+      "Rear_SilverPlate_Player": 164,
+      "Fore_DovetailBed_Player": 92,
+      "Fore_SilverPlate_Player": 156,
+      "Shroud_VentFloor_Player_0": 12,
+      "Shroud_VentFloor_Player_1": 12,
+      "Shroud_VentFloor_Player_2": 12,
+      "Receiver_ScarfJoint_Player": 56,
+      "Receiver_EnamelSeat_Player": 92,
+      "Receiver_StormBlueInlay_Player": 32,
+      "Receiver_InlaidBadge_Player": 64,
+      "Mark_Tide_Player_0": 12,
+      "Mark_Tide_Player_1": 12,
+      "Mark_Tide_Player_2": 12,
+      "Rivet_Player_-0.102": 68,
+      "Rivet_Player_0.433": 68,
+      "Rivet_Player_1.591": 68,
+      "Rear_DovetailBed_Far": 100,
+      "Rear_SilverPlate_Far": 164,
+      "Fore_DovetailBed_Far": 92,
+      "Fore_SilverPlate_Far": 156,
+      "Shroud_VentFloor_Far_0": 12,
+      "Shroud_VentFloor_Far_1": 12,
+      "Shroud_VentFloor_Far_2": 12,
+      "Receiver_ScarfJoint_Far": 56,
+      "Receiver_EnamelSeat_Far": 92,
+      "Receiver_StormBlueInlay_Far": 32,
+      "Receiver_InlaidBadge_Far": 64,
+      "Mark_Tide_Far_0": 12,
+      "Mark_Tide_Far_1": 12,
+      "Mark_Tide_Far_2": 12,
+      "Rivet_Far_-0.102": 68,
+      "Rivet_Far_0.433": 68,
+      "Rivet_Far_1.591": 68,
+      "Ejection_Countersink": 64,
+      "Ejection_IndigoRecess": 20,
+      "Bolt_WaveShutter": 56,
+      "Barrel_ExposedBluedStem": 192,
+      "Barrel_ShroudFerrule": 140,
+      "Muzzle_BlueAdapter": 120,
+      "Muzzle_NickelKeeper": 100,
+      "Muzzle_FourVentCage": 1268,
+      "Stock_ShortReceiverNeck": 156,
+      "Stock_SweptCheek": 320,
+      "Stock_AftDiagonalStrut": 80,
+      "Stock_HeelForging": 108,
+      "Stock_ButtPad": 76,
+      "Stock_CheekBlade": 140,
+      "Stock_StrutFlat": 60,
+      "Stock_EnamelRecess": 80,
+      "Stock_ReceiverYoke": 68,
+      "Stock_CheekBlade.001": 140,
+      "Stock_StrutFlat.001": 60,
+      "Stock_EnamelRecess.001": 80,
+      "Stock_ReceiverYoke.001": 68,
+      "Charge_ActionPaddle": 68,
+      "Charge_NickelEnd": 16,
+      "Grip_AngledTang": 108,
+      "Grip_LeatherBind_01": 224,
+      "Grip_LeatherBind_02": 224,
+      "Grip_LeatherBind_03": 224,
+      "Grip_LeatherBind_04": 224,
+      "Grip_LeatherBind_05": 224,
+      "Grip_HeelCollar": 44,
+      "TriggerGuard_RakedLoop": 168,
+      "Trigger_Crescent": 60,
+      "Mag_CurvedIndigoBody": 124,
+      "Mag_LeatherBind_01": 224,
+      "Mag_LeatherBind_02": 224,
+      "Mag_LeatherBind_03": 224,
+      "Mag_LeatherBind_04": 224,
+      "Mag_HeelShockShoe": 60,
+      "Mag_UpperFeedCrown": 92,
+      "Magazine_FeedShoulder": 68,
+      "Mag_HeelConduitInset": 20,
+      "Mag_HeelConduitInset.001": 20,
+      "Mag_HeelConduitInset.002": 20,
+      "Magazine_FeedShoulder.001": 68,
+      "Mag_HeelConduitInset.003": 20,
+      "Mag_HeelConduitInset.004": 20,
+      "Mag_HeelConduitInset.005": 20,
+      "Sight_SaddleSeat": 204,
+      "Sight_CrescentBridge": 196,
+      "Sight_OnePieceOpenCrescent": 812,
+      "Sight_FrontBarrelSaddle": 120,
+      "Sight_FrontSaddleNose": 196,
+      "Sight_FrontWing": 132,
+      "Sight_FrontWing.001": 132,
+      "Sight_FrontReference": 68,
+      "Sight_FrontCeramicReference": 12,
+      "BuddyMount_StockPlateAndLoop": 224
+    },
+    "opaque_triangles": 12726,
+    "effects_triangles": 0,
+    "mesh_objects": 97,
+    "materials": [
+      "TS_Accent \u00b7 deep blue enamel",
+      "TS_Body \u00b7 black alloy",
+      "TS_Dark \u00b7 indigo shadow",
+      "TS_Grip \u00b7 dark leather",
+      "TS_GripEdge \u00b7 compressed leather",
+      "TS_Metal \u00b7 blued steel",
+      "TS_Panel \u00b7 brushed silver",
+      "TS_PanelEdge \u00b7 nickel edge",
+      "TS_Rubber \u00b7 heel and grip liner",
+      "TS_SightMark \u00b7 pale ceramic"
+    ],
+    "nonmanifold_edge_counts": {},
+    "degenerate_polygon_counts": {
+      "Bolt_WaveShutter": 3
+    }
+  },
+  "runtime_roles": {
+    "Body.002": {
+      "srgb": "192433",
+      "blender": "TS_Body \u00b7 black alloy",
+      "procedural_microfinish_in_master": true
+    },
+    "Dark.002": {
+      "srgb": "101625",
+      "blender": "TS_Dark \u00b7 indigo shadow",
+      "procedural_microfinish_in_master": false
+    },
+    "PanelEdge": {
+      "srgb": "C6D9E8",
+      "blender": "TS_PanelEdge \u00b7 nickel edge",
+      "procedural_microfinish_in_master": true
+    },
+    "Metal.002": {
+      "srgb": "526678",
+      "blender": "TS_Metal \u00b7 blued steel",
+      "procedural_microfinish_in_master": false
+    },
+    "Rubber": {
+      "srgb": "24242C",
+      "blender": "TS_Rubber \u00b7 heel and grip liner",
+      "procedural_microfinish_in_master": true
+    },
+    "Panel.002": {
+      "srgb": "9EACBD",
+      "blender": "TS_Panel \u00b7 brushed silver",
+      "procedural_microfinish_in_master": true
+    },
+    "Accent.002": {
+      "srgb": "1A6193",
+      "blender": "TS_Accent \u00b7 deep blue enamel",
+      "procedural_microfinish_in_master": false
+    },
+    "Grip.002": {
+      "srgb": "382520",
+      "blender": "TS_Grip \u00b7 dark leather",
+      "procedural_microfinish_in_master": true
+    },
+    "GripEdge": {
+      "srgb": "251818",
+      "blender": "TS_GripEdge \u00b7 compressed leather",
+      "procedural_microfinish_in_master": true
+    },
+    "SightMark": {
+      "srgb": "91C8CE",
+      "blender": "TS_SightMark \u00b7 pale ceramic",
+      "procedural_microfinish_in_master": false
+    }
+  },
+  "locators": {
+    "Vandal_Muzzle": [
+      2.6470000743865967,
+      0.0,
+      0.2849999964237213
+    ],
+    "Vandal_RightGrip": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Vandal_LeftGrip": [
+      1.3200000524520874,
+      0.0,
+      0.1704999953508377
+    ],
+    "Vandal_AimPoint": [
+      0.07750000059604645,
+      0.0,
+      0.5598000288009644
+    ],
+    "Vandal_Eject": [
+      0.483599990606308,
+      -0.07199999690055847,
+      0.3160000145435333
+    ],
+    "Vandal_CharmPoint": [
+      0.9300000071525574,
+      0.09579998254776001,
+      0.17030000686645508
+    ],
+    "Vandal_Socket_Muzzle": [
+      2.6470000743865967,
+      0.0,
+      0.2849999964237213
+    ],
+    "Vandal_Socket_Optic": [
+      0.6200000047683716,
+      0.0,
+      0.47600001096725464
+    ],
+    "Vandal_Socket_Under": [
+      1.3200000524520874,
+      0.0,
+      0.1704999953508377
+    ]
+  },
+  "custom_pivots": {
+    "CTRL_Action": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "CTRL_InspectBalance": [
+      0.6700000166893005,
+      0.0,
+      0.21699999272823334
+    ],
+    "CTRL_Chassis": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "CTRL_Magazine": [
+      0.5827999711036682,
+      0.0,
+      0.1550000011920929
+    ],
+    "CTRL_Charge": [
+      0.6571999788284302,
+      0.07999999821186066,
+      0.3068999946117401
+    ],
+    "CTRL_Bolt": [
+      0.48980000615119934,
+      -0.05999999865889549,
+      0.31619998812675476
+    ],
+    "CTRL_PlateRear_Player": [
+      0.2240000069141388,
+      0.10599999874830246,
+      0.36899998784065247
+    ],
+    "CTRL_PlateFore_Player": [
+      1.3799999952316284,
+      0.10300000011920929,
+      0.3230000138282776
+    ],
+    "CTRL_PlateRear_Far": [
+      0.2240000069141388,
+      -0.10599999874830246,
+      0.36899998784065247
+    ],
+    "CTRL_PlateFore_Far": [
+      1.3799999952316284,
+      -0.10300000011920929,
+      0.3230000138282776
+    ],
+    "CTRL_HydroCoreRound": [
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "reimport": {
+    "mesh_count": 97,
+    "source_mesh_count": 97,
+    "triangle_count": 12726,
+    "source_triangle_count": 12726,
+    "bounds_axis_max_delta": 0.0,
+    "max_part_bounds_delta": 0.0,
+    "missing_meshes": [],
+    "control_matrix_deltas": {
+      "CTRL_Action": 0.0,
+      "CTRL_InspectBalance": 0.0,
+      "CTRL_Chassis": 0.0,
+      "CTRL_Bolt": 0.0,
+      "CTRL_Charge": 0.0,
+      "CTRL_Magazine": 0.0,
+      "CTRL_PlateFore_Far": 0.0,
+      "CTRL_PlateFore_Player": 0.0,
+      "CTRL_PlateRear_Far": 0.0,
+      "CTRL_PlateRear_Player": 0.0
+    },
+    "sight_mesh_names": [
+      "Sight_CrescentBridge",
+      "Sight_FrontBarrelSaddle",
+      "Sight_FrontCeramicReference",
+      "Sight_FrontReference",
+      "Sight_FrontSaddleNose",
+      "Sight_FrontWing",
+      "Sight_FrontWing.001",
+      "Sight_OnePieceOpenCrescent",
+      "Sight_SaddleSeat"
+    ]
+  }
+}

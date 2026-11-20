@@ -1,5 +1,32 @@
 # Bots
 
+## Current system (2026-11-17)
+
+The [redesign note](../05%20Production/Bot%20Redesign%202026-11-17.md) covers the new routing, cover, Mod decisions and playtests. The original build history starts below.
+
+- In the Match place, set `Workspace.BotDifficulty` to **Easy**, **Normal**, or **Hard** before Play. Clear the attribute for the default. Keep `TestMode` off for a match. `BotMatch` can be 1v1, 2v2 or 3v3.
+- Edit `src/shared/Config/Bots.luau` to customize `PROFILES`. **Hard is the temporary default for 1v1, 2v2, and 3v3** while the owner tests. A valid Studio-only `BotDifficulty` override still works.
+- **Hard tuning:** reacts after 180 ms of sight, tracks with 80 ms of lag, and aims for the head more often. The team's hit budget rises from three to five per target in a one-second window before deliberate misses begin. Hard re-peeks sooner, checks for Mod opportunities more often, and saves charges for stronger casts. Standard weapon stats, health, and Mod rules apply.
+- **Perception** controls reaction, hearing, field of view and memory. **Aim** controls settle speed, error, tracking lag and shot restraint. **Tactics** controls aggression, the health threshold for cover, time before peeking, and flank frequency. **Movement** controls strafe pauses, slides, slide-jumps and how early to rotate. **Mods** controls how often bots evaluate a cast, the chance they consider one, and the minimum score to commit.
+- `Tactics` chooses lanes, cover and ring destinations. `Nav` follows grounded paths, probes body clearance and floor support, and replans when progress stops. Bots can spend a brief moment holding behind cover before peeking. Overtime reduces the safe area considered for movement, and a bot in `Rotate` lowers its gun and heads in.
+- A ready Mod competes with the rest of the kit. Projectile Mods check their expected landing before committing a charge. Dash and Updraft check space. Bots can use Firewall with a straight cast and use Stim's fire-rate effect where their upgrade provides it. Recall stays in the Player-keyed service.
+- Set `Workspace.BotDebug=true` before Play for goal and target labels. `ServerStorage.BotOwners` exposes timing, shots, hits, and the last successful server Mod cast during Studio play.
+- Targeting checks the head and torso of all three opponents in a full team match. A nearby, recently firing opponent can displace the current target. A bot tracks the exposed body part and eases through target switches. Its own movement eases between strafe legs before clearance and circle checks.
+- Each round rolls a flanker, center controller or holder preference. Lane weights favor that role and discourage repeating the previous lane. Teammates split lanes and each opening gets a fixed small offset checked against the floor. Controllers can use elevated routes, shotgun bots close to effective range, and Updraft can contest a visible higher opponent when overhead is clear.
+- Flash stops vision and firing. Active Firewall pieces block vision while still letting gunfire through. Bots can investigate their last sighting with either effect active.
+- Survivors turn, strafe, crouch or hop during RoundEnd. At MatchEnd, each bot votes for a rematch with 94% probability after a short delay. Only unanimous human votes authorize another match.
+
+### Match presentation
+
+- A bot seat gets a generated name, level, device icon (weighted PC, mobile or console), and synthetic Locker when created. Its look is prepared during the map vote and stays with the seat through the rounds. The match uses the standard blocky R15 body for bot and human hitbox parity.
+- The Match server fetches a bounded sample from the friends of all joining players via `Players:GetFriendsAsync`. It prebuilds eligible avatars from their descriptions in the background. It excludes players who joined the server and avoids assigning a loaded look twice while it has unused options. Configured backups come next, then generated local colour combinations. Appearance lookups run independently of the draft clock. [Roblox Players API](https://create.roblox.com/docs/reference/engine/classes/Players#GetFriendsAsync)
+- Add approved fallback IDs to `BACKUP_USER_IDS` in `src/server/Bots/AppearanceConfig.luau`. The list starts empty. Adjust name, device, and level/skin distribution in the same file. At the appearance deadline, a bot without a ready account avatar clones `src/server/Bots/FallbackRig.rbxm` and chooses local colours. The bundled rig uses Gauntlet's R15 dimensions and can spawn without an account-avatar lookup. Its weapon cosmetics use installed Locker items, with Stock on unassigned weapons.
+- The top bar, scoreboard, death/spectate strip and match-end board use Roblox avatar headshots for account-based looks. The selected ID is exposed only as the bot's portrait reference. The sampled friend lists stay server-side, and bot rows keep their synthetic names and stats IDs. Generated looks use the existing placeholder. The world gun, spectator view and replay read the seat's cosmetic choices.
+- Bot seats appear in the top bar before characters spawn. They start preparing their looks as soon as the roster is formed and cast one random vote for an eligible map before round one. Portrait placeholders are replaced in place as the account thumbnails load.
+- On openings, bots skip nearby walk waypoints only when there is room for the full body and supported ground. They follow tight routes without adding combat strafing, favour forward patrol points and clear the old patrol destination when switching to investigate an opponent. A stalled patrol point is skipped for nine seconds. If an opponent disappears, bots investigate its last seen position.
+
+## Original design and build history
+
 AI players for matches: they fill empty team slots (1v1 to 3v3), draft, fight, use Mods and count for every result. Lane C of [Overnight 2026-11-04](../05%20Production/Archive/Overnight%202026-11-04.md). **Status (2026-11-04 night): built and playtested in Studio (1v1, 2v2, 3v3, a full match to 5). See "Build log".**
 
 ## Goals

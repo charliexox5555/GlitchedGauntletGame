@@ -8,21 +8,25 @@
 -- Stim) call the Mod module's own validate / apply with the same ServerCtx
 -- ModService builds, the bot's character standing in as the caster
 -- (Teams.characterOf). Charges and cooldowns use the same Charges rules.
--- Firewall and Recall need Player-keyed services: bots don't cast them.
+-- Recall still uses the Player-keyed anchor and teleport service.
 --
--- Each Mod has one "when to use" rule; a true rule casts with the profile's
--- abilityUse chance, after a short hold for held Mods (the gun goes down).
+-- Each ready Mod scores its opportunity. Held Mods lower the gun, then
+-- recheck the intended throw from the bot's actual release position.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local BotsConfig = require(Shared.Config.Bots)
+local StatusEffects = require(Shared.Config.StatusEffects)
 local Charges = require(Shared.Mods.Charges)
 local Health = require(Shared.Health)
 local Mods = require(Shared.Mods)
 local ModsConfig = require(Shared.Config.Mods)
 local Net = require(Shared.Net)
 local Projectile = require(Shared.Mods.Blocks.Projectile)
+local Recon = require(Shared.Mods.Recon)
 local Teams = require(Shared.Mods.Teams)
 -- The throwables' own flight (throw / options), for aiming.
 local THROWS: { [string]: any } = {
@@ -34,12 +38,15 @@ local Target = require(Shared.Mods.Blocks.Target)
 
 local Services = script.Parent.Parent.Services
 local ModEntities = require(Services.ModEntities)
+local ModWalls = require(Services.ModWalls)
 local StatusService = require(Services.StatusService)
 local WeaponService = require(Services.WeaponService)
 
 local BotGun = require(script.Parent.BotGun)
 local BotTypes = require(script.Parent.Types)
 local Perception = require(script.Parent.Perception)
+local Nav = require(script.Parent.Nav)
+local STUDIO = game:GetService("RunService"):IsStudio()
 
 type Bot = BotTypes.Bot
 
@@ -48,6 +55,7 @@ local BotMods = {}
 local SERVER_MODS: { [string]: boolean } = {
 	Molly = true,
 	Frost = true,
+	Firewall = true,
 	Recon = true,
 	HealOrb = true,
 	Stim = true,
@@ -62,7 +70,6 @@ local USE_KINDS: { [string]: string } = {
 	HeldSteer = "Cast",
 	HeldCharge = "Heal",
 }
-local TRY_EVERY = 0.4 -- seconds between rule checks
 local THROW_PITCHES = { -6, 4, 14, 24, 36 } -- degrees tried when aiming a throw
 
 local rng = Random.new()
@@ -74,8 +81,8 @@ local function serverNow(): number
 end
 
 local function bump(owner: Instance, name: string)
-	local v = owner:GetAttribute(name)
-	owner:SetAttribute(name, (if typeof(v) == "number" then v else 0) + 1)
+	local v = StateValues.get(owner, name)
+	StateValues.set(owner, name, (if typeof(v) == "number" then v else 0) + 1)
 end
 
 local function statsFor(bot: Bot, slot: number): (string?, any)
@@ -94,10 +101,11 @@ function BotMods.setKit(bot: Bot, kit: { string }, levels: { string })
 		local changed = bot.kit[slot] ~= id or bot.levels[slot] ~= level
 		bot.kit[slot], bot.levels[slot] = id, level
 		local p = "Mod" .. slot
-		bot.owner:SetAttribute(p .. "Id", if id ~= "" then id else nil)
-		bot.owner:SetAttribute(p .. "Level", if id ~= "" then level else nil)
+		StateValues.set(bot.owner, p .. "Id", if id ~= "" then id else nil)
+		StateValues.set(bot.owner, p .. "Level", if id ~= "" then level else nil)
 		if changed then
 			bump(bot.owner, p .. "Serial")
+			bot.modRetryAt[slot] = 0
 			local _, stats = statsFor(bot, slot)
 			bot.modCharges[slot] = if stats then stats.charges else 0
 			bot.modReadyAt[slot] = serverNow()
@@ -110,6 +118,7 @@ function BotMods.refill(bot: Bot)
 	for slot = 1, ModsConfig.SLOTS do
 		local _, stats = statsFor(bot, slot)
 		bot.modCharges[slot] = if stats then stats.charges else 0
+		bot.modRetryAt[slot] = 0
 		bot.modReadyAt[slot] = serverNow()
 	end
 	bump(bot.owner, "ModResetSerial")
@@ -117,7 +126,7 @@ end
 
 function BotMods.onSpawn(bot: Bot)
 	bot.nextModTry = os.clock() + 1
-	bot.owner:SetAttribute("ModHeld", 0)
+	StateValues.set(bot.owner, "ModHeld", 0)
 end
 
 -- A despawn or a new life: what the last one left goes (ModEntities), and
@@ -131,6 +140,7 @@ function BotMods.clear(bot: Bot, model: Model?)
 		threads[bot] = nil
 	end
 	if model then
+		ModWalls.clear(model)
 		ModEntities.clear(model :: any, true)
 	end
 end
@@ -271,7 +281,21 @@ local function context(
 			end
 			BotMods.onReveal(bot.team, targets)
 		end,
-		fireRate = function(_mult: number, _duration: number) end, -- no bot Mod boosts the gun yet
+		fireRate = function(mult: number, duration: number)
+			StateValues.set(model, "FireRateMult", mult)
+			local untilTime = serverNow() + duration
+			StateValues.set(model, "FireRateUntil", untilTime)
+			hold(
+				bot,
+				list,
+				task.delay(duration, function()
+					if alive() and StateValues.get(model, "FireRateUntil") == untilTime then
+						StateValues.set(model, "FireRateMult", nil)
+						StateValues.set(model, "FireRateUntil", nil)
+					end
+				end)
+			)
+		end,
 		active = function(_duration: number) end, -- a HUD bar: bots have none
 		objectsNear = function(at: Vector3, radius: number): { BasePart }
 			return ModEntities.objectsNear(at, radius)
@@ -287,6 +311,26 @@ local function context(
 			StatusService.blind(target, duration, strength, from)
 		end,
 		lookOf = Target.lookOf,
+		wall = function(spec: any)
+			local root = bot.root
+			if not root or not alive() then
+				return
+			end
+			StateValues.set(bot.owner, "ModHeld", slot)
+			bot.gun.busyUntil = os.clock() + stats.maxLength / stats.speed + ModsConfig.USE_TIME
+			ModWalls.build(model, root, stats, spec, {
+				damage = damage,
+				status = StatusService.apply,
+				look = function()
+					return nil
+				end,
+				built = function()
+					if alive() then
+						StateValues.set(bot.owner, "ModHeld", 0)
+					end
+				end,
+			})
+		end,
 	}
 end
 
@@ -301,27 +345,42 @@ function BotMods.setRevealListener(fn: (team: number, targets: { Model }) -> ())
 	revealListener = fn
 end
 
--- The flat-then-pitched throw direction that lands nearest `point`
--- (simulated with the Mod's own flight).
-local function aimThrow(bot: Bot, mod: any, stats: any, mode: string, point: Vector3): Vector3
-	local head = bot.head :: BasePart
-	local flat = (point - head.Position) * Vector3.new(1, 0, 1)
-	local forward = if flat.Magnitude > 0.1 then flat.Unit else Vector3.new(0, 0, -1)
+-- Check where the actual projectile ends before spending a charge. A throw
+-- that bounces back onto the caster or hits the near face is a bad cast.
+local function aimProjectile(
+	bot: Bot,
+	id: string,
+	eye: Vector3,
+	stats: any,
+	mode: string,
+	point: Vector3
+): Vector3?
+	local flat = (point - eye) * Vector3.new(1, 0, 1)
+	if flat.Magnitude < 0.1 then
+		return nil
+	end
+	local forward = flat.Unit
 	local params = worldParams()
-	local best, bestMiss = forward, math.huge
+	local best: Vector3? = nil
+	local bestMiss = if id == "Flash" then 14 else (stats.radius or 8) * 0.9
+	local mod = THROWS[id]
+	local options = if mod then mod.options(stats, mode == "Alt") else Recon.options(stats, 0)
 	for _, pitch in THROW_PITCHES do
-		local r = math.rad(pitch)
+		local r = math.rad(pitch) + (if mod then 0 else math.atan2(point.Y - eye.Y, flat.Magnitude))
 		local dir = forward * math.cos(r) + Vector3.new(0, math.sin(r), 0)
-		local ok, landing = pcall(function()
-			local origin, velocity = mod.throw(head.Position, dir, mode, stats, params)
-			local path = Projectile.simulate(origin, velocity, mod.options(stats), params)
-			return Projectile.positionAt(path, Projectile.endTime(path))
-		end)
-		if ok then
-			local miss = (landing - point).Magnitude
-			if miss < bestMiss then
-				best, bestMiss = dir, miss
-			end
+		local origin, velocity
+		if mod then
+			origin, velocity = mod.throw(eye, dir, mode, stats, params)
+		else
+			origin, velocity = Recon.launch(eye, dir, 1, stats, params)
+		end
+		local path = Projectile.simulate(origin, velocity, options, params)
+		local landing = Projectile.positionAt(path, Projectile.endTime(path))
+		local miss = (landing - point).Magnitude
+		local clear = id == "Recon" and stats.behaviour == "Spike"
+			or Nav.clearLine(bot, landing, point)
+		if miss < bestMiss and (landing - eye).Magnitude > 6 and clear then
+			best, bestMiss = dir, miss
 		end
 	end
 	return best
@@ -356,39 +415,48 @@ local function castServer(
 		return
 	end
 	local held = def.activation ~= "Instant"
-	local holdFor = if held then 0.25 + rng:NextNumber() * 0.25 else 0
+	local holdFor = if def.activation == "HeldCharge"
+		then stats.chargeTime or 0.5
+		elseif held then 0.25 + rng:NextNumber() * 0.25
+		else 0
 	local life = bot.life
 	bot.gun.busyUntil = os.clock() + holdFor + ModsConfig.USE_TIME
 	if held then
-		bot.owner:SetAttribute("ModHeld", slot)
+		StateValues.set(bot.owner, "ModHeld", slot)
 	end
 	task.delay(holdFor, function()
-		bot.owner:SetAttribute("ModHeld", 0)
+		if bot.life ~= life then
+			return
+		end
+		StateValues.set(bot.owner, "ModHeld", 0)
 		if
-			bot.life ~= life
-			or not bot.fighting
+			not bot.fighting
 			or not Health.isAlive(bot.humanoid)
 			or not bot.head
+			or bot.goal == "Rotate"
 		then
 			return
 		end
 		local eye = bot.head.Position
 		local look = bot.root and bot.root.CFrame.LookVector or Vector3.new(0, 0, -1)
-		local dir = if aimAt then (aimAt - eye).Unit else look
-		local throwable = THROWS[id]
-		if aimAt and throwable then
-			dir = aimThrow(bot, throwable, stats, mode, aimAt)
-		elseif aimAt and id == "ShockDart" then
-			-- Straight at their feet: the blast does the rest.
-			dir = (aimAt - Vector3.new(0, 2.5, 0) - eye).Unit
+		local offset = if aimAt then aimAt - eye else look
+		local dir = if offset.Magnitude > 0.1 then offset.Unit else look
+		if aimAt and (THROWS[id] or id == "ShockDart" or id == "Recon") then
+			local point = if id == "Flash" or id == "Recon"
+				then aimAt
+				else aimAt - Vector3.yAxis * 1.5
+			local planned = aimProjectile(bot, id, eye, stats, mode, point)
+			if not planned then
+				bot.gun.busyUntil = os.clock()
+				bot.modRetryAt[slot] = os.clock() + BotsConfig.MOD_RETRY
+				return
+			end
+			dir = planned
 		elseif aimAt and id == "Roller" then
 			-- Set it down a few steps ahead, toward them.
 			local flat = (aimAt - eye) * Vector3.new(1, 0, 1)
 			local forward = if flat.Magnitude > 0.1 then flat.Unit else look
 			dir = forward * math.cos(math.rad(35)) - Vector3.new(0, math.sin(math.rad(35)), 0)
-		elseif aimAt and def.activation == "HeldCharge" then
-			dir = ((aimAt - eye) * Vector3.new(1, 0, 1)).Unit * math.cos(math.rad(20))
-				+ Vector3.new(0, math.sin(math.rad(20)), 0)
 		end
 		local ctx = context(bot, slot, id, stats, holdFor, dir)
 		local req: any = {
@@ -403,6 +471,8 @@ local function castServer(
 		if validate then
 			local ok, valid = pcall(validate, ctx, req)
 			if not ok or not valid then
+				bot.gun.busyUntil = os.clock()
+				bot.modRetryAt[slot] = os.clock() + BotsConfig.MOD_RETRY
 				return
 			end
 		end
@@ -415,6 +485,9 @@ local function castServer(
 				stats.cooldown,
 				serverNow()
 			)
+			if c < 1 then
+				return
+			end
 			bot.modCharges[slot], bot.modReadyAt[slot] =
 				Charges.spend(c, r, stats.charges, stats.cooldown, serverNow())
 		end
@@ -422,12 +495,19 @@ local function castServer(
 			then "Lob"
 			else def.useKind or USE_KINDS[def.activation]
 		if kind then
-			bot.owner:SetAttribute("ModUseKind", kind)
-			bot.owner:SetAttribute("ModUseAt", workspace:GetServerTimeNow())
+			StateValues.set(bot.owner, "ModUseKind", kind)
+			StateValues.set(bot.owner, "ModUseAt", workspace:GetServerTimeNow())
 		end
 		local ok, err = pcall(module.apply :: any, ctx, req)
 		if not ok then
 			warn("[BotMods]", id, "failed for", bot.name, err)
+		elseif STUDIO then
+			StateValues.set(bot.owner, "BotLastMod", id)
+			StateValues.set(
+				bot.owner,
+				"BotModCasts",
+				(StateValues.get(bot.owner, "BotModCasts") :: number? or 0) + 1
+			)
 		end
 	end)
 end
@@ -439,7 +519,7 @@ local function pressPredicted(bot: Bot, slot: number)
 	if not model or not action then
 		return
 	end
-	local charges = model:GetAttribute("Mod" .. slot .. "Charges")
+	local charges = StateValues.get(model, "Mod" .. slot .. "Charges")
 	if typeof(charges) == "number" and charges < 1 then
 		return
 	end
@@ -454,7 +534,8 @@ end
 
 local function ready(bot: Bot, slot: number, id: string): boolean
 	if not SERVER_MODS[id] then
-		return true -- predicted: pressPredicted checks the simulation's charges
+		local charges = bot.model and StateValues.get(bot.model, "Mod" .. slot .. "Charges")
+		return (id == "Dash" or id == "Updraft") and (typeof(charges) ~= "number" or charges >= 1)
 	end
 	local _, stats = statsFor(bot, slot)
 	if not stats then
@@ -496,136 +577,152 @@ local function hurtAlly(bot: Bot, allies: { Model }, range: number, below: numbe
 	return best
 end
 
--- Rules, a few times a second.
+type Opportunity = {
+	score: number,
+	mode: string?,
+	point: Vector3?,
+	ally: Model?,
+}
+
+-- Evaluate the whole kit. Difficulty changes how often and how selectively
+-- a bot commits. Every profile uses the same charge and validation rules.
 function BotMods.think(bot: Bot, world: any, now: number)
-	local root, humanoid = bot.root, bot.humanoid
-	if not bot.fighting or not root or not humanoid or now < bot.nextModTry then
+	local root, humanoid, head, model = bot.root, bot.humanoid, bot.head, bot.model
+	if
+		not bot.fighting
+		or not root
+		or not humanoid
+		or not head
+		or not model
+		or now < bot.nextModTry
+	then
 		return
 	end
-	bot.nextModTry = now + TRY_EVERY
-	if os.clock() < bot.gun.busyUntil or BotGun.reloading(bot.gun) then
+	local profile = bot.profile.mods
+	bot.nextModTry = now + profile.interval * rng:NextNumber(0.85, 1.15)
+	local blinded = StateValues.get(model, StatusEffects.blinded.attribute)
+	if
+		now < bot.gun.busyUntil
+		or BotGun.reloading(bot.gun)
+		or (typeof(blinded) == "number" and blinded > serverNow())
+		or rng:NextNumber() > profile.abilityUse
+	then
 		return
 	end
-	if rng:NextNumber() > bot.profile.abilityUse then
-		return
-	end
+
 	local share = Health.get(humanoid) / math.max(Health.max(humanoid), 1)
 	local target = bot.target
 	local engaged = target ~= nil and Perception.engageable(bot, target, now)
-	local distance = if target then (target.lastPos - root.Position).Magnitude else math.huge
-	local hurtRecently = now - bot.lastHurtAt < 0.6
-	local config = BotGun.config(bot.gun)
-	local close = config ~= nil and (config.class == "Shotgun" or config.class == "SMG")
+	local known = Perception.lastKnown(bot, now)
+	if known and now - known.seenAt > BotsConfig.HUNT_MEMORY then
+		known = nil
+	end
+	local seen = if engaged and target then target.lastPos else nil
+	local point = seen or (known and known.lastPos)
+	local distance = if point then (point - root.Position).Magnitude else math.huge
+	local incoming = now - bot.lastHurtAt < 0.7
+	local rotating = bot.goal == "Rotate"
+	local cover = bot.goal == "Cover"
+	local weapons = BotGun.config(bot.gun)
+	local closeGun = weapons and (weapons.class == "Shotgun" or weapons.class == "SMG")
+	local dir = humanoid.MoveDirection
+	local best: Opportunity? = nil
+	local bestSlot, bestId = 0, ""
 
 	for slot = 1, ModsConfig.SLOTS do
 		local id = bot.kit[slot]
-		if id == "" or not ready(bot, slot, id) then
+		if id == "" or now < bot.modRetryAt[slot] or not ready(bot, slot, id) then
 			continue
 		end
-		if id == "Dash" then
-			-- Close the gap with a short-range gun.
-			if engaged and close and distance > 12 and distance < 32 then
-				pressPredicted(bot, slot)
-				return
-			end
-		elseif id == "Updraft" then
-			-- Escape when hurt and under fire.
-			if share < 0.4 and hurtRecently then
-				pressPredicted(bot, slot)
-				return
-			end
-		elseif id == "Molly" then
-			-- Flush someone just out of sight, or zone a close fight.
-			local known = Perception.lastKnown(bot, now)
-			if not engaged and known and now - known.seenAt < 4 then
-				local d = (known.lastPos - root.Position).Magnitude
-				if d > 12 and d < 45 then
-					castServer(bot, slot, id, "Primary", known.lastPos, nil)
-					return
-				end
-			elseif
-				engaged
-				and target
-				and distance > 10
-				and distance < 28
-				and rng:NextNumber() < 0.35
-			then
-				castServer(bot, slot, id, "Primary", target.lastPos, nil)
-				return
-			end
-		elseif id == "Frost" then
-			-- Slow someone it is pushing.
-			if engaged and target and distance < 26 and bot.profile.aggression >= 0.5 then
-				castServer(bot, slot, id, "Primary", target.lastPos, nil)
-				return
-			end
-		elseif id == "Stim" then
-			-- Hurt with nobody in sight.
-			if share < 0.6 and not engaged then
-				castServer(bot, slot, id, "Primary", nil, nil)
-				return
-			end
-		elseif id == "HealOrb" then
-			-- Self when hurt and not being shot this moment, else a hurt ally.
-			if share < 0.55 and not hurtRecently then
-				castServer(bot, slot, id, "Alt", nil, nil)
-				return
-			end
-			local ally = hurtAlly(bot, world.allies, 40, 0.5)
-			if ally then
-				local aRoot = ally:FindFirstChild("HumanoidRootPart")
-				castServer(
-					bot,
-					slot,
-					id,
-					"Primary",
-					if aRoot and aRoot:IsA("BasePart") then aRoot.Position else nil,
-					ally
-				)
-				return
-			end
-		elseif id == "ShockDart" then
-			-- A shot at someone in a fight, not too close (it splashes).
+		local _, stats = statsFor(bot, slot)
+		local option: Opportunity? = nil
+		if id == "Dash" and stats then
+			local reach = stats.distance
 			if
-				engaged
-				and target
-				and distance > 10
-				and distance < 60
-				and rng:NextNumber() < 0.5
+				(
+					rotating
+					or (seen and closeGun and distance > 12 and distance < 35)
+					or (incoming and share < 0.4 and (bot.goal == "Retreat" or cover))
+				)
+				and Nav.canMove(bot, dir, reach)
+				and Nav.zoneAllows(bot, root.Position + dir * reach, stats.duration)
 			then
-				castServer(bot, slot, id, "Primary", target.lastPos, nil)
-				return
+				option = { score = if rotating then 1 else 0.83 }
 			end
-		elseif id == "Flash" then
-			-- Before pushing someone just out of sight (it pops on their side).
-			local known = Perception.lastKnown(bot, now)
-			if not engaged and known and now - known.seenAt < 4 then
-				local d = (known.lastPos - root.Position).Magnitude
-				if d > 8 and d < 30 then
-					castServer(bot, slot, id, "Primary", known.lastPos, nil)
-					return
+		elseif id == "Updraft" and not rotating and not cover then
+			local height = if stats then math.min(stats.peak or 7, 14) else 7
+			local escape = incoming and share < 0.44
+			local elevated = seen
+				and bot.goal == "Engage"
+				and distance < 38
+				and seen.Y - root.Position.Y > 3
+				and seen.Y - root.Position.Y <= height
+			if
+				(escape or elevated)
+				and humanoid.FloorMaterial ~= Enum.Material.Air
+				and Nav.clearLine(bot, head.Position, head.Position + Vector3.yAxis * height)
+				and Nav.zoneAllows(bot, root.Position + dir * 8, 0.45)
+			then
+				option = { score = if escape then 0.76 + (0.44 - share) * 0.3 else 0.76 }
+			end
+		elseif rotating then
+			continue
+		elseif id == "Molly" and point and distance > 9 and distance < 47 then
+			option = { score = if seen then 0.57 else 0.82, point = point }
+		elseif id == "Frost" and point and distance > 9 and distance < 40 then
+			option =
+				{ score = if seen and (closeGun or incoming) then 0.81 else 0.66, point = point }
+		elseif
+			id == "Firewall"
+			and point
+			and stats
+			and distance > 10
+			and distance < stats.maxLength
+			and (incoming or bot.goal == "Hunt")
+		then
+			option = { score = 0.8, mode = "Alt", point = point }
+		elseif id == "Stim" and (not engaged or cover) and share < 0.62 then
+			option = { score = 0.77 + (0.62 - share) * 0.3 }
+		elseif id == "HealOrb" then
+			if share < 0.62 and not incoming and (not engaged or cover) then
+				option = { score = 0.86 + (0.62 - share) * 0.2, mode = "Alt" }
+			else
+				local ally = hurtAlly(bot, world.allies, 40, 0.55)
+				local part = ally and ally:FindFirstChild("HumanoidRootPart")
+				if
+					part
+					and part:IsA("BasePart")
+					and Nav.clearLine(bot, head.Position, part.Position)
+				then
+					option = { score = 0.85, point = part.Position, ally = ally }
 				end
 			end
-		elseif id == "Roller" then
-			-- Sent at someone in a fight, or round to where they were last seen.
-			local known = Perception.lastKnown(bot, now)
-			local at = if engaged and target
-				then target.lastPos
-				elseif known then known.lastPos
-				else nil
-			local d = if at then (at - root.Position).Magnitude else math.huge
-			if at and d > 8 and d < 35 and rng:NextNumber() < 0.5 then
-				castServer(bot, slot, id, "Primary", at, nil)
-				return
-			end
-		elseif id == "Recon" then
-			-- Nobody seen for a while: find them.
-			local known = Perception.lastKnown(bot, now)
-			if not target and not known and world.roam then
-				castServer(bot, slot, id, "Primary", world.roam, nil)
-				return
+		elseif id == "ShockDart" and seen and distance > 13 and distance < 55 then
+			option = { score = 0.73, point = seen }
+		elseif id == "Flash" and point and distance > 12 and distance < 34 then
+			option = { score = if seen then 0.62 else 0.88, point = point }
+		elseif id == "Roller" and point and distance > 10 and distance < 38 then
+			option = { score = if seen then 0.69 else 0.78, point = point }
+		elseif id == "Recon" and not engaged then
+			local search = point or bot.nav.goal or world.roam
+			if search and (search - root.Position).Magnitude > 10 then
+				option = { score = if point then 0.85 else 0.65, point = search }
 			end
 		end
+		if option then
+			option.score += rng:NextNumber(-0.045, 0.045)
+			if option.score >= profile.minScore and (not best or option.score > best.score) then
+				best, bestSlot, bestId = option, slot, id
+			end
+		end
+	end
+	if not best then
+		return
+	end
+	if SERVER_MODS[bestId] then
+		castServer(bot, bestSlot, bestId, best.mode or "Primary", best.point, best.ally)
+	else
+		pressPredicted(bot, bestSlot)
 	end
 end
 

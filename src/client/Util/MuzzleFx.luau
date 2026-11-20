@@ -82,6 +82,7 @@ type MuzzleRig = {
 	front: ParticleEmitter,
 	side: ParticleEmitter?,
 	core: ParticleEmitter?,
+	darkFlame: ParticleEmitter?,
 	embers: ParticleEmitter?,
 	smoke: ParticleEmitter,
 	wisp: ParticleEmitter,
@@ -112,7 +113,8 @@ local function buildRig(
 	muzzle: Attachment,
 	config: WeaponConfig,
 	scale: number,
-	firstPerson: boolean
+	firstPerson: boolean,
+	spectral: Color3?
 ): MuzzleRig?
 	local parent = muzzle.Parent
 	if not parent or not parent:IsA("BasePart") then
@@ -150,22 +152,29 @@ local function buildRig(
 		front.ZOffset = 0.1 * s
 	else
 		-- Down the barrel: a star burst, two frames long.
-		front = emitter(holder, VFX.FLASH_FRONT_2x2, WHITE)
+		front = emitter(
+			holder,
+			if spectral then VFX.T_FLASH else VFX.FLASH_FRONT_2x2,
+			spectral or WHITE
+		)
 		fire(front)
-		flipbook(front)
+		if not spectral then
+			flipbook(front)
+		end
 		front.LockedToPart = true
 		-- 2026-11-10: the stylised sheet; a touch bigger, brighter and a frame
 		-- longer than the old one, which washed out over bright floors.
 		front.Brightness = FLASH_BRIGHTNESS
-		front.Lifetime = NumberRange.new(0.045, 0.06)
-		front.Size = curve({ 0, 0.6 * s, 0.35, 0.95 * s, 1, 0.8 * s })
+		front.Lifetime = if spectral then NumberRange.new(0.05) else NumberRange.new(0.045, 0.06)
+		local frontScale = if spectral then 0.86 * s else s
+		front.Size = curve({ 0, 0.6 * frontScale, 0.35, 0.95 * frontScale, 1, 0.8 * frontScale })
 		front.Transparency = curve({ 0, 0, 0.55, 0.15, 1, 1 })
 		front.ZOffset = 0.15 * s
 
-		local c = emitter(holder, VFX.GLOW, FIRE)
+		local c = emitter(holder, VFX.GLOW, spectral or FIRE)
 		fire(c)
 		c.LockedToPart = true
-		c.Lifetime = NumberRange.new(0.04)
+		c.Lifetime = NumberRange.new(if spectral then 0.05 else 0.04)
 		c.Size = curve({ 0, 0.35 * s, 1, 0.2 * s })
 		c.Transparency = curve({ 0, 0.5, 1, 1 })
 		core = c
@@ -176,6 +185,7 @@ local function buildRig(
 	-- smaller there.
 	local side: ParticleEmitter? = nil
 	local embers: ParticleEmitter? = nil
+	local darkFlame: ParticleEmitter? = nil
 	if not puff then
 		local sideSize = (if firstPerson then 0.8 else 1.15) * s
 		-- The side flame's texture starts at its bottom edge, so it sits half
@@ -184,22 +194,46 @@ local function buildRig(
 		ahead.Name = "FxMuzzleSide"
 		ahead.CFrame = muzzle.CFrame * CFrame.new(0, 0, -sideSize * 0.47)
 		ahead.Parent = parent
-		local e = emitter(ahead, VFX.FLASH_SIDE_2x2, WHITE)
+		local e = emitter(
+			ahead,
+			if spectral then VFX.FLAME_SHEET_4x4 else VFX.FLASH_SIDE_2x2,
+			spectral or WHITE
+		)
 		fire(e)
-		flipbook(e)
+		if spectral then
+			e.FlipbookLayout = Enum.ParticleFlipbookLayout.Grid4x4
+			e.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
+			e.LightEmission = 0.62
+		else
+			flipbook(e)
+		end
 		e.LockedToPart = true
 		e.Orientation = Enum.ParticleOrientation.VelocityParallel
 		e.EmissionDirection = Enum.NormalId.Front
 		e.Speed = NumberRange.new(0.01)
 		e.Rotation = NumberRange.new(0)
 		e.Brightness = FLASH_BRIGHTNESS
-		e.Lifetime = NumberRange.new(0.045, 0.06)
+		e.Lifetime = if spectral then NumberRange.new(0.05) else NumberRange.new(0.045, 0.06)
 		e.Size = curve({ 0, sideSize * 0.75, 0.4, sideSize * 1.1, 1, sideSize })
 		e.Transparency = curve({ 0, 0, 0.55, 0.15, 1, 1 })
 		side = e
+		if spectral then
+			local shade = emitter(ahead, VFX.T_FLASH, Color3.fromRGB(12, 32, 32))
+			shade.Name = "ShadowMistDarkFlame"
+			shade.LockedToPart = true
+			shade.Lifetime = NumberRange.new(0.05)
+			shade.LightInfluence = 0
+			shade.Rotation = NumberRange.new(-20, 20)
+			shade.Size = curve({ 0, 0.64 * s, 0.35, 1.28 * s, 1, 0.97 * s })
+			shade.Transparency = curve({ 0, 0.15, 0.45, 0.27, 1, 1 })
+			darkFlame = shade
+		end
 
 		local em = Kit.sparkEmitter(holder, 0.07 * s)
-		em.Color = ColorSequence.new(EMBER, Kit.SPARK_COOL)
+		em.Color = ColorSequence.new(
+			spectral or EMBER,
+			if spectral then Color3.fromRGB(34, 118, 101) else Kit.SPARK_COOL
+		)
 		em.Speed = NumberRange.new(35 * s, 60 * s)
 		em.SpreadAngle = Vector2.new(9, 9)
 		em.Lifetime = NumberRange.new(0.04, 0.1)
@@ -208,9 +242,10 @@ local function buildRig(
 	end
 
 	-- One grey puff per shot, drifting forward and up.
-	local smoke = emitter(holder, VFX.SMOKE_2x2, SMOKE)
+	local smokeColor = if spectral then Color3.fromRGB(109, 161, 153) else SMOKE
+	local smoke = emitter(holder, VFX.SMOKE_2x2, smokeColor)
 	flipbook(smoke)
-	smoke.Lifetime = NumberRange.new(0.6, 1.1)
+	smoke.Lifetime = if spectral then NumberRange.new(0.21, 0.43) else NumberRange.new(0.6, 1.1)
 	smoke.Speed = NumberRange.new(2 * s, 5 * s)
 	smoke.SpreadAngle = Vector2.new(18, 18)
 	smoke.EmissionDirection = Enum.NormalId.Front
@@ -221,7 +256,7 @@ local function buildRig(
 	smoke.Transparency = curve({ 0, 1, 0.1, 0.82, 1, 1 })
 
 	-- Thin wisps curling off a hot barrel: continuous, rate set each frame.
-	local wisp = emitter(holder, VFX.SMOKE_2x2, SMOKE)
+	local wisp = emitter(holder, VFX.SMOKE_2x2, smokeColor)
 	flipbook(wisp)
 	wisp.Rate = 0
 	wisp.Enabled = true
@@ -237,8 +272,8 @@ local function buildRig(
 	wisp.Transparency = curve({ 0, 1, 0.2, 0.86, 1, 1 })
 
 	local light = Instance.new("PointLight")
-	light.Color = FIRE
-	light.Range = if puff then 4 else 10
+	light.Color = spectral or FIRE
+	light.Range = if spectral then 4.4 elseif puff then 4 else 10
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = holder
@@ -247,13 +282,15 @@ local function buildRig(
 		front = front,
 		side = side,
 		core = core,
+		darkFlame = darkFlame,
 		embers = embers,
 		smoke = smoke,
 		wisp = wisp,
 		light = light,
 		-- Fast guns pop a dimmer light, or the room strobes.
-		brightness = if puff
-			then (if suppressed then 0 else 0.5)
+		brightness = if spectral
+			then 2.4
+			elseif puff then (if suppressed then 0 else 0.5)
 			elseif config.fireInterval < 0.1 then 1.6
 			else 2.4,
 		smokeCount = if config.class == "Shotgun" or config.class == "Sniper" then 3 else 1,
@@ -273,14 +310,18 @@ function MuzzleFx.flash(
 	muzzle: Attachment,
 	config: WeaponConfig,
 	firstPerson: boolean,
-	smoke: boolean?
+	smoke: boolean?,
+	spectral: Color3?
 )
 	local scale = if firstPerson
 		then (config.viewmodelScale or ViewmodelConfig.SCALE) * FP_FLASH
 		else 1
-	local rig = rigs[muzzle] or buildRig(muzzle, config, scale, firstPerson)
+	local rig = rigs[muzzle] or buildRig(muzzle, config, scale, firstPerson, spectral)
 	if not rig then
 		return
+	end
+	if rig.darkFlame then
+		rig.darkFlame:Emit(1)
 	end
 	rig.front:Emit(1)
 	if rig.core then
@@ -294,7 +335,9 @@ function MuzzleFx.flash(
 	end
 	if smoke ~= false then
 		rig.smoke:Emit(rig.smokeCount)
-		rig.heat = math.min(rig.heat + 1, HEAT_MAX)
+		if not spectral then
+			rig.heat = math.min(rig.heat + 1, HEAT_MAX)
+		end
 	end
 	rig.lastShot = fxClock
 	popLight(rig.light, rig.brightness)

@@ -18,6 +18,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -52,12 +53,12 @@ local moveParts: { BasePart } = {}
 local moveFrames: { CFrame } = {}
 
 local function num(inst: Instance, name: string, default: number): number
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else default
 end
 
 local function vec(inst: Instance, name: string): Vector3?
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "Vector3" then v else nil
 end
 
@@ -232,8 +233,8 @@ local function add(kind: string, inst: Instance, src: Instance?)
 			}
 		elseif kind == "Sway" then
 			e.data = {
-				pivot = vec(a, "Pivot") or if typeof(a:GetAttribute("PivotY")) == "number"
-					then Vector3.new(cf.X, a:GetAttribute("PivotY") :: number, cf.Z)
+				pivot = vec(a, "Pivot") or if typeof(StateValues.get(a, "PivotY")) == "number"
+					then Vector3.new(cf.X, StateValues.get(a, "PivotY") :: number, cf.Z)
 					else cf.Position,
 				deg = math.rad(num(a, "SwayDeg", 2)),
 				hz = num(a, "SwayHz", 0.2),
@@ -268,7 +269,7 @@ local function add(kind: string, inst: Instance, src: Instance?)
 			hz = num(a, "PulseHz", 0.3),
 			base = inst.Transparency,
 			to = num(a, "FlickerTo", 0.85),
-			gap = a:GetAttribute("FlickerGap"),
+			gap = StateValues.get(a, "FlickerGap"),
 			nextAt = os.clock() + 2 + math.random() * 6,
 			from = 0,
 			untilAt = 0,
@@ -303,7 +304,7 @@ local function add(kind: string, inst: Instance, src: Instance?)
 				flapDeg = math.rad(num(a, "FlapDeg", MapLife.PIGEON.flapDeg)),
 				away = num(a, "Away", MapLife.PIGEON.away),
 				rise = num(a, "Rise", MapLife.PIGEON.rise),
-				sound = a:GetAttribute("Sound") or MapLife.PIGEON.sound,
+				sound = StateValues.get(a, "Sound") or MapLife.PIGEON.sound,
 				volume = num(a, "Volume", MapLife.PIGEON.volume),
 				since = 0,
 				delay = math.random() * 0.35,
@@ -559,7 +560,7 @@ end
 -- frame) and spin about the target's up axis: blades over a fan disc whose
 -- own mesh shows no turning. The copies are client-only and go with the target.
 local function addRotors(target: Instance, rule: Instance)
-	local name = rule:GetAttribute("Template")
+	local name = StateValues.get(rule, "Template")
 	local life = rule.Parent and rule.Parent.Parent
 	local template = if typeof(name) == "string" and life then life:FindFirstChild(name) else nil
 	local cf = frameOf(target)
@@ -587,8 +588,8 @@ local function addRotors(target: Instance, rule: Instance)
 end
 
 local function addRule(rule: Instance)
-	local kind = rule:GetAttribute("Kind")
-	local target = rule:GetAttribute("Target")
+	local kind = StateValues.get(rule, "Kind")
+	local target = StateValues.get(rule, "Target")
 	local map = mapOf(rule)
 	if typeof(kind) ~= "string" or typeof(target) ~= "string" or not map or ruleConns[rule] then
 		return

@@ -6,6 +6,7 @@
 -- Built once per Mod and cached; callers clone what they need.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
 
@@ -59,7 +60,7 @@ local function placeholder(id: string, glow: Color3): Model?
 	local model = Instance.new("Model")
 	model.Name = id
 	if id == "Molly" then
-		model:SetAttribute("HoldOffset", Vector3.new(0, 0.32, -0.12))
+		StateValues.set(model, "HoldOffset", Vector3.new(0, 0.32, -0.12))
 		part(model, Enum.PartType.Ball, Vector3.one * 0.5, CFrame.identity, SHELL)
 		part(
 			model,
@@ -77,7 +78,7 @@ local function placeholder(id: string, glow: Color3): Model?
 			SHELL_DARK
 		)
 	elseif id == "Frost" then
-		model:SetAttribute("HoldOffset", Vector3.new(0, 0.34, -0.12))
+		StateValues.set(model, "HoldOffset", Vector3.new(0, 0.34, -0.12))
 		part(model, Enum.PartType.Ball, Vector3.one * 0.32, CFrame.identity, glow, true)
 		part(
 			model,
@@ -106,7 +107,7 @@ local function placeholder(id: string, glow: Color3): Model?
 		)
 	elseif id == "HealOrb" then
 		-- An orb of light hovering above the palm: a neon core in a soft halo.
-		model:SetAttribute("HoldOffset", Vector3.new(0, 0.34, -0.12))
+		StateValues.set(model, "HoldOffset", Vector3.new(0, 0.34, -0.12))
 		part(model, Enum.PartType.Ball, Vector3.one * 0.16, CFrame.identity, glow, true)
 		local halo = part(model, Enum.PartType.Ball, Vector3.one * 0.32, CFrame.identity, glow)
 		halo.Material = Enum.Material.ForceField
@@ -130,11 +131,11 @@ function ModProps.tint(model: Model, glow: Color3)
 	for _, d in model:GetDescendants() do
 		if
 			d:IsA("BasePart")
-			and (d:GetAttribute("Energy") == true or d.Material == Enum.Material.Neon)
+			and (StateValues.get(d, "Energy") == true or d.Material == Enum.Material.Neon)
 			and string.sub(d.Name, -7) ~= "_Yellow"
 			and string.sub(d.Name, -7) ~= "_Violet"
 			and string.sub(d.Name, -5) ~= "_Fire"
-			and d:GetAttribute("OwnColour") ~= true
+			and StateValues.get(d, "OwnColour") ~= true
 		then
 			d.Color = glow
 			for _, decal in d:GetChildren() do
@@ -151,7 +152,7 @@ end
 function ModProps.finished(id: string, kinds: { string }): Model?
 	local folder = ReplicatedStorage:FindFirstChild("Abilities")
 	local m = folder and folder:FindFirstChild(id)
-	if m and m:IsA("Model") and table.find(kinds, m:GetAttribute("Kind") :: any) then
+	if m and m:IsA("Model") and table.find(kinds, StateValues.get(m, "Kind") :: any) then
 		return m
 	end
 	return nil
@@ -183,7 +184,7 @@ function ModProps.get(id: string, glow: Color3): Model?
 			local small = placed:Clone()
 			ModProps.tint(small, glow)
 			small:ScaleTo(HELD_PLACED_SCALE)
-			small:SetAttribute("HoldOffset", Vector3.new(0, 0.12, -0.15))
+			StateValues.set(small, "HoldOffset", Vector3.new(0, 0.12, -0.15))
 			model = small
 		end
 	end
@@ -204,7 +205,7 @@ end
 -- (placed Mod objects): pivot at the part's floor centre, facing its
 -- LookVector. nil when there's no finished model (the part stays as it is).
 function ModProps.dress(object: BasePart, glow: Color3): Model?
-	local kind = object:GetAttribute("Kind")
+	local kind = StateValues.get(object, "Kind")
 	local finished = if typeof(kind) == "string" then ModProps.finished(kind, { "placed" }) else nil
 	if not finished then
 		return nil

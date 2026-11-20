@@ -10,6 +10,7 @@
 local Players = game:GetService("Players")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local DashMod = require(ReplicatedStorage.Shared.Mods.Dash)
 local DashDecoy = require(script.Parent.DashDecoy)
@@ -25,7 +26,7 @@ local handler: Types.Handler = {}
 local seen: { [Model]: number } = setmetatable({}, { __mode = "k" }) :: any
 
 local function number(inst: Instance, name: string): number
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else 0
 end
 

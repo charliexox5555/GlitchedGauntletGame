@@ -11,6 +11,7 @@ local AvatarEditorService = game:GetService("AvatarEditorService")
 local ExperienceNotificationService = game:GetService("ExperienceNotificationService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local SocialService = game:GetService("SocialService")
 
 local RewardsCatalog = require(ReplicatedStorage.Lobby.RewardsCatalog)
@@ -84,7 +85,7 @@ function RewardsController.init()
 		local row = LobbyKit.slot(tpl, list, function(f: Frame)
 			f.Name = "Reward_" .. r.id
 			f.LayoutOrder = i
-			f:SetAttribute("Slot", true)
+			StateValues.set(f, "Slot", true)
 			local title = child(f, "Title") :: TextLabel
 			title.Text = r.title
 			local sub = child(f, "Sub") :: TextLabel

@@ -1,0 +1,59 @@
+{
+  "session": {
+    "port": 9000,
+    "background": false
+  },
+  "rest_exterior_bounds": [
+    [
+      -1.25,
+      -0.143,
+      -0.413
+    ],
+    [
+      2.646,
+      0.143,
+      0.6404
+    ]
+  ],
+  "stock_total_length": 3.899,
+  "base_mesh_faces_checked": 9378,
+  "base_mesh_errors": [],
+  "stock_aim_center_ray_hit": null,
+  "effect_review": [
+    {
+      "frame": 1,
+      "prow_flex": 0.0,
+      "water_scale": 0.001
+    },
+    {
+      "frame": 25,
+      "prow_flex": 0.0,
+      "water_scale": 0.001
+    },
+    {
+      "frame": 38,
+      "prow_flex": 0.3,
+      "water_scale": 0.5427
+    },
+    {
+      "frame": 49,
+      "prow_flex": 1.0,
+      "water_scale": 1.0
+    },
+    {
+      "frame": 63,
+      "prow_flex": 0.49,
+      "water_scale": 0.64
+    },
+    {
+      "frame": 82,
+      "prow_flex": 0.0,
+      "water_scale": 0.001
+    },
+    {
+      "frame": 96,
+      "prow_flex": 0.0,
+      "water_scale": 0.001
+    }
+  ]
+}

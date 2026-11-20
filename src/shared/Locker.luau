@@ -4,12 +4,13 @@
 --
 -- One equipped skin line per gun, saved in DataStore STORE under key(userId)
 -- as { v = 1, skins = { [gunId] = line } }. The Lobby's LockerService writes
--- it and sets the Player attribute attr(gunId) = line. The Match's
--- SkinPreviewService reads the same record into a child folder on join.
+-- it and both places mirror the equipped lines in a JSON StringValue.
 -- Lines are Config/SkinPreview.LINES ("Stock" = the base model); a line is
 -- valid for a gun only if WeaponSkins/<Line>/<Gun> exists and is SkinReady.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
+local HttpService = game:GetService("HttpService")
 
 local SkinConfig = require(script.Parent.Config.SkinPreview)
 local Weapons = require(script.Parent.Config.Weapons)
@@ -18,13 +19,72 @@ local Locker = {}
 
 Locker.STORE = "LockerV1"
 Locker.VERSION = 1
+Locker.REPLICA = "LockerSkins"
+local cache: { [StringValue]: { encoded: string, skins: { [string]: string } } } = setmetatable(
+	{},
+	{ __mode = "k" }
+) :: any
 
 function Locker.key(userId: number): string
 	return "u_" .. tostring(userId)
 end
 
-function Locker.attr(gunId: string): string
-	return "Skin_" .. gunId
+function Locker.publish(owner: Instance, skins: { [string]: string }, name: string?)
+	local key = name or Locker.REPLICA
+	local encoded = HttpService:JSONEncode(skins)
+	local value = owner:FindFirstChild(key)
+	if value and value:IsA("StringValue") then
+		value.Value = encoded
+		return
+	end
+	local replica = Instance.new("StringValue")
+	replica.Name = key
+	replica.Value = encoded
+	replica.Parent = owner
+end
+
+function Locker.equipped(owner: Instance, name: string?): { [string]: string }
+	local value = owner:FindFirstChild(name or Locker.REPLICA)
+	if not value or not value:IsA("StringValue") or value.Value == "" then
+		return {}
+	end
+	local encoded = value.Value
+	local entry = cache[value]
+	if entry and entry.encoded == encoded then
+		return entry.skins
+	end
+	local skins = HttpService:JSONDecode(encoded)
+	table.freeze(skins)
+	cache[value] = { encoded = encoded, skins = skins }
+	return skins
+end
+
+function Locker.observe(owner: Instance, onChange: () -> ()): () -> ()
+	local changed: RBXScriptConnection? = nil
+	local function attach(value: Instance)
+		if value.Name == Locker.REPLICA and value:IsA("StringValue") then
+			if changed then
+				changed:Disconnect()
+			end
+			changed = value:GetPropertyChangedSignal("Value"):Connect(onChange)
+		end
+	end
+	local existing = owner:FindFirstChild(Locker.REPLICA)
+	if existing then
+		attach(existing)
+	end
+	local added = owner.ChildAdded:Connect(function(value)
+		if value.Name == Locker.REPLICA and value:IsA("StringValue") then
+			attach(value)
+			onChange()
+		end
+	end)
+	return function()
+		added:Disconnect()
+		if changed then
+			changed:Disconnect()
+		end
+	end
 end
 
 -- Swatch colours for the UI (a line's identity on cards and tags).
@@ -45,6 +105,8 @@ Locker.COLORS = table.freeze({
 	Playback = Color3.fromHex("746079"),
 	Breakwater = Color3.fromHex("327C80"),
 	Sundial = Color3.fromHex("B89A57"),
+	Poolside = Color3.fromHex("4DB6E4"),
+	Rootglass = Color3.fromHex("26745E"),
 }) :: { [string]: Color3 }
 
 -- Each line's emblem (owner 2026-11-15: skins need an identity besides
@@ -86,7 +148,7 @@ function Locker.skinModel(gunId: string, line: string): Model?
 	-- the PopCircuit knife is the Bat (same rule as Shared/SkinPreview.resolve)
 	local name = if gunId == "Knife" and line == "PopCircuit" then "Bat" else gunId
 	local m = folder and folder:FindFirstChild(name)
-	if m and m:IsA("Model") and m:GetAttribute("SkinReady") == true then
+	if m and m:IsA("Model") and StateValues.get(m, "SkinReady") == true then
 		return m
 	end
 	return nil

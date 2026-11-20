@@ -24,6 +24,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local StarterGui = game:GetService("StarterGui")
 local UserInputService = game:GetService("UserInputService")
 
@@ -136,7 +137,7 @@ local function headshot(userId: number): string
 end
 
 local function numberAttr(p: Player, name: string, default: number): number
-	local v = p:GetAttribute(name)
+	local v = StateValues.get(p, name)
 	return if typeof(v) == "number" and v == v then v else default
 end
 
@@ -162,8 +163,8 @@ local function canInvite(p: Player): boolean
 	if p == player then
 		return false
 	end
-	local key = player:GetAttribute("PartyKey")
-	return not (typeof(key) == "string" and p:GetAttribute("PartyKey") == key)
+	local key = StateValues.get(player, "PartyKey")
+	return not (typeof(key) == "string" and StateValues.get(p, "PartyKey") == key)
 end
 
 -- An INVITE button for `p`: reads SENT (navy) while that invite is open.
@@ -192,8 +193,8 @@ end
 
 -- Player list (level and win streak) -------------------------------------------------
 local function whereOf(p: Player): (string, Color3)
-	local status = p:GetAttribute("QueueStatus")
-	local mode = p:GetAttribute("QueueMode")
+	local status = StateValues.get(p, "QueueStatus")
+	local mode = StateValues.get(p, "QueueMode")
 	if status == "searching" then
 		return "QUEUED  ·  " .. string.upper(if typeof(mode) == "string" then mode else ""), GOLD
 	elseif status == "found" or status == "teleporting" then
@@ -278,10 +279,10 @@ local function renderList()
 				hookInvite(inviteB, p)
 				local ib = inviteB
 				ib.MouseEnter:Connect(function()
-					ib:SetAttribute("Over", true)
+					StateValues.set(ib, "Over", true)
 				end)
 				ib.MouseLeave:Connect(function()
-					ib:SetAttribute("Over", false)
+					StateValues.set(ib, "Over", false)
 				end)
 				row.MouseEnter:Connect(function()
 					inviteB.Visible = true
@@ -301,7 +302,7 @@ local function renderList()
 				return
 			end
 			local b = row:FindFirstChild("Invite")
-			if b and b:IsA("GuiObject") and b.Visible and b:GetAttribute("Over") == true then
+			if b and b:IsA("GuiObject") and b.Visible and StateValues.get(b, "Over") == true then
 				return -- that's the INVITE button's click
 			end
 			Router.open("Profile", p)
@@ -323,7 +324,7 @@ local function watch(p: Player)
 	if watched[p] then
 		return
 	end
-	watched[p] = p.AttributeChanged:Connect(function(name: string)
+	watched[p] = StateValues.anyChanged(p):Connect(function(name: string)
 		if
 			name == "QueueStatus"
 			or name == "QueueMode"
@@ -429,19 +430,22 @@ end
 
 -- Party ----------------------------------------------------------------------------
 local function partyMates(): { Player }
-	local key = player:GetAttribute("PartyKey")
+	local key = StateValues.get(player, "PartyKey")
 	local list: { Player } = {}
 	if typeof(key) ~= "string" then
 		return list
 	end
 	for _, p in Players:GetPlayers() do
-		if p ~= player and p:GetAttribute("PartyKey") == key then
+		if p ~= player and StateValues.get(p, "PartyKey") == key then
 			table.insert(list, p)
 		end
 	end
 	table.sort(list, function(a, b)
-		if (a:GetAttribute("PartyLeader") == true) ~= (b:GetAttribute("PartyLeader") == true) then
-			return a:GetAttribute("PartyLeader") == true
+		if
+			(StateValues.get(a, "PartyLeader") == true)
+			~= (StateValues.get(b, "PartyLeader") == true)
+		then
+			return StateValues.get(a, "PartyLeader") == true
 		end
 		return a.DisplayName < b.DisplayName
 	end)
@@ -470,7 +474,7 @@ function LobbyHudView.renderParty()
 	end
 	local mates = partyMates()
 	local you = child(s.party, "You") :: GuiObject
-	setLead(you, player:GetAttribute("PartyLeader") == true)
+	setLead(you, StateValues.get(player, "PartyLeader") == true)
 	local keep: { [Player]: boolean } = {}
 	for i, m in mates do
 		keep[m] = true
@@ -492,7 +496,7 @@ function LobbyHudView.renderParty()
 		end
 		local sl = slot :: GuiObject
 		sl.LayoutOrder = 1 + i
-		setLead(sl, m:GetAttribute("PartyLeader") == true)
+		setLead(sl, StateValues.get(m, "PartyLeader") == true)
 	end
 	for m, slot in s.slots do
 		if not keep[m] then
@@ -825,7 +829,7 @@ function LobbyHudView.refresh()
 		-- PlayMenuController, takes over) and comes back when you're idle
 		if status == "idle" then
 			s.play.Visible = true
-			s.playPop:SetAttribute("Rest", 1)
+			StateValues.set(s.playPop, "Rest", 1)
 			s.playPop.Scale = 0
 			tween(s.playPop, 0.36, { Scale = 1 }, QUINT, OUT)
 		elseif was == "idle" then

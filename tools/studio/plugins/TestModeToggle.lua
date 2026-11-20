@@ -12,7 +12,7 @@ local ChangeHistoryService = game:GetService("ChangeHistoryService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-local ATTRIBUTE = "TestMode"
+local FIELD = "TestMode"
 
 local toolbar = plugin:CreateToolbar("Glitched Gauntlet")
 local button = toolbar:CreateButton(
@@ -23,12 +23,8 @@ local button = toolbar:CreateButton(
 )
 button.ClickableWhenViewportHidden = true
 
-local function isOn(): boolean
-	return Workspace:GetAttribute(ATTRIBUTE) == true
-end
-
 local function refresh()
-	button:SetActive(isOn())
+	button:SetActive(Workspace:GetAttribute(FIELD) == true)
 end
 
 button.Click:Connect(function()
@@ -37,18 +33,19 @@ button.Click:Connect(function()
 		refresh()
 		return
 	end
+	local on = Workspace:GetAttribute(FIELD) ~= true
 	local recording = ChangeHistoryService:TryBeginRecording("Toggle Test Mode")
-	Workspace:SetAttribute(ATTRIBUTE, not isOn())
+	Workspace:SetAttribute(FIELD, on)
 	if recording then
 		ChangeHistoryService:FinishRecording(recording, Enum.FinishRecordingOperation.Commit)
 	end
 	print(
-		if isOn()
+		if on
 			then "[Test Mode] ON: Play starts the test range (F8 = ability dev panel)."
 			else "[Test Mode] OFF: Play starts a real match on the map."
 	)
 	refresh()
 end)
 
-Workspace:GetAttributeChangedSignal(ATTRIBUTE):Connect(refresh)
+Workspace:GetAttributeChangedSignal(FIELD):Connect(refresh)
 refresh()

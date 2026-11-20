@@ -25,6 +25,8 @@
 -- point, whether the right hand holds the bat, whether the left hand holds
 -- it, whether the swing trail is on, and whether the move has finished.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -534,7 +536,7 @@ function Bat.step(
 	local u = motion.time / clip.length
 	-- Studio review: Workspace DevBatScrub (0..1) holds the move at that point.
 	if RunService:IsStudio() then
-		local scrub = Workspace:GetAttribute("DevBatScrub")
+		local scrub = StateValues.get(Workspace, "DevBatScrub")
 		if typeof(scrub) == "number" then
 			u = math.clamp(scrub, 0, 1)
 			motion.time = u * clip.length

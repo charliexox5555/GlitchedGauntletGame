@@ -1,0 +1,82 @@
+{
+  "blend": "PatchTool_Stacklight_concept_v03.blend",
+  "objects": 47,
+  "new_closed_meshes": 16,
+  "identical_stock_meshes_and_UV": 0,
+  "cancel_to_rest_max_delta": 0.0,
+  "active_max_transform_delta": 0.93848,
+  "frame_end": 220,
+  "screen_coverage": {
+    "equip": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.909
+    },
+    "idle": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.835
+    },
+    "carry": {
+      "mesh_vertices_on_screen_pct": 97.9,
+      "nearest_vertex": 0.733
+    },
+    "light_a": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.117
+    },
+    "light_b": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.114
+    },
+    "heavy": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.314
+    },
+    "inspect": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.981
+    },
+    "recovery": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.011
+    },
+    "cancel": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.842
+    }
+  },
+  "grip_projection": {
+    "Right grip anchor": [
+      0.6722434759140015,
+      0.8131288141012192
+    ]
+  },
+  "actions": 2,
+  "bones": [
+    "Offset grip",
+    "Nested frame",
+    "Leading panel",
+    "Trailing panel",
+    "Upper handle cheek",
+    "Lower handle cheek",
+    "Diagnostic cell 1",
+    "Diagnostic cell 2",
+    "Diagnostic cell 3"
+  ],
+  "markers": {
+    "REST": 1,
+    "EQUIP": 5,
+    "EQUIP READY": 23,
+    "IDLE": 24,
+    "CARRY": 48,
+    "LIGHT A": 68,
+    "LIGHT A CONTACT": 72,
+    "LIGHT B": 85,
+    "LIGHT B CONTACT": 91,
+    "HEAVY": 104,
+    "HEAVY CONTACT": 113,
+    "INSPECT": 129,
+    "RECOVERY": 178,
+    "CANCEL": 204,
+    "CANCEL REST": 219
+  }
+}

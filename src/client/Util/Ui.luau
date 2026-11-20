@@ -7,6 +7,7 @@
 
 local GuiService = game:GetService("GuiService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
 
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
@@ -215,10 +216,10 @@ local function floorText(root: Instance, scale: number)
 	local floor = math.ceil(Ui.MIN_TEXT_PX / scale)
 	for _, d in root:GetDescendants() do
 		if d:IsA("TextLabel") or d:IsA("TextButton") then
-			local base = d:GetAttribute("BaseTextSize")
+			local base = StateValues.get(d, "BaseTextSize")
 			if typeof(base) ~= "number" then
 				base = d.TextSize
-				d:SetAttribute("BaseTextSize", base)
+				StateValues.set(d, "BaseTextSize", base)
 			end
 			local size = math.max(base :: number, floor)
 			d.TextSize = size
@@ -227,10 +228,10 @@ local function floorText(root: Instance, scale: number)
 			local autoY = d.AutomaticSize == Enum.AutomaticSize.Y
 				or d.AutomaticSize == Enum.AutomaticSize.XY
 			if not autoY and d.Size.Y.Scale == 0 then
-				local baseH = d:GetAttribute("BaseHeight")
+				local baseH = StateValues.get(d, "BaseHeight")
 				if typeof(baseH) ~= "number" then
 					baseH = d.Size.Y.Offset
-					d:SetAttribute("BaseHeight", baseH)
+					StateValues.set(d, "BaseHeight", baseH)
 				end
 				local want = math.max(
 					baseH :: number,
@@ -264,7 +265,7 @@ function Ui.fit(obj: GuiObject): UIScale
 	if gui then
 		local conn = gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
 			-- A phone arrangement (Controllers/PhoneHudController) sets its own scale.
-			if scale:GetAttribute("Override") == nil then
+			if StateValues.get(scale, "Override") == nil then
 				scale.Scale = screenScale(gui)
 			end
 			Ui.refit(obj)
@@ -295,7 +296,7 @@ function Ui.override(obj: GuiObject, value: number?)
 	if not (scale and scale:IsA("UIScale")) then
 		return
 	end
-	scale:SetAttribute("Override", value)
+	StateValues.set(scale, "Override", value)
 	if value then
 		scale.Scale = value
 	else

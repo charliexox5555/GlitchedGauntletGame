@@ -13,6 +13,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
@@ -50,7 +51,7 @@ local function anchorOf(inst: Instance): Instance?
 end
 
 local function modeOf(inst: Instance): string?
-	local m = inst:GetAttribute("Mode")
+	local m = StateValues.get(inst, "Mode")
 	if typeof(m) == "string" and Config.MODE_BY_ID[m] then
 		return m
 	end
@@ -62,7 +63,7 @@ local function attach(tag: string, hook: Hook, inst: Instance)
 	if not anchor or anchor:FindFirstChild(PROMPT_NAME) then
 		return
 	end
-	if inst:GetAttribute("Trigger") == "Step" and anchor:IsA("BasePart") then
+	if StateValues.get(inst, "Trigger") == "Step" and anchor:IsA("BasePart") then
 		stepZones[inst] = { part = anchor, tag = tag, hook = hook, inst = inst, inside = false }
 		return
 	end

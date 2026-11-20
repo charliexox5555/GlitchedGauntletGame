@@ -55,17 +55,17 @@ end
 
 -- A fresh target: the error starts wide.
 function Aim.acquire(bot: Bot)
-	bot.aimError = randomError(bot.profile.errorStart * (0.7 + rng:NextNumber() * 0.6))
+	bot.aimError = randomError(bot.profile.aim.errorStart * (0.7 + rng:NextNumber() * 0.6))
 end
 
 -- The target cut the other way, or the bot got hit: the aim loosens.
 function Aim.disturb(bot: Bot, share: number)
-	bot.aimError += randomError(bot.profile.errorStart * share)
+	bot.aimError += randomError(bot.profile.aim.errorStart * share)
 end
 
 -- A shot's kick (degrees up, degrees side): what isn't pulled back stays.
 function Aim.kick(bot: Bot, up: number, side: number)
-	local keep = 1 - bot.profile.recoilControl * (0.85 + rng:NextNumber() * 0.3)
+	local keep = 1 - bot.profile.aim.recoilControl * (0.85 + rng:NextNumber() * 0.3)
 	bot.recoil += Vector2.new(side, up) * math.max(keep, 0)
 end
 
@@ -77,16 +77,9 @@ function Aim.targetPoint(bot: Bot, now: number): Vector3?
 	if not m then
 		return nil
 	end
-	local name = if m.aimPart == "Head" and m.headVisible then "Head" else "UpperTorso"
-	local part = m.model:FindFirstChild(name)
-	if not part or not part:IsA("BasePart") then
-		return m.lastPos
-	end
-	local root = m.model:FindFirstChild("HumanoidRootPart")
-	if not root or not root:IsA("BasePart") then
-		return part.Position
-	end
-	return Perception.lagged(m, now, bot.profile.trackLag) + (part.Position - root.Position)
+	local head = m.headVisible and (m.aimPart == "Head" or not m.bodyVisible)
+	local offset = if head then m.headOffset else m.bodyOffset
+	return Perception.lagged(m, now, bot.profile.aim.trackLag) + offset
 end
 
 -- Per frame: moves the spring toward `point` (or the look-at direction),
@@ -104,15 +97,18 @@ function Aim.step(bot: Bot, point: Vector3?, dt: number): number
 		wantYaw = anglesTo(head.Position, bot.lookAt)
 	end
 	wantYaw = bot.yaw + wrap(wantYaw - bot.yaw)
-	local smooth = bot.profile.aimSmooth * (if point then 1 else 1.6)
-	bot.yaw, bot.yawVel = smoothDamp(bot.yaw, wantYaw, bot.yawVel, smooth, dt)
+	local smooth = bot.profile.aim.aimSmooth * (if point then 1 else 1.6)
+	local turnSpeed = math.rad(BotsConfig.AIM_TURN_SPEED)
+	local nextYaw, yawVelocity = smoothDamp(bot.yaw, wantYaw, bot.yawVel, smooth, dt)
+	bot.yaw += math.clamp(nextYaw - bot.yaw, -turnSpeed * dt, turnSpeed * dt)
+	bot.yawVel = math.clamp(yawVelocity, -turnSpeed, turnSpeed)
 	bot.pitch, bot.pitchVel = smoothDamp(bot.pitch, wantPitch, bot.pitchVel, smooth, dt)
 	bot.yaw = wrap(bot.yaw)
 
 	-- The error settles toward a wobble at the floor; recoil recovers.
 	-- The wobble it settles toward moves a few times a second (a hand's drift).
 	if rng:NextNumber() < dt / 0.25 then
-		bot.aimWobble = randomError(bot.profile.errorFloor * (0.4 + rng:NextNumber() * 0.8))
+		bot.aimWobble = randomError(bot.profile.aim.errorFloor * (0.4 + rng:NextNumber() * 0.8))
 	end
 	local floor = bot.aimWobble
 	-- A nearly dead target: easier levels ease off (a fair finish).
@@ -122,9 +118,9 @@ function Aim.step(bot: Bot, point: Vector3?, dt: number): number
 		humanoid
 		and Health.get(humanoid) / math.max(Health.max(humanoid), 1) < BotsConfig.LOW_HEALTH
 	then
-		floor *= bot.profile.easeLowHealth
+		floor *= bot.profile.aim.easeLowHealth
 	end
-	bot.aimError = floor + (bot.aimError - floor) * math.exp(-dt / bot.profile.errorSettle)
+	bot.aimError = floor + (bot.aimError - floor) * math.exp(-dt / bot.profile.aim.errorSettle)
 	bot.recoil *= math.exp(-dt / RECOIL_RECOVER)
 
 	local lagYaw = math.deg(wrap(wantYaw - bot.yaw))

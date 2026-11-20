@@ -6,8 +6,11 @@ Run headless in Blender with -- <build|review|all> <line> <item> [version].
 from collections import defaultdict
 import json
 import math
+import os
 from pathlib import Path
+import shutil
 import sys
+import tempfile
 
 import bpy
 from mathutils import Vector
@@ -18,12 +21,19 @@ import build_full_reskins as tools
 from build_poolside_spectre import PALETTE as POOL_PALETTE, rgba, smooth
 from build_skin_roster import Nodes, bake, fingerprints, mesh_objects, rel, write_json
 from check_hand_clipping import box_from
-from full_reskin_uv import relocate
+from full_reskin_uv import _available, coverage, relocate
 import rootglass_geometry as rootglass
 from skin_graphics import LAYOUT
 
 F, M, roster = tools.F, tools.M, tools.roster
 ROOT_COLLECTION = "Rootglass Cosmetic"
+SIGHT_SEAT_SOURCE = (tools.SKINS / "Shared Sources/Bulldog/SightSeat_v01"
+                     / "Bulldog_RemasterV2_v05_SightSeat_v01.blend")
+
+
+def source_for(item):
+    return SIGHT_SEAT_SOURCE if item == "Bulldog" else tools.source(item)
+
 
 # Bias the bend to the part named in the per-item brief, in stock dimensions.
 # Elements are span, centre height, rise, stripe spacing, mark placement.
@@ -58,9 +68,11 @@ def filenames(line, item, version):
     return dest, dest / f"{slot}_{line}_{version}.blend"
 
 
-def new_uv(objects, name):
+def new_uv(objects, name, angle=60):
     for ob in objects:
-        layer = ob.data.uv_layers.new(name=name, do_init=False)
+        layer = ob.data.uv_layers.get(name)
+        if layer is None:
+            layer = ob.data.uv_layers.new(name=name, do_init=False)
         ob.data.uv_layers.active = layer
         layer.active_render = True
     bpy.ops.object.select_all(action="DESELECT")
@@ -72,13 +84,35 @@ def new_uv(objects, name):
     try:
         bpy.ops.mesh.select_all(action="SELECT")
         bpy.ops.uv.select_all(action="SELECT")
-        bpy.ops.uv.smart_project(angle_limit=math.radians(60), island_margin=0,
+        bpy.ops.uv.smart_project(angle_limit=math.radians(angle), island_margin=0,
                                  area_weight=0, correct_aspect=False, scale_to_bounds=False)
         bpy.ops.uv.average_islands_scale()
         bpy.ops.uv.pack_islands(rotate=True, scale=True, margin_method="FRACTION",
                                margin=.008, shape_method="CONCAVE")
     finally:
         bpy.ops.object.mode_set(mode="OBJECT")
+
+
+def prepare_sight_seat(item, use_stock_atlas):
+    if item != "Bulldog":
+        return
+    import numpy as np
+
+    seat = bpy.data.objects["GG_Bulldog_FrontSightSeat"]
+    seat.data.materials[0] = bpy.data.materials["Dark"]
+    if not use_stock_atlas:
+        return
+    existing = [ob for ob in mesh_objects(item) if ob != seat]
+    atlas,_,_ = coverage(existing)
+    occupied = (atlas>0).reshape(1024,2,1024,2).any(axis=(1,3))
+    height = width = 65
+    ys,xs = np.where(_available(occupied,width,height))
+    assert len(xs), "Stock atlas has no room for the sight seat"
+    x,y = int(xs[0]),int(ys[0])
+    new_uv([seat],"UVMap")
+    for corner in seat.data.uv_layers.active.uv:
+        u,v = corner.vector
+        corner.vector = ((x+8+u*(width-16))/1024,(y+8+v*(height-16))/1024)
 
 
 def approved_concept(line, item):
@@ -107,7 +141,8 @@ def pool_graph(graph, item):
     mask = math_node("MULTIPLY",extent,math_node("SUBTRACT",1,math_node("MULTIPLY",a,b)))
     mark_span = smooth(graph,math_node("ABSOLUTE",math_node("SUBTRACT",unit,mark_x)),
                        .035,.043,"Butter-yellow block length")
-    mark_z = smooth(graph,math_node("ABSOLUTE",math_node("SUBTRACT",offset,gap*1.64)),
+    mark_offset = gap * (-.66 if item in {"Vandal","Phantom"} else 1.64)
+    mark_z = smooth(graph,math_node("ABSOLUTE",math_node("SUBTRACT",offset,mark_offset)),
                     gap*.26,gap*.36,"Butter-yellow block height")
     left = smooth(graph,y,.018,.034,"Player-facing mark")
     mark = math_node("MULTIPLY",left,math_node("MULTIPLY",
@@ -126,6 +161,10 @@ def poolside(item, objects):
                 "Bucky":("Pump",1.86,.207,.102,.054)}.get(item)
     for ob in objects:
         part = ob.name.removeprefix(item+"_")
+        if ("Sight" in part or part in {"Suppressor", "Scope", "Rail"}
+                or part == "Barrel" and item != "Sheriff"):
+            ink = ob.data.attributes.new("PoolsideHardware","FLOAT","POINT")
+            ink.data.foreach_set("value",[1.0]*len(ob.data.vertices))
         attribute = "PoolsideRestPosition" if part in parts else (
             "PoolsideSeparateMark" if separate and part==separate[0] else None)
         if attribute is None:
@@ -141,6 +180,8 @@ def poolside(item, objects):
         enamel = mat.name in {"Body","Panel"}
         grip = mat.name == "Grip"
         color = pool_graph(graph,item) if enamel else rgba("navy")
+        if enamel:
+            color = graph.mix(graph.attr("PoolsideHardware").outputs["Fac"],color,rgba("navy"),color=True)
         if (item=="Ares" and mat.name=="Panel") or (item=="Bucky" and grip):
             _,cx,cz,width,height = separate
             axis = graph.node("SeparateXYZ","Separate moving-part mark")
@@ -236,8 +277,9 @@ def build(line,item,version):
     if target.exists() and (dest/"manifest.json").exists():
         return
     assert not dest.exists(), f"Partial build at {dest}"
-    source = tools.source(item)
+    source = source_for(item)
     tools.open_file(source)
+    prepare_sight_seat(item,line=="Poolside")
     stock_fingerprints = fingerprints(item)
     rest = anchor_manifest(item)
     topology = tools._topology(item)
@@ -246,8 +288,13 @@ def build(line,item,version):
     if line == "Rootglass":
         art = root_author(item)
         objects = visible_meshes(item)
-        new_uv(objects,"RootglassAtlas")
-        uv_repair = {}
+        for angle in (60,54,66,49):
+            new_uv(objects,"RootglassAtlas",angle)
+            audit = roster.audit_uv(objects,1024)
+            if audit["cross_object_overlap_pixels"] == audit["same_object_overlap_pixels"] == 0:
+                break
+        uv_repair = (relocate(objects) if audit["cross_object_overlap_pixels"]
+                     or audit["same_object_overlap_pixels"] else {})
     else:
         art = poolside(item,stock_ob)
         objects = stock_ob
@@ -299,11 +346,11 @@ def anchor_manifest(item):
             if ob.type == "EMPTY" or "Sight" in ob.name}
 
 
-def set_review_settings():
+def set_review_settings(item):
     sc = bpy.context.scene
     sc.render.engine = "CYCLES"
     sc.cycles.device = "CPU"
-    sc.cycles.samples = 12
+    sc.cycles.samples = 12 if item in {"Vandal","Knife","Bulldog","Stinger"} else 6
     sc.cycles.use_denoising = True
     sc.world.node_tree.nodes["Background"].inputs["Strength"].default_value = .55
 
@@ -315,6 +362,12 @@ def review_views(item, dest, art, hero):
     dest.mkdir(parents=True,exist_ok=True)
     for view in views:
         tools.capture(item,view,dest/(view+".png"))
+    if item == "Bulldog":
+        ctr = Vector((.874,.022,.505))
+        toward = Vector((.21,1,.27))
+        cam = F.camera(item,"FrontSightSeat",ctr+2*toward,ctr,ortho=.37,clip=.05)
+        M._lights(item,cam,ctr,.72)
+        M._shot(item,cam,str(dest/"front-sight-seat.png"),(1000,563),samples=24)
     if hero and "window_center" in art:
         center = Vector(art["window_center"])
         for label, toward in (("window",(.12,1,.26)),("window-grazing",(-.82,.50,.29))):
@@ -460,11 +513,36 @@ def fbx_review(item, path, dest):
     return {"mesh_count":len(imported),"culling_views":["left","right","rear"]}
 
 
+def copy_matched_stock(item,target,dest,manifest,hero):
+    if hero or item in {"Spectre","Bulldog","Stinger"}:
+        return False
+    paths = tools.SKINS.glob(f"*/{item}/v[0-9][0-9]/manifest.json")
+    labels = ("hero","left","right","top","held","aim")
+    for path in paths:
+        if path.parent == target.parent:
+            continue
+        try:
+            other = json.loads(path.read_text(encoding="utf-8"))
+        except (FileNotFoundError, json.JSONDecodeError):
+            continue
+        if (not other.get("saved_file_verified")
+                or other.get("source_file_sha256") != manifest["source_file_sha256"]):
+            continue
+        stock = path.parent/"review/stock"
+        if not all((stock/f"{name}.png").is_file() for name in labels):
+            continue
+        dest.mkdir(parents=True,exist_ok=True)
+        for name in labels:
+            shutil.copy2(stock/f"{name}.png",dest/f"{name}.png")
+        return True
+    return False
+
+
 def verify(line,item,version):
     dest, target = filenames(line,item,version)
     record = dest/"manifest.json"
     manifest = json.loads(record.read_text(encoding="utf-8"))
-    source = tools.source(item)
+    source = source_for(item)
     assert tools.sha(source) == manifest["source_file_sha256"]
     tools.open_file(target)
     assert fingerprints(item) == manifest["saved_fingerprints"]
@@ -477,7 +555,7 @@ def verify(line,item,version):
     assert len(manifest["maps"]) == 4
     skin_side = dest/"review/skin"
     stock_side = dest/"review/stock"
-    set_review_settings()
+    set_review_settings(item)
     hero = item in {"Vandal","Knife"}
     review_views(item,skin_side,manifest["art"],hero)
     root = bpy.data.collections.get(ROOT_COLLECTION)
@@ -489,8 +567,9 @@ def verify(line,item,version):
     else:
         exported = None
     tools.open_file(source)
-    set_review_settings()
-    review_views(item,stock_side,manifest["art"],hero)
+    set_review_settings(item)
+    if not copy_matched_stock(item,target,stock_side,manifest,hero):
+        review_views(item,stock_side,manifest["art"],hero)
     stock_clips,_ = motion(item,stock_side if hero or item in tools.DETAILS else None)
     assert stock_clips==clips, (item,stock_clips,clips)
     manifest.update(saved_file_verified=True,sightline=sight,stock_motion=clips,
@@ -501,10 +580,30 @@ def verify(line,item,version):
     print("VERIFIED",line,item,"new contacts:",contacts,"sight:",sight.get("new_geometry_hits",[]),flush=True)
 
 
+def main(command,line,item,version):
+    destination, _ = filenames(line,item,version)
+    record = destination / "manifest.json"
+    lock = Path(tempfile.gettempdir()) / f"gauntlet-battle-pass-{line}-{item}-{version}.lock"
+    try:
+        fd = os.open(lock,os.O_CREAT|os.O_EXCL|os.O_WRONLY)
+    except FileExistsError:
+        print("Another Blender process owns this asset",line,item,version,flush=True)
+        return
+    try:
+        with os.fdopen(fd,"w") as handle:
+            handle.write(str(os.getpid()))
+        if (command == "all" and record.exists()
+                and json.loads(record.read_text(encoding="utf-8")).get("saved_file_verified")):
+            print("Already verified",line,item,version,flush=True)
+            return
+        if command in {"build","all"}:
+            build(line,item,version)
+        if command in {"review","all"}:
+            verify(line,item,version)
+    finally:
+        lock.unlink()
+
+
 if __name__ == "__main__":
     command,line,item,*options = sys.argv[sys.argv.index("--")+1:]
-    version = options[0] if options else "v01"
-    if command in {"build","all"}:
-        build(line,item,version)
-    if command in {"review","all"}:
-        verify(line,item,version)
+    main(command,line,item,options[0] if options else "v01")

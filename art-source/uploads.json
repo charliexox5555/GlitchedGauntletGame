@@ -1962,58 +1962,76 @@
   "uploaded": "2026-11-02 01:32:55"
  },
  "art-source/ui/chatgpt/out/cards/Dash.png": {
-  "assetId": 72562045359198,
-  "name": "GG UI chatgpt cards Dash",
+  "assetId": 140564736965668,
+  "name": "ModCard_v2_Dash",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:35:26"
+  "uploaded": "2026-11-16 17:28:59"
  },
  "art-source/ui/chatgpt/out/cards/Firewall.png": {
-  "assetId": 124029731902618,
-  "name": "GG UI chatgpt cards Firewall",
+  "assetId": 129552967752567,
+  "name": "ModCard_v2_Firewall",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:35:32"
+  "uploaded": "2026-11-16 17:29:17"
+ },
+ "art-source/ui/chatgpt/out/cards/Flash.png": {
+  "assetId": 135211203944945,
+  "name": "ModCard_v2_Flash",
+  "type": "Decal",
+  "uploaded": "2026-11-16 17:30:01"
  },
  "art-source/ui/chatgpt/out/cards/Frost.png": {
-  "assetId": 106101579785511,
-  "name": "GG UI chatgpt cards Frost",
+  "assetId": 120937183686739,
+  "name": "ModCard_v2_Frost",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:35:39"
+  "uploaded": "2026-11-16 17:29:24"
  },
  "art-source/ui/chatgpt/out/cards/HealOrb.png": {
-  "assetId": 104448113647289,
-  "name": "GG UI chatgpt cards HealOrb",
+  "assetId": 107449880498610,
+  "name": "ModCard_v2_HealOrb",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:35:46"
+  "uploaded": "2026-11-16 17:29:36"
  },
  "art-source/ui/chatgpt/out/cards/Molly.png": {
-  "assetId": 121612586956140,
-  "name": "GG UI chatgpt cards Molly",
+  "assetId": 133764417277535,
+  "name": "ModCard_v2_Molly",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:35:53"
+  "uploaded": "2026-11-16 17:29:11"
  },
  "art-source/ui/chatgpt/out/cards/Recall.png": {
-  "assetId": 134238154525744,
-  "name": "GG UI chatgpt cards Recall",
+  "assetId": 70783617413007,
+  "name": "ModCard_v2_Recall",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:35:59"
+  "uploaded": "2026-11-16 17:29:48"
  },
  "art-source/ui/chatgpt/out/cards/Recon.png": {
-  "assetId": 121162699929579,
-  "name": "GG UI chatgpt cards Recon",
+  "assetId": 97806069935326,
+  "name": "ModCard_v2_Recon",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:36:06"
+  "uploaded": "2026-11-16 17:29:30"
+ },
+ "art-source/ui/chatgpt/out/cards/Roller.png": {
+  "assetId": 131017146226298,
+  "name": "ModCard_v2_Roller",
+  "type": "Decal",
+  "uploaded": "2026-11-16 17:30:07"
+ },
+ "art-source/ui/chatgpt/out/cards/ShockDart.png": {
+  "assetId": 77190145290846,
+  "name": "ModCard_v2_ShockDart",
+  "type": "Decal",
+  "uploaded": "2026-11-16 17:29:55"
  },
  "art-source/ui/chatgpt/out/cards/Stim.png": {
-  "assetId": 87032961459715,
-  "name": "GG UI chatgpt cards Stim",
+  "assetId": 131559448586115,
+  "name": "ModCard_v2_Stim",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:36:12"
+  "uploaded": "2026-11-16 17:29:42"
  },
  "art-source/ui/chatgpt/out/cards/Updraft.png": {
-  "assetId": 116413282082571,
-  "name": "GG UI chatgpt cards Updraft",
+  "assetId": 120202606290218,
+  "name": "ModCard_v2_Updraft",
   "type": "Decal",
-  "uploaded": "2026-11-04 00:36:19"
+  "uploaded": "2026-11-16 17:29:05"
  },
  "art-source/ui/chatgpt/out/icons/Dash.png": {
   "assetId": 91496859098992,
@@ -2026,6 +2044,12 @@
   "name": "GG UI chatgpt icons Firewall",
   "type": "Decal",
   "uploaded": "2026-11-04 00:34:58"
+ },
+ "art-source/ui/chatgpt/out/icons/Flash.png": {
+  "assetId": 133902263192606,
+  "name": "ModIcon_Flash",
+  "type": "Decal",
+  "uploaded": "2026-11-16 17:30:13"
  },
  "art-source/ui/chatgpt/out/icons/Frost.png": {
   "assetId": 86157201267939,
@@ -2056,6 +2080,18 @@
   "name": "GG UI chatgpt icons Recon",
   "type": "Decal",
   "uploaded": "2026-11-04 00:35:13"
+ },
+ "art-source/ui/chatgpt/out/icons/Roller.png": {
+  "assetId": 131338440624721,
+  "name": "ModIcon_Roller",
+  "type": "Decal",
+  "uploaded": "2026-11-16 17:30:16"
+ },
+ "art-source/ui/chatgpt/out/icons/ShockDart.png": {
+  "assetId": 110946823796783,
+  "name": "ModIcon_ShockDart",
+  "type": "Decal",
+  "uploaded": "2026-11-16 17:30:10"
  },
  "art-source/ui/chatgpt/out/icons/Stim.png": {
   "assetId": 94330961139710,
@@ -2266,6 +2302,66 @@
   "name": "GG UI icons Updraft",
   "type": "Decal",
   "uploaded": "2026-11-03 23:20:53"
+ },
+ "art-source/ui/mapvote/BigWhitebox.png": {
+  "assetId": 85974467885516,
+  "name": "GG Map Vote BigWhitebox",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:37:02"
+ },
+ "art-source/ui/mapvote/Bunker.png": {
+  "assetId": 135054595564453,
+  "name": "GG Map Vote Bunker",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:36:44"
+ },
+ "art-source/ui/mapvote/Dockyard.png": {
+  "assetId": 137904996127756,
+  "name": "GG Map Vote Dockyard",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:36:47"
+ },
+ "art-source/ui/mapvote/Greenhouse.png": {
+  "assetId": 120956872810477,
+  "name": "GG Map Vote Greenhouse",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:37:05"
+ },
+ "art-source/ui/mapvote/Metro.png": {
+  "assetId": 103589771456298,
+  "name": "GG Map Vote Metro",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:36:53"
+ },
+ "art-source/ui/mapvote/OldTown.png": {
+  "assetId": 82088700596232,
+  "name": "GG Map Vote OldTown",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:36:56"
+ },
+ "art-source/ui/mapvote/Rooftops.png": {
+  "assetId": 94555449771997,
+  "name": "GG Map Vote Rooftops",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:36:38"
+ },
+ "art-source/ui/mapvote/Snowpeak.png": {
+  "assetId": 133848905274094,
+  "name": "GG Map Vote Snowpeak",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:37:08"
+ },
+ "art-source/ui/mapvote/Whitebox.png": {
+  "assetId": 105790088809466,
+  "name": "GG Map Vote Whitebox",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:36:32"
+ },
+ "art-source/ui/mapvote/stripes.png": {
+  "assetId": 123196519179273,
+  "name": "GG Map Vote stripes",
+  "type": "Decal",
+  "uploaded": "2026-11-16 18:37:11"
  },
  "art-source/ui/shapes/CutFill.png": {
   "assetId": 132247906553397,
@@ -3160,6 +3256,36 @@
   "name": "GG Playback Phantom Color",
   "type": "Decal",
   "uploaded": "2026-11-15 23:39:28"
+ },
+ "art-source/weapons/Skins/RuinBlighted/Ghost/v03/Ghost_RuinBlighted_RobloxFlat.fbx": {
+  "assetId": 102346201351206,
+  "name": "GG Ruin Blighted Ghost v03",
+  "type": "Model",
+  "uploaded": "2026-11-18 04:13:59"
+ },
+ "art-source/weapons/Skins/RuinBlighted/Guardian/v03/Guardian_RuinBlighted_RobloxFlat.fbx": {
+  "assetId": 73955990856708,
+  "name": "GG Ruin Blighted Guardian v03",
+  "type": "Model",
+  "uploaded": "2026-11-18 04:13:17"
+ },
+ "art-source/weapons/Skins/RuinBlighted/Operator/v03/Operator_RuinBlighted_RobloxFlat.fbx": {
+  "assetId": 110486105769224,
+  "name": "GG Ruin Blighted Operator v03",
+  "type": "Model",
+  "uploaded": "2026-11-18 04:13:43"
+ },
+ "art-source/weapons/Skins/RuinBlighted/RuinedReaver/v02/Knife_RuinBlighted_RobloxFlat.fbx": {
+  "assetId": 109980447403994,
+  "name": "GG Ruin Blighted RuinedReaver v02",
+  "type": "Model",
+  "uploaded": "2026-11-18 04:14:21"
+ },
+ "art-source/weapons/Skins/RuinBlighted/Spectre/v03/Spectre_RuinBlighted_RobloxFlat.fbx": {
+  "assetId": 101614043497436,
+  "name": "GG Ruin Blighted Spectre v03",
+  "type": "Model",
+  "uploaded": "2026-11-18 04:13:33"
  },
  "art-source/weapons/Skins/Sealwork/Dagger/v02/Dagger_Sealwork_RobloxFlat.fbx": {
   "assetId": 110715312800484,

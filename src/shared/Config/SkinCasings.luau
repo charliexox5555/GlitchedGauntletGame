@@ -27,6 +27,14 @@ return table.freeze({
 	BAND_OFFSET = 0.1,
 	BAND_SCALE = Vector3.new(0.16, 0.994, 0.994),
 	LINES = table.freeze({
+		RuinBlighted = table.freeze({
+			body = "245C53",
+			bodyMaterial = "Metal",
+			band = "3A9682",
+			bandMaterial = "Neon",
+			hull = "245C53",
+			hullMaterial = "SmoothPlastic",
+		}),
 		Giltfold = table.freeze({ -- smoked pewter round, ivory paper band
 			body = "6E737D",
 			bodyMaterial = "Metal",

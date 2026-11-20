@@ -25,6 +25,7 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local StarterGui = game:GetService("StarterGui")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
@@ -35,6 +36,7 @@ local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
 local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 local TeamColor = require(script.Parent.Parent.Util.TeamColor)
+local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
 
 local CameraController = require(script.Parent.CameraController)
 
@@ -43,7 +45,6 @@ local MapVoteController = {}
 local DESIGN = Vector2.new(1920, 1080)
 local ATTRIBUTE = "MapVote"
 local K = UiStyle.KIT
-local HEADSHOT = "rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150"
 local BOT_HEADSHOT = "rbxassetid://119185654291939" -- the top bar's helmet stand-in
 
 -- The band's slash: 1v1 maps, team maps, Random. The band is charcoal; your
@@ -106,7 +107,9 @@ type Entry = {
 	color: Color3,
 	name: string, -- shown in the band (a Random win changes it)
 	sizes: string, -- the team sizes line
-	tiles: { [Player]: CanvasGroup },
+	tiles: { [Instance]: CanvasGroup },
+	selected: boolean?,
+	tileCount: number?,
 }
 local entries: { [string]: Entry } = {}
 local shownChosen = ""
@@ -155,7 +158,7 @@ local function setCut(gradient: Instance?, a: number, w: number, h: number)
 end
 
 local function myVote(): string?
-	local v = player:GetAttribute(ATTRIBUTE)
+	local v = StateValues.get(player, ATTRIBUTE)
 	return if typeof(v) == "string" then v else nil
 end
 
@@ -170,6 +173,10 @@ end
 -- Your pick's band turns gold with dark words and slash; the rest are
 -- charcoal with the card's coloured slash.
 local function paint(e: Entry, mine: boolean)
+	if e.selected == mine then
+		return
+	end
+	e.selected = mine
 	local q = K.motion.quick
 	UiMotion.tween(e.band, q, { BackgroundColor3 = if mine then MINE else BAND })
 	UiMotion.tween(e.slash, q, { BackgroundColor3 = if mine then INK else e.color })
@@ -196,13 +203,12 @@ local function tileLayout(e: Entry, count: number)
 	end
 end
 
-local function addTile(e: Entry, p: Player, index: number)
+local function addTile(e: Entry, p: Instance, index: number): CanvasGroup
 	local t = (child(templates, "Voter") :: CanvasGroup):Clone()
 	t.LayoutOrder = index
 	local fill = child(t, "Fill") :: Frame
-	fill.BackgroundColor3 = TeamColor.forTeam(Teams.of(p))
-	local face = child(t, "Face") :: ImageLabel
-	face.Image = if p.UserId > 0 then string.format(HEADSHOT, p.UserId) else BOT_HEADSHOT
+	local team = StateValues.get(p, Teams.ATTRIBUTE)
+	fill.BackgroundColor3 = TeamColor.forTeam(if typeof(team) == "number" then team else nil)
 	local pop = child(t, "Pop") :: UIScale
 	pop.Scale = 0.5
 	t.GroupTransparency = 1
@@ -210,9 +216,10 @@ local function addTile(e: Entry, p: Player, index: number)
 	UiMotion.tween(pop, TILE, { Scale = 1 })
 	UiMotion.tween(t, TILE, { GroupTransparency = 0 })
 	e.tiles[p] = t
+	return t
 end
 
-local function dropTile(e: Entry, p: Player)
+local function dropTile(e: Entry, p: Instance)
 	local t = e.tiles[p]
 	e.tiles[p] = nil
 	if not t then
@@ -226,34 +233,46 @@ local function dropTile(e: Entry, p: Player)
 	task.delay(0.12, t.Destroy, t)
 end
 
--- Tiles, chances and your pick, from every player's MapVote attribute.
+-- Tiles, odds and your pick, from player and bot-seat votes.
 local function refreshVotes()
-	local byOption: { [string]: { Player } } = {}
+	local byOption: { [string]: { Instance } } = {}
 	local total = 0
-	for _, p in Players:GetPlayers() do
-		local v = p:GetAttribute(ATTRIBUTE)
+	local function addVote(p: Instance)
+		local v = StateValues.get(p, ATTRIBUTE)
 		if typeof(v) == "string" and entries[v] then
 			byOption[v] = byOption[v] or {}
 			table.insert(byOption[v], p)
 			total += 1
 		end
 	end
+	for _, p in Players:GetPlayers() do
+		addVote(p)
+	end
+	for _, seat in MatchState.botSeats() do
+		addVote(seat)
+	end
 	local mine = myVote()
 	for id, e in entries do
 		local list = byOption[id] or {}
-		local here: { [Player]: boolean } = {}
+		local here: { [Instance]: boolean } = {}
 		for i, p in list do
 			here[p] = true
-			if not e.tiles[p] then
-				addTile(e, p, i)
-			end
+			local tile = e.tiles[p] or addTile(e, p, i)
+			local face = child(tile, "Face") :: ImageLabel
+			local userId = if p:IsA("Player")
+				then p.UserId
+				else StateValues.get(p, "PortraitUserId")
+			PlayerTags.loadHeadshot(face, userId, BOT_HEADSHOT)
 		end
 		for p in e.tiles do
 			if not here[p] then
 				dropTile(e, p)
 			end
 		end
-		tileLayout(e, #list)
+		if e.tileCount ~= #list then
+			e.tileCount = #list
+			tileLayout(e, #list)
+		end
 		e.title.Text = e.name
 		e.chance.Text = if #list > 0 and total > 0
 			then string.format("%d%%", math.floor(#list / total * 100 + 0.5))
@@ -442,6 +461,14 @@ local function open(on: boolean)
 		UiMotion.tween(backdrop, ENTER, { BackgroundTransparency = 0.1 })
 		buildCards()
 		showChosen()
+		task.spawn(function()
+			while token == openToken and shownChosen == "" do
+				task.wait(0.25)
+				if token == openToken and shownChosen == "" then
+					refreshVotes()
+				end
+			end
+		end)
 	else
 		UiMotion.tween(blur, EXIT, { Size = 0 })
 		UiMotion.out(backdrop, { BackgroundTransparency = 1 }, EXIT)
@@ -521,7 +548,7 @@ function MapVoteController.start()
 		end
 	end)
 	local function watch(p: Player)
-		p:GetAttributeChangedSignal(ATTRIBUTE):Connect(function()
+		StateValues.changed(p, ATTRIBUTE):Connect(function()
 			if isOpen and shownChosen == "" then
 				refreshVotes()
 			end
@@ -537,6 +564,21 @@ function MapVoteController.start()
 		end
 	end)
 	refresh()
+
+	-- Signal after the screen and phase listeners are installed. Retry until
+	-- the server acknowledges it in case its startup is still in progress.
+	if not game:IsLoaded() then
+		game.Loaded:Wait()
+	end
+	local ready = Net.event("MatchReady")
+	while StateValues.get(player, "MatchVoteReady") ~= true do
+		local phase = MatchState.phase()
+		if phase ~= nil and phase ~= "Waiting" then
+			break
+		end
+		ready:FireServer()
+		task.wait(0.5)
+	end
 end
 
 return MapVoteController

@@ -1,0 +1,411 @@
+{
+  "line": "Poolside",
+  "item": "Ares",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Ares/Ares_RemasterV2_v05.blend",
+  "source_file_sha256": "dd1e0002e8fb66be4f9d459e99a13b0bc707e973b4397903a4675535b689efe1",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Ares/v01/Ares_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Receiver",
+      "Handguard"
+    ],
+    "separate_moving_mark": "Drum",
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Ares_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.075200080871582
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.37119999527931213
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.6383999586105347
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.18559999763965607
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        0.1088000014424324
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.63919997215271
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.5663999915122986
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.07819999754428864
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.37439998984336853
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.253999948501587
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.09380006790161133
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.21979999542236328
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.075200080871582
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.37119999527931213
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.699999988079071
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.5199999809265137
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ares_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.5499999523162842
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.15800000727176666
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 388956,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Ares_Handguard|Dark",
+        "over": "Ares_Barrel|Metal",
+        "faces": 2
+      },
+      {
+        "lift": "Ares_FireSelector|Accent",
+        "over": "Ares_FireSelector|Metal",
+        "faces": 1
+      }
+    ]
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "4a407fd63239662048f84f45b7ccfad7633d35d085454008c9bdad47033a21c2",
+    "geometry_and_material_slots": "dd722a4e002dbf757966c59bacf7393771743ed2737342ac1a07f9f6419b3a9c",
+    "uv": "7646b5e9d0238e92b8409ea6ce9606ebf8679b02f6562309c0afcf245163e0db",
+    "rig_and_nla": "106dad8edb4db2f3b9572b0bbb78cabe20ee912562c10b0aba41c5460b4893fd",
+    "actions": "d6e41fef2a14ea792a91b14d097fe9ad5e75081867439c31d5aaafe098235687"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "4a407fd63239662048f84f45b7ccfad7633d35d085454008c9bdad47033a21c2",
+    "geometry_and_material_slots": "dd722a4e002dbf757966c59bacf7393771743ed2737342ac1a07f9f6419b3a9c",
+    "uv": "7646b5e9d0238e92b8409ea6ce9606ebf8679b02f6562309c0afcf245163e0db",
+    "rig_and_nla": "106dad8edb4db2f3b9572b0bbb78cabe20ee912562c10b0aba41c5460b4893fd",
+    "actions": "d6e41fef2a14ea792a91b14d097fe9ad5e75081867439c31d5aaafe098235687"
+  },
+  "built_mesh_count": 14,
+  "triangles": 4936,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Ares/v01/textures/Ares_Color.png",
+      "sha256": "441a31ab26777d42e463a463f5911d351904b4ef001c41627600b64148abb365"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Ares/v01/textures/Ares_Normal.png",
+      "sha256": "3e20dd03cc0e84472786b7556689c4eeee4f13cd1944eebebb9038fb208325d5"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Ares/v01/textures/Ares_Roughness.png",
+      "sha256": "6a1b4225585fdfc9c70e3a9ef3d48f91e1703b370c8d8b1619c086e6095ac54a"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Ares/v01/textures/Ares_Metalness.png",
+      "sha256": "7a21accb6516c660a3bf24ad57eb4ff57f95420ab02646d204e9f3916ab2591d"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.3912,
+      0.0,
+      0.6392
+    ],
+    "len": 0.475,
+    "geo_hits": {},
+    "box_hits": {
+      "Sights_Dark": [
+        0.405,
+        2.546
+      ]
+    },
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "28bdd57859b48881407c78994195e6b08970d32e6bf397df1960501cf44a2225"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "6f9789a4c05f9c5ea5ec8dd83a0e6752b9542932e390ab3b5de8218df6113439"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "da938afe5d097506fbc2dee5f12a55b5d00d9776e64fb36a921f35e90232bf3a"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 66,
+      "review_frame": 17,
+      "sample_count": 66,
+      "pose_sha256": "b1a6961b26fb53eb9fdf48915e57ac34fa8a758b2257baaca9f73d2114e6ce1a"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 18,
+      "sample_count": 97,
+      "pose_sha256": "ea783a489dba45ebbee88527c44c6b9c4442bd3ad6dbf8911d0078826d8d6c35"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

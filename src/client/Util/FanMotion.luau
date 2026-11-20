@@ -15,6 +15,7 @@
 -- Studio review: the Workspace attribute DevFanScrub (0..1) holds the
 -- current move at that point.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -123,7 +124,7 @@ function FanMotion.step(fan: Fan, dt: number): boolean
 	local last = fan.keys[#fan.keys][1]
 	local t = fan.time
 	if RunService:IsStudio() then
-		local scrub = Workspace:GetAttribute("DevFanScrub")
+		local scrub = StateValues.get(Workspace, "DevFanScrub")
 		if typeof(scrub) == "number" then
 			t = math.clamp(scrub, 0, 1) * last
 		end

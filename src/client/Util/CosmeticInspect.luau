@@ -1,6 +1,8 @@
 --!strict
 -- Cosmetic mesh welds ride the stock rig. Only the local inspect pose drives
 -- them, and the stored rest transform is restored when inspect ends.
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local CosmeticInspect = {}
 
 type Part = {
@@ -24,10 +26,10 @@ function CosmeticInspect.new(model: Model): State?
 		if not part:IsA("MeshPart") then
 			continue
 		end
-		local kind = part:GetAttribute("CosmeticInspect")
-		local pivot = part:GetAttribute("CosmeticInspectPivot")
-		local axis = part:GetAttribute("CosmeticInspectAxis")
-		local travel = part:GetAttribute("CosmeticInspectTravel")
+		local kind = StateValues.get(part, "CosmeticInspect")
+		local pivot = StateValues.get(part, "CosmeticInspectPivot")
+		local axis = StateValues.get(part, "CosmeticInspectAxis")
+		local travel = StateValues.get(part, "CosmeticInspectTravel")
 		local weld = part:FindFirstChild("SkinCosmeticWeld")
 		if
 			type(kind) == "string"

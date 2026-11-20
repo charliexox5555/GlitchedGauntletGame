@@ -27,6 +27,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Combat = require(Shared.Config.Combat)
@@ -85,7 +86,7 @@ end
 -- spends the slot's charge: enemies breaking it lose you the teleport.
 function ModRecall.track(player: Player, slot: number, part: BasePart, lost: () -> ())
 	anchors[player] = { part = part, slot = slot }
-	player:SetAttribute("RecallAnchor", part.Position)
+	StateValues.set(player, "RecallAnchor", part.Position)
 	part.AncestryChanged:Connect(function()
 		if part.Parent then
 			return
@@ -93,8 +94,8 @@ function ModRecall.track(player: Player, slot: number, part: BasePart, lost: () 
 		local a = anchors[player]
 		if a and a.part == part then
 			anchors[player] = nil
-			player:SetAttribute("RecallAnchor", nil)
-			if part:GetAttribute("RemovedWhy") == "Broken" then
+			StateValues.set(player, "RecallAnchor", nil)
+			if StateValues.get(part, "RemovedWhy") == "Broken" then
 				lost()
 			end
 		end
@@ -112,9 +113,9 @@ end
 
 -- The teleport itself: the simulation applies it (Mods/Recall.step).
 local function publish(player: Player, to: Vector3)
-	player:SetAttribute("RecallTo", to)
-	local serial = player:GetAttribute("RecallSerial")
-	player:SetAttribute("RecallSerial", (if typeof(serial) == "number" then serial else 0) + 1)
+	StateValues.set(player, "RecallTo", to)
+	local serial = StateValues.get(player, "RecallSerial")
+	StateValues.set(player, "RecallSerial", (if typeof(serial) == "number" then serial else 0) + 1)
 end
 
 function ModRecall.isWinding(player: Player): boolean
@@ -129,7 +130,7 @@ function ModRecall.cancel(player: Player)
 	end
 	windups[player] = nil
 	if w.character.Parent then
-		w.character:SetAttribute("RecallWindupUntil", nil)
+		StateValues.set(w.character, "RecallWindupUntil", nil)
 	end
 end
 
@@ -166,7 +167,7 @@ function ModRecall.teleport(player: Player, slot: number, stats: { [string]: any
 	local token = nextToken
 	local body: Model = character
 	windups[player] = { token = token, character = body, slot = slot }
-	body:SetAttribute("RecallWindupUntil", serverNow() + stats.windup)
+	StateValues.set(body, "RecallWindupUntil", serverNow() + stats.windup)
 	-- No shots during the wind-up (the gun stays up: you arrive ready).
 	WeaponService.setHolstered(player, false, stats.windup)
 	hooks.pose("Cast")
@@ -178,7 +179,7 @@ function ModRecall.teleport(player: Player, slot: number, stats: { [string]: any
 		end
 		windups[player] = nil
 		if body.Parent then
-			body:SetAttribute("RecallWindupUntil", nil)
+			StateValues.set(body, "RecallWindupUntil", nil)
 		end
 		local humanoid = liveHumanoid(body)
 		local anchor = ModRecall.anchor(player)
@@ -259,7 +260,7 @@ function ModRecall.rescue(
 		return false
 	end
 	crashUsed[player] = true
-	player:SetAttribute("RecallCrashUsed", true)
+	StateValues.set(player, "RecallCrashUsed", true)
 	graceUntil[player] = serverNow() + stats.rescueGrace
 	if windups[player] then
 		ModRecall.cancel(player)
@@ -268,8 +269,8 @@ function ModRecall.rescue(
 	end
 	local health = math.clamp(stats.rescueHealth, 1, Health.max(humanoid))
 	HealthService.set(humanoid, health)
-	if typeof(humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)) == "number" then
-		humanoid:SetAttribute(Combat.SHIELD_ATTRIBUTE, 0) -- the hit took it all
+	if typeof(StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)) == "number" then
+		StateValues.set(humanoid, Combat.SHIELD_ATTRIBUTE, 0) -- the hit took it all
 	end
 	local from = root.CFrame
 	publish(player, standAt(floor, humanoid, root))
@@ -306,7 +307,7 @@ local function crashGuard(api: ModTypes.ServerApi)
 		if not stats or stats.behaviour ~= "Crash" then
 			return amount
 		end
-		local shield = humanoid:GetAttribute(Combat.SHIELD_ATTRIBUTE)
+		local shield = StateValues.get(humanoid, Combat.SHIELD_ATTRIBUTE)
 		local cover = Health.get(humanoid)
 			+ (if typeof(shield) == "number" then math.max(shield, 0) else 0)
 		if amount < cover then
@@ -327,7 +328,7 @@ local function rearm(player: Player)
 	crashUsed[player] = nil
 	graceUntil[player] = nil
 	if player.Parent then
-		player:SetAttribute("RecallCrashUsed", nil)
+		StateValues.set(player, "RecallCrashUsed", nil)
 	end
 end
 

@@ -9,6 +9,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -81,8 +82,8 @@ end
 local function casingFor(eject: Attachment): SkinCasings.Casing?
 	local node: Instance? = eject.Parent
 	while node and node ~= Workspace do
-		if node:IsA("Model") and node:GetAttribute("WeaponId") ~= nil then
-			local line = node:GetAttribute("SkinLine")
+		if node:IsA("Model") and StateValues.get(node, "WeaponId") ~= nil then
+			local line = StateValues.get(node, "SkinLine")
 			return if typeof(line) == "string" then (SkinCasings.LINES :: any)[line] else nil
 		end
 		node = node.Parent

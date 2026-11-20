@@ -21,6 +21,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
 
@@ -156,8 +157,8 @@ local function poll()
 	if not character then
 		return
 	end
-	local untilAt = character:GetAttribute(CFG.attribute)
-	local startedAt = character:GetAttribute(CFG.startAttribute)
+	local untilAt = StateValues.get(character, CFG.attribute)
+	local startedAt = StateValues.get(character, CFG.startAttribute)
 	if typeof(untilAt) ~= "number" or typeof(startedAt) ~= "number" or startedAt == lastStart then
 		return
 	end
@@ -166,8 +167,8 @@ local function poll()
 		return
 	end
 	lastStart = startedAt
-	local strength = character:GetAttribute(CFG.strengthAttribute)
-	local from = character:GetAttribute(CFG.fromAttribute)
+	local strength = StateValues.get(character, CFG.strengthAttribute)
+	local from = StateValues.get(character, CFG.fromAttribute)
 	local s = if typeof(strength) == "number" then math.clamp(strength, 0, 1) else 1
 	local clock = os.clock()
 	local current = shown
@@ -303,8 +304,8 @@ local function dropHead(model: Model)
 end
 
 local function considerHead(model: Model, serverNow: number, clock: number)
-	local untilAt = model:GetAttribute(CFG.attribute)
-	local startedAt = model:GetAttribute(CFG.startAttribute)
+	local untilAt = StateValues.get(model, CFG.attribute)
+	local startedAt = StateValues.get(model, CFG.startAttribute)
 	local headPart = model:FindFirstChild("Head")
 	if
 		typeof(untilAt) ~= "number"

@@ -1,0 +1,34 @@
+{
+  "blend": "Phantom_Stacklight_concept_v04.blend",
+  "objects": 114,
+  "new_closed_meshes": 24,
+  "identical_stock_meshes_and_UV": 15,
+  "cancel_to_rest_max_delta": 0.0,
+  "active_max_transform_delta": 0.22449,
+  "frame_end": 172,
+  "screen_coverage": {},
+  "grip_projection": {},
+  "actions": 13,
+  "bones": [
+    "Root",
+    "Mag",
+    "ChargingHandle",
+    "Bolt",
+    "Trigger",
+    "FireSelector",
+    "Flash",
+    "Charm"
+  ],
+  "markers": {
+    "REST": 1,
+    "RELOAD START": 9,
+    "STOCK COMMIT": 31,
+    "READY": 64,
+    "INSPECT": 73,
+    "INTERRUPT": 134,
+    "CANCEL REST": 140,
+    "CHARM SWING / +15\u00b0": 155,
+    "CHARM SWING / -15\u00b0": 164,
+    "CHARM REST": 172
+  }
+}

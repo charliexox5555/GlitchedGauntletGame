@@ -1,0 +1,147 @@
+{
+  "line": "Stacklight",
+  "item": "Stinger",
+  "file": "Stinger_Stacklight_structural_v02.blend",
+  "version": "v02",
+  "source": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/Stinger_RemasterV2_v05_HandguardFix_v01.blend",
+  "mesh_count": 28,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 14,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      93,
+      135,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      160,
+      169
+    ],
+    "moving_stock_intersections": [],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": true,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -1.5299999713897705,
+        -0.09200000017881393,
+        -0.5849999785423279
+      ],
+      [
+        1.1399999856948853,
+        0.10999999940395355,
+        0.4838000237941742
+      ],
+      [
+        2.6699999570846558,
+        0.2019999995827675,
+        1.068800002336502
+      ]
+    ],
+    "new_bounds": [
+      [
+        -1.5299999713897705,
+        -0.10700000077486038,
+        -0.5849999785423279
+      ],
+      [
+        1.1399999856948853,
+        0.1618000566959381,
+        0.4838000237941742
+      ],
+      [
+        2.6699999570846558,
+        0.2688000574707985,
+        1.068800002336502
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 30,
+    "ready": 59,
+    "peak": 34,
+    "inspect": 93,
+    "cancel": 135,
+    "steps": [],
+    "regression": [
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151
+    ],
+    "game_reload_seconds": 2.1,
+    "charm_extremes": [
+      160,
+      169
+    ]
+  },
+  "clips": {}
+}

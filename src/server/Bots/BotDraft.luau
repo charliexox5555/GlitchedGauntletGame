@@ -10,13 +10,13 @@ local Weapons = require(ReplicatedStorage.Shared.Config.Weapons)
 
 local BotDraft = {}
 
--- Mods bots can cast (Bots/BotMods). Firewall and Recall need Player-keyed
--- services: drafted only when nothing else is offered.
+-- Mods bots can cast (Bots/BotMods). Recall uses a Player-keyed service.
 BotDraft.USABLE = table.freeze({
 	Dash = true,
 	Updraft = true,
 	Molly = true,
 	Frost = true,
+	Firewall = true,
 	Recon = true,
 	HealOrb = true,
 	Stim = true,

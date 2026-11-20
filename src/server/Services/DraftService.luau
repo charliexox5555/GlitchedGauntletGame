@@ -13,6 +13,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local RunService = game:GetService("RunService")
 
@@ -43,6 +44,7 @@ export type Seat = {
 	guns: { string },
 	abilities: { string },
 	upgrades: { MatchState.UpgradeCard },
+	lastNewMods: { [number]: string }, -- the most recent offer in each empty slot
 	gun: string?,
 	ability: string?, -- a new ability's id, or an upgrade card's key
 	glitchBonus: number, -- the glitch chance's rise since the last glitch card
@@ -56,8 +58,9 @@ local seats: { [any]: Seat } = {}
 local open = false
 local rng = Random.new()
 local gunOffer: { string } = {}
-local gunOfferPhase = ""
-local abilityOrder: { string } = {}
+local gunOfferRound = 0
+local abilityPools: { { string } } = {}
+local abilityOfferCounts: { [string]: number } = {}
 
 local function shuffled(list: { string }): { string }
 	local out = table.clone(list)
@@ -68,41 +71,101 @@ local function shuffled(list: { string }): { string }
 	return out
 end
 
--- Guns of a tier that are really installed in this place.
-local function gunsOfTier(tier: number): { string }
+local function rollGuns(phase: Config.Phase, round: number): { string }
+	local offer: { string } = {}
 	local folder = ReplicatedStorage:FindFirstChild("Weapons")
-	local list: { string } = {}
-	for id, w in Weapons.list do
-		if w.tier == tier and folder and folder:FindFirstChild(id) then
-			table.insert(list, id)
+	if not folder then
+		return offer
+	end
+	local alternatives: { [number]: { string } } = {}
+	for _, pool in Config.GUN_POOLS_BY_ROUND[round] or phase.gunPools or {} do
+		local installed: { string } = {}
+		for _, id in pool do
+			if Weapons.get(id) and folder:FindFirstChild(id) and not table.find(offer, id) then
+				table.insert(installed, id)
+			end
+		end
+		if #installed > 0 then
+			local order = shuffled(installed)
+			table.insert(offer, table.remove(order, 1) :: string)
+			alternatives[#offer] = order
 		end
 	end
-	table.sort(list) -- a stable start, so the shuffle alone decides the order
-	return list
-end
 
--- 3 guns for the phase: its own tier first, then the tiers below when short.
-local function rollGuns(phase: Config.Phase): { string }
-	local offer = shuffled(gunsOfTier(phase.tier))
-	local tier = phase.tier - 1
-	while #offer < Config.GUN_OFFERS and tier >= 1 do
-		for _, id in shuffled(gunsOfTier(tier)) do
+	local same = #offer == Config.GUN_OFFERS and #offer == #gunOffer
+	for _, id in offer do
+		same = same and table.find(gunOffer, id) ~= nil
+	end
+	if same then
+		local rotatable: { number } = {}
+		for index, others in alternatives do
+			if #others > 0 then
+				table.insert(rotatable, index)
+			end
+		end
+		if #rotatable > 0 then
+			local index = rotatable[rng:NextInteger(1, #rotatable)]
+			offer[index] = alternatives[index][1]
+		end
+	end
+
+	for tier = phase.tier, 1, -1 do
+		if #offer >= Config.GUN_OFFERS then
+			break
+		end
+		local group: { string } = {}
+		for id, gun in Weapons.list do
+			if gun.tier == tier and folder:FindFirstChild(id) and not table.find(offer, id) then
+				table.insert(group, id)
+			end
+		end
+		table.sort(group)
+		for _, id in shuffled(group) do
 			table.insert(offer, id)
+			if #offer == Config.GUN_OFFERS then
+				break
+			end
 		end
-		tier -= 1
 	end
-	return { table.unpack(offer, 1, math.min(#offer, Config.GUN_OFFERS)) }
+	return offer
 end
 
-local function builtAbilities(): { string }
-	local list: { string } = {}
-	for id in ModsConfig.defs do
+local function builtAbilities(): { { string } }
+	local pools: { { string } } = {}
+	for slot = 1, ModsConfig.SLOTS do
+		pools[slot] = {}
+	end
+	for id, def in ModsConfig.defs do
 		if Mods.isBuilt(id) then
-			table.insert(list, id)
+			table.insert(pools[def.slot], id)
 		end
 	end
-	table.sort(list)
-	return list
+	return pools
+end
+
+local function rollNewMod(slot: number, previous: string?): string?
+	local pool = abilityPools[slot]
+	local choices: { string } = {}
+	local bestCount = math.huge
+	for _, id in pool do
+		if id == previous and #pool > 1 then
+			continue
+		end
+		local count = abilityOfferCounts[id] or 0
+		if count < bestCount then
+			table.clear(choices)
+			bestCount = count
+		end
+		if count == bestCount then
+			table.insert(choices, id)
+		end
+	end
+	if #choices == 0 then
+		return nil
+	end
+	local picked = choices[rng:NextInteger(1, #choices)]
+	abilityOfferCounts[picked] = bestCount + 1
+	return picked
 end
 
 function DraftService.phaseFor(round: number): Config.Phase
@@ -135,32 +198,36 @@ end
 local function rollUpgrades(s: Seat): { MatchState.UpgradeCard }
 	local cards: { MatchState.UpgradeCard } = {}
 	local glitch = Config.GLITCH
-	local eligible, glitched = false, false
+	local eligible: { number } = {}
+	local force = Dev.ALWAYS_GLITCH_CARDS and RunService:IsStudio()
 	for slot = 1, ModsConfig.SLOTS do
 		local id, level = s.kit[slot], s.levels[slot]
 		if id == "" or not Mods.isBuilt(id) then
 			continue
 		end
 		if level == "L1" then
-			eligible = true
 			table.insert(cards, card(id, slot, "A2"))
 			table.insert(cards, card(id, slot, "B2"))
-			local chance = math.min(glitch.chance + s.glitchBonus, glitch.cap)
-			if Dev.ALWAYS_GLITCH_CARDS and RunService:IsStudio() then
-				chance = 1
-			end
-			if rng:NextNumber() < chance then
-				glitched = true
+			if force then
 				table.insert(cards, card(id, slot, "G2"))
+			else
+				table.insert(eligible, slot)
 			end
 		elseif NEXT[level] then
 			table.insert(cards, card(id, slot, NEXT[level]))
 		end
 	end
-	if glitched then
+	local chance = math.min(glitch.chance + s.glitchBonus, glitch.cap)
+	if force then
 		s.glitchBonus = 0
-	elseif eligible then
-		s.glitchBonus += glitch.step
+	elseif #eligible > 0 then
+		if rng:NextNumber() < chance then
+			local slot = eligible[rng:NextInteger(1, #eligible)]
+			table.insert(cards, card(s.kit[slot], slot, "G2"))
+			s.glitchBonus = 0
+		else
+			s.glitchBonus += glitch.step
+		end
 	end
 	return cards
 end
@@ -194,7 +261,7 @@ function DraftService.reset()
 	table.clear(seats)
 	open = false
 	gunOffer = {}
-	gunOfferPhase = ""
+	gunOfferRound = 0
 end
 
 function DraftService.seat(key: any): Seat
@@ -208,6 +275,7 @@ function DraftService.seat(key: any): Seat
 			guns = {},
 			abilities = {},
 			upgrades = {},
+			lastNewMods = {},
 			locked = false,
 			glitchBonus = 0,
 			dealtRound = 0,
@@ -236,7 +304,7 @@ end
 
 -- Sends a player their seat's cards (and what's already selected for them).
 local function sendOffer(player: Player, s: Seat)
-	player:SetAttribute("DraftLocked", s.locked)
+	StateValues.set(player, "DraftLocked", s.locked)
 	local offer: MatchState.DraftOffer = {
 		round = dealt.round,
 		phase = DraftService.phaseFor(dealt.round).name,
@@ -266,18 +334,16 @@ local function deal(key: any)
 	s.locked = false
 	local current = if phase.tier == 1 then s.sidearm else s.primary
 	s.gun = if current and table.find(gunOffer, current) then current else gunOffer[1]
-	-- One new ability for each empty slot (the first of the shared order
-	-- that fits it), and the upgrades of every filled slot.
+	-- Each empty slot gets a new roll for this seat. Prefer cards that have
+	-- been offered to fewer seats and skip the seat's previous card.
 	for slot = 1, ModsConfig.SLOTS do
 		if s.kit[slot] ~= "" then
 			continue
 		end
-		for _, id in abilityOrder do
-			local def = Mods.def(id)
-			if def and def.slot == slot then
-				table.insert(s.abilities, id)
-				break
-			end
+		local id = rollNewMod(slot, s.lastNewMods[slot])
+		if id then
+			s.lastNewMods[slot] = id
+			table.insert(s.abilities, id)
 		end
 	end
 	s.upgrades = rollUpgrades(s)
@@ -288,9 +354,8 @@ local function deal(key: any)
 	end
 end
 
--- Deals every seat its cards and tells the players. The gun offer lasts as long
--- as the phase; the ability order is shared, so 1v1 offers match until someone
--- already owns a card.
+-- The same guns are available to both sides for this round. Shuffle seat
+-- order so the same side doesn't consistently get first pick of the Mod pools.
 function DraftService.open(
 	keys: { any },
 	round: number,
@@ -298,13 +363,19 @@ function DraftService.open(
 	enemyKitOf: (key: any) -> { string }
 )
 	local phase = DraftService.phaseFor(round)
-	if phase.name ~= gunOfferPhase then
-		gunOfferPhase = phase.name
-		gunOffer = rollGuns(phase)
+	if round ~= gunOfferRound then
+		gunOffer = rollGuns(phase, round)
+		gunOfferRound = round
 	end
-	abilityOrder = shuffled(builtAbilities())
+	abilityPools = builtAbilities()
+	table.clear(abilityOfferCounts)
 	dealt.round, dealt.endsAt, dealt.enemyKitOf = round, endsAt, enemyKitOf
-	for _, key in keys do
+	local order = table.clone(keys)
+	for i = #order, 2, -1 do
+		local j = rng:NextInteger(1, i)
+		order[i], order[j] = order[j], order[i]
+	end
+	for _, key in order do
 		deal(key)
 	end
 	open = true
@@ -355,7 +426,7 @@ end
 -- and guns are updated, and MatchService gives them out.
 function DraftService.close(keys: { any })
 	open = false
-	local phaseName = gunOfferPhase
+	local phaseName = DraftService.phaseFor(dealt.round).name
 	for _, key in keys do
 		local s = DraftService.seat(key)
 		local gun = s.gun or s.guns[1]
@@ -363,8 +434,10 @@ function DraftService.close(keys: { any })
 			local config = Weapons.get(gun)
 			if config and config.slot == "Secondary" then
 				s.sidearm = gun
+				s.primary = nil
 			else
 				s.primary = gun
+				s.sidearm = Weapons.DEFAULT_LOADOUT.Secondary
 			end
 		end
 		s.shield = MatchState.shieldFor(phaseName, gun)
@@ -413,7 +486,7 @@ local function onPick(player: Player, actionArg: unknown, idArg: unknown)
 		local nothingToPick = #s.abilities == 0 and #s.upgrades == 0
 		if s.gun ~= nil and (s.ability ~= nil or nothingToPick) then
 			s.locked = true
-			player:SetAttribute("DraftLocked", true)
+			StateValues.set(player, "DraftLocked", true)
 		end
 		return
 	end

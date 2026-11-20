@@ -16,6 +16,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -256,7 +257,7 @@ local function step()
 	local serverNow = Workspace:GetServerTimeNow()
 	local active: { [string]: boolean } = {}
 	for _, kind in TIMED do
-		local untilAt = if character then character:GetAttribute(kind.attr) else nil
+		local untilAt = if character then StateValues.get(character, kind.attr) else nil
 		local left = if typeof(untilAt) == "number" then untilAt - serverNow else 0
 		if left > 0.05 then
 			-- A new or extended effect: note its full length now.
@@ -267,7 +268,7 @@ local function step()
 			active[kind.key] = true
 			local e = entry(s, kind.key, kind.order)
 			local source = if kind.sourceAttr and character
-				then character:GetAttribute(kind.sourceAttr)
+				then StateValues.get(character, kind.sourceAttr)
 				else nil
 			local modId = if typeof(source) == "string" and Mods.def(source)
 				then source
@@ -289,7 +290,7 @@ local function step()
 		)
 	end
 	-- Barrier: hits left on you (HealOrb's Barrier path).
-	local hits = if character then character:GetAttribute("BarrierHits") else nil
+	local hits = if character then StateValues.get(character, "BarrierHits") else nil
 	if typeof(hits) == "number" and hits > 0 then
 		active.Barrier = true
 		draw(

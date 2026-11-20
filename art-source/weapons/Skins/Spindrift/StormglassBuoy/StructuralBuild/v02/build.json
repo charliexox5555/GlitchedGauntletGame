@@ -1,0 +1,34 @@
+{
+  "line": "Spindrift",
+  "item": "StormglassBuoy",
+  "file": "StormglassBuoy_Spindrift_structural_v02.blend",
+  "version": "v02",
+  "source": "Original structural accessory",
+  "mesh_count": 7,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 0,
+  "fit": {
+    "rest_bounds": [
+      [
+        -0.06499999761581421,
+        -0.007000000216066837,
+        -0.20600000023841858
+      ],
+      [
+        0.06700000166893005,
+        0.05700000002980232,
+        0.010678526014089584
+      ],
+      [
+        0.13199999928474426,
+        0.06400000024586916,
+        0.21667852625250816
+      ]
+    ]
+  },
+  "motion": {
+    "active": 28,
+    "cancel": 55
+  },
+  "clips": {}
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Overtime Zone v01",
+  "generator": "tools/blender/build_overtime_zone.py",
+  "master": "OvertimeZone_v01.blend",
+  "export": "OvertimeZone_v01.glb",
+  "colorMap": "OvertimeCurtain.png",
+  "references": [
+    "vault/02 Art/Style Bible.md",
+    "vault/01 Design/Match Flow.md"
+  ],
+  "design": "Original faceted overtime wall, narrow ground trace, and tapered drifting fragments. The preview ground and camera are excluded from the GLB.",
+  "roblox": {
+    "placeId": "133387545285290",
+    "modelAssetId": "118691081568110",
+    "curtainMeshId": "116558890470794",
+    "groundTraceMeshId": "108966404900892",
+    "driftMeshId": "73011435822593",
+    "colorMapDecalId": "76161824646104",
+    "colorMapImageId": "75244796482454",
+    "unusedStandaloneImageId": "134342986946599"
+  }
+}

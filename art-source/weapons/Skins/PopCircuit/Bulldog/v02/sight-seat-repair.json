@@ -1,0 +1,18 @@
+{
+  "line": "PopCircuit",
+  "source": "art-source/weapons/Skins/PopCircuit/Bulldog/v01/Bulldog_PopCircuit_v01.blend",
+  "blend": "art-source/weapons/Skins/PopCircuit/Bulldog/v02/Bulldog_PopCircuit_v02.blend",
+  "earlier_build_sha256": "f9cb7e932847bfb38cdc44dfb26bd433c0a8bc71b70f3afdbbf0f7a47a0eeb78",
+  "seat_source": "art-source/weapons/Skins/Shared Sources/Bulldog/SightSeat_v01/Bulldog_RemasterV2_v05_SightSeat_v01.blend",
+  "report": "The approved Root-parented seat bridges the gap. The existing model, sights, UVs, and actions match the source file.",
+  "review": "art-source/weapons/Skins/PopCircuit/Bulldog/v02/front-sight-seat.png",
+  "support_at_six_front_sight_probes": [
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003
+  ],
+  "saved_file_verified": true
+}

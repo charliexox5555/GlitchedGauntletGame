@@ -20,6 +20,8 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 local Device = require(script.Parent.Parent.Util.Device)
+local KillFeed = require(script.Parent.Parent.Util.KillFeed)
+local Ui = require(script.Parent.Parent.Util.Ui)
 local WaitGui = require(script.Parent.Parent.Util.WaitGui)
 local Watched = require(script.Parent.Parent.Util.Watched)
 
@@ -123,7 +125,14 @@ local function colorOf(x: Instance): Color3
 	return if Teams.isAlly(x, player) then ALLY else ENEMY
 end
 
-local function row(killer: Instance?, victim: Instance, sourceId: string, head: boolean)
+local function row(
+	killer: Instance?,
+	victim: Instance,
+	sourceId: string,
+	head: boolean,
+	assists: number,
+	myAssist: boolean
+)
 	local list, base = feed, template
 	if not (list and base) then
 		return
@@ -161,6 +170,20 @@ local function row(killer: Instance?, victim: Instance, sourceId: string, head: 
 	gap3.Visible = head
 	victimLabel.Text = nameOf(victim)
 	victimLabel.TextColor3 = colorOf(victim)
+	if assists > 0 then
+		Ui.text(
+			strip,
+			"+" .. assists .. (if assists == 1 then " ASSIST" else " ASSISTS"),
+			"label",
+			{
+				Name = "AssistTag",
+				Size = UDim2.fromOffset(90, 24),
+				LayoutOrder = 10,
+				TextColor3 = if myAssist then ALLY else Theme.COLORS.textSecondary,
+				TextXAlignment = Enum.TextXAlignment.Left,
+			}
+		)
+	end
 	local mine = (killer ~= nil and playerOf(killer) == player) or playerOf(victim) == player
 	strip.BackgroundColor3 = if mine then NAVY_HI else NAVY
 	-- In: slides from the right and fades up.
@@ -311,13 +334,27 @@ local function showPop(head: boolean, kills: number)
 	end)
 end
 
-local function onKilled(victim: unknown, attacker: unknown, sourceId: unknown, headshot: unknown)
+local function onKilled(
+	victim: unknown,
+	attacker: unknown,
+	sourceId: unknown,
+	headshot: unknown,
+	assistIds: unknown
+)
 	if typeof(victim) ~= "Instance" then
 		return
 	end
 	local killer = if typeof(attacker) == "Instance" then attacker else nil
 	local head = headshot == true
-	row(killer, victim, if typeof(sourceId) == "string" then sourceId else "", head)
+	local assists, myAssist = KillFeed.assistInfo(assistIds)
+	row(
+		killer,
+		victim,
+		if typeof(sourceId) == "string" then sourceId else "",
+		head,
+		assists,
+		myAssist
+	)
 	if killer and playerOf(killer) == player and playerOf(victim) ~= player then
 		roundKills += 1
 		showPop(head, roundKills)

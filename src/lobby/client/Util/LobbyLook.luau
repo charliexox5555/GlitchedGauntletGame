@@ -5,6 +5,7 @@
 -- plates are finished by each screen's controller (Util/Plates.deepen).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Cards = require(script.Parent.Cards)
 local TextFit = require(script.Parent.TextFit)
@@ -61,7 +62,7 @@ local WHITE = Color3.new(1, 1, 1)
 local function onPlate(d: Instance): boolean
 	local p = d.Parent
 	while p and not p:IsA("LayerCollector") do
-		if p:FindFirstChild("CapL") or p:GetAttribute("Plated") == true then
+		if p:FindFirstChild("CapL") or StateValues.get(p, "Plated") == true then
 			return true
 		end
 		p = p.Parent

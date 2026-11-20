@@ -1,0 +1,130 @@
+{
+  "line": "Kilnlock",
+  "item": "Sheriff",
+  "file": "Sheriff_Kilnlock_structural_v02.blend",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Sheriff/Sheriff_RemasterV2_v05.blend",
+  "mesh_count": 13,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 15,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      97,
+      139,
+      154,
+      163
+    ],
+    "moving_stock_intersections": [],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": true,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -0.2619999945163727,
+        -0.14300000667572021,
+        -0.41967448592185974
+      ],
+      [
+        1.4950000047683716,
+        0.14300000667572021,
+        0.4307999908924103
+      ],
+      [
+        1.7569999992847443,
+        0.28600001335144043,
+        0.85047447681427
+      ]
+    ],
+    "new_bounds": [
+      [
+        -0.2619999945163727,
+        -0.14300000667572021,
+        -0.41967448592185974
+      ],
+      [
+        1.4950000047683716,
+        0.14300000667572021,
+        0.4307999908924103
+      ],
+      [
+        1.7569999992847443,
+        0.28600001335144043,
+        0.85047447681427
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 33,
+    "ready": 63,
+    "peak": 37,
+    "inspect": 97,
+    "cancel": 139,
+    "steps": [],
+    "regression": [],
+    "game_reload_seconds": 2.25,
+    "charm_extremes": [
+      154,
+      163
+    ]
+  },
+  "clips": {}
+}

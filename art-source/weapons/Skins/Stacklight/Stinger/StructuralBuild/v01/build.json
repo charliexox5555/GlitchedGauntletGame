@@ -1,0 +1,478 @@
+{
+  "line": "Stacklight",
+  "item": "Stinger",
+  "file": "Stinger_Stacklight_structural_v01.blend",
+  "version": "v01",
+  "source": "art-source/weapons/Skins/Shared Sources/Stinger/HandguardFix_v01/Stinger_RemasterV2_v05_HandguardFix_v01.blend",
+  "mesh_count": 23,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 14,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      93,
+      135,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      160,
+      169
+    ],
+    "moving_stock_intersections": [
+      [
+        1,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        9,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        10,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        11,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        12,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        13,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        14,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        15,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        16,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        17,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        18,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        19,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        20,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        21,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        22,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        23,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        24,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        25,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        26,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        27,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        28,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        29,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        30,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        31,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        32,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        33,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        34,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        35,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        36,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        37,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        38,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        39,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        40,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        41,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        42,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        43,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        44,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        45,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        46,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        47,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        48,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        49,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        50,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        51,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        52,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        53,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        54,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        55,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        56,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        57,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        58,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        59,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        93,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        135,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        142,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        143,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        144,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        145,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        146,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        147,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        148,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        149,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        150,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        151,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        160,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ],
+      [
+        169,
+        "Stinger | Molded bridge top",
+        "Stinger_ChargingHandle"
+      ]
+    ],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": true,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -1.5299999713897705,
+        -0.09200000017881393,
+        -0.5849999785423279
+      ],
+      [
+        1.1399999856948853,
+        0.10999999940395355,
+        0.4838000237941742
+      ],
+      [
+        2.6699999570846558,
+        0.2019999995827675,
+        1.068800002336502
+      ]
+    ],
+    "new_bounds": [
+      [
+        -1.5299999713897705,
+        -0.09200000017881393,
+        -0.5849999785423279
+      ],
+      [
+        1.1399999856948853,
+        0.1618000566959381,
+        0.4838000237941742
+      ],
+      [
+        2.6699999570846558,
+        0.25380005687475204,
+        1.068800002336502
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 30,
+    "ready": 59,
+    "peak": 34,
+    "inspect": 93,
+    "cancel": 135,
+    "steps": [],
+    "regression": [
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151
+    ],
+    "game_reload_seconds": 2.1,
+    "charm_extremes": [
+      160,
+      169
+    ]
+  },
+  "clips": {}
+}

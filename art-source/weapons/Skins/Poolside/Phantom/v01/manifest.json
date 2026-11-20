@@ -5,7 +5,7 @@
   "source": "art-source/weapons/RemasterV2/Phantom/Phantom_RemasterV2_v05.blend",
   "source_file_sha256": "99afea9d16d8d316893868ce36579fd0b141dcb7ccf59c7b390f033c2ffc1f98",
   "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
-  "review_state": "Baked. Reopen and comparison pending.",
+  "review_state": "Superseded by the reviewed v02.",
   "blend": "art-source/weapons/Skins/Poolside/Phantom/v01/Phantom_Poolside_v01.blend",
   "fbx": null,
   "art": {
@@ -377,5 +377,63 @@
   "map_padding_pixels": 6,
   "normal_space": "Tangent space, +Y",
   "binding": "Use the added PoolsideAtlas layer. Original stock UVs remain in the blend.",
-  "inspect_pulse_targets": []
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.3714,
+      0.0,
+      0.5784
+    ],
+    "len": 0.5,
+    "geo_hits": {},
+    "box_hits": {
+      "Sights_Dark": [
+        0.465,
+        1.96
+      ]
+    },
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "ea451e17c7f21337ade86068c0e6306c88d3e7b43b00e1cb70ab0806ece94700"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "b2e6511cf67b0bc4c9657c7bc51f408366d4e0d2a25d6ed23ad2c8cc431a56e6"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "345b25a27cfdf308c0ba213c5cb120206a15c2b9871b87c82c0982735ef44cc6"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 72,
+      "review_frame": 18,
+      "sample_count": 72,
+      "pose_sha256": "fa52f16b89072d9ab4bf91658f6099d4c268b730bc0c809fd04184563732c37d"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 18,
+      "sample_count": 97,
+      "pose_sha256": "01077e932d3be7435b666d0c72b214067f329eca51c4c8a16da335fc82543c46"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {},
+  "superseded_by": "art-source/weapons/Skins/Poolside/Phantom/v02/manifest.json"
 }

@@ -5,7 +5,7 @@
 -- map's spawns and barriers by tag: ArenaSpawn_A / ArenaSpawn_B, ArenaBarrier.
 --
 -- Per-map lighting (vault/01 Design/Maps/00 Maps.md → How a map is built): a
--- map may carry a Configuration named "Lighting" whose attributes are Lighting
+-- map may carry a Configuration named "Lighting" whose AssetData fields are Lighting
 -- properties (ClockTime = 17.5, Ambient = Color3, ...), and a Folder named
 -- "LightingFx" of Sky / Atmosphere / post-processing effects. Loading the map
 -- applies them on top of the place's own lighting (remembered the first time),
@@ -13,7 +13,9 @@
 --
 -- Kill height: anyone who falls this far below the map's pivot (a harbour, a
 -- rooftop edge) dies at once instead of falling to FallenPartsDestroyHeight.
--- The map's "KillDepth" attribute (studs) overrides the default.
+-- The map's authored "KillDepth" field (studs) overrides the default.
+
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
@@ -115,13 +117,13 @@ local function applyLighting(map: Model)
 		for _, child in mapFx:GetChildren() do
 			if FX_CLASSES[child.ClassName] then
 				local c = child:Clone()
-				c:SetAttribute(MAP_FX_ATTRIBUTE, map.Name)
+				StateValues.set(c, MAP_FX_ATTRIBUTE, map.Name)
 				c.Parent = Lighting
 			end
 		end
 	end
 	if config and config:IsA("Configuration") then
-		for name, value in config:GetAttributes() do
+		for name, value in StateValues.all(config) do
 			local ok = pcall(function()
 				(Lighting :: any)[name] = value
 			end)
@@ -219,7 +221,9 @@ function MapService.setBarriers(up: boolean)
 		if b:IsA("BasePart") and b:IsDescendantOf(active) then
 			b.CanCollide = up
 			b.CanQuery = up
-			b.Transparency = if up then (b:GetAttribute("UpTransparency") or 0.6) :: number else 1
+			b.Transparency = if up
+				then (StateValues.get(b, "UpTransparency") or 0.6) :: number
+				else 1
 			for _, t in b:GetChildren() do
 				if t:IsA("Texture") then
 					t.Transparency = if up then 0 else 1
@@ -267,7 +271,7 @@ local function checkFalls(dt: number)
 		end
 		return
 	end
-	local depth = map:GetAttribute("KillDepth")
+	local depth = StateValues.get(map, "KillDepth")
 	local killY = map:GetPivot().Position.Y
 		- (if typeof(depth) == "number" then depth else MatchConfig.KILL_DEPTH)
 	for _, player in Players:GetPlayers() do

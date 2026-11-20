@@ -8,10 +8,13 @@
 -- position.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
 local Health = require(ReplicatedStorage.Shared.Health)
+local StatusEffects = require(ReplicatedStorage.Shared.Config.StatusEffects)
 local BotTypes = require(script.Parent.Types)
+local ModWalls = require(script.Parent.Parent.Services.ModWalls)
 
 type Bot = BotTypes.Bot
 type Memory = BotTypes.Memory
@@ -33,13 +36,25 @@ local function partOf(model: Model, name: string): BasePart?
 end
 
 -- Can `bot` see `part` of `enemy` from its eyes? One ray.
-local function lineOfSight(bot: Bot, eye: Vector3, enemy: Model, part: BasePart): boolean
+local function lineOfSight(
+	bot: Bot,
+	eye: Vector3,
+	enemy: Model,
+	part: BasePart,
+	now: number
+): boolean
 	local model = bot.model :: Model
 	exclude[1] = model
 	params.FilterDescendantsInstances = exclude
 	local to = part.Position - eye
 	local result = workspace:Raycast(eye, to * 1.02, params)
-	return result == nil or result.Instance:IsDescendantOf(enemy)
+	return (result == nil or result.Instance:IsDescendantOf(enemy))
+		and not ModWalls.blocksSight(eye, part.Position, now)
+end
+
+function Perception.isBlinded(bot: Bot): boolean
+	local expiry = bot.model and StateValues.get(bot.model, StatusEffects.blinded.attribute)
+	return typeof(expiry) == "number" and expiry > workspace:GetServerTimeNow()
 end
 
 local function memoryFor(bot: Bot, enemy: Model, pos: Vector3): Memory
@@ -51,8 +66,13 @@ local function memoryFor(bot: Bot, enemy: Model, pos: Vector3): Memory
 			seenAt = -math.huge,
 			visibleSince = nil,
 			visible = false,
+			visibleAt = -math.huge,
+			firedAt = -math.huge,
 			heard = false,
 			headVisible = false,
+			bodyVisible = false,
+			headOffset = Vector3.zero,
+			bodyOffset = Vector3.zero,
 			aimPart = "UpperTorso",
 			trailPos = table.create(BotsConfig.TRAIL, pos),
 			trailT = table.create(BotsConfig.TRAIL, -math.huge),
@@ -73,7 +93,7 @@ function Perception.update(bot: Bot, enemies: { Model }, now: number)
 	end
 	local eye = head.Position
 	local look = root.CFrame.LookVector
-	local cosHalf = math.cos(math.rad(bot.profile.fov / 2))
+	local cosHalf = math.cos(math.rad(bot.profile.perception.fov / 2))
 	local rays = BotsConfig.MAX_RAYS_PER_THINK
 
 	-- Forget the dead and the gone, and memories older than the profile's.
@@ -82,7 +102,7 @@ function Perception.update(bot: Bot, enemies: { Model }, now: number)
 		if
 			not model.Parent
 			or not Health.isAlive(humanoid)
-			or now - m.seenAt > bot.profile.memory * 2
+			or now - m.seenAt > bot.profile.perception.memory * 2
 		then
 			bot.memory[model] = nil
 			if bot.target == m then
@@ -91,67 +111,75 @@ function Perception.update(bot: Bot, enemies: { Model }, now: number)
 		end
 	end
 
-	-- Those already in sight first (keep tracking them), then nearest.
-	table.sort(enemies, function(a: Model, b: Model): boolean
-		local ma, mb = bot.memory[a], bot.memory[b]
-		local va = ma ~= nil and ma.visible
-		local vb = mb ~= nil and mb.visible
-		if va ~= vb then
-			return va
+	if Perception.isBlinded(bot) then
+		for _, m in bot.memory do
+			m.visible, m.visibleSince = false, nil
+			m.bodyVisible, m.headVisible = false, false
 		end
-		local ra, rb = partOf(a, "HumanoidRootPart"), partOf(b, "HumanoidRootPart")
-		if not ra or not rb then
-			return ra ~= nil
-		end
-		return (ra.Position - eye).Magnitude < (rb.Position - eye).Magnitude
-	end)
+		return
+	end
 
-	for _, enemy in enemies do
+	-- Give every opponent a torso and head check in normal team sizes.
+	-- Rotate the starting seat if a larger mode ever exhausts the ray budget.
+	local count = #enemies
+	if count == 0 then
+		return
+	end
+	local start = bot.sightCursor % count
+	bot.sightCursor = start + 1
+	for i = 0, count - 1 do
+		local enemy = enemies[(start + i) % count + 1]
+		local m = bot.memory[enemy]
 		local enemyRoot = partOf(enemy, "HumanoidRootPart")
 		if not enemyRoot then
+			if m then
+				m.visible, m.visibleSince = false, nil
+			end
 			continue
 		end
 		local offset = enemyRoot.Position - eye
 		local distance = offset.Magnitude
 		local inCone = distance <= BotsConfig.NEAR_SENSE
 			or (distance > 0 and look:Dot(offset / distance) >= cosHalf)
-		local seen = false
-		local aimPart = "UpperTorso"
-		if inCone and rays > 0 then
-			local headPart = partOf(enemy, "Head")
-			if headPart then
-				rays -= 1
-				seen = lineOfSight(bot, eye, enemy, headPart)
-				aimPart = "Head"
-			end
-			if not seen and rays > 0 then
-				local chest = partOf(enemy, "UpperTorso")
-				if chest then
-					rays -= 1
-					seen = lineOfSight(bot, eye, enemy, chest)
-					aimPart = "UpperTorso"
-				end
-			end
+		if inCone and rays == 0 then
+			continue -- out of budget is not the same as losing sight
 		end
-		local m = bot.memory[enemy]
-		if seen then
+		local headPart = if inCone then partOf(enemy, "Head") else nil
+		local chest = if inCone then partOf(enemy, "UpperTorso") else nil
+		local bodyVisible, headVisible = false, false
+		if chest then
+			rays -= 1
+			bodyVisible = lineOfSight(bot, eye, enemy, chest, now)
+		end
+		if headPart and rays > 0 then
+			rays -= 1
+			headVisible = lineOfSight(bot, eye, enemy, headPart, now)
+		end
+		if bodyVisible or headVisible then
 			m = memoryFor(bot, enemy, enemyRoot.Position)
 			if not m.visible then
 				-- Back in sight: someone seen just now is quicker to react to.
-				local recent = now - m.seenAt < BotsConfig.REACQUIRE_WINDOW
+				local recent = now - m.visibleAt < BotsConfig.REACQUIRE_WINDOW
 				local reaction = math.max(
-					bot.profile.reaction
+					bot.profile.perception.reaction
 						* (if recent then 0.5 else 1)
 						* (0.8 + rng:NextNumber() * 0.4),
 					BotsConfig.REACTION_FLOOR
 				)
-				m.visibleSince = now + reaction - bot.profile.reaction
+				m.visibleSince = now + reaction - bot.profile.perception.reaction
 			end
 			m.visible = true
 			m.heard = false
 			m.lastPos = enemyRoot.Position
 			m.seenAt = now
-			m.headVisible = aimPart == "Head"
+			m.visibleAt = now
+			m.bodyVisible, m.headVisible = bodyVisible, headVisible
+			if chest and bodyVisible then
+				m.bodyOffset = chest.Position - enemyRoot.Position
+			end
+			if headPart and headVisible then
+				m.headOffset = headPart.Position - enemyRoot.Position
+			end
 			m.unreachableAt = nil
 			-- The trail (aim lag) and where it last stood (path goals).
 			local slot = m.trailHead % BotsConfig.TRAIL + 1
@@ -171,17 +199,21 @@ end
 
 -- In sight long enough to react to.
 function Perception.engageable(bot: Bot, m: Memory, now: number): boolean
-	return m.visible and m.visibleSince ~= nil and now - m.visibleSince >= bot.profile.reaction
+	return m.visible
+		and now - m.visibleAt <= BotsConfig.SIGHT_FRESHNESS
+		and m.visibleSince ~= nil
+		and now - m.visibleSince >= bot.profile.perception.reaction
 end
 
 -- A gunshot (or another loud thing) at `at` by `source`.
 function Perception.hear(bot: Bot, source: Model, at: Vector3, now: number)
 	local root = bot.root
-	if not root or (at - root.Position).Magnitude > bot.profile.hearing then
+	if not root or (at - root.Position).Magnitude > bot.profile.perception.hearing then
 		return
 	end
 	local m = memoryFor(bot, source, at)
-	if m.visible then
+	m.firedAt = now
+	if m.visible or now - m.visibleAt < BotsConfig.SHOT_ATTENTION_TIME then
 		return
 	end
 	local noise = rng:NextUnitVector() * Vector3.new(1, 0, 1) * BotsConfig.HEAR_ERROR
@@ -189,6 +221,25 @@ function Perception.hear(bot: Bot, source: Model, at: Vector3, now: number)
 	m.groundPos = m.lastPos
 	m.seenAt = now
 	m.heard = true
+end
+
+-- A glimpse can turn a bot's attention before its firing reaction is ready.
+function Perception.glimpse(bot: Bot, now: number): Memory?
+	local root = bot.root
+	if not root then
+		return nil
+	end
+	local closest: Memory? = nil
+	local distance = math.huge
+	for _, m in bot.memory do
+		if m.visible and now - m.visibleAt <= BotsConfig.SIGHT_FRESHNESS then
+			local gap = (m.lastPos - root.Position).Magnitude
+			if gap < distance then
+				closest, distance = m, gap
+			end
+		end
+	end
+	return closest
 end
 
 -- A teammate's Mod revealed `model` at `at`: the exact spot, as if seen.
@@ -225,41 +276,49 @@ function Perception.lagged(m: Memory, now: number, lag: number): Vector3
 	return m.lastPos
 end
 
--- Picks the target: engageable enemies scored by distance, a teammate's
--- target (focus fire) and how hurt they are; sticks for a moment.
-function Perception.pickTarget(bot: Bot, now: number, focus: { [Model]: number }): Memory?
+-- Rank confirmed threats by gun range, proximity, recent fire and squad
+-- pressure. The current target gets a small preference instead of a lock.
+function Perception.pickTarget(
+	bot: Bot,
+	now: number,
+	focus: { [Model]: number },
+	preferredRange: number,
+	maxRange: number
+): Memory?
 	local root = bot.root
 	if not root then
 		return nil
 	end
 	local current = bot.target
-	if
-		current
-		and Perception.engageable(bot, current, now)
-		and now - bot.targetSince < BotsConfig.TARGET_STICK
-	then
-		return current
-	end
 	local best: Memory? = nil
 	local bestScore = -math.huge
 	for model, m in bot.memory do
 		if not Perception.engageable(bot, m, now) then
 			continue
 		end
-		local distance = (m.lastPos - root.Position).Magnitude
+		local offset = m.lastPos - root.Position
+		local distance = offset.Magnitude
+		local facing = root.CFrame.LookVector:Dot(offset / math.max(distance, 0.1))
+		local score = 1 / (1 + distance / preferredRange) + math.max(facing, 0) * 0.16
+		if distance > maxRange then
+			score -= 1
+		end
+		if distance < BotsConfig.THREAT_NEAR then
+			score += 0.85 * (1 - distance / BotsConfig.THREAT_NEAR)
+		end
+		if now - m.firedAt < BotsConfig.SHOT_ATTENTION_TIME then
+			score += 0.28
+		end
 		local humanoid = model:FindFirstChildOfClass("Humanoid")
-		local share = if humanoid
-			then Health.get(humanoid) / math.max(Health.max(humanoid), 1)
-			else 1
-		local others = focus[model] or 0
-		local score = 40 / math.max(distance, 4) + (1 - share) * 0.6 + math.min(others, 1) * 0.3
-		-- Two on one is enough (LihFolk Squad AI: attacker limits): a third
-		-- bot looks for someone else.
-		if others >= BotsConfig.MAX_ON_TARGET and m ~= current then
-			score -= 1.5
+		if humanoid then
+			local share = math.clamp(Health.get(humanoid) / math.max(Health.max(humanoid), 1), 0, 1)
+			score += (1 - share) * 0.22
+		end
+		if (focus[model] or 0) >= BotsConfig.MAX_ON_TARGET then
+			score -= 0.38
 		end
 		if m == current then
-			score *= 1.3
+			score += if now - bot.targetSince < BotsConfig.TARGET_COMMIT then 0.23 else 0.10
 		end
 		if score > bestScore then
 			best, bestScore = m, score
@@ -270,7 +329,7 @@ function Perception.pickTarget(bot: Bot, now: number, focus: { [Model]: number }
 		if best then
 			-- Chest by default, the head by chance (if it shows).
 			best.aimPart = if best.headVisible
-					and rng:NextNumber() < bot.profile.headChance
+					and rng:NextNumber() < bot.profile.aim.headChance
 				then "Head"
 				else "UpperTorso"
 		end
@@ -283,7 +342,11 @@ function Perception.lastKnown(bot: Bot, now: number): Memory?
 	local best: Memory? = nil
 	for _, m in bot.memory do
 		local unreachable = m.unreachableAt ~= nil and m.seenAt <= m.unreachableAt
-		if not m.visible and not unreachable and now - m.seenAt <= bot.profile.memory then
+		if
+			(not m.visible or now - m.visibleAt > BotsConfig.SIGHT_FRESHNESS)
+			and not unreachable
+			and now - m.seenAt <= bot.profile.perception.memory
+		then
 			if not best or m.seenAt > best.seenAt then
 				best = m
 			end

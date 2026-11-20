@@ -8,6 +8,7 @@
 -- Fire and tail voices can overlap to the end of each shot or tail fade.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -16,6 +17,8 @@ local Audio = require(ReplicatedStorage.Shared.Config.Audio)
 local GunSoundAssets = require(ReplicatedStorage.Shared.Config.GunSoundAssets)
 local GunSounds = require(ReplicatedStorage.Shared.Config.GunSounds)
 local SharedSoundAssets = require(ReplicatedStorage.Shared.Config.SharedSoundAssets)
+local ShadowMistAudio = require(ReplicatedStorage.Shared.Config.ShadowMistAudio)
+local SkinPreviewConfig = require(ReplicatedStorage.Shared.Config.SkinPreview)
 local Sounds = require(ReplicatedStorage.Shared.Config.Sounds)
 
 export type Group = Audio.Group
@@ -60,6 +63,7 @@ type SoundBank = {
 local BANKS: { [string]: SoundBank } = {
 	gun = { takes = GunSoundAssets, voices2d = {}, voices3d = {} },
 	sfx = { takes = SharedSoundAssets, voices2d = {}, voices3d = {} },
+	shadow = { takes = {}, voices2d = {}, voices3d = {} },
 }
 
 local groups: { [string]: SoundGroup } = {}
@@ -310,6 +314,12 @@ function AudioController.preload(ids: { string })
 	end
 end
 
+function AudioController.isPreloaded(id: string): boolean
+	local pool = loosePools[id]
+	local sound = if pool then pool[1] else nil
+	return sound ~= nil and sound.IsLoaded
+end
+
 local function playLoose(
 	id: string,
 	group: Group,
@@ -390,7 +400,7 @@ function AudioController.play(id: string?, options: PlayOptions?): Handle?
 
 	local now = os.clock()
 	local at = o.at
-	local protect = bank == BANKS.gun and o.protect == true
+	local protect = (bank == BANKS.gun or bank == BANKS.shadow) and o.protect == true
 	local asset = take.asset
 	local v = if at
 		then acquire(bank.voices3d, Audio.VOICES_3D, true, asset, key, now, protect)
@@ -493,7 +503,11 @@ function AudioController.group(group: Group): SoundGroup?
 	return groups[group]
 end
 
-local function preloadBank(bank: SoundBank, equipPriority: { string }?)
+local function preloadBank(
+	bank: SoundBank,
+	equipPriority: { string }?,
+	stagedTakes: { [string]: { Take } }?
+)
 	local ids: { string } = {}
 	local seen: { [string]: boolean } = {}
 	local function add(takes: { [number]: Take })
@@ -512,11 +526,12 @@ local function preloadBank(bank: SoundBank, equipPriority: { string }?)
 			end
 		end
 	end
-	for _, takes in bank.takes do
+	for _, takes in stagedTakes or bank.takes do
 		add(takes)
 	end
 	task.spawn(function()
 		local contentProvider = game:GetService("ContentProvider")
+		local loaded: { [string]: boolean } = {}
 		for first = 1, #ids, Audio.PRELOAD_BATCH_SIZE do
 			local batch = {}
 			for index = first, math.min(first + Audio.PRELOAD_BATCH_SIZE - 1, #ids) do
@@ -525,12 +540,31 @@ local function preloadBank(bank: SoundBank, equipPriority: { string }?)
 				table.insert(batch, voice.sound)
 			end
 			contentProvider:PreloadAsync(batch)
+			if stagedTakes then
+				for _, sound in batch do
+					loaded[sound.SoundId] = sound.IsLoaded
+				end
+			end
+		end
+		-- Make the private skin cues available after loading. Missing files
+		-- stay out of the variation bag so the caller can use its fallback.
+		for name, takes in stagedTakes or {} do
+			local ready: { Take } = {}
+			for _, take in takes do
+				if loaded[take.asset] then
+					table.insert(ready, take)
+				end
+			end
+			bank.takes[name] = ready
 		end
 	end)
 end
 
 function AudioController.init()
 	buildGroups()
+	if RunService:IsStudio() and game.PlaceId == SkinPreviewConfig.PLACE_ID then
+		preloadBank(BANKS.shadow, nil, ShadowMistAudio.takes)
+	end
 	preloadBank(BANKS.gun, { "Vandal", "Classic", "Knife" })
 	preloadBank(BANKS.sfx)
 	-- the hit / kill sounds that are plain asset ids, loaded before the first hit

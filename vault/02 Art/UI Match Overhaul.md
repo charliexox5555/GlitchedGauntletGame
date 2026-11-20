@@ -63,7 +63,7 @@ Answered 2026-11-16 (all as recommended):
   - `MatchService.pickMap` calls it with every installed map in `Config/Match MAPS` that fits the bigger team.
   - No vote when only one map fits, when nobody is in the server, or with Studio `ForceMap`.
   - Each vote is a ticket; one is drawn; no votes = any map.
-  - The clock cuts to 1.5 s once everyone has voted; the chosen map shows for 2.5 s.
+  - Bots cast one ticket each for a random eligible map. Voting lasts at least six seconds in a match with bots so they can vote and their portraits can load. When everyone has voted, the clock can shorten. The chosen map shows for 2.5 s.
   - Numbers live in `Config/Match VOTE`. The `MapVote` remote is type-, length- and option-checked and rate-limited (`RATE.MapVote`); the vote is a server-set Player attribute `MapVote`.
   - New `MatchState` Phase `Vote`, plus `VoteOptions`, `VoteTeamSize`, `VoteChosen`.
 - **Screen:** Studio-built `StarterGui.MapVote` (backup `tools/studio/BuildMapVote.luau`) + `MapVoteController`.
@@ -71,7 +71,7 @@ Answered 2026-11-16 (all as recommended):
   - Look: Rubik and charcoal; Random first with a "?"; each card has a name foot, the team sizes, your vote's foot turning white with a 1.04 pop, voters' heads ringed in team colour, % chance in gold, and the clock turning red at 3.
   - At the pick, the winning card pops and the rest dim.
   - `Config/Match MAPS` entries take an optional `name` and `image` for when the art exists.
-- **Other screens:** the top bar, Tab scoreboard, spectate and match HUD treat `Vote` like `Waiting`.
+- **Other screens:** the top bar shows the human and bot roster during voting, before characters spawn. Top-bar and vote tiles use the existing placeholder while their Roblox portraits load.
 - [Selected vote](Overhaul/match_map_vote.jpg).
 
 ### Server / FPS / ping readout
@@ -146,6 +146,11 @@ Fixed in this pass:
   - [kill feed + spectate](Overhaul/match_killfeed_spectate.jpg);
   - [match end](Overhaul/match_end_restyle.jpg).
 - Test mode was put back after (TestMode on, ForceMap OldTown2).
+
+### Teammate markers (2026-11-17)
+
+- Living teammates, including allied bots, show a cyan-framed avatar with health and shield above their head. The marker is visible through walls within 140 studs during the countdown, round, and overtime. It hides on elimination, during spectating, and while flashed.
+- Gun and melee prediction exclude the shooter's teammates so friendly bodies produce no hit markers, hit sounds, or impacts. Shots can continue to valid targets and surfaces behind them.
 
 ## Test list for you
 1. **Save the match place** (vote screen, restyled screens, templates) and the **Lobby place**.

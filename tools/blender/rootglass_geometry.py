@@ -22,7 +22,7 @@ MOUNTS = {
     "Sheriff": ("Barrel", .985, .267, .220, .073, "oval"),
     "Classic": ("Slide", .550, .403, .283, .066, "oval"),
     "Ghost": ("Slide", .533, .326, .430, .063, "long"),
-    "Shorty": ("Frame", .355, .196, .181, .075, "oval"),
+    "Shorty": ("Frame", .070, .284, .130, .054, "oval"),
     "Bucky": ("Receiver", .333, .302, .292, .100, "oval"),
     "Judge": ("Receiver", .760, .475, .474, .133, "hero"),
     "Marshal": ("Receiver", .507, .128, .339, .064, "long"),
@@ -219,15 +219,15 @@ def specimen(name, collection, rig, bone, mats, cx, cz, width, height, y, side, 
         ob["pulse_path_direction"] = "+X along the primary vein"
 
 
-def shell(name, collection, rig, bone, mats, cx, cz, dx, dz, y, side, profile):
+def shell(name, collection, rig, bone, mats, cx, cz, dx, dz, y, side, profile, seating=-.027):
     inner = WINDOWS[profile]
     inset = lambda w,h,depth: coords(inner,cx,cz,dx*w,dz*h,y+depth,side)
     outer = lambda w,h,depth: coords(SHELL,cx,cz,dx*w,dz*h,y+depth,side)
     depth = .015 if dx < .34 else .024
     ring_mesh(name+"_CarvedShell",collection,rig,bone,[
-        outer(.99,.97,-.027), outer(1,1,.002), outer(.92,.91,depth+.007),
+        outer(.99,.97,seating), outer(1,1,.002), outer(.92,.91,depth+.007),
         inset(.705,.60,depth+.012), inset(.675,.535,depth+.008),
-        inset(.665,.527,depth-.008), inset(.665,.527,-.027),
+        inset(.665,.527,depth-.008), inset(.665,.527,seating),
     ],[mats["Carved Walnut"],mats["Carved Walnut"],
        (mats["Walnut"],mats["Satin Walnut"],mats["Satin Walnut"],mats["Walnut"],
         mats["Satin Walnut"],mats["Walnut"],mats["Carved Walnut"],mats["Carved Walnut"]),
@@ -260,7 +260,7 @@ def gun(item, collection, rig, mats):
     for side in sides:
         suffix = "Left" if side==1 else "Right"
         shell(f"Rootglass_{suffix}",collection,rig,ob.parent_bone,mats,
-              cx,cz,dx,dz,y,side,profile)
+              cx,cz,dx,dz,y,side,profile,seating=-.007 if item=="Shorty" else -.027)
     if item == "Vandal":
         lower = [(.150,.256),(.258,.268),(.457,.268),(.697,.269),(.924,.269),
                  (1.034,.260),(.929,.249),(.675,.247),(.411,.247),(.241,.245)]
@@ -271,6 +271,14 @@ def gun(item, collection, rig, mats):
         right = [(.994,.229),(1.080,.316),(1.25,.347),(1.57,.357),(1.64,.297),
                  (1.58,.214),(1.28,.170),(1.10,.171)]
         plate("Rootglass_RightWalnutCheek",collection,rig,"Root",mats,right,.085,-1,.024)
+    if item == "Ares":
+        drum = bpy.data.objects["Ares_Drum"]
+        trim = len(drum.material_slots)
+        drum.data.materials.append(mats["Bronze Seat"])
+        for face in drum.data.polygons:
+            p = drum.matrix_world @ face.center
+            if drum.material_slots[face.material_index].name == "Panel" and .23 < abs(p.y) < .25:
+                face.material_index = trim
     return {"host": ob.name, "bone": ob.parent_bone,
             "window_center": [cx,y+.02,cz], "width": dx*2, "height": dz*2,
             "specimen_profile": profile}

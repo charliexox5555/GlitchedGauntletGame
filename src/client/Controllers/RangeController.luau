@@ -5,6 +5,8 @@
 -- owns the number. Dummies stream in and out (StreamingEnabled), so bars are
 -- made when a dummy arrives and dropped when it leaves.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -72,10 +74,10 @@ local function addBar(model: Instance)
 	if not humanoid or not head or not head:IsA("BasePart") then
 		return
 	end
-	local accentValue = model:GetAttribute("DummyAccent")
+	local accentValue = StateValues.get(model, "DummyAccent")
 	local accent = if typeof(accentValue) == "Color3" then accentValue else WHITE
-	local labelValue = model:GetAttribute("DummyLabel")
-	local distance = model:GetAttribute("DummyDistance")
+	local labelValue = StateValues.get(model, "DummyLabel")
+	local distance = StateValues.get(model, "DummyDistance")
 
 	local gui = make("BillboardGui", {
 		Name = "RangeBar_" .. model.Name,
@@ -161,7 +163,7 @@ local function addBar(model: Instance)
 	bars[model] = {
 		gui = gui,
 		connections = {
-			humanoid:GetAttributeChangedSignal(Health.HP):Connect(function()
+			StateValues.changed(humanoid, Health.HP):Connect(function()
 				refresh(false)
 			end),
 			model.AncestryChanged:Connect(function()

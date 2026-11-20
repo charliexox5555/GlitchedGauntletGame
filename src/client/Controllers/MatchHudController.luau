@@ -10,6 +10,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local StarterGui = game:GetService("StarterGui")
 local TextChatService = game:GetService("TextChatService")
 local TweenService = game:GetService("TweenService")
@@ -209,7 +210,7 @@ local function refresh(ui: Ui)
 		title, sub = "WAITING FOR OPPONENT", string.format("First to %d", Config.ROUNDS_TO_WIN)
 	elseif phase == "Draft" then
 		-- The draft screen covers the middle until you've locked in.
-		if player:GetAttribute("DraftLocked") == true then
+		if StateValues.get(player, "DraftLocked") == true then
 			kicker, title, sub, tone = roundTag, "LOCKED IN", "Waiting for the others", "ally"
 		end
 	elseif phase == "Countdown" then

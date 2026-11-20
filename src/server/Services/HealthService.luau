@@ -6,6 +6,7 @@
 -- replaced. Only this module writes these attributes.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Combat = require(ReplicatedStorage.Shared.Config.Combat)
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -22,9 +23,9 @@ function HealthService.prepare(humanoid: Humanoid, max: number?)
 	humanoid.BreakJointsOnDeath = false
 	humanoid.RequiresNeck = false
 	humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-	humanoid:SetAttribute(Health.MAX, full)
-	humanoid:SetAttribute(Health.HP, full)
-	humanoid:SetAttribute(Health.DOWNED, false)
+	StateValues.set(humanoid, Health.MAX, full)
+	StateValues.set(humanoid, Health.HP, full)
+	StateValues.set(humanoid, Health.DOWNED, false)
 end
 
 -- Runs `fn` for every fighter that goes down (after the attribute is set).
@@ -34,11 +35,11 @@ end
 
 -- Down a fighter now (0 HP, or falling off the map).
 function HealthService.down(humanoid: Humanoid)
-	if humanoid:GetAttribute(Health.DOWNED) == true then
+	if StateValues.get(humanoid, Health.DOWNED) == true then
 		return
 	end
-	humanoid:SetAttribute(Health.HP, 0)
-	humanoid:SetAttribute(Health.DOWNED, true)
+	StateValues.set(humanoid, Health.HP, 0)
+	StateValues.set(humanoid, Health.DOWNED, true)
 	humanoid.WalkSpeed = 0
 	humanoid.JumpHeight = 0
 	-- The body stays (clients hide it and show the death look) but no longer
@@ -65,11 +66,11 @@ end
 
 -- Sets HP (clamped to 0..MaxHP); 0 downs the fighter.
 function HealthService.set(humanoid: Humanoid, hp: number)
-	if hp ~= hp or humanoid:GetAttribute(Health.DOWNED) == true then
+	if hp ~= hp or StateValues.get(humanoid, Health.DOWNED) == true then
 		return
 	end
 	local value = math.clamp(hp, 0, Health.max(humanoid))
-	humanoid:SetAttribute(Health.HP, value)
+	StateValues.set(humanoid, Health.HP, value)
 	if value <= 0 then
 		HealthService.down(humanoid)
 	end

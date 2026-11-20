@@ -1,0 +1,38 @@
+{
+  "line": "Kilnlock",
+  "item": "Odin",
+  "version": "v01",
+  "source": "art-source\\weapons\\RemasterV2\\Odin\\Odin_RemasterV2_v05.blend",
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 46,
+    "ready": 110,
+    "peak": 50,
+    "inspect": 144,
+    "cancel": 186,
+    "steps": [],
+    "game_reload_seconds": 4.2
+  },
+  "fit": {
+    "seat_rays_hit": 20,
+    "seat_rays_total": 24,
+    "side_depth_variation": 0.004
+  },
+  "rendered_panels": [
+    "hero",
+    "side",
+    "right",
+    "held",
+    "aim",
+    "detail",
+    "start",
+    "commit",
+    "ready",
+    "cancel",
+    "inspect"
+  ],
+  "backface_culling": true,
+  "fps": 24,
+  "motion_frame_step": 3
+}

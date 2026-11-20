@@ -1,162 +1,57 @@
-# Setup Guide: your computer, Rojo, Obsidian and Claude
+# Setup guide for Glitched Gauntlet
 
-**The big idea:** one folder, the GitHub repo, holds everything: code (`src/`), models (`assets/`, `art-source/`) and all your notes (`vault/`).
-- **Obsidian** opens `vault/` (just the notes).
-- **Claude** opens the **repo root**, so it sees code *and* notes, and reads `CLAUDE.md` automatically.
-- **Rojo** syncs `src/` and `assets/` into Roblox Studio.
-- **Git** saves and backs up all of it.
+Use the repository root for Codex, your editor and PowerShell. Open its `vault/` subfolder as the Obsidian vault. Both places live in this one checkout. See the [Developer Handoff](Developer%20Handoff.md) for the game walkthrough and edit map.
 
-```
-GameDev/
-└── GlitchedGauntletGame/   ← Claude works here (repo root)
-    ├── CLAUDE.md
-    ├── src/  assets/  art-source/  tools/
-    └── vault/              ← Obsidian opens this
-```
+## 1. Get the checkout and toolchain
 
----
+For a new machine, clone the existing repository and open the folder it creates. On this machine the checkout and tools are already present.
 
-## Part A: Install (once, ~30 min)
-
-| # | Install | Notes |
-|---|---|---|
-| 1 | **Git** (git-scm.com) | Default options are fine |
-| 2 | **Roblox Studio** | Sign in |
-| 3 | **Obsidian** (obsidian.md) | Free |
-| 4 | **VS Code** (optional but handy) | Extensions: *Luau Language Server* (JohnnyMorganz), *StyLua*, *Selene* |
-| 5 | **Claude Code** | Use the Claude desktop app's Code tab or the CLI (install steps at code.claude.com/docs). Claude Code is needed because it can run terminal commands (git, rojo) |
-| 6 | **Rokit** (github.com/rojo-rbx/rokit) | Installs Rojo, Wally, Selene and StyLua at the versions pinned in the repo. Follow its README; on Windows it's the PowerShell one-liner or running the downloaded `rokit.exe self-install` |
-| 7 | **Blender** | You already have it for the guns |
-
-Restart your terminal after installing Rokit.
-
----
-
-## Part B: Get the project
-
-Open a terminal (PowerShell on Windows) and run:
-
-```bash
-mkdir GameDev
-cd GameDev
+```powershell
 git clone https://github.com/charliexox5555/GlitchedGauntletGame.git
-cd GlitchedGauntletGame
-rokit install              # installs rojo, wally, selene, stylua
-rojo plugin install        # installs the Rojo plugin into Roblox Studio
+Set-Location GlitchedGauntletGame
+rokit install
+rojo plugin install
+rojo --version
 ```
 
-> The repo currently has one branch (`claude/dazzling-carson-5yp2jd`), so the clone checks it out automatically. Prompt 1 below has Claude set up a proper `main` branch.
+`rokit.toml` pins Rojo 7.4.4, Wally 0.3.2, Selene 0.27.1 and StyLua 0.20.0. The VS Code Luau Language Server extension is optional. Use Roblox Studio for scenes and Blender for the source models.
 
-Check it worked:
-```bash
-rojo --version     # Rojo 7.7.1
-stylua --version
-selene --version
+## 2. Connect the right place
+
+Open the existing Lobby and Match places from experience `10772880160`. Use one PowerShell terminal per server from the repo root.
+
+| Place | Place ID | PowerShell | Address in the Studio Rojo plugin |
+|---|---|---|---|
+| Match | `133387545285290` | `rojo serve default.project.json` | `127.0.0.1:34872` |
+| Lobby | `71551303511506` | `rojo serve lobby.project.json` | `127.0.0.1:34873` |
+
+In each window select **Plugins → Rojo → Connect**, confirm the project name and review the proposed sync. For Match, check `ServerScriptService.Server`, `StarterPlayerScripts.Client` and `ReplicatedFirst.Loading.LoadingScreen`. For Lobby, check `LobbyServer`, `LobbyClient` and `ReplicatedStorage.Lobby`. Both should have `ReplicatedStorage.Shared`.
+
+There are separate connections for live editing and inspection. **Rojo** streams mapped files to Studio. **Roblox Studio MCP** queries the open place or runs a deliberate Studio action. The MCP server responded for both places in the audit. If a name is blank or seems ambiguous, query `game.PlaceId` and the DataModel mode. Reopen or reconnect the intended Studio instance if it is missing. Use Edit for the currently open scene and Client/Server when examining a running test.
+
+The scene lives in Studio. Use the proper source, builder and Studio templates for geometry, GUI instances, guns, skin models and ability meshes. Review extra children inside mapped trees before changing the sync. The open Match held Studio-only weapon build data under its mapped Server root.
+
+## 3. Use Obsidian and Codex together
+
+1. In Obsidian, select **Open folder as vault** and choose `GlitchedGauntletGame/vault`. This vault was registered and open at audit time. The parent GauntletGame folder also has a separate Obsidian config.
+2. Open **00 Home** for current status and decisions. Use **INDEX** for notes and **04 Tech/Code Map** for implementation. Project notes are normal Markdown files. Saving them in Obsidian edits the same files that Git and Codex use.
+3. Templates are configured under `Templates/`. Daily notes go to `05 Production/Daily Log` using the Daily Log template. Keep third-party captures and the local LihFolk reference out of commits.
+4. Start Codex at the repository root so it sees `AGENTS.md` and the skills under `.agents/skills/`. See [Codex workflow](Codex%20Collaboration.md) for the old-to-new workflow map. For a manual task, start with a small question such as **“Which Studio template and controller do I edit for the Match top bar?”**.
+
+## 4. Verify and release
+
+Run source checks before sharing changes.
+
+```powershell
+stylua --check src
+selene src
+rojo build default.project.json -o "$env:TEMP/gauntlet-match-check.rbxl"
+rojo build lobby.project.json -o "$env:TEMP/gauntlet-lobby-check.rbxl"
 ```
 
----
+- **Git.** Start with `git status --short --branch`, inspect `git diff` and `git diff --cached`, and use `git fetch origin` to refresh the remote refs when needed. Compare with `git log --left-right --oneline HEAD...origin/main`. Stage only the agreed paths. Coordinate integration of remote changes when there is local work. Use `git pull --ff-only` when a clean checkout can fast-forward. Push the intended commit or branch when agreed. CI checks formatting, lint and both code-only Rojo trees.
+- **Local playtest.** Lobby Studio logs the teleport payload in Output. In Match toggle `TestMode` under Workspace Properties → Attributes before Play. Set team size and map in `Config/AssetData/MatchSettings`. Clear `ForceMap` to exercise voting. Test real teleport in a published experience when release testing is authorized. [Studio settings](State%20Values%20and%20Asset%20Data.md#editing-active-assets)
+- **Studio save.** Save the intended place after a scene or template edit and retain recoverable source/backups for Studio-only data. The temporary Rojo build contains the repo-backed tree alone.
+- **Publish.** Confirm the intended place and version in Studio before publishing. The owner chose Lobby V4 after cleanup. Remove/isolate third-party material and staging props from the release copy and verify its spawn, rooms, pads and templates. Match needs its own release check, including loading GUI and map vote. Treat [Bugs & Ideas](../05%20Production/Bugs%20%26%20Ideas.md) as an open issue list.
 
-## Part C: Connect Roblox Studio with Rojo
-
-1. Open **Roblox Studio** → **New** → **Baseplate**.
-2. **File → Publish to Roblox As…** → a new experience (name it anything for now). Then **File → Save** a local copy *outside* the repo, or anywhere (`.rbxl` files are git-ignored).
-3. In the terminal (inside the repo): `rojo serve`
-4. In Studio: **Plugins tab → Rojo → Connect**.
-5. Check: **ReplicatedStorage → Shared** and **Assets** appear, and **ServerScriptService → Server** appears.
-6. Press **Play**. The Output window should show `[GlitchedGauntletGame] server started` and `client started`. ✅
-
-Every work session: open Studio → `rojo serve` → Connect.
-
----
-
-## Part D: Set up Obsidian
-
-1. Open Obsidian → **Open folder as vault** → pick `GameDev/GlitchedGauntletGame/vault`.
-2. Open **00 Home**. That's your dashboard.
-3. **Settings → Core plugins:** turn on **Templates** and **Daily notes**. Their folders are already configured: templates in `Templates/`, daily notes in `05 Production/Daily Log` using the Daily Log template.
-4. Optional community plugins (Settings → Community plugins → Browse):
-   - **Excalidraw**: sketch map layouts right in the vault (great for the arena sketch step).
-   - **Dataview**: fancy tables later; not needed now.
-   - Skip auto-commit git plugins. Claude handles git, and two things committing at once causes conflicts.
-5. Tip: pin **00 Home** and the **Asset Tracker** in the sidebar.
-
----
-
-## Part E: Connect Claude
-
-1. Open Claude Code **in the repo root** (`GameDev/GlitchedGauntletGame`), not in `vault/`. In the desktop app, choose that folder; in a terminal, `cd` there and run `claude`.
-2. It reads `CLAUDE.md` automatically, which tells it where everything is and how to keep the vault updated.
-3. **Roblox Studio MCP** (lets Claude build and inspect inside Studio): use **Prompt 2** below. Claude finds Roblox's current official setup steps and walks you through them.
-4. Optional: **Blender MCP** if you want Claude to tweak guns live in Blender.
-
----
-
-## Part F: Prompts (copy-paste in order)
-
-### Prompt 1: Check the setup and organise git
-```
-Read CLAUDE.md and vault/00 Home.md. Then:
-1. Run rojo --version, stylua --check src, selene src and rojo build -o build.rbxl, and tell me if anything fails (selene may need to download the Roblox standard library on first run).
-2. Set up git properly: create a `main` branch from the current branch, push it, and tell me how to make `main` the default branch on GitHub. From now on, work on `main` unless I say otherwise.
-3. Add a .gitattributes so line endings stay LF (StyLua expects Unix line endings) if it isn't there already.
-4. Give me a short summary of the project structure so I know you understand it.
-```
-
-### Prompt 2: Connect Claude to Roblox Studio (MCP)
-```
-I want you to work directly inside Roblox Studio. Find Roblox's official Studio MCP server documentation (Roblox updated it in Feb 2026) and walk me through connecting it to Claude Code on my computer step by step. Wait for me at each step. When it's connected, prove it works: list the children of ReplicatedStorage in my open Studio place (Rojo should be connected, so Shared and Assets should be there).
-```
-
-### Prompt 3: Studio settings for our game
-```
-Using the Studio MCP, set up my place for our game per vault/04 Tech/Architecture.md and vault/01 Design/Gunplay.md:
-- Turn on Server Authority and its required settings, and StreamingEnabled (check Roblox's current docs for the exact properties).
-- Create ServerStorage.ImportStaging (a folder for importing models; Rojo doesn't manage it).
-- Set the player to first person with FOV 80.
-Tell me anything you can't set through the MCP so I can click it myself, then update the Status in vault/00 Home.md.
-```
-
-### Prompt 4: Import the guns
-```
-I'm importing my gun models. Read vault/02 Art/Art Direction.md (model standard + import pipeline) and vault/06 Assets/Asset Tracker.md.
-1. Tell me where to put my .blend/.fbx files (art-source/weapons/<Gun>/) and commit them.
-2. I'll import each FBX into ServerStorage.ImportStaging with File → Import 3D. Start with Bitrate.
-3. For each imported gun, use the Studio MCP to bring it up to the model standard: Handle as PrimaryPart at the grip, attachments (Muzzle, RightGrip, LeftGrip, AimPoint, Eject, CharmPoint), part names, Neon material on neon parts, welds, the collision/query flags, the right scale (Bitrate = 3.8 studs) and the right orientation. Show me a screenshot and ask me to check the attachment positions.
-4. When I approve, save it as assets/Weapons/<Id>.rbxm (IDs without spaces, e.g. HardReset) and tick the Asset Tracker.
-5. Also write a small validator script I can run anytime that checks every gun in ReplicatedStorage.Assets.Weapons against the standard and prints what's missing.
-```
-
-### Prompt 5: Start building the gun system
-```
-Read vault/01 Design/Gunplay.md and vault/01 Design/Weapons.md. Let's build the gun system following the build order in Gunplay.md, one step at a time:
-Step 1: movement (walk, sprint, crouch, slide, slide-jump) with the Input Action System, and Config/Weapons.luau with all wave 1 guns as data.
-Use the roblox-dev skills (new-system, roblox-security) if you have them. Run stylua and selene, then tell me exactly what to test in Studio. Wait for my feedback before step 2.
-```
-
-### Every day: start
-```
-Read CLAUDE.md, vault/00 Home.md and the latest note in vault/05 Production/Daily Log/. Today we're working on: [task]. Yesterday's notes: [paste or "see log"]. Start with [first thing] and stop when it's ready for me to test.
-```
-
-### Every day: end
-```
-End of day. Write today's Daily Log from the template (what we did, what I tested, problems, 3 notes for tomorrow, commits), update Status in 00 Home and the Asset Tracker, run stylua and selene, commit everything with a clear message and push.
-```
-
-### Anytime: playtest notes
-```
-I just playtested. Here's what happened: [brain-dump]. Turn this into a Playtest note from the template in vault/05 Production/Playtests/, add bugs to Bugs & Ideas, and propose the top 3 fixes.
-```
-
----
-
-## Troubleshooting
-| Problem | Fix |
-|---|---|
-| `rokit` not found | Restart the terminal; rerun the Rokit installer |
-| Rojo plugin won't connect | `rojo serve` must be running in the repo folder; same port (34872) in the plugin |
-| Plugin error `attempt to index number with 'protocolVersion'` | The Studio plugin and `rojo serve` are different Rojo versions. In the repo folder run `rokit install`, then `rojo plugin install`, restart Studio, `rojo serve`, Connect. Remove any other Rojo plugin (Creator Store copy) under Plugins → Manage Plugins |
-| My Studio edits disappeared | You edited something Rojo owns (Shared, Assets, Server, Client). Edit files instead, or work in staging/Workspace |
-| `stylua --check` fails on Windows | Line endings: make sure `.gitattributes` exists (Prompt 1), then run `stylua src` |
-| `selene` std library error | Run `selene generate-roblox-std` once with internet access |
-| Obsidian shows broken links | Make sure you opened the `vault` folder, not the repo root |
+For the current Git/Studio differences and local verification results, see the [audit snapshot](Developer%20Handoff.md#6-audit-snapshot-and-release-handoff).

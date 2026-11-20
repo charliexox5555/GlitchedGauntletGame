@@ -31,6 +31,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -408,7 +409,7 @@ local function healNumbers(target: Model, record: HealRecord, duration: number, 
 	local pending = 0
 	table.insert(
 		record.conns,
-		humanoid:GetAttributeChangedSignal(Health.HP):Connect(function()
+		StateValues.changed(humanoid, Health.HP):Connect(function()
 			local health = Health.get(humanoid)
 			if health > last then
 				pending += health - last
@@ -466,7 +467,7 @@ local function onHeal(data: { [string]: any })
 	if humanoid then
 		table.insert(
 			record.conns,
-			humanoid:GetAttributeChangedSignal(Health.DOWNED):Connect(function()
+			StateValues.changed(humanoid, Health.DOWNED):Connect(function()
 				if Health.isDowned(humanoid) then
 					HealFx.stop(targetModel)
 					endHeal(targetModel, record)
@@ -686,7 +687,7 @@ local dressed: { [BasePart]: Dressed } = {}
 local ARROW_CHASE = 1.6 -- cycles per second of a finished pad's arrow chase
 
 local function objectColor(part: BasePart): Color3
-	local team = part:GetAttribute("TeamId")
+	local team = StateValues.get(part, "TeamId")
 	return TeamColor.forTeam(if typeof(team) == "number" then team else nil)
 end
 
@@ -712,7 +713,7 @@ local function dress(part: BasePart): boolean
 	end
 	local energy, arrows = {}, {}
 	for _, d in model:GetDescendants() do
-		if d:IsA("BasePart") and d:GetAttribute("Energy") == true then
+		if d:IsA("BasePart") and StateValues.get(d, "Energy") == true then
 			table.insert(energy, d)
 			if string.match(d.Name, "^Arrow%d") then
 				table.insert(arrows, d)
@@ -769,7 +770,7 @@ local function colourObject(part: Instance)
 	if known[part] then
 		if not dressed[part] and not skins[part] then
 			-- Streamed back in: put the model back.
-			if part:GetAttribute("Kind") == "ReconDart" then
+			if StateValues.get(part, "Kind") == "ReconDart" then
 				dressDart(part)
 			else
 				dress(part)
@@ -777,13 +778,13 @@ local function colourObject(part: Instance)
 		end
 		return
 	end
-	if part:GetAttribute("Kind") == "Roller" then
+	if StateValues.get(part, "Kind") == "Roller" then
 		-- The bot is drawn and moved by RollerFx (it follows the server part).
 		RollerFx.track(part, objectColor(part))
 		return
 	end
 	known[part] = true
-	if part:GetAttribute("Kind") == "ReconDart" then
+	if StateValues.get(part, "Kind") == "ReconDart" then
 		dressDart(part)
 	else
 		dress(part) -- the finished model carries the look, if there is one
@@ -792,9 +793,9 @@ local function colourObject(part: Instance)
 	part.Destroying:Connect(function()
 		skins[part] = nil
 	end)
-	local lastHp = part:GetAttribute("Hp")
-	part:GetAttributeChangedSignal("Hp"):Connect(function()
-		local hp = part:GetAttribute("Hp")
+	local lastHp = StateValues.get(part, "Hp")
+	StateValues.changed(part, "Hp"):Connect(function()
+		local hp = StateValues.get(part, "Hp")
 		if typeof(hp) == "number" and typeof(lastHp) == "number" and hp < lastHp then
 			objectFlash[part] = os.clock()
 		end
@@ -1137,7 +1138,7 @@ local function update(dt: number)
 		end
 	end
 	for part, d in dressed do
-		if part:GetAttribute("Kind") == "ReconDart" then
+		if StateValues.get(part, "Kind") == "ReconDart" then
 			local flashing = false
 			for _, p in recentPulses do
 				if (p.at - part.Position).Magnitude < 2 then

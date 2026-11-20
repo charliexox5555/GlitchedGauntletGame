@@ -1,12 +1,10 @@
 --!strict
 -- The sudden-death circle (vault/05 Production/Match Structure Revamp.md),
 -- read the same way by the server (damage, bots) and clients (the wall, the
--- tint). ZoneService writes it as ReplicatedStorage attributes: the centre,
--- the radius it shrinks from/to and the server times it does so, then
--- `MatchZoneId` last (the commit; 0 = no zone). Clients work out the radius
+-- tint). ZoneService writes one snapshot to MatchState. Clients work out the radius
 -- from Workspace:GetServerTimeNow(), so late joiners land mid-shrink.
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MatchState = require(script.Parent.MatchState)
 
 local Zone = {}
 
@@ -19,38 +17,37 @@ export type State = {
 	endAt: number,
 }
 
-Zone.ID = "MatchZoneId"
-Zone.CENTRE = "MatchZoneCentre"
-Zone.RADIUS = "MatchZoneRadius" -- Vector2(from, to)
--- Server times are plain number attributes: Vector2/Vector3 attributes are
--- 32-bit floats, which round a server time (~1.8e9) to about two minutes.
-Zone.START = "MatchZoneStart"
-Zone.END = "MatchZoneEnd"
+function Zone.publish(state: State?)
+	MatchState.set(
+		"Zone",
+		if state
+			then {
+				state.id,
+				state.centre.X,
+				state.centre.Y,
+				state.centre.Z,
+				state.fromRadius,
+				state.toRadius,
+				state.startAt,
+				state.endAt,
+			}
+			else nil
+	)
+end
 
 -- The zone now, or nil when there's none.
 function Zone.read(): State?
-	local id = ReplicatedStorage:GetAttribute(Zone.ID)
-	local centre = ReplicatedStorage:GetAttribute(Zone.CENTRE)
-	local radius = ReplicatedStorage:GetAttribute(Zone.RADIUS)
-	local startAt = ReplicatedStorage:GetAttribute(Zone.START)
-	local endAt = ReplicatedStorage:GetAttribute(Zone.END)
-	if
-		typeof(id) ~= "number"
-		or id == 0
-		or typeof(centre) ~= "Vector3"
-		or typeof(radius) ~= "Vector2"
-		or typeof(startAt) ~= "number"
-		or typeof(endAt) ~= "number"
-	then
+	local state = MatchState.get("Zone")
+	if state == nil then
 		return nil
 	end
 	return {
-		id = id,
-		centre = centre,
-		fromRadius = radius.X,
-		toRadius = radius.Y,
-		startAt = startAt,
-		endAt = endAt,
+		id = state[1],
+		centre = Vector3.new(state[2], state[3], state[4]),
+		fromRadius = state[5],
+		toRadius = state[6],
+		startAt = state[7],
+		endAt = state[8],
 	}
 end
 
@@ -69,7 +66,7 @@ function Zone.outside(state: State, position: Vector3, now: number): number
 end
 
 function Zone.changed(): RBXScriptSignal
-	return ReplicatedStorage:GetAttributeChangedSignal(Zone.ID)
+	return MatchState.changed("Zone")
 end
 
 return Zone

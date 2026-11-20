@@ -17,6 +17,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -75,7 +76,7 @@ local function remove(obj: Object, why: string)
 		return
 	end
 	objects[obj.part] = nil
-	obj.part:SetAttribute("RemovedWhy", why)
+	StateValues.set(obj.part, "RemovedWhy", why)
 	Net.event("ModFx"):FireAllClients("ObjectGone", {
 		kind = obj.kind,
 		at = obj.part.Position,
@@ -109,13 +110,13 @@ function ModEntities.place(
 		remove(mine[i], "Replaced")
 	end
 	part.Anchored = true
-	part:SetAttribute("Kind", kind)
-	part:SetAttribute("TeamId", Teams.of(owner))
+	StateValues.set(part, "Kind", kind)
+	StateValues.set(part, "TeamId", Teams.of(owner))
 	-- An AI bot's things are owned by its character model (no UserId).
-	part:SetAttribute("OwnerId", if owner:IsA("Player") then owner.UserId else 0)
-	part:SetAttribute("Hp", hp)
-	part:SetAttribute("MaxHp", hp)
-	part:SetAttribute("ExpiresAt", workspace:GetServerTimeNow() + life)
+	StateValues.set(part, "OwnerId", if owner:IsA("Player") then owner.UserId else 0)
+	StateValues.set(part, "Hp", hp)
+	StateValues.set(part, "MaxHp", hp)
+	StateValues.set(part, "ExpiresAt", workspace:GetServerTimeNow() + life)
 	part.Parent = ModEntities.folder()
 	objects[part] =
 		{ part = part, owner = owner, kind = kind, expiresAt = os.clock() + life, hp = hp }
@@ -136,12 +137,12 @@ function ModEntities.damage(part: BasePart, amount: number, attacker: Player?): 
 	if attacker and Teams.isAlly(attacker, obj.owner) then
 		return 0
 	end
-	if part:GetAttribute("CountsHits") == true then
+	if StateValues.get(part, "CountsHits") == true then
 		amount = 1
 	end
 	local dealt = math.min(amount, obj.hp)
 	obj.hp -= dealt
-	part:SetAttribute("Hp", math.max(obj.hp, 0))
+	StateValues.set(part, "Hp", math.max(obj.hp, 0))
 	if obj.hp <= 0 then
 		remove(obj, "Broken")
 	end

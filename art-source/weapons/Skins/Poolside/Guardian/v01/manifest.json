@@ -1,0 +1,513 @@
+{
+  "line": "Poolside",
+  "item": "Guardian",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Guardian/Guardian_RemasterV2_v05.blend",
+  "source_file_sha256": "ee55e6fa7f27728bb30e51fa2e5f3ae96122aa5cc052c58841c10b19c75b649d",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Guardian/v01/Guardian_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Receiver",
+      "Handguard"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Guardian_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.9983999729156494
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.36800000071525574
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.6607999801635742
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.18880000710487366
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        0.13760000467300415
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.4984000027179718
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.47679999470710754
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.07439999282360077
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.31360000371932983
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.180999994277954
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.08980000019073486
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.20980000495910645
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.9983999729156494
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.36800000071525574
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.550000011920929
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.4480000138282776
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.659999966621399
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1889999955892563
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 444720,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {
+    "before_overlap_texels": 965,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Guardian_Barrel": [
+        {
+          "face": 71,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 218,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 77,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 226,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 91,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 92,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 261,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 258,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 243,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 244,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 275,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 85,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 124,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 41,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 242,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 245,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 98,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 274,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 246,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 259,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 260,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Guardian_Receiver|Dark",
+        "over": "Guardian_Handguard|Body",
+        "faces": 1
+      }
+    ]
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "f633a65fd3afe73469c925775294b9a5c58264b4a30a0258d8f52bca07172d39",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "7d76a72b5cebc360cbf2cf3e0be3d2c9c812a7400104999c507d6379447b847c",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "built_mesh_count": 15,
+  "triangles": 4374,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Guardian/v01/textures/Guardian_Color.png",
+      "sha256": "afa95763b09207857a3798545ef18fa440f880f9b1a5be0847bead912c008481"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Guardian/v01/textures/Guardian_Normal.png",
+      "sha256": "c52792ece3b3966de0bfdb2a39c6c2094c3dc8504ce781b55d9cb05d06f3abdb"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Guardian/v01/textures/Guardian_Roughness.png",
+      "sha256": "035339df760216d7ead9ab36b266dc6dad7f1810444ec0ef87a933883f11e224"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Guardian/v01/textures/Guardian_Metalness.png",
+      "sha256": "05ea1650c1e10aa9610f9c814541851c17be388b1b6235f3c3a80356b1999038"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the added PoolsideAtlas layer. Original stock UVs remain in the blend.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.2749,
+      0.0,
+      0.4984
+    ],
+    "len": 0.3875,
+    "geo_hits": {},
+    "box_hits": {},
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "3967b1a496f76bcebb18db7a2617a70b68ad5c7687a8dcebf7b943f74f13bba4"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "3bc19c3ed347152cc2e0a13c6b8ba147c923c0529b4e9cd1c2d4837992c50847"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "9ad604aee55517dd55a915d0718d2454e5b820d728deb12d81877f9d0bc03962"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 66,
+      "review_frame": 17,
+      "sample_count": 66,
+      "pose_sha256": "5c497bb75bb523a59dc579b503423156c4082b534df8c4e773d1ebc7785c6cdc"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 23,
+      "sample_count": 97,
+      "pose_sha256": "55a4b4628c7e7374a06dfb89f36094b5f69fea03c8466a1d37e886b81f39a9a8"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

@@ -36,9 +36,22 @@ type PartSpec = {
 	mat: string,
 	refl: number,
 	pat: string?,
+	glow: number?,
+	glowMix: number?,
+	loadedRound: boolean?,
 }
 type Tile = { id: number, studs: number }
-type Joint = { name: string, parent: string, c0: { number } }
+type Joint = {
+	name: string,
+	parent: string,
+	c0: { number },
+	axis: { number }?,
+	phase: number?,
+	travel: number?,
+	tilt: number?,
+	tether: boolean?,
+}
+type EnergyAnchor = { name: string, bone: string, point: { number }, phase: number?, mist: boolean }
 
 local imageCache: { [number]: string } = {}
 
@@ -91,6 +104,13 @@ local function addJoints(rig: Instance, joints: { Joint })
 		motor.Part0 = parent
 		motor.Part1 = part
 		motor.C0 = c0
+		if j.axis then
+			motor:SetAttribute("RuinIdleAxis", Vector3.new(j.axis[1], j.axis[2], j.axis[3]))
+			motor:SetAttribute("RuinIdlePhase", j.phase)
+			motor:SetAttribute("RuinIdleTravel", j.travel)
+			motor:SetAttribute("RuinIdleTilt", j.tilt)
+			motor:SetAttribute("RuinIdleTether", j.tether)
+		end
 		motor.Parent = motors
 	end
 end
@@ -177,6 +197,14 @@ local function install(args: { [string]: any }): (Model, { string })
 			part.Color = color
 			part.Material = (Enum.Material :: any)[spec.mat]
 			part.Reflectance = spec.refl
+			if spec.glow then
+				part:SetAttribute("RuinIdleGlow", spec.glow)
+				part:SetAttribute("RuinIdleGlowMix", spec.glowMix)
+				part:SetAttribute("RuinIdleMagazine", spec.b == "Mag")
+			end
+			if spec.loadedRound then
+				part:SetAttribute("SkinLoadedRound", true)
+			end
 			local pattern = spec.pat
 			if pattern then
 				local tile = assert(tiles[pattern], "Missing tile " .. pattern)
@@ -203,6 +231,19 @@ local function install(args: { [string]: any }): (Model, { string })
 			weld.Part1 = part
 			weld.C0 = joint.CFrame:ToObjectSpace(part.CFrame)
 			weld.Parent = part
+		end
+		for _, spec in (args.energy or {}) :: { EnergyAnchor } do
+			local joint = rig:FindFirstChild(spec.bone)
+			assert(joint and joint:IsA("BasePart"), "Missing energy anchor joint " .. spec.bone)
+			local p = spec.point
+			local world = variantHandle.CFrame:PointToWorldSpace(Vector3.new(-p[2], p[3], -p[1]))
+			local anchor = Instance.new("Attachment")
+			anchor.Name = spec.name
+			anchor.Position = joint.CFrame:PointToObjectSpace(world)
+			anchor:SetAttribute("RuinIdleLight", spec.phase)
+			anchor:SetAttribute("RuinIdleMist", spec.mist)
+			anchor:SetAttribute("RuinIdleMagazine", spec.bone == "Mag")
+			anchor.Parent = joint
 		end
 		for _, locator in { "AimPoint", "RightGrip", "LeftGrip", "Muzzle", "Eject" } do
 			-- lihfolk-ignore: findfirstchild-chain (both results are nil-checked below)
@@ -232,6 +273,10 @@ local function install(args: { [string]: any }): (Model, { string })
 	variant.Name = gun
 	variant:SetAttribute("SkinLine", lineName)
 	variant:SetAttribute("SkinVersion", args.version)
+	variant:SetAttribute("SkinSourceAsset", args.assetId)
+	if args.adsDistance then
+		variant:SetAttribute("SkinAdsDistance", args.adsDistance)
+	end
 	variant:SetAttribute("SkinReady", true)
 	variant:SetAttribute("PreviewGeometry", lineName .. "_" .. gun .. "_" .. tostring(args.version))
 	if args.item then

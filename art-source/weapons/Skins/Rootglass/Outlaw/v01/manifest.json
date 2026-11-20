@@ -1,0 +1,502 @@
+{
+  "line": "Rootglass",
+  "item": "Outlaw",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Outlaw/Outlaw_RemasterV2_v05.blend",
+  "source_file_sha256": "a8b3e9fb72b144eeb33cc8d1364d30f3a2d1bacc82e8ed7669202b3e5be5268f",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Rootglass/Outlaw/v01/Outlaw_Rootglass_v01.blend",
+  "fbx": "art-source/weapons/Skins/Rootglass/Outlaw/v01/Outlaw_Rootglass_v01.fbx",
+  "art": {
+    "host": "Outlaw_Receiver",
+    "bone": "Root",
+    "window_center": [
+      0.599,
+      0.12100001096725464,
+      0.313
+    ],
+    "width": 0.704,
+    "height": 0.184,
+    "specimen_profile": "long"
+  },
+  "anchors": {
+    "Outlaw_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.4475998878479004
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.46240001916885376
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_MuzzleLower": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.4475998878479004
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.3400000035762787
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.819000005722046
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.11559999734163284
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        -0.06459999829530716
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.6255999803543091
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_ScopeAxis": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.1934000253677368
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.6255999803543091
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_Eject": [
+      [
+        -4.371138828673793e-08,
+        0.510076642036438,
+        -0.8601289987564087,
+        1.0302000045776367
+      ],
+      [
+        -1.0,
+        -2.6680540443635437e-08,
+        3.4997391651359067e-08,
+        0.0
+      ],
+      [
+        -5.097355426642025e-09,
+        0.8601289987564087,
+        0.510076642036438,
+        0.46240001916885376
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_EjectLower": [
+      [
+        -4.371138828673793e-08,
+        0.510076642036438,
+        -0.8601289987564087,
+        1.0302000045776367
+      ],
+      [
+        -1.0,
+        -2.6680540443635437e-08,
+        3.4997391651359067e-08,
+        0.0
+      ],
+      [
+        -5.097355426642025e-09,
+        0.8601289987564087,
+        0.510076642036438,
+        0.3400000035762787
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_ChamberUpper": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.1302000284194946
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.46240001916885376
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_ChamberLower": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.1302000284194946
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.3400000035762787
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.7310000061988831
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.10780006647109985
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.10729999840259552
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.4475998878479004
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.46240001916885376
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6600000262260437
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.5249999761581421
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Outlaw_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.8200000524520874
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.11559999734163284
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 252970,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "b13058c7350ebb9e9767d4acecbc62d135d0de73f7cda09ac3a64b786091fb50",
+    "geometry_and_material_slots": "03fcefd8263345fd2218c657c10121cf1266441826a90f4a71cc90128062a9e9",
+    "uv": "f175df06ea04ff057608f8fd73731be6e6075440702a406b017b3f711c7084cf",
+    "rig_and_nla": "73ec5079fa8419b7bff312a8749efe8c8052c89bf450f7964b69d476508d0dd3",
+    "actions": "065db07ff4270087352130e905b90961d1e935e8dfc6a68f8725723bd372bcb6"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "b13058c7350ebb9e9767d4acecbc62d135d0de73f7cda09ac3a64b786091fb50",
+    "geometry_and_material_slots": "03fcefd8263345fd2218c657c10121cf1266441826a90f4a71cc90128062a9e9",
+    "uv": "2e2aca39844544b365d8f46783216f10c0854f3c201b874bf76f69114632782e",
+    "rig_and_nla": "73ec5079fa8419b7bff312a8749efe8c8052c89bf450f7964b69d476508d0dd3",
+    "actions": "065db07ff4270087352130e905b90961d1e935e8dfc6a68f8725723bd372bcb6"
+  },
+  "built_mesh_count": 23,
+  "triangles": 5949,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Rootglass/Outlaw/v01/textures/Outlaw_Color.png",
+      "sha256": "a9bf364d7b9ed1e78c1dafd1f6850b27986fe302d90a9a2a641005c8b8f5a940"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Rootglass/Outlaw/v01/textures/Outlaw_Normal.png",
+      "sha256": "aebea1c7de8f45a66febf8cb0233b9d61388ce1c302e71a07d8866a08eb30a3d"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Rootglass/Outlaw/v01/textures/Outlaw_Roughness.png",
+      "sha256": "07d948de6e8928f77187850febbe1478127203a66310ebedb87db0f159d659a4"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Rootglass/Outlaw/v01/textures/Outlaw_Metalness.png",
+      "sha256": "09ed3deb51f7af0cfc1153bf377276dd2843305f087fc12b06cbc010c0f78936"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the RootglassAtlas UVs supplied by the Blender file and local FBX.",
+  "inspect_pulse_targets": [
+    "Rootglass_Left_AmberVein_1",
+    "Rootglass_Left_AmberVein_2",
+    "Rootglass_Left_AmberVein_3",
+    "Rootglass_Right_AmberVein_1",
+    "Rootglass_Right_AmberVein_2",
+    "Rootglass_Right_AmberVein_3"
+  ],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 26,
+      "review_frame": 7,
+      "sample_count": 26,
+      "pose_sha256": "1150d0e70e2812da95ea23f41034e86cfb24fe72d66e2321e899be3822430d1a"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 20,
+      "review_frame": 3,
+      "sample_count": 20,
+      "pose_sha256": "b63ef8638a96e6a587f068164a8e60b0d64cb1c09d02b80a8613619ccdec1af1"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 52,
+      "sample_count": 67,
+      "pose_sha256": "c9e394429a174ce054ebec570e6d9e6452445318e9441a74a83eac80b96a78f1"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 60,
+      "review_frame": 27,
+      "sample_count": 60,
+      "pose_sha256": "5e990bb8c14b2c9354ffccf7882f2a03c3bf7f5859798f89d9e2bb8daf4bdcd8"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 92,
+      "review_frame": 36,
+      "sample_count": 92,
+      "pose_sha256": "bea91a07b80b62247868ed634a3c8e4f7722c750699005a46d0ecdc6361842c2"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": {
+    "mesh_count": 23,
+    "culling_views": [
+      "left",
+      "right",
+      "rear"
+    ]
+  },
+  "archived_hand_proxy": {}
+}

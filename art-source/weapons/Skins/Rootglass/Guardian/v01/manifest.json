@@ -1,0 +1,501 @@
+{
+  "line": "Rootglass",
+  "item": "Guardian",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Guardian/Guardian_RemasterV2_v05.blend",
+  "source_file_sha256": "ee55e6fa7f27728bb30e51fa2e5f3ae96122aa5cc052c58841c10b19c75b649d",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Rootglass/Guardian/v01/Guardian_Rootglass_v01.blend",
+  "fbx": "art-source/weapons/Skins/Rootglass/Guardian/v01/Guardian_Rootglass_v01.fbx",
+  "art": {
+    "host": "Guardian_Handguard",
+    "bone": "Root",
+    "window_center": [
+      1.76,
+      0.1079998803138733,
+      0.335
+    ],
+    "width": 1.072,
+    "height": 0.162,
+    "specimen_profile": "long"
+  },
+  "anchors": {
+    "Guardian_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.9983999729156494
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.36800000071525574
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.6607999801635742
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.18880000710487366
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        0.13760000467300415
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.4984000027179718
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.47679999470710754
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.07439999282360077
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.31360000371932983
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.180999994277954
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.08980000019073486
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.20980000495910645
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.9983999729156494
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.36800000071525574
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.550000011920929
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.4480000138282776
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Guardian_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.659999966621399
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1889999955892563
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 211932,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {
+    "before_overlap_texels": 311,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Guardian_Barrel": [
+        {
+          "face": 250,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 249,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 200,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 270,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 87,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 121,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 252,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 254,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 38,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 88,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 253,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 251,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 21,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 22,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 256,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 89,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Guardian_Receiver|Dark",
+        "over": "Guardian_Handguard|Body",
+        "faces": 1
+      }
+    ]
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "f633a65fd3afe73469c925775294b9a5c58264b4a30a0258d8f52bca07172d39",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "1b79a9a6be77a6ff1743255659b1266a3e20c4e316c5903fc35688c9ed128647",
+    "geometry_and_material_slots": "3ff29a3b60b2f9b94f5a2be086131b8fe25976660a8637c92d2d880c693861b3",
+    "uv": "5979a62f2aa1de2e8dc56feeadd603ff19969cad4c8bf5c11722510c2097dd02",
+    "rig_and_nla": "782571ea0e1eef1ba9a34101940d12d8cf09b9d35b7a8c8091c026516fb006e4",
+    "actions": "334f3a00f17f021f2d86eda83c8edefec60fe9228f318f7d882417a7c9da57d7"
+  },
+  "built_mesh_count": 27,
+  "triangles": 5254,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Rootglass/Guardian/v01/textures/Guardian_Color.png",
+      "sha256": "1dbc2788e861312e0ad7d9e03da437010c47efaccfe9f9f2605c8ae499291db1"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Rootglass/Guardian/v01/textures/Guardian_Normal.png",
+      "sha256": "f97b935d5ea28228f5090f023af6c80d137b2316b41759f6630bdcc119438c1e"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Rootglass/Guardian/v01/textures/Guardian_Roughness.png",
+      "sha256": "cb12e46e2619a69793160caceda587597d5c5a9f208b0870c6b94f6bde49023d"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Rootglass/Guardian/v01/textures/Guardian_Metalness.png",
+      "sha256": "9c38a49d129a76dcd4236cee8006321c64ea9475903d361ec4e4805e932cd1d2"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the RootglassAtlas UVs supplied by the Blender file and local FBX.",
+  "inspect_pulse_targets": [
+    "Rootglass_Left_AmberVein_1",
+    "Rootglass_Left_AmberVein_2",
+    "Rootglass_Left_AmberVein_3",
+    "Rootglass_Right_AmberVein_1",
+    "Rootglass_Right_AmberVein_2",
+    "Rootglass_Right_AmberVein_3"
+  ],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.2749,
+      0.0,
+      0.4984
+    ],
+    "len": 0.3875,
+    "geo_hits": {},
+    "box_hits": {},
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "3967b1a496f76bcebb18db7a2617a70b68ad5c7687a8dcebf7b943f74f13bba4"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "3bc19c3ed347152cc2e0a13c6b8ba147c923c0529b4e9cd1c2d4837992c50847"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "9ad604aee55517dd55a915d0718d2454e5b820d728deb12d81877f9d0bc03962"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 66,
+      "review_frame": 17,
+      "sample_count": 66,
+      "pose_sha256": "5c497bb75bb523a59dc579b503423156c4082b534df8c4e773d1ebc7785c6cdc"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 23,
+      "sample_count": 97,
+      "pose_sha256": "55a4b4628c7e7374a06dfb89f36094b5f69fea03c8466a1d37e886b81f39a9a8"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": {
+    "mesh_count": 27,
+    "culling_views": [
+      "left",
+      "right",
+      "rear"
+    ]
+  },
+  "archived_hand_proxy": {}
+}

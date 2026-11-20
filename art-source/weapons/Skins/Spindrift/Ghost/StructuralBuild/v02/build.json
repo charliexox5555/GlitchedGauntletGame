@@ -1,0 +1,118 @@
+{
+  "line": "Spindrift",
+  "item": "Ghost",
+  "file": "Ghost_Spindrift_structural_v02.blend",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Ghost/Ghost_RemasterV2_v05.blend",
+  "mesh_count": 25,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 11,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      85,
+      127,
+      142,
+      151
+    ],
+    "moving_stock_intersections": [],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": false,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -0.2607659697532654,
+        -0.10211881995201111,
+        -0.46194085478782654
+      ],
+      [
+        2.056999921798706,
+        0.10211881995201111,
+        0.4300000071525574
+      ],
+      [
+        2.3177658915519714,
+        0.20423763990402222,
+        0.8919408619403839
+      ]
+    ],
+    "new_bounds": [
+      [
+        -0.2607659697532654,
+        -0.12511882185935974,
+        -0.46194085478782654
+      ],
+      [
+        2.056999921798706,
+        0.12600016593933105,
+        0.4300000071525574
+      ],
+      [
+        2.3177658915519714,
+        0.2511189877986908,
+        0.8919408619403839
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 25,
+    "ready": 51,
+    "peak": 42,
+    "inspect": 85,
+    "cancel": 127,
+    "steps": [],
+    "regression": [],
+    "game_reload_seconds": 1.75,
+    "charm_extremes": [
+      142,
+      151
+    ]
+  },
+  "clips": {}
+}

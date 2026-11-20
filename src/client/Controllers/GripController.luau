@@ -24,6 +24,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -150,7 +151,7 @@ end
 -- ThirdPersonReviewRig.luau); it is first person otherwise, so its own grip
 -- is never seen.
 local function ownToo(): boolean
-	return RunService:IsStudio() and Workspace:GetAttribute("DevThirdPerson") == true
+	return RunService:IsStudio() and StateValues.get(Workspace, "DevThirdPerson") == true
 end
 
 local function watch(character: Model)
@@ -206,7 +207,7 @@ local function refreshGun(rig: Rig)
 	local hand = rig.character:FindFirstChild("RightHand")
 	local motor = (rig.gun :: Model):FindFirstChild("WeaponGrip", true)
 	local grip = (rig.gun :: Model):FindFirstChild("LeftGrip", true)
-	local id = (rig.gun :: Model):GetAttribute("WeaponId")
+	local id = StateValues.get(rig.gun :: Model, "WeaponId")
 	local config = if typeof(id) == "string" then Weapons.get(id) else nil
 	-- A second gun in the left hand needs no grip; the knife has none.
 	local second = rig.character:FindFirstChild("WorldWeaponLeft") ~= nil
@@ -246,24 +247,24 @@ local function wantsGrip(rig: Rig): boolean
 		return false
 	end
 	-- The slide clip puts the left hand on the floor.
-	if rig.character:GetAttribute("MoveState") == "Slide" then
+	if StateValues.get(rig.character, "MoveState") == "Slide" then
 		return false
 	end
 	local src = attributeSource(rig.character)
-	local held = src:GetAttribute("ModHeld")
+	local held = StateValues.get(src, "ModHeld")
 	if typeof(held) == "number" and held ~= 0 then
 		return false
 	end
 	-- The reload clip takes the left hand to the magazine.
-	local reloadAt = src:GetAttribute("ReloadAt")
-	local reloadFor = src:GetAttribute("ReloadFor")
+	local reloadAt = StateValues.get(src, "ReloadAt")
+	local reloadFor = StateValues.get(src, "ReloadFor")
 	if typeof(reloadAt) == "number" and typeof(reloadFor) == "number" then
 		local since = Workspace:GetServerTimeNow() - reloadAt
 		if since >= 0 and since < reloadFor + GRIP.regrip then
 			return false
 		end
 	end
-	local useAt = src:GetAttribute("ModUseAt")
+	local useAt = StateValues.get(src, "ModUseAt")
 	if typeof(useAt) == "number" then
 		local since = Workspace:GetServerTimeNow() - useAt
 		if since >= 0 and since < GRIP.afterModUse then

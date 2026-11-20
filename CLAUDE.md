@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> Former Claude workflow. For the current manual and Codex workflow, start with [AGENTS.md](AGENTS.md) and the [Developer Handoff](vault/04%20Tech/Developer%20Handoff.md). The instructions below describe the previous setup.
+
 Roblox competitive shooter: RIVALS-style run-and-gun duels (1v1 → 4v4) where players **draft abilities ("Mods") every round** and every round opens a shared **weapon tier**. Built with Rojo + strict Luau. The solo developer works with Claude.
 
 ## Work from the vault, not from memory (mandatory, every chat and every agent)

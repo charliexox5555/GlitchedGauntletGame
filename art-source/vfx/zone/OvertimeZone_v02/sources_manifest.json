@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "blender": "OvertimeZone_v02.blend",
+  "texture": "OvertimeCurtain.png",
+  "reviewRender": "OvertimeZone_v02.png",
+  "meshSource": "../OvertimeZone_v01/OvertimeZone_v01.glb",
+  "roblox": {
+    "modelAssetId": "118691081568110",
+    "curtainDecalAssetId": "85773376638815",
+    "curtainImageAssetId": "139894604022278"
+  }
+}

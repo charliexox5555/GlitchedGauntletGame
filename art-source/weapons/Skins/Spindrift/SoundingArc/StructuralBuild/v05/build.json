@@ -1,0 +1,93 @@
+{
+  "line": "Spindrift",
+  "item": "SoundingArc",
+  "file": "SoundingArc_Spindrift_structural_v05.blend",
+  "version": "v05",
+  "source": "Original structural accessory",
+  "mesh_count": 8,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 0,
+  "fit": {
+    "rest_bounds": [
+      [
+        -0.44447061419487,
+        -0.07799998670816422,
+        -0.32616743445396423
+      ],
+      [
+        1.281000018119812,
+        0.09000001102685928,
+        0.38199999928474426
+      ],
+      [
+        1.725470632314682,
+        0.1679999977350235,
+        0.7081674337387085
+      ]
+    ],
+    "stock_knife_bounds": [
+      [
+        -0.45239999890327454,
+        -0.09054019302129745,
+        -0.10920000076293945
+      ],
+      [
+        1.2674107551574707,
+        0.09054019302129745,
+        0.1273999959230423
+      ],
+      [
+        1.7198107540607452,
+        0.1810803860425949,
+        0.23659999668598175
+      ]
+    ]
+  },
+  "motion": {
+    "active": 150,
+    "cancel": 219,
+    "contact": [
+      72,
+      91,
+      113
+    ]
+  },
+  "clips": {
+    "Equip": {
+      "frames": 19,
+      "contact": null
+    },
+    "Idle": {
+      "frames": 22,
+      "contact": null
+    },
+    "Carry": {
+      "frames": 21,
+      "contact": null
+    },
+    "Light A": {
+      "frames": 15,
+      "contact": 5
+    },
+    "Light B": {
+      "frames": 16,
+      "contact": 7
+    },
+    "Heavy": {
+      "frames": 23,
+      "contact": 10
+    },
+    "Inspect": {
+      "frames": 46,
+      "contact": null
+    },
+    "Recovery": {
+      "frames": 18,
+      "contact": null
+    },
+    "Cancel": {
+      "frames": 22,
+      "contact": null
+    }
+  }
+}

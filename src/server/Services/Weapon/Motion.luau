@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Accuracy = require(Shared.Util.Accuracy)
@@ -67,7 +68,7 @@ function Motion.sample(dt: number, configOf: (Player) -> WeaponConfig?)
 			}
 			motion[player] = track
 		end
-		local state = (character:GetAttribute("MoveState") :: string?) or "Idle"
+		local state = (StateValues.get(character, "MoveState") :: string?) or "Idle"
 		-- Dash: the gun gate, from this server's own simulation.
 		DashMod.stepGate(track.dash, character, now, time())
 		-- Landings, on the server's own clock (the client spots its own).

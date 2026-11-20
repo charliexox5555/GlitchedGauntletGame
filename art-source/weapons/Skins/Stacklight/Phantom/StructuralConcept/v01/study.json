@@ -1,0 +1,92 @@
+{
+  "model": "art-source\\weapons\\Skins\\Stacklight\\Phantom\\StructuralConcept\\v01\\Phantom_Stacklight_structure_v01.blend",
+  "scene": "Stacklight / Phantom | Structural concept v01",
+  "frames": [
+    1,
+    13,
+    28,
+    54,
+    65
+  ],
+  "groups": {
+    "Keel and grips": 12,
+    "Prow and upper shell": 12,
+    "Rear architecture": 2,
+    "Actuated pieces": 12,
+    "Sight study": 7,
+    "Cameras": 6
+  },
+  "controls": [
+    "Stacklight / Phantom | Sweep cue 1",
+    "Stacklight / Phantom | Sweep cue 2",
+    "Stacklight / Phantom | Sweep cue 3",
+    "Stacklight / Phantom | Shuttle slide"
+  ],
+  "mesh_count": 36,
+  "max_move": 0.20849865771108564,
+  "reset_delta": 0.0,
+  "MCP port": 9000,
+  "session_pid": 24972,
+  "stock_source": "art-source/weapons/RemasterV2/Phantom/Phantom_RemasterV2_v05.blend",
+  "stock_bounds": [
+    [
+      -1.0980000495910645,
+      -0.09600000083446503,
+      -0.3135567903518677
+    ],
+    [
+      2.5053999423980713,
+      0.12200000137090683,
+      0.6514000296592712
+    ],
+    [
+      3.6033999919891357,
+      0.21800000220537186,
+      0.9649568200111389
+    ]
+  ],
+  "concept_bounds": [
+    [
+      -1.0669690370559692,
+      -0.10899999737739563,
+      -0.29761332273483276
+    ],
+    [
+      2.536431074142456,
+      0.10899999737739563,
+      0.6673434972763062
+    ],
+    [
+      3.6034001111984253,
+      0.21799999475479126,
+      0.9649568200111389
+    ]
+  ],
+  "geometry_scale_xyz": [
+    0.9065156886317047,
+    0.767605616436358,
+    0.9045997593290179
+  ],
+  "stock_anchors": {
+    "Phantom_RightGrip": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Phantom_LeftGrip": [
+      1.2863999605178833,
+      0.0,
+      0.19840000569820404
+    ],
+    "Phantom_AimPoint": [
+      0.15360000729560852,
+      0.0,
+      0.5784000158309937
+    ],
+    "Phantom_CharmPoint": [
+      0.9850000143051147,
+      0.08980005979537964,
+      0.2248000055551529
+    ]
+  }
+}

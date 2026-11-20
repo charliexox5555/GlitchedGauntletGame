@@ -20,6 +20,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
@@ -150,7 +151,7 @@ local GAMEPAD_NAMES: { [string]: string } = {
 -- Slots and status ------------------------------------------------------------------
 
 local function number(inst: Instance?, name: string, default: number): number
-	local v = inst and inst:GetAttribute(name)
+	local v = inst and StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else default
 end
 
@@ -171,8 +172,8 @@ local frame = 0
 
 local function buildSlot(slot: number): SlotView
 	local p = PREFIXES[slot]
-	local id = player:GetAttribute(p .. "Id")
-	local levelAttr = player:GetAttribute(p .. "Level")
+	local id = StateValues.get(player, p .. "Id")
+	local levelAttr = StateValues.get(player, p .. "Level")
 	local level = if typeof(levelAttr) == "string" then levelAttr else "L1"
 	local view: SlotView = {
 		id = nil,
@@ -230,7 +231,7 @@ function ModController.slot(slot: number): SlotView
 end
 
 local function ready(view: SlotView): boolean
-	return view.charges >= 1 or player:GetAttribute("ModUnlimitedCharges") == true
+	return view.charges >= 1 or StateValues.get(player, "ModUnlimitedCharges") == true
 end
 
 -- The key that drives a slot on the current device ("Q", "LB", ...).
@@ -766,7 +767,7 @@ end
 
 -- Where our anchor stands (nil: none planted).
 local function recallAnchor(): Vector3?
-	local a = player:GetAttribute("RecallAnchor")
+	local a = StateValues.get(player, "RecallAnchor")
 	return if typeof(a) == "Vector3" then a else nil
 end
 
@@ -877,8 +878,8 @@ local function ourRoller(): boolean
 	end
 	for _, part in objects:GetChildren() do
 		if
-			part:GetAttribute("Kind") == "Roller"
-			and part:GetAttribute("OwnerId") == player.UserId
+			StateValues.get(part, "Kind") == "Roller"
+			and StateValues.get(part, "OwnerId") == player.UserId
 		then
 			return true
 		end
@@ -890,7 +891,7 @@ local function onModPressed(slot: number)
 	if
 		not player.Character
 		or not Health.isAlive(player.Character)
-		or player:GetAttribute("CombatLocked") == true
+		or StateValues.get(player, "CombatLocked") == true
 	then
 		return
 	end
@@ -931,7 +932,7 @@ local function onModPressed(slot: number)
 		-- A predicted Mod may already have cast from this same press (the
 		-- simulation step ran before this handler): that's not a refusal.
 		local character = player.Character
-		local castAt = character and character:GetAttribute(PREFIXES[slot] .. "CastAt")
+		local castAt = character and StateValues.get(character, PREFIXES[slot] .. "CastAt")
 		local justCast = def.authority == "Simulation"
 			and typeof(castAt) == "number"
 			and time() - castAt < 0.25
@@ -1074,7 +1075,7 @@ local function update(_dt: number)
 	local dashStart = number(character, "DashStart", 0)
 	if dashStart > lastDashStart + 0.05 then
 		lastDashStart = dashStart
-		local velocity = character and character:GetAttribute("DashVelocity")
+		local velocity = character and StateValues.get(character, "DashVelocity")
 		local cam = Workspace.CurrentCamera
 		if typeof(velocity) == "Vector3" and velocity.Magnitude > 0.1 and cam then
 			local feel = Config.DASH_FEEL
@@ -1141,7 +1142,7 @@ local function update(_dt: number)
 		local view = ModController.slot(current)
 		if not view.def or not view.stats or view.id == nil then
 			endHold(true)
-		elseif now - phaseAt > 0.6 and player:GetAttribute("ModHeld") ~= current then
+		elseif now - phaseAt > 0.6 and StateValues.get(player, "ModHeld") ~= current then
 			endHold(false)
 		else
 			stepCharge(now)
@@ -1159,7 +1160,7 @@ local function update(_dt: number)
 		if
 			phase == "Held"
 			and now - phaseAt > 0.6
-			and player:GetAttribute("ModHeld") ~= current
+			and StateValues.get(player, "ModHeld") ~= current
 		then
 			endHold(false)
 			return

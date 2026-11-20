@@ -15,6 +15,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 
@@ -23,6 +24,7 @@ local Health = require(ReplicatedStorage.Shared.Health)
 local MatchState = require(ReplicatedStorage.Shared.MatchState)
 local Teams = require(ReplicatedStorage.Shared.Mods.Teams)
 local TestMode = require(ReplicatedStorage.Shared.TestMode)
+local Theme = require(ReplicatedStorage.Shared.Config.Theme)
 
 local PlayerTags = require(script.Parent.Parent.Util.PlayerTags)
 local UiSound = require(script.Parent.Parent.Util.UiSound)
@@ -51,7 +53,14 @@ local CELL_FADE = 0.1
 type Fighter = { key: Instance, userId: number?, humanoid: Humanoid? }
 -- holder: a fixed-size item in the row; cell: centred inside it, so its pop
 -- scales from the middle without moving the neighbours.
-type Slot = { holder: Frame, cell: CanvasGroup, head: ImageLabel, pop: UIScale, alive: boolean? }
+type Slot = {
+	holder: Frame,
+	cell: CanvasGroup,
+	head: ImageLabel,
+	skull: ImageLabel,
+	pop: UIScale,
+	downed: boolean?,
+}
 type Side = {
 	block: Frame,
 	blockPop: UIScale,
@@ -91,7 +100,7 @@ local function myTeam(): number
 end
 
 -- Everyone on a team, in a stable order: you first, then players by UserId,
--- then bots (Workspace.Dummies models with a TeamId) by name.
+-- then bot seats by name. Seats exist before their bodies spawn.
 local function roster(team: number): { Fighter }
 	local list: { Fighter } = {}
 	local people: { Player } = {}
@@ -113,31 +122,18 @@ local function roster(team: number): { Fighter }
 		table.insert(list, { key = p, userId = p.UserId, humanoid = humanoid })
 	end
 	local dummies = workspace:FindFirstChild("Dummies")
-	if dummies then
-		local bots: { Model } = {}
-		for _, model in dummies:GetChildren() do
-			if model:IsA("Model") and model:GetAttribute("TeamId") == team then
-				table.insert(bots, model)
-			end
-		end
-		table.sort(bots, function(a, b)
-			return a.Name < b.Name
-		end)
-		for _, model in bots do
-			table.insert(
-				list,
-				{ key = model, userId = nil, humanoid = model:FindFirstChildOfClass("Humanoid") }
-			)
+	local seats = MatchState.botSeats()
+	table.sort(seats, function(a, b)
+		return a.Name < b.Name
+	end)
+	for _, seat in seats do
+		if StateValues.get(seat, Teams.ATTRIBUTE) == team then
+			local model = dummies and dummies:FindFirstChild(seat.Name)
+			local humanoid = model and model:FindFirstChildOfClass("Humanoid")
+			table.insert(list, { key = seat, humanoid = humanoid })
 		end
 	end
 	return list
-end
-
-local function headshot(userId: number?): string
-	if userId and userId > 0 then
-		return string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", userId)
-	end
-	return BOT_HEADSHOT
 end
 
 -- The bar's screen. The map vote shows the bar before anyone spawns (and
@@ -192,11 +188,11 @@ function TopBarController.start()
 		local players = body:WaitForChild("Players") :: Frame
 		-- The Studio preview cells only show the layout in Edit mode.
 		for _, child in players:GetChildren() do
-			if child:GetAttribute("Preview") then
+			if StateValues.get(child, "Preview") then
 				child:Destroy()
 			end
 		end
-		local cellColor = body:GetAttribute("CellColor")
+		local cellColor = StateValues.get(body, "CellColor")
 		return {
 			block = block,
 			blockPop = block:WaitForChild("Pop") :: UIScale,
@@ -238,43 +234,59 @@ function TopBarController.start()
 		local cell = holder:WaitForChild("Cell") :: CanvasGroup
 		cell.BackgroundColor3 = sides[key].cellColor
 		local head = cell:WaitForChild("Headshot") :: ImageLabel
-		head.Image = headshot(f.userId)
 		local pop = cell:WaitForChild("Pop") :: UIScale
 		pop.Scale = 0.5
-		-- level on the tile's foot, device in its corner (vault/02 Art/UI Match
-		-- Overhaul.md); bots get a BOT chip
-		local who = if f.key:IsA("Player") then f.key :: Player else nil
+		local skull = Instance.new("ImageLabel")
+		skull.Name = "DeathSkull"
+		skull.AnchorPoint = Vector2.new(0.5, 0.5)
+		skull.Position = UDim2.fromScale(0.5, 0.47)
+		skull.Size = UDim2.fromScale(0.55, 0.55)
+		skull.BackgroundTransparency = 1
+		skull.Image = Theme.ICON.Skull
+		skull.ImageTransparency = 1
+		skull.ScaleType = Enum.ScaleType.Fit
+		skull.ZIndex = head.ZIndex + 2
+		skull.Parent = cell
+		-- Level on the tile's foot, device in its corner.
 		local z = cell.ZIndex + 5
-		local lv = PlayerTags.level(holder, who, 11, z)
+		local lv = PlayerTags.level(holder, f.key, 11, z)
 		lv.AnchorPoint = Vector2.new(0.5, 0.5)
 		lv.Position = UDim2.new(0.5, 0, 1, -1)
-		local dev = PlayerTags.device(holder, who, 14, z)
+		local dev = PlayerTags.device(holder, f.key, 14, z)
 		dev.AnchorPoint = Vector2.new(1, 0)
 		dev.Position = UDim2.new(1, -4, 0, 4)
 		holder.Parent = sides[key].players
 		tween(pop, 0.36, { Scale = 1 })
-		return { holder = holder, cell = cell, head = head, pop = pop, alive = nil }
+		return {
+			holder = holder,
+			cell = cell,
+			head = head,
+			skull = skull,
+			pop = pop,
+			downed = nil,
+		}
 	end
 
-	local function setAlive(key: string, slot: Slot, alive: boolean)
-		if slot.alive == alive then
+	local function setDowned(key: string, slot: Slot, downed: boolean)
+		if slot.downed == downed then
 			return
 		end
-		local first = slot.alive == nil
-		slot.alive = alive
+		local first = slot.downed == nil
+		slot.downed = downed
 		local time = if first then 0 else 0.3
-		-- Greyed out: the cell turns slate and the headshot fades grey into it.
 		tween(slot.cell, time, {
-			BackgroundColor3 = if alive then sides[key].cellColor else CELL_DEAD,
-			BackgroundTransparency = if alive then CELL_FADE else 0,
+			BackgroundColor3 = if downed then CELL_DEAD else sides[key].cellColor,
+			BackgroundTransparency = if downed then 0 else CELL_FADE,
 		})
 		tween(slot.head, time, {
-			ImageColor3 = if alive then WHITE else DEAD_TINT,
-			ImageTransparency = if alive then 0 else DEAD_FADE,
+			ImageColor3 = if downed then DEAD_TINT else WHITE,
+			ImageTransparency = if downed then DEAD_FADE else 0,
 		})
+		tween(slot.skull, time, { ImageTransparency = if downed then 0 else 1 })
+
 		if not first then
 			-- A dip on a death, a lift on a respawn.
-			slot.pop.Scale = if alive then 1.15 else 0.85
+			slot.pop.Scale = if downed then 0.85 else 1.15
 			tween(slot.pop, 0.32, { Scale = 1 })
 		end
 	end
@@ -288,12 +300,24 @@ function TopBarController.start()
 				slot = newSlot(key, f)
 				slots[key][f.key] = slot
 			end
+			PlayerTags.loadHeadshot(
+				slot.head,
+				f.userId or StateValues.get(f.key, "PortraitUserId"),
+				BOT_HEADSHOT
+			)
 			-- Player 1 sits next to the score, closest to the timer.
 			slot.holder.LayoutOrder = if key == "ally" then -i else i
-			local h = f.humanoid
-			-- Before anyone spawns (the map vote) nobody is greyed out.
-			local waiting = MatchState.phase() == "Vote"
-			setAlive(key, slot, waiting or (h ~= nil and h.Parent ~= nil and Health.isAlive(h)))
+			-- Keep the last known state if the body is temporarily out of view.
+			if MatchState.phase() == "Vote" then
+				setDowned(key, slot, false)
+			elseif f.humanoid or slot.downed == nil then
+				setDowned(key, slot, Health.isDowned(f.humanoid))
+			end
+			local placeholder = slot.head:FindFirstChild("LoadingPortrait")
+			if placeholder and placeholder:IsA("ImageLabel") then
+				placeholder.ImageColor3 = slot.head.ImageColor3
+				placeholder.ImageTransparency = slot.head.ImageTransparency
+			end
 		end
 		for k, slot in slots[key] do
 			if not seen[k] then

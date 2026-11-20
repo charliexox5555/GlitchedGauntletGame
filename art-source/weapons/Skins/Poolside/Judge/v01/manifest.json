@@ -1,0 +1,359 @@
+{
+  "line": "Poolside",
+  "item": "Judge",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Judge/Judge_RemasterV2_v05.blend",
+  "source_file_sha256": "9fda37905acd200af472e5581d55d69e9886189ac1cddb2fc71accf2593f135d",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Judge/v01/Judge_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Receiver",
+      "Handguard"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Judge_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Judge_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.117300033569336
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.5022000074386597
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Judge_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Judge_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.5902999639511108
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.241799995303154
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Judge_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.505299985408783
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.10000000894069672
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.4805000126361847
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Judge_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.2020000219345093
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.10580003261566162
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.24459999799728394
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Judge_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.117300033569336
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.5022000074386597
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Judge_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.2999999523162842
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.6320000290870667
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Judge_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.600000023841858
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.20499999821186066
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 470424,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "33350f32b6b548d2ce781909c981d74ff53b9857342df8d233b7f0360d8d60ee",
+    "geometry_and_material_slots": "635fdfc3e18922d6d888770216ccd55810581459d730b882b2c9e8fef71d44d0",
+    "uv": "5e30e601eee71883f506c8178a99787e87b2a36c4057466c1679f310a52fe425",
+    "rig_and_nla": "59db06d98c504df62ca0dda14c9aecb2c74f7ce71545caefa6b864f1f6debebe",
+    "actions": "113b50da9c38ac7651adae8477d8ba97ec051aab7f7ca1799dde0b278bec06de"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "33350f32b6b548d2ce781909c981d74ff53b9857342df8d233b7f0360d8d60ee",
+    "geometry_and_material_slots": "635fdfc3e18922d6d888770216ccd55810581459d730b882b2c9e8fef71d44d0",
+    "uv": "5e30e601eee71883f506c8178a99787e87b2a36c4057466c1679f310a52fe425",
+    "rig_and_nla": "59db06d98c504df62ca0dda14c9aecb2c74f7ce71545caefa6b864f1f6debebe",
+    "actions": "113b50da9c38ac7651adae8477d8ba97ec051aab7f7ca1799dde0b278bec06de"
+  },
+  "built_mesh_count": 14,
+  "triangles": 4260,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Judge/v01/textures/Judge_Color.png",
+      "sha256": "5b009705d5b7c89a17d052a319f6c7cbcede1ba1f22c54b91aaba42f07064ed2"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Judge/v01/textures/Judge_Normal.png",
+      "sha256": "3cff37256b112605558c812726949bae0e3bc2d3b996428699a8e49ef70bc9d1"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Judge/v01/textures/Judge_Roughness.png",
+      "sha256": "82c7fc1d69678714c4ea1e716ff24400077f149fb7b2cc1023d169a0a6d8072a"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Judge/v01/textures/Judge_Metalness.png",
+      "sha256": "579d43f2bcc4531db3a86aa060fb7c91662e0c02000dfd1eb2ad108d8c678603"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "a626496c776384aee539b1274422a2d75aa477669f842a67978fe6d48004edda"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "65d6a437a631e2d75d7e69bd8b1ee65595d460b3bc87321a2928977a3188049f"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "25691544eac5d9d1d5acfc4c11bc308cd6cf94cec0fc1e4917670589df3e2e52"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 76,
+      "review_frame": 23,
+      "sample_count": 76,
+      "pose_sha256": "2e70b8e3469d81b21041ef2210c1e6e1bfdf904c2a83187e4db0aa4b0c56095c"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 23,
+      "sample_count": 97,
+      "pose_sha256": "9de22105f78cd2e41a7944b718c89c32b68cc6a1e4aaaa7c33639399bee93aa3"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

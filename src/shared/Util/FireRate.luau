@@ -2,6 +2,8 @@
 -- Fire interval for a gun right now, including Flood-style spin-up and burst
 -- cadence. Shared so the client fires at exactly the rate the server accepts.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Types = require(script.Parent.Parent.Types)
 
 local FireRate = {}
@@ -40,7 +42,7 @@ end
 -- server sets; WeaponService keeps its own copy with a little grace). Fire
 -- intervals are divided by it.
 function FireRate.boost(player: Player): number
-	local v = player:GetAttribute("FireRateMult")
+	local v = StateValues.get(player, "FireRateMult")
 	if typeof(v) == "number" and v == v then
 		return math.clamp(v, 1, 3)
 	end

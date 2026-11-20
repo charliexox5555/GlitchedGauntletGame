@@ -1,0 +1,395 @@
+{
+  "line": "Rootglass",
+  "item": "Operator",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Operator/Operator_RemasterV2_v05.blend",
+  "source_file_sha256": "c7a8419c9552a21ea4377458023ad572ee098af66c40b1ecdd6dd54703a0de73",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Rootglass/Operator/v01/Operator_Rootglass_v01.blend",
+  "fbx": "art-source/weapons/Skins/Rootglass/Operator/v01/Operator_Rootglass_v01.fbx",
+  "art": {
+    "host": "Operator_Handguard",
+    "bone": "Root",
+    "window_center": [
+      1.58,
+      0.10799999952316285,
+      0.285
+    ],
+    "width": 0.944,
+    "height": 0.206,
+    "specimen_profile": "long"
+  },
+  "anchors": {
+    "Operator_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.5209999084472656
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.38499999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.662500023841858
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.19599999487400055
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        -0.08749999850988388
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.6019999980926514
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_ScopeAxis": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.6030000448226929
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.6019999980926514
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.45500001311302185
+      ],
+      [
+        0.0,
+        0.5999999642372131,
+        -0.7999999523162842,
+        -0.047999992966651917
+      ],
+      [
+        0.0,
+        0.7999999523162842,
+        0.5999999642372131,
+        0.38850000500679016
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9449999928474426
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.09180009365081787
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.12229999899864197
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.5209999084472656
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.38499999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6600000262260437
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.47999998927116394
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.659999966621399
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1899999976158142
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 226578,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "283ea5d57801ed4f3c17d418ccba3ec96300e59b1a749f13f2231004ff84b219",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "built_mesh_count": 18,
+  "triangles": 5390,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Rootglass/Operator/v01/textures/Operator_Color.png",
+      "sha256": "1bd1fa565d2001952e4d76122c009557c646a119ad6ff5d950c2a11880b5ba72"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Rootglass/Operator/v01/textures/Operator_Normal.png",
+      "sha256": "779ea3ce0c3beae14fb40766402b752caa8f80a5de794825f4204ce79117c3d5"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Rootglass/Operator/v01/textures/Operator_Roughness.png",
+      "sha256": "276a51b295f920ae8a597e7e7892061bf780a4096967195c4f803a8859d35ad5"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Rootglass/Operator/v01/textures/Operator_Metalness.png",
+      "sha256": "0de2bac7a1b37988940244738a91e3c18320e6dca6825a055dcc383da2d625d6"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the RootglassAtlas UVs supplied by the Blender file and local FBX.",
+  "inspect_pulse_targets": [
+    "Rootglass_Left_AmberVein_1",
+    "Rootglass_Left_AmberVein_2",
+    "Rootglass_Left_AmberVein_3"
+  ],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 14,
+      "sample_count": 31,
+      "pose_sha256": "97407d5bfc844df860f6babdcc53d23249bbbfa619e1f2da0a178db544d68ff8"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 35,
+      "review_frame": 21,
+      "sample_count": 35,
+      "pose_sha256": "7b23f87ecb42654c482c519196e0a13527ba21637c7c35a33dd17399a4992198"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 50,
+      "sample_count": 67,
+      "pose_sha256": "7558b663744aa5f9df598dd990926ad99a68411acdf3d11c5dc1134fae20d346"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 66,
+      "review_frame": 17,
+      "sample_count": 66,
+      "pose_sha256": "dc8ff4fc22958c67fc67996bebde3334b0ac98f4030b6ec81d86cbff6c1badcb"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 18,
+      "sample_count": 97,
+      "pose_sha256": "5b9ac18bb92c3db27c24fa07376282be2826e460ab55c2bd57d0e6be1bbef96c"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": {
+    "mesh_count": 18,
+    "culling_views": [
+      "left",
+      "right",
+      "rear"
+    ]
+  },
+  "archived_hand_proxy": {}
+}

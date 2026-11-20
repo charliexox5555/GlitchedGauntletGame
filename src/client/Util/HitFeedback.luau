@@ -13,6 +13,7 @@
 -- always ends fully hidden, and rapid fire just restarts it.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -693,7 +694,7 @@ function HitFeedback.step(frameDt: number)
 	end
 	local dt = frameDt
 	if studio then
-		local scale = Workspace:GetAttribute("VfxTimeScale")
+		local scale = StateValues.get(Workspace, "VfxTimeScale")
 		if typeof(scale) == "number" then
 			dt *= math.clamp(scale, 0, 1)
 		end

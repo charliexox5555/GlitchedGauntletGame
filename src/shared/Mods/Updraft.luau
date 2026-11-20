@@ -36,6 +36,8 @@
 --   UpdraftSlamAt / UpdraftSlamPos  time() and root position of the last
 --                 slam landing (the server's hook deals the damage)
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
@@ -56,7 +58,7 @@ local RISE_HOLD = 0.2
 -- The gravity this character falls under (a status like Hinder lowers it:
 -- Simulation/Movement gives the rest back every step).
 local function gravityOf(player: Player): number
-	local mult = player:GetAttribute("StatusGravityMult")
+	local mult = StateValues.get(player, "StatusGravityMult")
 	return workspace.Gravity * (if typeof(mult) == "number" then mult else 1)
 end
 
@@ -66,13 +68,13 @@ function Updraft.launchSpeed(peak: number, gravity: number?): number
 end
 
 local function number(inst: Instance, name: string, default: number): number
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else default
 end
 
 local function set(inst: Instance, name: string, value: any)
-	if inst:GetAttribute(name) ~= value then
-		inst:SetAttribute(name, value)
+	if StateValues.get(inst, name) ~= value then
+		StateValues.set(inst, name, value)
 	end
 end
 
@@ -115,8 +117,8 @@ end
 -- loadout attributes, so it works inside the simulation and on any client.
 function Updraft.slamStats(player: Player): (Types.Stats?, number?)
 	for slot = 1, Config.SLOTS do
-		if player:GetAttribute(SLOT_ID[slot]) == "Updraft" then
-			local level = player:GetAttribute(SLOT_LEVEL[slot])
+		if StateValues.get(player, SLOT_ID[slot]) == "Updraft" then
+			local level = StateValues.get(player, SLOT_LEVEL[slot])
 			local stats = if typeof(level) == "string" then statsAt(level) else nil
 			if stats and stats.behaviour == "Slam" then
 				return stats, slot
@@ -166,7 +168,7 @@ function Updraft.step(
 	_context: Instance?,
 	now: number
 )
-	if character:GetAttribute("Updrafting") ~= true then
+	if StateValues.get(character, "Updrafting") ~= true then
 		return
 	end
 	local slam = Updraft.slamStats(player)
@@ -174,20 +176,20 @@ function Updraft.step(
 	local airborne = humanoid.FloorMaterial == Enum.Material.Air
 
 	if slam then
-		if character:GetAttribute("UpdraftSlam") == "Down" then
+		if StateValues.get(character, "UpdraftSlam") == "Down" then
 			if airborne then
 				root.AssemblyLinearVelocity = diveVelocity(root, slam)
 			else
 				endSlam(character)
 				set(character, "Updrafting", nil)
-				character:SetAttribute("UpdraftSlamPos", root.Position)
-				character:SetAttribute("UpdraftSlamAt", now)
+				StateValues.set(character, "UpdraftSlamPos", root.Position)
+				StateValues.set(character, "UpdraftSlamAt", now)
 			end
 			return
 		end
 		-- A second press that came before the arm time (module.simPress).
 		if
-			character:GetAttribute("UpdraftSlam") == "Queued"
+			StateValues.get(character, "UpdraftSlam") == "Queued"
 			and since >= slam.slamArm
 			and airborne
 		then
@@ -197,7 +199,7 @@ function Updraft.step(
 	end
 
 	if since < RISE_HOLD then
-		local launch = character:GetAttribute("UpdraftLaunch")
+		local launch = StateValues.get(character, "UpdraftLaunch")
 		local gravity = if typeof(launch) == "Vector3" then launch.Y else workspace.Gravity
 		local up = (if typeof(launch) == "Vector3" then launch.X else 0) - gravity * since
 		local vel = root.AssemblyLinearVelocity
@@ -278,10 +280,10 @@ module.simCast = function(ctx: Types.SimCtx): boolean
 	local flat = (vel * Vector3.new(1, 0, 1)).Magnitude
 	local carry =
 		math.clamp(flat, Movement.WALK_SPEED, math.max(ctx.stats.maxCarry, Movement.WALK_SPEED))
-	character:SetAttribute("SlideJumpSpeed", carry)
-	character:SetAttribute("UpdraftAt", ctx.now)
-	character:SetAttribute("UpdraftLaunch", Vector3.new(up, gravity, ctx.stats.gunDown))
-	character:SetAttribute("Updrafting", true)
+	StateValues.set(character, "SlideJumpSpeed", carry)
+	StateValues.set(character, "UpdraftAt", ctx.now)
+	StateValues.set(character, "UpdraftLaunch", Vector3.new(up, gravity, ctx.stats.gunDown))
+	StateValues.set(character, "Updrafting", true)
 	-- A launch always starts without a slam (a stale one from a lost landing).
 	endSlam(character)
 	return true
@@ -296,10 +298,10 @@ end
 module.simPress = function(ctx: Types.SimCtx): boolean
 	local character = ctx.character
 	local slam = ctx.stats
-	if slam.behaviour ~= "Slam" or character:GetAttribute("Updrafting") ~= true then
+	if slam.behaviour ~= "Slam" or StateValues.get(character, "Updrafting") ~= true then
 		return false
 	end
-	if character:GetAttribute("UpdraftSlam") == nil then
+	if StateValues.get(character, "UpdraftSlam") == nil then
 		local since = ctx.now - number(character, "UpdraftAt", 0)
 		local airborne = ctx.humanoid.FloorMaterial == Enum.Material.Air
 		if airborne and since >= slam.slamArm then
@@ -326,7 +328,7 @@ module.server = function(api: Types.ServerApi)
 			local at = number(character, "UpdraftSlamAt", 0)
 			local last = seen[character]
 			seen[character] = at
-			local center = character:GetAttribute("UpdraftSlamPos")
+			local center = StateValues.get(character, "UpdraftSlamPos")
 			if last ~= nil and at > last and typeof(center) == "Vector3" then
 				slamLanded(api, player, character, center)
 			end

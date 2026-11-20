@@ -1,35 +1,27 @@
-# Codex collaboration
+# Codex workflow
 
-**User decision (2026-11-05):** Claude (Max plan) works together with the user's **Codex desktop app** (ChatGPT Plus, $20). From now on the Claude core chat opens the Codex app itself with computer use and prompts it. The user doesn't paste for us. Codex has the project folder open, and it can reach the **Roblox Studio MCP** and the **Blender MCP**.
+On 2026-11-17 the owner moved to manual work with Codex support. Codex works directly in the repo with the owner across code, assets, Studio and documentation. The earlier Claude-led workflow used Codex for concepts, review and occasional Blender work.
 
-## What Codex is for
-Its job is to add capacity and a second eye, not to replace the Claude lanes.
-- **Concept images:** maps, structures, kit sheets, material and trim swatches, UI screens. It reads the prompts and references from the vault and saves the files straight into the repo. This is its strongest use; Claude can't generate images.
-- **References and research:** finding reference images and real-world photos, and short research notes on what a shipped game does. Third-party images go into `third-party/` folders and are never committed.
-- **Models (trial):** individual props or kit pieces in Blender through its MCP, built to the [Art Direction](../02%20Art/Art%20Direction.md) model standard. Claude reviews each against the concept and the LihFolk modelling notes before it's used.
-- **A second opinion:** review a concept, a score or a plan blind, when the Claude reviewers might share the same blind spot.
-- **Not for:** server code, remotes, security or data. Those stay with Claude lanes (CLAUDE.md code rules).
+## Migration map
 
-## Budget (Plus is small, so spend it on what only Codex can do)
-- Plus has a 5-hour limit and a weekly limit. Image generation uses the limit about **3–5x faster** than plain turns ([Codex pricing](https://developers.openai.com/codex/pricing/)).
-- Every MCP server adds context and burns limit. Only connect Studio or Blender for a job that needs it.
-- Batch the work: one well-specified prompt per job, pointing at the vault notes, beats many small turns.
-- If Codex says the limit is reached, stop and note where the job got to. Don't buy credits; that's the user's call.
+| Former workflow | Current workflow |
+|---|---|
+| `CLAUDE.md` on each new Claude chat | Root `AGENTS.md` for current project rules. `CLAUDE.md` remains the Claude-era record. |
+| `.claude/skills` | Four project skills under `.agents/skills` for vault lookup, modeling, UI and RIVALS research. Use current runtime UI notes and Lobby V4 direction when the old skills describe earlier looks. |
+| Claude `vault-lookup` / `lihfolk-lookup` agents | Search the project index, the Code Map and LihFolk locally with `rg -n`. Read relevant sections. Use subagents only when requested or required by the task's applicable instructions. |
+| LihFolk Claude plugin and agent workflows | Use the local [LihFolk library](LihFolk.md) and matching specialist reference. The 22 installed recipes were inventoried. The Claude agents, hooks, commands and unrelated specialization are kept in the installed plugin. |
+| Claude Studio window selection and locks | Codex Roblox Studio MCP can address each open instance by ID. Verify the place and DataModel, and coordinate with the owner or another editing session before mutating one. The former `.claude-locks` convention only mattered when several sessions shared a live tool. |
+| Claude Blend and Studio builds | Use Blender MCP or the build scripts when required. Preserve generated source and import contracts. The [Art Direction](../02%20Art/Art%20Direction.md) and area notes document exact pipelines. |
+| Git worktrees and session-end pushes | Inspect the working tree and remote, isolate scoped work when appropriate, and coordinate commits, integration and pushes with the owner. Git does not update the published Roblox experience. |
+| Local video-analyzer MCP registration | The old registration was scoped to Claude. Use the [Video Analyzer](Video%20Analyzer.md) CLI when a task actually needs transcript or frame extraction. |
+| Claude issuing prompts to the Codex desktop UI | The owner works directly with Codex in the repository. Send a note link or describe the task, desired result and place as needed. |
 
-## How the core chat drives it
-1. Write the job as a short brief in the vault (like [Codex Concept Brief 2026-11-05](../05%20Production/Archive/Codex%20Concept%20Brief%202026-11-05.md)):
-   - what to read,
-   - what to make,
-   - where to save it,
-   - the rules: no git, only the named paths, original designs, no text or logos.
-2. Computer use: open the Codex app, use the chat with the GlitchedGauntletGame folder, paste a one-line pointer plus the brief, and send.
-3. Don't watch it. Check back later, read its file list, and check the files on disk.
-4. Hand the results to the Claude lane that owns the area. That lane reviews, commits the generated files path-limited, and writes the results into the vault.
+The incoming Git checkout tracks `origin/main`. Its remote-tracking reflog shows repeated updates by push, consistent with Claude's frequent end-of-session pushes. Use [the audit snapshot](Developer%20Handoff.md#6-audit-snapshot-and-release-handoff) to see what still sat locally at the transition.
 
-## Rules for Codex jobs (put them in every brief)
-- Vault and LihFolk first: read the notes the brief names.
-- No git (no add, commit or push). Claude commits.
-- Write only the paths the brief names.
-- Studio or Blender: take the lock in `.claude-locks/` the same way the lanes do (`match-studio.lock`, `lobby-studio.lock`, `blender.lock`), and never touch a locked tool. Never publish a place. Never `require` server modules over MCP.
-- Never type or ask for credentials.
-- Third-party images are for mood and quality level only. Every design is original.
+On this workstation, the enabled Studio MCP entry is `Roblox_Studio`. The older misspelled `roblox_strudio` entry is already disabled. The enabled entry returned both Studio places. Blender MCP is configured as a separate connection and was outside the runtime audit. The older Claude setup guide did not establish a reusable Roblox MCP configuration in the repo.
+
+## Session routine
+
+- Read [Home](../00%20Home.md), the relevant project decision and the implementation. The [Developer Handoff](Developer%20Handoff.md) covers both places.
+- Keep a small, reversible edit in the proper source. For a runtime question, observe the right Studio place and record its test settings. Document meaningful results in the vault.
+- Follow the [Setup Guide](Setup%20Guide.md) for Rojo, Obsidian, Git and release. The current decision is to keep Lobby and Match separate and prepare V4 after cleanup.

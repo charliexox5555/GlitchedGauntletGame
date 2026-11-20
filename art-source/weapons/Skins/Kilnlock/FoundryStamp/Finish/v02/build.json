@@ -1,0 +1,26 @@
+{
+  "line": "Kilnlock",
+  "item": "FoundryStamp",
+  "version": "v02",
+  "file": "FoundryStamp_Kilnlock_finish_v02.blend",
+  "source": "Original concept assembly",
+  "concept": "art-source\\weapons\\Skins\\Kilnlock\\FoundryStamp\\Concept\\v02\\FoundryStamp_Kilnlock_concept_v02.blend",
+  "stock_geometry_matches": 0,
+  "fit": {
+    "separate_mount_pivot": true
+  },
+  "new_manifold_meshes": 10,
+  "flat_edge_finishes": [
+    "FoundryStamp / Ceramic seal"
+  ],
+  "motion": {
+    "start": 9,
+    "active": 35,
+    "reset": 61,
+    "swing_max_degrees": 15
+  },
+  "actions": {},
+  "rest_pose_delta": 0.0,
+  "active_pose_delta": 0.8970205,
+  "beauty": "beauty.png"
+}

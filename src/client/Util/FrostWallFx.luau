@@ -21,6 +21,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
 local Firewall = require(ReplicatedStorage.Shared.Mods.Firewall)
@@ -155,10 +156,10 @@ local function backOut(x: number): number
 end
 
 local function tintOf(part: BasePart): Color3
-	if part:GetAttribute("OwnerId") == player.UserId then
+	if StateValues.get(part, "OwnerId") == player.UserId then
 		return TeamColor.ALLY
 	end
-	local team = part:GetAttribute("TeamId")
+	local team = StateValues.get(part, "TeamId")
 	return TeamColor.forTeam(if typeof(team) == "number" then team else nil)
 end
 
@@ -413,8 +414,8 @@ function FrostWallFx.dress(part: BasePart): boolean
 	if pieces[part] then
 		return false
 	end
-	local wallId = part:GetAttribute("WallId")
-	local index = part:GetAttribute("Index")
+	local wallId = StateValues.get(part, "WallId")
+	local index = StateValues.get(part, "Index")
 	local seed = (if typeof(wallId) == "number" then wallId else 0) * 131
 		+ (if typeof(index) == "number" then index else 0)
 	local rng = Random.new(seed)
@@ -637,7 +638,7 @@ local function forget(part: BasePart, p: Piece, serverNow: number)
 	giveRig(p.rig)
 	-- It lingers after a wall that ran out; a wall cleared early (the round
 	-- ended) takes its frost with it.
-	local expires = part:GetAttribute("ExpiresAt")
+	local expires = StateValues.get(part, "ExpiresAt")
 	local ranOut = typeof(expires) == "number" and serverNow >= expires
 	table.insert(floors, {
 		stop = p.stopFloor,
@@ -667,7 +668,7 @@ function FrostWallFx.step(now: number, serverNow: number, at: Vector3?): boolean
 			p.risen = done
 		end
 		-- The end: it shatters and sinks over FADE after ExpiresAt.
-		local expires = part:GetAttribute("ExpiresAt")
+		local expires = StateValues.get(part, "ExpiresAt")
 		local k = 1
 		if typeof(expires) == "number" then
 			k = math.clamp((expires - serverNow) / FADE, 0, 1)

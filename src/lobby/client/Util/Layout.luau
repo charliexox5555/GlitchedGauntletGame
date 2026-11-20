@@ -11,6 +11,7 @@
 
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
 
 local UiKit = require(ReplicatedStorage.Shared.UiKit)
@@ -45,7 +46,9 @@ function Layout.family(): Family
 	end
 	local family: Family
 	-- Studio test hook: workspace attribute LobbyForceLayout = "phone" | "desktop".
-	local forced = if RunService:IsStudio() then workspace:GetAttribute("LobbyForceLayout") else nil
+	local forced = if RunService:IsStudio()
+		then StateValues.get(workspace, "LobbyForceLayout")
+		else nil
 	if forced == "phone" or forced == "desktop" then
 		family = forced :: Family
 	else
@@ -110,10 +113,10 @@ function Layout.floorText(root: Instance, scale: number)
 	local function apply(d: Instance)
 		if d:IsA("TextLabel") or d:IsA("TextButton") or d:IsA("TextBox") then
 			local floor = math.ceil(Layout.MIN_TEXT_PX / math.max(scale * nested(d), 0.05))
-			local base = d:GetAttribute("BaseTextSize")
+			local base = StateValues.get(d, "BaseTextSize")
 			if typeof(base) ~= "number" then
 				base = d.TextSize
-				d:SetAttribute("BaseTextSize", base)
+				StateValues.set(d, "BaseTextSize", base)
 			end
 			d.TextSize = math.max(base :: number, floor, Layout.MIN_TEXT_DESIGN)
 		end

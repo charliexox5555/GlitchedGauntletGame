@@ -7,6 +7,11 @@ return table.freeze({
 	-- gun or the weapon phase (Config/Match), lasts the round and never comes back.
 	MAX_SHIELD = 50,
 	SHIELD_ATTRIBUTE = "Shield", -- on the Humanoid; the server writes it
+	AMMO = table.freeze({
+		reserveMags = 4,
+		machineGunReserveMags = 3,
+		minimumReserve = 18,
+	}),
 	RESPAWN_TIME = 3,
 
 	-- Gunplay v2 (Gunplay.md §2): movement adds spread on top of the gun's
@@ -63,6 +68,8 @@ return table.freeze({
 	ARM_HIT_EXTRA_TOLERANCE = 3,
 	DIRECTION_TOLERANCE = 1.5, -- degrees between a hit and its server-recomputed pellet ray
 	FIRE_JITTER = 0.05, -- seconds of network jitter forgiven per shot
+	HEAVY_WINDUP_MIN = 0.20,
+	HEAVY_WINDUP_MAX = 0.85,
 	RELOAD_LEAD = 0.1, -- reloads (and each shell of a shell-by-shell one) count this much early
 	HISTORY_SECONDS = 1, -- how much hitbox history is kept
 	REWIND_EXTRA = 0.15, -- rewind window = 2 x the shooter's ping + this...

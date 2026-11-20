@@ -18,6 +18,7 @@
 -- rig order (lower before the guns, free hand after the grips, item last).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -43,7 +44,7 @@ local function tune(name: string, fallback: any): any
 	if not STUDIO then
 		return fallback
 	end
-	local v = Workspace:GetAttribute(name)
+	local v = StateValues.get(Workspace, name)
 	return if v ~= nil then v else fallback
 end
 
@@ -211,7 +212,7 @@ local function clockNow(h: HeldMods): number
 	local now = os.clock()
 	local scale = 1
 	if STUDIO then
-		local value = Workspace:GetAttribute("VfxTimeScale")
+		local value = StateValues.get(Workspace, "VfxTimeScale")
 		if typeof(value) == "number" then
 			scale = math.clamp(value, 0, 1)
 		end
@@ -1225,7 +1226,7 @@ function ViewmodelHeldMods.stepItem(
 		* angles(tune("TuneHoldRotation", (hold and hold.rotation) or VM.ITEM_ROTATION))
 	-- Where the item sits from the grip: the builder's HoldOffset, plus the
 	-- hold's own `lift` (clear of the fist).
-	local offset = model:GetAttribute("HoldOffset")
+	local offset = StateValues.get(model, "HoldOffset")
 	local lift = (hold and hold.lift) or Vector3.zero
 	model:PivotTo(
 		itemCf * CFrame.new((if typeof(offset) == "Vector3" then offset else Vector3.zero) + lift)

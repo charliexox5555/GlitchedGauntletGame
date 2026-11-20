@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
@@ -49,7 +50,7 @@ local function update(dt: number)
 	-- attribute also carries the server's echo of what we reported).
 	state = (
 		MovementSim.ownState(c)
-		or (c:GetAttribute("MoveState") :: string?)
+		or (StateValues.get(c, "MoveState") :: string?)
 		or "Idle"
 	) :: MoveState
 	local root = c:FindFirstChild("HumanoidRootPart")

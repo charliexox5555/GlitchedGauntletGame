@@ -1,0 +1,33 @@
+Instead of just painting textures onto your base Vandal, this concept re-engineers the silhouette around shattered dark slate/obsidian plates held together by spectral mist:
+- Floating Chassis & Barrel: The solid handguard, buffer tube, and stock are broken into jagged, stylized low-poly rock and dark metal fragments. These shards hover slightly off the core frame, suspended by swirling teal/seafoam energy.
+- Spectral Crown & Sights: A jagged, three-pointed spectral crown floats directly above the receiver. In the Aiming Down Sights (ADS) view, the crown rises higher and expands into a translucent halo above the fractured aperture rear sight so your center sightline stays completely unobstructed.
+- Magazine & Ammunition: The detachable magazine is wrapped in glowing teal energy bindings that hold cracked armor plates together. Even the individual rounds (seen in the close-up) feature a dark obsidian casing with a glowing mist-infused core and tip.
+- Color Variants (Chroma Palette):
+  - Base (Shadow Mist): Charcoal/obsidian stone with spectral teal/seafoam neon energy.
+  - Variant 1 (Void Wraith): Darkened violet stone with deep purple/magenta neon energy.
+  - Variant 2 (Ashen Wyrm): Scorched bronze/black metal with molten crimson and gold-amber energy.
+  - Variant 3 (Blighted Emerald): Tarnished dark slate with toxic emerald-green energy.
+To make the weapon feel alive in Roblox without tanking frame rates or cluttering the screen during gunfights, split the VFX into three layers:
+- Passive Idle Loop:
+  - Floating Shards: Use a lightweight client-side RunService.RenderStepped sine-wave offset on the Motor6D joints of the outer stock, barrel, and crown shards so they gently bob and breathe.
+  - Mist Aura: Attach low-opacity, soft-edged ParticleEmitters inside the gaps of the handguard and stock emitting slow, upward-curling wisps (Lifetime: 0.6–1.0s, Rate: 8–12).
+- Firing, Muzzle Flash & Tracers:
+  - Muzzle Flash: Instead of a standard yellow star, trigger a jagged, multi-layered teal/black flame burst (LockedToPart = true for 0.05s) paired with a brief PointLight pulse.
+  - Bullet Tracers: Fire fast Beam or Trail projectiles styled like sharp, smoky spectral darts that leave behind a dissipating mist ribbon.
+  - Impact VFX: Bullets hitting walls leave a small dark scorch decal that leaks tiny rising wisps of teal mist for 1.5 seconds.
+- ADS Sightline Clarity: When the player holds right-click to ADS, smoothly tween the floating crown's transparency up (0.2 -> 0.75) and shift it upward slightly so the player always has a clean, crisp picture through the rear ring sight.
+- Equip (Draw): The player's hand grips a bare, shadowy core frame, and the shattered obsidian plates + floating crown snap inward from a burst of mist to lock into place with a heavy magnetic/magical thud.
+- Reload:
+  1. The player flicks the wrist, causing the glowing energy bands on the empty magazine to snap—the magazine drops away while dissolving into mist particles.
+  2. Instead of grabbing a physical mag from a pouch, the player's off-hand channels dark mist near the magwell, coalescing a brand-new fractured magazine out of thin air and slamming it upward into the receiver.
+  3. The floating crown pulses brightly as the chamber re-energizes.
+- Inspect: The player tilts the rifle sideways and slightly upward; the floating armor plates along the barrel and stock expand outward by ~0.3 studs, rotating slowly around the core as dense mist swirls between the pieces before snapping back into combat position.
+- Firing Audio: Layer a sharp, punchy rifle crack with a hollow, metallic resonance and a subtle ghostly wind tail (Pitch randomized slightly between 0.97 and 1.03 per shot so full-auto sprays sound organic).
+- Reload & Equip: Deep sub-bass "whooshes" for the mist coalescing, paired with crisp, heavy stone-on-stone clacks when the floating plates lock together.
+- Kill Chimes: Each elimination triggers a chilling, resonant spectral bell chime that pitches upward from Kill 1 through Kill 5+, accompanied by a small spectral crown icon flashing on the HUD.
+- Finisher ("The Sovereign's Claim"):
+  - On the final kill of a round, the defeated enemy's character is suspended 4 studs in the air wrapped in rising pillars of teal/black mist.
+  - A large three-pointed spectral crown materializes above their head, and a glowing triangular crest burns onto their chest.
+  - Interactive Detail: Update the suspended dummy's Neck Motor6D every frame so its head rotates to stare directly at the killer wherever they walk until the round resets.
+- Gun Buddy ("Blighted Crown Charm"): Mounted on the left-side plate and ring shown in your sheet—a miniature, floating three-pointed dark-metal crown suspended by a glowing teal ring that gently sways with weapon movement and flares brighter as your match kill count climbs.
+- Matching Emote ("Throne of Mist"): The player sweeps their arm to summon a jagged, mist-wreathed obsidian throne behind them, sits down with one leg crossed over the other, and rests their chin on their hand while dark mist swirls at their feet.

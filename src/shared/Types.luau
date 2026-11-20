@@ -200,7 +200,7 @@ export type HitClaim = {
 	pellet: number,
 }
 
-export type WeaponSlotState = { id: string, ammo: number }
+export type WeaponSlotState = { id: string, ammo: number, reserve: number? }
 
 export type WeaponState = {
 	slots: { [Slot]: WeaponSlotState },

@@ -1,0 +1,82 @@
+{
+  "blend": "KilnCleaver_Kilnlock_concept_v02.blend",
+  "objects": 42,
+  "new_closed_meshes": 11,
+  "identical_stock_meshes_and_UV": 0,
+  "cancel_to_rest_max_delta": 0.0,
+  "active_max_transform_delta": 1.04004,
+  "frame_end": 220,
+  "screen_coverage": {
+    "equip": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.808
+    },
+    "idle": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.744
+    },
+    "carry": {
+      "mesh_vertices_on_screen_pct": 94.3,
+      "nearest_vertex": 0.63
+    },
+    "light_a": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.054
+    },
+    "light_b": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.933
+    },
+    "heavy": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.143
+    },
+    "inspect": {
+      "mesh_vertices_on_screen_pct": 97.4,
+      "nearest_vertex": 0.854
+    },
+    "recovery": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.88
+    },
+    "cancel": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.78
+    }
+  },
+  "grip_projection": {
+    "Right grip anchor": [
+      0.7942199110984802,
+      0.8054229766130447
+    ],
+    "Left support grip anchor": [
+      0.5613779425621033,
+      0.7070330083370209
+    ]
+  },
+  "actions": 1,
+  "bones": [
+    "Rear grip",
+    "Slab spine",
+    "Leading ceramic jaw",
+    "Returning ceramic jaw",
+    "Heat insert"
+  ],
+  "markers": {
+    "REST": 1,
+    "EQUIP": 5,
+    "EQUIP READY": 23,
+    "IDLE": 24,
+    "CARRY": 48,
+    "LIGHT A": 68,
+    "LIGHT A CONTACT": 72,
+    "LIGHT B": 85,
+    "LIGHT B CONTACT": 91,
+    "HEAVY": 104,
+    "HEAVY CONTACT": 113,
+    "INSPECT": 129,
+    "RECOVERY": 178,
+    "CANCEL": 204,
+    "CANCEL REST": 219
+  }
+}

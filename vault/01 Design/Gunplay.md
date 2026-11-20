@@ -313,6 +313,12 @@ Measured in Studio (2026-10-26, server shot gaps): 82–85 ms for the first ~9 s
 
 Not built yet: per-gun ammo and one-gun-at-a-time staged reloads (the brief's ideal), an alt action for right mouse.
 
+## Round ammunition
+
+Match guns spawn with a loaded magazine and four spare magazines' worth of ammunition. Machine guns get three spares. Each firearm gets at least 18 rounds in reserve. A Vandal starts with 25 + 100, Odin with 75 + 225, Classic with 12 + 48, and Bucky with 5 + 20. The starting balance comes from `Config/Combat.AMMO`. The Studio range has unlimited reserve.
+
+Reloads use only the reserve rounds needed to top up the gun. An interrupted shell reload spends only the shells inserted before the interruption. Guns with no reserve can still fire their loaded rounds. Players and bots get fresh supplies each round.
+
 ## 4. Aim assist (touch and gamepad only, never mouse)
 - **Slowdown:** aim sensitivity drops to 60% within ~3° of an enemy.
 - **Light magnetism:** gentle pull (≈15%) toward the target **only while ADS** and moving the aim.

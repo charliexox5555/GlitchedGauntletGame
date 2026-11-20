@@ -1,0 +1,485 @@
+{
+  "line": "Poolside",
+  "item": "Shorty",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Shorty/Shorty_RemasterV2_v05.blend",
+  "source_file_sha256": "dd258687aa58116b7ac05ed15b30993bca225a91e52c5181948e4c16308c4bc2",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Shorty/v01/Shorty_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Frame"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Shorty_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.448199987411499
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.05000000074505806
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.25999999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_MuzzleLower": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.448199987411499
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        -0.04999999701976776
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.25999999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.08000000566244125
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_Eject": [
+      [
+        -4.371138828673793e-08,
+        0.510076642036438,
+        -0.8601289987564087,
+        0.5460000038146973
+      ],
+      [
+        -1.0,
+        -2.6680540443635437e-08,
+        3.4997391651359067e-08,
+        0.05000000074505806
+      ],
+      [
+        -5.097355426642025e-09,
+        0.8601289987564087,
+        0.510076642036438,
+        0.25999999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_EjectLower": [
+      [
+        -4.371138828673793e-08,
+        0.510076642036438,
+        -0.8601289987564087,
+        0.5460000038146973
+      ],
+      [
+        -1.0,
+        -2.6680540443635437e-08,
+        3.4997391651359067e-08,
+        -0.04999999701976776
+      ],
+      [
+        -5.097355426642025e-09,
+        0.8601289987564087,
+        0.510076642036438,
+        0.25999999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_ForeGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9412000179290771
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.031199999153614044
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_ChamberUpper": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6460000276565552
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.05000000074505806
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.25999999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_ChamberLower": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6460000276565552
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        -0.04999999701976776
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.25999999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        -0.0625
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.1080000028014183
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.20499999821186066
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.448199987411499
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.25999999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.25
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.3330000042915344
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Shorty_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.0499999523162842
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.005000002682209015
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 484758,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {
+    "before_overlap_texels": 50,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Shorty_Frame": [
+        {
+          "face": 51,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 302,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Shorty_Barrels|Metal",
+        "over": "Shorty_Barrels|Dark",
+        "faces": 2
+      }
+    ]
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "7c8547e73ec62b92c2195e1c7a211a89dab71cce2a980d1ca037816ec6c0f2c4",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "01e34f26247c4b93a33260e1181224c28b4292dc3052999c05c4624d2b155d16",
+    "geometry_and_material_slots": "35451492b8e0443d71936674bc72665168e0126cd680c99f996b2ed2f063c875",
+    "uv": "a50b0f85a4874a83269b51e3cf1868e432e7758841513f722f55cdace7f7552f",
+    "rig_and_nla": "7b4d56f820e5d1fb7a35f1258efa67f3250804c040787cc1081df92a352446b9",
+    "actions": "eddad9b60691647cf903207a6131b1074abaaf200cd26626392222352942d3d6"
+  },
+  "built_mesh_count": 10,
+  "triangles": 2734,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Shorty/v01/textures/Shorty_Color.png",
+      "sha256": "90774756972c566cb69984d0861994ef9a7c6a656cff4a3b3515c462b777c155"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Shorty/v01/textures/Shorty_Normal.png",
+      "sha256": "5b6f1b2b52aac04d41dea0828c922de55e65dafe55a03c99d7ff519d673b3240"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Shorty/v01/textures/Shorty_Roughness.png",
+      "sha256": "c211ac77815e4d5cf0620940fb758fa6ca8c46868b392fbd223dde0ef03881f0"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Shorty/v01/textures/Shorty_Metalness.png",
+      "sha256": "dc44f857353533d6d708e8244140b9edb25629fe61e9d14b37f0d4dea08ee7ed"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the added PoolsideAtlas layer. Original stock UVs remain in the blend.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 24,
+      "review_frame": 6,
+      "sample_count": 24,
+      "pose_sha256": "bc58587fc81ffa99208d446178a96331aa17ebd09e001b2e17a36985a213f7c0"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "6e6826efec76eb70e8cb52ded8724d4700f254a7110b9c3ac7f76e9946809e9b"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 52,
+      "sample_count": 67,
+      "pose_sha256": "a4b2d9cf705611af6e527d5d30d46ef32df1996d7e757ca6f4bf51705fb10f03"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 72,
+      "review_frame": 25,
+      "sample_count": 72,
+      "pose_sha256": "97fe6d6b1a1a4d78c8c585fc0eea2d36bd94611523a15693c35531515242ea67"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 86,
+      "review_frame": 25,
+      "sample_count": 86,
+      "pose_sha256": "90d4e106ae543de10bd1129815f768897ec0c0eac8a2f352c5d923092d0914af"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

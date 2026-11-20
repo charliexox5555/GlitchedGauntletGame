@@ -27,6 +27,7 @@
 local Players = game:GetService("Players")
 local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
 
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
@@ -150,7 +151,7 @@ end
 -- Coin counter
 
 local function coins(): number
-	local v = player:GetAttribute("Coins")
+	local v = StateValues.get(player, "Coins")
 	return if typeof(v) == "number" and v == v then v else 0
 end
 
@@ -591,7 +592,7 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	local strip = child(preview, "Strip") :: Frame
 	for _, c in previewCells do
 		local holder = c.Parent
-		if holder and holder:GetAttribute("PivotHolder") == true then
+		if holder and StateValues.get(holder, "PivotHolder") == true then
 			holder:Destroy()
 		else
 			c:Destroy()
@@ -620,14 +621,14 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 		table.insert(previewCells, c)
 		c.MouseEnter:Connect(function()
 			local sc = pop(c)
-			if sc and (sc:GetAttribute("Rest") or 1) < 1.1 then
+			if sc and (StateValues.get(sc, "Rest") or 1) < 1.1 then
 				tween(sc, 0.15, { Scale = 1.05 })
 			end
 		end)
 		c.MouseLeave:Connect(function()
 			local sc = pop(c)
 			if sc then
-				local r = sc:GetAttribute("Rest")
+				local r = StateValues.get(sc, "Rest")
 				tween(sc, 0.15, { Scale = if typeof(r) == "number" then r else 1 })
 			end
 		end)
@@ -652,17 +653,17 @@ openPreview = function(bundle: ShopCatalog.Bundle, index: number)
 	stage:run(true)
 	for _, name in { "Head", "For" } do
 		local o = child(preview, name) :: GuiObject
-		local h = o:GetAttribute("Home")
+		local h = StateValues.get(o, "Home")
 		local home = if typeof(h) == "UDim2" then h else o.Position
-		o:SetAttribute("Home", home)
+		StateValues.set(o, "Home", home)
 		o.Position = home - UDim2.fromOffset(0, 30)
 		tween(o, 0.4, { Position = home })
 	end
 	for _, name in { "Actions", "Strip" } do
 		local o = child(preview, name) :: GuiObject
-		local h = o:GetAttribute("Home")
+		local h = StateValues.get(o, "Home")
 		local home = if typeof(h) == "UDim2" then h else o.Position
-		o:SetAttribute("Home", home)
+		StateValues.set(o, "Home", home)
 		o.Position = home + UDim2.fromOffset(0, 40)
 		tween(o, 0.42, { Position = home })
 	end
@@ -1075,7 +1076,7 @@ function ShopController.start()
 	if not gui then
 		return
 	end
-	player:GetAttributeChangedSignal("Coins"):Connect(placeCounter)
+	StateValues.changed(player, "Coins"):Connect(placeCounter)
 	Router.onChanged(function()
 		placeCounter()
 	end)

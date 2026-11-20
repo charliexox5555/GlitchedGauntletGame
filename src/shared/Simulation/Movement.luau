@@ -6,16 +6,16 @@
 --
 -- Server Authority off (shared/Authority, 2026-11-11): each client owns its
 -- own character, so the server steps only the bots here, and the client's own
--- MoveState lives in this module (`ownState`), not in the attribute: the
--- server publishes the state the client reports on that attribute for
+-- MoveState lives in this module (`ownState`): the server publishes the
+-- state the client reports in a replicated value for
 -- everyone else, and that echo, a round trip old, must not feed the next step.
 --
 -- Rules for this file: only simulation-safe reads/writes, time() for time,
--- and state lives in attributes on the character (written only here).
--- Visual-only things (camera height, tilt, FOV) read these attributes in
+-- and per-character state lives in precreated values.
+-- Visual-only things (camera height, tilt, FOV) read these values in
 -- RenderStepped (client MovementController).
 --
--- Character attributes:
+-- Character state fields:
 --   MoveState       "Idle" | "Walk" | "Sprint" | "Crouch" | "Slide" | "Air"
 --   SlideStart      time() the current slide began
 --   SlideDir        the line the current slide holds (unit, flat; nil when not sliding)
@@ -26,7 +26,7 @@
 --   RunSince        time() you started moving forward this stretch (the run builds from it)
 --   WasGrounded     last step's ground contact
 --
--- Player attributes read here (set by the server):
+-- Player state fields read here (set by the server):
 --   MoveMult, AdsMult  equipped weapon's movement multipliers (WeaponService)
 --   StatusMoveMult, StatusJumpMult, StatusGravityMult   status effects
 --                      (StatusService: Hinder's slow, lower jump and floaty
@@ -34,6 +34,8 @@
 --
 -- The predicted Mods (Simulation/Abilities) step first, inside this same
 -- step, so a dash and the walk speed it needs are decided together.
+
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -43,6 +45,7 @@ local Health = require(script.Parent.Parent.Health)
 local MatchState = require(script.Parent.Parent.MatchState)
 local Movement = require(script.Parent.Parent.Config.Movement)
 local AbilitiesSim = require(script.Parent.Abilities)
+local Fields = require(script.Parent.Fields)
 local Pawns = require(script.Parent.Pawns)
 
 local MovementSim = {}
@@ -68,8 +71,8 @@ local function actionDown(context: Instance?, name: string): boolean
 end
 
 local function set(model: Model, name: string, value: any)
-	if model:GetAttribute(name) ~= value then
-		model:SetAttribute(name, value)
+	if StateValues.get(model, name) ~= value then
+		StateValues.set(model, name, value)
 	end
 end
 
@@ -83,6 +86,9 @@ local function slideSpeed(now: number, start: number, exit: number): number
 end
 
 local function stepCharacter(player: Player, character: Model)
+	if not Fields.ready(character) then
+		return
+	end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	local root = character:FindFirstChild("HumanoidRootPart")
 	if not humanoid or not root or not root:IsA("BasePart") or not Health.isAlive(humanoid) then
@@ -99,19 +105,19 @@ local function stepCharacter(player: Player, character: Model)
 	local fireIn = actionDown(context, "Fire")
 
 	local owned = not RunService:IsServer() and not Authority.server()
-	local state = (character:GetAttribute("MoveState") :: string?) or "Idle"
+	local state = (StateValues.get(character, "MoveState") :: string?) or "Idle"
 	if owned and ownCharacter == character and ownState then
 		state = ownState
 	end
-	local slideStart = (character:GetAttribute("SlideStart") :: number?) or 0
-	local slideEnd = (character:GetAttribute("SlideEnd") :: number?) or -math.huge
-	local slideDirAttr = character:GetAttribute("SlideDir")
+	local slideStart = (StateValues.get(character, "SlideStart") :: number?) or 0
+	local slideEnd = (StateValues.get(character, "SlideEnd") :: number?) or -math.huge
+	local slideDirAttr = StateValues.get(character, "SlideDir")
 	local slideDir: Vector3? = if typeof(slideDirAttr) == "Vector3" then slideDirAttr else nil
-	local slideJump = (character:GetAttribute("SlideJumpSpeed") :: number?) or 0
-	local crouchHeld = (character:GetAttribute("CrouchHeld") :: boolean?) == true
-	local sprintBlock = (character:GetAttribute("SprintBlock") :: number?) or 0
-	local runSince = character:GetAttribute("RunSince") :: number?
-	local wasGrounded = (character:GetAttribute("WasGrounded") :: boolean?) ~= false
+	local slideJump = (StateValues.get(character, "SlideJumpSpeed") :: number?) or 0
+	local crouchHeld = (StateValues.get(character, "CrouchHeld") :: boolean?) == true
+	local sprintBlock = (StateValues.get(character, "SprintBlock") :: number?) or 0
+	local runSince = StateValues.get(character, "RunSince") :: number?
+	local wasGrounded = (StateValues.get(character, "WasGrounded") :: boolean?) ~= false
 
 	local grounded = humanoid.FloorMaterial ~= Enum.Material.Air
 	local moveDir = humanoid.MoveDirection
@@ -165,7 +171,7 @@ local function stepCharacter(player: Player, character: Model)
 	end
 	-- Landed (not on the step an Updraft leaves the floor: it ends itself on
 	-- the real landing, before this runs).
-	if grounded and not wasGrounded and character:GetAttribute("Updrafting") ~= true then
+	if grounded and not wasGrounded and StateValues.get(character, "Updrafting") ~= true then
 		slideJump = 0
 	end
 
@@ -222,9 +228,9 @@ local function stepCharacter(player: Player, character: Model)
 		speed = Movement.WALK_SPEED
 	end
 
-	local moveMult = (player:GetAttribute("MoveMult") :: number?) or 1
-	local adsMult = (player:GetAttribute("AdsMult") :: number?) or 1
-	local statusMove = (player:GetAttribute("StatusMoveMult") :: number?) or 1
+	local moveMult = (StateValues.get(player, "MoveMult") :: number?) or 1
+	local adsMult = (StateValues.get(player, "AdsMult") :: number?) or 1
+	local statusMove = (StateValues.get(player, "StatusMoveMult") :: number?) or 1
 	local mult = moveMult * statusMove
 	if aimIn and state ~= "Slide" and state ~= "Air" then
 		mult *= adsMult
@@ -271,8 +277,8 @@ local function stepCharacter(player: Player, character: Model)
 	-- takeoff uses full gravity, so for a peak of JUMP_HEIGHT * jump under
 	-- gravity * g the height to ask for is JUMP_HEIGHT * jump * g. In the air,
 	-- part of gravity is given back every step.
-	local jumpMult = (player:GetAttribute("StatusJumpMult") :: number?) or 1
-	local gravityMult = (player:GetAttribute("StatusGravityMult") :: number?) or 1
+	local jumpMult = (StateValues.get(player, "StatusJumpMult") :: number?) or 1
+	local gravityMult = (StateValues.get(player, "StatusGravityMult") :: number?) or 1
 	local jumpHeight = if held then 0 else Movement.JUMP_HEIGHT * jumpMult * gravityMult
 	if math.abs(humanoid.JumpHeight - jumpHeight) > 1e-3 then
 		humanoid.JumpHeight = jumpHeight
@@ -335,7 +341,7 @@ local function step(_dt: number)
 end
 
 -- The local player's move state as this client's simulation last left it
--- (nil until it has stepped, or under Server Authority: read the attribute).
+-- (nil until it has stepped).
 function MovementSim.ownState(character: Model?): string?
 	return if ownCharacter == character then ownState else nil
 end

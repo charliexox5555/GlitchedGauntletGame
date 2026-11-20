@@ -17,6 +17,8 @@
 -- watch(gui, names): finish the named cells now and any added later (cloned
 -- rows, cards, tiles). mark(template): clones of it are cells anywhere.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Cards = {}
 
 local WHITE = Color3.new(1, 1, 1)
@@ -42,17 +44,17 @@ local function layer(
 	i.SliceScale = scale
 	i.Size = UDim2.fromScale(1, 1)
 	i.ZIndex = z
-	i:SetAttribute("PivotOk", true)
+	StateValues.set(i, "PivotOk", true)
 	i.Parent = cell
 	return i
 end
 
 function Cards.finish(cell: GuiObject)
-	if cell:GetAttribute("Carded") == true or cell:GetAttribute("NoCard") == true then
+	if StateValues.get(cell, "Carded") == true or StateValues.get(cell, "NoCard") == true then
 		return
 	end
 	-- slanted plates are Util/Plates' (some share a cell's name, e.g. Plate)
-	if cell:FindFirstChild("CapL") or cell:GetAttribute("Plated") == true then
+	if cell:FindFirstChild("CapL") or StateValues.get(cell, "Plated") == true then
 		return
 	end
 	-- a box that lays out its children would lay out the skin too (the shop's
@@ -75,7 +77,7 @@ function Cards.finish(cell: GuiObject)
 	-- the bevel (top edge line, sheen, lip), drawn over it but clear of
 	-- centred words (overhaul, 2026-11-16: no flat buttons left)
 	if cell:IsA("TextButton") and cell.Text ~= "" then
-		cell:SetAttribute("Carded", true)
+		StateValues.set(cell, "Carded", true)
 		local over = layer(cell, "Bevel", OVER, math.max(r, 2) / IMG_R, cell.ZIndex)
 		local function fadeOver()
 			over.ImageTransparency = math.clamp((cell.BackgroundTransparency - 0.6) / 0.4, 0, 1)
@@ -84,7 +86,7 @@ function Cards.finish(cell: GuiObject)
 		cell:GetPropertyChangedSignal("BackgroundTransparency"):Connect(fadeOver)
 		return
 	end
-	cell:SetAttribute("Carded", true)
+	StateValues.set(cell, "Carded", true)
 
 	-- layers: the skin, then the bevel, both under everything in the cell
 	-- (owner, 2026-11-16: the bevel over icons and art "makes it look weird";
@@ -131,7 +133,7 @@ function Cards.finish(cell: GuiObject)
 end
 
 local function matches(d: Instance, names: { [string]: boolean }): boolean
-	return d:IsA("GuiObject") and (names[d.Name] == true or d:GetAttribute("Card") == true)
+	return d:IsA("GuiObject") and (names[d.Name] == true or StateValues.get(d, "Card") == true)
 end
 
 function Cards.watch(gui: Instance, list: { string })
@@ -157,7 +159,7 @@ function Cards.watch(gui: Instance, list: { string })
 end
 
 function Cards.mark(template: Instance)
-	template:SetAttribute("Card", true)
+	StateValues.set(template, "Card", true)
 end
 
 return Cards

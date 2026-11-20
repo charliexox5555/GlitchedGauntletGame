@@ -1,0 +1,76 @@
+{
+  "line": "Spindrift",
+  "item": "SoundingArc",
+  "version": "v01",
+  "file": "SoundingArc_Spindrift_finish_v01.blend",
+  "source": "Original concept assembly",
+  "concept": "art-source\\weapons\\Skins\\Spindrift\\SoundingArc\\Concept\\v02\\SoundingArc_Spindrift_concept_v02.blend",
+  "stock_geometry_matches": 0,
+  "fit": {
+    "rig_bones": 5,
+    "hands": "concept posing proxies",
+    "timing": "current stock visual impact cues"
+  },
+  "new_manifold_meshes": 9,
+  "flat_edge_finishes": [
+    "Socketed torque yoke"
+  ],
+  "motion": {
+    "equip": 18,
+    "idle": 34,
+    "carry": 55,
+    "light_a": 72,
+    "light_b": 91,
+    "heavy": 113,
+    "inspect": 150,
+    "recovery": 182,
+    "cancel": 219,
+    "gameplay_range_studs": 7,
+    "light_contact_seconds": [
+      0.168,
+      0.231
+    ],
+    "heavy_contact_seconds": 0.378
+  },
+  "actions": {
+    "Equip": {
+      "frames": 19,
+      "contact": null
+    },
+    "Idle": {
+      "frames": 22,
+      "contact": null
+    },
+    "Carry": {
+      "frames": 21,
+      "contact": null
+    },
+    "Light A": {
+      "frames": 15,
+      "contact": 5
+    },
+    "Light B": {
+      "frames": 16,
+      "contact": 7
+    },
+    "Heavy": {
+      "frames": 23,
+      "contact": 10
+    },
+    "Inspect": {
+      "frames": 46,
+      "contact": null
+    },
+    "Recovery": {
+      "frames": 18,
+      "contact": null
+    },
+    "Cancel": {
+      "frames": 22,
+      "contact": null
+    }
+  },
+  "rest_pose_delta": 0.0,
+  "active_pose_delta": 0.9772695,
+  "beauty": "beauty.png"
+}

@@ -1,0 +1,618 @@
+{
+  "line": "Kilnlock",
+  "item": "Odin",
+  "version": "v02",
+  "source": "art-source\\weapons\\RemasterV2\\Odin\\Odin_RemasterV2_v05.blend",
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 46,
+    "ready": 110,
+    "peak": 50,
+    "inspect": 144,
+    "cancel": 186,
+    "steps": [],
+    "game_reload_seconds": 4.2
+  },
+  "fit": {
+    "seat_rays_hit": 20,
+    "seat_rays_total": 24,
+    "side_depth_variation": 0.004,
+    "sampled_frames": [
+      1,
+      9,
+      13,
+      17,
+      21,
+      25,
+      29,
+      33,
+      37,
+      41,
+      45,
+      46,
+      49,
+      50,
+      53,
+      57,
+      61,
+      65,
+      69,
+      73,
+      77,
+      81,
+      85,
+      89,
+      93,
+      97,
+      101,
+      105,
+      109,
+      110,
+      144,
+      186
+    ],
+    "moving_stock_intersections": [
+      [
+        1,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        1,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        1,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        1,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        9,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        9,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        9,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        9,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        13,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        13,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        13,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        13,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        17,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        17,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        17,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        21,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        21,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        25,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        25,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        25,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        29,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        29,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        29,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        33,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        33,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        33,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        37,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        37,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        37,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        41,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        41,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        41,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        45,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        45,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        45,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        46,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        46,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        46,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        49,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        49,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        49,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        50,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        50,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        50,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        53,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        53,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        53,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        57,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        57,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        57,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        61,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        61,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        61,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        65,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        65,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        65,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        69,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        69,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        69,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        73,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        73,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        73,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        77,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        77,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        77,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        81,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        81,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        81,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        85,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        85,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        85,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        85,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        89,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        89,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        89,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        89,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        93,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        93,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        93,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        93,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        97,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        97,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        97,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        97,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        101,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        101,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        101,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        101,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        105,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        105,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        105,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        105,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        109,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        109,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        109,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        109,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        110,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        110,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        110,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        110,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        144,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        144,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        144,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        144,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ],
+      [
+        186,
+        "Fitted Receiver face -1",
+        "Odin_Bolt"
+      ],
+      [
+        186,
+        "Fitted Receiver face -1",
+        "Odin_FeedCover"
+      ],
+      [
+        186,
+        "Fitted Receiver face 1",
+        "Odin_FeedCover"
+      ],
+      [
+        186,
+        "Seated exterior cassette",
+        "Odin_FeedCover"
+      ]
+    ],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": true
+  },
+  "rendered_panels": [
+    "hero",
+    "side",
+    "right",
+    "held",
+    "aim",
+    "detail",
+    "start",
+    "commit",
+    "ready",
+    "cancel",
+    "inspect",
+    "icon",
+    "mount"
+  ],
+  "backface_culling": true,
+  "fps": 24,
+  "motion_frame_step": 3
+}

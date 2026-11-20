@@ -11,6 +11,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -105,7 +106,7 @@ local function stepFor(character: Model, own: boolean, dt: number)
 	end
 	local move = (pos - last) * Vector3.new(1, 0, 1)
 	local speed = move.Magnitude / dt
-	local state = character:GetAttribute("MoveState")
+	local state = StateValues.get(character, "MoveState")
 	if speed < STEPS.minSpeed or speed > 80 or state == "Slide" or state == "Air" then
 		-- Standing, teleported or sliding: the next step comes half a stride in.
 		t.travelled = math.min(t.travelled, STEPS.stride * 0.5)

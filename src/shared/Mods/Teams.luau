@@ -4,6 +4,8 @@
 -- everywhere a Mod asks "friend or foe" (damage, heals, reveal, colours).
 -- Anything without a TeamId (test range dummies) is nobody's ally.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 
 local Teams = {}
@@ -16,7 +18,7 @@ function Teams.of(x: Instance?): number?
 		return nil
 	end
 	if x:IsA("Player") then
-		local t = x:GetAttribute(Teams.ATTRIBUTE)
+		local t = StateValues.get(x, Teams.ATTRIBUTE)
 		return if typeof(t) == "number" then t else nil
 	end
 	if x:IsA("Model") then
@@ -24,7 +26,7 @@ function Teams.of(x: Instance?): number?
 		if owner then
 			return Teams.of(owner)
 		end
-		local t = x:GetAttribute(Teams.ATTRIBUTE)
+		local t = StateValues.get(x, Teams.ATTRIBUTE)
 		return if typeof(t) == "number" then t else nil
 	end
 	return nil

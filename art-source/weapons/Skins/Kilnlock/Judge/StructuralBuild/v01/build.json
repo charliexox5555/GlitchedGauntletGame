@@ -1,0 +1,180 @@
+{
+  "line": "Kilnlock",
+  "item": "Judge",
+  "file": "Judge_Kilnlock_structural_v01.blend",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Judge/Judge_RemasterV2_v05.blend",
+  "mesh_count": 16,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 14,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      96,
+      138,
+      153,
+      162
+    ],
+    "moving_stock_intersections": [
+      [
+        17,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        37,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        38,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        39,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        40,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        41,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        42,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        96,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        153,
+        "FoundryStamp | Dark reactor medallion",
+        "Judge_Mag"
+      ],
+      [
+        153,
+        "FoundryStamp | diagonal reactor petal -1",
+        "Judge_Mag"
+      ]
+    ],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": false,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -1.0199999809265137,
+        -0.1679999977350235,
+        -0.3140000104904175
+      ],
+      [
+        2.117300033569336,
+        0.1679999977350235,
+        0.7099999785423279
+      ],
+      [
+        3.1373000144958496,
+        0.335999995470047,
+        1.0239999890327454
+      ]
+    ],
+    "new_bounds": [
+      [
+        -1.0199999809265137,
+        -0.1679999977350235,
+        -0.3140000104904175
+      ],
+      [
+        2.117300033569336,
+        0.1748000532388687,
+        0.7099999785423279
+      ],
+      [
+        3.1373000144958496,
+        0.3428000509738922,
+        1.0239999890327454
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 29,
+    "ready": 62,
+    "peak": 33,
+    "inspect": 96,
+    "cancel": 138,
+    "steps": [],
+    "regression": [],
+    "game_reload_seconds": 2.2,
+    "charm_extremes": [
+      153,
+      162
+    ]
+  },
+  "clips": {}
+}

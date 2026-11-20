@@ -22,5 +22,8 @@ jobs:
       - name: Lint
         run: selene src
 
-      - name: Build place
-        run: rojo build -o build.rbxl
+      - name: Build Match
+        run: rojo build default.project.json -o "$RUNNER_TEMP/gauntlet-match.rbxl"
+
+      - name: Build Lobby
+        run: rojo build lobby.project.json -o "$RUNNER_TEMP/gauntlet-lobby.rbxl"

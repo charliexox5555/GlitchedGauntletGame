@@ -1,0 +1,47 @@
+{
+  "line": "Spindrift",
+  "item": "SoundingArc",
+  "version": "v01",
+  "source": "Original concept assembly",
+  "motion": {
+    "equip": 18,
+    "idle": 34,
+    "carry": 55,
+    "light_a": 72,
+    "light_b": 91,
+    "heavy": 113,
+    "inspect": 150,
+    "recovery": 182,
+    "cancel": 219,
+    "gameplay_range_studs": 7,
+    "light_contact_seconds": [
+      0.168,
+      0.231
+    ],
+    "heavy_contact_seconds": 0.378
+  },
+  "fit": {
+    "rig_bones": 5,
+    "hands": "concept posing proxies",
+    "timing": "current stock visual impact cues"
+  },
+  "rendered_panels": [
+    "hero",
+    "side",
+    "right",
+    "folded",
+    "detail",
+    "equip",
+    "idle",
+    "carry",
+    "light_a",
+    "light_b",
+    "heavy",
+    "inspect",
+    "recovery",
+    "cancel"
+  ],
+  "backface_culling": true,
+  "fps": 24,
+  "motion_frame_step": 3
+}

@@ -5,7 +5,7 @@
   "source": "art-source/weapons/Skins/Shared Sources/Bulldog/BoltFix_v02/Bulldog_RemasterV2_v05_BoltFix_v02.blend",
   "source_file_sha256": "c8af5064cb922c47f342820ecb709a7b5fe23a336b8dd20627da1363b4205efd",
   "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
-  "review_state": "Baked. Reopen and comparison pending.",
+  "review_state": "Superseded by the reviewed v02.",
   "blend": "art-source/weapons/Skins/Poolside/Bulldog/v01/Bulldog_Poolside_v01.blend",
   "fbx": null,
   "art": {
@@ -523,5 +523,58 @@
   "map_padding_pixels": 6,
   "normal_space": "Tangent space, +Y",
   "binding": "Use the added PoolsideAtlas layer. Original stock UVs remain in the blend.",
-  "inspect_pulse_targets": []
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.6726,
+      0.0,
+      0.5838
+    ],
+    "len": 0.45,
+    "geo_hits": {},
+    "box_hits": {},
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "1687dbff79c1add6a8e180b0ffd4cdc752434e6454fa5577c880fe24c806005f"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 10,
+      "review_frame": 3,
+      "sample_count": 10,
+      "pose_sha256": "16842a61c80d1a309fa9948e69bd23924491dbe972c2636129cfebf79ace3219"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "1246f6feeb53a0b42abd164f241ca1209110acbed681356d17ed3dc813d1b943"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 66,
+      "review_frame": 17,
+      "sample_count": 66,
+      "pose_sha256": "ebc8f717359ef081477dcf5c06452a05bafe8b8d3ac6e1aec5b0c1fda8290027"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 18,
+      "sample_count": 97,
+      "pose_sha256": "c7a2916ed5a762871e322285f5ec0821271f1bdba274510fc6dda148e882b996"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {},
+  "superseded_by": "art-source/weapons/Skins/Poolside/Bulldog/v02/manifest.json"
 }

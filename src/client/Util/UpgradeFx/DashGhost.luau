@@ -21,6 +21,7 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
@@ -58,7 +59,7 @@ local folder: Folder? = nil
 local cue: ColorCorrectionEffect? = nil
 
 local function number(inst: Instance, name: string): number
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else 0
 end
 
@@ -77,8 +78,8 @@ end
 -- The dasher's resolved Dash stats (the loadout is public), or nil.
 function DashGhost.statsOf(owner: Player): { [string]: any }?
 	for slot = 1, 3 do
-		if owner:GetAttribute("Mod" .. slot .. "Id") == "Dash" then
-			local level = owner:GetAttribute("Mod" .. slot .. "Level")
+		if StateValues.get(owner, "Mod" .. slot .. "Id") == "Dash" then
+			local level = StateValues.get(owner, "Mod" .. slot .. "Level")
 			return if typeof(level) == "string" then Mods.stats("Dash", level) else nil
 		end
 	end

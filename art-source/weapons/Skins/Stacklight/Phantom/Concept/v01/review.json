@@ -1,0 +1,38 @@
+{
+  "line": "Stacklight",
+  "item": "Phantom",
+  "version": "v01",
+  "source": "art-source\\weapons\\RemasterV2\\Phantom\\Phantom_RemasterV2_v05.blend",
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 31,
+    "ready": 64,
+    "peak": 35,
+    "inspect": 98,
+    "cancel": 140,
+    "steps": [],
+    "game_reload_seconds": 2.3
+  },
+  "fit": {
+    "seat_rays_hit": 24,
+    "seat_rays_total": 24,
+    "side_depth_variation": 0.009
+  },
+  "rendered_panels": [
+    "hero",
+    "side",
+    "right",
+    "held",
+    "aim",
+    "detail",
+    "start",
+    "commit",
+    "ready",
+    "cancel",
+    "inspect"
+  ],
+  "backface_culling": true,
+  "fps": 24,
+  "motion_frame_step": 3
+}

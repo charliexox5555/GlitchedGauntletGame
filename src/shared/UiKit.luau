@@ -6,6 +6,8 @@
 -- scaled 9-slices, so edges stay crisp and equal at every Fit scale
 -- (`UiKit.snapStrokes` keeps strokes on whole drawn pixels).
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Style = require(script.Parent.Config.UiStyle)
 
 local Kit = {}
@@ -88,7 +90,7 @@ function Kit.corner(parent: Instance, radius: number): UICorner
 	function Kit.snapStrokes(root: Instance, scale: number)
 		for _, d in root:GetDescendants() do
 			if d:IsA("UIStroke") then
-				local base = d:GetAttribute("BaseThickness")
+				local base = StateValues.get(d, "BaseThickness")
 				if typeof(base) == "number" then
 					local s = scale
 					local cur = d.Parent
@@ -131,7 +133,7 @@ function Kit.stroke(
 		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 		LineJoinMode = Enum.LineJoinMode.Round,
 	}, parent)
-	stroke:SetAttribute("BaseThickness", t)
+	StateValues.set(stroke, "BaseThickness", t)
 	return stroke
 end
 
@@ -144,7 +146,7 @@ function Kit.shade(parent: Instance, bottom: Color3?): UIGradient
 	function Kit.snapStrokes(root: Instance, scale: number)
 		for _, d in root:GetDescendants() do
 			if d:IsA("UIStroke") then
-				local base = d:GetAttribute("BaseThickness")
+				local base = StateValues.get(d, "BaseThickness")
 				if typeof(base) == "number" then
 					local s = scale
 					local cur = d.Parent
@@ -281,7 +283,7 @@ function Kit.glow(parent: Instance, radius: number, color: Color3): Glow
 			BorderSizePixel = 0,
 			ZIndex = 1,
 		}, frame)
-		f:SetAttribute("BaseTransparency", t)
+		StateValues.set(f, "BaseTransparency", t)
 		Kit.corner(f, radius + grow)
 		table.insert(layers, f)
 	end
@@ -296,7 +298,7 @@ function Kit.glow(parent: Instance, radius: number, color: Color3): Glow
 		end,
 		breathe = function(loop: Looper)
 			for _, f in layers do
-				local t = f:GetAttribute("BaseTransparency") :: number
+				local t = StateValues.get(f, "BaseTransparency") :: number
 				loop(
 					f,
 					Style.GLOW.period,
@@ -504,7 +506,7 @@ end
 function Kit.snapStrokes(root: Instance, scale: number)
 	for _, d in root:GetDescendants() do
 		if d:IsA("UIStroke") then
-			local base = d:GetAttribute("BaseThickness")
+			local base = StateValues.get(d, "BaseThickness")
 			if typeof(base) == "number" then
 				local s = scale
 				local cur = d.Parent

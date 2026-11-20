@@ -5,7 +5,7 @@
   "source": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
   "source_file_sha256": "c306f1916fe6270ec6fb80b325881f6c5d3cf176bf06759017e0e7e09c8f298e",
   "concept": "vault/02 Art/Skins/Rootglass/out/Vandal_concept_v01.png",
-  "review_state": "Baked. Reopen and comparison pending.",
+  "review_state": "Hero Blender review complete.",
   "blend": "art-source/weapons/Skins/Rootglass/Vandal/v02/Vandal_Rootglass_v02.blend",
   "fbx": "art-source/weapons/Skins/Rootglass/Vandal/v02/Vandal_Rootglass_v02.fbx",
   "art": {
@@ -368,5 +368,117 @@
     "Rootglass_Left_AmberVein_1",
     "Rootglass_Left_AmberVein_2",
     "Rootglass_Left_AmberVein_3"
-  ]
+  ],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.3725,
+      0.0,
+      0.5598
+    ],
+    "len": 0.425,
+    "geo_hits": {},
+    "box_hits": {
+      "RearSight_Dark": [
+        0.375,
+        0.525
+      ]
+    },
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 36,
+      "review_frame": 19,
+      "sample_count": 36,
+      "pose_sha256": "e61636309ce33d563ec5473c5f89d21800a509a6fe6290ed3d1d54b856c4ea21"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "133ca0b7dfcdf3639423abfad656cbddaafe03f72a68afacd204c6bf387d0d25"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "25bce58bc810c9d8e757ee621217d286f3c5491f08f969f8dfb810062de80bf1"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 24,
+      "sample_count": 97,
+      "pose_sha256": "bd50a29676ac44d85dfb73697cab8ddeffdf3592836201a825f63cf717bbd058"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 24,
+      "sample_count": 97,
+      "pose_sha256": "f178b2d76ba942dc67ae9c9f9362ab762112137b716cc7f9da05a0821cbe2c9d"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": {
+    "mesh_count": 25,
+    "culling_views": [
+      "left",
+      "right",
+      "rear"
+    ]
+  },
+  "archived_hand_proxy": {
+    "draw": {
+      "source": "art-source/viewmodel/checks/Vandal_draw.json",
+      "frames": 37,
+      "new_shell_contacts": {}
+    },
+    "hold": {
+      "source": "art-source/viewmodel/checks/Vandal_hold.json",
+      "frames": 1,
+      "new_shell_contacts": {}
+    },
+    "inspect": {
+      "source": "art-source/viewmodel/checks/Vandal_inspect.json",
+      "frames": 90,
+      "new_shell_contacts": {}
+    },
+    "reload": {
+      "source": "art-source/viewmodel/checks/Vandal_reload.json",
+      "frames": 80,
+      "new_shell_contacts": {}
+    },
+    "reloadempty": {
+      "source": "art-source/viewmodel/checks/Vandal_reloadempty.json",
+      "frames": 94,
+      "new_shell_contacts": {}
+    }
+  },
+  "review_grade": {
+    "design_and_finish": [
+      33,
+      35
+    ],
+    "geometry_and_stock_fit": [
+      30,
+      30
+    ],
+    "bake_and_seams": [
+      18,
+      20
+    ],
+    "held_aim_and_motion": [
+      14,
+      15
+    ],
+    "total": [
+      95,
+      100
+    ]
+  }
 }

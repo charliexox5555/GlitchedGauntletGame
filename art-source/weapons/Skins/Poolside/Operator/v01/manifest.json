@@ -1,0 +1,385 @@
+{
+  "line": "Poolside",
+  "item": "Operator",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Operator/Operator_RemasterV2_v05.blend",
+  "source_file_sha256": "c7a8419c9552a21ea4377458023ad572ee098af66c40b1ecdd6dd54703a0de73",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Operator/v01/Operator_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Receiver",
+      "Handguard"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Operator_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.5209999084472656
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.38499999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.662500023841858
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.19599999487400055
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        -0.08749999850988388
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.6019999980926514
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_ScopeAxis": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.6030000448226929
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.6019999980926514
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.45500001311302185
+      ],
+      [
+        0.0,
+        0.5999999642372131,
+        -0.7999999523162842,
+        -0.047999992966651917
+      ],
+      [
+        0.0,
+        0.7999999523162842,
+        0.5999999642372131,
+        0.38850000500679016
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9449999928474426
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.09180009365081787
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.12229999899864197
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.5209999084472656
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.38499999046325684
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.6600000262260437
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.47999998927116394
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Operator_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.659999966621399
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1899999976158142
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 429499,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "07d8ddde47ed0346a3f264eaf92d957c4b906a83e97d5b321595a02a737b74ac",
+    "geometry_and_material_slots": "951b015d32f6548e72fa6753713f54542e3a62756be0548d63590c49374b202b",
+    "uv": "dfbf3b8a9377678b0c28baed313f0466ca0f450bc4113e11d65695b3d0a1d86f",
+    "rig_and_nla": "0d956936101e2b3b6605f418b99525121cec8c1e685561704d8b562cd8a2e31a",
+    "actions": "0f9750b3a6466eb6f9f7d848415d8a37ab9a0bf4d2e60d8a3d9d2d26f8910d76"
+  },
+  "built_mesh_count": 12,
+  "triangles": 4950,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Operator/v01/textures/Operator_Color.png",
+      "sha256": "0ca0a462aa4f98fb0c28b23c309c081ef71aa8be6abf9389f6181041e65c3752"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Operator/v01/textures/Operator_Normal.png",
+      "sha256": "e048cc5eae42c8d34a45061370d180cb6b62d7dfc85aa3df1b0f64743664707a"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Operator/v01/textures/Operator_Roughness.png",
+      "sha256": "97f8b96460df47eaf07b4c2894cc6a27f35c3ab16dbf8a1e4020c92c0cad1044"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Operator/v01/textures/Operator_Metalness.png",
+      "sha256": "80d54190e40e490196200d2db2d2c9137cd13cce3d48c9597fe3417219cb5fa5"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 14,
+      "sample_count": 31,
+      "pose_sha256": "97407d5bfc844df860f6babdcc53d23249bbbfa619e1f2da0a178db544d68ff8"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 35,
+      "review_frame": 21,
+      "sample_count": 35,
+      "pose_sha256": "7b23f87ecb42654c482c519196e0a13527ba21637c7c35a33dd17399a4992198"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 50,
+      "sample_count": 67,
+      "pose_sha256": "7558b663744aa5f9df598dd990926ad99a68411acdf3d11c5dc1134fae20d346"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 66,
+      "review_frame": 17,
+      "sample_count": 66,
+      "pose_sha256": "dc8ff4fc22958c67fc67996bebde3334b0ac98f4030b6ec81d86cbff6c1badcb"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 18,
+      "sample_count": 97,
+      "pose_sha256": "5b9ac18bb92c3db27c24fa07376282be2826e460ab55c2bd57d0e6be1bbef96c"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

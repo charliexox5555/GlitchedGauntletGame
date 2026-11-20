@@ -1,0 +1,27 @@
+{
+  "line": "Stacklight",
+  "item": "KeycapTester",
+  "version": "v01",
+  "file": "KeycapTester_Stacklight_finish_v01.blend",
+  "source": "Original concept assembly",
+  "concept": "art-source\\weapons\\Skins\\Stacklight\\KeycapTester\\Concept\\v02\\KeycapTester_Stacklight_concept_v02.blend",
+  "stock_geometry_matches": 0,
+  "fit": {
+    "separate_mount_pivot": true
+  },
+  "new_manifold_meshes": 8,
+  "flat_edge_finishes": [
+    "KeycapTester / Smoke-blue switch frame",
+    "KeycapTester / Ivory keycap"
+  ],
+  "motion": {
+    "start": 9,
+    "active": 35,
+    "reset": 61,
+    "swing_max_degrees": 15
+  },
+  "actions": {},
+  "rest_pose_delta": 0.0,
+  "active_pose_delta": 0.258819,
+  "beauty": "beauty.png"
+}

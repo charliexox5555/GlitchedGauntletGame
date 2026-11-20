@@ -5,7 +5,7 @@
   "source": "art-source/weapons/RemasterV2/Knife/Knife_RemasterV2_v05.blend",
   "source_file_sha256": "cfdaabce69b1e534a8faed9b0c3c21db40e985dba692bb4069665e4a0e0c1dc9",
   "concept": "vault/02 Art/Skins/Rootglass/out/Leafblade_concept_v02.png",
-  "review_state": "Baked. Reopen and comparison pending.",
+  "review_state": "Hero Blender review complete.",
   "blend": "art-source/weapons/Skins/Rootglass/Leafblade/v02/Leafblade_Rootglass_v02.blend",
   "fbx": "art-source/weapons/Skins/Rootglass/Leafblade/v02/Leafblade_Rootglass_v02.fbx",
   "art": {
@@ -161,5 +161,96 @@
     "Rootglass_SpineLeft_AmberVein_2",
     "Rootglass_SpineRight_AmberVein_1",
     "Rootglass_SpineRight_AmberVein_2"
-  ]
+  ],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 20,
+      "review_frame": 8,
+      "sample_count": 20,
+      "pose_sha256": "ae44539f66a7103e6b3ffb0d8fadda8b2e0b090ee73ab025474924bce6daff01"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "59e1782888e7813f83eb1498781682a176f42288701770974e7eb65d4264ff46"
+    },
+    "HeavyStab": {
+      "start": 1,
+      "end": 24,
+      "review_frame": 8,
+      "sample_count": 24,
+      "pose_sha256": "5f152f247e02d6be6dc390bf21508db8742ee76dd851709f4a0d8c4b5c2e560a"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 48,
+      "sample_count": 67,
+      "pose_sha256": "6682734e4f63bad0e4d72d67c68d77d9fe1505e63a19794c9b74395640718b90"
+    },
+    "Slash1": {
+      "start": 1,
+      "end": 14,
+      "review_frame": 7,
+      "sample_count": 14,
+      "pose_sha256": "086ea935f78a49f86c7a0b93b6f839bd4aa05f40f5a3fdfaa4d14bd96839a1f4"
+    },
+    "Slash2": {
+      "start": 1,
+      "end": 14,
+      "review_frame": 8,
+      "sample_count": 14,
+      "pose_sha256": "b1c8f893759788ebae88b72fff34da52b711e91a87589ac1c825df51ee1307a3"
+    },
+    "Slash3": {
+      "start": 1,
+      "end": 18,
+      "review_frame": 6,
+      "sample_count": 18,
+      "pose_sha256": "216d3943d4e23576634f51e927613cb9cbe71aa46fb4caa8a3d056ad58f3e8b2"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": {
+    "mesh_count": 10,
+    "culling_views": [
+      "left",
+      "right",
+      "rear"
+    ]
+  },
+  "archived_hand_proxy": {
+    "hold": {
+      "source": "art-source/viewmodel/checks/Knife_hold.json",
+      "frames": 1,
+      "new_shell_contacts": {}
+    }
+  },
+  "review_grade": {
+    "design_and_finish": [
+      34,
+      35
+    ],
+    "geometry_and_stock_fit": [
+      29,
+      30
+    ],
+    "bake_and_seams": [
+      18,
+      20
+    ],
+    "held_aim_and_motion": [
+      14,
+      15
+    ],
+    "total": [
+      95,
+      100
+    ]
+  }
 }

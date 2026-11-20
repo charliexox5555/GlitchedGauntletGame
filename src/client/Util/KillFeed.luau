@@ -36,6 +36,8 @@ local banner: CanvasGroup? = nil
 local bannerScale: UIScale? = nil
 local victimLabel: TextLabel? = nil
 local headshotTag: Frame? = nil
+local assistPopup: CanvasGroup? = nil
+local assistToken = 0
 local pips: { Frame } = {}
 -- Your kills this round (back to 0 when the round changes).
 local roundKills = 0
@@ -68,6 +70,24 @@ local function teamColor(x: Instance?): Color3
 end
 
 function KillFeed.build(gui: ScreenGui)
+	local assist = make("CanvasGroup", {
+		Name = "AssistPopup",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.fromScale(0.5, 0.54),
+		Size = UDim2.fromOffset(120, 26),
+		BackgroundColor3 = C.panel,
+		BackgroundTransparency = 0.15,
+		GroupTransparency = 1,
+		Visible = false,
+	}, gui)
+	Ui.fit(assist)
+	make("UICorner", { CornerRadius = UDim.new(0, 4) }, assist)
+	Ui.text(assist, "+1 ASSIST", "label", {
+		Size = UDim2.fromScale(1, 1),
+		TextColor3 = C.ally,
+	})
+	assistPopup = assist
+
 	local list = make("Frame", {
 		Name = "KillFeed",
 		AnchorPoint = Vector2.new(1, 0),
@@ -161,9 +181,51 @@ function KillFeed.build(gui: ScreenGui)
 	banner = group
 end
 
-local function row(killer: Instance?, victim: Instance?, sourceId: string, headshot: boolean)
+function KillFeed.assistInfo(payload: unknown): (number, boolean)
+	local count, mine = 0, false
+	if typeof(payload) == "table" then
+		for _, id in payload do
+			if typeof(id) == "number" then
+				count += 1
+				mine = mine or (id ~= 0 and id == player.UserId)
+			end
+		end
+	end
+	return count, mine
+end
+
+local function showAssist()
+	local popup = assistPopup
+	if not popup then
+		return
+	end
+	assistToken += 1
+	local token = assistToken
+	popup.Visible = true
+	Ui.tween(popup, Theme.MOTION.enter, { GroupTransparency = 0 })
+	task.delay(1.25, function()
+		if token ~= assistToken then
+			return
+		end
+		Ui.tween(popup, Theme.MOTION.exit, { GroupTransparency = 1 })
+		task.delay(Theme.MOTION.exit, function()
+			if token == assistToken then
+				popup.Visible = false
+			end
+		end)
+	end)
+end
+
+local function row(
+	killer: Instance?,
+	victim: Instance?,
+	sourceId: string,
+	headshot: boolean,
+	assists: number,
+	myAssist: boolean
+)
 	local list = feed
-	if not list then
+	if not list or not list.Parent then
 		return
 	end
 	local mine = killer == player
@@ -221,11 +283,19 @@ local function row(killer: Instance?, victim: Instance?, sourceId: string, heads
 	end
 	Ui.text(frame, nameOf(victim), "titleS", {
 		Position = UDim2.fromOffset(266, 8),
-		Size = UDim2.fromOffset(120, 28),
+		Size = UDim2.fromOffset(if assists > 0 then 65 else 120, 28),
 		TextColor3 = teamColor(victim),
 		TextXAlignment = Enum.TextXAlignment.Right,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 	})
+	if assists > 0 then
+		Ui.text(frame, "+" .. assists .. " AST", "label", {
+			Name = "AssistTag",
+			Position = UDim2.fromOffset(336, 8),
+			Size = UDim2.fromOffset(58, 28),
+			TextColor3 = if myAssist then C.ally else C.textSecondary,
+		})
+	end
 	-- Oldest rows go first once the list is full.
 	local rows = {}
 	for _, child in list:GetChildren() do
@@ -293,12 +363,22 @@ MatchState.changed("Round"):Connect(function()
 	table.clear(watchedKills)
 end)
 
-function KillFeed.kill(victim: unknown, attacker: unknown, sourceId: unknown, headshot: unknown)
+function KillFeed.kill(
+	victim: unknown,
+	attacker: unknown,
+	sourceId: unknown,
+	headshot: unknown,
+	assistIds: unknown
+)
 	local v = if typeof(victim) == "Instance" then victim else nil
 	local a = if typeof(attacker) == "Instance" then attacker else nil
 	local id = if typeof(sourceId) == "string" then sourceId else ""
 	local head = headshot == true
-	row(a, v, id, head)
+	local assists, myAssist = KillFeed.assistInfo(assistIds)
+	row(a, v, id, head, assists, myAssist)
+	if myAssist then
+		showAssist()
+	end
 	local kills: number? = nil
 	if a == player then
 		roundKills += 1

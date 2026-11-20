@@ -13,6 +13,7 @@ local CollectionService = game:GetService("CollectionService")
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
@@ -133,7 +134,7 @@ local function portrait(model: Model)
 			animator = a
 		end
 		local anim = Instance.new("Animation")
-		local override = model:GetAttribute("IdleAnim")
+		local override = StateValues.get(model, "IdleAnim")
 		anim.AnimationId = if typeof(override) == "string" and override ~= ""
 			then override
 			else IDLE
@@ -157,7 +158,7 @@ end
 local function clearReplies()
 	for _, b in replyButtons do
 		local holder = b.Parent
-		if holder and holder:GetAttribute("PivotHolder") == true then
+		if holder and StateValues.get(holder, "PivotHolder") == true then
 			holder:Destroy()
 		else
 			b:Destroy()
@@ -285,7 +286,7 @@ local function onOpen(arg: any?)
 	if not (typeof(arg) == "Instance" and arg:IsA("Model")) then
 		return
 	end
-	local id = arg:GetAttribute("Talk")
+	local id = StateValues.get(arg, "Talk")
 	local data = if typeof(id) == "string" then Lines[id] else nil
 	if not data then
 		return
@@ -454,7 +455,7 @@ local function attach(model: Instance)
 	if not model:IsA("Model") or prompts[model] then
 		return
 	end
-	local id = model:GetAttribute("Talk")
+	local id = StateValues.get(model, "Talk")
 	if typeof(id) ~= "string" or not Lines[id] then
 		return
 	end
@@ -465,7 +466,7 @@ local function attach(model: Instance)
 	local p = Instance.new("ProximityPrompt")
 	p.Name = PROMPT
 	p.ActionText = "Talk"
-	local title = model:GetAttribute("Title")
+	local title = StateValues.get(model, "Title")
 	p.ObjectText = if typeof(title) == "string" then title else Lines[id].name
 	p.KeyboardKeyCode = Enum.KeyCode.E
 	p.GamepadKeyCode = Enum.KeyCode.ButtonX

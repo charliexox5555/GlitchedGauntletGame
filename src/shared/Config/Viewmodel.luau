@@ -157,6 +157,72 @@ local function key(
 end
 
 local ZERO = Vector3.zero
+local inspectLock = require(script.Parent.SkinPreview).SHADOW_MIST.INSPECT_LOCK
+
+local function ruinInspect(
+	length: number,
+	show: Vector3,
+	turn: Vector3,
+	detail: Vector3,
+	tilt: Vector3
+): Track
+	return {
+		length = length,
+		pivot = "Center",
+		own = true,
+		smooth = true,
+		keys = {
+			key(0, ZERO, ZERO),
+			key(0.09, Vector3.new(0.02, -0.04, -0.06), Vector3.new(-4, -6, 4)),
+			key(0.23, show, turn),
+			key(0.43, show + detail, turn + tilt),
+			key(0.60, show + detail * 0.62, turn + tilt * 0.32),
+			key(0.76, show + detail * 0.48, turn + tilt * 0.64),
+			key(inspectLock - 0.02, show * 0.48, turn * 0.39),
+			key(inspectLock, show * 0.40 + Vector3.new(0, -0.026, -0.026), turn * 0.31),
+			key(0.97, show * -0.035, turn * -0.042),
+			key(1, ZERO, ZERO),
+		},
+	}
+end
+
+local function ruinDraw(start: Vector3, turn: Vector3, lift: Vector3): Track
+	return {
+		length = 1,
+		pivot = "Grip",
+		smooth = true,
+		keys = {
+			key(0, start, turn),
+			key(0.19, start:Lerp(lift, 0.28), turn * 0.89),
+			key(0.40, lift, turn * 0.53),
+			key(0.58, lift * 0.62, turn * 0.19),
+			key(0.66, Vector3.new(0.015, -0.023, 0.036), Vector3.new(-3.5, 0, 1.8)),
+			key(0.82, Vector3.new(0.004, 0.016, -0.018), Vector3.new(1.4, 0, -0.6)),
+			key(1, ZERO, ZERO),
+		},
+	}
+end
+
+local function ruinReload(show: Vector3, turn: Vector3): Track
+	return {
+		length = 2.5,
+		pivot = "Center",
+		smooth = true,
+		marks = { MagOut = 0.17, MagIn = 0.61 },
+		keys = {
+			key(0, ZERO, ZERO),
+			key(0.08, show * 0.28, turn * 0.47),
+			key(0.17, show * 0.81, turn * 0.87),
+			key(0.32, show, turn),
+			key(0.50, show + Vector3.new(-0.025, 0.019, 0.026), turn * 0.92),
+			key(0.58, show * 0.76, turn * 0.68),
+			key(0.61, show * 0.64 + Vector3.new(0, -0.027, -0.035), turn * 0.50),
+			key(0.76, show * 0.42, turn * 0.31),
+			key(0.95, show * -0.04, turn * -0.05),
+			key(1, ZERO, ZERO),
+		},
+	}
+end
 local OUT = Enum.EasingDirection.Out
 local INOUT = Enum.EasingDirection.InOut
 
@@ -1949,6 +2015,52 @@ return table.freeze({
 		DrawSidearm = drawTrack(Vector3.new(0.2, -0.62, 0.12), Vector3.new(38, 30, 14)),
 		DrawSMG = drawTrack(Vector3.new(0.02, -0.72, 0.1), Vector3.new(-10, 2, 4)),
 		DrawLong = drawTrack(Vector3.new(-0.85, -0.7, 0.18), Vector3.new(16, -24, 58)),
+		DrawRuinVandal = ruinDraw(
+			Vector3.new(0.11, -0.69, 0.23),
+			Vector3.new(-20, -8, 16),
+			Vector3.new(0.03, -0.15, -0.085)
+		),
+		DrawRuinGuardian = ruinDraw(
+			Vector3.new(-0.25, -0.67, 0.17),
+			Vector3.new(-16, 13, -19),
+			Vector3.new(-0.09, -0.14, -0.075)
+		),
+		DrawRuinSpectre = ruinDraw(
+			Vector3.new(0.13, -0.57, 0.18),
+			Vector3.new(-24, 2, 14),
+			Vector3.new(0.03, -0.10, -0.11)
+		),
+		DrawRuinOperator = ruinDraw(
+			Vector3.new(-0.19, -0.74, 0.30),
+			Vector3.new(-12, 10, -15),
+			Vector3.new(-0.06, -0.19, 0.02)
+		),
+		DrawRuinGhost = ruinDraw(
+			Vector3.new(0.24, -0.53, 0.18),
+			Vector3.new(17, -15, 19),
+			Vector3.new(0.07, -0.13, -0.09)
+		),
+		ReloadShadowMist = {
+			length = 2.5,
+			pivot = "Center",
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.11, Vector3.new(-0.17, 0.19, -0.42), Vector3.new(20, 42, -37)),
+				key(0.17, Vector3.new(-0.32, 0.27, -0.58), Vector3.new(28, 54, -47)),
+				key(0.34, Vector3.new(-0.42, 0.22, -0.67), Vector3.new(21, 58, -43)),
+				key(0.51, Vector3.new(-0.41, 0.24, -0.68), Vector3.new(22, 56, -45)),
+				key(0.595, Vector3.new(-0.31, 0.25, -0.51), Vector3.new(19, 42, -37)),
+				key(0.63, Vector3.new(-0.25, 0.29, -0.44), Vector3.new(24, 35, -24)),
+				key(0.72, Vector3.new(-0.19, 0.15, -0.31), Vector3.new(13, 22, -12)),
+				key(0.92, Vector3.new(0.014, -0.015, 0.014), Vector3.new(-2, -3, 3)),
+				key(1, ZERO, ZERO),
+			},
+		},
+		ReloadRuinGuardian = ruinReload(Vector3.new(-0.37, 0.22, -0.67), Vector3.new(17, 49, -36)),
+		ReloadRuinSpectre = ruinReload(Vector3.new(-0.29, 0.27, -0.54), Vector3.new(24, 35, -31)),
+		ReloadRuinOperator = ruinReload(Vector3.new(-0.41, 0.19, -0.74), Vector3.new(12, 43, -26)),
+		ReloadRuinGhost = ruinReload(Vector3.new(-0.30, 0.18, -0.47), Vector3.new(31, 44, -38)),
 		-- Turn to show the right side, tilt, flip to the left side, return.
 		-- (The gun's own clip runs alongside: a mag tap, then a press check on
 		-- the charging handle, which the support hand works from the far side.)
@@ -1958,6 +2070,53 @@ return table.freeze({
 		-- hold has a look in it (a tilt up to show the top, then back); the
 		-- gun comes home past the hold and bounces.
 		Inspect = inspectTrack(),
+		InspectRuinGuardian = ruinInspect(
+			4.4,
+			Vector3.new(-0.42, 0.24, -0.98),
+			Vector3.new(12, 59, -17),
+			Vector3.new(-0.035, 0.036, -0.11),
+			Vector3.new(9, 10, -5)
+		),
+		InspectRuinSpectre = ruinInspect(
+			3.65,
+			Vector3.new(-0.31, 0.22, -0.74),
+			Vector3.new(13, 57, -23),
+			Vector3.new(-0.038, 0.035, -0.065),
+			Vector3.new(7, 8, -5)
+		),
+		InspectRuinOperator = ruinInspect(
+			4.85,
+			Vector3.new(-0.48, 0.18, -0.89),
+			Vector3.new(5, 55, -13),
+			Vector3.new(-0.09, 0.09, -0.11),
+			Vector3.new(12, 7, -4)
+		),
+		InspectRuinGhost = ruinInspect(
+			3.3,
+			Vector3.new(-0.31, 0.29, -0.49),
+			Vector3.new(28, 48, -25),
+			Vector3.new(0.01, -0.03, -0.06),
+			Vector3.new(-10, 22, 14)
+		),
+		InspectShadowMist = {
+			length = 5.4,
+			pivot = "Center",
+			own = true,
+			smooth = true,
+			keys = {
+				key(0, ZERO, ZERO),
+				key(0.08, Vector3.new(0.02, -0.04, -0.06), Vector3.new(-4, -6, 4)),
+				key(0.23, Vector3.new(-0.51, 0.30, -1.05), Vector3.new(15, 67, -20)),
+				key(0.43, Vector3.new(-0.57, 0.34, -1.13), Vector3.new(24, 77, -27)),
+				key(0.60, Vector3.new(-0.52, 0.32, -1.10), Vector3.new(16, 64, -11)),
+				key(0.76, Vector3.new(-0.49, 0.34, -1.06), Vector3.new(25, 59, -19)),
+				key(0.86, Vector3.new(-0.33, 0.20, -0.58), Vector3.new(12, 32, -10)),
+				key(inspectLock - 0.018, Vector3.new(-0.24, 0.14, -0.43), Vector3.new(8, 28, -8)),
+				key(inspectLock, Vector3.new(-0.22, 0.11, -0.45), Vector3.new(5, 25, -5)),
+				key(0.967, Vector3.new(0.02, -0.021, 0.02), Vector3.new(-3, -3, 3)),
+				key(1, ZERO, ZERO),
+			},
+		},
 		-- The Sheriff's (2026-11-15, the owner's revolver clip: between showing
 		-- one side and the other the gun TWIRLS, about two turns in ~0.6 s).
 		-- Block fists have no finger to spin it on, so it is a low toss: the

@@ -15,6 +15,7 @@
 --           is placed by hand (the replay)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
@@ -87,17 +88,13 @@ function BodyClone.copy(body: Model, anchor: Anchor, name: string?): (Model?, { 
 			d.Transform = CFrame.identity -- from rest, not the live pose
 		end
 	end
-	for attribute in copy:GetAttributes() do
-		copy:SetAttribute(attribute, nil)
-	end
+	StateValues.clear(copy)
 	local humanoid = copy:FindFirstChildOfClass("Humanoid")
 	if humanoid then
 		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
 		humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
 		humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-		for attribute in humanoid:GetAttributes() do
-			humanoid:SetAttribute(attribute, nil)
-		end
+		StateValues.clear(humanoid)
 	end
 	-- Skinned limbs live outside the body (shared/MatchBody limbFolder):
 	-- give the copy its own, on this client.

@@ -5,6 +5,8 @@
 -- crosshair. The client uses it to highlight; the server re-runs the same
 -- checks from its own head before healing.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 
 local Health = require(script.Parent.Parent.Parent.Health)
@@ -88,7 +90,9 @@ function Target.lookOf(model: Model): Vector3
 	end
 	local flat = basis.CFrame.LookVector * Vector3.new(1, 0, 1)
 	flat = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
-	local pitchAttr = if who then who:GetAttribute("AimPitch") else model:GetAttribute("AimPitch")
+	local pitchAttr = if who
+		then StateValues.get(who, "AimPitch")
+		else StateValues.get(model, "AimPitch")
 	local pitch = if typeof(pitchAttr) == "number" and pitchAttr == pitchAttr
 		then math.clamp(pitchAttr, -1.5, 1.5)
 		else 0

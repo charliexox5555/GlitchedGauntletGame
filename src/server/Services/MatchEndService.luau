@@ -1,6 +1,6 @@
 --!strict
 -- The end of a match (vault/05 Production/Match Structure Revamp.md, phase
--- D): the stats go to everyone (`MatchSummary`), then a MatchEnd phase where
+-- D): the server publishes a results snapshot, then a MatchEnd phase where
 -- each player picks (`MatchChoice`):
 --   Rematch   a vote; once every real player from the match still here has
 --             voted, a new match starts on this server
@@ -29,6 +29,7 @@ local MatchEndService = {}
 local E = Config.MATCH_END
 local IS_STUDIO = RunService:IsStudio()
 local CHOICES = { Rematch = true, PlayAgain = true, Leave = true }
+local rng = Random.new()
 
 -- What the Lobby reads (Lobby QueueService.requeueFromMatch).
 export type LobbyReturn = { v: number, from: string, requeue: string? }
@@ -42,6 +43,9 @@ local present: { [Player]: boolean } = {} -- them and anyone who joined during t
 local outbound: { [Player]: LobbyReturn } = {} -- on their way to the Lobby (until they leave)
 local attempts: { [Player]: number } = {}
 local rematchBroken = false
+local botSeats = 0
+local botVoteAt: { number } = {}
+local botVotesShownAt = 0
 
 local function lobbyReturn(choice: string): LobbyReturn
 	return { v = 1, from = "match", requeue = if choice == "PlayAgain" then mode else nil }
@@ -111,8 +115,14 @@ end
 
 local function publish()
 	local votes, needed = countVotes()
+	local now = os.clock()
+	for _, at in botVoteAt do
+		if now >= at then
+			votes += 1
+		end
+	end
 	MatchState.set("RematchVotes", votes)
-	MatchState.set("RematchNeeded", needed)
+	MatchState.set("RematchNeeded", needed + botSeats)
 	MatchState.set("RematchOpen", open and not rematchBroken and needed > 0)
 end
 
@@ -165,11 +175,28 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 		voters[player] = true
 		present[player] = true
 	end
-	Net.event("MatchSummary"):FireAllClients(StatsService.summary(), winner, matchMode)
+	botSeats = #MatchState.botSeats()
+	table.clear(botVoteAt)
+	local now = os.clock()
+	botVotesShownAt = now
+	for _ = 1, botSeats do
+		if rng:NextNumber() < E.botRematchChance then
+			local at = now + rng:NextNumber(E.botRematchDelay[1], E.botRematchDelay[2])
+			table.insert(botVoteAt, at)
+			botVotesShownAt = math.max(botVotesShownAt, at + 0.4)
+		end
+	end
+	MatchState.set("Results", {
+		winner = winner,
+		lines = StatsService.summary(),
+		score1 = MatchState.get("Score1") or 0,
+		score2 = MatchState.get("Score2") or 0,
+		rounds = MatchState.getList("RoundHistory"),
+	})
 	MatchState.set("EndsAt", workspace:GetServerTimeNow() + E.time)
-	MatchState.set("Phase", "MatchEnd")
 	open = true
 	publish()
+	MatchState.set("Phase", "MatchEnd")
 
 	local rematch = false
 	local ok, err = pcall(function()
@@ -182,7 +209,12 @@ function MatchEndService.run(winner: number, matchMode: string?): boolean
 				end
 			end
 			local votes, needed = countVotes()
-			if not rematchBroken and needed > 0 and votes == needed then
+			if
+				not rematchBroken
+				and needed > 0
+				and votes == needed
+				and os.clock() >= botVotesShownAt
+			then
 				rematch = true
 				return
 			end

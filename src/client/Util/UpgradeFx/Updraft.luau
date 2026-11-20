@@ -25,6 +25,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -113,7 +114,7 @@ local lightLife = 0.2
 local lightPower = 0
 
 local function number(inst: Instance, name: string, default: number): number
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else default
 end
 
@@ -742,10 +743,10 @@ end
 -- (ready, a press waiting for the arm time)
 local function slamReady(): (boolean, boolean)
 	local character = player.Character
-	if not character or character:GetAttribute("Updrafting") ~= true then
+	if not character or StateValues.get(character, "Updrafting") ~= true then
 		return false, false
 	end
-	local slam = character:GetAttribute("UpdraftSlam")
+	local slam = StateValues.get(character, "UpdraftSlam")
 	if slam == "Down" or not UpdraftMod.slamStats(player) then
 		return false, false
 	end
@@ -842,7 +843,7 @@ handler.step = function(_dt: number)
 		end
 		local start = number(character, "UpdraftSlamStart", 0)
 		local landed = number(character, "UpdraftSlamAt", 0)
-		local slamming = character:GetAttribute("UpdraftSlam") == "Down"
+		local slamming = StateValues.get(character, "UpdraftSlam") == "Down"
 		local s = seen[character]
 		if not s then
 			-- First sight: remember, don't replay old slams.
@@ -870,7 +871,7 @@ handler.step = function(_dt: number)
 		if other == player and landed > s.landed + 0.05 then
 			local stats = UpdraftMod.slamStats(other)
 			local humanoid = character:FindFirstChildOfClass("Humanoid")
-			local pos = character:GetAttribute("UpdraftSlamPos")
+			local pos = StateValues.get(character, "UpdraftSlamPos")
 			local centre = if typeof(pos) == "Vector3" then pos else root.Position
 			local drop = (if humanoid then humanoid.HipHeight else 2) + root.Size.Y * 0.5
 			impact(

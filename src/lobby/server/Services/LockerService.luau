@@ -6,7 +6,7 @@
 --
 -- LockerRequest (client -> server): ("equip", gunId, line). Type-checked,
 -- rate-limited, and only pairs whose skin model exists (Shared/Locker.valid).
--- The server sets the Player attribute Skin_<gunId>; clients only read it.
+-- The server publishes the equipped choices in LockerSkins; clients read it.
 --
 -- Saving (LihFolk: DataStore Fundamentals; Session Locking and Data Loss):
 -- loaded once on join with retries; if the load fails the player can still
@@ -121,11 +121,10 @@ local function load(player: Player)
 			-- an equip made while loading wins over the saved value
 			if rec.skins[gunId] == nil then
 				rec.skins[gunId] = line
-				player:SetAttribute(Locker.attr(gunId), line)
 			end
 		end
 	end
-	player:SetAttribute("LockerLoaded", ok)
+	Locker.publish(player, rec.skins)
 end
 
 local function equip(player: Player, gunId: string, line: string)
@@ -134,7 +133,7 @@ local function equip(player: Player, gunId: string, line: string)
 		return
 	end
 	rec.skins[gunId] = line
-	player:SetAttribute(Locker.attr(gunId), line)
+	Locker.publish(player, rec.skins)
 	rec.dirty = true
 	rec.token += 1
 	local token = rec.token

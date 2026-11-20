@@ -4,8 +4,7 @@
 
 return table.freeze({
 	-- Studio playtests run the test range (Config/TestRange) when the place
-	-- has no Workspace "TestMode" attribute. The attribute always wins; it's
-	-- the switch for published servers (shared/TestMode).
+	-- has no Workspace "TestMode" attribute (shared/TestMode).
 	TEST_RANGE = true,
 	-- Studio players start with the Mod dev panel's "Test mode: unlimited
 	-- charges" on (casting spends nothing; there are no rounds to refill

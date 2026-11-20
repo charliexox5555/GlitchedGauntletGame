@@ -16,6 +16,8 @@
 --   pageIn(fit)                           a page opens from 0.75 of its fit
 --   button(btn, pop, onClick, opts?)      hover / press / gamepad / click
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 
@@ -72,12 +74,12 @@ function UiMotion.out(obj: Instance, goal: { [string]: any }, time: number?): Tw
 end
 
 function UiMotion.rest(pop: UIScale, scale: number)
-	pop:SetAttribute("Rest", scale)
+	StateValues.set(pop, "Rest", scale)
 	UiMotion.tween(pop, M.beat, { Scale = scale })
 end
 
 function UiMotion.press(pop: UIScale, card: boolean?)
-	local r = pop:GetAttribute("Rest")
+	local r = StateValues.get(pop, "Rest")
 	local home = if typeof(r) == "number" then r else 1
 	-- unsaid: a button hovered to 1.125 dips like a button, anything else
 	-- (cards, tiles, an unhovered touch) dips gently
@@ -110,11 +112,11 @@ end
 
 -- The object's resting position, saved the first time it slides.
 function UiMotion.home(obj: GuiObject): UDim2
-	local h = obj:GetAttribute("Home")
+	local h = StateValues.get(obj, "Home")
 	if typeof(h) == "UDim2" then
 		return h
 	end
-	obj:SetAttribute("Home", obj.Position)
+	StateValues.set(obj, "Home", obj.Position)
 	return obj.Position
 end
 
@@ -137,7 +139,7 @@ end
 function UiMotion.popIn(pop: UIScale, delay: number?, from: number?)
 	pop.Scale = from or 0.8
 	local function go()
-		local r = pop:GetAttribute("Rest")
+		local r = StateValues.get(pop, "Rest")
 		UiMotion.tween(pop, M.beat + 0.07, { Scale = if typeof(r) == "number" then r else 1 })
 	end
 	if delay and delay > 0 then

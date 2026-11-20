@@ -16,6 +16,7 @@
 -- Colours, font and motion are Config/UiStyle.KIT.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local UiStyle = require(ReplicatedStorage.Shared.Config.UiStyle)
 local UiMotion = require(ReplicatedStorage.Shared.UiMotion)
@@ -119,7 +120,7 @@ function LobbyKit.clearSlots(parent: Instance)
 	for _, c in parent:GetChildren() do
 		if
 			c:IsA("GuiObject")
-			and (c:GetAttribute("PivotHolder") == true or c:GetAttribute("Slot") == true)
+			and (StateValues.get(c, "PivotHolder") == true or StateValues.get(c, "Slot") == true)
 		then
 			c:Destroy()
 		end

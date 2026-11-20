@@ -6,7 +6,7 @@ Last updated 2026-11-12. Skills that enforce it:
 - `gauntlet-build-style`: models, maps, lobby, props
 - `gauntlet-ui-style`: UI, HUD, menus, boards
 
-**Game in one line:** RIVALS-style run-and-gun duels (1v1 → 4v4) where you draft abilities (Mods) every round and every round opens a new weapon tier (Sidearm → Light → Heavy → Elite). Scheduled 16-player Gauntlet events come later. Working title; the final name is TBD. The digital/glitch theme is shelved (plain names); glitch appears only as a rare accent ([Home](../00%20Home.md) → Locked decisions).
+**Game in one line.** Run-and-gun duels (1v1, 2v2 and 3v3) with an ability draft every round and shared weapon phases (Sidearm → Light → Heavy → Elite). Scheduled 16-player Gauntlet events come later. The final name is TBD. Use plain names and keep glitch effects to rare accents. See [Home](../00%20Home.md) → Locked decisions.
 
 ## 1. Pillars of the look and feel
 1. **Readable first.** Clear silhouettes, fixed HUD slots, one meaning per colour. You always know who, where, and what's ready.
@@ -48,7 +48,7 @@ Last updated 2026-11-12. Skills that enforce it:
 - **The HUD floats on dark fades, not boxes.**
 - **Circles with rings** for anything that turns, fills or is touched.
 - A **slash** and the **» chevron** as brand marks.
-- Fonts: **Fredoka One** for the UI (owner's pick from the font board, 2026-11-16, [UI Shop](UI%20Shop.md) → pass 4; in the lobby now, the match UI follows). Sarpanch / Titillium Web were the earlier draft. Never Montserrat / Inter / Oswald, and not Roblox's default Builder Sans: the generic look.
+- The current Lobby and Match UI use **Rubik**, especially Heavy and Bold, with neutral charcoal. Fredoka One and Sarpanch / Titillium Web belong to earlier passes. Use the [Lobby overhaul](UI%20Lobby%20Overhaul.md) and [Match overhaul](UI%20Match%20Overhaul.md) for current screen details.
 - Gold `FFC83D` is the one act-now colour; ally `2FD3E6` / enemy `FF5A4E`.
 - Motion: snappy taps, smooth 0.24 s entrances, faster exits, banners with a slash wipe and a small overshoot.
 - **Fixed slots:** scorebug + timer top-centre, one banner slot, kill feed top-right, health bottom-left, Mods bottom-centre (circles), ammo bottom-right. Phone: circles, a right-thumb cluster, a layout editor.

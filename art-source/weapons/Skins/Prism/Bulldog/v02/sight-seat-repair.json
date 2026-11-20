@@ -1,0 +1,18 @@
+{
+  "line": "Prism",
+  "source": "art-source/weapons/Skins/Prism/Bulldog/v01/Bulldog_Prism_v01.blend",
+  "blend": "art-source/weapons/Skins/Prism/Bulldog/v02/Bulldog_Prism_v02.blend",
+  "earlier_build_sha256": "7a1675b7636380c42dd278124712b3740e260fb9f3426dfff9c868d4be980900",
+  "seat_source": "art-source/weapons/Skins/Shared Sources/Bulldog/SightSeat_v01/Bulldog_RemasterV2_v05_SightSeat_v01.blend",
+  "report": "The approved Root-parented seat bridges the gap. The existing model, sights, UVs, and actions match the source file.",
+  "review": "art-source/weapons/Skins/Prism/Bulldog/v02/front-sight-seat.png",
+  "support_at_six_front_sight_probes": [
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003
+  ],
+  "saved_file_verified": true
+}

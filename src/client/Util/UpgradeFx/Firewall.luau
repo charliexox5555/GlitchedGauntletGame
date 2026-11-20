@@ -12,6 +12,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
@@ -34,8 +35,8 @@ local handler: Types.Handler = {}
 local function frostOurs(): boolean
 	for slot = 1, Config.SLOTS do
 		if
-			player:GetAttribute("Mod" .. slot .. "Id") == "Firewall"
-			and FrostWallFx.isFrost(player:GetAttribute("Mod" .. slot .. "Level"))
+			StateValues.get(player, "Mod" .. slot .. "Id") == "Firewall"
+			and FrostWallFx.isFrost(StateValues.get(player, "Mod" .. slot .. "Level"))
 		then
 			return true
 		end

@@ -1,0 +1,126 @@
+{
+  "line": "Spindrift",
+  "item": "Spectre",
+  "file": "Spectre_Spindrift_structural_v02.blend",
+  "version": "v02",
+  "source": "art-source/weapons/RemasterV2/Spectre/Spectre_RemasterV2_v05.blend",
+  "mesh_count": 29,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 14,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      93,
+      135,
+      150,
+      159
+    ],
+    "moving_stock_intersections": [],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": true,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -1.0670000314712524,
+        -0.09399999678134918,
+        -0.567162811756134
+      ],
+      [
+        1.9041999578475952,
+        0.10199999809265137,
+        0.5925999879837036
+      ],
+      [
+        2.9711999893188477,
+        0.19599999487400055,
+        1.1597627997398376
+      ]
+    ],
+    "new_bounds": [
+      [
+        -1.0670000314712524,
+        -0.11683039367198944,
+        -0.567162811756134
+      ],
+      [
+        1.9041999578475952,
+        0.1488001048564911,
+        0.5925999879837036
+      ],
+      [
+        2.9711999893188477,
+        0.26563049852848053,
+        1.1597627997398376
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 30,
+    "ready": 59,
+    "peak": 34,
+    "inspect": 93,
+    "cancel": 135,
+    "steps": [],
+    "regression": [],
+    "game_reload_seconds": 2.1,
+    "charm_extremes": [
+      150,
+      159
+    ]
+  },
+  "clips": {}
+}

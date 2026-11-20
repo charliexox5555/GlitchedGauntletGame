@@ -38,6 +38,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
@@ -903,7 +904,7 @@ local function stepBurning(serverNow: number)
 		if not model:IsA("Model") then
 			return
 		end
-		local untilT = model:GetAttribute("BurningUntil")
+		local untilT = StateValues.get(model, "BurningUntil")
 		local burning = typeof(untilT) == "number" and serverNow < untilT
 		local b = burns[model]
 		if not burning and not b and not FireFx.tracked(model, model == player.Character) then

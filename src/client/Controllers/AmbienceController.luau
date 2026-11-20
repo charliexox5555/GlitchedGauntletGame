@@ -11,6 +11,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 local Workspace = game:GetService("Workspace")
@@ -155,7 +156,7 @@ local function tick(cam: Camera)
 	local now = os.clock()
 	for inst in emitters do
 		local pos = positionOf(inst)
-		local kind = inst:GetAttribute("Sound")
+		local kind = StateValues.get(inst, "Sound")
 		local spot = if typeof(kind) == "string" then Ambience.SPOTS[kind] else nil
 		if pos and spot then
 			local d = (pos - eye).Magnitude
@@ -193,7 +194,7 @@ local function tick(cam: Camera)
 		keep[n.inst] = true
 		local l = spotLoops[n.inst]
 		if not l then
-			local spot = Ambience.SPOTS[n.inst:GetAttribute("Sound") :: string]
+			local spot = Ambience.SPOTS[StateValues.get(n.inst, "Sound") :: string]
 			local holder = Instance.new("Attachment")
 			holder.Name = "AmbienceSpot"
 			holder.WorldPosition = n.pos

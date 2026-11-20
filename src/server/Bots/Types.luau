@@ -4,6 +4,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
+local Zone = require(ReplicatedStorage.Shared.Zone)
 local BotGun = require(script.Parent.BotGun)
 
 export type Memory = {
@@ -12,8 +13,13 @@ export type Memory = {
 	seenAt: number, -- os.clock() last seen (or heard)
 	visibleSince: number?, -- os.clock() it came into sight (nil: not in sight)
 	visible: boolean,
+	visibleAt: number, -- last confirmed line of sight, separate from noises
+	firedAt: number, -- last shot heard from this opponent
 	heard: boolean, -- the position is a rough heard one
 	headVisible: boolean, -- its head showed on the last look
+	bodyVisible: boolean,
+	headOffset: Vector3,
+	bodyOffset: Vector3,
 	aimPart: string, -- "Head" or "UpperTorso": where this bot aims at it
 	-- Where it was over the last second (ring buffer at THINK_RATE), for
 	-- aiming behind it by the profile's trackLag.
@@ -38,6 +44,13 @@ export type Nav = {
 	lastSamplePos: Vector3,
 	lastSampleAt: number,
 	stuck: number,
+	revision: number,
+	params: RaycastParams,
+	shortcutAt: number,
+	steerAt: number,
+	steerFrom: Vector3,
+	steerDir: Vector3,
+	steerJump: boolean,
 }
 
 export type Bot = {
@@ -45,6 +58,12 @@ export type Bot = {
 	name: string,
 	team: number,
 	profile: BotsConfig.Profile,
+	avatar: Model?, -- undressed clone template, fixed for the bot seat
+	avatarPending: boolean,
+	seat: Configuration, -- public roster fields, available before the bot body
+	portraitUserId: number?,
+	skins: { [string]: string },
+	starterSkin: boolean,
 	owner: Configuration, -- stands in for a Player (Simulation/Pawns)
 	inputs: { [string]: InputAction },
 	model: Model?,
@@ -53,10 +72,13 @@ export type Bot = {
 	head: BasePart?,
 	life: number, -- bumped every spawn / despawn: stale threads stop
 	fighting: boolean,
+	postRound: boolean,
+	idleUntil: number,
 	gun: BotGun.GunState,
 	loadout: { [any]: string },
 	-- Brain.
 	memory: { [Model]: Memory },
+	sightCursor: number,
 	target: Memory?,
 	targetSince: number,
 	goal: string,
@@ -66,10 +88,23 @@ export type Bot = {
 	strafeUntil: number,
 	crouchUntil: number,
 	moveDir: Vector3, -- world, flat (what act steers)
+	steerInput: Vector3, -- smoothed intent, checked against the world before applying
 	wantSprint: boolean,
 	wantCrouch: boolean,
 	lookAt: Vector3?, -- where to face when not aiming at a target
 	roamGoal: Vector3?, -- the patrol point it's heading for with no information
+	openingLane: number?,
+	openingStyle: "Flanker" | "Controller" | "Holder",
+	openingOffset: Vector3,
+	lastRoam: Vector3?,
+	roamBlocked: { [Vector3]: number },
+	coverGoal: Vector3?,
+	peekGoal: Vector3?,
+	coverAt: number,
+	coverUntil: number,
+	peekUntil: number,
+	zone: Zone.State?,
+	slideCheckAt: number,
 	-- Aim (Bots/Aim).
 	yaw: number,
 	pitch: number,
@@ -87,6 +122,7 @@ export type Bot = {
 	levels: { string },
 	modReadyAt: { number }, -- server Mods: os.clock() a charge is back
 	modCharges: { number },
+	modRetryAt: { number }, -- wait before retrying a cast that failed its release checks
 	nextModTry: number,
 	lastHurtAt: number,
 	lastHealth: number,

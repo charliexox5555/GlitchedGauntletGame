@@ -3,7 +3,7 @@
 -- A mode launches as soon as it fills; otherwise, once its oldest group has
 -- waited Config.botFillAfter (Studio: botFillAfterStudio), everyone waiting
 -- goes with bots in the empty slots. The client only asks to join or leave;
--- every state lives in server-owned attributes (see Lobby/LobbyNet).
+-- the queue publishes server-owned state values (see Lobby/LobbyNet).
 --
 -- Parties (Matchmaking/Parties): a Roblox party here queues as one group on
 -- one team. Only its leader starts the queue (the whole party goes in that
@@ -14,6 +14,7 @@
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Lobby.Config)
@@ -47,17 +48,17 @@ end
 
 local function setState(player: Player, status: Status, mode: string?, matchId: string?)
 	states[player] = { status = status, mode = mode, matchId = matchId }
-	player:SetAttribute("QueueStatus", status)
-	player:SetAttribute("QueueMode", mode)
+	StateValues.set(player, "QueueStatus", status)
+	StateValues.set(player, "QueueMode", mode)
 	if status == "idle" then
-		player:SetAttribute("QueueSince", nil)
-		player:SetAttribute("QueueStartsAt", nil)
+		StateValues.set(player, "QueueSince", nil)
+		StateValues.set(player, "QueueStartsAt", nil)
 	end
 end
 
 local function updateCounts()
 	for mode, queue in queues do
-		LobbyNet.folder:SetAttribute(LobbyNet.countAttribute(mode), Matchmaker.count(queue))
+		StateValues.set(LobbyNet.folder, LobbyNet.countAttribute(mode), Matchmaker.count(queue))
 	end
 end
 
@@ -147,7 +148,7 @@ local function launch(info: Config.ModeInfo, pick: Matchmaker.Pick)
 	end
 	for _, p in players do
 		setState(p, "found", info.id, matchId)
-		p:SetAttribute("QueueStartsAt", startsAtServer)
+		StateValues.set(p, "QueueStartsAt", startsAtServer)
 		send(p, {
 			kind = "found",
 			mode = info.id,
@@ -231,7 +232,7 @@ local function enqueue(members: { Player }, info: Config.ModeInfo, since: number
 	local sinceServer = serverNow() - (os.clock() - since)
 	for _, m in members do
 		setState(m, "searching", info.id)
-		m:SetAttribute("QueueSince", sinceServer)
+		StateValues.set(m, "QueueSince", sinceServer)
 	end
 end
 
@@ -435,7 +436,7 @@ end
 
 function QueueService.init()
 	queueEvent = LobbyNet.event("QueueEvent")
-	LobbyNet.folder:SetAttribute("BotFillAfter", FILL_AFTER)
+	StateValues.set(LobbyNet.folder, "BotFillAfter", FILL_AFTER)
 	updateCounts()
 	Launcher.init()
 end

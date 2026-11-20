@@ -1,9 +1,10 @@
 # GlitchedGauntletGame
 
-Roblox competitive shooter: RIVALS-style duels (1v1 → 3v3) where players draft abilities ("Mods") every round and each round opens a new weapon tier. Built with [Rojo](https://rojo.space) and strict Luau.
+Roblox competitive shooter with 1v1, 2v2 and 3v3 duels. Players draft abilities ("Mods") every round and unlock higher weapon tiers as the match progresses. Built with Rojo and strict Luau.
 
 - **Status, design and plans:** the Obsidian vault in `vault/`. Start at `vault/00 Home.md`; `vault/INDEX.md` lists every note in one line; `vault/04 Tech/Code Map.md` says which script owns what.
-- **Rules for Claude (and anyone):** `CLAUDE.md`.
+- [Developer Handoff](vault/04%20Tech/Developer%20Handoff.md) covers the Lobby and Match, where to edit each system, and how to test it.
+- [Project instructions](AGENTS.md) guide Codex and manual collaboration. Project skills live in `.agents/skills/`.
 - **Setup from scratch:** `vault/04 Tech/Setup Guide.md`.
 
 ## Where things live
@@ -22,10 +23,10 @@ Roblox competitive shooter: RIVALS-style duels (1v1 → 3v3) where players draft
 
 ## Development
 1. Install the toolchain: `rokit install`
-2. Start syncing: `rojo serve` (match place) or `rojo serve lobby.project.json` (Lobby)
-3. In Roblox Studio, click Connect in the Rojo plugin.
+2. Serve Match with `rojo serve default.project.json` on port 34872 and Lobby with `rojo serve lobby.project.json` on port 34873.
+3. In each Roblox Studio window, connect the Rojo plugin to its matching port.
 
 ## Checks (all must pass before a commit)
-- Format: `stylua src`
-- Lint: `selene src`
-- Build: `rojo build -o build.rbxl`
+- `stylua --check src`
+- `selene src`
+- Build both Rojo projects using the commands in the [Setup Guide](vault/04%20Tech/Setup%20Guide.md).

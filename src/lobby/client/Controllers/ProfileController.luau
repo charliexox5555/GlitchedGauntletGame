@@ -4,7 +4,7 @@
 -- (tools/studio/BuildProfileRewards.luau). Opened with a Player from their
 -- row in the player list (Util/LobbyHudView), like RIVALS' ViewProfile.
 -- Shows what the lobby really knows: portrait, names, level and win streak
--- (player attributes), the skins they have on (Skin_<gun> attributes, with
+-- (player attributes), the skins they have on (LockerSkins, with
 -- each line's emblem); match stats wait for the profile system and say so.
 -- The button: OPEN LOCKER on your own card, INVITE TO PARTY on someone
 -- else's (the same request the player list's INVITE sends; the server
@@ -12,6 +12,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 local Locker = require(ReplicatedStorage.Shared.Locker)
@@ -37,7 +38,7 @@ local function child<T>(parent: Instance, name: string): T
 end
 
 local function numberAttr(p: Player, name: string, default: number): number
-	local v = p:GetAttribute(name)
+	local v = StateValues.get(p, name)
 	return if typeof(v) == "number" and v == v then v else default
 end
 
@@ -46,12 +47,11 @@ local function setTag(tag: Frame, text: string)
 	tagLabel.Text = text
 end
 
--- the skins they have on: Skin_<gun> = line, Stock left out
+-- The skins they have on, with Stock left out.
 local function equipped(p: Player): { { gun: string, line: string } }
 	local out = {}
-	for name, value in p:GetAttributes() do
-		local gun = string.match(name, "^Skin_(.+)$")
-		if gun and typeof(value) == "string" and value ~= "Stock" and value ~= "" then
+	for gun, value in Locker.equipped(p) do
+		if value ~= "Stock" and value ~= "" then
 			table.insert(out, { gun = gun, line = value })
 		end
 	end
@@ -98,7 +98,7 @@ local function fill(p: Player)
 		LobbyKit.slot(skinTemplate, skins, function(cell: Frame)
 			cell.Name = "Skin" .. i
 			cell.LayoutOrder = i
-			cell:SetAttribute("Slot", true)
+			StateValues.set(cell, "Slot", true)
 			local emblem = child(cell, "Emblem") :: ImageLabel
 			emblem.Image = Locker.EMBLEMS[s.line] or ""
 			emblem.ImageColor3 = Locker.COLORS[s.line] or C.white

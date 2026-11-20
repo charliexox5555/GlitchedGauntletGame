@@ -1,0 +1,415 @@
+{
+  "line": "Rootglass",
+  "item": "Spectre",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Spectre/Spectre_RemasterV2_v05.blend",
+  "source_file_sha256": "d55a469ad935fc74f60d58eabc378927a75c9214ac100f935437863da18474b0",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Rootglass/Spectre/v01/Spectre_Rootglass_v01.blend",
+  "fbx": "art-source/weapons/Skins/Rootglass/Spectre/v01/Spectre_Rootglass_v01.fbx",
+  "art": {
+    "host": "Spectre_Handguard",
+    "bone": "Root",
+    "window_center": [
+      0.914,
+      0.11000009298324585,
+      0.365
+    ],
+    "width": 0.394,
+    "height": 0.156,
+    "specimen_profile": "leaf"
+  },
+  "anchors": {
+    "Spectre_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.9012000560760498
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.35280001163482666
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9211999773979187
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2295999974012375
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        -0.053199999034404755
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.5235999822616577
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3612000048160553
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.07199999690055847
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.39480000734329224
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.800000011920929
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.09180009365081787
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.24729999899864197
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.9012000560760498
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.35280001163482666
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3499999940395355
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.46799999475479126
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Spectre_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9200000166893005
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.23000000417232513
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 301179,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Spectre_Suppressor|Panel",
+        "over": "Spectre_Suppressor|Dark",
+        "faces": 2
+      },
+      {
+        "lift": "Spectre_FireSelector|Metal",
+        "over": "Spectre_FireSelector|Accent",
+        "faces": 1
+      }
+    ]
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "9bf01c6287693511fa8e7059414db4a1f0e5495e19b70d604f655985fda6be43",
+    "geometry_and_material_slots": "396890996eede2f6f9e53e13e9d44005086434cf0cf5ff09c31c4fc4166b506f",
+    "uv": "88ada9b89459108c515869c83a6d71bc485f6e8d40b7b060a8740fc2600f6574",
+    "rig_and_nla": "5976af4f194d09f3b081d31423cd10904254248faa47ba1d06cfc3e20179751a",
+    "actions": "00adf6fa18f32a04bd4f5c066ad494d14df6b9e6673e7955fc7fc03e49972838"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "9bf01c6287693511fa8e7059414db4a1f0e5495e19b70d604f655985fda6be43",
+    "geometry_and_material_slots": "396890996eede2f6f9e53e13e9d44005086434cf0cf5ff09c31c4fc4166b506f",
+    "uv": "941142a4ace2e45999812f1fc6dba717b1c7dfd3d3d0fd81d309b6869a046729",
+    "rig_and_nla": "5976af4f194d09f3b081d31423cd10904254248faa47ba1d06cfc3e20179751a",
+    "actions": "00adf6fa18f32a04bd4f5c066ad494d14df6b9e6673e7955fc7fc03e49972838"
+  },
+  "built_mesh_count": 19,
+  "triangles": 3809,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Rootglass/Spectre/v01/textures/Spectre_Color.png",
+      "sha256": "601ae300d834bc16dafb4008da9a706ff5c567befc26c8a26bc984961812505e"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Rootglass/Spectre/v01/textures/Spectre_Normal.png",
+      "sha256": "ac331ee3e459458c6ccfa9c62f8d8e6767601cd3f33703bf9d494a0fe44f3895"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Rootglass/Spectre/v01/textures/Spectre_Roughness.png",
+      "sha256": "1a07784aa8405dbcf887caf15c66df8cbcec776f1dc611e711585c0f529a428d"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Rootglass/Spectre/v01/textures/Spectre_Metalness.png",
+      "sha256": "43f2f5b1f35f358e30d14ded7c4fabe138db15f227e4b453fa5fc79de2097772"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the RootglassAtlas UVs supplied by the Blender file and local FBX.",
+  "inspect_pulse_targets": [
+    "Rootglass_Left_AmberVein_1",
+    "Rootglass_Left_AmberVein_2"
+  ],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.5157,
+      0.0,
+      0.5236
+    ],
+    "len": 0.4375,
+    "geo_hits": {},
+    "box_hits": {},
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "a1c4574ff0cea8d451d6a62bf27ae56ff275647f505c9a7380508230cb8ef8f5"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 10,
+      "review_frame": 3,
+      "sample_count": 10,
+      "pose_sha256": "7f33fdb61378104624614977821c7d0b7e7aeb45bc05a70ad955b0f04f3018ca"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "b807ea2a7ddc89ffa340fe0369d5ea113ad1443c326d480ceb1fe95cfc5758d8"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 66,
+      "review_frame": 22,
+      "sample_count": 66,
+      "pose_sha256": "9480b25ee201f6a4a249deccdbc2efb8a6df7cda13983cdf778342235ad204b6"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 97,
+      "review_frame": 23,
+      "sample_count": 97,
+      "pose_sha256": "e28b0654c93a6f0526d5d66bc3cc2074d34a7c74145518d520b75033387b95e7"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": {
+    "mesh_count": 19,
+    "culling_views": [
+      "left",
+      "right",
+      "rear"
+    ]
+  },
+  "archived_hand_proxy": {}
+}

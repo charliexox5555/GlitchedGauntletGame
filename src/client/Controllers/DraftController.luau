@@ -10,6 +10,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
 local GuiService = game:GetService("GuiService")
 local UserInputService = game:GetService("UserInputService")
@@ -624,7 +625,7 @@ local function showDetails(card: GuiObject)
 			while top.Parent and top.Parent ~= card do
 				top = top.Parent
 			end
-			local y = top:GetAttribute("CardY")
+			local y = StateValues.get(top, "CardY")
 			if typeof(y) ~= "number" then
 				y = if top:IsA("GuiObject") then top.Position.Y.Offset else 0
 			end
@@ -654,7 +655,7 @@ local function compactCard(panel: GuiObject, glow: GuiObject?)
 	for _, c in panel:GetChildren() do
 		if c:IsA("GuiObject") and c.Name ~= "Shine" then
 			local y = c.Position.Y.Offset
-			c:SetAttribute("CardY", y)
+			StateValues.set(c, "CardY", y)
 			if y <= 2 and c.Size.Y.Offset >= 290 then
 				c.Size = UDim2.new(c.Size.X.Scale, c.Size.X.Offset, 0, ART_BAND - 2) -- art / tint band
 			elseif y < 150 then
@@ -668,7 +669,7 @@ local function compactCard(panel: GuiObject, glow: GuiObject?)
 				if c:IsA("TextLabel") and c.TextWrapped then
 					c.TextTruncate = Enum.TextTruncate.AtEnd
 					-- Two big lines beat three tiny ones; hold for the rest.
-					c:SetAttribute("BaseTextSize", 26)
+					StateValues.set(c, "BaseTextSize", 26)
 					c.TextSize = 26
 				end
 			else
@@ -1745,7 +1746,7 @@ end
 
 -- The screen closes once you've locked in, or when the draft ends.
 local function syncVisibility()
-	if MatchState.phase() ~= "Draft" or player:GetAttribute("DraftLocked") == true then
+	if MatchState.phase() ~= "Draft" or StateValues.get(player, "DraftLocked") == true then
 		setOpen(false)
 	end
 end
@@ -1772,7 +1773,7 @@ function DraftController.start()
 		end
 	end)
 	MatchState.changed("Phase"):Connect(syncVisibility)
-	player:GetAttributeChangedSignal("DraftLocked"):Connect(syncVisibility)
+	StateValues.changed(player, "DraftLocked"):Connect(syncVisibility)
 	UiSound.preload()
 	UserInputService.InputBegan:Connect(onKey)
 	-- The hint counts down your default pick in the last seconds.

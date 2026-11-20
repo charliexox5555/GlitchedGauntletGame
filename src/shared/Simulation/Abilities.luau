@@ -27,6 +27,8 @@
 --   SlideJumpSpeed carries an Updraft's running speed through the air like a
 --   slide-jump (Movement)
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Health = require(script.Parent.Parent.Health)
 local Charges = require(script.Parent.Parent.Mods.Charges)
 local Config = require(script.Parent.Parent.Config.Mods)
@@ -37,7 +39,7 @@ local Updraft = require(script.Parent.Parent.Mods.Updraft)
 
 local AbilitiesSim = {}
 
--- Attribute names per slot, built once (the step runs 60 times a second for
+-- State field names per slot, built once (the step runs 60 times a second for
 -- every character).
 type SlotNames = {
 	input: string,
@@ -73,8 +75,8 @@ for slot = 1, Config.SLOTS do
 end
 
 local function set(model: Model, name: string, value: any)
-	if model:GetAttribute(name) ~= value then
-		model:SetAttribute(name, value)
+	if StateValues.get(model, name) ~= value then
+		StateValues.set(model, name, value)
 	end
 end
 
@@ -87,7 +89,7 @@ local function actionDown(context: Instance?, name: string): boolean
 end
 
 local function number(model: Instance, name: string, default: number): number
-	local v = model:GetAttribute(name)
+	local v = StateValues.get(model, name)
 	return if typeof(v) == "number" then v else default
 end
 
@@ -96,15 +98,15 @@ end
 local function stepDash(character: Model, root: BasePart, now: number)
 	local untilT = number(character, "DashUntil", 0)
 	if now < untilT then
-		local v = character:GetAttribute("DashVelocity")
+		local v = StateValues.get(character, "DashVelocity")
 		if typeof(v) == "Vector3" then
 			root.AssemblyLinearVelocity = Vector3.new(v.X, root.AssemblyLinearVelocity.Y, v.Z)
 		end
 		set(character, "Dashing", true)
-	elseif character:GetAttribute("Dashing") == true then
+	elseif StateValues.get(character, "Dashing") == true then
 		local vel = root.AssemblyLinearVelocity
 		local flat = vel * Vector3.new(1, 0, 1)
-		local tune = character:GetAttribute("DashTune")
+		local tune = StateValues.get(character, "DashTune")
 		local exit = if typeof(tune) == "Vector3" then tune.X else 16
 		if flat.Magnitude > exit then
 			flat = flat.Unit * exit
@@ -114,7 +116,7 @@ local function stepDash(character: Model, root: BasePart, now: number)
 		if number(character, "SlideJumpSpeed", 0) > exit then
 			set(character, "SlideJumpSpeed", exit)
 		end
-		set(character, "Dashing", nil) -- nil, not false: the attribute budget
+		set(character, "Dashing", nil)
 	end
 end
 
@@ -122,7 +124,7 @@ end
 -- doesn't brake against it.
 function AbilitiesSim.speedOverride(character: Model, now: number): number?
 	if now < number(character, "DashUntil", 0) then
-		local v = character:GetAttribute("DashVelocity")
+		local v = StateValues.get(character, "DashVelocity")
 		if typeof(v) == "Vector3" then
 			return v.Magnitude
 		end
@@ -138,10 +140,10 @@ function AbilitiesSim.stepCharacter(
 	context: Instance?,
 	now: number
 )
-	local unlimited = player:GetAttribute("ModUnlimitedCharges") == true
+	local unlimited = StateValues.get(player, "ModUnlimitedCharges") == true
 	local resetSerial = number(player, "ModResetSerial", 0)
 	-- A new character hasn't seen a refill yet: it starts from the carry.
-	local seen = character:GetAttribute("ModResetSeen")
+	local seen = StateValues.get(character, "ModResetSeen")
 	local reset = typeof(seen) == "number" and seen ~= resetSerial
 
 	-- An Updraft in progress: hold its rise, end it on landing.
@@ -151,11 +153,11 @@ function AbilitiesSim.stepCharacter(
 
 	for slot, names in NAMES do
 		local input = actionDown(context, names.input)
-		local pressed = input and character:GetAttribute(names.inAttr) ~= true
+		local pressed = input and StateValues.get(character, names.inAttr) ~= true
 		set(character, names.inAttr, if input then true else nil)
 
-		local id = player:GetAttribute(names.id)
-		local level = player:GetAttribute(names.level)
+		local id = StateValues.get(player, names.id)
+		local level = StateValues.get(player, names.level)
 		if typeof(id) ~= "string" or typeof(level) ~= "string" then
 			continue
 		end
@@ -175,17 +177,17 @@ function AbilitiesSim.stepCharacter(
 		local cooldown: number = stats.cooldown
 		local charges = number(character, names.charges, max)
 		local rechargeAt = number(character, names.rechargeAt, now)
-		local storedKey = character:GetAttribute(names.key)
+		local storedKey = StateValues.get(character, names.key)
 		local slotSerial = number(player, names.serial, 0)
-		local slotSeen = character:GetAttribute(names.serialSeen)
+		local slotSeen = StateValues.get(character, names.serialSeen)
 		local refill = reset or (typeof(slotSeen) == "number" and slotSeen ~= slotSerial)
 		if refill or storedKey ~= key then
 			charges, rechargeAt = max, now
 			-- A new life keeps what the last one had left this round.
-			local carried = player:GetAttribute(names.carry)
+			local carried = StateValues.get(player, names.carry)
 			if not refill and storedKey == nil and typeof(carried) == "number" then
 				charges = math.clamp(math.floor(carried), 0, max)
-				local carriedAt = player:GetAttribute(names.carryAt)
+				local carriedAt = StateValues.get(player, names.carryAt)
 				if typeof(carriedAt) == "number" then
 					rechargeAt = carriedAt
 				end
@@ -197,7 +199,7 @@ function AbilitiesSim.stepCharacter(
 		if
 			pressed
 			and Health.isAlive(humanoid)
-			and player:GetAttribute("StatusStunned") ~= true
+			and StateValues.get(player, "StatusStunned") ~= true
 		then
 			local ctx: Types.SimCtx = {
 				player = player,
@@ -229,9 +231,7 @@ function AbilitiesSim.stepCharacter(
 	stepDash(character, root, now)
 end
 
--- Call once per side (MovementSim.initialize does). Nothing here keeps
--- Luau-side history across a Server Authority rollback any more (Rollback's
--- went with it): all state is in attributes.
+-- Call once per side (MovementSim.initialize does).
 function AbilitiesSim.initialize() end
 
 return AbilitiesSim

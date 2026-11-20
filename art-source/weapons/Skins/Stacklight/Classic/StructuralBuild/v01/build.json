@@ -1,0 +1,120 @@
+{
+  "line": "Stacklight",
+  "item": "Classic",
+  "file": "Classic_Stacklight_structural_v01.blend",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Classic/Classic_RemasterV2_v05.blend",
+  "mesh_count": 18,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 12,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      87,
+      129,
+      144,
+      153
+    ],
+    "moving_stock_intersections": [],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": false,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -0.2849999964237213,
+        -0.07599999755620956,
+        -0.38380396366119385
+      ],
+      [
+        1.0,
+        0.11634983122348785,
+        0.5220000147819519
+      ],
+      [
+        1.2849999964237213,
+        0.19234982877969742,
+        0.9058039784431458
+      ]
+    ],
+    "new_bounds": [
+      [
+        -0.2849999964237213,
+        -0.07599999755620956,
+        -0.38380396366119385
+      ],
+      [
+        1.0,
+        0.17400000989437103,
+        0.5220000147819519
+      ],
+      [
+        1.2849999964237213,
+        0.2500000074505806,
+        0.9058039784431458
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 26,
+    "ready": 53,
+    "peak": 30,
+    "inspect": 87,
+    "cancel": 129,
+    "steps": [],
+    "regression": [],
+    "game_reload_seconds": 1.85,
+    "charm_extremes": [
+      144,
+      153
+    ]
+  },
+  "clips": {}
+}

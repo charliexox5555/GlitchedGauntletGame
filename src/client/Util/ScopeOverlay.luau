@@ -12,6 +12,7 @@
 --   blur     a BlurEffect on the camera for the way in, the way out and a shot.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -208,7 +209,7 @@ end
 function ScopeOverlay.step(dt: number)
 	if studio then
 		-- Studio only: Workspace VfxTimeScale slows or freezes it (captures).
-		local scale = Workspace:GetAttribute("VfxTimeScale")
+		local scale = StateValues.get(Workspace, "VfxTimeScale")
 		if typeof(scale) == "number" then
 			dt *= math.clamp(scale, 0, 1)
 		end

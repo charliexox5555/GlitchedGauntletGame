@@ -1,0 +1,20 @@
+{
+  "blend": "KeycapTester_Stacklight_concept_v02.blend",
+  "objects": 13,
+  "new_closed_meshes": 8,
+  "identical_stock_meshes_and_UV": 0,
+  "cancel_to_rest_max_delta": 0.0,
+  "active_max_transform_delta": 0.25882,
+  "frame_end": 69,
+  "screen_coverage": {},
+  "grip_projection": {},
+  "actions": 3,
+  "bones": [],
+  "markers": {
+    "REST": 1,
+    "REVEAL START": 9,
+    "ACTIVE + SWING EXTREME": 35,
+    "RECOVER": 50,
+    "REST RESET": 61
+  }
+}

@@ -8,6 +8,8 @@
 -- once from the first real viewport (the camera reports a placeholder at
 -- first). Studio test hook: Workspace attribute ForceLayout = "phone" | "desktop".
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
@@ -30,7 +32,7 @@ function Device.family(): Family
 		return decided
 	end
 	local family: Family
-	local forced = if RunService:IsStudio() then Workspace:GetAttribute("ForceLayout") else nil
+	local forced = if RunService:IsStudio() then StateValues.get(Workspace, "ForceLayout") else nil
 	if forced == "phone" or forced == "desktop" then
 		family = forced :: Family
 	else
@@ -67,7 +69,7 @@ Device.ARC_REACH = 216
 
 function Device.hasTouchLayer(): boolean
 	return UserInputService.TouchEnabled
-		or (RunService:IsStudio() and Workspace:GetAttribute("ForceTouchUI") == true)
+		or (RunService:IsStudio() and StateValues.get(Workspace, "ForceTouchUI") == true)
 end
 
 function Device.touchScale(): number
@@ -100,7 +102,7 @@ function Device.compact(): boolean
 	if Device.isPhone() then
 		return true
 	end
-	if RunService:IsStudio() and Workspace:GetAttribute("ForceTouchUI") == true then
+	if RunService:IsStudio() and StateValues.get(Workspace, "ForceTouchUI") == true then
 		return true
 	end
 	return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled

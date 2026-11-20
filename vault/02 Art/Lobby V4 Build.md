@@ -1,5 +1,7 @@
 # Lobby V4 Build (2026-11-16)
 
+**2026-11-17 update.** V4 was the enabled spawn in the open Lobby place. V3 and Sunwell spawns were disabled. The owner chose V4 for release after cleanup, with Lobby and Match staying separate for now. Published activation remains unverified. See the [Developer Handoff](../04%20Tech/Developer%20Handoff.md).
+
 **Status:** the Concourse (main area), Duels, Locker and Shop are built in `Workspace.LobbyV4Staging` of the Lobby place, 1,500 studs west of V3. The Range is **not built** (owner: "it hasn't been built and won't be yet"); its doorway is a sealed door with the RANGE sign. **V3 stays live**; V4 is active in Studio only through `use("V4")`. Blind review median **6.6** after two rounds (target 8.5): see the table below. **Nothing is saved:** the owner saves the Lobby place.
 
 Plan: [Lobby V4 Plan](Lobby%20V4%20Plan.md). Theme: [Lobby V4 Theme](Lobby%20V4%20Theme.md) (owner's switch to the RIVALS look and feel). Study: [Maps and Lobby → What makes it work](../03%20Research/Rivals%20Reference/Maps%20and%20Lobby.md). Rules followed: `gauntlet-build-style`, [Sunwell Build Rules Handoff](Sunwell%20Build%20Rules%20Handoff.md). LihFolk: *Lobby and Hub Design*, *Level Design Principles - Flow Sightlines and Landmarks*, *Art Budgets - Triangles Draw Calls Memory*.

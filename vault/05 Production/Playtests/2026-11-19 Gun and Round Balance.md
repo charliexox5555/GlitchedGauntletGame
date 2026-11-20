@@ -1,0 +1,8 @@
+# Gun and round balance playtest
+
+The [balance sheet](../../01%20Design/Gun%20Balance.md) lists all 17 firearms. The [round and draft rules](../../01%20Design/Match%20Flow.md#the-draft) document the role pools and per-seat Mod draws.
+
+- **Damage.** Applied the Operator's computed damage through the server's shield and health path in Studio. A body shot left 5, 30 and 55 HP on fighters starting at 100, 125 and 150 total. A clean headshot downed each. The Outlaw deals 136 across two body shots and leaves 14 HP on full shield. The Odin's ideal first-burst body TTK against 150 is 1.01 s and its magazine holds 75.
+- **Live rounds in Studio.** Local Play used one human and three bots in 2v2 under Automatic authority. The client drafted Sheriff on round 2 through the normal pick remote and spawned with 50 shield. A separate run advanced the round outcomes using the health service to reach rounds 3–7. The Heavy gun sets changed, and the round-seven client drafted Operator and spawned with the Elite shield.
+- **Draft sampling.** The real draft service dealt 100 nine-round matches to six simulated seats in Studio. All 17 gun IDs appeared, each round offered three shared guns with no consecutive identical lineup, and every first-round pair received different Mod sets. Empty-slot offers avoided immediate repeats. There were 933 Glitch cards across 4,200 eligible seat drafts, with at most one in any draft. Late joins and seat transfers used the current offers.
+- **Checks.** StyLua, Selene and both Rojo builds passed. This pass measures breakpoints and verifies the round flow, with human-versus-human balance still unmeasured.

@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Net = require(ReplicatedStorage.Shared.Net)
 local PlayerTags = require(ReplicatedStorage.Shared.Config.PlayerTags)
@@ -23,7 +24,7 @@ local function onDevice(player: Player, value: unknown)
 	end
 	local device = Validate.enum(value, PlayerTags.DEVICES :: any)
 	if device then
-		player:SetAttribute("Device", device)
+		StateValues.set(player, "Device", device)
 	end
 end
 

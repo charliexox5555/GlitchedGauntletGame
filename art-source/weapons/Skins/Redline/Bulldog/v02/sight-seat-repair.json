@@ -1,0 +1,18 @@
+{
+  "line": "Redline",
+  "source": "art-source/weapons/Skins/Redline/Bulldog/v01/Bulldog_Redline_v01.blend",
+  "blend": "art-source/weapons/Skins/Redline/Bulldog/v02/Bulldog_Redline_v02.blend",
+  "earlier_build_sha256": "3583e4f36350e260c691f5cf43068df32c295ce4b4a037c628288f31fee63331",
+  "seat_source": "art-source/weapons/Skins/Shared Sources/Bulldog/SightSeat_v01/Bulldog_RemasterV2_v05_SightSeat_v01.blend",
+  "report": "The approved Root-parented seat bridges the gap. The existing model, sights, UVs, and actions match the source file.",
+  "review": "art-source/weapons/Skins/Redline/Bulldog/v02/front-sight-seat.png",
+  "support_at_six_front_sight_probes": [
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003
+  ],
+  "saved_file_verified": true
+}

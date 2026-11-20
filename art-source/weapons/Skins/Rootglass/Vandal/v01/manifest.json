@@ -5,7 +5,7 @@
   "source": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
   "source_file_sha256": "c306f1916fe6270ec6fb80b325881f6c5d3cf176bf06759017e0e7e09c8f298e",
   "concept": "vault/02 Art/Skins/Rootglass/out/Vandal_concept_v01.png",
-  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "review_state": "Superseded by the reviewed v02.",
   "blend": "art-source/weapons/Skins/Rootglass/Vandal/v01/Vandal_Rootglass_v01.blend",
   "fbx": "art-source/weapons/Skins/Rootglass/Vandal/v01/Vandal_Rootglass_v01.fbx",
   "art": {
@@ -446,5 +446,6 @@
       "right",
       "rear"
     ]
-  }
+  },
+  "superseded_by": "art-source/weapons/Skins/Rootglass/Vandal/v02/manifest.json"
 }

@@ -9,6 +9,7 @@
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Config = require(ReplicatedStorage.Shared.Config.SkinPreview)
 
 local FLOW = Config.CHAMBER_FLOW
@@ -25,13 +26,13 @@ function ChamberFlow.start(): () -> ()
 
 	local function track(instance: Instance)
 		if instance:IsA("Texture") then
-			local layer = instance:GetAttribute(FLOW.TAG_ATTRIBUTE)
+			local layer = StateValues.get(instance, FLOW.TAG_ATTRIBUTE)
 			if typeof(layer) == "number" and FLOW.LAYERS[layer] then
 				layers[instance] = layer
 			end
 		elseif
 			instance:IsA("SurfaceAppearance")
-			and instance:GetAttribute(FLOW.PULSE_ATTRIBUTE) == true
+			and StateValues.get(instance, FLOW.PULSE_ATTRIBUTE) == true
 		then
 			pulses[instance] = { base = instance.Color }
 		end

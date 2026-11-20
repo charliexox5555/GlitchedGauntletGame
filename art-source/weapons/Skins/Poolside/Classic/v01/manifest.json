@@ -1,0 +1,381 @@
+{
+  "line": "Poolside",
+  "item": "Classic",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Classic/Classic_RemasterV2_v05.blend",
+  "source_file_sha256": "b12060fc63678311deeaf18d4dd6744442df8d009ad06418f2711bd83eb707eb",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Classic/v01/Classic_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Slide"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Classic_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.000499963760376
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.3653999865055084
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Classic_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Classic_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.08000000566244125
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Classic_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.49300000071525574
+      ],
+      [
+        0.0,
+        0.5999999642372131,
+        -0.7999999523162842,
+        -0.027000002562999725
+      ],
+      [
+        0.0,
+        0.7999999523162842,
+        0.5999999642372131,
+        0.4205000102519989
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Classic_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        -0.21250000596046448
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.09399999678134918
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.22349999845027924
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Classic_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.000499963760376
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.3653999865055084
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Classic_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.25
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.48100000619888306
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Classic_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.800000011920929
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1850000023841858
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 578466,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {
+    "before_overlap_texels": 24057,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Classic_Grip": [
+        {
+          "face": 137,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 332,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 268,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 218,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 220,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 344,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 349,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": []
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "09e2880bb8fd834eb3dc2a92822194f8fd68edf46c54b7d1edba24d83b524e2b",
+    "geometry_and_material_slots": "9c8c7c6759952f7945fdd08bc02b857bad7f02e5643291c084ae83506ff8a0f4",
+    "uv": "67775c21b543a40256252aa931e4c27c3bb13d372de11169a1048281d6de061b",
+    "rig_and_nla": "cbeaf76313dd2c6a51274fb9c13742af2fc4fc6b4ab0cf053c12ab821d3da215",
+    "actions": "d26ef58a16046960ad9e186b10eeb5cf82b04e458d7058e51e4ce769a80d01af"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "09e2880bb8fd834eb3dc2a92822194f8fd68edf46c54b7d1edba24d83b524e2b",
+    "geometry_and_material_slots": "9c8c7c6759952f7945fdd08bc02b857bad7f02e5643291c084ae83506ff8a0f4",
+    "uv": "53dc5face860f0d8150ad2e7b63a66664f0731cdf4aa80560e928004a5e89d19",
+    "rig_and_nla": "cbeaf76313dd2c6a51274fb9c13742af2fc4fc6b4ab0cf053c12ab821d3da215",
+    "actions": "d26ef58a16046960ad9e186b10eeb5cf82b04e458d7058e51e4ce769a80d01af"
+  },
+  "built_mesh_count": 12,
+  "triangles": 2334,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Classic/v01/textures/Classic_Color.png",
+      "sha256": "38cb9cc8642a38b508514e07e80233ae4e9b6230a15218d79cbe791cda56bbee"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Classic/v01/textures/Classic_Normal.png",
+      "sha256": "06f9d36bebf7adac36e7fb845705eba0041cfb234c1751719fb436ff3ed0bb87"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Classic/v01/textures/Classic_Roughness.png",
+      "sha256": "cf12eecb75d113bc04576fcb6a67a5e2c7e50170c65587dd50dfe563e0328ad2"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Classic/v01/textures/Classic_Metalness.png",
+      "sha256": "35c67aa35e4c7c493d41355692d74c554de30cb8296754792b2d2f7d99ddc297"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the added PoolsideAtlas layer. Original stock UVs remain in the blend.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 20,
+      "review_frame": 10,
+      "sample_count": 20,
+      "pose_sha256": "0b4c01389d4df1b79cfce53ca2f1e19c7a5c8578d9ae4507d122fa8a01692b7b"
+    },
+    "DryFire": {
+      "start": 1,
+      "end": 8,
+      "review_frame": 3,
+      "sample_count": 8,
+      "pose_sha256": "2e7515892a38ed4202e7834a5884e6e1eb42f217bb501d9a51ffc19a90605699"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 9,
+      "review_frame": 2,
+      "sample_count": 9,
+      "pose_sha256": "94703a912d418dbea36ac9c803b65861a8139daa23cebf8ebf77641652c39d2f"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 17,
+      "sample_count": 67,
+      "pose_sha256": "0868a77aa0f7c7ffa57ae4c367aa2243ce98e0049db2239492f105a32ad33320"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 60,
+      "review_frame": 24,
+      "sample_count": 60,
+      "pose_sha256": "a07d8c42aee5145d9081b68c8f21c6f8f4330b40f8cd85cd27183b4dd3d576da"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 70,
+      "review_frame": 24,
+      "sample_count": 70,
+      "pose_sha256": "3e08eda0755f632d15287112c1571e194657cc48467e0cc2998d71d24fafda67"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

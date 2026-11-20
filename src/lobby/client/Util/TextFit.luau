@@ -10,6 +10,8 @@
 -- itself again whenever its words' size changes without its words changing
 -- (= its font just loaded): one frame with a trailing space, then back.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local RunService = game:GetService("RunService")
 
 local TextFit = {}
@@ -17,10 +19,10 @@ local TextFit = {}
 type TextThing = TextLabel | TextButton
 
 local function hook(o: TextThing)
-	if o:GetAttribute("TextFit") == true then
+	if StateValues.get(o, "TextFit") == true then
 		return
 	end
-	o:SetAttribute("TextFit", true)
+	StateValues.set(o, "TextFit", true)
 	local lastText = o.Text
 	local lastBounds = o.TextBounds
 	local busy = false

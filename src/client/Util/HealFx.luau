@@ -9,6 +9,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
 
 local VFX = require(ReplicatedStorage.Shared.Config.VfxTextures)
@@ -238,11 +239,16 @@ function HealFx.step()
 		end
 	end
 	local e = edge
-	if e and now >= edgeUntil and e.ImageTransparency < 1 and e:GetAttribute("Fading") ~= true then
-		e:SetAttribute("Fading", true)
+	if
+		e
+		and now >= edgeUntil
+		and e.ImageTransparency < 1
+		and StateValues.get(e, "Fading") ~= true
+	then
+		StateValues.set(e, "Fading", true)
 		local t = TweenService:Create(e, EDGE_OUT, { ImageTransparency = 1 })
 		t.Completed:Once(function()
-			e:SetAttribute("Fading", nil)
+			StateValues.set(e, "Fading", nil)
 		end)
 		t:Play()
 	end

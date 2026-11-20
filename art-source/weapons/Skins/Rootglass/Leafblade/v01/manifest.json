@@ -5,7 +5,7 @@
   "source": "art-source/weapons/RemasterV2/Knife/Knife_RemasterV2_v05.blend",
   "source_file_sha256": "cfdaabce69b1e534a8faed9b0c3c21db40e985dba692bb4069665e4a0e0c1dc9",
   "concept": "vault/02 Art/Skins/Rootglass/out/Leafblade_concept_v02.png",
-  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "review_state": "Superseded by the reviewed v02.",
   "blend": "art-source/weapons/Skins/Rootglass/Leafblade/v01/Leafblade_Rootglass_v01.blend",
   "fbx": "art-source/weapons/Skins/Rootglass/Leafblade/v01/Leafblade_Rootglass_v01.fbx",
   "art": {
@@ -223,5 +223,6 @@
       "right",
       "rear"
     ]
-  }
+  },
+  "superseded_by": "art-source/weapons/Skins/Rootglass/Leafblade/v02/manifest.json"
 }

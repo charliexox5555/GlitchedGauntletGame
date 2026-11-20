@@ -12,6 +12,7 @@ local CollectionService = game:GetService("CollectionService")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -135,12 +136,12 @@ end
 
 -- Highlights what's selected and what each slot holds.
 local function refresh()
-	local slotId = player:GetAttribute("Mod" .. selectedSlot .. "Id")
-	local slotLevel = player:GetAttribute("Mod" .. selectedSlot .. "Level")
+	local slotId = StateValues.get(player, "Mod" .. selectedSlot .. "Id")
+	local slotLevel = StateValues.get(player, "Mod" .. selectedSlot .. "Level")
 	for i, b in slotButtons do
 		b.stroke.Enabled = i == selectedSlot
-		local id = player:GetAttribute("Mod" .. i .. "Id")
-		local level = player:GetAttribute("Mod" .. i .. "Level")
+		local id = StateValues.get(player, "Mod" .. i .. "Id")
+		local level = StateValues.get(player, "Mod" .. i .. "Level")
 		b.button.Text = string.format(
 			"%s  %s",
 			ModController.keyLabel(i),
@@ -156,7 +157,7 @@ local function refresh()
 	setToggle(
 		unlimitedButton,
 		"Test mode: unlimited charges",
-		player:GetAttribute("ModUnlimitedCharges") == true
+		StateValues.get(player, "ModUnlimitedCharges") == true
 	)
 	setToggle(quickCastButton, "Quick-cast", ModController.isQuickCast())
 	local note = noteLabel
@@ -284,7 +285,7 @@ local function build(): TextButton
 	for i = 1, Config.SLOTS do
 		slotButtons[i] = button("", 140, slotRow, function()
 			selectedSlot = i
-			local level = player:GetAttribute("Mod" .. i .. "Level")
+			local level = StateValues.get(player, "Mod" .. i .. "Level")
 			if typeof(level) == "string" then
 				selectedLevel = level
 			end
@@ -327,7 +328,7 @@ local function build(): TextButton
 	for _, level in Config.LEVELS do
 		levelButtons[level] = button(level, 56, levelRow, function()
 			selectedLevel = level
-			local id = player:GetAttribute("Mod" .. selectedSlot .. "Id")
+			local id = StateValues.get(player, "Mod" .. selectedSlot .. "Id")
 			if typeof(id) == "string" then
 				send("SetSlot", selectedSlot, id, level)
 			end
@@ -338,7 +339,7 @@ local function build(): TextButton
 	label("Charges (refill = what a new round does)", 13, panel, MUTED)
 	local cdRow = row(panel, 66)
 	unlimitedButton = button("Test mode: unlimited charges", 286, cdRow, function()
-		send("UnlimitedCharges", player:GetAttribute("ModUnlimitedCharges") ~= true)
+		send("UnlimitedCharges", StateValues.get(player, "ModUnlimitedCharges") ~= true)
 	end).button
 	button("Refill charges", 140, cdRow, function()
 		send("RefillCharges")
@@ -399,7 +400,7 @@ end
 
 -- Per-viewer outline on dev dummies (they carry a DevDummy attribute).
 local function outline(model: Instance)
-	if outlines[model] or not model:IsA("Model") or model:GetAttribute("DevDummy") == nil then
+	if outlines[model] or not model:IsA("Model") or StateValues.get(model, "DevDummy") == nil then
 		return
 	end
 	local existing = model:FindFirstChild("DevOutline")
@@ -430,11 +431,11 @@ function DevModController.start()
 	end
 
 	local function ready()
-		if player:GetAttribute("DevMods") == true and not root then
+		if StateValues.get(player, "DevMods") == true and not root then
 			root = build()
 		end
 	end
-	player:GetAttributeChangedSignal("DevMods"):Connect(ready)
+	StateValues.changed(player, "DevMods"):Connect(ready)
 	ready()
 	InputController.onPressed("DevPanel", function()
 		if root then
@@ -467,7 +468,7 @@ function DevModController.start()
 			"ModUnlimitedCharges",
 		}
 	do
-		player:GetAttributeChangedSignal(name):Connect(function()
+		StateValues.changed(player, name):Connect(function()
 			if open then
 				refresh()
 			end

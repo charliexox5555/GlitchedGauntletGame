@@ -16,12 +16,14 @@ The analyzer won because it has the frame tools that UI study needs (`get_frame_
 
 ## Install (done)
 - `yt-dlp` and `whisper-ctranslate2` (faster-whisper) installed with `uv tool install` into `~/.local/bin` (on the user PATH).
-- MCP server registered for this project, local scope (private, not in the repo):
+- Historical Claude MCP registration, scoped to its local project:
   `claude mcp add video-analyzer --scope local -e WHISPER_BIN=C:/Users/charl/.local/bin/whisper-ctranslate2.exe -e WHISPER_MODEL=small -e WHISPER_LANGUAGE=en -- npx -y mcp-video-analyzer@0.11.0`
   (version pinned). It loads in **new** sessions.
-- CLI, which works in any session and is token-lean because frames stay on disk:
-  ```
-  export WHISPER_BIN="C:/Users/charl/.local/bin/whisper-ctranslate2.exe" WHISPER_MODEL=small WHISPER_LANGUAGE=en
+- CLI for manual or Codex work. PowerShell example with the existing local Whisper path:
+  ```powershell
+  $env:WHISPER_BIN = "$env:USERPROFILE/.local/bin/whisper-ctranslate2.exe"
+  $env:WHISPER_MODEL = "small"
+  $env:WHISPER_LANGUAGE = "en"
   npx -y mcp-video-analyzer@0.11.0 analyze "<url>" --detail detailed --max-frames 12 --max-width 1280 --ocr-language eng --out "<dir>" > "<dir>/result.json"
   ```
 

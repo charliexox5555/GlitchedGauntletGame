@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config.Match)
@@ -21,6 +22,9 @@ local ZoneService = {}
 
 local SD = Config.SUDDEN_DEATH
 local CENTRE_TAG = "ZoneCentre"
+local FOOTPRINT_HEIGHT = 5
+local SEARCH_RINGS = 8
+local SEARCH_DIRECTIONS = 8
 
 local nextId = 0
 local running: Zone.State? = nil
@@ -40,6 +44,70 @@ local function centrePart(): BasePart?
 	return nil
 end
 
+-- Check the end circle, including room for a standing fighter and floor
+-- near its edges. Only the active map's colliders affect the design check.
+local function playableCentre(map: Model, preferred: Vector3): Vector3?
+	local rays = RaycastParams.new()
+	rays.FilterType = Enum.RaycastFilterType.Include
+	rays.FilterDescendantsInstances = { map }
+	rays.RespectCanCollide = true
+	local overlap = OverlapParams.new()
+	overlap.FilterType = Enum.RaycastFilterType.Include
+	overlap.FilterDescendantsInstances = { map }
+	overlap.RespectCanCollide = true
+	overlap.MaxParts = 1
+	local radius = SD.endRadius
+	local up = Vector3.yAxis
+	local footprint = Vector3.new(radius * 2, FOOTPRINT_HEIGHT, radius * 2)
+	local function floorAt(point: Vector3): RaycastResult?
+		return workspace:Raycast(point + up * 2.5, -up * 10, rays)
+	end
+	local function fits(point: Vector3): Vector3?
+		local hit = floorAt(point)
+		if not hit or hit.Normal.Y < 0.75 then
+			return nil
+		end
+		local floor = hit.Position
+		local volume = CFrame.new(floor + up * (FOOTPRINT_HEIGHT / 2 + 0.3))
+		if #workspace:GetPartBoundsInBox(volume, footprint, overlap) > 0 then
+			return nil
+		end
+		for _, axis in { Vector3.xAxis, -Vector3.xAxis, Vector3.zAxis, -Vector3.zAxis } do
+			local edge = floorAt(floor + axis * radius)
+			if not edge or math.abs(edge.Position.Y - floor.Y) > 1.5 then
+				return nil
+			end
+		end
+		return floor
+	end
+	local exact = fits(preferred)
+	if exact then
+		return exact
+	end
+	for ring = 1, SEARCH_RINGS do
+		for i = 0, SEARCH_DIRECTIONS - 1 do
+			local angle = i * math.pi * 2 / SEARCH_DIRECTIONS
+			local point = preferred
+				+ Vector3.new(math.cos(angle), 0, math.sin(angle)) * (ring * radius)
+			local floor = fits(point)
+			if floor then
+				return floor
+			end
+		end
+	end
+	local closest: Vector3? = nil
+	local distance = math.huge
+	for team = 1, 2 do
+		for _, spawn in MapService.spawns(team) do
+			local floor = fits(spawn.Position)
+			if floor and (floor - preferred).Magnitude < distance then
+				closest, distance = floor, (floor - preferred).Magnitude
+			end
+		end
+	end
+	return closest
+end
+
 -- Where the circle closes, and how big it starts.
 local function shape(): (Vector3?, number)
 	local part = centrePart()
@@ -51,7 +119,16 @@ local function shape(): (Vector3?, number)
 	if not centre then
 		return nil, 0
 	end
-	local override = part and part:GetAttribute("ZoneRadius")
+	local map = MapService.map()
+	if map then
+		local playable = playableCentre(map, centre)
+		if playable then
+			centre = playable
+		elseif RunService:IsStudio() then
+			warn(`[ZoneService] no clear end circle near {centre}; check the ZoneCentre marker`)
+		end
+	end
+	local override = part and StateValues.get(part, "ZoneRadius")
 	if typeof(override) == "number" and override > SD.endRadius then
 		return centre, override
 	end
@@ -104,18 +181,6 @@ local function step(dt: number)
 	end
 end
 
-local function publish(state: Zone.State?)
-	if state then
-		ReplicatedStorage:SetAttribute(Zone.CENTRE, state.centre)
-		ReplicatedStorage:SetAttribute(Zone.RADIUS, Vector2.new(state.fromRadius, state.toRadius))
-		ReplicatedStorage:SetAttribute(Zone.START, state.startAt)
-		ReplicatedStorage:SetAttribute(Zone.END, state.endAt)
-		ReplicatedStorage:SetAttribute(Zone.ID, state.id) -- the commit, last
-	else
-		ReplicatedStorage:SetAttribute(Zone.ID, 0)
-	end
-end
-
 -- Starts closing the circle now. Returns false when the map gives no centre.
 function ZoneService.begin(): boolean
 	local centre, fromRadius = shape()
@@ -135,13 +200,13 @@ function ZoneService.begin(): boolean
 	}
 	running = state
 	sinceTick = 0
-	publish(state)
+	Zone.publish(state)
 	return true
 end
 
 function ZoneService.stop()
 	running = nil
-	publish(nil)
+	Zone.publish(nil)
 end
 
 -- The circle now (bots read it to stay inside).
@@ -150,7 +215,7 @@ function ZoneService.current(): Zone.State?
 end
 
 function ZoneService.start()
-	publish(nil)
+	Zone.publish(nil)
 	RunService.Heartbeat:Connect(step) -- lives as long as the server
 end
 

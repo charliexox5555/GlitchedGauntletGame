@@ -4,13 +4,14 @@
 -- Build_V4.luau from v4_core.gun_display) carry: Gun, Mount (Lay = on a table, Wall = on the pegboard, Stand =
 -- centred and turning), the barrel BX/BY/BZ and the side that looks out FX/FY/FZ (Blender axes), Scale and Spin
 -- (degrees a second). This client lays a copy of its own equipped skin of that gun there (Shared/Locker.skinModel,
--- from the `Skin_<gun>` attribute LobbyServer's LockerService sets) and swaps it when the attribute changes.
+-- from the LockerSkins value LobbyServer's LockerService sets) and swaps it when the loadout changes.
 -- Client only: nothing is sent to the server. Copies live in a local folder, so StreamingEnabled never takes them;
 -- when an anchor streams out its copy goes with it.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Locker = require(ReplicatedStorage.Shared.Locker)
@@ -45,7 +46,7 @@ local function holder(): Folder
 end
 
 local function num(p: Instance, key: string, default: number): number
-	local v = p:GetAttribute(key)
+	local v = StateValues.get(p, key)
 	return if typeof(v) == "number" and v == v and math.abs(v) < 1e6 then v else default
 end
 
@@ -56,8 +57,7 @@ local function dir(p: Instance, kx: string, ky: string, kz: string, default: Vec
 end
 
 local function lineFor(gun: string): string
-	local v = Players.LocalPlayer:GetAttribute(Locker.attr(gun))
-	return if typeof(v) == "string" and v ~= "" then v else "Stock"
+	return Locker.equipped(Players.LocalPlayer)[gun] or "Stock"
 end
 
 local function strip(m: Model)
@@ -154,7 +154,7 @@ local function place(anchor: BasePart, s: Shown)
 	local pos = anchor.Position
 	local centre = cf.Position
 	local offset: Vector3
-	if anchor:GetAttribute("Mount") == "Stand" then
+	if StateValues.get(anchor, "Mount") == "Stand" then
 		offset = pos - centre
 	else
 		-- its back rests on the anchor's plane, centred on the anchor across it
@@ -183,7 +183,7 @@ local function track(inst: Instance)
 	if not inst:IsA("BasePart") or shown[inst] then
 		return
 	end
-	local gun = inst:GetAttribute("Gun")
+	local gun = StateValues.get(inst, "Gun")
 	if typeof(gun) ~= "string" then
 		return
 	end
@@ -226,15 +226,9 @@ function LobbyGunDisplays.start()
 	for _, a in CollectionService:GetTagged(TAG) do
 		track(a)
 	end
-	-- equipping a skin (LockerService sets Skin_<gun>) swaps that gun everywhere it is shown
-	Players.LocalPlayer.AttributeChanged:Connect(function(name: string)
-		if string.sub(name, 1, 5) ~= "Skin_" and name ~= "LockerLoaded" then
-			return
-		end
+	Locker.observe(Players.LocalPlayer, function()
 		for anchor, s in shown do
-			if name == "LockerLoaded" or Locker.attr(s.gun) == name then
-				place(anchor, s)
-			end
+			place(anchor, s)
 		end
 	end)
 	RunService.RenderStepped:Connect(step)

@@ -22,6 +22,8 @@
 -- numbers only. Remote (G, `behaviour = "Remote"`): pressing the key again
 -- while it rolls (ModTrigger → module.trigger) blows it up where it is.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
@@ -222,7 +224,7 @@ local function step(dt: number)
 			bot.target = nil
 			if not bot.explodeAt then
 				bot.lockedAt = nil
-				part:SetAttribute("LockedAt", nil)
+				StateValues.set(part, "LockedAt", nil)
 			end
 		end
 		if not target and not bot.explodeAt and clock >= bot.nextSeek then
@@ -232,7 +234,7 @@ local function step(dt: number)
 				bot.target = found
 				bot.lockedAt = clock
 				target = found
-				part:SetAttribute("LockedAt", serverNow())
+				StateValues.set(part, "LockedAt", serverNow())
 				bot.ctx.fx("RollerLock", { at = bot.pos })
 			end
 		end
@@ -255,7 +257,7 @@ local function step(dt: number)
 				local long = lockedAt ~= nil and clock - lockedAt >= stats.chase
 				if not bot.explodeAt and (near or long) then
 					bot.explodeAt = clock + stats.warn
-					part:SetAttribute("WarnAt", serverNow())
+					StateValues.set(part, "WarnAt", serverNow())
 				end
 			end
 		end
@@ -311,8 +313,8 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	part.CanCollide = false
 	part.CanQuery = true -- shootable (WeaponService hits on Mod objects)
 	part.CanTouch = false
-	part:SetAttribute("Remote", stats.behaviour == "Remote" or nil)
-	part:SetAttribute("Moving", true) -- shots get the moving-object slack (Weapon/Hits)
+	StateValues.set(part, "Remote", stats.behaviour == "Remote" or nil)
+	StateValues.set(part, "Moving", true) -- shots get the moving-object slack (Weapon/Hits)
 	-- Its own end decides (fizzle / blast); this is only a backstop.
 	local life = stats.life + stats.chase + stats.warn + 1
 	ctx.place("Roller", part, life, stats.hp, stats.maxActive)

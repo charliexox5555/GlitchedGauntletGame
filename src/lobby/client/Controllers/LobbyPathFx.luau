@@ -7,6 +7,8 @@
 --   LobbyLineRun: a light pulse that runs along a lit floor line (the aisle's two edge lines).
 -- Tone "lilac" / "violet" (the studio palette). Built locally from the anchors; nothing is sent to the server.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
 
@@ -50,7 +52,7 @@ local function root(): Folder
 end
 
 local function num(p: Instance, key: string, default: number): number
-	local v = p:GetAttribute(key)
+	local v = StateValues.get(p, key)
 	return if typeof(v) == "number" and v == v and math.abs(v) < 1e5 then v else default
 end
 
@@ -60,7 +62,7 @@ local function dirOf(p: Instance): Vector3
 end
 
 local function toneOf(p: Instance): Color3
-	local t = p:GetAttribute("Tone")
+	local t = StateValues.get(p, "Tone")
 	return if typeof(t) == "string" and TONES[t] then TONES[t] else TONES.lilac
 end
 

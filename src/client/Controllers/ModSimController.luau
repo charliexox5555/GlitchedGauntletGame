@@ -22,6 +22,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage.Shared
@@ -37,14 +38,14 @@ local player = Players.LocalPlayer
 local NEW_CAST = 0.05
 
 local function number(inst: Instance, name: string): number
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else 0
 end
 
 -- The slot `id` is in (nil: not slotted).
 local function slotOf(id: string): number?
 	for slot = 1, Config.SLOTS do
-		if player:GetAttribute("Mod" .. slot .. "Id") == id then
+		if StateValues.get(player, "Mod" .. slot .. "Id") == id then
 			return slot
 		end
 	end
@@ -87,8 +88,8 @@ local function stepOwn()
 	local dash = number(character, "DashStart")
 	if dash > lastDash + NEW_CAST then
 		lastDash = dash
-		local velocity = character:GetAttribute("DashVelocity")
-		local run = character:GetAttribute("DashDecoyRun")
+		local velocity = StateValues.get(character, "DashVelocity")
+		local run = StateValues.get(character, "DashDecoyRun")
 		send("Dash", "Cast", {
 			dur = number(character, "DashUntil") - dash,
 			vel = if typeof(velocity) == "Vector3" then velocity else nil,
@@ -117,11 +118,11 @@ local function stepOwn()
 	local slamAt = number(character, "UpdraftSlamAt")
 	local landedSlam = slamAt > lastSlamAt
 	lastSlamAt = slamAt
-	if not diving and (character:GetAttribute("UpdraftSlam") == "Down" or landedSlam) then
+	if not diving and (StateValues.get(character, "UpdraftSlam") == "Down" or landedSlam) then
 		diving = true
 		send("Updraft", "Slam", nil)
 	end
-	if character:GetAttribute("Updrafting") ~= true then
+	if StateValues.get(character, "Updrafting") ~= true then
 		flying = false
 		diving = false
 		send("Updraft", "Land", nil)
@@ -144,23 +145,28 @@ local function mirrorDash(character: Model, data: { [string]: unknown }, now: nu
 	local windows = vector(data.windows)
 	local any = windows ~= nil and (windows.X > 0 or windows.Y > 0 or windows.Z > 0)
 	-- The upgrade levels' attributes go first: clients key on DashStart.
-	character:SetAttribute(
+	StateValues.set(
+		character,
 		"DashWindows",
 		if windows and any
 			then Vector3.new(untilT(now, windows.X), untilT(now, windows.Y), untilT(now, windows.Z))
 			else nil
 	)
-	character:SetAttribute("DashDecoy", if typeof(data.decoy) == "CFrame" then data.decoy else nil)
-	character:SetAttribute("DashDecoyRun", vector(data.run))
-	character:SetAttribute("DashTune", vector(data.tune))
-	character:SetAttribute("DashVelocity", vector(data.vel))
-	character:SetAttribute("DashUntil", now + duration)
-	character:SetAttribute("Dashing", true)
-	character:SetAttribute("DashStart", now)
+	StateValues.set(
+		character,
+		"DashDecoy",
+		if typeof(data.decoy) == "CFrame" then data.decoy else nil
+	)
+	StateValues.set(character, "DashDecoyRun", vector(data.run))
+	StateValues.set(character, "DashTune", vector(data.tune))
+	StateValues.set(character, "DashVelocity", vector(data.vel))
+	StateValues.set(character, "DashUntil", now + duration)
+	StateValues.set(character, "Dashing", true)
+	StateValues.set(character, "DashStart", now)
 	task.delay(duration, function()
 		-- Unless a newer dash took over.
-		if character:GetAttribute("DashStart") == now then
-			character:SetAttribute("Dashing", nil)
+		if StateValues.get(character, "DashStart") == now then
+			StateValues.set(character, "Dashing", nil)
 		end
 	end)
 end
@@ -172,25 +178,25 @@ local function mirrorUpdraft(
 	now: number
 )
 	if kind == "Cast" then
-		character:SetAttribute("UpdraftSlam", nil)
-		character:SetAttribute("UpdraftLaunch", vector(data.launch))
-		character:SetAttribute("Updrafting", true)
-		character:SetAttribute("UpdraftAt", now)
+		StateValues.set(character, "UpdraftSlam", nil)
+		StateValues.set(character, "UpdraftLaunch", vector(data.launch))
+		StateValues.set(character, "Updrafting", true)
+		StateValues.set(character, "UpdraftAt", now)
 		-- A landing that never reaches us (a dropped report) can't leave the
 		-- flight, or its dive, on this character for good.
 		task.delay(Config.SIM_REPORT.flightLife + 1, function()
-			if character:GetAttribute("UpdraftAt") == now then
-				character:SetAttribute("UpdraftSlam", nil)
-				character:SetAttribute("Updrafting", nil)
+			if StateValues.get(character, "UpdraftAt") == now then
+				StateValues.set(character, "UpdraftSlam", nil)
+				StateValues.set(character, "Updrafting", nil)
 			end
 		end)
 	elseif kind == "Slam" then
-		character:SetAttribute("UpdraftSlamStart", now)
-		character:SetAttribute("UpdraftSlam", "Down")
+		StateValues.set(character, "UpdraftSlamStart", now)
+		StateValues.set(character, "UpdraftSlam", "Down")
 	elseif kind == "Land" then
 		-- The impact itself is the server's UpdraftSlam ModFx (UpgradeFx/Updraft).
-		character:SetAttribute("UpdraftSlam", nil)
-		character:SetAttribute("Updrafting", nil)
+		StateValues.set(character, "UpdraftSlam", nil)
+		StateValues.set(character, "Updrafting", nil)
 	end
 end
 

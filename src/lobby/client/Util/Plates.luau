@@ -22,6 +22,8 @@
 -- deepen(root) finishes every slanted plate under `root`, except those with
 -- the attribute NoLip = true.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Plates = {}
 
 local WHITE = Color3.new(1, 1, 1)
@@ -52,13 +54,13 @@ local function layer(
 	i.Position = UDim2.fromOffset(-ext, 0)
 	i.Size = UDim2.new(1, ext * 2, 1, 0)
 	i.ZIndex = z
-	i:SetAttribute("PivotOk", true)
+	StateValues.set(i, "PivotOk", true)
 	i.Parent = parent
 	return i
 end
 
 function Plates.finish(body: GuiObject)
-	if body:GetAttribute("Plated") == true then
+	if StateValues.get(body, "Plated") == true then
 		return
 	end
 	local capL = body:FindFirstChild("CapL")
@@ -66,7 +68,7 @@ function Plates.finish(body: GuiObject)
 	if not (capL and capL:IsA("ImageLabel") and capR and capR:IsA("ImageLabel")) then
 		return
 	end
-	body:SetAttribute("Plated", true)
+	StateValues.set(body, "Plated", true)
 	local base = capL.ZIndex
 	local ext = math.max(2, math.floor(capL.Size.X.Offset * REACH + 0.5))
 	capL:Destroy()
@@ -142,7 +144,7 @@ function Plates.finish(body: GuiObject)
 	back.BackgroundTransparency = 1
 	back.Size = UDim2.fromScale(1, 1)
 	back.ZIndex = base
-	back:SetAttribute("PivotOk", true)
+	StateValues.set(back, "PivotOk", true)
 	back.Parent = body
 	local skin = layer(back, "Skin", BASE, ext, base)
 	local gloss = layer(back, "Gloss", GLOSS, ext, base + 1)
@@ -184,7 +186,7 @@ function Plates.deepen(root: Instance)
 	for _, d in root:GetDescendants() do
 		if
 			d:IsA("GuiObject")
-			and d:GetAttribute("NoLip") ~= true
+			and StateValues.get(d, "NoLip") ~= true
 			and d:FindFirstChild("CapL")
 			and d:FindFirstChild("CapR")
 		then

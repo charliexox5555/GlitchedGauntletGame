@@ -1,0 +1,78 @@
+{
+  "blend": "SoundingArc_Spindrift_concept_v02.blend",
+  "objects": 40,
+  "new_closed_meshes": 9,
+  "identical_stock_meshes_and_UV": 0,
+  "cancel_to_rest_max_delta": 0.0,
+  "active_max_transform_delta": 0.97727,
+  "frame_end": 220,
+  "screen_coverage": {
+    "equip": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.997
+    },
+    "idle": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.02
+    },
+    "carry": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.917
+    },
+    "light_a": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.166
+    },
+    "light_b": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.792
+    },
+    "heavy": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.41
+    },
+    "inspect": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.056
+    },
+    "recovery": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 1.115
+    },
+    "cancel": {
+      "mesh_vertices_on_screen_pct": 100.0,
+      "nearest_vertex": 0.949
+    }
+  },
+  "grip_projection": {
+    "Right grip anchor": [
+      0.6573711037635803,
+      0.8147206604480743
+    ]
+  },
+  "actions": 2,
+  "bones": [
+    "Grip",
+    "Lower crescent",
+    "Upper crescent",
+    "Water ribbon",
+    "Inspect bead"
+  ],
+  "markers": {
+    "REST": 1,
+    "EQUIP": 5,
+    "EQUIP READY": 23,
+    "IDLE": 24,
+    "CARRY": 48,
+    "LIGHT A": 68,
+    "LIGHT A CONTACT": 72,
+    "LIGHT B": 85,
+    "LIGHT B CONTACT": 91,
+    "HEAVY": 104,
+    "HEAVY CONTACT": 113,
+    "INSPECT": 129,
+    "RECOVERY": 178,
+    "CANCEL": 204,
+    "CANCEL REST": 219
+  }
+}

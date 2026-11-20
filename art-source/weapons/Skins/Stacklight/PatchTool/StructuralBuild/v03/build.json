@@ -1,0 +1,93 @@
+{
+  "line": "Stacklight",
+  "item": "PatchTool",
+  "file": "PatchTool_Stacklight_structural_v03.blend",
+  "version": "v03",
+  "source": "Original structural accessory",
+  "mesh_count": 13,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 0,
+  "fit": {
+    "rest_bounds": [
+      [
+        -0.4778504967689514,
+        -0.08799999207258224,
+        -0.3502485752105713
+      ],
+      [
+        1.3755412101745605,
+        0.11599999666213989,
+        0.7946441173553467
+      ],
+      [
+        1.853391706943512,
+        0.20399998873472214,
+        1.144892692565918
+      ]
+    ],
+    "stock_knife_bounds": [
+      [
+        -0.45239999890327454,
+        -0.09054019302129745,
+        -0.10920000076293945
+      ],
+      [
+        1.2674107551574707,
+        0.09054019302129745,
+        0.1273999959230423
+      ],
+      [
+        1.7198107540607452,
+        0.1810803860425949,
+        0.23659999668598175
+      ]
+    ]
+  },
+  "motion": {
+    "active": 146,
+    "cancel": 219,
+    "contact": [
+      72,
+      91,
+      113
+    ]
+  },
+  "clips": {
+    "Equip": {
+      "frames": 19,
+      "contact": null
+    },
+    "Idle": {
+      "frames": 22,
+      "contact": null
+    },
+    "Carry": {
+      "frames": 21,
+      "contact": null
+    },
+    "Light A": {
+      "frames": 15,
+      "contact": 5
+    },
+    "Light B": {
+      "frames": 16,
+      "contact": 7
+    },
+    "Heavy": {
+      "frames": 23,
+      "contact": 10
+    },
+    "Inspect": {
+      "frames": 46,
+      "contact": null
+    },
+    "Recovery": {
+      "frames": 18,
+      "contact": null
+    },
+    "Cancel": {
+      "frames": 22,
+      "contact": null
+    }
+  }
+}

@@ -30,6 +30,7 @@
 --   Scan_Shell     a 1-stud shell round the anchor
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -233,7 +234,7 @@ local clock = os.clock()
 local lastReal = os.clock()
 
 local function readScale()
-	local v = Workspace:GetAttribute("VfxTimeScale")
+	local v = StateValues.get(Workspace, "VfxTimeScale")
 	scale = if typeof(v) == "number" then math.clamp(v, 0, 1) else 1
 end
 
@@ -250,7 +251,7 @@ end
 
 if RunService:IsStudio() then
 	readScale()
-	Workspace:GetAttributeChangedSignal("VfxTimeScale"):Connect(function()
+	StateValues.changed(Workspace, "VfxTimeScale"):Connect(function()
 		ReworkVfx.now() -- bank the time run at the old speed
 		readScale()
 	end)

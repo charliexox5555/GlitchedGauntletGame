@@ -14,6 +14,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -60,7 +61,7 @@ local flashAt = -math.huge
 local flashPeak = 0
 
 local function number(inst: Instance, name: string): number
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else 0
 end
 
@@ -130,9 +131,9 @@ local function stepCharacters()
 			continue
 		end
 		local dash = number(character, "DashStart")
-		local dashing = character:GetAttribute("Dashing") == true
+		local dashing = StateValues.get(character, "Dashing") == true
 		local updraft = number(character, "UpdraftAt")
-		local updrafting = character:GetAttribute("Updrafting") == true
+		local updrafting = StateValues.get(character, "Updrafting") == true
 		local recall = number(character, "RecallAt")
 		local s = seen[character]
 		if not s then
@@ -157,7 +158,7 @@ local function stepCharacters()
 		local started = false
 		if dash > s.dash + 0.05 then
 			started = true
-			local velocity = character:GetAttribute("DashVelocity")
+			local velocity = StateValues.get(character, "DashVelocity")
 			local flat = if typeof(velocity) == "Vector3"
 				then velocity * Vector3.new(1, 0, 1)
 				else Vector3.zero
@@ -179,7 +180,7 @@ local function stepCharacters()
 				-- (UpgradeFx/Dash draws the split).
 				ModAudio.play(S.Dash.world, root.Position)
 			else
-				local untilT = character:GetAttribute("DashUntil")
+				local untilT = StateValues.get(character, "DashUntil")
 				ModAudio.play(S.Dash.world, root.Position)
 				WindFx.dashStart(
 					character,
@@ -203,7 +204,7 @@ local function stepCharacters()
 		local launched = false
 		if updraft > s.updraft + 0.05 then
 			launched = true
-			local launch = character:GetAttribute("UpdraftLaunch")
+			local launch = StateValues.get(character, "UpdraftLaunch")
 			local up = if typeof(launch) == "Vector3" then launch.X else nil
 			local g = if typeof(launch) == "Vector3" then launch.Y else nil
 			local gravity = if typeof(g) == "number" and g > 0 then g else workspace.Gravity

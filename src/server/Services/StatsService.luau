@@ -13,6 +13,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local MatchConfig = require(ReplicatedStorage.Shared.Config.Match)
 local ModsConfig = require(ReplicatedStorage.Shared.Config.Mods)
@@ -27,9 +28,11 @@ local WeaponService = require(script.Parent.WeaponService)
 local StatsService = {}
 
 export type Line = {
-	id: string, -- "p<userId>" or "b<bot name>"
+	id: string, -- "p<userId>" or "b<bot id>"
 	name: string,
 	userId: number?,
+	botLevel: number?,
+	portraitUserId: number?,
 	team: number,
 	eliminations: number,
 	deaths: number,
@@ -44,6 +47,8 @@ type Entry = {
 	id: string,
 	name: string,
 	userId: number?,
+	botLevel: number?,
+	portraitUserId: number?,
 	team: number,
 	eliminations: number,
 	deaths: number,
@@ -65,7 +70,7 @@ local function holderOf(id: string): Instance?
 		return if userId then Players:GetPlayerByUserId(userId) else nil
 	end
 	for _, pawn in Pawns.list() do
-		if "b" .. tostring(pawn.owner:GetAttribute("BotId")) == id then
+		if "b" .. tostring(StateValues.get(pawn.owner, "BotId")) == id then
 			return pawn.owner
 		end
 	end
@@ -77,8 +82,8 @@ local function kitOf(id: string): { string }
 	local kit: { string } = {}
 	if holder then
 		for slot = 1, ModsConfig.SLOTS do
-			local modId = holder:GetAttribute("Mod" .. slot .. "Id")
-			local level = holder:GetAttribute("Mod" .. slot .. "Level")
+			local modId = StateValues.get(holder, "Mod" .. slot .. "Id")
+			local level = StateValues.get(holder, "Mod" .. slot .. "Level")
 			if typeof(modId) == "string" and modId ~= "" then
 				table.insert(
 					kit,
@@ -96,6 +101,10 @@ local function forgetLife(id: string)
 	for _, row in pair do
 		row[id] = nil
 	end
+	local entry = entries[id]
+	if entry then
+		table.clear(entry.hurtBy)
+	end
 end
 
 -- A fighter's id and name: a player (or their character) or a bot's model.
@@ -107,8 +116,8 @@ local function identify(x: Instance): (string?, string, number?)
 	if owner then
 		return "p" .. owner.UserId, owner.DisplayName, owner.UserId
 	end
-	if x:IsA("Model") and x:GetAttribute("IsBot") == true then
-		local serial = x:GetAttribute("BotId") -- names get reused, ids don't
+	if x:IsA("Model") and StateValues.get(x, "IsBot") == true then
+		local serial = StateValues.get(x, "BotId") -- names get reused, ids don't
 		return "b" .. tostring(serial or x.Name), x.Name, nil
 	end
 	return nil, "", nil
@@ -125,6 +134,10 @@ local function entryOf(x: Instance): Entry?
 			id = id,
 			name = name,
 			userId = userId,
+			botLevel = if not userId then StateValues.get(x, "Level") :: number? else nil,
+			portraitUserId = if not userId
+				then StateValues.get(x, "PortraitUserId") :: number?
+				else nil,
 			team = Teams.of(x) or 0,
 			eliminations = 0,
 			deaths = 0,
@@ -142,18 +155,18 @@ local function entryOf(x: Instance): Entry?
 	return e
 end
 
-local function onHit(attacker: Instance, victim: Model, dealt: number, killed: boolean)
+local function onHit(attacker: Instance, victim: Model, dealt: number, killed: boolean): { number }?
 	local a = entryOf(attacker)
 	local v = entryOf(victim)
 	if not v then
-		return
+		return nil
 	end
 	local now = os.clock()
 	v.taken += dealt
 	-- Your own or your team's damage (Molly, Firewall) earns nothing.
 	local enemy = a ~= nil and a ~= v and (a.team == 0 or a.team ~= v.team)
 	if not a or not enemy then
-		return
+		return nil
 	end
 	a.dealt += dealt
 	if dealt > 0 then
@@ -173,16 +186,19 @@ local function onHit(attacker: Instance, victim: Model, dealt: number, killed: b
 			local takenFrom = (pair[a.id] or {})[v.id] or 0
 			Net.event("CombatReport"):FireClient(owner, math.round(dealtTo), math.round(takenFrom))
 		end
-		forgetLife(v.id)
 		a.eliminations += 1
+		local assists: { number } = {}
 		for id, at in v.hurtBy do
 			local helper = entries[id]
 			if helper and id ~= a.id and now - at <= MatchConfig.ASSIST_WINDOW then
 				helper.assists += 1
+				table.insert(assists, helper.userId or 0) -- bots count in the feed too
 			end
 		end
-		table.clear(v.hurtBy)
+		forgetLife(v.id)
+		return if #assists > 0 then assists else nil
 	end
+	return nil
 end
 
 -- A new match: everyone starts from zero.
@@ -194,6 +210,9 @@ end
 -- A new round: everyone's life (and combat report) starts over.
 function StatsService.newRound()
 	table.clear(pair)
+	for _, entry in entries do
+		table.clear(entry.hurtBy)
+	end
 end
 
 -- Makes sure everyone in the match has a line, even with nothing on it.
@@ -210,6 +229,8 @@ function StatsService.summary(): { Line }
 			id = e.id,
 			name = e.name,
 			userId = e.userId,
+			botLevel = e.botLevel,
+			portraitUserId = e.portraitUserId,
 			team = e.team,
 			eliminations = e.eliminations,
 			deaths = e.deaths,

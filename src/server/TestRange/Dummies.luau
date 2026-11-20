@@ -12,6 +12,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Animations = require(ReplicatedStorage.Shared.Config.Animations)
@@ -137,10 +138,10 @@ makeDummy = function(index: number)
 	-- Static dummies are anchored so players can't shove them off their marks.
 	root.Anchored = not moves(spot)
 
-	model:SetAttribute("DummyKind", spot.kind)
-	model:SetAttribute("DummyLabel", spot.label or kind.label)
-	model:SetAttribute("DummyDistance", spot.distance)
-	model:SetAttribute("DummyAccent", kind.accent)
+	StateValues.set(model, "DummyKind", spot.kind)
+	StateValues.set(model, "DummyLabel", spot.label or kind.label)
+	StateValues.set(model, "DummyDistance", spot.distance)
+	StateValues.set(model, "DummyAccent", kind.accent)
 	CollectionService:AddTag(model, Dummies.TAG)
 	model.Parent = container
 	CharacterService.prepare(model)

@@ -1,0 +1,267 @@
+{
+  "schema": 1,
+  "stage": "offline evaluated visual handoff",
+  "finish": "Storm Shadow",
+  "units": "one Blender unit per Roblox stud",
+  "authoring_axes": "+X muzzle, +Z up",
+  "export": "glTF binary",
+  "geometry": {
+    "triangles": {
+      "Receiver_IndigoForging": 7550,
+      "Shroud_OctagonalForging": 548,
+      "Rear_SilverPlate_Player": 5184,
+      "Fore_SilverPlate_Player": 6336,
+      "Receiver_CobaltCeramic_Player": 36,
+      "Receiver_MagwellShoulder_Player": 3744,
+      "Shroud_UndercutRail_Player": 2880,
+      "Rear_SilverPlate_Far": 5184,
+      "Fore_SilverPlate_Far": 6336,
+      "Receiver_CobaltCeramic_Far": 36,
+      "Receiver_MagwellShoulder_Far": 3744,
+      "Shroud_UndercutRail_Far": 2880,
+      "Receiver_TransferCover": 164,
+      "Shroud_UpperSeat": 164,
+      "Barrel_StockFitStem": 596,
+      "Muzzle_FacetedPortCage": 3288,
+      "Receiver_LowerCeramicShell_Player": 5184,
+      "Receiver_LowerCeramicShell_Far": 5184,
+      "Stock_FittedChassis": 4268,
+      "Stock_CeramicCheek_Player": 4032,
+      "Stock_DiagonalEdge_Player": 2880,
+      "Stock_CeramicCheek_Far": 4032,
+      "Stock_DiagonalEdge_Far": 2880,
+      "Grip_ShapedFactoryTang": 12992,
+      "Grip_CarvedShoulder_Player": 2304,
+      "Grip_CarvedShoulder_Far": 2304,
+      "Grip_HandWrappedLeather_1": 5120,
+      "Grip_HandWrappedLeather_2": 5120,
+      "Grip_HandWrappedLeather_3": 5120,
+      "Grip_HandWrappedLeather_4": 5120,
+      "Grip_HandWrappedLeather_5": 5120,
+      "Charge_ReceiverSweep": 860,
+      "Bolt_RecessShutter": 88,
+      "Grip_Trigger": 452,
+      "Grip_Selector": 948,
+      "Mag_ContinuousCurvedShell": 27682,
+      "Mag_TensionedLeather_1": 5120,
+      "Mag_TensionedLeather_2": 5120,
+      "Mag_TensionedLeather_3": 5120,
+      "Mag_TensionedLeather_4": 5120,
+      "Mag_CobaltCeramicLiner_Player": 212,
+      "Mag_CobaltCeramicLiner_Far": 212,
+      "Sight_StockAxisFront": 256,
+      "Sight_CeramicDovetail": 92,
+      "Sight_ReceiverTenon": 92,
+      "Sight_OpenCeramicAperture": 1906,
+      "Sight_FrontPostReference": 20,
+      "Sight_FrontCeramicReference": 12,
+      "BuddyMount_StockPlateAndLoop": 224
+    },
+    "opaque_triangles": 173866,
+    "effects_triangles": 0,
+    "mesh_objects": 49,
+    "materials": [
+      "TS_Accent \u00b7 cobalt ceramic",
+      "TS_AccentEdge \u00b7 cobalt facet",
+      "TS_Body \u00b7 carbon-black ceramic",
+      "TS_Dark \u00b7 recessed graphite",
+      "TS_Grip \u00b7 smoked leather",
+      "TS_GripEdge \u00b7 pressed seam",
+      "TS_Metal \u00b7 blued steel",
+      "TS_Panel \u00b7 slate ceramic",
+      "TS_PanelEdge \u00b7 polished edge",
+      "TS_Rubber \u00b7 contact pads",
+      "TS_SightMark \u00b7 cool ceramic"
+    ],
+    "nonmanifold_edge_counts": {
+      "Receiver_IndigoForging": 34,
+      "Grip_ShapedFactoryTang": 44
+    },
+    "degenerate_polygon_counts": {}
+  },
+  "runtime_roles": {
+    "Body.002": {
+      "srgb": "1B2531",
+      "blender": "TS_Body \u00b7 carbon-black ceramic",
+      "procedural_microfinish_in_master": false
+    },
+    "Panel.002": {
+      "srgb": "394C62",
+      "blender": "TS_Panel \u00b7 slate ceramic",
+      "procedural_microfinish_in_master": false
+    },
+    "Dark.002": {
+      "srgb": "121824",
+      "blender": "TS_Dark \u00b7 recessed graphite",
+      "procedural_microfinish_in_master": false
+    },
+    "Metal.002": {
+      "srgb": "454F60",
+      "blender": "TS_Metal \u00b7 blued steel",
+      "procedural_microfinish_in_master": false
+    },
+    "Rubber": {
+      "srgb": "252832",
+      "blender": "TS_Rubber \u00b7 contact pads",
+      "procedural_microfinish_in_master": false
+    },
+    "PanelEdge": {
+      "srgb": "9CB3C7",
+      "blender": "TS_PanelEdge \u00b7 polished edge",
+      "procedural_microfinish_in_master": false
+    },
+    "Accent.002": {
+      "srgb": "104D84",
+      "blender": "TS_Accent \u00b7 cobalt ceramic",
+      "procedural_microfinish_in_master": false
+    },
+    "Grip.002": {
+      "srgb": "342825",
+      "blender": "TS_Grip \u00b7 smoked leather",
+      "procedural_microfinish_in_master": true
+    },
+    "GripEdge": {
+      "srgb": "241B1B",
+      "blender": "TS_GripEdge \u00b7 pressed seam",
+      "procedural_microfinish_in_master": true
+    },
+    "AccentEdge": {
+      "srgb": "377FBE",
+      "blender": "TS_AccentEdge \u00b7 cobalt facet",
+      "procedural_microfinish_in_master": false
+    },
+    "SightMark": {
+      "srgb": "A2CBD1",
+      "blender": "TS_SightMark \u00b7 cool ceramic",
+      "procedural_microfinish_in_master": false
+    }
+  },
+  "locators": {
+    "Vandal_Muzzle": [
+      2.6470000743865967,
+      0.0,
+      0.2849999964237213
+    ],
+    "Vandal_RightGrip": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Vandal_LeftGrip": [
+      1.3200000524520874,
+      0.0,
+      0.1704999953508377
+    ],
+    "Vandal_AimPoint": [
+      0.07750000059604645,
+      0.0,
+      0.5598000288009644
+    ],
+    "Vandal_Eject": [
+      0.483599990606308,
+      -0.07199999690055847,
+      0.3160000145435333
+    ],
+    "Vandal_CharmPoint": [
+      0.9300000071525574,
+      0.09579998254776001,
+      0.17030000686645508
+    ],
+    "Vandal_Socket_Muzzle": [
+      2.6470000743865967,
+      0.0,
+      0.2849999964237213
+    ],
+    "Vandal_Socket_Optic": [
+      0.6200000047683716,
+      0.0,
+      0.47600001096725464
+    ],
+    "Vandal_Socket_Under": [
+      1.3200000524520874,
+      0.0,
+      0.1704999953508377
+    ]
+  },
+  "custom_pivots": {
+    "CTRL_Action": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "CTRL_InspectBalance": [
+      0.6700000166893005,
+      0.0,
+      0.21699999272823334
+    ],
+    "CTRL_Chassis": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "CTRL_Magazine": [
+      0.5827999711036682,
+      0.0,
+      0.1550000011920929
+    ],
+    "CTRL_Charge": [
+      0.6571999788284302,
+      0.07999999821186066,
+      0.3068999946117401
+    ],
+    "CTRL_Bolt": [
+      0.48980000615119934,
+      -0.05999999865889549,
+      0.31619998812675476
+    ],
+    "CTRL_PlateRear_Player": [
+      0.3269999921321869,
+      0.10100000351667404,
+      0.36800000071525574
+    ],
+    "CTRL_PlateFore_Player": [
+      1.4320000410079956,
+      0.09600000083446503,
+      0.35199999809265137
+    ],
+    "CTRL_PlateRear_Far": [
+      0.3269999921321869,
+      -0.10100000351667404,
+      0.36800000071525574
+    ],
+    "CTRL_PlateFore_Far": [
+      1.4320000410079956,
+      -0.09600000083446503,
+      0.35199999809265137
+    ]
+  },
+  "reimport": {
+    "mesh_count": 49,
+    "source_mesh_count": 49,
+    "triangle_count": 173866,
+    "source_triangle_count": 173866,
+    "bounds_axis_max_delta": 0.0,
+    "max_part_bounds_delta": 1.8738210201263428e-06,
+    "missing_meshes": [],
+    "control_matrix_deltas": {
+      "CTRL_Action": 0.0,
+      "CTRL_InspectBalance": 0.0,
+      "CTRL_Chassis": 0.0,
+      "CTRL_Bolt": 0.0,
+      "CTRL_Charge": 0.0,
+      "CTRL_Magazine": 0.0,
+      "CTRL_PlateFore_Far": 0.0,
+      "CTRL_PlateFore_Player": 0.0,
+      "CTRL_PlateRear_Far": 0.0,
+      "CTRL_PlateRear_Player": 0.0
+    },
+    "sight_mesh_names": [
+      "Sight_CeramicDovetail",
+      "Sight_FrontCeramicReference",
+      "Sight_FrontPostReference",
+      "Sight_OpenCeramicAperture",
+      "Sight_ReceiverTenon",
+      "Sight_StockAxisFront"
+    ]
+  }
+}

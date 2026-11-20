@@ -1,0 +1,18 @@
+{
+  "line": "Faultline",
+  "source": "art-source/weapons/Skins/Faultline/Bulldog/v02/Bulldog_Faultline_v02.blend",
+  "blend": "art-source/weapons/Skins/Faultline/Bulldog/v03/Bulldog_Faultline_v03.blend",
+  "earlier_build_sha256": "822cfccdfe43eeb6194dad0e2fbc7e1d5525380b10c774d0d405b5cb1d7f9104",
+  "seat_source": "art-source/weapons/Skins/Shared Sources/Bulldog/SightSeat_v01/Bulldog_RemasterV2_v05_SightSeat_v01.blend",
+  "report": "The approved Root-parented seat bridges the gap. The existing model, sights, UVs, and actions match the source file.",
+  "review": "art-source/weapons/Skins/Faultline/Bulldog/v03/front-sight-seat.png",
+  "support_at_six_front_sight_probes": [
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003
+  ],
+  "saved_file_verified": true
+}

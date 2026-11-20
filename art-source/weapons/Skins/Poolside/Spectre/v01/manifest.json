@@ -102,6 +102,6 @@
   ],
   "bake_padding_pixels": 6,
   "stock_binding": "Use the four shared maps on the v05 Spectre's existing mesh parts and active UV atlas. Keep native sight emission and ammunition shaders where those effects are required. Tangent-space normal is +Y.",
-  "review_state": "Superseded by v02 after the first seam review.",
+  "review_state": "Superseded by the reviewed v02.",
   "superseded_by": "art-source/weapons/Skins/Poolside/Spectre/v02/manifest.json"
 }

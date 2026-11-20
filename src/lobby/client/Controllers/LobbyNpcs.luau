@@ -3,6 +3,8 @@
 -- `LobbyNPC` with a Humanoid plays a looping idle on this client. The rigs are built with the lobby
 -- (tools/studio/lobby_v4/Build_V4.luau → M.npcs) and anchored; nothing here touches the server.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local CollectionService = game:GetService("CollectionService")
 
 local LobbyNpcs = {}
@@ -29,7 +31,7 @@ local function start(model: Instance)
 		animator = a
 	end
 	local anim = Instance.new("Animation")
-	local override = model:GetAttribute("IdleAnim")
+	local override = StateValues.get(model, "IdleAnim")
 	anim.AnimationId = if typeof(override) == "string" and override ~= ""
 		then override
 		else DEFAULT_IDLE

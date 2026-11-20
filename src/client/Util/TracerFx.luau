@@ -53,6 +53,21 @@ type Style = {
 
 -- A gun's round: the base style, its class's changes, then the gun's own.
 local styles: { [string]: Style } = {}
+local SPECTRAL: Style = {
+	dartWidth = 0,
+	dartTaper = 0,
+	dartStart = 0,
+	dartTime = 0,
+	speed = 1080,
+	length = 5.4,
+	core = 0.095,
+	glow = 0.20,
+	glowFade = 0.57,
+	trailWidth = 0.23,
+	trail = 0.56,
+	trailFade = 0.31,
+	trailGrow = 0.95,
+}
 
 local function styleOf(config: WeaponConfig): Style
 	local style = styles[config.id]
@@ -193,7 +208,13 @@ end
 
 -- `own`: our own shot, drawn as the dart (see the top of the file). A
 -- suppressed gun's is fainter, and enemies see no tracer from it at all.
-function TracerFx.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: boolean?)
+function TracerFx.tracer(
+	from: Vector3,
+	to: Vector3,
+	config: WeaponConfig,
+	own: boolean?,
+	colorOverride: Color3?
+)
 	local offset = to - from
 	local dist = offset.Magnitude
 	if dist < T.minDistance then
@@ -208,19 +229,28 @@ function TracerFx.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: 
 	if not t.active then
 		activeTracers += 1
 	end
-	local style = styleOf(config)
+	-- A tint is supplied only for the owner of the equipped skin. The
+	-- suppressed model gets its own round without revealing the shot to others.
+	local spectral = own == true and colorOverride ~= nil
+	local style = if spectral then SPECTRAL else styleOf(config)
 	t.style = style
 	-- A gun that flashes has its class's colour (T.color); a suppressed one
 	-- keeps the pale round.
 	local suppressed = config.suppressed == true
-	local tint = if suppressed then nil else T.color.gun[config.id] or T.color.class[config.class]
+	local tint = if spectral
+		then colorOverride
+		elseif suppressed then nil
+		else T.color.gun[config.id] or T.color.class[config.class]
 	local color = tint or config.tracerColor
-	if t.color ~= color then
+	if t.color ~= color or spectral then
 		t.color = color
 		t.glow.Color = ColorSequence.new(color)
 		t.core.Color = ColorSequence.new(if tint then WHITE:Lerp(color, T.color.core) else WHITE)
-		t.trail.Color =
-			ColorSequence.new(color:Lerp(WHITE, if tint then T.color.trail else T.wakeWhiten))
+		t.trail.Color = if spectral
+			then ColorSequence.new(Color3.fromRGB(43, 104, 96), color:Lerp(WHITE, 0.12))
+			else ColorSequence.new(
+				color:Lerp(WHITE, if tint then T.color.trail else T.wakeWhiten)
+			)
 	end
 	t.from = from
 	t.dir = dir
@@ -229,11 +259,11 @@ function TracerFx.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: 
 	t.trailAge = 0
 	t.active = true
 	t.flying = true
-	t.dart = own == true
+	t.dart = own == true and not spectral
 	t.fresh = t.dart
 	t.glow.Enabled = true
 	t.core.Enabled = true
-	if own then
+	if t.dart then
 		-- The dart: tail from the muzzle (RIVALS, T.dart) or a little ahead of
 		-- it (the eased dart), head on the hit or at most T.dart.reach ahead.
 		t.tail = math.min(if T.dart.speed > 0 then T.dart.start else style.dartStart, dist * 0.5)
@@ -251,15 +281,18 @@ function TracerFx.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: 
 		end
 		return
 	end
-	t.core.Width0 = style.core * T.tailTaper
+	local taper = if spectral then 0.18 else T.tailTaper
+	t.core.Width0 = style.core * taper
 	t.core.Width1 = style.core
-	t.glow.Width0 = style.glow * T.tailTaper
+	t.glow.Width0 = style.glow * taper
 	t.glow.Width1 = style.glow
 	t.core.Transparency = NumberSequence.new(0)
 	t.core.Brightness = T.coreBrightness
 	t.glow.Transparency = NumberSequence.new(style.glowFade)
 	-- Suppressed rounds leave no trail.
 	t.trailBase = if suppressed then 1 else style.trail
+	t.trail.Texture = if spectral then VFX.FROST_VAPOR else VFX.TRACER_WAKE
+	t.trail.TextureSpeed = if spectral then 0.8 else 0
 	t.trail.Width0 = style.trailWidth * 0.5
 	t.trail.Width1 = style.trailWidth
 	t.length = math.min(style.length, dist * 0.6)
@@ -272,6 +305,14 @@ function TracerFx.tracer(from: Vector3, to: Vector3, config: WeaponConfig, own: 
 	t.trail.Enabled = t.trailBase < 1
 	if t.trailBase < 1 then
 		t.trail.Transparency = NumberSequence.new(t.trailBase)
+	end
+	if spectral then
+		if suppressed then
+			t.core.Width0 *= 0.56
+			t.core.Width1 *= 0.56
+			t.glow.Width0 *= 0.66
+			t.glow.Width1 *= 0.66
+		end
 	end
 end
 

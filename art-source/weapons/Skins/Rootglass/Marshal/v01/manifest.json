@@ -1,0 +1,500 @@
+{
+  "line": "Rootglass",
+  "item": "Marshal",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Marshal/Marshal_RemasterV2_v05.blend",
+  "source_file_sha256": "979997d2b7cc6060f8893788f324b79e9a5bfa5e3fbe0b1f0adf39e3ed8572c3",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Rootglass/Marshal/v01/Marshal_Rootglass_v01.blend",
+  "fbx": "art-source/weapons/Skins/Rootglass/Marshal/v01/Marshal_Rootglass_v01.fbx",
+  "art": {
+    "host": "Marshal_Receiver",
+    "bone": "Root",
+    "window_center": [
+      0.507,
+      0.08099992990493775,
+      0.128
+    ],
+    "width": 0.678,
+    "height": 0.128,
+    "specimen_profile": "long"
+  },
+  "anchors": {
+    "Marshal_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.197700023651123
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2046000063419342
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.3860000371932983
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.013199999928474426
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        0.18809999525547028
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.33329999446868896
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_ScopeAxis": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.1615999937057495
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.33329999446868896
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_Eject": [
+      [
+        -1.0,
+        1.5099580252808664e-07,
+        0.0,
+        0.31349998712539673
+      ],
+      [
+        -1.5099580252808664e-07,
+        -1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.21449999511241913
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_LoadPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3959999978542328
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        -0.05499999225139618
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.042899999767541885
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.8199999928474426
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.06780004501342773
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.06019999831914902
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.197700023651123
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2046000063419342
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.550000011920929
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.257999986410141
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Marshal_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.3899999856948853
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.0130000039935112
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 203146,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {
+    "before_overlap_texels": 57,
+    "after_overlap_texels": 0,
+    "parts": {
+      "Marshal_Hammer": [
+        {
+          "face": 202,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 185,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 178,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 144,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 198,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 40,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 116,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 12,
+          "uv_corners": 3,
+          "scale": 1
+        },
+        {
+          "face": 24,
+          "uv_corners": 3,
+          "scale": 1
+        }
+      ]
+    }
+  },
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Marshal_Stock|Dark",
+        "over": "Marshal_Stock|Panel",
+        "faces": 2
+      }
+    ]
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "347c0a151c70cac110aaa82bda86685e16051e2cf6f2ec429020bd52b550add9",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "88cd8fddfe51832cb76ca2a36d856b856415561e8e4c560a805ec00cdf9841dc",
+    "geometry_and_material_slots": "3f145cff8c4d5df92e76a7cbb7ce8694dec3e0ee42ddb41aac018cbbcc02d095",
+    "uv": "ee09d4aaab3841bc457ba9a483217245d7fbfd8102ae4d6df2f1e0509341d018",
+    "rig_and_nla": "b3eb10b7f008c35c693be57ea07977f33f03f9bd805762035638bec66f1c62a4",
+    "actions": "63f1ad7412cd6318f4d4570b057e8e162c0adc268e4c958906dd888e9dd118f1"
+  },
+  "built_mesh_count": 20,
+  "triangles": 4847,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Rootglass/Marshal/v01/textures/Marshal_Color.png",
+      "sha256": "3dc0187d158b142f0225b7600e2b95a2d6d83c53f1d3fbc1cf6c8a81dd26f332"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Rootglass/Marshal/v01/textures/Marshal_Normal.png",
+      "sha256": "d4733c628ec7e645a93e8744aa401ab7867767a996f97f36fefd8a0bda33a499"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Rootglass/Marshal/v01/textures/Marshal_Roughness.png",
+      "sha256": "1b386c8bb0112ab60458941f1ed4ba8f1d4ac56f75f98efd5c2d156717eb6a36"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Rootglass/Marshal/v01/textures/Marshal_Metalness.png",
+      "sha256": "ffbe546857ca3512a64508aaa10500f2112c92db8cde998ac48865ad39d86878"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the RootglassAtlas UVs supplied by the Blender file and local FBX.",
+  "inspect_pulse_targets": [
+    "Rootglass_Left_AmberVein_1",
+    "Rootglass_Left_AmberVein_2",
+    "Rootglass_Left_AmberVein_3"
+  ],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "89751592e54f5de712acaee53802bed9b784296009cfbb354a6ed597f6fa0383"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 22,
+      "review_frame": 12,
+      "sample_count": 22,
+      "pose_sha256": "8ff5b799c9e30c01c1f5554a67dca6bc6d8f725c19f86557b9a8b796f82a878b"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "3956ffaba538cfebcb49a3137181631aaf90dbb6ede11bed6ac4ee3788fd2339"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 60,
+      "review_frame": 12,
+      "sample_count": 60,
+      "pose_sha256": "7214f3bc93b872a0faae87946b681a3bac58569d2a3c08f96031c72f8225b49f"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 86,
+      "review_frame": 12,
+      "sample_count": 86,
+      "pose_sha256": "757666ac06566c8da7412287fabd696602f3fa4e0fee303a623806a48dd1de95"
+    },
+    "ReloadEnd": {
+      "start": 1,
+      "end": 14,
+      "review_frame": 14,
+      "sample_count": 14,
+      "pose_sha256": "e8f1b076e8277d4f8a85908048a4576fa87dcdd37d5cde9905c8dc09a57a652a"
+    },
+    "ReloadInsert": {
+      "start": 1,
+      "end": 17,
+      "review_frame": 14,
+      "sample_count": 17,
+      "pose_sha256": "c9f3ba8737396fba21b89eaf4878f5ea9ae876dd1d3a9d79639d4015e3d5cfb6"
+    },
+    "ReloadStart": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 10,
+      "sample_count": 12,
+      "pose_sha256": "c62a8fedd2fd0f59086ead3136bace3a228c491a0df8ac47da2ac72f335ddda0"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": {
+    "mesh_count": 20,
+    "culling_views": [
+      "left",
+      "right",
+      "rear"
+    ]
+  },
+  "archived_hand_proxy": {}
+}

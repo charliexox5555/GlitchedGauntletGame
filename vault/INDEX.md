@@ -4,14 +4,21 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 
 ## Start
 - `00 Home.md` (13): current status, last results, what waits on the user, Locked decisions table, map of notes
+- [State Values and Asset Data](04%20Tech/State%20Values%20and%20Asset%20Data.md): results snapshot, runtime values and shared authored configuration
+- [State Values playtest](05%20Production/Playtests/2026-11-19%20State%20Values.md): oversized results, 2v2 rematch, Lobby queue and current asset audit
 - `05 Production/Status History.md` (42): dated status log before 2026-11-05 (what was built when); grep only
 - `04 Tech/Code Map.md` (10): every Service/Controller, its remotes and attributes; pick code files from here
 - `04 Tech/Architecture.md` (15): repo layout, shot validation walkthrough, match system, test range, Rojo/Studio gotchas, code rules
+- `04 Tech/Developer Handoff.md`: both places, player journey, edit map, Studio audit, troubleshooting and release handoff
 
 ## Design (01 Design)
 - `01 Design/Match Flow.md` (8): rounds, select/draft, timers, weapon phases, as built
 - `01 Design/Gunplay.md` (48): movement, slide, spread, recoil, aim assist, feedback, health/downed (§3), viewmodel (§6), feel roadmap (§5)
 - `01 Design/Gun Balance.md` (8): health, shields, every gun's damage, TTK
+- [Gun and round balance playtest](05%20Production/Playtests/2026-11-19%20Gun%20and%20Round%20Balance.md): shot breakpoints, Sheriff in round two, Elite and Mod draft variety
+- [Ammo and assists playtest](05%20Production/Playtests/2026-11-19%20Ammo%20and%20Assists.md): reserve limits, Classic backup and assist feedback
+- [Overtime Zone](02%20Art/Overtime%20Zone.md): Blender meshes, curtain texture and Studio setup
+- [Overtime Zone playtest](05%20Production/Playtests/2026-11-19%20Overtime%20Zone.md): visual review, shrink, warning, damage and cleanup
 - `01 Design/Weapons.md` (10): gun roster, tiers per round, gun mechanics
 - `01 Design/Mods.md` (15): the 9 abilities, controls, activation types, A/B/Glitch paths
 - `01 Design/Abilities/00 Abilities.md` (8): base ability redesign overview and build prompt
@@ -19,6 +26,10 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `01 Design/Abilities/Upgrade Paths.md` (11): L2/L3 paths A/B/Glitch for all 12 abilities
 - `01 Design/Abilities/<Shock Dart|Flash|Roller>.md` (3–4 each): the free pack, built 2026-11-17 (numbers, how it's built, sounds, bots, counter-play)
 - `01 Design/Bots.md` (23): AI bots: seats, brain, perception, aim, Mods, tuning
+- `05 Production/Bot Redesign 2026-11-17.md`: shooter research, movement and Mod redesign, difficulty profiles, Studio test results
+- [Shadow Mist idle playtest](05%20Production/Playtests/2026-11-17%20Shadow%20Mist%20Idle.md)
+- [Shadow Mist action polish](05%20Production/Playtests/2026-11-18%20Shadow%20Mist%20Action%20Polish.md)
+- `05 Production/Playtests/2026-11-17 Bot Redesign.md`: Studio route, combat and overtime observations
 - `01 Design/Match Avatar.md` (11): the standard body for players, bots and dummies
 - `01 Design/Third Person Overhaul.md` (19): 2026-11-12, built: why players weren't posed (Server Authority off), the block body and how its clothing is drawn, the accessory rule, the 40 re-authored clips and the `tools/anim` rig, per-gun findings; §7 second pass: research links, Toolbox findings, the jitter measurement, rifle stance, spring recoil, self-grade, what is not verified
 - `01 Design/Match HUD.md` (22): match HUD layout, v1 revert, phone arrangement
@@ -84,6 +95,11 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `02 Art/Skins/{Redline,Nitrous,PopCircuit}/Build Ledger.md`: per-line Blender files, texture sets, manifests and next steps
 - `02 Art/Skins/Skin Build Pitfalls.md` (6): every skin problem the owner found (gaps, z-fighting, sights fading on ADS, textures showing through hidden parts, blunt outlines), cause, fix, and the check that catches it
 - `02 Art/Skins/Structural Skin Round One Results.md`: all 36 structural skins (6 lines) built in Blender 2026-11-14, grades, checks, Studio pass to do
+- [Ruin-Blighted Vandal concept](02%20Art/Skins/RuinBlighted/concept.md) and [model handoff](02%20Art/Skins/RuinBlighted/Model%20Handoff.md): owner reference and breakdown, [Shadow Mist Blender reviews](02%20Art/Skins/RuinBlighted/Build%20Review.md)
+- [Shadow Mist Vandal sound cue sheet](02%20Art/Skins/RuinBlighted/Sound%20Cue%20Sheet.md): stock takes, current Shadow Mist layers, sound design direction, and draw, reload and inspect timing
+- [Elite skin playbook](02%20Art/Skins/RuinBlighted/Elite%20Skin%20Playbook.md) and [Ruin-Blighted expansion ledger](02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md): reusable Shadow Mist workflow and roster continuation
+- [Ruin-Blighted sound production checklist](02%20Art/Skins/RuinBlighted/Expansion%20Sound%20Queue.md): exact current recordings, reuse and export instructions for each gun, Ruined Reaver and the stock Knife
+- [Tempest-Strike concept](02%20Art/Skins/TempestStrike/concept.md), [research archive](02%20Art/Skins/TempestStrike/Research.md) and [Vandal build handoff](02%20Art/Skins/TempestStrike/Build%20Handoff.md): revised Kuronami-inspired elite hero, fluted shroud, laminar water, custom actions, chromas, round and shuriken charm
 - `02 Art/Skins/{Moltframe,Slipframe,Giltfold,Inkshift,Sealwork,Payload}/Build Ledger.md`: per-item files, build, measured checks, grade and open checks for each structural line
 
 ## Tech (04 Tech)
@@ -94,8 +110,8 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `04 Tech/Prompts/2026-11-15 Gunplay Feel (RIVALS).md` (9): handoff (current state with file:line) + prompt for RIVALS-style hit markers, headshot look, crosshair motion on slide, body on slide
 - `04 Tech/Prompts/2026-11-16 Lobby Build (RIVALS study).md` (10): handoff (Sunwell / V3 state, locked look, rejected list, pipeline, scripted hooks) + prompt to study the RIVALS lobby and rebuild ours as Lobby V4, main area first
 - `04 Tech/Prompts/2026-11-16 Maps Redesign (RIVALS-clean).md` (9): handoff (decision, lineup, RIVALS numbers, map contract the code reads) + prompt for the full map redesign in the RIVALS-clean look, Opus routing
-- `04 Tech/Setup Guide.md` (9): install, Rojo, Obsidian, Claude, prompts
-- `04 Tech/Codex Collaboration.md` (3): how the core chat uses the user's Codex app
+- `04 Tech/Setup Guide.md`: toolchain, both Rojo ports, Studio MCP, Obsidian, Git and release
+- `04 Tech/Codex Collaboration.md`: migration from Claude, current project skills and working routine
 - `04 Tech/LihFolk.md` (2): the Roblox knowledge plugin and where its notes live
 - `04 Tech/Video Analyzer.md` (4): YouTube study tool (transcripts + frames), install, CLI command, gotchas
 - `04 Tech/Prompts/Archive/Ability System Prompt.md` (8), `Lobby Build Prompt.md` (6): old build prompts (archived)
@@ -106,6 +122,9 @@ One line per project note: path (relative to `vault/`) and what it answers. Sear
 - `05 Production/Handoff - Ability Rework (Opus).md` (9): start here to continue the ability rework in a pure Opus chat: paste-ready opener, usage rules, what is done and Play-checked, what is left in order, Studio / Blender / git state, gotchas
 - `05 Production/Ability Rework 2026-11-15.md` (5): plan and status for the nine-Mod rework: model routing, live Blender MCP rules + shared core `tools/blender/rework/rw_core.py`, prop interfaces to keep, phases
 - `05 Production/Game Plan.md` (33): day-by-day plan, scope, §1 map rules, §4 draft ideas, §5 longer-term
+- [Release Roadmap](05%20Production/Release%20Roadmap.md): full pre-release checklist, build dependencies, test matrix and ranked deadline cuts
+- [Experience Naming](05%20Production/Experience%20Naming.md): Roblox naming research, spoken-name shortlist, and collision checks
+- [Experience Naming Review](05%20Production/Experience%20Naming%20Review.md): numbered name candidates for owner feedback, comparison titles, and first-page Roblox checks
 - `05 Production/Handoff - Grades to 9-10.md` (5): the lanes left to bring every animation and gunplay grade to 9-10 (2026-11-13), shared rules for parallel sessions
 - `05 Production/Match Structure Revamp.md` (21): Release 1 match flow plan, phases A–D, as built
 - `05 Production/Weapon RemasterV2.md` (6): Opus weapon rebuild via live Blender MCP; all 18 v03 guns imported into Studio 2026-11-08, first-person pass, F6 gun review mode

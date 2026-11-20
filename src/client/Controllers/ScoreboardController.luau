@@ -9,6 +9,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
@@ -29,6 +30,8 @@ type Line = {
 	id: string,
 	name: string,
 	userId: number?,
+	botLevel: number?,
+	portraitUserId: number?,
 	team: number,
 	eliminations: number,
 	deaths: number,
@@ -68,17 +71,12 @@ local function child<T>(parent: Instance, name: string): T
 end
 
 -- Alive right now: a player's character, or a bot's body (by its BotId).
-local function alive(line: Line): boolean
+local function alive(line: Line, bot: Model?): boolean
 	if line.userId then
 		local p = Players:GetPlayerByUserId(line.userId)
 		return p ~= nil and Health.isAlive(p.Character)
 	end
-	for _, body in Fighters.bodies() do
-		if "b" .. tostring(body:GetAttribute("BotId")) == line.id then
-			return Health.isAlive(body)
-		end
-	end
-	return false
+	return Health.isAlive(bot)
 end
 
 local function header(s: State, order: number, label: string, color: Color3)
@@ -97,16 +95,18 @@ local function row(s: State, order: number, line: Line, ally: boolean)
 	local holder = (child(s.templates, "Row") :: Frame):Clone()
 	holder.LayoutOrder = order
 	local mine = line.id == "p" .. player.UserId
-	local up = alive(line)
+	local bot = if line.userId then nil else Fighters.botBody(line.id)
+	local up = alive(line, bot)
 	local body = child(holder, "Body") :: CanvasGroup
 	body.BackgroundColor3 = if mine then NAVY_HI else NAVY
 	body.GroupTransparency = if up then 0 else 0.45 -- the dead read dimmer
 	local cell = child(body, "Cell") :: Frame
 	cell.BackgroundColor3 = if ally then ALLY_CELL else ENEMY_CELL
 	local headshot = child(cell, "Headshot") :: ImageLabel
-	headshot.Image = if line.userId
-		then string.format("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150", line.userId)
-		else BOT_HEAD
+	headshot.Image = PlayerTags.headshot(
+		line.userId or line.portraitUserId or (bot and StateValues.get(bot, "PortraitUserId")),
+		BOT_HEAD
+	)
 	local nameLine = child(body, "NameLine") :: Frame
 	local name = child(nameLine, "PlayerName") :: TextLabel
 	name.Text = string.upper(line.name)
@@ -120,9 +120,9 @@ local function row(s: State, order: number, line: Line, ally: boolean)
 	local who = if line.userId then Players:GetPlayerByUserId(line.userId) else nil
 	if who or not line.userId then
 		name.LayoutOrder = 1
-		local lv = PlayerTags.level(nameLine, who, 12, name.ZIndex)
+		local lv = PlayerTags.level(nameLine, who or bot, 12, name.ZIndex, line.botLevel)
 		lv.LayoutOrder = 2
-		local dev = PlayerTags.device(nameLine, who, 16, name.ZIndex)
+		local dev = PlayerTags.device(nameLine, who or bot, 16, name.ZIndex)
 		dev.LayoutOrder = 3
 		dev.ImageColor3 = Color3.fromHex("AAAAAD")
 		shard.LayoutOrder = 4

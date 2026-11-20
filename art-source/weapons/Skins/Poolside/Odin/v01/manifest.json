@@ -1,0 +1,436 @@
+{
+  "line": "Poolside",
+  "item": "Odin",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Odin/Odin_RemasterV2_v05.blend",
+  "source_file_sha256": "26ae474ba886cb32e0fffd6bf9a0a6a02c32cdab74ac9142ce4332771d16fe8f",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Odin/v01/Odin_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Receiver"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Odin_Sights": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.3635001182556152
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.3709999918937683
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.715000033378601
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.15399999916553497
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_AimPoint": [
+      [
+        7.549790126404332e-08,
+        0.0,
+        1.0,
+        0.020999999716877937
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        -1.0,
+        0.0,
+        7.549790126404332e-08,
+        0.6503000259399414
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.4724999964237213
+      ],
+      [
+        0.0,
+        7.549790126404332e-08,
+        -1.0,
+        -0.09600000083446503
+      ],
+      [
+        0.0,
+        1.0,
+        7.549790126404332e-08,
+        0.3465000092983246
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_BeltFeedPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9169999957084656
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.05400000512599945
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.41999998688697815
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.134999990463257
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.10180002450942993
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.18230000138282776
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        3.3635001182556152
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.3709999918937683
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.3499999940395355
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.6000000238418579
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Odin_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        1.7200000286102295
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.1574999988079071
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 472932,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Odin_FeedBelt|Metal",
+        "over": "Odin_FeedBelt|Accent",
+        "faces": 30
+      },
+      {
+        "lift": "Odin_FeedCover|Body",
+        "over": "Odin_FeedCover|Dark",
+        "faces": 2
+      },
+      {
+        "lift": "Odin_Stock|Body",
+        "over": "Odin_Stock|Dark",
+        "faces": 2
+      }
+    ]
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "3c8e7f82cfde5acde46adde901f175fc9d0df88a305c5f1965f3bb006fb51c3c",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "21330201311e6623d84e17e3f303834a425fe0395dc28ea1dff15b144893a229",
+    "geometry_and_material_slots": "685d0a2ee7c44be38334686600b2d40705f23ee13bd30a874c86c2032e601c5f",
+    "uv": "3c8e7f82cfde5acde46adde901f175fc9d0df88a305c5f1965f3bb006fb51c3c",
+    "rig_and_nla": "dc2b6165696d80281d364d6b942a8881abdac889bfda066eeadae0eaeee465c9",
+    "actions": "766eb7ffd0fa19c3e3f19317327ef3473184d4fe01e2a11ac488b7593190859c"
+  },
+  "built_mesh_count": 14,
+  "triangles": 4528,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Odin/v01/textures/Odin_Color.png",
+      "sha256": "1fcd00885b3542b78cc4feb6d70a79d4ab310605ee0057962b8e2f0be7e9228d"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Odin/v01/textures/Odin_Normal.png",
+      "sha256": "a270c62d8e55b74e74f2395f2c8bfec0774a23bc3c5e92e18c7a1667f9e494fe"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Odin/v01/textures/Odin_Roughness.png",
+      "sha256": "6bdb66926ff8aa0f8c7a5f44ad496c07b15753afb959f5fc3a88b5a983252fc3"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Odin/v01/textures/Odin_Metalness.png",
+      "sha256": "e94fe47abbfc85959c70d1a3db73aa952df2ba519726d26f0dd9ac459ee3413e"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {
+    "eye": [
+      -0.4665,
+      0.0,
+      0.6503
+    ],
+    "len": 0.4625,
+    "geo_hits": {},
+    "box_hits": {},
+    "new_geometry_hits": []
+  },
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 31,
+      "review_frame": 15,
+      "sample_count": 31,
+      "pose_sha256": "c02d7237ad1615acaa54c776df96e61c53714ffa4437450c39bf3af3ef3d2831"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 12,
+      "review_frame": 3,
+      "sample_count": 12,
+      "pose_sha256": "ad80b5aa1c8943669aa39dae2ba1fa0f24ae29d51586df9ac3b224c11a69641f"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 46,
+      "sample_count": 67,
+      "pose_sha256": "ebed8390d9b00ef339f1161eecdd993b42cea1eec4eca6ee58309b57114aea2f"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 80,
+      "review_frame": 20,
+      "sample_count": 80,
+      "pose_sha256": "2e7ebf832dd74a8415ce1e946cb7e51c53892c639d1af73eec7c96194c1545a5"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 110,
+      "review_frame": 20,
+      "sample_count": 110,
+      "pose_sha256": "311afefd0ee61266c323ccda78465a726f3007594c93632cfa032b11815eebef"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}

@@ -15,6 +15,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
 
 local Crosshair = require(ReplicatedStorage.Shared.Config.Crosshair)
@@ -459,7 +460,7 @@ local function renderTab(i: number)
 		local item = LobbyKit.slot(tpl, list, function(r: TextButton)
 			r.Name = "Row" .. n
 			r.LayoutOrder = n
-			r:SetAttribute("Slot", true)
+			StateValues.set(r, "Slot", true)
 			local nameLabel = child(r, "Name") :: TextLabel
 			nameLabel.Text = row.name
 			nameLabel.TextColor3 = if row.soon then C.muted else C.white

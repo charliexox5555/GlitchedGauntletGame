@@ -25,6 +25,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Shared = ReplicatedStorage.Shared
 local Authority = require(Shared.Authority)
@@ -51,7 +52,7 @@ type Shadow = { key: string, charges: number, rechargeAt: number, reset: number,
 local shadows: { [Player]: { [number]: Shadow } } = {}
 
 local function number(inst: Instance, name: string): number
-	local v = inst:GetAttribute(name)
+	local v = StateValues.get(inst, name)
 	return if typeof(v) == "number" then v else 0
 end
 
@@ -63,7 +64,7 @@ local function spend(
 	stats: ModTypes.Stats,
 	now: number
 ): boolean
-	if player:GetAttribute("ModUnlimitedCharges") == true then
+	if StateValues.get(player, "ModUnlimitedCharges") == true then
 		return true
 	end
 	local max: number = stats.charges
@@ -151,8 +152,8 @@ local function onReport(
 		return
 	end
 
-	local id = player:GetAttribute("Mod" .. slot .. "Id")
-	local level = player:GetAttribute("Mod" .. slot .. "Level")
+	local id = StateValues.get(player, "Mod" .. slot .. "Id")
+	local level = StateValues.get(player, "Mod" .. slot .. "Level")
 	if typeof(id) ~= "string" or typeof(level) ~= "string" then
 		return
 	end
@@ -178,12 +179,12 @@ local function onReport(
 	end
 
 	local now = time()
-	local locked = player:GetAttribute(MatchState.COMBAT_LOCKED) == true
+	local locked = StateValues.get(player, MatchState.COMBAT_LOCKED) == true
 	if kind ~= "Land" then
 		-- No casts and no dives behind the barrier, between rounds or while
 		-- frozen (as Simulation/Abilities and ModService refuse them). A
 		-- landing still goes through, to end the flight (`locked`: no damage).
-		if locked or player:GetAttribute("StatusStunned") == true then
+		if locked or StateValues.get(player, "StatusStunned") == true then
 			return
 		end
 		if kind == "Cast" and not spend(player, slot, id .. ":" .. level, stats, now) then

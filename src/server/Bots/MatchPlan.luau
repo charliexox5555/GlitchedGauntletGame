@@ -13,9 +13,11 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local BotsConfig = require(ReplicatedStorage.Shared.Config.Bots)
+local Net = require(ReplicatedStorage.Shared.Net)
 
 export type Plan = {
 	matchId: string,
@@ -107,7 +109,7 @@ local function read(player: Player)
 		return
 	end
 	if RunService:IsStudio() then
-		local mode = workspace:GetAttribute("BotMatch")
+		local mode = StateValues.get(workspace, "BotMatch")
 		local size = if typeof(mode) == "string" then BotsConfig.MODES[mode] else nil
 		if size then
 			plan = {
@@ -154,29 +156,40 @@ function MatchPlan.teamFor(player: Player): number?
 	return nil
 end
 
--- Every listed player is here, or the grace for them is over.
-function MatchPlan.ready(): boolean
+-- Wait for the vote UI on every connected seat. Only absent seats can expire.
+function MatchPlan.readiness(): (number, number, boolean)
 	local p = plan
 	if not p then
-		return false
+		return 0, 0, false
 	end
 	local grace = if RunService:IsStudio()
 		then BotsConfig.JOIN_GRACE_STUDIO
 		else BotsConfig.JOIN_GRACE
-	if os.clock() - p.firstJoinAt >= grace then
-		return true
-	end
+	local ready, present, expected = 0, 0, 0
 	for team = 1, 2 do
 		for _, userId in p.teams[team] do
-			if not Players:GetPlayerByUserId(userId) then
-				return false
+			expected += 1
+			local player = Players:GetPlayerByUserId(userId)
+			if player then
+				present += 1
+				if StateValues.get(player, "MatchVoteReady") == true then
+					ready += 1
+				end
 			end
 		end
 	end
-	return true
+	local canStart = ready > 0
+		and ready == present
+		and (present == expected or os.clock() - p.firstJoinAt >= grace)
+	return ready, expected, canStart
 end
 
 function MatchPlan.start()
+	Net.event("MatchReady").OnServerEvent:Connect(function(player)
+		if StateValues.get(player, "MatchVoteReady") ~= true then
+			StateValues.set(player, "MatchVoteReady", true)
+		end
+	end)
 	Players.PlayerAdded:Connect(read)
 	for _, player in Players:GetPlayers() do
 		read(player)

@@ -15,6 +15,8 @@
 -- shotgun blast, a fire tick, a slam) uses one up and deals nothing, before
 -- the gun shield and health. It lasts until used up, death or the next round.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 
 local Health = require(script.Parent.Parent.Health)
@@ -71,7 +73,7 @@ local watches: { [Model]: { RBXScriptConnection } } = {}
 
 local function clearBarrier(model: Model)
 	if model.Parent then
-		model:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, nil)
+		StateValues.set(model, HealOrb.BARRIER_ATTRIBUTE, nil)
 	end
 	barrierFrom[model] = nil
 	local list = watches[model]
@@ -84,7 +86,7 @@ local function clearBarrier(model: Model)
 end
 
 local function giveBarrier(target: Model, hits: number, caster: Player)
-	target:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, hits) -- replaces, never adds
+	StateValues.set(target, HealOrb.BARRIER_ATTRIBUTE, hits) -- replaces, never adds
 	barrierFrom[target] = caster
 	if watches[target] then
 		return
@@ -169,7 +171,7 @@ module.server = function(api: Types.ServerApi)
 	-- One enemy damage instance per Barrier hit. Your own and your team's
 	-- damage (a Molly at your feet) goes past it without using it up.
 	api.guard(function(victim: Model, humanoid: Humanoid, amount: number, attacker: Player?): number
-		local left = victim:GetAttribute(HealOrb.BARRIER_ATTRIBUTE)
+		local left = StateValues.get(victim, HealOrb.BARRIER_ATTRIBUTE)
 		if typeof(left) ~= "number" or left < 1 or amount <= 0 or not Health.isAlive(humanoid) then
 			return amount
 		end
@@ -179,7 +181,7 @@ module.server = function(api: Types.ServerApi)
 		left -= 1
 		local caster = barrierFrom[victim]
 		if left >= 1 then
-			victim:SetAttribute(HealOrb.BARRIER_ATTRIBUTE, left)
+			StateValues.set(victim, HealOrb.BARRIER_ATTRIBUTE, left)
 		else
 			clearBarrier(victim)
 		end

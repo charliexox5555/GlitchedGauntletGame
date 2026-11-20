@@ -8,6 +8,7 @@
 
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Config = require(script.Parent.Config.NetStats)
@@ -72,24 +73,24 @@ end
 -- Server only: publish the region (yields for the lookup in its own thread).
 function ServerRegion.start()
 	assert(RunService:IsServer(), "ServerRegion.start is server-only")
-	ReplicatedStorage:SetAttribute(ServerRegion.ATTRIBUTE, fallback())
+	StateValues.set(ReplicatedStorage, ServerRegion.ATTRIBUTE, fallback())
 	if Config.REGION_LOOKUP and not RunService:IsStudio() then
 		task.spawn(function()
 			local found = lookup()
 			if found then
-				ReplicatedStorage:SetAttribute(ServerRegion.ATTRIBUTE, found)
+				StateValues.set(ReplicatedStorage, ServerRegion.ATTRIBUTE, found)
 			end
 		end)
 	end
 end
 
 function ServerRegion.get(): string
-	local v = ReplicatedStorage:GetAttribute(ServerRegion.ATTRIBUTE)
+	local v = StateValues.get(ReplicatedStorage, ServerRegion.ATTRIBUTE)
 	return if typeof(v) == "string" then v else "• • •"
 end
 
 function ServerRegion.changed(): RBXScriptSignal
-	return ReplicatedStorage:GetAttributeChangedSignal(ServerRegion.ATTRIBUTE)
+	return StateValues.changed(ReplicatedStorage, ServerRegion.ATTRIBUTE)
 end
 
 return ServerRegion

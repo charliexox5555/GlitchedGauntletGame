@@ -1,0 +1,38 @@
+{
+  "line": "Spindrift",
+  "item": "Vandal",
+  "version": "v02",
+  "source": "art-source\\weapons\\RemasterV2\\Vandal\\Vandal_RemasterV2_v05.blend",
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 27,
+    "ready": 69,
+    "peak": 31,
+    "inspect": 103,
+    "cancel": 145,
+    "steps": [],
+    "game_reload_seconds": 2.5
+  },
+  "fit": {
+    "seat_rays_hit": 24,
+    "seat_rays_total": 24,
+    "side_depth_variation": 0.007
+  },
+  "rendered_panels": [
+    "hero",
+    "side",
+    "right",
+    "held",
+    "aim",
+    "detail",
+    "start",
+    "commit",
+    "ready",
+    "cancel",
+    "inspect"
+  ],
+  "backface_culling": true,
+  "fps": 24,
+  "motion_frame_step": 3
+}

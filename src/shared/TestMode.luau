@@ -3,40 +3,36 @@
 -- player spawns there and gets the tester tools (loadout picker, ammo refill,
 -- dummy controls, stats).
 --
--- The switch is the Workspace attribute "TestMode" (a checkbox in Studio:
--- Workspace → Properties → Attributes), saved with the place, so it can be
--- flipped before publishing without touching code. When the attribute is
--- missing, Studio playtests fall back to Config/Dev TEST_RANGE and live
--- servers stay off. At start the server writes the value it decided on back
--- to the attribute, so clients read the same answer. Off means a real match
--- (MatchService).
+-- In Studio, the Workspace TestMode checkbox is read when Play starts.
+-- The server publishes its decision so clients read the same answer.
+
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Dev = require(script.Parent.Config.Dev)
 
-local ATTRIBUTE = "TestMode"
+local FIELD = "TestMode"
 
 local TestMode = {}
-
-TestMode.ATTRIBUTE = ATTRIBUTE
 
 -- Server only: decides whether this server is a test range and publishes it.
 function TestMode.resolve(): boolean
 	assert(RunService:IsServer(), "TestMode.resolve is server-only")
-	local value = Workspace:GetAttribute(ATTRIBUTE)
-	local on = if typeof(value) == "boolean"
-		then value
-		else RunService:IsStudio() and Dev.TEST_RANGE
-	Workspace:SetAttribute(ATTRIBUTE, on)
+	local on = false
+	if RunService:IsStudio() then
+		local value = Workspace:GetAttribute(FIELD)
+		on = if typeof(value) == "boolean" then value else Dev.TEST_RANGE
+	end
+	StateValues.set(Workspace, FIELD, on)
 	return on
 end
 
 -- Both sides. On the server this is only meaningful after resolve() (the
 -- test range service calls it in init()).
 function TestMode.isOn(): boolean
-	return Workspace:GetAttribute(ATTRIBUTE) == true
+	return StateValues.get(Workspace, FIELD) == true
 end
 
 return TestMode

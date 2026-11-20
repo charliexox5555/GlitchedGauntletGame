@@ -1,0 +1,35 @@
+{
+  "blend": "Odin_Kilnlock_concept_v04.blend",
+  "objects": 114,
+  "new_closed_meshes": 24,
+  "identical_stock_meshes_and_UV": 14,
+  "cancel_to_rest_max_delta": 0.0,
+  "active_max_transform_delta": 1.97212,
+  "frame_end": 218,
+  "screen_coverage": {},
+  "grip_projection": {},
+  "actions": 11,
+  "bones": [
+    "Root",
+    "AmmoBox",
+    "FeedBelt",
+    "FeedCover",
+    "ChargingHandle",
+    "Bolt",
+    "Trigger",
+    "Flash",
+    "Charm"
+  ],
+  "markers": {
+    "REST": 1,
+    "RELOAD START": 9,
+    "STOCK COMMIT": 46,
+    "READY": 110,
+    "INSPECT": 119,
+    "INTERRUPT": 180,
+    "CANCEL REST": 186,
+    "CHARM SWING / +15\u00b0": 201,
+    "CHARM SWING / -15\u00b0": 210,
+    "CHARM REST": 218
+  }
+}

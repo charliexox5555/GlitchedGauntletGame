@@ -17,6 +17,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local SeasonCatalog = require(ReplicatedStorage.Lobby.SeasonCatalog)
 local ShopCatalog = require(ReplicatedStorage.Lobby.ShopCatalog)
@@ -442,9 +443,9 @@ local function setPage(n: number, animate: boolean)
 end
 
 local function slideIn(o: GuiObject, dx: number, dy: number, delay: number)
-	local h = o:GetAttribute("Home")
+	local h = StateValues.get(o, "Home")
 	local home = if typeof(h) == "UDim2" then h else o.Position
-	o:SetAttribute("Home", home)
+	StateValues.set(o, "Home", home)
 	o.Position = home + UDim2.fromOffset(dx, dy)
 	task.delay(delay, function()
 		if isOpen then

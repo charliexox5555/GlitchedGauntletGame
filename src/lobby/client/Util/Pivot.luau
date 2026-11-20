@@ -15,6 +15,8 @@
 --   centred or wrapped. Objects with the attribute PivotOk = true are left
 --   as designed (e.g. a hover that rises from the base).
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Pivot = {}
 
 local function layoutManaged(obj: GuiObject): boolean
@@ -44,7 +46,7 @@ end
 
 function Pivot.wrap(obj: GuiObject): Frame
 	local parent = obj.Parent
-	if parent and parent:GetAttribute("PivotHolder") == true then
+	if parent and StateValues.get(parent, "PivotHolder") == true then
 		return parent :: Frame
 	end
 	local holder = Instance.new("Frame")
@@ -56,7 +58,7 @@ function Pivot.wrap(obj: GuiObject): Frame
 	holder.BackgroundTransparency = 1
 	holder.BorderSizePixel = 0
 	holder.ZIndex = obj.ZIndex
-	holder:SetAttribute("PivotHolder", true)
+	StateValues.set(holder, "PivotHolder", true)
 	holder.Parent = parent
 	-- a grid sizes its cells (the holder now); the item fills its holder
 	if parent and parent:FindFirstChildOfClass("UIGridLayout") then
@@ -83,7 +85,7 @@ function Pivot.fix(root: Instance)
 	for _, d in root:GetDescendants() do
 		if d:IsA("UIScale") and d.Name ~= "Fit" then
 			local g = d.Parent
-			if g and g:IsA("GuiObject") and g:GetAttribute("PivotOk") ~= true then
+			if g and g:IsA("GuiObject") and StateValues.get(g, "PivotOk") ~= true then
 				table.insert(targets, g)
 			end
 		end
@@ -99,7 +101,7 @@ end
 
 -- The item itself, given what a lookup by name found (its holder, if wrapped).
 function Pivot.item(found: Instance): Instance
-	if found:GetAttribute("PivotHolder") == true then
+	if StateValues.get(found, "PivotHolder") == true then
 		local inner = found:FindFirstChild(found.Name)
 		if inner then
 			return inner

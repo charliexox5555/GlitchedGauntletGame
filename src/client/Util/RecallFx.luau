@@ -11,6 +11,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -141,7 +142,7 @@ local function staticOn(part: BasePart): ParticleEmitter
 end
 
 local function isMine(part: BasePart): boolean
-	return part:GetAttribute("OwnerId") == player.UserId
+	return StateValues.get(part, "OwnerId") == player.UserId
 end
 
 local function setUp(part: BasePart)
@@ -220,7 +221,7 @@ local function stepAnchors()
 	for _, child in objects:GetChildren() do
 		if
 			child:IsA("BasePart")
-			and child:GetAttribute("Kind") == "Recall"
+			and StateValues.get(child, "Kind") == "Recall"
 			and not anchors[child]
 		then
 			setUp(child)
@@ -304,7 +305,7 @@ local function stepShimmers(serverNow: number)
 		if not character or not root or not root:IsA("BasePart") then
 			continue
 		end
-		local untilT = character:GetAttribute("RecallWindupUntil")
+		local untilT = StateValues.get(character, "RecallWindupUntil")
 		local on = typeof(untilT) == "number" and serverNow < untilT
 		if on or shimmers[root] then
 			shimmerOn(root).Rate = if on then 45 else 0

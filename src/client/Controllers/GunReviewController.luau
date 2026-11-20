@@ -10,6 +10,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
@@ -77,7 +78,7 @@ end
 
 local function equippedId(): string?
 	-- WorldModel writes the held gun on the Player (and on bots' models).
-	local id = player:GetAttribute("WeaponId")
+	local id = StateValues.get(player, "WeaponId")
 	return if typeof(id) == "string" then id else nil
 end
 
@@ -121,7 +122,11 @@ local function refresh()
 end
 
 local function applyTimeScale()
-	Workspace:SetAttribute("VfxTimeScale", if frozen then 0 elseif speed == 1 then nil else speed)
+	StateValues.set(
+		Workspace,
+		"VfxTimeScale",
+		if frozen then 0 elseif speed == 1 then nil else speed
+	)
 	refresh()
 end
 
@@ -266,7 +271,7 @@ function GunReviewController.start()
 			setVerdict("work")
 		end
 	end)
-	player:GetAttributeChangedSignal("WeaponId"):Connect(refresh)
+	StateValues.changed(player, "WeaponId"):Connect(refresh)
 	player.CharacterAdded:Connect(function()
 		task.delay(1, refresh)
 	end)

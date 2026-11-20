@@ -11,6 +11,8 @@
 -- starts). The server decides everything (Services/QueueService).
 -- Phones keep the old code-built menu (Controllers/QueueMenu) for now.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
@@ -192,16 +194,16 @@ local function open()
 	for _, name in { "Title", "Hint" } do
 		local o = canvas:FindFirstChild(name)
 		if o and o:IsA("GuiObject") then
-			local h = o:GetAttribute("Home")
+			local h = StateValues.get(o, "Home")
 			local home = if typeof(h) == "UDim2" then h else o.Position
-			o:SetAttribute("Home", home)
+			StateValues.set(o, "Home", home)
 			o.Position = home - UDim2.fromOffset(40, 0)
 			tween(o, 0.4, { Position = home })
 		end
 	end
 	for i, t in tiles do
 		t.button.Position = t.home + UDim2.fromOffset(0, 36)
-		t.pop:SetAttribute("Rest", 1)
+		StateValues.set(t.pop, "Rest", 1)
 		t.pop.Scale = 0.96
 		if t.art then
 			t.art.ImageColor3 = t.tone
@@ -328,7 +330,7 @@ function PlayMenuController.init()
 				tone = if art and art:IsA("ImageLabel")
 					then art.ImageColor3
 					else Color3.new(1, 1, 1),
-				live = b:GetAttribute("Live") == true,
+				live = StateValues.get(b, "Live") == true,
 				count = maybe(count, "Label") :: TextLabel?,
 				dot = maybe(count, "Dot") :: Frame?,
 				inQueue = maybe(b, "InQueue") :: GuiObject?,

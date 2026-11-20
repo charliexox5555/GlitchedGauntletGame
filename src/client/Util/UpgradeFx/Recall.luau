@@ -14,6 +14,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Health = require(ReplicatedStorage.Shared.Health)
 local Config = require(ReplicatedStorage.Shared.Config.Mods)
@@ -165,8 +166,8 @@ end
 -- Our Recall level, if we have Recall (ModService publishes ModNId / ModNLevel).
 local function recallLevel(): string?
 	for slot = 1, Config.SLOTS do
-		if player:GetAttribute("Mod" .. slot .. "Id") == "Recall" then
-			local level = player:GetAttribute("Mod" .. slot .. "Level")
+		if StateValues.get(player, "Mod" .. slot .. "Id") == "Recall" then
+			local level = StateValues.get(player, "Mod" .. slot .. "Level")
 			return if typeof(level) == "string" then level else nil
 		end
 	end
@@ -202,7 +203,7 @@ handler.step = function(_dt: number)
 	local alive = Health.isAlive(humanoid)
 	local armed = stats ~= nil
 		and stats.behaviour == "Crash"
-		and player:GetAttribute("RecallCrashUsed") ~= true
+		and StateValues.get(player, "RecallCrashUsed") ~= true
 		and alive
 	RecallFx.setArmed(armed)
 	RecallRing.setTint(if armed then GLITCH else nil)
@@ -211,7 +212,7 @@ handler.step = function(_dt: number)
 	elseif not armed or not stats then
 		setChip("Hidden")
 	else
-		local anchor = player:GetAttribute("RecallAnchor")
+		local anchor = StateValues.get(player, "RecallAnchor")
 		local root = character and character:FindFirstChild("HumanoidRootPart")
 		if typeof(anchor) ~= "Vector3" then
 			setChip("NoAnchor")

@@ -1,0 +1,345 @@
+{
+  "mesh_errors": [],
+  "evaluated_model_triangles_excluding_water_fx": 6044,
+  "stock_model_triangles": 5171,
+  "body_bounds": [
+    [
+      -1.249,
+      -0.112,
+      -0.405
+    ],
+    [
+      2.646,
+      0.112,
+      0.6378
+    ]
+  ],
+  "cross_sections_x_min_x_max_y_half_width": {
+    "Grip": [
+      {
+        "z": -0.29,
+        "stock": [
+          -0.1747,
+          0.0146,
+          0.064
+        ],
+        "skin": [
+          -0.174,
+          0.015,
+          0.06
+        ],
+        "max_delta": 0.004
+      },
+      {
+        "z": -0.24,
+        "stock": [
+          -0.1791,
+          0.0486,
+          0.064
+        ],
+        "skin": [
+          -0.179,
+          0.049,
+          0.063
+        ],
+        "max_delta": 0.001
+      },
+      {
+        "z": -0.18,
+        "stock": [
+          -0.1685,
+          0.0573,
+          0.064
+        ],
+        "skin": [
+          -0.168,
+          0.057,
+          0.062
+        ],
+        "max_delta": 0.002
+      },
+      {
+        "z": -0.12,
+        "stock": [
+          -0.1578,
+          0.0709,
+          0.064
+        ],
+        "skin": [
+          -0.158,
+          0.071,
+          0.063
+        ],
+        "max_delta": 0.001
+      },
+      {
+        "z": -0.06,
+        "stock": [
+          -0.1472,
+          0.0926,
+          0.064
+        ],
+        "skin": [
+          -0.147,
+          0.093,
+          0.063
+        ],
+        "max_delta": 0.001
+      },
+      {
+        "z": 0,
+        "stock": [
+          -0.1366,
+          0.1092,
+          0.064
+        ],
+        "skin": [
+          -0.137,
+          0.109,
+          0.063
+        ],
+        "max_delta": 0.001
+      }
+    ],
+    "Mag": [
+      {
+        "z": -0.389,
+        "stock": [
+          0.7053,
+          0.8783,
+          0.064
+        ],
+        "skin": [
+          0.705,
+          0.878,
+          0.061
+        ],
+        "max_delta": 0.003
+      },
+      {
+        "z": -0.32,
+        "stock": [
+          0.6749,
+          0.9628,
+          0.058
+        ],
+        "skin": [
+          0.675,
+          0.961,
+          0.057
+        ],
+        "max_delta": 0.0018
+      },
+      {
+        "z": -0.25,
+        "stock": [
+          0.6305,
+          0.9038,
+          0.058
+        ],
+        "skin": [
+          0.63,
+          0.902,
+          0.057
+        ],
+        "max_delta": 0.0018
+      },
+      {
+        "z": -0.15,
+        "stock": [
+          0.5723,
+          0.8368,
+          0.058
+        ],
+        "skin": [
+          0.572,
+          0.835,
+          0.057
+        ],
+        "max_delta": 0.0018
+      },
+      {
+        "z": -0.05,
+        "stock": [
+          0.5223,
+          0.7821,
+          0.058
+        ],
+        "skin": [
+          0.522,
+          0.78,
+          0.057
+        ],
+        "max_delta": 0.0021
+      },
+      {
+        "z": 0.03,
+        "stock": [
+          0.4908,
+          0.7465,
+          0.058
+        ],
+        "skin": [
+          0.491,
+          0.745,
+          0.057
+        ],
+        "max_delta": 0.0015
+      },
+      {
+        "z": 0.13,
+        "stock": [
+          0.4681,
+          0.7116,
+          0.058
+        ],
+        "skin": [
+          0.468,
+          0.709,
+          0.057
+        ],
+        "max_delta": 0.0026
+      },
+      {
+        "z": 0.2,
+        "stock": [
+          0.48,
+          0.688,
+          0.046
+        ],
+        "skin": [
+          0.484,
+          0.685,
+          0.045
+        ],
+        "max_delta": 0.004
+      }
+    ]
+  },
+  "stock_sight_rays_hit": {
+    "0:0": null,
+    "0.004:0": null,
+    "-0.004:0": null,
+    "0:0.004": null,
+    "0:-0.004": null
+  },
+  "stock_reload_sample_frames": {
+    "1": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 54,
+      "heel_seat_follows_mag": true
+    },
+    "8": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 54,
+      "heel_seat_follows_mag": true
+    },
+    "15": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 0,
+      "heel_seat_follows_mag": true
+    },
+    "23": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 0,
+      "heel_seat_follows_mag": true
+    },
+    "30": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 0,
+      "heel_seat_follows_mag": true
+    },
+    "37": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 0,
+      "heel_seat_follows_mag": true
+    },
+    "48": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 54,
+      "heel_seat_follows_mag": true
+    },
+    "66": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 54,
+      "heel_seat_follows_mag": true
+    },
+    "97": {
+      "stock_relative_drift": 0.0,
+      "overlap_tri_pairs_at_mag_well": 54,
+      "heel_seat_follows_mag": true
+    }
+  },
+  "archived_hand_block_comparison": {
+    "hold": {
+      "frames": 1,
+      "max_added_depth": 0.0006,
+      "max_stock_depth": 0.1546,
+      "max_skin_depth": 0.1552,
+      "worst": {
+        "frame": "hold",
+        "hand": "Right",
+        "stock": "Vandal_Grip",
+        "skin": "12 | Shelled grip heel",
+        "stock_depth": 0.1546,
+        "skin_depth": 0.1552
+      }
+    },
+    "draw": {
+      "frames": 37,
+      "max_added_depth": 0.0006,
+      "max_stock_depth": 0.1546,
+      "max_skin_depth": 0.1552,
+      "worst": {
+        "frame": "draw 0.05",
+        "hand": "Right",
+        "stock": "Vandal_Grip",
+        "skin": "12 | Shelled grip heel",
+        "stock_depth": 0.1545,
+        "skin_depth": 0.1552
+      }
+    },
+    "inspect": {
+      "frames": 90,
+      "max_added_depth": 0.0006,
+      "max_stock_depth": 0.1546,
+      "max_skin_depth": 0.1552,
+      "worst": {
+        "frame": "inspect 0.00",
+        "hand": "Right",
+        "stock": "Vandal_Grip",
+        "skin": "12 | Shelled grip heel",
+        "stock_depth": 0.1546,
+        "skin_depth": 0.1552
+      }
+    },
+    "reload": {
+      "frames": 80,
+      "max_added_depth": 0.0006,
+      "max_stock_depth": 0.1546,
+      "max_skin_depth": 0.1552,
+      "worst": {
+        "frame": "reload 0.00",
+        "hand": "Right",
+        "stock": "Vandal_Grip",
+        "skin": "12 | Shelled grip heel",
+        "stock_depth": 0.1545,
+        "skin_depth": 0.1552
+      }
+    },
+    "reloadempty": {
+      "frames": 94,
+      "max_added_depth": 0.0006,
+      "max_stock_depth": 0.1546,
+      "max_skin_depth": 0.1552,
+      "worst": {
+        "frame": "reloadempty 0.00",
+        "hand": "Right",
+        "stock": "Vandal_Grip",
+        "skin": "12 | Shelled grip heel",
+        "stock_depth": 0.1546,
+        "skin_depth": 0.1552
+      }
+    }
+  }
+}

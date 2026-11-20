@@ -13,6 +13,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 
 local Config = require(ReplicatedStorage.Lobby.Config)
 local LobbyNet = require(ReplicatedStorage.Lobby.LobbyNet)
@@ -56,7 +57,7 @@ end
 
 -- Mid-way into a match: parties can't change.
 local function busy(p: Player): boolean
-	local s = p:GetAttribute("QueueStatus")
+	local s = StateValues.get(p, "QueueStatus")
 	return s == "found" or s == "teleporting"
 end
 

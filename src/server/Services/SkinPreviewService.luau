@@ -9,6 +9,7 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Shared = ReplicatedStorage.Shared
 local Config = require(Shared.Config.SkinPreview)
 local Preview = require(Shared.SkinPreview)
@@ -22,7 +23,7 @@ local limiter = RateLimit.new({ [Config.REMOTE] = Config.RATE })
 
 function SkinPreviewService.init() end
 
--- Read-only here (the Lobby writes): GetAsync with retry, then the attributes.
+-- Read-only here (the Lobby writes): GetAsync with retry, then publish.
 local function loadLocker(player: Player)
 	local store = DataStoreService:GetDataStore(Locker.STORE)
 	local delay = 1
@@ -32,13 +33,7 @@ local function loadLocker(player: Player)
 		end)
 		if ok then
 			if player.Parent == Players then
-				-- Keep equipped skins off the Player's combat attribute budget.
-				local folder = Instance.new("Folder")
-				folder.Name = Preview.LOCKER_FOLDER
-				for gunId, line in Locker.clean(data) do
-					folder:SetAttribute(gunId, line)
-				end
-				folder.Parent = player
+				Locker.publish(player, Locker.clean(data))
 			end
 			return
 		end
@@ -55,7 +50,7 @@ function SkinPreviewService.start()
 	Preview.watch()
 	local function setup(player: Player)
 		if Preview.canUse(player) then
-			player:SetAttribute(Config.ATTRIBUTE, "Stock")
+			StateValues.set(player, Config.ATTRIBUTE, "Stock")
 		end
 		task.spawn(loadLocker, player)
 	end
@@ -72,7 +67,7 @@ function SkinPreviewService.start()
 			return
 		end
 		if Preview.valid(value) then -- one of Config.LINES
-			player:SetAttribute(Config.ATTRIBUTE, value)
+			StateValues.set(player, Config.ATTRIBUTE, value)
 		end
 	end)
 	Players.PlayerRemoving:Connect(function(player)

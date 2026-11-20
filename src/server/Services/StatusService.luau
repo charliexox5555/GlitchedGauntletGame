@@ -14,6 +14,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -44,7 +45,7 @@ function StatusService.apply(model: Model, name: string, duration: number)
 	if not Status.active(model, name, now) then
 		list[name] = now
 	end
-	model:SetAttribute(effect.attribute, now + duration)
+	StateValues.set(model, effect.attribute, now + duration)
 	for _, fn in applyListeners do
 		task.spawn(fn, model, name)
 	end
@@ -64,9 +65,9 @@ function StatusService.blind(model: Model, duration: number, strength: number, f
 	end
 	local cfg = Config.blinded
 	local now = workspace:GetServerTimeNow()
-	local untilAt = model:GetAttribute(cfg.attribute)
+	local untilAt = StateValues.get(model, cfg.attribute)
 	local running = typeof(untilAt) == "number" and untilAt > now
-	local oldStrength = model:GetAttribute(cfg.strengthAttribute)
+	local oldStrength = StateValues.get(model, cfg.strengthAttribute)
 	local s = math.clamp(strength, 0, 1)
 	if running and typeof(oldStrength) == "number" then
 		s = math.max(s, oldStrength)
@@ -75,10 +76,10 @@ function StatusService.blind(model: Model, duration: number, strength: number, f
 	if running and typeof(untilAt) == "number" then
 		newUntil = math.max(newUntil, untilAt)
 	end
-	model:SetAttribute(cfg.strengthAttribute, s)
-	model:SetAttribute(cfg.fromAttribute, from)
-	model:SetAttribute(cfg.startAttribute, now)
-	model:SetAttribute(cfg.attribute, newUntil)
+	StateValues.set(model, cfg.strengthAttribute, s)
+	StateValues.set(model, cfg.fromAttribute, from)
+	StateValues.set(model, cfg.startAttribute, now)
+	StateValues.set(model, cfg.attribute, newUntil)
 end
 
 -- `fn(model, name)` after every apply (a start or a refresh): WeaponService
@@ -114,11 +115,11 @@ local function publishHealing(model: Model, now: number)
 		end
 	end
 	local untilAt = if source then latest else nil
-	if model:GetAttribute(Config.healing.attribute) ~= untilAt then
-		model:SetAttribute(Config.healing.attribute, untilAt)
+	if StateValues.get(model, Config.healing.attribute) ~= untilAt then
+		StateValues.set(model, Config.healing.attribute, untilAt)
 	end
-	if model:GetAttribute(Config.healing.sourceAttribute) ~= source then
-		model:SetAttribute(Config.healing.sourceAttribute, source)
+	if StateValues.get(model, Config.healing.sourceAttribute) ~= source then
+		StateValues.set(model, Config.healing.sourceAttribute, source)
 	end
 end
 
@@ -165,8 +166,8 @@ end
 
 local function set(player: Player, name: string, value: number)
 	local v = if math.abs(value - 1) < 1e-4 then nil else value
-	if player:GetAttribute(name) ~= v then
-		player:SetAttribute(name, v)
+	if StateValues.get(player, name) ~= v then
+		StateValues.set(player, name, v)
 	end
 end
 
@@ -179,8 +180,8 @@ local function step()
 		set(player, "StatusJumpMult", m.jump)
 		set(player, "StatusGravityMult", m.gravity)
 		local stunned = Status.stunned(player.Character, now) or nil
-		if player:GetAttribute("StatusStunned") ~= stunned then
-			player:SetAttribute("StatusStunned", stunned)
+		if StateValues.get(player, "StatusStunned") ~= stunned then
+			StateValues.set(player, "StatusStunned", stunned)
 		end
 	end
 end

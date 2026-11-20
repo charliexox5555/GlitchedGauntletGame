@@ -41,7 +41,7 @@ local TRACER = Color3.fromHex("FAEBB4") -- pale yellow round a near-white core (
 local weapons: { [string]: WeaponConfig } = {
 	-- Rifle -------------------------------------------------------------
 	-- Vandal (Gun Balance.md): heavy-hitting automatic rifle, no falloff, the
-	-- hardest-hitting head of the automatics. 7 body or 4 head against 150.
+	-- hardest-hitting head of the automatics. 9 body or 5 head against 150.
 	Vandal = {
 		id = "Vandal",
 		displayName = "Vandal",
@@ -49,7 +49,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 18, head = 29, legs = 15 },
+		damage = { body = 18, head = 30, legs = 15 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.103, -- 9.75 rounds/s
@@ -207,7 +207,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Secondary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 5, head = 8, legs = 4 }, -- per pellet
+		damage = { body = 5, head = 6, legs = 4 }, -- per pellet
 		pellets = 15,
 		pelletSpread = 4,
 		fireInterval = 0.333, -- 3 shots/s
@@ -266,7 +266,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Secondary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Semi",
-		damage = { body = 18, head = 29, legs = 15 },
+		damage = { body = 19, head = 30, legs = 16 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.148, -- 6.75 rounds/s
@@ -319,7 +319,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 5, head = 8, legs = 4 }, -- per pellet
+		damage = { body = 4, head = 7, legs = 3 }, -- per pellet
 		pellets = 12,
 		pelletSpread = 2.5,
 		fireInterval = 0.286, -- 3.5 shots/s
@@ -373,7 +373,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Auto",
-		damage = { body = 14, head = 22, legs = 12 },
+		damage = { body = 13, head = 21, legs = 11 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.075, -- 13.3 rounds/s
@@ -383,7 +383,7 @@ local weapons: { [string]: WeaponConfig } = {
 		equipTime = 0.4,
 		drawTime = 1.0, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 400,
-		falloff = { { from = 54, multiplier = 0.85 } }, -- 15 m
+		falloff = { { from = 54, multiplier = 0.76 }, { from = 105, multiplier = 0.65 } },
 		spread = {
 			first = 0.45,
 			adsMultiplier = 0.6,
@@ -477,7 +477,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 25, -- with this gun in the Sidearm and Light phases
 		fireMode = "Pump",
-		damage = { body = 6, head = 9, legs = 5 }, -- per pellet
+		damage = { body = 6, head = 8, legs = 5 }, -- per pellet
 		pellets = 15,
 		pelletSpread = 3,
 		fireInterval = 0.91, -- 1.1 shots/s (the pump)
@@ -692,7 +692,7 @@ local weapons: { [string]: WeaponConfig } = {
 		slot = "Primary",
 		shield = 0, -- with this gun in the Sidearm and Light phases
 		fireMode = "Bolt", -- the lever cycles after every shot
-		damage = { body = 55, head = 105, legs = 47 },
+		damage = { body = 52, head = 110, legs = 44 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.667, -- 1.5 rounds/s
@@ -734,7 +734,8 @@ local weapons: { [string]: WeaponConfig } = {
 	},
 
 	-- Outlaw v2 (roster 12): twin-barrel break-action scoped rifle. Two quick
-	-- big shots (upper barrel first), then a slow reload.
+	-- shots (upper barrel first), then a slow reload. Two body hits leave a
+	-- full-shield opponent with 14 HP.
 	Outlaw = {
 		id = "Outlaw",
 		displayName = "Outlaw",
@@ -742,10 +743,10 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Semi",
-		damage = { body = 75, head = 150, legs = 64 },
+		damage = { body = 68, head = 130, legs = 56 },
 		pellets = 1,
 		pelletSpread = 0,
-		fireInterval = 0.364, -- 2.75 rounds/s
+		fireInterval = 0.42,
 		magSize = 2,
 		reloadTime = 2.3, -- one round (the upper barrel)
 		emptyReloadTime = 3.8, -- both
@@ -798,10 +799,10 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 4,
 		slot = "Primary",
 		fireMode = "Bolt",
-		damage = { body = 150, head = 300, legs = 150 },
+		damage = { body = 95, head = 155, legs = 76 },
 		pellets = 1,
 		pelletSpread = 0,
-		fireInterval = 1.667, -- 0.6 rounds/s (the bolt)
+		fireInterval = 1.45, -- bolt cycle
 		magSize = 5,
 		reloadTime = 3.2,
 		emptyReloadTime = 3.7, -- mag, then the bolt
@@ -847,7 +848,7 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 3,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 14, head = 21, legs = 12 },
+		damage = { body = 13, head = 20, legs = 11 },
 		pellets = 1,
 		pelletSpread = 0,
 		fireInterval = 0.077, -- 13 rounds/s
@@ -888,8 +889,8 @@ local weapons: { [string]: WeaponConfig } = {
 		tracerColor = TRACER,
 	},
 
-	-- Odin v2 (roster 15): belt-fed HMG. Spins up from 12 to 15.6 rounds/s,
-	-- a 100-round box, shoots through walls. Iron-sight ADS.
+	-- Odin: belt-fed HMG. Spins up from 9.5 to 13.3 rounds/s, with a
+	-- 75-round box and thin cover penetration. Iron-sight ADS.
 	Odin = {
 		id = "Odin",
 		displayName = "Odin",
@@ -897,19 +898,18 @@ local weapons: { [string]: WeaponConfig } = {
 		tier = 4,
 		slot = "Primary",
 		fireMode = "Auto",
-		damage = { body = 15, head = 23, legs = 13 },
+		damage = { body = 13, head = 20, legs = 11 },
 		pellets = 1,
 		pelletSpread = 0,
-		fireInterval = 0.064, -- 15.6 rounds/s once spun up
-		spinUp = { startInterval = 0.083, endInterval = 0.064, time = 1.0 },
-		magSize = 100,
+		fireInterval = 0.075,
+		spinUp = { startInterval = 0.105, endInterval = 0.075, time = 1.35 },
+		magSize = 75,
 		reloadTime = 4.2,
 		emptyReloadTime = 5, -- box, then the charging handle
 		equipTime = 0.9,
 		drawTime = 1.62, -- x1.25 2026-11-08 (owner: draws too fast)
 		range = 500,
-		-- 30 m in Valorant.
-		falloff = { { from = 107, multiplier = 0.82 } },
+		falloff = { { from = 100, multiplier = 0.82 }, { from = 170, multiplier = 0.7 } },
 		spread = {
 			first = 0.8,
 			adsMultiplier = 0.75,
@@ -934,7 +934,7 @@ local weapons: { [string]: WeaponConfig } = {
 		adsDistance = 0.39, -- open irons: the receiver ahead clears Viewmodel.ADS_NEAR
 		moveMultiplier = 0.85,
 		adsMoveMultiplier = 0.65,
-		penetration = "Heavy",
+		penetration = "Light",
 		viewmodelOffset = RIFLE_VM,
 		tracerColor = TRACER,
 	},

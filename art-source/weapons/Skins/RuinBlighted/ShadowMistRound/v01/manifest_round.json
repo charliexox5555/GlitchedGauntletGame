@@ -1,0 +1,67 @@
+{
+  "version": "v01",
+  "file": "ShadowMistRound_RuinBlighted_RobloxFlat.fbx",
+  "length": 0.45,
+  "parts": {
+    "SK_Root_01": {
+      "center": [
+        0.1008,
+        -0.0016,
+        -0.0065
+      ],
+      "size": [
+        0.2483,
+        0.0759,
+        0.0607
+      ],
+      "color": "344950",
+      "material": "SmoothPlastic",
+      "glow": false
+    },
+    "SK_Root_02": {
+      "center": [
+        -0.0984,
+        -0.002,
+        0.0013
+      ],
+      "size": [
+        0.2531,
+        0.0945,
+        0.0944
+      ],
+      "color": "257969",
+      "material": "SmoothPlastic",
+      "glow": false
+    },
+    "SK_Root_03": {
+      "center": [
+        0.0,
+        -0.0019,
+        -0.0026
+      ],
+      "size": [
+        0.45,
+        0.0927,
+        0.0848
+      ],
+      "color": "15232A",
+      "material": "SmoothPlastic",
+      "glow": false
+    },
+    "SK_Root_04": {
+      "center": [
+        -0.1392,
+        -0.002,
+        0.0014
+      ],
+      "size": [
+        0.1526,
+        0.0945,
+        0.0962
+      ],
+      "color": "68EACB",
+      "material": "Neon",
+      "glow": true
+    }
+  }
+}

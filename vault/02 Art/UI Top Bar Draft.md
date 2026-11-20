@@ -6,7 +6,7 @@
 **v2.2 (owner on v2.1, 2026-11-14):** "looks dull and not professional"; the placeholder heads are only OK; "maybe a better font"; make it more satisfying and cooler.
 - **Font:** compared 10 built-in families at score/timer size ([sheet](References/ui-overhaul/2026-11-14-font-sheet.jpg)). **Builder Extended** won: wide, clean, esports-like; Titillium Heavy looked squashed, the rest generic or cartoony. Numbers and clock: ExtraBold (score 50, clock 34); info line: Bold 13. (Builder *Sans* stays rejected; Extended is its distinct wide display cut.)
 - **Colour depth:** each team is a two-tone gradient, bright on top and rich underneath (ally `3FE0F2` → ≈`1A8DB8`, enemy `FF6B57` → ≈`C42B33`). The body and the slant cap share the same `UIGradient`, so they match exactly (the cap image is now flat white).
-- **Cells:** team-tinted insets (`CellColor` attribute on each Body: ally `0D5C7A`, enemy `8A1C24`) with a top-lit gradient; dead = slate `3A3F48` + a greyed headshot.
+- **Cells:** team-tinted insets (`CellColor` attribute on each Body: ally `0D5C7A`, enemy `8A1C24`) with a top-lit gradient. On elimination, the portrait fades to grey under the white Gauntlet skull and returns to full colour at respawn. Roster tiles start in full colour during the map vote.
 - **Score:** white numbers with a soft drop shadow (a dark copy 3 px below) instead of an outline.
 - **Timer:** the same 80 px height as the blocks, so the bar reads as one band; stopwatch + clock on top, the info line inside under it.
 - **Shadow:** one soft 9-slice shadow under the whole bar lifts it off the map; `TopBarController` sizes it to the bar.

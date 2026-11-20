@@ -27,6 +27,8 @@ local WHITE = Kit.WHITE
 local HOLE_POOL = 64
 local HOLE_LIFE = 14 -- seconds, the last HOLE_FADE of it fading
 local HOLE_FADE = 2
+local SCORCH_MIST_LIFE = 1.5
+local SCORCH_MIST_EMIT = 0.88
 local MAX_DUST_SETS = 16
 
 local emitter = Kit.emitter
@@ -63,6 +65,8 @@ type HitSet = {
 	flash: ParticleEmitter,
 	sparks: ParticleEmitter,
 	metalSparks: ParticleEmitter,
+	spectralFlash: ParticleEmitter,
+	spectralChips: ParticleEmitter,
 }
 
 type DustSet = {
@@ -104,7 +108,29 @@ local function getHitSet(): HitSet
 	metal.Lifetime = NumberRange.new(0.12, 0.35)
 	metal.Acceleration = Vector3.new(0, -70, 0)
 	metal.Drag = 2.5
-	local set: HitSet = { att = att, flash = flash, sparks = sparks, metalSparks = metal }
+	local spectralFlash = emitter(att, VFX.RECON_GLOW, Color3.fromRGB(95, 230, 194))
+	Kit.fire(spectralFlash)
+	spectralFlash.Name = "ShadowMistImpactFlash"
+	spectralFlash.Lifetime = NumberRange.new(0.11, 0.16)
+	spectralFlash.Size = curve({ 0, 0.18, 0.38, 0.63, 1, 0.91 })
+	spectralFlash.Transparency = curve({ 0, 0.20, 0.42, 0.66, 1, 1 })
+	local spectralChips = Kit.sparkEmitter(att, 0.065)
+	spectralChips.Name = "ShadowMistImpactChips"
+	spectralChips.Texture = VFX.FROST_SHARD
+	spectralChips.Color =
+		ColorSequence.new(Color3.fromRGB(143, 247, 214), Color3.fromRGB(33, 92, 86))
+	spectralChips.Speed = NumberRange.new(4, 8)
+	spectralChips.SpreadAngle = Vector2.new(53, 53)
+	spectralChips.Lifetime = NumberRange.new(0.14, 0.29)
+	spectralChips.Drag = 3
+	local set: HitSet = {
+		att = att,
+		flash = flash,
+		sparks = sparks,
+		metalSparks = metal,
+		spectralFlash = spectralFlash,
+		spectralChips = spectralChips,
+	}
 	hitSet = set
 	return set
 end
@@ -160,6 +186,7 @@ type Hole = {
 	image: ImageLabel,
 	age: number,
 	active: boolean,
+	smoke: ParticleEmitter?,
 }
 
 local holes: { Hole } = {}
@@ -195,7 +222,7 @@ local function placeHoleAt(
 	stretch: Vector2?,
 	angle: number?,
 	exact: boolean?
-)
+): Hole
 	if #holes < HOLE_POOL then
 		table.insert(holes, newHole())
 	end
@@ -213,6 +240,54 @@ local function placeHoleAt(
 	h.image.ImageTransparency = 0
 	h.age = 0
 	h.active = true
+	h.part.Name = "BulletHole"
+	if h.smoke then
+		h.smoke.Enabled = false
+		h.smoke:Clear()
+	end
+	return h
+end
+
+local function scorch(
+	position: Vector3,
+	normal: Vector3,
+	size: number,
+	stretch: Vector2?,
+	angle: number?
+)
+	local h = placeHoleAt(
+		position,
+		normal,
+		Color3.fromRGB(46, 64, 61),
+		size,
+		stretch or Vector2.new(1.21, 0.91),
+		angle
+	)
+	h.part.Name = "ShadowMistScorch"
+	local smoke = h.smoke
+	if not smoke then
+		local socket = Instance.new("Attachment")
+		socket.Position = Vector3.new(0, 0, -0.045)
+		socket.Parent = h.part
+		smoke = emitter(socket, VFX.FROST_MIST_2x2, Color3.fromRGB(74, 184, 160))
+		smoke.Name = "ShadowMistScorchVapor"
+		flipbook(smoke)
+		smoke.FlipbookMode = Enum.ParticleFlipbookMode.OneShot
+		smoke.LightInfluence = 0.16
+		smoke.LightEmission = 0.06
+		smoke.EmissionDirection = Enum.NormalId.Front
+		smoke.SpreadAngle = Vector2.new(18, 18)
+		smoke.Speed = NumberRange.new(0.11, 0.25)
+		smoke.Drag = 2.3
+		smoke.Acceleration = Vector3.new(0, 1.5, 0)
+		smoke.Rate = 9
+		smoke.Lifetime = NumberRange.new(0.44, 0.62)
+		smoke.Size = curve({ 0, 0.085, 0.44, 0.23, 1, 0.34 })
+		smoke.Transparency = curve({ 0, 1, 0.21, 0.43, 0.63, 0.74, 1, 1 })
+		h.smoke = smoke
+	end
+	smoke.Enabled = true
+	smoke:Emit(3)
 end
 
 -- Every frame, with `dt` already scaled by the effects time scale: ages and
@@ -225,7 +300,17 @@ function ImpactFx.step(dt: number)
 		if not h.active then
 			continue
 		end
+		local previous = h.age
 		h.age += dt
+		local smoke = h.smoke
+		if smoke and h.part.Name == "ShadowMistScorch" then
+			if previous < SCORCH_MIST_EMIT and h.age >= SCORCH_MIST_EMIT then
+				smoke.Enabled = false
+			end
+			if previous < SCORCH_MIST_LIFE and h.age >= SCORCH_MIST_LIFE then
+				smoke:Clear()
+			end
+		end
 		if h.age >= HOLE_LIFE then
 			h.active = false
 			activeHoles -= 1
@@ -264,7 +349,13 @@ end
 -- (the blade's path in world space; flattened onto the surface here), a short
 -- wide tear for a heavy stab. Pooled with the bullet holes. Numbers:
 -- Config/Animations KNIFE_MARK.
-function ImpactFx.slashMark(position: Vector3, normal: Vector3, along: Vector3, heavy: boolean?)
+function ImpactFx.slashMark(
+	position: Vector3,
+	normal: Vector3,
+	along: Vector3,
+	heavy: boolean?,
+	spectral: boolean?
+)
 	if normal.Magnitude < 1e-3 then
 		return
 	end
@@ -277,6 +368,16 @@ function ImpactFx.slashMark(position: Vector3, normal: Vector3, along: Vector3, 
 		else 0
 	local mark = Animations.KNIFE_MARK
 	local look = if heavy then mark.heavy else mark.light
+	if spectral then
+		scorch(
+			position,
+			n,
+			look.size,
+			if heavy then Vector2.new(3.2, 0.49) else look.stretch,
+			angle
+		)
+		return
+	end
 	placeHoleAt(position, n, mark.tint, look.size, look.stretch, angle, true)
 end
 
@@ -287,11 +388,16 @@ end
 
 -- The blade landing on a body: a small white flash, one frame after contact
 -- (LihFolk lihfolk-vfx: flash ~0.6x, 1-2 frames, ahead of the body).
-function ImpactFx.knifeContact(position: Vector3)
+function ImpactFx.knifeContact(position: Vector3, spectral: boolean?)
 	local set = getHitSet()
 	set.att.WorldCFrame = CFrame.new(position)
 	set.flash:Emit(1)
 	set.sparks:Emit(2)
+	if spectral then
+		local mist = dustSet(Color3.fromRGB(121, 233, 194))
+		mist.att.WorldCFrame = set.att.WorldCFrame
+		mist.dust:Emit(4)
+	end
 end
 
 local lastImpactSound = -math.huge
@@ -305,7 +411,8 @@ function ImpactFx.impact(
 	hit: Instance?,
 	material: Enum.Material?,
 	size: number?,
-	noHole: boolean? -- the knife: its own gouge (slashMark), not a bullet hole
+	noHole: boolean?, -- the knife: its own gouge (slashMark), not a bullet hole
+	spectral: boolean?
 )
 	local function placeHole(at: Vector3, n: Vector3, color: Color3, holeSize: number)
 		if not noHole then
@@ -321,9 +428,12 @@ function ImpactFx.impact(
 		return
 	end
 	if combatantOf(hit) then
-		local puff = dustSet(hit.Color:Lerp(Color3.fromHex("8A8A8A"), 0.5))
+		local color = if spectral
+			then Color3.fromRGB(74, 184, 160)
+			else hit.Color:Lerp(Color3.fromHex("8A8A8A"), 0.5)
+		local puff = dustSet(color)
 		puff.att.WorldCFrame = cf
-		puff.dust:Emit(1)
+		puff.dust:Emit(if spectral then 4 else 1)
 		return
 	end
 	local mat = material or hit.Material
@@ -341,6 +451,20 @@ function ImpactFx.impact(
 			range = sound.range,
 			volume = sound.volume,
 		})
+	end
+	if
+		spectral
+		and not noHole
+		and math.abs(normal.Y) < 0.74
+		and kind ~= "Glass"
+		and kind ~= "Soft"
+	then
+		local set = getHitSet()
+		set.att.WorldCFrame = cf
+		set.spectralFlash:Emit(1)
+		set.spectralChips:Emit(4)
+		scorch(position, normal, 0.45 * (size or 1))
+		return
 	end
 	local color = surfaceColor(hit, mat)
 	local set = getHitSet()

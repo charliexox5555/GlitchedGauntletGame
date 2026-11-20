@@ -3,9 +3,27 @@
 -- models (Workspace.Dummies, attribute IsBot). One place for the rule, used
 -- by the replay, spectating and the match-end scene.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Players = game:GetService("Players")
 
 local Fighters = {}
+
+function Fighters.botBody(id: string): Model?
+	local folder = workspace:FindFirstChild("Dummies")
+	if folder then
+		for _, model in folder:GetChildren() do
+			if
+				model:IsA("Model")
+				and StateValues.get(model, "IsBot") == true
+				and "b" .. tostring(StateValues.get(model, "BotId")) == id
+			then
+				return model
+			end
+		end
+	end
+	return nil
+end
 
 export type Fighter = {
 	holder: Instance, -- what carries the fighter's attributes: a Player, or the bot's model
@@ -24,7 +42,7 @@ function Fighters.bodies(): { Model }
 	local dummies = workspace:FindFirstChild("Dummies")
 	if dummies then
 		for _, m in dummies:GetChildren() do
-			if m:IsA("Model") and m:GetAttribute("IsBot") == true then
+			if m:IsA("Model") and StateValues.get(m, "IsBot") == true then
 				table.insert(list, m)
 			end
 		end
@@ -44,12 +62,37 @@ function Fighters.all(except: Player?): { Fighter }
 	local dummies = workspace:FindFirstChild("Dummies")
 	if dummies then
 		for _, m in dummies:GetChildren() do
-			if m:IsA("Model") and m:GetAttribute("IsBot") == true then
+			if m:IsA("Model") and StateValues.get(m, "IsBot") == true then
 				table.insert(list, { holder = m, body = m })
 			end
 		end
 	end
 	return list
+end
+
+local function finite(v: unknown): number?
+	return if typeof(v) == "number" and v == v and math.abs(v) < math.huge then v else nil
+end
+
+-- Where someone else is looking (yaw, pitch in radians), from what
+-- replicates: a spectated bot's gun look (`AimGunYaw` / `AimGunPitch`, both
+-- or neither, so yaw and pitch always agree), else the body's facing and
+-- the reported `AimPitch` (players: WeaponService's Aim remote; bots: their
+-- intended pitch, Bots/Brain). Used by spectating and the replay recorder.
+function Fighters.lookOf(holder: Instance, body: Model): (number, number)
+	local gunYaw = finite(StateValues.get(holder, "AimGunYaw"))
+	local gunPitch = finite(StateValues.get(holder, "AimGunPitch"))
+	if gunYaw and gunPitch then
+		return gunYaw, math.clamp(gunPitch, -1.45, 1.45)
+	end
+	local yaw = 0
+	local root = body:FindFirstChild("HumanoidRootPart")
+	if root and root:IsA("BasePart") then
+		local look = root.CFrame.LookVector
+		yaw = math.atan2(-look.X, -look.Z)
+	end
+	local pitch = finite(StateValues.get(holder, "AimPitch")) or 0
+	return yaw, math.clamp(pitch, -1.45, 1.45)
 end
 
 -- The fighter body a part belongs to (a held gun is a Model inside it).

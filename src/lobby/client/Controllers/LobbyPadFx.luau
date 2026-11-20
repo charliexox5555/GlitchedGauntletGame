@@ -8,6 +8,8 @@
 -- player's character stands in the well the rings take the team colour and the glow and light fade in. Every client
 -- sees every character, so everyone sees the same pads; nothing is sent to the server.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -153,7 +155,7 @@ local function track(inst: Instance)
 	if not inst:IsA("BasePart") or wells[inst] then
 		return
 	end
-	local team = inst:GetAttribute("Team")
+	local team = StateValues.get(inst, "Team")
 	if typeof(team) ~= "number" then
 		return
 	end

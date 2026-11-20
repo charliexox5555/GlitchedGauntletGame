@@ -23,6 +23,8 @@
 -- dps and duration that burns the thrower's side at `selfFire`. A body in
 -- two of these fires at once still burns at one fire's rate.
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Config = require(script.Parent.Parent.Config.Mods)
 local Projectile = require(script.Parent.Blocks.Projectile)
 local Target = require(script.Parent.Blocks.Target)
@@ -115,7 +117,7 @@ local function burn(ctx: Types.ServerCtx, zone: Zone.Zone, fire: Fire, until_: n
 		end
 		local friendly = model == Teams.characterOf(caster) or Teams.isAlly(caster, model)
 		ctx.damage(model, if friendly then amount * fire.friendly else amount, root.Position)
-		model:SetAttribute("BurningUntil", until_)
+		StateValues.set(model, "BurningUntil", until_)
 	end
 end
 

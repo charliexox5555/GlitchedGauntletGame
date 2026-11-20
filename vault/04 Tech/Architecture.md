@@ -1,17 +1,22 @@
 # Architecture
 
+For the current two-place ownership map and system walkthrough, see the [Developer Handoff](Developer%20Handoff.md). This note retains earlier implementation detail, including the original Server Authority design.
+
 ## Repo layout
 ```
 GlitchedGauntletGame/
-├── CLAUDE.md              ← rules Claude reads automatically
+├── AGENTS.md              ← current project instructions
 ├── default.project.json   ← Rojo: maps folders into Roblox
+├── lobby.project.json     ← Lobby Rojo project
 ├── rokit.toml             ← pinned tools (rojo, wally, selene, stylua)
 ├── wally.toml             ← Luau packages (none yet)
 ├── selene.toml / stylua.toml
 ├── src/
 │   ├── shared/   → ReplicatedStorage.Shared       (config, types, pure utils)
 │   ├── server/   → ServerScriptService.Server     (authoritative game logic)
-│   └── client/   → StarterPlayerScripts.Client    (input, camera, UI, VFX)
+│   ├── client/   → StarterPlayerScripts.Client    (input, camera, UI, VFX)
+│   ├── first/    → ReplicatedFirst.Loading        (Match loading GUI)
+│   └── lobby/    → LobbyServer, LobbyClient and ReplicatedStorage.Lobby
 ├── assets/       → ReplicatedStorage.Assets       (.rbxm models: Weapons, Arenas, VFX, UI)
 ├── art-source/   (not synced) .blend / .fbx originals
 ├── tools/        (not synced) helper scripts, e.g. Blender
@@ -25,7 +30,7 @@ src/shared/
   Config/      Game, Camera, Movement, Combat, Weapons (Vandal), Input, Sounds, SoundAtlas, Audio, Viewmodel, VfxTextures, Dev, TestRange ✅
                Mods, Match ✅
   Net.luau     all RemoteEvents in one place (server creates, clients wait) ✅
-  TestMode.luau  the test mode switch (Workspace attribute "TestMode") ✅
+  TestMode.luau  resolves the Studio-only Workspace TestMode checkbox ✅
   Types.luau   weapon config + remote payload types ✅
   Util/        Spread (seeded, centre-biased or even), Accuracy (Gunplay v2 spread maths), Damage (step falloff), FireRate, Spring ✅
   WeaponAnimations/  generated Blender clips per gun: Fire, Reload, optional ReloadEmpty / Draw / Inspect (tools/make_weapon_anims.py) ✅
@@ -53,7 +58,7 @@ Each Service/Controller is a ModuleScript returning a table with optional `init(
 3. **Server → clients:** `HitConfirm` (shooter: damage numbers, sounds), `Damaged` (victim: direction indicator), `Killed` (everyone; no listener in the fresh base, kept for the kill feed), `ShotFx` (others: tracers, muzzle flash, shells, impacts found by a client raycast to each end point, sound).
 
 ## Match system
-Design: [Match Flow](../01%20Design/Match%20Flow.md). Runs on any server with test mode off (`TestMode` attribute false); with test mode on, you get the practice yard instead.
+Design: [Match Flow](../01%20Design/Match%20Flow.md). With `TestMode` off the server runs a match. With it on, the server loads the practice yard.
 
 - **`MatchService`:** the one loop, in a pcall: Waiting → Ready → (Draft → Countdown → Live → RoundEnd) → MatchEnd. `Players.CharacterAutoLoads` is off: it spawns everyone with `LoadCharacterAsync` at each round, through `player.RespawnLocation`. One life per round; there's no respawn until the next one.
 - **State for clients:** `shared/MatchState`, attributes on ReplicatedStorage named `Match*` (Phase, EndsAt, Round, Score1/2, RoundWinner, MatchWinner, WeaponPhase). String attributes are limited to 50 characters in this Studio build, so they stay short. Timers are one server-time end point.
@@ -70,7 +75,7 @@ Design: [Match Flow](../01%20Design/Match%20Flow.md). Runs on any server with te
 ## Test range
 For testers in a published place. Kept apart from the match code: everything lives in `TestRangeService`, `src/server/TestRange/`, `Config/TestRange` and `RangeController`, and none of it runs while test mode is off.
 
-- **Switch:** the Workspace attribute `TestMode` (bool, saved with the place). `TestMode.resolve()` (server, in `TestRangeService.init`) reads it; when it's missing, Studio playtests fall back to `Config/Dev TEST_RANGE` and live servers stay off. The server writes the decided value back so clients read the same answer. **On:** tick it, save, publish. **Off:** untick it (or delete it), save, publish.
+- **Switch.** In Studio, select Workspace and toggle the `TestMode` Boolean Attribute before Play. If the setting is absent, Studio falls back to `Config/Dev TEST_RANGE`. Live servers use match mode. The server publishes the resolved value. [Studio settings](State%20Values%20and%20Asset%20Data.md#editing-active-assets)
 - **When on:** the server builds `workspace.TestRange` (origin `Config/TestRange ORIGIN`, away from the map centre), disables every other SpawnLocation, spawns the dummies in `workspace.Dummies` (the folder WeaponService's wall checks skip) It is a plain concrete practice yard (lanes, cover with a plywood ThinWall, movement course).
 - **Dummies:** R15 from a HumanoidDescription, `CharacterService.prepare` (100 HP, hitbox history) so shots go through the same validation and rewind as players. Static kinds are anchored; movers walk with `Humanoid:Move` (AutoRotate off, stock run clip, crouch clips from `Config/Animations`). The shooter only sends `ShotFx` with itself as the shooter (aimed ≥ 1.6 studs past your head); it never applies damage. Tag `RangeDummy` + `Dummy*` attributes drive the client health bars. Decorative parts have `CanQuery = false` so they're never hit claims.
 - **Weapon picker** (2026-10-25): **P** (gamepad D-pad up, touch GUNS) opens `PickerController`'s menu of every installed gun (a `Config/Weapons` entry whose model is in `ReplicatedStorage.Weapons`). Picking sends `PickWeapon(id)`; `WeaponService` accepts it only in Studio or with test mode on (server value), rate-limits it (`Combat.RATE.PickWeapon`), checks the id (string ≤ 32, a real gun with its model installed) and a live character, then puts the gun in its own slot and equips it. Weapon input is ignored while the menu is open and for 0.25 s after it closes. The old tester menu, stats panel and weapon racks are gone (`Tester` / `TesterStats` remotes removed; git history has them). The range switches (dummies move, shooter fires back, dummies heal) are fixed defaults in `Config/TestRange BEHAVIOURS`.
@@ -91,7 +96,7 @@ For testers in a published place. Kept apart from the match code: everything liv
 8. Keep the format and lint checks clean: `stylua src` and `selene src`.
 
 ## Rojo notes
-- `rojo serve` + the Studio plugin **Connect** = live sync from files into Studio.
+- Run `rojo serve default.project.json` for Match (34872) and `rojo serve lobby.project.json` for Lobby (34873). Connect each Studio plugin to the matching port.
 - Rojo **owns** `ReplicatedStorage.Shared`, `ReplicatedStorage.Assets`, `ServerScriptService.Server` and `StarterPlayerScripts.Client`. Anything made by hand inside those in Studio gets overwritten. Build maps and other Studio-only things in `Workspace` / `ServerStorage`.
 - **Rojo can't live-sync MeshParts** (the plugin can't set `MeshId`), and Rojo 7.4.4 can't read `.rbxm` files written by current Studio. So anything with meshes (all guns) lives in Studio-owned folders saved with the place: guns are in `ReplicatedStorage.Weapons`, with `.rbxm` backups in `art-source/weapons/Studio/`. **Save the place** after changing them.
 - Rigs: current R15 avatars use `AnimationConstraint` joints, not Motor6D. Code that poses limbs must accept both (both have `Transform`).
@@ -99,5 +104,5 @@ For testers in a published place. Kept apart from the match code: everything liv
 - So character poses are real animations stepped in the simulation: `shared/Simulation/Poses` (bound with `BindToSimulation`, priority 4000 like Animate) plays the clips in `Config/Animations` on the server for every player and on each client for its own character, from simulation-safe inputs only (`MoveState`, the `AimPitch` input action fed by `PoseController`, the equipped weapon, ground speed). Weights change via `AdjustWeight` fades; a layer that fades out is stopped, because **an Animator plays at most 16 tracks at once** (a 17th reports IsPlaying but never plays). New pose clips: edit `tools/studio/MakePoseAnimations.luau`, run it in Studio with `tools/studio/receive_server.py` running, upload with `tools/opencloud/upload_asset.py --type Animation`, put the id in `Config/Animations`. **Legs (2026-11-04):** `tools/studio/MakeLocomotionAnimations.luau` (same pipeline) → `Config/Animations` `LOCOMOTION` (direction-blended in `Poses.stepLegs`) and `ANIMATE` (the ids `CharacterService.useOurAnimations` writes into Roblox's `Animate` StringValues: our idle / jump / fall, an empty walk / run).
 - Under Server Authority the Workspace snaps part positions to a coarse grid (up to ~0.006 studs, varying with position). Anything that must sit exactly relative to the camera (the viewmodel) lives in a `WorldModel` under the Camera, which keeps exact positions and still renders.
 - StreamingEnabled is on: a model's parts can arrive after the model. Don't cache child lookups once; dummies use `ModelStreamingMode = Atomic`.
-- `rojo build -o build.rbxl` builds a place file (CI does this to check the project).
+- CI builds both Rojo projects. The resulting files contain their mapped trees. See [Setup Guide](Setup%20Guide.md) for commands and Studio publishing.
 - Wally packages: after adding one, run `wally install` and map `Packages` in `default.project.json` (Claude can do this).

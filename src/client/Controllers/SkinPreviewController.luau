@@ -2,6 +2,7 @@
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local UserInputService = game:GetService("UserInputService")
 local Config = require(ReplicatedStorage.Shared.Config.SkinPreview)
 local Preview = require(ReplicatedStorage.Shared.SkinPreview)
@@ -139,7 +140,7 @@ function SkinPreviewController.start()
 	overlay.Activated:Connect(function()
 		setOpen(false)
 	end)
-	player:GetAttributeChangedSignal(Config.ATTRIBUTE):Connect(refresh)
+	StateValues.changed(player, Config.ATTRIBUTE):Connect(refresh)
 	ContextActionService:BindActionAtPriority(
 		"SkinPreview",
 		function(_, state, input)

@@ -4,12 +4,13 @@
 -- StarterGui.LobbyLoading (mode, LOADING MATCH, three dots, a tip) with
 -- TeleportService:SetTeleportGui; here, first thing, we take that gui, drop
 -- Roblox's default loading screen, keep the dots pulsing and fade the screen
--- out once the match has loaded and your character is in. Arriving without
+-- out when the server opens the vote or draft. Arriving without
 -- it (Studio, a direct join) changes nothing.
 -- Self-contained on purpose: ReplicatedFirst runs before Shared replicates.
 
 local Players = game:GetService("Players")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
@@ -17,8 +18,7 @@ local TweenService = game:GetService("TweenService")
 local SWELL = 0.42 -- the dots' wave (same as MATCH FOUND)
 local PERIOD = 1.2
 local FADE = 0.35
-local MAX_WAIT = 12 -- seconds: never hold the screen longer than this
-local SETTLE = 0.4 -- after the character arrives, so the HUD can draw
+local NO_MATCH_TIMEOUT = 12 -- recover if the teleport has no match state
 
 local arriving = TeleportService:GetArrivingTeleportGui()
 if not (arriving and arriving:IsA("ScreenGui")) then
@@ -61,15 +61,32 @@ local wave = RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- wait for the match, but never forever
-local deadline = os.clock() + MAX_WAIT
-if not game:IsLoaded() then
-	game.Loaded:Wait()
+-- The vote comes before characters spawn. Hold the overlay until the
+-- server has finished waiting for the clients' vote screens.
+local label = center and center:FindFirstChild("Label")
+local deadline = os.clock() + NO_MATCH_TIMEOUT
+local function matchValue(name: string): string
+	local folder = ReplicatedStorage:FindFirstChild("MatchState")
+	local value = folder and folder:FindFirstChild(name)
+	return if value and value:IsA("StringValue") then value.Value else ""
 end
-while not player.Character and os.clock() < deadline do
+
+while true do
+	local phase = matchValue("Phase")
+	if phase ~= "" and phase ~= '"Waiting"' then
+		break
+	end
+	local expected = tonumber(matchValue("ExpectedPlayers"))
+	local ready = tonumber(matchValue("ReadyPlayers")) or 0
+	if expected and expected > 0 then
+		if label and label:IsA("TextLabel") then
+			label.Text = string.format("WAITING FOR PLAYERS  %d/%d", ready, expected)
+		end
+	elseif os.clock() >= deadline then
+		break
+	end
 	task.wait(0.1)
 end
-task.wait(SETTLE)
 
 -- fade everything out, then clean up
 local info = TweenInfo.new(FADE, Enum.EasingStyle.Quint, Enum.EasingDirection.In)

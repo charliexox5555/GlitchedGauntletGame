@@ -22,6 +22,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage.Shared
@@ -143,7 +144,7 @@ local function alive(model: Model): boolean
 end
 
 local function hitsOn(model: Model): number
-	local n = model:GetAttribute(ATTR)
+	local n = StateValues.get(model, ATTR)
 	return if typeof(n) == "number" and n == n then math.clamp(math.floor(n), 0, MAX_LAYERS) else 0
 end
 

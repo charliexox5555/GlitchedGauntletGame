@@ -1,0 +1,916 @@
+{
+  "line": "RuinBlighted",
+  "gun": "Knife",
+  "version": "v03",
+  "file": "Knife_RuinBlighted_RobloxFlat.fbx",
+  "parts": {
+    "SK_Root_01": {
+      "b": "Root",
+      "c": [
+        0.1405,
+        0.0,
+        0.0344
+      ],
+      "s": [
+        1.701,
+        0.278,
+        1.4611
+      ],
+      "col": "655036",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 204
+    },
+    "SK_Root_02": {
+      "b": "Root",
+      "c": [
+        0.7685,
+        0.0,
+        0.0319
+      ],
+      "s": [
+        0.567,
+        0.296,
+        1.3604
+      ],
+      "col": "92764C",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 408
+    },
+    "SK_Root_03": {
+      "b": "Root",
+      "c": [
+        2.055,
+        0.0,
+        0.0056
+      ],
+      "s": [
+        2.33,
+        0.138,
+        0.3232
+      ],
+      "col": "276A60",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 184
+    },
+    "SK_Root_04": {
+      "b": "Root",
+      "c": [
+        -0.05,
+        0.0,
+        -0.1475
+      ],
+      "s": [
+        1.26,
+        0.204,
+        0.505
+      ],
+      "col": "222725",
+      "mat": "Fabric",
+      "refl": 0.0,
+      "tris": 328
+    },
+    "SK_Root_05": {
+      "b": "Root",
+      "c": [
+        0.3355,
+        0.0,
+        0.0287
+      ],
+      "s": [
+        2.009,
+        0.288,
+        1.2167
+      ],
+      "col": "263439",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 328
+    },
+    "SK_Root_06": {
+      "b": "Root",
+      "c": [
+        0.152,
+        0.0,
+        -0.02
+      ],
+      "s": [
+        2.056,
+        0.3187,
+        0.5
+      ],
+      "col": "213039",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 68
+    },
+    "SK_Root_07": {
+      "b": "Root",
+      "c": [
+        0.152,
+        0.0,
+        0.0707
+      ],
+      "s": [
+        2.056,
+        0.3187,
+        0.3186
+      ],
+      "col": "55707A",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 30
+    },
+    "SK_Root_08": {
+      "b": "Root",
+      "c": [
+        1.184,
+        0.0,
+        -0.008
+      ],
+      "s": [
+        4.072,
+        0.192,
+        0.669
+      ],
+      "col": "73EDCE",
+      "mat": "Neon",
+      "refl": 0.0,
+      "tris": 464,
+      "glow": 0.65,
+      "glowMix": 0.7
+    },
+    "SK_Root_09": {
+      "b": "Root",
+      "c": [
+        0.1153,
+        0.0,
+        -0.0208
+      ],
+      "s": [
+        1.9827,
+        0.3187,
+        0.445
+      ],
+      "col": "354D57",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 34
+    },
+    "SK_RuinShard_01_01": {
+      "b": "RuinShard_01",
+      "c": [
+        1.225,
+        0.0,
+        -0.107
+      ],
+      "s": [
+        1.05,
+        0.278,
+        0.5159
+      ],
+      "col": "263439",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 10
+    },
+    "SK_RuinShard_01_02": {
+      "b": "RuinShard_01",
+      "c": [
+        1.1935,
+        0.0,
+        0.0
+      ],
+      "s": [
+        0.987,
+        0.278,
+        0.6262
+      ],
+      "col": "213039",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 14
+    },
+    "SK_RuinShard_01_03": {
+      "b": "RuinShard_01",
+      "c": [
+        1.28,
+        -0.0,
+        0.026
+      ],
+      "s": [
+        0.94,
+        0.2117,
+        0.632
+      ],
+      "col": "55707A",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 20
+    },
+    "SK_RuinShard_01_04": {
+      "b": "RuinShard_01",
+      "c": [
+        1.1935,
+        0.0,
+        -0.0259
+      ],
+      "s": [
+        0.987,
+        0.278,
+        0.6781
+      ],
+      "col": "354D57",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 22
+    },
+    "SK_RuinShard_02_01": {
+      "b": "RuinShard_02",
+      "c": [
+        1.82,
+        0.0,
+        -0.2895
+      ],
+      "s": [
+        0.48,
+        0.2117,
+        0.225
+      ],
+      "col": "263439",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 8
+    },
+    "SK_RuinShard_02_02": {
+      "b": "RuinShard_02",
+      "c": [
+        2.1014,
+        0.0,
+        -0.2309
+      ],
+      "s": [
+        0.966,
+        0.278,
+        0.3036
+      ],
+      "col": "213039",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 8
+    },
+    "SK_RuinShard_02_03": {
+      "b": "RuinShard_02",
+      "c": [
+        2.105,
+        0.0,
+        -0.216
+      ],
+      "s": [
+        1.05,
+        0.278,
+        0.314
+      ],
+      "col": "55707A",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 30
+    },
+    "SK_RuinShard_02_04": {
+      "b": "RuinShard_02",
+      "c": [
+        2.1242,
+        0.0,
+        -0.2755
+      ],
+      "s": [
+        1.0116,
+        0.278,
+        0.2529
+      ],
+      "col": "354D57",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 14
+    },
+    "SK_RuinShard_03_01": {
+      "b": "RuinShard_03",
+      "c": [
+        2.09,
+        -0.0,
+        0.2111
+      ],
+      "s": [
+        1.14,
+        0.278,
+        0.3218
+      ],
+      "col": "263439",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 18
+    },
+    "SK_RuinShard_03_02": {
+      "b": "RuinShard_03",
+      "c": [
+        2.0888,
+        -0.0,
+        0.2316
+      ],
+      "s": [
+        1.0488,
+        0.278,
+        0.3629
+      ],
+      "col": "213039",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 10
+    },
+    "SK_RuinShard_03_03": {
+      "b": "RuinShard_03",
+      "c": [
+        2.09,
+        -0.0,
+        0.264
+      ],
+      "s": [
+        1.14,
+        0.278,
+        0.346
+      ],
+      "col": "55707A",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 18
+    },
+    "SK_RuinShard_03_04": {
+      "b": "RuinShard_03",
+      "c": [
+        2.0888,
+        -0.0,
+        0.1938
+      ],
+      "s": [
+        1.0488,
+        0.278,
+        0.3335
+      ],
+      "col": "354D57",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 14
+    },
+    "SK_RuinShard_04_01": {
+      "b": "RuinShard_04",
+      "c": [
+        3.215,
+        -0.0166,
+        -0.0795
+      ],
+      "s": [
+        1.45,
+        0.2448,
+        0.537
+      ],
+      "col": "263439",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 11
+    },
+    "SK_RuinShard_04_02": {
+      "b": "RuinShard_04",
+      "c": [
+        3.1943,
+        0.0,
+        -0.0003
+      ],
+      "s": [
+        1.334,
+        0.278,
+        0.6126
+      ],
+      "col": "213039",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 18
+    },
+    "SK_RuinShard_04_03": {
+      "b": "RuinShard_04",
+      "c": [
+        3.215,
+        0.0,
+        0.011
+      ],
+      "s": [
+        1.45,
+        0.2117,
+        0.674
+      ],
+      "col": "55707A",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 20
+    },
+    "SK_RuinShard_04_04": {
+      "b": "RuinShard_04",
+      "c": [
+        3.215,
+        0.0,
+        -0.021
+      ],
+      "s": [
+        1.45,
+        0.278,
+        0.654
+      ],
+      "col": "354D57",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 23
+    },
+    "SK_RuinShard_05_01": {
+      "b": "RuinShard_05",
+      "c": [
+        1.72,
+        -0.0,
+        0.4531
+      ],
+      "s": [
+        0.28,
+        0.0706,
+        0.0322
+      ],
+      "col": "263439",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 8
+    },
+    "SK_RuinShard_05_02": {
+      "b": "RuinShard_05",
+      "c": [
+        1.8655,
+        -0.0,
+        0.4965
+      ],
+      "s": [
+        0.1683,
+        0.166,
+        0.0785
+      ],
+      "col": "213039",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 2
+    },
+    "SK_RuinShard_05_03": {
+      "b": "RuinShard_05",
+      "c": [
+        1.78,
+        -0.0,
+        0.52
+      ],
+      "s": [
+        0.4,
+        0.166,
+        0.106
+      ],
+      "col": "55707A",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 12
+    },
+    "SK_RuinShard_05_04": {
+      "b": "RuinShard_05",
+      "c": [
+        1.7879,
+        -0.0,
+        0.4933
+      ],
+      "s": [
+        0.3842,
+        0.166,
+        0.0994
+      ],
+      "col": "354D57",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 8
+    },
+    "SK_RuinShard_06_01": {
+      "b": "RuinShard_06",
+      "c": [
+        2.3694,
+        0.0,
+        -0.4785
+      ],
+      "s": [
+        0.4188,
+        0.166,
+        0.071
+      ],
+      "col": "263439",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 8
+    },
+    "SK_RuinShard_06_02": {
+      "b": "RuinShard_06",
+      "c": [
+        2.385,
+        0.0,
+        -0.4365
+      ],
+      "s": [
+        0.45,
+        0.166,
+        0.053
+      ],
+      "col": "55707A",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 16
+    },
+    "SK_RuinShard_06_03": {
+      "b": "RuinShard_06",
+      "c": [
+        2.3947,
+        0.0,
+        -0.4642
+      ],
+      "s": [
+        0.4306,
+        0.166,
+        0.0996
+      ],
+      "col": "354D57",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 6
+    },
+    "SK_RuinShard_07_01": {
+      "b": "RuinShard_07",
+      "c": [
+        3.04,
+        -0.0,
+        0.3929
+      ],
+      "s": [
+        0.3,
+        0.0706,
+        0.0319
+      ],
+      "col": "263439",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 8
+    },
+    "SK_RuinShard_07_02": {
+      "b": "RuinShard_07",
+      "c": [
+        3.0606,
+        -0.0,
+        0.4445
+      ],
+      "s": [
+        0.3108,
+        0.166,
+        0.0933
+      ],
+      "col": "213039",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 6
+    },
+    "SK_RuinShard_07_03": {
+      "b": "RuinShard_07",
+      "c": [
+        3.065,
+        -0.0,
+        0.447
+      ],
+      "s": [
+        0.35,
+        0.0907,
+        0.104
+      ],
+      "col": "55707A",
+      "mat": "SmoothPlastic",
+      "refl": 0.0,
+      "tris": 8
+    },
+    "SK_RuinShard_07_04": {
+      "b": "RuinShard_07",
+      "c": [
+        3.0726,
+        -0.0,
+        0.4281
+      ],
+      "s": [
+        0.3348,
+        0.166,
+        0.0899
+      ],
+      "col": "354D57",
+      "mat": "Slate",
+      "refl": 0.0,
+      "tris": 8
+    }
+  },
+  "replaced": {
+    "Blade": true,
+    "Hilt": true,
+    "Neon": true
+  },
+  "joints": [
+    {
+      "name": "RuinShard_01",
+      "parent": "Root",
+      "c0": [
+        1.3300000429153442,
+        0.0,
+        -0.01899999938905239,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "axis": [
+        0.24253562092781067,
+        0.9701424837112427,
+        0.0
+      ],
+      "phase": 1.21,
+      "travel": 0.035,
+      "tilt": 0.075,
+      "tether": false,
+      "region": "Receiver"
+    },
+    {
+      "name": "RuinShard_02",
+      "parent": "Root",
+      "c0": [
+        2.06000018119812,
+        0.0,
+        -0.23420000076293945,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "axis": [
+        0.24253562092781067,
+        0.9701424837112427,
+        0.0
+      ],
+      "phase": 1.52,
+      "travel": 0.035,
+      "tilt": 0.075,
+      "tether": false,
+      "region": "Receiver"
+    },
+    {
+      "name": "RuinShard_03",
+      "parent": "Root",
+      "c0": [
+        2.075000286102295,
+        0.0,
+        0.22880001366138458,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "axis": [
+        0.24253562092781067,
+        0.9701424837112427,
+        0.0
+      ],
+      "phase": 1.83,
+      "travel": 0.035,
+      "tilt": 0.075,
+      "tether": false,
+      "region": "Receiver"
+    },
+    {
+      "name": "RuinShard_04",
+      "parent": "Root",
+      "c0": [
+        2.9566667079925537,
+        0.0,
+        0.012416666373610497,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "axis": [
+        0.24253562092781067,
+        0.9701424837112427,
+        0.0
+      ],
+      "phase": 2.14,
+      "travel": 0.035,
+      "tilt": 0.075,
+      "tether": true,
+      "region": "Receiver"
+    },
+    {
+      "name": "RuinShard_05",
+      "parent": "Root",
+      "c0": [
+        1.7780001163482666,
+        0.0,
+        0.49480000138282776,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "axis": [
+        0.24253562092781067,
+        0.9701424837112427,
+        0.0
+      ],
+      "phase": 2.45,
+      "travel": 0.035,
+      "tilt": 0.075,
+      "tether": false,
+      "region": "Receiver"
+    },
+    {
+      "name": "RuinShard_06",
+      "parent": "Root",
+      "c0": [
+        2.4020001888275146,
+        0.0,
+        -0.4482000470161438,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "axis": [
+        0.24253562092781067,
+        0.9701424837112427,
+        0.0
+      ],
+      "phase": 2.76,
+      "travel": 0.035,
+      "tilt": 0.075,
+      "tether": false,
+      "region": "Receiver"
+    },
+    {
+      "name": "RuinShard_07",
+      "parent": "Root",
+      "c0": [
+        3.0799999237060547,
+        0.0,
+        0.43020007014274597,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "axis": [
+        0.24253562092781067,
+        0.9701424837112427,
+        0.0
+      ],
+      "phase": 3.07,
+      "travel": 0.035,
+      "tilt": 0.075,
+      "tether": false,
+      "region": "Receiver"
+    }
+  ],
+  "energy": [
+    {
+      "name": "RuinBladeLink1A",
+      "bone": "RuinShard_01",
+      "point": [
+        1.56,
+        0.025,
+        -0.14
+      ],
+      "mist": false,
+      "phase": 0.27
+    },
+    {
+      "name": "RuinBladeLink1B",
+      "bone": "RuinShard_02",
+      "point": [
+        1.82,
+        0.019,
+        -0.2
+      ],
+      "mist": false,
+      "phase": 0.27
+    },
+    {
+      "name": "RuinBladeLink2A",
+      "bone": "RuinShard_01",
+      "point": [
+        1.59,
+        0.022,
+        0.08
+      ],
+      "mist": false,
+      "phase": 0.54
+    },
+    {
+      "name": "RuinBladeLink2B",
+      "bone": "RuinShard_03",
+      "point": [
+        1.84,
+        0.022,
+        0.13
+      ],
+      "mist": false,
+      "phase": 0.54
+    },
+    {
+      "name": "RuinBladeLink3A",
+      "bone": "RuinShard_03",
+      "point": [
+        2.55,
+        0.024,
+        0.213
+      ],
+      "mist": false,
+      "phase": 0.81
+    },
+    {
+      "name": "RuinBladeLink3B",
+      "bone": "RuinShard_04",
+      "point": [
+        2.77,
+        0.014,
+        0.155
+      ],
+      "mist": false,
+      "phase": 0.81
+    },
+    {
+      "name": "RuinBladeLink4A",
+      "bone": "RuinShard_02",
+      "point": [
+        2.51,
+        0.021,
+        -0.21
+      ],
+      "mist": false,
+      "phase": 1.08
+    },
+    {
+      "name": "RuinBladeLink4B",
+      "bone": "RuinShard_04",
+      "point": [
+        2.78,
+        0.012,
+        -0.202
+      ],
+      "mist": false,
+      "phase": 1.08
+    }
+  ],
+  "skinItem": "RuinedReaver"
+}

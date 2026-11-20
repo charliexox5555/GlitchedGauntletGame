@@ -60,3 +60,7 @@ Kill pop (headshot): ![kill pop](References/ui-overhaul/2026-11-14-live-kill-pop
 ## Fix: hotbar over the ammo panel (owner, testing)
 The hotbar sat a fixed 106 px above the bottom while the ammo panel grows with the screen (its UIScale), so above 1080p the panel ran into it. `StarterGui.BottomHud.Root.Right` is now one column (hotbar, ammo, key hints) with a vertical `UIListLayout` (8 px) and one `Fit` UIScale, so they stack at any size. `Util/BottomHud` and `tools/studio/BuildBottomHud.luau` updated (rebuild matches Studio but for preview-only values). Checked at 1.4x scale: 11 px between each.
 ![1.4x](References/ui-overhaul/2026-11-14-hud-right-column-1_4x.jpg)
+## Assist feedback
+
+The player who helped with an elimination gets a small cyan **+1 ASSIST** popup. Assisted eliminations have a count tag on the desktop and compact kill feeds. The tag lights up for the player who earned the credit. Scores and UI use the same award from StatsService, based on damage within the match's assist window.
+

@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -74,7 +75,7 @@ local function step(character: Model, isOwn: boolean)
 		watched[character] = new
 	end
 	local w = watch :: Watch
-	local sliding = character:GetAttribute("MoveState") == "Slide" and Health.isAlive(humanoid)
+	local sliding = StateValues.get(character, "MoveState") == "Slide" and Health.isAlive(humanoid)
 	local speed = (root.AssemblyLinearVelocity * Vector3.new(1, 0, 1)).Magnitude
 	w.emitter.Enabled = sliding and speed > Juice.SLIDE.dustMinSpeed
 	if sliding and not w.sliding and not isOwn then

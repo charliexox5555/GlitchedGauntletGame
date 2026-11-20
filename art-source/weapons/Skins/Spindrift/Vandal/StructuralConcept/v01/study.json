@@ -1,0 +1,91 @@
+{
+  "model": "art-source\\weapons\\Skins\\Spindrift\\Vandal\\StructuralConcept\\v01\\Vandal_Spindrift_structure_v01.blend",
+  "scene": "Spindrift / Vandal | Structural concept v01",
+  "frames": [
+    1,
+    13,
+    28,
+    54,
+    65
+  ],
+  "groups": {
+    "Keel and grips": 10,
+    "Prow and upper shell": 14,
+    "Rear architecture": 3,
+    "Actuated pieces": 8,
+    "Sight study": 9,
+    "Cameras": 6
+  },
+  "controls": [
+    "Spindrift / Vandal | Upper fin pitch",
+    "Spindrift / Vandal | Lower fin pitch",
+    "Spindrift / Vandal | Water surge"
+  ],
+  "mesh_count": 36,
+  "max_move": 0.04191112178696838,
+  "reset_delta": 0.0,
+  "MCP port": 9000,
+  "session_pid": 24972,
+  "stock_source": "art-source/weapons/RemasterV2/Vandal/Vandal_RemasterV2_v05.blend",
+  "stock_bounds": [
+    [
+      -1.2519999742507935,
+      -0.10400000214576721,
+      -0.40405693650245667
+    ],
+    [
+      2.6470000743865967,
+      0.12800000607967377,
+      0.634864330291748
+    ],
+    [
+      3.89900004863739,
+      0.23200000822544098,
+      1.0389212667942047
+    ]
+  ],
+  "concept_bounds": [
+    [
+      -1.2658965587615967,
+      -0.11600000411272049,
+      -0.43116119503974915
+    ],
+    [
+      2.633103370666504,
+      0.11600000411272049,
+      0.6077600121498108
+    ],
+    [
+      3.8989999294281006,
+      0.23200000822544098,
+      1.03892120718956
+    ]
+  ],
+  "geometry_scale_xyz": [
+    0.9648601646462841,
+    0.7116564560194063,
+    0.8835270661863168
+  ],
+  "stock_anchors": {
+    "Vandal_RightGrip": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Vandal_LeftGrip": [
+      1.3200000524520874,
+      0.0,
+      0.1704999953508377
+    ],
+    "Vandal_AimPoint": [
+      0.07750000059604645,
+      0.0,
+      0.5598000288009644
+    ],
+    "Vandal_CharmPoint": [
+      0.9300000071525574,
+      0.09579998254776001,
+      0.17030000686645508
+    ]
+  }
+}

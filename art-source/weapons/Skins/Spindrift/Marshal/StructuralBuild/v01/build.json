@@ -1,0 +1,135 @@
+{
+  "line": "Spindrift",
+  "item": "Marshal",
+  "file": "Marshal_Spindrift_structural_v01.blend",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Marshal/Marshal_RemasterV2_v05.blend",
+  "mesh_count": 25,
+  "reset_delta": 0.0,
+  "stock_meshes_preserved": 14,
+  "fit": {
+    "sampled_frames": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      99,
+      141,
+      156,
+      165
+    ],
+    "moving_stock_intersections": [],
+    "charm_fixed_intersections": [],
+    "cosmetic_aim_ray_hits": [],
+    "aim_applicable": false,
+    "receiver_seat_probes": 24,
+    "stock_bounds": [
+      [
+        -1.246000051498413,
+        -0.10000000149011612,
+        -0.33127498626708984
+      ],
+      [
+        3.197700023651123,
+        0.08500000089406967,
+        0.4399999976158142
+      ],
+      [
+        4.443700075149536,
+        0.1850000023841858,
+        0.771274983882904
+      ]
+    ],
+    "new_bounds": [
+      [
+        -1.246000051498413,
+        -0.10000000149011612,
+        -0.33127498626708984
+      ],
+      [
+        3.197700023651123,
+        0.12480004131793976,
+        0.4399999976158142
+      ],
+      [
+        4.443700075149536,
+        0.22480004280805588,
+        0.771274983882904
+      ]
+    ]
+  },
+  "motion": {
+    "start": 9,
+    "open": 17,
+    "commit": 30,
+    "ready": 65,
+    "peak": 30,
+    "inspect": 99,
+    "cancel": 141,
+    "steps": [
+      30,
+      46
+    ],
+    "regression": [],
+    "game_reload_seconds": 2.5,
+    "charm_extremes": [
+      156,
+      165
+    ]
+  },
+  "clips": {}
+}

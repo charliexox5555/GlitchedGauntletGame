@@ -1,0 +1,18 @@
+{
+  "line": "Nitrous",
+  "source": "art-source/weapons/Skins/Nitrous/Bulldog/v01/Bulldog_Nitrous_v01.blend",
+  "blend": "art-source/weapons/Skins/Nitrous/Bulldog/v02/Bulldog_Nitrous_v02.blend",
+  "earlier_build_sha256": "4d2edd0feb9e4c68ee9ac8b261d88a09bd270b21ab316b6fb3c9397fc48aa270",
+  "seat_source": "art-source/weapons/Skins/Shared Sources/Bulldog/SightSeat_v01/Bulldog_RemasterV2_v05_SightSeat_v01.blend",
+  "report": "The approved Root-parented seat bridges the gap. The existing model, sights, UVs, and actions match the source file.",
+  "review": "art-source/weapons/Skins/Nitrous/Bulldog/v02/front-sight-seat.png",
+  "support_at_six_front_sight_probes": [
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003,
+    0.0003
+  ],
+  "saved_file_verified": true
+}

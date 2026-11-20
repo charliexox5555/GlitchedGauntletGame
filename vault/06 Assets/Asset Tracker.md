@@ -6,7 +6,23 @@ Status of every asset from model to in-game. Update it whenever something moves 
 
 Pipeline: [Art Direction](../02%20Art/Art%20Direction.md) → *Import pipeline*.
 
+**Overtime zone (2026-11-19).** Match Studio has the Blender curtain, ground trace and drift meshes staged with the v02 sky curtain texture and a 320-stud wall. [Source, asset IDs and Studio setup](../02%20Art/Overtime%20Zone.md)
+
+Active Lobby and Match assets now get authored fields from the shared AssetData modules. The migrated instances are staged in the open Studio places. [Asset configuration and migration](../04%20Tech/State%20Values%20and%20Asset%20Data.md#editing-active-assets)
+
 ## Weapons
+
+**Shadow Mist magazine and Reaver review (2026-11-18).** Vandal v07, Guardian v15, Spectre v10, Operator v10, Ghost v10 and Ruined Reaver v09 are staged for the owner's Match Studio review. [Model IDs and verification](../02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#meshy-review-and-loaded-cartridge-pass)
+
+**Ruin-Blighted Guardian v11 (2026-11-18).** Match Studio review model `82293743720860`, with 15 moving armor plates, eight lit sight segments, a seated grip collar, and a closed trigger guard. [Blender master and Match playtest](../02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md#guardian-v11-fit-and-receiver-motion)
+
+**Ruin-Blighted final review (2026-11-18).** Match Studio has the five v05 guns plus Ruined Reaver v06 in the Knife slot. The v06 Reaver rebuild is private asset `90955732693016`. Blender sources and flat exports are under `art-source/weapons/Skins/RuinBlighted`. [Asset IDs, model sheets and checks](../02%20Art/Skins/RuinBlighted/Expansion%20Ledger.md)
+
+**Ruin-Blighted Vandal (2026-11-17).** Shadow Mist v05 is installed in Match Studio with a local model backup. The model asset contains the new spine, action shutter, underside shards, and eight independently moving rear-sight segments. [Concept and references](../02%20Art/Skins/RuinBlighted/concept.md) · [Blender review](../02%20Art/Skins/RuinBlighted/Build%20Review.md)
+
+**Shadow Mist audio (2026-11-18).** All 30 owner WAVs were uploaded as private group audio for firing, draw, reload and inspect. Match Studio loaded all 30 and played the opening shot, all eight repeats, the split tail, the empty-mag shot, and the handling beats. [Cue sheet](../02%20Art/Skins/RuinBlighted/Sound%20Cue%20Sheet.md) · [Asset IDs](../../src/shared/Config/ShadowMistAudio.luau) · [Playtest](../05%20Production/Playtests/2026-11-18%20Shadow%20Mist%20Action%20Polish.md#owner-audio-batch)
+
+**Exotic bundles (2026-11-16).** All 18 guns, three original melees and three charms have finished Blender files, material renders and verified motion. Each melee has nine named first-person action assets. [Blender finish ledger](../02%20Art/Skins/Exotic%20Bundle%20Blender%20Finish%20Ledger.md) · [Concepts and previews](../02%20Art/Skins/Exotic%20Bundle%20Concept%20Ledger.md)
 
 **Battle pass cosmetics (2026-11-16).** Poolside Spectre v02 is owner approved. Both 17-gun rosters and Rootglass Broad Leaf are installed as regular skins and saved in Lobby v604 and Match v617. [Blend, maps and review evidence](../02%20Art/Skins/Battle%20Pass%20Blender%20Build%20Ledger.md)
 
@@ -123,6 +139,10 @@ Status of each Mod at L1 (2026-10-26, overnight). ✅ done · 🟡 provisional /
 Shared: icons ✅ · HUD ✅ · F8 dev panel ✅ (testers in published test-mode servers too; touch TEST button 🟡 needs a device) · touch arc + context button 🟡 (checked on a PC with ForceTouchUI; needs a device) · third-person hold / throw / lob / cast / place / heal clips 🟡 (pass 2, 2026-11-04: wind-ups and follow-throughs, uploaded; needs a look from a second player) · the finished models in `ReplicatedStorage.Abilities` 🟡 **save the place**.
 
 **Ice VFX kit (2026-11-03):** 🟡 `IceVFX` (15 flat-shaded meshes, 1,860 tris, `tools/blender/build_mod_icevfx.py`, render `02 Art/References/mods/icevfx.jpg`) uploaded as 99804256205553, build data in `tools/studio/abilities/BuildData/IceVFX.json`; used by the Frost burst, Freeze Frame and Frost Wall (`Util/IceKit`). Left: `AbilityBuilder.publish("IceVFX")` in Studio, save the place, the user's look test.
+
+## Match rigs
+
+- Bot fallback body is bundled in `src/server/Bots/FallbackRig.rbxm`. It uses the standard R15 dimensions and joints, with primitive parts and the built-in face. The Match server applies the usual Gauntlet body and selects its colours at spawn. [Bot presentation](../01%20Design/Bots.md#match-presentation)
 
 ## VFX, UI and audio
 

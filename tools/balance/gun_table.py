@@ -4,9 +4,9 @@ time to kill against every health total a player can have.
 
 Run: python tools/balance/gun_table.py
 Rewrites the tables in vault/01 Design/Gun Balance.md (between the table markers)
-and prints warnings for anything outside the targets written there. TTK counts the
-first shot as free: (shots - 1) x fire interval. Shotguns assume every pellet hits,
-so they're the best case; spin-up guns use their starting interval for the first second.
+and prints warnings for anything outside the targets written there. TTK starts at
+the first shot and accounts for spin-up and empty reloads. Shotguns assume every
+pellet hits.
 """
 
 from __future__ import annotations
@@ -38,7 +38,10 @@ def read_guns() -> list[dict]:
         if klass == "Melee":
             continue
         shield = field("shield")
-        spin = re.search(r"spinUp = \{ startInterval = ([\d.]+)", body)
+        spin = re.search(
+            r"spinUp = \{ startInterval = ([\d.]+), endInterval = ([\d.]+), time = ([\d.]+) \}",
+            body,
+        )
         guns.append(
             {
                 "id": m.group(1),
@@ -47,8 +50,10 @@ def read_guns() -> list[dict]:
                 "body": int(damage.group(1)),
                 "head": int(damage.group(2)),
                 "pellets": int(field("pellets").group(1)),
-                "interval": float(spin.group(1) if spin else field("fireInterval").group(1)),
+                "interval": float(field("fireInterval").group(1)),
+                "spin": tuple(map(float, spin.groups())) if spin else None,
                 "mag": int(field("magSize").group(1)),
+                "empty_reload": float(field("emptyReloadTime").group(1)),
                 "shield": int(shield.group(1)) if shield else None,
             }
         )
@@ -60,9 +65,27 @@ def shots(hp: int, per_shot: int) -> int:
     return math.ceil(hp / per_shot)
 
 
-def cell(hp: int, per_shot: int, interval: float) -> str:
+def time_to_kill(gun: dict, count: int) -> float:
+    elapsed = 0.0
+    spin_started = 0.0
+    for fired in range(1, count):
+        if fired % gun["mag"] == 0:
+            elapsed += max(gun["empty_reload"], gun["interval"])
+            spin_started = elapsed
+        elif gun["spin"]:
+            start, end, duration = gun["spin"]
+            ramp = (start - end) / duration
+            # FireRate evaluates the interval at the next shot's time.
+            gap = (start - ramp * (elapsed - spin_started)) / (1 + ramp)
+            elapsed += max(end, gap)
+        else:
+            elapsed += gun["interval"]
+    return elapsed
+
+
+def cell(hp: int, per_shot: int, gun: dict) -> str:
     n = shots(hp, per_shot)
-    return f"{n} ({(n - 1) * interval:.2f}s)"
+    return f"{n} ({time_to_kill(gun, n):.2f}s)"
 
 
 def table(guns: list[dict], tier: int) -> str:
@@ -81,11 +104,16 @@ def table(guns: list[dict], tier: int) -> str:
             if g["pellets"] > 1
             else f"{g['body']} / {g['head']}"
         )
+        rate = (
+            f"{1 / g['spin'][0]:.1f}–{1 / g['spin'][1]:.1f}/s"
+            if g["spin"]
+            else f"{1 / g['interval']:.1f}/s"
+        )
         rows.append(
-            f"| **{g['id']}** | {g['class']} | {shield} | {damage} | {1 / g['interval']:.1f}/s | {g['mag']} | "
-            + " · ".join(cell(hp, body, g["interval"]) for hp in TOTALS)
+            f"| **{g['id']}** | {g['class']} | {shield} | {damage} | {rate} | {g['mag']} | "
+            + " · ".join(cell(hp, body, g) for hp in TOTALS)
             + " | "
-            + " · ".join(cell(hp, head, g["interval"]) for hp in TOTALS)
+            + " · ".join(cell(hp, head, g) for hp in TOTALS)
             + " |"
         )
     return "\n".join(rows)
@@ -96,11 +124,13 @@ def warnings(guns: list[dict]) -> list[str]:
     for g in guns:
         body = g["body"] * g["pellets"]
         head = g["head"] * g["pellets"]
-        ttk = (shots(150, body) - 1) * g["interval"]
+        ttk = time_to_kill(g, shots(150, body))
         if g["class"] not in ("Sniper", "Shotgun") and g["pellets"] == 1 and not TTK_MIN <= ttk <= TTK_MAX:
             out.append(f"{g['id']}: body kill at 150 is {ttk:.2f} s, target {TTK_MIN}-{TTK_MAX}")
         if g["class"] in NO_ONE_SHOT_HEAD and g["pellets"] == 1 and head >= 100:
             out.append(f"{g['id']}: one-shots a head at 100")
+        if body >= 100:
+            out.append(f"{g['id']}: one-shots the body at 100")
         if g["pellets"] == 1 and head / g["body"] > (2.2 if g["class"] == "Sniper" else 1.75):
             out.append(f"{g['id']}: head multiplier {head / g['body']:.2f}")
         if shots(150, body) > g["mag"]:

@@ -20,6 +20,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local Workspace = game:GetService("Workspace")
 
 local Health = require(ReplicatedStorage.Shared.Health)
@@ -263,9 +264,7 @@ local function copyOf(character: Model): Model?
 	end
 	local model = copy :: Model
 	model.Name = "DashDecoy"
-	for name in model:GetAttributes() do
-		model:SetAttribute(name, nil)
-	end
+	StateValues.clear(model)
 	for _, d in model:GetDescendants() do
 		if
 			d:IsA("LuaSourceContainer")
@@ -476,7 +475,7 @@ function DashDecoy.spawn(s: Spawn)
 			d.LocalTransparencyModifier = 0
 		end
 	end
-	local weaponId = s.owner:GetAttribute("WeaponId")
+	local weaponId = StateValues.get(s.owner, "WeaponId")
 	local weapon = if typeof(weaponId) == "string" then Weapons.get(weaponId) else nil
 	local world = model:FindFirstChild("WorldWeapon")
 	local muzzle = world and world:FindFirstChild("Muzzle", true)

@@ -6,15 +6,25 @@
 -- guns follow the character that holds them.
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Config = require(script.Parent.Config.SkinPreview)
+local Locker = require(script.Parent.Locker)
 
 local SkinPreview = {}
 
 -- Camera guns carry their owner's UserId in this attribute (ViewmodelController).
 SkinPreview.OWNER_ATTRIBUTE = "SkinOwnerId"
-SkinPreview.LOCKER_FOLDER = "LockerSkins"
+SkinPreview.BOT_LOCKER = "BotLocker"
+
+-- The replica also marks bot replay copies after their combat attributes are stripped.
+function SkinPreview.botLine(body: Model?, id: string): string?
+	if not body or not body:FindFirstChild(SkinPreview.BOT_LOCKER) then
+		return nil
+	end
+	return Locker.equipped(body, SkinPreview.BOT_LOCKER)[id] or "Stock"
+end
 
 -- Whether the preview runs in this server at all (match place; Studio or LIVE).
 function SkinPreview.allowed(): boolean
@@ -39,19 +49,18 @@ end
 -- The line `player`'s gun `id` wears; on the client, nil means the local
 -- player. A line picked with the in-match preview (F7) wins while it isn't
 -- Stock; otherwise the skin equipped for that gun in the Lobby's Locker
--- (the server-set attributes under the player's LockerSkins folder).
+-- (the server-published LockerSkins value).
 function SkinPreview.line(player: Player?, id: string?): string
 	local who = player or (if RunService:IsClient() then Players.LocalPlayer else nil)
 	if not who or not SkinPreview.allowed() then
 		return "Stock"
 	end
-	local value = who:GetAttribute(Config.ATTRIBUTE)
+	local value = StateValues.get(who, Config.ATTRIBUTE)
 	if SkinPreview.valid(value) and value ~= "Stock" then
 		return value :: string
 	end
-	local locker = who:FindFirstChild(SkinPreview.LOCKER_FOLDER)
-	if id and locker then
-		local saved = locker:GetAttribute(id)
+	if id then
+		local saved = Locker.equipped(who)[id]
 		if SkinPreview.valid(saved) then
 			return saved :: string
 		end
@@ -59,18 +68,14 @@ function SkinPreview.line(player: Player?, id: string?): string
 	return "Stock"
 end
 
--- The Locker folder is populated before parenting, so a late load is one
+-- The Locker value is populated before parenting, so a late load is one
 -- update for both the surface watcher and the geometry rebuilders.
 function SkinPreview.observe(player: Player, onChange: () -> ()): () -> ()
-	local preview = player:GetAttributeChangedSignal(Config.ATTRIBUTE):Connect(onChange)
-	local locker = player.ChildAdded:Connect(function(child)
-		if child.Name == SkinPreview.LOCKER_FOLDER then
-			onChange()
-		end
-	end)
+	local preview = StateValues.changed(player, Config.ATTRIBUTE):Connect(onChange)
+	local locker = Locker.observe(player, onChange)
 	return function()
 		preview:Disconnect()
-		locker:Disconnect()
+		locker()
 	end
 end
 
@@ -78,7 +83,7 @@ end
 -- player), or the player whose character holds a world gun. Nil: no owner
 -- (leave the model as it is).
 function SkinPreview.ownerOf(model: Model): Player?
-	local id = model:GetAttribute(SkinPreview.OWNER_ATTRIBUTE)
+	local id = StateValues.get(model, SkinPreview.OWNER_ATTRIBUTE)
 	if typeof(id) == "number" then
 		return Players:GetPlayerByUserId(id)
 	end
@@ -112,12 +117,12 @@ function SkinPreview.resolve(id: string, line: string): (Model?, string)
 		local folder = skins and skins:FindFirstChild(line)
 		if id == "Knife" and line == "PopCircuit" then
 			local bat = folder and folder:FindFirstChild("Bat")
-			if bat and bat:IsA("Model") and bat:GetAttribute("SkinReady") == true then
+			if bat and bat:IsA("Model") and StateValues.get(bat, "SkinReady") == true then
 				return bat, line
 			end
 		end
 		local variant = folder and folder:FindFirstChild(id)
-		if variant and variant:IsA("Model") and variant:GetAttribute("SkinReady") == true then
+		if variant and variant:IsA("Model") and StateValues.get(variant, "SkinReady") == true then
 			return variant, line
 		end
 	end
@@ -128,7 +133,10 @@ function SkinPreview.geometry(templateId: string, player: Player?): Model?
 	local variant = SkinPreview.resolve(templateId, SkinPreview.line(player, templateId))
 	if
 		variant
-		and (variant:GetAttribute("PreviewGeometry") or variant:GetAttribute("PreviewMeleeModel"))
+		and (
+			StateValues.get(variant, "PreviewGeometry")
+			or StateValues.get(variant, "PreviewMeleeModel")
+		)
 	then
 		return variant
 	end
@@ -137,17 +145,17 @@ end
 
 function SkinPreview.geometryChanged(model: Model, templateId: string, player: Player?): boolean
 	local variant = SkinPreview.geometry(templateId, player)
-	return model:GetAttribute("PreviewGeometry")
-			~= (variant and variant:GetAttribute("PreviewGeometry"))
-		or model:GetAttribute("PreviewMeleeModel")
-			~= (variant and variant:GetAttribute("PreviewMeleeModel"))
+	return StateValues.get(model, "PreviewGeometry")
+			~= (variant and StateValues.get(variant, "PreviewGeometry"))
+		or StateValues.get(model, "PreviewMeleeModel")
+			~= (variant and StateValues.get(variant, "PreviewMeleeModel"))
 end
 
 function SkinPreview.apply(model: Model)
 	if not SkinPreview.allowed() then
 		return
 	end
-	local id = model:GetAttribute("WeaponId")
+	local id = StateValues.get(model, "WeaponId")
 	if typeof(id) ~= "string" then
 		return
 	end
@@ -159,20 +167,20 @@ function SkinPreview.apply(model: Model)
 	if not template then
 		return
 	end
-	local geometry = template:GetAttribute("PreviewGeometry")
-	if geometry or model:GetAttribute("PreviewGeometry") then
-		if model:GetAttribute("PreviewGeometry") == geometry then
-			model:SetAttribute("PreviewResolvedLine", resolved)
+	local geometry = StateValues.get(template, "PreviewGeometry")
+	if geometry or StateValues.get(model, "PreviewGeometry") then
+		if StateValues.get(model, "PreviewGeometry") == geometry then
+			StateValues.set(model, "PreviewResolvedLine", resolved)
 		end
 		return
 	end
 	-- Melee swaps own their geometry and never copy surfaces onto a different mesh.
-	local custom = template:GetAttribute("PreviewMeleeModel")
-	if model:GetAttribute("PreviewMeleeModel") ~= custom then
+	local custom = StateValues.get(template, "PreviewMeleeModel")
+	if StateValues.get(model, "PreviewMeleeModel") ~= custom then
 		return
 	end
 	if custom then
-		model:SetAttribute("PreviewResolvedLine", resolved)
+		StateValues.set(model, "PreviewResolvedLine", resolved)
 		return
 	end
 	for _, part in model:GetChildren() do
@@ -198,7 +206,7 @@ function SkinPreview.apply(model: Model)
 			surface:Clone().Parent = part
 		end
 	end
-	model:SetAttribute("PreviewResolvedLine", resolved)
+	StateValues.set(model, "PreviewResolvedLine", resolved)
 end
 
 -- Workspace includes camera WorldModels, held world guns, and future pickup
@@ -218,7 +226,7 @@ function SkinPreview.watch(): () -> ()
 		if
 			not model
 			or not model:IsA("Model")
-			or typeof(model:GetAttribute("WeaponId")) ~= "string"
+			or typeof(StateValues.get(model, "WeaponId")) ~= "string"
 		then
 			return
 		end

@@ -32,6 +32,8 @@
 -- standing anchor pulls you back to it at `rescueHealth` instead, and the
 -- anchor breaks (Services/ModRecall.rescue).
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Placeable = require(script.Parent.Blocks.Placeable)
 local Types = require(script.Parent.Types)
 
@@ -77,17 +79,17 @@ end
 
 -- Inside the simulation, every step: a teleport the server published.
 function Recall.step(player: Player, character: Model, root: BasePart, now: number)
-	local published = player:GetAttribute("RecallSerial")
+	local published = StateValues.get(player, "RecallSerial")
 	local serial = if typeof(published) == "number" then published else 0
-	local seen = character:GetAttribute("RecallSeen")
+	local seen = StateValues.get(character, "RecallSeen")
 	if seen == serial then
 		return
 	end
-	character:SetAttribute("RecallSeen", serial)
+	StateValues.set(character, "RecallSeen", serial)
 	if typeof(seen) ~= "number" then
 		return -- a new character: what came before isn't for it
 	end
-	local to = player:GetAttribute("RecallTo")
+	local to = StateValues.get(player, "RecallTo")
 	if typeof(to) ~= "Vector3" then
 		return
 	end
@@ -95,7 +97,7 @@ function Recall.step(player: Player, character: Model, root: BasePart, now: numb
 	local rotation = root.CFrame - root.CFrame.Position
 	character:PivotTo(CFrame.new(to) * rotation)
 	root.AssemblyLinearVelocity = Vector3.zero
-	character:SetAttribute("RecallAt", now)
+	StateValues.set(character, "RecallAt", now)
 end
 
 local module: Types.ModModule = {}
@@ -134,7 +136,7 @@ module.apply = function(ctx: Types.ServerCtx, req: Types.Request)
 	anchor.CanCollide = false
 	anchor.CanQuery = true -- shootable (WeaponService hits on Mod objects)
 	anchor.CanTouch = false
-	anchor:SetAttribute("CountsHits", true) -- `hp` is hits, whatever the gun
+	StateValues.set(anchor, "CountsHits", true) -- `hp` is hits, whatever the gun
 	ctx.place("Recall", anchor, stats.life, stats.hp, 1)
 	if not anchor.Parent then
 		return -- the caster died first

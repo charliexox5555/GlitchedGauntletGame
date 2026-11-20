@@ -20,6 +20,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -50,9 +51,11 @@ export type Hooks = {
 	built: () -> (),
 }
 
+type Caster = Player | Model
+
 type Wall = {
 	id: number,
-	owner: Player,
+	owner: Caster,
 	team: number?,
 	stats: ModTypes.Stats,
 	hooks: Hooks,
@@ -70,6 +73,43 @@ type Wall = {
 
 local walls: { Wall } = {}
 local nextId = 0
+
+local function clip(
+	near: number,
+	far: number,
+	start: number,
+	delta: number,
+	half: number
+): (number, number)
+	if math.abs(delta) < 1e-5 then
+		return if math.abs(start) <= half then near else math.huge, far
+	end
+	local a, b = (-half - start) / delta, (half - start) / delta
+	return math.max(near, math.min(a, b)), math.min(far, math.max(a, b))
+end
+
+-- Firewall volumes are non-queryable for movement and bullets. Visibility
+-- uses the same oriented pieces so bots lose sight while the wall is up.
+function ModWalls.blocksSight(from: Vector3, to: Vector3, now: number): boolean
+	for _, wall in walls do
+		if wall.expiresAt and now >= wall.expiresAt then
+			continue
+		end
+		for _, part in wall.pieces do
+			local frame = part.CFrame
+			local start = frame:PointToObjectSpace(from)
+			local delta = frame:VectorToObjectSpace(to - from)
+			local half = part.Size * 0.5
+			local near, far = clip(0, 1, start.X, delta.X, half.X)
+			near, far = clip(near, far, start.Y, delta.Y, half.Y)
+			near, far = clip(near, far, start.Z, delta.Z, half.Z)
+			if near <= far then
+				return true
+			end
+		end
+	end
+	return false
+end
 
 local function folder(): Folder
 	local existing = workspace:FindFirstChild("ModWalls")
@@ -130,12 +170,12 @@ local function addPiece(wall: Wall, a: Vector3, b: Vector3)
 	part.Transparency = 1
 	part.Size = Vector3.new(stats.thickness, stats.height, flat.Magnitude)
 	part.CFrame = CFrame.lookAt(mid, mid + flat.Unit)
-	part:SetAttribute("WallId", wall.id)
-	part:SetAttribute("Index", #wall.pieces + 1)
-	part:SetAttribute("OwnerId", wall.owner.UserId)
-	part:SetAttribute("TeamId", wall.team)
-	part:SetAttribute("BuiltAt", workspace:GetServerTimeNow())
-	part:SetAttribute("WallKind", if stats.behaviour == "Frost" then "Frost" else "Fire")
+	StateValues.set(part, "WallId", wall.id)
+	StateValues.set(part, "Index", #wall.pieces + 1)
+	StateValues.set(part, "OwnerId", if wall.owner:IsA("Player") then wall.owner.UserId else 0)
+	StateValues.set(part, "TeamId", wall.team)
+	StateValues.set(part, "BuiltAt", workspace:GetServerTimeNow())
+	StateValues.set(part, "WallKind", if stats.behaviour == "Frost" then "Frost" else "Fire")
 	part.Parent = folder()
 	table.insert(wall.pieces, part)
 end
@@ -151,7 +191,7 @@ local function finish(wall: Wall)
 	wall.expiresAt = os.clock() + duration
 	local expires = workspace:GetServerTimeNow() + duration
 	for _, p in wall.pieces do
-		p:SetAttribute("ExpiresAt", expires)
+		StateValues.set(p, "ExpiresAt", expires)
 	end
 	task.spawn(wall.hooks.built)
 end
@@ -198,8 +238,9 @@ local function burn(wall: Wall)
 	local amount = stats.dps * stats.tick
 	local serverNow = workspace:GetServerTimeNow()
 	local untilT = serverNow + stats.tick + 0.1
+	local caster = Teams.characterOf(wall.owner)
 	for _, model in Target.combatants() do
-		if not Target.alive(model) or model == wall.owner.Character then
+		if not Target.alive(model) or model == caster then
 			continue -- you're immune to your own wall
 		end
 		local root = model:FindFirstChild("HumanoidRootPart")
@@ -217,7 +258,7 @@ local function burn(wall: Wall)
 			-- Ice: no damage; enemies are Hindered while they touch it (and
 			-- `hinder` seconds after). Your team walks through it unharmed.
 			-- (Never shortens a longer Hinder already on them: a Frost burst.)
-			local hindered = model:GetAttribute(HINDERED)
+			local hindered = StateValues.get(model, HINDERED)
 			local longer = typeof(hindered) == "number" and hindered >= serverNow + stats.hinder
 			if not Teams.isAlly(wall.owner, model) and not longer then
 				wall.hooks.status(model, "Hinder", stats.hinder)
@@ -229,8 +270,8 @@ local function burn(wall: Wall)
 				if ally then amount * Config.FRIENDLY_FIRE else amount,
 				root.Position
 			)
-			model:SetAttribute("BurningUntil", untilT)
-			model:SetAttribute("BurnKind", "Firewall")
+			StateValues.set(model, "BurningUntil", untilT)
+			StateValues.set(model, "BurnKind", "Firewall")
 		end
 	end
 end
@@ -246,7 +287,7 @@ end
 -- Starts a wall for `owner` from their feet. One building wall per owner:
 -- a new one finishes the old.
 function ModWalls.build(
-	owner: Player,
+	owner: Caster,
 	root: BasePart,
 	stats: ModTypes.Stats,
 	spec: ModTypes.WallSpec,
@@ -281,7 +322,7 @@ function ModWalls.build(
 end
 
 -- The caster's streamed look while steering (nil: stop building here).
-function ModWalls.steer(owner: Player, look: Vector3?)
+function ModWalls.steer(owner: Caster, look: Vector3?)
 	for _, w in walls do
 		if w.owner == owner and w.building then
 			if look then
@@ -303,12 +344,12 @@ function ModWalls.isBuilding(owner: Player): boolean
 end
 
 -- The caster died: their wall stops growing (it keeps burning).
-function ModWalls.stop(owner: Player)
+function ModWalls.stop(owner: Caster)
 	ModWalls.steer(owner, nil)
 end
 
 -- The round is over: the caster's walls go, burning or not.
-function ModWalls.clear(owner: Player)
+function ModWalls.clear(owner: Caster)
 	for i = #walls, 1, -1 do
 		if walls[i].owner == owner then
 			remove(i)
@@ -324,7 +365,10 @@ local function step(dt: number)
 	local params: RaycastParams? = nil
 	for i = #walls, 1, -1 do
 		local wall = walls[i]
-		if wall.owner.Parent ~= Players then
+		local present = if wall.owner:IsA("Player")
+			then wall.owner.Parent == Players
+			else wall.owner:IsDescendantOf(workspace)
+		if not present then
 			remove(i) -- the caster left: their wall goes
 			continue
 		end

@@ -18,6 +18,7 @@ local Health = require(ReplicatedStorage.Shared.Health)
 local MatchBody = require(ReplicatedStorage.Shared.MatchBody)
 local Avatar = require(ReplicatedStorage.Shared.Config.Avatar)
 local Movement = require(ReplicatedStorage.Shared.Config.Movement)
+local SimulationFields = require(ReplicatedStorage.Shared.Simulation.Fields)
 local HitboxHistory = require(script.Parent.HitboxHistory)
 local HealthService = require(script.Parent.HealthService)
 
@@ -167,6 +168,7 @@ CharacterService.trackBody = trackBody
 
 -- Shared setup for anything that can be shot.
 function CharacterService.prepare(model: Model)
+	SimulationFields.prepare(model)
 	trackBody(model)
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	if not humanoid then

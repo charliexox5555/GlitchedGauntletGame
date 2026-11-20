@@ -26,6 +26,7 @@
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StateValues = require(ReplicatedStorage.Shared.StateValues)
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -111,7 +112,7 @@ type WallSound = {
 local wallSounds: { [number]: WallSound } = {}
 
 local function kindOf(part: BasePart): string
-	return if part:GetAttribute("WallKind") == "Frost" then "Frost" else "Fire"
+	return if StateValues.get(part, "WallKind") == "Frost" then "Frost" else "Fire"
 end
 
 local function curve(points: { number }): NumberSequence
@@ -181,8 +182,8 @@ end
 -- The wall's sounds: the build as it starts (an ice wall crackles along its
 -- length), a loop every HUM_EVERY pieces.
 local function sound(part: BasePart, kind: string)
-	local wallId = part:GetAttribute("WallId")
-	local index = part:GetAttribute("Index")
+	local wallId = StateValues.get(part, "WallId")
+	local index = StateValues.get(part, "Index")
 	if typeof(wallId) ~= "number" or typeof(index) ~= "number" then
 		return
 	end
@@ -233,7 +234,7 @@ local function meshWall(part: BasePart): MeshWall?
 		end
 	end
 	-- Turned at random (the sheet's ends match either way), so neighbours differ.
-	local index = part:GetAttribute("Index")
+	local index = StateValues.get(part, "Index")
 	local odd = typeof(index) == "number" and index % 2 == 1
 	return {
 		sheet = sheet,
@@ -349,7 +350,7 @@ local function dress(part: BasePart)
 	embers.Parent = part
 	-- A warm light on every other piece.
 	local light: PointLight? = nil
-	local index = part:GetAttribute("Index")
+	local index = StateValues.get(part, "Index")
 	if typeof(index) == "number" and index % 2 == 1 then
 		local l = Instance.new("PointLight")
 		l.Color = Color3.fromRGB(255, 150, 70)
@@ -430,14 +431,14 @@ local hands: { [Model]: Hand } = setmetatable({}, { __mode = "k" }) :: any
 
 -- "Fire" / "Frost" while `other` holds a Firewall, else nil.
 local function firewallHeld(other: Player): string?
-	local held = other:GetAttribute("ModHeld")
+	local held = StateValues.get(other, "ModHeld")
 	if typeof(held) ~= "number" or held == 0 then
 		return nil
 	end
-	if other:GetAttribute("Mod" .. held .. "Id") ~= "Firewall" then
+	if StateValues.get(other, "Mod" .. held .. "Id") ~= "Firewall" then
 		return nil
 	end
-	return if FrostWallFx.isFrost(other:GetAttribute("Mod" .. held .. "Level"))
+	return if FrostWallFx.isFrost(StateValues.get(other, "Mod" .. held .. "Level"))
 		then "Frost"
 		else "Fire"
 end
@@ -529,7 +530,7 @@ function WallFx.step()
 		local age = now - p.born
 		local front = if age < FRONT_TIME then 1 + 1.5 * (1 - age / FRONT_TIME) else 1
 		-- The end: flames sink over FADE after ExpiresAt.
-		local expires = part:GetAttribute("ExpiresAt")
+		local expires = StateValues.get(part, "ExpiresAt")
 		local k = 1
 		if typeof(expires) == "number" then
 			k = math.clamp((expires - serverNow) / FADE, 0, 1)
@@ -598,7 +599,7 @@ function WallFx.step()
 			wallSounds[wallId] = nil
 			continue
 		end
-		local expires = (alive :: BasePart):GetAttribute("ExpiresAt")
+		local expires = StateValues.get(alive :: BasePart, "ExpiresAt")
 		if not ws.ended and typeof(expires) == "number" and expires - serverNow <= FADE then
 			ws.ended = true
 			stopHums(ws)

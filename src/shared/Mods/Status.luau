@@ -8,6 +8,8 @@
 --   Status.active(model, name, now)  whether `name` is on
 --   Status.stunned(model, now)       whether a stun (Frozen) is on
 
+local StateValues = require(game:GetService("ReplicatedStorage").Shared.StateValues)
+
 local Config = require(script.Parent.Parent.Config.StatusEffects)
 
 export type Mults = {
@@ -35,7 +37,7 @@ Status.NONE = NONE
 
 function Status.until_(model: Instance?, name: string): number
 	local effect = Config.effects[name]
-	local v = model and effect and model:GetAttribute(effect.attribute)
+	local v = model and effect and StateValues.get(model, effect.attribute)
 	return if typeof(v) == "number" then v else 0
 end
 

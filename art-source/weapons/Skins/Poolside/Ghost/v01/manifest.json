@@ -1,0 +1,338 @@
+{
+  "line": "Poolside",
+  "item": "Ghost",
+  "version": "v01",
+  "source": "art-source/weapons/RemasterV2/Ghost/Ghost_RemasterV2_v05.blend",
+  "source_file_sha256": "56b6fc58cb0669dc4d86942484be74c6fd8e078321b41270bca9f81d6e8db402",
+  "concept": "vault/02 Art/Skins/Battle Pass Skin Line Concepts.md",
+  "review_state": "Reopened. Matched renders and geometry evidence saved.",
+  "blend": "art-source/weapons/Skins/Poolside/Ghost/v01/Ghost_Poolside_v01.blend",
+  "fbx": null,
+  "art": {
+    "painted_parts": [
+      "Slide"
+    ],
+    "separate_moving_mark": null,
+    "palette_srgb": {
+      "blue": "4DB6E4",
+      "white": "F4EBDD",
+      "yellow": "FFD65A",
+      "navy": "172739"
+    }
+  },
+  "anchors": {
+    "Ghost_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.053999900817871
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2964000105857849
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ghost_RightGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ghost_LeftGrip": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        -0.08000000566244125
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ghost_Eject": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.41600000858306885
+      ],
+      [
+        0.0,
+        0.5999999642372131,
+        -0.7999999523162842,
+        -0.041999995708465576
+      ],
+      [
+        0.0,
+        0.7999999523162842,
+        0.5999999642372131,
+        0.37700000405311584
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ghost_CharmPoint": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.8600000143051147
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.06379997730255127
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.15980000793933868
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ghost_Socket_Muzzle": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        2.053999900817871
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.2964000105857849
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ghost_Socket_Optic": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.30000001192092896
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.38999998569488525
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "Ghost_Socket_Under": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.9200000166893005
+      ],
+      [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.16899999976158142
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "uv": {
+    "audit_pixels_per_axis": 1024,
+    "used_pixels": 530694,
+    "cross_object_overlap_pixels": 0,
+    "same_object_overlap_pixels": 0,
+    "different_role_overlap_pixels": 0,
+    "conflicting_parts": []
+  },
+  "uv_repair": {},
+  "original_stock_uvs_retained": true,
+  "topology_of_stock": {
+    "zero_area": [],
+    "crossed": [],
+    "coplanar_candidates": [
+      {
+        "lift": "Ghost_SlideNeon|Neon",
+        "over": "Ghost_Slide|Dark",
+        "faces": 4
+      }
+    ]
+  },
+  "stock_fingerprints": {
+    "hierarchy_pivots_attachments": "ee6a3afdc0c8672f7ff764288fdd6d21c8a0dd2a2d2e685c5bc5e4cf19cc30da",
+    "geometry_and_material_slots": "11364f1775b0a4963b637eee09bf5cb888ea0942786c7b9dc769bb749eae5003",
+    "uv": "f0d77bb620eeceaa5bd761308b4d353a0d0810e9a65c8ed40fe21107c56e8e0c",
+    "rig_and_nla": "4355bc913738ef8f19ecfd229baa2eb770769834ad57188a0715da5b314d9bea",
+    "actions": "4f1481fce7a15edae85d0a6e19cf41e81e15a8cd74687560b4cb7089d4e3a50b"
+  },
+  "saved_fingerprints": {
+    "hierarchy_pivots_attachments": "ee6a3afdc0c8672f7ff764288fdd6d21c8a0dd2a2d2e685c5bc5e4cf19cc30da",
+    "geometry_and_material_slots": "11364f1775b0a4963b637eee09bf5cb888ea0942786c7b9dc769bb749eae5003",
+    "uv": "f0d77bb620eeceaa5bd761308b4d353a0d0810e9a65c8ed40fe21107c56e8e0c",
+    "rig_and_nla": "4355bc913738ef8f19ecfd229baa2eb770769834ad57188a0715da5b314d9bea",
+    "actions": "4f1481fce7a15edae85d0a6e19cf41e81e15a8cd74687560b4cb7089d4e3a50b"
+  },
+  "built_mesh_count": 11,
+  "triangles": 2964,
+  "maps": {
+    "Color": {
+      "file": "art-source/weapons/Skins/Poolside/Ghost/v01/textures/Ghost_Color.png",
+      "sha256": "e48e05f1da707347c3e58357d0f4270a6b337bed81e08dc40233a9002cae9b3b"
+    },
+    "Normal": {
+      "file": "art-source/weapons/Skins/Poolside/Ghost/v01/textures/Ghost_Normal.png",
+      "sha256": "817c0bb55a6c560d3ca460d47e352a9166b33fbf3c134af4bff77b5c06c9e188"
+    },
+    "Roughness": {
+      "file": "art-source/weapons/Skins/Poolside/Ghost/v01/textures/Ghost_Roughness.png",
+      "sha256": "1fa666b923eac3e127b023fac80de0cd390bfefae630c6f5f898e045d47f5d17"
+    },
+    "Metalness": {
+      "file": "art-source/weapons/Skins/Poolside/Ghost/v01/textures/Ghost_Metalness.png",
+      "sha256": "dbae13318dbcae2b772e544b99b1c67fbc36179585dcf802efde39246264cf44"
+    }
+  },
+  "map_resolution": [
+    1024,
+    1024
+  ],
+  "map_padding_pixels": 6,
+  "normal_space": "Tangent space, +Y",
+  "binding": "Use the shared baked maps with the stock asset's active UV layout.",
+  "inspect_pulse_targets": [],
+  "saved_file_verified": true,
+  "sightline": {},
+  "stock_motion": {
+    "Draw": {
+      "start": 1,
+      "end": 20,
+      "review_frame": 10,
+      "sample_count": 20,
+      "pose_sha256": "0b97c25023ef58f313dd563fbf9d9a4ad9b8b541f22529549fbbf0641cd87bdd"
+    },
+    "Fire": {
+      "start": 1,
+      "end": 10,
+      "review_frame": 2,
+      "sample_count": 10,
+      "pose_sha256": "f86fd2bb5edc747d850f62ea8f0421e632ad1ad34670d6b8d1cda3b781a4cfe6"
+    },
+    "Inspect": {
+      "start": 1,
+      "end": 67,
+      "review_frame": 17,
+      "sample_count": 67,
+      "pose_sha256": "e71a961b56b3b384e0109955b213f59c52cd94cb1a55b0000ddc6c3ebc8fca3a"
+    },
+    "Reload": {
+      "start": 1,
+      "end": 60,
+      "review_frame": 24,
+      "sample_count": 60,
+      "pose_sha256": "c4d588cf0a0478230b546c3cd6f01204e27094691c49b6aa3ff785e712bdfe32"
+    },
+    "ReloadEmpty": {
+      "start": 1,
+      "end": 70,
+      "review_frame": 24,
+      "sample_count": 70,
+      "pose_sha256": "8ec73c64acdbc09e1014ba71a6b3593121c13860cfedc2468eb2c99af0ea4b94"
+    }
+  },
+  "new_geometry_contacts": {},
+  "fbx_reimport": null,
+  "archived_hand_proxy": {}
+}
