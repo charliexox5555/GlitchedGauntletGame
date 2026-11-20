@@ -43,6 +43,14 @@ Local commits, not pushed; no Studio-owned changes, so no place to save. Grades 
 
 **What to test**
 - [ ] **Stinger reload** (tactical and empty): does the new mag swinging in from the front read well at full speed? Nothing should pass through the right forearm.
-- [ ] **Outlaw two-round reload:** watch the left hand between the first and second round. It comes up near the crosshair for about 0.2 s with the arm across the lower left (this was already there). Does it bother you? And at the breech the forearm runs alongside the dropped barrels (hidden overlap). If you want it fixed, pick one: (a) leave it, (b) change the reload's gun roll so the barrels hang steeper than the arm, or (c) a new loading pose (the fist behind the breech, the arm coming from below).
+- [x] ~~**Outlaw two-round reload:** pick a fix~~. You picked (b), the steeper barrel roll; see Round 3b below.
+
+## Round 3b (2026-11-21, your pick for the Outlaw)
+**What changed:** while the Outlaw is broken open for loading, it's turned back almost level (24° less roll) and sits a little lower, so the dropped barrels hang nearly straight down (63-70°), steeper than the loading arm. The loading pose is the same: fist at the breech, arm from below. The whole reload move is also smoother (one spline instead of an ease in and out at every key). First person only.
+
+**What to test**
+- [ ] **Outlaw one-round and two-round reloads:** nothing should go through the barrels, and the left fist should stay clear of the crosshair (it used to come right up to it between rounds). Do the rounds going in still read now that the gun sits nearly level?
+- [ ] **Sundial Outlaw:** its model puts the breech nearer the middle, so between rounds the fist still gets close to the crosshair. Does it bother you?
+- [ ] **Feel:** the reload starts and ends smoothly, and the shut snap still flicks.
 - [ ] **Fan (Giltfold):** the inspect after the melee lane's idle-sway change. It should still be smooth, never stall, and stay low. The swings cover about a third of the screen for a frame mid-swipe (the knife covers a fifth). Is the Fan's size (0.8 of the knife) right?
 - [ ] **Bat (PopCircuit) heavy:** right-click. On contact the bat should stand up the middle with its art toward you.
