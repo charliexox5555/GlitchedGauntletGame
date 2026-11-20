@@ -10,7 +10,6 @@ local LocalHide = require(script.Parent.LocalHide)
 local ViewmodelMotion = require(script.Parent.ViewmodelMotion)
 local Audio = require(script.Parent.Parent.Controllers.AudioController)
 local ReaverAudio = require(Shared.Config.RuinedReaverAudio)
-local VM = require(Shared.Config.Viewmodel)
 local ShadowAudio = require(Shared.Config.ShadowMistAudio)
 
 type Key = { at: number, offset: CFrame, spread: number, tension: number }
@@ -51,9 +50,13 @@ export type State = {
 }
 
 local Reaver = {}
--- Where each arm block runs back to (viewmodel frame): the right on the
--- stock knife's forearm line, the left as the bat's.
-Reaver.RIGHT_SHOULDER = VM.MELEE_SHOULDER
+-- Where each arm block runs back to (viewmodel frame). The right: out to the
+-- right and back (2026-11-21, fitted): 46 degrees off the blade at the hold,
+-- and through a centre cut the forearm comes in from the right. On the stock
+-- knife's line (VM.MELEE_SHOULDER, centre-behind) the arm ran straight up the
+-- middle of the screen to the crosshair on every contact; on the bat's
+-- (1.95, -3, 0.55) it ran in line with the blade at the hold (22 degrees).
+Reaver.RIGHT_SHOULDER = Vector3.new(1.8, -1.6, 1.0)
 Reaver.LEFT_SHOULDER = Vector3.new(-1.95, -3.0, 0.55)
 local MINT = Color3.fromRGB(105, 228, 193)
 local RIFT_SHADOW = Color3.fromHex("276A60")
@@ -68,8 +71,8 @@ local SECONDARY_GRIP = Vector3.new(-0.024, -0.035, 0.54)
 -- The hold (2026-11-21, owner: "hold and framing"). Was (0.97, -0.80, -1.50)
 -- at (52, -8, -38) with the bat's shoulders: the forearm came straight up into
 -- the handle (24 degrees off the blade, the rejected "facing the sky" knife
--- hold) and the tip reached 72% up the screen. Now on the stock knife's
--- forearm line (Config/Viewmodel MELEE_SHOULDER) at 0.84 size (Config/
+-- hold) and the tip reached 72% up the screen. Now with its own forearm
+-- line (Reaver.RIGHT_SHOULDER) at 0.84 size (Config/
 -- MeleeSkins VIEWMODEL_SCALE): fist at ~(0.37, -0.60) of the screen, tip
 -- ~(0.17, 0.57), leaning in 17 degrees, 45 degrees off the forearm, the blade
 -- seen three-quarter on (its art shows, not flat). Fitted with the
