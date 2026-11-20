@@ -1274,7 +1274,9 @@ return table.freeze({
 		-- Roller: the bot on the palm, nose forward (its placed model held small).
 		Roller = {
 			scale = 1.4,
-			offset = Vector3.new(0.5, -0.7, -2),
+			-- 2026-11-21 (frame in play): at (0.5, -0.7, -2) the car's top-left
+			-- wheel sat on the crosshair; lower and further right, clear of it.
+			offset = Vector3.new(0.62, -0.9, -2.05),
 			rotation = Vector3.new(6, -14, 0),
 			arm = Vector3.new(0.3, -0.42, 0.85),
 			lift = Vector3.new(0, 0.12, 0),
