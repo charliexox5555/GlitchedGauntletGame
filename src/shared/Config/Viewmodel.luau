@@ -77,6 +77,7 @@ export type ItemHold = {
 	side: ("Left" | "Right")?,
 	from: Vector3?,
 	scale: number?,
+	seat: number?, -- studs the fist sits back along the forearm from the grip (ITEM_SEAT)
 }
 
 -- One moving part of the held item (ITEM_PART_MOVES; Util/ViewmodelHeldMods
@@ -1191,12 +1192,31 @@ return table.freeze({
 	ITEM_ROTATION = Vector3.new(8, -12, 0), -- degrees
 	ITEM_FROM = Vector3.new(0.4, -1.3, 0.4), -- it rises from this far below
 	ITEM_ARM = Vector3.new(0.22, -0.8, 0.6), -- right arm direction from the grip
+	-- The fist sits this far back along the forearm from the grip, so a held
+	-- item rests on the block's end (RIVALS seats its utilities on the end
+	-- face; ours sat ~45% sunk into it: measured in play 2026-11-21).
+	ITEM_SEAT = 0, -- per hold (`seat`), measured with rays from the end face
 	-- The item comes up on an underdamped spring: a little overshoot, then it settles.
 	ITEM_RAISE_FREQUENCY = 13, -- rad/s
 	ITEM_RAISE_DAMPING = 0.55, -- ratio (1 = no overshoot)
 	-- Share of the gun's lowering (0..1) over which the item's hand moves from
 	-- the gun onto the item (and back): it switched in one frame (2026-11-21).
 	ITEM_HAND_BLEND = 0.35,
+	-- A throw called off in its wind-up (a cancel before the release): the
+	-- hand eases from where it was back to the hold over this many seconds.
+	ITEM_ACTION_CANCEL = 0.18,
+	-- The free (left) hand up and empty beside a held item, mirroring the item
+	-- hand (RIVALS frames a held utility between both arms: 2026-11-21, owner:
+	-- match RIVALS' numbers). Root space: the fist, the arm's direction from it,
+	-- a small breathing sway (studs), and the seconds to come up / drop away (it
+	-- drops for a use, a gesture or a held pose).
+	ITEM_READY_HAND = {
+		offset = Vector3.new(-0.38, -0.78, -2),
+		direction = Vector3.new(-0.68, -0.75, 0.4),
+		sway = Vector3.new(0.012, 0.018, 0),
+		rise = 0.25,
+		drop = 0.14,
+	},
 	-- Held idle: a slow breathing drift on top of the hold (position studs,
 	-- rotation degrees, cycles per second).
 	-- 2026-11-21: rot (1.5, 1.8, 1) -> (2, 3, 2.6): it turned as slowly as 2.5 deg/s
@@ -1212,23 +1232,43 @@ return table.freeze({
 		-- the thrown items, the orb and the Roller, so each sits just down in the fist
 		-- end instead of perched on top of it (0.16 hid half the canister
 		-- behind the forearm).
+		-- 2026-11-21 (round 3, owner: match RIVALS' numbers): RIVALS stands a held
+		-- utility ON the block's end, the forearm leaning in from the bottom right
+		-- (Rivals Reference → Abilities and utilities). Canisters: the forearm
+		-- leans in (`arm`), the canister turned to within 16° of the forearm's
+		-- axis (it was 30° off, its underside to the camera) and seated on the end
+		-- face (`seat`; rays from the end face: touching, median gap 0.03).
 		Molly = {
 			scale = 1.3, -- at 1 the canister read small, perched on the forearm's end (2026-11-16)
 			offset = Vector3.new(0.56, -0.72, -2),
-			rotation = Vector3.new(12, -22, -6),
+			rotation = Vector3.new(-6, -22, 16),
+			arm = Vector3.new(0.5, -0.85, 0.25),
 			lift = Vector3.new(0, 0.05, 0),
+			seat = 0.09,
 		},
 		Frost = {
 			scale = 1.3,
 			offset = Vector3.new(0.56, -0.82, -2.05),
-			rotation = Vector3.new(10, -20, -6),
+			rotation = Vector3.new(-8, -20, 16),
+			arm = Vector3.new(0.5, -0.85, 0.25),
 			lift = Vector3.new(0, 0.09, 0),
+			seat = 0.14,
 		},
-		Recall = { scale = 1.3 }, -- the anchor read tiny on the fist (2026-11-16); default offset
+		-- The anchor read tiny on the fist (2026-11-16): scale 1.3, default offset.
+		-- Round 3: stood on the fist end like the canisters (it was 40° off the
+		-- forearm and half behind its end).
+		Recall = {
+			scale = 1.3,
+			rotation = Vector3.new(-8, -12, 16),
+			arm = Vector3.new(0.5, -0.85, 0.25),
+			seat = 0.07,
+		},
 		HealOrb = {
 			offset = Vector3.new(0.48, -0.72, -1.85),
 			rotation = Vector3.new(0, -10, 0),
-			arm = Vector3.new(0.3, -0.42, 0.85),
+			-- Round 3: the forearm upright like the canisters, the orb standing on
+			-- its end (palm-up, it sat half behind the block's top edge).
+			arm = Vector3.new(0.5, -0.85, 0.25),
 			lift = Vector3.new(0, -0.08, 0), -- the orb sits down in the fist (it floated above it),
 		},
 		-- Recon bow (rebuilt 2026-11-16, owner: "should look like a good two
@@ -1255,6 +1295,7 @@ return table.freeze({
 			arm = Vector3.new(-0.15, -0.9, 0.4), -- the bow forearm straight down out of frame
 			lift = Vector3.zero,
 			side = "Left",
+			seat = 0, -- the bow fist grips the riser
 			from = Vector3.new(0.2, -1.4, 0.3),
 		},
 		-- Shock Dart (free pack): Recon's bow with its own bolt head, held
@@ -1266,14 +1307,17 @@ return table.freeze({
 			arm = Vector3.new(-0.15, -0.9, 0.4),
 			lift = Vector3.zero,
 			side = "Left",
+			seat = 0, -- the bow fist grips the riser
 			from = Vector3.new(0.2, -1.4, 0.3),
 		},
 		-- Flash: a canister like Frost's, pin side to the free hand.
 		Flash = {
 			scale = 1.3,
 			offset = Vector3.new(0.56, -0.78, -2.02),
-			rotation = Vector3.new(10, -20, -6),
+			rotation = Vector3.new(-8, -20, 16),
+			arm = Vector3.new(0.5, -0.85, 0.25),
 			lift = Vector3.new(0, 0.07, 0),
+			seat = 0.18,
 		},
 		-- Roller: the bot on the palm, nose forward (its placed model held small).
 		Roller = {
@@ -1416,39 +1460,51 @@ return table.freeze({
 		-- 2026-11-16 re-key (spline): a small dip (coil), the wind back by the
 		-- ear braking into a held peak, a ~60 ms snap to the release (0.21 s,
 		-- where the old key let go), an overshoot past it, then down.
+		-- 2026-11-21 (round 3, to RIVALS' throw, studied from play footage: Rivals
+		-- Reference → Abilities and utilities): a far bigger coil, the canister
+		-- swung up and back beside the head in ~0.13 s (it was a 0.3-stud lift
+		-- that read as part of the hold), braking there; a ~80 ms snap to the
+		-- release at 0.25 s (hideAt; ModController sends the throw then); the
+		-- arm thrown out at the crosshair (0.33-0.42 s), then out of view.
 		Throw = {
-			length = 0.42,
-			hideAt = 0.5,
+			length = 0.6,
+			hideAt = 0.42,
 			smooth = true,
 			keys = {
 				{ t = 0, pos = Vector3.zero, rot = Vector3.zero },
-				{ t = 0.08, pos = Vector3.new(0.03, -0.04, 0.06), rot = Vector3.new(6, 0, 2) },
+				{ t = 0.05, pos = Vector3.new(0.02, -0.05, 0.04), rot = Vector3.new(5, 0, 2) },
 				{
-					t = 0.3,
-					pos = Vector3.new(0.16, 0.32, 0.5),
-					rot = Vector3.new(-38, 8, 14),
-					arm = Vector3.new(0.05, -0.15, -0.2),
+					t = 0.22,
+					pos = Vector3.new(0.33, 1, 1.15),
+					rot = Vector3.new(-55, 18, 22),
+					arm = Vector3.new(0.1, -0.2, -0.1),
 				},
 				{
-					t = 0.36,
-					pos = Vector3.new(0.17, 0.34, 0.54),
-					rot = Vector3.new(-41, 8, 15),
-					arm = Vector3.new(0.05, -0.15, -0.2),
+					t = 0.28,
+					pos = Vector3.new(0.35, 1.05, 1.21),
+					rot = Vector3.new(-58, 19, 23),
+					arm = Vector3.new(0.1, -0.2, -0.1),
 				},
 				{
-					t = 0.5,
-					pos = Vector3.new(-0.08, 0.36, -1),
-					rot = Vector3.new(40, -5, -8),
-					arm = Vector3.new(0, 0.25, 0.35),
+					t = 0.42,
+					pos = Vector3.new(-0.08, 0.42, -0.9),
+					rot = Vector3.new(35, -6, -8),
+					arm = Vector3.new(-0.1, 0.3, 0.3),
 				},
 				{
-					t = 0.58,
-					pos = Vector3.new(-0.1, 0.05, -1.1),
-					rot = Vector3.new(55, -6, -10),
-					arm = Vector3.new(0, 0.3, 0.4),
+					t = 0.55,
+					pos = Vector3.new(-0.45, 0.7, -1.05),
+					rot = Vector3.new(55, -8, -10),
+					arm = Vector3.new(-0.2, 0.4, 0.3),
 				},
-				{ t = 0.8, pos = Vector3.new(0.02, -0.55, -0.4), rot = Vector3.new(30, 0, -2) },
-				{ t = 1, pos = Vector3.new(0.05, -0.7, -0.25), rot = Vector3.new(24, 0, 0) },
+				{
+					t = 0.7,
+					pos = Vector3.new(-0.47, 0.66, -1.1),
+					rot = Vector3.new(58, -8, -10),
+					arm = Vector3.new(-0.2, 0.4, 0.3),
+				},
+				{ t = 0.85, pos = Vector3.new(-0.2, -0.35, -0.6), rot = Vector3.new(38, 0, -4) },
+				{ t = 1, pos = Vector3.new(0, -1, -0.2), rot = Vector3.new(28, 0, 0) },
 			},
 		},
 		-- Javelin (Frost LMB): the arm draws back level with the shoulder,

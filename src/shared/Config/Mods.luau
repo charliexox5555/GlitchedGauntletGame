@@ -807,6 +807,19 @@ return table.freeze({
 	-- Held Mods (Mods.md → Rules for held Mods).
 	EQUIP_TIME = 0.25, -- raise before a held Mod can be used
 	USE_TIME = 0.35, -- throw / heal animation before the gun comes back
+	-- A held throw is sent this long after the click, when the first-person
+	-- hand lets the item go (owner, 2026-11-21: "release ~0.2 s after click";
+	-- RIVALS spawns at its throw clip's release, 0.25 s). Keep each one equal
+	-- to its Config/Viewmodel ITEM_ACTIONS move's length × hideAt. USE_TIME
+	-- then runs from the send, on both sides.
+	THROW_RELEASE = table.freeze({
+		Throw = 0.25, -- 0.6 × 0.42
+		Lob = 0.25, -- 0.46 × 0.54
+		Javelin = 0.2, -- 0.4 × 0.5
+		-- A set-down (Recall, Roller) at the bottom of the push, 0.32 × 0.42: the
+		-- placed one stood in the world while the held one was still coming down.
+		Place = 0.13,
+	}) :: { [string]: number },
 
 	-- Molly in first person: the pin pull starts this long after the raise,
 	-- and the pin leaves the canister this far into it (seconds).

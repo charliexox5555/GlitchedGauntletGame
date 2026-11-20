@@ -2196,6 +2196,12 @@ function ViewmodelController.letGoItem()
 	ViewmodelHeldMods.letGoItem(heldMods)
 end
 
+-- Calls off the item's move (a throw cancelled in its wind-up): the hand
+-- eases back from where it is, the item still in it.
+function ViewmodelController.cancelItemAction()
+	ViewmodelHeldMods.cancelAction(heldMods)
+end
+
 -- A Mod gesture: the free hand plays MOD_GESTURES[`gesture`] while the gun
 -- moves by `dip` ("Dash", "Updraft", "Stim", "Recall"; nil: it stays).
 -- `prop`: a model carried in the fist until the gesture's release.

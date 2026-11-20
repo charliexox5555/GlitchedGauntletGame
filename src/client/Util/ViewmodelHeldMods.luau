@@ -77,6 +77,13 @@ export type HeldMods = {
 	actionAt: number,
 	itemHidden: boolean,
 	itemLeaving: boolean?, -- let go (letGoItem): hidden, gone once the hand is back on the gun
+	-- The free hand up and empty beside the item (VM.ITEM_READY_HAND), 0..1.
+	readyX: number,
+	-- A move called off (cancelAction): when, and its offset and arm then,
+	-- eased back out over VM.ITEM_ACTION_CANCEL.
+	cancelAt: number,
+	cancelOffset: CFrame,
+	cancelArm: Vector3,
 	-- Its moving parts (moveItemPart), and where each part sat as built.
 	partMoves: { PartState },
 	partRest: { [BasePart]: CFrame },
@@ -167,6 +174,10 @@ function ViewmodelHeldMods.new(): HeldMods
 		actionKind = nil,
 		actionAt = -math.huge,
 		itemHidden = false,
+		readyX = 0,
+		cancelAt = -math.huge,
+		cancelOffset = CFrame.identity,
+		cancelArm = Vector3.zero,
 		partMoves = {},
 		partRest = {},
 		gestureKind = nil,
@@ -275,6 +286,7 @@ function ViewmodelHeldMods.holdItem(h: HeldMods, template: Model?)
 	end
 	local cam = Workspace.CurrentCamera
 	h.actionKind = nil
+	h.cancelAt = -math.huge
 	h.itemHidden = false
 	h.itemLeaving = false
 	h.raiseX, h.raiseV = 0, 0
@@ -661,6 +673,21 @@ local function actionOffset(h: HeldMods, clock: number): (CFrame, boolean, Vecto
 	local gone = action.hideAt ~= nil and t >= action.hideAt
 	local offset, arm = keyedOffset(action, t)
 	return offset, gone, arm
+end
+
+-- Calls off the item's move where it is (a throw cancelled in its wind-up):
+-- the hand eases back to the hold from there, the item still in it. A move
+-- whose item has already gone plays on.
+function ViewmodelHeldMods.cancelAction(h: HeldMods)
+	if not h.actionKind or h.itemHidden then
+		return
+	end
+	local clock = clockNow(h)
+	local offset, _, arm = actionOffset(h, clock)
+	h.actionKind = nil
+	h.cancelAt = clock
+	h.cancelOffset = offset
+	h.cancelArm = arm
 end
 
 -- A free hand at `t` 0..1 through `keys`: fist position and arm direction
@@ -1259,6 +1286,12 @@ function ViewmodelHeldMods.stepItem(
 			idle.rot * Vector3.new(math.sin(phase), math.sin(phase * 0.5), math.cos(phase * 0.5))
 		)
 	local useCf, gone, useArm = actionOffset(h, clock)
+	local back = (clock - h.cancelAt) / VM.ITEM_ACTION_CANCEL
+	if back < 1 then
+		local k = Ease.smooth(back)
+		useCf = h.cancelOffset:Lerp(CFrame.identity, k) * useCf
+		useArm += h.cancelArm * (1 - k)
+	end
 	if gone ~= h.itemHidden then
 		h.itemHidden = gone
 		for _, d in model:GetDescendants() do
@@ -1299,10 +1332,14 @@ function ViewmodelHeldMods.stepItem(
 	end
 	local nock = if rig then stepBow(h, rig, model, clock, shown) else nil
 	if a and lowerT > 0.05 then
-		local hand = grip.Position
 		local arm = tune("TuneHoldArm", (hold and hold.arm) or VM.ITEM_ARM) + useArm
 		local side: ViewmodelArms.Side = (hold and hold.side) or "Right"
 		local toward = root:VectorToWorldSpace(arm).Unit
+		-- The fist sits back along the forearm from the grip, so the item rests
+		-- on the block's end as RIVALS seats it (2026-11-21), not sunk into it.
+		local hand = grip.Position
+			+ toward
+				* tune("TuneHoldSeat", if hold and hold.seat then hold.seat else VM.ITEM_SEAT)
 		-- The hand leaves the gun for the item (and comes back) as the gun
 		-- lowers, from where the gun hold put it this frame (2026-11-21,
 		-- traced in play: the bow hand jumped 1.7 studs off the rifle's
@@ -1314,6 +1351,37 @@ function ViewmodelHeldMods.stepItem(
 			toward = gunUp:Lerp(toward, k).Unit
 		end
 		ViewmodelArms.place(a, side, hand, hand + toward, root.RightVector)
+		-- The free hand comes up empty beside the item, as RIVALS frames a held
+		-- utility between both arms (2026-11-21, owner: match RIVALS' numbers;
+		-- Rivals Reference → Abilities and utilities). It drops away for a use, a
+		-- gesture (the pin pull) or a held pose, and is never on a bow.
+		local ready = VM.ITEM_READY_HAND
+		local gesture = if h.gestureKind then VM.MOD_GESTURES[h.gestureKind] else nil
+		local gesturing = gesture ~= nil and clock - h.gestureAt < gesture.length * h.gestureScale
+		local wantReady = not rig
+			and h.lowered
+			and side == "Right"
+			and not h.itemLeaving
+			and h.actionKind == nil
+			and h.freePose == nil
+			and not gesturing
+		h.readyX =
+			math.clamp(h.readyX + (if wantReady then dt / ready.rise else -dt / ready.drop), 0, 1)
+		local w = Ease.smooth(h.readyX) * k
+		if w > 1e-3 then
+			local fromHand, fromUp = ViewmodelArms.handOf(a, "Left")
+			if fromHand and fromUp then
+				-- It breathes out of step with the item (a quarter cycle behind).
+				local sway = Vector3.new(
+					math.sin(phase * 0.5 + 1.6) * ready.sway.X,
+					math.sin(phase + 1.6) * ready.sway.Y,
+					0
+				)
+				local point = fromHand:Lerp(root:PointToWorldSpace(ready.offset + sway), w)
+				local dir = fromUp:Lerp(root:VectorToWorldSpace(ready.direction).Unit, w).Unit
+				ViewmodelArms.place(a, "Left", point, point + dir, root.RightVector)
+			end
+		end
 		if nock then
 			local base = model:GetPivot()
 			local other: ViewmodelArms.Side = if side == "Left" then "Right" else "Left"

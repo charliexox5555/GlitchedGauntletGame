@@ -89,6 +89,9 @@ local chargeHum: ModAudio.Hum? = nil
 -- The Heal Orb's hum while it's held.
 local orbHum: ModAudio.Hum? = nil
 local itemToken = 0
+-- A throw (or set-down) clicked but not yet sent: it goes when the hand lets go
+-- (Config THROW_RELEASE).
+local throwPending = false
 local lastDashStart = 0
 local lastUpdraftAt = 0
 -- Recall: the wind-up and the arrival last seen on our character, and a
@@ -553,6 +556,12 @@ local function endHold(tellServer: boolean)
 	end
 	setPhase("Idle", 0)
 	queued = nil
+	if throwPending then
+		-- Cancelled in the wind-up: nothing was sent (no charge spent), and the
+		-- hand eases back out of the throw instead of finishing it.
+		throwPending = false
+		ViewmodelController.cancelItemAction()
+	end
 	stopChargeHum()
 	WeaponController.setHolstered("Mod", false)
 	ViewmodelController.setItemCharge(nil) -- a drawn bow eases back to rest
@@ -673,7 +682,33 @@ local function use(mode: ModTypes.UseMode)
 			target = nil -- the server heals the caster itself
 		end
 	end
-	sendUse(current, mode, target)
+	local moveKind = if def.activation == "HeldThrow"
+		then (if mode == "Alt" then "Lob" elseif def.id == "Frost" then "Javelin" else "Throw")
+		elseif def.activation == "HeldPlace" then "Place"
+		else nil
+	local releaseAt = if moveKind then Config.THROW_RELEASE[moveKind] else nil
+	if releaseAt then
+		-- A throw is sent when the hand lets go (owner, 2026-11-21: "release
+		-- ~0.2 s after click"), as RIVALS spawns it at its throw clip's release:
+		-- sent on the click, the canister flew ~0.2 s before the hand let it go.
+		-- A set-down likewise at the bottom of the move (the placed Recall /
+		-- Roller stood in the world while the held one was still coming down).
+		-- The server is unchanged (its checks and limits apply to the send). A
+		-- cancel, death or round end in the wind-up drops it (endHold), so no
+		-- charge is spent unless the item really leaves.
+		local token, slot = itemToken, current
+		throwPending = true
+		task.delay(releaseAt, function()
+			if token == itemToken and phase == "Using" and current == slot and throwPending then
+				throwPending = false
+				-- The gun stays down USE_TIME from the send, as on the server.
+				phaseAt = os.clock()
+				sendUse(slot, mode, target)
+			end
+		end)
+	else
+		sendUse(current, mode, target)
+	end
 	queued = nil
 	hideArc()
 	hidePlacement()
@@ -690,9 +725,8 @@ local function use(mode: ModTypes.UseMode)
 	end
 	setPhase("Using", current)
 	ViewmodelController.itemAction(
-		if def.activation == "HeldThrow"
-			then (if mode == "Alt" then "Lob" elseif def.id == "Frost" then "Javelin" else "Throw")
-			elseif def.activation == "HeldPlace" then "Place"
+		if moveKind
+			then moveKind
 			elseif
 				target == nil or target == player.Character
 			then "OrbChest" -- yourself: into your chest
@@ -901,8 +935,8 @@ local function onModPressed(slot: number)
 		return
 	end
 	if phase ~= "Idle" and current == slot then
-		if phase ~= "Using" and phase ~= "Steering" then
-			cancelByPlayer() -- same key: cancel (a wall being built finishes)
+		if (phase ~= "Using" or throwPending) and phase ~= "Steering" then
+			cancelByPlayer() -- same key: cancel (a wall being built finishes; a throw only in its wind-up)
 		end
 		return
 	end
@@ -1263,7 +1297,8 @@ function ModController.start()
 	end)
 	for _, name in { "Primary", "Secondary", "Melee", "CycleWeapon", "QuickMelee" } do
 		InputController.onPressed(name, function()
-			if phase == "Equipping" or phase == "Held" then
+			-- (A throw can still be called off in its wind-up, before it's sent.)
+			if phase == "Equipping" or phase == "Held" or (phase == "Using" and throwPending) then
 				cancelByPlayer()
 			end
 		end)
