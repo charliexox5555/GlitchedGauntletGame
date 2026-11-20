@@ -949,6 +949,14 @@ return table.freeze({
 	-- it settles up with a small bounce as you come out.
 	SLIDE_ENTER_KICK = Vector3.new(0.55, 1.5, 0.9), -- roll rad/s, drift studs/s, dip studs/s
 	SLIDE_EXIT_KICK = 0.45, -- studs/s upward as the slide ends
+	-- 2026-11-20 (owner: "the viewmodel must follow that roll so it looks
+	-- seamless"; ADS "should tilt with the crosshair too"): degrees the whole
+	-- viewmodel leans on screen, clockwise about the line of sight, on the
+	-- crosshair's and camera's curve (Util/SlideTilt). Aimed it matches the
+	-- crosshair's 20 (Config/Crosshair slideTilt), so the sights and the scope
+	-- reticle lean as one; at the hip less, so the gun doesn't swing off
+	-- screen. Provisional: the owner tunes it in play.
+	SLIDE_CANT = { hip = 9, ads = 20 },
 	SLIDE_CHATTER = { pos = 0.0045, roll = 0.5, rate = 11 }, -- studs, degrees, Hz at full slide speed
 	SLIDE_REFERENCE_SPEED = 30, -- studs/s that give the full chatter
 

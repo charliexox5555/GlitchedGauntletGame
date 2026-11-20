@@ -55,7 +55,9 @@ def check(d):
     if abs(speeds[-1]) > number(d["max_exit_speed"]):
         failures.append("Exit velocity exceeds target")
     if peak > number(d["max_acceleration"]):
-        failures.append(f"Acceleration spike near {middles[accelerations.index(peak) + 1]:.3f}s")
+        i = accelerations.index(peak)
+        # accelerations[i] sits between speed midpoints i and i + 1
+        failures.append(f"Acceleration spike near {(middles[i] + middles[i + 1]) / 2:.3f}s")
     for sample in samples:
         if not low <= sample["value"] <= high:
             failures.append(f"Unexpected overshoot at {sample['time']:.3f}s")

@@ -18,14 +18,14 @@ local CameraConfig = require(ReplicatedStorage.Shared.Config.Camera)
 local Juice = require(ReplicatedStorage.Shared.Config.Juice)
 
 local InputController = require(script.Parent.InputController)
+local SlideTilt = require(script.Parent.Parent.Util.SlideTilt)
 
 local CameraController = {}
 
 local baseFov: number = CameraConfig.DEFAULT_FOV
 local zoomFov: number? = nil
 local zoomAlpha = 0
-local roll = 0
-local targetRoll = 0
+local rollSize = 0 -- radians: the lean setRoll asked for (Util/SlideTilt carries the curve)
 local moveFov = 0
 local targetMoveFov = 0
 local MOVE_FOV_RATE = 8
@@ -89,7 +89,6 @@ local viewPunchAt = -math.huge
 local viewPunchTime = 0.1
 local viewPunchFrom = 0 -- radians it rises from (a punch still going when the next lands)
 local viewPunchApplied = 0
-local rollVelocity = 0 -- rad/s: the roll rides a spring (Juice.SLIDE.rollSpeed / rollDamping)
 
 local function lerp(a: number, b: number, t: number): number
 	return a + (b - a) * t
@@ -206,7 +205,11 @@ function CameraController.setCursorVisible(visible: boolean)
 end
 
 function CameraController.setRoll(degrees: number)
-	targetRoll = math.rad(degrees)
+	-- The size stays while it eases back to upright (Util/SlideTilt).
+	if degrees ~= 0 then
+		rollSize = math.rad(degrees)
+	end
+	SlideTilt.set(if degrees ~= 0 then 1 else 0)
 end
 
 -- Extra FOV from movement (sprint/slide kick), eased in and out. Faded out while aiming.
@@ -388,17 +391,8 @@ local function step(dt: number)
 	viewPunchApplied = vp
 	shakeYaw = sy
 
-	do
-		-- An underdamped spring: it swings a touch past the tilt and settles.
-		local w = Juice.SLIDE.rollSpeed
-		local c = 2 * Juice.SLIDE.rollDamping * w
-		local steps = math.max(1, math.ceil(dt / (1 / 120)))
-		local h = dt / steps
-		for _ = 1, steps do
-			rollVelocity += ((targetRoll - roll) * w * w - rollVelocity * c) * h
-			roll += rollVelocity * h
-		end
-	end
+	-- The slide's lean: the same curve as the crosshair and the gun (Util/SlideTilt).
+	local roll = rollSize * SlideTilt.amount()
 
 	local totalRoll = if placed then 0 else roll + shakeRoll + rollKickNow()
 	if math.abs(pitch) > 1e-6 or math.abs(yaw) > 1e-6 or math.abs(totalRoll) > 1e-5 then
@@ -410,6 +404,7 @@ local function step(dt: number)
 end
 
 function CameraController.start()
+	SlideTilt.start()
 	RunService:BindToRenderStep("GGCamera", Enum.RenderPriority.Camera.Value + 1, step)
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "MouseFree"

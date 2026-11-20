@@ -18,6 +18,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local CrosshairConfig = require(ReplicatedStorage.Shared.Config.Crosshair)
+local SlideTilt = require(script.Parent.SlideTilt)
 
 type Config = CrosshairConfig.Crosshair
 
@@ -38,13 +39,10 @@ type Spring = { x: number, v: number, target: number }
 local function newSpring(): Spring
 	return { x = 0, v = 0, target = 0 }
 end
-local tiltSpring = newSpring() -- degrees
 local airSpring = newSpring() -- px
 local kickSpring = newSpring() -- px: Dash and shot kicks (target stays 0)
-local sliding = false
 local airborne = false
 local aimBlend = 0
-local shownTilt = 0
 
 local function stepSpring(sp: Spring, dt: number)
 	local m = config.motion
@@ -108,10 +106,10 @@ function Crosshair.apply(new: Config?)
 	end
 end
 
--- Movement state for the reactions: sliding tilts it, airborne opens it.
+-- Movement state for the reactions: airborne opens it. (The slide's tilt
+-- comes from Util/SlideTilt, the curve the camera roll and the gun share.)
 -- `aim`: how far into the sights (0..1), for the ADS collapse.
-function Crosshair.setState(isSliding: boolean, isAirborne: boolean, aim: number)
-	sliding = isSliding
+function Crosshair.setState(_isSliding: boolean, isAirborne: boolean, aim: number)
 	airborne = isAirborne
 	aimBlend = if aim == aim then math.clamp(aim, 0, 1) else 0
 end
@@ -134,8 +132,10 @@ function Crosshair.dash()
 end
 
 -- The crosshair's current extra rotation, degrees (the hit marker turns with it).
+-- Read live from Util/SlideTilt, so a reader before or after the HUD's step
+-- gets this frame's lean.
 function Crosshair.tilt(): number
-	return shownTilt
+	return math.floor(config.motion.slideTilt * SlideTilt.amount() + 0.5)
 end
 
 function Crosshair.build(gui: ScreenGui)
@@ -170,13 +170,11 @@ function Crosshair.step(
 	end
 	local c = config
 	local m = c.motion
-	tiltSpring.target = if sliding then m.slideTilt else 0
 	airSpring.target = if airborne then m.airGap else 0
-	stepSpring(tiltSpring, dt)
 	stepSpring(airSpring, dt)
 	stepSpring(kickSpring, dt)
 	-- Whole degrees (RIVALS rounds too): fewer half-pixel edges while it turns.
-	shownTilt = math.floor(tiltSpring.x + 0.5)
+	local shownTilt = Crosshair.tilt()
 	local show = wanted or (aiming == true and c.showWhileAiming)
 	alpha += ((if show then 1 else 0) - alpha) * (1 - math.exp(-c.fadeRate * dt))
 	r.Visible = alpha > 0.02

@@ -54,6 +54,7 @@ local RuinedReaver = require(script.Parent.Parent.Util.RuinedReaver)
 local ViewmodelArms = require(script.Parent.Parent.Util.ViewmodelArms)
 local ViewmodelHeldMods = require(script.Parent.Parent.Util.ViewmodelHeldMods)
 local ViewmodelMotion = require(script.Parent.Parent.Util.ViewmodelMotion)
+local SlideTilt = require(script.Parent.Parent.Util.SlideTilt)
 local ViewmodelRig = require(script.Parent.Parent.Util.ViewmodelRig)
 local ViewmodelTracks = require(script.Parent.Parent.Util.ViewmodelTracks)
 local CameraController = require(script.Parent.CameraController)
@@ -2689,7 +2690,12 @@ local function update(dt: number)
 	motionInput.sliding = state == "Slide"
 	motionInput.crouching = state == "Crouch"
 	motionInput.ads = adsT
-	local root = camCf * ViewmodelMotion.step(motion, motionInput, dt)
+	-- The slide's lean (Util/SlideTilt, the crosshair's and camera's curve):
+	-- the whole viewmodel turns about the line of sight, clockwise like the
+	-- crosshair, so aimed sights stay on the centre and lean with it.
+	local cantDegrees = VM.SLIDE_CANT.hip + (VM.SLIDE_CANT.ads - VM.SLIDE_CANT.hip) * adsT
+	local cant = CFrame.Angles(0, 0, -math.rad(cantDegrees) * SlideTilt.amount())
+	local root = camCf * cant * ViewmodelMotion.step(motion, motionInput, dt)
 
 	-- Held Mod: the gun drops away (plus a Mod gesture's dip), the item comes up.
 	local lowerCf, lowerT = ViewmodelHeldMods.lower(heldMods, now, dt)

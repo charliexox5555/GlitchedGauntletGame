@@ -18,6 +18,7 @@ local Workspace = game:GetService("Workspace")
 
 local Scope = require(ReplicatedStorage.Shared.Config.Scope)
 
+local Crosshair = require(script.Parent.Crosshair)
 local ViewmodelMotion = require(script.Parent.ViewmodelMotion)
 
 local ScopeOverlay = {}
@@ -160,6 +161,9 @@ function ScopeOverlay.set(visible: boolean)
 	end
 	shown = visible
 	r.Visible = visible
+	if visible and reticle then
+		reticle.Rotation = Crosshair.tilt() -- this frame's lean, not the last one shown
+	end
 	if visible then
 		age = 0
 		offset = Vector2.zero
@@ -268,6 +272,8 @@ function ScopeOverlay.step(dt: number)
 	-- The reticle opens with the window, then keeps the screen centre.
 	ret.Position = UDim2.new(0.5, math.round(from.X), 0.5, math.round(from.Y))
 	ret.Size = UDim2.fromScale(W.outer * open, W.outer * open)
+	-- A slide leans the reticle with the crosshair and the camera.
+	ret.Rotation = Crosshair.tilt()
 end
 
 return ScopeOverlay

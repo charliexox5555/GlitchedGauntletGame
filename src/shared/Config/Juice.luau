@@ -323,6 +323,11 @@ return table.freeze({
 		-- and settles, instead of an even ease. Applies to CameraController.setRoll.
 		rollSpeed = 15,
 		rollDamping = 0.5,
+		-- 2026-11-20: into the slide (Util/SlideTilt, which the crosshair and
+		-- the gun now share) a quicker spring: on the tilt in ~70 ms, ~12 %
+		-- past it, settled by ~0.2 s. rollSpeed/rollDamping bring it back.
+		rollInSpeed = 36,
+		rollInDamping = 0.55,
 		lunge = 0.3, -- studs the view leads into the slide, then settles (2026-11-10)
 		lungeTime = 0.45,
 		streaks = 0.45, -- the Dash's wind strokes at this strength (fewer, shorter, fainter)
