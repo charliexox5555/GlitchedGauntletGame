@@ -1,6 +1,6 @@
 # Lobby V5 Plan (2026-11-20): new concept, Parts first
 
-Status: **study and plan only. Nothing built.** Waiting on the owner's concept pick (below).
+Status: **study and plan only. Nothing built.** Round 2 concepts (indoor, fun, no Gauntlet theme) wait on the owner's pick (§4).
 
 Replaces the direction of [Lobby V4 Plan](Lobby%20V4%20Plan.md) / [Lobby V4 Theme](Lobby%20V4%20Theme.md). V4 stays in `Workspace.LobbyV4Staging` as the live fallback until V5 is approved.
 
@@ -50,19 +50,80 @@ Captures (this session, Studio MCP): RIVALS duels hall, RIVALS pad close-up, RIV
 6. **Built by hand-style placement, not a regenerate script.** Pieces go into the place through the Studio MCP once and then belong to the place. No Build module that wipes and rebuilds the lobby, so the owner's edits are never overwritten. Each finished zone is saved as a backup `.rbxm` in `art-source/lobby/v5/`.
 7. **Checks after every zone:** a Studio script lists overlapping coplanar faces (z-fighting), Parts inside Parts, and floating props (`rbx-map-kit-audit`, `rbx-prop-support-audit`), plus captures from player height.
 
-## 4. Concept options (owner picks one, or mixes)
-The game: short run-and-gun duels, a draft of Mods every round, a weapon tier that climbs, and later scheduled 16-player **Gauntlet** events. Glitch theme was shelved on 2026-10-28 ("classic gun game"). The V3/V4 lore was an underground training bunker.
+## 4. Concept options, round 2 (owner 2026-11-20)
+Owner's brief for round 2: **the game is not a Gauntlet any more**, so nothing is themed around a gauntlet, trophy or tournament. The lobby is **indoors** and **fun**. Some of the RIVALS structure stays, but not the repeated four-part bays with nearly the same look. (Round 1's A / B / C are dropped: A was Gauntlet-themed, B was outdoors.)
 
-**A. The Gauntlet tournament (stadium backstage).** The lobby is the contenders' side of a televised tournament: a locker-room concourse, player tunnels that lead out to the "stage", scoreboards and camera rigs. **Duels area = a row of contender gates**: each gate is a tunnel mouth with a scoreboard and a mode sign (1v1, 2v2, 3v3, 4v4) above it; you queue by standing in the gate, and the match starts as if you walked out of the tunnel. Materials: concrete, painted steel, rubber floor, team-colour tape lines, broadcast lights. Fits the Gauntlet event name, rounds and rising stakes. Different from RIVALS' sci-fi hallway. Risk: must not drift into THE FINALS' game-show look; we keep it as sports backstage, not TV glitz.
+### What we keep from RIVALS, and what we drop
+**Keep (structure and build craft):**
+- One compact hub you spawn in, facing the duels area, with every room a short walk away (first station under 15 s).
+- Chunky concrete shells with Concrete-02a / Corrugated variants, tinted per piece.
+- Ledges and steps with wedge-cut edges.
+- Inset queue pads with team-colour edge strips and hazard-stripe Textures.
+- One big readable sign over each room's entrance.
+- Detailed ceilings: beams, ducts, light fixtures.
+- Small props reused in clusters (crates, cases, vents).
 
-**B. Proving grounds (outdoor training compound).** A daylight or dusk compound: shipping containers, concrete barriers, a shoot-house, catwalks. **Duels area = a yard of open-top fighting rings** made of concrete barriers and chain-link panels, with team-colour floor paint, a judge tower in the middle. Bright, readable, very different from RIVALS. Risk: closer to generic military shooters; needs one strong landmark.
+**Drop:**
+- The long sci-fi hallway with pads down both sides.
+- Rows of identical bays (wall panel + trim + low strip + lamp, repeated).
+- The dark violet bunker, white bar lamps and glowing word plates.
+- Any layout that reads as a RIVALS room.
 
-**C. Underground fight club / arcade hall.** A converted industrial hall (brick, corrugated metal, wood floor) where duels are a sport: raised square rings with posts and ropes made from angled plates, bleachers, a big tournament bracket wall that shows live matches. Warm lights, more personality. Risk: furthest from the old lore; brick and wood need care to stay clean.
+The three concepts below all keep that structure. They differ in where you are and what the duels area is.
 
-**My pick: A**, with B's outdoor sky glimpsed through the tunnel ends. It ties the lobby to the game's name and rounds, gives the duels area a clear "walk out to fight" moment, and is built almost entirely from Parts (tunnels, gates, benches, lockers) with a few Blender props (lights, camera rigs, scoreboard frames).
+### Concept 1: Laser-tag centre ("the place you go on a Friday night to shoot your friends")
+- **The idea:** an indoor laser-tag and paintball centre. It's a real kind of building, made for exactly what the game is: friends showing up to fight in teams. Bright and playful, not military, not sci-fi.
+- **Spawn hub:** the centre's front hall. There's a raised check-in counter (the **Shop**) and a wall of team photos and best-player boards. A big window wall looks down onto the arena floor, so the first thing you see is where the fights happen.
+- **Duels area: "the airlocks."** Along the arena window sit the entry airlocks, one per mode, each a different size: 1v1 a narrow door, 2v2 wider, 3v3 wider again, 4v4 a big double gate. Each has its own colour light over the door and a screen showing who's queued. Standing inside queues you. When the match is found, the door light turns green, the airlock lights flash and you're sent in.
+  - Different sizes and colours per mode, so it's not a row of identical bays.
+  - Pads are still inset floor plates with edge strips, which is the RIVALS craft we keep.
+- **Locker:** the gear room, with racks of vests and blasters (our guns) on pegboard walls, benches and a mirror wall.
+- **Range:** the arena floor itself, a maze of plywood barricades and painted walls with pop-up targets. You reach it through its own airlock.
+- **Materials:** painted concrete walls (Concrete-02a in team colours), rubber floor tiles, plywood barricades (Wood variants), diamond-plate stairs, corrugated metal ceiling.
+- **Light:** warm house lights in the hall, with colour wash (team blue / orange) on the arena side, so it's bright where people stand and colourful where they fight.
+- **Fun bits:** a balcony over the arena you can run along, a scoreboard showing the server's top players, and arcade-style sign boxes.
+- **Blender:** blasters on racks (we already have guns), vests, a few light fixtures and the scoreboard frame. Everything else is Parts.
+- **Risk:** too much colour light makes it look like a nightclub. Keep the colour to the arena side and the airlocks.
+
+### Concept 2: Indoor sports dome
+- **The idea:** a big indoor sports complex where shooting duels are the sport.
+- **Look:** high ceilings with steel trusses, daylight through high windows, wood court floors with painted lines, bleachers.
+- **Spawn hub:** the centre court. A big four-sided scoreboard hangs over it (the landmark, built from angled plates) and the bleachers rise around it.
+- **Duels area: "the courts."** Each mode has its own court off the main hall, sized to the mode: a small 1v1 court, a full-size 4v4 court. Each court has two team halves painted on the floor. You queue by standing in a half, and a scoreboard over the court shows the names. A court fills like a pickup game, which is fun to watch from the bleachers.
+- **Shop:** the pro shop and snack bar. **Locker:** a real team locker room with benches and named lockers. **Range:** shooting lanes behind net fences.
+- **Materials:** Wood floor variants, painted concrete block walls, steel trusses (Metal), rubber.
+- **Light:** bright, clean daylight with big hanging fixtures.
+- **Fun bits:** jump pads in the bleachers, a ball you can kick around the centre court.
+- **Blender:** the scoreboard, truss pieces and the bleacher seats. Everything else is Parts.
+- **Risk:** it can feel like a sports game more than a gun game. It needs gun touches: weapon displays, target art, team kit.
+
+### Concept 3: Warehouse hangout (skate-park club)
+- **The idea:** an old warehouse turned into a hangout and duel club, run by players for players.
+- **Look:** corrugated metal walls (Corrugated_01a / 02a), concrete floor, wooden ramps and quarter pipes made from angled plates (a perfect fit for our faceted rule), shipping containers turned into rooms, painted murals as decals.
+- **Spawn hub:** the main floor, with a skate bowl made of angled plates in the middle that you can run around while waiting.
+- **Duels area: "the container yard."** A stack of painted shipping containers along one wall, one per mode, each with a roll-up door and a mode sign. Bigger modes get double containers. You queue by standing inside, and the door rolls down as the match starts. A walkway on top lets people watch.
+- **Shop:** a container café-style counter. **Locker:** a container with a gun wall. **Range:** the loading bay with targets on pallets.
+- **Materials:** Corrugated, Concrete, Wood, Diamond Plate; graffiti-style signs and murals as Decals.
+- **Light:** work lamps and sky through roof panels, warm and gritty but clean.
+- **Fun bits:** ramps and rails for movement, a rooftop walkway.
+- **Blender:** containers (one mesh reused many times, with variants), ramps where Parts can't do the shape, and the roll-up doors.
+- **Risk:** can look run-down or cluttered. Keep it painted and tidy, with one colour per container.
+
+### My pick: Concept 1 inside Concept 3's building
+A laser-tag centre built inside a converted warehouse:
+- Corrugated metal and concrete shell, which uses the RIVALS-style variants you added.
+- Laser-tag airlocks as the duels area, sized and coloured per mode.
+- Arena window as the landmark, with a balcony to run on.
+
+It's indoors, fun, made for team shooting, and nothing about it reads as RIVALS or as a Gauntlet. It's almost all Parts; Blender is only for racks, vests, lights and the scoreboard frame.
+
+### ChatGPT image prompts (paste one per concept to get a look image before we build)
+1. *Stylised Roblox game lobby, interior of an indoor laser-tag centre built inside a converted warehouse: corrugated metal walls, painted concrete, rubber floor tiles, a big window wall looking down onto a plywood-barricade arena lit in blue and orange, a row of entry airlock doors of different sizes each with a coloured light and a small screen above, a raised check-in counter, warm house lights. Blocky faceted shapes, angled plates instead of curves, crisp cut edges, clean and bright, no text, no people, wide eye-level shot.*
+2. *Stylised Roblox game lobby, interior of an indoor sports dome: wood court floors with painted team-colour lines, bleachers, steel roof trusses, daylight through high windows, a big four-sided scoreboard hanging over the centre court, smaller side courts of different sizes, each with its own scoreboard. Blocky faceted shapes, crisp cut edges, clean and bright, no text, no people, wide eye-level shot.*
+3. *Stylised Roblox game lobby, interior of a warehouse hangout: corrugated metal walls, concrete floor, faceted wooden skate ramps made of flat angled plates, a stack of painted shipping containers with roll-up doors along one wall with a walkway on top, work lamps, painted murals. Blocky faceted shapes, crisp cut edges, clean, not run-down, no text, no people, wide eye-level shot.*
 
 ## 5. Phases
-1. **Concept board (now).** Owner picks A / B / C. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
+1. **Concept board (now).** Owner picks concept 1 / 2 / 3 (or a mix) and runs its image prompt. References in §7. Then the reference interview from [Model Style Interview](Model%20Style%20Interview.md) on 4-6 picked images.
 2. **Concept images.** ChatGPT prompts for the concourse and duels area (memory: concept first, owner approves before building).
 3. **Material and kit sheet in Studio.** A small test room built in Parts: the chosen variants, 3 wall bays, a floor, a trim, one gate, one pad. Owner signs off the look before any layout.
 4. **Grey blockout of the layout** in Parts (spawn, duels, shop, locker, range door), walk-time checks, captures.
@@ -75,7 +136,7 @@ The game: short run-and-gun duels, a draft of Mods every round, a weapon tier th
 - **roblox-map-builder** (the zip). **Proprietary licence: no sharing or redistribution.** This repo is public, so it is installed only in `~/.claude/skills/roblox-map-builder/` and is **not** copied into the vault or git. Safety check: 115 Python, 55 Lua, 14 shell files; no network, no shell calls, no HttpService or `loadstring`; the only `eval` calls run the user's own command-line expressions in its preview tools. Its main pipeline (headless Blender builds the whole map, one GLB per prop, a generated setup module) is the approach we're moving away from, and our rule is live Blender MCP only. Useful parts for V5: `references/layout_patterns.md` and `map_archetypes.md` (layout types), `quality_checklist.md` and `bug_gallery.md` (floating / clipping checks), the "Stud / Parts mode" section (wedge-chamfer tops, framed panels, "no bare blocks", no text built from Parts, one signature edge detail repeated on every ledge).
 
 ## 7. References (web search 2026-11-20; "opened" = page read, the rest from search results)
-**Tournament / backstage (concept A)**
+**Walkout and venue ideas (round-1 concept A, dropped; the walkout-door idea lives on in the airlocks)**
 - [THE FINALS wiki: Arenas](https://www.thefinals.wiki/wiki/Arenas) (opened): every space is a venue in one show. Take the framing, not the TV-glitz look.
 - [SVG: Inside OGN Super Arena](https://www.sportsvideo.org/2019/06/13/inside-ogn-super-arena-the-first-esports-venue-in-north-america-designed-specifically-for-battle-royale/) (opened): an LED walkout tunnel, and each player's station shows their name and stats. Take: a board over each gate showing who is queued.
 - [Populous: Etihad Tunnel Club](https://populous.com/project/etihad-stadium-expansion/): a glass wall looking onto the players' tunnel. Take: the lobby watches players walk out.
@@ -84,7 +145,7 @@ The game: short run-and-gun duels, a draft of Mods every round, a weapon tier th
 - [Core77: NBA locker room design](https://www.core77.com/posts/138228/A-Look-at-NBA-Locker-Room-Design) and [AHMM: NBA Performance Center](https://www.ahmm.co.uk/projects/americas/nba-professional-performance-center/): locker ring around one centre point; shop, locker and briefing as separate rooms.
 - [THE FINALS wiki: Sponsors](https://www.thefinals.wiki/wiki/Sponsors): fictional sponsors give rooms an identity (shop / locker branding).
 
-**Training compound (concept B)**
+**Shooting facilities (useful for the laser-tag arena and range)**
 - [Kill house](https://en.wikipedia.org/wiki/Kill_house), [Military Times: Shoot house](https://militarytimes.com/native/range-systems/2018/05/09/shoot-house-intel): observation catwalks over rooms, moving walls.
 - [Officer.com: Indoor range design](https://www.officer.com/training-careers/shooting-ranges-equipment/article/21226716/indoor-range-design-considerations): plywood-faced steel baffles, rubber, a range-master booth.
 - [Dexerto: Apex Firing Range overhaul](https://dexerto.com/apex-legends/apex-legends-firing-range-gets-massive-overhaul-in-season-17-with-new-map-1v1-pit-movement-practice-2128703) (opened): a dedicated 1v1 Duel Pit next to the range lanes.
